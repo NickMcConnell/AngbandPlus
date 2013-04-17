@@ -16,25 +16,25 @@
 /*
  * Global array for looping through the "keypad directions".
  */
-s16b ddd[9] =
+const s16b ddd[9] =
 { 2, 8, 6, 4, 3, 1, 9, 7, 5 };
 
 /*
  * Global arrays for converting "keypad direction" into "offsets".
  */
-s16b ddx[10] =
+const s16b ddx[10] =
 { 0, -1, 0, 1, -1, 0, 1, -1, 0, 1 };
 
-s16b ddy[10] =
+const s16b ddy[10] =
 { 0, 1, 1, 1, 0, 0, 0, -1, -1, -1 };
 
 /*
  * Global arrays for optimizing "ddx[ddd[i]]" and "ddy[ddd[i]]".
  */
-s16b ddx_ddd[9] =
+const s16b ddx_ddd[9] =
 { 0, 0, 1, -1, 1, -1, 1, -1, 0 };
 
-s16b ddy_ddd[9] =
+const s16b ddy_ddd[9] =
 { 1, -1, 0, 0, 1, 1, -1, -1, 0 };
 
 
@@ -42,7 +42,7 @@ s16b ddy_ddd[9] =
  * Global array for converting numbers to uppercase hecidecimal digit
  * This array can also be used to convert a number to an octal digit
  */
-char hexsym[16] =
+const char hexsym[16] =
 {
 	'0', '1', '2', '3', '4', '5', '6', '7',
 	'8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
@@ -52,7 +52,7 @@ char hexsym[16] =
 /*
  * Stat Table (INT/WIS) -- Number of half-spells per level
  */
-byte adj_mag_study[] =
+const byte adj_mag_study[] =
 {
 	0	/* 3 */,
 	0	/* 4 */,
@@ -98,7 +98,7 @@ byte adj_mag_study[] =
 /*
  * Stat Table (INT/WIS) -- extra half-mana-points per level
  */
-byte adj_mag_mana[] =
+const byte adj_mag_mana[] =
 {
 	0	/* 3 */,
 	0	/* 4 */,
@@ -144,7 +144,7 @@ byte adj_mag_mana[] =
 /*
  * Stat Table (INT/WIS) -- Minimum failure rate (percentage)
  */
-byte adj_mag_fail[] =
+const byte adj_mag_fail[] =
 {
 	99	/* 3 */,
 	99	/* 4 */,
@@ -190,7 +190,7 @@ byte adj_mag_fail[] =
 /*
  * Stat Table (INT/WIS) -- Various things
  */
-byte adj_mag_stat[] =
+const byte adj_mag_stat[] =
 {
 	0	/* 3 */,
 	0	/* 4 */,
@@ -236,7 +236,7 @@ byte adj_mag_stat[] =
 /*
  * Stat Table (CHR) -- payment percentages
  */
-byte adj_chr_gold[] =
+const byte adj_chr_gold[] =
 {
 	130	/* 3 */,
 	125	/* 4 */,
@@ -282,7 +282,7 @@ byte adj_chr_gold[] =
 /*
  * Stat Table (INT) -- Magic devices
  */
-byte adj_int_dev[] =
+const byte adj_int_dev[] =
 {
 	0	/* 3 */,
 	0	/* 4 */,
@@ -328,7 +328,7 @@ byte adj_int_dev[] =
 /*
  * Stat Table (WIS) -- Saving throw
  */
-byte adj_wis_sav[] =
+const byte adj_wis_sav[] =
 {
 	0	/* 3 */,
 	0	/* 4 */,
@@ -374,7 +374,7 @@ byte adj_wis_sav[] =
 /*
  * Stat Table (DEX) -- disarming
  */
-byte adj_dex_dis[] =
+const byte adj_dex_dis[] =
 {
 	0	/* 3 */,
 	0	/* 4 */,
@@ -420,7 +420,7 @@ byte adj_dex_dis[] =
 /*
  * Stat Table (INT) -- disarming
  */
-byte adj_int_dis[] =
+const byte adj_int_dis[] =
 {
 	0	/* 3 */,
 	0	/* 4 */,
@@ -466,7 +466,7 @@ byte adj_int_dis[] =
 /*
  * Stat Table (DEX) -- bonus to ac (plus 128)
  */
-byte adj_dex_ta[] =
+const byte adj_dex_ta[] =
 {
 	128 + -4	/* 3 */,
 	128 + -3	/* 4 */,
@@ -512,7 +512,7 @@ byte adj_dex_ta[] =
 /*
  * Stat Table (STR) -- bonus to dam (plus 128)
  */
-byte adj_str_td[] =
+const byte adj_str_td[] =
 {
 	128 + -2	/* 3 */,
 	128 + -2	/* 4 */,
@@ -558,7 +558,7 @@ byte adj_str_td[] =
 /*
  * Stat Table (DEX) -- bonus to hit (plus 128)
  */
-byte adj_dex_th[] =
+const byte adj_dex_th[] =
 {
 	128 + -3	/* 3 */,
 	128 + -2	/* 4 */,
@@ -604,7 +604,7 @@ byte adj_dex_th[] =
 /*
  * Stat Table (STR) -- bonus to hit (plus 128)
  */
-byte adj_str_th[] =
+const byte adj_str_th[] =
 {
 	128 + -3	/* 3 */,
 	128 + -2	/* 4 */,
@@ -650,7 +650,7 @@ byte adj_str_th[] =
 /*
  * Stat Table (STR) -- weight limit in deca-pounds
  */
-byte adj_str_wgt[] =
+const byte adj_str_wgt[] =
 {
 	5	/* 3 */,
 	6	/* 4 */,
@@ -696,7 +696,7 @@ byte adj_str_wgt[] =
 /*
  * Stat Table (STR) -- weapon weight limit in pounds
  */
-byte adj_str_hold[] =
+const byte adj_str_hold[] =
 {
 	4	/* 3 */,
 	5	/* 4 */,
@@ -742,7 +742,7 @@ byte adj_str_hold[] =
 /*
  * Stat Table (STR) -- digging value
  */
-byte adj_str_dig[] =
+const byte adj_str_dig[] =
 {
 	0	/* 3 */,
 	0	/* 4 */,
@@ -788,7 +788,7 @@ byte adj_str_dig[] =
 /*
  * Stat Table (STR) -- help index into the "blow" table
  */
-byte adj_str_blow[] =
+const byte adj_str_blow[] =
 {
 	3	/* 3 */,
 	4	/* 4 */,
@@ -834,7 +834,7 @@ byte adj_str_blow[] =
 /*
  * Stat Table (DEX) -- index into the "blow" table
  */
-byte adj_dex_blow[] =
+const byte adj_dex_blow[] =
 {
 	0	/* 3 */,
 	0	/* 4 */,
@@ -880,7 +880,7 @@ byte adj_dex_blow[] =
 /*
  * Stat Table (DEX) -- chance of avoiding "theft" and "falling"
  */
-byte adj_dex_safe[] =
+const byte adj_dex_safe[] =
 {
 	0	/* 3 */,
 	1	/* 4 */,
@@ -926,7 +926,7 @@ byte adj_dex_safe[] =
 /*
  * Stat Table (CON) -- base regeneration rate
  */
-byte adj_con_fix[] =
+const byte adj_con_fix[] =
 {
 	0	/* 3 */,
 	0	/* 4 */,
@@ -972,7 +972,7 @@ byte adj_con_fix[] =
 /*
  * Stat Table (CON) -- extra half-hitpoints per level (plus 128)
  */
-byte adj_con_mhp[] =
+const byte adj_con_mhp[] =
 {
 	128 + -5	/* 3 */,
 	128 + -3	/* 4 */,
@@ -1042,75 +1042,47 @@ byte adj_con_mhp[] =
  * The player gets "blows_table[P][D]" blows/round, as shown below,
  * up to a maximum of "num" blows/round, plus any "bonus" blows/round.
  */
-byte blows_table[12][12] =
+const byte blows_table[12][12] =
 {
 	/* P/D */
-	/*		0,   1,   2,   3,   4,   5,   6,   7,   8,   9,  10,  11+ */
-	/*		3	10  /10  /50  /70  /90 /100 /110 /120 /130 /140 /150  */
-/* 0 */{	1,   1,   1,   1,   1,   2,   2,   2,   2,   3,   3,   4 },
-/* 1 */{	1,   1,   1,   2,   2,   2,   3,   3,   3,   4,   4,   5 },
-/* 2 */{	1,   1,   2,   2,   3,   3,   4,   4,   4,   5,   5,   5 },
-/* 3 */{	1,   1,   2,   3,   3,   4,   4,   4,   5,   5,   5,   5 },
-/* 4 */{	1,   1,   2,   3,   3,   4,   4,   5,   5,   5,   5,   5 },
-/* 5 */{	1,   1,   3,   3,   4,   4,   4,   5,   5,   5,   5,   6 },
-/* 6 */{	1,   1,   3,   3,   4,   4,   4,   5,   5,   5,   5,   6 },
-/* 7 */{	1,   2,   3,   4,   4,   4,   4,   5,   5,   5,   5,   6 },
-/* 8 */{	1,   2,   3,   4,   4,   4,   4,   5,   5,   5,   6,   6 },
-/* 9 */{	1,   2,   4,   4,   4,   4,   5,   5,   5,   5,   6,   6 },
-/* 10*/{	2,   2,   4,   4,   4,   4,   5,   5,   5,   6,   6,   6 },
-/*11+*/{	2,   3,   4,   4,   4,   5,   5,   5,   6,   6,   6,   6 },
+	/* 0,   1,   2,   3,   4,   5,   6,   7,   8,   9,  10,  11+ */
 
+	/* 0  */
+	{  1,   1,   1,   1,   1,   1,   2,   2,   2,   2,   2,   3 },
+
+	/* 1  */
+	{  1,   1,   1,   1,   2,   2,   3,   3,   3,   4,   4,   4 },
+
+	/* 2  */
+	{  1,   1,   2,   2,   3,   3,   4,   4,   4,   5,   5,   5 },
+
+	/* 3  */
+	{  1,   2,   2,   3,   3,   4,   4,   4,   5,   5,   5,   5 },
+
+	/* 4  */
+	{  1,   2,   2,   3,   3,   4,   4,   5,   5,   5,   5,   5 },
+
+	/* 5  */
+	{  2,   2,   3,   3,   4,   4,   5,   5,   5,   5,   5,   6 },
+
+	/* 6  */
+	{  2,   2,   3,   3,   4,   4,   5,   5,   5,   5,   5,   6 },
+
+	/* 7  */
+	{  2,   3,   3,   4,   4,   4,   5,   5,   5,   5,   5,   6 },
+
+	/* 8  */
+	{  3,   3,   3,   4,   4,   4,   5,   5,   5,   5,   6,   6 },
+
+	/* 9  */
+	{  3,   3,   4,   4,   4,   4,   5,   5,   5,   5,   6,   6 },
+
+	/* 10 */
+	{  3,   3,   4,   4,   4,   4,   5,   5,   5,   6,   6,   6 },
+
+	/* 11+ */
+	{  3,   3,   4,   4,   4,   4,   5,   5,   6,   6,   6,   6 },
 };
-
-
-#if 0
-
-/*
- * This is the "old" table used to calculate multiple blows.
- *
- * Note that this table used a different indexing scheme to determine "P"
- */
-
-byte old_blows_table[11][12] =
-{
-	/* P/D */
-	/* 3,  10, /01, /50, /90,/100,/101,/110,/120,/130,/140,/150 */
-
-	/* 0+ */
-	{  1,   1,   1,   1,   1,   1,   2,   2,   2,   2,   2,   3},
-
-	/* 2+ */
-	{  1,   1,   1,   1,   2,   2,   3,   3,   3,   3,   3,   4},
-
-	/* 3+ */
-	{  1,   1,   1,   2,   2,   3,   4,   4,   4,   4,   4,   5},
-
-	/* 4+ */
-	{  1,   1,   2,   2,   3,   3,   4,   4,   4,   5,   5,   5},
-
-	/* 6+ */
-	{  1,   2,   2,   3,   3,   4,   4,   4,   5,   5,   5,   5},
-
-	/* 8+ */
-	{  1,   2,   2,   3,   4,   4,   4,   5,   5,   5,   5,   5},
-
-	/* 10+ */
-	{  2,   2,   3,   3,   4,   4,   5,   5,   5,   5,   5,   6},
-
-	/* 13+ */
-	{  2,   3,   3,   3,   4,   4,   5,   5,   5,   5,   5,   6},
-
-	/* 15+ */
-	{  3,   3,   3,   4,   4,   4,   5,   5,   5,   5,   6,   6},
-
-	/* 18+ */
-	{  3,   3,   3,   4,   4,   4,   5,   5,   5,   5,   6,   6},
-
-	/* 20+ */
-	{  3,   3,   4,   4,   4,   4,   5,   5,   5,   6,   6,   6}
-};
-
-#endif
 
 
 /*
@@ -1136,7 +1108,7 @@ byte old_blows_table[11][12] =
  * the (compiled out) small random energy boost code.  It may
  * also tend to cause more "clumping" at high speeds.
  */
-byte extract_energy[200] =
+const byte extract_energy[200] =
 {
 	/* Slow */     1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
 	/* Slow */     1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
@@ -1169,7 +1141,7 @@ byte extract_energy[200] =
 /*
  * Base experience levels, may be adjusted up for race and/or class
  */
-s32b player_exp[PY_MAX_LEVEL] =
+const s32b player_exp[PY_MAX_LEVEL] =
 {
 	10,
 	25,
@@ -1230,7 +1202,7 @@ s32b player_exp[PY_MAX_LEVEL] =
  *	Title,
  *	Winner
  */
-player_sex sex_info[MAX_SEXES] =
+const player_sex sex_info[MAX_SEXES] =
 {
 	{
 		"Female",
@@ -1245,844 +1217,13 @@ player_sex sex_info[MAX_SEXES] =
 
 
 /*
- * Player Classes
- *
- *	Title,
- *	{STR,INT,WIS,DEX,CON,CHR},
- *	c_dis, c_dev, c_sav, c_stl, c_srh, c_fos, c_thn, c_thb,
- *	x_dis, x_dev, x_sav, x_stl, x_srh, x_fos, x_thn, x_thb,
- *	HD, Exp
- */
-player_class class_info[MAX_CLASS] =
-{
-	{
-		"Warrior",
-		{ 5, -2, -2, 2, 2, -1},
-		25, 18, 18, 1,  14, 2, 70, 55,
-		10, 7,  10, 0,  0,  0,  45, 45,
-		9,  0
-	},
-
-	{
-		"Mage",
-		{-5, 3, 0, 1, -2, 1},
-		30, 36, 30, 2,  16, 20, 34, 20,
-		7,  13, 9,  0,  0,  0,  15, 15,
-		0, 30
-	},
-
-	{
-		"Priest",
-		{-1, -3, 3, -1, 0, 2},
-		25, 30, 32, 2,  16, 8, 48, 35,
-		7,  10, 12, 0,  0,  0, 20, 20,
-		2, 20
-	},
-
-	{
-		"Rogue",
-		{ 1, 1, -2, 3, 0, -1},
-		45, 32, 28, 5, 32, 24, 60, 66,
-		15, 10, 10, 2,  0,  0, 40, 30,
-		6, 25
-	},
-
-	{
-		"Ranger",
-		{ 2, 2, 0, 1, 1, 1},
-		30, 32, 28, 3,  24, 16, 56, 72,
-		8,  10, 10, 0,  0,  0,  30, 45,
-		4, 30
-	},
-
-	{
-		"Paladin",
-		{ 3, -3, 1, 0, 2, 2},
-		20, 24, 25, 1,  12, 2, 68, 40,
-		7,  10, 11, 0,  0,  0,  35, 30,
-		6, 35
-	}
-};
-
-
-
-
-
-
-/*
- * Hack -- the spell information table.
- *
- *   Class Name
- *
- *   Spell Book
- *   Spell Xtra
- *
- *   Spell Stat,
- *   Spell Type,
- *
- *   Spell Level,
- *   Spell Encumbrance,
- *
- *   Array of { Lev, Mana, Fail, Exp/Lev }
- */
-player_magic magic_info[MAX_CLASS] =
-{
-	{
-		/*** Warrior ***/
-
-		0,
-		0,
-
-		A_STR,
-		0,
-
-		99,
-		0,
-
-		{
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0}
-		}
-	},
-
-	{
-		/*** Mage ***/
-
-		TV_MAGIC_BOOK,
-		0,
-
-		A_INT,
-		0,
-
-		1,
-		300,
-
-		{
-			{  1,  1, 22,   4},
-			{  1,  1, 23,   4},
-			{  1,  2, 24,   4},
-			{  1,  2, 26,   4},
-			{ 99,  0,  0,   0},
-			{  3,  3, 25,   3},
-			{ 99,  0,  0,   0},
-			{  3,  3, 25,   1},
-			{  3,  3, 27,   3},
-
-			{  3,  4, 30,   1},
-			{  5,  4, 30,   4},
-			{  5,  5, 30,   6},
-			{  5,  5, 30,   4},
-			{  5,  5, 35,   4},
-			{  7,  6, 35,   5},
-			{  7,  6, 30,   5},
-			{  7,  6, 40,   6},
-			{  9,  7, 44,   8},
-
-			{  9,  7, 45,   8},
-			{  9,  7, 75,   9},
-			{  9,  7, 45,   8},
-			{ 11,  7, 45,   9},
-			{ 11,  7, 75,   6},
-			{ 13,  7, 50,   6},
-			{ 15,  9, 50,   6},
-			{ 17,  9, 50,   7},
-
-			{ 19, 12, 55,   8},
-			{ 21, 12, 90,   8},
-			{ 23, 12, 60,   8},
-			{ 25, 12, 65,  10},
-			{ 29, 18, 65,  12},
-			{ 33, 21, 80,  15},
-			{ 37, 25, 95,  21},
-
-			{  7,  7, 20,  28},
-			{  9, 12, 40,  44},
-			{ 15, 17, 60,  29},
-			{ 20, 18, 60,  24},
-			{ 25, 25, 75,  19},
-
-			{ 10,  6, 50,  12},
-			{ 12,  9, 60,  16},
-			{ 20, 15, 70,  20},
-			{ 27, 25, 75,  29},
-			{ 35, 35, 85,  34},
-			{ 42, 45, 95, 200},
-
-			{ 5,  5,  50,   8},
-			{ 10, 10, 70,  40},
-			{ 25, 30, 95, 160},
-			{ 30, 50, 70,  40},
-			{ 40, 75, 80, 100},
-
-			{  4,  5, 50,  20},
-			{  4,  5, 50,  20},
-			{  4,  5, 50,  20},
-			{  8, 10, 75,  40},
-			{ 15, 20, 85,  60},
-
-			{  5,  5, 50,  80},
-			{ 10, 12, 75, 120},
-			{ 15, 20, 80, 200},
-			{ 22, 30, 50, 250},	/* 350 */
-			{ 45, 70, 75, 250},	/* 450 */
-
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0}
-		}
-	},
-
-	{
-		/*** Priest ***/
-
-		TV_PRAYER_BOOK,
-		0,
-
-		A_WIS,
-		1,
-
-		1,
-		350,
-
-		{
-			{  1,  1, 10,   4},
-			{  1,  2, 15,   4},
-			{  1,  2, 20,   4},
-			{  1,  2, 25,   4},
-			{  3,  2, 25,   1},
-			{  3,  3, 27,   2},
-			{  3,  3, 27,   2},
-			{  3,  3, 28,   4},
-
-			{  5,  4, 29,   3},
-			{  5,  4, 30,   4},
-			{  5,  4, 32,   4},
-			{  5,  5, 34,   4},
-			{  7,  5, 36,   3},
-			{  7,  5, 38,   4},
-			{  7,  6, 38,   5},
-			{  7,  7, 38,   5},
-
-			{  9,  6, 38,   4},
-			{  9,  7, 38,   4},
-			{  9,  7, 40,   4},
-			{ 11,  8, 42,   4},
-			{ 11,  8, 42,   4},
-			{ 11,  9, 55,   5},
-			{ 13, 10, 45,   4},
-			{ 13, 11, 45,   4},
-			{ 15, 12, 50,   5},
-
-			{ 15, 14, 50,   5},
-			{ 17, 14, 55,   7},
-			{ 21, 16, 60,   7},
-			{ 25, 20, 70,  12},
-			{ 33, 55, 90,  15},
-			{ 39, 32, 95,  20},
-
-			{  3,  3, 50,   2},
-			{ 10, 10, 80,  20},
-			{ 20, 20, 80,  20},
-			{ 25, 10, 80, 150},
-			{ 35, 50, 80, 230},
-
-			{ 15,  5, 50,  25},
-			{ 17,  7, 60,  45},
-			{ 30, 50, 80, 130},
-			{ 35, 70, 90, 230},
-			{ 35, 70, 90, 250},	/* 350 */
-
-			{ 15,  7, 70,  25},
-			{ 20, 10, 75,  60},
-			{ 25, 25, 80, 250},
-			{ 35, 35, 80, 115},
-			{ 45, 60, 75, 250},	/* 350 */
-
-			{  5,  6, 50,  40},
-			{ 15, 20, 80,  25},
-			{ 25, 40, 80, 160},
-			{ 35, 50, 80, 230},
-			{ 37, 60, 85, 250},	/* 325 */
-			{ 45, 95, 85, 250},	/* 530 */
-
-			{  3,  3, 50,   6},
-			{ 10, 10, 50,   8},
-			{ 20, 20, 80,  16},
-			{ 30, 40, 75, 133},
-			{ 35, 50, 75,  11},
-			{ 40, 60, 75, 250},	/* 300 */
-
-			{ 99,  0,  0,    0},
-			{ 99,  0,  0,    0},
-			{ 99,  0,  0,    0},
-			{ 99,  0,  0,    0},
-			{ 99,  0,  0,    0},
-			{ 99,  0,  0,    0}
-		}
-	},
-
-	{
-		/*** Rogue ***/
-
-		TV_MAGIC_BOOK,
-		0,
-
-		A_INT,
-		0,
-
-		5,
-		350,
-
-		{
-			{ 99,  0,  0,   0},
-			{  5,  1, 50,   1},
-			{  7,  2, 55,   1},
-			{  9,  3, 60,   1},
-			{ 10,  3, 60,   1},
-			{ 11,  4, 65,   1},
-			{ 12,  4, 65,   1},
-			{ 13,  5, 70,   1},
-			{ 99,  0,  0,   0},
-
-			{ 15,  6, 75,   1},
-			{ 99,  0,  0,   0},
-			{ 17,  7, 80,   1},
-			{ 19,  8, 85,   1},
-			{ 21,  9, 90,   1},
-			{ 22,  9, 50,   1},
-			{ 23, 10, 95,   1},
-			{ 99,  0,  0,   0},
-			{ 24, 11, 70,   1},
-
-			{ 25, 12, 95,   1},
-			{ 27, 15, 99,   1},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 28, 18, 50,   2},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-
-			{ 99,  0,  0,   0},
-			{ 30, 20, 99,   6},
-			{ 99,  0,  0,   0},
-			{ 32, 25, 70,   6},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-
-			{  7,  7, 20,  25},
-			{  9, 12, 40,  45},
-			{ 15, 17, 60,  30},
-			{ 99,  0,  0,   0},
-			{ 30, 35, 75,  15},
-
-			{ 13, 16, 50,  10},
-			{ 18, 20, 60,  10},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-
-			{  5,  5, 50,  10},
-			{ 10, 10, 70,  40},
-			{ 35, 40, 95, 100},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-
-			{ 10, 12, 50,  40},
-			{ 10, 12, 50,  40},
-			{ 10, 12, 50,  40},
-			{ 15, 20, 75,  60},
-			{ 25, 30, 85,  80},
-
-			{ 10, 11, 50,  40},
-			{ 15, 20, 75,  80},
-			{ 20, 25, 80, 160},
-			{ 26, 30, 50, 250},
-			{ 99,  0,  0,   0},
-
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0}
-		}
-	},
-
-	{
-		/*** Ranger ***/
-
-		TV_MAGIC_BOOK,
-		0,
-
-		A_INT,
-		0,
-
-		3,
-		400,
-
-		{
-			{  3,  1, 30,   1},
-			{  3,  2, 35,   2},
-			{  3,  2, 35,   2},
-			{  5,  3, 35,   1},
-			{ 99,  0,  0,   0},
-			{  5,  3, 40,   1},
-			{ 99,  0,  0,   0},
-			{  5,  4, 45,   2},
-			{  7,  5, 40,   3},
-
-			{  7,  6, 40,   2},
-			{  9,  7, 40,   3},
-			{  9,  8, 45,   3},
-			{ 11,  8, 40,   3},
-			{ 11,  9, 45,   3},
-			{ 13, 10, 45,   3},
-			{ 13, 11, 55,   4},
-			{ 15, 12, 50,   4},
-			{ 15, 13, 50,   4},
-
-			{ 17, 17, 55,   3},
-			{ 17, 17, 90,   4},
-			{ 21, 17, 55,   3},
-			{ 21, 19, 60,   3},
-			{ 23, 25, 90,   3},
-			{ 23, 20, 60,   3},
-			{ 25, 20, 60,   3},
-			{ 25, 21, 65,   3},
-
-			{ 27, 21, 65,   3},
-			{ 29, 23, 95,   3},
-			{ 31, 25, 70,   3},
-			{ 33, 25, 75,   4},
-			{ 35, 25, 80,   5},
-			{ 37, 30, 95,  10},
-			{ 99,  0,  0,   0},
-
-			{ 8,  17, 20,  25},
-			{ 19, 22, 40,  21},
-			{ 25, 27, 60,  17},
-			{ 30, 28, 60,  16},
-			{ 35, 35, 75,  13},
-
-			{ 20, 16, 50,   6},
-			{ 22, 19, 60,   9},
-			{ 30, 25, 70,  13},
-			{ 33, 35, 75,  25},
-			{ 35, 45, 85,  35},
-			{ 99,  0, 0,    0},
-
-			{ 10, 15, 50,   4},
-			{ 15, 20, 70,  25},
-			{ 35, 60, 95, 115},
-			{ 99,  0, 0,    0},
-			{ 99,  0, 0,    0},
-
-			{ 8, 15,  50,  30},
-			{ 8, 15,  50,  30},
-			{ 8, 15,  50,  30},
-			{ 16, 25, 75,  50},
-			{ 25, 40, 85,  70},
-
-			{ 10, 15, 50,  40},
-			{ 15, 20, 75,  80},
-			{ 25, 30, 80, 125},
-			{ 32, 50, 50, 250},
-			{ 99,  0,  0,   0},
-
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0}
-		}
-	},
-
-	{
-		/*** Paladin ***/
-
-		TV_PRAYER_BOOK,
-		0,
-
-		A_WIS,
-		1,
-
-		1,
-		400,
-
-		{
-			{  1,  1, 30,   4},
-			{  2,  2, 35,   4},
-			{  3,  3, 35,   4},
-			{  5,  3, 35,   4},
-			{  5,  4, 35,   4},
-			{  7,  5, 40,   3},
-			{  7,  5, 40,   3},
-			{  9,  7, 40,   3},
-			{  9,  7, 40,   3},
-			{  9,  8, 40,   3},
-			{ 11,  9, 40,   3},
-			{ 11, 10, 45,   3},
-			{ 11, 10, 45,   3},
-			{ 13, 10, 45,   3},
-			{ 13, 11, 45,   4},
-			{ 15, 13, 45,   4},
-			{ 15, 15, 50,   4},
-			{ 17, 15, 50,   4},
-			{ 17, 15, 50,   4},
-			{ 19, 15, 50,   4},
-			{ 19, 15, 50,   4},
-			{ 21, 17, 50,   3},
-			{ 23, 17, 50,   3},
-			{ 25, 20, 50,   3},
-			{ 27, 21, 50,   3},
-			{ 29, 22, 50,   3},
-			{ 31, 24, 60,   3},
-			{ 33, 28, 60,   3},
-			{ 35, 32, 70,   4},
-			{ 37, 70, 90,   5},
-			{ 39, 38, 95,  10},
-
-			{ 5,  5,  50,   1},
-			{ 15, 15, 80,  12},
-			{ 25, 25, 80,  16},
-			{ 30, 15, 80, 135},
-			{ 37, 55, 80, 215},
-
-			{ 17, 15, 50,  25},
-			{ 23, 25, 60,  35},
-			{ 35, 60, 80, 115},
-			{ 40, 80, 90, 200},
-			{ 40, 80, 90, 250},	/* 300 */
-
-			{ 20, 13, 70,  20},
-			{ 30, 20, 75,  40},
-			{ 30, 35, 80, 200},
-			{ 40, 40, 80, 100},
-			{ 47, 70, 75, 250},	/* 350 */
-
-			{ 10, 16, 50,  20},
-			{ 25, 30, 80,  15},
-			{ 30, 50, 80, 130},
-			{ 40, 70, 80, 200},
-			{ 42, 80, 85, 250},	/* 285 */
-			{ 47, 95, 85, 250},	/* 500 */
-
-			{  7,  7, 50,   2},
-			{ 20, 20, 50,   4},
-			{ 25, 25, 80,  12},
-			{ 35, 50, 75, 115},
-			{ 40, 60, 75,  10},
-			{ 45, 70, 75, 250},
-
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0},
-			{ 99,  0,  0,   0}
-		}
-	}
-};
-
-
-/*
- * Spells in each book (mage spells then priest spells)
- */
-u32b spell_flags[2][9][2] =
-{
-	{
-		/*** Mage spell books ***/
-		{ 0x000001ff, 0x00000000 },
-		{ 0x0003fe00, 0x00000000 },
-		{ 0x03fc0000, 0x00000000 },
-		{ 0xfc000000, 0x00000001 },
-		{ 0x00000000, 0x003e0000 },
-		{ 0x00000000, 0x0000003e },
-		{ 0x00000000, 0x0001f000 },
-		{ 0x00000000, 0x07c00000 },
-		{ 0x00000000, 0x00000fc0 }
-	},
-
-	{
-		/*** Priest spell books ***/
-		{ 0x000000ff, 0x00000000 },
-		{ 0x0000ff00, 0x00000000 },
-		{ 0x01ff0000, 0x00000000 },
-		{ 0x7e000000, 0x00000000 },
-		{ 0x00000000, 0x03f00000 },
-		{ 0x80000000, 0x0000000f },
-		{ 0x00000000, 0x000001f0 },
-		{ 0x00000000, 0x000fc000 },
-		{ 0x00000000, 0x00003e00 }
-	}
-};
-
-
-/*
- * Names of the spells (mage spells then priest spells)
- */
-cptr spell_names[2][64] =
-{
-	/*** Mage Spells ***/
-
-	{
-		/* Magic for Beginners (sval 0) */
-		"Magic Missile",
-		"Detect Monsters",
-		"Phase Door",
-		"Light Area",
-		"Treasure Detection",
-		"Cure Light Wounds",
-		"Object Detection",
-		"Find Hidden Traps/Doors",
-		"Stinking Cloud",
-
-		/* Conjurings and Tricks (sval 1) */
-		"Confuse Monster",
-		"Lightning Bolt",
-		"Trap/Door Destruction",
-		"Sleep I",
-		"Cure Poison",
-		"Teleport Self",
-		"Spear of Light",
-		"Frost Bolt",
-		"Turn Stone to Mud",
-
-		/* Incantations and Illusions (sval 2) */
-		"Satisfy Hunger",
-		"Recharge Item I",
-		"Sleep II",
-		"Polymorph Other",
-		"Identify",
-		"Sleep III",
-		"Fire Bolt",
-		"Slow Monster",
-
-		/* Sorcery and Evocations (sval 3) */
-		"Frost Ball",
-		"Recharge Item II",
-		"Teleport Other",
-		"Haste Self",
-		"Fire Ball",
-		"Word of Destruction",
-		"Genocide",
-
-		/* Mordenkainen's Escapes (sval 5) */
-		"Door Creation",
-		"Stair Creation",
-		"Teleport Level",
-		"Earthquake",
-		"Word of Recall",
-
-		/* Raal's Tome of Destruction (sval 8) */
-		"Acid Bolt",
-		"Cloud Kill",
-		"Acid Ball",
-		"Ice Storm",
-		"Meteor Swarm",
-		"Mana Storm",
-
-		/* Kelek's Grimoire of Power (sval 6) */
-		"Detect Evil",
-		"Detect Enchantment",
-		"Recharge Item III",
-		"Genocide",
-		"Mass Genocide",
-
-		/* Resistance of Scarabtarices (sval 4) */
-		"Resist Fire",
-		"Resist Cold",
-		"Resist Acid",
-		"Resist Poison",
-		"Resistance",
-
-		/* Tenser's transformations... (sval 7) */
-		"Heroism",
-		"Shield",
-		"Berserker",
-		"Essence of Speed",
-		"Globe of Invulnerability",
-
-		"(blank)",
-		"(blank)",
-		"(blank)",
-		"(blank)",
-		"(blank)"
-	},
-
-
-	/*** Priest Spells ***/
-
-	{
-		/* Beginners Handbook (sval 0) */
-		"Detect Evil",
-		"Cure Light Wounds",
-		"Bless",
-		"Remove Fear",
-		"Call Light",
-		"Find Traps",
-		"Detect Doors/Stairs",
-		"Slow Poison",
-
-		/* Words of Wisdom (sval 1) */
-		"Scare Monster",
-		"Portal",
-		"Cure Serious Wounds",
-		"Chant",
-		"Sanctuary",
-		"Satisfy Hunger",
-		"Remove Curse",
-		"Resist Heat and Cold",
-
-		/* Chants and Blessings (sval 2) */
-		"Neutralize Poison",
-		"Orb of Draining",
-		"Cure Critical Wounds",
-		"Sense Invisible",
-		"Protection from Evil",
-		"Earthquake",
-		"Sense Surroundings",
-		"Cure Mortal Wounds",
-		"Turn Undead",
-
-		/* Exorcism and Dispelling (sval 3) */
-		"Prayer",
-		"Dispel Undead",
-		"Heal",
-		"Dispel Evil",
-		"Glyph of Warding",
-		"Holy Word",
-
-		/* Godly Insights... (sval 5) */
-		"Detect Monsters",
-		"Detection",
-		"Perception",
-		"Probing",
-		"Clairvoyance",
-
-		/* Purifications and Healing (sval 6) */
-		"Cure Serious Wounds",
-		"Cure Mortal Wounds",
-		"Healing",
-		"Restoration",
-		"Remembrance",
-
-		/* Wrath of God (sval 8) */
-		"Dispel Undead",
-		"Dispel Evil",
-		"Banishment",
-		"Word of Destruction",
-		"Annihilation",
-
-		/* Holy Infusions (sval 7) */
-		"Unbarring Ways",
-		"Recharging",
-		"Dispel Curse",
-		"Enchant Weapon",
-		"Enchant Armour",
-		"Elemental Brand",
-
-		/* Ethereal openings (sval 4) */
-		"Blink",
-		"Teleport Self",
-		"Teleport Other",
-		"Teleport Level",
-		"Word of Recall",
-		"Alter Reality",
-
-		"(blank)",
-		"(blank)",
-		"(blank)",
-		"(blank)",
-		"(blank)"
-	}
-};
-
-
-
-/*
  * Each chest has a certain set of traps, determined by pval
  * Each chest has a "pval" from 1 to the chest level (max 55)
  * If the "pval" is negative then the trap has been disarmed
  * The "pval" of a chest determines the quality of its treasure
  * Note that disarming a trap on a chest also removes the lock.
  */
-byte chest_traps[64] =
+const byte chest_traps[64] =
 {
 	0,					/* 0 == empty */
 	(CHEST_POISON),
@@ -2151,107 +1292,6 @@ byte chest_traps[64] =
 };
 
 
-
-
-
-
-
-
-/*
- * Class titles for the player.
- *
- * The player gets a new title every five levels, so each class
- * needs only ten titles total.
- */
-cptr player_title[MAX_CLASS][PY_MAX_LEVEL/5] =
-{
-	/* Warrior */
-	{
-		"Rookie",
-		"Soldier",
-		"Mercenary",
-		"Veteran",
-		"Swordsman",
-		"Champion",
-		"Hero",
-		"Baron",
-		"Duke",
-		"Lord",
-	},
-
-	/* Mage */
-	{
-		"Novice",
-		"Apprentice",
-		"Trickster",
-		"Illusionist",
-		"Spellbinder",
-		"Evoker",
-		"Conjurer",
-		"Warlock",
-		"Sorcerer",
-		"Mage Lord",
-	},
-
-	/* Priest */
-	{
-		"Believer",
-		"Acolyte",
-		"Adept",
-		"Curate",
-		"Canon",
-		"Lama",
-		"Patriarch",
-		"Priest",
-		"High Priest",
-		"Priest Lord",
-	},
-
-	/* Rogues */
-	{
-		"Vagabond",
-		"Cutpurse",
-		"Robber",
-		"Burglar",
-		"Filcher",
-		"Sharper",
-		"Low Thief",
-		"High Thief",
-		"Master Thief",
-		"Assassin",
-	},
-
-	/* Rangers */
-	{
-		"Runner",
-		"Strider",
-		"Scout",
-		"Courser",
-		"Tracker",
-		"Guide",
-		"Pathfinder",
-		"Low Ranger",
-		"High Ranger",
-		"Ranger Lord",
-	},
-
-	/* Paladins */
-	{
-		"Gallant",
-		"Keeper",
-		"Protector",
-		"Defender",
-		"Warder",
-		"Knight",
-		"Guardian",
-		"Low Paladin",
-		"High Paladin",
-		"Paladin Lord",
-	}
-};
-
-
-
 /*
  * Hack -- the "basic" color names (see "TERM_xxx")
  */
@@ -2279,7 +1319,7 @@ cptr color_names[16] =
 /*
  * Abbreviations of healthy stats
  */
-cptr stat_names[6] =
+cptr stat_names[A_MAX] =
 {
 	"STR: ", "INT: ", "WIS: ", "DEX: ", "CON: ", "CHR: "
 };
@@ -2287,9 +1327,22 @@ cptr stat_names[6] =
 /*
  * Abbreviations of damaged stats
  */
-cptr stat_names_reduced[6] =
+cptr stat_names_reduced[A_MAX] =
 {
 	"Str: ", "Int: ", "Wis: ", "Dex: ", "Con: ", "Chr: "
+};
+
+/*
+ * Full stat names
+ */
+cptr stat_names_full[A_MAX] =
+{
+	"strength",
+	"intelligence",
+	"wisdom",
+	"dexterity",
+	"constitution",
+	"charisma"
 };
 
 
@@ -2315,8 +1368,8 @@ cptr window_flag_desc[32] =
 	"Display object recall",
 	NULL,
 	"Display snap-shot",
-	NULL,
-	NULL,
+	"Display script variables",
+	"Display script source",
 	"Display borg messages",
 	"Display borg status",
 	NULL,
@@ -2368,15 +1421,15 @@ cptr option_text[OPT_MAX] =
 	"disturb_panel",			/* OPT_disturb_panel */
 	"disturb_state",			/* OPT_disturb_state */
 	"disturb_minor",			/* OPT_disturb_minor */
-	"disturb_other",			/* OPT_disturb_other */
-	"alert_hitpoint",			/* OPT_alert_hitpoint */
-	"alert_failure",			/* OPT_alert_failure */
+	NULL,						/* xxx disturb_other */
+	NULL,						/* xxx alert_hitpoint */
+	NULL,						/* xxx alert_failure */
 	"verify_destroy",			/* OPT_verify_destroy */
 	"verify_special",			/* OPT_verify_special */
 	"allow_quantity",			/* OPT_allow_quantity */
 	NULL,						/* xxx */
 	"auto_haggle",				/* OPT_auto_haggle */
-	"allow_destroyed",			/* OPT_allow_destroyed */
+	"allow_destroyed",			/* ~ OPT_allow_destroyed */
 	NULL,						/* xxx testing_stack */
 	NULL,						/* xxx testing_carry */
 	"expand_look",				/* OPT_expand_look */
@@ -2472,17 +1525,17 @@ cptr option_text[OPT_MAX] =
 	NULL,						/* xxx */
 	NULL,						/* xxx */
 	"birth_point_based",		/* OPT_birth_point_based */
-	"birth_auto_roller",		/* OPT_birth_auto_roller */
+	"birth_auto_roller",		/* ~ OPT_birth_auto_roller */
 	"birth_maximize",			/* OPT_birth_maximize */
 	"birth_preserve",			/* OPT_birth_preserve */
 	"birth_ironman",			/* OPT_birth_ironman */
 	"birth_no_stores",			/* OPT_birth_no_stores */
 	"birth_no_artifacts",		/* OPT_birth_no_artifacts */
 	"birth_rand_artifacts",		/* OPT_birth_rand_artifacts */
-	"birth_auto_scum",				/* OPT_birth_auto_scum */
-	"birth_quick_rol",			/* OPT_birth_quick_roll */
-	"birth_nightmare_mode",		/* OPT_birth_nightmare_mode */
-	NULL,						/* xxx */
+	"birth_no_stacking",		/* OPT_birth_no_stacking */
+	"birth_auto_scum",		/* ~ OPT_birth_auto_scum */
+	"birth_quick_roll",		/* ~ OPT_birth_quick_roll */
+	"birth_nightmare_mode",		/* ~ OPT_birth_nightmare_mode */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
@@ -2543,10 +1596,10 @@ cptr option_text[OPT_MAX] =
 	"adult_no_stores",			/* OPT_adult_no_stores */
 	"adult_no_artifacts",		/* OPT_adult_no_artifacts */
 	"adult_rand_artifacts",		/* OPT_adult_rand_artifacts */
-	"adult_auto_scum",			/* OPT_adult_auto_scum */
-	"adult_quick_roll",			/* OPT_quick_roll */
-	"adult_nightmare_mode",		/* OPT_nightmare_mode */
-	NULL,						/* xxx */
+	"adult_no_stacking",		/* OPT_adult_no_stacking */
+	"adult_auto_scum",		/* ~ OPT_adult_auto_scum */
+	"adult_quick_roll",		/* ~ OPT_quick_roll */
+	"adult_nightmare_mode",		/* ~ OPT_nightmare_mode */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
@@ -2632,15 +1685,15 @@ cptr option_desc[OPT_MAX] =
 	"Disturb whenever map panel changes",		/* OPT_disturb_panel */
 	"Disturb whenever player state changes",	/* OPT_disturb_state */
 	"Disturb whenever boring things happen",	/* OPT_disturb_minor */
-	"Disturb whenever various things happen",	/* OPT_disturb_other */
-	"Alert user to critical hitpoints",			/* OPT_alert_hitpoint */
-	"Alert user to various failures",			/* OPT_alert_failure */
+	NULL,										/* xxx disturb_other */
+	NULL,										/* xxx alert_hitpoint */
+	NULL,										/* xxx alert_failure */
 	"Verify destruction of objects",			/* OPT_verify_destroy */
 	"Verify use of special commands",			/* OPT_verify_special */
 	"Allow quantity specification",				/* OPT_allow_quantity */
 	NULL,										/* xxx */
 	"Auto-haggle in stores",					/* OPT_auto_haggle */
-	"Allow destroyed levels",					/* OPT_allow_destroyed */
+	"Allow destroyed levels",					/* ~ OPT_allow_destroyed */
 	NULL,										/* xxx testing_stack */
 	NULL,										/* xxx testing_carry */
 	"Expand the power of the look command",		/* OPT_expand_look */
@@ -2740,13 +1793,13 @@ cptr option_desc[OPT_MAX] =
 	"Birth: Maximize effect of race/class bonuses",	/* OPT_birth_maximize */
 	"Birth: Preserve artifacts when leaving level",	/* OPT_birth_preserve */
 	"Birth: Restrict the use of stairs/recall",	/* OPT_birth_ironman */
-	"Birth: Restrict the use of stores/home",		/* OPT_birth_no_stores */
-	"Birth: Restrict creation of artifacts",		/* OPT_birth_no_artifacts */
-	"Birth: Randomize some of the artifacts",		/* OPT_birth_rand_artifacts */
-	"Birth: Auto-scum for good levels",			/* OPT_birth_auto_scum */
-	"Birth: Quick Auto-roller",					/* OPT_birth_quick_roller */
-	"Birth: Nightmare Mode",						/* OPT_birth_nightmare_mode */
-	NULL,										/* xxx */
+	"Birth: Restrict the use of stores/home",	/* OPT_birth_no_stores */
+	"Birth: Restrict creation of artifacts",	/* OPT_birth_no_artifacts */
+	"Birth: Randomize some of the artifacts (beta)",	/* OPT_birth_rand_artifacts */
+	"Birth: Don't stack objects on the floor",	/* OPT_birth_no_stacking */
+	"Birth: Auto-scum for good levels",		/* ~ OPT_birth_auto_scum */
+	"Birth: Quick auto-roller",			/* ~ OPT_birth_quick_roller */
+	"Birth: Nightmare mode",			/* ~ OPT_birth_nightmare_mode */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
@@ -2804,13 +1857,13 @@ cptr option_desc[OPT_MAX] =
 	"Adult: Maximize effect of race/class bonuses",	/* OPT_adult_maximize */
 	"Adult: Preserve artifacts when leaving level",	/* OPT_adult_preserve */
 	"Adult: Restrict the use of stairs/recall",	/* OPT_adult_ironman */
-	"Adult: Restrict the use of stores/home",		/* OPT_adult_no_stores */
-	"Adult: Restrict creation of artifacts",		/* OPT_adult_no_artifacts */
-	"Adult: Randomize some of the artifacts",		/* OPT_adult_rand_artifacts */
-	"Adult: Auto-scum for good levels",			/* OPT_adult_auto_scum */
-	"Adult: Quick Auto-Roller",					/* OPT_quick_roller */
-	"Adult: Nightmare Mode",						/* OPT_nightmare_mode */
-	NULL,										/* xxx */
+	"Adult: Restrict the use of stores/home",	/* OPT_adult_no_stores */
+	"Adult: Restrict creation of artifacts",	/* OPT_adult_no_artifacts */
+	"Adult: Randomize some of the artifacts (beta)",	/* OPT_adult_rand_artifacts */
+	"Adult: Don't stack objects on the floor",	/* OPT_adult_adult_no_stacking */
+	"Adult: Auto-scum for good levels",		/* ~ OPT_adult_auto_scum */
+	"Adult: Quick auto-roller",			/* ~ OPT_quick_roller */
+	"Adult: Nightmare mode",			/* ~ OPT_nightmare_mode */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
@@ -2869,7 +1922,7 @@ cptr option_desc[OPT_MAX] =
 /*
  * Options -- normal values
  */
-bool option_norm[OPT_MAX] =
+const bool option_norm[OPT_MAX] =
 {
 	FALSE,		/* OPT_rogue_like_commands */
 	TRUE,		/* OPT_quick_messages */
@@ -2878,7 +1931,7 @@ bool option_norm[OPT_MAX] =
 	FALSE,		/* OPT_use_old_target */
 	TRUE,		/* OPT_always_pickup */
 	FALSE,		/* OPT_always_repeat */
-	FALSE,		/* OPT_depth_in_feet */
+	TRUE,		/* OPT_depth_in_feet */
 	FALSE,		/* OPT_stack_force_notes */
 	FALSE,		/* OPT_stack_force_costs */
 	TRUE,		/* OPT_show_labels */
@@ -2896,15 +1949,15 @@ bool option_norm[OPT_MAX] =
 	TRUE,		/* OPT_disturb_panel */
 	TRUE,		/* OPT_disturb_state */
 	TRUE,		/* OPT_disturb_minor */
-	TRUE,		/* OPT_disturb_other */
-	FALSE,		/* OPT_alert_hitpoint */
-	FALSE,		/* OPT_alert_failure */
+	FALSE,		/* xxx disturb_other */
+	FALSE,		/* xxx alert_hitpoint */
+	FALSE,		/* xxx alert_failure */
 	TRUE,		/* OPT_verify_destroy */
 	TRUE,		/* OPT_verify_special */
 	TRUE,		/* OPT_allow_quantity */
 	FALSE,		/* xxx */
 	TRUE,		/* OPT_auto_haggle */
-	TRUE,		/* OPT_allow_destroyed */
+	TRUE,		/* ~ OPT_allow_destroyed */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	TRUE,		/* OPT_expand_look */
@@ -2936,7 +1989,7 @@ bool option_norm[OPT_MAX] =
 	FALSE,		/* OPT_view_granite_lite */
 	FALSE,		/* OPT_view_special_lite */
 	FALSE,		/* OPT_easy_open */
-	FALSE,		/* OPT_easy_alter */
+	TRUE,		/* OPT_easy_alter */
 	FALSE,		/* OPT_easy_floor */
 	FALSE,		/* OPT_show_piles */
 	FALSE,		/* OPT_center_player */
@@ -3000,17 +2053,17 @@ bool option_norm[OPT_MAX] =
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	FALSE,		/* OPT_birth_point_based */
-	FALSE,		/* OPT_birth_auto_roller */
+	TRUE,		/* ~ OPT_birth_auto_roller (now on by default) */
 	TRUE,		/* OPT_birth_maximize */
 	TRUE,		/* OPT_birth_preserve */
 	FALSE,		/* OPT_birth_ironman */
 	FALSE,		/* OPT_birth_no_stores */
 	FALSE,		/* OPT_birth_no_artifacts */
 	FALSE,		/* OPT_birth_rand_artifacts */
-	FALSE,		/* OPT_birth_auto_scum */
-	TRUE,		/* OPT_birth_quick_roller */
-	FALSE,		/* OPT_birth_nightmare_mode */
-	FALSE,		/* xxx */
+	FALSE,		/* OPT_birth_no_stacking */
+	FALSE,		/* ~ OPT_birth_auto_scum */
+	TRUE,		/* ~ OPT_birth_quick_roller */
+	FALSE,		/* ~ OPT_birth_nightmare_mode */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
@@ -3064,17 +2117,17 @@ bool option_norm[OPT_MAX] =
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	FALSE,		/* OPT_adult_point_based */
-	FALSE,		/* OPT_adult_auto_roller */
+	TRUE,		/* ~ OPT_adult_auto_roller (now on by default) */
 	TRUE,		/* OPT_adult_maximize */
 	TRUE,		/* OPT_adult_preserve */
 	FALSE,		/* OPT_adult_ironman */
 	FALSE,		/* OPT_adult_no_stores */
 	FALSE,		/* OPT_adult_no_artifacts */
 	FALSE,		/* OPT_adult_rand_artifacts */
-	FALSE,		/* OPT_adult_auto_scum */
-	TRUE,		/* OPT_adult_quick_roller */
-	FALSE,		/* OPT_adult_nightmare_mode */
-	FALSE,		/* xxx */
+	FALSE,		/* OPT_adult_no_stacking */
+	FALSE,		/* ~ OPT_adult_auto_scum */
+	TRUE,		/* ~ OPT_adult_quick_roller */
+	FALSE,		/* ~ OPT_adult_nightmare_mode */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
@@ -3132,10 +2185,8 @@ bool option_norm[OPT_MAX] =
 
 /*
  * Option screen interface
- *
- * Note the special significance given to the constant "255".
  */
-byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
+const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 {
 	/*** User-Interface ***/
 
@@ -3147,19 +2198,19 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_use_old_target,
 		OPT_always_pickup,
 		OPT_always_repeat,
-		OPT_depth_in_feet,
 		OPT_stack_force_notes,
 		OPT_stack_force_costs,
-		OPT_show_labels,
-		OPT_show_weights,
-		OPT_show_choices,
-		OPT_show_details,
-		OPT_show_flavors,
 		OPT_ring_bell,
-		255,
-		255,
-		255,
-		255
+		OPT_easy_open,
+		OPT_easy_alter,
+		OPT_easy_floor,
+		OPT_scroll_target,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE
 	},
 
 	/*** Disturbance ***/
@@ -3174,24 +2225,24 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_disturb_panel,
 		OPT_disturb_state,
 		OPT_disturb_minor,
-		OPT_disturb_other,
-		OPT_alert_hitpoint,
-		OPT_alert_failure,
 		OPT_verify_destroy,
 		OPT_verify_special,
 		OPT_allow_quantity,
 		OPT_auto_more,
-		255,
-		255,
-		255,
-		255
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE
 	},
 
 	/*** Game-Play ***/
 
 	{
 		OPT_auto_haggle,
-		OPT_allow_destroyed,
+		OPT_allow_destroyed, /* ~ Allow Destroyed Levels */
 		OPT_expand_look,
 		OPT_expand_list,
 		OPT_view_perma_grids,
@@ -3204,12 +2255,12 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_smart_packs,
 		OPT_smart_learn,
 		OPT_smart_cheat,
-		OPT_easy_open,
-		OPT_easy_alter,
-		OPT_easy_floor,
-		OPT_show_piles,
-		255,
-		255
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE
 	},
 
 	/*** Efficiency ***/
@@ -3224,6 +2275,28 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_fresh_before,
 		OPT_fresh_after,
 		OPT_compress_savefile,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+	},
+
+	/*** Display ***/
+
+	{
+		OPT_depth_in_feet,
+		OPT_show_labels,
+		OPT_show_weights,
+		OPT_show_choices,
+		OPT_show_details,
+		OPT_show_flavors,
 		OPT_hilite_player,
 		OPT_view_yellow_lite,
 		OPT_view_bright_lite,
@@ -3231,10 +2304,13 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_view_special_lite,
  		OPT_center_player,
  		OPT_run_avoid_center,
-		OPT_scroll_target,
-		255,
-		255,
-		255,
+		OPT_show_piles,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE
 	},
 
 	/*** Birth ***/
@@ -3248,18 +2324,18 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_birth_no_stores,
 		OPT_birth_no_artifacts,
 		OPT_birth_rand_artifacts,
+		OPT_birth_no_stacking,
 		OPT_birth_auto_scum,
 		OPT_birth_quick_roller,
 		OPT_birth_nightmare_mode,
-		255,
-		255,
-		255,
-		255,
-		255,
-		255,
-		255,
-		255,
-		255
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE
 	},
 
 	/*** Cheat ***/
@@ -3271,20 +2347,20 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_cheat_xtra,
 		OPT_cheat_know,
 		OPT_cheat_live,
-		255,
-		255,
-		255,
-		255,
-		255,
-		255,
-		255,
-		255,
-		255,
-		255,
-		255,
-		255,
-		255,
-		255
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE
 	}
 };
 
@@ -3300,6 +2376,7 @@ cptr inscrip_text[MAX_INSCRIP] =
 	"good",
 	"excellent",
 	"special",
-	"uncursed"
+	"uncursed",
+	"indestructible"
 };
 

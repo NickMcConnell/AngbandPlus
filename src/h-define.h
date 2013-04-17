@@ -21,9 +21,9 @@
 
 
 /*
- * Hack -- assist "main-acn.c" XXX XXX XXX
+ * Hack -- assist "main-ros.c" XXX XXX XXX
  */
-#ifdef ACORN
+#ifdef RISCOS
 # define O_RDONLY	0
 # define O_WRONLY	1
 # define O_RDWR		2
@@ -75,8 +75,8 @@
 /*
  * Force a character to lowercase/uppercase
  */
-#define FORCELOWER(A)  ((isupper((A))) ? tolower((A)) : (A))
-#define FORCEUPPER(A)  ((islower((A))) ? toupper((A)) : (A))
+#define FORCELOWER(A)  ((isupper((unsigned char)(A))) ? tolower((unsigned char)(A)) : (A))
+#define FORCEUPPER(A)  ((islower((unsigned char)(A))) ? toupper((unsigned char)(A)) : (A))
 
 
 /*
@@ -118,6 +118,7 @@
 #  define D2I(X)	((X) - '0')
 #  define I2D(X)	((X) + '0')
 #  define KTRL(X)	((X) & 0x1F)
+#  define UN_KTRL(X)	((X) + 64)
 #  define ESCAPE	'\033'
 #else
 #  define A2I(X)	((X) - 'a')
@@ -125,6 +126,7 @@
 #  define D2I(X)	((X) - '0')
 #  define I2D(X)	((X) + '0')
 #  define KTRL(X)	((X) & 0x1F)
+#  define UN_KTRL(X)	((X) + 64)
 #  define ESCAPE	'\033'
 #endif
 

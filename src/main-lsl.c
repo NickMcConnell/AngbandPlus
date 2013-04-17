@@ -9,6 +9,13 @@
  * (kligys@scf.usc.edu).
  ****************************************************************************/
 
+/* Angband header files */
+#include "angband.h"
+
+#ifdef USE_LSL
+
+#include "main.h"
+
 /* Standard C header files */
 #include <stdio.h>
 #include <stdlib.h>
@@ -18,9 +25,6 @@
 #include <vgagl.h>
 #include <vgakeyboard.h>
 #include <zlib.h>
-
-/* Angband header files */
-#include "angband.h"
 
 static cptr ANGBAND_DIR_XTRA_GRAF;
 
@@ -89,7 +93,8 @@ void *read_bmp_file(void)
 	FILE *infile;
 	int i, j;
 	int iswindows = 0;
-	int dummy, count, done, output_type;
+	int dummy, count, done;
+	int output_type = 0;
 	unsigned char *buf, *bmap;
 	unsigned char read[2];
 	unsigned char *p, *ptr, *dptr, *hptr;
@@ -104,7 +109,8 @@ void *read_bmp_file(void)
 	bmap = NULL;
 	pal = NULL;
 
-	sprintf(path, "%s/8x13.bmp", ANGBAND_DIR_XTRA_GRAF);
+	strnfmt(path, sizeof(path), "%s/8x13.bmp", ANGBAND_DIR_XTRA_GRAF);
+
 	if (!(infile = fopen(path, "r")))
 	{
 		printf("Unable to load bitmap data file %s, bailing out....\n", path);
@@ -165,7 +171,7 @@ void *read_bmp_file(void)
 	{
 	case 1:
 		if (w % 32)
-			w = (w / 32) * 32 + 32;;
+			w = (w / 32) * 32 + 32;
 		break;
 	case 4:
 		if (w % 8)
@@ -339,7 +345,7 @@ void *read_bmp_file(void)
 				}
 			}
 
-			flip(*bmap, bih.biWidth, bih.biHeight);
+			flip(bmap, bih.biWidth, bih.biHeight);
 		}
 
 		pp->width = w;
@@ -406,7 +412,7 @@ void *read_bmp_file(void)
 				}
 			}
 
-			flip(*bmap, bih.biWidth, bih.biHeight);
+			flip(bmap, bih.biWidth, bih.biHeight);
 		}
 
 		pp->numcols = 256;
@@ -461,10 +467,10 @@ void initfont(void)
 	void *temp;
 	long junk;
 
-	if (!(fontfile = gzopen("/usr/lib/kbd/consolefonts/lat1-12.psf.gz", "r")))
+	if (!(fontfile = gzopen("/usr/lib/kbd/consolefonts/lat1-12.psfu.gz", "r")))
 	{
 		/* Try uncompressed */
-		if (!(fontfile = gzopen("/usr/lib/kbd/consolefonts/lat1-12.psf", "r")))
+		if (!(fontfile = gzopen("/usr/lib/kbd/consolefonts/lat1-12.psfu", "r")))
 		{
 			printf("Error: could not open font file.  Aborting....\n");
 			exit(1);
@@ -622,10 +628,15 @@ errr term_text_svgalib(int x, int y, int n, unsigned char a, cptr s)
  * Low-level graphics routine (assumes valid input)
  * Draw n chars at location (x,y) with value s and attribute a
  ***************************************************************************/
-errr term_pict_svgalib(int x, int y, int n, const byte *ap, const char *cp)
+errr term_pict_svgalib(int x, int y, int n, const byte *ap, const char *cp,
+                       const byte *tap, const char *tcp)
 {
 	int i;
 	int x2, y2;
+
+	/* Unused parameters */
+	(void)tap;
+	(void)tcp;
 
 	for (i = 0; i < n; i++)
 	{
@@ -712,14 +723,20 @@ static void term_nuke_svgalib(term *t)
 }
 
 
+const char help_lsl[] = "SVGA (low level graphics) library";
+
+
 /****************************************************************************
  * Hook SVGAlib routines into term.c
  ***************************************************************************/
-errr init_lsl(void)
+errr init_lsl(int argc, char **argv)
 {
 	char path[1024];
 	term *t = &term_screen_body;
 
+	/* Unused parameters */
+	(void)argc;
+	(void)argv;
 
 	if (arg_graphics)
 	{
@@ -727,7 +744,7 @@ errr init_lsl(void)
 	}
 
 	/* Build the "graf" path */
-	path_build(path, 1024, ANGBAND_DIR_XTRA, "graf");
+	path_build(path, sizeof(path), ANGBAND_DIR_XTRA, "graf");
 
 	/* Allocate the path */
 	ANGBAND_DIR_XTRA_GRAF = string_make(path);
@@ -762,3 +779,5 @@ errr init_lsl(void)
 
 	return (0);
 }
+
+#endif /* USE_LSL */

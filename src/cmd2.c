@@ -16,11 +16,8 @@
  */
 void do_cmd_go_up(void)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
 	/* Verify stairs */
-	if (cave_feat[py][px] != FEAT_LESS)
+	if (cave_feat[p_ptr->py][p_ptr->px] != FEAT_LESS)
 	{
 		msg_print("I see no up staircase here.");
 		return;
@@ -55,11 +52,8 @@ void do_cmd_go_up(void)
  */
 void do_cmd_go_down(void)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
 	/* Verify stairs */
-	if (cave_feat[py][px] != FEAT_MORE)
+	if (cave_feat[p_ptr->py][p_ptr->px] != FEAT_MORE)
 	{
 		msg_print("I see no down staircase here.");
 		return;
@@ -482,29 +476,61 @@ static bool do_cmd_disarm_chest(int y, int x, s16b o_idx)
 #if defined(ALLOW_EASY_OPEN)
 
 /*
- * Return the number of features around (or under) the character.
- * Usually look for doors and floor traps.
+ * Return TRUE if the given feature is an open (or broken) door
  */
-static int count_feats(int *y, int *x, byte f1, byte f2)
+static bool is_open(int feat)
 {
-	int d, count;
+	return ((feat == FEAT_OPEN) || (feat == FEAT_BROKEN));
+}
 
-	/* Count how many matches */
-	count = 0;
+
+/*
+ * Return TRUE if the given feature is a closed door
+ */
+static bool is_closed(int feat)
+{
+	return ((feat >= FEAT_DOOR_HEAD) &&
+	        (feat <= FEAT_DOOR_TAIL));
+}
+
+
+/*
+ * Return TRUE if the given feature is a trap
+ */
+static bool is_trap(int feat)
+{
+	return ((feat >= FEAT_TRAP_HEAD) &&
+	        (feat <= FEAT_TRAP_TAIL));
+}
+
+
+/*
+ * Return the number of doors/traps around (or under) the character.
+ */
+static int count_feats(int *y, int *x, bool (*test)(int feat), bool under)
+{
+	int d;
+	int xx, yy;
+	int count = 0; /* Count how many matches */
 
 	/* Check around (and under) the character */
 	for (d = 0; d < 9; d++)
 	{
+		/* if not searching under player continue */
+		if ((d == 8) && !under) continue;
+
 		/* Extract adjacent (legal) location */
-		int yy = p_ptr->py + ddy_ddd[d];
-		int xx = p_ptr->px + ddx_ddd[d];
+		yy = p_ptr->py + ddy_ddd[d];
+		xx = p_ptr->px + ddx_ddd[d];
+
+		/* Paranoia */
+		if (!in_bounds_fully(yy, xx)) continue;
 
 		/* Must have knowledge */
 		if (!(cave_info[yy][xx] & (CAVE_MARK))) continue;
 
 		/* Not looking for this feature */
-		if (cave_feat[yy][xx] < f1) continue;
-		if (cave_feat[yy][xx] > f2) continue;
+		if (!((*test)(cave_feat[yy][xx]))) continue;
 
 		/* Count it */
 		++count;
@@ -713,9 +739,6 @@ static bool do_cmd_open_aux(int y, int x)
  */
 void do_cmd_open(void)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
 	int y, x, dir;
 
 	s16b o_idx;
@@ -727,9 +750,16 @@ void do_cmd_open(void)
 	/* Easy Open */
 	if (easy_open)
 	{
-		/* Handle a single closed door or locked chest */
-		if ((count_feats(&y, &x, FEAT_DOOR_HEAD, FEAT_DOOR_TAIL) +
-		     count_chests(&y, &x, FALSE)) == 1)
+		int num_doors, num_chests;
+
+		/* Count closed doors */
+		num_doors = count_feats(&y, &x, is_closed, FALSE);
+
+		/* Count chests (locked) */
+		num_chests = count_chests(&y, &x, FALSE);
+
+		/* See if only one target */
+		if ((num_doors + num_chests) == 1)
 		{
 			p_ptr->command_dir = coords_to_dir(y, x);
 		}
@@ -741,8 +771,8 @@ void do_cmd_open(void)
 	if (!get_rep_dir(&dir)) return;
 
 	/* Get location */
-	y = py + ddy[dir];
-	x = px + ddx[dir];
+	y = p_ptr->py + ddy[dir];
+	x = p_ptr->px + ddx[dir];
 
 	/* Check for chests */
 	o_idx = chest_check(y, x);
@@ -759,8 +789,8 @@ void do_cmd_open(void)
 	if (confuse_dir(&dir))
 	{
 		/* Get location */
-		y = py + ddy[dir];
-		x = px + ddx[dir];
+		y = p_ptr->py + ddy[dir];
+		x = p_ptr->px + ddx[dir];
 
 		/* Check for chest */
 		o_idx = chest_check(y, x);
@@ -886,9 +916,6 @@ static bool do_cmd_close_aux(int y, int x)
  */
 void do_cmd_close(void)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
 	int y, x, dir;
 
 	bool more = FALSE;
@@ -898,14 +925,10 @@ void do_cmd_close(void)
 	/* Easy Close */
 	if (easy_open)
 	{
-		/* Handle a single open door */
-		if (count_feats(&y, &x, FEAT_OPEN, FEAT_OPEN) == 1)
+		/* Count open doors */
+		if (count_feats(&y, &x, is_open, FALSE) == 1)
 		{
-			/* Don't close door player is on */
-			if ((y != py) || (x != px))
-			{
-				p_ptr->command_dir = coords_to_dir(y, x);
-			}
+			p_ptr->command_dir = coords_to_dir(y, x);
 		}
 	}
 
@@ -915,8 +938,8 @@ void do_cmd_close(void)
 	if (!get_rep_dir(&dir)) return;
 
 	/* Get location */
-	y = py + ddy[dir];
-	x = px + ddx[dir];
+	y = p_ptr->py + ddy[dir];
+	x = p_ptr->px + ddx[dir];
 
 
 	/* Verify legality */
@@ -930,8 +953,8 @@ void do_cmd_close(void)
 	if (confuse_dir(&dir))
 	{
 		/* Get location */
-		y = py + ddy[dir];
-		x = px + ddx[dir];
+		y = p_ptr->py + ddy[dir];
+		x = p_ptr->px + ddx[dir];
 	}
 
 
@@ -1233,9 +1256,6 @@ static bool do_cmd_tunnel_aux(int y, int x)
  */
 void do_cmd_tunnel(void)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
 	int y, x, dir;
 
 	bool more = FALSE;
@@ -1245,8 +1265,8 @@ void do_cmd_tunnel(void)
 	if (!get_rep_dir(&dir)) return;
 
 	/* Get location */
-	y = py + ddy[dir];
-	x = px + ddx[dir];
+	y = p_ptr->py + ddy[dir];
+	x = p_ptr->px + ddx[dir];
 
 
 	/* Oops */
@@ -1260,8 +1280,8 @@ void do_cmd_tunnel(void)
 	if (confuse_dir(&dir))
 	{
 		/* Get location */
-		y = py + ddy[dir];
-		x = px + ddx[dir];
+		y = p_ptr->py + ddy[dir];
+		x = p_ptr->px + ddx[dir];
 	}
 
 
@@ -1421,9 +1441,6 @@ static bool do_cmd_disarm_aux(int y, int x)
  */
 void do_cmd_disarm(void)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
 	int y, x, dir;
 
 	s16b o_idx;
@@ -1435,11 +1452,19 @@ void do_cmd_disarm(void)
 	/* Easy Disarm */
 	if (easy_open)
 	{
-		/* Handle a single visible trap or trapped chest */
-		if ((count_feats(&y, &x, FEAT_TRAP_HEAD, FEAT_TRAP_TAIL) +
-		     count_chests(&y, &x, TRUE)) == 1)
+		int num_traps, num_chests;
+
+		/* Count visible traps */
+		num_traps = count_feats(&y, &x, is_trap, TRUE);
+
+		/* Count chests (trapped) */
+		num_chests = count_chests(&y, &x, TRUE);
+
+		/* See if only one target */
+		if (num_traps || num_chests)
 		{
-			p_ptr->command_dir = coords_to_dir(y, x);
+			if (num_traps + num_chests <= 1)
+				p_ptr->command_dir = coords_to_dir(y, x);
 		}
 	}
 
@@ -1449,8 +1474,8 @@ void do_cmd_disarm(void)
 	if (!get_rep_dir(&dir)) return;
 
 	/* Get location */
-	y = py + ddy[dir];
-	x = px + ddx[dir];
+	y = p_ptr->py + ddy[dir];
+	x = p_ptr->px + ddx[dir];
 
 	/* Check for chests */
 	o_idx = chest_check(y, x);
@@ -1467,8 +1492,8 @@ void do_cmd_disarm(void)
 	if (confuse_dir(&dir))
 	{
 		/* Get location */
-		y = py + ddy[dir];
-		x = px + ddx[dir];
+		y = p_ptr->py + ddy[dir];
+		x = p_ptr->px + ddx[dir];
 
 		/* Check for chests */
 		o_idx = chest_check(y, x);
@@ -1646,9 +1671,6 @@ static bool do_cmd_bash_aux(int y, int x)
  */
 void do_cmd_bash(void)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
 	int y, x, dir;
 
 
@@ -1656,8 +1678,8 @@ void do_cmd_bash(void)
 	if (!get_rep_dir(&dir)) return;
 
 	/* Get location */
-	y = py + ddy[dir];
-	x = px + ddx[dir];
+	y = p_ptr->py + ddy[dir];
+	x = p_ptr->px + ddx[dir];
 
 
 	/* Verify legality */
@@ -1671,8 +1693,8 @@ void do_cmd_bash(void)
 	if (confuse_dir(&dir))
 	{
 		/* Get location */
-		y = py + ddy[dir];
-		x = px + ddx[dir];
+		y = p_ptr->py + ddy[dir];
+		x = p_ptr->px + ddx[dir];
 	}
 
 
@@ -1726,9 +1748,6 @@ void do_cmd_bash(void)
  */
 void do_cmd_alter(void)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
 	int y, x, dir;
 
 	int feat;
@@ -1740,8 +1759,8 @@ void do_cmd_alter(void)
 	if (!get_rep_dir(&dir)) return;
 
 	/* Get location */
-	y = py + ddy[dir];
-	x = px + ddx[dir];
+	y = p_ptr->py + ddy[dir];
+	x = p_ptr->px + ddx[dir];
 
 
 	/* Original feature */
@@ -1758,8 +1777,8 @@ void do_cmd_alter(void)
 	if (confuse_dir(&dir))
 	{
 		/* Get location */
-		y = py + ddy[dir];
-		x = px + ddx[dir];
+		y = p_ptr->py + ddy[dir];
+		x = p_ptr->px + ddx[dir];
 	}
 
 
@@ -1905,9 +1924,6 @@ static bool do_cmd_spike_test(int y, int x)
  */
 void do_cmd_spike(void)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
 	int y, x, dir, item;
 
 
@@ -1926,8 +1942,8 @@ void do_cmd_spike(void)
 	if (!get_rep_dir(&dir)) return;
 
 	/* Get location */
-	y = py + ddy[dir];
-	x = px + ddx[dir];
+	y = p_ptr->py + ddy[dir];
+	x = p_ptr->px + ddx[dir];
 
 
 	/* Verify legality */
@@ -1941,8 +1957,8 @@ void do_cmd_spike(void)
 	if (confuse_dir(&dir))
 	{
 		/* Get location */
-		y = py + ddy[dir];
-		x = px + ddx[dir];
+		y = p_ptr->py + ddy[dir];
+		x = p_ptr->px + ddx[dir];
 	}
 
 
@@ -2040,9 +2056,6 @@ static bool do_cmd_walk_test(int y, int x)
  */
 static void do_cmd_walk_or_jump(int jumping)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
 	int y, x, dir;
 
 
@@ -2050,8 +2063,8 @@ static void do_cmd_walk_or_jump(int jumping)
 	if (!get_rep_dir(&dir)) return;
 
 	/* Get location */
-	y = py + ddy[dir];
-	x = px + ddx[dir];
+	y = p_ptr->py + ddy[dir];
+	x = p_ptr->px + ddx[dir];
 
 
 	/* Verify legality */
@@ -2065,8 +2078,8 @@ static void do_cmd_walk_or_jump(int jumping)
 	if (confuse_dir(&dir))
 	{
 		/* Get location */
-		y = py + ddy[dir];
-		x = px + ddx[dir];
+		y = p_ptr->py + ddy[dir];
+		x = p_ptr->px + ddx[dir];
 	}
 
 
@@ -2119,9 +2132,6 @@ void do_cmd_jump(void)
  */
 void do_cmd_run(void)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
 	int y, x, dir;
 
 
@@ -2137,8 +2147,8 @@ void do_cmd_run(void)
 	if (!get_rep_dir(&dir)) return;
 
 	/* Get location */
-	y = py + ddy[dir];
-	x = px + ddx[dir];
+	y = p_ptr->py + ddy[dir];
+	x = p_ptr->px + ddx[dir];
 
 
 	/* Verify legality */
@@ -2157,10 +2167,6 @@ void do_cmd_run(void)
  */
 static void do_cmd_hold_or_stay(int pickup)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
-
 	/* Allow repeated command */
 	if (p_ptr->command_arg)
 	{
@@ -2193,8 +2199,8 @@ static void do_cmd_hold_or_stay(int pickup)
 	py_pickup(pickup);
 
 	/* Hack -- enter a store if we are on one */
-	if ((cave_feat[py][px] >= FEAT_SHOP_HEAD) &&
-	    (cave_feat[py][px] <= FEAT_SHOP_TAIL))
+	if ((cave_feat[p_ptr->py][p_ptr->px] >= FEAT_SHOP_HEAD) &&
+	    (cave_feat[p_ptr->py][p_ptr->px] <= FEAT_SHOP_TAIL))
 	{
 		/* Disturb */
 		disturb(0, 0);
@@ -2238,13 +2244,13 @@ void do_cmd_rest(void)
 	{
 		cptr p = "Rest (0-9999, '*' for HP/SP, '&' as needed): ";
 
-		char out_val[80];
+		char out_val[5];
 
 		/* Default */
 		strcpy(out_val, "&");
 
 		/* Ask for duration */
-		if (!get_string(p, out_val, 4)) return;
+		if (!get_string(p, out_val, sizeof(out_val))) return;
 
 		/* Rest until done */
 		if (out_val[0] == '&')
@@ -2306,7 +2312,7 @@ void do_cmd_rest(void)
  *
  * Note that artifacts never break, see the "drop_near()" function.
  */
-static int breakage_chance(object_type *o_ptr)
+static int breakage_chance(const object_type *o_ptr)
 {
 	/* Examine the item type */
 	switch (o_ptr->tval)
@@ -2380,9 +2386,6 @@ static int breakage_chance(object_type *o_ptr)
  */
 void do_cmd_fire(void)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
 	int dir, item;
 	int i, j, y, x, ty, tx;
 	int tdam, tdis, thits, tmul;
@@ -2462,12 +2465,14 @@ void do_cmd_fire(void)
 		}
 	}
 
+
 	/* Get a direction (or cancel) */
 	if (!get_aim_dir(&dir)) return;
 
+
 	/* Get local object */
 	i_ptr = &object_type_body;
-
+        
 	/* ~ hack -- this doesn't apply for * of ammo */
 	if (j_ptr->name2 == EGO_AMMUNITION)
 	{
@@ -2526,7 +2531,7 @@ void do_cmd_fire(void)
 
 
 	/* Describe the object */
-	object_desc(o_name, i_ptr, FALSE, 3);
+	object_desc(o_name, sizeof(o_name), i_ptr, FALSE, 3);
 
 	/* Find the color and symbol for the object for throwing */
 	missile_attr = object_attr(i_ptr);
@@ -2558,12 +2563,12 @@ void do_cmd_fire(void)
 
 
 	/* Start at the player */
-	y = py;
-	x = px;
+	y = p_ptr->py;
+	x = p_ptr->px;
 
 	/* Predict the "target" location */
-	ty = py + 99 * ddy[dir];
-	tx = px + 99 * ddx[dir];
+	ty = p_ptr->py + 99 * ddy[dir];
+	tx = p_ptr->px + 99 * ddx[dir];
 
 	/* Check for "target request" */
 	if ((dir == 5) && target_okay())
@@ -2573,7 +2578,7 @@ void do_cmd_fire(void)
 	}
 
 	/* Calculate the path */
-	path_n = project_path(path_g, tdis, py, px, ty, tx, 0);
+	path_n = project_path(path_g, tdis, p_ptr->py, p_ptr->px, ty, tx, 0);
 
 
 	/* Hack -- Handle stuff */
@@ -2614,10 +2619,10 @@ void do_cmd_fire(void)
 		/* Handle monster */
 		if (cave_m_idx[y][x] > 0)
 		{
-			monster_type *m_ptr = &m_list[cave_m_idx[y][x]];
+			monster_type *m_ptr = &mon_list[cave_m_idx[y][x]];
 			monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
-			int chance2 = chance - distance(py, px, y, x);
+			int chance2 = chance - distance(p_ptr->py, p_ptr->px, y, x);
 
 			int visible = m_ptr->ml;
 
@@ -2625,7 +2630,7 @@ void do_cmd_fire(void)
 			hit_body = TRUE;
 
 			/* Did we hit it (penalize distance travelled) */
-			if (test_hit_fire(chance2, r_ptr->ac, m_ptr->ml))
+			if (test_hit(chance2, r_ptr->ac, m_ptr->ml))
 			{
 				bool fear = FALSE;
 
@@ -2656,7 +2661,7 @@ void do_cmd_fire(void)
 					char m_name[80];
 
 					/* Get "the monster" or "it" */
-					monster_desc(m_name, m_ptr, 0);
+					monster_desc(m_name, sizeof(m_name), m_ptr, 0);
 
 					/* Message */
 					msg_format("The %s hits %s.", o_name, m_name);
@@ -2700,7 +2705,7 @@ void do_cmd_fire(void)
 						char m_name[80];
 
 						/* Get the monster name (or "it") */
-						monster_desc(m_name, m_ptr, 0);
+						monster_desc(m_name, sizeof(m_name), m_ptr, 0);
 
 						/* Message */
 						message_format(MSG_FLEE, m_ptr->r_idx,
@@ -2716,7 +2721,7 @@ void do_cmd_fire(void)
 
 	/* Chance of breakage (during attacks) */
 	j = (hit_body ? breakage_chance(i_ptr) : 0);
-	
+
 	/* ~ can't drop from * of ammo */
 	if (j_ptr->name2 == EGO_AMMUNITION) j=100;
 
@@ -2737,9 +2742,6 @@ void do_cmd_fire(void)
  */
 void do_cmd_throw(void)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
 	int dir, item;
 	int i, j, y, x, ty, tx;
 	int chance, tdam, tdis;
@@ -2811,7 +2813,7 @@ void do_cmd_throw(void)
 
 
 	/* Description */
-	object_desc(o_name, i_ptr, FALSE, 3);
+	object_desc(o_name, sizeof(o_name), i_ptr, FALSE, 3);
 
 	/* Find the color and symbol for the object for throwing */
 	missile_attr = object_attr(i_ptr);
@@ -2842,12 +2844,12 @@ void do_cmd_throw(void)
 
 
 	/* Start at the player */
-	y = py;
-	x = px;
+	y = p_ptr->py;
+	x = p_ptr->px;
 
 	/* Predict the "target" location */
-	ty = py + 99 * ddy[dir];
-	tx = px + 99 * ddx[dir];
+	ty = p_ptr->py + 99 * ddy[dir];
+	tx = p_ptr->px + 99 * ddx[dir];
 
 	/* Check for "target request" */
 	if ((dir == 5) && target_okay())
@@ -2857,7 +2859,7 @@ void do_cmd_throw(void)
 	}
 
 	/* Calculate the path */
-	path_n = project_path(path_g, tdis, py, px, ty, tx, 0);
+	path_n = project_path(path_g, tdis, p_ptr->py, p_ptr->px, ty, tx, 0);
 
 
 	/* Hack -- Handle stuff */
@@ -2898,10 +2900,10 @@ void do_cmd_throw(void)
 		/* Handle monster */
 		if (cave_m_idx[y][x] > 0)
 		{
-			monster_type *m_ptr = &m_list[cave_m_idx[y][x]];
+			monster_type *m_ptr = &mon_list[cave_m_idx[y][x]];
 			monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
-			int chance2 = chance - distance(py, px, y, x);
+			int chance2 = chance - distance(p_ptr->py, p_ptr->px, y, x);
 
 			int visible = m_ptr->ml;
 
@@ -2909,7 +2911,7 @@ void do_cmd_throw(void)
 			hit_body = TRUE;
 
 			/* Did we hit it (penalize range) */
-			if (test_hit_fire(chance2, r_ptr->ac, m_ptr->ml))
+			if (test_hit(chance2, r_ptr->ac, m_ptr->ml))
 			{
 				bool fear = FALSE;
 
@@ -2940,7 +2942,7 @@ void do_cmd_throw(void)
 					char m_name[80];
 
 					/* Get "the monster" or "it" */
-					monster_desc(m_name, m_ptr, 0);
+					monster_desc(m_name, sizeof(m_name), m_ptr, 0);
 
 					/* Message */
 					msg_format("The %s hits %s.", o_name, m_name);
@@ -2984,7 +2986,7 @@ void do_cmd_throw(void)
 						char m_name[80];
 
 						/* Get the monster name (or "it") */
-						monster_desc(m_name, m_ptr, 0);
+						monster_desc(m_name, sizeof(m_name), m_ptr, 0);
 
 						/* Message */
 						message_format(MSG_FLEE, m_ptr->r_idx,
@@ -3004,5 +3006,3 @@ void do_cmd_throw(void)
 	/* Drop (or break) near that location */
 	drop_near(i_ptr, j, y, x);
 }
-
-

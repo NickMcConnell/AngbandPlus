@@ -1,0 +1,127 @@
+main-xaw.o : \
+ angband.h h-basic.h autoconf.h h-config.h h-system.h \
+  /usr/include/stdio.h /usr/include/sys/types.h \
+  /usr/include/sys/appleapiopts.h /usr/include/sys/cdefs.h \
+  /usr/include/machine/types.h /usr/include/ppc/types.h \
+  /usr/include/machine/ansi.h /usr/include/ppc/ansi.h \
+  /usr/include/machine/endian.h /usr/include/ppc/endian.h \
+  /usr/include/ctype.h /usr/include/runetype.h /usr/include/errno.h \
+  /usr/include/sys/errno.h /usr/include/stdlib.h /usr/include/sys/timeb.h \
+  /usr/include/time.h /usr/include/gcc/darwin/3.1/machine/limits.h \
+  /usr/include/ppc/limits.h /usr/include/memory.h /usr/include/string.h \
+  /usr/include/fcntl.h /usr/include/sys/fcntl.h /usr/include/sys/param.h \
+  /usr/include/sys/syslimits.h /usr/include/machine/param.h \
+  /usr/include/ppc/param.h /usr/include/sys/signal.h \
+  /usr/include/machine/signal.h /usr/include/ppc/signal.h \
+  /usr/include/sys/file.h /usr/include/sys/unistd.h /usr/include/pwd.h \
+  /usr/include/unistd.h /usr/include/sys/stat.h /usr/include/sys/time.h \
+  /usr/include/gcc/darwin/3.1/stdarg.h h-type.h h-define.h z-util.h \
+  z-virt.h z-form.h z-rand.h z-term.h config.h defines.h types.h externs.h \
+  main.h /usr/X11R6/include/X11/Xlib.h /usr/X11R6/include/X11/X.h \
+  /usr/X11R6/include/X11/Xfuncproto.h /usr/X11R6/include/X11/Xosdefs.h \
+  /usr/include/stddef.h /usr/X11R6/include/X11/StringDefs.h \
+  /usr/X11R6/include/X11/Xutil.h /usr/X11R6/include/X11/Intrinsic.h \
+  /usr/X11R6/include/X11/Xresource.h /usr/X11R6/include/X11/Core.h \
+  /usr/X11R6/include/X11/Composite.h /usr/X11R6/include/X11/Constraint.h \
+  /usr/X11R6/include/X11/Object.h /usr/X11R6/include/X11/RectObj.h \
+  /usr/X11R6/include/X11/Shell.h /usr/X11R6/include/X11/SM/SMlib.h \
+  /usr/X11R6/include/X11/SM/SM.h /usr/X11R6/include/X11/ICE/ICElib.h \
+  /usr/X11R6/include/X11/ICE/ICE.h /usr/X11R6/include/X11/keysym.h \
+  /usr/X11R6/include/X11/keysymdef.h /usr/X11R6/include/X11/IntrinsicP.h \
+  /usr/X11R6/include/X11/CoreP.h /usr/X11R6/include/X11/CompositeP.h \
+  /usr/X11R6/include/X11/ConstrainP.h /usr/X11R6/include/X11/ObjectP.h \
+  /usr/X11R6/include/X11/RectObjP.h /usr/X11R6/include/X11/ShellP.h \
+  /usr/X11R6/include/X11/VendorP.h /usr/X11R6/include/X11/Vendor.h \
+  /usr/X11R6/include/X11/Xaw/SimpleP.h /usr/X11R6/include/X11/Xaw/Simple.h \
+  /usr/X11R6/include/X11/Xmu/Converters.h \
+  /usr/X11R6/include/X11/Xaw/XawInit.h maid-x11.h 
+main-xaw.o :
+angband.h :
+h-basic.h :
+autoconf.h :
+h-config.h :
+h-system.h :
+/usr/include/stdio.h :
+/usr/include/sys/types.h :
+/usr/include/sys/appleapiopts.h :
+/usr/include/sys/cdefs.h :
+/usr/include/machine/types.h :
+/usr/include/ppc/types.h :
+/usr/include/machine/ansi.h :
+/usr/include/ppc/ansi.h :
+/usr/include/machine/endian.h :
+/usr/include/ppc/endian.h :
+/usr/include/ctype.h :
+/usr/include/runetype.h :
+/usr/include/errno.h :
+/usr/include/sys/errno.h :
+/usr/include/stdlib.h :
+/usr/include/sys/timeb.h :
+/usr/include/time.h :
+/usr/include/gcc/darwin/3.1/machine/limits.h :
+/usr/include/ppc/limits.h :
+/usr/include/memory.h :
+/usr/include/string.h :
+/usr/include/fcntl.h :
+/usr/include/sys/fcntl.h :
+/usr/include/sys/param.h :
+/usr/include/sys/syslimits.h :
+/usr/include/machine/param.h :
+/usr/include/ppc/param.h :
+/usr/include/sys/signal.h :
+/usr/include/machine/signal.h :
+/usr/include/ppc/signal.h :
+/usr/include/sys/file.h :
+/usr/include/sys/unistd.h :
+/usr/include/pwd.h :
+/usr/include/unistd.h :
+/usr/include/sys/stat.h :
+/usr/include/sys/time.h :
+/usr/include/gcc/darwin/3.1/stdarg.h :
+h-type.h :
+h-define.h :
+z-util.h :
+z-virt.h :
+z-form.h :
+z-rand.h :
+z-term.h :
+config.h :
+defines.h :
+types.h :
+externs.h :
+main.h :
+/usr/X11R6/include/X11/Xlib.h :
+/usr/X11R6/include/X11/X.h :
+/usr/X11R6/include/X11/Xfuncproto.h :
+/usr/X11R6/include/X11/Xosdefs.h :
+/usr/include/stddef.h :
+/usr/X11R6/include/X11/StringDefs.h :
+/usr/X11R6/include/X11/Xutil.h :
+/usr/X11R6/include/X11/Intrinsic.h :
+/usr/X11R6/include/X11/Xresource.h :
+/usr/X11R6/include/X11/Core.h :
+/usr/X11R6/include/X11/Composite.h :
+/usr/X11R6/include/X11/Constraint.h :
+/usr/X11R6/include/X11/Object.h :
+/usr/X11R6/include/X11/RectObj.h :
+/usr/X11R6/include/X11/Shell.h :
+/usr/X11R6/include/X11/SM/SMlib.h :
+/usr/X11R6/include/X11/SM/SM.h :
+/usr/X11R6/include/X11/ICE/ICElib.h :
+/usr/X11R6/include/X11/ICE/ICE.h :
+/usr/X11R6/include/X11/keysym.h :
+/usr/X11R6/include/X11/keysymdef.h :
+/usr/X11R6/include/X11/IntrinsicP.h :
+/usr/X11R6/include/X11/CoreP.h :
+/usr/X11R6/include/X11/CompositeP.h :
+/usr/X11R6/include/X11/ConstrainP.h :
+/usr/X11R6/include/X11/ObjectP.h :
+/usr/X11R6/include/X11/RectObjP.h :
+/usr/X11R6/include/X11/ShellP.h :
+/usr/X11R6/include/X11/VendorP.h :
+/usr/X11R6/include/X11/Vendor.h :
+/usr/X11R6/include/X11/Xaw/SimpleP.h :
+/usr/X11R6/include/X11/Xaw/Simple.h :
+/usr/X11R6/include/X11/Xmu/Converters.h :
+/usr/X11R6/include/X11/Xaw/XawInit.h :
+maid-x11.h :

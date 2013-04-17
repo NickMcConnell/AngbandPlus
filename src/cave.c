@@ -12,11 +12,11 @@
 
 /*
  * Support for Adam Bolt's tileset, lighting and transparency effects
- * by Robert Ruehlmann (rr9@angband.org)
+ * by Robert Ruehlmann (rr9@thangorodrim.net)
  */
 
 /*
- * Approximate Distance between two points.
+ * Approximate distance between two points.
  *
  * When either the X or Y component dwarfs the other component,
  * this function is almost perfect, and otherwise, it tends to
@@ -24,7 +24,7 @@
  *
  * Algorithm: hypot(dy,dx) = max(dy,dx) + min(dy,dx) / 2
  */
-sint distance(int y1, int x1, int y2, int x2)
+int distance(int y1, int x1, int y2, int x2)
 {
 	int ay, ax;
 
@@ -299,10 +299,7 @@ bool los(int y1, int x1, int y2, int x2)
  */
 bool no_lite(void)
 {
-	int py = p_ptr->py;
-	int px = p_ptr->px;
-
-	return (!player_can_see_bold(py, px));
+	return (!player_can_see_bold(p_ptr->py, p_ptr->px));
 }
 
 
@@ -315,23 +312,14 @@ bool no_lite(void)
  */
 bool cave_valid_bold(int y, int x)
 {
-	s16b this_o_idx, next_o_idx = 0;
-
+	object_type *o_ptr;
 
 	/* Forbid perma-grids */
 	if (cave_perma_bold(y, x)) return (FALSE);
 
 	/* Check objects */
-	for (this_o_idx = cave_o_idx[y][x]; this_o_idx; this_o_idx = next_o_idx)
+	for (o_ptr = get_first_object(y, x); o_ptr; o_ptr = get_next_object(o_ptr))
 	{
-		object_type *o_ptr;
-
-		/* Get the object */
-		o_ptr = &o_list[this_o_idx];
-
-		/* Get the next object */
-		next_o_idx = o_ptr->next_o_idx;
-
 		/* Forbid artifact grids */
 		if (artifact_p(o_ptr)) return (FALSE);
 	}
@@ -416,8 +404,11 @@ static u16b image_random(void)
  */
 bool feat_supports_lighting(byte feat)
 {
-	if ((feat >= FEAT_TRAP_HEAD) && (feat <= FEAT_TRAP_TAIL))
+	if ((arg_graphics != GRAPHICS_DAVID_GERVAIS) &&
+	    (feat >= FEAT_TRAP_HEAD) && (feat <= FEAT_TRAP_TAIL))
+	{
 		return TRUE;
+	}
 
 	switch (feat)
 	{
@@ -612,11 +603,7 @@ bool feat_supports_lighting(byte feat)
  * tiles should be handled differently.  One possibility would be to
  * extend feature_type with attr/char definitions for the different states.
  */
-#ifdef USE_TRANSPARENCY
 void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
-#else /* USE_TRANSPARENCY */
-void map_info(int y, int x, byte *ap, char *cp)
-#endif /* USE_TRANSPARENCY */
 {
 	byte a;
 	char c;
@@ -625,8 +612,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 	byte info;
 
 	feature_type *f_ptr;
-
-	s16b this_o_idx, next_o_idx = 0;
+	object_type *o_ptr;
 
 	s16b m_idx;
 
@@ -634,8 +620,8 @@ void map_info(int y, int x, byte *ap, char *cp)
 
 	int floor_num = 0;
 
-	/* Hack -- Assume that "new" means "Adam Bolt Tiles" */
-	bool graf_new = (use_graphics && streq(ANGBAND_GRAF, "new"));
+	/* Hack -- the old tiles don't support the new lighting effects */
+	bool graf_new = (use_graphics && !streq(ANGBAND_GRAF, "old"));
 
 	/* Monster/Player */
 	m_idx = cave_m_idx[y][x];
@@ -683,7 +669,10 @@ void map_info(int y, int x, byte *ap, char *cp)
 						if (graf_new)
 						{
 							/* Use a brightly lit tile */
-							c += 2;
+							if (arg_graphics == GRAPHICS_DAVID_GERVAIS)
+								c -= 1;
+							else
+								c += 2;
 						}
 						else
 						{
@@ -824,7 +813,10 @@ void map_info(int y, int x, byte *ap, char *cp)
 					if (graf_new)
 					{
 						/* Use a brightly lit tile */
-						c += 2;
+						if (arg_graphics == GRAPHICS_DAVID_GERVAIS)
+							c -= 1;
+						else
+							c += 2;
 					}
 					else
 					{
@@ -848,25 +840,13 @@ void map_info(int y, int x, byte *ap, char *cp)
 		}
 	}
 
-#ifdef USE_TRANSPARENCY
-
 	/* Save the terrain info for the transparency effects */
 	(*tap) = a;
 	(*tcp) = c;
 
-#endif /* USE_TRANSPARENCY */
-
 	/* Objects */
-	for (this_o_idx = cave_o_idx[y][x]; this_o_idx; this_o_idx = next_o_idx)
+	for (o_ptr = get_first_object(y, x); o_ptr; o_ptr = get_next_object(o_ptr))
 	{
-		object_type *o_ptr;
-
-		/* Get the object */
-		o_ptr = &o_list[this_o_idx];
-
-		/* Get the next object */
-		next_o_idx = o_ptr->next_o_idx;
-
 		/* Memorized objects */
 		if (o_ptr->marked)
 		{
@@ -913,7 +893,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 	/* Monsters */
 	if (m_idx > 0)
 	{
-		monster_type *m_ptr = &m_list[m_idx];
+		monster_type *m_ptr = &mon_list[m_idx];
 
 		/* Visible monster */
 		if (m_ptr->ml)
@@ -1047,20 +1027,20 @@ void map_info(int y, int x, byte *ap, char *cp)
  */
 void move_cursor_relative(int y, int x)
 {
-	unsigned ky, kx;
-	unsigned vy, vx;
+	int ky, kx;
+	int vy, vx;
 
 	/* Location relative to panel */
-	ky = (unsigned)(y - p_ptr->wy);
+	ky = y - p_ptr->wy;
 
 	/* Verify location */
-	if (ky >= (unsigned)(SCREEN_HGT)) return;
+	if ((ky < 0) || (ky >= SCREEN_HGT)) return;
 
 	/* Location relative to panel */
-	kx = (unsigned)(x - p_ptr->wx);
+	kx = x - p_ptr->wx;
 
 	/* Verify location */
-	if (kx >= (unsigned)(SCREEN_WID)) return;
+	if ((kx < 0) || (kx >= SCREEN_WID)) return;
 
 	/* Location in window */
 	vy = ky + ROW_MAP;
@@ -1068,8 +1048,10 @@ void move_cursor_relative(int y, int x)
 	/* Location in window */
 	vx = kx + COL_MAP;
 
+	if (use_bigtile) vx += kx;
+
 	/* Go there */
-	Term_gotoxy(vx, vy);
+	(void)Term_gotoxy(vx, vy);
 }
 
 
@@ -1085,20 +1067,20 @@ void move_cursor_relative(int y, int x)
  */
 void print_rel(char c, byte a, int y, int x)
 {
-	unsigned ky, kx;
-	unsigned vy, vx;
+	int ky, kx;
+	int vy, vx;
 
 	/* Location relative to panel */
-	ky = (unsigned)(y - p_ptr->wy);
+	ky = y - p_ptr->wy;
 
 	/* Verify location */
-	if (ky >= (unsigned)(SCREEN_HGT)) return;
+	if ((ky < 0) || (ky >= SCREEN_HGT)) return;
 
 	/* Location relative to panel */
-	kx = (unsigned)(x - p_ptr->wx);
+	kx = x - p_ptr->wx;
 
 	/* Verify location */
-	if (kx >= (unsigned)(SCREEN_WID)) return;
+	if ((kx < 0) || (kx >= SCREEN_WID)) return;
 
 	/* Location in window */
 	vy = ky + ROW_MAP;
@@ -1106,13 +1088,19 @@ void print_rel(char c, byte a, int y, int x)
 	/* Location in window */
 	vx = kx + COL_MAP;
 
-	/* Hack -- Queue it */
-#ifdef USE_TRANSPARENCY
-	Term_queue_char(vx, vy, a, c, 0, 0);
-#else /* USE_TRANSPARENCY */
-	Term_queue_char(vx, vy, a, c);
-#endif /* USE_TRANSPARENCY */
+	if (use_bigtile) vx += kx;
 
+	/* Hack -- Queue it */
+	Term_queue_char(vx, vy, a, c, 0, 0);
+
+	if (use_bigtile)
+	{
+		/* Mega-Hack : Queue dummy char */
+		if (a & 0x80)
+			Term_queue_char(vx+1, vy, 255, -1, 0, 0);
+		else
+			Term_queue_char(vx+1, vy, TERM_WHITE, ' ', 0, 0);
+	}
 }
 
 
@@ -1151,8 +1139,7 @@ void note_spot(int y, int x)
 {
 	byte info;
 
-	s16b this_o_idx, next_o_idx = 0;
-
+	object_type *o_ptr;
 
 	/* Get cave info */
 	info = cave_info[y][x];
@@ -1162,13 +1149,8 @@ void note_spot(int y, int x)
 
 
 	/* Hack -- memorize objects */
-	for (this_o_idx = cave_o_idx[y][x]; this_o_idx; this_o_idx = next_o_idx)
+	for (o_ptr = get_first_object(y, x); o_ptr; o_ptr = get_next_object(o_ptr))
 	{
-		object_type *o_ptr = &o_list[this_o_idx];
-
-		/* Get the next object */
-		next_o_idx = o_ptr->next_o_idx;
-
 		/* Memorize objects */
 		o_ptr->marked = TRUE;
 	}
@@ -1212,26 +1194,23 @@ void lite_spot(int y, int x)
 {
 	byte a;
 	char c;
-
-#ifdef USE_TRANSPARENCY
 	byte ta;
 	char tc;
-#endif /* USE_TRANSPARENCY */
 
-	unsigned ky, kx;
-	unsigned vy, vx;
-
-	/* Location relative to panel */
-	ky = (unsigned)(y - p_ptr->wy);
-
-	/* Verify location */
-	if (ky >= (unsigned)(SCREEN_HGT)) return;
+	int ky, kx;
+	int vy, vx;
 
 	/* Location relative to panel */
-	kx = (unsigned)(x - p_ptr->wx);
+	ky = y - p_ptr->wy;
 
 	/* Verify location */
-	if (kx >= (unsigned)(SCREEN_WID)) return;
+	if ((ky < 0) || (ky >= SCREEN_HGT)) return;
+
+	/* Location relative to panel */
+	kx = x - p_ptr->wx;
+
+	/* Verify location */
+	if ((kx < 0) || (kx >= SCREEN_WID)) return;
 
 	/* Location in window */
 	vy = ky + ROW_MAP;
@@ -1239,7 +1218,7 @@ void lite_spot(int y, int x)
 	/* Location in window */
 	vx = kx + COL_MAP;
 
-#ifdef USE_TRANSPARENCY
+	if (use_bigtile) vx += kx;
 
 	/* Hack -- redraw the grid */
 	map_info(y, x, &a, &c, &ta, &tc);
@@ -1247,16 +1226,16 @@ void lite_spot(int y, int x)
 	/* Hack -- Queue it */
 	Term_queue_char(vx, vy, a, c, ta, tc);
 
-#else /* USE_TRANSPARENCY */
+	if (use_bigtile)
+	{
+		vx++;
 
-	/* Hack -- redraw the grid */
-	map_info(y, x, &a, &c);
-
-	/* Hack -- Queue it */
-	Term_queue_char(vx, vy, a, c);
-
-#endif /* USE_TRANSPARENCY */
-
+		/* Mega-Hack : Queue dummy char */
+		if (a & 0x80)
+			Term_queue_char(vx, vy, 255, -1, 0, 0);
+		else
+			Term_queue_char(vx, vy, TERM_WHITE, ' ', TERM_WHITE, ' ');
+	}
 }
 
 
@@ -1272,27 +1251,24 @@ void prt_map(void)
 {
 	byte a;
 	char c;
-
-#ifdef USE_TRANSPARENCY
 	byte ta;
 	char tc;
-#endif /* USE_TRANSPARENCY */
 
 	int y, x;
 	int vy, vx;
 	int ty, tx;
 
 	/* Assume screen */
-	ty = ROW_MAP + SCREEN_HGT;
-	tx = COL_MAP + SCREEN_WID;
+	ty = p_ptr->wy + SCREEN_HGT;
+	tx = p_ptr->wx + SCREEN_WID;
 
 	/* Dump the map */
-	for (y = p_ptr->wy, vy = ROW_MAP; vy < ty; vy++, y++)
+	for (y = p_ptr->wy, vy = ROW_MAP; y < ty; vy++, y++)
 	{
-		for (x = p_ptr->wx, vx = COL_MAP; vx < tx; vx++, x++)
+		for (x = p_ptr->wx, vx = COL_MAP; x < tx; vx++, x++)
 		{
-
-#ifdef USE_TRANSPARENCY
+			/* Check bounds */
+			if (!in_bounds(y, x)) continue;
 
 			/* Determine what is there */
 			map_info(y, x, &a, &c, &ta, &tc);
@@ -1300,16 +1276,16 @@ void prt_map(void)
 			/* Hack -- Queue it */
 			Term_queue_char(vx, vy, a, c, ta, tc);
 
-#else /* USE_TRANSPARENCY */
+			if (use_bigtile)
+			{
+				vx++;
 
-			/* Determine what is there */
-			map_info(y, x, &a, &c);
-
-			/* Hack -- Queue it */
-			Term_queue_char(vx, vy, a, c);
-
-#endif /* USE_TRANSPARENCY */
-
+				/* Mega-Hack : Queue dummy char */
+				if (a & 0x80)
+					Term_queue_char(vx, vy, 255, -1, 0, 0);
+				else
+					Term_queue_char(vx, vy, TERM_WHITE, ' ', TERM_WHITE, ' ');
+			}
 		}
 	}
 }
@@ -1323,7 +1299,7 @@ void prt_map(void)
  *
  * Note that all "walls" always look like "secret doors" (see "map_info()").
  */
-static byte priority_table[][2] =
+static const int priority_table[14][2] =
 {
 	/* Dark */
 	{ FEAT_NONE, 2 },
@@ -1397,13 +1373,6 @@ static byte priority(byte a, char c)
 
 
 /*
- * Maximum size of map.
- */
-#define MAP_HGT (DUNGEON_HGT / 3)
-#define MAP_WID (DUNGEON_WID / 3)
-
-
-/*
  * Display a "small-scale" map of the dungeon in the active Term.
  *
  * Note that this function must "disable" the special lighting effects so
@@ -1424,7 +1393,7 @@ void display_map(int *cy, int *cx)
 	int px = p_ptr->px;
 
 	int map_hgt, map_wid;
-
+	int dungeon_hgt, dungeon_wid;
 	int row, col;
 
 	int x, y;
@@ -1447,14 +1416,12 @@ void display_map(int *cy, int *cx)
 	map_hgt = Term->hgt - 2;
 	map_wid = Term->wid - 2;
 
+	dungeon_hgt = (p_ptr->depth == 0) ? TOWN_HGT : DUNGEON_HGT;
+	dungeon_wid = (p_ptr->depth == 0) ? TOWN_WID : DUNGEON_WID;
+
 	/* Prevent accidents */
-	if (map_hgt > DUNGEON_HGT) map_hgt = DUNGEON_HGT;
-	if (map_wid > DUNGEON_WID) map_wid = DUNGEON_WID;
-
-	/* Silliness XXX XXX XXX */
-	if ((cy != NULL) && (map_hgt > SCREEN_HGT)) map_hgt = SCREEN_HGT;
-	if ((cx != NULL) && (map_wid > SCREEN_WID)) map_wid = SCREEN_WID;
-
+	if (map_hgt > dungeon_hgt) map_hgt = dungeon_hgt;
+	if (map_wid > dungeon_wid) map_wid = dungeon_wid;
 
 	/* Prevent accidents */
 	if ((map_wid < 1) || (map_hgt < 1)) return;
@@ -1473,18 +1440,18 @@ void display_map(int *cy, int *cx)
 	ta = TERM_WHITE;
 	tc = ' ';
 
-	/* Clear the small scale map */
+	/* Clear the priorities */
 	for (y = 0; y < map_hgt; ++y)
 	{
 		for (x = 0; x < map_wid; ++x)
 		{
-			/* Erase the grid */
-			Term_putch(x + 1, y + 1, ta, tc);
-
 			/* No priority */
 			mp[y][x] = 0;
 		}
 	}
+
+	/* Clear the screen (but don't force a redraw) */
+	clear_from(0);
 
 	/* Corners */
 	x = map_wid + 1;
@@ -1512,24 +1479,18 @@ void display_map(int *cy, int *cx)
 
 
 	/* Analyze the actual map */
-	for (y = 0; y < DUNGEON_HGT; y++)
+	for (y = 0; y < dungeon_hgt; y++)
 	{
-		for (x = 0; x < DUNGEON_WID; x++)
+		for (x = 0; x < dungeon_wid; x++)
 		{
-			row = (y * map_hgt / DUNGEON_HGT);
-			col = (x * map_wid / DUNGEON_WID);
+			row = (y * map_hgt / dungeon_hgt);
+			col = (x * map_wid / dungeon_wid);
 
-#ifdef USE_TRANSPARENCY
+			if (use_bigtile)
+				col = col & ~1;
 
 			/* Get the attr/char at that map location */
 			map_info(y, x, &ta, &tc, &ta, &tc);
-
-#else /* USE_TRANSPARENCY */
-
-			/* Get the attr/char at that map location */
-			map_info(y, x, &ta, &tc);
-
-#endif /* USE_TRANSPARENCY */
 
 			/* Get the priority of that attr/char */
 			tp = priority(ta, tc);
@@ -1540,6 +1501,14 @@ void display_map(int *cy, int *cx)
 				/* Add the character */
 				Term_putch(col + 1, row + 1, ta, tc);
 
+				if (use_bigtile)
+				{
+					if (ta & 0x80)
+						Term_putch(col + 2, row + 1, 255, -1);
+					else
+						Term_putch(col + 2, row + 1, TERM_WHITE, ' ');
+				}
+
 				/* Save priority */
 				mp[row][col] = tp;
 			}
@@ -1548,9 +1517,11 @@ void display_map(int *cy, int *cx)
 
 
 	/* Player location */
-	row = (py * map_hgt / DUNGEON_HGT);
-	col = (px * map_wid / DUNGEON_WID);
+	row = (py * map_hgt / dungeon_hgt);
+	col = (px * map_wid / dungeon_wid);
 
+	if (use_bigtile)
+		col = col & ~1;
 
 	/*** Make sure the player is visible ***/
 
@@ -1582,7 +1553,8 @@ void display_map(int *cy, int *cx)
 void do_cmd_view_map(void)
 {
 	int cy, cx;
-
+	cptr prompt = "Hit any key to continue";
+	
 	/* Save screen */
 	screen_save();
 
@@ -1598,8 +1570,8 @@ void do_cmd_view_map(void)
 	/* Display the map */
 	display_map(&cy, &cx);
 
-	/* Wait for it */
-	put_str("Hit any key to continue", 23, 23);
+	/* Show the prompt */
+	put_str(prompt, Term->hgt - 1, Term->wid / 2 - strlen(prompt) / 2);
 
 	/* Hilite the player */
 	Term_gotoxy(cx, cy);
@@ -1979,14 +1951,7 @@ typedef struct vinfo_type vinfo_type;
  */
 struct vinfo_type
 {
-	s16b grid_0;
-	s16b grid_1;
-	s16b grid_2;
-	s16b grid_3;
-	s16b grid_4;
-	s16b grid_5;
-	s16b grid_6;
-	s16b grid_7;
+	s16b grid[8];
 
 	u32b bits_3;
 	u32b bits_2;
@@ -2187,9 +2152,12 @@ struct vinfo_hack {
  *
  * We use "u" to point to an array of long integers.
  */
-static bool ang_sort_comp_hook_longs(vptr u, vptr v, int a, int b)
+static bool ang_sort_comp_hook_longs(const void *u, const void *v, int a, int b)
 {
 	long *x = (long*)(u);
+
+	/* Unused parameter */
+	(void)v;
 
 	return (x[a] <= x[b]);
 }
@@ -2200,11 +2168,14 @@ static bool ang_sort_comp_hook_longs(vptr u, vptr v, int a, int b)
  *
  * We use "u" to point to an array of long integers.
  */
-static void ang_sort_swap_hook_longs(vptr u, vptr v, int a, int b)
+static void ang_sort_swap_hook_longs(void *u, void *v, int a, int b)
 {
 	long *x = (long*)(u);
 
 	long temp;
+
+	/* Unused parameter */
+	(void)v;
 
 	/* Swap */
 	temp = x[a];
@@ -2374,7 +2345,7 @@ errr vinfo_init(void)
 		e = queue_head++;
 
 		/* Main Grid */
-		g = vinfo[e].grid_0;
+		g = vinfo[e].grid[0];
 
 		/* Location */
 		y = GRID_Y(g);
@@ -2382,14 +2353,14 @@ errr vinfo_init(void)
 
 
 		/* Compute grid offsets */
-		vinfo[e].grid_0 = GRID(+y,+x);
-		vinfo[e].grid_1 = GRID(+x,+y);
-		vinfo[e].grid_2 = GRID(+x,-y);
-		vinfo[e].grid_3 = GRID(+y,-x);
-		vinfo[e].grid_4 = GRID(-y,-x);
-		vinfo[e].grid_5 = GRID(-x,-y);
-		vinfo[e].grid_6 = GRID(-x,+y);
-		vinfo[e].grid_7 = GRID(-y,+x);
+		vinfo[e].grid[0] = GRID(+y,+x);
+		vinfo[e].grid[1] = GRID(+x,+y);
+		vinfo[e].grid[2] = GRID(+x,-y);
+		vinfo[e].grid[3] = GRID(+y,-x);
+		vinfo[e].grid[4] = GRID(-y,-x);
+		vinfo[e].grid[5] = GRID(-x,-y);
+		vinfo[e].grid[6] = GRID(-x,+y);
+		vinfo[e].grid[7] = GRID(-y,+x);
 
 
 		/* Analyze slopes */
@@ -2421,9 +2392,9 @@ errr vinfo_init(void)
 		{
 			g = GRID(y,x+1);
 
-			if (queue[queue_tail-1]->grid_0 != g)
+			if (queue[queue_tail-1]->grid[0] != g)
 			{
-				vinfo[queue_tail].grid_0 = g;
+				vinfo[queue_tail].grid[0] = g;
 				queue[queue_tail] = &vinfo[queue_tail];
 				queue_tail++;
 			}
@@ -2440,9 +2411,9 @@ errr vinfo_init(void)
 		{
 			g = GRID(y+1,x+1);
 
-			if (queue[queue_tail-1]->grid_0 != g)
+			if (queue[queue_tail-1]->grid[0] != g)
 			{
-				vinfo[queue_tail].grid_0 = g;
+				vinfo[queue_tail].grid[0] = g;
 				queue[queue_tail] = &vinfo[queue_tail];
 				queue_tail++;
 			}
@@ -2474,7 +2445,7 @@ errr vinfo_init(void)
 
 
 	/* Kill hack */
-	KILL(hack, vinfo_hack);
+	KILL(hack);
 
 
 	/* Success */
@@ -2544,9 +2515,9 @@ void forget_view(void)
  * and for each octant, allows a simple calculation to set "g"
  * equal to the proper grids, relative to "pg", in the octant.
  *
- *   for (o2 = 0; o2 < 16; o2 += 2)
+ *   for (o2 = 0; o2 < 8; o2++)
  *   ...
- *         g = pg + *((s16b*)(((byte*)(p))+o2));
+ *         g = pg + p->grid[o2];
  *   ...
  *
  *
@@ -2718,7 +2689,7 @@ void update_view(void)
 	/*** Step 2 -- octants ***/
 
 	/* Scan each octant */
-	for (o2 = 0; o2 < 16; o2 += 2)
+	for (o2 = 0; o2 < 8; o2++)
 	{
 		vinfo_type *p;
 
@@ -2756,7 +2727,7 @@ void update_view(void)
 			    (bits3 & (p->bits_3)))
 			{
 				/* Extract grid value XXX XXX XXX */
-				g = pg + *((s16b*)(((byte*)(p))+o2));
+				g = pg + p->grid[o2];
 
 				/* Get grid info */
 				info = fast_cave_info[g];
@@ -3358,9 +3329,9 @@ void town_illuminate(bool daytime)
 
 
 	/* Apply light or darkness */
-	for (y = 0; y < DUNGEON_HGT; y++)
+	for (y = 0; y < TOWN_HGT; y++)
 	{
-		for (x = 0; x < DUNGEON_WID; x++)
+		for (x = 0; x < TOWN_WID; x++)
 		{
 			/* Interesting grids */
 			if (cave_feat[y][x] > FEAT_INVIS)
@@ -3402,9 +3373,9 @@ void town_illuminate(bool daytime)
 
 
 	/* Handle shop doorways */
-	for (y = 0; y < DUNGEON_HGT; y++)
+	for (y = 0; y < TOWN_HGT; y++)
 	{
-		for (x = 0; x < DUNGEON_WID; x++)
+		for (x = 0; x < TOWN_WID; x++)
 		{
 			/* Track shop doorways */
 			if ((cave_feat[y][x] >= FEAT_SHOP_HEAD) &&
@@ -3514,7 +3485,7 @@ void cave_set_feat(int y, int x, int feat)
  * This algorithm is similar to, but slightly different from, the one used
  * by "update_view_los()", and very different from the one used by "los()".
  */
-sint project_path(u16b *gp, int range, int y1, int x1, int y2, int x2, int flg)
+int project_path(u16b *gp, int range, int y1, int x1, int y2, int x2, int flg)
 {
 	int y, x;
 
@@ -3797,6 +3768,9 @@ void scatter(int *yp, int *xp, int y, int x, int d, int m)
 	int nx, ny;
 
 
+	/* Unused parameter */
+	(void)m;
+
 	/* Pick a location */
 	while (TRUE)
 	{
@@ -3877,6 +3851,9 @@ void object_kind_track(int k_idx)
  */
 void disturb(int stop_search, int unused_flag)
 {
+	/* Unused parameter */
+	(void)unused_flag;
+
 	/* Cancel auto-commands */
 	/* p_ptr->command_new = 0; */
 

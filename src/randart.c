@@ -11,18 +11,17 @@
 
 #include "angband.h"
 
+#include "init.h"
 
 /*
  * Random artifact generator (randart) by Greg Wooledge.
- *
- * Note that the direct use of malloc/free is a bad idea.  XXX XXX XXX
  *
  * The external "names.txt" file was sucked into this file for simplicity.
  */
 
 #ifdef GJW_RANDART
 
-static const char *names_list =
+static cptr names_list =
 "adanedhel\n"
 "adurant\n"
 "aeglos\n"
@@ -637,8 +636,8 @@ static const char *names_list =
 #define sign(x)	((x) > 0 ? 1 : ((x) < 0 ? -1 : 0))
 
 
-static long lprobs[S_WORD+1][S_WORD+1][S_WORD+1];
-static long ltotal[S_WORD+1][S_WORD+1];
+static unsigned short lprobs[S_WORD+1][S_WORD+1][S_WORD+1];
+static unsigned short ltotal[S_WORD+1][S_WORD+1];
 
 /*
  * Cache the results of lookup_kind(), which is expensive and would
@@ -649,49 +648,44 @@ static s16b *kinds;
 /* Global just for convenience. */
 static int randart_verbose = 0;
 
-static char *my_strdup(const char *s)
-{
-	char *t = malloc(strlen(s) + 1);
-	if (t) strcpy(t, s);
-	return t;
-}
-
 
 /*
  * Use W. Sheldon Simms' random name generator.  This function builds
  * probability tables which are used later on for letter selection.  It
  * relies on the ASCII character set.
  */
-static void build_prob(const char *learn)
+static void build_prob(cptr learn)
 {
 	int c_prev, c_cur, c_next;
 
 	/* Build raw frequencies */
-	while (1)
+	do
 	{
 		c_prev = c_cur = S_WORD;
 
 		do
 		{
 			c_next = *learn++;
-		} while (!isalpha(c_next) && (c_next != '\0'));
+		} while (!isalpha((unsigned char)c_next) && (c_next != '\0'));
 
 		if (c_next == '\0') break;
 
 		do
 		{
-			c_next = tolower(c_next) - 'a';	/* ASCII */
+			c_next = A2I(tolower((unsigned char)c_next));
 			lprobs[c_prev][c_cur][c_next]++;
 			ltotal[c_prev][c_cur]++;
 			c_prev = c_cur;
 			c_cur = c_next;
 			c_next = *learn++;
-		} while (isalpha(c_next));
+		} while (isalpha((unsigned char)c_next));
 
 		lprobs[c_prev][c_cur][E_WORD]++;
 		ltotal[c_prev][c_cur]++;
 	}
+	while (c_next != '\0');
 }
+
 
 /*
  * Use W. Sheldon Simms' random name generator.  Generate a random word using
@@ -720,6 +714,7 @@ startover:
 		c_next = 0;
 		r = rand_int(ltotal[c_prev][c_cur]);
 		totalfreq = lprobs[c_prev][c_cur][c_next];
+
 		while (totalfreq <= r)
 		{
 			c_next++;
@@ -737,14 +732,12 @@ startover:
 			*cp = '\0';
 			break;
 		}
+
 		if (lnum >= MAX_NAME_LEN) goto startover;
 
-		*cp = c_next + 'a';	/* ASCII */
-		switch (*cp)
-		{
-			case 'a': case 'e': case 'i': case 'o': case 'u':
-				vow++;
-		}
+		*cp = I2A(c_next);
+
+		if (is_a_vowel(*cp)) vow++;
 
 		cp++;
 		lnum++;
@@ -752,15 +745,16 @@ startover:
 		c_cur = c_next;
 	}
 
-	word_buf[0] = toupper(word_buf[0]);
-	return word_buf;
+	word_buf[0] = toupper((unsigned char)word_buf[0]);
+
+	return (word_buf);
 }
 
 
 /*
  * Use W. Sheldon Simms' random name generator.
  */
-static int init_names(void)
+static errr init_names(void)
 {
 	char buf[BUFLEN];
 	size_t name_size;
@@ -769,49 +763,34 @@ static int init_names(void)
 	int i;
 
 	/* Temporary space for names, while reading and randomizing them. */
-	char **names;
-	int nnames = 0;
+	cptr *names;
 
 
 	build_prob(names_list);
 
 	/* Allocate the "names" array */
 	/* ToDo: Make sure the memory is freed correctly in case of errors */
-	C_MAKE(names, z_info->a_max, char*);
+	C_MAKE(names, z_info->a_max, cptr);
 
 	for (i = 0; i < z_info->a_max; i++)
 	{
 		char *word = make_word();
 
 		if (rand_int(3) == 0)
-			sprintf(buf, "'%s'", word);
+			strnfmt(buf, sizeof(buf), "'%s'", word);
 		else
-			sprintf(buf, "of %s", word);
-		names[i] = my_strdup(buf);
+			strnfmt(buf, sizeof(buf), "of %s", word);
+
+		names[i] = string_make(buf);
 	}
 
 	/* Special cases -- keep these three names separate. */
-	free(names[ART_POWER - 1]);
-	free(names[ART_GROND - 1]);
-	free(names[ART_MORGOTH - 1]);
-
-	if ((names[ART_POWER - 1] = my_strdup("of Power (The One Ring)")) == NULL)
-	{
-		msg_format("Memory allocation error");
-		return 1;
-	}
-
-	if ((names[ART_GROND - 1] = my_strdup("'Grond'")) == NULL)
-	{
-		msg_format("Memory allocation error");
-		return 1;
-	}
-
-	if ((names[ART_MORGOTH - 1] = my_strdup("of Morgoth")) == NULL)
-	{
-		msg_format("Memory allocation error");
-		return 1;
-	}
+	string_free(names[ART_POWER - 1]);
+	string_free(names[ART_GROND - 1]);
+	string_free(names[ART_MORGOTH - 1]);
+	names[ART_POWER - 1] = string_make("of Power (The One Ring)");
+	names[ART_GROND - 1] = string_make("'Grond'");
+	names[ART_MORGOTH - 1] = string_make("of Morgoth");
 
 	/* Convert our names array into an a_name structure for later use. */
 	name_size = 0;
@@ -833,26 +812,29 @@ static int init_names(void)
 		a_next += strlen(names[i-1]) + 1;
 	}
 
-	/* Free some of our now unneeded memory. */
-	KILL(a_name, char);
+	/* Free the old names */
+	FREE(a_name);
 
-	for (i = 0; i < nnames; i++)
+	for (i = 0; i < z_info->a_max; i++)
 	{
-		free(names[i]);
+		string_free(names[i]);
 	}
 
 	/* Free the "names" array */
-	C_KILL(names, z_info->a_max, char*);
+	FREE((void*)names);
 
+	/* Store the names */
 	a_name = a_base;
+	a_head.name_ptr = a_base;
+	a_head.name_size = name_size;
 
-	return 0;
+	/* Success */
+	return (0);
 }
 
 
 /*
- * Calculate the multiplier we'll get with a given bow type.  This is done
- * differently in 2.8.2 than it was in 2.8.1.
+ * Calculate the multiplier we'll get with a given bow type.
  */
 static int bow_multiplier(int sval)
 {
@@ -860,45 +842,55 @@ static int bow_multiplier(int sval)
 	{
 		case SV_SLING:
 		case SV_SHORT_BOW:
-			return 2;
+			return (2);
 		case SV_LONG_BOW:
 		case SV_LIGHT_XBOW:
-			return 3;
+			return (3);
 		case SV_HEAVY_XBOW:
-			return 4;
+			return (4);
 		default:
-			msg_format("Illegal bow sval %s\n", sval);
+			msg_format("Illegal bow sval %s", sval);
 	}
 
-	return 0;
+	return (0);
 }
 
 
 /*
  * Evaluate the artifact's overall power level.
  */
-static s32b artifact_power(int a_idx, bool cannot_use_kind_cache)
+static s32b artifact_power(int a_idx)
 {
 	const artifact_type *a_ptr = &a_info[a_idx];
 	s32b p = 0;
 	s16b k_idx;
-	object_kind *k_ptr = NULL;	/* silence the warning */
+	object_kind *k_ptr;
 	int immunities = 0;
 
-	/* Start with a "power" rating derived from the base item's level. */
+	/* Try to use the cache */
+	k_idx = kinds[a_idx];
+
+	/* Lookup the item if not yet cached */
+	if (!k_idx)
+	{
+		k_idx = lookup_kind(a_ptr->tval, a_ptr->sval);
+
+		/* Cache the object index */
+		kinds[a_idx] = k_idx;
+
+		/* Paranoia */
+		if (!k_idx)
+		{
+			quit_fmt("Illegal tval/sval value for artifact %d!", a_idx);
+		}
+	}
+
+	k_ptr = &k_info[k_idx];
+
 	if (a_idx >= ART_MIN_NORMAL)
 	{
-		if (cannot_use_kind_cache)
-			k_idx = lookup_kind(a_ptr->tval, a_ptr->sval);
-		else
-			k_idx = kinds[a_idx];
-
-		if (k_idx)
-		{
-			k_ptr = &k_info[k_idx];
-			p = (k_ptr->level + 7) / 8;
-		}
-		/* Otherwise just forget it and use 0. ;-) */
+		/* Start with a "power" rating derived from the base item's level. */
+		p = (k_ptr->level + 7) / 8;
 	}
 
 	/* Evaluate certain abilities based on type of object. */
@@ -940,6 +932,8 @@ static s32b artifact_power(int a_idx, bool cannot_use_kind_cache)
 			p += (a_ptr->dd * a_ptr->ds + 1) / 2;
 			if (a_ptr->flags1 & TR1_SLAY_EVIL) p = (p * 3) / 2;
 			if (a_ptr->flags1 & TR1_KILL_DRAGON) p = (p * 3) / 2;
+			if (a_ptr->flags1 & TR1_KILL_DEMON) p = (p * 3) / 2;
+			if (a_ptr->flags1 & TR1_KILL_UNDEAD) p = (p * 3) / 2;
 			if (a_ptr->flags1 & TR1_SLAY_ANIMAL) p = (p * 4) / 3;
 			if (a_ptr->flags1 & TR1_SLAY_UNDEAD) p = (p * 4) / 3;
 			if (a_ptr->flags1 & TR1_SLAY_DRAGON) p = (p * 4) / 3;
@@ -1094,7 +1088,7 @@ static s32b artifact_power(int a_idx, bool cannot_use_kind_cache)
 	if (a_ptr->flags3 & TR3_HEAVY_CURSE) p -= 20;
 /*	if (a_ptr->flags3 & TR3_PERMA_CURSE) p -= 40; */
 
-	return p;
+	return (p);
 }
 
 
@@ -1117,7 +1111,7 @@ static void choose_item(int a_idx)
 	 * degenerate case consider Bladeturner, which has artifact lvl/rar
 	 * of only 95/3, but which is based on an object with 110/64!
 	 */
-	k_idx = lookup_kind(a_ptr->tval, a_ptr->sval);
+	k_idx = kinds[a_idx];
 	k_ptr = &k_info[k_idx];
 	target_level = k_ptr->level;
 
@@ -1337,24 +1331,39 @@ static void choose_item(int a_idx)
 	/* Assign basic stats to the artifact based on its artifact level. */
 	switch (a_ptr->tval)
 	{
-		case TV_BOW: case TV_DIGGING: case TV_HAFTED:
-		case TV_SWORD: case TV_POLEARM:
-			a_ptr->to_h += (s16b)(a_ptr->level / 10 + rand_int(4) + rand_int(4));
-			a_ptr->to_d += (s16b)(a_ptr->level / 10 + rand_int(4) + rand_int((a_ptr->dd * a_ptr->ds) / 2 + 1));
+		case TV_BOW:
+		case TV_DIGGING:
+		case TV_HAFTED:
+		case TV_SWORD:
+		case TV_POLEARM:
+			a_ptr->to_h += (s16b)(a_ptr->level / 10 + rand_int(4) +
+			                      rand_int(4));
+			a_ptr->to_d += (s16b)(a_ptr->level / 10 + rand_int(4));
+			a_ptr->to_d += (s16b)(rand_int((a_ptr->dd * a_ptr->ds) / 2 + 1));
 			break;
-		case TV_BOOTS: case TV_GLOVES: case TV_HELM: case TV_CROWN:
-		case TV_SHIELD: case TV_CLOAK: case TV_SOFT_ARMOR:
+		case TV_BOOTS:
+		case TV_GLOVES:
+		case TV_HELM:
+		case TV_CROWN:
+		case TV_SHIELD:
+		case TV_CLOAK:
+		case TV_SOFT_ARMOR:
 		case TV_HARD_ARMOR:
-			a_ptr->to_a += (s16b)(a_ptr->level / 10 + a_ptr->ac / 3 + rand_int(8));
-			if (a_ptr->to_a < 10) a_ptr->to_a += (s16b)(2 + rand_int(4) + rand_int(4));
-			/*
+			a_ptr->to_a += (s16b)(a_ptr->level / 10 + a_ptr->ac / 3 +
+			                      rand_int(8));
+
+			if (a_ptr->to_a < 10)
+				a_ptr->to_a += (s16b)(2 + rand_int(4) + rand_int(4));
+
+				/*
 			 * Make sure armor gets some resists!  Hard body armor
 			 * is generally high-level stuff, with good ac and
 			 * to_a.  That sucks up all the points....
 			 */
 			switch (a_ptr->tval)
 			{
-			case TV_SOFT_ARMOR: case TV_HARD_ARMOR:
+			case TV_SOFT_ARMOR:
+			case TV_HARD_ARMOR:
 				if (rand_int(2) == 0) a_ptr->flags2 |= TR2_RES_ACID;
 				if (rand_int(2) == 0) a_ptr->flags2 |= TR2_RES_ELEC;
 				if (rand_int(2) == 0) a_ptr->flags2 |= TR2_RES_COLD;
@@ -1402,6 +1411,8 @@ static void remove_contradictory(artifact_type *a_ptr)
 
 	if (a_ptr->flags3 & TR3_LIGHT_CURSE) a_ptr->flags3 &= ~(TR3_BLESSED);
 	if (a_ptr->flags1 & TR1_KILL_DRAGON) a_ptr->flags1 &= ~(TR1_SLAY_DRAGON);
+	if (a_ptr->flags1 & TR1_KILL_DEMON) a_ptr->flags1 &= ~(TR1_SLAY_DEMON);
+	if (a_ptr->flags1 & TR1_KILL_UNDEAD) a_ptr->flags1 &= ~(TR1_SLAY_UNDEAD);
 	if (a_ptr->flags3 & TR3_DRAIN_EXP) a_ptr->flags3 &= ~(TR3_HOLD_LIFE);
 }
 
@@ -1409,6 +1420,8 @@ static void remove_contradictory(artifact_type *a_ptr)
 /*
  * Randomly select an extra ability to be added to the artifact in question.
  * XXX - This function is way too large.
+ *
+ * ToDo: Add the KILL_UNDEAD and KILL_DEMON flags.
  */
 static void add_ability(artifact_type *a_ptr)
 {
@@ -1447,7 +1460,8 @@ static void add_ability(artifact_type *a_ptr)
 					a_ptr->flags1 |= TR1_WIS;
 					do_pval(a_ptr);
 					if (rand_int(2) == 0) a_ptr->flags2 |= TR2_SUST_WIS;
-					if (a_ptr->tval == TV_SWORD || a_ptr->tval == TV_POLEARM)
+					if ((a_ptr->tval == TV_SWORD) ||
+					    (a_ptr->tval == TV_POLEARM))
 						a_ptr->flags3 |= TR3_BLESSED;
 				}
 				else if (r < 7)
@@ -1534,8 +1548,14 @@ static void add_ability(artifact_type *a_ptr)
 			}
 			case TV_BOOTS:
 			{
-				if (r < 10) a_ptr->flags3 |= TR3_FEATHER;
-				else if (r < 50) a_ptr->to_a += (s16b)(2 + rand_int(4));
+				if (r < 10)
+				{
+					a_ptr->flags3 |= TR3_FEATHER;
+				}
+				else if (r < 50)
+				{
+					a_ptr->to_a += (s16b)(2 + rand_int(4));
+				}
 				else if (r < 80)
 				{
 					a_ptr->flags1 |= TR1_STEALTH;
@@ -1544,11 +1564,18 @@ static void add_ability(artifact_type *a_ptr)
 				else if (r < 90)
 				{
 					a_ptr->flags1 |= TR1_SPEED;
+
 					if (a_ptr->pval < 0) break;
-					if (a_ptr->pval == 0) a_ptr->pval = (s16b)(3 + rand_int(8));
-					else if (rand_int(2) == 0) a_ptr->pval++;
+
+					if (a_ptr->pval == 0)
+						a_ptr->pval = (s16b)(3 + rand_int(8));
+					else if (rand_int(2) == 0)
+						a_ptr->pval++;
 				}
-				else a_ptr->weight = (a_ptr->weight * 9) / 10;
+				else
+				{
+					a_ptr->weight = (a_ptr->weight * 9) / 10;
+				}
 				break;
 			}
 			case TV_GLOVES:
@@ -1792,9 +1819,7 @@ static void add_ability(artifact_type *a_ptr)
 					a_ptr->flags3 |= TR3_TELEPATHY;
 				break;
 			case 41: a_ptr->flags3 |= TR3_SLOW_DIGEST; break;
-
-			case 42:
-				a_ptr->flags3 |= TR3_REGEN; break;
+			case 42: a_ptr->flags3 |= TR3_REGEN; break;
 		}
 	}
 
@@ -1831,14 +1856,13 @@ static void do_curse(artifact_type *a_ptr)
 	}
 
 	a_ptr->flags3 |= TR3_LIGHT_CURSE;
-	if (rand_int(4) == 0) a_ptr->flags3 |= TR3_HEAVY_CURSE;
+
+	if (rand_int(4) == 0)
+		a_ptr->flags3 |= TR3_HEAVY_CURSE;
 }
 
 
-/*
- * Note the three special cases (One Ring, Grond, Morgoth).
- */
-static int scramble_artifact(int a_idx)
+static void scramble_artifact(int a_idx)
 {
 	artifact_type *a_ptr = &a_info[a_idx];
 	u32b activates = a_ptr->flags3 & TR3_ACTIVATE;
@@ -1848,17 +1872,17 @@ static int scramble_artifact(int a_idx)
 	bool curse_me = FALSE;
 	bool aggravate_me = FALSE;
 
-	/* Special cases -- don't randomize these! */
+	/* XXX XXX XXX Special cases -- don't randomize these! */
 	if ((a_idx == ART_POWER) ||
 	    (a_idx == ART_GROND) ||
 	    (a_idx == ART_MORGOTH))
-		return 0;
+		return;
 
-	/* Skip unused artifacts, too! */
-	if (a_ptr->tval == 0) return 0;
+	/* Skip unused artifacts */
+	if (a_ptr->tval == 0) return;
 
 	/* Evaluate the original artifact to determine the power level. */
-	power = artifact_power(a_idx, TRUE);
+	power = artifact_power(a_idx);
 	if (power < 0) curse_me = TRUE;
 
 	if (randart_verbose)
@@ -1884,7 +1908,7 @@ static int scramble_artifact(int a_idx)
 		do
 		{
 			choose_item(a_idx);
-			ap2 = artifact_power(a_idx, FALSE);
+			ap2 = artifact_power(a_idx);
 			count++;
 		} while ((count < MAX_TRIES) &&
 			   ((ap2 > (power * 8) / 10 + 1) ||
@@ -1892,9 +1916,10 @@ static int scramble_artifact(int a_idx)
 	}
 	else
 	{
-		/* Special artifact (light source, ring, or
-		   amulet).  Clear the following fields; leave
-		   the rest alone. */
+		/*
+		 * Special artifact (light source, ring, or amulet).
+		 * Clear the following fields; leave the rest alone.
+		 */
 		a_ptr->pval = 0;
 		a_ptr->to_h = a_ptr->to_d = a_ptr->to_a = 0;
 		a_ptr->flags1 = a_ptr->flags2 = 0;
@@ -1912,7 +1937,7 @@ static int scramble_artifact(int a_idx)
 		do_curse(a_ptr);
 		do_curse(a_ptr);
 		remove_contradictory(a_ptr);
-		ap = artifact_power(a_idx, FALSE);
+		ap = artifact_power(a_idx);
 	}
 	else
 	{
@@ -1927,14 +1952,14 @@ static int scramble_artifact(int a_idx)
 			/* Copy artifact info temporarily. */
 			a_old = *a_ptr;
 			add_ability(a_ptr);
-			ap = artifact_power(a_idx, FALSE);
+			ap = artifact_power(a_idx);
+
 			if (ap > (power * 11) / 10 + 1)
 			{
 				/* too powerful -- put it back */
 				*a_ptr = a_old;
 				continue;
 			}
-
 			else if (ap >= (power * 9) / 10)	/* just right */
 			{
 				break;
@@ -1952,11 +1977,11 @@ static int scramble_artifact(int a_idx)
 		{
 			a_ptr->flags3 |= TR3_AGGRAVATE;
 			remove_contradictory(a_ptr);
-			ap = artifact_power(a_idx, FALSE);
+			ap = artifact_power(a_idx);
 		}
 	}
 
-	a_ptr->cost = ap * (s32b)1000;
+	a_ptr->cost = ap * 1000L;
 
 	if (a_ptr->cost < 0) a_ptr->cost = 0;
 
@@ -1979,17 +2004,13 @@ static int scramble_artifact(int a_idx)
 	 */
 	if (a_ptr->pval)
 		a_ptr->flags3 |= TR3_HIDE_TYPE;
-
-	return 0;
 }
 
 
 /*
- * Return nonzero if the whole set of random artifacts meets certain
- * criteria.  Return 0 if we fail to meet those criteria (which will
- * restart the whole process).
+ * Return TRUE if the whole set of random artifacts meets certain criteria.
  */
-static int artifacts_acceptable(void)
+static bool artifacts_acceptable(void)
 {
 	int swords = 5, polearms = 5, blunts = 5, bows = 3;
 	int bodies = 5, shields = 3, cloaks = 3, hats = 4;
@@ -2032,7 +2053,7 @@ static int artifacts_acceptable(void)
 		if (randart_verbose)
 		{
 			char types[256];
-			sprintf(types, "%s%s%s%s%s%s%s%s%s%s",
+			strnfmt(types, sizeof(types), "%s%s%s%s%s%s%s%s%s%s",
 				swords > 0 ? " swords" : "",
 				polearms > 0 ? " polearms" : "",
 				blunts > 0 ? " blunts" : "",
@@ -2043,23 +2064,27 @@ static int artifacts_acceptable(void)
 				hats > 0 ? " hats" : "",
 				gloves > 0 ? " gloves" : "",
 				boots > 0 ? " boots" : "");
-			msg_format("Restarting generation process: not enough%s\n",
-				types);
+
+			msg_format("Restarting generation process: not enough%s", types);
 		}
-		return 0;
+
+		/* Not acceptable */
+		return (FALSE);
 	}
 	else
 	{
-		return 1;
+		/* Acceptable */
+		return (TRUE);
 	}
 }
 
 
-static int scramble(void)
+static errr scramble(void)
 {
-	/* This outer loop is for post-processing.  If our artifact set
-	   fails to meet certain criteria, we start over. :-( */
-	do
+	/* Allocate the "kinds" array */
+	C_MAKE(kinds, z_info->a_max, s16b);
+
+	while (1)
 	{
 		int a_idx;
 
@@ -2068,44 +2093,63 @@ static int scramble(void)
 		{
 			scramble_artifact(a_idx);
 		}
-	} while (!artifacts_acceptable());	/* end of all artifacts */
 
-	return 0;
+		if (artifacts_acceptable()) break;
+	}
+
+	/* Free the "kinds" array */
+	FREE(kinds);
+
+	/* Success */
+	return (0);
 }
 
 
-static int do_randart_aux(void)
+static errr do_randart_aux(bool full)
 {
-	int result;
+	errr result;
 
-	if ((result = init_names()) != 0) return result;
+	/* Generate random names */
+	if ((result = init_names()) != 0) return (result);
 
-	if ((result = scramble()) != 0) return result;
+	if (full)
+	{
+		/* Randomize the artifacts */
+		if ((result = scramble()) != 0) return (result);
+	}
 
-	return 0;
+	/* Success */
+	return (0);
 }
 
 
-int do_randart(u32b randart_seed)
+/*
+ * Randomize the artifacts
+ *
+ * The full flag toggles between just randomizing the names and
+ * complete randomization of the artifacts.
+ */
+errr do_randart(u32b randart_seed, bool full)
 {
-	int rc;
+	errr err;
 
 	/* Prepare to use the Angband "simple" RNG. */
 	Rand_value = randart_seed;
 	Rand_quick = TRUE;
 
-	/* Allocate the "kinds" array */
-	C_MAKE(kinds, z_info->a_max, s16b);
-
-	rc = do_randart_aux();
-
-	/* Free the "kinds" array */
-	C_FREE(kinds, z_info->a_max, s16b);
+	/* Generate the random artifact (names) */
+	err = do_randart_aux(full);
 
 	/* When done, resume use of the Angband "complex" RNG. */
 	Rand_quick = FALSE;
 
-	return rc;
+	return (err);
 }
+
+#else /* GJW_RANDART */
+
+#ifdef MACINTOSH
+static int i = 0;
+#endif /* MACINTOSH */
 
 #endif /* GJW_RANDART */

@@ -8,7 +8,7 @@
  * are included in all such copies.
  */
 
-/* Purpose: Visual Display Support for "term.c", for the IBM */
+/* Purpose: Visual Display Support for "z-term.c", for the IBM */
 
 
 /*
@@ -54,6 +54,7 @@
 
 #ifdef USE_IBM
 
+#include "main.h"
 
 /*
  * Use a "virtual" screen to "buffer" screen writes.
@@ -871,16 +872,16 @@ static errr Term_text_ibm(int x, int y, int n, byte a, const char *cp)
  *
  * The given parameters are "valid".
  */
-#ifdef USE_TRANSPARENCY
-static errr Term_pict_ibm(int x, int y, int n, const byte *ap, const char *cp, const byte *tap, const char *tcp)
-#else /* USE_TRANSPARENCY */
-static errr Term_pict_ibm(int x, int y, int n, const byte *ap, const char *cp)
-#endif /* USE_TRANSPARENCY */
+static errr Term_pict_ibm(int x, int y, int n, const byte *ap, const char *cp,
+                          const byte *tap, const char *tcp)
 {
 	register int i;
 	register byte attr;
 	register byte *dest;
 
+	/* Unused parameters */
+	(void)tap;
+	(void)tcp;
 
 #ifdef USE_CONIO
 
@@ -950,6 +951,9 @@ static errr Term_pict_ibm(int x, int y, int n, const byte *ap, const char *cp)
  */
 static void Term_init_ibm(term *t)
 {
+	/* Unused parameter */
+	(void)t;
+
 	/* XXX Nothing */
 }
 
@@ -959,7 +963,6 @@ static void Term_init_ibm(term *t)
  */
 static void Term_nuke_ibm(term *t)
 {
-
 #ifdef USE_WAT
 
 	/* Nothing */
@@ -969,6 +972,9 @@ static void Term_nuke_ibm(term *t)
 	union REGS r;
 
 #endif /* USE_WAT */
+
+	/* Unused parameter */
+	(void)t;
 
 	/* Move the cursor to the bottom of the screen */
 	Term_curs_ibm(0, rows-1);
@@ -1184,6 +1190,8 @@ void enable_graphic_font(const char *font)
 #endif /* ALLOW_GRAPH */
 
 
+const char help_ibm[] = "IBM Visual Display Support";
+
 
 /*
  * Initialize the IBM "visual module"
@@ -1195,7 +1203,7 @@ void enable_graphic_font(const char *font)
  * into an 8 bit value, without losing much precision, by using the 2
  * most significant bits as the least significant bits in the new value.
  */
-errr init_ibm(void)
+errr init_ibm(int argc, char **argv)
 {
 	int i;
 	int mode;
@@ -1203,6 +1211,10 @@ errr init_ibm(void)
 	term *t = &term_screen_body;
 
 	union REGS r;
+
+	/* Unused parameters */
+	(void)argc;
+	(void)argv;
 
 	/* Check for "Windows" */
 	if (getenv("windir"))
@@ -1287,7 +1299,7 @@ errr init_ibm(void)
 		char buf[4096];
 
 		/* Build the filename */
-		path_build(buf, 1024, ANGBAND_DIR_XTRA, "angband.fnt");
+		path_build(buf, sizeof(buf), ANGBAND_DIR_XTRA, "angband.fnt");
 
 		/* Open the file */
 		f = fopen(buf, "rb");
@@ -1296,7 +1308,7 @@ errr init_ibm(void)
 		if (f)
 		{
 			/* Load the bitmap data */
-			if (fread(buf, 1, 4096, f) != 4096)
+			if (fread(buf, 1, sizeof(buf), f) != 4096)
 			{
 				quit("Corrupt 'angband.fnt' file");
 			}

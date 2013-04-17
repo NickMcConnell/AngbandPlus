@@ -74,7 +74,7 @@ void teleport_away(int m_idx, int dis)
 
 	bool look = TRUE;
 
-	monster_type *m_ptr = &m_list[m_idx];
+	monster_type *m_ptr = &mon_list[m_idx];
 
 
 	/* Paranoia */
@@ -390,30 +390,62 @@ static u16b bolt_pict(int y, int x, int ny, int nx, int typ)
 	byte a;
 	char c;
 
-	/* No motion (*) */
-	if ((ny == y) && (nx == x)) base = 0x30;
+	if (!(use_graphics && (arg_graphics == GRAPHICS_DAVID_GERVAIS)))
+	{
+		/* No motion (*) */
+		if ((ny == y) && (nx == x)) base = 0x30;
 
-	/* Vertical (|) */
-	else if (nx == x) base = 0x40;
+		/* Vertical (|) */
+		else if (nx == x) base = 0x40;
 
-	/* Horizontal (-) */
-	else if (ny == y) base = 0x50;
+		/* Horizontal (-) */
+		else if (ny == y) base = 0x50;
 
-	/* Diagonal (/) */
-	else if ((ny-y) == (x-nx)) base = 0x60;
+		/* Diagonal (/) */
+		else if ((ny-y) == (x-nx)) base = 0x60;
 
-	/* Diagonal (\) */
-	else if ((ny-y) == (nx-x)) base = 0x70;
+		/* Diagonal (\) */
+		else if ((ny-y) == (nx-x)) base = 0x70;
 
-	/* Weird (*) */
-	else base = 0x30;
+		/* Weird (*) */
+		else base = 0x30;
 
-	/* Basic spell color */
-	k = spell_color(typ);
+		/* Basic spell color */
+		k = spell_color(typ);
 
-	/* Obtain attr/char */
-	a = misc_to_attr[base+k];
-	c = misc_to_char[base+k];
+		/* Obtain attr/char */
+		a = misc_to_attr[base+k];
+		c = misc_to_char[base+k];
+	}
+	else
+	{
+		int add;
+
+		/* No motion (*) */
+		if ((ny == y) && (nx == x)) {base = 0x00; add = 0;}
+
+		/* Vertical (|) */
+		else if (nx == x) {base = 0x40; add = 0;}
+
+		/* Horizontal (-) */
+		else if (ny == y) {base = 0x40; add = 1;}
+
+		/* Diagonal (/) */
+		else if ((ny-y) == (x-nx)) {base = 0x40; add = 2;}
+
+		/* Diagonal (\) */
+		else if ((ny-y) == (nx-x)) {base = 0x40; add = 3;}
+
+		/* Weird (*) */
+		else {base = 0x00; add = 0;}
+
+		if (typ >= 0x40) k = 0;
+		else k = typ;
+
+		/* Obtain attr/char */
+		a = misc_to_attr[base+k];
+		c = misc_to_char[base+k] + add;
+	}
 
 	/* Create pict */
 	return (PICT(a,c));
@@ -462,10 +494,10 @@ void take_hit(int dam, cptr kb_str)
 	{
 		/* Hack -- Note death */
 		message(MSG_DEATH, 0, "You die.");
-		msg_print(NULL);
+		message_flush();
 
 		/* Note cause of death */
-		strcpy(p_ptr->died_from, kb_str);
+		my_strcpy(p_ptr->died_from, kb_str, sizeof(p_ptr->died_from));
 
 		/* No longer a winner */
 		p_ptr->total_winner = FALSE;
@@ -484,14 +516,14 @@ void take_hit(int dam, cptr kb_str)
 	if (p_ptr->chp < warning)
 	{
 		/* Hack -- bell on first notice */
-		if (alert_hitpoint && (old_chp > warning))
+		if (old_chp > warning)
 		{
 			bell("Low hitpoint warning!");
 		}
 
 		/* Message */
-		msg_print("*** LOW HITPOINT WARNING! ***");
-		msg_print(NULL);
+		message(MSG_HITPOINT_WARN, 0, "*** LOW HITPOINT WARNING! ***");
+		message_flush();
 	}
 }
 
@@ -503,7 +535,7 @@ void take_hit(int dam, cptr kb_str)
  * Does a given class of objects (usually) hate acid?
  * Note that acid can either melt or corrode something.
  */
-static bool hates_acid(object_type *o_ptr)
+static bool hates_acid(const object_type *o_ptr)
 {
 	/* Analyze the type */
 	switch (o_ptr->tval)
@@ -557,7 +589,7 @@ static bool hates_acid(object_type *o_ptr)
 /*
  * Does a given object (usually) hate electricity?
  */
-static bool hates_elec(object_type *o_ptr)
+static bool hates_elec(const object_type *o_ptr)
 {
 	switch (o_ptr->tval)
 	{
@@ -577,7 +609,7 @@ static bool hates_elec(object_type *o_ptr)
  * Hafted/Polearm weapons have wooden shafts.
  * Arrows/Bows are mostly wooden.
  */
-static bool hates_fire(object_type *o_ptr)
+static bool hates_fire(const object_type *o_ptr)
 {
 	/* Analyze the type */
 	switch (o_ptr->tval)
@@ -624,7 +656,7 @@ static bool hates_fire(object_type *o_ptr)
 /*
  * Does a given object (usually) hate cold?
  */
-static bool hates_cold(object_type *o_ptr)
+static bool hates_cold(const object_type *o_ptr)
 {
 	switch (o_ptr->tval)
 	{
@@ -650,11 +682,11 @@ static bool hates_cold(object_type *o_ptr)
 /*
  * Melt something
  */
-static int set_acid_destroy(object_type *o_ptr)
+static int set_acid_destroy(const object_type *o_ptr)
 {
-	u32b f1, f2, f3, f4;
+	u32b f1, f2, f3;
 	if (!hates_acid(o_ptr)) return (FALSE);
-	object_flags(o_ptr, &f1, &f2, &f3, &f4);
+	object_flags(o_ptr, &f1, &f2, &f3);
 	if (f3 & (TR3_IGNORE_ACID)) return (FALSE);
 	return (TRUE);
 }
@@ -663,11 +695,11 @@ static int set_acid_destroy(object_type *o_ptr)
 /*
  * Electrical damage
  */
-static int set_elec_destroy(object_type *o_ptr)
+static int set_elec_destroy(const object_type *o_ptr)
 {
-	u32b f1, f2, f3, f4;
+	u32b f1, f2, f3;
 	if (!hates_elec(o_ptr)) return (FALSE);
-	object_flags(o_ptr, &f1, &f2, &f3, &f4);
+	object_flags(o_ptr, &f1, &f2, &f3);
 	if (f3 & (TR3_IGNORE_ELEC)) return (FALSE);
 	return (TRUE);
 }
@@ -676,11 +708,11 @@ static int set_elec_destroy(object_type *o_ptr)
 /*
  * Burn something
  */
-static int set_fire_destroy(object_type *o_ptr)
+static int set_fire_destroy(const object_type *o_ptr)
 {
-	u32b f1, f2, f3, f4;
+	u32b f1, f2, f3;
 	if (!hates_fire(o_ptr)) return (FALSE);
-	object_flags(o_ptr, &f1, &f2, &f3, &f4);
+	object_flags(o_ptr, &f1, &f2, &f3);
 	if (f3 & (TR3_IGNORE_FIRE)) return (FALSE);
 	return (TRUE);
 }
@@ -689,11 +721,11 @@ static int set_fire_destroy(object_type *o_ptr)
 /*
  * Freeze things
  */
-static int set_cold_destroy(object_type *o_ptr)
+static int set_cold_destroy(const object_type *o_ptr)
 {
-	u32b f1, f2, f3, f4;
+	u32b f1, f2, f3;
 	if (!hates_cold(o_ptr)) return (FALSE);
-	object_flags(o_ptr, &f1, &f2, &f3, &f4);
+	object_flags(o_ptr, &f1, &f2, &f3);
 	if (f3 & (TR3_IGNORE_COLD)) return (FALSE);
 	return (TRUE);
 }
@@ -704,12 +736,12 @@ static int set_cold_destroy(object_type *o_ptr)
 /*
  * This seems like a pretty standard "typedef"
  */
-typedef int (*inven_func)(object_type *);
+typedef int (*inven_func)(const object_type *);
 
 /*
  * Destroys a type of item on a given percent chance
  * Note that missiles are no longer necessarily all destroyed
- * Destruction taken from "melee.c" code for "stealing".
+ *
  * Returns number of items destroyed.
  */
 static int inven_damage(inven_func typ, int perc)
@@ -748,7 +780,7 @@ static int inven_damage(inven_func typ, int perc)
 			if (amt)
 			{
 				/* Get a description */
-				object_desc(o_name, o_ptr, FALSE, 3);
+				object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 3);
 
 				/* Message */
 				msg_format("%sour %s (%c) %s destroyed!",
@@ -781,7 +813,6 @@ static int inven_damage(inven_func typ, int perc)
  * Note that the "base armor" of an object never changes.
  *
  * If any armor is damaged (or resists), the player takes less damage.
- *
  * ~ note that the player may now make a 'savings throw' to save their
  # ~ armor from damage, although the player will not take less damage
  # ~ if this occurs.
@@ -790,7 +821,7 @@ static int minus_ac(void)
 {
 	object_type *o_ptr = NULL;
 
-	u32b f1, f2, f3, f4;
+	u32b f1, f2, f3;
 
 	char o_name[80];
 
@@ -814,10 +845,10 @@ static int minus_ac(void)
 
 
 	/* Describe */
-	object_desc(o_name, o_ptr, FALSE, 0);
+	object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 0);
 
 	/* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3, &f4);
+	object_flags(o_ptr, &f1, &f2, &f3);
 
 	/* Object resists */
 	if (f3 & (TR3_IGNORE_ACID))
@@ -836,7 +867,6 @@ static int minus_ac(void)
 		/* ~ ...though it's too bad they get it in the face instead */
 		return (FALSE);
 	}
-
 
 	/* Message */
 	msg_format("Your %s is damaged!", o_name);
@@ -882,7 +912,6 @@ void acid_dam(int dam, cptr kb_str)
 			msg_format("You are disfigured!");
 		}
 	}
-
 
 	/* Take damage */
 	take_hit(dam, kb_str);
@@ -938,7 +967,7 @@ void fire_dam(int dam, cptr kb_str)
 		if (dec_stat(A_CHR, 10, FALSE))
 		{
 			/* ~ Message */
-			msg_format("You are disfigured!");
+			msg_format("You are 2!");
 		}
 	}
 
@@ -1203,6 +1232,9 @@ bool apply_disenchant(int mode)
 	char o_name[80];
 
 
+	/* Unused parameter */
+	(void)mode;
+
 	/* Pick a random slot */
 	switch (randint(8))
 	{
@@ -1232,7 +1264,7 @@ bool apply_disenchant(int mode)
 
 
 	/* Describe the object */
-	object_desc(o_name, o_ptr, FALSE, 0);
+	object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 0);
 
 
 	/* Artifacts have 60% chance to resist */
@@ -1279,7 +1311,7 @@ bool apply_disenchant(int mode)
 /*
  * Apply Nexus
  */
-static void apply_nexus(monster_type *m_ptr)
+static void apply_nexus(const monster_type *m_ptr)
 {
 	int max1, cur1, max2, cur2, ii, jj;
 
@@ -1321,8 +1353,8 @@ static void apply_nexus(monster_type *m_ptr)
 			msg_print("Your body starts to scramble...");
 
 			/* Pick a pair of stats */
-			ii = rand_int(6);
-			for (jj = ii; jj == ii; jj = rand_int(6)) /* loop */;
+			ii = rand_int(A_MAX);
+			for (jj = ii; jj == ii; jj = rand_int(A_MAX)) /* loop */;
 
 			max1 = p_ptr->stat_max[ii];
 			cur1 = p_ptr->stat_cur[ii];
@@ -1373,6 +1405,11 @@ static int project_m_y;
 static bool project_f(int who, int r, int y, int x, int dam, int typ)
 {
 	bool obvious = FALSE;
+
+	/* Unused parameters */
+	(void)who;
+	(void)r;
+	(void)dam;
 
 #if 0 /* unused */
 	/* Reduce damage by distance */
@@ -1717,9 +1754,15 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 
 	bool obvious = FALSE;
 
-	u32b f1, f2, f3, f4;
+	u32b f1, f2, f3;
 
 	char o_name[80];
+
+
+	/* Unused parameters */
+	(void)who;
+	(void)r;
+	(void)dam;
 
 #if 0 /* unused */
 	/* Reduce damage by distance */
@@ -1746,7 +1789,7 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 		next_o_idx = o_ptr->next_o_idx;
 
 		/* Extract the flags */
-		object_flags(o_ptr, &f1, &f2, &f3, &f4);
+		object_flags(o_ptr, &f1, &f2, &f3);
 
 		/* Get the "plural"-ness */
 		if (o_ptr->number > 1) plural = TRUE;
@@ -1913,7 +1956,7 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 			if (o_ptr->marked)
 			{
 				obvious = TRUE;
-				object_desc(o_name, o_ptr, FALSE, 0);
+				object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 0);
 			}
 
 			/* Artifacts, and other objects, get to resist */
@@ -2065,7 +2108,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 
 
 	/* Obtain monster info */
-	m_ptr = &m_list[cave_m_idx[y][x]];
+	m_ptr = &mon_list[cave_m_idx[y][x]];
 	r_ptr = &r_info[m_ptr->r_idx];
 	l_ptr = &l_list[m_ptr->r_idx];
 	name = (r_name + r_ptr->name);
@@ -2077,7 +2120,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 
 
 	/* Get the monster name (BEFORE polymorphing) */
-	monster_desc(m_name, m_ptr, 0);
+	monster_desc(m_name, sizeof(m_name), m_ptr, 0);
 
 
 
@@ -2110,7 +2153,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			{
 				note = " resists a lot.";
 				dam /= 9;
-				if (seen) l_ptr->r_flags3 |= (RF3_IM_ACID);
+				if (seen) l_ptr->flags3 |= (RF3_IM_ACID);
 			}
 			break;
 		}
@@ -2123,7 +2166,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			{
 				note = " resists a lot.";
 				dam /= 9;
-				if (seen) l_ptr->r_flags3 |= (RF3_IM_ELEC);
+				if (seen) l_ptr->flags3 |= (RF3_IM_ELEC);
 			}
 			break;
 		}
@@ -2136,7 +2179,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			{
 				note = " resists a lot.";
 				dam /= 9;
-				if (seen) l_ptr->r_flags3 |= (RF3_IM_FIRE);
+				if (seen) l_ptr->flags3 |= (RF3_IM_FIRE);
 			}
 			break;
 		}
@@ -2149,7 +2192,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			{
 				note = " resists a lot.";
 				dam /= 9;
-				if (seen) l_ptr->r_flags3 |= (RF3_IM_COLD);
+				if (seen) l_ptr->flags3 |= (RF3_IM_COLD);
 			}
 			break;
 		}
@@ -2162,7 +2205,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			{
 				note = " resists a lot.";
 				dam /= 9;
-				if (seen) l_ptr->r_flags3 |= (RF3_IM_POIS);
+				if (seen) l_ptr->flags3 |= (RF3_IM_POIS);
 			}
 			break;
 		}
@@ -2175,7 +2218,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			{
 				dam *= 2;
 				note = " is hit hard.";
-				if (seen) l_ptr->r_flags3 |= (RF3_EVIL);
+				if (seen) l_ptr->flags3 |= (RF3_EVIL);
 			}
 			break;
 		}
@@ -2208,7 +2251,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			{
 				note = " is immune.";
 				dam = 0;
-				if (seen) l_ptr->r_flags3 |= (RF3_UNDEAD);
+				if (seen) l_ptr->flags3 |= (RF3_UNDEAD);
 			}
 			else if (r_ptr->flags4 & (RF4_BR_NETH))
 			{
@@ -2219,7 +2262,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			{
 				dam /= 2;
 				note = " resists somewhat.";
-				if (seen) l_ptr->r_flags3 |= (RF3_EVIL);
+				if (seen) l_ptr->flags3 |= (RF3_EVIL);
 			}
 			break;
 		}
@@ -2394,7 +2437,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			{
 				note = " resists a lot.";
 				dam /= 9;
-				if (seen) l_ptr->r_flags3 |= (RF3_IM_COLD);
+				if (seen) l_ptr->flags3 |= (RF3_IM_COLD);
 			}
 			break;
 		}
@@ -2410,11 +2453,11 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			{
 				if (r_ptr->flags3 & (RF3_UNDEAD))
 				{
-					if (seen) l_ptr->r_flags3 |= (RF3_UNDEAD);
+					if (seen) l_ptr->flags3 |= (RF3_UNDEAD);
 				}
 				if (r_ptr->flags3 & (RF3_DEMON))
 				{
-					if (seen) l_ptr->r_flags3 |= (RF3_DEMON);
+					if (seen) l_ptr->flags3 |= (RF3_DEMON);
 				}
 
 				note = " is unaffected!";
@@ -2553,7 +2596,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 				/* Memorize a flag */
 				if (r_ptr->flags3 & (RF3_NO_SLEEP))
 				{
-					if (seen) l_ptr->r_flags3 |= (RF3_NO_SLEEP);
+					if (seen) l_ptr->flags3 |= (RF3_NO_SLEEP);
 				}
 
 				/* No obvious effect */
@@ -2589,7 +2632,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 				/* Memorize a flag */
 				if (r_ptr->flags3 & (RF3_NO_CONF))
 				{
-					if (seen) l_ptr->r_flags3 |= (RF3_NO_CONF);
+					if (seen) l_ptr->flags3 |= (RF3_NO_CONF);
 				}
 
 				/* Resist */
@@ -2617,7 +2660,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 				if (seen) obvious = TRUE;
 
 				/* Memorize the effects */
-				if (seen) l_ptr->r_flags3 |= (RF3_HURT_LITE);
+				if (seen) l_ptr->flags3 |= (RF3_HURT_LITE);
 
 				/* Special effect */
 				note = " cringes from the light!";
@@ -2647,7 +2690,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			}
 			else if (r_ptr->flags3 & (RF3_HURT_LITE))
 			{
-				if (seen) l_ptr->r_flags3 |= (RF3_HURT_LITE);
+				if (seen) l_ptr->flags3 |= (RF3_HURT_LITE);
 				note = " cringes from the light!";
 				note_dies = " shrivels away in the light!";
 				dam *= 2;
@@ -2679,7 +2722,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 				if (seen) obvious = TRUE;
 
 				/* Memorize the effects */
-				if (seen) l_ptr->r_flags3 |= (RF3_HURT_ROCK);
+				if (seen) l_ptr->flags3 |= (RF3_HURT_ROCK);
 
 				/* Cute little message */
 				note = " loses some skin!";
@@ -2704,7 +2747,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			if (r_ptr->flags3 & (RF3_UNDEAD))
 			{
 				if (seen) obvious = TRUE;
-				if (seen) l_ptr->r_flags3 |= (RF3_UNDEAD);
+				if (seen) l_ptr->flags3 |= (RF3_UNDEAD);
 				do_dist = dam;
 			}
 
@@ -2728,7 +2771,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			if (r_ptr->flags3 & (RF3_EVIL))
 			{
 				if (seen) obvious = TRUE;
-				if (seen) l_ptr->r_flags3 |= (RF3_EVIL);
+				if (seen) l_ptr->flags3 |= (RF3_EVIL);
 				do_dist = dam;
 			}
 
@@ -2767,7 +2810,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			if (r_ptr->flags3 & (RF3_UNDEAD))
 			{
 				/* Learn about type */
-				if (seen) l_ptr->r_flags3 |= (RF3_UNDEAD);
+				if (seen) l_ptr->flags3 |= (RF3_UNDEAD);
 
 				/* Obvious */
 				if (seen) obvious = TRUE;
@@ -2805,7 +2848,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			if (r_ptr->flags3 & (RF3_EVIL))
 			{
 				/* Learn about type */
-				if (seen) l_ptr->r_flags3 |= (RF3_EVIL);
+				if (seen) l_ptr->flags3 |= (RF3_EVIL);
 
 				/* Obvious */
 				if (seen) obvious = TRUE;
@@ -2869,7 +2912,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			if (r_ptr->flags3 & (RF3_UNDEAD))
 			{
 				/* Learn about type */
-				if (seen) l_ptr->r_flags3 |= (RF3_UNDEAD);
+				if (seen) l_ptr->flags3 |= (RF3_UNDEAD);
 
 				/* Obvious */
 				if (seen) obvious = TRUE;
@@ -2900,7 +2943,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			if (r_ptr->flags3 & (RF3_EVIL))
 			{
 				/* Learn about type */
-				if (seen) l_ptr->r_flags3 |= (RF3_EVIL);
+				if (seen) l_ptr->flags3 |= (RF3_EVIL);
 
 				/* Obvious */
 				if (seen) obvious = TRUE;
@@ -2984,7 +3027,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		/* Pick a "new" monster race */
 		tmp = poly_r_idx(m_ptr->r_idx);
 
-		/* Handle polymorh */
+		/* Handle polymorph */
 		if (tmp != m_ptr->r_idx)
 		{
 			/* Obvious */
@@ -3005,7 +3048,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			/* Hack -- Assume success XXX XXX XXX */
 
 			/* Hack -- Get new monster */
-			m_ptr = &m_list[cave_m_idx[y][x]];
+			m_ptr = &mon_list[cave_m_idx[y][x]];
 
 			/* Hack -- Get new race */
 			r_ptr = &r_info[m_ptr->r_idx];
@@ -3259,13 +3302,13 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 
 
 	/* Get the source monster */
-	m_ptr = &m_list[who];
+	m_ptr = &mon_list[who];
 
 	/* Get the monster name */
-	monster_desc(m_name, m_ptr, 0);
+	monster_desc(m_name, sizeof(m_name), m_ptr, 0);
 
 	/* Get the monster's real name */
-	monster_desc(killer, m_ptr, 0x88);
+	monster_desc(killer, sizeof(killer), m_ptr, 0x88);
 
 
 	/* Analyze the damage */
@@ -3896,8 +3939,8 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 	/* Start at monster */
 	else if (who > 0)
 	{
-		x1 = m_list[who].fx;
-		y1 = m_list[who].fy;
+		x1 = mon_list[who].fx;
+		y1 = mon_list[who].fy;
 	}
 
 	/* Oops */
@@ -4113,7 +4156,7 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 			/* Hack -- center the cursor */
 			move_cursor_relative(y2, x2);
 
-			/* Flush each "radius" seperately */
+			/* Flush each "radius" separately */
 			if (fresh_before) Term_fresh();
 
 			/* Delay (efficiently) */
@@ -4232,7 +4275,7 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 			/* Track if possible */
 			if (cave_m_idx[y][x] > 0)
 			{
-				monster_type *m_ptr = &m_list[cave_m_idx[y][x]];
+				monster_type *m_ptr = &mon_list[cave_m_idx[y][x]];
 
 				/* Hack -- auto-recall */
 				if (m_ptr->ml) monster_race_track(m_ptr->r_idx);

@@ -44,14 +44,11 @@ struct term_win
 	byte *va;
 	char *vc;
 
-#ifdef USE_TRANSPARENCY
 	byte **ta;
 	char **tc;
 
 	byte *vta;
 	char *vtc;
-#endif /* USE_TRANSPARENCY */
-
 };
 
 
@@ -160,9 +157,9 @@ typedef struct term term;
 
 struct term
 {
-	vptr user;
+	void *user;
 
-	vptr data;
+	void *data;
 
 	bool user_flag;
 
@@ -215,16 +212,13 @@ struct term
 
 	errr (*curs_hook)(int x, int y);
 
+	errr (*bigcurs_hook)(int x, int y);
+
 	errr (*wipe_hook)(int x, int y, int n);
 
 	errr (*text_hook)(int x, int y, int n, byte a, cptr s);
 
-#ifdef USE_TRANSPARENCY
 	errr (*pict_hook)(int x, int y, int n, const byte *ap, const char *cp, const byte *tap, const char *tcp);
-#else /* USE_TRANSPARENCY */
-	errr (*pict_hook)(int x, int y, int n, const byte *ap, const char *cp);
-#endif /* USE_TRANSPARENCY */
-
 };
 
 
@@ -278,16 +272,11 @@ extern term *Term;
 extern errr Term_user(int n);
 extern errr Term_xtra(int n, int v);
 
-#ifdef USE_TRANSPARENCY
 extern void Term_queue_char(int x, int y, byte a, char c, byte ta, char tc);
-#else /* USE_TRANSPARENCY */
-extern void Term_queue_char(int x, int y, byte a, char c);
-#endif /* USE_TRANSPARENCY */
-
 extern void Term_queue_chars(int x, int y, int n, byte a, cptr s);
 
 extern errr Term_fresh(void);
-extern errr Term_set_cursor(int v);
+extern errr Term_set_cursor(bool v);
 extern errr Term_gotoxy(int x, int y);
 extern errr Term_draw(int x, int y, byte a, char c);
 extern errr Term_addch(byte a, char c);
@@ -299,7 +288,7 @@ extern errr Term_clear(void);
 extern errr Term_redraw(void);
 extern errr Term_redraw_section(int x1, int y1, int x2, int y2);
 
-extern errr Term_get_cursor(int *v);
+extern errr Term_get_cursor(bool *v);
 extern errr Term_get_size(int *w, int *h);
 extern errr Term_locate(int *x, int *y);
 extern errr Term_what(int x, int y, byte *a, char *c);

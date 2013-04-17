@@ -10,6 +10,8 @@
 
 #include "angband.h"
 
+#include "script.h"
+
 
 /*
  * Forward declare
@@ -28,9 +30,9 @@ struct birther
 
 	s32b au;
 
-	s16b stat[6];
+	s16b stat[A_MAX];
 
-	char history[4][60];
+	char history[250];
 };
 
 
@@ -44,7 +46,7 @@ static birther prev;
 /*
  * Current stats (when rolling a character).
  */
-static s16b stat_use[6];
+static s16b stat_use[A_MAX];
 
 
 
@@ -72,10 +74,7 @@ static void save_prev_data(void)
 	}
 
 	/* Save the history */
-	for (i = 0; i < 4; i++)
-	{
-		strcpy(prev.history[i], p_ptr->history[i]);
-	}
+	my_strcpy(prev.history, p_ptr->history, sizeof(prev.history));
 }
 
 
@@ -105,10 +104,7 @@ static void load_prev_data(void)
 	}
 
 	/* Save the history */
-	for (i = 0; i < 4; i++)
-	{
-		strcpy(temp.history[i], p_ptr->history[i]);
-	}
+	my_strcpy(temp.history, p_ptr->history, sizeof(temp.history));
 
 
 	/*** Load the previous data ***/
@@ -128,10 +124,7 @@ static void load_prev_data(void)
 	}
 
 	/* Load the history */
-	for (i = 0; i < 4; i++)
-	{
-		strcpy(p_ptr->history[i], prev.history[i]);
-	}
+	my_strcpy(p_ptr->history, prev.history, sizeof(p_ptr->history));
 
 
 	/*** Save the current data ***/
@@ -150,10 +143,7 @@ static void load_prev_data(void)
 	}
 
 	/* Save the history */
-	for (i = 0; i < 4; i++)
-	{
-		strcpy(prev.history[i], temp.history[i]);
-	}
+	my_strcpy(prev.history, temp.history, sizeof(prev.history));
 }
 
 
@@ -337,20 +327,12 @@ static void get_extra(void)
  */
 static void get_history(void)
 {
-	int i, n, chart, roll, social_class;
-
-	char *s, *t;
-
-	char buf[240];
-
+	int i, chart, roll, social_class;
 
 
 	/* Clear the previous history strings */
-	for (i = 0; i < 4; i++) p_ptr->history[i][0] = '\0';
+	p_ptr->history[0] = '\0';
 
-
-	/* Clear the history text */
-	buf[0] = '\0';
 
 	/* Initial social class */
 	social_class = randint(4);
@@ -372,7 +354,7 @@ static void get_history(void)
 		while ((chart != h_info[i].chart) || (roll > h_info[i].roll)) i++;
 
 		/* Get the textual history */
-		strcat(buf, (h_text + h_info[i].text));
+		my_strcat(p_ptr->history, (h_text + h_info[i].text), sizeof(p_ptr->history));
 
 		/* Add in the social class */
 		social_class += (int)(h_info[i].bonus) - 50;
@@ -389,52 +371,6 @@ static void get_history(void)
 
 	/* Save the social class */
 	p_ptr->sc = social_class;
-
-
-	/* Skip leading spaces */
-	for (s = buf; *s == ' '; s++) /* loop */;
-
-	/* Get apparent length */
-	n = strlen(s);
-
-	/* Kill trailing spaces */
-	while ((n > 0) && (s[n-1] == ' ')) s[--n] = '\0';
-
-
-	/* Start at first line */
-	i = 0;
-
-	/* Collect the history */
-	while (TRUE)
-	{
-		/* Extract remaining length */
-		n = strlen(s);
-
-		/* All done */
-		if (n < 60)
-		{
-			/* Save one line of history */
-			strcpy(p_ptr->history[i++], s);
-
-			/* All done */
-			break;
-		}
-
-		/* Find a reasonable break-point */
-		for (n = 60; ((n > 0) && (s[n-1] != ' ')); n--) /* loop */;
-
-		/* Save next location */
-		t = s + n;
-
-		/* Wipe trailing spaces */
-		while ((n > 0) && (s[n-1] == ' ')) s[--n] = '\0';
-
-		/* Save one line of history */
-		strcpy(p_ptr->history[i++], s);
-
-		/* Start next line */
-		for (s = t; *s == ' '; s++) /* loop */;
-	}
 }
 
 
@@ -564,7 +500,7 @@ static void player_wipe(void)
 		if (r_ptr->flags1 & (RF1_UNIQUE)) r_ptr->max_num = 1;
 
 		/* Clear player kills */
-		l_ptr->r_pkills = 0;
+		l_ptr->pkills = 0;
 	}
 
 
@@ -577,61 +513,8 @@ static void player_wipe(void)
 
 
 	/* None of the spells have been learned yet */
-	for (i = 0; i < 64; i++) p_ptr->spell_order[i] = 99;
+	for (i = 0; i < PY_MAX_SPELLS; i++) p_ptr->spell_order[i] = 99;
 }
-
-
-
-
-/*
- * Each player starts out with a few items, given as tval/sval pairs.
- * In addition, he always has some food and a few torches.
- */
-
-static byte player_init[MAX_CLASS][3][2] =
-{
-	{
-		/* Warrior */
-		{ TV_POTION, SV_POTION_BESERK_STRENGTH },
-		{ TV_SWORD, SV_BROAD_SWORD },
-		{ TV_HARD_ARMOR, SV_CHAIN_MAIL }
-	},
-
-	{
-		/* Mage */
-		{ TV_MAGIC_BOOK, 0 },
-		{ TV_SWORD, SV_DAGGER },
-		{ TV_SCROLL, SV_SCROLL_WORD_OF_RECALL }
-	},
-
-	{
-		/* Priest */
-		{ TV_PRAYER_BOOK, 0 },
-		{ TV_HAFTED, SV_MACE },
-		{ TV_POTION, SV_POTION_HEALING }
-	},
-
-	{
-		/* Rogue */
-		{ TV_MAGIC_BOOK, 0 },
-		{ TV_SWORD, SV_SMALL_SWORD },
-		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR }
-	},
-
-	{
-		/* Ranger */
-		{ TV_MAGIC_BOOK, 0 },
-		{ TV_SWORD, SV_BROAD_SWORD },
-		{ TV_BOW, SV_LONG_BOW }
-	},
-
-	{
-		/* Paladin */
-		{ TV_PRAYER_BOOK, 0 },
-		{ TV_SWORD, SV_BROAD_SWORD },
-		{ TV_SCROLL, SV_SCROLL_PROTECTION_FROM_EVIL }
-	}
-};
 
 
 
@@ -642,49 +525,38 @@ static byte player_init[MAX_CLASS][3][2] =
  */
 static void player_outfit(void)
 {
-	int i, tv, sv;
-
+	int i;
+	const start_item *e_ptr;
 	object_type *i_ptr;
 	object_type object_type_body;
 
 
-	/* Get local object */
-	i_ptr = &object_type_body;
-
-	/* Hack -- Give the player some food */
-	object_prep(i_ptr, lookup_kind(TV_FOOD, SV_FOOD_RATION));
-	i_ptr->number = (byte)rand_range(3, 7);
-	object_aware(i_ptr);
-	object_known(i_ptr);
-	(void)inven_carry(i_ptr);
-
-
-	/* Get local object */
-	i_ptr = &object_type_body;
-
-	/* Hack -- Give the player some torches */
-	object_prep(i_ptr, lookup_kind(TV_LITE, SV_LITE_TORCH));
-	i_ptr->number = (byte)rand_range(3, 7);
-	i_ptr->pval = rand_range(3, 7) * 500;
-	object_aware(i_ptr);
-	object_known(i_ptr);
-	(void)inven_carry(i_ptr);
-
-	/* Hack -- Give the player three useful objects */
-	for (i = 0; i < 3; i++)
+	/* Hack -- Give the player his equipment */
+	for (i = 0; i < MAX_START_ITEMS; i++)
 	{
-		/* Look up standard equipment */
-		tv = player_init[p_ptr->pclass][i][0];
-		sv = player_init[p_ptr->pclass][i][1];
+		/* Access the item */
+		e_ptr = &(cp_ptr->start_items[i]);
 
 		/* Get local object */
 		i_ptr = &object_type_body;
 
-		/* Hack -- Give the player an object */
-		object_prep(i_ptr, lookup_kind(tv, sv));
-		object_aware(i_ptr);
-		object_known(i_ptr);
-		(void)inven_carry(i_ptr);
+		/* Hack	-- Give the player an object */
+		if (e_ptr->tval > 0)
+		{
+			/* Get the object_kind */
+			int k_idx = lookup_kind(e_ptr->tval, e_ptr->sval);
+
+			/* Valid item? */
+			if (!k_idx) continue;
+
+			/* Prepare the item */
+			object_prep(i_ptr, k_idx);
+			i_ptr->number = (byte)rand_range(e_ptr->min, e_ptr->max);
+
+			object_aware(i_ptr);
+			object_known(i_ptr);
+			(void)inven_carry(i_ptr);
+		}
 	}
 }
 
@@ -742,7 +614,7 @@ static bool player_birth_aux_1(void)
 		str = sp_ptr->title;
 
 		/* Display */
-		sprintf(buf, "%c%c %s", I2A(n), p2, str);
+		strnfmt(buf, sizeof(buf), "%c%c %s", I2A(n), p2, str);
 		put_str(buf, 21 + (n/5), 2 + 15 * (n%5));
 	}
 
@@ -755,7 +627,7 @@ static bool player_birth_aux_1(void)
 		ch = inkey();
 		if (ch == 'Q') quit(NULL);
 		if (ch == 'S') return (FALSE);
-		k = (islower(ch) ? A2I(ch) : -1);
+		k = (islower((unsigned char)ch) ? A2I(ch) : -1);
 		if (ch == ESCAPE) ch = '*';
 		if (ch == '*') k = rand_int(MAX_SEXES);
 		if ((k >= 0) && (k < n)) break;
@@ -790,7 +662,7 @@ static bool player_birth_aux_1(void)
 		str = p_name + rp_ptr->name;
 
 		/* Display */
-		sprintf(buf, "%c%c %s", I2A(n), p2, str);
+		strnfmt(buf, sizeof(buf), "%c%c %s", I2A(n), p2, str);
 		put_str(buf, 21 + (n/5), 2 + 15 * (n%5));
 	}
 
@@ -803,7 +675,7 @@ static bool player_birth_aux_1(void)
 		ch = inkey();
 		if (ch == 'Q') quit(NULL);
 		if (ch == 'S') return (FALSE);
-		k = (islower(ch) ? A2I(ch) : -1);
+		k = (islower((unsigned char)ch) ? A2I(ch) : -1);
 		if (ch == ESCAPE) ch = '*';
 		if (ch == '*') k = rand_int(z_info->p_max);
 		if ((k >= 0) && (k < n)) break;
@@ -832,21 +704,21 @@ static bool player_birth_aux_1(void)
 	            "Any entries with a (*) should only be used by advanced players.");
 
 	/* Dump classes */
-	for (n = 0; n < MAX_CLASS; n++)
+	for (n = 0; n < z_info->c_max; n++)
 	{
 		cptr mod = "";
 
 		/* Analyze */
 		p_ptr->pclass = n;
-		cp_ptr = &class_info[p_ptr->pclass];
-		mp_ptr = &magic_info[p_ptr->pclass];
-		str = cp_ptr->title;
+		cp_ptr = &c_info[p_ptr->pclass];
+		mp_ptr = &cp_ptr->spells;
+		str = c_name + cp_ptr->name;
 
 		/* Verify legality */
 		if (!(rp_ptr->choice & (1L << n))) mod = " (*)";
 
 		/* Display */
-		sprintf(buf, "%c%c %s%s", I2A(n), p2, str, mod);
+		strnfmt(buf, sizeof(buf), "%c%c %s%s", I2A(n), p2, str, mod);
 		put_str(buf, 21 + (n/3), 2 + 20 * (n%3));
 	}
 
@@ -859,9 +731,20 @@ static bool player_birth_aux_1(void)
 		ch = inkey();
 		if (ch == 'Q') quit(NULL);
 		if (ch == 'S') return (FALSE);
-		k = (islower(ch) ? A2I(ch) : -1);
+		k = (islower((unsigned char)ch) ? A2I(ch) : -1);
 		if (ch == ESCAPE) ch = '*';
-		if (ch == '*') k = rand_int(MAX_CLASS);
+		if (ch == '*')
+		{
+			while (1)
+			{
+				k = rand_int(z_info->c_max);
+
+				/* Try again if not a legal choice */
+				if (!(rp_ptr->choice & (1L << k))) continue;
+
+				break;
+			}
+		}
 		if ((k >= 0) && (k < n)) break;
 		if (ch == '?') do_cmd_help();
 		else bell("Illegal class!");
@@ -869,12 +752,12 @@ static bool player_birth_aux_1(void)
 
 	/* Set class */
 	p_ptr->pclass = k;
-	cp_ptr = &class_info[p_ptr->pclass];
-	mp_ptr = &magic_info[p_ptr->pclass];
+	cp_ptr = &c_info[p_ptr->pclass];
+	mp_ptr = &cp_ptr->spells;
 
 	/* Class */
 	put_str("Class", 5, 1);
-	c_put_str(TERM_L_BLUE, cp_ptr->title, 5, 8);
+	c_put_str(TERM_L_BLUE, c_name + cp_ptr->name, 5, 8);
 
 	/* Clean up */
 	clear_from(15);
@@ -896,7 +779,7 @@ static bool player_birth_aux_1(void)
 		ch = inkey();
 		if (ch == 'Q') quit(NULL);
 		if (ch == 'S') return (FALSE);
-		if (ch == ESCAPE) break;
+		if ((ch == '\r') || (ch == '\n')) break;
 		if (ch == 'y' || ch == 'n') break;
 		if (ch == '?') do_cmd_help();
 		else bell("Illegal answer!");
@@ -932,7 +815,7 @@ static bool player_birth_aux_1(void)
 /*
  * Initial stat costs (initial stats always range from 10 to 18 inclusive).
  */
-static int birth_stat_costs[(18-10)+1] = { 0, 1, 2, 4, 7, 11, 16, 22, 30 };
+static const int birth_stat_costs[(18-10)+1] = { 0, 1, 2, 4, 7, 11, 16, 22, 30 };
 
 
 /*
@@ -1058,7 +941,7 @@ static bool player_birth_aux_2(void)
 
 
 		/* Prompt XXX XXX XXX */
-		sprintf(buf, "Total Cost %2d/48.  Use 2/8 to move, 4/6 to modify, ESC to accept.", cost);
+		sprintf(buf, "Total Cost %2d/48.  Use 2/8 to move, 4/6 to modify, 'Enter' to accept.", cost);
 		prt(buf, 0, 0);
 
 		/* Place cursor just after cost of current stat */
@@ -1074,18 +957,18 @@ static bool player_birth_aux_2(void)
 		if (ch == 'S') return (FALSE);
 
 		/* Done */
-		if (ch == ESCAPE) break;
+		if ((ch == '\r') || (ch == '\n')) break;
 
 		/* Prev stat */
 		if (ch == '8')
 		{
-			stat = (stat + 5) % 6;
+			stat = (stat + A_MAX - 1) % A_MAX;
 		}
 
 		/* Next stat */
 		if (ch == '2')
 		{
-			stat = (stat + 1) % 6;
+			stat = (stat + 1) % A_MAX;
 		}
 
 		/* Decrease stat */
@@ -1119,7 +1002,6 @@ static bool player_birth_aux_2(void)
 static bool player_birth_aux_3(void)
 {
 	int i, j, m, v;
-	int refresh_rate; /* ~ rate we update the stats */
 
 	bool flag;
 	bool prev = FALSE;
@@ -1134,17 +1016,13 @@ static bool player_birth_aux_3(void)
 
 #ifdef ALLOW_AUTOROLLER
 
-	s16b stat_limit[6];
+	s16b stat_limit[A_MAX];
 
-	s32b stat_match[6];
+	s32b stat_match[A_MAX];
 
 	s32b auto_round = 0L;
 
 	s32b last_round;
-	
-	/* ~ set the refresh rate */
-	
-	refresh_rate = (birth_quick_roller) ? 250 : 100;
 
 
 	/*** Autoroll ***/
@@ -1152,7 +1030,7 @@ static bool player_birth_aux_3(void)
 	/* Initialize */
 	if (adult_auto_roller)
 	{
-		int mval[6];
+		int mval[A_MAX];
 
 		char inp[80];
 
@@ -1201,7 +1079,7 @@ static bool player_birth_aux_3(void)
 			}
 
 			/* Prepare a prompt */
-			sprintf(buf, "%-5s%-20s", stat_names[i], inp);
+			strnfmt(buf, sizeof(buf), "%-5s%-20s", stat_names[i], inp);
 
 			/* Dump the prompt */
 			put_str(buf, 16 + i, 5);
@@ -1222,7 +1100,7 @@ static bool player_birth_aux_3(void)
 				strcpy(inp, "");
 
 				/* Get a response (or escape) */
-				if (!askfor_aux(inp, 8)) inp[0] = '\0';
+				if (!askfor_aux(inp, 9)) inp[0] = '\0';
 
 				/* Hack -- add a fake slash */
 				strcat(inp, "/");
@@ -1273,17 +1151,14 @@ static bool player_birth_aux_3(void)
 			put_str("  Roll", 2, col+24);
 
 			/* Put the minimal stats */
-			/* ~ but not in quick mode -- neko */
-			if (!birth_auto_roller) {
-				for (i = 0; i < A_MAX; i++)
-				{
-					/* Label stats */
-					put_str(stat_names[i], 3+i, col);
+			for (i = 0; i < A_MAX; i++)
+			{
+				/* Label stats */
+				put_str(stat_names[i], 3+i, col);
 
-					/* Put the stat */
-					cnv_stat(stat_limit[i], buf);
-					c_put_str(TERM_L_BLUE, buf, 3+i, col+5);
-				}
+				/* Put the stat */
+				cnv_stat(stat_limit[i], buf);
+				c_put_str(TERM_L_BLUE, buf, 3+i, col+5);
 			}
 
 			/* Note when we started */
@@ -1337,36 +1212,36 @@ static bool player_birth_aux_3(void)
 				else
 				{
 					flag = (!(auto_round % 25L));
-     			}
+                                }
 
 				/* Update display occasionally */
 				if (flag || (auto_round < last_round + 100))
 				{
 					/* Put the stats (and percents) */
-					if (!(birth_quick_roller))
+                                        if (!(birth_quick_roller)) /* ~ unless we quick-roll */
 					{
-						for (i = 0; i < A_MAX; i++)
-						{
-							/* Put the stat */
-							cnv_stat(stat_use[i], buf);
-							c_put_str(TERM_L_GREEN, buf, 3+i, col+24);
-                      	
-							/* Put the percent */
-							if (stat_match[i])
-							{
-								int p = 1000L * stat_match[i] / auto_round;
-								byte attr = (p < 100) ? TERM_YELLOW : TERM_L_GREEN;
-								sprintf(buf, "%3d.%d%%", p/10, p%10);
-								c_put_str(attr, buf, 3+i, col+13);
-							}
-
-							/* Never happened */
-							else
-							{
-								c_put_str(TERM_RED, "(NONE)", 3+i, col+13);
-							}
-						}
-					}
+                                                for (i = 0; i < A_MAX; i++)
+                                                {
+                                                        /* Put the stat */
+                                                        cnv_stat(stat_use[i], buf);
+                                                        c_put_str(TERM_L_GREEN, buf, 3+i, col+24);
+        
+                                                        /* Put the percent */
+                                                        if (stat_match[i])
+                                                        {
+                                                                int p = 1000L * stat_match[i] / 											auto_round;
+                                                                byte attr = (p < 100) ? TERM_YELLOW : 											TERM_L_GREEN;
+                                                                sprintf(buf, "%3d.%d%%", p/10, p%10);
+                                                                c_put_str(attr, buf, 3+i, col+13);
+                                                        }
+        
+                                                        /* Never happened */
+                                                        else
+                                                        {
+                                                                c_put_str(TERM_RED, "(NONE)", 3+i, 											col+13);
+                                                        }
+                                                }
+                                        }
 
 					/* Dump round */
 					put_str(format("%10ld", auto_round), 10, col+20);
@@ -1434,7 +1309,7 @@ static bool player_birth_aux_3(void)
 			Term_addch(TERM_WHITE, b1);
 			Term_addstr(-1, TERM_WHITE, "'r' to reroll");
 			if (prev) Term_addstr(-1, TERM_WHITE, ", 'p' for prev");
-			Term_addstr(-1, TERM_WHITE, ", or ESC to accept");
+			Term_addstr(-1, TERM_WHITE, ", or 'Enter' to accept");
 			Term_addch(TERM_WHITE, b2);
 
 			/* Prompt and get a command */
@@ -1446,8 +1321,8 @@ static bool player_birth_aux_3(void)
 			/* Start over */
 			if (ch == 'S') return (FALSE);
 
-			/* Escape accepts the roll */
-			if (ch == ESCAPE) break;
+			/* 'Enter' accepts the roll */
+			if ((ch == '\r') || (ch == '\n')) break;
 
 			/* Reroll this character */
 			if ((ch == ' ') || (ch == 'r')) break;
@@ -1471,7 +1346,7 @@ static bool player_birth_aux_3(void)
 		}
 
 		/* Are we done? */
-		if (ch == ESCAPE) break;
+		if ((ch == '\r') || (ch == '\n')) break;
 
 		/* Save this for the "previous" character */
 		save_prev_data();
@@ -1496,6 +1371,7 @@ static bool player_birth_aux_3(void)
 static bool player_birth_aux(void)
 {
 	char ch;
+	cptr prompt = "['Q' to suicide, 'S' to start over, or any other key to continue]";
 
 	/* Ask questions */
 	if (!player_birth_aux_1()) return (FALSE);
@@ -1521,7 +1397,7 @@ static bool player_birth_aux(void)
 	display_player(0);
 
 	/* Prompt for it */
-	prt("['Q' to suicide, 'S' to start over, or ESC to continue]", 23, 10);
+	prt(prompt, Term->hgt - 1, Term->wid / 2 - strlen(prompt) / 2);
 
 	/* Get a key */
 	ch = inkey();
@@ -1570,6 +1446,8 @@ void player_birth(void)
 	/* Hack -- outfit the player */
 	player_outfit();
 
+	/* Event -- player birth done */
+	player_birth_done_hook();
 
 	/* Shops */
 	for (n = 0; n < MAX_STORES; n++)
@@ -1584,6 +1462,3 @@ void player_birth(void)
 		for (i = 0; i < 10; i++) store_maint(n);
 	}
 }
-
-
-

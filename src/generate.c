@@ -10,6 +10,8 @@
 
 #include "angband.h"
 
+#include "script.h"
+
 
 /*
  * Note that Level generation is *not* an important bottleneck,
@@ -19,7 +21,7 @@
  * This entire file is only needed for generating levels.
  * This may allow smart compilers to only load it when needed.
  *
- * Consider the "v_info.txt" file for vault generation.
+ * Consider the "vault.txt" file for vault generation.
  *
  * In this file, we use the "special" granite and perma-wall sub-types,
  * where "basic" is normal, "inner" is inside a room, "outer" is the
@@ -249,7 +251,7 @@ static dun_data *dun;
 /*
  * Array of room types (assumes 11x11 blocks)
  */
-static room_data room[ROOM_MAX] =
+static const room_data room[ROOM_MAX] =
 {
 	{ 0, 0, 0, 0, 0 },		/* 0 = Nothing */
 	{ 0, 0, -1, 1, 1 },		/* 1 = Simple (33x11) */
@@ -777,11 +779,15 @@ static void vault_traps(int y, int x, int yd, int xd, int num)
 
 
 /*
- * Hack -- Place some sleeping monsters near the given location
+ * Place some sleeping monsters near the given location
  */
 static void vault_monsters(int y1, int x1, int num)
 {
 	int k, i, y, x;
+	int mon_level_old = monster_level;
+
+	/* Temporary increase monster level */
+	monster_level += 2;
 
 	/* Try to summon "num" monsters "near" the given location */
 	for (k = 0; k < num; k++)
@@ -798,11 +804,14 @@ static void vault_monsters(int y1, int x1, int num)
 			if (!cave_empty_bold(y, x)) continue;
 
 			/* Place the monster (allow groups) */
-			monster_level = p_ptr->depth + 2;
 			(void)place_monster(y, x, TRUE, TRUE);
-			monster_level = p_ptr->depth;
+
+			break;
 		}
 	}
+
+	/* Restore monster level */
+	monster_level = mon_level_old;
 }
 
 
@@ -1140,7 +1149,7 @@ static void build_type3(int y0, int x0)
 
 
 	/* Special features */
-	switch (rand_int(4))
+	switch (randint(4))
 	{
 		/* Nothing */
 		case 1:
@@ -1644,7 +1653,6 @@ static bool vault_aux_demon(int r_idx)
  * case the nest will be empty, and will not affect the level rating.
  *
  * Note that "monster nests" will never contain "unique" monsters.
- * ~ altered just a tad for safety -- neko
  */
 static void build_type5(int y0, int x0)
 {
@@ -1762,11 +1770,10 @@ static void build_type5(int y0, int x0)
 	rating += 10;
 
 	/* (Sometimes) Cause a "special feeling" (for "Monster Nests") */
-	/* ~ slightly altered to make sure we don't overflow randint */
-	if (p_ptr->depth <= 40)
+	if ((p_ptr->depth <= 40) &&
+	    (randint(p_ptr->depth * p_ptr->depth + 1) < 300))
 	{
-		if (randint(p_ptr->depth * p_ptr->depth + 1) < 300)
-			good_item_flag = TRUE;
+		good_item_flag = TRUE;
 	}
 
 
@@ -2251,33 +2258,30 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 				}
 
 				/* Meaner monster, plus treasure */
-				/* ~ slight sanity check -- neko */
 				case '9':
 				{
 					monster_level = p_ptr->depth + 9;
 					place_monster(y, x, TRUE, TRUE);
 					monster_level = p_ptr->depth;
-					object_level = obj_depth(p_ptr->depth + 7);
+					object_level = p_ptr->depth + 7;
 					place_object(y, x, TRUE, FALSE);
-					object_level = obj_depth(p_ptr->depth);
+					object_level = p_ptr->depth;
 					break;
 				}
 
 				/* Nasty monster and treasure */
-				/* ~ same here */
 				case '8':
 				{
 					monster_level = p_ptr->depth + 40;
 					place_monster(y, x, TRUE, TRUE);
 					monster_level = p_ptr->depth;
-					object_level = obj_depth(p_ptr->depth + 20);
+					object_level = p_ptr->depth + 20;
 					place_object(y, x, TRUE, TRUE);
-					object_level = obj_depth(p_ptr->depth);
+					object_level = p_ptr->depth;
 					break;
 				}
 
 				/* Monster and/or object */
-				/* ~ here too */
 				case ',':
 				{
 					if (rand_int(100) < 50)
@@ -2288,9 +2292,9 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 					}
 					if (rand_int(100) < 50)
 					{
-						object_level = obj_depth(p_ptr->depth + 7);
+						object_level = p_ptr->depth + 7;
 						place_object(y, x, FALSE, FALSE);
-						object_level = obj_depth(p_ptr->depth);
+						object_level = p_ptr->depth;
 					}
 					break;
 				}
@@ -2302,7 +2306,7 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 
 
 /*
- * Type 7 -- simple vaults (see "v_info.txt")
+ * Type 7 -- simple vaults (see "vault.txt")
  */
 static void build_type7(int y0, int x0)
 {
@@ -2319,7 +2323,7 @@ static void build_type7(int y0, int x0)
 	}
 
 	/* Message */
-	if (cheat_room) msg_print("Lesser Vault");
+	if (cheat_room) msg_format("Lesser vault (%s)", v_name + v_ptr->name);
 
 	/* Boost the rating */
 	rating += v_ptr->rat;
@@ -2338,7 +2342,7 @@ static void build_type7(int y0, int x0)
 
 
 /*
- * Type 8 -- greater vaults (see "v_info.txt")
+ * Type 8 -- greater vaults (see "vault.txt")
  */
 static void build_type8(int y0, int x0)
 {
@@ -2355,7 +2359,7 @@ static void build_type8(int y0, int x0)
 	}
 
 	/* Message */
-	if (cheat_room) msg_print("Greater Vault");
+	if (cheat_room) msg_format("Greater vault (%s)", v_name + v_ptr->name);
 
 	/* Boost the rating */
 	rating += v_ptr->rat;
@@ -2838,10 +2842,8 @@ static void cave_gen(void)
 
 
 	/* Possible "destroyed" level */
-	/* ~ but only if the player wants one -- neko */
-	if (allow_destroyed) {
-		if ((p_ptr->depth > 10) && (rand_int(DUN_DEST) == 0)) destroyed = TRUE;
-	}
+        /* ~ but only if the player wants one -- neko */
+	if (allow_destroyed && (p_ptr->depth > 10) && (rand_int(DUN_DEST) == 0)) destroyed = TRUE;
 
 	/* Hack -- No destroyed "quest" levels */
 	if (is_quest(p_ptr->depth)) destroyed = FALSE;
@@ -2896,15 +2898,13 @@ static void cave_gen(void)
 		}
 
 		/* Attempt an "unusual" room */
-
-		/* ~ slightly altered -- neko */
-		if (rand_int(DUN_UNUSUAL) < obj_depth(p_ptr->depth))
+		if (rand_int(DUN_UNUSUAL) < p_ptr->depth)
 		{
 			/* Roll for room type */
 			k = rand_int(100);
 
 			/* Attempt a very unusual room */
-			if (rand_int(DUN_UNUSUAL) < obj_depth(p_ptr->depth))
+			if (rand_int(DUN_UNUSUAL) < p_ptr->depth)
 			{
 				/* Type 8 -- Greater vault (10%) */
 				if ((k < 10) && room_build(by, bx, 8)) continue;
@@ -3108,11 +3108,6 @@ static void cave_gen(void)
 /*
  * Builds a store at a given pseudo-location
  *
- * As of 2.8.1 (?) the town is actually centered in the middle of a
- * complete level, and thus the top left corner of the town itself
- * is no longer at (0,0), but rather, at (qy,qx), so the constants
- * in the comments below should be mentally modified accordingly.
- *
  * As of 2.7.4 (?) the stores are placed in a more "user friendly"
  * configuration, such that the four "center" buildings always
  * have at least four grids between them, to allow easy running,
@@ -3129,13 +3124,10 @@ static void build_store(int n, int yy, int xx)
 {
 	int y, x, y0, x0, y1, x1, y2, x2, tmp;
 
-	int qy = SCREEN_HGT;
-	int qx = SCREEN_WID;
-
 
 	/* Find the "center" of the store */
-	y0 = qy + yy * 9 + 6;
-	x0 = qx + xx * 14 + 12;
+	y0 = yy * 9 + 6;
+	x0 = xx * 14 + 12;
 
 	/* Determine the store boundaries */
 	y1 = y0 - randint((yy == 0) ? 3 : 2);
@@ -3220,9 +3212,6 @@ static void town_gen_hack(void)
 {
 	int y, x, k, n;
 
-	int qy = SCREEN_HGT;
-	int qx = SCREEN_WID;
-
 	int rooms[MAX_STORES];
 
 
@@ -3258,8 +3247,8 @@ static void town_gen_hack(void)
 	while (TRUE)
 	{
 		/* Pick a location at least "three" from the outer walls */
-		y = qy + rand_range(3, SCREEN_HGT - 4);
-		x = qx + rand_range(3, SCREEN_WID - 4);
+		y = rand_range(3, TOWN_HGT - 4);
+		x = rand_range(3, TOWN_WID - 4);
 
 		/* Require a "naked" floor grid */
 		if (cave_naked_bold(y, x)) break;
@@ -3299,12 +3288,7 @@ static void town_gen_hack(void)
 static void town_gen(void)
 {
 	int i, y, x;
-
 	int residents;
-
-	int qy = SCREEN_HGT;
-	int qx = SCREEN_WID;
-
 	bool daytime;
 
 
@@ -3339,9 +3323,9 @@ static void town_gen(void)
 	}
 
 	/* Then place some floors */
-	for (y = qy+1; y < qy+SCREEN_HGT-1; y++)
+	for (y = 1; y < TOWN_HGT - 1; y++)
 	{
-		for (x = qx+1; x < qx+SCREEN_WID-1; x++)
+		for (x = 1; x < TOWN_WID - 1; x++)
 		{
 			/* Create empty floor */
 			cave_set_feat(y, x, FEAT_FLOOR);
@@ -3391,7 +3375,7 @@ void generate_cave(void)
 
 		/* Reset */
 		o_max = 1;
-		m_max = 1;
+		mon_max = 1;
 
 
 		/* Start with a blank cave */
@@ -3443,20 +3427,23 @@ void generate_cave(void)
 		rating = 0;
 
 
-		/* Build the town */
-		if (!p_ptr->depth)
+		/* Event -- generate level */
+		if (!generate_level_hook(p_ptr->depth))
 		{
-			/* Make a town */
-			town_gen();
-		}
+			/* Build the town */
+			if (!p_ptr->depth)
+			{
+				/* Make a town */
+				town_gen();
+			}
 
-		/* Build a real level */
-		else
-		{
-			/* Make a dungeon */
-			cave_gen();
+			/* Build a real level */
+			else
+			{
+				/* Make a dungeon */
+				cave_gen();
+			}
 		}
-
 
 		/* Extract the feeling */
 		if (rating > 100) feeling = 2;
@@ -3490,7 +3477,7 @@ void generate_cave(void)
 		}
 
 		/* Prevent monster over-flow */
-		if (m_max >= z_info->m_max)
+		if (mon_max >= z_info->m_max)
 		{
 			/* Message */
 			why = "too many monsters";
@@ -3503,8 +3490,6 @@ void generate_cave(void)
 		/* ~ sorta altered by neko */
 		if (adult_auto_scum && (num < 100))
 		{
-			if (cheat_xtra)
-				msg_format("rating: %d",rating);
 			/* Require "goodness" */
 			if ((feeling > 9) ||
 			    ((p_ptr->depth >= 5) && (feeling > 8)) ||
@@ -3536,7 +3521,7 @@ void generate_cave(void)
 		wipe_o_list();
 
 		/* Wipe the monsters */
-		wipe_m_list();
+		wipe_mon_list();
 	}
 
 

@@ -13,38 +13,11 @@
 
 
 /*
- * Determine if the player "hits" a monster (normal combat).
+ * Determine if the player "hits" a monster.
  *
  * Note -- Always miss 5%, always hit 5%, otherwise random.
  */
-bool test_hit_fire(int chance, int ac, int vis)
-{
-	int k;
-
-	/* Percentile dice */
-	k = rand_int(100);
-
-	/* Hack -- Instant miss or hit */
-	if (k < 10) return (k < 5);
-
-	/* Invisible monsters are harder to hit */
-	if (!vis) chance = chance / 2;
-
-	/* Power competes against armor */
-	if ((chance > 0) && (rand_int(chance) >= (ac * 3 / 4))) return (TRUE);
-
-	/* Assume miss */
-	return (FALSE);
-}
-
-
-
-/*
- * Determine if the player "hits" a monster (normal combat).
- *
- * Note -- Always miss 5%, always hit 5%, otherwise random.
- */
-bool test_hit_norm(int chance, int ac, int vis)
+bool test_hit(int chance, int ac, int vis)
 {
 	int k;
 
@@ -70,7 +43,7 @@ bool test_hit_norm(int chance, int ac, int vis)
  * Critical hits (from objects thrown by player)
  * Factor in item weight, total plusses, and player level.
  */
-sint critical_shot(int weight, int plus, int dam)
+int critical_shot(int weight, int plus, int dam)
 {
 	int i, k;
 
@@ -108,7 +81,6 @@ sint critical_shot(int weight, int plus, int dam)
  * Critical hits (by player)
  *
  * Factor in weapon weight, total plusses, player level.
- *
  * ~ critical hits have been majory altered.
  # ~ this has been modified to give certain classes access to 'higher'
  # ~ blow powers, giving warriors a bit of an edge in combat and
@@ -138,13 +110,14 @@ sint critical_shot(int weight, int plus, int dam)
  # ~ grond (or even with grond, in fact).
  # ~ -- neko
  */
-sint critical_norm(int weight, int plus, int dam)
+ 
+int critical_norm(int weight, int plus, int dam)
 {
 	int i, k;
 
 	/* Extract "blow" power */
 	i = (weight + ((p_ptr->to_h + plus) * 5) + (p_ptr->lev * 3));
-	/* ~ now apply class-dependant factor */
+	/* ~ now apply class-dependent factor */
 	switch (p_ptr->pclass)
 	{
 		case CLASS_WARRIOR:
@@ -166,15 +139,13 @@ sint critical_norm(int weight, int plus, int dam)
 			i = (225 * i) / 100;
 			break;
 	}
-	
-
 	/* Chance */
 	if (randint(5000) <= i)
 	{
-		switch (p_ptr->pclass)
+		switch (p_ptr->pclass) /* ~ class-dependent crit-type factor */
 		{
 			case CLASS_WARRIOR:
-				/* ~ very good bonus, *very* dependant on weight
+				/* ~ very good bonus, *very* dependent on weight
 				 # ~ (i'm writing this section for them)
 				 */
 				k = (p_ptr->lev *10) + (weight * 2) + randint(1000 + weight * 4);
@@ -186,10 +157,10 @@ sint critical_norm(int weight, int plus, int dam)
 				k = weight + randint(650);
 				break;
 			case CLASS_PRIEST:
-				/* ~ fair bonus, but quite dependant on weight since
+				/* ~ fair bonus, but quite dependent on weight, since
 				 # ~ priests tend to use heavy weapons alot (maces, etc)
 				 */
-				k =( p_ptr->lev * 2) + (weight * 2) + randint(650);
+				k = (p_ptr->lev * 2) + (weight * 2) + randint(650);
 				break;
 			case CLASS_ROGUE:
 				/* ~ Okay bonus (light weapons fit the rogue's idiom more) */
@@ -200,15 +171,15 @@ sint critical_norm(int weight, int plus, int dam)
 				k = (p_ptr->lev * 5) + weight + randint(650 + weight);
 				break;
 			case CLASS_PALADIN:
-				/* ~ Good, weight-dependant bonus */
+				/* ~ Good, weight-dependent bonus */
 				k = (p_ptr->lev * 8) + (weight * 3) + randint(800 + weight * 2);
 				break;
-			/* ~ paranoia -- non-existant classes get no crits */
+			/* ~ paranoia -- non-existent classes get standard crit */
 			default:
-				k = 0;
+				k = weight + randint(650);
 				break;
 		} /* ~ switch */
-		if (k < 400)
+                if (k < 400)
 		{
 			msg_print("It was a good hit!");
 			dam = 2 * dam + 5;
@@ -233,18 +204,18 @@ sint critical_norm(int weight, int plus, int dam)
 			msg_print("It was a *SUPERB* hit!");
 			dam = ((7 * dam) / 2) + 25;
 		}
-		else if (k < 2500)
-		{
+                else if (k < 2500)
+		{ /* ~ wow */
 			msg_print("It was a *TREMENDOUS* hit!");
 			dam = (5 * dam) + 30;
 		}
 		else if (k < 3000)
-		{
+		{ /* ~ WOW */
 			msg_print("It was an *INCREDIBLE* hit!");
 			dam = ((15 * dam) / 2) + 35;
 		}
 		else if (k < 3700)
-		{
+		{ /* ~ WOW! */
 			msg_print("It was an *UNBELIEVABLE* hit!");
 			dam = (10 * dam) + 45;
 		}
@@ -257,7 +228,6 @@ sint critical_norm(int weight, int plus, int dam)
 
 	return (dam);
 }
-
 
 
 
@@ -276,22 +246,21 @@ sint critical_norm(int weight, int plus, int dam)
  # ~   from rogues attacking sleeping monsters, and from slays. The critical
  # ~   hit damage, if any, is added to this instead of this being used as
  # ~   the base.
- # ~ o Poison brand is now taken into account.
  */
-sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
+int tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 {
 	int mult = 1;
 
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
 
-	u32b f1, f2, f3, f4;
+	u32b f1, f2, f3;
 
 	/* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3, &f4);
+	object_flags(o_ptr, &f1, &f2, &f3);
 
 	/* Some "weapons" and "ammo" do extra damage
-	 * ~ now recognzes the conferred slays by rings, etc -- neko */
+         * ~ now recognzes the conferred slays by rings, etc -- neko */
 	switch (o_ptr->tval)
 	{
 		case TV_SHOT:
@@ -308,19 +277,19 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 			{
 				if (m_ptr->ml)
 				{
-					l_ptr->r_flags3 |= (RF3_ANIMAL);
+					l_ptr->flags3 |= (RF3_ANIMAL);
 				}
 
 				if (mult < 2) mult = 2;
 			}
 
 			/* Slay Evil */
-			if ((f1 & (TR1_SLAY_EVIL)) &&
-			    (r_ptr->flags3 & (RF3_EVIL)))
+			if (((f1 & (TR1_SLAY_EVIL)) || (p_ptr->wear_pois)) &&
+			    (r_ptr->flags3 & (RF3_EVIL))) /* ~ modified for confers */
 			{
 				if (m_ptr->ml)
 				{
-					l_ptr->r_flags3 |= (RF3_EVIL);
+					l_ptr->flags3 |= (RF3_EVIL);
 				}
 
 				if (mult < 2) mult = 2;
@@ -332,7 +301,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 			{
 				if (m_ptr->ml)
 				{
-					l_ptr->r_flags3 |= (RF3_UNDEAD);
+					l_ptr->flags3 |= (RF3_UNDEAD);
 				}
 
 				if (mult < 3) mult = 3;
@@ -344,7 +313,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 			{
 				if (m_ptr->ml)
 				{
-					l_ptr->r_flags3 |= (RF3_DEMON);
+					l_ptr->flags3 |= (RF3_DEMON);
 				}
 
 				if (mult < 3) mult = 3;
@@ -356,7 +325,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 			{
 				if (m_ptr->ml)
 				{
-					l_ptr->r_flags3 |= (RF3_ORC);
+					l_ptr->flags3 |= (RF3_ORC);
 				}
 
 				if (mult < 3) mult = 3;
@@ -368,7 +337,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 			{
 				if (m_ptr->ml)
 				{
-					l_ptr->r_flags3 |= (RF3_TROLL);
+					l_ptr->flags3 |= (RF3_TROLL);
 				}
 
 				if (mult < 3) mult = 3;
@@ -380,21 +349,21 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 			{
 				if (m_ptr->ml)
 				{
-					l_ptr->r_flags3 |= (RF3_GIANT);
+					l_ptr->flags3 |= (RF3_GIANT);
 				}
 
 				if (mult < 3) mult = 3;
 			}
 
-			/* Slay Dragon  */
-			/* ~ note that CONF_DRGN objects give slay dragon,
+			/* Slay Dragon */
+                        /* ~ note that CONF_DRGN objects give slay dragon,
 			   ~ as opposed to execute dragon. */
-			if ((f1 & (TR1_SLAY_DRAGON)) &&
-			    (r_ptr->flags3 & (RF3_DRAGON)))
+			if (((f1 & (TR1_SLAY_DRAGON)) || (p_ptr->wear_pois)) &&
+			    (r_ptr->flags3 & (RF3_DRAGON))) /* ~ modified for confers */
 			{
 				if (m_ptr->ml)
 				{
-					l_ptr->r_flags3 |= (RF3_DRAGON);
+					l_ptr->flags3 |= (RF3_DRAGON);
 				}
 
 				if (mult < 3) mult = 3;
@@ -406,22 +375,45 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 			{
 				if (m_ptr->ml)
 				{
-					l_ptr->r_flags3 |= (RF3_DRAGON);
+					l_ptr->flags3 |= (RF3_DRAGON);
 				}
 
 				if (mult < 5) mult = 5;
 			}
 
+			/* Execute demon */
+			if ((f1 & (TR1_KILL_DEMON)) &&
+			    (r_ptr->flags3 & (RF3_DEMON)))
+			{
+				if (m_ptr->ml)
+				{
+					l_ptr->flags3 |= (RF3_DEMON);
+				}
+
+				if (mult < 5) mult = 5;
+			}
+
+			/* Execute undead */
+			if ((f1 & (TR1_KILL_UNDEAD)) &&
+			    (r_ptr->flags3 & (RF3_UNDEAD)))
+			{
+				if (m_ptr->ml)
+				{
+					l_ptr->flags3 |= (RF3_UNDEAD);
+				}
+
+				if (mult < 5) mult = 5;
+			}
 
 			/* Brand (Acid) */
-			if (f1 & (TR1_BRAND_ACID))
+			if ((f1 & (TR1_BRAND_ACID)) || (p_ptr->wear_acid)) /* ~ modified for confers */
 			{
 				/* Notice immunity */
 				if (r_ptr->flags3 & (RF3_IM_ACID))
 				{
 					if (m_ptr->ml)
 					{
-						l_ptr->r_flags3 |= (RF3_IM_ACID);
+						l_ptr->flags3 |= (RF3_IM_ACID);
 					}
 				}
 
@@ -433,14 +425,14 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 			}
 
 			/* Brand (Elec) */
-			if (f1 & (TR1_BRAND_ELEC))
+			if ((f1 & (TR1_BRAND_ELEC)) || (p_ptr->wear_elec)) /* ~ modified for confers */
 			{
 				/* Notice immunity */
 				if (r_ptr->flags3 & (RF3_IM_ELEC))
 				{
 					if (m_ptr->ml)
 					{
-						l_ptr->r_flags3 |= (RF3_IM_ELEC);
+						l_ptr->flags3 |= (RF3_IM_ELEC);
 					}
 				}
 
@@ -452,14 +444,15 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 			}
 
 			/* Brand (Fire) */
-			if (f1 & (TR1_BRAND_FIRE))
+			if ((f1 & (TR1_BRAND_FIRE)) || (p_ptr->wear_fire)) /* ~ modified for confers */
 			{
+                                msg_print("Burn Baby Burn!");
 				/* Notice immunity */
 				if (r_ptr->flags3 & (RF3_IM_FIRE))
 				{
 					if (m_ptr->ml)
 					{
-						l_ptr->r_flags3 |= (RF3_IM_FIRE);
+						l_ptr->flags3 |= (RF3_IM_FIRE);
 					}
 				}
 
@@ -471,14 +464,14 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 			}
 
 			/* Brand (Cold) */
-			if (f1 & (TR1_BRAND_COLD))
+			if ((f1 & (TR1_BRAND_COLD)) || (p_ptr->wear_cold)) /* ~ modified for confers */
 			{
 				/* Notice immunity */
 				if (r_ptr->flags3 & (RF3_IM_COLD))
 				{
 					if (m_ptr->ml)
 					{
-						l_ptr->r_flags3 |= (RF3_IM_COLD);
+						l_ptr->flags3 |= (RF3_IM_COLD);
 					}
 				}
 
@@ -488,13 +481,17 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 					if (mult < 3) mult = 3;
 				}
 			}
-			/* ~ Brand (Poison) */
-			if ((f1 & TR1_BRAND_POIS) || (p_ptr->wear_pois))
+
+			/* Brand (Poison) */
+			if ((f1 & (TR1_BRAND_POIS)) || (p_ptr->wear_pois)) /* ~ modified for confers */
 			{
 				/* Notice immunity */
-				if (r_ptr->flags3 & RF3_IM_POIS)
+				if (r_ptr->flags3 & (RF3_IM_POIS))
 				{
-					if (m_ptr->ml) l_ptr->r_flags3 |= (RF3_IM_POIS);
+					if (m_ptr->ml)
+					{
+						l_ptr->flags3 |= (RF3_IM_POIS);
+					}
 				}
 
 				/* Otherwise, take the damage */
@@ -503,6 +500,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 					if (mult < 3) mult = 3;
 				}
 			}
+
 			break;
 		}
 	}
@@ -523,7 +521,7 @@ void search(void)
 
 	int y, x, chance;
 
-	s16b this_o_idx, next_o_idx = 0;
+	object_type *o_ptr;
 
 
 	/* Start with base search ability */
@@ -568,18 +566,13 @@ void search(void)
 				}
 
 				/* Scan all objects in the grid */
-				for (this_o_idx = cave_o_idx[y][x]; this_o_idx; this_o_idx = next_o_idx)
+				for (o_ptr = get_first_object(y, x); o_ptr; o_ptr = get_next_object(o_ptr))
 				{
-					object_type *o_ptr;
-
-					/* Get the object */
-					o_ptr = &o_list[this_o_idx];
-
-					/* Get the next object */
-					next_o_idx = o_ptr->next_o_idx;
-
 					/* Skip non-chests */
 					if (o_ptr->tval != TV_CHEST) continue;
+
+					/* Skip disarmed chests */
+					if (o_ptr->pval <= 0) continue;
 
 					/* Skip non-trapped chests */
 					if (!chest_traps[o_ptr->pval]) continue;
@@ -606,7 +599,7 @@ void search(void)
 /*
  * Determine if the object can be picked up, and has "=g" in its inscription.
  */
-static bool auto_pickup_okay(object_type *o_ptr)
+static bool auto_pickup_okay(const object_type *o_ptr)
 {
 	cptr s;
 
@@ -657,7 +650,7 @@ static void py_pickup_aux(int o_idx)
 	o_ptr = &inventory[slot];
 
 	/* Describe the object */
-	object_desc(o_name, o_ptr, TRUE, 3);
+	object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
 
 	/* Message */
 	msg_format("You have %s (%c).", o_name, index_to_label(slot));
@@ -700,7 +693,7 @@ void py_pickup(int pickup)
 		o_ptr = &o_list[this_o_idx];
 
 		/* Describe the object */
-		object_desc(o_name, o_ptr, TRUE, 3);
+		object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
 
 		/* Get the next object */
 		next_o_idx = o_ptr->next_o_idx;
@@ -805,7 +798,7 @@ void py_pickup(int pickup)
 		if (carry_query_flag)
 		{
 			char out_val[160];
-			sprintf(out_val, "Pick up %s? ", o_name);
+			strnfmt(out_val, sizeof(out_val), "Pick up %s? ", o_name);
 			if (!get_check(out_val)) continue;
 		}
 
@@ -828,7 +821,7 @@ void py_pickup(int pickup)
 				o_ptr = &o_list[last_o_idx];
 
 				/* Describe the object */
-				object_desc(o_name, o_ptr, TRUE, 3);
+				object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
 
 				/* Message */
 				msg_format("You see %s.", o_name);
@@ -855,7 +848,7 @@ void py_pickup(int pickup)
 				o_ptr = &o_list[last_o_idx];
 
 				/* Describe the object */
-				object_desc(o_name, o_ptr, TRUE, 3);
+				object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
 
 				/* Message */
 				msg_format("You have no room for %s.", o_name);
@@ -897,32 +890,15 @@ void py_pickup(int pickup)
 }
 
 
-
 /*
  * Determine if a trap affects the player.
  * Always miss 5% of the time, Always hit 5% of the time.
  * Otherwise, match trap power against player armor.
  */
-static int check_hit(int power)
+static bool check_hit(int power)
 {
-	int k, ac;
-
-	/* Percentile dice */
-	k = rand_int(100);
-
-	/* Hack -- 5% hit, 5% miss */
-	if (k < 10) return (k < 5);
-
-	/* Total armor */
-	ac = p_ptr->ac + p_ptr->to_a;
-
-	/* Power competes against Armor */
-	if ((power > 0) && (randint(power) >= (ac * 3 / 4))) return (TRUE);
-
-	/* Assume miss */
-	return (FALSE);
+	return test_hit(power, p_ptr->ac + p_ptr->to_a, TRUE);
 }
-
 
 
 /*
@@ -1035,7 +1011,6 @@ void hit_trap(int y, int x)
 					{
 						msg_print("The poison does not affect you!");
 					}
-
 					else
 					{
 						dam = dam * 2;
@@ -1219,7 +1194,7 @@ void py_attack(int y, int x)
 
 
 	/* Get the monster */
-	m_ptr = &m_list[cave_m_idx[y][x]];
+	m_ptr = &mon_list[cave_m_idx[y][x]];
 	r_ptr = &r_info[m_ptr->r_idx];
 	l_ptr = &l_list[m_ptr->r_idx];
 
@@ -1234,7 +1209,7 @@ void py_attack(int y, int x)
 
 
 	/* Extract monster name (or "it") */
-	monster_desc(m_name, m_ptr, 0);
+	monster_desc(m_name, sizeof(m_name), m_ptr, 0);
 
 
 	/* Auto-Recall if possible and visible */
@@ -1267,8 +1242,8 @@ void py_attack(int y, int x)
 	while (num++ < p_ptr->num_blow)
 	{
 		/* Test for hit */
-		/* ~ you can always hit a sleeping monster */
-		if (test_hit_norm(chance, r_ptr->ac, m_ptr->ml) || (m_ptr->csleep) )
+                /* ~ you can always hit a sleeping monster */
+		if ((m_ptr->csleep) || test_hit(chance, r_ptr->ac, m_ptr->ml))
 		{
 			/* Message */
 			message_format(MSG_HIT, m_ptr->r_idx, "You hit %s.", m_name);
@@ -1297,8 +1272,8 @@ void py_attack(int y, int x)
 				char	m_name[30];
 		
 				/* ~ hack -- need these to generate the strings */
-				monster_desc(m_name, m_ptr, 0x00);
-				monster_desc(m_pronoun, m_ptr, 0x20);
+				monster_desc(m_name, 30, m_ptr, 0x00);
+				monster_desc(m_pronoun, 4, m_ptr, 0x20);
 				/* ~ rogues can do major damage with small swords to sleeping creatures */
 				if ( (o_ptr->tval == TV_SWORD) && (o_ptr->weight <= 100) )
 				{	
@@ -1316,7 +1291,6 @@ void py_attack(int y, int x)
 				msg_print(attack_msg);
 			}
 
-
 			/* No negative damage */
 			if (k < 0) k = 0;
 
@@ -1326,11 +1300,11 @@ void py_attack(int y, int x)
 				msg_format("You do %d (out of %d) damage.", k, m_ptr->hp);
 			}
 
-			/* Damage, check for fear and death */
-			if (mon_take_hit(cave_m_idx[y][x], k, &fear, NULL)) break;
-
 			/* ~ okay, it's hurt. wake the poor bugger up. */
 			m_ptr->csleep = 0;
+
+			/* Damage, check for fear and death */
+			if (mon_take_hit(cave_m_idx[y][x], k, &fear, NULL)) break;
 
 			/* Confusion attack */
 			if (p_ptr->confusing)
@@ -1346,7 +1320,7 @@ void py_attack(int y, int x)
 				{
 					if (m_ptr->ml)
 					{
-						l_ptr->r_flags3 |= (RF3_NO_CONF);
+						l_ptr->flags3 |= (RF3_NO_CONF);
 					}
 
 					msg_format("%^s is unaffected.", m_name);
@@ -1381,13 +1355,7 @@ void py_attack(int y, int x)
 
 
 	/* Mega-Hack -- apply earthquake brand */
-	if (do_quake)
-	{
-		int py = p_ptr->py;
-		int px = p_ptr->px;
-
-		earthquake(py, px, 10);
-	}
+	if (do_quake) earthquake(p_ptr->py, p_ptr->px, 10);
 }
 
 
@@ -1779,13 +1747,13 @@ static int see_nothing(int dir, int y, int x)
 /*
  * Hack -- allow quick "cycling" through the legal directions
  */
-static byte cycle[] =
+static const byte cycle[] =
 { 1, 2, 3, 6, 9, 8, 7, 4, 1, 2, 3, 6, 9, 8, 7, 4, 1 };
 
 /*
  * Hack -- map each direction into the "middle" of the "cycle[]" array
  */
-static byte chome[] =
+static const byte chome[] =
 { 0, 8, 9, 10, 7, 0, 11, 6, 5, 4 };
 
 
@@ -1797,7 +1765,7 @@ static byte chome[] =
  *
  * Blunt Corridor -- If there is a wall two spaces ahead and
  * we seem to be in a corridor, then force a turn into the side
- * corridor, must be moving straight into a corridor here. ???
+ * corridor, must be moving straight into a corridor here. (?)
  *
  * Diagonal Corridor    Blunt Corridor (?)
  *       # #                  #
@@ -1936,7 +1904,7 @@ static bool run_test(void)
 	/* Look at every newly adjacent square. */
 	for (i = -max; i <= max; i++)
 	{
-		s16b this_o_idx, next_o_idx = 0;
+		object_type *o_ptr;
 
 
 		/* New direction */
@@ -1950,23 +1918,15 @@ static bool run_test(void)
 		/* Visible monsters abort running */
 		if (cave_m_idx[row][col] > 0)
 		{
-			monster_type *m_ptr = &m_list[cave_m_idx[row][col]];
+			monster_type *m_ptr = &mon_list[cave_m_idx[row][col]];
 
 			/* Visible monster */
 			if (m_ptr->ml) return (TRUE);
 		}
 
 		/* Visible objects abort running */
-		for (this_o_idx = cave_o_idx[row][col]; this_o_idx; this_o_idx = next_o_idx)
+		for (o_ptr = get_first_object(row, col); o_ptr; o_ptr = get_next_object(o_ptr))
 		{
-			object_type *o_ptr;
-
-			/* Get the object */
-			o_ptr = &o_list[this_o_idx];
-
-			/* Get the next object */
-			next_o_idx = o_ptr->next_o_idx;
-
 			/* Visible object */
 			if (o_ptr->marked) return (TRUE);
 		}

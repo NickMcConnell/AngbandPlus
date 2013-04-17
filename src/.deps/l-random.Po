@@ -1,0 +1,76 @@
+l-random.o : \
+ lua/tolua.h /usr/include/stdlib.h /usr/include/machine/ansi.h \
+  /usr/include/ppc/ansi.h /usr/include/machine/types.h \
+  /usr/include/ppc/types.h /usr/include/sys/cdefs.h lua/lua.h \
+  /usr/include/stddef.h angband.h h-basic.h autoconf.h h-config.h \
+  h-system.h /usr/include/stdio.h /usr/include/sys/types.h \
+  /usr/include/sys/appleapiopts.h /usr/include/machine/endian.h \
+  /usr/include/ppc/endian.h /usr/include/ctype.h /usr/include/runetype.h \
+  /usr/include/errno.h /usr/include/sys/errno.h /usr/include/sys/timeb.h \
+  /usr/include/time.h /usr/include/gcc/darwin/3.1/machine/limits.h \
+  /usr/include/ppc/limits.h /usr/include/memory.h /usr/include/string.h \
+  /usr/include/fcntl.h /usr/include/sys/fcntl.h /usr/include/sys/param.h \
+  /usr/include/sys/syslimits.h /usr/include/machine/param.h \
+  /usr/include/ppc/param.h /usr/include/sys/signal.h \
+  /usr/include/machine/signal.h /usr/include/ppc/signal.h \
+  /usr/include/sys/file.h /usr/include/sys/unistd.h /usr/include/pwd.h \
+  /usr/include/unistd.h /usr/include/sys/stat.h /usr/include/sys/time.h \
+  /usr/include/gcc/darwin/3.1/stdarg.h h-type.h h-define.h z-util.h \
+  z-virt.h z-form.h z-rand.h z-term.h config.h defines.h types.h externs.h 
+l-random.o :
+lua/tolua.h :
+/usr/include/stdlib.h :
+/usr/include/machine/ansi.h :
+/usr/include/ppc/ansi.h :
+/usr/include/machine/types.h :
+/usr/include/ppc/types.h :
+/usr/include/sys/cdefs.h :
+lua/lua.h :
+/usr/include/stddef.h :
+angband.h :
+h-basic.h :
+autoconf.h :
+h-config.h :
+h-system.h :
+/usr/include/stdio.h :
+/usr/include/sys/types.h :
+/usr/include/sys/appleapiopts.h :
+/usr/include/machine/endian.h :
+/usr/include/ppc/endian.h :
+/usr/include/ctype.h :
+/usr/include/runetype.h :
+/usr/include/errno.h :
+/usr/include/sys/errno.h :
+/usr/include/sys/timeb.h :
+/usr/include/time.h :
+/usr/include/gcc/darwin/3.1/machine/limits.h :
+/usr/include/ppc/limits.h :
+/usr/include/memory.h :
+/usr/include/string.h :
+/usr/include/fcntl.h :
+/usr/include/sys/fcntl.h :
+/usr/include/sys/param.h :
+/usr/include/sys/syslimits.h :
+/usr/include/machine/param.h :
+/usr/include/ppc/param.h :
+/usr/include/sys/signal.h :
+/usr/include/machine/signal.h :
+/usr/include/ppc/signal.h :
+/usr/include/sys/file.h :
+/usr/include/sys/unistd.h :
+/usr/include/pwd.h :
+/usr/include/unistd.h :
+/usr/include/sys/stat.h :
+/usr/include/sys/time.h :
+/usr/include/gcc/darwin/3.1/stdarg.h :
+h-type.h :
+h-define.h :
+z-util.h :
+z-virt.h :
+z-form.h :
+z-rand.h :
+z-term.h :
+config.h :
+defines.h :
+types.h :
+externs.h :

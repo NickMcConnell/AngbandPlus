@@ -46,11 +46,6 @@
  */
 typedef byte byte_256[256];
 
-/*
- * An array of 256 s16b's
- */
-typedef s16b s16b_256[256];
-
 
 /*
  * An array of DUNGEON_WID byte's
@@ -67,7 +62,6 @@ typedef s16b s16b_wid[DUNGEON_WID];
 /**** Available Structs ****/
 
 
-typedef struct header header;
 typedef struct maxima maxima;
 typedef struct feature_type feature_type;
 typedef struct object_kind object_kind;
@@ -91,60 +85,11 @@ typedef struct player_class player_class;
 typedef struct hist_type hist_type;
 typedef struct player_other player_other;
 typedef struct player_type player_type;
+typedef struct start_item start_item;
 
 
 
 /**** Available structs ****/
-
-
-/*
- * Template file header information (see "init.c").  16 bytes.
- *
- * Note that the sizes of many of the "arrays" are between 32768 and
- * 65535, and so we must use "unsigned" values to hold the "sizes" of
- * these arrays below.  Normally, I try to avoid using unsigned values,
- * since they can cause all sorts of bizarre problems, but I have no
- * choice here, at least, until the "race" array is split into "normal"
- * and "unique" monsters, which may or may not actually help.
- *
- * Note that, on some machines, for example, the Macintosh, the standard
- * "read()" and "write()" functions cannot handle more than 32767 bytes
- * at one time, so we need replacement functions, see "util.c" for details.
- *
- * Note that, on some machines, for example, the Macintosh, the standard
- * "malloc()" function cannot handle more than 32767 bytes at one time,
- * but we may assume that the "ralloc()" function can handle up to 65535
- * butes at one time.  We should not, however, assume that the "ralloc()"
- * function can handle more than 65536 bytes at a time, since this might
- * result in segmentation problems on certain older machines, and in fact,
- * we should not assume that it can handle exactly 65536 bytes at a time,
- * since the internal functions may use an unsigned short to specify size.
- *
- * In general, these problems occur only on machines (such as most personal
- * computers) which use 2 byte "int" values, and which use "int" for the
- * arguments to the relevent functions.
- */
-struct header
-{
-	byte v_major;		/* Version -- major */
-	byte v_minor;		/* Version -- minor */
-	byte v_patch;		/* Version -- patch */
-	byte v_extra;		/* Version -- extra */
-
-
-	u16b info_num;		/* Number of "info" records */
-
-	u16b info_len;		/* Size of each "info" record */
-
-
-	u16b head_size;		/* Size of the "header" in bytes */
-
-	u16b info_size;		/* Size of the "info" array in bytes */
-
-	u32b name_size;		/* Size of the "name" array in bytes */
-
-	u32b text_size;		/* Size of the "text" array in bytes */
-};
 
 
 /*
@@ -158,21 +103,18 @@ struct maxima
 
 	u16b f_max;		/* Max size for "f_info[]" */
 	u16b k_max;		/* Max size for "k_info[]" */
-
 	u16b a_max;		/* Max size for "a_info[]" */
 	u16b e_max;		/* Max size for "e_info[]" */
-
 	u16b r_max;		/* Max size for "r_info[]" */
 	u16b v_max;		/* Max size for "v_info[]" */
-
 	u16b p_max;		/* Max size for "p_info[]" */
 	u16b h_max;		/* Max size for "h_info[]" */
-
 	u16b b_max;		/* Max size per element of "b_info[]" */
-	u16b unused;	/* Unused */
+	u16b c_max;		/* Max size for "c_info[]" */
+	u16b flavor_max; /* Max size for "flavor_info[]" */
 
 	u16b o_max;		/* Max size for "o_list[]" */
-	u16b m_max;		/* Max size for "m_list[]" */
+	u16b m_max;		/* Max size for "mon_list[]" */
 };
 
 
@@ -230,7 +172,7 @@ struct object_kind
 	u32b flags1;		/* Flags, set 1 */
 	u32b flags2;		/* Flags, set 2 */
 	u32b flags3;		/* Flags, set 3 */
-    u32b flags4;        /* ~ flags, set 4 */
+        u32b flags4;		/* ~ Flags, set 4 */
 
 	byte locale[4];		/* Allocation level(s) */
 	byte chance[4];		/* Allocation chance(s) */
@@ -247,9 +189,7 @@ struct object_kind
 	char x_char;		/* Desired object character */
 
 
-	byte flavor;		/* Special object flavor (or zero) */
-
-	bool easy_know;		/* This object is always known (if aware) */
+	u16b flavor;		/* Special object flavor (or zero) */
 
 
 	bool aware;			/* The player is "aware" of the item's effects */
@@ -291,7 +231,7 @@ struct artifact_type
 	u32b flags1;		/* Artifact Flags, set 1 */
 	u32b flags2;		/* Artifact Flags, set 2 */
 	u32b flags3;		/* Artifact Flags, set 3 */
-    u32b flags4;        /* ~ artifact flags, set 4 */
+        u32b flags4;		/* ~ Artifact Flags, set 4 */
 
 	byte level;			/* Artifact level */
 	byte rarity;		/* Artifact rarity */
@@ -313,29 +253,27 @@ struct ego_item_type
 	u32b name;			/* Name (offset) */
 	u32b text;			/* Text (offset) */
 
-	byte slot;			/* Standard slot value */
-	byte rating;		/* Rating boost */
-
-	byte level;			/* Minimum level */
-	byte rarity;		/* Object rarity */
-
-	byte tval[3];		/* Legal tval */
-	byte min_sval[3];	/* Minimum legal sval */
-	byte max_sval[3];	/* Maximum legal tval */
-	byte xtra;			/* Extra Sustain/Resist/Power */
-
-	byte max_to_h;		/* Maximum to-hit bonus */
-	byte max_to_d;		/* Maximum to-dam bonus */
-	byte max_to_a;		/* Maximum to-ac bonus */
-
-	byte max_pval;		/* Maximum pval */
-
 	s32b cost;			/* Ego-item "cost" */
 
 	u32b flags1;		/* Ego-Item Flags, set 1 */
 	u32b flags2;		/* Ego-Item Flags, set 2 */
 	u32b flags3;		/* Ego-Item Flags, set 3 */
-    u32b flags4;        /* ~ ego-item flags, set 4 */
+        u32b flags4;		/* ~ Ego-Item Flags, set 4 */
+
+	byte level;			/* Minimum level */
+	byte rarity;		/* Object rarity */
+	byte rating;		/* Level rating boost */
+
+	byte tval[EGO_TVALS_MAX]; /* Legal tval */
+	byte min_sval[EGO_TVALS_MAX];	/* Minimum legal sval */
+	byte max_sval[EGO_TVALS_MAX];	/* Maximum legal sval */
+
+	byte max_to_h;		/* Maximum to-hit bonus */
+	byte max_to_d;		/* Maximum to-dam bonus */
+	byte max_to_a;		/* Maximum to-ac bonus */
+	byte max_pval;		/* Maximum pval */
+
+	byte xtra;			/* Extra sustain/resist/power */
 };
 
 
@@ -375,7 +313,7 @@ struct monster_blow
  *
  * Maybe "x_attr", "x_char", "cur_num", and "max_num" should
  * be moved out of this array since they are not read from
- * "r_info.txt".
+ * "monster.txt".
  */
 struct monster_race
 {
@@ -395,7 +333,7 @@ struct monster_race
 
 	s16b extra;				/* Unused (for now) */
 
-	byte freq_inate;		/* Inate spell frequency */
+	byte freq_innate;		/* Innate spell frequency */
 	byte freq_spell;		/* Other spell frequency */
 
 	u32b flags1;			/* Flags 1 (general) */
@@ -405,23 +343,18 @@ struct monster_race
 	u32b flags5;			/* Flags 5 (normal spells) */
 	u32b flags6;			/* Flags 6 (special spells) */
 
-	monster_blow blow[4];	/* Up to four blows per round */
-
+	monster_blow blow[MONSTER_BLOW_MAX]; /* Up to four blows per round */
 
 	byte level;				/* Level of creature */
 	byte rarity;			/* Rarity of creature */
 
-
 	byte d_attr;			/* Default monster attribute */
 	char d_char;			/* Default monster character */
-
 
 	byte x_attr;			/* Desired monster attribute */
 	char x_char;			/* Desired monster character */
 
-
 	byte max_num;			/* Maximum population allowed per level */
-
 	byte cur_num;			/* Monster population on current level */
 };
 
@@ -437,32 +370,32 @@ struct monster_race
  */
 struct monster_lore
 {
-	s16b r_sights;			/* Count sightings of this monster */
-	s16b r_deaths;			/* Count deaths from this monster */
+	s16b sights;			/* Count sightings of this monster */
+	s16b deaths;			/* Count deaths from this monster */
 
-	s16b r_pkills;			/* Count monsters killed in this life */
-	s16b r_tkills;			/* Count monsters killed in all lives */
+	s16b pkills;			/* Count monsters killed in this life */
+	s16b tkills;			/* Count monsters killed in all lives */
 
-	byte r_wake;			/* Number of times woken up (?) */
-	byte r_ignore;			/* Number of times ignored (?) */
+	byte wake;				/* Number of times woken up (?) */
+	byte ignore;			/* Number of times ignored (?) */
 
-	byte r_xtra1;			/* Something (unused) */
-	byte r_xtra2;			/* Something (unused) */
+	byte xtra1;				/* Something (unused) */
+	byte xtra2;				/* Something (unused) */
 
-	byte r_drop_gold;		/* Max number of gold dropped at once */
-	byte r_drop_item;		/* Max number of item dropped at once */
+	byte drop_gold;			/* Max number of gold dropped at once */
+	byte drop_item;			/* Max number of item dropped at once */
 
-	byte r_cast_inate;		/* Max number of inate spells seen */
-	byte r_cast_spell;		/* Max number of other spells seen */
+	byte cast_innate;		/* Max number of innate spells seen */
+	byte cast_spell;		/* Max number of other spells seen */
 
-	byte r_blows[4];		/* Number of times each blow type was seen */
+	byte blows[MONSTER_BLOW_MAX]; /* Number of times each blow type was seen */
 
-	u32b r_flags1;			/* Observed racial flags */
-	u32b r_flags2;			/* Observed racial flags */
-	u32b r_flags3;			/* Observed racial flags */
-	u32b r_flags4;			/* Observed racial flags */
-	u32b r_flags5;			/* Observed racial flags */
-	u32b r_flags6;			/* Observed racial flags */
+	u32b flags1;			/* Observed racial flags */
+	u32b flags2;			/* Observed racial flags */
+	u32b flags3;			/* Observed racial flags */
+	u32b flags4;			/* Observed racial flags */
+	u32b flags5;			/* Observed racial flags */
+	u32b flags6;			/* Observed racial flags */
 };
 
 
@@ -546,18 +479,15 @@ struct object_type
 
 	s16b timeout;		/* Timeout Counter */
 
-	byte ident;			/* Special flags  */
+	byte ident;			/* Special flags */
 
 	byte marked;		/* Object is marked */
 
 	u16b note;			/* Inscription index */
 
-	byte inscrip;		/* INSCRIP_XXX constant */
-
 	s16b next_o_idx;	/* Next object in stack (if any) */
 
 	s16b held_m_idx;	/* Monster holding us (if any) */
-    
 };
 
 
@@ -601,7 +531,7 @@ struct monster_type
 
 	u32b smart;			/* Field for "smart_learn" */
 
-#endif
+#endif /* DRS_SMART_OPTIONS */
 
 };
 
@@ -639,10 +569,6 @@ struct alloc_entry
  * the "quest level" is then the level past which progress is forbidden
  * until the quest is complete.  Note that the "QUESTOR" flag then could
  * become a more general "never out of depth" flag for monsters.
- *
- * Actually, in Angband 2.8.0 it will probably prove easier to restrict
- * the concept of quest monsters to specific unique monsters, and to
- * actually scan the dead unique list to see what quests are left.
  */
 struct quest
 {
@@ -662,7 +588,6 @@ struct quest
 struct owner_type
 {
 	u32b owner_name;	/* Name (offset) */
-	u32b unused;		/* Unused */
 
 	s16b max_cost;		/* Purse limit */
 
@@ -686,7 +611,6 @@ struct owner_type
 struct store_type
 {
 	byte owner;				/* Owner index */
-	byte extra;				/* Unused for now */
 
 	s16b insult_cur;		/* Insult counter */
 
@@ -695,25 +619,12 @@ struct store_type
 
 	s32b store_open;		/* Closed until this turn */
 
-	s32b store_wrap;		/* Unused for now */
-
-	s16b table_num;			/* Table -- Number of entries */
-	s16b table_size;		/* Table -- Total Size of Array */
-	s16b *table;			/* Table -- Legal item kinds */
-
 	byte stock_num;			/* Stock -- Number of entries */
 	s16b stock_size;		/* Stock -- Total Size of Array */
 	object_type *stock;		/* Stock -- Actual stock items */
 };
 
 
-
-
-
-/*
- * The "name" of spell 'N' is stored as spell_names[X][N],
- * where X is 0 for mage-spells and 1 for priest-spells.
- */
 struct magic_type
 {
 	byte slevel;		/* Required level (to learn) */
@@ -730,16 +641,7 @@ struct magic_type
  */
 struct player_magic
 {
-	byte spell_book;		/* Tval of spell books (if any) */
-	s16b spell_xtra;		/* Something for later */
-
-	s16b spell_stat;		/* Stat for spells (if any)  */
-	s16b spell_type;		/* Spell type (mage/priest) */
-
-	s16b spell_first;		/* Level of first spell */
-	s16b spell_weight;		/* Weight that hurts spells */
-
-	magic_type info[64];	/* The available spells */
+	magic_type info[PY_MAX_SPELLS];	/* The available spells */
 };
 
 
@@ -786,7 +688,7 @@ struct player_race
 	byte m_m_wt;		/* mod weight (males) */
 
 	byte f_b_ht;		/* base height (females) */
-	byte f_m_ht;		/* mod height (females)	  */
+	byte f_m_ht;		/* mod height (females) */
 	byte f_b_wt;		/* base weight (females) */
 	byte f_m_wt;		/* mod weight (females) */
 
@@ -799,7 +701,19 @@ struct player_race
 	u32b flags1;		/* Racial Flags, set 1 */
 	u32b flags2;		/* Racial Flags, set 2 */
 	u32b flags3;		/* Racial Flags, set 3 */
-    u32b flags4;        /* ~ racial flags, set 4 */
+        u32b flags4;		/* ~ Racial Flags, set 4 */
+};
+
+
+/*
+ * Starting equipment entry
+ */
+struct start_item
+{
+	byte tval;	/* Item's tval */
+	byte sval;	/* Item's sval */
+	byte min;	/* Minimum starting amount */
+	byte max;	/* Maximum starting amount */
 };
 
 
@@ -808,7 +722,9 @@ struct player_race
  */
 struct player_class
 {
-	cptr title;			/* Type of class */
+	u32b name;			/* Name (offset) */
+
+	u32b title[10];		/* Titles - offset */
 
 	s16b c_adj[A_MAX];	/* Class stat modifier */
 
@@ -832,6 +748,24 @@ struct player_class
 
 	s16b c_mhp;			/* Class hit-dice adjustment */
 	s16b c_exp;			/* Class experience factor */
+
+	u32b flags;			/* Class Flags */
+
+	u16b max_attacks;	/* Maximum possible attacks */
+	u16b min_weight;	/* Minimum weapon weight for calculations */
+	u16b att_multiply;	/* Multiplier for attack calculations */
+
+	byte spell_book;	/* Tval of spell books (if any) */
+	u16b spell_stat;	/* Stat for spells (if any) */
+	u16b spell_first;	/* Level of first spell */
+	u16b spell_weight;	/* Weight that hurts spells */
+
+	u32b sense_base;	/* Base pseudo-id value */
+	u16b sense_div;		/* Pseudo-id divisor */
+
+	start_item start_items[MAX_START_ITEMS];/* The starting inventory */
+
+	player_magic spells; /* Magic spells */
 };
 
 
@@ -840,7 +774,6 @@ struct player_class
  */
 struct hist_type
 {
-	u32b unused;			/* Unused */
 	u32b text;			    /* Text (offset) */
 
 	byte roll;			    /* Frequency of this entry */
@@ -863,7 +796,7 @@ struct player_other
 
 	bool opt[OPT_MAX];		/* Options */
 
-	u32b window_flag[8];	/* Window flags */
+	u32b window_flag[ANGBAND_TERM_MAX];	/* Window flags */
 
 	byte hitpoint_warn;		/* Hitpoint warning (0 to 9) */
 
@@ -883,8 +816,7 @@ struct player_other
  * which can be recomputed as needed.
  *
  * ~ added a couple things to facilitate wearing 'slay' objects
- # ~ such as rings of Fire/Ice/Acid, etc. Also moved the auto_scum
- # ~ option here to make it a startup option (probably unecessary)
+ # ~ such as rings of Fire/Ice/Acid, etc.
  # ~ -- neko
  */
 struct player_type
@@ -899,10 +831,6 @@ struct player_type
 
 	byte hitdie;		/* Hit dice (sides) */
 	byte expfact;		/* Experience factor */
-
-	byte maximize;		/* Maximize stats */
-	byte preserve;		/* Preserve artifacts */
-	byte auto_scum_mode;	/* ~ autoscum for levels -- neko */
 
 	s16b age;			/* Characters age */
 	s16b ht;			/* Height */
@@ -967,19 +895,14 @@ struct player_type
 	byte confusing;		/* Glowing hands */
 	byte searching;		/* Currently searching */
 
-	u32b spell_learned1;	/* Spell flags */
-	u32b spell_learned2;	/* Spell flags */
-	u32b spell_worked1;		/* Spell flags */
-	u32b spell_worked2;		/* Spell flags */
-	u32b spell_forgotten1;	/* Spell flags */
-	u32b spell_forgotten2;	/* Spell flags */
+	byte spell_flags[PY_MAX_SPELLS]; /* Spell flags */
 
-	byte spell_order[64];	/* Spell order */
+	byte spell_order[PY_MAX_SPELLS];	/* Spell order */
 
 	s16b player_hp[PY_MAX_LEVEL];	/* HP Array */
 
 	char died_from[80];		/* Cause of death */
-	char history[4][60];	/* Initial history */
+	char history[250];	/* Initial history */
 
 	u16b total_winner;		/* Total winner */
 	u16b panic_save;		/* Panic save */
@@ -1003,7 +926,7 @@ struct player_type
 	s16b wy;				/* Dungeon panel */
 	s16b wx;				/* Dungeon panel */
 
-	s16b total_weight;		/* Total weight being carried */
+	s32b total_weight;		/* Total weight being carried */
 
 	s16b inven_cnt;			/* Number of items in inventory */
 	s16b equip_cnt;			/* Number of items in equipment */
@@ -1042,19 +965,6 @@ struct player_type
 	s16b command_new;		/* Hack -- command chaining XXX XXX */
 
 	s16b new_spells;		/* Number of spells available */
-
-	s16b old_spells;
-
-	bool old_cumber_armor;
-	bool old_cumber_glove;
-	bool old_heavy_wield;
-	bool old_heavy_shoot;
-	bool old_icky_wield;
-
-	s16b old_lite;		/* Old radius of lite (if any) */
-	s16b old_view;		/* Old radius of view (if any) */
-
-	s16b old_food_aux;	/* Old value of food */
 
 	bool cumber_armor;	/* Mana draining armor */
 	bool cumber_glove;	/* Mana draining gloves */
@@ -1120,23 +1030,23 @@ struct player_type
 	bool aggravate;		/* Aggravate monsters */
 	bool teleport;		/* Random teleporting */
 	bool exp_drain;		/* Experience draining */
-	
-	bool inh_exp_drain; /* ~ inherent experience draining */
-    bool inh_might;     /* ~ inherent extra might */
+        
+        bool inh_exp_drain; /* ~ inherent experience draining */
+        bool inh_might;     /* ~ inherent extra might */
     
-    bool no_weilding;   /* ~ can't weild weapons */
-    bool no_shooting;   /* ~ can't use bows etc */
-    bool no_fingers;    /* ~ can't wear rings */
-    bool no_neck;       /* ~ can't wear amulets */
-    bool no_light;      /* ~ can't use lights */
-    bool no_body;       /* ~ can't wear armor */
-    bool no_cloak;      /* ~ can't wear cloaks */
-    bool no_arm;        /* ~ can't wear shields */
-    bool no_head;       /* ~ can't use headgear */
-    bool no_hands;      /* ~ can't use gloves */
-    bool no_feet;       /* ~ can't use boots */
-
-    bool wear_fire;		/* ~ wearing object of flames */
+        bool no_wielding;   /* ~ can't wield weapons */
+        bool no_shooting;   /* ~ can't use bows etc */
+        bool no_fingers;    /* ~ can't wear rings */
+        bool no_neck;       /* ~ can't wear amulets */
+        bool no_light;      /* ~ can't use lights */
+        bool no_body;       /* ~ can't wear armor */
+        bool no_cloak;      /* ~ can't wear cloaks */
+        bool no_arm;        /* ~ can't wear shields */
+        bool no_head;       /* ~ can't use headgear */
+        bool no_hands;      /* ~ can't use gloves */
+        bool no_feet;       /* ~ can't use boots */
+        
+        bool wear_fire;		/* ~ wearing object of flames */
 	bool wear_cold;		/* ~ wearing object of ice */
 	bool wear_acid;		/* ~ wearing object of acid */
 	bool wear_elec;		/* ~ wearing object of lightning */
@@ -1193,9 +1103,6 @@ struct player_type
  * space padded, to the full available length (minus the "null").
  *
  * Note that "string comparisons" are thus valid on "pts".
- *
- * ~ Note that the format for the board is changed slightly to allow
- # ~ incredibly deep dives. -- neko
  */
 
 typedef struct high_score high_score;
@@ -1221,9 +1128,26 @@ struct high_score
 	char p_c[3];		/* Player Class (number) */
 
 	char cur_lev[4];		/* Current Player Level (number) */
-	char cur_dun[6];		/* Current Dungeon Level (number) */
+	char cur_dun[4];		/* Current Dungeon Level (number) */
 	char max_lev[4];		/* Max Player Level (number) */
-	char max_dun[6];		/* Max Dungeon Level (number) */
+	char max_dun[4];		/* Max Dungeon Level (number) */
 
 	char how[32];		/* Method of death (string) */
+};
+
+
+typedef struct flavor_type flavor_type;
+
+struct flavor_type
+{
+	u32b text;      /* Text (offset) */
+	
+	byte tval;      /* Associated object type */
+	byte sval;      /* Associated object sub-type */
+
+	byte d_attr;    /* Default flavor attribute */
+	char d_char;    /* Default flavor character */
+
+	byte x_attr;    /* Desired flavor attribute */
+	char x_char;    /* Desired flavor character */
 };

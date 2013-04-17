@@ -22,7 +22,7 @@
 #		  Needs 4OS2.
 #
 
-VERSION         = 290
+VERSION         = 292
 EXPORT          = angband-$(VERSION).os2.zip
 
 CC		= gcc
@@ -65,9 +65,10 @@ OBJS = \
 	xtra1.o xtra2.o spells1.o spells2.o \
 	melee1.o melee2.o save.o files.o \
 	cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o \
-	store.o birth.o load1.o load2.o \
+	store.o birth.o load.o \
 	wizard1.o wizard2.o \
-	generate.o dungeon.o init1.o init2.o randart.o
+	generate.o dungeon.o init1.o init2.o randart.o \
+	obj-info.o
 
 .c.o:
 	$(NICE) $(CC) $(CFLAGS) -c $*.c
@@ -177,7 +178,7 @@ angband.a: $(OBJS)
 aclient.exe: main-emx.c
 	$(NICE) $(CC) $(CFLAGS) -Wall -D__EMX__CLIENT__ -o aclient.exe main-emx.c -lvideo
 
-main-emx.o: main-emx.c
+main-emx.o: main-emx.c main.h
 	$(NICE) $(CC) $(CFLAGS) -Wall -c main-emx.c -o main-emx.o
 
 main-epm.o: main-emx.c

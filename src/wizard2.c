@@ -10,6 +10,7 @@
 
 #include "angband.h"
 
+#include "script.h"
 
 
 #ifdef ALLOW_DEBUG
@@ -37,6 +38,8 @@ static void do_cmd_wiz_hack_ben(void)
 			for (x = p_ptr->wx; x < p_ptr->wx + SCREEN_WID; x++)
 			{
 				byte a = TERM_RED;
+
+				if (!in_bounds_fully(y, x)) continue;
 
 				/* Display proper cost */
 				if (cave_cost[y][x] != i) continue;
@@ -151,13 +154,13 @@ static void do_cmd_wiz_change_aux(void)
 	for (i = 0; i < A_MAX; i++)
 	{
 		/* Prompt */
-		sprintf(ppp, "%s (3-118): ", stat_names[i]);
+		strnfmt(ppp, sizeof(ppp), "%s (3-118): ", stat_names[i]);
 
 		/* Default */
 		sprintf(tmp_val, "%d", p_ptr->stat_max[i]);
 
 		/* Query */
-		if (!get_string(ppp, tmp_val, 3)) return;
+		if (!get_string(ppp, tmp_val, 4)) return;
 
 		/* Extract */
 		tmp_int = atoi(tmp_val);
@@ -175,7 +178,7 @@ static void do_cmd_wiz_change_aux(void)
 	sprintf(tmp_val, "%ld", (long)(p_ptr->au));
 
 	/* Query */
-	if (!get_string("Gold: ", tmp_val, 9)) return;
+	if (!get_string("Gold: ", tmp_val, 10)) return;
 
 	/* Extract */
 	tmp_long = atol(tmp_val);
@@ -191,7 +194,7 @@ static void do_cmd_wiz_change_aux(void)
 	sprintf(tmp_val, "%ld", (long)(p_ptr->exp));
 
 	/* Query */
-	if (!get_string("Experience: ", tmp_val, 9)) return;
+	if (!get_string("Experience: ", tmp_val, 10)) return;
 
 	/* Extract */
 	tmp_long = atol(tmp_val);
@@ -209,7 +212,7 @@ static void do_cmd_wiz_change_aux(void)
 	sprintf(tmp_val, "%ld", (long)(p_ptr->max_exp));
 
 	/* Query */
-	if (!get_string("Max Exp: ", tmp_val, 9)) return;
+	if (!get_string("Max Exp: ", tmp_val, 10)) return;
 
 	/* Extract */
 	tmp_long = atol(tmp_val);
@@ -291,23 +294,24 @@ static void do_cmd_wiz_change(void)
 /*
  * Display an item's properties
  */
-static void wiz_display_item(object_type *o_ptr)
+static void wiz_display_item(const object_type *o_ptr)
 {
 	int j = 0;
 
-	u32b f1, f2, f3, f4;
+	u32b f1, f2, f3;
 
 	char buf[256];
 
 
 	/* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3, &f4);
+	object_flags(o_ptr, &f1, &f2, &f3);
 
 	/* Clear screen */
 	Term_clear();
 
 	/* Describe fully */
-	object_desc_store(buf, o_ptr, TRUE, 3);
+	object_desc_spoil(buf, sizeof(buf), o_ptr, TRUE, 3);
+
 	prt(buf, 2, j);
 
 	prt(format("kind = %-5d  level = %-4d  tval = %-5d  sval = %-5d",
@@ -328,19 +332,19 @@ static void wiz_display_item(object_type *o_ptr)
 	           o_ptr->ident, o_ptr->timeout), 8, j);
 
 	prt("+------------FLAGS1------------+", 10, j);
-	prt("AFFECT..........SLAY......BRAND.", 11, j);
-	prt("                ae      x q aefc", 12, j);
-	prt("siwdcc  ssidsa  nvudotgdd u clio", 13, j);
-	prt("tnieoh  trnipt  iinmrrnrr a ierl", 14, j);
-	prt("rtsxna..lcfgdk..mldncltgg.k.dced", 15, j);
+	prt("AFFECT..........SLAY.......BRAND", 11, j);
+	prt("                ae      xxxpaefc", 12, j);
+	prt("siwdcc  ssidsasmnvudotgddduoclio", 13, j);
+	prt("tnieoh  trnipthgiinmrrnrrmniierl", 14, j);
+	prt("rtsxna..lcfgdkttmldncltggndsdced", 15, j);
 	prt_binary(f1, 16, j);
 
 	prt("+------------FLAGS2------------+", 17, j);
-	prt("SUST....IMMUN.RESIST............", 18, j);
-	prt("        aefcp psaefcp ldbc sn   ", 19, j);
-	prt("siwdcc  clioo atclioo ialoshtncd", 20, j);
-	prt("tnieoh  ierli raierli trnnnrhehi", 21, j);
-	prt("rtsxna..dceds.atdceds.ekdfddrxss", 22, j);
+	prt("SUST........IMM.RESIST.........", 18, j);
+	prt("            afecaefcpfldbc s n  ", 19, j);
+	prt("siwdcc      cilocliooeialoshnecd", 20, j);
+	prt("tnieoh      irelierliatrnnnrethi", 21, j);
+	prt("rtsxna......decddcedsrekdfddxhss", 22, j);
 	prt_binary(f2, 23, j);
 
 	prt("+------------FLAGS3------------+", 10, j+32);
@@ -368,7 +372,7 @@ typedef struct tval_desc
 /*
  * A list of tvals and their textual names
  */
-static tval_desc tvals[] =
+static const tval_desc tvals[] =
 {
 	{ TV_SWORD,             "Sword"                },
 	{ TV_POLEARM,           "Polearm"              },
@@ -401,6 +405,9 @@ static tval_desc tvals[] =
 	{ TV_CHEST,             "Chest"                },
 	{ TV_FOOD,              "Food"                 },
 	{ TV_FLASK,             "Flask"                },
+	{ TV_SKELETON,          "Skeletons"            },
+	{ TV_BOTTLE,            "Empty bottle"         },
+	{ TV_JUNK,              "Junk"                 },
 	{ 0,                    NULL                   }
 };
 
@@ -432,21 +439,9 @@ static void strip_name(char *buf, int k_idx)
 
 
 /*
- * Hack -- title for each column
- *
- * This will not work with "EBCDIC", I would think.  XXX XXX XXX
- *
- * The third column head overlaps the first after 17 items are
- * listed.  XXX XXX XXX
- */
-static char head[3] =
-{ 'a', 'A', '0' };
-
-
-/*
  * Get an object kind for creation (or zero)
  *
- * List up to 57 choices in three columns
+ * List up to 60 choices in three columns
  */
 static int wiz_create_itemtype(void)
 {
@@ -458,6 +453,10 @@ static int wiz_create_itemtype(void)
 	char ch;
 
 	int choice[60];
+	static const char choice_name[] = "abcdefghijklmnopqrst"
+	                                  "ABCDEFGHIJKLMNOPQRST"
+	                                  "0123456789:;<=>?@%&*";
+	const char *cp;
 
 	char buf[160];
 
@@ -466,15 +465,15 @@ static int wiz_create_itemtype(void)
 	Term_clear();
 
 	/* Print all tval's and their descriptions */
-	for (num = 0; (num < 57) && tvals[num].tval; num++)
+	for (num = 0; (num < 60) && tvals[num].tval; num++)
 	{
 		row = 2 + (num % 20);
 		col = 30 * (num / 20);
-		ch = head[num/20] + (num%20);
+		ch  = choice_name[num];
 		prt(format("[%c] %s", ch, tvals[num].desc), row, col);
 	}
 
-	/* Me need to know the maximal possible tval_index */
+	/* We need to know the maximal possible tval_index */
 	max_num = num;
 
 	/* Choose! */
@@ -482,9 +481,8 @@ static int wiz_create_itemtype(void)
 
 	/* Analyze choice */
 	num = -1;
-	if ((ch >= head[0]) && (ch < head[0] + 20)) num = ch - head[0];
-	if ((ch >= head[1]) && (ch < head[1] + 20)) num = ch - head[1] + 20;
-	if ((ch >= head[2]) && (ch < head[2] + 17)) num = ch - head[2] + 40;
+	if ((cp = strchr(choice_name, ch)) != NULL)
+		num = cp - choice_name;
 
 	/* Bail out if choice is illegal */
 	if ((num < 0) || (num >= max_num)) return (0);
@@ -500,7 +498,7 @@ static int wiz_create_itemtype(void)
 	Term_clear();
 
 	/* We have to search the whole itemlist. */
-	for (num = 0, i = 1; (num < 57) && (i < z_info->k_max); i++)
+	for (num = 0, i = 1; (num < 60) && (i < z_info->k_max); i++)
 	{
 		object_kind *k_ptr = &k_info[i];
 
@@ -513,7 +511,7 @@ static int wiz_create_itemtype(void)
 			/* Prepare it */
 			row = 2 + (num % 20);
 			col = 30 * (num / 20);
-			ch = head[num/20] + (num%20);
+			ch  = choice_name[num];
 
 			/* Get the "name" of object "i" */
 			strip_name(buf, i);
@@ -534,9 +532,8 @@ static int wiz_create_itemtype(void)
 
 	/* Analyze choice */
 	num = -1;
-	if ((ch >= head[0]) && (ch < head[0] + 20)) num = ch - head[0];
-	if ((ch >= head[1]) && (ch < head[1] + 20)) num = ch - head[1] + 20;
-	if ((ch >= head[2]) && (ch < head[2] + 17)) num = ch - head[2] + 40;
+	if ((cp = strchr(choice_name, ch)) != NULL)
+		num = cp - choice_name;
 
 	/* Bail out if choice is "illegal" */
 	if ((num < 0) || (num >= max_num)) return (0);
@@ -560,25 +557,25 @@ static void wiz_tweak_item(object_type *o_ptr)
 
 	p = "Enter new 'pval' setting: ";
 	sprintf(tmp_val, "%d", o_ptr->pval);
-	if (!get_string(p, tmp_val, 5)) return;
+	if (!get_string(p, tmp_val, 6)) return;
 	o_ptr->pval = atoi(tmp_val);
 	wiz_display_item(o_ptr);
 
 	p = "Enter new 'to_a' setting: ";
 	sprintf(tmp_val, "%d", o_ptr->to_a);
-	if (!get_string(p, tmp_val, 5)) return;
+	if (!get_string(p, tmp_val, 6)) return;
 	o_ptr->to_a = atoi(tmp_val);
 	wiz_display_item(o_ptr);
 
 	p = "Enter new 'to_h' setting: ";
 	sprintf(tmp_val, "%d", o_ptr->to_h);
-	if (!get_string(p, tmp_val, 5)) return;
+	if (!get_string(p, tmp_val, 6)) return;
 	o_ptr->to_h = atoi(tmp_val);
 	wiz_display_item(o_ptr);
 
 	p = "Enter new 'to_d' setting: ";
 	sprintf(tmp_val, "%d", o_ptr->to_d);
-	if (!get_string(p, tmp_val, 5)) return;
+	if (!get_string(p, tmp_val, 6)) return;
 	o_ptr->to_d = atoi(tmp_val);
 	wiz_display_item(o_ptr);
 }
@@ -693,7 +690,7 @@ static void wiz_statistics(object_type *o_ptr)
 	long i, matches, better, worse, other;
 
 	char ch;
-	char *quality;
+	cptr quality;
 
 	bool good, great;
 
@@ -748,7 +745,7 @@ static void wiz_statistics(object_type *o_ptr)
 		/* Let us know what we are doing */
 		msg_format("Creating a lot of %s items. Base level = %d.",
 		           quality, p_ptr->depth);
-		msg_print(NULL);
+		message_flush();
 
 		/* Set counters to zero */
 		matches = better = worse = other = 0;
@@ -832,7 +829,7 @@ static void wiz_statistics(object_type *o_ptr)
 
 		/* Final dump */
 		msg_format(q, i, matches, better, worse, other);
-		msg_print(NULL);
+		message_flush();
 	}
 
 
@@ -844,11 +841,11 @@ static void wiz_statistics(object_type *o_ptr)
 /*
  * Change the quantity of a the item
  */
-static void wiz_quantity_item(object_type *o_ptr)
+static void wiz_quantity_item(object_type *o_ptr, bool carried)
 {
 	int tmp_int;
 
-	char tmp_val[100];
+	char tmp_val[3];
 
 
 	/* Never duplicate artifacts */
@@ -859,7 +856,7 @@ static void wiz_quantity_item(object_type *o_ptr)
 	sprintf(tmp_val, "%d", o_ptr->number);
 
 	/* Query */
-	if (get_string("Quantity: ", tmp_val, 2))
+	if (get_string("Quantity: ", tmp_val, 3))
 	{
 		/* Extract */
 		tmp_int = atoi(tmp_val);
@@ -867,6 +864,16 @@ static void wiz_quantity_item(object_type *o_ptr)
 		/* Paranoia */
 		if (tmp_int < 1) tmp_int = 1;
 		if (tmp_int > 99) tmp_int = 99;
+
+		/* Adjust total weight being carried */
+		if (carried)
+		{
+			/* Remove the weight of the old number of objects */
+			p_ptr->total_weight -= (o_ptr->number * o_ptr->weight);
+
+			/* Add the weight of the new number of objects */
+			p_ptr->total_weight += (tmp_int * o_ptr->weight);
+		}
 
 		/* Accept modifications */
 		o_ptr->number = tmp_int;
@@ -960,7 +967,8 @@ static void do_cmd_wiz_play(void)
 
 		if (ch == 'q' || ch == 'Q')
 		{
-			wiz_quantity_item(i_ptr);
+			bool carried = (item >= 0) ? TRUE : FALSE;
+			wiz_quantity_item(i_ptr, carried);
 		}
 	}
 
@@ -1160,7 +1168,7 @@ static void do_cmd_wiz_jump(void)
 		sprintf(tmp_val, "%d", p_ptr->depth);
 
 		/* Ask for a level */
-		if (!get_string(ppp, tmp_val, 10)) return;
+		if (!get_string(ppp, tmp_val, 11)) return;
 
 		/* Extract request */
 		p_ptr->command_arg = atoi(tmp_val);
@@ -1320,10 +1328,10 @@ static void do_cmd_wiz_zap(int d)
 {
 	int i;
 
-	/* Genocide everyone nearby */
-	for (i = 1; i < m_max; i++)
+	/* Banish everyone nearby */
+	for (i = 1; i < mon_max; i++)
 	{
-		monster_type *m_ptr = &m_list[i];
+		monster_type *m_ptr = &mon_list[i];
 
 		/* Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
@@ -1345,9 +1353,9 @@ static void do_cmd_wiz_unhide(int d)
 	int i;
 
 	/* Process monsters */
-	for (i = 1; i < m_max; i++)
+	for (i = 1; i < mon_max; i++)
 	{
-		monster_type *m_ptr = &m_list[i];
+		monster_type *m_ptr = &mon_list[i];
 
 		/* Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
@@ -1414,6 +1422,8 @@ static void do_cmd_wiz_query(void)
 		{
 			byte a = TERM_RED;
 
+			if (!in_bounds_fully(y, x)) continue;
+
 			/* Given mask, show only those grids */
 			if (mask && !(cave_info[y][x] & mask)) continue;
 
@@ -1441,30 +1451,11 @@ static void do_cmd_wiz_query(void)
 
 	/* Get keypress */
 	msg_print("Press any key.");
-	msg_print(NULL);
+	message_flush();
 
 	/* Redraw map */
 	prt_map();
 }
-
-
-
-#ifdef ALLOW_SPOILERS
-
-/*
- * External function
- */
-extern void do_cmd_spoilers(void);
-
-#endif
-
-
-
-/*
- * Hack -- declare external function
- */
-extern void do_cmd_debug(void);
-
 
 
 /*
@@ -1574,7 +1565,8 @@ void do_cmd_debug(void)
 		/* Hitpoint rerating */
 		case 'h':
 		{
-			do_cmd_rerate(); break;
+			do_cmd_rerate();
+			break;
 		}
 
 		/* Identify */
@@ -1692,11 +1684,18 @@ void do_cmd_debug(void)
 			break;
 		}
 
-		/* Zap Monsters (Genocide) */
+		/* Zap Monsters (Banishment) */
 		case 'z':
 		{
 			if (p_ptr->command_arg <= 0) p_ptr->command_arg = MAX_SIGHT;
 			do_cmd_wiz_zap(p_ptr->command_arg);
+			break;
+		}
+
+		/* Execute script */
+		case '@':
+		{
+			do_cmd_script();
 			break;
 		}
 

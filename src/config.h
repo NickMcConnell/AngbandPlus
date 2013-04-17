@@ -15,9 +15,7 @@
  * whether you wish to keep, comment, or uncomment them.  You should not
  * have to modify any lines not indicated by "OPTION".
  *
- * Note: Also examine the "system" configuration file "h-config.h"
- * and the variable initialization file "variable.c".  If you change
- * anything in "variable.c", you only need to recompile that file.
+ * Note: Also examine the "system" configuration file "h-config.h".
  *
  * And finally, remember that the "Makefile" will specify some rather
  * important compile time options, like what visual module to use.
@@ -40,13 +38,6 @@
  * You may also need to specify the "system", using defines such as
  * "SOLARIS" (for Solaris), etc, see "h-config.h" for more info.
  */
-
-
-/*
- * OPTION: define "SPECIAL_BSD" for using certain versions of UNIX
- * that use the 4.4BSD Lite version of Curses in "main-gcu.c"
- */
-/* #define SPECIAL_BSD */
 
 
 /*
@@ -173,6 +164,7 @@
  */
 /* #define ALLOW_BORG */
 
+
 /*
  * OPTION: Hack -- Compile in support for "Debug Commands"
  */
@@ -183,6 +175,10 @@
  */
 #define ALLOW_SPOILERS
 
+/*
+ * OPTION: Compile in scripting support
+ */
+#define USE_SCRIPT
 
 /*
  * OPTION: Allow "do_cmd_colors" at run-time
@@ -224,15 +220,6 @@
  */
 #define ALLOW_TEMPLATES
 
-/*
- * OPTION: Allow loading of pre-2.7.0 savefiles.  Note that it takes
- * about 15K of code in "save-old.c" to parse the old savefile format.
- * Angband 2.8.0 will ignore a lot of info from pre-2.7.0 savefiles.
- *
- * ~ er, no. -- neko
- */
-/* #define ALLOW_OLD_SAVEFILES */
-
 
 /*
  * OPTION: Allow repeating of last command.
@@ -257,61 +244,23 @@
 
 
 /*
- * OPTION: Delay the loading of the "f_text" array until it is actually
- * needed, saving ~1K, since "feature" descriptions are unused.
- */
-#define DELAY_LOAD_F_TEXT
-
-/*
- * OPTION: Delay the loading of the "k_text" array until it is actually
- * needed, saving ~1K, since "object" descriptions are unused.
- */
-#define DELAY_LOAD_K_TEXT
-
-/*
- * OPTION: Delay the loading of the "a_text" array until it is actually
- * needed, saving ~1K, since "artifact" descriptions are unused.
- */
-#define DELAY_LOAD_A_TEXT
-
-/*
- * OPTION: Delay the loading of the "e_text" array until it is actually
- * needed, saving ~1K, since "ego-item" descriptions are unused.
- */
-#define DELAY_LOAD_E_TEXT
-
-/*
- * OPTION: Delay the loading of the "r_text" array until it is actually
- * needed, saving ~60K, but "simplifying" the "monster" descriptions.
- */
-/* #define DELAY_LOAD_R_TEXT */
-
-/*
- * OPTION: Delay the loading of the "v_text" array until it is actually
- * needed, saving ~1K, but "destroying" the "vault" generation.
- */
-/* #define DELAY_LOAD_V_TEXT */
-
-
-/*
  * OPTION: Handle signals
  */
 #define HANDLE_SIGNALS
 
 
 /*
- * Allow "Wizards" to yield "high scores"
+ * OPTION: Allow "Wizards" to yield "high scores"
  */
 /* #define SCORE_WIZARDS */
 
 /*
- * Allow "Borgs" to yield "high scores"
- * ~ no borgs yet anyway -- neko
+ * OPTION: Allow "Borgs" to yield "high scores"
  */
 /* #define SCORE_BORGS */
 
 /*
- * Allow "Cheaters" to yield "high scores"
+ * OPTION: Allow "Cheaters" to yield "high scores"
  */
 /* #define SCORE_CHEATERS */
 
@@ -345,11 +294,6 @@
  */
 /* #define MAP_INFO_MULTIPLE_PLAYERS */
 
-
-/*
- * OPTION: Use the new "update_view()" algorithm
- */
-#define UPDATE_VIEW_NEW
 
 /*
  * OPTION: Use the "complex" wall illumination code
@@ -402,7 +346,7 @@
 
 
 /*
- * OPTION: Hack -- Macintosh stuff
+ * Hack -- Macintosh stuff
  */
 #ifdef MACINTOSH
 
@@ -413,7 +357,7 @@
 
 
 /*
- * OPTION: Hack -- Windows stuff
+ * Hack -- Windows stuff
  */
 #ifdef WINDOWS
 
@@ -424,7 +368,7 @@
 
 
 /*
- * OPTION: Hack -- EMX stuff
+ * Hack -- EMX stuff
  */
 #ifdef USE_EMX
 
@@ -438,10 +382,14 @@
  * OPTION: Set the "default" path to the angband "lib" directory.
  *
  * See "main.c" for usage, and note that this value is only used on
- * certain machines, primarily Unix machines.  If this value is used,
- * it will be over-ridden by the "ANGBAND_PATH" environment variable,
- * if that variable is defined and accessable.  The final "slash" is
- * required if the value supplied is in fact a directory.
+ * certain machines, primarily Unix machines.
+ *
+ * The configure script overrides this value.  Check the "--prefix=<dir>"
+ * option of the configure script.
+ *
+ * This value will be over-ridden by the "ANGBAND_PATH" environment
+ * variable, if that variable is defined and accessable.  The final
+ * "slash" is required if the value supplied is in fact a directory.
  *
  * Using the value "./lib/" below tells Angband that, by default,
  * the user will run "angband" from the same directory that contains
@@ -453,7 +401,18 @@
  */
 #ifndef DEFAULT_PATH
 # define DEFAULT_PATH "./lib/"
-#endif
+#endif /* DEFAULT_PATH */
+
+
+/*
+ * OPTION: Create and use a hidden directory in the users home directory
+ * for storing pref-files and character-dumps.
+ */
+#ifdef SET_UID
+# ifndef PRIVATE_USER_PATH
+#  define PRIVATE_USER_PATH "~/.angband"
+# endif /* PRIVATE_USER_PATH */
+#endif /* SET_UID */
 
 
 /*
@@ -461,16 +420,20 @@
  */
 #ifdef SET_UID
 # define SAVEFILE_USE_UID
-#endif
+#endif /* SET_UID */
+
 
 /*
- * Allow players on UNIX systems to keep a ".angband.prf" user pref
- * file in their home-directory.
+ * Allow the user to execute his own scripts in debug mode.
  *
- * WARNING - This may allow bypassing of some of the "security"
- * compilation options and may be a security risk!
+ * The user-script code has not been checked for security issues yet,
+ * so the user shouldn't be allowed to execute his own scripts from
+ * a setgid executable.
  */
-#define ALLOW_PREF_IN_HOME
+#ifndef SET_UID
+# define ALLOW_USER_SCRIPTS
+#endif /* SET_UID */
+
 
 /*
  * OPTION: Check the "time" against "lib/file/hours.txt"
@@ -485,6 +448,18 @@
 
 
 /*
+ * OPTION: Prevent usage of the "ANGBAND_PATH" environment variable and
+ * the '-d<what>=<path>' command line option (except for '-du=<path>').
+ *
+ * This prevents cheating in multi-user installs as well as possible
+ * security problems when running setgid.
+ */
+#ifdef SET_UID
+#define FIXED_PATHS
+#endif /* SET_UID */
+
+
+/*
  * OPTION: Capitalize the "user_name" (for "default" player name)
  * This option is only relevant on SET_UID machines.
  */
@@ -495,7 +470,7 @@
 /*
  * OPTION: Person to bother if something goes wrong.
  */
-#define MAINTAINER	"rr9@angband.org"
+#define MAINTAINER	"rr9@thangorodrim.net"
 
 
 /*
@@ -542,17 +517,13 @@
 # undef ALLOW_MACROS
 # undef MONSTER_FLOW
 # undef ALLOW_TERROR
-# undef WDT_TRACK_OPTIONS
 # undef DRS_SMART_OPTIONS
 # undef GJW_RANDART
-# undef ALLOW_OLD_SAVEFILES
 # undef ALLOW_BORG
 # undef ALLOW_DEBUG
 # undef ALLOW_SPOILERS
 # undef ALLOW_TEMPLATES
 # undef MONSTER_AI
-# undef DELAY_LOAD_R_TEXT
-# define DELAY_LOAD_R_TEXT
 #endif
 
 
@@ -575,12 +546,9 @@
 
 /*
  * Allow the Borg to use graphics.
- *
- * XXX - Turned off by default since the Borg crashs when the graphics
- * mode changes after the Borg is initialized.
  */
 #ifdef ALLOW_BORG
 # ifdef USE_GRAPHICS
-/* #  define ALLOW_BORG_GRAPHICS */
+#  define ALLOW_BORG_GRAPHICS
 # endif /* USE_GRAPHICS */
 #endif /* ALLOW_BORG */

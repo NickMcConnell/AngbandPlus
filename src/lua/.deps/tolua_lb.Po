@@ -1,0 +1,18 @@
+tolua_lb.o : \
+ tolua.h /usr/include/stdlib.h /usr/include/machine/ansi.h \
+  /usr/include/ppc/ansi.h /usr/include/machine/types.h \
+  /usr/include/ppc/types.h /usr/include/sys/cdefs.h lua.h \
+  /usr/include/stddef.h tolua_rg.h tolua_tm.h tolua_tt.h 
+tolua_lb.o :
+tolua.h :
+/usr/include/stdlib.h :
+/usr/include/machine/ansi.h :
+/usr/include/ppc/ansi.h :
+/usr/include/machine/types.h :
+/usr/include/ppc/types.h :
+/usr/include/sys/cdefs.h :
+lua.h :
+/usr/include/stddef.h :
+tolua_rg.h :
+tolua_tm.h :
+tolua_tt.h :

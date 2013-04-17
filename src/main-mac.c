@@ -43,7 +43,7 @@
  * obsolete preference files can be ignored.  This should probably
  * be replaced with a "structured" preference file of some kind.
  *
- * Note that "init1.c", "init2.c", "load1.c", "load2.c", and "birth.c"
+ * Note that "init1.c", "init2.c", "load.c", and "birth.c"
  * should probably be "unloaded" as soon as they are no longer needed,
  * to save space, but I do not know how to do this.  XXX XXX XXX
  *
@@ -137,6 +137,8 @@
 
 
 #include "angband.h"
+
+#ifdef MACINTOSH
 
 #include <Types.h>
 #include <Gestalt.h>
@@ -324,6 +326,11 @@ static int game_in_progress = 0;
  */
 static WindowPtr active = NULL;
 
+
+/*
+ * Maximum number of terms
+ */
+#define MAX_TERM_DATA 8
 
 
 /*
@@ -1643,7 +1650,7 @@ static errr Term_xtra_mac(int n, int v)
 /*
  * Low level graphics (Assumes valid input).
  * Draw a "cursor" at (x,y), using a "yellow box".
- * We are allowed to use "Term_grab()" to determine
+ * We are allowed to use "Term_what()" to determine
  * the current screen contents (for inverting, etc).
  */
 static errr Term_curs_mac(int x, int y)
@@ -1658,6 +1665,33 @@ static errr Term_curs_mac(int x, int y)
 	/* Frame the grid */
 	r.left = x * td->tile_wid + td->size_ow1;
 	r.right = r.left + td->tile_wid;
+	r.top = y * td->tile_hgt + td->size_oh1;
+	r.bottom = r.top + td->tile_hgt;
+	FrameRect(&r);
+
+	/* Success */
+	return (0);
+}
+
+
+/*
+ * Low level graphics (Assumes valid input).
+ * Draw a "cursor" at (x,y), using a "yellow box".
+ * We are allowed to use "Term_what()" to determine
+ * the current screen contents (for inverting, etc).
+ */
+static errr Term_bigcurs_mac(int x, int y)
+{
+	Rect r;
+
+	term_data *td = (term_data*)(Term->data);
+
+	/* Set the color */
+	term_data_color(td, TERM_YELLOW);
+
+	/* Frame the grid */
+	r.left = x * td->tile_wid + td->size_ow1;
+	r.right = r.left + 2 * td->tile_wid;
 	r.top = y * td->tile_hgt + td->size_oh1;
 	r.bottom = r.top + td->tile_hgt;
 	FrameRect(&r);
@@ -1727,12 +1761,8 @@ static errr Term_text_mac(int x, int y, int n, byte a, const char *cp)
  *
  * Erase "n" characters starting at (x,y)
  */
-#ifdef USE_TRANSPARENCY
 static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp,
                           const byte *tap, const char *tcp)
-#else /* USE_TRANSPARENCY */
-static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp)
-#endif /* USE_TRANSPARENCY */
 {
 	int i;
 	Rect r2;
@@ -1740,7 +1770,6 @@ static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp)
 
 	/* Destination rectangle */
 	r2.left = x * td->tile_wid + td->size_ow1;
-	r2.right = r2.left + td->tile_wid;
 	r2.top = y * td->tile_hgt + td->size_oh1;
 	r2.bottom = r2.top + td->tile_hgt;
 
@@ -1752,10 +1781,20 @@ static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp)
 		byte a = ap[i];
 		char c = cp[i];
 
-#ifdef USE_TRANSPARENCY
 		byte ta = tap[i];
 		char tc = tcp[i];
-#endif
+
+		/* Second byte of bigtile */
+		if (use_bigtile && a == 255)
+		{
+			/* Advance */
+			r2.left += td->tile_wid;
+
+			continue;
+		}
+
+		/* Prepare right of rectangle now */
+		r2.right = r2.left + td->tile_wid;
 
 #ifdef ANGBAND_LITE_MAC
 
@@ -1767,12 +1806,8 @@ static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp)
 		if (use_graphics && ((td == &data[0]) || (td == &data[6])) &&
 		    ((byte)a & 0x80) && ((byte)c & 0x80))
 		{
-#ifdef USE_TRANSPARENCY
 			int t_col, t_row;
-
 			Rect r3;
-#endif /* USE_TRANSPARENCY */
-
 			int col, row;
 			Rect r1;
 
@@ -1786,7 +1821,6 @@ static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp)
 			r1.right = r1.left + grafWidth;
 			r1.bottom = r1.top + grafHeight;
 
-#ifdef USE_TRANSPARENCY
 			/* Row and Col */
 			t_row = ((byte)ta & 0x7F) % pictRows;
 			t_col = ((byte)tc & 0x7F) % pictCols;
@@ -1796,13 +1830,13 @@ static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp)
 			r3.top = t_row * grafHeight;
 			r3.right = r3.left + grafWidth;
 			r3.bottom = r3.top + grafHeight;
-#endif /* USE_TRANSPARENCY */
 
 			/* Hardwire CopyBits */
 			BackColor(whiteColor);
 			ForeColor(blackColor);
 
-#ifdef USE_TRANSPARENCY
+			if (use_bigtile) r2.right += td->tile_wid;
+
 			/* Draw the picture */
 			CopyBits((BitMap*)frameP->framePix,
 					 &(td->w->portBits),
@@ -1812,12 +1846,6 @@ static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp)
 			         (BitMap*)frameP->maskPix,
 			         &(td->w->portBits),
 			         &r1, &r1, &r2);
-#else /* USE_TRANSPARENCY */
-			/* Draw the picture */
-			CopyBits((BitMap*)frameP->framePix,
-					 &(td->w->portBits),
-					 &r1, &r2, srcCopy, NULL);
-#endif /* USE_TRANSPARENCY */
 
 			/* Restore colors */
 			BackColor(blackColor);
@@ -1856,7 +1884,6 @@ static errr Term_pict_mac(int x, int y, int n, const byte *ap, const char *cp)
 
 		/* Advance */
 		r2.left += td->tile_wid;
-		r2.right += td->tile_wid;
 	}
 
 	/* Success */
@@ -1904,11 +1931,12 @@ static void term_data_link(int i)
 	td->t->xtra_hook = Term_xtra_mac;
 	td->t->wipe_hook = Term_wipe_mac;
 	td->t->curs_hook = Term_curs_mac;
+	td->t->bigcurs_hook = Term_bigcurs_mac;
 	td->t->text_hook = Term_text_mac;
 	td->t->pict_hook = Term_pict_mac;
 
 	/* Link the local structure */
-	td->t->data = (vptr)(td);
+	td->t->data = td;
 
 	/* Activate it */
 	Term_activate(td->t);
@@ -1980,7 +2008,7 @@ static int getshort(void)
 {
 	int x = 0;
 	char buf[256];
-	if (0 == my_fgets(fff, buf, 256)) x = atoi(buf);
+	if (0 == my_fgets(fff, buf, sizeof(buf))) x = atoi(buf);
 	return (x);
 }
 
@@ -2572,7 +2600,7 @@ static void handle_open_when_ready(void)
 		game_in_progress = 1;
 
 		/* Wait for it */
-		pause_line(23);
+		pause_line(Term->hgt - 1);
 
 		/* Flush input */
 		flush();
@@ -2767,6 +2795,7 @@ static void init_menubar(void)
 	/* Next 2 lines for AB tile graphics */
 	AppendMenu(m, "\p-");
 	AppendMenu(m, "\parg_transparency");
+	AppendMenu(m, "\pBigtile Mode");
 
 
 	/* Make the "TileWidth" menu */
@@ -3049,6 +3078,10 @@ static void setup_menus(void)
 	/* Item "arg_transparency" */
 	EnableItem(m, 7);
 	CheckItem(m, 7, use_transparency);
+
+	/* Item Bigtile Mode */
+	EnableItem(m, 8);
+	CheckItem(m, 8, big_bigtile);
 
 	/* Item "Hack" */
 	/* EnableItem(m, 9); */
@@ -3535,6 +3568,27 @@ static void menu(long mc)
 
 					break;
 				}
+
+				case 8: /* bigtile mode */
+				{
+					term_data *td = &data[0];
+
+					if (!can_save){
+						plog("You may not do that right now.");
+						break;
+					}
+
+					/* Toggle "use_bigtile" */
+					use_bigtile = !use_bigtile;
+
+					/* Activate */
+					Term_activate(td->t);
+
+					/* Resize the term */
+					Term_resize(td->cols, td->rows);
+
+					break;
+				}
 			}
 
 			break;
@@ -3820,9 +3874,9 @@ static bool CheckEvents(bool wait)
 
 	term_data *td = NULL;
 
-	huge curTicks;
+	unsigned long curTicks;
 
-	static huge lastTicks = 0L;
+	static unsigned long lastTicks = 0L;
 
 
 	/* Access the clock */
@@ -4214,16 +4268,14 @@ static bool CheckEvents(bool wait)
 /*
  * Mega-Hack -- emergency lifeboat
  */
-static vptr lifeboat = NULL;
+static void *lifeboat = NULL;
 
 
 /*
  * Hook to "release" memory
  */
-static vptr hook_rnfree(vptr v, huge size)
+static void* hook_rnfree(void *v)
 {
-
-#pragma unused (size)
 
 #ifdef USE_MALLOC
 
@@ -4244,7 +4296,7 @@ static vptr hook_rnfree(vptr v, huge size)
 /*
  * Hook to "allocate" memory
  */
-static vptr hook_ralloc(huge size)
+static void* hook_ralloc(size_t size)
 {
 
 #ifdef USE_MALLOC
@@ -4264,12 +4316,12 @@ static vptr hook_ralloc(huge size)
 /*
  * Hook to handle "out of memory" errors
  */
-static vptr hook_rpanic(huge size)
+static void* hook_rpanic(size_t size)
 {
 
 #pragma unused (size)
 
-	vptr mem = NULL;
+	void *mem = NULL;
 
 	/* Free the lifeboat */
 	if (lifeboat)
@@ -4398,7 +4450,7 @@ static void init_stuff(void)
 		init_file_paths(path);
 
 		/* Build the filename */
-		path_build(path, 1024, ANGBAND_DIR_FILE, "news.txt");
+		path_build(path, sizeof(path), ANGBAND_DIR_FILE, "news.txt");
 
 		/* Attempt to open and close that file */
 		if (0 == fd_close(fd_open(path, O_RDONLY))) break;
@@ -4680,4 +4732,4 @@ int main(void)
 	while (TRUE) CheckEvents(TRUE);
 }
 
-
+#endif /* MACINTOSH */

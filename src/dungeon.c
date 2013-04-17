@@ -10,11 +10,13 @@
 
 #include "angband.h"
 
+#include "script.h"
+
 
 /*
  * Return a "feeling" (or NULL) about an item.  Method 1 (Heavy).
  */
-static int value_check_aux1(object_type *o_ptr)
+static int value_check_aux1(const object_type *o_ptr)
 {
 	/* Artifacts */
 	if (artifact_p(o_ptr))
@@ -56,7 +58,7 @@ static int value_check_aux1(object_type *o_ptr)
 /*
  * Return a "feeling" (or NULL) about an item.  Method 2 (Light).
  */
-static int value_check_aux2(object_type *o_ptr)
+static int value_check_aux2(const object_type *o_ptr)
 {
 	/* Cursed items (all of them) */
 	if (cursed_p(o_ptr)) return (INSCRIP_CURSED);
@@ -84,15 +86,6 @@ static int value_check_aux2(object_type *o_ptr)
 
 /*
  * Sense the inventory
- *
- *   Class 0 = Warrior --> fast and heavy
- *   Class 1 = Mage    --> slow and light
- *   Class 2 = Priest  --> fast but light
- *   Class 3 = Rogue   --> okay and heavy
- *   Class 4 = Ranger  --> fast and light
- *   Class 5 = Paladin --> slow but heavy
- *
- * ~ improved the pseudo-id for rangers -- neko
  */
 static void sense_inventory(void)
 {
@@ -100,7 +93,7 @@ static void sense_inventory(void)
 
 	int plev = p_ptr->lev;
 
-	bool heavy = FALSE;
+	bool heavy = ((cp_ptr->flags & CF_PSEUDO_ID_HEAVY) ? TRUE : FALSE);
 
 	int feel;
 
@@ -114,71 +107,15 @@ static void sense_inventory(void)
 	/* No sensing when confused */
 	if (p_ptr->confused) return;
 
-	/* Analyze the class */
-	switch (p_ptr->pclass)
+	if (cp_ptr->flags & CF_PSEUDO_ID_IMPROV)
 	{
-		case CLASS_WARRIOR:
-		{
-			/* Good sensing */
-			if (0 != rand_int(9000L / (plev * plev + 40))) return;
-
-			/* Heavy sensing */
-			heavy = TRUE;
-
-			/* Done */
-			break;
-		}
-
-		case CLASS_MAGE:
-		{
-			/* Very bad (light) sensing */
-			if (0 != rand_int(240000L / (plev + 5))) return;
-
-			/* Done */
-			break;
-		}
-
-		case CLASS_PRIEST:
-		{
-			/* Good (light) sensing */
-			if (0 != rand_int(10000L / (plev * plev + 40))) return;
-
-			/* Done */
-			break;
-		}
-
-		case CLASS_ROGUE:
-		{
-			/* Okay sensing */
-			if (0 != rand_int(20000L / (plev * plev + 40))) return;
-
-			/* Heavy sensing */
-			heavy = TRUE;
-
-			/* Done */
-			break;
-		}
-
-		case CLASS_RANGER:
-		{
-			/* ~ fast (light) sensing */
-			if (0 != rand_int(30000L / (plev * plev + 5))) return;
-
-			/* Done */
-			break;
-		}
-
-		case CLASS_PALADIN:
-		{
-			/* Bad sensing */
-			if (0 != rand_int(80000L / (plev * plev + 40))) return;
-
-			/* Heavy sensing */
-			heavy = TRUE;
-
-			/* Done */
-			break;
-		}
+		if (0 != rand_int(cp_ptr->sense_base / (plev * plev + cp_ptr->sense_div)))
+			return;
+	}
+	else
+	{
+		if (0 != rand_int(cp_ptr->sense_base / (plev + cp_ptr->sense_div)))
+			return;
 	}
 
 
@@ -224,7 +161,8 @@ static void sense_inventory(void)
 		if (!okay) continue;
 
 		/* It already has a discount or special inscription */
-		if (o_ptr->discount > 0) continue;
+		if ((o_ptr->discount > 0) &&
+		    (o_ptr->discount != INSCRIP_INDESTRUCTIBLE)) continue;
 
 		/* It has already been sensed, do not sense it again */
 		if (o_ptr->ident & (IDENT_SENSE)) continue;
@@ -234,6 +172,10 @@ static void sense_inventory(void)
 
 		/* Occasional failure on inventory items */
 		if ((i < INVEN_WIELD) && (0 != rand_int(5))) continue;
+
+		/* Indestructible objects are either excellent or terrible */
+		if (o_ptr->discount == INSCRIP_INDESTRUCTIBLE)
+			heavy = TRUE;
 
 		/* Check for a feeling */
 		feel = (heavy ? value_check_aux1(o_ptr) : value_check_aux2(o_ptr));
@@ -245,7 +187,7 @@ static void sense_inventory(void)
 		if (disturb_minor) disturb(0, 0);
 
 		/* Get an object description */
-		object_desc(o_name, o_ptr, FALSE, 0);
+		object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 0);
 
 		/* Message (equipment) */
 		if (i >= INVEN_WIELD)
@@ -389,10 +331,10 @@ static void regen_monsters(void)
 	int i, frac;
 
 	/* Regenerate everyone */
-	for (i = 1; i < m_max; i++)
+	for (i = 1; i < mon_max; i++)
 	{
 		/* Check the i'th monster */
-		monster_type *m_ptr = &m_list[i];
+		monster_type *m_ptr = &mon_list[i];
 		monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 		/* Skip dead monsters */
@@ -931,8 +873,8 @@ static void process_world(void)
 			check_experience();
 		}
 	}
-	
-	/* ~ handle intrinsic experience draining */
+        
+        /* ~ handle intrinsic experience draining */
 	if (p_ptr->inh_exp_drain)
 	{
 		if ((rand_int(10000L) < (p_ptr->lev * 25 + 50)) && (p_ptr->exp > 0))
@@ -1081,13 +1023,13 @@ static void process_world(void)
  */
 static bool enter_wizard_mode(void)
 {
-	/* Ask first time */
-	if (verify_special || !(p_ptr->noscore & 0x0002))
+	/* Ask first time - unless resurrecting a dead character */
+	if (verify_special && !(p_ptr->noscore & 0x0002) && !(p_ptr->is_dead))
 	{
 		/* Mention effects */
 		msg_print("You are about to enter 'wizard' mode for the very first time!");
 		msg_print("This is a form of cheating, and your game will not be scored!");
-		msg_print(NULL);
+		message_flush();
 
 		/* Verify request */
 		if (!get_check("Are you sure you want to enter wizard mode? "))
@@ -1118,7 +1060,7 @@ static bool verify_debug_mode(void)
 		/* Mention effects */
 		msg_print("You are about to use the dangerous, unsupported, debug commands!");
 		msg_print("Your machine may crash, and your savefile may become corrupted!");
-		msg_print(NULL);
+		message_flush();
 
 		/* Verify request */
 		if (!get_check("Are you sure you want to use the debug commands? "))
@@ -1134,13 +1076,7 @@ static bool verify_debug_mode(void)
 	return (TRUE);
 }
 
-
-/*
- * Hack -- Declare the Debug Routines
- */
-extern void do_cmd_debug(void);
-
-#endif
+#endif /* ALLOW_DEBUG */
 
 
 
@@ -1157,7 +1093,7 @@ static bool verify_borg_mode(void)
 		/* Mention effects */
 		msg_print("You are about to use the dangerous, unsupported, borg commands!");
 		msg_print("Your machine may crash, and your savefile may become corrupted!");
-		msg_print(NULL);
+		message_flush();
 
 		/* Verify request */
 		if (!get_check("Are you sure you want to use the borg commands? "))
@@ -1173,13 +1109,7 @@ static bool verify_borg_mode(void)
 	return (TRUE);
 }
 
-
-/*
- * Hack -- Declare the Borg Routines
- */
-extern void do_cmd_borg(void);
-
-#endif
+#endif /* ALLOW_BORG */
 
 
 
@@ -1197,6 +1127,9 @@ static void process_command(void)
 
 #endif /* ALLOW_REPEAT */
 
+	/* Event -- process command */
+	if (process_command_hook(p_ptr->command_cmd)) return;
+
 	/* Parse the command */
 	switch (p_ptr->command_cmd)
 	{
@@ -1205,6 +1138,7 @@ static void process_command(void)
 		case ' ':
 		case '\n':
 		case '\r':
+		case '\a':
 		{
 			break;
 		}
@@ -1792,22 +1726,22 @@ static void process_command(void)
  */
 static void process_player_aux(void)
 {
+	int i;
+	bool changed = FALSE;
+
 	static int old_monster_race_idx = 0;
 
-	static u32b	old_r_flags1 = 0L;
-	static u32b	old_r_flags2 = 0L;
-	static u32b	old_r_flags3 = 0L;
-	static u32b	old_r_flags4 = 0L;
-	static u32b	old_r_flags5 = 0L;
-	static u32b	old_r_flags6 = 0L;
+	static u32b	old_flags1 = 0L;
+	static u32b	old_flags2 = 0L;
+	static u32b	old_flags3 = 0L;
+	static u32b	old_flags4 = 0L;
+	static u32b	old_flags5 = 0L;
+	static u32b	old_flags6 = 0L;
 
-	static byte	old_r_blows0 = 0;
-	static byte	old_r_blows1 = 0;
-	static byte	old_r_blows2 = 0;
-	static byte	old_r_blows3 = 0;
+	static byte old_blows[MONSTER_BLOW_MAX];
 
-	static byte	old_r_cast_inate = 0;
-	static byte	old_r_cast_spell = 0;
+	static byte	old_cast_innate = 0;
+	static byte	old_cast_spell = 0;
 
 
 	/* Tracking a monster */
@@ -1816,41 +1750,45 @@ static void process_player_aux(void)
 		/* Get the monster lore */
 		monster_lore *l_ptr = &l_list[p_ptr->monster_race_idx];
 
+		for (i = 0; i < MONSTER_BLOW_MAX; i++)
+		{
+			if (old_blows[i] != l_ptr->blows[i])
+			{
+				changed = TRUE;
+				break;
+			}
+		}
+		
 		/* Check for change of any kind */
-		if ((old_monster_race_idx != p_ptr->monster_race_idx) ||
-		    (old_r_flags1 != l_ptr->r_flags1) ||
-		    (old_r_flags2 != l_ptr->r_flags2) ||
-		    (old_r_flags3 != l_ptr->r_flags3) ||
-		    (old_r_flags4 != l_ptr->r_flags4) ||
-		    (old_r_flags5 != l_ptr->r_flags5) ||
-		    (old_r_flags6 != l_ptr->r_flags6) ||
-		    (old_r_blows0 != l_ptr->r_blows[0]) ||
-		    (old_r_blows1 != l_ptr->r_blows[1]) ||
-		    (old_r_blows2 != l_ptr->r_blows[2]) ||
-		    (old_r_blows3 != l_ptr->r_blows[3]) ||
-		    (old_r_cast_inate != l_ptr->r_cast_inate) ||
-		    (old_r_cast_spell != l_ptr->r_cast_spell))
+		if (changed ||
+		    (old_monster_race_idx != p_ptr->monster_race_idx) ||
+		    (old_flags1 != l_ptr->flags1) ||
+		    (old_flags2 != l_ptr->flags2) ||
+		    (old_flags3 != l_ptr->flags3) ||
+		    (old_flags4 != l_ptr->flags4) ||
+		    (old_flags5 != l_ptr->flags5) ||
+		    (old_flags6 != l_ptr->flags6) ||
+		    (old_cast_innate != l_ptr->cast_innate) ||
+		    (old_cast_spell != l_ptr->cast_spell))
 		{
 			/* Memorize old race */
 			old_monster_race_idx = p_ptr->monster_race_idx;
 
 			/* Memorize flags */
-			old_r_flags1 = l_ptr->r_flags1;
-			old_r_flags2 = l_ptr->r_flags2;
-			old_r_flags3 = l_ptr->r_flags3;
-			old_r_flags4 = l_ptr->r_flags4;
-			old_r_flags5 = l_ptr->r_flags5;
-			old_r_flags6 = l_ptr->r_flags6;
+			old_flags1 = l_ptr->flags1;
+			old_flags2 = l_ptr->flags2;
+			old_flags3 = l_ptr->flags3;
+			old_flags4 = l_ptr->flags4;
+			old_flags5 = l_ptr->flags5;
+			old_flags6 = l_ptr->flags6;
 
 			/* Memorize blows */
-			old_r_blows0 = l_ptr->r_blows[0];
-			old_r_blows1 = l_ptr->r_blows[1];
-			old_r_blows2 = l_ptr->r_blows[2];
-			old_r_blows3 = l_ptr->r_blows[3];
+			for (i = 0; i < MONSTER_BLOW_MAX; i++)
+				old_blows[i] = l_ptr->blows[i];
 
 			/* Memorize castings */
-			old_r_cast_inate = l_ptr->r_cast_inate;
-			old_r_cast_spell = l_ptr->r_cast_spell;
+			old_cast_innate = l_ptr->cast_innate;
+			old_cast_spell = l_ptr->cast_spell;
 
 			/* Window stuff */
 			p_ptr->window |= (PW_MONSTER);
@@ -1989,7 +1927,7 @@ static void process_player(void)
 			msg_print("Your pack overflows!");
 
 			/* Describe */
-			object_desc(o_name, o_ptr, TRUE, 3);
+			object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
 
 			/* Message */
 			msg_format("You drop %s (%c).", o_name, index_to_label(item));
@@ -2118,13 +2056,13 @@ static void process_player(void)
 				shimmer_monsters = FALSE;
 
 				/* Shimmer multi-hued monsters */
-				for (i = 1; i < m_max; i++)
+				for (i = 1; i < mon_max; i++)
 				{
 					monster_type *m_ptr;
 					monster_race *r_ptr;
 
 					/* Get the monster */
-					m_ptr = &m_list[i];
+					m_ptr = &mon_list[i];
 
 					/* Skip dead monsters */
 					if (!m_ptr->r_idx) continue;
@@ -2150,12 +2088,12 @@ static void process_player(void)
 				repair_mflag_nice = FALSE;
 
 				/* Process monsters */
-				for (i = 1; i < m_max; i++)
+				for (i = 1; i < mon_max; i++)
 				{
 					monster_type *m_ptr;
 
 					/* Get the monster */
-					m_ptr = &m_list[i];
+					m_ptr = &mon_list[i];
 
 					/* Skip dead monsters */
 					/* if (!m_ptr->r_idx) continue; */
@@ -2172,12 +2110,12 @@ static void process_player(void)
 				repair_mflag_mark = FALSE;
 
 				/* Process the monsters */
-				for (i = 1; i < m_max; i++)
+				for (i = 1; i < mon_max; i++)
 				{
 					monster_type *m_ptr;
 
 					/* Get the monster */
-					m_ptr = &m_list[i];
+					m_ptr = &mon_list[i];
 
 					/* Skip dead monsters */
 					/* if (!m_ptr->r_idx) continue; */
@@ -2212,12 +2150,12 @@ static void process_player(void)
 			repair_mflag_show = FALSE;
 
 			/* Process the monsters */
-			for (i = 1; i < m_max; i++)
+			for (i = 1; i < mon_max; i++)
 			{
 				monster_type *m_ptr;
 
 				/* Get the monster */
-				m_ptr = &m_list[i];
+				m_ptr = &mon_list[i];
 
 				/* Skip dead monsters */
 				/* if (!m_ptr->r_idx) continue; */
@@ -2276,7 +2214,6 @@ static void dungeon(void)
 	shimmer_objects = TRUE;
 
 	/* Reset repair flags */
-	repair_mflag_born = TRUE;
 	repair_mflag_nice = TRUE;
 	repair_mflag_show = TRUE;
 	repair_mflag_mark = TRUE;
@@ -2330,6 +2267,9 @@ static void dungeon(void)
 			{
 				cave_set_feat(py, px, FEAT_LESS);
 			}
+
+			/* Mark the stairs as known */
+			cave_info[py][px] |= (CAVE_MARK);
 		}
 
 		/* Cancel the stair request */
@@ -2342,7 +2282,7 @@ static void dungeon(void)
 
 
 	/* Flush messages */
-	msg_print(NULL);
+	message_flush();
 
 
 	/* Hack -- Increase "xtra" depth */
@@ -2370,7 +2310,7 @@ static void dungeon(void)
 	p_ptr->update |= (PU_FORGET_FLOW | PU_UPDATE_FLOW);
 
 	/* Redraw dungeon */
-	p_ptr->redraw |= (PR_BASIC | PR_EXTRA | PR_MAP);
+	p_ptr->redraw |= (PR_BASIC | PR_EXTRA | PR_MAP | PR_EQUIPPY);
 
 	/* Window stuff */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
@@ -2431,17 +2371,16 @@ static void dungeon(void)
 	monster_level = p_ptr->depth;
 
 	/* Reset the object generation level */
-	/* ~ modified by neko */
-	object_level = obj_depth(p_ptr->depth);
+	object_level = p_ptr->depth;
 
 	/* Main loop */
 	while (TRUE)
 	{
 		/* Hack -- Compact the monster list occasionally */
-		if (m_cnt + 32 > z_info->m_max) compact_monsters(64);
+		if (mon_cnt + 32 > z_info->m_max) compact_monsters(64);
 
 		/* Hack -- Compress the monster list occasionally */
-		if (m_cnt + 32 < m_max) compact_monsters(0);
+		if (mon_cnt + 32 < mon_max) compact_monsters(0);
 
 
 		/* Hack -- Compact the object list occasionally */
@@ -2457,10 +2396,10 @@ static void dungeon(void)
 		p_ptr->energy += extract_energy[p_ptr->pspeed];
 
 		/* Give energy to all monsters */
-		for (i = m_max - 1; i >= 1; i--)
+		for (i = mon_max - 1; i >= 1; i--)
 		{
 			/* Access the monster */
-			m_ptr = &m_list[i];
+			m_ptr = &mon_list[i];
 
 			/* Ignore "dead" monsters */
 			if (!m_ptr->r_idx) continue;
@@ -2565,23 +2504,11 @@ static void dungeon(void)
 
 /*
  * Process some user pref files
- *
- * Hack -- Allow players on UNIX systems to keep a ".angband.prf" user
- * pref file in their home directory.  Perhaps it should be loaded with
- * the "basic" user pref files instead of here.  This may allow bypassing
- * of some of the "security" compilation options.  XXX XXX XXX XXX XXX
  */
 static void process_some_user_pref_files(void)
 {
 	char buf[1024];
 
-#ifdef ALLOW_PREF_IN_HOME
-#ifdef SET_UID
-
-	char *homedir;
-
-#endif /* SET_UID */
-#endif /* ALLOW_PREF_IN_HOME */
 
 	/* Process the "user.prf" file */
 	(void)process_pref_file("user.prf");
@@ -2591,22 +2518,6 @@ static void process_some_user_pref_files(void)
 
 	/* Process the "PLAYER.prf" file */
 	(void)process_pref_file(buf);
-
-#ifdef ALLOW_PREF_IN_HOME
-#ifdef SET_UID
-
-	/* Process the "~/.angband.prf" file */
-	if ((homedir = getenv("HOME")))
-	{
-		/* Get the ".angband.prf" filename */
-		path_build(buf, 1024, homedir, ".angband.prf");
-
-		/* Process the ".angband.prf" file */
-		(void)process_pref_file(buf);
-	}
-
-#endif /* SET_UID */
-#endif /* ALLOW_PREF_IN_HOME */
 }
 
 
@@ -2644,13 +2555,13 @@ void play_game(bool new_game)
 
 
 	/* Verify main term */
-	if (!angband_term[0])
+	if (!term_screen)
 	{
 		quit("main window does not exist");
 	}
 
 	/* Make sure main term is active */
-	Term_activate(angband_term[0]);
+	Term_activate(term_screen);
 
 	/* Verify minimum size */
 	if ((Term->hgt < 24) || (Term->wid < 80))
@@ -2658,12 +2569,8 @@ void play_game(bool new_game)
 		quit("main window is too small");
 	}
 
-	/* Forbid resizing */
-	Term->fixed_shape = TRUE;
-
-
 	/* Hack -- Turn off the cursor */
-	(void)Term_set_cursor(0);
+	(void)Term_set_cursor(FALSE);
 
 
 	/* Attempt to load */
@@ -2731,7 +2638,7 @@ void play_game(bool new_game)
 		/* Hack -- seed for random artifacts */
 		seed_randart = rand_int(0x10000000);
 
-#endif
+#endif /* GJW_RANDART */
 
 		/* Roll up a new character */
 		player_birth();
@@ -2741,10 +2648,15 @@ void play_game(bool new_game)
 		/* Randomize the artifacts */
 		if (adult_rand_artifacts)
 		{
-			do_randart(seed_randart);
+			do_randart(seed_randart, TRUE);
 		}
 
-#endif
+#else /* GJW_RANDART */
+
+		/* Make sure random artifacts are turned off if not available */
+		adult_rand_artifacts = FALSE;
+
+#endif /* GJW_RANDART */
 
 		/* Hack -- enter the world */
 		turn = 1;
@@ -2821,6 +2733,16 @@ void play_game(bool new_game)
 	/* Hack -- Enforce "delayed death" */
 	if (p_ptr->chp < 0) p_ptr->is_dead = TRUE;
 
+	/* Call "start game" event handler */
+	if (new_game)
+	{
+		/* Event -- start game */
+		start_game_hook();
+
+		/* Event -- enter level */
+		enter_level_hook();
+	}
+
 	/* Process */
 	while (TRUE)
 	{
@@ -2858,11 +2780,11 @@ void play_game(bool new_game)
 
 		/* Erase the old cave */
 		wipe_o_list();
-		wipe_m_list();
+		wipe_mon_list();
 
 
 		/* XXX XXX XXX */
-		msg_print(NULL);
+		message_flush();
 
 		/* Accidental Death */
 		if (p_ptr->playing && p_ptr->is_dead)
@@ -2881,7 +2803,7 @@ void play_game(bool new_game)
 
 				/* Message */
 				msg_print("You invoke wizard mode and cheat death.");
-				msg_print(NULL);
+				message_flush();
 
 				/* Cheat death */
 				p_ptr->is_dead = FALSE;
@@ -2912,7 +2834,7 @@ void play_game(bool new_game)
 				{
 					/* Message */
 					msg_print("A tension leaves the air around you...");
-					msg_print(NULL);
+					message_flush();
 
 					/* Hack -- Prevent recall */
 					p_ptr->word_recall = 0;
@@ -2932,13 +2854,16 @@ void play_game(bool new_game)
 		/* Handle "death" */
 		if (p_ptr->is_dead) break;
 
+		/* "Leaving level" event */
+		leave_level_hook();
+
 		/* Make a new level */
 		generate_cave();
+
+		/* "Entering level" event */
+		enter_level_hook();
 	}
 
 	/* Close stuff */
 	close_game();
-
-	/* Quit */
-	quit(NULL);
 }

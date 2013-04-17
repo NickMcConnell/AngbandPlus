@@ -120,10 +120,10 @@ static errr wr_block(void)
 	fake[3] = (byte)(data_size >> 8);
 
 	/* Dump the head */
-	err = fd_write(data_fd, (char*)&fake, 4);
+	err = fd_write(data_fd, (cptr)&fake, sizeof(fake));
 
 	/* Dump the actual data */
-	err = fd_write(data_fd, (char*)data_head, data_size);
+	err = fd_write(data_fd, (cptr)data_head, data_size);
 
 	/* XXX XXX XXX */
 	fake[0] = 0;
@@ -132,7 +132,7 @@ static errr wr_block(void)
 	fake[3] = 0;
 
 	/* Dump the tail */
-	err = fd_write(data_fd, (char*)&fake, 4);
+	err = fd_write(data_fd, (cptr)&fake, sizeof(fake));
 
 	/* Hack -- reset */
 	data_next = data_head;
@@ -252,7 +252,7 @@ static errr wr_savefile(void)
 	fake[3] = (byte)(VERSION_EXTRA);
 
 	/* Dump the data */
-	err = fd_write(data_fd, (char*)&fake, 4);
+	err = fd_write(data_fd, (cptr)&fake, sizeof(fake));
 
 
 	/* Make array XXX XXX XXX */
@@ -377,7 +377,7 @@ static errr wr_savefile(void)
 	wr_u32b(spell_forgotten2);
 
 	/* Dump the ordered spells */
-	for (i = 0; i < 64; i++)
+	for (i = 0; i < PY_MAX_SPELLS; i++)
 	{
 		wr_byte(spell_order[i]);
 	}
@@ -430,7 +430,7 @@ static errr wr_savefile(void)
 
 
 	/* Kill array XXX XXX XXX */
-	C_KILL(data_head, 65535, byte);
+	KILL(data_head);
 
 
 	/* Success */
@@ -451,7 +451,7 @@ static errr rd_block(void)
 	byte fake[4];
 
 	/* Read the head data */
-	err = fd_read(data_fd, (char*)&fake, 4);
+	err = fd_read(data_fd, (char*)&fake, sizeof(fake));
 
 	/* Extract the type and size */
 	data_type = (fake[0] | ((u16b)fake[1] << 8));
@@ -464,7 +464,7 @@ static errr rd_block(void)
 	err = fd_read(data_fd, (char*)data_head, data_size);
 
 	/* Read the tail data */
-	err = fd_read(data_fd, (char*)&fake, 4);
+	err = fd_read(data_fd, (char*)&fake, sizeof(fake));
 
 	/* XXX XXX XXX Verify */
 
@@ -553,7 +553,7 @@ static errr rd_savefile(void)
 	if (data_fd < 0) return (1);
 
 	/* Strip the first four bytes (see below) */
-	if (fd_read(data_fd, (char*)(fake), 4)) return (1);
+	if (fd_read(data_fd, (char*)(fake), sizeof(fake))) return (1);
 
 
 	/* Make array XXX XXX XXX */
@@ -596,7 +596,7 @@ static errr rd_savefile(void)
 
 
 	/* Kill array XXX XXX XXX */
-	C_KILL(data_head, 65535, byte);
+	KILL(data_head);
 
 
 	/* Success */
@@ -685,7 +685,7 @@ static void wr_string(cptr str)
 /*
  * Write an "item" record
  */
-static void wr_item(object_type *o_ptr)
+static void wr_item(const object_type *o_ptr)
 {
 	wr_s16b(o_ptr->k_idx);
 
@@ -745,7 +745,7 @@ static void wr_item(object_type *o_ptr)
 /*
  * Write a "monster" record
  */
-static void wr_monster(monster_type *m_ptr)
+static void wr_monster(const monster_type *m_ptr)
 {
 	wr_s16b(m_ptr->r_idx);
 	wr_byte(m_ptr->fy);
@@ -767,44 +767,44 @@ static void wr_monster(monster_type *m_ptr)
  */
 static void wr_lore(int r_idx)
 {
+	int i;
+
 	monster_race *r_ptr = &r_info[r_idx];
 	monster_lore *l_ptr = &l_list[r_idx];
 
 	/* Count sights/deaths/kills */
-	wr_s16b(l_ptr->r_sights);
-	wr_s16b(l_ptr->r_deaths);
-	wr_s16b(l_ptr->r_pkills);
-	wr_s16b(l_ptr->r_tkills);
+	wr_s16b(l_ptr->sights);
+	wr_s16b(l_ptr->deaths);
+	wr_s16b(l_ptr->pkills);
+	wr_s16b(l_ptr->tkills);
 
 	/* Count wakes and ignores */
-	wr_byte(l_ptr->r_wake);
-	wr_byte(l_ptr->r_ignore);
+	wr_byte(l_ptr->wake);
+	wr_byte(l_ptr->ignore);
 
 	/* Extra stuff */
-	wr_byte(l_ptr->r_xtra1);
-	wr_byte(l_ptr->r_xtra2);
+	wr_byte(l_ptr->xtra1);
+	wr_byte(l_ptr->xtra2);
 
 	/* Count drops */
-	wr_byte(l_ptr->r_drop_gold);
-	wr_byte(l_ptr->r_drop_item);
+	wr_byte(l_ptr->drop_gold);
+	wr_byte(l_ptr->drop_item);
 
 	/* Count spells */
-	wr_byte(l_ptr->r_cast_inate);
-	wr_byte(l_ptr->r_cast_spell);
+	wr_byte(l_ptr->cast_innate);
+	wr_byte(l_ptr->cast_spell);
 
 	/* Count blows of each type */
-	wr_byte(l_ptr->r_blows[0]);
-	wr_byte(l_ptr->r_blows[1]);
-	wr_byte(l_ptr->r_blows[2]);
-	wr_byte(l_ptr->r_blows[3]);
+	for (i = 0; i < MONSTER_BLOW_MAX; i++)
+		wr_byte(l_ptr->blows[i]);
 
 	/* Memorize flags */
-	wr_u32b(l_ptr->r_flags1);
-	wr_u32b(l_ptr->r_flags2);
-	wr_u32b(l_ptr->r_flags3);
-	wr_u32b(l_ptr->r_flags4);
-	wr_u32b(l_ptr->r_flags5);
-	wr_u32b(l_ptr->r_flags6);
+	wr_u32b(l_ptr->flags1);
+	wr_u32b(l_ptr->flags2);
+	wr_u32b(l_ptr->flags3);
+	wr_u32b(l_ptr->flags4);
+	wr_u32b(l_ptr->flags5);
+	wr_u32b(l_ptr->flags6);
 
 
 	/* Monster limit per level */
@@ -836,7 +836,7 @@ static void wr_xtra(int k_idx)
 /*
  * Write a "store" record
  */
-static void wr_store(store_type *st_ptr)
+static void wr_store(const store_type *st_ptr)
 {
 	int j;
 
@@ -898,6 +898,8 @@ static void wr_options(void)
 
 	u32b flag[8];
 	u32b mask[8];
+	u32b window_flag[ANGBAND_TERM_MAX];
+	u32b window_mask[ANGBAND_TERM_MAX];
 
 
 	/*** Oops ***/
@@ -957,13 +959,13 @@ static void wr_options(void)
 	/*** Window options ***/
 
 	/* Reset */
-	for (i = 0; i < 8; i++)
+	for (i = 0; i < ANGBAND_TERM_MAX; i++)
 	{
 		/* Flags */
-		flag[i] = op_ptr->window_flag[i];
+		window_flag[i] = op_ptr->window_flag[i];
 
 		/* Mask */
-		mask[i] = 0L;
+		window_mask[i] = 0L;
 
 		/* Build the mask */
 		for (k = 0; k < 32; k++)
@@ -971,16 +973,16 @@ static void wr_options(void)
 			/* Set mask */
 			if (window_flag_desc[k])
 			{
-				mask[i] |= (1L << k);
+				window_mask[i] |= (1L << k);
 			}
 		}
 	}
 
 	/* Dump the flags */
-	for (i = 0; i < 8; i++) wr_u32b(flag[i]);
+	for (i = 0; i < ANGBAND_TERM_MAX; i++) wr_u32b(window_flag[i]);
 
 	/* Dump the masks */
-	for (i = 0; i < 8; i++) wr_u32b(mask[i]);
+	for (i = 0; i < ANGBAND_TERM_MAX; i++) wr_u32b(window_mask[i]);
 }
 
 
@@ -1010,10 +1012,7 @@ static void wr_extra(void)
 
 	wr_string(p_ptr->died_from);
 
-	for (i = 0; i < 4; i++)
-	{
-		wr_string(p_ptr->history[i]);
-	}
+	wr_string(p_ptr->history);
 
 	/* Race/Class/Gender/Spells */
 	wr_byte(p_ptr->prace);
@@ -1143,6 +1142,48 @@ static void wr_extra(void)
 	wr_s32b(turn);
 }
 
+
+/*
+ * Dump the random artifacts
+ */
+static void wr_randarts(void)
+{
+	int i;
+
+	wr_u16b(z_info->a_max);
+
+	for (i = 0; i < z_info->a_max; i++)
+	{
+		artifact_type *a_ptr = &a_info[i];
+
+		wr_byte(a_ptr->tval);
+		wr_byte(a_ptr->sval);
+		wr_s16b(a_ptr->pval);
+
+		wr_s16b(a_ptr->to_h);
+		wr_s16b(a_ptr->to_d);
+		wr_s16b(a_ptr->to_a);
+		wr_s16b(a_ptr->ac);
+
+		wr_byte(a_ptr->dd);
+		wr_byte(a_ptr->ds);
+
+		wr_s16b(a_ptr->weight);
+
+		wr_s32b(a_ptr->cost);
+
+		wr_u32b(a_ptr->flags1);
+		wr_u32b(a_ptr->flags2);
+		wr_u32b(a_ptr->flags3);
+
+		wr_byte(a_ptr->level);
+		wr_byte(a_ptr->rarity);
+
+		wr_byte(a_ptr->activation);
+		wr_u16b(a_ptr->time);
+		wr_u16b(a_ptr->randtime);
+	}
+}
 
 
 /*
@@ -1282,12 +1323,12 @@ static void wr_dungeon(void)
 	/*** Dump the monsters ***/
 
 	/* Total monsters */
-	wr_u16b(m_max);
+	wr_u16b(mon_max);
 
 	/* Dump the monsters */
-	for (i = 1; i < m_max; i++)
+	for (i = 1; i < mon_max; i++)
 	{
-		monster_type *m_ptr = &m_list[i];
+		monster_type *m_ptr = &mon_list[i];
 
 		/* Dump it */
 		wr_monster(m_ptr);
@@ -1416,7 +1457,6 @@ static bool wr_savefile_new(void)
 	}
 
 
-
 	/* Write the "extra" information */
 	wr_extra();
 
@@ -1431,17 +1471,24 @@ static bool wr_savefile_new(void)
 
 
 	/* Write spell data */
-	wr_u32b(p_ptr->spell_learned1);
-	wr_u32b(p_ptr->spell_learned2);
-	wr_u32b(p_ptr->spell_worked1);
-	wr_u32b(p_ptr->spell_worked2);
-	wr_u32b(p_ptr->spell_forgotten1);
-	wr_u32b(p_ptr->spell_forgotten2);
+	wr_u16b(PY_MAX_SPELLS);
+
+	for (i = 0; i < PY_MAX_SPELLS; i++)
+	{
+		wr_byte(p_ptr->spell_flags[i]);
+	}
 
 	/* Dump the ordered spells */
-	for (i = 0; i < 64; i++)
+	for (i = 0; i < PY_MAX_SPELLS; i++)
 	{
 		wr_byte(p_ptr->spell_order[i]);
+	}
+
+
+	/* Write randart information */
+	if (adult_rand_artifacts)
+	{
+		wr_randarts();
 	}
 
 
@@ -1503,7 +1550,7 @@ static bool wr_savefile_new(void)
  *
  * XXX XXX XXX Angband 2.8.0 will use "fd" instead of "fff" if possible
  */
-static bool save_player_aux(char *name)
+static bool save_player_aux(cptr name)
 {
 	bool ok = FALSE;
 
@@ -1520,8 +1567,14 @@ static bool save_player_aux(char *name)
 	FILE_TYPE(FILE_TYPE_SAVE);
 
 
+	/* Grab permissions */
+	safe_setuid_grab();
+
 	/* Create the savefile */
 	fd = fd_make(name, mode);
+
+	/* Drop permissions */
+	safe_setuid_drop();
 
 	/* File is okay */
 	if (fd >= 0)
@@ -1529,8 +1582,14 @@ static bool save_player_aux(char *name)
 		/* Close the "fd" */
 		fd_close(fd);
 
+		/* Grab permissions */
+		safe_setuid_grab();
+
 		/* Open the savefile */
 		fff = my_fopen(name, "wb");
+
+		/* Drop permissions */
+		safe_setuid_drop();
 
 		/* Successful open */
 		if (fff)
@@ -1542,8 +1601,14 @@ static bool save_player_aux(char *name)
 			if (my_fclose(fff)) ok = FALSE;
 		}
 
+		/* Grab permissions */
+		safe_setuid_grab();
+
 		/* Remove "broken" files */
 		if (!ok) fd_kill(name);
+
+		/* Drop permissions */
+		safe_setuid_drop();
 	}
 
 
@@ -1582,17 +1647,23 @@ bool save_player(void)
 
 
 	/* New savefile */
-	strcpy(safe, savefile);
+	my_strcpy(safe, savefile, sizeof(safe));
 	strcat(safe, ".new");
 
 #ifdef VM
 	/* Hack -- support "flat directory" usage on VM/ESA */
-	strcpy(safe, savefile);
+	my_strcpy(safe, savefile, sizeof(safe));
 	strcat(safe, "n");
 #endif /* VM */
 
+	/* Grab permissions */
+	safe_setuid_grab();
+
 	/* Remove it */
 	fd_kill(safe);
+
+	/* Drop permissions */
+	safe_setuid_drop();
 
 	/* Attempt to save the player */
 	if (save_player_aux(safe))
@@ -1600,14 +1671,17 @@ bool save_player(void)
 		char temp[1024];
 
 		/* Old savefile */
-		strcpy(temp, savefile);
+		my_strcpy(temp, savefile, sizeof(temp));
 		strcat(temp, ".old");
 
 #ifdef VM
 		/* Hack -- support "flat directory" usage on VM/ESA */
-		strcpy(temp, savefile);
+		my_strcpy(temp, savefile, sizeof(temp));
 		strcat(temp, "o");
 #endif /* VM */
+
+		/* Grab permissions */
+		safe_setuid_grab();
 
 		/* Remove it */
 		fd_kill(temp);
@@ -1621,19 +1695,28 @@ bool save_player(void)
 		/* Remove preserved savefile */
 		fd_kill(temp);
 
+		/* Drop permissions */
+		safe_setuid_drop();
+
 		/* Hack -- Pretend the character was loaded */
 		character_loaded = TRUE;
 
 #ifdef VERIFY_SAVEFILE
 
 		/* Lock on savefile */
-		strcpy(temp, savefile);
+		my_strcpy(temp, savefile, sizeof(temp));
 		strcat(temp, ".lok");
+
+		/* Grab permissions */
+		safe_setuid_grab();
 
 		/* Remove lock file */
 		fd_kill(temp);
 
-#endif
+		/* Drop permissions */
+		safe_setuid_drop();
+
+#endif /* VERIFY_SAVEFILE */
 
 		/* Success */
 		result = TRUE;
@@ -1647,324 +1730,11 @@ bool save_player(void)
 	/* Drop "games" permissions */
 	bePlayer();
 
-# endif
+# endif /* SECURE */
 
-#endif
+#endif /* SET_UID */
 
 
 	/* Return the result */
 	return (result);
 }
-
-
-
-/*
- * Attempt to Load a "savefile"
- *
- * Version 2.7.0 introduced a slightly different "savefile" format from
- * older versions, requiring a completely different parsing method.
- *
- * Note that savefiles from 2.7.0 - 2.7.2 are completely obsolete.
- *
- * Pre-2.8.0 savefiles lose some data, see "load2.c" for info.
- *
- * Pre-2.7.0 savefiles lose a lot of things, see "load1.c" for info.
- *
- * On multi-user systems, you may only "read" a savefile if you will be
- * allowed to "write" it later, this prevents painful situations in which
- * the player loads a savefile belonging to someone else, and then is not
- * allowed to save his game when he quits.
- *
- * We return "TRUE" if the savefile was usable, and we set the global
- * flag "character_loaded" if a real, living, character was loaded.
- *
- * Note that we always try to load the "current" savefile, even if
- * there is no such file, so we must check for "empty" savefile names.
- */
-bool load_player(void)
-{
-	int fd = -1;
-
-	errr err = 0;
-
-	byte vvv[4];
-
-#ifdef VERIFY_TIMESTAMP
-	struct stat	statbuf;
-#endif
-
-	cptr what = "generic";
-
-
-	/* Paranoia */
-	turn = 0;
-
-	/* Paranoia */
-	p_ptr->is_dead = FALSE;
-
-
-	/* Allow empty savefile name */
-	if (!savefile[0]) return (TRUE);
-
-
-#if !defined(MACINTOSH) && !defined(WINDOWS) && !defined(VM)
-
-	/* XXX XXX XXX Fix this */
-
-	/* Verify the existance of the savefile */
-	if (access(savefile, 0) < 0)
-	{
-		/* Give a message */
-		msg_print("Savefile does not exist.");
-		msg_print(NULL);
-
-		/* Allow this */
-		return (TRUE);
-	}
-
-#endif
-
-
-#ifdef VERIFY_SAVEFILE
-
-	/* Verify savefile usage */
-	if (!err)
-	{
-		FILE *fkk;
-
-		char temp[1024];
-
-		/* Extract name of lock file */
-		strcpy(temp, savefile);
-		strcat(temp, ".lok");
-
-		/* Check for lock */
-		fkk = my_fopen(temp, "r");
-
-		/* Oops, lock exists */
-		if (fkk)
-		{
-			/* Close the file */
-			my_fclose(fkk);
-
-			/* Message */
-			msg_print("Savefile is currently in use.");
-			msg_print(NULL);
-
-			/* Oops */
-			return (FALSE);
-		}
-
-		/* Create a lock file */
-		fkk = my_fopen(temp, "w");
-
-		/* Dump a line of info */
-		fprintf(fkk, "Lock file for savefile '%s'\n", savefile);
-
-		/* Close the lock file */
-		my_fclose(fkk);
-	}
-
-#endif
-
-
-	/* Okay */
-	if (!err)
-	{
-		/* Open the savefile */
-		fd = fd_open(savefile, O_RDONLY);
-
-		/* No file */
-		if (fd < 0) err = -1;
-
-		/* Message (below) */
-		if (err) what = "Cannot open savefile";
-	}
-
-	/* Process file */
-	if (!err)
-	{
-
-#ifdef VERIFY_TIMESTAMP
-		/* Get the timestamp */
-		(void)fstat(fd, &statbuf);
-#endif
-
-		/* Read the first four bytes */
-		if (fd_read(fd, (char*)(vvv), 4)) err = -1;
-
-		/* What */
-		if (err) what = "Cannot read savefile";
-
-		/* Close the file */
-		fd_close(fd);
-	}
-
-	/* Process file */
-	if (!err)
-	{
-		/* Extract version */
-		sf_major = vvv[0];
-		sf_minor = vvv[1];
-		sf_patch = vvv[2];
-		sf_extra = vvv[3];
-
-		/* Very old savefiles */
-		if ((sf_major == 5) && (sf_minor == 2))
-		{
-			sf_major = 2;
-			sf_minor = 5;
-		}
-
-		/* Extremely old savefiles */
-		if (sf_major > 2)
-		{
-			sf_major = 1;
-		}
-
-		/* Clear screen */
-		Term_clear();
-
-		/* Parse "ancient" savefiles */
-		if (sf_major < 2)
-		{
-			/* Attempt to load */
-			err = rd_savefile_old();
-		}
-
-		/* Parse "old" savefiles */
-		else if ((sf_major == 2) && (sf_minor < 7))
-		{
-			/* Attempt to load */
-			err = rd_savefile_old();
-		}
-
-		/* Parse "new" savefiles */
-		else if (sf_major == 2)
-		{
-			/* Attempt to load */
-			err = rd_savefile_new();
-		}
-
-		/* Parse "future" savefiles */
-		else
-		{
-			/* Error XXX XXX XXX */
-			err = -1;
-		}
-
-		/* Message (below) */
-		if (err) what = "Cannot parse savefile";
-	}
-
-	/* Paranoia */
-	if (!err)
-	{
-		/* Invalid turn */
-		if (!turn) err = -1;
-
-		/* Message (below) */
-		if (err) what = "Broken savefile";
-	}
-
-#ifdef VERIFY_TIMESTAMP
-	/* Verify timestamp */
-	if (!err && !arg_wizard)
-	{
-		/* Hack -- Verify the timestamp */
-		if (sf_when > (statbuf.st_ctime + 100) ||
-		    sf_when < (statbuf.st_ctime - 100))
-		{
-			/* Message */
-			what = "Invalid timestamp";
-
-			/* Oops */
-			err = -1;
-		}
-	}
-#endif
-
-
-	/* Okay */
-	if (!err)
-	{
-		/* Give a conversion warning */
-		if ((version_major != sf_major) ||
-		    (version_minor != sf_minor) ||
-		    (version_patch != sf_patch))
-		{
-			/* Message */
-			msg_format("Converted a %d.%d.%d savefile.",
-			           sf_major, sf_minor, sf_patch);
-			msg_print(NULL);
-		}
-
-		/* Player is dead */
-		if (p_ptr->is_dead)
-		{
-			/* Forget death */
-			p_ptr->is_dead = FALSE;
-
-			/* Cheat death */
-			if (arg_wizard)
-			{
-				/* A character was loaded */
-				character_loaded = TRUE;
-
-				/* Done */
-				return (TRUE);
-			}
-
-			/* Count lives */
-			sf_lives++;
-
-			/* Forget turns */
-			turn = old_turn = 0;
-
-			/* Done */
-			return (TRUE);
-		}
-
-		/* A character was loaded */
-		character_loaded = TRUE;
-
-		/* Still alive */
-		if (p_ptr->chp >= 0)
-		{
-			/* Reset cause of death */
-			strcpy(p_ptr->died_from, "(alive and well)");
-		}
-
-		/* Success */
-		return (TRUE);
-	}
-
-
-#ifdef VERIFY_SAVEFILE
-
-	/* Verify savefile usage */
-	if (TRUE)
-	{
-		char temp[1024];
-
-		/* Extract name of lock file */
-		strcpy(temp, savefile);
-		strcat(temp, ".lok");
-
-		/* Remove lock */
-		fd_kill(temp);
-	}
-
-#endif
-
-
-	/* Message */
-	msg_format("Error (%s) reading %d.%d.%d savefile.",
-	           what, sf_major, sf_minor, sf_patch);
-	msg_print(NULL);
-
-	/* Oops */
-	return (FALSE);
-}
-
-

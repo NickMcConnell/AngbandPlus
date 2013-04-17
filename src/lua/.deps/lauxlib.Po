@@ -1,0 +1,25 @@
+lauxlib.o : \
+ /usr/include/gcc/darwin/3.1/stdarg.h /usr/include/stdio.h \
+  /usr/include/sys/types.h /usr/include/sys/appleapiopts.h \
+  /usr/include/sys/cdefs.h /usr/include/machine/types.h \
+  /usr/include/ppc/types.h /usr/include/machine/ansi.h \
+  /usr/include/ppc/ansi.h /usr/include/machine/endian.h \
+  /usr/include/ppc/endian.h /usr/include/string.h lua.h \
+  /usr/include/stddef.h lauxlib.h luadebug.h 
+lauxlib.o :
+/usr/include/gcc/darwin/3.1/stdarg.h :
+/usr/include/stdio.h :
+/usr/include/sys/types.h :
+/usr/include/sys/appleapiopts.h :
+/usr/include/sys/cdefs.h :
+/usr/include/machine/types.h :
+/usr/include/ppc/types.h :
+/usr/include/machine/ansi.h :
+/usr/include/ppc/ansi.h :
+/usr/include/machine/endian.h :
+/usr/include/ppc/endian.h :
+/usr/include/string.h :
+lua.h :
+/usr/include/stddef.h :
+lauxlib.h :
+luadebug.h :

@@ -1686,8 +1686,7 @@ void check_experience(void)
 		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
 
 		/* Redraw some stuff */
-		/* ~ exp now needs to be updated to -- neko */
-		p_ptr->redraw |= (PR_LEV | PR_TITLE | PR_EXP);
+		p_ptr->redraw |= (PR_LEV | PR_TITLE);
 
 		/* Window stuff */
 		p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
@@ -1715,8 +1714,28 @@ void check_experience(void)
 		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
 
 		/* Redraw some stuff */
-		/* ~ add PR_EXP so the NEED: line isn't negative */
-		p_ptr->redraw |= (PR_LEV | PR_TITLE | PR_EXP);
+		p_ptr->redraw |= (PR_LEV | PR_TITLE);
+
+		/* Window stuff */
+		p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+
+		/* Handle stuff */
+		handle_stuff();
+	}
+
+	/* Gain max levels while possible */
+	while ((p_ptr->max_lev < PY_MAX_LEVEL) &&
+	       (p_ptr->max_exp >= (player_exp[p_ptr->max_lev-1] *
+	                           p_ptr->expfact / 100L)))
+	{
+		/* Gain max level */
+		p_ptr->max_lev++;
+
+		/* Update some stuff */
+		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
+
+		/* Redraw some stuff */
+		p_ptr->redraw |= (PR_LEV | PR_TITLE);
 
 		/* Window stuff */
 		p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
@@ -1771,7 +1790,7 @@ void lose_exp(s32b amount)
  *
  * Note the use of actual "monster names".  XXX XXX XXX
  */
-static int get_coin_type(monster_race *r_ptr)
+static int get_coin_type(const monster_race *r_ptr)
 {
 	cptr name = (r_name + r_ptr->name);
 
@@ -1779,22 +1798,59 @@ static int get_coin_type(monster_race *r_ptr)
 	if (r_ptr->d_char == '$')
 	{
 		/* Look for textual clues */
-		if (strstr(name, " copper ")) return (2);
-		if (strstr(name, " silver ")) return (5);
-		if (strstr(name, " gold ")) return (10);
-		if (strstr(name, " mithril ")) return (16);
-		if (strstr(name, " adamantite ")) return (17);
+		if (strstr(name, " copper ")) return (3);
+		if (strstr(name, " silver ")) return (6);
+		if (strstr(name, " gold ")) return (11);
+		if (strstr(name, " mithril ")) return (17);
+		if (strstr(name, " adamantite ")) return (18);
 
 		/* Look for textual clues */
-		if (strstr(name, "Copper ")) return (2);
-		if (strstr(name, "Silver ")) return (5);
-		if (strstr(name, "Gold ")) return (10);
-		if (strstr(name, "Mithril ")) return (16);
-		if (strstr(name, "Adamantite ")) return (17);
+		if (strstr(name, "Copper ")) return (3);
+		if (strstr(name, "Silver ")) return (6);
+		if (strstr(name, "Gold ")) return (11);
+		if (strstr(name, "Mithril ")) return (17);
+		if (strstr(name, "Adamantite ")) return (18);
 	}
 
 	/* Assume nothing */
 	return (0);
+}
+
+
+/*
+ * Create magical stairs after finishing a quest monster.
+ */
+static void build_quest_stairs(int y, int x)
+{
+	int ny, nx;
+
+
+	/* Stagger around */
+	while (!cave_valid_bold(y, x))
+	{
+		int d = 1;
+
+		/* Pick a location */
+		scatter(&ny, &nx, y, x, d, 0);
+
+		/* Stagger */
+		y = ny; x = nx;
+	}
+
+	/* Destroy any objects */
+	delete_object(y, x);
+
+	/* Explain the staircase */
+	msg_print("A magical staircase appears...");
+
+	/* Create stairs down */
+	cave_set_feat(y, x, FEAT_MORE);
+
+	/* Update the visuals */
+	p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
+
+	/* Fully update the flow */
+	p_ptr->update |= (PU_FORGET_FLOW | PU_UPDATE_FLOW);
 }
 
 
@@ -1814,7 +1870,7 @@ static int get_coin_type(monster_race *r_ptr)
  */
 void monster_death(int m_idx)
 {
-	int i, j, y, x, ny, nx;
+	int i, j, y, x;
 
 	int dump_item = 0;
 	int dump_gold = 0;
@@ -1824,7 +1880,7 @@ void monster_death(int m_idx)
 
 	s16b this_o_idx, next_o_idx = 0;
 
-	monster_type *m_ptr = &m_list[m_idx];
+	monster_type *m_ptr = &mon_list[m_idx];
 
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
@@ -1990,41 +2046,11 @@ void monster_death(int m_idx)
 		if (q_list[i].level) total++;
 	}
 
-
-	/* Need some stairs */
-	if (total)
-	{
-		/* Stagger around */
-		while (!cave_valid_bold(y, x))
-		{
-			int d = 1;
-
-			/* Pick a location */
-			scatter(&ny, &nx, y, x, d, 0);
-
-			/* Stagger */
-			y = ny; x = nx;
-		}
-
-		/* Destroy any objects */
-		delete_object(y, x);
-
-		/* Explain the staircase */
-		msg_print("A magical staircase appears...");
-
-		/* Create stairs down */
-		cave_set_feat(y, x, FEAT_MORE);
-
-		/* Update the visuals */
-		p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
-
-		/* Fully update the flow */
-		p_ptr->update |= (PU_FORGET_FLOW | PU_UPDATE_FLOW);
-	}
-
+	/* Build magical stairs */
+	build_quest_stairs(y, x);
 
 	/* Nothing left, game over... */
-	else
+	if (total == 0)
 	{
 		/* Total winner */
 		p_ptr->total_winner = TRUE;
@@ -2067,7 +2093,7 @@ void monster_death(int m_idx)
  */
 bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 {
-	monster_type *m_ptr = &m_list[m_idx];
+	monster_type *m_ptr = &mon_list[m_idx];
 
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
@@ -2092,7 +2118,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		char m_name[80];
 
 		/* Extract monster name */
-		monster_desc(m_name, m_ptr, 0);
+		monster_desc(m_name, sizeof(m_name), m_ptr, 0);
 
 		/* Death by Missile/Spell attack */
 		if (note)
@@ -2121,8 +2147,8 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 			message_format(MSG_KILL, m_ptr->r_idx, "You have slain %s.", m_name);
 		}
 
-		/* Maximum player level */
-		div = p_ptr->max_lev;
+		/* Player level */
+		div = p_ptr->lev;
 
 		/* Give some experience for the kill */
 		new_exp = ((long)r_ptr->mexp * r_ptr->level) / div;
@@ -2155,10 +2181,10 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		if (m_ptr->ml || (r_ptr->flags1 & (RF1_UNIQUE)))
 		{
 			/* Count kills this life */
-			if (l_ptr->r_pkills < MAX_SHORT) l_ptr->r_pkills++;
+			if (l_ptr->pkills < MAX_SHORT) l_ptr->pkills++;
 
 			/* Count kills in all lives */
-			if (l_ptr->r_tkills < MAX_SHORT) l_ptr->r_tkills++;
+			if (l_ptr->tkills < MAX_SHORT) l_ptr->tkills++;
 
 			/* Hack -- Auto-recall */
 			monster_race_track(m_ptr->r_idx);
@@ -2201,7 +2227,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 	}
 
 	/* Sometimes a monster gets scared by damage */
-	if (!m_ptr->monfear && !(r_ptr->flags3 & (RF3_NO_FEAR)))
+	if (!m_ptr->monfear && !(r_ptr->flags3 & (RF3_NO_FEAR)) && (dam > 0))
 	{
 		int percentage;
 
@@ -2212,7 +2238,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		 * Run (sometimes) if at 10% or less of max hit points,
 		 * or (usually) when hit for half its current hit points
 		 */
-		if (((percentage <= 10) && (rand_int(10) < percentage)) ||
+		if ((randint(10) >= percentage) ||
 		    ((dam >= m_ptr->hp) && (rand_int(100) < 80)))
 		{
 			/* Hack -- note fear */
@@ -2225,7 +2251,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		}
 	}
 
-#endif
+#endif /* ALLOW_FEAR */
 
 
 	/* Not dead yet */
@@ -2247,14 +2273,24 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 bool modify_panel(int wy, int wx)
 {
 	/* Verify wy, adjust if needed */
-	if (p_ptr->depth == 0) wy = SCREEN_HGT;
+	if (p_ptr->depth == 0)
+	{
+		if (wy > TOWN_HGT - SCREEN_HGT) wy = TOWN_HGT - SCREEN_HGT;
+		else if (wy < 0) wy = 0;
+	}
 	else if (wy > DUNGEON_HGT - SCREEN_HGT) wy = DUNGEON_HGT - SCREEN_HGT;
-	else if (wy < 0) wy = 0;
+
+	if (wy < 0) wy = 0;
 
 	/* Verify wx, adjust if needed */
-	if (p_ptr->depth == 0) wx = SCREEN_WID;
+	if (p_ptr->depth == 0)
+	{
+		if (wx > TOWN_WID - SCREEN_WID) wx = TOWN_WID - SCREEN_WID;
+		else if (wx < 0) wx = 0;
+	}
 	else if (wx > DUNGEON_WID - SCREEN_WID) wx = DUNGEON_WID - SCREEN_WID;
-	else if (wx < 0) wx = 0;
+
+	if (wx < 0) wx = 0;
 
 	/* React to changes */
 	if ((p_ptr->wy != wy) || (p_ptr->wx != wx))
@@ -2377,13 +2413,12 @@ void verify_panel(void)
 /*
  * Monster health description
  */
-cptr look_mon_desc(int m_idx)
+static void look_mon_desc(char *buf, size_t max, int m_idx)
 {
-	monster_type *m_ptr = &m_list[m_idx];
+	monster_type *m_ptr = &mon_list[m_idx];
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 	bool living = TRUE;
-	int perc;
 
 
 	/* Determine if the monster is "living" (vs "undead") */
@@ -2396,29 +2431,27 @@ cptr look_mon_desc(int m_idx)
 	if (m_ptr->hp >= m_ptr->maxhp)
 	{
 		/* No damage */
-		return (living ? "unhurt" : "undamaged");
+		my_strcpy(buf, (living ? "unhurt" : "undamaged"), max);
 	}
-
-
-	/* Calculate a health "percentage" */
-	perc = 100L * m_ptr->hp / m_ptr->maxhp;
-
-	if (perc >= 60)
+	else
 	{
-		return (living ? "somewhat wounded" : "somewhat damaged");
+		/* Calculate a health "percentage" */
+		int perc = 100L * m_ptr->hp / m_ptr->maxhp;
+
+		if (perc >= 60)
+			my_strcpy(buf, (living ? "somewhat wounded" : "somewhat damaged"), max);
+		else if (perc >= 25)
+			my_strcpy(buf, (living ? "wounded" : "damaged"), max);
+		else if (perc >= 10)
+			my_strcpy(buf, (living ? "badly wounded" : "badly damaged"), max);
+		else
+			my_strcpy(buf, (living ? "almost dead" : "almost destroyed"), max);
 	}
 
-	if (perc >= 25)
-	{
-		return (living ? "wounded" : "damaged");
-	}
-
-	if (perc >= 10)
-	{
-		return (living ? "badly wounded" : "badly damaged");
-	}
-
-	return (living ? "almost dead" : "almost destroyed");
+	if (m_ptr->csleep) my_strcat(buf, ", asleep", max);
+	if (m_ptr->confused) my_strcat(buf, ", confused", max);
+	if (m_ptr->monfear) my_strcat(buf, ", afraid", max);
+	if (m_ptr->stunned) my_strcat(buf, ", stunned", max);
 }
 
 
@@ -2431,7 +2464,7 @@ cptr look_mon_desc(int m_idx)
  * function hooks to interact with the data, which is given as
  * two pointers, and which may have any user-defined form.
  */
-void ang_sort_aux(vptr u, vptr v, int p, int q)
+void ang_sort_aux(void *u, void *v, int p, int q)
 {
 	int z, a, b;
 
@@ -2480,7 +2513,7 @@ void ang_sort_aux(vptr u, vptr v, int p, int q)
  * function hooks to interact with the data, which is given as
  * two pointers, and which may have any user-defined form.
  */
-void ang_sort(vptr u, vptr v, int n)
+void ang_sort(void *u, void *v, int n)
 {
 	/* Sort the array */
 	ang_sort_aux(u, v, 0, n-1);
@@ -2501,7 +2534,7 @@ void ang_sort(vptr u, vptr v, int n)
  *
  * We return "5" if no motion is needed.
  */
-sint motion_dir(int y1, int x1, int y2, int x2)
+int motion_dir(int y1, int x1, int y2, int x2)
 {
 	/* No movement required */
 	if ((y1 == y2) && (x1 == x2)) return (5);
@@ -2526,9 +2559,9 @@ sint motion_dir(int y1, int x1, int y2, int x2)
 /*
  * Extract a direction (or zero) from a character
  */
-sint target_dir(char ch)
+int target_dir(char ch)
 {
-	int d;
+	int d = 0;
 
 	int mode;
 
@@ -2537,32 +2570,37 @@ sint target_dir(char ch)
 	cptr s;
 
 
-	/* Default direction */
-	d = (isdigit(ch) ? D2I(ch) : 0);
-
-	/* Roguelike */
-	if (rogue_like_commands)
+	/* Already a direction? */
+	if (isdigit((unsigned char)ch))
 	{
-		mode = KEYMAP_MODE_ROGUE;
+		d = D2I(ch);
 	}
-
-	/* Original */
 	else
 	{
-		mode = KEYMAP_MODE_ORIG;
-	}
-
-	/* Extract the action (if any) */
-	act = keymap_act[mode][(byte)(ch)];
-
-	/* Analyze */
-	if (act)
-	{
-		/* Convert to a direction */
-		for (s = act; *s; ++s)
+		/* Roguelike */
+		if (rogue_like_commands)
 		{
-			/* Use any digits in keymap */
-			if (isdigit(*s)) d = D2I(*s);
+			mode = KEYMAP_MODE_ROGUE;
+		}
+
+		/* Original */
+		else
+		{
+			mode = KEYMAP_MODE_ORIG;
+		}
+
+		/* Extract the action (if any) */
+		act = keymap_act[mode][(byte)(ch)];
+
+		/* Analyze */
+		if (act)
+		{
+			/* Convert to a direction */
+			for (s = act; *s; ++s)
+			{
+				/* Use any digits in keymap */
+				if (isdigit((unsigned char)*s)) d = D2I(*s);
+			}
 		}
 	}
 
@@ -2599,7 +2637,7 @@ bool target_able(int m_idx)
 	if (m_idx <= 0) return (FALSE);
 
 	/* Get monster */
-	m_ptr = &m_list[m_idx];
+	m_ptr = &mon_list[m_idx];
 
 	/* Monster must be alive */
 	if (!m_ptr->r_idx) return (FALSE);
@@ -2644,7 +2682,7 @@ bool target_okay(void)
 		/* Accept reasonable targets */
 		if (target_able(m_idx))
 		{
-			monster_type *m_ptr = &m_list[m_idx];
+			monster_type *m_ptr = &mon_list[m_idx];
 
 			/* Get the monster location */
 			p_ptr->target_row = m_ptr->fy;
@@ -2668,7 +2706,7 @@ void target_set_monster(int m_idx)
 	/* Acceptable target */
 	if ((m_idx > 0) && target_able(m_idx))
 	{
-		monster_type *m_ptr = &m_list[m_idx];
+		monster_type *m_ptr = &mon_list[m_idx];
 
 		/* Save target info */
 		p_ptr->target_set = TRUE;
@@ -2722,7 +2760,7 @@ void target_set_location(int y, int x)
  * We use "u" and "v" to point to arrays of "x" and "y" positions,
  * and sort the arrays by double-distance to the player.
  */
-static bool ang_sort_comp_distance(vptr u, vptr v, int a, int b)
+static bool ang_sort_comp_distance(const void *u, const void *v, int a, int b)
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
@@ -2757,7 +2795,7 @@ static bool ang_sort_comp_distance(vptr u, vptr v, int a, int b)
  * We use "u" and "v" to point to arrays of "x" and "y" positions,
  * and sort the arrays by distance to the player.
  */
-static void ang_sort_swap_distance(vptr u, vptr v, int a, int b)
+static void ang_sort_swap_distance(void *u, void *v, int a, int b)
 {
 	byte *x = (byte*)(u);
 	byte *y = (byte*)(v);
@@ -2834,7 +2872,7 @@ static s16b target_pick(int y1, int x1, int dy, int dx)
  */
 static bool target_set_interactive_accept(int y, int x)
 {
-	s16b this_o_idx, next_o_idx = 0;
+	object_type *o_ptr;
 
 
 	/* Player grids are always interesting */
@@ -2848,23 +2886,15 @@ static bool target_set_interactive_accept(int y, int x)
 	/* Visible monsters */
 	if (cave_m_idx[y][x] > 0)
 	{
-		monster_type *m_ptr = &m_list[cave_m_idx[y][x]];
+		monster_type *m_ptr = &mon_list[cave_m_idx[y][x]];
 
 		/* Visible monsters */
 		if (m_ptr->ml) return (TRUE);
 	}
 
 	/* Scan all objects in the grid */
-	for (this_o_idx = cave_o_idx[y][x]; this_o_idx; this_o_idx = next_o_idx)
+	for (o_ptr = get_first_object(y, x); o_ptr; o_ptr = get_next_object(o_ptr))
 	{
-		object_type *o_ptr;
-
-		/* Get the object */
-		o_ptr = &o_list[this_o_idx];
-
-		/* Get the next object */
-		next_o_idx = o_ptr->next_o_idx;
-
 		/* Memorized object */
 		if (o_ptr->marked) return (TRUE);
 	}
@@ -2925,6 +2955,9 @@ static void target_set_interactive_prepare(int mode)
 	{
 		for (x = p_ptr->wx; x < p_ptr->wx + SCREEN_WID; x++)
 		{
+			/* Check bounds */
+			if (!in_bounds_fully(y, x)) continue;
+
 			/* Require line of sight, unless "look" is "expanded" */
 			if (!expand_look && !player_has_los_bold(y, x)) continue;
 
@@ -2992,7 +3025,7 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 
 	int query;
 
-	char out_val[160];
+	char out_val[256];
 
 
 	/* Repeat forever */
@@ -3027,7 +3060,17 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 			cptr name = "something strange";
 
 			/* Display a message */
-			sprintf(out_val, "%s%s%s%s [%s]", s1, s2, s3, name, info);
+			if (p_ptr->wizard)
+			{
+				strnfmt(out_val, sizeof(out_val),
+				        "%s%s%s%s [%s] (%d:%d)", s1, s2, s3, name, info, y, x);
+			}
+			else
+			{
+				strnfmt(out_val, sizeof(out_val),
+				        "%s%s%s%s [%s]", s1, s2, s3, name, info);
+			}
+
 			prt(out_val, 0, 0);
 			move_cursor_relative(y, x);
 			query = inkey();
@@ -3043,7 +3086,7 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 		/* Actual monsters */
 		if (cave_m_idx[y][x] > 0)
 		{
-			monster_type *m_ptr = &m_list[cave_m_idx[y][x]];
+			monster_type *m_ptr = &mon_list[cave_m_idx[y][x]];
 			monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 			/* Visible */
@@ -3057,7 +3100,7 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 				boring = FALSE;
 
 				/* Get the monster name ("a kobold") */
-				monster_desc(m_name, m_ptr, 0x08);
+				monster_desc(m_name, sizeof(m_name), m_ptr, 0x08);
 
 				/* Hack -- track this monster race */
 				monster_race_track(m_ptr->r_idx);
@@ -3093,9 +3136,25 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 					/* Normal */
 					else
 					{
+						char buf[80];
+
+						/* Describe the monster */
+						look_mon_desc(buf, sizeof(buf), cave_m_idx[y][x]);
+
 						/* Describe, and prompt for recall */
-						sprintf(out_val, "%s%s%s%s (%s) [r,%s]",
-						        s1, s2, s3, m_name, look_mon_desc(cave_m_idx[y][x]), info);
+						if (p_ptr->wizard)
+						{
+							strnfmt(out_val, sizeof(out_val),
+							        "%s%s%s%s (%s) [r,%s] (%d:%d)",
+						            s1, s2, s3, m_name, buf, info, y, x);
+						}
+						else
+						{
+							strnfmt(out_val, sizeof(out_val),
+							        "%s%s%s%s (%s) [r,%s]",
+							        s1, s2, s3, m_name, buf, info);
+						}
+
 						prt(out_val, 0, 0);
 
 						/* Place cursor */
@@ -3144,10 +3203,21 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 					next_o_idx = o_ptr->next_o_idx;
 
 					/* Obtain an object description */
-					object_desc(o_name, o_ptr, TRUE, 3);
+					object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
 
 					/* Describe the object */
-					sprintf(out_val, "%s%s%s%s [%s]", s1, s2, s3, o_name, info);
+					if (p_ptr->wizard)
+					{
+						strnfmt(out_val, sizeof(out_val),
+						        "%s%s%s%s [%s] (%d:%d)",
+						        s1, s2, s3, o_name, info, y, x);
+					}
+					else
+					{
+						strnfmt(out_val, sizeof(out_val),
+						        "%s%s%s%s [%s]", s1, s2, s3, o_name, info);
+					}
+
 					prt(out_val, 0, 0);
 					move_cursor_relative(y, x);
 					query = inkey();
@@ -3181,11 +3251,11 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 		/* Scan all objects in the grid */
 		if (easy_floor)
 		{
-			int floor_list[24];
+			int floor_list[MAX_FLOOR_STACK];
 			int floor_num;
 
 			/* Scan for floor objects */
-			floor_num = scan_floor(floor_list, 24, y, x, 0x02);
+			floor_num = scan_floor(floor_list, MAX_FLOOR_STACK, y, x, 0x02);
 
 			/* Actual pile */
 			if (floor_num > 1)
@@ -3200,8 +3270,19 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 				while (1)
 				{
 					/* Describe the pile */
-					sprintf(out_val, "%s%s%sa pile of %d objects [r,%s]",
-						s1, s2, s3, floor_num, info);
+					if (p_ptr->wizard)
+					{
+						strnfmt(out_val, sizeof(out_val),
+						        "%s%s%sa pile of %d objects [r,%s] (%d:%d)",
+						        s1, s2, s3, floor_num, info, y, x);
+					}
+					else
+					{
+						strnfmt(out_val, sizeof(out_val),
+						        "%s%s%sa pile of %d objects [r,%s]",
+						        s1, s2, s3, floor_num, info);
+					}
+
 					prt(out_val, 0, 0);
 					move_cursor_relative(y, x);
 					query = inkey();
@@ -3269,10 +3350,21 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 				boring = FALSE;
 
 				/* Obtain an object description */
-				object_desc(o_name, o_ptr, TRUE, 3);
+				object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
 
 				/* Describe the object */
-				sprintf(out_val, "%s%s%s%s [%s]", s1, s2, s3, o_name, info);
+				if (p_ptr->wizard)
+				{
+					strnfmt(out_val, sizeof(out_val),
+					        "%s%s%s%s [%s] (%d:%d)",
+					        s1, s2, s3, o_name, info, y, x);
+				}
+				else
+				{
+					strnfmt(out_val, sizeof(out_val),
+					        "%s%s%s%s [%s]", s1, s2, s3, o_name, info);
+				}
+
 				prt(out_val, 0, 0);
 				move_cursor_relative(y, x);
 				query = inkey();
@@ -3329,7 +3421,17 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 			}
 
 			/* Display a message */
-			sprintf(out_val, "%s%s%s%s [%s]", s1, s2, s3, name, info);
+			if (p_ptr->wizard)
+			{
+				strnfmt(out_val, sizeof(out_val),
+				        "%s%s%s%s [%s] (%d:%d)", s1, s2, s3, name, info, y, x);
+			}
+			else
+			{
+				strnfmt(out_val, sizeof(out_val),
+				        "%s%s%s%s [%s]", s1, s2, s3, name, info);
+			}
+
 			prt(out_val, 0, 0);
 			move_cursor_relative(y, x);
 			query = inkey();
@@ -3572,7 +3674,6 @@ bool target_set_interactive(int mode)
 						/* Restore panel if needed */
 						if ((i < 0) && modify_panel(old_wy, old_wx))
 						{
-
 							/* Recalculate interesting grids */
 							target_set_interactive_prepare(mode);
 						}
@@ -3785,6 +3886,11 @@ bool get_aim_dir(int *dp)
 		if (!(*dp == 5 && !target_okay()))
 		{
 			return (TRUE);
+		}
+		else
+		{
+			/* Invalid repeat - reset it */
+			repeat_clear();
 		}
 	}
 

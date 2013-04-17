@@ -15,119 +15,103 @@
 
 
 /*
- * Global variables for temporary use
- */
-char char_tmp = 0;
-byte byte_tmp = 0;
-sint sint_tmp = 0;
-uint uint_tmp = 0;
-long long_tmp = 0;
-huge huge_tmp = 0;
-errr errr_tmp = 0;
-
-
-/*
- * Global pointers for temporary use
- */
-cptr cptr_tmp = NULL;
-vptr vptr_tmp = NULL;
-
-
-
-
-/*
- * Constant bool meaning true
- */
-bool bool_true = 1;
-
-/*
- * Constant bool meaning false
- */
-bool bool_false = 0;
-
-
-/*
- * Global NULL cptr
- */
-cptr cptr_null = NULL;
-
-
-/*
- * Global NULL vptr
- */
-vptr vptr_null = NULL;
-
-
-
-/*
- * Global SELF vptr
- */
-vptr vptr_self = (vptr)(&vptr_self);
-
-
-
-/*
  * Convenient storage of the program name
  */
 cptr argv0 = NULL;
 
 
-
 /*
- * A routine that does nothing
+ * Case insensitive comparison between two strings
  */
-void func_nothing(void)
+int my_stricmp(const char *s1, const char *s2)
 {
-	/* Do nothing */
+	char ch1 = 0;
+	char ch2 = 0;
+
+	/* Just loop */
+	while (TRUE)
+	{
+		/* We've reached the end of both strings simultaneously */
+		if ((*s1 == 0) && (*s2 == 0))
+		{
+			/* We're still here, so s1 and s2 are equal */
+			return (0);
+		}
+
+		ch1 = toupper(*s1);
+		ch2 = toupper(*s2);
+
+		/* If the characters don't match */
+		if (ch1 != ch2)
+		{
+			/* return the difference between them */
+			return ((int)(ch1 - ch2));
+		}
+
+		/* Step on through both strings */
+		s1++;
+		s2++;
+	}
 }
 
 
 /*
- * A routine that always returns "success"
+ * The my_strcpy() function copies up to 'bufsize'-1 characters from 'src'
+ * to 'buf' and NUL-terminates the result.  The 'buf' and 'src' strings may
+ * not overlap.
+ *
+ * my_strcpy() returns strlen(src).  This makes checking for truncation
+ * easy.  Example: if (my_strcpy(buf, src, sizeof(buf)) >= sizeof(buf)) ...;
+ *
+ * This function should be equivalent to the strlcpy() function in BSD.
  */
-errr func_success(void)
+size_t my_strcpy(char *buf, const char *src, size_t bufsize)
 {
-	return (0);
+	size_t len = strlen(src);
+	size_t ret = len;
+
+	/* Paranoia */
+	if (bufsize == 0) return ret;
+
+	/* Truncate */
+	if (len >= bufsize) len = bufsize - 1;
+
+	/* Copy the string and terminate it */
+	(void)memcpy(buf, src, len);
+	buf[len] = '\0';
+
+	/* Return strlen(src) */
+	return ret;
 }
 
 
 /*
- * A routine that always returns a simple "problem code"
+ * The my_strcat() tries to append a string to an existing NUL-terminated string.
+ * It never writes more characters into the buffer than indicated by 'bufsize' and
+ * NUL-terminates the buffer.  The 'buf' and 'src' strings may not overlap.
+ *
+ * my_strcat() returns strlen(buf) + strlen(src).  This makes checking for
+ * truncation easy.  Example:
+ * if (my_strcat(buf, src, sizeof(buf)) >= sizeof(buf)) ...;
+ *
+ * This function should be equivalent to the strlcat() function in BSD.
  */
-errr func_problem(void)
+size_t my_strcat(char *buf, const char *src, size_t bufsize)
 {
-	return (1);
+	size_t dlen = strlen(buf);
+
+	/* Is there room left in the buffer? */
+	if (dlen < bufsize - 1)
+	{
+		/* Append as much as possible  */
+		return (dlen + my_strcpy(buf + dlen, src, bufsize - dlen));
+	}
+	else
+	{
+		/* Return without appending */
+		return (dlen + strlen(src));
+	}
 }
-
-
-/*
- * A routine that always returns a simple "failure code"
- */
-errr func_failure(void)
-{
-	return (-1);
-}
-
-
-
-/*
- * A routine that always returns "true"
- */
-bool func_true(void)
-{
-	return (1);
-}
-
-
-/*
- * A routine that always returns "false"
- */
-bool func_false(void)
-{
-	return (0);
-}
-
-
 
 
 /*
@@ -144,8 +128,8 @@ bool streq(cptr a, cptr b)
  */
 bool suffix(cptr s, cptr t)
 {
-	int tlen = strlen(t);
-	int slen = strlen(s);
+	size_t tlen = strlen(t);
+	size_t slen = strlen(s);
 
 	/* Check for incompatible lengths */
 	if (tlen > slen) return (FALSE);
@@ -188,7 +172,7 @@ void plog(cptr str)
 	if (plog_aux) (*plog_aux)(str);
 
 	/* Just do a labeled fprintf to stderr */
-	else (void)(fprintf(stderr, "%s: %s\n", argv0 ? argv0 : "???", str));
+	else (void)(fprintf(stderr, "%s: %s\n", argv0 ? argv0 : "?", str));
 }
 
 
@@ -219,7 +203,7 @@ void quit(cptr str)
 	plog(str);
 
 	/* Failure */
-	(void)(exit(-1));
+	(void)(exit(EXIT_FAILURE));
 }
 
 

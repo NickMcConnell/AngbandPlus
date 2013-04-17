@@ -14,14 +14,12 @@
 /*
  * Hack -- Link a copyright message into the executable
  */
-cptr copyright[5] =
-{
-	"Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Keoneke",
-	"",
-	"This software may be copied and distributed for educational, research,",
-	"and not for profit purposes provided that this copyright and statement",
-	"are included in all such copies.  Other copyrights may also apply."
-};
+cptr copyright =
+	"Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Keoneke\n"
+	"\n"
+	"This software may be copied and distributed for educational, research,\n"
+	"and not for profit purposes provided that this copyright and statement\n"
+	"are included in all such copies.  Other copyrights may also apply.\n";
 
 
 /*
@@ -87,6 +85,7 @@ s32b old_turn;			/* Hack -- Level feeling counter */
 
 bool use_sound;			/* The "sound" mode is enabled */
 bool use_graphics;		/* The "graphics" mode is enabled */
+bool use_bigtile = FALSE;
 
 s16b signal_count;		/* Hack -- Count interrupts */
 
@@ -104,7 +103,6 @@ bool opening_chest;		/* Hack -- prevent chest generation */
 bool shimmer_monsters;	/* Hack -- optimize multi-hued monsters */
 bool shimmer_objects;	/* Hack -- optimize multi-hued objects */
 
-bool repair_mflag_born;	/* Hack -- repair monster flags (born) */
 bool repair_mflag_nice;	/* Hack -- repair monster flags (nice) */
 bool repair_mflag_show;	/* Hack -- repair monster flags (show) */
 bool repair_mflag_mark;	/* Hack -- repair monster flags (mark) */
@@ -112,8 +110,8 @@ bool repair_mflag_mark;	/* Hack -- repair monster flags (mark) */
 s16b o_max = 1;			/* Number of allocated objects */
 s16b o_cnt = 0;			/* Number of live objects */
 
-s16b m_max = 1;			/* Number of allocated monsters */
-s16b m_cnt = 0;			/* Number of live monsters */
+s16b mon_max = 1;	/* Number of allocated monsters */
+s16b mon_cnt = 0;	/* Number of live monsters */
 
 
 /*
@@ -165,70 +163,19 @@ cptr *macro__act;
 
 
 /*
- * The number of quarks (first quark is NULL)
+ * The array[ANGBAND_TERM_MAX] of window pointers
  */
-s16b quark__num = 1;
-
-/*
- * The array[QUARK_MAX] of pointers to the quarks
- */
-cptr *quark__str;
+term *angband_term[ANGBAND_TERM_MAX];
 
 
 /*
- * The next "free" index to use
+ * The array[ANGBAND_TERM_MAX] of window names (modifiable?)
+ *
+ * ToDo: Make the names independent of ANGBAND_TERM_MAX.
  */
-u16b message__next;
-
-/*
- * The index of the oldest message (none yet)
- */
-u16b message__last;
-
-/*
- * The next "free" offset
- */
-u16b message__head;
-
-/*
- * The offset to the oldest used char (none yet)
- */
-u16b message__tail;
-
-/*
- * The array[MESSAGE_MAX] of offsets, by index
- */
-u16b *message__ptr;
-
-/*
- * The array[MESSAGE_BUF] of chars, by offset
- */
-char *message__buf;
-
-/*
- * The array[MESSAGE_MAX] of u16b for the types of messages
- */
-u16b *message__type;
-
-
-/*
- * Table of colors associated to message-types
- */
-byte message__color[MSG_MAX];
-
-
-/*
- * The array[8] of window pointers
- */
-term *angband_term[8];
-
-
-/*
- * The array[8] of window names (modifiable?)
- */
-char angband_term_name[8][16] =
+char angband_term_name[ANGBAND_TERM_MAX][16] =
 {
-	"Angband",
+	VERSION_NAME,
 	"Term-1",
 	"Term-2",
 	"Term-3",
@@ -256,7 +203,7 @@ byte angband_color_table[256][4] =
 	{0x00, 0xC0, 0xC0, 0xC0},	/* TERM_L_WHITE */
 	{0x00, 0xFF, 0x00, 0xFF},	/* TERM_VIOLET */
 	{0x00, 0xFF, 0xFF, 0x00},	/* TERM_YELLOW */
-	{0x00, 0xFF, 0x00, 0x00},	/* TERM_L_RED */
+	{0x00, 0xFF, 0x40, 0x40},	/* TERM_L_RED */
 	{0x00, 0x00, 0xFF, 0x00},	/* TERM_L_GREEN */
 	{0x00, 0x00, 0xFF, 0xFF},	/* TERM_L_BLUE */
 	{0x00, 0xC0, 0x80, 0x40}	/* TERM_L_UMBER */
@@ -266,7 +213,7 @@ byte angband_color_table[256][4] =
 /*
  * Standard sound (and message) names
  */
-char angband_sound_name[SOUND_MAX][16] =
+const cptr angband_sound_name[SOUND_MAX] =
 {
 	"",
 	"hit",
@@ -297,19 +244,22 @@ char angband_sound_name[SOUND_MAX][16] =
 	"nothing_to_open",
 	"lockpick_fail",
 	"stairs",
+	"hitpoint_warn",
 };
 
 
 /*
  * Array[VIEW_MAX] used by "update_view()"
  */
-sint view_n = 0;
+int view_n = 0;
 u16b *view_g;
 
 /*
  * Arrays[TEMP_MAX] used for various things
+ *
+ * Note that temp_g shares memory with temp_x and temp_y.
  */
-sint temp_n = 0;
+int temp_n = 0;
 u16b *temp_g;
 byte *temp_y;
 byte *temp_x;
@@ -378,7 +328,7 @@ object_type *o_list;
 /*
  * Array[z_info->m_max] of dungeon monsters
  */
-monster_type *m_list;
+monster_type *mon_list;
 
 
 /*
@@ -470,10 +420,10 @@ cptr keymap_act[KEYMAP_MODES][256];
 /*
  * Pointer to the player tables (sex, race, class, magic)
  */
-player_sex *sp_ptr;
-player_race *rp_ptr;
-player_class *cp_ptr;
-player_magic *mp_ptr;
+const player_sex *sp_ptr;
+const player_race *rp_ptr;
+const player_class *cp_ptr;
+const player_magic *mp_ptr;
 
 /*
  * The player other record (static)
@@ -499,13 +449,11 @@ player_type *p_ptr = &player_type_body;
 /*
  * Structure (not array) of size limits
  */
-header *z_head;
 maxima *z_info;
 
 /*
  * The vault generation arrays
  */
-header *v_head;
 vault_type *v_info;
 char *v_name;
 char *v_text;
@@ -513,7 +461,6 @@ char *v_text;
 /*
  * The terrain feature arrays
  */
-header *f_head;
 feature_type *f_info;
 char *f_name;
 char *f_text;
@@ -521,7 +468,6 @@ char *f_text;
 /*
  * The object kind arrays
  */
-header *k_head;
 object_kind *k_info;
 char *k_name;
 char *k_text;
@@ -529,7 +475,6 @@ char *k_text;
 /*
  * The artifact arrays
  */
-header *a_head;
 artifact_type *a_info;
 char *a_name;
 char *a_text;
@@ -537,15 +482,14 @@ char *a_text;
 /*
  * The ego-item arrays
  */
-header *e_head;
 ego_item_type *e_info;
 char *e_name;
 char *e_text;
 
+
 /*
  * The monster race arrays
  */
-header *r_head;
 monster_race *r_info;
 char *r_name;
 char *r_text;
@@ -554,30 +498,44 @@ char *r_text;
 /*
  * The player race arrays
  */
-header *p_head;
 player_race *p_info;
 char *p_name;
 char *p_text;
 
 /*
+ * The player class arrays
+ */
+player_class *c_info;
+char *c_name;
+char *c_text;
+
+/*
  * The player history arrays
  */
-header *h_head;
 hist_type *h_info;
 char *h_text;
 
 /*
  * The shop owner arrays
  */
-header *b_head;
 owner_type *b_info;
 char *b_name;
+char *b_text;
 
 /*
  * The racial price adjustment arrays
  */
-header *g_head;
 byte *g_info;
+char *g_name;
+char *g_text;
+
+
+/*
+ * The object flavor arrays
+ */
+flavor_type *flavor_info;
+char *flavor_name;
+char *flavor_text;
 
 
 /*
@@ -647,7 +605,13 @@ cptr ANGBAND_DIR_INFO;
 cptr ANGBAND_DIR_SAVE;
 
 /*
- * User "preference" files (ascii)
+ * Default user "preference" files (ascii)
+ * These files are rarely portable between platforms
+ */
+cptr ANGBAND_DIR_PREF;
+
+/*
+ * User defined "preference" files (ascii)
  * These files are rarely portable between platforms
  */
 cptr ANGBAND_DIR_USER;
@@ -657,6 +621,12 @@ cptr ANGBAND_DIR_USER;
  * These files are rarely portable between platforms
  */
 cptr ANGBAND_DIR_XTRA;
+
+/*
+ * Script files
+ * These files are portable between platforms
+ */
+cptr ANGBAND_DIR_SCRIPT;
 
 
 /*
@@ -677,20 +647,20 @@ byte item_tester_tval;
  * Here is a "hook" used during calls to "get_item()" and
  * "show_inven()" and "show_equip()", and the choice window routines.
  */
-bool (*item_tester_hook)(object_type*);
+bool (*item_tester_hook)(const object_type*);
 
 
 
 /*
  * Current "comp" function for ang_sort()
  */
-bool (*ang_sort_comp)(vptr u, vptr v, int a, int b);
+bool (*ang_sort_comp)(const void *u, const void *v, int a, int b);
 
 
 /*
  * Current "swap" function for ang_sort()
  */
-void (*ang_sort_swap)(vptr u, vptr v, int a, int b);
+void (*ang_sort_swap)(void *u, void *v, int a, int b);
 
 
 
@@ -707,6 +677,35 @@ bool (*get_mon_num_hook)(int r_idx);
 bool (*get_obj_num_hook)(int k_idx);
 
 
+void (*object_info_out_flags)(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3);
+
+
+/*
+ * Hack - the destination file for text_out_to_file.
+ */
+FILE *text_out_file = NULL;
+
+
+/*
+ * Hack -- function hook to output (colored) text to the
+ * screen or to a file.
+ */
+void (*text_out_hook)(byte a, cptr str);
+
+
+/*
+ * Hack -- Where to wrap the text when using text_out().  Use the default
+ * value (for example the screen width) when 'text_out_wrap' is 0.
+ */
+int text_out_wrap = 0;
+
+
+/*
+ * Hack -- Indentation for the text when using text_out().
+ */
+int text_out_indent = 0;
+
+
 /*
  * The "highscore" file descriptor, if available.
  */
@@ -717,8 +716,3 @@ int highscore_fd = -1;
  * Use transparent tiles
  */
 bool use_transparency = FALSE;
-
-/*
- * Game can be saved
- */
-bool can_save = TRUE;

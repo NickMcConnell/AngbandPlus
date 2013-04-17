@@ -53,6 +53,7 @@ SM20616@vm.lanet.lv or SD30066@vm.lanet.lv
 
 #if defined(USE_VME) || defined(VM)
 
+#include "main.h"
 
 /*
  * Convert EBCDIC to ASCII
@@ -351,10 +352,13 @@ static errr Term_xtra_vm(int n, int v)
 }
 
 
+const char help_vme[] = "VM/ESA";
+
+
 /*
  * Initialize the VM/CNSconsole.
  */
-errr init_vme(void)
+errr init_vme(int argc, char **argv)
 {
 	register i;
 
@@ -363,6 +367,10 @@ errr init_vme(void)
 	short blank = ' ';
 
 	static int done = FALSE;
+
+	/* Unused parameters */
+	(void)argc;
+	(void)argv;
 
 	/* Paranoia -- Already done */
 	if (done) return (-1);
@@ -554,7 +562,8 @@ void InitConsole(void)
 	/* Test PSS */
 	system("desbuf");
 	system("query display (stack");
-	gets(pss);
+	pss[0] = '\0';
+	fgets(pss, sizeof(pss), stdin);
 	i=1;
 	if (pss[63]!='P') i=0;
 	if (pss[64]!='S') i=0;
@@ -871,7 +880,7 @@ char InKey(void)
 		/* Well, only numbers should be padded with CR.
 		 ** Comment: handle 18/... too.
 		 */
-		if (!isdigit(*ptr)) break;
+		if (!isdigit((unsigned char)*ptr)) break;
 		ptr--;
 		i=1;
 		while (ptr>=info)
@@ -888,7 +897,7 @@ char InKey(void)
 				i=1;
 				break;
 			}
-			if (!isdigit(*ptr))
+			if (!isdigit((unsigned char)*ptr))
 			{
 				i=0;
 				break;
@@ -1120,13 +1129,13 @@ void LoadProfile(void)
 
 	fp = fopen("PROFILE ANGBAND", "r");
 	if (!fp) return;
-	{   while (fgets(line, 128, fp))
+	{   while (fgets(line, sizeof(line), fp))
 		{   if (*line == '#') continue;
 			ptr = strstr(line, "PF");
 			if (!ptr) continue;
 			ptr += 2;
 			p = ptr;
-			while (isdigit(*p)) ++p;
+			while (isdigit((unsigned char)*p)) ++p;
 			*p++ = 0;
 			pf = atoi(ptr);
 			if (pf < 1 || pf > 24) continue;

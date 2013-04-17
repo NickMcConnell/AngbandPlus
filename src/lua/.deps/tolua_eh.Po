@@ -1,0 +1,24 @@
+tolua_eh.o : \
+ tolua.h /usr/include/stdlib.h /usr/include/machine/ansi.h \
+  /usr/include/ppc/ansi.h /usr/include/machine/types.h \
+  /usr/include/ppc/types.h /usr/include/sys/cdefs.h lua.h \
+  /usr/include/stddef.h tolua_eh.h tolua_rg.h /usr/include/stdio.h \
+  /usr/include/sys/types.h /usr/include/sys/appleapiopts.h \
+  /usr/include/machine/endian.h /usr/include/ppc/endian.h 
+tolua_eh.o :
+tolua.h :
+/usr/include/stdlib.h :
+/usr/include/machine/ansi.h :
+/usr/include/ppc/ansi.h :
+/usr/include/machine/types.h :
+/usr/include/ppc/types.h :
+/usr/include/sys/cdefs.h :
+lua.h :
+/usr/include/stddef.h :
+tolua_eh.h :
+tolua_rg.h :
+/usr/include/stdio.h :
+/usr/include/sys/types.h :
+/usr/include/sys/appleapiopts.h :
+/usr/include/machine/endian.h :
+/usr/include/ppc/endian.h :

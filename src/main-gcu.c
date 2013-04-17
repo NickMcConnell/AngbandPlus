@@ -16,9 +16,6 @@
  * To use this file, you must define "USE_GCU" in the Makefile.
  *
  *
- * Hack -- note that "angband.h" is included AFTER the #ifdef test.
- * This was necessary because of annoying "curses.h" silliness.
- *
  * Note that this file is not "intended" to support non-Unix machines,
  * nor is it intended to support VMS or other bizarre setups.
  *
@@ -51,10 +48,15 @@
 
 #ifdef USE_GCU
 
+#include "main.h"
+
 /*
- * Hack -- play games with "bool"
+ * Hack -- play games with "bool" and "term"
  */
 #undef bool
+
+/* Avoid 'struct term' name conflict with <curses.h> (via <term.h>) on AIX */
+#define term System_term
 
 /*
  * Include the proper "header" file
@@ -64,6 +66,8 @@
 #else
 # include <curses.h>
 #endif
+
+#undef term
 
 /*
  * Try redefining the colors at startup.
@@ -112,7 +116,7 @@
 #endif
 
 /*
- * One version needs this file
+ * One version needs these files
  */
 #ifdef USE_TERMIO
 # include <sys/ioctl.h>
@@ -120,7 +124,7 @@
 #endif
 
 /*
- * The other needs this file
+ * The other needs these files
  */
 #ifdef USE_TCHARS
 # include <sys/ioctl.h>
@@ -455,6 +459,9 @@ static void keymap_game_prepare(void)
  */
 static errr Term_xtra_gcu_alive(int v)
 {
+	int x, y;
+
+
 	/* Suspend */
 	if (!v)
 	{
@@ -472,13 +479,11 @@ static errr Term_xtra_gcu_alive(int v)
 		/* Flush the curses buffer */
 		(void)refresh();
 
-#ifdef SPECIAL_BSD
-		/* this moves curses to bottom right corner */
-		mvcur(curscr->cury, curscr->curx, LINES - 1, 0);
-#else
-		/* this moves curses to bottom right corner */
-		mvcur(curscr->_cury, curscr->_curx, LINES - 1, 0);
-#endif
+		/* Get current cursor position */
+		getyx(curscr, y, x);
+
+		/* Move the cursor to bottom right corner */
+		mvcur(y, x, LINES - 1, 0);
 
 		/* Exit curses */
 		endwin();
@@ -508,6 +513,11 @@ static errr Term_xtra_gcu_alive(int v)
 }
 
 
+#ifdef USE_NCURSES
+const char help_gcu[] = "NCurses, for terminal console, subopts -b(ig screen)";
+#else /* USE_NCURSES */
+const char help_gcu[] = "Curses, for terminal console, subopts -b(ig screen)";
+#endif /* USE_NCURSES */
 
 
 /*
@@ -539,6 +549,7 @@ static void Term_init_gcu(term *t)
  */
 static void Term_nuke_gcu(term *t)
 {
+	int x, y;
 	term_data *td = (term_data *)(t->data);
 
 	/* Delete this window */
@@ -555,13 +566,11 @@ static void Term_nuke_gcu(term *t)
 	start_color();
 #endif
 
-#ifdef SPECIAL_BSD
-	/* This moves curses to bottom right corner */
-	mvcur(curscr->cury, curscr->curx, LINES - 1, 0);
-#else
-	/* This moves curses to bottom right corner */
-	mvcur(curscr->_cury, curscr->_curx, LINES - 1, 0);
-#endif
+	/* Get current cursor position */
+	getyx(curscr, y, x);
+
+	/* Move the cursor to bottom right corner */
+	mvcur(y, x, LINES - 1, 0);
 
 	/* Flush the curses buffer */
 	(void)refresh();
@@ -825,7 +834,7 @@ static errr Term_text_gcu(int x, int y, int n, byte a, cptr s)
 {
 	term_data *td = (term_data *)(Term->data);
 
-	int i, pic;
+	int i;
 
 #ifdef A_COLOR
 	/* Set the color */
@@ -839,21 +848,28 @@ static errr Term_text_gcu(int x, int y, int n, byte a, cptr s)
 	for (i = 0; i < n; i++)
 	{
 #ifdef USE_GRAPHICS
+		int pic;
+
 		/* Special character */
 		if (use_graphics && (s[i] & 0x80))
 		{
 			/* Determine picture to use */
 			switch (s[i] & 0x7F)
 			{
+
+#ifdef ACS_CKBOARD
 				/* Wall */
 				case '#':
 					pic = ACS_CKBOARD;
 					break;
+#endif /* ACS_CKBOARD */
 
+#ifdef ACS_BOARD
 				/* Mineral vein */
 				case '%':
 					pic = ACS_BOARD;
 					break;
+#endif /* ACS_BOARD */
 
 				/* XXX */
 				default:
@@ -867,10 +883,10 @@ static errr Term_text_gcu(int x, int y, int n, byte a, cptr s)
 			/* Next character */
 			continue;
 		}
-#endif
+#endif /* USE_GRAPHICS */
 
 		/* Draw a normal character */
-		waddch(td->win, s[i]);
+		waddch(td->win, (byte)s[i]);
 	}
 
 	/* Success */
@@ -928,31 +944,55 @@ static errr term_data_init_gcu(term_data *td, int rows, int cols, int y, int x)
 }
 
 
+static void hook_quit(cptr str)
+{
+	/* Unused */
+	(void)str;
+
+	/* Exit curses */
+	endwin();
+}
+
+
 /*
- * Prepare "curses" for use by the file "term.c"
+ * Prepare "curses" for use by the file "z-term.c"
  *
  * Installs the "hook" functions defined above, and then activates
  * the main screen "term", which clears the screen and such things.
  *
  * Someone should really check the semantics of "initscr()"
  */
-errr init_gcu(int argc, char *argv[])
+errr init_gcu(int argc, char **argv)
 {
 	int i;
 
 	int num_term = MAX_TERM_DATA, next_win = 0;
 
+	bool use_big_screen = FALSE;
+
+	
+	/* Parse args */
+	for (i = 1; i < argc; i++)
+	{
+		if (prefix(argv[i], "-b"))
+		{
+			use_big_screen = TRUE;
+			continue;
+		}
+
+		plog_fmt("Ignoring option: %s", argv[i]);
+	}
+
+
 	/* Extract the normal keymap */
 	keymap_norm_prepare();
 
-
-#if defined(USG)
-	/* Initialize for USG Unix */
+	/* Initialize */
 	if (initscr() == NULL) return (-1);
-#else
-	/* Initialize for other systems */
-	if (initscr() == (WINDOW*)ERR) return (-1);
-#endif
+
+	/* Activate hooks */
+	quit_aux = hook_quit;
+	core_aux = hook_quit;
 
 	/* Require standard size screen */
 	if ((LINES < 24) || (COLS < 80))
@@ -1063,62 +1103,86 @@ errr init_gcu(int argc, char *argv[])
 
 	/*** Now prepare the term(s) ***/
 
-	/* Create several terms */
-	for (i = 0; i < num_term; i++)
+	/* Big screen -- one big term */
+	if (use_big_screen)
 	{
-		int rows, cols, y, x;
-
-		/* Decide on size and position */
-		switch (i)
-		{
-			/* Upper left */
-			case 0:
-				rows = 24;
-				cols = 80;
-				y = x = 0;
-				break;
-
-			/* Lower left */
-			case 1:
-				rows = LINES - 25;
-				cols = 80;
-				y = 25;
-				x = 0;
-				break;
-
-			/* Upper right */
-			case 2:
-				rows = 24;
-				cols = COLS - 81;
-				y = 0;
-				x = 81;
-				break;
-
-			/* Lower right */
-			case 3:
-				rows = LINES - 25;
-				cols = COLS - 81;
-				y = 25;
-				x = 81;
-				break;
-
-			/* XXX */
-			default:
-				rows = cols = y = x = 0;
-				break;
-		}
-
-		/* Skip non-existant windows */
-		if (rows <= 0 || cols <= 0) continue;
-
 		/* Create a term */
-		term_data_init_gcu(&data[next_win], rows, cols, y, x);
+		term_data_init_gcu(&data[0], LINES, COLS, 0, 0);
 
 		/* Remember the term */
-		angband_term[next_win] = &data[next_win].t;
+		angband_term[0] = &data[0].t;
+	}
 
-		/* One more window */
-		next_win++;
+	/* No big screen -- create as many term windows as possible */
+	else
+	{
+		/* Create several terms */
+		for (i = 0; i < num_term; i++)
+		{
+			int rows, cols, y, x;
+
+			/* Decide on size and position */
+			switch (i)
+			{
+				/* Upper left */
+				case 0:
+				{
+					rows = 24;
+					cols = 80;
+					y = x = 0;
+					break;
+				}
+
+				/* Lower left */
+				case 1:
+				{
+					rows = LINES - 25;
+					cols = 80;
+					y = 25;
+					x = 0;
+					break;
+				}
+
+				/* Upper right */
+				case 2:
+				{
+					rows = 24;
+					cols = COLS - 81;
+					y = 0;
+					x = 81;
+					break;
+				}
+
+				/* Lower right */
+				case 3:
+				{
+					rows = LINES - 25;
+					cols = COLS - 81;
+					y = 25;
+					x = 81;
+					break;
+				}
+
+				/* XXX */
+				default:
+				{
+					rows = cols = y = x = 0;
+					break;
+				}
+			}
+
+			/* Skip non-existant windows */
+			if (rows <= 0 || cols <= 0) continue;
+
+			/* Create a term */
+			term_data_init_gcu(&data[next_win], rows, cols, y, x);
+
+			/* Remember the term */
+			angband_term[next_win] = &data[next_win].t;
+
+			/* One more window */
+			next_win++;
+		}
 	}
 
 	/* Activate the "Angband" window screen */
@@ -1133,5 +1197,3 @@ errr init_gcu(int argc, char *argv[])
 
 
 #endif /* USE_GCU */
-
-

@@ -1,7 +1,7 @@
 
 
               **************************************************
-              **   Angband 2.9.1   **   The Pits of Angband   **
+              **   Angband 3.0.3   **   The Pits of Angband   **
               **************************************************
 
            Based on Moria:   Copyright (c) 1985 Robert Alan Koeneke
@@ -13,10 +13,10 @@
 
                    Angband 2.7.0 - 2.8.5 by Ben Harrison
 
-                     Angband 2.9.1 by Robert Ruehlmann
+                 Angband 2.9.0 - 3.0.x by Robert Ruehlmann
 
-        Send comments, bug reports, and patches, to "rr9@angband.org"
-       Visit the Angband Home Page at "http://thangorodrim.angband.org/"
+      Send comments, bug reports, and patches, to "rr9@thangorodrim.net"
+         Visit the Angband Home Page at "http://www.thangorodrim.net/"
       Browse the Angband newsgroup at "news:rec.games.roguelike.angband"
     Read the online help files, especially "general.txt" and "version.txt"
    Angband is available for Unix, X11, DOS, Windows, Macintosh, Amiga, etc.
@@ -24,7 +24,7 @@
 
 === General Info ===
 
-This is the README file for Angband 2.9.1 (4th July 2000).
+This is the README file for Angband 3.0.3.
 
 Angband is a "graphical" dungeon adventure game using textual characters
 to represent the walls and floors of a dungeon and the inhabitants therein,
@@ -32,15 +32,15 @@ in the vein of "rogue", "hack", "nethack", and "moria".
 
 There are some ascii "on line help" files in the "lib/help" directory.
 
-See the Official Angband Home Page "http://thangorodrim.angband.org/" for
+See the Official Angband Home Page "http://www.thangorodrim.net/" for
 a list (mostly complete) of what has changed in each recent version.
 
-See the various Angband ftp sites (including "export.andrew.cmu.edu" and
+See the various Angband ftp sites (including "clockwork.dementia.org" and
 "ftp.cis.ksu.edu") for the latest files, patches, and executables.
 
-Contact Robert Ruehlmann < rr9@angband.org > to report any bugs or to make
-any suggestions.  Use the newsgroup "rec.games.roguelike.angband" to ask
-any general questions about the game, including compilation questions.
+Contact Robert Ruehlmann < rr9@thangorodrim.net > to report bugs. Use the
+newsgroup "rec.games.roguelike.angband" to ask general questions about the
+game, including compilation questions.
 
 This version of Angband will run on Macintosh, Windows, Unix (X11/Curses), 
 Linux (X11/Curses), Acorn, Amiga, various DOS machines, and many others...
@@ -57,7 +57,7 @@ archive is available, which contains everything you need to install and
 play Angband.  For other platforms, including most UNIX systems, you must
 compile the source code yourself.  Try the following non-trivial steps:
 
-Step 1: Acquire.  Ftp to "export.andrew.cmu.edu:/angband/Source"
+Step 1: Acquire.  Ftp to "clockwork.dementia.org:/angband/Source"
                   Try "bin" and "mget angband*.tar.gz" and "y"
 Step 2: Extract.  Try "gunzip *.gz" then "tar -xvf *.tar"
 Step 3: Prepare.  Try "cd angband*/src", then edit "Makefile"
@@ -74,7 +74,7 @@ appropriate "extra archive", which contains some extra platform specific
 files, and instructions about how to use them.  Some "extra archives" may
 be found at the ftp site (including "/angband/Macintosh/ext-mac.sit.bin"
 and "/angband/Windows/ext-win.zip"), but be sure that you get a version
-of the "extra archive" designed for Angband 2.9.0.
+of the "extra archive" designed for your Angband version.
 
 
 === Special instructions for certain platforms ===
@@ -99,10 +99,11 @@ delete these files if you so desire.
 === Upgrading from older versions (and/or other platforms) ===
 
 If you have been using an older version of Angband (and/or playing on a
-different platform), you can "upgrade" (or "sidegrade") to Angband 2.9.0,
-bringing your old savefiles, high score list, and other files with you.
+different platform), you can "upgrade" (or "sidegrade") to the current
+Angband, bringing your old savefiles, high score list, and other files
+with you.
 
-Angband 2.9.0 uses a platform independant file format for the binary files
+Angband uses a platform independant file format for the binary files
 that store information about games in progress, known as "savefiles", and
 is able to translate savefiles from all known versions of Angband.  To use
 an "old" savefile, simply copy it into the "lib/save" directory, changing
@@ -112,17 +113,17 @@ or "NNN" where "UUU" is the userid of the player (on "multiuser" systems),
 and "NNN" is the name of the "character" in the savefile.  Note that only
 "multiuser" platforms use the "UUU.NNN" form, and the "dot" is required.
 
-Angband 2.9.0 uses a platform independant file format for the binary file
+Angband uses a platform independant file format for the binary file
 used to store the high score list.  This file is named "scores.raw".  To
 use an "old" high score list, simply copy it into the "lib/apex" directory.
 
-Angband 2.9.0 uses a set of special ascii "configuration files" which are
+Angband uses a set of special ascii "configuration files" which are
 kept in the "lib/file" directory.  These files should not be modified (or
 imported from older versions) unless you know exactly what you are doing,
 but often you can use "old" versions of these files with little trouble.
 
-Angband 2.9.0 uses a set of ascii "user pref files" which are kept in the
-"lib/user" directory.  Most of these files can only be used on a small set
+Angband uses a set of ascii "user pref files" which are kept in the
+"lib/pref" directory.  Most of these files can only be used on a small set
 of platforms, and may need slight modifications when imported from older
 versions.  Note that only some of these files are auto-loaded by the game.
 
@@ -158,8 +159,7 @@ The "lib/bone" directory is currently unused.
 
 The "lib/data" directory contains various special binary data files.
 
-The files 'f_info.raw', 'k_info.raw', 'a_info.raw', 'e_info.raw', 'r_info.raw',
-and 'v_info.raw' are binary image files constructed by parsing the ascii
+The *.raw files are binary image files constructed by parsing the ascii
 template files in "lib/edit", described below.  These files are required,
 but can be created by the game if the "lib/edit" directory contains the
 proper files, and if the game was compiled to allow this creation.
@@ -169,15 +169,14 @@ proper files, and if the game was compiled to allow this creation.
 
 The "lib/edit" directory contains various special ascii data files.
 
-The files 'f_info.txt', 'k_info.txt', 'a_info.txt', 'e_info.txt', 'r_info.txt',
-and 'v_info.txt' are ascii template files used to construct the binary image
+The *.txt files are ascii template files used to construct the binary image
 files in "lib/data", described above.  These files describe the "terrain
 features", "object kinds", "artifacts", "ego-items", "monster races", and
-"dungeon vaults", respectively.
+"dungeon vaults", "player races", "player classes", and many other things.
 
-The ascii template files are easier to edit than hard-coded arrays, and also
-prevent compilation errors on some machines, and also shrink the size of the
-binary executable, and also provide a user-readible spoiler file of sorts.
+The ascii template files are easier to edit than hard-coded arrays, prevent
+compilation errors on some machines, and also shrink the size of the binary
+executable, and also provide a user-readable spoiler file of sorts.
 
 These files should not be modified unless you know exactly what you are doing.
 
@@ -201,11 +200,6 @@ and only the next 20 lines should contain information.
 The 'dead.txt' file is displayed to the user when the player dies.  It
 contains a picture of a tombstone which is filled in with interesting
 information about the dead player.  You should not edit this file.
-
-The optional file 'wizards.txt' may be used to specify which users may enter
-'wizard' mode.  A missing file provides no restrictions, and an empty file
-prevents everyone from entering 'wizard' mode.  This file is only used on
-multi-user machines, otherwise there are no restrictions.
 
 The optional file 'time.txt' may be used to restrict the "times" at which
 the game may be played, by providing specification of which hours of each day
@@ -261,7 +255,7 @@ The savefiles should be portable between systems, assuming that the
 appropriate renaming is perfomed.
 
 
-=== Directory "lib/user" ===
+=== Directory "lib/pref" ===
 
 The "lib/user" directory contains the "user pref files", if any.
 
@@ -302,4 +296,3 @@ POSSIBILITY OF SUCH DAMAGES.
 
 
 --- Ben Harrison and Robert Ruehlmann ---
-

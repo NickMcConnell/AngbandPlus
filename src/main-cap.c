@@ -36,6 +36,7 @@
 
 #ifdef USE_CAP
 
+#include "main.h"
 
 /*
  * Require a "system"
@@ -55,7 +56,7 @@
 #  if defined(_POSIX_VERSION)
 #   define USE_TPOSIX
 #  else
-#   if defined(USG) || defined(linux) || defined(SOLARIS)
+#   if defined(USG) || defined(linux) || defined(SOLARIS) || defined(WINDOWS)
 #    define USE_TERMIO
 #   else
 #    define USE_TCHARS
@@ -296,7 +297,7 @@ static void do_cs(int y1, int y2)
 
 #ifdef USE_HARDCODE
 	char temp[64];
-	sprintf(temp, cs, y1, y2);
+	strnfmt(temp, sizeof(temp), cs, y1, y2);
 	tp (temp);
 #endif
 
@@ -316,7 +317,7 @@ static void do_cm(int x, int y)
 
 #ifdef USE_HARDCODE
 	char temp[64];
-	sprintf(temp, cm, y+1, x+1);
+	strnfmt(temp, sizeof(temp), cm, y+1, x+1);
 	tp(temp);
 #endif
 
@@ -1007,18 +1008,17 @@ static void Term_nuke_cap(term *t)
 }
 
 
-
-
-
-
-
-
+#ifdef USE_HARDCODE
+const char help_cap[] = "VT100 terminal, for terminal console";
+#else /* USE_HARDCODE */
+const char help_cap[] = "Termcap, for terminal console";
+#endif /* USE_HARDCODE */
 
 
 /*
  * Prepare this file for Angband usage
  */
-errr init_cap(int argc, char *argv[])
+errr init_cap(int argc, char **argv)
 {
 	term *t = &term_screen_body;
 

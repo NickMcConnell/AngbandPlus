@@ -11,9 +11,6 @@
  *
  * This file is a big hack to make other files less of a hack.
  * This file has been rebuilt -- it may need a little more work.
- *
- * It is (very) unlikely that VMS will work without help, primarily
- * because VMS does not use the "ASCII" character set.
  */
 
 
@@ -59,7 +56,7 @@
 #endif
 
 #if !defined(MACINTOSH) && !defined(AMIGA) && \
-    !defined(ACORN) && !defined(VM) && !defined(__MWERKS__)
+    !defined(RISCOS) && !defined(VM) && !defined(__MWERKS__)
 # if defined(__TURBOC__) || defined(__WATCOMC__)
 #  include <mem.h>
 # else
@@ -68,7 +65,7 @@
 #endif
 
 
-#if !defined(NeXT) && !defined(__MWERKS__) && !defined(ACORN)
+#if !defined(NeXT) && !defined(RISCOS)
 # include <fcntl.h>
 #endif
 
@@ -96,39 +93,11 @@
 
 #endif
 
-#ifdef __DJGPP__
+#if defined(__DJGPP__) || defined(__MWERKS__)
 #include <unistd.h>
-#endif /* __DJGPP__ */
+#endif /* __DJGPP__ || __MWERKS__ */
 
-#ifdef SET_UID
-
-#ifdef USG
-# include <string.h>
-#else
-# include <strings.h>
-# ifndef strstr
-extern char *strstr();
-# endif
-# ifndef strchr
-extern char *strchr();
-# endif
-# ifndef strrchr
-extern char *strrchr();
-# endif
-#endif
-
-#else
-
-# include <string.h>
-
-#endif
-
-
-
-#if !defined(linux) && !defined(__MWERKS__) && !defined(ACORN)
-extern long atol();
-#endif
-
+#include <string.h>
 
 #include <stdarg.h>
 

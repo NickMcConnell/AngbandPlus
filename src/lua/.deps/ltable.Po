@@ -1,0 +1,26 @@
+ltable.o : \
+ lua.h /usr/include/stddef.h /usr/include/machine/types.h \
+  /usr/include/ppc/types.h /usr/include/sys/cdefs.h \
+  /usr/include/machine/ansi.h /usr/include/ppc/ansi.h lmem.h llimits.h \
+  /usr/include/limits.h /usr/include/gcc/darwin/3.1/machine/limits.h \
+  /usr/include/ppc/limits.h /usr/include/sys/syslimits.h lobject.h \
+  lstate.h luadebug.h lstring.h ltable.h 
+ltable.o :
+lua.h :
+/usr/include/stddef.h :
+/usr/include/machine/types.h :
+/usr/include/ppc/types.h :
+/usr/include/sys/cdefs.h :
+/usr/include/machine/ansi.h :
+/usr/include/ppc/ansi.h :
+lmem.h :
+llimits.h :
+/usr/include/limits.h :
+/usr/include/gcc/darwin/3.1/machine/limits.h :
+/usr/include/ppc/limits.h :
+/usr/include/sys/syslimits.h :
+lobject.h :
+lstate.h :
+luadebug.h :
+lstring.h :
+ltable.h :

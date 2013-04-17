@@ -1,10 +1,6 @@
-Welcome to the CatH-Angband Online Help System. Information pertaining
-to CatH-Angband specifically, and how it differs from standard Angband,
-can be found in variant.txt (option 0), while birth.txt (option 2)
-explains this variant's new races.
+Welcome to the Angband Online Help System.
 
 Please choose one of the following online help files:
-
     (1) General Information        (general.txt)
     (2) Creating a Character       (birth.txt)
     (3) Exploring the Dungeon      (dungeon.txt)
@@ -14,8 +10,13 @@ Please choose one of the following online help files:
     (7) Option Descriptions        (option.txt)
     (8) Version Information        (version.txt)
     (9) Spoiler Menu (if any)      (spoiler.hlp)
-    (0) About CatH-Angband         (variant.txt)
+    (0) User Menu (if any)         (user.hlp)
 
+Browser/help commands:
+  #     go to line         %  go to file         ?  go to last file/main menu
+  SPACE advance 1 page     -  back up 1 page     /  search for text
+  RET   advance 1 line     =  back up 1 line     &  show (highlight) some text
+  +     advance 1/2 page   _  back up 1/2 page   !  toggle case sentitivity
 ***** [1] general.txt
 ***** [2] birth.txt
 ***** [3] dungeon.txt
@@ -25,5 +26,5 @@ Please choose one of the following online help files:
 ***** [7] option.txt
 ***** [8] version.txt
 ***** [9] spoiler.hlp
-***** [0] variant.txt
+***** [0] user.hlp
 
