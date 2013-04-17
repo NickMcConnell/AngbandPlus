@@ -1,0 +1,158 @@
+Hedge Magic
+===========
+
+Hedge magic is the least powerful of all the types of magic. However, it
+is also the easiest to learn which makes it ideally suited to the part-
+time magician. The power of hedge magic comes from charms - natural
+items that contain some power. The hedge magician draws the power from
+these items and forms it into cantrips. Usually, many cantrips can be
+cast from a single item. However, occasionally the power leaks out from
+an item and it crumbles to useless dust. A miscast cantrip will always
+destroy its charm, so the wise hedge magician will always carry spares.
+The best way to avoid such miscasts is to have a high intelligence.
+
+Requirements
+============
+
+Obviously, to cast a cantrip the appropriate charm must be available.
+The caster must also be able to see the charm and not be confused. Hedge
+magic can be learned from practice and individual cantrips do not need
+to be learned separately.
+
+Usage
+=====
+
+You can use cantrips at any time except when in a shop, in the dark
+without a light source, blind or confused. Press the 'h' key to use a
+charm (control-W in the roguelike keyset), then select the charm and
+select which cantrip you wish to cast from the charm.
+
+Abilities
+=========
+
+There are seven types of charm that can be used for hedge magic, and
+each one provides a different type of cantrip. The cantrips for each
+charm are shown below, along with the minimum skill required to use each
+one.
+
+Lumps of Sulphur - Energy cantrips
+
+Zap (2% Skill)
+This cantrip shoots a minor bolt of electricity at the targetted
+creature or location.
+
+Light Area (10% Skill)
+This cantrip lights up the area around you.
+
+Phlogiston (18% Skill)
+This cantrip will restore the oil in a lantern or restore the wood in a
+torch allowing them to burn for longer.
+
+Stone to Mud (46% Skill)
+This cantrip will turn a targetted wall into mud, destroying it.
+
+Ray of Light (50% Skill)
+This cantrip will create a beam of light equivalent to sunlight.
+
+Elemental Ball (92% Skill)
+This cantrip will create a ball of either fire, cold, lightning or acid
+around the targetted creature or location.
+
+Hemlock Twigs - Movement cantrips
+
+Blink (6% Skill)
+This cantrip teleports you a short distance.
+
+Teleport (40% Skill)
+This cantrip will teleport you a long distance.
+
+Teleport Level (78% Skill)
+This cantrip will teleport you randomly up or down in the dungeon.
+
+Teleport Away (88% Skill)
+This cantrip will banish the targetted creature, teleporting it a long
+distance away from you.
+
+Word of Recall (96% Skill)
+This cantrip will recall you either back up to the town, or down into
+the dungeon, depending on where you are at the moment. Recalling is not
+instant and takes some time before it happens.
+
+Silver Unicorn Horns - Healing cantrips
+
+Cure Light Wounds (14% Skill)
+This cantrip will heal 2-16 hit points and help to heal cuts.
+
+Cure Poison (28% Skill)
+This cantrip will remove any poison from your body.
+
+Cure Medium Wounds (38% Skill)
+This cantrip will heal 4-32 hit points and heal most cuts.
+
+Satisfy Hunger (56% Skill)
+This cantrip will cure you of any hunger you may have.
+
+Crystals - Perception cantrips
+
+Detect Monsters (4% Skill)
+This cantrip shows you any monsters that are nearby.
+
+Detect Doors & Traps (16% Skill)
+This cantrip will show you the location of any secret doors, stairs or
+traps that are nearby.
+
+Detect Treasure (20% Skill)
+This cantrip will show you the location of all nearby precious metals
+and gemstones.
+
+Detect Objects (26% Skill)
+This cantrip will show you the location of all nearby objects.
+
+Detection (94% Skill)
+This cantrip will show you the location of all creatures and objects
+around you.
+
+Fly Agaric Toadstools - Spirit cantrips
+
+Detect Invisibility (4% Skill)
+This cantrip gives you a quick vision of any invisible creatures that
+are around you.
+
+Detect Enchantment (22% Skill)
+This cantrip will show you the location of all nearby magical items.
+
+See Invisible (60% Skill)
+This cantrip will allow you to see invisible creatures for a short
+while.
+
+Clairvoyance (100% Skill)
+This cantrip lets you see the enture area that you are exploring as if
+it were lit, and gives you telepathy temporarily.
+
+Cloves of Garlic - Protection Cantrips
+
+Resist Cold (30% Skill)
+This cantrip will give you a temporary resistance to cold.
+
+Resist Fire (32% Skill)
+This cantrip will give you a temporary resistance to fire.
+
+Resist Lightning (34% Skill)
+This cantrip will give you a temporary resistance to electricity.
+
+Resist Acid (36% Skill)
+This cantrip will give you a temporary resistance to acid.
+
+Geodes - Artifice cantrips
+
+Wizard Lock (2% Skill)
+This cantrip locks a nearby door.
+
+Trap & Door Destruction (12% Skill)
+This cantrip will destroy a targetted door or trap.
+
+Recharging (70% Skill)
+This cantrip will increase the magical charge in a wand, staff or rod.
+
+Identify (84% Skill)
+This cantrip will identify an item, revealing its major powers and bonuses.

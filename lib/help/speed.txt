@@ -1,0 +1,129 @@
+The Speed System
+================ 
+
+In Cthangband, time is measured in 'Rounds'. Each round lasts just under
+10 seconds of 'game time' (actually, to be precise, a round is 8.64
+seconds because that is exactly 1/10000 of a 24hr day).
+
+Normally, you will get to make one movement or make one attack during a
+round. However, sometimes you will speed up or slow down depending on
+various factors including weight carried and magical influences.
+
+Each action that you perform (or that a monster performs) is given a
+cost, which is measured in a percentage of a round. There are ten clock
+ticks (called 'Turns') during a round, and movements are synchronised to
+these. Each turn 10% is removed from the cost of everyone's previous
+action and when the cost has been paid off, that creature can act again.
+Note that there is no rounding of the percentages, so the odd points
+will be carried over from turn to turn both within rounds and between
+rounds.
+
+For example, if you are performing actions that take 25% of a round
+each, then you the sequence of events will go as follows....
+
+Turn  1 - player performs action and then has a 'wait' of 25%
+Turn  2 - player now has a 'wait' of 15%
+Turn  3 - player now has a 'wait' of 5%
+Turn  4 - player performs action again, and has a 'wait' of 20%
+Turn  5 - player now has a 'wait' of 10%
+Turn  6 - player performs action again, and now has a 'wait' of 25%
+Turn  7 - player now has a 'wait' of 15%
+Turn  8 - player now has a 'wait' of 5%
+Turn  9 - player performs action again, and has a 'wait' of 20%
+Turn 10 - player now has a 'wait' of 10%
+etc...
+
+Obviously, the sequence gets more complicated when the creature performs
+actions that have different costs.
+
+Cost of Various Actions
+=======================
+
+Moving one square while 'Slow (-50)' or slower ...................1000%
+Moving one square while 'Slow (-40)' ..............................500%
+Moving one square while 'Slow (-30)' ..............................500%
+Moving one square while 'Slow (-20)' ..............................333%
+Moving one square while 'Slow (-10)' ..............................200%
+Moving one square at normal speed .................................100%
+Moving one square while 'Fast (+10)' ...............................50%
+Moving one square while 'Fast (+20)' ...............................33%
+Moving one square while 'Fast (+30)' ...............................26%
+Moving one square while 'Fast (+40)' ...............................24%
+Moving one square while 'Fast (+50)' ...............................22%
+Moving one square while 'Fast (+60)' ...............................21%
+Moving one square while 'Fast (+70)' or faster .....................20%
+
+(Note that the movement costs are on a scale, so speeds between those
+shown will have costs between those shown.)
+
+Making a melee attack .............................(100/(Blows/Round))%
+Making a missile attack ...........................(100/(Shots/Round))%
+Making a 'Natural' attack ..........................................10%
+Throwing an item ..................................................100%
+
+Opening a chest or door ...........................................100%
+Closing a door ....................................................100%
+Disarming a chest or trap .........................................100%
+Tunneling .........................................................100%
+Spiking a door closed .............................................100%
+
+Standing still ....................................................100%
+Resting ...........................................................100%
+Searching .........................................................100%
+
+Wield/wear an item ................................................100%
+Take off an item ..................................................100%
+Drop an item .......................................................50%
+Destroy an item ...................................................100%
+Refill a lamp/torch ................................................50%
+Eat some food .....................................................100%
+
+Quaff a potion ....................................................100%
+Read a scroll .....................................................100%
+Use a staff .......................................................100%
+Zap a wand ........................................................100%
+Use a rod .........................................................100%
+Cast a cantrip from a charm .......................................100%
+Activate an artifact ...............................................10%
+
+(Note that if a potion, scroll, wand or charm is in a belt pouch then it
+only has a cost of 10% to use as it is easily accessible.)
+
+Hermetic spells, shamanic favours, mindcrafting powers and racial
+abilities (including activatable chaos features) have their costs
+calculated based on the difference between the minimum skill needed and
+your actual skill.
+
+(Min > Actual) ..................................(100+((Min-Actual)^2)%
+(Min = Actual) ....................................................100%
+(Actual-Min) = 1 to 3 .............................................100%
+(Actual-Min) = 4 ...................................................75%
+(Actual-Min) = 5 ...................................................60%
+(Actual-Min) = 6 ...................................................50%
+(Actual-Min) = 7 ...................................................42%
+(Actual-Min) = 8 ...................................................37%
+(Actual-Min) = 9 ...................................................33%
+(Actual-Min) = 10 ..................................................30%
+(Actual-Min) = 11 ..................................................27%
+(Actual-Min) = 12 ..................................................25%
+(Actual-Min) = 13 ..................................................23%
+(Actual-Min) = 14 ..................................................21%
+(Actual-Min) = 15 ..................................................20%
+(Actual-Min) = 16 ..................................................18%
+(Actual-Min) = 17 ..................................................17%
+(Actual-Min) = 18 ..................................................16%
+(Actual-Min) = 19 to 20 ............................................15%
+(Actual-Min) = 21 ..................................................14%
+(Actual-Min) = 22 to 23.............................................13%
+(Actual-Min) = 24 to 25.............................................12%
+(Actual-Min) = 26 to 27.............................................11%
+(Actual-Min) = 28 or more...........................................10%
+
+Monster Actions
+===============
+
+Monster movement and attacks have the same costs as those of the player.
+However (for simplicities sake) monsters do not have a skill with each
+of their spells or spell-like attacks. Therefore the cost of making a
+spell attack is assumed to be the same as the cost of making a melee
+attack.

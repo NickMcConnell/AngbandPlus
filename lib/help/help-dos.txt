@@ -1,0 +1,35 @@
+ Please choose one of the following online help files:
+
+    (a) How to use the help system
+    (b) Overview
+    (c) Creating a character
+    (d) Moving around and general commands
+    (e) Mindcrafting
+    (f) Hedge Magic
+    (g) Hermetic Magic
+    (h) Shamanism
+    (i) Using Items
+    (j) The great outdoors
+    (k) Customising Cthangband
+    (l) History of Moria, Angband, Zangband & Cthangband
+
+ (The following files are for people already familiar with Angband)
+
+    (m) Summary of updates
+    (n) The skill system
+    (o) The speed system
+***** [a] hlponhlp.txt
+***** [b] overview.txt
+***** [c] chargen.txt
+***** [d] general.txt
+***** [e] mindcrft.txt
+***** [f] hedge.txt
+***** [g] hermetic.txt
+***** [h] shaman.txt
+***** [i] items.txt
+***** [j] outdoors.txt
+***** [k] custom.txt
+***** [l] history.txt
+***** [m] update.txt
+***** [n] skills.txt
+***** [o] speed.txt

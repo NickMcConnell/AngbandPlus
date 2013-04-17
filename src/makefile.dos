@@ -1,0 +1,79 @@
+# File: Makefile.dos
+
+# Purpose: Makefile support for "main-dos.c" and "main-ibm.c"
+
+#
+# Note: Rename to "Makefile" before using
+#
+# Allegro support by rr9@angband.org (Robert Ruehlmann)
+#
+
+
+#
+# Basic definitions
+#
+
+# Objects
+OBJS = \
+  main.o main-dos.o main-ibm.o \
+  generate.o dungeon.o init1.o init2.o \
+  store.o birth.o wizard1.o wizard2.o \
+  cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o \
+  load.o save.o files.o \
+  xtra1.o xtra2.o spells1.o spells2.o melee1.o melee2.o \
+  object1.o object2.o monster1.o monster2.o \
+  variable.o tables.o util.o cave.o \
+  z-term.o z-rand.o z-form.o z-virt.o z-util.o quest.o
+
+# Compiler
+CC = gcc
+
+# Compiler flags
+CFLAGS = -O2 -s -DUSE_DOS -DUSE_IBM -DUSE_BACKGROUND \
+-DUSE_AB_TILES -DUSE_TRANSPARENCY
+# -DANGBAND_2_8_1 -DHAS_USLEEP
+
+# Libraries
+LIBS = -lpc -lalleg 
+
+#
+# Targets
+#
+
+default: angband.exe
+	copy angband.exe ..
+	del angband.exe
+
+install: angband.exe
+	copy angband.exe ..
+
+all: angband.exe
+	@echo All done.  Use 'make install' to install.
+
+
+#
+# Link executables
+#
+
+angband.exe: $(OBJS)
+	$(CC) $(CFLAGS) -o $@ $(OBJS) $(LIBS)
+
+
+#
+# Compile source files
+#
+
+.c.o:
+	$(CC) $(CFLAGS) -c $*.c
+
+
+#
+# Clean up
+#
+
+clean:
+	del *.o
+
+cleanall: clean
+	del *.exe
+

@@ -1,0 +1,227 @@
+The Skill System
+================
+
+In Cthangband, most of your characters talents and aptitudes are
+measured as skills. You have 27 skills in total, each of which is a
+percentage.
+
+Twelve of these skills are classed as 'Everyman' skills. As the name
+implies, everyone posesses these skills to some degree. The other 15
+skills are specialist - you do not have any score in these unless you
+started as a template that gives you one or you have practiced.
+
+Experience
+==========
+
+Each time you use a skill, a count is kept. When you have used a skill
+enough times, it will be tested. If you fail this test your skill will
+increase by one point. (I.e. a skill of 25% has a 75% chance of failure
+in the test and therefore a 75% chance of increasing. A skill of 90% has
+a 10% chance of failing and increasing. A skill of 0% will always
+increase. A skill of 100% will never increase.)
+
+However, if you are bored then you will not learn from your practice. In
+the case of combat and magical skills, you will only learn when there
+was a significant chance of failure, and for the 'Toughness' skill to
+keep improving you must take more and more damage. In any case, the
+environment that you are in plays a large part. Skills can never be
+increased in the town - practising there just does not give the
+adrenaline rush. Indeed, as your skills get higher, you will find that
+you need to deeper and deeper into more perilous dungeons to keep your
+interest.
+
+The number of times that a skill needs to be used before it is tested
+varies from skill to skill (some are easier to learn than others) and
+your 'Exp Factor' is also taken into account (some races learn quicker
+than others). Your exp factor is used as a direct percentage (e.g. with
+an exp factor of 100, your 'Toughness' skill is checked every 5 times
+you take damage. If your exp factor is 120, your 'Toughness' skill is
+checked every 6 times you are hit. If your exp factor is 130, your
+'Toughness' skill is checked approximately every 6 1/2 times you are
+hit.)
+
+Note that skills will only increase with individual experience. For
+example, it doesn't matter how good you are at 'Close Combat' - it will
+not help your 'Mindcrafting' skill. The only way to increase your
+'Mindcrafting' skill is to practice mindcrafting.
+
+Skill Descriptions
+==================
+
+Close Combat (Checked every 10 uses)
+
+This skill determines your chance to hit an opponent when fighting
+either bare handed or with one of the following weapons: Whips, Daggers,
+Broken Daggers, Main Gauches and Broken Swords.
+
+Slashing Weapons (Checked every 10 uses)
+
+This skill determines your chance to hit an opponent when fighting with
+one of the following weapons: Axes, Scythes, Swords (except for Rapiers
+and Short Swords).
+
+Stabbing Weapons (Checked every 10 uses)
+
+This skill determines your chance to hit an opponent when fighting with
+one of the following weapons: Rapiers, Short Swords, Spears, Awl-Pikes
+and Tridents.
+
+Crushing Weapons (Checked every 10 uses)
+
+This skill determines your chance to hit an opponent when fighting with
+one of the following weapons: Pole Arms (other than those mentioned
+above) Maces, Hammers, Picks, Shovels and Clubs.
+
+Missile Weapons (Checked every 10 uses)
+
+This skill determines your chance to hit an opponent when fighting with
+one of the following weapons: Bows, Crossbows, Slings and any thrown
+item.
+
+Toughness (Checked every 5 uses)
+
+This skill determines how much damage you can take before dying. Your
+hit points are directly related to your score in this skill.
+
+Devices (Checked every use)
+
+This skill indicates your knowledge of magical devices. As well as
+determining your chance of being able to successfully use an item, it
+also determines your chance of recognising the worth of an item after
+carrying it for a while.
+
+Resistance (Checked every use)
+
+This skill determines how resistant to magic you are. It is used
+whenever a spell is cast upon you by someone else (but not when you cast
+spells on yourself).
+
+Perception (Checked every use)
+
+This skill indicates how often you notice things that are out of the
+ordinary. It determines how often the computer checks to see whether you
+have noticed a secret door or trap.
+
+Searching (Checked every use)
+
+This skill determines your chances of finding secret doors and traps
+while actively searching for them (in 'Sneak' mode). It also determines
+your chances in the spontaneous 'Perception' checks.
+
+Disarming (Checked every use)
+
+This skill determines your chance of successfully disarming traps and
+picking locks.
+
+Stealth (Checked every use)
+
+This skill determines how much noise you make whilst moving - and
+therefore how often creatures wake up as you pass near to them. This
+skill is halved except when you are in 'Sneak' mode.
+
+Martial Arts (Checked every 9 uses)
+
+This skill determines your knowledge of mystical fighting arts that can
+increase your damage in unarmed combat and also increase your armour
+class and speed. Your martial arts skill is heavily penalised if you are
+wearing too much armour.
+
+Mindcrafting (Checked every 5 uses)
+
+This skill determines your ability to use mindcrafting powers. The
+higher the skill, the more powers you can use (and the lower the failure
+rate on your powers). Almost all of the mindcrafting powers increase
+their effectiveness dramatically as your skill increases.
+
+Chi Balance (Checked every 6 uses)
+
+This skill determines how much 'Chi' you have available for using
+mindcrafting powers. This skill is heavily penalised if you are wearing
+any kind of head covering that does not enhance wisdom or itself
+confer telepathy.
+
+Spirit Lore (Checked every 6 uses)
+
+This skill determines how much you know about the ways of the spirits
+and the proper etiquette for asking them favours. The higher your skill,
+the more favours you can ask for (and the less you will annoy spirits by
+asking for favours). Each spirit has a minimum spirit lore that you must
+achieve before it will make a pact with you at all.
+
+Hedge Magic (Checked every 5 uses)
+
+This skill determines your ability to produce magical effects from
+charms. The more skill you have, the less likely you are to drain the
+charm.
+
+Innate Racial (Checked every use)
+
+This skill indicates how 'in touch' you are with your body. It is used
+whenever you try to use a racial power or whenever you use a chaos
+feature that must be activated. The higher your skill, the more chance
+these powers have of working (and the more effect you will get out of
+them).
+
+Thaumaturgy (Checked every 3 uses)
+
+This skill determines how good you are at casting hermetic spells from
+the thaumaturgy school. It is averaged with your skill for the spell
+type in order to determine how good you are at casting individual
+thaumaturgy spells.
+
+Necromancy (Checked every 3 uses)
+
+This skill determines how good you are at casting hermetic spells from
+the necromancy school. It is averaged with your skill for the spell
+type in order to determine how good you are at casting individual
+necromancy spells.
+
+Conjuration (Checked every 3 uses)
+
+This skill determines how good you are at casting hermetic spells from
+the conjuration school. It is averaged with your skill for the spell
+type in order to determine how good you are at casting individual
+conjuration spells.
+
+Sorcery (Checked every 3 uses)
+
+This skill determines how good you are at casting hermetic spells from
+the sorcery school. It is averaged with your skill for the spell type in
+order to determine how good you are at casting individual sorcery
+spells.
+
+Magice Corporis (Checked every 2 uses)
+
+This skill determines how good you are at casting 'Corporis' (flesh
+affecting) hermetic spells. It is averaged with your skill for the spell
+school in order to determine how good you are at casting individual
+corporis spells. 
+
+Magice Vis (Checked every 2 uses)
+
+This skill determines how good you are at casting 'Vis' (power
+affecting) hermetic spells. It is averaged with your skill for the spell
+school in order to determine how good you are at casting individual vis
+spells. 
+
+Magice Naturae (Checked every 2 uses)
+
+This skill determines how good you are at casting 'Naturae' (matter
+affecting) hermetic spells. It is averaged with your skill for the spell
+school in order to determine how good you are at casting individual
+naturae spells. 
+
+Magice Animae (Checked every 2 uses)
+
+This skill determines how good you are at casting 'Animae' (spirit
+affecting) hermetic spells. It is averaged with your skill for the spell
+school in order to determine how good you are at casting individual
+spirit spells. 
+
+Mana Channeling (Checked every 6 uses)
+
+This skill indicates how good you are at channeling mana through
+yourself. Your 'Mana' score is determined by this skill, as is the
+number of different hermetic spells that you can learn. Wearing either
+too heavy armour or covering your hands with anything bulky will
+penalise this skill.

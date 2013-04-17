@@ -1,0 +1,20 @@
+
+
+                          *************************
+                          **  Cthangband 4.1.0   **
+                          *************************
+
+               Developed by Dean Anderson from Zangband Variant
+
+           Based on Moria:    Copyright (c) 1985 Robert Alan Koeneke
+               and Umoria:    Copyright (c) 1989 James E. Wilson
+
+                Angband 2.7 - 2.8: Ben Harrison (benh@phial.com)
+
+               Curses/X11 Module: Ben Harrison, Torbj|rn Lindgren
+
+               Zangband code:    (Mr) Topi Ylinen <f1toyl@uta.fi>
+
+            Current maintainer : David Thornley <david@thornley.net>
+
+       Cthangband Web-site  <www.visi.com/~thornley/www/david/cthangband/>

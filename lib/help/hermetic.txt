@@ -1,0 +1,560 @@
+Hermetic Magic
+==============
+
+Hermetic magic is the most powerful of the types of magic available in
+Cthangband. It is also the most difficult to learn and use. A high
+intelligence is essential for a hermetic wizard. Hermetic magic comes
+from spells written in books. Casting these spells uses 'Mana' which you
+channel using your 'Mana Channeling' skill. The more skill you have, the
+more mana you will be able to channel.
+
+Requirements
+============
+
+Hermetic spells are difficult to learn and must be studied in peaceful
+surroundings. Bookstores set aside an area for study, and new hermetic
+spells can be learned there. Only a limited number of spells can be
+learned, although this number increases as your 'mana channeling' skill
+increases. To cast a spell, you must have your spellbook with you and be
+able to read it - so hermetic spells can't be cast in the dark or whilst
+blind. You must also have a clear head, so confusion will also prevent
+you from casting spells.
+
+Wearing large amounts of armour will interfere with your mana channeling
+skill - causing the amount of mana available to you to be reduced, and
+wearing any kind of hand covering other than gauntlets of agility or
+free action will hinder your hand movements also making it harder to
+cast hermetic spells.
+
+Usage
+=====
+
+You can use hermetic spells at any time except when in a shop. Press
+the 'm' key to cast a spell, and then select which book to cast from and
+which spell you wish to cast from the book. Your ability to cast
+hermetic spells is rather limited by your circumstances so make sure
+that you fulfill all the requirements.
+
+Abilities
+=========
+
+Hermetic magic is split into four schools, each of which has four books
+full of spells. These schools are Necromancy, Thaumaturgy, Conjuration
+and Sorcery. Within each school, individual spells have one of four
+types - Naturae spells deal with matter, Animae spells deal with
+spirits, Corporis spells deal with flesh and Vis spells deal with raw
+power and energy. The spells of each school and book are listed below,
+as well as the skill needed to cast each one and its mana cost. The
+skill used for each spell is the average of your skills for the school
+and the type of the spell - for example, to cast 'Phase Door' from the
+sorcery book 'Beginners Handbook' you need an average of 'Sorcery' and
+'Corporis' skills of 2%.
+
+Necromancy
+
+Necromancy is the study of the dead and the undead. The spells here deal
+with these darker forces.
+
+Black Prayers
+
+Detect Unlife (Animae, 2% Skill, 1 Mana)
+This spell will detect all undead that are nearby.
+
+Malediction (Vis, 4% Skill, 2 Mana)
+This spell will do damage to a target of your choice, and may confuse,
+stun, or otherwise harm it.
+
+Detect Evil (Animae, 4% Skill, 2 Mana)
+This spell will detect evil creatures that are nearby.
+
+Stinking Cloud (Naturae, 6% Skill, 3 Mana)
+This spell will cast a cloud of poison centered on the target.
+
+Black Sleep (Animae, 10% Skill, 5 Mana)
+This spell will try to put a targetted monster to sleep.
+
+Resist Poison (Corporis, 14% Skill, 10 Mana)
+This spell will confer temporary resistance to poison to the caster.
+
+Horrify (Corporis, 18% Skill, 9 Mana)
+This spell will frighten and/or stun the targetted monster.
+
+Enslave Undead (Animae, 20% Skill, 10 Mana)
+This spell will attempt to control one targetted undead monster.
+
+Black Mass
+
+Orb of Entropy (Vis, 24% Skill, 12 Mana)
+This spell will cause a ball of entropy to drain life near a
+targetted location.
+
+Nether Bolt (Vis, 26% Skill, 12 Mana)
+This spell will cast a bolt of nether energy at a targetted creature.
+
+Terror (Animae, 36% Skill, 15 Mana)
+This spell will attempt to frighten all monsters in sight.
+
+Vampiric Drain (Corporis, 46% Skill, 20 Mana)
+This spell will drain the life from the target, allowing the player
+to heal from and feed on the released energy.
+
+Poison Branding (Naturae, 60% Skill, 75 Mana)
+This spell will make a weapon permanently venomous, and may add
+enchantments to strike more surely and with greater damage.
+
+Dispel Good (Vis, 66% Skill, 35 Mana)
+This spell will inflict damage on all good monsters the caster can see.
+
+Genocide (Corporis, 74% Skill, 25 Mana)
+This spell will banish all creatures of a specified sort from the
+current level.
+
+Restore Life (Corporis, 90% Skill, 50 Mana)
+This spell will restore all lost skills.
+
+Necronomicon
+
+Berserk (Corporis, 20% Skill, 20 Mana)
+This spell will put the caster into a fighting frenzy.
+
+Invoke Spirits (Animae, 20% Skill, 15 Mana)
+This spell will summon undead spirits, which will appear and possibly
+do your bidding or will cause other things to happen.
+
+Dark Bolt (Vis, 22% Skill, 11 Mana)
+This spell will hurl a bolt of darkness at a target.
+
+Battle Frenzy (Corporis, 60% Skill, 25 Mana)
+This spell will act as Berserk, but will also allow the player to
+run very fast.
+
+Vampirism True (Vis, 66% Skill, 35 Mana)
+This spell will attempt to drain life force from a targetted creature
+to heal the caster.
+
+Vampiric Branding (Naturae, 66% Skill, 90 Mana)
+This spell will make a weapon permanently vampiric.
+
+Darkness Storm (Vis, 80% Skill, 40 Mana)
+This spell will cause a ball of harmful darkness to appear at a
+target.
+
+Mass Genocide (Corporis, 80% Skill, 75 Mana)
+This spell will banish nearby creatures from the player.
+
+Kitab Al Azif
+
+Death Ray (Vis, 40% Skill, 20 Mana)
+This spell will fire a ray of death at a targetted monster.
+
+Raise the Dead (Corporis, 50% Skill, 66 Mana)
+This spell will raise ancient spirits, who will serve you or punish
+you.
+
+Esoteria (Naturae, 60% Skill, 40 Mana)
+This spell will give the caster either partial or full knowledge of
+any item.
+
+Word of Death (Animae, 66% Skill, 35 Mana)
+This spell will cause great harm to living beings within sight of the
+caster.
+
+Evocation (Vis, 74% Skill, 35 Mana)
+This spell will cause monsters to turn away or disappear.
+
+Hellfire (Vis, 84% Skill, 120 Mana)
+This spell will create a ball of hellfire around a targetted point or
+creature.  Its backlash will hurt the caster.
+
+Omnicide (Corporis, 90% Skill, 100 Mana)
+This spell will banish all monsters except uniques and quest guardians,
+hurting the caster but helping refresh his or her mana.
+
+Wraithform (Corporis, 94% Skill, 100 Mana)
+This spell will give the caster the ability to walk through walls for
+a time.
+
+Conjuration
+
+Conjuration magic is the magic of movement. It specialises in spells
+that both move yourself and summon other creatures to do your bidding.
+
+Minor Conjurings
+
+Phase Door (Corporis, 2% Skill, 1 Mana)
+This spell will teleport you a short distance.
+
+Mind Blast (Animae, 6% Skill, 3 Mana)
+This spell will fire a psychic blast at a targetted creature, exposing
+their minds to the harmful effects of other planes.
+
+Tarot Draw (Vis, 10% Skill, 5 Mana)
+This spell allows you to invoke the power of the tarot deck and draw a
+card for a random effect.
+
+Reset Recall (Animae, 12% Skill, 6 Mana)
+This spell resets the depth to which you will teleport to when you next
+use the 'Word of Recall' spell to enter your current dungeon.
+
+Teleport (Corporis, 14% Skill, 7 Mana)
+This spell will teleport you a long distance.
+
+Dimension Door (Naturae, 18% Skill, 9 Mana)
+This spell will teleport you a short distance, but you will be able to
+choose your destination.
+
+Planar Spying (Vis, 28% Skill, 12 Mana)
+This spell allows you to see into the astral plane and notice the
+spirits of intelligent creatures that are nearby, giving you telepathy
+for a short while.
+
+Teleport Away (Corporis, 34% Skill, 15 Mana)
+This spell will teleport the targetted creature away from you in a
+random direction.
+
+Conjuring Mastery
+
+Summon Object (Narurae, 40% Skill, 20 Mana)
+This spell will teleport a nearby object that you can see into your
+hand.
+
+Summon Animal (Animae, 48% Skill, 22 Mana)
+This spell will summon an animal to serve you.
+
+Phantasmal Servant (Vis, 56% Skill, 24 Mana)
+This spell will summon a phantasmal creature from the planes of illusion
+to serve you.
+
+Summon Monster (Animae, 60% Skill, 25 Mana)
+This spell will summon a random monster to serve you.
+
+Conjure Elemental (Naturae, 66% Skill, 28 Mana)
+This spell will summon an elemental creature to serve you.
+
+Teleport Level (Corporis, 70% Skill, 30 Mana)
+This spell will teleport you randomly up or down within your current
+dungeon.
+
+Word of Recall (Corporis, 80% Skill, 35 Mana)
+This spell will teleport you either back to the town or back down into
+the dungeon, depending on where it is cast from. It takes a while to
+work, so you should not expect to teleport straight away.
+
+Banish (Animae, 84% Skill, 40 Mana)
+This spell will teleport all nearby monsters away from you in random
+directions.
+
+Book of Eibon
+
+Joker Card (Vis, 30% Skill, 15 Mana)
+This spell will summon a strange creature to serve you.
+
+Summon Spiders (Animae, 48% Skill, 24 Mana)
+This spell will summon one or more spiders to serve you.
+
+Summon Reptiles (Animae, 52% Skill, 26 Mana)
+THis spell will summon one or more reptiles to serve you.
+
+Summon Hounds (Animae, 60% Skill, 30 Mana)
+This spell will summon one or more elemental zephyr hounds to serve you.
+
+Planar Branding (Vis, 70% Skill, 70 Mana)
+This spell will make your weapon exist multidimensionally, giving it a
+variety of special powers.
+
+Planar Being (Corporis, 80% Skill, 100 Mana)
+This spell pulls you partially out of the normal plane, enhancing your
+ability to move around.
+
+Death Dealing (Vis, 84% Skill, 50 Mana)
+This spell allows you to use your Tarot deck to drain the life out of
+nearby creatures.
+
+Summon Reaver (Animae, 90% Skill, 100 Mana)
+This spell summons a black reaver to serve you.
+
+Liber Ivonis
+
+Planar Divination (Animae, 60% Skill, 30 Mana)
+This spell shows you all items, features and creatures in the area
+around you.
+
+Planar Lore (Animae, 70% Skill, 50 Mana)
+This spell allows you to contact a higher being for detailed knowledge
+about an item.
+
+Summon Undead (Animae, 72% Skill, 80 Mana)
+This spell summons one or more undead to serve you.
+
+Summon Dragon (Animae, 78% Skill, 80 Mana)
+This spell summons a dragon to serve you.
+
+Mass Summons (Animae, 84% Skill, 100 Mana)
+This spell summons many random creatures to serve you.
+
+Summon Demon (Animae, 94% Skill, 100 Mana)
+This spell summons a powerful demon to serve you.
+
+Summon Ancient Dragon (Animae. 96% Skill, 100 Mana)
+This spell summons a powerful dragon to serve you.
+
+Summon Greater Undead (Animae, 98% Skill, 100 Mana)
+This spell summons one of the most powerful of the undead to serve you.
+
+Thaumaturgy
+
+Thaumaturgy is the magic of chaos and destruction. The chaos gods take a
+particular interest in anyone learning thaumaturgy magic and will
+encourage such learning by giving gifts to the student - although such
+gifts are not always welcome, but that is the nature of chaos.
+
+Sign of Chaos
+
+Magic Missile (Naturae, 2% Skill, 1 Mana)
+This spell will create a missile and fire it through the air at a
+targetted creature.
+
+Trap / Door Destruction (Naturae, 2% Skill, 2 Mana)
+This spell will destroy any doors or traps that you are standing next
+to.
+
+Flash of Light (Vis, 4% Skill, 2 Mana)
+This spell will illuminate the area around you.
+
+Touch of Confusion (Animae, 10% Skill, 5 Mana)
+This spell will make your hands and weapon glow with an aura that will
+confuse the next creature that you hit.
+
+Mana Burst (Vis, 18% Skill, 6 Mana)
+This spell will create a magical explosion of force centred on the
+creature or location that you target.
+
+Fire Bolt (Vis, 26% Skill, 9 Mana)
+This spell will shoot a bolt of fire at a targetted creature.
+
+Fist of Force (Vis, 28% Skill, 9 Mana)
+This spell will fire a ray of pure force that will shatter anything it
+hits.
+
+Teleport Self (Corporis, 30% Skill, 9 Mana)
+This spell will teleport you a long distance.
+
+Chaos Mastery
+
+Wonder (Vis, 34% Skill, 10 Mana)
+This spell will channel chaos at a targetted creature or location with a
+random effect,
+
+Chaos Bolt (Vis, 38% Skill, 12 Mana)
+This spell will fire a bolt of raw chaos at a targetted creature.
+
+Sonic Boom (Vis, 42% Skill, 13 Mana)
+This spell will cause a ball of sound to explode around you, damaging
+any nearby creatures.
+
+Doom Bolt (Vis, 46% Skill, 15 Mana)
+This spell will fire a lance of magic in the targetted direction that
+will pass through creatures, damaging all that it touches.
+
+Fire Ball (Vis, 50% Skill, 16 Mana)
+This spell will cause a large ball of flame to explode centred on the
+targetted creature or location.
+
+Teleport Other (Corporis, 50% Skill, 18 Mana)
+This spell will teleport a targetted creature away from you in a random
+direction.
+
+Word of Destruction (Animae, 60% Skill, 20 Mana)
+This spell will cause the area around you to collapse, harming anything
+that gets trapped.
+
+Invoke Chaos (Naturae, 70% Skill, 40 Mana)
+This spell will shoot a ball of raw chaos that will explode at the
+targetted location.
+
+The King in Yellow
+
+Polymorph Other (Corporis, 22% Skill, 7 Mana)
+This spell will magically change the targetted creature into something
+else.
+
+Chain Lightning (Vis, 30% Skill, 15 Mana)
+This spell will fire eight lightning bolts out in a ring around you.
+
+Arcane Binding (Naturae, 32% Skill, 14 Mana)
+This spell will recharge a staff, rod or wand.
+
+Disintegrate (Naturae, 50% Skill, 25 Mana)
+This spell will create a cloud of disintegration affecting an area
+centred around the targetted location.
+
+Alter Reality (Animae, 60% Skill, 25 Mana)
+This spell will shift you into an alternate universe, similar to the
+current one but slightly different.
+
+Polymorph Self (Corporis, 84% Skill, 50 Mana)
+This spell will change your species to a random one.
+
+Chaos Branding (Naturae, 90% Skill, 90 Mana)
+This spell will bind chaos into your weapon, causing it to have
+unpredictable effects on things that it hits.
+
+Summon Demon (Animae, 94% Skill, 100 Mana)
+This spell will summon a demon from the courts of chaos to be your ally.
+
+The Revelations of Glaaki
+
+Beam of Gravity (Naturae, 40% Skill, 20 Mana)
+This spell will fire a beam of gravity at the targetted creature,
+pulling it apart.
+
+Meteor Swarm (Naturae, 70% Skill, 32 Mana)
+This spell will cause a number of meteors to rain down in the area
+around you causing great damage.
+
+Flame Strike (Vis, 74% Skill, 34 Mana)
+This spell will cause a massive burst of flame to appear at the
+targetted location.
+
+Call Chaos (Vis, 82% Skill, 42 Mana)
+This spell will fire random elemental balls and bolts around you.
+
+Shard Ball (Naturae, 86% Skill, 44 Mana)
+This spell will fire a missile to the targetted location, where it will
+explode into a ball of shards and shrapnel.
+
+Mana Storm (Vis, 90% Skill, 48 Mana)
+This spell will create a huge explosion of raw magic at the targetted
+location.
+
+Breathe Chaos (Corporis, 94% Skill, 75 Mana)
+This spell will cause you to breathe raw chaos over the targetted
+location.
+
+Call the Void (Animae, 98% Skill, 100 Mana)
+This spell will fill the area around you with shards of metal, magical
+energies and toxic gasses.
+
+Sorcery
+
+Beginner's Handbook
+
+Detect Monsters (Animae, 2% Skill, 1 Mana)
+This spell will detect any monsters that are nearby.
+
+Phase Door (Corporis, 2% Skill, 2 Mana)
+This spell will teleport you a short distance.
+
+Detect Doors and Traps (Naturae, 6% Skill, 3 Mana)
+This spell will show you any secret doors, stairs or traps that are
+nearby.
+
+Light Area (Vis, 6% Skill, 3 Mana)
+This spell will illuminate the area around you.
+
+Confuse Monster (Animae, 8% Skill, 4 Mana)
+This spell will fire a dazzling bolt at the targetted creature,
+confusing it briefly.
+
+Teleport (Corporis, 10% Skill, 5 Mana)
+This spell will teleport you a long distance.
+
+Sleep Monster (Animae, 12% Skill, 5 Mana)
+This spell will fire a sleep ray at a targetted monster.
+
+Recharging (Vis, 14% Skill, 7 Mana)
+This spell will repower a wand, staff or rod.
+
+Master Sorcerer's Handbook
+
+Magic Mapping (Naturae, 18% Skill, 7 Mana)
+This spell will give you a magical vision of the area around you.
+
+Identify (Naturae, 20% Skill, 7 Mana)
+This spell will show you the major powers of a magical item.
+
+Slow Monster (Corporis, 22% Skill, 7 Mana)
+This spell will fire a beam at a targetted monster, slowing its movement
+down greatly.
+
+Mass Sleep (Animae, 26% Skill, 7 Mana)
+This spell will send a wave of fatigue around you, causing any nearby
+monsters to fall asleep.
+
+Teleport Away (Corporis, 36% Skill, 12 Mana)
+This spell will teleport a targetted creature away from you in a random
+direction.
+
+Haste Self (Corporis, 44% Skill, 12 Mana)
+This spell will greatly speed up your movement for a short while.
+
+Detection True (Animae, 56% Skill, 20 Mana)
+This spell will make you aware of all items, creatures and other dungeon
+features that are nearby.
+
+Identify True (Naturae, 66% Skill, 30 Mana)
+This spell will show you all the powers and abilities of an object.
+
+R'Lyeh Text
+
+Detect Objects & Treasure (Naturae, 6% Skill, 3 Mana)
+This spell will show you all objects and precious things that are
+nearby.
+
+Detect Enchantment (Vis, 20% Skill, 10 Mana)
+This spell will show you any sources of magic that are nearby.
+
+Charm Monster (Animae, 20% Skill, 10 Mana)
+This spell will beguile a targetted creature, making it become your
+ally.
+
+Dimension Door (Naturae, 24% Skill, 12 Mana)
+This spell will teleport you a short distance, allowing you to choose
+your destination.
+
+Sense Minds (Animae, 28% Skill, 10 Mana)
+This spell will bestow you with telepathy for a short while.
+
+Self Knowledge (Animae, 40% Skill, 18 Mana)
+This spell will give you magical knowledge about yourself and your
+abilities.
+
+Teleport Level (Corporis, 40% Skill, 18 Mana)
+This spell will teleport you randomly up or down within the dungeon that
+you are currently exploring.
+
+Word of Recall (Corporis, 50% Skill, 25 Mana)
+This spell will teleport you back up to the town, or back down into the
+dungeon. It takes a while to kick in however, so you will not teleport
+straight away.
+
+Unausprechlichen Kulten
+
+Stasis (Vis, 20% Skill, 10 Mana)
+This spell will fire a paralysing ray at a monster, freezing it for a
+while.
+
+Telekinesis (Naturae, 50% Skill, 25 Mana)
+This spell will grab an object from the floor and make it fly to your
+hand.
+
+Explosive Rune (Vis, 50% Skill, 30 Mana)
+This spell inscribes a rune by your feet that will explode if anyone
+other than yourself steps on it.
+
+Clairvoyance (Naturae, 60% Skill, 40 Mana)
+This spell will magically light up the entire area that you are
+exploring and give you telepathy for a short while.
+
+Enchant Weapon (Vis, 80% Skill, 80 Mana)
+This spell will magically increase the effectiveness of your weapon.
+
+Enchant Armour (Vis, 80% Skill, 100 Mana)
+This spell will magically increase the effectiveness of your armour.
+
+Alchemy (Naturae, 84% Skill, 50 Mana)
+This spell will turn an object into gold.
+
+Globe of Invulnerability (Animae, 90% Skill, 70 Mana)
+This spell will make you almost invulnerable to damage for a short
+while.

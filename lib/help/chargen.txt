@@ -1,0 +1,350 @@
+Characters
+==========
+
+Your character in Cthangband is defined by a series of statistics
+(usually abbreviated to 'stats').
+
+The main stats of a character, and what they represent are listed below.
+
+Primary Stats
+=============
+
+These are the basic defining features of your character. Each one is
+listed on a scale that normally ranges from 3-18. If one of your primary
+stats is on the very edge of human limits, it will be given a
+'percentile' after it. For example, after 18 comes 18/01. These
+percentiles go up to 100, and then the stat is beyond the normal human
+limits and carries on counting normally (19, 20 etc.).
+
+In general, a starting character may have one or two stats in the
+percentile range, but is unlikely to have any above that.
+
+Your primary stats are determined both by your race and by the template
+that you start with.
+
+STR (Strength)
+This is a measure of your character's raw muscle power. It determines
+how much equipment you can carry without being slowed, and also gives a
+bonus in combat. With a high strength, you can penetrate an opponents
+armour more easily and do more damage.
+
+INT (Intelligence)
+This is a measure of your character's ability to think logically and
+work things out methodically. The main use of intelligence is in the
+learning of both hedge magic and hermetic magic. With a low
+intelligence, learning either of these will be severely hampered.
+
+WIS (Wisdom)
+This is a measure both of the amount of knowledge your character has,
+and the amount of common sense they possess. It is used mainly by
+mindcrafters, as only knowledge of the world will allow its Chi flows to
+be harnessed.
+
+DEX (Dexterity)
+This is a measure of how quick and agile your character is. Its main use
+is in combat, both to help you hit an opponent and to help you avoid
+being hit yourself.
+
+CON (Constitution)
+This is a measure of how tough your character is. A high constitution
+will give a bonus to the amount of damage you can take before falling
+unconscious.
+
+CHR (Charisma)
+This is a measure of how well you can get on with people. It is partly
+determined by looks, but mainly involved with personality. This stat is
+vitally important to shamans as they need to be able to persuade spirits
+without angering them.
+
+Secondary Stats
+
+As well as your six primary stats, you also have three secondary stats.
+These are determined both by your primary stats and by your skills. Each
+of these has both a 'Current' and 'Maximum' score, and the current score
+slowly regenerates until it reaches the maximum.
+
+HP (Hit Points)
+This score is based on the level of your Toughness skill, although you
+get a bonus based on your CON. It determines how much damage you can
+take in combat before falling unconscious and dying. Most attacks do
+damage rated in hit points, and when you run out you die.
+
+SP (Spell Points - also known as 'Mana')
+This score is based on the level of your Mana Channeling skill and on
+your INT. Casting hermetic spells costs SP, and when you are drained you
+need to rest before casting more. It is possible to cast a spell without
+having enough mana - although it is dangerous and is not recommended.
+
+CH (Chi)
+This score is based on the level of your Chi Balance skill and on your
+WIS. It is used up by using mindcrafting powers. Like hermetic magic, it
+is possible to use powers when you have run out of Chi, although risky.
+
+RACES
+=====
+
+There are 30 races available for you to play in Cthangband. Each of them
+has its own advantages. Each race also has an 'EXP Factor' which
+determines how quickly that race learns. This is based on the human
+rate, and is a percentage (so, for example, an exp factor of 200 means
+that the race in question takes twice as long to learn as humans do).
+Each race also has a hit die size, so that a Barbarian (say) will get
+from 1 to 11 extra hit points per level (plus any for constitution).
+Each race also has modifications to the base stats for a character.
+
+Barbarian (EXP Factor 120%, HD 11)
+{STR:+3 INT:-2 WIS:-1 DEX:+1 CON:+2 CHR:-2}
+Barbarians are the humans from the land of Cimmeria. This is a harsh
+land and its inhabitants, while being tough, have little time for
+learning.  Barbarians do not know the meaning of fear (or quite a
+few other words).  They can go into a fearsome berserk rage.
+
+Broo (EXP Factor 140%, HD 11)
+{STR:+2 INT:-2 WIS:-1 DEX:-1 CON:+2 CHR:-4}
+Broo are a type of beastman, twisted by the dark gods that the race
+worships. The more they gain power, the more they are twisted.  Broo
+have seen too much chaos to be confused by anything, and are resistant
+to all forms of sound.  They have a fearsome growl that can frighten
+anybody nearby.
+
+Cyclops (EXP Factor 130%, HD 13)
+{STR:+4 INT:-3 WIS:-3 DEX:-3 CON:+4 CHR:-6}
+Immense humanoids with only one eye in their heads, Cyclops are
+resistant to the effects of all sorts of sounds.  They are known for
+tearing up large boulders and hurling them to deadly effect
+
+Dark Elf (EXP Factor 150%, HD 9)
+{STR:-1 INT:+3 WIS:+2 DEX:-2 CON:-2 CHR:+1}
+Elves that succumbed to the blandishments of great caverns, Dark
+Elves take little damage from darkness, and can learn to see invisible
+beings.  They have the intrinsic ability to fire magic missiles.
+
+Draconian (EXP Factor 250%, HD 11)
+{STR:+2 INT:+1 WIS:+1 DEX:+1 CON:+2 CHR:-3}
+The children of dragons that assumed human form, Draconians always
+fall lightly, and gain resistance to various common forms of attack
+as they age.  They can breathe out with devastating effect.
+
+Dwarf (EXP Factor 125%, HD 11)
+{STR:+2 INT:-2 WIS:+2 DEX:-2 CON:+2 CHR:-3}
+Dwarves were created out of Earth, and then given life and intelligence.
+They are very skilled with mechanics, and have the gift that they may
+never be blinded.  They can examine the area they are in and find
+traps, doors, and stairs.
+
+Elf (EXP Factor 120%, HD 8)
+{STR:-1 INT:+2 WIS:+2 DEX:+1 CON:-2 CHR:+2}
+Elves were the First Children of the Earth, and resist light.
+
+Gnome (EXP Factor 135%, HD 8)
+{STR:-1 INT:+2 WIS:+0 DEX:+2 CON:+1 CHR:-2}
+Smaller than Dwarves, but otherwise similar.  Gnomes cannot be
+slowed or paralyzed by magical effects.  They have the ability to
+teleport short distances.
+
+Golem (EXP Factor 200%, HD 12)
+{STR:+4 INT:-5 WIS:-5 DEX:+0 CON:+4 CHR:-4}
+Golems are not born, but made by arcane rituals that give them words
+instead of brains.  They are resistant to poison, magical slowing
+and paralyzation, and can see the invisible.  They need but little
+sustenance, but normal food helps little.  As they age, 
+they gain a tenacious hold on their artificial life force.  Their
+skins are hard to the point of armor, and can become harder with
+concentration.
+
+Great One (EXP Factor 225%, HD 10)
+{STR:+1 INT:+2 WIS:+2 DEX:+2 CON:+3 CHR:+2}
+Great Ones live in the north, where the Gods come down to disport with
+local maidens.  Their constitution never falters, and they heal and
+regain mana and chi quickly.  They can dream of a time when they were
+whole, and can dream themselves into other surroundings.  Their being
+is incompatible with the Pattern.
+
+Half-Elf (EXP Factor 110%, HD 9)
+{STR:-1 INT:+1 WIS:+1 DEX:+1 CON:-1 CHR:+1}
+The offspring of Men and Elves, of intermediate stature.
+
+Half-Giant (EXP Factor 150%, HD 13)
+{STR:+4 INT:-2 WIS:-2 DEX:-2 CON:+3 CHR:-3}
+Towering over most people, Half-Giants never lose their great strength,
+and their thick skin protects them from shards.  They can casually bash
+through walls.
+
+Half-Ogre (EXP Factor 130%, HD 12)
+{STR:+3 INT:-1 WIS:-1 DEX:-1 CON:+3 CHR:-3}
+Hulking beings, whose strength never diminishes, and resist all attacks
+based on darkness.  They have the power to set an explosive rune.
+
+Half-Orc (EXP Factor 110%, HD 10)
+{STR:+2 INT:-1 WIS:+0 DEX:+0 CON:+1 CHR:-4}
+Ugly and misbegotten.  Half-Orcs resist all forms of darkness attacks.
+They can shake off the effects of fear easily.
+
+Half-Titan (EXP Factor 255%, HD 14)
+{STR:+5 INT:+1 WIS:+1 DEX:-2 CON:+3 CHR:+1}
+Descendents of the ancient Titans, Half-Titans are resistant to the
+effects of primal Chaos, from whence their fathers came.  Half-Titans
+can examine the foes around them in great detail.
+
+Half-Troll (EXP Factor 137%, HD 12)
+{STR:+4 INT:-4 WIS:-2 DEX:-4 CON:+3 CHR:-6}
+Large but slow, Half-Trolls heal fast when they gain experience.
+They can enter a berserk fury.
+
+High Elf (EXP Factor 200%, HD 10)
+{STR:+1 INT:+3 WIS:+2 DEX:+3 CON:+1 CHR:+5}
+The elves who followed on the quest westwards gained great power.
+They see the invisible, and are resistant to light.
+
+Hobbit (EXP Factor 110%, HD 7)
+{STR:-2 INT:+2 WIS:+1 DEX:+3 CON:+2 CHR:+1}
+A small race, frequently living in luxurious holes.  Hobbits never
+lose their dexterity.  They are adept at finding and cooking food
+anywhere.
+
+Human (EXP Factor 100%, HD 10)
+{STR:+0 INT:+0 WIS:+0 DEX:+0 CON:+0 CHR:+0}
+
+Imp (EXP Factor 110%, HD 10)
+{STR:-1 INT:-1 WIS:-1 DEX:+1 CON:+2 CHR:-3}
+Imps are demons who have been forced to live on Earth.  They can
+survive great heat, and can learn to see the invisible.  They can
+cast fire about, and, as demons, have no sanity that can be affected
+by earthly means.
+
+Klackon (EXP Factor 135%, HD 12)
+{STR:+2 INT:-1 WIS:-1 DEX:+1 CON:+2 CHR:-2}
+Insectile but larger than Men, Klackon brains cannot be confused, and
+the chitin is resistant to acid.  They can spit acid, and move faster
+and faster as they age.
+
+Kobold (EXP Factor 125%, HD 9)
+{STR:+1 INT:-1 WIS:+0 DEX:+1 CON:+2 CHR:-2}
+Ugly and below average height, Kobolds resist poison and carry poison
+darts.
+
+Mind Flayer (EXP Factor 140%, HD 9)
+{STR:-3 INT:+4 WIS:+4 DEX:+0 CON:-2 CHR:-5}
+Tentacled monstrosities, Mind Flayers never become less intelligent
+or wise.  They can learn to see the invisible, and even to sense the
+minds around them.  Mind Flayers can blast the minds of their enemies.
+
+Nibelung (EXP Factor 135%, HD 11)
+{STR:+1 INT:-1 WIS:+2 DEX:+0 CON:+2 CHR:-4}
+Smallish, ugly dwarves from the Rhine, Nibelungs resist all forms
+of darkness and disenchantment.  They have the dwarven ability to
+detect traps, doors, and stairs.
+
+Skeleton (EXP Factor 145%, HD 10)
+{STR:+0 INT:-2 WIS:-2 DEX:+0 CON:+1 CHR:-4}
+Skeletons are the bones of humanoids, enlivened by necromancy.  Skeletons
+are resistant to poison and their (missing) eyes can see the invisible.
+Their bones take little damage from shards, and they have a tenacious
+hold on their borrowed life force, which they can even regenerate by
+concentrating.  They become resistant to great cold
+as they gain experience.  They cannot eat human food, as it falls
+through their jaws, and potions they drink sometimes splash on
+neighboring beings.  They are often not taken aback by eldritch
+horrors.
+
+Spectre (EXP Factor 180%, HD 7)
+{STR:-5 INT:+4 WIS:+4 DEX:+2 CON:-3 CHR:-6}
+Spectres have died, but have not left the Earth, perhaps on a quest.
+They need little food, but gain little benefit from it, and are not 
+easily poisoned.  They see the invisible perhaps plainer than the visible, 
+and their undead nature holds what life force they have strongly, and love 
+nether.  Being immaterial, they are little affected by cold that is not 
+extreme.  As they grow in power, they perceive the minds around them.  
+They can walk through walls, and howl to frighten those around them.
+They are only sometimes shocked by horrors from beyond.  Cuts in
+their insubstantial skin heal instantly.
+
+Sprite (EXP Factor 175%, HD 7)
+{STR:-4 INT:+3 WIS:+3 DEX:+3 CON:-2 CHR:+2}
+Of faery blood, sprites fall lightly on their feet and are resistant
+to bright light.  They can throw sleeping dust, and gain speed as they
+age.
+
+Vampire (EXP Factor 200%, HD 11)
+{STR:+3 INT:+3 WIS:-1 DEX:-1 CON:+1 CHR:+2}
+Vampires can feed and heal themselves with the blood of their foes, and
+gain little sustenance from ordinary food.  They are creatures of darkness,
+and are immune to its effects.  Their unhallowed nature holds their
+life force close, resists nether effects, and protects them somewhat from
+cold and poison.  Vampires do need to avoid the light of the Sun, which
+scorches their flesh.  They are not often affected by eldritch horrors.
+
+Yeek (EXP Factor 100%, HD 7)
+{STR:-2 INT:+1 WIS:+1 DEX:+1 CON:-2 CHR:-7}
+Unimpressive looking humanoids, but Yeeks take little damage from
+strong acid, and as they age become totally immune to the stuff.
+Their shriek can terrorize their foes.
+
+Zombie (EXP Factor 135%, HD 13)
+{STR:+2 INT:-6 WIS:-6 DEX:+1 CON:+4 CHR:=5}
+Corpses that rise through unholy rites, Zombies need little food, but
+have difficulty tolerating the food of the living, and can withstand 
+most poison.  Their life force is closely bound to their bodies, and they
+can recover it with concentration.  Being animated by nether forces, they 
+are resistant to them. Their eyes can see both the visible and invisible.  
+A zombie long out of its grave develops a resistance to cold, and cuts on
+its dead skin heal instantly.  They are partly immune to the dismay of 
+eldritch horrors.  
+
+Templates
+=========
+
+Although all characters can learn any skill, a beginning character will
+start with a given set of skills depending on what template they choose.
+The template will also alter the values of their primary stats. It is
+important to note that once the game has started, the template of a
+character has little further effect.  The stat modifiers remain in force
+(if the character is playing in maximize mode), and the skills learned will
+be able to be raised in safer places than other skills.
+
+Adventurer
+An Adventurer is a good fighter, with some knowlege of hedge magic.
+
+Swashbuckler
+A Swashbuckler tries to solve problems by stabbing them with a rapier,
+and is pretty good at doing this.
+
+Gladiator
+A Gladiator is a pure fighter, with some training in fighting unarmed.
+
+Warrior Monk
+A Warrior Monk has studied how to fight unarmed at a monastery of strict
+discipline.  He or she is deadly up close.
+
+Zen Monk
+A Zen Monk has studied both the body and the mind, having skills in
+the martial arts and using arcane powers.
+
+Assassin
+Sneaky and perceptive, and taught to evade traps, the assassin is at his 
+best up close and personal.
+
+Ranger
+A Ranger has keen senses, moves quietly, shoots with deadly skill, and
+has some traffic with spirits.
+
+Shaman
+A Shaman gains power from the spirits he or she talks to.
+
+Mindcrafter
+A Mindcrafter has studied the power of the mind and gained some experience.
+
+Mage
+A Mage is a student of hermetic magic.
+
+Warlock
+A Warlock is a less adept student of hermetic magic, but better at rough
+and tumble.
+
+Powerweaver
+A Powerweaver thinks that mental power is just the thing to go along
+with hermetic studies.
+
+Tourist
+A Tourist is just passing through when he or she becomes enmeshed in the
+quest, and has no special abilities.

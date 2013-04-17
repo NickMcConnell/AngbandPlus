@@ -1,0 +1,115 @@
+Mindcrafting
+============
+
+The power of mindcrafting is one of the magical powers available in
+Cthangband. Mindcrafting involves using your natural energy (called
+'Chi') to perform actions.
+
+Although mindcrafting may look at first glance to be one of the simplest
+forms of magic due to the limited number of powers that can be used, it
+is not very easy to pick up and only those with a strong mind (a high
+WIS) will find it worth the effort.
+
+Requirements
+============
+
+Mindcrafting is unique amongst the forms of magic in that there is no
+requirement in the form of material goods or learning. It can be
+entirely learned by practice and needs no outside help. However, wearing
+most forms of head covering will interfere with your mindcrafting
+abilities and reduce the chi that you are able to use effectively.
+
+Usage
+=====
+
+You can use mindcrafting powers at any time except when in a shop. Press
+the '<shift>P' key (control-M in the roguelike keyset) to use a power, 
+and then select which power to use.  You will be unable to use 
+mindcrafting powers while confused.
+
+Abilities
+=========
+
+Whilst mindcrafting has fewer abilities available to it than most other
+forms of magic, it makes up for this easily in the increase in power
+level each ability has when the mindcrafter gets more skilled. The
+abilities are listed below along with the minimum skill required for use
+and the chi cost. While it is possible to attempt a mindcrafting ability
+without having enough chi left, it is not advisable.
+
+Precognition (0% Skill, 1 Chi)
+At 0%-9% skill, this power detects all nearby monsters.
+At 10%-29% skill, this power detects all nearby monsters and traps.
+At 30%-39% skill, this power detects all nearby monsters, traps and
+secret doors.
+At 40%-49% skill, this power detects all nearby monsters, traps and
+secret doors, and gives you a mental image of your nearby surroundings.
+At 50%-59% skill, this power detects all nearby monsters, traps and
+secret doors, gives you a mental image of your nearby surroundings and
+gives you ESP for a while.
+At 60%-79% skill, this power detects everything nearby, gives you a
+mental image of your nearby surroundings and gives you EXP for a while.
+At 80%-89% skill, this power detects everything nearby, gives you a
+mental image of your nearby surroundings, but does not give you ESP as
+you already have it permanently by this point.
+At 90%-100% skill, this power detects everything nearby and gives you a
+mental image of the entire area you are currently exploring.
+
+Neural Blast (2% Skill, 1 Chi)
+This skill fires a blast of mental energy at a creature or location,
+doing damage based on your mindcrafting skill. There is a chance (based
+on your skill) that this blast will affect an area around the targetted
+creature or location.
+
+Minor Displacement (6% Skill, 2 Chi)
+This power teleports you a short distance. If you have 50% skill or
+more, then you are able to choose your destination.
+
+Major Displacement (14% Skill, 6 Chi)
+This power teleports you long distance in a random direction. If you
+have 60% skill or more then it will also teleport any other creatures
+that are near you in a random direction.
+
+Domination (18% Skill, 7 Chi)
+This power will charm creatures into becoming your allies. At lower
+levels of skill you will only be able to charm a single creature, but at
+60% skill or more you will be able to charm a whole group of creatures.
+
+Pulverise (22% Skill, 7 Chi)
+This power sets up a telekinetic vibration that will manifest itself in
+the form of a damaging ball of sound energy that appears in a location
+you choose.
+
+Character Armour (26% Skill, 12 Chi)
+This power will always provide a temporary boost to your armour class.
+At 30% skill or more you will also temporarily resist acid.
+At 40% skill or more you will also temporarily resist fire.
+At 50% skill or more you will also temporarily resist cold.
+At 60% skill or more you will also temporarily resist electricity.
+At 70% skill or more you will also temporarily resist poison.
+
+Psychometry (30% Skill, 12 Chi)
+At 30%-79% skill this power will give you a feel for the abilities of
+an item.
+At 80%-100% skill this power will fully identify an item.
+
+Mind Wave (36% Skill, 10 Chi)
+At 36%-49% skill this power tries to kill a nearby monster by directly
+atacking its brain.
+At 50% to 100% skill this power tries to kill all nearby monsters in the
+same fashion.
+
+Adrenaline Channeling (46% Skill, 15 Chi)
+This power clears your mind from pain, curing you from fear and stunning
+(as well as recovering some hit points). It will also haste you for a
+period of time.
+At 46%-69% skill it will additionally make you feel heroic.
+At 70%-100% skill it will additionally make you feel superheroic.
+
+Psychic Drain (50% Skill, 10 Chi)
+This power sends out a ball of disruption channels the chi of other
+creatures that it hits. You absorb some of this chi back.
+
+Telekinetic Wave (58% Skill, 20 Chi)
+This power sends out a large telekinetic ball of force centred on
+yourself and spreading outwards.

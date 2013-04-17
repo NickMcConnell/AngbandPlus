@@ -1,0 +1,87 @@
+85
+******** BUFFER LINE *********************************** DO NOT REMOVE *******
+'Ehr Rhee'
+of the East
+'Zir Dawn'
+'Lor Goth'
+of the Mi-Go
+of Phoboa
+of Diemos
+of Talon
+of Evasion
+of Traveling
+of Balmoth
+of the Uncaring
+of Zod
+of Ib
+'Wind Shield'
+'Van's Shield'
+of Lesser Shielding
+'Steeleye'
+'Buopoth'
+'Whisperfeet'
+of Shifting
+'Curator'
+'Arrowbane'
+'Berserker'
+'Bubble'
+of Clay
+'Force Shield'
+of Glass
+of Illusion
+of Phantasm
+of the Jester
+of the Joker
+of the Mirror Image
+of Misery
+of the Unseen
+of the Scarecrow
+of Sand
+'Giant's Shield'
+'Wreakstone'
+of Halloween
+'Hot Metal'
+'Witchstone'
+'Wind Fan'
+of Humility
+of Passion
+of the Hunchback
+of Fury
+'Midnight'
+of the Zombie
+'Kindness'
+'Rat'
+'Grand'
+'Evermore'
+'Guardsman'
+'Bodyguard'
+'Risktaker'
+'Ironskin'
+'Thorn'
+of Transylvania
+'Xura'
+'Demon'
+'Questseeker'
+of the Apparition
+of the Elder Race
+of Holy Smoke
+of the Masochist
+of Yith
+of the Acrobat
+of the Day
+of the Night
+'Full House'
+'Feline'
+of Blind Justice
+of the Mortals
+of Compactness
+of Proximity
+of Satisfaction
+of Kingsport
+of the Old Man
+of the Musician
+of Coral
+of Frenzy
+'Astral'
+'Ethereal'
+of Pride

@@ -1,0 +1,160 @@
+The Great Outdoors
+=== ===== ========
+
+Cthangband has a collection of towns, towers, and dungeons set in a
+wilderness map, which must be traversed to get from one to another.
+Each dungeon and tower has at least one guardian, and the sewers of
+several towns also have guardians.  In order to win the game, all
+guardians must be defeated.
+
+Shops
+=====
+
+Shops are found in towns.  Most of them have a variety of items to sell,
+already fully identified and ready to examine, and will buy such items
+from players (although they insist on making a profit).  Shopkeepers are
+of various races, and have various levels of racial tolerance and greed.
+All shopkeepers have a maximum amount they will pay for any one item sold
+by the player.  Shopkeepers are sometimes replaced by other shopkeepers,
+especially if somebody buys out all of their stock.
+
+Most shops have other functions as well.
+
+General Store (1): Buys and sells food, cloaks, light sources, ammunition, 
+and other minor items.
+
+Armoury (2): Buys and sells all sorts of armor and shields.  Will enchant
+armor for a price.
+
+Weapon Smiths (3): Buys and sells all sorts of weapons and ammunition.
+Will enchant a weapon for a price.
+
+Temple (4):  Buys and sells blunt weapons, potions, scrolls, and sometimes
+prayer books.  Will initiate a player with a spirit, or restore that
+player's skills, for a price.
+
+Alchemy Shop (5):  Buys and sells potions and scrolls.  Will identify all
+inventory items for a price.
+
+Magic Shop (6):  Buys and sells charms, wands, staves, amulets, and will
+buy potions and scrolls.  Will cast the ritual of Recall for a very high
+price.  This ritual will bring you back to the town at the moment of
+death, completely healed, without your items and with very little money.
+
+Black Market (7):  Buys most things at low prices, sells most things at
+high.  They can get things that the other shops can't, and they charge
+for them.
+
+Home (8):  A house a player may buy to rest at, and store things in.
+
+Bookstore (9):  Buys and sells all sorts of magical books.  All bookstores
+have quiet study rooms to learn hermetic spells in.
+
+Inn (white '+'):  Has food available, and rooms to rent for the night
+(or for the day, for nocturnal folk).
+
+Pawnbrokers (green '+'): Will purchase items.
+
+Town Hall (yellow '+'):  Will show records of other players, and will sell
+you a house if one is available in town.
+
+
+Towns
+=====
+
+Towns have dungeon areas known as sewers, and most have some sort of
+shop.  Some of them are unusually well-populated with one sort of
+creature or another, and some of them have guardians at the bottom
+of their sewers, which must be defeated.
+
+Different towns have different collections of shops, and different
+depths to their sewers.
+
+The Beautiful City of Celephais:  Lacks a black market, but has all
+other shops, including two temples.  The sewers go down to 150'.
+
+The Picturesque Town of Ulthar:  Also lacks a black market.  The
+sewers go down to 350', and have the Champion of Cats as a guardian.
+
+The Unwholesome City of Dyath-Leen:  Has no Temple, Alchemy Shop, or
+Magic Shop, but three black markets make it a great place to shop for
+players with lots of money.  The sewers go down to 450', and are populated
+as if they were 50' deeper than they are.
+
+Kadath, Home of the Gods:  Well, the relatively mild gods of Earth, but
+they usually flee the approach of sufficiently strong mortals and call
+for the Outer Gods to protect them.  Kadath is actually a mountain, and
+has no shops.  It is crawling with Cthulhoid entities.  The dungeon
+goes down to 3750', act as if they were 2500' deeper, and are guarded
+by Nyarlathotep and Azathoth.  Wise adventurers avoid Kadath until they
+are tremendously strong.
+
+The Market Town of Hlanth:  Lacks a temple and pawnbrokers.  The sewers
+go to 250'.
+
+The City of Ilek-Vad:  Lacks a pawnbroker.  The sewers also go to 250'.
+
+The Industrious Town of Inganok:  Lacks a magic shop, or a house for sale.
+The sewers go to 250'.
+
+The Hamlet of Nir:  Not much here, but it has a general store and an inn.
+There are a lot of assorted people walking through town.  The sewers go
+to 350', and are guarded by Robin Hood.
+
+Dungeons and Towers
+======== === ======
+
+These are in the wilderness, and are reached by walking from the towns.
+Dungeons can be full-sized, and down staircases go away from the surface
+and towards more dangerous levels.  Towers always have small levels, and
+up staircases go away from the surface and towards more dangerous levels.
+As a visual cue, the depth/height indicator in dungeons and sewers is in
+parentheses (e.g., "(50 ft.)"), whereas it is different in towers
+(e.g., "/50 ft.\").  All dungeons and towers have guardians.
+
+The Yeek King's Lair:  Goes to 400', but counts as 100' deeper.  It is
+guarded by Orfax and Boldor.  The surrounding area will be populated with
+yeeks.
+
+The Orc Tower:  Goes to 850', but counts as 150' deeper.  It is guarded
+by Bolg and Azog.  The surrounding area will be populated by orcs.
+
+Khufu's Tomb:  Goes to 1050', and counts as 200' deeper.  It is guarded by
+the Disembodied Hand and by Khufu, and the area outside is populated by
+undead.
+
+The Collector's Cave:  Goes to 1000', and counts as 2000' deeper.  It is
+guarded by the Collector, and there is no particular sort of creature
+that will be found in its vicinity.
+
+The Vault of the Sword:  Goes to 1500', and counts as 500' deeper.  It is
+guarded by Stormbringer.
+
+The Dragons' Lair:  Goes to 1750', and counts as 250' deeper.  It is guarded
+by Glaurung and Ancalagon the Black, and the area outside swarms with
+dragons.
+
+The Necropolis:  A tower that goes to 2000', and counts as 1500' deeper.
+(This is sufficiently high to practice all skills to 100%).  It is
+guarded by the Fire Phantom and Vecna, and the area outside is populated
+by greater undead.
+
+The Demon Spire:  Goes to 1000', and counts as 750' higher.  It is
+guarded by the Emissary and Glaryssa, and the area outside is populated
+by demons.
+
+The Conflux of the Elements:  A tower that goes to 1000', and counts as
+1000' higher.  It is guarded by Lasha and Grom, and the area outside
+has large numbers of elemental beings.
+
+Shelob's Tower:  A tower that goes to 850', and counts as 650' more.
+It is guarded by Shelob, and is surrounded by nests of spiders.
+
+The Kobold Fort:  A tower that goes to 250', and counts as 50' more.
+It is guarded by Vort, the Kobold Queen, and there are plenty of
+kobolds in the vicinity.
+
+The Tower of Koth:  A tower that goes to 1000', and counts as 2000'
+higher.  It is guarded by Father Dagon and by Tulzscha, and there are
+cthulhoid beings about it.
+
