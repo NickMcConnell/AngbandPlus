@@ -3309,3 +3309,10 @@ I:45:37:0
 W:110:0:2:5000000
 F:INSTA_ART
 
+# ~ experimental
+N:512:Drain Life
+G:=:d
+I:45:4:0
+W:5:0:2:0
+A:5/1
+F:LIGHT_CURSE | DRAIN_EXP | EASY_KNOW

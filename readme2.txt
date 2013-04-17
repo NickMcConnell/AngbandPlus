@@ -15,4 +15,4 @@ credit if you do so, however.
 
 The current verson of CatH-Angband should be available at
 http://dbox.victoly.com/~neko/cath/ . If you have any suggestions, bugs
-or whatever, send them to neko@dbox.victoly.com. Thank you.
+or whatever, send them to neko@inet.att.co.kr. Thank you.

@@ -404,7 +404,7 @@ static cptr k_info_flags1[] =
 	"DEX",
 	"CON",
 	"CHR",
-	"XXX1",
+	"INH_DRAIN_EXP",
 	"XXX2",
 	"STEALTH",
 	"SEARCH",
@@ -423,7 +423,7 @@ static cptr k_info_flags1[] =
 	"SLAY_GIANT",
 	"SLAY_DRAGON",
 	"KILL_DRAGON",
-	"XXX5",
+	"AMMUNITION",		/* ~ missile weapons -- neko */
 	"XXX6",
 	"BRAND_POIS",		/* ~ Poison brand -- neko */
 	"BRAND_ACID",

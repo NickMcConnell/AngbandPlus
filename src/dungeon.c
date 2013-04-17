@@ -931,6 +931,22 @@ static void process_world(void)
 			check_experience();
 		}
 	}
+	
+	/* ~ handle intrinsic experience draining */
+	if (p_ptr->inh_exp_drain)
+	{
+		if ((rand_int(1000) < (p_ptr->lev * 2 + 10)) && (p_ptr->exp > 0))
+		{
+			/* ~ this is kindof ugly, so that it affects both high and
+			       low  level characters. */
+			int i = rand_int(p_ptr->max_exp / 25000) +
+			rand_int(p_ptr->lev) + 1;
+			
+			p_ptr->exp -= i;
+			p_ptr->max_exp -= i;
+			check_experience();
+		}
+	}
 
 	/* Process equipment */
 	for (j = 0, i = INVEN_WIELD; i < INVEN_TOTAL; i++)

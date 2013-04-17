@@ -1789,6 +1789,7 @@ static void calc_bonuses(void)
 	p_ptr->aggravate = FALSE;
 	p_ptr->teleport = FALSE;
 	p_ptr->exp_drain = FALSE;
+	p_ptr->inh_exp_drain = FALSE; /* ~ new */
 	p_ptr->bless_blade = FALSE;
 	p_ptr->impact = FALSE;
 	p_ptr->see_inv = FALSE;
@@ -1852,6 +1853,7 @@ static void calc_bonuses(void)
 	/* Base skill -- stealth */
 	p_ptr->skill_stl = rp_ptr->r_stl + cp_ptr->c_stl;
 
+
 	/* Base skill -- searching ability */
 	p_ptr->skill_srh = rp_ptr->r_srh + cp_ptr->c_srh;
 
@@ -1893,6 +1895,8 @@ static void calc_bonuses(void)
 	if (f3 & (TR3_AGGRAVATE)) p_ptr->aggravate = TRUE;
 	if (f3 & (TR3_TELEPORT)) p_ptr->teleport = TRUE;
 	if (f3 & (TR3_DRAIN_EXP)) p_ptr->exp_drain = TRUE;
+	/* ~ racial drain */
+	if (f1 & (TR1_INH_DRAIN_EXP)) p_ptr->inh_exp_drain = TRUE;
 
 	/* Immunity flags */
 	if (f2 & (TR2_IM_FIRE)) p_ptr->immune_fire = TRUE;
@@ -1935,6 +1939,8 @@ static void calc_bonuses(void)
    	if (f3 & TR3_CONFER_EVIL) p_ptr->wear_evil = TRUE;
    	if (f3 & TR3_CONFER_DRGN) p_ptr->wear_drgn = TRUE;
 
+	/* ~ intrinsic extra might */
+	if (f1 & TR1_MIGHT) extra_might += 1;
 
 	/*** Analyze equipment ***/
 
@@ -2262,6 +2268,8 @@ static void calc_bonuses(void)
 
 	/* Affect Skill -- stealth (Level, by Class) */
 	p_ptr->skill_stl += (cp_ptr->x_stl * p_ptr->lev / 10);
+	
+
 
 	/* Affect Skill -- search ability (Level, by Class) */
 	p_ptr->skill_srh += (cp_ptr->x_srh * p_ptr->lev / 10);

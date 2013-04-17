@@ -100,6 +100,10 @@ static bool know_damage(int r_idx, int i)
  * This function should only be called with the cursor placed at the
  * left edge of the screen, on a cleared line, in which the recall is
  * to take place.  One extra blank line is left after the recall.
+ *
+ * ~ color-coding of various numbers now takes place. all uses of
+ #   c_roff() are my doing; the old code has been commented out
+ #  in case i want to make this optional later. -- neko
  */
 static void roff_aux(int r_idx)
 {
@@ -268,8 +272,12 @@ static void roff_aux(int r_idx)
 		if (l_ptr->r_deaths)
 		{
 			/* Killed ancestors */
-			roff(format("%^s has slain %d of your ancestors",
+			roff(format("%^s has slain ",
 			            wd_he[msex], l_ptr->r_deaths));
+			c_roff(TERM_RED,format("%d ",l_ptr->r_deaths));
+			roff("of your ancestors");
+			/*roff(format("%^s has slain %d of your ancestors",
+			            wd_he[msex], l_ptr->r_deaths));*/
 
 			/* But we've also killed it */
 			if (dead)
@@ -297,21 +305,31 @@ static void roff_aux(int r_idx)
 	else if (l_ptr->r_deaths)
 	{
 		/* Dead ancestors */
-		roff(format("%d of your ancestors %s been killed by this creature, ",
-		            l_ptr->r_deaths, plural(l_ptr->r_deaths, "has", "have")));
+		c_roff(TERM_L_RED,format("%d ",l_ptr->r_deaths));
+		roff(format("of your ancestors %s been killed by this creature, ",
+		            plural(l_ptr->r_deaths, "has", "have")));
+		/*roff(format("%d of your ancestors %s been killed by this creature, ",
+		            l_ptr->r_deaths, plural(l_ptr->r_deaths, "has",
+					"have")));*/
 
 		/* Some kills this life */
 		if (l_ptr->r_pkills)
 		{
-			roff(format("and you have exterminated at least %d of the creatures.  ",
-			            l_ptr->r_pkills));
+			roff("and you have exterminated at least ");
+			c_roff(TERM_L_BLUE,format("%d ",l_ptr->r_pkills));
+			roff("of the creatures.");
+			/*roff(format("and you have exterminated at least %d of the creatures.  ",
+			            l_ptr->r_pkills));*/
 		}
 
 		/* Some kills past lives */
 		else if (l_ptr->r_tkills)
 		{
-			roff(format("and %s have exterminated at least %d of the creatures.  ",
-			            "your ancestors", l_ptr->r_tkills));
+			roff("and your ancestors have exterminated at least ");
+			c_roff(TERM_BLUE,format("%d ",l_ptr->r_tkills));
+			roff("of the creatures.  ");
+			/*roff(format("and %s have exterminated at least %d of the creatures.  ",
+			            "your ancestors", l_ptr->r_tkills));*/
 		}
 
 		/* No kills */
@@ -328,15 +346,21 @@ static void roff_aux(int r_idx)
 		/* Killed some this life */
 		if (l_ptr->r_pkills)
 		{
-			roff(format("You have killed at least %d of these creatures.  ",
-			            l_ptr->r_pkills));
+			roff("You have killed at least ");
+			c_roff(TERM_L_BLUE,format("%d ",l_ptr->r_pkills));
+			roff("of these creatures.  ");
+			/* roff(format("You have killed at least %d of these creatures.  ",
+			            l_ptr->r_pkills)); */
 		}
 
 		/* Killed some last life */
 		else if (l_ptr->r_tkills)
 		{
-			roff(format("Your ancestors have killed at least %d of these creatures.  ",
-			            l_ptr->r_tkills));
+			roff("Your ancestors have killed at least ");
+			c_roff(TERM_BLUE,format("%d ",l_ptr->r_tkills));
+			roff("of these creatures.  ");
+			/* roff(format("Your ancestors have killed at least %d of these creatures.  ",
+			            l_ptr->r_tkills)); */
 		}
 
 		/* Killed none */
@@ -424,7 +448,7 @@ static void roff_aux(int r_idx)
 
 	/* Nothing yet */
 	old = FALSE;
-
+	
 	/* Describe location */
 	if (r_ptr->level == 0)
 	{
@@ -435,13 +459,26 @@ static void roff_aux(int r_idx)
 	{
 		if (depth_in_feet)
 		{
-			roff(format("%^s is normally found at depths of %d feet",
-			            wd_he[msex], r_ptr->level * 50));
+			roff(format("%^s is normally found at depths of ",
+			            wd_he[msex]));
+			/* ~ different if it's out of depth or not */
+			c_roff(((r_ptr->level > p_ptr->max_depth) ?
+			          TERM_L_RED : TERM_UMBER),
+			        format("%d ", r_ptr->level * 50));
+			roff("feet");
+			/*roff(format("%^s is normally found at depths of %d feet",
+			            wd_he[msex], r_ptr->level * 50));*/
 		}
 		else
 		{
-			roff(format("%^s is normally found on dungeon level %d",
-			            wd_he[msex], r_ptr->level));
+			roff(format("%^s is normally found on dungeon level ",
+			            wd_he[msex]));
+			/* ~ different if it's out of depth or not */
+			c_roff(((r_ptr->level > p_ptr->max_depth) ?
+			          TERM_L_RED : TERM_UMBER),
+			        format("%d", r_ptr->level));
+			/*roff(format("%^s is normally found on dungeon level %d",
+			            wd_he[msex], r_ptr->level));*/
 		}
 		old = TRUE;
 	}
@@ -562,9 +599,14 @@ static void roff_aux(int r_idx)
 			  (long)1000 / p_ptr->lev + 5) / 10);
 
 		/* Mention the experience */
-		roff(format(" is worth %ld.%02ld point%s",
-			        (long)i, (long)j,
+		roff(" is worth ");
+		c_roff(TERM_L_GREEN,format("%ld.%02ld ", (long)i, (long)j));
+		roff(format("point%s",
 			        (((i == 1) && (j == 0)) ? "" : "s")));
+
+		/*roff(format(" is worth %ld.%02ld point%s",
+			        (long)i, (long)j,
+			        (((i == 1) && (j == 0)) ? "" : "s")));*/
 
 		/* Take account of annoying English */
 		p = "th";

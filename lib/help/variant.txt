@@ -1,4 +1,5 @@
-                 Cat-and-the-Hack Angband 2.9.1.1
+                 Cat-and-the-Hack Angband 2.9.1.2
+
 CatH-Angband was started in 1997 as an attempt to balance out
 the classes a bit, make certain classes fit their idioms a bit better,
 and a couple minor user interface tweaks to make life a little bit
@@ -15,6 +16,34 @@ Thanks to all the Angband maintainers from Robert to Robert, Greg
 Wolledge for the ideas I took from GW-Angband, dunno at victoly.com for
 the web space, the evil beasts which populate rgra and #angband, and
 you for actually noticing this readme, let alone CatH itself :)
+
+Be sure to read the birth.txt file for information on the new races.
+
+New in version 2.9.1.2:
+
+Wood elves have been added as a player race, being highly specialized
+with the bow, including intrinsic extra might.
+
+Dark Avatars have been added as a player race, with incredible stats
+and resist nether, but with intrinsic drain experience.
+
+Range weapons of ammunition have been added, which magically create a
+shot, arrow or bolt when needed. Ammo created in this manner is
+enchanted to around (+5,+5), give or take, and disappears after use.
+
+Colorized the monster recall window, so that certain numbers
+stand out a little better. Note in particular that a monster's depth is
+in red if it's out of your maximum depth, umber if it's at or before
+depth.
+
+Fixed a bug with the rogue attacking a sleeping creature,
+resulting in a page fault.
+
+Added actual history info for the kobold.
+
+Fixed errors in the shopkeeper table.
+
+Updated the 'V' (version) command.
 
 Changes from Vanilla Angband:
 
@@ -35,8 +64,19 @@ powers to weapons as well.
 
 Poison brand (x3) has been added, along with Weapons of Venom.
 
+[2.9.1.2] Range weapons of ammunition have been added, which magically
+create a shot, arrow or bolt when needed. Ammo created in this manner is
+enchanted to around (+5,+5), give or take, and disappears after use.
+
 The kobold has been added as a player race. The kobold has mediocre
 stats at best, but sports poison resistance.
+
+[2.9.1.2] Wood elves have been added as a player race, being highly
+specialized with the bow, including intrinsic extra might.
+
+[2.9.1.2] Dark Avatars have been added as a player race, with
+incredible stats and resist nether, but with intrinsic drain
+experience.
 
 Players now have a chance to save their armor from being damaged from
 acid attacks, depending on their Dexterity. However, if this succeeds,
@@ -83,6 +123,11 @@ most irritating little (*#$#@s on the planet :) They have been replaced
 with touger archers. The graphics tiles have not been updated however,
 since I don't use them and am too lazy to redraw them :)
 
+[2.9.1.2] Colorized the monster recall window, so that certain numbers
+stand out a little better. Note in particular that a monster's depth is
+in red if it's out of your maximum depth, umber if it's at or before
+depth.
+
 A "Quick mode" option for the autoroller, which gets rid of a delay in
 the autoroller loop, generating stats very quickly. You're still
 currently limited to one million rolls, however.
@@ -94,7 +139,34 @@ Various other undocumented featu^W^Wsuprises.
 
 Version History:
 
-Changes from 2.8.53 to 2.9.1:
+Changes from 2.9.1.1 to 2.9.1.2:
+
+Wood elves have been added as a player race, being highly
+specialized with the bow, including intrinsic extra might.
+
+Dark Avatars have been added as a player race, with
+incredible stats and resist nether, but with intrinsic drain
+experience.
+
+Range weapons of ammunition have been added, which magically
+create a shot, arrow or bolt when needed. Ammo created in this manner is
+enchanted to around (+5,+5), give or take, and disappears after use.
+
+Colorized the monster recall window, so that certain numbers
+stand out a little better. Note in particular that a monster's depth is
+in red if it's out of your maximum depth, umber if it's at or before
+depth.
+
+Fixed a bug with the rogue attacking a sleeping creature,
+resulting in a page fault.
+
+Added actual history info for the kobold.
+
+Fixed errors in the shopkeeper table.
+
+Updated the 'V' (version) command.
+
+Changes from 2.8.53 to 2.9.1.1:
 
 Ported to the 2.9.1 codebase. Many many things are tweaked, more than I
 care to remember right now :) Most of the previous versions is in here
@@ -138,3 +210,4 @@ Changes from 2.8.50 to 2.8.52
      insane depths.)
 
 *   Made the Glaive of Pain 32 pounds to reduce the number of blows/round.
+

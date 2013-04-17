@@ -770,7 +770,11 @@ void self_knowledge(void)
 	{
 		info[i++] = "Your shooting might is affected by your equipment.";
 	}
-
+	/* ~ ammunition */
+	if (f1 & (TR1_AMMUNITION))
+	{
+		info[i++] = "Your range weapon needs no extra ammunition";
+	}
 
 	/* Get the current weapon */
 	o_ptr = &inventory[INVEN_WIELD];

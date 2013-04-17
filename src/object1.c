@@ -2185,7 +2185,11 @@ bool identify_fully_aux2(object_type *o_ptr, int mode, cptr *info, int len)
 	{
 		info[i++] = "It affects your shooting power.";
 	}
-
+	/* ~ ammo */
+	if (f1 & (TR1_AMMUNITION))
+	{
+		info[i++] = "It needs no extra ammunition.";
+	}
 	if (f1 & (TR1_SLAY_ANIMAL))
 	{
 		info[i++] = "It is especially deadly against natural creatures.";

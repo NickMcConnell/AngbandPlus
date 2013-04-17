@@ -1294,9 +1294,9 @@ void py_attack(int y, int x)
     			/* ~ factor in sleep damage for rogues */
 			if ((p_ptr->pclass == CLASS_ROGUE) && m_ptr->csleep)
 			{
-				char	attack_msg[40];
-				char	m_pronoun[10];
-				char	m_name[10];
+				char	attack_msg[80];
+				char	m_pronoun[4];
+				char	m_name[30];
 		
 				/* ~ hack -- need these to generate the strings */
 				monster_desc(m_name, m_ptr, 0x00);

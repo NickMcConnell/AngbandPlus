@@ -777,7 +777,11 @@ W:0:4:0:10000
 T:19:0:99
 F:SHOTS
 
-# 110 (unused)
+N:110:of Ammunition
+X:25:15:0
+W:0:3:0:5000
+T:19:0:99
+F:AMMUNITION
 
 # 111 (unused)
 

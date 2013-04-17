@@ -207,7 +207,47 @@ have intrinsic abilities.
                suspect.  They can play all classes except Paladin, and very
                well at that.  High-elves begin their lives able to see the
                unseen, and resist light effects just like regular elves.
- 
+
+		 Kobold
+		       Kobolds are small furry creatures, often described as
+			   looking somewhat like bipedal dogs. While they rarely
+			   surface from the dungeon on their own accord, they are
+			   sometimes brought up as slaves or pets. While their
+			   stats aren't particularly good, they have excellent
+			   stealth, and have an innate resistance to poisons. They
+			   make good rogues and maybe rangers.
+			   
+		Wood Elf
+		       The first love of Wood Elves is hunting. As such, their
+			   skill with the bow is unparalleled. They train tirelessly
+			   with their bows, to the point of neglecting even melee
+			   skills. They resist light as with other elves, and do
+			   extra damage with a ranged weapon. They are almost custom
+			   made for the ranger class, but also make interesting
+			   warriors and rogues. Even Wood Elf Mages are feasible,
+			   using the bow to attack and saving their magic for
+			   defense.
+			   
+		Dark Avatar
+			   Somewhere, in deep dark existential planes, cruel
+			   merciless gods deign to control or even destroy the
+			   entire omniverse. Morgoth, they believe, is merely in the
+			   way. While the gods themselves cannot travel across the
+			   plains, they can enter as avatars, with a good amount of
+			   the god's power used to create them. A Dark Avatar's
+			   statistics are simply incredible, being after all the
+			   very persona of gods themselves; their stealth is also
+			   very high, reflecting their wraith-like nature. The
+			   Avatars, however, have one critical flaw: their forms are
+			   powered by life force. While their corporeal beings are
+			   as dependant on food as you or I, their power comes from
+			   leeching the very souls of their victims. Dark Avatars
+			   therefore continually lose experience as time passes;
+			   they must kill others simply to maintain the power they
+			   have. As Avatars grow in levels and power, this drainage
+			   becomes only more severe, and the Avatar is forced to
+			   consume ever more powerful souls to sustain themselves.
+
  
 === Classes (outdated) ===
  

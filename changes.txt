@@ -1,3 +1,7 @@
+(Note: this file describes the changes in Vanilla angband. See
+lib/help/variant.txt (accessible via CatH-Angband's help menu) for a
+description of the changes between Vanilla and CatH Angbands.
+
 Changes in Angband 2.9.1:
 -Added color coded messages and more sound events.
 -Allowed the modification of the various *_info.txt limits without

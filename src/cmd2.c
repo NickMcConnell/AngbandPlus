@@ -2419,54 +2419,108 @@ void do_cmd_fire(void)
 		return;
 	}
 
-
-	/* Require proper missile */
-	item_tester_tval = p_ptr->ammo_tval;
-
-	/* Get an item */
-	q = "Fire which item? ";
-	s = "You have nothing to fire.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
-
-	/* Get the object */
-	if (item >= 0)
+	/* ~ weapons of ammo need no ammo */
+	if (j_ptr->name2 == EGO_AMMUNITION)
 	{
-		o_ptr = &inventory[item];
+			/* ~ hack -- figure out what kind of ammo to use */
+		switch(j_ptr->sval)
+		{
+			case SV_SHORT_BOW:
+			case SV_LONG_BOW:
+				msg_print("An arrow is magically created!");
+				break;
+			case SV_SLING:
+				msg_print("A shot is magically created!");
+				break;
+			case SV_LIGHT_XBOW:
+			case SV_HEAVY_XBOW:
+				msg_print("A bolt is magically created!");
+				break;
+			default:
+				msg_print("How in the world did you get this
+				message?!?");
+				break;
+		}
 	}
 	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
+	{ 
+		/* Require proper missile */
+		item_tester_tval = p_ptr->ammo_tval;
 
+		/* Get an item */
+		q = "Fire which item? ";
+		s = "You have nothing to fire.";
+		if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+
+		/* Get the object */
+		if (item >= 0)
+		{
+			o_ptr = &inventory[item];
+		}
+		else
+		{
+			o_ptr = &o_list[0 - item];
+		}
+	}
 
 	/* Get a direction (or cancel) */
 	if (!get_aim_dir(&dir)) return;
 
-
 	/* Get local object */
 	i_ptr = &object_type_body;
 
-	/* Obtain a local object */
-	object_copy(i_ptr, o_ptr);
-
-	/* Single object */
-	i_ptr->number = 1;
-
-	/* Reduce and describe inventory */
-	if (item >= 0)
+	/* ~ hack -- this doesn't apply for * of ammo */
+	if (j_ptr->name2 == EGO_AMMUNITION)
 	{
-		inven_item_increase(item, -1);
-		inven_item_describe(item);
-		inven_item_optimize(item);
-	}
+		/* ~ hack -- figure out what kind of ammo to use */
+		switch(j_ptr->sval)
+		{
+			case SV_SHORT_BOW:
+			case SV_LONG_BOW:
+				object_prep(i_ptr, lookup_kind(TV_ARROW, SV_AMMO_NORMAL)); 
+				break;
+			case SV_SLING:
+				object_prep(i_ptr, lookup_kind(TV_SHOT, SV_AMMO_NORMAL));
+				break;
+			case SV_LIGHT_XBOW:
+			case SV_HEAVY_XBOW:
+				object_prep(i_ptr, lookup_kind(TV_BOLT, SV_AMMO_NORMAL));
+				break;
+		}
+		i_ptr->number = 1;
+		/* ~ apply non level-specific bonuses */
+		i_ptr->to_h = Rand_normal(5, 2);
+		if ( i_ptr->to_h < 0 ) i_ptr->to_h = 0;
+		i_ptr->to_d = Rand_normal(5, 2);
+		if ( i_ptr->to_d < 0 ) i_ptr->to_d = 0;
 
-	/* Reduce and describe floor item */
-	else
-	{
-		floor_item_increase(0 - item, -1);
-		floor_item_optimize(0 - item);
+		
 	}
+	else	
+	{	
 
+
+		/* Obtain a local object */
+		object_copy(i_ptr, o_ptr);
+	
+		/* Single object */
+		i_ptr->number = 1;
+
+		/* Reduce and describe inventory */
+		if (item >= 0)
+		{
+			inven_item_increase(item, -1);
+			inven_item_describe(item);
+			inven_item_optimize(item);
+		}
+
+		/* Reduce and describe floor item */
+		else
+		{
+			floor_item_increase(0 - item, -1);
+			floor_item_optimize(0 - item);
+		}
+	}
 
 	/* Sound */
 	sound(MSG_SHOOT);
@@ -2663,6 +2717,9 @@ void do_cmd_fire(void)
 
 	/* Chance of breakage (during attacks) */
 	j = (hit_body ? breakage_chance(i_ptr) : 0);
+	
+	/* ~ can't drop from * of ammo */
+	if (j_ptr->name2 == EGO_AMMUNITION) j=100;
 
 	/* Drop (or break) near that location */
 	drop_near(i_ptr, j, y, x);

@@ -1115,6 +1115,8 @@ struct player_type
 	bool aggravate;		/* Aggravate monsters */
 	bool teleport;		/* Random teleporting */
 	bool exp_drain;		/* Experience draining */
+	
+	bool inh_exp_drain; /* ~ inherent experience draining */
 
     bool wear_fire;		/* ~ wearing object of flames */
 	bool wear_cold;		/* ~ wearing object of ice */

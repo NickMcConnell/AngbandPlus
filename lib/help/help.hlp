@@ -1,4 +1,7 @@
-Welcome to the Angband Online Help System.
+Welcome to the CatH-Angband Online Help System. Information pertaining
+to CatH-Angband specifically, and how it differs from standard Angband,
+can be found in variant.txt (option 0), while birth.txt (option 2)
+explains this variant's new races.
 
 Please choose one of the following online help files:
 
@@ -11,7 +14,7 @@ Please choose one of the following online help files:
     (7) Option Descriptions        (option.txt)
     (8) Version Information        (version.txt)
     (9) Spoiler Menu (if any)      (spoiler.hlp)
-    (0) About CatH-Angband         (user.hlp)
+    (0) About CatH-Angband         (variant.txt)
 
 ***** [1] general.txt
 ***** [2] birth.txt

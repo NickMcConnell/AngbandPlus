@@ -975,7 +975,7 @@
 /* xxx */
 #define EGO_EXTRA_MIGHT		108
 #define EGO_EXTRA_SHOTS		109
-/* xxx */
+#define EGO_AMMUNITION		110  /* ~ new */
 /* xxx */
 
 /* Ammo */
@@ -1872,7 +1872,7 @@
 #define TR1_DEX				0x00000008L	/* DEX += "pval" */
 #define TR1_CON				0x00000010L	/* CON += "pval" */
 #define TR1_CHR				0x00000020L	/* CHR += "pval" */
-#define TR1_XXX1			0x00000040L	/* (reserved) */
+#define TR1_INH_DRAIN_EXP	0x00000040L	/* ~ Inherent Drain Exp */
 #define TR1_XXX2			0x00000080L	/* (reserved) */
 #define TR1_STEALTH			0x00000100L	/* Stealth += "pval" */
 #define TR1_SEARCH			0x00000200L	/* Search += "pval" */
@@ -1891,7 +1891,7 @@
 #define TR1_SLAY_GIANT		0x00400000L	/* Weapon slays giant */
 #define TR1_SLAY_DRAGON		0x00800000L	/* Weapon slays dragon */
 #define TR1_KILL_DRAGON		0x01000000L	/* Weapon kills dragon */
-#define TR1_XXX5			0x02000000L
+#define TR1_AMMUNITION		0x02000000L	/* ~ Weapon has infinite ammo */
 #define TR1_XXX6			0x04000000L
 #define TR1_BRAND_POIS		0x08000000L	/* ~ Poison brand */
 #define TR1_BRAND_ACID		0x10000000L	/* Weapon has acid brand */
@@ -1972,7 +1972,7 @@
  */
 #define TR1_PVAL_MASK \
 	(TR1_STR | TR1_INT | TR1_WIS | TR1_DEX | \
-	 TR1_CON | TR1_CHR | TR1_XXX1 | TR1_XXX2 | \
+	 TR1_CON | TR1_CHR | TR1_INH_DRAIN_EXP | TR1_XXX2 | \
 	 TR1_STEALTH | TR1_SEARCH | TR1_INFRA | TR1_TUNNEL | \
 	 TR1_SPEED | TR1_BLOWS | TR1_SHOTS | TR1_MIGHT)
 

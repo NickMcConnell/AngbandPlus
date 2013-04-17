@@ -1,7 +1,7 @@
 
 
             ******************************************************
-            **CatH-Angband 2.9.1.1 **   Cat and the Hack Angband**
+            **CatH-Angband 2.9.1.2 **   Cat and the Hack Angband**
             ******************************************************
 
            Based on Moria:   Copyright (c) 1985 Robert Alan Koeneke
@@ -14,9 +14,10 @@
                    Angband 2.7.0 - 2.8.5 by Ben Harrison
 
                      Angband 2.9.0 by Robert Ruehlmann
-                        CatH-Angband 2.9.0.0 by neko
+                        CatH-Angband 2.9.1.2 by neko
        Send comments, bug reports, and patches, to "neko@inet.att.co.kr"
        Visit the Angband Home Page at "http://thangorodrim.angband.org/"
+       And the Cath-Angband page at "http://www.victoly.com/~neko/cath/"
       Browse the Angband newsgroup at "news:rec.games.roguelike.angband"
     Read the online help files, especially "general.txt" and "version.txt"
    Angband is available for Unix, X11, DOS, Windows, Macintosh, Amiga, etc.
