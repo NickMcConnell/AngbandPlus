@@ -825,7 +825,7 @@
 #define ART_BELTHRONDING	124
 #define ART_BARD			125
 #define ART_CUBRAGOL		126
-
+#define DEATH_MAX 100
 
 /*
  * Hack -- first "normal" artifact in the artifact list.  All of
@@ -1055,6 +1055,9 @@
 #define SV_LONG_BOW			13	/* (x3) */
 #define SV_LIGHT_XBOW		23	/* (x3) */
 #define SV_HEAVY_XBOW		24	/* (x4) */
+#define SV_DW_XBOW		25	/* (x5) */
+#define SV_HL_SLING		33	/* (x3) */
+#define SV_EL_BOW		34	/* (x4) */
 
 /* The "sval" codes for TV_DIGGING */
 #define SV_SHOVEL			1
@@ -1369,11 +1372,11 @@
 #define SV_SCROLL_ENCHANT_ARMOR			16
 #define SV_SCROLL_ENCHANT_WEAPON_TO_HIT	17
 #define SV_SCROLL_ENCHANT_WEAPON_TO_DAM	18
-/* xxx enchant missile? */
+#define SV_SCROLL_BRAND_WEAPON   	19
 #define SV_SCROLL_STAR_ENCHANT_ARMOR	20
 #define SV_SCROLL_STAR_ENCHANT_WEAPON	21
 #define SV_SCROLL_RECHARGING			22
-/* xxx */
+#define SV_SCROLL_ADD_POWER 	   	23
 #define SV_SCROLL_LIGHT					24
 #define SV_SCROLL_MAPPING				25
 #define SV_SCROLL_DETECT_GOLD			26
@@ -1393,7 +1396,7 @@
 /* xxx */
 #define SV_SCROLL_STAR_DESTRUCTION		41
 #define SV_SCROLL_DISPEL_UNDEAD			42
-/* xxx */
+#define SV_SCROLL_BLESS_WEAPON		 43
 #define SV_SCROLL_GENOCIDE				44
 #define SV_SCROLL_MASS_GENOCIDE			45
 #define SV_SCROLL_ACQUIREMENT			46

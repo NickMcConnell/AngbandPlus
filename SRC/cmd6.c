@@ -1127,6 +1127,13 @@ void do_cmd_read_scroll(void)
 			break;
 		}
 
+		case SV_SCROLL_BLESS_WEAPON:
+		{
+			if (!bless_weapon()) used_up = FALSE;
+			ident = TRUE;
+			break;
+		}
+
 		case SV_SCROLL_AGGRAVATE_MONSTER:
 		{
 			msg_print("There is a high pitched humming noise.");
@@ -1262,7 +1269,15 @@ void do_cmd_read_scroll(void)
 			ident = TRUE;
 			break;
 		}
-
+		
+		case SV_SCROLL_BRAND_WEAPON:
+		{
+			brand_weaponx();
+			ident = TRUE;
+			break;
+		}
+		
+		
 		case SV_SCROLL_STAR_ENCHANT_ARMOR:
 		{
 			if (!enchant_spell(0, 0, randint(3) + 4)) used_up = FALSE;
@@ -2711,17 +2726,24 @@ void do_cmd_zap_rod(void)
  */
 static bool item_tester_hook_activate(object_type *o_ptr)
 {
-	u32b f1, f2, f3;
+//	u32b f1, f2, f3;
 
 	/* Not known */
 	if (!object_known_p(o_ptr)) return (FALSE);
+	
+	if (o_ptr->tval == TV_FOOD && o_ptr->sval == SV_FOOD_SLIME_MOLD) {
+	return TRUE;
+    	}
+    else 
+    {
+	u32b f1, f2, f3;
 
 	/* Extract the flags */
 	object_flags(o_ptr, &f1, &f2, &f3);
 
 	/* Check activation flag */
 	if (f3 & (TR3_ACTIVATE)) return (TRUE);
-
+ }
 	/* Assume not */
 	return (FALSE);
 }
@@ -2863,8 +2885,8 @@ void do_cmd_activate(void)
 	/* Get an item */
 	q = "Activate which item? ";
 	s = "You have nothing to activate.";
-	if (!get_item(&item, q, s, (USE_EQUIP))) return;
-
+	//if (!get_item(&item, q, s, (USE_EQUIP))) return;
+if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN))) return;
 	/* Get the item (in the pack) */
 	if (item >= 0)
 	{
@@ -2902,6 +2924,56 @@ void do_cmd_activate(void)
 		chance = USE_DEVICE;
 	}
 
+		if (o_ptr->tval == TV_FOOD && o_ptr->sval == SV_FOOD_SLIME_MOLD) {
+	    cptr mold_name = "The slime mold";
+	    if (o_ptr->note) {
+		mold_name = quark_str(o_ptr->note);
+	    }
+	    
+	    if (o_ptr->timeout) {
+		msg_format("%s sleeps, try again later. ", mold_name);
+		return;
+	    }
+	    else {
+		/* we activate it.. */
+		int randval = randint(15);
+
+		msg_format("%s invokes mystical powers of the past. ", mold_name);
+		
+		set_food(PY_FOOD_MAX - 1);  /* always nutritious */
+
+		if (randval < 8) { }        /* nothing */
+		else if (randval < 10)
+		    teleport_player(10);    /* phase door */
+		else if (randval < 12)
+		    map_area();             /* maps area */
+		else if (randval < 14)
+		    dispel_undead(30);      /* weak destroy undead */
+		else {
+		    warding_glyph();        /* protect spot */
+		}
+
+		/* slime mold may die */
+		if (item >= 0 && randint(10) < 5) {
+		    msg_format("%s is exhausted and dies. ", mold_name);
+		    inven_item_increase(item, -1);
+		    inven_item_describe(item);
+		    inven_item_optimize(item);
+		}
+		else {
+		    /* Set the recharge time */
+		    o_ptr->timeout = 100 + randint(100);
+		}
+		
+		/* Window stuff */
+		p_ptr->window |= (PW_INVEN | PW_EQUIP);
+		
+		return;
+	    }
+	}
+	
+	
+	
 	/* Roll for usage */
 	if ((chance < USE_DEVICE) || (randint(chance) < USE_DEVICE))
 	{

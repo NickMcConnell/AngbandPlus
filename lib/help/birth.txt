@@ -466,7 +466,7 @@ Stat, hit dice, and experience points per level modifications due to race
 are listed in the following table.
  
                        STR  INT  WIS  DEX  CON  CHR  Hit Dice  Rqd Exp/level
-           Human        0    0    0    0    0    0      10          +0%
+           Human        0    0    0    0    0    0      10         -10%
            Half-Elf    -1   +1    0   +1   -1   +1       9         +10%
            Elf         -1   +2   +1   +1   -2   +1       8         +20%
            Hobbit      -2   +2   +1   +3   +2   +1       7         +10%
@@ -476,7 +476,9 @@ are listed in the following table.
            Half-Troll  +4   -4   -2   -4   +3   -6      12         +20%
            Dunadan     +1   +2   +2   +2   +3   +2      10         +80%
            High-Elf    +1   +3   -1   +3   +1   +5      10        +100%
-
+           PowPlayer   +7   +5   +5   +5   +5   -15     15          +0%
+           Snip        -10  +5   -5   +5   +0   +7      13         -70%
+            
                          STR     INT     WIS     DEX     CON     CHR
            Warrior       +5      -2      -2      +2      +2      -1
            Mage          -5      +3       0      +1      -2      +1
@@ -502,6 +504,9 @@ are listed in the following table.
            Half-Troll    1      1      1       1    10     1    1  30 feet
            Dunadan       9      8      7       8     7     8    7  None
            High-Elf      9      8      8       9     7    10   10  40 feet
+           PowPlayer     15    15     15      15    15    15   15  30 feet
+           Snip          5     10     20      20    10     0   10  70 feet
+          
  
 
                              Save  Stea-        Magic                 Extra

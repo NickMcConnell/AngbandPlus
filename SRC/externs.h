@@ -576,7 +576,7 @@ extern bool inc_stat(int stat);
 extern bool dec_stat(int stat, int amount, int permanent);
 extern bool res_stat(int stat);
 extern bool apply_disenchant(int mode);
-extern bool project(int who, int rad, int y, int x, int dam, int typ, int flg);
+extern bool project(int who, int rad, int y, int x, int dam, int typ, u16b flg);
 
 /* spells2.c */
 extern bool hp_player(int num);
@@ -605,6 +605,7 @@ extern bool detect_all(void);
 extern void stair_creation(void);
 extern bool enchant(object_type *o_ptr, int n, int eflag);
 extern bool enchant_spell(int num_hit, int num_dam, int num_ac);
+extern bool bless_weapon(void);
 extern bool ident_spell(void);
 extern bool identify_fully(void);
 extern bool recharge(int num);

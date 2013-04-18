@@ -10,8 +10,9 @@
 
 #include "angband.h"
 
-
-
+s16b mon_d_head = 0;
+s16b mon_d_tail = 0;
+s16b mon_d_m_idx[DEATH_MAX];
 
 /*
  * Helper function -- return a "nearby" race for polymorphing
@@ -3677,11 +3678,36 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		/* Dead monster */
 		if (m_ptr->hp < 0)
 		{
+					//mon_d_head=cave_m_idx;
+			
+					while (mon_d_tail != mon_d_head)
+				{
+					/* Generate treasure, etc */
+				//	(void)monster_death(mon_d_m_idx[mon_d_tail], TRUE);
+					
+					/* Delete the monster */
+				//	delete_monster_idx(mon_d_m_idx[mon_d_tail]);
+					
+					
+					monster_death(cave_m_idx[y][x]);
+			
+					/* Delete the monster */
+					delete_monster_idx(cave_m_idx[y][x]);
+					/*
+					 * Increase mon_d_tail after the death.
+					 * (This means that mon_explode will be FALSE in other
+					 * calls to this function.)
+					 */
+					mon_d_tail++;
+					
+					/* Cycle back to the start */
+					if (mon_d_tail >= DEATH_MAX) mon_d_tail = 0;
+				}
 			/* Generate treasure, etc */
-			monster_death(cave_m_idx[y][x]);
-
+			//monster_death(cave_m_idx[y][x]);
+			
 			/* Delete the monster */
-			delete_monster_idx(cave_m_idx[y][x]);
+			//delete_monster_idx(cave_m_idx[y][x]);
 
 			/* Give detailed messages if destroyed */
 			if (note) msg_format("%^s%s", m_name, note);
@@ -4445,7 +4471,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
  * in the blast radius, in case the "illumination" of the grid was changed,
  * and "update_view()" and "update_monsters()" need to be called.
  */
-bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
+bool project(int who, int rad, int y, int x, int dam, int typ, u16b flg)
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;

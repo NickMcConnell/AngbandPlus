@@ -3094,6 +3094,23 @@ s16b floor_carry(int y, int x, object_type *j_ptr)
 	return (o_idx);
 }
 
+void release_mold(object_type *j_ptr) 
+{                                   
+                                                                     
+    /** we dropped a slime mold in town */                           
+                                                                     
+    s32b xp_reward = p_ptr->lev * 5; // hack                         
+    cptr poss_inscr = "the lucky slime mold";                        
+                                                                     
+    if (j_ptr->note) {                                               
+	poss_inscr = quark_str(j_ptr->note);                          
+    }                                                                
+                                                                     
+    msg_format("You release %s in town.  Thank you.", poss_inscr);   
+                                                                     
+    gain_exp(xp_reward);                                             
+	                                                              
+}                                                                    
 
 /*
  * Let an object fall to the ground at or near a location.
@@ -3127,7 +3144,13 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 	bool flag = FALSE;
 
 	bool plural = FALSE;
+	if (j_ptr->sval == SV_FOOD_SLIME_MOLD &&
+	    p_ptr->depth == 0) {
 
+	    release_mold(j_ptr);
+
+	    return; // we hope no cleaning is necessary
+	}
 
 	/* Extract plural */
 	if (j_ptr->number != 1) plural = TRUE;

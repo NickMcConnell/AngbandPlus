@@ -2558,6 +2558,27 @@ static void calc_bonuses(void)
 				p_ptr->ammo_mult = 4;
 				break;
 			}
+			/* Dwarven Crossbow */
+			case SV_DW_XBOW:
+			{
+				p_ptr->ammo_tval = TV_BOLT;
+				p_ptr->ammo_mult = 5;
+				break;
+			}
+			/*Halfling Slinger  */
+			case SV_HL_SLING:
+			{
+				p_ptr->ammo_tval = TV_SHOT;
+				p_ptr->ammo_mult = 3;
+				break;
+			}
+			/* Elven Bow */
+			case SV_EL_BOW:
+			{
+				p_ptr->ammo_tval = TV_ARROW;
+				p_ptr->ammo_mult = 4;
+				break;
+			}
 		}
 
 		/* Apply special flags */

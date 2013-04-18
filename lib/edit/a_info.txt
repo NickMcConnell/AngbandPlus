@@ -128,9 +128,10 @@ D:of evil could stand.
 # The Necklace of the Dwarves
 
 N:6:of the Dwarves
-I:40:12:3
-W:70:50:3:75000
+I:40:12:5
+W:40:50:3:75000
 F:STR | CON | INFRA | HIDE_TYPE | RES_CONFU
+F:SUST_STR | SUST_CON | SUST_WIS
 F:SEE_INVIS | FREE_ACT | REGEN | LITE | 
 F:INSTA_ART
 D:The Nauglamir; a crescent of gold set with a multitude of shining gems of 
@@ -171,7 +172,7 @@ D:a crown of flowers, an ancient treasure of Isildur's house.
 
 N:9:of Tulkas
 I:45:33:4
-W:70:50:2:150000
+W:40:50:2:150000
 F:STR | DEX | CON | HIDE_TYPE | SPEED
 F:ACTIVATE | 
 F:INSTA_ART
@@ -182,7 +183,7 @@ D:The treasure of Tulkas, most fleet and wrathful of the Valar.
 # The Ring of Power 'Narya'
 
 N:10:of Power 'Narya'
-I:45:34:1
+I:45:34:2
 W:70:30:2:100000
 P:0:0d0:6:6:0
 F:STR | INT | WIS | DEX | CON | CHR | SPEED | HIDE_TYPE | 
@@ -200,9 +201,9 @@ D:Morgoth.
 # The Ring of Power 'Nenya'
 
 N:11:of Power 'Nenya'
-I:45:35:2
+I:45:35:3
 W:80:40:2:200000
-P:0:0d0:8:8:0
+P:0:0d0:12:12:0
 F:STR | INT | WIS | DEX | CON | CHR | SPEED | HIDE_TYPE | 
 F:ACTIVATE | HOLD_LIFE | FREE_ACT | SEE_INVIS | 
 F:FEATHER | REGEN | 
@@ -218,9 +219,9 @@ D:Morgoth.
 # The Ring of Power 'Vilya'
 
 N:12:of Power 'Vilya'
-I:45:36:3
+I:45:36:5
 W:90:50:2:300000
-P:0:0d0:10:10:0
+P:0:0d0:15:15:0
 F:STR | INT | WIS | DEX | CON | CHR | SPEED | HIDE_TYPE | 
 F:ACTIVATE | HOLD_LIFE | FREE_ACT | SEE_INVIS | 
 F:FEATHER | SLOW_DIGEST | REGEN | 
@@ -236,9 +237,9 @@ D:from Morgoth.
 # The Ring of Power 'The One Ring'
 
 N:13:of Power 'The One Ring'
-I:45:37:5
+I:45:37:7
 W:100:100:2:5000000
-P:0:0d0:15:15:0
+P:0:0d0:20:20:0
 F:STR | INT | WIS | DEX | CON | CHR | SPEED | HIDE_TYPE | 
 F:ACTIVATE | LIGHT_CURSE | HEAVY_CURSE | PERMA_CURSE |
 F:DRAIN_EXP | SEE_INVIS | REGEN | MANA
@@ -596,7 +597,7 @@ I:32:6:3
 W:20:2:60:45000
 P:6:1d3:0:0:20
 F:STR | DEX | CON | HIDE_TYPE | 
-F:RES_ACID | RES_NEXUS | SUST_CON | SUST_STR
+F:RES_ACID | RES_NEXUS | SUST_CON | SUST_STR | FREE_ACT
 D:A great helm as steady as the heroes of the Westdike. Mighty were the 
 D:blows of Helm the Hammerhand!
 
@@ -643,7 +644,7 @@ D:needed succor.
 
 N:42:of Gondor
 I:33:11:3
-W:40:40:30:100000
+W:40:20:30:100000
 P:0:1d1:0:0:15
 F:STR | WIS | CON | SPEED | HIDE_TYPE | 
 F:RES_COLD | RES_FIRE | RES_LITE | RES_BLIND | 
@@ -774,38 +775,38 @@ F:FREE_ACT | SHOW_MODS
 D:A hero's handgear that lends great prowess in battle.
 
 
-# The Set of Leather Gloves 'Cammithrim'
+# The Lighting Crossbolt
 
-N:53:'Cammithrim'
-I:31:1:0
-W:10:3:5:30000
-P:1:0d0:0:0:10
-F:FREE_ACT | RES_LITE | SUST_CON | LITE | ACTIVATE
-A:MISSILE:2:0
-D:These gloves glow so brightly as to light the way for the player and cast
-D:magical bolts with great frequency.
-
-
-# The Set of Gauntlets 'Paurhach'
-
-N:54:'Paurhach'
-I:31:2:0
-W:10:20:25:15000
-P:2:1d1:0:0:15
-F:RES_FIRE | ACTIVATE
-A:FIRE1:8:8
-D:A set of handgear so fiery as to be able to fire fire bolts.
+N:53:'Orcus' Finger'
+I:19:23:3
+W:30:3:140:45000
+P:3:2d6:5:0:3
+F:STR | CON | STEALTH
+F:FREE_ACT | RES_ELEC | SUST_CON | LITE | ACTIVATE
+A:LIGHTNING_BOLT:0:0
+D:The powerfull multifiring crossbolt of Orcus, the Great General of PowPlayer Space Marines.
 
 
-# The Set of Gauntlets 'Paurnimmen'
+# the old : The Set of Gauntlets 'Paurhach'
 
-N:55:'Paurnimmen'
-I:31:2:0
+N:54:'Orcus' Fist'
+I:31:2:5
+W:10:20:190:100000
+P:3:3d8:10:10:10
+F:STR | CON |  RES_ELEC | FREE_ACT | SUST_STR | SPEED
+A:ARROW:50:150
+D:The powergloves of Orcus, the powerfull General. Many heads were crashed under his fist.
+
+
+# the old : The Set of Gauntlets 'Paurnimmen'
+
+N:55:'of Rogue'
+I:31:2:4
 W:10:20:25:13000
 P:2:1d1:0:0:15
-F:RES_COLD | ACTIVATE
-A:FROST1:7:7
-D:A set of handgear so icy as to be able to fire frost bolts.
+F:ACTIVATE | RES_POIS | STEALTH | DEX
+A:PHASE:2:0
+D:A set of soft silk-gloves. Interely black with a siver key stamped on palm
 
 
 # The Set of Gauntlets 'Pauraegen'
@@ -814,7 +815,7 @@ N:56:'Pauraegen'
 I:31:2:0
 W:10:20:25:11000
 P:2:1d1:0:0:15
-F:RES_ELEC | ACTIVATE
+F:RES_ELEC | ACTIVATE | RES_LITE
 A:LIGHTNING_BOLT:6:6
 D:A set of handgear with sparks surrounding it, and able to fire electricity
 D:bolts.
@@ -826,7 +827,7 @@ N:57:'Paurnen'
 I:31:2:0
 W:10:20:25:12000
 P:2:1d1:0:0:15
-F:RES_ACID | ACTIVATE
+F:RES_ACID | ACTIVATE | RES_NETHR
 A:ACID1:5:5
 D:A set of handgear so acidic that it may fire bolts of acid.
 
@@ -943,7 +944,7 @@ D:ordinary metal as easily as its name, "Iron Cleaver" suggests.
 N:66:'Narthanc'
 I:23:4:0
 W:4:10:12:12000
-P:0:1d4:4:6:0
+P:0:2d4:4:6:0
 F:BRAND_FIRE | RES_FIRE | ACTIVATE | SHOW_MODS
 A:FIRE1:8:8
 D:A fiery dagger finely balanced for deadly throws.
@@ -954,7 +955,7 @@ D:A fiery dagger finely balanced for deadly throws.
 N:67:'Nimthanc'
 I:23:4:0
 W:3:10:12:11000
-P:0:1d4:4:6:0
+P:0:2d4:4:6:0
 F:BRAND_COLD | RES_COLD | ACTIVATE | SHOW_MODS
 A:FROST1:7:7
 D:A frosty dagger finely balanced for deadly throws.
@@ -965,7 +966,7 @@ D:A frosty dagger finely balanced for deadly throws.
 N:68:'Dethanc'
 I:23:4:0
 W:5:10:12:13000
-P:0:1d4:4:6:0
+P:0:2d4:4:6:0
 F:BRAND_ELEC | RES_ELEC | ACTIVATE | SHOW_MODS
 A:LIGHTNING_BOLT:6:6
 D:A sparking dagger finely balanced for deadly throws.
@@ -976,7 +977,7 @@ D:A sparking dagger finely balanced for deadly throws.
 N:69:of Rilia
 I:23:4:0
 W:5:40:12:15000
-P:0:2d4:4:3:0
+P:0:4d4:4:3:0
 F:SLAY_ORC | RES_POIS | RES_DISEN | ACTIVATE | SHOW_MODS
 F:BRAND_POIS
 A:STINKING_CLOUD:4:4
@@ -1198,10 +1199,10 @@ D:living lightning trapped inside.
 # The Long Sword 'Elvagil'
 
 N:85:'Elvagil'
-I:23:17:2
-W:20:15:130:30000
+I:23:17:3
+W:20:10:130:30000
 P:0:2d5:2:7:0
-F:DEX | CHR | STEALTH | HIDE_TYPE | 
+F:DEX | CHR | STEALTH | HIDE_TYPE | STR
 F:SLAY_TROLL | SLAY_ORC | FEATHER | SEE_INVIS | SHOW_MODS
 D:The "Singing Blade", whose wearer can slay Orcs and Trolls in the hidden 
 D:and secret places of the earth.
@@ -1369,9 +1370,9 @@ D:vain.
 N:98:of Orome
 I:22:2:4
 W:15:45:50:60000
-P:0:1d6:15:15:0
-F:INT | SPEED | INFRA | HIDE_TYPE | RES_FEAR | 
-F:BRAND_FIRE | SLAY_GIANT | SLAY_ANIMAL | RES_FIRE | RES_LITE | 
+P:0:3d6:15:20:0
+F:SPEED | INFRA | HIDE_TYPE | RES_FEAR | STR | DEX
+F:BRAND_FIRE | SLAY_GIANT | SLAY_ANIMAL | SLAY_UNDEAD | SLAY_DEMON | SLAY_DRAGON
 F:FEATHER | LITE | SEE_INVIS | ACTIVATE | BLESSED | SHOW_MODS
 A:STONE_TO_MUD:5:0
 D:The thrusting spear of wise Orome the Vala, strong against giants of frost, 
@@ -1455,8 +1456,8 @@ D:more.
 # The Battle Axe 'Lotharang'
 
 N:104:'Lotharang'
-I:22:22:1
-W:30:15:170:21000
+I:22:22:3
+W:25:15:150:21000
 P:0:2d8:4:3:0
 F:STR | DEX | HIDE_TYPE | 
 F:SLAY_TROLL | SLAY_ORC | ACTIVATE | SHOW_MODS
@@ -1597,9 +1598,9 @@ D:around - and bath it in the blood of your foes.
 
 N:115:of Penlod
 I:21:12:0
-W:20:15:150:35000
+W:15:10:150:35000
 P:0:2d6:5:7:2
-F:BRAND_FIRE | RES_FIRE | ACTIVATE | SHOW_MODS
+F:BRAND_FIRE | RES_FIRE | ACTIVATE | SHOW_MODS | SLAY_EVIL
 A:FIRE2:100:0
 D:A famed battle-lord of old, with a ruddy head, colored as embers that 
 D:can yet rise up in wrath.

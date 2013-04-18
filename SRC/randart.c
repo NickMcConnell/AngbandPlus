@@ -863,9 +863,13 @@ static int bow_multiplier(int sval)
 			return 2;
 		case SV_LONG_BOW:
 		case SV_LIGHT_XBOW:
+		case SV_HL_SLING:
 			return 3;
 		case SV_HEAVY_XBOW:
+		case SV_EL_BOW:
 			return 4;
+		case SV_DW_XBOW:
+			return 5;
 		default:
 			msg_format("Illegal bow sval %s\n", sval);
 	}
@@ -914,7 +918,7 @@ static s32b artifact_power(int a_idx, bool cannot_use_kind_cache)
 			{
 				if (a_ptr->pval > 3)
 				{
-					p += 20000;	/* inhibit */
+					p += 20;	/* inhibit */
 					mult = 1;	/* don't overflow */
 				}
 				else
@@ -924,7 +928,7 @@ static s32b artifact_power(int a_idx, bool cannot_use_kind_cache)
 			if (a_ptr->flags1 & TR1_SHOTS)
 			{
 				if (a_ptr->pval > 3)
-					p += 20000;	/* inhibit */
+					p += 20;	/* inhibit */
 				else if (a_ptr->pval > 0)
 					p *= (2 * a_ptr->pval);
 			}
@@ -962,7 +966,7 @@ static s32b artifact_power(int a_idx, bool cannot_use_kind_cache)
 			if (a_ptr->flags1 & TR1_BLOWS)
 			{
 				if (a_ptr->pval > 3)
-					p += 20000;	/* inhibit */
+					p += 20;	/* inhibit */
 				else if (a_ptr->pval > 0)
 					p = (p * 6) / (4 - a_ptr->pval);
 			}
@@ -1012,7 +1016,7 @@ static s32b artifact_power(int a_idx, bool cannot_use_kind_cache)
 	p += (a_ptr->to_a + 3 * sign(a_ptr->to_a)) / 4;
 	if (a_ptr->to_a > 20) p += (a_ptr->to_a - 19) / 2;
 	if (a_ptr->to_a > 30) p += (a_ptr->to_a - 29) / 2;
-	if (a_ptr->to_a > 40) p += 20000;	/* inhibit */
+	if (a_ptr->to_a > 40) p += 20;	/* inhibit */
 
 	if (a_ptr->pval > 0)
 	{
@@ -1066,7 +1070,7 @@ static s32b artifact_power(int a_idx, bool cannot_use_kind_cache)
 	}
 	if (immunities > 1) p += 16;
 	if (immunities > 2) p += 16;
-	if (immunities > 3) p += 20000;		/* inhibit */
+	if (immunities > 3) p += 20;		/* inhibit */
 	if (a_ptr->flags3 & TR3_FREE_ACT) p += 8;
 	if (a_ptr->flags3 & TR3_HOLD_LIFE) p += 10;
 	if (a_ptr->flags2 & TR2_RES_ACID) p += 6;
@@ -1149,9 +1153,12 @@ static void choose_item(int a_idx)
 		r2 = Rand_normal(target_level * 2, target_level);
 		if (r2 < 3) sval = SV_SLING;
 		else if (r2 < 10) sval = SV_SHORT_BOW;
-		else if (r2 < 30) sval = SV_LONG_BOW;
-		else if (r2 < 45) sval = SV_LIGHT_XBOW;
-		else sval = SV_HEAVY_XBOW;
+		else if (r2 < 17) sval = SV_LONG_BOW;
+		else if (r2 < 24) sval = SV_HL_SLING;
+		else if (r2 < 31) sval = SV_LIGHT_XBOW;
+		else if (r2 < 38) sval = SV_EL_BOW;
+		else if (r2 < 45) sval = SV_HEAVY_XBOW;
+		else sval = SV_DW_XBOW;
 	}
 	else if (r < 9)
 	{
@@ -1417,6 +1424,7 @@ static void remove_contradictory(artifact_type *a_ptr)
  * Randomly select an extra ability to be added to the artifact in question.
  * XXX - This function is way too large.
  */
+
 static void add_ability(artifact_type *a_ptr)
 {
 	int r;
@@ -1941,7 +1949,6 @@ static int scramble_artifact(int a_idx)
 		add_ability(a_ptr);
 		do_curse(a_ptr);
 		do_curse(a_ptr);
-		do_curse(a_ptr);
 		remove_contradictory(a_ptr);
 		ap = artifact_power(a_idx, FALSE);
 	}
@@ -1959,7 +1966,7 @@ static int scramble_artifact(int a_idx)
 			a_old = *a_ptr;
 			add_ability(a_ptr);
 			ap = artifact_power(a_idx, FALSE);
-			if (ap > (power * 11) / 10 + 1)
+			if (ap > (power * 11) / 8)
 			{
 				/* too powerful -- put it back */
 				*a_ptr = a_old;
@@ -1997,7 +2004,7 @@ static int scramble_artifact(int a_idx)
 	   have low artifact rarities but came from extremely-rare base
 	   kinds. */
 	if ((ap > 0) && ((ap / 8) > a_ptr->rarity))
-		a_ptr->rarity = ap / 8;
+		a_ptr->rarity = ap / 12;
 #endif /* 0 */
 
 	/* Restore some flags */
@@ -2022,9 +2029,9 @@ static int scramble_artifact(int a_idx)
  */
 static int artifacts_acceptable(void)
 {
-	int swords = 5, polearms = 5, blunts = 5, bows = 3;
-	int bodies = 5, shields = 3, cloaks = 3, hats = 4;
-	int gloves = 4, boots = 4;
+	int swords = 7, polearms = 7, blunts = 7, bows = 5;
+	int bodies = 7, shields = 5, cloaks = 5, hats = 5;
+	int gloves = 6, boots = 6;
 	int i;
 
 	for (i = ART_MIN_NORMAL; i < z_info->a_max; i++)

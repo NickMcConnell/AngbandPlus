@@ -1,6 +1,29 @@
 
 Welcome To Easyband !!!
 
+Happy Easyband to ALL
+
+This variant born from a little idea. HACK . Yes i always hacked Angband.
+In primis the info file tweaking the price of object. Usually i buy 99 spikes 
+then hancking the price set it at 30000AU and sell it ...
+When i encounter monster i usually tweaked my Phial and give it a pval of 80 to 
+speed, blows, strenght. And many, many other.
+I not a C coder, i am an help authorer (.hlp ,.chm ) so i can do only small 
+hack to Angband, never changing lots of stuff.
+But when i realized that i hacked every variant i play, and make a lots of change 
+i choose to "made" a my personal variant "Easyband". 
+I don't want to make a too easy or to hacked Variant, but let the player 
+choose varius hack.
+So, Enjoy Easyband. At first Easyband is quite a joke but as the game develops 
+you will mind that changes aren't so important for WIN.
+
+I want to dedicate this Variant to my wife Federica and to all Angbanders that 
+can still dream games in ASCII.
+
+Andres Zanzani andres_zanzani@yahoo.it
+Rimini, Italy
+25/06/2001
+
 === Version Information ===
 
 This file was last updated for Angband 2.9.0.

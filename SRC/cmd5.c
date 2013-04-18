@@ -1173,6 +1173,70 @@ static void brand_weapon(void)
 		msg_print("The Branding failed.");
 	}
 }
+void brand_weaponx(void)
+{
+	object_type *o_ptr;
+	o_ptr = &inventory[INVEN_WIELD];
+
+	/* you can never modify artifacts / ego-items */
+	/* you can never modify broken / cursed items */
+	
+	if ((o_ptr->k_idx) && (!ego_item_p(o_ptr)))
+	{
+		cptr act;
+
+		char o_name[80];
+		
+		if (rand_int(6)==1)
+		{
+			act = "is covered in a fiery shield!";
+			o_ptr->name2 = EGO_BRAND_FIRE;
+		}
+		if (rand_int(6)==2)
+		{
+			act = "glows deep, icy blue!";
+			o_ptr->name2 = EGO_BRAND_COLD;
+		}
+		if (rand_int(6)==3)
+		
+		{
+			act = "glows slimy green !";
+			o_ptr->name2 = EGO_BRAND_ACID;
+		}
+		
+		if (rand_int(6)==4)
+		
+		{
+			act = "glows sparkly !";
+			o_ptr->name2 = EGO_BRAND_ELEC;
+		}
+		
+		
+		if (rand_int(6)==5)
+		{
+			act = "glows black !";
+			o_ptr->name2 = EGO_BRAND_POIS;
+			
+		}
+		
+		else 
+		{
+			act = "glows hungry !";
+			o_ptr->name2 = EGO_VAMPIRIC;
+		}
+		object_desc(o_name, o_ptr, FALSE, 0);
+
+		msg_format("Your %s %s was enchanted !!!", o_name, act);
+
+		enchant(o_ptr, rand_int(3) + 4, ENCH_TOHIT | ENCH_TODAM);
+	}
+
+	else
+	{
+		if (flush_failure) flush();
+		msg_print("The Branding failed.");
+	}
+}
 
 
 /*

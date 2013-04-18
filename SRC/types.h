@@ -533,10 +533,12 @@ struct object_type
 
 	byte name1;			/* Artifact type, if any */
 	byte name2;			/* Ego-Item type, if any */
+	
 
 	byte xtra1;			/* Extra info type */
 	byte xtra2;			/* Extra info index */
-
+	
+	
 	s16b to_h;			/* Plusses to hit */
 	s16b to_d;			/* Plusses to damage */
 	s16b to_a;			/* Plusses to AC */

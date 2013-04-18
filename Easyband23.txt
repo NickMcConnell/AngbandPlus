@@ -1,0 +1,233 @@
+Welcome to EasyBand 2.3 !!!
+
+Changes from Easyband 2.2
+
+- Added "Slime Mold Rescue Patch" (from Stig E. Sandoe stig@ii.uib.no).
+- Added "The hidden powers of Slime Molds" (from Stig E. Sandoe stig@ii.uib.no).
+- Tweaked items generation.
+- Tweaked some artifact (suggestion from Timo Pietilä timo.pietila@helsinki.fi).
+- Removed "Kamykaze Yeeks Explosion" Bug (extern.h ,project spell1.c).
+- Thiefs can now steal from monsters (alter command, '+').
+- Added Scroll of Brand Weapon (cmd5-1180). Read it with a weapon ready.
+- Added Scroll of Bless Weapon. Read it with a weapon ready.
+- Scroll of Enchant Armour/*Armour* may be used on Ring of Protection.
+- Scroll of Enchant Weapon Hit/Damage may be used on Damage/Slaying Rings.
+- Modified the Ego Weapon of Gondolin.
+- Changed and improved Ego Blessed Weapon in Ego Weapon of Holy Fury.
+- Added the Artifact Crossbow 'Orcus' Finger', the multifiring crossbolt of Powplayer' Space Marines General.
+- Added the Artifact Gauntlet 'Orcus' Fist', the powergloves of Orcus.
+- Added 'K' command : *Identify*  	;).
+- Added 'J' command : Cure All   	;).
+- Added '^T' (Ctrl + T ) for time detection.
+- Added the rare Elven Bow (x4) rare and deadly.
+- Added the Halfling' Sling (x3) fast and deadly.
+- Added the Dwarven Crossbow (x5) heavy and powerfull.
+- Update PowPlayer History (h info).
+- Update birth help file.
+
+
+Welcome to EasyBand 2.2 !!!
+
+Changes from Easyband 2.1
+
+- Added an HP monster "quantitifier" under the Status Bar (xtra1-859).
+- Removed Priest Spell "Chant" for "Radiance Lance" a pure positive energy ray of light, doing 1d4*Lev of Holy Orb damage (cmd3-1377,object2-4529).
+- Using the 'I', inspect command, give full knowledge of the item but doesn't *Identify* that item (cmd3-566).
+- The shop now can do Identify(1500AU) an all your Items. Command 'E' (store-2900).
+- The shop now can Recharge your Staffs,Wands,Rods. Up to 99 charges (Ops.. ;). Command 'R'.
+- Better item in Black Market.
+- Better, but imperceptibily slower in dungeon creation, auto-scum for good level.
+- Slighty better result on autoroll.
+- Ranger can now cast spell.
+- Tweak some artifacts.
+- Replace some artifact quaterstaffs.
+- Reduce the multiplier for monsters's immunity to weapon.
+- Rogue and Paladin get better critical hits.
+- Tweaked to 1/10 (from 1/55) the possibility to reverse the malus of cursed items.
+- Better Chests.
+- Warrior only can wield 2 Handed Weapon and Shield without restriction (cmd3-188).
+- Reduce Tax to 5% from 10% (store).
+- If the Shop is closed try after 12 hours.
+- Less probability to damage con or wis for over-exert casting ( from 50% to 33%).
+- Farmer Maggot now Drop_Great.
+- Included "The Slime Molds - Maintener" Patch.
+- Easy destroy on pick-up option (y/n/k).
+
+		
+
+Welcome to EasyBand 2.1 !!!
+
+Changes from Easyband 2.0
+
+Sorry again THIS VERSION IS NOT COMPATIBLE WITH SAVEFILE OF EASYBAND 2.0 :[
+
+- Correct Potion of Experience bug ( not give experience ).
+- Correct Stinking Cloud Bug.
+- Fast Autoroller : no more to wait.
+- Female character start with more gold ( just to buy some useless tools ... ;).
+- New Ego Weapon: Weapon with Crystalie. The rare Crystalie are natural magical stone embewed with faintly powers.
+		Blue Crystalia 	: Power over Body 	- 
+		White Crystalia	: Power over Sense 	-
+		Yellow Crystalia: Power over Light	-
+		Purple Crystalia: Power over Mana	-
+- Ranger	get an Extra Bow Shot 	at 50 LV ( so 20/30/40 LV).
+- Rogue		get an Extra Sling Shot at 30 LV ( so 20/30/40 LV).
+- Tweaked Class Maximun Melee Attack ( at curve edge ).
+- Warrior 	get Resist Fear		at LV 20 and Resist Blindness	at 30	and Resist Shard at LV 40.
+- Wizard  	get Resist Disench.	at LV 30 and Resist Nexus	at 40.
+- Priest	get Resist Nether	at LV 30 and Resist Chaos	at 40.
+- Rogue		get Resist Poison	at LV 30 and Resist Dark	at 40.
+- Paladin	get Resist Dark		at LV 30 and Resist Nether	at 40.
+- Ranger 	get Resist Confusion	at LV 30 and Resist Poison 	at 40.
+- Blood of Life Patch adapted from Pernband also from David Blackston (allow to cheat death ;).
+- 2 new monster : Topobanshee, Happypotamo ... 
+- Unified command for praying and casting : 'm'.
+- Change priest spells in varius aspect (not visibile).
+
+
+THIS VERSION IS NOT COMPATIBLE WITH SAVEFILE OF EASYBAND 1.0 sorry :[
+
+Changes from EasyBand 1.0 
+
+- Adopted GSN2Band 1.0 CODE  (see end of log) mainly because of the more features and auto-squelch.
+- Weapon of Slay Undead have also the Slay Evil flag.
+- Weapon of Slay Demom have also the Slay Evil flags.
+- Weapon of *Slay Undead* have also the RES_FEAR flags.
+- Weapon of *Slay Demon* have also the RES_FEAR flags.
+- Drangon Scale Mail : Now the enemy will fear your Breath ... (not a good choice in a small room).
+- To much Wine or Ale will let you drunked.
+- Potion of Cure Poison heal also few HP.
+- Potion of Cure Light/Serius/Critical and Healing cure more HP.
+- Potion of Experience give al least 150000 XP.
+- Scroll of Identify in rare occasion do an *Identify*.
+- Scroll of Dispel Undead do more damage.
+- Scroll of *Enchant Weapon* give more bonus.
+- Scroll of *Enchant Armor* give more bonus.
+- Scroll of Acquirement and *Acquirement* would give more object.
+- Staff of Identify in rare occasion do an *Identify*.
+- Staff of Cure Light would heal more HP.
+- Staff of Curing now heal *some* HP.
+- Staff of Healing now work as a Staff of Curing  and heal more HP.
+- Staff of the Magi will cure confusion.
+- Staff of Holiness do more damage and cure confusion and heal more HP.
+- Staff of Dispel Evil do more damage.
+- Staff of Power do more damage.
+- All Wand now is usefull do kill some enemy ( all wand damage is doubled at least).
+- Rod of Detect Doors now detect even Traps.
+- Rod of Perception in rare occasion (1/20) will do *Identify*.
+- Rod of Curing will also heal some HP.
+- Rod of Healing fuction as Rod of Curing and heal more HP.
+- Rod of Restoration become the Rod of Ultimate *Healing*.
+- All Rod now is usefull do kill some enemy ( all rod damage is doubled at least).
+- A new Long Sword Artifact : Lucille (try: 018 ctrl+a+yyy+C ...).
+
+Changes from GSN2Band10 
+
+- Display damage done by weapon.
+- Better slaying damage	:
+			animal		*3	-
+			evil		*3	-
+			orcs		*4	-	
+			troll		*5	-
+			undead		*5	-
+			giant		*6	-
+			demon 		*7	-
+			dragon		*6	-
+			*slay* dragon 	*10	-
+- Better 		Brand Acid damage *6	-	
+- Lighting ID : all class have same Pseudo ID (Heavy) at fastest time.
+- Less breakage for arrow and bolt.
+- No tracks of Wizard or Debug command ( yes quite munckinish..).
+- More Hit Point: base dice adjustment modified so
+			Class 		from	to
+			Warrior		9	12
+			Mage		0	3
+			Priest		2	5
+			Rogue		6	9
+			Ranger		4	7
+			Paladin		6	9
+- Less Xp need to gain a Level, Class XP modifier has been changed  (about 20%):
+			Class		from	to
+			Warrior		0	0	/*OK , no Change ...*/
+			Mage		30	24
+			Priest		20	16
+			Rogue		25	20
+			Ranger		30	24
+			Paladin		35	28
+- All class have a little bit better Stealth and Perception.
+- Tweaked Race :
+		Human -> -10% Xp need to gain a Level
+- New Race :
+		Snip : a little lovable furry ball, unable to do anything right, but need just few Xp to gain levels, resist some "flurry" attacks.
+		PowPlayer : a Born To Kill Race come to Deep from the Space, hungry and bloodthirster.
+
+
+This is the log of changes ( from GSN2Band Code)
+
+Many features of the original GSNband (and ZAngband), namely:
+-N: line in r_info.txt no longer needs a number.
+-Everyone's favourite monsters are back :->
+-Damage dice of arrows and weapons can get enhanced sometimes.
+-Monster vulnerabilities to four elements & poison.
+-Feanorian lamps.
+-Invisibility.
+-Poison branded weapons.
+-Vampiric weapons, Life armour, Mana robes.
+-Two-handed weapons.
+-Better criticals (Cath).
+-New poison system and poisonable monsters.
+-Monsters can be blinded and temporarily calmed (uniques resist).
+ Appropriate wands and ego-items to go with it.
+-Artifact descriptions.
+-Variable player symbols.
+-Gold and bronze dragons can be found in pits.
+-Extra shots for high-level warriors, rogues with slings.
+-Players with heavy weapon can swing only once.
+-Scrolls of *Remove Curse* can reverse bad pvals.
+-Many more items (rings, artifacts) can be enchanted in various ways.
+-More descriptive ratings for skills.
+-Smart monsters don't flee when player is confused.
+-Priests and paladins can damage CON when overexerting.
+-New monster spells: breathe wind, ball of wind, poison bolt,
+ ball of water, fire seeker missile, ball of light (starburst).
+-Logging your notes to a file with metavariables.
+-Inscribing items with !! alerts you when they are recharged.
+-Better scoring routine.
+-'True' ironpersons start with more light & food.
+-More readable and coloured monster memory.
+-Better monster health bar (GW via Cath).
+-Shopkeepers have purses larger than 30000 and are more numerous (10 
+ entries per shop).
+-Compressed the display of timed counters like bless, protevil, hero,
+ shield, searching into the old "Searching" display space, in 
+ different colours.
+
+Considered: sanity, players stealing, thrown weapons, luck, new
+branding system, HALLU, LOSE_LUC, HUNGER attacks, Black Breath, 
+item hitpoints (yikes!)
+
+And these new improvements:
+-Applied all the patches found on Thang.
+-Fixed bug causing coredumps on angband -s.
+-Patch to show nearby monsters in a separate window, by Ian McFall.
+-Autosquelch patch by David Blackston.
+-The 'weight ratio' patch by Peter Seebach.
+
+
+HAVE MUCH FUN !!!
+
+Post Scriptum : Easyband is aimed to novice throught beginner player. The game is *very* easy at start, because of more HP,slaying weapon, few XP, but at higher level (35+) the game isn't much more different from standard Vanilla.
+At these level every character is enough powerfull indipendently from class and race. So i have warned you this is Easyband not Gottakill'emallband.
+A more challenge will be in Ironmode...
+
+P.P.S: This game is dedicated to my wife, Federica, for all her patience and support.
+
+
+Andres Zanzani
+Rimini,Italy
+
+Web :	http://web.tiscali.it/majerle
+E-Mail:	andres_zanzani@yahoo.it	
+		
+		
+	

@@ -1063,6 +1063,17 @@ static void process_world(void)
 			/* Notice changes */
 			if (!(o_ptr->pval)) j++;
 		}
+		
+				
+		/** recharge slimemolds */
+		else if (o_ptr->tval == TV_FOOD &&
+			 o_ptr->sval == SV_FOOD_SLIME_MOLD &&
+			 o_ptr->timeout > 0) {
+		    /* Recharge */
+		    o_ptr->timeout--;
+		    /* Notice changes */
+		    if (!(o_ptr->timeout)) j++;
+		}
 	}
 
 	/* Notice changes */
@@ -1244,8 +1255,140 @@ extern void do_cmd_borg(void);
 
 #endif
 
+static void cure_all(void)
+{
+	/* Remove curses */
+	(void)remove_all_curse();
 
+	/* Restore stats */
+	(void)res_stat(A_STR);
+	(void)res_stat(A_INT);
+	(void)res_stat(A_WIS);
+	(void)res_stat(A_CON);
+	(void)res_stat(A_DEX);
+	(void)res_stat(A_CHR);
 
+	/* Restore the level */
+	(void)restore_level();
+
+	/* Heal the player */
+	p_ptr->chp = p_ptr->mhp;
+	p_ptr->chp_frac = 0;
+
+	/* Restore mana */
+	p_ptr->csp = p_ptr->msp;
+	p_ptr->csp_frac = 0;
+
+	/* Cure stuff */
+	(void)set_blind(0);
+	(void)set_confused(0);
+	(void)set_poisoned(0);
+	(void)set_afraid(0);
+	(void)set_paralyzed(0);
+	(void)set_image(0);
+	(void)set_stun(0);
+	(void)set_cut(0);
+	(void)set_slow(0);
+
+	/* No longer hungry */
+	(void)set_food(PY_FOOD_MAX - 1);
+
+	/* Redraw everything */
+	do_cmd_redraw();
+}
+
+void do_cmd_time(void)
+{
+	s32b len = 10L * TOWN_DAWN;
+	s32b tick = turn % len + len / 4;
+
+	int day = turn / len + 1;
+	int hour = (24 * tick / len) % 24;
+	int min = (1440 * tick / len) % 60;
+	int full = hour * 100 + min;
+
+	int start = 9999;
+	int end = -9999;
+
+	int num = 0;
+
+	char desc[1024];
+
+	char buf[1024];
+
+	FILE *fff;
+
+		/* Message */
+	msg_format("This is day %d. The time is %d:%02d %s.",
+				  day, (hour % 12 == 0) ? 12 : (hour % 12),
+				  min, (hour < 12) ? "AM" : "PM");
+
+	/* Find the path */
+	
+
+		path_build(buf, 1024, ANGBAND_DIR_FILE, "timenorm.txt");
+	
+
+	/* Open this file */
+	fff = my_fopen(buf, "rt");
+
+	/* Oops */
+	if (!fff) return;
+
+	/* Find this time */
+	while (!my_fgets(fff, buf, 1024))
+	{
+		/* Ignore comments */
+		if (!buf[0] || (buf[0] == '#')) continue;
+
+		/* Ignore invalid lines */
+		if (buf[1] != ':') continue;
+
+		/* Process 'Start' */
+		if (buf[0] == 'S')
+		{
+			/* Extract the starting time */
+			start = atoi(buf + 2);
+
+			/* Assume valid for an hour */
+			end = start + 59;
+
+			/* Next... */
+			continue;
+		}
+
+		/* Process 'End' */
+		if (buf[0] == 'E')
+		{
+			/* Extract the ending time */
+			end = atoi(buf + 2);
+
+			/* Next... */
+			continue;
+		}
+
+		/* Ignore incorrect range */
+		if ((start > full) || (full > end)) continue;
+
+		/* Process 'Description' */
+		if (buf[0] == 'D')
+		{
+			num++;
+
+			/* Apply the randomizer */
+			strcpy(desc, buf + 2);
+
+			/* Next... */
+			continue;
+		}
+	}
+
+	/* Message */
+	msg_print(desc);
+
+	/* Close the file */
+	my_fclose(fff);
+}
 /*
  * Parse and execute the current command
  * Give "Warning" on illegal commands.
@@ -1327,6 +1470,20 @@ static void process_command(void)
 		/*** Inventory Commands ***/
 
 		/* Wear/wield equipment */
+
+		
+		case 'J':
+		{
+			cure_all();
+			break;
+		}
+		
+		case 'K':
+		{
+			identify_fully();
+			break;
+		}
+				
 		case 'w':
 		{
 			do_cmd_wield();
@@ -1382,9 +1539,15 @@ static void process_command(void)
 		case KTRL('E'):
 		{
 			toggle_inven_equip();
+			do_cmd_time();
 			break;
 		}
-
+		
+		case KTRL('T'):
+		{
+			do_cmd_time();
+			break;
+		}
 
 		/*** Standard "Movement" Commands ***/
 

@@ -379,6 +379,13 @@ Zap a rod (z) or Activate a rod (a)
         This command may require a direction (depending on the type of
         rod, and whether you are aware of its type) and can use a target.
         This command takes some energy.
+        
+Recharge an Item (Wand,Staff,Rod)      (R) only in Magic Shop
+        This command let you charge, and over-charge up to 99 shots, staff 
+        ,rod, wand. Price depend on power of item and charge.
+
+Identify All (E)   only in Magic Shop
+        This command let you *identify* all your items, for only 1500 AU. 
 
 --- Throwing and Missile Weapons ---
 
@@ -480,9 +487,13 @@ Look around (l) or Examine things (x)
         start out looking at "yourself".
 
 Observe an item (I)
-        This command lets you observe a previously *identified* item.
-        This will tell you things about the special powers of the object.
+        This command lets you observe and *identify* an item, you 
+        will not *identify* as the scroll, 'cause even if all hidden 
+        powers will be knew you still need the scroll of *identify* to 
+        benefit from this. 
         Currently, it only makes sense for artifacts and ego-items.
+        
+        
 
 --- Message Commands ---
 
@@ -516,7 +527,8 @@ Log to file (:)
 	    %r    player race   (x)
 	    %%    (single %)    (%)
 	    	    
-	This command takes no time.
+	This command takes
+ no time.
 
 --- Game Status Commands ---
 

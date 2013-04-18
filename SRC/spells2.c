@@ -10,6 +10,67 @@
 
 #include "angband.h"
 
+bool bless_weapon(void)
+{
+
+	int             item;
+	u32b            f1, f2, f3;
+	char            o_name[80];
+	
+	object_type *o_ptr;
+	o_ptr = &inventory[INVEN_WIELD];
+	
+
+	if (o_ptr->ident & (IDENT_CURSED))
+	{
+
+	
+
+		msg_format("A malignant aura leaves %s %s.",
+		    ((item>=0)? "your" : "the"), o_name);
+
+		/* Uncurse it */
+		o_ptr->ident &= ~(IDENT_CURSED);
+
+		/* Hack -- Assume felt */
+		o_ptr->ident |= (IDENT_SENSE);
+
+		/* Take note */
+		o_ptr->note = quark_add("uncursed");
+		
+		o_ptr->name2 = EGO_BLESS_BLADE;
+		/* Recalculate the bonuses */
+		p_ptr->update |= (PU_BONUS);
+
+		/* Window stuff */
+		p_ptr->window |= (PW_EQUIP);
+		
+	}
+
+/* Next, we try to bless it. Artifacts have a 1/3 chance of being blessed,
+otherwise, the operation simply disenchants them, godly power negating the
+magic. Ok, the explanation is silly, but otherwise priests would always
+bless every artifact weapon they find.
+Ego weapons and normal weapons can be blessed automatically. */
+
+	if (f3 & TR3_BLESSED)
+	{
+		msg_format("%s %s %s blessed already.",
+		    ((item >= 0) ? "Your" : "The"), o_name,
+		    ((o_ptr->number > 1) ? "were" : "was"));
+		return (TRUE);
+	}
+
+	
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+	o_ptr->name2 = EGO_BLESS_BLADE;
+	/* Window stuff */
+		
+	p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+
+	return (TRUE);
+}
 
 
 
@@ -1924,17 +1985,17 @@ bool enchant_spell(int num_hit, int num_dam, int num_ac)
 
         /* jk - hack to prevent sv_scroll_star_enchant_weapon to enchant */
         /* the to-hit of damage rings, or the to-dam of accuracy rings */
-        if (o_ptr->tval == TV_RING)
-        {
-                if ((num_hit > 0) && (o_ptr->sval == SV_RING_DAMAGE))
-                {
-	                num_hit=0;
-        }
-                if ((num_dam > 0) && (o_ptr->sval == SV_RING_ACCURACY))
-                {
-                        num_dam=0;
-                }
-        }
+//        if (o_ptr->tval == TV_RING)
+  //      {
+    //            if ((num_hit > 0) && (o_ptr->sval == SV_RING_DAMAGE))
+      //          {
+//	                num_hit=0;
+      //  }
+        //        if ((num_dam > 0) && (o_ptr->sval == SV_RING_ACCURACY))
+          //      {
+            //            num_dam=0;
+              //  }
+       // }
 
 
 	/* Description */
