@@ -105,12 +105,12 @@
 
 # Note that monster zero is used for the "player" picture.
 
-# DrAngband monsters from 550+.
+# DrAngband monsters from 550+ (cur max 563).
 
 
 # Version stamp (required)
 
-V:2.9.1
+V:2.9.2
 
 #N: monster index: name
 #G: ASCII char used to display the monster: color symbol
@@ -8403,3 +8403,33 @@ D:A mighty humanoid constructed from binary code. With mighty blows
 D:he creates weapons of morgul, failed spells and sucessive nether 
 D:breaths. If you have survived long enough to see the Random Number 
 D:God himself then you truly deserve to die!
+
+N:562:Greater basilisk
+G:R:D
+I:120:20d100:25:100:15
+W:55:2:0:10000
+B:GAZE:PARALYZE
+B:BITE:HURT:5d12
+B:BITE:HURT:5d12
+B:BITE:HURT:5d12
+F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | POWERFUL | FORCE_MAXHP |
+F:OPEN_DOOR | BASH_DOOR | EVIL | IM_POIS
+F:ANIMAL | NO_CONF | NO_SLEEP
+S:1_IN_8
+S:BR_POIS | BR_DARK | BR_NETH
+D:A large basilisk, whose shape resembles that of a great wyrm.
+
+N:563:The Molester
+G:H:b
+I:140:10d100:20:80:0
+W:1:10:0:100
+B:TOUCH:HURT:0d0
+B:TOUCH:HURT:0d0
+B:TOUCH:HURT:0d0
+B:TOUCH:HURT:0d0
+F:UNIQUE
+S:1_IN_10
+S:TPORT
+D:A fearful looking creature with long white arms and cold fingers. 
+D:It runs towards you with horrifying speed, its arms outstretched 
+D:and hands groping.

@@ -2090,6 +2090,8 @@ void monster_death(int m_idx)
  */
 bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 {
+	char tmp[1024];
+	
 	monster_type *m_ptr = &m_list[m_idx];
 
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
@@ -2174,6 +2176,18 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 
 		/* When the player kills a Unique, it stays dead */
 		if (r_ptr->flags1 & (RF1_UNIQUE)) r_ptr->max_num = 0;
+
+		/* XXX XXX Mega-Hack -- allow another ghost later
+		 * Remove the slain bone file */
+		if (m_ptr->r_idx == MAX_R_IDX-1)
+		{
+			r_ptr->max_num = 1;
+
+			/* Delete the bones file */
+			sprintf(tmp, "%s%sbone.%03d", ANGBAND_DIR_BONE, PATH_SEP, p_ptr->depth);
+			
+			fd_kill(tmp);
+		}
 
 		/* Recall even invisible uniques or winners */
 		if (m_ptr->ml || (r_ptr->flags1 & (RF1_UNIQUE)))
@@ -2288,7 +2302,7 @@ void verify_panel(void)
 	}
 
 	/* Hack -- handle town */
-	if (!p_ptr->depth) i = SCREEN_HGT;
+	if (!p_ptr->depth && !p_ptr->new_town) i = (DUNGEON_HGT-SCREEN_HGT)/2;
 
 	/* New panel row */
 	if (p_ptr->wy != i)
@@ -2313,7 +2327,7 @@ void verify_panel(void)
 	}
 
 	/* Hack -- handle town */
-	if (!p_ptr->depth) i = SCREEN_WID;
+	if (!p_ptr->depth && !p_ptr->new_town) i = SCREEN_WID;
 
 	/* New panel col */
 	if (p_ptr->wx != i)

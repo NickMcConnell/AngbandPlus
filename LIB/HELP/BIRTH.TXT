@@ -236,7 +236,7 @@ have intrinsic abilities.
                wise dragons make feared priests and mighty warriors and
                cannot be confused.
 
-          Brass Dragon
+          Gold Dragon
                An incredible humming sound, growing to a roar can be heard
                as a Brass Dragon approaches. Its entire body seems to vibrate
                with energy and it is said that if it cries out, it will be
@@ -255,10 +255,12 @@ have intrinsic abilities.
           Multi-hued Dragon
                A body of shifting colours, the powers of heat and cold
                constantly battling for mastery over this powerful dragon.
-               Multi-hued dragons are resistant to the elements, becoming
-               almost immune at high levels. Their breath is deadly and
-               unpredictable, and they may breathe any of the elements
-               very powerfully.
+               Multi-hued dragons quickly gain resistance to the elements,
+               becoming almost immune at high levels. Their breath is deadly
+               and unpredictable, and they may breathe any of the elements
+               very powerfully. Although strong, they are clumsy beasts
+               with lower dexterity than most dragons. They also learn
+               slower than most dragons.
 
  
 === Classes (outdated) ===
@@ -489,9 +491,9 @@ have intrinsic abilities.
           Crystal Dr    No       Yes      No       Yes      Yes      No
           Copper Dr     Yes      No       No       Yes      Yes      Yes
           Bronze Dr     Yes      No       Yes      No       No       Yes
-          Brass Dr      Yes      Yes      Yes      Yes      Yes      Yes
+          Gold Dr       Yes      Yes      Yes      Yes      Yes      Yes
           Pseudo Dr     Yes      Yes      Yes      Yes      Yes      Yes
-          Multi-hued Dr Yes      Yes      Yes      Yes      Yes      Yes 
+          Multi-hued Dr Yes      No       Yes      Yes      No       Yes 
 
  
 === Miscellaneous (outdated) ===
@@ -531,9 +533,9 @@ are listed in the following table.
            Crystal Dr  +4   +3   -2   +2   +5   -5      15         +50%
            Copper Dr   +4   +1   +1   +3   +3   -8      15         +50%
            Bronze Dr   +3   +1   +5   +4   +2   -7      15         +50%
-           Brass Dr    +4   +2   +2   +3   +4   -6      15         +50%
+           Gold Dr     +4   +2   +2   +3   +4   -6      15         +50%
            Pseudo Dr   +2    0    0   +7   +3   -8      14         +50%
-           Multi-h Dr  +4   -1   +2   +4   +4   -6      15         +50%
+           Multi-h Dr  +4   -2   -1    0   +4   -6      15         +80%
            
                          STR     INT     WIS     DEX     CON     CHR
            Warrior       +5      -2      -2      +2      +2      -1
@@ -565,29 +567,29 @@ are listed in the following table.
            Crystal Dr   -8      0     -3       0   -20   10  80 feet
            Copper Dr    -4      0     -3       0   -20   20  80 feet
            Bronze Dr    -8      5     -3      -1   -20   20  80 feet
-           Brass Dr     -8      0     -5       0   -20   20  80 feet
+           Gold Dr      -8      0     -5       0   -20   20  80 feet
            Pseudo Dr     5      0      0       0   -20   30  80 feet
            Multi-hued Dr 6      0     -2       0   -20   15  80 feet
 
 
                   Daggers      Swords      Hafted      Polearms   Teeth/Claws
 
-       Human      Avarage      Avarage     Avarage     Avarage    --
-       Half-elf   Avarage      Avarage     Poor        Bad        --
+       Human      Average      Average     Average     Average    --
+       Half-elf   Average      Average     Poor        Bad        --
        Elf        Good         Good        Bad         Bad        --
        Hobbit     Good         Poor        Bad         Terrible   --
-       Gnome      Avarage      Bad         Bad         Terrible   --
-       Dwarf      Avarage      Very Good   Superb      Excellent  --
-       Half-Orc   Excellent    Very Good   Excellent   Avarage    --
+       Gnome      Average      Bad         Bad         Terrible   --
+       Dwarf      Average      Very Good   Superb      Excellent  --
+       Half-Orc   Excellent    Very Good   Excellent   Average    --
        Half-Troll Very Good    Excellent   Superb      Good       --
        Dunadan    Excellent    Superb      Very Good   Excellent  --
        High-Elf   Very Good    Excellent   Good        Good       --
-       Pixie      Avarage      Bad         Bad         Terrible   --
-       Yeek       Avarage      Bad         Bad         Terrible   --
+       Pixie      Average      Bad         Bad         Terrible   --
+       Yeek       Average      Bad         Bad         Terrible   --
        Crystal Dr    --        --          --          --         Superb
        Copper Dr     --        --          --          --         Superb
        Bronze Dr     --        --          --          --         Superb
-       Brass Dr      --        --          --          --         Superb
+       Gold Dr       --        --          --          --         Superb
        Pseudo Dr     --        --          --          --         Superb
        Multi-h Dr    --        --          --          --         Superb 
 
@@ -608,8 +610,8 @@ are listed in the following table.
       Warrior     Good         Excellent   Very Good   Good       Very Good
       Mage        Bad          Terrible    Terrible    Terrible   Poor
       Priest      Terrible     Terrible    Good        Terrible   Poor
-      Rogue       Superb       Avarage     Bad         Terrible   Good
-      Ranger      Good         Good        Bad         Terrible   Avarage
+      Rogue       Superb       Average     Bad         Terrible   Good
+      Ranger      Good         Good        Bad         Terrible   Average
       Paladin     Poor         Good        Good        Excellent  Good
 
 

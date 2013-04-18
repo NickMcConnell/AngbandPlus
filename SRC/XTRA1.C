@@ -343,7 +343,7 @@ static void prt_depth(void)
 	}
 
 	/* Right-Adjust the "depth", and clear old values */
-	prt(format("%7s", depths), 23, COL_DEPTH);
+	prt(format("%7s", depths), ROW_DEPTH, COL_DEPTH);
 }
 
 
@@ -1896,6 +1896,7 @@ static void calc_bonuses(void)
 	if (p_ptr->prace == RACE_CRYSTALDRAG) p_ptr->free_act = TRUE;
 	if (p_ptr->prace == RACE_CRYSTALDRAG) p_ptr->ffall = TRUE;
 	if (p_ptr->prace == RACE_CRYSTALDRAG) p_ptr->resist_shard /= 2;
+	if (p_ptr->prace == RACE_CRYSTALDRAG && p_ptr->lev > 40) p_ptr->resist_shard /= 2;
 	if (p_ptr->prace == RACE_CRYSTALDRAG) p_ptr->resist_fear /= 2;
 	if (p_ptr->prace == RACE_CRYSTALDRAG) p_ptr->ac += 25;
 	if (p_ptr->prace == RACE_CRYSTALDRAG) p_ptr->to_a += p_ptr->lev + 10;
@@ -1905,6 +1906,7 @@ static void calc_bonuses(void)
 	if (p_ptr->prace == RACE_COPPERDRAG) p_ptr->free_act = TRUE;
 	if (p_ptr->prace == RACE_COPPERDRAG) p_ptr->ffall = TRUE;
 	if (p_ptr->prace == RACE_COPPERDRAG) p_ptr->resist_disen /= 2;
+	if (p_ptr->prace == RACE_COPPERDRAG && p_ptr->lev > 40) p_ptr->resist_disen /= 2;
 	if (p_ptr->prace == RACE_COPPERDRAG) p_ptr->resist_fear /= 2;
 	if (p_ptr->prace == RACE_COPPERDRAG) p_ptr->regenerate = TRUE;
 	if (p_ptr->prace == RACE_COPPERDRAG) p_ptr->to_a += p_ptr->lev + 10;
@@ -1913,6 +1915,7 @@ static void calc_bonuses(void)
 	/* Bronze Dragon */
 	if (p_ptr->prace == RACE_BRONZEDRAG) p_ptr->ffall = TRUE;
 	if (p_ptr->prace == RACE_BRONZEDRAG) p_ptr->resist_confu /= 2;
+	if (p_ptr->prace == RACE_BRONZEDRAG && p_ptr->lev > 40) p_ptr->resist_confu /= 2;
 	if (p_ptr->prace == RACE_BRONZEDRAG) p_ptr->resist_fear /= 2;
 	if (p_ptr->prace == RACE_BRONZEDRAG) p_ptr->regenerate = TRUE;
 	if (p_ptr->prace == RACE_BRONZEDRAG) p_ptr->to_a += p_ptr->lev + 10;
@@ -1921,6 +1924,7 @@ static void calc_bonuses(void)
 	/* Gold [Brass] Dragon */
 	if (p_ptr->prace == RACE_GOLDDRAG) p_ptr->ffall = TRUE;
 	if (p_ptr->prace == RACE_GOLDDRAG) p_ptr->resist_sound /= 2;
+	if (p_ptr->prace == RACE_GOLDDRAG && p_ptr->lev > 40) p_ptr->resist_sound /= 2;
 	if (p_ptr->prace == RACE_GOLDDRAG) p_ptr->resist_fear /= 2;
 	if (p_ptr->prace == RACE_GOLDDRAG) p_ptr->regenerate = TRUE;
 	if (p_ptr->prace == RACE_GOLDDRAG) p_ptr->to_a += p_ptr->lev + 10;
@@ -1944,35 +1948,15 @@ static void calc_bonuses(void)
 	if (p_ptr->prace == RACE_MULTIHUEDDRAG) p_ptr->regenerate = TRUE;
 	if (p_ptr->prace == RACE_MULTIHUEDDRAG) p_ptr->to_a += p_ptr->lev + 10;
 	if (p_ptr->prace == RACE_MULTIHUEDDRAG) p_ptr->dis_to_a += p_ptr->lev + 10;
-	/* Single resistance from start */
-	if (p_ptr->prace == RACE_MULTIHUEDDRAG) p_ptr->resist_fire /= 2;
-	if (p_ptr->prace == RACE_MULTIHUEDDRAG) p_ptr->resist_cold /= 2;
-	if (p_ptr->prace == RACE_MULTIHUEDDRAG) p_ptr->resist_acid /= 2;
-	if (p_ptr->prace == RACE_MULTIHUEDDRAG) p_ptr->resist_elec /= 2;
-	/* Double resists at level 25 */
-	if (p_ptr->prace == RACE_MULTIHUEDDRAG && p_ptr->lev >= 25)
-	{
-		p_ptr->resist_fire /= 2;
-		p_ptr->resist_cold /= 2;
-		p_ptr->resist_acid /= 2;
-		p_ptr->resist_elec /= 2;
-	}
-	/* Treble at level 35 */
-	if (p_ptr->prace == RACE_MULTIHUEDDRAG && p_ptr->lev >= 35)
-	{
-		p_ptr->resist_fire /= 2;
-		p_ptr->resist_cold /= 2;
-		p_ptr->resist_acid /= 2;
-		p_ptr->resist_elec /= 2;
-	}
-	/* And quadruple at level 45 */
-	if (p_ptr->prace == RACE_MULTIHUEDDRAG && p_ptr->lev >= 45)
-	{
-		p_ptr->resist_fire /= 2;
-		p_ptr->resist_cold /= 2;
-		p_ptr->resist_acid /= 2;
-		p_ptr->resist_elec /= 2;
-	}
+	if (p_ptr->prace == RACE_MULTIHUEDDRAG && p_ptr->lev >= 5) p_ptr->resist_acid /= 2;
+	if (p_ptr->prace == RACE_MULTIHUEDDRAG && p_ptr->lev >= 10) p_ptr->resist_elec /= 2;
+	if (p_ptr->prace == RACE_MULTIHUEDDRAG && p_ptr->lev >= 15) p_ptr->resist_cold /= 2;
+	if (p_ptr->prace == RACE_MULTIHUEDDRAG && p_ptr->lev >= 20) p_ptr->resist_fire /= 2;
+	if (p_ptr->prace == RACE_MULTIHUEDDRAG && p_ptr->lev >= 25) p_ptr->resist_acid /= 2;
+	if (p_ptr->prace == RACE_MULTIHUEDDRAG && p_ptr->lev >= 30) p_ptr->resist_elec /= 2;
+	if (p_ptr->prace == RACE_MULTIHUEDDRAG && p_ptr->lev >= 35) p_ptr->resist_cold /= 2;
+	if (p_ptr->prace == RACE_MULTIHUEDDRAG && p_ptr->lev >= 40) p_ptr->resist_fire /= 2;
+	if (p_ptr->prace == RACE_MULTIHUEDDRAG && p_ptr->lev >= 45) p_ptr->resist_pois /= 2;
 
 	/* Warrior */
 	if (p_ptr->pclass == CLASS_WARRIOR)
@@ -2686,7 +2670,7 @@ static void calc_bonuses(void)
 	{
 		if (p_ptr->tmcursed)
 		{
-			msg_print("You feel an powerful curse gripping you.");
+			msg_print("You feel a powerful curse gripping you.");
 		}
 		else
 		{

@@ -2,14 +2,14 @@
  /==============================//////\\\\\\=================================\
  ||/================================/||\===================================\||
  |||                                 ||                                    |||
- |||     -- DrAngband 2.9.1  --      ||                                    |||
+ |||    -- DrAngband 2.9.2  --       ||                                    |||
  |||                                 ||  Based on Moria: Copyright (c)     |||
  |||  2.9.0+ by Tom Morton           ||  1985 Robert Alan Koeneke          |||
  |||  2.1.0  by Aaron Mandelbaum     ||  and Umoria: Copyright (c) 1989    |||
  |||                                 ||  James E. Wilson                   |||
  |||  Send comments, bug reports     ||                                    |||
  |||  and patches to:                ||  Angband 2.0 - 2.4 - 2.6.2 by:     |||
- |||           tmorton@              ||  Alex Cutler, Andy Astrand, Sean   |||
+ |||            tmorton@             ||  Alex Cutler, Andy Astrand, Sean   |||
  |||  yikesstation.freeserve.co.uk   ||  Marsh, Geoff Hill, Charles        |||
  |||                                 ||  Teague, Charles Swiger.           |||
  |||  Visit the DrAngband homepage:  ||                                    |||

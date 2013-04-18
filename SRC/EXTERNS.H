@@ -99,6 +99,9 @@ extern bool character_loaded;
 extern bool character_saved;
 extern s16b character_icky;
 extern s16b character_xtra;
+extern s16b screen_x;
+extern s16b screen_y;
+extern s16b SCREEN_HGT;
 extern u32b seed_flavor;
 extern u32b seed_town;
 extern s16b num_repro;
@@ -382,6 +385,7 @@ extern void signals_init(void);
 
 /* generate.c */
 extern void generate_cave(void);
+extern void init_new_town(void);
 
 /* init1.c */
 extern errr init_v_info_txt(FILE *fp, char *buf);
@@ -413,6 +417,7 @@ extern void screen_roff(int r_idx);
 extern void display_roff(int r_idx);
 
 /* monster2.c */
+extern s16b place_ghost(void);
 extern void delete_monster_idx(int i);
 extern void delete_monster(int y, int x);
 extern void compact_monsters(int size);

@@ -601,13 +601,22 @@ void do_cmd_rngoffer(void)
 	}
 
 	/* Boost next level */
-	p_ptr->rng_lev_bonus += value / (100 * p_ptr->max_depth);
-	if (p_ptr->rng_lev_bonus > 40) p_ptr->rng_lev_bonus = 40;
+	p_ptr->rng_lev_bonus += value / p_ptr->max_depth;
+
+	/* Cap at 40 levels OOD */
+	if (p_ptr->rng_lev_bonus > 4000) p_ptr->rng_lev_bonus = 4000;
+
+	/* Penalize offering crap */
+	if (value < 100)
+	{
+		p_ptr->rng_lev_bonus = 0;
+	}
 
 	/* Wizard mode message */
 	if (p_ptr->wizard)
 	{
-		msg_format("Next object level bonus: %d", p_ptr->rng_lev_bonus);
+		msg_format("Next object level bonus: %d feet or %d levels",
+		           p_ptr->rng_lev_bonus / 2, p_ptr->rng_lev_bonus / 100);
 	}
 
 	/* Eliminate the item (from the pack) */

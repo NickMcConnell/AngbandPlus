@@ -2527,7 +2527,7 @@ void destroy_area(int y1, int x1, int r, bool full)
 		msg_print("There is a searing blast of light!");
 
 		/* Blind the player */
-		if (p_ptr->resist_blind==100 && p_ptr->resist_lite==100)
+		if (p_ptr->resist_blind >= 100 && p_ptr->resist_lite >= 100)
 		{
 			/* Become blind */
 			(void)set_blind(p_ptr->blind + 10 + randint(10));
@@ -2778,7 +2778,7 @@ void earthquake(int cy, int cx, int r)
 					msg_format("%^s wails out in pain!", m_name);
 
 					/* Take damage from the quake */
-					damage = (sn ? damroll(4, 8) : 200);
+					damage = (sn ? damroll(4, 8) : (m_ptr->hp + 1));
 
 					/* Monster is certainly awake */
 					m_ptr->csleep = 0;

@@ -70,6 +70,9 @@ bool racial_aux(s16b min_level, int cost, int use_stat, int difficulty)
 	/* Not enough mana - use hp */
 	if (p_ptr->csp < cost) use_hp = TRUE;
 
+	/* Always use hps with dragons */
+	if (p_ptr->prace >= RACE_MIN_DRAGON) use_hp = TRUE;
+
 	/* Power is not available yet */
 	if (p_ptr->lev < min_level)
 	{
@@ -179,16 +182,16 @@ static void cmd_racial_power_aux(s32b command)
 				{
 					if (!get_aim_dir(&dir)) break;
 					msg_format("You breathe shards!");
-                  			fire_ball(GF_SHARD, dir, p_ptr->chp/2, (plev / 10) + 1);
+                  			fire_ball(GF_SHARD, dir, p_ptr->chp/3, (plev / 10) + 1);
 				}
 			}
                         else if (command == -1)
 			{
-				if (racial_aux(5, plev, A_CON, 3))
+				if (racial_aux(5, (2*plev)/3, A_CON, 3))
 				{
 					if (!get_aim_dir(&dir)) break;
 					msg_format("You cast a shard bolt!");
-                                        fire_bolt(GF_SHARD, dir, p_ptr->chp/3);
+                                        fire_bolt(GF_SHARD, dir, p_ptr->chp/4);
 				}
 			}
 			break;
@@ -202,16 +205,16 @@ static void cmd_racial_power_aux(s32b command)
 				{
 					if (!get_aim_dir(&dir)) break;
 					msg_format("You breathe disenchantment!");
-                  			fire_ball(GF_DISENCHANT, dir, p_ptr->chp/4, (plev / 10) + 1);
+                  			fire_ball(GF_DISENCHANT, dir, p_ptr->chp/3, (plev / 10) + 1);
 				}
 			}
                         else if (command == -1)
 			{
-				if (racial_aux(5, plev, A_CON, 3))
+				if (racial_aux(5, (2*plev)/3, A_CON, 3))
 				{
 					if (!get_aim_dir(&dir)) break;
 					msg_format("You emit a disenchantment ray!");
-                                        fire_beam(GF_DISENCHANT, dir, p_ptr->chp/5);
+                                        fire_beam(GF_DISENCHANT, dir, p_ptr->chp/4);
 				}
 			}
 			break;
@@ -230,7 +233,7 @@ static void cmd_racial_power_aux(s32b command)
 			}
                         else if (command == -1)
 			{
-				if (racial_aux(5, plev, A_CON, 3))
+				if (racial_aux(5, (2*plev)/3, A_CON, 3))
 				{
 					if (!get_aim_dir(&dir)) break;
 					msg_format("You cast a confusion bolt!");
@@ -248,12 +251,12 @@ static void cmd_racial_power_aux(s32b command)
 				{
 					if (!get_aim_dir(&dir)) break;
 					msg_format("You breathe sound!");
-                  			fire_ball(GF_SHARD, dir, p_ptr->chp/3, (plev / 10) + 1);
+                  			fire_ball(GF_SOUND, dir, p_ptr->chp/3, (plev / 10) + 1);
 				}
 			}
                         else if (command == -1)
 			{
-				if (racial_aux(5, plev, A_CON, 3))
+				if (racial_aux(5, (2*plev)/3, A_CON, 3))
 				{
 					if (!get_aim_dir(&dir)) break;
 					msg_format("You cast a stun bolt!");
@@ -275,7 +278,7 @@ static void cmd_racial_power_aux(s32b command)
 			}
                         else if (command == -1)
 			{
-				if (racial_aux(5, plev, A_CON, 3))
+				if (racial_aux(5, (2*plev)/3, A_CON, 3))
 				{
 					if (!get_aim_dir(&dir)) break;
 					msg_format("You cast ray of light!");
@@ -287,43 +290,53 @@ static void cmd_racial_power_aux(s32b command)
 
 		case RACE_MULTIHUEDDRAG:
 		{
-			if (command == -4)
+			if (command == -5)
 			{
-				if (racial_aux(5, plev, A_CON, 3))
+				if (racial_aux(45, (plev*3)/2, A_CON, 30))
 				{
 					if (!get_aim_dir(&dir)) break;
-					msg_format("You breathe cold!");
-                  			fire_ball(GF_COLD, dir, p_ptr->chp/2, (plev / 10) + 1);
+					msg_format("You breathe poison!");
+                  			fire_ball(GF_POIS, dir, (p_ptr->chp*10)/36, (plev / 10) + 1);
+				}
+			}
+
+			if (command == -4)
+			{
+				if (racial_aux(35, plev, A_CON, 20))
+				{
+					if (!get_aim_dir(&dir)) break;
+					msg_format("You breathe fire!");
+                  			fire_ball(GF_FIRE, dir, (p_ptr->chp*10)/30, (plev / 10) + 1);
 				}
 			}
 
 			else if (command == -3)
 			{
-				if (racial_aux(5, plev, A_CON, 3))
+				if (racial_aux(25, (plev*2)/3, A_CON, 12))
 				{
 					if (!get_aim_dir(&dir)) break;
-					msg_format("You breathe fire!");
-                  			fire_ball(GF_FIRE, dir, p_ptr->chp/2, (plev / 10) + 1);
+					msg_format("You breathe ice!");
+                  			fire_ball(GF_ICE, dir, (p_ptr->chp*10)/35, (plev / 10) + 1);
 				}
 			}
 
 			else if (command == -2)
 			{
-				if (racial_aux(5, plev, A_CON, 3))
+				if (racial_aux(15, plev/2, A_CON, 6))
 				{
 					if (!get_aim_dir(&dir)) break;
 					msg_format("You breathe electricity!");
-                  			fire_ball(GF_ELEC, dir, p_ptr->chp/2, (plev / 10) + 1);
+                  			fire_ball(GF_ELEC, dir, (p_ptr->chp*10)/40, (plev / 10) + 1);
 				}
 			}
 
 			else if (command == -1)
 			{
-				if (racial_aux(5, plev, A_CON, 3))
+				if (racial_aux(5, plev/3, A_CON, 3))
 				{
 					if (!get_aim_dir(&dir)) break;
 					msg_format("You breathe acid!");
-                  			fire_ball(GF_ACID, dir, p_ptr->chp/2, (plev / 10) + 1);
+                  			fire_ball(GF_ACID, dir, (p_ptr->chp*10)/45, (plev / 10) + 1);
 				}
 			}
 			break;
@@ -397,12 +410,12 @@ void do_cmd_racial_power(void)
 			has_racial = TRUE;
 			break;
 		case RACE_CRYSTALDRAG:
-			sprintf(power_desc[0].name, "shard bolt (dam %d)", p_ptr->chp / 3);
+			sprintf(power_desc[0].name, "shard bolt (dam %d)", p_ptr->chp / 4);
 			power_desc[0].level = 5;
-			power_desc[0].cost = lvl;
+			power_desc[0].cost = (2*lvl)/3;
 			power_desc[0].fail = 100 - racial_chance(5, A_CON, 3);
 
-			sprintf(power_desc[1].name, "breathe shards (dam %d)", p_ptr->chp / 2);
+			sprintf(power_desc[1].name, "breathe shards (dam %d)", p_ptr->chp / 3);
 			power_desc[1].level = 25;
 			power_desc[1].cost = (3*lvl)/2;
 			power_desc[1].fail = 100 - racial_chance(25, A_CON, 6);
@@ -411,12 +424,12 @@ void do_cmd_racial_power(void)
 			has_racial = TRUE;
 			break;
 		case RACE_COPPERDRAG:
-			sprintf(power_desc[0].name, "disenc ray (dam %d)", p_ptr->chp / 5);
+			sprintf(power_desc[0].name, "disenc ray (dam %d)", p_ptr->chp / 4);
 			power_desc[0].level = 5;
-			power_desc[0].cost = lvl;
+			power_desc[0].cost = (2*lvl)/3;
 			power_desc[0].fail = 100 - racial_chance(5, A_CON, 3);
 
-			sprintf(power_desc[1].name, "breathe disenc (dam %d)", p_ptr->chp / 4);
+			sprintf(power_desc[1].name, "breathe disenc (dam %d)", p_ptr->chp / 3);
 			power_desc[1].level = 25;
 			power_desc[1].cost = (3*lvl)/2;
 			power_desc[1].fail = 100 - racial_chance(25, A_CON, 6);
@@ -427,7 +440,7 @@ void do_cmd_racial_power(void)
 		case RACE_BRONZEDRAG:
 			sprintf(power_desc[0].name, "confusion bolt (dam %d)", p_ptr->chp / 4);
 			power_desc[0].level = 5;
-			power_desc[0].cost = lvl;
+			power_desc[0].cost = (2*lvl)/3;
 			power_desc[0].fail = 100 - racial_chance(5, A_CON, 3);
 
 			sprintf(power_desc[1].name, "breathe conf (dam %d)", p_ptr->chp / 3);
@@ -441,7 +454,7 @@ void do_cmd_racial_power(void)
             case RACE_GOLDDRAG:
 			sprintf(power_desc[0].name, "sonic bolt (dam %d)", p_ptr->chp / 4);
 			power_desc[0].level = 5;
-			power_desc[0].cost = lvl;
+			power_desc[0].cost = (2*lvl)/3;
 			power_desc[0].fail = 100 - racial_chance(5, A_CON, 3);
 
 			sprintf(power_desc[1].name, "sonic storm (dam %d)", p_ptr->chp / 3);
@@ -455,7 +468,7 @@ void do_cmd_racial_power(void)
 		case RACE_PSEUDODRAG:
 			sprintf(power_desc[0].name, "light ray (dam %d)", p_ptr->chp / 4);
 			power_desc[0].level = 5;
-			power_desc[0].cost = lvl;
+			power_desc[0].cost = (2*lvl)/3;
 			power_desc[0].fail = 100 - racial_chance(5, A_CON, 3);
 
 			sprintf(power_desc[1].name, "light blast (dam %d)", p_ptr->chp / 3);
@@ -467,30 +480,37 @@ void do_cmd_racial_power(void)
 			has_racial = TRUE;
 			break;
 		case RACE_MULTIHUEDDRAG:
-			sprintf(power_desc[0].name, "breathe acid (dam %d)", p_ptr->chp / 2);
+			sprintf(power_desc[0].name, "breathe acid (dam %d)", (p_ptr->chp*10)/45);
 			power_desc[0].level = 5;
-			power_desc[0].cost = lvl;
+			power_desc[0].cost = lvl/3;
 			power_desc[0].fail = 100 - racial_chance(5, A_CON, 3);
 
-			sprintf(power_desc[1].name, "breathe elec (dam %d)", p_ptr->chp / 2);
-			power_desc[1].level = 5;
-			power_desc[1].cost = lvl;
-			power_desc[1].fail = 100 - racial_chance(5, A_CON, 3);
+			sprintf(power_desc[1].name, "breathe elec (dam %d)", (p_ptr->chp*10)/40);
+			power_desc[1].level = 15;
+			power_desc[1].cost = lvl/2;
+			power_desc[1].fail = 100 - racial_chance(15, A_CON, 6);
 			power_desc[1].number = -2;
 			num++;
 
-			sprintf(power_desc[2].name, "breathe fire (dam %d)", p_ptr->chp / 2);
-			power_desc[2].level = 5;
-			power_desc[2].cost = lvl;
-			power_desc[2].fail = 100 - racial_chance(5, A_CON, 3);
+			sprintf(power_desc[2].name, "breathe ice (dam %d)", (p_ptr->chp*10)/35);
+			power_desc[2].level = 25;
+			power_desc[2].cost = (lvl*2)/3;
+			power_desc[2].fail = 100 - racial_chance(25, A_CON, 12);
 			power_desc[2].number = -3;
 			num++;
 
-			sprintf(power_desc[3].name, "breathe cold (dam %d)", p_ptr->chp / 2);
-			power_desc[3].level = 5;
+			sprintf(power_desc[3].name, "breathe fire (dam %d)", (p_ptr->chp*10)/30);
+			power_desc[3].level = 35;
 			power_desc[3].cost = lvl;
-			power_desc[3].fail = 100 - racial_chance(5, A_CON, 3);
+			power_desc[3].fail = 100 - racial_chance(35, A_CON, 20);
 			power_desc[3].number = -4;
+			num++;
+
+			sprintf(power_desc[4].name, "breathe poison (dam %d)", (p_ptr->chp*10)/36);
+			power_desc[4].level = 45;
+			power_desc[4].cost = (3*lvl)/2;
+			power_desc[4].fail = 100 - racial_chance(45, A_CON, 30);
+			power_desc[4].number = -5;
 			num++;
 			has_racial = TRUE;
 			break;

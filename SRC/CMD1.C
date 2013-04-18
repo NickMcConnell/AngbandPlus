@@ -808,7 +808,7 @@ static int check_hit(int power)
  */
 void hit_trap(int y, int x)
 {
-	int i, num, dam;
+	int gp, i, num, dam;
 
 	cptr name = "a trap";
 
@@ -909,16 +909,8 @@ void hit_trap(int y, int x)
 					dam = dam * 2;
 					(void)set_cut(p_ptr->cut + randint(dam));
 
-					if (p_ptr->resist_pois < 100)
-					{
-						msg_print("The poison does not affect you!");
-					}
-
-					else
-					{
-						dam = dam * 2;
-						(void)set_poisoned(p_ptr->poisoned + randint(dam));
-					}
+					dam = (dam * 2 * p_ptr->resist_pois) / 100;
+					(void)set_poisoned(p_ptr->poisoned + randint(dam));
 				}
 
 				/* Take the damage */
@@ -1031,7 +1023,7 @@ void hit_trap(int y, int x)
 		case FEAT_TRAP_HEAD + 0x0C:
 		{
 			msg_print("You are surrounded by a black gas!");
-			if (p_ptr->resist_blind == 100)
+			if (p_ptr->resist_blind >= 100)
 			{
 				(void)set_blind(p_ptr->blind + rand_int(50) + 25);
 			}
@@ -1041,7 +1033,7 @@ void hit_trap(int y, int x)
 		case FEAT_TRAP_HEAD + 0x0D:
 		{
 			msg_print("You are surrounded by a gas of scintillating colors!");
-			if (p_ptr->resist_confu == 100)
+			if (p_ptr->resist_confu >= 100)
 			{
 				(void)set_confused(p_ptr->confused + rand_int(20) + 10);
 			}
@@ -1051,10 +1043,10 @@ void hit_trap(int y, int x)
 		case FEAT_TRAP_HEAD + 0x0E:
 		{
 			msg_print("You are surrounded by a pungent green gas!");
-			if (p_ptr->resist_pois == 100)
-			{
-				(void)set_poisoned(p_ptr->poisoned + rand_int(20) + 10);
-			}
+			
+			gp = p_ptr->resist_pois;
+			(void)set_poisoned(p_ptr->poisoned + ((rand_int(20) + 10)*gp)/100);
+			
 			break;
 		}
 
@@ -1319,6 +1311,30 @@ void move_player(int dir, int do_pickup)
 				lite_spot(y, x);
 			}
 
+			/* Water */
+			else if (cave_feat[y][x] == FEAT_WATER)
+			{
+				msg_print("You are getting your feet wet!");
+				cave_info[y][x] |= (CAVE_MARK);
+				lite_spot(y, x);
+			}
+
+			/* Lava */
+			else if (cave_feat[y][x] == FEAT_LAVA)
+			{
+				msg_print("You can see red hot lava!");
+				cave_info[y][x] |= (CAVE_MARK);
+				lite_spot(y, x);
+			}
+
+			/* Large tree */
+			else if (cave_feat[y][x] == FEAT_DTREE)
+			{
+				msg_print("You bump into a large tree!");
+				cave_info[y][x] |= (CAVE_MARK);
+				lite_spot(y, x);
+			}
+
 			/* Closed door */
 			else if (cave_feat[y][x] < FEAT_SECRET)
 			{
@@ -1327,6 +1343,7 @@ void move_player(int dir, int do_pickup)
 				cave_info[y][x] |= (CAVE_MARK);
 				lite_spot(y, x);
 			}
+
 
 			/* Wall (or secret door) */
 			else
@@ -1346,11 +1363,28 @@ void move_player(int dir, int do_pickup)
 				msg_print("There is a pile of rubble blocking your way.");
 			}
 
+			/* Water */
+			else if (cave_feat[y][x] == FEAT_WATER)
+			{
+				msg_print("You can't swim.");
+			}
+
+			/* Lava */
+			else if (cave_feat[y][x] == FEAT_LAVA)
+			{
+				msg_print("You can't walk on lava.");
+			}
+
+			/* Large tree */
+			else if (cave_feat[y][x] == FEAT_DTREE)
+			{
+				msg_print("You can't push through the thick undergrowth.");
+			}
+
 			/* Closed door */
 			else if (cave_feat[y][x] < FEAT_SECRET)
 			{
 				if (easy_open_door(y, x)) return;
-				/*msg_print("There is a door blocking your way.");*/
 			}
 
 			/* Wall (or secret door) */
@@ -1840,6 +1874,14 @@ static bool run_test(void)
 				/* Floors */
 				case FEAT_FLOOR:
 
+				/* New terrains */
+				case FEAT_GRASS:
+				case FEAT_DIRT:
+				case FEAT_LAVA:
+				case FEAT_WATER:
+				case FEAT_LTREE:
+				case FEAT_DTREE:
+
 				/* Invis traps */
 				case FEAT_INVIS:
 
@@ -1890,6 +1932,15 @@ static bool run_test(void)
 					if (run_ignore_stairs) notice = FALSE;
 
 					/* Done */
+					break;
+				}
+
+				/* Safety */
+				default:
+				{
+					/* Notice it */
+					notice = TRUE;
+
 					break;
 				}
 			}

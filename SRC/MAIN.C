@@ -380,6 +380,14 @@ int main(int argc, char *argv[])
 				break;
 			}
 
+			case 'B':
+			case 'b':
+			{
+				screen_y = atoi(&argv[i][2]);
+				if (screen_y <= 0) screen_y = 50;
+				break;
+			}
+
 			case 'R':
 			case 'r':
 			{
@@ -444,6 +452,8 @@ int main(int argc, char *argv[])
 				puts("  -w       Request wizard mode");
 				puts("  -v       Request sound mode");
 				puts("  -g       Request graphics mode");
+				puts("  -bXX     Request XX line screen mode. Normally 25.");
+				puts("           This option defaults to 50.");
 				puts("  -o       Request original keyset");
 				puts("  -r       Request rogue-like keyset");
 				puts("  -s<num>  Show <num> high scores");
@@ -636,6 +646,17 @@ int main(int argc, char *argv[])
 	if (!done) quit("Unable to prepare any 'display module'!");
 
 
+	/* Calculate screen geometry -TM- */
+	/* SCREEN_HGT really should be a multiple of PANEL_HGT,
+	 * so we SHOULD use this code:
+	 * SCREEN_HGT = (screen_y - 2) / PANEL_HGT;
+	 * SCREEN_HGT *= PANEL_HGT;
+	 * But just using the max available is fine, actually.
+	 * EMail me if (Tom M) if there are problems (eg, with
+	 * >68 line modes?)
+	 */
+	SCREEN_HGT = screen_y - 3;
+
 	/* Hack -- If requested, display scores and quit */
 	if (show_score > 0) display_scores(0, show_score);
 
@@ -647,7 +668,7 @@ int main(int argc, char *argv[])
 	init_angband();
 
 	/* Wait for response */
-	pause_line(23);
+	pause_line(screen_y-2);
 
 	/* Play the game */
 	play_game(new_game);

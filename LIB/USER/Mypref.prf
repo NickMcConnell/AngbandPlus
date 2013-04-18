@@ -21,7 +21,7 @@ X:use_old_target
 Y:always_pickup
 
 # Option 'Repeat obvious commands'
-X:always_repeat
+Y:always_repeat
 
 # Option 'Show dungeon level in feet'
 Y:depth_in_feet

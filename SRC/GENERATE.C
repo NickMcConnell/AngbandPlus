@@ -106,6 +106,7 @@
 #define DUN_ROOMS	50	/* Number of rooms to attempt */
 #define DUN_UNUSUAL	200	/* Level/chance of unusual room */
 #define DUN_DEST	15	/* 1/chance of having a destroyed level */
+#define DUN_ARENA 15 /* 1/chance of having an arena level */
 
 /*
  * Dungeon tunnel generation values
@@ -170,7 +171,7 @@
 /*
  * Maximal number of room types
  */
-#define ROOM_MAX	9
+#define ROOM_MAX	10
 
 
 
@@ -258,7 +259,8 @@ static room_data room[ROOM_MAX] =
 	{ 0, 0, -1, 1, 5 },		/* 5 = Monster nest (33x11) */
 	{ 0, 0, -1, 1, 5 },		/* 6 = Monster pit (33x11) */
 	{ 0, 1, -1, 1, 5 },		/* 7 = Lesser vault (33x22) */
-	{ -1, 2, -2, 3, 10 }	/* 8 = Greater vault (66x44) */
+	{ -1, 2, -2, 3, 10 }, 	/* 8 = Greater vault (66x44) */
+	{ -1, 1, -1, 1, 1}      /* 9 = Fractal cave (33x33) */
 };
 
 
@@ -1021,6 +1023,7 @@ static void generate_hole(int y1, int x1, int y2, int x2, int feat)
  *   6 -- monster pits
  *   7 -- simple vaults
  *   8 -- greater vaults
+ *   9 -- fractal cave system
  */
 
 
@@ -2431,7 +2434,264 @@ static void build_type8(int y0, int x0)
 	build_vault(y0, x0, v_ptr->hgt, v_ptr->wid, v_text + v_ptr->text);
 }
 
+/* XXX XXX XXX Fractal cave patch: */
 
+/* Store routine for the fractal cave generator */ 
+/* this routine probably should be an inline function or a macro. */
+
+void sorit(int x,int y,int x0,int y0,byte val,int hsize,int cutoff)
+{
+	/* only write to points that are "blank" */
+	if (cave_feat[y0-hsize+y][x0-hsize+x]!=255)
+		return;
+
+	/* if on boundary set val>cutoff so walls are not as square */
+	if (((x==0)||(y==0)||(x==hsize*2)||(y==hsize*2))&&(val<=cutoff)) val=cutoff+1;
+
+	/* Store the value */
+	cave_feat[y0-hsize+y][x0-hsize+x]=val;
+	
+	return;
+}
+
+/* Read from the array-  this should probably be inline */
+byte redit(int x,int y,int x0,int y0,int hsize)
+{
+	return cave_feat[y0-hsize+y][x0-hsize+x]; /* read in the hacked format */
+}
+
+
+static void generate_fracave(int y0, int x0,int siz,int grd,int roug,int cutoff)
+
+/* Note that this uses the cave_feat array in a very hackish way
+*  the values are first set to zero, and then each array location
+*  is used as a "heightmap"
+*  The heightmap then needs to be converted back into the "feat" format.
+*
+*  grd=level at which fractal turns on.  smaller gives more mazelike caves
+*  roug=roughness level.  16=normal.  higher values make things more convoluted
+*    small values are good for smooth walls.
+*  size=length of the side of the square cave system.
+*/
+
+/*  Scaling factor to remove some of the "gridding" effect of the square
+*   lattice*/
+
+#define ROOTTWO 1.41421356
+{
+
+	double astep,bstep,i,j,size;
+	int hsize; /* half of size- used as an offset from the center */
+	size=siz; /* redefine size so can change the value if out of range */
+
+	/* Paranoia about size of the system of caves*/
+	if (size>254) size=254;
+	if (size<4) size=4;
+	hsize=size/2;
+
+	/* Clear the section */
+	for(i=0;i<=size;i++)
+	{
+   		for(j=0;j<=size;j++)
+	  	{
+			cave_feat[(int)(y0-hsize+j)][(int)(x0-hsize+i)]=255; /*255 is a flag for "not done yet" */
+	  		cave_info[(int)(y0-hsize+j)][(int)(x0-hsize+i)]&= ~(CAVE_ICKY); /* Clear icky if are redoing the cave */
+	  	}
+	}
+
+	/* Set the corner values just in case grd>size. */
+	sorit(0,0,x0,y0,size,hsize,cutoff);
+	sorit(0,size,x0,y0,size,hsize,cutoff);
+	sorit(size,0,x0,y0,size,hsize,cutoff);
+	sorit(size,size,x0,y0,size,hsize,cutoff);
+
+	/* Set the middle square to be an open area. */
+	sorit(hsize,hsize,x0,y0,0,hsize,cutoff);
+	bstep=astep=size;
+
+	/* fill in the square with fractal height data - like the 'plasma fractal' in
+	 *  fractint.
+	 */
+	while (bstep>1)
+	{astep=bstep;bstep=bstep/2;
+	for(i=bstep;i<=size-bstep;i+=astep)  /*middle top to bottom.*/
+		for(j=0;j<=size;j+=astep)
+			/*if step size greater than grid level randomize instead of averaging+-random amount */
+			if (bstep>grd)sorit(i,j,x0,y0,randint(size),hsize,cutoff);
+	   	else sorit(i,j,x0,y0,(redit(i-bstep,j,x0,y0,hsize)+redit(i+bstep,j,x0,y0,hsize))/2+(randint(astep)-bstep)*roug/16,hsize,cutoff);
+	for(j=bstep;j<=size-bstep;j+=astep)  /*middle left to right.*/
+		for(i=0;i<=size;i+=astep)
+	   	if (bstep>grd)sorit(i,j,x0,y0,randint(size),hsize,cutoff);
+	   	else sorit(i,j,x0,y0,(redit(i,j-bstep,x0,y0,hsize)+redit(i,j+bstep,x0,y0,hsize))/2+(randint(astep)-bstep)*roug/16,hsize,cutoff);
+	for(i=bstep;i<=size-bstep;i+=astep)
+		for(j=bstep;j<=size-bstep;j+=astep)  /*center.*/
+	   	if (bstep>grd)sorit(i,j,x0,y0,randint(size),hsize,cutoff);
+			/* average over all four corners + scal by root(2) to reduce the effect of the square grid on the shape of the fractal */
+	   	else sorit(i,j,x0,y0,(redit(i-bstep,j-bstep,x0,y0,hsize)+redit(i-bstep,j+bstep,x0,y0,hsize)+redit(i+bstep,j-bstep,x0,y0,hsize)+redit(i+bstep,j+bstep,x0,y0,hsize))/4+(randint(astep)-bstep)*ROOTTWO/16*roug,hsize,cutoff);
+	}
+}
+
+static bool hack_isnt_wall(int y, int x, int cutoff)
+{if (cave_info[y][x]&CAVE_ICKY) 
+	return FALSE;	/* already done */
+else
+	{cave_info[y][x]|= (CAVE_ICKY); /* flag that have looked at this square */
+	if(cave_feat[y][x]<=cutoff) /*less than cutoff so is a floor */
+		{cave_feat[y][x]=FEAT_FLOOR; 
+		 return TRUE;
+		 }
+	else{cave_feat[y][x]=FEAT_WALL_OUTER; /*greater than cutoff so is a wall */
+		return FALSE;
+		}
+	}
+}
+
+static void fill_hack(int y0, int x0,int y,int x,int size,int cutoff,int *amount)
+/* quick and nasty fill routine */
+{int i,j;
+for (i=-1;i<=1;i++) /* check 8 neigbours +self (self is caught in the isnt_wall function) */
+	for (j=-1;j<=1;j++) 
+		if ((x+i>0)&&(x+i<size)&&(y+j>0)&&(y+j<size)) /* Within bounds */
+			{if (hack_isnt_wall(y+j+y0-size/2,x+i+x0-size/2,cutoff))	/*not a wall or floor done before */			
+		 		{fill_hack(y0,x0,y+j,x+i,size,cutoff,amount); /* fill from the new point then */
+				(*amount)++; /* keep tally of size of cave system */
+				}
+			}
+		else 	cave_info[y0+y+j-size/2][x0+x+i-size/2]|=CAVE_ICKY;/* affect boundary */
+}
+
+
+static bool generate_multicave2(int y0, int x0,int size,int cutoff,bool light,bool room)
+{int x,y,i,amount;
+int hsize=size/2;
+amount=0; /*tally =0 */
+/*select region connected to center of cave system */
+/*this gets rid of alot of isolated one-sqaures that can make teleport traps insadeaths... */
+fill_hack(y0,x0,hsize,hsize,size,cutoff,&amount);
+if (amount<10) return FALSE; /* too small */
+
+/*Do boundarys- check to see if they are next to a filled region */
+/*If not then they are set to normal granite */
+/*If so then they are marked as room walls. */
+for(i=0;i<=size;++i)
+	{if (cave_info[0+y0-hsize][i+x0-hsize]&CAVE_ICKY)
+		{cave_feat[y0+0-hsize][x0+i-hsize]=FEAT_WALL_OUTER;		
+		cave_info[y0+0-hsize][x0+i-hsize]|=(CAVE_WALL);
+		if (light) cave_info[y0+0-hsize][x0+i-hsize]|=(CAVE_GLOW);
+		if (room) cave_info[y0+0-hsize][x0+i-hsize]|=(CAVE_ROOM);
+		}
+	else {cave_feat[y0+0-hsize][x0+i-hsize]=FEAT_WALL_EXTRA;
+		cave_info[y0+0-hsize][x0+i-hsize]|=(CAVE_WALL);
+		}
+	if (cave_info[size+y0-hsize][i+x0-hsize]&CAVE_ICKY)
+		{cave_feat[y0+size-hsize][x0+i-hsize]=FEAT_WALL_OUTER;
+		cave_info[y0+size-hsize][x0+i-hsize]|=(CAVE_WALL);
+		if (light) cave_info[y0+size-hsize][x0+i-hsize]|=(CAVE_GLOW);
+		if (room) cave_info[y0+size-hsize][x0+i-hsize]|=(CAVE_ROOM);
+		}
+	else{ cave_feat[y0+size-hsize][x0+i-hsize]=FEAT_WALL_EXTRA;
+		cave_info[y0+size-hsize][x0+i-hsize]|=(CAVE_WALL);
+		}
+	cave_info[y0+0-hsize][x0+i-hsize]&= ~(CAVE_ICKY);
+	cave_info[y0+size-hsize][x0+i-hsize]&= ~(CAVE_ICKY);
+	}
+for(i=1;i<size;++i)
+	{if (cave_info[i+y0-hsize][0+x0-hsize]&CAVE_ICKY)
+		{cave_feat[y0+i-hsize][x0+0-hsize]=FEAT_WALL_OUTER;
+		cave_info[y0+i-hsize][x0+0-hsize]|=(CAVE_WALL);
+		if (light) cave_info[y0+i-hsize][x0+0-hsize]|=(CAVE_GLOW);
+		if (room) cave_info[y0+i-hsize][x0+0-hsize]|=(CAVE_ROOM);
+		}
+	else {cave_feat[y0+i-hsize][x0+0-hsize]=FEAT_WALL_EXTRA;
+		cave_info[y0+i-hsize][x0+0-hsize]|=(CAVE_WALL);
+		}
+	if (cave_info[i+y0-hsize][size+x0-hsize]&CAVE_ICKY)
+		{cave_feat[y0+i-hsize][x0+size-hsize]=FEAT_WALL_OUTER;
+		cave_info[y0+i-hsize][x0+size-hsize]|=(CAVE_WALL);
+		if (light) cave_info[y0+i-hsize][x0+size-hsize]|=(CAVE_GLOW);
+		if (room) cave_info[y0+i-hsize][x0+size-hsize]|=(CAVE_ROOM);
+		}
+	else{ cave_feat[y0+i-hsize][x0+size-hsize]=FEAT_WALL_EXTRA;
+		cave_info[y0+i-hsize][x0+size-hsize]|=(CAVE_WALL);
+		}
+	cave_info[y0+i-hsize][x0+0-hsize]&= ~(CAVE_ICKY);
+	cave_info[y0+i-hsize][x0+size-hsize]&= ~(CAVE_ICKY);
+	}
+/* Do the rest: convert back to the normal format*/
+/* In other varients, may want to check to see if cave_feat< some value
+* if so, set to be water:- this will make interesting pools etc.
+* (I don't do this for standard angband.)
+*/
+for(x=1;x<size;++x)
+	for(y=1;y<size;++y)
+		if ((cave_feat[y0+y-hsize][x0+x-hsize]==FEAT_FLOOR)&&(cave_info[y0+y-hsize][x0+x-hsize]&CAVE_ICKY))
+			/*Clear the icky flag in the filled region*/
+			{cave_info[y0+y-hsize][x0+x-hsize]&= ~(CAVE_ICKY|CAVE_WALL);
+			/*Set appropriate flags */				
+			if (light) cave_info[y0+y-hsize][x0+x-hsize]|=(CAVE_GLOW);
+			if (room) cave_info[y0+y-hsize][x0+x-hsize]|=(CAVE_ROOM);		
+			}
+		else if ((cave_feat[y0+y-hsize][x0+x-hsize]==FEAT_WALL_OUTER)&&(cave_info[y0+y-hsize][x0+x-hsize]&CAVE_ICKY))
+			{/*Walls */
+			cave_info[y0+y-hsize][x0+x-hsize]&= ~(CAVE_ICKY);
+			cave_info[y0+y-hsize][x0+x-hsize]|=(CAVE_WALL);
+			if (light) cave_info[y0+y-hsize][x0+x-hsize]|=(CAVE_GLOW);
+			if (room) cave_info[y0+y-hsize][x0+x-hsize]|=(CAVE_ROOM);
+			}
+		else {/*Clear the unconnected regions*/
+			cave_feat[y0+y-hsize][x0+x-hsize]=FEAT_WALL_EXTRA;			
+			cave_info[y0+y-hsize][x0+x-hsize]&= ~(CAVE_ICKY|CAVE_ROOM);
+			cave_info[y0+y-hsize][x0+x-hsize]|=(CAVE_WALL);
+			}
+return TRUE;
+}
+
+/* Driver routine to create fractal cave system */
+
+static void build_type9(int y0, int x0)
+{int grd,roug,cutoff,size;
+bool done,light,room;
+light=done=FALSE;
+room=TRUE;
+if (p_ptr->depth <= randint(25)) light = TRUE;
+while (!done)
+	{/* Note: size must be even or there are rounding problems */
+	/* This causes the tunnels not to connect properly to the room */
+	size=randint(15)*2+2; /*Must be less than 33 because of values in room_data*/
+	grd=2^(randint(4)-1); /* testing values for these parameters feel free to adjust*/
+	roug=randint(8)*randint(4); /*want average of about 16 */
+	cutoff=randint(size/4)+randint(size/4)+randint(size/4)+randint(size/4); /* about size/2 */
+	generate_fracave(y0,x0,size,grd,roug,cutoff); /* make it */
+	done=generate_multicave2(y0, x0,size,cutoff,light,room); /* Convert to normal format+ clean up*/
+	}
+}
+
+static void build_arena(void) /*makes a cave system in the center of the dungeon */
+{int grd,roug,cutoff,size,x0,y0;
+bool done,light,room;
+light=done=room=FALSE;
+if (p_ptr->depth <= randint(25)) light = TRUE;
+size=DUNGEON_HGT-1;
+y0=size/2;
+size=y0*2; /* Paranoia: make size even */
+x0=randint(DUNGEON_WID-DUNGEON_HGT)+y0;
+
+/* note: it IS possible to make a rectangular cave system, and thus fill the whole
+* dungeon, but it isn't really worth the effort. (It would require doubling the number
+* of variables in generate_fracave, with separate step sizes for x and y. )
+* If any one really wants this, just mention it on the news group. Steven
+*/
+
+while (!done)
+	{/* Note: size must be even or there are rounding problems */
+	/* This causes the tunnels not to connect properly to the room: not good */	
+	grd=2^(randint(4)-1); /* testing values for these parameters feel free to adjust*/
+	roug=randint(8)*randint(4); /*want average of about 16 */
+	cutoff=size/2; /* about size/2 */
+	generate_fracave(y0,x0,size,grd,roug,cutoff); /* make it */
+	done=generate_multicave2(y0, x0,size,cutoff,light,room); /* Convert to normal format+ clean up*/
+	}
+}
 
 /*
  * Constructs a tunnel between two points
@@ -2828,6 +3088,7 @@ static bool room_build(int by0, int bx0, int typ)
 	switch (typ)
 	{
 		/* Build an appropriate room */
+		case 9: build_type9(y, x); break;
 		case 8: build_type8(y, x); break;
 		case 7: build_type7(y, x); break;
 		case 6: build_type6(y, x); break;
@@ -2877,7 +3138,7 @@ static void cave_gen(void)
 
 	int by, bx;
 
-	bool destroyed = FALSE;
+	bool destroyed = FALSE,arena=FALSE;
 
 	dun_data dun_body;
 
@@ -2895,7 +3156,12 @@ static void cave_gen(void)
 			cave_set_feat(y, x, FEAT_WALL_EXTRA);
 		}
 	}
-
+	
+	if ((p_ptr->depth > 10) && (rand_int(DUN_ARENA) == 0)) 
+	{
+		arena=TRUE;
+		build_arena(); /* make a large fractal cave in the middle of the dungeon */
+	}
 
 	/* Possible "destroyed" level */
 	if ((p_ptr->depth > 10) && (rand_int(DUN_DEST) == 0)) destroyed = TRUE;
@@ -2943,12 +3209,20 @@ static void cave_gen(void)
 		}
 
 		/* Destroyed levels are boring */
+		
 		if (destroyed)
 		{
-			/* Attempt a "trivial" room */
-			if (room_build(by, bx, 1)) continue;
+			/*The deeper you are, the more cavelike the rooms are */
+			k=randint(100);
+			if ((k<p_ptr->depth)&&(!arena))	/*no caves when arena exists: they look bad */	  
+				{/* Attempt a cave*/
+				if(room_build(by,bx,9)) continue;
+				}
+			else			
+				/* Attempt a "trivial" room */
+				if (room_build(by, bx, 1)) continue;
 
-			/* Never mind */
+				/* Never mind */
 			continue;
 		}
 
@@ -2983,9 +3257,16 @@ static void cave_gen(void)
 			/* Type 2 -- Overlapping (50%) */
 			if ((k < 100) && room_build(by, bx, 2)) continue;
 		}
-
-		/* Attempt a trivial room */
-		if (room_build(by, bx, 1)) continue;
+		/*The deeper you are, the more cavelike the rooms are*/
+		k=randint(100);
+		if ((k<p_ptr->depth)&&(!arena)) /*no caves when arena exists: they look bad */	
+			{/* Attempt a cave*/
+			if(room_build(by,bx,9)) continue;
+			}
+		else			
+			/* Attempt a "trivial" room */
+			if (room_build(by, bx, 1)) continue;
+		continue;
 	}
 
 
@@ -3128,6 +3409,29 @@ static void cave_gen(void)
 	/* Put some objects/gold in the dungeon */
 	alloc_object(ALLOC_SET_BOTH, ALLOC_TYP_OBJECT, Rand_normal(DUN_AMT_ITEM, 3));
 	alloc_object(ALLOC_SET_BOTH, ALLOC_TYP_GOLD, Rand_normal(DUN_AMT_GOLD, 3));
+
+
+	/* Ghosts love to inhabit destroyed levels, but will live elsewhere */
+	i = (destroyed) ? 11 : 1;
+
+	/* Try to place the ghost */
+	while (i-- > 0)
+	{
+
+		/* Attempt to place a ghost */
+		if (place_ghost())
+		{
+
+			/* Hack -- increase the rating */
+			rating += 10;
+
+			/* A ghost makes the level special */
+			good_item_flag = TRUE;
+
+			/* Stop trying to place the ghost */
+			break;
+		}
+	}
 }
 
 
@@ -3156,7 +3460,7 @@ static void build_store(int n, int yy, int xx)
 {
 	int y, x, y0, x0, y1, x1, y2, x2, tmp;
 
-	int qy = SCREEN_HGT;
+	int qy = OLD_SCREEN_HGT;
 	int qx = SCREEN_WID;
 
 
@@ -3247,7 +3551,7 @@ static void town_gen_hack(void)
 {
 	int y, x, k, n;
 
-	int qy = SCREEN_HGT;
+	int qy = OLD_SCREEN_HGT;
 	int qx = SCREEN_WID;
 
 	int rooms[MAX_STORES];
@@ -3285,7 +3589,7 @@ static void town_gen_hack(void)
 	while (TRUE)
 	{
 		/* Pick a location at least "three" from the outer walls */
-		y = qy + rand_range(3, SCREEN_HGT - 4);
+		y = qy + rand_range(3, OLD_SCREEN_HGT - 4);
 		x = qx + rand_range(3, SCREEN_WID - 4);
 
 		/* Require a "naked" floor grid */
@@ -3329,7 +3633,7 @@ static void town_gen(void)
 
 	int residents;
 
-	int qy = SCREEN_HGT;
+	int qy = OLD_SCREEN_HGT;
 	int qx = SCREEN_WID;
 
 	bool daytime;
@@ -3366,7 +3670,7 @@ static void town_gen(void)
 	}
 
 	/* Then place some floors */
-	for (y = qy+1; y < qy+SCREEN_HGT-1; y++)
+	for (y = qy+1; y < qy+OLD_SCREEN_HGT-1; y++)
 	{
 		for (x = qx+1; x < qx+SCREEN_WID-1; x++)
 		{
@@ -3407,6 +3711,14 @@ void generate_cave(void)
 	/* The dungeon is not ready */
 	character_dungeon = FALSE;
 
+	/* Reset the object generation level and
+	 * apply RNG bribery -TM- */
+	if (p_ptr->depth)
+	{
+		object_level = p_ptr->depth + (p_ptr->rng_lev_bonus / 100);
+		p_ptr->rng_lev_bonus = 0;
+	}
+	else object_level = p_ptr->depth;
 
 	/* Generate */
 	for (num = 0; TRUE; num++)
@@ -3460,10 +3772,8 @@ void generate_cave(void)
 		/* Reset the monster generation level */
 		monster_level = p_ptr->depth;
 
-		/* Reset the object generation level and
-		 * apply RNG bribery -TM- */
-		object_level = p_ptr->depth + p_ptr->rng_lev_bonus;
-		p_ptr->rng_lev_bonus = 0;
+		/* Reset the object generation level */
+		object_level = p_ptr->depth;
 
 		/* Nothing special here yet */
 		good_item_flag = FALSE;
@@ -3475,9 +3785,17 @@ void generate_cave(void)
 		/* Build the town */
 		if (!p_ptr->depth)
 		{
-			/* Make a town */
-			town_gen();
+			/* Make a town -TM- */
+			if (p_ptr->new_town)
+			{
+				init_new_town();
+			}
+			else
+			{
+				town_gen();
+			}
 		}
+
 
 		/* Build a real level */
 		else
@@ -3499,7 +3817,7 @@ void generate_cave(void)
 		else feeling = 10;
 
 		/* Hack -- Have a special feeling sometimes */
-		if (good_item_flag && !p_ptr->preserve) feeling = 1;
+		if (good_item_flag) feeling = 1;
 
 		/* It takes 1000 game turns for "feelings" to recharge */
 		if ((turn - old_turn) < 1000) feeling = 0;
@@ -3574,4 +3892,263 @@ void generate_cave(void)
 }
 
 
+/*
+ * Load the new town layout from t_info.txt. -TM-
+ */
 
+void init_new_town(void)
+{
+	int x, y = -1;
+	byte type;
+	int ver_maj, ver_min, ver_pat = 0;
+	
+	int sx, sy;
+
+	int residents, i;
+
+	bool daytime;
+
+	FILE *fp;
+
+	/* 15Kb Buffer */
+	char buf[1024];
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_EDIT, "t_info.txt");
+
+	/* Open the file */
+	fp = my_fopen(buf, "r");
+
+	/* Parse it */
+	if (!fp) quit("Cannot open 't_info.txt' file.");
+
+
+	/* Parse */
+	while (0 == my_fgets(fp, buf, 1024))
+	{
+		/* Skip comments and blank lines */
+		if (!buf[0] || (buf[0] == '#')) continue;
+
+		/* Process 'V' for version stamp */
+		if (buf[0] == 'V')
+		{
+			sscanf(buf, "V:%d.%d.%d", &ver_maj, &ver_min, &ver_pat);
+			
+			if ( (ver_maj != VERSION_MAJOR) ||
+			     (ver_min != VERSION_MINOR) ||
+			     (ver_pat != VERSION_PATCH) )
+			{
+				quit("Incorrect t_info.txt file version.");
+			}
+		}
+		
+		/* Process 'S' for start position */
+		if (buf[0] == 'S')
+		{
+			sscanf(buf, "S:%d:%d", &sx, &sy);
+		}
+
+		/* Process 'D' for "Description" */
+		if (buf[0] == 'D')
+		{
+			/* Advance y coords */
+			y++;
+
+			for (x=0; x<DUNGEON_WID; x++)
+			{
+				switch (buf[2 + x])
+				{
+					/* Perma wall */
+					case '#':
+					{
+						type = FEAT_PERM_SOLID;
+						break;
+					}
+
+					/* Granite wall */
+					case 'X':
+					{
+						type = FEAT_WALL_SOLID;
+						break;
+					}
+
+					/* Magma vein */
+					case '%':
+					{
+						type = FEAT_MAGMA;
+						break;
+					}
+
+					/* Quartz vein */
+					case '*':
+					{
+						type = FEAT_QUARTZ;
+						break;
+					}
+
+					/* Door */
+					case '+':
+					{
+						type = FEAT_DOOR_HEAD;
+						break;
+					}
+
+					/* Rubble */
+					case ':':
+					{
+						type = FEAT_RUBBLE;
+						break;
+					}
+
+					/* Shops: */
+					case '1':
+					{
+						type = FEAT_SHOP_HEAD + 0;
+						break;
+					}
+
+					case '2':
+					{
+						type = FEAT_SHOP_HEAD + 1;
+						break;
+					}
+
+					case '3':
+					{
+						type = FEAT_SHOP_HEAD + 2;
+						break;
+					}
+
+					case '4':
+					{
+						type = FEAT_SHOP_HEAD + 3;
+						break;
+					}
+
+					case '5':
+					{
+						type = FEAT_SHOP_HEAD + 4;
+						break;
+					}
+
+					case '6':
+					{
+						type = FEAT_SHOP_HEAD + 5;
+						break;
+					}
+
+					case '7':
+					{
+						type = FEAT_SHOP_HEAD + 6;
+						break;
+					}
+
+					case '8':
+					{
+						type = FEAT_SHOP_HEAD + 7;
+						break;
+					}
+
+					/* A Dark Tree */
+					case 'T':
+					{
+						type = FEAT_DTREE;
+						break;
+					}
+
+					/* A Light Tree */
+					case 't':
+					{
+						type = FEAT_LTREE;
+						break;
+					}
+
+					/* Dirt */
+					case '.':
+					{
+						type = FEAT_DIRT;
+						break;
+					}
+
+					/* Water */
+					case 'W':
+					{
+						type = FEAT_WATER;
+						break;
+					}
+
+					/* Grass */
+					case ',':
+					{
+						type = FEAT_GRASS;
+						break;
+					}
+
+					case '>':
+					{
+						type = FEAT_MORE;
+						break;
+					}
+
+					default:
+					{
+						type = FEAT_FLOOR;
+						break;
+					}
+				}
+
+				/* Set the terrain */
+				cave_set_feat(y, x, type);
+			
+			}
+
+			/* Next... */
+			continue;
+		}
+
+	}
+
+	/* Make sure we did get a version number */
+	if (!ver_maj || !ver_min || !ver_pat)
+	{
+		quit("Missing version stamp in t_info.txt file.");
+	}
+	
+	/* Place the player */
+	player_place(sy, sx);
+
+	/* Day time */
+	if ((turn % (10L * TOWN_DAWN)) < ((10L * TOWN_DAWN) / 2))
+	{
+		/* Day time */
+		daytime = TRUE;
+
+		/* Number of residents */
+		residents = MIN_M_ALLOC_TD;
+	}
+
+	/* Night time */
+	else
+	{
+		/* Night time */
+		daytime = FALSE;
+
+		/* Number of residents */
+		residents = MIN_M_ALLOC_TN;
+	}
+
+	/* Light the town */
+	(void)town_illuminate(daytime);
+
+	/* Make some residents */
+	for (i = 0; i < residents; i++)
+	{
+		/* Make a resident */
+		(void)alloc_monster(3, TRUE);
+	}
+
+	/* Close it */
+	my_fclose(fp);
+
+	return;
+}

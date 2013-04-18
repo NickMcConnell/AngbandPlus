@@ -2640,10 +2640,12 @@ bool identify_fully_aux(object_type *o_ptr)
 		prt(info[j], k++, 0);
 
 		/* Page wrap */
-		if ((k == 22) && (j+1 < i))
+		if ((k == screen_y - 3) && (j+1 < i))
 		{
 			prt("-- more --", k, 0);
 			inkey();
+
+			k = 2;
 
 			/* Erase the screen */
 			Term_clear();

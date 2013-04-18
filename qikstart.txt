@@ -1,10 +1,34 @@
 A guide to DrAngband for experienced Angbanders
 -----------------------------------------------
+Loading pre-2.9.2 savefiles:
+----------------------------
+Savefiles from versions of DrAngband prior to Drangband 2.9.2
+should load fine, with only the follwing small problems:
+
+* Some terrain types will be changed on the current map. Simply
+  leave the level and the next level will be generated correctly.
+
+
 v2.9.1
 ------
 
 Most of the stuff that applied to angband will apply to DrAngband
 but a few fundamental concepts are different:
+
+Big Screen Mode
+---------------
+
+If your port supports this (and only the dos and OS/2 ones certainly
+do), activate 50-line mode by starting up drangband with:
+
+angband -b
+
+or
+
+angband -b50
+
+Other screen sizes between 25 and 50 (and ever higher) are also
+possible.
 
 Resistances
 -----------

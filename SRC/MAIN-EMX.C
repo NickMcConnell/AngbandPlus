@@ -11,9 +11,8 @@
 /* Purpose: Support for OS/2 EMX Angband */
 
 /* Author: ekraemer@pluto.camelot.de (Ekkehard Kraemer) */
-
-/* Current maintainer: silasd@psyber.com (Silas Dunsmore) */
-/* Unless somebody else wants it.... */
+/* Old maintainer: silasd@psyber.com (Silas Dunsmore) */
+/* Current maintainer: aga@russia.crosswinds.net (Alexey Guzeev) */
 
 #ifdef USE_EMX
 
@@ -92,6 +91,13 @@
  *
  * 23 Jan 98   SWD      282     Hacked more on sub-windows.  Now links, with
  *                              warnings.  Seems to work.
+ *
+ * 01 Nov 98   AGA      2.8.3	Adjusted for 2.8.3 sources, typos corrected
+ *
+ * 01 Nov 98   AGA	Z214b	Corrections for ZAngband 2.1.4 beta
+ *
+ * 16 Nov 1999 AGA	Dr2.9.2	Arbitrary main screen size support for DrAngband
+ *
  */
 
 #include <signal.h>
@@ -323,8 +329,8 @@ static errr Term_wipe_pipe_emx(int x, int y, int n);
 static errr Term_text_pipe_emx(int x, int y, int n, unsigned char a, cptr s);
 static void Term_init_pipe_emx(term *t);
 static void Term_nuke_pipe_emx(term *t);
-static FILE *initPipe(char *name);
-static void initPipeTerm(termPipe *pipe, char *name, term **term);
+static FILE *initPipe(const char *name);
+static void initPipeTerm(termPipe *pipe, const char *name, term **term);
 
 /*
  * Main initialization function
@@ -334,7 +340,7 @@ errr init_emx(void);
 /*
  * The screens
  */
-static termPipe term_screen[MAX_TERM_DATA];
+static termPipe term_screen_aga[MAX_TERM_DATA];
 
 
 /*
@@ -735,11 +741,11 @@ static void Term_nuke_pipe_emx(term *t)
 	}
 }
 
-static void initPipeTerm(termPipe *pipe, char *name, term **termTarget)
+static void initPipeTerm(termPipe *pipe, const char *name, term **termTarget)
 {
 	term *t;
 
-	t=(term*)pipe;
+	t=&pipe->t;
 
 	if ((pipe->out=initPipe(name))!=NULL)
 	{
@@ -773,18 +779,27 @@ errr init_emx(void)
 
 	term *t;
 
+	char buf[25];
+
+	/* Initialize screen size */
+	sprintf(buf, "mode co%d,%d 2>nul\r", screen_x, screen_y);
+	i=system(buf);
+        if (i!=0) { /* failed for some reason */
+		screen_x=80; screen_y=25;
+	}
+
 	/* Initialize the pipe windows */
 	for (i = MAX_TERM_DATA-1; i > 0; --i)
 	{
 		const char *name = angband_term_name[i];
-		initPipeTerm(&term_screen[i], name, &angband_term[i]);
+		initPipeTerm(&term_screen_aga[i], name, &angband_term[i]);
 	}
 
 	/* Initialize main window */
-	t = (term*)(&term_screen[0]);
+	t = &term_screen_aga[0].t;
 
 	/* Initialize the term -- big key buffer */
-	term_init(t, 80, 24, 1024);
+	term_init(t, screen_x, screen_y, 1024);
 
 	/* Special hooks */
 	t->init_hook = Term_init_emx;
@@ -797,7 +812,7 @@ errr init_emx(void)
 	t->xtra_hook = Term_xtra_emx;
 
 	/* Save it */
-	term_screen = t;
+	angband_term[0] = t;
 
 	/* Activate it */
 	Term_activate(t);
@@ -806,7 +821,7 @@ errr init_emx(void)
 	return (0);
 }
 
-static FILE *initPipe(char *name)
+static FILE *initPipe(const char *name)
 {
 	char buf[256];
 	FILE *fi;
@@ -833,7 +848,7 @@ int main(int argc, char **argv)
 	/* Check command line */
 	if (argc!=2 && argc!=3)
 	{
-		printf("Usage: %s Term-1|...|Term-7 [number of lines]\n"
+		printf("Usage: %s Mirror|Recall|Choice|Term-4|...|Term-7 [number of lines]\n"
 		       "Start this before angband.exe\n", argv[0]);
 		exit(1);
 	}
@@ -1047,7 +1062,7 @@ errr init_emx(void);
 /*
  * The screens
  */
-static termWindow term_screen[MAX_TERM_DATA];
+static termWindow term_screen_aga[MAX_TERM_DATA];
 
 /*
  * Check for events -- called by "Term_scan_emx()"
@@ -1141,11 +1156,11 @@ errr init_emx(void)
 	int i;
 
 	/* Initialize the windows */
-	emx_init_term(&term_screen[0],  NULL, &angband_term[0], 0);
+	emx_init_term(&term_screen_aga[0],  NULL, &angband_term[0], 0);
 
 	for (i = 1; i < MAX_TERM_DATA; ++i)
 	{
-		emx_init_term(&term_screen[i], term_screen[0].instance, &angband_term[i], i);
+		emx_init_term(&term_screen_aga[i], term_screen_aga[0].instance, &angband_term[i], i);
 	}
 
 	/* Activate main window */
@@ -1185,7 +1200,7 @@ static void quit_hook(cptr s)
 			term_nuke(angband_term[i]);
 			emx_nuke(((termWindow*)angband_term[i])->instance);
 		}
-	]
+	}
 
 	/* Shut down window system - doesn't return */
 	emx_endPM(s);
@@ -1198,7 +1213,7 @@ void angbandThread(void *arg)
 
 	int show_score = 0;
 
-	char player_name[32];
+	char player_name_aga[32];
 
 	/* Save the "program name" */
 	argv0 = (char*)arg;
@@ -1217,10 +1232,10 @@ void angbandThread(void *arg)
 	                 &arg_force_original,
 	                 &arg_fiddle,
 	                 &arg_wizard,
-	                 player_name)) quit(NULL);
+	                 player_name_aga)) quit(NULL);
 
 	/* XXX XXX XXX (?) */
-	strcpy(op_ptr->full_name, player_name);
+	strcpy(op_ptr->full_name, player_name_aga);
 
 	/* Process the player name */
 	process_player_name(TRUE);

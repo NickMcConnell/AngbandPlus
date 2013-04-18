@@ -111,6 +111,22 @@ s16b o_cnt = 0;			/* Number of live objects */
 s16b m_max = 1;			/* Number of allocated monsters */
 s16b m_cnt = 0;			/* Number of live monsters */
 
+/*
+ * Physical screen size (in characters)
+ * This should be set (if non-defualt) by the main-xxx.c
+ */
+
+s16b screen_x = 80;
+s16b screen_y = 25;
+
+/*
+ * Number of grids in each screen (vertically)
+ * Must be a multiple of PANEL_HGT (at least 2x)
+ * Will be calculated after screen init.
+ */
+
+s16b SCREEN_HGT = 22;
+
 
 /*
  * Dungeon variables
@@ -288,7 +304,6 @@ sint temp_n = 0;
 u16b *temp_g;
 byte *temp_y;
 byte *temp_x;
-
 
 /*
  * Array[DUNGEON_HGT][256] of cave grid info flags (padded)

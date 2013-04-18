@@ -461,8 +461,8 @@ bool make_attack_spell(int m_idx)
 	/* -TM- Rarely cast spells at invisible opponent if they can't see invisible */
 	if (!(r_ptr->flags2 & (RF2_SEE_INVIS)) && (p_ptr->invis))
 	{
-		/* 90% abort spell attempt */
-		if (randint(100) < 90)
+		/* Chance of seeing player depends on stealth */
+		if (randint(p_ptr->skill_stl * 5) + 1 > 10)
 		{
 			return (FALSE);
 		}
@@ -1081,7 +1081,7 @@ bool make_attack_spell(int m_idx)
 			else
 			{
 				msg_print("Your mind is blasted by psionic energy.");
-				if (p_ptr->resist_confu == 100)
+				if (p_ptr->resist_confu >= 100)
 				{
 					(void)set_confused(p_ptr->confused + rand_int(4) + 4);
 				}
@@ -1111,11 +1111,11 @@ bool make_attack_spell(int m_idx)
 			{
 				msg_print("Your mind is blasted by psionic energy.");
 				take_hit(damroll(12, 15), ddesc);
-				if (p_ptr->resist_blind == 100)
+				if (p_ptr->resist_blind >= 100)
 				{
 					(void)set_blind(p_ptr->blind + 8 + rand_int(8));
 				}
-				if (p_ptr->resist_confu == 100)
+				if (p_ptr->resist_confu >= 100)
 				{
 					(void)set_confused(p_ptr->confused + rand_int(4) + 4);
 				}
@@ -2666,8 +2666,8 @@ static void process_monster(int m_idx)
 	/* -TM- Make monsters move stupidly if they can't see invisible */
 	if (!(r_ptr->flags2 & (RF2_SEE_INVIS)) && (p_ptr->invis))
 	{
-		/* 90% random movement */
-		if (randint(100) < 90)
+		/* Chance of seeing player depends on stealth */
+		if (randint(p_ptr->skill_stl * 5)+1 > 10)
 		{
 			stagger = TRUE;
 		}

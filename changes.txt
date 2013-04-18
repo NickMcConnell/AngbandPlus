@@ -1,7 +1,100 @@
 DrAngband Changes:
 ------------------
 
-DrAngband 2.9.1 (29/10/99)
+
+DrAngband 2.9.2 (18/11/99)
+--------------------------
+
+* Added racial gold adjust for multi-hued dragons.
+
+* Removed EASY_KNOW from rings of ice, flames and lightning. Depth
+  decreased, rarity increased so warriors can activate them more easily.
+
+* Cleaner implementation of 'show player by race'.
+
+* 'Balancing' changes to dragon races:
+  Copper dragons now get double disenchantment resistance at level 40.
+  Crystal dragons get double shard resistance at level 40.
+  Bronze dragons get double confustion resistance at level 40.
+  Brass dragons get double sound resistance at level 40.
+  Fixed their racial power.
+  Multi-hued dragons have a higher exp penalty, slighly lower stats,
+  lower DEX, INT and WIS and only reach double resistance. Hopefully they
+  will be less overpowered now!
+  Multi-hued dragons: Resistance to poison at level 45.
+  Considerably redesigned multi-hued dragon racial powers.
+
+* Amulets of resistance.
+
+* Amulets of Invisibility are much deeper now.
+
+* New town layout [startup] option. The new town layout is defined in
+  t_info.txt. Currently only one the normal [vanilla] and one single
+  new layout are supported. In future many more may be available.
+
+* Fixed some bugs in the application of rng offers. You may now enter the
+  town after offering an item without losing the object level bonus. The
+  autoscummer no longer causes problems, either.
+
+* Monsters resistant to electricity are no longer stunned by it.
+
+* Renamed 'Brass' dragons to Gold dragons.
+
+* Earthquake kills monsters stuck in walls [Tim Baker].
+
+* Player ghosts as they were in DrAngband 2.0.
+
+* Cloaks of Free Action.
+
+* Ring of speed depth and rarity changed.
+
+* Some alterations to the way RNG bribery is handled.
+
+* Updated main-emx.c and makefile.emx files for OS/2 support.
+
+* Low dragon scale mails given shallower depth.
+  PDSM given confusion.
+
+* Warriors made better with magical items.
+
+* Dragon Scale Mails recharge *much* quicker.
+
+* Amulets of the magi INT bonuses reduced.
+
+* Invisibility sucess now dependent on player stealth.
+
+* Bone files only deleted when the ghost is slain. Kind of like preserve
+  mode for ghosts.
+
+* Player ghosts given various other nasty powers... New flavours of dragon
+  ghosts.
+
+* Electricity stuns the player. Meteors damage walls.
+
+* Greater basilisks.
+
+* Steven Fuerst's fractal caves patch!
+
+* Experimental 50 line support. Allows the cave to be displayed
+  over larger screens. Set with -b switch.
+
+* Many changes to make use of new screen space. 
+
+* More dangerous poison.
+
+* Fixed identify_fully when used on stuff with many attributes.
+
+* Special feeling now given in non-preserve mode.
+
+* Lousy RNG offers are penalised.
+
+* Resistance to poison no longer makes you immune to the effects
+  of poison. Cure poison made rarer on various types of healing.
+
+* Support for 50 line mode in OS/2 (main-emx.c) and -b switch
+  now takes number of lines (Alexey Guzeev).
+
+DrAngband 2.9.1 (2/11/99)
 --------------------------
 
 * TM_CURSE upgraded to every 50 turns and nastified in other ways...
@@ -64,7 +157,7 @@ DrAngband 2.9.1 (29/10/99)
   edged weapons or polearms.
 
 * Priest -2 to hit,dam when using edged or polearms removed because the
-  new weapon skills penalize *far* more realistically.
+  new weapon skills penalise *far* more realistically.
 
 * Ring of Speed rarity and depth changed to prevent mid-game boredom.
 
@@ -76,11 +169,11 @@ DrAngband 2.9.1 (29/10/99)
   particularly generous offerings.
 
 * Fixed a 'bug' in the fake artifact names patch caused by over-running
-  the normal 80 buffer.
+  the normal 80 byte buffer.
 
 * Faster ranger psuedo-id.
 
-DrAngband 2.9.0c (28/10/99)
+DrAngband 2.9.0c (28/10/99) [Not released]
 ---------------------------
 
 * 'O' is now 'Use racial power' on the rogulike keyset. Still 'U' on the normal
@@ -173,7 +266,7 @@ Angband 2.8.3 -> DrAngband 2.9.0 (Started 24/10/99)
 
 * Monsters from Drangband 2.0 (from zangband).
 
-* Slays applied to total melee damage. Slays smaller for melee than from
+* Slays applied to total melee damage. Slays smaller for melee than for
   ranged attacks.
 
 * "Show player by race" option to show dragons as Ds. Best used with "hilite

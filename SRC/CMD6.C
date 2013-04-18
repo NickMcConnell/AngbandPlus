@@ -64,6 +64,8 @@ void do_cmd_eat_food(void)
 {
 	int item, ident, lev;
 
+	int x;
+	
 	object_type *o_ptr;
 
 	cptr q, s;
@@ -108,19 +110,18 @@ void do_cmd_eat_food(void)
 	{
 		case SV_FOOD_POISON:
 		{
-			if (p_ptr->resist_pois == 100)
+			x = p_ptr->resist_pois;
+			
+			if (set_poisoned(p_ptr->poisoned + ((rand_int(10) + 10))*x)/100)
 			{
-				if (set_poisoned(p_ptr->poisoned + rand_int(10) + 10))
-				{
 					ident = TRUE;
-				}
 			}
 			break;
 		}
 
 		case SV_FOOD_BLINDNESS:
 		{
-			if (p_ptr->resist_blind == 100)
+			if (p_ptr->resist_blind >= 100)
 			{
 				if (set_blind(p_ptr->blind + rand_int(200) + 200))
 				{
@@ -132,7 +133,7 @@ void do_cmd_eat_food(void)
 
 		case SV_FOOD_PARANOIA:
 		{
-			if (p_ptr->resist_fear == 100)
+			if (p_ptr->resist_fear >= 100)
 			{
 				if (set_afraid(p_ptr->afraid + rand_int(10) + 10))
 				{
@@ -144,7 +145,7 @@ void do_cmd_eat_food(void)
 
 		case SV_FOOD_CONFUSION:
 		{
-			if (p_ptr->resist_confu == 100)
+			if (p_ptr->resist_confu >= 100)
 			{
 				if (set_confused(p_ptr->confused + rand_int(10) + 10))
 				{
@@ -156,7 +157,7 @@ void do_cmd_eat_food(void)
 
 		case SV_FOOD_HALLUCINATION:
 		{
-			if (p_ptr->resist_chaos == 100)
+			if (p_ptr->resist_chaos >= 100)
 			{
 				if (set_image(p_ptr->image + rand_int(250) + 250))
 				{
@@ -293,7 +294,7 @@ void do_cmd_eat_food(void)
 		case SV_FOOD_WAYBREAD:
 		{
 			msg_print("That tastes good.");
-			(void)set_poisoned(0);
+			(void)set_poisoned(p_ptr->poisoned / 2);
 			(void)hp_player(damroll(4, 8));
 			ident = TRUE;
 			break;
@@ -357,6 +358,8 @@ void do_cmd_quaff_potion(void)
 {
 	int item, ident, lev;
 
+	int x;
+	
 	object_type *o_ptr;
 
 	cptr q, s;
@@ -426,19 +429,18 @@ void do_cmd_quaff_potion(void)
 
 		case SV_POTION_POISON:
 		{
-			if (p_ptr->resist_pois == 100)
+			x = p_ptr->resist_pois;
+			
+			if (set_poisoned(p_ptr->poisoned + ((rand_int(15) + 10)*x)/100))
 			{
-				if (set_poisoned(p_ptr->poisoned + rand_int(15) + 10))
-				{
-					ident = TRUE;
-				}
+				ident = TRUE;
 			}
 			break;
 		}
 
 		case SV_POTION_BLINDNESS:
 		{
-			if (p_ptr->resist_blind == 100)
+			if (p_ptr->resist_blind >= 100)
 			{
 				if (set_blind(p_ptr->blind + rand_int(100) + 100))
 				{
@@ -450,7 +452,7 @@ void do_cmd_quaff_potion(void)
 
 		case SV_POTION_CONFUSION:
 		{
-			if (p_ptr->resist_confu == 100)
+			if (p_ptr->resist_confu >= 100)
 			{
 				if (set_confused(p_ptr->confused + rand_int(20) + 15))
 				{
@@ -638,16 +640,15 @@ void do_cmd_quaff_potion(void)
 		{
 			if (hp_player(damroll(2, 8))) ident = TRUE;
 			if (set_blind(0)) ident = TRUE;
-			if (set_cut(p_ptr->cut - 10)) ident = TRUE;
 			break;
 		}
 
 		case SV_POTION_CURE_SERIOUS:
 		{
 			if (hp_player(damroll(4, 8))) ident = TRUE;
-			if (set_blind(0)) ident = TRUE;
-			if (set_confused(0)) ident = TRUE;
-			if (set_cut((p_ptr->cut / 2) - 50)) ident = TRUE;
+			if (set_blind(p_ptr->blind / 2)) ident = TRUE;
+			if (set_confused(p_ptr->confused / 2)) ident = TRUE;
+			if (set_cut(p_ptr->cut / 2)) ident = TRUE;
 			break;
 		}
 
@@ -656,8 +657,8 @@ void do_cmd_quaff_potion(void)
 			if (hp_player(damroll(6, 8))) ident = TRUE;
 			if (set_blind(0)) ident = TRUE;
 			if (set_confused(0)) ident = TRUE;
-			if (set_poisoned(0)) ident = TRUE;
-			if (set_stun(0)) ident = TRUE;
+			if (set_poisoned(p_ptr->poisoned / 2)) ident = TRUE;
+			if (set_stun(p_ptr->stun / 2)) ident = TRUE;
 			if (set_cut(0)) ident = TRUE;
 			break;
 		}
@@ -1111,7 +1112,7 @@ void do_cmd_read_scroll(void)
 	{
 		case SV_SCROLL_DARKNESS:
 		{
-			if (p_ptr->resist_blind == 100)
+			if (p_ptr->resist_blind >= 100)
 			{
 				(void)set_blind(p_ptr->blind + 3 + randint(5));
 			}
@@ -1568,7 +1569,7 @@ void do_cmd_use_staff(void)
 	{
 		case SV_STAFF_DARKNESS:
 		{
-			if (p_ptr->resist_blind == 100)
+			if (p_ptr->resist_blind >= 100)
 			{
 				if (set_blind(p_ptr->blind + 3 + randint(5))) ident = TRUE;
 			}
@@ -1694,8 +1695,8 @@ void do_cmd_use_staff(void)
 			if (hp_player(damroll(6, 8))) ident = TRUE;
 			if (set_blind(0)) ident = TRUE;
 			if (set_confused(0)) ident = TRUE;
-			if (set_poisoned(0)) ident = TRUE;
-			if (set_stun(0)) ident = TRUE;
+			if (set_poisoned(p_ptr->poisoned / 2)) ident = TRUE;
+			if (set_stun(p_ptr->stun / 2)) ident = TRUE;
 			if (set_cut(0)) ident = TRUE;
 			break;
 		}
@@ -3430,7 +3431,7 @@ void do_cmd_activate(void)
 			{
 				msg_print("You breathe lightning.");
 				fire_ball(GF_ELEC, dir, 100, 2);
-				o_ptr->timeout = rand_int(450) + 450;
+				o_ptr->timeout = rand_int(45) + 45;
 				break;
 			}
 
@@ -3438,7 +3439,7 @@ void do_cmd_activate(void)
 			{
 				msg_print("You breathe frost.");
 				fire_ball(GF_COLD, dir, 110, 2);
-				o_ptr->timeout = rand_int(450) + 450;
+				o_ptr->timeout = rand_int(45) + 45;
 				break;
 			}
 
@@ -3446,7 +3447,7 @@ void do_cmd_activate(void)
 			{
 				msg_print("You breathe acid.");
 				fire_ball(GF_ACID, dir, 130, 2);
-				o_ptr->timeout = rand_int(450) + 450;
+				o_ptr->timeout = rand_int(45) + 45;
 				break;
 			}
 
@@ -3454,7 +3455,7 @@ void do_cmd_activate(void)
 			{
 				msg_print("You breathe poison gas.");
 				fire_ball(GF_POIS, dir, 150, 2);
-				o_ptr->timeout = rand_int(450) + 450;
+				o_ptr->timeout = rand_int(45) + 45;
 				break;
 			}
 
@@ -3462,7 +3463,7 @@ void do_cmd_activate(void)
 			{
 				msg_print("You breathe fire.");
 				fire_ball(GF_FIRE, dir, 200, 2);
-				o_ptr->timeout = rand_int(450) + 450;
+				o_ptr->timeout = rand_int(45) + 45;
 				break;
 			}
 
@@ -3479,7 +3480,7 @@ void do_cmd_activate(void)
 				            ((chance == 3) ? GF_ACID :
 				             ((chance == 4) ? GF_POIS : GF_FIRE)))),
 				          dir, 250, 2);
-				o_ptr->timeout = rand_int(225) + 225;
+				o_ptr->timeout = rand_int(22) + 22;
 				break;
 			}
 
@@ -3487,7 +3488,7 @@ void do_cmd_activate(void)
 			{
 				msg_print("You breathe confusion.");
 				fire_ball(GF_CONFUSION, dir, 120, 2);
-				o_ptr->timeout = rand_int(450) + 450;
+				o_ptr->timeout = rand_int(45) + 45;
 				break;
 			}
 
@@ -3495,7 +3496,7 @@ void do_cmd_activate(void)
 			{
 				msg_print("You breathe sound.");
 				fire_ball(GF_SOUND, dir, 130, 2);
-				o_ptr->timeout = rand_int(450) + 450;
+				o_ptr->timeout = rand_int(45) + 45;
 				break;
 			}
 
@@ -3506,7 +3507,7 @@ void do_cmd_activate(void)
 				           ((chance == 1 ? "chaos" : "disenchantment")));
 				fire_ball((chance == 1 ? GF_CHAOS : GF_DISENCHANT),
 				          dir, 220, 2);
-				o_ptr->timeout = rand_int(300) + 300;
+				o_ptr->timeout = rand_int(30) + 30;
 				break;
 			}
 
@@ -3517,7 +3518,7 @@ void do_cmd_activate(void)
 				           ((chance == 1 ? "sound" : "shards")));
 				fire_ball((chance == 1 ? GF_SOUND : GF_SHARD),
 				          dir, 230, 2);
-				o_ptr->timeout = rand_int(300) + 300;
+				o_ptr->timeout = rand_int(30) + 30;
 				break;
 			}
 
@@ -3532,7 +3533,7 @@ void do_cmd_activate(void)
 				           ((chance == 2) ? GF_DISENCHANT :
 				            ((chance == 3) ? GF_SOUND : GF_SHARD))),
 				          dir, 250, 2);
-				o_ptr->timeout = rand_int(300) + 300;
+				o_ptr->timeout = rand_int(30) + 30;
 				break;
 			}
 
@@ -3542,7 +3543,7 @@ void do_cmd_activate(void)
 				msg_format("You breathe %s.",
 				           ((chance == 0 ? "light" : "darkness")));
 				fire_ball((chance == 0 ? GF_LITE : GF_DARK), dir, 200, 2);
-				o_ptr->timeout = rand_int(300) + 300;
+				o_ptr->timeout = rand_int(30) + 30;
 				break;
 			}
 
@@ -3550,7 +3551,7 @@ void do_cmd_activate(void)
 			{
 				msg_print("You breathe the elements.");
 				fire_ball(GF_MISSILE, dir, 300, 2);
-				o_ptr->timeout = rand_int(300) + 300;
+				o_ptr->timeout = rand_int(30) + 30;
 				break;
 			}
 		}

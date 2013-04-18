@@ -604,8 +604,11 @@ static void process_world(void)
 	/* Take damage from poison */
 	if (p_ptr->poisoned)
 	{
+		i = (p_ptr->poisoned/10)+1;
+		if (i>100) i = 100;
+		
 		/* Take damage */
-		take_hit(1, "poison");
+		take_hit(i, "poison");
 	}
 
 	/* Take damage from cuts */

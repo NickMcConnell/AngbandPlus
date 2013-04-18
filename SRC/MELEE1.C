@@ -120,7 +120,7 @@ bool make_attack_normal(int m_idx)
 
 	int ap_cnt;
 
-	int i, j, k, tmp, ac, rlev;
+	int x, i, j, k, tmp, ac, rlev;
 	int do_cut, do_stun;
 
 	s32b gold;
@@ -451,14 +451,13 @@ bool make_attack_normal(int m_idx)
 					take_hit(damage, ddesc);
 
 					/* Take "poison" effect */
-					if (p_ptr->resist_pois == 100)
+					x = p_ptr->resist_pois;
+					
+					if (set_poisoned(p_ptr->poisoned + ((randint(rlev) + 5)*x)/100))
 					{
-						if (set_poisoned(p_ptr->poisoned + randint(rlev) + 5))
-						{
-							obvious = TRUE;
-						}
+						obvious = TRUE;
 					}
-
+					
 					/* Learn about the player */
 					update_smart_learn(m_idx, DRS_RES_POIS);
 
@@ -471,7 +470,7 @@ bool make_attack_normal(int m_idx)
 					take_hit(damage, ddesc);
 
 					/* Allow complete resist */
-					if (p_ptr->resist_disen == 100)
+					if (p_ptr->resist_disen >= 100)
 					{
 						/* Apply disenchantment */
 						if (apply_disenchant(0)) obvious = TRUE;
@@ -815,7 +814,7 @@ bool make_attack_normal(int m_idx)
 					take_hit(damage, ddesc);
 
 					/* Increase "blind" */
-					if (p_ptr->resist_blind == 100)
+					if (p_ptr->resist_blind >= 100)
 					{
 						if (set_blind(p_ptr->blind + 10 + randint(rlev)))
 						{
@@ -835,7 +834,7 @@ bool make_attack_normal(int m_idx)
 					take_hit(damage, ddesc);
 
 					/* Increase "confused" */
-					if (p_ptr->resist_confu == 100)
+					if (p_ptr->resist_confu >= 100)
 					{
 						if (set_confused(p_ptr->confused + 3 + randint(rlev)))
 						{

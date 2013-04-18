@@ -343,7 +343,7 @@ static void chest_death(int y, int x, s16b o_idx)
  */
 static void chest_trap(int y, int x, s16b o_idx)
 {
-	int i, trap;
+	int gp, i, trap;
 
 	object_type *o_ptr = &o_list[o_idx];
 
@@ -374,12 +374,11 @@ static void chest_trap(int y, int x, s16b o_idx)
 	if (trap & (CHEST_POISON))
 	{
 		msg_print("A puff of green gas surrounds you!");
-		if (p_ptr->resist_pois == 100)
-		{
-			(void)set_poisoned(p_ptr->poisoned + 10 + randint(20));
-		}
+		gp = p_ptr->resist_pois;
+		
+		(void)set_poisoned(p_ptr->poisoned + ((10 + randint(20))*gp)/100);
 	}
-
+	
 	/* Paralyze */
 	if (trap & (CHEST_PARALYZE))
 	{

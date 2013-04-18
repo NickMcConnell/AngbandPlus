@@ -2280,6 +2280,7 @@ errr init_r_info_txt(FILE *fp, char *buf)
 	/* Mega-Hack -- acquire "ghost" */
 	r_ptr = &r_info[MAX_R_IDX-1];
 
+
 	/* Acquire the next index */
 	r_ptr->name = r_head->name_size;
 	r_ptr->text = r_head->text_size;
@@ -2289,7 +2290,7 @@ errr init_r_info_txt(FILE *fp, char *buf)
 	r_head->text_size += 64;
 
 	/* Hack -- Default name/text for the ghost */
-	strcpy(r_name + r_ptr->name, "Nobody, the Undefined Ghost");
+	strcpy(r_name + r_ptr->name, "Nobody, the Ghost");
 	strcpy(r_text + r_ptr->text, "It seems strangely familiar...");
 
 	/* Hack -- set the attr/char info */
@@ -2298,15 +2299,6 @@ errr init_r_info_txt(FILE *fp, char *buf)
 
 	/* Hack -- Try to prevent a few "potential" bugs */
 	r_ptr->flags1 |= (RF1_UNIQUE);
-
-	/* Hack -- Try to prevent a few "potential" bugs */
-	r_ptr->flags1 |= (RF1_NEVER_MOVE | RF1_NEVER_BLOW);
-
-	/* Hack -- Try to prevent a few "potential" bugs */
-	r_ptr->hdice = r_ptr->hside = 1;
-
-	/* Hack -- Try to prevent a few "potential" bugs */
-	r_ptr->mexp = 1L;
 
 
 	/* No version yet */

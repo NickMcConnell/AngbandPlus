@@ -41,14 +41,14 @@
 /*
  * Current version string
  */
-#define VERSION_STRING  "2.9.1"
+#define VERSION_STRING  "2.9.2"
 
 /*
  * Current version numbers
  */
 #define VERSION_MAJOR	2
 #define VERSION_MINOR	9
-#define VERSION_PATCH	1
+#define VERSION_PATCH	2
 
 /*
  * This value is not currently used
@@ -86,7 +86,7 @@
  * Number of grids in each screen (vertically)
  * Must be a multiple of PANEL_HGT (at least 2x)
  */
-#define SCREEN_HGT	22
+#define OLD_SCREEN_HGT	22
 
 /*
  * Number of grids in each screen (horizontally)
@@ -139,7 +139,7 @@
 /*
  * Maximum array bounds for template based arrays
  */
-#define MAX_F_IDX	64	/* Max size for "f_info[]" */
+#define MAX_F_IDX       96      /* Max size for "f_info[]" */
 #define MAX_K_IDX	512	/* Max size for "k_info[]" */
 #define MAX_A_IDX	128	/* Max size for "a_info[]" */
 #define MAX_E_IDX	200	/* Max size for "e_info[]" */
@@ -515,31 +515,31 @@
 #define ROW_STUN		22
 #define COL_STUN		0	/* <stun> */
 
-#define ROW_HUNGRY		23
+#define ROW_HUNGRY		(screen_y-2)
 #define COL_HUNGRY		0	/* "Weak" / "Hungry" / "Full" / "Gorged" */
 
-#define ROW_BLIND		23
+#define ROW_BLIND		(screen_y-2)
 #define COL_BLIND		7	/* "Blind" */
 
-#define ROW_CONFUSED	23
-#define COL_CONFUSED	13	/* "Confused" */
+#define ROW_CONFUSED		(screen_y-2)
+#define COL_CONFUSED		13	/* "Confused" */
 
-#define ROW_AFRAID		23
+#define ROW_AFRAID		(screen_y-2)
 #define COL_AFRAID		22	/* "Afraid" */
 
-#define ROW_POISONED	23
-#define COL_POISONED	29	/* "Poisoned" */
+#define ROW_POISONED		(screen_y-2)
+#define COL_POISONED		29	/* "Poisoned" */
 
-#define ROW_STATE		23
+#define ROW_STATE		(screen_y-2)
 #define COL_STATE		38	/* <state> */
 
-#define ROW_SPEED		23
+#define ROW_SPEED		(screen_y-2)
 #define COL_SPEED		49	/* "Slow (-NN)" or "Fast (+NN)" */
 
-#define ROW_STUDY		23
+#define ROW_STUDY		(screen_y-2)
 #define COL_STUDY		64	/* "Study" */
 
-#define ROW_DEPTH		23
+#define ROW_DEPTH		(screen_y-2)
 #define COL_DEPTH		70	/* "Lev NNN" / "NNNN ft" */
 
 #define ROW_MAP			1
@@ -677,47 +677,56 @@
 #define FEAT_NONE		0x00
 
 /* Various */
-#define FEAT_FLOOR		0x01
-#define FEAT_INVIS		0x02
-#define FEAT_GLYPH		0x03
+#define FEAT_FLOOR	0x01
+#define FEAT_INVIS	0x02
+#define FEAT_GLYPH	0x03
 #define FEAT_OPEN		0x04
-#define FEAT_BROKEN		0x05
+#define FEAT_BROKEN	0x05
 #define FEAT_LESS		0x06
 #define FEAT_MORE		0x07
 
 /* Shops */
 #define FEAT_SHOP_HEAD	0x08
-#define FEAT_SHOP_TAIL	0x0F
+#define FEAT_SHOP_SPEC	0x1A	/* Start of 'special' buildings */
+#define FEAT_SHOP_TAIL	0x1F
+
+/* New Terrains */
+#define FEAT_LAVA		0x20 /* unused */
+#define FEAT_WATER	0x21
+#define FEAT_DTREE	0x22
+#define FEAT_GRASS	0x23
+#define FEAT_DIRT		0x24
+#define FEAT_LTREE	0x25
 
 /* Traps */
-#define FEAT_TRAP_HEAD	0x10
-#define FEAT_TRAP_TAIL	0x1F
+#define FEAT_TRAP_HEAD	0x30
+#define FEAT_TRAP_TAIL	0x3F
 
 /* Doors */
-#define FEAT_DOOR_HEAD	0x20
-#define FEAT_DOOR_TAIL	0x2F
+#define FEAT_DOOR_HEAD	0x40
+#define FEAT_DOOR_TAIL	0x4F
 
 /* Extra */
-#define FEAT_SECRET		0x30
-#define FEAT_RUBBLE		0x31
+#define FEAT_SECRET	0x50
+#define FEAT_RUBBLE	0x51
 
 /* Seams */
-#define FEAT_MAGMA		0x32
-#define FEAT_QUARTZ		0x33
-#define FEAT_MAGMA_H	0x34
-#define FEAT_QUARTZ_H	0x35
-#define FEAT_MAGMA_K	0x36
-#define FEAT_QUARTZ_K	0x37
+#define FEAT_MAGMA	0x52
+#define FEAT_QUARTZ	0x53
+#define FEAT_MAGMA_H	0x54
+#define FEAT_QUARTZ_H	0x55
+#define FEAT_MAGMA_K	0x56
+#define FEAT_QUARTZ_K	0x57
 
 /* Walls */
-#define FEAT_WALL_EXTRA	0x38
-#define FEAT_WALL_INNER	0x39
-#define FEAT_WALL_OUTER	0x3A
-#define FEAT_WALL_SOLID	0x3B
-#define FEAT_PERM_EXTRA	0x3C
-#define FEAT_PERM_INNER	0x3D
-#define FEAT_PERM_OUTER	0x3E
-#define FEAT_PERM_SOLID	0x3F
+#define FEAT_WALL_EXTRA	0x58
+#define FEAT_WALL_INNER	0x59
+#define FEAT_WALL_OUTER	0x5A
+#define FEAT_WALL_SOLID	0x5B
+#define FEAT_PERM_EXTRA	0x5C
+#define FEAT_PERM_INNER	0x5D
+#define FEAT_PERM_OUTER	0x5E
+#define FEAT_PERM_SOLID	0x5F
 
 
 
@@ -940,6 +949,7 @@
 #define EGO_ENVELOPING		44
 #define EGO_VULNERABILITY	45
 #define EGO_IRRITATION		46
+#define EGO_FREEACT_CLOAK	47
 /* xxx */
 
 /* Gloves */
@@ -1252,6 +1262,8 @@
 #define SV_AMULET_CARLAMMAS		10
 #define SV_AMULET_INGWE			11
 #define SV_AMULET_DWARVES		12
+/* xxx */
+#define SV_AMULET_RESISTANCE		13
 
 /* The sval codes for TV_RING */
 #define SV_RING_WOE				0
@@ -2079,7 +2091,7 @@
 #define RF2_STUPID			0x00000001	/* Monster is stupid */
 #define RF2_SMART			0x00000002	/* Monster is smart */
 #define RF2_SEE_INVIS		0x00000004	/* See Invisible */
-#define RF2_XXX2			0x00000008	/* (?) */
+#define RF2_PLAYER_GHOST	0x00000008	/* Monster is a player ghost */
 #define RF2_INVISIBLE		0x00000010	/* Monster avoids vision */
 #define RF2_COLD_BLOOD		0x00000020	/* Monster avoids infra */
 #define RF2_EMPTY_MIND		0x00000040	/* Monster avoids telepathy */
@@ -2695,20 +2707,20 @@ extern int PlayerUID;
  * and should "gamma corrected" on most (non-Macintosh) machines.
  */
 #define TERM_DARK		0	/* 'd' */	/* 0,0,0 */
-#define TERM_WHITE		1	/* 'w' */	/* 4,4,4 */
-#define TERM_SLATE		2	/* 's' */	/* 2,2,2 */
-#define TERM_ORANGE		3	/* 'o' */	/* 4,2,0 */
+#define TERM_WHITE	1	/* 'w' */	/* 4,4,4 */
+#define TERM_SLATE	2	/* 's' */	/* 2,2,2 */
+#define TERM_ORANGE	3	/* 'o' */	/* 4,2,0 */
 #define TERM_RED		4	/* 'r' */	/* 3,0,0 */
-#define TERM_GREEN		5	/* 'g' */	/* 0,2,1 */
+#define TERM_GREEN	5	/* 'g' */	/* 0,2,1 */
 #define TERM_BLUE		6	/* 'b' */	/* 0,0,4 */
-#define TERM_UMBER		7	/* 'u' */	/* 2,1,0 */
-#define TERM_L_DARK		8	/* 'D' */	/* 1,1,1 */
+#define TERM_UMBER	7	/* 'u' */	/* 2,1,0 */
+#define TERM_L_DARK	8	/* 'D' */	/* 1,1,1 */
 #define TERM_L_WHITE	9	/* 'W' */	/* 3,3,3 */
-#define TERM_VIOLET		10	/* 'v' */	/* 4,0,4 */
-#define TERM_YELLOW		11	/* 'y' */	/* 4,4,0 */
-#define TERM_L_RED		12	/* 'R' */	/* 4,0,0 */
+#define TERM_VIOLET	10	/* 'v' */	/* 4,0,4 */
+#define TERM_YELLOW	11	/* 'y' */	/* 4,4,0 */
+#define TERM_L_RED	12	/* 'R' */	/* 4,0,0 */
 #define TERM_L_GREEN	13	/* 'G' */	/* 0,4,0 */
-#define TERM_L_BLUE		14	/* 'B' */	/* 0,4,4 */
+#define TERM_L_BLUE	14	/* 'B' */	/* 0,4,4 */
 #define TERM_L_UMBER	15	/* 'U' */	/* 3,2,1 */
 
 

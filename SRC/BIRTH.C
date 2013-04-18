@@ -241,7 +241,10 @@ static hist_type bg[] =
 	{"and black ",                                                  100,65,66, 50},
 	{"ulcerous skin.",                                               33,66, 0, 50},
 	{"scabby skin.",                                                 66,66, 0, 50},
-	{"leprous skin.",                                               100,66, 0, 50}
+	{"leprous skin.",                                               100,66, 0, 50},
+	{"You are a multi-hued dragon from the Wild.  ",                 25,67,44, 40},
+	{"You are a multi-hued dragon from the Misty Mountains.  ",      50,67,44, 50},
+	{"You are a multi-hued dragon from the fortress of Angband.  ", 100,67,44, 30}
 };
 
 
@@ -691,7 +694,7 @@ static void get_history(void)
 
 		case RACE_MULTIHUEDDRAG:
 		{
-			chart = 40;
+			chart = 67;
 			break;
 		}
 
@@ -953,10 +956,6 @@ static void player_wipe(void)
 		/* Clear player kills */
 		r_ptr->r_pkills = 0;
 	}
-
-
-	/* Hack -- no ghosts */
-	r_info[MAX_R_IDX-1].max_num = 0;
 
 
 	/* Hack -- Well fed player */
@@ -1310,6 +1309,35 @@ static bool player_birth_aux()
 
 	/* Set "preserve" mode */
 	p_ptr->preserve = (c == 'y');
+
+	/* Clear */
+	clear_from(15);
+
+	/*** New town layout ***/
+
+	/* Extra info */
+	Term_putstr(5, 15, -1, TERM_WHITE,
+		"The new town layout adds nothing to the game but ");
+	Term_putstr(5, 16, -1, TERM_WHITE,
+		"looks more realistic. It looks best in 43 line mode ");
+	Term_putstr(5, 17, -1, TERM_WHITE,
+		"or higher.");
+
+	/* Ask about new town layout mode */
+	while (1)
+	{
+		put_str("Use the new town layout? (y/n) ", 20, 2);
+		c = inkey();
+		if (c == 'Q') quit(NULL);
+		if (c == 'S') return (FALSE);
+		if (c == ESCAPE) break;
+		if ((c == 'y') || (c == 'n')) break;
+		if (c == '?') do_cmd_help();
+		else bell("Illegal selection!");
+	}
+
+	/* Set new town layout mode */
+	p_ptr->new_town = (c == 'y');
 
 	/* Clear */
 	clear_from(20);

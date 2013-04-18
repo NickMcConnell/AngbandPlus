@@ -2673,8 +2673,8 @@ static errr rd_savefile_old_aux(void)
 		/* Only one unique monster */
 		if (r_ptr->flags1 & (RF1_UNIQUE)) r_ptr->max_num = 1;
 
-		/* Hack -- No ghosts */
-		if (i == MAX_R_IDX-1) r_ptr->max_num = 0;
+		/* HACK - ghosts */
+		if (i == MAX_R_IDX-1) r_ptr->max_num = 1;
 
 		/* Note death */
 		if (tmp32u) r_ptr->max_num = 0;
@@ -2825,8 +2825,8 @@ static errr rd_savefile_old_aux(void)
 	}
 
 
-	/* Hack -- no ghosts */
-	r_info[MAX_R_IDX-1].max_num = 0;
+	/* Hack -- ghosts */
+	r_info[MAX_R_IDX-1].max_num = 1;
 
 
 	/* Hack -- reset morgoth */

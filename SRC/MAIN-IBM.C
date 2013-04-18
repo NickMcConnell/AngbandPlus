@@ -76,10 +76,11 @@
 
 #include <bios.h>
 #include <dos.h>
+#include <conio.h>
 
 #ifdef USE_WAT
 
-# include <conio.h>
+/*# include <conio.h>*/
 
 # ifdef USE_CONIO
 # else /* USE_CONIO */
@@ -180,10 +181,10 @@ extern int directvideo = 1;
 
 /*
  * Screen Size
+ * Now screen_x and screen_y are used. They are set before
+ * running these routines but must be corrected if the
+ * requested mode is unavailable.
  */
-static int rows = 25;
-static int cols = 80;
-
 
 /*
  * Physical Screen
@@ -665,7 +666,7 @@ static errr Term_xtra_ibm(int n, int v)
 # else /* USE_WAT */
 
 			/* Apply the virtual screen to the physical screen */
-			ScreenUpdateLine(VirtualScreen + ((v*cols) << 1), v);
+			ScreenUpdateLine(VirtualScreen + ((v*screen_x) << 1), v);
 
 # endif /* USE_WAT */
 
@@ -687,10 +688,10 @@ static errr Term_xtra_ibm(int n, int v)
 #else /* USE_CONIO */
 
 			/* Clear each line (virtual or physical) */
-			for (i = 0; i < rows; i++)
+			for (i = 0; i < screen_y; i++)
 			{
 				/* Clear the line */
-				memcpy((VirtualScreen + ((i*cols) << 1)), wiper, (cols << 1));
+				memcpy((VirtualScreen + ((i*screen_x) << 1)), wiper, (screen_x << 1));
 			}
 
 # ifdef USE_VIRTUAL
@@ -698,7 +699,7 @@ static errr Term_xtra_ibm(int n, int v)
 #  ifdef USE_WAT
 
 			/* Copy the virtual screen to the physical screen */
-			memcpy(PhysicalScreen, VirtualScreen, 25*80*2);
+			memcpy(PhysicalScreen, VirtualScreen, screen_y*80*2);
 
 #  else /* USE_WAT */
 
@@ -810,12 +811,12 @@ static errr Term_wipe_ibm(int x, int y, int n)
 	/* Wipe the region */
 	window(x+1, y+1, x+n, y+1);
 	clrscr();
-	window(1, 1, cols, rows);
+	window(1, 1, screen_x, screen_y);
 
 #else /* USE_CONIO */
 
 	/* Wipe part of the virtual (or physical) screen */
-	memcpy(VirtualScreen + ((cols*y + x)<<1), wiper, n<<1);
+	memcpy(VirtualScreen + ((screen_x*y + x)<<1), wiper, n<<1);
 
 #endif /* USE_CONIO */
 
@@ -866,7 +867,7 @@ static errr Term_text_ibm(int x, int y, int n, byte a, const char *cp)
 #else /* USE_CONIO */
 
 	/* Access the virtual (or physical) screen */
-	dest = VirtualScreen + (((cols * y) + x) << 1);
+	dest = VirtualScreen + (((screen_x * y) + x) << 1);
 
 	/* Save the data */
 	for (i = 0; i < n; i++)
@@ -927,7 +928,7 @@ static errr Term_pict_ibm(int x, int y, int n, const byte *ap, const char *cp)
 #else /* USE_CONIO */
 
 	/* Access the virtual (or physical) screen */
-	dest = VirtualScreen + (((cols * y) + x) << 1);
+	dest = VirtualScreen + (((screen_x * y) + x) << 1);
 
 	/* Save the data */
 	for (i = 0; i < n; i++)
@@ -984,7 +985,7 @@ static void Term_nuke_ibm(term *t)
 #endif /* USE_WAT */
 
 	/* Move the cursor to the bottom of the screen */
-	Term_curs_ibm(0, rows-1);
+	Term_curs_ibm(0, screen_y-1);
 
 #ifdef USE_WAT
 
@@ -1211,6 +1212,7 @@ errr init_ibm(void)
 {
 	int i;
 	int mode;
+	char buf[20];
 
 	term *t = &term_screen_body;
 
@@ -1258,24 +1260,19 @@ errr init_ibm(void)
 
 	/* Force 25 line mode */
 	_setvideomode(_TEXTC80);
-	_settextrows(25);
+	_settextrows(screen_y);
 
 #else /* USE_WAT */
 
 	/* Set video mode */
 	r.h.ah = 0x00;
-	r.h.al = 0x13; /* VGA only mode */
-	int86(0x10, &r, &r);
-
-	/* Get video mode */
-	r.h.ah = 0x0F;
-	int86(0x10, &r, &r);
-	mode = r.h.al;
-
-	/* Set video mode */
-	r.h.ah = 0x00;
 	r.h.al = 0x03; /* Color text mode */
 	int86(0x10, &r, &r);
+
+	/* A nice simple way. Lets hope they have mode.com... */
+	sprintf(buf, "mode co%d,%d\r", screen_x, screen_y);
+	system(buf);
+	mode = 0x13;
 
 #endif /* USE_WAT */
 
@@ -1348,7 +1345,7 @@ errr init_ibm(void)
 #ifdef USE_VIRTUAL
 
 	/* Make the virtual screen */
-	C_MAKE(VirtualScreen, rows * cols * 2, byte);
+	C_MAKE(VirtualScreen, screen_y * screen_x * 2, byte);
 
 #endif /* USE_VIRTUAL */
 
@@ -1375,7 +1372,7 @@ errr init_ibm(void)
 
 
 	/* Initialize the term */
-	term_init(t, 80, 24, 256);
+	term_init(t, 80, screen_y, 256);
 
 #ifdef USE_CONIO
 #else /* USE_CONIO */

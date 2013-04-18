@@ -341,24 +341,25 @@ static owner_type *ot_ptr = NULL;
  */
 static byte rgold_adj[MAX_RACES][MAX_RACES] =
 {
-			/*Hum, HfE, Elf,  Hal, Gno, Dwa, HfO, HfT, Dun, HiE, Pix, Yek, CrD, CoD, BrD, GoD, PsD */
-/*Human          */      { 100, 105, 105, 110, 113, 115, 120, 125, 100, 105, 115, 150, 120, 130, 130, 120, 140},
-/*Half-Elf       */      { 110, 100, 100, 105, 110, 120, 125, 130, 110, 100, 110, 150, 110, 140, 135, 120, 135},
-/*Elf            */      { 110, 105, 100, 105, 110, 120, 125, 130, 110, 100, 105, 150, 110, 140, 135, 120, 135},
-/*Halfling       */      { 115, 110, 105,  95, 105, 110, 115, 130, 115, 105, 120, 150, 130, 130, 130, 130, 125},
-/*Gnome          */      { 115, 115, 110, 105,  95, 110, 115, 130, 115, 110, 110, 150, 125, 125, 125, 125, 130},
-/*Dwarf          */      { 115, 120, 120, 110, 110,  95, 125, 135, 115, 120, 125, 150, 130, 135, 135, 120, 135},
-/*Half-Orc       */      { 115, 120, 125, 115, 115, 130, 110, 115, 115, 125, 125, 150, 115, 110, 110, 110, 115},
-/*Half-Troll     */      { 110, 115, 115, 110, 110, 130, 110, 110, 110, 115, 135, 150, 115, 115, 110, 110, 120},
-/*Dunedain       */      { 100, 105, 105, 110, 113, 115, 120, 125, 100, 105, 115, 150, 115, 115, 115, 115, 115},
-/*High_Elf       */      { 110, 105, 100, 105, 110, 120, 125, 130, 110, 100, 105, 150, 110, 140, 135, 120, 135},
-/*Pixie          */      { 115, 110, 105, 120, 110, 125, 125, 135, 115, 105,  90, 150, 115, 115, 120, 115, 110},
-/*Yeek           */      { 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150,  50, 150, 150, 150, 150, 150},
-/*Crystal-Drag   */      { 120, 110, 110, 130, 125, 130, 115, 115, 115, 110, 115, 150,  90, 100, 100, 100, 110},
-/*Copper-Drag    */      { 130, 140, 140, 130, 125, 135, 110, 115, 115, 110, 115, 150, 100,  90, 100, 100, 110},
-/*Bronze-Drag    */      { 130, 135, 135, 130, 125, 135, 110, 110, 115, 135, 120, 150, 100, 100,  90, 100, 110},
-/*Gold-Dragon    */      { 120, 120, 120, 130, 125, 120, 110, 110, 115, 120, 115, 150, 100, 100, 100,  90, 110},
-/*Pseudo-Drag    */      { 140, 135, 135, 125, 130, 135, 115, 120, 115, 135, 110, 150, 110, 110, 110, 110,  85}
+			/*Hum, HfE, Elf,  Hal, Gno, Dwa, HfO, HfT, Dun, HiE, Pix, Yek, CrD, CoD, BrD, GoD, PsD, MhD*/
+/*Human          */      { 100, 105, 105, 110, 113, 115, 120, 125, 100, 105, 115, 150, 120, 130, 130, 120, 140, 130},
+/*Half-Elf       */      { 110, 100, 100, 105, 110, 120, 125, 130, 110, 100, 110, 150, 110, 140, 135, 120, 135, 130},
+/*Elf            */      { 110, 105, 100, 105, 110, 120, 125, 130, 110, 100, 105, 150, 110, 140, 135, 120, 135, 130},
+/*Halfling       */      { 115, 110, 105,  95, 105, 110, 115, 130, 115, 105, 120, 150, 130, 130, 130, 130, 125, 125},
+/*Gnome          */      { 115, 115, 110, 105,  95, 110, 115, 130, 115, 110, 110, 150, 125, 125, 125, 125, 130, 130},
+/*Dwarf          */      { 115, 120, 120, 110, 110,  95, 125, 135, 115, 120, 125, 150, 130, 135, 135, 120, 135, 135},
+/*Half-Orc       */      { 115, 120, 125, 115, 115, 130, 110, 115, 115, 125, 125, 150, 115, 110, 110, 110, 115, 115},
+/*Half-Troll     */      { 110, 115, 115, 110, 110, 130, 110, 110, 110, 115, 135, 150, 115, 115, 110, 110, 120, 120},
+/*Dunedain       */      { 100, 105, 105, 110, 113, 115, 120, 125, 100, 105, 115, 150, 115, 115, 115, 115, 115, 115},
+/*High_Elf       */      { 110, 105, 100, 105, 110, 120, 125, 130, 110, 100, 105, 150, 110, 140, 135, 120, 135, 135},
+/*Pixie          */      { 115, 110, 105, 120, 110, 125, 125, 135, 115, 105,  90, 150, 115, 115, 120, 115, 110, 110},
+/*Yeek           */      { 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150,  50, 150, 150, 150, 150, 150, 150},
+/*Crystal-Drag   */      { 120, 110, 110, 130, 125, 130, 115, 115, 115, 110, 115, 150,  90, 100, 100, 100, 110, 110},
+/*Copper-Drag    */      { 130, 140, 140, 130, 125, 135, 110, 115, 115, 110, 115, 150, 100,  90, 100, 100, 110, 110},
+/*Bronze-Drag    */      { 130, 135, 135, 130, 125, 135, 110, 110, 115, 135, 120, 150, 100, 100,  90, 100, 110, 110},
+/*Gold-Dragon    */      { 120, 120, 120, 130, 125, 120, 110, 110, 115, 120, 115, 150, 100, 100, 100,  90, 110, 110},
+/*Pseudo-Drag    */      { 140, 135, 135, 125, 130, 135, 115, 120, 115, 135, 110, 150, 110, 110, 110, 110,  85, 110},
+/*Multi-hued     */      { 120, 120, 120, 130, 125, 120, 110, 110, 115, 120, 115, 150, 100, 100, 100,  90, 110, 85}
 };
 
 
@@ -1336,16 +1337,21 @@ static void display_entry(int item)
 
 	int maxwid = 75;
 
+	int fit;
+
+	/* How many items fit on screen */
+	fit = screen_y - 13;
+	if (fit > 24) fit = 24;
 
 	/* Must be on current "page" to get displayed */
-	if (!((item >= store_top) && (item < store_top + 12))) return;
+	if (!((item >= store_top) && (item < store_top + fit))) return;
 
 
 	/* Get the object */
 	o_ptr = &st_ptr->stock[item];
 
 	/* Get the row */
-	y = (item % 12) + 6;
+	y = (item % fit) + 6;
 
 	/* Label it, clear the line --(-- */
 	sprintf(out_val, "%c) ", store_to_label(item));
@@ -1459,8 +1465,14 @@ static void display_inventory(void)
 {
 	int i, k;
 
+	int fit;
+
+	/* Find out how much of inventory fits on screen */
+	fit = screen_y - 13;
+	if (fit > 24) fit = 24;
+
 	/* Display the next 12 items */
-	for (k = 0; k < 12; k++)
+	for (k = 0; k < fit; k++)
 	{
 		/* Stop when we run out of items */
 		if (store_top + k >= st_ptr->stock_num) break;
@@ -1470,19 +1482,19 @@ static void display_inventory(void)
 	}
 
 	/* Erase the extra lines and the "more" prompt */
-	for (i = k; i < 13; i++) prt("", i + 6, 0);
+	for (i = k; i < fit+1; i++) prt("", i + 6, 0);
 
 	/* Assume "no current page" */
 	put_str("        ", 5, 20);
 
 	/* Visual reminder of "more items" */
-	if (st_ptr->stock_num > 12)
+	if (st_ptr->stock_num > fit)
 	{
 		/* Show "more" reminder (after the last object ) */
 		prt("-more-", k + 6, 3);
 
 		/* Indicate the "current page" */
-		put_str(format("(Page %d)", store_top/12 + 1), 5, 20);
+		put_str(format("(Page %d)", store_top/fit + 1), 4, 20);
 	}
 }
 
@@ -1494,10 +1506,10 @@ static void store_prt_gold(void)
 {
 	char out_val[64];
 
-	prt("Gold Remaining: ", 19, 53);
+	prt("Gold Remaining: ", screen_y-5, 53);
 
 	sprintf(out_val, "%9ld", (long)p_ptr->au);
-	prt(out_val, 19, 68);
+	prt(out_val, screen_y-5, 68);
 }
 
 
@@ -1516,15 +1528,15 @@ static void display_store(void)
 	if (store_num == 7)
 	{
 		/* Put the owner name */
-		put_str("Your Home", 3, 30);
+		put_str("Your Home", 2, 30);
 
 		/* Label the object descriptions */
-		put_str("Item Description", 5, 3);
+		put_str("Item Description", 4, 3);
 
 		/* If showing weights, show label */
 		if (show_weights)
 		{
-			put_str("Weight", 5, 70);
+			put_str("Weight", 4, 70);
 		}
 	}
 
@@ -1537,23 +1549,23 @@ static void display_store(void)
 
 		/* Put the owner name and race */
 		sprintf(buf, "%s (%s)", owner_name, race_name);
-		put_str(buf, 3, 10);
+		put_str(buf, 2, 10);
 
 		/* Show the max price in the store (above prices) */
 		sprintf(buf, "%s (%ld)", store_name, (long)(ot_ptr->max_cost));
-		prt(buf, 3, 50);
+		prt(buf, 2, 50);
 
 		/* Label the object descriptions */
-		put_str("Item Description", 5, 3);
+		put_str("Item Description", 4, 3);
 
 		/* If showing weights, show label */
 		if (show_weights)
 		{
-			put_str("Weight", 5, 60);
+			put_str("Weight", 4, 60);
 		}
 
 		/* Label the asking price (in stores) */
-		put_str("Price", 5, 72);
+		put_str("Price", 4, 72);
 	}
 
 	/* Display the current gold */
@@ -2306,6 +2318,11 @@ static void store_purchase(void)
 
 	char out_val[160];
 
+	int fit;
+
+	/* How many items fit on screen */
+	fit = screen_y - 13;
+	if (fit > 24) fit = 24;
 
 	/* Empty? */
 	if (st_ptr->stock_num <= 0)
@@ -2496,7 +2513,7 @@ static void store_purchase(void)
 				else if (st_ptr->stock_num != n)
 				{
 					/* Only one screen left */
-					if (st_ptr->stock_num <= 12)
+					if (st_ptr->stock_num <= fit)
 					{
 						store_top = 0;
 					}
@@ -2582,7 +2599,7 @@ static void store_purchase(void)
 		if (st_ptr->stock_num != n)
 		{
 			/* Only one screen left */
-			if (st_ptr->stock_num <= 12)
+			if (st_ptr->stock_num <= fit)
 			{
 				store_top = 0;
 			}
@@ -2624,6 +2641,11 @@ static void store_sell(void)
 
 	char o_name[180];
 
+	int fit;
+
+	/* How many items fit on screen */
+	fit = screen_y - 13;
+	if (fit > 24) fit = 24;
 
 	/* Home */
 	q = "Drop which item? ";
@@ -2891,6 +2913,12 @@ static bool leave_store = FALSE;
  */
 static void store_process_command(void)
 {
+	int fit;
+
+	/* How many items fit on screen */
+	fit = screen_y - 13;
+	if (fit > 24) fit = 24;
+	
 	/* Parse the command */
 	switch (p_ptr->command_cmd)
 	{
@@ -2904,7 +2932,7 @@ static void store_process_command(void)
 			/* Browse */
 		case ' ':
 		{
-			if (st_ptr->stock_num <= 12)
+			if (st_ptr->stock_num <= fit)
 			{
 				/* Nothing to see */
 				msg_print("Entire inventory is shown.");
@@ -2913,7 +2941,7 @@ static void store_process_command(void)
 			else if (store_top == 0)
 			{
 				/* Page 2 */
-				store_top = 12;
+				store_top = fit;
 
 				/* Redisplay wares */
 				display_inventory();
@@ -3210,9 +3238,13 @@ void do_cmd_store(void)
 	int px = p_ptr->px;
 
 	int which;
+	int fit;
 
 	int tmp_chr;
 
+	/* How much inventory fits on screen? */
+	fit = screen_y - 13;
+	if (fit > 24) fit = 24;
 
 	/* Verify a store */
 	if (!((cave_feat[py][px] >= FEAT_SHOP_HEAD) &&
@@ -3278,23 +3310,23 @@ void do_cmd_store(void)
 		tmp_chr = p_ptr->stat_use[A_CHR];
 
 		/* Clear */
-		clear_from(21);
+		clear_from(screen_y-3);
 
 		/* Basic commands */
-		prt(" ESC) Exit from Building.", 22, 0);
+		prt(" ESC) Exit from Building.", screen_y-2, 0);
 
 		/* Browse if necessary */
-		if (st_ptr->stock_num > 12)
+		if (st_ptr->stock_num > fit)
 		{
-			prt(" SPACE) Next page of stock", 23, 0);
+			prt(" SPACE) Next page of stock", screen_y-1, 0);
 		}
 
 		/* Commands */
-		prt(" g) Get/Purchase an item.", 22, 40);
-		prt(" d) Drop/Sell an item.", 23, 40);
+		prt(" g) Get/Purchase an item.", screen_y-2, 40);
+		prt(" d) Drop/Sell an item.", screen_y-1, 40);
 
 		/* Prompt */
-		prt("You may: ", 21, 0);
+		prt("You may: ", screen_y-3, 0);
 
 		/* Get a command */
 		request_command(TRUE);
@@ -3619,3 +3651,51 @@ void store_init(int which)
 }
 
 
+
+/*
+ * Do building commands
+ * This must be finished. Or even started...
+ */
+/*void do_cmd_bldg(void)
+{
+	int             i, which;
+
+	which = cave_feat[py][px];
+
+	if (which < FEAT_SHOP_SPEC || which > FEAT_SHOP_TAIL)
+	{
+		msg_print("Wow! You entered a building that doesn't exist!");
+
+		return;
+	}*/
+
+	/* Forget the lite */
+/*	forget_lite();*/
+
+	/* Forget the view */
+/*	forget_view();*/
+
+	/* Hack -- Increase "icky" depth */
+/*	character_icky++;*/
+
+	/* CODE FOR BUILDING */
+	
+	/* Flush messages XXX XXX XXX */
+/*	msg_print(NULL);*/
+	
+	/* Hack -- Decrease "icky" depth */
+/*	character_icky--;*/
+
+	/* Clear the screen */
+/*	Term_clear();*/
+
+	/* Update the visuals */
+/*	p_ptr->update |= (PU_VIEW | PU_MONSTERS | PU_BONUS);*/
+
+	/* Redraw entire screen */
+/*	p_ptr->redraw |= (PR_BASIC | PR_EXTRA | PR_EQUIPPY | PR_MAP);*/
+
+	/* Window stuff */
+/*	p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);*/
+/*}
+*/

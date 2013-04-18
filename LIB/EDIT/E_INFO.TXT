@@ -22,7 +22,7 @@
 
 # Version stamp (required)
 
-V:2.9.1
+V:2.9.2
 
 #N: ego-item index: name (appended to base object description)
 #X: base object tval (general kind): amount the level feeling is increased by
@@ -276,7 +276,11 @@ W:0:0:0:0
 C:15:15:0:0
 F:AGGRAVATE | SHOW_MODS | LIGHT_CURSE
 
-# 47 (unused)
+N:47:of Free Action
+X:31:10
+W:0:0:0:1000
+C:0:0:0:10
+F:FREE_ACT
 
 
 ### Gloves ###

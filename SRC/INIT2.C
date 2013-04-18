@@ -2398,8 +2398,8 @@ static errr init_alloc(void)
  */
 static void note(cptr str)
 {
-	Term_erase(0, 23, 255);
-	Term_putstr(20, 23, -1, TERM_WHITE, str);
+	Term_erase(0, screen_y-2, 255);
+	Term_putstr(20, screen_y-2, -1, TERM_WHITE, str);
 	Term_fresh();
 }
 
@@ -2527,7 +2527,7 @@ void init_angband(void)
 	/* Dump */
 	if (fp)
 	{
-		int i = 0;
+		int i = (screen_y - 25)/2;
 
 		/* Dump the file to the screen */
 		while (0 == my_fgets(fp, buf, 1024))

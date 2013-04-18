@@ -1589,7 +1589,6 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 {
 	bool obvious = FALSE;
 
-
 	/* Reduce damage by distance */
 	dam = (dam + r) / (r + 1);
 
@@ -1603,7 +1602,6 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 		case GF_FIRE:
 		case GF_COLD:
 		case GF_PLASMA:
-		case GF_METEOR:
 		case GF_ICE:
 		case GF_SHARD:
 		case GF_FORCE:
@@ -1693,6 +1691,27 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 			break;
 		}
 
+		/* Meteor -- destroy walls */
+		case GF_METEOR:
+		{
+			/* Permenent walls */
+			if (cave_feat[y][x] >= FEAT_PERM_EXTRA) break;
+
+			/* Forget the wall */
+			cave_info[y][x] &= ~(CAVE_MARK);
+
+			/* And change it */
+			cave_set_feat(y, x, FEAT_FLOOR);
+			
+			/* Update the visuals */
+			p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
+
+			/* Fully update the flow */
+			p_ptr->update |= (PU_FORGET_FLOW | PU_UPDATE_FLOW);
+
+			break;
+		}
+		
 		/* Destroy walls (and doors) */
 		case GF_KILL_WALL:
 		{
@@ -2319,13 +2338,18 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		case GF_ELEC:
 		{
 			if (seen) obvious = TRUE;
-			do_stun = (randint(15) + r) / (r + 1);
+
 			if (r_ptr->flags3 & (RF3_IM_ELEC))
 			{
 				note = " resists a lot.";
 				dam /= 9;
 				if (seen) r_ptr->r_flags3 |= (RF3_IM_ELEC);
 			}
+			else
+			{
+				do_stun = (randint(15) + r) / (r + 1);
+			}
+
 			break;
 		}
 
@@ -3503,6 +3527,11 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 		{
 			if (fuzzy) msg_print("You are hit by lightning!");
 			elec_dam(dam, killer);
+			if (p_ptr->resist_sound >= 100)
+			{
+				int k = (randint((dam > 40) ? 35 : (dam * 3 / 4 + 5)));
+				(void)set_stun(p_ptr->stun + k);
+			}
 			break;
 		}
 
@@ -3512,7 +3541,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 			if (fuzzy) msg_print("You are hit by poison!");
 			if (p_ptr->resist_pois < 100) dam = ((dam + 2) * p_ptr->resist_pois) / 100;
 			take_hit(dam, killer);
-			if (p_ptr->resist_pois == 100)
+			if (p_ptr->resist_pois >= 100)
 			{
 				(void)set_poisoned(p_ptr->poisoned + rand_int(dam) + 10);
 			}
@@ -3549,7 +3578,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 		{
 			if (fuzzy) msg_print("You are hit by something!");
 			take_hit(dam, killer);
-			if (p_ptr->resist_sound == 100)
+			if (p_ptr->resist_sound >= 100)
 			{
 				int k = (randint((dam > 40) ? 35 : (dam * 3 / 4 + 5)));
 				(void)set_stun(p_ptr->stun + k);
@@ -3590,11 +3619,11 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 		case GF_WATER:
 		{
 			if (fuzzy) msg_print("You are hit by something!");
-			if (p_ptr->resist_sound == 100)
+			if (p_ptr->resist_sound >= 100)
 			{
 				(void)set_stun(p_ptr->stun + randint(40));
 			}
-			if (p_ptr->resist_confu == 100)
+			if (p_ptr->resist_confu >= 100)
 			{
 				(void)set_confused(p_ptr->confused + randint(5) + 5);
 			}
@@ -3610,15 +3639,15 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 			{
 				dam = (dam * (p_ptr->resist_chaos + randint(35))) / 100;
 			}
-			if (p_ptr->resist_confu == 100)
+			if (p_ptr->resist_confu >= 100 && p_ptr->resist_chaos >= 100)
 			{
 				(void)set_confused(p_ptr->confused + rand_int(20) + 10);
 			}
-			if (p_ptr->resist_chaos == 100)
+			if (p_ptr->resist_chaos >= 100)
 			{
 				(void)set_image(p_ptr->image + randint(10));
 			}
-			if (p_ptr->resist_nethr==100 && p_ptr->resist_chaos==100)
+			if (p_ptr->resist_nethr>=100 && p_ptr->resist_chaos>=100)
 			{
 				if (p_ptr->hold_life && (rand_int(100) < 75))
 				{
@@ -3680,7 +3709,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 			{
 				dam = (dam * (p_ptr->resist_confu + randint(20))) / 100;
 			}
-			if (p_ptr->resist_confu == 100)
+			if (p_ptr->resist_confu >= 100)
 			{
 				(void)set_confused(p_ptr->confused + randint(20) + 10);
 			}
@@ -3724,7 +3753,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 		case GF_FORCE:
 		{
 			if (fuzzy) msg_print("You are hit by something!");
-			if (p_ptr->resist_sound == 100)
+			if (p_ptr->resist_sound >= 100)
 			{
 				(void)set_stun(p_ptr->stun + randint(20));
 			}
@@ -3749,7 +3778,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 			{
 				dam = (dam * (p_ptr->resist_lite + randint(10))) / 100;
 			}
-			else if (!blind && p_ptr->resist_blind == 100)
+			else if (!blind && p_ptr->resist_blind >= 100)
 			{
 				(void)set_blind(p_ptr->blind + randint(5) + 2);
 			}
@@ -3765,7 +3794,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 			{
 				dam = (dam * (p_ptr->resist_dark + randint(10))) / 100;
 			}
-			else if (!blind && p_ptr->resist_blind == 100)
+			else if (!blind && p_ptr->resist_blind >= 100)
 			{
 				(void)set_blind(p_ptr->blind + randint(5) + 2);
 			}
@@ -3831,7 +3860,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 			msg_print("Gravity warps around you.");
 			teleport_player(5);
 			(void)set_slow(p_ptr->slow + rand_int(4) + 4);
-			if (p_ptr->resist_sound == 100)
+			if (p_ptr->resist_sound >= 100)
 			{
 				int k = (randint((dam > 90) ? 35 : (dam / 3 + 5)));
 				(void)set_stun(p_ptr->stun + k);
@@ -3861,11 +3890,11 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 		{
 			if (fuzzy) msg_print("You are hit by something sharp!");
 			cold_dam(dam, killer);
-			if (p_ptr->resist_shard == 100)
+			if (p_ptr->resist_shard >= 100)
 			{
 				(void)set_cut(p_ptr->cut + damroll(5, 8));
 			}
-			if (p_ptr->resist_sound == 100)
+			if (p_ptr->resist_sound >= 100)
 			{
 				(void)set_stun(p_ptr->stun + randint(15));
 			}

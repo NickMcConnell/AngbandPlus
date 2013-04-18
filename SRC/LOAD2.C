@@ -1210,30 +1210,99 @@ static void rd_options(void)
 
 
 /*
- * Hack -- strip the "ghost" info
+ * Hack -- load the "ghost" info
  *
  * XXX XXX XXX This is such a nasty hack it hurts.
  */
 static void rd_ghost(void)
 {
-	char buf[64];
+	int i;
+    
+	monster_race *r_ptr = &r_info[MAX_R_IDX-1];
 
-	/* Strip name */
-	rd_string(buf, 64);
-
-	/* Older ghosts */
-	if (older_than(2, 7, 7))
+	/* Pre-2.7.7 ghosts */
+	if (older_than(2,7,7))
 	{
+		/* Read the old name */
+		rd_string(r_name + r_ptr->name,64);
+
 		/* Strip old data */
 		strip_bytes(52);
+
+		/* Make sure ghosts can be created !! */
+		r_ptr->cur_num = 0;
+		r_ptr->max_num = 1;
 	}
 
-	/* Newer ghosts */
-	else
+	/* Pre-2.9.2 ghosts */
+	else if (older_than(2,9,2))
 	{
+		/* Read the old name */
+		rd_string(r_name + r_ptr->name,64);
+
 		/* Strip old data */
 		strip_bytes(60);
+
+		/* Make sure ghosts can be created !! */
+		r_ptr->cur_num = 0;
+		r_ptr->max_num = 1;
 	}
+
+	/* 2.9.2+ with actual data */
+	else
+	{
+
+		/* Name */
+		rd_string(r_name + r_ptr->name, 64);
+
+		/* Visuals */
+		rd_byte(&r_ptr->d_char);
+		rd_byte(&r_ptr->d_attr);
+
+		/* Level/Rarity */
+		rd_byte(&r_ptr->level);
+		rd_byte(&r_ptr->rarity);
+
+		/* Misc info */
+		rd_byte(&r_ptr->hdice);
+		rd_byte(&r_ptr->hside);
+		rd_s16b(&r_ptr->ac);
+		rd_s16b(&r_ptr->sleep);
+		rd_byte(&r_ptr->aaf);
+		rd_byte(&r_ptr->speed);
+
+		/* Experience */
+		rd_s32b(&r_ptr->mexp);
+
+		/* Extra */
+		rd_s16b(&r_ptr->extra);
+
+		/* Frequency */
+		rd_byte(&r_ptr->freq_inate);
+		rd_byte(&r_ptr->freq_spell);
+
+		/* Flags */
+		rd_u32b(&r_ptr->flags1);
+		rd_u32b(&r_ptr->flags2);
+		rd_u32b(&r_ptr->flags3);
+		rd_u32b(&r_ptr->flags4);
+		rd_u32b(&r_ptr->flags5);
+		rd_u32b(&r_ptr->flags6);
+
+		/* Attacks */
+		for (i = 0; i < 4; i++)
+		{
+			rd_byte(&r_ptr->blow[i].method);
+			rd_byte(&r_ptr->blow[i].effect);
+			rd_byte(&r_ptr->blow[i].d_dice);
+			rd_byte(&r_ptr->blow[i].d_side);
+		}
+	}
+
+	/* Hack -- set the "graphic" info */
+	r_ptr->x_attr = r_ptr->d_attr;
+	r_ptr->x_char = r_ptr->d_char;
+
 }
 
 
@@ -1353,7 +1422,9 @@ static errr rd_extra(void)
 
 		for (i=0; i<SKILL_MAX; i++) rd_s16b(&p_ptr->wep_skills[i]);
 
-		for (i=0; i<38; i++) rd_byte(&p_ptr->drang_reserved[i]);
+                rd_byte(&p_ptr->new_town);
+
+		for (i=0; i<37; i++) rd_byte(&p_ptr->drang_reserved[i]);
 	}
 
 	/* Old redundant flags */
@@ -2160,10 +2231,6 @@ static errr rd_dungeon_aux(s16b depth, s16b py, s16b px)
 		/* Hack -- ignore "broken" monsters */
 		if (n_ptr->r_idx <= 0) continue;
 
-		/* Hack -- ignore "player ghosts" */
-		if (n_ptr->r_idx >= MAX_R_IDX-1) continue;
-
-
 		/* Place monster in dungeon */
 		if (!monster_place(n_ptr->fy, n_ptr->fx, n_ptr))
 		{
@@ -2700,8 +2767,8 @@ static errr rd_savefile_new_aux(void)
 #endif
 
 
-	/* Hack -- no ghosts */
-	r_info[MAX_R_IDX-1].max_num = 0;
+	/* Hack -- ghosts */
+	r_info[MAX_R_IDX-1].max_num = 1;
 
 
 	/* Success */

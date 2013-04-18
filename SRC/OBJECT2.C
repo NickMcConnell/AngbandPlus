@@ -2180,7 +2180,7 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 		case TV_DRAG_ARMOR:
 		{
 			/* Rating boost */
-			rating += 30;
+			rating += 20;
 
 			/* Mention the item */
 			if (cheat_peek) object_mention(o_ptr);
@@ -2579,15 +2579,21 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 				/* Roll for ego-item */
 				switch (randint(18))
 				{
-					case 1: case 2: case 3: case 4:
-					case 5: case 6: case 7: case 8:
+					case 1: case 2: case 3: case 4: case 5:
 					{
 						o_ptr->name2 = EGO_PROTECTION;
 						break;
 					}
 
-					case 9: case 10: case 11: case 12:
-					case 13: case 14: case 15: case 16:
+					/* -TM- */
+					case 6: case 7: case 8: case 9: case 10: 
+					{
+						o_ptr->name2 = EGO_FREEACT_CLOAK;
+						break;
+					}
+
+					case 11: case 12: case 13: case 14: case 15:
+					case 16:
 					{
 						o_ptr->name2 = EGO_STEALTH;
 						break;
@@ -2924,8 +2930,8 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 				/* Amulet of the Magi -- never cursed */
 				case SV_AMULET_THE_MAGI:
 				{
-					o_ptr->pval = randint(5) + m_bonus(5, level);
-					o_ptr->to_a = randint(5) + m_bonus(5, level);
+					o_ptr->pval = randint(2) + m_bonus(2, level);
+					o_ptr->to_a = randint(2) + m_bonus(2, level);
 
 					/* Boost the rating */
 					rating += 25;

@@ -926,7 +926,9 @@ struct player_type
 						/* Race/class bonuses. weapon_skills should */
 						/* be used for actual calculations */
 
-	byte drang_reserved[38];	/* Reserved for future expansion */
+	byte new_town;			/* Which town? 0 - vanilla. */
+
+	byte drang_reserved[37];	/* Reserved for future expansion */
 
 	/*** Temporary fields ***/
 

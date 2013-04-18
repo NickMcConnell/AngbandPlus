@@ -1003,11 +1003,54 @@ static void wr_ghost(void)
 {
 	int i;
 
-	/* Name */
-	wr_string("Broken Ghost");
+	monster_race *r_ptr = &r_info[MAX_R_IDX-1];
 
-	/* Hack -- stupid data */
-	for (i = 0; i < 60; i++) wr_byte(0);
+
+	/* Name */
+	wr_string(r_name + r_ptr->name);
+
+	/* Visuals */
+	wr_byte(r_ptr->d_char);
+	wr_byte(r_ptr->d_attr);
+
+	/* Level/Rarity */
+	wr_byte(r_ptr->level);
+	wr_byte(r_ptr->rarity);
+
+	/* Misc info */
+	wr_byte(r_ptr->hdice);
+	wr_byte(r_ptr->hside);
+	wr_s16b(r_ptr->ac);
+	wr_s16b(r_ptr->sleep);
+	wr_byte(r_ptr->aaf);
+	wr_byte(r_ptr->speed);
+
+	/* Experience */
+	wr_s32b(r_ptr->mexp);
+
+	/* Extra */
+	wr_s16b(r_ptr->extra);
+
+	/* Frequency */
+	wr_byte(r_ptr->freq_inate);
+	wr_byte(r_ptr->freq_spell);
+
+	/* Flags */
+	wr_u32b(r_ptr->flags1);
+	wr_u32b(r_ptr->flags2);
+	wr_u32b(r_ptr->flags3);
+	wr_u32b(r_ptr->flags4);
+	wr_u32b(r_ptr->flags5);
+	wr_u32b(r_ptr->flags6);
+
+	/* Attacks */
+	for (i = 0; i < 4; i++)
+	{
+		wr_byte(r_ptr->blow[i].method);
+		wr_byte(r_ptr->blow[i].effect);
+		wr_byte(r_ptr->blow[i].d_dice);
+		wr_byte(r_ptr->blow[i].d_side);
+	}
 }
 
 
@@ -1106,7 +1149,8 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->oppose_pois);
 	wr_s16b(p_ptr->rng_lev_bonus);
 	for (i=0; i<SKILL_MAX; i++) wr_s16b(p_ptr->wep_skills[i]);
-	for (i=0; i<38; i++) wr_byte(p_ptr->drang_reserved[i]);
+	wr_byte(p_ptr->new_town);
+	for (i=0; i<37; i++) wr_byte(p_ptr->drang_reserved[i]);
 
 	wr_byte(p_ptr->confusing);
 	wr_byte(0);	/* oops */

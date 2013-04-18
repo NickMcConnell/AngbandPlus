@@ -611,6 +611,38 @@ void map_info(int y, int x, byte *ap, char *cp)
 		/* Get the "player" char */
 		c = r_ptr->x_char;
 
+		/* Show dragon players as Ds with nasty hack -TM- */
+		if (p_ptr->prace >= RACE_MIN_DRAGON && show_special_player)
+		{
+			/* Pick colour */
+			switch (p_ptr->prace)
+			{
+				case (RACE_CRYSTALDRAG):
+					a = TERM_L_BLUE;
+					break;
+				case (RACE_COPPERDRAG):
+					a = TERM_L_UMBER;
+					break;
+				case (RACE_BRONZEDRAG):
+					a = TERM_ORANGE;
+					break;
+				case (RACE_GOLDDRAG):
+					a = TERM_YELLOW;
+					break;
+				case (RACE_PSEUDODRAG):
+					a = TERM_SLATE;
+					break;
+				case (RACE_MULTIHUEDDRAG):
+					a = randint(15);
+					break;
+			}
+
+			/* Pick size of dragon (d or D) */
+			if (p_ptr->lev < 40)
+				c = 'd';
+			else c = 'D';
+		}
+
 		/* Result */
 		(*ap) = a;
 		(*cp) = c;
@@ -741,8 +773,8 @@ void map_info(int y, int x, byte *ap, char *cp)
 				/* Handle "view_bright_lite" */
 				else if (view_bright_lite)
 				{
-					/* Use "gray" */
-					a = TERM_SLATE;
+					/* Was SLATE "gray" */
+					a = TERM_L_DARK;
 				}
 			}
 		}
@@ -1109,40 +1141,6 @@ void lite_spot(int y, int x)
 	/* Hack -- redraw the grid */
 	map_info(y, x, &a, &c);
 
-	/* Show dragon players as Ds with nasty hack -TM- */
-	/* Make optional sometime! -TM- */
-	if (p_ptr->prace >= RACE_MIN_DRAGON && c=='@' && show_special_player)
-	{
-		/* Pick colour */
-		switch (p_ptr->prace)
-		{
-			case (RACE_CRYSTALDRAG):
-				a = TERM_L_BLUE;
-				break;
-			case (RACE_COPPERDRAG):
-				a = TERM_L_UMBER;
-				break;
-			case (RACE_BRONZEDRAG):
-				a = TERM_ORANGE;
-				break;
-			case (RACE_GOLDDRAG):
-				a = TERM_YELLOW;
-				break;
-			case (RACE_PSEUDODRAG):
-				a = TERM_SLATE;
-				break;
-			case (RACE_MULTIHUEDDRAG):
-				a = randint(16);
-				break;
-		}
-
-		/* Pick size (d or D) */
-		if (p_ptr->lev < 40)
-			c = 'd';
-
-		else c = 'D';
-	}
-
 	/* Hack -- Queue it */
 	Term_queue_char(vx, vy, a, c);
 }
@@ -1176,41 +1174,6 @@ void prt_map(void)
 		{
 			/* Determine what is there */
 			map_info(y, x, &a, &c);
-
-			/* Show dragon players as Ds with nasty hack -TM- */
-			/* Make optional sometime! -TM- */
-			if (p_ptr->prace >= RACE_MIN_DRAGON && c=='@'
-			&& show_special_player)
-			{
-				/* Pick colour */
-				switch (p_ptr->prace)
-				{
-					case (RACE_CRYSTALDRAG):
-						a = TERM_L_BLUE;
-						break;
-					case (RACE_COPPERDRAG):
-						a = TERM_L_UMBER;
-						break;
-					case (RACE_BRONZEDRAG):
-						a = TERM_ORANGE;
-						break;
-					case (RACE_GOLDDRAG):
-						a = TERM_YELLOW;
-						break;
-					case (RACE_PSEUDODRAG):
-						a = TERM_SLATE;
-						break;
-					case (RACE_MULTIHUEDDRAG):
-						a = randint(16);
-						break;
-				}
-
-				/* Pick size (d or D) */
-				if (p_ptr->lev < 40)
-					c = 'd';
-
-				else c = 'D';
-			}
 
 			/* Hack -- Queue it */
 			Term_queue_char(vx, vy, a, c);
@@ -1464,7 +1427,7 @@ void do_cmd_view_map(void)
 	display_map(&cy, &cx);
 
 	/* Wait for it */
-	put_str("Hit any key to continue", 23, 23);
+	put_str("Hit any key to continue", screen_y-2, 23);
 
 	/* Hilite the player */
 	move_cursor(cy, cx);
@@ -3329,6 +3292,12 @@ void cave_set_feat(int y, int x, int feat)
 	else
 	{
 		cave_info[y][x] &= ~(CAVE_WALL);
+	}
+
+	/* 'Special' cases */
+	if (feat == FEAT_LAVA || feat == FEAT_WATER || feat == FEAT_DTREE)
+	{
+		cave_info[y][x] |= (CAVE_WALL);
 	}
 
 	/* Notice/Redraw */
