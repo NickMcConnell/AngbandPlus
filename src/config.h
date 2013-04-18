@@ -158,13 +158,6 @@
 /* #define VERIFY_SAVEFILE */
 
 
-
-/*
- * OPTION: Hack -- Compile in support for "Borg mode"
- */
-/* #define ALLOW_BORG */
-
-
 /*
  * OPTION: Hack -- Compile in support for "Debug Commands"
  */
@@ -215,13 +208,6 @@
  * It should be usually be defined anyway to allow easy "updating".
  */
 #define ALLOW_TEMPLATES
-
-/*
- * OPTION: Allow loading of pre-2.7.0 savefiles.  Note that it takes
- * about 15K of code in "save-old.c" to parse the old savefile format.
- * Angband 2.8.0 will ignore a lot of info from pre-2.7.0 savefiles.
- */
-#define ALLOW_OLD_SAVEFILES
 
 
 /*
@@ -294,10 +280,6 @@
  */
 /* #define SCORE_WIZARDS */
 
-/*
- * OPTION: Allow "Borgs" to yield "high scores"
- */
-/* #define SCORE_BORGS */
 
 /*
  * OPTION: Allow "Cheaters" to yield "high scores"
@@ -366,12 +348,6 @@
  * This adds about 3K to the memory and about 5K to the executable.
  */
 #define DRS_SMART_OPTIONS
-
-
-/*
- * OPTION: Allow the use of random artifacts (see "randart.c").
- */
-#define GJW_RANDART
 
 
 /*
@@ -544,9 +520,6 @@
 # undef MONSTER_FLOW
 # undef ALLOW_TERROR
 # undef DRS_SMART_OPTIONS
-# undef GJW_RANDART
-# undef ALLOW_OLD_SAVEFILES
-# undef ALLOW_BORG
 # undef ALLOW_DEBUG
 # undef ALLOW_SPOILERS
 # undef ALLOW_TEMPLATES
@@ -573,11 +546,3 @@
 #endif
 
 
-/*
- * Allow the Borg to use graphics.
- */
-#ifdef ALLOW_BORG
-# ifdef USE_GRAPHICS
-#  define ALLOW_BORG_GRAPHICS
-# endif /* USE_GRAPHICS */
-#endif /* ALLOW_BORG */

@@ -922,12 +922,6 @@ bool lose_all_info(void)
  */
 void set_recall(void)
 {
-	/* Ironman */
-	if (adult_ironman && !p_ptr->total_winner)
-	{
-		msg_print("Nothing happens.");
-		return;
-	}
 
 	/* Activate recall */
 	if (!p_ptr->word_recall)

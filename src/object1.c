@@ -543,12 +543,6 @@ void flavor_init(void)
 }
 
 
-
-#ifdef ALLOW_BORG_GRAPHICS
-extern void init_translate_visuals(void);
-#endif /* ALLOW_BORG_GRAPHICS */
-
-
 /*
  * Reset the "visual" lists
  *
@@ -624,10 +618,6 @@ void reset_visuals(bool unused)
 		process_pref_file("font.prf");
 	}
 
-#ifdef ALLOW_BORG_GRAPHICS
-	/* Initialize the translation table for the borg */
-	init_translate_visuals();
-#endif /* ALLOW_BORG_GRAPHICS */
 }
 
 
@@ -2912,8 +2902,8 @@ void display_inven(void)
 		/* Erase the rest of the line */
 		Term_erase(3+n, i, 255);
 
-		/* Display the weight if needed */
-		if (show_weights && o_ptr->weight)
+		/* Display the weight */
+		if (o_ptr->weight)
 		{
 			int wgt = o_ptr->weight * o_ptr->number;
 			sprintf(tmp_val, "%3d.%1d lb", wgt / 10, wgt % 10);
@@ -2983,17 +2973,14 @@ void display_equip(void)
 		Term_erase(3+n, i - INVEN_WIELD, 255);
 
 		/* Display the slot description (if needed) */
-		if (show_labels)
-		{
-			Term_putstr(61, i - INVEN_WIELD, -1, TERM_WHITE, "<--");
-			Term_putstr(65, i - INVEN_WIELD, -1, TERM_WHITE, mention_use(i));
-		}
+		Term_putstr(61, i - INVEN_WIELD, -1, TERM_WHITE, "<--");
+		Term_putstr(65, i - INVEN_WIELD, -1, TERM_WHITE, mention_use(i));
 
-		/* Display the weight (if needed) */
-		if (show_weights && o_ptr->weight)
+		/* Display the weight */
+		if (o_ptr->weight)
 		{
 			int wgt = o_ptr->weight * o_ptr->number;
-			int col = (show_labels ? 52 : 71);
+			int col = 52;
 			sprintf(tmp_val, "%3d.%1d lb", wgt / 10, wgt % 10);
 			Term_putstr(col, i - INVEN_WIELD, -1, TERM_WHITE, tmp_val);
 		}
@@ -3016,7 +3003,7 @@ void display_equip(void)
  */
 void show_inven(void)
 {
-	int i, j, k, l, z = 0;
+	int i, j, k, l, wgt, z = 0;
 	int col, len, lim;
 
 	object_type *o_ptr;
@@ -3036,9 +3023,8 @@ void show_inven(void)
 	/* Maximum space allowed for descriptions */
 	lim = 79 - 3;
 
-	/* Require space for weight (if needed) */
-	if (show_weights) lim -= 9;
-
+	/* Require space for weight */
+	lim -= 9;
 
 	/* Find the "final" slot */
 	for (i = 0; i < INVEN_PACK; i++)
@@ -3079,7 +3065,7 @@ void show_inven(void)
 		l = strlen(out_desc[k]) + 5;
 
 		/* Be sure to account for the weight */
-		if (show_weights) l += 9;
+		l += 9;
 
 		/* Maintain the maximum length */
 		if (l > len) len = l;
@@ -3112,13 +3098,11 @@ void show_inven(void)
 		/* Display the entry itself */
 		c_put_str(out_color[j], out_desc[j], j + 1, col + 3);
 
-		/* Display the weight if needed */
-		if (show_weights)
-		{
-			int wgt = o_ptr->weight * o_ptr->number;
-			sprintf(tmp_val, "%3d.%1d lb", wgt / 10, wgt % 10);
-			put_str(tmp_val, j + 1, 71);
-		}
+		/* Display the weight */
+		wgt = o_ptr->weight * o_ptr->number;
+		sprintf(tmp_val, "%3d.%1d lb", wgt / 10, wgt % 10);
+		put_str(tmp_val, j + 1, 71);
+
 	}
 
 	/* Make a "shadow" below the list (only if needed) */
@@ -3131,7 +3115,7 @@ void show_inven(void)
  */
 void show_equip(void)
 {
-	int i, j, k, l;
+	int i, j, k, l, wgt;
 	int col, len, lim;
 
 	object_type *o_ptr;
@@ -3151,11 +3135,11 @@ void show_equip(void)
 	/* Maximum space allowed for descriptions */
 	lim = 79 - 3;
 
-	/* Require space for labels (if needed) */
-	if (show_labels) lim -= (14 + 2);
+	/* Require space for labels */
+	lim -= (14 + 2);
 
-	/* Require space for weight (if needed) */
-	if (show_weights) lim -= 9;
+	/* Require space for weight */
+	lim -= 9;
 
 	/* Scan the equipment list */
 	for (k = 0, i = INVEN_WIELD; i < INVEN_TOTAL; i++)
@@ -3183,11 +3167,11 @@ void show_equip(void)
 		/* Extract the maximal length (see below) */
 		l = strlen(out_desc[k]) + (2 + 3);
 
-		/* Increase length for labels (if needed) */
-		if (show_labels) l += (14 + 2);
+		/* Increase length for labels */
+		l += (14 + 2);
 
-		/* Increase length for weight (if needed) */
-		if (show_weights) l += 9;
+		/* Increase length for weight */
+		l += 9;
 
 		/* Maintain the max-length */
 		if (l > len) len = l;
@@ -3217,31 +3201,19 @@ void show_equip(void)
 		/* Clear the line with the (possibly indented) index */
 		put_str(tmp_val, j+1, col);
 
-		/* Use labels */
-		if (show_labels)
-		{
-			/* Mention the use */
-			sprintf(tmp_val, "%-14s: ", mention_use(i));
-			put_str(tmp_val, j+1, col + 3);
+		/* Mention the use */
+		sprintf(tmp_val, "%-14s: ", mention_use(i));
+		put_str(tmp_val, j+1, col + 3);
 
-			/* Display the entry itself */
-			c_put_str(out_color[j], out_desc[j], j+1, col + 3 + 14 + 2);
-		}
+		/* Display the entry itself */
+		c_put_str(out_color[j], out_desc[j], j+1, col + 3 + 14 + 2);
 
-		/* No labels */
-		else
-		{
-			/* Display the entry itself */
-			c_put_str(out_color[j], out_desc[j], j+1, col + 3);
-		}
+		/* Display the weight */
 
-		/* Display the weight if needed */
-		if (show_weights)
-		{
-			int wgt = o_ptr->weight * o_ptr->number;
-			sprintf(tmp_val, "%3d.%d lb", wgt / 10, wgt % 10);
-			put_str(tmp_val, j+1, 71);
-		}
+		wgt = o_ptr->weight * o_ptr->number;
+		sprintf(tmp_val, "%3d.%d lb", wgt / 10, wgt % 10);
+		put_str(tmp_val, j+1, 71);
+
 	}
 
 	/* Make a "shadow" below the list (only if needed) */
@@ -3256,7 +3228,7 @@ void show_equip(void)
  */
 void show_floor(const int *floor_list, int floor_num)
 {
-	int i, j, k, l;
+	int i, j, k, l, wgt;
 	int col, len, lim;
 
 	object_type *o_ptr;
@@ -3276,8 +3248,8 @@ void show_floor(const int *floor_list, int floor_num)
 	/* Maximum space allowed for descriptions */
 	lim = 79 - 3;
 
-	/* Require space for weight (if needed) */
-	if (show_weights) lim -= 9;
+	/* Require space for weight */
+	lim -= 9;
 
 	/* Display the inventory */
 	for (k = 0, i = 0; i < floor_num; i++)
@@ -3306,7 +3278,7 @@ void show_floor(const int *floor_list, int floor_num)
 		l = strlen(out_desc[k]) + 5;
 
 		/* Be sure to account for the weight */
-		if (show_weights) l += 9;
+		l += 9;
 
 		/* Maintain the maximum length */
 		if (l > len) len = l;
@@ -3340,12 +3312,10 @@ void show_floor(const int *floor_list, int floor_num)
 		c_put_str(out_color[j], out_desc[j], j + 1, col + 3);
 
 		/* Display the weight if needed */
-		if (show_weights)
-		{
-			int wgt = o_ptr->weight * o_ptr->number;
-			sprintf(tmp_val, "%3d.%1d lb", wgt / 10, wgt % 10);
-			put_str(tmp_val, j + 1, 71);
-		}
+		wgt = o_ptr->weight * o_ptr->number;
+		sprintf(tmp_val, "%3d.%1d lb", wgt / 10, wgt % 10);
+		put_str(tmp_val, j + 1, 71);
+
 	}
 
 	/* Make a "shadow" below the list (only if needed) */
@@ -3807,42 +3777,39 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 	/* Repeat until done */
 	while (!done)
 	{
-		/* Show choices */
-		if (show_choices)
+
+		int ni = 0;
+		int ne = 0;
+
+		/* Scan windows */
+		for (j = 0; j < ANGBAND_TERM_MAX; j++)
 		{
-			int ni = 0;
-			int ne = 0;
+			/* Unused */
+			if (!angband_term[j]) continue;
 
-			/* Scan windows */
-			for (j = 0; j < ANGBAND_TERM_MAX; j++)
-			{
-				/* Unused */
-				if (!angband_term[j]) continue;
+			/* Count windows displaying inven */
+			if (op_ptr->window_flag[j] & (PW_INVEN)) ni++;
 
-				/* Count windows displaying inven */
-				if (op_ptr->window_flag[j] & (PW_INVEN)) ni++;
-
-				/* Count windows displaying equip */
-				if (op_ptr->window_flag[j] & (PW_EQUIP)) ne++;
-			}
-
-			/* Toggle if needed */
-			if (((p_ptr->command_wrk == (USE_EQUIP)) && ni && !ne) ||
-			    ((p_ptr->command_wrk == (USE_INVEN)) && !ni && ne))
-			{
-				/* Toggle */
-				toggle_inven_equip();
-
-				/* Track toggles */
-				toggle = !toggle;
-			}
-
-			/* Update */
-			p_ptr->window |= (PW_INVEN | PW_EQUIP);
-
-			/* Redraw windows */
-			window_stuff();
+			/* Count windows displaying equip */
+			if (op_ptr->window_flag[j] & (PW_EQUIP)) ne++;
 		}
+
+		/* Toggle if needed */
+		if (((p_ptr->command_wrk == (USE_EQUIP)) && ni && !ne) ||
+		    ((p_ptr->command_wrk == (USE_INVEN)) && !ni && ne))
+		{
+			/* Toggle */
+			toggle_inven_equip();
+
+			/* Track toggles */
+			toggle = !toggle;
+		}
+
+		/* Update */
+		p_ptr->window |= (PW_INVEN | PW_EQUIP);
+
+		/* Redraw windows */
+		window_stuff();
 
 		/* Viewing inventory */
 		if (p_ptr->command_wrk == (USE_INVEN))
@@ -4309,17 +4276,15 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 
 
 	/* Clean up */
-	if (show_choices)
-	{
-		/* Toggle again if needed */
-		if (toggle) toggle_inven_equip();
 
-		/* Update */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP);
+	/* Toggle again if needed */
+	if (toggle) toggle_inven_equip();
 
-		/* Window stuff */
-		window_stuff();
-	}
+	/* Update */
+	p_ptr->window |= (PW_INVEN | PW_EQUIP);
+
+	/* Window stuff */
+	window_stuff();
 
 
 	/* Clear the prompt line */

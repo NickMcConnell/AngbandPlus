@@ -1,0 +1,71 @@
+Based on V 2.9.3 the work on "Dungeon City" starts...
+
+
+Slim down / Simplification (deEMACSification)
+=============================================
+
+- Started removing options. Their effects are now either permanently
+  ON or OFF. Code for the options that are now permanently OFF has been
+  removed:
+  auto_scum (OFF), depth_in_feet (OFF), birth_maximize (ON), 
+  show_labels (ON), show_weights (ON), show_choices (ON), show_details (ON)
+  no_stores (OFF), preserve mode (ON), ironman (OFF),
+  no_artifacts (OFF), expand_look (ON), expand_list (ON),
+  dungeon_align (ON), dungeon_stair (ON), rand_arts (OFF),
+  compress_savefile (ON), run_ignore_stairs (ON), run_ignore_doors (ON),
+  run_cut_corners (ON), disturb_move (ON), disturb_near (ON), disturb_state (ON),
+  disturb_minor (ON), disturb_other (ON), verify_destroy (ON), verify_special (ON),
+  alert_hitpoint (OFF), alert_failure (OFF), allow_quanity (ON),
+  auto_more (OFF), ring_bell (OFF),
+
+- Simplified "economy": 
+  Removed Shop owners and everything related to them including
+  haggling. You always pay the full price and sell at the half
+  price.
+
+- Removed support for old savefiles
+
+- Removed borg support
+
+- Removed class tiles
+
+- Removed player history
+
+- Removed player social class
+
+- Removed stat roller/auto-roller. Point-based character 
+  generation is the standard now.
+
+
+D&Dification / deTOLKIENification
+==================================
+
+If I use the term "D&D" I mean the 3.5th edition.
+
+- Started reworking the item list
+  * Weapon list should conform to D&D now. 
+    Well name, weight, dice and cost should.
+    Weapons still work like in vanilla.
+    Changing to a more D&Dish system is planned in future.
+  * Armor list should conform to D&D now.
+    Ok only name, weight, cost. 
+    Changing armor mechanics to be more D&Dish
+    is planned.
+
+- Renamed some classes:
+  Priest -> Cleric, Mage -> Wizard, Warrior -> Fighter
+  Actually making the V classes work more like the D&D
+  ones is planned.
+
+- Reworked player races. You have the basic
+  D&D player races now with correct stat mods
+  but the rest is still vanilla. Making the races
+  work more like in D&D is planned.
+  I like a large race selection so I will add
+  D&D races who aren't standard player races.
+  First victim: Goblin. 
+  LATER ADDITION: I also added the Drow race.
+  
+- Got rid of the stupid 18/XXX stats. Stat progression
+  is now linear 18, 19, 20, etc. like in current D&D
+

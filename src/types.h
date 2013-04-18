@@ -587,41 +587,11 @@ struct quest
 
 
 /*
- * A store owner
- */
-struct owner_type
-{
-	u32b owner_name;	/* Name (offset) */
-
-	s16b max_cost;		/* Purse limit */
-
-	byte max_inflate;	/* Inflation (max) */
-	byte min_inflate;	/* Inflation (min) */
-
-	byte haggle_per;	/* Haggle unit */
-
-	byte insult_max;	/* Insult limit */
-
-	byte owner_race;	/* Owner race */
-};
-
-
-
-
-/*
- * A store, with an owner, various state flags, a current stock
+ * A store, various state flags, a current stock
  * of items, and a table of items that are often purchased.
  */
 struct store_type
 {
-	byte owner;				/* Owner index */
-
-	s16b insult_cur;		/* Insult counter */
-
-	s16b good_buy;			/* Number of "good" buys */
-	s16b bad_buy;			/* Number of "bad" buys */
-
-	s32b store_open;		/* Closed until this turn */
 
 	s16b table_num;			/* Table -- Number of entries */
 	s16b table_size;		/* Table -- Total Size of Array */
@@ -738,8 +708,6 @@ struct player_class
 {
 	u32b name;			/* Name (offset) */
 
-	u32b title[10];		/* Titles - offset */
-
 	s16b c_adj[A_MAX];	/* Class stat modifier */
 
 	s16b c_dis;			/* class disarming */
@@ -846,7 +814,6 @@ struct player_type
 	s16b age;			/* Characters age */
 	s16b ht;			/* Height */
 	s16b wt;			/* Weight */
-	s16b sc;			/* Social Class */
 
 	s32b au;			/* Current Gold */
 
@@ -918,7 +885,6 @@ struct player_type
 	s16b player_hp[PY_MAX_LEVEL];	/* HP Array */
 
 	char died_from[80];		/* Cause of death */
-	char history[4][60];	/* Initial history */
 
 	u16b total_winner;		/* Total winner */
 	u16b panic_save;		/* Panic save */

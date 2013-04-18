@@ -251,15 +251,8 @@ static void roff_aux(int r_idx)
 		if (r_ptr->flags1 & (RF1_FORCE_MAXHP)) flags1 |= (RF1_FORCE_MAXHP);
 	}
 
-
-	/* Require a flag to show kills */
-	if (!(show_details))
-	{
-		/* nothing */
-	}
-
 	/* Treat uniques differently */
-	else if (flags1 & (RF1_UNIQUE))
+	if (flags1 & (RF1_UNIQUE))
 	{
 		/* Hack -- Determine if the unique is "dead" */
 		bool dead = (r_ptr->max_num == 0) ? TRUE : FALSE;
@@ -347,7 +340,7 @@ static void roff_aux(int r_idx)
 
 
 	/* Descriptions */
-	if (show_details)
+	if (1)
 	{
 		char buf[2048];
 
@@ -432,16 +425,9 @@ static void roff_aux(int r_idx)
 	}
 	else if (l_ptr->r_tkills)
 	{
-		if (depth_in_feet)
-		{
-			roff(format("%^s is normally found at depths of %d feet",
-			            wd_he[msex], r_ptr->level * 50));
-		}
-		else
-		{
-			roff(format("%^s is normally found on dungeon level %d",
-			            wd_he[msex], r_ptr->level));
-		}
+		roff(format("%^s is normally found on dungeon level %d",
+			wd_he[msex], r_ptr->level));
+
 		old = TRUE;
 	}
 

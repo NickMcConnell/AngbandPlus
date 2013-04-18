@@ -23,13 +23,6 @@ void do_cmd_go_up(void)
 		return;
 	}
 
-	/* Ironman */
-	if (adult_ironman)
-	{
-		msg_print("Nothing happens!");
-		return;
-	}
-
 	/* Hack -- take a turn */
 	p_ptr->energy_use = 100;
 

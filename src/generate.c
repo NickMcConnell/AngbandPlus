@@ -2866,15 +2866,11 @@ static void cave_gen(void)
 		by = rand_int(dun->row_rooms);
 		bx = rand_int(dun->col_rooms);
 
-		/* Align dungeon rooms */
-		if (dungeon_align)
-		{
-			/* Slide some rooms right */
-			if ((bx % 3) == 0) bx++;
+		/* Slide some rooms right */
+		if ((bx % 3) == 0) bx++;
 
-			/* Slide some rooms left */
-			if ((bx % 3) == 2) bx--;
-		}
+		/* Slide some rooms left */
+		if ((bx % 3) == 2) bx--;
 
 		/* Destroyed levels are boring */
 		if (destroyed)
@@ -3357,8 +3353,6 @@ static void town_gen(void)
  *
  * Hack -- regenerate any "overflow" levels
  *
- * Hack -- allow auto-scumming via a gameplay option.
- *
  * Note that this function resets "cave_feat" and "cave_info" directly.
  */
 void generate_cave(void)
@@ -3458,9 +3452,6 @@ void generate_cave(void)
 		else if (rating > 0) feeling = 9;
 		else feeling = 10;
 
-		/* Hack -- Have a special feeling sometimes */
-		if (good_item_flag && !adult_preserve) feeling = 1;
-
 		/* It takes 1000 game turns for "feelings" to recharge */
 		if ((turn - old_turn) < 1000) feeling = 0;
 
@@ -3486,29 +3477,6 @@ void generate_cave(void)
 
 			/* Message */
 			okay = FALSE;
-		}
-
-		/* Mega-Hack -- "auto-scum" */
-		if (auto_scum && (num < 100))
-		{
-			/* Require "goodness" */
-			if ((feeling > 9) ||
-			    ((p_ptr->depth >= 5) && (feeling > 8)) ||
-			    ((p_ptr->depth >= 10) && (feeling > 7)) ||
-			    ((p_ptr->depth >= 20) && (feeling > 6)) ||
-			    ((p_ptr->depth >= 40) && (feeling > 5)))
-			{
-				/* Give message to cheaters */
-				if (cheat_room || cheat_hear ||
-				    cheat_peek || cheat_xtra)
-				{
-					/* Message */
-					why = "boring level";
-				}
-
-				/* Try again */
-				okay = FALSE;
-			}
 		}
 
 		/* Accept */

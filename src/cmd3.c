@@ -428,11 +428,8 @@ void do_cmd_destroy(void)
 	o_ptr->number = old_number;
 
 	/* Verify destruction */
-	if (verify_destroy)
-	{
-		sprintf(out_val, "Really destroy %s? ", o_name);
-		if (!get_check(out_val)) return;
-	}
+	sprintf(out_val, "Really destroy %s? ", o_name);
+	if (!get_check(out_val)) return;
 
 	/* Take a turn */
 	p_ptr->energy_use = 100;
@@ -1502,7 +1499,6 @@ void do_cmd_query_symbol(void)
 			if (++i == n)
 			{
 				i = 0;
-				if (!expand_list) break;
 			}
 		}
 
@@ -1512,7 +1508,6 @@ void do_cmd_query_symbol(void)
 			if (i-- == 0)
 			{
 				i = n - 1;
-				if (!expand_list) break;
 			}
 		}
 	}

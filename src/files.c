@@ -28,7 +28,7 @@ void safe_setuid_drop(void)
 	{
 		quit("setegid(): cannot set permissions correctly!");
 	}
- 
+
 #  else /* HAVE_SETEGID */
 
 #   ifdef SAFE_SETUID_POSIX
@@ -37,7 +37,7 @@ void safe_setuid_drop(void)
 	{
 		quit("setgid(): cannot set permissions correctly!");
 	}
-    
+
 #   else /* SAFE_SETUID_POSIX */
 
 	if (setregid(getegid(), getgid()) != 0)
@@ -1238,7 +1238,7 @@ static void display_player_xtra_info(void)
 	int col;
 	int hit, dam;
 	int base, plus;
-	int i, tmp;
+	int tmp;
 	int xthn, xthb, xfos, xsrh;
 	int xdis, xdev, xsav, xstl;
 
@@ -1264,19 +1264,6 @@ static void display_player_xtra_info(void)
 	/* Weight */
 	Term_putstr(col, 5, -1, TERM_WHITE, "Weight");
 	Term_putstr(col+9, 5, -1, TERM_L_BLUE, format("%4d", (int)p_ptr->wt));
-
-	/* Status */
-	Term_putstr(col, 6, -1, TERM_WHITE, "Status");
-	Term_putstr(col+9, 6, -1, TERM_L_BLUE, format("%4d", (int)p_ptr->sc));
-
-	/* Maximize */
-	Term_putstr(col, 7, -1, TERM_WHITE, "Maximize");
-	Term_putstr(col+12, 7, -1, TERM_L_BLUE, adult_maximize ? "Y" : "N");
-
-	/* Preserve */
-	Term_putstr(col, 8, -1, TERM_WHITE, "Preserve");
-	Term_putstr(col+12, 8, -1, TERM_L_BLUE, adult_preserve ? "Y" : "N");
-
 
 	/* Left */
 	col = 1;
@@ -1482,11 +1469,6 @@ static void display_player_xtra_info(void)
 	/* Bottom */
 	col = 5;
 
-	/* History */
-	for (i = 0; i < 4; i++)
-	{
-		put_str(p_ptr->history[i], i + 19, col);
-	}
 }
 
 
@@ -1759,9 +1741,6 @@ static void display_player_misc_info(void)
 	c_put_str(TERM_L_BLUE, c_name + cp_ptr->name, 5, 8);
 
 
-	/* Title */
-	put_str("Title", 6, 1);
-
 	/* Wizard */
 	if (p_ptr->wizard)
 	{
@@ -1774,14 +1753,12 @@ static void display_player_misc_info(void)
 		p = "***WINNER***";
 	}
 
-	/* Normal */
-	else
-	{
-		p = c_text + cp_ptr->title[(p_ptr->lev - 1) / 5];
+	else {
+		p = NULL;
 	}
 
 	/* Dump it */
-	c_put_str(TERM_L_BLUE, p, 6, 8);
+	if (p != NULL) c_put_str(TERM_L_BLUE, p, 6, 8);
 
 
 	/* Hit Points */
@@ -3110,21 +3087,21 @@ static void print_tomb(void)
 	{
 		p = "Magnificent";
 	}
-
-	/* Normal */
 	else
 	{
-		p = c_text + cp_ptr->title[(p_ptr->lev - 1) / 5];
+		p = NULL;
 	}
 
 	center_string(buf, op_ptr->full_name);
 	put_str(buf, 6, 11);
 
-	center_string(buf, "the");
-	put_str(buf, 7, 11);
+	if (p != NULL) {
+		center_string(buf, "the");
+		put_str(buf, 7, 11);
 
-	center_string(buf, p);
-	put_str(buf, 8, 11);
+		center_string(buf, p);
+		put_str(buf, 8, 11);
+	}
 
 
 	center_string(buf, c_name + cp_ptr->name);
@@ -3697,18 +3674,6 @@ static errr enter_score(void)
 	}
 
 #endif
-
-#ifndef SCORE_BORGS
-
-	/* Borg-mode pre-empts scoring */
-	if (p_ptr->noscore & 0x00F0)
-	{
-		msg_print("Score not registered for borgs.");
-		message_flush();
-		score_idx = -1;
-		return (0);
-	}
-#endif /* SCORE_BORGS */
 
 #ifndef SCORE_CHEATERS
 

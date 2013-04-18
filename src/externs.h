@@ -90,7 +90,6 @@ extern bool character_loaded;
 extern bool character_saved;
 extern s16b character_icky;
 extern s16b character_xtra;
-extern u32b seed_randart;
 extern u32b seed_flavor;
 extern u32b seed_town;
 extern s16b num_repro;
@@ -772,7 +771,3 @@ extern void show_floor(const int *floor_list, int floor_num);
 #endif /* ALLOW_EASY_FLOOR */
 
 
-#ifdef GJW_RANDART
-/* randart.c */
-extern errr do_randart(u32b randart_seed, bool full);
-#endif /* GJW_RANDART */

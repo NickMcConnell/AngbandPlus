@@ -667,7 +667,7 @@ static bool add_text(u32b *offset, header *head, cptr buf)
 	if (*offset == 0)
 	{
 		/* Advance and save the text index */
-		*offset = ++head->text_size;	
+		*offset = ++head->text_size;
 	}
 
 	/* Append chars to the text */
@@ -703,7 +703,7 @@ static u32b add_name(header *head, cptr buf)
 
 	/* Advance the index */
 	head->name_size += strlen(buf);
-	
+
 	/* Return the name index */
 	return (index);
 }
@@ -819,30 +819,6 @@ errr parse_z_info(char *buf, header *head)
 
 		/* Save the value */
 		z_info->c_max = max;
-	}
-
-	/* Process 'H' for "Maximum h_info[] index" */
-	else if (buf[2] == 'H')
-	{
-		int max;
-
-		/* Scan for the value */
-		if (1 != sscanf(buf+4, "%d", &max)) return (PARSE_ERROR_GENERIC);
-
-		/* Save the value */
-		z_info->h_max = max;
-	}
-
-	/* Process 'B' for "Maximum b_info[] subindex" */
-	else if (buf[2] == 'B')
-	{
-		int max;
-
-		/* Scan for the value */
-		if (1 != sscanf(buf+4, "%d", &max)) return (PARSE_ERROR_GENERIC);
-
-		/* Save the value */
-		z_info->b_max = max;
 	}
 
 	/* Process 'O' for "Maximum o_list[] index" */
@@ -2629,26 +2605,6 @@ errr parse_c_info(char *buf, header *head)
 		spell_ptr->sexp = exp;
 	}
 
-	/* Process 'T' for "Titles" */
-	else if (buf[0] == 'T')
-	{
-		/* There better be a current pc_ptr */
-		if (!pc_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
-
-		/* Get the text */
-		s = buf+2;
-
-		/* Store the text */
-		if (!add_text(&pc_ptr->title[cur_title], head, s))
-			return (PARSE_ERROR_OUT_OF_MEMORY);
-		
-		/* Next title */
-		cur_title++;
-
-		/* Limit number of titles */
-		if (cur_title > PY_MAX_LEVEL / 5)
-			return (PARSE_ERROR_TOO_MANY_ARGUMENTS);
-	}
 
 	/* Process 'E' for "Starting Equipment" */
 	else if (buf[0] == 'E')
@@ -2723,242 +2679,7 @@ errr parse_c_info(char *buf, header *head)
 
 
 
-/*
- * Initialize the "h_info" array, by parsing an ascii "template" file
- */
-errr parse_h_info(char *buf, header *head)
-{
-	int i;
 
-	char *s;
-
-	/* Current entry */
-	static hist_type *h_ptr = NULL;
-
-
-	/* Process 'N' for "New/Number" */
-	if (buf[0] == 'N')
-	{
-		int prv, nxt, prc, soc;
-
-		/* Hack - get the index */
-		i = error_idx + 1;
-
-		/* Verify information */
-		if (i <= error_idx) return (PARSE_ERROR_NON_SEQUENTIAL_RECORDS);
-
-		/* Verify information */
-		if (i >= head->info_num) return (PARSE_ERROR_TOO_MANY_ENTRIES);
-
-		/* Save the index */
-		error_idx = i;
-
-		/* Point at the "info" */
-		h_ptr = &h_info[i];
-
-		/* Scan for the values */
-		if (4 != sscanf(buf, "N:%d:%d:%d:%d",
-			            &prv, &nxt, &prc, &soc)) return (PARSE_ERROR_GENERIC);
-
-		/* Save the values */
-		h_ptr->chart = prv;
-		h_ptr->next = nxt;
-		h_ptr->roll = prc;
-		h_ptr->bonus = soc;
-	}
-
-	/* Process 'D' for "Description" */
-	else if (buf[0] == 'D')
-	{
-		/* There better be a current h_ptr */
-		if (!h_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
-
-		/* Get the text */
-		s = buf+2;
-
-		/* Store the text */
-		if (!add_text(&h_ptr->text, head, s))
-			return (PARSE_ERROR_OUT_OF_MEMORY);
-	}
-	else
-	{
-		/* Oops */
-		return (PARSE_ERROR_UNDEFINED_DIRECTIVE);
-	}
-
-	/* Success */
-	return (0);
-}
-
-
-
-
-/*
- * Initialize the "b_info" array, by parsing an ascii "template" file
- */
-errr parse_b_info(char *buf, header *head)
-{
-	int i, j;
-
-	char *s, *t;
-
-	/* Current entry */
-	static owner_type *ot_ptr = NULL;
-
-
-	/* Process 'N' for "New/Number/Name" */
-	if (buf[0] == 'N')
-	{
-		/* Find the colon before the subindex */
-		s = strchr(buf+2, ':');
-
-		/* Verify that colon */
-		if (!s) return (PARSE_ERROR_GENERIC);
-
-		/* Nuke the colon, advance to the subindex */
-		*s++ = '\0';
-
-		/* Get the index */
-		i = atoi(buf+2);
-
-		/* Find the colon before the name */
-		t = strchr(s, ':');
-
-		/* Verify that colon */
-		if (!t) return (PARSE_ERROR_GENERIC);
-
-		/* Nuke the colon, advance to the name */
-		*t++ = '\0';
-
-		/* Paranoia -- require a name */
-		if (!*t) return (PARSE_ERROR_GENERIC);
-
-		/* Get the subindex */
-		j = atoi(s);
-
-		/* Verify information */
-		if (j >= z_info->b_max) return (PARSE_ERROR_TOO_MANY_ENTRIES);
-
-		/* Get the *real* index */
-		i = (i * z_info->b_max) + j;
-
-		/* Verify information */
-		if (i <= error_idx) return (PARSE_ERROR_NON_SEQUENTIAL_RECORDS);
-
-		/* Verify information */
-		if (i >= head->info_num) return (PARSE_ERROR_TOO_MANY_ENTRIES);
-
-		/* Save the index */
-		error_idx = i;
-
-		/* Point at the "info" */
-		ot_ptr = &b_info[i];
-
-		/* Store the name */
-		if (!(ot_ptr->owner_name = add_name(head, t)))
-			return (PARSE_ERROR_OUT_OF_MEMORY);
-	}
-
-	/* Process 'I' for "Info" (one line only) */
-	else if (buf[0] == 'I')
-	{
-		int idx, gld, max, min, hgl, tol;
-
-		/* There better be a current ot_ptr */
-		if (!ot_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
-
-		/* Scan for the values */
-		if (6 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d",
-			            &idx, &gld, &max, &min, &hgl, &tol)) return (PARSE_ERROR_GENERIC);
-
-		/* Save the values */
-		ot_ptr->owner_race = idx;
-		ot_ptr->max_cost = gld;
-		ot_ptr->max_inflate = max;
-		ot_ptr->min_inflate = min;
-		ot_ptr->haggle_per = hgl;
-		ot_ptr->insult_max = tol;
-	}
-	else
-	{
-		/* Oops */
-		return (PARSE_ERROR_UNDEFINED_DIRECTIVE);
-	}
-
-	/* Success */
-	return (0);
-}
-
-
-
-
-/*
- * Initialize the "g_info" array, by parsing an ascii "template" file
- */
-errr parse_g_info(char *buf, header *head)
-{
-	int i, j;
-
-	char *s;
-
-	/* Current entry */
-	static byte *g_ptr;
-
-
-	/* Process 'A' for "Adjustments" */
-	if (buf[0] == 'A')
-	{
-		int adj;
-
-		/* Start the string */
-		s = buf+1;
-
-		/* Initialize the counter to max races */
-		j = z_info->p_max;
-
-		/* Repeat */
-		while (j-- > 0)
-		{
-			/* Hack - get the index */
-			i = error_idx + 1;
-
-			/* Verify information */
-			if (i <= error_idx) return (PARSE_ERROR_NON_SEQUENTIAL_RECORDS);
-
-			/* Verify information */
-			if (i >= head->info_num) return (PARSE_ERROR_TOO_MANY_ENTRIES);
-
-			/* Save the index */
-			error_idx = i;
-
-			/* Point at the "info" */
-			g_ptr = &g_info[i];
-
-			/* Find the colon before the subindex */
-			s = strchr(s, ':');
-
-			/* Verify that colon */
-			if (!s) return (PARSE_ERROR_GENERIC);
-
-			/* Nuke the colon, advance to the subindex */
-			*s++ = '\0';
-
-			/* Get the value */
-			adj = atoi(s);
-
-			/* Save the value */
-			*g_ptr = adj;
-		}
-	}
-	else
-	{
-		/* Oops */
-		return (PARSE_ERROR_UNDEFINED_DIRECTIVE);
-	}
-
-	/* Success */
-	return (0);
-}
 
 
 #else	/* ALLOW_TEMPLATES */

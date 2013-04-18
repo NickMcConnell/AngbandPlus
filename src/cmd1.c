@@ -1865,8 +1865,8 @@ static bool run_test(void)
 				case FEAT_OPEN:
 				case FEAT_BROKEN:
 				{
-					/* Option -- ignore */
-					if (run_ignore_doors) notice = FALSE;
+					/* ignore */
+					notice = FALSE;
 
 					/* Done */
 					break;
@@ -1876,8 +1876,8 @@ static bool run_test(void)
 				case FEAT_LESS:
 				case FEAT_MORE:
 				{
-					/* Option -- ignore */
-					if (run_ignore_stairs) notice = FALSE;
+					/* ignore */
+					notice = FALSE;
 
 					/* Done */
 					break;
@@ -2041,16 +2041,6 @@ static bool run_test(void)
 			p_ptr->run_old_dir = option;
 		}
 
-		/* Two options, examining corners */
-		else if (run_use_corners && !run_cut_corners)
-		{
-			/* Primary option */
-			p_ptr->run_cur_dir = option;
-
-			/* Hack -- allow curving */
-			p_ptr->run_old_dir = option2;
-		}
-
 		/* Two options, pick one */
 		else
 		{
@@ -2065,8 +2055,7 @@ static bool run_test(void)
 			{
 				/* Can not see anything ahead and in the direction we */
 				/* are turning, assume that it is a potential corner. */
-				if (run_use_corners &&
-				    see_nothing(option, row, col) &&
+				if (see_nothing(option, row, col) &&
 				    see_nothing(option2, row, col))
 				{
 					p_ptr->run_cur_dir = option;
@@ -2081,7 +2070,7 @@ static bool run_test(void)
 			}
 
 			/* This corner is seen to be enclosed; we cut the corner. */
-			else if (run_cut_corners)
+			else if (1)
 			{
 				p_ptr->run_cur_dir = option2;
 				p_ptr->run_old_dir = option2;

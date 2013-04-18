@@ -1027,7 +1027,7 @@ void update_mon(int m_idx, bool full)
 			if (l_ptr->r_sights < MAX_SHORT) l_ptr->r_sights++;
 
 			/* Disturb on appearance */
-			if (disturb_move) disturb(1, 0);
+			disturb(1, 0);
 		}
 	}
 
@@ -1047,7 +1047,7 @@ void update_mon(int m_idx, bool full)
 			if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
 
 			/* Disturb on disappearance */
-			if (disturb_move) disturb(1, 0);
+			disturb(1, 0);
 		}
 	}
 
@@ -1062,7 +1062,7 @@ void update_mon(int m_idx, bool full)
 			m_ptr->mflag |= (MFLAG_VIEW);
 
 			/* Disturb on appearance */
-			if (disturb_near) disturb(1, 0);
+			disturb(1, 0);
 		}
 	}
 
@@ -1076,7 +1076,7 @@ void update_mon(int m_idx, bool full)
 			m_ptr->mflag &= ~(MFLAG_VIEW);
 
 			/* Disturb on disappearance */
-			if (disturb_near) disturb(1, 0);
+			disturb(1, 0);
 		}
 	}
 }

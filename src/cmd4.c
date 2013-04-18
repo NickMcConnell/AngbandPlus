@@ -864,10 +864,9 @@ void do_cmd_options(void)
 
 		/* Give some choices */
 		prt("(1) User Interface Options", 4, 5);
-		prt("(2) Disturbance Options", 5, 5);
+
 		prt("(3) Game-Play Options", 6, 5);
 		prt("(4) Efficiency Options", 7, 5);
-		prt("(5) Birth Options", 8, 5);
 		prt("(6) Cheat Options", 9, 5);
 
 		/* Window flags */
@@ -896,12 +895,6 @@ void do_cmd_options(void)
 			do_cmd_options_aux(0, "User Interface Options");
 		}
 
-		/* Disturbance Options */
-		else if (ch == '2')
-		{
-			do_cmd_options_aux(1, "Disturbance Options");
-		}
-
 		/* Inventory Options */
 		else if (ch == '3')
 		{
@@ -912,12 +905,6 @@ void do_cmd_options(void)
 		else if (ch == '4')
 		{
 			do_cmd_options_aux(3, "Efficiency Options");
-		}
-
-		/* Birth Options */
-		else if (ch == '5')
-		{
-			do_cmd_options_aux(4, "Birth Options");
 		}
 
 		/* Cheating Options */

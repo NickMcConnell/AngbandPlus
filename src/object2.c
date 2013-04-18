@@ -431,7 +431,7 @@ void wipe_o_list(void)
 		if (!o_ptr->k_idx) continue;
 
 		/* Mega-Hack -- preserve artifacts */
-		if (!character_dungeon || adult_preserve)
+		if (!character_dungeon)
 		{
 			/* Hack -- Preserve unknown artifacts */
 			if (artifact_p(o_ptr) && !object_known_p(o_ptr))
@@ -1675,10 +1675,6 @@ static bool make_artifact_special(object_type *o_ptr)
 
 	int k_idx;
 
-
-	/* No artifacts, do nothing */
-	if (adult_no_artifacts) return (FALSE);
-
 	/* No artifacts in the town */
 	if (!p_ptr->depth) return (FALSE);
 
@@ -1744,10 +1740,6 @@ static bool make_artifact_special(object_type *o_ptr)
 static bool make_artifact(object_type *o_ptr)
 {
 	int i;
-
-
-	/* No artifacts, do nothing */
-	if (adult_no_artifacts) return (FALSE);
 
 	/* No artifacts in the town */
 	if (!p_ptr->depth) return (FALSE);

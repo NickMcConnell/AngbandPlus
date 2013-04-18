@@ -3775,8 +3775,8 @@ static void process_monster(int m_idx)
 					/* Message */
 					msg_print("You hear a door burst open!");
 
-					/* Disturb (sometimes) */
-					if (disturb_minor) disturb(0, 0);
+					/* Disturb */
+					disturb(0, 0);
 
 					/* The door was bashed open */
 					did_bash_door = TRUE;
@@ -3931,11 +3931,8 @@ static void process_monster(int m_idx)
 			/* Move the monster */
 			monster_swap(oy, ox, ny, nx);
 
-			/* Possible disturb */
-			if (m_ptr->ml &&
-			    (disturb_move ||
-			     ((m_ptr->mflag & (MFLAG_VIEW)) &&
-			      disturb_near)))
+			/* Disturb */
+			if (m_ptr->ml)
 			{
 				/* Disturb */
 				disturb(0, 0);

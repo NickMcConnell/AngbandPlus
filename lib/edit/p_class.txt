@@ -63,32 +63,21 @@
 
 # Version stamp (required)
 
-V:2.9.3
+V:0.1.0
 
 
-N:0:Warrior
+N:0:Fighter
 S:5:-2:-2:2:2:-1
 C:25:18:18:1:14:2:70:55
 X:10:7:10:0:0:0:45:45
 I:9:0:9000:40
 A:6:30:5
 M:0:0:0:0:0
-E:75:33:1:1
-E:23:16:1:1
-E:37:4:1:1
+E:22:22:1:1
+E:37:3:1:1
 F:BRAVERY_30 | PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV
-T:Rookie
-T:Soldier
-T:Mercenary
-T:Veteran
-T:Swordsman
-T:Champion
-T:Hero
-T:Baron
-T:Duke
-T:Lord
 
-N:1:Mage
+N:1:Wizard
 S:-5:3:0:1:-2:1
 C:30:36:30:2:16:20:34:20
 X:7:13:9:0:0:0:15:15
@@ -99,16 +88,6 @@ E:90:0:1:1
 E:23:4:1:1
 E:70:11:1:1
 F:CUMBER_GLOVE | ZERO_FAIL | BEAM | CHOOSE_SPELLS
-T:Novice
-T:Apprentice
-T:Trickster
-T:Illusionist
-T:Spellbinder
-T:Evoker
-T:Conjurer
-T:Warlock
-T:Sorcerer
-T:Mage Lord
 B:0:1:1:22:4
 B:1:1:1:23:4
 B:2:1:2:24:4
@@ -174,7 +153,7 @@ B:61:99:0:0:0
 B:62:99:0:0:0
 B:63:99:0:0:0
 
-N:2:Priest
+N:2:Cleric
 S:-1:-3:3:-1:0:2
 C:25:30:32:2:16:8:48:35
 X:7:10:12:0:0:0:20:20
@@ -185,16 +164,6 @@ E:91:0:1:1
 E:21:5:1:1
 E:75:37:1:1
 F:BLESS_WEAPON | ZERO_FAIL | PSEUDO_ID_IMPROV
-T:Believer
-T:Acolyte
-T:Adept
-T:Curate
-T:Canon
-T:Lama
-T:Patriarch
-T:Priest
-T:High Priest
-T:Priest Lord
 B:0:1:1:10:4
 B:1:1:2:15:4
 B:2:1:2:20:4
@@ -268,19 +237,9 @@ I:6:25:20000:40
 A:5:30:3
 M:90:1:0:5:350
 E:90:0:1:1
-E:23:8:1:1
+E:23:10:1:1
 E:36:4:1:1
 F:CUMBER_GLOVE | CHOOSE_SPELLS | PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV
-T:Vagabond
-T:Cutpurse
-T:Robber
-T:Burglar
-T:Filcher
-T:Sharper
-T:Low Thief
-T:High Thief
-T:Master Thief
-T:Assassin
 B:0:99:0:0:0
 B:1:5:1:50:1
 B:2:7:2:55:1
@@ -354,20 +313,10 @@ I:4:30:120000:5
 A:5:35:4
 M:90:1:0:3:400
 E:90:0:1:1
-E:23:16:1:1
+E:23:17:1:1
 E:19:13:1:1
 E:17:1:15:20
 F:CUMBER_GLOVE | EXTRA_SHOT | CHOOSE_SPELLS
-T:Runner
-T:Strider
-T:Scout
-T:Courser
-T:Tracker
-T:Guide
-T:Pathfinder
-T:Low Ranger
-T:High Ranger
-T:Ranger Lord
 B:0:3:1:30:1
 B:1:3:2:35:2
 B:2:3:2:35:2
@@ -441,19 +390,9 @@ I:6:35:80000:40
 A:5:30:4
 M:91:2:1:1:400
 E:91:0:1:1
-E:23:16:1:1
+E:23:17:1:1
 E:70:37:1:1
 F:PSEUDO_ID_HEAVY | PSEUDO_ID_IMPROV
-T:Gallant
-T:Keeper
-T:Protector
-T:Defender
-T:Warder
-T:Knight
-T:Guardian
-T:Low Paladin
-T:High Paladin
-T:Paladin Lord
 B:0:1:1:30:4
 B:1:2:2:35:4
 B:2:3:3:35:4

@@ -273,11 +273,6 @@ void teleport_player_to(int ny, int nx)
  */
 void teleport_player_level(void)
 {
-	if (adult_ironman)
-	{
-		msg_print("Nothing happens.");
-		return;
-	}
 
 
 	if (!p_ptr->depth)
@@ -433,10 +428,6 @@ static u16b bolt_pict(int y, int x, int ny, int nx, int typ)
  */
 void take_hit(int dam, cptr kb_str)
 {
-	int old_chp = p_ptr->chp;
-
-	int warning = (p_ptr->mhp * op_ptr->hitpoint_warn / 10);
-
 
 	/* Paranoia */
 	if (p_ptr->is_dead) return;
@@ -480,19 +471,6 @@ void take_hit(int dam, cptr kb_str)
 		return;
 	}
 
-	/* Hitpoint warning */
-	if (p_ptr->chp < warning)
-	{
-		/* Hack -- bell on first notice */
-		if (alert_hitpoint && (old_chp > warning))
-		{
-			bell("Low hitpoint warning!");
-		}
-
-		/* Message */
-		message(MSG_HITPOINT_WARN, 0, "*** LOW HITPOINT WARNING! ***");
-		message_flush();
-	}
 }
 
 
@@ -950,37 +928,12 @@ bool inc_stat(int stat)
 	/* Then augment the current/max stat */
 	value = p_ptr->stat_cur[stat];
 
-	/* Cannot go above 18/100 */
-	if (value < 18+100)
+	/* Cannot go above 40 */
+	if (value < 40)
 	{
-		/* Gain one (sometimes two) points */
-		if (value < 18)
-		{
-			gain = ((rand_int(100) < 75) ? 1 : 2);
-			value += gain;
-		}
-
-		/* Gain 1/6 to 1/3 of distance to 18/100 */
-		else if (value < 18+98)
-		{
-			/* Approximate gain value */
-			gain = (((18+100) - value) / 2 + 3) / 2;
-
-			/* Paranoia */
-			if (gain < 1) gain = 1;
-
-			/* Apply the bonus */
-			value += randint(gain) + gain / 2;
-
-			/* Maximal value */
-			if (value > 18+99) value = 18 + 99;
-		}
 
 		/* Gain one point at a time */
-		else
-		{
-			value++;
-		}
+		++value;
 
 		/* Save the new value */
 		p_ptr->stat_cur[stat] = value;
@@ -1028,38 +981,10 @@ bool dec_stat(int stat, int amount, int permanent)
 	/* Damage "current" value */
 	if (cur > 3)
 	{
-		/* Handle "low" values */
-		if (cur <= 18)
-		{
-			if (amount > 90) cur--;
-			if (amount > 50) cur--;
-			if (amount > 20) cur--;
-			cur--;
-		}
-
-		/* Handle "high" values */
-		else
-		{
-			/* Hack -- Decrement by a random amount between one-quarter */
-			/* and one-half of the stat bonus times the percentage, with a */
-			/* minimum damage of half the percentage. -CWS */
-			loss = (((cur-18) / 2 + 1) / 2 + 1);
-
-			/* Paranoia */
-			if (loss < 1) loss = 1;
-
-			/* Randomize the loss */
-			loss = ((randint(loss) + loss) * amount) / 100;
-
-			/* Maximal loss */
-			if (loss < amount/2) loss = amount/2;
-
-			/* Lose some points */
-			cur = cur - loss;
-
-			/* Hack -- Only reduce stat to 17 sometimes */
-			if (cur < 18) cur = (amount <= 20) ? 18 : 17;
-		}
+		if (amount > 90) cur--;
+		if (amount > 50) cur--;
+		if (amount > 20) cur--;
+		cur--;
 
 		/* Prevent illegal values */
 		if (cur < 3) cur = 3;
@@ -1071,32 +996,10 @@ bool dec_stat(int stat, int amount, int permanent)
 	/* Damage "max" value */
 	if (permanent && (max > 3))
 	{
-		/* Handle "low" values */
-		if (max <= 18)
-		{
-			if (amount > 90) max--;
-			if (amount > 50) max--;
-			if (amount > 20) max--;
-			max--;
-		}
-
-		/* Handle "high" values */
-		else
-		{
-			/* Hack -- Decrement by a random amount between one-quarter */
-			/* and one-half of the stat bonus times the percentage, with a */
-			/* minimum damage of half the percentage. -CWS */
-			loss = (((max-18) / 2 + 1) / 2 + 1);
-			if (loss < 1) loss = 1;
-			loss = ((randint(loss) + loss) * amount) / 100;
-			if (loss < amount/2) loss = amount/2;
-
-			/* Lose some points */
-			max = max - loss;
-
-			/* Hack -- Only reduce stat to 17 sometimes */
-			if (max < 18) max = (amount <= 20) ? 18 : 17;
-		}
+		if (amount > 90) max--;
+		if (amount > 50) max--;
+		if (amount > 20) max--;
+		max--;
 
 		/* Hack -- keep it clean */
 		if (same || (max < cur)) max = cur;

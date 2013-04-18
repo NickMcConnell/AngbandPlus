@@ -18,38 +18,15 @@
  */
 void cnv_stat(int val, char *out_val)
 {
-	/* Above 18 */
-	if (val > 18)
-	{
-		int bonus = (val - 18);
 
-		if (bonus >= 100)
-		{
-			sprintf(out_val, "18/%03d", bonus);
-		}
-		else
-		{
-			sprintf(out_val, " 18/%02d", bonus);
-		}
-	}
+	sprintf(out_val, "    %2d", val);
 
-	/* From 3 to 18 */
-	else
-	{
-		sprintf(out_val, "    %2d", val);
-	}
 }
 
 
 
 /*
  * Modify a stat value by a "modifier", return new value
- *
- * Stats go up: 3,4,...,17,18,18/10,18/20,...,18/220
- * Or even: 18/13, 18/23, 18/33, ..., 18/220
- *
- * Stats go down: 18/220, 18/210,..., 18/10, 18, 17, ..., 3
- * Or even: 18/13, 18/03, 18, 17, ..., 3
  */
 s16b modify_stat_value(int value, int amount)
 {
@@ -62,10 +39,8 @@ s16b modify_stat_value(int value, int amount)
 		for (i = 0; i < amount; i++)
 		{
 			/* One point at a time */
-			if (value < 18) value++;
+			++value;
 
-			/* Ten "points" at a time */
-			else value += 10;
 		}
 	}
 
@@ -75,14 +50,8 @@ s16b modify_stat_value(int value, int amount)
 		/* Apply each point */
 		for (i = 0; i < (0 - amount); i++)
 		{
-			/* Ten points at a time */
-			if (value >= 18+10) value -= 10;
-
-			/* Hack -- prevent weirdness */
-			else if (value > 18) value = 18;
-
 			/* One point at a time */
-			else if (value > 3) value--;
+			if (value > 3) --value;
 		}
 	}
 
@@ -159,13 +128,12 @@ static void prt_title(void)
 		p = "***WINNER***";
 	}
 
-	/* Normal */
 	else
 	{
-		p = c_text + cp_ptr->title[(p_ptr->lev - 1) / 5];
+		p = NULL;
 	}
 
-	prt_field(p, ROW_TITLE, COL_TITLE);
+	if (p != NULL) prt_field(p, ROW_TITLE, COL_TITLE);
 }
 
 
@@ -332,10 +300,6 @@ static void prt_depth(void)
 	if (!p_ptr->depth)
 	{
 		strcpy(depths, "Town");
-	}
-	else if (depth_in_feet)
-	{
-		sprintf(depths, "%d ft", p_ptr->depth * 50);
 	}
 	else
 	{
@@ -2021,12 +1985,9 @@ static void calc_bonuses(void)
 		/* Extract modifier */
 		add = p_ptr->stat_add[i];
 
-		/* Maximize mode */
-		if (adult_maximize)
-		{
-			/* Modify the stats for race/class */
-			add += (rp_ptr->r_adj[i] + cp_ptr->c_adj[i]);
-		}
+		/* Modify the stats for race/class */
+		add += (rp_ptr->r_adj[i] + cp_ptr->c_adj[i]);
+
 
 		/* Extract the new "stat_top" value for the stat */
 		top = modify_stat_value(p_ptr->stat_max[i], add);
@@ -2040,14 +2001,8 @@ static void calc_bonuses(void)
 		/* Save the new value */
 		p_ptr->stat_use[i] = use;
 
-		/* Values: 3, 4, ..., 17 */
-		if (use <= 18) ind = (use - 3);
-
-		/* Ranges: 18/00-18/09, ..., 18/210-18/219 */
-		else if (use <= 18+219) ind = (15 + (use - 18) / 10);
-
-		/* Range: 18/220+ */
-		else ind = (37);
+		/* Values: 3, 4, ... */
+		ind = (use - 3);
 
 		/* Save the new index */
 		p_ptr->stat_ind[i] = ind;

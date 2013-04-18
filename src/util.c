@@ -1469,19 +1469,6 @@ static char inkey_aux(void)
 static cptr inkey_next = NULL;
 
 
-#ifdef ALLOW_BORG
-
-/*
- * Mega-Hack -- special "inkey_hack" hook.  XXX XXX XXX
- *
- * This special function hook allows the "Borg" (see elsewhere) to take
- * control of the "inkey()" function, and substitute in fake keypresses.
- */
-char (*inkey_hack)(int flush_first) = NULL;
-
-#endif /* ALLOW_BORG */
-
-
 /*
  * Get a keypress from the user.
  *
@@ -1540,9 +1527,6 @@ char (*inkey_hack)(int flush_first) = NULL;
  * "signal_count" variable, and of the "character_saved" variable.
  *
  * Hack -- Note the use of "inkey_next" to allow "keymaps" to be processed.
- *
- * Mega-Hack -- Note the use of "inkey_hack" to allow the "Borg" to steal
- * control of the keyboard from the user.
  */
 char inkey(void)
 {
@@ -1572,22 +1556,6 @@ char inkey(void)
 
 	/* Forget pointer */
 	inkey_next = NULL;
-
-
-#ifdef ALLOW_BORG
-
-	/* Mega-Hack -- Use the special hook */
-	if (inkey_hack && ((ch = (*inkey_hack)(inkey_xtra)) != 0))
-	{
-		/* Cancel the various "global parameters" */
-		inkey_base = inkey_xtra = inkey_flag = inkey_scan = FALSE;
-
-		/* Accept result */
-		return (ch);
-	}
-
-#endif /* ALLOW_BORG */
-
 
 	/* Hack -- handle delayed "flush()" */
 	if (inkey_xtra)
@@ -1776,7 +1744,7 @@ char inkey(void)
 
 
 /*
- * Flush the screen, make a noise
+ * Flush the screen
  */
 void bell(cptr reason)
 {
@@ -1785,9 +1753,6 @@ void bell(cptr reason)
 
 	/* Hack -- memorize the reason if possible */
 	if (character_generated && reason) message_add(reason, MSG_BELL);
-
-	/* Make a bell noise (if allowed) */
-	if (ring_bell) Term_xtra(TERM_XTRA_NOISE, 0);
 
 	/* Flush the input (later!) */
 	flush();
@@ -2467,18 +2432,6 @@ static void msg_print_aux(u16b type, cptr msg)
 	/* Window stuff */
 	p_ptr->window |= (PW_MESSAGE);
 
-
-	/* Handle "auto_more" */
-	if (auto_more)
-	{
-		/* Force window update */
-		window_stuff();
-
-		/* Done */
-		return;
-	}
-
-
 	/* Copy it */
 	strcpy(buf, msg);
 
@@ -3035,7 +2988,7 @@ s16b get_quantity(cptr prompt, int max)
 #ifdef ALLOW_REPEAT
 
 	/* Get the item index */
-	else if ((max != 1) && allow_quantity && repeat_pull(&amt))
+	else if ((max != 1) && repeat_pull(&amt))
 	{
 		/* nothing */
 	}
@@ -3043,7 +2996,7 @@ s16b get_quantity(cptr prompt, int max)
 #endif /* ALLOW_REPEAT */
 
 	/* Prompt if needed */
-	else if ((max != 1) && allow_quantity)
+	else if ((max != 1))
 	{
 		char tmp[80];
 

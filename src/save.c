@@ -11,6 +11,7 @@
 #include "angband.h"
 
 
+
 #ifdef FUTURE_SAVEFILES
 
 /*
@@ -308,7 +309,7 @@ static errr wr_savefile(void)
 
 	/* Dump the number of "messages" */
 	tmp16u = message_num();
-	if (compress_savefile && (tmp16u > 40)) tmp16u = 40;
+	if ((tmp16u > 40)) tmp16u = 40;
 	wr_u16b(tmp16u);
 
 	/* Dump the messages and types (oldest first!) */
@@ -840,21 +841,8 @@ static void wr_store(const store_type *st_ptr)
 {
 	int j;
 
-	/* Save the "open" counter */
-	wr_u32b(st_ptr->store_open);
-
-	/* Save the "insults" */
-	wr_s16b(st_ptr->insult_cur);
-
-	/* Save the current owner */
-	wr_byte(st_ptr->owner);
-
 	/* Save the stock size */
 	wr_byte(st_ptr->stock_num);
-
-	/* Save the "haggle" info */
-	wr_s16b(st_ptr->good_buy);
-	wr_s16b(st_ptr->bad_buy);
 
 	/* Save the stock */
 	for (j = 0; j < st_ptr->stock_num; j++)
@@ -1012,11 +1000,6 @@ static void wr_extra(void)
 
 	wr_string(p_ptr->died_from);
 
-	for (i = 0; i < 4; i++)
-	{
-		wr_string(p_ptr->history[i]);
-	}
-
 	/* Race/Class/Gender/Spells */
 	wr_byte(p_ptr->prace);
 	wr_byte(p_ptr->pclass);
@@ -1061,7 +1044,7 @@ static void wr_extra(void)
 	wr_s16b(0);	/* oops */
 	wr_s16b(0);	/* oops */
 	wr_s16b(0);	/* oops */
-	wr_s16b(p_ptr->sc);
+	wr_s16b(0);	/* oops */
 	wr_s16b(0);	/* oops */
 
 	wr_s16b(0);		/* old "rest" */
@@ -1107,13 +1090,9 @@ static void wr_extra(void)
 	/* Future use */
 	for (i = 0; i < 10; i++) wr_u32b(0L);
 
-
-	/* Random artifact version */
-	wr_u32b(RANDART_VERSION);
-
-	/* Random artifact seed */
-	wr_u32b(seed_randart);
-
+	/* randarts junk - remove */
+	wr_u32b(0L);	/* oops */
+	wr_u32b(0L);    /* oops */
 
 	/* Ignore some flags */
 	wr_u32b(0L);	/* oops */
@@ -1143,49 +1122,6 @@ static void wr_extra(void)
 
 	/* Current turn */
 	wr_s32b(turn);
-}
-
-
-/*
- * Dump the random artifacts
- */
-static void wr_randarts(void)
-{
-	int i;
-
-	wr_u16b(z_info->a_max);
-
-	for (i = 0; i < z_info->a_max; i++)
-	{
-		artifact_type *a_ptr = &a_info[i];
-
-		wr_byte(a_ptr->tval);
-		wr_byte(a_ptr->sval);
-		wr_s16b(a_ptr->pval);
-
-		wr_s16b(a_ptr->to_h);
-		wr_s16b(a_ptr->to_d);
-		wr_s16b(a_ptr->to_a);
-		wr_s16b(a_ptr->ac);
-
-		wr_byte(a_ptr->dd);
-		wr_byte(a_ptr->ds);
-
-		wr_s16b(a_ptr->weight);
-
-		wr_s32b(a_ptr->cost);
-
-		wr_u32b(a_ptr->flags1);
-		wr_u32b(a_ptr->flags2);
-		wr_u32b(a_ptr->flags3);
-
-		wr_byte(a_ptr->level);
-		wr_byte(a_ptr->rarity);
-
-		wr_byte(a_ptr->activation);
-		wr_u16b(a_ptr->time);
-		wr_u16b(a_ptr->randtime);
-	}
 }
 
 
@@ -1413,7 +1349,7 @@ static bool wr_savefile_new(void)
 
 	/* Dump the number of "messages" */
 	tmp16u = message_num();
-	if (compress_savefile && (tmp16u > 40)) tmp16u = 40;
+	if ((tmp16u > 40)) tmp16u = 40;
 	wr_u16b(tmp16u);
 
 	/* Dump the messages (oldest first!) */
@@ -1486,14 +1422,6 @@ static bool wr_savefile_new(void)
 	{
 		wr_byte(p_ptr->spell_order[i]);
 	}
-
-
-	/* Write randart information */
-	if (adult_rand_artifacts)
-	{
-		wr_randarts();
-	}
-
 
 	/* Write the inventory */
 	for (i = 0; i < INVEN_TOTAL; i++)
@@ -1926,38 +1854,11 @@ bool load_player(void)
 		sf_patch = vvv[2];
 		sf_extra = vvv[3];
 
-		/* Very old savefiles */
-		if ((sf_major == 5) && (sf_minor == 2))
-		{
-			sf_major = 2;
-			sf_minor = 5;
-		}
-
-		/* Extremely old savefiles */
-		if (sf_major > 2)
-		{
-			sf_major = 1;
-		}
-
 		/* Clear screen */
 		Term_clear();
 
-		/* Parse "ancient" savefiles */
-		if (sf_major < 2)
-		{
-			/* Attempt to load */
-			err = rd_savefile_old();
-		}
-
-		/* Parse "old" savefiles */
-		else if ((sf_major == 2) && (sf_minor < 7))
-		{
-			/* Attempt to load */
-			err = rd_savefile_old();
-		}
-
 		/* Parse "new" savefiles */
-		else if (sf_major == 2)
+		if (sf_major == 0)
 		{
 			/* Attempt to load */
 			err = rd_savefile_new();

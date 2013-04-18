@@ -182,7 +182,7 @@ static void sense_inventory(void)
 		if (!feel) continue;
 
 		/* Stop everything */
-		if (disturb_minor) disturb(0, 0);
+		disturb(0, 0);
 
 		/* Get an object description */
 		object_desc(o_name, o_ptr, FALSE, 0);
@@ -849,7 +849,7 @@ static void process_world(void)
 			/* The light is getting dim */
 			else if ((o_ptr->pval < 100) && (!(o_ptr->pval % 10)))
 			{
-				if (disturb_minor) disturb(0, 0);
+				disturb(0, 0);
 				msg_print("Your light is growing faint.");
 			}
 		}
@@ -1005,20 +1005,18 @@ static void process_world(void)
  */
 static bool enter_wizard_mode(void)
 {
-	/* Ask first time */
-	if (verify_special || !(p_ptr->noscore & 0x0002))
-	{
-		/* Mention effects */
-		msg_print("You are about to enter 'wizard' mode for the very first time!");
-		msg_print("This is a form of cheating, and your game will not be scored!");
-		message_flush();
 
-		/* Verify request */
-		if (!get_check("Are you sure you want to enter wizard mode? "))
-		{
-			return (FALSE);
-		}
+	/* Mention effects */
+	msg_print("You are about to enter 'wizard' mode for the very first time!");
+	msg_print("This is a form of cheating, and your game will not be scored!");
+	message_flush();
+
+	/* Verify request */
+	if (!get_check("Are you sure you want to enter wizard mode? "))
+	{
+		return (FALSE);
 	}
+
 
 	/* Mark savefile */
 	p_ptr->noscore |= 0x0002;
@@ -1036,19 +1034,16 @@ static bool enter_wizard_mode(void)
  */
 static bool verify_debug_mode(void)
 {
-	/* Ask first time */
-	if (verify_special && !(p_ptr->noscore & 0x0008))
-	{
-		/* Mention effects */
-		msg_print("You are about to use the dangerous, unsupported, debug commands!");
-		msg_print("Your machine may crash, and your savefile may become corrupted!");
-		message_flush();
 
-		/* Verify request */
-		if (!get_check("Are you sure you want to use the debug commands? "))
-		{
-			return (FALSE);
-		}
+	/* Mention effects */
+	msg_print("You are about to use the dangerous, unsupported, debug commands!");
+	msg_print("Your machine may crash, and your savefile may become corrupted!");
+	message_flush();
+
+	/* Verify request */
+	if (!get_check("Are you sure you want to use the debug commands? "))
+	{
+		return (FALSE);
 	}
 
 	/* Mark savefile */
@@ -1065,46 +1060,6 @@ static bool verify_debug_mode(void)
 extern void do_cmd_debug(void);
 
 #endif
-
-
-
-#ifdef ALLOW_BORG
-
-/*
- * Verify use of "borg" mode
- */
-static bool verify_borg_mode(void)
-{
-	/* Ask first time */
-	if (verify_special && !(p_ptr->noscore & 0x0010))
-	{
-		/* Mention effects */
-		msg_print("You are about to use the dangerous, unsupported, borg commands!");
-		msg_print("Your machine may crash, and your savefile may become corrupted!");
-		message_flush();
-
-		/* Verify request */
-		if (!get_check("Are you sure you want to use the borg commands? "))
-		{
-			return (FALSE);
-		}
-	}
-
-	/* Mark savefile */
-	p_ptr->noscore |= 0x0010;
-
-	/* Okay */
-	return (TRUE);
-}
-
-
-/*
- * Hack -- Declare the Borg Routines
- */
-extern void do_cmd_borg(void);
-
-#endif
-
 
 
 /*
@@ -1171,19 +1126,6 @@ static void process_command(void)
 		}
 
 #endif
-
-
-#ifdef ALLOW_BORG
-
-		/* Special "borg" commands */
-		case KTRL('Z'):
-		{
-			if (verify_borg_mode()) do_cmd_borg();
-			break;
-		}
-
-#endif
-
 
 
 		/*** Inventory Commands ***/
@@ -2231,8 +2173,8 @@ static void dungeon(void)
 		p_ptr->create_down_stair = FALSE;
 	}
 
-	/* No stairs from town or if not allowed */
-	if (!p_ptr->depth || !dungeon_stair)
+	/* No stairs from town */
+	if (!p_ptr->depth)
 	{
 		p_ptr->create_down_stair = p_ptr->create_up_stair = FALSE;
 	}
@@ -2625,30 +2567,8 @@ void play_game(bool new_game)
 		/* Hack -- seed for town layout */
 		seed_town = rand_int(0x10000000);
 
-#ifdef GJW_RANDART
-
-		/* Hack -- seed for random artifacts */
-		seed_randart = rand_int(0x10000000);
-
-#endif /* GJW_RANDART */
-
 		/* Roll up a new character */
 		player_birth();
-
-#ifdef GJW_RANDART
-
-		/* Randomize the artifacts */
-		if (adult_rand_artifacts)
-		{
-			do_randart(seed_randart, TRUE);
-		}
-
-#else /* GJW_RANDART */
-
-		/* Make sure random artifacts are turned off if not available */
-		adult_rand_artifacts = FALSE;
-
-#endif /* GJW_RANDART */
 
 		/* Hack -- enter the world */
 		turn = 1;
@@ -2774,8 +2694,6 @@ void play_game(bool new_game)
 			/* Mega-Hack -- Allow player to cheat death */
 			if ((p_ptr->wizard || cheat_live) && !get_check("Die? "))
 			{
-				/* Mark social class, reset age, if needed */
-				if (p_ptr->sc) p_ptr->sc = p_ptr->age = 0;
 
 				/* Increase age */
 				p_ptr->age++;

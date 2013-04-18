@@ -802,68 +802,6 @@ static errr init_c_info(void)
 
 
 
-/*
- * Initialize the "h_info" array
- */
-static errr init_h_info(void)
-{
-	/* Init the header */
-	init_header(&h_head, z_info->h_max, sizeof(hist_type));
-
-#ifdef ALLOW_TEMPLATES
-
-	/* Save a pointer to the parsing function */
-	h_head.parse_info_txt = parse_h_info;
-
-#endif /* ALLOW_TEMPLATES */
-
-	return init_info("p_hist", &h_head,
-	                 (void*)&h_info, NULL, (void*)&h_text);
-}
-
-
-
-/*
- * Initialize the "b_info" array
- */
-static errr init_b_info(void)
-{
-	/* Init the header */
-	init_header(&b_head, (u16b)(MAX_STORES * z_info->b_max), sizeof(owner_type));
-
-#ifdef ALLOW_TEMPLATES
-
-	/* Save a pointer to the parsing function */
-	b_head.parse_info_txt = parse_b_info;
-
-#endif /* ALLOW_TEMPLATES */
-
-	return init_info("shop_own", &b_head,
-	                 (void*)&b_info, (void*)&b_name, (void*)&b_text);
-}
-
-
-
-/*
- * Initialize the "g_info" array
- */
-static errr init_g_info(void)
-{
-	/* Init the header */
-	init_header(&g_head, (u16b)(z_info->p_max * z_info->p_max), sizeof(byte));
-
-#ifdef ALLOW_TEMPLATES
-
-	/* Save a pointer to the parsing function */
-	g_head.parse_info_txt = parse_g_info;
-
-#endif /* ALLOW_TEMPLATES */
-
-	return init_info("cost_adj", &g_head,
-	                 (void*)&g_info, (void*)&g_name, (void*)&g_text);
-}
-
-
 
 
 /*** Initialize others ***/
@@ -918,70 +856,70 @@ static const byte store_table[MAX_STORES-2][STORE_CHOICES][2] =
 	{
 		/* Armoury */
 
-		{ TV_BOOTS, SV_PAIR_OF_SOFT_LEATHER_BOOTS },
-		{ TV_BOOTS, SV_PAIR_OF_SOFT_LEATHER_BOOTS },
-		{ TV_BOOTS, SV_PAIR_OF_HARD_LEATHER_BOOTS },
-		{ TV_BOOTS, SV_PAIR_OF_HARD_LEATHER_BOOTS },
-		{ TV_HELM, SV_HARD_LEATHER_CAP },
-		{ TV_HELM, SV_HARD_LEATHER_CAP },
-		{ TV_HELM, SV_METAL_CAP },
-		{ TV_HELM, SV_IRON_HELM },
+		{ TV_BOOTS, SV_PAIR_OF_BOOTS },
+		{ TV_BOOTS, SV_PAIR_OF_BOOTS },
+		{ TV_BOOTS, SV_PAIR_OF_BOOTS },
+		{ TV_BOOTS, SV_PAIR_OF_BOOTS },
+		{ TV_HELM, SV_CAP },
+		{ TV_HELM, SV_CAP },
+		{ TV_HELM, SV_CAP },
+		{ TV_HELM, SV_HELM },
 
-		{ TV_SOFT_ARMOR, SV_ROBE },
-		{ TV_SOFT_ARMOR, SV_ROBE },
-		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR },
-		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR },
-		{ TV_SOFT_ARMOR, SV_HARD_LEATHER_ARMOR },
-		{ TV_SOFT_ARMOR, SV_HARD_LEATHER_ARMOR },
-		{ TV_SOFT_ARMOR, SV_HARD_STUDDED_LEATHER },
-		{ TV_SOFT_ARMOR, SV_HARD_STUDDED_LEATHER },
+		{ TV_SOFT_ARMOR, SV_PADDED_ARMOR },
+		{ TV_SOFT_ARMOR, SV_PADDED_ARMOR },
+		{ TV_SOFT_ARMOR, SV_LEATHER_ARMOR },
+		{ TV_SOFT_ARMOR, SV_LEATHER_ARMOR },
+		{ TV_SOFT_ARMOR, SV_LEATHER_ARMOR },
+		{ TV_SOFT_ARMOR, SV_HIDE_ARMOR },
+		{ TV_SOFT_ARMOR, SV_STUDDED_LEATHER_ARMOR },
+		{ TV_SOFT_ARMOR, SV_STUDDED_LEATHER_ARMOR },
 
-		{ TV_SOFT_ARMOR, SV_LEATHER_SCALE_MAIL },
-		{ TV_SOFT_ARMOR, SV_LEATHER_SCALE_MAIL },
-		{ TV_HARD_ARMOR, SV_METAL_SCALE_MAIL },
+		{ TV_SOFT_ARMOR, SV_CHAIN_SHIRT },
+		{ TV_SOFT_ARMOR, SV_CHAIN_SHIRT },
+		{ TV_HARD_ARMOR, SV_SCALE_MAIL },
 		{ TV_HARD_ARMOR, SV_CHAIN_MAIL },
 		{ TV_HARD_ARMOR, SV_CHAIN_MAIL },
-		{ TV_HARD_ARMOR, SV_AUGMENTED_CHAIN_MAIL },
-		{ TV_HARD_ARMOR, SV_BAR_CHAIN_MAIL },
-		{ TV_HARD_ARMOR, SV_DOUBLE_CHAIN_MAIL },
+		{ TV_HARD_ARMOR, SV_SPLINT_MAIL },
+		{ TV_HARD_ARMOR, SV_BANDED_MAIL },
+		{ TV_HARD_ARMOR, SV_BANDED_MAIL },
 
-		{ TV_HARD_ARMOR, SV_METAL_BRIGANDINE_ARMOUR },
-		{ TV_GLOVES, SV_SET_OF_LEATHER_GLOVES },
-		{ TV_GLOVES, SV_SET_OF_LEATHER_GLOVES },
+		{ TV_HARD_ARMOR, SV_BREASTPLATE_ARMOUR },
+		{ TV_GLOVES, SV_SET_OF_GLOVES },
+		{ TV_GLOVES, SV_SET_OF_GLOVES },
 		{ TV_GLOVES, SV_SET_OF_GAUNTLETS },
-		{ TV_SHIELD, SV_SMALL_LEATHER_SHIELD },
-		{ TV_SHIELD, SV_SMALL_LEATHER_SHIELD },
-		{ TV_SHIELD, SV_LARGE_LEATHER_SHIELD },
-		{ TV_SHIELD, SV_SMALL_METAL_SHIELD }
+		{ TV_SHIELD, SV_LIGHT_WOODEN_SHIELD },
+		{ TV_SHIELD, SV_LIGHT_WOODEN_SHIELD },
+		{ TV_SHIELD, SV_HEAVY_WOODEN_SHIELD },
+		{ TV_SHIELD, SV_LIGHT_STEEL_SHIELD }
 	},
 
 	{
 		/* Weaponsmith */
 
 		{ TV_SWORD, SV_DAGGER },
-		{ TV_SWORD, SV_MAIN_GAUCHE },
-		{ TV_SWORD, SV_RAPIER },
-		{ TV_SWORD, SV_SMALL_SWORD },
 		{ TV_SWORD, SV_SHORT_SWORD },
-		{ TV_SWORD, SV_SABRE },
-		{ TV_SWORD, SV_CUTLASS },
-		{ TV_SWORD, SV_TULWAR },
+		{ TV_SWORD, SV_RAPIER },
+		{ TV_SWORD, SV_SHORT_SWORD },
+		{ TV_SWORD, SV_SHORT_SWORD },
+		{ TV_SWORD, SV_SHORT_SWORD },
+		{ TV_SWORD, SV_SHORT_SWORD },
+		{ TV_SWORD, SV_LONG_SWORD },
 
-		{ TV_SWORD, SV_BROAD_SWORD },
+		{ TV_SWORD, SV_LONG_SWORD },
 		{ TV_SWORD, SV_LONG_SWORD },
 		{ TV_SWORD, SV_SCIMITAR },
-		{ TV_SWORD, SV_KATANA },
+		{ TV_SWORD, SV_LONG_SWORD },
 		{ TV_SWORD, SV_BASTARD_SWORD },
 		{ TV_POLEARM, SV_SPEAR },
-		{ TV_POLEARM, SV_AWL_PIKE },
+		{ TV_POLEARM, SV_GUISARME },
 		{ TV_POLEARM, SV_TRIDENT },
 
-		{ TV_POLEARM, SV_PIKE },
-		{ TV_POLEARM, SV_BEAKED_AXE },
-		{ TV_POLEARM, SV_BROAD_AXE },
+		{ TV_POLEARM, SV_RANSEUR },
+		{ TV_POLEARM, SV_BATTLE_AXE },
+		{ TV_POLEARM, SV_BATTLE_AXE },
 		{ TV_POLEARM, SV_LANCE },
 		{ TV_POLEARM, SV_BATTLE_AXE },
-		{ TV_HAFTED, SV_WHIP },
+		{ TV_HAFTED, SV_BATTLE_AXE },
 		{ TV_BOW, SV_SLING },
 		{ TV_BOW, SV_SHORT_BOW },
 
@@ -998,18 +936,18 @@ static const byte store_table[MAX_STORES-2][STORE_CHOICES][2] =
 	{
 		/* Temple */
 
-		{ TV_HAFTED, SV_WHIP },
 		{ TV_HAFTED, SV_QUARTERSTAFF },
-		{ TV_HAFTED, SV_MACE },
-		{ TV_HAFTED, SV_MACE },
-		{ TV_HAFTED, SV_BALL_AND_CHAIN },
+		{ TV_HAFTED, SV_QUARTERSTAFF },
+		{ TV_HAFTED, SV_LIGHT_MACE },
+		{ TV_HAFTED, SV_LIGHT_MACE },
 		{ TV_HAFTED, SV_WAR_HAMMER },
-		{ TV_HAFTED, SV_LUCERN_HAMMER },
+		{ TV_HAFTED, SV_WAR_HAMMER },
+		{ TV_HAFTED, SV_WAR_HAMMER },
 		{ TV_HAFTED, SV_MORNING_STAR },
 
 		{ TV_HAFTED, SV_FLAIL },
 		{ TV_HAFTED, SV_FLAIL },
-		{ TV_HAFTED, SV_LEAD_FILLED_MACE },
+		{ TV_HAFTED, SV_HEAVY_MACE },
 		{ TV_SCROLL, SV_SCROLL_REMOVE_CURSE },
 		{ TV_SCROLL, SV_SCROLL_BLESSING },
 		{ TV_SCROLL, SV_SCROLL_HOLY_CHANT },
@@ -1782,10 +1720,6 @@ void init_angband(void)
 	note("[Initializing arrays... (vaults)]");
 	if (init_v_info()) quit("Cannot initialize vaults");
 
-	/* Initialize history info */
-	note("[Initializing arrays... (histories)]");
-	if (init_h_info()) quit("Cannot initialize histories");
-
 	/* Initialize race info */
 	note("[Initializing arrays... (races)]");
 	if (init_p_info()) quit("Cannot initialize races");
@@ -1793,14 +1727,6 @@ void init_angband(void)
 	/* Initialize class info */
 	note("[Initializing arrays... (classes)]");
 	if (init_c_info()) quit("Cannot initialize classes");
-
-	/* Initialize owner info */
-	note("[Initializing arrays... (owners)]");
-	if (init_b_info()) quit("Cannot initialize owners");
-
-	/* Initialize price info */
-	note("[Initializing arrays... (prices)]");
-	if (init_g_info()) quit("Cannot initialize prices");
 
 	/* Initialize some other arrays */
 	note("[Initializing arrays... (other)]");

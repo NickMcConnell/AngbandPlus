@@ -68,8 +68,6 @@ bool character_saved;		/* The character was just saved to a savefile */
 s16b character_icky;		/* Depth of the game in special mode */
 s16b character_xtra;		/* Depth of the game in startup mode */
 
-u32b seed_randart;		/* Hack -- consistent random artifacts */
-
 u32b seed_flavor;		/* Hack -- consistent object colors */
 u32b seed_town;			/* Hack -- consistent town layout */
 
@@ -505,27 +503,6 @@ char *p_text;
 player_class *c_info;
 char *c_name;
 char *c_text;
-
-/*
- * The player history arrays
- */
-hist_type *h_info;
-char *h_text;
-
-/*
- * The shop owner arrays
- */
-owner_type *b_info;
-char *b_name;
-char *b_text;
-
-/*
- * The racial price adjustment arrays
- */
-byte *g_info;
-char *g_name;
-char *g_text;
-
 
 /*
  * Hack -- The special Angband "System Suffix"
