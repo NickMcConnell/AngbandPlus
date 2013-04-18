@@ -1,0 +1,477 @@
+DrAngband Changes:
+------------------
+
+DrAngband 2.9.7 (Jan 2001)
+---------------------------
+
+* Reduced the fail rates on detection spells some.  They failed too often.
+
+* Repaired bugs to randart rings,
+
+* Repaired the Ethereal Lock spell so that it works.
+
+* Breath weapons are now arcs.
+
+* Pixies can now be Wizards.
+
+* Fixed the 'monster light out of sync' bug.
+
+* Monsters take poison, just as deadly as player poion
+
+* Crown of Dragonkind too nice, added aggravation to it.
+
+* Increased the value of Invisibility by decreasing the number of monsters
+  who posses SEE_INVIS.
+
+* Monsters breath at Invisible players, at least in their direction.
+
+* Pixies also get racial power of phase door.
+
+
+DrAngband 2.9.6 (Sept 2000)
+---------------------------
+
+* Monsters may carry light and illuminate the dungeon.
+
+* Rogues and Rangers get an automatic critical hit against sleeping foes.
+
+* Added the Priest Spell of Ethereal Lock.  It prevents all forms of teleport
+  and summoning.  No one enters the battle, no one leaves. :)
+
+* Fractal Attacks.  You will attack an adjacent monster until all your
+  attacks are used up.
+
+* Damage from poison toned down.  It was much too deadly before.
+
+DrAngband 2.9.5 (10/2/2000)
+---------------------------
+
+* New sling ammo: Silver Shots. They do extra damage to evil creatures.
+
+* _REALLY_ nasty escorts for Sauron and Morgoth!
+
+* Oangband throwing and well-balanced items.
+
+* Dragon weapons tweaked.
+
+* (Infinite) Random artifacts.
+
+* Fixed zero-divide bug caused by curse weapon scrolls.
+
+* Mage 'striking' spell now kicks monsters back 2 tiles.
+
+* Angband 2.8.5 stat buying method for character creation.
+
+DrAngband 2.9.4 (2/2/2000)
+--------------------------
+
+* -t switch for various X11 fonts.
+
+* Much nicer GCU bigscreen support.
+
+
+^^ Above changes after beta release.
+------------------------------------
+
+* Globe of Resilience reduces damage to 2/3.
+
+* *Massive* changes to mage spellbooks. Mage class renamed to wizard.
+
+* Almost nothing is immune to confusion, sleep and slowing.
+
+* Destruction no longer destroys everything. Sometimes
+  creates rubble.
+
+* project() code from oangband: Arc spells.
+
+* Removed all forms of genocide.
+
+* Wands/staves and rods of various types (confusion, sleep,
+  slow monster) rarer since the effect is more powerful.
+
+* Fixed bug (from 2.9.2) in character info screen.
+
+* Added pretty colours when looking at spell books
+  (Angband 2.8.5).
+
+* Doors harder for monsters to destroy. Different colours for broken
+  doors.
+
+* Changes to some monster melee attacks.
+
+* Reorganisation of edible things.
+
+* Curse removed from Crown of Dragonkind.
+
+* New attack. [no spoilers!]
+
+* Some reorganisation of priestly spells.
+
+* Cavern levels rarer.
+
+* Dragon melee bonuses lowered.
+
+* Arrows fired by monsters are sometimes dropped.
+
+* Widescreen!
+
+* Detection and mapping spells work by radius, not screen size.
+
+* Character dumps now appended to end of character log files.
+
+* 52 item inventory.
+
+* Oangband traps.
+
+DrAngband 2.9.3 (28/11/99)
+--------------------------
+
+* More changes to Multi-hued dragons. They now get acid,
+  elec, fire and cold resist from the start and gain
+  double resistances and poison as before. Marginal stat
+  improvements. Don't want to overshoot their rebalancing.
+
+* Other dragon changes:
+  +3 INT and better saving throw for Copper Dragons.
+  Copper and Bronze dragon colours switched.
+
+* Updated version of fractal caves patch (sfpatch5.tar.gz),
+  with random vaults!
+
+* Lighter DSMs.
+
+* Fixed stupid bug in RNG offers (accidentally removed from
+  version 2.9.2). Also made cheaper.
+
+* Notes (:) may now be appended to a file. Noting '@info'
+  will do an automated note of experience, level, depth,
+  gold, etc.
+
+* Lightsources reorganised.
+
+* Unix/Curses & X11 (main-gcu.c and main-x11.c) 50-line support.
+
+* Fixed nasty bug in mushrooms of poison.
+
+DrAngband 2.9.2 (18/11/99)
+--------------------------
+
+* Added racial gold adjust for multi-hued dragons.
+
+* Removed EASY_KNOW from rings of ice, flames and lightning. Depth
+  decreased, rarity increased so warriors can activate them more easily.
+
+* Cleaner implementation of 'show player by race'.
+
+* 'Balancing' changes to dragon races:
+  Copper dragons now get double disenchantment resistance at level 40.
+  Crystal dragons get double shard resistance at level 40.
+  Bronze dragons get double confustion resistance at level 40.
+  Brass dragons get double sound resistance at level 40.
+  Fixed their racial power.
+  Multi-hued dragons have a higher exp penalty, slighly lower stats,
+  lower DEX, INT and WIS and only reach double resistance. Hopefully they
+  will be less overpowered now!
+  Multi-hued dragons: Resistance to poison at level 45.
+  Considerably redesigned multi-hued dragon racial powers.
+
+* Amulets of resistance.
+
+* Amulets of Invisibility are much deeper now.
+
+* New town layout [startup] option. The new town layout is defined in
+  t_info.txt. Currently only one the normal [vanilla] and one single
+  new layout are supported. In future many more may be available.
+
+* Fixed some bugs in the application of rng offers. You may now enter the
+  town after offering an item without losing the object level bonus. The
+  autoscummer no longer causes problems, either.
+
+* Monsters resistant to electricity are no longer stunned by it.
+
+* Renamed 'Brass' dragons to Gold dragons.
+
+* Earthquake kills monsters stuck in walls [Tim Baker].
+
+* Player ghosts as they were in DrAngband 2.0.
+
+* Cloaks of Free Action.
+
+* Ring of speed depth and rarity changed.
+
+* Some alterations to the way RNG bribery is handled.
+
+* Updated main-emx.c and makefile.emx files for OS/2 support.
+
+* Low dragon scale mails given shallower depth.
+  PDSM given confusion.
+
+* Warriors made better with magical items.
+
+* Dragon Scale Mails recharge *much* quicker.
+
+* Amulets of the magi INT bonuses reduced.
+
+* Invisibility sucess now dependent on player stealth.
+
+* Bone files only deleted when the ghost is slain. Kind of like preserve
+  mode for ghosts.
+
+* Player ghosts given various other nasty powers... New flavours of dragon
+  ghosts.
+
+* Electricity stuns the player. Meteors damage walls.
+
+* Greater basilisks.
+
+* Steven Fuerst's fractal caves patch!
+
+* Experimental 50 line support. Allows the cave to be displayed
+  over larger screens. Set with -b switch.
+
+* Many changes to make use of new screen space. 
+
+* More dangerous poison.
+
+* Fixed identify_fully when used on stuff with many attributes.
+
+* Special feeling now given in non-preserve mode.
+
+* Lousy RNG offers are penalised.
+
+* Resistance to poison no longer makes you immune to the effects
+  of poison. Cure poison made rarer on various types of healing.
+
+* Support for 50 line mode in OS/2 (main-emx.c) and -b switch
+  now takes number of lines (Alexey Guzeev).
+
+DrAngband 2.9.1 (2/11/99)
+-------------------------
+
+* TM_CURSE upgraded to every 50 turns and nastified in other ways...
+
+* Dragons get extra +hit and +dam bonuses.
+
+* Invulnerability now halves damage. Name changed.
+
+* No 100% safety from theft.
+
+* Yeek racial power 'flee in terror' (Haste 5+d5, terror 5+d10).
+  Pixie racial power 'throw pixie dust' (confuse monster).
+
+* Other racial powers fail rate lowered.
+
+* The One Ring Activation more powerful. Given invisibility, too.
+
+* New artifact crown for dragons. It is TM_CURSED when used by non-dragons.
+
+* Dragon's teeth and claws correctly shown in character dumps.
+
+* Staves, wands and rods more powerful.
+
+* Mages are useless with bows. Wands should be their bows.
+
+* Rings of Confusion resistance (mostly for dragons).
+
+* Invisibility shown as '*' in see_invis field.
+
+* Mage spells 'Mana Bolt' and 'Resist Electricity'.
+
+* [Some] Orcs can fire arrows. (Monster) Archery attacks marginally boosted.
+
+* Resist light & dark on shadow cloaks.
+
+* Bonus to digging for dragons.
+
+* 'Amulet s' bug fixed.
+
+* Default options saving feature.
+
+* Keymap dump bug fixed.
+
+* Chests usually drop good items.
+
+* Detect doors now detects locked and jammed doors.
+
+* Multi-hued Dragons: 4 basic resists, single, double, treble and quadruple
+  resisted at levels 0, 25, 35 and 45 respectively.
+
+* Race name now no longer overflows onto dungeon map with big names.
+
+* Dragon attack message order corrected (Bite, Claw, Bite, Claw, ...)
+
+* New main-gcu.c. (Whose?)
+
+* Weapon skills: Stabbing, fencing, hafted and polearms. Implementation
+  is transparent. Compare hobbit rogues using daggers with using maces
+  or axes for a good example of the effects of this. Also priests with
+  edged weapons or polearms.
+
+* Priest -2 to hit,dam when using edged or polearms removed because the
+  new weapon skills penalise *far* more realistically.
+
+* Ring of Speed rarity and depth changed to prevent mid-game boredom.
+
+* Fixed curse armour scrolls so they trash dragon's cloaks and not their
+  first ring.
+
+* Actual object quality boost to next level when offering stuff to the RNG!
+  This can result in objects up to 40 levels out of depth when making
+  particularly generous offerings.
+
+* Fixed a 'bug' in the fake artifact names patch caused by over-running
+  the normal 80 byte buffer.
+
+* Faster ranger psuedo-id.
+
+DrAngband 2.9.0c (28/10/99) [Not released]
+---------------------------
+
+* 'O' is now 'Use racial power' on the rogulike keyset. Still 'U' on the normal
+  one.
+
+* ^O (Ctrl-O) is now 'Offer item to the RNG' on the roguelike. Still 'O' on the
+  normal one.
+
+DrAngband 2.9.0b (27/10/99)
+---------------------------
+
+* Fixed major bug in staff and wand stacking.
+
+
+Angband 2.8.3 -> DrAngband 2.9.0 (Started 24/10/99)
+---------------------------------------------------
+
+* Player invisibility. INVIS (equipment) and SEE_INVIS (monster) flags added.
+  (TR3_INVIS, RF2_SEE_INVIS).
+
+* Artifact Arrows. 'Bard' and 'Hellblazer'.
+
+* 25% breakage of arrows (from 50%).
+
+* Immunities shown as *, temp resists shown as #.
+
+* Amulets of the Magi now give intelligence instead of searching and a random
+  high resistance.
+
+* 1 Extra shot at level 30 for Warriors with any ranged weapons.
+
+* Extra shots at levels 20 and 40 for Rogues with slings.
+
+* Rings of poison resistance to depth 2000', rarity 3, value 12000 (from depth
+  3000', rarity 2, value 16000).
+
+* 'Elemental' rings activate for double resistance. Ring of Acid changed to
+  Ring of Lightning.
+
+* Globe of Invulnerability now only reduces damage (that reaches take_hit())
+  to 1/3. Eg mana storm = 550hps / 3 = 183hps with the new globe.
+
+* New TM_CURSE. Based on the TY_CURSE. It has a  1/TM_CURSE_CHANCE (100) chance
+  of activation each turn. Effects range from draining experience and stats
+  to summoning multiple ancient dragons, high undead, demons and uniques.
+ 
+* Iron Helm of Gorlim, Two Handed Sword 'Mormegil' and weapons of morgul have
+  gained the TM_CURSE.
+
+* Leon Marrick's Oangband Rod stacking. Rod recharge times moved to pval field
+  of k_info.txt.
+
+* [Monster] Dragon melee damage massively increased.
+
+* get_rnd_line() borrowed from Zangband.
+
+* 'O' command offers items to the Random Number God (RNG). Note -- Artifacts can
+   be offered and will disappear permenently if offered.
+   Rng.txt, rng0-5.txt have the RNG responses.
+
+* 4th spell book 'Genocide' spell changed to 'Plasma Storm', a 5 * plev damage
+  radius 3 plasma ball. Level 37, cost 23 mana.
+
+* Raal's Tomes spells considerably powered up.
+
+* 'Fake' Artifact names can be created by inscribing items with #<artifact name>.
+  Eg Longsword (2d5) (+9,+9) inscribed with @w0#'Ringil' will appear as
+  a Longsword 'Ringil' (2d5) (+9,+9) {@w0}. This is a nice feature so you can
+  name your non-artifacts (although it does work on artifacts. eg "The Glaive
+  of Pain 'Tomthanc'".)
+
+* OPT_testing_stack, OPT_testing_carry and OPT_alert_hitpoint options now on
+  be default.
+
+* Resist chaos no longer gives hidden resistance to confusion. All artifacts that
+  previously gave resistance to chaos now give proper resistance to confusion also.
+
+* Resistances accumulate. 
+
+* All the old DrAngband races.
+
+* Rings of sustaining and resistance.
+
+* Dragon racial powers activated with 'U'. Code borrowed from Zangband.
+
+* Priest spell 'Detect Traps' changed to 'Spiritual Hammer' and 'Detect Doors/Stairs'
+  changed to 'Detect Doors/Traps' (although it also detects stairs.)
+
+* Nice new powers give to *slay* ego items.
+
+* Monsters from Drangband 2.0 (from zangband).
+
+* Slays applied to total melee damage. Slays smaller for melee than for
+  ranged attacks.
+
+* "Show player by race" option to show dragons as Ds. Best used with "hilite
+  player with the cursor" so you always know which D is you!
+
+
+
+Changes from Angband 2.7.8b2 to old Drangband versions
+------------------------------------------------------
+
+Added new character races: 
+
+Pixies (- str,con + dex,int +10speed, confusion attack)
+Yeeks  (-5 to everything, but advance quickly)
+Crystal Dragons (res shards, free action, shard bolt, extra +25 AC)
+Copper Dragons (res dis, freeact, regen, dis ray)
+Bronze Dragons (res conf, regen, conf bolt)
+Brass Dragons (res sound, regen, stun bolt, BAD stealth!!!)
+Psuedo Dragons (res light,dark,blind, regen, light ray)
+
+All dragons also get resist fear and featherfall, a bonus to AC, can dig 
+and fight without weapons, and instead of normal equipment carry an amulet, 
+six rings, a light, a cloak, and a crown. They also (in general) have bad
+stealth and horrible CHA, and (non-dragon) shopkeepers hate them.
+
+Breath weapons and Pixilate use 'P'.
+
+Deleted the mage spell of cure poison, and the priest spells of detect doors
+and detect traps. Added mage spells cone of cold, lightning bolt (old lb
+renamed to spark), wall of fire, ray of force, and resist lightning. Changed
+spell damages. Added priest spells detect doors/traps and spiritual hammer.
+
+Added about 40 new monsters.
+
+Added rings of resistance and rings of sustaining.
+
+Added a few empty mineral veins
+
+Fixed a nasty artifact bug. I think.
+
+------
+Changes from Drangband 2.0
+
+Changed hp/spells/mana per level to use tenth points rather than half points.
+
+Added my favorite little Golden Retrievers. :)
+
+Added resist poison to the list of higher resists, and feather fall to lower.
+
+Added random higher resists to amulets of the magi. Added resist poison to 
+Defenders. Added fire immunity to Slay Demon. Added possible stat bonuses to 
+the other crappy ego-weapons.
+
+Changed the roguelike key for breath weapons to 'O' (so it can actually be 
+used).
+
+Extended the blows table to give 7 or 8 attacks for VERY high str/dex.

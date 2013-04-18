@@ -1,0 +1,42 @@
+DrAngband 2.9.2+ 50-line mode
+-----------------------------
+
+This textfile gives a quick guide to enabling 50-line mode
+in ports of DrAngband. Here is how it should be done:
+
+1. Prior to the execution of init_xxx() (in the relevent
+main-xxx.c file) a global variable, screen_y will be
+set to either 25 (for default 80*25 mode) or some other
+value like 50 (for 80*50).
+
+2. When setting the screen mode if:
+   screen_y = 25: Default mode requested. Set the screen
+   to 80*25.
+
+   screen_y > 25: Large screen requested. The actual size
+   requested does not have to be given, as long as screen_y
+   is updated to reflect the new setting (this is VERY
+   important). It works fine with anything from 25 - 68.
+   68+ and the full dungeon map is displayed vertically on
+   one screen.
+
+3. That's all! Main.c will calculate screen geometry for the
+   given mode and everything will run nicely :-)
+
+4. Oh yeah, test big screen mode with: angband -y
+   Or "angband -yXX" for any screen of >= 25.
+   Eg. "angband -y43" for a 43 line display.
+
+Versions currently supporting big screens:
+
+DOS,
+OS/2,
+Unix/Curses (GCU)
+Unix/X11.
+
+NOTE: As of version 2.9.4, screen_x may also be greater than
+normal. Only the X11 and GCU port supports this at the moment.
+(Set with -x switch).
+
+-- 
+Tom Morton, Previous DrAngband maintainer.
