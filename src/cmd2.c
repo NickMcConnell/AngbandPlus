@@ -204,7 +204,7 @@ static void chest_death(int y, int x, s16b o_idx)
 	tiny = (o_ptr->sval < SV_CHEST_MIN_LARGE);
 
 	/* Determine how much to drop (see above) */
-	number = (o_ptr->sval % SV_CHEST_MIN_LARGE) * 2;
+	number = (o_ptr->sval % SV_CHEST_MIN_LARGE) * 3;
 
 	/* Zero pval means empty chest */
 	if (!o_ptr->pval) number = 0;
@@ -213,7 +213,7 @@ static void chest_death(int y, int x, s16b o_idx)
 	opening_chest = TRUE;
 
 	/* Determine the "value" of the items */
-	object_level = ABS(o_ptr->pval) + 10;
+	object_level = ABS(o_ptr->pval) + 20;
 
 	/* Drop some objects (non-chests) */
 	for (; number > 0; --number)
@@ -225,7 +225,7 @@ static void chest_death(int y, int x, s16b o_idx)
 		object_wipe(i_ptr);
 
 		/* Small chests often drop gold */
-		if (tiny && (rand_int(100) < 75))
+		if (tiny && (rand_int(100) < 60))
 		{
 			/* Make some gold */
 			if (!make_gold(i_ptr)) continue;

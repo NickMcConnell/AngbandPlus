@@ -2070,7 +2070,7 @@ cptr spell_names[2][64] =
 		"Scare Monster",
 		"Portal",
 		"Cure Serious Wounds",
-		"Chant",
+		"Radiance Lance",
 		"Sanctuary",
 		"Satisfy Hunger",
 		"Remove Curse",
@@ -2115,7 +2115,7 @@ cptr spell_names[2][64] =
 		"Banishment",
 		"Word of Destruction",
 		"Annihilation",
-
+		
 		/* Holy Infusions (sval 7) */
 		"Unbarring Ways",
 		"Recharging",

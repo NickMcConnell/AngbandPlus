@@ -555,7 +555,7 @@ B:MOAN
 B:MOAN
 F:UNIQUE | MALE | 
 F:FORCE_MAXHP | 
-F:ONLY_ITEM | DROP_90 | DROP_GOOD | 
+F:ONLY_ITEM | DROP_1D2 | DROP_1D2 | DROP_GOOD | DROP_GREAT
 F:OPEN_DOOR | BASH_DOOR | 
 F:NO_CONF | NO_SLEEP
 D:He's lost his dogs.  He's had his mushrooms stolen.  He's not a happy 

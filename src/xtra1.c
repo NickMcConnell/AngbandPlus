@@ -762,6 +762,7 @@ static void health_redraw(void)
 	{
 		/* Erase the health bar */
 		Term_erase(COL_INFO, ROW_INFO, 12);
+		
 	}
 
 	/* Tracking an unseen monster */
@@ -789,7 +790,8 @@ static void health_redraw(void)
 	else
 	{
 		int pct, len;
-
+	
+		
 		/* ~ customized monster health bar -- colorless fear/sleep status
 		 # ~ blatantly stolen from gw-angband -- neko
 		 */
@@ -801,16 +803,18 @@ static void health_redraw(void)
 		const char hb_poisoned[] = "PPPPPPPPPP";
 		const char hb_blinded[] = "BBBBBBBBBB";
 		const char hb_calmed[] = "cccccccccc";
-		const char *hb_ptr = hb_normal;
 
+		const char *hb_ptr = hb_normal;
+		
+		
 		monster_type *m_ptr = &m_list[p_ptr->health_who];
 
 		/* Default to almost dead */
 		byte attr = TERM_RED;
-
+		
 		/* Extract the "percent" of health */
 		pct = 100L * m_ptr->hp / m_ptr->maxhp;
-
+		
 		/* Badly wounded */
 		if (pct >= 10) attr = TERM_L_RED;
 
@@ -852,6 +856,9 @@ static void health_redraw(void)
 
 		/* Dump the current "health" (use '*' symbols) */
 		Term_putstr(COL_INFO + 1, ROW_INFO, len, attr, hb_ptr);
+		Term_erase(COL_INFO, ROW_INFO+1, 15);				
+		Term_putstr(COL_INFO ,ROW_INFO+1, -1, TERM_WHITE, format("HP: %d/%d", m_ptr->hp,m_ptr->maxhp));				
+		
 	}
 }
 
@@ -892,6 +899,7 @@ static void prt_frame_basic(void)
 
 	/* Current depth */
 	prt_depth();
+
 
 	/* Special */
 	health_redraw();

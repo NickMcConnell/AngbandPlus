@@ -333,13 +333,15 @@ static int remove_curse_aux(int all)
                 /* becomes a ring of damage (+15) */
                 /* due to the nature of this procedure, it only works on cursed items */
                 /* ie you get only one chance! */
-        	if ((randint(55 - p_ptr->lev) == 1) && !artifact_p(o_ptr))
+        	if ((randint(10) == 1) && !artifact_p(o_ptr))
 	        {
                	   if (o_ptr->to_a < 0) o_ptr->to_a = -o_ptr->to_a;
                	   if (o_ptr->to_h < 0) o_ptr->to_h = -o_ptr->to_h;
         	   if (o_ptr->to_d < 0) o_ptr->to_d = -o_ptr->to_d;
 	           if (o_ptr->pval < 0) o_ptr->pval = -o_ptr->pval;
+        	msg_format("Whooooaaa !!!");
         	}
+        	
 
 		/* Recalculate the bonuses */
 		p_ptr->update |= (PU_BONUS);
@@ -445,7 +447,7 @@ void self_knowledge(void)
 
 	if (p_ptr->allow_one_death)
         {
-                info[i++] = "The blood of life flows through your veins.";
+                info[i++] = "The Honeymouse flows through your veins.";
         }
 	if (p_ptr->blind)
 	{

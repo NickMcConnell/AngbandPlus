@@ -3942,6 +3942,8 @@ bool get_aim_dir(int *dp)
 		dir = ddd[rand_int(8)];
 	}
 
+	
+	
 	/* Notice confusion */
 	if (p_ptr->command_dir != dir)
 	{

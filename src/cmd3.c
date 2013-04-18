@@ -185,12 +185,13 @@ void do_cmd_wield(void)
 
         /* Two handed weapons can't be wielded with a shield */
 
-        if ((inventory[INVEN_ARM].k_idx != 0) && (f1 & TR1_MUST2H))
+        if ((inventory[INVEN_ARM].k_idx != 0) && (f1 & TR1_MUST2H) && (p_ptr->pclass!=CLASS_WARRIOR))
         {
-           object_desc(o_name, o_ptr, FALSE, 0);
-           msg_format("You cannot wield your %s with a shield.", o_name);
-           return;
-        }
+        object_desc(o_name, o_ptr, FALSE, 0);
+        msg_format("You cannot wield your %s with a shield.", o_name);
+        
+        return;
+}
 
         i_ptr = &inventory[INVEN_WIELD];
 
@@ -199,11 +200,13 @@ void do_cmd_wield(void)
 
         /* Prevent shield from being put on if wielding 2H */
 
-        if ((slot == INVEN_ARM) && (f1 & TR1_MUST2H))
+        if ((slot == INVEN_ARM) && (f1 & TR1_MUST2H) && (p_ptr->pclass!=CLASS_WARRIOR))
         {
-           object_desc(o_name, o_ptr, FALSE, 0);
+          object_desc(o_name, o_ptr, FALSE, 0);
            msg_format("You cannot wield your %s with a two-handed weapon.", o_name);
+          
            return;
+        
         }
 
         if ((slot == INVEN_ARM) && (f1 & TR1_COULD2H))
@@ -559,12 +562,13 @@ void do_cmd_observe(void)
 	}
 
 
-	/* Require full knowledge */
-	if (!(o_ptr->ident & (IDENT_MENTAL)))
-	{
-		msg_print("You have no special knowledge about that item.");
-		return;
-	}
+	/* Require full knowledge */ 
+	//if (!(o_ptr->ident & (IDENT_MENTAL))) hugly hack, think to remove .... mmm......... bhh
+	
+	//{
+	//	msg_print("You have no special knowledge about that item.");
+	//	return;
+//	}
 
 
 	/* Description */

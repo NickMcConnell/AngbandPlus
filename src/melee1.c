@@ -26,7 +26,7 @@ static int monster_critical(int dice, int sides, int dam)
 	if (dam < total * 19 / 20) return (0);
 
 	/* Weak blows rarely work */
-	if ((dam < 20) && (rand_int(100) >= dam)) return (0);
+	if ((dam < 20) && (rand_int(85) >= dam)) return (0);
 
 	/* Perfect damage */
 	if (dam == total) max++;

@@ -115,7 +115,7 @@ sint critical_norm(int weight, int plus, int dam)
 	int i, k;
 
 	/* Extract "blow" power */
-	i = (weight + ((p_ptr->to_h + plus) * 5) + (p_ptr->lev * 3));
+	i = (weight + ((p_ptr->to_h + plus) * 5) + (p_ptr->lev * 4));
 
 	/* ~ now apply class-dependant factor */
 
@@ -128,16 +128,16 @@ sint critical_norm(int weight, int plus, int dam)
 			i = (75 * i) / 100;
 			break;
 		case CLASS_PRIEST:
-			i = (150 * i) / 100;			
+			i = (175 * i) / 100;			
 			break;
 		case CLASS_ROGUE:
-			i = (125 * i) / 100;
+			i = (300 * i) / 100;
 			break;
 		case CLASS_RANGER:
-			i = (150 * i) / 100;
+			i = (200 * i) / 100;
 			break;
 		case CLASS_PALADIN:
-			i = (225 * i) / 100;
+			i = (275 * i) / 100;
 			break;
 	}
 
@@ -150,7 +150,7 @@ sint critical_norm(int weight, int plus, int dam)
 				/* ~ very good bonus, *very* dependant on weight
 				 # ~ (i'm writing this section for them)
 				 */
-				k = (p_ptr->lev *10) + (weight * 2) + randint(1000 + weight * 4);
+				k = (p_ptr->lev *12) + (weight * 2) + randint(1000 + weight * 4);
 				break;
 			case CLASS_MAGE:
 				/* ~ mages don't need no steeenkin' crits!
@@ -166,11 +166,11 @@ sint critical_norm(int weight, int plus, int dam)
 				break;
 			case CLASS_ROGUE:
 				/* ~ Okay bonus (light weapons fit the rogue's idiom more) */
-				k = (p_ptr->lev * 5) + weight + randint(650);
+				k = (p_ptr->lev * 7) + weight + randint(650);
 				break;
 			case CLASS_RANGER:
 				/* ~ Again, okay bonus (but slightly better than the rogue's) */
-				k = (p_ptr->lev * 5) + weight + randint(650 + weight);
+				k = (p_ptr->lev * 6) + weight + randint(650 + weight);
 				break;
 			case CLASS_PALADIN:
 				/* ~ Good, weight-dependant bonus */
@@ -394,7 +394,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 					{
 						l_ptr->r_flags3 |= (RF3_HURT_ACID);
 					}
-					if (mult < 6) mult = 6;
+					if (mult < 8) mult = 8;
 				}
 
 				/* Otherwise, take the damage */
@@ -423,13 +423,13 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 					{
 						l_ptr->r_flags3 |= (RF3_HURT_ELEC);
 					}
-					if (mult < 6) mult = 6;
+					if (mult < 8) mult = 8;
 				}
 
 				/* Otherwise, take the damage */
 				else
 				{
-					if (mult < 3) mult = 3;
+					if (mult < 5) mult = 5;
 				}
 			}
 
@@ -452,13 +452,13 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 					{
 						l_ptr->r_flags3 |= (RF3_HURT_FIRE);
 					}
-					if (mult < 6) mult = 6;
+					if (mult < 8) mult = 8;
 				}
 
 				/* Otherwise, take the damage */
 				else
 				{
-					if (mult < 3) mult = 3;
+					if (mult < 5) mult = 5;
 				}
 			}
 
@@ -481,13 +481,13 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 					{
 						l_ptr->r_flags3 |= (RF3_HURT_COLD);
 					}
-					if (mult < 6) mult = 6;
+					if (mult < 8) mult = 8;
 				}
 
 				/* Otherwise, take the damage */
 				else
 				{
-					if (mult < 3) mult = 3;
+					if (mult < 5) mult = 5;
 				}
 			}
 
@@ -510,13 +510,13 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 					{
 						l_ptr->r_flags3 |= (RF3_HURT_POIS);
 					}
-					if (mult < 6) mult = 4;
+					if (mult < 8) mult = 8;
 				}
 
 				/* Otherwise, take the damage */
 				else
 				{
-					if (mult < 3) mult = 2;
+					if (mult < 5) mult = 5;
 				}
 			}
 
@@ -547,13 +547,13 @@ s16b tot_dam_loss(object_type * o_ptr, int tdam, monster_type * m_ptr)
 		{
 			if (r_ptr->flags2 & (RF2_RES_SLASH))
 			{
-				div = 2;
+				div = 1.3;
 				if (m_ptr->ml)
 					l_ptr->r_flags2 |= (RF2_RES_SLASH);
 			}
 			if (r_ptr->flags2 & (RF2_IM_SLASH))
 			{
-				div = 6;
+				div = 2;
 				if (m_ptr->ml)
 					l_ptr->r_flags2 |= (RF2_IM_SLASH);
 			}
@@ -564,13 +564,13 @@ s16b tot_dam_loss(object_type * o_ptr, int tdam, monster_type * m_ptr)
 		{
 			if (r_ptr->flags2 & (RF2_RES_BASH))
 			{
-				div = 2;
+				div = 1.3;
 				if (m_ptr->ml)
 					l_ptr->r_flags2 |= (RF2_RES_BASH);
 			}
 			if (r_ptr->flags2 & (RF2_IM_BASH))
 			{
-				div = 6;
+				div = 2;
 				if (m_ptr->ml)
 					l_ptr->r_flags2 |= (RF2_IM_BASH);
 			}
@@ -580,13 +580,13 @@ s16b tot_dam_loss(object_type * o_ptr, int tdam, monster_type * m_ptr)
 		{
 			if (r_ptr->flags2 & (RF2_RES_STAB))
 			{
-				div = 2;
+				div = 1.3;
 				if (m_ptr->ml)
 					l_ptr->r_flags2 |= (RF2_RES_STAB);
 			}
 			if (r_ptr->flags2 & (RF2_IM_STAB))
 			{
-				div = 6;
+				div = 2;
 				if (m_ptr->ml)
 					l_ptr->r_flags2 |= (RF2_IM_STAB);
 			}
@@ -938,15 +938,63 @@ void py_pickup(int pickup)
 		/* Query before picking up */
 		if (pickup_query)
 		{
-			char out_val[160];
-			if (!heavy) sprintf(out_val, "Pick up %s? ", o_name);
-			else sprintf (out_val, "Pick up %s (heavy)? ", o_name);
-			if (!get_check(out_val)) continue;
-		}
+		
+					int i;
+					char out_val[160];
+					
+					/* Paranoia XXX XXX XXX */
+					msg_print(NULL);
+					
+					sprintf(out_val, "Pick up %s? [y/n/k] ", o_name);
+					
+					/* Prompt for it */
+					prt(out_val, 0, 0);
 
-		/* Pick up the object */
-		py_pickup_aux(this_o_idx);
-	}
+					/* Get an acceptable answer */
+					while (TRUE)
+					{
+						i = inkey();
+						if (quick_messages) break;
+						if (i == ESCAPE) break;
+						if (strchr("YyNnKk", i)) break;
+					
+					}
+
+					/* Erase the prompt */
+					prt("", 0, 0);
+					
+					if ((i == 'Y') || (i == 'y'))
+					{
+						/* Pick up the object */
+						py_pickup_aux(this_o_idx);
+					}
+					
+					if ((i == 'K') || (i == 'k'))
+					{
+						/* Physically try to destroy the item */
+
+						/* Can the player destroy the object? */
+						if (artifact_p(o_ptr))
+		
+						{
+						msg_format("You cannot destroy %s.", o_name);
+						break;	
+						}
+		
+						/* Take a turn */
+						p_ptr->energy_use += 100;
+	
+						/* Describe the object (with {terrible/special}) */
+						object_desc(o_name, o_ptr, TRUE, 3);
+
+						/* Message */
+						msg_format("You destroy %s.", o_name);
+		
+						/* We destroyed the item(s) */
+						delete_object_idx(this_o_idx);
+						}
+					}
+				}
 
 #ifdef ALLOW_EASY_FLOOR
 
@@ -1030,6 +1078,7 @@ void py_pickup(int pickup)
 #endif /* ALLOW_EASY_FLOOR */
 
 }
+
 
 
 
@@ -1415,7 +1464,7 @@ void py_attack(int y, int x)
 			message_format(MSG_HIT, m_ptr->r_idx, "You hit %s.", m_name);
 
 			/* Hack -- bare hands do one damage */
-			k = 1;
+			k = 2;
 
 			/* Vampiric drain */
 			if ((f1 & TR1_VAMPIRIC))

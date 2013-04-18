@@ -1549,7 +1549,8 @@ static void process_command(void)
                         do_cmd_cast();
                         else if (p_ptr->pclass == CLASS_MAGE)
                         do_cmd_cast();
-                       			
+                       	else if (p_ptr->pclass == CLASS_RANGER)
+                        do_cmd_cast();
 			break;
 						
 		}

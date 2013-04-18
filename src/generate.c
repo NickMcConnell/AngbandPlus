@@ -3513,7 +3513,7 @@ void generate_cave(void)
 		if (good_item_flag && !adult_preserve) feeling = 1;
 
 		/* It takes 1000 game turns for "feelings" to recharge */
-		if ((turn - old_turn) < 1000) feeling = 0;
+		if ((turn - old_turn) < 100) feeling = 0;
 
 		/* Hack -- no feeling in the town */
 		if (!p_ptr->depth) feeling = 0;
@@ -3540,7 +3540,7 @@ void generate_cave(void)
 		}
 
 		/* Mega-Hack -- "auto-scum" */
-		if (auto_scum && (num < 100))
+		if (auto_scum && (num < 300))
 		{
 			/* Require "goodness" */
 			if ((feeling > 9) ||

@@ -266,11 +266,11 @@ void do_cmd_browse(void)
 		return;
 	}
 
-	/* Confused */
-	if (p_ptr->confused)
+	/* Confused */  
+	if (p_ptr->confused) 
 	{
-		msg_print("You are too confused!");
-		return;
+	msg_print("You are too confused!");
+	return;
 	}
 
 #endif
@@ -375,7 +375,7 @@ void do_cmd_study(void)
 		return;
 	}
 
-	if (p_ptr->confused)
+	if (p_ptr->confused) 
 	{
 		msg_print("You are too confused!");
 		return;
@@ -628,7 +628,7 @@ void do_cmd_cast(void)
 	else
 	{
 		/* Hack -- chance of "beam" instead of "bolt" */
-		beam = ((p_ptr->pclass == CLASS_MAGE) ? plev : (plev / 2));
+		beam = ((p_ptr->pclass == CLASS_MAGE) ? plev : (plev / 4));
 	
 			
 		/* Spells.  */
@@ -1104,12 +1104,12 @@ void do_cmd_cast(void)
 		(void)set_paralyzed(p_ptr->paralyzed + randint(5 * oops + 1));
 
                 /* Damage CON or WIS (possibly permanently) */
-                if (rand_int(100) < 50)
+                if (rand_int(100) < 33)
                 {
                         bool was_prayer = ((p_ptr->pclass == CLASS_PRIEST) ||
                                            (p_ptr->pclass == CLASS_PALADIN))
                                                           ? TRUE : FALSE;
-                        bool perm = (rand_int(100) < 25);
+                        bool perm = (rand_int(100) < 20);
 
                         /* Message */
                         msg_print("You have damaged your health!");
@@ -1183,8 +1183,8 @@ void do_cmd_pray(void)
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
-	int item, sval, spell, dir, chance;
-
+	int item, sval, spell, dir, chance,beam;
+	
 	int plev = p_ptr->lev;
 
 	object_type *o_ptr;
@@ -1201,16 +1201,17 @@ void do_cmd_pray(void)
 		return;
 	}
 
-	/* Must have lite */
-	if (p_ptr->blind || no_lite())
-	{
-		msg_print("You cannot see!");
-		return;
-	}
+	/* Must have lite  bhh */
+	//if (p_ptr->blind || no_lite()) 
+	//{
+	//	msg_print("You cannot see!");
+	//	return;
+	//}
 
-	/* Must not be confused */
+	/* Must not be confused  */
 	if (p_ptr->confused)
 	{
+		
 		msg_print("You are too confused!");
 		return;
 	}
@@ -1283,8 +1284,12 @@ void do_cmd_pray(void)
 	/* Success */
 	else
 	{
+	beam = ((p_ptr->pclass == CLASS_PRIEST) ? plev : (plev / 4));
+			
 		switch (spell)
+		
 		{
+			
 			case 0:
 			{
 				(void)detect_monsters_evil();
@@ -1367,8 +1372,12 @@ void do_cmd_pray(void)
 
 			case 11:
 			{
-				(void)set_blessed(p_ptr->blessed + randint(24) + 24);
-				break;
+				if (!get_aim_dir(&dir)) return;
+				lite_line(dir);
+				fire_bolt_or_beam(beam-10, GF_HOLY_ORB, dir,
+				                  damroll((plev), 4));;
+				
+			break;
 			}
 
 			case 12:
@@ -1405,11 +1414,11 @@ void do_cmd_pray(void)
 
 			case 17:
 			{
-				if (!get_aim_dir(&dir)) return;
-				fire_ball(GF_HOLY_ORB, dir,
-				          (damroll(3, 6) + plev + 25 +
-				           (plev / ((p_ptr->pclass == CLASS_PRIEST) ? 2 : 4))),
-				          ((plev < 30) ? 2 : 3));
+			if (!get_aim_dir(&dir)) return;
+			fire_ball(GF_HOLY_ORB, dir,
+			(damroll(3, 6) + plev + 25 +
+			(plev / ((p_ptr->pclass == CLASS_PRIEST) ? 2 : 4))),
+			((plev < 30) ? 2 : 3));
 				break;
 			}
 

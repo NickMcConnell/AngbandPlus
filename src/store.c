@@ -1181,7 +1181,7 @@ static void store_create(void)
 		if (store_num == STORE_B_MARKET)
 		{
 			/* Pick a level for object/magic */
-			level = 25 + rand_int(25);
+			level = 35 + rand_int(50);
 
 			/* Random object kind (usually of given level) */
 			k_idx = get_obj_num(level);
@@ -1420,7 +1420,7 @@ static void display_entry(int item)
 			x = price_item(o_ptr, ot_ptr->min_inflate, FALSE);
 
 			/* Hack -- Apply Sales Tax if needed */
-			if (!noneedtobargain(x)) x += x / 10;
+			if (!noneedtobargain(x)) x += x / 5;
 
 			/* Actually draw the price (with tax) */
 			sprintf(out_val, "%9ld  ", (long)x);
@@ -1688,7 +1688,7 @@ static int increase_insults(void)
 		st_ptr->bad_buy = 0;
 
 		/* Open tomorrow */
-		st_ptr->store_open = turn + 25000 + randint(25000);
+		st_ptr->store_open = turn + 12500 + randint(2500);
 
 		/* Closed */
 		return (TRUE);
@@ -1946,7 +1946,7 @@ static bool purchase_haggle(object_type *o_ptr, s32b *price)
 			ignore = TRUE;
 
 			/* Apply sales tax */
-			final_ask += (final_ask / 10);
+			final_ask += (final_ask / 5);
 		}
 
 		/* Jump to final price */
@@ -2130,7 +2130,7 @@ static bool sell_haggle(object_type *o_ptr, s32b *price)
 		/* Apply Sales Tax (if needed) */
 		if (auto_haggle && !noneed)
 		{
-			final_ask -= final_ask / 10;
+			final_ask -= final_ask / 5;
 		}
 
 		/* No reason to haggle */
@@ -2808,9 +2808,272 @@ static void store_sell(void)
 }
 
 
+
+//identify an object store_identify
+
+static void store_identify(void)
+
+{
+	if (p_ptr->au<1500)
+	{
+		msg_format("You don't have enough money !!!");
+		return;
+	}
+	identify_pack();
+	p_ptr->au -= 1500;
+	msg_format("All items has been Identyfied");
+	store_prt_gold();
+	return;
+}
+
+bool item_tester_hook_recharge(object_type *o_ptr)
+{
+	/* Recharge staffs */
+	if (o_ptr->tval == TV_STAFF) return (TRUE);
+
+	/* Recharge wands */
+	if (o_ptr->tval == TV_WAND) return (TRUE);
+
+	/* Hack -- Recharge rods */
+	if (o_ptr->tval == TV_ROD) return (TRUE);
+
+	/* Nope */
+	return (FALSE);
+}
+
+static void clear_bldg(int min_row, int max_row)
+{
+	int   i;
+
+	for (i = min_row; i <= max_row; i++)
+		prt("", i, 0);
+}
+
+
+
+void identify_item(object_type *o_ptr)
+{
+
+	/* Identify it fully */
+	object_aware(o_ptr);
+	object_known(o_ptr);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Combine / Reorder the pack (later) */
+	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+}
+
+s32b get_object_cost(object_type *o_ptr)
+{
+#if 0
+	return get_object_cost_callback(o_ptr);
+#else
+	return k_info[o_ptr->k_idx].cost;
+#endif
+}
+
+byte get_object_level(object_type *o_ptr)
+{
+#if 0
+	return (byte)get_object_level_callback(o_ptr);
+#else
+	return k_info[o_ptr->k_idx].level;
+#endif
+}
+
+//recharge an object store_recharge
+
+static void store_recharge(void)
+{
+	int         item, lev,t;
+	object_type *o_ptr;
+	object_kind *k_ptr;
+	cptr        q, s;
+	int         price;
+	int         charges;
+	int         max_charges;
+	char        tmp_str[80];
+
+
+	/* Display some info */
+	clear_bldg(5, 18);
+	prt("  The prices of recharge depend on the type.", 6, 0);
+
+	/* Only accept legal items */
+	item_tester_hook = item_tester_hook_recharge;
+
+	/* Get an item */
+	q = "Recharge which item? ";
+	s = "You have nothing to recharge.";
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
+
+	k_ptr = &k_info[o_ptr->k_idx];
+
+	/*
+	 * We don't want to give the player free info about
+	 * the level of the item or the number of charges.
+	 */
+	/* The item must be "known" */
+	if (!object_known_p(o_ptr))
+	{
+		msg_format("The item must be identified first!");
+		msg_print(NULL);
+
+		if ((p_ptr->au >= 50) &&
+			get_check("Identify for 50 gold? "))
+		{
+			/* Pay the price */
+			p_ptr->au -= 50;
+
+			/* Identify it */
+			identify_item(o_ptr);
+
+			/* Description */
+			object_desc(tmp_str, o_ptr, TRUE, 3);
+
+			msg_format("You have: %s.", tmp_str);
+
+			/* Update the gold display */
+			store_prt_gold();
+		}
+		else
+		{
+			return;
+		}
+	}
+
+	/* Extract the object "level" */
+	
+	
+	lev = k_info[o_ptr->k_idx].level;
+	/* Price for a rod */
+	if (o_ptr->tval == TV_ROD)
+	{
+		if (p_ptr->au<100)
+		{
+			msg_print("You don't have 100 AU !");
+			return;
+		}
+		
+		o_ptr->pval = 0;
+		p_ptr->au -=100;
+		store_prt_gold();
+		msg_print("This Rod is fully recharged.");
+		return;
+	}
+	
+	else if (o_ptr->tval == TV_STAFF)
+	{
+		/* Price per charge ( = double the price paid by shopkeepers for the charge) */
+		price = (get_object_cost(o_ptr) / 10) * o_ptr->number;
+
+		/* Pay at least 10 gold per charge */
+		price = MAX(10, price);
+	}
+	else
+	{
+		/* Price per charge ( = double the price paid by shopkeepers for the charge) */
+		price = (get_object_cost(o_ptr) / 10);
+
+		/* Pay at least 10 gold per charge */
+		price = MAX(10, price);
+	}
+
+	/* Limit the number of charges for wands and staves */
+	if (((o_ptr->tval == TV_WAND) || (o_ptr->tval == TV_STAFF)) &&
+	     (o_ptr->pval >98))
+	{
+		if ((o_ptr->tval == TV_WAND) && (o_ptr->pval > 98))
+			msg_print("This wand is already fully charged.");
+		else if ((o_ptr->tval == TV_WAND) && (o_ptr->number ==1))
+			msg_print("These wands are already fully charged.");
+		else if ((o_ptr->tval == TV_STAFF) && (o_ptr->number > 98))
+			msg_print("This staff is already fully charged.");
+		else if ((o_ptr->tval == TV_STAFF) && (o_ptr->number ==1))
+			msg_print("These staffs are already fully charged.");
+
+		msg_print(NULL);
+		return;
+	}
+
+	/* Check if the player has enough money */
+	if (p_ptr->au < price)
+	{
+		object_desc(tmp_str, o_ptr, TRUE, 0);
+		msg_format("You need %d gold to recharge %s!", price, tmp_str);
+		msg_print(NULL);
+		return;
+	}
+
+	
+	else
+	{
+		if (o_ptr->tval == TV_STAFF)
+			max_charges = 99;
+		
+
+		/* Get the quantity for staves and wands */
+		charges = get_quantity(format("Add how many charges for %d gold? ",
+		              price), MIN(p_ptr->au / price, max_charges));
+
+		msg_format("charges = %d", charges);
+		
+
+
+		/* Do nothing */
+		if (charges < 1) return;
+
+		/* Get the new price */
+		price *= charges;
+
+		/* Recharge */
+		o_ptr->pval += charges;
+
+		/* We no longer think the item is empty */
+		o_ptr->ident &= ~(IDENT_EMPTY);
+		store_prt_gold();
+	}
+
+	/* Give feedback */
+	object_desc(tmp_str, o_ptr, TRUE, 3);
+	msg_format("%^s %s recharged for %d gold.", tmp_str, ((o_ptr->number > 1) ? "were" : "was"), price);
+	msg_print(NULL);
+
+	/* Combine / Reorder the pack (later) */
+	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_INVEN);
+
+	/* Pay the price */
+	p_ptr->au -= price;
+
+	/* Finished */
+	return;
+}
+
+
 /*
  * Examine an item in a store
  */
+
 static void store_examine(void)
 {
 	int         item;
@@ -2822,6 +3085,7 @@ static void store_examine(void)
 	/* Empty? */
 	if (st_ptr->stock_num <= 0)
 	{
+		
 		if (store_num == STORE_HOME)
 		{
 			msg_print("Your home is empty.");
@@ -2968,6 +3232,19 @@ static void store_process_command(void)
 		case 'x':
 		{
 			store_examine();
+			break;
+		}
+
+
+		case 'E':
+		{
+			store_identify();
+			break;
+		}
+
+		case 'R':
+		{
+			store_recharge();
 			break;
 		}
 
@@ -3306,6 +3583,10 @@ void do_cmd_store(void)
 
 		/* Add in the eXamine option */
 		prt(" x) eXamine an item.", 22, 56);
+
+		prt(" R/E)Recharg/idEntify(1500GP)", 23, 52);
+		
+
 
 		/* Prompt */
 		prt("You may: ", 21, 0);

@@ -241,6 +241,23 @@ static char scroll_adj[MAX_TITLES][16];
 
 static byte scroll_col[MAX_TITLES];
 
+#define MAX_SLIME_NAMES 31
+static cptr slime_names[MAX_SLIME_NAMES]={
+"Bryan","Robert","Ben","Eytan","Gwidon",
+"DakGod","Gumby","Jonathan","The President","Leon",
+"Bahman","Fuerst","Bob","Tom","Morghoth",
+"Matt","Jammy","Bill","Leopoldina","Teodolinda",
+"Teodosio","Ugobald","Sonny","The Fungy","Buzz",
+"Rickee"
+};
+
+static void name_slime_mold(object_type *o_ptr)
+{
+	
+	int value=rand_int(MAX_SLIME_NAMES);
+	o_ptr->note=quark_add(slime_names[value]);
+}
+
 
 
 
@@ -1269,6 +1286,14 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		/* Food */
 		case TV_FOOD:
 		{
+
+			if (o_ptr->sval==SV_FOOD_SLIME_MOLD && !(o_ptr->note))
+			{
+				name_slime_mold((object_type *)o_ptr);
+			}
+				
+
+
 			/* Ordinary food is "boring" */
 			if (o_ptr->sval >= SV_FOOD_MIN_FOOD) break;
 

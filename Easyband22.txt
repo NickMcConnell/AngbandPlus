@@ -1,3 +1,32 @@
+Welcome to EasyBand 2.2 !!!
+
+Changes from Easyband 2.1
+
+- Added an HP "quantitifier" under the Status Bar (xtra1-859)
+- Removed Priest Spell "Chant" for "Radiance Lance" a pure positive energy ray of light, doing 1d4*Lev of Holy Orb damage (cdm3-1377,object2-4529)
+- Using the 'I', inspect command, give full knowledge of the item but doesn't *Identify* that item (cmd3-566)
+- The shop now can do Identify(1500AU) an all your Items. Command 'E'
+- The shop now can Recharge your Staffs,Wands,Rods. Up to 99 charges (Opss..;). Command 'R'
+- Better item in Black Market
+- Better, but imperceptibily slower in dungeon creation, auto-scum for good level
+- Slighty better result on autoroll
+- Ranger can now cast spell
+- Tweak some artifacts
+- Replace some artifact quaterstaffs
+- Reduce the multiplier for monsters's immunity to weapon
+- Rogue and Paladin get better critical hits
+- Tweaked to 1/10 (from 1/55) the possibility to reverse the malus of cursed items
+- Better Chests
+- Warrior only can wield 2 Handed Weapon and Shield without restriction (cm3-188)
+- Reduce Tax to 5% from 10% (store)
+- If the Shop is closed try after 12 hours
+- Less probability to damage con or wis for over-exert casting ( from 50% to 33%)
+- Farmer Maggot now Drop_Great 
+- Included "The Slime Molds" Patch
+- Easy destroy on pick-up option (y/n/k)
+
+		
+
 Welcome to EasyBand 2.1 !!!
 
 Changes from Easyband 2.0

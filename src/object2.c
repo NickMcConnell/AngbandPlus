@@ -2183,7 +2183,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 				case SV_RING_SPEED:
 				{
 					/* Base speed (1 to 10) */
-					o_ptr->pval = randint(5) + m_bonus(5, level);
+					o_ptr->pval = randint(7) + m_bonus(5, level);
 
 					/* Super-charge the ring */
 					while (rand_int(100) < 50) o_ptr->pval++;
@@ -2578,10 +2578,10 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 	if (f1 > 75) f1 = 75;
 
 	/* Base chance of being "great" */
-	f2 = f1 / 2;
+	f2 = f1 / 1.3;
 
 	/* Maximal chance of being "great" */
-	if (f2 > 20) f2 = 20;
+	if (f2 > 50) f2 = 50;
 
 
 	/* Assume normal */
@@ -2594,7 +2594,7 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 		power = 1;
 
 		/* Roll for "great" */
-		if (great || (rand_int(100) < f2)) power = 2;
+		if (great || (rand_int(80) < f2)) power = 2;
 	}
 
 	/* Roll for "cursed" */
@@ -3137,7 +3137,7 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 
 
 	/* Handle normal "breakage" */
-	if (!artifact_p(j_ptr) && (rand_int(100) < chance))
+	if (!artifact_p(j_ptr) && (rand_int(120) < chance))
 	{
 		/* Message */
 		msg_format("The %s disappear%s.",
@@ -4526,7 +4526,7 @@ void spell_info(char *p, int spell)
 			case 6: sprintf(p, " %d",plev); break;
 			case 9: sprintf(p, " range %d", 3*plev); break;
 			case 10: strcpy(p, " heal 6d10"); break;
-			case 11: strcpy(p, " dur 24+d24"); break;
+			case 11: strcpy(p, " 1d4 * Lev"); break;
 			case 15: strcpy(p, " dur 10+d10"); break;
 			case 17: sprintf(p, " %d+3d6", plev +25+ orb); break;
 			case 18: strcpy(p, " heal 8d10"); break;

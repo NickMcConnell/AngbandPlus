@@ -248,7 +248,7 @@ static void get_stats(void)
 	for (i = 0; i < A_MAX; i++)
 	{
 		/* Extract 5 + 1d3 + 1d4 + 1d5 */
-		j = 5 + dice[3*i] + dice[3*i+1] + dice[3*i+2];
+		j = 5 + dice[3*i+1] + dice[3*i+2] + dice[3*i];
 
 		/* Save that value */
 		p_ptr->stat_max[i] = j;
