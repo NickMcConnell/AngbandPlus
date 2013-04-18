@@ -445,7 +445,7 @@ static flag_desc stat_flags_desc[] =
 	{ TR1_WIS,        "WIS" },
 	{ TR1_DEX,        "DEX" },
 	{ TR1_CON,        "CON" },
-	{ TR1_CHR,        "CHR" }
+	{ TR1_CHR,        "CHR" },
 };
 
 /*
@@ -462,7 +462,8 @@ static flag_desc pval_flags1_desc[] =
 	{ TR1_SPEED,      "Speed" },
 	{ TR1_BLOWS,      "Attacks" },
 	{ TR1_SHOTS,      "Shots" },
-	{ TR1_MIGHT,      "Might" }
+	{ TR1_MIGHT,      "Might" },
+	{ TR1_INVIS,      "Invisibility" }
 };
 
 /*
@@ -479,7 +480,7 @@ static flag_desc slay_flags_desc[] =
 	{ TR1_SLAY_TROLL,         "Troll" },
 	{ TR1_SLAY_GIANT,         "Giant" },
 	{ TR1_SLAY_DRAGON,        "Dragon" },
-	{ TR1_KILL_DRAGON,        "Xdragon" }
+	{ TR1_KILL_DRAGON,        "Xdragon" },
 };
 
 /*
@@ -491,6 +492,8 @@ static flag_desc brand_flags_desc[] =
 	{ TR1_BRAND_ELEC,         "Lightning Brand" },
 	{ TR1_BRAND_FIRE,         "Flame Tongue" },
 	{ TR1_BRAND_COLD,         "Frost Brand" },
+	{ TR1_BRAND_POIS,         "Poison Brand" },
+        { TR1_VAMPIRIC,           "Vampiric" },
 };
 
 /*
@@ -552,6 +555,7 @@ static const flag_desc sustain_flags_desc[] =
 
 static const flag_desc misc_flags3_desc[] =
 {
+        { TR3_NO_TELE,            "Prevent Teleportation" },
 	{ TR3_SLOW_DIGEST,        "Slow Digestion" },
 	{ TR3_FEATHER,            "Feather Falling" },
 	{ TR3_LITE,               "Permanent Light" },
@@ -563,7 +567,9 @@ static const flag_desc misc_flags3_desc[] =
 	{ TR3_BLESSED,            "Blessed Blade" },
 	{ TR3_IMPACT,             "Earthquake impact on hit" },
 	{ TR3_AGGRAVATE,          "Aggravates" },
-	{ TR3_DRAIN_EXP,          "Drains Experience" }
+	{ TR3_DRAIN_EXP,          "Drains Experience" },
+	{ TR3_MANA,       "Mana" },
+	{ TR3_LIFE,     "Health" }
 };
 
 /*
@@ -1727,13 +1733,12 @@ static void spoil_mon_info(cptr fname)
 		/* Collect inate attacks */
 		vn = 0;
 		if (flags4 & (RF4_SHRIEK)) vp[vn++] = "shriek for help";
-		if (flags4 & (RF4_XXX2)) vp[vn++] = "do something";
-		if (flags4 & (RF4_XXX3)) vp[vn++] = "do something";
 		if (flags4 & (RF4_XXX4)) vp[vn++] = "do something";
 		if (flags4 & (RF4_ARROW_1)) vp[vn++] = "fire arrows";
 		if (flags4 & (RF4_ARROW_2)) vp[vn++] = "fire arrows";
 		if (flags4 & (RF4_ARROW_3)) vp[vn++] = "fire missiles";
 		if (flags4 & (RF4_ARROW_4)) vp[vn++] = "fire missiles";
+                if (flags4 & (RF4_ARROW_5)) vp[vn++] = "fire seeker arrows";
 
 		if (vn)
 		{
@@ -1755,6 +1760,7 @@ static void spoil_mon_info(cptr fname)
 		if (flags4 & (RF4_BR_FIRE)) vp[vn++] = "fire";
 		if (flags4 & (RF4_BR_COLD)) vp[vn++] = "frost";
 		if (flags4 & (RF4_BR_POIS)) vp[vn++] = "poison";
+		if (flags4 & (RF4_BR_WATE)) vp[vn++] = "water";
 		if (flags4 & (RF4_BR_NETH)) vp[vn++] = "nether";
 		if (flags4 & (RF4_BR_LITE)) vp[vn++] = "light";
 		if (flags4 & (RF4_BR_DARK)) vp[vn++] = "darkness";
@@ -1770,6 +1776,7 @@ static void spoil_mon_info(cptr fname)
 		if (flags4 & (RF4_BR_PLAS)) vp[vn++] = "plasma";
 		if (flags4 & (RF4_BR_WALL)) vp[vn++] = "force";
 		if (flags4 & (RF4_BR_MANA)) vp[vn++] = "mana";
+                if (flags6 & (RF6_BR_WIND)) vp[vn++] = "wind";
 		if (flags4 & (RF4_XXX5)) vp[vn++] = "something";
 		if (flags4 & (RF4_XXX6)) vp[vn++] = "something";
 		if (flags4 & (RF4_XXX7)) vp[vn++] = "something";
@@ -1799,6 +1806,7 @@ static void spoil_mon_info(cptr fname)
 		if (flags5 & (RF5_BA_NETH))           vp[vn++] = "produce nether balls";
 		if (flags5 & (RF5_BA_WATE))           vp[vn++] = "produce water balls";
 		if (flags5 & (RF5_BA_MANA))           vp[vn++] = "produce mana storms";
+                if (flags6 & (RF6_BA_WIND))           vp[vn++] = "produce wind balls";
 		if (flags5 & (RF5_BA_DARK))           vp[vn++] = "produce darkness storms";
 		if (flags5 & (RF5_DRAIN_MANA))        vp[vn++] = "drain mana";
 		if (flags5 & (RF5_MIND_BLAST))        vp[vn++] = "cause mind blasting";
@@ -1824,21 +1832,18 @@ static void spoil_mon_info(cptr fname)
 		if (flags5 & (RF5_SLOW))              vp[vn++] = "slow";
 		if (flags5 & (RF5_HOLD))              vp[vn++] = "paralyze";
 		if (flags6 & (RF6_HASTE))             vp[vn++] = "haste-self";
-		if (flags6 & (RF6_XXX1))            vp[vn++] = "do something";
 		if (flags6 & (RF6_HEAL))              vp[vn++] = "heal-self";
-		if (flags6 & (RF6_XXX2))            vp[vn++] = "do something";
+		if (flags6 & (RF6_XXX1))              vp[vn++] = "do something";
 		if (flags6 & (RF6_BLINK))             vp[vn++] = "blink-self";
 		if (flags6 & (RF6_TPORT))             vp[vn++] = "teleport-self";
-		if (flags6 & (RF6_XXX3))            vp[vn++] = "do something";
-		if (flags6 & (RF6_XXX4))            vp[vn++] = "do something";
 		if (flags6 & (RF6_TELE_TO))           vp[vn++] = "teleport to";
 		if (flags6 & (RF6_TELE_AWAY))         vp[vn++] = "teleport away";
 		if (flags6 & (RF6_TELE_LEVEL))        vp[vn++] = "teleport level";
-		if (flags6 & (RF6_XXX5))              vp[vn++] = "do something";
+		if (flags6 & (RF6_DOOR))            vp[vn++] = "phase door";
 		if (flags6 & (RF6_DARKNESS))          vp[vn++] = "create darkness";
 		if (flags6 & (RF6_TRAPS))             vp[vn++] = "create traps";
 		if (flags6 & (RF6_FORGET))            vp[vn++] = "cause amnesia";
-		if (flags6 & (RF6_XXX6))            vp[vn++] = "do something";
+		if (flags6 & (RF6_BA_LITE))            vp[vn++] = "invoke starbursts";
 		if (flags6 & (RF6_S_KIN))             vp[vn++] = "summon similar monsters";
 		if (flags6 & (RF6_S_HI_DEMON))        vp[vn++] = "summon greater demons";
 		if (flags6 & (RF6_S_MONSTER))         vp[vn++] = "summon a monster";
@@ -1847,6 +1852,7 @@ static void spoil_mon_info(cptr fname)
 		if (flags6 & (RF6_S_SPIDER))          vp[vn++] = "summon spiders";
 		if (flags6 & (RF6_S_HOUND))           vp[vn++] = "summon hounds";
 		if (flags6 & (RF6_S_HYDRA))           vp[vn++] = "summon hydras";
+		if (flags6 & (RF6_S_ANIMALS))           vp[vn++] = "summon animals";
 		if (flags6 & (RF6_S_ANGEL))           vp[vn++] = "summon an angel";
 		if (flags6 & (RF6_S_DEMON))           vp[vn++] = "summon a demon";
 		if (flags6 & (RF6_S_UNDEAD))          vp[vn++] = "summon an undead";
@@ -1947,6 +1953,9 @@ static void spoil_mon_info(cptr fname)
 		if (flags3 & (RF3_HURT_LITE)) vp[vn++] = "bright light";
 		if (flags3 & (RF3_HURT_FIRE)) vp[vn++] = "fire";
 		if (flags3 & (RF3_HURT_COLD)) vp[vn++] = "cold";
+		if (flags3 & (RF3_HURT_ACID)) vp[vn++] = "acid";
+		if (flags3 & (RF3_HURT_ELEC)) vp[vn++] = "lightning";
+		if (flags3 & (RF3_HURT_POIS)) vp[vn++] = "poison";
 
 		if (vn)
 		{
@@ -1968,6 +1977,9 @@ static void spoil_mon_info(cptr fname)
 		if (flags3 & (RF3_IM_FIRE)) vp[vn++] = "fire";
 		if (flags3 & (RF3_IM_COLD)) vp[vn++] = "cold";
 		if (flags3 & (RF3_IM_POIS)) vp[vn++] = "poison";
+                if (flags2 & (RF2_RES_BASH)) vp[vn++] = "blunt weapons";
+                if (flags2 & (RF2_RES_SLASH)) vp[vn++] = "edged weapons";
+                if (flags2 & (RF2_RES_STAB)) vp[vn++] = "polearms";
 
 		if (vn)
 		{
@@ -1984,6 +1996,10 @@ static void spoil_mon_info(cptr fname)
 
 		/* Collect resistances */
 		vn = 0;
+        	if (flags2 & (RF2_RES_BASH)) vp[vn++] = "blunt weapons";
+	        if (flags2 & (RF2_RES_SLASH)) vp[vn++] = "edged weapons";
+        	if (flags2 & (RF2_RES_STAB)) vp[vn++] = "polearms";
+		if (flags3 & (RF3_RES_TELE)) vp[vn++] = "teleportation";
 		if (flags3 & (RF3_RES_NETH)) vp[vn++] = "nether";
 		if (flags3 & (RF3_RES_WATE)) vp[vn++] = "water";
 		if (flags3 & (RF3_RES_PLAS)) vp[vn++] = "plasma";
@@ -2009,6 +2025,9 @@ static void spoil_mon_info(cptr fname)
 		if (flags3 & (RF3_NO_FEAR)) vp[vn++] = "frightened";
 		if (flags3 & (RF3_NO_CONF)) vp[vn++] = "confused";
 		if (flags3 & (RF3_NO_SLEEP)) vp[vn++] = "slept";
+                if (flags2 & (RF2_IM_BASH)) vp[vn++] = "harmed by blunt weapons";
+                if (flags2 & (RF2_IM_SLASH)) vp[vn++] = "harmed by edged weapons";
+                if (flags2 & (RF2_IM_STAB)) vp[vn++] = "harmed by polearms";
 
 		if (vn)
 		{
@@ -2149,7 +2168,7 @@ static void spoil_mon_info(cptr fname)
 				case RBM_BEG:	p = "beg"; break;
 				case RBM_INSULT:	p = "insult"; break;
 				case RBM_MOAN:	p = "moan"; break;
-				case RBM_XXX5:	break;
+                                case RBM_EXPLODE: p = "explode";  break;
 			}
 
 
@@ -2187,6 +2206,7 @@ static void spoil_mon_info(cptr fname)
 				case RBE_EXP_20:	q = "lower experience (by 20d6+)"; break;
 				case RBE_EXP_40:	q = "lower experience (by 40d6+)"; break;
 				case RBE_EXP_80:	q = "lower experience (by 80d6+)"; break;
+                                case RBE_TIME:          q = "cause time effects"; break;
 			}
 
 

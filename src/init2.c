@@ -12,6 +12,12 @@
 #include "angband.h"
 
 
+#ifdef CHECK_MODIFICATION_TIME
+#include <sys/types.h>
+#include <sys/stat.h>
+#endif /* CHECK_MODIFICATION_TIME */
+
+
 /*
  * This file is used to initialize various variables and arrays for the
  * Angband game.  Note the use of "fd_read()" and "fd_write()" to bypass
@@ -239,6 +245,43 @@ static cptr err_str[PARSE_ERROR_MAX] =
 
 
 #endif /* ALLOW_TEMPLATES */
+
+
+#ifdef CHECK_MODIFICATION_TIME
+
+static errr check_modification_date(int fd, cptr template_file)
+{
+	char buf[1024];
+
+	struct stat txt_stat, raw_stat;
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_EDIT, template_file);
+
+	/* Access stats on text file */
+	if (stat(buf, &txt_stat))
+	{
+		/* No text file - continue */
+	}
+
+	/* Access stats on raw file */
+	else if (fstat(fd, &raw_stat))
+	{
+		/* Error */
+		return (-1);
+	}
+
+	/* Ensure text file is not newer than raw file */
+	else if (txt_stat.st_mtime > raw_stat.st_mtime)
+	{
+		/* Reprocess text file */
+		return (-1);
+	}
+
+	return (0);
+}
+
+#endif /* CHECK_MODIFICATION_TIME */
 
 
 
@@ -3555,6 +3598,113 @@ static errr init_alloc(void)
 	/* Success */
 	return (0);
 }
+
+
+#if 0
+static errr init_misc(void)
+{
+	FILE *fp;
+	char buf[1024];
+	int num = -1;
+	char *zz[2];
+
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_FILE, "limits.txt");
+
+	/* Open the file */
+	fp = my_fopen(buf, "r");
+
+	/* No such file */
+	if (!fp) return (-1);
+
+
+	/* Process the file */
+	while (0 == my_fgets(fp, buf, 1024))
+	{
+		/* Count lines */
+		num++;
+
+
+		/* Skip "empty" lines */
+		if (!buf[0]) continue;
+
+		/* Skip "blank" lines */
+		if (isspace(buf[0])) continue;
+
+		/* Skip comments */
+		if (buf[0] == '#') continue;
+
+		if (tokenize(buf, 2, zz) == 2)
+		{
+			switch (zz[0][0])
+			{
+				case 'R':
+					/* Maximum r_idx */
+					max_r_idx = atoi(zz[1]);
+					break;
+				case 'K':
+					/* Maximum k_idx */
+					max_k_idx = atoi(zz[1]);
+					break;
+				case 'V':
+					/* Maximum v_idx */
+					max_v_idx = atoi(zz[1]);
+					break;
+				case 'F':
+					/* Maximum f_idx */
+					max_f_idx = atoi(zz[1]);
+					break;
+				case 'A':
+					/* Maximum a_idx */
+					max_a_idx = atoi(zz[1]);
+					break;
+				case 'E':
+					/* Maximum e_idx */
+					max_e_idx = atoi(zz[1]);
+					break;
+				case 'O':
+					/* Maximum o_idx */
+					max_o_idx = atoi(zz[1]);
+					break;
+				case 'M':
+					/* Maximum m_idx */
+					max_m_idx = atoi(zz[1]);
+					break;
+				case 'P':
+					/* Maximum p_idx */
+					max_p_idx = atoi(zz[1]);
+					break;
+				case 'B':
+					/* Maximum b_idx */
+					max_b_idx = atoi(zz[1]);
+					break;
+				case 'H':
+					/* Maximum h_idx */
+					max_h_idx = atoi(zz[1]);
+					break;
+				case 'N':
+					/* Maximum size of the name array */
+					fake_name_size = (u32b)atol(zz[1]);
+					break;
+				case 'T':
+					/* Maximum size of the text array */
+					fake_text_size = (u32b)atol(zz[1]);
+					break;
+				default:
+					/* Error - Unknown type */
+					return (-1);
+			}
+		}
+	}
+
+	/* Close the file */
+	my_fclose(fp);
+
+	/* Success */
+	return (0);
+}
+#endif
 
 
 /*

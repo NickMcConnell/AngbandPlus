@@ -6,10 +6,10 @@ SRCS = \
   z-util.c z-virt.c z-form.c z-rand.c z-term.c \
   variable.c tables.c util.c cave.c \
   object1.c object2.c monster1.c monster2.c \
-  xtra1.c xtra2.c spells1.c spells2.c \
-  melee1.c melee2.c save.c files.c \
-  cmd1.c cmd2.c cmd3.c cmd4.c cmd5.c cmd6.c \
-  store.c birth.c load1.c load2.c \
+  xtra1.c xtra2.c effects.c spells1.c spells2.c \
+  melee1.c melee2.c save.c files.c squelch.c\
+  cmd-attk.c cmd-book.c cmd-item.c cmd-know.c cmd-misc.c cmd-util.c \
+  store.c birth.c load.c quest.c\
   wizard1.c wizard2.c \
   generate.c dungeon.c init1.c init2.c randart.c \
   main-lsl.c main.c
@@ -18,10 +18,10 @@ OBJS = \
   z-util.o z-virt.o z-form.o z-rand.o z-term.o \
   variable.o tables.o util.o cave.o \
   object1.o object2.o monster1.o monster2.o \
-  xtra1.o xtra2.o spells1.o spells2.o \
-  melee1.o melee2.o save.o files.o \
-  cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o \
-  store.o birth.o load1.o load2.o \
+  xtra1.o xtra2.o effects.o spells1.o spells2.o \
+  melee1.o melee2.o save.o files.o squelch.o\
+  cmd-attk.o cmd-book.o cmd-item.o cmd-know.o cmd-misc.o cmd-util.o \
+  store.o birth.o load.o quest.o\
   wizard1.o wizard2.o \
   generate.o dungeon.o init1.o init2.o randart.o \
   main-lsl.o main.o
@@ -75,20 +75,19 @@ INCS = \
 
 birth.o: birth.c $(INCS)
 cave.o: cave.c $(INCS)
-cmd1.o: cmd1.c $(INCS)
-cmd2.o: cmd2.c $(INCS)
-cmd3.o: cmd3.c $(INCS)
-cmd4.o: cmd4.c $(INCS)
-cmd5.o: cmd5.c $(INCS)
-cmd6.o: cmd6.c $(INCS)
+cmd-attk.o: cmd-attk.c $(INCS)
+cmd-book.o: cmd-book.c $(INCS)
+cmd-item.o: cmd-item.c $(INCS)
+cmd-know.o: cmd-know.c $(INCS)
+cmd-misc.o: cmd-misc.c $(INCS)
+cmd-util.o: cmd-util.c $(INCS)
 dungeon.o: dungeon.c $(INCS)
+effects.o: effects.c $(INCS)
 files.o: files.c $(INCS)
 generate.o: generate.c $(INCS)
 init1.o: init1.c $(INCS)
 init2.o: init2.c $(INCS)
-randart.o: randart.c $(INCS)
-load1.o: load1.c $(INCS)
-load2.o: load2.c $(INCS)
+load.o: load.c $(INCS)
 main-cap.o: main-cap.c $(INCS)
 main-gcu.o: main-gcu.c $(INCS)
 main-x11.o: main-x11.c $(INCS)
@@ -100,9 +99,12 @@ monster1.o: monster1.c $(INCS)
 monster2.o: monster2.c $(INCS)
 object1.o: object1.c $(INCS)
 object2.o: object2.c $(INCS)
+quest.o: quest.c $(INCS)
+randart.o: randart.c $(INCS)
 save.o: save.c $(INCS)
 spells1.o: spells1.c $(INCS)
 spells2.o: spells2.c $(INCS)
+squelch.o: squelch.c $(INCS)
 store.o: store.c $(INCS)
 tables.o: tables.c $(INCS)
 util.o: util.c $(INCS)

@@ -664,9 +664,9 @@ errr fd_lock(int fd, int what)
 /*
  * Hack -- attempt to seek on a file descriptor
  */
-errr fd_seek(int fd, long n)
+errr fd_seek(int fd, huge n)
 {
-	long p;
+	huge p;
 
 	/* Verify fd */
 	if (fd < 0) return (-1);
@@ -784,49 +784,6 @@ errr fd_close(int fd)
 	return (0);
 }
 
-
-#ifdef CHECK_MODIFICATION_TIME
-# ifdef MACINTOSH
-#  include <stat.h>
-# else
-#  include <sys/types.h>
-#  include <sys/stat.h>
-# endif /* MACINTOSH */
-
-
-errr check_modification_date(int fd, cptr template_file)
-{
-	char buf[1024];
-
-	struct stat txt_stat, raw_stat;
-
-	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_EDIT, template_file);
-
-	/* Access stats on text file */
-	if (stat(buf, &txt_stat))
-	{
-		/* No text file - continue */
-	}
-
-	/* Access stats on raw file */
-	else if (fstat(fd, &raw_stat))
-	{
-		/* Error */
-		return (-1);
-	}
-
-	/* Ensure text file is not newer than raw file */
-	else if (txt_stat.st_mtime > raw_stat.st_mtime)
-	{
-		/* Reprocess text file */
-		return (-1);
-	}
-
-	return (0);
-}
-
-#endif /* CHECK_MODIFICATION_TIME */
 
 #endif /* ACORN */
 
@@ -2336,8 +2293,7 @@ static void msg_print_aux(u16b type, cptr msg)
 
 
 	/* Memorize the message (if legal) */
-	if (character_generated && !(p_ptr->is_dead))
-		message_add(msg, type);
+	if (character_generated) message_add(msg, type);
 
 	/* Window stuff */
 	p_ptr->window |= (PW_MESSAGE);
@@ -3609,7 +3565,7 @@ void build_gamma_table(int gamma)
 			 * exp(x) = 1 + x + x^2/2 + x^3/(2*3) + x^4/(2*3*4) +...
 			 *
 			 * n is the current term number.
-			 *
+			 * 
 			 * The gamma_helper array contains a table of
 			 * ln(x/256) * 256
 			 * This is used because a^b = exp(b*ln(a))
@@ -3636,3 +3592,23 @@ void build_gamma_table(int gamma)
 }
 
 #endif /* SUPPORT_GAMMA */
+
+/* Writes logs to file. From A64 */
+
+extern void dlog(cptr fmt, ...)
+{
+   char          buf1[1024];
+   va_list       ap;
+
+   va_start(ap, fmt);
+   vsprintf(buf1, fmt, ap);
+
+   /* if an error-logging file-pointer is present, dump the info */
+   if (errlog)
+   {
+      fprintf(errlog, "%s\n", buf1);
+      fflush(errlog);
+   }
+
+   va_end(ap);
+}

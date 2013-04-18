@@ -857,8 +857,6 @@ static void rd_item(object_type *o_ptr)
  */
 static void rd_monster(monster_type *m_ptr)
 {
-	byte tmp8u;
-
 	/* Read the monster race */
 	rd_s16b(&m_ptr->r_idx);
 
@@ -873,7 +871,17 @@ static void rd_monster(monster_type *m_ptr)
 	rd_byte(&m_ptr->stunned);
 	rd_byte(&m_ptr->confused);
 	rd_byte(&m_ptr->monfear);
-	rd_byte(&tmp8u);
+	rd_byte(&m_ptr->monpois);
+	if (older_than(2, 9, 2))
+	{
+        	m_ptr->moncalm = 0;
+	        m_ptr->monblind = 0;
+        }
+        else
+	{
+        	rd_byte(&m_ptr->moncalm);
+	        rd_byte(&m_ptr->monblind);
+        }
 }
 
 
@@ -1357,8 +1365,12 @@ static errr rd_extra(void)
 	rd_byte(&tmp8u);
 	if (older_than(2, 8, 5)) adult_rand_artifacts = tmp8u;
 
+	/* Squelch bytes */
+	for (i = 0; i < 24; i++) rd_byte(&squelch_level[i]);
+	rd_byte(&auto_destroy);
+
 	/* Future use */
-	for (i = 0; i < 40; i++) rd_byte(&tmp8u);
+	for (i = 0; i < 15; i++) rd_byte(&tmp8u);
 
 	/* Read the randart version */
 	rd_u32b(&randart_version);
@@ -1367,7 +1379,8 @@ static errr rd_extra(void)
 	rd_u32b(&seed_randart);
 
 	/* Skip the flags */
-	strip_bytes(12);
+	strip_bytes(10);
+	rd_s16b(&avg_rating);
 
 
 	/* Hack -- the two "special seeds" */
@@ -2275,7 +2288,7 @@ static errr rd_dungeon(void)
 	if ((ymax != DUNGEON_HGT) || (xmax != DUNGEON_WID))
 	{
 		/* XXX XXX XXX */
-		note(format("Ignoring illegal dungeon size (%d,%d).", ymax, xmax));
+		note(format("Ignoring illegal dungeon size (%d,%d).", xmax, ymax));
 		return (0);
 	}
 
@@ -2283,7 +2296,7 @@ static errr rd_dungeon(void)
 	if ((px < 0) || (px >= DUNGEON_WID) ||
 	    (py < 0) || (py >= DUNGEON_HGT))
 	{
-		note(format("Ignoring illegal player location (%d,%d).", py, px));
+		note(format("Ignoring illegal player location (%d,%d).", px, py));
 		return (1);
 	}
 
@@ -2423,6 +2436,9 @@ static errr rd_dungeon(void)
 
 			/* Link the floor to the object */
 			cave_o_idx[y][x] = o_idx;
+
+			/* Rearrange stack if needed */
+			rearrange_stack(y, x);
 		}
 	}
 
@@ -2650,6 +2666,9 @@ static errr rd_savefile_new_aux(void)
 
 		k_ptr->aware = (tmp8u & 0x01) ? TRUE: FALSE;
 		k_ptr->tried = (tmp8u & 0x02) ? TRUE: FALSE;
+		k_ptr->squelch = (tmp8u & 0x04) ? TRUE: FALSE;
+		k_ptr->everseen = (tmp8u & 0x08) ? TRUE: FALSE;
+
 	}
 	if (arg_fiddle) note("Loaded Object Memory");
 

@@ -1,7 +1,7 @@
 Compiling Angband 2.9.1
 =======================
 
-Last updated on 15th July 2000 by Robert Ruehlmann
+Last updated on 4th July 2000 by Robert Ruehlmann
 
 
 ----------------------------------------------------------------------
@@ -60,8 +60,8 @@ DOS + DJGPP
 	< ftp://ftp.sunet.se/pub/games/Angband/DOS-386/ext-dos.zip >.
 	Go to the angband-291 directory and unzip the ext-dos archive into it.
 	Then get the graphics archive from
-	< ftp://export.andrew.cmu.edu/angband/Extra/angband-graf.zip > or
-	< ftp://ftp.sunet.se/pub/games/Angband/Extra/angband-graf.zip >
+	< ftp://export.andrew.cmu.edu/angband/Extra/angband-291-graf.zip > or
+	< ftp://ftp.sunet.se/pub/games/Angband/Extra/angband-291-graf.zip >
 	and unzip it into the lib/xtra/graf/ folder.
 - Select the makefile:
 	Go to the src-directory and rename 'makefile.dos' (or 'makefile.ibm'
@@ -92,8 +92,8 @@ Windows 95/98/NT/2000 + MS Visual C++ 5.0/6.0
 	Again make sure the directory structure is preserved (use the -d
 	option in pkunzip).
 	Then get the graphics archive from
-	< ftp://export.andrew.cmu.edu/angband/Extra/angband-graf.zip > or
-	< ftp://ftp.sunet.se/pub/games/Angband/Extra/angband-graf.zip >
+	< ftp://export.andrew.cmu.edu/angband/Extra/angband-291-graf.zip > or
+	< ftp://ftp.sunet.se/pub/games/Angband/Extra/angband-291-graf.zip >
 	and unzip it into the lib/xtra/graf/ folder.
 - Open the project-file:
 	Go to the src-folder and open the file "Angband.dsw".  That opens
@@ -128,8 +128,8 @@ Windows 95/98/NT/2000 + Borland C++ 5.5 commandline tools
 	Again make sure the directory structure is preserved (use the -d
 	option in pkunzip).
 	Then get the graphics archive from
-	< ftp://export.andrew.cmu.edu/angband/Extra/angband-graf.zip > or
-	< ftp://ftp.sunet.se/pub/games/Angband/Extra/angband-graf.zip >
+	< ftp://export.andrew.cmu.edu/angband/Extra/angband-291-graf.zip > or
+	< ftp://ftp.sunet.se/pub/games/Angband/Extra/angband-291-graf.zip >
 	and unzip it into the lib/xtra/graf/ folder.
 - Compile Angband:
 	Open a commandline window and go to the src-directory.  Run
@@ -148,12 +148,12 @@ Linux + GCC
 	Extract the source code with "tar -xvzf angband-291-src.tgz".
 - Install the graphics files:
 	If you want to use graphics under X11 then get the archive from
-	< ftp://export.andrew.cmu.edu/angband/Extra/angband-graf.zip > or
-	< ftp://ftp.sunet.se/pub/games/Angband/Extra/angband-graf.zip >
+	< ftp://export.andrew.cmu.edu/angband/Extra/angband-291-graf.zip > or
+	< ftp://ftp.sunet.se/pub/games/Angband/Extra/angband-291-graf.zip >
 	and unzip it into the lib/xtra/graf/ folder.
 - Prepare the makefile:
-	Go to the angband-291/src directory, rename Makefile.std to
-	Makefile.  The makefile is already configured properly to compile
+	Go to the angband-291/src directory, rename makefile.std to
+	makefile.  The makefile is already configured properly to compile
 	a version with support for both console (using ncurses) and X11.
 	If this configuration doesn't work for you then you might have to
 	open the makefile with your favorite text-editor and select one

@@ -474,6 +474,9 @@ bool set_shield(int v)
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
 
+	/* Redraw the state */
+	p_ptr->redraw |= (PR_STATE);
+
 	/* Handle stuff */
 	handle_stuff();
 
@@ -525,6 +528,9 @@ bool set_blessed(int v)
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
 
+	/* Redraw the state */
+	p_ptr->redraw |= (PR_STATE);
+
 	/* Handle stuff */
 	handle_stuff();
 
@@ -574,6 +580,9 @@ bool set_hero(int v)
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
+
+	/* Redraw the state */
+	p_ptr->redraw |= (PR_STATE);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -625,6 +634,9 @@ bool set_shero(int v)
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
 
+	/* Redraw the state */
+	p_ptr->redraw |= (PR_STATE);
+
 	/* Handle stuff */
 	handle_stuff();
 
@@ -671,6 +683,9 @@ bool set_protevil(int v)
 
 	/* Disturb */
 	if (disturb_state) disturb(0, 0);
+
+	/* Redraw the state */
+	p_ptr->redraw |= (PR_STATE);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -775,6 +790,9 @@ bool set_tim_invis(int v)
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
 
+	/* Redraw the state */
+	p_ptr->redraw |= (PR_STATE);
+
 	/* Update the monsters XXX */
 	p_ptr->update |= (PU_MONSTERS);
 
@@ -830,6 +848,9 @@ bool set_tim_infra(int v)
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
+
+	/* Redraw the state */
+	p_ptr->redraw |= (PR_STATE);
 
 	/* Update the monsters XXX */
 	p_ptr->update |= (PU_MONSTERS);
@@ -1844,6 +1865,8 @@ void monster_death(int m_idx)
 	y = m_ptr->fy;
 	x = m_ptr->fx;
 
+	/* Update monster list window */
+	p_ptr->window |= (PW_M_LIST);
 
 	/* Drop objects being carried */
 	for (this_o_idx = m_ptr->hold_o_idx; this_o_idx; this_o_idx = next_o_idx)
@@ -1909,6 +1932,56 @@ void monster_death(int m_idx)
 
 		/* Drop it in the dungeon */
 		drop_near(i_ptr, -1, y, x);
+	}
+
+
+	/* Let monsters explode! */
+	for (i = 0; i < 4; i++)
+	{
+		if (r_ptr->blow[i].method == RBM_EXPLODE)
+		{
+			int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
+			int typ = GF_MISSILE;
+			int d_dice = r_ptr->blow[i].d_dice;
+			int d_side = r_ptr->blow[i].d_side;
+			int damage = damroll(d_dice, d_side);
+
+			switch (r_ptr->blow[i].effect)
+			{
+				case RBE_HURT:      typ = GF_MISSILE; break;
+				case RBE_POISON:    typ = GF_POIS; break;
+				case RBE_UN_BONUS:  typ = GF_DISENCHANT; break;
+				case RBE_UN_POWER:  typ = GF_MISSILE; break; /* ToDo: Apply the correct effects */
+				case RBE_EAT_GOLD:  typ = GF_MISSILE; break;
+				case RBE_EAT_ITEM:  typ = GF_MISSILE; break;
+				case RBE_EAT_FOOD:  typ = GF_MISSILE; break;
+				case RBE_EAT_LITE:  typ = GF_MISSILE; break;
+				case RBE_ACID:      typ = GF_ACID; break;
+				case RBE_ELEC:      typ = GF_ELEC; break;
+				case RBE_FIRE:      typ = GF_FIRE; break;
+				case RBE_COLD:      typ = GF_COLD; break;
+				case RBE_BLIND:     typ = GF_MISSILE; break;
+				case RBE_CONFUSE:   typ = GF_CONFUSION; break;
+				case RBE_TERRIFY:   typ = GF_MISSILE; break;
+				case RBE_PARALYZE:  typ = GF_MISSILE; break;
+				case RBE_LOSE_STR:  typ = GF_MISSILE; break;
+				case RBE_LOSE_DEX:  typ = GF_MISSILE; break;
+				case RBE_LOSE_CON:  typ = GF_MISSILE; break;
+				case RBE_LOSE_INT:  typ = GF_MISSILE; break;
+				case RBE_LOSE_WIS:  typ = GF_MISSILE; break;
+				case RBE_LOSE_CHR:  typ = GF_MISSILE; break;
+				case RBE_LOSE_ALL:  typ = GF_MISSILE; break;
+				case RBE_SHATTER:   typ = GF_SHARD; break;
+				case RBE_EXP_10:    typ = GF_MISSILE; break;
+				case RBE_EXP_20:    typ = GF_MISSILE; break;
+				case RBE_EXP_40:    typ = GF_MISSILE; break;
+				case RBE_EXP_80:    typ = GF_MISSILE; break;
+				case RBE_TIME:      typ = GF_TIME; break;
+			}
+
+			project(m_idx, 3, y, x, damage, typ, flg);
+			break;
+		}
 	}
 
 
@@ -2081,6 +2154,9 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 	/* Wake it up */
 	m_ptr->csleep = 0;
 
+	/* Anger it */
+	m_ptr->moncalm = 0;
+
 	/* Hurt it */
 	m_ptr->hp -= dam;
 
@@ -2105,10 +2181,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		}
 
 		/* Death by Physical attack -- non-living monster */
-		else if ((r_ptr->flags3 & (RF3_DEMON)) ||
-		         (r_ptr->flags3 & (RF3_UNDEAD)) ||
-		         (r_ptr->flags2 & (RF2_STUPID)) ||
-		         (strchr("Evg", r_ptr->d_char)))
+		else if (!monster_living(r_ptr))
 		{
 			message_format(MSG_KILL, m_ptr->r_idx, "You have destroyed %s.", m_name);
 		}
@@ -2380,6 +2453,8 @@ cptr look_mon_desc(int m_idx)
 	monster_type *m_ptr = &m_list[m_idx];
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
+	char buf[100];
+
 	bool living = TRUE;
 	int perc;
 
@@ -2387,36 +2462,45 @@ cptr look_mon_desc(int m_idx)
 	/* Determine if the monster is "living" (vs "undead") */
 	if (r_ptr->flags3 & (RF3_UNDEAD)) living = FALSE;
 	if (r_ptr->flags3 & (RF3_DEMON)) living = FALSE;
-	if (strchr("Egv", r_ptr->d_char)) living = FALSE;
-
+	if (strchr("Egv$!=|/", r_ptr->d_char)) living = FALSE;
 
 	/* Healthy monsters */
 	if (m_ptr->hp >= m_ptr->maxhp)
 	{
 		/* No damage */
-		return (living ? "unhurt" : "undamaged");
+		strcpy(buf,(living ? "unhurt" : "undamaged"));
 	}
-
-
-	/* Calculate a health "percentage" */
-	perc = 100L * m_ptr->hp / m_ptr->maxhp;
-
-	if (perc >= 60)
+	else
 	{
-		return (living ? "somewhat wounded" : "somewhat damaged");
+		/* Calculate a health "percentage" */
+		perc = 100L * m_ptr->hp / m_ptr->maxhp;
+
+		if (perc >= 60)
+		{
+			strcpy(buf,(living ? "somewhat wounded" : "somewhat damaged"));
+		}
+		else if (perc >= 25)
+		{
+			strcpy(buf,(living ? "wounded" : "damaged"));
+		}
+		else if (perc >= 10)
+		{
+			strcpy(buf,(living ? "badly wounded" : "badly damaged"));
+		}
+		else strcpy(buf,(living ? "almost dead" : "almost destroyed"));
 	}
 
-	if (perc >= 25)
-	{
-		return (living ? "wounded" : "damaged");
-	}
+	if (m_ptr->csleep) strcat(buf, ", asleep");
+/*	if (m_ptr->bleeding) strcat(buf, ", bleeding"); */
+	if (m_ptr->monpois) strcat(buf, ", poisoned");
+	if (m_ptr->monblind) strcat(buf, ", blinded");
+	if (m_ptr->confused) strcat(buf, ", confused");
+	if (m_ptr->monfear) strcat(buf, ", afraid");
+	if (m_ptr->moncalm) strcat(buf, ", passive");
+	if (m_ptr->stunned) strcat(buf, ", stunned");
 
-	if (perc >= 10)
-	{
-		return (living ? "badly wounded" : "badly damaged");
-	}
+	return format("%s",buf);
 
-	return (living ? "almost dead" : "almost destroyed");
 }
 
 

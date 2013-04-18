@@ -862,6 +862,8 @@ void do_cmd_options(void)
 
 		/* Window flags */
 		prt("(W) Window flags", 11, 5);
+		/* Squelch menus */
+		prt("(I) Item Squelch Menus", 12, 5);
 
 		/* Load and Append */
 		prt("(L) Load a user pref file", 13, 5);
@@ -921,7 +923,11 @@ void do_cmd_options(void)
 		{
 			do_cmd_options_win();
 		}
-
+		/* Squelching menus */
+		else if ((ch == 'I') || (ch == 'i'))
+		{
+		        do_cmd_squelch();
+		}
 		/* Load a user pref file */
 		else if ((ch == 'L') || (ch == 'l'))
 		{
@@ -2342,25 +2348,118 @@ void do_cmd_colors(void)
 
 
 /*
- * Note something in the message recall
+ * Note something in the log file -GSN-
  */
 void do_cmd_note(void)
 {
-	char tmp[80];
+        char in_buf[80];
+        char out_buf[100];
+	char tempstring[30];
+	char *in_ptr, *out_ptr;
+	
+        strcpy (in_buf, "");
+        
+        /* Input */
+        if (!get_string("Note: ", in_buf, 80)) return;
 
-	/* Default */
-	strcpy(tmp, "");
+        /* Ignore empty notes */
+        if (!in_buf[0] || (in_buf[0] == ' ')) return;
 
-	/* Input */
-	if (!get_string("Note: ", tmp, 80)) return;
+	/* Initialize pointers */
+	in_ptr = &in_buf[0];
+	out_ptr = &out_buf[0];
 
-	/* Ignore empty notes */
-	if (!tmp[0] || (tmp[0] == ' ')) return;
-
-	/* Add the note to the message recall */
-	msg_format("Note: %s", tmp);
+        (void)memset(out_ptr, 0, sizeof(out_buf));
+        
+	/* Run through input buffer */
+	while (*in_ptr != '\0')
+	{
+	    /* Find %'s */
+	    if ((*in_ptr) == '%') 
+	    {
+	      /* Compare next char */
+	      switch (in_ptr[1])
+	      {
+		case 'h':
+		{		
+		    sprintf(tempstring, "%d HP", p_ptr->chp);
+		    break;
+		}
+		case 'H':
+		{
+		    sprintf(tempstring, "%d HP", p_ptr->mhp);
+		    break;
+		}
+		case 'l':
+		{
+		    if (depth_in_feet)
+		    sprintf(tempstring, "at %d feet", p_ptr->depth * 50);
+		    else
+		    sprintf(tempstring, "at level %d", p_ptr->depth);
+		    break;
+		}
+		case 'L':
+		{
+		    if (depth_in_feet)
+		    sprintf(tempstring, "reached %d feet", p_ptr->max_depth * 50);
+		    else
+		    sprintf(tempstring, "reached level %d", p_ptr->max_depth * 50);
+		    break;
+		}
+		case 'p':
+		{
+		    sprintf(tempstring, "at exp level %d", p_ptr->lev);
+		    break;
+		}
+		case 'P':
+		{
+		    sprintf(tempstring, "reached exp level %d", p_ptr->max_lev);
+		    break;
+		}
+		case 't':
+		{
+		    sprintf(tempstring, "(turn %ld)", turn);
+		    break;
+		}
+		case 'n':
+		{
+		    sprintf(tempstring, "%s", op_ptr->full_name);
+		    break;
+		}
+		case 'c':
+		{
+		    sprintf(tempstring, "%s", class_info[p_ptr->pclass].title);
+		    break;
+		}
+		case 'r':
+		{
+		    sprintf(tempstring, "%s", p_name + rp_ptr->name);
+		    break;
+		}
+		case '%':
+		{
+		    strcpy(tempstring, "%");
+		    break;
+		}
+		default:
+		    break;
+	      }
+	      /* Expand the string to out_buf */
+	      strcat(out_buf, tempstring);
+	      out_ptr += strlen(tempstring);
+	      
+	      /* Increment pointer */
+	      in_ptr += 2;
+	    }
+	    else /* Copy the character */
+	    *out_ptr++ = *in_ptr++;
+	}
+	
+	*out_ptr++ = '\0'; /* Terminate the buffer */
+		
+        /* Add the note to the log file */
+        dlog(out_buf);
 }
-
 
 /*
  * Mention the current version

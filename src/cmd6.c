@@ -302,7 +302,14 @@ void do_cmd_eat_food(void)
 		case SV_FOOD_PINT_OF_ALE:
 		case SV_FOOD_PINT_OF_WINE:
 		{
-			msg_print("That tastes good.");
+			msg_print("Whoa ... Goood One moree please !!!");
+			if (!p_ptr->resist_confu)
+			{
+				if (set_confused(p_ptr->confused + rand_int(10) + 10))
+				{
+					ident = TRUE;
+				}
+			}
 			ident = TRUE;
 			break;
 		}
@@ -578,6 +585,7 @@ void do_cmd_quaff_potion(void)
 		case SV_POTION_CURE_POISON:
 		{
 			if (set_poisoned(0)) ident = TRUE;
+			if (hp_player(10)) ident = TRUE;
 			break;
 		}
 
@@ -636,7 +644,7 @@ void do_cmd_quaff_potion(void)
 
 		case SV_POTION_CURE_LIGHT:
 		{
-			if (hp_player(damroll(2, 8))) ident = TRUE;
+			if (hp_player(damroll(3, 8))) ident = TRUE;
 			if (set_blind(0)) ident = TRUE;
 			if (set_cut(p_ptr->cut - 10)) ident = TRUE;
 			break;
@@ -644,7 +652,7 @@ void do_cmd_quaff_potion(void)
 
 		case SV_POTION_CURE_SERIOUS:
 		{
-			if (hp_player(damroll(4, 8))) ident = TRUE;
+			if (hp_player(damroll(6, 8))) ident = TRUE;
 			if (set_blind(0)) ident = TRUE;
 			if (set_confused(0)) ident = TRUE;
 			if (set_cut((p_ptr->cut / 2) - 50)) ident = TRUE;
@@ -653,7 +661,7 @@ void do_cmd_quaff_potion(void)
 
 		case SV_POTION_CURE_CRITICAL:
 		{
-			if (hp_player(damroll(6, 8))) ident = TRUE;
+			if (hp_player(damroll(10, 8))) ident = TRUE;
 			if (set_blind(0)) ident = TRUE;
 			if (set_confused(0)) ident = TRUE;
 			if (set_poisoned(0)) ident = TRUE;
@@ -664,7 +672,7 @@ void do_cmd_quaff_potion(void)
 
 		case SV_POTION_HEALING:
 		{
-			if (hp_player(300)) ident = TRUE;
+			if (hp_player(500)) ident = TRUE;
 			if (set_blind(0)) ident = TRUE;
 			if (set_confused(0)) ident = TRUE;
 			if (set_poisoned(0)) ident = TRUE;
@@ -849,7 +857,7 @@ void do_cmd_quaff_potion(void)
 			if (p_ptr->exp < PY_MAX_EXP)
 			{
 				s32b ee = (p_ptr->exp / 2) + 10;
-				if (ee > 100000L) ee = 100000L;
+				if (ee > 150000L) ee = 150000L;
 				msg_print("You feel more experienced.");
 				gain_exp(ee);
 				ident = TRUE;
@@ -1191,7 +1199,13 @@ void do_cmd_read_scroll(void)
 		case SV_SCROLL_IDENTIFY:
 		{
 			ident = TRUE;
-			if (!ident_spell()) used_up = FALSE;
+			if (randint(20)==10)
+			{
+				if (!identify_fully()) used_up= FALSE;
+			}
+			else 	if (!ident_spell()) used_up = FALSE;
+			
+			o_ptr->pval = 10;
 			break;
 		}
 
@@ -1242,14 +1256,14 @@ void do_cmd_read_scroll(void)
 
 		case SV_SCROLL_STAR_ENCHANT_ARMOR:
 		{
-			if (!enchant_spell(0, 0, randint(3) + 2)) used_up = FALSE;
+			if (!enchant_spell(0, 0, randint(3) + 4)) used_up = FALSE;
 			ident = TRUE;
 			break;
 		}
 
 		case SV_SCROLL_STAR_ENCHANT_WEAPON:
 		{
-			if (!enchant_spell(randint(3), randint(3), 0)) used_up = FALSE;
+			if (!enchant_spell(randint(3)+2, randint(3)+2, 0)) used_up = FALSE;
 			ident = TRUE;
 			break;
 		}
@@ -1370,7 +1384,7 @@ void do_cmd_read_scroll(void)
 
 		case SV_SCROLL_DISPEL_UNDEAD:
 		{
-			if (dispel_undead(60)) ident = TRUE;
+			if (dispel_undead(150)) ident = TRUE;
 			break;
 		}
 
@@ -1390,14 +1404,14 @@ void do_cmd_read_scroll(void)
 
 		case SV_SCROLL_ACQUIREMENT:
 		{
-			acquirement(py, px, 1, TRUE);
+			acquirement(py, px, 2, TRUE);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_SCROLL_STAR_ACQUIREMENT:
 		{
-			acquirement(py, px, randint(2) + 1, TRUE);
+			acquirement(py, px, randint(4) + 1, TRUE);
 			ident = TRUE;
 			break;
 		}
@@ -1591,8 +1605,12 @@ void do_cmd_use_staff(void)
 
 		case SV_STAFF_IDENTIFY:
 		{
-			if (!ident_spell()) use_charge = FALSE;
 			ident = TRUE;
+			if (randint(20)==10)
+			{
+				if (!identify_fully()) use_charge = FALSE;
+			}
+			else if (!ident_spell()) use_charge = FALSE;
 			break;
 		}
 
@@ -1673,13 +1691,14 @@ void do_cmd_use_staff(void)
 
 		case SV_STAFF_CURE_LIGHT:
 		{
-			if (hp_player(randint(8))) ident = TRUE;
+			if (hp_player(randint(8)+24)) ident = TRUE;
 			break;
 		}
 
 		case SV_STAFF_CURING:
 		{
 			if (set_blind(0)) ident = TRUE;
+			if (hp_player(randint(60)+60)) ident = TRUE;
 			if (set_poisoned(0)) ident = TRUE;
 			if (set_confused(0)) ident = TRUE;
 			if (set_stun(0)) ident = TRUE;
@@ -1689,15 +1708,19 @@ void do_cmd_use_staff(void)
 
 		case SV_STAFF_HEALING:
 		{
-			if (hp_player(300)) ident = TRUE;
+			if (hp_player(500)) ident = TRUE;
 			if (set_stun(0)) ident = TRUE;
 			if (set_cut(0)) ident = TRUE;
+			if (set_blind(0)) ident = TRUE;
+			if (set_poisoned(0)) ident = TRUE;
+			if (set_confused(0)) ident = TRUE;
 			break;
 		}
 
 		case SV_STAFF_THE_MAGI:
 		{
 			if (do_res_stat(A_INT)) ident = TRUE;
+			if (set_confused(0)) ident = TRUE;
 			if (p_ptr->csp < p_ptr->msp)
 			{
 				p_ptr->csp = p_ptr->msp;
@@ -1744,25 +1767,26 @@ void do_cmd_use_staff(void)
 
 		case SV_STAFF_DISPEL_EVIL:
 		{
-			if (dispel_evil(60)) ident = TRUE;
+			if (dispel_evil(120)) ident = TRUE;
 			break;
 		}
 
 		case SV_STAFF_POWER:
 		{
-			if (dispel_monsters(120)) ident = TRUE;
+			if (dispel_monsters(200)) ident = TRUE;
 			break;
 		}
 
 		case SV_STAFF_HOLINESS:
 		{
-			if (dispel_evil(120)) ident = TRUE;
+			if (dispel_evil(500)) ident = TRUE;
 			k = 3 * p_ptr->lev;
 			if (set_protevil(p_ptr->protevil + randint(25) + k)) ident = TRUE;
 			if (set_poisoned(0)) ident = TRUE;
 			if (set_afraid(0)) ident = TRUE;
-			if (hp_player(50)) ident = TRUE;
+			if (hp_player(150)) ident = TRUE;
 			if (set_stun(0)) ident = TRUE;
+			if (set_confused(0)) ident = TRUE;
 			if (set_cut(0)) ident = TRUE;
 			break;
 		}
@@ -2048,7 +2072,7 @@ void do_cmd_aim_wand(void)
 
 		case SV_WAND_DRAIN_LIFE:
 		{
-			if (drain_life(dir, 75)) ident = TRUE;
+			if (drain_life(dir, 150)) ident = TRUE;
 			break;
 		}
 
@@ -2060,70 +2084,70 @@ void do_cmd_aim_wand(void)
 
 		case SV_WAND_STINKING_CLOUD:
 		{
-			fire_ball(GF_POIS, dir, 12, 2);
+			fire_ball(GF_POIS, dir, 24, 2);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_MAGIC_MISSILE:
 		{
-			fire_bolt_or_beam(20, GF_MISSILE, dir, damroll(2, 6));
+			fire_bolt_or_beam(20, GF_MISSILE, dir, damroll(3, 8));
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_ACID_BOLT:
 		{
-			fire_bolt_or_beam(20, GF_ACID, dir, damroll(5, 8));
+			fire_bolt_or_beam(20, GF_ACID, dir, damroll(10, 8));
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_ELEC_BOLT:
 		{
-			fire_bolt_or_beam(20, GF_ELEC, dir, damroll(3, 8));
+			fire_bolt_or_beam(20, GF_ELEC, dir, damroll(6, 8));
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_FIRE_BOLT:
 		{
-			fire_bolt_or_beam(20, GF_FIRE, dir, damroll(6, 8));
+			fire_bolt_or_beam(20, GF_FIRE, dir, damroll(12, 8));
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_COLD_BOLT:
 		{
-			fire_bolt_or_beam(20, GF_COLD, dir, damroll(3, 8));
+			fire_bolt_or_beam(20, GF_COLD, dir, damroll(6, 8));
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_ACID_BALL:
 		{
-			fire_ball(GF_ACID, dir, 60, 2);
+			fire_ball(GF_ACID, dir, 150, 3);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_ELEC_BALL:
 		{
-			fire_ball(GF_ELEC, dir, 32, 2);
+			fire_ball(GF_ELEC, dir, 75, 3);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_FIRE_BALL:
 		{
-			fire_ball(GF_FIRE, dir, 72, 2);
+			fire_ball(GF_FIRE, dir, 150, 3);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_COLD_BALL:
 		{
-			fire_ball(GF_COLD, dir, 48, 2);
+			fire_ball(GF_COLD, dir, 100, 3);
 			ident = TRUE;
 			break;
 		}
@@ -2136,14 +2160,14 @@ void do_cmd_aim_wand(void)
 
 		case SV_WAND_DRAGON_FIRE:
 		{
-			fire_ball(GF_FIRE, dir, 100, 3);
+			fire_ball(GF_FIRE, dir, 200, 3);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_DRAGON_COLD:
 		{
-			fire_ball(GF_COLD, dir, 80, 3);
+			fire_ball(GF_COLD, dir, 200, 3);
 			ident = TRUE;
 			break;
 		}
@@ -2154,31 +2178,31 @@ void do_cmd_aim_wand(void)
 			{
 				case 1:
 				{
-					fire_ball(GF_ACID, dir, 100, 3);
+					fire_ball(GF_ACID, dir, 200, 3);
 					break;
 				}
 
 				case 2:
 				{
-					fire_ball(GF_ELEC, dir, 80, 3);
+					fire_ball(GF_ELEC, dir, 200, 3);
 					break;
 				}
 
 				case 3:
 				{
-					fire_ball(GF_FIRE, dir, 100, 3);
+					fire_ball(GF_FIRE, dir, 200, 3);
 					break;
 				}
 
 				case 4:
 				{
-					fire_ball(GF_COLD, dir, 80, 3);
+					fire_ball(GF_COLD, dir, 200, 3);
 					break;
 				}
 
 				default:
 				{
-					fire_ball(GF_POIS, dir, 60, 3);
+					fire_ball(GF_POIS, dir, 200, 3);
 					break;
 				}
 			}
@@ -2189,7 +2213,19 @@ void do_cmd_aim_wand(void)
 
 		case SV_WAND_ANNIHILATION:
 		{
-			if (drain_life(dir, 125)) ident = TRUE;
+			if (drain_life(dir, 250)) ident = TRUE;
+			break;
+		}
+
+		case SV_WAND_PACIFY_MONSTER:
+		{
+			if (pacify_monster(dir, 15)) ident = TRUE;
+			break;
+		}
+
+		case SV_WAND_BLIND_MONSTER:
+		{
+			if (blind_monster(dir, 15)) ident = TRUE;
 			break;
 		}
 	}
@@ -2375,6 +2411,7 @@ void do_cmd_zap_rod(void)
 		{
 			if (detect_doors()) ident = TRUE;
 			if (detect_stairs()) ident = TRUE;
+			if (detect_traps()) ident = TRUE;
 			o_ptr->pval = 70;
 			break;
 		}
@@ -2382,7 +2419,12 @@ void do_cmd_zap_rod(void)
 		case SV_ROD_IDENTIFY:
 		{
 			ident = TRUE;
-			if (!ident_spell()) use_charge = FALSE;
+			if (randint(20)==10)
+			{
+				if (!identify_fully()) use_charge = FALSE;
+			}
+			else if (!ident_spell()) use_charge = FALSE;
+			
 			o_ptr->pval = 10;
 			break;
 		}
@@ -2433,15 +2475,19 @@ void do_cmd_zap_rod(void)
 			if (set_confused(0)) ident = TRUE;
 			if (set_stun(0)) ident = TRUE;
 			if (set_cut(0)) ident = TRUE;
+			if (hp_player(randint(60)+60)) ident = TRUE;
 			o_ptr->pval = 999;
 			break;
 		}
 
 		case SV_ROD_HEALING:
 		{
-			if (hp_player(500)) ident = TRUE;
+			if (hp_player(1000)) ident = TRUE;
 			if (set_stun(0)) ident = TRUE;
 			if (set_cut(0)) ident = TRUE;
+			if (set_blind(0)) ident = TRUE;
+			if (set_poisoned(0)) ident = TRUE;
+			if (set_confused(0)) ident = TRUE;
 			o_ptr->pval = 999;
 			break;
 		}
@@ -2455,6 +2501,12 @@ void do_cmd_zap_rod(void)
 			if (do_res_stat(A_DEX)) ident = TRUE;
 			if (do_res_stat(A_CON)) ident = TRUE;
 			if (do_res_stat(A_CHR)) ident = TRUE;
+			if (hp_player(5000)) ident = TRUE;
+			if (set_stun(0)) ident = TRUE;
+			if (set_cut(0)) ident = TRUE;
+			if (set_blind(0)) ident = TRUE;
+			if (set_poisoned(0)) ident = TRUE;
+			if (set_confused(0)) ident = TRUE;
 			o_ptr->pval = 999;
 			break;
 		}
@@ -2463,7 +2515,7 @@ void do_cmd_zap_rod(void)
 		{
 			if (!p_ptr->fast)
 			{
-				if (set_fast(randint(30) + 15)) ident = TRUE;
+				if (set_fast(randint(30) + 30)) ident = TRUE;
 			}
 			else
 			{
@@ -2512,7 +2564,7 @@ void do_cmd_zap_rod(void)
 
 		case SV_ROD_DRAIN_LIFE:
 		{
-			if (drain_life(dir, 75)) ident = TRUE;
+			if (drain_life(dir, 150)) ident = TRUE;
 			o_ptr->pval = 23;
 			break;
 		}
@@ -2526,7 +2578,7 @@ void do_cmd_zap_rod(void)
 
 		case SV_ROD_ACID_BOLT:
 		{
-			fire_bolt_or_beam(10, GF_ACID, dir, damroll(6, 8));
+			fire_bolt_or_beam(10, GF_ACID, dir, damroll(12, 8));
 			ident = TRUE;
 			o_ptr->pval = 12;
 			break;
@@ -2534,7 +2586,7 @@ void do_cmd_zap_rod(void)
 
 		case SV_ROD_ELEC_BOLT:
 		{
-			fire_bolt_or_beam(10, GF_ELEC, dir, damroll(3, 8));
+			fire_bolt_or_beam(10, GF_ELEC, dir, damroll(6, 8));
 			ident = TRUE;
 			o_ptr->pval = 11;
 			break;
@@ -2542,7 +2594,7 @@ void do_cmd_zap_rod(void)
 
 		case SV_ROD_FIRE_BOLT:
 		{
-			fire_bolt_or_beam(10, GF_FIRE, dir, damroll(8, 8));
+			fire_bolt_or_beam(10, GF_FIRE, dir, damroll(16, 8));
 			ident = TRUE;
 			o_ptr->pval = 15;
 			break;
@@ -2550,7 +2602,7 @@ void do_cmd_zap_rod(void)
 
 		case SV_ROD_COLD_BOLT:
 		{
-			fire_bolt_or_beam(10, GF_COLD, dir, damroll(5, 8));
+			fire_bolt_or_beam(10, GF_COLD, dir, damroll(10, 8));
 			ident = TRUE;
 			o_ptr->pval = 13;
 			break;
@@ -2558,7 +2610,7 @@ void do_cmd_zap_rod(void)
 
 		case SV_ROD_ACID_BALL:
 		{
-			fire_ball(GF_ACID, dir, 60, 2);
+			fire_ball(GF_ACID, dir, 120, 2);
 			ident = TRUE;
 			o_ptr->pval = 27;
 			break;
@@ -2566,7 +2618,7 @@ void do_cmd_zap_rod(void)
 
 		case SV_ROD_ELEC_BALL:
 		{
-			fire_ball(GF_ELEC, dir, 32, 2);
+			fire_ball(GF_ELEC, dir, 75, 2);
 			ident = TRUE;
 			o_ptr->pval = 23;
 			break;
@@ -2574,7 +2626,7 @@ void do_cmd_zap_rod(void)
 
 		case SV_ROD_FIRE_BALL:
 		{
-			fire_ball(GF_FIRE, dir, 72, 2);
+			fire_ball(GF_FIRE, dir, 150, 2);
 			ident = TRUE;
 			o_ptr->pval = 30;
 			break;
@@ -2582,7 +2634,7 @@ void do_cmd_zap_rod(void)
 
 		case SV_ROD_COLD_BALL:
 		{
-			fire_ball(GF_COLD, dir, 48, 2);
+			fire_ball(GF_COLD, dir, 100, 2);
 			ident = TRUE;
 			o_ptr->pval = 25;
 			break;
@@ -2732,8 +2784,9 @@ static void ring_of_power(int dir)
 }
 
 
+
 /*
- * Enchant some (non-magical) bolts
+ * Enchant some bolts
  */
 static bool brand_bolts(void)
 {
@@ -2760,22 +2813,6 @@ static bool brand_bolts(void)
 	else
 	{
 		o_ptr = &o_list[0 - item];
-	}
-
-	/*
-	 * Don't enchant artifacts, ego-items, cursed or broken items
-	 */
-	if (artifact_p(o_ptr) || ego_item_p(o_ptr) ||
-	    cursed_p(o_ptr) || broken_p(o_ptr))
-	{
-		/* Flush */
-		if (flush_failure) flush();
-
-		/* Fail */
-		msg_print("The fiery enchantment failed.");
-
-		/* Notice */
-		return (TRUE);
 	}
 
 	/* Message */
@@ -3002,6 +3039,22 @@ void do_cmd_activate(void)
 				break;
 			}
 
+                        case ACT_BERSEKER:
+                        {
+                                if (!p_ptr->fast)
+                                {
+                         	       (void)set_fast(randint(50) + 50);
+	                        }
+	                        else
+	                        {
+	                               (void)set_fast(p_ptr->fast + 5);
+	                        }
+	                        hp_player(30);
+	                        set_afraid(0);
+	                        set_shero(p_ptr->shero + randint(50) + 50);
+	                        break;
+                        }
+
 			case ACT_PHASE:
 			{
 				msg_format("Your %s twists space around you...", o_name);
@@ -3011,7 +3064,7 @@ void do_cmd_activate(void)
 
 			case ACT_GENOCIDE:
 			{
-				msg_format("Your % glows deep blue...", o_name);
+				msg_format("Your %s glows deep blue...", o_name);
 				(void)genocide();
 				break;
 			}
@@ -3231,16 +3284,7 @@ void do_cmd_activate(void)
 			case ACT_WOR:
 			{
 				msg_format("Your %s glows soft white...", o_name);
-				if (p_ptr->word_recall == 0)
-				{
-					p_ptr->word_recall = randint(20) + 15;
-					msg_print("The air about you becomes charged...");
-				}
-				else
-				{
-					p_ptr->word_recall = 0;
-					msg_print("A tension leaves the air around you...");
-				}
+				set_recall();
 				break;
 			}
 
@@ -3280,6 +3324,29 @@ void do_cmd_activate(void)
 				(void)brand_bolts();
 				break;
 			}
+
+			case ACT_FEAR_MON:
+			{
+				msg_print("You wind a mighty blast; your enemies tremble!");
+				(void)fear_monster(dir, (3 * p_ptr->lev / 2) + 10);
+				break;
+			}
+
+			case ACT_DISP_MON:
+			{
+				msg_print("You exterminate small life.");
+				(void)dispel_monsters(4);
+				break;
+			}
+
+			case ACT_MANA_BOLT:
+			{
+
+				msg_format("The %s pulsates with raw mana...", o_name);
+				if (!get_aim_dir(&dir)) return;
+				fire_bolt(GF_MANA, dir, 120);
+				break;
+			}
 		}
 
 		/* Set the recharge time */
@@ -3308,7 +3375,7 @@ void do_cmd_activate(void)
 			case SV_DRAGON_BLUE:
 			{
 				msg_print("You breathe lightning.");
-				fire_ball(GF_ELEC, dir, 100, 2);
+				fire_ball(GF_ELEC, dir, 500, 4);
 				o_ptr->timeout = rand_int(450) + 450;
 				break;
 			}
@@ -3316,7 +3383,7 @@ void do_cmd_activate(void)
 			case SV_DRAGON_WHITE:
 			{
 				msg_print("You breathe frost.");
-				fire_ball(GF_COLD, dir, 110, 2);
+				fire_ball(GF_COLD, dir, 550, 4);
 				o_ptr->timeout = rand_int(450) + 450;
 				break;
 			}
@@ -3324,7 +3391,7 @@ void do_cmd_activate(void)
 			case SV_DRAGON_BLACK:
 			{
 				msg_print("You breathe acid.");
-				fire_ball(GF_ACID, dir, 130, 2);
+				fire_ball(GF_ACID, dir, 650, 4);
 				o_ptr->timeout = rand_int(450) + 450;
 				break;
 			}
@@ -3332,7 +3399,7 @@ void do_cmd_activate(void)
 			case SV_DRAGON_GREEN:
 			{
 				msg_print("You breathe poison gas.");
-				fire_ball(GF_POIS, dir, 150, 2);
+				fire_ball(GF_POIS, dir, 750, 4);
 				o_ptr->timeout = rand_int(450) + 450;
 				break;
 			}
@@ -3340,7 +3407,7 @@ void do_cmd_activate(void)
 			case SV_DRAGON_RED:
 			{
 				msg_print("You breathe fire.");
-				fire_ball(GF_FIRE, dir, 200, 2);
+				fire_ball(GF_FIRE, dir, 1000, 4);
 				o_ptr->timeout = rand_int(450) + 450;
 				break;
 			}
@@ -3357,7 +3424,7 @@ void do_cmd_activate(void)
 				           ((chance == 2) ? GF_COLD :
 				            ((chance == 3) ? GF_ACID :
 				             ((chance == 4) ? GF_POIS : GF_FIRE)))),
-				          dir, 250, 2);
+				          dir, 1250, 4);
 				o_ptr->timeout = rand_int(225) + 225;
 				break;
 			}
@@ -3365,7 +3432,7 @@ void do_cmd_activate(void)
 			case SV_DRAGON_BRONZE:
 			{
 				msg_print("You breathe confusion.");
-				fire_ball(GF_CONFUSION, dir, 120, 2);
+				fire_ball(GF_CONFUSION, dir, 600, 4);
 				o_ptr->timeout = rand_int(450) + 450;
 				break;
 			}
@@ -3373,7 +3440,7 @@ void do_cmd_activate(void)
 			case SV_DRAGON_GOLD:
 			{
 				msg_print("You breathe sound.");
-				fire_ball(GF_SOUND, dir, 130, 2);
+				fire_ball(GF_SOUND, dir, 650, 4);
 				o_ptr->timeout = rand_int(450) + 450;
 				break;
 			}
@@ -3384,7 +3451,7 @@ void do_cmd_activate(void)
 				msg_format("You breathe %s.",
 				           ((chance == 1 ? "chaos" : "disenchantment")));
 				fire_ball((chance == 1 ? GF_CHAOS : GF_DISENCHANT),
-				          dir, 220, 2);
+				          dir, 1100, 4);
 				o_ptr->timeout = rand_int(300) + 300;
 				break;
 			}
@@ -3395,7 +3462,7 @@ void do_cmd_activate(void)
 				msg_format("You breathe %s.",
 				           ((chance == 1 ? "sound" : "shards")));
 				fire_ball((chance == 1 ? GF_SOUND : GF_SHARD),
-				          dir, 230, 2);
+				          dir, 1150, 4);
 				o_ptr->timeout = rand_int(300) + 300;
 				break;
 			}
@@ -3410,7 +3477,7 @@ void do_cmd_activate(void)
 				fire_ball(((chance == 1) ? GF_CHAOS :
 				           ((chance == 2) ? GF_DISENCHANT :
 				            ((chance == 3) ? GF_SOUND : GF_SHARD))),
-				          dir, 250, 2);
+				          dir, 1250, 4);
 				o_ptr->timeout = rand_int(300) + 300;
 				break;
 			}
@@ -3420,7 +3487,7 @@ void do_cmd_activate(void)
 				chance = rand_int(2);
 				msg_format("You breathe %s.",
 				           ((chance == 0 ? "light" : "darkness")));
-				fire_ball((chance == 0 ? GF_LITE : GF_DARK), dir, 200, 2);
+				fire_ball((chance == 0 ? GF_LITE : GF_DARK), dir, 1000, 5);
 				o_ptr->timeout = rand_int(300) + 300;
 				break;
 			}
@@ -3428,7 +3495,7 @@ void do_cmd_activate(void)
 			case SV_DRAGON_POWER:
 			{
 				msg_print("You breathe the elements.");
-				fire_ball(GF_MISSILE, dir, 300, 2);
+				fire_ball(GF_MISSILE, dir, 1500, 4);
 				o_ptr->timeout = rand_int(300) + 300;
 				break;
 			}

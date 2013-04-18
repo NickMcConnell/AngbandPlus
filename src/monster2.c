@@ -1023,6 +1023,9 @@ void update_mon(int m_idx, bool full)
 			/* Update health bar as needed */
 			if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
 
+			/* Update monster list window */
+			p_ptr->window |= (PW_M_LIST);
+
 			/* Hack -- Count "fresh" sightings */
 			if (l_ptr->r_sights < MAX_SHORT) l_ptr->r_sights++;
 
@@ -1045,6 +1048,9 @@ void update_mon(int m_idx, bool full)
 
 			/* Update health bar as needed */
 			if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
+
+			/* Update monster list window */
+			p_ptr->window |= (PW_M_LIST);
 
 			/* Disturb on disappearance */
 			if (disturb_move) disturb(1, 0);
@@ -1940,6 +1946,13 @@ static bool summon_specific_okay(int r_idx)
 			break;
 		}
 
+		case SUMMON_ANIMALS:
+		{
+			okay = ((r_ptr->flags3 & (RF3_ANIMAL)) &&
+			        !(r_ptr->flags1 & (RF1_UNIQUE)));
+			break;
+		}
+
 		case SUMMON_DRAGON:
 		{
 			okay = ((r_ptr->flags3 & (RF3_DRAGON)) &&
@@ -2153,8 +2166,8 @@ void message_pain(int m_idx, int dam)
 	percentage = (int)(tmp);
 
 
-	/* Jelly's, Mold's, Vortex's, Quthl's */
-	if (strchr("jmvQ", r_ptr->d_char))
+	/* Jelly's, Mold's, Vortex's, Quthl's, Mimic's */
+	if (strchr("jmvQ=/?(|$#", r_ptr->d_char))
 	{
 		if (percentage > 95)
 			msg_format("%^s barely notices.", m_name);

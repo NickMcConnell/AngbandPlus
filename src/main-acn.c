@@ -1197,7 +1197,7 @@ errr fd_write( int handle, const char *buf, huge nbytes )
 
 
 /* Seek in a file */
-errr fd_seek( int handle, long offset )
+errr fd_seek( int handle, huge offset )
 {
 	os_error *e;
 

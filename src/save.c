@@ -758,7 +758,9 @@ static void wr_monster(monster_type *m_ptr)
 	wr_byte(m_ptr->stunned);
 	wr_byte(m_ptr->confused);
 	wr_byte(m_ptr->monfear);
-	wr_byte(0);
+        wr_byte(m_ptr->monpois);
+        wr_byte(m_ptr->moncalm);
+        wr_byte(m_ptr->monblind);
 }
 
 
@@ -828,6 +830,8 @@ static void wr_xtra(int k_idx)
 
 	if (k_ptr->aware) tmp8u |= 0x01;
 	if (k_ptr->tried) tmp8u |= 0x02;
+	if (k_ptr->squelch) tmp8u |= 0x04;
+	if ((k_ptr->everseen) || (k_ptr->aware)) tmp8u |= 0x08;
 
 	wr_byte(tmp8u);
 }
@@ -1100,10 +1104,14 @@ static void wr_extra(void)
 	wr_byte(p_ptr->searching);
 	wr_byte(0);	/* oops */
 	wr_byte(0);	/* oops */
-	wr_byte(0);
+        wr_byte(0);
+
+	/* Squelch bytes */
+	for (i = 0; i < 24; i++) wr_byte(squelch_level[i]);
+	wr_byte(auto_destroy);
 
 	/* Future use */
-	for (i = 0; i < 10; i++) wr_u32b(0L);
+	for (i = 0; i < 15; i++) wr_byte(0);
 
 
 	/* Random artifact version */
@@ -1116,7 +1124,8 @@ static void wr_extra(void)
 	/* Ignore some flags */
 	wr_u32b(0L);	/* oops */
 	wr_u32b(0L);	/* oops */
-	wr_u32b(0L);	/* oops */
+	wr_u16b(0);	/* oops */
+        wr_s16b(avg_rating);
 
 
 	/* Write the "object seeds" */

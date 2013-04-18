@@ -328,6 +328,19 @@ static int remove_curse_aux(int all)
 		/* Uncurse the object */
 		uncurse_object(o_ptr);
 
+                /* jk - scrolls of *remove curse* have a 1 in (55-level chance to */
+                /* reverse the curse effects - a ring of damage(-15) {cursed} then */
+                /* becomes a ring of damage (+15) */
+                /* due to the nature of this procedure, it only works on cursed items */
+                /* ie you get only one chance! */
+        	if ((randint(55 - p_ptr->lev) == 1) && !artifact_p(o_ptr))
+	        {
+               	   if (o_ptr->to_a < 0) o_ptr->to_a = -o_ptr->to_a;
+               	   if (o_ptr->to_h < 0) o_ptr->to_h = -o_ptr->to_h;
+        	   if (o_ptr->to_d < 0) o_ptr->to_d = -o_ptr->to_d;
+	           if (o_ptr->pval < 0) o_ptr->pval = -o_ptr->pval;
+        	}
+
 		/* Recalculate the bonuses */
 		p_ptr->update |= (PU_BONUS);
 
@@ -467,6 +480,11 @@ void self_knowledge(void)
 	if (p_ptr->teleport)
 	{
 		info[i++] = "Your position is very uncertain.";
+	}
+
+	if (p_ptr->invisible)
+	{
+		info[i++] = "You are invisible.";
 	}
 
 	if (p_ptr->blessed)
@@ -679,6 +697,11 @@ void self_knowledge(void)
 		info[i++] = "Your charisma is sustained.";
 	}
 
+	if (p_ptr->notele)
+	{
+		info[i++] = "You cannot teleport.";
+	}
+
 	if (f1 & (TR1_STR))
 	{
 		info[i++] = "Your strength is affected by your equipment.";
@@ -724,6 +747,14 @@ void self_knowledge(void)
 	{
 		info[i++] = "Your speed is affected by your equipment.";
 	}
+	if (f3 & (TR3_MANA))
+	{
+		info[i++] = "Your mana is affected by your equipment.";
+	}
+	if (f3 & (TR3_LIFE))
+	{
+		info[i++] = "Your hit points are affected by your equipment.";
+	}
 	if (f1 & (TR1_BLOWS))
 	{
 		info[i++] = "Your attack speed is affected by your equipment.";
@@ -760,6 +791,18 @@ void self_knowledge(void)
 		if (f1 & (TR1_BRAND_COLD))
 		{
 			info[i++] = "Your weapon freezes your foes.";
+		}
+		if (f1 & (TR1_BRAND_POIS))
+		{
+			info[i++] = "Your weapon poisons your foes.";
+		}
+		if (f2 & (TR2_BRAND_LITE))
+		{
+			info[i++] = "Your weapon has the power of light.";
+		}
+		if (f1 & (TR1_VAMPIRIC))
+		{
+			info[i++] = "Your weapon drains life from your foes.";
 		}
 
 		/* Special "slay" flags */
@@ -1581,6 +1624,27 @@ static bool item_tester_hook_weapon(object_type *o_ptr)
 		}
 	}
 
+        /* jwk - some rings count also */
+        if (o_ptr->tval == TV_RING)
+        {
+                switch (o_ptr->sval)
+                {
+	                case SV_RING_DAMAGE:
+                        case SV_RING_ACCURACY:
+                        case SV_RING_SLAYING:
+                           return (TRUE);
+                }
+        }
+
+        if ((o_ptr->tval == TV_GLOVES) && (o_ptr->name2 == EGO_SLAYING)) 
+        {
+                return (TRUE);
+        }
+        
+        /* the two hard-hitting gloves */
+        if (o_ptr->name1 == ART_CAMBELEG) return (TRUE);
+        if (o_ptr->name1 == ART_FINGOLFIN) return (TRUE);
+
 	return (FALSE);
 }
 
@@ -1605,6 +1669,42 @@ static bool item_tester_hook_armour(object_type *o_ptr)
 			return (TRUE);
 		}
 	}
+
+        /* jwk - some other things count also */
+        if (o_ptr->tval == TV_RING)
+        {
+                switch (o_ptr->sval)
+                {
+	                case SV_RING_PROTECTION:
+	                case SV_RING_FLAMES:
+                        case SV_RING_ICE:
+                	case SV_RING_ACID:
+	                    return (TRUE);
+                }
+        }
+
+        if ((o_ptr->tval == TV_AMULET) && (o_ptr->sval == SV_AMULET_THE_MAGI))
+        {
+                return (TRUE);
+        }
+
+        /* Defender/Holy Avenger also has innate armour capabilities */
+        if ((o_ptr->name2 == EGO_HA) || (o_ptr->name2 == EGO_DF)) return (TRUE);
+
+        /* now for the artifacts which influence AC */
+        if (o_ptr->name1 == ART_ANGRIST) return (TRUE);
+        if (o_ptr->name1 == ART_ANDURIL) return (TRUE);
+        if (o_ptr->name1 == ART_DOOMCALLER) return (TRUE);
+        if (o_ptr->name1 == ART_TIL) return (TRUE);
+        if (o_ptr->name1 == ART_AEGLOS) return (TRUE);
+        if (o_ptr->name1 == ART_DURIN) return (TRUE);
+        if (o_ptr->name1 == ART_EONWE) return (TRUE);
+        if (o_ptr->name1 == ART_BALLI) return (TRUE);
+        if (o_ptr->name1 == ART_AVAVIR) return (TRUE);
+        if (o_ptr->name1 == ART_GROND) return (TRUE);
+        if (o_ptr->name1 == ART_FIRESTAR) return (TRUE);
+        if (o_ptr->name1 == ART_AULE) return (TRUE);
+        if (o_ptr->name1 == ART_TURMIL) return (TRUE);
 
 	return (FALSE);
 }
@@ -1817,6 +1917,20 @@ bool enchant_spell(int num_hit, int num_dam, int num_ac)
 		o_ptr = &o_list[0 - item];
 	}
 
+        /* jk - hack to prevent sv_scroll_star_enchant_weapon to enchant */
+        /* the to-hit of damage rings, or the to-dam of accuracy rings */
+        if (o_ptr->tval == TV_RING)
+        {
+                if ((num_hit > 0) && (o_ptr->sval == SV_RING_DAMAGE))
+                {
+	                num_hit=0;
+        }
+                if ((num_dam > 0) && (o_ptr->sval == SV_RING_ACCURACY))
+                {
+                        num_dam=0;
+                }
+        }
+
 
 	/* Description */
 	object_desc(o_name, o_ptr, FALSE, 0);
@@ -1854,6 +1968,7 @@ bool enchant_spell(int num_hit, int num_dam, int num_ac)
 bool ident_spell(void)
 {
 	int item;
+	int squelch=0;
 
 	object_type *o_ptr;
 
@@ -1890,6 +2005,10 @@ bool ident_spell(void)
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
 
+	/* Squelch it? */
+	if (item<INVEN_WIELD) 
+	  squelch=squelch_itemp(o_ptr, 0, 1);
+
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
@@ -1907,14 +2026,22 @@ bool ident_spell(void)
 	}
 	else if (item >= 0)
 	{
-		msg_format("In your pack: %s (%c).",
-		           o_name, index_to_label(item));
+		msg_format("In your pack: %s (%c).  %s",
+		           o_name, index_to_label(item),
+			   ((squelch==1) ? "(Squelched)" :
+			    ((squelch==-1) ? "(Squelch Failed)" : "")));
 	}
 	else
 	{
-		msg_format("On the ground: %s.",
-		           o_name);
+		msg_format("On the ground: %s.  %s",
+		           o_name,
+			   ((squelch==1) ? "(Squelched)" :
+			    ((squelch==-1) ? "(Squelch Failed)" : "")));
+		
 	}
+
+	/* Now squelch it if needed */
+	do_squelch_item(squelch, item, o_ptr);
 
 	/* Something happened */
 	return (TRUE);
@@ -1930,6 +2057,7 @@ bool ident_spell(void)
 bool identify_fully(void)
 {
 	int item;
+	int squelch=0;
 
 	object_type *o_ptr;
 
@@ -1963,6 +2091,10 @@ bool identify_fully(void)
 	object_aware(o_ptr);
 	object_known(o_ptr);
 
+	/* Squelch it? */
+	if (item<INVEN_WIELD) 
+	  squelch=squelch_itemp(o_ptr, 0, 1);
+
 	/* Mark the item as fully known */
 	o_ptr->ident |= (IDENT_MENTAL);
 
@@ -1989,17 +2121,28 @@ bool identify_fully(void)
 	}
 	else if (item >= 0)
 	{
-		msg_format("In your pack: %s (%c).",
-		           o_name, index_to_label(item));
+		msg_format("In your pack: %s (%c).  %s",
+		           o_name, index_to_label(item),
+			   ((squelch==1) ? "(Squelched)" :
+			    ((squelch==-1) ? "(Squelch Failed)" : "")));
 	}
 	else
 	{
-		msg_format("On the ground: %s.",
-		           o_name);
+		msg_format("On the ground: %s.  %s",
+		           o_name,
+			   ((squelch==1) ? "(Squelched)" :
+			    ((squelch==-1) ? "(Squelch Failed)" : "")));
+		
 	}
 
-	/* Describe it fully */
-	identify_fully_aux(o_ptr);
+	/* Now squelch it if needed */
+	if (squelch==1) {
+	  do_squelch_item(squelch, item, o_ptr);
+	} else {
+	  
+	  /* Describe it fully */
+	  identify_fully_aux(o_ptr);
+	}
 
 	/* Success */
 	return (TRUE);
@@ -2276,6 +2419,14 @@ bool dispel_undead(int dam)
 }
 
 /*
+ * Dispel animals
+ */
+bool dispel_animal(int dam)
+{
+	return (project_hack(GF_DISP_ANIMAL, dam));
+}
+
+/*
  * Dispel evil monsters
  */
 bool dispel_evil(int dam)
@@ -2325,6 +2476,13 @@ void aggravate_monsters(int who)
 			{
 				/* Wake up */
 				m_ptr->csleep = 0;
+				sleep = TRUE;
+			}
+			/* Anger */
+			if (m_ptr->moncalm)
+			{
+				/* Wake up */
+				m_ptr->moncalm = 0;
 				sleep = TRUE;
 			}
 		}
@@ -3415,6 +3573,18 @@ bool confuse_monster(int dir, int plev)
 {
 	int flg = PROJECT_STOP | PROJECT_KILL;
 	return (project_hook(GF_OLD_CONF, dir, plev, flg));
+}
+
+bool blind_monster(int dir, int plev)
+{
+	int flg = PROJECT_STOP | PROJECT_KILL;
+	return (project_hook(GF_OLD_BLIND, dir, plev, flg));
+}
+
+bool pacify_monster(int dir, int plev)
+{
+	int flg = PROJECT_STOP | PROJECT_KILL;
+	return (project_hook(GF_OLD_PACIFY, dir, plev, flg));
 }
 
 bool poly_monster(int dir)

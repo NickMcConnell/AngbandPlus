@@ -1,11 +1,13 @@
 # File: b_info.txt
 
+
 # This file is used to initialize the "lib/data/b_info.raw" file, which is
 # used to initialize the "shop owner" information for the Angband game.
 
 # Do not modify this file unless you know exactly what you are doing,
 # unless you wish to risk possible system crashes and broken savefiles.
 # After modifying this file, delete the "lib/data/b_info.raw" file.
+
 
 # Format:
 # N:store:owner idx:owner name
@@ -18,7 +20,7 @@
 
 # Version stamp (required)
 
-V:2.9.1
+V:2.9.2
 
 
 # General Store
@@ -29,7 +31,19 @@ I:0:200:175:108:4:12
 N:0:2:Snafu the Midget
 I:4:300:170:107:5:15
 N:0:3:Lyar-el the Comely
-I:2:400:165:107:6:18
+I:2:300:165:107:6:18
+N:0:4:Murazor the Peddler
+I:8:400:170:103:6:12
+N:0:5:Barliman Butterbur
+I:3:200:170:108:5:15
+N:0:6:Carlos the Chopper
+I:0:200:175:108:4:12
+N:0:7:Ricardo the Rich
+I:4:1500:170:107:5:15
+N:0:8:Magnorx the Mettlesome
+I:2:300:165:107:4:12
+N:0:9:Magd the Ruthless
+I:0:200:100:100:4:12
 
 # Armoury
 N:1:0:Kon-Dar the Ugly
@@ -40,6 +54,18 @@ N:1:2:Decado the Handsome
 I:8:25000:200:112:4:10
 N:1:3:Mauglin the Grumpy
 I:5:30000:200:112:4:5
+N:1:4:Herman Hard-Helmet
+I:8:50000:200:112:4:10
+N:1:5:Mahalia the Abusive
+I:6:70000:200:112:4:5
+N:1:6:Karl No-Beard
+I:3:50000:210:115:5:7
+N:1:7:Alavella Iron-Lady
+I:5:20000:200:113:5:7
+N:1:8:Vivirion True-Forger
+I:4:15000:190:112:5:8
+N:1:9:Sir Roland Shieldmaster
+I:8:90000:145:106:4:10
 
 # Weapon Smith
 N:2:0:Ithyl-Mak the Beastly
@@ -50,16 +76,40 @@ N:2:2:Tarl Beast-Master
 I:3:25000:190:115:5:7
 N:2:3:Oglign Dragon-Slayer
 I:5:30000:195:112:4:8
+N:2:4:Jarl the Generous
+I:1:20000:165:105:5:9
+N:2:5:Deth Stryke the Swordman
+I:0:35000:200:125:4:6
+N:2:6:William Wrathful
+I:0:7500:140:115:3:5
+N:2:7:Mortu the Black Knight
+I:0:20000:142:102:2:4
+N:2:8:Alorra the Elven Archer
+I:2:20000:172:112:6:8
+N:2:9:Teki the War Monk
+I:0:60000:224:110:3:6
 
 # Temple
 N:3:0:Ludwig the Humble
-I:0:15000:175:109:6:15
+I:0:5000:175:109:6:15
 N:3:1:Gunnar the Paladin
-I:0:20000:185:110:5:23
+I:0:10000:185:110:5:23
 N:3:2:Delilah the Pure
 I:2:25000:180:107:6:20
 N:3:3:Bosk the Wise
 I:5:30000:185:109:5:15
+N:3:4:Sir Parsival the Pure
+I:7:75000:180:107:6:20
+N:3:5:Atal the Wise
+I:0:30000:185:109:5:15
+N:3:6:Decado the Handsome
+I:9:25000:200:112:4:10
+N:3:7:Serena the Healer
+I:1:50000:185:109:5:15
+N:3:8:Amadeui the Aimable
+I:0:60000:175:109:6:15
+N:3:9:Murat the Morose
+I:0:70000:185:110:5:23
 
 # Alchemist
 N:4:0:Mauser the Chemist
@@ -70,26 +120,62 @@ N:4:2:Ga-nat the Greedy
 I:4:15000:200:116:6:9
 N:4:3:Vella the Slender
 I:0:15000:220:111:4:9
+N:4:4:Kakalrakakal
+I:4:35000:200:116:6:9
+N:4:5:Drako Fairdeal
+I:8:50000:220:190:6:16
+N:4:6:Dimbleby Disdain
+I:9:40000:175:110:5:11
+N:4:7:Fieriel the Unwise
+I:1:12500:180:110:6:9
+N:4:8:Oroglad the Thaumaturge
+I:4:15000:200:115:5:8
+N:4:9:Jal-Eth the Alchemist
+I:8:25000:220:111:4:9
 
 # Magic Shop
 N:5:0:Ariel the Sorceress
-I:1:15000:200:110:7:8
+I:1:20000:200:110:7:8
 N:5:1:Buggerby the Great
 I:4:20000:215:113:6:10
 N:5:2:Inglorian the Mage
-I:0:25000:200:110:7:10
+I:0:30000:200:110:7:10
 N:5:3:Luthien Starshine
 I:9:30000:175:110:5:11
+N:5:4:Rayashack the Necromancer
+I:1:50000:140:110:7:19
+N:5:5:Zaldron the Sage
+I:0:15000:175:108:4:12
+N:5:6:Furfoot Pobber
+I:3:20000:120:105:6:16
+N:5:7:Malleus the Mage
+I:2:65000:120:110:7:19
+N:5:8:Dry-Bones
+I:0:35000:140:105:6:12
+N:5:9:Aerie the Illusionist
+I:0:40000:200:110:7:10
 
 # Black Market
 N:6:0:Lo-Hak the Awful
-I:7:15000:250:150:10:5
+I:7:20000:250:150:10:5
 N:6:1:Histor the Goblin
-I:10:20000:250:150:10:5
+I:6:20000:250:150:10:5
 N:6:2:Durwin the Shifty
-I:6:25000:250:150:10:5
+I:0:30000:250:150:10:5
 N:6:3:Drago the Fair
 I:2:30000:250:150:10:5
+N:6:4:Xochinaggua
+I:4:10000:230:120:6:12
+N:6:5:Astor the Greedy
+I:5:30000:250:150:10:5
+N:6:6:Runt
+I:9:20000:250:150:10:5
+N:6:7:Tancred of the Axe
+I:0:25000:250:110:10:5
+N:6:8:Tom Bolgson
+I:0:25000:250:100:8:4
+N:6:9:Mystic X the Unknown
+I:2:150000:250:100:8:4
 
 # Home
 N:7:0:Your home

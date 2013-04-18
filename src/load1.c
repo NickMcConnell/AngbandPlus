@@ -1910,14 +1910,14 @@ static errr rd_dungeon_old(void)
 	/* Ignore illegal dungeons */
 	if ((ymax != DUNGEON_HGT) || (xmax != DUNGEON_WID))
 	{
-		note(format("Ignoring illegal dungeon size (%d,%d).", ymax, xmax));
+		note(format("Ignoring illegal dungeon size (%d,%d).", xmax, ymax));
 		return (0);
 	}
 
 	/* Ignore illegal dungeons */
 	if (!in_bounds(py, px))
 	{
-		note(format("Ignoring illegal player location (%d,%d).", py, px));
+		note(format("Ignoring illegal player location (%d,%d).", px, py));
 		return (1);
 	}
 

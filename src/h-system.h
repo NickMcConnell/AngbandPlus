@@ -21,6 +21,11 @@
 #include <ctype.h>
 #include <errno.h>
 
+#if defined(linux) || defined(win32)
+# define HAVE_LOCALE
+# include <locale.h>
+#endif /* linux or win32 */
+
 #if defined(NeXT)
 # include <libc.h>
 #else

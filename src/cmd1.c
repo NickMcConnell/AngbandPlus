@@ -10,6 +10,7 @@
 
 #include "angband.h"
 
+#define MAX_VAMPIRIC_DRAIN 100
 
 
 /*
@@ -75,7 +76,7 @@ sint critical_shot(int weight, int plus, int dam)
 	int i, k;
 
 	/* Extract "shot" power */
-	i = (weight + ((p_ptr->to_h + plus) * 5) + (p_ptr->lev * 3)); /*BHH*/
+	i = (weight + ((p_ptr->to_h + plus) * 4) + (p_ptr->lev * 2));
 
 	/* Critical hit */
 	if (randint(5000) <= i)
@@ -114,12 +115,72 @@ sint critical_norm(int weight, int plus, int dam)
 	int i, k;
 
 	/* Extract "blow" power */
-	i = (weight + ((p_ptr->to_h + plus) * 5) + (p_ptr->lev * 3)); /*BHH*/
+	i = (weight + ((p_ptr->to_h + plus) * 5) + (p_ptr->lev * 3));
+
+	/* ~ now apply class-dependant factor */
+
+	switch (p_ptr->pclass)
+	{
+		case CLASS_WARRIOR:
+			i = (300 * i) / 100;
+			break;
+		case CLASS_MAGE:
+			i = (75 * i) / 100;
+			break;
+		case CLASS_PRIEST:
+			i = (150 * i) / 100;			
+			break;
+		case CLASS_ROGUE:
+			i = (125 * i) / 100;
+			break;
+		case CLASS_RANGER:
+			i = (150 * i) / 100;
+			break;
+		case CLASS_PALADIN:
+			i = (225 * i) / 100;
+			break;
+	}
 
 	/* Chance */
 	if (randint(5000) <= i)
 	{
-		k = weight + randint(650);
+		switch (p_ptr->pclass)
+		{
+			case CLASS_WARRIOR:
+				/* ~ very good bonus, *very* dependant on weight
+				 # ~ (i'm writing this section for them)
+				 */
+				k = (p_ptr->lev *10) + (weight * 2) + randint(1000 + weight * 4);
+				break;
+			case CLASS_MAGE:
+				/* ~ mages don't need no steeenkin' crits!
+				 # ~ this is the same as in standard Angband.
+				 */
+				k = weight + randint(650);
+				break;
+			case CLASS_PRIEST:
+				/* ~ fair bonus, but quite dependant on weight since
+				 # ~ priests tend to use heavy weapons alot (maces, etc)
+				 */
+				k =( p_ptr->lev * 2) + (weight * 2) + randint(650);
+				break;
+			case CLASS_ROGUE:
+				/* ~ Okay bonus (light weapons fit the rogue's idiom more) */
+				k = (p_ptr->lev * 5) + weight + randint(650);
+				break;
+			case CLASS_RANGER:
+				/* ~ Again, okay bonus (but slightly better than the rogue's) */
+				k = (p_ptr->lev * 5) + weight + randint(650 + weight);
+				break;
+			case CLASS_PALADIN:
+				/* ~ Good, weight-dependant bonus */
+				k = (p_ptr->lev * 8) + (weight * 3) + randint(800 + weight * 2);
+				break;
+			/* ~ paranoia -- non-existant classes get no crits */
+			default:
+				k = 0;
+				break;
+		} /* ~ switch */
 
 		if (k < 400)
 		{
@@ -141,10 +202,30 @@ sint critical_norm(int weight, int plus, int dam)
 			msg_print("It was a *GREAT* hit!");
 			dam = 3 * dam + 20;
 		}
-		else
+		else if (k < 1700)
 		{
 			msg_print("It was a *SUPERB* hit!");
 			dam = ((7 * dam) / 2) + 25;
+		}
+		else if (k < 2500)
+		{
+			msg_print("It was a *TREMENDOUS* hit!");
+			dam = (5 * dam) + 30;
+		}
+		else if (k < 3000)
+		{
+			msg_print("It was an *INCREDIBLE* hit!");
+			dam = ((15 * dam) / 2) + 35;
+		}
+		else if (k < 3700)
+		{
+			msg_print("It was an *UNBELIEVABLE* hit!");
+			dam = (10 * dam) + 45;
+		}
+		else
+		{ /* ~ this one may even be too powerful, but it's *rare* */
+			msg_print("It was an *EARTH-SHATTERING* hit!");
+			dam = (15 * dam) + 50;
 		}
 	}
 
@@ -185,7 +266,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 		case TV_SWORD:
 		case TV_DIGGING:
 		{
-			/* Slay Animal */	/*BHH*/
+			/* Slay Animal */
 			if ((f1 & (TR1_SLAY_ANIMAL)) &&
 			    (r_ptr->flags3 & (RF3_ANIMAL)))
 			{
@@ -294,7 +375,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 			}
 
 
-			/* Brand (Acid) */		/*BHH*/
+			/* Brand (Acid) */
 			if (f1 & (TR1_BRAND_ACID))
 			{
 				/* Notice immunity */
@@ -306,10 +387,20 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 					}
 				}
 
+				/* Notice susceptibility */
+				else if (r_ptr->flags3 & (RF3_HURT_ACID))
+				{
+					if (m_ptr->ml)
+					{
+						l_ptr->r_flags3 |= (RF3_HURT_ACID);
+					}
+					if (mult < 6) mult = 6;
+				}
+
 				/* Otherwise, take the damage */
 				else
 				{
-					if (mult < 4) mult = 4;
+					if (mult < 5) mult = 5;
 				}
 			}
 
@@ -325,10 +416,20 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 					}
 				}
 
+				/* Notice susceptibility */
+				else if (r_ptr->flags3 & (RF3_HURT_ELEC))
+				{
+					if (m_ptr->ml)
+					{
+						l_ptr->r_flags3 |= (RF3_HURT_ELEC);
+					}
+					if (mult < 6) mult = 6;
+				}
+
 				/* Otherwise, take the damage */
 				else
 				{
-					if (mult < 4) mult = 4;
+					if (mult < 3) mult = 3;
 				}
 			}
 
@@ -344,10 +445,20 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 					}
 				}
 
+				/* Notice susceptibility */
+				else if (r_ptr->flags3 & (RF3_HURT_FIRE))
+				{
+					if (m_ptr->ml)
+					{
+						l_ptr->r_flags3 |= (RF3_HURT_FIRE);
+					}
+					if (mult < 6) mult = 6;
+				}
+
 				/* Otherwise, take the damage */
 				else
 				{
-					if (mult < 4) mult = 4;
+					if (mult < 3) mult = 3;
 				}
 			}
 
@@ -363,10 +474,49 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 					}
 				}
 
+				/* Notice susceptibility */
+				else if (r_ptr->flags3 & (RF3_HURT_COLD))
+				{
+					if (m_ptr->ml)
+					{
+						l_ptr->r_flags3 |= (RF3_HURT_COLD);
+					}
+					if (mult < 6) mult = 6;
+				}
+
 				/* Otherwise, take the damage */
 				else
 				{
-					if (mult < 4) mult = 4;
+					if (mult < 3) mult = 3;
+				}
+			}
+
+			/* Brand (Poison) */
+			if (f1 & (TR1_BRAND_POIS))
+			{
+				/* Notice immunity */
+				if (r_ptr->flags3 & (RF3_IM_POIS))
+				{
+					if (m_ptr->ml)
+					{
+						l_ptr->r_flags3 |= (RF3_IM_POIS);
+					}
+				}
+				
+                                /* Notice susceptibility */
+				else if (r_ptr->flags3 & (RF3_HURT_POIS))
+				{
+					if (m_ptr->ml)
+					{
+						l_ptr->r_flags3 |= (RF3_HURT_POIS);
+					}
+					if (mult < 6) mult = 4;
+				}
+
+				/* Otherwise, take the damage */
+				else
+				{
+					if (mult < 3) mult = 2;
 				}
 			}
 
@@ -377,6 +527,76 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 
 	/* Return the total damage */
 	return (tdam * mult);
+}
+
+/*
+ * Compute the "total damage" to a monster that resists a certain form
+ * of attack.
+ */
+s16b tot_dam_loss(object_type * o_ptr, int tdam, monster_type * m_ptr)
+{
+	int div = 1;
+
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	monster_lore *l_ptr = &l_list[m_ptr->r_idx];
+
+	/* Some "weapons" and "ammo" can do less damage */
+	switch (o_ptr->tval)
+	{
+	case TV_SWORD:
+		{
+			if (r_ptr->flags2 & (RF2_RES_SLASH))
+			{
+				div = 2;
+				if (m_ptr->ml)
+					l_ptr->r_flags2 |= (RF2_RES_SLASH);
+			}
+			if (r_ptr->flags2 & (RF2_IM_SLASH))
+			{
+				div = 6;
+				if (m_ptr->ml)
+					l_ptr->r_flags2 |= (RF2_IM_SLASH);
+			}
+			break;
+		}
+	case TV_HAFTED:
+	case TV_DIGGING:
+		{
+			if (r_ptr->flags2 & (RF2_RES_BASH))
+			{
+				div = 2;
+				if (m_ptr->ml)
+					l_ptr->r_flags2 |= (RF2_RES_BASH);
+			}
+			if (r_ptr->flags2 & (RF2_IM_BASH))
+			{
+				div = 6;
+				if (m_ptr->ml)
+					l_ptr->r_flags2 |= (RF2_IM_BASH);
+			}
+			break;
+		}
+	case TV_POLEARM:
+		{
+			if (r_ptr->flags2 & (RF2_RES_STAB))
+			{
+				div = 2;
+				if (m_ptr->ml)
+					l_ptr->r_flags2 |= (RF2_RES_STAB);
+			}
+			if (r_ptr->flags2 & (RF2_IM_STAB))
+			{
+				div = 6;
+				if (m_ptr->ml)
+					l_ptr->r_flags2 |= (RF2_IM_STAB);
+			}
+			break;
+		}
+	}
+
+
+	/* Return the total damage */
+	return (tdam / div);
 }
 
 
@@ -550,6 +770,9 @@ void py_pickup(int pickup)
 
 	char o_name[80];
 
+	bool pickup_query = FALSE;
+	bool heavy = FALSE;
+
 #ifdef ALLOW_EASY_FLOOR
 
 	int last_o_idx = 0;
@@ -559,6 +782,9 @@ void py_pickup(int pickup)
 
 #endif /* ALLOW_EASY_FLOOR */
 
+	/* Automatically destroy squelched items in pile if necessary */
+	if (auto_destroy==1)
+	  do_squelch_pile(py, px);
 
 	/* Scan the pile of objects */
 	for (this_o_idx = cave_o_idx[py][px]; this_o_idx; this_o_idx = next_o_idx)
@@ -574,6 +800,13 @@ void py_pickup(int pickup)
 
 		/* Hack -- disturb */
 		disturb(0, 0);
+
+		/* End loop if squelched stuff reached */
+		if (k_info[o_ptr->k_idx].squelch & k_info[o_ptr->k_idx].aware)
+		{
+		        next_o_idx = 0;
+			continue;
+		}
 
 		/* Pick up gold */
 		if (o_ptr->tval == TV_GOLD)
@@ -608,6 +841,40 @@ void py_pickup(int pickup)
 			continue;
 		}
 
+		/* Query before picking up */
+		if (carry_query_flag) pickup_query = TRUE;
+
+		/* Query if object is heavy */
+		if (carry_heavy_query)
+		{
+			int i, j;
+			int old_enc = 0;
+			int new_enc = 0;
+
+			/* Extract the "weight limit" (in tenth pounds) */
+			i = adj_str_wgt[p_ptr->stat_ind[A_STR]] * 100;
+
+			/* Calculate current encumbarance */
+			j = p_ptr->total_weight;
+
+			/* Apply encumbarance from weight */
+			if (j > i/2) old_enc = ((j - (i/2)) / (i / 10));
+
+			/* Increase the weight, recalculate encumbarance */
+			j += (o_ptr->number * o_ptr->weight);
+
+			/* Apply encumbarance from weight */
+			if (j > i/2) new_enc = ((j - (i/2)) / (i / 10));
+
+			/* Should we query? */
+			if (new_enc>old_enc)
+			{
+				pickup_query = TRUE;
+				heavy = TRUE;
+			}
+		}
+
+
 #ifdef ALLOW_EASY_FLOOR
 
 		/* Easy Floor */
@@ -617,7 +884,7 @@ void py_pickup(int pickup)
 			if (pickup && inven_carry_okay(o_ptr))
 			{
 				/* Pick up if allowed */
-				if (!carry_query_flag)
+				if (!pickup_query)
 				{
 					/* Pick up the object */
 					py_pickup_aux(this_o_idx);
@@ -669,10 +936,11 @@ void py_pickup(int pickup)
 		}
 
 		/* Query before picking up */
-		if (carry_query_flag)
+		if (pickup_query)
 		{
 			char out_val[160];
-			sprintf(out_val, "Pick up %s? ", o_name);
+			if (!heavy) sprintf(out_val, "Pick up %s? ", o_name);
+			else sprintf (out_val, "Pick up %s (heavy)? ", o_name);
 			if (!get_check(out_val)) continue;
 		}
 
@@ -1076,11 +1344,19 @@ void py_attack(int y, int x)
 
 	object_type *o_ptr;
 
+	int  drain_left = MAX_VAMPIRIC_DRAIN;
+	int  drain_result = 0, drain_heal = 0;
+	bool drain_msg = TRUE;
+
+	u32b f1, f2, f3; /* A massive hack -- life-draining weapons */
+
 	char m_name[80];
 
 	bool fear = FALSE;
 
 	bool do_quake = FALSE;
+	bool do_pois = FALSE;
+	bool do_blind = FALSE;
 
 
 	/* Get the monster */
@@ -1122,6 +1398,8 @@ void py_attack(int y, int x)
 	/* Get the weapon */
 	o_ptr = &inventory[INVEN_WIELD];
 
+	object_flags(o_ptr, &f1, &f2, &f3);
+
 	/* Calculate the "attack quality" */
 	bonus = p_ptr->to_h + o_ptr->to_h;
 	chance = (p_ptr->skill_thn + (bonus * BTH_PLUS_ADJ));
@@ -1139,6 +1417,21 @@ void py_attack(int y, int x)
 			/* Hack -- bare hands do one damage */
 			k = 1;
 
+			/* Vampiric drain */
+			if ((f1 & TR1_VAMPIRIC))
+			{
+				if (monster_living(r_ptr))
+					drain_result = m_ptr->hp;
+				else
+					drain_result = 0;
+			}
+
+                        /* Poison brand */
+			if (f1 & TR1_BRAND_POIS) do_pois = TRUE;
+
+                        /* Poison brand */
+			if (f2 & TR2_BRAND_LITE) do_blind = TRUE;
+
 			/* Handle normal weapon */
 			if (o_ptr->k_idx)
 			{
@@ -1152,10 +1445,17 @@ void py_attack(int y, int x)
 			/* Apply the player damage bonuses */
 			k += p_ptr->to_d;
 
+                        /* Penalty for could-2H when wearing a shield */
+                        if ((f1 & TR1_COULD2H) && inventory[INVEN_ARM].k_idx)
+                             k /= 2;
+
+                        /* Apply the loss due to monsters resisting */
+			k = tot_dam_loss(o_ptr, k, m_ptr);
+
 			/* No negative damage */
 			if (k < 0) k = 0;
 
-			/* Complex message */ /*BHH*/
+			/* Complex message */
 			
 			
 				msg_format("You do %d (out of %d) damage.", k, m_ptr->hp);
@@ -1163,6 +1463,87 @@ void py_attack(int y, int x)
 
 			/* Damage, check for fear and death */
 			if (mon_take_hit(cave_m_idx[y][x], k, &fear, NULL)) break;
+
+			/* Are we draining it?  A little note: If the monster is
+			dead, the drain does not work... */
+
+			if (drain_result)
+			{
+				drain_result -= m_ptr->hp;  /* Calculate the difference */
+
+				if (drain_result > 0) /* Did we really hurt it? */
+				{
+					drain_heal = damroll(4,(drain_result / 6));
+
+					if (cheat_xtra)
+					{
+						msg_format("Draining left: %d", drain_left);
+					}
+
+					if (drain_left)
+					{
+						if (drain_heal < drain_left)
+						{
+							drain_left -= drain_heal;
+						}
+						else
+						{
+							drain_heal = drain_left;
+							drain_left = 0;
+						}
+
+						if (drain_msg)
+						{
+							msg_format("Your weapon drains life from %s!", m_name);
+							drain_msg = FALSE;
+						}
+
+						hp_player(drain_heal);
+						/* We get to keep some of it! */
+					}
+				}
+			}
+
+
+                        /* Poison attack */
+
+		        if (do_pois && ((k + p_ptr->to_d) < m_ptr->hp) && 
+		           !(r_ptr->flags3 & RF3_IM_POIS))
+			{
+			    if (p_ptr->lev > randint(r_ptr->level / 2))
+			    {
+				if (m_ptr->monpois)
+                                {
+					msg_format("%^s is more poisoned.", m_name);
+                                }
+				else
+                                {
+					msg_format("%^s is poisoned.", m_name);
+				}
+                                m_ptr->monpois += (randint(10) + k / 10) > 200 ?
+							    200 : randint(10 + k / 10);
+			    }
+			}
+
+                        /* Blindness attack */
+
+		        if (do_blind && ((k + p_ptr->to_d) < m_ptr->hp) && 
+		           !(r_ptr->flags3 & RF3_NO_BLIND))
+			{
+			    if (p_ptr->lev > randint(r_ptr->level / 2))
+			    {
+				if (m_ptr->monblind)
+                                {
+					msg_format("%^s is more blinded.", m_name);
+                                }
+				else
+                                {
+					msg_format("%^s is blinded.", m_name);
+				}
+                                m_ptr->monblind += (randint(10) + k / 15) > 200 ?
+							    200 : randint(10 + k / 15);
+			    }
+			}
 
 			/* Confusion attack */
 			if (p_ptr->confusing)

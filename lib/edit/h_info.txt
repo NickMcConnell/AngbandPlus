@@ -18,9 +18,9 @@
 #   Hobbit        --> 10 --> 11 -->  3 --> 50 --> 51 --> 52 --> 53
 #   Gnome         --> 13 --> 14 -->  3 --> 50 --> 51 --> 52 --> 53
 #   Dwarf         --> 16 --> 17 --> 18 --> 57 --> 58 --> 59 --> 60 --> 61
-#   PowPlayer     --> 19 --> 20 -->  2 -->  3 --> 50 --> 51 --> 52 --> 53
+#   Half-Orc      --> 19 --> 20 -->  2 -->  3 --> 50 --> 51 --> 52 --> 53
 #   Half-Troll    --> 21 --> 22 --> 62 --> 63 --> 64 --> 65 --> 66
-#   Snip          --> 23 --> 24 --> 25 --> 26 --> 67 --> 68 --> 69
+#   Kobold        --> 23 --> 24 --> 67 --> 68 --> 69
 
 # XXX XXX XXX This table *must* be correct or drastic errors may occur!
 
@@ -29,7 +29,7 @@
 
 # Version stamp (required)
 
-V:2.9.1
+V:2.9.2
 
 
 N:1:2:10:25
@@ -183,17 +183,17 @@ N:20:2:100:50
 D:You are the adopted child 
 
 N:21:22:30:20
-D:Your mother was a ANGEL 
+D:Your mother was a Stone-Troll 
 N:21:22:60:25
-D:Your father was a S.E.A.L. 
+D:Your father was a Stone-Troll 
 N:21:22:75:30
-D:Your mother was a N.A.T.O. 
+D:Your mother was a Cave-Troll 
 N:21:22:90:35
-D:Your father was a O.N.U. 
+D:Your father was a Cave-Troll 
 N:21:22:95:40
-D:Your mother was a I.R.A. 
+D:Your mother was a Water-Troll 
 N:21:22:100:45
-D:Your father was a Micro$oft's 
+D:Your father was a Water-Troll 
 
 N:22:62:5:60
 D:Cook.  
@@ -204,43 +204,19 @@ D:Shaman.
 N:22:62:100:80
 D:Clan Chief.  
 
-N:23:24:20:40
-D:You are the runt of 
-N:23:24:80:50
-D:You come from 
-N:23:24:100:55
-D:You are the largest of 
+N:23:24:65:20
+D:You are one of several eggs of a Snip 
+N:23:24:100:30
+D:You are the only egg of a SNIP 
 
-N:24:25:15:45
-D:a litter of 3 pups. 
-N:24:25:40:45
-D:a litter of 4 pups. 
-N:24:25:70:50
-D:a litter of 5 pups. 
-N:24:25:85:50
-D:a litter of 6 pups. 
-N:24:25:95:55
-D:a litter of 7 pups. 
-N:24:25:100:55
-D:a litter of 8 pups. 
-
-N:25:27:10:40
-D:Your father was a fungus farmer, 
-N:25:26:45:45
-D:Your father was a hunter, 
-N:25:26:70:50
-D:Your father was a warrior, 
-N:25:26:90:55
-D:Your father was a shaman, 
-N:25:26:100:60
-D:Your father was the Chief of his tribe, 
-
-N:26:67:20:45
-D:and your mother was a prisoner of war. 
-N:26:67:95:50
-D:and your mother was a cook. 
-N:26:67:100:55
-D:and your mother was a member of the Chief's harem. 
+N:24:67:60:60
+D:Warrior.  
+N:24:67:85:55
+D:Archer.  
+N:24:67:95:65
+D:Shaman.  
+N:24:67:100:80
+D:Clan Chief. 
 
 N:50:51:20:50
 D:You have dark brown eyes, 
@@ -371,29 +347,18 @@ D:scabby skin.
 N:66:0:100:50
 D:leprous skin.
 
-N:67:68:10:50
-D:You have black eyes, 
-N:67:68:40:50
-D:You have dark brown eyes, 
+N:67:68:45:50
+D:You have a reddish-brown fur, 
 N:67:68:80:50
-D:You have brown eyes, 
-N:67:68:99:50
-D:You have light brown eyes, 
-N:67:68:100:55
-D:You have glowing red eyes, 
+D:You have a dark brown fur, 
+N:67:68:100:50
+D:You have a rusty black fur, 
 
-N:68:69:40:50
-D:a dark brown fur, 
-N:68:69:60:50
-D:a reddish-brown fur,
-N:68:69:95:50
-D:an olive green fur, 
-N:68:69:100:55
-D:a deep blue fur, 
+N:68:69:100:50
+D:glowing red eyes, a rat-like tail 
 
-N:69:0:10:45
-D:and large, flat teeth.
-N:69:0:90:50
-D:and small, sharp teeth.
-N:69:0:100:55
-D:and large, sharp teeth.
+N:69:0:60:50
+D:and a pair of tiny tan-coloured horns.
+N:69:0:100:50
+D:and a pair of tiny whitish horns.
+

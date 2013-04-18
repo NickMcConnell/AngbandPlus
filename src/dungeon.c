@@ -107,7 +107,7 @@ static void sense_inventory(void)
 	char o_name[80];
 
 
-	/*** Check for "sensing" ***/			/*BHH*/
+	/*** Check for "sensing" ***/
 
 	/* No sensing when confused */
 	if (p_ptr->confused) return;
@@ -160,7 +160,7 @@ heavy = TRUE;
 		case CLASS_RANGER:
 		{
 			/* Very bad (light) sensing */
-			if (0 != rand_int(1L / (plev + 5))) return;
+			if (0 != rand_int(1L / (plev * plev + 5))) return;
 heavy = TRUE;
 			/* Done */
 			break;
@@ -186,6 +186,7 @@ heavy = TRUE;
 	for (i = 0; i < INVEN_TOTAL; i++)
 	{
 		bool okay = FALSE;
+		int squelch=0;
 
 		o_ptr = &inventory[i];
 
@@ -222,7 +223,8 @@ heavy = TRUE;
 		if (!okay) continue;
 
 		/* It already has a discount or special inscription */
-		if (o_ptr->discount > 0) continue;
+		if ((o_ptr->discount > 0) &&
+		    (o_ptr->discount != INSCRIP_INDESTRUCTIBLE)) continue;
 
 		/* It has already been sensed, do not sense it again */
 		if (o_ptr->ident & (IDENT_SENSE)) continue;
@@ -233,12 +235,21 @@ heavy = TRUE;
 		/* Occasional failure on inventory items */
 		if ((i < INVEN_WIELD) && (0 != rand_int(5))) continue;
 
+		/* Indestructible objects are either excellent or terrible */
+		if (o_ptr->discount == INSCRIP_INDESTRUCTIBLE)
+			heavy = TRUE;
+
 		/* Check for a feeling */
 		feel = (heavy ? value_check_aux1(o_ptr) : value_check_aux2(o_ptr));
 
 		/* Skip non-feelings */
 		if (!feel) continue;
 
+		/* Squelch it? */
+		if (i<INVEN_WIELD) {
+		  squelch = squelch_itemp(o_ptr, feel, 0);
+		}
+		
 		/* Stop everything */
 		if (disturb_minor) disturb(0, 0);
 
@@ -257,10 +268,12 @@ heavy = TRUE;
 		/* Message (inventory) */
 		else
 		{
-			msg_format("You feel the %s (%c) in your pack %s %s...",
+			msg_format("You feel the %s (%c) in your pack %s %s...  %s",
 			           o_name, index_to_label(i),
 			           ((o_ptr->number == 1) ? "is" : "are"),
-			           inscrip_text[feel - INSCRIP_NULL]);
+			           inscrip_text[feel - INSCRIP_NULL],
+				   ((squelch==1) ? "(Squelched)" :
+				    ((squelch==-1) ? "(Squelch Failed)" : "")));
 		}
 
 		/* Sense the object */
@@ -269,6 +282,8 @@ heavy = TRUE;
 		/* The object has been "sensed" */
 		o_ptr->ident |= (IDENT_SENSE);
 
+		/* Squelch it if necessary */
+		do_squelch_item(squelch, i, o_ptr);
 
 		/* Combine / Reorder the pack (later) */
 		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
@@ -420,6 +435,68 @@ static void regen_monsters(void)
 	}
 }
 
+/*
+ * If player has inscribed the object with "!!", let him know when it's 
+ * recharged. -LM-
+ */
+static void recharged_notice(object_type *o_ptr)
+{
+	char o_name[80];
+
+	cptr s;
+
+	/* No inscription */
+	if (!o_ptr->note) return;
+
+	/* Find a '!' */
+	s = strchr(quark_str(o_ptr->note), '!');
+
+	/* Process notification request. */
+	while (s)
+	{
+		/* Find another '!' */
+		if (s[1] == '!')
+		{
+			/* Describe (briefly) */
+			object_desc(o_name, o_ptr, FALSE, 0);
+
+			/* Notify the player */
+			if (o_ptr->number > 1) 
+				msg_format("Your %s have recharged.", o_name);
+			else msg_format("Your %s has recharged.", o_name);
+
+			/* Done. */
+			return;
+		}
+
+		/* Keep looking for '!'s */
+		s = strchr(s + 1, '!');
+	}
+}
+
+
+/* 
+ * Convert poison counter to damage, used below
+ */
+ 
+int poison_to_dam(int poison)
+{
+    if (poison < 11)
+       return 1;
+    else if (poison < 21)
+       return 2;
+    else if (poison < 30)
+       return 3;
+    else if (poison < 40)
+       return 5;
+    else if (poison < 50)
+       return 10;
+    else if (poison < 100)
+       return 20;
+    else if (poison < 200)
+       return 40;
+    else return 50;
+}    
 
 
 /*
@@ -571,11 +648,12 @@ static void process_world(void)
 	/*** Damage over Time ***/
 
 	/* Take damage from poison */
-	if (p_ptr->poisoned)
+	if ((p_ptr->poisoned) && !(p_ptr->invuln))
 	{
 		/* Take damage */
-		take_hit(1, "poison");
+		take_hit(poison_to_dam(p_ptr->poisoned), "poison");
 	}
+
 
 	/* Take damage from cuts */
 	if (p_ptr->cut)
@@ -619,6 +697,12 @@ static void process_world(void)
 
 			/* Slow digestion takes less food */
 			if (p_ptr->slow_digest) i -= 10;
+
+                        /* Invulnerability consumes some food */
+                        if (p_ptr->invuln) i += 40;
+
+			/* Invisibility takes LOTS of food */
+			if (p_ptr->invisible) i += 100;
 
 			/* Minimal digestion */
 			if (i < 1) i = 1;
@@ -877,8 +961,9 @@ static void process_world(void)
 	/* Burn some fuel in the current lite */
 	if (o_ptr->tval == TV_LITE)
 	{
-		/* Hack -- Use some fuel (except on artifacts) */
-		if (!artifact_p(o_ptr) && (o_ptr->pval > 0))
+		/* Hack -- Use some fuel (except on artifacts and Feanorian) */
+		if ((!artifact_p(o_ptr) || (o_ptr->sval == SV_LITE_FEANORIAN))
+		    && (o_ptr->pval > 0))
 		{
 			/* Decrease life-span */
 			o_ptr->pval--;
@@ -946,7 +1031,11 @@ static void process_world(void)
 			o_ptr->timeout--;
 
 			/* Notice changes */
-			if (!(o_ptr->timeout)) j++;
+			if (!(o_ptr->timeout)) 
+			{
+			    recharged_notice(o_ptr);
+			    j++;
+			}
 		}
 	}
 
@@ -1059,7 +1148,7 @@ static void process_world(void)
 
 
 /*
- * Verify use of "wizard" mode			BHH
+ * Verify use of "wizard" mode
  */
 static bool enter_wizard_mode(void)
 {
@@ -1067,7 +1156,10 @@ static bool enter_wizard_mode(void)
 	if (verify_special || !(p_ptr->noscore & 0x0002))
 	{
 		/* Mention effects */
-		
+		msg_print("You are about to enter 'wizard' mode for the very first time!");
+		msg_print("This is a form of cheating, and your game will not be scored!");
+		msg_print(NULL);
+
 		/* Verify request */
 		if (!get_check("Are you sure you want to enter wizard mode? "))
 		{
@@ -1095,7 +1187,9 @@ static bool verify_debug_mode(void)
 	if (verify_special && !(p_ptr->noscore & 0x0008))
 	{
 		/* Mention effects */
-		
+		msg_print("You are about to use the dangerous, unsupported, debug commands!");
+		msg_print("Your machine may crash, and your savefile may become corrupted!");
+		msg_print(NULL);
 
 		/* Verify request */
 		if (!get_check("Are you sure you want to use the debug commands? "))
@@ -1132,7 +1226,10 @@ static bool verify_borg_mode(void)
 	if (verify_special && !(p_ptr->noscore & 0x0010))
 	{
 		/* Mention effects */
-		
+		msg_print("You are about to use the dangerous, unsupported, borg commands!");
+		msg_print("Your machine may crash, and your savefile may become corrupted!");
+		msg_print(NULL);
+
 		/* Verify request */
 		if (!get_check("Are you sure you want to use the borg commands? "))
 		{
@@ -1859,7 +1956,18 @@ static void process_player(void)
 	int i;
 
 
-	/*** Check for interrupts ***/
+	/*** Apply energy ***/
+
+	/* Give the player some energy */
+	if (p_ptr->pspeed > 199) p_ptr->energy += 49;
+	else if (p_ptr->pspeed < 0) p_ptr->energy += 1;
+	else p_ptr->energy += extract_energy[p_ptr->pspeed];
+
+	/* No turn yet */
+	if (p_ptr->energy < 100) return;
+
+
+	/*** Check for interupts ***/
 
 	/* Complete resting */
 	if (p_ptr->resting < 0)
@@ -1921,8 +2029,8 @@ static void process_player(void)
 
 	/*** Handle actual user input ***/
 
-	/* Repeat until energy is reduced */
-	do
+	/* Repeat until out of energy */
+	while (p_ptr->energy >= 100)
 	{
 		/* Notice stuff (if needed) */
 		if (p_ptr->notice) notice_stuff();
@@ -2200,8 +2308,11 @@ static void process_player(void)
 				m_ptr->mflag &= ~(MFLAG_SHOW);
 			}
 		}
+
+
+		/* Handle "leaving" */
+		if (p_ptr->leaving) break;
 	}
-	while (!p_ptr->energy_use && !p_ptr->leaving);
 }
 
 
@@ -2214,9 +2325,6 @@ static void process_player(void)
  */
 static void dungeon(void)
 {
-	monster_type *m_ptr;
-	int i;
-
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
@@ -2424,38 +2532,8 @@ static void dungeon(void)
 		if (o_cnt + 32 < o_max) compact_objects(0);
 
 
-		/*** Apply energy ***/
-
-		/* Give the player some energy */
-		p_ptr->energy += extract_energy[p_ptr->pspeed];
-
-		/* Give energy to all monsters */
-		for (i = m_max - 1; i >= 1; i--)
-		{
-			/* Access the monster */
-			m_ptr = &m_list[i];
-
-			/* Ignore "dead" monsters */
-			if (!m_ptr->r_idx) continue;
-
-			/* Give this monster some energy */
-			m_ptr->energy += extract_energy[m_ptr->mspeed];
-		}
-
-
-		/* Can the player move? */
-		while ((p_ptr->energy >= 100) && !p_ptr->leaving)
-		{
-			/* process monster with even more energy first */
-			process_monsters((byte)(p_ptr->energy + 1));
-
-			/* if still alive */
-			if (!p_ptr->leaving)
-			{
-				/* Process the player */
-				process_player();
-			}
-		}
+		/* Process the player */
+		process_player();
 
 		/* Notice stuff */
 		if (p_ptr->notice) notice_stuff();
@@ -2480,7 +2558,7 @@ static void dungeon(void)
 
 
 		/* Process all of the monsters */
-		process_monsters(100);
+		process_monsters();
 
 		/* Notice stuff */
 		if (p_ptr->notice) notice_stuff();
@@ -2558,6 +2636,18 @@ static void process_some_user_pref_files(void)
 
 	/* Process the "user.prf" file */
 	(void)process_pref_file("user.prf");
+
+ 	/* Process the "<race>.prf" file (silly) */
+ 	sprintf(buf, "%s.prf", p_name + rp_ptr->name);
+ 
+ 	/* Process the "<race>.prf" file (silly) */
+ 	(void)process_pref_file(buf);
+ 
+ 	/* Process the "<class>.prf" file */
+ 	sprintf(buf, "%s.prf", class_info[p_ptr->pclass].title);
+ 
+ 	/* Process the "<class>.prf" file */
+ 	(void)process_pref_file(buf);
 
 	/* Get the "PLAYER.prf" filename */
 	sprintf(buf, "%s.prf", op_ptr->base_name);
@@ -2752,6 +2842,17 @@ void play_game(bool new_game)
 	/* Reset visuals */
 	reset_visuals(TRUE);
 
+        /* Prepare the log file (want it or not :) */
+	sprintf(ANGBAND_ERRLOG_FILE, "%s/%s.log", ANGBAND_DIR_SAVE, op_ptr->full_name);
+	errlog = my_fopen(ANGBAND_ERRLOG_FILE,"a");
+
+        /* Paranoia */
+	if (!errlog)
+	{
+	        quit(format("Failed to open log file %s",
+	         ANGBAND_ERRLOG_FILE));
+	}
+
 
 	/* Window stuff */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
@@ -2797,6 +2898,10 @@ void play_game(bool new_game)
 	/* Process */
 	while (TRUE)
 	{
+
+		/* Update monster list window */
+		p_ptr->window |= (PW_M_LIST);
+
 		/* Process the level */
 		dungeon();
 

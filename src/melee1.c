@@ -136,6 +136,8 @@ bool make_attack_normal(int m_idx)
 	char ddesc[80];
 
 	bool blinked;
+        bool explode = FALSE;
+        bool fear = FALSE;
 
 
 	/* Not allowed to attack */
@@ -221,6 +223,7 @@ bool make_attack_normal(int m_idx)
 			case RBE_EXP_20:	power =  5; break;
 			case RBE_EXP_40:	power =  5; break;
 			case RBE_EXP_80:	power =  5; break;
+			case RBE_TIME:  	power =  5; break;
 		}
 
 
@@ -360,6 +363,13 @@ bool make_attack_normal(int m_idx)
 					break;
 				}
 
+				case RBM_EXPLODE:
+				{
+					act = "explodes.";
+                                        explode = TRUE;
+					break;
+				}
+
 				case RBM_GAZE:
 				{
 					act = "gazes at you.";
@@ -399,12 +409,6 @@ bool make_attack_normal(int m_idx)
 				case RBM_MOAN:
 				{
 					act = desc_moan[rand_int(4)];
-					break;
-				}
-
-				case RBM_XXX5:
-				{
-					act = "XXX5's you.";
 					break;
 				}
 			}
@@ -1128,6 +1132,58 @@ bool make_attack_normal(int m_idx)
 					}
 					break;
 				}
+
+                                case RBE_TIME:
+                                {
+                                        switch (randint(10))
+                                        {
+                                                case 1: case 2: case 3: case 4: case 5:
+                                                {
+                                                        msg_print("You feel life has clocked back.");
+                                                        lose_exp(100 + (p_ptr->exp / 100) * MON_DRAIN_LIFE);
+                                                        break;
+                                                }
+
+                                                case 6: case 7: case 8: case 9:
+                                                {
+                                                        int stat = rand_int(6);
+
+                                                        switch (stat)
+                                                        {
+                                                                case A_STR: act = "strong"; break;
+                                                                case A_INT: act = "bright"; break;
+                                                                case A_WIS: act = "wise"; break;
+                                                                case A_DEX: act = "agile"; break;
+                                                                case A_CON: act = "hale"; break;
+                                                                case A_CHR: act = "beautiful"; break;
+                                                        }
+
+                                                        msg_format("You're not as %s as you used to be...", act);
+
+                                                        p_ptr->stat_cur[stat] = (p_ptr->stat_cur[stat] * 3) / 4;
+                                                        if (p_ptr->stat_cur[stat] < 3) p_ptr->stat_cur[stat] = 3;
+                                                        p_ptr->update |= (PU_BONUS);
+
+                                                        break;
+                                                }
+
+                                                case 10:
+                                                {
+                                                        msg_print("You're not as powerful as you used to be...");
+
+                                                        for (k = 0; k < 6; k++)
+                                                        {
+                                                                p_ptr->stat_cur[k] = (p_ptr->stat_cur[k] * 3) / 4;
+                                                                if (p_ptr->stat_cur[k] < 3) p_ptr->stat_cur[k] = 3;
+                                                        }
+                                                        p_ptr->update |= (PU_BONUS);
+                                                        break;
+                                                }
+                                        }
+                                        take_hit(damage, ddesc);
+
+                                        break;
+                                }
 			}
 
 
@@ -1196,6 +1252,16 @@ bool make_attack_normal(int m_idx)
 				/* Apply the stun */
 				if (k) (void)set_stun(p_ptr->stun + k);
 			}
+
+                        if (explode)
+                        {
+                                sound(SOUND_EXPLODE);
+                                if (mon_take_hit(m_idx, m_ptr->hp + 1, &fear, NULL))
+                                {
+                                        blinked = FALSE;
+                                }
+                        }
+
 		}
 
 		/* Monster missed player */

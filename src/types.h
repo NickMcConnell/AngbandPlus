@@ -254,6 +254,8 @@ struct object_kind
 	bool aware;			/* The player is "aware" of the item's effects */
 
 	bool tried;			/* The player has "tried" one of the items */
+        bool squelch;  /* squelch item if known            */
+        bool everseen; /* Used to despoilify squelch menus */
 };
 
 
@@ -420,6 +422,8 @@ struct monster_race
 	byte max_num;			/* Maximum population allowed per level */
 
 	byte cur_num;			/* Monster population on current level */
+
+	byte total_visible;		/* Amount of this race that are visible */
 };
 
 
@@ -584,6 +588,9 @@ struct monster_type
 	byte stunned;		/* Monster is stunned */
 	byte confused;		/* Monster is confused */
 	byte monfear;		/* Monster is afraid */
+	byte monpois;		/* Monster is poisoned */
+	byte moncalm;		/* Monster is calmed */
+	byte monblind;		/* Monster is blinded */
 
 	byte cdis;			/* Current dis from player */
 
@@ -660,7 +667,7 @@ struct owner_type
 	u32b owner_name;	/* Name (offset) */
 	u32b unused;		/* Unused */
 
-	s16b max_cost;		/* Purse limit */
+	s32b max_cost;		/* Purse limit */
 
 	byte max_inflate;	/* Inflation (max) */
 	byte min_inflate;	/* Inflation (min) */
@@ -795,6 +802,8 @@ struct player_race
 	u32b flags1;		/* Racial Flags, set 1 */
 	u32b flags2;		/* Racial Flags, set 2 */
 	u32b flags3;		/* Racial Flags, set 3 */
+        
+        char race_char;         /* Race character */
 };
 
 
@@ -920,6 +929,9 @@ struct player_type
 
 	s16b stat_max[A_MAX];	/* Current "maximal" stat values */
 	s16b stat_cur[A_MAX];	/* Current "natural" stat values */
+
+	s16b mana_add; /* Equipment mana bonus */
+	s16b hp_add; /*Equipment health bonus */
 
 	s16b fast;			/* Timed -- Fast */
 	s16b slow;			/* Timed -- Slow */
@@ -1096,14 +1108,16 @@ struct player_type
 	bool sustain_con;	/* Keep constitution */
 	bool sustain_chr;	/* Keep charisma */
 
+        bool invisible;         /* Invisible */
 	bool slow_digest;	/* Slower digestion */
-	bool ffall;			/* Feather falling */
-	bool lite;			/* Permanent light */
+	bool ffall;		/* Feather falling */
+	bool lite;		/* Permanent light */
 	bool regenerate;	/* Regeneration */
 	bool telepathy;		/* Telepathy */
 	bool see_inv;		/* See invisible */
 	bool free_act;		/* Free action */
 	bool hold_life;		/* Hold life */
+        bool notele;            /* Cannot teleport */
 
 	bool impact;		/* Earthquake blows */
 	bool aggravate;		/* Aggravate monsters */

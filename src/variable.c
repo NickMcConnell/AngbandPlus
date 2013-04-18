@@ -88,7 +88,7 @@ s32b old_turn;			/* Hack -- Level feeling counter */
 bool use_sound;			/* The "sound" mode is enabled */
 bool use_graphics;		/* The "graphics" mode is enabled */
 
-s16b signal_count;		/* Hack -- Count interrupts */
+s16b signal_count;		/* Hack -- Count interupts */
 
 bool msg_flag;			/* Player has pending message */
 
@@ -128,6 +128,7 @@ bool command_repeating = FALSE;
 
 byte feeling;			/* Most recent feeling */
 s16b rating;			/* Level's current rating */
+s16b avg_rating;		/* Levels average rating */
 
 bool good_item_flag;	/* True if "Artifact" on this level */
 
@@ -256,7 +257,7 @@ byte angband_color_table[256][4] =
 	{0x00, 0xC0, 0xC0, 0xC0},	/* TERM_L_WHITE */
 	{0x00, 0xFF, 0x00, 0xFF},	/* TERM_VIOLET */
 	{0x00, 0xFF, 0xFF, 0x00},	/* TERM_YELLOW */
-	{0x00, 0xFF, 0x40, 0x40},	/* TERM_L_RED */
+	{0x00, 0xFF, 0x00, 0x00},	/* TERM_L_RED */
 	{0x00, 0x00, 0xFF, 0x00},	/* TERM_L_GREEN */
 	{0x00, 0x00, 0xFF, 0xFF},	/* TERM_L_BLUE */
 	{0x00, 0xC0, 0x80, 0x40}	/* TERM_L_UMBER */
@@ -722,3 +723,8 @@ bool use_transparency = FALSE;
  * Game can be saved
  */
 bool can_save = TRUE;
+
+/* Log files */
+
+char ANGBAND_ERRLOG_FILE[1024];
+FILE *errlog = NULL;

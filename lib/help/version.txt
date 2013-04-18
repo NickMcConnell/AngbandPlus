@@ -1,15 +1,12 @@
-This is EasyBand !!!
-Have much fun as i had !!!
-
 === Version Information ===
 
-This file was last updated for Angband 2.9.1.
+This file was last updated for Angband 2.9.0.
 
 Make sure to read the newsgroup ("rec.games.roguelike.angband"), and to visit
 the Official Angband Home Page ("http://thangorodrim.angband.org") for the
 most up to date information about Angband.
 
-Angband 2.9.1 has an incredibly complex history, and is the result of a
+Angband 2.9.0 has an incredibly complex history, and is the result of a
 lot of work by a lot of people, all of whom have contributed their time
 and energy for free, being rewarded only by the pleasure of keeping alive
 one of the best freeware games available anywhere.
@@ -441,8 +438,6 @@ Angband Version 2.7   : 01/01/95  Ben Harrison
 
 Angband Version 2.8   : 01/01/97  Ben Harrison
 
-Angband Version 2.9.1 : July 2000 Robert Ruehlmann
-
 
 
 Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
@@ -467,6 +462,5 @@ Ben Harrison, Steven Fuerst, Julian Lighton, Andrew Hill, Werner Baer,
 Tom Morton, "Cyric the Mad", Chris Kern, Tim Baker, Jurriaan Kalkman,
 Alexander Wilkins, Mauro Scarpa, John I'anson-Holton, "facade",
 Dennis van Es, Kenneth A. Strom, Wei-Hwa Huang, Nikodemus, Timo Pietilä,
-Greg Wooledge, Keldon Jones, Shayne Steele, Dr. Andrew White, Musus Umbra
-
+Greg Wooledge, Keldon Jones
 

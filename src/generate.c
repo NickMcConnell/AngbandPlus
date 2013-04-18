@@ -1905,7 +1905,7 @@ static void build_type6(int y0, int x0)
 	else if (tmp < 80)
 	{
 		/* Pick dragon type */
-		switch (rand_int(6))
+		switch (rand_int(8))
 		{
 			/* Black */
 			case 0:
@@ -1971,6 +1971,33 @@ static void build_type6(int y0, int x0)
 				/* Done */
 				break;
 			}
+
+			/* Bronze */
+			case 5:
+			{
+				/* Message */
+				name = "confusion dragon";
+
+				/* Restrict dragon breath type */
+				vault_aux_dragon_mask4 = RF4_BR_CONF;
+
+				/* Done */
+				break;
+			}
+
+			/* Gold */
+			case 6:
+			{
+				/* Message */
+				name = "sound dragon";
+
+				/* Restrict dragon breath type */
+				vault_aux_dragon_mask4 = RF4_BR_SOUN;
+
+				/* Done */
+				break;
+			}
+
 
 			/* Multi-hued */
 			default:
@@ -2301,15 +2328,24 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 static void build_type7(int y0, int x0)
 {
 	vault_type *v_ptr;
+        int num;
 
 	/* Pick a lesser vault */
 	while (TRUE)
 	{
+		if (debug_vaults)
+		{
+		    num = get_quantity("Create which lesser vault? ", z_info->v_max);
+		    if (num <= 0) num = 1;
+		    if (num > z_info->v_max) num = z_info->v_max;
+		    v_ptr = &v_info[num];
+		}        
 		/* Get a random vault record */
-		v_ptr = &v_info[rand_int(z_info->v_max)];
+		else v_ptr = &v_info[rand_int(z_info->v_max)];
 
 		/* Accept the first lesser vault */
 		if (v_ptr->typ == 7) break;
+		else if (debug_vaults) msg_print("This is not a lesser vault. Try again");
 	}
 
 	/* Message */
@@ -2337,15 +2373,24 @@ static void build_type7(int y0, int x0)
 static void build_type8(int y0, int x0)
 {
 	vault_type *v_ptr;
+        int num;
 
 	/* Pick a lesser vault */
 	while (TRUE)
 	{
+		if (debug_vaults)
+		{
+		    num = get_quantity("Create which greater vault? ", z_info->v_max);
+		    if (num <= 0) num = 1;
+		    if (num > z_info->v_max) num = z_info->v_max;
+		    v_ptr = &v_info[num];
+		}        
 		/* Get a random vault record */
 		v_ptr = &v_info[rand_int(z_info->v_max)];
 
 		/* Accept the first greater vault */
 		if (v_ptr->typ == 8) break;
+		else if (debug_vaults) msg_print("This is not a greater vault. Try again");
 	}
 
 	/* Message */
@@ -3446,6 +3491,12 @@ void generate_cave(void)
 			cave_gen();
 		}
 
+
+		if (rating > 0)
+		{
+		   avg_rating += rating;
+		   avg_rating /= 2;
+		}
 
 		/* Extract the feeling */
 		if (rating > 100) feeling = 2;

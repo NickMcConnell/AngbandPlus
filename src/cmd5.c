@@ -1099,17 +1099,23 @@ void do_cmd_cast(void)
 		/* Hack -- Bypass free action */
 		(void)set_paralyzed(p_ptr->paralyzed + randint(5 * oops + 1));
 
-		/* Damage CON (possibly permanently) */
-		if (rand_int(100) < 50)
-		{
-			bool perm = (rand_int(100) < 25);
+                /* Damage CON or WIS (possibly permanently) */
+                if (rand_int(100) < 50)
+                {
+                        bool was_prayer = ((p_ptr->pclass == CLASS_PRIEST) ||
+                                           (p_ptr->pclass == CLASS_PALADIN))
+                                                          ? TRUE : FALSE;
+                        bool perm = (rand_int(100) < 25);
 
-			/* Message */
-			msg_print("You have damaged your health!");
+                        /* Message */
+                        msg_print("You have damaged your health!");
 
-			/* Reduce constitution */
-			(void)dec_stat(A_CON, 15 + randint(10), perm);
-		}
+                        /* Reduce constitution or wisdom */
+                        if (was_prayer)
+                        (void)dec_stat(A_WIS, 15 + randint(10), perm);
+                        else
+                        (void)dec_stat(A_CON, 15 + randint(10), perm);
+                }
 	}
 
 	/* Redraw mana */

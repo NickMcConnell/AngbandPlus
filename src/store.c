@@ -954,6 +954,13 @@ static int store_carry(object_type *o_ptr)
 	/* Cursed/Worthless items "disappear" when sold */
 	if (value <= 0) return (-1);
 
+	/* HACK -- All store items are fully *identified* */
+	/*
+	 * ToDo: The IDENT_MENTAL flag should be splitted into
+	 * two flags for *identified* and "resists amnesia".
+	 */
+	o_ptr->ident |= IDENT_MENTAL;
+
 	/* Erase the inscription */
 	o_ptr->note = 0;
 
@@ -2828,10 +2835,7 @@ static void store_examine(void)
 
 
 	/* Prompt */
-	if (rogue_like_commands)
-		sprintf(out_val, "Which item do you want to examine? ");
-	else
-		sprintf(out_val, "Which item do you want to look at? ");
+	sprintf(out_val, "Which item do you want to examine? ");
 
 	/* Get the item number to be examined */
 	if (!get_stock(&item, out_val)) return;
@@ -2839,8 +2843,16 @@ static void store_examine(void)
 	/* Get the actual object */
 	o_ptr = &st_ptr->stock[item];
 
+	/* Require full knowledge */
+	if (!(o_ptr->ident & IDENT_MENTAL))
+	{
+		/* This can only happen in the home */
+		msg_print("You have no special knowledge about that item.");
+		return;
+	}
+
 	/* Description */
-	object_desc(o_name, o_ptr, TRUE, 3);
+	object_desc_store(o_name, o_ptr, TRUE, 3);
 
 	/* Describe */
 	msg_format("Examining %s...", o_name);
@@ -2953,7 +2965,7 @@ static void store_process_command(void)
 		}
 
 		/* Examine */
-		case 'l':
+		case 'x':
 		{
 			store_examine();
 			break;
@@ -3293,10 +3305,7 @@ void do_cmd_store(void)
 		prt(" d) Drop/Sell an item.", 23, 31);
 
 		/* Add in the eXamine option */
-		if (rogue_like_commands)
-			prt(" x) eXamine an item.", 22, 56);
-		else
-			prt(" l) Look at an item.", 22, 56);
+		prt(" x) eXamine an item.", 22, 56);
 
 		/* Prompt */
 		prt("You may: ", 21, 0);

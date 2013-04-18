@@ -23,7 +23,7 @@ RC         = brc32
 #
 # Name of the *.exe-file
 
-EXE_FILE = angband.exe
+EXE_FILE = Easyband.exe
 
 
 ###################################################################
@@ -54,7 +54,8 @@ OBJ = \
 	dungeon.obj files.obj generate.obj init1.obj \
 	init2.obj randart.obj load1.obj load2.obj \
 	melee1.obj melee2.obj monster1.obj monster2.obj \
-	object1.obj object2.obj save.obj spells1.obj \
+	object1.obj object2.obj randart.obj save.obj spells1.obj \
+	save.obj squelch.obj \
 	spells2.obj store.obj tables.obj util.obj \
 	variable.obj wizard1.obj wizard2.obj xtra1.obj \
 	xtra2.obj z-form.obj z-rand.obj z-term.obj \

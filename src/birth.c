@@ -286,6 +286,8 @@ static void get_extra(void)
 {
 	int i, j, min_value, max_value;
 
+        /* Init this */
+	avg_rating = 100;
 
 	/* Level one */
 	p_ptr->max_lev = p_ptr->lev = 1;
@@ -653,7 +655,8 @@ static void player_outfit(void)
 
 	/* Hack -- Give the player some food */
 	object_prep(i_ptr, lookup_kind(TV_FOOD, SV_FOOD_RATION));
-	i_ptr->number = (byte)rand_range(3, 7);
+        if (birth_ironman && birth_no_stores) i_ptr->number = (byte)rand_range(5, 10);
+	else i_ptr->number = (byte)rand_range(3, 7);
 	object_aware(i_ptr);
 	object_known(i_ptr);
 	(void)inven_carry(i_ptr);
@@ -664,7 +667,8 @@ static void player_outfit(void)
 
 	/* Hack -- Give the player some torches */
 	object_prep(i_ptr, lookup_kind(TV_LITE, SV_LITE_TORCH));
-	i_ptr->number = (byte)rand_range(3, 7);
+        if (birth_ironman && birth_no_stores) i_ptr->number = (byte)rand_range(5, 10);
+	else i_ptr->number = (byte)rand_range(3, 7);
 	i_ptr->pval = rand_range(3, 7) * 500;
 	object_aware(i_ptr);
 	object_known(i_ptr);
@@ -861,7 +865,18 @@ static bool player_birth_aux_1(void)
 		if (ch == 'S') return (FALSE);
 		k = (islower(ch) ? A2I(ch) : -1);
 		if (ch == ESCAPE) ch = '*';
-		if (ch == '*') k = rand_int(MAX_CLASS);
+		if (ch == '*')
+		{
+			while (1)
+			{
+				k = rand_int(MAX_CLASS);
+
+				/* Try again if not a legal choice */
+				if (!(rp_ptr->choice & (1L << k))) continue;
+
+				break;
+			}
+		}
 		if ((k >= 0) && (k < n)) break;
 		if (ch == '?') do_cmd_help();
 		else bell("Illegal class!");

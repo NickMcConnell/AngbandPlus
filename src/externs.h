@@ -31,6 +31,7 @@ extern byte adj_mag_mana[];
 extern byte adj_mag_fail[];
 extern byte adj_mag_stat[];
 extern byte adj_chr_gold[];
+extern byte adj_chr_pacify[];
 extern byte adj_int_dev[];
 extern byte adj_wis_sav[];
 extern byte adj_dex_dis[];
@@ -124,6 +125,7 @@ extern s16b m_max;
 extern s16b m_cnt;
 extern byte feeling;
 extern s16b rating;
+extern s16b avg_rating;
 extern bool good_item_flag;
 extern bool closing_flag;
 extern int player_uid;
@@ -233,6 +235,8 @@ extern cptr ANGBAND_DIR_INFO;
 extern cptr ANGBAND_DIR_SAVE;
 extern cptr ANGBAND_DIR_USER;
 extern cptr ANGBAND_DIR_XTRA;
+extern char ANGBAND_ERRLOG_FILE[1024];
+extern FILE *errlog;
 extern bool item_tester_full;
 extern byte item_tester_tval;
 extern bool (*item_tester_hook)(object_type*);
@@ -376,6 +380,7 @@ extern void do_cmd_activate(void);
 
 /* dungeon.c */
 extern void play_game(bool new_game);
+extern int poison_to_dam(int poison);
 
 /* files.c */
 extern void safe_setuid_drop(void);
@@ -440,11 +445,12 @@ extern bool make_attack_normal(int m_idx);
 
 /* melee2.c */
 extern bool make_attack_spell(int m_idx);
-extern void process_monsters(byte minimum_energy);
+extern void process_monsters(void);
 
 /* monster1.c */
 extern void screen_roff(int r_idx);
 extern void display_roff(int r_idx);
+extern bool monster_living(monster_race *r_ptr);
 
 /* monster2.c */
 extern void delete_monster_idx(int i);
@@ -479,7 +485,7 @@ extern void object_flags_known(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
 extern void object_desc(char *buf, object_type *o_ptr, int pref, int mode);
 extern void object_desc_store(char *buf, object_type *o_ptr, int pref, int mode);
 extern cptr item_activation(object_type *o_ptr);
-extern int identify_random_gen(object_type *o_ptr, cptr *info, int len);
+extern int identify_random_gen(object_type *o_ptr, cptr *info);
 extern bool identify_fully_aux(object_type *o_ptr);
 extern char index_to_label(int i);
 extern s16b label_to_inven(int c);
@@ -557,8 +563,10 @@ extern bool load_player(void);
 extern s16b poly_r_idx(int r_idx);
 extern void teleport_away(int m_idx, int dis);
 extern void teleport_player(int dis);
+extern void teleport_to_player(int m_idx);
 extern void teleport_player_to(int ny, int nx);
 extern void teleport_player_level(void);
+extern bool teleport_monster_to(int m_idx);
 extern void take_hit(int dam, cptr kb_str);
 extern void acid_dam(int dam, cptr kb_str);
 extern void elec_dam(int dam, cptr kb_str);
@@ -606,6 +614,7 @@ extern bool sleep_monsters(void);
 extern bool banish_evil(int dist);
 extern bool turn_undead(void);
 extern bool dispel_undead(int dam);
+extern bool dispel_animal(int dam);
 extern bool dispel_evil(int dam);
 extern bool dispel_monsters(int dam);
 extern void aggravate_monsters(int who);
@@ -632,6 +641,8 @@ extern bool speed_monster(int dir);
 extern bool slow_monster(int dir);
 extern bool sleep_monster(int dir);
 extern bool confuse_monster(int dir, int plev);
+extern bool blind_monster(int dir, int plev);
+extern bool pacify_monster(int dir, int plev);
 extern bool poly_monster(int dir);
 extern bool clone_monster(int dir);
 extern bool fear_monster(int dir, int plev);
@@ -661,12 +672,11 @@ extern errr fd_copy(cptr file, cptr what);
 extern int fd_make(cptr file, int mode);
 extern int fd_open(cptr file, int flags);
 extern errr fd_lock(int fd, int what);
-extern errr fd_seek(int fd, long n);
+extern errr fd_seek(int fd, huge n);
 extern errr fd_chop(int fd, huge n);
 extern errr fd_read(int fd, char *buf, huge n);
 extern errr fd_write(int fd, cptr buf, huge n);
 extern errr fd_close(int fd);
-extern errr check_modification_date(int fd, cptr template_file);
 extern void text_to_ascii(char *buf, cptr str);
 extern void ascii_to_text(char *buf, cptr str);
 extern sint macro_find_exact(cptr pat);
@@ -709,6 +719,7 @@ extern void request_command(bool shopping);
 extern uint damroll(uint num, uint sides);
 extern uint maxroll(uint num, uint sides);
 extern bool is_a_vowel(int ch);
+extern void dlog(cptr fmt, ...);
 
 #ifdef SUPPORT_GAMMA
 extern void build_gamma_table(int gamma);
@@ -772,6 +783,14 @@ extern bool get_aim_dir(int *dp);
 extern bool get_rep_dir(int *dp);
 extern bool confuse_dir(int *dp);
 
+/* squelch.c */
+extern byte squelch_level[24];
+extern byte auto_destroy;
+extern void do_cmd_squelch(void);
+extern int squelch_itemp(object_type *, byte, int);
+extern int do_squelch_item(int, int, object_type *);
+extern void rearrange_stack(int, int);
+extern void do_squelch_pile(int, int);
 
 /*
  * Hack -- conditional (or "bizarre") externs

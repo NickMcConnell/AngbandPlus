@@ -278,6 +278,51 @@ byte adj_chr_gold[] =
 	80	/* 18/220+ */
 };
 
+/*
+ * Stat Table (CHR) -- monster pacify recovery
+ */
+byte adj_chr_pacify[] =
+{
+	15	/* 3 */,
+	12	/* 4 */,
+	10	/* 5 */,
+	 8	/* 6 */,
+	 8	/* 7 */,
+	 7	/* 8 */,
+	 7	/* 9 */,
+	 6	/* 10 */,
+	 6	/* 11 */,
+	 5	/* 12 */,
+	 5	/* 13 */,
+	 5	/* 14 */,
+	 4	/* 15 */,
+	 4	/* 16 */,
+	 4	/* 17 */,
+	 4	/* 18/00-18/09 */,
+	 3	/* 18/10-18/19 */,
+	 3	/* 18/20-18/29 */,
+	 3	/* 18/30-18/39 */,
+	 3	/* 18/40-18/49 */,
+	 2	/* 18/50-18/59 */,
+	 2	/* 18/60-18/69 */,
+	 2	/* 18/70-18/79 */,
+	 2	/* 18/80-18/89 */,
+	 2	/* 18/90-18/99 */,
+	 1	/* 18/100-18/109 */,
+	 1	/* 18/110-18/119 */,
+	 1	/* 18/120-18/129 */,
+	 1	/* 18/130-18/139 */,
+	 1	/* 18/140-18/149 */,
+	 1	/* 18/150-18/159 */,
+	 1	/* 18/160-18/169 */,
+	 1	/* 18/170-18/179 */,
+	 1	/* 18/180-18/189 */,
+	 1	/* 18/190-18/199 */,
+	 1	/* 18/200-18/209 */,
+	 1	/* 18/210-18/219 */,
+	 1	/* 18/220+ */
+};
+
 
 /*
  * Stat Table (INT) -- Magic devices
@@ -1267,7 +1312,7 @@ player_sex sex_info[MAX_SEXES] =
 
 
 /*
- * Player Classes				BHH
+ * Player Classes
  *
  *	Title,
  *	{STR,INT,WIS,DEX,CON,CHR},
@@ -1280,49 +1325,49 @@ player_class class_info[MAX_CLASS] =
 	{
 		"Warrior",
 		{ 5, -2, -2, 2, 2, -1},
-		25, 18, 18, 1,  14, 2, 70, 55,
-		10, 7,  10, 1,  4,  2,  70, 55,
+		25, 18, 18, 2,  18, 2, 70, 55,
+		10, 7,  10, 0,  0,  0,  45, 45,
 		12,  0
 	},
 
 	{
 		"Mage",
 		{-5, 3, 0, 1, -2, 1},
-		30, 36, 30, 2,  16, 20, 34, 20,
-		7,  13, 9,  1,  4,  2,  34, 20,
-		3, 24
+		30, 36, 30, 3,  18, 20, 34, 20,
+		7,  13, 9,  0,  0,  0,  15, 15,
+		3, 30
 	},
 
 	{
 		"Priest",
 		{-1, -3, 3, -1, 0, 2},
-		25, 30, 32, 2,  16, 8, 48, 35,
-		7,  10, 12, 1,  4,  2, 48, 35,
-		5, 16
+		25, 30, 32, 3,  18, 8, 48, 35,
+		7,  10, 12, 0,  0,  0, 20, 20,
+		5, 20
 	},
 
 	{
 		"Rogue",
 		{ 2, 1, -2, 3, 1, -1},
-		45, 32, 28, 5, 32, 24, 60, 66,
-		15, 10, 10, 1,  4,  2, 60, 66,
-		9, 20
+		45, 32, 28, 8, 50, 24, 60, 66,
+		15, 10, 10, 0,  0,  0, 40, 30,
+		9, 25
 	},
 
 	{
 		"Ranger",
 		{ 2, 2, 0, 1, 1, 1},
-		30, 32, 28, 3,  24, 16, 56, 72,
-		8,  10, 10, 1,  4,  2,  56, 72,
-		7, 24
+		30, 32, 28, 5,  30, 16, 56, 72,
+		8,  10, 10, 0,  0,  0,  30, 45,
+		7, 30
 	},
 
 	{
 		"Paladin",
 		{ 3, -3, 1, 0, 2, 2},
-		20, 24, 25, 1,  12, 2, 68, 40,
-		7,  10, 11, 1,  4,  2,  68, 40,
-		9, 28
+		20, 24, 25, 2,  16, 2, 68, 40,
+		7,  10, 11, 0,  0,  0,  35, 30,
+		9, 35
 	}
 };
 
@@ -2329,7 +2374,7 @@ cptr window_flag_desc[32] =
 	"Display equip/inven",
 	"Display player (basic)",
 	"Display player (extra)",
-	NULL,
+	"Show visible monsters",
 	NULL,
 	"Display messages",
 	"Display overhead view",
@@ -2439,9 +2484,9 @@ cptr option_text[OPT_MAX] =
 	"auto_more",				/* OPT_auto_more */
 	"smart_monsters",			/* OPT_smart_monsters */
 	"smart_packs",				/* OPT_smart_packs */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
+        "ratio_weights",			/* OPT_ratio_weights */
+	"carry_heavy_query",		/* OPT_carry_heavy_query */
+        "player_symbols",               /* OPT_player_symbols */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
@@ -2531,6 +2576,8 @@ cptr option_text[OPT_MAX] =
 	"cheat_xtra",				/* OPT_cheat_xtra */
 	"cheat_know",				/* OPT_cheat_know */
 	"cheat_live",				/* OPT_cheat_live */
+        "cheat_invul",                          /* OPT_cheat_invul */
+        "debug_vaults",                         /* OPT_debug_vaults */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
@@ -2595,6 +2642,8 @@ cptr option_text[OPT_MAX] =
 	"score_xtra",				/* OPT_score_xtra */
 	"score_know",				/* OPT_score_know */
 	"score_live",				/* OPT_score_live */
+	"score_invul",				/* OPT_score_invul */
+	"score_vaults",				/* OPT_score_vaults */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
@@ -2602,12 +2651,7 @@ cptr option_text[OPT_MAX] =
 	NULL,						/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
+        NULL,                                           /* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
@@ -2703,9 +2747,9 @@ cptr option_desc[OPT_MAX] =
 	"Automatically clear '-more-' prompts",		/* OPT_auto_more */
 	"Monsters behave more intelligently",		/* OPT_smart_monsters */
 	"Monsters act smarter in groups (v.slow)",	/* OPT_smart_packs */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
+	"Inventory/Equip weights shown as percentages",		/* OPT_ratio_weights */
+	"Verify before picking up heavy objects",	/* OPT_carry_heavy_query */
+        "Use variable player symbols",                  /* OPT_player_symbols */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
@@ -2795,6 +2839,8 @@ cptr option_desc[OPT_MAX] =
 	"Cheat: Peek into something else",			/* OPT_cheat_xtra */
 	"Cheat: Know complete monster info",		/* OPT_cheat_know */
 	"Cheat: Allow player to avoid death",		/* OPT_cheat_live */
+	"Cheat: Allow player to be invulnerable",       /* OPT_cheat_invul */
+	"Cheat: Allow player to choose vaults",         /* OPT_debug_vaults */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
@@ -2859,6 +2905,8 @@ cptr option_desc[OPT_MAX] =
 	"Score: Peek into something else",			/* OPT_score_xtra */
 	"Score: Know complete monster info",		/* OPT_score_know */
 	"Score: Allow player to avoid death",		/* OPT_score_live */
+	"Score: Allow player to be invulnerable",       /* OPT_cheat_invul */
+	"Score: Allow player to choose vaults",         /* OPT_debug_vaults */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
@@ -2878,13 +2926,9 @@ cptr option_desc[OPT_MAX] =
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
+        NULL,                                                                           /* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL										/* xxx */
 };
 
 
@@ -2967,9 +3011,9 @@ bool option_norm[OPT_MAX] =
 	FALSE,		/* OPT_auto_more */
 	FALSE,		/* OPT_smart_monsters */
 	FALSE,		/* OPT_smart_packs */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
+	FALSE,		/* OPT_weight_ratio */
+	TRUE,		/* OPT_carry_heavy_query */
+	FALSE,		/* OPT_player_symbols */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
@@ -3123,8 +3167,8 @@ bool option_norm[OPT_MAX] =
 	FALSE,		/* OPT_score_xtra */
 	FALSE,		/* OPT_score_know */
 	FALSE,		/* OPT_score_live */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
+	FALSE,		/* OPT_score_invul */
+	FALSE,		/* OPT_score_vaults */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
@@ -3166,6 +3210,7 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_quick_messages,
 		OPT_floor_query_flag,
 		OPT_carry_query_flag,
+		OPT_carry_heavy_query,
 		OPT_use_old_target,
 		OPT_always_pickup,
 		OPT_always_repeat,
@@ -3178,8 +3223,7 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_show_details,
 		OPT_show_flavors,
 		OPT_ring_bell,
-		255,
-		255,
+		OPT_ratio_weights,
 		255,
 		255
 	},
@@ -3254,7 +3298,7 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
  		OPT_center_player,
  		OPT_run_avoid_center,
 		OPT_scroll_target,
-		255,
+	        OPT_player_symbols,
 		255,
 		255,
 	},
@@ -3293,8 +3337,8 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_cheat_xtra,
 		OPT_cheat_know,
 		OPT_cheat_live,
-		255,
-		255,
+                OPT_cheat_invul,
+                OPT_debug_vaults,
 		255,
 		255,
 		255,
@@ -3320,8 +3364,9 @@ cptr inscrip_text[MAX_INSCRIP] =
 	"broken",
 	"average",
 	"good",
-	"excellent",
+	"great",
 	"special",
-	"uncursed"
+	"uncursed",
+	"indestructible"
 };
 

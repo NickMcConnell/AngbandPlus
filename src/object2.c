@@ -373,6 +373,9 @@ void compact_objects(int size)
 			/* Saving throw */
 			chance = 90;
 
+			/* Squelched items get compacted */
+			if ((k_ptr->aware) && (k_ptr->squelch)) chance = 0;
+
 			/* Hack -- only compact artifacts in emergencies */
 			if (artifact_p(o_ptr) && (cnt < 1000)) chance = 100;
 
@@ -752,8 +755,18 @@ void object_known(object_type *o_ptr)
  */
 void object_aware(object_type *o_ptr)
 {
+        int x, y;
+        bool flag = k_info[o_ptr->k_idx].aware;
+
 	/* Fully aware of the effects */
 	k_info[o_ptr->k_idx].aware = TRUE;
+
+	/* If newly aware and squelched, must rearrange stacks */
+	if (!flag && (k_info[o_ptr->k_idx].squelch))
+	  for(x=0; x<DUNGEON_WID; x++)
+	    for(y=0; y<DUNGEON_HGT; y++)
+	      rearrange_stack(y, x);
+
 }
 
 
@@ -777,8 +790,45 @@ static s32b object_value_base(object_type *o_ptr)
 {
 	object_kind *k_ptr = &k_info[o_ptr->k_idx];
 
-	/* Use template cost for aware objects */
+	/* For most items, the "aware" value is simply that of the object kind. */
+	s32b aware_cost = k_ptr->cost;
+
+	/* Aware item -- use template cost */
 	if (object_aware_p(o_ptr)) return (k_ptr->cost);
+
+	/* Because weapons and ammo may have enhanced damage dice,
+	 * their aware value may vary. -LM-
+	 */
+	switch (o_ptr->tval)
+	{
+		case TV_SHOT:
+		case TV_ARROW:
+		case TV_BOLT:
+		{
+			if (o_ptr->ds > k_ptr->ds)
+			{
+				aware_cost += (1 + o_ptr->ds - k_ptr->ds) *
+					(1 + o_ptr->ds - k_ptr->ds) * 1L;
+			}
+			break;
+		}
+
+		case TV_HAFTED:
+		case TV_POLEARM:
+		case TV_SWORD:
+		{
+			if (o_ptr->ds > k_ptr->ds)
+			{
+				aware_cost += (o_ptr->ds - k_ptr->ds) *
+					(o_ptr->ds - k_ptr->ds) *
+					o_ptr->dd * o_ptr->dd * 12L;
+			}
+			break;
+		}
+	}
+
+	/* Use template cost for aware objects */
+	if (object_aware_p(o_ptr)) return (aware_cost);
 
 	/* Analyze the type */
 	switch (o_ptr->tval)
@@ -1837,6 +1887,8 @@ static void charge_wand(object_type *o_ptr)
 		case SV_WAND_DRAGON_FIRE:		o_ptr->pval = randint(3)  + 1; break;
 		case SV_WAND_DRAGON_COLD:		o_ptr->pval = randint(3)  + 1; break;
 		case SV_WAND_DRAGON_BREATH:		o_ptr->pval = randint(3)  + 1; break;
+		case SV_WAND_PACIFY_MONSTER:	        o_ptr->pval = randint(10) + 6; break;
+		case SV_WAND_BLIND_MONSTER:		o_ptr->pval = randint(11) + 6; break;
 	}
 }
 
@@ -2362,6 +2414,20 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 				{
 					o_ptr->pval = randint(5) + m_bonus(5, level);
 					o_ptr->to_a = randint(5) + m_bonus(5, level);
+
+					/* Boost the rating */
+					rating += 25;
+
+					/* Mention the item */
+					if (cheat_peek) object_mention(o_ptr);
+
+					break;
+				}
+
+				/* Amulet of Power -- never cursed */
+				case SV_AMULET_POWER:
+				{
+					o_ptr->pval = randint(2) + m_bonus(2, level);
 
 					/* Boost the rating */
 					rating += 25;
@@ -3005,6 +3071,9 @@ s16b floor_carry(int y, int x, object_type *j_ptr)
 		/* Link the floor to the object */
 		cave_o_idx[y][x] = o_idx;
 
+		/* Rearrange to refelct squelching */
+		rearrange_stack(y, x);
+
 		/* Notice */
 		note_spot(y, x);
 
@@ -3547,6 +3616,9 @@ void inven_item_increase(int item, int num)
 
 		/* Recalculate mana XXX */
 		p_ptr->update |= (PU_MANA);
+
+		/* Recalculate mana XXX */
+		p_ptr->update |= (PU_HP);
 
 		/* Combine the pack */
 		p_ptr->notice |= (PN_COMBINE);

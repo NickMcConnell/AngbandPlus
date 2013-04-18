@@ -128,13 +128,15 @@ void do_cmd_wield(void)
 	int item, slot;
 
 	object_type *o_ptr;
-
 	object_type *i_ptr;
+        object_type *q_ptr;
 	object_type object_type_body;
 
 	cptr act;
 
 	cptr q, s;
+
+        u32b f1, f2, f3;
 
 	char o_name[80];
 
@@ -178,17 +180,50 @@ void do_cmd_wield(void)
 	}
 
 
+        /* Extract the flags */
+        object_flags(o_ptr, &f1, &f2, &f3);
+
+        /* Two handed weapons can't be wielded with a shield */
+
+        if ((inventory[INVEN_ARM].k_idx != 0) && (f1 & TR1_MUST2H))
+        {
+           object_desc(o_name, o_ptr, FALSE, 0);
+           msg_format("You cannot wield your %s with a shield.", o_name);
+           return;
+        }
+
+        i_ptr = &inventory[INVEN_WIELD];
+
+        /* Extract the flags */
+        object_flags(i_ptr, &f1, &f2, &f3);
+
+        /* Prevent shield from being put on if wielding 2H */
+
+        if ((slot == INVEN_ARM) && (f1 & TR1_MUST2H))
+        {
+           object_desc(o_name, o_ptr, FALSE, 0);
+           msg_format("You cannot wield your %s with a two-handed weapon.", o_name);
+           return;
+        }
+
+        if ((slot == INVEN_ARM) && (f1 & TR1_COULD2H))
+        {
+           if (!get_check("Are you sure you want to restrict your fighting? "))
+            return;
+        }
+
+
 	/* Take a turn */
 	p_ptr->energy_use = 100;
 
 	/* Get local object */
-	i_ptr = &object_type_body;
+	q_ptr = &object_type_body;
 
 	/* Obtain local object */
-	object_copy(i_ptr, o_ptr);
+	object_copy(q_ptr, o_ptr);
 
 	/* Modify quantity */
-	i_ptr->number = 1;
+	q_ptr->number = 1;
 
 	/* Decrease the item (from the pack) */
 	if (item >= 0)
@@ -215,10 +250,10 @@ void do_cmd_wield(void)
 	}
 
 	/* Wear the new stuff */
-	object_copy(o_ptr, i_ptr);
+	object_copy(o_ptr, q_ptr);
 
 	/* Increase the weight */
-	p_ptr->total_weight += i_ptr->weight;
+	p_ptr->total_weight += q_ptr->weight;
 
 	/* Increment the equip counter by hand */
 	p_ptr->equip_cnt++;
@@ -440,23 +475,26 @@ void do_cmd_destroy(void)
 	/* Artifacts cannot be destroyed */
 	if (artifact_p(o_ptr))
 	{
-		int feel = INSCRIP_SPECIAL;
-
 		/* Message */
 		msg_format("You cannot destroy %s.", o_name);
 
-		/* Hack -- Handle icky artifacts */
-		if (cursed_p(o_ptr) || broken_p(o_ptr)) feel = INSCRIP_TERRIBLE;
+		/* Don't mark id'ed objects */
+		if (object_known_p(o_ptr)) return;
 
-		/* Remove special inscription, if any */
-		if (o_ptr->discount >= INSCRIP_NULL) o_ptr->discount = 0;
-
-		/* Sense the object if allowed, don't sense ID'ed stuff */
-		if ((o_ptr->discount == 0) && !object_known_p(o_ptr))
-			o_ptr->discount = feel;
-
-		/* The object has been "sensed" */
-		o_ptr->ident |= (IDENT_SENSE);
+		/* It has already been sensed */
+		if (o_ptr->ident & (IDENT_SENSE))
+		{
+			/* Already sensed objects always get improved feelings */
+			if (cursed_p(o_ptr) || broken_p(o_ptr))
+				o_ptr->discount = INSCRIP_TERRIBLE;
+			else
+				o_ptr->discount = INSCRIP_SPECIAL;
+		}
+		else
+		{
+			/* Mark the object as indestructible */
+			o_ptr->discount = INSCRIP_INDESTRUCTIBLE;
+		}
 
 		/* Combine the pack */
 		p_ptr->notice |= (PN_COMBINE);
@@ -519,6 +557,15 @@ void do_cmd_observe(void)
 	{
 		o_ptr = &o_list[0 - item];
 	}
+
+
+	/* Require full knowledge */
+	if (!(o_ptr->ident & (IDENT_MENTAL)))
+	{
+		msg_print("You have no special knowledge about that item.");
+		return;
+	}
+
 
 	/* Description */
 	object_desc(o_name, o_ptr, TRUE, 3);
@@ -1355,14 +1402,14 @@ void do_cmd_query_symbol(void)
 	/* Display the result */
 	prt(buf, 0, 0);
 
-
 	/* Allocate the "who" array */
 	C_MAKE(who, z_info->r_max, u16b);
 
 	/* Collect matching monsters */
-	for (n = 0, i = 1; i < z_info->r_max - 1; i++)
+	for (n = 0, i = 1; i < z_info->r_max; i++)
 	{
 		monster_race *r_ptr = &r_info[i];
+
 		monster_lore *l_ptr = &l_list[i];
 
 		/* Nothing to recall */
@@ -1379,13 +1426,7 @@ void do_cmd_query_symbol(void)
 	}
 
 	/* Nothing to recall */
-	if (!n)
-	{
-		/* XXX XXX Free the "who" array */
-		C_KILL(who, z_info->r_max, u16b);
-
-		return;
-	}
+	if (!n) return;
 
 
 	/* Prompt */
@@ -1413,13 +1454,8 @@ void do_cmd_query_symbol(void)
 	}
 
 	/* Catch "escape" */
-	if (query != 'y')
-	{
-		/* XXX XXX Free the "who" array */
-		C_KILL(who, z_info->r_max, u16b);
+	if (query != 'y') return;
 
-		return;
-	}
 
 	/* Sort if needed */
 	if (why)
@@ -1512,9 +1548,5 @@ void do_cmd_query_symbol(void)
 	}
 
 
-	/* Re-display the identity */
-	prt(buf, 0, 0);
-
-	/* Free the "who" array */
-	C_KILL(who, z_info->r_max, u16b);
+        return;
 }

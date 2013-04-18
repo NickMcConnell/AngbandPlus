@@ -1,7 +1,7 @@
 
 
               **************************************************
-              **   Easyband 1.0   **   The Fun of Angband   **
+              **   Easyband 2.0   **   The Fun of Angband   **
               **************************************************
 
             Based on Moria:  Copyright (c) 1985 Robert Alan Koeneke
@@ -10,10 +10,11 @@
                              Geoff Hill, Charles Teague, Charles Swiger
      Angband 2.7.0 - 2.8.5:  Ben Harrison
              Angband 2.9.1:  Robert Ruehlmann
-              EasyBand 1.0:  Andres Zanzani
+                GSN2Band10:  Gwidon S. Naskrent
+                  EasyBand:  Andres Zanzani
 
      Send comments, bug reports, and patches, to "andres_zanzani@yahoo.it"
-            Easyband Home Page at "http://web.tiscalinet.it/easyband"
+            Easyband Home Page at "http://web.tiscalinet.it/majerle"
          Visit the Angband Home Page at "http://thangorodrim.angband.org/"
        Browse the Angband newsgroup at "news:rec.games.roguelike.angband"
      Read the online help files, especially "general.txt" and "version.txt"

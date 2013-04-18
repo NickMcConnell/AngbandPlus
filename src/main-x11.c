@@ -36,57 +36,57 @@
  * and without graphics (add "-g" for graphics).  Just copy this comment
  * into a file, remove the leading " * " characters (and the head/tail of
  * this comment), and make the file executable.
- *
+ * 
  *
  * #!/bin/csh
- *
+ * 
  * # Describe attempt
  * echo "Launching angband..."
  * sleep 2
- *
+ * 
  * # Main window
  * setenv ANGBAND_X11_FONT_0 10x20
  * setenv ANGBAND_X11_AT_X_0 5
  * setenv ANGBAND_X11_AT_Y_0 510
- *
+ * 
  * # Message window
  * setenv ANGBAND_X11_FONT_1 8x13
  * setenv ANGBAND_X11_AT_X_1 5
  * setenv ANGBAND_X11_AT_Y_1 22
  * setenv ANGBAND_X11_ROWS_1 35
- *
+ * 
  * # Inventory window
  * setenv ANGBAND_X11_FONT_2 8x13
  * setenv ANGBAND_X11_AT_X_2 635
  * setenv ANGBAND_X11_AT_Y_2 182
  * setenv ANGBAND_X11_ROWS_3 23
- *
+ * 
  * # Equipment window
  * setenv ANGBAND_X11_FONT_3 8x13
  * setenv ANGBAND_X11_AT_X_3 635
  * setenv ANGBAND_X11_AT_Y_3 22
  * setenv ANGBAND_X11_ROWS_3 12
- *
+ * 
  * # Monster recall window
  * setenv ANGBAND_X11_FONT_4 6x13
  * setenv ANGBAND_X11_AT_X_4 817
  * setenv ANGBAND_X11_AT_Y_4 847
  * setenv ANGBAND_X11_COLS_4 76
  * setenv ANGBAND_X11_ROWS_4 11
- *
+ * 
  * # Object recall window
  * setenv ANGBAND_X11_FONT_5 6x13
  * setenv ANGBAND_X11_AT_X_5 817
  * setenv ANGBAND_X11_AT_Y_5 520
  * setenv ANGBAND_X11_COLS_5 76
  * setenv ANGBAND_X11_ROWS_5 24
- *
+ * 
  * # The build directory
  * cd ~/Angband
  *
  * # Gamma correction
  * setenv ANGBAND_X11_GAMMA 142
- *
+ * 
  * # Launch Angband
  * ./src/angband -mx11 -- -n6 &
  *
@@ -1831,7 +1831,7 @@ static errr Term_xtra_x11_level(int v)
 static errr Term_xtra_x11_react(void)
 {
 	int i;
-
+	
 	if (Metadpy->color)
 	{
 		/* Check the colors */
@@ -2012,7 +2012,7 @@ static errr Term_pict_x11(int x, int y, int n, const byte *ap, const char *cp)
 		/* For extra speed - cache these values */
 		x2 = (tc&0x7F) * td->fnt->wid;
 		y2 = (ta&0x7F) * td->fnt->hgt;
-
+		
 		/* Optimise the common case */
 		if ((x1 == x2) && (y1 == y2))
 		{
@@ -2022,7 +2022,7 @@ static errr Term_pict_x11(int x, int y, int n, const byte *ap, const char *cp)
 		  	        td->tiles,
 		  	        x1, y1,
 		  	        x, y,
-		  	        td->fnt->wid, td->fnt->hgt);
+		  	        td->fnt->wid, td->fnt->hgt);	
 		}
 		else
 		{
@@ -2040,7 +2040,7 @@ static errr Term_pict_x11(int x, int y, int n, const byte *ap, const char *cp)
 						/* Output from the terrain */
 						pixel = XGetPixel(td->tiles, x2 + k, y2 + l);
 					}
-
+					
 					/* Store into the temp storage. */
 					XPutPixel(td->TmpImage, k, l, pixel);
 				}
@@ -2533,8 +2533,8 @@ errr init_x11(int argc, char *argv[])
 			jj = (depth - 1) >> 2;
 			while (jj >>= 1) ii <<= 1;
 			total = td->fnt->wid * td->fnt->hgt * ii;
-
-
+			
+			
 			TmpData = (char *)malloc(total);
 
 			td->TmpImage = XCreateImage(dpy,visual,depth,

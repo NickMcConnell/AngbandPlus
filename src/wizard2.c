@@ -616,7 +616,10 @@ static void wiz_reroll_item(object_type *o_ptr)
 
 		/* Ask wizard what to do. */
 		if (!get_com("[a]ccept, [n]ormal, [g]ood, [e]xcellent? ", &ch))
+		{
+			changed = FALSE;
 			break;
+		}
 
 		/* Create/change it! */
 		if (ch == 'A' || ch == 'a')
@@ -734,14 +737,12 @@ static void wiz_statistics(object_type *o_ptr)
 		{
 			good = TRUE;
 			great = TRUE;
-			quality = "excellent";
+			quality = "great";
 		}
 		else
 		{
-#if 0 /* unused */
 			good = FALSE;
 			great = FALSE;
-#endif /* unused */
 			break;
 		}
 
@@ -895,7 +896,7 @@ static void do_cmd_wiz_play(void)
 
 	cptr q, s;
 
-	bool changed = FALSE;
+	bool changed;
 
 
 	/* Get an item */
@@ -914,6 +915,10 @@ static void do_cmd_wiz_play(void)
 	{
 		o_ptr = &o_list[0 - item];
 	}
+
+
+	/* The item was not changed */
+	changed = FALSE;
 
 
 	/* Save screen */
@@ -935,7 +940,10 @@ static void do_cmd_wiz_play(void)
 
 		/* Get choice */
 		if (!get_com("[a]ccept [s]tatistics [r]eroll [t]weak [q]uantity? ", &ch))
+		{
+			changed = FALSE;
 			break;
+		}
 
 		if (ch == 'A' || ch == 'a')
 		{
@@ -1262,6 +1270,31 @@ static void do_cmd_rerate(void)
 }
 
 
+/* Given monster name as string, return the index in r_info array. Name
+ * must exactly match (look out for commas and the like!), or else 0 is 
+ * returned. Case doesn't matter. -GSN-
+ *
+ * This is used to initialize monsters in quests by calling them by name
+ * rather than by r_info index, which is liable to change often in
+ * developing a variant. See how this function is called in quest processing.
+ */
+
+static int test_monster_name (cptr name)
+{
+       int i;
+       
+       /* Scan the monsters (except the ghost) */
+	for (i = 1; i < z_info->r_max - 1; i++)
+	{
+		monster_race *r_ptr = &r_info[i];
+		cptr mon_name = r_name + r_ptr->name;
+
+		/* If name matches, give us the number */
+		if (stricmp (name, mon_name) == 0) return (i);
+	}
+	return (0);
+}
+
 /*
  * Summon some creatures
  */
@@ -1284,12 +1317,21 @@ static void do_cmd_wiz_summon(int num)
  *
  * This function is rather dangerous XXX XXX XXX
  */
-static void do_cmd_wiz_named(int r_idx, bool slp)
+static void do_cmd_wiz_named(bool slp)
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
-	int i, x, y;
+	int i, x, y, r_idx;
+
+        char tmp_val[80] = "";
+        cptr p;
+        
+        p = "Enter full name of the monster to summon: ";
+        
+        if (!get_string(p, tmp_val, 40)) return;
+
+        r_idx = test_monster_name(tmp_val);
 
 	/* Paranoia */
 	if (!r_idx) return;
@@ -1615,7 +1657,7 @@ void do_cmd_debug(void)
 		/* Summon Named Monster */
 		case 'n':
 		{
-			do_cmd_wiz_named(p_ptr->command_arg, TRUE);
+			do_cmd_wiz_named(TRUE);
 			break;
 		}
 
@@ -1647,6 +1689,20 @@ void do_cmd_debug(void)
 			do_cmd_wiz_summon(p_ptr->command_arg);
 			break;
 		}
+
+        	/* Update store inventories */
+        	case 'S':
+        	{
+	                s16b n;
+                        msg_print("Wizard updating stores...");
+                        for (n = 0; n < MAX_STORES; n++) store_maint(n);
+                        if (rand_int(STORE_SHUFFLE) == 0)
+ 	                {
+ 	                       if (cheat_xtra) msg_print("Shuffling a Store...");
+                  	       store_shuffle(n);
+  	                }
+                        break;
+	        }
 
 		/* Teleport */
 		case 't':

@@ -114,7 +114,7 @@ static cptr r_info_blow_method[] =
 	"BEG",
 	"INSULT",
 	"MOAN",
-	"XXX5",
+        "EXPLODE",
 	NULL
 };
 
@@ -153,6 +153,7 @@ static cptr r_info_blow_effect[] =
 	"EXP_20",
 	"EXP_40",
 	"EXP_80",
+        "TIME",
 	NULL
 };
 
@@ -225,12 +226,12 @@ static cptr r_info_flags2[] =
 	"KILL_BODY",
 	"TAKE_ITEM",
 	"KILL_ITEM",
-	"BRAIN_1",
-	"BRAIN_2",
-	"BRAIN_3",
-	"BRAIN_4",
-	"BRAIN_5",
-	"BRAIN_6",
+	"RES_SLASH",
+	"RES_BASH",
+	"RES_STAB",
+	"IM_SLASH",
+	"IM_BASH",
+	"IM_STAB",
 	"BRAIN_7",
 	"BRAIN_8"
 };
@@ -248,10 +249,10 @@ static cptr r_info_flags3[] =
 	"UNDEAD",
 	"EVIL",
 	"ANIMAL",
-	"XXX1X3",
-	"XXX2X3",
-	"XXX3X3",
-	"XXX4X3",
+	"NONLIVING",
+	"HURT_POIS",
+	"HURT_ELEC",
+	"HURT_ACID",
 	"HURT_LITE",
 	"HURT_ROCK",
 	"HURT_FIRE",
@@ -261,13 +262,13 @@ static cptr r_info_flags3[] =
 	"IM_FIRE",
 	"IM_COLD",
 	"IM_POIS",
-	"XXX5X3",
+	"RES_TELE",
 	"RES_NETH",
 	"RES_WATE",
 	"RES_PLAS",
 	"RES_NEXU",
 	"RES_DISE",
-	"XXX6X3",
+	"NO_BLIND",
 	"NO_FEAR",
 	"NO_STUN",
 	"NO_CONF",
@@ -280,8 +281,8 @@ static cptr r_info_flags3[] =
 static cptr r_info_flags4[] =
 {
 	"SHRIEK",
-	"XXX2X4",
-	"XXX3X4",
+	"BR_WATE",
+	"ARROW_5", /* -GSN- */
 	"XXX4X4",
 	"ARROW_1",
 	"ARROW_2",
@@ -360,19 +361,19 @@ static cptr r_info_flags6[] =
 	"HASTE",
 	"XXX1X6",
 	"HEAL",
-	"XXX2X6",
+	"BA_LITE",
 	"BLINK",
 	"TPORT",
-	"XXX3X6",
-	"XXX4X6",
+	"BR_WIND",
+	"BA_WIND",
 	"TELE_TO",
 	"TELE_AWAY",
 	"TELE_LEVEL",
-	"XXX5",
+	"DOOR",
 	"DARKNESS",
 	"TRAPS",
 	"FORGET",
-	"XXX6X6",
+	"S_ANIMALS",
 	"S_KIN",
 	"S_HI_DEMON",
 	"S_MONSTER",
@@ -403,8 +404,8 @@ static cptr k_info_flags1[] =
 	"DEX",
 	"CON",
 	"CHR",
-	"XXX1",
-	"XXX2",
+	"INVIS",
+	"BRAND_POIS",
 	"STEALTH",
 	"SEARCH",
 	"INFRA",
@@ -422,10 +423,10 @@ static cptr k_info_flags1[] =
 	"SLAY_GIANT",
 	"SLAY_DRAGON",
 	"KILL_DRAGON",
-	"XXX5",
-	"XXX6",
-	"XXX7",
-	"BRAND_ACID",
+	"VAMPIRIC",
+	"COULD2H",
+	"MUST2H",
+        "BRAND_ACID",
 	"BRAND_ELEC",
 	"BRAND_FIRE",
 	"BRAND_COLD"
@@ -442,7 +443,7 @@ static cptr k_info_flags2[] =
 	"SUST_DEX",
 	"SUST_CON",
 	"SUST_CHR",
-	"XXX1",
+	"BRAND_LITE",
 	"XXX2",
 	"XXX3",
 	"XXX4",
@@ -483,8 +484,8 @@ static cptr k_info_flags3[] =
 	"SEE_INVIS",
 	"FREE_ACT",
 	"HOLD_LIFE",
-	"XXX1",
-	"XXX2",
+	"LIFE",
+	"MANA",
 	"XXX3",
 	"XXX4",
 	"IMPACT",
@@ -503,7 +504,7 @@ static cptr k_info_flags3[] =
 	"EASY_KNOW",
 	"HIDE_TYPE",
 	"SHOW_MODS",
-	"XXX7",
+	"NO_TELE",
 	"LIGHT_CURSE",
 	"HEAVY_CURSE",
 	"PERMA_CURSE"
@@ -561,7 +562,11 @@ static cptr a_info_act[] =
 	"WOR",
 	"CONFUSE",
 	"PROBE",
-	"FIREBRAND"
+	"FIREBRAND",
+        "BERSEKER",
+        "FEAR_MON",
+        "DISP_MON",
+        "MANA_BOLT"
 };
 
 
@@ -609,7 +614,7 @@ errr init_z_info_txt(FILE *fp, char *buf)
 			    (v2 != z_head->v_minor) ||
 			    (v3 != z_head->v_patch))
 			{
-				return (PARSE_ERROR_OBSOLETE_FILE);
+				return (PARSE_ERROR_ABSOLETE_FILE);
 			}
 
 			/* Okay to proceed */
@@ -620,7 +625,7 @@ errr init_z_info_txt(FILE *fp, char *buf)
 		}
 
 		/* No version yet */
-		if (!okay) return (PARSE_ERROR_OBSOLETE_FILE);
+		if (!okay) return (PARSE_ERROR_ABSOLETE_FILE);
 
 
 		/* Hack - Verify 'M:x:' format */
@@ -843,7 +848,7 @@ errr init_z_info_txt(FILE *fp, char *buf)
 
 
 	/* No version yet */
-	if (!okay) return (PARSE_ERROR_OBSOLETE_FILE);
+	if (!okay) return (PARSE_ERROR_ABSOLETE_FILE);
 
 
 	/* Success */
@@ -902,7 +907,7 @@ errr init_v_info_txt(FILE *fp, char *buf)
 			    (v2 != v_head->v_minor) ||
 			    (v3 != v_head->v_patch))
 			{
-				return (PARSE_ERROR_OBSOLETE_FILE);
+				return (PARSE_ERROR_ABSOLETE_FILE);
 			}
 
 			/* Okay to proceed */
@@ -913,7 +918,7 @@ errr init_v_info_txt(FILE *fp, char *buf)
 		}
 
 		/* No version yet */
-		if (!okay) return (PARSE_ERROR_OBSOLETE_FILE);
+		if (!okay) return (PARSE_ERROR_ABSOLETE_FILE);
 
 
 		/* Process 'N' for "New/Number/Name" */
@@ -938,7 +943,7 @@ errr init_v_info_txt(FILE *fp, char *buf)
 			if (i <= error_idx) return (PARSE_ERROR_NON_SEQUENTIAL_RECORDS);
 
 			/* Verify information */
-			if (i >= v_head->info_num) return (PARSE_ERROR_OBSOLETE_FILE);
+			if (i >= v_head->info_num) return (PARSE_ERROR_ABSOLETE_FILE);
 
 			/* Save the index */
 			error_idx = i;
@@ -1022,7 +1027,7 @@ errr init_v_info_txt(FILE *fp, char *buf)
 
 
 	/* No version yet */
-	if (!okay) return (PARSE_ERROR_OBSOLETE_FILE);
+	if (!okay) return (PARSE_ERROR_ABSOLETE_FILE);
 
 
 	/* Success */
@@ -1082,7 +1087,7 @@ errr init_f_info_txt(FILE *fp, char *buf)
 			    (v2 != f_head->v_minor) ||
 			    (v3 != f_head->v_patch))
 			{
-				return (PARSE_ERROR_OBSOLETE_FILE);
+				return (PARSE_ERROR_ABSOLETE_FILE);
 			}
 
 			/* Okay to proceed */
@@ -1093,7 +1098,7 @@ errr init_f_info_txt(FILE *fp, char *buf)
 		}
 
 		/* No version yet */
-		if (!okay) return (PARSE_ERROR_OBSOLETE_FILE);
+		if (!okay) return (PARSE_ERROR_ABSOLETE_FILE);
 
 
 		/* Process 'N' for "New/Number/Name" */
@@ -1118,7 +1123,7 @@ errr init_f_info_txt(FILE *fp, char *buf)
 			if (i <= error_idx) return (PARSE_ERROR_NON_SEQUENTIAL_RECORDS);
 
 			/* Verify information */
-			if (i >= f_head->info_num) return (PARSE_ERROR_OBSOLETE_FILE);
+			if (i >= f_head->info_num) return (PARSE_ERROR_ABSOLETE_FILE);
 
 			/* Save the index */
 			error_idx = i;
@@ -1231,7 +1236,7 @@ errr init_f_info_txt(FILE *fp, char *buf)
 
 
 	/* No version yet */
-	if (!okay) return (PARSE_ERROR_OBSOLETE_FILE);
+	if (!okay) return (PARSE_ERROR_ABSOLETE_FILE);
 
 
 	/* Success */
@@ -1337,7 +1342,7 @@ errr init_k_info_txt(FILE *fp, char *buf)
 			    (v2 != k_head->v_minor) ||
 			    (v3 != k_head->v_patch))
 			{
-				return (PARSE_ERROR_OBSOLETE_FILE);
+				return (PARSE_ERROR_ABSOLETE_FILE);
 			}
 
 			/* Okay to proceed */
@@ -1348,7 +1353,7 @@ errr init_k_info_txt(FILE *fp, char *buf)
 		}
 
 		/* No version yet */
-		if (!okay) return (PARSE_ERROR_OBSOLETE_FILE);
+		if (!okay) return (PARSE_ERROR_ABSOLETE_FILE);
 
 
 		/* Process 'N' for "New/Number/Name" */
@@ -1373,7 +1378,7 @@ errr init_k_info_txt(FILE *fp, char *buf)
 			if (i <= error_idx) return (PARSE_ERROR_NON_SEQUENTIAL_RECORDS);
 
 			/* Verify information */
-			if (i >= k_head->info_num) return (PARSE_ERROR_OBSOLETE_FILE);
+			if (i >= k_head->info_num) return (PARSE_ERROR_ABSOLETE_FILE);
 
 			/* Save the index */
 			error_idx = i;
@@ -1587,7 +1592,7 @@ errr init_k_info_txt(FILE *fp, char *buf)
 
 
 	/* No version yet */
-	if (!okay) return (PARSE_ERROR_OBSOLETE_FILE);
+	if (!okay) return (PARSE_ERROR_ABSOLETE_FILE);
 
 
 	/* Success */
@@ -1713,7 +1718,7 @@ errr init_a_info_txt(FILE *fp, char *buf)
 			    (v2 != a_head->v_minor) ||
 			    (v3 != a_head->v_patch))
 			{
-				return (PARSE_ERROR_OBSOLETE_FILE);
+				return (PARSE_ERROR_ABSOLETE_FILE);
 			}
 
 			/* Okay to proceed */
@@ -1724,7 +1729,7 @@ errr init_a_info_txt(FILE *fp, char *buf)
 		}
 
 		/* No version yet */
-		if (!okay) return (PARSE_ERROR_OBSOLETE_FILE);
+		if (!okay) return (PARSE_ERROR_ABSOLETE_FILE);
 
 
 		/* Process 'N' for "New/Number/Name" */
@@ -1749,7 +1754,7 @@ errr init_a_info_txt(FILE *fp, char *buf)
 			if (i < error_idx) return (PARSE_ERROR_NON_SEQUENTIAL_RECORDS);
 
 			/* Verify information */
-			if (i >= a_head->info_num) return (PARSE_ERROR_OBSOLETE_FILE);
+			if (i >= a_head->info_num) return (PARSE_ERROR_ABSOLETE_FILE);
 
 			/* Save the index */
 			error_idx = i;
@@ -1771,7 +1776,10 @@ errr init_a_info_txt(FILE *fp, char *buf)
 			a_head->name_size += strlen(s);
 
 			/* Ignore everything */
-			a_ptr->flags3 |= (TR3_IGNORE_MASK);
+			a_ptr->flags3 |= (TR3_IGNORE_ACID);
+			a_ptr->flags3 |= (TR3_IGNORE_ELEC);
+			a_ptr->flags3 |= (TR3_IGNORE_FIRE);
+			a_ptr->flags3 |= (TR3_IGNORE_COLD);
 
 			/* Next... */
 			continue;
@@ -1780,8 +1788,6 @@ errr init_a_info_txt(FILE *fp, char *buf)
 		/* There better be a current a_ptr */
 		if (!a_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
-
-#if 0
 
 		/* Process 'D' for "Description" */
 		if (buf[0] == 'D')
@@ -1805,8 +1811,6 @@ errr init_a_info_txt(FILE *fp, char *buf)
 			/* Next... */
 			continue;
 		}
-
-#endif
 
 		/* Process 'I' for "Info" (one line only) */
 		if (buf[0] == 'I')
@@ -1936,7 +1940,7 @@ errr init_a_info_txt(FILE *fp, char *buf)
 
 
 	/* No version yet */
-	if (!okay) return (PARSE_ERROR_OBSOLETE_FILE);
+	if (!okay) return (PARSE_ERROR_ABSOLETE_FILE);
 
 
 	/* Success */
@@ -2040,7 +2044,7 @@ errr init_e_info_txt(FILE *fp, char *buf)
 			    (v2 != e_head->v_minor) ||
 			    (v3 != e_head->v_patch))
 			{
-				return (PARSE_ERROR_OBSOLETE_FILE);
+				return (PARSE_ERROR_ABSOLETE_FILE);
 			}
 
 			/* Okay to proceed */
@@ -2051,7 +2055,7 @@ errr init_e_info_txt(FILE *fp, char *buf)
 		}
 
 		/* No version yet */
-		if (!okay) return (PARSE_ERROR_OBSOLETE_FILE);
+		if (!okay) return (PARSE_ERROR_ABSOLETE_FILE);
 
 
 		/* Process 'N' for "New/Number/Name" */
@@ -2076,7 +2080,7 @@ errr init_e_info_txt(FILE *fp, char *buf)
 			if (i < error_idx) return (PARSE_ERROR_NON_SEQUENTIAL_RECORDS);
 
 			/* Verify information */
-			if (i >= e_head->info_num) return (PARSE_ERROR_OBSOLETE_FILE);
+			if (i >= e_head->info_num) return (PARSE_ERROR_ABSOLETE_FILE);
 
 			/* Save the index */
 			error_idx = i;
@@ -2254,7 +2258,7 @@ errr init_e_info_txt(FILE *fp, char *buf)
 
 
 	/* No version yet */
-	if (!okay) return (PARSE_ERROR_OBSOLETE_FILE);
+	if (!okay) return (PARSE_ERROR_ABSOLETE_FILE);
 
 
 	/* Success */
@@ -2359,7 +2363,7 @@ static errr grab_one_spell_flag(monster_race *r_ptr, cptr what)
  */
 errr init_r_info_txt(FILE *fp, char *buf)
 {
-	int i;
+	int i = -1;
 
 	char *s, *t;
 
@@ -2371,10 +2375,10 @@ errr init_r_info_txt(FILE *fp, char *buf)
 
 
 	/* Just before the first record */
-	error_idx = -1;
+	error_idx = 0;
 
 	/* Just before the first line */
-	error_line = -1;
+	error_line = 0;
 
 
 	/* Start the "fake" stuff */
@@ -2405,7 +2409,7 @@ errr init_r_info_txt(FILE *fp, char *buf)
 			    (v2 != r_head->v_minor) ||
 			    (v3 != r_head->v_patch))
 			{
-				return (PARSE_ERROR_OBSOLETE_FILE);
+				return (PARSE_ERROR_ABSOLETE_FILE);
 			}
 
 			/* Okay to proceed */
@@ -2416,18 +2420,19 @@ errr init_r_info_txt(FILE *fp, char *buf)
 		}
 
 		/* No version yet */
-		if (!okay) return (PARSE_ERROR_OBSOLETE_FILE);
+		if (!okay) return (PARSE_ERROR_ABSOLETE_FILE);
 
 
 		/* Process 'N' for "New/Number/Name" */
 		if (buf[0] == 'N')
 		{
 			/* Find the colon before the name */
-			s = strchr(buf+2, ':');
+			s = buf+2;
 
 			/* Verify that colon */
 			if (!s) return (PARSE_ERROR_GENERIC);
 
+#if 0
 			/* Nuke the colon, advance to the name */
 			*s++ = '\0';
 
@@ -2437,11 +2442,14 @@ errr init_r_info_txt(FILE *fp, char *buf)
 			/* Get the index */
 			i = atoi(buf+2);
 
+#endif
+                        i++;
+
 			/* Verify information */
 			if (i < error_idx) return (PARSE_ERROR_NON_SEQUENTIAL_RECORDS);
 
 			/* Verify information */
-			if (i >= r_head->info_num) return (PARSE_ERROR_OBSOLETE_FILE);
+			if (i >= r_head->info_num) return (PARSE_ERROR_ABSOLETE_FILE);
 
 			/* Save the index */
 			error_idx = i;
@@ -2565,7 +2573,7 @@ errr init_r_info_txt(FILE *fp, char *buf)
 		/* Process 'B' for "Blows" (up to four lines) */
 		if (buf[0] == 'B')
 		{
-			int n1, n2;
+			int i, n1, n2;
 
 			/* Find the next empty blow slot (if any) */
 			for (i = 0; i < 4; i++) if (!r_ptr->blow[i].method) break;
@@ -2653,6 +2661,8 @@ errr init_r_info_txt(FILE *fp, char *buf)
 		/* Process 'S' for "Spell Flags" (multiple lines) */
 		if (buf[0] == 'S')
 		{
+                        int foo;
+
 			/* Parse every entry */
 			for (s = buf + 2; *s; )
 			{
@@ -2667,10 +2677,10 @@ errr init_r_info_txt(FILE *fp, char *buf)
 				}
 
 				/* XXX XXX XXX Hack -- Read spell frequency */
-				if (1 == sscanf(s, "1_IN_%d", &i))
+				if (1 == sscanf(s, "1_IN_%d", &foo))
 				{
 					/* Extract a "frequency" */
-					r_ptr->freq_spell = r_ptr->freq_inate = 100 / i;
+					r_ptr->freq_spell = r_ptr->freq_inate = 100 / foo;
 
 					/* Start at next entry */
 					s = t;
@@ -2735,7 +2745,7 @@ errr init_r_info_txt(FILE *fp, char *buf)
 
 
 	/* No version yet */
-	if (!okay) return (PARSE_ERROR_OBSOLETE_FILE);
+	if (!okay) return (PARSE_ERROR_ABSOLETE_FILE);
 
 
 	/* Success */
@@ -2836,7 +2846,7 @@ errr init_p_info_txt(FILE *fp, char *buf)
 			    (v2 != p_head->v_minor) ||
 			    (v3 != p_head->v_patch))
 			{
-				return (PARSE_ERROR_OBSOLETE_FILE);
+				return (PARSE_ERROR_ABSOLETE_FILE);
 			}
 
 			/* Okay to proceed */
@@ -2847,7 +2857,7 @@ errr init_p_info_txt(FILE *fp, char *buf)
 		}
 
 		/* No version yet */
-		if (!okay) return (PARSE_ERROR_OBSOLETE_FILE);
+		if (!okay) return (PARSE_ERROR_ABSOLETE_FILE);
 
 
 		/* Process 'N' for "New/Number/Name" */
@@ -2872,7 +2882,7 @@ errr init_p_info_txt(FILE *fp, char *buf)
 			if (i < error_idx) return (PARSE_ERROR_NON_SEQUENTIAL_RECORDS);
 
 			/* Verify information */
-			if (i >= p_head->info_num) return (PARSE_ERROR_OBSOLETE_FILE);
+			if (i >= p_head->info_num) return (PARSE_ERROR_ABSOLETE_FILE);
 
 			/* Save the index */
 			error_idx = i;
@@ -2900,6 +2910,19 @@ errr init_p_info_txt(FILE *fp, char *buf)
 		/* There better be a current pr_ptr */
 		if (!pr_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
+
+		/* Process 'G' for "Graphics" (one line only) */
+		if (buf[0] == 'G')
+		{
+                        /* Verify */
+			if (!buf[2]) return (PARSE_ERROR_GENERIC);
+
+			/* Save the value */
+			pr_ptr->race_char = buf[2];
+
+			/* Next... */
+			continue;
+                }
 
 		/* Process 'S' for "Stats" (one line only) */
 		if (buf[0] == 'S')
@@ -3113,7 +3136,7 @@ errr init_p_info_txt(FILE *fp, char *buf)
 
 
 	/* No version yet */
-	if (!okay) return (PARSE_ERROR_OBSOLETE_FILE);
+	if (!okay) return (PARSE_ERROR_ABSOLETE_FILE);
 
 
 	/* Success */
@@ -3173,7 +3196,7 @@ errr init_h_info_txt(FILE *fp, char *buf)
 			    (v2 != h_head->v_minor) ||
 			    (v3 != h_head->v_patch))
 			{
-				return (PARSE_ERROR_OBSOLETE_FILE);
+				return (PARSE_ERROR_ABSOLETE_FILE);
 			}
 
 			/* Okay to proceed */
@@ -3184,7 +3207,7 @@ errr init_h_info_txt(FILE *fp, char *buf)
 		}
 
 		/* No version yet */
-		if (!okay) return (PARSE_ERROR_OBSOLETE_FILE);
+		if (!okay) return (PARSE_ERROR_ABSOLETE_FILE);
 
 
 		/* Process 'N' for "New/Number" */
@@ -3199,7 +3222,7 @@ errr init_h_info_txt(FILE *fp, char *buf)
 			if (i <= error_idx) return (PARSE_ERROR_NON_SEQUENTIAL_RECORDS);
 
 			/* Verify information */
-			if (i >= h_head->info_num) return (PARSE_ERROR_OBSOLETE_FILE);
+			if (i >= h_head->info_num) return (PARSE_ERROR_ABSOLETE_FILE);
 
 			/* Save the index */
 			error_idx = i;
@@ -3259,7 +3282,7 @@ errr init_h_info_txt(FILE *fp, char *buf)
 
 
 	/* No version yet */
-	if (!okay) return (PARSE_ERROR_OBSOLETE_FILE);
+	if (!okay) return (PARSE_ERROR_ABSOLETE_FILE);
 
 
 	/* Success */
@@ -3319,7 +3342,7 @@ errr init_b_info_txt(FILE *fp, char *buf)
 			    (v2 != b_head->v_minor) ||
 			    (v3 != b_head->v_patch))
 			{
-				return (PARSE_ERROR_OBSOLETE_FILE);
+				return (PARSE_ERROR_ABSOLETE_FILE);
 			}
 
 			/* Okay to proceed */
@@ -3330,7 +3353,7 @@ errr init_b_info_txt(FILE *fp, char *buf)
 		}
 
 		/* No version yet */
-		if (!okay) return (PARSE_ERROR_OBSOLETE_FILE);
+		if (!okay) return (PARSE_ERROR_ABSOLETE_FILE);
 
 
 		/* Process 'N' for "New/Number/Name" */
@@ -3364,7 +3387,7 @@ errr init_b_info_txt(FILE *fp, char *buf)
 			j = atoi(s);
 
 			/* Verify information */
-			if (j >= z_info->b_max) return (PARSE_ERROR_OBSOLETE_FILE);
+			if (j >= z_info->b_max) return (PARSE_ERROR_ABSOLETE_FILE);
 
 			/* Get the *real* index */
 			i = (i * z_info->b_max) + j;
@@ -3373,7 +3396,7 @@ errr init_b_info_txt(FILE *fp, char *buf)
 			if (i <= error_idx) return (PARSE_ERROR_NON_SEQUENTIAL_RECORDS);
 
 			/* Verify information */
-			if (i >= b_head->info_num) return (PARSE_ERROR_OBSOLETE_FILE);
+			if (i >= b_head->info_num) return (PARSE_ERROR_ABSOLETE_FILE);
 
 			/* Save the index */
 			error_idx = i;
@@ -3405,10 +3428,11 @@ errr init_b_info_txt(FILE *fp, char *buf)
 		/* Process 'I' for "Info" (one line only) */
 		if (buf[0] == 'I')
 		{
-			int idx, gld, max, min, hgl, tol;
+			int idx, max, min, hgl, tol;
+                        long gld;
 
 			/* Scan for the values */
-			if (6 != sscanf(buf+2, "%d:%d:%d:%d:%d:%d",
+			if (6 != sscanf(buf+2, "%d:%ld:%d:%d:%d:%d",
 			                &idx, &gld, &max, &min, &hgl, &tol)) return (PARSE_ERROR_GENERIC);
 
 			/* Save the values */
@@ -3434,7 +3458,7 @@ errr init_b_info_txt(FILE *fp, char *buf)
 
 
 	/* No version yet */
-	if (!okay) return (PARSE_ERROR_OBSOLETE_FILE);
+	if (!okay) return (PARSE_ERROR_ABSOLETE_FILE);
 
 
 	/* Success */
@@ -3457,7 +3481,7 @@ errr init_g_info_txt(FILE *fp, char *buf)
 	bool okay = FALSE;
 
 	/* Current entry */
-	byte *g_ptr;
+	byte *g_ptr = NULL;
 
 
 	/* Just before the first record */
@@ -3494,7 +3518,7 @@ errr init_g_info_txt(FILE *fp, char *buf)
 			    (v2 != g_head->v_minor) ||
 			    (v3 != g_head->v_patch))
 			{
-				return (PARSE_ERROR_OBSOLETE_FILE);
+				return (PARSE_ERROR_ABSOLETE_FILE);
 			}
 
 			/* Okay to proceed */
@@ -3505,7 +3529,7 @@ errr init_g_info_txt(FILE *fp, char *buf)
 		}
 
 		/* No version yet */
-		if (!okay) return (PARSE_ERROR_OBSOLETE_FILE);
+		if (!okay) return (PARSE_ERROR_ABSOLETE_FILE);
 
 
 		/* Process 'A' for "Adjustments" */
@@ -3529,7 +3553,7 @@ errr init_g_info_txt(FILE *fp, char *buf)
 				if (i <= error_idx) return (PARSE_ERROR_NON_SEQUENTIAL_RECORDS);
 
 				/* Verify information */
-				if (i >= g_head->info_num) return (PARSE_ERROR_OBSOLETE_FILE);
+				if (i >= g_head->info_num) return (PARSE_ERROR_ABSOLETE_FILE);
 
 				/* Save the index */
 				error_idx = i;
@@ -3571,7 +3595,7 @@ errr init_g_info_txt(FILE *fp, char *buf)
 
 
 	/* No version yet */
-	if (!okay) return (PARSE_ERROR_OBSOLETE_FILE);
+	if (!okay) return (PARSE_ERROR_ABSOLETE_FILE);
 
 
 	/* Success */

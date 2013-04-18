@@ -1,8 +1,7 @@
 /* File: main-win.c */
 
 /*
- * Copyright (c) 1997 Ben Harrison, Skirmantas Kligys, Robert Ruehlmann,
- * and others
+ * Copyright (c) 1997 Ben Harrison, Skirmantas Kligys, and others
  *
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
@@ -17,9 +16,8 @@
  * make sure that "WINDOWS" and/or "WIN32" are defined somewhere, and
  * make sure to obtain various extra files as described below.
  *
- * The Windows version has been tested to compile with Visual C++ 5.0
- * and 6.0, CygWin 2.01 Beta, Borland C++ 5.5 command line tools, and
- * lcc-win32.
+ * The official compilation uses the CodeWarrior Pro compiler, which
+ * includes a special project file and precompilable header file.
  *
  *
  * See also "main-dos.c" and "main-ibm.c".
@@ -55,6 +53,12 @@
  * A simpler method is needed for selecting the "tile size" for windows.
  * XXX XXX XXX
  *
+ * The various "warning" messages assume the existance of the "screen.w"
+ * window, I think, and only a few calls actually check for its existance,
+ * this may be okay since "NULL" means "on top of all windows". (?)  The
+ * user must never be allowed to "hide" the main window, or the "menubar"
+ * will disappear.  XXX XXX XXX
+ *
  * Special "Windows Help Files" can be placed into "lib/xtra/help/" for
  * use with the "winhelp.exe" program.  These files *may* be available
  * at the ftp site somewhere, but I have not seen them.  XXX XXX XXX
@@ -66,35 +70,12 @@
  *
  * Additional code by Ross E Becker (beckerr@cis.ohio-state.edu),
  * and Chris R. Martin (crm7479@tam2000.tamu.edu).
- *
- * Additional code by Robert Ruehlmann <rr9@angband.org>.
  */
 
 #include "angband.h"
 
 
 #ifdef WINDOWS
-
-
-/*
- * Use HTML-Help.
- */
-/* #define HTML_HELP */
-
-#ifdef HTML_HELP
-# define HELP_GENERAL "angband.chm"
-# define HELP_SPOILERS "angband.chm"
-#else /* HTML_HELP */
-# define HELP_GENERAL "angband.hlp"
-# define HELP_SPOILERS "spoilers.hlp"
-#endif /* HTML_HELP */
-
-
-/*
- * Switch on for compiling ZAngband with the new wilderness
- * (version 2.5.0 and later).
- */
-/* #define ZANGBAND_WILDERNESS */
 
 
 /*
@@ -121,6 +102,7 @@
 #define IDM_FILE_OPEN			101
 #define IDM_FILE_SAVE			110
 #define IDM_FILE_SCORE			120
+#define IDM_FILE_ABORT			125
 #define IDM_FILE_EXIT			130
 
 #define IDM_WINDOW_VIS_0		200
@@ -265,18 +247,10 @@
  * which performs a similar function.
  */
 #ifndef __CYGWIN__
-# include <mmsystem.h>
+  #include <mmsystem.h>
 #endif /* __CYGWIN__ */
 
 #include <commdlg.h>
-
-/*
- * HTML-Help requires htmlhelp.h and htmlhelp.lib from Microsoft's
- * HTML Workshop < http://msdn.microsoft.com/workshop/author/htmlhelp/ >.
- */
-#ifdef HTML_HELP
-#include <htmlhelp.h>
-#endif /* HTML_HELP */
 
 /*
  * Include the support for loading bitmaps
@@ -373,8 +347,8 @@ struct _term_data
 
 	uint keys;
 
-	byte rows;
-	byte cols;
+	uint rows;
+	uint cols;
 
 	uint pos_x;
 	uint pos_y;
@@ -882,8 +856,8 @@ static void term_getsize(term_data *td)
 	if (td->rows < 1) td->rows = 1;
 
 	/* Paranoia */
-	if (td->cols > 80) td->cols = 80;
-	if (td->rows > 24) td->rows = 24;
+	if (td->cols > 255) td->cols = 255;
+	if (td->rows > 255) td->rows = 255;
 
 	/* Window sizes */
 	wid = td->cols * td->tile_wid + td->size_ow1 + td->size_ow2;
@@ -960,11 +934,11 @@ static void save_prefs_aux(term_data *td, cptr sec_name)
 	wsprintf(buf, "%d", td->rows);
 	WritePrivateProfileString(sec_name, "NumRows", buf, ini_file);
 
-	/* Get window placement and dimensions */
 	lpwndpl.length = sizeof(WINDOWPLACEMENT);
+
 	GetWindowPlacement(td->w, &lpwndpl);
 
-	/* Acquire position in *normal* mode (not minimized) */
+	/* Acquire position */
 	rc = lpwndpl.rcNormalPosition;
 
 	/* Window position (x) */
@@ -1061,7 +1035,7 @@ static void load_prefs(void)
 #ifdef SUPPORT_GAMMA
 
 	/* Extract the gamma correction */
-	gamma_correction = GetPrivateProfileInt("Angband", "Gamma", 0, ini_file);
+	gamma_correction = (GetPrivateProfileInt("Angband", "Gamma", 0, ini_file) != 0);
 
 #endif /* SUPPORT_GAMMA */
 
@@ -1600,7 +1574,7 @@ static void term_change_font(term_data *td)
 }
 
 
-static void windows_map_aux(void);
+extern void windows_map(void);
 
 
 /*
@@ -1611,7 +1585,7 @@ static void term_data_redraw(term_data *td)
 	if (td->map_active)
 	{
 		/* Redraw the map */
-		windows_map_aux();
+		windows_map();
 	}
 	else
 	{
@@ -1624,23 +1598,10 @@ static void term_data_redraw(term_data *td)
 		/* Restore the term */
 		Term_activate(term_screen);
 	}
+
 }
 
 
-/*
- * Hack -- redraw a term_data
- */
-static void term_data_redraw_section(term_data *td, int x1, int y1, int x2, int y2)
-{
-	/* Activate the term */
-	Term_activate(&td->t);
-
-	/* Redraw the area */
-	Term_redraw_section(x1, y1, x2, y2);
-
-	/* Restore the term */
-	Term_activate(term_screen);
-}
 
 
 
@@ -1954,12 +1915,12 @@ static errr Term_xtra_win_sound(int v)
 #ifdef WIN32
 
 	/* Play the sound, catch errors */
-	return (PlaySound(buf, 0, SND_FILENAME | SND_ASYNC));
+	//return (PlaySound(buf, 0, SND_FILENAME | SND_ASYNC));
 
 #else /* WIN32 */
 
 	/* Play the sound, catch errors */
-	return (sndPlaySound(buf, SND_ASYNC));
+	//return (sndPlaySound(buf, SND_ASYNC));
 
 #endif /* WIN32 */
 
@@ -2425,62 +2386,34 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp)
 }
 
 
-static void windows_map_aux(void)
+/*
+ * Display a graphical map of the dungeon.
+ */
+static void windows_map(void)
 {
 	term_data *td = &data[0];
-	byte a;
-	char c;
+	byte a, c;
 	int x, min_x, max_x;
 	int y, min_y, max_y;
 
 #ifdef USE_TRANSPARENCY
-	byte ta;
-	char tc;
+	byte ta, tc;
 #endif /* USE_TRANSPARENCY */
 
-#ifndef ZANGBAND
-	s16b py = p_ptr->py;
-	s16b px = p_ptr->px;
-#endif /* ZANGBAND */
+	/* Only in graphics mode */
+	if (!use_graphics) return;
 
-#ifdef ZANGBAND
-
-	td->map_tile_wid = (td->tile_wid * td->cols) / MAX_WID;
-	td->map_tile_hgt = (td->tile_hgt * td->rows) / MAX_HGT;
-
-#ifdef ZANGBAND_WILDERNESS
-	
-	/* Is the player in the wilderness? */
-	if (dun_level == 0)
-	{
-		/* Work out offset of corner of dungeon-sized segment of the wilderness */
-		min_x = wild_grid.x_min;
-		min_y = wild_grid.y_min;
-		max_x = wild_grid.x_max;
-		max_y = wild_grid.y_max;
-	}
-	else
-
-#endif /* ZANGBAND_WILDERNESS */
-
-	{
-		min_x = 0;
-		min_y = 0;
-		max_x = cur_wid;
-		max_y = cur_hgt;
-	}
-
-#else /* ZANGBAND */
+	/* Clear screen */
+	Term_xtra_win_clear();
 
 	td->map_tile_wid = (td->tile_wid * td->cols) / DUNGEON_WID;
 	td->map_tile_hgt = (td->tile_hgt * td->rows) / DUNGEON_HGT;
+	td->map_active = TRUE;
 
 	min_x = 0;
 	min_y = 0;
 	max_x = DUNGEON_WID;
 	max_y = DUNGEON_HGT;
-
-#endif /* ZANGBAND */
 
 	/* Draw the map */
 	for (x = min_x; x < max_x; x++)
@@ -2488,9 +2421,9 @@ static void windows_map_aux(void)
 		for (y = min_y; y < max_y; y++)
 		{
 #ifdef USE_TRANSPARENCY
-			map_info(y, x, &a, &c, &ta, &tc);
+			map_info(y, x, &a, (char*)&c, &ta, (char*)&tc);
 #else /* USE_TRANSPARENCY */
-			map_info(y, x, &a, &c);
+			map_info(y, x, &a, (char*)&c);
 #endif /* USE_TRANSPARENCY */
 
 			/* Ignore non-graphics */
@@ -2506,31 +2439,10 @@ static void windows_map_aux(void)
 	}
 
 	/* Hilite the player */
-	Term_curs_win(px - min_x, py - min_y);
-}
-
-
-/*
- * MEGA_HACK - Display a graphical map of the dungeon.
- */
-static void windows_map(void)
-{
-	term_data *td = &data[0];
-	char ch;
-
-	/* Only in graphics mode since the fonts can't be scaled */
-	if (!use_graphics) return;
-
-	/* Clear screen */
-	Term_xtra_win_clear();
-
-	td->map_active = TRUE;
-
-	/* Draw the map */
-	windows_map_aux();
+	Term_curs_win(p_ptr->px - min_x, p_ptr->py - min_y);
 
 	/* Wait for a keypress, flush key buffer */
-	Term_inkey(&ch, TRUE, TRUE);
+	Term_inkey(&c, TRUE, TRUE);
 	Term_flush();
 
 	/* Switch off the map display */
@@ -2785,6 +2697,8 @@ static void setup_menus(void)
 	               MF_BYCOMMAND | MF_DISABLED | MF_GRAYED);
 	EnableMenuItem(hm, IDM_FILE_SAVE,
 	               MF_BYCOMMAND | MF_DISABLED | MF_GRAYED);
+	EnableMenuItem(hm, IDM_FILE_ABORT,
+	               MF_BYCOMMAND | MF_DISABLED | MF_GRAYED);
 	EnableMenuItem(hm, IDM_FILE_EXIT,
 	               MF_BYCOMMAND | MF_DISABLED | MF_GRAYED);
 	EnableMenuItem(hm, IDM_FILE_SCORE,
@@ -2807,6 +2721,9 @@ static void setup_menus(void)
 		/* Menu "File", Item "Save" */
 		EnableMenuItem(hm, IDM_FILE_SAVE, MF_BYCOMMAND | MF_ENABLED);
 	}
+
+	/* Menu "File", Item "Abort" */
+	EnableMenuItem(hm, IDM_FILE_ABORT, MF_BYCOMMAND | MF_ENABLED);
 
 	/* Menu "File", Item "Exit" */
 	EnableMenuItem(hm, IDM_FILE_EXIT, MF_BYCOMMAND | MF_ENABLED);
@@ -3006,39 +2923,6 @@ static void check_for_save_file(LPSTR cmd_line)
 
 
 /*
- * Display a help file
- */
-static void display_help(cptr filename)
-{
-	char tmp[1024];
-
-	path_build(tmp, 1024, ANGBAND_DIR_XTRA_HELP, filename);
-
-	if (check_file(tmp))
-	{
-#ifdef HTML_HELP
-
-		HtmlHelp(data[0].w, tmp, HH_DISPLAY_TOPIC, 0);
-
-#else /* HTML_HELP */
-
-		char buf[1024];
-
-		sprintf(buf, "winhelp.exe %s", tmp);
-		WinExec(buf, SW_NORMAL);
-
-#endif /* HTML_HELP */
-
-	}
-	else
-	{
-		plog_fmt("Cannot find help file: %s", tmp);
-		plog("Use the online help files instead.");
-	}
-}
-
-
-/*
  * Process a menu command
  */
 static void process_menus(WORD wCmd)
@@ -3181,6 +3065,23 @@ static void process_menus(WORD wCmd)
 				Term_fresh();
 			}
 
+			break;
+		}
+
+		/* Abort */
+		case IDM_FILE_ABORT:
+		{
+			if (game_in_progress && character_generated)
+			{
+				/* XXX XXX XXX */
+				if (MessageBox(data[0].w,
+				               "Your character will be not saved!", "Warning",
+				               MB_ICONEXCLAMATION | MB_OKCANCEL) == IDCANCEL)
+				{
+					break;
+				}
+			}
+			quit(NULL);
 			break;
 		}
 
@@ -3528,54 +3429,42 @@ static void process_menus(WORD wCmd)
 
 		case IDM_HELP_GENERAL:
 		{
-			display_help(HELP_GENERAL);
+			char buf[1024];
+			char tmp[1024];
+			path_build(tmp, 1024, ANGBAND_DIR_XTRA_HELP, "angband.hlp");
+			if (check_file(tmp))
+			{
+				sprintf(buf, "winhelp.exe %s", tmp);
+				WinExec(buf, SW_NORMAL);
+			}
+			else
+			{
+				plog_fmt("Cannot find help file: %s", tmp);
+				plog("Use the online help files instead.");
+			}
 			break;
 		}
 
 		case IDM_HELP_SPOILERS:
 		{
-			display_help(HELP_SPOILERS);
+			char buf[1024];
+			char tmp[1024];
+			path_build(tmp, 1024, ANGBAND_DIR_XTRA_HELP, "spoilers.hlp");
+			if (check_file(tmp))
+			{
+				sprintf(buf, "winhelp.exe %s", tmp);
+				WinExec(buf, SW_NORMAL);
+			}
+			else
+			{
+				plog_fmt("Cannot find help file: %s", tmp);
+				plog("Use the online help files instead.");
+			}
 			break;
 		}
 	}
 }
 
-
-/*
- * Redraw a section of a window
- */
-void handle_wm_paint(HWND hWnd)
-{
-	int x1, y1, x2, y2;
-	PAINTSTRUCT ps;
-	term_data *td;
-
-	/* Acquire proper "term_data" info */
-	td = (term_data *)GetWindowLong(hWnd, 0);
-
-	BeginPaint(hWnd, &ps);
-
-	if (td->map_active)
-	{
-		/* Redraw the map */
-		/* ToDo: Only redraw the necessary parts */
-		windows_map_aux();
-	}
-	else
-	{
-		/* Get the area that should be updated (rounding up/down) */
-		/* ToDo: Take the window borders into account */
-		x1 = (ps.rcPaint.left / td->tile_wid) - 1;
-		x2 = (ps.rcPaint.right / td->tile_wid) + 1;
-		y1 = (ps.rcPaint.top / td->tile_hgt) - 1;
-		y2 = (ps.rcPaint.bottom / td->tile_hgt) + 1;
-
-		/* Redraw */
-		if (td) term_data_redraw_section(td, x1, y1, x2, y2);
-	}
-
-	EndPaint(hWnd, &ps);
-}
 
 
 #ifdef __MWERKS__
@@ -3588,8 +3477,13 @@ LRESULT FAR PASCAL AngbandWndProc(HWND hWnd, UINT uMsg,
                                           WPARAM wParam, LPARAM lParam)
 #endif /* __MWERKS__ */
 {
+	PAINTSTRUCT ps;
 	HDC hdc;
 	term_data *td;
+#if 0
+	MINMAXINFO FAR *lpmmi;
+	RECT rc;
+#endif /* 0 */
 	int i;
 
 
@@ -3615,9 +3509,6 @@ LRESULT FAR PASCAL AngbandWndProc(HWND hWnd, UINT uMsg,
 		case WM_GETMINMAXINFO:
 		{
 #if 0
-			MINMAXINFO FAR *lpmmi;
-			RECT rc;
-
 			lpmmi = (MINMAXINFO FAR *)lParam;
 
 			/* this message was sent before WM_NCCREATE */
@@ -3660,8 +3551,10 @@ LRESULT FAR PASCAL AngbandWndProc(HWND hWnd, UINT uMsg,
 
 		case WM_PAINT:
 		{
-			handle_wm_paint(hWnd);
-
+			BeginPaint(hWnd, &ps);
+			if (td) term_data_redraw(td);
+			EndPaint(hWnd, &ps);
+			ValidateRect(hWnd, NULL);
 			return 0;
 		}
 
@@ -3878,6 +3771,11 @@ LRESULT FAR PASCAL AngbandListProc(HWND hWnd, UINT uMsg,
 #endif /* __MWERKS__ */
 {
 	term_data *td;
+#if 0
+	MINMAXINFO FAR *lpmmi;
+	RECT rc;
+#endif /* 0 */
+	PAINTSTRUCT ps;
 	HDC hdc;
 	int i;
 
@@ -3904,9 +3802,6 @@ LRESULT FAR PASCAL AngbandListProc(HWND hWnd, UINT uMsg,
 		case WM_GETMINMAXINFO:
 		{
 #if 0
-			MINMAXINFO FAR *lpmmi;
-			RECT rc;
-
 			/* this message was sent before WM_NCCREATE */
 			if (!td) return 1;
 
@@ -3995,8 +3890,9 @@ LRESULT FAR PASCAL AngbandListProc(HWND hWnd, UINT uMsg,
 
 		case WM_PAINT:
 		{
-			handle_wm_paint(hWnd);
-
+			BeginPaint(hWnd, &ps);
+			if (td) term_data_redraw(td);
+			EndPaint(hWnd, &ps);
 			return 0;
 		}
 

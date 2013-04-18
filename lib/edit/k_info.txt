@@ -60,7 +60,7 @@
 
 # Version stamp (required)
 
-V:2.9.1
+V:2.9.2
 
 
 ##### Non-kind (contains the "pile" picture) #####
@@ -255,7 +255,7 @@ I:23:21:0
 W:15:0:140:350
 A:15/1
 P:0:3d4:0:0:0
-F:SHOW_MODS
+F:SHOW_MODS | MUST2H
 
 N:32:& Scimitar~
 G:|:W
@@ -263,7 +263,7 @@ I:23:18:0
 W:10:0:130:250
 A:10/1
 P:0:2d5:0:0:0
-F:SHOW_MODS
+F:SHOW_MODS | COULD2H
 
 N:33:& Tulwar~
 G:|:W
@@ -303,7 +303,7 @@ I:23:25:0
 W:30:0:200:775
 A:30/1:40/1
 P:0:3d6:0:0:0
-F:SHOW_MODS
+F:SHOW_MODS | MUST2H
 
 N:38:& Main Gauche~
 G:|:W
@@ -326,7 +326,7 @@ G:|:r
 I:23:28:0
 W:40:0:260:850
 A:40/1
-P:0:4d5:0:0:0
+P:0:4d5:0:0:0 | MUST2H
 F:SHOW_MODS
 
 N:41:& Katana~
@@ -335,7 +335,7 @@ I:23:20:0
 W:20:0:120:400
 A:20/1
 P:0:3d4:0:0:0
-F:SHOW_MODS
+F:SHOW_MODS | COULD2H
 
 N:42:& Long Sword~
 G:|:W
@@ -393,7 +393,7 @@ I:21:6:0
 W:20:0:150:200
 A:20/1
 P:0:2d4:0:0:0
-F:SHOW_MODS
+F:SHOW_MODS | COULD2H
 
 N:49:& Whip~
 G:\:D
@@ -409,7 +409,7 @@ I:21:13:0
 W:10:0:150:353
 A:10/1
 P:0:2d6:0:0:0
-F:SHOW_MODS
+F:SHOW_MODS | COULD2H
 
 N:51:& Two-Handed Flail~
 G:\:y
@@ -417,7 +417,7 @@ I:21:18:0
 W:45:0:280:590
 A:45/1
 P:0:3d6:0:0:0
-F:SHOW_MODS
+F:SHOW_MODS | MUST2H
 
 N:52:& Morning Star~
 G:\:D
@@ -433,7 +433,7 @@ I:21:5:0
 W:5:0:120:130
 A:5/1
 P:0:2d4:0:0:0
-F:SHOW_MODS
+F:SHOW_MODS | COULD2H
 
 N:54:& Quarterstaff~
 G:\:U
@@ -441,7 +441,7 @@ I:21:3:0
 W:10:0:150:200
 A:10/1
 P:0:1d9:0:0:0
-F:SHOW_MODS
+F:SHOW_MODS | COULD2H
 
 N:55:& War Hammer~
 G:\:D
@@ -449,7 +449,7 @@ I:21:8:0
 W:5:0:120:225
 A:5/1
 P:0:3d3:0:0:0
-F:SHOW_MODS
+F:SHOW_MODS | COULD2H
 
 N:56:& Lead-Filled Mace~
 G:\:D
@@ -457,7 +457,7 @@ I:21:15:0
 W:15:0:180:502
 A:15/1
 P:0:3d4:0:0:0
-F:SHOW_MODS
+F:SHOW_MODS | COULD2H
 
 N:57:& Mace~ of Disruption
 G:\:v
@@ -465,7 +465,7 @@ I:21:20:0
 W:80:0:400:4300
 A:80/8
 P:0:5d8:0:0:0
-F:SLAY_UNDEAD | SHOW_MODS
+F:SLAY_UNDEAD | SHOW_MODS | MUST2H
 
 N:58:& Lucerne Hammer~
 G:\:B
@@ -491,7 +491,7 @@ I:22:13:0
 W:20:0:190:363
 A:20/1
 P:0:2d6:0:0:0
-F:SHOW_MODS
+F:SHOW_MODS | COULD2H
 
 N:61:& Halberd~
 G:/:s
@@ -499,7 +499,7 @@ I:22:15:0
 W:25:0:190:430
 A:25/1
 P:0:3d5:0:0:0
-F:SHOW_MODS
+F:SHOW_MODS | COULD2H
 
 N:62:& Awl-Pike~
 G:/:s
@@ -507,7 +507,7 @@ I:22:4:0
 W:10:0:160:340
 A:10/1
 P:0:1d8:0:0:0
-F:SHOW_MODS
+F:SHOW_MODS | COULD2H
 
 N:63:& Pike~
 G:/:s
@@ -515,7 +515,7 @@ I:22:8:0
 W:15:0:160:358
 A:15/1
 P:0:2d5:0:0:0
-F:SHOW_MODS
+F:SHOW_MODS | COULD2H
 
 N:64:& Spear~
 G:/:s
@@ -531,7 +531,7 @@ I:22:5:0
 W:5:0:70:120
 A:5/1
 P:0:1d8:0:0:0
-F:SHOW_MODS
+F:SHOW_MODS | COULD2H
 
 N:66:& Lance~
 G:/:s
@@ -539,7 +539,7 @@ I:22:20:0
 W:10:0:300:230
 A:10/1
 P:0:2d8:0:0:0
-F:SHOW_MODS
+F:SHOW_MODS | MUST2H
 
 N:67:& Great Axe~
 G:/:s
@@ -547,7 +547,7 @@ I:22:25:0
 W:40:0:230:500
 A:40/1
 P:0:4d4:0:0:0
-F:SHOW_MODS
+F:SHOW_MODS | MUST2H
 
 N:68:& Battle Axe~
 G:/:s
@@ -555,7 +555,7 @@ I:22:22:0
 W:15:0:170:334
 A:15/1
 P:0:2d8:0:0:0
-F:SHOW_MODS
+F:SHOW_MODS | COULD2H
 
 N:69:& Lochaber Axe~
 G:/:D
@@ -563,7 +563,7 @@ I:22:28:0
 W:45:0:250:750
 A:45/1
 P:0:3d8:0:0:0
-F:SHOW_MODS
+F:SHOW_MODS | COULD2H
 
 N:70:& Broad Axe~
 G:/:s
@@ -571,7 +571,7 @@ I:22:11:0
 W:15:0:160:304
 A:15/1
 P:0:2d6:0:0:0
-F:SHOW_MODS
+F:SHOW_MODS | COULD2H
 
 N:71:& Scythe~
 G:/:s
@@ -579,7 +579,7 @@ I:22:17:0
 W:45:0:250:800
 A:45/1
 P:0:5d3:0:0:0
-F:SHOW_MODS
+F:SHOW_MODS | COULD2H
 
 N:72:& Scythe~ of Slicing
 G:/:r
@@ -587,7 +587,7 @@ I:22:30:0
 W:60:0:250:3500
 A:60/4
 P:0:8d4:0:0:0
-F:SHOW_MODS
+F:SHOW_MODS | MUST2H
 
 
 ##### Bows, Crossbows, Slings #####
@@ -2105,7 +2105,12 @@ A:3/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-## XXX 293 XXX ##
+N:293:Power
+G:":d
+I:40:9:0
+W:30:0:3:5000
+A:30/2
+F:LIFE | MANA | HIDE_TYPE
 
 N:294:Acid Bolts
 G:-:d
@@ -2510,7 +2515,13 @@ W:0:0:2:0
 A:0/1
 P:0:1d1:0:0:0
 
-
+N:350:& Feanorian lamp~
+G:~:o
+I:39:2:0
+W:15:40:60:450
+A:15/1:30/1
+P:0:1d1:0:0:0
+F:EASY_KNOW | IGNORE_FIRE
 
 
 ##### Here are the Rods #####
@@ -2993,6 +3004,15 @@ F:ACTIVATE | IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 ## XXX 414 XXX ##
 
+###### Extra rings #######
+
+
+N:414:Invisibility
+G:=:d
+I:45:38:0
+W:50:100:2:10000
+A:50/1
+F:INVIS | HIDE_TYPE
 
 ##### Extra potions #####
 
@@ -3050,6 +3070,20 @@ G:!:d
 I:75:57:0
 W:70:0:4:80000
 A:70/4
+P:0:1d1:0:0:0
+
+N:423:Blind Monster
+G:-:d
+I:65:29:0
+W:5:0:10:500
+A:5/1
+P:0:1d1:0:0:0
+
+N:424:Calm Monster
+G:-:d
+I:65:30:0
+W:5:0:10:500
+A:5/1
 P:0:1d1:0:0:0
 
 ## XXX 423 XXX ##
@@ -3177,7 +3211,7 @@ P:0:1d1:0:0:0
 F:INSTA_ART
 
 
-##### Objects 500 to 512 are the "Special Artifacts" #####
+##### Objects 500 to 511 are the "Special Artifacts" #####
 
 # These objects do not specify "full names" because the artifact name
 # is added in "obj-desc.c" based on the artifact index ("i_ptr->name1").
@@ -3306,7 +3340,7 @@ F:INSTA_ART
 
 N:512:& Palantir~
 G:~:y
-I:39:7:0
+I:39:3:0
 W:75:0:200:100000
 P:0:10d10:0:0:0
 F:INSTA_ART

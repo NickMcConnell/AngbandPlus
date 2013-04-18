@@ -637,6 +637,8 @@ void map_info(int y, int x, byte *ap, char *cp)
 	/* Hack -- Assume that "new" means "Adam Bolt Tiles" */
 	bool graf_new = (use_graphics && streq(ANGBAND_GRAF, "new"));
 
+	bool sq_flag = FALSE;
+
 	/* Monster/Player */
 	m_idx = cave_m_idx[y][x];
 
@@ -880,15 +882,26 @@ void map_info(int y, int x, byte *ap, char *cp)
 
 				break;
 			}
+			
+			sq_flag = ((k_info[o_ptr->k_idx].squelch) &
+				   (k_info[o_ptr->k_idx].aware));
 
-			/* Normal attr */
-			a = object_attr(o_ptr);
-
-			/* Normal char */
-			c = object_char(o_ptr);
+			if (!sq_flag) {
+			  /* Normal attr */
+			  a = object_attr(o_ptr);
+			  
+			  /* Normal char */
+			  c = object_char(o_ptr);
+			} else {
+			  /* Special squelch character HACK */
+			  /* Color of Blade of Chaos */
+			  a = k_info[36].x_attr;  
+			  /* Symbol of floor */
+			  c = f_info[1].x_char;  
+			}
 
 			/* First marked object */
-			if (!show_piles) break;
+			if (!show_piles || sq_flag) break;
 
 			/* Special stack symbol */
 			if (++floor_num > 1)
@@ -900,7 +913,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 
 				/* Normal attr */
 				a = k_ptr->x_attr;
-
+				
 				/* Normal char */
 				c = k_ptr->x_char;
 
@@ -1014,6 +1027,25 @@ void map_info(int y, int x, byte *ap, char *cp)
 
 		/* Get the "player" char */
 		c = r_ptr->x_char;
+
+                if (player_symbols) c = rp_ptr->race_char;
+
+         	if ((p_ptr->invisible) && !(p_ptr->see_inv))
+        	{
+                  char c_byte;
+        	  object_type *o_ptr;
+        	  feature_type *f_ptr;
+
+	          c_byte = cave_feat[p_ptr->py][p_ptr->px];
+        	  this_o_idx = cave_o_idx[p_ptr->py][p_ptr->px];
+	          f_ptr = &f_info[c_byte];
+                  o_ptr = &o_list[this_o_idx];
+
+        	  a = object_attr(&o_list[this_o_idx]);
+	          if (o_ptr->k_idx) c = object_char(o_ptr);
+        	    else c = f_ptr->x_char;
+        	}
+
 	}
 
 #ifdef MAP_INFO_MULTIPLE_PLAYERS
@@ -1036,6 +1068,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 	/* Result */
 	(*ap) = a;
 	(*cp) = c;
+
 }
 
 
@@ -1440,8 +1473,6 @@ void display_map(int *cy, int *cx)
 	bool old_view_special_lite;
 	bool old_view_granite_lite;
 
-	monster_race *r_ptr = &r_info[0];
-
 
 	/* Desired map height */
 	map_hgt = Term->hgt - 2;
@@ -1551,17 +1582,20 @@ void display_map(int *cy, int *cx)
 	row = (py * map_hgt / DUNGEON_HGT);
 	col = (px * map_wid / DUNGEON_WID);
 
+	/* Make sure the player is visible */
+	if (TRUE)
+	{
+		monster_race *r_ptr = &r_info[0];
 
-	/*** Make sure the player is visible ***/
+		/* Get the "player" attr */
+		ta = r_ptr->x_attr;
 
-	/* Get the "player" attr */
-	ta = r_ptr->x_attr;
+		/* Get the "player" char */
+		tc = r_ptr->x_char;
 
-	/* Get the "player" char */
-	tc = r_ptr->x_char;
-
-	/* Draw the player */
-	Term_putch(col + 1, row + 1, ta, tc);
+		/* Draw the player */
+		Term_putch(col + 1, row + 1, ta, tc);
+	}
 
 	/* Return player location */
 	if (cy != NULL) (*cy) = row + 1;
@@ -2369,9 +2403,14 @@ errr vinfo_init(void)
 	{
 		int e;
 
+		vinfo_type *p;
+
 
 		/* Index */
-		e = queue_head++;
+		e = queue_head;
+
+		/* Dequeue next grid */
+		p = queue[queue_head++];
 
 		/* Main Grid */
 		g = vinfo[e].grid_0;
@@ -3796,6 +3835,8 @@ void scatter(int *yp, int *xp, int y, int x, int d, int m)
 {
 	int nx, ny;
 
+	/* Unused */
+	m = m;
 
 	/* Pick a location */
 	while (TRUE)

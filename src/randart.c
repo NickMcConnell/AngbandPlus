@@ -952,6 +952,9 @@ static s32b artifact_power(int a_idx, bool cannot_use_kind_cache)
 			if (a_ptr->flags1 & TR1_BRAND_ELEC) p = (p * 3) / 2;
 			if (a_ptr->flags1 & TR1_BRAND_FIRE) p = (p * 4) / 3;
 			if (a_ptr->flags1 & TR1_BRAND_COLD) p = (p * 4) / 3;
+			if (a_ptr->flags1 & TR1_BRAND_POIS) p = (p * 4) / 3;
+			if (a_ptr->flags2 & TR2_BRAND_LITE) p = (p * 4) / 3;
+			if (a_ptr->flags1 & TR1_VAMPIRIC) p = (p * 5) / 3;
 
 			p += (a_ptr->to_d + 2 * sign(a_ptr->to_d)) / 3;
 			if (a_ptr->to_d > 15) p += (a_ptr->to_d - 14) / 2;
@@ -1032,6 +1035,8 @@ static s32b artifact_power(int a_idx, bool cannot_use_kind_cache)
 	if (a_ptr->flags1 & TR1_CHR) p += a_ptr->pval;
 	if (a_ptr->flags1 & TR1_INFRA) p += (a_ptr->pval + sign(a_ptr->pval)) / 2;
 	if (a_ptr->flags1 & TR1_SPEED) p += (a_ptr->pval * 3) / 2;
+	if (a_ptr->flags3 & TR3_MANA)   p += (a_ptr->pval * 2);
+	if (a_ptr->flags3 & TR3_LIFE) p += (a_ptr->pval * 3);
 
 	if (a_ptr->flags2 & TR2_SUST_STR) p += 6;
 	if (a_ptr->flags2 & TR2_SUST_INT) p += 4;
@@ -1080,6 +1085,7 @@ static s32b artifact_power(int a_idx, bool cannot_use_kind_cache)
 	if (a_ptr->flags2 & TR2_RES_CHAOS) p += 12;
 	if (a_ptr->flags2 & TR2_RES_DISEN) p += 12;
 
+	if (a_ptr->flags2 & TR1_INVIS) p += 10;
 	if (a_ptr->flags3 & TR3_FEATHER) p += 2;
 	if (a_ptr->flags3 & TR3_LITE) p += 2;
 	if (a_ptr->flags3 & TR3_SEE_INVIS) p += 8;
@@ -1332,7 +1338,8 @@ static void choose_item(int a_idx)
 	a_ptr->flags3 = k_ptr->flags3;
 
 	/* Artifacts ignore everything */
-	a_ptr->flags3 |= TR3_IGNORE_MASK;
+	a_ptr->flags3 |= (TR3_IGNORE_ACID | TR3_IGNORE_ELEC |
+			   TR3_IGNORE_FIRE | TR3_IGNORE_COLD);
 
 	/* Assign basic stats to the artifact based on its artifact level. */
 	switch (a_ptr->tval)
@@ -1455,7 +1462,12 @@ static void add_ability(artifact_type *a_ptr)
 					a_ptr->flags1 |= TR1_BRAND_ACID;
 					if (rand_int(4) > 0) a_ptr->flags2 |= TR2_RES_ACID;
 				}
-				else if (r < 10)
+				else if (r < 9)
+				{
+					a_ptr->flags1 |= TR1_BRAND_POIS;
+					if (rand_int(4) > 0) a_ptr->flags2 |= TR2_RES_POIS;
+				}
+				else if (r < 12)
 				{
 					a_ptr->flags1 |= TR1_BRAND_ELEC;
 					if (rand_int(4) > 0) a_ptr->flags2 |= TR2_RES_ELEC;
@@ -1470,6 +1482,16 @@ static void add_ability(artifact_type *a_ptr)
 					a_ptr->flags1 |= TR1_BRAND_COLD;
 					if (rand_int(4) > 0) a_ptr->flags2 |= TR2_RES_COLD;
 				}
+				else if (r < 22)
+				{
+					a_ptr->flags2 |= TR2_BRAND_LITE;
+					if (rand_int(4) > 0) a_ptr->flags2 |= TR2_RES_LITE;
+				}
+				else if (r < 24)
+				{
+					a_ptr->flags1 |= TR1_VAMPIRIC;
+					if (rand_int(4) > 0) a_ptr->flags3 |= TR3_HOLD_LIFE;
+				}
 				else if (r < 28)
 				{
 					a_ptr->dd += (byte)(1 + rand_int(2) + rand_int(2));
@@ -1478,7 +1500,6 @@ static void add_ability(artifact_type *a_ptr)
 				else if (r < 31) a_ptr->flags1 |= TR1_KILL_DRAGON;
 				else if (r < 35) a_ptr->flags1 |= TR1_SLAY_DRAGON;
 				else if (r < 40) a_ptr->flags1 |= TR1_SLAY_EVIL;
-
 				else if (r < 45) a_ptr->flags1 |= TR1_SLAY_ANIMAL;
 				else if (r < 50)
 				{
@@ -1635,7 +1656,7 @@ static void add_ability(artifact_type *a_ptr)
 	}
 	else			/* Pick something universally useful. */
 	{
-		r = rand_int(43);
+		r = rand_int(46);
 		switch (r)
 		{
 			case 0:
@@ -1792,9 +1813,16 @@ static void add_ability(artifact_type *a_ptr)
 					a_ptr->flags3 |= TR3_TELEPATHY;
 				break;
 			case 41: a_ptr->flags3 |= TR3_SLOW_DIGEST; break;
-
-			case 42:
-				a_ptr->flags3 |= TR3_REGEN; break;
+			case 42: a_ptr->flags3 |= TR3_REGEN; break;
+			case 43: a_ptr->flags1 |= TR1_INVIS; break;
+			case 44:
+				a_ptr->flags3 |= TR3_MANA;
+				do_pval(a_ptr);
+				break;
+			case 45:
+				a_ptr->flags3 |= TR3_LIFE;
+				do_pval(a_ptr);
+				break;
 		}
 	}
 
@@ -1900,7 +1928,10 @@ static int scramble_artifact(int a_idx)
 		a_ptr->flags1 = a_ptr->flags2 = 0;
 
 		/* Artifacts ignore everything */
-		a_ptr->flags3 = (TR3_IGNORE_MASK);
+		a_ptr->flags3 = (TR3_IGNORE_ACID |
+				 TR3_IGNORE_ELEC |
+				 TR3_IGNORE_FIRE |
+				 TR3_IGNORE_COLD);
 	}
 
 	/* First draft: add two abilities, then curse it three times. */

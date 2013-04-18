@@ -2311,7 +2311,7 @@ static int breakage_chance(object_type *o_ptr)
 	/* Examine the item type */
 	switch (o_ptr->tval)
 	{
-		/* Always break */		/*BHH*/
+		/* Always break */
 		case TV_FLASK:
 		case TV_POTION:
 		case TV_BOTTLE:
@@ -2622,7 +2622,7 @@ void do_cmd_fire(void)
 				/* No negative damage */
 				if (tdam < 0) tdam = 0;
 
-				/* Complex message */	/*BHH*/
+				/* Complex message */
 				
 				
 					msg_format("You do %d (out of %d) damage.",
@@ -2903,9 +2903,8 @@ void do_cmd_throw(void)
 				/* No negative damage */
 				if (tdam < 0) tdam = 0;
 
-				/* Complex message */ /*BHH*/
-				
-				
+				/* Complex message */
+							
 					msg_format("You do %d (out of %d) damage.",
 					           tdam, m_ptr->hp);
 				
@@ -2948,5 +2947,3 @@ void do_cmd_throw(void)
 	/* Drop (or break) near that location */
 	drop_near(i_ptr, j, y, x);
 }
-
-

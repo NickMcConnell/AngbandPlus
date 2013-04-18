@@ -465,7 +465,7 @@ static void prt_state(void)
 {
 	byte attr = TERM_WHITE;
 
-	char text[16];
+        char text[16] = "";
 
 
 	/* Paralysis */
@@ -554,20 +554,85 @@ static void prt_state(void)
 		}
 	}
 
-	/* Searching */
-	else if (p_ptr->searching)
+        /* Searching and others */
+        /* Mega-Hack probably... */
+        
+        else 
 	{
-		strcpy(text, "Searching ");
-	}
+	
+	if (p_ptr->searching)
+        {
+	        c_put_str(TERM_WHITE, "S", ROW_STATE, COL_STATE);
+	
+        }
+        /* Nothing interesting */
+        else
+        {
+	        c_put_str(TERM_WHITE, " ", ROW_STATE, COL_STATE);
+        }
 
-	/* Nothing interesting */
-	else
-	{
-		strcpy(text, "          ");
-	}
+	if (p_ptr->protevil)
+        {
+	        c_put_str(TERM_L_DARK, "P", ROW_STATE, COL_STATE + 1);
+        }
+        /* Nothing interesting */
+        else
+        {
+	        c_put_str(TERM_WHITE, " ", ROW_STATE, COL_STATE + 1);
+        }
 
-	/* Display the info (or blanks) */
-	c_put_str(attr, text, ROW_STATE, COL_STATE);
+	if (p_ptr->hero || p_ptr->shero)
+        {
+	        c_put_str(TERM_L_WHITE, "H", ROW_STATE, COL_STATE + 2);
+        }
+        /* Nothing interesting */
+        else
+        {
+	        c_put_str(TERM_WHITE, " ", ROW_STATE, COL_STATE + 2);
+        }
+	
+	if (p_ptr->shield)
+        {
+	        c_put_str(TERM_L_WHITE, "Sh", ROW_STATE, COL_STATE + 3);
+        }
+        /* Nothing interesting */
+        else
+        {
+	        c_put_str(TERM_WHITE, " ", ROW_STATE, COL_STATE + 3);
+        }
+
+	if (p_ptr->blessed)
+        {
+	        c_put_str(TERM_YELLOW, "B", ROW_STATE, COL_STATE + 5);
+        }
+        /* Nothing interesting */
+        else
+        {
+	        c_put_str(TERM_WHITE, " ", ROW_STATE, COL_STATE + 5);
+        }
+
+	if (p_ptr->tim_infra)
+        {
+	        c_put_str(TERM_ORANGE, "I", ROW_STATE, COL_STATE + 6);
+        }
+        /* Nothing interesting */
+        else
+        {
+	        c_put_str(TERM_WHITE, " ", ROW_STATE, COL_STATE + 6);
+        }
+	
+	if (p_ptr->tim_invis)
+        {
+	        c_put_str(TERM_L_BLUE, "B", ROW_STATE, COL_STATE + 7);
+        }
+        /* Nothing interesting */
+        else
+        {
+	        c_put_str(TERM_WHITE, " ", ROW_STATE, COL_STATE + 7);
+        }
+
+        }
+
 }
 
 
@@ -725,6 +790,19 @@ static void health_redraw(void)
 	{
 		int pct, len;
 
+		/* ~ customized monster health bar -- colorless fear/sleep status
+		 # ~ blatantly stolen from gw-angband -- neko
+		 */
+		const char hb_normal[] = "**********";
+		const char hb_fearful[] = "FFFFFFFFFF";
+		const char hb_sleeping[] = "SSSSSSSSSS";
+		const char hb_confused[] = "CCCCCCCCCC";
+		const char hb_stunned[] = "ssssssssss";
+		const char hb_poisoned[] = "PPPPPPPPPP";
+		const char hb_blinded[] = "BBBBBBBBBB";
+		const char hb_calmed[] = "cccccccccc";
+		const char *hb_ptr = hb_normal;
+
 		monster_type *m_ptr = &m_list[p_ptr->health_who];
 
 		/* Default to almost dead */
@@ -746,16 +824,25 @@ static void health_redraw(void)
 		if (pct >= 100) attr = TERM_L_GREEN;
 
 		/* Afraid */
-		if (m_ptr->monfear) attr = TERM_VIOLET;
+		if (m_ptr->monfear) { attr = TERM_VIOLET; hb_ptr = hb_fearful; }
 
 		/* Confused */
-		if (m_ptr->confused) attr = TERM_UMBER;
+		if (m_ptr->confused){attr = TERM_UMBER; hb_ptr = hb_confused; }
 
 		/* Stunned */
-		if (m_ptr->stunned) attr = TERM_L_BLUE;
+		if (m_ptr->stunned) {attr = TERM_L_BLUE; hb_ptr = hb_stunned; }
 
 		/* Asleep */
-		if (m_ptr->csleep) attr = TERM_BLUE;
+		if (m_ptr->csleep) {attr = TERM_BLUE; hb_ptr = hb_sleeping;}
+
+		/* Poisoned */
+		if (m_ptr->monpois) {attr = TERM_GREEN; hb_ptr = hb_poisoned;}
+
+		/* Blinded */
+		if (m_ptr->monblind) {attr = TERM_L_DARK; hb_ptr = hb_blinded;}
+
+		/* Calmed */
+		if (m_ptr->moncalm) {attr = TERM_L_BLUE; hb_ptr = hb_calmed;}
 
 		/* Convert percent into "health" */
 		len = (pct < 10) ? 1 : (pct < 90) ? (pct / 10 + 1) : 10;
@@ -764,7 +851,7 @@ static void health_redraw(void)
 		Term_putstr(COL_INFO, ROW_INFO, 12, TERM_WHITE, "[----------]");
 
 		/* Dump the current "health" (use '*' symbols) */
-		Term_putstr(COL_INFO + 1, ROW_INFO, len, attr, "**********");
+		Term_putstr(COL_INFO + 1, ROW_INFO, len, attr, hb_ptr);
 	}
 }
 
@@ -1131,6 +1218,131 @@ static void fix_object(void)
 	}
 }
 
+/* Show the monster list in a window */
+
+static void fix_m_list(void)
+{
+	int i, j; 
+
+	/* Scan windows */
+	for (j = 0; j < 8; j++)
+	{
+		term *old = Term;
+
+		int c = 0;
+
+		/* No window */
+		if (!angband_term[j]) continue;
+
+		/* No relevant flags */
+		if (!(op_ptr->window_flag[j] & (PW_M_LIST))) continue;
+
+		/* Activate */
+		Term_activate(angband_term[j]);
+
+		/* Clear */
+		Term_clear();
+
+		/* reset visible count */
+		for (i = 1; i< z_info->r_max; i++)
+		{
+			monster_race *r_ptr = &r_info[i];
+			
+			r_ptr->total_visible = 0;
+		}
+
+		/* Count up the number visible in each race */
+		for (i = 1; i < m_max; i++)
+		{
+			monster_type *m_ptr = &m_list[i];
+			monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+			/* Skip dead monsters */
+			if (m_ptr->hp < 0) continue;
+
+			/* Skip unseen monsters */
+			if (!m_ptr->ml) continue;
+
+			/* Increase for this race */
+			r_ptr->total_visible++;
+
+			/* Increase total Count */
+			c++;
+		}
+
+		/* Are monsters visible? */
+		if (c)
+		{
+			int  w, h, num = 0;
+
+			(void)Term_get_size(&w, &h);
+
+			c_prt(TERM_WHITE,format("You can see %d monster%s", c, (c > 1 ? "s:" : ":")), 0, 0);
+
+			for (i = 1; i< z_info->r_max; i++)
+			{
+				monster_race *r_ptr = &r_info[i];
+				monster_lore *l_ptr = &l_list[i];
+
+				/* Default Colour */
+				byte attr = TERM_SLATE;
+
+				/* Only visible monsters */
+				if (!r_ptr->total_visible) continue;
+
+				/* Uniques */
+				if (r_ptr->flags1 & RF1_UNIQUE)
+				{
+					attr = TERM_L_BLUE;
+				}
+
+				/* Have we ever killed one? */
+				if (l_ptr->r_tkills)
+				{
+					if (r_ptr->level > p_ptr->depth)
+					{
+						attr = TERM_VIOLET;
+
+						if (r_ptr->flags1 & RF1_UNIQUE)
+						{
+							attr = TERM_RED;
+						}
+					}
+				}
+				else
+				{
+					if (!(r_ptr->flags1 & RF1_UNIQUE)) attr = TERM_GREEN;
+				}
+			
+				
+				/* Dump the monster name */
+				if (r_ptr->total_visible == 1)
+				{
+					c_prt(attr, (r_name + r_ptr->name), (num % (h - 1)) + 1, (num / (h - 1) * 26));
+				}
+				else
+				{
+					c_prt(attr,format("%s (x%d)",r_name + r_ptr->name, r_ptr->total_visible), (num % (h - 1)) + 1, (num / (h - 1)) * 26);
+				}
+
+				num++;
+
+			}
+
+		}
+		else
+		{
+			c_prt(TERM_WHITE,"You see no monsters.",0,0);
+		}
+		
+		/* Fresh */
+		Term_fresh();
+
+		/* Restore */
+		Term_activate(old);
+	}
+}
+
 
 /*
  * Calculate number of spells player should have, and forget,
@@ -1482,10 +1694,10 @@ static void calc_mana(void)
 		msp -= ((cur_wgt - max_wgt) / 10);
 	}
 
+	msp += ((msp * p_ptr->mana_add) / 100);
 
 	/* Mana can never be negative */
 	if (msp < 0) msp = 0;
-
 
 	/* Maximum mana has changed */
 	if (p_ptr->msp != msp)
@@ -1567,6 +1779,8 @@ static void calc_hitpoints(void)
 	/* Always have at least one hitpoint per level */
 	if (mhp < p_ptr->lev + 1) mhp = p_ptr->lev + 1;
 
+	mhp += ((mhp * p_ptr->hp_add) / 100);
+
 	/* New maximum hitpoints */
 	if (p_ptr->mhp != mhp)
 	{
@@ -1618,8 +1832,22 @@ static void calc_torch(void)
 			p_ptr->cur_lite = 2;
 		}
 
+                /* Feanorian lamps provide pernament light */
+                if (o_ptr->sval == SV_LITE_FEANORIAN)
+                {
+                        p_ptr->cur_lite = 2;
+                }
+
 		/* Artifact Lites provide permanent, bright, lite */
 		if (artifact_p(o_ptr)) p_ptr->cur_lite = 3;
+
+                /* Priests and Paladins get a bonus to light radius at level 35 and
+                 * 45, respectively. -LM-
+                 */
+                if ((p_ptr->pclass == CLASS_PRIEST) && (p_ptr->lev > 34))
+                        p_ptr->cur_lite += 1;
+                if ((p_ptr->pclass == CLASS_PALADIN) && (p_ptr->lev > 44))
+                        p_ptr->cur_lite += 1;
 	}
 
 	/* Reduce lite when running if requested */
@@ -1746,6 +1974,11 @@ static void calc_bonuses(void)
 	/* Clear the Displayed/Real armor class */
 	p_ptr->dis_ac = p_ptr->ac = 0;
 
+        /* Clear the Life/Mana bonuses */
+
+	p_ptr->mana_add = 0;
+	p_ptr->hp_add = 0;
+
 	/* Clear the Displayed/Real Bonuses */
 	p_ptr->dis_to_h = p_ptr->to_h = 0;
 	p_ptr->dis_to_d = p_ptr->to_d = 0;
@@ -1765,6 +1998,7 @@ static void calc_bonuses(void)
 	p_ptr->hold_life = FALSE;
 	p_ptr->telepathy = FALSE;
 	p_ptr->lite = FALSE;
+	p_ptr->invisible = FALSE;
 	p_ptr->sustain_str = FALSE;
 	p_ptr->sustain_int = FALSE;
 	p_ptr->sustain_wis = FALSE;
@@ -1845,6 +2079,7 @@ static void calc_bonuses(void)
 
 	/* Weird flags */
 	if (f3 & (TR3_BLESSED)) p_ptr->bless_blade = TRUE;
+        if (f3 & (TR3_NO_TELE)) p_ptr->notele = TRUE;
 
 	/* Bad flags */
 	if (f3 & (TR3_IMPACT)) p_ptr->impact = TRUE;
@@ -1905,6 +2140,13 @@ static void calc_bonuses(void)
 		if (f1 & (TR1_DEX)) p_ptr->stat_add[A_DEX] += o_ptr->pval;
 		if (f1 & (TR1_CON)) p_ptr->stat_add[A_CON] += o_ptr->pval;
 		if (f1 & (TR1_CHR)) p_ptr->stat_add[A_CHR] += o_ptr->pval;
+
+		/* Affect mana and health */
+		if (f3 & (TR3_MANA)) p_ptr->mana_add += o_ptr->pval*10;
+		if (f3 & (TR3_LIFE)) p_ptr->hp_add += o_ptr->pval*10;
+
+                /* Invisible */
+                if (f1 & (TR1_INVIS)) p_ptr->invisible = TRUE;
 
 		/* Affect stealth */
 		if (f1 & (TR1_STEALTH)) p_ptr->skill_stl += o_ptr->pval;
@@ -2319,6 +2561,33 @@ static void calc_bonuses(void)
 			/* Extra might */
 			p_ptr->ammo_mult += extra_might;
 
+                        /*
+                         * Addendum -- also "Reward" high level warriors,
+                         * with _any_ missile weapon -- TY
+                         */
+                        if (p_ptr->pclass == CLASS_WARRIOR &&
+                            (p_ptr->ammo_tval <= TV_BOLT) &&
+                            (p_ptr->ammo_tval >= TV_SHOT))
+                        {
+                                /* Extra shot at level 25 */
+                                if (p_ptr->lev >= 25) p_ptr->num_fire++;
+
+                                /* Extra shot at level 50 */
+                                if (p_ptr->lev >= 50) p_ptr->num_fire++;
+                        }
+
+                        /* Hack -- Rogues are great with slings. -LM- */
+                        if ((p_ptr->pclass == CLASS_ROGUE) &&
+                            (p_ptr->ammo_tval == TV_SHOT))
+                        {
+                                /* Extra shot at level 20 */
+                                if (p_ptr->lev >= 20) p_ptr->num_fire++;
+
+                                /* Extra shot at level 40 */
+                                if (p_ptr->lev >= 40) p_ptr->num_fire++;
+                        }
+
+
 			/* Hack -- Rangers love Bows */
 			if ((p_ptr->pclass == CLASS_RANGER) &&
 			    (p_ptr->ammo_tval == TV_ARROW))
@@ -2353,6 +2622,9 @@ static void calc_bonuses(void)
 
 		/* Heavy weapon */
 		p_ptr->heavy_wield = TRUE;
+
+		/* The player gets to swing a heavy weapon only once. -LM- */
+		p_ptr->num_blow = 1;
 	}
 
 	/* Normal weapons */
@@ -2949,6 +3221,13 @@ void window_stuff(void)
 	{
 		p_ptr->window &= ~(PW_PLAYER_1);
 		fix_player_1();
+	}
+
+	/* Display monster list */
+	if (p_ptr->window & (PW_M_LIST))
+	{
+		p_ptr->window &= ~(PW_M_LIST);
+		fix_m_list();
 	}
 
 	/* Display overhead view */
