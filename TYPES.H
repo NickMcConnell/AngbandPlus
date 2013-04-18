@@ -524,6 +524,8 @@ struct monster_type
 
 	s16b hp;			/* Current Hit points */
 	s16b maxhp;			/* Max Hit points */
+	s32b mana;			/* Monster Mana */
+	s32b maxmana;		/* Max Monster Mana */
 
 	s16b csleep;		/* Inactive counter */
 

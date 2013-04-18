@@ -1,6 +1,51 @@
 DrAngband Changes:
 ------------------
 
+DrAngband 2.9.8 (2001)
+---------------------------
+
+* Fixed the (extremely hard to find) bug which gave Ring of Fire Resistance
+  a random high resist.
+
+* Chests are more attractive by producing items 35 levels OOD.
+  Small chests produce money and jewels (rings or amulets).
+
+* The value of shop items will now increase relative to the player level.
+
+* Acquirement scrolls now creates a randart item.
+
+* New wizard command of 'r' to create Randart, works like 'g' & 'v'.
+
+* Dragon breaths altered to make them more useful.
+
+* Ethereal Lock balanced by reducing duration and increasing cost.
+
+* Teleport Other has increased range, it was worthless before.
+
+* Hold Foe has increased duration.
+
+* Word of Destruction did not kill monsters, but now it does hurt them.
+
+* Mage spell of Cone of Cold given greater range.
+
+* Added a new non-unique town monster -- You'll know it when you see it.
+
+* Much smarter monster AI, careful.
+
+* Monster Mana has been implemented.
+
+* Striking will do extra damage if the monster can not be pushed back.
+
+* 52 item inventory makes it too easy, returned to 23.
+
+* Two Handed weapons are two-handed which means no shield can be used with
+  the weapon.  To make them more enticing, extra bonuses are given to the
+  two-handed weapons: +10 to hit, +5% dam, +1 attack per round.
+
+* Fixed a bug that made stunned monsters freeze.
+
+* Invisibility made more effective.
+
 DrAngband 2.9.7 (Jan 2001)
 ---------------------------
 
@@ -16,7 +61,7 @@ DrAngband 2.9.7 (Jan 2001)
 
 * Fixed the 'monster light out of sync' bug.
 
-* Monsters take poison, just as deadly as player poion
+* Monsters take poison, just as deadly as player poison
 
 * Crown of Dragonkind too nice, added aggravation to it.
 
@@ -24,8 +69,6 @@ DrAngband 2.9.7 (Jan 2001)
   who posses SEE_INVIS.
 
 * Monsters breath at Invisible players, at least in their direction.
-
-* Pixies also get racial power of phase door.
 
 
 DrAngband 2.9.6 (Sept 2000)

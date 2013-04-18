@@ -33,7 +33,7 @@
 
 # Version stamp (required)
 
-V:2.9.7
+V:2.9.8
 
 # Player starting position. x,y.
 

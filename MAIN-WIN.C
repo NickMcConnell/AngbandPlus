@@ -939,7 +939,7 @@ static void save_prefs(void)
 		term_data *td = &data[i];
 
 		sprintf(buf, "Term-%d", i);
-		
+
 		save_prefs_aux(td, buf);
 	}
 }
@@ -966,7 +966,7 @@ static void load_prefs_aux(term_data *td, cptr sec_name)
 	/* Analyze font, save desired font name */
 	td->font_want = string_make(analyze_font(tmp, &wid, &hgt));
 
-	/* Tile size */	
+	/* Tile size */
 	td->tile_wid = GetPrivateProfileInt(sec_name, "TileWid", wid, ini_file);
 	td->tile_hgt = GetPrivateProfileInt(sec_name, "TileHgt", hgt, ini_file);
 
@@ -988,23 +988,12 @@ static void load_prefs(void)
 	int i;
 
 	char buf[1024];
-	
+
 	/* Extract the "arg_graphics" flag */
 	arg_graphics = (GetPrivateProfileInt("Angband", "Graphics", 0, ini_file) != 0);
 
 	/* Extract the "arg_sound" flag */
 	arg_sound = (GetPrivateProfileInt("Angband", "Sound", 0, ini_file) != 0);
-
-    /* Race, class, autoroller stats for the Borg */
-    auto_respawn_race = GetPrivateProfileInt("Borg","race",-1,ini_file);
-    auto_respawn_class = GetPrivateProfileInt("Borg","class",-1,ini_file);
-    auto_respawn_str = GetPrivateProfileInt("Borg","STR",-1,ini_file);
-    auto_respawn_int = GetPrivateProfileInt("Borg","INT",-1,ini_file);
-    auto_respawn_wis = GetPrivateProfileInt("Borg","WIS",-1,ini_file);
-    auto_respawn_dex = GetPrivateProfileInt("Borg","DEX",-1,ini_file);
-    auto_respawn_con = GetPrivateProfileInt("Borg","CON",-1,ini_file);
-    auto_respawn_chr = GetPrivateProfileInt("Borg","CHR",-1,ini_file);
-    auto_dump_level = GetPrivateProfileInt("Borg","Level",0,ini_file);
 
 	/* Load window prefs */
 	for (i = 0; i < MAX_TERM_DATA; ++i)
@@ -1012,7 +1001,7 @@ static void load_prefs(void)
 		term_data *td = &data[i];
 
 		sprintf(buf, "Term-%d", i);
-		
+
 		load_prefs_aux(td, buf);
 	}
 }
@@ -1129,7 +1118,7 @@ static int new_palette(void)
 
 	/* Main window */
 	td = &data[0];
-	
+
 	/* Realize the palette */
 	hdc = GetDC(td->w);
 	SelectPalette(hdc, hNewPal, 0);
@@ -1141,7 +1130,7 @@ static int new_palette(void)
 	for (i = 1; i < MAX_TERM_DATA; i++)
 	{
 		td = &data[i];
-		
+
 		hdc = GetDC(td->w);
 		SelectPalette(hdc, hNewPal, 0);
 		ReleaseDC(td->w, hdc);
@@ -1235,7 +1224,7 @@ static bool init_sound()
 		/* Sound available */
 		can_use_sound = TRUE;
 	}
-	
+
 	/* Result */
 	return (can_use_sound);
 }
@@ -1404,7 +1393,7 @@ static void term_change_font(term_data *td)
 		{
 			/* Access the standard font file */
 			path_build(tmp, 1024, ANGBAND_DIR_XTRA_FONT, "8X13.FON");
-			
+
 			/* Force the use of that font */
 			(void)term_force_font(td, tmp);
 		}
@@ -1545,7 +1534,7 @@ static errr Term_xtra_win_react(void)
 		{
 			/* Warning */
 			plog("Cannot initialize sound!");
-			
+
 			/* Cannot enable */
 			arg_sound = FALSE;
 		}
@@ -2212,13 +2201,13 @@ static void init_windows(void)
 
 		/* Access the standard font file */
 		path_build(buf, 1024, ANGBAND_DIR_XTRA_FONT, td->font_want);
-			
+
 		/* Activate the chosen font */
 		if (term_force_font(td, buf))
 		{
 			/* Access the standard font file */
 			path_build(buf, 1024, ANGBAND_DIR_XTRA_FONT, "8X13.FON");
-			
+
 			/* Force the use of that font */
 			(void)term_force_font(td, buf);
 
@@ -2692,7 +2681,7 @@ static void process_menus(WORD wCmd)
 			if ((i < 0) || (i >= MAX_TERM_DATA)) break;
 
 			td = &data[i];
-			
+
 			if (!td->visible)
 			{
 				td->visible = TRUE;
@@ -2723,7 +2712,7 @@ static void process_menus(WORD wCmd)
 			if ((i < 0) || (i >= MAX_TERM_DATA)) break;
 
 			td = &data[i];
-			
+
 			term_change_font(td);
 
 			break;
@@ -2744,7 +2733,7 @@ static void process_menus(WORD wCmd)
 			if ((i < 0) || (i >= MAX_TERM_DATA)) break;
 
 			td = &data[i];
-			
+
 			td->bizarre = !td->bizarre;
 
 			term_getsize(td);
@@ -2769,9 +2758,9 @@ static void process_menus(WORD wCmd)
 			if ((i < 0) || (i >= MAX_TERM_DATA)) break;
 
 			td = &data[i];
-			
+
 			td->tile_wid += 1;
-			
+
 			term_getsize(td);
 
 			term_window_resize(td);
@@ -2794,9 +2783,9 @@ static void process_menus(WORD wCmd)
 			if ((i < 0) || (i >= MAX_TERM_DATA)) break;
 
 			td = &data[i];
-			
+
 			td->tile_wid -= 1;
-			
+
 			term_getsize(td);
 
 			term_window_resize(td);
@@ -2819,9 +2808,9 @@ static void process_menus(WORD wCmd)
 			if ((i < 0) || (i >= MAX_TERM_DATA)) break;
 
 			td = &data[i];
-			
+
 			td->tile_hgt += 1;
-			
+
 			term_getsize(td);
 
 			term_window_resize(td);
@@ -2844,9 +2833,9 @@ static void process_menus(WORD wCmd)
 			if ((i < 0) || (i >= MAX_TERM_DATA)) break;
 
 			td = &data[i];
-			
+
 			td->tile_hgt -= 1;
-			
+
 			term_getsize(td);
 
 			term_window_resize(td);
@@ -3449,7 +3438,7 @@ LRESULT FAR PASCAL _export AngbandListProc(HWND hWnd, UINT uMsg,
 
 				return 0;
 			}
-			
+
 			break;
 		}
 	}
@@ -3856,7 +3845,7 @@ int FAR PASCAL WinMain(HINSTANCE hInst, HINSTANCE hPrevInst,
 	{
 		special_key[special_key_list[i]] = TRUE;
 	}
-	
+
 	/* Determine if display is 16/256/true color */
 	hdc = GetDC(NULL);
 	colors16 = (GetDeviceCaps(hdc, BITSPIXEL) == 4);

@@ -3,7 +3,7 @@
 Drangband stuff
 ---------------
 
-This file was last updated for DrAngband 2.9.7.
+This file was last updated for DrAngband 2.9.8.
 
 DrAngband is a variant of the popular, excellent, addictive and beautifully
 cleanly coded rogulike, Angband. Visit the DrAngband homepage for more

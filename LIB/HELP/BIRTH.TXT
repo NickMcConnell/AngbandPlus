@@ -265,7 +265,7 @@ have intrinsic abilities.
                slower than most dragons.
 
  
-=== Classes (outdated) ===
+=== Classes ===
  
  
           Once a race has been chosen, you will need to pick a class.  Some

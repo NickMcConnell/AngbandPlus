@@ -1495,7 +1495,7 @@ static bool player_birth_aux()
 
 #if 0
 	/*** New town layout ***/
-	
+
 	/* Extra info */
 	Term_putstr(5, 15, -1, TERM_WHITE,
 		"The new town layout adds nothing to the game but ");
@@ -1523,7 +1523,7 @@ static bool player_birth_aux()
 	/* Clear */
 	clear_from(20);
 #endif
-	
+
 
 #ifdef ALLOW_AUTOROLLER
 
@@ -1560,7 +1560,7 @@ static bool player_birth_aux()
 	if (c == 'b')
 	{
 		player_birth_buystats();
-	
+
 		/* Get a name, prepare savefile */
 		get_name();
 
@@ -1780,9 +1780,6 @@ static bool player_birth_aux()
 
 				/* Make sure they see everything */
 				Term_fresh();
-
-				/* Delay 1/10 second */
-				if (flag) Term_xtra(TERM_XTRA_DELAY, 100);
 
 				/* Do not wait for a key */
 				inkey_scan = TRUE;

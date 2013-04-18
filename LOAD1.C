@@ -2415,6 +2415,10 @@ static errr rd_dungeon_old(void)
 		/* Hack -- maximal hitpoints */
 		n_ptr->maxhp = r_ptr->hdice * r_ptr->hside;
 
+		/* Hack -- maximal Manapoints */
+		n_ptr->maxmana = (r_ptr->hdice > r_ptr->hside ?
+                          r_ptr->hdice * 5:
+                          r_ptr->hside * 5);
 
 		/* Place monster in dungeon */
 		if (!monster_place(n_ptr->fy, n_ptr->fx, n_ptr))

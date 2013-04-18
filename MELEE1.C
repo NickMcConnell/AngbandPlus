@@ -65,7 +65,7 @@ static int check_hit(int power, int level, monster_type *m_ptr)
     /* Invisibility makes it hard to hit him. */
     if (p_ptr->invis)
     {
-        k -=((p_ptr->invis) * 10);
+        k -=((p_ptr->invis * 10) + 20);
     }
 
     /* Stunned Monster cant fight as well. */
@@ -483,12 +483,12 @@ bool make_attack_normal(int m_idx)
 
 					/* Take "poison" effect */
 					x = p_ptr->resist_pois;
-					
+
 					if (set_poisoned(p_ptr->poisoned + ((randint(rlev) + 5)*x)/100))
 					{
 						obvious = TRUE;
 					}
-					
+
 					/* Learn about the player */
 					update_smart_learn(m_idx, DRS_RES_POIS);
 
@@ -1171,7 +1171,7 @@ bool make_attack_normal(int m_idx)
 					}
 
 					break;
-				}	
+				}
 			}
 
 

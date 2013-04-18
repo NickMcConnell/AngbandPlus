@@ -52,7 +52,7 @@ be use with -y.
 
 Large Inventory
 ---------------
-
+**(Removed in 298, may return for 299)**
 Normally in Angband you may carry 22 items. In DrAngband this has been
 increased to 52. If you are not using a bigscreen mode large enough to display
 the entire expanded inventory on screen you may scroll through the inventory
@@ -73,6 +73,7 @@ as '#'.
 Invisibility is shown as '*' in the INVIS field, and see invisible is shown
 as '+'.
 
+
 Melee Slays
 -----------
 
@@ -80,6 +81,9 @@ Slays (eg Slay Orc) and brands are now applied to the entire melee damage
 rather than just the base dice rolls. They have been reduced from a maximum
 of three to max 2. This does not apply to ammo, which has slays of the
 same power as normal and applied the normal way.
+
+Two-handed weapons require two hands (no shield).  But you are granted extra
+bonuses to-hit, to-damage, and 1 extra attack per round.
 
 
 Dragons & Equipment

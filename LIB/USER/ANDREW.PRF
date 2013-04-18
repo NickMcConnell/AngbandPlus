@@ -1,0 +1,834 @@
+
+
+# Automatic option dump
+
+# Option 'Rogue-like commands'
+X:rogue_like_commands
+
+# Option 'Activate quick messages'
+Y:quick_messages
+
+# Option 'Prompt for floor item selection'
+Y:floor_query_flag
+
+# Option 'Prompt before picking things up'
+X:carry_query_flag
+
+# Option 'Use old target by default'
+X:use_old_target
+
+# Option 'Pick things up by default'
+Y:always_pickup
+
+# Option 'Repeat obvious commands'
+Y:always_repeat
+
+# Option 'Show dungeon level in feet'
+X:depth_in_feet
+
+# Option 'Merge inscriptions when stacking'
+Y:stack_force_notes
+
+# Option 'Merge discounts when stacking'
+Y:stack_force_costs
+
+# Option 'Show labels in equipment listings'
+Y:show_labels
+
+# Option 'Show weights in all object listings'
+Y:show_weights
+
+# Option 'Show choices in inven/equip windows'
+Y:show_choices
+
+# Option 'Show details in monster descriptions'
+Y:show_details
+
+# Option 'Audible bell (on errors, etc)'
+Y:ring_bell
+
+# Option 'Show flavors in object descriptions'
+X:show_flavors
+
+# Option 'When running, ignore stairs'
+Y:run_ignore_stairs
+
+# Option 'When running, ignore doors'
+Y:run_ignore_doors
+
+# Option 'When running, cut corners'
+Y:run_cut_corners
+
+# Option 'When running, use corners'
+Y:run_use_corners
+
+# Option 'Disturb whenever any monster moves'
+X:disturb_move
+
+# Option 'Disturb whenever viewable monster moves'
+Y:disturb_near
+
+# Option 'Disturb whenever map panel changes'
+Y:disturb_panel
+
+# Option 'Disturb whenever player state changes'
+Y:disturb_state
+
+# Option 'Disturb whenever boring things happen'
+Y:disturb_minor
+
+# Option 'Disturb whenever various things happen'
+Y:disturb_other
+
+# Option 'Alert user to critical hitpoints'
+Y:alert_hitpoint
+
+# Option 'Alert user to various failures'
+X:alert_failure
+
+# Option 'Verify destruction of objects'
+X:verify_destroy
+
+# Option 'Verify use of special commands'
+Y:verify_special
+
+# Option 'Allow quantity specification'
+Y:allow_quantity
+
+# Option 'Auto-haggle in stores'
+Y:auto_haggle
+
+# Option 'Auto-scum for good levels'
+X:auto_scum
+
+# Option 'Allow objects to stack on floor'
+Y:testing_stack
+
+# Option 'Allow monsters to carry objects'
+Y:testing_carry
+
+# Option 'Expand the power of the look command'
+Y:expand_look
+
+# Option 'Expand the power of the list commands'
+Y:expand_list
+
+# Option 'Map remembers all perma-lit grids'
+Y:view_perma_grids
+
+# Option 'Map remembers all torch-lit grids'
+X:view_torch_grids
+
+# Option 'Generate dungeons with aligned rooms'
+X:dungeon_align
+
+# Option 'Generate dungeons with connected stairs'
+Y:dungeon_stair
+
+# Option 'Monsters chase current location (v.slow)'
+Y:flow_by_sound
+
+# Option 'Monsters chase recent locations (v.slow)'
+Y:flow_by_smell
+
+# Option 'Monsters exploit players weaknesses'
+X:smart_cheat
+
+# Option 'Reduce lite-radius when running'
+X:view_reduce_lite
+
+# Option 'Hide player symbol when running'
+X:hidden_player
+
+# Option 'Avoid checking for user abort'
+X:avoid_abort
+
+# Option 'Avoid processing special colors'
+X:avoid_other
+
+# Option 'Flush input on various failures'
+Y:flush_failure
+
+# Option 'Flush input whenever disturbed'
+X:flush_disturb
+
+# Option 'Flush output before every command'
+Y:fresh_before
+
+# Option 'Flush output after various things'
+X:fresh_after
+
+# Option 'Show player by race (dragons)'
+Y:show_special_player
+
+# Option 'Compress messages in savefiles'
+Y:compress_savefile
+
+# Option 'Hilite the player with the cursor'
+X:hilite_player
+
+# Option 'Use special colors for torch lite'
+Y:view_yellow_lite
+
+# Option 'Use special colors for field of view'
+Y:view_bright_lite
+
+# Option 'Use special colors for wall grids'
+Y:view_granite_lite
+
+# Option 'Use special colors for floor grids'
+Y:view_special_lite
+
+# Window 'Term-1', Flag 'Display inven/equip'
+W:1:0:1
+
+# Window 'Term-1', Flag 'Display equip/inven'
+W:1:1:0
+
+# Window 'Term-1', Flag 'Display player (basic)'
+W:1:2:0
+
+# Window 'Term-1', Flag 'Display player (extra)'
+W:1:3:0
+
+# Window 'Term-1', Flag 'Display messages'
+W:1:6:0
+
+# Window 'Term-1', Flag 'Display overhead view'
+W:1:7:0
+
+# Window 'Term-1', Flag 'Display monster recall'
+W:1:8:0
+
+# Window 'Term-1', Flag 'Display object recall'
+W:1:9:0
+
+# Window 'Term-1', Flag 'Display snap-shot'
+W:1:11:0
+
+# Window 'Term-1', Flag 'Display borg messages'
+W:1:14:0
+
+# Window 'Term-1', Flag 'Display borg status'
+W:1:15:0
+
+# Window 'Term-2', Flag 'Display inven/equip'
+W:2:0:0
+
+# Window 'Term-2', Flag 'Display equip/inven'
+W:2:1:1
+
+# Window 'Term-2', Flag 'Display player (basic)'
+W:2:2:0
+
+# Window 'Term-2', Flag 'Display player (extra)'
+W:2:3:0
+
+# Window 'Term-2', Flag 'Display messages'
+W:2:6:0
+
+# Window 'Term-2', Flag 'Display overhead view'
+W:2:7:0
+
+# Window 'Term-2', Flag 'Display monster recall'
+W:2:8:1
+
+# Window 'Term-2', Flag 'Display object recall'
+W:2:9:1
+
+# Window 'Term-2', Flag 'Display snap-shot'
+W:2:11:0
+
+# Window 'Term-2', Flag 'Display borg messages'
+W:2:14:0
+
+# Window 'Term-2', Flag 'Display borg status'
+W:2:15:0
+
+# Window 'Term-3', Flag 'Display inven/equip'
+W:3:0:0
+
+# Window 'Term-3', Flag 'Display equip/inven'
+W:3:1:0
+
+# Window 'Term-3', Flag 'Display player (basic)'
+W:3:2:0
+
+# Window 'Term-3', Flag 'Display player (extra)'
+W:3:3:0
+
+# Window 'Term-3', Flag 'Display messages'
+W:3:6:0
+
+# Window 'Term-3', Flag 'Display overhead view'
+W:3:7:0
+
+# Window 'Term-3', Flag 'Display monster recall'
+W:3:8:0
+
+# Window 'Term-3', Flag 'Display object recall'
+W:3:9:0
+
+# Window 'Term-3', Flag 'Display snap-shot'
+W:3:11:0
+
+# Window 'Term-3', Flag 'Display borg messages'
+W:3:14:0
+
+# Window 'Term-3', Flag 'Display borg status'
+W:3:15:0
+
+# Window 'Term-4', Flag 'Display inven/equip'
+W:4:0:0
+
+# Window 'Term-4', Flag 'Display equip/inven'
+W:4:1:0
+
+# Window 'Term-4', Flag 'Display player (basic)'
+W:4:2:0
+
+# Window 'Term-4', Flag 'Display player (extra)'
+W:4:3:1
+
+# Window 'Term-4', Flag 'Display messages'
+W:4:6:0
+
+# Window 'Term-4', Flag 'Display overhead view'
+W:4:7:0
+
+# Window 'Term-4', Flag 'Display monster recall'
+W:4:8:0
+
+# Window 'Term-4', Flag 'Display object recall'
+W:4:9:0
+
+# Window 'Term-4', Flag 'Display snap-shot'
+W:4:11:0
+
+# Window 'Term-4', Flag 'Display borg messages'
+W:4:14:0
+
+# Window 'Term-4', Flag 'Display borg status'
+W:4:15:0
+
+# Window 'Term-5', Flag 'Display inven/equip'
+W:5:0:0
+
+# Window 'Term-5', Flag 'Display equip/inven'
+W:5:1:0
+
+# Window 'Term-5', Flag 'Display player (basic)'
+W:5:2:0
+
+# Window 'Term-5', Flag 'Display player (extra)'
+W:5:3:0
+
+# Window 'Term-5', Flag 'Display messages'
+W:5:6:0
+
+# Window 'Term-5', Flag 'Display overhead view'
+W:5:7:0
+
+# Window 'Term-5', Flag 'Display monster recall'
+W:5:8:0
+
+# Window 'Term-5', Flag 'Display object recall'
+W:5:9:0
+
+# Window 'Term-5', Flag 'Display snap-shot'
+W:5:11:0
+
+# Window 'Term-5', Flag 'Display borg messages'
+W:5:14:0
+
+# Window 'Term-5', Flag 'Display borg status'
+W:5:15:0
+
+# Window 'Term-6', Flag 'Display inven/equip'
+W:6:0:0
+
+# Window 'Term-6', Flag 'Display equip/inven'
+W:6:1:0
+
+# Window 'Term-6', Flag 'Display player (basic)'
+W:6:2:0
+
+# Window 'Term-6', Flag 'Display player (extra)'
+W:6:3:0
+
+# Window 'Term-6', Flag 'Display messages'
+W:6:6:0
+
+# Window 'Term-6', Flag 'Display overhead view'
+W:6:7:0
+
+# Window 'Term-6', Flag 'Display monster recall'
+W:6:8:0
+
+# Window 'Term-6', Flag 'Display object recall'
+W:6:9:0
+
+# Window 'Term-6', Flag 'Display snap-shot'
+W:6:11:0
+
+# Window 'Term-6', Flag 'Display borg messages'
+W:6:14:0
+
+# Window 'Term-6', Flag 'Display borg status'
+W:6:15:0
+
+# Window 'Term-7', Flag 'Display inven/equip'
+W:7:0:0
+
+# Window 'Term-7', Flag 'Display equip/inven'
+W:7:1:0
+
+# Window 'Term-7', Flag 'Display player (basic)'
+W:7:2:0
+
+# Window 'Term-7', Flag 'Display player (extra)'
+W:7:3:0
+
+# Window 'Term-7', Flag 'Display messages'
+W:7:6:0
+
+# Window 'Term-7', Flag 'Display overhead view'
+W:7:7:0
+
+# Window 'Term-7', Flag 'Display monster recall'
+W:7:8:0
+
+# Window 'Term-7', Flag 'Display object recall'
+W:7:9:0
+
+# Window 'Term-7', Flag 'Display snap-shot'
+W:7:11:0
+
+# Window 'Term-7', Flag 'Display borg messages'
+W:7:14:0
+
+# Window 'Term-7', Flag 'Display borg status'
+W:7:15:0
+
+
+
+# Automatic macro dump
+
+# Macro '0'
+
+A:<
+P:^_x56\r
+
+
+# Macro '1'
+
+A:>
+P:^_Sx56\r
+
+
+# Macro '2'
+
+A:|
+P:^_Ax56\r
+
+
+# Macro '3'
+
+A:/
+P:^_x35\r
+
+
+# Macro '4'
+
+A:*
+P:^_x37\r
+
+
+# Macro '5'
+
+A:7
+P:^_x47\r
+
+
+# Macro '6'
+
+A:8
+P:^_x48\r
+
+
+# Macro '7'
+
+A:9
+P:^_x49\r
+
+
+# Macro '8'
+
+A:-
+P:^_x4A\r
+
+
+# Macro '9'
+
+A:4
+P:^_x4B\r
+
+
+# Macro '10'
+
+A:5
+P:^_x4C\r
+
+
+# Macro '11'
+
+A:6
+P:^_x4D\r
+
+
+# Macro '12'
+
+A:+
+P:^_x4E\r
+
+
+# Macro '13'
+
+A:1
+P:^_x4F\r
+
+
+# Macro '14'
+
+A:2
+P:^_x50\r
+
+
+# Macro '15'
+
+A:3
+P:^_x51\r
+
+
+# Macro '16'
+
+A:0
+P:^_x52\r
+
+
+# Macro '17'
+
+A:.
+P:^_x53\r
+
+
+# Macro '18'
+
+A:\e\e\e
+P:^_Sx35\r
+
+
+# Macro '19'
+
+A:\e\e\e
+P:^_Sx37\r
+
+
+# Macro '20'
+
+A:\e\e\\.7
+P:^_Sx47\r
+
+
+# Macro '21'
+
+A:\e\e\\.8
+P:^_Sx48\r
+
+
+# Macro '22'
+
+A:\e\e\\.9
+P:^_Sx49\r
+
+
+# Macro '23'
+
+A:\e\e\e
+P:^_Sx4A\r
+
+
+# Macro '24'
+
+A:\e\e\\.4
+P:^_Sx4B\r
+
+
+# Macro '25'
+
+A:\e\e\\.5
+P:^_Sx4C\r
+
+
+# Macro '26'
+
+A:\e\e\\.6
+P:^_Sx4D\r
+
+
+# Macro '27'
+
+A:\e\e\e
+P:^_Sx4E\r
+
+
+# Macro '28'
+
+A:\e\e\\.1
+P:^_Sx4F\r
+
+
+# Macro '29'
+
+A:\e\e\\.2
+P:^_Sx50\r
+
+
+# Macro '30'
+
+A:\e\e\\.3
+P:^_Sx51\r
+
+
+# Macro '31'
+
+A:\e\e\e
+P:^_Sx52\r
+
+
+# Macro '32'
+
+A:\e\e\e
+P:^_Sx53\r
+
+
+# Macro '33'
+
+A:\e\e\e
+P:^_Cx35\r
+
+
+# Macro '34'
+
+A:\e\e\e
+P:^_Cx37\r
+
+
+# Macro '35'
+
+A:\e\e\\+7
+P:^_Cx47\r
+
+
+# Macro '36'
+
+A:\e\e\\+8
+P:^_Cx48\r
+
+
+# Macro '37'
+
+A:\e\e\\+9
+P:^_Cx49\r
+
+
+# Macro '38'
+
+A:\e\e\e
+P:^_Cx4A\r
+
+
+# Macro '39'
+
+A:\e\e\\+4
+P:^_Cx4B\r
+
+
+# Macro '40'
+
+A:\e\e\\+5
+P:^_Cx4C\r
+
+
+# Macro '41'
+
+A:\e\e\\+6
+P:^_Cx4D\r
+
+
+# Macro '42'
+
+A:\e\e\e
+P:^_Cx4E\r
+
+
+# Macro '43'
+
+A:\e\e\\+1
+P:^_Cx4F\r
+
+
+# Macro '44'
+
+A:\e\e\\+2
+P:^_Cx50\r
+
+
+# Macro '45'
+
+A:\e\e\\+3
+P:^_Cx51\r
+
+
+# Macro '46'
+
+A:\e\e\e
+P:^_Cx52\r
+
+
+# Macro '47'
+
+A:\e\e\e
+P:^_Cx53\r
+
+
+# Macro '48'
+
+A:\e\e\e
+P:^_Cx95\r
+
+
+# Macro '49'
+
+A:\e\e\e
+P:^_Cx96\r
+
+
+# Macro '50'
+
+A:\e\e\\+7
+P:^_Cx77\r
+
+
+# Macro '51'
+
+A:\e\e\\+8
+P:^_Cx8D\r
+
+
+# Macro '52'
+
+A:\e\e\\+9
+P:^_Cx84\r
+
+
+# Macro '53'
+
+A:\e\e\e
+P:^_Cx8E\r
+
+
+# Macro '54'
+
+A:\e\e\\+4
+P:^_Cx73\r
+
+
+# Macro '55'
+
+A:\e\e\\+5
+P:^_Cx8F\r
+
+
+# Macro '56'
+
+A:\e\e\\+6
+P:^_Cx74\r
+
+
+# Macro '57'
+
+A:\e\e\e
+P:^_Cx90\r
+
+
+# Macro '58'
+
+A:\e\e\\+1
+P:^_Cx75\r
+
+
+# Macro '59'
+
+A:\e\e\\+2
+P:^_Cx91\r
+
+
+# Macro '60'
+
+A:\e\e\\+3
+P:^_Cx76\r
+
+
+# Macro '61'
+
+A:\e\e\e
+P:^_Cx92\r
+
+
+# Macro '62'
+
+A:\e\e\e
+P:^_Cx93\r
+
+
+# Macro '63'
+
+A:Ua*t\s\s\s
+P:^_x3B\r
+
+
+# Macro '64'
+
+A:p1f*t\s\s\s
+P:^_x3C\r
+
+
+# Macro '65'
+
+A:p1e\s\s
+P:^_x58\r
+
+
+# Macro '66'
+
+A:R&\n\n
+P:^_x43\r
+
+
+# Macro '67'
+
+A:p1a
+P:^_x44\r
+
+
+# Macro '68'
+
+A:p1g
+P:^_x57\r
+
+
+
+
+
+

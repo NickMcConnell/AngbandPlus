@@ -2680,14 +2680,22 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
     if (r_ptr->flags1 & (RF1_FORCE_MAXHP))
     {
         n_ptr->maxhp = maxroll(r_ptr->hdice, r_ptr->hside);
+		n_ptr->maxmana = (r_ptr->hdice > r_ptr->hside ?
+                          maxroll(r_ptr->hdice, 5) :
+                          maxroll(r_ptr->hside, 5));
+
     }
     else
     {
         n_ptr->maxhp = damroll(r_ptr->hdice, r_ptr->hside);
+		n_ptr->maxmana = (r_ptr->hdice > r_ptr->hside ?
+                          damroll(r_ptr->hdice, 5) :
+                          damroll(r_ptr->hside, 5));
     }
 
     /* And start out fully healthy */
     n_ptr->hp = n_ptr->maxhp;
+    n_ptr->mana = n_ptr->maxmana;
 
 
     /* Extract the monster base speed */
@@ -3481,9 +3489,6 @@ void update_smart_learn(int m_idx, int what)
 
     monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
-
-    /* Not allowed to learn */
-    if (!smart_learn) return;
 
     /* Too stupid to learn anything */
     if (r_ptr->flags2 & (RF2_STUPID)) return;

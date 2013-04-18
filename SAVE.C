@@ -751,6 +751,8 @@ static void wr_monster(monster_type *m_ptr)
 	wr_byte(m_ptr->fx);
 	wr_s16b(m_ptr->hp);
 	wr_s16b(m_ptr->maxhp);
+	wr_s16b(m_ptr->mana);
+	wr_s16b(m_ptr->maxmana);
 	wr_s16b(m_ptr->csleep);
 	wr_byte(m_ptr->mspeed);
 	wr_byte(m_ptr->energy);

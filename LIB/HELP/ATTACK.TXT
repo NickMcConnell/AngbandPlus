@@ -434,4 +434,4 @@ kill you in one shot so you must be prepared. These attacks can be
 resisted by wearing an item that grants the appropriate resistance.
 Each instance of a resistance reduces the damage taken by that attack
 by 50%. For example, if you are wairing an Armour of Resist Fire and
-a Ring of Resist Fire the damage you take from fire will fall to 25%
+a Ring of Resist Fire the damage you take from fire will fall to 25%.

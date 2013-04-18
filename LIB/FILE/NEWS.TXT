@@ -2,19 +2,19 @@
  /==============================//////\\\\\\=================================\
  ||/================================/||\===================================\||
  |||                                 ||                                    |||
- |||  -- DrAngband 2.9.7  --         ||                                    |||
+ |||  -- DrAngband 2.9.8  --         ||                                    |||
  |||                                 ||  Based on Moria: Copyright (c)     |||
  |||  2.9.6+ by Dr. Andrew White     ||  1985 Robert Alan Koeneke          |||
  |||  2.9.0  by Tom Morton           ||  and Umoria: Copyright (c) 1989    |||
  |||  2.1.0 by Aaron Mandelbaum      ||  James E. Wilson                   |||
  |||                                 ||                                    |||
- |||  Send comments, bug reports     ||  Angband 2.0 - 2.4 - 2.9.0 by:     |||
+ |||  Send comments, bug reports     ||  Angband 2.0 - 2.4 - 2.9.2 by:     |||
  |||                                 ||  Alex Cutler, Andy Astrand, Sean   |||
  |||       apwhite@itctel.com        ||  Marsh, Geoff Hill, Charles        |||
  |||                                 ||  Teague, Charles Swiger, Ben       |||
- |||  Visit the DrAngband homepage:  ||  Harrison.                         |||
- |||                                 ||  Angband 2.9.1+: Copyright (c)     |||
- |||  http://itctel.com/~apwhite/    ||  2000 Robert Ruehlman.             |||
+ |||  Visit the DrAngband homepage:  ||  Harrison, Robert Ruehlman         |||
+ |||                                 ||                                    |||
+ |||  http://itctel.com/~apwhite/    ||                                    |||
  |||     andrew.html                 ||                                    |||
  |||                                 ||  Visit the Angband Homepage at:    |||
  |||  Press ? to read online help.   ||  http://thangorodrim.angband.org   |||

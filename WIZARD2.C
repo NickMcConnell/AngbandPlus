@@ -596,7 +596,7 @@ static void wiz_reroll_item(object_type *o_ptr)
 		wiz_display_item(i_ptr);
 
 		/* Ask wizard what to do. */
-		if (!get_com("[a]ccept, [n]ormal, [g]ood, [e]xcellent? ", &ch))
+		if (!get_com("[a]ccept, [n]ormal, [g]ood, [e]xcellent?", &ch))
 		{
 			changed = FALSE;
 			break;
@@ -613,21 +613,21 @@ static void wiz_reroll_item(object_type *o_ptr)
 		else if (ch == 'n' || ch == 'N')
 		{
 			object_prep(i_ptr, o_ptr->k_idx);
-			apply_magic(i_ptr, p_ptr->depth, FALSE, FALSE, FALSE);
+			apply_magic(i_ptr, p_ptr->depth, FALSE, FALSE, FALSE, FALSE);
 		}
 
 		/* Apply good magic, but first clear object */
-		else if (ch == 'g' || ch == 'g')
+		else if (ch == 'g' || ch == 'G')
 		{
 			object_prep(i_ptr, o_ptr->k_idx);
-			apply_magic(i_ptr, p_ptr->depth, FALSE, TRUE, FALSE);
+			apply_magic(i_ptr, p_ptr->depth, FALSE, TRUE, FALSE, FALSE);
 		}
 
 		/* Apply great magic, but first clear object */
-		else if (ch == 'e' || ch == 'e')
+		else if (ch == 'e' || ch == 'E')
 		{
 			object_prep(i_ptr, o_ptr->k_idx);
-			apply_magic(i_ptr, p_ptr->depth, FALSE, TRUE, TRUE);
+			apply_magic(i_ptr, p_ptr->depth, FALSE, TRUE, TRUE, FALSE);
 		}
 	}
 
@@ -761,7 +761,7 @@ static void wiz_statistics(object_type *o_ptr)
 			object_wipe(i_ptr);
 
 			/* Create an object */
-			make_object(i_ptr, good, great);
+			make_object(i_ptr, good, great, FALSE);
 
 
 			/* Mega-Hack -- allow multiple artifacts XXX XXX XXX */
@@ -1018,7 +1018,7 @@ static void wiz_create_item(void)
 	object_prep(i_ptr, k_idx);
 
 	/* Apply magic (no messages, no artifacts) */
-	apply_magic(i_ptr, p_ptr->depth, FALSE, FALSE, FALSE);
+	apply_magic(i_ptr, p_ptr->depth, FALSE, FALSE, FALSE, FALSE);
 
 	/* Drop the object from heaven */
 	drop_near(i_ptr, -1, py, px);
@@ -1494,7 +1494,7 @@ void do_cmd_debug(void)
 		case 'g':
 		{
 			if (p_ptr->command_arg <= 0) p_ptr->command_arg = 1;
-			acquirement(py, px, p_ptr->command_arg, FALSE);
+			acquirement(py, px, p_ptr->command_arg, TRUE, FALSE);
 			break;
 		}
 
@@ -1594,7 +1594,15 @@ void do_cmd_debug(void)
 		case 'v':
 		{
 			if (p_ptr->command_arg <= 0) p_ptr->command_arg = 1;
-			acquirement(py, px, p_ptr->command_arg, TRUE);
+			acquirement(py, px, p_ptr->command_arg, TRUE, FALSE);
+			break;
+		}
+
+		/* Randart Objects */
+		case 'r':
+		{
+			if (p_ptr->command_arg <= 0) p_ptr->command_arg = 1;
+			acquirement(py, px, p_ptr->command_arg, TRUE, TRUE);
 			break;
 		}
 

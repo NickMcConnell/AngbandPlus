@@ -21,7 +21,7 @@ void race_barehand_dice(int num, int *ds, int *dd)
 	{
 		(*ds) = p_ptr->lev+adj_drag[p_ptr->stat_ind[A_DEX]] - 128;
 		(*dd) = p_ptr->lev+adj_drag[p_ptr->stat_ind[A_STR]] - 128;
-		
+
 		if ((*ds)<1) (*ds)=1;
 		if ((*dd)<1) (*dd)=1;
 
@@ -72,7 +72,7 @@ bool test_hit_combat(int chance, int ac, int vis)
 /*
  * Calculation of critical hits for objects fired or thrown by the player. -LM-
  */
-sint critical_shot(int chance, int sleeping_bonus, bool thrown_weapon, 
+sint critical_shot(int chance, int sleeping_bonus, bool thrown_weapon,
     char o_name[], char m_name[], int visible, monster_type *m_ptr)
 {
 	int i, k;
@@ -85,16 +85,16 @@ sint critical_shot(int chance, int sleeping_bonus, bool thrown_weapon,
     if (randint(i + 200) <= i ||
         (p_ptr->pclass == CLASS_RANGER && m_ptr->csleep > 0))
 	{
-		/* Encourage the player to throw weapons at sleeping 
+		/* Encourage the player to throw weapons at sleeping
 		 * monsters. -LM-
 		 */
 		if (sleeping_bonus)
-		{ 
+		{
 			msg_print("You rudely awaken the monster!");
 		}
 
 		/* Determine level of critical hit */
-		k = randint(i) + randint(100); 
+		k = randint(i) + randint(100);
 
 		/* This portion of the function determines the level of critical hit,
 		 * then adjusts the damage dice multiplier and displays an appropriate
@@ -162,7 +162,7 @@ sint critical_shot(int chance, int sleeping_bonus, bool thrown_weapon,
 	/* If the shot is not a critical hit, then the default message is shown. */
 	else
 	{
-		mult_a_crit = 10; 
+		mult_a_crit = 10;
 		msg_format("The %s hits %s.", o_name, m_name);
 	}
 
@@ -185,7 +185,7 @@ sint critical_melee(int chance, int sleeping_bonus, char m_name[], object_type *
 
 	dn = o_ptr->dd;
 	ds = o_ptr->ds;
-	
+
 	/* Dragon message and dice */
 	if (p_ptr->prace >= RACE_MIN_DRAGON)
 	{
@@ -206,13 +206,13 @@ sint critical_melee(int chance, int sleeping_bonus, char m_name[], object_type *
     if (randint(i + 200) <= i ||
         (p_ptr->pclass == CLASS_ROGUE && m_ptr->csleep))
 	{
-		/* Encourage the player to make sneak attacks on 
+		/* Encourage the player to make sneak attacks on
 		 * sleeping monsters. -LM-
 		 */
-		if ((sleeping_bonus) && (p_ptr->pclass == CLASS_ROGUE)) 
+		if ((sleeping_bonus) && (p_ptr->pclass == CLASS_ROGUE))
 			msg_print("You ruthlessly sneak attack!");
 
-		/* Hack - Weapons that normally do little damage benefit most from 
+		/* Hack - Weapons that normally do little damage benefit most from
 		 * critical hits (10x inflation).
 		 */
 		mult_m_crit = 120 / (dn * (ds + 1));
@@ -221,13 +221,13 @@ sint critical_melee(int chance, int sleeping_bonus, char m_name[], object_type *
 
 
 		/* Determine level of critical hit */
-		k = randint(i) + randint(100); 
+		k = randint(i) + randint(100);
 
 		/* This portion of the function determines the level of critical hit,
-		 * the critical mult_m_crit, and displays an appropriate combat 
-		 * message.  A distinction is often made between edged and blunt 
-		 * weapons.  Unfortunately, whips sometimes display rather odd 
-		 * messages... 
+		 * the critical mult_m_crit, and displays an appropriate combat
+		 * message.  A distinction is often made between edged and blunt
+		 * weapons.  Unfortunately, whips sometimes display rather odd
+		 * messages...
 		 */
 		if (k < 100)
 		{
@@ -286,7 +286,7 @@ sint critical_melee(int chance, int sleeping_bonus, char m_name[], object_type *
 					msg_format("You bludgeon %s!", m_name);
 			}
 		}
-		else 
+		else
   		{
 			mult_m_crit *= 32;
 
@@ -297,13 +297,13 @@ sint critical_melee(int chance, int sleeping_bonus, char m_name[], object_type *
 		}
 
 
-		/* Compensate for the weak weapon bonus by deflating the critical 
+		/* Compensate for the weak weapon bonus by deflating the critical
 		 * hit multiplier.
 		 */
 		mult_m_crit /= 10;
 	}
 
-	/* If the blow is not a critical hit, display the default attack 
+	/* If the blow is not a critical hit, display the default attack
 	 * message and apply the standard multiplier.
 	 */
 	else
@@ -318,15 +318,15 @@ sint critical_melee(int chance, int sleeping_bonus, char m_name[], object_type *
 
 
 /*
- * Calculate the ego multiplier. 
+ * Calculate the ego multiplier.
  *
  * Note that flasks of oil do NOT do fire damage, although they
  * certainly could be made to do so.  XXX XXX
  *
- * Most slays are x2, except Slay Animal (x1.7), and Slay Evil (x1.5).  
+ * Most slays are x2, except Slay Animal (x1.7), and Slay Evil (x1.5).
  * Weapons of *slaying* now get a larger bonus. All brands are x1.7. -LM-
  *
- * Players may have temporary magic branding.  Paladins do not get to apply 
+ * Players may have temporary magic branding.  Paladins do not get to apply
  * temporary brands to missiles.  A nasty hack, but necessary. -LM-
  */
 sint tot_dam_aux(object_type *o_ptr, monster_type *m_ptr)
@@ -361,7 +361,7 @@ sint tot_dam_aux(object_type *o_ptr, monster_type *m_ptr)
 					r_ptr->r_flags3 |= (RF3_ANIMAL);
 				}
 
-				if ((o_ptr->name2 == EGO_KILL_ANIMAL) && 
+				if ((o_ptr->name2 == EGO_KILL_ANIMAL) &&
 					(mult_ego < 20)) mult_ego = 20;
 
 				else if (mult_ego < 17) mult_ego = 17;
@@ -376,7 +376,7 @@ sint tot_dam_aux(object_type *o_ptr, monster_type *m_ptr)
 					r_ptr->r_flags3 |= (RF3_EVIL);
 				}
 
-				if ((o_ptr->name2 == EGO_KILL_EVIL) && 
+				if ((o_ptr->name2 == EGO_KILL_EVIL) &&
 					(mult_ego < 17)) mult_ego = 17;
 
 				else if (mult_ego < 15) mult_ego = 15;
@@ -391,7 +391,7 @@ sint tot_dam_aux(object_type *o_ptr, monster_type *m_ptr)
 					r_ptr->r_flags3 |= (RF3_UNDEAD);
 				}
 
-				if ((o_ptr->name2 == EGO_KILL_UNDEAD) && 
+				if ((o_ptr->name2 == EGO_KILL_UNDEAD) &&
 					(mult_ego < 25)) mult_ego = 25;
 
 				else if (mult_ego < 20) mult_ego = 20;
@@ -406,7 +406,7 @@ sint tot_dam_aux(object_type *o_ptr, monster_type *m_ptr)
 					r_ptr->r_flags3 |= (RF3_DEMON);
 				}
 
-				if ((o_ptr->name2 == EGO_KILL_DEMON) && 
+				if ((o_ptr->name2 == EGO_KILL_DEMON) &&
 					(mult_ego < 25)) mult_ego = 25;
 
 				else if (mult_ego < 20) mult_ego = 20;
@@ -421,7 +421,7 @@ sint tot_dam_aux(object_type *o_ptr, monster_type *m_ptr)
 					r_ptr->r_flags3 |= (RF3_ORC);
 				}
 
-				if ((o_ptr->name2 == EGO_KILL_ORC) && 
+				if ((o_ptr->name2 == EGO_KILL_ORC) &&
 					(mult_ego < 25)) mult_ego = 25;
 
 				else if (mult_ego < 20) mult_ego = 20;
@@ -436,7 +436,7 @@ sint tot_dam_aux(object_type *o_ptr, monster_type *m_ptr)
 					r_ptr->r_flags3 |= (RF3_TROLL);
 				}
 
-				if ((o_ptr->name2 == EGO_KILL_TROLL) && 
+				if ((o_ptr->name2 == EGO_KILL_TROLL) &&
 					(mult_ego < 25)) mult_ego = 25;
 
 				else if (mult_ego < 20) mult_ego = 20;
@@ -451,7 +451,7 @@ sint tot_dam_aux(object_type *o_ptr, monster_type *m_ptr)
 					r_ptr->r_flags3 |= (RF3_GIANT);
 				}
 
-				if ((o_ptr->name2 == EGO_KILL_GIANT) && 
+				if ((o_ptr->name2 == EGO_KILL_GIANT) &&
 					(mult_ego < 25)) mult_ego = 25;
 
 				else if (mult_ego < 20) mult_ego = 20;
@@ -466,7 +466,7 @@ sint tot_dam_aux(object_type *o_ptr, monster_type *m_ptr)
 					r_ptr->r_flags3 |= (RF3_DRAGON);
 				}
 
-				if ((o_ptr->name2 == EGO_KILL_DRAGON) && 
+				if ((o_ptr->name2 == EGO_KILL_DRAGON) &&
 					(mult_ego < 25)) mult_ego = 25;
 
 				else if (mult_ego < 20) mult_ego = 20;
@@ -517,7 +517,7 @@ sint tot_dam_aux(object_type *o_ptr, monster_type *m_ptr)
 				}
 
 				/* Otherwise, take extra damage */
-				else 
+				else
 				{
 					if (mult_ego < 17) mult_ego = 17;
 				}
@@ -760,7 +760,7 @@ static int check_trap_hit(int power)
 	bool hit = FALSE;
 
 	/* This function is called from the trap attack code, which generally
-	 * uses the simple RNG.  We temporarily switch over to the complex 
+	 * uses the simple RNG.  We temporarily switch over to the complex
 	 * RNG for true randomness. - LM-
 	 */
 	Rand_quick = FALSE;
@@ -789,10 +789,10 @@ static int check_trap_hit(int power)
 
 
 /*
- * Handle player hitting a real trap.  Rewritten in Oangband to allow a 
- * greater variety of traps, with effects controlled by dungeon level.  
- * To allow a trap to choose one of a variety of effects consistantly, 
- * the quick RNG is often used, and xy coordinates input as a seed value. 
+ * Handle player hitting a real trap.  Rewritten in Oangband to allow a
+ * greater variety of traps, with effects controlled by dungeon level.
+ * To allow a trap to choose one of a variety of effects consistantly,
+ * the quick RNG is often used, and xy coordinates input as a seed value.
  */
 void hit_trap(int y, int x)
 {
@@ -1277,7 +1277,7 @@ void hit_trap(int y, int x)
 			}
 
 			/* otherwise, the ordinary summon monsters. */
-			else 
+			else
 			{
 				msg_print("You are enveloped in a cloud of smoke!");
 
@@ -1317,7 +1317,7 @@ void hit_trap(int y, int x)
 			if ((nastyness > 60) && (randint(12) == 1))
 			{
 				msg_print("A ear-splitting howl shatters your mind as the dungeon is smashed by hammer blows!");
-				
+
 				(void)destroy_area(p_ptr->py, p_ptr->px, 15, TRUE);
 
 				/* the player is hard-hit. */
@@ -1358,8 +1358,8 @@ void hit_trap(int y, int x)
 			break;
 		}
 
-		/* various char and equipment-alteration traps, lumped together 
-		 * to avoid any one effect being too common (some of them can be 
+		/* various char and equipment-alteration traps, lumped together
+		 * to avoid any one effect being too common (some of them can be
 		 * rather nasty).
 		 */
 		case FEAT_TRAP_HEAD + 0x07:
@@ -1418,21 +1418,21 @@ void hit_trap(int y, int x)
 
 							/* Uncharge */
 							if ((o_ptr->tval == TV_STAFF) ||
-								(o_ptr->tval == TV_WAND)) 
+								(o_ptr->tval == TV_WAND))
 								o_ptr->pval = 0;
 
-							if (o_ptr->tval == TV_ROD) 
+							if (o_ptr->tval == TV_ROD)
 								o_ptr->timeout = o_ptr->pval * 2;
 
 
 							/* Combine / Reorder the pack */
-							p_ptr->notice |= (PN_COMBINE | 
+							p_ptr->notice |= (PN_COMBINE |
 							PN_REORDER);
 
 							/* Window stuff */
 							p_ptr->window |= (PW_INVEN);
 
-							/* not more than one inventory 
+							/* not more than one inventory
 							 * slot effected. */
 							break;
 						}
@@ -1534,7 +1534,7 @@ void hit_trap(int y, int x)
 
 			/* hold the missile type and name. */
 			int sval = 0;
-			int tval = 0;	
+			int tval = 0;
 			cptr missile_name = "";
 
 
@@ -1712,14 +1712,14 @@ void py_attack(int y, int x)
 
 	/* The whole and fractional damage dice and their resulting damage. */
 	int k_remainder, k_whole;
-	
+
 	/* Bonus to attack if monster is sleeping, for certain classes. */
 	int sleeping_bonus = 0;
-	
+
 	/* Blows counts */
 	int num = 0;
     int blows_used = 0;
-	
+
 	int bonus, chance, total_deadliness;
 	int l, m;
 
@@ -1732,7 +1732,7 @@ void py_attack(int y, int x)
 
 	char m_name[80];
 	char message[80];
-	
+
 	bool fear = FALSE;
 
 	bool do_quake = FALSE;
@@ -1754,7 +1754,7 @@ void py_attack(int y, int x)
 	 */
 	if ((m_ptr->csleep) && (m_ptr->ml))
 	{
-		if (p_ptr->pclass == CLASS_ROGUE) 
+		if (p_ptr->pclass == CLASS_ROGUE)
 			sleeping_bonus = 10 + 2 * p_ptr->lev / 5;
 		else sleeping_bonus = 0;
 	}
@@ -1801,6 +1801,7 @@ void py_attack(int y, int x)
 	bonus = p_ptr->to_h + o_ptr->to_h;
 	chance = (p_ptr->skill_thn + (bonus * BTH_PLUS_ADJ));
 
+
 	/* Attack once for each legal blow */
 	while (num++ < p_ptr->num_blow)
 	{
@@ -1831,7 +1832,7 @@ void py_attack(int y, int x)
 				if (total_deadliness > 0)
 					k *= (100 + deadliness_conversion[total_deadliness]);
 				else if (total_deadliness > -31)
-					k *= (100 - 
+					k *= (100 -
 					deadliness_conversion[ABS(total_deadliness)]);
 				else
 					k = 0;
@@ -1843,10 +1844,10 @@ void py_attack(int y, int x)
 				k_remainder = k % 10000;
 
 
-				/* Calculate and combine the damages of the whole and 
+				/* Calculate and combine the damages of the whole and
 				 * fractional dice.
 				 */
-				k = damroll(k_whole, o_ptr->ds) + 
+				k = damroll(k_whole, o_ptr->ds) +
 					(k_remainder * damroll(1, o_ptr->ds) / 10000);
 
 
@@ -1860,7 +1861,7 @@ void py_attack(int y, int x)
 				/* Message */
                 sprintf(message, "%d. You %s %s.", num, num%2?"bite":"claw", m_name);
 				msg_print(message);
-			
+
 				/* Get damage dice */
 				race_barehand_dice(num, &l, &m);
 
@@ -1879,7 +1880,7 @@ void py_attack(int y, int x)
 				if (total_deadliness > 0)
 					k *= (100 + deadliness_conversion[total_deadliness]);
 				else if (total_deadliness > -31)
-					k *= (100 - 
+					k *= (100 -
 					deadliness_conversion[ABS(total_deadliness)]);
 				else
 					k = 0;
@@ -1891,12 +1892,12 @@ void py_attack(int y, int x)
 				k_remainder = k % 10000;
 
 
-				/* Calculate and combine the damages of the whole and 
+				/* Calculate and combine the damages of the whole and
 				 * fractional dice.
 				 */
-				k = damroll(k_whole, m) + 
+				k = damroll(k_whole, m) +
 					(k_remainder * damroll(1, m) / 10000);
-				
+
 			}
 
 			/* No negative damage */
@@ -2012,13 +2013,13 @@ void py_attack_fractal(int y, int x, int blows_used)
 
 	/* The whole and fractional damage dice and their resulting damage. */
 	int k_remainder, k_whole;
-	
+
 	/* Bonus to attack if monster is sleeping, for certain classes. */
 	int sleeping_bonus = 0;
-	
+
     /* Blows counts */
     int num = blows_used;
-	
+
 	int bonus, chance, total_deadliness;
 	int l, m;
 
@@ -2031,7 +2032,7 @@ void py_attack_fractal(int y, int x, int blows_used)
 
 	char m_name[80];
 	char message[80];
-	
+
 	bool fear = FALSE;
 
 	bool do_quake = FALSE;
@@ -2053,7 +2054,7 @@ void py_attack_fractal(int y, int x, int blows_used)
 	 */
 	if ((m_ptr->csleep) && (m_ptr->ml))
 	{
-		if (p_ptr->pclass == CLASS_ROGUE) 
+		if (p_ptr->pclass == CLASS_ROGUE)
 			sleeping_bonus = 10 + 2 * p_ptr->lev / 5;
 		else sleeping_bonus = 0;
 	}
@@ -2130,7 +2131,7 @@ void py_attack_fractal(int y, int x, int blows_used)
 				if (total_deadliness > 0)
 					k *= (100 + deadliness_conversion[total_deadliness]);
 				else if (total_deadliness > -31)
-					k *= (100 - 
+					k *= (100 -
 					deadliness_conversion[ABS(total_deadliness)]);
 				else
 					k = 0;
@@ -2142,10 +2143,10 @@ void py_attack_fractal(int y, int x, int blows_used)
 				k_remainder = k % 10000;
 
 
-				/* Calculate and combine the damages of the whole and 
+				/* Calculate and combine the damages of the whole and
 				 * fractional dice.
 				 */
-				k = damroll(k_whole, o_ptr->ds) + 
+				k = damroll(k_whole, o_ptr->ds) +
 					(k_remainder * damroll(1, o_ptr->ds) / 10000);
 
 
@@ -2159,7 +2160,7 @@ void py_attack_fractal(int y, int x, int blows_used)
 				/* Message */
                 sprintf(message, "You %s %s.", blows_used%2?"bite":"claw", m_name);
 				msg_print(message);
-			
+
 				/* Get damage dice */
 				race_barehand_dice(num, &l, &m);
 
@@ -2178,7 +2179,7 @@ void py_attack_fractal(int y, int x, int blows_used)
 				if (total_deadliness > 0)
 					k *= (100 + deadliness_conversion[total_deadliness]);
 				else if (total_deadliness > -31)
-					k *= (100 - 
+					k *= (100 -
 					deadliness_conversion[ABS(total_deadliness)]);
 				else
 					k = 0;
@@ -2190,12 +2191,12 @@ void py_attack_fractal(int y, int x, int blows_used)
 				k_remainder = k % 10000;
 
 
-				/* Calculate and combine the damages of the whole and 
+				/* Calculate and combine the damages of the whole and
 				 * fractional dice.
 				 */
-				k = damroll(k_whole, m) + 
+				k = damroll(k_whole, m) +
 					(k_remainder * damroll(1, m) / 10000);
-				
+
 			}
 
 			/* No negative damage */

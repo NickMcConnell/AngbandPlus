@@ -155,7 +155,7 @@
 
 #   Dragon melee attacks have been upgraded
 
-#   Three new monsters have been added, including two uniques (Eol and Maeglin.) 
+#   Four new monsters have been added, including two uniques (Eol and Maeglin.)
 # Three old monsters have given way: Tiamat is gone, Ancalagon has her place as
 # the greatest of dragonkind, Glaurung is now where Ancalagon used to be (I
 # thought he deserved to be a lot more powerful than Itangast, Smaug, Scatha
@@ -178,7 +178,7 @@
 
 # Version stamp (required)
 
-V:2.9.7
+V:2.9.8
 
 #N: monster index: name
 #G: ASCII char used to display the monster: color symbol
@@ -209,14 +209,17 @@ F:RAND_25 |  FRIENDS |
 F:TAKE_ITEM | OPEN_DOOR
 D:He looks squalid and thoroughly revolting.
 
-N:2:Scrawny cat
-G:f:U
-I:110:1d2:30:3:10
-W:0:3:0:0
-B:CLAW:HURT:1d1
-F:RAND_25 | 
-F:ANIMAL
-D:A skinny little furball with sharp claws and a menacing look.
+N:2:Borg
+G:@:w
+I:110:7d8:10:16:250
+W:0:1:0:0
+B:HIT:HURT:2d6
+F:MALE | HAS_LITE |
+F:RAND_50 | DROP_90 | 
+F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR
+D:Half man, half mechanical, it appears to be starving and looking
+D: for potions of Cure Critical Wounds. It also seems to be confused
+D: about what type of equipment it would like to use.
 
 N:3:Scruffy little dog
 G:C:U
@@ -343,9 +346,10 @@ I:110:7d8:10:16:250
 W:0:1:0:0
 B:HIT:HURT:2d6
 F:MALE | HAS_LITE |
-F:RAND_50 | DROP_90 | 
+F:RAND_50 | DROP_90 |
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR
 D:He doesn't take to strangers kindly.
+
 
 
 ##### Normal monsters #####
@@ -1034,7 +1038,7 @@ G:p:r
 I:110:6d4:20:6:10
 W:5:2:0:7
 B:HIT:HURT:1d4
-F:MALE | NEVER_MOVE | HAS_LITE |
+F:MALE | HAS_LITE |
 F:FORCE_SLEEP | 
 F:FRIENDS | DROP_60 | 
 F:OPEN_DOOR | BASH_DOOR
@@ -1978,7 +1982,7 @@ D:It is a shambling orcish corpse leaving behind a trail of flesh.
 
 N:154:Gnome mage
 G:h:r
-I:110:7d8:18:12:10
+I:110:6d9:18:12:10
 W:11:2:0:38
 B:HIT:HURT:1d5
 F:MALE | HAS_LITE |
@@ -2585,7 +2589,7 @@ D:It is a small demonic spirit full of malevolence.
 
 N:202:Gnome mage
 G:h:r
-I:110:7d8:20:12:20
+I:110:6d9:20:12:20
 W:15:2:0:40
 B:HIT:HURT:1d5
 F:MALE | HAS_LITE |
@@ -4039,7 +4043,7 @@ D:An evil and cunning man from the East.
 
 N:305:Mage
 G:p:r
-I:110:15d8:20:24:10
+I:110:18d6:20:24:10
 W:28:1:0:150
 B:HIT:HURT:2d5
 B:HIT:HURT:2d5

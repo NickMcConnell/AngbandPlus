@@ -234,10 +234,6 @@ Monsters chase recent locations (v.slow)    [flow_by_smell]
     Allow monsters to take advantage of "old" trails that you may have left
     in the dungeon.  This has no effect unless "flow_by_sound" is also set.
 
-Monsters learn from their mistakes    [smart_learn]
-    Allow monsters to learn what spell attacks you are resistant to,
-    and to use this information to choose the best attacks.
-
 Monsters exploit players weaknesses    [smart_cheat]
     Allow monsters to know what spell attacks you are resistant to,
     and to use this information to choose the best attacks.

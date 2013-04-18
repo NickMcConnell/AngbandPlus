@@ -282,6 +282,9 @@ s16b tokenize(char *buf, s16b num, char **tokens)
  * Create a keymap, given an encoded keymap trigger
  *   C:<num>:<str>
  *
+ * Turn a window flag on or off, given a window, flag, and value.
+ *   W:<win>:<flag>:<value>
+ *
  * Turn an option off, given its name
  *   X:<str>
  *
@@ -501,6 +504,43 @@ errr process_pref_file_aux(char *buf)
 		}
 	}
 
+	/* Process "W:<win>:<flag>:<value>" -- window flags */
+	else if (buf[0] == 'W')
+	{
+		int win, flag, value;
+
+		if (tokenize(buf + 2, 3, zz) == 3)
+		{
+			win = strtol(zz[0], NULL, 0);
+			flag = strtol(zz[1], NULL, 0);
+			value = strtol(zz[2], NULL, 0);
+
+			/* Ignore illegal windows */
+			/* Hack -- Ignore the main window */
+			if ((win <= 0) || (win >= 8)) return (1);
+
+			/* Ignore illegal flags */
+			if ((flag < 0) || (flag >= 32)) return (1);
+
+			/* Require a real flag */
+			if (window_flag_desc[flag])
+			{
+				if (value)
+				{
+					/* Turn flag on */
+					op_ptr->window_flag[win] |= (1L << flag);
+				}
+				else
+				{
+					/* Turn flag off */
+					op_ptr->window_flag[win] &= ~(1L << flag);
+				}
+			}
+
+			/* Success */
+			return (0);
+		}
+	}
 
 	/* Failure */
 	return (1);
@@ -1304,7 +1344,7 @@ static void display_player_xtra_info(void)
 
 	/* Base skill */
 	hit = p_ptr->dis_to_h;
-	
+
 	if (p_ptr->dis_to_d >= 0) dam = deadliness_conversion[p_ptr->dis_to_d];
 	else dam = -deadliness_conversion[-p_ptr->dis_to_d];
 
@@ -1324,7 +1364,7 @@ static void display_player_xtra_info(void)
 	/* Apply weapon bonuses */
 	if (object_known_p(o_ptr)) hit += o_ptr->to_h;
 	if (object_known_p(o_ptr)) dam += o_ptr->to_d;
-	
+
 	if (dam >= 0) dam = deadliness_conversion[dam];
 	else dam = -deadliness_conversion[-dam];
 
@@ -1702,7 +1742,7 @@ static void display_player_flag_info(int y_offset)
 
 				/* Check flags */
 				if (f[set] & flag) c_put_str(TERM_WHITE, "+", row, col+n);
-				
+
 				/* Check Immunities */
 				if ((x==0) && (y==0) && (f[set] & TR2_IM_ACID))
 					c_put_str(TERM_WHITE, "*", row, col+n);
@@ -2068,7 +2108,7 @@ void display_player(int mode)
 		/* Other flags */
 		display_player_flag_info((screen_y - 3)/2);
 	}
-		
+
 	/* Special */
 	else if (mode)
 	{
@@ -2137,7 +2177,7 @@ errr file_character(cptr name, bool full)
 
 	/* Open the non-existing file */
 	if (fd < 0) fff = my_fopen(buf, "w+");
-	
+
 	/* Existing file */
 	if (fd >= 0)
 	{
@@ -2151,7 +2191,7 @@ errr file_character(cptr name, bool full)
 
 		/* Ask */
 		if (get_check(out_val))
-		{	
+		{
 			/* Open the non-existing file */
 			fff = my_fopen(buf, "a");
 		}
@@ -2884,7 +2924,7 @@ static void center_string(char *buf, cptr str)
 }
 
 
-	
+
 /*
  * Save a "bones" file for a dead character
  *
@@ -3166,13 +3206,13 @@ static void show_info(void)
 		if (inkey() == ESCAPE) return;
 	}
 
-	
+
 	/* Inventory -- if any */
 	if (p_ptr->inven_cnt)
 	{
 		/* Count inventory pages for this screen size */
 		i = j = 0;
-	
+
 		while (inven_start < INVEN_PACK)
 		{
 				i++;
@@ -3180,7 +3220,7 @@ static void show_info(void)
 		}
 
 		inven_start = 0;
-		
+
 		while (inven_start < INVEN_PACK)
 		{
 			j++;

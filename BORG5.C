@@ -697,7 +697,7 @@ static int borg_guess_race_name(cptr who)
 
     char partial[160];
 
-	int len = strlen(who);
+    int len = strlen(who);
 
     /* Start the search */
     m = 0; n = auto_unique_size;
@@ -740,16 +740,16 @@ static int borg_guess_race_name(cptr who)
     }
 
     /* Hack -- handle "offscreen" */
-	if (suffix(who, " (offscreen)"))
-	{
-		/* Remove the suffix */
-		strcpy(partial, who);
-		partial[len - 12] = '\0';
-		who = partial;
+    if (suffix(who, " (offscreen)"))
+    {
+        /* Remove the suffix */
+        strcpy(partial, who);
+        partial[len - 12] = '\0';
+        who = partial;
 
-		/* Message */
-		borg_note(format("# Handling offscreen monster (%s)", who));
-	}
+        /* Message */
+        borg_note(format("# Handling offscreen monster (%s)", who));
+    }
 
     /* Skip the prefix */
     who += 4;
@@ -2858,7 +2858,7 @@ static void borg_update_map(void)
 
                 /* Open doors */
                 case FEAT_OPEN:
-				case FEAT_BROKEN:
+                case FEAT_BROKEN:
                 {
                     /* steal info from the game for broken doors */
                     byte feat = cave_feat [y][x];
@@ -3751,6 +3751,10 @@ void borg_update(void)
 
         /* Mega-Hack -- Clear "detect evil" stamp */
         when_detect_evil = 0;
+
+        /* Clear our purchasing flags */
+        sold_item_tval = 0;
+        sold_item_sval = 0;
 
         /* Hack -- Clear "panel" flags */
         for (y = 0; y < 6; y++)
