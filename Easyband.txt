@@ -1,0 +1,59 @@
+Welcome to EasyBand !!!
+
+ Changes from Angband 2.9.1v2
+
+- Display damage done by weapon
+- Better slaying damage	:
+			animal		*3
+			evil		*3
+			orcs		*4
+			troll		*5
+			undead		*5
+			giant		*6
+			demon 		*7
+			dragon		*6
+			*slay* dragon 	*10
+- Better 		Brand damage	*4		
+- Lighting ID : all class have same Pseudo ID (Heavy) at fastest time
+- Critical System modified : more possibilities go get a critical
+				i = (weight + ((p_ptr->to_h + plus) * 5) + (p_ptr->lev * 3));
+	from			i = (weight + ((p_ptr->to_h + plus) * 4) + (p_ptr->lev * 2));
+- Less breakage for arrow and bolt
+- No tracks of Wizard or Debug command ( yes quite munchinish..)
+- More Hit Point: base dice adjustment modified so
+			Class 		from	to
+			Warrior		9	12
+			Mage		0	3
+			Priest		2	5
+			Rogue		6	9
+			Ranger		4	7
+			Paladin		6	9
+- Less Xp need to gain a Level, Class XP modifier has been changed  (about 20%):
+			Class		from	to
+			Warrior		0	0	/*OK , no Change ...*/
+			Mage		30	24
+			Priest		20	16
+			Rogue		25	20
+			Ranger		30	24
+			Paladin		35	28
+- Use Julian L. EDIT PATCH
+- All class have a little bit better Stealth and Perception
+- Tweaked Race :
+		Human -> -10% Xp need to gain a Level
+- New Race :
+		Snip : a little lovable furry ball, unable to do anything right, but need just few Xp to gain levels, resist some "flurry" attacks
+		PowPlayer : a Born To Kill Race come to Deep from the Space, hungry and bloodthirster
+
+HAVE MUCH FUN !!!
+
+Post Scriptum : Easyband is aimed to novice throught beginner player. The game is *very* easy at start, because of more HP,slaying weapon, few XP, but at higher level (35+) the game isn't much more different from standard Vanilla.
+At these level every character is enough powerfull indipendently from class and race. So i have warned you this is Easyband not Gottakill'emall.
+A more challenge will be in Ironmode...
+
+
+Andres Zanzani
+Rimini,Italy
+		
+		
+		
+	

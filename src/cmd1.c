@@ -75,7 +75,7 @@ sint critical_shot(int weight, int plus, int dam)
 	int i, k;
 
 	/* Extract "shot" power */
-	i = (weight + ((p_ptr->to_h + plus) * 4) + (p_ptr->lev * 2));
+	i = (weight + ((p_ptr->to_h + plus) * 5) + (p_ptr->lev * 3)); /*BHH*/
 
 	/* Critical hit */
 	if (randint(5000) <= i)
@@ -114,7 +114,7 @@ sint critical_norm(int weight, int plus, int dam)
 	int i, k;
 
 	/* Extract "blow" power */
-	i = (weight + ((p_ptr->to_h + plus) * 5) + (p_ptr->lev * 3));
+	i = (weight + ((p_ptr->to_h + plus) * 5) + (p_ptr->lev * 3)); /*BHH*/
 
 	/* Chance */
 	if (randint(5000) <= i)
@@ -185,7 +185,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 		case TV_SWORD:
 		case TV_DIGGING:
 		{
-			/* Slay Animal */
+			/* Slay Animal */	/*BHH*/
 			if ((f1 & (TR1_SLAY_ANIMAL)) &&
 			    (r_ptr->flags3 & (RF3_ANIMAL)))
 			{
@@ -194,7 +194,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 					l_ptr->r_flags3 |= (RF3_ANIMAL);
 				}
 
-				if (mult < 2) mult = 2;
+				if (mult < 3) mult = 3;
 			}
 
 			/* Slay Evil */
@@ -206,7 +206,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 					l_ptr->r_flags3 |= (RF3_EVIL);
 				}
 
-				if (mult < 2) mult = 2;
+				if (mult < 3) mult = 3;
 			}
 
 			/* Slay Undead */
@@ -218,7 +218,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 					l_ptr->r_flags3 |= (RF3_UNDEAD);
 				}
 
-				if (mult < 3) mult = 3;
+				if (mult < 5) mult = 5;
 			}
 
 			/* Slay Demon */
@@ -230,7 +230,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 					l_ptr->r_flags3 |= (RF3_DEMON);
 				}
 
-				if (mult < 3) mult = 3;
+				if (mult < 7) mult = 7;
 			}
 
 			/* Slay Orc */
@@ -242,7 +242,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 					l_ptr->r_flags3 |= (RF3_ORC);
 				}
 
-				if (mult < 3) mult = 3;
+				if (mult < 4) mult = 4;
 			}
 
 			/* Slay Troll */
@@ -254,7 +254,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 					l_ptr->r_flags3 |= (RF3_TROLL);
 				}
 
-				if (mult < 3) mult = 3;
+				if (mult < 5) mult = 5;
 			}
 
 			/* Slay Giant */
@@ -266,7 +266,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 					l_ptr->r_flags3 |= (RF3_GIANT);
 				}
 
-				if (mult < 3) mult = 3;
+				if (mult < 6) mult = 6;
 			}
 
 			/* Slay Dragon  */
@@ -278,7 +278,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 					l_ptr->r_flags3 |= (RF3_DRAGON);
 				}
 
-				if (mult < 3) mult = 3;
+				if (mult < 6) mult = 6;
 			}
 
 			/* Execute Dragon */
@@ -290,11 +290,11 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 					l_ptr->r_flags3 |= (RF3_DRAGON);
 				}
 
-				if (mult < 5) mult = 5;
+				if (mult < 10) mult = 10;
 			}
 
 
-			/* Brand (Acid) */
+			/* Brand (Acid) */		/*BHH*/
 			if (f1 & (TR1_BRAND_ACID))
 			{
 				/* Notice immunity */
@@ -309,7 +309,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 				/* Otherwise, take the damage */
 				else
 				{
-					if (mult < 3) mult = 3;
+					if (mult < 4) mult = 4;
 				}
 			}
 
@@ -328,7 +328,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 				/* Otherwise, take the damage */
 				else
 				{
-					if (mult < 3) mult = 3;
+					if (mult < 4) mult = 4;
 				}
 			}
 
@@ -347,7 +347,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 				/* Otherwise, take the damage */
 				else
 				{
-					if (mult < 3) mult = 3;
+					if (mult < 4) mult = 4;
 				}
 			}
 
@@ -366,7 +366,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 				/* Otherwise, take the damage */
 				else
 				{
-					if (mult < 3) mult = 3;
+					if (mult < 4) mult = 4;
 				}
 			}
 
@@ -1155,11 +1155,11 @@ void py_attack(int y, int x)
 			/* No negative damage */
 			if (k < 0) k = 0;
 
-			/* Complex message */
-			if (p_ptr->wizard)
-			{
+			/* Complex message */ /*BHH*/
+			
+			
 				msg_format("You do %d (out of %d) damage.", k, m_ptr->hp);
-			}
+			
 
 			/* Damage, check for fear and death */
 			if (mon_take_hit(cave_m_idx[y][x], k, &fear, NULL)) break;

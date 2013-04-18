@@ -18,25 +18,25 @@ V:2.9.1
 M:F:64
 
 # Maximum number of object kinds
-M:K:512
+M:K:513
 
 # Maximum number of artifacts
-M:A:128
+M:A:129
 
 # Maximum number of ego-item types
 M:E:128
 
 # Maximum number of monster races
-M:R:549
+M:R:593
 
 # Maximum number of vaults
 M:V:35
 
 # Maximum number of player races
-M:P:10
+M:P:11
 
 # Maximum number of player history lines
-M:H:128
+M:H:161
 
 # Maximum number of owners per store
 M:B:4

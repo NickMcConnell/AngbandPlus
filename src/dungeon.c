@@ -107,7 +107,7 @@ static void sense_inventory(void)
 	char o_name[80];
 
 
-	/*** Check for "sensing" ***/
+	/*** Check for "sensing" ***/			/*BHH*/
 
 	/* No sensing when confused */
 	if (p_ptr->confused) return;
@@ -118,7 +118,7 @@ static void sense_inventory(void)
 		case CLASS_WARRIOR:
 		{
 			/* Good sensing */
-			if (0 != rand_int(9000L / (plev * plev + 40))) return;
+			if (0 != rand_int(1L / (plev * plev + 40))) return;
 
 			/* Heavy sensing */
 			heavy = TRUE;
@@ -130,8 +130,8 @@ static void sense_inventory(void)
 		case CLASS_MAGE:
 		{
 			/* Very bad (light) sensing */
-			if (0 != rand_int(240000L / (plev + 5))) return;
-
+			if (0 != rand_int(1L / (plev + 5))) return;
+heavy = TRUE;
 			/* Done */
 			break;
 		}
@@ -139,8 +139,8 @@ static void sense_inventory(void)
 		case CLASS_PRIEST:
 		{
 			/* Good (light) sensing */
-			if (0 != rand_int(10000L / (plev * plev + 40))) return;
-
+			if (0 != rand_int(1L / (plev * plev + 40))) return;
+heavy = TRUE;
 			/* Done */
 			break;
 		}
@@ -148,7 +148,7 @@ static void sense_inventory(void)
 		case CLASS_ROGUE:
 		{
 			/* Okay sensing */
-			if (0 != rand_int(20000L / (plev * plev + 40))) return;
+			if (0 != rand_int(1L / (plev * plev + 40))) return;
 
 			/* Heavy sensing */
 			heavy = TRUE;
@@ -160,8 +160,8 @@ static void sense_inventory(void)
 		case CLASS_RANGER:
 		{
 			/* Very bad (light) sensing */
-			if (0 != rand_int(120000L / (plev + 5))) return;
-
+			if (0 != rand_int(1L / (plev + 5))) return;
+heavy = TRUE;
 			/* Done */
 			break;
 		}
@@ -169,7 +169,7 @@ static void sense_inventory(void)
 		case CLASS_PALADIN:
 		{
 			/* Bad sensing */
-			if (0 != rand_int(80000L / (plev * plev + 40))) return;
+			if (0 != rand_int(1L / (plev * plev + 40))) return;
 
 			/* Heavy sensing */
 			heavy = TRUE;
@@ -1059,7 +1059,7 @@ static void process_world(void)
 
 
 /*
- * Verify use of "wizard" mode
+ * Verify use of "wizard" mode			BHH
  */
 static bool enter_wizard_mode(void)
 {
@@ -1067,10 +1067,7 @@ static bool enter_wizard_mode(void)
 	if (verify_special || !(p_ptr->noscore & 0x0002))
 	{
 		/* Mention effects */
-		msg_print("You are about to enter 'wizard' mode for the very first time!");
-		msg_print("This is a form of cheating, and your game will not be scored!");
-		msg_print(NULL);
-
+		
 		/* Verify request */
 		if (!get_check("Are you sure you want to enter wizard mode? "))
 		{
@@ -1079,7 +1076,7 @@ static bool enter_wizard_mode(void)
 	}
 
 	/* Mark savefile */
-	p_ptr->noscore |= 0x0002;
+	
 
 	/* Success */
 	return (TRUE);
@@ -1098,9 +1095,7 @@ static bool verify_debug_mode(void)
 	if (verify_special && !(p_ptr->noscore & 0x0008))
 	{
 		/* Mention effects */
-		msg_print("You are about to use the dangerous, unsupported, debug commands!");
-		msg_print("Your machine may crash, and your savefile may become corrupted!");
-		msg_print(NULL);
+		
 
 		/* Verify request */
 		if (!get_check("Are you sure you want to use the debug commands? "))
@@ -1110,7 +1105,7 @@ static bool verify_debug_mode(void)
 	}
 
 	/* Mark savefile */
-	p_ptr->noscore |= 0x0008;
+	
 
 	/* Okay */
 	return (TRUE);
@@ -1137,10 +1132,7 @@ static bool verify_borg_mode(void)
 	if (verify_special && !(p_ptr->noscore & 0x0010))
 	{
 		/* Mention effects */
-		msg_print("You are about to use the dangerous, unsupported, borg commands!");
-		msg_print("Your machine may crash, and your savefile may become corrupted!");
-		msg_print(NULL);
-
+		
 		/* Verify request */
 		if (!get_check("Are you sure you want to use the borg commands? "))
 		{
@@ -1149,7 +1141,7 @@ static bool verify_borg_mode(void)
 	}
 
 	/* Mark savefile */
-	p_ptr->noscore |= 0x0010;
+	
 
 	/* Okay */
 	return (TRUE);
@@ -2852,13 +2844,13 @@ void play_game(bool new_game)
 			if ((p_ptr->wizard || cheat_live) && !get_check("Die? "))
 			{
 				/* Mark social class, reset age, if needed */
-				if (p_ptr->sc) p_ptr->sc = p_ptr->age = 0;
+				
 
 				/* Increase age */
-				p_ptr->age++;
+				
 
 				/* Mark savefile */
-				p_ptr->noscore |= 0x0001;
+				
 
 				/* Message */
 				msg_print("You invoke wizard mode and cheat death.");

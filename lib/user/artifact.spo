@@ -1,0 +1,888 @@
+Artifact Spoilers for Angband Version 2.9.1
+-------------------------------------------
+
+
+Edged Weapons
+-------------
+
+The Broken Sword 'Narsil' (3d2) (+6,+10)
+    +2 to STR, DEX, Attacks
+    Slay Orc, Troll
+    Resist Fire
+    Level 20, Rarity 4, 3.0 lbs, 2000 Gold
+
+The Main Gauche of Maedhros (2d5) (+12,+15)
+    +3 to INT, DEX, Speed
+    Slay Troll, Giant
+    See Invisible; Free Action
+    Level 15, Rarity 30, 3.0 lbs, 20000 Gold
+
+The Dagger 'Angrist' (2d4) (+10,+15) [+5]
+    +4 to DEX, Speed
+    Slay Evil, Orc, Troll
+    Acid Brand
+    Resist Dark
+    Sustain DEX
+    Free Action
+    Level 20, Rarity 80, 1.2 lbs, 100000 Gold
+
+The Dagger 'Narthanc' (1d4) (+4,+6)
+    Flame Tongue
+    Resist Fire
+    Activates for fire bolt (9d8)
+    Level 4, Rarity 10, 1.2 lbs, 12000 Gold
+
+The Dagger 'Nimthanc' (1d4) (+4,+6)
+    Frost Brand
+    Resist Cold
+    Activates for frost bolt (6d8)
+    Level 3, Rarity 10, 1.2 lbs, 11000 Gold
+
+The Dagger 'Dethanc' (1d4) (+4,+6)
+    Lightning Brand
+    Resist Lightning
+    Activates for lightning bolt (4d8)
+    Level 5, Rarity 10, 1.2 lbs, 13000 Gold
+
+The Dagger of Rilia (2d4) (+4,+3)
+    Slay Orc
+    Resist Poison, Disenchantment
+    Activates for stinking cloud (12)
+    Level 5, Rarity 40, 1.2 lbs, 15000 Gold
+
+The Dagger 'Belangil' (2d4) (+6,+9)
+    +2 to DEX
+    Frost Brand
+    Resist Cold
+    Slow Digestion; Regeneration; See Invisible
+    Activates for frost ball (48)
+    Level 10, Rarity 40, 1.2 lbs, 40000 Gold
+
+The Bastard Sword 'Calris' (5d4) (-20,+20)
+    +5 to CON
+    Slay Evil, Demon, Troll, Xdragon
+    Resist Disenchantment
+    Aggravates
+    Level 30, Rarity 15, 14.0 lbs, 100000 Gold
+
+The Broad Sword 'Arunruth' (3d5) (+20,+12)
+    +4 to DEX
+    Slay Demon, Orc
+    Resist Cold
+    Slow Digestion; Feather Falling; Free Action
+    Activates for frost bolt (12d8)
+    Level 20, Rarity 45, 15.0 lbs, 50000 Gold
+
+The Broad Sword 'Glamdring' (2d5) (+10,+15)
+    +1 to Searching
+    Slay Evil, Orc
+    Flame Tongue
+    Resist Fire, Light
+    Slow Digestion; Permanent Light
+    Level 20, Rarity 20, 15.0 lbs, 40000 Gold
+
+The Broad Sword 'Aeglin' (2d5) (+12,+16)
+    +1 to Searching
+    Slay Orc, Troll, Giant
+    Lightning Brand
+    Resist Lightning
+    Slow Digestion; Permanent Light
+    Level 20, Rarity 90, 15.0 lbs, 45000 Gold
+
+The Broad Sword 'Orcrist' (2d5) (+10,+15)
+    +3 to Stealth
+    Slay Evil, Orc
+    Frost Brand
+    Resist Cold, Dark
+    Slow Digestion; Permanent Light
+    Level 20, Rarity 20, 15.0 lbs, 40000 Gold
+
+The Two-Handed Sword 'Gurthang' (3d6) (+13,+17)
+    +2 to STR
+    Slay Xdragon
+    Flame Tongue
+    Resist Fire, Poison
+    Slow Digestion; Regeneration; Free Action
+    Level 30, Rarity 30, 20.0 lbs, 100000 Gold
+
+The Two-Handed Sword 'Zarcuthra' (4d6) (+19,+21)
+    +4 to STR, CHR, Infravision
+    Slay Animal, Evil, Undead, Demon, Orc, Troll, Giant, Xdragon
+    Flame Tongue
+    Resist Fire, Chaos
+    See Invisible; Free Action; Aggravates
+    Level 30, Rarity 80, 20.0 lbs, 200000 Gold
+
+The Two-Handed Sword 'Mormegil' (3d6) (-15,-15)
+    -5 to Speed
+    Slay Undead, Demon, Xdragon
+    Resist Nether
+    See Invisible; Hold Life; Aggravates; Drains Experience
+    Level 30, Rarity 15, 20.0 lbs, 10000 Gold
+
+The Cutlass 'Gondricam' (1d7) (+10,+11)
+    +3 to DEX, Stealth
+    Resist Acid, Lightning, Fire, Cold
+    Feather Falling; Regeneration; See Invisible
+    Level 20, Rarity 8, 11.0 lbs, 28000 Gold
+
+The Executioner's Sword 'Crisdurian' (4d5) (+18,+19)
+    +1 to Attacks
+    Slay Evil, Undead, Orc, Troll, Giant, Dragon
+    See Invisible
+    Level 40, Rarity 15, 26.0 lbs, 100000 Gold
+
+The Katana 'Aglarang' (8d4) (+0,+0)
+    +3 to DEX, Speed
+    Sustain DEX
+    Level 30, Rarity 25, 5.0 lbs, 40000 Gold
+
+The Long Sword 'Ringil' (4d5) (+22,+25)
+    +10 to Speed
+    Slay Evil, Undead, Demon, Troll
+    Frost Brand
+    Resist Cold, Fear, Light
+    Slow Digestion; Permanent Light; Regeneration; See Invisible
+    Free Action
+    Activates for frost ball (100)
+    Level 20, Rarity 120, 13.0 lbs, 300000 Gold
+
+The Long Sword 'Anduril' (4d5) (+10,+15) [+10]
+    +4 to STR, DEX
+    Slay Evil, Orc, Troll
+    Flame Tongue
+    Resist Fire, Fear, Disenchantment
+    Sustain STR, DEX
+    See Invisible; Free Action
+    Activates for fire ball (72)
+    Level 20, Rarity 40, 13.0 lbs, 80000 Gold
+
+The Long Sword 'Anguirel' (2d5) (+8,+12)
+    +2 to STR, CON, Speed
+    Slay Evil, Demon
+    Lightning Brand
+    Resist Lightning, Light, Dark
+    Permanent Light; See Invisible; Free Action; Aggravates
+    Level 20, Rarity 30, 13.0 lbs, 40000 Gold
+
+The Long Sword 'Elvagil' (2d5) (+2,+7)
+    +2 to DEX, CHR, Stealth
+    Slay Orc, Troll
+    Feather Falling; See Invisible
+    Level 20, Rarity 15, 13.0 lbs, 30000 Gold
+
+The Rapier 'Forasgil' (1d6) (+12,+19)
+    Slay Animal
+    Frost Brand
+    Resist Cold, Light
+    Permanent Light
+    Level 15, Rarity 8, 4.0 lbs, 15000 Gold
+
+The Sabre 'Careth Asdriag' (1d7) (+6,+8)
+    +1 to Attacks
+    Slay Animal, Orc, Troll, Giant, Dragon
+    Level 15, Rarity 8, 5.0 lbs, 25000 Gold
+
+The Small Sword 'Sting' (1d6) (+7,+8)
+    +2 to STR, DEX, CON, Speed, Attacks
+    Slay Evil, Undead, Orc
+    Resist Fear, Light
+    Permanent Light; See Invisible; Free Action
+    Level 20, Rarity 15, 7.5 lbs, 100000 Gold
+
+The Scimitar 'Haradekket' (2d5) (+9,+11)
+    +2 to DEX, Attacks
+    Slay Animal, Evil, Undead
+    See Invisible
+    Level 20, Rarity 8, 13.0 lbs, 30000 Gold
+
+The Short Sword 'Gilettar' (1d7) (+3,+7)
+    +2 to Attacks
+    Slay Animal
+    Slow Digestion; Regeneration
+    Level 20, Rarity 8, 8.0 lbs, 15000 Gold
+
+The Blade of Chaos 'Doomcaller' (6d5) (+18,+28) [-20]
+    Slay Animal, Evil, Orc, Troll, Xdragon
+    Frost Brand
+    Resist Acid, Lightning, Fire, Cold, Chaos
+    ESP; See Invisible; Free Action; Aggravates
+    Level 70, Rarity 25, 18.0 lbs, 200000 Gold
+
+
+
+Polearms
+--------
+
+The Spear of Melkor (4d6) (+12,+20)
+    +4 to Stealth, Infravision
+    Resist Light, Dark, Blindness, Confusion, Nether
+    Drains Experience
+    Level 65, Rarity 45, 10.0 lbs, 100000 Gold
+
+The Beaked Axe of Theoden (2d6) (+8,+10)
+    +3 to WIS, CON
+    Slay Dragon
+    Slow Digestion; ESP
+    Activates for drain life (120)
+    Level 20, Rarity 15, 18.0 lbs, 40000 Gold
+
+The Glaive of Pain (9d6) (+0,+30)
+    Level 30, Rarity 25, 30.0 lbs, 50000 Gold
+
+The Halberd 'Osondir' (3d5) (+6,+9)
+    +3 to CHR
+    Slay Undead, Giant
+    Flame Tongue
+    Resist Fire, Sound
+    Feather Falling; See Invisible
+    Level 20, Rarity 8, 19.0 lbs, 22000 Gold
+
+The Pike 'Til-i-arc' (2d5) (+10,+12) [+10]
+    +2 to INT
+    Slay Demon, Troll, Giant
+    Flame Tongue; Frost Brand
+    Resist Fire, Cold
+    Sustain INT
+    Slow Digestion
+    Level 20, Rarity 15, 16.0 lbs, 32000 Gold
+
+The Spear 'Aeglos' (3d6) (+15,+25) [+5]
+    +4 to WIS, DEX
+    Slay Evil, Undead, Orc, Troll
+    Frost Brand
+    Resist Cold, Fear
+    Slow Digestion; Free Action; Blessed Blade
+    Activates for frost ball (100)
+    Level 15, Rarity 45, 5.0 lbs, 140000 Gold
+
+The Spear of Orome (1d6) (+15,+15)
+    +4 to INT, Infravision, Speed
+    Slay Animal, Giant
+    Flame Tongue
+    Resist Fire, Fear, Light
+    Feather Falling; Permanent Light; See Invisible; Blessed Blade
+    Activates for stone to mud
+    Level 15, Rarity 45, 5.0 lbs, 60000 Gold
+
+The Spear 'Nimloth' (1d6) (+11,+13)
+    +3 to Stealth
+    Slay Undead
+    Frost Brand
+    Resist Cold
+    See Invisible
+    Level 15, Rarity 12, 5.0 lbs, 30000 Gold
+
+The Lance of Eorlingas (3d8) (+13,+21)
+    +2 to STR, DEX
+    Slay Evil, Orc, Troll
+    Resist Fear
+    See Invisible
+    Level 20, Rarity 23, 36.0 lbs, 55000 Gold
+
+The Great Axe of Durin (4d4) (+10,+20) [+15]
+    +3 to STR, CON, Tunneling
+    Slay Demon, Orc, Troll, Xdragon
+    Acid Brand
+    Resist Acid, Fire, Fear, Light, Dark, Confusion, Chaos
+    Free Action
+    Level 30, Rarity 90, 23.0 lbs, 150000 Gold
+
+The Great Axe of Eonwe (4d4) (+15,+18) [+8]
+    +2 to All stats
+    Slay Evil, Undead, Orc
+    Frost Brand
+    Immunity to Cold
+    Resist Cold, Fear, Confusion
+    See Invisible; Free Action; Blessed Blade
+    Activates for mass genocide
+    Level 30, Rarity 120, 23.0 lbs, 200000 Gold
+
+The Battle Axe of Balli Stonehand (3d8) (+8,+11) [+5]
+    +3 to STR, CON, Stealth
+    Slay Demon, Orc, Troll
+    Resist Acid, Lightning, Fire, Cold, Blindness
+    Feather Falling; Regeneration; See Invisible; Free Action
+    Level 30, Rarity 15, 17.0 lbs, 90000 Gold
+
+The Battle Axe 'Lotharang' (2d8) (+4,+3)
+    +1 to STR, DEX
+    Slay Orc, Troll
+    Activates for cure wounds (4d7)
+    Level 30, Rarity 15, 17.0 lbs, 21000 Gold
+
+The Lochaber Axe 'Mundwine' (3d8) (+12,+17)
+    Slay Evil
+    Resist Acid, Lightning, Fire, Cold
+    Level 30, Rarity 8, 25.0 lbs, 30000 Gold
+
+The Broad Axe 'Barukkheled' (2d6) (+13,+19)
+    +3 to CON
+    Slay Evil, Orc, Troll, Giant
+    See Invisible
+    Level 20, Rarity 8, 16.0 lbs, 50000 Gold
+
+The Trident of Wrath (3d8) (+16,+18)
+    +2 to STR, DEX
+    Slay Evil, Undead
+    Resist Light, Dark
+    See Invisible; Blessed Blade
+    Level 15, Rarity 35, 30.0 lbs, 90000 Gold
+
+The Trident of Ulmo (4d8) (+15,+19)
+    +4 to DEX
+    Slay Animal, Dragon
+    Immunity to Acid
+    Resist Acid, Nether
+    Slow Digestion; Regeneration; See Invisible; Free Action; Hold Life
+    Blessed Blade
+    Activates for teleport away
+    Level 30, Rarity 90, 7.0 lbs, 120000 Gold
+
+The Scythe 'Avavir' (5d3) (+8,+8) [+10]
+    +3 to DEX, CHR
+    Flame Tongue; Frost Brand
+    Resist Fire, Cold, Light
+    Permanent Light; See Invisible; Free Action
+    Activates for illumination
+    Level 40, Rarity 8, 25.0 lbs, 18000 Gold
+
+The Beaked Axe of Hurin (2d6) (+12,+15)
+    +2 to CON, Attacks
+    Slay Demon, Orc, Troll
+    Acid Brand
+    Resist Acid, Dark
+    Level 20, Rarity 15, 18.0 lbs, 90000 Gold
+
+
+
+Hafted Weapons
+--------------
+
+The Mighty Hammer 'Grond' (9d9) (+25,+25) [+10]
+    +2 to Attacks
+    Slay Animal, Evil, Undead, Demon, Orc, Troll, Xdragon
+    ESP; See Invisible; Earthquake impact on hit; Aggravates
+    Level 100, Rarity 1, 100.0 lbs, 500000 Gold
+
+The Flail 'Totila' (3d6) (+6,+8)
+    +2 to Stealth
+    Slay Evil
+    Flame Tongue
+    Resist Fire, Confusion
+    Activates for confuse monster
+    Level 20, Rarity 8, 15.0 lbs, 55000 Gold
+
+The Two-Handed Flail 'Thunderfist' (3d6) (+5,+18)
+    +4 to STR, CON
+    Slay Animal, Orc, Troll
+    Lightning Brand; Flame Tongue
+    Resist Lightning, Fire, Fear, Dark
+    Level 45, Rarity 38, 30.0 lbs, 160000 Gold
+
+The Morning Star 'Bloodspike' (2d6) (+8,+22)
+    +4 to STR
+    Slay Animal, Orc, Troll
+    Resist Nexus
+    See Invisible
+    Level 20, Rarity 30, 15.0 lbs, 30000 Gold
+
+The Morning Star 'Firestar' (2d6) (+5,+7) [+2]
+    Flame Tongue
+    Resist Fire
+    Activates for fire ball (72)
+    Level 20, Rarity 15, 15.0 lbs, 35000 Gold
+
+The Mace 'Taratol' (3d4) (+12,+12)
+    Slay Xdragon
+    Lightning Brand
+    Immunity to Lightning
+    Resist Lightning
+    Activates for haste self (20+d20 turns)
+    Level 20, Rarity 15, 20.0 lbs, 50000 Gold
+
+The War Hammer of Aule (9d3) (+19,+21) [+5]
+    +4 to WIS, Tunneling
+    Slay Evil, Undead, Demon, Xdragon
+    Acid Brand
+    Resist Acid, Lightning, Fire, Cold, Fear, Nexus
+    See Invisible; Free Action
+    Level 40, Rarity 75, 12.0 lbs, 250000 Gold
+
+The Quarterstaff 'Nar-i-vagil' (1d9) (+10,+20)
+    +3 to INT
+    Slay Animal
+    Flame Tongue
+    Resist Fire
+    Level 20, Rarity 18, 15.0 lbs, 70000 Gold
+
+The Quarterstaff 'Eriril' (1d9) (+3,+5)
+    +4 to INT, WIS
+    Slay Evil
+    Resist Light
+    Permanent Light; See Invisible
+    Activates for identify
+    Level 20, Rarity 18, 15.0 lbs, 20000 Gold
+
+The Quarterstaff of Olorin (2d9) (+10,+13)
+    +4 to INT, WIS, CHR
+    Slay Evil, Orc, Troll
+    Flame Tongue
+    Resist Fire, Fear, Nether
+    See Invisible; Hold Life
+    Activates for probing
+    Level 30, Rarity 105, 15.0 lbs, 130000 Gold
+
+The Mace of Disruption 'Deathwreaker' (7d8) (+18,+18)
+    +6 to STR, Tunneling
+    Slay Animal, Evil, Undead, Dragon
+    Flame Tongue
+    Immunity to Fire
+    Resist Fire, Dark, Chaos, Disenchantment
+    Aggravates
+    Level 80, Rarity 38, 40.0 lbs, 400000 Gold
+
+The Lucerne Hammer 'Turmil' (2d5) (+10,+6) [+8]
+    +4 to WIS, Infravision
+    Slay Orc
+    Frost Brand
+    Resist Cold, Light
+    Permanent Light; Regeneration
+    Activates for drain life (90)
+    Level 20, Rarity 15, 12.0 lbs, 30000 Gold
+
+
+
+Bows
+----
+
+The Long Bow 'Belthronding' (x3) (+20,+22)
+    +1 to DEX, Stealth, Speed, Shots
+    Resist Disenchantment
+    Level 40, Rarity 20, 4.0 lbs, 35000 Gold
+
+The Long Bow of Bard (x3) (+17,+19)
+    +2 to DEX, Speed, Might
+    Free Action
+    Level 30, Rarity 20, 4.0 lbs, 20000 Gold
+
+The Light Crossbow 'Cubragol' (x3) (+10,+14)
+    +10 to Speed
+    Resist Fire
+    Activates for fire branding of bolts
+    Level 50, Rarity 25, 11.0 lbs, 50000 Gold
+
+The Heavy Crossbow of Umbar (x4) (+18,+18)
+    +1 to Shots, Might
+    Resist Light, Dark, Blindness
+    Aggravates
+    Activates for a magical arrow (150)
+    Level 60, Rarity 20, 20.0 lbs, 35000 Gold
+
+
+
+Diggers
+-------
+
+The Mattock of Nain (3d8) (+12,+18)
+    +6 to STR, Searching, Infravision, Tunneling
+    Slay Orc, Troll, Giant
+    Acid Brand
+    Resist Acid, Dark, Disenchantment
+    Activates for stone to mud
+    Level 60, Rarity 20, 25.0 lbs, 30000 Gold
+
+
+
+Body Armor
+----------
+
+The Hard Leather Armour of Himring [6,+15]
+    Resist Poison, Nether, Chaos
+    Activates for protection from evil
+    Level 50, Rarity 20, 10.0 lbs, 35000 Gold
+
+The Soft Leather Armour 'Hithlomir' [4,+20]
+    +4 to Stealth
+    Resist Acid, Lightning, Fire, Cold, Dark
+    Level 20, Rarity 3, 8.0 lbs, 45000 Gold
+
+The Leather Scale Mail 'Thalkettoth' (-1) [11,+25]
+    +3 to DEX, Speed
+    Resist Acid, Shards
+    Level 20, Rarity 3, 6.0 lbs, 25000 Gold
+
+The Adamantite Plate Mail 'Soulkeeper' (-4) [40,+20]
+    +2 to CON
+    Resist Acid, Cold, Fear, Dark, Confusion, Nexus, Nether, Chaos
+    Sustain CON
+    Hold Life
+    Activates for heal (1000)
+    Level 75, Rarity 9, 42.0 lbs, 300000 Gold
+
+The Full Plate Armour of Isildur [25,+25]
+    +1 to CON
+    Resist Acid, Lightning, Fire, Cold, Confusion, Sound, Nexus
+    Level 30, Rarity 3, 30.0 lbs, 50000 Gold
+
+The Metal Brigandine Armour of the Rohirrim [19,+15]
+    +2 to STR, DEX
+    Resist Acid, Lightning, Fire, Cold, Fear, Confusion, Sound
+    Level 30, Rarity 3, 20.0 lbs, 30000 Gold
+
+The Mithril Chain Mail 'Belegennon' (-1) [28,+20]
+    +4 to Stealth
+    Resist Acid, Lightning, Fire, Cold, Poison
+    Activates for phase door
+    Level 40, Rarity 3, 15.0 lbs, 105000 Gold
+
+The Mithril Plate Mail of Celeborn (-3) [35,+25]
+    +4 to STR, CHR
+    Resist Acid, Lightning, Fire, Cold, Dark, Disenchantment
+    Activates for genocide
+    Level 40, Rarity 3, 25.0 lbs, 150000 Gold
+
+The Chain Mail of Arvedui (-2) [14,+15]
+    +2 to STR, CHR
+    Resist Acid, Lightning, Fire, Cold, Shards, Nexus
+    Level 20, Rarity 3, 22.0 lbs, 32000 Gold
+
+The Augmented Chain Mail of Caspanion (-2) [16,+20]
+    +3 to INT, WIS, CON
+    Resist Acid, Poison, Confusion
+    Activates for door and trap destruction
+    Level 25, Rarity 9, 27.0 lbs, 40000 Gold
+
+The Multi-Hued Dragon Scale Mail 'Razorback' (-4) [30,+25]
+    Immunity to Lightning
+    Resist Acid, Lightning, Fire, Cold, Poison, Light, Dark
+    Permanent Light; See Invisible; Free Action; Aggravates
+    Activates for star ball (150)
+    Level 90, Rarity 9, 50.0 lbs, 400000 Gold
+
+The Power Dragon Scale Mail 'Bladeturner' (-8) [50,+35]
+    Resist Acid, Lightning, Fire, Cold, Poison, Fear, Light, Dark, 
+      Blindness, Confusion, Sound, Shards, Nexus, Nether, Chaos, 
+      Disenchantment
+    Regeneration; Hold Life
+    Activates for berserk rage, bless, and resistance
+    Level 100, Rarity 16, 60.0 lbs, 500000 Gold
+
+
+
+Cloaks
+------
+
+The Cloak 'Colluin' [1,+15]
+    Resist Acid, Lightning, Fire, Cold, Poison
+    Activates for resistance (20+d20 turns)
+    Level 5, Rarity 45, 1.0 lbs, 10000 Gold
+
+The Cloak 'Holcolleth' [1,+4]
+    +2 to INT, WIS, Stealth, Speed
+    Resist Acid
+    Activates for sleep II
+    Level 5, Rarity 45, 1.0 lbs, 13000 Gold
+
+The Cloak of Thingol [1,+18]
+    +3 to DEX, CHR
+    Resist Acid, Fire, Cold
+    Free Action
+    Activates for recharge item I
+    Level 10, Rarity 90, 1.0 lbs, 35000 Gold
+
+The Cloak of Thorongil [1,+10]
+    Resist Acid, Fear
+    See Invisible; Free Action
+    Level 5, Rarity 20, 1.0 lbs, 8000 Gold
+
+The Cloak 'Colannon' [1,+15]
+    +3 to Stealth, Speed
+    Resist Nexus
+    Activates for teleport
+    Level 3, Rarity 10, 1.0 lbs, 11000 Gold
+
+The Shadow Cloak of Luthien [6,+20]
+    +2 to INT, WIS, CHR, Stealth, Speed
+    Resist Acid, Fire, Cold
+    Activates for restore life levels
+    Level 40, Rarity 40, 0.5 lbs, 45000 Gold
+
+The Shadow Cloak of Tuor [6,+12]
+    +4 to DEX, Stealth
+    Immunity to Acid
+    Resist Acid
+    See Invisible; Free Action
+    Level 40, Rarity 40, 0.5 lbs, 35000 Gold
+
+
+
+Shields
+-------
+
+The Small Metal Shield of Thorin [3,+25]
+    +4 to STR, CON
+    Immunity to Acid
+    Resist Acid, Fear, Sound, Chaos
+    Free Action
+    Level 40, Rarity 6, 6.5 lbs, 60000 Gold
+
+The Large Leather Shield of Celegorm [4,+20]
+    Resist Acid, Lightning, Fire, Cold, Light, Dark
+    Level 30, Rarity 3, 6.0 lbs, 12000 Gold
+
+The Large Metal Shield of Anarion [5,+20]
+    Resist Acid, Lightning, Fire, Cold
+    Sustain All stats
+    Level 40, Rarity 9, 12.0 lbs, 160000 Gold
+
+The Shield of Deflection of Gil-galad [10,+20]
+    +5 to WIS, CHR
+    Resist Acid, Lightning, Disenchantment
+    Sustain WIS, CHR
+    Permanent Light
+    Level 70, Rarity 4, 8.0 lbs, 65000 Gold
+
+
+
+Helms/Crowns
+------------
+
+The Hard Leather Cap of Thranduil [2,+10]
+    +2 to INT, WIS
+    Resist Blindness
+    ESP
+    Level 20, Rarity 2, 1.5 lbs, 50000 Gold
+
+The Metal Cap of Thengel [3,+12]
+    +3 to WIS, CHR
+    Resist Confusion
+    Level 10, Rarity 2, 2.0 lbs, 22000 Gold
+
+The Steel Helm of Hammerhand [6,+20]
+    +3 to STR, DEX, CON
+    Resist Acid, Nexus
+    Level 20, Rarity 2, 6.0 lbs, 45000 Gold
+
+The Iron Helm of Dor-Lomin [5,+20]
+    +4 to STR, DEX, CON
+    Resist Acid, Lightning, Fire, Cold, Fear, Light, Blindness
+    Permanent Light; ESP; See Invisible
+    Level 40, Rarity 12, 7.5 lbs, 300000 Gold
+
+The Iron Helm 'Holhenneth' [5,+10]
+    +2 to INT, WIS, Searching
+    Resist Blindness, Confusion
+    See Invisible
+    Activates for detection
+    Level 20, Rarity 5, 7.5 lbs, 100000 Gold
+
+The Iron Helm of Gorlim [5,+10]
+    -5 to INT, WIS, Searching
+    Resist Fear
+    See Invisible; Free Action; Aggravates
+    Level 20, Rarity 5, 7.5 lbs, 0 Gold
+
+The Massive Iron Crown of Morgoth [0,+0]
+    +125 to All stats, Infravision
+    Resist Acid, Lightning, Fire, Cold, Poison, Fear, Light, Dark, 
+      Confusion, Nexus, Nether
+    Permanent Light; ESP; See Invisible
+    Level 100, Rarity 1, 2.0 lbs, 10000000 Gold
+
+The Iron Crown of Beruthiel [0,+20]
+    -3 to STR, DEX, CON
+    ESP; See Invisible; Free Action
+    Level 40, Rarity 12, 2.0 lbs, 0 Gold
+
+The Golden Crown of Gondor [0,+15]
+    +3 to STR, WIS, CON, Speed
+    Resist Fire, Cold, Light, Blindness, Confusion, Sound, Chaos
+    Permanent Light; Regeneration; See Invisible
+    Activates for heal (500)
+    Level 40, Rarity 40, 3.0 lbs, 100000 Gold
+
+The Jewel Encrusted Crown of Numenor [0,+15]
+    +3 to INT, DEX, CHR
+    Resist Light, Sound, Shards
+    Permanent Light
+    Level 60, Rarity 15, 4.0 lbs, 50000 Gold
+
+
+
+Gloves
+------
+
+The Set of Leather Gloves 'Cambeleg' (+8,+8) [1,+15]
+    +2 to STR, CON
+    Free Action
+    Level 10, Rarity 6, 0.5 lbs, 36000 Gold
+
+The Set of Leather Gloves 'Cammithrim' [1,+10]
+    Resist Light
+    Sustain CON
+    Permanent Light; Free Action
+    Activates for magic missile (2d6)
+    Level 10, Rarity 3, 0.5 lbs, 30000 Gold
+
+The Set of Gauntlets 'Paurhach' [2,+15]
+    Resist Fire
+    Activates for fire bolt (9d8)
+    Level 10, Rarity 20, 2.5 lbs, 15000 Gold
+
+The Set of Gauntlets 'Paurnimmen' [2,+15]
+    Resist Cold
+    Activates for frost bolt (6d8)
+    Level 10, Rarity 20, 2.5 lbs, 13000 Gold
+
+The Set of Gauntlets 'Pauraegen' [2,+15]
+    Resist Lightning
+    Activates for lightning bolt (4d8)
+    Level 10, Rarity 20, 2.5 lbs, 11000 Gold
+
+The Set of Gauntlets 'Paurnen' [2,+15]
+    Resist Acid
+    Activates for acid bolt (5d8)
+    Level 10, Rarity 20, 2.5 lbs, 12000 Gold
+
+The Set of Gauntlets 'Camlost' (-5,-5) [2,+15]
+    -3 to STR, DEX
+    Resist Fire, Disenchantment
+    Free Action; Aggravates; Drains Experience
+    Level 10, Rarity 20, 2.5 lbs, 0 Gold
+
+The Set of Cesti of Fingolfin (+10,+10) [5,+20]
+    +4 to DEX
+    Resist Acid, Fear
+    Free Action
+    Activates for a magical arrow (150)
+    Level 40, Rarity 15, 4.0 lbs, 110000 Gold
+
+
+
+Boots
+-----
+
+The Pair of Hard Leather Boots of Feanor [3,+20]
+    +15 to Speed
+    Resist Nexus
+    Activates for haste self (20+d20 turns)
+    Level 40, Rarity 120, 4.0 lbs, 300000 Gold
+
+The Pair of Soft Leather Boots 'Dal-i-thalion' [2,+15]
+    +5 to DEX
+    Resist Confusion, Nether, Chaos
+    Sustain CON
+    Free Action
+    Activates for remove fear and cure poison
+    Level 10, Rarity 25, 2.0 lbs, 40000 Gold
+
+The Pair of Metal Shod Boots of Thror [6,+20]
+    +3 to STR, CON, Speed
+    Resist Fear
+    Level 30, Rarity 25, 8.0 lbs, 12000 Gold
+
+
+
+Light Sources
+-------------
+
+The Phial of Galadriel
+    Permanent Light(3)
+    Activates for illumination
+    Level 1, Rarity 1, 1.0 lbs, 10000 Gold
+
+The Star of Elendil
+    See Invisible; Permanent Light(3)
+    Activates for magic mapping
+    Level 30, Rarity 25, 0.5 lbs, 30000 Gold
+
+The Arkenstone of Thrain
+    Resist Light, Dark
+    See Invisible; Hold Life; Permanent Light(3)
+    Activates for detection
+    Level 50, Rarity 50, 0.5 lbs, 50000 Gold
+
+The Palantir of Westernesse
+    +2 to INT, WIS, Searching, Infravision
+    Resist Blindness, Chaos
+    ESP; See Invisible; Aggravates; Permanent Light(3)
+    Activates for clairvoyance
+    Level 75, Rarity 60, 20.0 lbs, 100000 Gold
+
+
+
+Amulets
+-------
+
+The Amulet of Carlammas
+    +2 to CON
+    Resist Fire
+    Activates for protection from evil
+    Level 50, Rarity 10, 0.3 lbs, 60000 Gold
+
+The Amulet of Ingwe
+    +3 to INT, WIS, CHR, Infravision
+    Resist Acid, Lightning, Cold
+    See Invisible; Free Action
+    Activates for dispel evil (x5)
+    Level 65, Rarity 30, 0.3 lbs, 90000 Gold
+
+The Necklace of the Dwarves
+    +3 to STR, CON, Infravision
+    Permanent Light; Regeneration; See Invisible; Free Action
+    Level 70, Rarity 50, 0.3 lbs, 75000 Gold
+
+
+
+Rings
+-----
+
+The Ring of Barahir
+    +1 to All stats, Stealth
+    Resist Poison, Dark
+    Level 50, Rarity 25, 0.2 lbs, 65000 Gold
+
+The Ring of Tulkas
+    +4 to STR, DEX, CON
+    Activates for haste self (75+d75 turns)
+    Level 70, Rarity 50, 0.2 lbs, 150000 Gold
+
+The Ring of Power 'Narya' (+6,+6)
+    +1 to All stats, Speed
+    Immunity to Fire
+    Resist Fire, Fear, Nether
+    Sustain STR, WIS, CON, CHR
+    Slow Digestion; Regeneration; See Invisible; Free Action
+    Activates for large fire ball (120)
+    Level 70, Rarity 30, 0.2 lbs, 100000 Gold
+
+The Ring of Power 'Nenya' (+8,+8)
+    +2 to All stats, Speed
+    Immunity to Cold
+    Resist Cold, Blindness, Confusion
+    Sustain INT, WIS, CHR
+    Feather Falling; Regeneration; See Invisible; Free Action; Hold Life
+    Activates for large frost ball (200)
+    Level 80, Rarity 40, 0.2 lbs, 200000 Gold
+
+The Ring of Power 'Vilya' (+10,+10)
+    +3 to All stats, Speed
+    Immunity to Lightning
+    Resist Lightning, Poison, Disenchantment
+    Sustain STR, DEX, CON
+    Slow Digestion; Feather Falling; Regeneration; See Invisible
+    Free Action; Hold Life
+    Activates for large lightning ball (250)
+    Level 90, Rarity 50, 0.2 lbs, 300000 Gold
+
+The Ring of Power 'The One Ring' (+15,+15)
+    +5 to All stats, Speed
+    Immunity to Acid, Lightning, Fire, Cold
+    Resist Acid, Lightning, Fire, Cold, Poison, Fear, Blindness, 
+      Confusion, Nether, Disenchantment
+    Sustain All stats
+    Regeneration; See Invisible; Aggravates; Drains Experience
+    Activates for bizarre things
+    Level 100, Rarity 100, 0.2 lbs, 5000000 Gold
+

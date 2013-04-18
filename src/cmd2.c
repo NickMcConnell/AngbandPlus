@@ -2311,7 +2311,7 @@ static int breakage_chance(object_type *o_ptr)
 	/* Examine the item type */
 	switch (o_ptr->tval)
 	{
-		/* Always break */
+		/* Always break */		/*BHH*/
 		case TV_FLASK:
 		case TV_POTION:
 		case TV_BOTTLE:
@@ -2332,7 +2332,7 @@ static int breakage_chance(object_type *o_ptr)
 		/* Sometimes break */
 		case TV_ARROW:
 		{
-			return (35);
+			return (10);
 		}
 
 		/* Sometimes break */
@@ -2341,7 +2341,7 @@ static int breakage_chance(object_type *o_ptr)
 		case TV_BOLT:
 		case TV_SPIKE:
 		{
-			return (25);
+			return (10);
 		}
 	}
 
@@ -2622,12 +2622,12 @@ void do_cmd_fire(void)
 				/* No negative damage */
 				if (tdam < 0) tdam = 0;
 
-				/* Complex message */
-				if (p_ptr->wizard)
-				{
+				/* Complex message */	/*BHH*/
+				
+				
 					msg_format("You do %d (out of %d) damage.",
 					           tdam, m_ptr->hp);
-				}
+				
 
 				/* Hit the monster, check for death */
 				if (mon_take_hit(cave_m_idx[y][x], tdam, &fear, note_dies))
@@ -2903,12 +2903,12 @@ void do_cmd_throw(void)
 				/* No negative damage */
 				if (tdam < 0) tdam = 0;
 
-				/* Complex message */
-				if (p_ptr->wizard)
-				{
+				/* Complex message */ /*BHH*/
+				
+				
 					msg_format("You do %d (out of %d) damage.",
 					           tdam, m_ptr->hp);
-				}
+				
 
 				/* Hit the monster, check for death */
 				if (mon_take_hit(cave_m_idx[y][x], tdam, &fear, note_dies))
