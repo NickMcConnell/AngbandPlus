@@ -1,0 +1,37 @@
+# File: cost_adj.txt
+
+
+# This file is used to initialize the "lib/data/cost_adj.raw" file, which is
+# used to initialize the "racial price adjustment" information for the
+# Angband game.
+
+# Do not modify this file unless you know exactly what you are doing,
+# unless you wish to risk possible system crashes and broken savefiles.
+# After modifying this file, delete the "lib/data/cost_adj.raw" file.
+
+
+# Format:
+# A:store adjustments
+
+
+# Version stamp (required)
+
+V:2.9.3
+
+
+# DaE:Drd:Dwf:Svn:Gno
+
+# Dark-Elf
+A:100:150:130:160:130
+
+# Drider
+A:150:100:150:160:150
+
+# Dwarf
+A:130:150:100:130:160
+
+# Svirfneblin
+A:160:160:130:100:130
+
+# Gnome
+A:130:150:160:130:100

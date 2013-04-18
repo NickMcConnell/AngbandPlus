@@ -1,0 +1,54 @@
+# File: xtra-xxx.prf
+
+#
+# This file defines special attr/char mappings for use in "graphics" mode
+#
+# See "lib/help/command.txt" and "src/files.c" for more information.
+#
+
+
+##### Remap the player icon #####
+
+?:[AND [EQU $CLASS Warrior] [EQU $RACE Drow] ]
+R:0:0x8C/0x80
+?:[AND [EQU $CLASS Warrior] [EQU $RACE Drider] ]
+R:0:0x8C/0x81
+?:[AND [EQU $CLASS Warrior] [EQU $RACE Dwarf] ]
+R:0:0x8C/0x88
+?:[AND [EQU $CLASS Warrior] [EQU $RACE Svirfneblin] ]
+R:0:0x8C/0x8C
+?:[AND [EQU $CLASS Warrior] [EQU $RACE Gnome] ]
+R:0:0x8C/0x90
+
+?:[AND [EQU $CLASS Mage] [EQU $RACE Drow] ]
+R:0:0x8C/0x82
+?:[AND [EQU $CLASS Mage] [EQU $RACE Drider] ]
+R:0:0x8C/0x83
+?:[AND [EQU $CLASS Mage] [EQU $RACE Dwarf] ]
+R:0:0x8C/0x89
+?:[AND [EQU $CLASS Mage] [EQU $RACE Svirfneblin] ]
+R:0:0x8C/0x8D
+?:[AND [EQU $CLASS Mage] [EQU $RACE Gnome] ]
+R:0:0x8C/0x91
+
+?:[AND [EQU $CLASS Warrior-Mage] [EQU $RACE Drow] ]
+R:0:0x8C/0x84
+?:[AND [EQU $CLASS Warrior-Mage] [EQU $RACE Drider] ]
+R:0:0x8C/0x85
+?:[AND [EQU $CLASS Warrior-Mage] [EQU $RACE Dwarf] ]
+R:0:0x8C/0x8A
+?:[AND [EQU $CLASS Warrior-Mage] [EQU $RACE Svirfneblin] ]
+R:0:0x8C/0x8E
+?:[AND [EQU $CLASS Warrior-Mage] [EQU $RACE Gnome] ]
+R:0:0x8C/0x92
+
+?:[AND [EQU $CLASS Shamane] [EQU $RACE Drow] ]
+R:0:0x8C/0x86
+?:[AND [EQU $CLASS Shamane] [EQU $RACE Drider] ]
+R:0:0x8C/0x87
+?:[AND [EQU $CLASS Shamane] [EQU $RACE Dwarf] ]
+R:0:0x8C/0x8B
+?:[AND [EQU $CLASS Shamane] [EQU $RACE Svirfneblin] ]
+R:0:0x8C/0x8F
+?:[AND [EQU $CLASS Shamane] [EQU $RACE Gnome] ]
+R:0:0x8C/0x93
