@@ -1,0 +1,139 @@
+
+
+
+Angband 2.8.3 -> DrAngband 2.9.0 (Started 24/10/99)
+---------------------------------------------------
+
+* Player invisibility. INVIS (equipment) and SEE_INVIS (monster) flags added.
+  (TR3_INVIS, RF2_SEE_INVIS).
+
+* Artifact Arrows. 'Bard' and 'Hellblazer'.
+
+* 25% breakage of arrows (from 50%).
+
+* Immunities shown as *, temp resists shown as #.
+
+* Amulets of the Magi now give intelligence instead of searching and a random
+  high resistance.
+
+* 1 Extra shot at level 30 for Warriors with any ranged weapons.
+
+* Extra shots at levels 20 and 40 for Rogues with slings.
+
+* Rings of poison resistance to depth 2000', rarity 3, value 12000 (from depth
+  3000', rarity 2, value 16000).
+
+* 'Elemental' rings activate for double resistance. Ring of Acid changed to
+  Ring of Lightning.
+
+* Globe of Invulnerability now only reduces damage (that reaches take_hit())
+  to 1/3. Eg mana storm = 550hps / 3 = 183hps with the new globe.
+
+* New TM_CURSE. Based on the TY_CURSE. It has a  1/TM_CURSE_CHANCE (100) chance
+  of activation each turn. Effects range from draining experience and stats
+  to summoning multiple ancient dragons, high undead, demons and uniques.
+ 
+* Iron Helm of Gorlim, Two Handed Sword 'Mormegil' and weapons of morgul have
+  gained the TM_CURSE.
+
+* Leon Marrick's Oangband Rod stacking. Rod recharge times moved to pval field
+  of k_info.txt.
+
+* [Monster] Dragon melee damage massively increased.
+
+* get_rnd_line() borrowed from Zangband.
+
+* 'O' command offers items to the Random Number God (RNG). Note -- Artifacts can
+   be offered and will disappear permenently if offered.
+   Rng.txt, rng0-5.txt have the RNG responses.
+
+* 4th spell book 'Genocide' spell changed to 'Plasma Storm', a 5 * plev damage
+  radius 3 plasma ball. Level 37, cost 23 mana.
+
+* Raal's Tomes spells considerably powered up.
+
+* 'Fake' Artifact names can be created by inscribing items with #<artifact name>.
+  Eg Longsword (2d5) (+9,+9) inscribed with @w0#'Ringil' will appear as
+  a Longsword 'Ringil' (2d5) (+9,+9) {@w0}. This is a nice feature so you can
+  name your non-artifacts (although it does work in artifacts. eg "The Glaive
+  of Pain 'Tomthanc'".)
+
+* OPT_testing_stack, OPT_testing_carry and OPT_alert_hitpoint options now on
+  be default.
+
+* Resist chaos no longer gives hidden resistance to confusion. All artifacts that
+  previously gave resistance to chaos now give proper resistance to confusion.
+
+* Resistances accumulate. 
+
+* All the old DrAngband races.
+
+* Rings of sustaining and resistance.
+
+* Dragon racial powers activated with 'U'.
+
+* Priest spell 'Detect Traps' changed to 'Spiritual Hammer' and 'Detect Doors/Stairs'
+  changed to 'Detect Doors/Traps' (although it also detects stairs.)
+
+* Nice new powers give to *slay* ego items.
+
+* Monsters from Drangband 2.0 (from zangband).
+
+* Slays applied to total melee damage. Slays smaller for melee than from
+  ranged attacks.
+
+* "Show player by race" option to show dragons as Ds. Best used with "hilite
+  player with the cursor" so you always know which D is you!
+
+
+
+Changes from Angband 2.7.8b2 to old Drangband versions
+------------------------------------------------------
+
+Added new character races: 
+
+Pixies (- str,con + dex,int +10speed, confusion attack)
+Yeeks  (-5 to everything, but advance quickly)
+Crystal Dragons (res shards, free action, shard bolt, extra +25 AC)
+Copper Dragons (res dis, freeact, regen, dis ray)
+Bronze Dragons (res conf, regen, conf bolt)
+Brass Dragons (res sound, regen, stun bolt, BAD stealth!!!)
+Psuedo Dragons (res light,dark,blind, regen, light ray)
+
+All dragons also get resist fear and featherfall, a bonus to AC, can dig 
+and fight without weapons, and instead of normal equipment carry an amulet, 
+six rings, a light, a cloak, and a crown. They also (in general) have bad
+stealth and horrible CHA, and (non-dragon) shopkeepers hate them.
+
+Breath weapons and Pixilate use 'P'.
+
+Deleted the mage spell of cure poison, and the priest spells of detect doors
+and detect traps. Added mage spells cone of cold, lightning bolt (old lb
+renamed to spark), wall of fire, ray of force, and resist lightning. Changed
+spell damages. Added priest spells detect doors/traps and spiritual hammer.
+
+Added about 40 new monsters.
+
+Added rings of resistance and rings of sustaining.
+
+Added a few empty mineral veins
+
+Fixed a nasty artifact bug. I think.
+
+------
+Changes from Drangband 2.0
+
+Changed hp/spells/mana per level to use tenth points rather than half points.
+
+Added my favorite little Golden Retrievers. :)
+
+Added resist poison to the list of higher resists, and feather fall to lower.
+
+Added random higher resists to amulets of the magi. Added resist poison to 
+Defenders. Added fire immunity to Slay Demon. Added possible stat bonuses to 
+the other crappy ego-weapons.
+
+Changed the roguelike key for breath weapons to 'O' (so it can actually be 
+used).
+
+Extended the blows table to give 7 or 8 attacks for VERY high str/dex.

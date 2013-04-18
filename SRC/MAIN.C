@@ -1,642 +1,665 @@
 /* File: main.c */
 
-/* Purpose: initialization, main() function and main loop */
-
 /*
- * Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
+ * Copyright (c) 1997 Ben Harrison, and others
  *
- * This software may be copied and distributed for educational, research, and
- * not for profit purposes provided that this copyright and statement are
- * included in all such copies.
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.
  */
 
 #include "angband.h"
 
 
 /*
- * Hack -- Local "game mode" vars
+ * Some machines have a "main()" function in their "main-xxx.c" file,
+ * all the others use this file for their "main()" function.
  */
-static int new_game = FALSE;
-static int fiddle = FALSE;
-static int force_keyset = FALSE;
-static int force_keyset_arg = FALSE;
 
 
-/*
- * General use filename buffer
- */
-static char buf[1024];
-
-
-#if !defined(MACINTOSH) && !defined(WINDOWS)
-
-/*
- * Unix machines need to "check wizard permissions"
- */
-static bool is_wizard(int uid)
-{
-    int         test;
-    FILE        *fp;
-
-    bool allow = FALSE;
-
-
-    /* Access the "r_list.txt" file */
-    sprintf(buf, "%s%s%s", ANGBAND_DIR_FILE, PATH_SEP, "wizards.txt");
-
-    /* Open the wizard file */
-    fp = my_tfopen(buf, "r");
-
-    /* No wizard file, so no wizards */
-    if (!fp) return (FALSE);
-
-    /* Scan the wizard file */
-    while (!allow && fgets(buf, sizeof(buf), fp)) {
-	if (buf[0] == '#') continue;
-	if (buf[0] == '*') allow = TRUE;
-	if (sscanf(buf, "%d", &test) != 1) continue;
-	if (test == uid) allow = TRUE;
-    }
-
-    /* Close the file */
-    fclose(fp);
-
-    /* Result */
-    return (allow);
-}
-
+#if !defined(MACINTOSH) && !defined(WINDOWS) && !defined(ACORN)
 
 
 /*
  * A hook for "quit()".
+ *
  * Close down, then fall back into "quit()".
  */
 static void quit_hook(cptr s)
 {
-    /* Close the high score file */
-    nuke_scorefile();
+	int j;
 
-    /* Shut down the term windows */
-    if (term_choice) term_nuke(term_choice);
-    if (term_recall) term_nuke(term_recall);
-    if (term_screen) term_nuke(term_screen);
+	/* Scan windows */
+	for (j = 8 - 1; j >= 0; j--)
+	{
+		/* Unused */
+		if (!angband_term[j]) continue;
+
+		/* Nuke it */
+		term_nuke(angband_term[j]);
+	}
 }
 
 
 
 /*
- * Set the stack size for Amiga's
+ * Set the stack size (for the Amiga)
  */
 #ifdef AMIGA
 # include <dos.h>
-__near long __stack = 100000;
+__near long __stack = 32768L;
 #endif
 
 
 /*
- * Studly machines can actually parse command line args
+ * Set the stack size and overlay buffer (see main-286.c")
+ */
+#ifdef USE_286
+# include <dos.h>
+extern unsigned _stklen = 32768U;
+extern unsigned _ovrbuffer = 0x1500;
+#endif
+
+/*
+ * Initialize and verify the file paths, and the score file.
+ *
+ * Use the ANGBAND_PATH environment var if possible, else use
+ * DEFAULT_PATH, and in either case, branch off appropriately.
+ *
+ * First, we'll look for the ANGBAND_PATH environment variable,
+ * and then look for the files in there.  If that doesn't work,
+ * we'll try the DEFAULT_PATH constant.  So be sure that one of
+ * these two things works...
+ *
+ * We must ensure that the path ends with "PATH_SEP" if needed,
+ * since the "init_file_paths()" function will simply append the
+ * relevant "sub-directory names" to the given path.
+ *
+ * Note that the "path" must be "Angband:" for the Amiga, and it
+ * is ignored for "VM/ESA", so I just combined the two.
+ */
+static void init_stuff(void)
+{
+	char path[1024];
+
+#if defined(AMIGA) || defined(VM)
+
+	/* Hack -- prepare "path" */
+	strcpy(path, "Angband:");
+
+#else /* AMIGA / VM */
+
+	cptr tail;
+
+	/* Get the environment variable */
+	tail = getenv("ANGBAND_PATH");
+
+	/* Use the angband_path, or a default */
+	strcpy(path, tail ? tail : DEFAULT_PATH);
+
+	/* Hack -- Add a path separator (only if needed) */
+	if (!suffix(path, PATH_SEP)) strcat(path, PATH_SEP);
+
+#endif /* AMIGA / VM */
+
+	/* Initialize */
+	init_file_paths(path);
+}
+
+
+
+/*
+ * Handle a "-d<what>=<path>" option
+ *
+ * The "<what>" can be any string starting with the same letter as the
+ * name of a subdirectory of the "lib" folder (i.e. "i" or "info").
+ *
+ * The "<path>" can be any legal path for the given system, and should
+ * not end in any special path separator (i.e. "/tmp" or "~/.ang-info").
+ */
+static void change_path(cptr info)
+{
+	cptr s;
+
+	/* Find equal sign */
+	s = strchr(info, '=');
+
+	/* Verify equal sign */
+	if (!s) quit_fmt("Try '-d<what>=<path>' not '-d%s'", info);
+
+	/* Analyze */
+	switch (tolower(info[0]))
+	{
+		case 'a':
+		{
+			string_free(ANGBAND_DIR_APEX);
+			ANGBAND_DIR_APEX = string_make(s+1);
+			break;
+		}
+
+		case 'f':
+		{
+			string_free(ANGBAND_DIR_FILE);
+			ANGBAND_DIR_FILE = string_make(s+1);
+			break;
+		}
+
+		case 'h':
+		{
+			string_free(ANGBAND_DIR_HELP);
+			ANGBAND_DIR_HELP = string_make(s+1);
+			break;
+		}
+
+		case 'i':
+		{
+			string_free(ANGBAND_DIR_INFO);
+			ANGBAND_DIR_INFO = string_make(s+1);
+			break;
+		}
+
+		case 'u':
+		{
+			string_free(ANGBAND_DIR_USER);
+			ANGBAND_DIR_USER = string_make(s+1);
+			break;
+		}
+
+		case 'x':
+		{
+			string_free(ANGBAND_DIR_XTRA);
+			ANGBAND_DIR_XTRA = string_make(s+1);
+			break;
+		}
+
+#ifdef VERIFY_SAVEFILE
+
+		case 'b':
+		case 'd':
+		case 'e':
+		case 's':
+		{
+			quit_fmt("Restricted option '-d%s'", info);
+		}
+
+#else /* VERIFY_SAVEFILE */
+
+		case 'b':
+		{
+			string_free(ANGBAND_DIR_BONE);
+			ANGBAND_DIR_BONE = string_make(s+1);
+			break;
+		}
+
+		case 'd':
+		{
+			string_free(ANGBAND_DIR_DATA);
+			ANGBAND_DIR_DATA = string_make(s+1);
+			break;
+		}
+
+		case 'e':
+		{
+			string_free(ANGBAND_DIR_EDIT);
+			ANGBAND_DIR_EDIT = string_make(s+1);
+			break;
+		}
+
+		case 's':
+		{
+			string_free(ANGBAND_DIR_SAVE);
+			ANGBAND_DIR_SAVE = string_make(s+1);
+			break;
+		}
+
+#endif /* VERIFY_SAVEFILE */
+
+		default:
+		{
+			quit_fmt("Bad semantics in '-d%s'", info);
+		}
+	}
+}
+
+
+/*
+ * Simple "main" function for multiple platforms.
+ *
+ * Note the special "--" option which terminates the processing of
+ * standard options.  All non-standard options (if any) are passed
+ * directly to the "init_xxx()" function.
  */
 int main(int argc, char *argv[])
 {
-    bool done = FALSE;
+	int i;
 
-    /* Dump score list (num lines)? */
-    int show_score = 0;
+	bool done = FALSE;
+
+	bool new_game = FALSE;
+
+	int show_score = 0;
+
+	cptr mstr = NULL;
+
+	bool args = TRUE;
 
 
-    /* Save the "program name" */
-    argv0 = argv[0];
+	/* Save the "program name" XXX XXX XXX */
+	argv0 = argv[0];
+
+
+#ifdef USE_286
+	/* Attempt to use XMS (or EMS) memory for swap space */
+	if (_OvrInitExt(0L, 0L))
+	{
+		_OvrInitEms(0, 0, 64);
+	}
+#endif
 
 
 #ifdef SET_UID
-    /* Default permissions on files */
-    (void)umask(022);
+
+	/* Default permissions on files */
+	(void)umask(022);
+
+# ifdef SECURE
+	/* Authenticate */
+	Authenticate();
+# endif
+
 #endif
 
 
-#if defined(SET_UID) && defined(SECURE)
-    /* Authenticate */
-    Authenticate();
+	/* Get the file paths */
+	init_stuff();
+
+
+#ifdef SET_UID
+
+	/* Get the user id (?) */
+	player_uid = getuid();
+
+#ifdef VMS
+	/* Mega-Hack -- Factor group id */
+	player_uid += (getgid() * 1000);
 #endif
 
+# ifdef SAFE_SETUID
 
-    /* Get the file paths */
-    get_file_paths();
+#  ifdef _POSIX_SAVED_IDS
 
+	/* Save some info for later */
+	player_euid = geteuid();
+	player_egid = getegid();
 
-    /* Prepare the "high scores" file */
-    init_scorefile();
+#  endif
 
+#  if 0	/* XXX XXX XXX */
 
-    /* Get the user id (?) */
-    player_uid = getuid();
+	/* Redundant setting necessary in case root is running the game */
+	/* If not root or game not setuid the following two calls do nothing */
 
-#if defined(SET_UID) && defined(SAFE_SETUID)
+	if (setgid(getegid()) != 0)
+	{
+		quit("setgid(): cannot set permissions correctly!");
+	}
 
-# ifdef _POSIX_SAVED_IDS
+	if (setuid(geteuid()) != 0)
+	{
+		quit("setuid(): cannot set permissions correctly!");
+	}
 
-    /* Save some info for later */
-    player_euid = geteuid();
-    player_egid = getegid();
+#  endif
 
 # endif
 
-#if 0   /* XXX XXX XXX */
-    /* Redundant setting necessary in case root is running the game */
-    /* If not root or game not setuid the following two calls do nothing */
-
-    if (setgid(getegid()) != 0) {
-      quit("setgid(): cannot set permissions correctly!");
-    }
-
-    if (setuid(geteuid()) != 0) {
-      quit("setuid(): cannot set permissions correctly!");
-    }
-#endif
-
 #endif
 
 
-    /* Check for "Wizard" permission */
-    can_be_wizard = is_wizard(player_uid);
+#ifdef SET_UID
 
-    /* Acquire the "user name" as a default player name */
-    user_name(player_name, player_uid);
-
-
-    /* check for user interface option */
-    for (--argc, ++argv; argc > 0 && argv[0][0] == '-'; --argc, ++argv) {
-	switch (argv[0][1]) {
-
-	  case 'c':
-	  case 'C':
-	    ANGBAND_DIR_PREF = &argv[0][2];
-	    break;
-
-#ifndef VERIFY_SAVEFILE
-	  case 'd':
-	  case 'D':
-	    ANGBAND_DIR_SAVE = &argv[0][2];
-	    break;
-#endif
-
-	  case 'N':
-	  case 'n':
-	    new_game = TRUE;
-	    break;
-
-	  case 'R':
-	  case 'r':
-	    force_keyset = TRUE;
-	    force_keyset_arg = TRUE;
-	    break;
-
-	  case 'O':
-	  case 'o':
-	    force_keyset = TRUE;
-	    force_keyset_arg = FALSE;
-	    break;
-
-	  case 'S':
-	  case 's':
-	    show_score = atoi(&argv[0][2]);
-	    if (show_score <= 0) show_score = 10;
-	    break;
-
-	  case 'F':
-	  case 'f':
-	    if (!can_be_wizard) goto usage;
-	    fiddle = to_be_wizard = TRUE;
-	    break;
-
-#ifdef SAVEFILE_USE_UID
-	  case 'P':
-	  case 'p':
-	    if (!can_be_wizard) goto usage;
-	    if (isdigit((int)argv[0][2])) {
-		player_uid = atoi(&argv[0][2]);
-		user_name(player_name, player_uid);
-	    }
-	    break;
-#endif
-
-	  case 'W':
-	  case 'w':
-	    if (!can_be_wizard) goto usage;
-	    to_be_wizard = TRUE;
-	    break;
-	    
-	  case 'u':
-	  case 'U':
-	    if (!argv[0][2]) goto usage;
-	    strcpy(player_name, &argv[0][2]);
-	    break;
-
-	  default:
-	  usage:
-
-	    /* Note -- the Term is NOT initialized */
-	    puts("Usage: angband [-n] [-o] [-r] [-u<name>] [-s<num>]");
-	    puts("  n       Start a new character");
-	    puts("  o       Use the original command set");
-	    puts("  r       Use the rogue-like command set");
-	    puts("  u<name> Play with your <name> savefile");
-	    puts("  s<num>  Show high scores.  Show <num> scores, or first 10");
-	    puts("");
-
-	    /* Less common options */
-	    puts("Extra options: [-c<path>] [-d<path>]");
-	    puts("  c<path> Look for pref files in the directory <path>");
-	    puts("  d<path> Look for save files in the directory <path>");
-	    puts("");
-
-	    /* Extra wizard options */
-	    if (can_be_wizard) {
-		puts("Extra wizard options: [-f] [-w] [-p<uid>]");
-		puts("  f       Activate 'fiddle' mode");
-		puts("  w       Activate 'wizard' mode");
-		puts("  p<uid>  Pretend to have the player uid number <uid>");
-		puts("");
-	    }
-
-	    /* Actually abort the process */
-	    quit(NULL);
+	/* Initialize the "time" checker */
+	if (check_time_init() || check_time())
+	{
+		quit("The gates to Angband are closed (bad time).");
 	}
-    }
 
+	/* Initialize the "load" checker */
+	if (check_load_init() || check_load())
+	{
+		quit("The gates to Angband are closed (bad load).");
+	}
 
-    /* Process the player name */
-    process_player_name(TRUE);
+	/* Acquire the "user name" as a default player name */
+	user_name(op_ptr->full_name, player_uid);
 
-
-
-    /* Drop privs (so X11 will work correctly) */
-    safe_setuid_drop();
-
-
-#ifdef USE_IBM
-    /* Attempt to use the "main-ibm.c" support */
-    if (!done) {
-	extern errr init_ibm(void);
-	if (0 == init_ibm()) done = TRUE;
-	if (done) ANGBAND_SYS = "ibm";
-    }
 #endif
 
-#ifdef __EMX__
-    /* Attempt to use the "main-emx.c" support */
-    if (!done) {
-	extern errr init_emx(void);
-	if (0 == init_emx()) done = TRUE;
-	if (done) ANGBAND_SYS = "emx";
-    }
-#endif
 
-#ifdef USE_WAT
-    /* Attempt to use the "main-wat.c" support */
-    if (!done) {
-	extern errr init_wat(void);
-	if (0 == init_wat()) done = TRUE;
-	if (done) ANGBAND_SYS = "wat";
-    }
-#endif
+	/* Process the command line arguments */
+	for (i = 1; args && (i < argc); i++)
+	{
+		/* Require proper options */
+		if (argv[i][0] != '-') goto usage;
 
-    /* XXX Default to "X11" if available XXX */
+		/* Analyze option */
+		switch (argv[i][1])
+		{
+			case 'N':
+			case 'n':
+			{
+				new_game = TRUE;
+				break;
+			}
+
+			case 'F':
+			case 'f':
+			{
+				arg_fiddle = TRUE;
+				break;
+			}
+
+			case 'W':
+			case 'w':
+			{
+				arg_wizard = TRUE;
+				break;
+			}
+
+			case 'V':
+			case 'v':
+			{
+				arg_sound = TRUE;
+				break;
+			}
+
+			case 'G':
+			case 'g':
+			{
+				arg_graphics = TRUE;
+				break;
+			}
+
+			case 'R':
+			case 'r':
+			{
+				arg_force_roguelike = TRUE;
+				break;
+			}
+
+			case 'O':
+			case 'o':
+			{
+				arg_force_original = TRUE;
+				break;
+			}
+
+			case 'S':
+			case 's':
+			{
+				show_score = atoi(&argv[i][2]);
+				if (show_score <= 0) show_score = 10;
+				break;
+			}
+
+			case 'u':
+			case 'U':
+			{
+				if (!argv[i][2]) goto usage;
+				strcpy(op_ptr->full_name, &argv[i][2]);
+				break;
+			}
+
+			case 'm':
+			case 'M':
+			{
+				if (!argv[i][2]) goto usage;
+				mstr = &argv[i][2];
+				break;
+			}
+
+			case 'd':
+			case 'D':
+			{
+				change_path(&argv[i][2]);
+				break;
+			}
+
+			case '-':
+			{
+				argv[i] = argv[0];
+				argc = argc - i;
+				argv = argv + i;
+				args = FALSE;
+				break;
+			}
+
+			default:
+			usage:
+			{
+				/* Dump usage information */
+				puts("Usage: angband [options] [-- subopts]");
+				puts("  -n       Start a new character");
+				puts("  -f       Request fiddle mode");
+				puts("  -w       Request wizard mode");
+				puts("  -v       Request sound mode");
+				puts("  -g       Request graphics mode");
+				puts("  -o       Request original keyset");
+				puts("  -r       Request rogue-like keyset");
+				puts("  -s<num>  Show <num> high scores");
+				puts("  -u<who>  Use your <who> savefile");
+				puts("  -m<sys>  Force 'main-<sys>.c' usage");
+				puts("  -d<def>  Define a 'lib' dir sub-path");
+
+				/* Actually abort the process */
+				quit(NULL);
+			}
+		}
+	}
+
+	/* Hack -- Forget standard args */
+	if (args)
+	{
+		argc = 1;
+		argv[1] = NULL;
+	}
+
+
+	/* Process the player name */
+	process_player_name(TRUE);
+
+
+
+	/* Install "quit" hook */
+	quit_aux = quit_hook;
+
+
+	/* Drop privs (so X11 will work correctly) */
+	safe_setuid_drop();
+
 
 #ifdef USE_XAW
-    /* Attempt to use the "main-xaw.c" support */
-    if (!done) {
-	extern errr init_xaw(void);
-	if (0 == init_xaw()) done = TRUE;
-	if (done) ANGBAND_SYS = "xaw";
-    }
+	/* Attempt to use the "main-xaw.c" support */
+	if (!done && (!mstr || (streq(mstr, "xaw"))))
+	{
+		extern errr init_xaw(int, char**);
+		if (0 == init_xaw(argc, argv))
+		{
+			ANGBAND_SYS = "xaw";
+			done = TRUE;
+		}
+	}
 #endif
 
 #ifdef USE_X11
-    /* Attempt to use the "main-x11.c" support */
-    if (!done) {
-	extern errr init_x11(void);
-	if (0 == init_x11()) done = TRUE;
-	if (done) ANGBAND_SYS = "x11";
-    }
+	/* Attempt to use the "main-x11.c" support */
+	if (!done && (!mstr || (streq(mstr, "x11"))))
+	{
+		extern errr init_x11(int, char**);
+		if (0 == init_x11(argc, argv))
+		{
+			ANGBAND_SYS = "x11";
+			done = TRUE;
+		}
+	}
 #endif
 
 #ifdef USE_GCU
-    /* Attempt to use the "main-gcu.c" support */
-    if (!done) {
-	extern errr init_gcu(void);
-	if (0 == init_gcu()) done = TRUE;
-	if (done) ANGBAND_SYS = "gcu";
-    }
+	/* Attempt to use the "main-gcu.c" support */
+	if (!done && (!mstr || (streq(mstr, "gcu"))))
+	{
+		extern errr init_gcu(int, char**);
+		if (0 == init_gcu(argc, argv))
+		{
+			ANGBAND_SYS = "gcu";
+			done = TRUE;
+		}
+	}
 #endif
 
-#ifdef USE_NCU
-    /* Attempt to use the "main-ncu.c" support */
-    if (!done) {
-	extern errr init_ncu(void);
-	/* When "init_ncu()" fails, it quits (?) */
-	if (0 == init_ncu()) done = TRUE;
-	if (done) ANGBAND_SYS = "ncu";
-    }
-#endif
-
-#ifdef USE_CUR
-    /* Attempt to use the "main-cur.c" support */
-    if (!done) {
-	extern errr init_cur(void);
-	/* When "init_cur()" fails, it quits (?) */
-	if (0 == init_cur()) done = TRUE;
-	if (done) ANGBAND_SYS = "cur";
-    }
+#ifdef USE_CAP
+	/* Attempt to use the "main-cap.c" support */
+	if (!done && (!mstr || (streq(mstr, "cap"))))
+	{
+		extern errr init_cap(int, char**);
+		if (0 == init_cap(argc, argv))
+		{
+			ANGBAND_SYS = "cap";
+			done = TRUE;
+		}
+	}
 #endif
 
 
-    /* Grab privs (dropped above for X11) */
-    safe_setuid_grab();
+#ifdef USE_DOS
+	/* Attempt to use the "main-dos.c" support */
+	if (!done && (!mstr || (streq(mstr, "dos"))))
+	{
+		extern errr init_dos(void);
+		if (0 == init_dos())
+		{
+			ANGBAND_SYS = "dos";
+			done = TRUE;
+		}
+	}
+#endif
+
+#ifdef USE_IBM
+	/* Attempt to use the "main-ibm.c" support */
+	if (!done && (!mstr || (streq(mstr, "ibm"))))
+	{
+		extern errr init_ibm(void);
+		if (0 == init_ibm())
+		{
+			ANGBAND_SYS = "ibm";
+			done = TRUE;
+		}
+	}
+#endif
 
 
-    /* Make sure we have a display! */
-    if (!done) quit("Unable to prepare any 'display module'!");
+#ifdef USE_EMX
+	/* Attempt to use the "main-emx.c" support */
+	if (!done && (!mstr || (streq(mstr, "emx"))))
+	{
+		extern errr init_emx(void);
+		if (0 == init_emx())
+		{
+			ANGBAND_SYS = "emx";
+			done = TRUE;
+		}
+	}
+#endif
 
 
-    /* Tell "quit()" to call "Term_nuke()" */
-    quit_aux = quit_hook;
+#ifdef USE_SLA
+	/* Attempt to use the "main-sla.c" support */
+	if (!done && (!mstr || (streq(mstr, "sla"))))
+	{
+		extern errr init_sla(void);
+		if (0 == init_sla())
+		{
+			ANGBAND_SYS = "sla";
+			done = TRUE;
+		}
+	}
+#endif
 
 
-    /* Handle "score list" requests */
-    if (show_score > 0) {
-	display_scores(0, show_score);
+#ifdef USE_LSL
+	/* Attempt to use the "main-lsl.c" support */
+	if (!done && (!mstr || (streq(mstr, "lsl"))))
+	{
+		extern errr init_lsl(void);
+		if (0 == init_lsl())
+		{
+			ANGBAND_SYS = "lsl";
+			done = TRUE;
+		}
+	}
+#endif
+
+
+#ifdef USE_AMI
+	/* Attempt to use the "main-ami.c" support */
+	if (!done && (!mstr || (streq(mstr, "ami"))))
+	{
+		extern errr init_ami(void);
+		if (0 == init_ami())
+		{
+			ANGBAND_SYS = "ami";
+			done = TRUE;
+		}
+	}
+#endif
+
+
+#ifdef USE_VME
+	/* Attempt to use the "main-vme.c" support */
+	if (!done && (!mstr || (streq(mstr, "vme"))))
+	{
+		extern errr init_vme(void);
+		if (0 == init_vme())
+		{
+			ANGBAND_SYS = "vme";
+			done = TRUE;
+		}
+	}
+#endif
+
+
+	/* Grab privs (dropped above for X11) */
+	safe_setuid_grab();
+
+
+	/* Make sure we have a display! */
+	if (!done) quit("Unable to prepare any 'display module'!");
+
+
+	/* Hack -- If requested, display scores and quit */
+	if (show_score > 0) display_scores(0, show_score);
+
+
+	/* Catch nasty signals */
+	signals_init();
+
+	/* Initialize */
+	init_angband();
+
+	/* Wait for response */
+	pause_line(23);
+
+	/* Play the game */
+	play_game(new_game);
+
+	/* Quit */
 	quit(NULL);
-    }
 
-
-    /* catch those nasty signals (assumes "Term_init()") */
-    signals_init();
-
-    /* Initialize the checkers */
-    check_time_init();
-    check_load_init();
-
-    /* Show news file */
-    show_news();
-
-    /* Initialize the arrays */
-    init_some_arrays();
-
-    /* Wait for response */
-    pause_line(23);
-
-    /* Call the main function */
-    play_game();
-
-    /* Exit (never gets here) */
-    return (0);
+	/* Exit */
+	return (0);
 }
 
 #endif
 
-
-
-
-/*
- * Init players with some belongings
- *
- * Having an item makes the player "aware" of its purpose.
- */
-static void player_outfit()
-{
-    int         i, tv, sv;
-    inven_type  inven_init;
-    inven_type  *i_ptr = &inven_init;
-
-
-    /* Give the player some food */
-    invcopy(i_ptr, lookup_kind(TV_FOOD, SV_FOOD_RATION));
-    i_ptr->number = rand_range(3,7);
-    inven_aware(i_ptr);
-    inven_known(i_ptr);
-    (void)inven_carry(i_ptr);
-
-    /* Give the player some torches */
-    invcopy(i_ptr, lookup_kind(TV_LITE, SV_LITE_TORCH));
-    i_ptr->number = rand_range(3,7);
-    i_ptr->pval = rand_range(3,7) * 500;
-    inven_known(i_ptr);
-    (void)inven_carry(i_ptr);
-
-    /* Give the player three useful objects */
-    for (i = 0; i < 3; i++) {
-	tv = player_init[p_ptr->pclass][i][0];
-	sv = player_init[p_ptr->pclass][i][1];
-	invcopy(i_ptr, lookup_kind(tv, sv));
-	inven_aware(i_ptr);
-	inven_known(i_ptr);
-	(void)inven_carry(i_ptr);
-    }
-}
-
-
-/*
- * Actually play a game
- *
- * Note the global "character_dungeon" which is TRUE when a dungeon has
- * been built for the player.  If FALSE, then a new level must be generated.
- */
-void play_game()
-{
-    int i;
-
-    int result = FALSE;
-
-
-    /* Character is "icky" */
-    character_icky = TRUE;
-
-
-    /* Hack -- turn off the cursor */
-    Term_hide_cursor();
-
-    /* Grab a random seed from the clock */
-    init_seeds();
-
-
-    /* Hack -- restore dead players */
-    if (fiddle) {
-	result = load_player();
-	if (result) save_player();
-	quit(NULL);
-    }
-
-    /* If "restore game" requested, attempt to do so */
-    if (!new_game) {
-
-	/* Load the player */
-	result = load_player();
-
-	/* Process the player name */
-	process_player_name(FALSE);
-    }
-
-    /* Enter wizard mode AFTER "resurrection" (if any) is complete */
-    if (to_be_wizard && enter_wiz_mode()) wizard = TRUE;
-
-    
-    /* See above */
-    if (!new_game && result) {
-
-	/* Flavor the objects */
-	flavor_init();
-
-	/* Reset the visual mappings */
-	reset_visuals();
-
-	/* Recalculate some stuff */
-	p_ptr->update |= (PU_BONUS);
-
-	/* Redraw the choice window */
-	p_ptr->redraw |= (PR_CHOICE);
-
-	/* Handle stuff */
-	handle_stuff();
-
-	/* Hack -- Display character, allow name change */
-	change_name();
-
-	/* Hack -- delayed death induced by certain signals */
-	if (p_ptr->chp < 0) death = TRUE;
-    }
-
-    /* Create character */
-    else {
-
-	/* Roll up a new character */
-	player_birth();
-
-	/* Flavor the objects */
-	flavor_init();
-
-	/* Reset the visual mappings */
-	reset_visuals();
-
-	/* Give him some stuff */
-	player_outfit();
-
-	/* Init the stores */
-	store_init();
-
-	/* Maintain the stores (ten times) */
-	for (i = 0; i < 10; i++) store_maint();
-    }
-
-
-    /* Clear the screen */
-    clear_screen();
-
-    /* Flash a message */
-    prt("Please wait...", 0, 0);
-
-    /* Flush the message */
-    Term_fresh();
-
-
-    /* Reset "rogue_like_commands" if requested */
-    if (force_keyset) rogue_like_commands = force_keyset_arg;
-
-    /* Verify the keymap (before loading preferences!) */
-    keymap_init();
-
-
-    /* Access the system "pref" file */
-    sprintf(buf, "%s.prf", "pref");
-
-    /* Process the default pref file */
-    process_pref_file(buf);
-    
-    /* Access the system "pref" file */
-    sprintf(buf, "pref-%s.prf", ANGBAND_SYS);
-
-    /* Attempt to process that file */
-    process_pref_file(buf);
-
-    /* Access the class's "pref" file */
-    sprintf(buf, "%s.prf", cp_ptr->title);
-
-    /* Attempt to process that file */
-    process_pref_file(buf);
-    
-    /* Access the race's "pref" file */
-    /* designated r1,r2,etc. */
-    sprintf(buf, "r%d.prf", p_ptr->prace);
-
-    /* Attempt to process that file */
-    process_pref_file(buf);
-
-    /* Access the character's "pref" file */
-    sprintf(buf, "%s.prf", player_base);
-
-    /* Attempt to process that file */
-    process_pref_file(buf);
-
-    /* Make the first level (the town) */
-    if (!character_dungeon) {
-
-	/* Make a new level */
-	generate_cave();
-
-	/* The dungeon is ready */
-	character_dungeon = TRUE;
-    }
-
-    /* Character is now "complete" */
-    character_generated = TRUE;
-
-
-    /* Character is no longer "icky" */
-    character_icky = FALSE;
-    
-    /* Loop till dead */
-    while (!death) {
-
-	/* Process the level */
-	dungeon();
-
-	/* Make the New level */
-	if (!death) generate_cave();
-    }
-
-    /* Display death, Save the game, and exit */
-    exit_game();
-}
-
-
-/*
- * This is a "hook" into "play_game()" for "menu based" systems.
- *
- * See "main-mac.c" and other files for actual "main()" functions
- */
-void play_game_mac(int ng)
-{
-    /* No name (yet) */
-    strcpy(player_name, "");
-
-    /* Hack -- assume wizard permissions */
-    can_be_wizard = TRUE;
-
-    /* Hack -- extract a flag */
-    new_game = ng;
-
-#ifdef MACINTOSH
-    /* Use the "pref-mac.prf" file */
-    ANGBAND_SYS = "mac";
-#endif
-
-#ifdef WINDOWS
-    /* Choose a "pref-xxx.prf" file */
-    ANGBAND_SYS = (use_graphics ? "gfw" : "txw");
-#endif
-
-    /* Play a game */
-    play_game();
-}
 
 

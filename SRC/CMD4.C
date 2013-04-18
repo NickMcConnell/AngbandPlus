@@ -1,1875 +1,2913 @@
 /* File: cmd4.c */
 
-/* Purpose: more low level code */
-
 /*
- * Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
+ * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
- * This software may be copied and distributed for educational, research, and
- * not for profit purposes provided that this copyright and statement are
- * included in all such copies.
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.  Other copyrights may also apply.
  */
 
 #include "angband.h"
 
 
 
-
-/*** Targetting Code ***/
-
-
 /*
- * This targetting code stolen from Morgul -CFT
+ * Hack -- redraw the screen
  *
- * Player can target any location, or any visible, reachable, monster.
+ * This command performs various low level updates, clears all the "extra"
+ * windows, does a total redraw of the main window, and requests all of the
+ * interesting updates and redraws that I can think of.
+ *
+ * This command is also used to "instantiate" the results of the user
+ * selecting various things, such as graphics mode, so it must call
+ * the "TERM_XTRA_REACT" hook before redrawing the windows.
  */
-
-
-
-/*
- * Determine is a monster makes a reasonable target
- */
-bool target_able(int m_idx)
+void do_cmd_redraw(void)
 {
-    monster_type *m_ptr = &m_list[m_idx];
+	int j;
 
-    /* Monster MUST be visible */
-    if (!(m_ptr->ml)) return (FALSE);
+	term *old = Term;
 
-    /* Monster MUST be in a "reasonable" location */
-    return (projectable(py, px, m_ptr->fy, m_ptr->fx));
+
+	/* Low level flush */
+	Term_flush();
+
+	/* Reset "inkey()" */
+	flush();
+
+
+	/* Hack -- React to changes */
+	Term_xtra(TERM_XTRA_REACT, 0);
+
+
+	/* Combine and Reorder the pack (later) */
+	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
+
+	/* Update torch */
+	p_ptr->update |= (PU_TORCH);
+
+	/* Update stuff */
+	p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS);
+
+	/* Fully update the visuals */
+	p_ptr->update |= (PU_FORGET_VIEW | PU_UPDATE_VIEW | PU_MONSTERS);
+
+	/* Redraw everything */
+	p_ptr->redraw |= (PR_BASIC | PR_EXTRA | PR_MAP);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_MESSAGE | PW_OVERHEAD | PW_MONSTER | PW_OBJECT);
+
+	/* Clear screen */
+	Term_clear();
+
+	/* Hack -- update */
+	handle_stuff();
+
+
+	/* Redraw every window */
+	for (j = 0; j < 8; j++)
+	{
+		/* Dead window */
+		if (!angband_term[j]) continue;
+
+		/* Activate */
+		Term_activate(angband_term[j]);
+
+		/* Redraw */
+		Term_redraw();
+
+		/* Refresh */
+		Term_fresh();
+
+		/* Restore */
+		Term_activate(old);
+	}
 }
 
 
 /*
- * Be sure that the target_row & target_col vars are correct
- * Also be sure that a targetted creature, if any, is "legal".
- * Cancel current target is it is unreasonable.
+ * Hack -- change name
  */
-void target_update(void)
+void do_cmd_change_name(void)
 {
-    /* Update moving targets */
-    if (target_who > 0) {
+	char c;
 
-        /* Update reasonable targets */
-        if (target_able(target_who)) {
+	int mode = 0;
 
-            monster_type *m_ptr = &m_list[target_who];
+	cptr p;
 
-            /* Acquire monster location */
-            target_row = m_ptr->fy;
-            target_col = m_ptr->fx;
-        }
-    }
+	/* Prompt */
+	p = "['c' to change name, 'f' to file, 'h' to change mode, or ESC]";
+
+	/* Save screen */
+	screen_save();
+
+	/* Forever */
+	while (1)
+	{
+		/* Display the player */
+		display_player(mode);
+
+		/* Prompt */
+		Term_putstr(2, 23, -1, TERM_WHITE, p);
+
+		/* Query */
+		c = inkey();
+
+		/* Exit */
+		if (c == ESCAPE) break;
+
+		/* Change name */
+		if (c == 'c')
+		{
+			get_name();
+		}
+
+		/* File dump */
+		else if (c == 'f')
+		{
+			char tmp[81];
+
+			sprintf(tmp, "%s.txt", op_ptr->base_name);
+
+			if (get_string("File name: ", tmp, 80))
+			{
+				if (tmp[0] && (tmp[0] != ' '))
+				{
+					file_character(tmp, FALSE);
+				}
+			}
+		}
+
+		/* Toggle mode */
+		else if (c == 'h')
+		{
+			mode = !mode;
+		}
+
+		/* Oops */
+		else
+		{
+			bell("Illegal command for change name!");
+		}
+
+		/* Flush messages */
+		msg_print(NULL);
+	}
+
+	/* Load screen */
+	screen_load();
+}
+
+
+/*
+ * Recall the most recent message
+ */
+void do_cmd_message_one(void)
+{
+	/* Recall one message XXX XXX XXX */
+	prt(format("> %s", message_str(0)), 0, 0);
+}
+
+
+/*
+ * Show previous messages to the user
+ *
+ * The screen format uses line 0 and 23 for headers and prompts,
+ * skips line 1 and 22, and uses line 2 thru 21 for old messages.
+ *
+ * This command shows you which commands you are viewing, and allows
+ * you to "search" for strings in the recall.
+ *
+ * Note that messages may be longer than 80 characters, but they are
+ * displayed using "infinite" length, with a special sub-command to
+ * "slide" the virtual display to the left or right.
+ *
+ * Attempt to only hilite the matching portions of the string.
+ */
+void do_cmd_messages(void)
+{
+	int i, j, k, n, q;
+
+	char shower[81];
+	char finder[81];
+
+
+	/* Wipe finder */
+	strcpy(finder, "");
+
+	/* Wipe shower */
+	strcpy(shower, "");
+
+
+	/* Total messages */
+	n = message_num();
+
+	/* Start on first message */
+	i = 0;
+
+	/* Start at leftmost edge */
+	q = 0;
+
+
+	/* Save screen */
+	screen_save();
+
+	/* Process requests until done */
+	while (1)
+	{
+		/* Clear screen */
+		Term_clear();
+
+		/* Dump up to 20 lines of messages */
+		for (j = 0; (j < 20) && (i + j < n); j++)
+		{
+			cptr msg = message_str(i+j);
+
+			/* Apply horizontal scroll */
+			msg = (strlen(msg) >= q) ? (msg + q) : "";
+
+			/* Dump the messages, bottom to top */
+			Term_putstr(0, 21-j, -1, TERM_WHITE, msg);
+
+			/* Hilite "shower" */
+			if (shower[0])
+			{
+				cptr str = msg;
+
+				/* Display matches */
+				while ((str = strstr(str, shower)) != NULL)
+				{
+					int len = strlen(shower);
+
+					/* Display the match */
+					Term_putstr(str-msg, 21-j, len, TERM_YELLOW, shower);
+
+					/* Advance */
+					str += len;
+				}
+			}
+		}
+
+		/* Display header XXX XXX XXX */
+		prt(format("Message Recall (%d-%d of %d), Offset %d",
+		           i, i+j-1, n, q), 0, 0);
+
+		/* Display prompt (not very informative) */
+		prt("[Press 'p' for older, 'n' for newer, ..., or ESCAPE]", 23, 0);
+
+		/* Get a command */
+		k = inkey();
+
+		/* Exit on Escape */
+		if (k == ESCAPE) break;
+
+		/* Hack -- Save the old index */
+		j = i;
+
+		/* Horizontal scroll */
+		if (k == '4')
+		{
+			/* Scroll left */
+			q = (q >= 40) ? (q - 40) : 0;
+
+			/* Success */
+			continue;
+		}
+
+		/* Horizontal scroll */
+		if (k == '6')
+		{
+			/* Scroll right */
+			q = q + 40;
+
+			/* Success */
+			continue;
+		}
+
+		/* Hack -- handle show */
+		if (k == '=')
+		{
+			/* Prompt */
+			prt("Show: ", 23, 0);
+
+			/* Get a "shower" string, or continue */
+			if (!askfor_aux(shower, 80)) continue;
+
+			/* Okay */
+			continue;
+		}
+
+		/* Hack -- handle find */
+		if (k == '/')
+		{
+			int z;
+
+			/* Prompt */
+			prt("Find: ", 23, 0);
+
+			/* Get a "finder" string, or continue */
+			if (!askfor_aux(finder, 80)) continue;
+
+			/* Show it */
+			strcpy(shower, finder);
+
+			/* Scan messages */
+			for (z = i + 1; z < n; z++)
+			{
+				cptr msg = message_str(z);
+
+				/* Search for it */
+				if (strstr(msg, finder))
+				{
+					/* New location */
+					i = z;
+
+					/* Done */
+					break;
+				}
+			}
+		}
+
+		/* Recall 1 older message */
+		if ((k == '8') || (k == '\n') || (k == '\r'))
+		{
+			/* Go newer if legal */
+			if (i + 1 < n) i += 1;
+		}
+
+		/* Recall 10 older messages */
+		if (k == '+')
+		{
+			/* Go older if legal */
+			if (i + 10 < n) i += 10;
+		}
+
+		/* Recall 20 older messages */
+		if ((k == 'p') || (k == KTRL('P')) || (k == ' '))
+		{
+			/* Go older if legal */
+			if (i + 20 < n) i += 20;
+		}
+
+		/* Recall 20 newer messages */
+		if ((k == 'n') || (k == KTRL('N')))
+		{
+			/* Go newer (if able) */
+			i = (i >= 20) ? (i - 20) : 0;
+		}
+
+		/* Recall 10 newer messages */
+		if (k == '-')
+		{
+			/* Go newer (if able) */
+			i = (i >= 10) ? (i - 10) : 0;
+		}
+
+		/* Recall 1 newer messages */
+		if (k == '2')
+		{
+			/* Go newer (if able) */
+			i = (i >= 1) ? (i - 1) : 0;
+		}
+
+		/* Hack -- Error of some kind */
+		if (i == j) bell(NULL);
+	}
+
+	/* Load screen */
+	screen_load();
+}
+
+
+/*
+ * Cheating options -- textual names
+ */
+cptr cheating_text[CHEAT_MAX] =
+{
+	"cheat_peek",
+	"cheat_hear",
+	"cheat_room",
+	"cheat_xtra",
+	"cheat_know",
+	"cheat_live"
+};
+
+/*
+ * Cheating options -- descriptions
+ */
+cptr cheating_desc[CHEAT_MAX] =
+{
+	"Peek into object creation",
+	"Peek into monster creation",
+	"Peek into dungeon creation",
+	"Peek into something else",
+	"Know complete monster info",
+	"Allow player to avoid death"
+};
+
+
+/*
+ * Interact with some options
+ */
+static void do_cmd_options_cheat(cptr info)
+{
+	char ch;
+
+	int i, k = 0, n = CHEAT_MAX;
+
+	char buf[80];
+
+
+	/* Clear screen */
+	Term_clear();
+
+	/* Interact with the player */
+	while (TRUE)
+	{
+		/* Prompt XXX XXX XXX */
+		sprintf(buf, "%s (RET to advance, y/n to set, ESC to accept) ", info);
+		prt(buf, 0, 0);
+
+		/* Display the options */
+		for (i = 0; i < n; i++)
+		{
+			byte a = TERM_WHITE;
+
+			/* Color current option */
+			if (i == k) a = TERM_L_BLUE;
+
+			/* Display the option text */
+			sprintf(buf, "%-48s: %s  (%s)",
+			        cheating_desc[i],
+			        p_ptr->cheat[i] ? "yes" : "no ",
+			        cheating_text[i]);
+			c_prt(a, buf, i + 2, 0);
+		}
+
+		/* Hilite current option */
+		move_cursor(k + 2, 50);
+
+		/* Get a key */
+		ch = inkey();
+
+		/* Analyze */
+		switch (ch)
+		{
+			case ESCAPE:
+			{
+				return;
+			}
+
+			case '-':
+			case '8':
+			{
+				k = (n + k - 1) % n;
+				break;
+			}
+
+			case ' ':
+			case '\n':
+			case '\r':
+			case '2':
+			{
+				k = (k + 1) % n;
+				break;
+			}
+
+			case 't':
+			case '5':
+			{
+				if (p_ptr->cheat[k])
+				{
+					p_ptr->cheat[k] = FALSE;
+				}
+
+				else
+				{
+					/* Mark player as a cheater */
+					p_ptr->noscore |= (0x0100 << k);
+
+					p_ptr->cheat[k] = TRUE;
+				}
+
+				break;
+			}
+
+			case 'y':
+			case '6':
+			{
+				/* Mark player as a cheater */
+				p_ptr->noscore |= (0x0100 << k);
+
+				p_ptr->cheat[k] = TRUE;
+				k = (k + 1) % n;
+				break;
+			}
+
+			case 'n':
+			case '4':
+			{
+				p_ptr->cheat[k] = FALSE;
+				k = (k + 1) % n;
+				break;
+			}
+
+			default:
+			{
+				bell("Illegal command for cheat options!");
+				break;
+			}
+		}
+	}
+}
+
+
+/*
+ * Interact with some options
+ */
+static void do_cmd_options_aux(int page, cptr info)
+{
+	char ch;
+
+	int i, k = 0, n = 0;
+
+	int opt[16];
+
+	char buf[80];
+
+
+	/* Scan the options */
+	for (i = 0; i < 16; i++)
+	{
+		/* Collect options on this "page" */
+		if (option_page[page][i] != 255)
+		{
+			opt[n++] = option_page[page][i];
+		}
+	}
+
+
+	/* Clear screen */
+	Term_clear();
+
+	/* Interact with the player */
+	while (TRUE)
+	{
+		/* Prompt XXX XXX XXX */
+		sprintf(buf, "%s (RET to advance, y/n to set, ESC to accept) ", info);
+		prt(buf, 0, 0);
+
+		/* Display the options */
+		for (i = 0; i < n; i++)
+		{
+			byte a = TERM_WHITE;
+
+			/* Color current option */
+			if (i == k) a = TERM_L_BLUE;
+
+			/* Display the option text */
+			sprintf(buf, "%-48s: %s  (%s)",
+			        option_desc[opt[i]],
+			        op_ptr->opt[opt[i]] ? "yes" : "no ",
+			        option_text[opt[i]]);
+			c_prt(a, buf, i + 2, 0);
+		}
+
+		/* Hilite current option */
+		move_cursor(k + 2, 50);
+
+		/* Get a key */
+		ch = inkey();
+
+		/* Analyze */
+		switch (ch)
+		{
+			case ESCAPE:
+			{
+				return;
+			}
+
+			case '-':
+			case '8':
+			{
+				k = (n + k - 1) % n;
+				break;
+			}
+
+			case ' ':
+			case '\n':
+			case '\r':
+			case '2':
+			{
+				k = (k + 1) % n;
+				break;
+			}
+
+			case 't':
+			case '5':
+			{
+				op_ptr->opt[opt[k]] = !op_ptr->opt[opt[k]];
+				break;
+			}
+
+			case 'y':
+			case '6':
+			{
+				op_ptr->opt[opt[k]] = TRUE;
+				k = (k + 1) % n;
+				break;
+			}
+
+			case 'n':
+			case '4':
+			{
+				op_ptr->opt[opt[k]] = FALSE;
+				k = (k + 1) % n;
+				break;
+			}
+
+			default:
+			{
+				bell("Illegal command for normal options!");
+				break;
+			}
+		}
+	}
+}
+
+
+/*
+ * Modify the "window" options
+ */
+static void do_cmd_options_win(void)
+{
+	int i, j, d;
+
+	int y = 0;
+	int x = 0;
+
+	char ch;
+
+	u32b old_flag[8];
+
+
+	/* Memorize old flags */
+	for (j = 0; j < 8; j++)
+	{
+		/* Acquire current flags */
+		old_flag[j] = op_ptr->window_flag[j];
+	}
+
+
+	/* Clear screen */
+	Term_clear();
+
+	/* Interact */
+	while (1)
+	{
+		/* Prompt */
+		prt("Window flags (<dir> to move, 't' to toggle, or ESC)", 0, 0);
+
+		/* Display the windows */
+		for (j = 0; j < 8; j++)
+		{
+			byte a = TERM_WHITE;
+
+			cptr s = angband_term_name[j];
+
+			/* Use color */
+			if (j == x) a = TERM_L_BLUE;
+
+			/* Window name, staggered, centered */
+			Term_putstr(35 + j * 5 - strlen(s) / 2, 2 + j % 2, -1, a, s);
+		}
+
+		/* Display the options */
+		for (i = 0; i < 16; i++)
+		{
+			byte a = TERM_WHITE;
+
+			cptr str = window_flag_desc[i];
+
+			/* Use color */
+			if (i == y) a = TERM_L_BLUE;
+
+			/* Unused option */
+			if (!str) str = "(Unused option)";
+
+			/* Flag name */
+			Term_putstr(0, i + 5, -1, a, str);
+
+			/* Display the windows */
+			for (j = 0; j < 8; j++)
+			{
+				byte a = TERM_WHITE;
+
+				char c = '.';
+
+				/* Use color */
+				if ((i == y) && (j == x)) a = TERM_L_BLUE;
+
+				/* Active flag */
+				if (op_ptr->window_flag[j] & (1L << i)) c = 'X';
+
+				/* Flag value */
+				Term_putch(35 + j * 5, i + 5, a, c);
+			}
+		}
+
+		/* Place Cursor */
+		Term_gotoxy(35 + x * 5, y + 5);
+
+		/* Get key */
+		ch = inkey();
+
+		/* Allow escape */
+		if ((ch == ESCAPE) || (ch == 'q')) break;
+
+		/* Toggle */
+		if ((ch == '5') || (ch == 't'))
+		{
+			/* Hack -- ignore the main window */
+			if (x == 0)
+			{
+				bell("Cannot set main window flags!");
+			}
+
+			/* Toggle flag (off) */
+			else if (op_ptr->window_flag[x] & (1L << y))
+			{
+				op_ptr->window_flag[x] &= ~(1L << y);
+			}
+
+			/* Toggle flag (on) */
+			else
+			{
+				op_ptr->window_flag[x] |= (1L << y);
+			}
+
+			/* Continue */
+			continue;
+		}
+
+		/* Extract direction */
+		d = target_dir(ch);
+
+		/* Move */
+		if (d != 0)
+		{
+			x = (x + ddx[d] + 8) % 8;
+			y = (y + ddy[d] + 16) % 16;
+		}
+
+		/* Oops */
+		else
+		{
+			bell("Illegal command for window options!");
+		}
+	}
+
+	/* Notice changes */
+	for (j = 0; j < 8; j++)
+	{
+		term *old = Term;
+
+		/* Dead window */
+		if (!angband_term[j]) continue;
+
+		/* Ignore non-changes */
+		if (op_ptr->window_flag[j] == old_flag[j]) continue;
+
+		/* Activate */
+		Term_activate(angband_term[j]);
+
+		/* Erase */
+		Term_clear();
+
+		/* Refresh */
+		Term_fresh();
+
+		/* Restore */
+		Term_activate(old);
+	}
 }
 
 
 
 
 /*
- * Simple query -- is the "target" okay to use?
- * Obviously, if target mode is disabled, it is not.
+ * Set or unset various options.
+ *
+ * After using this command, a complete redraw is performed,
+ * whether or not it is technically required.
  */
-bool target_okay()
+void do_cmd_options(void)
 {
-    /* Accept stationary targets */
-    if (target_who < 0) return (TRUE);
+	int k;
 
-    /* Check moving targets */
-    if (target_who > 0) {
 
-        /* Accept reasonable targets */
-        if (target_able(target_who)) {
+	/* Save screen */
+	screen_save();
 
-            monster_type *m_ptr = &m_list[target_who];
 
-            /* Acquire monster location */
-            target_row = m_ptr->fy;
-            target_col = m_ptr->fx;
+	/* Interact */
+	while (1)
+	{
+		/* Clear screen */
+		Term_clear();
 
-            /* Good target */
-            return (TRUE);
-        }
-    }
+		/* Why are we here */
+		prt("Angband options", 2, 0);
 
-    /* Assume no target */
-    return (FALSE);
+		/* Give some choices */
+		prt("(1) User Interface Options", 4, 5);
+		prt("(2) Disturbance Options", 5, 5);
+		prt("(3) Game-Play Options", 6, 5);
+		prt("(4) Efficiency Options", 7, 5);
+
+		/* Cheating */
+		prt("(C) Cheating Options", 9, 5);
+
+		/* Window flags */
+		prt("(W) Window flags", 11, 5);
+
+		/* Special choices */
+		prt("(D) Base Delay Factor", 13, 5);
+		prt("(H) Hitpoint Warning", 14, 5);
+
+		/* Prompt */
+		prt("Command: ", 18, 0);
+
+		/* Get command */
+		k = inkey();
+
+		/* Exit */
+		if (k == ESCAPE) break;
+
+		/* Analyze */
+		switch (k)
+		{
+			/* General Options */
+			case '1':
+			{
+				/* Process the general options */
+				do_cmd_options_aux(0, "User Interface Options");
+				break;
+			}
+
+			/* Disturbance Options */
+			case '2':
+			{
+				/* Spawn */
+				do_cmd_options_aux(1, "Disturbance Options");
+				break;
+			}
+
+			/* Inventory Options */
+			case '3':
+			{
+				/* Spawn */
+				do_cmd_options_aux(2, "Game-Play Options");
+				break;
+			}
+
+			/* Efficiency Options */
+			case '4':
+			{
+				/* Spawn */
+				do_cmd_options_aux(3, "Efficiency Options");
+				break;
+			}
+
+			/* Cheating Options */
+			case 'C':
+			{
+				/* Spawn */
+				do_cmd_options_cheat("Cheaters never win (seriously!)");
+				break;
+			}
+
+			/* Window flags */
+			case 'W':
+			case 'w':
+			{
+				/* Spawn */
+				do_cmd_options_win();
+				break;
+			}
+
+			/* Hack -- Delay Speed */
+			case 'D':
+			case 'd':
+			{
+				/* Prompt */
+				prt("Command: Base Delay Factor", 18, 0);
+
+				/* Get a new value */
+				while (1)
+				{
+					int msec = op_ptr->delay_factor * op_ptr->delay_factor;
+					prt(format("Current base delay factor: %d (%d msec)",
+					           op_ptr->delay_factor, msec), 22, 0);
+					prt("Delay Factor (0-9 or ESC to accept): ", 20, 0);
+					k = inkey();
+					if (k == ESCAPE) break;
+					if (isdigit(k)) op_ptr->delay_factor = D2I(k);
+					else bell("Illegal delay factor!");
+				}
+
+				break;
+			}
+
+			/* Hack -- hitpoint warning factor */
+			case 'H':
+			case 'h':
+			{
+				/* Prompt */
+				prt("Command: Hitpoint Warning", 18, 0);
+
+				/* Get a new value */
+				while (1)
+				{
+					prt(format("Current hitpoint warning: %2d%%",
+					           op_ptr->hitpoint_warn * 10), 22, 0);
+					prt("Hitpoint Warning (0-9 or ESC to accept): ", 20, 0);
+					k = inkey();
+					if (k == ESCAPE) break;
+					if (isdigit(k)) op_ptr->hitpoint_warn = D2I(k);
+					else bell("Illegal hitpoint warning!");
+				}
+
+				break;
+			}
+
+			/* Unknown option */
+			default:
+			{
+				/* Oops */
+				bell("Illegal command for options!");
+				break;
+			}
+		}
+
+		/* Flush messages */
+		msg_print(NULL);
+	}
+
+
+	/* Load screen */
+	screen_load();
 }
 
 
 
+/*
+ * Ask for a "user pref line" and process it
+ *
+ * XXX XXX XXX Allow absolute file names?
+ */
+void do_cmd_pref(void)
+{
+	char tmp[81];
 
+	/* Default */
+	strcpy(tmp, "");
+
+	/* Ask for a "user pref command" */
+	if (!get_string("Pref: ", tmp, 80)) return;
+
+	/* Process that pref command */
+	(void)process_pref_file_aux(tmp);
+}
+
+
+#ifdef ALLOW_MACROS
+
+/*
+ * Hack -- append all current macros to the given file
+ */
+static errr macro_dump(cptr fname)
+{
+	int i;
+
+	FILE *fff;
+
+	char buf[1024];
+
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_USER, fname);
+
+	/* File type is "TEXT" */
+	FILE_TYPE(FILE_TYPE_TEXT);
+
+	/* Append to the file */
+	fff = my_fopen(buf, "a");
+
+	/* Failure */
+	if (!fff) return (-1);
+
+
+	/* Skip space */
+	fprintf(fff, "\n\n");
+
+	/* Start dumping */
+	fprintf(fff, "# Automatic macro dump\n\n");
+
+	/* Dump them */
+	for (i = 0; i < macro__num; i++)
+	{
+		/* Start the macro */
+		fprintf(fff, "# Macro '%d'\n\n", i);
+
+		/* Extract the action */
+		ascii_to_text(buf, macro__act[i]);
+
+		/* Dump the macro */
+		fprintf(fff, "A:%s\n", buf);
+
+		/* Extract the action */
+		ascii_to_text(buf, macro__pat[i]);
+
+		/* Dump normal macros */
+		fprintf(fff, "P:%s\n", buf);
+
+		/* End the macro */
+		fprintf(fff, "\n\n");
+	}
+
+	/* Start dumping */
+	fprintf(fff, "\n\n\n\n");
+
+
+	/* Close */
+	my_fclose(fff);
+
+	/* Success */
+	return (0);
+}
 
 
 /*
- * Set a new target.  This code can be called from get_a_dir()
- * I think that targetting an outer border grid may be dangerous
+ * Hack -- ask for a "trigger" (see below)
+ *
+ * Note the complex use of the "inkey()" function from "util.c".
+ *
+ * Note that both "flush()" calls are extremely important.  This may
+ * no longer be true, since "util.c" is much simpler now.  XXX XXX XXX
  */
-bool target_set()
+static void do_cmd_macro_aux(char *buf)
 {
+	int i, n = 0;
 
-#ifdef ALLOW_TARGET
-
-    int		m_idx;
-
-    int		row = py;
-    int		col = px;
-
-    bool	offset = FALSE;
-
-    char	query;
-
-    char	desc[160];
+	char tmp[1024];
 
 
-    /* Go ahead and turn off target mode */
-    target_who = 0;
+	/* Flush */
+	flush();
 
-    /* Turn off health tracking */
-    health_track(0);
+	/* Do not process macros */
+	inkey_base = TRUE;
 
+	/* First key */
+	i = inkey();
 
-    /* Check monsters first */
-    for (m_idx = MIN_M_IDX; m_idx < m_max; m_idx++) {
+	/* Read the pattern */
+	while (i)
+	{
+		/* Save the key */
+		buf[n++] = i;
 
-        monster_type *m_ptr = &m_list[m_idx];
-        monster_race *r_ptr = &r_list[m_ptr->r_idx];
+		/* Do not process macros */
+		inkey_base = TRUE;
 
-        /* Paranoia -- Skip "dead" monsters */
-        if (m_ptr->dead) continue;
+		/* Do not wait for keys */
+		inkey_scan = TRUE;
 
-        /* Ignore "unreasonable" monsters */
-        if (!target_able(m_idx)) continue;
+		/* Attempt to read a key */
+		i = inkey();
+	}
 
-        /* Access monster location */
-        row = m_ptr->fy;
-        col = m_ptr->fx;
+	/* Terminate */
+	buf[n] = '\0';
 
-        /* Hack -- Track that monster */
-        health_track(m_idx);
-
-        /* Hack -- handle stuff */
-        handle_stuff();
-        
-        /* Auto-recall */
-        if (use_recall_win && term_recall) {
-
-            /* Describe the monster */
-            roff_recall(m_ptr->r_idx);
-
-            /* Describe */
-            sprintf(desc,
-                    "%s [(t)arget, (o)ffset, (p)osition, or (q)uit]",
-                    r_ptr->name);
-            prt(desc,0,0);
-
-            /* Get a command */
-            move_cursor_relative(row,col);
-            query = inkey();
-        }
-
-        /* Optional recall */
-        else {
-
-            /* Describe, prompt for recall */
-            sprintf(desc,
-                    "%s [(t)arget, (o)ffset, (p)osition, (r)ecall, or (q)uit]",
-                    r_ptr->name);
-            prt(desc,0,0);
-
-            /* Get a command */
-            move_cursor_relative(row,col);
-            query = inkey();
-
-            /* Optional recall */
-            while ((query == 'r') || (query == 'R')) {
-
-                /* Recall on screen */
-                save_screen();
-                query = roff_recall(m_ptr->r_idx);
-                restore_screen();
-
-                /* Get a new keypress */
-                move_cursor_relative(row,col);
-                query = inkey();
-            }
-        }
-
-        /* Hack -- cancel tracking */
-        health_track(0);
-
-        /* Analyze (non "recall") command */
-        switch (query) {
-
-            case ESCAPE:
-            case 'Q': case 'q':
-                return (FALSE);
-
-            case 'T': case 't':
-            case '5': case '.':
-            case '0':
-                target_who = m_idx;
-                target_row = row;
-                target_col = col;
-                return (TRUE);
-
-            case 'O': case 'o':
-                offset = TRUE;
-
-            case 'P': case 'p':
-                m_idx = m_max;
-        }
-    }
+	/* Flush */
+	flush();
 
 
-    /* Now try a location */
-    prt("Use cursor to designate target. [(t)arget]",0,0);
+	/* Convert the trigger */
+	ascii_to_text(tmp, buf);
 
-    /* Usually start on the player */
-    if (!offset) {
-        row = py;
-        col = px;
-    }
+	/* Hack -- display the trigger */
+	Term_addstr(-1, TERM_WHITE, tmp);
+}
 
-    /* Query until done */
-    while (TRUE) {
 
-        /* Light up the current location */
-        move_cursor_relative(row, col);
+/*
+ * Hack -- ask for a keymap "trigger" (see below)
+ *
+ * Note that both "flush()" calls are extremely important.  This may
+ * no longer be true, since "util.c" is much simpler now.  XXX XXX XXX
+ */
+static void do_cmd_macro_aux_keymap(char *buf)
+{
+	char tmp[1024];
 
-        /* Get a command, and convert it to standard form */
-        query = inkey();
 
-        /* Analyze the keypress */
-        switch (query) {
+	/* Flush */
+	flush();
 
-            case ESCAPE:
-            case 'Q': case 'q':
-                return (FALSE);
 
-            case '5': case '.':
-            case 'T': case 't':
-            case '0':
-                target_who = -1;
-                target_row = row;
-                target_col = col;
-                return (TRUE);
+	/* Get a key */
+	buf[0] = inkey();
+	buf[1] = '\0';
 
-            case '1': case 'B': case 'b':
-                col--;
-            case '2': case 'J': case 'j':
-                row++;
-                break;
-            case '3': case 'N': case 'n':
-                row++;
-            case '6': case 'L': case 'l':
-                col++;
-                break;
-            case '7': case 'Y': case 'y':
-                row--;
-            case '4': case 'H': case 'h':
-                col--;
-                break;
-            case '9': case 'U': case 'u':
-                col++;
-            case '8': case 'K': case 'k':
-                row--;
-                break;
-        }
 
-        /* Verify column */
-        if ((col>=cur_wid-1) || (col>panel_col_max)) col--;
-        else if ((col<=0) || (col<panel_col_min)) col++;
+	/* Convert to ascii */
+	ascii_to_text(tmp, buf);
 
-        /* Verify row */
-        if ((row>=cur_hgt-1) || (row>panel_row_max)) row--;
-        else if ((row<=0) || (row<panel_row_min)) row++;
-    }
+	/* Hack -- display the trigger */
+	Term_addstr(-1, TERM_WHITE, tmp);
+
+
+	/* Flush */
+	flush();
+}
+
+
+/*
+ * Hack -- append all keymaps to the given file
+ */
+static errr keymap_dump(cptr fname)
+{
+	int i;
+
+	FILE *fff;
+
+	char key[1024];
+	char buf[1024];
+
+	int mode;
+
+
+	/* Roguelike */
+	if (rogue_like_commands)
+	{
+		mode = KEYMAP_MODE_ROGUE;
+	}
+
+	/* Original */
+	else
+	{
+		mode = KEYMAP_MODE_ORIG;
+	}
+
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_USER, fname);
+
+	/* File type is "TEXT" */
+	FILE_TYPE(FILE_TYPE_TEXT);
+
+	/* Append to the file */
+	fff = my_fopen(buf, "a");
+
+	/* Failure */
+	if (!fff) return (-1);
+
+
+	/* Skip space */
+	fprintf(fff, "\n\n");
+
+	/* Start dumping */
+	fprintf(fff, "# Automatic keymap dump\n\n");
+
+	/* Dump them */
+	for (i = 0; i < 256; i++)
+	{
+		cptr act;
+
+		/* Loop up the keymap */
+		act = keymap_act[mode][i];
+
+		/* Skip empty keymaps */
+		if (!act) continue;
+
+		/* Encode the key */
+		buf[0] = i;
+		buf[1] = '\0';
+		ascii_to_text(key, buf);
+
+		/* Encode the action */
+		ascii_to_text(buf, act);
+
+		/* Dump the macro */
+		fprintf(fff, "M:%d  %2s  %s\n", mode, key, buf);
+	}
+
+	/* Start dumping */
+	fprintf(fff, "\n\n\n");
+
+
+	/* Close */
+	my_fclose(fff);
+
+	/* Success */
+	return (0);
+}
+
 
 #endif
 
-    /* Assume no target */
-    return (FALSE);
-}
-
-
-
-
 
 /*
- * Given a direction, apply "confusion" to it
+ * Interact with "macros"
  *
- * Mode is as in "get_a_dir()" below, using:
- *   0x01 = Apply total Confusion
- *   0x02 = Apply partial Confusion (75%)
- *   0x04 = Allow the direction "5"
- *   0x08 = ??? Handle stun like confused
+ * Note that the macro "action" must be defined before the trigger.
+ *
+ * Could use some helpful instructions on this page.  XXX XXX XXX
  */
-void confuse_dir(int *dir, int mode)
+void do_cmd_macros(void)
 {
-    /* Check for confusion */
-    if (p_ptr->confused) {
-
-        /* Does the confusion get a chance to activate? */
-        if ((mode & 0x01) ||
-            ((mode & 0x02) && (randint(4) > 1))) {
-
-            /* Warn the user */
-            msg_print("You are confused.");
-
-            /* Pick a random (valid) direction */
-            do {
-                *dir = randint(9);
-            } while (!(mode & 0x04) && (*dir == 5));
-        }
-    }
-}
-
-
-/*
- * This function should be used by anyone who wants a direction
- * Hack -- it can also be used to get the "direction" of "here"
- *
- * It takes an optional prompt, a pointer to a dir, and a mode (see below),
- * and returns "Did something besides 'Escape' happen?".  The dir is loaded
- * with -1 (on abort) or 0 (for target) or 1-9 (for a "keypad" direction)
- * including 5 (for "here").
- *
- * The mode indicates whether "5" is a legal direction, and also
- * how to handle confusion (always, most times, or never).  There
- * is an extra bit, perhaps for "treat stun as confusion".
- *
- * The mode allows indication of whether target mode is enforced,
- * or if not, if it is optional, and if so, if it can be interactively
- * re-oriented, and how confusion should affect targetting.
- *
- * Note that if (command_dir > 0), it will pre-empt user interaction
- * Note that "Force Target", if set, will pre-empt user interaction
- *
- * So, currently, there is no account taken of "remember that we
- * are currently shooting at the target" (except via "Force Target").
- *
- * Note that confusion (if requested) over-rides any other choice.
- * "Force Target" + "Always Confused" yields ugly situation for user...
- *
- * Note that use of the "Force Target" plus "Repeated Commands"
- * and/or "Confusion" + "Repeated Commands" could be really messy
- *
- * Note: We change neither command_rep nor energy_use
- * Note: We assume our caller correctly handles the "abort" case
- *
- * Although we seem to correctly handle the (dir == &command_dir) case,
- * it is not recommended to use this with the "Confusion" flags,
- * since the users "preferred" direction is then lost.
- *
- * However, note that if we are given "&command_dir" as our "dir" arg,
- * we will correctly reset it to -1 on cancellation.  However, if we
- * are also requested to handle confusion, things may get ugly.
- *
- * Modes are composed of the or-ing of these bit flags:
- *   0x01 = Apply total Confusion
- *   0x02 = Apply partial Confusion (75%)
- *   0x04 = Allow the "here" direction ('5')
- *   0x08 = ??? Handle stun like confused
- *   0x10 = Allow use of Use-Target command ('t','0','5')
- *   0x20 = Allow use of Set-Target command ('*')
- *   0x40 = ???
- *   0x80 = ???
- */
-int get_a_dir(cptr prompt, int *dir, int mode)
-{
-    char        command;
-    char	pbuf[80];
-
-    /* Use global command_dir (if set) */
-    if (command_dir > 0) {
-        *dir = command_dir;
-    }
-
-    /* Use "old target" if possible */
-    else if (use_old_target && (mode & 0x10) && target_okay()) {
-        *dir = 0;
-    }
-
-    /* Ask user for a direction */
-    else {
-
-        /* Start with a non-direction */
-        *dir = -1;
-
-        /* Ask until satisfied */
-        while (1) {
-
-            if (prompt) {
-                strcpy(pbuf, prompt);
-            }
-            else if (!(mode & 0x10) || !target_okay()) {
-                sprintf(pbuf, "Direction (%sEscape to cancel)? ",
-                        (mode & 0x20) ? "'*' to choose a target, " : "");
-            }
-            else {
-                sprintf(pbuf, "Direction (%s%sEscape to cancel)? ",
-                        (mode & 0x10) ? "'5' for target, " : "",
-                        (mode & 0x20) ? "'*' to re-target, " : "");
-            }
-
-            /* Get a command (or Cancel) */
-            if (!get_com(pbuf, &command)) return (FALSE);
-
-            /* Convert various keys to "standard" keys */
-            switch (command) {
+	int i;
 
-                /* Convert roguelike directions */
-                case 'B': case 'b': command = '1'; break;
-                case 'J': case 'j': command = '2'; break;
-                case 'N': case 'n': command = '3'; break;
-                case 'H': case 'h': command = '4'; break;
-                case 'L': case 'l': command = '6'; break;
-                case 'Y': case 'y': command = '7'; break;
-                case 'K': case 'k': command = '8'; break;
-                case 'U': case 'u': command = '9'; break;
+	char tmp[1024];
 
-                /* Roguelike uses "." for "center" */
-                case '.': command = '5'; break;
+	char buf[1024];
 
-                /* Accept "t" for "target" */
-                case 'T': case 't': command = '0'; break;
-            }
+	int mode;
 
-            /* Hack -- Perhaps accept '5' as itself */
-            if ((mode & 0x04) && (command == '5')) {
-                *dir = 5; break;
-            }
 
-            /* If not accepting '5' as itself, convert it */
-            if (command == '5') command = '0';
+	/* Roguelike */
+	if (rogue_like_commands)
+	{
+		mode = KEYMAP_MODE_ROGUE;
+	}
 
-            /* Perhaps allow "use-target" */
-            if ((mode & 0x10) && (command == '0')) {
-                if (target_okay()) {
-                    *dir = 0; break;
-                }
-            }
+	/* Original */
+	else
+	{
+		mode = KEYMAP_MODE_ORIG;
+	}
 
-            /* Perhaps allow "set-target" */
-            if ((mode & 0x20) && (command == '*')) {
-                if (target_set() && target_okay()) {
-                    *dir = 0; break;
-                }
-            }
 
-            /* Always accept actual directions (command != '5') */	
-            if (command >= '1' && command <= '9') {
-                *dir = command - '0'; break;
-            }
-
-            /* Optional "help" */
-            if (command == '?') {
-                /* do_cmd_help("help.hlp"); */
-            }
-
-            /* Errors */
-            bell();
-        }
-    }
-
-    /* Confuse the direction */
-    confuse_dir(dir, mode);
-
-    /* A "valid" direction was entered */
-    return (TRUE);
-}
-
-
-
-
+	/* File type is "TEXT" */
+	FILE_TYPE(FILE_TYPE_TEXT);
 
-/*
- * See "get_a_dir" above
- */
-int get_dir(cptr prompt, int *dir)
-{
-    /* Allow use of "target" commands.  Forbid the "5" direction. */
-    if (get_a_dir(prompt, dir, 0x30)) return (TRUE);
-
-    /* XXX Mega-Hack -- allow commands to be careless */
-    energy_use = 0;
 
-    /* Command aborted */
-    return FALSE;
-}
-
-
-/*
- * Like get_dir(), but if "confused", pick randomly
- */
-
-int get_dir_c(cptr prompt, int *dir)
-{
-    /* Allow "Target".  Forbid "5".  Handle "total" confusion */
-    if (get_a_dir(prompt, dir, 0x31)) return (TRUE);
+	/* Save screen */
+	screen_save();
 
-    /* Hack -- allow commands to be careless */
-    energy_use = 0;
 
-    /* Command aborted */
-    return FALSE;
-}
+	/* Process requests until done */
+	while (1)
+	{
+		/* Clear screen */
+		Term_clear();
 
-
-
-
+		/* Describe */
+		prt("Interact with Macros", 2, 0);
 
-/*
- * Search Mode.  Note that nobody should use "status" for anything
- * but "visual reflection of current status", that is, the "searching"
- * condition of the player needs an actual flag.
- */
-void search_on()
-{
-    if (p_ptr->searching) return;
-
-    /* Set the searching flag */
-    p_ptr->searching = TRUE;
 
-    /* Update stuff */
-    p_ptr->update |= (PU_BONUS);
-    
-    /* Redraw stuff */
-    p_ptr->redraw |= (PR_STATE | PR_SPEED);
-}
-
-void search_off(void)
-{
-    if (!p_ptr->searching) return;
-
-    /* Clear the searching flag */
-    p_ptr->searching = FALSE;
-
-    /* Update stuff */
-    p_ptr->update |= (PU_BONUS);
-    
-    /* Redraw stuff */
-    p_ptr->redraw |= (PR_STATE | PR_SPEED);
-}
-
-
-/*
- * Something has happened to disturb the player.
- *
- * The first arg indicates a major disturbance, which affects search.
- * The second arg allows this function to flush all pending output.
- */
-void disturb(int stop_search, int flush_output)
-{
-    /* Cancel auto-commands */
-    /* command_new = 0; */
-    
-    /* Cancel repeated commands */
-    if (command_rep) command_rep = 0;
+		/* Describe that action */
+		prt("Current action (if any) shown below:", 20, 0);
 
-    /* Cancel resting */
-    if (p_ptr->rest) rest_off();
+		/* Analyze the current action */
+		ascii_to_text(buf, macro_buffer);
 
-    /* Cancal running if possible */
-    if (find_flag) end_find();
+		/* Display the current action */
+		prt(buf, 22, 0);
 
-    /* Cancel searching if requested */
-    if (stop_search) search_off();
-
-    /* Hack -- redraw the "state" later */
-    p_ptr->redraw |= (PR_STATE);
 
-    /* Hack -- sometimes flush the input */
-    if (flush_disturb) flush();
+		/* Selections */
+		prt("(1) Load a user pref file", 4, 5);
+#ifdef ALLOW_MACROS
+		prt("(2) Append macros to a file", 5, 5);
+		prt("(3) Query a macro", 6, 5);
+		prt("(4) Create a macro", 7, 5);
+		prt("(5) Remove a macro", 8, 5);
+		prt("(6) Append keymaps to a file", 9, 5);
+		prt("(7) Query a keymap", 10, 5);
+		prt("(8) Create a keymap", 11, 5);
+		prt("(9) Remove a keymap", 12, 5);
+		prt("(0) Enter a new action", 13, 5);
+#endif /* ALLOW_MACROS */
 
-    /* Hack -- handle stuff if requested */
-    if (flush_output) handle_stuff();
-    
-    /* Hack -- always hilite the player */
-    move_cursor_relative(py, px);
+		/* Prompt */
+		prt("Command: ", 16, 0);
 
-    /* Hack -- flush output if requested */
-    if (flush_output) Term_fresh();
-}
+		/* Get a command */
+		i = inkey();
 
+		/* Leave */
+		if (i == ESCAPE) break;
 
-/*
- * Searches for hidden things.			-RAK-	
- */
-void search(void)
-{
-    int           y, x, chance;
+		/* Load a 'macro' file */
+		else if (i == '1')
+		{
+			/* Prompt */
+			prt("Command: Load a user pref file", 16, 0);
 
-    cave_type    *c_ptr;
-    inven_type   *i_ptr;
+			/* Prompt */
+			prt("File: ", 18, 0);
 
-    char	tmp_str[160];
-    char	tmp_str2[160];
+			/* Default filename */
+			sprintf(tmp, "%s.prf", op_ptr->base_name);
 
+			/* Ask for a file */
+			if (!askfor_aux(tmp, 80)) continue;
 
-    /* Start with base search ability */
-    chance = p_ptr->skill_srh;
-    
-    /* Penalize various conditions */
-    if (p_ptr->blind || no_lite()) chance = chance / 10;
-    if (p_ptr->confused || p_ptr->image) chance = chance / 10;
+			/* Process the given filename */
+			if (0 != process_pref_file(tmp))
+			{
+				/* Prompt */
+				msg_print("Could not load file!");
+			}
+		}
 
-    /* Search the nearby grids, which are always in bounds */
-    for (y = (py - 1); y <= (py + 1); y++) {
-        for (x = (px - 1); x <= (px + 1); x++) {
+#ifdef ALLOW_MACROS
 
-            /* Sometimes, notice things */
-            if (randint(100) < chance) {
+		/* Save macros */
+		else if (i == '2')
+		{
+			/* Prompt */
+			prt("Command: Append macros to a file", 16, 0);
 
-                c_ptr = &cave[y][x];
-                i_ptr = &i_list[c_ptr->i_idx];
+			/* Prompt */
+			prt("File: ", 18, 0);
 
-                /* Nothing there */
-                if (!(c_ptr->i_idx)) {
-                    /* Nothing */
-                }
+			/* Default filename */
+			sprintf(tmp, "%s.prf", op_ptr->base_name);
 
-                /* Invisible trap? */
-                else if (i_ptr->tval == TV_INVIS_TRAP) {
-                    objdes(tmp_str2, i_ptr, 3);
-                    (void)sprintf(tmp_str, "You have found %s.", tmp_str2);
-                    msg_print(tmp_str);
-                    i_ptr->tval = TV_VIS_TRAP;
-                    lite_spot(y, x);
-                    disturb(0, 0);
-                }
+			/* Ask for a file */
+			if (!askfor_aux(tmp, 80)) continue;
 
-                /* Secret door?	*/
-                else if (i_ptr->tval == TV_SECRET_DOOR) {
+			/* Drop priv's */
+			safe_setuid_drop();
 
-                    msg_print("You have found a secret door.");
+			/* Dump the macros */
+			(void)macro_dump(tmp);
 
-                    /* Hack -- drop on top */
-                    invcopy(i_ptr, OBJ_CLOSED_DOOR);
+			/* Grab priv's */
+			safe_setuid_grab();
 
-                    /* Place it in the dungeon */
-                    i_ptr->iy = y;
-                    i_ptr->ix = x;
+			/* Prompt */
+			msg_print("Appended macros.");
+		}
 
-                    /* Redraw the door */
-                    lite_spot(y, x);
+		/* Query a macro */
+		else if (i == '3')
+		{
+			int k;
 
-                    /* Notice it */
-                    disturb(0, 0);
-                }
+			/* Prompt */
+			prt("Command: Query a macro", 16, 0);
 
-                /* Search chests */
-                else if (i_ptr->tval == TV_CHEST) {
+			/* Prompt */
+			prt("Trigger: ", 18, 0);
 
-                    /* Examine chests for traps */
-                    if (!inven_known_p(i_ptr) && (chest_traps[i_ptr->pval])) {
+			/* Get a macro trigger */
+			do_cmd_macro_aux(buf);
 
-                        msg_print("You have discovered a trap on the chest!");
+			/* Acquire action */
+			k = macro_find_exact(buf);
 
-                        /* Know the trap */
-                        inven_known(i_ptr);
+			/* Nothing found */
+			if (k < 0)
+			{
+				/* Prompt */
+				msg_print("Found no macro.");
+			}
 
-                        /* Notice it */
-                        disturb(0, 0);
-                    }
-                }
-            }
-        }
-    }
-}
+			/* Found one */
+			else
+			{
+				/* Obtain the action */
+				strcpy(macro_buffer, macro__act[k]);
 
+				/* Analyze the current action */
+				ascii_to_text(buf, macro_buffer);
 
+				/* Display the current action */
+				prt(buf, 22, 0);
 
-/*
- * Stop resting
- */
-void rest_off()
-{
-    p_ptr->rest = 0;
+				/* Prompt */
+				msg_print("Found a macro.");
+			}
+		}
 
-    /* Redraw the state */
-    p_ptr->redraw |= PR_STATE;
+		/* Create a macro */
+		else if (i == '4')
+		{
+			/* Prompt */
+			prt("Command: Create a macro", 16, 0);
 
-    /* flush last message, or delete "press any key" message */
-    msg_print(NULL);
+			/* Prompt */
+			prt("Trigger: ", 18, 0);
+
+			/* Get a macro trigger */
+			do_cmd_macro_aux(buf);
+
+			/* Clear */
+			clear_from(20);
+
+			/* Prompt */
+			prt("Action: ", 20, 0);
+
+			/* Convert to text */
+			ascii_to_text(tmp, macro_buffer);
+
+			/* Get an encoded action */
+			if (askfor_aux(tmp, 80))
+			{
+				/* Convert to ascii */
+				text_to_ascii(macro_buffer, tmp);
+
+				/* Link the macro */
+				macro_add(buf, macro_buffer);
+
+				/* Prompt */
+				msg_print("Added a macro.");
+			}
+		}
+
+		/* Remove a macro */
+		else if (i == '5')
+		{
+			/* Prompt */
+			prt("Command: Remove a macro", 16, 0);
+
+			/* Prompt */
+			prt("Trigger: ", 18, 0);
+
+			/* Get a macro trigger */
+			do_cmd_macro_aux(buf);
+
+			/* Link the macro */
+			macro_add(buf, buf);
+
+			/* Prompt */
+			msg_print("Removed a macro.");
+		}
+
+		/* Save keymaps */
+		else if (i == '6')
+		{
+			/* Prompt */
+			prt("Command: Append keymaps to a file", 16, 0);
+
+			/* Prompt */
+			prt("File: ", 18, 0);
+
+			/* Default filename */
+			sprintf(tmp, "%s.prf", op_ptr->base_name);
+
+			/* Ask for a file */
+			if (!askfor_aux(tmp, 80)) continue;
+
+			/* Drop priv's */
+			safe_setuid_drop();
+
+			/* Dump the macros */
+			(void)keymap_dump(tmp);
+
+			/* Grab priv's */
+			safe_setuid_grab();
+
+			/* Prompt */
+			msg_print("Appended keymaps.");
+		}
+
+		/* Query a keymap */
+		else if (i == '7')
+		{
+			cptr act;
+
+			/* Prompt */
+			prt("Command: Query a keymap", 16, 0);
+
+			/* Prompt */
+			prt("Keypress: ", 18, 0);
+
+			/* Get a keymap trigger */
+			do_cmd_macro_aux_keymap(buf);
+
+			/* Look up the keymap */
+			act = keymap_act[mode][(byte)(buf[0])];
+
+			/* Nothing found */
+			if (!act)
+			{
+				/* Prompt */
+				msg_print("Found no keymap.");
+			}
+
+			/* Found one */
+			else
+			{
+				/* Obtain the action */
+				strcpy(macro_buffer, act);
+
+				/* Analyze the current action */
+				ascii_to_text(buf, macro_buffer);
+
+				/* Display the current action */
+				prt(buf, 22, 0);
+
+				/* Prompt */
+				msg_print("Found a keymap.");
+			}
+		}
+
+		/* Create a keymap */
+		else if (i == '8')
+		{
+			/* Prompt */
+			prt("Command: Create a keymap", 16, 0);
+
+			/* Prompt */
+			prt("Keypress: ", 18, 0);
+
+			/* Get a keymap trigger */
+			do_cmd_macro_aux_keymap(buf);
+
+			/* Clear */
+			clear_from(20);
+
+			/* Prompt */
+			prt("Action: ", 20, 0);
+
+			/* Convert to text */
+			ascii_to_text(tmp, macro_buffer);
+
+			/* Get an encoded action */
+			if (askfor_aux(tmp, 80))
+			{
+				/* Convert to ascii */
+				text_to_ascii(macro_buffer, tmp);
+
+				/* Free old keymap */
+				string_free(keymap_act[mode][(byte)(buf[0])]);
+
+				/* Make new keymap */
+				keymap_act[mode][(byte)(buf[0])] = string_make(macro_buffer);
+
+				/* Prompt */
+				msg_print("Added a keymap.");
+			}
+		}
+
+		/* Remove a keymap */
+		else if (i == '9')
+		{
+			/* Prompt */
+			prt("Command: Remove a keymap", 16, 0);
+
+			/* Prompt */
+			prt("Keypress: ", 18, 0);
+
+			/* Get a keymap trigger */
+			do_cmd_macro_aux_keymap(buf);
+
+			/* Free old keymap */
+			string_free(keymap_act[mode][(byte)(buf[0])]);
+
+			/* Make new keymap */
+			keymap_act[mode][(byte)(buf[0])] = NULL;
+
+			/* Prompt */
+			msg_print("Removed a keymap.");
+		}
+
+		/* Enter a new action */
+		else if (i == '0')
+		{
+			/* Prompt */
+			prt("Command: Enter a new action", 16, 0);
+
+			/* Go to the correct location */
+			Term_gotoxy(0, 22);
+
+			/* Hack -- limit the value */
+			tmp[80] = '\0';
+
+			/* Get an encoded action */
+			if (!askfor_aux(buf, 80)) continue;
+
+			/* Extract an action */
+			text_to_ascii(macro_buffer, buf);
+		}
+
+#endif /* ALLOW_MACROS */
+
+		/* Oops */
+		else
+		{
+			/* Oops */
+			bell("Illegal command for macros!");
+		}
+
+		/* Flush messages */
+		msg_print(NULL);
+	}
+
+
+	/* Load screen */
+	screen_load();
 }
 
 
 
 /*
- * Calculates current boundaries
- * Called below and from "do_cmd_locate()".
+ * Interact with "visuals"
  */
-void panel_bounds()
+void do_cmd_visuals(void)
 {
-    panel_row_min = panel_row * (SCREEN_HGT / 2);
-    panel_row_max = panel_row_min + SCREEN_HGT - 1;
-    panel_row_prt = panel_row_min - 1;
-    panel_col_min = panel_col * (SCREEN_WID / 2);
-    panel_col_max = panel_col_min + SCREEN_WID - 1;
-    panel_col_prt = panel_col_min - 13;
-}
+	int i;
 
+	FILE *fff;
 
+	char tmp[160];
 
-/*
- * Given an row (y) and col (x), this routine detects when a move
- * off the screen has occurred and figures new borders. -RAK-
- *
- * "Update" forces a "full update" to take place.
- *
- * The map is reprinted if necessary, and "TRUE" is returned.
- */
-void verify_panel(void)
-{
-    int y = py;
-    int x = px;
+	char buf[1024];
 
-    int prow = panel_row;
-    int pcol = panel_col;
 
-    /* Scroll screen when 2 grids from top/bottom edge */
-    if ((y < panel_row_min + 2) || (y > panel_row_max - 2)) {
-        prow = ((y - SCREEN_HGT / 4) / (SCREEN_HGT / 2));
-        if (prow > max_panel_rows) prow = max_panel_rows;
-        else if (prow < 0) prow = 0;
-    }
+	/* File type is "TEXT" */
+	FILE_TYPE(FILE_TYPE_TEXT);
 
-    /* Scroll screen when 4 grids from left/right edge */
-    if ((x < panel_col_min + 4) || (x > panel_col_max - 4)) {
-        pcol = ((x - SCREEN_WID / 4) / (SCREEN_WID / 2));
-        if (pcol > max_panel_cols) pcol = max_panel_cols;
-        else if (pcol < 0) pcol = 0;
-    }
 
-    /* Check for "no change" */
-    if ((prow == panel_row) && (pcol == panel_col)) return;
+	/* Save screen */
+	screen_save();
 
-    /* Hack -- optional disturb at "edge of panel" */
-    if (find_bound) disturb(0, 0);
 
-    /* Save the new panel info */
-    panel_row = prow;
-    panel_col = pcol;
+	/* Interact until done */
+	while (1)
+	{
+		/* Clear screen */
+		Term_clear();
 
-    /* Recalculate the boundaries */
-    panel_bounds();
+		/* Ask for a choice */
+		prt("Interact with Visuals", 2, 0);
 
-    /* Update stuff */
-    p_ptr->update |= (PU_MONSTERS);
-    
-    /* Redraw stuff */
-    p_ptr->redraw |= (PR_MAP);
-}
-
-
-
-/*
- * Player "wants" to pick up an object or gold.
- * Note that we ONLY handle things that can be picked up.
- * See "move_player()" for handling of other things.
- */
-void carry(int pickup)
-{
-    cave_type  *c_ptr = &cave[py][px];
-    inven_type *i_ptr = &i_list[c_ptr->i_idx];
-
-    char	out_val[160];
-    char	tmp_str[160];
-
-
-    /* Hack -- nothing here to pick up */
-    if (!(c_ptr->i_idx)) return;
-
-
-    /* Describe the object */
-    objdes(tmp_str, i_ptr, 3);
-
-    /* Pick up gold */
-    if (i_ptr->tval == TV_GOLD) {
-
-        /* Disturb */
-        disturb(0, 0);
-
-        /* Message */
-        (void)sprintf(out_val,
-                      "You have found %ld gold pieces worth of %s.",
-                      (long)i_ptr->pval, tmp_str);
-        msg_print(out_val);
-
-        /* Collect the gold */
-        p_ptr->au += i_ptr->pval;
-
-        /* Redraw gold */
-        p_ptr->redraw |= PR_BLOCK;
-
-        /* Delete gold */
-        delete_object(py, px);
-    }
-
-    /* Can it be picked up? */
-    else if (i_ptr->tval <= TV_MAX_PICK_UP) {
-
-        /* Hack -- disturb */
-        disturb(0, 0);
-
-        /* Describe the object */
-        if (!pickup) {
-            sprintf(out_val, "You see %s.", tmp_str);
-            msg_print(out_val);
-        }
-
-        /* Note that the pack is too full */
-        else if (!inven_check_num(i_ptr)) {
-            sprintf(out_val, "You have no room for %s.", tmp_str);
-            msg_print(out_val);
-        }
-
-        /* Pick up the item (if requested and allowed) */
-        else {
-
-            int okay = TRUE;
-
-            /* Hack -- query every item */
-            if (carry_query_flag) {	
-                sprintf(out_val, "Pick up %s? ", tmp_str);
-                okay = get_check(out_val);
-            }
-
-            /* Attempt to pick up an object. */
-            if (okay) {
-                int locn = inven_carry(i_ptr);
-                objdes(tmp_str, &inventory[locn], 3);
-                sprintf(out_val, "You have %s. (%c)",
-                        tmp_str, index_to_label(locn));
-                msg_print(out_val);
-                delete_object(py, px);
-            }
-        }
-    }
-}
-
-
-
-
-
-/*
- * Determine if a trap affects the player.
- * Always miss 5% of the time, Always hit 5% of the time.
- * Otherwise, match trap power against player armor.
- */
-static int check_hit(int power)
-{
-    int k, ac;
-
-    /* Hack -- 1 in 20 always miss, 1 in 20 always hit */
-    k = randint(20);
-    if (k == 1) return (FALSE);
-    if (k == 20) return (TRUE);
-
-    /* Paranoia -- No power */
-    if (power <= 0) return (FALSE);
-    
-    /* Player armor */
-    ac = p_ptr->pac + p_ptr->ptoac;
-
-    /* Power competes against Armor */
-    if (randint(power) > ((3 * ac) / 4)) return (TRUE);
-
-    /* Assume miss */
-    return (FALSE);
-}
-
-
-/*
- * Handle player hitting a real trap
- *
- * We use the old location to back away from rubble traps
- */
-static void hit_trap(int oy, int ox)
-{
-    int			i, num, dam;
-
-    cave_type		*c_ptr;
-    inven_type		*i_ptr;
-
-    char		tmp[160];
-
-
-    /* Disturb the player */
-    disturb(0, 0);
-
-    /* Get the cave grid */
-    c_ptr = &cave[py][px];
-
-    /* Get the trap */
-    i_ptr = &i_list[c_ptr->i_idx];
-
-    /* Make the trap "visible" */
-    i_ptr->tval = TV_VIS_TRAP;
-
-    /* Paranoia -- redraw the grid */
-    lite_spot(py, px);
-
-    /* Roll for damage */
-    dam = damroll(i_ptr->dd, i_ptr->ds);
-
-    /* Examine the trap sub-val */
-    switch (i_ptr->sval) {
-
-      case SV_TRAP_PIT:
-        msg_print("You fell into a pit!");
-        if (p_ptr->ffall) {
-            msg_print("You float gently to the bottom of the pit.");
-        }
-        else {
-            objdes(tmp, i_ptr, 3);
-            take_hit(dam, tmp);
-        }
-        break;
-
-      case SV_TRAP_SPIKED_PIT:
-
-        /* Now here is a nasty trap indeed */
-        /* It really makes feather falling important */
-        msg_print("You fall into a spiked pit!");
-
-        if (p_ptr->ffall) {
-            msg_print("You float gently to the floor of the pit.");
-            msg_print("You carefully avoid touching the spikes.");
-        }
-
-        else {
-
-            /* Extra spike damage */
-            if (rand_int(2) == 0) {
-
-                msg_print("You are impaled!");
-                dam = dam * 2;
-                cut_player(randint(dam));
-            }
-
-            /* Poisonous spikes */
-            if (rand_int(3) == 0) {
-
-                msg_print("The spikes are poisoned!");
-
-                if (p_ptr->immune_pois ||
-                    p_ptr->resist_pois ||
-                    p_ptr->oppose_pois) {
-                    msg_print("The poison does not affect you!");
-                }
-
-                else {
-                    dam = dam * 2;
-                    p_ptr->poisoned += randint(dam);
-                }
-            }
-
-            objdes(tmp, i_ptr, 3);
-            take_hit(dam, tmp);
-        }
-        break;
-
-      case SV_TRAP_TRAP_DOOR:
-        msg_print("You fell through a trap door!");
-        if (p_ptr->ffall) {
-            msg_print("You float gently down to the next level.");
-        }
-        else {
-            objdes(tmp, i_ptr, 3);
-            take_hit(dam, tmp);
-        }
-        msg_print(NULL);
-        new_level_flag = TRUE;
-        dun_level++;
-        break;
-
-      case SV_TRAP_ARROW:
-        if (check_hit(125)) {
-            msg_print("An arrow hits you.");
-            objdes(tmp, i_ptr, 3);
-            take_hit(dam, tmp);
-        }
-        else {
-            msg_print("An arrow barely misses you.");
-        }
-        break;
-
-      case SV_TRAP_DART_SLOW:
-        if (check_hit(125)) {
-            objdes(tmp, i_ptr, 3);
-            take_hit(dam, tmp);
-            msg_print("A small dart hits you!");
-            if (!p_ptr->free_act) {
-                p_ptr->slow += rand_int(20) + 10;
-                msg_print("You feel sluggish!");
-            }
-        }
-        else {
-            msg_print("A small dart barely misses you.");
-        }
-        break;
-
-      case SV_TRAP_DART_DEX:
-        if (check_hit(125)) {
-            msg_print("A small dart hits you!");
-            objdes(tmp, i_ptr, 3);
-            take_hit(dam, tmp);
-            if (!p_ptr->sustain_con) {
-                (void)dec_stat(A_CON, 10, FALSE);
-                msg_print("You feel clumsy!");
-            }
-        }
-        else {
-            msg_print("A small dart barely misses you.");
-        }
-        break;
-
-      case SV_TRAP_DART_STR:
-        if (check_hit(125)) {
-            msg_print("A small dart hits you!");
-            objdes(tmp, i_ptr, 3);
-            take_hit(dam, tmp);
-            if (!p_ptr->sustain_str) {
-                msg_print("You feel weaker!");
-                (void)dec_stat(A_STR, 10, FALSE);
-            }
-        }
-        else {
-            msg_print("A small dart barely misses you.");
-        }
-        break;
-
-      case SV_TRAP_DART_CON:
-        if (check_hit(125)) {
-            msg_print("A small dart hits you!");
-            objdes(tmp, i_ptr, 3);
-            take_hit(dam, tmp);
-            if (!p_ptr->sustain_con) {
-                (void)dec_stat(A_CON, 10, FALSE);
-                msg_print("You feel less healthy!");
-            }
-        }
-        else {
-            msg_print("A small dart barely misses you.");
-        }
-        break;
-
-      case SV_TRAP_GAS_POISON:
-        msg_print("A pungent green gas surrounds you!");
-        objdes(tmp, i_ptr, 3);
-        poison_gas(dam, tmp);
-        break;
-
-      case SV_TRAP_GAS_BLIND:
-        msg_print("A black gas surrounds you!");
-        if (!p_ptr->resist_blind) {
-            p_ptr->blind += rand_int(50) + 50;
-        }
-        break;
-
-      case SV_TRAP_GAS_CONFUSE:
-        msg_print("A gas of scintillating colors surrounds you!");
-        if ((!p_ptr->resist_conf) && (!p_ptr->resist_chaos)) {
-            p_ptr->confused += rand_int(15) + 15;
-        }
-        break;
-
-      case SV_TRAP_GAS_SLEEP:
-        msg_print("A strange white mist surrounds you!");
-        if (!p_ptr->free_act) {
-            p_ptr->paralysis += rand_int(10) + 5;
-        }
-        break;
-
-      case SV_TRAP_FIRE:
-        msg_print("You are enveloped in flames!");
-        fire_dam(dam, "a fire trap");
-        break;
-
-      case SV_TRAP_ACID:
-        msg_print("You are splashed with acid!");
-        acid_dam(dam, "an acid trap");
-        break;
-
-      case SV_TRAP_TELEPORT:
-        msg_print("You hit a teleport trap!");
-        teleport_flag = TRUE;
-        teleport_dist = 100;
-        break;
-
-      case SV_TRAP_SUMMON:
-        msg_print("You are enveloped in a cloud of smoke!");
-        delete_object(py, px); /* Rune disappears.    */
-        num = 2 + randint(3);
-        for (i = 0; i < num; i++) {
-            (void)summon_monster(py, px, dun_level + MON_SUMMON_ADJ);
-        }
-        break;
-
-      case SV_TRAP_FALLING_ROCK:
-
-        /* Message and damage */
-        msg_print("You are hit by falling rock.");
-        take_hit(dam, "a falling rock");
-
-        /* Hack -- Turn the trap into rubble */
-        invcopy(i_ptr, OBJ_RUBBLE);
-        i_ptr->iy = py;
-        i_ptr->ix = px;
-
-        /* Hack -- Back the player up */
-        move_rec(py, px, oy, ox);
-
-        /* Verify the panel */
-        verify_panel();
-
-        /* Update some things */
-        p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW);
-        p_ptr->update |= (PU_DISTANCE);
-
-        break;
-
-      case SV_TRAP_LOOSE_ROCK:
-        msg_print("Hmmm, there was something under this rock.");
-        delete_object(py, px);
-        place_object(py, px);
-        break;
-
-      case SV_TRAP_GLYPH:
-        break;
-
-      default:
-        msg_print("Oops. Undefined trap.");
-        break;
-    }
-}
-
-
-/*
- * Moves player in the given direction, with the given "pickup" flag.
- *
- * Note that "moving" into a wall is a free move, and will NOT hit any
- * invisible monster which is "hiding" in the walls.  The player must
- * tunnel into the wall to hit invisible monsters.  However, to make
- * life easier, visible monsters can be attacked by moving into walls.
- *
- * Note that every "result" of moving that should cancel running or
- * repeated walking must explicitly call the "disturb()" function.
- */
-void move_player(int dir, int do_pickup)
-{
-    int                 y, x;
-    cave_type *c_ptr;
-    inven_type	*i_ptr;
-    monster_type *m_ptr;
-
-    /* Remember if the player was running */
-    bool was_running = find_flag;
-
-    /* Save info for dealing with traps and such */
-    int old_row = py;
-    int old_col = px;
-
-
-    /* Find the result of moving */
-    y = py + ddy[dir];
-    x = px + ddx[dir];
-
-    /* Examine the destination */
-    c_ptr = &cave[y][x];
-
-    /* Get the object */
-    i_ptr = &i_list[c_ptr->i_idx];
-
-    /* Get the monster */
-    m_ptr = &m_list[c_ptr->m_idx];
-
-
-    /* Hack -- always attack visible monsters */
-    if ((c_ptr->m_idx > 1) && (m_ptr->ml)) {
-
-        /* Hitting a monster is disturbing */
-        disturb(0, 0);
-
-        /* Handle fear */
-        if (p_ptr->afraid < 1) {
-            py_attack(y, x);
-        }
-        else {
-            msg_print("You are too afraid!");
-        }
-    }
-
-    /* Player can not walk through "walls" */
-    else if (!floor_grid_bold(y,x)) {
-
-        /* Disturb the player */
-        disturb(0, 0);
-
-        /* XXX XXX Hack -- allow "mapping" in the dark */
-        if (!(c_ptr->info & GRID_MARK) && !(c_ptr->info & GRID_LITE)) {
-
-            /* Rubble */
-            if (i_ptr->tval == TV_RUBBLE) {
-                msg_print("You feel some rubble blocking your way.");
-                c_ptr->info |= GRID_MARK;
-                lite_spot(y, x);
-            }
-
-            /* Closed door */
-            else if (i_ptr->tval == TV_CLOSED_DOOR) {
-                msg_print("You feel a closed door blocking your way.");
-                c_ptr->info |= GRID_MARK;
-                lite_spot(y, x);
-            }
-
-            /* Wall (or secret door) */
-            else {
-                msg_print("You feel a wall blocking your way.");
-                c_ptr->info |= GRID_MARK;
-                lite_spot(y, x);
-            }
-        }
-
-        /* Notice non-walls unless "running" */
-        else if (!was_running && (c_ptr->i_idx)) {
-
-            /* Rubble */
-            if (i_ptr->tval == TV_RUBBLE) {
-                msg_print("There is rubble blocking your way.");
-            }
-
-            /* Closed doors */
-            else if (i_ptr->tval == TV_CLOSED_DOOR) {
-                msg_print("There is a closed door blocking your way.");
-            }
-        }
-
-        /* Free move */
-        energy_use = 0;
-    }
-
-    /* Hack -- attack invisible monsters on floors */
-    else if (c_ptr->m_idx > 1) {
-
-        /* Hitting a monster is disturbing */
-        disturb(0, 0);
-
-        /* Handle fear */
-        if (p_ptr->afraid < 1) {
-            py_attack(y, x);
-        }
-        else {
-            msg_print("You are too afraid!");
-        }
-    }
-
-    /* Normal movement */
-    else {
-
-        /* Move "player" record to the new location */
-        move_rec(py, px, y, x);
-
-        /* Check for new panel (redraw map) */
-        verify_panel();
-
-#ifdef WDT_TRACK_OPTIONS
-        /* Update "tracking" code */
-        if (c_ptr->track < 10) c_ptr->track += 3;
+		/* Give some choices */
+		prt("(1) Load a user pref file", 4, 5);
+#ifdef ALLOW_VISUALS
+		prt("(2) Dump monster attr/chars", 5, 5);
+		prt("(3) Dump object attr/chars", 6, 5);
+		prt("(4) Dump feature attr/chars", 7, 5);
+		prt("(5) (unused)", 8, 5);
+		prt("(6) Change monster attr/chars", 9, 5);
+		prt("(7) Change object attr/chars", 10, 5);
+		prt("(8) Change feature attr/chars", 11, 5);
+		prt("(9) (unused)", 12, 5);
 #endif
-        
-        /* Update some things */
-        p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW);
-        p_ptr->update |= (PU_DISTANCE);
+		prt("(0) Reset visuals", 13, 5);
+
+		/* Prompt */
+		prt("Command: ", 15, 0);
+
+		/* Prompt */
+		i = inkey();
+
+		/* Done */
+		if (i == ESCAPE) break;
+
+		/* Load a 'pref' file */
+		else if (i == '1')
+		{
+			/* Prompt */
+			prt("Command: Load a user pref file", 15, 0);
+
+			/* Prompt */
+			prt("File: ", 17, 0);
+
+			/* Default filename */
+			sprintf(tmp, "%s.prf", op_ptr->base_name);
+
+			/* Query */
+			if (!askfor_aux(tmp, 80)) continue;
+
+			/* Process the given filename */
+			(void)process_pref_file(tmp);
+		}
+
+#ifdef ALLOW_VISUALS
+
+		/* Dump monster attr/chars */
+		else if (i == '2')
+		{
+			/* Prompt */
+			prt("Command: Dump monster attr/chars", 15, 0);
+
+			/* Prompt */
+			prt("File: ", 17, 0);
+
+			/* Default filename */
+			sprintf(tmp, "%s.prf", op_ptr->base_name);
+
+			/* Get a filename */
+			if (!askfor_aux(tmp, 80)) continue;
+
+			/* Build the filename */
+			path_build(buf, 1024, ANGBAND_DIR_USER, tmp);
+
+			/* Drop priv's */
+			safe_setuid_drop();
+
+			/* Append to the file */
+			fff = my_fopen(buf, "a");
+
+			/* Grab priv's */
+			safe_setuid_grab();
+
+			/* Failure */
+			if (!fff) continue;
+
+			/* Start dumping */
+			fprintf(fff, "\n\n");
+			fprintf(fff, "# Monster attr/char definitions\n\n");
+
+			/* Dump monsters */
+			for (i = 0; i < MAX_R_IDX; i++)
+			{
+				monster_race *r_ptr = &r_info[i];
+
+				/* Skip non-entries */
+				if (!r_ptr->name) continue;
+
+				/* Dump a comment */
+				fprintf(fff, "# %s\n", (r_name + r_ptr->name));
+
+				/* Dump the monster attr/char info */
+				fprintf(fff, "R:%d:0x%02X:0x%02X\n\n", i,
+				        (byte)(r_ptr->x_attr), (byte)(r_ptr->x_char));
+			}
+
+			/* All done */
+			fprintf(fff, "\n\n\n\n");
+
+			/* Close */
+			my_fclose(fff);
+
+			/* Message */
+			msg_print("Dumped monster attr/chars.");
+		}
+
+		/* Dump object attr/chars */
+		else if (i == '3')
+		{
+			/* Prompt */
+			prt("Command: Dump object attr/chars", 15, 0);
+
+			/* Prompt */
+			prt("File: ", 17, 0);
+
+			/* Default filename */
+			sprintf(tmp, "%s.prf", op_ptr->base_name);
+
+			/* Get a filename */
+			if (!askfor_aux(tmp, 80)) continue;
+
+			/* Build the filename */
+			path_build(buf, 1024, ANGBAND_DIR_USER, tmp);
+
+			/* Drop priv's */
+			safe_setuid_drop();
+
+			/* Append to the file */
+			fff = my_fopen(buf, "a");
+
+			/* Grab priv's */
+			safe_setuid_grab();
+
+			/* Failure */
+			if (!fff) continue;
+
+			/* Start dumping */
+			fprintf(fff, "\n\n");
+			fprintf(fff, "# Object attr/char definitions\n\n");
+
+			/* Dump objects */
+			for (i = 0; i < MAX_K_IDX; i++)
+			{
+				object_kind *k_ptr = &k_info[i];
+
+				/* Skip non-entries */
+				if (!k_ptr->name) continue;
+
+				/* Dump a comment */
+				fprintf(fff, "# %s\n", (k_name + k_ptr->name));
+
+				/* Dump the object attr/char info */
+				fprintf(fff, "K:%d:0x%02X:0x%02X\n\n", i,
+				        (byte)(k_ptr->x_attr), (byte)(k_ptr->x_char));
+			}
+
+			/* All done */
+			fprintf(fff, "\n\n\n\n");
+
+			/* Close */
+			my_fclose(fff);
+
+			/* Message */
+			msg_print("Dumped object attr/chars.");
+		}
+
+		/* Dump feature attr/chars */
+		else if (i == '4')
+		{
+			/* Prompt */
+			prt("Command: Dump feature attr/chars", 15, 0);
+
+			/* Prompt */
+			prt("File: ", 17, 0);
+
+			/* Default filename */
+			sprintf(tmp, "%s.prf", op_ptr->base_name);
+
+			/* Get a filename */
+			if (!askfor_aux(tmp, 80)) continue;
+
+			/* Build the filename */
+			path_build(buf, 1024, ANGBAND_DIR_USER, tmp);
+
+			/* Drop priv's */
+			safe_setuid_drop();
+
+			/* Append to the file */
+			fff = my_fopen(buf, "a");
+
+			/* Grab priv's */
+			safe_setuid_grab();
+
+			/* Failure */
+			if (!fff) continue;
+
+			/* Start dumping */
+			fprintf(fff, "\n\n");
+			fprintf(fff, "# Feature attr/char definitions\n\n");
+
+			/* Dump features */
+			for (i = 0; i < MAX_F_IDX; i++)
+			{
+				feature_type *f_ptr = &f_info[i];
+
+				/* Skip non-entries */
+				if (!f_ptr->name) continue;
+
+				/* Dump a comment */
+				fprintf(fff, "# %s\n", (f_name + f_ptr->name));
+
+				/* Dump the feature attr/char info */
+				fprintf(fff, "F:%d:0x%02X:0x%02X\n\n", i,
+				        (byte)(f_ptr->x_attr), (byte)(f_ptr->x_char));
+			}
+
+			/* All done */
+			fprintf(fff, "\n\n\n\n");
+
+			/* Close */
+			my_fclose(fff);
+
+			/* Message */
+			msg_print("Dumped feature attr/chars.");
+		}
+
+		/* Modify monster attr/chars */
+		else if (i == '6')
+		{
+			static int r = 0;
+
+			/* Prompt */
+			prt("Command: Change monster attr/chars", 15, 0);
+
+			/* Hack -- query until done */
+			while (1)
+			{
+				monster_race *r_ptr = &r_info[r];
+
+				int da = (byte)(r_ptr->d_attr);
+				int dc = (byte)(r_ptr->d_char);
+				int ca = (byte)(r_ptr->x_attr);
+				int cc = (byte)(r_ptr->x_char);
+
+				/* Label the object */
+				Term_putstr(5, 17, -1, TERM_WHITE,
+				            format("Monster = %d, Name = %-40.40s",
+				                   r, (r_name + r_ptr->name)));
+
+				/* Label the Default values */
+				Term_putstr(10, 19, -1, TERM_WHITE,
+				            format("Default attr/char = %3u / %3u", da, dc));
+				Term_putstr(40, 19, -1, TERM_WHITE, "<< ? >>");
+				Term_putch(43, 19, da, dc);
+
+				/* Label the Current values */
+				Term_putstr(10, 20, -1, TERM_WHITE,
+				            format("Current attr/char = %3u / %3u", ca, cc));
+				Term_putstr(40, 20, -1, TERM_WHITE, "<< ? >>");
+				Term_putch(43, 20, ca, cc);
+
+				/* Prompt */
+				Term_putstr(0, 22, -1, TERM_WHITE,
+				            "Command (n/N/a/A/c/C): ");
+
+				/* Get a command */
+				i = inkey();
+
+				/* All done */
+				if (i == ESCAPE) break;
+
+				/* Analyze */
+				if (i == 'n') r = (r + MAX_R_IDX + 1) % MAX_R_IDX;
+				if (i == 'N') r = (r + MAX_R_IDX - 1) % MAX_R_IDX;
+				if (i == 'a') r_ptr->x_attr = (byte)(ca + 1);
+				if (i == 'A') r_ptr->x_attr = (byte)(ca - 1);
+				if (i == 'c') r_ptr->x_char = (byte)(cc + 1);
+				if (i == 'C') r_ptr->x_char = (byte)(cc - 1);
+			}
+		}
+
+		/* Modify object attr/chars */
+		else if (i == '7')
+		{
+			static int k = 0;
+
+			/* Prompt */
+			prt("Command: Change object attr/chars", 15, 0);
+
+			/* Hack -- query until done */
+			while (1)
+			{
+				object_kind *k_ptr = &k_info[k];
+
+				int da = (byte)k_ptr->d_attr;
+				int dc = (byte)k_ptr->d_char;
+				int ca = (byte)k_ptr->x_attr;
+				int cc = (byte)k_ptr->x_char;
+
+				/* Label the object */
+				Term_putstr(5, 17, -1, TERM_WHITE,
+				            format("Object = %d, Name = %-40.40s",
+				                   k, (k_name + k_ptr->name)));
+
+				/* Label the Default values */
+				Term_putstr(10, 19, -1, TERM_WHITE,
+				            format("Default attr/char = %3d / %3d", da, dc));
+				Term_putstr(40, 19, -1, TERM_WHITE, "<< ? >>");
+				Term_putch(43, 19, da, dc);
+
+				/* Label the Current values */
+				Term_putstr(10, 20, -1, TERM_WHITE,
+				            format("Current attr/char = %3d / %3d", ca, cc));
+				Term_putstr(40, 20, -1, TERM_WHITE, "<< ? >>");
+				Term_putch(43, 20, ca, cc);
+
+				/* Prompt */
+				Term_putstr(0, 22, -1, TERM_WHITE,
+				            "Command (n/N/a/A/c/C): ");
+
+				/* Get a command */
+				i = inkey();
+
+				/* All done */
+				if (i == ESCAPE) break;
+
+				/* Analyze */
+				if (i == 'n') k = (k + MAX_K_IDX + 1) % MAX_K_IDX;
+				if (i == 'N') k = (k + MAX_K_IDX - 1) % MAX_K_IDX;
+				if (i == 'a') k_info[k].x_attr = (byte)(ca + 1);
+				if (i == 'A') k_info[k].x_attr = (byte)(ca - 1);
+				if (i == 'c') k_info[k].x_char = (byte)(cc + 1);
+				if (i == 'C') k_info[k].x_char = (byte)(cc - 1);
+			}
+		}
+
+		/* Modify feature attr/chars */
+		else if (i == '8')
+		{
+			static int f = 0;
+
+			/* Prompt */
+			prt("Command: Change feature attr/chars", 15, 0);
+
+			/* Hack -- query until done */
+			while (1)
+			{
+				feature_type *f_ptr = &f_info[f];
+
+				int da = (byte)f_ptr->d_attr;
+				int dc = (byte)f_ptr->d_char;
+				int ca = (byte)f_ptr->x_attr;
+				int cc = (byte)f_ptr->x_char;
+
+				/* Label the object */
+				Term_putstr(5, 17, -1, TERM_WHITE,
+				            format("Terrain = %d, Name = %-40.40s",
+				                   f, (f_name + f_ptr->name)));
+
+				/* Label the Default values */
+				Term_putstr(10, 19, -1, TERM_WHITE,
+				            format("Default attr/char = %3d / %3d", da, dc));
+				Term_putstr(40, 19, -1, TERM_WHITE, "<< ? >>");
+				Term_putch(43, 19, da, dc);
+
+				/* Label the Current values */
+				Term_putstr(10, 20, -1, TERM_WHITE,
+				            format("Current attr/char = %3d / %3d", ca, cc));
+				Term_putstr(40, 20, -1, TERM_WHITE, "<< ? >>");
+				Term_putch(43, 20, ca, cc);
+
+				/* Prompt */
+				Term_putstr(0, 22, -1, TERM_WHITE,
+				            "Command (n/N/a/A/c/C): ");
+
+				/* Get a command */
+				i = inkey();
+
+				/* All done */
+				if (i == ESCAPE) break;
+
+				/* Analyze */
+				if (i == 'n') f = (f + MAX_F_IDX + 1) % MAX_F_IDX;
+				if (i == 'N') f = (f + MAX_F_IDX - 1) % MAX_F_IDX;
+				if (i == 'a') f_info[f].x_attr = (byte)(ca + 1);
+				if (i == 'A') f_info[f].x_attr = (byte)(ca - 1);
+				if (i == 'c') f_info[f].x_char = (byte)(cc + 1);
+				if (i == 'C') f_info[f].x_char = (byte)(cc - 1);
+			}
+		}
+
+#endif
+
+		/* Reset visuals */
+		else if (i == '0')
+		{
+			/* Reset */
+			reset_visuals(TRUE);
+
+			/* Message */
+			msg_print("Visual attr/char tables reset.");
+		}
+
+		/* Unknown option */
+		else
+		{
+			bell("Illegal command for visuals!");
+		}
+
+		/* Flush messages */
+		msg_print(NULL);
+	}
 
 
-        /* Spontaneous Searching */
-        if ((p_ptr->skill_fos >= 50) || (0 == rand_int(50 - p_ptr->skill_fos))) {
-            search();
-        }
-    
-        /* Continuous Searching */
-        if (p_ptr->searching) {
-            search();
-        }
-
-
-        /* Handle "objects" */
-        if (c_ptr->i_idx) {
-
-            /* Enter a store */
-            if (i_ptr->tval == TV_STORE_DOOR) {
-                disturb(0, 0);
-                store_enter(i_ptr->sval - 1);
-            }
-
-            /* Set off a trap */
-            else if ((i_ptr->tval == TV_VIS_TRAP) ||
-                     (i_ptr->tval == TV_INVIS_TRAP)) {
-                disturb(0, 0);
-                hit_trap(old_row, old_col);
-            }
-
-            /* Pick up (or note) gold and objects */
-            else {
-                carry(do_pickup);
-            }
-        }
-    }
+	/* Load screen */
+	screen_load();
 }
 
 
-
 /*
- * Hack -- Do we see a wall?  Used in running.		-CJS-
+ * Interact with "colors"
  */
-static int see_wall(int dir, int y, int x)
+void do_cmd_colors(void)
 {
-    /* Get the new location */
-    y += ddy[dir];
-    x += ddx[dir];
+	int i;
 
-    /* Illegal grids are blank */
-    if (!in_bounds2(y, x)) return (FALSE);
+	FILE *fff;
 
-    /* Non-wall means non-wall */
-    if (!(cave[y][x].info & GRID_WALL_MASK)) return (FALSE);
+	char tmp[160];
 
-    /* Unknown grids are blank, and thus not walls */
-    if (!test_lite_bold(y, x)) return (FALSE);
+	char buf[1024];
 
-    /* Default */
-    return (TRUE);
+
+	/* File type is "TEXT" */
+	FILE_TYPE(FILE_TYPE_TEXT);
+
+
+	/* Save screen */
+	screen_save();
+
+
+	/* Interact until done */
+	while (1)
+	{
+		/* Clear screen */
+		Term_clear();
+
+		/* Ask for a choice */
+		prt("Interact with Colors", 2, 0);
+
+		/* Give some choices */
+		prt("(1) Load a user pref file", 4, 5);
+#ifdef ALLOW_COLORS
+		prt("(2) Dump colors", 5, 5);
+		prt("(3) Modify colors", 6, 5);
+#endif
+
+		/* Prompt */
+		prt("Command: ", 8, 0);
+
+		/* Prompt */
+		i = inkey();
+
+		/* Done */
+		if (i == ESCAPE) break;
+
+		/* Load a 'pref' file */
+		if (i == '1')
+		{
+			/* Prompt */
+			prt("Command: Load a user pref file", 8, 0);
+
+			/* Prompt */
+			prt("File: ", 10, 0);
+
+			/* Default file */
+			sprintf(tmp, "%s.prf", op_ptr->base_name);
+
+			/* Query */
+			if (!askfor_aux(tmp, 80)) continue;
+
+			/* Process the given filename */
+			(void)process_pref_file(tmp);
+
+			/* Mega-Hack -- react to changes */
+			Term_xtra(TERM_XTRA_REACT, 0);
+
+			/* Mega-Hack -- redraw */
+			Term_redraw();
+		}
+
+#ifdef ALLOW_COLORS
+
+		/* Dump colors */
+		else if (i == '2')
+		{
+			/* Prompt */
+			prt("Command: Dump colors", 8, 0);
+
+			/* Prompt */
+			prt("File: ", 10, 0);
+
+			/* Default filename */
+			sprintf(tmp, "%s.prf", op_ptr->base_name);
+
+			/* Get a filename */
+			if (!askfor_aux(tmp, 80)) continue;
+
+			/* Build the filename */
+			path_build(buf, 1024, ANGBAND_DIR_USER, tmp);
+
+			/* Drop priv's */
+			safe_setuid_drop();
+
+			/* Append to the file */
+			fff = my_fopen(buf, "a");
+
+			/* Grab priv's */
+			safe_setuid_grab();
+
+			/* Failure */
+			if (!fff) continue;
+
+			/* Start dumping */
+			fprintf(fff, "\n\n");
+			fprintf(fff, "# Color redefinitions\n\n");
+
+			/* Dump colors */
+			for (i = 0; i < 256; i++)
+			{
+				int kv = angband_color_table[i][0];
+				int rv = angband_color_table[i][1];
+				int gv = angband_color_table[i][2];
+				int bv = angband_color_table[i][3];
+
+				cptr name = "unknown";
+
+				/* Skip non-entries */
+				if (!kv && !rv && !gv && !bv) continue;
+
+				/* Extract the color name */
+				if (i < 16) name = color_names[i];
+
+				/* Dump a comment */
+				fprintf(fff, "# Color '%s'\n", name);
+
+				/* Dump the monster attr/char info */
+				fprintf(fff, "V:%d:0x%02X:0x%02X:0x%02X:0x%02X\n\n",
+				        i, kv, rv, gv, bv);
+			}
+
+			/* All done */
+			fprintf(fff, "\n\n\n\n");
+
+			/* Close */
+			my_fclose(fff);
+
+			/* Message */
+			msg_print("Dumped color redefinitions.");
+		}
+
+		/* Edit colors */
+		else if (i == '3')
+		{
+			static int a = 0;
+
+			/* Prompt */
+			prt("Command: Modify colors", 8, 0);
+
+			/* Hack -- query until done */
+			while (1)
+			{
+				cptr name;
+
+				/* Clear */
+				clear_from(10);
+
+				/* Exhibit the normal colors */
+				for (i = 0; i < 16; i++)
+				{
+					/* Exhibit this color */
+					Term_putstr(i*4, 20, -1, a, "###");
+
+					/* Exhibit all colors */
+					Term_putstr(i*4, 22, -1, i, format("%3d", i));
+				}
+
+				/* Describe the color */
+				name = ((a < 16) ? color_names[a] : "undefined");
+
+				/* Describe the color */
+				Term_putstr(5, 10, -1, TERM_WHITE,
+				            format("Color = %d, Name = %s", a, name));
+
+				/* Label the Current values */
+				Term_putstr(5, 12, -1, TERM_WHITE,
+				            format("K = 0x%02x / R,G,B = 0x%02x,0x%02x,0x%02x",
+				                   angband_color_table[a][0],
+				                   angband_color_table[a][1],
+				                   angband_color_table[a][2],
+				                   angband_color_table[a][3]));
+
+				/* Prompt */
+				Term_putstr(0, 14, -1, TERM_WHITE,
+				            "Command (n/N/k/K/r/R/g/G/b/B): ");
+
+				/* Get a command */
+				i = inkey();
+
+				/* All done */
+				if (i == ESCAPE) break;
+
+				/* Analyze */
+				if (i == 'n') a = (byte)(a + 1);
+				if (i == 'N') a = (byte)(a - 1);
+				if (i == 'k') angband_color_table[a][0] = (byte)(angband_color_table[a][0] + 1);
+				if (i == 'K') angband_color_table[a][0] = (byte)(angband_color_table[a][0] - 1);
+				if (i == 'r') angband_color_table[a][1] = (byte)(angband_color_table[a][1] + 1);
+				if (i == 'R') angband_color_table[a][1] = (byte)(angband_color_table[a][1] - 1);
+				if (i == 'g') angband_color_table[a][2] = (byte)(angband_color_table[a][2] + 1);
+				if (i == 'G') angband_color_table[a][2] = (byte)(angband_color_table[a][2] - 1);
+				if (i == 'b') angband_color_table[a][3] = (byte)(angband_color_table[a][3] + 1);
+				if (i == 'B') angband_color_table[a][3] = (byte)(angband_color_table[a][3] - 1);
+
+				/* Hack -- react to changes */
+				Term_xtra(TERM_XTRA_REACT, 0);
+
+				/* Hack -- redraw */
+				Term_redraw();
+			}
+		}
+
+#endif
+
+		/* Unknown option */
+		else
+		{
+			bell("Illegal command for colors!");
+		}
+
+		/* Flush messages */
+		msg_print(NULL);
+	}
+
+
+	/* Load screen */
+	screen_load();
 }
 
+
 /*
- * Aux routine -- Do we see anything "interesting"
+ * Note something in the message recall
  */
-static int see_nothing(int dir, int y, int x)
+void do_cmd_note(void)
 {
-    /* Get the new location */
-    y += ddy[dir];
-    x += ddx[dir];
+	char tmp[81];
 
-    /* Illegal grid are blank */
-    if (!in_bounds2(y, x)) return (TRUE);
+	/* Default */
+	strcpy(tmp, "");
 
-    /* Unknown grids are blank */
-    if (!test_lite_bold(y, x)) return (TRUE);
+	/* Input */
+	if (!get_string("Note: ", tmp, 80)) return;
 
-    /* Default */
-    return (FALSE);
+	/* Ignore empty notes */
+	if (!tmp[0] || (tmp[0] == ' ')) return;
+
+	/* Add the note to the message recall */
+	msg_format("Note: %s", tmp);
 }
 
 
-
-
-
-/* The running algorithm:			-CJS- */
-
-
 /*
-   Overview: You keep moving until something interesting happens.
-   If you are in an enclosed space, you follow corners. This is
-   the usual corridor scheme. If you are in an open space, you go
-   straight, but stop before entering enclosed space. This is
-   analogous to reaching doorways. If you have enclosed space on
-   one side only (that is, running along side a wall) stop if
-   your wall opens out, or your open space closes in. Either case
-   corresponds to a doorway.
-
-   What happens depends on what you can really SEE. (i.e. if you
-   have no light, then running along a dark corridor is JUST like
-   running in a dark room.) The algorithm works equally well in
-   corridors, rooms, mine tailings, earthquake rubble, etc, etc.
-
-   These conditions are kept in static memory:
-        find_openarea	 You are in the open on at least one
-                         side.
-        find_breakleft	 You have a wall on the left, and will
-                         stop if it opens
-        find_breakright	 You have a wall on the right, and will
-                         stop if it opens
-
-   To initialize these conditions is the task of x.
-   If moving from the square marked @ to the square marked x (in
-   the diagrams below), then two adjacent sqares on the left and
-   the right (L and R) are considered. If either one is seen to
-   be closed, then that side is considered to be closed. If both
-   sides are closed, then it is an enclosed (corridor) run.
-
-         LL		L
-        @x	       LxR
-         RR	       @R
-
-   Looking at more than just the immediate squares is
-   significant. Consider the following case. A run along the
-   corridor will stop just before entering the center point,
-   because a choice is clearly established. Running in any of
-   three available directions will be defined as a corridor run.
-   Note that a minor hack is inserted to make the angled corridor
-   entry (with one side blocked near and the other side blocked
-   further away from the runner) work correctly. The runner moves
-   diagonally, but then saves the previous direction as being
-   straight into the gap. Otherwise, the tail end of the other
-   entry would be perceived as an alternative on the next move.
-
-           #.#
-          ##.##
-          .@...
-          ##.##
-           #.#
-
-   Likewise, a run along a wall, and then into a doorway (two
-   runs) will work correctly. A single run rightwards from @ will
-   stop at 1. Another run right and down will enter the corridor
-   and make the corner, stopping at the 2.
-
-        #@	  1
-        ########### ######
-        2	    #
-        #############
-        #
-
-   After any move, the function area_affect is called to
-   determine the new surroundings, and the direction of
-   subsequent moves. It takes a location (at which the runner has
-   just arrived) and the previous direction (from which the
-   runner is considered to have come). Moving one square in some
-   direction places you adjacent to three or five new squares
-   (for straight and diagonal moves) to which you were not
-   previously adjacent.
-
-       ...!	  ...	       EG Moving from 1 to 2.
-       .12!	  .1.!		  . means previously adjacent
-       ...!	  ..2!		  ! means newly adjacent
-                   !!!
-
-   You STOP if you can't even make the move in the chosen
-   direction. You STOP if any of the new squares are interesting
-   in any way: usually containing monsters or treasure. You STOP
-   if any of the newly adjacent squares seem to be open, and you
-   are also looking for a break on that side. (i.e. find_openarea
-   AND find_break) You STOP if any of the newly adjacent squares
-   do NOT seem to be open and you are in an open area, and that
-   side was previously entirely open.
-
-   Corners: If you are not in the open (i.e. you are in a
-   corridor) and there is only one way to go in the new squares,
-   then turn in that direction. If there are more than two new
-   ways to go, STOP. If there are two ways to go, and those ways
-   are separated by a square which does not seem to be open, then
-   STOP.
-
-   Otherwise, we have a potential corner. There are two new open
-   squares, which are also adjacent. One of the new squares is
-   diagonally located, the other is straight on (as in the
-   diagram). We consider two more squares further out (marked
-   below as ?).
-
-          .X
-         @.?
-          #?
-
-   If they are both seen to be closed, then it is seen that no
-   benefit is gained from moving straight. It is a known corner.
-   To cut the corner, go diagonally, otherwise go straight, but
-   pretend you stepped diagonally into that next location for a
-   full view next time. Conversely, if one of the ? squares is
-   not seen to be closed, then there is a potential choice. We check
-   to see whether it is a potential corner or an intersection/room entrance.
-   If the square two spaces straight ahead, and the space marked with 'X'
-   are both blank, then it is a potential corner and enter if find_examine
-   is set, otherwise must stop because it is not a corner.
-*/
-
-
-
-
-/*
- * The cycle lists the directions in anticlockwise order, for over  -CJS-
- * two complete cycles.
+ * Mention the current version
  */
-static int cycle[] = {1, 2, 3, 6, 9, 8, 7, 4, 1, 2, 3, 6, 9, 8, 7, 4, 1};
-
-/*
- * The chome array maps a direction on to its position in the cycle.
- */
-static int chome[] = {-1, 8, 9, 10, 7, -1, 11, 6, 5, 4};
-
-/*
- * Some global variables
- */
-static int find_openarea, find_breakright, find_breakleft, find_prevdir;
-
-
-
-
-/*
- * Determine the next direction for a run, or if we should stop.  -CJS-
- */
-static void area_affect(int dir, int y, int x)
+void do_cmd_version(void)
 {
-    int                  newdir = 0, t, inv, check_dir = 0, row, col;
-    int         i, max, option, option2;
-
-    cave_type		*c_ptr;
-    monster_type	*m_ptr;
-
-
-    /* Hack -- blind yields disturb */
-    if (p_ptr->blind) {
-
-        disturb(0,0);
-    }
-    
-    /* Look around */
-    else {
-    
-        option = 0;
-        option2 = 0;
-        dir = find_prevdir;
-        max = (dir & 0x01) + 1;
-
-
-        /* Look at every newly adjacent square. */
-        for (i = -max; i <= max; i++) {
-
-            newdir = cycle[chome[dir] + i];
-
-            row = y + ddy[newdir];
-            col = x + ddx[newdir];
-
-            c_ptr = &cave[row][col];
-            m_ptr = &m_list[c_ptr->m_idx];
-
-            /* Hack -- notice visible monsters */
-            if ((c_ptr->m_idx > 1) && (m_ptr->ml)) {
-                disturb(0,0);
-                return;
-            }
-
-
-            /* Assume the new grid cannot be seen */
-            inv = TRUE;
-
-            /* Can we "see" (or "remember") the adjacent grid? */
-            if (test_lite_bold(row, col)) {
-
-                /* Most (visible) objects stop the running */
-                if (c_ptr->i_idx) {
-
-                    /* Examine the object */
-                    t = i_list[c_ptr->i_idx].tval;
-                    if ((t != TV_INVIS_TRAP) &&
-                        (t != TV_SECRET_DOOR) &&
-                        (t != TV_UP_STAIR || !find_ignore_stairs) &&
-                        (t != TV_DOWN_STAIR || !find_ignore_stairs) &&
-                        (t != TV_OPEN_DOOR || !find_ignore_doors)) {
-
-                        disturb(0,0);
-                        return;
-                    }
-                }
-
-                /* The grid is "visible" */
-                inv = FALSE;
-            }
-
-
-            /* If cannot see the grid, assume it is clear */
-            if (inv || floor_grid_bold(row, col)) {
-
-                /* Certain somethings */
-                if (find_openarea) {
-                    if (i < 0) {
-                        if (find_breakright) {
-                            disturb(0,0);
-                            return;
-                        }
-                    }
-                    else if (i > 0) {
-                        if (find_breakleft) {
-                            disturb(0,0);
-                            return;
-                        }
-                    }
-                }
-
-                /* The first new direction. */
-                else if (!option) {
-                    option = newdir;
-                }
-
-                /* Three new directions. Stop running. */
-                else if (option2) {
-                    disturb(0,0);
-                    return;
-                }
-
-                /* If not adjacent to prev, STOP */
-                else if (option != cycle[chome[dir] + i - 1]) {
-                    disturb(0,0);
-                    return;
-                }
-
-                /* Two adjacent choices. Make option2 the diagonal, */
-                /* and remember the other diagonal adjacent to the  */
-                /* first option. */
-                else {
-                    if ((newdir & 0x01) == 1) {
-                        check_dir = cycle[chome[dir] + i - 2];
-                        option2 = newdir;
-                    }
-                    else {
-                        check_dir = cycle[chome[dir] + i + 1];
-                        option2 = option;
-                        option = newdir;
-                    }
-                }
-            }
-
-            /* We see an obstacle.  Break to one side. */
-            /* In open area, STOP if on a side previously open. */
-            else if (find_openarea) {
-                if (i < 0) {
-                    if (find_breakleft) {
-                        disturb(0,0);
-                        return;
-                    }
-                    find_breakright = TRUE;
-                }
-                else if (i > 0) {
-                    if (find_breakright) {
-                        disturb(0,0);
-                        return;
-                    }
-                    find_breakleft = TRUE;
-                }
-            }
-        }
-
-
-        /* choose a direction. */
-        if (find_openarea == FALSE) {
-
-            /* There is only one option, or if two, then we always examine */
-            /* potential corners and never cut known corners, so you step */
-            /* into the straight option. */
-            if (option2 == 0 || (find_examine && !find_cut)) {
-                if (option != 0) command_dir = option;
-                if (option2 == 0) find_prevdir = option;
-                else find_prevdir = option2;
-            }
-
-            /* Two options! */
-            else {
-
-                /* Get next location */
-                row = y + ddy[option];
-                col = x + ddx[option];
-
-                /* Don't see that it is closed off. */
-                /* This could be a potential corner or an intersection. */
-                if (!see_wall(option, row, col) ||
-                    !see_wall(check_dir, row, col)) {
-
-                    /* Can not see anything ahead and in the direction we */
-                    /* are turning, assume that it is a potential corner. */
-                    if (find_examine &&
-                        see_nothing(option, row, col) &&
-                        see_nothing(option2, row, col)) {
-                        command_dir = option;
-                        find_prevdir = option2;
-                    }
-
-                    /* STOP: we are next to an intersection or a room */
-                    else {
-                        disturb(0,0);
-                        return;
-                    }
-                }
-
-                /* This corner is seen to be enclosed; we cut the corner. */
-                else if (find_cut) {
-                    command_dir = option2;
-                    find_prevdir = option2;
-                }
-
-                /* This corner is seen to be enclosed, and we */
-                /* deliberately go the long way. */
-                else {
-                    command_dir = option;
-                    find_prevdir = option2;
-                }
-            }
-        }
-    }
+	/* Silly message */
+	msg_format("You are playing DrAngband %d.%d.%d.  Type '?' for more info.",
+	           VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 }
 
 
 
 /*
- * Walk one step along the current running direction
- * Apply confusion, stop running if "fully" confused
- * Update the current "find" info via "area_affect()"
+ * Array of feeling strings
  */
-void find_step(void)
+static cptr do_cmd_feeling_text[11] =
 {
-    int dir;
+	"Looks like any other level.",
+	"You feel there is something special about this level.",
+	"You have a superb feeling about this level.",
+	"You have an excellent feeling...",
+	"You have a very good feeling...",
+	"You have a good feeling...",
+	"You feel strangely lucky...",
+	"You feel your luck is turning...",
+	"You like the look of this place...",
+	"This level can't be all bad...",
+	"What a boring place..."
+};
 
-    /* Get the desired direction */
-    dir = command_dir;
 
-    /* Apply confusion */
-    confuse_dir(&dir, 0x02);
+/*
+ * Note that "feeling" is set to zero unless some time has passed.
+ * Note that this is done when the level is GENERATED, not entered.
+ */
+void do_cmd_feeling(void)
+{
+	/* Verify the feeling */
+	if (feeling < 0) feeling = 0;
+	if (feeling > 10) feeling = 10;
 
-    /* Confusion cancels running */
-    if (dir != command_dir) disturb(0,0);
+	/* No useful feeling in town */
+	if (!p_ptr->depth)
+	{
+		msg_print("Looks like a typical town.");
+		return;
+	}
 
-    /* Move the player, using the "pickup" flag */
-    move_player(dir, always_pickup);
+	/* Display the feeling */
+	msg_print(do_cmd_feeling_text[feeling]);
+}
 
-    /* Important -- Handle stuff */
-    handle_stuff();
 
-    /* Check to see if he should stop running */
-    if (find_flag) area_affect(dir, py, px);
 
-    /* Hack -- run out of breath */
-    if (find_flag && (--command_arg <= 0)) {
-        msg_print("You stop running to catch your breath.");
-        disturb(0,0);
-    }
 
-    /* Hack -- refresh */
-    if (fresh_find) {
 
-        /* Hack -- Hilite the player */
-        move_cursor_relative(py, px);
-            
-        /* Refresh */
-        Term_fresh();
-    }
+/*
+ * Encode the screen colors
+ */
+static char hack[17] = "dwsorgbuDWvyRGBU";
+
+
+/*
+ * Hack -- load a screen dump from a file
+ */
+void do_cmd_load_screen(void)
+{
+	int i, y, x;
+
+	byte a = 0;
+	char c = ' ';
+
+	bool okay = TRUE;
+
+	FILE *fff;
+
+	char buf[1024];
+
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_USER, "dump.txt");
+
+	/* Append to the file */
+	fff = my_fopen(buf, "r");
+
+	/* Oops */
+	if (!fff) return;
+
+
+	/* Save screen */
+	screen_save();
+
+
+	/* Clear the screen */
+	Term_clear();
+
+
+	/* Load the screen */
+	for (y = 0; okay && (y < 24); y++)
+	{
+		/* Get a line of data */
+		if (my_fgets(fff, buf, 1024)) okay = FALSE;
+
+		/* Show each row */
+		for (x = 0; x < 79; x++)
+		{
+			/* Put the attr/char */
+			Term_draw(x, y, TERM_WHITE, buf[x]);
+		}
+	}
+
+	/* Get the blank line */
+	if (my_fgets(fff, buf, 1024)) okay = FALSE;
+
+
+	/* Dump the screen */
+	for (y = 0; okay && (y < 24); y++)
+	{
+		/* Get a line of data */
+		if (my_fgets(fff, buf, 1024)) okay = FALSE;
+
+		/* Dump each row */
+		for (x = 0; x < 79; x++)
+		{
+			/* Get the attr/char */
+			(void)(Term_what(x, y, &a, &c));
+
+			/* Look up the attr */
+			for (i = 0; i < 16; i++)
+			{
+				/* Use attr matches */
+				if (hack[i] == buf[x]) a = i;
+			}
+
+			/* Put the attr/char */
+			Term_draw(x, y, a, c);
+		}
+
+		/* End the row */
+		fprintf(fff, "\n");
+	}
+
+
+	/* Get the blank line */
+	if (my_fgets(fff, buf, 1024)) okay = FALSE;
+
+
+	/* Close it */
+	my_fclose(fff);
+
+
+	/* Message */
+	msg_print("Screen dump loaded.");
+	msg_print(NULL);
+
+
+	/* Load screen */
+	screen_load();
 }
 
 
 /*
- * Initialize the running algorithm, do NOT take any steps.
+ * Hack -- save a screen dump to a file
+ */
+void do_cmd_save_screen(void)
+{
+	int y, x;
+
+	byte a = 0;
+	char c = ' ';
+
+	FILE *fff;
+
+	char buf[1024];
+
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_USER, "dump.txt");
+
+	/* File type is "TEXT" */
+	FILE_TYPE(FILE_TYPE_TEXT);
+
+	/* Hack -- drop permissions */
+	safe_setuid_drop();
+
+	/* Append to the file */
+	fff = my_fopen(buf, "w");
+
+	/* Hack -- grab permissions */
+	safe_setuid_grab();
+
+	/* Oops */
+	if (!fff) return;
+
+
+	/* Save screen */
+	screen_save();
+
+
+	/* Dump the screen */
+	for (y = 0; y < 24; y++)
+	{
+		/* Dump each row */
+		for (x = 0; x < 79; x++)
+		{
+			/* Get the attr/char */
+			(void)(Term_what(x, y, &a, &c));
+
+			/* Dump it */
+			buf[x] = c;
+		}
+
+		/* Terminate */
+		buf[x] = '\0';
+
+		/* End the row */
+		fprintf(fff, "%s\n", buf);
+	}
+
+	/* Skip a line */
+	fprintf(fff, "\n");
+
+
+	/* Dump the screen */
+	for (y = 0; y < 24; y++)
+	{
+		/* Dump each row */
+		for (x = 0; x < 79; x++)
+		{
+			/* Get the attr/char */
+			(void)(Term_what(x, y, &a, &c));
+
+			/* Dump it */
+			buf[x] = hack[a&0x0F];
+		}
+
+		/* Terminate */
+		buf[x] = '\0';
+
+		/* End the row */
+		fprintf(fff, "%s\n", buf);
+	}
+
+	/* Skip a line */
+	fprintf(fff, "\n");
+
+
+	/* Close it */
+	my_fclose(fff);
+
+
+	/* Message */
+	msg_print("Screen dump saved.");
+	msg_print(NULL);
+
+
+	/* Load screen */
+	screen_load();
+}
+
+
+
+
+/*
+ * Display known artifacts
+ */
+static void do_cmd_knowledge_artifacts(void)
+{
+	int i, k, z, x, y;
+
+	FILE *fff;
+
+	char file_name[1024];
+
+	char o_name[80];
+
+	bool okay[MAX_A_IDX];
+
+
+	/* Temporary file */
+	if (path_temp(file_name, 1024)) return;
+
+	/* Open a new file */
+	fff = my_fopen(file_name, "w");
+
+	/* Scan the artifacts */
+	for (k = 0; k < MAX_A_IDX; k++)
+	{
+		artifact_type *a_ptr = &a_info[k];
+
+		/* Default */
+		okay[k] = FALSE;
+
+		/* Skip "empty" artifacts */
+		if (!a_ptr->name) continue;
+
+		/* Skip "uncreated" artifacts */
+		if (!a_ptr->cur_num) continue;
+
+		/* Assume okay */
+		okay[k] = TRUE;
+	}
+
+	/* Check the dungeon */
+	for (y = 0; y < DUNGEON_HGT; y++)
+	{
+		for (x = 0; x < DUNGEON_WID; x++)
+		{
+			s16b this_o_idx, next_o_idx = 0;
+
+			/* Scan all objects in the grid */
+			for (this_o_idx = cave_o_idx[y][x]; this_o_idx; this_o_idx = next_o_idx)
+			{
+				object_type *o_ptr;
+
+				/* Acquire object */
+				o_ptr = &o_list[this_o_idx];
+
+				/* Acquire next object */
+				next_o_idx = o_ptr->next_o_idx;
+
+				/* Ignore non-artifacts */
+				if (!artifact_p(o_ptr)) continue;
+
+				/* Ignore known items */
+				if (object_known_p(o_ptr)) continue;
+
+				/* Note the artifact */
+				okay[o_ptr->name1] = FALSE;
+			}
+		}
+	}
+
+	/* Check the inventory and equipment */
+	for (i = 0; i < INVEN_TOTAL; i++)
+	{
+		object_type *o_ptr = &inventory[i];
+
+		/* Ignore non-objects */
+		if (!o_ptr->k_idx) continue;
+
+		/* Ignore non-artifacts */
+		if (!artifact_p(o_ptr)) continue;
+
+		/* Ignore known items */
+		if (object_known_p(o_ptr)) continue;
+
+		/* Note the artifact */
+		okay[o_ptr->name1] = FALSE;
+	}
+
+	/* Scan the artifacts */
+	for (k = 0; k < MAX_A_IDX; k++)
+	{
+		artifact_type *a_ptr = &a_info[k];
+
+		/* List "dead" ones */
+		if (!okay[k]) continue;
+
+		/* Paranoia */
+		strcpy(o_name, "Unknown Artifact");
+
+		/* Obtain the base object type */
+		z = lookup_kind(a_ptr->tval, a_ptr->sval);
+
+		/* Real object */
+		if (z)
+		{
+			object_type *i_ptr;
+			object_type object_type_body;
+
+			/* Get local object */
+			i_ptr = &object_type_body;
+
+			/* Create fake object */
+			object_prep(i_ptr, z);
+
+			/* Make it an artifact */
+			i_ptr->name1 = k;
+
+			/* Describe the artifact */
+			object_desc_store(o_name, i_ptr, FALSE, 0);
+		}
+
+		/* Hack -- Build the artifact name */
+		fprintf(fff, "     The %s\n", o_name);
+	}
+
+	/* Close the file */
+	my_fclose(fff);
+
+	/* Display the file contents */
+	show_file(file_name, "Known artifacts", 0, 0);
+
+	/* Remove the file */
+	fd_kill(file_name);
+}
+
+
+/*
+ * Display known uniques
  *
- * Note that we use "command_arg" as a "limit" on running time.
- * If "command_arg" is zero (as usual) then impose no limit.
+ * Note that the player ghosts are ignored.  XXX XXX XXX
  */
-void find_init()
+static void do_cmd_knowledge_uniques(void)
 {
-    int          dir, row, col, deepleft, deepright;
-    int		i, shortleft, shortright;
+	int k;
+
+	FILE *fff;
+
+	char file_name[1024];
 
 
-    /* Start running */
-    find_flag = 1;
+	/* Temporary file */
+	if (path_temp(file_name, 1024)) return;
 
+	/* Open a new file */
+	fff = my_fopen(file_name, "w");
 
-    /* Extract the desired direction */
-    dir = command_dir;
+	/* Scan the monster races */
+	for (k = 1; k < MAX_R_IDX-1; k++)
+	{
+		monster_race *r_ptr = &r_info[k];
 
-    /* Find the destination grid */
-    row = py + ddy[dir];
-    col = px + ddx[dir];
+		/* Only print Uniques */
+		if (r_ptr->flags1 & (RF1_UNIQUE))
+		{
+			bool dead = (r_ptr->max_num == 0);
 
-    /* XXX Un-indent */
-    if (TRUE) {
+			/* Only display "known" uniques */
+			if (dead || cheat_know || r_ptr->r_sights)
+			{
+				/* Print a message */
+				fprintf(fff, "     %s is %s\n",
+				        (r_name + r_ptr->name),
+				        (dead ? "dead" : "alive"));
+			}
+		}
+	}
 
-        find_breakright = find_breakleft = FALSE;
-        find_prevdir = dir;
+	/* Close the file */
+	my_fclose(fff);
 
-        /* Look around unless blind */
-        if (p_ptr->blind < 1) {
+	/* Display the file contents */
+	show_file(file_name, "Known Uniques", 0, 0);
 
-            i = chome[dir];
-            deepleft = deepright = FALSE;
-            shortright = shortleft = FALSE;
-
-            if (see_wall(cycle[i + 1], py, px)) {
-                find_breakleft = TRUE;
-                shortleft = TRUE;
-            }
-            else if (see_wall(cycle[i + 1], row, col)) {
-                find_breakleft = TRUE;
-                deepleft = TRUE;
-            }
-
-            if (see_wall(cycle[i - 1], py, px)) {
-                find_breakright = TRUE;
-                shortright = TRUE;
-            }
-            else if (see_wall(cycle[i - 1], row, col)) {
-                find_breakright = TRUE;
-                deepright = TRUE;
-            }
-
-            if (find_breakleft && find_breakright) {
-
-                find_openarea = FALSE;
-
-                /* a hack to allow angled corridor entry */
-                if (dir & 0x01) {
-                    if (deepleft && !deepright) {
-                        find_prevdir = cycle[i - 1];
-                    }
-                    else if (deepright && !deepleft) {
-                        find_prevdir = cycle[i + 1];
-                    }
-                }
-
-                /* else if there is a wall two spaces ahead and seem to be in a */
-                /* corridor, then force a turn into the side corridor, must be */
-                /* moving straight into a corridor here */
-
-                else if (see_wall(cycle[i], row, col)) {
-                    if (shortleft && !shortright) {
-                        find_prevdir = cycle[i - 2];
-                    }
-                    else if (shortright && !shortleft) {
-                        find_prevdir = cycle[i + 2];
-                    }
-                }
-            }
-            else {
-                find_openarea = TRUE;
-            }
-        }
-    }
+	/* Remove the file */
+	fd_kill(file_name);
 }
 
 
 /*
- * Stop running.  Fix the lights and monsters.
+ * Display known objects
  */
-void end_find()
+static void do_cmd_knowledge_objects(void)
 {
-    /* Were we running? */
-    if (find_flag) {
+	int k;
 
-        /* Cancel the running */
-        find_flag = 0;
+	FILE *fff;
 
-        /* Hack -- Redraw the player */
-        lite_spot(py, px);
+	char o_name[80];
 
-        /* Fix the lite radius */
-        if (view_reduce_lite) extract_cur_lite();
-        
-        /* Update the view/lite */
-        if (view_reduce_view) p_ptr->update |= (PU_VIEW | PU_MONSTERS);
-        if (view_reduce_lite) p_ptr->update |= (PU_LITE | PU_MONSTERS);
-    }
+	char file_name[1024];
+
+
+	/* Temporary file */
+	if (path_temp(file_name, 1024)) return;
+
+	/* Open a new file */
+	fff = my_fopen(file_name, "w");
+
+	/* Scan the object kinds */
+	for (k = 1; k < MAX_K_IDX; k++)
+	{
+		object_kind *k_ptr = &k_info[k];
+
+		/* Hack -- skip artifacts */
+		if (k_ptr->flags3 & (TR3_INSTA_ART)) continue;
+
+		/* List known flavored objects */
+		if (k_ptr->flavor && k_ptr->aware)
+		{
+			object_type *i_ptr;
+			object_type object_type_body;
+
+			/* Get local object */
+			i_ptr = &object_type_body;
+
+			/* Create fake object */
+			object_prep(i_ptr, k);
+
+			/* Describe the object */
+			object_desc_store(o_name, i_ptr, FALSE, 0);
+
+			/* Print a message */
+			fprintf(fff, "     %s\n", o_name);
+		}
+	}
+
+	/* Close the file */
+	my_fclose(fff);
+
+	/* Display the file contents */
+	show_file(file_name, "Known Objects", 0, 0);
+
+	/* Remove the file */
+	fd_kill(file_name);
 }
 
 
+/*
+ * Interact with "knowledge"
+ */
+void do_cmd_knowledge(void)
+{
+	int i;
 
+
+	/* File type is "TEXT" */
+	FILE_TYPE(FILE_TYPE_TEXT);
+
+
+	/* Save screen */
+	screen_save();
+
+
+	/* Interact until done */
+	while (1)
+	{
+		/* Clear screen */
+		Term_clear();
+
+		/* Ask for a choice */
+		prt("Display current knowledge", 2, 0);
+
+		/* Give some choices */
+		prt("(1) Display known artifacts", 4, 5);
+		prt("(2) Display known uniques", 5, 5);
+		prt("(3) Display known objects", 6, 5);
+
+		/* Prompt */
+		prt("Command: ", 8, 0);
+
+		/* Prompt */
+		i = inkey();
+
+		/* Done */
+		if (i == ESCAPE) break;
+
+		/* Artifacts */
+		if (i == '1')
+		{
+			/* Spawn */
+			do_cmd_knowledge_artifacts();
+		}
+
+		/* Uniques */
+		else if (i == '2')
+		{
+			/* Spawn */
+			do_cmd_knowledge_uniques();
+		}
+
+		/* Objects */
+		else if (i == '3')
+		{
+			/* Spawn */
+			do_cmd_knowledge_objects();
+		}
+
+		/* Unknown option */
+		else
+		{
+			bell("Illegal command for knowledge!");
+		}
+
+		/* Flush messages */
+		msg_print(NULL);
+	}
+
+
+	/* Load screen */
+	screen_load();
+}
 
 

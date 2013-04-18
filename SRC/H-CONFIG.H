@@ -8,83 +8,129 @@
  * Also, choose various "system level" compilation options.
  * A lot of these definitions take effect in "h-system.h"
  *
- * Note that you may find it simpler to define some of these
- * options in the "Makefile", especially any options describing
- * what "system" is being used.
+ * Note that most of these "options" are defined by the compiler,
+ * the "Makefile", the "project file", or something similar, and
+ * should not be defined by the user.
  */
 
 
 /*
- * no system definitions are needed for 4.3BSD, SUN OS, DG/UX
+ * OPTION: Compile on a Macintosh machine
  */
-
-/*
- * OPTION: Compile on a Macintosh
- */
+#ifndef MACINTOSH
 /* #define MACINTOSH */
+#endif
 
 /*
- * OPTION: Compile on Windows (automatic)
+ * OPTION: Compile on a Windows machine
  */
+#ifndef WINDOWS
 /* #define WINDOWS */
+#endif
 
 /*
- * OPTION: Compile on an IBM (automatic)
+ * OPTION: Compile on an MSDOS machine
  */
+#ifndef MSDOS
 /* #define MSDOS */
-
-/*
- * OPTION: Compile on a SYS V version of UNIX
- */
-/* #define SYS_V */
+#endif
 
 /*
  * OPTION: Compile on a SYS III version of UNIX
  */
+#ifndef SYS_III
 /* #define SYS_III */
+#endif
 
 /*
- * OPTION: Compile on an ATARI ST with Mark Williams C
- * Warning: This option has not been tested recently
+ * OPTION: Compile on a SYS V version of UNIX
  */
-/* #define ATARIST_MWC */
+#ifndef SYS_V
+/* #define SYS_V */
+#endif
 
 /*
  * OPTION: Compile on a HPUX version of UNIX
  */
+#ifndef HPUX
 /* #define HPUX */
+#endif
 
 /*
  * OPTION: Compile on an SGI running IRIX
  */
+#ifndef SGI
 /* #define SGI */
+#endif
 
 /*
- * OPTION: Compile on Solaris, treat it as System V
+ * OPTION: Compile on a SunOS machine
  */
+#ifndef SUNOS
+/* #define SUNOS */
+#endif
+
+/*
+ * OPTION: Compile on a Solaris machine
+ */
+#ifndef SOLARIS
 /* #define SOLARIS */
+#endif
 
 /*
  * OPTION: Compile on an ultrix/4.2BSD/Dynix/etc. version of UNIX,
- * Do not define this if you are on any kind of SUN OS.
+ * Do not define this if you are on any kind of SunOS.
  */
-/* #define ultrix */
+#ifndef ULTRIX
+/* #define ULTRIX */
+#endif
+
 
 
 /*
- * OPTION: Compile on Pyramid, treat it as Ultrix
+ * Extract the "SUNOS" flag from the compiler
  */
-#if defined(Pyramid)
-# define ultrix
+#if defined(sun)
+# ifndef SUNOS
+#   define SUNOS
+# endif
 #endif
 
 /*
- * Hack -- treat "SOLARIS" as a form of "SYS_V"
+ * Extract the "ULTRIX" flag from the compiler
  */
-#if defined(SOLARIS)
-# define SYS_V
+#if defined(ultrix) || defined(Pyramid)
+# ifndef ULTRIX
+#  define ULTRIX
+# endif
 #endif
 
+/*
+ * Extract the "ATARI" flag from the compiler [cjh]
+ */
+#if defined(__atarist) || defined(__atarist__)
+# ifndef ATARI
+#  define ATARI
+# endif
+#endif
+
+/*
+ * Extract the "ACORN" flag from the compiler
+ */
+#ifdef __riscos
+# ifndef ACORN
+#  define ACORN
+# endif
+#endif
+
+/*
+ * Extract the "SGI" flag from the compiler
+ */
+#ifdef sgi
+# ifndef SGI
+#  define SGI
+# endif
+#endif
 
 /*
  * Extract the "MSDOS" flag from the compiler
@@ -96,25 +142,34 @@
 #endif
 
 /*
- * Set up for Win32: not really MSDOS, but this works
+ * Extract the "WINDOWS" flag from the compiler
  */
-#ifdef __WIN32__
-# ifndef _Windows
-#  define _Windows
-# endif
-# ifndef MSDOS
-#  define MSDOS
-# endif
-#endif
-
-/*
- * Set up for Windows
- */
-#ifdef _Windows
+#if defined(_Windows) || defined(__WINDOWS__) || \
+    defined(__WIN32__) || defined(WIN32) || \
+    defined(__WINNT__) || defined(__NT__)
 # ifndef WINDOWS
 #  define WINDOWS
 # endif
 #endif
+
+/*
+ * Remove the MSDOS flag when using WINDOWS
+ */
+#ifdef WINDOWS
+# ifdef MSDOS
+#  undef MSDOS
+# endif
+#endif
+
+/*
+ * Remove the WINDOWS flag when using MACINTOSH
+ */
+#ifdef MACINTOSH
+# ifdef WINDOWS
+#  undef WINDOWS
+# endif
+#endif
+
 
 
 /*
@@ -129,77 +184,112 @@
 
 
 /*
- * OPTION: set "SET_UID" if the machine is a "multi-user" machine
- * Assume this is a multi-user machine, then cancel if necessary.
+ * OPTION: set "SET_UID" if the machine is a "multi-user" machine.
  * This option is used to verify the use of "uids" and "gids" for
  * various "Unix" calls, and of "pids" for getting a random seed,
  * and of the "umask()" call for various reasons, and to guess if
  * the "kill()" function is available, and for permission to use
  * functions to extract user names and expand "tildes" in filenames.
- * Basically, SET_UID should *only* be TRUE for "Unix" machines
+ * It is also used for "locking" and "unlocking" the score file.
+ * Basically, SET_UID should *only* be set for "Unix" machines,
+ * or for the "Atari" platform which is Unix-like, apparently
  */
-#undef SET_UID
-#define SET_UID
-#if defined(MACINTOSH) || defined(MSDOS) || defined(AMIGA) || \
-    defined(__MINT__) || defined(__EMX__) || defined(WINDOWS)
-# undef SET_UID
+#if !defined(MACINTOSH) && !defined(WINDOWS) && \
+    !defined(MSDOS) && !defined(USE_EMX) && \
+    !defined(AMIGA) && !defined(ACORN) && !defined(VM)
+# define SET_UID
 #endif
-
 
 
 /*
- * Lots of systems use USG, whatever that means
+ * OPTION: Set "USG" for "System V" versions of Unix
+ * This is used to choose a "lock()" function, and to choose
+ * which header files ("string.h" vs "strings.h") to include.
+ * It is also used to allow certain other options, such as options
+ * involving userid's, or multiple users on a single machine, etc.
  */
-#if defined(MACINTOSH) || defined(MSDOS) || defined(AMIGA) || \
-    defined (__MINT__) || defined(__EMX__) || \
-    defined(SYS_III) || defined(SYS_V) || defined(HPUX) || \
-    defined(ATARIST_MWC) || defined(SGI)
-# undef USG
-# define USG
+#ifdef SET_UID
+# if defined(SYS_III) || defined(SYS_V) || defined(SOLARIS) || \
+     defined(HPUX) || defined(SGI) || defined(ATARI)
+#  ifndef USG
+#   define USG
+#  endif
+# endif
 #endif
-
 
 
 /*
  * Every system seems to use its own symbol as a path separator.
  * Default to the standard Unix slash, but attempt to change this
- * for various other systems.
+ * for various other systems.  Note that any system that uses the
+ * "period" as a separator (i.e. ACORN) will have to pretend that
+ * it uses the slash, and do its own mapping of period <-> slash.
+ * Note that the VM system uses a "flat" directory, and thus uses
+ * the empty string for "PATH_SEP".
  */
 #undef PATH_SEP
 #define PATH_SEP "/"
-#if defined(MSDOS) || defined(OS2) || defined(__EMX__)
+#ifdef MACINTOSH
+# undef PATH_SEP
+# define PATH_SEP ":"
+#endif
+#if defined(WINDOWS) || defined(WINNT)
 # undef PATH_SEP
 # define PATH_SEP "\\"
 #endif
-#if defined(WINNT)
+#if defined(MSDOS) || defined(OS2) || defined(USE_EMX)
 # undef PATH_SEP
 # define PATH_SEP "\\"
-#endif
-#if defined(ATARIST_MWC) || defined(ATARI) || defined(ATARIST)
-# undef PATH_SEP
-# define PATH_SEP "\\"
-#endif
-#ifdef __GO32__
-# undef PATH_SEP
-# define PATH_SEP "/"
 #endif
 #ifdef AMIGA
 # undef PATH_SEP
 # define PATH_SEP "/"
 #endif
-#ifdef MACINTOSH
+#ifdef __GO32__
 # undef PATH_SEP
-# define PATH_SEP ":"
+# define PATH_SEP "/"
+#endif
+#ifdef VM
+# undef PATH_SEP
+# define PATH_SEP ""
 #endif
 
 
 /*
- * OPTION: Hack -- Make sure "strchr" will work
+ * The Macintosh allows the use of a "file type" when creating a file
  */
-#if defined(SYS_V) || defined(MSDOS)
-# if !defined(SOLARIS) && !defined(__TURBOC__) && !defined(__WATCOMC__)
-#  define strchr index
+#if defined(MACINTOSH) && !defined(applec)
+# define FILE_TYPE_TEXT 'TEXT'
+# define FILE_TYPE_DATA 'DATA'
+# define FILE_TYPE_SAVE 'SAVE'
+# define FILE_TYPE(X) (_ftype = (X))
+#else
+# define FILE_TYPE(X) ((void)0)
+#endif
+
+
+/*
+ * OPTION: Hack -- Make sure "strchr()" and "strrchr()" will work
+ */
+#if defined(SYS_III) || defined(SYS_V) || defined(MSDOS)
+# if !defined(__TURBOC__) && !defined(__WATCOMC__) && !defined(__DJGPP__)
+#  define strchr(S,C) index((S),(C))
+#  define strrchr(S,C) rindex((S),(C))
 # endif
+#endif
+
+
+/*
+ * OPTION: Define "HAS_STRICMP" only if "stricmp()" exists.
+ */
+/* #define HAS_STRICMP */
+
+/*
+ * Linux has "stricmp()" with a different name
+ */
+#if defined(linux)
+# define HAS_STRICMP
+# define stricmp(S,T) strcasecmp((S),(T))
 #endif
 
 
@@ -211,10 +301,14 @@
 
 /*
  * OPTION: Define "HAS_USLEEP" only if "usleep()" exists.
+ *
+ * Note that this is only relevant for "SET_UID" machines.
+ * Note that new "SOLARIS" and "SGI" machines have "usleep()".
  */
-#if !defined(HPUX) && !defined(ultrix) && !defined(SOLARIS) && \
-    !defined(SGI) && !defined(ISC)
-# define HAS_USLEEP
+#ifdef SET_UID
+# if !defined(HPUX) && !defined(ULTRIX) && !defined(ISC)
+#  define HAS_USLEEP
+# endif
 #endif
 
 

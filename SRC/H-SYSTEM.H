@@ -12,7 +12,8 @@
  * This file is a big hack to make other files less of a hack.
  * This file has been rebuilt -- it may need a little more work.
  *
- * It is (very) unlikely that VMS will work without help.
+ * It is (very) unlikely that VMS will work without help, primarily
+ * because VMS does not use the "ASCII" character set.
  */
 
 
@@ -27,18 +28,18 @@
 #endif
 
 
-#if defined(SET_UID)
+#ifdef SET_UID
 
 # include <sys/types.h>
 
-# if defined(Pyramid) || defined(NeXT) || defined(sun) || \
-    defined(NCR3K) || defined(linux) || defined(ibm032) || \
-    defined(__osf__) || defined(ISC) || defined(SGI)
+# if defined(Pyramid) || defined(NeXT) || defined(SUNOS) || \
+     defined(NCR3K) || defined(SUNOS) || defined(ibm032) || \
+     defined(__osf__) || defined(ISC) || defined(SGI) || \
+     defined(linux)
 #  include <sys/time.h>
 # endif
 
-# if !defined(MACINTOSH) && !defined(AMIGA) && \
-    !defined(sgi) && !defined(ultrix)
+# if !defined(SGI) && !defined(ULTRIX)
 #  include <sys/timeb.h>
 # endif
 
@@ -53,15 +54,12 @@
 # include <unix.h>
 #endif
 
-#ifdef MSDOS
+#if defined(WINDOWS) || defined(MSDOS) || defined(USE_EMX)
 # include <io.h>
 #endif
 
-#if defined(__MINT__)
-# include <support.h>
-#endif
-
-#if !defined(MACINTOSH) && !defined(AMIGA)
+#if !defined(MACINTOSH) && !defined(AMIGA) && \
+    !defined(ACORN) && !defined(VM) && !defined(__MWERKS__)
 # if defined(__TURBOC__) || defined(__WATCOMC__)
 #  include <mem.h>
 # else
@@ -70,18 +68,15 @@
 #endif
 
 
-#if !defined(NeXT) && !defined(__MWERKS__) && !defined(ATARIST_MWC)
+#if !defined(NeXT) && !defined(__MWERKS__) && !defined(ACORN)
 # include <fcntl.h>
 #endif
 
 
-#if defined(SET_UID)
+#ifdef SET_UID
 
 # ifndef USG
 #  include <sys/param.h>
-# endif
-
-# ifndef USG
 #  include <sys/file.h>
 # endif
 
@@ -102,26 +97,33 @@
 #endif
 
 
+#ifdef SET_UID
 
-#ifdef USG
-# ifdef ATARIST_MWC
-   extern char *strcat();
-   extern char *strcpy();
-# else
+# ifdef USG
 #  include <string.h>
+# else
+#  include <strings.h>
+extern char *strstr();
+extern char *strchr();
+extern char *strrchr();
 # endif
+
 #else
-# include <strings.h>
-  extern char *strchr();
-  extern char *strstr();
+
+# include <string.h>
+
+#endif
+
+
+
+#if !defined(linux) && !defined(__MWERKS__) && !defined(ACORN)
+extern long atol();
 #endif
 
 
-#if !defined(linux) && !defined(__MWERKS__)
-  extern long atol();
-#endif
-
+#include <stdarg.h>
 
 
 #endif
+
 

@@ -1,17 +1,24 @@
 /* File z-util.h */
 
+/*
+ * Copyright (c) 1997 Ben Harrison
+ *
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.
+ */
+
 #ifndef INCLUDED_Z_UTIL_H
 #define INCLUDED_Z_UTIL_H
 
-#include "h-include.h"
+#include "h-basic.h"
 
 
 /*
- * Extremely basic stuff, like global tmp and constant variables.
- * Also, some useful low level functions like streq() and such.
- * These can all be used as addressable functions.
+ * Extremely basic stuff, like global temp and constant variables.
+ * Also, some very useful low level functions, such as "streq()".
+ * All variables and functions in this file are "addressable".
  */
-
 
 
 /**** Available variables ****/
@@ -44,9 +51,9 @@ extern cptr argv0;
 
 
 /* Aux functions */
-extern func_void plog_aux;
-extern func_void quit_aux;
-extern func_void core_aux;
+extern void (*plog_aux)(cptr);
+extern void (*quit_aux)(cptr);
+extern void (*core_aux)(cptr);
 
 
 /**** Available Functions ****/
@@ -63,25 +70,17 @@ extern errr func_failure(void);
 extern bool func_true(void);
 extern bool func_false(void);
 
-/* Parse a long from a string, return chars used */
-extern sint long_parse(long *lp, cptr str);
-
 
 /* Test equality, prefix, suffix */
-extern bool streq(cptr a, cptr b);
-extern bool prefix(cptr big, cptr small);
-extern bool suffix(cptr big, cptr small);
+extern bool streq(cptr s, cptr t);
+extern bool prefix(cptr s, cptr t);
+extern bool suffix(cptr s, cptr t);
 
-#if 0
-#ifndef HAS_STRICMP
-extern int stricmp(cptr a, cptr b);
-#endif
-#endif
 
 /* Print an error message */
 extern void plog(cptr str);
 
-/* Exit, perhaps with a message */
+/* Exit, with optional message */
 extern void quit(cptr str);
 
 /* Dump core, with optional message */
@@ -90,4 +89,5 @@ extern void core(cptr str);
 
 
 #endif
+
 

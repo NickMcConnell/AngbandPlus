@@ -1,0 +1,32 @@
+A guide to DrAngband for experienced Angbanders
+-----------------------------------------------
+v2.9.0
+------
+
+Most of the stuff that applied to angband will apply to DrAngband
+but a few fundamental concepts are different:
+
+Resistances
+-----------
+
+Previously, resistances cut damage to one third regardless of how many of the
+same were posessed. Temporary resistances cut the damage to one ninth.
+In drangband each instance of a resistance cuts the damage by a half. For
+example, a character posessing 2 resistances to fire and a temporary
+resistance to fire will have fire damage reduced to 12.5%. Immunities
+cut damage to zero as before.
+Immunities are shown in the resistances screen as '*' and temporary resistances
+as '#'.
+
+Melee Slays
+-----------
+
+Slays (eg Slay Orc) and brands are now applied to the entire melee damage 
+rather than just the base dice rolls. They have been reduced from a maximum
+of three to max 2. This does not apply to ammo, which has slays of the
+same power as normal and applied the normal way.
+
+
+Rod Stacking
+------------
+

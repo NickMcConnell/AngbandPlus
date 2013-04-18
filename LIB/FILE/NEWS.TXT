@@ -1,20 +1,24 @@
-                        ***********************
-                        **   DrAngband 2.0   **
-                        ***********************
-        Based on Umoria: Copyright (c) 1985 Robert Alan Koeneke
-                         Copyright (c) 1989 James E. Wilson
-        Hacked By:          Alex Cutler, Andy Astrand
-        Further Hacks By:   Sean Marsh, Geoff Hill
-        Bug fixes:          Charles Teague, David Kahane
-        Mac/X11 Ports:      Keith Randall, Ben Harrison
-        Recent Maintainer:  Charles Swiger
-        Based on Angband 2.7.8b2:
-                Current Maintainer: Ben Harrison
-"This beta version of Angband 2.7.8 can be viewed as a (heavily) modified 
- copy of MacAngband 2.6.1.  Thus there are pieces derived from many places, 
- such as the "net", PC Angband 1.40, UMoria 5.5, and FAngband. This version 
- "works" on Macintosh/Unix/Linux/Curses/X11/Windows/IBM/etc."
+                                 ----------
+ /==============================//////\\\\\\=================================\
+ ||/================================/||\===================================\||
+ |||                                 ||                                    |||
+ |||     -- DrAngband 2.9.0  --      ||                                    |||
+ |||                                 ||  Based on Moria: Copyright (c)     |||
+ |||  2.9.0+ by Tom Morton           ||  1985 Robert Alan Koeneke          |||
+ |||  2.1.0  by Aaron Mandelbaum     ||  and Umoria: Copyright (c) 1989    |||
+ |||                                 ||  James E. Wilson                   |||
+ |||  Send comments, bug reports     ||                                    |||
+ |||  and patches to:                ||  Angband 2.0 - 2.4 - 2.6.2 by:     |||
+ |||           tmorton@              ||  Alex Cutler, Andy Astrand, Sean   |||
+ |||  yikesstation.freeserve.co.uk   ||  Marsh, Geoff Hill, Charles        |||
+ |||                                 ||  Teague, Charles Swiger.           |||
+ |||  Visit the DrAngband homepage:  ||                                    |||
+ |||                                 ||  Angband 2.8.3: Copyright (c)      |||
+ |||  http://www.yikesstation.       ||  1997 Ben Harrison.                |||
+ |||             freeserve.co.uk     ||                                    |||
+ |||                                 ||  Visit the Angband Homepage at:    |||
+ |||  Press ? to read online help.   ||  http://www.phial.com/angband/     |||
+ |||                                 /\                                    |||
+ \\\================================/  \===================================///
 
-        DrAngband's new races and monsters by Aaron Mandelbaum
-                e-mail adm4@po.cwru.edu
-        w/ some monsters from Zangband by Topi Ylinen.
+

@@ -1,55 +1,71 @@
 /* File: main-gcu.c */
 
-/* Purpose: Somewhat generic Unix Curses support for Angband */
-
 /*
- * Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
+ * Copyright (c) 1997 Ben Harrison, and others
  *
- * This software may be copied and distributed for educational, research, and
- * not for profit purposes provided that this copyright and statement are
- * included in all such copies.
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.
  */
 
 
 /*
- * Note that this package is not intended to support non-Unix machines,
- * nor is it intended to support VMS or __MINT__ or other bizarre setups.
- * The original "main-cur.c" can deal with those situations, but note that
- * "main-cur.c" is hopelessly out of date.  Also, this package assumes
- * that the underlying "curses" handles "nonl()" correctly, as well as
- * "cbreak()", but see the "OPTION" below.
+ * This file helps Angband run on Unix/Curses machines.
+ *
+ *
+ * To use this file, you must define "USE_GCU" in the Makefile.
+ *
+ *
+ * Hack -- note that "angband.h" is included AFTER the #ifdef test.
+ * This was necessary because of annoying "curses.h" silliness.
+ *
+ * Note that this file is not "intended" to support non-Unix machines,
+ * nor is it intended to support VMS or other bizarre setups.
+ *
+ * Also, this package assumes that the underlying "curses" handles both
+ * the "nonl()" and "cbreak()" commands correctly, see the "OPTION" below.
+ *
+ * This code should work with most versions of "curses" or "ncurses",
+ * and the "main-ncu.c" file (and USE_NCU define) are no longer used.
+ *
+ * See also "USE_CAP" and "main-cap.c" for code that bypasses "curses"
+ * and uses the "termcap" information directly, or even bypasses the
+ * "termcap" information and sends direct vt100 escape sequences.
+ *
+ * This file provides only a single "term" window.  XXX XXX XXX
+ *
+ * But in theory, it should be possible to allow a 50 line screen to be
+ * split into two (or more) sub-screens.
+ *
+ * The "init" and "nuke" hooks are built so that only the first init and
+ * the last nuke actually do anything, but the other functions are not
+ * "correct" for multiple windows.  Minor changes would also be needed
+ * to allow the system to handle the "locations" of the various windows.
+ *
+ * Consider the use of "savetty()" and "resetty()".  XXX XXX XXX
  */
 
 
-/*
- * Note that "USE_GCU" must be declared in the Makefile if this file
- * is to be successfully compiled.  Of course, it can always be left
- * out of the compilation list as well.
- */
+#include "angband.h"
+
 
 #ifdef USE_GCU
 
 
 /*
- * Include curses first, since it messes with "bool"
+ * Hack -- play games with "bool"
  */
-#include <curses.h>
-
+#undef bool
 
 /*
- * Hack -- undo some silly curses stuff
+ * Include the proper "header" file
  */
-#ifdef bool
-# undef bool
+#ifdef USE_NCURSES
+# include <ncurses.h>
 #else
-# define bool bool_hack
+# include <curses.h>
 #endif
 
-
-/*
- * Now, include the angband header file
- */
-#include "angband.h"
 
 
 /*
@@ -113,16 +129,9 @@
 
 
 /*
- * Hack -- dis-allow color if requested.
- */
-#ifndef USE_COLOR
-# undef A_COLOR
-#endif
-
-
-/*
  * XXX XXX Hack -- POSIX uses "O_NONBLOCK" instead of "O_NDELAY"
- * They should both work due to the "(i != 1)" test.
+ *
+ * They should both work due to the "(i != 1)" test below.
  */
 #ifndef O_NDELAY
 # define O_NDELAY O_NONBLOCK
@@ -131,12 +140,13 @@
 
 /*
  * OPTION: some machines lack "cbreak()"
+ * On these machines, we use an older definition
  */
 /* #define cbreak() crmode() */
 
 
 /*
- * OPTION: some machines handle "nonl()" and "nl()" incorrectly
+ * OPTION: some machines cannot handle "nonl()" and "nl()"
  * On these machines, we can simply ignore those commands.
  */
 /* #define nonl() */
@@ -180,13 +190,13 @@ static int            game_local_chars;
 
 
 /*
- * Are we active?  Not really needed.
+ * Hack -- Number of initialized "term" structures
  */
-static int active = FALSE;
+static int active = 0;
 
 
 /*
- * The main screen
+ * The main screen information
  */
 static term term_screen_body;
 
@@ -194,9 +204,22 @@ static term term_screen_body;
 #ifdef A_COLOR
 
 /*
- * Software flag -- we are allowed to use "color"
+ * Hack -- define "A_BRIGHT" to be "A_BOLD", because on many
+ * machines, "A_BRIGHT" produces ugly "inverse" video.
  */
-static bool can_use_color = FALSE;
+#ifndef A_BRIGHT
+# define A_BRIGHT A_BOLD
+#endif
+
+/*
+ * Software flag -- we are allowed to use color
+ */
+static int can_use_color = FALSE;
+
+/*
+ * Software flag -- we are allowed to change the colors
+ */
+static int can_fix_color = FALSE;
 
 /*
  * Simple Angband to Curses color conversion table
@@ -210,30 +233,30 @@ static int colortable[16];
 /*
  * Place the "keymap" into its "normal" state
  */
-static void keymap_norm()
+static void keymap_norm(void)
 {
 
 #ifdef USE_TPOSIX
 
-    /* restore the saved values of the special chars */
-    (void)tcsetattr(0, TCSAFLUSH, &norm_termios);
+	/* restore the saved values of the special chars */
+	(void)tcsetattr(0, TCSAFLUSH, &norm_termios);
 
 #endif
 
 #ifdef USE_TERMIO
 
-    /* restore the saved values of the special chars */
-    (void)ioctl(0, TCSETA, (char *)&norm_termio);
+	/* restore the saved values of the special chars */
+	(void)ioctl(0, TCSETA, (char *)&norm_termio);
 
 #endif
 
 #ifdef USE_TCHARS
 
-    /* restore the saved values of the special chars */
-    (void)ioctl(0, TIOCSLTC, (char *)&norm_special_chars);
-    (void)ioctl(0, TIOCSETP, (char *)&norm_ttyb);
-    (void)ioctl(0, TIOCSETC, (char *)&norm_tchars);
-    (void)ioctl(0, TIOCLSET, (char *)&norm_local_chars);
+	/* restore the saved values of the special chars */
+	(void)ioctl(0, TIOCSLTC, (char *)&norm_special_chars);
+	(void)ioctl(0, TIOCSETP, (char *)&norm_ttyb);
+	(void)ioctl(0, TIOCSETC, (char *)&norm_tchars);
+	(void)ioctl(0, TIOCLSET, (char *)&norm_local_chars);
 
 #endif
 
@@ -243,30 +266,30 @@ static void keymap_norm()
 /*
  * Place the "keymap" into the "game" state
  */
-static void keymap_game()
+static void keymap_game(void)
 {
 
 #ifdef USE_TPOSIX
 
-    /* restore the saved values of the special chars */
-    (void)tcsetattr(0, TCSAFLUSH, &game_termios);
+	/* restore the saved values of the special chars */
+	(void)tcsetattr(0, TCSAFLUSH, &game_termios);
 
 #endif
 
 #ifdef USE_TERMIO
 
-    /* restore the saved values of the special chars */
-    (void)ioctl(0, TCSETA, (char *)&game_termio);
+	/* restore the saved values of the special chars */
+	(void)ioctl(0, TCSETA, (char *)&game_termio);
 
 #endif
 
 #ifdef USE_TCHARS
 
-    /* restore the saved values of the special chars */
-    (void)ioctl(0, TIOCSLTC, (char *)&game_special_chars);
-    (void)ioctl(0, TIOCSETP, (char *)&game_ttyb);
-    (void)ioctl(0, TIOCSETC, (char *)&game_tchars);
-    (void)ioctl(0, TIOCLSET, (char *)&game_local_chars);
+	/* restore the saved values of the special chars */
+	(void)ioctl(0, TIOCSLTC, (char *)&game_special_chars);
+	(void)ioctl(0, TIOCSETP, (char *)&game_ttyb);
+	(void)ioctl(0, TIOCSETC, (char *)&game_tchars);
+	(void)ioctl(0, TIOCLSET, (char *)&game_local_chars);
 
 #endif
 
@@ -276,30 +299,30 @@ static void keymap_game()
 /*
  * Save the normal keymap
  */
-static void keymap_norm_prepare()
+static void keymap_norm_prepare(void)
 {
 
 #ifdef USE_TPOSIX
 
-    /* Get the normal keymap */
-    tcgetattr(0, &norm_termios);
+	/* Get the normal keymap */
+	tcgetattr(0, &norm_termios);
 
 #endif
 
 #ifdef USE_TERMIO
 
-    /* Get the normal keymap */
-    (void)ioctl(0, TCGETA, (char *)&norm_termio);
+	/* Get the normal keymap */
+	(void)ioctl(0, TCGETA, (char *)&norm_termio);
 
 #endif
 
 #ifdef USE_TCHARS
 
-    /* Get the normal keymap */
-    (void)ioctl(0, TIOCGETP, (char *)&norm_ttyb);
-    (void)ioctl(0, TIOCGLTC, (char *)&norm_special_chars);
-    (void)ioctl(0, TIOCGETC, (char *)&norm_tchars);
-    (void)ioctl(0, TIOCLGET, (char *)&norm_local_chars);
+	/* Get the normal keymap */
+	(void)ioctl(0, TIOCGETP, (char *)&norm_ttyb);
+	(void)ioctl(0, TIOCGLTC, (char *)&norm_special_chars);
+	(void)ioctl(0, TIOCGETC, (char *)&norm_tchars);
+	(void)ioctl(0, TIOCLGET, (char *)&norm_local_chars);
 
 #endif
 
@@ -309,102 +332,102 @@ static void keymap_norm_prepare()
 /*
  * Save the keymaps (normal and game)
  */
-static void keymap_game_prepare()
+static void keymap_game_prepare(void)
 {
 
 #ifdef USE_TPOSIX
 
-    /* Acquire the current mapping */
-    tcgetattr(0, &game_termios);
+	/* Acquire the current mapping */
+	tcgetattr(0, &game_termios);
 
-    /* Force "CTRL-C" to interupt */
-    game_termios.c_cc[VINTR] = (char)3;
+	/* Force "Ctrl-C" to interupt */
+	game_termios.c_cc[VINTR] = (char)3;
 
-    /* Force "CTRL-Z" to suspend */
-    game_termios.c_cc[VSUSP] = (char)26;
+	/* Force "Ctrl-Z" to suspend */
+	game_termios.c_cc[VSUSP] = (char)26;
 
-    /* Hack -- Leave "VSTART/VSTOP" alone */
+	/* Hack -- Leave "VSTART/VSTOP" alone */
 
-    /* Disable the standard control characters */
-    game_termios.c_cc[VQUIT] = (char)-1;
-    game_termios.c_cc[VERASE] = (char)-1;
-    game_termios.c_cc[VKILL] = (char)-1;
-    game_termios.c_cc[VEOF] = (char)-1;
-    game_termios.c_cc[VEOL] = (char)-1;
+	/* Disable the standard control characters */
+	game_termios.c_cc[VQUIT] = (char)-1;
+	game_termios.c_cc[VERASE] = (char)-1;
+	game_termios.c_cc[VKILL] = (char)-1;
+	game_termios.c_cc[VEOF] = (char)-1;
+	game_termios.c_cc[VEOL] = (char)-1;
 
-    /* Normally, block until a character is read */
-    game_termios.c_cc[VMIN] = 1;
-    game_termios.c_cc[VTIME] = 0;
+	/* Normally, block until a character is read */
+	game_termios.c_cc[VMIN] = 1;
+	game_termios.c_cc[VTIME] = 0;
 
 #endif
 
 #ifdef USE_TERMIO
 
-    /* Acquire the current mapping */
-    (void)ioctl(0, TCGETA, (char *)&game_termio);
+	/* Acquire the current mapping */
+	(void)ioctl(0, TCGETA, (char *)&game_termio);
 
-    /* Force "CTRL-C" to interupt */
-    game_termio.c_cc[VINTR] = (char)3;
+	/* Force "Ctrl-C" to interupt */
+	game_termio.c_cc[VINTR] = (char)3;
 
-    /* Force "CTRL-Z" to suspend */
-    game_termio.c_cc[VSUSP] = (char)26;
+	/* Force "Ctrl-Z" to suspend */
+	game_termio.c_cc[VSUSP] = (char)26;
 
-    /* Hack -- Leave "VSTART/VSTOP" alone */
+	/* Hack -- Leave "VSTART/VSTOP" alone */
 
-    /* Disable the standard control characters */
-    game_termio.c_cc[VQUIT] = (char)-1;
-    game_termio.c_cc[VERASE] = (char)-1;
-    game_termio.c_cc[VKILL] = (char)-1;
-    game_termio.c_cc[VEOF] = (char)-1;
-    game_termio.c_cc[VEOL] = (char)-1;
+	/* Disable the standard control characters */
+	game_termio.c_cc[VQUIT] = (char)-1;
+	game_termio.c_cc[VERASE] = (char)-1;
+	game_termio.c_cc[VKILL] = (char)-1;
+	game_termio.c_cc[VEOF] = (char)-1;
+	game_termio.c_cc[VEOL] = (char)-1;
 
 #if 0
-    /* Disable the non-posix control characters */
-    game_termio.c_cc[VEOL2] = (char)-1;
-    game_termio.c_cc[VSWTCH] = (char)-1;
-    game_termio.c_cc[VDSUSP] = (char)-1;
-    game_termio.c_cc[VREPRINT] = (char)-1;
-    game_termio.c_cc[VDISCARD] = (char)-1;
-    game_termio.c_cc[VWERASE] = (char)-1;
-    game_termio.c_cc[VLNEXT] = (char)-1;
-    game_termio.c_cc[VSTATUS] = (char)-1;
+	/* Disable the non-posix control characters */
+	game_termio.c_cc[VEOL2] = (char)-1;
+	game_termio.c_cc[VSWTCH] = (char)-1;
+	game_termio.c_cc[VDSUSP] = (char)-1;
+	game_termio.c_cc[VREPRINT] = (char)-1;
+	game_termio.c_cc[VDISCARD] = (char)-1;
+	game_termio.c_cc[VWERASE] = (char)-1;
+	game_termio.c_cc[VLNEXT] = (char)-1;
+	game_termio.c_cc[VSTATUS] = (char)-1;
 #endif
 
-    /* Normally, block until a character is read */
-    game_termio.c_cc[VMIN] = 1;
-    game_termio.c_cc[VTIME] = 0;
+	/* Normally, block until a character is read */
+	game_termio.c_cc[VMIN] = 1;
+	game_termio.c_cc[VTIME] = 0;
 
 #endif
 
 #ifdef USE_TCHARS
 
-    /* Get the default game characters */
-    (void)ioctl(0, TIOCGETP, (char *)&game_ttyb);
-    (void)ioctl(0, TIOCGLTC, (char *)&game_special_chars);
-    (void)ioctl(0, TIOCGETC, (char *)&game_tchars);
-    (void)ioctl(0, TIOCLGET, (char *)&game_local_chars);
+	/* Get the default game characters */
+	(void)ioctl(0, TIOCGETP, (char *)&game_ttyb);
+	(void)ioctl(0, TIOCGLTC, (char *)&game_special_chars);
+	(void)ioctl(0, TIOCGETC, (char *)&game_tchars);
+	(void)ioctl(0, TIOCLGET, (char *)&game_local_chars);
 
-    /* Force suspend (^Z) */
-    game_special_chars.t_suspc = (char)26;
+	/* Force suspend (^Z) */
+	game_special_chars.t_suspc = (char)26;
 
-    /* Cancel some things */
-    game_special_chars.t_dsuspc = (char)-1;
-    game_special_chars.t_rprntc = (char)-1;
-    game_special_chars.t_flushc = (char)-1;
-    game_special_chars.t_werasc = (char)-1;
-    game_special_chars.t_lnextc = (char)-1;
+	/* Cancel some things */
+	game_special_chars.t_dsuspc = (char)-1;
+	game_special_chars.t_rprntc = (char)-1;
+	game_special_chars.t_flushc = (char)-1;
+	game_special_chars.t_werasc = (char)-1;
+	game_special_chars.t_lnextc = (char)-1;
 
-    /* Force interupt (^C) */
-    game_tchars.t_intrc = (char)3;
+	/* Force interupt (^C) */
+	game_tchars.t_intrc = (char)3;
 
-    /* Force start/stop (^Q, ^S) */
-    game_tchars.t_startc = (char)17;
-    game_tchars.t_stopc = (char)19;
+	/* Force start/stop (^Q, ^S) */
+	game_tchars.t_startc = (char)17;
+	game_tchars.t_stopc = (char)19;
 
-    /* Cancel some things */
-    game_tchars.t_quitc = (char)-1;
-    game_tchars.t_eofc = (char)-1;
-    game_tchars.t_brkc = (char)-1;
+	/* Cancel some things */
+	game_tchars.t_quitc = (char)-1;
+	game_tchars.t_eofc = (char)-1;
+	game_tchars.t_brkc = (char)-1;
 
 #endif
 
@@ -416,68 +439,58 @@ static void keymap_game_prepare()
 /*
  * Suspend/Resume
  */
-static errr Term_xtra_gcu_level(int v)
+static errr Term_xtra_gcu_alive(int v)
 {
-    /* Suspend */
-    if (v == TERM_LEVEL_HARD_SHUT)
-    {
-        if (!active) return (1);
+	/* Suspend */
+	if (!v)
+	{
+		/* Go to normal keymap mode */
+		keymap_norm();
 
-        /* Go to normal keymap mode */
-        keymap_norm();
+		/* Restore modes */
+		nocbreak();
+		echo();
+		nl();
 
-        /* Restore modes */
-        nocbreak();
-        echo();
-        nl();
+		/* Hack -- make sure the cursor is visible */
+		Term_xtra(TERM_XTRA_SHAPE, 1);
 
-        /* Hack -- make sure the cursor is visible */
-        Term_xtra(TERM_XTRA_BEVIS, -999);
-
-        /* Flush the curses buffer */
-        (void)refresh();
+		/* Flush the curses buffer */
+		(void)refresh();
 
 #ifdef SPECIAL_BSD
-        /* this moves curses to bottom right corner */
-        mvcur(curscr->cury, curscr->curx, LINES - 1, 0);
+		/* this moves curses to bottom right corner */
+		mvcur(curscr->cury, curscr->curx, LINES - 1, 0);
 #else
-        /* this moves curses to bottom right corner */
-        mvcur(curscr->_cury, curscr->_curx, LINES - 1, 0);
+		/* this moves curses to bottom right corner */
+		mvcur(curscr->_cury, curscr->_curx, LINES - 1, 0);
 #endif
 
-        /* Exit curses */
-        endwin();
+		/* Exit curses */
+		endwin();
 
-        /* Flush the output */
-        (void)fflush(stdout);
+		/* Flush the output */
+		(void)fflush(stdout);
+	}
 
-        /* No longer active */
-        active = FALSE;
-    }
+	/* Resume */
+	else
+	{
+		/* Refresh */
+		/* (void)touchwin(curscr); */
+		/* (void)wrefresh(curscr); */
 
-    /* Resume */
-    else if (v == TERM_LEVEL_HARD_OPEN)
-    {
-        if (active) return (1);
+		/* Restore the settings */
+		cbreak();
+		noecho();
+		nonl();
 
-        /* Refresh */
-        /* (void)touchwin(curscr); */
-        /* (void)wrefresh(curscr); */
+		/* Go to angband keymap mode */
+		keymap_game();
+	}
 
-        /* Restore the settings */
-        cbreak();
-        noecho();
-        nonl();
-
-        /* Go to angband keymap mode */
-        keymap_game();
-
-        /* Now we are active */
-        active = TRUE;
-    }
-
-    /* Success */
-    return (0);
+	/* Success */
+	return (0);
 }
 
 
@@ -488,23 +501,20 @@ static errr Term_xtra_gcu_level(int v)
  */
 static void Term_init_gcu(term *t)
 {
-    if (active) return;
+	/* Count init's, handle first */
+	if (active++ != 0) return;
 
-    /* Erase the screen */
-    (void)clear();
-    (void)refresh();
-    (void)move(0, 0);
+	/* Erase the screen */
+	(void)clear();
 
-    /* Prepare */
-    cbreak();
-    noecho();
-    nonl();
+	/* Reset the cursor */
+	(void)move(0, 0);
 
-    /* Game keymap */
-    keymap_game();
+	/* Flush changes */
+	(void)refresh();
 
-    /* Assume active */
-    active = TRUE;
+	/* Game keymap */
+	keymap_game();
 }
 
 
@@ -513,33 +523,31 @@ static void Term_init_gcu(term *t)
  */
 static void Term_nuke_gcu(term *t)
 {
-    if (!active) return;
+	/* Count nuke's, handle last */
+	if (--active != 0) return;
 
-    /* Hack -- make sure the cursor is visible */
-    Term_xtra(TERM_XTRA_BEVIS, -999);
-
-    /* Flush the curses buffer */
-    (void)refresh();
+	/* Hack -- make sure the cursor is visible */
+	Term_xtra(TERM_XTRA_SHAPE, 1);
 
 #ifdef SPECIAL_BSD
-    /* This moves curses to bottom right corner */
-    mvcur(curscr->cury, curscr->curx, LINES - 1, 0);
+	/* This moves curses to bottom right corner */
+	mvcur(curscr->cury, curscr->curx, LINES - 1, 0);
 #else
-    /* This moves curses to bottom right corner */
-    mvcur(curscr->_cury, curscr->_curx, LINES - 1, 0);
+	/* This moves curses to bottom right corner */
+	mvcur(curscr->_cury, curscr->_curx, LINES - 1, 0);
 #endif
 
-    /* Exit curses */
-    endwin();
+	/* Flush the curses buffer */
+	(void)refresh();
 
-    /* Flush the output */
-    (void)fflush(stdout);
+	/* Exit curses */
+	endwin();
 
-    /* Normal keymap */
-    keymap_norm();
+	/* Flush the output */
+	(void)fflush(stdout);
 
-    /* No longer active */
-    active = FALSE;
+	/* Normal keymap */
+	keymap_norm();
 }
 
 
@@ -548,119 +556,104 @@ static void Term_nuke_gcu(term *t)
 #ifdef USE_GETCH
 
 /*
- * Check for events, without blocking
- */
-static errr Term_xtra_gcu_check(int v)
-{
-    int i;
-
-    /* Do not wait next time */
-    nodelay(stdscr, TRUE);
-
-    /* Check for keypresses */
-    i = getch();
-
-    /* Wait for it */
-    nodelay(stdscr, FALSE);
-
-    /* Semi-Hack -- None ready */
-    if (i == ERR) return (1);
-    if (i == EOF) return (1);
-
-    /* Enqueue the key */
-    Term_keypress(i);
-
-    /* Success */
-    return (0);
-}
-
-
-/*
- * Wait for an event, and handle it.
+ * Process events, with optional wait
  */
 static errr Term_xtra_gcu_event(int v)
 {
-    int i, k;
+	int i, k;
 
-    /* Paranoia -- Wait for it */
-    nodelay(stdscr, FALSE);
+	/* Wait */
+	if (v)
+	{
+		/* Paranoia -- Wait for it */
+		nodelay(stdscr, FALSE);
 
-    /* Get a keypress */
-    i = getch();
+		/* Get a keypress */
+		i = getch();
 
-    /* Hack -- allow graceful "suspend" */
-    for (k = 0; (k < 10) && (i == ERR); k++) i = getch();
+		/* Mega-Hack -- allow graceful "suspend" */
+		for (k = 0; (k < 10) && (i == ERR); k++) i = getch();
 
-    /* Semi-Hack -- handle broken input */
-    if (i == ERR) exit_game_panic();
-    if (i == EOF) exit_game_panic();
+		/* Broken input is special */
+		if (i == ERR) exit_game_panic();
+		if (i == EOF) exit_game_panic();
+	}
 
-    /* Enqueue the keypress */
-    Term_keypress(i);
+	/* Do not wait */
+	else
+	{
+		/* Do not wait for it */
+		nodelay(stdscr, TRUE);
 
-    /* Success */
-    return (0);
+		/* Check for keypresses */
+		i = getch();
+
+		/* Wait for it next time */
+		nodelay(stdscr, FALSE);
+
+		/* None ready */
+		if (i == ERR) return (1);
+		if (i == EOF) return (1);
+	}
+
+	/* Enqueue the keypress */
+	Term_keypress(i);
+
+	/* Success */
+	return (0);
 }
 
 #else	/* USE_GETCH */
 
 /*
- * Check for events
- */
-static errr Term_xtra_gcu_check(int v)
-{
-    int i, arg;
-    char buf[2];
-
-    /* Get the current flags for stdin */
-    arg = fcntl(0, F_GETFL, 0);
-
-    /* Oops */
-    if (arg < 0) return (1);
-
-    /* Tell stdin not to block */
-    if (fcntl(0, F_SETFL, arg | O_NDELAY) < 0) return (1);
-
-    /* Read one byte, if possible */
-    i = read(0, buf, 1);
-
-    /* Replace the flags for stdin */
-    if (fcntl(0, F_SETFL, arg)) return (1);
-
-    /* No keys ready */
-    if ((i != 1) || (!buf[0])) return (1);
-
-    /* Enqueue the keypress */
-    Term_keypress(buf[0]);
-
-    /* Success */
-    return (0);
-}
-
-
-/*
- * Wait for an event (not necessarily a keypress).
+ * Process events (with optional wait)
  */
 static errr Term_xtra_gcu_event(int v)
 {
-    int i;
-    char buf[2];
+	int i, k;
 
-    /* Wait for one byte */
-    i = read(0, buf, 1);
+	char buf[2];
 
-    /* Hack -- Handle "errors" */
-    if ((i <= 0) && (errno != EINTR)) exit_game_panic();
+	/* Wait */
+	if (v)
+	{
+		/* Wait for one byte */
+		i = read(0, buf, 1);
 
-    /* Enqueue valid keypresses */
-    if ((i == 1) && (buf[0])) Term_keypress(buf[0]);
+		/* Hack -- Handle bizarre "errors" */
+		if ((i <= 0) && (errno != EINTR)) exit_game_panic();
+	}
 
-    /* Success */
-    return (0);
+	/* Do not wait */
+	else
+	{
+		/* Get the current flags for stdin */
+		k = fcntl(0, F_GETFL, 0);
+
+		/* Oops */
+		if (k < 0) return (1);
+
+		/* Tell stdin not to block */
+		if (fcntl(0, F_SETFL, k | O_NDELAY) < 0) return (1);
+
+		/* Read one byte, if possible */
+		i = read(0, buf, 1);
+
+		/* Replace the flags for stdin */
+		if (fcntl(0, F_SETFL, k)) return (1);
+	}
+
+	/* Ignore "invalid" keys */
+	if ((i != 1) || (!buf[0])) return (1);
+
+	/* Enqueue the keypress */
+	Term_keypress(buf[0]);
+
+	/* Success */
+	return (0);
 }
 
 #endif	/* USE_GETCH */
-
 
 
 /*
@@ -668,49 +661,68 @@ static errr Term_xtra_gcu_event(int v)
  */
 static errr Term_xtra_gcu(int n, int v)
 {
-    /* Analyze the request */
-    switch (n)
-    {
-        /* Make a noise */
-        case TERM_XTRA_NOISE: (void)write(1, "\007", 1); return (0);
+	/* Analyze the request */
+	switch (n)
+	{
+		/* Clear screen */
+		case TERM_XTRA_CLEAR:
+		touchwin(stdscr);
+		(void)clear();
+		return (0);
 
-        /* Flush the Curses buffer */
-        case TERM_XTRA_FRESH: (void)refresh(); return (0);
+		/* Make a noise */
+		case TERM_XTRA_NOISE:
+		(void)write(1, "\007", 1);
+		return (0);
+
+		/* Flush the Curses buffer */
+		case TERM_XTRA_FRESH:
+		(void)refresh();
+		return (0);
 
 #ifdef USE_CURS_SET
 
-        /* Make the cursor invisible */
-        case TERM_XTRA_INVIS: curs_set(0); return (0);
-
-        /* Make the cursor visible */
-        case TERM_XTRA_BEVIS: curs_set(1); return (0);
+		/* Change the cursor visibility */
+		case TERM_XTRA_SHAPE:
+		curs_set(v);
+		return (0);
 
 #endif
 
-        /* Suspend/Resume curses */
-        case TERM_XTRA_LEVEL: return (Term_xtra_gcu_level(v));
+		/* Suspend/Resume curses */
+		case TERM_XTRA_ALIVE:
+		return (Term_xtra_gcu_alive(v));
 
-        /* Check for event */
-        case TERM_XTRA_CHECK: return (Term_xtra_gcu_check(v));
+		/* Process events */
+		case TERM_XTRA_EVENT:
+		return (Term_xtra_gcu_event(v));
 
-        /* Wait for event */
-        case TERM_XTRA_EVENT: return (Term_xtra_gcu_event(v));
-    }
+		/* Flush events */
+		case TERM_XTRA_FLUSH:
+		while (!Term_xtra_gcu_event(FALSE));
+		return (0);
 
-    return (1);
+		/* Delay */
+		case TERM_XTRA_DELAY:
+		usleep(1000 * v);
+		return (0);
+	}
+
+	/* Unknown */
+	return (1);
 }
 
 
 /*
  * Actually MOVE the hardware cursor
  */
-static errr Term_curs_gcu(int x, int y, int z)
+static errr Term_curs_gcu(int x, int y)
 {
-    /* Literally move the cursor */
-    move(y,x);
+	/* Literally move the cursor */
+	move(y, x);
 
-    /* Success */
-    return (0);
+	/* Success */
+	return (0);
 }
 
 
@@ -718,45 +730,25 @@ static errr Term_curs_gcu(int x, int y, int z)
  * Erase a grid of space
  * Hack -- try to be "semi-efficient".
  */
-static errr Term_wipe_gcu(int x, int y, int w, int h)
+static errr Term_wipe_gcu(int x, int y, int n)
 {
-    int dx, dy;
+	/* Place cursor */
+	move(y, x);
 
-    if (!x && !y && (w >= 80) && (h >= 24))
-    {
-        touchwin(stdscr);
-        (void)clear();
-    }
+	/* Clear to end of line */
+	if (x + n >= 80)
+	{
+		clrtoeol();
+	}
 
-    else if (!x && (h >= 24) && (w >= 80))
-    {
-        move(y,x);
-        clrtobot();
-    }
+	/* Clear some characters */
+	else
+	{
+		while (n-- > 0) addch(' ');
+	}
 
-    else if (w >= 80)
-    {
-        for (dy = 0; dy < h; ++dy)
-        {
-            move(y+dy,x);
-            clrtoeol();
-        }
-    }
-
-    else
-    {
-        for (dy = 0; dy < h; ++dy)
-        {
-            move(y+dy,x);
-            for (dx = 0; dx < w; ++dx) addch(' ');
-        }
-    }
-
-    /* Hack -- Fix the cursor */
-    move(y,x);
-
-    /* Success */
-    return (0);
+	/* Success */
+	return (0);
 }
 
 
@@ -766,31 +758,30 @@ static errr Term_wipe_gcu(int x, int y, int w, int h)
 
 /*
  * Place some text on the screen using an attribute
- * Unfortunately, the "attribute" is ignored...
  */
 static errr Term_text_gcu(int x, int y, int n, byte a, cptr s)
 {
-    int i;
-    char buf[81];
+	int i;
 
-    /* Hack -- force "termination" of the text */
-    if (n > 80) n = 80;
-    for (i = 0; (i < n) && s[i]; ++i) buf[i] = s[i];
-    buf[n]=0;
+	char text[81];
 
-    /* Move the cursor and dump the string */
-    move(y, x);
+	/* Obtain a copy of the text */
+	for (i = 0; i < n; i++) text[i] = s[i];
+	text[n] = 0;
+
+	/* Move the cursor and dump the string */
+	move(y, x);
 
 #ifdef A_COLOR
-    /* Set the color */
-    if (can_use_color) attrset(colortable[a]);
+	/* Set the color */
+	if (can_use_color) attrset(colortable[a & 0x0F]);
 #endif
 
-    /* Add the text */
-    addstr(buf);
+	/* Add the text */
+	addstr(text);
 
-    /* Success */
-    return (0);
+	/* Success */
+	return (0);
 }
 
 
@@ -798,134 +789,169 @@ static errr Term_text_gcu(int x, int y, int n, byte a, cptr s)
 
 /*
  * Prepare "curses" for use by the file "term.c"
- * Installs the "hook" functions defined above
+ *
+ * Installs the "hook" functions defined above, and then activates
+ * the main screen "term", which clears the screen and such things.
  *
  * Someone should really check the semantics of "initscr()"
  */
-errr init_gcu(void)
+errr init_gcu(int argc, char *argv[])
 {
-    int i, y, x, err;
+	int i;
 
-    term *t = &term_screen_body;
-
-
-    /* Extract the normal keymap */
-    keymap_norm_prepare();
+	term *t = &term_screen_body;
 
 
-#if defined(USG) && !defined(AMIGA)
-    /* Initialize for USG (except Amiga) */
-    if (initscr() == NULL) return (-1);
+	/* Extract the normal keymap */
+	keymap_norm_prepare();
+
+
+#if defined(USG)
+	/* Initialize for USG Unix */
+	if (initscr() == NULL) return (-1);
 #else
-    /* Initialize for others (icky!) */
-    if (initscr() == (WINDOW*)ERR) return (-1);
+	/* Initialize for others systems */
+	if (initscr() == (WINDOW*)ERR) return (-1);
 #endif
 
 
-    /* Hack -- Require large screen, or Quit with message */
-    err = (LINES < 24 || COLS < 80);
-    if (err) quit("curses needs an 80x24 screen");
-
-    /* Hack -- Check the tabs */
-    (void)move(0, 0);
-    for (i = 1; i < 10; i++)
-    {
-        (void)addch('\t');
-        getyx(stdscr, y, x);
-        if (y != 0 || x != i * 8) quit("curses needs a tab-stop of eight");
-    }
-
+	/* Hack -- Require large screen, or Quit with message */
+	i = ((LINES < 24) || (COLS < 80));
+	if (i) quit("Angband needs an 80x24 'curses' screen");
 
 #ifdef A_COLOR
 
-    /*** Init the Color-pairs and set up a translation table ***/
+	/*** Init the Color-pairs and set up a translation table ***/
 
-    /* Now let's go for a little bit of color! */
-    err = (start_color() == ERR);
+	/* Do we have color, and enough color, available? */
+	can_use_color = ((start_color() != ERR) && has_colors() &&
+	                 (COLORS >= 8) && (COLOR_PAIRS >= 8));
 
-    /* Do we have color, and enough color, available? */
-    can_use_color = (!err && has_colors() &&
-                     (COLORS >= 8) && (COLOR_PAIRS >= 8));
+#ifdef REDEFINE_COLORS
+	/* Can we change colors? */
+	can_fix_color = (can_use_color && can_change_color() &&
+	                 (COLOR_PAIRS >= 16));
+#endif
 
-    /* Only do this if we can use it */
-    if (can_use_color) {
+	/* Attempt to use customized colors */
+	if (can_fix_color)
+	{
+		/* Prepare the color pairs */
+		for (i = 0; i < 16; i++)
+		{
+			/* Reset the color */
+			init_pair(i, i, i);
 
-        /* Color-pair 0 is *always* WHITE on BLACK */
+			/* Reset the color data */
+			colortable[i] = (COLOR_PAIR(i) | A_NORMAL);
+		}
 
-        /* Prepare the color pairs */
-        init_pair (1, COLOR_RED,     COLOR_BLACK);
-        init_pair (2, COLOR_GREEN,   COLOR_BLACK);
-        init_pair (3, COLOR_YELLOW,  COLOR_BLACK);
-        init_pair (4, COLOR_BLUE,    COLOR_BLACK);
-        init_pair (5, COLOR_MAGENTA, COLOR_BLACK);
-        init_pair (6, COLOR_CYAN,    COLOR_BLACK);
-        init_pair (7, COLOR_BLACK,   COLOR_BLACK);
+		/* XXX XXX XXX Take account of "gamma correction" */
 
-        /* Prepare the "Angband Colors" -- Bright white is too bright */
-        colortable[ 0] = (COLOR_PAIR(7) | A_NORMAL);      /* Black */
-        colortable[ 1] = (COLOR_PAIR(0) | A_NORMAL);      /* White */
-        colortable[ 2] = (COLOR_PAIR(6) | A_NORMAL);      /* Grey XXX */
-        colortable[ 3] = (COLOR_PAIR(3) | A_STANDOUT);    /* Orange XXX */
-        colortable[ 4] = (COLOR_PAIR(1) | A_NORMAL);      /* Red */
-        colortable[ 5] = (COLOR_PAIR(2) | A_NORMAL);      /* Green */
-        colortable[ 6] = (COLOR_PAIR(4) | A_NORMAL);      /* Blue */
-        colortable[ 7] = (COLOR_PAIR(3) | A_NORMAL);      /* Brown */
-        colortable[ 8] = (COLOR_PAIR(7) | A_STANDOUT);    /* Dark-grey XXX */
-        colortable[ 9] = (COLOR_PAIR(6) | A_STANDOUT);    /* Light-grey XXX */
-        colortable[10] = (COLOR_PAIR(5) | A_NORMAL);      /* Purple */
-        colortable[11] = (COLOR_PAIR(3) | A_STANDOUT);    /* Yellow */
-        colortable[12] = (COLOR_PAIR(1) | A_STANDOUT);    /* Light Red */
-        colortable[13] = (COLOR_PAIR(2) | A_STANDOUT);    /* Light Green */
-        colortable[14] = (COLOR_PAIR(4) | A_STANDOUT);    /* Light Blue */
-        colortable[15] = (COLOR_PAIR(3) | A_NORMAL);      /* Light Brown XXX */
-    }
+		/* Prepare the "Angband Colors" */
+		init_color(0,     0,    0,    0);	/* Black */
+		init_color(1,  1000, 1000, 1000);	/* White */
+		init_color(2,   500,  500,  500);	/* Grey */
+		init_color(3,  1000,  500,    0);	/* Orange */
+		init_color(4,   750,    0,    0);	/* Red */
+		init_color(5,     0,  500,  250);	/* Green */
+		init_color(6,     0,    0, 1000);	/* Blue */
+		init_color(7,   500,  250,    0);	/* Brown */
+		init_color(8,   250,  250,  250);	/* Dark-grey */
+		init_color(9,   750,  750,  750);	/* Light-grey */
+		init_color(10, 1000,    0, 1000);	/* Purple */
+		init_color(11, 1000, 1000,    0);	/* Yellow */
+		init_color(12, 1000,    0,    0);	/* Light Red */
+		init_color(13,    0, 1000,    0);	/* Light Green */
+		init_color(14,    0, 1000, 1000);	/* Light Blue */
+		init_color(15,  750,  500,  250);	/* Light Brown */
+	}
+
+	/* Attempt to use colors */
+	else if (can_use_color)
+	{
+		/* Color-pair 0 is *always* WHITE on BLACK */
+
+		/* Prepare the color pairs */
+		init_pair(1, COLOR_RED,     COLOR_BLACK);
+		init_pair(2, COLOR_GREEN,   COLOR_BLACK);
+		init_pair(3, COLOR_YELLOW,  COLOR_BLACK);
+		init_pair(4, COLOR_BLUE,    COLOR_BLACK);
+		init_pair(5, COLOR_MAGENTA, COLOR_BLACK);
+		init_pair(6, COLOR_CYAN,    COLOR_BLACK);
+		init_pair(7, COLOR_BLACK,   COLOR_BLACK);
+
+		/* Prepare the "Angband Colors" -- Bright white is too bright */
+		colortable[0] = (COLOR_PAIR(7) | A_NORMAL);	/* Black */
+		colortable[1] = (COLOR_PAIR(0) | A_NORMAL);	/* White */
+		colortable[2] = (COLOR_PAIR(6) | A_NORMAL);	/* Grey XXX */
+		colortable[3] = (COLOR_PAIR(1) | A_BRIGHT);	/* Orange XXX */
+		colortable[4] = (COLOR_PAIR(1) | A_NORMAL);	/* Red */
+		colortable[5] = (COLOR_PAIR(2) | A_NORMAL);	/* Green */
+		colortable[6] = (COLOR_PAIR(4) | A_NORMAL);	/* Blue */
+		colortable[7] = (COLOR_PAIR(3) | A_NORMAL);	/* Umber */
+		colortable[8] = (COLOR_PAIR(7) | A_BRIGHT);	/* Dark-grey XXX */
+		colortable[9] = (COLOR_PAIR(6) | A_BRIGHT);	/* Light-grey XXX */
+		colortable[10] = (COLOR_PAIR(5) | A_NORMAL);	/* Purple */
+		colortable[11] = (COLOR_PAIR(3) | A_BRIGHT);	/* Yellow */
+		colortable[12] = (COLOR_PAIR(5) | A_BRIGHT);	/* Light Red XXX */
+		colortable[13] = (COLOR_PAIR(2) | A_BRIGHT);	/* Light Green */
+		colortable[14] = (COLOR_PAIR(4) | A_BRIGHT);	/* Light Blue */
+		colortable[15] = (COLOR_PAIR(3) | A_NORMAL);	/* Light Umber XXX */
+	}
 
 #endif
 
 
-    /*** Prepare to play ***/
+	/*** Low level preparation ***/
 
-    /* Erase the screen */
-    (void)clear();
-    (void)refresh();
-    (void)move(0, 0);
+#ifdef USE_GETCH
 
-    /* Prepare */
-    cbreak();
-    noecho();
-    nonl();
+	/* Paranoia -- Assume no waiting */
+	nodelay(stdscr, FALSE);
 
-    /* Extract the game keymap */
-    keymap_game_prepare();
+#endif
 
-    /* Hack -- activate the game keymap */
-    keymap_game();
+	/* Prepare */
+	cbreak();
+	noecho();
+	nonl();
 
-
-    /*** Now prepare the term ***/
-
-    /* Initialize the term */
-    term_init(t, 80, 24, 64);
-
-    /* Hack -- shutdown hook */
-    t->init_hook = Term_init_gcu;
-    t->nuke_hook = Term_nuke_gcu;
-
-    /* Stick in some hooks */
-    t->text_hook = Term_text_gcu;
-    t->wipe_hook = Term_wipe_gcu;
-    t->curs_hook = Term_curs_gcu;
-    t->xtra_hook = Term_xtra_gcu;
-
-    /* Save the term */
-    term_screen = t;
-
-    /* Activate it */
-    Term_activate(term_screen);
+	/* Extract the game keymap */
+	keymap_game_prepare();
 
 
-    /* Success */
-    return (0);
+	/*** Now prepare the term ***/
+
+	/* Initialize the term */
+	term_init(t, 80, 24, 256);
+
+	/* Avoid the bottom right corner */
+	t->icky_corner = TRUE;
+
+	/* Erase with "white space" */
+	t->attr_blank = TERM_WHITE;
+	t->char_blank = ' ';
+
+	/* Set some hooks */
+	t->init_hook = Term_init_gcu;
+	t->nuke_hook = Term_nuke_gcu;
+
+	/* Set some more hooks */
+	t->text_hook = Term_text_gcu;
+	t->wipe_hook = Term_wipe_gcu;
+	t->curs_hook = Term_curs_gcu;
+	t->xtra_hook = Term_xtra_gcu;
+
+	/* Save the term */
+	term_screen = t;
+
+	/* Activate it */
+	Term_activate(term_screen);
+
+
+	/* Success */
+	return (0);
 }
 
 

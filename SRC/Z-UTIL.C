@@ -1,5 +1,13 @@
 /* File: z-util.c */
 
+/*
+ * Copyright (c) 1997 Ben Harrison
+ *
+ * This software may be copied and distributed for educational, research,
+ * and not for profit purposes provided that this copyright and statement
+ * are included in all such copies.
+ */
+
 /* Purpose: Low level utilities -BEN- */
 
 #include "z-util.h"
@@ -70,7 +78,7 @@ cptr argv0 = NULL;
  */
 void func_nothing(void)
 {
-  /* Do nothing */
+	/* Do nothing */
 }
 
 
@@ -79,7 +87,7 @@ void func_nothing(void)
  */
 errr func_success(void)
 {
-  return (0);
+	return (0);
 }
 
 
@@ -88,7 +96,7 @@ errr func_success(void)
  */
 errr func_problem(void)
 {
-  return (1);
+	return (1);
 }
 
 
@@ -97,7 +105,7 @@ errr func_problem(void)
  */
 errr func_failure(void)
 {
-  return (-1);
+	return (-1);
 }
 
 
@@ -107,7 +115,7 @@ errr func_failure(void)
  */
 bool func_true(void)
 {
-  return (1);
+	return (1);
 }
 
 
@@ -116,103 +124,53 @@ bool func_true(void)
  */
 bool func_false(void)
 {
-  return (0);
+	return (0);
 }
 
 
 
-/*
- * Attempt to parse a simple integer from a string
- * Return the number of characters that were used.
- * Skip leading white-space, allow leading plus.
- * If unable to parse, return zero and parse "0".
- */
-sint long_parse(long *lp, cptr str)
-{
-  int i, s = 0, n = 0;
-  *lp = 0;
-  for (i = 0; str[i] == ' '; ++i);
-  if (str[i] == '-') s = -1, i++;
-  else if (str[i] == '+') s = 1, i++;
-  while (isdigit(str[i])) n = n * 10 + str[i++] - '0';
-  if (s && !n) return (0);
-  if (s < 0) *lp = -n; else *lp = n;
-  return (i);
-}
-
-
 
 /*
- * Are string 'a' and 'b' equal?
+ * Determine if string "t" is equal to string "t"
  */
 bool streq(cptr a, cptr b)
 {
-  return (!strcmp(a,b));
+	return (!strcmp(a, b));
 }
 
 
 /*
- * Is string 'small' the suffix of string 'big'?
+ * Determine if string "t" is a suffix of string "s"
  */
-bool suffix(cptr big, cptr small)
+bool suffix(cptr s, cptr t)
 {
-  int blen = strlen (big);
-  int slen = strlen (small);
+	int tlen = strlen(t);
+	int slen = strlen(s);
 
-  /* Degenerate case: 'big' is smaller than 'small' */
-  if (slen > blen) return (FALSE);
+	/* Check for incompatible lengths */
+	if (tlen > slen) return (FALSE);
 
-  /* Compare small to the end of big */
-  return (!strcmp(big + blen - slen, small));
+	/* Compare "t" to the end of "s" */
+	return (!strcmp(s + slen - tlen, t));
 }
 
 
 /*
- * Is string 'small' the prefix of 'big'?
+ * Determine if string "t" is a prefix of string "s"
  */
-bool prefix(cptr big, cptr small)
+bool prefix(cptr s, cptr t)
 {
-  cptr b = big;
-  cptr s = small;
+	/* Scan "t" */
+	while (*t)
+	{
+		/* Compare content and length */
+		if (*t++ != *s++) return (FALSE);
+	}
 
-  /* Scan each char of small */
-  while (*s)
-  {
-    /* Note: case of ('big' < 'small') caught here */
-    if (*s++ != *b++) return (FALSE);
-  }
-
-  /* Matched, we have a prefix */
-  return (TRUE);
+	/* Matched, we have a prefix */
+	return (TRUE);
 }
 
-
-#if 0
-
-#ifndef HAS_STRICMP
-
-/*
- * For those systems that don't have stricmp
- */
-int stricmp(cptr a, cptr b)
-{
-  cptr s1, s2;
-  char z1, z2;
-
-  /* Scan the strings */
-  for (s1 = a, s2 = b; TRUE; s1++, s2++)
-  {
-    z1 = FORCEUPPER(*s1);
-    z2 = FORCEUPPER(*s2);
-    if (z1 < z2) return (-1);
-    if (z1 > z2) return (1);
-    if (!z1) return (0);
-  }
-}
-
-#endif
-
-#endif
 
 
 /*
@@ -226,11 +184,11 @@ void (*plog_aux)(cptr) = NULL;
  */
 void plog(cptr str)
 {
-  /* Use the "alternative" function if possible */
-  if (plog_aux) (*plog_aux)(str);
+	/* Use the "alternative" function if possible */
+	if (plog_aux) (*plog_aux)(str);
 
-  /* Just do a labeled fprintf to stderr */
-  else (void)(fprintf(stderr, "%s: %s\n", argv0 ? argv0 : "???", str));
+	/* Just do a labeled fprintf to stderr */
+	else (void)(fprintf(stderr, "%s: %s\n", argv0 ? argv0 : "???", str));
 }
 
 
@@ -248,20 +206,20 @@ void (*quit_aux)(cptr) = NULL;
  */
 void quit(cptr str)
 {
-  /* Attempt to use the aux function */
-  if (quit_aux) (*quit_aux)(str);
+	/* Attempt to use the aux function */
+	if (quit_aux) (*quit_aux)(str);
 
-  /* Success */
-  if (!str) (void)(exit(0));
+	/* Success */
+	if (!str) (void)(exit(0));
 
-  /* Extract a "special error code" */
-  if ((str[0] == '-') || (str[0] == '+')) (void)(exit(atoi(str)));
+	/* Extract a "special error code" */
+	if ((str[0] == '-') || (str[0] == '+')) (void)(exit(atoi(str)));
 
-  /* Send the string to plog() */
-  plog(str);
+	/* Send the string to plog() */
+	plog(str);
 
-  /* Failure */
-  (void)(exit(-1));
+	/* Failure */
+	(void)(exit(-1));
 }
 
 
@@ -277,19 +235,19 @@ void (*core_aux)(cptr) = NULL;
  */
 void core(cptr str)
 {
-  char *crash = NULL;
+	char *crash = NULL;
 
-  /* Use the aux function */
-  if (core_aux) (*core_aux)(str);
+	/* Use the aux function */
+	if (core_aux) (*core_aux)(str);
 
-  /* Dump the warning string */
-  if (str) plog(str);
+	/* Dump the warning string */
+	if (str) plog(str);
 
-  /* Attempt to Crash */
-  (*crash) = (*crash);
+	/* Attempt to Crash */
+	(*crash) = (*crash);
 
-  /* Be sure we exited */
-  quit("core() failed");
+	/* Be sure we exited */
+	quit("core() failed");
 }
 
 
