@@ -2582,6 +2582,7 @@ static void calc_bonuses(void)
                         {
                                 /* Extra shot at level 20 */
                                 if (p_ptr->lev >= 20) p_ptr->num_fire++;
+                                if (p_ptr->lev >= 30) p_ptr->num_fire++;
 
                                 /* Extra shot at level 40 */
                                 if (p_ptr->lev >= 40) p_ptr->num_fire++;
@@ -2596,7 +2597,9 @@ static void calc_bonuses(void)
 				if (p_ptr->lev >= 20) p_ptr->num_fire++;
 
 				/* Extra shot at level 40 */
-				if (p_ptr->lev >= 40) p_ptr->num_fire++;
+				if (p_ptr->lev >= 30) p_ptr->num_fire++;
+				
+				if (p_ptr->lev >= 50) p_ptr->num_fire++;
 			}
 		}
 
@@ -2639,22 +2642,22 @@ static void calc_bonuses(void)
 		switch (p_ptr->pclass)
 		{
 			/* Warrior */
-			case CLASS_WARRIOR: num = 6; wgt = 30; mul = 5; break;
+			case CLASS_WARRIOR: num = 8; wgt = 30; mul = 5; break;
 
 			/* Mage */
-			case CLASS_MAGE:    num = 4; wgt = 40; mul = 2; break;
+			case CLASS_MAGE:    num = 5; wgt = 40; mul = 2; break;
 
 			/* Priest */
-			case CLASS_PRIEST:  num = 5; wgt = 35; mul = 3; break;
+			case CLASS_PRIEST:  num = 6; wgt = 35; mul = 3; break;
 
 			/* Rogue */
-			case CLASS_ROGUE:   num = 5; wgt = 30; mul = 3; break;
+			case CLASS_ROGUE:   num = 6; wgt = 30; mul = 3; break;
 
 			/* Ranger */
-			case CLASS_RANGER:  num = 5; wgt = 35; mul = 4; break;
+			case CLASS_RANGER:  num = 6; wgt = 35; mul = 4; break;
 
 			/* Paladin */
-			case CLASS_PALADIN: num = 5; wgt = 30; mul = 4; break;
+			case CLASS_PALADIN: num = 7; wgt = 30; mul = 4; break;
 		}
 
 		/* Enforce a minimum "weight" (tenth pounds) */

@@ -246,14 +246,14 @@
  * during the creation of an object (see "get_obj_num()" in "object.c").
  * Lower values yield better objects more often.
  */
-#define GREAT_OBJ	20
+#define GREAT_OBJ	15
 
 /*
  * There is a 1/20 (5%) chance that ego-items with an inflated base-level are
  * generated when an object is turned into an ego-item (see make_ego_item()
  * in object2.c). As above, lower values yield better ego-items more often.
  */
-#define GREAT_EGO	20
+#define GREAT_EGO	15
 
 /*
  * There is a 1/50 (2%) chance of inflating the requested monster_level
@@ -1403,7 +1403,7 @@
 #define SV_POTION_WATER				0
 #define SV_POTION_APPLE_JUICE		1
 #define SV_POTION_SLIME_MOLD		2
-/* xxx (fixed color) */
+#define SV_POTION_BLOOD                         3
 #define SV_POTION_SLOWNESS			4
 #define SV_POTION_SALT_WATER		5
 #define SV_POTION_POISON			6

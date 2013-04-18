@@ -207,8 +207,20 @@ have intrinsic abilities.
                suspect.  They can play all classes except Paladin, and very
                well at that.  High-elves begin their lives able to see the
                unseen, and resist light effects just like regular elves.
- 
- 
+          
+          PowPlayer
+               Nothing is know of the PowPlayer,someone whisper that they
+               come far from the Space. Skillfull, powerfull, and genius,
+               but so ugly ...
+	  
+           Snip
+               The Snip are a semi unknow race from the underdark.
+               A little lovable furry-ball, whith excellent stealth and 
+               unsurpassed infravision. They are weak in body but curious
+               for nature. Unable to do anything right they need just few Xp
+               to gain levels and resist some "flurry" attacks.
+	       
+	       
 === Classes (outdated) ===
  
  

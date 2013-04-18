@@ -537,7 +537,7 @@ void do_cmd_cast(void)
 
 	cptr q, s;
 
-
+	
 	/* Require spell ability */
 	if (mp_ptr->spell_book != TV_MAGIC_BOOK)
 	{
@@ -629,17 +629,21 @@ void do_cmd_cast(void)
 	{
 		/* Hack -- chance of "beam" instead of "bolt" */
 		beam = ((p_ptr->pclass == CLASS_MAGE) ? plev : (plev / 2));
-
+	
+			
 		/* Spells.  */
 		switch (spell)
 		{
 			case 0:
-			{
+
+			
+       			{
 				if (!get_aim_dir(&dir)) return;
 				fire_bolt_or_beam(beam-10, GF_MISSILE, dir,
 				                  damroll(3 + ((plev - 1) / 5), 4));
 				break;
 			}
+
 
 			case 1:
 			{
@@ -1297,37 +1301,47 @@ void do_cmd_pray(void)
 			case 2:
 			{
 				(void)set_blessed(p_ptr->blessed + randint(12) + 12);
+				(void)set_afraid(0);
 				break;
 			}
 
 			case 3:
 			{
-				(void)set_afraid(0);
+				(void)set_food(PY_FOOD_MAX - 12000);
+				(void)hp_player(damroll(1, 6));
+				(void)set_cut(p_ptr->cut - 5);
+				(void)set_poisoned(p_ptr->poisoned / 8);
+				(void)set_blessed(p_ptr->blessed + randint(10) + 5);
 				break;
 			}
 
 			case 4:
 			{
-				(void)lite_area(damroll(2, (plev / 2)), (plev / 10) + 1);
+				(void)lite_area((plev), (plev / 10) + 1);
 				break;
 			}
 
 			case 5:
 			{
 				(void)detect_traps();
-				break;
-			}
-
-			case 6:
-			{
 				(void)detect_doors();
 				(void)detect_stairs();
 				break;
 			}
 
+			case 6:
+			{
+				
+				if (!get_aim_dir(&dir)) return;
+				fire_ball(GF_MANA, dir,
+				          (plev / 1), 2);
+				break;
+			}
+
 			case 7:
 			{
-				(void)set_poisoned(p_ptr->poisoned / 2);
+				(void)set_poisoned(p_ptr->poisoned / 4);
+				(void)hp_player(4);
 				break;
 			}
 
@@ -1346,7 +1360,7 @@ void do_cmd_pray(void)
 
 			case 10:
 			{
-				(void)hp_player(damroll(4, 10));
+				(void)hp_player(damroll(6, 10));
 				(void)set_cut((p_ptr->cut / 2) - 20);
 				break;
 			}
@@ -1385,6 +1399,7 @@ void do_cmd_pray(void)
 			case 16:
 			{
 				(void)set_poisoned(0);
+				(void)hp_player(10);
 				break;
 			}
 
@@ -1392,7 +1407,7 @@ void do_cmd_pray(void)
 			{
 				if (!get_aim_dir(&dir)) return;
 				fire_ball(GF_HOLY_ORB, dir,
-				          (damroll(3, 6) + plev +
+				          (damroll(3, 6) + plev + 25 +
 				           (plev / ((p_ptr->pclass == CLASS_PRIEST) ? 2 : 4))),
 				          ((plev < 30) ? 2 : 3));
 				break;
@@ -1400,7 +1415,7 @@ void do_cmd_pray(void)
 
 			case 18:
 			{
-				(void)hp_player(damroll(6, 10));
+				(void)hp_player(damroll(8, 10));
 				(void)set_cut(0);
 				break;
 			}
@@ -1431,7 +1446,7 @@ void do_cmd_pray(void)
 
 			case 23:
 			{
-				(void)hp_player(damroll(8, 10));
+				(void)hp_player(damroll(10, 10));
 				(void)set_stun(0);
 				(void)set_cut(0);
 				break;
@@ -1451,7 +1466,7 @@ void do_cmd_pray(void)
 
 			case 26:
 			{
-				(void)dispel_undead(randint(plev * 3));
+				(void)dispel_undead(randint(plev * 2) + plev);
 				break;
 			}
 
@@ -1465,7 +1480,7 @@ void do_cmd_pray(void)
 
 			case 28:
 			{
-				(void)dispel_evil(randint(plev * 3));
+				(void)dispel_evil(randint(plev * 2)+plev);
 				break;
 			}
 
@@ -1477,7 +1492,7 @@ void do_cmd_pray(void)
 
 			case 30:
 			{
-				(void)dispel_evil(randint(plev * 4));
+				(void)dispel_evil(randint(plev * 3)+plev);
 				(void)hp_player(1000);
 				(void)set_afraid(0);
 				(void)set_poisoned(0);
@@ -1558,19 +1573,19 @@ void do_cmd_pray(void)
 
 			case 41:
 			{
-				(void)dispel_undead(randint(plev * 4));
+				(void)dispel_undead(randint(plev * 3)+plev);
 				break;
 			}
 
 			case 42:
 			{
-				(void)dispel_evil(randint(plev * 4));
+				(void)dispel_evil(randint(plev * 3)+plev);
 				break;
 			}
 
 			case 43:
 			{
-				if (banish_evil(100))
+				if (banish_evil(150))
 				{
 					msg_print("The power of your god banishes evil!");
 				}

@@ -3717,7 +3717,7 @@ static void process_monster(int m_idx)
 		{
 		    bool fear = FALSE;
 		    mon_take_hit(m_idx, poison_to_dam(m_ptr->monpois), &fear,
-		     " dies from blood poisoning.");
+		     " dies from blood poisoning.");return;
 		}
 
 	}

@@ -1415,6 +1415,40 @@ F:IM_ACID | HURT_LITE | RES_SLASH | RES_STAB
 F:NO_CONF | NO_SLEEP | NO_FEAR | NO_BLIND
 D:It is a large pile of pulsing green flesh.
 
+N:Topobanshee
+G:m:w
+I:110:13d9:20:32:30
+W:10:1:0:2500
+B:WAIL:CONFUSE:1d4
+B:WAIL:CONFUSE:1d4
+B:GAZE:BLIND:2d6
+F:DROP_60 | DROP_90 | NO_BLIND
+F:UNIQUE | FEMALE | COLD_BLOOD | PASS_WALL | 
+F:DROP_4D2 | DROP_GOOD | DROP_GREAT
+F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | NO_CONF | NO_SLEEP
+F:OPEN_DOOR | BASH_DOOR | ANIMAL | IM_FIRE | 
+F:NO_FEAR | IM_POIS | PASS_WALL | 
+D:In life she was a little white singer mouse, but she wails not sing. 
+D:And now she happily wail destruction deep in Angband.
+
+N:Happypotamo
+G:H:g
+I:110:11d100:20:70:50
+W:34:7:0:5000
+F:UNIQUE | MALE | 
+F:FORCE_SLEEP | FORCE_MAXHP | 
+F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_GOOD | DROP_GREAT | 
+F:SMART | OPEN_DOOR | BASH_DOOR | NO_BLIND | RES_TELE
+F:ANIMAL |
+F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | NO_CONF | NO_SLEEP
+F:IM_ELEC | IM_POIS | NO_CONF | NO_SLEEP
+S:1_IN_2 | 
+S:HEAL | HASTE | TPORT | TELE_AWAY | BLIND | MIND_BLAST | SCARE |
+S:S_MONSTER
+D:A strange creature, half Unicorn half Ippo. 
+D:With green hide and purple wings, always happy. Seems friendly but don't 
+D:fight him or prepare to be your mind opened and blasted
+
 N:Large kobold
 G:k:b
 I:110:13d9:20:32:30

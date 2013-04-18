@@ -1027,6 +1027,7 @@ static void wr_extra(void)
 
 	wr_byte(p_ptr->hitdie);
 	wr_byte(p_ptr->expfact);
+	wr_byte(p_ptr->allow_one_death);
 
 	wr_s16b(p_ptr->age);
 	wr_s16b(p_ptr->ht);

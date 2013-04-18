@@ -1,3 +1,6 @@
+
+Welcome To Easyband !!!
+
 === Version Information ===
 
 This file was last updated for Angband 2.9.0.

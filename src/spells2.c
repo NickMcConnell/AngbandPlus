@@ -443,7 +443,10 @@ void self_knowledge(void)
 		f3 |= t3;
 	}
 
-
+	if (p_ptr->allow_one_death)
+        {
+                info[i++] = "The blood of life flows through your veins.";
+        }
 	if (p_ptr->blind)
 	{
 		info[i++] = "You cannot see.";

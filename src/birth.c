@@ -490,7 +490,8 @@ static void get_money(void)
 
 	/* Minimum 100 gold */
 	if (gold < 100) gold = 100;
-
+	if (p_ptr->psex == SEX_FEMALE) gold = gold * 2;
+	if (gold > 500) gold = 500;
 	/* Save the gold */
 	p_ptr->au = gold;
 }
@@ -887,6 +888,7 @@ static bool player_birth_aux_1(void)
 	cp_ptr = &class_info[p_ptr->pclass];
 	mp_ptr = &magic_info[p_ptr->pclass];
 
+
 	/* Class */
 	put_str("Class", 5, 1);
 	c_put_str(TERM_L_BLUE, cp_ptr->title, 5, 8);
@@ -894,7 +896,7 @@ static bool player_birth_aux_1(void)
 	/* Clean up */
 	clear_from(15);
 
-
+	
 	/*** Birth options ***/
 
 	/* Extra info */
@@ -936,6 +938,7 @@ static bool player_birth_aux_1(void)
 		op_ptr->opt[OPT_SCORE + (i - OPT_CHEAT)] = op_ptr->opt[i];
 	}
 
+        p_ptr->allow_one_death = 0;
 	/* Clean up */
 	clear_from(10);
 
@@ -1336,10 +1339,10 @@ static bool player_birth_aux_3(void)
 				if (accept) break;
 
 				/* Take note every 25 rolls */
-				flag = (!(auto_round % 25L));
+				flag = (!(auto_round % 1000L));
 
 				/* Update display occasionally */
-				if (flag || (auto_round < last_round + 100))
+				if (flag || (auto_round < last_round + 1000))
 				{
 					/* Put the stats (and percents) */
 					for (i = 0; i < A_MAX; i++)
@@ -1371,7 +1374,7 @@ static bool player_birth_aux_3(void)
 					Term_fresh();
 
 					/* Delay 1/10 second */
-					if (flag) Term_xtra(TERM_XTRA_DELAY, 100);
+					if (flag) Term_xtra(TERM_XTRA_DELAY, 1);
 
 					/* Do not wait for a key */
 					inkey_scan = TRUE;

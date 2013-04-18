@@ -443,6 +443,7 @@ void do_cmd_quaff_potion(void)
 			break;
 		}
 
+		
 		case SV_POTION_BLINDNESS:
 		{
 			if (!p_ptr->resist_blind)
@@ -504,6 +505,14 @@ void do_cmd_quaff_potion(void)
 			break;
 		}
 
+		case SV_POTION_BLOOD:
+                      {
+                        msg_print("You feel the Honeymouse running through your veins!");
+                        ident = TRUE;
+                        p_ptr->allow_one_death++;
+                        break;
+                      }
+		
 		case SV_POTION_DEC_STR:
 		{
 			if (do_dec_stat(A_STR)) ident = TRUE;
@@ -857,7 +866,7 @@ void do_cmd_quaff_potion(void)
 			if (p_ptr->exp < PY_MAX_EXP)
 			{
 				s32b ee = (p_ptr->exp / 2) + 10;
-				if (ee > 150000L) ee = 150000L;
+				if (ee < 150000L) ee = 150000L;
 				msg_print("You feel more experienced.");
 				gain_exp(ee);
 				ident = TRUE;

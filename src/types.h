@@ -901,7 +901,7 @@ struct player_type
 
 	byte maximize;		/* Maximize stats */
 	byte preserve;		/* Preserve artifacts */
-
+        byte allow_one_death;          /* Blood of live */
 	s16b age;			/* Characters age */
 	s16b ht;			/* Height */
 	s16b wt;			/* Weight */

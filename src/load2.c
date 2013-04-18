@@ -1274,6 +1274,7 @@ static errr rd_extra(void)
 	/* Special Race/Class info */
 	rd_byte(&p_ptr->hitdie);
 	rd_byte(&p_ptr->expfact);
+	rd_byte(&p_ptr->allow_one_death);
 
 	/* Age/Height/Weight */
 	rd_s16b(&p_ptr->age);
@@ -1349,6 +1350,7 @@ static errr rd_extra(void)
 	rd_s16b(&p_ptr->oppose_acid);
 	rd_s16b(&p_ptr->oppose_elec);
 	rd_s16b(&p_ptr->oppose_pois);
+	        
 
 	/* Old redundant flags */
 	if (older_than(2, 7, 7)) strip_bytes(34);

@@ -899,13 +899,47 @@ T:22:0:99
 T:23:0:99
 F:VAMPIRIC | HOLD_LIFE
 
-# 97 (unused)
 
-# 98 (unused)
+N:97: with Blue Crystalia
+X:24:20:0
+W:0:10:0:10000
+C:0:0:0:4
+T:21:0:99
+T:22:0:99
+T:23:0:99
+F:HOLD_LIFE | LIFE | RES_NETHR | STEALTH
+
+N:98: with White Crystalia
+X:24:15:0
+W:0:10:0:10000
+C:0:0:0:3
+T:21:0:99
+T:22:0:99
+T:23:0:99
+F:TELEPATHY | WIS | RES_CONFU
 
 # 99 (unused)
 
+N:99: with Yellow Crystalia
+X:24:7:0
+W:0:10:0:10000
+C:0:0:0:4
+T:21:0:99
+T:22:0:99
+T:23:0:99
+F:RES_LITE | RES_DARK | LITE | SEARCH
+
 # 100 (unused)
+
+N:100: with Purple Crystalia
+X:24:30:0
+W:0:10:0:10000
+C:0:0:0:4
+T:21:0:99
+T:22:0:99
+T:23:0:99
+F:MANA | INT | WIS | SUST_INT | SUST_WIS
+
 
 N:101:of Morgul
 X:24:0:0

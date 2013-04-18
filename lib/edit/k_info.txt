@@ -1207,7 +1207,7 @@ G:=:d
 I:45:1:0
 W:5:0:2:0
 A:5/1
-F:LIGHT_CURSE | AGGRAVATE | EASY_KNOW
+F:LIGHT_CURSE | AGGRAVATE | EASY_KNOW | RES_FEAR
 
 N:155:See Invisible
 G:=:d
@@ -1926,6 +1926,13 @@ I:75:24:0
 W:3:0:4:20
 A:3/1
 P:0:1d1:0:0:0
+
+N:268:the Blood of Life
+G:!:d
+I:75:3:200
+W:0:0:4:10000
+A:40/30
+P:0:100d100:0:0:0
 
 ## XXX 268 XXX ##
 

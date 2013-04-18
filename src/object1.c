@@ -171,7 +171,7 @@ static byte food_col[MAX_SHROOM] =
 
 static cptr potion_adj[MAX_COLORS] =
 {
-	"Clear", "Light Brown", "Icky Green", "xxx",
+	"Clear", "Light Brown", "Icky Green", "Strangely Phosphorescent",
 	"Azure", "Blue", "Blue Speckled", "Black", "Brown", "Brown Speckled",
 	"Bubbling", "Chartreuse", "Cloudy", "Copper Speckled", "Crimson", "Cyan",
 	"Dark Blue", "Dark Green", "Dark Red", "Gold Speckled", "Green",
@@ -187,7 +187,7 @@ static cptr potion_adj[MAX_COLORS] =
 
 static byte potion_col[MAX_COLORS] =
 {
-	TERM_WHITE, TERM_L_UMBER, TERM_GREEN, 0,
+	TERM_WHITE, TERM_L_UMBER, TERM_GREEN,TERM_VIOLET,
 	TERM_L_BLUE, TERM_BLUE, TERM_BLUE, TERM_L_DARK, TERM_UMBER, TERM_UMBER,
 	TERM_L_WHITE, TERM_L_GREEN, TERM_WHITE, TERM_L_UMBER, TERM_RED, TERM_L_BLUE,
 	TERM_BLUE, TERM_GREEN, TERM_RED, TERM_YELLOW, TERM_GREEN,

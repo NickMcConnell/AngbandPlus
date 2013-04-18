@@ -1537,7 +1537,40 @@ void player_flags(u32b *f1, u32b *f2, u32b *f3)
 
 	if (p_ptr->pclass == CLASS_WARRIOR)
 	{
-		if (p_ptr->lev >= 30) (*f2) |= (TR2_RES_FEAR);
+		if (p_ptr->lev >= 20) (*f2) |= (TR2_RES_FEAR);
+		if (p_ptr->lev >= 30) (*f2) |= (TR2_RES_BLIND);
+		if (p_ptr->lev >= 40) (*f2) |= (TR2_RES_SHARD);
+	}
+	
+	if (p_ptr->pclass == CLASS_MAGE)
+	{
+		if (p_ptr->lev >= 30) (*f2) |= (TR2_RES_DISEN);
+		if (p_ptr->lev >= 40) (*f2) |= (TR2_RES_NEXUS);
+	}
+	
+	if (p_ptr->pclass == CLASS_PRIEST)
+	{
+		if (p_ptr->lev >= 30) (*f2) |= (TR2_RES_NETHR);
+		if (p_ptr->lev >= 40) (*f2) |= (TR2_RES_CHAOS);
+	}
+	
+	if (p_ptr->pclass == CLASS_ROGUE)
+	{
+		if (p_ptr->lev >= 30) (*f2) |= (TR2_RES_POIS);
+		if (p_ptr->lev >= 40) (*f2) |= (TR2_RES_DARK);
+	}
+	
+	if (p_ptr->pclass == CLASS_PALADIN)
+	{
+		if (p_ptr->lev >= 30) (*f2) |= (TR2_RES_DARK);
+		if (p_ptr->lev >= 40) (*f2) |= (TR2_RES_NETHR);
+	}
+	
+	
+	if (p_ptr->pclass == CLASS_RANGER)
+	{
+		if (p_ptr->lev >= 30) (*f2) |= (TR2_RES_CONFU);
+		if (p_ptr->lev >= 40) (*f2) |= (TR2_RES_POIS);
 	}
 }
 

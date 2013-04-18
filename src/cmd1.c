@@ -1,6 +1,6 @@
 /* File: cmd1.c */
 
-/*
+/*a
  * Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Koeneke
  *
  * This software may be copied and distributed for educational, research,
@@ -76,7 +76,7 @@ sint critical_shot(int weight, int plus, int dam)
 	int i, k;
 
 	/* Extract "shot" power */
-	i = (weight + ((p_ptr->to_h + plus) * 4) + (p_ptr->lev * 2));
+	i = (weight + ((p_ptr->to_h + plus) * 4) + (p_ptr->lev * 3));
 
 	/* Critical hit */
 	if (randint(5000) <= i)

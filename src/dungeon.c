@@ -1156,10 +1156,8 @@ static bool enter_wizard_mode(void)
 	if (verify_special || !(p_ptr->noscore & 0x0002))
 	{
 		/* Mention effects */
-		msg_print("You are about to enter 'wizard' mode for the very first time!");
-		msg_print("This is a form of cheating, and your game will not be scored!");
-		msg_print(NULL);
-
+		
+				
 		/* Verify request */
 		if (!get_check("Are you sure you want to enter wizard mode? "))
 		{
@@ -1187,10 +1185,7 @@ static bool verify_debug_mode(void)
 	if (verify_special && !(p_ptr->noscore & 0x0008))
 	{
 		/* Mention effects */
-		msg_print("You are about to use the dangerous, unsupported, debug commands!");
-		msg_print("Your machine may crash, and your savefile may become corrupted!");
-		msg_print(NULL);
-
+		
 		/* Verify request */
 		if (!get_check("Are you sure you want to use the debug commands? "))
 		{
@@ -1226,10 +1221,7 @@ static bool verify_borg_mode(void)
 	if (verify_special && !(p_ptr->noscore & 0x0010))
 	{
 		/* Mention effects */
-		msg_print("You are about to use the dangerous, unsupported, borg commands!");
-		msg_print("Your machine may crash, and your savefile may become corrupted!");
-		msg_print(NULL);
-
+		
 		/* Verify request */
 		if (!get_check("Are you sure you want to use the borg commands? "))
 		{
@@ -1548,13 +1540,25 @@ static void process_command(void)
 		/* Cast a spell */
 		case 'm':
 		{
-			do_cmd_cast();
+				
+			if (p_ptr->pclass == CLASS_PRIEST)
+			do_cmd_pray();
+                        else if (p_ptr->pclass == CLASS_PALADIN)
+                        do_cmd_pray();
+                        else if (p_ptr->pclass == CLASS_ROGUE)
+                        do_cmd_cast();
+                        else if (p_ptr->pclass == CLASS_MAGE)
+                        do_cmd_cast();
+                       			
 			break;
+						
 		}
 
 		/* Pray a prayer */
 		case 'p':
 		{
+			
+			
 			do_cmd_pray();
 			break;
 		}
@@ -1954,7 +1958,7 @@ static void process_player_aux(void)
 static void process_player(void)
 {
 	int i;
-
+	
 
 	/*** Apply energy ***/
 
@@ -2703,8 +2707,9 @@ static void process_some_user_pref_files(void)
 void play_game(bool new_game)
 {
 	/* Hack -- Increase "icky" depth */
+	bool cheat_death=FALSE;
 	character_icky++;
-
+	
 
 	/* Verify main term */
 	if (!angband_term[0])
@@ -2944,11 +2949,18 @@ void play_game(bool new_game)
 
 		/* Accidental Death */
 		if (p_ptr->playing && p_ptr->is_dead)
+		
 		{
-			/* Mega-Hack -- Allow player to cheat death */
-			if ((p_ptr->wizard || cheat_live) && !get_check("Die? "))
-			{
-				/* Mark social class, reset age, if needed */
+		cheat_death = FALSE;
+
+	if (p_ptr->allow_one_death>0)
+    	{
+      	cheat_death = TRUE;
+      	if(p_ptr->allow_one_death>1)p_ptr->allow_one_death--; else p_ptr->allow_one_death=0;
+      	msg_print("You have been saved by the Blood of Life!");
+      	msg_print(NULL);
+	
+			/* Mark social class, reset age, if needed */
 				
 
 				/* Increase age */
@@ -2958,8 +2970,7 @@ void play_game(bool new_game)
 				
 
 				/* Message */
-				msg_print("You invoke wizard mode and cheat death.");
-				msg_print(NULL);
+		
 
 				/* Cheat death */
 				p_ptr->is_dead = FALSE;
@@ -3005,6 +3016,7 @@ void play_game(bool new_game)
 				/* Leaving */
 				p_ptr->leaving = TRUE;
 			}
+		
 		}
 
 		/* Handle "death" */

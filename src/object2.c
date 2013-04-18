@@ -1186,9 +1186,18 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 			return (0);
 		}
 
+
 		/* Food and Potions and Scrolls */
 		case TV_FOOD:
 		case TV_POTION:
+                        if (o_ptr->sval == SV_POTION_BLOOD)
+                        { 
+                                /* Rating boost */
+                                rating += 25;
+                                /*  Mention the item */
+
+                        } 
+                        break;
 		case TV_SCROLL:
 		{
 			/* Assume okay */
@@ -4514,25 +4523,27 @@ void spell_info(char *p, int spell)
 		{
 			case 1: strcpy(p, " heal 2d10"); break;
 			case 2: strcpy(p, " dur 12+d12"); break;
+			case 6: sprintf(p, " %d",plev); break;
 			case 9: sprintf(p, " range %d", 3*plev); break;
-			case 10: strcpy(p, " heal 4d10"); break;
+			case 10: strcpy(p, " heal 6d10"); break;
 			case 11: strcpy(p, " dur 24+d24"); break;
 			case 15: strcpy(p, " dur 10+d10"); break;
-			case 17: sprintf(p, " %d+3d6", plev + orb); break;
-			case 18: strcpy(p, " heal 6d10"); break;
+			case 17: sprintf(p, " %d+3d6", plev +25+ orb); break;
+			case 18: strcpy(p, " heal 8d10"); break;
 			case 19: strcpy(p, " dur 24+d24"); break;
 			case 20: sprintf(p, " dur %d+d25", 3*plev); break;
-			case 23: strcpy(p, " heal 8d10"); break;
+			case 23: strcpy(p, " heal 10d10"); break;
 			case 25: strcpy(p, " dur 48+d48"); break;
-			case 26: sprintf(p, " dam d%d", 3*plev); break;
+			case 26: sprintf(p, " dam d%d", 2*plev+plev); break;
 			case 27: strcpy(p, " heal 300"); break;
-			case 28: sprintf(p, " dam d%d", 3*plev); break;
+			case 28: sprintf(p, " dam d%d", 2*plev+plev); break;
 			case 30: strcpy(p, " heal 1000"); break;
 			case 36: strcpy(p, " heal 4d10"); break;
 			case 37: strcpy(p, " heal 8d10"); break;
 			case 38: strcpy(p, " heal 2000"); break;
-			case 41: sprintf(p, " dam d%d", 4*plev); break;
-			case 42: sprintf(p, " dam d%d", 4*plev); break;
+			case 41: sprintf(p, " dam d%d", 3*plev+plev); break;
+			case 42: sprintf(p, " dam d%d", 4*plev+plev); break;
+			case 43: sprintf(p, " dam %d on evil", 150); break;
 			case 45: strcpy(p, " dam 200"); break;
 			case 52: strcpy(p, " range 10"); break;
 			case 53: sprintf(p, " range %d", 8*plev); break;

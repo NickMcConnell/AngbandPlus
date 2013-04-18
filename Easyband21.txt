@@ -1,11 +1,38 @@
-Welcome to EasyBand2.0 !!!
+Welcome to EasyBand 2.1 !!!
+
+Changes from Easyband 2.0
+
+Sorry again THIS VERSION IS NOT COMPATIBLE WITH SAVEFILE OF EASYBAND 2.0 :[
+
+- Correct Potion of Experience bug ( not give experience )
+- Correct Stinking Cloud Bug
+- Fast Autoroller : no more to wait
+- Female character start with more gold ( just to buy some useless tools ... ;)
+- New Ego Weapon: Weapon with Crystalie. The rare Crystalie are natural magical stone embewed with faintly powers
+		Blue Crystalia 	: Power over Body
+		White Crystalia	: Power over Sense
+		Yellow Crystalia: Power over Light
+		Purple Crystalia: Power over Mana
+- Ranger	get an Extra Bow Shot 	at 50 LV ( so 20/30/40 LV)
+- Rogue		get an Extra Sling Shot at 30 LV ( so 20/30/40 LV)
+- Tweaked Class Maximun Melee Attack ( at curve edge )
+- Warrior 	get Resist Fear		at LV 20 and Resist Blindness	at 30	and Resist Shard at LV 40
+- Wizard  	get Resist Disench.	at LV 30 and Resist Nexus	at 40
+- Priest	get Resist Nether	at LV 30 and Resist Chaos	at 40
+- Rogue		get Resist Poison	at LV 30 and Resist Dark	at 40
+- Paladin	get Resist Dark		at LV 30 and Resist Nether	at 40
+- Ranger 	get Resist Confusion	at LV 30 and Resist Poison 	at 40
+- Blood of Life Patch adapted from Pernband also from David Blackston (allow to cheat death ;)
+- 2 new monster : Topobanshee, Happypotamo ...
+- Unified command for praying and casting : 'm'
+- Change priest spells in varius aspect (not visibile)
+
 
 THIS VERSION IS NOT COMPATIBLE WITH SAVEFILE OF EASYBAND 1.0 sorry :(
 
 Changes from EasyBand 1.0 
 
 - Adopted GSN2Band 1.0 CODE  (see end of log) mainly because of the more features and auto-squelch 
-
 - Weapon of Slay Undead have also the Slay Evil flag
 - Weapon of Slay Demom have also the Slay Evil flags
 - Weapon of *Slay Undead* have also the RES_FEAR flags
@@ -37,9 +64,6 @@ Changes from EasyBand 1.0
 - All Rod now is usefull do kill some enemy ( all rod damage is doubled at least)
 - A new Long Sword Artifact : Lucille (try: 018 ctrl+a+yyy+C ...)
 
-
-
-
 Changes from GSN2Band10 
 
 - Display damage done by weapon
@@ -56,7 +80,7 @@ Changes from GSN2Band10
 - Better 		Brand Acid damage *6		
 - Lighting ID : all class have same Pseudo ID (Heavy) at fastest time
 - Less breakage for arrow and bolt
-- No tracks of Wizard or Debug command ( yes quite munchinish..)
+- No tracks of Wizard or Debug command ( yes quite munckinish..)
 - More Hit Point: base dice adjustment modified so
 			Class 		from	to
 			Warrior		9	12
@@ -136,8 +160,10 @@ And these new improvements:
 HAVE MUCH FUN !!!
 
 Post Scriptum : Easyband is aimed to novice throught beginner player. The game is *very* easy at start, because of more HP,slaying weapon, few XP, but at higher level (35+) the game isn't much more different from standard Vanilla.
-At these level every character is enough powerfull indipendently from class and race. So i have warned you this is Easyband not Gottakill'emall.
+At these level every character is enough powerfull indipendently from class and race. So i have warned you this is Easyband not Gottakill'emallband.
 A more challenge will be in Ironmode...
+
+P.S.S: This game is dedicated to my wife, Federica, for all her patience and support.
 
 
 Andres Zanzani
