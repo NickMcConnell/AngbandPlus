@@ -1457,6 +1457,8 @@ player_sex sex_info[MAX_SEXES] =
  *	Title,
  *	{STR,INT,WIS,DEX,CON,CHR},
  *	r_dis, r_dev, r_sav, r_stl, r_srh, r_fos, r_thn, r_thb,
+ *  r_ths, r_tha, r_thd, r_thp, r_thh    
+ *  r_thslings, r_thbows, t_thxbows
  *	hitdie, exp base,
  *	Age (Base, Mod),
  *	Male (Hgt, Wgt),
@@ -1470,6 +1472,8 @@ player_race race_info[MAX_RACES] =
 		"Human",
 		{  0,  0,  0,  0,  0,  0 },
 		0,  0,  0,  0,  0,  10,  0,  0,
+		0, 0, 0, 0, 0,
+		0, 0, 0,
 		10,  100,
 		14,  6,
 		72,  6, 180, 25,
@@ -1481,7 +1485,9 @@ player_race race_info[MAX_RACES] =
 	{
 		"Half-Elf",
 		{ -1,  1,  0,  1, -1,  1 },
-		2,  3,  3,  1, 6,  11, -1,  5,
+		2,  3,  3,  1, 6,  11, 0,  2,
+		-1, -3, 0, -1, -1,
+		2, 3, 1,
 		9,  110,
 		24, 16,
 		66,  6, 130, 15,
@@ -1493,7 +1499,9 @@ player_race race_info[MAX_RACES] =
 	{
 		"Elf",
 		{ -1,  2,  1,  1, -2,  1 },
-		5,  6,  6,  1, 8,  12, -5, 15,
+		5,  6,  6,  1, 8,  12, -2, 5,
+		-3, -5, -1, -3, -3,
+		8, 12, 5,
 		8,  120,
 		75, 75,
 		60,  4, 100,  6,
@@ -1505,7 +1513,9 @@ player_race race_info[MAX_RACES] =
 	{
 		"Hobbit",
 		{ -2,  2,  1,  3,  2,  1 },
-		15, 18, 18, 4, 12,  15, -10, 20,
+		15, 18, 18, 4, 12,  15, -5, 5,
+		-5, -10, 0, -5, -5,
+		20, 10, 5,
 		7,  110,
 		21, 12,
 		36,  3, 60,  3,
@@ -1517,7 +1527,9 @@ player_race race_info[MAX_RACES] =
 	{
 		"Gnome",
 		{ -1,  2,  0,  2,  1, -2 },
-		10, 12, 12,  3, 6,  13, -8, 12,
+		10, 12, 12,  3, 6,  13, -4, 6,
+		-4, -8, 1, -4, -4,
+		6, 5, 4,
 		8,  125,
 		50, 40,
 		42,  3, 90,  6,
@@ -1529,7 +1541,9 @@ player_race race_info[MAX_RACES] =
 	{
 		"Dwarf",
 		{  2, -3,  2, -2,  2, -3 },
-		2,  9,  9,  -1,  7,  10, 15,  0,
+		2,  9,  9,  -1,  7,  10, 10,  0,
+		5, 8, 5, 5, 5,
+		0, 1, 2,
 		11,  120,
 		35, 15,
 		48,  3, 150, 10,
@@ -1541,7 +1555,9 @@ player_race race_info[MAX_RACES] =
 	{
 		"Half-Orc",
 		{  2, -1,  0,  0,  1, -4 },
-		-3, -3, -3,  -1,  0, 7, 12, -5,
+		-3, -3, -3,  -1,  0, 7, 8, 0,
+		5, 5, 4, 5, 4,
+		-5, -5, -5,
 		10,  110,
 		11,  4,
 		66,  1, 150,  5,
@@ -1553,7 +1569,9 @@ player_race race_info[MAX_RACES] =
 	{
 		"Half-Troll",
 		{ 4, -4, -2, -4,  3, -6 },
-		-5, -8, -8, -2,  -1, 5, 20, -10,
+		-5, -8, -8, -2,  -1, 5, 12, -5,
+		8, 8, 6, 8, 8,
+		-5, -5, -5,
 		12,  120,
 		20, 10,
 		96, 10, 250, 50,
@@ -1565,7 +1583,9 @@ player_race race_info[MAX_RACES] =
 	{
 		"Dunadan",
 		{  1,  2,  2,  2,  3,  2 },
-		4,  5,  5,  2, 3, 13, 15, 10,
+		4,  5,  5,  2, 3, 13, 10, 5,
+		5, 5, 5, 5, 5,
+		5, 6, 7,
 		10,  180,
 		50, 20,
 		82, 5, 190, 20,
@@ -1577,7 +1597,9 @@ player_race race_info[MAX_RACES] =
 	{
 		"High-Elf",
 		{  1,  3, -1,  3,  1,  5 },
-		4,  20, 20,  3,  3, 14, 10, 25,
+		4,  20, 20,  3,  3, 14, 8, 12,
+		2, 2, 2, 2, 2,
+		10, 16, 10,
 		10,  200,
 		100, 30,
 		90, 10, 190, 20,
@@ -1594,6 +1616,8 @@ player_race race_info[MAX_RACES] =
  *	Title,
  *	{STR,INT,WIS,DEX,CON,CHR},
  *	c_dis, c_dev, c_sav, c_stl, c_srh, c_fos, c_thn, c_thb,
+ *  c_ths, c_tha, c_thd, c_thp, c_thh,
+ *  c_thslings, c_thbows, cthxbows,
  *	x_dis, x_dev, x_sav, x_stl, x_srh, x_fos, x_thn, x_thb,
  *	HD, Exp
  */
@@ -1602,54 +1626,63 @@ player_class class_info[MAX_CLASS] =
 	{
 		"Warrior",
 		{ 5, -2, -2, 2, 2, -1},
-		25, 18, 18, 1,  14, 2, 70, 55,
-		10, 7,  10, 0,  0,  0,  45, 45,
+		25, 18, 18, 1,  14, 2, 5, 0,
+		40, 40, 40, 40, 40,
+		50, 55, 60,
+		10, 7,  10, 0,  0,  0,  250, 200,
 		9,  0
 	},
 
 	{
 		"Mage",
 		{-5, 3, 0, 1, -2, 1},
-		30, 36, 30, 2,  16, 20, 34, 20,
-		7,  13, 9,  0,  0,  0,  15, 15,
+		30, 36, 30, 2,  16, 20, 1, 0,
+		16, 16, 16, 16, 16,
+		22, 18, 12,
+		7,  13, 9,  0,  0,  0,  50, 50,
 		0, 30
 	},
 
 	{
 		"Priest",
 		{-1, -3, 3, -1, 0, 2},
-		25, 30, 32, 2,  16, 8, 48, 35,
-		7,  10, 12, 0,  0,  0, 20, 20,
+		25, 30, 32, 2,  16, 8, 3, 0,
+		12, 12, 12, 12, 20,
+		32, 37, 32,
+		7,  10, 12, 0,  0,  0, 100, 75,
 		2, 20
 	},
 
 	{
 		"Rogue",
 		{ 2, 1, -2, 3, 1, -1},
-		45, 32, 28, 5, 32, 24, 60, 66,
-		15, 10, 10, 0,  0,  0, 40, 30,
+		45, 32, 28, 5, 32, 24, 4, 0,
+		19, 14, 24, 14, 16,
+		63, 69, 58,
+		15, 10, 10, 0,  0,  0, 175, 150,
 		6, 25
 	},
 
 	{
 		"Ranger",
 		{ 2, 2, 0, 1, 1, 1},
-		30, 32, 28, 3,  24, 16, 56, 72,
-		8,  10, 10, 0,  0,  0,  30, 45,
+		30, 32, 28, 3,  24, 16, 4, 0,
+		15, 10, 15, 13, 13,
+		77, 77, 70,
+		8,  10, 10, 0,  0,  0,  150, 250,
 		4, 30
 	},
 
 	{
 		"Paladin",
 		{ 3, -3, 1, 0, 2, 2},
-		20, 24, 25, 1,  12, 2, 68, 40,
-		7,  10, 11, 0,  0,  0,  35, 30,
+		20, 24, 25, 1,  12, 2, 4, 0,
+		17, 14, 14, 17, 17,
+		33, 38, 43,
+		7,  10, 11, 0,  0,  0,  200, 175,
 		6, 35
 	}
 };
-
-
-
 
 
 
@@ -1777,7 +1810,7 @@ player_magic magic_info[MAX_CLASS] =
 			{  1,  1, 23,   4},
 			{  1,  2, 24,   4},
 			{  1,  2, 26,   4},
-			{ 99,  0,  0,   0},
+			{  2,  2, 30,   5},
 			{  3,  3, 25,   3},
 			{ 99,  0,  0,   0},
 			{  3,  3, 25,   1},
@@ -2250,7 +2283,7 @@ cptr spell_names[2][64] =
 		"Detect Monsters",
 		"Phase Door",
 		"Light Area",
-		"Treasure Detection",
+		"Wall of Fire",
 		"Cure Light Wounds",
 		"Object Detection",
 		"Find Hidden Traps/Doors",
@@ -2588,8 +2621,8 @@ cptr player_title[MAX_CLASS][PY_MAX_LEVEL/5] =
 		"Warder",
 		"Knight",
 		"Guardian",
-		"Low Paladin",
-		"High Paladin",
+		"Crusader",
+		"Paladin",
 		"Paladin Lord",
 	}
 };
@@ -2837,11 +2870,11 @@ cptr option_desc[OPT_MAX] =
  */
 bool option_norm[OPT_MAX] =
 {
-	TRUE,		/* OPT_rogue_like_commands */
+	FALSE,		/* OPT_rogue_like_commands */
 	TRUE,		/* OPT_quick_messages */
-	TRUE,		/* OPT_floor_query_flag */
-	TRUE,		/* OPT_carry_query_flag */
-	FALSE,		/* OPT_use_old_target */
+	FALSE,		/* OPT_floor_query_flag */
+	FALSE,		/* OPT_carry_query_flag */
+	TRUE,		/* OPT_use_old_target */
 	TRUE,		/* OPT_always_pickup */
 	TRUE,		/* OPT_always_repeat */
 	FALSE,		/* OPT_depth_in_feet */
@@ -2860,7 +2893,7 @@ bool option_norm[OPT_MAX] =
 	TRUE,		/* OPT_run_use_corners */
 	FALSE,		/* OPT_disturb_move */
 	TRUE,		/* OPT_disturb_near */
-	FALSE,		/* OPT_disturb_panel */
+	TRUE,		/* OPT_disturb_panel */
 	TRUE,		/* OPT_disturb_state */
 	TRUE,		/* OPT_disturb_minor */
 	TRUE,		/* OPT_disturb_other */
@@ -2881,11 +2914,11 @@ bool option_norm[OPT_MAX] =
 	FALSE,		/* OPT_view_torch_grids */
 	FALSE,		/* OPT_dungeon_align */
 	TRUE,		/* OPT_dungeon_stair */
-	TRUE,		/* OPT_flow_by_sound */
-	TRUE,		/* OPT_flow_by_smell */
+	FALSE,		/* OPT_flow_by_sound */
+	FALSE,		/* OPT_flow_by_smell */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
-	TRUE,		/* OPT_smart_learn */
+	FALSE,		/* OPT_smart_learn */
 	FALSE,		/* OPT_smart_cheat */
 
 	FALSE,		/* OPT_view_reduce_lite */
@@ -2896,7 +2929,7 @@ bool option_norm[OPT_MAX] =
 	FALSE,		/* OPT_flush_disturb */
 	TRUE,		/* OPT_fresh_before */
 	FALSE,		/* OPT_fresh_after */
-	TRUE,			/* OPT_center_player */
+	FALSE,		/* OPT_center_player */
 	FALSE,		/* OPT_avoid_center */
 	TRUE,		/* OPT_compress_savefile */
 	FALSE,		/* OPT_hilite_player */

@@ -1697,6 +1697,9 @@ void check_experience(void)
 
 		/* Window stuff */
 		p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+		
+		/* Redraw experience */
+		p_ptr->redraw |= (PR_EXP);
 
 		/* Handle stuff */
 		handle_stuff();
@@ -1728,6 +1731,9 @@ void check_experience(void)
 
 		/* Window stuff */
 		p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+		
+		/* Redraw experience */
+		p_ptr->redraw |= (PR_EXP);
 
 		/* Handle stuff */
 		handle_stuff();
@@ -2132,19 +2138,15 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 
 		if (r_ptr->mexp)
 		{
-			div = r_ptr->mexp + r_ptr->r_pkills;
+			div = p_ptr->max_lev;
 
-			/* Reduce experience for killing unseen monsters */
-			if (!m_ptr->ml) div *= 5;
-
-			mod = p_ptr->max_lev * div;
-			new_exp_frac = ((long)r_ptr->mexp * r_ptr->mexp % mod) * r_ptr->level % mod;
-
-			/* calculate the integer exp part */
-			new_exp = ((long)r_ptr->mexp * r_ptr->level / p_ptr->max_lev) * r_ptr->mexp / div;
+			
+			/* Give some experience for the kill */
+			new_exp = ((long)r_ptr->mexp * r_ptr->level) / div;
 
 			/* Handle fractional experience */
-			new_exp_frac = (new_exp_frac * 0x10000L / mod) + p_ptr->exp_frac;
+			new_exp_frac = ((((long)r_ptr->mexp * r_ptr->level) % div)
+		                * 0x10000L / div) + p_ptr->exp_frac;
 
 			/* Keep track of experience */
 			if (new_exp_frac >= 0x10000L)

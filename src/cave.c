@@ -3290,6 +3290,13 @@ void cave_set_feat(int y, int x, int feat)
 	/* Change the feature */
 	cave_feat[y][x] = feat;
 
+	/* Hack for wall of fire set dam and timeout DvE */
+	if (feat == FEAT_WALL_FIRE)
+	{
+		cave_dam[y][x] = 10 + (p_ptr->lev / 2);
+		cave_timeout[y][x] = randint(30) + 30 + p_ptr->lev;
+	}
+
 	/* Notice/Redraw */
 	if (character_dungeon)
 	{

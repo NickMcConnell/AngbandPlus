@@ -197,17 +197,39 @@ static void prt_level(void)
 static void prt_exp(void)
 {
 	char out_val[32];
+	
 
-	sprintf(out_val, "%8ld", (long)p_ptr->exp);
+	if (p_ptr->lev < PY_MAX_LEVEL)
+	{
+		sprintf(out_val, "%8ld",(long)player_exp[p_ptr->lev-1]*p_ptr->expfact/100L-p_ptr->exp);
+	}
+	else
+	{
+		sprintf(out_val, "%8ld", (long)p_ptr->exp);
+	}
 
 	if (p_ptr->exp >= p_ptr->max_exp)
 	{
-		put_str("EXP ", ROW_EXP, 0);
+		if (p_ptr->lev < PY_MAX_LEVEL)
+		{
+			put_str("ADV ", ROW_EXP, 0);
+		}
+		else
+		{
+			put_str("EXP ", ROW_EXP, 0);
+		}
 		c_put_str(TERM_L_GREEN, out_val, ROW_EXP, COL_EXP + 4);
 	}
 	else
 	{
-		put_str("Exp ", ROW_EXP, 0);
+		if (p_ptr->lev < PY_MAX_LEVEL)
+		{
+			put_str("Adv ", ROW_EXP, 0);
+		}
+		else
+		{
+			put_str("Exp ", ROW_EXP, 0);
+		}
 		c_put_str(TERM_YELLOW, out_val, ROW_EXP, COL_EXP + 4);
 	}
 }
@@ -957,7 +979,7 @@ static void fix_player_1(void)
 		Term_activate(angband_term[j]);
 
 		/* Display flags */
-		display_player(1);
+		display_player(2);
 
 		/* Fresh */
 		Term_fresh();
@@ -1652,6 +1674,163 @@ static int weight_limit(void)
 }
 
 
+/* 
+ * Determine weapon type
+ */
+bool is_sword(void)
+{
+	object_type *o_ptr = &inventory[INVEN_WIELD];
+	
+	/* No weapon? */
+	if (!o_ptr->k_idx) return (FALSE);
+
+	if ((o_ptr->tval == TV_SWORD) && (o_ptr->sval > SV_CUTLASS))
+	{
+		return (TRUE);
+	}
+	else
+	{
+		return (FALSE);
+	}
+}
+
+bool is_axe(void)
+{
+	object_type *o_ptr = &inventory[INVEN_WIELD];
+	
+	/* No weapon? */
+	if (!o_ptr->k_idx) return (FALSE);
+
+	if (o_ptr->tval == TV_POLEARM)
+	{
+		switch (o_ptr->sval)
+		{
+			case SV_BEAKED_AXE:
+			case SV_BROAD_AXE:
+			case SV_HALBERD:
+			case SV_BATTLE_AXE:
+			case SV_GREAT_AXE:
+			case SV_LOCHABER_AXE:
+				{
+					return (TRUE);
+				}
+			default:
+				{
+					return (FALSE);
+				}
+		}
+	}
+	else
+	{
+		return (FALSE);
+	}
+}
+
+
+bool is_dagger(void)
+{
+	object_type *o_ptr = &inventory[INVEN_WIELD];
+	
+	/* No weapon? */
+	if (!o_ptr->k_idx) return (FALSE);
+
+	if ((o_ptr->tval == TV_SWORD) && (o_ptr->sval < SV_TULWAR))
+	{
+		return (TRUE);
+	}
+	else
+	{
+		return (FALSE);
+	}
+}
+
+bool is_polearm(void)
+{
+	object_type *o_ptr = &inventory[INVEN_WIELD];
+	
+	/* No weapon? */
+	if (!o_ptr->k_idx) return (FALSE);
+
+	if ((o_ptr->tval == TV_POLEARM) && (!is_axe))
+	{
+		return (TRUE);
+	}
+	else
+	{
+		return (FALSE);
+	}
+}
+
+bool is_hafted(void)
+{
+	object_type *o_ptr = &inventory[INVEN_WIELD];
+	
+	/* No weapon? */
+	if (!o_ptr->k_idx) return (FALSE);
+
+	if (o_ptr->tval == TV_HAFTED)
+	{
+		return (TRUE);
+	}
+	else
+	{
+		return (FALSE);
+	}
+}
+
+bool is_sling(void)
+{
+	object_type *o_ptr = &inventory[INVEN_BOW];
+	
+	/* No weapon? */
+	if (!o_ptr->k_idx) return (FALSE);
+
+	if ((o_ptr->tval == TV_BOW) && (o_ptr->sval == SV_SLING))
+	{
+		return (TRUE);
+	}
+	else
+	{
+		return (FALSE);
+	}
+}
+
+bool is_bow(void)
+{
+	object_type *o_ptr = &inventory[INVEN_BOW];
+	
+	/* No weapon? */
+	if (!o_ptr->k_idx) return (FALSE);
+
+	if ((o_ptr->tval == TV_BOW) && 
+		((o_ptr->sval == SV_SHORT_BOW) || (o_ptr->sval == SV_LONG_BOW)))
+	{
+		return (TRUE);
+	}
+	else
+	{
+		return (FALSE);
+	}
+}
+
+bool is_xbow(void)
+{
+	object_type *o_ptr = &inventory[INVEN_BOW];
+	
+	/* No weapon? */
+	if (!o_ptr->k_idx) return (FALSE);
+
+	if ((o_ptr->tval == TV_BOW) &&
+		((o_ptr->sval == SV_LIGHT_XBOW) || (o_ptr->sval == SV_HEAVY_XBOW)))
+	{
+		return (TRUE);
+	}
+	else
+	{
+		return (FALSE);
+	}
+}
+
 /*
  * Calculate the players current "state", taking into account
  * not only race/class intrinsics, but also objects being worn
@@ -2192,13 +2371,25 @@ static void calc_bonuses(void)
 	p_ptr->skill_fos += (cp_ptr->x_fos * p_ptr->lev / 10);
 
 	/* Affect Skill -- combat (normal) (Level, by Class) */
-	p_ptr->skill_thn += (cp_ptr->x_thn * p_ptr->lev / 10);
+	/* p_ptr->skill_thn += (cp_ptr->x_thn * p_ptr->lev / 10); *DvE* */
 
 	/* Affect Skill -- combat (shooting) (Level, by Class) */
-	p_ptr->skill_thb += (cp_ptr->x_thb * p_ptr->lev / 10);
+	/* p_ptr->skill_thb += (cp_ptr->x_thb * p_ptr->lev / 10); *DvE* */
 
 	/* Affect Skill -- combat (throwing) (Level, by Class) */
 	p_ptr->skill_tht += (cp_ptr->x_thb * p_ptr->lev / 10);
+
+	/* Affect Skill -- combat (normal) (by weapon)  DvE*/
+	if (is_sword()) p_ptr->skill_thn += p_ptr->skill_swords;
+	if (is_axe()) p_ptr->skill_thn += p_ptr->skill_axes;
+	if (is_dagger()) p_ptr->skill_thn += p_ptr->skill_daggers;
+	if (is_polearm()) p_ptr->skill_thn += p_ptr->skill_polearms;
+	if (is_hafted()) p_ptr->skill_thn += p_ptr->skill_hafted;
+	
+	/* Affect Skill -- combat (shooting) (by weapon)  DvE*/
+	if (is_sling()) p_ptr->skill_thb += p_ptr->skill_slings;
+	if (is_bow()) p_ptr->skill_thb += p_ptr->skill_bows;
+	if (is_xbow()) p_ptr->skill_thb += p_ptr->skill_xbows;
 
 	/* Limit Skill -- digging from 1 up */
 	if (p_ptr->skill_dig < 1) p_ptr->skill_dig = 1;
@@ -2558,6 +2749,7 @@ static void calc_bonuses(void)
 		/* Save it */
 		p_ptr->old_icky_wield = p_ptr->icky_wield;
 	}
+	
 }
 
 

@@ -104,8 +104,8 @@
  * Dungeon generation values
  */
 #define DUN_ROOMS	50	/* Number of rooms to attempt */
-#define DUN_UNUSUAL	200	/* Level/chance of unusual room */
-#define DUN_DEST	15	/* 1/chance of having a destroyed level */
+#define DUN_UNUSUAL	100	/* Level/chance of unusual room  doubled in DvEBand*/
+#define DUN_DEST	50	/* 1/chance of having a destroyed level */
 
 /*
  * Dungeon tunnel generation values
@@ -129,7 +129,7 @@
 /*
  * Dungeon treausre allocation values
  */
-#define DUN_AMT_ROOM	9	/* Amount of objects for rooms */
+#define DUN_AMT_ROOM	11	/* Amount of objects for rooms  Raised in DvEBand*/
 #define DUN_AMT_ITEM	3	/* Amount of objects for rooms/corridors */
 #define DUN_AMT_GOLD	3	/* Amount of treasure for rooms/corridors */
 
@@ -258,9 +258,9 @@ static room_data room[ROOM_MAX] =
 	{ 0, 0, -1, 1, 5 },		/* 5 = Monster nest (33x11) */
 	{ 0, 0, -1, 1, 5 },		/* 6 = Monster pit (33x11) */
 	{ 0, 1, -1, 1, 5 },		/* 7 = Lesser vault (33x22) */
-	{ -1, 2, -2, 3, 10},		/* 8 = Greater vault (66x44) */
+	{ -1, 2, -2, 3, 10},	/* 8 = Greater vault (66x44) */
 	{ 0, 0, 0, 1, 7 },		/* 9 = Circular (22x11) */
-	{ 0, 0, -1, 1, 10 },		/* 10 = Acyclic maze (33x11) */
+	{ 0, 0, -1, 1, 10 },	/* 10 = Acyclic maze (33x11) */
 };
 
 
@@ -1313,6 +1313,9 @@ static void draw_maze(int y1, int x1, int y2, int x2, byte feat_wall, byte feat_
  *   6 -- monster pits
  *   7 -- simple vaults
  *   8 -- greater vaults
+ *   9 -- circular rooms
+ *  10 -- labyrinthine rooms
+
  */
 
 
@@ -3219,6 +3222,71 @@ static void build_type10(int yval, int xval)
 	vault_objects(yval, xval + 4, randint(2));
 }
 
+/*
+ * Helper function for placing objects in the labyrint
+ */
+static void labyrint_objects(int y, int x, int num)
+{
+	int i, j, k;
+
+	/* Attempt to place 'num' objects */
+	for (; num > 0; --num)
+	{
+		/* Try up to 11 spots looking for empty space */
+		for (i = 0; i < 11; ++i)
+		{
+			/* Pick a random location */
+			while (1)
+			{
+				j = rand_spread(y, 2);
+				k = rand_spread(x, 3);
+				if (!in_bounds(j, k)) continue;
+				break;
+			}
+
+			/* Require "clean" floor space */
+			if (!cave_clean_bold(j, k)) continue;
+
+			/* Place an item */
+			if (rand_int(100) < 75)
+			{
+				place_object(j, k, TRUE, FALSE);
+			}
+
+			/* Place gold */
+			else
+			{
+				place_gold(j, k);
+			}
+
+			/* Placement accomplished */
+			break;
+		}
+	}
+}
+
+/* 
+ * DvEBand, build a dungeon level Labyrint 
+ */
+
+static void build_labyrint_level(void)
+{
+
+	/* Build an acyclic maze */
+	draw_maze(1, 1, DUNGEON_HGT-1, DUNGEON_WID-1, FEAT_WALL_SOLID, FEAT_FLOOR, 0);
+
+	/* Monsters just love mazes. */
+	vault_monsters(DUNGEON_HGT/2, DUNGEON_WID/2, randint(3) + 2);
+	
+	/* Traps make them entertaining. */
+	vault_traps(DUNGEON_HGT/2, DUNGEON_WID/2, 2, 8, randint(4));
+	
+	/* Mazes should have some treasure too. */
+	labyrint_objects(DUNGEON_HGT/2, DUNGEON_WID/2, randint(5)); 
+	
+}
+
+
 
 /*
  * Constructs a tunnel between two points
@@ -3687,13 +3755,11 @@ static void cave_gen(void)
 		}
 	}
 
-
 	/* Possible "destroyed" level */
 	if ((p_ptr->depth > 10) && (rand_int(DUN_DEST) == 0)) destroyed = TRUE;
 
 	/* Hack -- No destroyed "quest" levels */
 	if (is_quest(p_ptr->depth)) destroyed = FALSE;
-
 
 	/* Actual maximum number of rooms on this level */
 	dun->row_rooms = DUNGEON_HGT / BLOCK_HGT;
@@ -3708,10 +3774,8 @@ static void cave_gen(void)
 		}
 	}
 
-
 	/* No "crowded" rooms yet */
 	dun->crowded = FALSE;
-
 
 	/* No rooms yet */
 	dun->cent_n = 0;
@@ -3728,18 +3792,15 @@ static void cave_gen(void)
 		{
 			/* Slide some rooms right */
 			if ((bx % 3) == 0) bx++;
-
-			/* Slide some rooms left */
+				/* Slide some rooms left */
 			if ((bx % 3) == 2) bx--;
 		}
-
 		/* Attempt an "unusual" room */
 		if (rand_int(DUN_UNUSUAL) < p_ptr->depth)
 		{
 			/* Roll for room type */
 			k = rand_int(100);
-
-			/* Attempt a very unusual room */
+				/* Attempt a very unusual room */
 			if (rand_int(DUN_UNUSUAL) < p_ptr->depth)
 			{
 				/* Type 8 -- Greater vault (10%) */
@@ -3747,10 +3808,10 @@ static void cave_gen(void)
 
 				/* Type 7 -- Lesser vault (15%) */
 				if ((k < 25) && room_build(by, bx, 7)) continue;
-
+				
 				/* Type 6 -- Monster pit (15%) */
 				if ((k < 40) && room_build(by, bx, 6)) continue;
-
+				
 				/* Type 5 -- Monster nest (10%) */
 				if ((k < 50) && room_build(by, bx, 5)) continue;
 			}
@@ -3770,12 +3831,11 @@ static void cave_gen(void)
 			/* Type 2 -- Overlapping (30%) */
 			if ((k < 100) && room_build(by, bx, 2)) continue;
 		}
-
+	
 		/* Attempt a trivial room */
 		if (room_build(by, bx, 1)) continue;
 	}
-
-
+	
 	/* Special boundary walls -- Top */
 	for (x = 0; x < DUNGEON_WID; x++)
 	{
@@ -3784,35 +3844,34 @@ static void cave_gen(void)
 		/* Clear previous contents, add "solid" perma-wall */
 		cave_set_feat(y, x, FEAT_PERM_SOLID);
 	}
-
+	
 	/* Special boundary walls -- Bottom */
 	for (x = 0; x < DUNGEON_WID; x++)
 	{
 		y = DUNGEON_HGT-1;
-
+	
 		/* Clear previous contents, add "solid" perma-wall */
 		cave_set_feat(y, x, FEAT_PERM_SOLID);
 	}
-
+	
 	/* Special boundary walls -- Left */
 	for (y = 0; y < DUNGEON_HGT; y++)
 	{
 		x = 0;
-
+	
 		/* Clear previous contents, add "solid" perma-wall */
 		cave_set_feat(y, x, FEAT_PERM_SOLID);
 	}
-
+	
 	/* Special boundary walls -- Right */
 	for (y = 0; y < DUNGEON_HGT; y++)
 	{
 		x = DUNGEON_WID-1;
-
+	
 		/* Clear previous contents, add "solid" perma-wall */
 		cave_set_feat(y, x, FEAT_PERM_SOLID);
 	}
-
-
+	
 	/* Hack -- Scramble the room order */
 	for (i = 0; i < dun->cent_n; i++)
 	{
@@ -3838,7 +3897,7 @@ static void cave_gen(void)
 	{
 		/* Connect the room to the previous room */
 		build_tunnel(dun->cent[i].y, dun->cent[i].x, y, x);
-
+	
 		/* Remember the "previous" room */
 		y = dun->cent[i].y;
 		x = dun->cent[i].x;
@@ -3858,7 +3917,6 @@ static void cave_gen(void)
 		try_door(y + 1, x);
 	}
 
-
 	/* Hack -- Add some magma streamers */
 	for (i = 0; i < DUN_STR_MAG; i++)
 	{
@@ -3871,12 +3929,11 @@ static void cave_gen(void)
 		build_streamer(FEAT_QUARTZ, DUN_STR_QC);
 	}
 
-
 	/* Destroy the level if necessary */
 	if (destroyed) destroy_level();
 
 	s = Rand_normal(3, 1);
-
+	
 	/* Place 3 or 4 down stairs near some walls */
 	alloc_stairs(FEAT_MORE, MAX(1, s), 3);
 
@@ -3885,16 +3942,13 @@ static void cave_gen(void)
 	/* Place 1 or 2 up stairs near some walls */
 	alloc_stairs(FEAT_LESS, MAX(1, s), 3);
 
-
 	/* Determine the character location */
 	new_player_spot();
-
 
 	/* Basic "amount" */
 	k = (p_ptr->depth / 3);
 	if (k > 10) k = 10;
 	if (k < 2) k = 2;
-
 
 	/* Pick a base number of monsters */
 	i = MIN_M_ALLOC_LEVEL + randint(8);
@@ -3904,7 +3958,6 @@ static void cave_gen(void)
 	{
 		(void)alloc_monster(0, TRUE);
 	}
-
 
 	/* Place some traps in the dungeon */
 	alloc_object(ALLOC_SET_BOTH, ALLOC_TYP_TRAP, randint(k));
@@ -4227,6 +4280,12 @@ void generate_cave(void)
 
 				/* No monsters */
 				cave_m_idx[y][x] = 0;
+
+				/* No dam DvE */
+				cave_dam[y][x] = 0;
+
+				/* No timeout DvE */
+				cave_timeout[y][x] = 0;
 
 #ifdef MONSTER_FLOW
 				/* No flow */

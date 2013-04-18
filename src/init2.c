@@ -1942,7 +1942,7 @@ static byte store_table[MAX_STORES-2][STORE_CHOICES][2] =
 		{ TV_SCROLL, SV_SCROLL_ENCHANT_WEAPON_TO_HIT },
 		{ TV_SCROLL, SV_SCROLL_ENCHANT_WEAPON_TO_DAM },
 		{ TV_SCROLL, SV_SCROLL_ENCHANT_ARMOR },
-		{ TV_SCROLL, SV_SCROLL_IDENTIFY },
+		{ TV_SCROLL, SV_SCROLL_TELEPORT },
 		{ TV_SCROLL, SV_SCROLL_IDENTIFY },
 		{ TV_SCROLL, SV_SCROLL_IDENTIFY },
 		{ TV_SCROLL, SV_SCROLL_IDENTIFY },
@@ -1953,8 +1953,8 @@ static byte store_table[MAX_STORES-2][STORE_CHOICES][2] =
 		{ TV_SCROLL, SV_SCROLL_PHASE_DOOR },
 		{ TV_SCROLL, SV_SCROLL_MONSTER_CONFUSION },
 		{ TV_SCROLL, SV_SCROLL_MAPPING },
-		{ TV_SCROLL, SV_SCROLL_DETECT_GOLD },
-		{ TV_SCROLL, SV_SCROLL_DETECT_ITEM },
+		{ TV_SCROLL, SV_SCROLL_WORD_OF_RECALL },
+		{ TV_SCROLL, SV_SCROLL_WORD_OF_RECALL },
 		{ TV_SCROLL, SV_SCROLL_DETECT_TRAP },
 
 		{ TV_SCROLL, SV_SCROLL_DETECT_DOOR },
@@ -2063,6 +2063,9 @@ static errr init_other(void)
 	/* Entity arrays */
 	C_MAKE(cave_o_idx, DUNGEON_HGT, s16b_wid);
 	C_MAKE(cave_m_idx, DUNGEON_HGT, s16b_wid);
+	C_MAKE(cave_dam, DUNGEON_HGT, s16b_wid); /* DvE */
+	C_MAKE(cave_timeout, DUNGEON_HGT, s16b_wid); /* DvE */
+		
 
 	/* Flow arrays */
 	C_MAKE(cave_cost, DUNGEON_HGT, byte_wid);
@@ -2187,7 +2190,7 @@ static errr init_other(void)
 	/*** Pre-allocate space for the "format()" buffer ***/
 
 	/* Hack -- Just call the "format()" function */
-	(void)format("%s (%s).", "Ben Harrison", MAINTAINER);
+	(void)format("%s (%s).", "Dennis van Es", MAINTAINER);
 
 
 	/* Success */

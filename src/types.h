@@ -736,6 +736,16 @@ struct player_race
 	s16b r_thn;			/* combat (normal) */
 	s16b r_thb;			/* combat (shooting) */
 
+	s16b r_ths;			/* special modifier for Swords */
+	s16b r_tha;			/* special modifier for Axes */
+	s16b r_thd;			/* special modifier for Daggers */
+	s16b r_thp;			/* special modifier for Polearms */
+	s16b r_thh;			/* special modifier for hafted */
+
+	s16b r_thslings;	/* special modifier for slings */
+	s16b r_thbows;		/* special modifier for bows */
+	s16b r_thxbows;		/* special modifier for crossbows */
+
 	byte r_mhp;			/* Race hit-dice modifier */
 	byte r_exp;			/* Race experience factor */
 
@@ -775,6 +785,16 @@ struct player_class
 	s16b c_fos;			/* class searching frequency */
 	s16b c_thn;			/* class to hit (normal) */
 	s16b c_thb;			/* class to hit (bows) */
+
+	s16b c_ths;			/* special modifier for Swords */
+	s16b c_tha;			/* special modifier for Axes */
+	s16b c_thd;			/* special modifier for Daggers */
+	s16b c_thp;			/* special modifier for Polearms */
+	s16b c_thh;			/* special modifier for hafted */
+
+	s16b c_thslings;	/* special modifier for slings */
+	s16b c_thbows;		/* special modifier for bows */
+	s16b c_thxbows;		/* special modifier for crossbows */
 
 	s16b x_dis;			/* extra disarming */
 	s16b x_dev;			/* extra magic devices */
@@ -1084,6 +1104,16 @@ struct player_type
 	s16b skill_thb;		/* Skill: To hit (shooting) */
 	s16b skill_tht;		/* Skill: To hit (throwing) */
 	s16b skill_dig;		/* Skill: Digging */
+
+	s16b skill_swords;	/* Skill: Fighting with swords */
+	s16b skill_axes;	/* Skill: Fighting with axes */
+	s16b skill_daggers;	/* Skill: Fighting with daggers */
+	s16b skill_polearms;/* Skill: Fighting with polearms */
+	s16b skill_hafted;	/* Skill: Fighting with hafted weapons */
+
+	s16b skill_slings;	/* Skill: Shooting with slings */
+	s16b skill_bows;	/* Skill: Shooting with bows */
+	s16b skill_xbows;   /* Skill: Shooting with xbows */
 
 	u32b noise;			/* Derived from stealth */
 

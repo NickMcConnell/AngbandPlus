@@ -3370,7 +3370,10 @@ static bool get_moves(int m_idx, int mm[5])
 	}
 
 	/* Apply fear */
-	if (m_ptr->monfear || (!done && mon_will_run(m_idx)))
+	/* also run when standing on a wall of fire and not res. DvE */
+	if ((m_ptr->monfear) || (!done && mon_will_run(m_idx)) || \
+		((cave_feat[m_ptr->fy][m_ptr->fx] >= FEAT_WALL_FIRE) && \
+		!(r_ptr->flags3 & (RF3_IM_FIRE))))
 	{
 		/* Try to find safe place */
 		if (!find_safety(m_idx, &y, &x))
@@ -3870,7 +3873,8 @@ static void process_monster(int m_idx)
 
 
 	/* Attempt to "mutiply" if able and allowed */
-	if ((r_ptr->flags2 & (RF2_MULTIPLY)) && (num_repro < MAX_REPRO))
+	/* Allowed means not confused now too DvE */
+	if ((r_ptr->flags2 & (RF2_MULTIPLY)) && (num_repro < MAX_REPRO) && (m_ptr->confused == 0))
 	{
 		int k, y, x;
 
@@ -4003,6 +4007,11 @@ static void process_monster(int m_idx)
 		{
 			/* Go ahead and move */
 			do_move = TRUE;
+			/* Monsters without fire resistance do not move into the Wall of Fire DvE */
+			if ((cave_feat[ny][nx] >= FEAT_WALL_FIRE) && !(r_ptr->flags3 & (RF3_IM_FIRE)))
+			{
+				do_move = FALSE;
+			}
 		}
 
 		/* Permanent wall */
@@ -4238,6 +4247,13 @@ static void process_monster(int m_idx)
 			/* Move the monster */
 			monster_swap(oy, ox, ny, nx);
 
+			/* Hack -- if the monster moves on to a wall of fire he will take firedam. DvE */
+			if (cave_feat[ny][nx] == FEAT_WALL_FIRE)
+			{
+				int flg = PROJECT_KILL;
+				(void)project(-1, 0, ny, nx, cave_dam[ny][nx],GF_WALL_FIRE,flg);
+			}
+
 			/* Possible disturb */
 			if (m_ptr->ml &&
 			    (disturb_move ||
@@ -4361,6 +4377,12 @@ static void process_monster(int m_idx)
 				}
 			}
 		}
+		else if (cave_feat[m_ptr->fy][m_ptr->fx] == FEAT_WALL_FIRE)
+		{
+			int flg = PROJECT_KILL;
+			(void)project(-1, 0, m_ptr->fy, m_ptr->fx, cave_dam[m_ptr->fy][m_ptr->fx],GF_WALL_FIRE,flg);
+		}
+
 
 		/* Stop when done */
 		if (do_turn) break;

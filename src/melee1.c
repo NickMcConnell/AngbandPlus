@@ -126,6 +126,7 @@ bool make_attack_normal(int m_idx)
 	s32b gold;
 
 	object_type *o_ptr;
+	object_kind *k_ptr;
 
 	char o_name[80];
 
@@ -496,40 +497,85 @@ bool make_attack_normal(int m_idx)
 
 						/* Obtain the item */
 						o_ptr = &inventory[i];
+						k_ptr = &k_info[o_ptr->k_idx];
+
+						/* use "tmp" to decide if a item can 
+						 * be uncharged.  By default, assume it 
+						 * can't.
+						 */
+						tmp = 0;
 
 						/* Skip non-objects */
 						if (!o_ptr->k_idx) continue;
 
-						/* Drain charged wands/staffs */
-						if (((o_ptr->tval == TV_STAFF) ||
-						     (o_ptr->tval == TV_WAND)) &&
-						    (o_ptr->pval))
+						/* Drain charged wands/staffs/rods */
+						if ((o_ptr->tval == TV_STAFF) ||
+							(o_ptr->tval == TV_WAND) ||
+							(o_ptr->tval == TV_ROD))
 						{
-							/* Message */
-							msg_print("Energy drains from your pack!");
+							/* case of charged wands/staffs. */
+							if (((o_ptr->tval == TV_STAFF) ||
+								(o_ptr->tval == TV_WAND)) &&
+								(o_ptr->pval)) tmp = 1;
 
-							/* Obvious */
-							obvious = TRUE;
+							/* case of (at least partially) charged rods. -LM- */
+							if ((o_ptr->tval == TV_ROD) &&
+								(o_ptr->timeout < o_ptr->pval)) tmp = 1;
 
-							/* Heal */
-							j = rlev;
-							m_ptr->hp += j * o_ptr->pval * o_ptr->number;
-							if (m_ptr->hp > m_ptr->maxhp) m_ptr->hp = m_ptr->maxhp;
+							if (tmp)
+							{
+								/* Message */
+								msg_print("Energy drains from your pack!");
+
+								/* Obvious */
+								obvious = TRUE;
+
+								/* Heal */
+								j = 5 + rlev / 10;
+
+								/* Handle new-style wands correctly. -LM- */
+								if (o_ptr->tval == TV_WAND)
+								{
+									m_ptr->hp += j * o_ptr->pval;
+								}
+								/* Handle new-style rods correctly. -LM- */
+								else if (o_ptr->tval == TV_ROD)
+								{
+									m_ptr->hp += j * (o_ptr->pval - o_ptr->timeout) / 30;
+								}
+								else
+								{
+									m_ptr->hp += j * o_ptr->pval * 
+										o_ptr->number;
+								}
+
+								if (m_ptr->hp > m_ptr->maxhp) 
+									m_ptr->hp = m_ptr->maxhp;
 
 							/* Redraw (later) if needed */
 							if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
 
-							/* Uncharge */
-							o_ptr->pval = 0;
+								/* Uncharge */
+								if ((o_ptr->tval == TV_STAFF) || 
+									(o_ptr->tval == TV_WAND)) 
+									o_ptr->pval = 0;
 
-							/* Combine / Reorder the pack */
-							p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+								/* New-style rods. -LM- */
+								if (o_ptr->tval == TV_ROD) 
+									o_ptr->timeout = o_ptr->pval;
 
-							/* Window stuff */
-							p_ptr->window |= (PW_INVEN);
 
-							/* Done */
-							break;
+								/* Combine / Reorder the pack */
+								p_ptr->notice |= 
+									(PN_COMBINE | PN_REORDER);
+
+								/* Window stuff */
+								p_ptr->window |= (PW_INVEN);
+
+								/* not more than one inventory 
+								 * slot effected. */
+								break;
+							}
 						}
 					}
 
@@ -649,6 +695,17 @@ bool make_attack_normal(int m_idx)
 
 						/* Modify number */
 						i_ptr->number = 1;
+
+						/* Hack -- If a rod or wand, allocate total 
+						 * maximum timeouts or charges between those 
+						 * stolen and those missed. -LM-
+						 */
+						if ((o_ptr->tval == TV_ROD) || (o_ptr->tval == TV_WAND))
+						{
+							k_ptr = &k_info[o_ptr->k_idx];
+							i_ptr->pval = o_ptr->pval / o_ptr->number;
+							o_ptr->pval -= i_ptr->pval;
+						}
 
 						/* Carry the object */
 						(void)monster_carry(m_idx, i_ptr);

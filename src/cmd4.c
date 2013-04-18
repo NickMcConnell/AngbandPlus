@@ -148,7 +148,8 @@ void do_cmd_change_name(void)
 		/* Toggle mode */
 		else if (c == 'h')
 		{
-			mode = !mode;
+			mode++;
+			if (mode == 3) mode = 0;
 		}
 
 		/* Oops */
@@ -824,7 +825,7 @@ void do_cmd_options(void)
 		Term_clear();
 
 		/* Why are we here */
-		prt("Angband options", 2, 0);
+		prt("DvEband options", 2, 0);
 
 		/* Give some choices */
 		prt("(1) User Interface Options", 4, 5);
@@ -2331,7 +2332,7 @@ void do_cmd_note(void)
 void do_cmd_version(void)
 {
 	/* Silly message */
-	msg_format("You are playing Angband %d.%d.%d.  Type '?' for more info.",
+	msg_format("You are playing DvEband %d.%d.%d.  Type '?' for more info.",
 	           VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 }
 

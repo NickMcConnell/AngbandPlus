@@ -641,8 +641,13 @@ void do_cmd_cast(void)
 
 			case 4:
 			{
-				(void)detect_treasure();
-				(void)detect_objects_gold();
+				/* This is wall of fire now DvE
+				   (void)detect_treasure();
+				   (void)detect_objects_gold();
+				   break;
+				*/
+				if (wall_of_fire())
+					msg_print("You are surrounded by fire");
 				break;
 			}
 
@@ -661,9 +666,9 @@ void do_cmd_cast(void)
 
 			case 7:
 			{
-				(void)detect_traps();
-				(void)detect_doors();
-				(void)detect_stairs();
+				(void)detect_traps(FALSE);
+				(void)detect_doors(FALSE);
+				(void)detect_stairs(FALSE);
 				break;
 			}
 
@@ -699,7 +704,7 @@ void do_cmd_cast(void)
 			case 12:
 			{
 				if (!get_aim_dir(&dir)) return;
-				(void)sleep_monster(dir);
+				(void)sleep_monster(dir,plev + 10);
 				break;
 			}
 
@@ -746,13 +751,13 @@ void do_cmd_cast(void)
 
 			case 19:
 			{
-				(void)recharge(5);
+				(void)recharge(90);
 				break;
 			}
 
 			case 20:
 			{
-				(void)sleep_monsters_touch();
+				(void)sleep_monsters_touch(plev + 10);
 				break;
 			}
 
@@ -771,7 +776,7 @@ void do_cmd_cast(void)
 
 			case 23:
 			{
-				(void)sleep_monsters();
+				(void)sleep_monsters(plev + 10);
 				break;
 			}
 
@@ -786,7 +791,7 @@ void do_cmd_cast(void)
 			case 25:
 			{
 				if (!get_aim_dir(&dir)) return;
-				(void)slow_monster(dir);
+				(void)slow_monster(dir,plev + 10);
 				break;
 			}
 
@@ -800,7 +805,7 @@ void do_cmd_cast(void)
 
 			case 27:
 			{
-				(void)recharge(40);
+				(void)recharge(140);
 				break;
 			}
 
@@ -945,7 +950,7 @@ void do_cmd_cast(void)
 
 			case 46:
 			{
-				recharge(100);
+				recharge(220);
 				break;
 			}
 
@@ -1294,14 +1299,14 @@ void do_cmd_pray(void)
 
 			case 5:
 			{
-				(void)detect_traps();
+				(void)detect_traps(FALSE);
 				break;
 			}
 
 			case 6:
 			{
-				(void)detect_doors();
-				(void)detect_stairs();
+				(void)detect_doors(FALSE);
+				(void)detect_stairs(FALSE);
 				break;
 			}
 
@@ -1339,7 +1344,7 @@ void do_cmd_pray(void)
 
 			case 12:
 			{
-				(void)sleep_monsters_touch();
+				(void)sleep_monsters_touch(plev + 10);
 				break;
 			}
 
@@ -1419,7 +1424,7 @@ void do_cmd_pray(void)
 
 			case 24:
 			{
-				(void)turn_undead();
+				(void)turn_undead(plev + 10);
 				break;
 			}
 
@@ -1578,7 +1583,7 @@ void do_cmd_pray(void)
 
 			case 47:
 			{
-				(void)recharge(15);
+				(void)recharge(140);
 				break;
 			}
 

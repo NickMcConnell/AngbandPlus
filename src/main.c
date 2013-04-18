@@ -321,13 +321,13 @@ int main(int argc, char *argv[])
 	/* Initialize the "time" checker */
 	if (check_time_init() || check_time())
 	{
-		quit("The gates to Angband are closed (bad time).");
+		quit("The gates to DvEband are closed (bad time).");
 	}
 
 	/* Initialize the "load" checker */
 	if (check_load_init() || check_load())
 	{
-		quit("The gates to Angband are closed (bad load).");
+		quit("The gates to DvEband are closed (bad load).");
 	}
 
 	/* Acquire the "user name" as a default player name */

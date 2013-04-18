@@ -1,0 +1,29 @@
+Changes 1.0.1
+
+- Added colored spellbrowsing
+- weaponskills are harder to increase at higher skill-levels
+ 
+
+Changes 1.0.0
+
+- Display XP needed to advance
+- No confirmation on destroying worthless objects
+- Rangers start with arrows (LM)
+- Stair can take you 2 levels up or down (LM)
+- Chest tend to give better items depending on your class (LM)
+- XP gained by opening a chest depends on the pval of the chest
+- Added Leon's famous W&R Stacking (LM)
+- Added weapon skills for
+	swords
+	axes
+	daggers & rapiers & cutlasses
+	Polearms
+	hafted weapons
+	slings
+	bows
+	crossbows
+- Dwarven warriors start with a beaked axe
+- Confused monsters don't breed
+- Added the wall of fire spell for mages
+
+

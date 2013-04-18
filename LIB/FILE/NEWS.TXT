@@ -1,7 +1,7 @@
 
 
               **************************************************
-              **   Angband 2.8.3e  **   The Pits of Angband   **
+              **   DvEband 1.0.1   **   The Pits of Angband   **
               **************************************************
 
            Based on Moria:   Copyright (c) 1985 Robert Alan Koeneke
@@ -12,8 +12,10 @@
                  Geoff Hill, Charles Teague, Charles Swiger
 
                Angband 2.8.3:  Copyright (c) 1997 Ben Harrison
+               DVEBAnd 1.0.0:  Copyright (c) 1999 Dennis van Es
                Various goodies by Eric Bock (kobe@micron.net)
-         Send comments, bug reports, and patches, to "benh@phial.com"
+	
+         Send comments, bug reports, and patches, to "dpvanes@plex.nl"
         Visit the Angband Home Page at "http://www.phial.com/angband/"
       Browse the Angband newsgroup at "news:rec.games.roguelike.angband"
     Read the online help files, especially "general.txt" and "version.txt"

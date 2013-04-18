@@ -1015,11 +1015,28 @@ static void player_outfit(void)
 		tv = player_init[p_ptr->pclass][i][0];
 		sv = player_init[p_ptr->pclass][i][1];
 
+		/* Mege hack -- A dwarf warrior starts with an axe */
+		if ((p_ptr->prace == RACE_DWARF) && (p_ptr->pclass == CLASS_WARRIOR) && (i == 1))
+		{
+			tv = TV_POLEARM;
+			sv = SV_BEAKED_AXE;
+		}
+
 		/* Get local object */
 		i_ptr = &object_type_body;
 
 		/* Hack -- Give the player an object */
+		
 		object_prep(i_ptr, lookup_kind(tv, sv));
+		object_aware(i_ptr);
+		object_known(i_ptr);
+		(void)inven_carry(i_ptr);
+	}
+	/* Hack - Rangers start off with some arrows. -LM- */
+	if (p_ptr->pclass == CLASS_RANGER)
+	{
+		object_prep(i_ptr, lookup_kind(TV_ARROW, SV_AMMO_NORMAL));
+		i_ptr->number = 25;
 		object_aware(i_ptr);
 		object_known(i_ptr);
 		(void)inven_carry(i_ptr);
@@ -1212,11 +1229,13 @@ static bool player_birth_aux()
 
 	/*** Maximize mode ***/
 
-	/* Extra info */
+	/* Extra info.  Made more verbose by LM */
 	Term_putstr(5, 15, -1, TERM_WHITE,
-		"Using 'maximize' mode makes the game harder at the start,");
+		"Using 'maximize' mode turns your class and race modifiers to");
 	Term_putstr(5, 16, -1, TERM_WHITE,
-		"but often makes it easier to win.");
+		"stats into permanent bonuses or penalties. It makes the game");
+	Term_putstr(5, 17, -1, TERM_WHITE,
+		"harder at the start but often makes it easier to win.");
 
 	/* Ask about "maximize" mode */
 	while (1)
@@ -1494,8 +1513,9 @@ static bool player_birth_aux()
 				/* Make sure they see everything */
 				Term_fresh();
 
-				/* Delay 1/10 second */
-				if (flag) Term_xtra(TERM_XTRA_DELAY, 100);
+				/* Delay 2/100 second */
+				/* CHANGE BACK TO 100 FOR MULTIUSER MACHINES -LM- */
+				if (flag) Term_xtra(TERM_XTRA_DELAY, 20);
 
 				/* Do not wait for a key */
 				inkey_scan = TRUE;
@@ -1526,6 +1546,19 @@ static bool player_birth_aux()
 		/* Input loop */
 		while (TRUE)
 		{
+
+			/* Extra fighting skills  DvE */
+			p_ptr->skill_swords = rp_ptr->r_ths + cp_ptr->c_ths;
+			p_ptr->skill_axes = rp_ptr->r_tha + cp_ptr->c_tha;	
+			p_ptr->skill_daggers = rp_ptr->r_thd + cp_ptr->c_thd;
+			p_ptr->skill_polearms = rp_ptr->r_thp + cp_ptr->c_thp;
+			p_ptr->skill_hafted = rp_ptr->r_thh + cp_ptr->c_thh;
+
+			/* Extra bow skills  DvE */
+			p_ptr->skill_slings = rp_ptr->r_thslings + cp_ptr->c_thslings;
+			p_ptr->skill_bows = rp_ptr->r_thbows + cp_ptr->c_thbows;
+			p_ptr->skill_xbows = rp_ptr->r_thxbows + cp_ptr->c_thxbows;
+
 			/* Calculate the bonuses and hitpoints */
 			p_ptr->update |= (PU_BONUS | PU_HP);
 
@@ -1538,6 +1571,7 @@ static bool player_birth_aux()
 			/* Fully rested */
 			p_ptr->csp = p_ptr->msp;
 
+			
 			/* Display the player */
 			display_player(0);
 

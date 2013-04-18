@@ -11,15 +11,13 @@
 #include "angband.h"
 
 
-
-
-
-
 /*
  * Display inventory
  */
 void do_cmd_inven(void)
 {
+	char string[80];
+
 	/* Note that we are in "inventory" mode */
 	p_ptr->command_wrk = FALSE;
 
@@ -36,8 +34,16 @@ void do_cmd_inven(void)
 	/* Hack -- hide empty slots */
 	item_tester_full = FALSE;
 
-	/* Prompt for a command */
-	prt("(Inventory) Command: ", 0, 0);
+	/* Insert the total burden and character capacity into a string. -LM- */
+	
+	sprintf(string, 
+		"(Inventory) burden %d.%d lb (%d%% of capacity). Command: ",
+		p_ptr->total_weight / 10, p_ptr->total_weight % 10, 
+		p_ptr->total_weight / adj_str_wgt[p_ptr->stat_ind[A_STR]]);
+
+
+	/* Output that string, and prompt for a command. */
+	prt(string, 0, 0);
 
 	/* Hack -- Get a new command */
 	p_ptr->command_new = inkey();
@@ -67,6 +73,7 @@ void do_cmd_inven(void)
  */
 void do_cmd_equip(void)
 {
+	char string[80];
 	/* Note that we are in "equipment" mode */
 	p_ptr->command_wrk = TRUE;
 
@@ -83,8 +90,16 @@ void do_cmd_equip(void)
 	/* Hack -- undo the hack above */
 	item_tester_full = FALSE;
 
-	/* Prompt for a command */
-	prt("(Equipment) Command: ", 0, 0);
+
+	/* Insert the total burden and character capacity into a string. -LM- */
+	sprintf(string, 
+		"(Equipment) burden %d.%d lb (%d%% of capacity). Command: ",
+		p_ptr->total_weight / 10, p_ptr->total_weight % 10, 
+		p_ptr->total_weight / adj_str_wgt[p_ptr->stat_ind[A_STR]]);
+
+
+	/* Output that string, and prompt for a command. */
+	prt(string, 0, 0);
 
 	/* Hack -- Get a new command */
 	p_ptr->command_new = inkey();
@@ -424,7 +439,8 @@ void do_cmd_destroy(void)
 	o_ptr->number = old_number;
 
 	/* Verify destruction */
-	if (verify_destroy)
+	/* only for 'valuable' objects */
+	if (verify_destroy && !(object_value(o_ptr) < 1))
 	{
 		sprintf(out_val, "Really destroy %s? ", o_name);
 		if (!get_check(out_val)) return;
@@ -445,7 +461,10 @@ void do_cmd_destroy(void)
 		if (cursed_p(o_ptr) || broken_p(o_ptr)) feel = "terrible";
 
 		/* Hack -- inscribe the artifact */
-		o_ptr->note = quark_add(feel);
+		if (!o_ptr->note)
+		{
+			o_ptr->note = quark_add(feel);
+		}
 
 		/* We have "felt" it (again) */
 		o_ptr->ident |= (IDENT_SENSE);
@@ -462,6 +481,15 @@ void do_cmd_destroy(void)
 
 	/* Message */
 	msg_format("You destroy %s.", o_name);
+	/* Hack -- If rods or wand are destroyed, the total maximum timeout or 
+	 * charges of the stack needs to be reduced, unless all the items are 
+	 * being destroyed. -LM-
+	 */
+	if (((o_ptr->tval == TV_WAND) || (o_ptr->tval == TV_ROD)) 
+		&& (amt < o_ptr->number))
+	{
+		o_ptr->pval -= o_ptr->pval * amt / o_ptr->number;
+	}
 
 	/* Eliminate the item (from the pack) */
 	if (item >= 0)

@@ -1610,7 +1610,9 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	}
 
 
-	/* Hack -- Wands and Staffs have charges */
+	/* Hack -- Wands and Staffs have charges.  Make certain how many charges 
+	 * a stack of staffs really has is clear. -LM-
+	 */
 	if (known &&
 	    ((o_ptr->tval == TV_STAFF) ||
 	     (o_ptr->tval == TV_WAND)))
@@ -1618,6 +1620,13 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		/* Dump " (N charges)" */
 		object_desc_chr_macro(t, ' ');
 		object_desc_chr_macro(t, p1);
+
+		/* Clear explaination for staffs. */
+		if ((o_ptr->tval == TV_STAFF) && (o_ptr->number > 1)) 
+		{
+			object_desc_num_macro(t, o_ptr->number);
+			object_desc_str_macro(t, "x ");
+		}
 		object_desc_num_macro(t, o_ptr->pval);
 		object_desc_str_macro(t, " charge");
 		if (o_ptr->pval != 1)
@@ -1627,13 +1636,39 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		object_desc_chr_macro(t, p2);
 	}
 
-	/* Hack -- Rods have a "charging" indicator */
+	/* Hack -- Rods have a "charging" indicator.  Now that stacks of rods may 
+	 * be in any state of charge or discharge, this now includes a number. -LM-
+	 */
 	else if (known && (o_ptr->tval == TV_ROD))
 	{
-		/* Hack -- Dump " (charging)" if relevant */
-		if (o_ptr->pval)
+		/* Hack -- Dump " (# charging)" if relevant */
+		if (o_ptr->timeout)
 		{
-			object_desc_str_macro(t, " (charging)");
+			/* Stacks of rods display an exact count of charging rods. */
+			if (o_ptr->number > 1)
+			{
+				/* Paranoia. */
+				if (k_ptr->pval == 0) k_ptr->pval = 1;
+
+				/* Find out how many rods are charging, by dividing 
+				 * current timeout by each rod's maximum timeout.  
+				 * Ensure that any remainder is rounded up.  Display 
+			 	 * very discharged stacks as merely fully discharged.
+			 	 */
+				power = (o_ptr->timeout + (k_ptr->pval - 1)) / k_ptr->pval;
+				if (power > o_ptr->number) power = o_ptr->number;
+
+				/* Display prettily. */
+				object_desc_str_macro(t, " (");
+				object_desc_num_macro(t, power);
+				object_desc_str_macro(t, " charging)");
+			}
+
+			/* "one Rod of Perception (1 charging)" would look tacky. */
+			else
+			{
+				object_desc_str_macro(t, " (charging)");
+			}
 		}
 	}
 
@@ -1740,8 +1775,8 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	}
 
 
-	/* Indicate "charging" artifacts */
-	if (known && o_ptr->timeout)
+	/* Indicate charging objects, but not rods. */
+	if (known && o_ptr->timeout && o_ptr->tval != TV_ROD)
 	{
 		/* Hack -- Dump " (charging)" if relevant */
 		object_desc_str_macro(t, " (charging)");
@@ -3018,10 +3053,6 @@ void display_equip(void)
 		Term_erase(0, i, 255);
 	}
 }
-
-
-
-
 
 
 /*

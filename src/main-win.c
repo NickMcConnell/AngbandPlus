@@ -476,12 +476,12 @@ static cptr ini_file = NULL;
 /*
  * Name of application
  */
-static cptr AppName  = "ANGBAND";
+static cptr AppName = "ANGBAND";
 
 /*
  * Name of sub-window type
  */
-static cptr AngList  = "AngList";
+static cptr AngList = "AngList";
 
 /*
  * Directory names
@@ -566,6 +566,7 @@ static byte special_key_list[] =
 	VK_DELETE,		/* 0x2E (KP<.>) */
 	VK_HELP,		/* 0x2F (?????) */
 
+#if 0
 	VK_NUMPAD0,		/* 0x60 (KP<0>) */
 	VK_NUMPAD1,		/* 0x61 (KP<1>) */
 	VK_NUMPAD2,		/* 0x62 (KP<2>) */
@@ -582,6 +583,7 @@ static byte special_key_list[] =
 	VK_SUBTRACT,	/* 0x6D (KP<->) */
 	VK_DECIMAL,		/* 0x6E (KP<.>) */
 	VK_DIVIDE,		/* 0x6F (KP</>) */
+#endif
 
 	VK_F1,			/* 0x70 */
 	VK_F2,			/* 0x71 */
@@ -2980,7 +2982,7 @@ LRESULT FAR PASCAL AngbandWndProc(HWND hWnd, UINT uMsg,
 LRESULT FAR PASCAL AngbandWndProc(HWND hWnd, UINT uMsg,
                                   WPARAM wParam, LPARAM lParam)
 #else /* __MWERKS__ */
-LRESULT FAR PASCAL _export AngbandWndProc(HWND hWnd, UINT uMsg,
+LRESULT FAR PASCAL AngbandWndProc(HWND hWnd, UINT uMsg,
                                           WPARAM wParam, LPARAM lParam)
 #endif /* __MWERKS__ */
 {
@@ -3254,7 +3256,7 @@ LRESULT FAR PASCAL AngbandListProc(HWND hWnd, UINT uMsg,
 LRESULT FAR PASCAL AngbandListProc(HWND hWnd, UINT uMsg,
                                            WPARAM wParam, LPARAM lParam)
 #else /* __MWERKS__ */
-LRESULT FAR PASCAL _export AngbandListProc(HWND hWnd, UINT uMsg,
+LRESULT FAR PASCAL AngbandListProc(HWND hWnd, UINT uMsg,
                                            WPARAM wParam, LPARAM lParam)
 #endif /* __MWERKS__ */
 {
@@ -3465,7 +3467,7 @@ LRESULT FAR PASCAL AngbandSaverProc(HWND hWnd, UINT uMsg,
 LRESULT FAR PASCAL AngbandSaverProc(HWND hWnd, UINT uMsg,
                                     WPARAM wParam, LPARAM lParam)
 #else /* __MWERKS__ */
-LRESULT FAR PASCAL _export AngbandSaverProc(HWND hWnd, UINT uMsg,
+LRESULT FAR PASCAL AngbandSaverProc(HWND hWnd, UINT uMsg,
                                             WPARAM wParam, LPARAM lParam)
 #endif /* __MWERKS__ */
 {

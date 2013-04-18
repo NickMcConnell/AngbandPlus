@@ -19,6 +19,7 @@ void do_cmd_go_up(void)
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
+	char answer;
 	/* Verify stairs */
 	if (cave_feat[py][px] != FEAT_LESS)
 	{
@@ -38,6 +39,28 @@ void do_cmd_go_up(void)
 	/* New depth */
 	p_ptr->depth--;
 
+
+	/* Use the "simple" RNG to insure that stairs are consistant. */
+	Rand_quick = TRUE;
+
+	/* Use the coordinates of the staircase to seed the RNG. */
+	Rand_value = py * px;
+
+	/* If the new level is not a quest level, or the town, there is a 33% 
+	 * chance of going up another level. -LM-
+	 */
+	if ((is_quest(p_ptr->depth) == FALSE) && 
+		(p_ptr->depth != 0) && (randint(3) == 1))
+	{
+		msg_print("The stairs continue up.  Go up another level? (y/n)");
+
+		answer = inkey();
+		if ((answer == 'Y') || (answer == 'y')) p_ptr->depth--;
+	}
+
+	/* Revert to use of the "complex" RNG. */
+	Rand_quick = FALSE;
+
 	/* Leaving */
 	p_ptr->leaving = TRUE;
 }
@@ -50,6 +73,8 @@ void do_cmd_go_down(void)
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
+
+	char answer;
 
 	/* Verify stairs */
 	if (cave_feat[py][px] != FEAT_MORE)
@@ -70,10 +95,31 @@ void do_cmd_go_down(void)
 	/* New level */
 	p_ptr->depth++;
 
+
+	/* Use the "simple" RNG to insure that stairs are consistant. */
+	Rand_quick = TRUE;
+
+	/* Use the coordinates of the staircase to seed the RNG. */
+	Rand_value = py * px;
+
+	/* If the new level is not a quest level, or the bottom of the dungeon, 
+	 * there is a 50% chance of descending another level. -LM-
+	 */
+	if ((is_quest(p_ptr->depth) == FALSE) && (p_ptr->depth < MAX_DEPTH -1) && 
+		(randint(2) == 1))
+	{
+		msg_print("The stairs continue down.  Go down another level? (y/n)");
+
+		answer = inkey();
+		if ((answer == 'Y') || (answer == 'y')) p_ptr->depth++;
+	}
+
+	/* Revert to use of the "complex" RNG. */
+	Rand_quick = FALSE;
+
 	/* Leaving */
 	p_ptr->leaving = TRUE;
 }
-
 
 
 /*
@@ -166,6 +212,152 @@ static s16b chest_check(int y, int x)
 	return (0);
 }
 
+/* A function that returns the tval of the items that will be generated
+ * when a chest is opened. -LM-
+ */
+static byte get_choice(void)
+{
+	byte choice;
+
+	choice = randint(100);
+
+	switch (p_ptr->pclass)
+	{
+		case CLASS_WARRIOR:
+		{
+			if (choice < 2) return (TV_SHOT);
+			if (choice < 5) return (TV_ARROW);
+			if (choice < 9) return (TV_BOLT);
+			if (choice < 13) return (TV_BOW);
+			if (choice < 25) return (TV_HAFTED);
+			if (choice < 37) return (TV_POLEARM);
+			if (choice < 49) return (TV_SWORD);
+			if (choice < 54) return (TV_BOOTS);
+			if (choice < 59) return (TV_GLOVES);
+			if (choice < 64) return (TV_HELM);
+			if (choice < 67) return (TV_CROWN);
+			if (choice < 72) return (TV_SHIELD);
+			if (choice < 76) return (TV_CLOAK);
+			if (choice < 79) return (TV_SOFT_ARMOR);
+			if (choice < 89) return (TV_HARD_ARMOR);
+			if (choice < 95) return (TV_SCROLL);
+			if (choice < 101) return (TV_POTION);
+			break;
+		}
+
+		case CLASS_MAGE:
+		{
+			if (choice < 4) return (TV_BOOTS);
+			if (choice < 7) return (TV_HELM);
+			if (choice < 11) return (TV_CROWN);
+			if (choice < 16) return (TV_SHIELD);
+			if (choice < 22) return (TV_CLOAK);
+			if (choice < 28) return (TV_SOFT_ARMOR);
+			if (choice < 34) return (TV_SCROLL);
+			if (choice < 40) return (TV_POTION);
+			if (choice < 46) return (TV_RING);
+			if (choice < 52) return (TV_AMULET);
+			if (choice < 64) return (TV_WAND);
+			if (choice < 76) return (TV_STAFF);
+			if (choice < 88) return (TV_ROD);
+			if (choice < 101) return (TV_MAGIC_BOOK);
+			break;
+		}
+
+		case CLASS_PRIEST:
+		{
+			if (choice < 4) return (TV_BOOTS);
+			if (choice < 7) return (TV_HELM);
+			if (choice < 12) return (TV_CROWN);
+			if (choice < 16) return (TV_SHIELD);
+			if (choice < 21) return (TV_GLOVES);
+			if (choice < 27) return (TV_CLOAK);
+			if (choice < 33) return (TV_SOFT_ARMOR);
+			if (choice < 39) return (TV_SCROLL);
+			if (choice < 46) return (TV_POTION);
+			if (choice < 53) return (TV_RING);
+			if (choice < 60) return (TV_AMULET);
+			if (choice < 69) return (TV_HAFTED);
+			if (choice < 76) return (TV_WAND);
+			if (choice < 81) return (TV_STAFF);
+			if (choice < 86) return (TV_ROD);
+			if (choice < 101) return (TV_PRAYER_BOOK);
+			break;
+		}
+
+		case CLASS_ROGUE:
+		{
+			if (choice < 11) return (TV_SHOT);
+			if (choice < 17) return (TV_ARROW);
+			if (choice < 20) return (TV_BOLT);
+			if (choice < 29) return (TV_BOW);
+			if (choice < 33) return (TV_HAFTED);
+			if (choice < 37) return (TV_POLEARM);
+			if (choice < 44) return (TV_SWORD);
+			if (choice < 48) return (TV_BOOTS);
+			if (choice < 50) return (TV_GLOVES);
+			if (choice < 54) return (TV_HELM);
+			if (choice < 58) return (TV_CROWN);
+			if (choice < 62) return (TV_SHIELD);
+			if (choice < 68) return (TV_CLOAK);
+			if (choice < 71) return (TV_SOFT_ARMOR);
+			if (choice < 74) return (TV_HARD_ARMOR);
+			if (choice < 80) return (TV_SCROLL);
+			if (choice < 86) return (TV_POTION);
+			if (choice < 92) return (TV_STAFF);
+			if (choice < 101) return (TV_MAGIC_BOOK);
+			break;
+		}
+
+		case CLASS_RANGER:
+		{
+			if (choice < 15) return (TV_ARROW);
+			if (choice < 21) return (TV_BOLT);
+			if (choice < 31) return (TV_BOW);
+			if (choice < 34) return (TV_HAFTED);
+			if (choice < 37) return (TV_POLEARM);
+			if (choice < 40) return (TV_SWORD);
+			if (choice < 45) return (TV_RING);
+			if (choice < 50) return (TV_AMULET);
+			if (choice < 54) return (TV_BOOTS);
+			if (choice < 58) return (TV_GLOVES);
+			if (choice < 62) return (TV_HELM);
+			if (choice < 66) return (TV_CROWN);
+			if (choice < 70) return (TV_SHIELD);
+			if (choice < 74) return (TV_CLOAK);
+			if (choice < 78) return (TV_SOFT_ARMOR);
+			if (choice < 82) return (TV_ROD);
+			if (choice < 87) return (TV_WAND);
+			if (choice < 92) return (TV_STAFF);
+			if (choice < 101) return (TV_MAGIC_BOOK);
+			break;
+		}
+
+		case CLASS_PALADIN:
+		{
+			if (choice < 4) return (TV_BOOTS);
+			if (choice < 8) return (TV_HELM);
+			if (choice < 12) return (TV_CROWN);
+			if (choice < 16) return (TV_SHIELD);
+			if (choice < 20) return (TV_GLOVES);
+			if (choice < 24) return (TV_CLOAK);
+			if (choice < 30) return (TV_HARD_ARMOR);
+			if (choice < 35) return (TV_SCROLL);
+			if (choice < 40) return (TV_POTION);
+			if (choice < 47) return (TV_RING);
+			if (choice < 54) return (TV_AMULET);
+			if (choice < 70) return (TV_HAFTED);
+			if (choice < 90) return (TV_STAFF);
+			if (choice < 94) return (TV_ROD);
+			if (choice < 101) return (TV_PRAYER_BOOK);
+			break;
+		}
+
+
+	}
+	/* If the function fails, do not specify a tval */
+	return (0);
+}
 
 /*
  * Allocate objects upon opening a chest
@@ -178,11 +370,9 @@ static s16b chest_check(int y, int x)
  * chest is based on the "power" of the chest, which is in turn based
  * on the level on which the chest is generated.
  */
-static void chest_death(int y, int x, s16b o_idx)
+static void chest_death(bool scatter, int y, int x, s16b o_idx)
 {
-	int number;
-
-	bool tiny;
+	int number, i;
 
 	object_type *o_ptr;
 
@@ -193,11 +383,9 @@ static void chest_death(int y, int x, s16b o_idx)
 	/* Access chest */
 	o_ptr = &o_list[o_idx];
 
-	/* Small chests often hold "gold" */
-	tiny = (o_ptr->sval < SV_CHEST_MIN_LARGE);
-
-	/* Determine how much to drop (see above) */
-	number = (o_ptr->sval % SV_CHEST_MIN_LARGE) * 2;
+	/* Determine how much to drop. -LM- */
+	if (o_ptr->sval >= SV_CHEST_MIN_LARGE) number = 4 + randint(3);
+	else number = 2 + randint(3);
 
 	/* Zero pval means empty chest */
 	if (!o_ptr->pval) number = 0;
@@ -207,6 +395,8 @@ static void chest_death(int y, int x, s16b o_idx)
 
 	/* Determine the "value" of the items */
 	object_level = ABS(o_ptr->pval) + 10;
+	/* Select an item type that the chest will disperse. -LM- */
+	required_tval = get_choice();
 
 	/* Drop some objects (non-chests) */
 	for (; number > 0; --number)
@@ -217,23 +407,117 @@ static void chest_death(int y, int x, s16b o_idx)
 		/* Wipe the object */
 		object_wipe(i_ptr);
 
-		/* Small chests often drop gold */
-		if (tiny && (rand_int(100) < 75))
+		/* Make an object with a specified tval.  Grant a possibility for 
+		 * items to be forced good, or even great.  With the new definitions 
+		 * of goodness, this can make for quite interesting loot.  -LM-
+		 */
+		switch (required_tval)
 		{
-			/* Make some gold */
-			if (!make_gold(i_ptr)) continue;
+			case TV_HARD_ARMOR:
+			case TV_SOFT_ARMOR:
+			case TV_DRAG_ARMOR:
+			case TV_SHIELD:
+			case TV_CLOAK:
+			case TV_BOOTS:
+			case TV_GLOVES:
+			case TV_HELM:
+			case TV_CROWN:
+			case TV_BOW:
+			case TV_SWORD:
+			case TV_HAFTED:
+			case TV_POLEARM:
+			case TV_DIGGING:
+			case TV_SHOT:
+			case TV_BOLT:
+			case TV_ARROW:
+			{
+				if (randint(200) < object_level)
+				{
+					if (!make_object(i_ptr, TRUE, TRUE)) continue;
+					break;
+				}
+
+				else if (randint(40) < object_level)
+				{
+					if (!make_object(i_ptr, TRUE, FALSE)) continue;
+					break;
+				}
+				else
+				{
+					if (!make_object(i_ptr, FALSE, FALSE)) continue;
+					break;
+				}
+			}
+
+			case TV_MAGIC_BOOK:
+			case TV_PRAYER_BOOK:
+			{
+				if (randint(80) < object_level)
+				{
+					if (!make_object(i_ptr, TRUE, FALSE)) continue;
+				}
+
+				else
+				{
+				 if (!make_object(i_ptr, FALSE, FALSE)) continue;
+				}
+
+				break;
+			}
+
+			case TV_SCROLL:
+			case TV_POTION:
+			case TV_RING:
+			case TV_AMULET:
+			case TV_WAND:
+			case TV_STAFF:
+			case TV_ROD:
+			{
+				if (randint(100) < (object_level - 10) / 2)
+				{
+					if (!make_object(i_ptr, TRUE, FALSE)) continue;
+				}
+
+				else
+				{
+					if (!make_object(i_ptr, FALSE, FALSE)) continue;
+				}
+
+				break;
+			}
+
+			default:
+			{
+				if (!make_object(i_ptr, FALSE, FALSE)) continue;
+				break;
+			}
 		}
 
-		/* Otherwise drop an item */
-		else
+		/* If chest scatters its contents, pick any floor square. */
+		if (scatter)
 		{
-			/* Make an object */
-			if (!make_object(i_ptr, FALSE, FALSE)) continue;
-		}
+			for (i = 0; i < 200; i++)
+			{
+				/* Pick a totally random spot. */
+				y = rand_int(DUNGEON_HGT);
+				x = rand_int(DUNGEON_WID);
 
-		/* Drop it in the dungeon */
-		drop_near(i_ptr, 0, y, x);
+				/* Must be an empty floor. */
+				if (!cave_empty_bold(y, x)) continue;
+
+				/* Place the object there. */
+				drop_near(i_ptr, -1, y, x);
+
+				/* Done. */
+				break;
+			}
+		}
+		/* Normally, drop object near the chest. */
+		else drop_near(i_ptr, -1, y, x);
 	}
+
+	/* Clear this global variable, to avoid messing up object generation. -LM- */
+	required_tval = 0;
 
 	/* Reset the object level */
 	object_level = p_ptr->depth;
@@ -367,7 +651,7 @@ static bool do_cmd_open_chest(int y, int x, s16b o_idx)
 		if (rand_int(100) < j)
 		{
 			msg_print("You have picked the lock.");
-			gain_exp(1);
+			gain_exp(o_ptr->pval);
 			flag = TRUE;
 		}
 
@@ -388,7 +672,7 @@ static bool do_cmd_open_chest(int y, int x, s16b o_idx)
 		chest_trap(y, x, o_idx);
 
 		/* Let the Chest drop items */
-		chest_death(y, x, o_idx);
+		chest_death(FALSE, y, x, o_idx);
 	}
 
 	/* Result */
@@ -2463,7 +2747,30 @@ void do_cmd_fire(void)
 				/* Hit the monster, check for death */
 				if (mon_take_hit(cave_m_idx[y][x], tdam, &fear, note_dies))
 				{
+					int skill;
+
+					if (is_sling) skill = p_ptr->skill_slings;
+					if (is_bow)   skill = p_ptr->skill_bows;
+					if (is_xbow)  skill = p_ptr->skill_xbows;
+
 					/* Dead monster */
+					/* Learn something *DvE* */
+					chance = cp_ptr->x_thb * (MAX_SKILL - skill) / MAX_SKILL;
+					if ((skill != MAX_SKILL) && (randint(MAX_SKILL) < chance))
+					{
+						if (is_sling()) p_ptr->skill_slings++;
+						if (is_bow()) p_ptr->skill_bows++;
+						if (is_xbow()) p_ptr->skill_xbows++;
+						
+						/* notice */
+						msg_print("You feel you're a better marksman");
+						
+						/* Recalculate bonuses */
+						p_ptr->update |= (PU_BONUS);
+
+						/* handle stuff */
+						handle_stuff();
+					}
 				}
 
 				/* No death */

@@ -299,7 +299,7 @@ byte *temp_x;
 byte (*cave_info)[256];
 
 /*
- * Array[DUNGEON_HGT][256] of cave grid feature codes
+ * Array[DUNGEON_HGT][DUNGEON_WID] of cave grid feature codes
  */
 byte (*cave_feat)[256];
 
@@ -328,6 +328,22 @@ s16b (*cave_o_idx)[DUNGEON_WID];
  * if any, monster or player is in any given grid.
  */
 s16b (*cave_m_idx)[DUNGEON_WID];
+
+/*
+ * Array[DUNGEON_HGT][DUNGEON_WID] of cave grid damage.
+ *
+ * This array is added to hold the damage done by the wall of fire spell
+ * Added by DvE
+ */
+s16b (*cave_dam)[DUNGEON_WID];
+
+/*
+ * Array[DUNGEON_HGT][DUNGEON_WID] of cave grid timeout.
+ *
+ * This array is added to hold the time a wall of fire has left
+ * Added by DvE
+ */
+s16b (*cave_timeout)[DUNGEON_WID];
 
 
 #ifdef MONSTER_FLOW
@@ -622,4 +638,9 @@ bool (*get_mon_num_hook)(int r_idx);
 bool (*get_obj_num_hook)(int k_idx);
 
 
+
+/*
+ * The type of object the item generator should make, if specified. -LM-
+ */
+byte required_tval = 0;
 

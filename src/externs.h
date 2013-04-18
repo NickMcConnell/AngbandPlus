@@ -156,6 +156,8 @@ extern byte (*cave_info)[256];
 extern byte (*cave_feat)[256];
 extern s16b (*cave_o_idx)[DUNGEON_WID];
 extern s16b (*cave_m_idx)[DUNGEON_WID];
+extern s16b (*cave_dam)[DUNGEON_WID];     /* DvE */	
+extern s16b (*cave_timeout)[DUNGEON_WID]; /* DvE */
 extern byte (*cave_cost)[DUNGEON_WID];
 extern byte (*cave_when)[DUNGEON_WID];
 extern object_type *o_list;
@@ -222,6 +224,7 @@ extern void (*ang_sort_swap)(vptr u, vptr v, int a, int b);
 extern bool (*get_mon_num_hook)(int r_idx);
 extern bool (*get_obj_num_hook)(int k_idx);
 
+extern byte required_tval;
 
 /*
  * Automatically generated "function declarations"
@@ -393,9 +396,6 @@ extern errr init_r_info_txt(FILE *fp, char *buf);
 extern void init_file_paths(char *path);
 extern void init_angband(void);
 
-/* load1.c */
-extern errr rd_savefile_old(void);
-
 /* load2.c */
 extern bool wearable_p(object_type *o_ptr);
 extern errr rd_savefile_new(void);
@@ -544,9 +544,9 @@ extern bool remove_all_curse(void);
 extern bool restore_level(void);
 extern void self_knowledge(void);
 extern bool lose_all_info(void);
-extern bool detect_traps(void);
-extern bool detect_doors(void);
-extern bool detect_stairs(void);
+extern bool detect_traps(bool extended);
+extern bool detect_doors(bool extended);
+extern bool detect_stairs(bool extended);
 extern bool detect_treasure(void);
 extern bool detect_objects_gold(void);
 extern bool detect_objects_normal(void);
@@ -562,10 +562,10 @@ extern bool ident_spell(void);
 extern bool identify_fully(void);
 extern bool recharge(int num);
 extern bool speed_monsters(void);
-extern bool slow_monsters(void);
-extern bool sleep_monsters(void);
+extern bool slow_monsters(int dam);
+extern bool sleep_monsters(int dam);
 extern bool banish_evil(int dist);
-extern bool turn_undead(void);
+extern bool turn_undead(int dam);
 extern bool dispel_undead(int dam);
 extern bool dispel_evil(int dam);
 extern bool dispel_monsters(int dam);
@@ -590,17 +590,18 @@ extern bool destroy_door(int dir);
 extern bool disarm_trap(int dir);
 extern bool heal_monster(int dir);
 extern bool speed_monster(int dir);
-extern bool slow_monster(int dir);
-extern bool sleep_monster(int dir);
-extern bool confuse_monster(int dir, int plev);
+extern bool slow_monster(int dir, int dam);
+extern bool sleep_monster(int dir, int dam);
+extern bool confuse_monster(int dir, int dam);
 extern bool poly_monster(int dir);
 extern bool clone_monster(int dir);
-extern bool fear_monster(int dir, int plev);
+extern bool fear_monster(int dir, int dam);
 extern bool teleport_monster(int dir);
 extern bool door_creation(void);
 extern bool trap_creation(void);
 extern bool destroy_doors_touch(void);
-extern bool sleep_monsters_touch(void);
+extern bool sleep_monsters_touch(int dam);
+extern bool wall_of_fire(void);
 
 /* store.c */
 extern void do_cmd_store(void);
@@ -667,6 +668,14 @@ extern uint maxroll(uint num, uint sides);
 extern bool is_a_vowel(int ch);
 
 /* xtra1.c */
+extern bool is_sword(void);
+extern bool is_axe(void);
+extern bool is_dagger(void);
+extern bool is_polearm(void);
+extern bool is_hafted(void);
+extern bool is_sling(void);
+extern bool is_bow(void);
+extern bool is_xbow(void);
 extern void cnv_stat(int val, char *out_val);
 extern s16b modify_stat_value(int value, int amount);
 extern void notice_stuff(void);

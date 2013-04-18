@@ -825,11 +825,6 @@ errr process_pref_file(cptr name)
 }
 
 
-
-
-
-
-
 #ifdef CHECK_TIME
 
 /*
@@ -1158,7 +1153,7 @@ static cptr likert(int x, int y)
  * Space includes rows 10-17 cols 1-79
  * Space includes rows 19-22 cols 1-79
  */
-static void display_player_xtra_info(void)
+static void display_player_xtra_info(bool history)
 {
 	int col;
 	int hit, dam;
@@ -1374,7 +1369,7 @@ static void display_player_xtra_info(void)
 	put_str("Saving Throw", 10, col);
 	desc = likert(xsav, 6);
 	c_put_str(likert_color, format("%9s", desc), 10, col+14);
-
+	
 	put_str("Stealth", 11, col);
 	desc = likert(xstl, 1);
 	c_put_str(likert_color, format("%9s", desc), 11, col+14);
@@ -1403,17 +1398,67 @@ static void display_player_xtra_info(void)
 	desc = likert(xsrh, 6);
 	c_put_str(likert_color, format("%9s", desc), 17, col+14);
 
-
 	/* Bottom */
 	col = 5;
 
 	/* History */
-	for (i = 0; i < 4; i++)
+	if (history)
 	{
-		put_str(p_ptr->history[i], i + 19, col);
+		for (i = 0; i < 4; i++)
+		{
+			put_str(p_ptr->history[i], i + 19, col);
+		}
 	}
 }
 
+static void display_player_skills(void)
+{
+	int col;
+	int base_thn, base_thb;
+		
+	cptr desc;
+
+	base_thn = cp_ptr->c_thn + rp_ptr->r_thn;
+	base_thb = cp_ptr->c_thb + rp_ptr->r_thb;
+
+	col = 5;
+
+	put_str("Swords", 19, col);
+	desc = likert(base_thn + p_ptr->skill_swords, 12);
+	c_put_str(likert_color, format("%9s", desc), 19, col+10);
+	
+	put_str("Axes", 20, col);
+	desc = likert(base_thn + p_ptr->skill_axes, 12);
+	c_put_str(likert_color, format("%9s", desc), 20, col+10);
+
+	put_str("Daggers", 21, col);
+	desc = likert(base_thn + p_ptr->skill_daggers, 12);
+	c_put_str(likert_color, format("%9s", desc), 21, col+10);
+
+	col = 26;
+
+	put_str("Polearms", 19, col);
+	desc = likert(base_thn + p_ptr->skill_polearms, 12);
+	c_put_str(likert_color, format("%9s", desc), 19, col+10);
+
+	put_str("Maces", 20, col);
+	desc = likert(base_thn + p_ptr->skill_hafted, 12);
+	c_put_str(likert_color, format("%9s", desc), 20, col+10);
+
+	col = 49;
+
+	put_str("Slings", 19, col);
+	desc = likert(base_thb + p_ptr->skill_slings, 12);
+	c_put_str(likert_color, format("%9s", desc), 19, col+14);
+
+	put_str("Bows", 20, col);
+	desc = likert(base_thb + p_ptr->skill_bows, 12);
+	c_put_str(likert_color, format("%9s", desc), 20, col+14);
+
+	put_str("Crossbows", 21, col);
+	desc = likert(base_thb + p_ptr->skill_xbows, 12);
+	c_put_str(likert_color, format("%9s", desc), 21, col+14);
+}
 
 
 /*
@@ -1925,12 +1970,13 @@ static void display_player_sust_info(void)
 
 
 /*
- * Display the character on the screen (two different modes)
+ * Display the character on the screen (three different modes)
  *
  * The top two lines, and the bottom line (or two) are left blank.
  *
  * Mode 0 = standard display with skills/history
  * Mode 1 = special display with equipment flags
+ * Mode 2 = display fighting/shooting skills
  */
 void display_player(int mode)
 {
@@ -1944,24 +1990,42 @@ void display_player(int mode)
 	display_player_stat_info();
 
 	/* Special */
-	if (mode)
+	switch (mode)
 	{
-		/* Hack -- Level */
-		put_str("Level", 9, 1);
-		c_put_str(TERM_L_BLUE, format("%d", p_ptr->lev), 9, 8);
+		case 0:
+		{
+			/* Standard */
+		
+			/* Extra info */
+			display_player_xtra_info(TRUE);
 
-		/* Stat/Sustain flags */
-		display_player_sust_info();
+			break;
+		}
+		case 1:
+		{
 
-		/* Other flags */
-		display_player_flag_info();
-	}
+			/* Hack -- Extra info */
+			display_player_xtra_info(FALSE);
 
-	/* Standard */
-	else
-	{
-		/* Extra info */
-		display_player_xtra_info();
+			/* Skills */
+			display_player_skills();
+
+			break;
+		}
+		case 2:
+		{
+			/* Hack -- Level */
+			put_str("Level", 9, 1);
+			c_put_str(TERM_L_BLUE, format("%d", p_ptr->lev), 9, 8);
+	
+			/* Stat/Sustain flags */
+			display_player_sust_info();
+
+			/* Other flags */
+			display_player_flag_info();
+
+			break;
+		}
 	}
 }
 
@@ -2044,7 +2108,7 @@ errr file_character(cptr name, bool full)
 
 
 	/* Begin dump */
-	fprintf(fff, "  [Angband %d.%d.%d Character Dump]\n\n",
+	fprintf(fff, "  [DvEband %d.%d.%d Character Dump]\n\n",
 	        VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 
 
@@ -2408,7 +2472,7 @@ bool show_file(cptr name, cptr what, int line, int mode)
 
 
 		/* Show a general "title" */
-		prt(format("[Angband %d.%d.%d, %s, Line %d/%d]",
+		prt(format("[DvEband %d.%d.%d, %s, Line %d/%d]",
 		           VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH,
 		           caption, line, size), 0, 0);
 
@@ -3313,7 +3377,7 @@ static void display_scores_aux(int from, int to, int note, high_score *score)
 		Term_clear();
 
 		/* Title */
-		put_str("                Angband Hall of Fame", 0, 0);
+		put_str("                DvEband Hall of Fame", 0, 0);
 
 		/* Indicate non-top scores */
 		if (k > 0)
@@ -3436,7 +3500,7 @@ void display_scores(int from, int to)
 	Term_clear();
 
 	/* Title */
-	put_str("                Angband Hall of Fame", 0, 0);
+	put_str("                DvEband Hall of Fame", 0, 0);
 
 	/* Display the scores */
 	display_scores_aux(from, to, -1, NULL);

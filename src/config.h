@@ -171,7 +171,7 @@
 /*
  * OPTION: Hack -- Compile in support for "Borg mode"
  */
-#define ALLOW_BORG
+/* #define ALLOW_BORG */
 
 /*
  * OPTION: Hack -- Compile in support for "Debug Commands"
@@ -201,7 +201,7 @@
 
 
 /*
- * OPTION: Allow characteres to be "auto-rolled"
+ * OPTION: Allow characters to be "auto-rolled"
  */
 #define ALLOW_AUTOROLLER
 

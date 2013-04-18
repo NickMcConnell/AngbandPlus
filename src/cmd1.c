@@ -68,14 +68,18 @@ bool test_hit_norm(int chance, int ac, int vis)
 
 /*
  * Critical hits (from objects thrown by player)
- * Factor in item weight, total plusses, and player level.
+ * Factor in item weight, total plusses, and skill.
  */
 sint critical_shot(int weight, int plus, int dam)
 {
-	int i, k;
+	int i, k, skill;
+
+	if (is_sling) skill = p_ptr->skill_slings;
+	if (is_bow)   skill = p_ptr->skill_bows;
+	if (is_xbow)  skill = p_ptr->skill_xbows;
 
 	/* Extract "shot" power */
-	i = (weight + ((p_ptr->to_h + plus) * 4) + (p_ptr->lev * 2));
+	i = (weight + ((p_ptr->to_h + plus) * 4) + skill);
 
 	/* Critical hit */
 	if (randint(5000) <= i)
@@ -97,8 +101,23 @@ sint critical_shot(int weight, int plus, int dam)
 			msg_print("It was a superb hit!");
 			dam = 3 * dam + 15;
 		}
-	}
+		/* Learn something extra *DvE* */
+		
+		if ((skill <= MAX_SKILL) && (randint(MAX_SKILL) < (cp_ptr->x_thn * (MAX_SKILL - skill) / MAX_SKILL)))
+		{
+			if (is_sling()) p_ptr->skill_slings++;
+			if (is_bow()) p_ptr->skill_bows++;
+			if (is_xbow()) p_ptr->skill_xbows++;
+	
+			msg_print("You feel you're a better marksman");
 
+			/* Recalculate bonuses */
+			p_ptr->update |= (PU_BONUS);
+		
+			/* handle stuff */
+			handle_stuff();
+		}
+	}
 	return (dam);
 }
 
@@ -107,19 +126,28 @@ sint critical_shot(int weight, int plus, int dam)
 /*
  * Critical hits (by player)
  *
- * Factor in weapon weight, total plusses, player level.
+ * Factor in weapon weight, total plusses, weapon skill. *DvE*.
  */
 sint critical_norm(int weight, int plus, int dam)
 {
 	int i, k;
 
+	int skill;
+
+	/* determine skill */
+	if (is_sword()) skill = p_ptr->skill_swords;
+	if (is_axe()) skill = p_ptr->skill_axes;
+	if (is_dagger()) skill = p_ptr->skill_daggers;
+	if (is_polearm()) skill = p_ptr->skill_polearms;
+	if (is_hafted()) skill = p_ptr->skill_hafted;
+
 	/* Extract "blow" power */
-	i = (weight + ((p_ptr->to_h + plus) * 5) + (p_ptr->lev * 3));
+	i = (weight + ((p_ptr->to_h + plus) * 5) + (skill));
 
 	/* Chance */
 	if (randint(5000) <= i)
 	{
-		k = weight + randint(650);
+		k = weight + randint(650) ;
 
 		if (k < 400)
 		{
@@ -145,6 +173,25 @@ sint critical_norm(int weight, int plus, int dam)
 		{
 			msg_print("It was a *SUPERB* hit!");
 			dam = ((7 * dam) / 2) + 25;
+		}
+
+		/* Learn something extra *DvE* */
+		if ((skill <= MAX_SKILL) && (randint(MAX_SKILL) < (cp_ptr->x_thn * (MAX_SKILL - skill) / MAX_SKILL)))
+		{
+			if (is_sword()) p_ptr->skill_swords++;
+			if (is_axe()) p_ptr->skill_axes++;
+			if (is_dagger()) p_ptr->skill_daggers++;
+			if (is_polearm()) p_ptr->skill_polearms++;
+			if (is_hafted()) p_ptr->skill_hafted++;
+		
+			/* notice */
+			msg_print("You feel you handle your weapon better");
+
+			/* Recalculate bonuses */
+			p_ptr->update |= (PU_BONUS);
+	
+			/* handle stuff */
+			handle_stuff();
 		}
 	}
 
@@ -978,7 +1025,34 @@ void py_attack(int y, int x)
 		/* Damage, check for fear and death */
 		if (mon_take_hit(cave_m_idx[y][x], k, &fear, NULL))
 		{
+			int skill;
+
+			/* determine skill */
+			if (is_sword()) skill = p_ptr->skill_swords;
+			if (is_axe()) skill = p_ptr->skill_axes;
+			if (is_dagger()) skill = p_ptr->skill_daggers;
+			if (is_polearm()) skill = p_ptr->skill_polearms;
+			if (is_hafted()) skill = p_ptr->skill_hafted;
+
 			/* Dead monster */
+			/* Learn something *DvE* */
+			chance = cp_ptr->x_thn * (MAX_SKILL - skill) / MAX_SKILL;
+			if ((skill != MAX_SKILL) && (randint(MAX_SKILL) < chance))
+			{
+				if (is_sword()) p_ptr->skill_swords++;
+				if (is_axe()) p_ptr->skill_axes++;
+				if (is_dagger()) p_ptr->skill_daggers++;
+				if (is_polearm()) p_ptr->skill_polearms++;
+				if (is_hafted()) p_ptr->skill_hafted++;
+				/* notice */
+				msg_print("You feel you handle your weapon better");
+				
+				/* Recalculate bonuses */
+				p_ptr->update |= (PU_BONUS);
+
+				/* handle stuff */
+				handle_stuff();
+			}
 		}
 
 		/* No death */
@@ -1153,6 +1227,9 @@ void move_player(int dir, int do_pickup)
 		/* New location */
 		y = py = p_ptr->py;
 		x = px = p_ptr->px;
+
+		/* Hack Take fire damage when on a wall of fire  DvE */
+		if (cave_feat[y][x] == FEAT_WALL_FIRE) fire_dam(cave_dam[y][x],"raging fire");
 
 
 		/* Spontaneous Searching */

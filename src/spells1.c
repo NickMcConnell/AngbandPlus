@@ -900,6 +900,17 @@ static int inven_damage(inven_func typ, int perc)
 				           o_name, index_to_label(i),
 				           ((amt > 1) ? "were" : "was"));
 
+				/* Hack -- If rods or wand are destroyed, the total maximum 
+				 * timeout or charges of the stack needs to be reduced, 
+				 * unless all the items are being destroyed. -LM-
+				 */
+				if (((o_ptr->tval == TV_WAND) || (o_ptr->tval == TV_ROD)) 
+					&& (amt < o_ptr->number))
+				{
+					o_ptr->pval -= o_ptr->pval * amt / o_ptr->number;
+				}
+
+
 				/* Destroy "amt" items */
 				inven_item_increase(i, -amt);
 				inven_item_optimize(i);
@@ -1492,7 +1503,6 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 		/* Ignore most effects */
 		case GF_ACID:
 		case GF_ELEC:
-		case GF_FIRE:
 		case GF_COLD:
 		case GF_PLASMA:
 		case GF_METEOR:
@@ -1505,7 +1515,33 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 		{
 			break;
 		}
+		/* In case of fire there is a chance a fire breaks out DvE */
+		case GF_FIRE:
+		{
+			if (randint(250) <= dam)
+			{
+				if ((y == p_ptr->py) && (x == p_ptr->px)) break;
+				if (!cave_floor_bold(y, x)) break;
 
+				/* Create wall of Fire */
+				cave_set_feat(y, x, FEAT_WALL_FIRE);
+
+				if (cave_feat[y][x] == FEAT_WALL_FIRE)
+				{
+					/* Hack -- Overrule the dam and timeout */
+					cave_dam[y][x] = (10 + (p_ptr->lev / 2)) / 2;
+					cave_timeout[y][x] = (randint(30) + 30 + p_ptr->lev) / 2;
+				}
+
+
+				/* Observe */
+				if (cave_info[y][x] & (CAVE_MARK)) obvious = TRUE;
+	
+				/* Update the visuals */
+				p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
+			}
+			break;
+		}
 		/* Destroy Traps (and Locks) */
 		case GF_KILL_TRAP:
 		{
@@ -1783,6 +1819,27 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 			/* All done */
 			break;
 		}
+		case GF_WALL_FIRE:
+		{
+			/* This part is created by DvE */
+			/* Require a floor grid */
+			/* nothing will happen at the PC location */
+			if ((y == p_ptr->py) && (x == p_ptr->px)) break;
+
+			if (!cave_floor_bold(y, x)) break;
+
+			/* Create wall of Fire */
+			cave_set_feat(y, x, FEAT_WALL_FIRE);
+
+			/* Observe */
+			if (cave_info[y][x] & (CAVE_MARK)) obvious = TRUE;
+
+			/* Update the visuals */
+			p_ptr->update |= (PU_UPDATE_VIEW | PU_MONSTERS);
+
+			break;
+		}
+
 	}
 
 	/* Return "Anything seen?" */
@@ -1877,10 +1934,14 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 			}
 
 			/* Fire -- Flammable objects */
+			/* Wall of Fire counts as fire  DvE*/
 			case GF_FIRE:
+			case GF_WALL_FIRE:
 			{
 				if (hates_fire(o_ptr))
 				{
+					/* Feed the Fire DvE */
+					cave_timeout[y][x] += 10;
 					do_kill = TRUE;
 					note_kill = (plural ? " burn up!" : " burns up!");
 					if (f3 & (TR3_IGNORE_FIRE)) ignore = TRUE;
@@ -2221,6 +2282,8 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		}
 
 		/* Fire damage */
+		/* Include Wall of Fire Damage DvE */
+		case GF_WALL_FIRE:
 		case GF_FIRE:
 		{
 			if (seen) obvious = TRUE;

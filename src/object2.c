@@ -654,16 +654,22 @@ s16b get_obj_num(int level)
 	/* Power boost */
 	p = rand_int(100);
 
-	/* Try for a "better" object once (50%) or twice (10%) */
+	/* Hack -- chests should have decent stuff, and chests should themselves 
+	 * be decent, so we guarantee two more tries for better objects. -LM-
+	 */
+	if ((opening_chest) || (required_tval == TV_CHEST))  p = 0;
+
+
+	/* Try for a "better" object once (60%) or twice (10%) */
 	if (p < 60)
 	{
 		/* Save old */
 		j = i;
 
-		/* Pick a object */
+		/* Pick an object */
 		value = rand_int(total);
 
-		/* Find the monster */
+		/* Find the object */
 		for (i = 0; i < alloc_kind_size; i++)
 		{
 			/* Found the entry */
@@ -683,7 +689,7 @@ s16b get_obj_num(int level)
 		/* Save old */
 		j = i;
 
-		/* Pick a object */
+		/* Pick an object */
 		value = rand_int(total);
 
 		/* Find the object */
@@ -699,7 +705,6 @@ s16b get_obj_num(int level)
 		/* Keep the "best" one */
 		if (table[i].level < table[j].level) i = j;
 	}
-
 
 	/* Result */
 	return (table[i].index);
@@ -1042,10 +1047,21 @@ static s32b object_value_real(object_type *o_ptr)
 	{
 		/* Wands/Staffs */
 		case TV_WAND:
+		{
+			/* Pay extra for charges, depending on standard number of 
+			 * charges.  Handle new-style wands correctly. -LM-
+			 */
+			value += (value * o_ptr->pval / o_ptr->number / (k_ptr->pval * 2));
+
+			/* Done */
+			break;
+		}
 		case TV_STAFF:
 		{
-			/* Pay extra for charges */
-			value += ((value / 20) * o_ptr->pval);
+			/* Pay extra for charges, depending on standard number of 
+			 * charges.  -LM-
+			 */
+			value += (value * o_ptr->pval / (k_ptr->pval * 2));
 
 			/* Done */
 			break;
@@ -1242,21 +1258,38 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 
 		/* Staffs and Wands */
 		case TV_STAFF:
+		{
+			/* Require either knowledge or known empty for both staffs. */
+			if ((!(o_ptr->ident & (IDENT_EMPTY)) && 
+				!object_known_p(o_ptr)) || 
+				(!(j_ptr->ident & (IDENT_EMPTY)) && 
+				!object_known_p(j_ptr))) return(0);
+
+			/* Require identical charges, since staffs are bulky. */
+			if (o_ptr->pval != j_ptr->pval) return (0);
+
+			/* Assume okay */
+			break;
+		}
+		/* Wands */
 		case TV_WAND:
 		{
-			/* Require knowledge */
-			if (!object_known_p(o_ptr) || !object_known_p(j_ptr)) return (0);
+			/* Require either knowledge or known empty for both wands. */
+			if ((!(o_ptr->ident & (IDENT_EMPTY)) && 
+				!object_known_p(o_ptr)) || 
+				(!(j_ptr->ident & (IDENT_EMPTY)) && 
+				!object_known_p(j_ptr))) return(0);
 
-			/* Fall through */
+			/* Wand charges combine in Oangband.  */
+
+			/* Assume okay */
+			break;
 		}
 
 		/* Staffs and Wands and Rods */
 		case TV_ROD:
 		{
-			/* Require identical charges */
-			if (o_ptr->pval != j_ptr->pval) return (0);
-
-			/* Probably okay */
+			/* Asssume okay. -LM- */
 			break;
 		}
 
@@ -1390,6 +1423,19 @@ void object_absorb(object_type *o_ptr, object_type *j_ptr)
 	/* Hack -- could average discounts XXX XXX XXX */
 	/* Hack -- save largest discount XXX XXX XXX */
 	if (o_ptr->discount < j_ptr->discount) o_ptr->discount = j_ptr->discount;
+
+	/* Hack -- if rods are stacking, add the pvals (maximum timeouts) and current timeouts together. -LM- */
+	if (o_ptr->tval == TV_ROD)
+	{
+		o_ptr->pval += j_ptr->pval;
+		o_ptr->timeout += j_ptr->timeout;
+	}
+
+	/* Hack -- if wands are stacking, combine the charges. -LM- */
+	if (o_ptr->tval == TV_WAND)
+	{
+		o_ptr->pval += j_ptr->pval;
+	}
 }
 
 
@@ -3046,6 +3092,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
  */
 static void a_m_aux_4(object_type *o_ptr, int level, int power)
 {
+	object_kind *k_ptr = &k_info[o_ptr->k_idx];
 	/* Apply magic (good or bad) according to type */
 	switch (o_ptr->tval)
 	{
@@ -3079,6 +3126,13 @@ static void a_m_aux_4(object_type *o_ptr, int level, int power)
 			/* Hack -- charge staffs */
 			charge_staff(o_ptr);
 
+			break;
+		}
+
+		case TV_ROD:
+		{
+			/* Transfer the pval. -LM- */
+			o_ptr->pval = k_ptr->pval;
 			break;
 		}
 
@@ -3439,6 +3493,19 @@ static bool kind_is_good(int k_idx)
 			if (k_ptr->sval == SV_AMULET_THE_MAGI) return (TRUE);
 			return (FALSE);
 		}
+		/* Chests are always good. -LM- */
+		case TV_CHEST:
+		{
+			return (TRUE);
+		}
+		/*  Any potion or scroll that costs a certain amount or more must be good. -LM- */
+		case TV_POTION:
+		case TV_SCROLL:
+		{
+			if (k_ptr->cost >= 10000) return (TRUE);
+			if (k_ptr->cost >= 500 + p_ptr->depth * 110) return (TRUE);
+			return (FALSE);
+		}
 	}
 
 	/* Assume not good */
@@ -3459,7 +3526,6 @@ static bool kind_is_good(int k_idx)
 bool make_object(object_type *j_ptr, bool good, bool great)
 {
 	int prob, base;
-
 
 	/* Chance of "special object" */
 	prob = (good ? 10 : 1000);
@@ -3528,6 +3594,7 @@ bool make_object(object_type *j_ptr, bool good, bool great)
 		/* Cheat -- peek at items */
 		if (cheat_peek) object_mention(j_ptr);
 	}
+
 
 	/* Success */
 	return (TRUE);
@@ -4606,6 +4673,31 @@ void inven_drop(int item, int amt)
 	/* Obtain local object */
 	object_copy(i_ptr, o_ptr);
 
+
+	/* Hack -- If rods or wands are dropped, the total maximum timeout or 
+	 * charges need to be allocated between the two stacks.  If all the items 
+	 * are being dropped, it makes for a neater message to leave the original 
+	 * stack's pval alone. -LM-
+	 */
+	if ((o_ptr->tval == TV_WAND) || (o_ptr->tval == TV_ROD)) 	
+	{
+		i_ptr->pval = o_ptr->pval * amt / o_ptr->number;
+		if (amt < o_ptr->number) o_ptr->pval -= i_ptr->pval;
+
+		/* Hack -- Rods also need to have their timeouts distributed.  The 
+		 * dropped stack will accept all time remaining to charge up to its 
+		 * maximum.
+		 */
+		if ((o_ptr->tval == TV_ROD) && (o_ptr->timeout))
+		{
+			if (i_ptr->pval > o_ptr->timeout) i_ptr->timeout = o_ptr->timeout;
+			else i_ptr->timeout = i_ptr->pval;
+
+			if (amt < o_ptr->number) o_ptr->timeout -= i_ptr->timeout;
+		}
+	}
+
+
 	/* Modify quantity */
 	i_ptr->number = amt;
 
@@ -5010,6 +5102,9 @@ void print_spells(byte *spells, int num, int y, int x)
 
 	char out_val[160];
 
+	/* DvE Added line_attr to use colors ala O 0.4.0 */
+	byte line_attr;
+
 
 	/* Title the list */
 	prt("", y, x);
@@ -5029,7 +5124,7 @@ void print_spells(byte *spells, int num, int y, int x)
 		if (s_ptr->slevel >= 99)
 		{
 			sprintf(out_val, "  %c) %-30s", I2A(i), "(illegible)");
-			prt(out_val, y + i + 1, x);
+			c_prt(TERM_DARK,out_val, y + i + 1, x); /* DvE  changed prt to c_prt */
 			continue;
 		}
 
@@ -5041,31 +5136,44 @@ void print_spells(byte *spells, int num, int y, int x)
 		/* Use that info */
 		comment = info;
 
+		/* DvE Default spell known and tried */
+		line_attr = TERM_L_BLUE;
+
 		/* Analyze the spell */
 		if ((spell < 32) ?
 		    ((p_ptr->spell_forgotten1 & (1L << spell))) :
 		    ((p_ptr->spell_forgotten2 & (1L << (spell - 32)))))
 		{
 			comment = " forgotten";
+			line_attr = TERM_RED; /* DvE */
 		}
 		else if (!((spell < 32) ?
 		           (p_ptr->spell_learned1 & (1L << spell)) :
 		           (p_ptr->spell_learned2 & (1L << (spell - 32)))))
 		{
 			comment = " unknown";
+			line_attr = TERM_SLATE; /* DvE */
 		}
 		else if (!((spell < 32) ?
 		           (p_ptr->spell_worked1 & (1L << spell)) :
 		           (p_ptr->spell_worked2 & (1L << (spell - 32)))))
 		{
 			comment = " untried";
+			line_attr = TERM_L_RED; /* DvE */
 		}
+
+		/* DvE change color for unknown,learnable spells */
+		if ((comment == " unknown") & (s_ptr->slevel <= p_ptr->lev))
+		{
+			line_attr = TERM_YELLOW; 
+		}
+
 
 		/* Dump the spell --(-- */
 		sprintf(out_val, "  %c) %-30s%2d %4d %3d%%%s",
 		        I2A(i), spell_names[mp_ptr->spell_type][spell],
 		        s_ptr->slevel, s_ptr->smana, spell_chance(spell), comment);
-		prt(out_val, y + i + 1, x);
+		c_prt(line_attr, out_val, y + i + 1, x); /* DvE changed prt to c_prt */
 	}
 
 	/* Clear the bottom line */
@@ -5077,7 +5185,7 @@ void print_spells(byte *spells, int num, int y, int x)
 /*
  * Hack -- display an object kind in the current window
  *
- * Include list of usable spells for readible books
+ * Include list of usable spells for readable books
  */
 void display_koff(int k_idx)
 {

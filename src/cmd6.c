@@ -53,10 +53,6 @@
  */
 
 
-
-
-
-
 /*
  * Eat some food (from the pack or floor)
  */
@@ -823,9 +819,9 @@ void do_cmd_quaff_potion(void)
 			wiz_lite();
 			(void)do_inc_stat(A_INT);
 			(void)do_inc_stat(A_WIS);
-			(void)detect_traps();
-			(void)detect_doors();
-			(void)detect_stairs();
+			(void)detect_traps(FALSE);
+			(void)detect_doors(FALSE);
+			(void)detect_stairs(FALSE);
 			(void)detect_treasure();
 			(void)detect_objects_gold();
 			(void)detect_objects_normal();
@@ -1265,7 +1261,7 @@ void do_cmd_read_scroll(void)
 
 		case SV_SCROLL_RECHARGING:
 		{
-			if (!recharge(60)) used_up = FALSE;
+			if (!recharge(130)) used_up = FALSE;
 			ident = TRUE;
 			break;
 		}
@@ -1298,14 +1294,14 @@ void do_cmd_read_scroll(void)
 
 		case SV_SCROLL_DETECT_TRAP:
 		{
-			if (detect_traps()) ident = TRUE;
+			if (detect_traps(FALSE)) ident = TRUE;
 			break;
 		}
 
 		case SV_SCROLL_DETECT_DOOR:
 		{
-			if (detect_doors()) ident = TRUE;
-			if (detect_stairs()) ident = TRUE;
+			if (detect_doors(FALSE)) ident = TRUE;
+			if (detect_stairs(FALSE)) ident = TRUE;
 			break;
 		}
 
@@ -1472,6 +1468,7 @@ void do_cmd_use_staff(void)
 	int item, ident, chance, k, lev;
 
 	object_type *o_ptr;
+	object_kind *k_ptr;
 
 	/* Hack -- let staffs of identify get aborted */
 	bool use_charge = TRUE;
@@ -1507,8 +1504,9 @@ void do_cmd_use_staff(void)
 		return;
 	}
 
+	k_ptr = &k_info[o_ptr->k_idx];
 
-	/* Take a turn */
+	/* Take a turn. */
 	p_ptr->energy_use = 100;
 
 	/* Not identified yet */
@@ -1657,14 +1655,14 @@ void do_cmd_use_staff(void)
 
 		case SV_STAFF_DETECT_TRAP:
 		{
-			if (detect_traps()) ident = TRUE;
+			if (detect_traps(TRUE)) ident = TRUE;
 			break;
 		}
 
 		case SV_STAFF_DETECT_DOOR:
 		{
-			if (detect_doors()) ident = TRUE;
-			if (detect_stairs()) ident = TRUE;
+			if (detect_doors(TRUE)) ident = TRUE;
+			if (detect_stairs(TRUE)) ident = TRUE;
 			break;
 		}
 
@@ -1721,13 +1719,13 @@ void do_cmd_use_staff(void)
 
 		case SV_STAFF_SLEEP_MONSTERS:
 		{
-			if (sleep_monsters()) ident = TRUE;
+			if (sleep_monsters(p_ptr->lev + 10)) ident = TRUE;
 			break;
 		}
 
 		case SV_STAFF_SLOW_MONSTERS:
 		{
-			if (slow_monsters()) ident = TRUE;
+			if (slow_monsters(p_ptr->lev + 10)) ident = TRUE;
 			break;
 		}
 
@@ -1865,13 +1863,10 @@ void do_cmd_use_staff(void)
 
 
 /*
- * Aim a wand (from the pack or floor).
+ * Aim a wand (from the pack or floor).  Wands may be fully identified 
+ * through use.
  *
- * Use a single charge from a single item.
- * Handle "unstacking" in a logical manner.
- *
- * For simplicity, you cannot use a stack of items from the
- * ground.  This would require too much nasty code.
+ * Use a single charge from an item or stack.
  *
  * There are no wands which can "destroy" themselves, in the inventory
  * or on the ground, so we can ignore this possibility.  Note that this
@@ -1887,8 +1882,10 @@ void do_cmd_use_staff(void)
 void do_cmd_aim_wand(void)
 {
 	int item, lev, ident, chance, dir, sval;
+	int plev = p_ptr->lev;
 
 	object_type *o_ptr;
+	object_kind *k_ptr;
 
 	cptr q, s;
 
@@ -1914,19 +1911,12 @@ void do_cmd_aim_wand(void)
 	}
 
 
-	/* Mega-Hack -- refuse to aim a pile from the ground */
-	if ((item < 0) && (o_ptr->number > 1))
-	{
-		msg_print("You must first pick up the wands.");
-		return;
-	}
-
-
 	/* Allow direction to be cancelled for free */
 	if (!get_aim_dir(&dir)) return;
 
+	k_ptr = &k_info[o_ptr->k_idx];
 
-	/* Take a turn */
+	/* Take a turn. */
 	p_ptr->energy_use = 100;
 
 	/* Not identified yet */
@@ -1941,7 +1931,7 @@ void do_cmd_aim_wand(void)
 	/* Confusion hurts skill */
 	if (p_ptr->confused) chance = chance / 2;
 
-	/* Hight level objects are harder */
+	/* High level objects are harder */
 	chance = chance - ((lev > 50) ? 50 : lev);
 
 	/* Give everyone a (slight) chance */
@@ -2033,31 +2023,31 @@ void do_cmd_aim_wand(void)
 
 		case SV_WAND_SLEEP_MONSTER:
 		{
-			if (sleep_monster(dir)) ident = TRUE;
+			if (sleep_monster(dir, plev + 15)) ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_SLOW_MONSTER:
 		{
-			if (slow_monster(dir)) ident = TRUE;
+			if (slow_monster(dir, plev + 15)) ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_CONFUSE_MONSTER:
 		{
-			if (confuse_monster(dir, 10)) ident = TRUE;
+			if (confuse_monster(dir, plev + 15)) ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_FEAR_MONSTER:
 		{
-			if (fear_monster(dir, 10)) ident = TRUE;
+			if (fear_monster(dir, plev + 20)) ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_DRAIN_LIFE:
 		{
-			if (drain_life(dir, 75)) ident = TRUE;
+			if (drain_life(dir, 50 + plev)) ident = TRUE;
 			break;
 		}
 
@@ -2083,56 +2073,60 @@ void do_cmd_aim_wand(void)
 
 		case SV_WAND_ACID_BOLT:
 		{
-			fire_bolt_or_beam(20, GF_ACID, dir, damroll(5, 8));
+			fire_bolt_or_beam(plev, GF_ACID, 
+				dir, damroll(5 + plev / 10, 8));
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_ELEC_BOLT:
 		{
-			fire_bolt_or_beam(20, GF_ELEC, dir, damroll(3, 8));
+			fire_bolt_or_beam(plev, GF_ELEC, 
+				dir, damroll(3 + plev / 14, 8));
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_FIRE_BOLT:
 		{
-			fire_bolt_or_beam(20, GF_FIRE, dir, damroll(6, 8));
+			fire_bolt_or_beam(plev, GF_FIRE, 
+				dir, damroll(6 + plev / 8, 8));
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_COLD_BOLT:
 		{
-			fire_bolt_or_beam(20, GF_COLD, dir, damroll(3, 8));
+			fire_bolt_or_beam(plev, GF_COLD, 
+				dir, damroll(4 + plev / 12, 8));
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_ACID_BALL:
 		{
-			fire_ball(GF_ACID, dir, 60, 2);
+			fire_ball(GF_ACID, dir, 60 + 3 * plev / 5, 3);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_ELEC_BALL:
 		{
-			fire_ball(GF_ELEC, dir, 32, 2);
+			fire_ball(GF_ELEC, dir, 40 + 3 * plev / 5, 3);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_FIRE_BALL:
 		{
-			fire_ball(GF_FIRE, dir, 72, 2);
+			fire_ball(GF_FIRE, dir, 70 + 3 * plev / 5, 3);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_COLD_BALL:
 		{
-			fire_ball(GF_COLD, dir, 48, 2);
+			fire_ball(GF_COLD, dir, 50 + 3 * plev / 5, 3);
 			ident = TRUE;
 			break;
 		}
@@ -2198,7 +2192,7 @@ void do_cmd_aim_wand(void)
 
 		case SV_WAND_ANNIHILATION:
 		{
-			if (drain_life(dir, 125)) ident = TRUE;
+			if (drain_life(dir, 100 + randint(plev * 4))) ident = TRUE;
 			break;
 		}
 	}
@@ -2224,32 +2218,6 @@ void do_cmd_aim_wand(void)
 	/* Use a single charge */
 	o_ptr->pval--;
 
-	/* Hack -- unstack if necessary */
-	if ((item >= 0) && (o_ptr->number > 1))
-	{
-		object_type *i_ptr;
-		object_type object_type_body;
-
-		/* Get local object */
-		i_ptr = &object_type_body;
-
-		/* Obtain a local object */
-		object_copy(i_ptr, o_ptr);
-
-		/* Modify quantity */
-		i_ptr->number = 1;
-
-		/* Restore the charges */
-		o_ptr->pval++;
-
-		/* Unstack the used item */
-		o_ptr->number--;
-		p_ptr->total_weight -= i_ptr->weight;
-		item = inven_carry(i_ptr);
-
-		/* Message */
-		msg_print("You unstack your wand.");
-	}
 
 	/* Describe the charges in the pack */
 	if (item >= 0)
@@ -2269,9 +2237,10 @@ void do_cmd_aim_wand(void)
 
 
 /*
- * Activate (zap) a Rod
- *
- * Unstack fully charged rods as needed.
+ * Activate (zap) a Rod.    Rods may be fully identified through use 
+ * (although it's not easy).  Rods now use timeouts to determine charging 
+ * status, and pvals have become the cost of zapping a rod (how long it 
+ * takes between zaps).  Pvals are defined for each rod in k_info. -LM-
  *
  * Hack -- rods of perception/genocide can be "cancelled"
  * All rods can be cancelled at the "Direction?" prompt
@@ -2279,8 +2248,10 @@ void do_cmd_aim_wand(void)
 void do_cmd_zap_rod(void)
 {
 	int item, ident, chance, dir, lev;
+	int plev = p_ptr->lev;
 
 	object_type *o_ptr;
+	object_kind *k_ptr;
 
 	/* Hack -- let perception get aborted */
 	bool use_charge = TRUE;
@@ -2307,14 +2278,8 @@ void do_cmd_zap_rod(void)
 	{
 		o_ptr = &o_list[0 - item];
 	}
-
-
-	/* Mega-Hack -- refuse to zap a pile from the ground */
-	if ((item < 0) && (o_ptr->number > 1))
-	{
-		msg_print("You must first pick up the rods.");
-		return;
-	}
+	/* Get the object kind. */
+	k_ptr = &k_info[o_ptr->k_idx];
 
 
 	/* Get a direction (unless KNOWN not to need it) */
@@ -2340,7 +2305,7 @@ void do_cmd_zap_rod(void)
 	/* Confusion hurts skill */
 	if (p_ptr->confused) chance = chance / 2;
 
-	/* Hight level objects are harder */
+	/* High level objects are harder */
 	chance = chance - ((lev > 50) ? 50 : lev);
 
 	/* Give everyone a (slight) chance */
@@ -2357,34 +2322,42 @@ void do_cmd_zap_rod(void)
 		return;
 	}
 
-	/* Still charging */
-	if (o_ptr->pval)
+	/* A single rod is still charging */
+	if ((o_ptr->number == 1) && (o_ptr->timeout))
 	{
 		if (flush_failure) flush();
 		msg_print("The rod is still charging.");
 		return;
 	}
+	/* A stack of rods lacks enough energy. */
+	else if ((o_ptr->number > 1) && (o_ptr->timeout > o_ptr->pval - k_ptr->pval))
+	{
+		if (flush_failure) flush();
+		msg_print("The rods are all still charging.");
+		return;
+	}
 
+	k_ptr = &k_info[o_ptr->k_idx];
 
 	/* Sound */
 	sound(SOUND_ZAP);
 
+	/* Increase the timeout by the rod kind's pval. -LM- */
+	o_ptr->timeout += k_ptr->pval;
 
 	/* Analyze the rod */
 	switch (o_ptr->sval)
 	{
 		case SV_ROD_DETECT_TRAP:
 		{
-			if (detect_traps()) ident = TRUE;
-			o_ptr->pval = 50;
+			if (detect_traps(FALSE)) ident = TRUE;
 			break;
 		}
 
 		case SV_ROD_DETECT_DOOR:
 		{
-			if (detect_doors()) ident = TRUE;
-			if (detect_stairs()) ident = TRUE;
-			o_ptr->pval = 70;
+			if (detect_doors(FALSE)) ident = TRUE;
+			if (detect_stairs(FALSE)) ident = TRUE;
 			break;
 		}
 
@@ -2392,7 +2365,6 @@ void do_cmd_zap_rod(void)
 		{
 			ident = TRUE;
 			if (!ident_spell()) use_charge = FALSE;
-			o_ptr->pval = 10;
 			break;
 		}
 
@@ -2409,14 +2381,12 @@ void do_cmd_zap_rod(void)
 				p_ptr->word_recall = 0;
 			}
 			ident = TRUE;
-			o_ptr->pval = 60;
 			break;
 		}
 
 		case SV_ROD_ILLUMINATION:
 		{
 			if (lite_area(damroll(2, 8), 2)) ident = TRUE;
-			o_ptr->pval = 30;
 			break;
 		}
 
@@ -2424,7 +2394,6 @@ void do_cmd_zap_rod(void)
 		{
 			map_area();
 			ident = TRUE;
-			o_ptr->pval = 99;
 			break;
 		}
 
@@ -2432,7 +2401,6 @@ void do_cmd_zap_rod(void)
 		{
 			detect_all();
 			ident = TRUE;
-			o_ptr->pval = 99;
 			break;
 		}
 
@@ -2440,7 +2408,6 @@ void do_cmd_zap_rod(void)
 		{
 			probing();
 			ident = TRUE;
-			o_ptr->pval = 50;
 			break;
 		}
 
@@ -2451,7 +2418,6 @@ void do_cmd_zap_rod(void)
 			if (set_confused(0)) ident = TRUE;
 			if (set_stun(0)) ident = TRUE;
 			if (set_cut(0)) ident = TRUE;
-			o_ptr->pval = 999;
 			break;
 		}
 
@@ -2460,7 +2426,6 @@ void do_cmd_zap_rod(void)
 			if (hp_player(500)) ident = TRUE;
 			if (set_stun(0)) ident = TRUE;
 			if (set_cut(0)) ident = TRUE;
-			o_ptr->pval = 999;
 			break;
 		}
 
@@ -2473,7 +2438,6 @@ void do_cmd_zap_rod(void)
 			if (do_res_stat(A_DEX)) ident = TRUE;
 			if (do_res_stat(A_CON)) ident = TRUE;
 			if (do_res_stat(A_CHR)) ident = TRUE;
-			o_ptr->pval = 999;
 			break;
 		}
 
@@ -2487,21 +2451,18 @@ void do_cmd_zap_rod(void)
 			{
 				(void)set_fast(p_ptr->fast + 5);
 			}
-			o_ptr->pval = 99;
 			break;
 		}
 
 		case SV_ROD_TELEPORT_AWAY:
 		{
 			if (teleport_monster(dir)) ident = TRUE;
-			o_ptr->pval = 25;
 			break;
 		}
 
 		case SV_ROD_DISARMING:
 		{
 			if (disarm_trap(dir)) ident = TRUE;
-			o_ptr->pval = 30;
 			break;
 		}
 
@@ -2510,99 +2471,86 @@ void do_cmd_zap_rod(void)
 			msg_print("A line of blue shimmering light appears.");
 			lite_line(dir);
 			ident = TRUE;
-			o_ptr->pval = 9;
 			break;
 		}
 
 		case SV_ROD_SLEEP_MONSTER:
 		{
-			if (sleep_monster(dir)) ident = TRUE;
-			o_ptr->pval = 18;
+			if (sleep_monster(dir, plev + 10)) ident = TRUE;
 			break;
 		}
 
 		case SV_ROD_SLOW_MONSTER:
 		{
-			if (slow_monster(dir)) ident = TRUE;
-			o_ptr->pval = 20;
+			if (slow_monster(dir, plev + 10)) ident = TRUE;
 			break;
 		}
 
 		case SV_ROD_DRAIN_LIFE:
 		{
-			if (drain_life(dir, 75)) ident = TRUE;
-			o_ptr->pval = 23;
+			if (drain_life(dir, 45 + 3 * plev / 2)) ident = TRUE;
 			break;
 		}
 
 		case SV_ROD_POLYMORPH:
 		{
 			if (poly_monster(dir)) ident = TRUE;
-			o_ptr->pval = 25;
 			break;
 		}
 
 		case SV_ROD_ACID_BOLT:
 		{
-			fire_bolt_or_beam(10, GF_ACID, dir, damroll(6, 8));
+			fire_bolt(GF_ACID, dir, damroll(6 + plev / 10, 8));
 			ident = TRUE;
-			o_ptr->pval = 12;
 			break;
 		}
 
 		case SV_ROD_ELEC_BOLT:
 		{
-			fire_bolt_or_beam(10, GF_ELEC, dir, damroll(3, 8));
+			fire_bolt(GF_ELEC, dir, damroll(4 + plev / 14, 8));
 			ident = TRUE;
-			o_ptr->pval = 11;
 			break;
 		}
 
 		case SV_ROD_FIRE_BOLT:
 		{
-			fire_bolt_or_beam(10, GF_FIRE, dir, damroll(8, 8));
+			fire_bolt(GF_FIRE, dir, damroll(7 + plev / 8, 8));
 			ident = TRUE;
-			o_ptr->pval = 15;
 			break;
 		}
 
 		case SV_ROD_COLD_BOLT:
 		{
-			fire_bolt_or_beam(10, GF_COLD, dir, damroll(5, 8));
+			fire_bolt(GF_COLD, dir, damroll(5 + plev / 12, 8));
 			ident = TRUE;
-			o_ptr->pval = 13;
 			break;
 		}
 
 		case SV_ROD_ACID_BALL:
 		{
-			fire_ball(GF_ACID, dir, 60, 2);
+			fire_ball(GF_ACID, dir, 60 + 4 * plev / 5, 1);
 			ident = TRUE;
-			o_ptr->pval = 27;
 			break;
 		}
 
 		case SV_ROD_ELEC_BALL:
 		{
-			fire_ball(GF_ELEC, dir, 32, 2);
+			fire_ball(GF_ELEC, dir, 40 + 4 * plev / 5, 1);
 			ident = TRUE;
-			o_ptr->pval = 23;
 			break;
 		}
 
 		case SV_ROD_FIRE_BALL:
 		{
-			fire_ball(GF_FIRE, dir, 72, 2);
+			fire_ball(GF_FIRE, dir, 70 + 4 * plev / 5, 1);
 			ident = TRUE;
-			o_ptr->pval = 30;
 			break;
 		}
 
 		case SV_ROD_COLD_BALL:
 		{
-			fire_ball(GF_COLD, dir, 48, 2);
+			fire_ball(GF_COLD, dir, 50 + 4 * plev / 5, 1);
 			ident = TRUE;
-			o_ptr->pval = 25;
 			break;
 		}
 	}
@@ -2632,32 +2580,6 @@ void do_cmd_zap_rod(void)
 	}
 
 
-	/* XXX Hack -- unstack if necessary */
-	if ((item >= 0) && (o_ptr->number > 1))
-	{
-		object_type *i_ptr;
-		object_type object_type_body;
-
-		/* Get local object */
-		i_ptr = &object_type_body;
-
-		/* Obtain a local object */
-		object_copy(i_ptr, o_ptr);
-
-		/* Modify quantity */
-		i_ptr->number = 1;
-
-		/* Restore "charge" */
-		o_ptr->pval = 0;
-
-		/* Unstack the used item */
-		o_ptr->number--;
-		p_ptr->total_weight -= i_ptr->weight;
-		item = inven_carry(i_ptr);
-
-		/* Message */
-		msg_print("You unstack your rod.");
-	}
 }
 
 
@@ -2913,9 +2835,9 @@ void do_cmd_activate(void)
 			{
 				msg_print("The stone glows a deep green...");
 				wiz_lite();
-				(void)detect_traps();
-				(void)detect_doors();
-				(void)detect_stairs();
+				(void)detect_traps(TRUE);
+				(void)detect_doors(TRUE);
+				(void)detect_stairs(TRUE);
 				o_ptr->timeout = rand_int(100) + 100;
 				break;
 			}
@@ -3086,7 +3008,7 @@ void do_cmd_activate(void)
 			case ART_HOLCOLLETH:
 			{
 				msg_print("Your cloak glows deep blue...");
-				sleep_monsters_touch();
+				sleep_monsters_touch(p_ptr->lev + 20);
 				o_ptr->timeout = 55;
 				break;
 			}
@@ -3094,7 +3016,7 @@ void do_cmd_activate(void)
 			case ART_THINGOL:
 			{
 				msg_print("Your cloak glows bright yellow...");
-				recharge(60);
+				recharge(200);
 				o_ptr->timeout = 70;
 				break;
 			}

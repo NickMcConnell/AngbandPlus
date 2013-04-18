@@ -417,6 +417,44 @@ static void regen_monsters(void)
 	}
 }
 
+/*
+ * If player has inscribed the object with "!!", let him know when it's 
+ * recharged. -LM-
+ */
+static void recharged_notice(object_type *o_ptr)
+{
+	char o_name[80];
+
+	cptr s;
+
+	/* No inscription */
+	if (!o_ptr->note) return;
+
+	/* Find a '!' */
+	s = strchr(quark_str(o_ptr->note), '!');
+
+	/* Process notification request. */
+	while (s)
+	{
+		/* Find another '!' */
+		if (s[1] == '!')
+		{
+			/* Describe (briefly) */
+			object_desc(o_name, o_ptr, FALSE, 0);
+
+			/* Notify the player */
+			if (o_ptr->number > 1) 
+				msg_format("Your %s are recharged.", o_name);
+			else msg_format("Your %s is recharged.", o_name);
+
+			/* Done. */
+			return;
+		}
+
+		/* Keep looking for '!'s */
+		s = strchr(s + 1, '!');
+	}
+}
 
 
 /*
@@ -429,7 +467,7 @@ static void process_world(void)
 	int regen_amount;
 
 	object_type *o_ptr;
-
+	object_kind *k_ptr;
 
 
 	/* Every 10 game turns */
@@ -713,7 +751,7 @@ static void process_world(void)
 		(void)set_blind(p_ptr->blind - 1);
 	}
 
-	/* Times see-invisible */
+	/* Timed see-invisible */
 	if (p_ptr->tim_invis)
 	{
 		(void)set_tim_invis(p_ptr->tim_invis - 1);
@@ -829,6 +867,9 @@ static void process_world(void)
 	{
 		int adjust = (adj_con_fix[p_ptr->stat_ind[A_CON]] + 1);
 
+		/* Hobbits are sturdy. */
+		if (p_ptr->prace == RACE_HOBBIT) adjust++;
+
 		/* Apply some healing */
 		(void)set_poisoned(p_ptr->poisoned - adjust);
 	}
@@ -847,12 +888,36 @@ static void process_world(void)
 	{
 		int adjust = (adj_con_fix[p_ptr->stat_ind[A_CON]] + 1);
 
+		/* Hobbits are sturdy. */
+		if (p_ptr->prace == RACE_HOBBIT) adjust++;
+
 		/* Hack -- Truly "mortal" wound */
 		if (p_ptr->cut > 1000) adjust = 0;
 
 		/* Apply some healing */
 		(void)set_cut(p_ptr->cut - adjust);
 	}
+
+	/* Hack -- lower timeout values in the dungeon              DvE */
+	/* and change burned out wall of fire grids back to floor grids */
+	for (i = 0; i < DUNGEON_HGT; i++)
+		for (j = 0; j < DUNGEON_WID; j++)
+		{
+			if (cave_timeout[i][j] > 0) 
+			{
+				cave_timeout[i][j] -= 1;
+				if (cave_timeout[i][j] == 0)
+				{
+					cave_dam[i][j] = 0;
+					cave_set_feat(i, j, FEAT_FLOOR);
+					if (player_has_los_bold(i, j))
+					{
+						if (disturb_minor) disturb(0, 0);
+						msg_print("The fire has extinguished.");
+					}
+				}
+			}
+		}
 
 
 
@@ -932,8 +997,12 @@ static void process_world(void)
 			/* Recharge */
 			o_ptr->timeout--;
 
-			/* Notice changes */
-			if (!(o_ptr->timeout)) j++;
+			/* Notice changes, provide message if object is inscribed. */
+			if (!(o_ptr->timeout)) 
+			{
+				recharged_notice(o_ptr);
+				j++;
+			}
 		}
 	}
 
@@ -944,24 +1013,44 @@ static void process_world(void)
 		p_ptr->window |= (PW_EQUIP);
 	}
 
-	/* Recharge rods */
+	/* Recharge rods.  Rods now use timeout to control charging status, 
+	 * and each charging rod in a stack decreases the stack's timeout by 
+	 * one per turn. -LM-
+	 */
 	for (j = 0, i = 0; i < INVEN_PACK; i++)
 	{
+		int temp;
+
 		o_ptr = &inventory[i];
+		k_ptr = &k_info[o_ptr->k_idx];
 
 		/* Skip non-objects */
 		if (!o_ptr->k_idx) continue;
 
-		/* Examine all charging rods */
-		if ((o_ptr->tval == TV_ROD) && (o_ptr->pval))
+		/* Examine all charging rods or stacks of charging rods. */
+		if ((o_ptr->tval == TV_ROD) && (o_ptr->timeout))
 		{
-			/* Charge it */
-			o_ptr->pval--;
+			/* Determine how many rods are charging. */
+			temp = (o_ptr->timeout + (k_ptr->pval - 1)) / k_ptr->pval;
+			if (temp > o_ptr->number) temp = o_ptr->number;
 
-			/* Notice changes */
-			if (!(o_ptr->pval)) j++;
+			/* Decrease timeout by that number. */
+			o_ptr->timeout -= temp;
+
+			/* Boundary control. */
+			if (o_ptr->timeout < 0) o_ptr->timeout = 0;
+
+			/* Notice changes, provide message if object is inscribed. */
+			if (!(o_ptr->timeout)) 
+			{
+				recharged_notice(o_ptr);
+				j++;
+			}
 		}
 	}
+
+
+
 
 	/* Notice changes */
 	if (j)
@@ -988,8 +1077,15 @@ static void process_world(void)
 		/* Skip dead objects */
 		if (!o_ptr->k_idx) continue;
 
-		/* Recharge rods on the ground */
-		if ((o_ptr->tval == TV_ROD) && (o_ptr->pval)) o_ptr->pval--;
+		/* Recharge rods on the ground.  No messages. */
+		if ((o_ptr->tval == TV_ROD) && (o_ptr->timeout))
+		{
+			/* Charge it */
+			o_ptr->timeout -= o_ptr->number;
+
+			/* Boundary control. */
+			if (o_ptr->timeout < 0) o_ptr->timeout = 0;
+		}
 	}
 
 

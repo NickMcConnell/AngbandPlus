@@ -41,14 +41,14 @@
 /*
  * Current version string
  */
-#define VERSION_STRING	"2.8.3"
+#define VERSION_STRING	"1.0.1"
 
 /*
  * Current version numbers
  */
-#define VERSION_MAJOR	2
-#define VERSION_MINOR	8
-#define VERSION_PATCH	3
+#define VERSION_MAJOR	1
+#define VERSION_MINOR	0
+#define VERSION_PATCH	1
 
 /*
  * This value is not currently used
@@ -139,7 +139,7 @@
 /*
  * Maximum array bounds for template based arrays
  */
-#define MAX_F_IDX	64	/* Max size for "f_info[]" */
+#define MAX_F_IDX	65	/* Max size for "f_info[]" was 64 DvE */
 #define MAX_K_IDX	512	/* Max size for "k_info[]" */
 #define MAX_A_IDX	128	/* Max size for "a_info[]" */
 #define MAX_E_IDX	128	/* Max size for "e_info[]" */
@@ -283,6 +283,8 @@
 #define MAX_RANGE	18	/* Maximum range (spells, etc) */
 
 
+/* Maximum value for a skill */
+#define MAX_SKILL	500
 
 /*
  * There is a 1/160 chance per round of creating a new monster
@@ -589,6 +591,7 @@
 #define GF_OLD_SLEEP	57
 #define GF_OLD_DRAIN	58
 #define GF_XXX8			59
+#define GF_WALL_FIRE	60
 
 
 /*
@@ -680,7 +683,8 @@
 #define FEAT_PERM_OUTER	0x3E
 #define FEAT_PERM_SOLID	0x3F
 
-
+/* DvE Added Wall of Fire */
+#define FEAT_WALL_FIRE  0x40
 
 /*** Artifact indexes (see "lib/edit/a_info.txt") ***/
 
@@ -2666,7 +2670,7 @@
  * Line 4-5 -- shop doors
  */
 #define cave_perma_bold(Y,X) \
-	((cave_feat[Y][X] >= FEAT_PERM_EXTRA) || \
+	(((cave_feat[Y][X] >= FEAT_PERM_EXTRA) && (cave_feat[Y][X] != FEAT_WALL_FIRE)) || \
 	 ((cave_feat[Y][X] == FEAT_LESS) || \
 	  (cave_feat[Y][X] == FEAT_MORE)) || \
 	 ((cave_feat[Y][X] >= FEAT_SHOP_HEAD) && \

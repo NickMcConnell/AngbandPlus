@@ -16,7 +16,7 @@
 
 # Version stamp (required)
 
-V:2.8.3
+V:1.0.1
 
 
 # 0x00 --> nothing
@@ -366,3 +366,7 @@ N:63:permanent wall
 G:#:w
 M:60
 
+# 0x40 --> Wall of Fire Added by DvE
+
+N:64:Wall of Fire
+G:*:R

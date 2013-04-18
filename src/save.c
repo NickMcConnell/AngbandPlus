@@ -1067,20 +1067,20 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->max_depth);
 
 	/* More info */
-	wr_s16b(0);	/* oops */
-	wr_s16b(0);	/* oops */
-	wr_s16b(0);	/* oops */
-	wr_s16b(0);	/* oops */
+	wr_s16b(p_ptr->skill_swords);	/* was oops, now sword skill */
+	wr_s16b(p_ptr->skill_axes);		/* was oops, now axe skill */
+	wr_s16b(p_ptr->skill_daggers);	/* was oops, now dagger skill */
+	wr_s16b(p_ptr->skill_polearms);	/* was oops, now polearm skill */
 	wr_s16b(p_ptr->sc);
-	wr_s16b(0);	/* oops */
+	wr_s16b(p_ptr->skill_hafted);	/* was oops, now hafted skill */
 
-	wr_s16b(0);		/* old "rest" */
+	wr_s16b(p_ptr->skill_slings);	/* was old "rest" */
 	wr_s16b(p_ptr->blind);
 	wr_s16b(p_ptr->paralyzed);
 	wr_s16b(p_ptr->confused);
 	wr_s16b(p_ptr->food);
-	wr_s16b(0);	/* old "food_digested" */
-	wr_s16b(0);	/* old "protection" */
+	wr_s16b(p_ptr->skill_bows);		/* was old "food_digested" */
+	wr_s16b(p_ptr->skill_xbows);	/* was old "protection" */
 	wr_s16b(p_ptr->energy);
 	wr_s16b(p_ptr->fast);
 	wr_s16b(p_ptr->slow);
@@ -1258,6 +1258,85 @@ static void wr_dungeon(void)
 		wr_byte((byte)prev_char);
 	}
 
+	/* Here starts the saving of the cave_dam array DvE */
+	/*** Simple "Run-Length-Encoding" of cave ***/
+
+	/* Note that this will induce two wasted bytes */
+	count = 0;
+	prev_char = 0;
+
+	/* Dump the cave */
+	for (y = 0; y < DUNGEON_HGT; y++)
+	{
+		for (x = 0; x < DUNGEON_WID; x++)
+		{
+			/* Extract a byte */
+			tmp8u = cave_dam[y][x];
+
+			/* If the run is broken, or too full, flush it */
+			if ((tmp8u != prev_char) || (count == MAX_UCHAR))
+			{
+				wr_byte((byte)count);
+				wr_byte((byte)prev_char);
+				prev_char = tmp8u;
+				count = 1;
+			}
+
+			/* Continue the run */
+			else
+			{
+				count++;
+			}
+		}
+	}
+
+	/* Flush the data (if any) */
+	if (count)
+	{
+		wr_byte((byte)count);
+		wr_byte((byte)prev_char);
+	}
+	/* Here ends the saving of the cave dam array DvE */
+
+	/* Here starts the saving of the cave_timeout array DvE */
+	/*** Simple "Run-Length-Encoding" of cave ***/
+
+	/* Note that this will induce two wasted bytes */
+	count = 0;
+	prev_char = 0;
+
+	/* Dump the cave */
+	for (y = 0; y < DUNGEON_HGT; y++)
+	{
+		for (x = 0; x < DUNGEON_WID; x++)
+		{
+			/* Extract a byte */
+			tmp8u = cave_timeout[y][x];
+
+			/* If the run is broken, or too full, flush it */
+			if ((tmp8u != prev_char) || (count == MAX_UCHAR))
+			{
+				wr_byte((byte)count);
+				wr_byte((byte)prev_char);
+				prev_char = tmp8u;
+				count = 1;
+			}
+
+			/* Continue the run */
+			else
+			{
+				count++;
+			}
+		}
+	}
+
+	/* Flush the data (if any) */
+	if (count)
+	{
+		wr_byte((byte)count);
+		wr_byte((byte)prev_char);
+	}
+	/* Here ends the saving of the cave timeout array DvE */
 
 	/*** Compact ***/
 
@@ -1814,49 +1893,10 @@ bool load_player(void)
 		sf_patch = vvv[2];
 		sf_extra = vvv[3];
 
-		/* Very old savefiles */
-		if ((sf_major == 5) && (sf_minor == 2))
-		{
-			sf_major = 2;
-			sf_minor = 5;
-		}
-
-		/* Extremely old savefiles */
-		if (sf_major > 2)
-		{
-			sf_major = 1;
-		}
-
 		/* Clear screen */
 		Term_clear();
 
-		/* Parse "ancient" savefiles */
-		if (sf_major < 2)
-		{
-			/* Attempt to load */
-			err = rd_savefile_old();
-		}
-
-		/* Parse "old" savefiles */
-		else if ((sf_major == 2) && (sf_minor < 7))
-		{
-			/* Attempt to load */
-			err = rd_savefile_old();
-		}
-
-		/* Parse "new" savefiles */
-		else if (sf_major == 2)
-		{
-			/* Attempt to load */
-			err = rd_savefile_new();
-		}
-
-		/* Parse "future" savefiles */
-		else
-		{
-			/* Error XXX XXX XXX */
-			err = -1;
-		}
+		err = rd_savefile_new();
 
 		/* Message (below) */
 		if (err) what = "Cannot parse savefile";
