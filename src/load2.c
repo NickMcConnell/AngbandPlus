@@ -516,6 +516,10 @@ static void rd_item(object_type *o_ptr)
 
 		rd_byte(&o_ptr->name1);
 		rd_byte(&o_ptr->name2);
+		if (!older_than(2,9,5))
+		{
+			rd_s32b(&o_ptr->name3);
+		}
 		rd_s16b(&o_ptr->timeout);
 
 		rd_s16b(&o_ptr->to_h);
@@ -595,7 +599,7 @@ static void rd_item(object_type *o_ptr)
 		return;
 	}
 
-
+#if 0
 	/* Repair non "wearable" items */
 	if (!wearable_p(o_ptr))
 	{
@@ -616,11 +620,11 @@ static void rd_item(object_type *o_ptr)
 		/* All done */
 		return;
 	}
-
+#endif
 
 	/* Extract the flags */
 	object_flags(o_ptr, &f1, &f2, &f3);
-
+	
 	/* The ego item indexes changed in 2.7.9 */
 	if (older_than(2, 7, 9) && o_ptr->name2)
 	{
@@ -731,7 +735,7 @@ static void rd_item(object_type *o_ptr)
 		}
 	}
 
-
+#if 0
 	/* Paranoia */
 	if (o_ptr->name1)
 	{
@@ -743,7 +747,8 @@ static void rd_item(object_type *o_ptr)
 		/* Verify that artifact */
 		if (!a_ptr->name) o_ptr->name1 = 0;
 	}
-
+#endif
+	
 	/* Paranoia */
 	if (o_ptr->name2)
 	{
@@ -757,12 +762,9 @@ static void rd_item(object_type *o_ptr)
 	}
 
 
-	/* Acquire standard fields */
-	o_ptr->ac = k_ptr->ac;
-
 	/* Acquire standard weight */
 	o_ptr->weight = k_ptr->weight;
-
+	
 	/* Hack -- extract the "broken" flag */
 	if (!o_ptr->pval < 0) o_ptr->ident |= (IDENT_BROKEN);
 
@@ -773,7 +775,16 @@ static void rd_item(object_type *o_ptr)
 		artifact_type *a_ptr;
 
 		/* Obtain the artifact info */
-		a_ptr = &a_info[o_ptr->name1];
+		/* Randart */
+		if (o_ptr->name1 == ART_RANDART)
+		{
+			a_ptr = randart_make(o_ptr);
+		}
+
+		else
+		{
+			a_ptr = &a_info[o_ptr->name1];
+		}
 
 		/* Acquire new artifact "pval" */
 		o_ptr->pval = a_ptr->pval;
@@ -822,7 +833,6 @@ static void rd_item(object_type *o_ptr)
 			if (!o_ptr->pval) o_ptr->pval = 1;
 		}
 	}
-
 
 	/* Hack -- assume "cursed" items */
 	if (older_than(2, 7, 9))

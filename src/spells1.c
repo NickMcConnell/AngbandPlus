@@ -2273,7 +2273,8 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 {
 	int tmp;
 
-	int x1,y1;
+	int x1 = 0;
+	int y1 = 0;
 	
 	int a = 0;
 	int b = 0;
@@ -2311,8 +2312,8 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 	/* Fear amount (amount to fear) */
 	int do_fear = 0;
 
-	/* Move the monster that is hit. (to location a,b) */
-	bool do_move = FALSE;
+	/* Move the monster that is hit. (offset by a*do_move,b*do_move) */
+	int do_move = 0;
 
 	/* Paralysis amount (amount to invuln) */
 	int do_invuln = 0;
@@ -2658,16 +2659,14 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 					else        { a = -1; }
 				}
 			
-				/* Move monster */
-				do_move = TRUE;
+				/* Move monster 2 offsets back */
+				do_move = 2;
 
 				/* Old monster coords in x,y */
 				y1 = m_ptr->fy;
 				x1 = m_ptr->fx;
 			
-				/* New monster coords in a,b */
-				a = x1 + a;
-				b = y1 + b;
+				/* Monster move offsets in a,b */
 			}
 			
 			/* --hack-- Only stun if a monster fired it */
@@ -3435,33 +3434,43 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 	 */
 	else if (do_move)
 	{
-		tmp = TRUE;
-		
 		/* Obvious */
 		if (seen) obvious = TRUE;
 
-		/* Require "empty" floor space */
-		if (!cave_empty_bold(b, a)) tmp = FALSE;
+		/* How far can we push the monster? */
+		for (tmp = FALSE; (do_move>0) && (tmp==FALSE); do_move--)
+		{
+			/* Get monster coords */
+			y1 = m_ptr->fy;
+			x1 = m_ptr->fx;
 
-		/* Hack -- no teleport onto glyph of warding */
-		if (cave_feat[b][a] == FEAT_GLYPH) tmp = FALSE;
-		
-		/* Don't move monsters into the wall! */
-		if (cave_feat[b][a] >= FEAT_DOOR_HEAD) tmp = FALSE;
+			/* And offset position */
+			y1 = y1 + (b * do_move);
+			x1 = x1 + (a * do_move);
+			
+			/* Require "empty" floor space */
+			if (!cave_empty_bold(y1, x1)) continue;
 
-		y1 = m_ptr->fy;
-		x1 = m_ptr->fx;
+			/* Hack -- no teleport onto glyph of warding */
+			if (cave_feat[y1][x1] == FEAT_GLYPH) continue;
 		
+			/* Don't move monsters into the wall! */
+			if (cave_feat[y1][x1] >= FEAT_DOOR_HEAD) continue;
+
+			/* The position is good! */
+			tmp = TRUE;
+		}
+
 		/* Move the monster */
 		if (tmp)
 		{
-			monster_swap(y1, x1, b, a);
+			monster_swap(m_ptr->fy, m_ptr->fx, y1, x1);
 
 			note = " is knocked back!";
 
 			/* Get new position */
-			y = b;
-			x = a;
+			y = y1;
+			x = x1;
 		}
 	}
 

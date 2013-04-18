@@ -386,7 +386,7 @@ int main(int argc, char *argv[])
 			case 'y':
 			{
 				screen_y = atoi(&argv[i][2]);
-				if (screen_y <= 0) screen_y = 50;
+				if (screen_y <= 25) screen_y = 50;
 				break;
 			}
 
@@ -394,7 +394,15 @@ int main(int argc, char *argv[])
 			case 'x':
 			{
 				screen_x = atoi(&argv[i][2]);
-				if (screen_x <= 80) screen_y = 80;
+				if (screen_x <= 80) screen_x = 80;
+				break;
+			}
+			
+			case 'T':
+			case 't':
+			{
+				font_size = atoi(&argv[i][2]);
+				if (font_size > 2 || font_size < 0) font_size = 1;
 				break;
 			}
 
@@ -466,6 +474,7 @@ int main(int argc, char *argv[])
 				puts("           to 80 if none specified.");
 				puts("  -yn      Request n line screen. Defaults to 50 if");
 				puts("           none specified.");
+				puts("  -tn      Request typeface size n (0 to 2).");
 				puts("  -o       Request original keyset");
 				puts("  -r       Request rogue-like keyset");
 				puts("  -s<num>  Show <num> high scores");
@@ -499,6 +508,9 @@ int main(int argc, char *argv[])
 	/* Drop privs (so X11 will work correctly) */
 	safe_setuid_drop();
 
+	/* Make sure terminal isn't bigger than dungeon */
+	if (screen_y > DUNGEON_HGT+3) screen_y = DUNGEON_HGT+3;
+	if (screen_x > DUNGEON_WID+14) screen_x = DUNGEON_WID+14;
 
 #ifdef USE_XAW
 	/* Attempt to use the "main-xaw.c" support */

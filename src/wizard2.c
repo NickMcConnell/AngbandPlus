@@ -305,8 +305,8 @@ static void wiz_display_item(object_type *o_ptr)
 	prt(format("pval = %-5d  toac = %-5d  tohit = %-4d  todam = %-4d",
 	           o_ptr->pval, o_ptr->to_a, o_ptr->to_h, o_ptr->to_d), 6, j);
 
-	prt(format("name1 = %-4d  name2 = %-4d  cost = %ld",
-	           o_ptr->name1, o_ptr->name2, (long)object_value(o_ptr)), 7, j);
+	prt(format("name1 = %-4d  name2 = %-4d  name3 = %-4d  cost = %ld",
+	           o_ptr->name1, o_ptr->name2, o_ptr->name3, (long)object_value(o_ptr)), 7, j);
 
 	prt(format("ident = %04x  timeout = %-d",
 	           o_ptr->ident, o_ptr->timeout), 8, j);
@@ -579,7 +579,7 @@ static void wiz_reroll_item(object_type *o_ptr)
 
 
 	/* Hack -- leave artifacts alone */
-	if (artifact_p(o_ptr)) return;
+	/*if (artifact_p(o_ptr)) return;*/
 
 
 	/* Get local object */
@@ -828,7 +828,7 @@ static void wiz_quantity_item(object_type *o_ptr)
 
 
 	/* Never duplicate artifacts */
-	if (artifact_p(o_ptr)) return;
+	/*if (artifact_p(o_ptr)) return;*/
 
 
 	/* Default */

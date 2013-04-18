@@ -22,7 +22,7 @@
 
 # Version stamp (required)
 
-V:2.9.4
+V:2.9.5
 
 #N: ego-item index: name (appended to base object description)
 #X: base object tval (general kind): amount the level feeling is increased by
@@ -294,7 +294,7 @@ W:0:0:0:1000
 N:49:of Slaying
 X:34:17
 W:0:0:0:1500
-C:5:5:0:0
+C:10:10:0:0
 F:SHOW_MODS
 
 N:50:of Agility
@@ -306,7 +306,7 @@ F:DEX | HIDE_TYPE
 N:51:of Power
 X:34:22
 W:0:0:0:2500
-C:5:5:0:5
+C:10:10:0:5
 F:STR | SHOW_MODS | HIDE_TYPE
 
 # 52 (unused)

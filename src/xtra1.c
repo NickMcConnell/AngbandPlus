@@ -788,7 +788,7 @@ static void prt_frame_basic(void)
 	char buffer[14];
 
 	/* --hack-- Get first 13 characters of race to prevent
-       * Multi-hued Dragon reaching the dungeon map -TM- */
+	 * Multi-hued Dragon reaching the dungeon map -TM- */
 	buffer[13] = 0;
 	strncpy(buffer, rp_ptr->title, 13);
 
@@ -2010,10 +2010,7 @@ static void calc_bonuses(void)
 
 		/* Affect speed */
 		if (f1 & (TR1_SPEED)) p_ptr->pspeed += o_ptr->pval;
-
-		/* Affect blows */
-		if (f1 & (TR1_BLOWS)) extra_blows += o_ptr->pval;
-
+		
 		/* Affect shots */
 		if (f1 & (TR1_SHOTS)) extra_shots += o_ptr->pval;
 

@@ -478,7 +478,9 @@ struct object_type
 
 	byte name1;			/* Artifact type, if any */
 	byte name2;			/* Ego-Item type, if any */
+	s32b name3;			/* Randart seed, if any */
 
+	/* Can remove soon. XXX XXX XXX */
 	byte xtra1;			/* Extra info type */
 	byte xtra2;			/* Extra info index */
 

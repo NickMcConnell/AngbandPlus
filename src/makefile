@@ -48,7 +48,7 @@ SRCS = \
   variable.c tables.c util.c cave.c \
   object1.c object2.c monster1.c monster2.c \
   xtra1.c xtra2.c spells1.c spells2.c \
-  melee1.c melee2.c racial.c save.c files.c \
+  melee1.c melee2.c racial.c randart.c save.c files.c \
   cmd1.c cmd2.c cmd3.c cmd4.c cmd5.c cmd6.c \
   store.c birth.c load1.c load2.c \
   wizard1.c wizard2.c \
@@ -60,7 +60,7 @@ OBJS = \
   variable.o tables.o util.o cave.o \
   object1.o object2.o monster1.o monster2.o \
   xtra1.o xtra2.o spells1.o spells2.o \
-  melee1.o melee2.o racial.o save.o files.o \
+  melee1.o melee2.o racial.o randart.o save.o files.o \
   cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o \
   store.o birth.o load1.o load2.o \
   wizard1.o wizard2.o \
@@ -115,7 +115,7 @@ CC = gcc
 # including "USE_GETCH" and "USE_CURS_SET".  Note that "config.h" will
 # attempt to "guess" at many of these flags based on your system.
 #
-CFLAGS = -Wall -O1 -pipe -g -DUSG -D"USE_X11" -D"USE_GCU"
+CFLAGS = -Wall -O1 -pipe -g -D"USG" -D"USE_X11" -D"USE_GCU"
 LIBS = -L/usr/X11R6/lib -lX11 -lcurses -ltermcap
 
 
@@ -284,6 +284,7 @@ monster2.o: monster2.c $(INCS)
 object1.o: object1.c $(INCS)
 object2.o: object2.c $(INCS)
 racial.o: racial.c $(INCS)
+randart.o: randart.c $(INCS)
 save.o: save.c $(INCS)
 spells1.o: spells1.c $(INCS)
 spells2.o: spells2.c $(INCS)

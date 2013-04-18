@@ -944,16 +944,6 @@ errr init_gcu(int argc, char *argv[])
 	/* Extract the normal keymap */
 	keymap_norm_prepare();
 
-	/* -TM- Very dodgy 50-line mode */
-	if (screen_y==50)
-	{
-		system("consolechars -f alt-8x8.psf.gz -H 8");
-	}
-
-	/* No variable width support */
-	screen_x = 80;
-
-
 #if defined(USG)
 	/* Initialize for USG Unix */
 	if (initscr() == NULL) return (-1);
@@ -962,6 +952,9 @@ errr init_gcu(int argc, char *argv[])
 	if (initscr() == (WINDOW*)ERR) return (-1);
 #endif
 
+	/* Providing that the screen is big enough... */
+	if (screen_y > LINES) screen_y = LINES;
+	if (screen_x > COLS) screen_x = COLS;
 
 	/* Hack -- Require large screen, or Quit with message */
 	i = ((LINES < 24) || (COLS < 80));
@@ -1024,6 +1017,7 @@ errr init_gcu(int argc, char *argv[])
 		init_pair(7, COLOR_BLACK,   COLOR_BLACK);
 
 		/* Prepare the "Angband Colors" -- Bright white is too bright */
+		/* Changed in Drangband. Cyan as grey sucks -- -TM- */
 		colortable[0] = (COLOR_PAIR(7) | A_NORMAL);	/* Black */
 		colortable[1] = (COLOR_PAIR(0) | A_BRIGHT);	/* White */
 		colortable[2] = (COLOR_PAIR(0) | A_NORMAL);	/* Grey XXX */
@@ -1076,14 +1070,14 @@ errr init_gcu(int argc, char *argv[])
 			/* Upper left */
 			case 0:
 				rows = screen_y-1;
-				cols = 80;
+				cols = screen_x;
 				y = x = 0;
 				break;
 
 			/* Lower left */
 			case 1:
 				rows = LINES - screen_y;
-				cols = 80;
+				cols = screen_x;
 				y = screen_y;
 				x = 0;
 				break;
@@ -1091,17 +1085,17 @@ errr init_gcu(int argc, char *argv[])
 			/* Upper right */
 			case 2:
 				rows = 24;
-				cols = COLS - 81;
+				cols = COLS - screen_x-1;
 				y = 0;
-				x = 81;
+				x = screen_x+1;
 				break;
 
 			/* Lower right */
 			case 3:
 				rows = LINES - screen_y;
-				cols = COLS - 81;
+				cols = COLS - screen_x-1;
 				y = screen_y;
-				x = 81;
+				x = screen_x+1;
 				break;
 
 			/* XXX */

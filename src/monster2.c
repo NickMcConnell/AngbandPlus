@@ -1002,6 +1002,8 @@ static void set_ghost(cptr pname, int hp, int grace, int gclass, int lev, bool t
 
 	monster_race *r_ptr = &r_info[MAX_R_IDX-1];
 
+	/* Ghosts are too weak otherwise */
+	hp *= 2;
 
 	/* Extract the basic ghost name */
 	strcpy(gb_name, pname);
@@ -1111,9 +1113,6 @@ s16b place_ghost(void)
     
 	char                name[100];
 	char                tmp[1024];
-
-	/* Wizard mode message */
-	if (p_ptr->wizard) msg_print("WIZARD: Ghost attempted");
 
 	/* Hack -- no ghosts in the town */
 	if (!p_ptr->depth) return (FALSE);
@@ -2835,6 +2834,25 @@ static bool place_monster_okay(int r_idx)
 
 	monster_race *z_ptr = &r_info[r_idx];
 
+	/* Sauron & Morgoth get really nasty escorts! -TM- */
+	if (r_ptr->flags1 & (RF1_QUESTOR))
+	{
+		/* Accept all uniques */
+		if (z_ptr->flags1 & (RF1_UNIQUE)) return (TRUE);
+		
+		switch(z_ptr->d_char)
+		{
+			/* And only accept these select killers! */
+			case('D'): return (TRUE); break;
+			case('W'): return (TRUE); break;
+			case('L'): return (TRUE); break;
+			case('U'): return (TRUE); break;
+			default: return (FALSE); break;
+		}
+
+		return (FALSE);
+	}
+	
 	/* Require similar "race" */
 	if (z_ptr->d_char != r_ptr->d_char) return (FALSE);
 
@@ -2900,6 +2918,13 @@ bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp)
 		for (i = 0; i < 50; i++)
 		{
 			int nx, ny, z, d = 3;
+
+			/* Sauron and Morgoth have QUESTOR and ESCORT
+			 * flags, therefore they need a BIG escort */
+			if (r_ptr->flags1 & (RF1_QUESTOR))
+			{
+				nx = ny = z = d = 5;
+			}
 
 			/* Pick a location */
 			scatter(&ny, &nx, y, x, d, 0);
@@ -3182,15 +3207,15 @@ static bool summon_specific_okay(int r_idx)
 
 		case SUMMON_THIEF:
 		{
-				/* Scan through all four blows */
-				for (i = 0; i < 4; i++)
-				{
-						/* Extract info about the blow effect */
-						effect = r_ptr->blow[i].effect;
-						if (effect == RBE_EAT_GOLD) okay = TRUE;
-						if (effect == RBE_EAT_ITEM) okay = TRUE;
-				}
-				break;
+			/* Scan through all four blows */
+			for (i = 0; i < 4; i++)
+			{
+				/* Extract info about the blow effect */
+				effect = r_ptr->blow[i].effect;
+				if (effect == RBE_EAT_GOLD) okay = TRUE;
+				if (effect == RBE_EAT_ITEM) okay = TRUE;
+			}
+			break;
 		}
 	}
 

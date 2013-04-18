@@ -2652,9 +2652,6 @@ void do_cmd_fire(void)
  * bonuses to Skill or Deadliness from other equipped items.
  *
  * Note: "unseen" monsters are very hard to hit.
- *
- * -TM- DEVNOTE: This is *such* a crap piece of copy/paste. Need THROWING
- * weapon flag! (plus well balanced flag. switch to oangband codebase?)
  */
 void do_cmd_throw(void)
 {
@@ -2668,6 +2665,7 @@ void do_cmd_throw(void)
 
 	int total_deadliness;
 	int sleeping_bonus = 0;
+	int terrain_bonus = 0;
 
 	long tdam;
 	int tdam_remainder, tdam_whole;
@@ -2722,6 +2720,10 @@ void do_cmd_throw(void)
 	/* Obtain a local object */
 	object_copy(i_ptr, o_ptr);
 
+	/* XXX XXX XXX 
+	 * Distribute the charges of rods/wands between the stacks */
+	/*distribute_charges(o_ptr, i_ptr, 1);*/
+
 	/* Extract the thrown object's flags. */
 	object_flags(i_ptr, &f1, &f2, &f3);
 
@@ -2769,8 +2771,11 @@ void do_cmd_throw(void)
 	 * only throwing weapons take advantage of bonuses to Skill from 
 	 * other items. -LM-
 	 */
-	chance = ((p_ptr->skill_tht) + 
+	if (f3 & (TR3_THROWING)) chance = ((p_ptr->skill_tht) + 
 		((p_ptr->to_h + i_ptr->to_h) * BTH_PLUS_ADJ));
+	else chance = ((3 * p_ptr->skill_tht / 2) + 
+		(i_ptr->to_h * BTH_PLUS_ADJ));
+
 
 	/* Take a turn */
 	p_ptr->energy_use = 100;
@@ -2844,7 +2849,7 @@ void do_cmd_throw(void)
 			/* If the monster is sleeping, it'd better pray there are no 
 			 * Assassins with throwing weapons nearby. -LM-
 			 */
-			if ((m_ptr->csleep) && (visible))
+			if ((m_ptr->csleep) && (visible) && (f3 & (TR3_THROWING)))
 			{
 				if (p_ptr->pclass == CLASS_ROGUE) 
 					sleeping_bonus = 15 + p_ptr->lev / 2;
@@ -2860,7 +2865,7 @@ void do_cmd_throw(void)
 
 			/* Did we hit it (penalize range) */
 			if (test_hit_combat(chance2 + sleeping_bonus, 
-				r_ptr->ac, m_ptr->ml))
+				r_ptr->ac + terrain_bonus, m_ptr->ml))
 			{
 				bool fear = FALSE;
 
@@ -2877,6 +2882,16 @@ void do_cmd_throw(void)
 					/* Special note at death */
 					note_dies = " is destroyed.";
 				}
+
+
+				/* Make some noise.  Hack -- Rogues are silent 
+				 * missile weapon killers. -LM-
+				 *//*
+				if (p_ptr->pclass == CLASS_ROGUE) add_wakeup_chance = 
+					p_ptr->base_wakeup_chance / 4 + 300;
+				else add_wakeup_chance = 
+					p_ptr->base_wakeup_chance / 3 + 1200;*/
+
 
 				/* Hack -- Track this monster race, if critter is visible */
 				if (m_ptr->ml) monster_race_track(m_ptr->r_idx);
@@ -2902,8 +2917,14 @@ void do_cmd_throw(void)
 				 * equation, but it does at least try to keep throwing 
 				 * weapons competitive.
 				 */
-				tdam *= 2 + p_ptr->lev / 12;
-				
+				if (f3 & (TR3_THROWING))
+				{
+					tdam *= 2 + p_ptr->lev / 12;
+
+					/* Perfectly balanced weapons do even more damage. */
+					if (f3 & (TR3_BALANCED)) tdam *= 2;
+				}
+
 
 				/* multiply by slays or brands. (10x inflation) */
 				tdam *= tot_dam_aux(i_ptr, m_ptr);
@@ -2912,22 +2933,37 @@ void do_cmd_throw(void)
 				 * weapon.  Otherwise, grant the default multiplier.
 				 * (10x inflation)
 				 */
-				/*if (f1 & (TR1_THROWING))*/ tdam *= critical_shot
+				if (f3 & (TR3_THROWING)) tdam *= critical_shot
 					(chance2, sleeping_bonus, TRUE, o_name, m_name, visible);
-				/*else tdam *= 10;*/
+				else tdam *= 10;
 
 				/* Convert total or object-only Deadliness into a percen-
 				 * tage, and apply it as a bonus or penalty (100x inflation)
 				 */
-				if (total_deadliness > 0)
-					tdam *= (100 + 
-					deadliness_conversion[total_deadliness]);
-				else if (total_deadliness > -31)
-					tdam *= (100 - 
-					deadliness_conversion[ABS(total_deadliness)]);
-				else
-					tdam = 0;
-				
+				if (f3 & (TR3_THROWING))
+				{
+					if (total_deadliness > 0)
+						tdam *= (100 + 
+						deadliness_conversion[total_deadliness]);
+					else if (total_deadliness > -31)
+						tdam *= (100 - 
+						deadliness_conversion[ABS(total_deadliness)]);
+					else
+						tdam = 0;
+				}
+
+				else 
+				{
+					if (i_ptr->to_d > 0)
+						tdam *= (100 + 
+						deadliness_conversion[i_ptr->to_d]);
+					else if (i_ptr->to_d > -31)
+						tdam *= (100 - 
+						deadliness_conversion[ABS(i_ptr->to_d)]);
+					else
+						tdam = 0;
+				}
+
 				/* Get the whole number of dice by deflating the result. */
 				tdam_whole = tdam / 10000;
 
@@ -2944,6 +2980,13 @@ void do_cmd_throw(void)
 
 				/* No negative damage */
 				if (tdam < 0) tdam = 0;
+
+				/* Complex message */
+				if (p_ptr->wizard)
+				{
+					msg_format("You do %d (out of %d) damage.", tdam, m_ptr->hp);
+				}
+
 
 				/* Hit the monster, check for death */
 				if (mon_take_hit(cave_m_idx[y][x], tdam, &fear, note_dies))
@@ -2977,7 +3020,9 @@ void do_cmd_throw(void)
 	/* Chance of breakage (during attacks).  Throwing weapons are designed 
 	 * not to break.  -LM-
 	 */
-	j = (hit_body ? breakage_chance(i_ptr) : 0);
+	if (f3 & (TR3_BALANCED)) j = (hit_body ? 1 : 0);
+	else if (f3 & (TR3_THROWING)) j = (hit_body ? 2 : 0);
+	else j = (hit_body ? breakage_chance(i_ptr) : 0);
 
 	/* Drop (or break) near that location */
 	drop_near(i_ptr, j, y, x);

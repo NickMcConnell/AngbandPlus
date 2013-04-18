@@ -126,10 +126,10 @@ X:dungeon_align
 Y:dungeon_stair
 
 # Option 'Monsters chase current location (v.slow)'
-X:flow_by_sound
+Y:flow_by_sound
 
 # Option 'Monsters chase recent locations (v.slow)'
-X:flow_by_smell
+Y:flow_by_smell
 
 # Option 'Monsters learn from their mistakes'
 X:smart_learn
@@ -168,7 +168,7 @@ Y:show_special_player
 Y:compress_savefile
 
 # Option 'Hilite the player with the cursor'
-Y:hilite_player
+X:hilite_player
 
 # Option 'Use special colors for torch lite'
 Y:view_yellow_lite

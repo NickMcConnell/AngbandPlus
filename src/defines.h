@@ -41,14 +41,14 @@
 /*
  * Current version string
  */
-#define VERSION_STRING  "2.9.4"
+#define VERSION_STRING  "2.9.5"
 
 /*
  * Current version numbers
  */
 #define VERSION_MAJOR	2
 #define VERSION_MINOR	9
-#define VERSION_PATCH	4
+#define VERSION_PATCH	5
 
 /*
  * This value is not currently used
@@ -415,6 +415,7 @@
 /*
  * Indexes of the various "stats" (hard-coded by savefiles, etc).
  */
+#define A_MAX	6
 #define A_STR	0
 #define A_INT	1
 #define A_WIS	2
@@ -433,7 +434,7 @@
  */
 #define RACE_HUMAN		0
 #define RACE_HALF_ELF		1
-#define RACE_ELF			2
+#define RACE_ELF		2
 #define RACE_HOBBIT		3
 #define RACE_GNOME		4
 #define RACE_DWARF		5
@@ -442,7 +443,7 @@
 #define RACE_DUNADAN		8
 #define RACE_HIGH_ELF		9
 #define RACE_PIXIE		10
-#define RACE_YEEK			11
+#define RACE_YEEK		11
 #define RACE_MIN_DRAGON		12   /* lowest numbered dragon race */
 #define RACE_CRYSTALDRAG	12
 #define RACE_COPPERDRAG		13
@@ -731,6 +732,8 @@
 #define FEAT_PERM_OUTER	0x5E
 #define FEAT_PERM_SOLID	0x5F
 
+/* Randart rarity */
+#define RANDART_RARITY	50
 
 
 /*** Artifact indexes (see "lib/edit/a_info.txt") ***/
@@ -738,21 +741,21 @@
 
 /* Lites */
 #define ART_GALADRIEL		1
-#define ART_ELENDIL			2
-#define ART_THRAIN			3
+#define ART_ELENDIL		2
+#define ART_THRAIN		3
 
 /* Amulets */
 #define ART_CARLAMMAS		4
-#define ART_INGWE			5
-#define ART_DWARVES			6
+#define ART_INGWE		5
+#define ART_DWARVES		6
 
 /* Rings */
-#define ART_BARAHIR			8
-#define ART_TULKAS			9
-#define ART_NARYA			10
-#define ART_NENYA			11
-#define ART_VILYA			12
-#define ART_POWER			13
+#define ART_BARAHIR		8
+#define ART_TULKAS		9
+#define ART_NARYA		10
+#define ART_NENYA		11
+#define ART_VILYA		12
+#define ART_POWER		13
 
 /* Arrows */
 #define ART_ARROW_BARD		14
@@ -764,11 +767,11 @@
 
 /* Hard Armour */
 #define ART_SOULKEEPER		19
-#define ART_ISILDUR			20
+#define ART_ISILDUR		20
 #define ART_ROHIRRIM		21
 #define ART_BELEGENNON		22
 #define ART_CELEBORN		23
-#define ART_ARVEDUI			24
+#define ART_ARVEDUI		24
 #define ART_CASPANION		25
 
 /* Soft Armour */
@@ -776,30 +779,30 @@
 #define ART_THALKETTOTH		28
 
 /* Shields */
-#define ART_THORIN			30
+#define ART_THORIN		30
 #define ART_CELEGORM		31
-#define ART_ANARION			32
+#define ART_ANARION		32
 
 /* Helms and Crowns */
-#define ART_MORGOTH			34
+#define ART_MORGOTH		34
 #define ART_BERUTHIEL		35
 #define ART_THRANDUIL		36
-#define ART_THENGEL			37
+#define ART_THENGEL		37
 #define ART_HAMMERHAND		38
-#define ART_DOR				39
+#define ART_DOR			39
 #define ART_HOLHENNETH		40
-#define ART_GORLIM			41
-#define ART_GONDOR			42
+#define ART_GORLIM		41
+#define ART_GONDOR		42
 #define ART_DRAGONKIND		43
 
 /* Cloaks */
-#define ART_COLLUIN			44
+#define ART_COLLUIN		44
 #define ART_HOLCOLLETH		45
-#define ART_THINGOL			46
+#define ART_THINGOL		46
 #define ART_THORONGIL		47
 #define ART_COLANNON		48
-#define ART_LUTHIEN			49
-#define ART_TUOR			50
+#define ART_LUTHIEN		49
+#define ART_TUOR		50
 
 /* Gloves */
 #define ART_CAMBELEG		52
@@ -807,83 +810,85 @@
 #define ART_PAURHACH		54
 #define ART_PAURNIMMEN		55
 #define ART_PAURAEGEN		56
-#define ART_PAURNEN			57
-#define ART_CAMLOST			58
+#define ART_PAURNEN		57
+#define ART_CAMLOST		58
 #define ART_FINGOLFIN		59
 
 /* Boots */
-#define ART_FEANOR			60
-#define ART_DAL				61
-#define ART_THROR			62
+#define ART_FEANOR		60
+#define ART_DAL			61
+#define ART_THROR		62
 
 /* Swords */
 #define ART_MAEDHROS		64
-#define ART_ANGRIST			65
+#define ART_ANGRIST		65
 #define ART_NARTHANC		66
 #define ART_NIMTHANC		67
-#define ART_DETHANC			68
-#define ART_RILIA			69
+#define ART_DETHANC		68
+#define ART_RILIA		69
 #define ART_BELANGIL		70
-#define ART_CALRIS			71
+#define ART_CALRIS		71
 #define ART_ARUNRUTH		72
 #define ART_GLAMDRING		73
-#define ART_AEGLIN			74
-#define ART_ORCRIST			75
+#define ART_AEGLIN		74
+#define ART_ORCRIST		75
 #define ART_GURTHANG		76
 #define ART_ZARCUTHRA		77
 #define ART_MORMEGIL		78
 #define ART_GONDRICAM		79
 #define ART_CRISDURIAN		80
 #define ART_AGLARANG		81
-#define ART_RINGIL			82
-#define ART_ANDURIL			83
+#define ART_RINGIL		82
+#define ART_ANDURIL		83
 #define ART_ANGUIREL		84
-#define ART_ELVAGIL			85
+#define ART_ELVAGIL		85
 #define ART_FORASGIL		86
-#define ART_CARETH			87
-#define ART_STING			88
+#define ART_CARETH		87
+#define ART_STING		88
 #define ART_HARADEKKET		89
 #define ART_GILETTAR		90
 #define ART_DOOMCALLER		91
 
 /* Polearms */
-#define ART_THEODEN			93
-#define ART_PAIN			94
-#define ART_OSONDIR			95
-#define ART_TIL				96
-#define ART_AEGLOS			97
-#define ART_OROME			98
-#define ART_NIMLOTH			99
+#define ART_THEODEN		93
+#define ART_PAIN		94
+#define ART_OSONDIR		95
+#define ART_TIL			96
+#define ART_AEGLOS		97
+#define ART_OROME		98
+#define ART_NIMLOTH		99
 #define ART_EORLINGAS		100
-#define ART_DURIN			101
-#define ART_EONWE			102
-#define ART_BALLI			103
+#define ART_DURIN		101
+#define ART_EONWE		102
+#define ART_BALLI		103
 #define ART_LOTHARANG		104
 #define ART_MUNDWINE		105
 #define ART_BARUKKHELED		106
-#define ART_WRATH			107
-#define ART_ULMO			108
-#define ART_AVAVIR			109
+#define ART_WRATH		107
+#define ART_ULMO		108
+#define ART_AVAVIR		109
 
 /* Hafted */
-#define ART_GROND			111
-#define ART_TOTILA			112
+#define ART_GROND		111
+#define ART_TOTILA		112
 #define ART_THUNDERFIST		113
 #define ART_BLOODSPIKE		114
 #define ART_FIRESTAR		115
-#define ART_TARATOL			116
-#define ART_AULE			117
-#define ART_NAR				118
-#define ART_ERIRIL			119
-#define ART_OLORIN			120
+#define ART_TARATOL		116
+#define ART_AULE		117
+#define ART_NAR			118
+#define ART_ERIRIL		119
+#define ART_OLORIN		120
 #define ART_DEATHWREAKER	121
-#define ART_TURMIL			122
+#define ART_TURMIL		122
 
 /* Bows */
 #define ART_BELTHRONDING	124
-#define ART_BARD			125
+#define ART_BARD		125
 #define ART_CUBRAGOL		126
 
+/* Randarts */
+#define ART_RANDART		127
 
 /*
  * Hack -- first "normal" artifact in the artifact list.  All of
@@ -1918,32 +1923,32 @@
 #define TR1_INFRA			0x00000400L	/* Infra += "pval" */
 #define TR1_TUNNEL			0x00000800L	/* Tunnel += "pval" */
 #define TR1_SPEED			0x00001000L	/* Speed += "pval" */
-#define TR1_BLOWS			0x00002000L	/* Blows += "pval" */
+#define TR1_XXX3			0x00002000L	/* (reserved) */
 #define TR1_SHOTS			0x00004000L	/* Shots += "pval" */
 #define TR1_MIGHT			0x00008000L	/* Might += "pval" */
-#define TR1_SLAY_ANIMAL		0x00010000L	/* Weapon slays animals */
-#define TR1_SLAY_EVIL		0x00020000L	/* Weapon slays evil */
-#define TR1_SLAY_UNDEAD		0x00040000L	/* Weapon slays undead */
-#define TR1_SLAY_DEMON		0x00080000L	/* Weapon slays demon */
-#define TR1_SLAY_ORC		0x00100000L	/* Weapon slays orc */
-#define TR1_SLAY_TROLL		0x00200000L	/* Weapon slays troll */
-#define TR1_SLAY_GIANT		0x00400000L	/* Weapon slays giant */
-#define TR1_SLAY_DRAGON		0x00800000L	/* Weapon slays dragon */
-#define TR1_KILL_DRAGON		0x01000000L	/* Weapon kills dragon */
+#define TR1_SLAY_ANIMAL			0x00010000L	/* Weapon slays animals */
+#define TR1_SLAY_EVIL			0x00020000L	/* Weapon slays evil */
+#define TR1_SLAY_UNDEAD			0x00040000L	/* Weapon slays undead */
+#define TR1_SLAY_DEMON			0x00080000L	/* Weapon slays demon */
+#define TR1_SLAY_ORC			0x00100000L	/* Weapon slays orc */
+#define TR1_SLAY_TROLL			0x00200000L	/* Weapon slays troll */
+#define TR1_SLAY_GIANT			0x00400000L	/* Weapon slays giant */
+#define TR1_SLAY_DRAGON			0x00800000L	/* Weapon slays dragon */
+#define TR1_KILL_DRAGON			0x01000000L	/* Weapon kills dragon */
 #define TR1_XXX5			0x02000000L
 #define TR1_XXX6			0x04000000L
 #define TR1_XXX7			0x08000000L
-#define TR1_BRAND_ACID		0x10000000L	/* Weapon has acid brand */
-#define TR1_BRAND_ELEC		0x20000000L	/* Weapon has elec brand */
-#define TR1_BRAND_FIRE		0x40000000L	/* Weapon has fire brand */
-#define TR1_BRAND_COLD		0x80000000L	/* Weapon has cold brand */
+#define TR1_BRAND_ACID			0x10000000L	/* Weapon has acid brand */
+#define TR1_BRAND_ELEC			0x20000000L	/* Weapon has elec brand */
+#define TR1_BRAND_FIRE			0x40000000L	/* Weapon has fire brand */
+#define TR1_BRAND_COLD			0x80000000L	/* Weapon has cold brand */
 
-#define TR2_SUST_STR		0x00000001L	/* Sustain STR */
-#define TR2_SUST_INT		0x00000002L	/* Sustain INT */
-#define TR2_SUST_WIS		0x00000004L	/* Sustain WIS */
-#define TR2_SUST_DEX		0x00000008L	/* Sustain DEX */
-#define TR2_SUST_CON		0x00000010L	/* Sustain CON */
-#define TR2_SUST_CHR		0x00000020L	/* Sustain CHR */
+#define TR2_SUST_STR			0x00000001L	/* Sustain STR */
+#define TR2_SUST_INT			0x00000002L	/* Sustain INT */
+#define TR2_SUST_WIS			0x00000004L	/* Sustain WIS */
+#define TR2_SUST_DEX			0x00000008L	/* Sustain DEX */
+#define TR2_SUST_CON			0x00000010L	/* Sustain CON */
+#define TR2_SUST_CHR			0x00000020L	/* Sustain CHR */
 #define TR2_XXX1			0x00000040L	/* (reserved) */
 #define TR2_XXX2			0x00000080L	/* (reserved) */
 #define TR2_XXX3			0x00001000L	/* (reserved) */
@@ -1954,55 +1959,55 @@
 #define TR2_IM_ELEC			0x00002000L	/* Immunity to elec */
 #define TR2_IM_FIRE			0x00004000L	/* Immunity to fire */
 #define TR2_IM_COLD			0x00008000L	/* Immunity to cold */
-#define TR2_RES_ACID		0x00010000L	/* Resist acid */
-#define TR2_RES_ELEC		0x00020000L	/* Resist elec */
-#define TR2_RES_FIRE		0x00040000L	/* Resist fire */
-#define TR2_RES_COLD		0x00080000L	/* Resist cold */
-#define TR2_RES_POIS		0x00100000L	/* Resist poison */
-#define TR2_RES_FEAR		0x00200000L /* Resist fear */
-#define TR2_RES_LITE		0x00400000L	/* Resist lite */
-#define TR2_RES_DARK		0x00800000L	/* Resist dark */
-#define TR2_RES_BLIND		0x01000000L	/* Resist blind */
-#define TR2_RES_CONFU		0x02000000L	/* Resist confusion */
-#define TR2_RES_SOUND		0x04000000L	/* Resist sound */
-#define TR2_RES_SHARD		0x08000000L	/* Resist shards */
-#define TR2_RES_NEXUS		0x10000000L	/* Resist nexus */
-#define TR2_RES_NETHR		0x20000000L	/* Resist nether */
-#define TR2_RES_CHAOS		0x40000000L	/* Resist chaos */
-#define TR2_RES_DISEN		0x80000000L	/* Resist disenchant */
+#define TR2_RES_ACID			0x00010000L	/* Resist acid */
+#define TR2_RES_ELEC			0x00020000L	/* Resist elec */
+#define TR2_RES_FIRE			0x00040000L	/* Resist fire */
+#define TR2_RES_COLD			0x00080000L	/* Resist cold */
+#define TR2_RES_POIS			0x00100000L	/* Resist poison */
+#define TR2_RES_FEAR			0x00200000L /* Resist fear */
+#define TR2_RES_LITE			0x00400000L	/* Resist lite */
+#define TR2_RES_DARK			0x00800000L	/* Resist dark */
+#define TR2_RES_BLIND			0x01000000L	/* Resist blind */
+#define TR2_RES_CONFU			0x02000000L	/* Resist confusion */
+#define TR2_RES_SOUND			0x04000000L	/* Resist sound */
+#define TR2_RES_SHARD			0x08000000L	/* Resist shards */
+#define TR2_RES_NEXUS			0x10000000L	/* Resist nexus */
+#define TR2_RES_NETHR			0x20000000L	/* Resist nether */
+#define TR2_RES_CHAOS			0x40000000L	/* Resist chaos */
+#define TR2_RES_DISEN			0x80000000L	/* Resist disenchant */
 
-#define TR3_SLOW_DIGEST		0x00000001L	/* Slow digest */
+#define TR3_SLOW_DIGEST			0x00000001L	/* Slow digest */
 #define TR3_FEATHER	 		0x00000002L	/* Feather Falling */
 #define TR3_LITE			0x00000004L	/* Perma-Lite */
 #define TR3_REGEN			0x00000008L	/* Regeneration */
-#define TR3_TELEPATHY		0x00000010L	/* Telepathy */
-#define TR3_SEE_INVIS		0x00000020L	/* See Invis */
-#define TR3_FREE_ACT		0x00000040L	/* Free action */
-#define TR3_HOLD_LIFE		0x00000080L	/* Hold life */
+#define TR3_TELEPATHY			0x00000010L	/* Telepathy */
+#define TR3_SEE_INVIS			0x00000020L	/* See Invis */
+#define TR3_FREE_ACT			0x00000040L	/* Free action */
+#define TR3_HOLD_LIFE			0x00000080L	/* Hold life */
 #define TR3_INVIS			0x00000100L	/* Invisibility */
-#define TR3_XXX2			0x00000200L
-#define TR3_XXX3			0x00000400L
-#define TR3_TM_CURSE		0x00000800L /* Ancient, Foul curse */
-#define TR3_IMPACT		0x00001000L	/* Earthquake blows */
-#define TR3_TELEPORT		0x00002000L	/* Random teleportation */
-#define TR3_AGGRAVATE		0x00004000L	/* Aggravate monsters */
-#define TR3_DRAIN_EXP		0x00008000L	/* Experience drain */
-#define TR3_IGNORE_ACID		0x00010000L	/* Item ignores Acid Damage */
-#define TR3_IGNORE_ELEC		0x00020000L	/* Item ignores Elec Damage */
-#define TR3_IGNORE_FIRE		0x00040000L	/* Item ignores Fire Damage */
-#define TR3_IGNORE_COLD		0x00080000L	/* Item ignores Cold Damage */
+#define TR3_THROWING			0x00000200L	/* Throwing weapon */
+#define TR3_BALANCED			0x00000400L	/* Perfectly balanced (for throwing) */
+#define TR3_TM_CURSE			0x00000800L /* Ancient, Foul curse */
+#define TR3_IMPACT			0x00001000L	/* Earthquake blows */
+#define TR3_TELEPORT			0x00002000L	/* Random teleportation */
+#define TR3_AGGRAVATE			0x00004000L	/* Aggravate monsters */
+#define TR3_DRAIN_EXP			0x00008000L	/* Experience drain */
+#define TR3_IGNORE_ACID			0x00010000L	/* Item ignores Acid Damage */
+#define TR3_IGNORE_ELEC			0x00020000L	/* Item ignores Elec Damage */
+#define TR3_IGNORE_FIRE			0x00040000L	/* Item ignores Fire Damage */
+#define TR3_IGNORE_COLD			0x00080000L	/* Item ignores Cold Damage */
 #define TR3_XXX5			0x00100000L	/* (reserved) */
 #define TR3_XXX6			0x00200000L	/* (reserved) */
 #define TR3_BLESSED			0x00400000L	/* Item has been blessed */
-#define TR3_ACTIVATE		0x00800000L	/* Item can be activated */
-#define TR3_INSTA_ART		0x01000000L	/* Item makes an artifact */
-#define TR3_EASY_KNOW		0x02000000L	/* Item is known if aware */
-#define TR3_HIDE_TYPE		0x04000000L	/* Item hides description */
-#define TR3_SHOW_MODS		0x08000000L	/* Item shows Tohit/Todam */
+#define TR3_ACTIVATE			0x00800000L	/* Item can be activated */
+#define TR3_INSTA_ART			0x01000000L	/* Item makes an artifact */
+#define TR3_EASY_KNOW			0x02000000L	/* Item is known if aware */
+#define TR3_HIDE_TYPE			0x04000000L	/* Item hides description */
+#define TR3_SHOW_MODS			0x08000000L	/* Item shows Tohit/Todam */
 #define TR3_XXX7			0x10000000L	/* (reserved) */
-#define TR3_LIGHT_CURSE		0x20000000L	/* Item has Light Curse */
-#define TR3_HEAVY_CURSE		0x40000000L	/* Item has Heavy Curse */
-#define TR3_PERMA_CURSE		0x80000000L	/* Item has Perma Curse */
+#define TR3_LIGHT_CURSE			0x20000000L	/* Item has Light Curse */
+#define TR3_HEAVY_CURSE			0x40000000L	/* Item has Heavy Curse */
+#define TR3_PERMA_CURSE			0x80000000L	/* Item has Perma Curse */
 
 
 /*
@@ -2013,7 +2018,7 @@
         (TR1_STR | TR1_INT | TR1_WIS | TR1_DEX | \
          TR1_CON | TR1_CHR | TR1_XXX1 | TR1_XXX2 | \
          TR1_STEALTH | TR1_SEARCH | TR1_INFRA | TR1_TUNNEL | \
-         TR1_SPEED | TR1_BLOWS | TR1_SHOTS | TR1_MIGHT)
+         TR1_SPEED | TR1_SHOTS | TR1_MIGHT)
 
 
 /*

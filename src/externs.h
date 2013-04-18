@@ -104,6 +104,7 @@ extern s16b screen_x;
 extern s16b screen_y;
 extern s16b SCREEN_HGT;
 extern s16b SCREEN_WID;
+extern s16b font_size;
 extern u32b seed_flavor;
 extern u32b seed_town;
 extern s16b num_repro;
@@ -272,6 +273,7 @@ extern void disturb(int stop_search, int unused_flag);
 extern bool is_quest(int level);
 
 /* cmd1.c */
+extern void race_barehand_dice(int num, int *ds, int *dd);
 extern bool test_hit_combat(int chance, int ac, int vis);
 extern bool test_hit_norm(int chance, int ac, int vis);
 extern sint critical_shot(int chance, int sleeping_bonus, bool thrown_weapon, char o_name[], char m_name[], int visible);
@@ -313,7 +315,7 @@ extern void do_cmd_wield(void);
 extern void do_cmd_takeoff(void);
 extern void do_cmd_drop(void);
 extern void do_cmd_destroy(void);
-extern void	do_cmd_rngoffer();
+extern void do_cmd_rngoffer();
 extern void do_cmd_observe(void);
 extern void do_cmd_uninscribe(void);
 extern void do_cmd_inscribe(void);
@@ -518,6 +520,10 @@ extern bool spell_okay(int spell, bool known);
 extern void spell_info(char *p, int spell);
 extern void print_spells(byte *spells, int num, int y, int x);
 extern void display_koff(int k_idx);
+
+/* randart.c */
+extern artifact_type *randart_make(object_type *o_ptr);
+extern void randart_name(object_type *o_ptr, char *buffer);
 
 /* save.c */
 extern bool save_player(void);

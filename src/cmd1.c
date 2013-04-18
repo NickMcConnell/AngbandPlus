@@ -10,6 +10,35 @@
 
 #include "angband.h"
 
+/*
+ * Return barehanded damage dice for the player's race.
+ *
+ * Damage on blow 'num'.
+ */
+void race_barehand_dice(int num, int *ds, int *dd)
+{
+	if (p_ptr->prace >= RACE_MIN_DRAGON)
+	{
+		(*ds) = p_ptr->lev+adj_drag[p_ptr->stat_ind[A_DEX]] - 128;
+		(*dd) = p_ptr->lev+adj_drag[p_ptr->stat_ind[A_STR]] - 128;
+		
+		if ((*ds)<1) (*ds)=1;
+		if ((*dd)<1) (*dd)=1;
+
+		/* Damage dice */
+		(*ds) = num%2 ? (*ds)/5+1 : (*ds)/15+2;
+		(*dd) = num%2 ? (*dd)/15+2 : (*dd)/5+1;
+	}
+	else
+	{
+		(*ds) = 1;
+		(*dd) = 1;
+	}
+
+	return;
+}
+
+
 
 /*
  * Determine if the player "hits" a monster (non-magical combat).
@@ -1824,15 +1853,9 @@ void py_attack(int y, int x)
 				/* Message */
 				sprintf(message, "You %s %s.", num%2?"bite":"claw", m_name);
 				msg_print(message);
-				
-				l = p_ptr->lev+adj_drag[p_ptr->stat_ind[A_DEX]] - 128;
-				m = p_ptr->lev+adj_drag[p_ptr->stat_ind[A_STR]] - 128;
-				if (l<1) l=1;
-				if (m<1) m=1;
-
-				/* Damage dice */
-				l = num%2?l/5+1:l/15+1;
-				m = num%2?m/15+1:m/5+1;
+			
+				/* Get damage dice */
+				race_barehand_dice(num, &l, &m);
 
 				/* base damage dice. */
 				k = l;

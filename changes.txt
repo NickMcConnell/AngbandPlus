@@ -1,76 +1,37 @@
 DrAngband Changes:
 ------------------
 
-DrAngband 2.9.4 (28/11/99)
+DrAngband 2.9.5 (21/3/2000)
+---------------------------
+
+* New sling ammo: Silver Shots. They do extra damage to evil creatures.
+
+* _REALLY_ nasty escorts for Sauron and Morgoth!
+
+* Oangband throwing and well-balanced items.
+
+* Dragon weapons tweaked.
+
+* (Infinite) Random artifacts.
+
+* Fixed zero-divide bug caused by curse weapon scrolls.
+
+* Mage 'striking' spell now kicks monsters back 2 tiles.
+
+* Angband 2.8.5 stat buying method for character creation.
+
+* 1st version to support a borg.
+
+DrAngband 2.9.4 (2/2/2000)
 --------------------------
 
-IMPORTANT
----------
+* -t switch for various X11 fonts.
 
-Finish oangband combat inc. bows/throws.
-
-IDEAS:
-------
-
-Throwing: Sling in the BALANCED and THROWING flags.
-
-(- marks almost done. still some work)
--reduce dependence on massive heals,
--teleports.
--More use of clever utility spells like 
--create doors.
-Hack 'n slash harder to rely on.
--Better attacking spells but no one-shot wonders.
-Reduce mana?
-Less reliance on artifacts and slightly less on
-ego-items.
-Struggling to remove cursed stuff. Maybe 95%
-fail rate: "You struggle to remove the foo",
-"You finally manage to remove the acursed foo".
-New, well differentiated races.
-
--changed can't remove curse message
-
-Dragon attack spells. To powerful late on?
-
-Add 'physical mana'. Changed by
-bashing doors, removing cursed items, etc.
-Depends on CON and life level, etc.
-Displayed as:
-<NOTHING>
-TIRED <ORANGE, RED>
-EXHAUSTED <ORANGE, RED>
-Use a +ve count. Ie, o when fine, 10 when
-tiring, 50 when exhausted. Modify this and
-apply as a -ve to hit/damage?
-Maybe a crap idea.
-
-Hydras,
-etc. (more ideas)
+* Much nicer GCU bigscreen support.
 
 
-Only phase door to be great. Fewer insta-death breath attacks.
-
-Monsters should take poison more like the player. m_ptr->poisoned
-
-Yell command
-
-Point based (ang 2.8.5) stat rolling.
-
-Boosts to ego and good item +hit, +dam.
-
-Wand charges in PVAL field of k_info.txt
-
-Better wands.
-
-Fix cumulative resistances so >100 resistance isn't ignored.
-This will allow for vulnerability to attacks.
-
-
-When digging, first turn to rubble.
-
-DrAngband 2.9.4 (29/11/99)
---------------------------
+^^ Above changes after beta release.
+------------------------------------
 
 * Globe of Resilience reduces damage to 2/3.
 

@@ -700,7 +700,17 @@ void object_flags(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
 	/* Artifact */
 	if (o_ptr->name1)
 	{
-		artifact_type *a_ptr = &a_info[o_ptr->name1];
+		artifact_type *a_ptr;
+		
+		/* Hack -- Randarts! */
+		if (o_ptr->name1 == ART_RANDART)
+		{
+			a_ptr = randart_make(o_ptr);
+		}
+		else
+		{
+			a_ptr = &a_info[o_ptr->name1];
+		}
 
 		(*f1) = a_ptr->flags1;
 		(*f2) = a_ptr->flags2;
@@ -791,7 +801,17 @@ void object_flags_known(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
 	/* Artifact */
 	if (o_ptr->name1)
 	{
-		artifact_type *a_ptr = &a_info[o_ptr->name1];
+		artifact_type *a_ptr;
+		
+		/* Hack -- Randarts! */
+		if (o_ptr->name1 == ART_RANDART)
+		{
+			a_ptr = randart_make(o_ptr);
+		}
+		else
+		{
+			a_ptr = &a_info[o_ptr->name1];
+		}
 
 		(*f1) = a_ptr->flags1;
 		(*f2) = a_ptr->flags2;
@@ -1230,14 +1250,12 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 			     p_ptr->prace >= RACE_MIN_DRAGON)
 			{
 				m = (o_ptr == &inventory[INVEN_WIELD])?1:2;
-				j = p_ptr->lev+adj_drag[p_ptr->stat_ind[A_DEX]] - 128;
-				l = p_ptr->lev+adj_drag[p_ptr->stat_ind[A_STR]] - 128;
-				if (j<1) j=1;
-				if (l<1) l=1;
 
+				/* Get damage dice */
+				race_barehand_dice(m, &j, &l);
+				
 				sprintf(buf, "Your %s (%dd%d)", 
-					m==1?"teeth":"claws",
-					j/(m==1?5:15)+1,l/(m==1?15:5)+1);
+					m==1?"teeth":"claws", j, l);
 				return;
 			}
 			else
@@ -1335,6 +1353,12 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		}
 	}
 
+	/* Non-artifact perfectly balanced throwing weapons are indicated. -LM- */
+	if ((f3 & (TR3_BALANCED)) && (f3 & (TR3_THROWING)) && 
+			(known) && (!o_ptr->name1))
+	{
+		object_desc_str_macro(t, "Well-balanced ");
+	}
 
 	/* Paranoia XXX XXX XXX */
 	/* while (*s == '~') s++; */
@@ -1385,8 +1409,18 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	/* Hack -- Append "Artifact" or "Special" names */
 	if (known)
 	{
+		/* Grab any randart name */
+		if (o_ptr->name1 == ART_RANDART)
+		{
+			/* Create the name */
+			randart_name(o_ptr, tmp_val);
+			
+			object_desc_chr_macro(t, ' ');
+			object_desc_str_macro(t, tmp_val);
+		}
+			
 		/* Grab any artifact name */
-		if (o_ptr->name1)
+		else if (o_ptr->name1)
 		{
 			artifact_type *a_ptr = &a_info[o_ptr->name1];
 
@@ -1769,16 +1803,6 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 			tail = " to speed";
 		}
 
-		/* Blows */
-		else if (f1 & (TR1_BLOWS))
-		{
-			/* Add " attack" */
-			tail = " attack";
-
-			/* Add "attacks" */
-			if (ABS(o_ptr->pval) != 1) tail2 = "s";
-		}
-
 #if 0
 
 		/* Shots */
@@ -1929,6 +1953,9 @@ cptr item_activation(object_type *o_ptr)
 	/* Require activation ability */
 	if (!(f3 & (TR3_ACTIVATE))) return (NULL);
 
+	/* For the moment ignore randarts */
+	if (o_ptr->name1 == ART_RANDART) return "a crash ;-)";
+	
 	/* Some artifacts can be activated */
 	switch (o_ptr->name1)
 	{
@@ -2321,10 +2348,6 @@ bool identify_fully_aux(object_type *o_ptr)
 	{
 		info[i++] = "It affects your speed.";
 	}
-	if (f1 & (TR1_BLOWS))
-	{
-		info[i++] = "It affects your attack speed.";
-	}
 	if (f1 & (TR1_SHOTS))
 	{
 		info[i++] = "It affects your shooting speed.";
@@ -2545,6 +2568,16 @@ bool identify_fully_aux(object_type *o_ptr)
 		info[i++] = "It renders you completely invisible.";
 	}
 
+	if (f3 & (TR3_THROWING))
+	{
+		info[i++] = "It is a good throwing weapon.";
+	}
+
+	if (f3 & (TR3_BALANCED))
+	{
+		info[i++] = "It is perfectly balanced for throwing.";
+	}
+	
 	if (f3 & (TR3_FREE_ACT))
 	{
 		info[i++] = "It provides immunity to paralysis.";

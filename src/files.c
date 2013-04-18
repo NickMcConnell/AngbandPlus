@@ -1087,7 +1087,7 @@ static cptr likert(int x, int y)
 	/* Negative value */
 	if (x < 0)
 	{
-		likert_color = TERM_RED;
+		likert_color = TERM_L_DARK;
 		return ("Very Bad");
 	}
 
@@ -1097,57 +1097,70 @@ static cptr likert(int x, int y)
 		case 0:
 		case 1:
 		{
+			likert_color = TERM_L_DARK;
+			return ("Very Bad");
+		}
+		case 2:
+		case 3:
+		{
 			likert_color = TERM_RED;
 			return ("Bad");
 		}
-		case 2:
+		case 4:
+		case 5:
 		{
 			likert_color = TERM_RED;
 			return ("Poor");
 		}
-		case 3:
-		case 4:
+		case 6:
+		case 7:
 		{
-			likert_color = TERM_YELLOW;
+			likert_color = TERM_ORANGE;
 			return ("Fair");
 		}
-		case 5:
+		case 8:
+		case 9:
 		{
-			likert_color = TERM_YELLOW;
+			likert_color = TERM_ORANGE;
 			return ("Good");
 		}
-		case 6:
+		case 10:
+		case 11:
 		{
 			likert_color = TERM_YELLOW;
 			return ("Very Good");
 		}
-		case 7:
-		case 8:
-		{
-			likert_color = TERM_L_GREEN;
-			return ("Excellent");
-		}
-		case 9:
-		case 10:
-		case 11:
 		case 12:
 		case 13:
 		{
-			likert_color = TERM_L_GREEN;
-			return ("Superb");
+			likert_color = TERM_YELLOW;
+			return ("Excellent");
 		}
 		case 14:
 		case 15:
 		case 16:
+		{
+			likert_color = TERM_L_GREEN;
+			return ("Superb");
+		}
 		case 17:
+		case 18:
+		case 19:
 		{
 			likert_color = TERM_L_GREEN;
 			return ("Heroic");
 		}
-		default:
+		case 20:
+		case 21:
+		case 22:
 		{
 			likert_color = TERM_L_GREEN;
-			sprintf(buffer, "Legendary-%d", (x / y) - 17);
+			return ("Legendary");
+		}
+		default:
+		{
+			likert_color = TERM_GREEN;
+			sprintf(buffer, "Godly +%d", (x / y) - 21);
 			return (buffer);
 		}
 	}
@@ -1912,7 +1925,7 @@ static void display_player_sust_info(int y_offset)
 
 
 	/* Row */
-	row = 3 + y_offset;
+	row = 2 + y_offset;
 
 	/* Column */
 	col = 26;
@@ -2045,7 +2058,7 @@ void display_player(int mode)
 		display_player_xtra_info();
 
 		/* Stat info */
-		display_player_stat_info((screen_y - 3)/2);
+		display_player_stat_info((screen_y - 3)/2-1);
 
 		/* Stat/Sustain flags */
 		display_player_sust_info((screen_y - 3)/2);
@@ -2058,8 +2071,8 @@ void display_player(int mode)
 	else if (mode)
 	{
 		/* Hack -- Level */
-		put_str("Level", 9, 1);
-		c_put_str(TERM_L_BLUE, format("%d", p_ptr->lev), 9, 8);
+		put_str("Level", 8, 1);
+		c_put_str(TERM_L_BLUE, format("%d", p_ptr->lev), 8, 8);
 
 		/* Stat/Sustain flags */
 		display_player_sust_info(0);

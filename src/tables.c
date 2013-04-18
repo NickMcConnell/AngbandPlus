@@ -1153,13 +1153,13 @@ byte blows_table[12][12] =
 	/* 7  */
 	{  2,   3,   3,   4,   4,   4,   4,   4,   4,   4,   4,   4 },
 	/* 8  */
-	{  2,   3,   3,   4,   4,   4,   4,   4,   4,   4,   4,   5 },
+	{  2,   3,   3,   4,   4,   4,   4,   4,   4,   4,   4,   4 },
 	/* 9  */
-	{  3,   3,   3,   4,   4,   4,   4,   4,   4,   4,   5,   5 },
+	{  3,   3,   3,   4,   4,   4,   4,   4,   4,   4,   4,   4 },
 	/* 10 */
-	{  3,   3,   4,   4,   4,   4,   4,   4,   4,   5,   5,   5 },
+	{  3,   3,   4,   4,   4,   4,   4,   4,   4,   4,   4,   5 },
 	/* 11+ */
-	{  3,   3,   4,   4,   4,   4,   4,   4,   5,   5,   5,   5 },
+	{  3,   3,   4,   4,   4,   4,   4,   4,   4,   4,   5,   5 },
 };
 
 
@@ -2995,7 +2995,7 @@ cptr option_desc[OPT_MAX] =
 bool option_norm[OPT_MAX] =
 {
 	FALSE,		/* OPT_rogue_like_commands */
-	FALSE,		/* OPT_quick_messages */
+	TRUE,		/* OPT_quick_messages */
 	TRUE,		/* OPT_floor_query_flag */
 	FALSE,		/* OPT_carry_query_flag */
 	FALSE,		/* OPT_use_old_target */
@@ -3036,8 +3036,8 @@ bool option_norm[OPT_MAX] =
 	FALSE,		/* OPT_view_torch_grids */
 	FALSE,		/* OPT_dungeon_align */
 	TRUE,		/* OPT_dungeon_stair */
-	FALSE,		/* OPT_flow_by_sound */
-	FALSE,		/* OPT_flow_by_smell */
+	TRUE,		/* OPT_flow_by_sound */
+	TRUE,		/* OPT_flow_by_smell */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	FALSE,		/* OPT_smart_learn */
@@ -3054,10 +3054,10 @@ bool option_norm[OPT_MAX] =
 	TRUE,			/* OPT_show_special_player */
 	TRUE,		/* OPT_compress_savefile */
 	FALSE,		/* OPT_hilite_player */
-	FALSE,		/* OPT_view_yellow_lite */
-	FALSE,		/* OPT_view_bright_lite */
-	FALSE,		/* OPT_view_granite_lite */
-	FALSE		/* OPT_view_special_lite */
+	TRUE,		/* OPT_view_yellow_lite */
+	TRUE,		/* OPT_view_bright_lite */
+	TRUE,		/* OPT_view_granite_lite */
+	TRUE		/* OPT_view_special_lite */
 };
 
 

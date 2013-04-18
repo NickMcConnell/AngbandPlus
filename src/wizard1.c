@@ -459,7 +459,6 @@ static flag_desc pval_flags1_desc[] =
 	{ TR1_INFRA,      "Infravision" },
 	{ TR1_TUNNEL,     "Tunneling" },
 	{ TR1_SPEED,      "Speed" },
-	{ TR1_BLOWS,      "Attacks" },
 	{ TR1_SHOTS,      "Shots" },
 	{ TR1_MIGHT,      "Might" }
 };
@@ -551,18 +550,20 @@ static const flag_desc sustain_flags_desc[] =
 
 static const flag_desc misc_flags3_desc[] =
 {
-	{ TR3_SLOW_DIGEST,        "Slow Digestion" },
-	{ TR3_FEATHER,            "Feather Falling" },
-	{ TR3_LITE,               "Permanent Light" },
-	{ TR3_REGEN,              "Regeneration" },
-	{ TR3_TELEPATHY,          "ESP" },
-	{ TR3_SEE_INVIS,          "See Invisible" },
-	{ TR3_FREE_ACT,           "Free Action" },
-	{ TR3_HOLD_LIFE,          "Hold Life" },
-	{ TR3_BLESSED,            "Blessed Blade" },
-	{ TR3_IMPACT,             "Earthquake impact on hit" },
-	{ TR3_AGGRAVATE,          "Aggravates" },
-	{ TR3_DRAIN_EXP,          "Drains Experience" }
+	{ TR3_SLOW_DIGEST,	"Slow Digestion" },
+	{ TR3_FEATHER,		"Feather Falling" },
+	{ TR3_LITE,		"Permanent Light" },
+	{ TR3_REGEN,		"Regeneration" },
+	{ TR3_TELEPATHY,	"ESP" },
+	{ TR3_SEE_INVIS,	"See Invisible" },
+	{ TR3_FREE_ACT,		"Free Action" },
+	{ TR3_HOLD_LIFE,	"Hold Life" },
+	{ TR3_INVIS,		"Invisibility" },
+	{ TR3_BALANCED,		"Perfectly Balanced" },
+	{ TR3_BLESSED,		"Blessed Blade" },
+	{ TR3_IMPACT,		"Earthquake impact on hit" },
+	{ TR3_AGGRAVATE,	"Aggravates" },
+	{ TR3_DRAIN_EXP,	"Drains Experience" }
 };
 
 /*

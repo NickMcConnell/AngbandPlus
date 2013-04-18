@@ -2913,7 +2913,7 @@ static void process_monster(int m_idx)
 				int k;
 
 				/* Door power */
-				k = 20*((cave_feat[ny][nx] - FEAT_DOOR_HEAD) & 0x07);
+				k = 10*((cave_feat[ny][nx] - FEAT_DOOR_HEAD) & 0x07);
 
 #if 0
 				/* XXX XXX XXX Old test (pval 10 to 20) */

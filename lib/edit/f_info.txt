@@ -16,7 +16,7 @@
 
 # Version stamp (required)
 
-V:2.9.4
+V:2.9.5
 
 #N: index: name
 #G: ASCII char used to represent the feature: color symbol

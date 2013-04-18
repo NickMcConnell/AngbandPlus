@@ -750,7 +750,7 @@ void do_cmd_cast(void)
 			{
 				if (!get_aim_dir(&dir)) return;
 				fire_bolt(GF_FORCE, dir,
-				                  damroll(3+(plev/4), 7));
+				                  damroll(3+(plev/3), 9));
 				break;
 			}
 			

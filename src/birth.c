@@ -1076,6 +1076,184 @@ static void player_outfit(void)
 
 
 /*
+ * Initial stat costs (initial stats always range from 10 to 18 inclusive).
+ */
+static int birth_stat_costs[(18-10)+1] = { 0, 1, 2, 4, 7, 11, 16, 22, 30 };
+
+
+/*
+ * Helper function for 'player_birth()'.
+ *
+ * This function handles "point-based" character creation.
+ *
+ * The player selects, for each stat, a value from 10 to 18 (inclusive),
+ * each costing a certain amount of points (as above), from a pool of 48
+ * available points, to which race/class modifiers are then applied.
+ *
+ * Each unused point is converted into 100 gold pieces.
+ */
+static bool player_birth_buystats()
+{
+	int i;
+
+	int row = 2;
+	int col = 42;
+
+	int stat = 0;
+
+	int stats[A_MAX];
+
+	int cost = 0;
+
+	char ch;
+
+	char buf[80];
+
+
+	/* Initialize stats */
+	for (i = 0; i < A_MAX; i++)
+	{
+		/* Initial stats */
+		stats[i] = 10;
+	}
+
+
+	/* Roll for base hitpoints */
+	get_extra();
+
+	/* Roll for age/height/weight */
+	get_ahw();
+
+	/* Roll for social class */
+	get_history();
+
+
+	/* Interact */
+	while (1)
+	{
+		/* Reset cost */
+		cost = 0;
+
+		/* Process stats */
+		for (i = 0; i < A_MAX; i++)
+		{
+			/* Variable stat maxes */
+			if (p_ptr->maximise)
+			{
+				/* Reset stats */
+				p_ptr->stat_cur[i] = p_ptr->stat_max[i] = stats[i];
+
+			}
+
+			/* Fixed stat maxes */
+			else
+			{
+				/* Obtain a "bonus" for "race" and "class" */
+				int bonus = rp_ptr->r_adj[i] + cp_ptr->c_adj[i];
+
+				/* Apply the racial/class bonuses */
+				p_ptr->stat_cur[i] = p_ptr->stat_max[i] =
+					modify_stat_value(stats[i], bonus);
+			}
+
+			/* Total cost */
+			cost += birth_stat_costs[stats[i] - 10];
+		}
+
+		/* Restrict cost */
+		if (cost > 48)
+		{
+			/* Warning */
+			bell("Excessive stats!");
+
+			/* Reduce stat */
+			stats[stat]--;
+
+			/* Recompute costs */
+			continue;
+		}
+
+		/* Gold is inversely proportional to cost */
+		p_ptr->au = (100 * (48 - cost)) + 100;
+
+		/* Calculate the bonuses and hitpoints */
+		p_ptr->update |= (PU_BONUS | PU_HP);
+
+		/* Update stuff */
+		update_stuff();
+
+		/* Fully healed */
+		p_ptr->chp = p_ptr->mhp;
+
+		/* Fully rested */
+		p_ptr->csp = p_ptr->msp;
+
+		/* Display the player */
+		display_player(0);
+
+		/* Display the costs header */
+		put_str("Cost", row - 1, col + 32);
+
+		/* Display the costs */
+		for (i = 0; i < A_MAX; i++)
+		{
+			/* Display cost */
+			sprintf(buf, "%4d", birth_stat_costs[stats[i] - 10]);
+			put_str(buf, row + i, col + 32);
+		}
+
+
+		/* Prompt XXX XXX XXX */
+		sprintf(buf, "Total Cost %2d/48.  Use 2/8 to move, 4/6 to modify, ESC to accept.", cost);
+		prt(buf, 0, 0);
+
+		/* Place cursor just after cost of current stat */
+		Term_gotoxy(col + 36, row + stat);
+
+		/* Get key */
+		ch = inkey();
+
+		/* Quit */
+		if (ch == 'Q') quit(NULL);
+
+		/* Start over */
+		if (ch == 'S') return (FALSE);
+
+		/* Done */
+		if (ch == ESCAPE) break;
+
+		/* Prev stat */
+		if (ch == '8')
+		{
+			stat = (stat + 5) % 6;
+		}
+
+		/* Next stat */
+		if (ch == '2')
+		{
+			stat = (stat + 1) % 6;
+		}
+
+		/* Decrease stat */
+		if ((ch == '4') && (stats[stat] > 10))
+		{
+			stats[stat]--;
+		}
+
+		/* Increase stat */
+		if ((ch == '6') && (stats[stat] < 18))
+		{
+			stats[stat]++;
+		}
+	}
+
+
+	/* Done */
+	return (TRUE);
+}
+
+
+/*
  * Helper function for 'player_birth()'
  *
  * The delay may be reduced, but is recommended to keep players
@@ -1265,6 +1443,8 @@ static bool player_birth_aux()
 		"Using 'maximise' mode makes the game harder at the start,");
 	Term_putstr(5, 16, -1, TERM_WHITE,
 		"but often makes it easier to win.");
+	Term_putstr(5, 17, -1, TERM_YELLOW,
+		"If you can not decide, choose yes.");
 
 	/* Ask about "maximise" mode */
 	while (1)
@@ -1291,8 +1471,8 @@ static bool player_birth_aux()
 	/* Extra info */
 	Term_putstr(5, 15, -1, TERM_WHITE,
 		"Using 'preserve' mode makes it difficult to 'lose' artifacts,");
-	Term_putstr(5, 16, -1, TERM_WHITE,
-		"but eliminates the 'special' feelings about some levels.");
+	Term_putstr(5, 16, -1, TERM_YELLOW,
+		"If you can not decide, choose yes.");
 
 	/* Ask about "preserve" mode */
 	while (1)
@@ -1313,8 +1493,9 @@ static bool player_birth_aux()
 	/* Clear */
 	clear_from(15);
 
+#if 0
 	/*** New town layout ***/
-
+	
 	/* Extra info */
 	Term_putstr(5, 15, -1, TERM_WHITE,
 		"The new town layout adds nothing to the game but ");
@@ -1323,9 +1504,8 @@ static bool player_birth_aux()
 	Term_putstr(5, 17, -1, TERM_WHITE,
 		"or higher.");
 
-	/* Ask about new town layout mode.
-	 * This can easily be re-enabled by uncommenting. */
-	/*while (1)
+	/* Ask about new town layout mode. */
+	while (1)
 	{
 		put_str("Use the new town layout? (y/n) ", 20, 2);
 		c = inkey();
@@ -1335,14 +1515,15 @@ static bool player_birth_aux()
 		if ((c == 'y') || (c == 'n')) break;
 		if (c == '?') do_cmd_help();
 		else bell("Illegal selection!");
-	}*/
+	}
 
 	/* Set new town layout mode */
-	/*p_ptr->new_town = (c == 'y');*/
+	p_ptr->new_town = (c == 'y');
 
 	/* Clear */
 	clear_from(20);
-
+#endif
+	
 
 #ifdef ALLOW_AUTOROLLER
 
@@ -1353,16 +1534,18 @@ static bool player_birth_aux()
 		"The 'autoroller' allows you to specify certain 'minimal' stats,");
 	Term_putstr(5, 16, -1, TERM_WHITE,
 		"but be warned that your various stats may not be independant!");
+	Term_putstr(5, 17, -1, TERM_WHITE,
+		"Press b to create a character by buying stats.");
 
 	/* Ask about "auto-roller" mode */
 	while (1)
 	{
-		put_str("Use the Auto-Roller? (y/n) ", 20, 2);
+		put_str("Use the Auto-Roller? (y/n or b) ", 20, 2);
 		c = inkey();
 		if (c == 'Q') quit(NULL);
 		if (c == 'S') return (FALSE);
 		if (c == ESCAPE) break;
-		if ((c == 'y') || (c == 'n')) break;
+		if ((c == 'y') || (c == 'n') || (c == 'b')) break;
 		if (c == '?') do_cmd_help();
 		else bell("Illegal autoroller flag!");
 	}
@@ -1373,6 +1556,32 @@ static bool player_birth_aux()
 	/* Clear */
 	clear_from(15);
 
+	/* Buy stats mode */
+	if (c == 'b')
+	{
+		player_birth_buystats();
+	
+		/* Get a name, prepare savefile */
+		get_name();
+
+		/* Display the player */
+		display_player(0);
+
+		/* Prompt for it */
+		prt("['Q' to suicide, 'S' to start over, or ESC to continue]", 23, 10);
+
+		/* Get a key */
+		c = inkey();
+
+		/* Quit */
+		if (c == 'Q') quit(NULL);
+
+		/* Start over */
+		if (c == 'S') return (FALSE);
+
+		/* Accept */
+		return (TRUE);
+	}
 
 	/* Initialize */
 	if (autoroll)

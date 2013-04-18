@@ -1,7 +1,7 @@
 A guide to DrAngband for experienced Angbanders
 -----------------------------------------------
-Last updated for v2.9.4 BETA
-----------------------------
+Last updated for v2.9.4
+-----------------------
 
 Most of the stuff that applied to angband will apply to DrAngband
 but a few fundamental concepts are different:
@@ -42,12 +42,22 @@ Other screen sizes between 25 and 50 (and ever higher) are also
 possible. Consult porting.txt for information about this feature.
 The GCU port requires 'setfont' and a default 8x8 font
 (with redhat, /usr/lib/kbd/consolefonts/). Currently only in the X11
-port, screen with may also be specified:
+and GCU port, screen with may also be specified:
 
 angband -x100
 
 For a 100 character wide screen (compared to 80 normally). This may
 be use with -y.
+
+
+Large Inventory
+---------------
+
+Normally in Angband you may carry 22 items. In DrAngband this has been
+increased to 52. If you are not using a bigscreen mode large enough to display
+the entire expanded inventory on screen you may scroll through the inventory
+by hitting '+'.
+
 
 Resistances
 -----------
@@ -70,6 +80,7 @@ Slays (eg Slay Orc) and brands are now applied to the entire melee damage
 rather than just the base dice rolls. They have been reduced from a maximum
 of three to max 2. This does not apply to ammo, which has slays of the
 same power as normal and applied the normal way.
+
 
 Dragons & Equipment
 -------------------
@@ -101,6 +112,11 @@ see birth.txt.
 
 Basically, avoid using weapons that both your race and class are bad at
 (for example a gnome mage with a polearm).
+
+In angband, the character info screen will show something like (+20,+35) for
+melee. This means when using your hand to hand weapon you get +20 to hit and
++35 extra damage per blow. In DrAngband it will look more like this: (+20,
+55%). This means the damage dice is increased by 55%.
 
 
 --

@@ -719,10 +719,6 @@ void self_knowledge(void)
 	{
 		info[i++] = "Your speed is affected by your equipment.";
 	}
-	if (f1 & (TR1_BLOWS))
-	{
-		info[i++] = "Your attack speed is affected by your equipment.";
-	}
 	if (f1 & (TR1_SHOTS))
 	{
 		info[i++] = "Your shooting speed is affected by your equipment.";

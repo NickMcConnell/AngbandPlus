@@ -319,7 +319,7 @@
 /*
  * OPTION: Use the "complex" wall illumination code
  */
-/* #define UPDATE_VIEW_COMPLEX_WALL_ILLUMINATION */
+#define UPDATE_VIEW_COMPLEX_WALL_ILLUMINATION
 
 
 /*
@@ -452,7 +452,9 @@
 /*
  * OPTION: Default font (when using X11).
  */
+#define SMALL_X11_FONT			"6x9"
 #define DEFAULT_X11_FONT		"9x15"
+#define LARGE_X11_FONT			"12x24"
 
 /*
  * OPTION: Default fonts (when using X11)

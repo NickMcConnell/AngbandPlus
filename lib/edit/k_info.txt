@@ -23,7 +23,7 @@
 
 # Version stamp (required)
 
-V:2.9.4
+V:2.9.5
 
 #N: object index: name
 #G: ASCII char used to display the object: color symbol
@@ -323,7 +323,7 @@ I:23:4:0
 W:0:0:12:10
 A:0/1:5/1:10/1:20/1
 P:0:1d4:0:0:0
-F:SHOW_MODS
+F:THROWING | SHOW_MODS
 
 N:44:& Rapier~
 G:|:W
@@ -495,7 +495,7 @@ I:22:2:0
 W:5:0:50:36
 A:5/1
 P:0:1d6:0:0:0
-F:SHOW_MODS
+F:THROWING | SHOW_MODS
 
 N:65:& Trident~
 G:/:y
@@ -615,7 +615,7 @@ G:{:G
 I:17:2:0
 W:55:0:2:20
 A:55/2
-P:0:4d4:0:0:0
+P:0:3d4:0:0:0
 F:SHOW_MODS
 
 N:80:& Bolt~
@@ -631,7 +631,7 @@ G:{:B
 I:18:2:0
 W:65:0:3:25
 A:65/4
-P:0:4d5:0:0:0
+P:0:3d5:0:0:0
 F:SHOW_MODS
 
 N:82:& Rounded Pebble~
@@ -639,16 +639,16 @@ G:{:s
 I:16:0:0
 W:0:0:4:1
 A:0/1
-P:0:1d2:0:0:0
-F:SHOW_MODS
-
-N:83:& Iron Shot~
-G:{:s
-I:16:1:0
-W:3:0:5:2
-A:3/1
 P:0:1d3:0:0:0
 F:SHOW_MODS
+
+N:83:& Silver Shot~
+G:{:w
+I:16:1:0
+W:25:0:5:20
+A:25/5
+P:0:1d8:0:0:0
+F:SLAY_EVIL | SHOW_MODS
 
 
 ##### Shovels and Picks #####
@@ -1452,7 +1452,7 @@ N:200:Mass Genocide
 G:?:d
 I:70:45:0
 W:50:0:5:1000
-A:50/6
+A:70/40
 
 N:201:Detect Invisible
 G:?:d
@@ -3065,7 +3065,7 @@ G:":d
 I:40:13:0
 W:40:0:3:20000
 P:0:0d0:0:0:0
-A:40/2
+A:40/100
 F:RES_COLD | RES_FIRE | RES_ELEC | RES_ACID | EASY_KNOW | 
 F:IGNORE_COLD | IGNORE_FIRE | IGNORE_ELEC | IGNORE_ACID
 

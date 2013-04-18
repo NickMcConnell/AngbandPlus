@@ -2510,7 +2510,9 @@ errr init_x11(int argc, char *argv[])
 		if (!fnt_name) fnt_name = getenv("ANGBAND_X11_FONT");
 
 		/* No environment variables, use default font */
-		if (!fnt_name) fnt_name = DEFAULT_X11_FONT_SCREEN;
+		if (!fnt_name && font_size==0) fnt_name = SMALL_X11_FONT;
+		else if (!fnt_name && font_size==2) fnt_name = LARGE_X11_FONT;
+		else if (!fnt_name) fnt_name = DEFAULT_X11_FONT_SCREEN;
 
 		/* Initialize the term_data */
 		term_data_init(td, TRUE, name, fnt_name, i);

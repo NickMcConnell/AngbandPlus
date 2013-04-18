@@ -1,1 +1,0 @@
-@angband -y50

@@ -129,6 +129,12 @@ s16b SCREEN_HGT = 22;
 s16b SCREEN_WID = 66;
 
 /*
+ * Currently only for X11: Font size
+ */
+
+s16b font_size = 1;
+
+/*
  * Dungeon variables
  */
 

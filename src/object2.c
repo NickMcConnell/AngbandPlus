@@ -874,7 +874,17 @@ static s32b object_value_real(object_type *o_ptr)
 	/* Artifact */
 	if (o_ptr->name1)
 	{
-		artifact_type *a_ptr = &a_info[o_ptr->name1];
+		artifact_type *a_ptr;
+	
+	 	/* Randarts */
+		if (o_ptr->name1 == ART_RANDART)
+		{
+			a_ptr = randart_make(o_ptr);
+		}
+		else
+		{	
+			a_ptr = &a_info[o_ptr->name1];
+		}
 
 		/* Hack -- "worthless" artifacts */
 		if (!a_ptr->cost) return (0L);
@@ -942,9 +952,13 @@ static s32b object_value_real(object_type *o_ptr)
 			if (f1 & (TR1_INFRA)) value += (o_ptr->pval * 50L);
 			if (f1 & (TR1_TUNNEL)) value += (o_ptr->pval * 50L);
 
-			/* Give credit for extra attacks */
-			if (f1 & (TR1_BLOWS)) value += (o_ptr->pval * 2000L);
-
+			/* Give credit for perfect balance. -LM- */
+			if (f3 & (TR3_BALANCED)) value += o_ptr->dd * 200L;
+			
+			/* Give credit for speed bonus.  Formula changed to avoid
+			 * excessively valuable low-speed items. -LM- */
+			if (f1 & (TR1_SPEED)) value += (o_ptr->pval * o_ptr->pval * 5000L);
+			
 			/* Give credit for speed bonus */
 			if (f1 & (TR1_SPEED)) value += (o_ptr->pval * 30000L);
 
@@ -1645,6 +1659,28 @@ static bool make_artifact(object_type *o_ptr)
 		o_ptr->name1 = i;
 
 		/* Success */
+		return (TRUE);
+	}
+
+	/* An extra chance at being a randart. XXX RANDART */
+	if (!rand_int(RANDART_RARITY))
+	{
+		o_ptr->name1 = ART_RANDART;
+
+		/* Piece together a 32-bit random seed */
+		o_ptr->name3 = rand_int(0xFFFF) << 16;
+		o_ptr->name3 += rand_int(0xFFFF);
+
+		/* Check the tval is allowed */
+		if (randart_make(o_ptr) == NULL)
+		{
+			/* If not, wipe seed. No randart today */
+			o_ptr->name1 = 0;
+			o_ptr->name3 = 0L;
+
+			return (FALSE);
+		}
+		
 		return (TRUE);
 	}
 
@@ -3137,11 +3173,21 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 		if (make_artifact(o_ptr)) break;
 	}
 
-
 	/* Hack -- analyze artifacts */
 	if (o_ptr->name1)
 	{
-		artifact_type *a_ptr = &a_info[o_ptr->name1];
+		artifact_type *a_ptr;
+	
+	 	/* Randart */
+		if (o_ptr->name1 == ART_RANDART)
+		{
+			a_ptr =	randart_make(o_ptr);
+		}
+		/* Normal artifacts */
+		else
+		{
+			a_ptr = &a_info[o_ptr->name1];
+		}
 
 		/* Hack -- Mark the artifact as "created" */
 		a_ptr->cur_num = 1;
@@ -5103,7 +5149,7 @@ void spell_info(char *p, int spell)
 			case 13: sprintf(p, " dam 6d8"); break;
 			case 14: sprintf(p, " dam %d", (20+plev)); break;
 			/* Book 3: */
-			case 16: sprintf(p, " dam %dd7", (3+(plev/4))); break;
+			case 16: sprintf(p, " dam %dd9", (3+(plev/3))); break;
 			case 20: sprintf(p, " dam %dd8", (8+(plev/4))); break;
 			case 22: sprintf(p, " range 20"); break;
 			/* Book 4: */

@@ -31,12 +31,12 @@ Versions currently supporting big screens:
 
 DOS,
 OS/2,
-Unix/Curses (GCU) <<--- Badly done. Help reqd!
+Unix/Curses (GCU)
 Unix/X11.
 
 NOTE: As of version 2.9.4, screen_x may also be greater than
-normal. Only the X11 port supports this at the moment. (Set with
--xXX switch).
+normal. Only the X11 and GCU port supports this at the moment.
+(Set with -x switch).
 
 -- 
 Tom Morton, DrAngband maintainer.

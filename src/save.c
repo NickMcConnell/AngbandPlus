@@ -703,6 +703,7 @@ static void wr_item(object_type *o_ptr)
 
 	wr_byte(o_ptr->name1);
 	wr_byte(o_ptr->name2);
+	wr_s32b(o_ptr->name3);
 	wr_s16b(o_ptr->timeout);
 
 	wr_s16b(o_ptr->to_h);
@@ -716,7 +717,7 @@ static void wr_item(object_type *o_ptr)
 
 	wr_byte(o_ptr->marked);
 
-	/* Old flags */
+	/* Old item flags */
 	wr_u32b(0L);
 	wr_u32b(0L);
 	wr_u32b(0L);
