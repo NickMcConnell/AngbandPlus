@@ -848,24 +848,6 @@ artifact_type *randart_make(object_type *o_ptr)
     a_ptr->tval = k_ptr->tval;
     a_ptr->sval = k_ptr->sval;
     a_ptr->pval = k_ptr->pval;
-    /* Special handling for randart rings */
-    if (k_ptr->tval == TV_RING)
-    {
-        k_ptr->sval = SV_RING_POWER_RANDART;
-        o_ptr->sval = SV_RING_POWER_RANDART;
-        o_ptr->k_idx = 512;
-        a_ptr->sval = SV_RING_POWER_RANDART;
-    }
-    /* Special handling for randart ammy */
-    if (k_ptr->tval == TV_AMULET)
-    {
-        k_ptr->sval = SV_AMULET_RANDART;
-        o_ptr->sval = SV_AMULET_RANDART;
-        o_ptr->k_idx = 513;
-        a_ptr->sval = SV_AMULET_RANDART;
-    }
-
-    a_ptr->pval = k_ptr->pval;
     a_ptr->to_h = k_ptr->to_h;
     a_ptr->to_d = k_ptr->to_d;
     a_ptr->to_a = k_ptr->to_a;

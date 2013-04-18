@@ -22,7 +22,7 @@
 
 # Version stamp (required)
 
-V:2.9.8
+V:2.9.9
 
 #N: ego-item index: name (appended to base object description)
 #X: base object tval (general kind): amount the level feeling is increased by

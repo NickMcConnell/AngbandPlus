@@ -178,7 +178,7 @@
 
 # Version stamp (required)
 
-V:2.9.8
+V:2.9.9
 
 #N: monster index: name
 #G: ASCII char used to display the monster: color symbol

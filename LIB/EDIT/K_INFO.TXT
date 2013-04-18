@@ -23,7 +23,7 @@
 
 # Version stamp (required)
 
-V:2.9.8
+V:2.9.9
 
 #N: object index: name
 #G: ASCII char used to display the object: color symbol
@@ -3314,21 +3314,3 @@ G:=:y
 I:45:37:0
 W:110:0:2:5000000
 F:INSTA_ART
-
-# The Randart Rings -- see randart.c
-
-N:512:& Ornate Ring~
-G:=:y
-I:45:32:0
-W:50:0:2:65000
-F:INSTA_ART
-
-# The Randart Amulets -- see randart.c
-
-N:513:& Ornate Amulet~
-G:":d
-I:40:11:0
-W:60:0:3:90000
-F:INSTA_ART
-
-

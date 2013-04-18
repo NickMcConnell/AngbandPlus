@@ -13,10 +13,10 @@
  * This file provides support for "borg8.c".
  */
 
-#include "borg1.h"
-#include "borg2.h"
-#include "borg3.h"
-#include "borg6.h"
+#include "dborg1.h"
+#include "dborg2.h"
+#include "dborg3.h"
+#include "dborg6.h"
 
 
 /*
@@ -24,9 +24,8 @@
  */
 extern bool borg_think_store(void);
 
-extern bool borg_caution_phase(int);
+extern bool borg_caution_phase(int, int);
 extern bool borg_lite_beam(bool simulation);
-
 /*
  * Think about the dungeon
  */

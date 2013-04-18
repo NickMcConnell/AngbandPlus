@@ -4703,17 +4703,15 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg,
     /* Calculate and store the actual damage at each distance. -LM- */
     for (i = 0; i < 16; i++)
     {
-        /* Standard damage calculation, assuming 10' source diameter. */
-        dam_temp = (dam + i) / (i + 1);
 
-        /* If a particular diameter for the source of the explosion's
-         * energy is given, calculate the actual damage.  Origin grid
-         * always takes standard damage.
-         */
-        if ((diameter_of_source) && (i != 0))
+        /* Basic Damage */
+        dam_temp = dam;
+
+        /* Outside the blast radius-- reduce damage */
+        if (i > diameter_of_source)
         {
-            dam_temp *= diameter_of_source / 10;
-            if (dam_temp > dam) dam_temp = dam;
+            /* reduce damage calculation, assuming 10' source diameter. */
+            dam_temp = (dam + i - diameter_of_source) / (i - diameter_of_source + 1);
         }
 
         /* Store it. */

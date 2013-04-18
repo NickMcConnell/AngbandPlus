@@ -1119,18 +1119,13 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
         case TV_AMULET:
         {
             /* Hack -- Known artifacts */
-            if (artifact_p(o_ptr) && aware) break;
+            if (artifact_p(o_ptr) && aware &&
+                o_ptr->name1 != ART_RANDART) break;
 
             /* Color the object */
             modstr = amulet_adj[o_ptr->sval];
             if (aware) append_name = TRUE;
             basenm = (flavor ? "& # Amulet~" : "& Amulet~");
-
-            /* Mega-Hack -- The Randart Ammys */
-            if (!known && o_ptr->sval == SV_AMULET_RANDART)
-            {
-                modstr = "Ornate Gold";
-            }
 
             break;
         }
@@ -1138,9 +1133,9 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
         /* Rings (including a few "Specials") */
         case TV_RING:
         {
-
             /* Hack -- Known artifacts */
-            if (artifact_p(o_ptr) && aware) break;
+            if (artifact_p(o_ptr) && aware &&
+                o_ptr->name1 != ART_RANDART) break;
 
             /* Color the object */
             modstr = ring_adj[o_ptr->sval];
@@ -1154,13 +1149,6 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
                 modstr = "Plain Gold";
             }
 
-#if 0
-            /* Mega-Hack -- The randart Rings */
-            if ((!o_ptr->ident & IDENT_KNOWN) && (o_ptr->sval == SV_RING_POWER_RANDART))
-            {
-                modstr = "Ornate Gold";
-            }
-#endif
             break;
         }
 

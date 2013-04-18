@@ -223,7 +223,7 @@ have intrinsic abilities.
 
           Crystal Dragon
                A dragon of beautiful crystalline form, its breath sends shards
-               of ice into the air. Crystal Dragons make fine Wizards and are
+               into the air. Crystal Dragons make fine Wizards and are
                resistant to shards.
 
           Copper Dragon
@@ -264,7 +264,47 @@ have intrinsic abilities.
                with lower dexterity than most dragons. They also learn
                slower than most dragons.
 
+          Red Dragon
+               Radiating heat from deep within, the Red Dragon is a powerful
+               beast.  It is able to learn the ways of all professions.  It
+               is able to withstand the heat blasts of it's enemies and this
+               power grows to eventually granting full immunity to fire.  The
+               Red Dragon is also able to learn and focus it's internal heat
+               breathe the hottest of elemental fire, which very few denizens
+               are able to resist.  These dragons are quite capable, though of
+               average wisdom and intellegence.
+
+          White Dragon
+               Cold and quiet, the White Dragon is a silent killer.  It is
+               able to learn the ways of all professions.  It is able to
+               fend off freezing attacks with increasing strength, until
+               eventual full immunity to cold.  The White Dragon is also able to learn and focus it's internal heat
+               breathe the most fierce of elemental cold and ice.  These
+               dragons are of average wisdom and intellegence.
+
+          Blue Dragon
+               Harnessing the power and energy of the envirnment, the Blue
+               Dragon is mighty and feared by many.  It is able to learn the
+               ways of all professions.  It will fend off electric based
+               attacks with increasing strength, until eventual full immunity.
+               The Blue Dragon is also able to learn and focus it's internal
+               energy to shock all surrounding enemies, or to focus it into a
+               beam of deadly strength.  These dragons are on par with other
+               dragons, being of average wisdom and intellegence but posessing
+               greater strength and health than most humanoids.
  
+          Green Dragon
+               Living in the forests have granted this race the ability to
+               move stealthfully.  It is able to learn the ways of all
+               professions.  Having hunted the poisonous inhabitants of
+               Mirkwood, it has grown resistant to poison attacks with
+               increasing strength, eventual near immunity to poison.  The
+               Green Dragon is also able to learn and focus it's internal
+               venom to spit poison at an enemy, or to breath toxic fumes
+               into the air. These dragons are on par with other dragonkind,
+               being of average wisdom and intellegence but posessing greater
+               strength and health than most humanoids.
+
 === Classes ===
  
  
@@ -496,6 +536,10 @@ have intrinsic abilities.
           Gold Dr       Yes      Yes      Yes      Yes      Yes      Yes
           Pseudo Dr     Yes      Yes      Yes      Yes      Yes      Yes
           Multi-hued Dr Yes      No       Yes      Yes      No       Yes 
+          Red Dr        Yes      Yes      Yes      Yes      Yes      Yes
+          White Dr      Yes      Yes      Yes      Yes      Yes      Yes
+          Blue Dr       Yes      Yes      Yes      Yes      Yes      Yes
+          Green Dr      Yes      Yes      Yes      Yes      Yes      Yes
 
  
 === Miscellaneous (outdated) ===
@@ -538,6 +582,10 @@ are listed in the following table.
            Gold Dr     +4   +2   +2   +3   +4   -6      15         +50%
            Pseudo Dr   +2    0    0   +7   +3   -8      14         +50%
            Multi-h Dr  +5   -1   -1   +2   +4   -6      15         +80%
+           Red Dr      +5   -1   -1   +1   +4   -6      15         +15%
+           White Dr    +5   -1   -1   +1   +4   -6      15         +15%
+           Blue Dr     +5   -1   -1   +0   +4   -6      15         +15%
+           Green Dr    +5   -1   -1   +2   +4   -6      15         +25%
            
                          STR     INT     WIS     DEX     CON     CHR
            Warrior       +5      -2      -2      +2      +2      -1
@@ -572,6 +620,10 @@ are listed in the following table.
            Gold Dr      -8      0     -5       0   -20   20  80 feet
            Pseudo Dr     5      0      0       0   -20   30  80 feet
            Multi-hued Dr 6      0     -2       0   -20   15  80 feet
+           Red Dr        6      0     -2       0   -20   15  80 feet
+           White Dr      6      0      5       0   -20   15  80 feet
+           Blue Dr       6      0     -2       0   -20   15  80 feet
+           Green Dr      6      0      2       0   -20   15  80 feet
 
 
                   Daggers      Swords      Hafted      Polearms   Teeth/Claws
@@ -588,12 +640,7 @@ are listed in the following table.
        High-Elf   Very Good    Excellent   Good        Good       --
        Pixie      Average      Bad         Bad         Terrible   --
        Yeek       Average      Bad         Bad         Terrible   --
-       Crystal Dr    --        --          --          --         Superb
-       Copper Dr     --        --          --          --         Superb
-       Bronze Dr     --        --          --          --         Superb
-       Gold Dr       --        --          --          --         Superb
-       Pseudo Dr     --        --          --          --         Superb
-       Multi-h Dr    --        --          --          --         Superb 
+       Dragons       --        --          --          --         Superb
 
   
                      Save  Stea-        Magic                 Extra

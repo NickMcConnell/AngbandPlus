@@ -1,3 +1,4 @@
+
 /* File: borg1.h */
 /* Purpose: Header file for "borg1.c" -BEN- */
 
@@ -78,35 +79,47 @@
 /*
  * Some assistance with the borg_attack and magic arrows
  */
+#define GF_ARROW_SEEKER  77
 #define GF_ARROW_FLAME   70
 #define GF_ARROW_FROST   71
 #define GF_ARROW_ANIMAL  72
 #define GF_ARROW_DRAGON  73
 #define GF_ARROW_EVIL    74
 #define GF_ARROW_WOUNDING 75
-#define GF_ARROW_UNDEAD  76
-#define GF_ARROW_DEMON   77
-#define GF_ARROW_ORC     78
-#define GF_ARROW_TROLL   79
-#define GF_ARROW_GIANT   80
-#define GF_ARROW_SEEKER  81
-#define GF_HOLY_WORD     82
+#define GF_HOLY_WORD      76
+
+/*
+ * Player race constants (hard-coded by save-files, arrays, etc)
+ */
+#define RACE_HUMAN      0
+#define RACE_HALF_ELF   1
+#define RACE_ELF        2
+#define RACE_HOBBIT     3
+#define RACE_GNOME      4
+#define RACE_DWARF      5
+#define RACE_HALF_ORC   6
+#define RACE_HALF_TROLL 7
+#define RACE_DUNADAN    8
+#define RACE_HIGH_ELF   9
+
+
 /*
  * Maximum size of the "view" array
  */
-#define AUTO_VIEW_MAX 1536
+/*#define AUTO_VIEW_MAX 1536*/
+#define AUTO_VIEW_MAX 9000
 
 
 /*
  * Number of grids in the "temp" array
  */
-#define AUTO_TEMP_MAX 8192
+#define AUTO_TEMP_MAX 1536
 
 
 /*
  * Number of grids in the "flow" array
  */
-#define AUTO_FLOW_MAX 8192
+#define AUTO_FLOW_MAX 1536
 
 
 
@@ -166,7 +179,7 @@ struct auto_kill
     bool    quiver;     /* Probably quivering */
     bool    stunned;
     bool    poisoned;   /* Probably poisoned */
-    bool    invuln;     /* Frozen */
+    bool    invuln;     /* in Stasis */
 
     bool    seen;       /* Assigned motion */
     bool    used;       /* Assigned message */
@@ -177,7 +190,7 @@ struct auto_kill
 
     byte    speed;      /* Estimated speed */
     byte    moves;      /* Estimates moves */
-
+    bool    ranged_attack; /* can attack from a dx */
     s16b    power;      /* Estimated hit-points */
     s16b    other;      /* Estimated something */
     s16b    level;      /* Monsters Level */
@@ -367,19 +380,262 @@ struct auto_data
 /*
  * Some variables
  */
-
 extern bool auto_active;        /* Actually active */
-
+extern bool borg_resurrect;     /* Continous play mode */
 extern bool auto_cancel;        /* Being cancelled */
 
 extern char genocide_target;    /* Identity of the poor unsuspecting soul */
 extern int zap_slot;            /* to avoid a nasty game bug with amnesia */
 extern bool borg_casted_glyph;  /* we dont have a launch messages anymore */
+extern int auto_stop_dlevel;
+extern int auto_stop_clevel;
+extern bool auto_stop_king;
+extern bool borg_dont_react;
 extern int successful_target;
 extern int sold_item_tval;
 extern int sold_item_sval;
 extern int sold_item_pval;
 extern int sold_item_store;
+extern int borg_chest_fail_tolerance;
+
+/* options from the borg.txt file */
+extern int auto_respawn;
+extern int auto_respawn_race;
+extern int auto_respawn_class;
+extern int auto_respawn_str;
+extern int auto_respawn_int;
+extern int auto_respawn_wis;
+extern int auto_respawn_dex;
+extern int auto_respawn_con;
+extern int auto_respawn_chr;
+extern int auto_dump_level;
+extern bool auto_respawn_winners;
+
+extern bool borg_worships_damage;
+extern bool borg_worships_speed;
+extern bool borg_worships_hp;
+extern bool borg_worships_mana;
+extern bool borg_worships_ac;
+extern bool borg_worships_gold;
+extern bool borg_plays_risky;
+extern bool borg_uses_swaps;
+extern bool borg_uses_calcs;
+extern bool borg_slow_optimizehome;
+extern bool borg_scums_uniques;
+extern bool borg_engage_cloak;
+
+
+/* HACK... this should really be a parm into borg_prepared */
+/*         I am just being lazy */
+extern bool borg_slow_return;
+
+/* dynamic required items */
+/* dynamic required items */
+typedef struct req_item
+{
+   int depth;
+   int item;
+   int number;
+
+} req_item;
+
+extern req_item *borg_required_item[MAX_CLASS];
+extern int n_req[MAX_CLASS];
+typedef struct power_item
+{
+   int depth;
+   int cnd;
+   int item;
+   int from;
+   int to;
+   int power;
+   bool each;
+} power_item;
+
+extern power_item *borg_power_item[MAX_CLASS];
+extern int n_pwr[MAX_CLASS];
+extern int *borg_has;
+extern int *borg_has_on;
+extern int *borg_artifact;
+extern int *borg_skill;
+extern int size_depth;
+extern int size_obj;
+
+/* NOTE: This must exactly match the prefix_pref enums in BORG1.c */
+enum
+{
+    BI_STR,
+    BI_INT,
+    BI_WIS,
+    BI_DEX,
+    BI_CON,
+    BI_CHR,
+    BI_CSTR,
+    BI_CINT,
+    BI_CWIS,
+    BI_CDEX,
+    BI_CCON,
+    BI_CCHR,
+    BI_SSTR,
+    BI_SINT,
+    BI_SWIS,
+    BI_SDEX,
+    BI_SCON,
+    BI_SCHR,
+    BI_LITE,
+    BI_HP,
+    BI_HP_ADJ,
+    BI_SP,
+    BI_SP_ADJ,
+    BI_FAIL1,
+    BI_FAIL2,
+    BI_CLEVEL,
+    BI_ESP,
+    BI_CUR_LITE,
+    BI_RECALL,
+    BI_FOOD,
+    BI_SPEED,
+    BI_SDIG,
+    BI_FEATH,
+    BI_REG,
+    BI_SINV,
+    BI_INVIS,
+    BI_INFRA,
+    BI_DIS,
+    BI_DEV,
+    BI_SAV,
+    BI_STL,
+    BI_SRCH,
+    BI_SRCHFREQ,
+    BI_THN,
+    BI_THB,
+    BI_THT,
+    BI_DIG,
+    BI_IFIRE,
+    BI_IACID,
+    BI_ICOLD,
+    BI_IELEC,
+    BI_RFIRE,
+    BI_RCOLD,
+    BI_RELEC,
+    BI_RACID,
+    BI_RPOIS,
+    BI_RFEAR,
+    BI_RLITE,
+    BI_RDARK,
+    BI_RBLIND,
+    BI_RCONF,
+    BI_RSND,
+    BI_RSHRD,
+    BI_RNXUS,
+    BI_RNTHR,
+    BI_RKAOS,
+    BI_RDIS,
+    BI_HLIFE,
+    BI_FRACT,
+    BI_SRFIRE,
+    BI_SRCOLD,
+    BI_SRELEC,
+    BI_SRACID,
+    BI_SRPOIS,
+    BI_SRFEAR,
+    BI_SRLITE,
+    BI_SRDARK,
+    BI_SRBLIND,
+    BI_SRCONF,
+    BI_SRSND,
+    BI_SRSHRD,
+    BI_SRNXUS,
+    BI_SRNTHR,
+    BI_SRKAOS,
+    BI_SRDIS,
+    BI_SHLIFE,
+    BI_SFRACT,
+    BI_DEPTH,
+    BI_CDEPTH,
+    BI_ARMOR,
+    BI_TOHIT,
+    BI_TODAM,
+    BI_WTOHIT,
+    BI_WTODAM,
+    BI_BTOHIT,
+    BI_BTODAM,
+    BI_BLOWS,
+    BI_SHOTS,
+    BI_WMAXDAM,
+    BI_WBASEDAM,
+    BI_BMAXDAM,
+    BI_HEAVYWEPON,
+    BI_HEAVYBOW,
+    BI_CRSTELE,
+    BI_CRSAGRV,
+    BI_WS_ANIMAL,
+    BI_WS_EVIL,
+    BI_WS_UNDEAD,
+    BI_WS_DEMON,
+    BI_WS_ORC,
+    BI_WS_TROLL,
+    BI_WS_GIANT,
+    BI_WS_DRAGON,
+    BI_WK_DRAGON,
+    BI_W_IMPACT,
+    BI_WB_ACID,
+    BI_WB_ELEC,
+    BI_WB_FIRE,
+    BI_WB_COLD,
+    BI_ATELEPORT,
+    BI_AESCAPE,
+    BI_AFUEL,
+    BI_AHEAL,
+    BI_AEZHEAL,
+    BI_AID,
+    BI_ASPEED,
+    BI_ASTFMAGI,
+    BI_ASTFDEST,
+    BI_AMISSILES,
+    BI_ACUREPOIS,
+    BI_ADETTRAP,
+    BI_ADETDOOR,
+    BI_ADETEVIL,
+    BI_AMAGICMAP,
+    BI_ARECHARGE,
+    BI_APFE,
+    BI_AGLYPH,
+    BI_ACCW,
+    BI_ACSW,
+    BI_ARESHEAT,
+    BI_ARESCOLD,
+    BI_ATELEPORTLVL,  /* scroll of teleport level */
+    BI_AXGOI,            /* reliable GOI spell */
+    BI_AGOI,            /* GOI spell */
+    BI_AHWORD,            /* Holy Word prayer */
+
+    BI_MAX
+};
+
+#define MAX_FORMULA_ELEMENTS 60
+enum
+{
+    BFO_DONE, /* just to make sure we end fast if there is no formula */
+    BFO_NUMBER,
+    BFO_VARIABLE,
+    BFO_EQ,
+    BFO_NEQ,
+    BFO_NOT,
+    BFO_LT,
+    BFO_LTE,
+    BFO_GT,
+    BFO_GTE,
+    BFO_AND,
+    BFO_OR,
+    BFO_PLUS,
+    BFO_MINUS,
+    BFO_DIVIDE,
+    BFO_MULT
+};
+
+extern int *formula[1000];
+extern cptr prefix_pref[];
 
 /*
  * Hack -- optional cheating flags
@@ -406,13 +662,11 @@ extern bool auto_flag_dump;     /* Save savefile at each death */
 
 extern bool borg_save; /* do a save next time we get to press a key! */
 
-extern bool auto_borg_message; /*  List borg messages or not */
-extern int auto_stop_dlevel;
-extern int auto_stop_clevel;
-extern bool auto_stop_king;
-extern s16b borg_respawn;
-extern char borg_engine_date[];       /* last update */
+extern bool auto_borg_message;      /* List borg messages or not */
+extern bool borg_graphics;          /* List borg messages or not */
+extern bool borg_confirm_target;
 
+extern char borg_engine_date[];       /* last update */
 
 /*
  * Use a simple internal random number generator
@@ -431,12 +685,20 @@ extern u32b auto_rand_local;        /* Save personal setting */
 
 extern s16b c_t;        /* Current "time" */
 extern s16b need_see_inviso;        /* To tell me to cast it */
+extern s16b borg_see_inv;
 extern bool need_shift_panel;        /* to spot offscreeners */
+extern s16b when_shift_panel;
 extern s16b time_this_panel;        /* Current "time" for current panel*/
 extern bool vault_on_level;     /* borg will search for a vault */
 extern bool unique_on_level;
+extern bool scaryguy_on_level;
 
 extern bool breeder_level;      /* Borg will shut doors */
+extern s16b old_depth;
+extern s16b borg_respawn;       /* to prevent certain crashes */
+extern bool genocide_level_hounds; /* used against hounds */
+extern s16b borg_hound_count;
+extern s16b borg_no_retreat;
 
 /*
  * Hack -- Other time variables
@@ -448,11 +710,13 @@ extern s16b when_wizard_lite;   /* When we last did wizard light */
 extern s16b when_detect_traps;  /* When we last detected traps */
 extern s16b when_detect_doors;  /* When we last detected doors */
 extern s16b when_detect_walls;  /* When we last detected walls */
-extern s16b when_detect_evil;  /* When we last detected evil */
+extern s16b when_detect_evil;
+extern s16b when_last_kill_mult;   /* When a multiplier was last killed */
 
 extern bool my_need_alter;     /* incase of walls/doors */
 extern bool my_no_alter;     /* incase of walls/doors */
 extern bool my_need_redraw;     /* incase of walls/doors */
+extern bool borg_attempting_refresh;  /* for the goi spell */
 
 /*
  * Some information
@@ -471,13 +735,13 @@ extern bool goal_ignoring;  /* Currently ignoring monsters */
 extern bool goal_recalling; /* Currently waiting for recall */
 
 extern s16b borg_times_twitch; /* how often twitchy on this level */
+extern s16b borg_escapes; /* how often teleported on this level */
 
 extern bool stair_less;     /* Use the next "up" staircase */
 extern bool stair_more;     /* Use the next "down" staircase */
 
 extern s32b auto_began;     /* When this level began */
 extern s32b auto_time_town; /* how long it has been since I was in town */
-extern s16b old_depth;
 
 extern s16b avoidance;      /* Current danger thresh-hold */
 
@@ -488,6 +752,8 @@ extern bool borg_attacking; /* Are we attacking a monster? */
 extern bool borg_offsetting; /* Are we attacking a monster? with offsett balls*/
 
 extern bool auto_completed; /* Completed the level */
+extern bool borg_on_upstairs;      /* used when leaving a level */
+extern bool borg_on_dnstairs;      /* used when leaving a level */
 
 /* defence flags */
 extern bool borg_prot_from_evil;
@@ -501,10 +767,13 @@ extern bool my_oppose_acid;
 extern bool my_oppose_pois;
 extern bool my_oppose_elec;
 extern s16b borg_goi;
-extern bool borg_shield;
-extern bool borg_yeeked;
-extern s16b borg_lock;      /* Ethereal Lock */
+extern s16b borg_game_ratio;
+
+extern bool borg_yeeked;       /* Yeek Flee */
+extern s16b borg_lock;         /* Ethereal Lock */
 extern bool my_inviso;
+
+extern bool borg_shield;
 extern bool borg_on_glyph; /* borg is standing on a glyph of warding */
 extern bool borg_create_door; /* borg is going to create doors */
 extern bool borg_sleep_spell;
@@ -537,7 +806,7 @@ extern int g_y;         /* Goal location (Y) */
 
 extern int bad_obj_x[50];   /* Dropped cursed artifact at location (X) */
 extern int bad_obj_y[50];   /* Dropped cursed artifact at location (Y) */
-extern bool borg_wearing_cursed;
+
 
 /*
  * State variables extracted from the screen
@@ -553,7 +822,7 @@ extern bool do_blind;       /* Currently Blind */
 extern bool do_afraid;      /* Currently Afraid */
 extern bool do_confused;    /* Currently Confused */
 extern bool do_poisoned;    /* Currently Poisoned */
-extern bool do_nasty_pois;  /* TM's curse */
+extern bool do_nasty_pois; /* TM's curse */
 
 extern bool do_cut;         /* Currently bleeding */
 extern bool do_stun;        /* Currently stunned */
@@ -583,73 +852,6 @@ extern s16b my_stat_add[6];  /* aditions to stats */
 
 extern s16b home_stat_add[6];
 
-extern s16b my_ac;      /* Base armor       */
-extern s16b my_to_ac;       /* Plusses to ac    */
-extern s16b my_to_hit;      /* Plusses to hit   */
-extern s16b my_to_dam;      /* Plusses to dam   */
-
-extern byte my_immune_acid; /* Immunity to acid     */
-extern byte my_immune_elec; /* Immunity to lightning    */
-extern byte my_immune_fire; /* Immunity to fire     */
-extern byte my_immune_cold; /* Immunity to cold     */
-
-extern s16b my_resist_acid; /* Resist acid      */
-extern s16b my_resist_elec; /* Resist lightning */
-extern s16b my_resist_fire; /* Resist fire      */
-extern s16b my_resist_cold; /* Resist cold      */
-extern s16b my_resist_pois; /* Resist poison    */
-
-extern s16b my_resist_conf; /* Resist confusion */
-extern s16b my_resist_sound;    /* Resist sound     */
-extern s16b my_resist_lite; /* Resist light     */
-extern s16b my_resist_dark; /* Resist darkness  */
-extern s16b my_resist_chaos;    /* Resist chaos     */
-extern s16b my_resist_disen;    /* Resist disenchant    */
-extern s16b my_resist_shard;    /* Resist shards    */
-extern s16b my_resist_nexus;    /* Resist nexus     */
-extern s16b my_resist_blind;    /* Resist blindness */
-extern s16b my_resist_neth; /* Resist nether    */
-extern s16b my_resist_fear; /* Resist fear      */
-
-extern byte my_sustain_str; /* Keep strength    */
-extern byte my_sustain_int; /* Keep intelligence    */
-extern byte my_sustain_wis; /* Keep wisdom      */
-extern byte my_sustain_dex; /* Keep dexterity   */
-extern byte my_sustain_con; /* Keep constitution    */
-extern byte my_sustain_chr; /* Keep charisma    */
-
-extern byte my_aggravate;   /* Aggravate monsters   */
-extern byte my_teleport;    /* Random teleporting   */
-
-extern byte my_ffall;       /* No damage falling    */
-extern byte my_lite;        /* Permanent light  */
-extern byte my_free_act;    /* Never paralyzed  */
-extern byte my_see_inv;     /* Can see invisible    */
-extern byte my_regenerate;  /* Regenerate hit pts   */
-extern byte my_hold_life;   /* Resist life draining */
-extern byte my_telepathy;   /* Telepathy        */
-extern byte my_slow_digest; /* Slower digestion */
-extern s16b my_invisible;   /*  */
-
-/* various slays */
-extern byte my_slay_animal;
-extern byte my_slay_evil;
-extern byte my_slay_undead;
-extern byte my_slay_demon;
-extern byte my_slay_orc;
-extern byte my_slay_troll;
-extern byte my_slay_giant;
-extern byte my_slay_dragon;
-extern byte my_kill_dragon;
-extern byte my_impact;
-extern byte my_brand_acid;
-extern byte my_brand_elec;
-extern byte my_brand_fire;
-extern byte my_brand_cold;
-extern byte my_stunning;   /*  monks */
-
-extern s16b my_see_infra;   /* Infravision range    */
-
 extern int  weapon_swap;   /* location of my swap weapon   */
 extern s32b weapon_swap_value;   /* value of my swap weapon   */
 extern int  armour_swap;   /* location of my swap weapon   */
@@ -664,7 +866,9 @@ extern int enchant_weapon_swap_to_h;  /* my swap is great, except its cursed */
 extern int enchant_weapon_swap_to_d;  /* my swap is great, except its cursed */
 extern int decurse_armour_swap;  /* my swap is great, except its cursed */
 extern int enchant_armour_swap_to_a;  /* my swap is great, except its cursed */
+extern bool borg_wearing_cursed;
 
+extern s16b weapon_swap_digger;
 extern byte  weapon_swap_slay_animal;
 extern byte  weapon_swap_slay_evil;
 extern byte  weapon_swap_slay_undead;
@@ -756,34 +960,15 @@ extern byte  armour_swap_resist_blind;
 extern byte  armour_swap_resist_neth;
 extern byte  armour_swap_resist_fear;
 
-extern s16b my_skill_dis;   /* Skill: Disarming     */
-extern s16b my_skill_dev;   /* Skill: Magic Devices     */
-extern s16b my_skill_sav;   /* Skill: Saving throw      */
-extern s16b my_skill_stl;   /* Skill: Stealth factor    */
-extern s16b my_skill_srh;   /* Skill: Searching ability */
-extern s16b my_skill_fos;   /* Skill: Searching frequency   */
-extern s16b my_skill_thn;   /* Skill: Combat (normal)   */
-extern s16b my_skill_thb;   /* Skill: Combat (shooting) */
-extern s16b my_skill_tht;   /* Skill: Combat (throwing) */
-extern s16b my_skill_dig;   /* Skill: Digging       */
-
-extern s16b my_num_blow;    /* Number of blows  */
-extern s16b my_num_fire;    /* Number of shots  */
-
-extern s16b my_speed;       /* approx speed */
-extern s16b my_other;       /* Approximate other    */
-
 extern byte my_ammo_tval;   /* Ammo -- "tval"   */
 extern byte my_ammo_sides;  /* Ammo -- "sides"  */
 extern s16b my_ammo_power;  /* Shooting multipler   */
 extern s16b my_ammo_range;  /* Shooting range   */
 
-extern s16b my_cur_lite;    /* Radius of lite */
-
 extern s16b my_need_enchant_to_a;   /* Need some enchantment */
 extern s16b my_need_enchant_to_h;   /* Need some enchantment */
 extern s16b my_need_enchant_to_d;   /* Need some enchantment */
-extern s16b my_need_brand_weapon;  /*  brand bolts */
+extern s16b my_need_brand_weapon;  /* apw brand bolts */
 
 
 /*
@@ -797,54 +982,27 @@ extern s32b my_power;
  * Various "amounts" (for the player)
  */
 
-extern s16b amt_fuel;
-extern s16b amt_food;
+extern s16b amt_phase;
 extern s16b amt_food_lowcal;
 extern s16b amt_food_hical;
-extern s16b amt_ident;
-extern s16b amt_star_ident;
-extern s16b amt_recall;
-extern s16b amt_phase;
-extern s16b amt_escape;
-extern s16b amt_teleport;
 
-extern s16b amt_heal;
 extern s16b amt_ez_heal_life;
 extern s16b amt_ez_heal_star;
-extern s16b amt_ez_heal;
-extern s16b amt_rod_heal;
-extern s16b amt_pot_heal;
+extern s16b amt_rod_heal;       /* used by warriors and rogues */
+extern s16b amt_pot_heal;       /* need real potions for morgy */
 extern s16b amt_mana;
-extern s16b amt_ez_mana;
-extern s16b amt_cure_critical;
-extern s16b amt_cure_serious;
-extern s16b amt_cure_poison;
 extern s16b amt_slow_poison;
 extern s16b amt_cure_confusion;
 extern s16b amt_cure_blind;
 
-
-
-extern s16b amt_pfe;
 extern s16b amt_cool_staff;  /* holiness-power staff */
-extern s16b amt_glyph;
-
-extern s16b amt_detect_trap;
-extern s16b amt_mapping;
-extern s16b amt_recharge;
-extern s16b amt_detect_door;
-extern s16b amt_detect_evil;
-
-extern s16b amt_missile;
 
 extern s16b amt_book[9];
 
 extern s16b amt_add_stat[6];
-extern s16b amt_fix_stat[6];
+extern s16b amt_fix_stat[7];
 
 extern s16b amt_fix_exp;
-
-extern s16b amt_speed;
 
 extern s16b amt_enchant_to_a;
 extern s16b amt_enchant_to_d;
@@ -852,41 +1010,51 @@ extern s16b amt_enchant_to_h;
 extern s16b amt_brand_weapon;  /* cubragol and bolts */
 extern s16b amt_enchant_weapon;
 extern s16b amt_enchant_armor;
-
+extern s16b amt_digger;
 
 /*
  * Various "amounts" (for the home)
  */
 
 extern s16b num_food;
+extern s16b num_mold;
 extern s16b num_ident;
 extern s16b num_star_ident;
 extern s16b num_recall;
 extern s16b num_phase;
 extern s16b num_escape;
 extern s16b num_teleport;
+extern s16b num_berserk;
+extern s16b num_teleport_level;
 
 extern s16b num_cure_critical;
 extern s16b num_cure_serious;
-extern s16b num_cure_poison;
+
+extern s16b num_pot_rheat;
+extern s16b num_pot_rcold;
 
 extern s16b num_missile;
 
 extern s16b num_book[9];
 
-extern s16b num_fix_stat[6];
+extern s16b num_fix_stat[7];
 
 extern s16b num_fix_exp;
 extern s16b num_mana;
 extern s16b num_heal;
+extern s16b num_heal_true;
 extern s16b num_ez_heal;
+extern s16b num_ez_heal_true;
 extern s16b num_pfe;
 extern s16b num_glyph;
+extern s16b num_speed;
 
 extern s16b num_enchant_to_a;
 extern s16b num_enchant_to_d;
 extern s16b num_enchant_to_h;
-extern s16b num_brand_weapon;  /*  crubragol and bolts */
+extern s16b num_brand_weapon;  /* apw crubragol and bolts */
+extern s16b num_genocide;
+extern s16b num_mass_genocide;
 
 extern s16b num_artifact;
 
@@ -899,7 +1067,7 @@ extern s16b num_telepathy;
 extern s16b num_lite;
 extern s16b num_see_inv;
 
-extern s16b num_invisible; /**/
+extern s16b num_invisible; /*apw*/
 
 extern s16b num_ffall;
 extern s16b num_free_act;
@@ -923,6 +1091,12 @@ extern s16b num_resist_shard;
 extern s16b num_resist_nexus;
 extern s16b num_resist_blind;
 extern s16b num_resist_neth;
+extern s16b num_sustain_str;
+extern s16b num_sustain_int;
+extern s16b num_sustain_wis;
+extern s16b num_sustain_dex;
+extern s16b num_sustain_con;
+extern s16b num_sustain_all;
 
 extern s16b num_speed;
 extern s16b num_edged_weapon;
@@ -947,7 +1121,6 @@ extern int auto_feeling;    /* Current level "feeling" */
 
 extern int auto_max_level;  /* Maximum player level */
 extern int auto_max_depth;  /* Maximum dungeon depth */
-extern int fear_depth;  /* fear below this dungeon depth */
 
 
 
@@ -964,8 +1137,6 @@ extern s16b shop_num;       /* Current shop index */
  */
 
 extern int auto_depth;      /* Current dungeon "level" */
-
-extern int auto_level;      /* Current level */
 
 extern bool borg_king;      /* We won! */
 
@@ -1119,7 +1290,7 @@ extern auto_take *auto_takes;
  */
 
 extern s16b auto_kills_cnt;
-
+extern s16b auto_kills_summoner;   /* index of a summoning guy */
 extern s16b auto_kills_nxt;
 
 extern auto_kill *auto_kills;
@@ -1128,8 +1299,6 @@ extern auto_kill *auto_kills;
 /*
  * Hack -- depth readiness
  */
-extern int auto_fear_depth;
-extern bool finished_level;
 extern int borg_ready_morgoth;
 
 /*
@@ -1303,6 +1472,7 @@ extern bool auto_do_crush_slow;
 
 /* am I fighting a unique */
 extern int borg_fighting_unique;
+extern bool borg_fighting_evil_unique;
 
 /* am I fighting a summoner */
 extern bool borg_fighting_summoner;
@@ -1386,11 +1556,29 @@ extern bool borg_save_game(void);
  */
 extern void borg_update_frame(void);
 
+/*
+ * Calc a formula out in RPN
+ */
+extern int borg_calc_formula(int *);
+/*
+ * check out a formula in RPN
+ */
+extern int borg_check_formula(int *);
+/*
+ * return a string for the formula
+ */
+extern cptr borg_prt_formula(int *formula);
+
+/*
+ * Print the string for an item
+ */
+extern cptr borg_prt_item(int item);
 
 /*
  * Initialize this file
  */
 extern void borg_init_1(void);
+
 #ifdef ALLOW_BORG_GRAPHICS
 
 typedef struct glyph
@@ -1404,7 +1592,12 @@ extern glyph translate_visuals[255][255];
 
 #endif /* ALLOW_BORG_GRAPHICS */
 
+#ifdef BORG_TK
+extern cptr BORG_DIR_ROOT;
+extern cptr BORG_DIR_DATA;
+#endif /* BORG_TK */
 
 #endif
+
 #endif
 

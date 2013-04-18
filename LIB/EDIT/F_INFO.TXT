@@ -16,7 +16,7 @@
 
 # Version stamp (required)
 
-V:2.9.8
+V:2.9.9
 
 
 # 0x00 --> <darkness>
@@ -111,75 +111,75 @@ G:^:w
 N:17:pit
 G:^:s
 
-# 0x12 --> visible trap -- spiked pit
+# 0x12 --> visible trap -- dart -- lose attrib
 
-N:18:pit
-G:^:s
+N:18:dart trap
+G:^:r
 
-# 0x13 --> visible trap -- poison pit
+# 0x13 --> visible trap -- elemental attack
 
-N:19:pit
-G:^:s
+N:19:discolored spot
+G:^:u
 
-# 0x14 --> visible trap -- rune -- summon
+# 0x14 --> visible trap -- gas 
 
-N:20:strange rune
-G:^:o
+N:20:gas trap
+G:^:g
 
-# 0x15 --> visible trap -- rune -- teleport
+# 0x15 --> visible trap -- rune -- summon
 
 N:21:strange rune
 G:^:o
 
-# 0x16 --> visible trap -- spot -- fire
+# 0x16 --> visible trap -- dungeon altering
 
-N:22:discolored spot
-G:^:u
-
-# 0x17 --> visible trap -- spot -- acid
-
-N:23:discolored spot
-G:^:u
-
-# 0x18 --> visible trap -- dart -- slow
-
-N:24:dart trap
+N:22:shimmering rune
 G:^:r
 
-# 0x19 --> visible trap -- dart -- lose str
+# 0x17 --> visible trap -- character altering
 
-N:25:dart trap
-G:^:r
+N:23:shimmering rune
+G:^:U
 
-# 0x1A --> visible trap -- dart -- lose dex
+# 0x18 --> visible trap -- rune -- teleport
 
-N:26:dart trap
-G:^:r
+N:24:strange rune
+G:^:o
 
-# 0x1B --> visible trap -- dart -- lose con
+# 0x19 --> murder hole -- missile attack
 
-N:27:dart trap
-G:^:r
+N:25:murder hole
+G:^:W
 
-# 0x1C --> visible trap -- gas -- blind
+# 0x1A --> missile attack
 
-N:28:gas trap
-G:^:g
+N:26:dagger trap
+G:^:W
 
-# 0x1D --> visible trap -- gas -- confuse
+# 0x1B --> missile attack
 
-N:29:gas trap
-G:^:g
+N:27:dagger trap
+G:^:W
 
-# 0x1E --> visible trap -- gas -- poison
+# 0x1C --> missile attack
 
-N:30:gas trap
-G:^:g
+N:28:dagger trap
+G:^:W
 
-# 0x1F --> visible trap -- gas -- sleep
+# 0x1D --> missile attack
 
-N:31:gas trap
-G:^:g
+N:29:dagger hole
+G:^:W
+
+# 0x1E --> missile attack
+
+N:30:dagger trap
+G:^:W
+
+# 0x1F --> missile attack
+
+N:31:dagger trap
+G:^:W
 
 # 0x2x --> locked door (power 0)
 

@@ -58,8 +58,8 @@ OBJ = \
   wizard1.obj wizard2.obj \
   generate.obj dungeon.obj init1.obj init2.obj racial.obj \
   main-win.obj readdib.obj randart.obj \
-  borg1.obj borg2.obj borg3.obj borg4.obj borg5.obj borg6.obj \
-  borg7.obj borg8.obj borg9.obj
+  dborg1.obj dborg2.obj dborg3.obj dborg4.obj dborg5.obj dborg6.obj \
+  dborg7.obj dborg8.obj dborg9.obj
 
 all : $(EXE_FILE)
 

@@ -3618,9 +3618,9 @@ bool make_jewels(object_type *j_ptr, bool good, bool great, bool randart)
         /* rarely produce a randart item */
         if (randint(1000) <= 1)
         {
-            k_idx = (randint(50) > 25 ? lookup_kind(TV_RING, SV_RING_POWER_RANDART) :
-                                        lookup_kind(TV_AMULET, SV_AMULET_RANDART));
+            randart = TRUE;
         }
+
         /* Good objects */
         if (good)
         {

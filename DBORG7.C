@@ -5,13 +5,13 @@
 
 #ifdef ALLOW_BORG
 
-#include "borg1.h"
-#include "borg2.h"
-#include "borg3.h"
-#include "borg4.h"
-#include "borg5.h"
-#include "borg6.h"
-#include "borg7.h"
+#include "dborg1.h"
+#include "dborg2.h"
+#include "dborg3.h"
+#include "dborg4.h"
+#include "dborg5.h"
+#include "dborg6.h"
+#include "dborg7.h"
 
 
 /*
@@ -118,27 +118,25 @@ static s16b value_feeling[] =
  * analyze the expected value of the item, or guess at the likelihood that the
  * item might be a blessed, or something.
  *
- * Currently, only characters who do not get "average" feelings are allowed
- * to decide that something is "icky", others must wait for an "average"
- * feeling.
  */
 bool borg_item_icky(auto_item *item)
 {
     int slot;
 
 
-    /* if its average, dump it */
-   if (streq(item->note, "{average}") ) return (TRUE);
+    /* if its average, dump it if you want to.*/
+    if (streq(item->note, "{average}")) return (TRUE);
 
     /* Mega-Hack -- allow "icky" items */
     if (auto_class == CLASS_PRIEST ||
         auto_class == CLASS_RANGER ||
         auto_class == CLASS_MAGE ||
-        auto_level <= 20)
+        borg_skill[BI_CLEVEL] < 20)
     {
         /* things that are good/excelent/special */
         if (streq(item->note, "{special}") ||
             streq(item->note, "{terrible}") ||
+            streq(item->note, "{indestructible}") ||
             streq(item->note, "{excellent}"))
             /* not icky */
             return (FALSE);
@@ -172,20 +170,17 @@ bool borg_item_icky(auto_item *item)
             return (TRUE);
         }
 
-        /* Hack -- Diggers */
-        if (item->tval == TV_DIGGING) return (TRUE);
-
         /* Assume the item is not icky */
         return (FALSE);
     }
 
-    /** Process other classes which do get pseudo ID **/
-
+    /* Process other classes which do get pseudo ID */
         /* things that are good/excelent/special/no P-ID */
         if  (streq(item->note, "{special}") ||
              streq(item->note, "{terrible}") ||
              streq(item->note, "{excellent}") ||
-             (!item->able && !item->note))  /*  no pseudo-id yet */
+             streq(item->note, "{indestructible}") ||
+             !item->note )  /* no pseudo-id yet */
              /* not icky */
              return (FALSE);
 
@@ -200,16 +195,13 @@ bool borg_item_icky(auto_item *item)
             /* Obtain my equipped item in the slot */
             item = &auto_items[slot];
 
-            /* If I can't use it, dump it */
-            if (slot == -1) return (TRUE);
-
             /* Is my item an ego or artifact? */
             if (item->name2 || item->name1) return (TRUE);
         }
-
     /* Assume not icky, I should have extra ID for the item */
     return (FALSE);
 }
+
 
 
 
@@ -229,29 +221,6 @@ bool borg_use_things(void)
         return (TRUE);
     }
 
-#if 0  /* oh just drink them, we dont need the cash. */
-    if ((my_stat_cur[A_STR] < (18+100 + 10 * p_ptr->maximise *
-         (rp_ptr->r_adj[A_STR] + cp_ptr->c_adj[A_STR])) &&
-         borg_quaff_potion(SV_POTION_INC_STR)) ||
-        (my_stat_cur[A_INT] < (18+100 + 10 * p_ptr->maximise *
-         (rp_ptr->r_adj[A_INT] + cp_ptr->c_adj[A_INT])) &&
-         borg_quaff_potion(SV_POTION_INC_INT)) ||
-        (my_stat_cur[A_WIS] < (18+100 + 10 * p_ptr->maximise *
-         (rp_ptr->r_adj[A_WIS] + cp_ptr->c_adj[A_WIS])) &&
-         borg_quaff_potion(SV_POTION_INC_WIS)) ||
-        (my_stat_cur[A_DEX] < (18+100 + 10 * p_ptr->maximise *
-         (rp_ptr->r_adj[A_DEX] + cp_ptr->c_adj[A_DEX])) &&
-         borg_quaff_potion(SV_POTION_INC_DEX)) ||
-        (my_stat_cur[A_CON] < (18+100 + 10 * p_ptr->maximise *
-         (rp_ptr->r_adj[A_CON] + cp_ptr->c_adj[A_CON])) &&
-         borg_quaff_potion(SV_POTION_INC_CON)) ||
-        (my_stat_cur[A_CHR] < (18+100 + 10 * p_ptr->maximise *
-         (rp_ptr->r_adj[A_CHR] + cp_ptr->c_adj[A_CHR])) &&
-         borg_quaff_potion(SV_POTION_INC_CHR))     )
-    {
-        return (TRUE);
-    }
-#endif
     /* just drink the stat gains, at this dlevel we wont need cash */
     if ( borg_quaff_potion(SV_POTION_INC_STR) ||
          borg_quaff_potion(SV_POTION_INC_INT) ||
@@ -354,14 +323,24 @@ bool borg_use_things(void)
             }
         }
     }
-
-
+#if 0
+    /* Keep spellcasters fed */
+    if (!do_full)
+    {
+        /* Attempt to satisfy hunger */
+        if (borg_spell(2, 0) ||
+            borg_prayer(1, 5))
+        {
+            return (TRUE);
+        }
+    }
+#endif
     /* Eat food */
     if (do_hungry)
     {
         /* Attempt to satisfy hunger */
         if (borg_spell(2, 7) ||
-            borg_prayer(2, 0) ||
+            borg_prayer(2, 0)||
             borg_eat_food(SV_FOOD_BISCUIT)||
             borg_eat_food(SV_FOOD_JERKY) ||
             borg_eat_food(SV_FOOD_WAYBREAD) ||
@@ -383,7 +362,7 @@ bool borg_use_things(void)
  *
  * Note that we refuel whenever our lite starts to get low.
  *
- * Note that we detect traps/doors/walls at least once in each
+ * Note that we detect traps/doors/walls/evil at least once in each
  * panel, as soon as possible after entering a new panel.
  *
  * Note that we call lite whenever the current grid is dark, and
@@ -431,8 +410,9 @@ bool borg_check_lite(void)
     /* Never in town */
     if (!auto_depth) return (FALSE);
 
-    /* Never when blind or confused or hallucinating */
-    if (do_blind || do_confused || do_image) return (FALSE);
+    /* Never when comprimised, save your mana */
+    if (do_blind || do_confused || do_image || do_poisoned ||
+        do_cut || do_weak) return (FALSE);
 
     /* XXX XXX XXX Dark */
 
@@ -480,6 +460,7 @@ bool borg_check_lite(void)
     /* Hack -- check walls every few turns anyway */
     if (!when_detect_walls || (c_t - when_detect_walls >= 937)) do_wall = TRUE;
 
+
     /* Start */
     do_evil = FALSE;
 
@@ -492,8 +473,8 @@ bool borg_check_lite(void)
     /* Hack -- check evil every few turns anyway */
     if (!when_detect_evil || (c_t - when_detect_evil >= 183)) do_evil = TRUE;
 
-    /* Don't bother if we have ESP */
-    if (my_telepathy) do_evil = FALSE;
+    /* Dont bother if I have ESP */
+    if (borg_skill[BI_ESP]) do_evil = FALSE;
 
     /* Do not do these if monsters near.  Save mana */
     if (!borg_check_rest())
@@ -504,9 +485,29 @@ bool borg_check_lite(void)
         do_evil = FALSE;
     }
 
-
     /*** Do Things ***/
 
+    /* Hack -- find traps and doors and evil*/
+    if ((do_trap || do_door || do_evil) &&
+        ((!when_detect_traps || (c_t - when_detect_traps >= 5)) ||
+         (!when_detect_evil || (c_t - when_detect_evil >= 5)) ||
+         (!when_detect_doors || (c_t - when_detect_doors >= 5))))
+    {
+        /* Check for traps and doors and evil*/
+        if (borg_zap_rod(SV_ROD_DETECTION) ||
+            borg_prayer_fail(5, 1, 20))
+        {
+            borg_note("# Checking for traps, doors, and evil.");
+
+            borg_react("SELF:TDE", "SELF:TDE");
+
+            when_detect_traps = c_t;
+            when_detect_doors = c_t;
+            when_detect_evil =  c_t;
+
+            return (TRUE);
+        }
+    }
 
     /* Hack -- find traps and doors */
     if ((do_trap || do_door) &&
@@ -518,6 +519,7 @@ bool borg_check_lite(void)
             borg_prayer_fail(0, 6, 20))
         {
             borg_note("# Checking for traps and doors.");
+
             borg_react("SELF:both", "SELF:both");
 
             when_detect_traps = c_t;
@@ -527,26 +529,6 @@ bool borg_check_lite(void)
         }
     }
 
-    /* Hack -- find traps and doors and evil*/
-    if ((do_trap || do_door || do_evil) &&
-        ((!when_detect_traps || (c_t - when_detect_traps >= 5)) ||
-         (!when_detect_evil || (c_t - when_detect_evil >= 5)) ||
-         (!when_detect_doors || (c_t - when_detect_doors >= 5))))
-    {
-        /* Check for Detection */
-        if (borg_zap_rod(SV_ROD_DETECTION) ||
-            borg_prayer_fail(5, 1, 20))
-        {
-            borg_note("# Checking for traps, doors, & evil.");
-            borg_react("SELF:TDE", "SELF:TDE");
-
-            when_detect_traps = c_t;
-            when_detect_doors = c_t;
-            when_detect_evil = c_t;
-
-            return (TRUE);
-        }
-    }
 
     /* Hack -- find traps */
     if (do_trap &&
@@ -556,8 +538,7 @@ bool borg_check_lite(void)
         if (borg_read_scroll(SV_SCROLL_DETECT_TRAP) ||
             borg_use_staff(SV_STAFF_DETECT_TRAP) ||
             borg_zap_rod(SV_ROD_DETECT_TRAP) ||
-            borg_prayer_fail(0, 6, 20) ||
-            borg_spell_fail(0,6,20))
+            borg_prayer_fail(0, 5, 20))
         {
             borg_note("# Checking for traps.");
 
@@ -578,8 +559,7 @@ bool borg_check_lite(void)
         if (borg_read_scroll(SV_SCROLL_DETECT_DOOR) ||
             borg_use_staff(SV_STAFF_DETECT_DOOR) ||
             borg_zap_rod(SV_ROD_DETECT_DOOR) ||
-            borg_prayer_fail(0, 6, 20) ||
-            borg_spell_fail(0, 6, 20))
+            borg_prayer_fail(0, 6, 20))
         {
             borg_note("# Checking for doors.");
 
@@ -618,15 +598,16 @@ bool borg_check_lite(void)
     if (do_evil &&
         (!when_detect_evil || (c_t - when_detect_evil >= 9)))
     {
-        /* Check for evil */
+        /* Check for traps */
         if (borg_prayer_fail(0, 0, 20) ||
-            borg_spell_fail(0,1,20))
+            borg_spell_fail(0, 1, 20))
         {
-            borg_note("# Checking for evil.");
+            borg_note("# Checking for monsters.");
 
             borg_react("SELF:evil", "SELF:evil");
 
             when_detect_evil = c_t;
+
             return (TRUE);
         }
     }
@@ -662,9 +643,9 @@ bool borg_check_lite(void)
      if (corners <= 2) do_lite = TRUE;
 
     /* Hack */
-    if (do_lite && (my_cur_lite >= 2) &&
-        (c_x >= my_cur_lite) && (c_x < AUTO_MAX_X - my_cur_lite) &&
-        (c_y >= my_cur_lite) && (c_y < AUTO_MAX_Y - my_cur_lite) &&
+    if (do_lite && (borg_skill[BI_CUR_LITE] >= 2) &&
+        (c_x >= borg_skill[BI_CUR_LITE]) && (c_x < AUTO_MAX_X - borg_skill[BI_CUR_LITE]) &&
+        (c_y >= borg_skill[BI_CUR_LITE]) && (c_y < AUTO_MAX_Y - borg_skill[BI_CUR_LITE]) &&
         (rand_int(100) < 90))
     {
 
@@ -797,9 +778,9 @@ bool borg_check_lite_only(void)
      if (corners <= 2) do_lite = TRUE;
 
     /* Hack */
-    if (do_lite && (my_cur_lite >= 2) &&
-        (c_x >= my_cur_lite) && (c_x < AUTO_MAX_X - my_cur_lite) &&
-        (c_y >= my_cur_lite) && (c_y < AUTO_MAX_Y - my_cur_lite) &&
+    if (do_lite && (borg_skill[BI_CUR_LITE] >= 2) &&
+        (c_x >= borg_skill[BI_CUR_LITE]) && (c_x < AUTO_MAX_X - borg_skill[BI_CUR_LITE]) &&
+        (c_y >= borg_skill[BI_CUR_LITE]) && (c_y < AUTO_MAX_Y - borg_skill[BI_CUR_LITE]) &&
         (rand_int(100) < 90))
     {
 
@@ -894,7 +875,7 @@ static bool borg_enchant_to_a(void)
 
 
     /* Look for armor that needs enchanting */
-    for (i = INVEN_BODY; i <= INVEN_FEET; i++)
+    for (i = INVEN_BODY; i < INVEN_TOTAL; i++)
     {
         auto_item *item = &auto_items[i];
 
@@ -1249,9 +1230,69 @@ static bool borg_enchant_to_d(void)
 
 /*
  * Brand Bolts
- * Using Cubragol or the priest spell
  */
-static bool borg_brand_weapon(void)
+static bool borg_brand_bolt_cubragol(void)
+{
+    int i, b_i = -1;
+    int a, b_a = 0;
+
+    /* Nothing to brand */
+    if (!my_need_brand_weapon) return (FALSE);
+
+    /* Need "brand" ability */
+    if (!amt_brand_weapon) return (FALSE);
+
+    /* look through inventory for ammo */
+        for (i = 0; i < INVEN_PACK; i++)
+        {
+            auto_item *item = &auto_items[i];
+
+            /* Only enchant if qty >= 5 */
+            if (item->iqty < 5) continue;
+
+            /* Skip non-identified items  */
+            if (!item->able) continue;
+
+            /* Make sure it is the right type if missile */
+            if (item->tval != TV_BOLT) continue;
+
+            /* Obtain the bonus  */
+            a = item->to_h;
+
+            /* Skip branded items */
+            if (item->name2) continue;
+
+            /* Find the most enchanted item */
+            if ((b_i >= 0) && (b_a > a)) continue;
+
+            /* Save the info  */
+            b_i = i; b_a = a;
+
+    }
+
+    /* Enchant it */
+    if (borg_activate_artifact(ART_CUBRAGOL, INVEN_BOW))
+    {
+
+#if 0
+        /* 291 would like a location of the brand */
+        /* choose the or ammo */
+        {
+            borg_keypress(I2A(b_i));
+        }
+#endif
+        /* Success */
+        return (TRUE);
+    }
+
+    /* Nothing to do */
+    return (FALSE);
+}
+/*
+ * Brand Bolts
+ * Using the priest spell
+ */
+static bool borg_brand_missile(void)
 {
     /* Nothing to brand */
     if (!my_need_brand_weapon) return (FALSE);
@@ -1260,8 +1301,7 @@ static bool borg_brand_weapon(void)
     if (!amt_brand_weapon) return (FALSE);
 
     /* Enchant it */
-    if (borg_activate_artifact(ART_CUBRAGOL, INVEN_BOW) ||
-        borg_prayer_fail(7, 5, 35) )
+    if (borg_prayer_fail(7, 5, 35) )
     {
         /* Success */
         return (TRUE);
@@ -1271,9 +1311,10 @@ static bool borg_brand_weapon(void)
     return (FALSE);
 }
 
+
+
 /*
  * Remove Curse
- *
  */
 static bool borg_decurse_armour(void)
 {
@@ -1281,16 +1322,31 @@ static bool borg_decurse_armour(void)
     if (decurse_armour_swap == -1 && !borg_wearing_cursed) return (FALSE);
 
     /* Ability for heavy curse */
-    if (decurse_armour_swap == 1 || borg_wearing_cursed)
+    if (decurse_armour_swap == 1)
     {
         if (-1 == borg_slot(TV_SCROLL,SV_SCROLL_STAR_REMOVE_CURSE) &&
-            !borg_prayer_okay_fail(7,2,20))
+            !borg_prayer_okay_fail(7,2,40))
         {
                 return (FALSE);
         }
-        if (decurse_armour_swap)
+
+        else if (decurse_armour_swap ==1)
         {
 
+            /* two-handed weapons must have the shield
+             * slot cleared first.
+             */
+#if 0
+            if (auto_items[armour_swap].tval == TV_SHIELD &&
+                (auto_items[INVEN_WIELD].flags3 & TR3_2HANDS))
+            {
+                /* Remove the two-handed weapon */
+                borg_keypress('t');
+                borg_keypress(I2A(INVEN_WIELD));
+
+                /* Now continue to wear the shield */
+            }
+#endif
             /* First wear the item */
             borg_keypress('w');
             borg_keypress(I2A(armour_swap));
@@ -1301,38 +1357,60 @@ static bool borg_decurse_armour(void)
 
         /* remove the curse */
         if (borg_read_scroll(SV_SCROLL_STAR_REMOVE_CURSE) ||
-            borg_prayer_fail(7,2, 20) )
-            {
-                /* Shekockazol! */
-                borg_wearing_cursed = FALSE;
-                return (TRUE);
-            }
+            borg_prayer(7,2) )
+        {
+            /* Shekockazol! */
+            borg_wearing_cursed = FALSE;
+            return (TRUE);
         }
 
-        /* Ability for light curse */
-        if (decurse_armour_swap == 0)
-        {
-            if (-1 == borg_slot(TV_SCROLL,SV_SCROLL_REMOVE_CURSE) &&
-               (-1 == borg_slot(TV_STAFF,SV_STAFF_REMOVE_CURSE) &&
-                -1 == auto_items[borg_slot(TV_STAFF, SV_STAFF_REMOVE_CURSE)].pval) &&
-               !borg_prayer_okay_fail(1,6,40) )
+    }
+
+    /* Ability for light curse */
+    if (decurse_armour_swap == 0 || borg_wearing_cursed)
+    {
+        if (-1 == borg_slot(TV_SCROLL,SV_SCROLL_REMOVE_CURSE) &&
+           (-1 == borg_slot(TV_STAFF,SV_STAFF_REMOVE_CURSE) &&
+            -1 == auto_items[borg_slot(TV_STAFF, SV_STAFF_REMOVE_CURSE)].pval) &&
+           !borg_prayer_okay_fail(1,6,40) )
             {
                 return (FALSE);
             }
 
-        /* First wear the item */
-        borg_keypress('w');
-        borg_keypress(I2A(armour_swap));
+        if (borg_wearing_cursed)
+        {
+            /* no need to wear it first */
+        }
+        else
+        {
+#if 0
+            /* two-handed weapons must have the shield
+             * slot cleared first.
+             */
+            if (auto_items[armour_swap].tval == TV_SHIELD &&
+                (auto_items[INVEN_WIELD].flags3 & TR3_2HANDS))
+            {
+                /* Remove the two-handed weapon */
+                borg_keypress('t');
+                borg_keypress(I2A(INVEN_WIELD));
 
-        /* ooops it feels deathly cold */
-        borg_keypress(' ');
+                /* Now continue to wear the shield */
+            }
+#endif
+            /* First wear the item */
+            borg_keypress('w');
+            borg_keypress(I2A(armour_swap));
 
+            /* ooops it feels deathly cold */
+            borg_keypress(' ');
+        }
         /* remove the curse */
         if (borg_read_scroll(SV_SCROLL_REMOVE_CURSE) ||
             borg_use_staff(SV_STAFF_REMOVE_CURSE)||
             borg_prayer(1,6) )
         {
             /* Shekockazol! */
+            borg_wearing_cursed = FALSE;
             return (TRUE);
         }
     }
@@ -1342,7 +1420,7 @@ static bool borg_decurse_armour(void)
 }
 /*
  * Remove Curse
- *
+ * apw
  */
 static bool borg_decurse_weapon(void)
 {
@@ -1357,7 +1435,20 @@ static bool borg_decurse_weapon(void)
             {
                 return (FALSE);
             }
+        /* two-handed weapons must have the shield
+         * slot cleared first.
+         */
+#if 0
+        if (auto_items[INVEN_ARM].tval == TV_SHIELD &&
+            (auto_items[weapon_swap].flags3 & TR3_2HANDS))
+        {
+            /* Remove the shield */
+            borg_keypress('t');
+            borg_keypress(I2A(INVEN_ARM));
 
+            /* Now continue to wear the two handed */
+        }
+#endif
         /* First wear the item */
         borg_keypress('w');
         borg_keypress(I2A(weapon_swap));
@@ -1385,6 +1476,17 @@ static bool borg_decurse_weapon(void)
                 return (FALSE);
             }
 
+#if 0
+        if (auto_items[INVEN_ARM].tval == TV_SHIELD &&
+            (auto_items[weapon_swap].flags3 & TR3_2HANDS))
+        {
+            /* Remove the shield */
+            borg_keypress('t');
+            borg_keypress(I2A(INVEN_ARM));
+
+            /* Now continue to wear the two-handed */
+        }
+#endif
         /* First wear the item */
         borg_keypress('w');
         borg_keypress(I2A(weapon_swap));
@@ -1414,18 +1516,21 @@ bool borg_enchanting(void)
     /* Forbid blind/confused */
     if (do_blind || do_confused) return (FALSE);
 
-    /* Forbid if been sitting on level forever */
+    /*apw Forbid if been sitting on level forever */
     /*    Just come back and finish the job later */
-    if ((c_t - auto_began > 350 && auto_depth) ||
-        (c_t-auto_began > 800 && !auto_depth)) return (FALSE);
+    if ((c_t - auto_began > 150 && auto_depth) ||
+        (c_t-auto_began > 350 && !auto_depth)) return (FALSE);
+
+    /* Remove Curses */
+    if (borg_decurse_armour()) return (TRUE);
+    if (borg_decurse_weapon()) return (TRUE);
 
     /* Enchant things */
     if (borg_enchant_to_d()) return (TRUE);
     if (borg_enchant_to_a()) return (TRUE);
     if (borg_enchant_to_h()) return (TRUE);
-    if (borg_brand_weapon()) return (TRUE);
-    if (borg_decurse_armour()) return (TRUE);
-    if (borg_decurse_weapon()) return (TRUE);
+    if (borg_brand_bolt_cubragol()) return (TRUE);
+    if (borg_brand_missile()) return (TRUE);
 
     /* Nope */
     return (FALSE);
@@ -1469,11 +1574,10 @@ bool borg_recharging(void)
         /* recharge staves sometimes */
         if (item->tval == TV_STAFF)
         {
-            /* allow staves to be recharged at 2 charges if
-             * the borg has the big recharge spell, and its not
-             * going to blow up with charges.
+            /* Allow staves to be recharged at 2 charges if
+             * the borg has the big recharge spell. And its not a *Dest*
              */
-            if ((item->pval < 3) && borg_spell_okay(6, 2) &&
+            if ((item->pval < 3) && borg_spell_okay(6, 3) &&
                 item->sval < SV_STAFF_POWER)
                 charge = TRUE;
 
@@ -1520,7 +1624,6 @@ bool borg_recharging(void)
             /* if we fail once, no need to try again. */
             break;
     }
-
 
     /* Nope */
     return (FALSE);
@@ -1649,8 +1752,8 @@ bool borg_crush_junk(void)
     /* Hack -- no need */
     if (!auto_do_crush_junk) return (FALSE);
 
-    /* no crushing in danger */
-    if (borg_danger(c_y,c_x,1) >= auto_chp /10) return (FALSE);
+    /* No crush if even slightly dangerous */
+    if (borg_danger(c_y,c_x,1) > auto_chp / 10) return (FALSE);
 
     /* Destroy actual "junk" items */
     for (i = 0; i < INVEN_PACK; i++)
@@ -1661,8 +1764,16 @@ bool borg_crush_junk(void)
         if (!item->iqty) continue;
 
         /* dont crush the swap weapon */
-        if (i == weapon_swap) continue;
+        if (i == weapon_swap && item->iqty == 1) continue;
         if (i == armour_swap) continue;
+
+        /* Dont crush weapons if we are weilding a digger */
+#if 0
+            if (item->tval >=TV_DIGGING && item->tval <= TV_SWORD &&
+            auto_items[INVEN_WIELD].tval == TV_DIGGING) continue;
+#endif
+
+        /* Drop chests instead of crushing ? empty chest?*/
 
         /* dont crush our spell books */
         if (item->tval == mb_ptr->spell_book) continue;
@@ -1670,31 +1781,20 @@ bool borg_crush_junk(void)
         /* save the items value */
         value = item->value;
 
+        /* if I cant use it (as a dragon) & I have cash then its junk */
+        if (auto_max_level > 30 && borg_wield_slot(item) == -1 &&
+            item->tval < TV_LITE)
+        {
+            value = 0L;
+        }
+
         /* Skip non "worthless" items */
-        if (item->tval > TV_CHEST)
+        if (item->tval >= TV_CHEST)
         {
             /* unknown and not worthless */
             if (!item->able && !streq(item->note, "{average}") &&
-                value > 0)
+                 value > 0)
                 continue;
-
-            /* if I cant use it (as a dragon) & I have cash then its junk */
-            if (auto_level > 30 && borg_wield_slot(item) == -1 &&
-                item->tval < TV_LITE)
-            {
-                value = 0L;
-            }
-
-            /* if I am full of stuff and can't sell any more cause the shops
-             * are full, then junk it
-             */
-            if (auto_level == 50 && auto_race >= RACE_MIN_DRAGON &&
-                (item->tval < TV_LITE &&
-                /* try to look for Aman cloaks */
-                 item->tval !=TV_CLOAK ))
-            {
-                value /= 3;
-            }
 
             /* skip items that are 'valuable'.  This is level dependent */
             /* try to make the borg junk +1,+1 dagger at level 40 */
@@ -1709,27 +1809,37 @@ bool borg_crush_junk(void)
                 value += 2000L;
             }
 
-            /* Keep some stuff */
+            /* apw Keep some stuff */
             if ( (item->tval == my_ammo_tval && value > 0) ||
             ((item->tval == TV_POTION && item->sval == SV_POTION_RESTORE_MANA) &&
              (auto_msp >= 1)) ||
             (item->tval == TV_POTION && item->sval == SV_POTION_HEALING) ||
             (item->tval == TV_POTION && item->sval == SV_POTION_STAR_HEALING) ||
             (item->tval == TV_POTION && item->sval == SV_POTION_LIFE) ||
+            (item->tval == TV_POTION && item->sval == SV_POTION_SPEED) ||
             (item->tval == TV_ROD && item->sval == SV_ROD_DRAIN_LIFE)||
             (item->tval == TV_ROD && (item->sval == SV_ROD_HEALING  ||
              item->sval == SV_ROD_MAPPING) && auto_class == CLASS_WARRIOR) ||
             (item->tval == TV_STAFF && item->sval == SV_STAFF_DISPEL_EVIL) ||
-            (item->tval == TV_STAFF && item->sval == SV_STAFF_DESTRUCTION) ||
             (item->tval == TV_STAFF && item->sval == SV_STAFF_POWER) ||
             (item->tval == TV_STAFF && item->sval == SV_STAFF_HOLINESS) ||
             (item->tval == TV_WAND && item->sval == SV_WAND_DRAIN_LIFE) ||
             (item->tval == TV_WAND && item->sval == SV_WAND_ANNIHILATION) ||
             (item->tval == TV_CLOAK && item->name2 == EGO_AMAN) ||
+            (item->tval == TV_SCROLL && item->sval == SV_SCROLL_TELEPORT_LEVEL &&
+             borg_skill[BI_ATELEPORTLVL] < 1000) ||
             (item->tval == TV_SCROLL && item->sval == SV_SCROLL_PROTECTION_FROM_EVIL))
+
             {
                 value +=5000L;
             }
+            /* borg_worships_gold will sell all kinds of stuff,
+             * nothing, except {cursed} is junk
+             */
+            if (item->value > 0 && borg_worships_gold &&
+                auto_max_level <= 20 &&
+                !(streq(item->note, "{cursed}")) ) continue;
+
 
             /* up to level 5, keep anything of any value */
             if (auto_depth < 5 && value > 0)
@@ -1770,6 +1880,7 @@ bool borg_crush_junk(void)
 
             /* Examine the inventory */
             borg_notice(FALSE);
+
             /* Evaluate the inventory */
             p = borg_power();
 
@@ -1786,11 +1897,11 @@ bool borg_crush_junk(void)
         /* Hack -- skip good un-id'd "artifacts" */
         if (streq(item->note, "{special}")) continue;
         if (streq(item->note, "{terrible}")) continue;
+        if (streq(item->note, "{indestructible}")) continue;
 
         /* hack -- with random artifacts some are good and bad */
         /*         so check them all */
-            if (borg_wield_slot(item) != -1 &&
-                item->name1 && !item->fully_identified) continue;
+        if (item->name1 == ART_RANDART && !item->fully_identified) continue;
 
         /* Message */
         borg_note(format("# Junking junk (valued at %d)",value));
@@ -1809,12 +1920,13 @@ bool borg_crush_junk(void)
             /* Message */
             borg_note(format("# Destroying %s.", item->desc));
 
-            /* Destroy all items */
+            /* Destroy one item */
             borg_keypress('0');
+            borg_keypress('1');
 
             /* Destroy that item */
             if (!item->name1)
-                borg_keypress('k');
+                    borg_keypress('k');
             else
             {
                 int a;
@@ -1836,7 +1948,7 @@ bool borg_crush_junk(void)
                 }
             }
         }
-        /* item */
+
         borg_keypress(I2A(i));
 
         /* Verify destruction */
@@ -1880,19 +1992,19 @@ bool borg_crush_hole(void)
     int i, b_i = -1;
     s32b p, b_p = 0L;
 
-    s32b value =0L;
+    s32b value = 0;
 
     bool fix = FALSE;
 
 
-    /* Hack -- no need */
-    if (!auto_do_crush_hole) return (FALSE);
-
-    /* no crushing in danger */
-    if (borg_danger(c_y,c_x,1) >= auto_chp /10) return (FALSE);
-
     /* Do not destroy items unless we need the space */
     if (!auto_items[INVEN_PACK-1].iqty) return (FALSE);
+
+    /* No crush if even slightly dangerous */
+    if (borg_danger(c_y,c_x,1) > auto_chp / 10 &&
+        (auto_chp != auto_mhp ||
+        borg_danger(c_y,c_x,1) > (auto_chp * 2) / 3))
+        return (FALSE);
 
     /* Scan the inventory */
     for (i = 0; i < INVEN_PACK; i++)
@@ -1909,11 +2021,18 @@ bool borg_crush_hole(void)
         if (i == weapon_swap) continue;
         if (i == armour_swap) continue;
 
+        /* dont crush our spell books */
+        if (item->tval == mb_ptr->spell_book) continue;
+
+        /* Dont crush weapons if we are weilding a digger */
+        if (item->tval >=TV_DIGGING && item->tval <= TV_SWORD &&
+            auto_items[INVEN_WIELD].tval == TV_DIGGING) continue;
+
         /* Hack -- skip "artifacts" */
-        if (borg_wield_slot(item) != -1 &&
-            item->name1 && !item->fully_identified) continue;
+        if (item->name1 && !item->fully_identified) continue;
         if (streq(item->note, "{special}")) continue;
         if (streq(item->note, "{terrible}")) continue;
+        if (streq(item->note, "{indestructible}")) continue;
 
         /* never crush cool stuff that we might be needing later */
         if ((item->tval == TV_POTION && item->sval == SV_POTION_RESTORE_MANA) &&
@@ -1921,12 +2040,11 @@ bool borg_crush_hole(void)
         if (item->tval == TV_POTION && item->sval == SV_POTION_HEALING) continue;
         if (item->tval == TV_POTION && item->sval == SV_POTION_STAR_HEALING) continue;
         if (item->tval == TV_POTION && item->sval == SV_POTION_LIFE) continue;
-        if (item->tval == TV_STAFF && item->sval == SV_STAFF_DISPEL_EVIL) continue;
-        if (item->tval == TV_STAFF && item->sval == SV_STAFF_DESTRUCTION) continue;
-        if (item->tval == TV_STAFF && item->sval == SV_STAFF_POWER) continue;
-        if (item->tval == TV_STAFF && item->sval == SV_STAFF_HOLINESS) continue;
+        if (item->tval == TV_POTION && item->sval == SV_POTION_SPEED) continue;
         if (item->tval == TV_SCROLL && item->sval == SV_SCROLL_PROTECTION_FROM_EVIL) continue;
         if (item->tval == TV_SCROLL && item->sval == SV_SCROLL_RUNE_OF_PROTECTION) continue;
+        if (item->tval == TV_SCROLL && item->sval == SV_SCROLL_TELEPORT_LEVEL &&
+            borg_skill[BI_ATELEPORTLVL] < 1000 ) continue;
         if (item->tval == TV_CLOAK && item->name2 == EGO_AMAN) continue;
         if (item->tval == TV_ROD && (item->sval == SV_ROD_HEALING ||
             item->sval == SV_ROD_MAPPING) && auto_class == CLASS_WARRIOR &&
@@ -1968,7 +2086,7 @@ bool borg_crush_hole(void)
             value += 20000L;
         }
 
-        /*  Keep the correct types of missiles which have value */
+        /* apw Keep the correct types of missiles which have value */
         if ((item->tval == my_ammo_tval) && (value > 0) )
         {
             value +=5000L;
@@ -1976,7 +2094,7 @@ bool borg_crush_hole(void)
 
         /* Hack  show prefrence for destroying things we will not use */
         /* if we are high enough level not to worry about gold. */
-        if (auto_level > 35)
+        if (borg_skill[BI_CLEVEL] > 35)
         {
             switch (item->tval)
             {
@@ -2002,9 +2120,9 @@ bool borg_crush_hole(void)
                     break;
                 case TV_CLOAK:
                     if (item->name2 != EGO_AMAN)
-                        p -=(item->iqty *(300000L));
+                    p -=(item->iqty *(300000L));
                     else
-                        p -= (item->iqty * value);
+                    p -= (item->iqty * value);
                     break;
 
                 case TV_ROD:
@@ -2021,10 +2139,12 @@ bool borg_crush_hole(void)
 
                 case TV_STAFF:
                     /* BIG HACK! don't crush cool stuff. */
-                    if ((item->sval != SV_STAFF_DISPEL_EVIL) ||
-                        (item->sval != SV_STAFF_POWER) ||
-                        (item->sval != SV_STAFF_DESTRUCTION) ||
-                        (item->sval != SV_STAFF_HOLINESS) )
+                    if (item->sval != SV_STAFF_DISPEL_EVIL ||
+                        ((item->sval != SV_STAFF_POWER ||
+                          item->sval != SV_STAFF_HOLINESS) &&
+                          amt_cool_staff < 2) ||
+                        (item->sval != SV_STAFF_DESTRUCTION &&
+                         borg_skill[BI_ASTFDEST] < 2))
                         p -= (item->iqty * (300000L));  /* value at 30k */
                     else
                     p -= (item->iqty * (value/2));
@@ -2106,8 +2226,7 @@ bool borg_crush_hole(void)
         }
 
         /* Hack -- try not to destroy "unknown" items (unless "icky") */
-        if (!item->able && !streq(item->note, "{average}") &&
-            (value > 0) && !borg_item_icky(item))
+        if (!item->able && (value > 0) && !borg_item_icky(item))
         {
             /* Reward "unknown" items */
             switch (item->tval)
@@ -2240,15 +2359,11 @@ bool borg_crush_slow(void)
 
     bool fix = FALSE;
 
-    /* Hack -- no need */
-    if (!auto_do_crush_slow) return (FALSE);
-
-    /* no crushing in danger */
-    if (borg_danger(c_y,c_x,1) >= auto_chp /20) return (FALSE);
+    /* No crush if even slightly dangerous */
+    if (borg_danger(c_y,c_x,1) > auto_chp / 20) return (FALSE);
 
     /* Hack -- never in town */
     if (!auto_depth) return (FALSE);
-
 
     /* Do not crush items unless we are slow */
     if (auto_speed >= 110) return (FALSE);
@@ -2258,10 +2373,10 @@ bool borg_crush_slow(void)
     greed = (auto_gold / 100L) + 100L;
 
     /* Minimal greed */
-    if (greed < 500L && auto_level > 35) greed = 500L;
+    if (greed < 500L && borg_skill[BI_CLEVEL] > 35) greed = 500L;
     if (greed > 25000L) greed = 25000L;
 
-    /* Decrease greed by our slowness*/
+    /* Decrease greed by our slowness apw*/
     greed -= (110 - auto_speed) * 100;
     if (greed <=0) greed = 0L;
 
@@ -2274,18 +2389,21 @@ bool borg_crush_slow(void)
         if (!item->iqty) continue;
 
         /* dont crush the swap weapon */
-        if (i == weapon_swap) continue;
+        if (i == weapon_swap && item->iqty == 1) continue;
         if (i == armour_swap) continue;
 
         /* Skip "good" unknown items (unless "icky") */
-        if (!item->able && !streq(item->note, "{average}") &&
-            (item->value > 0) && !borg_item_icky(item)) continue;
+        if (!item->able && !borg_item_icky(item)) continue;
 
         /* Hack -- Skip artifacts */
-        if (borg_wield_slot(item) != -1 &&
-            item->name1 && !item->fully_identified) continue;
+        if (item->name1 == ART_RANDART && !item->fully_identified) continue;
         if (streq(item->note, "{special}")) continue;
         if (streq(item->note, "{terrible}")) continue;
+        if (streq(item->note, "{indestructible}")) continue;
+
+        /* Dont crush weapons if we are weilding a digger */
+        if (item->tval >=TV_DIGGING && item->tval <= TV_SWORD &&
+            auto_items[INVEN_WIELD].tval == TV_DIGGING) continue;
 
         /* Save the item */
         COPY(&safe_items[i], &auto_items[i], auto_item);
@@ -2404,8 +2522,18 @@ bool borg_test_stuff(bool star_id)
     int i, b_i = -1;
     s32b v, b_v = -1;
 
+    /* don't ID stuff when you can't recover spent spell point immediately */
+    if ((!star_id) &&
+        ((auto_csp < 50 && borg_spell_legal(2, 4)) ||
+         (auto_csp < 50 && borg_prayer_legal(5, 2))) &&
+        !borg_check_rest())
+        return (FALSE);
+
+    /* No ID if in danger */
+    if (borg_danger(c_y,c_x,1) > 1) return (FALSE);
+
     /* Look for an item to identify (equipment) */
-    for (i = INVEN_WIELD; i <= INVEN_FEET; i++)
+    for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
     {
         auto_item *item = &auto_items[i];
 
@@ -2437,15 +2565,17 @@ bool borg_test_stuff(bool star_id)
                {
                 /* Weapon (Blessed) */
                 case EGO_BLESS_BLADE:
+                /* Armor of Permanence */
+                case EGO_PERMANENCE:
                 /* Armor of Elvenkind */
                 case EGO_ELVENKIND:
                 /* Crown of the Magi */
                 case EGO_MAGI:
                 /* Cloak of Aman */
                 case EGO_AMAN:
+                     break;
                 /* Weapon (Holy Avenger) */
                 case EGO_HA:
-                     break;
                 /* Weapon (Defender) */
                 case EGO_DF:
                 /* anything else */
@@ -2514,15 +2644,17 @@ bool borg_test_stuff(bool star_id)
                {
                 /* Weapon (Blessed) */
                 case EGO_BLESS_BLADE:
+                /* Armor of Permanence */
+                case EGO_PERMANENCE:
                 /* Armor of Elvenkind */
                 case EGO_ELVENKIND:
                 /* Crown of the Magi */
                 case EGO_MAGI:
                 /* Cloak of Aman */
                 case EGO_AMAN:
+                    break;
                 /* Weapon (Holy Avenger) */
                 case EGO_HA:
-                    break;
                 /* Weapon (Defender) */
                 case EGO_DF:
                 /* anything else */
@@ -2539,6 +2671,7 @@ bool borg_test_stuff(bool star_id)
                        break;
                 }
             }
+
         }
 
 
@@ -2551,10 +2684,10 @@ bool borg_test_stuff(bool star_id)
             auto_class == CLASS_PRIEST || auto_class == CLASS_RANGER)) v = item->value + 10000L;
         /* heavy pseudo id */
         else if (streq(item->note, "{good}") && auto_gold < 10000) v = item->value +1000L;
-        if (streq(item->note, "{excellent}")) v = item->value + 20000L;
-        if (streq(item->note, "{special}")) v = item->value + 50000L;
-        if (streq(item->note, "{terrible}")) v = item->value + 50000L;
-
+        else if (streq(item->note, "{excellent}")) v = item->value + 20000L;
+        else if (streq(item->note, "{special}")) v = item->value + 50000L;
+        else if (streq(item->note, "{terrible}")) v = item->value + 50000L;
+        else if (streq(item->note, "{indestructible}")) v = item->value + 50000L;
         /* Nothing */
         if (!v) continue;
 
@@ -2565,7 +2698,7 @@ bool borg_test_stuff(bool star_id)
         b_i = i; b_v = v;
     }
 
-    /* Look for an ego item to *identify* (equipment) */
+    /* Look for an ego item to identify (equipment) */
     for (i = 0; i <= INVEN_PACK; i++)
     {
         auto_item *item = &auto_items[i];
@@ -2575,23 +2708,22 @@ bool borg_test_stuff(bool star_id)
 
         if (!star_id) continue;
         if (item->fully_identified) continue;
-
-            if ((item->tval ==TV_AMULET && item->sval == SV_AMULET_THE_MAGI) ||
-                (item->tval == TV_CLOAK && item->sval == SV_SHADOW_CLOAK))
-            {
-                b_i= i;
-                b_v = 100000;
-                break;
-            }
-
         if (!item->name2 &&
             !item->name1) continue;
 
+        if ((item->tval ==TV_AMULET && item->sval == SV_AMULET_THE_MAGI) ||
+            (item->tval == TV_CLOAK && item->sval == SV_SHADOW_CLOAK))
+        {
+            b_i= i;
+            b_v = 100000;
+            break;
+        }
+
         /* If Dragons cant use it, dont *ID* it */
-            if (auto_race >= RACE_MIN_DRAGON && star_id)
-            {
-                if (borg_wield_slot(item) ==-1) continue;
-            }
+        if (auto_race >= RACE_MIN_DRAGON && star_id)
+        {
+            if (borg_wield_slot(item) ==-1) continue;
+        }
 
         if (item->name2)
         {
@@ -2599,15 +2731,17 @@ bool borg_test_stuff(bool star_id)
                {
                 /* Weapon (Blessed) */
                 case EGO_BLESS_BLADE:
-                /* Robe of Permanance */
+                /* Armor of Permanence */
+                case EGO_PERMANENCE:
+                /* Armor of Elvenkind */
                 case EGO_ELVENKIND:
                 /* Crown of the Magi */
                 case EGO_MAGI:
                 /* Cloak of Aman */
                 case EGO_AMAN:
+                    break;
                 /* Weapon (Holy Avenger) */
                 case EGO_HA:
-                    break;
                 /* Weapon (Defender) */
                 case EGO_DF:
                 /* anything else */
@@ -2615,16 +2749,14 @@ bool borg_test_stuff(bool star_id)
                     continue;
                }
         }
-
-        if (item->name1)
-        {
-            switch (item->name1)
+            if (item->name1)
             {
-                default:
-                   break;
+                switch (item->name1)
+                {
+                    default:
+                       break;
+                }
             }
-        }
-
         /* Get the value */
         v = item->value + 100000L;
 
@@ -2652,6 +2784,7 @@ bool borg_test_stuff(bool star_id)
         else
         {
             if (item->fully_identified) continue;
+
             if ((item->tval ==TV_AMULET && item->sval == SV_AMULET_THE_MAGI) ||
                 (item->tval == TV_CLOAK && item->sval == SV_SHADOW_CLOAK))
             {
@@ -2659,6 +2792,7 @@ bool borg_test_stuff(bool star_id)
                 b_v = 100000;
                 break;
             }
+
 
             if (!item->name2 &&
                 !item->name1) continue;
@@ -2674,11 +2808,12 @@ bool borg_test_stuff(bool star_id)
                 switch (item->name2)
                     {
                         case EGO_BLESS_BLADE:
+                        case EGO_PERMANENCE:
                         case EGO_ELVENKIND:
                         case EGO_MAGI:
                         case EGO_AMAN:
-                        case EGO_HA:
                             break;
+                        case EGO_HA:
                         /* Weapon (Defender) */
                         case EGO_DF:
                         /* anything else */
@@ -2700,10 +2835,10 @@ bool borg_test_stuff(bool star_id)
         if (streq(item->note, "{average}")) continue;
 
         /* If I have tons of cash dont worry about some "good" items */
-        if (streq(item->note, "{good}") && auto_gold > 10000 &&
+        if (streq(item->note, "{good}") &&
+            auto_gold > 20000 &&
             (auto_class == CLASS_WARRIOR || auto_class == CLASS_PALADIN ||
              auto_class == CLASS_ROGUE)) continue;
-
 
         /* Hack -- assume no value */
         v = 0;
@@ -2812,7 +2947,7 @@ bool borg_test_stuff(bool star_id)
             }
 
             /* Mega-Hack -- mages get bored */
-            if ((auto_class == CLASS_MAGE) && (rand_int(1000) < auto_level))
+            if ((auto_class == CLASS_MAGE) && (rand_int(1000) < borg_skill[BI_CLEVEL]))
             {
 
                 /* Mega-Hack -- ignore "icky" items */
@@ -2820,7 +2955,7 @@ bool borg_test_stuff(bool star_id)
             }
 
             /* Mega-Hack -- rangers get bored */
-            if ((auto_class == CLASS_RANGER) && (rand_int(3000) < auto_level))
+            if ((auto_class == CLASS_RANGER) && (rand_int(3000) < borg_skill[BI_CLEVEL]))
             {
 
                 /* Mega-Hack -- ignore "icky" items */
@@ -2828,12 +2963,15 @@ bool borg_test_stuff(bool star_id)
             }
 
             /* Mega-Hack -- priests get bored */
-            if ((auto_class == CLASS_PRIEST) && (rand_int(5000) < auto_level))
+            if ((auto_class == CLASS_PRIEST) && (rand_int(5000) < borg_skill[BI_CLEVEL]))
             {
 
                 /* Mega-Hack -- ignore "icky" items */
                 if (!borg_item_icky(item)) v = item->value;
             }
+
+            /* try to ID shovels */
+            if (item->tval == TV_DIGGING) v = item->value;
 
             break;
         }
@@ -2894,6 +3032,7 @@ bool borg_test_stuff(bool star_id)
                 borg_keypress('\r');
                 borg_keypress('\r');
                 borg_keypress('\r');
+                borg_keypress(ESCAPE);
 
                 /* Success */
                 return (TRUE);
@@ -2937,6 +3076,7 @@ bool borg_test_stuff(bool star_id)
                     borg_keypress(I2A(b_i));
                 }
 
+                borg_keypress(ESCAPE);
                 /* Success */
                 return (TRUE);
             }
@@ -2971,13 +3111,13 @@ bool borg_swap_rings(void)
 
     /*** Check conditions ***/
 
-    /* Require an empty slot */
-    if (auto_items[hole].iqty) return (FALSE);
+    /* Require two empty slots */
+    if (auto_items[icky].iqty) return (FALSE);
 
     /* Dragons need to do this else where */
     if (auto_race >= RACE_MIN_DRAGON) return (FALSE);
 
-    /* Forbid if been sitting on level forever */
+    /*apw Forbid if been sitting on level forever */
     /*    Just come back and work through the loop later */
     if (c_t - auto_began > 2000) return (FALSE);
     if (time_this_panel > 350) return (FALSE);
@@ -2986,7 +3126,8 @@ bool borg_swap_rings(void)
 
     /* Remove any naked loose ring */
     if (auto_items[INVEN_LEFT].iqty &&
-        !auto_items[INVEN_RIGHT].iqty)
+        !auto_items[INVEN_RIGHT].iqty &&
+         auto_items[INVEN_LEFT].name1 != ART_POWER)
     {
         /* Log */
         borg_note("# Taking off naked loose ring.");
@@ -3002,12 +3143,11 @@ bool borg_swap_rings(void)
 
     /*** Check conditions ***/
 
-    /* Require another empty slot */
-    if (auto_items[icky].iqty) return (FALSE);
-
     /* Require "tight" ring */
     if (!auto_items[INVEN_RIGHT].iqty) return (FALSE);
 
+    /* Cannot remove the One Ring */
+    if (!auto_items[INVEN_RIGHT].name1 == ART_POWER) return (FALSE);
 
     /*** Remove nasty "tight" rings ***/
 
@@ -3093,6 +3233,7 @@ bool borg_swap_rings(void)
 }
 
 
+
 /*
  * Place our "best" ring on the "tight" finger if needed
  *
@@ -3112,6 +3253,7 @@ bool borg_swap_rings(void)
 bool borg_wear_rings(void)
 {
     int slot;
+    int hole = INVEN_PACK - 1;
 
     s32b p, b_p = 0L;
 
@@ -3123,8 +3265,11 @@ bool borg_wear_rings(void)
 
 
     /* Require no rings */
-    if (auto_items[INVEN_LEFT].iqty) return (FALSE);
-    if (auto_items[INVEN_RIGHT].iqty) return (FALSE);
+/*    if (auto_items[INVEN_LEFT].iqty) return (FALSE);
+    if (auto_items[INVEN_RIGHT].iqty) return (FALSE);*/
+
+    /* Require two empty slots */
+    if (auto_items[hole-1].iqty) return (FALSE);
 
     /* hack prevent the swap till you drop loop */
     if (do_hungry || do_weak) return (FALSE);
@@ -3132,7 +3277,7 @@ bool borg_wear_rings(void)
     /* Dragons need to do this else where */
     if (auto_race >= RACE_MIN_DRAGON) return (FALSE);
 
-    /* Forbid if been sitting on level forever */
+    /*apw Forbid if been sitting on level forever */
     /*    Just come back and work through the loop later */
     if (c_t - auto_began > 2000) return (FALSE);
     if (time_this_panel > 350) return (FALSE);
@@ -3156,8 +3301,8 @@ bool borg_wear_rings(void)
         /* Hack -- ignore "worthless" items */
         if (!item->value) continue;
 
-        /*  skip artifact rings not star id'd  */
-        if (!item->fully_identified && item->name1) continue;
+        /* skip artifact rings not star id'd  */
+        if (item->name1 == ART_RANDART && !item->fully_identified && item->name1) continue;
 
         /* Where does it go */
         slot = borg_wield_slot(item);
@@ -3166,10 +3311,17 @@ bool borg_wear_rings(void)
         if (slot != INVEN_LEFT) continue;
 
         /* Occassionally evaluate swapping into the tight finger */
-        if (rand_int(100) > 75)
+        if (rand_int(100) > 75 || item->name1 == ART_POWER)
         {
             slot = INVEN_RIGHT;
         }
+
+        /* Need to be careful not to put the One Ring onto
+         * the Left Hand
+         */
+        if (item->name1 == ART_POWER &&
+           (auto_items[INVEN_RIGHT].iqty))
+            continue;
 
         /* Save the old item (empty) */
         COPY(&safe_items[slot], &auto_items[slot], auto_item);
@@ -3250,6 +3402,8 @@ bool borg_backup_swap(int p)
 {
     int slot;
     int swap;
+    int damage1 = 0;
+    int damage2 = 0;
 
     s32b b_p = 0L;
     s32b b_p1 = 0L;
@@ -3264,17 +3418,21 @@ bool borg_backup_swap(int p)
     /* hack prevent the swap till you drop loop */
     if (do_hungry || do_weak) return (FALSE);
 
-    /* Forbid if been sitting on level forever */
+    /*apw Forbid if been sitting on level forever */
     /*    Just come back and work through the loop later */
-    if (time_this_panel > 500) return (FALSE);
+    if (time_this_panel > 300) return (FALSE);
 
 
     /* make sure we have an appropriate swap */
     if (armour_swap < 1 && weapon_swap < 1) return (FALSE);
 
     /* Check the items, first armour then weapon */
-    /* get the item */
     i = armour_swap;
+
+    /* make sure it is not a -1 */
+    if (i == -1) i = 0;
+
+    /* get the item */
     item = &auto_items[i];
 
     /* Where does it go */
@@ -3314,20 +3472,40 @@ bool borg_backup_swap(int p)
     if (fix) borg_notice(TRUE);
 
 
-    /*  skip random artifact not star id'd  */
-    if (!item->fully_identified && item->name1) b_p1 = 9999;
+    /* apw skip random artifact not star id'd  */
+    if (item->name1 == ART_RANDART && !item->fully_identified && item->name1) b_p1 = 9999;
 
     /* skip it if it has not been decursed */
-    if ((item->flags3 & TR3_LIGHT_CURSE) ||
+    if ((item->cursed) ||
         (item->flags3 & TR3_HEAVY_CURSE)) b_p1 = 9999;
 
+   /* Mages with GOI should not be swapping for better protection */
+    if (borg_goi)
+    {
+        b_p1 = 9999;
+    }
+
+
     /* Now we check the weapon */
+    /* First, obtain some damage info */
+    if (borg_goi)
+    {
+        /* we will borrow the attack routines */
+        auto_simulate = TRUE;
+        damage1 = borg_attack_aux_thrust();
+        auto_simulate = FALSE;
+    }
+
     /* get the item */
     i = weapon_swap;
+
+    /* make sure it is not a -1 */
+    if (i == -1) i = 0;
+
     item = &auto_items[i];
 
     /* Where does it go */
-    slot = INVEN_WIELD;
+    slot = borg_wield_slot(item);
 
     /* Save the old item (empty) */
     COPY(&safe_items[slot], &auto_items[slot], auto_item);
@@ -3353,6 +3531,16 @@ bool borg_backup_swap(int p)
     /* Evaluate the power with the new item worn */
     b_p2 = borg_danger(c_y,c_x,1);
 
+    /* Obtain some damage info with swap weapon */
+    if (borg_goi)
+    {
+
+        /* we will borrow the attack routines */
+        auto_simulate = TRUE;
+        damage2 = borg_attack_aux_thrust();
+        auto_simulate = FALSE;
+    }
+
     /* Restore the old item (empty) */
     COPY(&auto_items[slot], &safe_items[slot], auto_item);
 
@@ -3362,11 +3550,19 @@ bool borg_backup_swap(int p)
     /* Restore bonuses */
     if (fix) borg_notice(TRUE);
 
-    /*  skip random artifact not star id'd  */
-    if (!item->fully_identified && item->name1) b_p2 = 9999;
+    /* apw skip random artifact not star id'd  */
+    if (item->name1 == ART_RANDART && !item->fully_identified && item->name1) b_p2 = 9999;
+
     /* skip it if it has not been decursed */
-    if ((item->flags3 & TR3_LIGHT_CURSE) ||
+    if ((item->cursed) ||
         (item->flags3 & TR3_HEAVY_CURSE)) b_p2 = 9999;
+
+   /* Mages with GOI should not be swapping for better protection */
+    if (borg_goi)
+    {
+        b_p2 = 9999;
+    }
+
 
     /* Pass on the swap which yields the best result */
     if (b_p1 <= b_p2)
@@ -3380,6 +3576,23 @@ bool borg_backup_swap(int p)
         swap = weapon_swap;
     }
 
+    /* Consider the weapon swap for GOI to maximize damage */
+    if (borg_goi && damage2 > damage1)
+    {
+        swap = weapon_swap;
+
+        /* log it */
+        borg_note(format("# Swapping backup for more damage.  (%d > %d).", damage2, damage1));
+
+        /* Wear it */
+        borg_keypress('w');
+        borg_keypress(I2A(swap));
+
+        /* Did something */
+        return (TRUE);
+    }
+
+
     /* good swap.  Make sure it helps a significant amount */
     if (p > b_p &&
         b_p <= (avoidance/2))
@@ -3392,7 +3605,6 @@ bool borg_backup_swap(int p)
         borg_keypress(I2A(swap));
 
         /* Did something */
-        time_this_panel ++;
         return (TRUE);
     }
 
@@ -3413,8 +3625,6 @@ bool borg_backup_swap(int p)
 bool borg_remove_stuff(void)
 {
     int hole = INVEN_PACK - 1;
-
-    int slot;
 
     s32b p, b_p = 0L;
 
@@ -3439,7 +3649,7 @@ bool borg_remove_stuff(void)
     b_p = borg_power();
 
     /* Scan equip */
-    for (i = INVEN_WIELD; i < INVEN_FEET; i++)
+    for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
     {
         item = &auto_items[i];
 
@@ -3455,27 +3665,26 @@ bool borg_remove_stuff(void)
             !streq(item->note, "{average}") &&
             !streq(item->note, "{good}") &&
             !streq(item->note, "{excellent}") &&
+            !streq(item->note, "{indestructible}") &&
             !streq(item->note, "{special}")) continue;
 
         /* skip it if it has not been decursed */
-        if ((item->flags3 & TR3_LIGHT_CURSE) ||
-            (item->flags3 & TR3_HEAVY_CURSE)) continue;
+        if ((item->cursed) ||
+            (item->flags3 & TR3_HEAVY_CURSE) ||
+            (inventory[i].ident & IDENT_CURSED)) continue;
 
-        slot = INVEN_PACK;
-        /* Save the old item */
-        COPY(&safe_items[i], &auto_items[i], auto_item);
-
-        /* Save the new item */
-        COPY(&safe_items[slot], &auto_items[slot], auto_item);
 
         /* Save the hole */
         COPY(&safe_items[hole], &auto_items[hole], auto_item);
 
-        /* Take off old item */
+        /* Save the item */
+        COPY(&safe_items[i], &auto_items[i], auto_item);
+
+        /* Take off the item */
         COPY(&auto_items[hole], &safe_items[i], auto_item);
 
-        /* Wear new item */
-        COPY(&auto_items[i], &safe_items[slot], auto_item);
+        /* Erase the item */
+        WIPE(&auto_items[i], auto_item);
 
         /* Fix later */
         fix = TRUE;
@@ -3485,28 +3694,27 @@ bool borg_remove_stuff(void)
 
         /* Evaluate the inventory */
         p = borg_power();
-
-
 #if 0
-        /* dump list and power...  for debugging */
-        borg_note(format("Equip Item %d %s.",  i, safe_items[i].desc));
-        borg_note(format("With Item     (borg_power %ld)", b_p));
-        borg_note(format("Removed Item  (best power %ld)", p));
+            /* dump list and power...  for debugging */
+            borg_note(format("Equip Item %d %s.",  i, safe_items[i].desc));
+            borg_note(format("With Item     (borg_power %ld)", b_p));
+            borg_note(format("Removed Item  (best power %ld)", p));
 #endif
-        /* Restore the old item */
+        /* Restore the item */
         COPY(&auto_items[i], &safe_items[i], auto_item);
-
-        /* Restore the new item */
-        COPY(&auto_items[slot], &safe_items[slot], auto_item);
 
         /* Restore the hole */
         COPY(&auto_items[hole], &safe_items[hole], auto_item);
 
+
         /* Track the crappy items */
-        if (p > b_p)
+        /* crappy includes things that do not add to power */
+
+        if (p >= b_p)
         {
             b_i = i;
         }
+
     }
 
     /* Restore bonuses */
@@ -3535,7 +3743,6 @@ bool borg_remove_stuff(void)
 }
 
 
-
 /*
  * Wear useful equipment.
  *
@@ -3554,6 +3761,9 @@ bool borg_remove_stuff(void)
  * The "borg_swap_rings()" code above occasionally allows us to remove
  * both rings, at which point this function will replace the "best" ring
  * on the "tight" finger, and the second "best" ring on the "loose" finger.
+ *
+ * Two-handed weapons pose a problem for calculating benefit.
+ * Special considerations are made.
  */
 bool borg_wear_stuff(void)
 {
@@ -3608,9 +3818,11 @@ bool borg_wear_stuff(void)
         if (!item->fully_identified && item->name1 &&
             (item->tval != TV_LITE)) continue;
 
-        /* skip it if it has not been decursed */
-        if ((item->flags3 & TR3_LIGHT_CURSE) ||
-            (item->flags3 & TR3_HEAVY_CURSE)) continue;
+        /* skip it if it has not been decursed, unless the One Ring */
+        if (((item->cursed) ||
+            (item->flags3 & TR3_HEAVY_CURSE) ||
+            (inventory[i].ident & IDENT_CURSED)) &&
+            (item->name1 != ART_POWER)) continue;
 
         /* Where does it go */
         slot = borg_wield_slot(item);
@@ -3622,6 +3834,15 @@ bool borg_wear_stuff(void)
             /* Cannot wear this item */
             if (slot < 0) continue;
 
+            /* Need to be careful not to put the One Ring onto
+             * the Left Hand
+             */
+            if (auto_race <= RACE_MIN_DRAGON &&
+                (item->name1 == ART_POWER &&
+                (auto_items[INVEN_RIGHT].iqty)))
+                continue;
+
+
             /* Save the old item */
             COPY(&safe_items[slot], &auto_items[slot], auto_item);
 
@@ -3631,11 +3852,32 @@ bool borg_wear_stuff(void)
             /* Save the hole */
             COPY(&safe_items[hole], &auto_items[hole], auto_item);
 
+            /* if item is a shield and weapon is 2handed,
+             * then remove the weapon to evalualte the shield
+             */
+#if 0
+            if (item->tval == TV_SHIELD &&
+                (auto_items[INVEN_WIELD].flags3 & TR3_2HANDS)
+            {
+                /* Take off 2Handed weapon */
+                COPY(&auto_items[hole2], &safe_items[INVEN_WIELD], NULL);
+            }
+            /* if item is a weapon and 2handed,
+             * then remove the shield to eval the weapon
+             */
+            if ((item->flags3 & TR3_2HANDS) &&
+                (auto_items[INVEN_WIELD].flags3 & TR3_2HANDS)
+            {
+                /* Take off shield */
+                COPY(&auto_items[hole2], &safe_items[INVEN_ARM], NULL);
+            }
+#endif
             /* Take off old item */
             COPY(&auto_items[hole], &safe_items[slot], auto_item);
 
             /* Wear new item */
             COPY(&auto_items[slot], &safe_items[i], auto_item);
+
 
             /* Only a single item */
             auto_items[slot].iqty = 1;
@@ -3678,6 +3920,8 @@ bool borg_wear_stuff(void)
                 for (ii = INVEN_D_RING1; ii < INVEN_TOTAL; ii++)
                 {
                     slot = ii;
+
+                    /* How do I handle the One Ring? */
 
                     /* Save the old item */
                     COPY(&safe_items[slot], &auto_items[slot], auto_item);
@@ -3734,7 +3978,7 @@ bool borg_wear_stuff(void)
     /* Restore bonuses */
     if (fix) borg_notice(TRUE);
 
-    /* No item */
+    /* item */
     if ((b_i >= 0) && (b_p > my_power))
     {
         /* Get the item */
@@ -3750,9 +3994,23 @@ bool borg_wear_stuff(void)
             borg_keypress('t');
             borg_keypress(I2A(b_ii-INVEN_WIELD));
 
+        }
+#if 0
+        /* Remove the shield to make room for 2handed weapon */
+        if ((item->flags3 & TR3_2HANDS) &&
+            auto_items[INVEN_ARM].tval == TV_SHIELD)
+        {
+            /* Log */
+            borg_note(format("# Removing %s to make room for %s.", &auto_items[INVEN_ARM].desc, item->desc));
+
+            /* Wear it */
+            borg_keypress('t');
+            borg_keypress(I2A(INVEN_ARM - INVEN_WIELD));
+
             /* Did something, we will have to wear it on our next round */
             return (TRUE);
         }
+#endif
         /* Log */
         borg_note(format("# Wearing %s.", item->desc));
 
@@ -3795,6 +4053,7 @@ static byte borg_best_stuff_order[] =
     255
 };
 
+
 /*
  * Helper function (see below)
  */
@@ -3823,6 +4082,16 @@ static void borg_best_stuff_aux(int n, byte *test, byte *best, s32b *vp)
         if (p > *vp)
         {
 
+#if 0
+            /* dump list and power...  for debugging */
+            borg_note(format("Trying Combo (best power %ld)", *vp));
+            borg_note(format("             (borg_power %ld)", p));
+            for (i = 0; i < INVEN_PACK; i++)
+                borg_note(format("inv %d %s.",  i, auto_items[i].desc));
+            for (i=0; borg_best_stuff_order[i] != 255; i++)
+                borg_note(format("stuff %s.",
+                    auto_items[borg_best_stuff_order[i]].desc));
+#endif
             /* Save the results */
             for (i = 0; i < n; i++) best[i] = test[i];
 
@@ -3862,14 +4131,24 @@ static void borg_best_stuff_aux(int n, byte *test, byte *best, s32b *vp)
             !streq(item->note, "{average}") &&
             !streq(item->note, "{good}") &&
             !streq(item->note, "{excellent}") &&
+            !streq(item->note, "{indestructible}") &&
             !streq(item->note, "{special}")) continue;
 
         /* Hack -- ignore "worthless" items */
         if (!item->value) continue;
 
+        /* Skip it if it has not been decursed */
+        if ((item->cursed) ||
+            (item->flags3 & TR3_HEAVY_CURSE) ||
+            (inventory[i].ident & IDENT_CURSED)) continue;
 
         /* Make sure it goes in this slot */
         if (slot != borg_wield_slot(item)) continue;
+
+        /* Make sure that slot does not have a cursed item */
+        if ((auto_items[slot].cursed) ||
+            (auto_items[slot].flags3 & TR3_HEAVY_CURSE) ||
+            (inventory[slot].ident & IDENT_CURSED)) continue;
 
         /* Wear the new item */
         COPY(&auto_items[slot], item, auto_item);
@@ -3907,12 +4186,11 @@ bool borg_best_stuff(void)
     byte test[12];
     byte best[12];
 
-
     /* Dragons wont do this */
     if (auto_race >= RACE_MIN_DRAGON) return (FALSE);
 
-    /* Anti-loop */
-    if (time_this_panel >= 500) return (FALSE);
+    /* Hack -- Anti-loop */
+    if (time_this_panel >= 300) return (FALSE);
 
     /* Hack -- Initialize */
     for (k = 0; k < 12; k++)
@@ -3962,11 +4240,34 @@ bool borg_best_stuff(void)
             auto_item *item = &auto_items[i];
             borg_note(format("# Best Combo %s.", item->desc));
 
+#if 0
+            /* 2handed weapons and shields */
+            if ((item->flags3 & TR3_2HANDS) &&
+                auto_items[INVEN_ARM].tval == TV_SHIELD)
+            {
+                /* Log */
+                borg_note(format("# Removing %s to make room for %s.", &auto_items[INVEN_ARM].desc, item->desc));
+
+                /* remove it */
+                borg_keypress('t');
+                borg_keypress(I2A(INVEN_ARM - INVEN_WIELD));
+            }
+            /* Shield and 2handed weapons */
+            if ((item->tval == TV_SHIELD) &&
+                auto_items[INVEN_WIELD].flags3 & TR3_2HANDS)
+            {
+                /* Log */
+                borg_note(format("# Removing %s to make room for %s.", &auto_items[INVEN_ARM].desc, &auto_items[INVEN_WIELD]));
+
+                /* remove it */
+                borg_keypress('t');
+                borg_keypress(I2A(INVEN_WIELD - INVEN_WIELD));
+            }
+#endif
             borg_keypress('w');
             borg_keypress(I2A(i));
             time_this_panel ++;
             return (TRUE);
-
         }
         else
         {
@@ -3979,17 +4280,22 @@ bool borg_best_stuff(void)
 
             item = &auto_shops[7].ware[i];
 
-			/* Dont do it if you just sold this item */
-		    if (sold_item_tval == item->tval && sold_item_sval == item->sval &&
-		        sold_item_pval == item->pval && sold_item_store == 7) return (FALSE);
-
+            /* Dont do it if you just sold this item */
+            if (sold_item_tval == item->tval && sold_item_sval == item->sval &&
+                sold_item_pval == item->pval && sold_item_store == 7) return (FALSE);
 
             /* Get the item */
             borg_note(format("# Getting (Best Fit) %s.", item->desc));
 
             /* Take the stuff from home and put in inv. and try again. */
-
+#if 0 /* 285 has m-x on page two */
             /* Minor Hack -- Go to the correct page */
+            if ((i / 12) != auto_shops[7].page)
+            {
+                borg_keypress(' ');
+            }
+#endif
+
             borg_keypress('p');
             borg_keypress(I2A(i));
 
@@ -3999,6 +4305,8 @@ bool borg_best_stuff(void)
             borg_keypress('\r');
             borg_keypress('\r');
 
+
+            /* tick the clock */
             time_this_panel ++;
 
             return (TRUE);
@@ -4033,8 +4341,9 @@ bool borg_play_magic(bool bored)
     /* Hack -- blind/confused */
     if (do_blind || do_confused) return (FALSE);
 
-    /* Dark, not perfect, he could be standing in a lit spot with no torch in hand */
-    if (!my_cur_lite) return (FALSE);
+    /* Dark */
+    if (!borg_skill[BI_CUR_LITE]) return (FALSE);
+/*    if (auto_grids[c_y][c_x].info == BORG_DARK) return (FALSE); */
 
     /* Check each book (backwards) */
     for (book = 9 - 1; book >= 0; book--)
@@ -4126,11 +4435,11 @@ bool borg_play_magic(bool bored)
             /* Only try "untried" spells/prayers */
             if (as->status != BORG_MAGIC_TEST) continue;
 
-			/* Make sure I have enough Mana */
-			if (auto_csp < as->power) continue;
-
             /* Ignore "bizarre" spells/prayers */
             if (as->method == BORG_MAGIC_OBJ) continue;
+
+            /* Make sure I have enough mana */
+            if (auto_csp < as->power) continue;
 
             /* Note */
             borg_note("# Testing untried spell/prayer");
@@ -4220,6 +4529,110 @@ static int borg_count_sell(void)
 }
 
 
+/*
+ * Scan the item list and recharge items before leaving the
+ * level.  Right now rod are not recharged from this.
+ */
+bool borg_wear_recharge(void)
+{
+    int i, b_i = -1;
+
+
+    /* No resting in danger */
+    if (!borg_check_rest()) return (FALSE);
+
+    /* Not if hungry */
+    if (do_weak) return (FALSE);
+
+    /* Look for an (wearable- non rod) item to recharge */
+    for (i = 0; i < INVEN_TOTAL; i++)
+    {
+        auto_item *item = &auto_items[i];
+        object_type *o_ptr;  /* cheat */
+        o_ptr = &inventory[i]; /* cheat */
+
+        /* Skip empty items */
+        if (!item->iqty) continue;
+
+        /* skip items that are charged */
+        if (!item->timeout) continue;
+
+        /* Cheat-- the borg is misreading his equip.
+         * So this is pulling the info right from the game.
+         */
+        if (!o_ptr->timeout) continue;
+
+        /* note this one */
+        b_i = i;
+    }
+
+    if (b_i>= INVEN_WIELD)
+    {
+        /* Item is worn, no swap is nec. */
+        borg_note(format("# Waiting for '%s' to Recharge.", auto_items[b_i].desc));
+
+        /* Rest for a while */
+        borg_keypress('R');
+        borg_keypress('7');
+        borg_keypress('5');
+        borg_keypress('\n');
+
+        /* done */
+        return (TRUE);
+    }
+    /* Item must be worn to be recharged
+     * But, none if some equip is cursed
+     */
+    else if (b_i >= 0 && b_i <= INVEN_PACK && !borg_wearing_cursed)
+    {
+
+        /* wear the item */
+        borg_note("# Swapping Item for Recharge.");
+        borg_keypress(ESCAPE);
+
+#if 0
+        /* 2handed weapons and shileds */
+        if ((auto_items[b_i].flags3 & TR3_2HANDS) &&
+            auto_items[INVEN_ARM].tval == TV_SHIELD)
+        {
+            /* Log */
+            borg_note(format("# Removing %s to make room for %s.", &auto_items[INVEN_ARM].desc, &auto_items[b_i].desc));
+
+            /* Wear it */
+            borg_keypress('t');
+            borg_keypress(I2A(INVEN_ARM - INVEN_WIELD));
+        }
+        /* Shileds and 2handed weapons*/
+        if ((auto_items[b_i].tval == TV_SHIELD) &&
+            auto_items[INVEN_WIELD].flags3 & TR3_2HANDS)
+        {
+            /* Log */
+            borg_note(format("# Removing %s to make room for %s.", &auto_items[INVEN_WIELD].desc, &auto_items[b_i].desc));
+
+            /* Wear it */
+            borg_keypress('t');
+            borg_keypress(I2A(INVEN_ARM - INVEN_WIELD));
+        }
+#endif
+        borg_keypress('w');
+        borg_keypress(I2A(b_i));
+        borg_keypress(' ');
+        borg_keypress(' ');
+
+        /* rest for a while */
+        borg_keypress('R');
+        borg_keypress('7');
+        borg_keypress('5');
+        borg_keypress('\n');
+
+        /* done */
+        return (TRUE);
+
+    }
+
+    /* nothing to recharge */
+    return (FALSE);
+}
 
 /*
  * Leave the level if necessary (or bored)
@@ -4232,6 +4645,22 @@ bool borg_leave_level(bool bored)
     /* Hack -- waiting for "recall" */
     if (goal_recalling) return (FALSE);
 
+    /* There is a great concern about recalling back to level 100.
+     * Often the borg will fall down a trap door to level 100 when he is not
+     * prepared to be there.  Some classes can use Teleport Level to get
+     * back up to 99,  But Warriors cannot.  Realistically the borg needs
+     * be be able to scum deep in the dungeon.  But he cannot risk being
+     * on 100 and using the few *Healing* pots that he managed to collect.
+     * It is better for warriors to walk all the way down to 98 and scum.
+     * It seems like a long and nasty crawl, but it is the best way to
+     * make sure the borg survives.  Along the way he will collect the
+     * Healing, Life and *Healing* that he needs.
+     *
+     * The other classes (or at least those who can use the Teleport Level
+     * spell) will not need to do this nasty crawl.  Risky Borgs will
+     * not crawl either.
+     */
+
     /* Town */
     if (!auto_depth)
     {
@@ -4241,9 +4670,31 @@ bool borg_leave_level(bool bored)
         /* Wait until bored */
         if (!bored) return (FALSE);
 
+        /* Case for those who cannot Teleport Level */
+        if (auto_max_depth == 100 && !borg_plays_risky)
+        {
+            if (borg_skill[BI_ATELEPORTLVL] == 0)
+            {
+                /* These pple must crawl down to 100, Sorry */
+                goal_fleeing = TRUE;
+                goal_leaving = TRUE;
+                stair_more = TRUE;
+
+                /* Note */
+                borg_note("# Borg must crawl to deep dungeon- no recall to 100.");
+
+                /* Attempt to use those stairs */
+                if (borg_flow_stair_more(GOAL_BORE)) return (TRUE);
+
+                /* Oops */
+                return (FALSE);
+            }
+        }
+
+
         /* Hack -- Recall into dungeon */
-        if ((auto_max_depth >= 5) &&
-            (amt_recall >= 3) &&
+        if ((auto_max_depth >= (borg_worships_gold ? 8 : 5)) &&
+            (borg_skill[BI_RECALL] >= 3) &&
             ((cptr)NULL == borg_prepared(auto_max_depth*6/10)) &&
             borg_recall())
         {
@@ -4256,18 +4707,24 @@ bool borg_leave_level(bool bored)
         else
         {
             /* note why we didn't recall. */
-            if (auto_max_depth < 5)
+            if (auto_max_depth < (borg_worships_gold ? 8 : 5))
                 borg_note("# Not deep enough to recall");
             else
-                if (amt_recall <= 2)
+                if (borg_skill[BI_RECALL] <= 2)
                     borg_note("# Not enough recalls to recall");
                 else
+                {
                 /* recall unless way out of our league */
                     if ((cptr)NULL != borg_prepared(auto_max_depth*6/10))
+                    {
+                        borg_slow_return = TRUE;
                         borg_note(format("# Way too scary to recall down there!   %s",
                             borg_prepared(auto_max_depth)));
+                        borg_slow_return = FALSE;
+                    }
                     else
                         borg_note("# failed to recall when I wanted to");
+                }
 
         goal_fleeing = TRUE;
         goal_leaving = TRUE;
@@ -4281,6 +4738,8 @@ bool borg_leave_level(bool bored)
         /* Oops */
         return (FALSE);
     }
+
+    /** In the Dungeon **/
 
     /* do not hangout on boring levels for *too* long */
     if ((cptr)NULL == borg_prepared(auto_depth + 1)) g = 1;
@@ -4296,7 +4755,9 @@ bool borg_leave_level(bool bored)
 
 
     /* Hack -- Stay on each level for a minimal amount of time */
-    if (auto_level > 10 && g != 0 && (c_t - auto_began < value_feeling[auto_feeling]))
+    if (borg_skill[BI_CLEVEL] > 10 &&
+        g != 0 &&
+        (c_t - auto_began < value_feeling[auto_feeling]))
     {
         g = 0;
     }
@@ -4305,40 +4766,76 @@ bool borg_leave_level(bool bored)
     if (bored && ((cptr)NULL != borg_prepared(auto_depth + 1)))
     {
         g = -1;
+        borg_slow_return = TRUE;
         borg_note(format("# heading up (bored and unable to dive: %s)",
                     borg_prepared(auto_depth + 1)));
-
+        borg_slow_return = FALSE;
     }
 
-    /* Power dive if I am playing too shallow */
-    if ((cptr)NULL == borg_prepared(auto_depth + 5)) g = 1;
+    /* Power dive if I am playing too shallow*/
+    if ((cptr)NULL == borg_prepared(auto_depth + 5) ) g = 1;
 
     /* Hack -- Power-climb upwards when needed */
-    if ((cptr)NULL != borg_prepared(auto_depth))
+    if ((cptr)NULL != borg_prepared(auto_depth) && !unique_on_level)
     {
+        borg_slow_return = TRUE;
         borg_note(format("# heading up (too deep: %s)",
                             borg_prepared(auto_depth)));
+        borg_slow_return = FALSE;
         g = -1;
+
+        /* if I must restock go to town */
+        if ((cptr)NULL != borg_restock(auto_depth))
+        {
+            borg_note(format("# returning to town to restock(too deep: %s)",
+                            borg_restock(auto_depth)));
+            goal_rising = TRUE;
+        }
 
         /* if I am really out of depth go to town */
         if ((cptr)NULL != borg_prepared(auto_max_depth*5/10))
         {
+            borg_slow_return = TRUE;
             borg_note(format("# returning to town (too deep: %s)",
                             borg_prepared(auto_depth)));
             goal_rising = TRUE;
+            borg_slow_return = FALSE;
         }
     }
 
     /* Hack -- if I am playing way too shallow return to town */
-    if ((cptr)NULL == borg_prepared(auto_depth + 20))
+    if ((cptr)NULL == borg_prepared(auto_depth + 20) &&
+        (cptr)NULL == borg_prepared(auto_max_depth *6/10) &&
+        auto_max_depth > auto_depth + 10)
     {
         borg_note("# returning to town to recall back down (too shallow)");
         goal_rising = TRUE;
     }
 
+    /* Hack -- It is much safer to scum for items on 98
+     * Check to see if depth 99, if Sauron is dead and Im not read to fight
+     * the final battle
+     */
+    if (auto_depth == 99 && auto_race_death[546] == 1 &&
+        borg_ready_morgoth !=1)
+    {
+        borg_note("# Returning to level 98 to scum for items.");
+        g = -1;
+    }
+
 
     /* Power dive if Morgoth is dead */
     if (borg_king) g = 1;
+
+    /* Power dive too 100 if ready */
+    if ((cptr)NULL == borg_prepared(100)) g = 1;
+
+    /* Return to town to sell stuff -- No recall allowed.*/
+    if ((borg_worships_gold && auto_max_level <= 20) && (k >= 12))
+    {
+        borg_note("# Going to town (Sell Stuff, Worshipping Gold).");
+        g = -1;
+    }
 
     /* Return to town to sell stuff */
     if (bored && (k >= 12))
@@ -4355,22 +4852,34 @@ bool borg_leave_level(bool bored)
     }
 
     /* Return to town to restore experience */
-    if (bored && do_fix_exp)
+    if (bored && do_fix_exp && auto_max_level !=50)
     {
         borg_note("# Going to town (Fix Experience).");
         goal_rising = TRUE;
     }
 
     /* return to town if it has been a while */
-    if (!goal_rising && bored && !vault_on_level && !borg_fighting_unique &&
-        ((auto_time_town + (c_t - auto_began)) > 8000))
+    if ((!goal_rising && bored && !vault_on_level && !borg_fighting_unique &&
+         auto_time_town + c_t - auto_began > 8000) ||
+        (auto_time_town + c_t - auto_began > 12000))
     {
         borg_note("# Going to town (I miss my home).");
         goal_rising = TRUE;
     }
 
+    /* return to town if been scumming for a bit */
+    if (auto_max_depth >= auto_depth + 25 &&
+        auto_depth < 9 &&
+        auto_time_town + c_t - auto_began > 3500)
+    {
+        borg_note("# Going to town (scumming check).");
+        goal_rising = TRUE;
+    }
+
     /* don't go back to town if we just left */
-    if (auto_level < 10 && goal_rising && (auto_time_town + (c_t - auto_began)) < 800)
+    if (borg_skill[BI_CLEVEL] > 10 &&
+        goal_rising &&
+        (auto_time_town + (c_t - auto_began)) < 800)
     {
         goal_rising = FALSE;
     }
@@ -4379,8 +4888,13 @@ bool borg_leave_level(bool bored)
     if (goal_rising) g = -1;
 
     /* Mega-Hack -- spend time on the first level to rotate shops */
-    if (auto_level < 10 && (auto_depth == 1) && (c_t - auto_began < 100) &&
-       (g < 0)) g = 0;
+    if (borg_skill[BI_CLEVEL] > 10 &&
+        (auto_depth == 1) &&
+        (c_t - auto_began < 100) &&
+       (g < 0))
+    {
+        g = 0;
+    }
 
     /* Use random stairs when really bored */
     if (bored && (c_t - auto_began >= 5000))

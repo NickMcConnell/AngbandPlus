@@ -1,0 +1,163 @@
+# Installing keypress hook
+# Creating an object '& Large wooden chest~' at (60,88)
+# Creating an object '& Small wooden chest~' at (60,83)
+# Creating an object 'Aggravate Monster' at (47,100)
+# Flowing toward item at cost 3
+& Key <1>
+& Key <4>
+# Searching a '& Large wooden chest~' at (60,88)
+& Key <0>
+& Key <5>
+& Key <s>
+& Msg <You have discovered a trap on the chest!>
+# Disarming a '& Large wooden chest~' at (60,88)
+& Key <D>
+& Key <1>
+& Msg <You failed to disarm the chest.>
+# Normal failure.
+# Disarming a '& Large wooden chest~' at (60,88)
+& Key <D>
+& Key <1>
+& Msg <You failed to disarm the chest.>
+# Normal failure.
+# Disarming a '& Large wooden chest~' at (60,88)
+& Key <D>
+& Key <1>
+& Msg <You failed to disarm the chest.>
+# Normal failure.
+# Disarming a '& Large wooden chest~' at (60,88)
+& Key <D>
+& Key <1>
+& Msg <You failed to disarm the chest.>
+# Normal failure.
+# Disarming a '& Large wooden chest~' at (60,88)
+& Key <D>
+& Key <1>
+& Msg <You failed to disarm the chest.>
+# Normal failure.
+# Disarming a '& Large wooden chest~' at (60,88)
+& Key <D>
+& Key <1>
+& Msg <You have disarmed the chest.>
+# Opening a '& Large wooden chest~' at (60,88)
+& Key <o>
+& Key <1>
+# Creating an object '& Golden Crown~' at (61,88)
+# Creating an object '[Mordenkainen's Escapes]' at (60,87)
+# Flowing toward item at cost 1
+# Walking onto a '& Large wooden chest~' at (60,88)
+& Key <1>
+& Msg <You have a Large wooden chest (empty) (v).>
+# There was an object '& Large wooden chest~' at (60,88)
+# Forgetting an object '& Large wooden chest~' at (60,88)
+# Junking junk (valued at 60)
+# Destroying a Large wooden chest (empty).
+& Key <0>
+& Key <1>
+& Key <k>
+& Key <v>
+& Key <y>
+& Msg <You destroy a Large wooden chest (empty).>
+& Msg <You have no more Large wooden chests (empty) (v).>
+# Flowing toward item at cost 1
+# Walking onto a '& Golden Crown~' at (61,88)
+& Key <2>
+& Msg <You have a Golden Crown [0] (s).>
+# There was an object '& Golden Crown~' at (61,88)
+# Forgetting an object '& Golden Crown~' at (61,88)
+# Flowing toward item at cost 1
+# Walking onto a '[Mordenkainen's Escapes]' at (60,87)
+& Key <7>
+& Msg <You have a Book of Magic Spells [Mordenkainen's Escapes] (a).>
+# There was an object '[Mordenkainen's Escapes]' at (60,87)
+# Forgetting an object '[Mordenkainen's Escapes]' at (60,87)
+# Junking junk (valued at 0)
+# Destroying a Mushroom of Poison.
+& Key <0>
+& Key <1>
+& Key <k>
+& Key <b>
+& Key <y>
+& Msg <You destroy a Mushroom of Poison.>
+& Msg <You have no more Mushrooms of Poison (b).>
+# Flowing toward item at cost 4
+& Key <7>
+& Key <4>
+& Key <4>
+# Searching a '& Small wooden chest~' at (60,83)
+& Key <0>
+& Key <5>
+& Key <s>
+# Searching a '& Small wooden chest~' at (60,83)
+& Key <0>
+& Key <5>
+& Key <s>
+# Searching a '& Small wooden chest~' at (60,83)
+& Key <0>
+& Key <5>
+& Key <s>
+# Searching a '& Small wooden chest~' at (60,83)
+& Key <0>
+& Key <5>
+& Key <s>
+& Msg <You have discovered a trap on the chest!>
+# Disarming a '& Small wooden chest~' at (60,83)
+& Key <D>
+& Key <1>
+& Msg <You failed to disarm the chest.>
+# Normal failure.
+# Disarming a '& Small wooden chest~' at (60,83)
+& Key <D>
+& Key <1>
+& Msg <You have disarmed the chest.>
+# Opening a '& Small wooden chest~' at (60,83)
+& Key <o>
+& Key <1>
+# Creating an object 'adamantite' at (59,83)
+# Creating an object 'Sustain Constitution' at (60,82)
+# Flowing toward item at cost 1
+# Walking onto a '& Small wooden chest~' at (60,83)
+& Key <1>
+& Msg <You have a Small wooden chest (empty) (w).>
+# There was an object '& Small wooden chest~' at (60,83)
+# Forgetting an object '& Small wooden chest~' at (60,83)
+# Junking junk (valued at 20)
+# Destroying a Small wooden chest (empty).
+& Key <0>
+& Key <1>
+& Key <k>
+& Key <w>
+& Key <y>
+& Msg <You destroy a Small wooden chest (empty).>
+& Msg <You have no more Small wooden chests (empty) (w).>
+# Flowing toward item at cost 1
+# Walking onto a 'Sustain Constitution' at (60,82)
+& Key <4>
+& Msg <You have a Ring of Sustain Constitution (r).>
+# There was an object 'Sustain Constitution' at (60,82)
+# Forgetting an object 'Sustain Constitution' at (60,82)
+# Junking -39888 gold (full)
+# Offering  a Hard Leather Cap [2,+1] to the RNG.
+& Key <0>
+& Key <O>
+& Key <u>
+& Key <y>
+& Msg <You offer a Hard Leather Cap [2,+1].>
+& Msg <A Mighty Voice booms:>
+& Msg <Do you value your savefile?>
+& Msg <You have no more Hard Leather Caps [2,+1] (u).>
+# Flowing toward item at cost 1
+# Walking onto a 'adamantite' at (59,83)
+& Key <9>
+& Msg <You have found 397 gold pieces worth of adamantite.>
+# There was an object 'adamantite' at (59,83)
+# Forgetting an object 'adamantite' at (59,83)
+# Flowing toward dark-4 at cost 5
+& Key <1>
+& Key <4>
+& Key <7>
+& Key <4>
+& Key <1>
+& Key <4>
+# Aborting (user abort).
+# Removing keypress hook

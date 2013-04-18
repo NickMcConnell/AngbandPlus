@@ -1973,6 +1973,50 @@ static void calc_bonuses(void)
     if (p_ptr->prace == RACE_MULTIHUEDDRAG && p_ptr->lev >= 40) p_ptr->resist_fire /= 2;
     if (p_ptr->prace == RACE_MULTIHUEDDRAG && p_ptr->lev >= 45) p_ptr->resist_pois /= 2;
 
+    /* Red Dragon */
+    if (p_ptr->prace == RACE_REDDRAG) p_ptr->ffall = TRUE;
+    if (p_ptr->prace == RACE_REDDRAG) p_ptr->resist_fire /= 2;
+    if (p_ptr->prace == RACE_REDDRAG && p_ptr->lev > 25) p_ptr->resist_fire /= 2;
+    if (p_ptr->prace == RACE_REDDRAG && p_ptr->lev > 45) p_ptr->resist_fire /= 2;
+    if (p_ptr->prace == RACE_REDDRAG && p_ptr->lev > 50) p_ptr->immune_fire = TRUE;
+    if (p_ptr->prace == RACE_REDDRAG) p_ptr->resist_fear /= 2;
+    if (p_ptr->prace == RACE_REDDRAG) p_ptr->regenerate = TRUE;
+    if (p_ptr->prace == RACE_REDDRAG) p_ptr->to_a += p_ptr->lev + 10;
+    if (p_ptr->prace == RACE_REDDRAG) p_ptr->dis_to_a += p_ptr->lev + 10;
+
+    /* White Dragon */
+    if (p_ptr->prace == RACE_WHITEDRAG) p_ptr->ffall = TRUE;
+    if (p_ptr->prace == RACE_WHITEDRAG) p_ptr->resist_cold /= 2;
+    if (p_ptr->prace == RACE_WHITEDRAG && p_ptr->lev > 25) p_ptr->resist_cold /= 2;
+    if (p_ptr->prace == RACE_WHITEDRAG && p_ptr->lev > 45) p_ptr->resist_cold /= 2;
+    if (p_ptr->prace == RACE_WHITEDRAG && p_ptr->lev > 50) p_ptr->immune_cold = TRUE;
+    if (p_ptr->prace == RACE_WHITEDRAG) p_ptr->resist_fear /= 2;
+    if (p_ptr->prace == RACE_WHITEDRAG) p_ptr->regenerate = TRUE;
+    if (p_ptr->prace == RACE_WHITEDRAG) p_ptr->to_a += p_ptr->lev + 10;
+    if (p_ptr->prace == RACE_WHITEDRAG) p_ptr->dis_to_a += p_ptr->lev + 10;
+
+    /* Blue Dragon */
+    if (p_ptr->prace == RACE_BLUEDRAG) p_ptr->ffall = TRUE;
+    if (p_ptr->prace == RACE_BLUEDRAG) p_ptr->resist_elec /= 2;
+    if (p_ptr->prace == RACE_BLUEDRAG && p_ptr->lev > 25) p_ptr->resist_elec /= 2;
+    if (p_ptr->prace == RACE_BLUEDRAG && p_ptr->lev > 45) p_ptr->resist_elec /= 2;
+    if (p_ptr->prace == RACE_BLUEDRAG && p_ptr->lev > 50) p_ptr->immune_elec = TRUE;
+    if (p_ptr->prace == RACE_BLUEDRAG) p_ptr->resist_fear /= 2;
+    if (p_ptr->prace == RACE_BLUEDRAG) p_ptr->regenerate = TRUE;
+    if (p_ptr->prace == RACE_BLUEDRAG) p_ptr->to_a += p_ptr->lev + 10;
+    if (p_ptr->prace == RACE_BLUEDRAG) p_ptr->dis_to_a += p_ptr->lev + 10;
+
+    /* Green Dragon */
+    if (p_ptr->prace == RACE_GREENDRAG) p_ptr->ffall = TRUE;
+    if (p_ptr->prace == RACE_GREENDRAG) p_ptr->resist_pois /= 2;
+    if (p_ptr->prace == RACE_GREENDRAG && p_ptr->lev > 25) p_ptr->resist_pois /= 2;
+    if (p_ptr->prace == RACE_GREENDRAG && p_ptr->lev > 45) p_ptr->resist_pois /= 2;
+    if (p_ptr->prace == RACE_GREENDRAG && p_ptr->lev > 50) p_ptr->resist_pois /= 2;
+    if (p_ptr->prace == RACE_GREENDRAG) p_ptr->resist_fear /= 2;
+    if (p_ptr->prace == RACE_GREENDRAG) p_ptr->regenerate = TRUE;
+    if (p_ptr->prace == RACE_GREENDRAG) p_ptr->to_a += p_ptr->lev + 10;
+    if (p_ptr->prace == RACE_GREENDRAG) p_ptr->dis_to_a += p_ptr->lev + 10;
+
     /* Warrior */
     if (p_ptr->pclass == CLASS_WARRIOR)
     {

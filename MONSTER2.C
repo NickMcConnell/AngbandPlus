@@ -2680,17 +2680,17 @@ static bool place_monster_one(int y, int x, int r_idx, bool slp)
     if (r_ptr->flags1 & (RF1_FORCE_MAXHP))
     {
         n_ptr->maxhp = maxroll(r_ptr->hdice, r_ptr->hside);
-		n_ptr->maxmana = (r_ptr->hdice > r_ptr->hside ?
-                          maxroll(r_ptr->hdice, 5) :
-                          maxroll(r_ptr->hside, 5));
+        n_ptr->maxmana = (r_ptr->hdice > r_ptr->hside ?
+                          maxroll(r_ptr->hdice, 6) :
+                          maxroll(r_ptr->hside, 6));
 
     }
     else
     {
         n_ptr->maxhp = damroll(r_ptr->hdice, r_ptr->hside);
-		n_ptr->maxmana = (r_ptr->hdice > r_ptr->hside ?
-                          damroll(r_ptr->hdice, 5) :
-                          damroll(r_ptr->hside, 5));
+        n_ptr->maxmana = (r_ptr->hdice > r_ptr->hside ?
+                          damroll(r_ptr->hdice, 6) :
+                          damroll(r_ptr->hside, 6));
     }
 
     /* And start out fully healthy */

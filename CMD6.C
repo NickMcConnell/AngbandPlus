@@ -690,7 +690,6 @@ void do_cmd_quaff_potion(void)
         {
             msg_print("You feel life flow through your body!");
             restore_level();
-            hp_player(5000);
             (void)set_nasty_poisoned(FALSE);
             (void)set_poisoned(0);
             (void)set_blind(0);
@@ -704,6 +703,7 @@ void do_cmd_quaff_potion(void)
             (void)do_res_stat(A_WIS);
             (void)do_res_stat(A_INT);
             (void)do_res_stat(A_CHR);
+            hp_player(5000);
             ident = TRUE;
             break;
         }

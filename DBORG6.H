@@ -13,9 +13,9 @@
  * This file provides support for "borg6.c".
  */
 
-#include "borg1.h"
-#include "borg2.h"
-#include "borg3.h"
+#include "dborg1.h"
+#include "dborg2.h"
+#include "dborg3.h"
 
 /*
  * Possible values of "goal"
@@ -51,9 +51,9 @@ extern bool borg_recover(void);
 
 extern bool borg_offset_ball(void);
 extern bool borg_defend(int p);
+extern bool borg_perma_spell(void);
 
 extern bool borg_check_rest(void);
-extern bool borg_perma_spell(void);
 
 /*
  * Twitchy goals
@@ -91,8 +91,11 @@ extern bool borg_flow_shop_entry(int n);
 /*
  * Flow towards monsters/objects
  */
-extern bool borg_flow_kill(bool viewable);
-extern bool borg_flow_take(bool viewable);
+extern bool borg_flow_kill(bool viewable, int nearness);
+extern bool borg_flow_kill_aim(bool viewable);
+extern bool borg_flow_kill_corridor(bool viewable);
+extern bool borg_flow_take(bool viewable, int nearness);
+extern void borg_flow_direct_dig(int m_y, int m_x);
 
 /*
  * Flow towards "interesting" grids
@@ -106,6 +109,11 @@ extern bool borg_flow_spastic(bool bored);
 
 extern bool borg_target(int y, int x);
 extern int borg_launch_damage_one(int i, int dam, int typ);
+extern int borg_attack_aux_thrust(void);
+
+
+extern void borg_log_battle(bool);
+extern bool borg_target_unknown_wall(int g_y,int g_x);
 
 /*
  * Initialize this file

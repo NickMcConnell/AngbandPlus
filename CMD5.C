@@ -626,8 +626,8 @@ void do_cmd_cast(void)
             /* Detect Monsters I */
             case 1:
             {
-                /* With 20% miss rate */
-                (void)detect_monsters_normal(20);
+                /* With 10% miss rate */
+                (void)detect_monsters_normal(10);
                 break;
             }
 
@@ -664,9 +664,9 @@ void do_cmd_cast(void)
             /* Detect traps/doors I */
             case 6:
             {
-                (void)detect_traps(10);
-                (void)detect_doors(10);
-                (void)detect_stairs(10);
+                (void)detect_traps(3);
+                (void)detect_doors(3);
+                (void)detect_stairs(3);
                 break;
             }
 
@@ -691,8 +691,9 @@ void do_cmd_cast(void)
             /* Disarm traps/doors */
             case 9:
             {
-                if (!get_aim_dir(&dir)) return;
-                disarm_trap(dir);
+                (void)destroy_doors_touch();
+                break;
+
                 break;
             }
 
@@ -1407,9 +1408,9 @@ void do_cmd_pray(void)
             case 6:
             {
                 /* 10% fail for the moment... */
-                (void)detect_doors(10);
-                (void)detect_stairs(10);
-                (void)detect_traps(10);
+                (void)detect_doors(3);
+                (void)detect_stairs(3);
+                (void)detect_traps(3);
                 break;
             }
 

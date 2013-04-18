@@ -12,7 +12,7 @@
  * This file provides support for "borg3.c".
  */
 
-#include "borg1.h"
+#include "dborg1.h"
 
 
 
@@ -58,7 +58,7 @@ struct auto_item
 
     bool needs_I;   /* True if item needs to be 'I'd (AJG) */
 
-    s16b location;      /* Unused */
+    bool xxxx;      /* Unused */
 
     byte tval;      /* Item type */
     byte sval;      /* Item sub-type */
@@ -72,8 +72,7 @@ struct auto_item
 
     byte name1;     /* Artifact index (if any) */
     byte name2;     /* Ego-item index (if any) */
-    s32b name3;     /* for randarts */
-
+    byte name3;     /* Randart index */
     s16b timeout;   /* Timeout counter */
 
     s16b to_h;      /* Bonus to hit */
@@ -83,12 +82,13 @@ struct auto_item
     byte dd;        /* Damage dice */
     byte ds;        /* Damage sides */
 
-    byte level;     /* Level  */
+    byte level;     /* Level apw */
 
     s32b cost;      /* Cost (in stores) */
 
     s32b value;     /* Value (estimated) */
 
+    bool cursed;    /* Item is cursed */
     u32b flags1;    /* Extracted item flags (set 1) */
     u32b flags2;    /* Extracted item flags (set 2) */
     u32b flags3;    /* Extracted item flags (set 3) */
@@ -159,11 +159,11 @@ struct auto_magic
 
     byte power;     /* Required power */
 
-byte sfail;     /* Minimum chance of failure */
+    byte sfail;     /* Minimum chance of failure */
 
     byte cheat;     /* Actual "spell index" (or 99) */
 
-    s16b times;     /* number of times spell was attempted */
+    s32b times;     /* Times this spell was cast */
 };
 
 
@@ -217,7 +217,7 @@ extern bool borg_object_star_id_aux(auto_item *borg_item, object_type *real_item
  * Inscribe an object
  */
 extern void borg_send_inscribe(int i, cptr str);
-
+extern void borg_send_deinscribe(int i);
 
 /*
  * Count the items of a given tval/sval
@@ -239,6 +239,7 @@ extern bool borg_refuel_lantern(void);
  * Item usage functions (by sval)
  */
 extern bool borg_eat_food(int sval);
+extern bool borg_quaff_crit( bool no_check );
 extern bool borg_quaff_potion(int sval);
 extern bool borg_eat_unknown(void);
 extern bool borg_use_unknown(void);
@@ -251,14 +252,15 @@ extern bool borg_aim_wand(int sval);
 extern bool borg_use_staff(int sval);
 extern bool borg_use_staff_fail(int sval);
 extern bool borg_equips_staff_fail(int sval);
+extern bool borg_inscribe_food(void);
 
 /*
  * Artifact usage function (by index)
  */
-extern bool borg_activate_artifact(int name1, int location); /*  */
-extern bool borg_equips_artifact(int name1, int location);  /*  */
-extern bool borg_activate_dragon(int drag_sval); /*  */
-extern bool borg_equips_dragon(int drag_sval);  /*  */
+extern bool borg_activate_artifact(int name1, int location); /* apw */
+extern bool borg_equips_artifact(int name1, int location);  /* apw */
+extern bool borg_activate_dragon(int drag_sval); /* apw */
+extern bool borg_equips_dragon(int drag_sval);  /* apw */
 
 
 /*
@@ -301,6 +303,8 @@ extern void borg_parse_spell(int book);
  * Hack -- prepare stuff based on the race/class
  */
 extern void prepare_race_class_info(void);
+
+extern void borg_clear_3(void);
 
 /*
  * Initialize this file

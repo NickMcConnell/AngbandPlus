@@ -1,7 +1,43 @@
 DrAngband Changes:
 ------------------
 
-DrAngband 2.9.8 (2001)
+
+
+DrAngband 2.9.9 (July 2001)
+---------------------------
+
+- Borgs need to be able to use 2handed weapons <-- still needs work.
+
+* Tweaked the monster mana to slightly increase the amount of mana.
+
+* Fixed the damage calculator for the pseudo and blue dragon major breath.
+  Previously the fire_sphere() had damage decreasing away from the center of
+  the blast.  The -LM- note indicates that the spell should deliver the same
+  damage throughout the radius.
+
+* Added new Dragon Races: Red, White, Blue, Green.  R, W, & G dragons have
+  the expected beam/bolt and arc breaths.  Blue dragon has a beam and a
+  'electric explosion' second attack.  This is similar to the psuedodragon
+  second attack.
+
+* borg has been taught to use the new dragon breaths.
+
+* Randart jewelry descriptions fixed, the borg can use them now.
+
+* Life potions and restore constitutions repaired.
+
+* Detection failrate decreased again.
+
+* Repaired spell 1,1 destroy doors/traps to work on doors (non aiming spell).
+
+* Borg re-enabled
+
+* Hounds made a bit smarter, they no longer hide in a room.
+
+* Repaired the bugs related to traps being out of sync.
+
+
+DrAngband 2.9.8 (Apr 2001)
 ---------------------------
 
 * Fixed the (extremely hard to find) bug which gave Ring of Fire Resistance
@@ -12,7 +48,7 @@ DrAngband 2.9.8 (2001)
 
 * The value of shop items will now increase relative to the player level.
 
-* Acquirement scrolls now creates a randart item.
+* Acquirement scroll now creates a randart item.
 
 * New wizard command of 'r' to create Randart, works like 'g' & 'v'.
 
@@ -45,6 +81,7 @@ DrAngband 2.9.8 (2001)
 * Fixed a bug that made stunned monsters freeze.
 
 * Invisibility made more effective.
+
 
 DrAngband 2.9.7 (Jan 2001)
 ---------------------------

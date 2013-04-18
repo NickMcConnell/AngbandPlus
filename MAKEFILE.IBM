@@ -22,8 +22,8 @@ OBJS = \
   object1.o object2.o monster1.o monster2.o \
   variable.o tables.o util.o cave.o \
   z-term.o z-rand.o z-form.o z-virt.o z-util.o \
-  borg1.o borg2.o borg3.o borg4.o borg5.o borg6.o \
-  borg7.o borg8.o borg9.o randart.o
+  dborg1.o dborg2.o dborg3.o dborg4.o dborg5.o dborg6.o \
+  dborg7.o dborg8.o dborg9.o randart.o
 
 # Compiler
 CC = gcc

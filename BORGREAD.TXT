@@ -11,9 +11,13 @@ To install this borg, you will need to do the following:
         c. the allow_borg_graphics line
 2.  Modify the makefile to include the borg1.o (or borg1.obj if windows)
     though borg9.o
-3.  Modify your angband.ini file if you want to run continuous play borgs.
-    You can cut and paste from below.
-4.  Compile
+3.  Make sure the file borg.txt is located in the \lib\user\ directory.
+4.  Modify your borg.txt file if you want to run the borg in a particular
+    fashion, including continuous play borgs.
+5.  Compile
+6.  Start the game, load up a character or make new one.
+7.  Hit control z, read and ignore the messages, hit z again.
+8.  Grab some popcorn and a soda, and watch your mind go numb.
 
 The borg may get stuck in certain situations.  He may have a Clock Overflow.
 He may loop buying and selling the same stuff over and over.  Believe me
@@ -27,10 +31,7 @@ Play Mode, turn the game option cheat_live on.  To do that enter the
 options by pressing the equal sign (=) then Cheat Options (6).
 
 If you want, you can tell the borg to select a certain race and or class for
-the next one rolled up.  There are two ways of doing this.  You can modify
-the angand.ini file (see the sample below) or you can modify the borg1.c
-file in the appropriate place.  It is near the top, you should be able to
-easily find it.
+the next one rolled up.  You can make these selections from the borg.txt file.
 
 The Continual Play Mode is NOT turned on by default, you will need to
 select it.
@@ -40,48 +41,4 @@ as well as executables at http://itctel.com/~apwhite/andrew.html
 
 Have Fun,
 Dr. Andrew White
-
-Here is a sample of what you may want to paste into your angband.ini file:
-
-[Borg]
-# If the borg is in continual play mode (as with the screen saver),
-# he will respawn a randomly generated character at death.  This section
-# allows the user to make certain bias for the type of character generated.
-# You may select the race and or class and or minimal stats for the Borg.
-# You may also select the minimal character level needed before the
-# character dump is created in the game directory.
-#
-# With regards to race, the borg is programmed to accept the variety of
-# user defined races which may be in the p_info.txt file.  So the values
-# given in table below are for the default races.  But if you are bright
-# enough to modify the p_info.txt file then you are bright enough to figure
-# out that race 0 does not necessarily equal Human.  It's just the first
-# race listed in your p_info.txt file.
-#
-# RACE:-1 Random Race          CLASS:  -1 Random Class
-#       0 Human                         0 Warrior
-#       1 Half Elf                      1 Mage
-#       2 Elf                           2 Priest
-#       3 Hobbit                        3 Rogue
-#       4 Gnome                         4 Ranger
-#       5 Dwarf                         5 Paladin
-#       6 Half Orc
-#       7 Half Troll
-#       8 Dunadan
-#       9 High Elf
-#
-# With regards to the stats.  The number listed in this .ini file will be
-# the minimal stat amount used in the auto roller.  Don't make it too high
-# for each or the game will loop for a very long time waiting for the
-# right combination.  If your selections are out of reach for the RNG, then
-# after 32,000 tries the game will just assign you a random stat.
-race = -1
-class = -1
-STR = 12
-INT = 12
-WIS = 12
-DEX = 12
-CON = 12
-CHR = 12
-Level = 45
 

@@ -14,9 +14,9 @@
  * This file provides support for "borg4.c".
  */
 
-#include "borg1.h"
-#include "borg2.h"
-#include "borg3.h"
+#include "dborg1.h"
+#include "dborg2.h"
+#include "dborg3.h"
 
 
 
@@ -25,7 +25,7 @@
  */
 extern void borg_notice(bool notice_swap);
 
-/* 
+/*
  * Extract the bonuses for items in the home.
  *
  * in_item is passed in if you want to pretent that in_item is

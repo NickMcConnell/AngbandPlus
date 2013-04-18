@@ -13,9 +13,9 @@
  * This file provides support for "borg7.c".
  */
 
-#include "borg1.h"
-#include "borg2.h"
-#include "borg3.h"
+#include "dborg1.h"
+#include "dborg2.h"
+#include "dborg3.h"
 
 
 /*
@@ -36,18 +36,14 @@ extern bool borg_crush_junk(void);
 extern bool borg_crush_hole(void);
 extern bool borg_crush_slow(void);
 extern bool borg_test_stuff(bool star_id);
-extern bool borg_remove_stuff(void);
+extern bool borg_takeoff_stuff(void);
 extern bool borg_swap_rings(void);
 extern bool borg_wear_rings(void);
-extern bool borg_swap_rings_drag1(void);
-extern bool borg_wear_rings_drag1(void);
-extern bool borg_swap_rings_drag2(void);
-extern bool borg_wear_rings_drag2(void);
-extern bool borg_swap_rings_drag3(void);
-extern bool borg_wear_rings_drag3(void);
 extern bool borg_wear_stuff(void);
 extern bool borg_best_stuff(void);
 extern bool borg_play_magic(bool bored);
+extern bool borg_remove_stuff(void);
+extern bool borg_wear_recharge(void);
 
 /*
  * Attempt to leave the level

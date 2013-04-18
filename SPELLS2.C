@@ -3525,7 +3525,7 @@ bool fire_sphere(int typ, int dir, int dam, int rad, byte diameter_of_source)
     }
 
     /* Analyze the "dir" and the "target".  Hurt items on floor. */
-    return (project(-1, rad, ty, tx, dam, typ, flg, 0, 0));
+    return (project(-1, rad, ty, tx, dam, typ, flg, 0, diameter_of_source));
 }
 
 

@@ -12,10 +12,10 @@
  * This file provides support for "borg5.c".
  */
 
-#include "borg1.h"
-#include "borg2.h"
-#include "borg3.h"
-
+#include "dborg1.h"
+#include "dborg2.h"
+#include "dborg3.h"
+#include "dborg6.h"
 
 
 /*
@@ -23,11 +23,12 @@
  */
 extern void borg_update(void);
 
-extern void borg_delete_kill(int i);
+
 /*
  * React to various "important" messages
  */
 extern void borg_react(cptr msg, cptr buf);
+extern void borg_delete_kill(int i);
 
 
 /*

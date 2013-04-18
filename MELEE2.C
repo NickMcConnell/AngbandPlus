@@ -3225,6 +3225,8 @@ static void get_moves(int m_idx, int mm[5])
     x = m_ptr->fx - x2;
 
 
+#if 0 /* Smart packs hiding in rooms turned off, makes them too weak */
+
     /* Normal animal packs try to get the player out of corridors. */
     if ((r_ptr->flags1 & RF1_FRIENDS) && (r_ptr->flags3 & RF3_ANIMAL) &&
         !((r_ptr->flags2 & (RF2_PASS_WALL)) || (r_ptr->flags2 & (RF2_KILL_WALL))))
@@ -3249,7 +3251,7 @@ static void get_moves(int m_idx, int mm[5])
             if (find_hiding(m_idx, &y, &x)) done = TRUE;
         }
     }
-
+#endif
 
     /* Apply fear */
     if (!done && mon_will_run(m_idx))
@@ -4055,11 +4057,6 @@ static void process_monster(int m_idx)
 
                     /* Hack -- fall into doorway */
                     do_move = TRUE;
-                }
-                else
-                {
-                    /* Failure message */
-                    msg_print("You hear a thud!");
                 }
             }
 

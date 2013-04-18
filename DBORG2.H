@@ -12,7 +12,7 @@
  * This file provides support for "borg2.c".
  */
 
-#include "borg1.h"
+#include "dborg1.h"
 
 
 /*

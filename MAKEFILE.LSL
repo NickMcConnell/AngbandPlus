@@ -10,7 +10,7 @@ SRCS = \
   melee1.c melee2.c save.c files.c \
   cmd1.c cmd2.c cmd3.c cmd4.c cmd5.c cmd6.c \
   store.c birth.c racial.c load1.c load2.c \
-  wizard1.c wizard2.c \
+  wizard1.c wizard2.c randart.c \
   generate.c dungeon.c init1.c init2.c \
   main-ami.c main.c
 
@@ -22,7 +22,7 @@ OBJS = \
   melee1.o melee2.o save.o files.o \
   cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o \
   store.o birth.o racial.o load1.o load2.o \
-  wizard1.o wizard2.o \
+  wizard1.o wizard2.o randart.o \
   generate.o dungeon.o init1.o init2.o \
   main-lsl.o main.o
 

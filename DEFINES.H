@@ -41,14 +41,14 @@
 /*
  * Current version string
  */
-#define VERSION_STRING  "2.9.8"
+#define VERSION_STRING  "2.9.9"
 
 /*
  * Current version numbers
  */
 #define VERSION_MAJOR   2
 #define VERSION_MINOR   9
-#define VERSION_PATCH   8
+#define VERSION_PATCH   9
 
 
 
@@ -132,16 +132,6 @@
  * Maximum number of player "sex" types (see "table.c", etc)
  */
 #define MAX_SEXES            2
-
-/*
- * Maximum number of player "race" types (see "table.c", etc)
- */
-#define MAX_RACES           18
-
-/*
- * Maximum number of player "class" types (see "table.c", etc)
- */
-#define MAX_CLASS            6
 
 
 /*
@@ -501,16 +491,31 @@
 #define RACE_GOLDDRAG       15
 #define RACE_PSEUDODRAG     16
 #define RACE_MULTIHUEDDRAG  17
+#define RACE_REDDRAG        18
+#define RACE_WHITEDRAG      19
+#define RACE_BLUEDRAG       20
+#define RACE_GREENDRAG      21
+
+/*
+ * Maximum number of player "race" types (see "table.c", etc)
+ */
+#define MAX_RACES           22
+
 
 /*
  * Player class constants (hard-coded by save-files, arrays, etc)
  */
 #define CLASS_WARRIOR   0
-#define CLASS_MAGE  1
+#define CLASS_MAGE      1
 #define CLASS_PRIEST    2
-#define CLASS_ROGUE 3
+#define CLASS_ROGUE     3
 #define CLASS_RANGER    4
 #define CLASS_PALADIN   5
+
+/*
+ * Maximum number of player "class" types (see "table.c", etc)
+ */
+#define MAX_CLASS            6
 
 
 /*** Screen Locations ***/
@@ -1314,7 +1319,6 @@
 #define SV_AMULET_DWARVES       12
 /* xxx */
 #define SV_AMULET_RESISTANCE        13
-#define SV_AMULET_RANDART        14
 
 /* The sval codes for TV_RING */
 #define SV_RING_WOE             0
@@ -1358,7 +1362,6 @@
 #define SV_RING_SUSTAINING      38
 #define SV_RING_RESISTANCE      39
 #define SV_RING_RESIST_CONFU    40
-#define SV_RING_POWER_RANDART   41
 
 
 /* The "sval" codes for TV_STAFF */

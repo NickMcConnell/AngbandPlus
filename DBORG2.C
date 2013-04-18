@@ -6,8 +6,8 @@
 
 #ifdef ALLOW_BORG
 
-#include "borg1.h"
-#include "borg2.h"
+#include "dborg1.h"
+#include "dborg2.h"
 
 
 /*
@@ -619,6 +619,8 @@ bool borg_build_room(int y, int x)
     ar = borg_free_room();
 
     /* Initialize the new room */
+/*     ar->x = ar->x1 = x1; ar->x2 = x2; */
+/*     ar->y = ar->y1 = y1; ar->y2 = y2; */
     ar->x1 = x1; ar->x2 = x2;
     ar->y1 = y1; ar->y2 = y2;
 
@@ -659,6 +661,8 @@ bool borg_build_room(int y, int x)
 
         /* That room is now "gone" */
         ar->when = 0L;
+/*         ar->x1 = ar->x2 = ar->x = 0; */
+/*         ar->y1 = ar->y2 = ar->y = 0; */
         ar->x1 = ar->x2 = 0;
         ar->y1 = ar->y2 = 0;
 
@@ -802,6 +806,15 @@ void borg_wipe_rooms(void)
  */
 bool borg_los(int y1, int x1, int y2, int x2)
 {
+
+/* this routine is seriously flawed.  For the time being replace this with
+ * the function borg_projectable().  It is slightly better.
+ */
+
+ if (borg_projectable(y1,x1,y2,x2)) return (TRUE);
+ return (FALSE);
+
+#if 0
     /* Delta */
     int dx, dy;
 
@@ -1020,6 +1033,8 @@ bool borg_los(int y1, int x1, int y2, int x2)
 
     /* Assume los */
     return (TRUE);
+
+#endif  /* bypass this function */
 }
 
 /*
@@ -1052,7 +1067,7 @@ bool borg_projectable(int y1, int x1, int y2, int x2)
         else
         {
             /* Assume all unknow grids more than distance 3 from you */
-            /* are walls. This will make me brave. */
+            /* are walls. */
             if ((dist > 2) && (ag->feat == FEAT_NONE)) break;
         }
         /* Never pass through walls/doors */
@@ -1224,7 +1239,7 @@ void borg_update_lite(void)
     auto_lite_n = 0;
 
     /* Hack -- Player has no lite */
-    if (my_cur_lite <= 0) return;
+    if (borg_skill[BI_CUR_LITE] <= 0) return;
 
 
     /*** Collect the new "lite" grids ***/
@@ -1233,7 +1248,7 @@ void borg_update_lite(void)
     borg_cave_lite_hack(c_y, c_x);
 
     /* Radius 1 -- torch radius */
-    if (my_cur_lite >= 1)
+    if (borg_skill[BI_CUR_LITE] >= 1)
     {
         /* Adjacent grid */
         borg_cave_lite_hack(c_y+1, c_x);
@@ -1249,7 +1264,7 @@ void borg_update_lite(void)
     }
 
     /* Radius 2 -- lantern radius */
-    if (my_cur_lite >= 2)
+    if (borg_skill[BI_CUR_LITE] >= 2)
     {
         /* South of the player */
         if (borg_cave_floor_bold(c_y+1, c_x))
@@ -1285,12 +1300,12 @@ void borg_update_lite(void)
     }
 
     /* Radius 3+ -- artifact radius */
-    if (my_cur_lite >= 3)
+    if (borg_skill[BI_CUR_LITE] >= 3)
     {
         int d, p;
 
         /* Maximal radius */
-        p = my_cur_lite;
+        p = borg_skill[BI_CUR_LITE];
 
         /* Paranoia -- see "LITE_MAX" */
         if (p > 5) p = 5;
