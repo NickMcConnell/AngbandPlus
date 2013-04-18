@@ -800,6 +800,136 @@ static void do_cmd_options_win(void)
 }
 
 
+/*
+ * Ask for a "user pref file" and process it.
+ *
+ * This function should only be used by standard interaction commands,
+ * in which a standard "Command:" prompt is present on the given row.
+ *
+ * Allow absolute file names?  XXX XXX XXX
+ */
+static void do_cmd_pref_file_hack(int row)
+{
+	char ftmp[80];
+
+	/* Prompt */
+	prt("Command: Load a user pref file", row, 0);
+
+	/* Prompt */
+	prt("File: ", row + 2, 0);
+
+	/* Default filename */
+	sprintf(ftmp, "%s.prf", op_ptr->base_name);
+
+	/* Ask for a file (or cancel) */
+	if (!askfor_aux(ftmp, 80)) return;
+
+	/* Process the given filename */
+	if (process_pref_file(ftmp))
+	{
+		/* Mention failure */
+		msg_format("Failed to load '%s'!", ftmp);
+	}
+	else
+	{
+		/* Mention success */
+		msg_format("Loaded '%s'.", ftmp);
+	}
+}
+
+/*
+ * Write all current options to the given preference file in the
+ * lib/user directory. Modified from KAmband 1.8.
+ */
+static errr option_dump(cptr fname)
+{
+	int i, j;
+
+	FILE *fff;
+
+	char buf[1024];
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_USER, fname);
+
+	/* File type is "TEXT" */
+	FILE_TYPE(FILE_TYPE_TEXT);
+
+	/* Append to the file */
+	fff = my_fopen(buf, "w");
+
+	/* Failure */
+	if (!fff) return (-1);
+
+
+	/* Skip some lines */
+	fprintf(fff, "\n\n");
+
+	/* Start dumping */
+	fprintf(fff, "# Automatic option dump\n\n");
+
+	/* Dump options (skip cheat, adult, score) */
+	for (i = 0; i < OPT_MAX; i++)
+	{
+		/* Require a real option */
+		if (!option_text[i]) continue;
+
+		/* Comment */
+		fprintf(fff, "# Option '%s'\n", option_desc[i]);
+
+		/* Dump the option */
+		if (op_ptr->opt[i])
+		{
+			fprintf(fff, "Y:%s\n", option_text[i]);
+		}
+		else
+		{
+			fprintf(fff, "X:%s\n", option_text[i]);
+		}
+
+		/* Skip a line */
+		fprintf(fff, "\n");
+	}
+
+	/* Dump window flags */
+	for (i = 1; i < 8; i++)
+	{
+		/* Require a real window */
+		if (!angband_term[i]) continue;
+
+		/* Check each flag */
+		for (j = 0; j < 32; j++)
+		{
+			/* Require a real flag */
+			if (!window_flag_desc[j]) continue;
+
+			/* Comment */
+			fprintf(fff, "# Window '%s', Flag '%s'\n",
+			        angband_term_name[i], window_flag_desc[j]);
+
+			/* Dump the flag */
+			if (op_ptr->window_flag[i] & (1L << j))
+			{
+				fprintf(fff, "W:%d:%d:1\n", i, j);
+			}
+			else
+			{
+				fprintf(fff, "W:%d:%d:0\n", i, j);
+			}
+
+			/* Skip a line */
+			fprintf(fff, "\n");
+		}
+	}
+
+	/* Close */
+	my_fclose(fff);
+
+	/* Success */
+	return (0);
+}
+
+
 
 
 /*
@@ -838,12 +968,16 @@ void do_cmd_options(void)
 		/* Window flags */
 		prt("(W) Window flags", 11, 5);
 
+		/* Load and Append */
+		prt("(L) Load a user pref file", 13, 5);
+		prt("(A) Append options to a file", 14, 5);
+
 		/* Special choices */
-		prt("(D) Base Delay Factor", 13, 5);
-		prt("(H) Hitpoint Warning", 14, 5);
+		prt("(D) Base Delay Factor", 16, 5);
+		prt("(H) Hitpoint Warning", 17, 5);
 
 		/* Prompt */
-		prt("Command: ", 18, 0);
+		prt("Command: ", 19, 0);
 
 		/* Get command */
 		k = inkey();
@@ -903,12 +1037,61 @@ void do_cmd_options(void)
 				break;
 			}
 
+			/* Load a user pref file */
+			case 'L':
+			case 'l':
+			{
+				/* Ask for and load a user pref file */
+				do_cmd_pref_file_hack(19);
+				break;
+			}
+
+			/* Append options to a file */
+			case 'A':
+			case 'a':
+			{
+				char ftmp[80];
+
+				/* Prompt */
+				prt("Command: Append options to a file", 19, 0);
+
+				/* Prompt */
+				prt("File: ", 21, 0);
+
+				/* Default filename */
+				sprintf(ftmp, "%s.prf", op_ptr->base_name);
+
+				/* Ask for a file */
+				if (!askfor_aux(ftmp, 80)) continue;
+
+				/* Drop priv's */
+				safe_setuid_drop();
+
+				/* Dump the options */
+				if (option_dump(ftmp))
+				{
+					/* Failure */
+					msg_print("Failed!");
+				}
+				else
+				{
+					/* Success */
+					msg_print("Done.");
+				}
+
+				/* Grab priv's */
+				safe_setuid_grab();
+				
+				break;
+			}
+
+
 			/* Hack -- Delay Speed */
 			case 'D':
 			case 'd':
 			{
 				/* Prompt */
-				prt("Command: Base Delay Factor", 18, 0);
+				prt("Command: Base Delay Factor", 19, 0);
 
 				/* Get a new value */
 				while (1)
@@ -931,7 +1114,7 @@ void do_cmd_options(void)
 			case 'h':
 			{
 				/* Prompt */
-				prt("Command: Hitpoint Warning", 18, 0);
+				prt("Command: Hitpoint Warning", 19, 0);
 
 				/* Get a new value */
 				while (1)
@@ -1151,7 +1334,6 @@ static errr keymap_dump(cptr fname)
 
 	FILE *fff;
 
-	char key[1024];
 	char buf[1024];
 
 	int mode;
@@ -1192,6 +1374,8 @@ static errr keymap_dump(cptr fname)
 	/* Dump them */
 	for (i = 0; i < 256; i++)
 	{
+		char key[2] = "?";
+
 		cptr act;
 
 		/* Loop up the keymap */
@@ -1200,16 +1384,24 @@ static errr keymap_dump(cptr fname)
 		/* Skip empty keymaps */
 		if (!act) continue;
 
-		/* Encode the key */
-		buf[0] = i;
-		buf[1] = '\0';
-		ascii_to_text(key, buf);
-
 		/* Encode the action */
 		ascii_to_text(buf, act);
 
-		/* Dump the macro */
-		fprintf(fff, "M:%d  %2s  %s\n", mode, key, buf);
+		/* Dump the keymap action */
+		fprintf(fff, "A:%s\n", buf);
+
+		/* Convert the key into a string */
+		key[0] = i;
+
+		/* Encode the key */
+		ascii_to_text(buf, key);
+
+		/* Dump the keymap pattern */
+		fprintf(fff, "C:%d:%s\n", mode, buf);
+
+		/* Skip a line */
+		fprintf(fff, "\n");
+
 	}
 
 	/* Start dumping */
@@ -2352,7 +2544,7 @@ static cptr do_cmd_feeling_text[11] =
 	"You feel your luck is turning...",
 	"You like the look of this place...",
 	"This level can't be all bad...",
-	"What a boring place..."
+	"This seems a very quiet place."
 };
 
 
@@ -2599,7 +2791,7 @@ static void do_cmd_knowledge_artifacts(void)
 
 	char file_name[1024];
 
-	char o_name[80];
+	char o_name[180];
 
 	bool okay[MAX_A_IDX];
 
@@ -2785,7 +2977,7 @@ static void do_cmd_knowledge_objects(void)
 
 	FILE *fff;
 
-	char o_name[80];
+	char o_name[180];
 
 	char file_name[1024];
 

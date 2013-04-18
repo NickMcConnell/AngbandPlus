@@ -314,7 +314,7 @@ static void chest_death(int y, int x, s16b o_idx)
 		else
 		{
 			/* Make an object */
-			if (!make_object(i_ptr, FALSE, FALSE)) continue;
+			if (!make_object(i_ptr, TRUE, FALSE)) continue;
 		}
 
 		/* Drop it in the dungeon */
@@ -2314,7 +2314,7 @@ void do_cmd_fire(void)
 	byte missile_attr;
 	char missile_char;
 
-	char o_name[80];
+	char o_name[180];
 
 	int path_n = 0;
 	u16b path_g[256];
@@ -2619,7 +2619,7 @@ void do_cmd_throw(void)
 	byte missile_attr;
 	char missile_char;
 
-	char o_name[80];
+	char o_name[180];
 
 	int path_n = 0;
 	u16b path_g[256];

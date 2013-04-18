@@ -23,7 +23,7 @@
 
 # Version stamp (required)
 
-V:2.9.0
+V:2.9.1
 
 #N: object index: name
 #G: ASCII char used to display the object: color symbol
@@ -177,7 +177,7 @@ A:0/1:5/1:10/1
 
 N:22:& Hard Biscuit~
 G:,:U
-I:80:32:500
+I:80:32:1000
 W:0:0:2:1
 
 N:23:& Strip~ of Beef Jerky
@@ -207,23 +207,7 @@ G:,:r
 I:80:39:1000
 W:0:0:10:2
 
-### New Rings ###
-
-N:28:Sustaining
-G:=:d
-I:45:38:0
-W:50:0:2:2500
-P:0:0d0:0:0:0
-A:50/2
-F:SUST_STR | SUST_DEX | SUST_CON | SUST_CHR | SUST_INT | SUST_WIS | EASY_KNOW
-
-N:29:Resistance
-G:=:d
-I:45:39:0
-W:40:0:2:5000
-P:0:0d0:0:0:0
-A:40/2
-F:RES_COLD | RES_FIRE | RES_ELEC | RES_ACID | EASY_KNOW
+### Unused 28,29 #####
 
 ##### Edged Weapons #####
 
@@ -969,6 +953,7 @@ I:35:6:0
 W:60:0:5:4000
 A:60/4
 P:6:0d0:0:0:4
+F:RES_LITE | RES_DARK | EASY_KNOW
 
 
 ### The Gloves ###
@@ -1059,8 +1044,8 @@ F:INT | HIDE_TYPE
 N:136:Speed
 G:=:d
 I:45:31:0
-W:80:0:2:100000
-A:80/1
+W:50:0:2:100000
+A:50/6
 F:SPEED | HIDE_TYPE
 
 N:137:Searching
@@ -1132,7 +1117,7 @@ I:45:18:0
 W:50:0:2:3000
 A:50/1
 P:0:0d0:0:0:15
-F:RES_FIRE | IGNORE_FIRE | ACTIVATE
+F:RES_FIRE | IGNORE_FIRE | ACTIVATE | EASY_KNOW
 
 N:147:Lightning
 G:=:d
@@ -1140,7 +1125,7 @@ I:45:17:0
 W:50:0:2:3000
 A:50/1
 P:0:0d0:0:0:15
-F:RES_ELEC | IGNORE_ELEC | ACTIVATE
+F:RES_ELEC | IGNORE_ELEC | ACTIVATE | EASY_KNOW
 
 N:148:Ice
 G:=:d
@@ -1148,7 +1133,7 @@ I:45:19:0
 W:50:0:2:3000
 A:50/1
 P:0:0d0:0:0:15
-F:RES_COLD | IGNORE_COLD | ACTIVATE
+F:RES_COLD | IGNORE_COLD | ACTIVATE | EASY_KNOW
 
 N:149:Woe
 G:=:d
@@ -1300,14 +1285,14 @@ N:170:Invisibility
 G:":d
 I:40:9:0
 W:20:0:3:50000
-A:20/10
+A:20/8
 F:INVIS | EASY_KNOW
 
 N:171:the Magi
 G:":d
 I:40:8:0
 W:50:0:3:30000
-A:50/4
+A:50/5
 P:0:0d0:0:0:3
 F:FREE_ACT | SEE_INVIS | INT |
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
@@ -2220,11 +2205,11 @@ W:10:0:50:700
 A:10/1
 P:0:1d2:0:0:0
 
-N:312:Cure Light Wounds
+N:312:Cure Critical Wounds
 G:_:d
 I:55:16:0
-W:5:0:50:350
-A:5/1
+W:10:0:50:650
+A:10/2
 P:0:1d2:0:0:0
 
 N:313:Detect Invisible
@@ -3005,7 +2990,7 @@ N:418:Augmentation
 G:!:d
 I:75:55:0
 W:40:0:4:60000
-A:40/16
+A:30/10
 P:0:1d1:0:0:0
 
 N:419:*Healing*
@@ -3041,7 +3026,33 @@ P:0:1d1:0:0:0
 ## XXX 424 XXX ##
 
 
-##### Items 425 to 439 unused #####
+##### Items 428 to 439 unused #####
+
+### New Rings ###
+
+N:425:Sustaining
+G:=:d
+I:45:38:0
+W:50:0:2:2500
+P:0:0d0:0:0:0
+A:50/2
+F:SUST_STR | SUST_DEX | SUST_CON | SUST_CHR | SUST_INT | SUST_WIS | EASY_KNOW
+
+N:426:Resistance
+G:=:d
+I:45:39:0
+W:40:0:2:20000
+P:0:0d0:0:0:0
+A:40/2
+F:RES_COLD | RES_FIRE | RES_ELEC | RES_ACID | EASY_KNOW
+
+N:427:Confusion Resistance
+G:=:d
+I:45:40:0
+W:40:0:2:13000
+P:0:0d0:0:0:0
+A:40/5
+F:RES_CONFU | EASY_KNOW
 
 ##### Items 440 to 444 reserved (old "fake" objects) #####
 

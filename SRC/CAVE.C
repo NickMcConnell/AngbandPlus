@@ -1131,6 +1131,9 @@ void lite_spot(int y, int x)
 			case (RACE_PSEUDODRAG):
 				a = TERM_SLATE;
 				break;
+			case (RACE_MULTIHUEDDRAG):
+				a = randint(16);
+				break;
 		}
 
 		/* Pick size (d or D) */
@@ -1196,6 +1199,9 @@ void prt_map(void)
 						break;
 					case (RACE_PSEUDODRAG):
 						a = TERM_SLATE;
+						break;
+					case (RACE_MULTIHUEDDRAG):
+						a = randint(16);
 						break;
 				}
 

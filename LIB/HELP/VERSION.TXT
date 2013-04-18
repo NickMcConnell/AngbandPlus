@@ -1,6 +1,13 @@
 === Version Information ===
 
-This file was last updated for Angband 2.8.3.
+This file was last updated for DrAngband 2.9.1.
+
+DrAngband is a variant of the popular, excellent, addictive and beautifully
+cleanly coded rogulike, Angband. Visit the DrAngband homepage for more
+recent versions ("http://www.yikesstation.freeserve.co.uk"). Email me
+(Tom Morton) with bug reports (tmorton@yikesstation.freeserve.co.uk).
+DrAngband was originally written by Aaron Mandelbaum, whose last version
+was 2.1 (?).
 
 Make sure to read the newsgroup ("rec.games.roguelike.angband"), and to visit
 the Official Angband Home Page ("http://www.phial.com/angband/") for the most
@@ -9,7 +16,7 @@ up to date information about Angband.
 Angband 2.8.3 has an incredibly complex history, and is the result of a
 lot of work by a lot of people, all of whom have contributed their time
 and energy for free, being rewarded only by the pleasure of keeping alive
-one of the best freeware games available anywhere.
+one of the best freeware games available anywhere (the best - TM).
 
 The version control files, if they existed, would span more than ten years
 time, and more than five different primary developers.  Without such files,

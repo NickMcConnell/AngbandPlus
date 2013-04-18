@@ -1104,6 +1104,9 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->oppose_acid);
 	wr_s16b(p_ptr->oppose_elec);
 	wr_s16b(p_ptr->oppose_pois);
+	wr_s16b(p_ptr->rng_lev_bonus);
+	for (i=0; i<SKILL_MAX; i++) wr_s16b(p_ptr->wep_skills[i]);
+	for (i=0; i<38; i++) wr_byte(p_ptr->drang_reserved[i]);
 
 	wr_byte(p_ptr->confusing);
 	wr_byte(0);	/* oops */

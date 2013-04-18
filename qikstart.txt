@@ -1,6 +1,6 @@
 A guide to DrAngband for experienced Angbanders
 -----------------------------------------------
-v2.9.0
+v2.9.1
 ------
 
 Most of the stuff that applied to angband will apply to DrAngband
@@ -17,6 +17,8 @@ resistance to fire will have fire damage reduced to 12.5%. Immunities
 cut damage to zero as before.
 Immunities are shown in the resistances screen as '*' and temporary resistances
 as '#'.
+Invisibility is shown as '*' in the INVIS field, and see invisible is shown
+as '+'.
 
 Melee Slays
 -----------
@@ -26,7 +28,38 @@ rather than just the base dice rolls. They have been reduced from a maximum
 of three to max 2. This does not apply to ammo, which has slays of the
 same power as normal and applied the normal way.
 
+Dragons & Equipment
+-------------------
 
-Rod Stacking
-------------
+Dragons can only wear:
+1 Cloak
+1 Crown (no helms)
+1 Amulet
+1 Lightsource
+6 Rings
 
+They only fight with their teeth and claws and cannot use melee weapons or bows.
+
+
+Weapon Skills
+-------------
+
+Weapons skills are now divided into different weapon classes:
+
+Stabbing: Daggers, main gauches, short and small swords.
+Swords:   Other swords.
+Polearms: Axes, lances, etc.
+Hafted:   Maces.
+
+Races have different skills for each of these weapon classes. For example
+priests are great with hafted weapons but poor with edged weapons. Hobbits
+are good with daggers but poor with the other types. For a complete list
+see birth.txt.
+
+Basically, avoid using weapons that both your race and class are bad at
+(for example a gnome mage with a polearm).
+
+
+--
+Tom Morton.
+DrAngband maintainer.

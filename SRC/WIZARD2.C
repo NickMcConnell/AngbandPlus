@@ -201,6 +201,8 @@ static void do_cmd_wiz_change_aux(void)
 
 	/* Save */
 	p_ptr->max_exp = tmp_long;
+	p_ptr->exp = tmp_long;
+	p_ptr->exp_frac = 0;
 
 	/* Update */
 	check_experience();

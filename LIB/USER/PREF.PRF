@@ -210,6 +210,13 @@ C:1:^C
 A:w0
 C:1:X
 
+# Use racial powers
+A:U
+C:1:O
+
+# Offer item to the RNG
+A:O
+C:1:^O
 
 ##### System Specific Subfiles #####
 

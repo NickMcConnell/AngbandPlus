@@ -689,6 +689,12 @@ static void get_history(void)
 			break;
 		}
 
+		case RACE_MULTIHUEDDRAG:
+		{
+			chart = 40;
+			break;
+		}
+
 		default:
 		{
 			chart = 0;

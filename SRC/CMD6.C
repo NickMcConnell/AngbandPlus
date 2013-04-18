@@ -907,11 +907,18 @@ static bool curse_armor(void)
 {
 	object_type *o_ptr;
 
-	char o_name[80];
+	char o_name[180];
 
 
 	/* Curse the body armor */
-	o_ptr = &inventory[INVEN_BODY];
+	if (p_ptr->prace < RACE_MIN_DRAGON)
+	{
+		o_ptr = &inventory[INVEN_BODY];
+	}
+	else
+	{
+		o_ptr = &inventory[INVEN_D_OUTER];
+	}
 
 	/* Nothing to curse */
 	if (!o_ptr->k_idx) return (FALSE);
@@ -971,7 +978,7 @@ static bool curse_weapon(void)
 {
 	object_type *o_ptr;
 
-	char o_name[80];
+	char o_name[180];
 
 
 	/* Curse the weapon */
@@ -1682,9 +1689,14 @@ void do_cmd_use_staff(void)
 			break;
 		}
 
-		case SV_STAFF_CURE_LIGHT:
+		case SV_STAFF_CURE_CRIT:
 		{
-			if (hp_player(randint(8))) ident = TRUE;
+			if (hp_player(damroll(6, 8))) ident = TRUE;
+			if (set_blind(0)) ident = TRUE;
+			if (set_confused(0)) ident = TRUE;
+			if (set_poisoned(0)) ident = TRUE;
+			if (set_stun(0)) ident = TRUE;
+			if (set_cut(0)) ident = TRUE;
 			break;
 		}
 
@@ -1755,19 +1767,19 @@ void do_cmd_use_staff(void)
 
 		case SV_STAFF_DISPEL_EVIL:
 		{
-			if (dispel_evil(60)) ident = TRUE;
+			if (dispel_evil(100)) ident = TRUE;
 			break;
 		}
 
 		case SV_STAFF_POWER:
 		{
-			if (dispel_monsters(120)) ident = TRUE;
+			if (dispel_monsters(180)) ident = TRUE;
 			break;
 		}
 
 		case SV_STAFF_HOLINESS:
 		{
-			if (dispel_evil(120)) ident = TRUE;
+			if (dispel_evil(180)) ident = TRUE;
 			k = 3 * p_ptr->lev;
 			if (set_protevil(p_ptr->protevil + randint(25) + k)) ident = TRUE;
 			if (set_poisoned(0)) ident = TRUE;
@@ -2071,70 +2083,70 @@ void do_cmd_aim_wand(void)
 
 		case SV_WAND_STINKING_CLOUD:
 		{
-			fire_ball(GF_POIS, dir, 12, 2);
+			fire_ball(GF_POIS, dir, 15, 2);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_MAGIC_MISSILE:
 		{
-			fire_bolt_or_beam(20, GF_MISSILE, dir, damroll(2, 6));
+			fire_bolt_or_beam(20, GF_MISSILE, dir, damroll(3, 4));
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_ACID_BOLT:
 		{
-			fire_bolt_or_beam(20, GF_ACID, dir, damroll(5, 8));
+			fire_bolt_or_beam(20, GF_ACID, dir, damroll(8, 12));
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_ELEC_BOLT:
 		{
-			fire_bolt_or_beam(20, GF_ELEC, dir, damroll(3, 8));
+			fire_bolt_or_beam(20, GF_ELEC, dir, damroll(6, 12));
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_FIRE_BOLT:
 		{
-			fire_bolt_or_beam(20, GF_FIRE, dir, damroll(6, 8));
+			fire_bolt_or_beam(20, GF_FIRE, dir, damroll(9, 12));
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_COLD_BOLT:
 		{
-			fire_bolt_or_beam(20, GF_COLD, dir, damroll(3, 8));
+			fire_bolt_or_beam(20, GF_COLD, dir, damroll(7, 12));
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_ACID_BALL:
 		{
-			fire_ball(GF_ACID, dir, 60, 2);
+			fire_ball(GF_ACID, dir, 150, 2);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_ELEC_BALL:
 		{
-			fire_ball(GF_ELEC, dir, 32, 2);
+			fire_ball(GF_ELEC, dir, 100, 2);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_FIRE_BALL:
 		{
-			fire_ball(GF_FIRE, dir, 72, 2);
+			fire_ball(GF_FIRE, dir, 180, 2);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_COLD_BALL:
 		{
-			fire_ball(GF_COLD, dir, 48, 2);
+			fire_ball(GF_COLD, dir, 120, 2);
 			ident = TRUE;
 			break;
 		}
@@ -2147,14 +2159,14 @@ void do_cmd_aim_wand(void)
 
 		case SV_WAND_DRAGON_FIRE:
 		{
-			fire_ball(GF_FIRE, dir, 100, 3);
+			fire_ball(GF_FIRE, dir, 400, 3);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_DRAGON_COLD:
 		{
-			fire_ball(GF_COLD, dir, 80, 3);
+			fire_ball(GF_COLD, dir, 300, 3);
 			ident = TRUE;
 			break;
 		}
@@ -2165,31 +2177,31 @@ void do_cmd_aim_wand(void)
 			{
 				case 1:
 				{
-					fire_ball(GF_ACID, dir, 100, 3);
+					fire_ball(GF_ACID, dir, 400, 3);
 					break;
 				}
 
 				case 2:
 				{
-					fire_ball(GF_ELEC, dir, 80, 3);
+					fire_ball(GF_ELEC, dir, 300, 3);
 					break;
 				}
 
 				case 3:
 				{
-					fire_ball(GF_FIRE, dir, 100, 3);
+					fire_ball(GF_FIRE, dir, 400, 3);
 					break;
 				}
 
 				case 4:
 				{
-					fire_ball(GF_COLD, dir, 80, 3);
+					fire_ball(GF_COLD, dir, 300, 3);
 					break;
 				}
 
 				default:
 				{
-					fire_ball(GF_POIS, dir, 60, 3);
+					fire_ball(GF_POIS, dir, 250, 3);
 					break;
 				}
 			}
@@ -2200,7 +2212,7 @@ void do_cmd_aim_wand(void)
 
 		case SV_WAND_ANNIHILATION:
 		{
-			if (drain_life(dir, 125)) ident = TRUE;
+			if (drain_life(dir, 500)) ident = TRUE;
 			break;
 		}
 	}
@@ -2531,56 +2543,56 @@ void do_cmd_zap_rod(void)
 
 		case SV_ROD_ACID_BOLT:
 		{
-			fire_bolt_or_beam(10, GF_ACID, dir, damroll(6, 8));
+			fire_bolt_or_beam(10, GF_ACID, dir, damroll(8, 12));
 			ident = TRUE;
 			break;
 		}
 
 		case SV_ROD_ELEC_BOLT:
 		{
-			fire_bolt_or_beam(10, GF_ELEC, dir, damroll(3, 8));
+			fire_bolt_or_beam(10, GF_ELEC, dir, damroll(6, 12));
 			ident = TRUE;
 			break;
 		}
 
 		case SV_ROD_FIRE_BOLT:
 		{
-			fire_bolt_or_beam(10, GF_FIRE, dir, damroll(8, 8));
+			fire_bolt_or_beam(10, GF_FIRE, dir, damroll(9, 12));
 			ident = TRUE;
 			break;
 		}
 
 		case SV_ROD_COLD_BOLT:
 		{
-			fire_bolt_or_beam(10, GF_COLD, dir, damroll(5, 8));
+			fire_bolt_or_beam(10, GF_COLD, dir, damroll(7, 12));
 			ident = TRUE;
 			break;
 		}
 
 		case SV_ROD_ACID_BALL:
 		{
-			fire_ball(GF_ACID, dir, 60, 2);
+			fire_ball(GF_ACID, dir, 150, 2);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_ROD_ELEC_BALL:
 		{
-			fire_ball(GF_ELEC, dir, 32, 2);
+			fire_ball(GF_ELEC, dir, 100, 2);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_ROD_FIRE_BALL:
 		{
-			fire_ball(GF_FIRE, dir, 72, 2);
+			fire_ball(GF_FIRE, dir, 180, 2);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_ROD_COLD_BALL:
 		{
-			fire_ball(GF_COLD, dir, 48, 2);
+			fire_ball(GF_COLD, dir, 120, 2);
 			ident = TRUE;
 			break;
 		}
@@ -2672,7 +2684,7 @@ static void ring_of_power(int dir)
 			msg_print("You are surrounded by a powerful aura.");
 
 			/* Dispel monsters */
-			dispel_monsters(1000);
+			dispel_monsters(2000);
 
 			break;
 		}
@@ -2682,7 +2694,7 @@ static void ring_of_power(int dir)
 		case 6:
 		{
 			/* Mana Ball */
-			fire_ball(GF_MANA, dir, 300, 3);
+			fire_ball(GF_MANA, dir, 1000, 3);
 
 			break;
 		}
@@ -2693,7 +2705,7 @@ static void ring_of_power(int dir)
 		case 10:
 		{
 			/* Mana Bolt */
-			fire_bolt(GF_MANA, dir, 250);
+			fire_bolt(GF_MANA, dir, 500);
 
 			break;
 		}

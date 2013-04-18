@@ -138,7 +138,7 @@ void do_cmd_wield(void)
 
 	cptr q, s;
 
-	char o_name[80];
+	char o_name[180];
 
 
 	/* Restrict the choices */
@@ -387,7 +387,7 @@ void do_cmd_destroy(void)
 
 	object_type *o_ptr;
 
-	char o_name[80];
+	char o_name[180];
 
 	char out_val[160];
 
@@ -493,7 +493,7 @@ void do_cmd_rngoffer(void)
 	object_type *o_ptr;
 	object_type object;
 
-	char o_name[80];
+	char o_name[180];
 	char message[80];
 
 	char out_val[160];
@@ -589,12 +589,26 @@ void do_cmd_rngoffer(void)
 	else
 	{
 		get_rnd_line("rng5.txt", 0, message);
-		/* token rng tickle. hehehe */
-		value = randint(100);
 	}
 
 	/* Print message */
 	msg_print(message);
+
+	/* Avoid zero divide */
+	if (!p_ptr->max_depth)
+	{
+		p_ptr->max_depth = 1;
+	}
+
+	/* Boost next level */
+	p_ptr->rng_lev_bonus += value / (100 * p_ptr->max_depth);
+	if (p_ptr->rng_lev_bonus > 40) p_ptr->rng_lev_bonus = 40;
+
+	/* Wizard mode message */
+	if (p_ptr->wizard)
+	{
+		msg_format("Next object level bonus: %d", p_ptr->rng_lev_bonus);
+	}
 
 	/* Eliminate the item (from the pack) */
 	if (item >= 0)
@@ -623,7 +637,7 @@ void do_cmd_observe(void)
 
 	object_type *o_ptr;
 
-	char o_name[80];
+	char o_name[180];
 
 	cptr q, s;
 
@@ -726,7 +740,7 @@ void do_cmd_inscribe(void)
 
 	object_type *o_ptr;
 
-	char o_name[80];
+	char o_name[180];
 
 	char tmp[81];
 

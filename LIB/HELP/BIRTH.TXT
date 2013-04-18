@@ -209,8 +209,9 @@ have intrinsic abilities.
                unseen, and resist light effects just like regular elves.
 
           Pixie
-               <Still to do>
-               
+               Pixies are an incredibly agile but weak race. They move twice
+               as fast as any other race and can throw pixie dust to confuse
+               their opponents.
 
           Yeek
                A puny and embarassing race. As an opponent they are more of an
@@ -250,6 +251,14 @@ have intrinsic abilities.
                with a mighty flash of light. At higher levels they become
                almost invisible to the living and can never be blinded
                or harmed by light or dark.
+
+          Multi-hued Dragon
+               A body of shifting colours, the powers of heat and cold
+               constantly battling for mastery over this powerful dragon.
+               Multi-hued dragons are resistant to the elements, becoming
+               almost immune at high levels. Their breath is deadly and
+               unpredictable, and they may breathe any of the elements
+               very powerfully.
 
  
 === Classes (outdated) ===
@@ -308,7 +317,8 @@ have intrinsic abilities.
                still  can  not  rely on their performance.  Rogues can also
                learn a few spells, but not the  powerful  offensive  spells
                magi  can use.  A rogue's primary stats are Intelligence and
-               Dexterity.
+               Dexterity. Rogues fight  very  well with  daggers and  other
+               small edged weapons.
  
           Ranger
                A Ranger is a warrior/mage.  He is a good fighter,  and  the
@@ -331,7 +341,9 @@ have intrinsic abilities.
                much in the way of abilities.  He is poor at  stealth,  per-
                ception,  searching,  and  magical devices.  He has a decent
                saving throw due to his divine alliance.  His primary  stats
-               are Strength and Charisma.
+               are  Strength  and  Charisma.  A  paladin  is  most  at home 
+               wielding  an axe  or lance, but  they fight well with swords,
+               too.
  
 
 === Stats ===
@@ -478,7 +490,8 @@ have intrinsic abilities.
           Copper Dr     Yes      No       No       Yes      Yes      Yes
           Bronze Dr     Yes      No       Yes      No       No       Yes
           Brass Dr      Yes      Yes      Yes      Yes      Yes      Yes
-          Pseudo Dr     Yes      Yes      Yes      Yes      Yes      Yes 
+          Pseudo Dr     Yes      Yes      Yes      Yes      Yes      Yes
+          Multi-hued Dr Yes      Yes      Yes      Yes      Yes      Yes 
 
  
 === Miscellaneous (outdated) ===
@@ -520,6 +533,7 @@ are listed in the following table.
            Bronze Dr   +3   +1   +5   +4   +2   -7      15         +50%
            Brass Dr    +4   +2   +2   +3   +4   -6      15         +50%
            Pseudo Dr   +2    0    0   +7   +3   -8      14         +50%
+           Multi-h Dr  +4   -1   +2   +4   +4   -6      15         +50%
            
                          STR     INT     WIS     DEX     CON     CHR
            Warrior       +5      -2      -2      +2      +2      -1
@@ -534,35 +548,68 @@ are listed in the following table.
 === Ability Tables (outdated) ===
 
  
-                      Disarm Search Stealth Percep Fight Bows Save Infra
+                      Disarm Search Stealth Percep Bows Save Infra
  
-           Human         0      0      0      10     0     0    0  None
-           Half-Elf      2      6      1      11    -1     5    3  20 feet
-           Elf           5      8      1      12    -5    15    6  30 feet
-           Hobbit       15     12      4      15   -10    20   18  40 feet
-           Gnome        10      6      3      13    -8    12   12  40 feet
-           Dwarf         2      7     -1      10    15     0    9  50 feet
-           Half-Orc     -3      0     -1       7    12    -5   -3  30 feet
-           Half-Troll   -5     -1     -2       5    20   -10   -8  30 feet
-           Dunadan       4      3      2      13    15    10    5  None
-           High-Elf      4      3      3      14    10    25   20  40 feet
-           Pixie         0      0      6      -5   -10    35   20  40 feet
-           Yeek         -5     -5      0       0   -10   -10  -10  20 feet
-           Crystal Dr   -8      0     -3       0    20   -20   10  80 feet
-           Copper Dr    -4      0     -3       0    20   -20   20  80 feet
-           Bronze Dr    -8      5     -3      -1    20   -20   20  80 feet
-           Brass Dr     -8      0     -5       0    20   -20   20  80 feet
-           Pseudo Dr     5      0      0       0    20   -20   30  80 feet
- 
+           Human         0      0      0      10     0    0  None
+           Half-Elf      2      6      1      11     5    3  20 feet
+           Elf           5      8      1      12    15    6  30 feet
+           Hobbit       15     12      4      15    20   18  40 feet
+           Gnome        10      6      3      13    12   12  40 feet
+           Dwarf         2      7     -1      10     0    9  50 feet
+           Half-Orc     -3      0     -1       7    -5   -3  30 feet
+           Half-Troll   -5     -1     -2       5   -10   -8  30 feet
+           Dunadan       4      3      2      13    10    5  None
+           High-Elf      4      3      3      14    25   20  40 feet
+           Pixie         0      0      6      -5    35   20  40 feet
+           Yeek         -5     -5      0       0   -10  -10  20 feet
+           Crystal Dr   -8      0     -3       0   -20   10  80 feet
+           Copper Dr    -4      0     -3       0   -20   20  80 feet
+           Bronze Dr    -8      5     -3      -1   -20   20  80 feet
+           Brass Dr     -8      0     -5       0   -20   20  80 feet
+           Pseudo Dr     5      0      0       0   -20   30  80 feet
+           Multi-hued Dr 6      0     -2       0   -20   15  80 feet
+
+
+                  Daggers      Swords      Hafted      Polearms   Teeth/Claws
+
+       Human      Avarage      Avarage     Avarage     Avarage    --
+       Half-elf   Avarage      Avarage     Poor        Bad        --
+       Elf        Good         Good        Bad         Bad        --
+       Hobbit     Good         Poor        Bad         Terrible   --
+       Gnome      Avarage      Bad         Bad         Terrible   --
+       Dwarf      Avarage      Very Good   Superb      Excellent  --
+       Half-Orc   Excellent    Very Good   Excellent   Avarage    --
+       Half-Troll Very Good    Excellent   Superb      Good       --
+       Dunadan    Excellent    Superb      Very Good   Excellent  --
+       High-Elf   Very Good    Excellent   Good        Good       --
+       Pixie      Avarage      Bad         Bad         Terrible   --
+       Yeek       Avarage      Bad         Bad         Terrible   --
+       Crystal Dr    --        --          --          --         Superb
+       Copper Dr     --        --          --          --         Superb
+       Bronze Dr     --        --          --          --         Superb
+       Brass Dr      --        --          --          --         Superb
+       Pseudo Dr     --        --          --          --         Superb
+       Multi-h Dr    --        --          --          --         Superb 
+
   
-                             Save  Stea-        Magic                 Extra
-                  Fight Bows Throw  lth  Disarm Device Percep Search Exp/lev
+                     Save  Stea-        Magic                 Extra
+                Bows Throw  lth  Disarm Device Percep Search Exp/lev
  
-          Warrior  10     6    3     2      4      3      2      2       +0%
-          Mage      2     1   10     5      6     10      8      5      +30%
-          Priest    4     3    6     5      3      8      4      4      +20%
-          Rogue     8     9    7    10     10      6     10     10      +25%
-          Ranger    6    10    8     7      6      7      6      6      +30%
-          Paladin   9     5    4     2      2      4      2      2      +35%
+       Warrior   6    3     2      4      3      2      2       +0%
+       Mage      1   10     5      6     10      8      5      +30%
+       Priest    3    6     5      3      8      4      4      +20%
+       Rogue     9    7    10     10      6     10     10      +25%
+       Ranger   10    8     7      6      7      6      6      +30%
+       Paladin   5    4     2      2      4      2      2      +35%
  
+
+                  Daggers      Swords      Hafted      Polearms   Teeth/Claws
+
+      Warrior     Good         Excellent   Very Good   Good       Very Good
+      Mage        Bad          Terrible    Terrible    Terrible   Poor
+      Priest      Terrible     Terrible    Good        Terrible   Poor
+      Rogue       Superb       Avarage     Bad         Terrible   Good
+      Ranger      Good         Good        Bad         Terrible   Avarage
+      Paladin     Poor         Good        Good        Excellent  Good
+
 

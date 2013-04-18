@@ -725,8 +725,8 @@ struct player_race
 	s16b r_stl;			/* stealth */
 	s16b r_srh;			/* search ability */
 	s16b r_fos;			/* search frequency */
-	s16b r_thn;			/* combat (normal) */
 	s16b r_thb;			/* combat (shooting) */
+	s16b r_thn[SKILL_MAX];	/* combat with certain weapons */
 
 	byte r_mhp;			/* Race hit-dice modifier */
 	byte r_exp;			/* Race experience factor */
@@ -765,8 +765,8 @@ struct player_class
 	s16b c_stl;			/* class stealth */
 	s16b c_srh;			/* class searching ability */
 	s16b c_fos;			/* class searching frequency */
-	s16b c_thn;			/* class to hit (normal) */
 	s16b c_thb;			/* class to hit (bows) */
+	s16b c_thn[SKILL_MAX];	/* class to hit with certain weapons */
 
 	s16b x_dis;			/* extra disarming */
 	s16b x_dev;			/* extra magic devices */
@@ -774,8 +774,8 @@ struct player_class
 	s16b x_stl;			/* extra stealth */
 	s16b x_srh;			/* extra searching ability */
 	s16b x_fos;			/* extra searching frequency */
-	s16b x_thn;			/* extra to hit (normal) */
 	s16b x_thb;			/* extra to hit (bows) */
+	s16b x_thn[SKILL_MAX];	/* extra to hit with certain weapons types */
 
 	s16b c_mhp;			/* Class hit-dice adjustment */
 	s16b c_exp;			/* Class experience factor */
@@ -918,6 +918,16 @@ struct player_type
 
 	bool cheat[CHEAT_MAX];	/* Cheating options */
 
+	/* New Drangband (2.9.1+) data */
+	s16b rng_lev_bonus;		/* Bonus to next level from rng offers */
+
+	s16b wep_skills[SKILL_MAX];	/* Skills for stabbing, jousting, etc. */
+						/* Note. These are before application of */
+						/* Race/class bonuses. weapon_skills should */
+						/* be used for actual calculations */
+
+	byte drang_reserved[38];	/* Reserved for future expansion */
+
 	/*** Temporary fields ***/
 
 	bool playing;			/* True if player is playing */
@@ -1003,6 +1013,8 @@ struct player_type
 
 	s16b stat_add[6];	/* Equipment stat bonuses */
 	s16b stat_ind[6];	/* Indexes into stat tables */
+
+        s16b weapon_skills[SKILL_MAX];
 
 	bool immune_acid;	/* Immunity to acid */
 	bool immune_elec;	/* Immunity to lightning */

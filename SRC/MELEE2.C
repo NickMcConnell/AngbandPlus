@@ -605,7 +605,7 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			if (blind) msg_format("%^s makes a strange noise.", m_name);
 			else msg_format("%^s fires an arrow.", m_name);
-			bolt(m_idx, GF_ARROW, damroll(1, 6));
+			bolt(m_idx, GF_ARROW, damroll(2, 5));
 			break;
 		}
 
@@ -635,7 +635,7 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			if (blind) msg_format("%^s makes a strange noise.", m_name);
 			else msg_format("%^s fires a missile!", m_name);
-			bolt(m_idx, GF_ARROW, damroll(7, 6));
+			bolt(m_idx, GF_ARROW, damroll(8, 6));
 			break;
 		}
 
@@ -3066,7 +3066,7 @@ static void process_monster(int m_idx)
 					u32b flg3 = 0L;
 
 					char m_name[80];
-					char o_name[80];
+					char o_name[180];
 
 					/* Extract some flags */
 					object_flags(o_ptr, &f1, &f2, &f3);

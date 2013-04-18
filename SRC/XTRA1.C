@@ -748,6 +748,12 @@ static void health_redraw(void)
 		/* Afraid */
 		if (m_ptr->monfear) attr = TERM_VIOLET;
 
+		/* Confused */
+		if (m_ptr->confused) attr = TERM_UMBER;
+
+		/* Stunned */
+		if (m_ptr->stunned) attr = TERM_L_BLUE;
+
 		/* Asleep */
 		if (m_ptr->csleep) attr = TERM_BLUE;
 
@@ -764,6 +770,7 @@ static void health_redraw(void)
 
 
 
+
 /*
  * Display basic info (mostly left of map)
  */
@@ -771,8 +778,15 @@ static void prt_frame_basic(void)
 {
 	int i;
 
+	char buffer[14];
+
+	/* --hack-- Get first 13 characters of race to prevent
+       * Multi-hued Dragon reaching the dungeon map -TM- */
+	buffer[13] = 0;
+	strncpy(buffer, rp_ptr->title, 13);
+
 	/* Race and Class */
-	prt_field(rp_ptr->title, ROW_RACE, COL_RACE);
+	prt_field(buffer, ROW_RACE, COL_RACE);
 	prt_field(cp_ptr->title, ROW_CLASS, COL_CLASS);
 
 	/* Title */
@@ -1689,6 +1703,8 @@ static void calc_bonuses(void)
 
 	int old_speed;
 
+	int wield_skill;
+
 	int old_telepathy;
 	int old_see_inv;
 	int old_invis;
@@ -1806,6 +1822,8 @@ static void calc_bonuses(void)
 	p_ptr->immune_fire = FALSE;
 	p_ptr->immune_cold = FALSE;
 
+	/* Skill required to wield current weapon */
+	wield_skill = weapon_skill(&inventory[INVEN_WIELD]);
 
 	/*** Extract race/class info ***/
 
@@ -1831,7 +1849,7 @@ static void calc_bonuses(void)
 	p_ptr->skill_fos = rp_ptr->r_fos + cp_ptr->c_fos;
 
 	/* Base skill -- combat (normal) */
-	p_ptr->skill_thn = rp_ptr->r_thn + cp_ptr->c_thn;
+	p_ptr->skill_thn = rp_ptr->r_thn[wield_skill] + cp_ptr->c_thn[wield_skill];
 
 	/* Base skill -- combat (shooting) */
 	p_ptr->skill_thb = rp_ptr->r_thb + cp_ptr->c_thb;
@@ -1917,7 +1935,44 @@ static void calc_bonuses(void)
 	if (p_ptr->prace == RACE_PSEUDODRAG) p_ptr->regenerate = TRUE;
 	if (p_ptr->prace == RACE_PSEUDODRAG) p_ptr->to_a += p_ptr->lev + 10;
 	if (p_ptr->prace == RACE_PSEUDODRAG) p_ptr->dis_to_a += p_ptr->lev + 10;
+	if (p_ptr->prace == RACE_PSEUDODRAG) p_ptr->see_inv = TRUE;
 	if (p_ptr->prace == RACE_PSEUDODRAG && p_ptr->lev >= 40) p_ptr->invis = TRUE;
+
+	/* Multi-hued Dragon */
+	if (p_ptr->prace == RACE_MULTIHUEDDRAG) p_ptr->ffall = TRUE;
+	if (p_ptr->prace == RACE_MULTIHUEDDRAG) p_ptr->resist_fear /= 2;
+	if (p_ptr->prace == RACE_MULTIHUEDDRAG) p_ptr->regenerate = TRUE;
+	if (p_ptr->prace == RACE_MULTIHUEDDRAG) p_ptr->to_a += p_ptr->lev + 10;
+	if (p_ptr->prace == RACE_MULTIHUEDDRAG) p_ptr->dis_to_a += p_ptr->lev + 10;
+	/* Single resistance from start */
+	if (p_ptr->prace == RACE_MULTIHUEDDRAG) p_ptr->resist_fire /= 2;
+	if (p_ptr->prace == RACE_MULTIHUEDDRAG) p_ptr->resist_cold /= 2;
+	if (p_ptr->prace == RACE_MULTIHUEDDRAG) p_ptr->resist_acid /= 2;
+	if (p_ptr->prace == RACE_MULTIHUEDDRAG) p_ptr->resist_elec /= 2;
+	/* Double resists at level 25 */
+	if (p_ptr->prace == RACE_MULTIHUEDDRAG && p_ptr->lev >= 25)
+	{
+		p_ptr->resist_fire /= 2;
+		p_ptr->resist_cold /= 2;
+		p_ptr->resist_acid /= 2;
+		p_ptr->resist_elec /= 2;
+	}
+	/* Treble at level 35 */
+	if (p_ptr->prace == RACE_MULTIHUEDDRAG && p_ptr->lev >= 35)
+	{
+		p_ptr->resist_fire /= 2;
+		p_ptr->resist_cold /= 2;
+		p_ptr->resist_acid /= 2;
+		p_ptr->resist_elec /= 2;
+	}
+	/* And quadruple at level 45 */
+	if (p_ptr->prace == RACE_MULTIHUEDDRAG && p_ptr->lev >= 45)
+	{
+		p_ptr->resist_fire /= 2;
+		p_ptr->resist_cold /= 2;
+		p_ptr->resist_acid /= 2;
+		p_ptr->resist_elec /= 2;
+	}
 
 	/* Warrior */
 	if (p_ptr->pclass == CLASS_WARRIOR)
@@ -1989,7 +2044,7 @@ static void calc_bonuses(void)
 		if (f3 & (TR3_BLESSED)) p_ptr->bless_blade = TRUE;
 
 		/* Bad flags */
-                if (f3 & (TR3_TM_CURSE)) p_ptr->tmcursed = TRUE;
+		if (f3 & (TR3_TM_CURSE)) p_ptr->tmcursed = TRUE;
 		if (f3 & (TR3_IMPACT)) p_ptr->impact = TRUE;
 		if (f3 & (TR3_AGGRAVATE)) p_ptr->aggravate = TRUE;
 		if (f3 & (TR3_TELEPORT)) p_ptr->teleport = TRUE;
@@ -2068,6 +2123,12 @@ static void calc_bonuses(void)
 		/* Apply the mental bonuses tp hit/damage, if known */
 		if (object_known_p(o_ptr)) p_ptr->dis_to_h += o_ptr->to_h;
 		if (object_known_p(o_ptr)) p_ptr->dis_to_d += o_ptr->to_d;
+
+		/* --Hack-- Prevent non-dragons from using the JECoDragonkind */
+		if (o_ptr->name1 == ART_DRAGONKIND && p_ptr->prace < RACE_MIN_DRAGON)
+		{
+			p_ptr->tmcursed = TRUE;
+		}
 	}
 
 	/* Apply temporary resists */
@@ -2237,22 +2298,26 @@ static void calc_bonuses(void)
 	p_ptr->to_d += ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
 	p_ptr->to_h += ((int)(adj_dex_th[p_ptr->stat_ind[A_DEX]]) - 128);
 	p_ptr->to_h += ((int)(adj_str_th[p_ptr->stat_ind[A_STR]]) - 128);
-	/*if (p_ptr->prace >= RACE_MIN_DRAGON)
+
+	/* Dragons get extra combat bonuses */
+	if (p_ptr->prace >= RACE_MIN_DRAGON)
 	{
-		p_ptr->to_d += ((int)(adj_drag[p_ptr->stat_ind[A_STR]]) - 128);
-		p_ptr->to_h += ((int)(adj_drag[p_ptr->stat_ind[A_DEX]]) - 128);
-	}*/
+		p_ptr->to_d += ((int)(adj_drag_str_td[p_ptr->stat_ind[A_STR]]) - 128);
+		p_ptr->to_h += ((int)(adj_dex_th[p_ptr->stat_ind[A_DEX]]) - 128);
+		p_ptr->to_h += ((int)(adj_str_th[p_ptr->stat_ind[A_STR]]) - 128);
+	}
 
 	/* Displayed Modifier Bonuses (Un-inflate stat bonuses) */
 	p_ptr->dis_to_a += ((int)(adj_dex_ta[p_ptr->stat_ind[A_DEX]]) - 128);
 	p_ptr->dis_to_d += ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
 	p_ptr->dis_to_h += ((int)(adj_dex_th[p_ptr->stat_ind[A_DEX]]) - 128);
 	p_ptr->dis_to_h += ((int)(adj_str_th[p_ptr->stat_ind[A_STR]]) - 128);
-	/*if (p_ptr->prace >= RACE_MIN_DRAGON)
+	if (p_ptr->prace >= RACE_MIN_DRAGON)
 	{
-		p_ptr->dis_to_d += ((int)(adj_drag[p_ptr->stat_ind[A_STR]]) - 128);
-		p_ptr->dis_to_h += ((int)(adj_drag[p_ptr->stat_ind[A_DEX]]) - 128);
-	}*/
+		p_ptr->dis_to_d += ((int)(adj_drag_str_td[p_ptr->stat_ind[A_STR]]) - 128);
+		p_ptr->dis_to_h += ((int)(adj_dex_th[p_ptr->stat_ind[A_DEX]]) - 128);
+		p_ptr->dis_to_h += ((int)(adj_str_th[p_ptr->stat_ind[A_STR]]) - 128);
+	}
 
 
 	/*** Modify skills ***/
@@ -2273,6 +2338,12 @@ static void calc_bonuses(void)
 	/* Affect Skill -- digging (STR) */
 	p_ptr->skill_dig += adj_str_dig[p_ptr->stat_ind[A_STR]];
 
+	/* Dragons kick rectum at this */
+	if (p_ptr->prace >= RACE_MIN_DRAGON)
+	{
+		p_ptr->skill_dig *= 2;
+	}
+
 	/* Affect Skill -- disarming (Level, by Class) */
 	p_ptr->skill_dis += (cp_ptr->x_dis * p_ptr->lev / 10);
 
@@ -2292,7 +2363,7 @@ static void calc_bonuses(void)
 	p_ptr->skill_fos += (cp_ptr->x_fos * p_ptr->lev / 10);
 
 	/* Affect Skill -- combat (normal) (Level, by Class) */
-	p_ptr->skill_thn += (cp_ptr->x_thn * p_ptr->lev / 10);
+        p_ptr->skill_thn += (cp_ptr->x_thn[wield_skill] * p_ptr->lev / 10);
 
 	/* Affect Skill -- combat (shooting) (Level, by Class) */
 	p_ptr->skill_thb += (cp_ptr->x_thb * p_ptr->lev / 10);
@@ -2521,17 +2592,9 @@ static void calc_bonuses(void)
 	p_ptr->icky_wield = FALSE;
 
 	/* Priest weapon penalty for non-blessed edged weapons */
-	if ((p_ptr->pclass == 2) && (!p_ptr->bless_blade) &&
+	if ((p_ptr->pclass == CLASS_PRIEST) && (!p_ptr->bless_blade) &&
 	    ((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_POLEARM)))
 	{
-		/* Reduce the real bonuses */
-		p_ptr->to_h -= 2;
-		p_ptr->to_d -= 2;
-
-		/* Reduce the mental bonuses */
-		p_ptr->dis_to_h -= 2;
-		p_ptr->dis_to_d -= 2;
-
 		/* Icky weapon */
 		p_ptr->icky_wield = TRUE;
 	}

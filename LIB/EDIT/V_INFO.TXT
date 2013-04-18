@@ -13,7 +13,7 @@
 
 # Version stamp (required)
 
-V:2.9.0
+V:2.9.1
 
 
 ### Simple Vaults (type 7) -- maximum size 44x22 ###
@@ -190,8 +190,8 @@ D:%X..&#X.....,.XX^^^^^^^^XX..&....XX&..X%
 D:%X.&XX..,.&....XX^^^^^^XX..,...&..XX&.X%
 D:%X&XX..*...&.^..XX^^^^XX..*....,..,XX&X%
 D:%XXXX+XXXXXXXXXXXXX++XXXXXXXXXXXXX+XXXX%
-D:%+....,.,.X&&&&***+99+***&&&&X,.,.,...+%
-D:%+...,.,.,X&&&&***+99+***&&&&X.,.,....+%
+D:%+....,.,.X&&&&***+88+***&&&&X,.,.,...+%
+D:%+...,.,.,X&&&&***+88+***&&&&X.,.,....+%
 D:%XXXX+XXXXXXXXXXXXX++XXXXXXXXXXXXX+XXXX%
 D:%X&XX..*....&...XX^^^^XX...*...&,..#X&X%
 D:%X.&XX..&.^....XX^^^^^^XX....&....XX&.X%
@@ -210,9 +210,9 @@ D:%+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX+%
 D:%.X.&.^,X&^&^X****+^*^@^X.*.&..X..*.,X.%
 D:%^X.,.&^+^&^@X^^^^X@^*^*X....*^+.^...X^%
 D:%.X*..,.XXX+XXXX+XXXX+XXX.&.^..X..&,.X.%
-D:%^X..^.*X*..^&&@@*X,,,,,XXXX+XXX,....X^%
+D:%^X..^.*X*..^&&@@*X,,8,,XXXX+XXX,....X^%
 D:%.XX+XXXXXXXXXXXXXX,*8*,X,,,,,,XXX+XXX.%
-D:%^X*&X.&,*.X,*&^*^X,,,,,X,,,,,,X....,X^%
+D:%^X*&X.&,*.X,*&^*^X,,8,,X,,,,,,X....,X^%
 D:%.X&,+....*+,*&^*^XXXXXXXXXX+XXX.,...+.%
 D:%^X.,X.*.&.X,*&^*^+.,.&.^*.&^&^X.....X^%
 D:%.X^*X.,..,X,*&^*^X*.^*.,..&&&^X,..,.X.%

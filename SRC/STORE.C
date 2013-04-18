@@ -1331,7 +1331,7 @@ static void display_entry(int item)
 	object_type *o_ptr;
 	s32b x;
 
-	char o_name[80];
+	char o_name[180];
 	char out_val[160];
 
 	int maxwid = 75;
@@ -1578,7 +1578,7 @@ static bool get_stock(int *com_val, cptr pmt)
 
 	char buf[160];
 
-	char o_name[80];
+	char o_name[180];
 
 	char out_val[160];
 
@@ -2302,7 +2302,7 @@ static void store_purchase(void)
 	object_type *i_ptr;
 	object_type object_type_body;
 
-	char o_name[80];
+	char o_name[180];
 
 	char out_val[160];
 
@@ -2622,7 +2622,7 @@ static void store_sell(void)
 
 	cptr q, s;
 
-	char o_name[80];
+	char o_name[180];
 
 
 	/* Home */
@@ -3343,7 +3343,7 @@ void do_cmd_store(void)
 				object_type *i_ptr;
 				object_type object_type_body;
 
-				char o_name[80];
+				char o_name[180];
 
 
 				/* Give a message */

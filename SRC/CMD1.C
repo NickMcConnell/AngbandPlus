@@ -679,7 +679,7 @@ void py_pickup(int pickup)
 
 	s16b this_o_idx, next_o_idx = 0;
 
-	char o_name[80];
+	char o_name[180];
 
 
 	/* Scan the pile of objects */
@@ -1151,7 +1151,7 @@ void py_attack(int y, int x)
 			if (p_ptr->prace < RACE_MIN_DRAGON)
 				sprintf(message, "You hit %s.", m_name);
 			else
-				sprintf(message, "You %s %s.", num%2?"claw":"bite", m_name);
+				sprintf(message, "You %s %s.", num%2?"bite":"claw", m_name);
 			msg_print(message);
 
 			/* Hack -- bare hands do one damage */

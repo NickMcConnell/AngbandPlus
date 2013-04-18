@@ -1,8 +1,96 @@
 DrAngband Changes:
 ------------------
 
-DrAngband 2.9.0 -> 2.9.0b (27/10/99)
-------------------------------------
+DrAngband 2.9.1 (29/10/99)
+--------------------------
+
+* TM_CURSE upgraded to every 50 turns and nastified in other ways...
+
+* Dragons get extra +hit and +dam bonuses.
+
+* Invulnerability now halves damage. Name changed.
+
+* No 100% safety from theft.
+
+* Yeek racial power 'flee in terror' (Haste 5+d5, terror 5+d10).
+  Pixie racial power 'throw pixie dust' (confuse monster).
+
+* Other racial powers fail rate lowered.
+
+* The One Ring Activation more powerful. Given invisibility, too.
+
+* New artifact crown for dragons. It is TM_CURSED when used by non-dragons.
+
+* Dragon's teeth and claws correctly shown in character dumps.
+
+* Staves, wands and rods more powerful.
+
+* Mages are useless with bows. Wands should be their bows.
+
+* Rings of Confusion resistance (mostly for dragons).
+
+* Invisibility shown as '*' in see_invis field.
+
+* Mage spells 'Mana Bolt' and 'Resist Electricity'.
+
+* [Some] Orcs can fire arrows. (Monster) Archery attacks marginally boosted.
+
+* Resist light & dark on shadow cloaks.
+
+* Bonus to digging for dragons.
+
+* 'Amulet s' bug fixed.
+
+* Default options saving feature.
+
+* Keymap dump bug fixed.
+
+* Chests usually drop good items.
+
+* Detect doors now detects locked and jammed doors.
+
+* Multi-hued Dragons: 4 basic resists, single, double, treble and quadruple
+  resisted at levels 0, 25, 35 and 45 respectively.
+
+* Race name now no longer overflows onto dungeon map with big names.
+
+* Dragon attack message order corrected (Bite, Claw, Bite, Claw, ...)
+
+* New main-gcu.c. (Whose?)
+
+* Weapon skills: Stabbing, fencing, hafted and polearms. Implementation
+  is transparent. Compare hobbit rogues using daggers with using maces
+  or axes for a good example of the effects of this. Also priests with
+  edged weapons or polearms.
+
+* Priest -2 to hit,dam when using edged or polearms removed because the
+  new weapon skills penalize *far* more realistically.
+
+* Ring of Speed rarity and depth changed to prevent mid-game boredom.
+
+* Fixed curse armour scrolls so they trash dragon's cloaks and not their
+  first ring.
+
+* Actual object quality boost to next level when offering stuff to the RNG!
+  This can result in objects up to 40 levels out of depth when making
+  particularly generous offerings.
+
+* Fixed a 'bug' in the fake artifact names patch caused by over-running
+  the normal 80 buffer.
+
+* Faster ranger psuedo-id.
+
+DrAngband 2.9.0c (28/10/99)
+---------------------------
+
+* 'O' is now 'Use racial power' on the rogulike keyset. Still 'U' on the normal
+  one.
+
+* ^O (Ctrl-O) is now 'Offer item to the RNG' on the roguelike. Still 'O' on the
+  normal one.
+
+DrAngband 2.9.0b (27/10/99)
+---------------------------
 
 * Fixed major bug in staff and wand stacking.
 

@@ -3067,7 +3067,7 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 				/* Scan all objects being carried */
 				for (this_o_idx = m_ptr->hold_o_idx; this_o_idx; this_o_idx = next_o_idx)
 				{
-					char o_name[80];
+					char o_name[180];
 
 					object_type *o_ptr;
 
@@ -3119,7 +3119,7 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 			/* Describe it */
 			if (o_ptr->marked)
 			{
-				char o_name[80];
+				char o_name[180];
 
 				/* Not boring */
 				boring = FALSE;

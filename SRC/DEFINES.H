@@ -41,14 +41,14 @@
 /*
  * Current version string
  */
-#define VERSION_STRING  "2.9.0"
+#define VERSION_STRING  "2.9.1"
 
 /*
  * Current version numbers
  */
 #define VERSION_MAJOR	2
 #define VERSION_MINOR	9
-#define VERSION_PATCH	0
+#define VERSION_PATCH	1
 
 /*
  * This value is not currently used
@@ -128,7 +128,7 @@
 /*
  * Maximum number of player "race" types (see "table.c", etc)
  */
-#define MAX_RACES           17
+#define MAX_RACES           18
 
 /*
  * Maximum number of player "class" types (see "table.c", etc)
@@ -398,8 +398,19 @@
 /*
  * 1/chance per turn of TM_CURSE activation.
  */
-#define TM_CURSE_CHANCE		100
+#define TM_CURSE_CHANCE		50
 
+/*
+ * Weapon skills
+ */
+
+#define SKILL_STABBING	0
+#define SKILL_FENCING	1
+#define SKILL_CLUBBING	2
+#define SKILL_JOUSTING	3
+#define SKILL_BARE	4
+
+#define SKILL_MAX		5
 
 /*
  * Indexes of the various "stats" (hard-coded by savefiles, etc).
@@ -438,6 +449,7 @@
 #define RACE_BRONZEDRAG		14
 #define RACE_GOLDDRAG		15
 #define RACE_PSEUDODRAG		16
+#define RACE_MULTIHUEDDRAG	17
 
 /*
  * Player class constants (hard-coded by save-files, arrays, etc)
@@ -766,6 +778,7 @@
 #define ART_HOLHENNETH		40
 #define ART_GORLIM			41
 #define ART_GONDOR			42
+#define ART_DRAGONKIND		43
 
 /* Cloaks */
 #define ART_COLLUIN			44
@@ -1281,6 +1294,7 @@
 #define SV_RING_POWER			37
 #define SV_RING_SUSTAINING		38
 #define SV_RING_RESISTANCE		39
+#define SV_RING_RESIST_CONFU		40
 
 
 /* The "sval" codes for TV_STAFF */
@@ -1300,7 +1314,7 @@
 #define SV_STAFF_DETECT_DOOR	13
 #define SV_STAFF_DETECT_INVIS	14
 #define SV_STAFF_DETECT_EVIL	15
-#define SV_STAFF_CURE_LIGHT		16
+#define SV_STAFF_CURE_CRIT		16
 #define SV_STAFF_CURING			17
 #define SV_STAFF_HEALING		18
 #define SV_STAFF_THE_MAGI		19

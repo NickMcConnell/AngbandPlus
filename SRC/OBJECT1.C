@@ -1005,6 +1005,8 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	char b1 = '[', b2 = ']';
 	char c1 = '{', c2 = '}';
 
+	int m,j,l = 0;
+
 	char tmp_val[160];
 
 	u32b f1, f2, f3;
@@ -1102,7 +1104,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 			/* Color the object */
 			modstr = amulet_adj[o_ptr->sval];
 			if (aware) append_name = TRUE;
-			basenm = (flavor ? "& # Amulet ~" : "& Amulet~");
+			basenm = (flavor ? "& # Amulet~" : "& Amulet~");
 
 			break;
 		}
@@ -1220,10 +1222,29 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		}
 
 		/* Hack -- Default -- Used in the "inventory" routine */
+		/* Sometimes we are looking at dragons attacks ! -TM- */
 		default:
 		{
-			strcpy(buf, "(nothing)");
-			return;
+			if ((o_ptr == &inventory[INVEN_WIELD]
+			  || o_ptr == &inventory[INVEN_BOW]) &&
+			     p_ptr->prace >= RACE_MIN_DRAGON)
+			{
+				m = (o_ptr == &inventory[INVEN_WIELD])?1:2;
+				j = p_ptr->lev+adj_drag[p_ptr->stat_ind[A_DEX]] - 128;
+				l = p_ptr->lev+adj_drag[p_ptr->stat_ind[A_STR]] - 128;
+				if (j<1) j=1;
+				if (l<1) l=1;
+
+				sprintf(buf, "Your %s (%dd%d)", 
+					m==1?"teeth":"claws",
+					j/(m==1?5:15)+1,l/(m==1?15:5)+1);
+				return;
+			}
+			else
+			{
+				strcpy(buf, "(nothing)");
+				return;
+			}
 		}
 	}
 
@@ -3045,7 +3066,7 @@ void display_inven(void)
 
 	char tmp_val[80];
 
-	char o_name[80];
+	char o_name[180];
 
 
 	/* Find the "final" slot */
@@ -3127,7 +3148,7 @@ void display_equip(void)
 
 	char tmp_val[80];
 
-	char o_name[80];
+	char o_name[180];
 
 
 	/* Display the equipment */
@@ -3209,7 +3230,7 @@ void show_inven(void)
 
 	object_type *o_ptr;
 
-	char o_name[80];
+	char o_name[180];
 
 	char tmp_val[80];
 
@@ -3320,14 +3341,14 @@ void show_inven(void)
  */
 void show_equip(void)
 {
-	int i, j, k, l, m;
+	int i, j, k, l;
 	int col, len, lim;
 
 	object_type *o_ptr;
 
 	char tmp_val[80];
 
-	char o_name[80];
+	char o_name[180];
 
 	int out_index[23];
 	byte out_color[23];
@@ -3354,24 +3375,8 @@ void show_equip(void)
 		/* Is this item acceptable? */
 		if (!item_tester_okay(o_ptr)) continue;
 
-		/* Description for a dragons attacks */
-		if (p_ptr->prace >= RACE_MIN_DRAGON && i<=INVEN_WIELD+1)
-		{
-			m=i-INVEN_WIELD+1;
-			j = p_ptr->lev+adj_drag[p_ptr->stat_ind[A_DEX]] - 128;
-			l = p_ptr->lev+adj_drag[p_ptr->stat_ind[A_STR]] - 128;
-			if (j<1) j=1;
-			if (l<1) l=1;
-
-			sprintf(o_name, "Your %s (%dd%d)", 
-				m==1?"teeth":"claws",
-				j/(m==1?5:15)+1,l/(m==1?15:5)+1);
-		}
-		/* Description for normal items */
-		else
-		{
-			object_desc(o_name, o_ptr, TRUE, 3);
-		}
+		/* Describe it */
+		object_desc(o_name, o_ptr, TRUE, 3);
 
 		/* Truncate the description */
 		o_name[lim] = 0;
@@ -3502,7 +3507,7 @@ void toggle_inven_equip(void)
  */
 static bool verify(cptr prompt, int item)
 {
-	char o_name[80];
+	char o_name[180];
 
 	char out_val[160];
 

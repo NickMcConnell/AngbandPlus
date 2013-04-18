@@ -110,7 +110,7 @@
 
 # Version stamp (required)
 
-V:2.9.0
+V:2.9.1
 
 #N: monster index: name
 #G: ASCII char used to display the monster: color symbol
@@ -1186,6 +1186,8 @@ F:MALE |
 F:FRIENDS | DROP_60 | 
 F:OPEN_DOOR | BASH_DOOR | 
 F:EVIL | ORC | HURT_LITE
+S:1_IN_12 | 
+S:ARROW_1
 D:He is one of the many weaker 'slave' orcs, often mistakenly known as a 
 D:goblin.
 
@@ -1383,6 +1385,8 @@ F:ESCORT |
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
 F:OPEN_DOOR | BASH_DOOR | 
 F:EVIL | ORC
+S:1_IN_7 | 
+S:ARROW_1
 D:A captain of a regiment of weaker orcs, Lagduf keeps his troop in order 
 D:with displays of excessive violence.
 
@@ -1476,6 +1480,8 @@ F:MALE |
 F:FRIENDS | DROP_60 | 
 F:OPEN_DOOR | BASH_DOOR | 
 F:EVIL | ORC
+S:1_IN_7 | 
+S:ARROW_2
 D:He is a hardy well-weathered survivor.
 
 N:121:Bandit
@@ -1749,6 +1755,8 @@ F:ESCORT |
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
 F:OPEN_DOOR | BASH_DOOR | 
 F:EVIL | ORC | IM_POIS
+S:1_IN_6 | 
+S:ARROW_2
 D:He is a cunning and devious orc with a chaotic nature.
 
 N:141:Giant white tick
@@ -1984,6 +1992,8 @@ F:ESCORT |
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | 
 F:OPEN_DOOR | BASH_DOOR | 
 F:EVIL | ORC | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS
+S:1_IN_6 | 
+S:ARROW_2
 D:A leader of a band of raiding orcs, he picks on hobbits.
 
 N:160:Master yeek
@@ -2227,6 +2237,8 @@ F:MALE |
 F:FRIENDS | DROP_60 | 
 F:OPEN_DOOR | BASH_DOOR | 
 F:EVIL | ORC | HURT_LITE
+S:1_IN_6 | 
+S:ARROW_2
 D:He is a large orc with powerful arms and deep black skin.
 
 N:179:Ochre jelly
@@ -2445,6 +2457,8 @@ F:MALE |
 F:FRIENDS | DROP_60 | 
 F:OPEN_DOOR | BASH_DOOR | 
 F:EVIL | ORC
+S:1_IN_6 | 
+S:ARROW_2
 D:He is a hideous deformed cross-breed with man and orc, combining man's 
 D:strength and cunning with orcish evil.
 
@@ -2862,6 +2876,8 @@ F:MALE |
 F:FORCE_MAXHP | FRIENDS | DROP_60 | 
 F:OPEN_DOOR | BASH_DOOR | 
 F:EVIL | ORC | IM_POIS
+S:1_IN_6 | 
+S:ARROW_2
 D:He is a cunning orc of power, as tall as a man, and stronger.  It fears 
 D:little.
 
@@ -7450,7 +7466,7 @@ F:EVIL | DRAGON | IM_ACID | IM_FIRE | SEE_INVIS |
 F:NO_CONF | NO_SLEEP
 S:1_IN_2 | 
 S:BLIND | CONF | SCARE | 
-S:BR_ACID | 
+S:BR_ACID | BR_FIRE | 
 S:S_DRAGON | S_HI_DRAGON
 D:'Rushing Jaws' is his name, and death is his game.  No dragon of the brood 
 D:of Glaurung can match him.
@@ -8225,8 +8241,8 @@ F:EVIL | IM_ACID | IM_ELEC | IM_FIRE | IM_POIS | IM_COLD |
 F:KILL_WALL | FORCE_MAXHP | SEE_INVIS
 S:1_IN_9 |
 S:TPORT | BLINK | TELE_AWAY
-D:A massive form, wreathed in fire and shadow, that relentlessly drives
-D:forward towards your fragile form. Its scales glisten with slime and
+D:A massive form, wreathed in fire and shadow, that relentlessly drives 
+D:forward towards your fragile form. Its scales glisten with slime and 
 D:decay. Flee in terror or be destroyed.
 
 N:551:Death sword
@@ -8250,7 +8266,7 @@ B:TOUCH:POISON:1d6
 B:TOUCH:LOSE_CON:1d6
 F:UNDEAD | EMPTY_MIND | NO_CONF | NO_SLEEP | IM_POIS | IM_COLD | NO_FEAR |
 F:HURT_LITE | COLD_BLOOD | EVIL | NEVER_MOVE | MULTIPLY | SEE_INVIS
-D:A sickening mound of decaying flesh, bones, hands and so on. It seems to 
+D:A sickening mound of decaying flesh, bones, hands and so on. It seems to  
 D:be growing.
 
 N:553:Abyss worm mass
@@ -8261,7 +8277,7 @@ B:CRAWL:EXP_10
 F:RAND_50 | RAND_25 | 
 F:WEIRD_MIND | MULTIPLY | BASH_DOOR | EVIL | SEE_INVIS |
 F:ANIMAL | HURT_LITE | NO_FEAR | KILL_WALL | COLD_BLOOD | INVISIBLE
-D:A writhing wormlike shimmer of blackness, large as your arm. It squirms
+D:A writhing wormlike shimmer of blackness, large as your arm. It squirms 
 D:through air and walls with equal facility, leaving void in its wake.
 
 N:554:Gibbering mouther
@@ -8273,7 +8289,7 @@ F:NEVER_MOVE | MULTIPLY | EVIL |
 F:IM_POIS | EMPTY_MIND | NO_FEAR |
 S:1_IN_7
 S:SCARE | CONF | BR_LITE
-D:A hundred mouths scream nonsense, assaulting your senses, from an insane
+D:A hundred mouths scream nonsense, assaulting your senses, from an insane 
 D:mound made up entirely of gaping maws.
 
 N:555:Dweller on the threshold
@@ -8315,7 +8331,7 @@ F:FORCE_SLEEP |
 F:ONLY_GOLD | DROP_60 | DROP_90 | IM_POIS |
 F:OPEN_DOOR | BASH_DOOR | MOVE_BODY | DRAGON |
 F:ANIMAL | EVIL
-D:A relative of the pseudo-dragons, sporting huge batlike wings and a
+D:A relative of the pseudo-dragons, sporting huge batlike wings and a 
 D:poisonous stinger.
 
 N:558:Darkblade
@@ -8345,8 +8361,8 @@ F:ANIMAL | NO_CONF | NO_SLEEP |
 F:IM_ELEC | IM_POIS | IM_ACID | IM_FIRE | IM_COLD
 S:1_IN_5
 S:BR_ACID | BR_POIS | BR_COLD | BR_FIRE | BR_ELEC
-D:This doglike figure is a maelstrom of conflicting elements, with flames
-D:licking at angular planes of ice, and poisonous acrid smoke drifing from
+D:This doglike figure is a maelstrom of conflicting elements, with flames 
+D:licking at angular planes of ice, and poisonous acrid smoke drifing from 
 D:a halo of Saint Elmo's fire.
 
 N:560:Great Wyrm of Power

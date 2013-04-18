@@ -1079,6 +1079,8 @@ static byte likert_color = TERM_WHITE;
  */
 static cptr likert(int x, int y)
 {
+	static char buffer[20];
+
 	/* Paranoia */
 	if (y <= 0) y = 1;
 
@@ -1145,7 +1147,8 @@ static cptr likert(int x, int y)
 		default:
 		{
 			likert_color = TERM_L_GREEN;
-			return ("Legendary");
+			sprintf(buffer, "Legendary-%d", (x / y) - 17);
+			return (buffer);
 		}
 	}
 }
@@ -1487,8 +1490,18 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3)
 	if (p_ptr->prace == RACE_PSEUDODRAG) (*f2) |= (TR2_RES_DARK);
 	if (p_ptr->prace == RACE_PSEUDODRAG) (*f2) |= (TR2_RES_BLIND);
 	if (p_ptr->prace == RACE_PSEUDODRAG) (*f2) |= (TR2_RES_FEAR);
+	if (p_ptr->prace == RACE_PSEUDODRAG) (*f3) |= (TR3_SEE_INVIS);
 	if (p_ptr->prace == RACE_PSEUDODRAG) (*f3) |= (TR3_REGEN);
-	if (p_ptr->prace == RACE_PSEUDODRAG) (*f3) |= (TR3_INVIS);
+	if (p_ptr->prace == RACE_PSEUDODRAG && p_ptr->lev >= 40) (*f3) |= (TR3_INVIS);
+
+	/* Multi-hued Dragon */
+	if (p_ptr->prace == RACE_MULTIHUEDDRAG) (*f3) |= (TR3_FEATHER);
+	if (p_ptr->prace == RACE_MULTIHUEDDRAG) (*f2) |= (TR2_RES_FEAR);
+	if (p_ptr->prace == RACE_MULTIHUEDDRAG) (*f3) |= (TR3_REGEN);
+	if (p_ptr->prace == RACE_MULTIHUEDDRAG) (*f2) |= (TR2_RES_FIRE);
+	if (p_ptr->prace == RACE_MULTIHUEDDRAG) (*f2) |= (TR2_RES_COLD);
+	if (p_ptr->prace == RACE_MULTIHUEDDRAG) (*f2) |= (TR2_RES_ELEC);
+	if (p_ptr->prace == RACE_MULTIHUEDDRAG) (*f2) |= (TR2_RES_ACID);
 }
 
 
@@ -1676,6 +1689,10 @@ static void display_player_flag_info(void)
 					c_put_str(TERM_WHITE, "*", row, col+n);
 				if ((x==0) && (y==4) && (f[set] & TR2_IM_COLD))
 					c_put_str(TERM_WHITE, "*", row, col+n);
+
+				/* Show invisibility as '*' in see_invis field */
+				if ((x==2) && (y==5) && (f[set] & TR3_INVIS))
+					c_put_str(TERM_WHITE, "*", row, col+n);
 			}
 
 			/* Player flags */
@@ -1698,6 +1715,10 @@ static void display_player_flag_info(void)
                         c_put_str(TERM_WHITE, "#", row, col+n);
                   if ((x==0) && (y==4) && (p_ptr->oppose_pois))
                         c_put_str(TERM_WHITE, "#", row, col+n);
+
+			/* Show racial invisibility as '*' in see_invis field */
+			if ((x==2) && (y==5) && (f[3] & TR3_INVIS))
+				c_put_str(TERM_WHITE, "*", row, col+n);
 
 			/* Advance */
 			row++;
@@ -2055,7 +2076,7 @@ errr file_character(cptr name, bool full)
 
 	store_type *st_ptr = &store[7];
 
-	char o_name[80];
+	char o_name[180];
 
 	char buf[1024];
 
@@ -2107,7 +2128,7 @@ errr file_character(cptr name, bool full)
 
 
 	/* Begin dump */
-	fprintf(fff, "  [Angband %d.%d.%d Character Dump]\n\n",
+	fprintf(fff, "  [DrAngband %d.%d.%d Character Dump]\n\n",
 	        VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 
 
@@ -3108,7 +3129,7 @@ static void show_info(void)
 			{
 				byte attr;
 
-				char o_name[80];
+				char o_name[180];
 				char tmp_val[80];
 
 				/* Acquire item */

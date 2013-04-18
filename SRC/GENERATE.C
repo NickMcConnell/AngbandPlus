@@ -3460,8 +3460,10 @@ void generate_cave(void)
 		/* Reset the monster generation level */
 		monster_level = p_ptr->depth;
 
-		/* Reset the object generation level */
-		object_level = p_ptr->depth;
+		/* Reset the object generation level and
+		 * apply RNG bribery -TM- */
+		object_level = p_ptr->depth + p_ptr->rng_lev_bonus;
+		p_ptr->rng_lev_bonus = 0;
 
 		/* Nothing special here yet */
 		good_item_flag = FALSE;

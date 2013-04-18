@@ -1493,7 +1493,7 @@ static s16b m_bonus(int max, int level)
  */
 static void object_mention(object_type *o_ptr)
 {
-	char o_name[80];
+	char o_name[180];
 
 	/* Describe */
 	object_desc_store(o_name, o_ptr, FALSE, 0);
@@ -1715,7 +1715,7 @@ static void charge_staff(object_type *o_ptr)
 		case SV_STAFF_DETECT_DOOR:		o_ptr->pval = randint(8)  + 6; break;
 		case SV_STAFF_DETECT_INVIS:		o_ptr->pval = randint(15) + 8; break;
 		case SV_STAFF_DETECT_EVIL:		o_ptr->pval = randint(15) + 8; break;
-		case SV_STAFF_CURE_LIGHT:		o_ptr->pval = randint(5)  + 6; break;
+		case SV_STAFF_CURE_CRIT:		o_ptr->pval = randint(5)  + 6; break;
 		case SV_STAFF_CURING:			o_ptr->pval = randint(3)  + 4; break;
 		case SV_STAFF_HEALING:			o_ptr->pval = randint(2)  + 1; break;
 		case SV_STAFF_THE_MAGI:			o_ptr->pval = randint(2)  + 2; break;
@@ -3194,7 +3194,7 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 			if (!power && (rand_int(100) < 50)) power = -1;
 			a_m_aux_3(o_ptr, lev, power);
 			
-			/* Random high resist to amulets of the magi */
+			/* Random high resist to amulets of the magi -TM- */
 			if (o_ptr->sval == SV_AMULET_THE_MAGI)
 			{
 				o_ptr->xtra1 = OBJECT_XTRA_TYPE_RESIST;
@@ -3300,6 +3300,37 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 	}
 }
 
+/*
+ * Place a random type of closed door at the given location.
+ */
+void place_closed_door(int y, int x)
+{
+	int tmp;
+
+	/* Choose an object */
+	tmp = rand_int(400);
+
+	/* Closed doors (300/400) */
+	if (tmp < 300)
+	{
+		/* Create closed door */
+		cave_set_feat(y, x, FEAT_DOOR_HEAD + 0x00);
+	}
+
+	/* Locked doors (99/400) */
+	else if (tmp < 399)
+	{
+		/* Create locked door */
+		cave_set_feat(y, x, FEAT_DOOR_HEAD + randint(7));
+	}
+
+	/* Stuck doors (1/400) */
+	else
+	{
+		/* Create jammed door */
+		cave_set_feat(y, x, FEAT_DOOR_HEAD + 0x08 + rand_int(8));
+	}
+}
 
 
 /*
@@ -3465,6 +3496,64 @@ bool make_object(object_type *j_ptr, bool good, bool great)
 	return (TRUE);
 }
 
+/*
+ * Find the weapon skill required to wield the given object. -TM-
+ */
+s16b weapon_skill(object_type *o_ptr)
+{
+	
+	/* Barehanded! */
+	if (!o_ptr->k_idx)
+	{
+		return SKILL_BARE;
+	}
+
+	else if (o_ptr->tval == TV_HAFTED)
+	{
+		return SKILL_CLUBBING;
+	}
+
+	else if (o_ptr->tval == TV_DIGGING)
+	{
+		return SKILL_CLUBBING;
+	}
+
+	else if (o_ptr->tval == TV_POLEARM)
+	{
+		return SKILL_JOUSTING;
+	}
+
+	else if (o_ptr->tval == TV_SWORD)
+	{
+		switch (o_ptr->sval)
+		{
+			case (SV_BROKEN_DAGGER): case (SV_BROKEN_SWORD):
+			case (SV_DAGGER): case (SV_MAIN_GAUCHE):
+			case (SV_SMALL_SWORD): case (SV_SHORT_SWORD):
+			{
+				return SKILL_STABBING;
+				break;
+			}
+			case (SV_RAPIER):  case (SV_SABRE): case (SV_CUTLASS):
+			case (SV_TULWAR): case (SV_BROAD_SWORD): case (SV_LONG_SWORD):
+			case (SV_SCIMITAR): case (SV_KATANA): case (SV_BASTARD_SWORD):
+			case (SV_TWO_HANDED_SWORD): case (SV_EXECUTIONERS_SWORD):
+			case (SV_BLADE_OF_CHAOS):
+			{
+				return SKILL_FENCING;
+				break;
+			}
+			default:
+			{
+				return SKILL_FENCING;
+				break;
+			}
+		};
+	}
+
+	return SKILL_BARE;
+}
+
 
 
 /*
@@ -3623,7 +3712,7 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 
 	s16b this_o_idx, next_o_idx = 0;
 
-	char o_name[80];
+	char o_name[180];
 
 	bool flag = FALSE;
 
@@ -4006,7 +4095,7 @@ void inven_item_describe(int item)
 {
 	object_type *o_ptr = &inventory[item];
 
-	char o_name[80];
+	char o_name[180];
 
 	/* Get a description */
 	object_desc(o_name, o_ptr, TRUE, 3);
@@ -4153,7 +4242,7 @@ void floor_item_describe(int item)
 {
 	object_type *o_ptr = &o_list[item];
 
-	char o_name[80];
+	char o_name[180];
 
 	/* Get a description */
 	object_desc(o_name, o_ptr, TRUE, 3);
@@ -4428,7 +4517,7 @@ s16b inven_takeoff(int item, int amt)
 
 	cptr act;
 
-	char o_name[80];
+	char o_name[180];
 
 
 	/* Get the item to take off */
@@ -4508,7 +4597,7 @@ void inven_drop(int item, int amt)
 	object_type *i_ptr;
 	object_type object_type_body;
 
-	char o_name[80];
+	char o_name[180];
 
 
 	/* Access original object */
@@ -4883,31 +4972,33 @@ void spell_info(char *p, int spell)
 			case 2: strcpy(p, " range 10"); break;
 			case 5: strcpy(p, " heal 2d8"); break;
 			case 8: sprintf(p, " dam %d", 10 + (plev / 2)); break;
-			case 10: sprintf(p, " dam %dd8", (3+((plev-5)/4))); break;
+			case 10: sprintf(p, " dam %dd8", (3+(plev/4))); break;
 			case 14: sprintf(p, " range %d", plev * 10); break;
 			case 15: strcpy(p, " dam 6d8"); break;
-			case 16: sprintf(p, " dam %dd8", (5+((plev-5)/4))); break;
-			case 24: sprintf(p, " dam %dd8", (8+((plev-5)/4))); break;
-			case 26: sprintf(p, " dam %d", 30 + plev); break;
+			case 16: sprintf(p, " dam %dd8", (5+(plev/4))); break;
+			case 24: sprintf(p, " dam %dd8", (8+(plev/4))); break;
+			case 26: sprintf(p, " dam %d", 30 + (2 * (plev))); break;
 			case 29: sprintf(p, " dur %d+d20", plev); break;
-			case 30: sprintf(p, " dam %d", 55 + plev); break;
+			case 30: sprintf(p, " dam %d", 75 + (2 * (plev))); break;
 			case 32: sprintf(p, " dam %d", 5 * plev); break;
-			case 38: sprintf(p, " dam %dd8", (8+((plev-5)/4))); break;
+			case 38: sprintf(p, " dam %dd8", (8+(plev/4))); break;
 			case 39: sprintf(p, " dam %d", 20 + plev); break;
 			case 40: sprintf(p, " dam %d", 4 * plev); break;
 			case 41: sprintf(p, " dam %d", 5 * plev); break;
 			case 42: sprintf(p, " dam %d", 7 * plev); break;
 			case 43: sprintf(p, " dam %d", 300 + plev*4); break;
-			case 49: strcpy(p, " dur 20+d20"); break;
+			case 47: sprintf(p, " dam %dd10", (plev/2)); break;
 			case 50: strcpy(p, " dur 20+d20"); break;
 			case 51: strcpy(p, " dur 20+d20"); break;
 			case 52: strcpy(p, " dur 20+d20"); break;
 			case 53: strcpy(p, " dur 20+d20"); break;
-			case 54: strcpy(p, " dur 25+d25"); break;
-			case 55: strcpy(p, " dur 30+d20"); break;
+			case 54: strcpy(p, " dur 20+d20"); break;
+			case 55: strcpy(p, " dur 20+d20"); break;
 			case 56: strcpy(p, " dur 25+d25"); break;
-			case 57: sprintf(p, " dur %d+d25", 30+plev); break;
-			case 58: strcpy(p, " dur 6+d8"); break;
+			case 57: strcpy(p, " dur 30+d20"); break;
+			case 58: strcpy(p, " dur 25+d25"); break;
+			case 59: sprintf(p, " dur %d+d25", 30+plev); break;
+			case 60: strcpy(p, " dur 6+d8"); break;
 		}
 	}
 
@@ -4944,7 +5035,7 @@ void spell_info(char *p, int spell)
 			case 38: strcpy(p, " heal 2000"); break;
 			case 41: sprintf(p, " dam d%d", 4*plev); break;
 			case 42: sprintf(p, " dam d%d", 4*plev); break;
-			case 45: strcpy(p, " dam 200"); break;
+			case 45: strcpy(p, " dam 300"); break;
 			case 52: strcpy(p, " range 10"); break;
 			case 53: sprintf(p, " range %d", 8*plev); break;
 		}
@@ -5043,7 +5134,7 @@ void display_koff(int k_idx)
 	object_type *i_ptr;
 	object_type object_type_body;
 
-	char o_name[80];
+	char o_name[180];
 
 
 	/* Erase the window */

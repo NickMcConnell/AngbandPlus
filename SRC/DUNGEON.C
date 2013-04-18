@@ -107,7 +107,7 @@ static void sense_inventory(void)
 
 	object_type *o_ptr;
 
-	char o_name[80];
+	char o_name[180];
 
 
 	/*** Check for "sensing" ***/
@@ -162,8 +162,8 @@ static void sense_inventory(void)
 
 		case CLASS_RANGER:
 		{
-			/* Very bad (light) sensing */
-			if (0 != rand_int(120000L / (plev + 5))) return;
+			/* Good (light) sensing */
+			if (0 != rand_int(20000L / (plev * plev + 40))) return;
 
 			/* Done */
 			break;
@@ -329,7 +329,7 @@ static void regenhp(int percent)
  */
 static void recharged_notice(object_type *o_ptr)
 {
-	char o_name[80];
+	char o_name[180];
 
 	cptr s;
 
@@ -2050,7 +2050,7 @@ static void process_player(void)
 		{
 			int item = INVEN_PACK;
 
-			char o_name[80];
+			char o_name[180];
 
 			object_type *o_ptr;
 

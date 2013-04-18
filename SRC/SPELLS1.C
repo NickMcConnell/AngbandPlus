@@ -442,10 +442,10 @@ void take_hit(int dam, cptr kb_str)
 	disturb(1, 0);
 
 	/* Mega-Hack -- Apply "invulnerability" 
-       * -TM- this now just reduces damage to 1/3 */
+       * -TM- this now just reduces damage to 2/3 */
 	if (p_ptr->invuln && (dam < 9000)) 
 	{
-		dam /= 3;
+		dam /= 2;
 	}
 
 	/* Hurt the player */
@@ -721,7 +721,7 @@ static int inven_damage(inven_func typ, int perc)
 
 	object_type *o_ptr;
 
-	char o_name[80];
+	char o_name[180];
 
 
 	/* Count the casualties */
@@ -791,7 +791,7 @@ static int minus_ac(void)
 
 	u32b f1, f2, f3;
 
-	char o_name[80];
+	char o_name[180];
 
 
 	/* Pick a (possibly empty) inventory slot */
@@ -1172,7 +1172,7 @@ bool apply_disenchant(int mode)
 
 	object_type *o_ptr;
 
-	char o_name[80];
+	char o_name[180];
 
 
 	/* Unused */
@@ -1275,7 +1275,7 @@ void apply_tmcurse()
 	disturb(0,0);
 
 	/* Select random effect */
-	switch (randint(45))
+	switch (randint(47))
 	{
 		/* Summon lots of OOD monsters */
 		case 1:case 2:case 3:case 4:
@@ -1475,6 +1475,15 @@ void apply_tmcurse()
 			(void)set_cut(p_ptr->cut + 5000);
 			break;
 		}
+		/* Paralyze without saving throw, ignore free action */
+		case 46: case 47:
+		{
+			msg_print("You suddenly feel like a statue!");
+
+			(void)set_paralyzed(p_ptr->paralyzed + rand_int(5) + 5);
+
+			break;
+		}	
 	}
 	
 	/* done */
@@ -1914,7 +1923,7 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 
 	u32b f1, f2, f3;
 
-	char o_name[80];
+	char o_name[180];
 
 
 	/* Reduce damage by distance */
@@ -2310,6 +2319,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		case GF_ELEC:
 		{
 			if (seen) obvious = TRUE;
+			do_stun = (randint(15) + r) / (r + 1);
 			if (r_ptr->flags3 & (RF3_IM_ELEC))
 			{
 				note = " resists a lot.";

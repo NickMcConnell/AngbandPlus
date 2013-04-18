@@ -1346,6 +1346,16 @@ static errr rd_extra(void)
 	rd_s16b(&p_ptr->oppose_elec);
 	rd_s16b(&p_ptr->oppose_pois);
 
+	/* New Drangband data */
+	if (!older_than(2, 9, 1))
+	{
+		rd_s16b(&p_ptr->rng_lev_bonus);
+
+		for (i=0; i<SKILL_MAX; i++) rd_s16b(&p_ptr->wep_skills[i]);
+
+		for (i=0; i<38; i++) rd_byte(&p_ptr->drang_reserved[i]);
+	}
+
 	/* Old redundant flags */
 	if (older_than(2, 7, 7)) strip_bytes(34);
 

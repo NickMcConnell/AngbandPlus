@@ -613,6 +613,7 @@ void do_cmd_cast(void)
 		/* Spells.  */
 		switch (spell)
 		{
+			/* Magic Missile */
 			case 0:
 			{
 				if (!get_aim_dir(&dir)) return;
@@ -621,24 +622,28 @@ void do_cmd_cast(void)
 				break;
 			}
 
+			/* Detect Monsters */
 			case 1:
 			{
 				(void)detect_monsters_normal();
 				break;
 			}
 
+			/* Teleport Self */
 			case 2:
 			{
 				teleport_player(10);
 				break;
 			}
 
+			/* Light area */
 			case 3:
 			{
 				(void)lite_area(damroll(2, (plev / 2)), (plev / 10) + 1);
 				break;
 			}
 
+			/* Detect gold */
 			case 4:
 			{
 				(void)detect_treasure();
@@ -646,6 +651,7 @@ void do_cmd_cast(void)
 				break;
 			}
 
+			/* heal light wounds */
 			case 5:
 			{
 				(void)hp_player(damroll(2, 8));
@@ -653,12 +659,14 @@ void do_cmd_cast(void)
 				break;
 			}
 
+			/* detect objects*/
 			case 6:
 			{
 				(void)detect_objects_normal();
 				break;
 			}
 
+			/* detect traps/doors */
 			case 7:
 			{
 				(void)detect_traps();
@@ -667,14 +675,16 @@ void do_cmd_cast(void)
 				break;
 			}
 
+			/* Stinking cloud */
 			case 8:
 			{
 				if (!get_aim_dir(&dir)) return;
 				fire_ball(GF_POIS, dir,
-				          10 + (plev / 2), 2);
+				          10 + (plev / 2), (plev / 20) + 2);
 				break;
 			}
 
+			/* Confuse monster */
 			case 9:
 			{
 				if (!get_aim_dir(&dir)) return;
@@ -682,6 +692,7 @@ void do_cmd_cast(void)
 				break;
 			}
 
+			/* Elec bolt */
 			case 10:
 			{
 				if (!get_aim_dir(&dir)) return;
@@ -690,12 +701,14 @@ void do_cmd_cast(void)
 				break;
 			}
 
+			/* Destroy traps/doors */
 			case 11:
 			{
 				(void)destroy_doors_touch();
 				break;
 			}
 
+			/* Sleep monster */
 			case 12:
 			{
 				if (!get_aim_dir(&dir)) return;
@@ -703,18 +716,21 @@ void do_cmd_cast(void)
 				break;
 			}
 
+			/* Cure poison */
 			case 13:
 			{
 				(void)set_poisoned(0);
 				break;
 			}
 
+			/* teleport self */
 			case 14:
 			{
 				teleport_player(plev * 5);
 				break;
 			}
 
+			/* Beam of light */
 			case 15:
 			{
 				if (!get_aim_dir(&dir)) return;
@@ -723,14 +739,16 @@ void do_cmd_cast(void)
 				break;
 			}
 
+			/* Cold bolt */
 			case 16:
 			{
 				if (!get_aim_dir(&dir)) return;
 				fire_bolt_or_beam(beam-10, GF_COLD, dir,
-				                  damroll(5+((plev-5)/4), 8));
+				                  damroll(5+(plev/4), 8));
 				break;
 			}
 
+			/* Stone to mud */
 			case 17:
 			{
 				if (!get_aim_dir(&dir)) return;
@@ -738,24 +756,28 @@ void do_cmd_cast(void)
 				break;
 			}
 
+			/* Cure hunger */
 			case 18:
 			{
 				(void)set_food(PY_FOOD_MAX - 1);
 				break;
 			}
 
+			/* Recharge I */
 			case 19:
 			{
 				(void)recharge(5);
 				break;
 			}
 
+			/* Sleep II */
 			case 20:
 			{
 				(void)sleep_monsters_touch();
 				break;
 			}
 
+			/* Polymorph monsters */
 			case 21:
 			{
 				if (!get_aim_dir(&dir)) return;
@@ -763,26 +785,30 @@ void do_cmd_cast(void)
 				break;
 			}
 
+			/* identify */
 			case 22:
 			{
 				(void)ident_spell();
 				break;
 			}
 
+			/* sleep III */
 			case 23:
 			{
 				(void)sleep_monsters();
 				break;
 			}
 
+			/* fire bolt */
 			case 24:
 			{
 				if (!get_aim_dir(&dir)) return;
 				fire_bolt_or_beam(beam, GF_FIRE, dir,
-				                  damroll(8+((plev-5)/4), 8));
+				                  damroll(8+(plev/4), 8));
 				break;
 			}
 
+			/* slow monsters */
 			case 25:
 			{
 				if (!get_aim_dir(&dir)) return;
@@ -790,20 +816,23 @@ void do_cmd_cast(void)
 				break;
 			}
 
+			/* Cold ball */
 			case 26:
 			{
 				if (!get_aim_dir(&dir)) return;
 				fire_ball(GF_COLD, dir,
-				          30 + (plev), 2);
+				          30 + (2 * (plev)), 2);
 				break;
 			}
 
+			/* recharge II */
 			case 27:
 			{
 				(void)recharge(40);
 				break;
 			}
 
+			/* teleport other */
 			case 28:
 			{
 				if (!get_aim_dir(&dir)) return;
@@ -811,6 +840,7 @@ void do_cmd_cast(void)
 				break;
 			}
 
+			/* haste self */
 			case 29:
 			{
 				if (!p_ptr->fast)
@@ -824,14 +854,16 @@ void do_cmd_cast(void)
 				break;
 			}
 
+			/* Fire ball */
 			case 30:
 			{
 				if (!get_aim_dir(&dir)) return;
 				fire_ball(GF_FIRE, dir,
-				          55 + (plev), 2);
+				          75 + (2 * (plev)), 2);
 				break;
 			}
 
+			/* Word of destruction */
 			case 31:
 			{
 				destroy_area(py, px, 15, TRUE);
@@ -847,30 +879,37 @@ void do_cmd_cast(void)
 				break;
 			}
 
+			/* Mordenkainen's Escapes */
+
+			/* Door creation */
 			case 33:
 			{
 				(void)door_creation();
 				break;
 			}
 
+			/* Stair creation */
 			case 34:
 			{
 				(void)stair_creation();
 				break;
 			}
 
+			/* Teleport level */
 			case 35:
 			{
 				(void)teleport_player_level();
 				break;
 			}
 
+			/* Earthquake */
 			case 36:
 			{
 				earthquake(py, px, 10);
 				break;
 			}
 
+			/* Word of recall */
 			case 37:
 			{
 				if (!p_ptr->word_recall)
@@ -888,14 +927,16 @@ void do_cmd_cast(void)
 
 			/* Raal's Tomes of Destruction */
 
+			/* Acid ball */
 			case 38:
 			{
 				if (!get_aim_dir(&dir)) return;
 				fire_bolt_or_beam(beam, GF_ACID, dir,
-				                  damroll(8+((plev-5)/4), 8));
+				                  damroll(8+(plev/4), 8));
 				break;
 			}
 
+			/* Cloud kill */
 			case 39:
 			{
 				if (!get_aim_dir(&dir)) return;
@@ -904,6 +945,7 @@ void do_cmd_cast(void)
 				break;
 			}
 
+			/* Acid ball */
 			case 40:
 			{
 				if (!get_aim_dir(&dir)) return;
@@ -912,6 +954,7 @@ void do_cmd_cast(void)
 				break;
 			}
 
+			/* ice storm */
 			case 41:
 			{
 				if (!get_aim_dir(&dir)) return;
@@ -920,6 +963,7 @@ void do_cmd_cast(void)
 				break;
 			}
 
+			/* Meteor swarm */
 			case 42:
 			{
 				if (!get_aim_dir(&dir)) return;
@@ -928,6 +972,7 @@ void do_cmd_cast(void)
 				break;
 			}
 
+			/* Mana storm */
 			case 43:
 			{
 				if (!get_aim_dir(&dir)) return;
@@ -938,31 +983,45 @@ void do_cmd_cast(void)
 
 			/* Kelek's Grimoire of Power */
 
+			/* Detect evil */
 			case 44:
 			{
 				(void)detect_monsters_evil();
 				break;
 			}
 
+			/* Detect magical items */
 			case 45:
 			{
 				(void)detect_objects_magic();
 				break;
 			}
 
+			/* Recharge III */
 			case 46:
 			{
 				recharge(100);
 				break;
 			}
 
+			/* Mana Bolt */
 			case 47:
+			{
+				if (!get_aim_dir(&dir)) return;
+				fire_bolt(GF_MANA, dir, damroll(plev / 2, 10));
+
+				break;
+			}
+
+			/* Genocide */
+			case 48:
 			{
 				(void)genocide();
 				break;
 			}
 
-			case 48:
+			/* Mass Genocide */
+			case 49:
 			{
 				(void)mass_genocide();
 				break;
@@ -970,31 +1029,43 @@ void do_cmd_cast(void)
 
 			/* Resistance of Scarabtarces */
 
-			case 49:
+			/* Resist Fire */
+			case 50:
 			{
 				(void)set_oppose_fire(p_ptr->oppose_fire + randint(20) + 20);
 				break;
 			}
 
-			case 50:
+			/* Resist Cold */
+			case 51:
 			{
 				(void)set_oppose_cold(p_ptr->oppose_cold + randint(20) + 20);
 				break;
 			}
 
-			case 51:
+			/* Resist Acid */
+			case 52:
 			{
 				(void)set_oppose_acid(p_ptr->oppose_acid + randint(20) + 20);
 				break;
 			}
 
-			case 52:
+			/* Resist Elec */
+			case 53:
+			{
+				(void)set_oppose_elec(p_ptr->oppose_elec + randint(20) + 20);
+				break;
+			}
+
+			/* Resist Poison */
+			case 54:
 			{
 				(void)set_oppose_pois(p_ptr->oppose_pois + randint(20) + 20);
 				break;
 			}
 
-			case 53:
+			/* Resistance */
+			case 55:
 			{
 				(void)set_oppose_acid(p_ptr->oppose_acid + randint(20) + 20);
 				(void)set_oppose_elec(p_ptr->oppose_elec + randint(20) + 20);
@@ -1006,7 +1077,8 @@ void do_cmd_cast(void)
 
 			/* Tenser's Transformations */
 
-			case 54:
+			/* Heroism */
+			case 56:
 			{
 				(void)hp_player(10);
 				(void)set_hero(p_ptr->hero + randint(25) + 25);
@@ -1014,13 +1086,15 @@ void do_cmd_cast(void)
 				break;
 			}
 
-			case 55:
+			/* Beserk */
+			case 57:
 			{
 				(void)set_shield(p_ptr->shield + randint(20) + 30);
 				break;
 			}
 
-			case 56:
+			/* Shield */
+			case 58:
 			{
 				(void)hp_player(30);
 				(void)set_shero(p_ptr->shero + randint(25) + 25);
@@ -1028,7 +1102,8 @@ void do_cmd_cast(void)
 				break;
 			}
 
-			case 57:
+			/* Essence of Speed */
+			case 59:
 			{
 				if (!p_ptr->fast)
 				{
@@ -1041,7 +1116,8 @@ void do_cmd_cast(void)
 				break;
 			}
 
-			case 58:
+			/* Globe of Resilience */
+			case 60:
 			{
 				(void)set_invuln(p_ptr->invuln + randint(8) + 8);
 				break;
@@ -1133,7 +1209,7 @@ static void brand_weapon(void)
 	{
 		cptr act = NULL;
 
-		char o_name[80];
+		char o_name[180];
 
 		if (rand_int(100) < 25)
 		{
@@ -1579,7 +1655,7 @@ void do_cmd_pray(void)
 			case 45:
 			{
 				if (!get_aim_dir(&dir)) return;
-				drain_life(dir, 200);
+				drain_life(dir, 300);
 				break;
 			}
 

@@ -991,13 +991,13 @@ bool detect_doors(void)
 			/* Detect secret doors */
 			if (cave_feat[y][x] == FEAT_SECRET)
 			{
-				/* Pick a door XXX XXX XXX */
-				cave_set_feat(y, x, FEAT_DOOR_HEAD + 0x00);
+				/* Pick a door */
+				place_closed_door(y, x);
 			}
 
 			/* Detect doors */
 			if (((cave_feat[y][x] >= FEAT_DOOR_HEAD) &&
-			     (cave_feat[y][x] <= FEAT_DOOR_HEAD)) ||
+			     (cave_feat[y][x] <= FEAT_DOOR_TAIL)) ||
 			    ((cave_feat[y][x] == FEAT_OPEN) ||
 			     (cave_feat[y][x] == FEAT_BROKEN)))
 			{
@@ -1022,7 +1022,6 @@ bool detect_doors(void)
 	/* Result */
 	return (detect);
 }
-
 
 /*
  * Detect all stairs on current panel
@@ -1742,7 +1741,7 @@ bool enchant_spell(int num_hit, int num_dam, int num_ac)
 
 	object_type *o_ptr;
 
-	char o_name[80];
+	char o_name[180];
 
 	cptr q, s;
 
@@ -1810,7 +1809,7 @@ bool ident_spell(void)
 
 	object_type *o_ptr;
 
-	char o_name[80];
+	char o_name[180];
 
 	cptr q, s;
 
@@ -1883,7 +1882,7 @@ bool identify_fully(void)
 
 	object_type *o_ptr;
 
-	char o_name[80];
+	char o_name[180];
 
 	cptr q, s;
 
@@ -2003,7 +2002,7 @@ static bool item_tester_hook_recharge(object_type *o_ptr)
  */
 bool recharge(int num)
 {
-	int i, t, item, lev;
+	int i, t, item, lev, recharge_strength, recharge_amount;
 
 	object_type *o_ptr;
 
@@ -2037,36 +2036,29 @@ bool recharge(int num)
 	/* Recharge a rod */
 	if (o_ptr->tval == TV_ROD)
 	{
-		/* Extract a recharge power */
-		i = (100 - lev + num) / 5;
+		/* Extract a recharge strength by comparing object level to power. */
+		recharge_strength = ((num > lev) ? (num - lev) : 0) / 5;
+
 
 		/* Back-fire */
-		if ((i <= 1) || (rand_int(i) == 0))
+		if (rand_int(recharge_strength) == 0)
 		{
-			/* Hack -- backfire */
 			msg_print("The recharge backfires, draining the rod further!");
-
-			/* Hack -- decharge the rod */
-			if (o_ptr->pval < 10000) o_ptr->pval = (o_ptr->pval + 100) * 2;
+			if (o_ptr->timeout < 10000) 
+			o_ptr->timeout = (o_ptr->timeout + 100) * 2;
 		}
 
 		/* Recharge */
 		else
 		{
-			/* Rechange amount */
-			t = (num * damroll(2, 4));
+			/* Recharge amount */
+			recharge_amount = (num * damroll(3, 2));
 
 			/* Recharge by that amount */
-			if (o_ptr->pval > t)
-			{
-				o_ptr->pval -= t;
-			}
-
-			/* Fully recharged */
+			if (o_ptr->timeout > recharge_amount)
+				o_ptr->timeout -= recharge_amount;
 			else
-			{
-				o_ptr->pval = 0;
-			}
+				o_ptr->timeout = 0;
 		}
 	}
 
