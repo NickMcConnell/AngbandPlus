@@ -1,290 +1,325 @@
-/* signals.c: signal handlers
+/* File: signals.c */
 
-   Copyright (c) 1989 James E. Wilson
+/* Purpose: signal handlers */
 
-   This software may be copied and distributed for educational, research, and
-   not for profit purposes provided that this copyright and statement are
-   included in all such copies. */
+/*
+ * Copyright (c) 1989 James E. Wilson
+ *
+ * This software may be copied and distributed for educational, research, and
+ * not for profit purposes provided that this copyright and statement are
+ * included in all such copies.
+ */
 
-/* This signal package was brought to you by		-JEW-  */
-/* Completely rewritten by				-CJS- */
+/*
+ * This signal package was brought to you by		-JEW-
+ * Completely rewritten by				-CJS-
+ * Rewritten again by					-BEN-
+ * One more time by Jeff Collins (Jan. 1995).
+ */
 
-/* Signals have no significance on the Mac */
-
-#ifdef MAC
-
-void nosignals()
-{
-}
-
-void signals()
-{
-}
-
-void init_signals()
-{
-}
-
-#else /* a non-Mac system */
-
-#include <stdio.h>
-
-#ifdef ATARIST_MWC
-/* need these for atari st, but for unix, must include signals.h first,
-   or else suspend won't be properly declared */
-#include "constant.h"
-#include "config.h"
-#include "types.h"
-#include "externs.h"
-#endif
-
-/* skip most of the file on an ATARI ST */
-#ifndef ATARIST_MWC
-
-/* to get the SYS_V def if needed */
-#include "config.h"
-
-#if defined(SYS_V) && defined(lint)
-/* for AIX, prevent hundreds of unnecessary lint errors, define before
-   signal.h is included */
-#define _h_IEEETRAP
-typedef struct { int stuff; } fpvmach;
-#endif
-
-/* must include before externs.h, because that uses SIGTSTP */
 #include <signal.h>
 
-#include "constant.h"
-#include "types.h"
-#include "externs.h"
+#include "angband.h"
 
-#ifndef USG
-/* only needed for Berkeley UNIX */
-#include <sys/types.h>
-#include <sys/param.h>
-#endif
-
-#ifdef USG
-#ifndef ATARIST_MWC
-#include <string.h>
-#endif
+/*
+ * We need a simple method to correctly refer to the signal handler
+ */
+#ifdef __MINT__
+# define signal_handler ((__Sigfunc)(signal_handler_proc))
+# define suspend_handler ((__Sigfunc)(suspend_handler_proc))
 #else
-#ifndef VMS
-#include <strings.h>
-#endif
-#endif
-
-#ifdef USG
-void exit();
-#ifdef __TURBOC__
-void sleep();
-#else
-unsigned sleep();
-#endif
+# define signal_handler (signal_handler_proc)
+# define suspend_handler (suspend_handler_proc)
 #endif
 
-static int error_sig = -1;
-static int signal_count = 0;
 
-/*ARGSUSED*/
-#ifndef USG
-static int signal_handler(sig, code, scp)
-int sig, code;
-struct sigcontext *scp;
-{
-  int smask;
-
-  smask = sigsetmask(0) | (1 << sig);
-#else
-#ifdef __TURBOC__
-static void signal_handler(sig)
-#else
-static int signal_handler(sig)
-#endif
-int sig;
+/*
+ * suspend_handler_proc
+ *
+ * Note that the "raise()" function is not always available
+ */
+static void suspend_handler_proc(int sig)
 {
 
-#endif
-  if(error_sig >= 0)	/* Ignore all second signals. */
-    {
-      if(++signal_count > 10)	/* Be safe. We will die if persistent enough. */
-	(void) signal(sig, SIG_DFL);
-      return;
-    }
-  error_sig = sig;
+#ifdef SIGSTOP
 
-  /* Allow player to think twice. Wizard may force a core dump. */
-  if (sig == SIGINT
-#ifndef MSDOS
-      || sig == SIGQUIT
+    /* Flush output */
+    Term_fresh();
+
+    /* Suspend the "Term" */
+    Term_xtra(TERM_XTRA_LEVEL, TERM_LEVEL_HARD_SHUT);
+
+    /* Suspend ourself */
+    (void)kill(0, SIGSTOP);
+
+    /* Resume the "Term" */
+    Term_xtra(TERM_XTRA_LEVEL, TERM_LEVEL_HARD_OPEN);
+
+    /* Redraw the term */
+    Term_redraw();
+
+    /* Flush the term */
+    Term_fresh();
+
 #endif
-      )
-    {
-      if (death)
-	(void) signal(sig, SIG_IGN);		/* Can't quit after death. */
-      else if (!character_saved && character_generated)
-	{
-	  if ((!total_winner)?(!get_Yn("Really commit *Suicide*?"))
-                          :(!get_Yn("Do you want to retire?")))
-	    {
-	      if (turn > 0)
-		disturb(1, 0);
-	      erase_line(0, 0);
-	      put_qio();
-	      error_sig = -1;
-#ifdef USG
-	      (void) signal(sig, signal_handler);/* Have to restore handler. */
-#else
-	      (void) sigsetmask(smask);
-#endif
-	      /* in case control-c typed during msg_print */
-	      if (wait_for_more)
-		put_buffer(" -more-", MSG_LINE, 0);
-	      put_qio();
-	      return;		/* OK. We don't quit. */
-	    }
-	  (void) strcpy(died_from, "Interrupting");
-	}
-      else
-	(void) strcpy(died_from, "Abortion");
-      prt("Interrupt!", 0, 0);
-      death = TRUE;
-      exit_game();
-    }
-  /* Die. */
-  prt(
-"OH NO!!!!!!  A gruesome software bug LEAPS out at you. There is NO defense!",
-      23, 0);
-  if (!death && !character_saved && character_generated)
-    {
-      panic_save = 1;
-      prt("Your guardian angel is trying to save you.", 0, 0);
-      (void) sprintf(died_from,"(panic save %d)",sig);
-      if (!save_char())
-	{
-	  (void) strcpy(died_from, "software bug");
-	  death = TRUE;
-	  turn = -1;
-	}
-    }
-  else
-    {
-      death = TRUE;
-      (void) _save_char(savefile);	/* Quietly save the memory anyway. */
-    }
-  restore_term();
-#ifndef MSDOS
-  /* always generate a core dump */
-  (void) signal(sig, SIG_DFL);
-  (void) kill(getpid(), sig);
-  (void) sleep(5);
-#endif
-  exit(1);
+
+    /* Have to restore handler. */
+    (void)signal(sig, suspend_handler);
 }
 
-#endif /* ATARIST_MWC */
 
-#ifdef ATARIST_MWC
-static int error_sig = -1;
-#endif
 
-#ifndef USG
-static int mask;
-#endif
+/*
+ * signal_handler_proc - Handle signals
+ *
+ * The most important aspect of this is to catch SIGINT and SIGQUIT and
+ * allow the user to rethink.  We don't want to kill a character because
+ * of a stupid typo.
+ */
 
-void nosignals()
+static void signal_handler_proc(int sig)
 {
-#if !defined(ATARIST_MWC)
+    int simple = FALSE;
+
+#if !defined(MACINTOSH) && !defined(WINDOWS)
+
+    /* Ignore all second signals */
+    (void)signal(sig, SIG_IGN);
+
+#ifdef SIGINT
+    /* Simple "Ctrl-C" interupt */
+    if (sig == SIGINT) simple = TRUE;
+#endif
+
+#ifdef SIGQUIT
+    /* Simple "Quit" key */
+    if (sig == SIGQUIT) simple = TRUE;
+#endif
+
+    /* Handle simple interrupt */
+    if (simple) {
+
+        /* Only treat real characters specially */
+        if (!death && !character_saved && character_generated) {
+
+            /* Save the screen */
+            save_screen();
+
+            /* Hack -- Allow player to think twice. */
+            if (!get_check(total_winner ?
+                           "Do you want to retire?" :
+                           "Really commit *Suicide*?")) {
+
+                /* Restore the screen */
+                restore_screen();
+
+                /* Flush pending output */
+                Term_fresh();
+
+                /* Disturb */
+                disturb(1, 0);
+
+                /* Restore handler for later. */
+                (void)signal(sig, signal_handler);
+
+                /* OK. We don't quit. */
+                return;
+            }
+
+            /* Restore the screen */
+            restore_screen();
+
+            /* Death */
+            (void)strcpy(died_from, "Interrupting");
+        }
+        
+        /* Terminate */
+        else {
+
+            /* Mark the savefile */
+            (void)strcpy(died_from, "Abortion");
+        }
+
+        /* Interrupted */
+        prt("Interrupt!", 0, 0);
+
+        /* Suicide */
+        death = TRUE;
+
+        /* Save and exit */
+        exit_game();
+
+        /* Just in case */
+        quit("interrupted");
+    }
+
+#endif /* !defined(MACINTOSH) && !defined(WINDOWS) */
+
+    /* Die. */
+    prt("OH NO!!!!!!  A gruesome software bug LEAPS out at you!", 21, 0);
+
+    /* Panic save */
+    if (!death && !character_saved && character_generated) {
+
+        /* Panic Save */
+        panic_save = 1;
+
+        /* Message */
+        prt("Your guardian angel is trying to save you.", 22, 0);
+        prt("", 23, 0);
+
+        /* Panic save */
+        (void)sprintf(died_from, "(panic save %d)", sig);
+
+        /* Attempt to save */
+        if (save_player()) quit("panic save succeeded");
+
+        /* Hack -- Just in case */
+        (void)sprintf(died_from, "(panic save %d failed)", sig);
+
+        /* Hack -- Assume dead */
+        death = TRUE;
+
+        /* Hack -- reset turn */
+        turn = 0;
+    }
+
+    /* Death save */
+    else {
+
+        /* Dead Player */
+        death = TRUE;
+
+        /* Message */
+        prt("There is NO defense!", 22, 0);
+        prt("", 23, 0);
+
+        /* Software Bug */
+        (void)strcpy(died_from, "Software Bug");
+
+        /* Hack -- Save the game anyway */
+        (void)save_player();
+    }
+
+#ifdef SET_UID
+
+    /* Hack -- Shut down the term windows */
+    if (term_choice) term_nuke(term_choice);
+    if (term_recall) term_nuke(term_recall);
+    if (term_screen) term_nuke(term_screen);
+
+    /* Hack -- dump core (very messy!) */
+    (void)signal(sig, SIG_DFL);
+    (void)kill(getpid(), sig);
+    (void)sleep(5);
+
+#endif
+
+    /* Quit anyway */
+    quit(NULL);
+}
+
+/*
+ * Ignore SIGTSTP signals (keyboard suspend)
+ */
+void signals_ignore_tstp(void)
+{
 #ifdef SIGTSTP
-  (void) signal(SIGTSTP, SIG_IGN);
-#ifndef USG
-  mask = sigsetmask(0);
-#endif
-#endif
-  if (error_sig < 0)
-    error_sig = 0;
+    /* Tell "suspend" to be ignored */
+    (void)signal(SIGTSTP, SIG_IGN);
 #endif
 }
 
-void signals()
+/*
+ * Handle SIGTSTP signals (keyboard suspend)
+ */
+void signals_handle_tstp(void)
 {
-#if !defined(ATARIST_MWC)
 #ifdef SIGTSTP
-  (void) signal(SIGTSTP, suspend);
-#ifndef USG
-  (void) sigsetmask(mask);
-#endif
-#endif
-  if (error_sig == 0)
-    error_sig = -1;
+    /* Tell "suspend" to suspend */
+    (void)signal(SIGTSTP, suspend_handler);
 #endif
 }
 
-
-void init_signals()
+/*
+ * Prepare to handle the relevant signals
+ */
+void signals_init()
 {
-#ifndef ATARIST_MWC
-  (void) signal(SIGINT, signal_handler);
-  (void) signal(SIGFPE, signal_handler);
-#ifdef MSDOS
-  /* many fewer signals under MSDOS */
-#else
-  /* Ignore HANGUP, and let the EOF code take care of this case. */
-  (void) signal(SIGHUP, SIG_IGN);
-  (void) signal(SIGQUIT, signal_handler);
-  (void) signal(SIGILL, signal_handler);
-  (void) signal(SIGTRAP, signal_handler);
-  (void) signal(SIGIOT, signal_handler);
-#ifdef SIGEMT  /* in BSD systems */
-  (void) signal(SIGEMT, signal_handler);
-#endif
-#ifdef SIGDANGER /* in SYSV systems */
-  (void) signal(SIGDANGER, signal_handler);
-#endif
-  (void) signal(SIGKILL, signal_handler);
-  (void) signal(SIGBUS, signal_handler);
-  (void) signal(SIGSEGV, signal_handler);
-  (void) signal(SIGSYS, signal_handler);
-  (void) signal(SIGTERM, signal_handler);
-  (void) signal(SIGPIPE, signal_handler);
-#ifdef SIGXCPU	/* BSD */
-  (void) signal(SIGXCPU, signal_handler);
-#endif
-#ifdef SIGPWR /* SYSV */
-  (void) signal(SIGPWR, signal_handler);
-#endif
-#endif
-#endif
-}
 
-void ignore_signals()
-{
-#if !defined(ATARIST_MWC)
-  (void) signal(SIGINT, SIG_IGN);
+#ifdef SIGHUP
+    /* Ignore HANGUP */
+    (void)signal(SIGHUP, SIG_IGN);
+#endif
+
+#ifdef SIGTSTP
+    /* Hack -- suspend gracefully */
+    (void)signal(SIGTSTP, suspend_handler);
+#endif
+
+#ifdef SIGINT
+    /* Catch the basic "Ctrl-C" interupt */
+    (void)signal(SIGINT, signal_handler);
+#endif
+
 #ifdef SIGQUIT
-  (void) signal(SIGQUIT, SIG_IGN);
+    (void)signal(SIGQUIT, signal_handler);
 #endif
+
+#ifdef SIGFPE
+    (void)signal(SIGFPE, signal_handler);
+#endif
+
+#ifdef SIGILL
+    (void)signal(SIGILL, signal_handler);
+#endif
+
+#ifdef SIGTRAP
+    (void)signal(SIGTRAP, signal_handler);
+#endif
+
+#ifdef SIGIOT
+    (void)signal(SIGIOT, signal_handler);
+#endif
+
+#ifdef SIGKILL
+    (void)signal(SIGKILL, signal_handler);
+#endif
+
+#ifdef SIGBUS
+    (void)signal(SIGBUS, signal_handler);
+#endif
+
+#ifdef SIGSEGV
+    (void)signal(SIGSEGV, signal_handler);
+#endif
+
+#ifdef SIGTERM
+    (void)signal(SIGTERM, signal_handler);
+#endif
+
+#ifdef SIGPIPE
+    (void)signal(SIGPIPE, signal_handler);
+#endif
+
+#ifdef SIGEMT			   /* in BSD systems */
+    (void)signal(SIGEMT, signal_handler);
+#endif
+
+#ifdef SIGDANGER		   /* in SYSV systems */
+    (void)signal(SIGDANGER, signal_handler);
+#endif
+
+#ifdef SIGSYS
+    (void)signal(SIGSYS, signal_handler);
+#endif
+
+#ifdef SIGXCPU   /* BSD */
+    (void)signal(SIGXCPU, signal_handler);
+#endif
+
+#ifdef SIGPWR   /* SYSV */
+    (void)signal(SIGPWR, signal_handler);
 #endif
 }
 
-void default_signals()
-{
-#if !defined(ATARIST_MWC)
-  (void) signal(SIGINT, SIG_DFL);
-#ifdef SIGQUIT
-  (void) signal(SIGQUIT, SIG_DFL);
-#endif
-#endif
-}
-
-void restore_signals()
-{
-#if !defined(ATARIST_MWC)
-  (void) signal(SIGINT, signal_handler);
-#ifdef SIGQUIT
-  (void) signal(SIGQUIT, signal_handler);
-#endif
-#endif
-}
-
-#endif /* big Mac conditional */

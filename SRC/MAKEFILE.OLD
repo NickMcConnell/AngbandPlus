@@ -1,0 +1,286 @@
+# File: Makefile
+
+# Adapted from the Angband 2.6.2 Makefile
+
+
+#############################################################################
+# Please take a look at config.h for *critical* configuration steps needed. #
+# Also look at "h-config.h" and this "Makefile" for other such steps.       #
+#############################################################################
+
+####
+# BINDIR is the directory where the angband binary will be installed.
+
+BINDIR = /tmp/angband/bin
+PROGRAM = angband
+
+####
+# Compiler
+####
+# I recommend that you use the GNU Project C Compiler "gcc",
+# if available.  Failing that, try using an ANSI C compiliant compiler,
+# such as "acc" on the Sun SPARC.  Some machines require special compiler
+# flags in order to compile the game.  Consult the flags below.
+####
+# If you do use gcc and encounter problems, you may find that adding
+# "-traditional-cpp" will fix defining the LIBDIR in config.h.
+# If that fails, try using "-traditional".
+####
+
+#CC = cc
+#CC = acc
+#CC = gcc -traditional-cpp
+#CC = gcc -traditional
+CC = gcc
+
+####
+# Compiler flags
+####
+#
+# '-O' means optimize.  '-g' is for debugging.
+#
+# If you are using gcc, you may combine both '-O' and '-g'.  Also:
+# '-pipe' uses pipes rather than temporary files (which is faster).
+# '-pg' enables profiling (for coders only).  '-W<something>' provides
+# additional warnings.
+#
+# Remove one of the '#' from the list of compiler flag choices below:
+####
+
+####
+# For normal compilers (ie, 'cc' on anything but a NeXT).
+#
+# Once you are sure it works, you can and should use a higher level of
+# optimization instead.  This is '-O4' on many systems, but consult the
+# manpages for your compiler.
+
+CFLAGS = -O
+
+# For HPUX, the compiler flags for 'cc' should be:
+#CFLAGS = -Ae -Dunix -O
+
+# For DEC OSF/1 (Alpha), the compiler flags for 'cc' should be:
+#CFLAGS = -std -O
+
+####
+# For gcc (or NeXT) users only.
+
+# Normal gcc users:
+#CFLAGS = -g -O1 -pipe
+
+# Full optimization (but only when you know it works right!):
+#CFLAGS = -O4 -pipe -fomit-frame-pointer
+
+# Developers:
+#CFLAGS = -g -O1 -pipe -Wall -Wcast-align -Wpointer-arith -Wwrite-strings \
+-Wcast-align -Waggregate-return
+
+# Profiling:
+#CFLAGS = -pg -g -O1 -pipe -Wall -Wcast-align -Wpointer-arith -Wwrite-strings
+
+####
+# System defines
+####
+# Any reasonably modern compiler does better when you *don't* use "register".
+# I've hacked it out here because I don't want to change every arg list in the
+# game.  You might want to undo this if your compiler is bad. -CWS
+#
+# "-Dconst=" may also help if your compiler complains about conflicting
+# definitions involving the const keyword.
+
+#DEFINES = -Dconst=
+
+####
+# Combine the previous configuration sections to get the complete flags
+
+ALL_CFLAGS = $(CFLAGS) $(DEFINES)
+
+
+####
+# Libraries to link from
+####
+# some people might be able to (or even might have to) remove '-lrpcsvc'
+
+LIBS = -lcurses -ltermcap -lrpcsvc
+
+####
+# For Linux systems, this line should look like:
+# LIBS = -lncurses -ltermcap -lbsd
+
+####
+# For NCR System 3000, you'll probably need this:
+# LIBS=-lcurses -ltermcap -lmalloc -L/usr/ucblib -lucb
+
+####
+# For SunOS 5.X (Solaris 2.X), this line should look like:
+# LIBS = -ltermlib -ltermcap -lrpcsvc -lnsl -lucb
+
+# ....unless you don't have the BSD/SunOS 4.x compatibility kit:
+# LIBS = -ltermlib -ltermcap -lrpcsvc -lnsl
+
+
+####
+# If your system lacks the random() call, define EXTRAOBJS to include
+# random.o.  Otherwise, you can leave it out.
+
+#EXTRAOBJS=random.o
+
+# Otherwise, just use this:
+EXTRAOBJS=
+
+####
+# Common system programs
+####
+# define the appropriate version of these commands if needed
+
+CP    = cp
+CHOWN = chown
+CHMOD = chmod
+DIFF  = diff
+ECHO  = echo
+EGREP = egrep
+RM    = rm -f
+STRIP = strip
+TOUCH = touch
+
+##################################
+# End of user configurable stuff #
+##################################
+
+#######
+# define special suffixes & build rules
+
+SUFFIXES = .o .c .p .h
+
+.c.o:
+	$(CC) $(ALL_CFLAGS) -c $*.c
+
+####
+# This is for building precompiled headers on the NeXT, which results in
+# faster compilations for me when developing and testing the game.  This
+# should fail harmlessly on non-NEXTSTEP systems and does not indicate
+# a problem.
+
+PRECOMPFLAGS = -precomp $(DEFINES)
+
+.h.p:
+	@$(ECHO) Attempting to build $@.  Ignore any errors.
+	-$(RM) $@
+	-$(CC) $(PRECOMPFLAGS) $*.h -o $*.p
+	-$(TOUCH) $@
+	@$(ECHO) ""
+
+####
+# define some global macros
+
+HEADERS = angband.h constant.h types.h externs.h config.h monster.h
+
+SOURCES = main.c misc1.c misc2.c store1.c files.c io.c create.c desc.c \
+	generate.c sets.c dungeon.c creature.c death.c eat.c help.c magic.c \
+	potions.c prayer.c save.c staffs.c wands.c scrolls.c spells.c \
+	wizard.c store2.c signals.c moria1.c moria2.c monsters.c \
+	treasure.c variable.c recall.c unix.c undef.c \
+	player.c tables.c describe_mon.c rods.c random.c util.c bzero.c
+
+OBJECTS = main.o misc1.o misc2.o store1.o files.o io.o create.o desc.o \
+	generate.o sets.o dungeon.o creature.o death.o eat.o help.o magic.o \
+	potions.o prayer.o save.o staffs.o wands.o scrolls.o spells.o \
+	wizard.o store2.o signals.o moria1.o moria2.o monsters.o \
+	treasure.o variable.o recall.o unix.o undef.o \
+	player.o tables.o describe_mon.o rods.o util.o $(EXTRAOBJS)
+
+LIBFILES = hours news origcmds.hlp owizcmds.hlp roglcmds.hlp rwizcmds.hlp \
+	scores version.hlp welcome.hlp
+
+####
+# target rules
+
+default: all
+
+all: angband.p monster.p $(PROGRAM)
+
+$(PROGRAM) : $(OBJECTS)
+	$(CC) $(ALL_CFLAGS) $(OBJECTS) -o $(PROGRAM) $(LIBS)
+
+install:	$(PROGRAM)
+	$(STRIP) $(PROGRAM)
+	$(RM) $(BINDIR)/$(PROGRAM)
+	$(CP) $(PROGRAM) $(BINDIR)/$(PROGRAM)
+	$(CHOWN) games.bin $(BINDIR)/$(PROGRAM)
+	$(CHMOD) 4711 $(BINDIR)/$(PROGRAM)
+
+clean:
+	$(RM) *.o ./core *~ .*~ temp1 temp2 gmon.* *.p
+
+realclean: clean
+	$(RM) $(PROGRAM) *.orig *.rej
+
+depend:
+	/usr/local/bin/X11/makedepend $(INCLUDES) -p$(OBJDIR)/ $(SRCS)
+
+####
+# verify that the monsters.c and describe_mon.c files correspond
+
+check:
+	@$(RM) temp1 temp2
+	@$(EGREP) '^{' monsters.c | awk -F\" '{print $$2}' > temp1
+	@$(EGREP) '^{' describe_mon.c | awk -F\" '{print $$2}' > temp2
+	$(ECHO) Monster name problems present:
+	@$(DIFF) -c1 temp1 temp2
+
+query:
+	@$(ECHO) "Monsters.c:"
+	-$(EGREP) '^{"' monsters.c | wc -l
+	@$(ECHO) "Describe_Mon.c:"
+	-$(EGREP) '^{"' describe_mon.c | wc -l
+
+####
+# dependancies
+
+angband.h : constant.h types.h externs.h config.h
+angband.p : angband.h
+monster.p: monster.h angband.h
+
+create.o : angband.h
+creature.o : angband.h monster.h
+death.o : angband.h
+desc.o : angband.h
+describe_mon.o : angband.h
+dungeon.o : angband.h monster.h
+eat.o : angband.h
+files.o : angband.h
+generate.o : angband.h monster.h
+help.o : angband.h monster.h
+io.o : angband.h
+magic.o : angband.h
+main.o : angband.h
+misc1.o : angband.h monster.h
+misc2.o : angband.h monster.h
+monsters.o : angband.h monster.h
+moria1.o : angband.h monster.h
+moria2.o : angband.h monster.h
+player.o : angband.h
+potions.o : angband.h
+prayer.o : angband.h monster.h
+random.o :
+recall.o : angband.h monster.h
+rods.o : angband.h
+save.o : angband.h monster.h
+scrolls.o : angband.h monster.h
+sets.o : angband.h
+signals.o : angband.h
+spells.o : angband.h monster.h
+staffs.o : angband.h monster.h
+store1.o : angband.h
+store2.o : angband.h
+tables.o : angband.h
+treasure.o : angband.h
+undef.o : angband.h
+unix.o : angband.h
+util.o : angband.h
+variable.o : angband.h
+wands.o : angband.h
+wizard.o : angband.h monster.h
+
+# DO NOT DELETE THIS LINE -- make depend depends on it.
+

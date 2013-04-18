@@ -1,0 +1,33 @@
+# File: Makefile.emx
+
+# Purpose: Makefile support for "main-emx.c"
+
+# Note: Rename this file "Makefile" before using
+
+# Note: Use "dmake" to compile (see "main-emx.c" for details).
+#       Since "dmake" does not demand "hard" tab stops as delimiters,
+#       don't bother to add them.
+
+OBJS = \
+  main.o main-emx.o \
+  signals.o util.o io.o init.o save.o save-old.o files.o \
+  generate.o birth.o creature.o melee.o dungeon.o store.o \
+  effects.o cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o \
+  misc.o monster.o mon-desc.o object.o obj-desc.o \
+  spells1.o spells2.o cave.o tables.o variable.o wizard.o \
+  term.o random.o z-util.o z-virt.o z-form.o
+
+CC = gcc
+CFLAGS = -O2 -DUSE_EMX
+LIBS = -lvideo
+
+.c.o:
+    $(CC) $(CFLAGS) -c $*.c
+
+angband.exe: $(OBJS)
+    $(CC) $(CFLAGS)  -o angband.exe $(OBJS) $(LIBS)
+    + move angband.exe ..
+
+# At least *my* part of the source should compile without any warnings. -EK-
+main-emx.o:     main-emx.c
+    $(CC) $(CFLAGS) -Wall -c $*.c

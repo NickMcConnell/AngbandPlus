@@ -1,0 +1,49 @@
+Changes from Angband 2.7.8b2
+
+Added new character races: 
+
+Pixies (- str,con + dex,int +10speed, confusion attack)
+Yeeks  (-5 to everything, but advance quickly)
+Crystal Dragons (res shards, free action, shard bolt, extra +25 AC)
+Copper Dragons (res dis, freeact, regen, dis ray)
+Bronze Dragons (res conf, regen, conf bolt)
+Brass Dragons (res sound, regen, stun bolt, BAD stealth!!!)
+Psuedo Dragons (res light,dark,blind, regen, light ray)
+
+All dragons also get resist fear and featherfall, a bonus to AC, can dig 
+and fight without weapons, and instead of normal equipment carry an amulet, 
+six rings, a light, a cloak, and a crown. They also (in general) have bad
+stealth and horrible CHA, and (non-dragon) shopkeepers hate them.
+
+Breath weapons and Pixilate use 'P'.
+
+Deleted the mage spell of cure poison, and the priest spells of detect doors
+and detect traps. Added mage spells cone of cold, lightning bolt (old lb
+renamed to spark), wall of fire, ray of force, and resist lightning. Changed
+spell damages. Added priest spells detect doors/traps and spiritual hammer.
+
+Added about 40 new monsters.
+
+Added rings of resistance and rings of sustaining.
+
+Added a few empty mineral veins
+
+Fixed a nasty artifact bug. I think.
+
+------
+Changes from Drangband 2.0
+
+Changed hp/spells/mana per level to use tenth points rather than half points.
+
+Added my favorite little Golden Retrievers. :)
+
+Added resist poison to the list of higher resists, and feather fall to lower.
+
+Added random higher resists to amulets of the magi. Added resist poison to 
+Defenders. Added fire immunity to Slay Demon. Added possible stat bonuses to 
+the other crappy ego-weapons.
+
+Changed the roguelike key for breath weapons to 'O' (so it can actually be 
+used).
+
+Extended the blows table to give 7 or 8 attacks for VERY high str/dex.

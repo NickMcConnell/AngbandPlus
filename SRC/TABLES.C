@@ -1,343 +1,2526 @@
-/* tables.c: store/attack/RNG/etc tables and variables
+/* File: tables.c */
 
-   Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
+/* Purpose: store/attack/RNG/etc tables and variables */
 
-   This software may be copied and distributed for educational, research, and
-   not for profit purposes provided that this copyright and statement are
-   included in all such copies. */
+/*
+ * Copyright (c) 1989 James E. Wilson, Robert A. Koeneke
+ *
+ * This software may be copied and distributed for educational, research, and
+ * not for profit purposes provided that this copyright and statement are
+ * included in all such copies.
+ */
 
-#include "constant.h"
-#include "config.h"
-#include "types.h"
+#include "angband.h"
 
-#ifdef ANGBAND_HOU
-/* Operating hours for ANGBAND				-RAK-	*/
-/*	 X = Open; . = Closed					*/
-char  days[7][29] = { "SUN:XXXXXXXXXXXXXXXXXXXXXXXX",
-		    "MON:XXXXXXXX.........XXXXXXX",
-		    "TUE:XXXXXXXX.........XXXXXXX",
-		    "WED:XXXXXXXX.........XXXXXXX",
-		    "THU:XXXXXXXX.........XXXXXXX",
-		    "FRI:XXXXXXXX.........XXXXXXX",
-		    "SAT:XXXXXXXXXXXXXXXXXXXXXXXX" };
+
+
+
+/*
+ * Global array for looping through the legal "keypad directions"
+ */
+int ddd[9] =  {2, 8, 6, 4, 3, 1, 9, 7, 5};
+
+/*
+ * Global arrays for converting "keypad direction" into offsets
+ */
+int ddx[10] = {0, -1, 0, 1, -1, 0, 1, -1, 0, 1};
+int ddy[10] = {0, 1, 1, 1, 0, 0, 0, -1, -1, -1};
+
+
+
+
+#if 0
+
+/*
+ * Stat Table -- Empty
+ */
+s16b adj_xxx[] = {
+    /* 3 */,
+    /* 4 */,
+    /* 5 */,
+    /* 6 */,
+    /* 7 */,
+    /* 8 */,
+    /* 9 */,
+    /* 10 */,
+    /* 11 */,
+    /* 12 */,
+    /* 13 */,
+    /* 14 */,
+    /* 15 */,
+    /* 16 */,
+    /* 17 */,
+    /* 18 */,
+    /* 18/01-18/09 */,
+    /* 18/10-18/19 */,
+    /* 18/20-18/29 */,
+    /* 18/30-18/39 */,
+    /* 18/40-18/49 */,
+    /* 18/50-18/59 */,
+    /* 18/60-18/69 */,
+    /* 18/70-18/79 */,
+    /* 18/80-18/89 */,
+    /* 18/90-18/99 */,
+    /* 18/100 */,
+    /* 18/101-18/109 */,
+    /* 18/110-18/119 */,
+    /* 18/120-18/129 */,
+    /* 18/130-18/139 */,
+    /* 18/140-18/149 */,
+    /* 18/150-18/159 */,
+    /* 18/160-18/169 */,
+    /* 18/170-18/179 */,
+    /* 18/180-18/189 */,
+    /* 18/190-18/199 */,
+    /* 18/200-18/209 */,
+    /* 18/210-18/219 */,
+    /* 18/220+ */
+};
+
 #endif
 
-store_type store[MAX_STORES];
-
-/* Store owners have different characteristics for pricing and haggling*/
-/* Note: Store owners should be added in groups, one for each store    */
-owner_type owners[MAX_OWNERS] = {
-{"Rincewind the Chicken  (Human)      General Store",
-	  250,	175,  108,    4, 0, 12},
-{"Mauglin the Grumpy     (Dwarf)      Armoury"	    ,
-	32000,	200,  112,    4, 5,  5},
-{"Arndal Beast-Slayer    (Half-Elf)   Weaponsmith"  ,
-	10000,	185,  110,    5, 1,  8},
-{"Ludwig the Humble      (Human)      Temple"	    ,
-	 3500,	175,  109,    6, 0, 15},
-{"Ga-nat the Greedy      (Gnome)      Alchemist"    ,
-	12000,	220,  115,    4, 4,  9},
-{"Luthien Starshine      (Elf)        Magic Shop"   ,
-	32000,	175,  110,    5, 2, 11},
-{"Durwin the Shifty      (Human)      Black Market" ,
-        32000,	250,  190,    10, 0, 5},
-{"Your home"   ,
-	    1,    1,    1,    1, 1, 1},
-{"Bilbo the Friendly     (Hobbit)     General Store",
-	  200,	170,  108,    5, 3, 15},
-{"Darg-Low the Grim      (Human)      Armoury"	    ,
-	10000,	190,  111,    4, 0,  9},
-{"Oglign Dragon-Slayer   (Dwarf)      Weaponsmith"  ,
-	32000,	195,  112,    4, 5,  8},
-{"Gunnar the Paladin     (Human)      Temple"	    ,
-	 5000,	185,  110,    5, 0, 23},
-{"Mauser the Chemist     (Half-Elf)   Alchemist"    ,
-	10000,	190,  111,    5, 1,  8},
-{"Buggerby the Great!    (Gnome)      Magic Shop"   ,
-	20000,	215,  113,    6, 4, 10},
-{"Histor the Goblin      (Orc)        Black Market"   ,
-	32000,	250,  190,    10, 6, 5},
-{"Your sweet abode"   ,
-	    1,    1,    1,    1, 1, 1},
-{"Lyar-el the Comely     (Elf)        General Store",
-	  300,	165,  107,    6, 2, 18},
-{"Decado the Handsome    (Human)      Armoury",
-	25000,  200,  112,    4, 5, 10},
-{"Ithyl-Mak the Beastly  (Half-Troll) Weaponsmith"  ,
-	 3000,	210,  115,    6, 7,  8},
-{"Delilah the Pure       (Half-Elf)   Temple"	    ,
-	25000,	180,  107,    6, 1, 20},
-{"Wizzle the Chaotic     (Hobbit)     Alchemist"    ,
-	10000,	190,  110,    6, 3,  8},
-{"Inglorian the Mage     (Human?)     Magic Shop"   ,
-	32000,	200,  110,    7, 0, 10},
-{"Drago the Fair?        (Elf)        Black Market" ,
-	32000,	250,  190,    10, 2, 5},
-{"Your house"   ,
-	    1,    1,    1,    1, 1, 1}
-};
-
-/* Buying and selling adjustments for character race VS store	*/
-/* owner race							 */
-int8u rgold_adj[MAX_RACES][MAX_RACES] = {
-			/*Hum, HfE, Elf,  Hal, Gno, Dwa, HfO, HfT, Dun, HiE*/
-/*Human		 */	 { 100, 105, 105, 110, 113, 115, 120, 125, 100, 105},
-/*Half-Elf	 */	 { 110, 100, 100, 105, 110, 120, 125, 130, 110, 100},
-/*Elf		 */	 { 110, 105, 100, 105, 110, 120, 125, 130, 110, 100},
-/*Halfling	 */	 { 115, 110, 105,  95, 105, 110, 115, 130, 115, 105},
-/*Gnome		 */	 { 115, 115, 110, 105,  95, 110, 115, 130, 115, 110},
-/*Dwarf		 */	 { 115, 120, 120, 110, 110,  95, 125, 135, 115, 120},
-/*Half-Orc	 */	 { 115, 120, 125, 115, 115, 130, 110, 115, 115, 125},
-/*Half-Troll	 */	 { 110, 115, 115, 110, 110, 130, 110, 110, 110, 115},
-/*Dunedain 	 */	 { 100, 105, 105, 110, 113, 115, 120, 125, 100, 105},
-/*High_Elf	 */	 { 110, 105, 100, 105, 110, 120, 125, 130, 110, 100}
-			};
-
-#define MDO MAX_DUNGEON_OBJ
-
-/* object_list[] index of objects that may appear in the store */
-int16u store_choice[MAX_STORES][STORE_CHOICES] = {
-	/* General Store */
-{MDO,MDO,MDO,MDO,MDO,MDO,MDO,MDO,MDO+21,MDO+21,MDO+21,MDO+21,MDO+22,MDO+22,
- MDO+22,MDO+1,MDO+2,MDO+3,MDO+4,
- MDO+22,MDO+20,MDO+21,MDO+5,MDO+6,84,84,123,MDO+22,MDO+22,MDO+21},
-	/* Armoury	 */
-{103,104,105,106,107,108,109,91,92,125,126,128,129,130,91,92,94,95,96,
- 103,104,105,125,128,94,95,111,112,113,121},
-	/* Weaponsmith	 */
-{29,29,29,31,34,35,42,46,49,58,60,61,63,64,68,73,74,75,77,78,80,82,83,83,
- 78,80,82,35,65,66},
-	/* Temple	 */
-{334,335,336,337,334,335,336,337,257,237,261,262,233,233,240,241,260,
- 260,MDO+14,MDO+15,MDO+15,MDO+15,53,54,55,52,335,180,237,240},
-	/* Alchemy shop	 */
-{227,227,230,230,236,206,252,252,253,253,MDO+7,MDO+7,MDO+7,MDO+8,MDO+8,MDO+8,
- MDO+9,MDO+10,MDO+11,MDO+12,MDO+13,MDO+15,MDO+15,173,174,175,185,185,185,206},
-	/* Magic-User store*/
-{330,331,332,333,330,331,332,333,326,293,293,299,303,301,302,318,326,
- 282,277,279,292,164,167,168,153,137,142,326,328,299}
-};
-
-#ifndef MAC
-/* MPW doesn't seem to handle this very well, so replace store_buy array
-   with a function call on mac */
-/* functions defined in sets.c */
-extern int general_store(), armory(), weaponsmith(), temple(),
-  alchemist(), magic_shop();
-
-int blackmarket();
-int home();
-
-/* Each store will buy only certain items, based on TVAL */
-int (*store_buy[MAX_STORES])() = {
-       general_store, armory, weaponsmith, temple, alchemist, magic_shop,
-       blackmarket, home};
-#endif
-
-/* Following are arrays for descriptive pieces			*/
-
-#ifdef MACGAME
-
-char **colors;
-char **mushrooms;
-char **woods;
-char **metals;
-char **rocks;
-char **amulets;
-char **syllables;
-
-#else
-
-char *colors[MAX_COLORS] = {
-/* Do not move the first three */
-  "Icky Green", "Light Brown", "Clear",
-  "Azure","Blue","Blue Speckled","Black","Brown","Brown Speckled","Bubbling",
-  "Chartreuse","Cloudy","Copper Speckled","Crimson","Cyan","Dark Blue",
-  "Dark Green","Dark Red","Gold Speckled","Green","Green Speckled","Grey",
-  "Grey Speckled","Hazy","Indigo","Light Blue","Light Green","Magenta",
-  "Metallic Blue","Metallic Red","Metallic Green","Metallic Purple","Misty",
-  "Orange","Orange Speckled","Pink","Pink Speckled","Puce","Purple",
-  "Purple Speckled","Red","Red Speckled","Silver Speckled","Smoky",
-  "Tangerine","Violet","Vermilion","White","Yellow", "Purple Speckled",
-  "Pungent","Clotted Red","Viscous Pink","Oily Yellow","Gloopy Green",
-  "Shimmering","Coagulated Crimson"
-};
-
-#ifdef TC_COLOR
-int8u tccolors[MAX_COLORS] = {
-  GREEN, BROWN, LIGHTCYAN,
-  LIGHTBLUE, BLUE, LIGHTBLUE, DARKGRAY, BROWN, BROWN, GREEN,
-  LIGHTGREEN, LIGHTGRAY, BROWN, LIGHTRED, CYAN, LIGHTBLUE,
-  GREEN, RED, YELLOW, GREEN, LIGHTGREEN, LIGHTGRAY,
-  DARKGRAY, LIGHTGRAY, BLUE, LIGHTBLUE, LIGHTGREEN, MAGENTA,
-  LIGHTBLUE, RED, GREEN, MAGENTA, LIGHTGRAY,
-  LIGHTRED, LIGHTRED, LIGHTMAGENTA, LIGHTMAGENTA, MAGENTA, MAGENTA,
-  LIGHTMAGENTA, RED, LIGHTRED, WHITE, LIGHTGRAY,
-  LIGHTRED, MAGENTA, RED, WHITE, YELLOW, LIGHTMAGENTA,
-  GREEN, RED, LIGHTRED, YELLOW, GREEN,
-  YELLOW, RED
-};
-#endif
-	
-
-char *mushrooms[MAX_MUSH] = {
-  "Blue","Black","Black Spotted","Brown","Dark Blue","Dark Green","Dark Red",
-  "Ecru","Furry","Green","Grey","Light Blue","Light Green","Plaid","Red",
-  "Slimy","Tan","White","White Spotted","Wooden","Wrinkled"/*,"Yellow",
-  "Shaggy","Red Spotted","Pale Blue","Dark Orange"*/
-};
-#ifdef TC_COLOR
-int8u tcmushrooms[MAX_MUSH] = {
-  BLUE, DARKGRAY, LIGHTGRAY, BROWN, BLUE, GREEN, RED,
-  LIGHTGRAY, BROWN, LIGHTGREEN, LIGHTGRAY, LIGHTBLUE, LIGHTGREEN, LIGHTMAGENTA,
-  LIGHTRED, LIGHTGREEN, BROWN, WHITE, LIGHTGRAY, BROWN, BROWN
-};
-#endif
-
-char *woods[MAX_WOODS] = {
-  "Aspen","Balsa","Banyan","Birch","Cedar","Cottonwood","Cypress","Dogwood",
-  "Elm","Eucalyptus","Hemlock","Hickory","Ironwood","Locust","Mahogany",
-  "Maple","Mulberry","Oak","Pine","Redwood","Rosewood","Spruce","Sycamore",
-  "Teak","Walnut",
-  "Mistletoe","Hawthorn","Bamboo","Silver","Runed","Golden","Ashen"/*,
-  "Gnarled","Ivory","Decorative","Willow"*/
-};
-#ifdef TC_COLOR
-int8u tcwoods[MAX_WOODS] = {
-  BROWN, WHITE, YELLOW, BROWN, LIGHTRED, BROWN, BROWN, BROWN,
-  BROWN, GREEN, LIGHTGREEN, BROWN, DARKGRAY, BROWN, DARKGRAY,
-  BROWN, BROWN, BROWN, BROWN, RED, LIGHTRED, BROWN, BROWN,
-  BROWN, BROWN,
-  LIGHTRED, BROWN, YELLOW, WHITE, DARKGRAY, YELLOW, LIGHTGRAY
-};
-#endif
-
-char *metals[MAX_METALS] = {
-  "Aluminum","Cast Iron","Chromium","Copper","Gold","Iron","Magnesium",
-  "Molybdenum","Nickel","Rusty","Silver","Steel","Tin","Titanium","Tungsten",
-  "Zirconium","Zinc","Aluminum-Plated","Copper-Plated","Gold-Plated",
-  "Nickel-Plated","Silver-Plated","Steel-Plated","Tin-Plated","Zinc-Plated",
-  "Mithril-Plated","Mithril","Runed","Bronze","Brass","Platinum",
-  "Lead"/*,"Lead-Plated","Ivory","Pewter"*/
-};
-#ifdef TC_COLOR
-int8u tcmetals[MAX_METALS] = {
-  LIGHTGRAY, DARKGRAY, WHITE, BROWN, YELLOW, DARKGRAY, LIGHTGRAY,
-  LIGHTGRAY, LIGHTGRAY, RED, WHITE, LIGHTGRAY, LIGHTGRAY, DARKGRAY, DARKGRAY,
-  LIGHTGREEN, BROWN, LIGHTGRAY, BROWN, YELLOW,
-  LIGHTGRAY, WHITE, LIGHTGRAY, LIGHTGRAY, BROWN,
-  LIGHTCYAN, LIGHTCYAN, DARKGRAY, BROWN, YELLOW, WHITE,
-  DARKGRAY
-};
-#endif
-
-char *rocks[MAX_ROCKS] = {
-  "Alexandrite","Amethyst","Aquamarine","Azurite","Beryl","Bloodstone",
-  "Calcite","Carnelian","Corundum","Diamond","Emerald","Fluorite","Garnet",
-  "Granite","Jade","Jasper","Lapis Lazuli","Malachite","Marble","Moonstone",
-  "Onyx","Opal","Pearl","Quartz","Quartzite","Rhodonite","Ruby","Sapphire",
-  "Tiger Eye","Topaz","Turquoise","Zircon","Platinum","Bronze",
-  "Gold","Obsidian","Silver","Tortoise Shell","Mithril"
-};
-#ifdef TC_COLOR
-int8u tcrocks[MAX_ROCKS] = {
-  GREEN, MAGENTA, CYAN, LIGHTBLUE, LIGHTGRAY, RED,
-  WHITE, RED, BROWN, WHITE, GREEN, YELLOW, DARKGRAY,
-  LIGHTGRAY, LIGHTGREEN, BROWN, LIGHTBLUE, GREEN, LIGHTMAGENTA, LIGHTCYAN,
-  LIGHTRED, DARKGRAY, WHITE, WHITE, WHITE, LIGHTRED, RED, BLUE,
-  BROWN, YELLOW, CYAN, BLUE, WHITE, BROWN,
-  YELLOW, DARKGRAY, WHITE, GREEN, LIGHTCYAN
-};
-#endif
-
-char *amulets[MAX_AMULETS] = {
-  "Amber","Driftwood","Coral","Agate","Ivory","Obsidian",
-  "Bone","Brass","Bronze","Pewter","Tortoise Shell","Golden","Azure",
-  "Crystal","Silver","Copper"
-};
-#ifdef TC_COLOR
-int8u tcamulets[MAX_AMULETS] = {
-  YELLOW, BROWN, WHITE, MAGENTA, WHITE, DARKGRAY,
-  WHITE, YELLOW, BROWN, LIGHTGRAY, GREEN, YELLOW, LIGHTBLUE,
-  LIGHTCYAN, WHITE, BROWN
-};
-#endif
-
-char *syllables[MAX_SYLLABLES] = {
-  "a","ab","ag","aks","ala","an","ankh","app",
-  "arg","arze","ash","aus","ban","bar","bat","bek",
-  "bie","bin","bit","bjor","blu","bot","bu",
-  "byt","comp","con","cos","cre","dalf","dan",
-  "den","der","doe","dok","eep","el","eng","er","ere","erk",
-  "esh","evs","fa","fid","flit","for","fri","fu","gan",
-  "gar","glen","gop","gre","ha","he","hyd","i",
-  "ing","ion","ip","ish","it","ite","iv","jo",
-  "kho","kli","klis","la","lech","man","mar",
-  "me","mi","mic","mik","mon","mung","mur","nag","nej",
-  "nelg","nep","ner","nes","nis","nih","nin","o",
-  "od","ood","org","orn","ox","oxy","pay","pet",
-  "ple","plu","po","pot","prok","re","rea","rhov",
-  "ri","ro","rog","rok","rol","sa","san","sat",
-  "see","sef","seh","shu","ski","sna","sne","snik",
-  "sno","so","sol","sri","sta","sun","ta","tab",
-  "tem","ther","ti","tox","trol","tue","turs","u",
-  "ulk","um","un","uni","ur","val","viv","vly",
-  "vom","wah","wed","werg","wex","whon","wun","x",
-  "yerg","yp","zun","tri","blaa"
-};
-#endif
-
-/* used to calculate the number of blows the player gets in combat */
-int8u blows_table[11][12] = {  /* These comments should now be correct -CFT */
-/* STR/W:     DEX <10 <19 <68  <98 <108 <118 <128 <138 <148 <158 <168 else */
-/* <2 */	{  1,  1,  1,   1,   1,   1,   2,   2,   2,   2,   2,   3},
-/* <3 */	{  1,  1,  1,   1,   2,   2,   3,   3,   3,   3,   3,   4},
-/* <4 */	{  1,  1,  1,   2,   2,   3,   4,   4,   4,   4,   4,   5},
-/* <6 */	{  1,  1,  2,   2,   3,   3,   4,   4,   4,   5,   5,   5},
-/* <8 */	{  1,  2,  2,   3,   3,   4,   4,   4,   5,   5,   5,   5},
-/* <10 */	{  1,  2,  2,   3,   4,   4,   4,   5,   5,   5,   5,   5},
-/* <13 */	{  2,  2,  3,   3,   4,   4,   5,   5,   5,   5,   5,   6},
-/* <15 */	{  2,  3,  3,   3,   4,   4,   5,   5,   5,   5,   5,   6},
-/* <18 */	{  3,  3,  3,   4,   4,   4,   5,   5,   5,   5,   6,   6},
-/* <20 */	{  3,  3,  3,   4,   4,   4,   5,   5,   5,   5,   6,   6},
-/* else */	{  3,  3,  4,   4,   4,   4,   5,   5,   5,   6,   6,   6}
+/*
+ * Stat Table (STR/DEX) -- dragon tooth\claw damage modifier
+ */
+s16b adj_drag[] = {
+    -50         /* 3 */,
+    -35         /* 4 */,
+    -20         /* 5 */,
+    -15         /* 6 */,
+    -10         /* 7 */,
+    -8          /* 8 */,
+    -6          /* 9 */,
+    -4          /* 10 */,
+    -2          /* 11 */,
+    0           /* 12 */,
+    1           /* 13 */,
+    2           /* 14 */,
+    3           /* 15 */,
+    4           /* 16 */,
+    5           /* 17 */,
+    6           /* 18 */,
+    7           /* 18/01-18/09 */,
+    7           /* 18/10-18/19 */,
+    8           /* 18/20-18/29 */,
+    8           /* 18/30-18/39 */,
+    9           /* 18/40-18/49 */,
+    9           /* 18/50-18/59 */,
+    10          /* 18/60-18/69 */,
+    11          /* 18/70-18/79 */,
+    12          /* 18/80-18/89 */,
+    13          /* 18/90-18/99 */,
+    14          /* 18/100 */,
+    15          /* 18/101-18/109 */,
+    16          /* 18/110-18/119 */,
+    18          /* 18/120-18/129 */,
+    20          /* 18/130-18/139 */,
+    22          /* 18/140-18/149 */,
+    24          /* 18/150-18/159 */,
+    26          /* 18/160-18/169 */,
+    28          /* 18/170-18/179 */,
+    30          /* 18/180-18/189 */,
+    32          /* 18/190-18/199 */,
+    35          /* 18/200-18/209 */,
+    40          /* 18/210-18/219 */,
+    50          /* 18/220+ */
 };
 
 
-/* this table is used to generate a psuedo-normal distribution.	 See the
-   function randnor() in misc1.c, this is much faster than calling
-   transcendental function to calculate a true normal distribution */
-int16u normal_table[NORMAL_TABLE_SIZE] = {
-     206,     613,    1022,    1430,	1838,	 2245,	  2652,	   3058,
-    3463,    3867,    4271,    4673,	5075,	 5475,	  5874,	   6271,
-    6667,    7061,    7454,    7845,	8234,	 8621,	  9006,	   9389,
-    9770,   10148,   10524,   10898,   11269,	11638,	 12004,	  12367,
-   12727,   13085,   13440,   13792,   14140,	14486,	 14828,	  15168,
-   15504,   15836,   16166,   16492,   16814,	17133,	 17449,	  17761,
-   18069,   18374,   18675,   18972,   19266,	19556,	 19842,	  20124,
-   20403,   20678,   20949,   21216,   21479,	21738,	 21994,	  22245,
-   22493,   22737,   22977,   23213,   23446,	23674,	 23899,	  24120,
-   24336,   24550,   24759,   24965,   25166,	25365,	 25559,	  25750,
-   25937,   26120,   26300,   26476,   26649,	26818,	 26983,	  27146,
-   27304,   27460,   27612,   27760,   27906,	28048,	 28187,	  28323,
-   28455,   28585,   28711,   28835,   28955,	29073,	 29188,	  29299,
-   29409,   29515,   29619,   29720,   29818,	29914,	 30007,	  30098,
-   30186,   30272,   30356,   30437,   30516,	30593,	 30668,	  30740,
-   30810,   30879,   30945,   31010,   31072,	31133,	 31192,	  31249,
-   31304,   31358,   31410,   31460,   31509,	31556,	 31601,	  31646,
-   31688,   31730,   31770,   31808,   31846,	31882,	 31917,	  31950,
-   31983,   32014,   32044,   32074,   32102,	32129,	 32155,	  32180,
-   32205,   32228,   32251,   32273,   32294,	32314,	 32333,	  32352,
-   32370,   32387,   32404,   32420,   32435,	32450,	 32464,	  32477,
-   32490,   32503,   32515,   32526,   32537,	32548,	 32558,	  32568,
-   32577,   32586,   32595,   32603,   32611,	32618,	 32625,	  32632,
-   32639,   32645,   32651,   32657,   32662,	32667,	 32672,	  32677,
-   32682,   32686,   32690,   32694,   32698,	32702,	 32705,	  32708,
-   32711,   32714,   32717,   32720,   32722,	32725,	 32727,	  32729,
-   32731,   32733,   32735,   32737,   32739,	32740,	 32742,	  32743,
-   32745,   32746,   32747,   32748,   32749,	32750,	 32751,	  32752,
-   32753,   32754,   32755,   32756,   32757,	32757,	 32758,	  32758,
-   32759,   32760,   32760,   32761,   32761,	32761,	 32762,	  32762,
-   32763,   32763,   32763,   32764,   32764,	32764,	 32764,	  32765,
-   32765,   32765,   32765,   32766,   32766,	32766,	 32766,	  32766,
+/*
+ * Stat Table -- lowest stat in each stat index range
+ */
+s16b adj_val_min[] = {
+    3           /* 3 */,
+    4           /* 4 */,
+    5           /* 5 */,
+    6           /* 6 */,
+    7           /* 7 */,
+    8           /* 8 */,
+    9           /* 9 */,
+    10          /* 10 */,
+    11          /* 11 */,
+    12          /* 12 */,
+    13          /* 13 */,
+    14          /* 14 */,
+    15          /* 15 */,
+    16          /* 16 */,
+    17          /* 17 */,
+    18          /* 18 */,
+    18+1        /* 18/01-18/09 */,
+    18+10       /* 18/10-18/19 */,
+    18+20       /* 18/20-18/29 */,
+    18+30       /* 18/30-18/39 */,
+    18+40       /* 18/40-18/49 */,
+    18+50       /* 18/50-18/59 */,
+    18+60       /* 18/60-18/69 */,
+    18+70       /* 18/70-18/79 */,
+    18+80       /* 18/80-18/89 */,
+    18+90       /* 18/90-18/99 */,
+    18+100      /* 18/100 */,
+    18+101      /* 18/101-18/109 */,
+    18+110      /* 18/110-18/119 */,
+    18+120      /* 18/120-18/129 */,
+    18+130      /* 18/130-18/139 */,
+    18+140      /* 18/140-18/149 */,
+    18+150      /* 18/150-18/159 */,
+    18+160      /* 18/160-18/169 */,
+    18+170      /* 18/170-18/179 */,
+    18+180      /* 18/180-18/189 */,
+    18+190      /* 18/190-18/199 */,
+    18+200      /* 18/200-18/209 */,
+    18+210      /* 18/210-18/219 */,
+    18+220      /* 18/220+ */
 };
+
+
+/*
+ * Stat Table -- lowest stat in each stat index range
+ */
+s16b adj_val_max[] = {
+    3           /* 3 */,
+    4           /* 4 */,
+    5           /* 5 */,
+    6           /* 6 */,
+    7           /* 7 */,
+    8           /* 8 */,
+    9           /* 9 */,
+    10          /* 10 */,
+    11          /* 11 */,
+    12          /* 12 */,
+    13          /* 13 */,
+    14          /* 14 */,
+    15          /* 15 */,
+    16          /* 16 */,
+    17          /* 17 */,
+    18          /* 18 */,
+    18+9        /* 18/01-18/09 */,
+    18+19       /* 18/10-18/19 */,
+    18+29       /* 18/20-18/29 */,
+    18+39       /* 18/30-18/39 */,
+    18+49       /* 18/40-18/49 */,
+    18+59       /* 18/50-18/59 */,
+    18+69       /* 18/60-18/69 */,
+    18+79       /* 18/70-18/79 */,
+    18+89       /* 18/80-18/89 */,
+    18+99       /* 18/90-18/99 */,
+    18+100      /* 18/100 */,
+    18+109      /* 18/101-18/109 */,
+    18+119      /* 18/110-18/119 */,
+    18+129      /* 18/120-18/129 */,
+    18+139      /* 18/130-18/139 */,
+    18+149      /* 18/140-18/149 */,
+    18+159      /* 18/150-18/159 */,
+    18+169      /* 18/160-18/169 */,
+    18+179      /* 18/170-18/179 */,
+    18+189      /* 18/180-18/189 */,
+    18+199      /* 18/190-18/199 */,
+    18+209      /* 18/200-18/209 */,
+    18+219      /* 18/210-18/219 */,
+    18+999      /* 18/220+ */
+};
+
+
+
+
+
+/*
+ * Stat Table (INT/WIS) -- Number of tenth-spells per level
+ */
+s16b adj_mag_study[] = {
+    0   /* 3 */,
+    0   /* 4 */,
+    0   /* 5 */,
+    1   /* 6 */,
+    2   /* 7 */,
+    3   /* 8 */,
+    4   /* 9 */,
+    5    /* 10 */,
+    6    /* 11 */,
+    7    /* 12 */,
+    8    /* 13 */,
+    9    /* 14 */,
+    10   /* 15 */,
+    10   /* 16 */,
+    10   /* 17 */,
+    10   /* 18 */,
+    10   /* 18/01-18/09 */,
+    11   /* 18/10-18/19 */,
+    12   /* 18/20-18/29 */,
+    13   /* 18/30-18/39 */,
+    14   /* 18/40-18/49 */,
+    15   /* 18/50-18/59 */,
+    16   /* 18/60-18/69 */,
+    17   /* 18/70-18/79 */,
+    18   /* 18/80-18/89 */,
+    20   /* 18/90-18/99 */,
+    21   /* 18/100 */,
+    22   /* 18/101-18/109 */,
+    23   /* 18/110-18/119 */,
+    24   /* 18/120-18/129 */,
+    25   /* 18/130-18/139 */,
+    25   /* 18/140-18/149 */,
+    25   /* 18/150-18/159 */,
+    25   /* 18/160-18/169 */,
+    25   /* 18/170-18/179 */,
+    25   /* 18/180-18/189 */,
+    25   /* 18/190-18/199 */,
+    25   /* 18/200-18/209 */,
+    25   /* 18/210-18/219 */,
+    25   /* 18/220+ */
+};
+
+
+/*
+ * Stat Table (INT/WIS) -- extra tenth-mana-points per level
+ */
+s16b adj_mag_mana[] = {
+    0   /* 3 */,
+    0   /* 4 */,
+    1   /* 5 */,
+    2   /* 6 */,
+    3   /* 7 */,
+    5   /* 8 */,
+    7   /* 9 */,
+    9   /* 10 */,
+    10   /* 11 */,
+    10   /* 12 */,
+    10   /* 13 */,
+    10   /* 14 */,
+    10   /* 15 */,
+    11   /* 16 */,
+    12  /* 17 */,
+    13   /* 18 */,
+    14   /* 18/01-18/09 */,
+    15   /* 18/10-18/19 */,
+    16   /* 18/20-18/29 */,
+    17   /* 18/30-18/39 */,
+    18   /* 18/40-18/49 */,
+    20   /* 18/50-18/59 */,
+    21   /* 18/60-18/69 */,
+    23   /* 18/70-18/79 */,
+    25   /* 18/80-18/89 */,
+    30   /* 18/90-18/99 */,
+    35   /* 18/100 */,
+    40   /* 18/101-18/109 */,
+    45   /* 18/110-18/119 */,
+    50  /* 18/120-18/129 */,
+    55  /* 18/130-18/139 */,
+    60  /* 18/140-18/149 */,
+    65  /* 18/150-18/159 */,
+    70  /* 18/160-18/169 */,
+    75  /* 18/170-18/179 */,
+    78  /* 18/180-18/189 */,
+    80  /* 18/190-18/199 */,
+    82  /* 18/200-18/209 */,
+    84  /* 18/210-18/219 */,
+    85  /* 18/220+ */
+};
+
+
+/*
+ * Stat Table (INT/WIS) -- Minimum failure rate (percentage)
+ */
+s16b adj_mag_fail[] = {
+    99  /* 3 */,
+    99  /* 4 */,
+    99  /* 5 */,
+    99  /* 6 */,
+    99  /* 7 */,
+    50  /* 8 */,
+    30  /* 9 */,
+    20  /* 10 */,
+    15  /* 11 */,
+    12  /* 12 */,
+    11  /* 13 */,
+    10  /* 14 */,
+    9   /* 15 */,
+    8   /* 16 */,
+    7   /* 17 */,
+    6   /* 18 */,
+    5   /* 18/01-18/09 */,
+    5   /* 18/10-18/19 */,
+    5   /* 18/20-18/29 */,
+    5   /* 18/30-18/39 */,
+    5   /* 18/40-18/49 */,
+    4   /* 18/50-18/59 */,
+    4   /* 18/60-18/69 */,
+    4   /* 18/70-18/79 */,
+    4   /* 18/80-18/89 */,
+    3   /* 18/90-18/99 */,
+    3   /* 18/100 */,
+    2   /* 18/101-18/109 */,
+    2   /* 18/110-18/119 */,
+    2   /* 18/120-18/129 */,
+    2   /* 18/130-18/139 */,
+    2   /* 18/140-18/149 */,
+    1   /* 18/150-18/159 */,
+    1   /* 18/160-18/169 */,
+    1   /* 18/170-18/179 */,
+    1   /* 18/180-18/189 */,
+    1   /* 18/190-18/199 */,
+    0   /* 18/200-18/209 */,
+    0   /* 18/210-18/219 */,
+    0   /* 18/220+ */
+};
+
+
+/*
+ * Stat Table (INT/WIS) -- Various things
+ */
+s16b adj_mag_stat[] = {
+    0   /* 3 */,
+    0   /* 4 */,
+    0   /* 5 */,
+    0   /* 6 */,
+    0   /* 7 */,
+    1   /* 8 */,
+    1   /* 9 */,
+    1   /* 10 */,
+    1   /* 11 */,
+    1   /* 12 */,
+    1   /* 13 */,
+    1   /* 14 */,
+    2   /* 15 */,
+    2   /* 16 */,
+    2   /* 17 */,
+    3   /* 18 */,
+    3   /* 18/01-18/09 */,
+    3   /* 18/10-18/19 */,
+    3   /* 18/20-18/29 */,
+    3   /* 18/30-18/39 */,
+    3   /* 18/40-18/49 */,
+    4   /* 18/50-18/59 */,
+    4   /* 18/60-18/69 */,
+    5   /* 18/70-18/79 */,
+    5   /* 18/80-18/89 */,
+    6   /* 18/90-18/99 */,
+    7   /* 18/100 */,
+    8   /* 18/101-18/109 */,
+    9   /* 18/110-18/119 */,
+    10  /* 18/120-18/129 */,
+    11  /* 18/130-18/139 */,
+    12  /* 18/140-18/149 */,
+    13  /* 18/150-18/159 */,
+    14  /* 18/160-18/169 */,
+    15  /* 18/170-18/179 */,
+    16  /* 18/180-18/189 */,
+    17  /* 18/190-18/199 */,
+    18  /* 18/200-18/209 */,
+    19  /* 18/210-18/219 */,
+    20  /* 18/220+ */
+};
+
+
+/*
+ * Stat Table (INT) -- Magic devices
+ */
+s16b adj_int_dev[] = {
+    0   /* 3 */,
+    0   /* 4 */,
+    0   /* 5 */,
+    0   /* 6 */,
+    0   /* 7 */,
+    1   /* 8 */,
+    1   /* 9 */,
+    1   /* 10 */,
+    1   /* 11 */,
+    1   /* 12 */,
+    1   /* 13 */,
+    1   /* 14 */,
+    2   /* 15 */,
+    2   /* 16 */,
+    2   /* 17 */,
+    3   /* 18 */,
+    3   /* 18/01-18/09 */,
+    3   /* 18/10-18/19 */,
+    3   /* 18/20-18/29 */,
+    3   /* 18/30-18/39 */,
+    3   /* 18/40-18/49 */,
+    4   /* 18/50-18/59 */,
+    4   /* 18/60-18/69 */,
+    5   /* 18/70-18/79 */,
+    5   /* 18/80-18/89 */,
+    6   /* 18/90-18/99 */,
+    7   /* 18/100 */,
+    8   /* 18/101-18/109 */,
+    9   /* 18/110-18/119 */,
+    10  /* 18/120-18/129 */,
+    11  /* 18/130-18/139 */,
+    12  /* 18/140-18/149 */,
+    13  /* 18/150-18/159 */,
+    14  /* 18/160-18/169 */,
+    15  /* 18/170-18/179 */,
+    16  /* 18/180-18/189 */,
+    17  /* 18/190-18/199 */,
+    18  /* 18/200-18/209 */,
+    19  /* 18/210-18/219 */,
+    20  /* 18/220+ */
+};
+
+
+/*
+ * Stat Table (WIS) -- Saving throw
+ */
+s16b adj_wis_sav[] = {
+    0   /* 3 */,
+    0   /* 4 */,
+    0   /* 5 */,
+    0   /* 6 */,
+    0   /* 7 */,
+    1   /* 8 */,
+    1   /* 9 */,
+    1   /* 10 */,
+    1   /* 11 */,
+    1   /* 12 */,
+    1   /* 13 */,
+    1   /* 14 */,
+    2   /* 15 */,
+    2   /* 16 */,
+    2   /* 17 */,
+    3   /* 18 */,
+    3   /* 18/01-18/09 */,
+    3   /* 18/10-18/19 */,
+    3   /* 18/20-18/29 */,
+    3   /* 18/30-18/39 */,
+    3   /* 18/40-18/49 */,
+    4   /* 18/50-18/59 */,
+    4   /* 18/60-18/69 */,
+    5   /* 18/70-18/79 */,
+    5   /* 18/80-18/89 */,
+    6   /* 18/90-18/99 */,
+    7   /* 18/100 */,
+    8   /* 18/101-18/109 */,
+    9   /* 18/110-18/119 */,
+    10  /* 18/120-18/129 */,
+    11  /* 18/130-18/139 */,
+    12  /* 18/140-18/149 */,
+    13  /* 18/150-18/159 */,
+    14  /* 18/160-18/169 */,
+    15  /* 18/170-18/179 */,
+    16  /* 18/180-18/189 */,
+    17  /* 18/190-18/199 */,
+    18  /* 18/200-18/209 */,
+    19  /* 18/210-18/219 */,
+    20  /* 18/220+ */
+};
+
+
+
+/*
+ * Stat Table (DEX) -- disarming
+ */
+s16b adj_dex_dis[] = {
+    -12 /* 3 */,
+    -8  /* 4 */,
+    -4  /* 5 */,
+    -2  /* 6 */,
+    -1  /* 7 */,
+    0   /* 8 */,
+    0   /* 9 */,
+    0   /* 10 */,
+    0   /* 11 */,
+    0   /* 12 */,
+    1   /* 13 */,
+    1   /* 14 */,
+    1   /* 15 */,
+    2   /* 16 */,
+    2   /* 17 */,
+    4   /* 18 */,
+    4   /* 18/01-18/09 */,
+    4   /* 18/10-18/19 */,
+    4   /* 18/20-18/29 */,
+    4   /* 18/30-18/39 */,
+    5   /* 18/40-18/49 */,
+    5   /* 18/50-18/59 */,
+    5   /* 18/60-18/69 */,
+    6   /* 18/70-18/79 */,
+    6   /* 18/80-18/89 */,
+    7   /* 18/90-18/99 */,
+    8   /* 18/100 */,
+    8   /* 18/101-18/109 */,
+    8   /* 18/110-18/119 */,
+    8   /* 18/120-18/129 */,
+    8   /* 18/130-18/139 */,
+    8   /* 18/140-18/149 */,
+    9   /* 18/150-18/159 */,
+    9   /* 18/160-18/169 */,
+    9   /* 18/170-18/179 */,
+    9   /* 18/180-18/189 */,
+    9   /* 18/190-18/199 */,
+    10  /* 18/200-18/209 */,
+    10  /* 18/210-18/219 */,
+    10  /* 18/220+ */
+};
+
+
+/*
+ * Stat Table (INT) -- disarming
+ */
+s16b adj_int_dis[] = {
+    0   /* 3 */,
+    0   /* 4 */,
+    0   /* 5 */,
+    0   /* 6 */,
+    0   /* 7 */,
+    1   /* 8 */,
+    1   /* 9 */,
+    1   /* 10 */,
+    1   /* 11 */,
+    1   /* 12 */,
+    1   /* 13 */,
+    1   /* 14 */,
+    2   /* 15 */,
+    2   /* 16 */,
+    2   /* 17 */,
+    3   /* 18 */,
+    3   /* 18/01-18/09 */,
+    3   /* 18/10-18/19 */,
+    3   /* 18/20-18/29 */,
+    3   /* 18/30-18/39 */,
+    3   /* 18/40-18/49 */,
+    4   /* 18/50-18/59 */,
+    4   /* 18/60-18/69 */,
+    5   /* 18/70-18/79 */,
+    5   /* 18/80-18/89 */,
+    6   /* 18/90-18/99 */,
+    7   /* 18/100 */,
+    8   /* 18/101-18/109 */,
+    9   /* 18/110-18/119 */,
+    10  /* 18/120-18/129 */,
+    11  /* 18/130-18/139 */,
+    12  /* 18/140-18/149 */,
+    13  /* 18/150-18/159 */,
+    14  /* 18/160-18/169 */,
+    15  /* 18/170-18/179 */,
+    16  /* 18/180-18/189 */,
+    17  /* 18/190-18/199 */,
+    18  /* 18/200-18/209 */,
+    19  /* 18/210-18/219 */,
+    20  /* 18/220+ */
+};
+
+
+/*
+ * Stat Table (DEX) -- bonus to ac
+ */
+s16b adj_dex_ta[] = {
+    -4  /* 3 */,
+    -3  /* 4 */,
+    -2  /* 5 */,
+    -1  /* 6 */,
+    0   /* 7 */,
+    0   /* 8 */,
+    0   /* 9 */,
+    0   /* 10 */,
+    0   /* 11 */,
+    0   /* 12 */,
+    0   /* 13 */,
+    0   /* 14 */,
+    1   /* 15 */,
+    1   /* 16 */,
+    1   /* 17 */,
+    2   /* 18 */,
+    2   /* 18/01-18/09 */,
+    2   /* 18/10-18/19 */,
+    2   /* 18/20-18/29 */,
+    2   /* 18/30-18/39 */,
+    2   /* 18/40-18/49 */,
+    3   /* 18/50-18/59 */,
+    3   /* 18/60-18/69 */,
+    3   /* 18/70-18/79 */,
+    4   /* 18/80-18/89 */,
+    5   /* 18/90-18/99 */,
+    6   /* 18/100 */,
+    6   /* 18/101-18/109 */,
+    7   /* 18/110-18/119 */,
+    8   /* 18/120-18/129 */,
+    9   /* 18/130-18/139 */,
+    9   /* 18/140-18/149 */,
+    10  /* 18/150-18/159 */,
+    11  /* 18/160-18/169 */,
+    12  /* 18/170-18/179 */,
+    13  /* 18/180-18/189 */,
+    14  /* 18/190-18/199 */,
+    15  /* 18/200-18/209 */,
+    15  /* 18/210-18/219 */,
+    15  /* 18/220+ */
+};
+
+
+/*
+ * Stat Table (STR) -- bonus to dam
+ */
+s16b adj_str_td[] = {
+    -2  /* 3 */,
+    -2  /* 4 */,
+    -1  /* 5 */,
+    -1  /* 6 */,
+    0   /* 7 */,
+    0   /* 8 */,
+    0   /* 9 */,
+    0   /* 10 */,
+    0   /* 11 */,
+    0   /* 12 */,
+    0   /* 13 */,
+    0   /* 14 */,
+    0   /* 15 */,
+    1   /* 16 */,
+    2   /* 17 */,
+    2   /* 18 */,
+    3   /* 18/01-18/09 */,
+    3   /* 18/10-18/19 */,
+    3   /* 18/20-18/29 */,
+    3   /* 18/30-18/39 */,
+    3   /* 18/40-18/49 */,
+    3   /* 18/50-18/59 */,
+    3   /* 18/60-18/69 */,
+    4   /* 18/70-18/79 */,
+    5   /* 18/80-18/89 */,
+    5   /* 18/90-18/99 */,
+    6   /* 18/100 */,
+    6   /* 18/101-18/109 */,
+    7   /* 18/110-18/119 */,
+    8   /* 18/120-18/129 */,
+    9   /* 18/130-18/139 */,
+    10  /* 18/140-18/149 */,
+    11  /* 18/150-18/159 */,
+    12  /* 18/160-18/169 */,
+    13  /* 18/170-18/179 */,
+    14  /* 18/180-18/189 */,
+    15  /* 18/190-18/199 */,
+    16  /* 18/200-18/209 */,
+    18  /* 18/210-18/219 */,
+    20  /* 18/220+ */
+};
+
+
+/*
+ * Stat Table (DEX) -- bonus to hit
+ */
+s16b adj_dex_th[] = {
+    -3  /* 3 */,
+    -2  /* 4 */,
+    -2  /* 5 */,
+    -1  /* 6 */,
+    -1  /* 7 */,
+    0   /* 8 */,
+    0   /* 9 */,
+    0   /* 10 */,
+    0   /* 11 */,
+    0   /* 12 */,
+    0   /* 13 */,
+    0   /* 14 */,
+    0   /* 15 */,
+    1   /* 16 */,
+    2   /* 17 */,
+    3   /* 18 */,
+    3   /* 18/01-18/09 */,
+    3   /* 18/10-18/19 */,
+    3   /* 18/20-18/29 */,
+    3   /* 18/30-18/39 */,
+    3   /* 18/40-18/49 */,
+    4   /* 18/50-18/59 */,
+    4   /* 18/60-18/69 */,
+    4   /* 18/70-18/79 */,
+    4   /* 18/80-18/89 */,
+    5   /* 18/90-18/99 */,
+    6   /* 18/100 */,
+    6   /* 18/101-18/109 */,
+    7   /* 18/110-18/119 */,
+    8   /* 18/120-18/129 */,
+    9   /* 18/130-18/139 */,
+    9   /* 18/140-18/149 */,
+    10  /* 18/150-18/159 */,
+    11  /* 18/160-18/169 */,
+    12  /* 18/170-18/179 */,
+    13  /* 18/180-18/189 */,
+    14  /* 18/190-18/199 */,
+    15  /* 18/200-18/209 */,
+    15  /* 18/210-18/219 */,
+    15  /* 18/220+ */
+};
+
+
+/*
+ * Stat Table (STR) -- bonus to hit
+ */
+s16b adj_str_th[] = {
+    -3  /* 3 */,
+    -2  /* 4 */,
+    -1  /* 5 */,
+    -1  /* 6 */,
+    0   /* 7 */,
+    0   /* 8 */,
+    0   /* 9 */,
+    0   /* 10 */,
+    0   /* 11 */,
+    0   /* 12 */,
+    0   /* 13 */,
+    0   /* 14 */,
+    0   /* 15 */,
+    0   /* 16 */,
+    0   /* 17 */,
+    1   /* 18 */,
+    1   /* 18/01-18/09 */,
+    1   /* 18/10-18/19 */,
+    1   /* 18/20-18/29 */,
+    1   /* 18/30-18/39 */,
+    1   /* 18/40-18/49 */,
+    1   /* 18/50-18/59 */,
+    1   /* 18/60-18/69 */,
+    2   /* 18/70-18/79 */,
+    3   /* 18/80-18/89 */,
+    4   /* 18/90-18/99 */,
+    5   /* 18/100 */,
+    5   /* 18/101-18/109 */,
+    6   /* 18/110-18/119 */,
+    7   /* 18/120-18/129 */,
+    8   /* 18/130-18/139 */,
+    9   /* 18/140-18/149 */,
+    10  /* 18/150-18/159 */,
+    11  /* 18/160-18/169 */,
+    12  /* 18/170-18/179 */,
+    13  /* 18/180-18/189 */,
+    14  /* 18/190-18/199 */,
+    15  /* 18/200-18/209 */,
+    15  /* 18/210-18/219 */,
+    15  /* 18/220+ */
+};
+
+
+/*
+ * Stat Table (CHR) -- payment percentages
+ */
+s16b adj_chr[] = {
+    130 /* 3 */,
+    125 /* 4 */,
+    122 /* 5 */,
+    120 /* 6 */,
+    118 /* 7 */,
+    116 /* 8 */,
+    114 /* 9 */,
+    112 /* 10 */,
+    110 /* 11 */,
+    108 /* 12 */,
+    106 /* 13 */,
+    104 /* 14 */,
+    103 /* 15 */,
+    102 /* 16 */,
+    101 /* 17 */,
+    100 /* 18 */,
+    99  /* 18/01-18/09 */,
+    98  /* 18/10-18/19 */,
+    97  /* 18/20-18/29 */,
+    96  /* 18/30-18/39 */,
+    96  /* 18/40-18/49 */,
+    95  /* 18/50-18/59 */,
+    94  /* 18/60-18/69 */,
+    93  /* 18/70-18/79 */,
+    92  /* 18/80-18/89 */,
+    91  /* 18/90-18/99 */,
+    90  /* 18/100 */,
+    90  /* 18/101-18/109 */,
+    89  /* 18/110-18/119 */,
+    88  /* 18/120-18/129 */,
+    87  /* 18/130-18/139 */,
+    86  /* 18/140-18/149 */,
+    85  /* 18/150-18/159 */,
+    84  /* 18/160-18/169 */,
+    83  /* 18/170-18/179 */,
+    82  /* 18/180-18/189 */,
+    81  /* 18/190-18/199 */,
+    80  /* 18/200-18/209 */,
+    80  /* 18/210-18/219 */,
+    80  /* 18/220+ */
+};
+
+
+
+/*
+ * Help calculate the number of blows the player gets in combat
+ *
+ * Entry "blows_table[P][D]" is the number of attacks by a player with
+ * the given "P" and "D" values.  The "D" value comes from "DEX" as shown
+ * below, and the "P" comes from "STR/WGT", as shown below, where WGT is
+ * the weight of the weapon (in pounds), and is always at least three pounds.
+ * Note that non-warrior classes have lower "P" indexes, with mages having a
+ * "P" index only 40% that of a warrior.  Also, other classes have higher
+ * "minimum weapon weights", ranging up to four pounds for mages.  Also, only
+ * a warrior may get six attacks, and a mage can only get four attacks.
+ *
+ * Note that weapons of extra attacks take effect *after* this computation.
+ */
+byte blows_table[12][14] = {
+
+/* P/D             3,  10, /01, /50, /90,/100,/101,/110,/120,/130,/140,/160,/180,/200*/
+
+/* 0+ */        {  1,   1,   1,   1,   1,   1,   2,   2,   2,   2,   2,   3,   3,   4},
+/* 2+ */        {  1,   1,   1,   1,   2,   2,   3,   3,   3,   3,   3,   4,   4,   5},
+/* 3+ */        {  1,   1,   1,   2,   2,   3,   4,   4,   4,   4,   4,   5,   5,   5},
+/* 4+ */        {  1,   1,   2,   2,   3,   3,   4,   4,   4,   5,   5,   5,   5,   5},
+/* 6+ */        {  1,   2,   2,   3,   3,   4,   4,   4,   5,   5,   5,   5,   5,   6},
+/* 8+ */        {  1,   2,   2,   3,   4,   4,   4,   5,   5,   5,   5,   5,   6,   6},
+/* 10+ */       {  2,   2,   3,   3,   4,   4,   5,   5,   5,   5,   5,   6,   6,   6},
+/* 13+ */       {  2,   3,   3,   3,   4,   4,   5,   5,   5,   5,   5,   6,   6,   7},
+/* 15+ */       {  2,   3,   3,   4,   4,   4,   5,   5,   5,   5,   6,   6,   6,   7},
+/* 18+ */       {  3,   3,   3,   4,   4,   4,   5,   5,   5,   5,   6,   6,   7,   7},
+/* 20+ */       {  3,   3,   4,   4,   4,   4,   5,   5,   5,   6,   6,   6,   7,   8},
+/* 25+ */       {  3,   3,   4,   4,   4,   4,   5,   5,   5,   6,   6,   7,   8,   8}
+
+};
+
+
+
+
+/*
+ * Store owners (several possible owners per store)
+ * { name, purse, max greed, min greed, haggle_per, race, tolerance }
+ */
+owner_type owners[MAX_STORES][MAX_OWNERS] = {
+
+  {
+    /* General store */
+    { "Rincewind the Chicken",  450,    175,  108,    4,  0, 12},
+    { "Bilbo the Friendly",     300,    170,  108,    5,  3, 15},
+    { "Lyar-el the Comely",     600,    165,  107,    6,  2, 18},
+    { "Hiss-Thpt the Mean" ,    100,    200,  120,    6, 15,  5},
+  },
+  {
+    /* Armoury */
+    { "Mauglin the Grumpy",     32000,  200,  112,    4,  5,  5},
+    { "Darg-Low the Grim",      10000,  190,  111,    4,  0,  9},
+    { "Decado the Handsome",    25000,  200,  112,    4,  0, 10},
+    { "Gorodor the Old",        20000,  200,  112,    4,  8, 20},
+  },
+  {
+    /* Weapon Smith */
+    { "Arndal Beast-Slayer",    10000,  185,  110,    5,  1,  8},
+    { "Oglign Dragon-Slayer",   32000,  195,  112,    4,  5,  8},
+    { "Ithyl-Mak the Beastly",  6000,   210,  115,    6,  7,  8},
+    { "Andiron the Shining" ,   20000,  200,  105,    5,  9, 20},
+  },
+  {
+    /* Temple */
+    { "Ludwig the Humble",      5000,   175,  109,    6,  0, 15},
+    { "Gunnar the Paladin",     12000,  185,  110,    5,  0, 23},
+    { "Delilah the Pure",       25000,  180,  107,    6,  1, 20},
+    { "Mekitan the Mysterious", 7500,   185,  110,    5, 13, 10},
+  },
+  {
+    { "Ga-nat the Greedy",      12000,  220,  115,    4,  4,  9},
+    { "Mauser the Chemist",     10000,  190,  111,    5,  1,  8},
+    { "Wizzle the Chaotic",     10000,  190,  110,    6,  3,  8},
+    { "Tiarana the Sharp",      9000,   180,  105,    6, 11,  9},
+  },
+  {
+    /* Magic Shop */
+    { "Luthien Starshine",      32000,  175,  110,    5,  2, 11},
+    { "Buggerby the Great",     20000,  215,  113,    6,  4, 10},
+    { "Inglorian the Mage",     32000,  200,  110,    7,  0, 10},
+    { "Lissith the Loud",       25000,  220,  110,    7, 14, 15},
+  },
+  {
+    /* Black Market */
+    { "Durwin the Shifty",      32000,  250,  150,   10,  0,  5},
+    { "Histor the Goblin",      32000,  250,  150,   10,  6,  5},
+    { "Drago the Fair",         32000,  250,  150,   10,  2,  5},
+    { "Temini the Vengeful",    32000,  250,  190,   10, 12,  4},
+  },
+  {
+    /* Home */
+    { "Your home",              0,  100,  100,    0, 99, 99},
+    { "Your home",              0,  100,  100,    0, 99, 99},
+    { "Your home",              0,  100,  100,    0, 99, 99},
+    { "Your home",              0,  100,  100,    0, 99, 99}
+  }
+};
+
+
+/*
+ * Buying and selling adjustments for character race VS store
+ * owner race
+ */
+byte rgold_adj[MAX_RACES][MAX_RACES] = {
+
+			/*Hum, HfE, Elf,  Hal, Gno, Dwa, HfO, HfT, Dun, HiE, Pix, Yek, CrD, CoD, BrD, GoD, PsD */
+/*Human          */      { 100, 105, 105, 110, 113, 115, 120, 125, 100, 105, 115, 150, 120, 130, 130, 120, 140},
+/*Half-Elf       */      { 110, 100, 100, 105, 110, 120, 125, 130, 110, 100, 110, 150, 110, 140, 135, 120, 135},
+/*Elf            */      { 110, 105, 100, 105, 110, 120, 125, 130, 110, 100, 105, 150, 110, 140, 135, 120, 135},
+/*Halfling       */      { 115, 110, 105,  95, 105, 110, 115, 130, 115, 105, 120, 150, 130, 130, 130, 130, 125},
+/*Gnome          */      { 115, 115, 110, 105,  95, 110, 115, 130, 115, 110, 110, 150, 125, 125, 125, 125, 130},
+/*Dwarf          */      { 115, 120, 120, 110, 110,  95, 125, 135, 115, 120, 125, 150, 130, 135, 135, 120, 135},
+/*Half-Orc       */      { 115, 120, 125, 115, 115, 130, 110, 115, 115, 125, 125, 150, 115, 110, 110, 110, 115},
+/*Half-Troll     */      { 110, 115, 115, 110, 110, 130, 110, 110, 110, 115, 135, 150, 115, 115, 110, 110, 120},
+/*Dunedain       */      { 100, 105, 105, 110, 113, 115, 120, 125, 100, 105, 115, 150, 115, 115, 115, 115, 115},
+/*High_Elf       */      { 110, 105, 100, 105, 110, 120, 125, 130, 110, 100, 105, 150, 110, 140, 135, 120, 135},
+/*Pixie          */      { 115, 110, 105, 120, 110, 125, 125, 135, 115, 105,  90, 150, 115, 115, 120, 115, 110},
+/*Yeek           */      { 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150,  50, 150, 150, 150, 150, 150},
+/*Crystal-Drag   */      { 120, 110, 110, 130, 125, 130, 115, 115, 115, 110, 115, 150,  90, 100, 100, 100, 110},
+/*Copper-Drag    */      { 130, 140, 140, 130, 125, 135, 110, 115, 115, 110, 115, 150, 100,  90, 100, 100, 110},
+/*Bronze-Drag    */      { 130, 135, 135, 130, 125, 135, 110, 110, 115, 135, 120, 150, 100, 100,  90, 100, 110},
+/*Gold-Dragon    */      { 120, 120, 120, 130, 125, 120, 110, 110, 115, 120, 115, 150, 100, 100, 100,  90, 110},
+/*Pseudo-Drag    */      { 140, 135, 135, 125, 130, 135, 115, 120, 115, 135, 110, 150, 110, 110, 110, 110,  85}
+
+};
+
+
+
+
+/*
+ * This table allows quick conversion from "speed" to "energy"
+ * The basic function WAS ((S>=110) ? (S-110) : (100 / (120-S)))
+ * Note that table access is *much* quicker than computation.
+ *
+ * Note that the table has been changed at high speeds.  From
+ * "Slow (-40)" to "Fast (+30)" is pretty much unchanged, but
+ * at speeds above "Fast (+30)", one approaches an asymptotic
+ * effective limit of 50 energy per turn.  This means that it
+ * is relatively easy to reach "Fast (+30)" and get about 40
+ * energy per turn, but then speed becomes very "expensive",
+ * and you must get all the way to "Fast (+50)" to reach the
+ * point of getting 45 energy per turn.  After that point,
+ * firthur increases in speed are more or less pointless,
+ * except to balance out heavy inventory.
+ *
+ * Note that currently the fastest monster is "Fast (+30)".
+ *
+ * It should be possible to lower the energy threshhold from
+ * 100 units to 50 units, though this may interact badly with
+ * the (compiled out) small random energy boost code.  It may
+ * also tend to cause more "clumping" at high speeds.
+ */
+byte extract_energy[200] = {
+/* Slow */     1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
+/* Slow */     1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
+/* Slow */     1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
+/* Slow */     1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
+/* Slow */     1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
+/* Slow */     1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
+/* S-50 */     1,  1,  1,  1,  1,  1,  1,  1,  1,  1,
+/* S-40 */     2,  2,  2,  2,  2,  2,  2,  2,  2,  2,
+/* S-30 */     2,  2,  2,  2,  2,  2,  2,  3,  3,  3,
+/* S-20 */     3,  3,  3,  3,  3,  4,  4,  4,  4,  4,
+/* S-10 */     5,  5,  5,  5,  6,  6,  7,  7,  8,  9,
+/* Norm */    10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
+/* F+10 */    20, 21, 22, 23, 24, 25, 26, 27, 28, 29,
+/* F+20 */    30, 31, 32, 33, 34, 35, 36, 36, 37, 37,
+/* F+30 */    38, 38, 39, 39, 40, 40, 40, 41, 41, 41,
+/* F+40 */    42, 42, 42, 43, 43, 43, 44, 44, 44, 44,
+/* F+50 */    45, 45, 45, 45, 45, 46, 46, 46, 46, 46,
+/* F+60 */    47, 47, 47, 47, 47, 48, 48, 48, 48, 48,
+/* F+70 */    49, 49, 49, 49, 49, 49, 49, 49, 49, 49,
+/* Fast */    49, 49, 49, 49, 49, 49, 49, 49, 49, 49,
+};
+
+
+
+/*
+ * This table is used to generate a psuedo-normal distribution.
+ * See the function randnor() in misc1.c, this is much faster than calling
+ * transcendental function to calculate a true normal distribution
+ */
+u16b normal_table[NORMAL_TABLE_SIZE] = {
+     206,     613,    1022,    1430,    1838,    2245,    2652,    3058,
+    3463,    3867,    4271,    4673,    5075,    5475,    5874,    6271,
+    6667,    7061,    7454,    7845,    8234,    8621,    9006,    9389,
+    9770,   10148,   10524,   10898,   11269,   11638,   12004,   12367,
+   12727,   13085,   13440,   13792,   14140,   14486,   14828,   15168,
+   15504,   15836,   16166,   16492,   16814,   17133,   17449,   17761,
+   18069,   18374,   18675,   18972,   19266,   19556,   19842,   20124,
+   20403,   20678,   20949,   21216,   21479,   21738,   21994,   22245,
+   22493,   22737,   22977,   23213,   23446,   23674,   23899,   24120,
+   24336,   24550,   24759,   24965,   25166,   25365,   25559,   25750,
+   25937,   26120,   26300,   26476,   26649,   26818,   26983,   27146,
+   27304,   27460,   27612,   27760,   27906,   28048,   28187,   28323,
+   28455,   28585,   28711,   28835,   28955,   29073,   29188,   29299,
+   29409,   29515,   29619,   29720,   29818,   29914,   30007,   30098,
+   30186,   30272,   30356,   30437,   30516,   30593,   30668,   30740,
+   30810,   30879,   30945,   31010,   31072,   31133,   31192,   31249,
+   31304,   31358,   31410,   31460,   31509,   31556,   31601,   31646,
+   31688,   31730,   31770,   31808,   31846,   31882,   31917,   31950,
+   31983,   32014,   32044,   32074,   32102,   32129,   32155,   32180,
+   32205,   32228,   32251,   32273,   32294,   32314,   32333,   32352,
+   32370,   32387,   32404,   32420,   32435,   32450,   32464,   32477,
+   32490,   32503,   32515,   32526,   32537,   32548,   32558,   32568,
+   32577,   32586,   32595,   32603,   32611,   32618,   32625,   32632,
+   32639,   32645,   32651,   32657,   32662,   32667,   32672,   32677,
+   32682,   32686,   32690,   32694,   32698,   32702,   32705,   32708,
+   32711,   32714,   32717,   32720,   32722,   32725,   32727,   32729,
+   32731,   32733,   32735,   32737,   32739,   32740,   32742,   32743,
+   32745,   32746,   32747,   32748,   32749,   32750,   32751,   32752,
+   32753,   32754,   32755,   32756,   32757,   32757,   32758,   32758,
+   32759,   32760,   32760,   32761,   32761,   32761,   32762,   32762,
+   32763,   32763,   32763,   32764,   32764,   32764,   32764,   32765,
+   32765,   32765,   32765,   32766,   32766,   32766,   32766,   32766,
+};
+
+
+
+
+
+/*
+ * Special name table
+ */
+
+cptr ego_item_names[EGO_MAX] = {
+
+    NULL,                       /* 0 */
+    "of Resistance",
+    "of Resist Acid",
+    "of Resist Fire",
+    "of Resist Cold",
+    "of Resist Lightning",
+    "(Holy Avenger)",
+    "(Defender)",
+    "of Animal Slaying",                        /* weapon */
+    "of Dragon Slaying",                        /* weapon */
+    "of Slay Evil",             /* 10 */        /* weapon */
+    "of Slay Undead",                           /* weapon */
+    "of Flame",
+    "of Frost",
+    "of Free Action",
+    "of Slaying",               /* 15 */
+NULL,
+NULL,
+    "of Slow Descent",
+    "of Speed",
+    "of Stealth",               /* 20 */
+NULL,
+NULL,
+NULL,
+    "of Intelligence",
+    "of Wisdom",                /* 25 */
+    "of Infra-Vision",
+    "of Might",
+    "of Lordliness",
+    "of the Magi",
+    "of Beauty",                /* 30 */
+    "of Seeing",
+    "of Regeneration",
+NULL,
+NULL,
+NULL,                           /* 35 */
+NULL,
+NULL,
+    "of the Magi",                              /* robe (new) */
+    "of Protection",                            /* cloak */
+NULL,                           /* 40 */
+NULL,
+NULL,
+    "of Fire",
+    "of Slay Evil",                             /* ammo */
+    "of Slay Dragon",           /* 45 */        /* ammo */
+NULL,
+NULL,
+NULL,
+NULL,
+    "of Fire",                  /* 50 */        /* ammo (new) */
+NULL,
+    "of Slaying",                               /* ammo (new) */
+NULL,
+NULL,
+    "of Slay Animal",           /* 55 */        /* ammo */
+NULL,
+NULL,
+NULL,
+NULL,
+    "of Extra Might",           /* 60 */        /* launcher */
+    "of Extra Shots",                           /* launcher */
+NULL,
+NULL,
+    "of Velocity",                              /* launcher (new) */
+    "of Accuracy",              /* 65 */        /* launcher */
+NULL,
+    "of Orc Slaying",                           /* weapon */
+    "of Power",                                 /* gloves */
+NULL,
+NULL,                           /* 70 */
+    "of Westernesse",
+    "(Blessed)",
+    "of Demon Slaying",                         /* weapon */
+    "of Troll Slaying",         /* 74 */        /* weapon */
+NULL,                           /* 75 */
+NULL,
+    "of Wounding",                              /* ammo */
+NULL,
+NULL,
+NULL,                           /* 80 */
+    "of Light",
+    "of Agility",
+NULL,
+NULL,
+    "of Giant Slaying",         /* 85 */        /* weapon */
+    "of Telepathy",
+    "of Elvenkind",
+NULL,
+NULL,
+    "of Extra Attacks",         /* 90 (was 179) */
+    "of Aman",                  /* 91 */
+NULL,                           /* 92 */
+NULL,                           /* 93 */
+NULL,                           /* 94 */
+NULL,                           /* 95 */
+NULL,                           /* 96 -- first "bad" item */
+NULL,                           /* 97 */
+NULL,                           /* 98 */
+NULL,                           /* 99 */
+NULL,                           /* 100 */
+NULL,                           /* 101 */
+NULL,                           /* 102 */
+NULL,                           /* 103 */
+    "of Weakness",              /* 104 */
+    "of Stupidity",             /* 105 */
+    "of Dullness",              /* 106 */
+    "of Clumsiness",            /* 107 */
+    "of Sickliness",            /* 108 */
+    "of Ugliness",              /* 109 */
+    "of Teleportation",         /* 110 */
+NULL,                           /* 111 */
+    "of Irritation",            /* 112 */
+    "of Vulnerability",         /* 113 */
+    "of Enveloping",            /* 114 */
+NULL,                           /* 115 */
+    "of Slowness",              /* 116 */
+    "of Noise",                 /* 117 */
+    "of Great Mass",            /* 118 */
+NULL,                           /* 119 */
+    "of Backbiting",            /* 120 */
+NULL,                           /* 121 */
+NULL,                           /* 122 */
+NULL,                           /* 123 */
+    "of Morgul",                /* 124 */
+NULL,                           /* 125 */
+    "(Shattered)",              /* 126 */
+    "(Blasted)",                /* 127 */
+};
+
+
+/*
+ * Bonus "cost" of ego-items
+ */
+s32b ego_item_value[EGO_MAX] = {
+
+    0L          /* NULL */,
+    12500L      /* "of Resistance" */,
+    1000L       /* "of Resist Acid" */,
+    600L        /* "of Resist Fire" */,
+    600L        /* "of Resist Cold" */,
+    500L        /* "of Resist Lightning" */,
+    20000L      /* "(Holy Avenger)" */,
+    15000L      /* "(Defender)" */,
+    2000L       /* "of Animal Slaying" */,      /* weapon */
+    4000L       /* "of Dragon Slaying" */,      /* weapon */
+    4000L       /* "of Slay Evil" */,           /* XXX - weapon */
+    3000L       /* "of Slay Undead" */,         /* XXX - weapon */
+    3000L       /* "of Flame" */,
+    2500L       /* "of Frost" */,
+    1000L       /* "of Free Action" */,
+    1500L       /* "of Slaying" */,
+    0L          /* NULL */,
+    0L          /* NULL */,
+    250L        /* "of Slow Descent" */,
+    200000L     /* "of Speed" */,               /* XXX */
+    500L        /* "of Stealth" */,
+    0L          /* NULL */,
+    0L          /* NULL */,
+    0L          /* NULL */,
+    500L        /* "of Intelligence" */,
+    500L        /* "of Wisdom" */,
+    500L        /* "of Infra-Vision" */,
+    2000L       /* "of Might" */,
+    2000L       /* "of Lordliness" */,
+    7500L       /* "of the Magi" */,
+    1000L       /* "of Beauty" */,
+    1000L       /* "of Seeing" */,              /* XXX */
+    1500L       /* "of Regeneration" */,
+    0L          /* NULL */,
+    0L          /* NULL */,
+    0L          /* NULL */,
+    0L          /* NULL */,
+    0L          /* NULL */,
+    30000L      /* "of the Magi" */,            /* robe (new) */
+    250L        /* "of Protection" */,          /* cloak */
+    0L          /* NULL */,
+    0L          /* NULL */,
+    0L          /* NULL */,
+    2000L       /* "of Fire" */,
+    25L         /* "of Slay Evil" */,           /* ammo */
+    35L         /* "of Slay Dragon" */,         /* ammo */
+    0L          /* NULL */,
+    0L          /* NULL */,
+    0L          /* NULL */,
+    0L          /* NULL */,
+    25L         /* "of Fire" */,                /* ammo (new) */
+    0L          /* NULL */,
+    45L         /* "of Slaying" */,             /* ammo (new) */
+    0L          /* NULL */,
+    0L          /* NULL */,
+    30L         /* "of Slay Animal" */,         /* ammo */
+    0L          /* NULL */,
+    0L          /* NULL */,
+    0L          /* NULL */,
+    0L          /* NULL */,
+    10000L      /* "of Extra Might" */,         /* launcher */
+    10000L      /* "of Extra Shots" */,         /* launcher */
+    0L          /* NULL */,
+    0L          /* NULL */,
+    1000L       /* "of Velocity" */,            /* launcher (new) */
+    1000L       /* "of Accuracy" */,            /* launcher */
+    0L          /* NULL */,
+    1200L       /* "of Orc Slaying" */,         /* weapon */
+    2500L       /* "of Power" */,               /* gloves */
+    0L          /* NULL */,
+    0L          /* NULL */,                     
+    20000L      /* "of Westernesse" */,         /* XXX */
+    5000L       /* "(Blessed)" */,
+    1200L       /* "of Demon Slaying" */,       /* weapon */
+    1200L       /* "of Troll Slaying" */,       /* weapon */
+    0L          /* NULL */,                     
+    0L          /* NULL */,
+    30L         /* "of Wounding" */,            /* ammo */
+    0L          /* NULL */,
+    0L          /* NULL */,
+    0L          /* NULL */,
+    500L        /* "of Light" */,
+    1000L       /* "of Agility" */,
+    0L          /* NULL */,
+    0L          /* NULL */,
+    1200L       /* "of Giant Slaying" */,       /* weapon */
+    50000L      /* "of Telepathy" */,
+    15000L      /* "of Elvenkind" */,
+    0L          /* NULL */,
+    0L          /* NULL */,
+    10000L      /* "of Extra Attacks" */,
+    4000L       /* "of Aman" */,
+    0L          /* NULL */,
+    0L          /* NULL */,
+    0L          /* NULL */,
+    0L          /* NULL */,
+    -999999L,
+    -999999L,
+    -999999L,
+    -999999L,
+    -999999L,
+    -999999L,
+    -999999L,
+    -999999L,
+    -999999L,
+    -999999L,
+    -999999L,
+    -999999L,
+    -999999L,
+    -999999L,
+    -999999L,
+    -999999L,
+    -999999L,
+    -999999L,
+    -999999L,
+    -999999L,
+    -999999L,
+    -999999L,
+    -999999L,
+    -999999L,
+    -999999L,
+    -999999L,
+    -999999L,
+    -999999L,
+    -999999L,
+    -999999L,
+    -999999L,
+    -999999L
+};
+
+
+
+
+
+/*
+ * Background information
+ */
+player_background background[MAX_BACKGROUND] = {
+{"You are the illegitimate and unacknowledged child ",           10, 1, 2, 25},
+{"You are the illegitimate but acknowledged child ",             20, 1, 2, 35},
+{"You are one of several children ",                             95, 1, 2, 45},
+{"You are the first child ",                                    100, 1, 2, 50},
+{"of a Serf.  ",                                                 40, 2, 3, 65},
+{"of a Yeoman.  ",                                               65, 2, 3, 80},
+{"of a Townsman.  ",                                             80, 2, 3, 90},
+{"of a Guildsman.  ",                                            90, 2, 3,105},
+{"of a Landed Knight.  ",                                        96, 2, 3,120},
+{"of a Titled Noble.  ",                                         99, 2, 3,130},
+{"of a Royal Blood Line.  ",                                    100, 2, 3,140},
+{"You are the black sheep of the family.  ",                     20, 3,50, 20},
+{"You are a credit to the family.  ",                            80, 3,50, 55},
+{"You are a well liked child.  ",                               100, 3,50, 60},
+{"Your mother was a Green-Elf.  ",                               40, 4, 1, 50},
+{"Your father was a Green-Elf.  ",                               75, 4, 1, 55},
+{"Your mother was a Grey-Elf.  ",                                90, 4, 1, 55},
+{"Your father was a Grey-Elf.  ",                                95, 4, 1, 60},
+{"Your mother was a High-Elf.  ",                                98, 4, 1, 65},
+{"Your father was a High-Elf.  ",                               100, 4, 1, 70},
+{"You are one of several children ",                             60, 7, 8, 50},
+{"You are the only child ",                                     100, 7, 8, 55},
+{"of a Green-Elf ",                                              75, 8, 9, 50},
+{"of a Grey-Elf ",                                               95, 8, 9, 55},
+{"of a High-Elf ",                                              100, 8, 9, 60},
+{"Ranger.  ",                                                    40, 9,54, 80},
+{"Archer.  ",                                                    70, 9,54, 90},
+{"Warrior.  ",                                                   87, 9,54,110},
+{"Mage.  ",                                                      95, 9,54,125},
+{"Prince.  ",                                                    99, 9,54,140},
+{"King.  ",                                                     100, 9,54,145},
+{"You are one of several children of a Hobbit ",                 85,10,11, 45},
+{"You are the only child of a Hobbit ",                         100,10,11, 55},
+{"Bum.  ",                                                       20,11, 3, 55},
+{"Tavern Owner.  ",                                              30,11, 3, 80},
+{"Miller.  ",                                                    40,11, 3, 90},
+{"Home Owner.  ",                                                50,11, 3,100},
+{"Burglar.  ",                                                   80,11, 3,110},
+{"Warrior.  ",                                                   95,11, 3,115},
+{"Mage.  ",                                                      99,11, 3,125},
+{"Clan Elder.  ",                                               100,11, 3,140},
+{"You are one of several children of a Gnome ",                  85,13,14, 45},
+{"You are the only child of a Gnome ",                          100,13,14, 55},
+{"Beggar.  ",                                                    20,14, 3, 55},
+{"Braggart.  ",                                                  50,14, 3, 70},
+{"Prankster.  ",                                                 75,14, 3, 85},
+{"Warrior.  ",                                                   95,14, 3,100},
+{"Mage.  ",                                                     100,14, 3,125},
+{"You are one of two children of a Dwarven ",                    25,16,17, 40},
+{"You are the only child of a Dwarven ",                        100,16,17, 50},
+{"Thief.  ",                                                     10,17,18, 60},
+{"Prison Guard.  ",                                              25,17,18, 75},
+{"Miner.  ",                                                     75,17,18, 90},
+{"Warrior.  ",                                                   90,17,18,110},
+{"Priest.  ",                                                    99,17,18,130},
+{"King.  ",                                                     100,17,18,150},
+{"You are the black sheep of the family.  ",                     15,18,57, 10},
+{"You are a credit to the family.  ",                            85,18,57, 50},
+{"You are a well liked child.  ",                               100,18,57, 55},
+{"Your mother was an Orc, but it is unacknowledged.  ",          25,19,20, 25},
+{"Your father was an Orc, but it is unacknowledged.  ",         100,19,20, 25},
+{"You are the adopted child ",                                  100,20, 2, 50},
+{"Your mother was a Cave-Troll ",                                30,22,23, 20},
+{"Your father was a Cave-Troll ",                                60,22,23, 25},
+{"Your mother was a Hill-Troll ",                                75,22,23, 30},
+{"Your father was a Hill-Troll ",                                90,22,23, 35},
+{"Your mother was a Water-Troll ",                               95,22,23, 40},
+{"Your father was a Water-Troll ",                              100,22,23, 45},
+{"Cook.  ",                                                       5,23,62, 60},
+{"Warrior.  ",                                                   95,23,62, 55},
+{"Shaman.  ",                                                    99,23,62, 65},
+{"Clan Chief.  ",                                               100,23,62, 80},
+{"You are the only child of a Pixie ",                           15,31,32, 55},
+{"You are one of several children of a Pixie ",                 100,31,32, 45},
+{"Vagrant.  ",                                                   20,32,3,  60},
+{"Rogue.  ",                                                     40,32,3,  75},
+{"Ranger.  ",                                                    50,32,3,  90},
+{"Priest.  ",                                                    75,32,3, 100},
+{"Mage.  ",                                                     100,32,3, 120},
+{"You are one of five children of a blue Yeek.  ",               25,33,3,  50},
+{"You are one of five children of a brown Yeek.  ",              75,33,3,  75},
+{"You are one of five children on a master yeek.  ",            100,33,3, 100},
+{"You are a crystal dragon from the north.  ",                   25,34,44, 40},
+{"You are a crystal dragon from the nearby mountains.  ",        75,34,44, 50},
+{"You are a crystal dragon from the fortress of Angband.  ",    100,34,44, 40},
+{"You are a copper dragon from the east.  ",                     25,37,44, 35},
+{"You are a copper dragon from the nearby swamp.  ",             75,37,44, 40},
+{"You are a copper dragon from the far south.  ",               100,37,44, 35},
+{"You are a bronze dragon from Mirkwood.  ",                     25,40,44, 40},
+{"You are a bronze dragon from the nearby forest.  ",            50,40,44, 50},
+{"You are a bronze dragon from the fortress of Angband.  ",     100,40,44, 30},
+{"You are a gold dragon from the Wild.  ",                       25,43,44, 40},
+{"You are a gold dragon from the nearby grasslands.  ",          50,43,44, 50},
+{"You are a gold dragon from the fortress of Angband.  ",       100,43,44, 30},
+{"After being thrown out of home you ",                          75,44,45, 40},
+{"After the untimely death of your parents you ",               100,44,45, 50},
+{"lived like an animal in the wilderness.  ",                    33,45,48, 45},
+{"were captured and trained by a company of gnomes.  ",          67,45,48, 60},
+{"found solace with a group of Dunaedan rangers.  ",            100,45,48, 75},
+{"You are a pseudo dragon from the Misty Mountains.  ",          25,46,44, 45},
+{"You are a pseudo dragon from the fortress of Angband.  ",      75,46,44, 40},
+{"You are a pseudo dragon from the Whithered Heath.  ",         100,46,44, 50},
+{"You have glittering black eyes ",                              50,48,49, 50},
+{"You have glowing red eyes ",                                   70,48,49, 45},
+{"You have softly glowing, iridescent eyes ",                   100,48,49, 60},
+{"and shiny scales.  ",                                          50,49, 0, 50},
+{"and dull, weathered scales.  ",                                75,49, 0, 45},
+{"and glittering scales.  ",                                    100,49, 0, 55},
+{"You have dark brown eyes, ",                                   20,50,51, 50},
+{"You have brown eyes, ",                                        60,50,51, 50},
+{"You have hazel eyes, ",                                        70,50,51, 50},
+{"You have green eyes, ",                                        80,50,51, 50},
+{"You have blue eyes, ",                                         90,50,51, 50},
+{"You have blue-gray eyes, ",                                   100,50,51, 50},
+{"straight ",                                                    70,51,52, 50},
+{"wavy ",                                                        90,51,52, 50},
+{"curly ",                                                      100,51,52, 50},
+{"black hair, ",                                                 30,52,53, 50},
+{"brown hair, ",                                                 70,52,53, 50},
+{"auburn hair, ",                                                80,52,53, 50},
+{"red hair, ",                                                   90,52,53, 50},
+{"blond hair, ",                                                100,52,53, 50},
+{"and a very dark complexion.",                                  10,53, 0, 50},
+{"and a dark complexion.",                                       30,53, 0, 50},
+{"and an average complexion.",                                   80,53, 0, 50},
+{"and a fair complexion.",                                       90,53, 0, 50},
+{"and a very fair complexion.",                                 100,53, 0, 50},
+{"You have light grey eyes, ",                                   85,54,55, 50},
+{"You have light blue eyes, ",                                   95,54,55, 50},
+{"You have light green eyes, ",                                 100,54,55, 50},
+{"straight ",                                                    75,55,56, 50},
+{"wavy ",                                                       100,55,56, 50},
+{"black hair, and a fair complexion.",                           75,56, 0, 50},
+{"brown hair, and a fair complexion.",                           85,56, 0, 50},
+{"blond hair, and a fair complexion.",                           95,56, 0, 50},
+{"silver hair, and a fair complexion.",                         100,56, 0, 50},
+{"You have dark brown eyes, ",                                   99,57,58, 50},
+{"You have glowing red eyes, ",                                 100,57,58, 60},
+{"straight ",                                                    90,58,59, 50},
+{"wavy ",                                                       100,58,59, 50},
+{"black hair, ",                                                 75,59,60, 50},
+{"brown hair, ",                                                100,59,60, 50},
+{"a one foot beard, ",                                           25,60,61, 50},
+{"a two foot beard, ",                                           60,60,61, 51},
+{"a three foot beard, ",                                         90,60,61, 53},
+{"a four foot beard, ",                                         100,60,61, 55},
+{"and a dark complexion.",                                      100,61, 0, 50},
+{"You have slime green eyes, ",                                  60,62,63, 50},
+{"You have puke yellow eyes, ",                                  85,62,63, 50},
+{"You have blue-bloodshot eyes, ",                               99,62,63, 50},
+{"You have glowing red eyes, ",                                 100,62,63, 55},
+{"dirty ",                                                       33,63,64, 50},
+{"mangy ",                                                       66,63,64, 50},
+{"oily ",                                                       100,63,64, 50},
+{"sea-weed green hair, ",                                        33,64,65, 50},
+{"bright red hair, ",                                            66,64,65, 50},
+{"dark purple hair, ",                                          100,64,65, 50},
+{"and green ",                                                   25,65,66, 50},
+{"and blue ",                                                    50,65,66, 50},
+{"and white ",                                                   75,65,66, 50},
+{"and black ",                                                  100,65,66, 50},
+{"ulcerous skin.",                                               33,66, 0, 50},
+{"scabby skin.",                                                 66,66, 0, 50},
+{"leprous skin.",                                               100,66, 0, 50}
+
+};
+
+
+/*
+ * Base experience levels, may be adjusted up for race and/or class
+ */
+s32b player_exp[MAX_PLAYER_LEVEL] = {
+	10,             25,             45,             70,
+	100,            140,            200,            280,
+	380,            500,            650,            850,
+	1100,           1400,           1800,           2300,
+	2900,           3600,           4400,           5400,
+	6800,           8400,           10200,          12500,
+	17500,          25000,          35000L,         50000L,
+	75000L,         100000L,        150000L,        200000L,
+	275000L,        350000L,        450000L,        550000L,
+	700000L,        850000L,        1000000L,       1250000L,
+	1500000L,       1800000L,       2100000L,       2400000L,
+	2700000L,       3000000L,       3500000L,       4000000L,
+	4500000L,       5000000L
+};
+
+
+/*
+ * Player Race Information:
+ *    Title,
+ *    {STR,INT,WIS,DEX,CON,CHR},
+ *    Age (Base, Max), Male (Hgt, Wgt), Female (Hgt, Wgt)
+ *    r_dis, r_dev, r_sav, r_stl, r_srh, r_fos, r_thn, r_thb,
+ *    hitdie, infra, exp base, class-choices
+ */
+player_race race_info[MAX_RACES] = {
+
+    {
+      "Human",
+      {  0,  0,  0,  0,  0,  0 },
+      14,  6, 72,  6,180, 25, 66,  4,150, 20,
+      0,  0,  0,  0,  0,  10,  0,  0,
+      10,  0, 100, 0x3F,
+    },
+    
+    {
+      "Half-Elf",
+      { -1,  1,  0,  1, -1,  1 },
+      24, 16, 66,  6,130, 15, 62,  6,100, 10,
+      2,  3,  3,  1, 6,  11, -1,  5,
+      9,  2, 110, 0x3F,
+    },
+    
+    {
+      "Elf",
+      { -1,  2,  1,  1, -2,  1 },
+      75, 75, 60,  4,100,  6, 54,  4, 80,  6,
+      5,  6,  6,  1, 8,  12, -5, 15,
+      8,  3, 120, 0x1F,
+    },
+    
+    {
+      "Hobbit",
+      { -2,  2,  1,  3,  2,  1 },
+      21, 12, 36,  3, 60,  3, 33,  3, 50,  3,
+      15, 18, 18, 4, 12,  15,-10, 20,
+      7,  4, 110, 0x0B,
+    },
+    
+    {
+      "Gnome",
+      { -1,  2,  0,  2,  1, -2 },
+      50, 40, 42,  3, 90,  6, 39,  3, 75,  3,
+      10, 12, 12,  3, 6,  13, -8, 12,
+      8,  4, 125, 0x0F,
+    },
+    
+    {
+      "Dwarf",
+      {  2, -3,  2, -2,  2, -3 },
+      35, 15, 48,  3,150, 10, 46,  3,120, 10,
+      2,  9,  9,  -1,  7,  10, 15,  0,
+      11,  5, 120, 0x05,
+    },
+
+    {
+      "Half-Orc",
+      {  2, -1,  0,  0,  1, -4 },
+      11,  4, 66,  1,150,  5, 62,  1,120,  5,
+      -3, -3, -3,  -1,  0, 7, 12, -5,
+      10,  3, 110, 0x0D,
+    },
+
+    {
+      "Half-Troll",
+      { 4, -4, -2, -4,  3, -6 },
+      20, 10, 96, 10,255, 50, 84,  8,225, 40,
+      -5, -8, -8, -2,  -1, 5, 20,-10,
+      12,  3, 120, 0x05,
+    },
+
+    {
+      "Dunadan",
+      {  1,  2,  2,  2,  3,  2 },
+      50, 20, 82, 5, 190, 20, 78,  6, 180, 15,
+      4,  5,  5,  2, 3, 13, 15, 10,
+      10,  0, 180, 0x3F,
+    },
+
+    {
+      "High-Elf",
+      {  1,  3, -1,  3,  1,  5 },
+      100, 30, 90,10, 190, 20, 82, 10, 180, 15,
+      4,  20, 20,  3,  3, 14, 10, 25,
+      10,  4, 200, 0x1F,
+    },
+   {"Pixie", {-10, 4, -2, 10, -8, 6},
+      10,   4, 20, 4, 2, 1, 19, 4, 2, 1,
+       0,  0, 20,  6,  0, -5, -10, 35, 
+       5, 4, 175, 0x1C,
+   },
+   {"Yeek", {-5, -5, -5, -5, -5, -5},
+      10,  4, 40, 5, 50, 10, 35, 4, 45, 10,
+       -5, -5, -10, 0, -5, 0, -10, -10,
+       6, 2, 25, 0x3F,
+   },
+   {"Crystal Dragon", {4, 3, -2, 2, 5, -5},
+     255, 255, 150, 50, 255, 0, 140, 40, 255, 0,
+      -8, 0, 10, -3, 0, 0, 20, -20,
+      15, 8, 150, 0x1A,
+    },
+   {"Copper Dragon", {4, 1, 1, 3, 3, -8},
+     255, 255, 150, 50, 255, 0, 140, 40, 255, 0,
+      -4, -10, 20, -3, 0, 0, 20, -20,
+      15, 8, 150, 0x39,
+    },
+   {"Bronze Dragon", {3, 1, 5, 4, 2, -7},
+     255, 255, 150, 50, 255, 0, 140, 40, 255, 0,
+      -8, -3, 20, -3, 5, -1, 20, -20,
+      15, 8, 150, 0x25,
+    },
+   {"Gold Dragon", {4, 2, 2, 3, 4, -6},
+     255, 255, 150, 50, 255, 0, 140, 40, 255, 0,
+      -8, 0, 20, -5,  0, 0, 20, -20,
+      15, 8, 150, 0x3F,
+    },
+   {"Pseudo Dragon", {2, 0, 0, 7, 3, -8},
+     255, 255, 150, 50, 255, 0, 140, 40, 255, 0,
+      5, 5, 30, 0, 0, 0, 20, -20,
+      14, 8, 150, 0x3F,
+    }
+};
+
+
+/*
+ * Player Classes.
+ *
+ *   Title,
+ *   {STR,INT,WIS,DEX,CON,CHR},
+ *   c_dis, c_dev, c_sav, c_stl, c_srh, c_fos, c_thn, c_thb,
+ *   x_dis, x_dev, x_sav, x_stl, x_srh, x_fos, x_thn, x_thb,
+ *   HD, Exp, Spell-Stat, Spell-Level, Spell-Type, Spell-Encumbrance
+ */
+player_class class_info[MAX_CLASS] = {
+
+    {
+      "Warrior",
+      { 5,-2,-2, 2, 2,-1},
+      25, 18, 18, 1,  14, 2, 70, 55,
+      10, 7,  10, 0,  0,  0,  45, 45,
+      9,  0, A_STR, 0, 99, 0
+    },
+
+    {
+      "Mage",
+      {-5, 3, 0, 1,-2, 1},
+      30, 36, 30, 2,  16, 20, 34, 20,
+      7,  13, 9,  0,  0,  0,  15, 15,
+      0, 30, A_INT, 0, 1, 300
+    },
+
+    {
+      "Priest",
+      {-1,-3, 3,-1, 0, 2},
+      25, 30, 32, 2,  16, 8, 48, 35,
+      7,  10, 12, 0,  0,  0, 20, 20,
+      2, 20, A_WIS, 1, 1, 350
+    },
+
+    {
+      "Rogue",
+      { 2, 1,-2, 3, 1,-1},
+      45, 32, 28, 5, 32, 24, 60, 66,
+      15, 10, 10, 0,  0,  0, 40, 30,
+      6, 25, A_INT, 0, 5, 350
+    },
+
+    {
+      "Ranger",
+      { 2, 2, 0, 1, 1, 1},
+      30, 32, 28, 3,  24, 16, 56, 72,
+      8,  10, 10, 0,  0,  0,  30, 45,
+      4, 30, A_INT, 0, 3, 400
+    },
+
+    {
+      "Paladin",
+      { 3,-3, 1, 0, 2, 2},
+      20, 24, 25, 1,  12, 2, 68, 40,
+      7,  10, 11, 0,  0,  0,  35, 30,
+      6, 35, A_WIS, 1, 1, 400
+    }
+};
+
+
+
+
+/*
+ * Warriors don't have spells, so there is no entry for them.  Note that
+ * this means you must always subtract one from the p_ptr->pclass before
+ * indexing into magic_spell[].
+ */
+spell_type magic_spell[MAX_CLASS-1][64] = {
+
+  {
+      /*** Mage ***/
+/* Beginners Magic */
+     {  1,  1, 22,0,   1},           /* magic missle */
+     {  1,  1, 23,0,   1},           /* detect monsters */
+     {  1,  2, 24,0,   1},           /* phase door */
+     {  1,  2, 26,0,   1},           /* light area */
+     { 99, 99,  0,0,   0},           /* treasure detection */
+     {  3,  3, 25,0,   2},           /* cure light wounds */
+     { 99, 99,  0,0,   0},           /* object detection */
+     {  3,  3, 25,0,   1},           /* find hidden traps/doors */
+     {  3,  3, 27,0,   2},           /* stinking cloud */
+/* Conjuring and Tricks */
+     {  3,  4, 30,0,   1},
+     {  5,  4, 30,0,   6},           /* lightning bolt --> spark*/
+     {  5,  5, 30,0,   8},
+     {  5,  5, 30,0,   5},
+     /*{  5,  5, 35,0,   6},*/ /*cure poison removed*/
+     {  7,  6, 35,0,   9},
+     {  7,  6, 30,0,  10},
+     {  7,  6, 40,0,  12},           /* frost bolt */
+     {  9,  7, 44,0,  19},
+     {  9,  7, 45,0,  19},   /* create food -->b */
+
+/* Incantations and Illusions */
+     {  9,  7, 75,0,  22},
+     {  9,  7, 45,0,  19},
+     { 11,  8, 45,0,  20},  /*added... cone of cold*/
+     { 11,  7, 45,0,  25},
+     { 11,  7, 75,0,  19},
+     { 13,  7, 50,0,  22},
+     { 15,  9, 50,0,  25},           /* fire bolt */
+     { 17,  9, 50,0,  31},
+     { 19, 12, 55,0,  38},
+/* Sorcery and Evocations */
+     { 20, 12, 60,0,  40}, /*added... bolt of lightning */
+     { 21, 12, 90,0,  44},
+     { 23, 12, 60,0,  50},
+     { 25, 12, 65,0,  63},
+     { 29, 18, 65,0,  88},
+     { 30, 18, 70,0, 100}, /*added... wall of fire */
+     { 33, 21, 80,0, 125},
+     { 37, 25, 95,0, 200},
+     { 40, 30, 80,0, 250}, /*added... ray of force */
+
+     { 7,   7, 20,0,  50},
+     { 9,  12, 40,0, 100},
+     { 15, 17, 60,0, 110},
+     { 20, 18, 60,0, 120},
+     { 25, 25, 75,0, 120},
+
+     { 10, 6,  50,0,  30},  /*acid bolt */
+     { 12, 9,  60,0,  50},
+     { 20, 15, 70,0, 100},
+     { 27, 25, 75,0, 200},
+     { 35, 35, 85,0, 300},
+     { 42, 45, 95,0,2000},
+
+     { 5,  5,  50,0,  10},
+     { 10, 10, 70,0,  100},
+     { 25, 30, 95,0, 1000},
+     { 30, 50, 70,0,  300},
+     { 40, 50, 80,0, 1000},
+
+     { 4, 5,  50,0,   100},
+     { 4, 5,  50,0,   100},
+     { 4, 5,  50,0,  100},
+     { 4, 5,  50,0,   100}, /*res lightning added*/
+     { 8, 10, 75,0,   200},
+     { 15, 20,  85,0, 1000},
+
+     { 5, 5,  50,0,   100},
+     { 10, 12, 75,0,  300},
+     { 15, 20, 80,0,  800},
+     { 22, 30, 50,0, 2000},
+     { 45, 70, 75,0, 5000},
+     { 99, 99,  0,0,   0}
+
+   },
+   {              /* Priest        */
+     {  1,  1, 10,0,   1},
+     {  1,  2, 15,0,   1},
+     {  1,  2, 20,0,   1},
+     {  1,  2, 25,0,   1},
+     {  3,  2, 25,0,   1},
+     {  3,  3, 27,0,   2}, /* Find traps replaced by spiritual hammer -CFT */
+     {  3,  4, 27,0,   2}, /* doors/stairs now also does traps -CFT */
+     {  3,  3, 28,0,   3},
+     {  5,  4, 29,0,   4},
+     {  5,  4, 30,0,   5},
+     {  5,  4, 32,0,   5},
+     {  5,  5, 34,0,   5},
+     {  7,  5, 36,0,   6},
+     {  7,  5, 38,0,   7},
+     {  7,  6, 38,0,   9},
+     {  7,  7, 38,0,   9},
+     {  9,  6, 38,0,  10},
+     {  9,  7, 38,0,  10},
+     {  9,  7, 40,0,  10},
+     { 11,  8, 42,0,  10},
+     { 11,  8, 42,0,  12},
+     { 11,  9, 55,0,  15},
+     { 13, 10, 45,0,  15},
+     { 13, 11, 45,0,  16},
+     { 15, 12, 50,0,  20},
+     { 15, 14, 50,0,  22},
+     { 17, 14, 55,0,  32},
+     { 21, 16, 60,0,  38},
+     { 25, 20, 70,0,  75},
+     { 33, 55, 90,0, 125},
+     { 39, 32, 95,0, 200},
+
+     { 3,  3,  50,0,   2},
+     { 10, 10, 80,0,   50},
+     { 20, 20, 80,0,   100},
+     { 25, 10, 80,0,  1000},
+     { 35, 50, 80,0, 2000},
+
+     { 15,  5, 50,0,   100},
+     { 17,  7, 60,0,   200},
+     { 30, 50, 80,0,  1000},
+     { 35, 70, 90,0,  2000},
+     { 35, 70, 90,0, 3000},
+
+     { 15, 7,  70,0,  100},
+     { 20, 10, 75,0,  300},
+     { 25, 25, 80,0,  1500},
+     { 35, 35, 80,0,  1000},
+     { 45, 60, 75,0,  4000},
+
+     { 5, 6,  50,0,   50},
+     { 15, 20, 80,0,  100},
+     { 25, 40, 80,0,  1000},
+     { 35, 50, 80,0,  2000},
+     { 37, 60, 85,0,  3000},
+     { 45, 95, 85,0,  6000},
+
+     { 3, 3,  50,0,   5},
+     { 10, 10,  50,0,  20},
+     { 20, 20,  80,0,  80},
+     { 30, 40,  75,0, 1000},
+     { 35, 50,  75,0, 100},
+     { 40, 60,  75,0, 3000},
+
+     { 99, 99,  0,0,   0},
+     { 99, 99,  0,0,   0},
+     { 99, 99,  0,0,   0},
+     { 99, 99,  0,0,   0},
+     { 99, 99,  0,0,   0},
+     { 99, 99,  0,0,   0}
+   },
+   {              /* Rogue         */
+     { 99, 99,  0,0,   0},
+     {  5,  1, 50,0,   1},
+     {  7,  2, 55,0,   1},
+     {  9,  3, 60,0,   2},
+     { 10,  3, 60,0,   2},
+     { 11,  4, 65,0,   2},
+     { 12,  4, 65,0,   3},
+     { 13,  5, 70,0,   3},
+     { 99, 99,  0,0,   0},
+
+     { 15,  6, 75,0,   3},
+     { 99, 99,  0,0,   0},
+     { 17,  7, 80,0,   4},
+     { 19,  8, 85,0,   5},
+     /*{ 21,  9, 90,0,   6},*/ /*cure posion out!!!*/
+     { 22,  9, 50,0,  7},
+     { 23, 10, 95,0,   7},
+     { 99, 99,  0,0,   0},
+     { 24, 11, 70,0,  10},
+     { 25, 12, 95,0,  11},  /*c food ->b*/
+
+     { 27, 15, 99,0,  12}, /* recharge 1 */
+     { 99, 99,  0,0,   0},
+     { 99, 99,  0,0,   0}, /*cone of cold*/
+     { 99, 99,  0,0,   0},
+     { 28, 18, 50,0,  19},
+     { 99, 99,  0,0,   0},
+     { 99, 99,  0,0,   0},
+     { 99, 99,  0,0,   0},
+     { 99, 99,  0,0,   0},
+
+     { 99, 99,  0,0,   0}, /*lightning bolt*/
+     { 33, 22, 99,0,  20}, /* recharge 2 */
+     { 99, 99,  0,0,   0},
+     { 32, 25, 70,0,  50},
+     { 99, 99,  0,0,   0},
+     { 99, 99,  0,0,   0}, /*wall of fire */
+     { 99, 99,  0,0,   0},
+     { 99, 99,  0,0,   0},
+     { 99, 99,  0,0,   0}, /*ray of force */
+
+     { 7,   7, 20,0,  50},
+     { 9,  12, 40,0, 100},
+     { 15, 17, 60,0, 110},
+     { 99, 99,  0,0,   0},
+     { 30, 35, 75,0, 120},
+		   
+     { 13, 16,  50,0,  30},
+     { 18, 20,  60,0,  50},
+     { 99, 99,  0,0,   0},
+     { 99, 99,  0,0,   0},
+     { 99, 99,  0,0,   0},
+     { 99, 99,  0,0,   0},
+
+     { 5,  5,  50,0,  10},
+     { 10, 10, 70,0,  100},
+     { 35, 40, 95,0, 1000},
+     { 99, 99,  0,0,   0},
+     { 99, 99,  0,0,   0},
+
+     { 10, 12,  50,0,   100},
+     { 10, 12,  50,0,   100},
+     { 10, 12,  50,0,   100},
+     { 10, 12,  50,0,   100}, /*res lightning added*/
+     { 15, 20,  75,0,   200},
+     { 25, 30,  85,0,  1000},
+
+     { 10, 11,  50,0,   100},
+     { 15, 20, 75,0,  300},
+     { 20, 25, 80,0,  800},
+     { 26, 30, 50,0, 2000},
+     { 99, 99,  0,0,   0},
+     { 99, 99,  0,0,   0},
+
+   },
+   {               /* Ranger        */
+     {  3,  2, 30,0,   1}, /*magic missle*/
+     {  3,  1, 35,0,   2},
+     {  3,  2, 35,0,   2},
+     {  5,  3, 35,0,   2},
+     { 99, 99,  0,0,   0},
+     {  5,  3, 40,0,   2},
+     { 99, 99,  0,0,   0},
+     {  5,  4, 45,0,   3},
+     {  7,  5, 40,0,   6},
+     
+     {  7,  6, 40,0,   5},
+     {  9,  8, 40,0,   7}, /*lightning bolt --> spark*/
+     {  9,  8, 45,0,   8},
+     { 11,  8, 40,0,  10},
+     /*{ 11,  9, 45,0,  10},*/ /*cure poison gone!!! */
+     { 13, 10, 45,0,  12},
+     { 13, 11, 55,0,  13}, 
+     { 15, 12, 50,0,  15}, /*frost bolt */
+     { 15, 13, 50,0,  15},
+     { 17, 17, 55,0,  15},  /* create food ->b*/
+
+     { 17, 17, 90,0,  17},
+     { 21, 17, 55,0,  17},
+     { 21, 16, 60,0,  17}, /*cone of cold*/
+     { 21, 19, 65,0,  18},
+     { 23, 25, 90,0,  20},
+     { 23, 20, 60,0,  20},
+     { 25, 18, 60,0,  20}, /*fire bolt */
+     { 25, 21, 65,0,  20},
+     { 27, 21, 65,0,  22},
+
+     { 28, 24, 75,0,  25}, /*lightning bolt*/
+     { 29, 23, 95,0,  23},
+     { 31, 25, 70,0,  25},
+     { 33, 25, 75,0,  38},
+     { 35, 25, 80,0,  50},
+     { 36, 36, 85,0,  75}, /*wall of fire */
+     { 37, 30, 95,0, 100},
+     { 99, 99,  0,0,   0},
+     { 45, 60, 99,0, 150}, /*ray of force */
+
+     { 8,  17, 20,0,  50},
+     { 19,  22, 40,0, 100},
+     { 25, 27, 60,0, 110},
+     { 30, 28, 60,0, 120},
+     { 35, 35, 75,0, 120},
+
+     { 20, 15,  50,0,  30}, /*acid bolt*/
+     { 22, 19,  60,0,  50},
+     { 30, 25, 70,0, 100},
+     { 37, 35, 75,0, 200},
+     { 35, 45, 85,0, 300},
+     { 99, 99, 0,0,    0},
+
+     { 10,  15,  50,0,  10},
+     { 15, 20, 70,0,  100},
+     { 35, 60, 95,0, 1000},
+     { 99, 99, 0,0,    0},
+     { 99, 99, 0,0,   0},
+
+     { 8, 15,  50,0,   100},
+     { 8, 15,  50,0,   100},
+     { 8, 15,  50,0,   100},
+     { 8, 15,  50,0,   100}, /*res lightning added*/
+     { 16, 25, 75,0,   200},
+     { 25, 40,  85,0, 1000},
+
+     { 10, 15,  50,0,   100},
+     { 15, 20, 75,0,  300},
+     { 25, 30, 80,0,  800},
+     { 32, 50, 50,0, 2000},
+     { 99, 99,  0,0,   0},
+     { 99, 99,  0,0,   0},
+
+   },
+   {              /* Paladin       */
+     {  1,  1, 30,0,   1},
+     {  2,  2, 35,0,   2},
+     {  3,  3, 35,0,   3},
+     {  5,  3, 35,0,   5},
+     {  5,  4, 35,0,  5},
+
+     {  7,  5, 40,0,   6}, /* Find traps replaced by spiritual hammer -CFT */
+     {  7,  7, 40,0,   6}, /* doors/stairs now also does traps -CFT */
+
+     {  9,  7, 40,0,   7},
+     {  9,  7, 40,0,   8},
+     {  9,  8, 40,0,   8},
+     { 11,  9, 40,0,  10},
+     { 11, 10, 45,0,  10},
+     { 11, 10, 45,0,  10},
+     { 13, 10, 45,0,  12},
+     { 13, 11, 45,0,  13},
+     { 15, 13, 45,0,  15},
+     { 15, 15, 50,0,  15},
+     { 17, 15, 50,0,  17},
+     { 17, 15, 50,0,  18},
+     { 19, 15, 50,0,  19},
+     { 19, 15, 50,0,  19},
+     { 21, 17, 50,0,  20},
+     { 23, 17, 50,0,  20},
+     { 25, 20, 50,0,  20},
+     { 27, 21, 50,0,  22},
+     { 29, 22, 50,0,  24},
+     { 31, 24, 60,0,  25},
+     { 33, 28, 60,0,  31},
+     { 35, 32, 70,0, 38},
+     { 37, 70, 90,0,  50},
+     { 39, 38, 99,0, 100},
+
+     { 5,  5,  50,0,   2},
+     { 15, 15, 80,0,   50},
+     { 25, 25, 80,0,   100},
+     { 30, 15, 80,0,  1000},
+     { 37, 55, 80,0,  2000},
+
+     { 17,  15, 50,0,   100},
+     { 23,  25, 60,0,   200},
+     { 35, 60, 80,0,  1000},
+     { 40, 80, 90,0,  2000},
+     { 40, 80, 90,0,  3000},
+		   
+     { 20, 13,  70,0,  100},
+     { 30, 20, 75,0,  300},
+     { 30, 35, 80,0,  1500},
+     { 40, 40, 80,0,  1000},
+     { 47, 70, 75,0,  4000},
+
+     { 10, 16,  50,0,   50},
+     { 25, 30, 80,0,  100},
+     { 30, 50, 80,0,  1000},
+     { 40, 70, 80,0,  2000},
+     { 42, 80, 85,0,  3000},
+     { 47, 95, 85,0,  6000},
+
+     { 7, 7,  50,0,   5},
+     { 20, 20,  50,0,  20},
+     { 25, 25,  80,0,  80},
+     { 35, 50,  75,0, 1000},
+     { 40, 60,  75,0, 100},
+     { 45, 70,  75,0, 3000},
+
+     { 99, 99,  0,0,   0},
+     { 99, 99,  0,0,   0},
+     { 99, 99,  0,0,   0},
+     { 99, 99,  0,0,   0},
+     { 99, 99,  0,0,   0},
+     { 99, 99,  0,0,   0}
+   }
+
+};
+
+
+/*
+ * Spells in each book (mage spells then priest spells)
+ */
+u32b spell_flags[2][9][2] = {
+
+  {
+    /*** Mage spell books ***/
+    { 0x000001ff, 0x00000000 },
+    { 0x0003fe00, 0x00000000 },
+    { 0x07fc0000, 0x00000000 },
+    { 0xf8000000, 0x0000000f },
+    { 0x00000000, 0x03f00000 },
+    { 0x00000000, 0x000001F0 },
+    { 0x00000000, 0x000f8000 },
+    { 0x00000000, 0x7c000000 },
+    { 0x00000000, 0x00007e00 }
+  },
+
+  {
+    /*** Priest spell books ***/
+    { 0x000000ff, 0x00000000 },
+    { 0x0000ff00, 0x00000000 },
+    { 0x01ff0000, 0x00000000 },
+    { 0x7e000000, 0x00000000 },
+    { 0x00000000, 0x03f00000 },
+    { 0x80000000, 0x0000000f },
+    { 0x00000000, 0x000001f0 },
+    { 0x00000000, 0x000fc000 },
+    { 0x00000000, 0x00003e00 }
+  }
+};
+
+
+/*
+ * Names of the spells (mage spells then priest spells)
+ */
+cptr spell_names[2][64] = {
+
+  {
+    /*** Mage Spells ***/
+
+    "Magic Missile",
+    "Detect Monsters",
+    "Phase Door",
+    "Light Area",
+    "Treasure Detection",
+    "Cure Light Wounds",
+    "Object Detection",
+    "Find Hidden Traps/Doors",
+    "Stinking Cloud",
+
+    "Confusion",
+    "Spark",
+    "Trap/Door Destruction",
+    "Sleep I",
+    "Teleport Self",
+    "Spear of Light",
+    "Frost Bolt",
+    "Turn Stone to Mud",
+    "Satisfy Hunger",
+
+    "Recharge Item I",
+    "Sleep II",
+    "Cone of Cold",
+    "Polymorph Other",
+    "Identify",
+    "Sleep III",
+    "Fire Bolt",
+    "Slow Monster",
+    "Frost Ball",
+
+    "Lightning Bolt",
+    "Recharge Item II",
+    "Teleport Other",
+    "Haste Self",
+    "Fire Ball",
+    "Wall of Fire",
+    "Word of Destruction",
+    "Genocide",
+    "Ray of Force",
+
+      /* Mordenkainen's Escapes */
+    "Door Creation",
+    "Stair Creation",
+    "Teleport Level",
+    "Earthquake",
+    "Word of Recall",
+
+      /* Raal's Tome of Destruction */
+    "Acid Bolt",
+    "Cloud Kill",
+    "Acid Ball",
+    "Ice Storm",
+    "Meteor Swarm",
+    "Mana Storm",
+
+      /* Kelek's Grimoire of Power */
+    "Detect Evil",
+    "Detect Enchantment",
+    "Recharge Item III",
+    "Genocide",
+    "Mass Genocide",
+
+      /* Resistance of Scarabtarices */
+    "Resist Fire",
+    "Resist Cold",
+    "Resist Acid",
+    "Resist Lightning",
+    "Resist Poison",
+    "Resistance",
+
+      /* Tenser's transformations... */
+    "Heroism",
+    "Shield",
+    "Berserker",
+    "Essence of Speed",
+    "Globe of Invulnerability",
+
+    "(blank)"
+  },
+
+
+  {
+    /*** Priest Spells ***/
+
+    "Detect Evil",
+    "Cure Light Wounds",
+    "Bless",
+    "Remove Fear",
+    "Call Light",
+    "Spiritual Hammer",
+    "Detect Doors/Traps",
+    "Slow Poison",
+
+    "Confuse Creature",
+    "Portal",
+    "Cure Serious Wounds",
+    "Chant",
+    "Sanctuary",
+    "Satisfy Hunger",
+    "Remove Curse",
+    "Resist Heat and Cold",
+
+    "Neutralize Poison",
+    "Orb of Draining",
+    "Cure Critical Wounds",
+    "Sense Invisible",
+    "Protection from Evil",
+    "Earthquake",
+    "Sense Surroundings",
+    "Cure Mortal Wounds",
+    "Turn Undead",
+
+    "Prayer",
+    "Dispel Undead",
+    "Heal",
+    "Dispel Evil",
+    "Glyph of Warding",
+    "Holy Word",
+
+      /* Godly Insights... */
+    "Detect Monsters",
+    "Detection",
+    "Perception",
+    "Probing",
+    "Clairvoyance",
+
+      /* Purifications and Healing */
+    "Cure Serious Wounds",
+    "Cure Mortal Wounds",
+    "Healing",
+    "Restoration",
+    "Remembrance",
+
+      /* Wrath of God */
+    "Dispel Undead",
+    "Dispel Evil",
+    "Banishment",
+    "Word of Destruction",
+    "Annihilation",
+
+      /* Holy Infusions */
+    "Unbarring Ways",
+    "Recharging",
+    "Dispel Curse",
+    "Enchant Weapon",
+    "Enchant Armour",
+    "Elemental Brand",
+
+      /* Ethereal openings */
+    "Blink",
+    "Teleport",
+    "Teleport Away",
+    "Teleport Level",
+    "Word of Recall",
+    "Alter Reality",
+
+    "(blank)",
+    "(blank)",
+    "(blank)",
+    "(blank)",
+    "(blank)"
+  }
+};
+
+
+
+/* 
+ * Each chest has a certain set of traps, determined by pval
+ * Each chest has a "pval" from 1 to the chest level (max 55)
+ * If the "pval" is negative then the trap has been disarmed
+ * The "pval" of a chest determines the quality of its treasure
+ * Note that disarming a trap on a chest also removes the lock.
+ */
+byte chest_traps[64] = {
+    0,                                  /* 0 == empty */
+    (CHEST_POISON),
+    (CHEST_LOSE_STR),
+    (CHEST_LOSE_CON),
+    (CHEST_LOSE_STR),
+    (CHEST_LOSE_CON),                   /* 5 == best small wooden */
+    0,
+    (CHEST_POISON),
+    (CHEST_POISON),
+    (CHEST_LOSE_STR),
+    (CHEST_LOSE_CON),
+    (CHEST_POISON),
+    (CHEST_LOSE_STR | CHEST_LOSE_CON),
+    (CHEST_LOSE_STR | CHEST_LOSE_CON),
+    (CHEST_LOSE_STR | CHEST_LOSE_CON),
+    (CHEST_SUMMON),                     /* 15 == best large wooden */
+    0,
+    (CHEST_LOSE_STR),
+    (CHEST_LOSE_CON),
+    (CHEST_PARALYZE),
+    (CHEST_LOSE_STR | CHEST_LOSE_CON),
+    (CHEST_SUMMON),
+    (CHEST_PARALYZE),
+    (CHEST_LOSE_STR),
+    (CHEST_LOSE_CON),
+    (CHEST_EXPLODE),                    /* 25 == best small iron */
+    0,
+    (CHEST_POISON | CHEST_LOSE_STR),
+    (CHEST_POISON | CHEST_LOSE_CON),
+    (CHEST_LOSE_STR | CHEST_LOSE_CON),
+    (CHEST_EXPLODE | CHEST_SUMMON),
+    (CHEST_PARALYZE),
+    (CHEST_POISON | CHEST_SUMMON),
+    (CHEST_SUMMON),
+    (CHEST_EXPLODE),
+    (CHEST_EXPLODE | CHEST_SUMMON),     /* 35 == best large iron */
+    0,
+    (CHEST_SUMMON),
+    (CHEST_EXPLODE),
+    (CHEST_EXPLODE | CHEST_SUMMON),
+    (CHEST_EXPLODE | CHEST_SUMMON),
+    (CHEST_POISON | CHEST_PARALYZE),
+    (CHEST_EXPLODE),
+    (CHEST_EXPLODE | CHEST_SUMMON),
+    (CHEST_EXPLODE | CHEST_SUMMON),
+    (CHEST_POISON | CHEST_PARALYZE),    /* 45 == best small steel */
+    0,
+    (CHEST_LOSE_STR | CHEST_LOSE_CON),
+    (CHEST_LOSE_STR | CHEST_LOSE_CON),
+    (CHEST_POISON | CHEST_PARALYZE | CHEST_LOSE_STR),
+    (CHEST_POISON | CHEST_PARALYZE | CHEST_LOSE_CON),
+    (CHEST_POISON | CHEST_LOSE_STR | CHEST_LOSE_CON),
+    (CHEST_POISON | CHEST_LOSE_STR | CHEST_LOSE_CON),
+    (CHEST_POISON | CHEST_PARALYZE | CHEST_LOSE_STR | CHEST_LOSE_CON),
+    (CHEST_POISON | CHEST_PARALYZE),    
+    (CHEST_POISON | CHEST_PARALYZE),    /* 55 == best large steel */
+    (CHEST_EXPLODE | CHEST_SUMMON),
+    (CHEST_EXPLODE | CHEST_SUMMON),
+    (CHEST_EXPLODE | CHEST_SUMMON),
+    (CHEST_EXPLODE | CHEST_SUMMON),
+    (CHEST_EXPLODE | CHEST_SUMMON),
+    (CHEST_EXPLODE | CHEST_SUMMON),
+    (CHEST_EXPLODE | CHEST_SUMMON),
+    (CHEST_EXPLODE | CHEST_SUMMON),
+};
+
+
+
+
+
+
+/*
+ * Each player starts out with a few items, given as tval/sval pairs.
+ * In addition, he always has some food and a few torches.
+ */
+
+byte player_init[MAX_CLASS][3][2] = {
+
+    {
+      /* Warrior */
+      { TV_POTION, SV_POTION_BESERK_STRENGTH },
+      { TV_SWORD, SV_BROAD_SWORD },
+      { TV_HARD_ARMOR, SV_CHAIN_MAIL }
+    },
+
+    {
+      /* Mage */
+      { TV_MAGIC_BOOK, 0 },
+      { TV_SWORD, SV_DAGGER },
+      { TV_SCROLL, SV_SCROLL_WORD_OF_RECALL }
+    },
+
+    {
+      /* Priest */
+      { TV_PRAYER_BOOK, 0 },
+      { TV_HAFTED, SV_MACE },
+      { TV_POTION, SV_POTION_HEALING }
+    },
+
+    {
+      /* Rogue */
+      { TV_MAGIC_BOOK, 0 },
+      { TV_SWORD, SV_SMALL_SWORD },
+      { TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR }
+    },
+
+    {
+      /* Ranger */
+      { TV_MAGIC_BOOK, 0 },
+      { TV_SWORD, SV_BROAD_SWORD },
+      { TV_BOW, SV_LONG_BOW }
+    },
+
+    {
+      /* Paladin */
+      { TV_PRAYER_BOOK, 0 },
+      { TV_SWORD, SV_BROAD_SWORD },
+      { TV_SCROLL, SV_SCROLL_PROTECTION_FROM_EVIL }
+    }
+};
+
+
+
+
+
+/*
+ * Class titles for different levels
+ */
+cptr player_title[MAX_CLASS][MAX_PLAYER_LEVEL] = {
+
+	/* Warrior       */
+{"Rookie","Private","Soldier","Mercenary","Veteran(1st)","Veteran(2nd)",
+"Veteran(3rd)","Warrior(1st)","Warrior(2nd)","Warrior(3rd)","Warrior(4th)",
+"Swordsman-1","Swordsman-2","Swordsman-3","Hero","Swashbuckler","Myrmidon",
+"Champion-1","Champion-2","Champion-3","Superhero","Knight","Superior Knt",
+"Gallant Knt","Knt Errant","Guardian Knt","Baron","Duke","Lord (1st)",
+"Lord (2nd)","Lord (3rd)","Lord (4th)","Lord (5th)","Lord (6th)","Lord (7th)",
+"Lord (8th)","Lord (9th)","Lord (10th)","Lord (11th)","Lord (12th)",
+"Lord (13th)","Lord (14th)","Lord (15th)","Lord (16th)","Lord (17th)",
+"Lord (18th)","Lord (19th)","Lord Gallant","Lord Keeper","Lord Noble"},
+
+	/* Mage          */
+{"Novice","Apprentice","Trickster-1","Trickster-2","Trickster-3","Cabalist-1",
+"Cabalist-2","Cabalist-3","Visionist","Phantasmist","Shadowist","Spellbinder",
+"Illusionist","Evoker (1st)","Evoker (2nd)","Evoker (3rd)","Evoker (4th)",
+"Conjurer","Theurgist","Thaumaturge","Magician","Enchanter","Warlock",
+"Sorcerer","Necromancer","Mage (1st)","Mage (2nd)","Mage (3rd)","Mage (4th)",
+"Mage (5th)","Wizard (1st)","Wizard (2nd)","Wizard (3rd)","Wizard (4th)",
+"Wizard (5th)","Wizard (6th)","Wizard (7th)","Wizard (8th)","Wizard (9th)",
+"Wizard (10th)","Wizard (11th)","Wizard (12th)","Wizard (13th)",
+"Wizard (14th)","Wizard (15th)","Wizard (16th)","Wizard (17th)",
+"Wizard (18th)","Wizard (19th)","Wizard Lord"},
+
+	/* Priests       */
+{"Believer","Acolyte(1st)","Acolyte(2nd)","Acolyte(3rd)","Adept (1st)",
+"Adept (2nd)","Adept (3rd)","Priest (1st)","Priest (2nd)","Priest (3rd)",
+"Priest (4th)","Priest (5th)","Priest (6th)","Priest (7th)","Priest (8th)",
+"Priest (9th)","Curate (1st)","Curate (2nd)","Curate (3rd)","Curate (4th)",
+"Curate (5th)","Curate (6th)","Curate (7th)","Curate (8th)","Curate (9th)",
+"Canon (1st)","Canon (2nd)","Canon (3rd)","Canon (4th)","Canon (5th)",
+"Canon (6th)","Canon (7th)","Canon (8th)","Canon (9th)",
+"Low Lama","Lama-1","Lama-2","Lama-3","Lama-4","Lama-5","Lama-6","Lama-7",
+"Lama-8","Lama-9","High Lama","Great Lama","Patriarch",
+"High Priest","Great Priest","Noble Priest"},
+
+	/* Rogues        */
+{"Vagabond","Footpad","Cutpurse","Robber","Burglar","Filcher","Sharper",
+"Magsman","Common Rogue","Rogue (1st)","Rogue (2nd)","Rogue (3rd)",
+"Rogue (4th)","Rogue (5th)","Rogue (6th)","Rogue (7th)","Rogue (8th)",
+"Rogue (9th)","Master Rogue","Expert Rogue","Senior Rogue","Chief Rogue",
+"Prime Rogue","Low Thief","Thief (1st)","Thief (2nd)","Thief (3rd)",
+"Thief (4th)","Thief (5th)","Thief (6th)","Thief (7th)","Thief (8th)",
+"Thief (9th)","Thief (10th)","Thief (11th)","Thief (12th)","Thief (13th)",
+"Thief (14th)","Thief (15th)","Thief (16th)","Thief (17th)","Thief (18th)",
+"Thief (19th)","High Thief","Master Thief","Executioner","Low Assassin",
+"Assassin","High Assassin","Guildsmaster"},
+
+	/* Rangers       */
+{"Runner (1st)","Runner (2nd)","Runner (3rd)","Strider (1st)","Strider (2nd)",
+"Strider (3rd)","Scout (1st)","Scout (2nd)","Scout (3rd)","Scout (4th)",
+"Scout (5th)","Courser (1st)","Courser (2nd)","Courser (3rd)","Courser (4th)",
+"Courser (5th)","Tracker (1st)","Tracker (2nd)","Tracker (3rd)",
+"Tracker (4th)","Tracker (5th)","Tracker (6th)","Tracker (7th)",
+"Tracker (8th)","Tracker (9th)","Guide (1st)","Guide (2nd)","Guide (3rd)",
+"Guide (4th)","Guide (5th)","Guide (6th)","Guide (7th)","Guide (8th)",
+"Guide (9th)","Guide (10th)","Guide (11th)","Guide (12th)","Guide (13th)",
+"Guide (14th)","Guide (15th)",
+"Pathfinder-1","Pathfinder-2","Pathfinder-3","Pathfinder-4","Pathfinder-5",
+"Pathfinder-6","Pathfinder-7","Ranger","High Ranger","Ranger Lord"},
+
+	/* Paladins      */
+{"Gallant","Keeper (1st)","Keeper (2nd)","Keeper (3rd)","Keeper (4th)",
+"Keeper (5th)","Keeper (6th)","Keeper (7th)","Keeper (8th)","Keeper (9th)",
+"Protector-1","Protector-2","Protector-3","Protector-4","Protector-5",
+"Protector-6","Protector-7","Protector-8","Defender-1","Defender-2",
+"Defender-3","Defender-4","Defender-5","Defender-6","Defender-7","Defender-8",
+"Warder (1st)","Warder (2nd)","Warder (3rd)","Warder (4th)","Warder (5th)",
+"Warder (6th)","Warder (7th)","Warder (8th)","Warder (9th)","Warder (10th)",
+"Warder (11th)","Warder (12th)","Warder (13th)","Warder (14th)",
+"Warder (15th)","Warder (16th)","Warder (17th)","Warder (18th)",
+"Warder (19th)","Guardian","Chevalier","Justiciar","Paladin","High Lord"}
+
+};
+
+
