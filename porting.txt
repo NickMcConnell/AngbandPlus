@@ -1,10 +1,8 @@
-DrAngband 2.9.2 50-line mode
-----------------------------
+DrAngband 2.9.2+ 50-line mode
+-----------------------------
 
 This textfile gives a quick guide to enabling 50-line mode
-in ports of DrAngband. So far I have only converted the DOS
-(IBM, to be precise) version to support 50-line mode. Here
-is how it should be done:
+in ports of DrAngband. Here is how it should be done:
 
 1. Prior to the execution of init_xxx() (in the relevent
 main-xxx.c file) a global variable, screen_y will be
@@ -25,14 +23,20 @@ value like 50 (for 80*50).
 3. That's all! Main.c will calculate screen geometry for the
    given mode and everything will run nicely :-)
 
-4. Oh yeah, test big screen mode with: angband -b
-   Or "angband -bXX" for any screen of >= 25.
-   Eg. "angband -b43" for a 43 line display.
+4. Oh yeah, test big screen mode with: angband -y
+   Or "angband -yXX" for any screen of >= 25.
+   Eg. "angband -y43" for a 43 line display.
 
 Versions currently supporting big screens:
 
 DOS,
-OS/2.
+OS/2,
+Unix/Curses (GCU) <<--- Badly done. Help reqd!
+Unix/X11.
+
+NOTE: As of version 2.9.4, screen_x may also be greater than
+normal. Only the X11 port supports this at the moment. (Set with
+-xXX switch).
 
 -- 
 Tom Morton, DrAngband maintainer.

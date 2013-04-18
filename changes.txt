@@ -1,6 +1,156 @@
 DrAngband Changes:
 ------------------
 
+DrAngband 2.9.4 (28/11/99)
+--------------------------
+
+IMPORTANT
+---------
+
+Finish oangband combat inc. bows/throws.
+
+IDEAS:
+------
+
+Throwing: Sling in the BALANCED and THROWING flags.
+
+(- marks almost done. still some work)
+-reduce dependence on massive heals,
+-teleports.
+-More use of clever utility spells like 
+-create doors.
+Hack 'n slash harder to rely on.
+-Better attacking spells but no one-shot wonders.
+Reduce mana?
+Less reliance on artifacts and slightly less on
+ego-items.
+Struggling to remove cursed stuff. Maybe 95%
+fail rate: "You struggle to remove the foo",
+"You finally manage to remove the acursed foo".
+New, well differentiated races.
+
+-changed can't remove curse message
+
+Dragon attack spells. To powerful late on?
+
+Add 'physical mana'. Changed by
+bashing doors, removing cursed items, etc.
+Depends on CON and life level, etc.
+Displayed as:
+<NOTHING>
+TIRED <ORANGE, RED>
+EXHAUSTED <ORANGE, RED>
+Use a +ve count. Ie, o when fine, 10 when
+tiring, 50 when exhausted. Modify this and
+apply as a -ve to hit/damage?
+Maybe a crap idea.
+
+Hydras,
+etc. (more ideas)
+
+
+Only phase door to be great. Fewer insta-death breath attacks.
+
+Monsters should take poison more like the player. m_ptr->poisoned
+
+Yell command
+
+Point based (ang 2.8.5) stat rolling.
+
+Boosts to ego and good item +hit, +dam.
+
+Wand charges in PVAL field of k_info.txt
+
+Better wands.
+
+Fix cumulative resistances so >100 resistance isn't ignored.
+This will allow for vulnerability to attacks.
+
+
+When digging, first turn to rubble.
+
+DrAngband 2.9.4 (29/11/99)
+--------------------------
+
+* Globe of Resilience reduces damage to 2/3.
+
+* *Massive* changes to mage spellbooks. Mage class renamed to wizard.
+
+* Almost nothing is immune to confusion, sleep and slowing.
+
+* Destruction no longer destroys everything. Sometimes
+  creates rubble.
+
+* project() code from oangband: Arc spells.
+
+* Removed all forms of genocide.
+
+* Wands/staves and rods of various types (confusion, sleep,
+  slow monster) rarer since the effect is more powerful.
+
+* Fixed bug (from 2.9.2) in character info screen.
+
+* Added pretty colours when looking at spell books
+  (Angband 2.8.5).
+
+* Doors harder for monsters to destroy. Different colours for broken
+  doors.
+
+* Changes to some monster melee attacks.
+
+* Reorganisation of edible things.
+
+* Curse removed from Crown of Dragonkind.
+
+* New attack. [no spoilers!]
+
+* Some reorganisation of priestly spells.
+
+* Cavern levels rarer.
+
+* Dragon melee bonuses lowered.
+
+* Arrows fired by monsters are sometimes dropped.
+
+* Widescreen!
+
+* Detection and mapping spells work by radius, not screen size.
+
+* Character dumps now appended to end of character log files.
+
+* 52 item inventory.
+
+* Oangband traps.
+
+DrAngband 2.9.3 (28/11/99)
+--------------------------
+
+* More changes to Multi-hued dragons. They now get acid,
+  elec, fire and cold resist from the start and gain
+  double resistances and poison as before. Marginal stat
+  improvements. Don't want to overshoot their rebalancing.
+
+* Other dragon changes:
+  +3 INT and better saving throw for Copper Dragons.
+  Copper and Bronze dragon colours switched.
+
+* Updated version of fractal caves patch (sfpatch5.tar.gz),
+  with random vaults!
+
+* Lighter DSMs.
+
+* Fixed stupid bug in RNG offers (accidentally removed from
+  version 2.9.2). Also made cheaper.
+
+* Notes (:) may now be appended to a file. Noting '@info'
+  will do an automated note of experience, level, depth,
+  gold, etc.
+
+* Lightsources reorganised.
+
+* Unix/Curses & X11 (main-gcu.c and main-x11.c) 50-line support.
+
+* Fixed nasty bug in mushrooms of poison.
 
 DrAngband 2.9.2 (18/11/99)
 --------------------------
@@ -95,7 +245,7 @@ DrAngband 2.9.2 (18/11/99)
   now takes number of lines (Alexey Guzeev).
 
 DrAngband 2.9.1 (2/11/99)
---------------------------
+-------------------------
 
 * TM_CURSE upgraded to every 50 turns and nastified in other ways...
 

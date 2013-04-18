@@ -1,0 +1,109 @@
+# File: t_info.txt
+
+#
+# 'Hillsfar', by Tom Morton (in honour of the 1980s AD&D game).
+# Best used with big screens of 43 lines or more.
+#
+
+# This file is used to create the 'extended' town.
+# Size: 198x66
+#
+# # - Perm Wall
+# X - Granite Wall
+# % - Magma vein
+# * - Quartz vein
+# : - Rubble
+# + - Door
+# 1 - General Store
+# 2 - Armoury
+# 3 - Weapon Smiths
+# 4 - Temple
+# 5 - Alchemy Shop
+# 6 - Magic Shop
+# 7 - Black Market
+# 8 - Home
+# T - Dark green Tree
+# t - Light green tree
+#   - Empty floor
+# . - Dirt
+# , - Grass
+# W - Water
+#
+# Characters other than these are assumed to be empty floor.
+
+# Version stamp (required)
+
+V:2.9.4
+
+# Player starting position. x,y.
+
+S:98:12
+
+### Town layout
+
+D:######################################################################################################################################################################################################
+D:#*%%*%X%%X%X%%X%%X%%*%%XX%*%X%*%%*%X%%X%X%%X%%X%%*%%XX%*%X%*%%*%X%%X%X%%X%%X%%*%%XX%*%X%*%%*%X%XX%XX%%X%X%%X%%%X%%X%X%%%X%%%X%%*%%*%X%%X%X%%X%%X%%*%%XX%*%X%*%%*%X%%X%X%%X%%X%%*%%XX%*%X%*%%*%X%%X%X%#
+D:#*X%*XX%*XXX*XX%X*XX*XX%*X*XX%*XXXX*XX%*XX%X*XXX*XX*XX*X%XXX*XXX%XX**XX%X%X*%X*XX%XXX%*XX%X%*XX%%X%*%%%%%*%%%%%X%%%%*%%%%X%%X%X%X%%X%%X%%*%%XX%*%X%*%%*%X%%X%X%%XX%X%%X%%X%%*%%XX%*%X%*%%*%X%%X%X%%XX#
+D:#*X%X*X%*XX%*X%*X%XX*%*XX*X*X%XX*%XX*XX*X%X*XX%XX*X%X*XX%X*XX%XXX%XXXX%XXX%XXX%XX*X%XX*XX*X%*X*%XX%%%%X%%%%%%X%*%%XX%%X%%X*%%%X%*X%*%X%*%X%%%XX%XX%XX%%XX%XXX%%%%*%%X%%*%%X%%X%%%X%*%X%%X%XX*%%%%*%%X#
+D:#X%*X*X*X%XX*X%XX*X%X*%X*%XX**X%XX*XX%%X*X%XXX*X%XXX%XX*XX%%XXX*X*XXXX%X*XXX%X*XXXX*X%XX*X%XX%XX%%%%*%%X%%*%%X%%X%%%X%*%X%%X%XX*X%%X*X%%XXX%XX%XXX%%X%%XX%X*%%*%X%%X%X%%X%%X%%*%%XX%*%*%%*%X%%X%X%%X%#
+D:#XX*X%X*%XX*%XX*X*%*XXX*XXX%*X%XXX%XXX*XX**X%X*XX*XXXX%XX*XX*X%X%XX%XXX*XX%XXX*X%T,,*XXX*XXXX           XXX*XX%XX,,,XX%%X%XX%XX%%*%X%%%X%XX%X%X%%XX%X*%XX*%%*%X%%X%X%%X%%X%%*%%XX%*%*%%*%X%%X%XWW%XX%#
+D:#XXX%%XX**X% *X  *   X        XX**XXXX*XX*X*XX%XX*XX*X*XX%XX%XX%XXX%X%XX%%XXX%XXXt  ,XXX%XXX             *X%XX%Xt  tXX%XX%%X%X%XX%XXX%XX%X*%X*X%X%X%XX%%%%%%%%%%%%tttXX%XX*X%XX%X%X*,%X*X%%X*WWWX*XX%#
+D:#X%*X*X**X X X X X*  %   X   %XX%XX%XX*X%X*XX*X%X*XXX*XX%XX*X%XXX%*X*X%XXX*XX7XX,    ,XX+XX               XX+XX,    ,XX+XX%XXX%X%XXX%XXXX%XX*%XX%XXX%X%%%%%%%%%%ttTttttX%X%*X%X%X,X%X,X%X*X,WWWtX%X*X#
+D:#X%*XX%XXX  *  % % *             X*XX*XXX*XXX%*X*XXX*X%XX*XX%XX%*X%XX%XX%XX,, ,,      t, ,X    XXXXXXX    X, ,,      t, tTX*%XX%XXX%XXX%X*%%XXX%XX%XX%XX%%XX%XX,tt,t,tT,tX%t,X,X*t,tt,tT,,WWW,T,%*X%X#
+D:#*X%%X*XX  X   X                  XX%*X%X*X*X*X%X*X%X*X*XX*X%%XXXX%XX%XX*XX,             XX    XXXXXXX    XX             ,XXX%XX%X*XX%XXX%X*X%XXX%XX%*XX*X%XX,TttT,T,T,t,,t,Tt,,t,T,t,t,WWW,,tt,X%X%X#
+D:#X%*XX%X* %X X      X               X*X%*XXX%X*XX%*XX*X%XX*X%%*XX%X*XX%XX%%t             X      X2X3X      X             tXX%XXXX%XXX%XX*%XXX%%%X%XXX%X%XX%,t,tT,tt,,t,TT,t,t,t,,tt,,,WWW,t,tT,*XX*%X#
+D:#X*X%*XX X  *    *                  XXXX*XX*XXX*XXX*XX%X*X%XXX%XXX*XX%X*XXX,           XXX                 XXX           t*X*X%X%*XX%X%XXX%XXX%X%X%X*XX*X,,,,,t,,,t,,t,Tt,t,,,t,,T,,WWW,t,,,t,XX%X*XX#
+D:#X*X%*X*   %          X             *X%XXX*XX%*X%%XX*XX%*X*%X*X%XX%XX*XX%XX,          XX          >          XX          ,XX%X*%XX*XXX%%*X*%XX%XX%XX%X%X,,t,t,,TT,,T,,t,,,,T,T,,,t,WWW,,,t,T,,%X*XX%X#
+D:#X%X*X%X *  X   X  %                 XXXX%XX**%X%%X**XXX%*XXX%*X*XX*X%XXX%XXXXX                                      XXXXXXX%XX%XX%%XXXX%XXXX%XX%%%*XX*X,,,t,,T,,,,t,,,,T,t,,t,t,,,WWW,,t,,,t,XX*%X*X#
+D:#*X%XXX  % *                           X%*XXX%%X*X*XX%*XXX%*XX%XXX%%XX%XX,t,T,XXX                                   XXX,,,,TXXX%XXXX*%XXX%*%XX%XX%XX%X*,,t,,,t,,tT,,,tt,,T,,,t,,,,WWW,,,,T,,,X%*XX%%X#
+D:#XX*%%*X                                X%XXX*XXXX%X*XXX%X*X%XX*X%XXXXX,,,...,t,XX                                 XX,t,WWW,,,XXX%%XXXXXX%XX%XXX*%X*XX,,t,,t,,,,,,,t,,,T,t,t,,,t,,WWW,,,t,,,,X*X%XX*X#
+D:#X*X*X%XX   X             :  % *:      XXX*XXX%*%XX%XX*XX%X*X*X*X%%X%XTt,.XXX.,,TX                                 X,,,WXXXW,,TXX%XXX*X*X%X%%XX%X%%X,,,,,,,,tt,T,t,,tT,,,,,t,,,T,,,WWW,,t,,t%XX*X*XX%#
+D:#X%*X*XX*X                              %X*XXX%XX%%*XX%*%X%*XXXX%%X*%X,,,.X4+    +                                 +    +6XW,,,%XXX*X%XX%X%XXX%X*X%,,t,tt,,t,,,t,,,t,,,t,,,T,t,,,t,WWW,,,,,,X%X%XX*XX#
+D:#XX%%X*%XX                %::  % :        XX%XXX*XXXX%*XXX%*X%XX*X%%XXt,t.XXX.,t,X                                 X,,,WXXXW,t,XX%%X%%XX*XXX%X%XX*X%tt,,,t,,,t,,,,t,,,,t,,t,,,,,,,WWW,,,T,,,*X*X%XX*X#
+D:#*%%%*X%X*XXX          : :  *: :            XXX*XX%XX*X%XXX%X*X%X*X%X%X,,T...,,,XX                                 XX,T,WWW,,,XXX*%XX%XXX%*X%XX*X%X,,,,ttt,ttt,,,,,,,T,,,,,,t,,,WWW,,,,,,,,,X%XX*XX%*#
+D:#XXX*%X*XXX*             XXXX* XXXX           XX*X%*X%X*XX%*XX%XX*XX%XXXX,t,,TXXX                                   XXX,t,,,X*%X%XX*X%XX%XX%X*X%X*X,,,,,,T,,,,,,t,t,,,,t,,t,,,WWW,,,,,,,,,,,,X%%%X%XX#
+D:#X**XX%*X%X*XXX XXXXXXXXXXXXX :*XXXXXXXXXXXXX XXX%XX*XXX%X*X%*XX%X*%XXX%XXXXXXXX                                     XXXXXXXXX*XX*X%*XX%X*XX%XX*X%XX,,t,,,,,,,T,,,,t,,,,,,,,WWW,,,,,,,t,,,,,,,*X*XXX*#
+D:#X%*XX%XX%X*XX*           XX% *XXXX             *XX*X%X*X%*XXX%X%XX%X*X*XXX,          XX                     XX          ,XX*%XXX%XX*X*XX%XXX*X%%*X%,,,,t,,,,,,,,,,,,,,t,,,WWW,,,,,,,,,,,,,t,,,XX%%X%#
+D:#X*X*%X*XX%XXXXXXXXXXXXXXXXXX*:XXXXXXXXXXXXXXXXXXXXX%XX*X*XX%X%X%X*XX%%XX%Xt           XXX                 XXX           ,X%X%XX%*%XX%*%XX*XX%%X*X%X,,,,,,,,,,t,,,,,,,,,,,WWW,,,,,,,,T,,,,,,,,,X*X%*X#
+D:#X%X*X%*XXWWWWWWWWWWWWWWWXX%X %XX%XWWWWWWWWWWWWWWXXX%X%XX%X%X*%%X*%%X*XXX*X,             X      X5X1X      X             tXX%XX**X%X%X*XX%X*XX%X*X,,,,,,,,T,,,,,,t,,,,,,,WWW,,,t,,,,,,,,,,t,,*%%XXX*X#
+D:#X*%%X*X%XTTttttttttttt,W:W:*,,%W:WW,,tttTttTttTtTX%*X*%XX*XXXXX*X%%X%X%X%X,             XX    XXXXXXX    XX             TXXXX%X%XX*X%XX*%XX%X%X,,,,,,,,,,,,,,,,,,,,,,,WWW,,,,,,T,,,,,t,,,,,,,X*X%%X%#
+D:#X*XX%X%XtTtTtttTtttt,,t,:,::,,:.,,,,,:,,tttttTtTtXXX%XXX%XX%X*X*%X%X*XXXXXT, ,t      ,, ,X    XXXXXXX    X, ,t      ,t ,,XX%%XX*XX%X*X%XX%X%XX%,,,,,t,,,,,,t,,,,,,,,,WWW,,,,t,,,,,,,,,,,,,%XXX*X%X*X#
+D:#X*X*X%tTttTtTtttttt,t,,,,,,,,:,,.,,,T,t,,,ttTtTtX%X*X%*XX*XX%XX*X%X%XXXX%XXX+XX,    ,XX+XX               XX+XXT    ,XX8X*%XX*X*X*XXX*XXX%XX*,,,,,,,,,,,,,,,,,,,,,,,,,WWW,,,,,,,,T,,,T,,,,XXX%XX*XXX%#
+D:#X*X%X%%tTtTttttttt,t,:t,,,:,,,,,,.,,,,,,T,,,,ttttT%XX%X*XX%XXX%%X%%%%%*XXX%XX%XX,  ,XXXXX%X             X%X*XXX,  t%XX%XX%XX%XXX*X%XX*X*XX*X%X,,,,,,,,,,,,,,,,,t,,,,,,WWWW,,,,,,,,,,,,,,,*XX*XX%X*XX#
+D:#X%*X*XtTtTTtttTtt,t,t,,,,,,,t,,,:,.,,,T,,,tT,,tTtXX%X*XX%X%%%%X%%%X%%XXX%XXX*XXX,,,%XX%XX*XX           X*%*X%XXX,,,XX%X%XXX%XXX*X*XXXX*XX%XXX%%,,,,,,T,,,,,,,T,,,,,,,,,,WWWW,,,,,t,,,,,,,XXX*XX*XX*X#
+D:#X%*XX%tTtttttTtt,,,,,,,,,,,,,,,,,,,.,,,,t,,,tT,,ttt%XX%%%XX%%%%X%%*%%X%%%X*%X%XX%XXX*X%XXX*XX%XXX X%*XX*XX%XX%X*XX*X%%%*XX*XX*%X*XX%X*XX%X*X%X,,,,,,,,,,,,,,,,,,,,,,,,,,,,WWWW,,,,,,,,,,,,X%X*X%XX%X#
+D:#X*%X*X%XtTttttt,t,,t,,,,T,,:,t,,,,,,.t,,,,T,,,,,,Ttt%%%X%%%%*%%%X%%%%%%X%*%XX*X%XX%XXX*X%X%XX*X%% X%X%XXX*%XXXX%XX%XXX*%X%X%*%**XX%XX*X%XX%%%XX,,,,t,,,,,,t,,,,,,,t,,,,,t,,WWWW,,,,,,,T,,,,XXX*XX*XX#
+D:#X**%X%X*X%ttt,,,,,,t,,,,,,,,,,,,,,,,,.,,,,,,t,,T,,tt%X%%%X%*%%%X%%%%X%*%%%XXX%XX*%XX%XXXX%XXX%XXX XXX*X%%XX*X%XXX%XX%XX%X*X%X*X*XX*X*XXX*XX*X%%X,,,,,,,,,,,,,,,,,,,,,,,,,,,,,WWWW,,,,,,,,,,,X*X%X*%X#
+D:#XX%X*XX%X*X,,t,,t,,,,T,,,,,,,,,,T,,,,,.,,t,,,,,,,,,tT**%%%%%X%%%X%*%%%%%X%%XX%XX%XX*XX%XX*XX%XX%X %X%XX%X%X%XX*%XX%XXX%X%%*X%X%X%X*XX*%XX*X%%%X*,,,,,,,T,,,,,T,,,,T,,,,,,,,,,WWWW,,,,,,,t,,,%XXX**X*#
+D:#X*X*X%X**X*,,,,,,,,,,,,,t,,t,,,,,,t,,,.,,,,,,,T,,,,,ttt%%XX%%%X%%%X%%X%%%%X%XX%XX%XXX%XX%X%XXX*X% XX%XX*XXXX%XX*X%XX%XX%XXX%X*XX%X*X%*XX*XX*X%XX,,,,,t,,,,,,,,,,,,,,,,,,,t,,WWWWW,,,t,,,,,,,,,XX*XXX#
+D:#X%*XX*X%X%X,t,,t,,,,t,,,,,,,,,,,,,,,,,.,,,t,,,,,,,,,,t%%%%%%%%%*%%**%%%*%%%*XXXX%%XX*XX%XXX%XX%XX XXX%*XX%XXX*%X%XX%XXXX*X%XXXX*XX%XX*X%%XXX%X*XX,,,,,,,,,,,,,,,,,,,,,t,,,,WWWWW,,,,,,,,,,,,,XX**X%X#
+D:#X*X%*%X%X%,,t,,,,,,,,,,,,,,,t,,,,T,,,,,.,,,,,T,,,t,,,,X%%*%%%X%%%%%%%X%%%X%X*%X%X*XX%%*XX%XXXX%XX %XX*X%%%*X%%X%X*X%X%X*X%XX%XXX*X%*XX*XX*X%XXX%%*,,,,,,,,,t,,,,,t,,,,,,,,WWWWW,,,,,,,,,,t,,,X%X*X*X#
+D:#%%XXX%%X%*%,,t,,,,,,,t,,,,,t,,,,,,,t,,,.,,,,,,,,,,,,,,,%*%%X%%%X%%%X%*X%%%%X%%%%%X%%X%%%%X%%X*X** %%%X%X*XXX%%XX*%X%XXX*X%X*X*%XXX*XX%XX*XXXXX%XX,,T,,,,,,,,,,,,,,,,,,,,,WWWWW,,,,,,,,T,,,,,,,X**%XX#
+D:#%%%*%%*%%%,,,,,,,,T,,,t,,t,,,,,t,,,,,,T,.,t,,,t,,,,,t,,,,,X%%%*%%X%X%%%%%*%X%X%%X%%%%X%X%%X%%%X%% %X%X*XX%X*X%*XXX%*X%*X%XX*%XX*XXXX*XX%X*%X*XXX,,,,,,,,,,,,,,,,,,,,t,,,,WWWWW,,,,,t,,,,,,,,,,X**XX*#
+D:#%*X%X%%X%%XX,,,t,,t,,t,Tt,,T,,t,t,,,t,,,,.,,,,,,,,,,,,,,,,,,,%%%%%%%%%*%%%%%%%X%X%*%X%%X%%X%%%%X  XXX%XX%X*XX%X*X*%XXX*XX%X*XX%XX%*X%XXXXX*X%X,,,,,,,,,,,,,,T,,,,,,,,,,,WWWWW,,,,,,,,,,,,,,,,%XXX**X#
+D:#%%%*%*%%%%X%%*,,t,Tt,,t,,tT,t,t,,,t,,t,t,,.,,,,,,,T,,,,,,,,,,,,X%%X%%%%%%*%X%%%X%%%%%X%%X%XXXX   %**X*XX*X%XX*X%XXX*X%X*%XXX%XX*XX*XX,,%X,XX,,,,,,t,,,,,t,,,,,,,,,,,,,,WWWWW,,,,,,,,,,t,,,,,%*X*%X*X#
+D:#%*%%%%%X%%*%%%,t,,T,tXXX,,t,XXX,tT,XXX,,t,,.,t,,,,,,,,,,,,t,,,,%%%X%%X%%X%%%X%%*%%%X%%XXX      %%X%XXXX%XX*XX%XX*X%,X%*XXX*XX*%XX%X%,,,,,,,,,,,,,,,,,,,,,,,,,,,,t,,,,,WWWWW,,,,,,,,,,,,,,,,%XX*X%X*X#
+D:#%%*%%X%*%%%X%%Xtt,,,XXXXXt,XXXXX,tXXXXX,,,,,.,,,,,,,,,T,,,,,,,,,X%%%%X*%%X%X%%X%XX%XXX*   %X*XX%X*XX%*X*X%%XX*X**X,,,XX*X%X%XXX*X%X,,,,,,,,,,,,,T,,,,t,,,,,,,,,,,,,,WWWWWW,,,,,TT,,,,,,,,,XX%*XX%*XX#
+D:#%%%%*%%%%%X%%*%%XX,,X+X+X,tX+X+X,,X+X+X,t,,.,..,,,,,,,,,,,,,,,,,,,,*%%%%%X%X%%X%%XXX*XX XX*XX%XX%%XX%*XXX%XX*X%XX,,,,,X%XX%,X,,X,,,,,,,,,,,t,,,,,,t,,,,,,t,,,,,,,,WWWWWW,,,,,,,,,,,t,,,,XX*X*XXX**XX#
+D:#%%X%%%X%%%*%X%%XXXX,,,,,,,,,,,,,,,,,,,,,,,.,,,,..,,T,,,,,,,t,,,t,,,,,%X%%%%%%XX*XX*X*,, ,XX%X%*X%X%**XX%*XX*XX%,,,,,,,,*XX,,,,,,,,,T,,,t,,,,T,,,,,,,,,,T,,,,,,,,WWWWWW,,,t,,T,,,,,,,,,,XX*%XX*X%XX%X#
+D:#%%*%X%%*%%%X%%*%XX+,                        T,,,,...,,,,,,,,,,,,,,T,,,,%%XXX*XXXX*X,,,t, ,,,X*%*XX%X%X*XX%%XX,,,,T,,,t,,%,,,,,,,,t,,,,,,,,,,,,,,,,,,,,,,,,,,,,WWWWWW,,,tT,,t,,,t,,T,,%XX*XXXX*XX*XX%#
+D:#%%*%%*%X%%%%%%%XXXX,,,,t,,,,,,,,,T,,,,,,,,,,      ,,....,,,,,,,t,,,,,,,,XXX*XX,,,,,T,,, , ,,,,XXX%X*X%XX,,,t,,,t,,,,,,,,,,,,,t,,,,,,,                      WWWWWW,,,,t,tXttXt,t,,,,XX%XXX%X%*%XX*XXX#
+D:#%%%%X%%%%%*%%%%XXX,tX+X+X,,X+X+X,,X+X+Xtt,,,,,,,,,           ,,,,,,,t,,,,X,X,,,t,,,,,, ,,,  ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,            ,,,,,,,,,,,,,,,,,,,,WW WWW,,,t,t,t,,,,,,t,,,,XX%XXX**XX*XX%X*XX#
+D:#%%*%%X%%X%%%%X,,t,,,XXXXX,,XXXXXt,XXXXX,,,,,,,,,,,,,,,,,,,,,,    ,,,,,,,,,,,,,,,,,,,  ,,,,,,                             ,,,,,,,,,,,,,,,,,,t,,,,,t,,,,WWWWWW...,,,,,,X,,XXXX,,Xt,,,X*X%XXXX%*XXX*XX%#
+D:#%X%%%*%%%%%%%,,t,,t,,XXX,,t,XXX,,t,XXX,,t,,t,t,,,,,,,,,,,,,,,,,,,                  ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,t,,,,,,,,,,WWWWWWW,,,,,..........+XX,,t,,,tXXXX*X*X%XX%X%XXX#
+D:#%*%X%X%*%*%%*t,t,,t,,t,ttT,tT,,,T,t,t,,,T,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,t,,,,,,,,,,,,,T,,,,,t,,,,,,,,,t,,,WWWWWWW,,,,,,,,T,,,,,X,,XXXX,,X,T,,,,%X*XXX*XXX*X%*X#
+D:#%%%*%%X%%X%%,,,,t,,,ttTtWWWWW,T,t,,,,,,,,,,,,,,T,,,t,,,,,T,,,,,,,,,,,,,T,,,,,,t,,,,,,t,,,t,,,,,t,,T,t,,,,,,,,,,,,,,,,,,,,,,t,,,,,,,,,,,,,,WWWWWWWWWW,,,,,,,,,,tt,,,t,,t,,,,,,t,,,,,,,*X%XX%*XXX*XX%X#
+D:#XX%X%%*%,%,,,,,,,,ttttWWWWWWWWWt,,t,,,,,t,,,t,,,,,,,,,,,,,,,,,,T,,,,,,,,,,,,,,,,,,T,,,,,,,,,,,,,,,,,,,,,,,T,,,,,,,T,,t,,,,,,,,,,,,,,WWWWWWWWWWWW,,,,,,,,,,,,,,,,,,,,,t,tXttXt,t,,t,t,,X%*X*XX*XX%XX*#
+D:#%X*%%X,,,WWWWWWWWW,,TWWWWWWWWWWWT,,,,,,,,,,,,,,,,,,,,,,,,t,,,,,,,,t,,,,,,,,,t,,,,,,,,,,,T,,,t,,t,,,t,,,,,,,,,,t,,,,,,,,,,,,,,,WWWWWWWWWWWWW,,TX%*X,,,t,,,,,,T,,,t,,,,,,t,,,,,,,,,,t,,,X%*XXX%X*XX*XX#
+D:#%WWWWWWWW,,,,,,,,,WWWWWWWWWWWWWW,T,t,,t,,,,,,,,,,,,,,T,,,,,,,,t,,,,,,t,,,,,,,,,,,t,,,,,t,,T,,,,,,T,,,,,,,T,,,,,t,,,,,,,,WWWWWWWWWWWWWWW,,t,TXXXXXXX,,,,T,,,,,,,,,,,,*,X*,,T,,,T,,,,,,,XXX%*XX*XXX%X*#
+D:#W%X**X,X%,,,,,t,,,tTtWWWWWWWWWW,T,,,,,,,,,T,,,,,t,,,,,,,,,,,,,,,,,,,,,,,,T,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,WWWWWWWWWWWWWWWW,tt,T,Ttt,X*XX%XX*X%,,,,,,,,,t,,,%X*XXX%,,,,t,,T,,,,X%*X%X*XX*XX%*X#
+D:#X*%X*XX%XX*X,,,,,,t,,,TWWWWWWW,,t,t,,,,,,,,,,,,,,,,,,,,,,t,,,,,,,T,,,,,,,,,,,,,,,,,,,,,,,,,,,,,t,,,,,,,,,,,,,WWWWWWWWWWWWWWW,,T,,T,tt,T,,%*XXX*XXX*XXT,,,,t,,,,,XXX*XX%**X*%,,,,,,,,X*XX%*XX%X*XXX%X#
+D:#XX*%X*X%X*XX,XX,,,,t,t,,T,tT,,t,t,,T,,,X,X,X,XX%,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,t,,,,T,,,,,t,,,,,,,,,t,,,,WWWWWWWWWWWWWWWWWt,t,T,tt,T,T,,XXXXXX*XX*X*XXXX%,,,,,,,XX%*XXX*X%XXX*X,,,X*XX%XX*X%%*X%XX**X#
+D:#XX%X*XX%X*X%X%XX,,,,,,t,,,t,,t,,,,,,,XXX%X*%XXX%X*XX,,,,,,,,,t,,,,,,t,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,WWWWWWWWWWXWWWWWWWWWW,,Tt,,X,,X%XXX*%X*X*X%XX*XXX*XXX,,,,,X**X*X%*XXX*XX%*XX*X%X*X%*X**XX%*XXX*%#
+D:#X%*XX*XX%X%*X%%XX*,,,,,,,T,,,,,,,,,,X%X*%XXXX**X%XX%XX,X,X,,,,T,,,,,,,,,X,%,X,,,,,t,,,,,X,X,X%,X,XWWWWWWXWXWXXXX*%WWWWWWWW,,XX*X%X*X XX**XX*XXX*XX*XXX*X*X,XX%X*XXX*XXX%*XXX**XX%*XX*XXX*X%XX*X%X%*X#
+D:#*XXX%*XX*X%X*X%XXXX%,,,,,,,,,,,,,,,XX%X*XX*XX%*XX%X*XX%%XX*XX%,,X,X,XXXXX*X%X*X,,,,,,,,XX%X*X%X*X*XXW*XXX%XX*X%X*XXXWWWWWWXX%X*X%XX*X%X%XX*XX*XXXX*XX%XX*XXX*X%XX*XX%X*XXX%**XX*%XX*XX%XX%X*XX%XXX*%#
+D:#XX%*XXX*XXXX%X%%*XX*X%X,X,XX*XX*XX%*XX*X*X%*%X*X*%X*XXX%XX%X*X*XX%*XX*XX%X*XXX%*X%X,XX%XXX*X%X*X%*X%*X%X*X%XX*X%XX*XXXXWXX*XXXX%X*XXX*XX*XXX%*XXXX*X**XX*%XX*XX*XX%XXX*X%X*XXX*XX*XX*XX*WWWWW*WWWWW%#
+D:#XX*XXX*X*%XX*XX%*X%XX*X%XXX*XX%XX*X%XX%XX*XX%X*XX**X%XX*X*X%XX%XXX%XXX*XX%XXX*XXX%X*XX*X%X%X**X%*X%X%%%XXXX*X%*X*X%X*X*X*X%X**X%X*X%XX%*XX%X*XXXXX*XXX%*XXX*%XX*XXX**XX*XX%*X*XX%XX%XX%*%XW**XW*W%WX#
+D:#*%X*X%*XXXX%XX*X%*X%*%X*X*XX*XX%*X*X*%XX*X%XX*XXXX*XXX*XXX*XX%X*X*XX%X*XX%XXXX*XX*XX%%XXX*%X%X*X%*XXX*%**X%XXX*X%*X%XXX*X*XXX%X*XX%X*XX%X*X%XXX*XX*XXXX*XX*XX*XX%XX%XXX*XX*XX%XX*XXXX*XXXXW*%XWX*XW%#
+D:#XX%X*XX%XXX*XX%XXXX%X%XX*%XXX%*X%XX%%XX%%XXXXXXX%XXX%XXXXXXX%XXXXX%XXXXX%XX*X%XXX%XX*XXX%X%X*X%X*XXX*XXX%XX*XXXX*XXXX*XX%X*XX*XXXX%XXXX%XX%X*X%XX*XXXXX*XXXXX*XXXXX*XX*X*XX%X*XXX%XX*X%XXXX*%XX*X*XX#
+D:######################################################################################################################################################################################################

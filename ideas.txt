@@ -1,0 +1,40 @@
+Clean up fractal caves patch code. [ie. indent correctly, etc.]
+
+Make pixie mages allowable.
+
+Gold dragons immune to stunning.
+
+Make 'cure poison' harder to get.
+
+Improve application of rng_offer
+
+Dragon ghosts!
+
+Tidy up the ghost code in monster2.c. It is still a hellish mess.
+
+Brand electricity should stun monsters sometimes.
+
+More work on ego weapons.
+ 
+N:55:Dragonman
+G:p:g
+I:100:9:8:10:90:50
+W:30:7:0:15000
+F:MALE | DROP_90 | DROP_2D2 | SMART | 
+F:CAN_SPEAK | OPEN_DOOR | BASH_DOOR | MOVE_BODY | 
+F:KILL_BODY | TAKE_ITEM | GIANT | IM_FIRE | 
+F:NO_FEAR | NO_STUN | NO_SLEEP | CAN_SWIM | 
+F:WILD_WOOD | FRIENDLY
+S:1_IN_10
+S:BRAIN_SMASH | CAUSE_3 | 
+D:A Huge Humanoid Dragon with Green scales and red glowing eyes,
+D:The Dragonmen fears no man, thus they wont kill you at sight
+D:They are the mortal enemies of their greater ancestors
+
+Slaysa mora raera
+
+Concentrate on mage class.
+
+Power up enemy archery [done a little].
+
+Monster poison arrow attack.

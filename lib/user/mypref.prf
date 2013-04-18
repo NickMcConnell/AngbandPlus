@@ -1,0 +1,184 @@
+
+
+# Automatic option dump
+
+# Option 'Rogue-like commands'
+X:rogue_like_commands
+
+# Option 'Activate quick messages'
+Y:quick_messages
+
+# Option 'Prompt for floor item selection'
+Y:floor_query_flag
+
+# Option 'Prompt before picking things up'
+Y:carry_query_flag
+
+# Option 'Use old target by default'
+X:use_old_target
+
+# Option 'Pick things up by default'
+Y:always_pickup
+
+# Option 'Repeat obvious commands'
+Y:always_repeat
+
+# Option 'Show dungeon level in feet'
+Y:depth_in_feet
+
+# Option 'Merge inscriptions when stacking'
+Y:stack_force_notes
+
+# Option 'Merge discounts when stacking'
+Y:stack_force_costs
+
+# Option 'Show labels in equipment listings'
+Y:show_labels
+
+# Option 'Show weights in all object listings'
+Y:show_weights
+
+# Option 'Show choices in inven/equip windows'
+Y:show_choices
+
+# Option 'Show details in monster descriptions'
+Y:show_details
+
+# Option 'Audible bell (on errors, etc)'
+Y:ring_bell
+
+# Option 'Show flavors in object descriptions'
+Y:show_flavors
+
+# Option 'When running, ignore stairs'
+Y:run_ignore_stairs
+
+# Option 'When running, ignore doors'
+Y:run_ignore_doors
+
+# Option 'When running, cut corners'
+Y:run_cut_corners
+
+# Option 'When running, use corners'
+Y:run_use_corners
+
+# Option 'Disturb whenever any monster moves'
+Y:disturb_move
+
+# Option 'Disturb whenever viewable monster moves'
+Y:disturb_near
+
+# Option 'Disturb whenever map panel changes'
+Y:disturb_panel
+
+# Option 'Disturb whenever player state changes'
+Y:disturb_state
+
+# Option 'Disturb whenever boring things happen'
+Y:disturb_minor
+
+# Option 'Disturb whenever various things happen'
+Y:disturb_other
+
+# Option 'Alert user to critical hitpoints'
+Y:alert_hitpoint
+
+# Option 'Alert user to various failures'
+X:alert_failure
+
+# Option 'Verify destruction of objects'
+Y:verify_destroy
+
+# Option 'Verify use of special commands'
+Y:verify_special
+
+# Option 'Allow quantity specification'
+Y:allow_quantity
+
+# Option 'Auto-haggle in stores'
+Y:auto_haggle
+
+# Option 'Auto-scum for good levels'
+X:auto_scum
+
+# Option 'Allow objects to stack on floor'
+Y:testing_stack
+
+# Option 'Allow monsters to carry objects'
+Y:testing_carry
+
+# Option 'Expand the power of the look command'
+X:expand_look
+
+# Option 'Expand the power of the list commands'
+X:expand_list
+
+# Option 'Map remembers all perma-lit grids'
+Y:view_perma_grids
+
+# Option 'Map remembers all torch-lit grids'
+X:view_torch_grids
+
+# Option 'Generate dungeons with aligned rooms'
+X:dungeon_align
+
+# Option 'Generate dungeons with connected stairs'
+Y:dungeon_stair
+
+# Option 'Monsters chase current location (v.slow)'
+X:flow_by_sound
+
+# Option 'Monsters chase recent locations (v.slow)'
+X:flow_by_smell
+
+# Option 'Monsters learn from their mistakes'
+X:smart_learn
+
+# Option 'Monsters exploit players weaknesses'
+X:smart_cheat
+
+# Option 'Reduce lite-radius when running'
+X:view_reduce_lite
+
+# Option 'Hide player symbol when running'
+X:hidden_player
+
+# Option 'Avoid checking for user abort'
+X:avoid_abort
+
+# Option 'Avoid processing special colors'
+X:avoid_other
+
+# Option 'Flush input on various failures'
+Y:flush_failure
+
+# Option 'Flush input whenever disturbed'
+X:flush_disturb
+
+# Option 'Flush output before every command'
+Y:fresh_before
+
+# Option 'Flush output after various things'
+X:fresh_after
+
+# Option 'Show player by race (dragons)'
+Y:show_special_player
+
+# Option 'Compress messages in savefiles'
+Y:compress_savefile
+
+# Option 'Hilite the player with the cursor'
+Y:hilite_player
+
+# Option 'Use special colors for torch lite'
+Y:view_yellow_lite
+
+# Option 'Use special colors for field of view'
+Y:view_bright_lite
+
+# Option 'Use special colors for wall grids'
+Y:view_granite_lite
+
+# Option 'Use special colors for floor grids'
+Y:view_special_lite
+
