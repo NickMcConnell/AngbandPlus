@@ -1488,6 +1488,7 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3)
 	if (p_ptr->prace == RACE_PSEUDODRAG) (*f2) |= (TR2_RES_BLIND);
 	if (p_ptr->prace == RACE_PSEUDODRAG) (*f2) |= (TR2_RES_FEAR);
 	if (p_ptr->prace == RACE_PSEUDODRAG) (*f3) |= (TR3_REGEN);
+	if (p_ptr->prace == RACE_PSEUDODRAG) (*f3) |= (TR3_INVIS);
 }
 
 

@@ -1160,10 +1160,12 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 		case TV_STAFF:
 		case TV_WAND:
 		{
-			/* Require knowledge */
-			if (!object_known_p(o_ptr) || !object_known_p(j_ptr)) return (0);
+			/* Require knowledge and same charges */
+			if (!object_known_p(o_ptr) || !object_known_p(j_ptr) ||
+			   o_ptr->pval != j_ptr->pval) return (0);
 
 			/* Fall through */
+			break;
 		}
 
 		/* Staffs and Wands and Rods */

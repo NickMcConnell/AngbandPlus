@@ -1,4 +1,10 @@
+DrAngband Changes:
+------------------
 
+DrAngband 2.9.0 -> 2.9.0b (27/10/99)
+------------------------------------
+
+* Fixed major bug in staff and wand stacking.
 
 
 Angband 2.8.3 -> DrAngband 2.9.0 (Started 24/10/99)
@@ -55,14 +61,14 @@ Angband 2.8.3 -> DrAngband 2.9.0 (Started 24/10/99)
 * 'Fake' Artifact names can be created by inscribing items with #<artifact name>.
   Eg Longsword (2d5) (+9,+9) inscribed with @w0#'Ringil' will appear as
   a Longsword 'Ringil' (2d5) (+9,+9) {@w0}. This is a nice feature so you can
-  name your non-artifacts (although it does work in artifacts. eg "The Glaive
+  name your non-artifacts (although it does work on artifacts. eg "The Glaive
   of Pain 'Tomthanc'".)
 
 * OPT_testing_stack, OPT_testing_carry and OPT_alert_hitpoint options now on
   be default.
 
 * Resist chaos no longer gives hidden resistance to confusion. All artifacts that
-  previously gave resistance to chaos now give proper resistance to confusion.
+  previously gave resistance to chaos now give proper resistance to confusion also.
 
 * Resistances accumulate. 
 
@@ -70,7 +76,7 @@ Angband 2.8.3 -> DrAngband 2.9.0 (Started 24/10/99)
 
 * Rings of sustaining and resistance.
 
-* Dragon racial powers activated with 'U'.
+* Dragon racial powers activated with 'U'. Code borrowed from Zangband.
 
 * Priest spell 'Detect Traps' changed to 'Spiritual Hammer' and 'Detect Doors/Stairs'
   changed to 'Detect Doors/Traps' (although it also detects stairs.)
