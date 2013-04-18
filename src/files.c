@@ -2134,6 +2134,32 @@ errr file_character(cptr name, bool full)
 }
 
 
+/*
+ * Given a character, return an index corresponding to its position
+ * in the global alphanumeric array.
+ */
+int list_choice(char a)
+{
+	int i;
+
+	if (isdigit(a))
+	{
+		return D2I(a);
+	}
+	else
+	{
+		/*
+		 * Find the symbol's position
+		 * Not nice, but it's compatible with odd character sets
+		 */
+		for (i = 10; i < 62; i++)
+		{
+			if (a == listsym[i]) break;
+		}
+	}
+
+	return i;
+}
 
 /*
  * Recursive file perusal.
@@ -2185,7 +2211,7 @@ bool show_file(cptr name, cptr what, int line, int mode)
 	char buf[1024];
 
 	/* Sub-menu information */
-	char hook[10][32];
+	char hook[62][32];
 
 
 	/* Wipe finder */
@@ -2198,7 +2224,7 @@ bool show_file(cptr name, cptr what, int line, int mode)
 	strcpy(caption, "");
 
 	/* Wipe the hooks */
-	for (i = 0; i < 10; i++) hook[i][0] = '\0';
+	for (i = 0; i < 62; i++) hook[i][0] = '\0';
 
 
 	/* Hack XXX XXX XXX */
@@ -2264,14 +2290,14 @@ bool show_file(cptr name, cptr what, int line, int mode)
 			char b1 = '[', b2 = ']';
 
 			/* Notice "menu" requests */
-			if ((buf[6] == b1) && isdigit(buf[7]) &&
-			    (buf[8] == b2) && (buf[9] == ' '))
+			if ((buf[6] == b1) && isalnum(buf[7]) &&
+				 (buf[8] == b2) && (buf[9] == ' '))
 			{
 				/* This is a menu file */
 				menu = TRUE;
 
 				/* Extract the menu item */
-				k = D2I(buf[7]);
+				k = list_choice(buf[7]);
 
 				/* Extract the menu item */
 				strcpy(hook[k], buf + 10);
@@ -2482,11 +2508,16 @@ bool show_file(cptr name, cptr what, int line, int mode)
 			line = line + 20;
 		}
 
-		/* Recurse on numbers */
-		if (menu && isdigit(k) && hook[D2I(k)][0])
+		/* Recurse on alphanumerics */
+		if (menu && isalnum(k))
 		{
-			/* Recurse on that file */
-			if (!show_file(hook[D2I(k)], NULL, 0, mode)) k = ESCAPE;
+			int m;
+
+			/* Extract the menu item */
+			m = list_choice(k);
+
+			/* Recurse on that file if it exists */
+			if (hook[m][0] && !show_file(hook[m], NULL, 0, mode)) k = ESCAPE;
 		}
 
 		/* Exit on escape */

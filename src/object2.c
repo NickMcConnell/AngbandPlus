@@ -785,6 +785,30 @@ void object_tried(object_type *o_ptr)
 }
 
 
+bool object_decent(object_type *o_ptr)
+{
+	/* Cursed items (all of them) */
+	if (cursed_p(o_ptr)) return FALSE;
+
+	/* Broken items (all of them) */
+	if (broken_p(o_ptr)) return FALSE;
+
+	/* Artifacts -- except cursed/broken ones */
+	if (artifact_p(o_ptr)) return TRUE;
+
+	/* Ego-Items -- except cursed/broken ones */
+	if (ego_item_p(o_ptr)) return TRUE;
+
+	/* Good armor bonus */
+	if (o_ptr->to_a > 0) return TRUE;
+
+	/* Good weapon bonuses */
+	if (o_ptr->to_h + o_ptr->to_d > 0) return TRUE;
+
+	/* Normal */
+	return FALSE;
+}
+
 
 /*
  * Return the "value" of an "unknown" item
@@ -794,8 +818,48 @@ static s32b object_value_base(object_type *o_ptr)
 {
 	object_kind *k_ptr = &k_info[o_ptr->k_idx];
 
+	s32b value = k_ptr->cost;
+
 	/* Aware item -- use template cost */
-	if (object_aware_p(o_ptr)) return (k_ptr->cost);
+	if (object_aware_p(o_ptr))
+	{
+		/* Hack -- Broken daggers/swords are worthless unless good */
+		if (o_ptr->tval == TV_SWORD)
+		{
+			switch (o_ptr->sval)
+			{
+				case SV_BROKEN_DAGGER:
+				case SV_BROKEN_SWORD:
+				{
+					/* Unknown, average, cursed, or shattered broken daggers/swords are worthless */
+					if (!(o_ptr->ident & IDENT_SENSE) || !object_decent(o_ptr))
+					{
+						return 0;
+					}
+				}
+			}
+		}
+
+		/* Check for variation */
+		if (k_ptr->ac)
+		{
+			value = value * o_ptr->ac / k_ptr->ac;
+		}
+
+		/* Check for variation */
+		if (k_ptr->dd)
+		{
+			value = value * o_ptr->dd / k_ptr->dd;
+		}
+
+		/* Check for variation */
+		if (k_ptr->ds)
+		{
+			value = value * o_ptr->ds / k_ptr->ds;
+		}
+
+		return value;
+	}
 
 	/* Analyze the type */
 	switch (o_ptr->tval)
@@ -866,6 +930,26 @@ static s32b object_value_real(object_type *o_ptr)
 	/* Base cost */
 	value = k_ptr->cost;
 
+	if (wearable_p(o_ptr))
+	{
+		/* Check for variation */
+		if (k_ptr->ac)
+		{
+			value = value * o_ptr->ac / k_ptr->ac;
+		}
+
+		/* Check for variation */
+		if (k_ptr->dd)
+		{
+			value = value * o_ptr->dd / k_ptr->dd;
+		}
+
+		/* Check for variation */
+		if (k_ptr->ds)
+		{
+			value = value * o_ptr->ds / k_ptr->ds;
+		}
+	}
 
 	/* Extract some flags */
 	object_flags(o_ptr, &f1, &f2, &f3);
@@ -1743,6 +1827,12 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 	int tohit2 = m_bonus(10, level);
 	int todam2 = m_bonus(10, level);
 
+	int new_dd = Rand_normal(o_ptr->dd, MAX(1, o_ptr->dd / 4));
+	int new_ds = Rand_normal(o_ptr->ds, MAX(1, o_ptr->ds / 4));
+
+	/* Variation */
+	o_ptr->dd = MAX(0, new_dd);
+	o_ptr->ds = MAX(0, new_ds);
 
 	/* Good */
 	if (power > 0)
@@ -2134,6 +2224,10 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 
 	int toac2 = m_bonus(10, level);
 
+	int new_ac = Rand_normal(o_ptr->ac, MAX(1, o_ptr->ac / 4));
+
+	/* Variation */
+	o_ptr->ac = MAX(0, new_ac);
 
 	/* Good */
 	if (power > 0)
@@ -3816,7 +3910,7 @@ void acquirement(int y1, int x1, int num, bool great)
 		if (!make_object(i_ptr, TRUE, great)) continue;
 
 		/* Drop the object */
-		drop_near(i_ptr, -1, y1, x1);
+		drop_near(i_ptr, 0, y1, x1);
 	}
 }
 
@@ -3980,7 +4074,7 @@ void inven_item_describe(int item)
 {
 	object_type *o_ptr = &inventory[item];
 
-	char o_name[80];
+	char o_name[160];
 
 	/* Get a description */
 	object_desc(o_name, o_ptr, TRUE, 3);

@@ -1263,7 +1263,7 @@ static bool player_birth_aux()
 	p_ptr->preserve = (c == 'y');
 
 	/* Clear */
-	clear_from(20);
+	clear_from(15);
 
 
 #ifdef ALLOW_AUTOROLLER

@@ -189,6 +189,9 @@ void teleport_player(int dis)
 			/* No teleporting into vaults and such */
 			if (cave_info[y][x] & (CAVE_ICKY)) continue;
 
+			/* Try to find a good grid */
+         if (rand_int(16 / (next_to_walls(y, x) + 1))) continue;
+
 			/* This grid looks good */
 			look = FALSE;
 
@@ -322,52 +325,192 @@ void teleport_player_level(void)
 }
 
 
+static byte elec_color(void)
+{
+	switch rand_int(3)
+	{
+		case 0: case 1: return TERM_WHITE;
+		case 2: return TERM_L_BLUE;
+	}
+	/* Oops */
+	return TERM_WHITE;
+}
 
 
+static byte fire_color(void)
+{
+	switch rand_int(3)
+	{
+		case 0: return TERM_RED;
+		case 1: return TERM_ORANGE;
+		case 2: return TERM_YELLOW;
+	}
+	/* Oops */
+	return TERM_WHITE;
+}
+
+
+static byte pois_color(void)
+{
+	switch rand_int(4)
+	{
+		case 0: case 1: case 2: return TERM_GREEN;
+		case 3: return TERM_L_GREEN;
+	}
+	/* Oops */
+	return TERM_WHITE;
+}
+
+
+static byte orb_color(void)
+{
+	switch rand_int(4)
+	{
+		case 0: case 1: case 2: return TERM_L_DARK;
+		case 3: return TERM_SLATE;
+	}
+	/* Oops */
+	return TERM_WHITE;
+}
+
+
+static byte mana_color(void)
+{
+	switch rand_int(6)
+	{
+		case 0: case 1: case 2: case 3: return TERM_WHITE;
+		case 4: return TERM_GREEN;
+		case 5: return TERM_L_GREEN;
+	}
+	/* Oops */
+	return TERM_WHITE;
+}
+
+
+static byte grav_color(void)
+{
+	switch rand_int(4)
+	{
+		case 0: case 1: return TERM_DARK;
+		case 2: return TERM_L_DARK;
+		case 3: return TERM_SLATE;
+	}
+	/* Oops */
+	return TERM_WHITE;
+}
+
+
+static byte lite_color(void)
+{
+	switch rand_int(4)
+	{
+		case 0: case 1: case 2: return TERM_WHITE;
+		case 3: return TERM_YELLOW;
+	}
+	/* Oops */
+	return TERM_WHITE;
+}
+
+
+static byte plasma_color(void)
+{
+	switch rand_int(4)
+	{
+		case 0: case 1: return TERM_WHITE;
+		case 2: return TERM_BLUE;
+		case 3: return TERM_L_BLUE;
+	}
+	/* Oops */
+	return TERM_WHITE;
+}
+
+
+static byte meteor_color(void)
+{
+	switch rand_int(6)
+	{
+		case 0: case 1: case 2: return TERM_L_DARK;
+		case 3: return TERM_RED;
+		case 4: return TERM_ORANGE;
+		case 5: return TERM_YELLOW;
+	}
+	/* Oops */
+	return TERM_WHITE;
+}
+
+
+static byte random_color(void)
+{
+	return randint(15);
+}
 
 
 /*
- * Return a color to use for the bolt/ball spells
+ * Return a special color
  */
-static byte spell_color(int type)
+byte spell_color(int type)
 {
 	/* Analyze */
 	switch (type)
 	{
-		case GF_MISSILE:	return (TERM_VIOLET);
-		case GF_ACID:		return (TERM_SLATE);
-		case GF_ELEC:		return (TERM_BLUE);
-		case GF_FIRE:		return (TERM_RED);
-		case GF_COLD:		return (TERM_WHITE);
-		case GF_POIS:		return (TERM_GREEN);
-		case GF_HOLY_ORB:	return (TERM_L_DARK);
-		case GF_MANA:		return (TERM_L_DARK);
-		case GF_ARROW:		return (TERM_WHITE);
-		case GF_WATER:		return (TERM_SLATE);
-		case GF_NETHER:		return (TERM_L_GREEN);
-		case GF_CHAOS:		return (TERM_VIOLET);
-		case GF_DISENCHANT:	return (TERM_VIOLET);
-		case GF_NEXUS:		return (TERM_L_RED);
-		case GF_CONFUSION:	return (TERM_L_UMBER);
-		case GF_SOUND:		return (TERM_YELLOW);
-		case GF_SHARD:		return (TERM_UMBER);
-		case GF_FORCE:		return (TERM_UMBER);
-		case GF_INERTIA:	return (TERM_L_WHITE);
-		case GF_GRAVITY:	return (TERM_L_WHITE);
-		case GF_TIME:		return (TERM_L_BLUE);
-		case GF_LITE_WEAK:	return (TERM_ORANGE);
-		case GF_LITE:		return (TERM_ORANGE);
-		case GF_DARK_WEAK:	return (TERM_L_DARK);
-		case GF_DARK:		return (TERM_L_DARK);
-		case GF_PLASMA:		return (TERM_RED);
-		case GF_METEOR:		return (TERM_RED);
-		case GF_ICE:		return (TERM_WHITE);
+		case GF_ELEC:			return elec_color();
+		case GF_FIRE:			return fire_color();
+		case GF_POIS:			return pois_color();
+
+		case GF_MISSILE: 		case GF_HOLY_ORB:				case GF_SHARD:
+									return orb_color();
+
+		case GF_MANA: 			return mana_color();
+		case GF_GRAVITY:		return grav_color();
+
+		case GF_LITE_WEAK: 	case GF_LITE:
+									return lite_color();
+
+		case GF_CHAOS: 		case GF_DISENCHANT:
+									return random_color();
+
+		case GF_PLASMA: 		return plasma_color();
+		case GF_METEOR: 		return meteor_color();
+
+		case GF_COLD: 			case GF_ICE:
+									return (TERM_WHITE);
+
+		case GF_ACID:			case GF_WATER:
+									return (TERM_SLATE);
+
+		case GF_FORCE: 		return (TERM_UMBER);
+		case GF_INERTIA: 		return (TERM_L_WHITE);
+
+		case GF_DARK_WEAK: 	case GF_DARK:
+									return (TERM_L_DARK);
+
+		case GF_SOUND:			return (TERM_YELLOW);
+		case GF_NEXUS:			return (TERM_L_RED);
+		case GF_NETHER: 		return (TERM_L_GREEN);
+		case GF_TIME: 			return (TERM_L_BLUE);
+
+		case GF_ARROW: 		case GF_CONFUSION:
+									return (TERM_L_UMBER);
 	}
 
 	/* Standard "color" */
 	return (TERM_WHITE);
 }
 
+/*
+ * Find the char to use to draw a moving bolt
+ * It is moving (or has moved) from (x,y) to (nx,ny).
+ * If the distance is not "one", we (may) return "*".
+ */
+char bolt_char(int y, int x, int ny, int nx)
+{
+	if ((ny == y) && (nx == x)) return '*';
+	if (ny == y) return '-';
+	if (nx == x) return '|';
+	if ((ny-y) == (x-nx)) return '/';
+	if ((ny-y) == (nx-x)) return '\\';
+	return '*';
+}
 
 
 /*
@@ -3642,6 +3785,29 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 }
 
 
+/*
+ * Find the distance from (x, y) to a line.
+ * Non-lazy version :)
+ */
+static int dist_to_line(int y, int x, int y1, int x1, int y2, int x2)
+{
+	/* Vector from (x, y) to (x1, y1) */
+	int py = y1 - y;
+	int px = x1 - x;
+
+	/* Normal vector */
+	int ny = x2 - x1;
+	int nx = y1 - y2;
+
+	/* Length of N */
+	int d = distance(y1, x1, y2, x2);
+
+	/* Component of P on N */
+	d = ((d) ? ((py * ny + px * nx) / d) : 0);
+
+	/* Absolute value */
+	return((d >= 0) ? d : 0 - d);
+}
 
 
 
@@ -3793,7 +3959,7 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 	int px = p_ptr->px;
 
 	int i, t, dist;
-
+	int y9, x9;
 	int y1, x1;
 	int y2, x2;
 
@@ -3808,14 +3974,11 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 	/* Assume the player has seen no blast grids */
 	bool drawn = FALSE;
 
+	/* Assume to be a normal ball spell */
+	bool breath = FALSE;
+
 	/* Is the player blind? */
 	bool blind = (p_ptr->blind ? TRUE : FALSE);
-
-	/* Number of grids in the "path" */
-	int path_n = 0;
-
-	/* Actual grids in the "path" */
-	u16b path_g[512];
 
 	/* Number of grids in the "blast area" (including the "beam" path) */
 	int grids = 0;
@@ -3824,7 +3987,10 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 	byte gx[256], gy[256];
 
 	/* Encoded "radius" info (see above) */
-	byte gm[16];
+	byte gm[32];
+
+	/* Actual radius encoded in gm[] */
+	int gm_rad = rad;
 
 
 	/* Hack -- Jump to target */
@@ -3832,9 +3998,6 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 	{
 		x1 = x;
 		y1 = y;
-
-		/* Clear the flag */
-		flg &= ~(PROJECT_JUMP);
 	}
 
 	/* Start at player */
@@ -3873,48 +4036,32 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 		}
 	}
 
-
-	/* Hack -- Assume there will be no blast (max radius 16) */
-	for (dist = 0; dist < 16; dist++) gm[dist] = 0;
-
-
-	/* Initial grid */
-	y = y1;
-	x = x1;
-
-	/* Collect beam grids */
-	if (flg & (PROJECT_BEAM))
+	/* Handle a breath attack */
+	if (rad < 0)
 	{
-		gy[grids] = y;
-		gx[grids] = x;
-		grids++;
+		rad = 0 - rad;
+		breath = TRUE;
+		flg |= PROJECT_HIDE;
 	}
 
 
-	/* Calculate the projection path */
-	path_n = project_path(path_g, MAX_RANGE, y1, x1, y2, x2, flg);
+	/* Hack -- Assume there will be no blast (max radius 32) */
+	for (dist = 0; dist < 32; dist++) gm[dist] = 0;
 
 
 	/* Hack -- Handle stuff */
 	handle_stuff();
 
-	/* Project along the path */
-	for (i = 0; i < path_n; ++i)
+
+	/* Start at the source */
+	x = x9 = x1;
+	y = y9 = y1;
+	dist = 0;
+
+	/* Project until done */
+	while (1)
 	{
-		int oy = y;
-		int ox = x;
-
-		int ny = GRID_Y(path_g[i]);
-		int nx = GRID_X(path_g[i]);
-
-		/* Hack -- Balls explode before reaching walls */
-		if (!cave_floor_bold(ny, nx) && (rad > 0)) break;
-
-		/* Advance */
-		y = ny;
-		x = nx;
-
-		/* Collect beam grids */
+		/* Gather beam grids */
 		if (flg & (PROJECT_BEAM))
 		{
 			gy[grids] = y;
@@ -3922,59 +4069,73 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 			grids++;
 		}
 
-		/* Only do visuals if requested */
+		/* XXX XXX Hack -- Display "beam" grids */
+		if (!blind && !(flg & (PROJECT_HIDE)) &&
+			 dist && (flg & (PROJECT_BEAM)) &&
+			 panel_contains(y, x) && player_has_los_bold(y, x))
+		{
+			/* Hack -- Visual effect -- "explode" the grids */
+			print_rel('*', spell_color(typ), y, x);
+		}
+
+		/* Never pass through walls */
+		if (dist && !cave_floor_bold(y, x)) break;
+
+		/* Check for arrival at "final target" (if desired) */
+		if (!(flg & (PROJECT_THRU)) && (x == x2) && (y == y2)) break;
+
+		/* If allowed, and we have moved at all, stop when we hit anybody */
+		if ((flg & (PROJECT_STOP)) && dist && (cave_m_idx[y][x] != 0)) break;
+
+
+		/* Calculate the new location */
+		y9 = y;
+		x9 = x;
+		mmove2(&y9, &x9, y1, x1, y2, x2);
+
+		/* Hack -- Balls explode BEFORE reaching walls or doors */
+		if (!cave_floor_bold(y9, x9) && (rad > 0)) break;
+
+		/* Keep track of the distance traveled */
+		dist++;
+
+		/* Nothing can travel furthur than the maximal distance */
+		if (dist > MAX_RANGE)
+		{
+			/* Explode at limit */
+			dist = MAX_RANGE;
+			break;
+		}
+
+		/* Only do visual effects (and delay) if requested */
 		if (!blind && !(flg & (PROJECT_HIDE)))
 		{
 			/* Only do visuals if the player can "see" the bolt */
-			if (panel_contains(y, x) && player_has_los_bold(y, x))
+			if (panel_contains(y9, x9) && player_has_los_bold(y9, x9))
 			{
-				u16b p;
-
-				byte a;
-				char c;
-
-				/* Obtain the bolt pict */
-				p = bolt_pict(oy, ox, y, x, typ);
-
-				/* Extract attr/char */
-				a = PICT_A(p);
-				c = PICT_C(p);
-
-				/* Visual effects */
-				print_rel(c, a, y, x);
-				move_cursor_relative(y, x);
-				if (fresh_before) Term_fresh();
-				Term_xtra(TERM_XTRA_DELAY, msec);
-				lite_spot(y, x);
-				if (fresh_before) Term_fresh();
-
-				/* Display "beam" grids */
-				if (flg & (PROJECT_BEAM))
-				{
-					/* Obtain the explosion pict */
-					p = bolt_pict(y, x, y, x, typ);
-
-					/* Extract attr/char */
-					a = PICT_A(p);
-					c = PICT_C(p);
-
-					/* Visual effects */
-					print_rel(c, a, y, x);
-				}
-
-				/* Hack -- Activate delay */
+				/* Use misc_to_attr/misc_to_char XXX XXX XXX XXX */
+				/* Visual effects -- Display, Highlight, Flush, Pause, Erase */
+				print_rel(bolt_char(y, x, y9, x9), spell_color(typ), y9, x9);
+				move_cursor_relative(y9, x9);
+				Term_fresh();
 				visual = TRUE;
+				Term_xtra(TERM_XTRA_DELAY, msec);
+				lite_spot(y9, x9);
+				Term_fresh();
 			}
 
-			/* Hack -- delay anyway for consistency */
+			/* Hack -- make sure to delay anyway for consistency */
 			else if (visual)
 			{
 				/* Delay for consistency */
 				Term_xtra(TERM_XTRA_DELAY, msec);
 			}
 		}
-	}
 
+		/* Save the new location */
+		y = y9;
+		x = x9;
+	}
 
 	/* Save the "blast epicenter" */
 	y2 = y;
@@ -3986,41 +4147,122 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 	/* Hack -- make sure beams get to "explode" */
 	gm[1] = grids;
 
-	/* Explode */
-	if (TRUE)
+	/* If we found a "target", explode there */
+	if (dist <= MAX_RANGE)
 	{
-		/* Hack -- remove final beam grid */
-		if (flg & (PROJECT_BEAM))
-		{
-			grids--;
-		}
+		/* Mega-Hack -- remove the final "beam" grid */
+		if ((flg & (PROJECT_BEAM)) && (grids > 0)) grids--;
 
-		/* Determine the blast area, work from the inside out */
-		for (dist = 0; dist <= rad; dist++)
+		/*
+		 * Create a conical breath attack
+		 *
+		 *         ***
+		 *     ********
+		 * D********@**
+		 *		 ********
+		 *         ***
+		 */
+		if (breath)
 		{
-			/* Scan the maximal blast area of radius "dist" */
-			for (y = y2 - dist; y <= y2 + dist; y++)
+			int by, bx;
+			int brad = 0;
+			int bdis = 0;
+			int cdis;
+
+			/* Not done yet */
+			bool done = FALSE;
+
+			flg &= ~(PROJECT_HIDE);
+
+			by = y1;
+			bx = x1;
+
+			while (bdis <= dist + rad)
 			{
-				for (x = x2 - dist; x <= x2 + dist; x++)
+				/* Travel from center outward */
+				for (cdis = 0; cdis <= brad; cdis++)
 				{
-					/* Ignore "illegal" locations */
-					if (!in_bounds(y, x)) continue;
+					/* Scan the maximal blast area of radius "cdis" */
+					for (y = by - cdis; y <= by + cdis; y++)
+					{
+						for (x = bx - cdis; x <= bx + cdis; x++)
+						{
+							/* Ignore "illegal" locations */
+							if (!in_bounds(y, x)) continue;
 
-					/* Enforce a "circular" explosion */
-					if (distance(y2, x2, y, x) != dist) continue;
+							/* Enforce a circular "ripple" */
+							if (distance(y1, x1, y, x) != bdis) continue;
 
-					/* Ball explosions are stopped by walls */
-					if (!los(y2, x2, y, x)) continue;
+							/* Enforce an arc */
+							if (distance(by, bx, y, x) != cdis) continue;
 
-					/* Save this grid */
-					gy[grids] = y;
-					gx[grids] = x;
-					grids++;
+							/* The blast is stopped by walls */
+							if (!los(by, bx, y, x)) continue;
+
+							/* Save this grid */
+							gy[grids] = y;
+							gx[grids] = x;
+							grids++;
+						}
+					}
 				}
+
+				/* Encode some more "radius" info */
+				gm[bdis + 1] = grids;
+
+				/* Stop moving */
+				if ((by == y2) && (bx == x2)) done = TRUE;
+
+				/* Finish */
+				if (done)
+				{
+					bdis++;
+					continue;
+				}
+
+				/* Ripple outwards */
+				mmove2(&by, &bx, y1, x1, y2, x2);
+
+				/* Find the next ripple */
+				bdis++;
+
+				/* Increase the size */
+				brad = (rad * bdis) / dist;
 			}
 
-			/* Encode some more "radius" info */
-			gm[dist+1] = grids;
+			/* Store the effect size */
+			gm_rad = bdis;
+		}
+
+		else
+		{
+			/* Determine the blast area, work from the inside out */
+			for (dist = 0; dist <= rad; dist++)
+			{
+				/* Scan the maximal blast area of radius "dist" */
+				for (y = y2 - dist; y <= y2 + dist; y++)
+				{
+					for (x = x2 - dist; x <= x2 + dist; x++)
+					{
+						/* Ignore "illegal" locations */
+						if (!in_bounds(y, x)) continue;
+
+						/* Enforce a "circular" explosion */
+						if (distance(y2, x2, y, x) != dist) continue;
+
+						/* Ball explosions are stopped by walls */
+						if (!los(y2, x2, y, x)) continue;
+
+						/* Save this grid */
+						gy[grids] = y;
+						gx[grids] = x;
+						grids++;
+					}
+				}
+
+				/* Encode some more "radius" info */
+				gm[dist+1] = grids;
+			}
 		}
 	}
 
@@ -4029,11 +4271,11 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 	if (!grids) return (FALSE);
 
 
-	/* Display the "blast area" if requested */
+	/* Display the "blast area" */
 	if (!blind && !(flg & (PROJECT_HIDE)))
 	{
 		/* Then do the "blast", from inside out */
-		for (t = 0; t <= rad; t++)
+		for (t = 0; t <= gm_rad; t++)
 		{
 			/* Dump everything with this radius */
 			for (i = gm[t]; i < gm[t+1]; i++)
@@ -4042,25 +4284,14 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 				y = gy[i];
 				x = gx[i];
 
-				/* Only do visuals if the player can "see" the blast */
+				/* The player can see it */
 				if (panel_contains(y, x) && player_has_los_bold(y, x))
 				{
-					u16b p;
-
-					byte a;
-					char c;
-
 					drawn = TRUE;
 
-					/* Obtain the explosion pict */
-					p = bolt_pict(y, x, y, x, typ);
-
-					/* Extract attr/char */
-					a = PICT_A(p);
-					c = PICT_C(p);
-
+					/* Use misc_to_attr/misc_to_char XXX XXX XXX XXX */
 					/* Visual effects -- Display */
-					print_rel(c, a, y, x);
+					print_rel('*', spell_color(typ), y, x);
 				}
 			}
 
@@ -4068,7 +4299,7 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 			move_cursor_relative(y2, x2);
 
 			/* Flush each "radius" seperately */
-			if (fresh_before) Term_fresh();
+			Term_fresh();
 
 			/* Delay (efficiently) */
 			if (visual || drawn)
@@ -4098,7 +4329,7 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 			move_cursor_relative(y2, x2);
 
 			/* Flush the explosion */
-			if (fresh_before) Term_fresh();
+			Term_fresh();
 		}
 	}
 
@@ -4119,14 +4350,21 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 			y = gy[i];
 			x = gx[i];
 
-			/* Affect the feature in that grid */
-			if (project_f(who, dist, y, x, dam, typ)) notice = TRUE;
+			/* Find the closest point in the blast */
+			if (breath)
+			{
+				int d = dist_to_line(y, x, y1, x1, y2, x2);
+
+				/* Affect the grid */
+				if (project_f(who, d, y, x, dam, typ)) notice = TRUE;
+			}
+			else
+			{
+				/* Affect the grid */
+				if (project_f(who, dist, y, x, dam, typ)) notice = TRUE;
+			}
 		}
 	}
-
-
-	/* Update stuff if needed */
-	if (p_ptr->update) update_stuff();
 
 
 	/* Check objects */
@@ -4145,8 +4383,20 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 			y = gy[i];
 			x = gx[i];
 
-			/* Affect the object in the grid */
-			if (project_o(who, dist, y, x, dam, typ)) notice = TRUE;
+
+			/* Find the closest point in the blast */
+			if (breath)
+			{
+				int d = dist_to_line(y, x, y1, x1, y2, x2);
+
+				/* Affect the object in the grid */
+				if (project_o(who, d, y, x, dam, typ)) notice = TRUE;
+			}
+			else
+			{
+				/* Affect the object in the grid */
+				if (project_o(who, dist, y, x, dam, typ)) notice = TRUE;
+			}
 		}
 	}
 
@@ -4172,8 +4422,19 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 			y = gy[i];
 			x = gx[i];
 
-			/* Affect the monster in the grid */
-			if (project_m(who, dist, y, x, dam, typ)) notice = TRUE;
+			/* Find the closest point in the blast */
+			if (breath)
+			{
+				int d = dist_to_line(y, x, y1, x1, y2, x2);
+
+				/* Affect the monster in the grid */
+				if (project_m(who, d, y, x, dam, typ)) notice = TRUE;
+			}
+			else
+			{
+				/* Affect the monster in the grid */
+				if (project_m(who, dist, y, x, dam, typ)) notice = TRUE;
+			}
 		}
 
 		/* Player affected one monster (without "jumping") */
@@ -4214,8 +4475,21 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 			y = gy[i];
 			x = gx[i];
 
-			/* Affect the player */
-			if (project_p(who, dist, y, x, dam, typ)) notice = TRUE;
+			if ((x != px) || (y != py)) continue;
+
+			/* Find the closest point in the blast */
+			if (breath)
+			{
+				int d = dist_to_line(y, x, y1, x1, y2, x2);
+
+				/* Affect the player */
+				if (project_p(who, d, y, x, dam, typ)) notice = TRUE;
+			}
+			else
+			{
+				/* Affect the player */
+				if (project_p(who, dist, y, x, dam, typ)) notice = TRUE;
+			}
 		}
 	}
 

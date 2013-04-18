@@ -557,37 +557,31 @@ static void roff_aux(int r_idx)
 		/* Group some variables */
 		if (TRUE)
 		{
-			long i, j;
+			u32b div, mod, frac, i = 0, j = 0;
 
-			/* calculate the integer exp part */
-			i = (long)r_ptr->mexp * r_ptr->level / p_ptr->lev;
+			if (r_ptr->mexp)
+			{
+				div = (long)r_ptr->mexp + r_ptr->r_pkills;
 
-			/* calculate the fractional exp part scaled by 100, */
-			/* must use long arithmetic to avoid overflow  */
-			j = ((((long)r_ptr->mexp * r_ptr->level % p_ptr->lev) *
-			      (long)1000 / p_ptr->lev + 5) / 10);
+				/* Note blindness */
+				if (p_ptr->blind) div *= 5;
+
+				mod = p_ptr->max_lev * div;
+
+				frac = ((long)r_ptr->mexp * r_ptr->mexp % mod) * r_ptr->level % mod;
+
+				/* calculate the integer exp part */
+				i = ((long)r_ptr->mexp * r_ptr->level / p_ptr->max_lev) * r_ptr->mexp / div;
+
+				/* calculate the fractional exp part scaled by 100, */
+				/* must use long arithmetic to avoid overflow  */
+				j = ((frac * 1000L / mod + 5) / 10);
+			}
 
 			/* Mention the experience */
-			roff(format(" is worth %ld.%02ld point%s",
-			            (long)i, (long)j,
-			            (((i == 1) && (j == 0)) ? "" : "s")));
-
-			/* Take account of annoying English */
-			p = "th";
-			i = p_ptr->lev % 10;
-			if ((p_ptr->lev / 10) == 1) /* nothing */;
-			else if (i == 1) p = "st";
-			else if (i == 2) p = "nd";
-			else if (i == 3) p = "rd";
-
-			/* Take account of "leading vowels" in numbers */
-			q = "";
-			i = p_ptr->lev;
-			if ((i == 8) || (i == 11) || (i == 18)) q = "n";
-
-			/* Mention the dependance on the player's level */
-			roff(format(" for a%s %lu%s level character.  ",
-			            q, (long)i, p));
+			roff(format(" is worth %ld.%02ld point%s for you.  ",
+							(long)i, (long)j,
+							(((i == 1) && (j == 0)) ? "" : "s")));
 		}
 	}
 

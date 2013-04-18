@@ -26,6 +26,7 @@ extern s16b ddy[10];
 extern s16b ddx_ddd[9];
 extern s16b ddy_ddd[9];
 extern char hexsym[16];
+extern char listsym[62];
 extern byte adj_mag_study[];
 extern byte adj_mag_mana[];
 extern byte adj_mag_fail[];
@@ -48,6 +49,7 @@ extern byte adj_dex_safe[];
 extern byte adj_con_fix[];
 extern byte adj_con_mhp[];
 extern byte blows_table[12][12];
+extern cptr ident_info[];
 extern owner_type owners[MAX_STORES][MAX_OWNERS];
 extern byte extract_energy[200];
 extern s32b player_exp[PY_MAX_LEVEL];
@@ -151,7 +153,7 @@ extern u16b *temp_g;
 extern byte *temp_y;
 extern byte *temp_x;
 extern byte (*cave_info)[256];
-extern byte (*cave_feat)[DUNGEON_WID];
+extern byte (*cave_feat)[256];
 extern s16b (*cave_o_idx)[DUNGEON_WID];
 extern s16b (*cave_m_idx)[DUNGEON_WID];
 extern byte (*cave_cost)[DUNGEON_WID];
@@ -252,7 +254,8 @@ extern void wiz_dark(void);
 extern void town_illuminate(bool daytime);
 extern void cave_set_feat(int y, int x, int feat);
 extern sint project_path(u16b *gp, int range, \
-                         int y1, int x1, int y2, int x2, int flg);
+								 int y1, int x1, int y2, int x2, int flg);
+extern void mmove2(int *y, int *x, int y1, int x1, int y2, int x2);								 
 extern bool projectable(int y1, int x1, int y2, int x2);
 extern void scatter(int *yp, int *xp, int y, int x, int d, int m);
 extern void health_track(int m_idx);
@@ -292,6 +295,7 @@ extern void do_cmd_run(void);
 extern void do_cmd_hold(void);
 extern void do_cmd_stay(void);
 extern void do_cmd_rest(void);
+extern int breakage_chance(object_type *o_ptr);
 extern void do_cmd_fire(void);
 extern void do_cmd_throw(void);
 
@@ -358,6 +362,7 @@ extern errr check_load(void);
 extern errr check_load_init(void);
 extern void display_player(int mode);
 extern errr file_character(cptr name, bool full);
+extern int list_choice(char a);
 extern bool show_file(cptr name, cptr what, int line, int mode);
 extern void do_cmd_help(void);
 extern void process_player_name(bool sf);
@@ -373,6 +378,7 @@ extern void signals_handle_tstp(void);
 extern void signals_init(void);
 
 /* generate.c */
+extern int next_to_walls(int y, int x);
 extern void generate_cave(void);
 
 /* init1.c */
@@ -391,6 +397,7 @@ extern void init_angband(void);
 extern errr rd_savefile_old(void);
 
 /* load2.c */
+extern bool wearable_p(object_type *o_ptr);
 extern errr rd_savefile_new(void);
 
 /* melee1.c */
@@ -464,6 +471,7 @@ extern s16b get_obj_num(int level);
 extern void object_known(object_type *o_ptr);
 extern void object_aware(object_type *o_ptr);
 extern void object_tried(object_type *o_ptr);
+extern bool object_decent(object_type *o_ptr);
 extern s32b object_value(object_type *o_ptr);
 extern bool object_similar(object_type *o_ptr, object_type *j_ptr);
 extern void object_absorb(object_type *o_ptr, object_type *j_ptr);
@@ -521,6 +529,7 @@ extern bool inc_stat(int stat);
 extern bool dec_stat(int stat, int amount, int permanent);
 extern bool res_stat(int stat);
 extern bool apply_disenchant(int mode);
+extern char bolt_char(int y, int x, int ny, int nx);
 extern bool project(int who, int rad, int y, int x, int dam, int typ, int flg);
 
 /* spells2.c */

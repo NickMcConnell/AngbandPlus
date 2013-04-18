@@ -1737,6 +1737,11 @@
 
 
 /*
+ * Special feature encodings
+ */
+#define CAVE_WALL 0x20	/* a wall grid */
+
+/*
  * Special cave grid flags
  */
 #define CAVE_MARK	0x01 	/* memorized feature */
@@ -1746,7 +1751,6 @@
 #define CAVE_SEEN	0x10 	/* seen flag */
 #define CAVE_VIEW	0x20 	/* view flag */
 #define CAVE_TEMP	0x40 	/* temp flag */
-#define CAVE_WALL	0x80 	/* wall flag */
 
 
 
@@ -2163,11 +2167,11 @@
 #define RF5_BO_PLAS			0x01000000	/* Plasma Bolt */
 #define RF5_BO_ICEE			0x02000000	/* Ice Bolt */
 #define RF5_MISSILE			0x04000000	/* Magic Missile */
-#define RF5_SCARE			0x08000000	/* Frighten Player */
-#define RF5_BLIND			0x10000000	/* Blind Player */
-#define RF5_CONF			0x20000000	/* Confuse Player */
-#define RF5_SLOW			0x40000000	/* Slow Player */
-#define RF5_HOLD			0x80000000	/* Paralyze Player */
+#define RF5_SCARE				0x08000000	/* Frighten Player */
+#define RF5_BLIND				0x10000000	/* Blind Player */
+#define RF5_CONF				0x20000000	/* Confuse Player */
+#define RF5_SLOW				0x40000000	/* Slow Player */
+#define RF5_HOLD				0x80000000	/* Paralyze Player */
 
 /*
  * New monster race bit flags
@@ -2206,24 +2210,81 @@
 #define RF6_S_UNIQUE		0x80000000	/* Summon Unique Monster */
 
 
-
 /*
  * Hack -- choose "intelligent" spells when desperate
  */
 
 #define RF4_INT_MASK \
-   0L
+	0L
 
 #define RF5_INT_MASK \
-  (RF5_HOLD | RF5_SLOW | RF5_CONF | RF5_BLIND | RF5_SCARE)
+	(RF5_HOLD | RF5_SLOW | RF5_CONF | RF5_BLIND | RF5_SCARE)
 
 #define RF6_INT_MASK \
-   (RF6_BLINK |  RF6_TPORT | RF6_TELE_LEVEL | RF6_TELE_AWAY | \
-    RF6_HEAL | RF6_HASTE | RF6_TRAPS | \
-    RF6_S_MONSTER | RF6_S_MONSTERS | \
-    RF6_S_ANT | RF6_S_SPIDER | RF6_S_HOUND | RF6_S_HYDRA | \
-    RF6_S_ANGEL | RF6_S_DRAGON | RF6_S_UNDEAD | RF6_S_DEMON | \
-    RF6_S_HI_DRAGON | RF6_S_HI_UNDEAD | RF6_S_WRAITH | RF6_S_UNIQUE)
+	(RF6_BLINK |  RF6_TPORT | RF6_TELE_LEVEL | RF6_TELE_AWAY | \
+	 RF6_HEAL | RF6_HASTE | RF6_TRAPS | \
+	 RF6_S_MONSTER | RF6_S_MONSTERS | RF6_S_ANT | \
+	 RF6_S_SPIDER | RF6_S_HOUND | RF6_S_HYDRA | \
+	 RF6_S_ANGEL | RF6_S_DRAGON | RF6_S_UNDEAD | RF6_S_DEMON | \
+	 RF6_S_HI_DRAGON | RF6_S_HI_UNDEAD | RF6_S_WRAITH | RF6_S_UNIQUE)
+
+
+
+/*
+ * Hack -- "bolt" spells that may hurt fellow monsters
+ */
+#define RF4_BOLT_MASK \
+	(RF4_ARROW_1 | RF4_ARROW_2 | RF4_ARROW_3 | RF4_ARROW_4)
+
+#define RF5_BOLT_MASK \
+	(RF5_BO_ACID | RF5_BO_ELEC | RF5_BO_FIRE | RF5_BO_COLD | \
+	 RF5_BO_POIS | RF5_BO_NETH | RF5_BO_WATE | RF5_BO_MANA | \
+	 RF5_BO_PLAS | RF5_BO_ICEE | RF5_MISSILE)
+
+#define RF6_BOLT_MASK \
+	 0L
+
+
+/*
+ * Dangerous non-resistable spells
+ */
+#define RF4_NRES_MASK \
+	(RF4_BR_SOUN | RF4_BR_TIME | RF4_BR_INER | RF4_BR_GRAV | \
+	 RF4_BR_PLAS | RF4_BR_WALL	| RF4_BR_MANA)
+
+#define RF5_NRES_MASK \
+	(RF5_BA_WATE | RF5_BA_MANA | RF5_BRAIN_SMASH | RF5_CAUSE_3 | \
+	 RF5_CAUSE_4 | RF5_BO_WATE | RF5_BO_MANA | RF5_BO_PLAS)
+
+#define RF6_NRES_MASK \
+	0L
+
+/*
+ * Dangerous resistable spells
+ */
+#define RF4_RES_MASK \
+	(RF4_BR_ACID | RF4_BR_ELEC | RF4_BR_FIRE | RF4_BR_COLD | \
+	 RF4_BR_POIS | RF4_BR_NETH | RF4_BR_LITE | RF4_BR_DARK | \
+	 RF4_BR_CONF | RF4_BR_SOUN | RF4_BR_CHAO | RF4_BR_DISE | \
+	 RF4_BR_NEXU | RF4_BR_SHAR)
+
+#define RF5_RES_MASK \
+	(RF5_BA_ACID | RF5_BA_ELEC | RF5_BA_FIRE | RF5_BA_COLD | \
+	 RF5_BA_NETH | RF5_BA_DARK | RF5_BO_ACID | \
+	 RF5_BO_ELEC | RF5_BO_FIRE | RF5_BO_COLD | RF5_BO_POIS | \
+	 RF5_BO_NETH | RF5_BO_ICEE)
+
+#define RF6_RES_MASK \
+	0L
+
+
+/*** Shot types ***/
+
+#define SHOT_PLAYER		0		/* A bolt will hit the player */
+#define SHOT_MONSTER		1		/* A bolt will hit a monster */
+#define SHOT_WALL			2		/* A bolt will hit a wall */
+#define SHOT_DOOR			3		/* A bolt will hit a door */
+#define SHOT_NOTHING		4		/* A bolt will hit nothing */
 
 
 
@@ -2246,7 +2307,7 @@
  */
 #define cheat_peek				p_ptr->cheat[CHEAT_cheat_peek]
 #define cheat_hear				p_ptr->cheat[CHEAT_cheat_hear]		
-#define cheat_room				p_ptr->cheat[CHEAT_cheat_room]	
+#define cheat_room				p_ptr->cheat[CHEAT_cheat_room]
 #define cheat_xtra				p_ptr->cheat[CHEAT_cheat_xtra]	
 #define cheat_know				p_ptr->cheat[CHEAT_cheat_know]	
 #define cheat_live				p_ptr->cheat[CHEAT_cheat_live]	
@@ -2274,6 +2335,7 @@
 #define OPT_show_details			13
 #define OPT_ring_bell				14
 #define OPT_show_flavors			15
+
 #define OPT_run_ignore_stairs		16
 #define OPT_run_ignore_doors		17
 #define OPT_run_cut_corners			18
@@ -2290,6 +2352,7 @@
 #define OPT_verify_special			29
 #define OPT_allow_quantity			30
 /* xxx */
+
 #define OPT_auto_haggle				32
 #define OPT_auto_scum				33
 #define OPT_testing_stack			34
@@ -2306,16 +2369,17 @@
 /* xxx */
 #define OPT_smart_learn				46
 #define OPT_smart_cheat				47
+
 #define OPT_view_reduce_lite		48
 #define OPT_hidden_player			49
 #define OPT_avoid_abort				50
 #define OPT_avoid_other				51
 #define OPT_flush_failure			52
 #define OPT_flush_disturb			53
-/* xxx */
-#define OPT_fresh_before			55
-#define OPT_fresh_after				56
-/* xxx */
+#define OPT_fresh_before			54
+#define OPT_fresh_after				55
+#define OPT_center_player			56
+#define OPT_avoid_center			57
 #define OPT_compress_savefile		58
 #define OPT_hilite_player			59
 #define OPT_view_yellow_lite		60
@@ -2344,6 +2408,7 @@
 #define show_details			op_ptr->opt[OPT_show_details]
 #define ring_bell				op_ptr->opt[OPT_ring_bell]
 #define show_flavors			op_ptr->opt[OPT_show_flavors]
+
 #define run_ignore_stairs		op_ptr->opt[OPT_run_ignore_stairs]
 #define run_ignore_doors		op_ptr->opt[OPT_run_ignore_doors]
 #define run_cut_corners			op_ptr->opt[OPT_run_cut_corners]
@@ -2360,6 +2425,7 @@
 #define verify_special			op_ptr->opt[OPT_verify_special]
 #define allow_quantity			op_ptr->opt[OPT_allow_quantity]
 /* xxx */
+
 #define auto_haggle				op_ptr->opt[OPT_auto_haggle]
 #define auto_scum				op_ptr->opt[OPT_auto_scum]
 #define testing_stack			op_ptr->opt[OPT_testing_stack]
@@ -2376,16 +2442,17 @@
 /* xxx */
 #define smart_learn				op_ptr->opt[OPT_smart_learn]
 #define smart_cheat				op_ptr->opt[OPT_smart_cheat]
+
 #define view_reduce_lite		op_ptr->opt[OPT_view_reduce_lite]
 #define hidden_player			op_ptr->opt[OPT_hidden_player]
 #define avoid_abort				op_ptr->opt[OPT_avoid_abort]
 #define avoid_other				op_ptr->opt[OPT_avoid_other]
 #define flush_failure			op_ptr->opt[OPT_flush_failure]
 #define flush_disturb			op_ptr->opt[OPT_flush_disturb]
-/* xxx */
-#define fresh_before			op_ptr->opt[OPT_fresh_before]
+#define fresh_before				op_ptr->opt[OPT_fresh_before]
 #define fresh_after				op_ptr->opt[OPT_fresh_after]
-/* xxx */
+#define center_player			op_ptr->opt[OPT_center_player]
+#define avoid_center				op_ptr->opt[OPT_avoid_center]
 #define compress_savefile		op_ptr->opt[OPT_compress_savefile]
 #define hilite_player			op_ptr->opt[OPT_hilite_player]
 #define view_yellow_lite		op_ptr->opt[OPT_view_yellow_lite]
@@ -2556,7 +2623,7 @@
  * Note the use of the new "CAVE_WALL" flag.
  */
 #define cave_floor_bold(Y,X) \
-	(!(cave_info[Y][X] & (CAVE_WALL)))
+	(!(cave_feat[Y][X] & (CAVE_WALL)))
 
 /*
  * Determine if a "legal" grid is a "clean" floor grid

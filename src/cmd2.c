@@ -232,7 +232,7 @@ static void chest_death(int y, int x, s16b o_idx)
 		}
 
 		/* Drop it in the dungeon */
-		drop_near(i_ptr, -1, y, x);
+		drop_near(i_ptr, 0, y, x);
 	}
 
 	/* Reset the object level */
@@ -2139,7 +2139,7 @@ void do_cmd_rest(void)
  *
  * Note that artifacts never break, see the "drop_near()" function.
  */
-static int breakage_chance(object_type *o_ptr)
+int breakage_chance(object_type *o_ptr)
 {
 	/* Examine the item type */
 	switch (o_ptr->tval)
@@ -2227,7 +2227,7 @@ void do_cmd_fire(void)
 	byte missile_attr;
 	char missile_char;
 
-	char o_name[80];
+	char o_name[160];
 
 	int path_n = 0;
 	u16b path_g[256];
@@ -2366,19 +2366,15 @@ void do_cmd_fire(void)
 		/* Hack -- Stop before hitting walls */
 		if (!cave_floor_bold(ny, nx)) break;
 
-		/* Advance */
-		x = nx;
-		y = ny;
-
 		/* Only do visuals if the player can "see" the missile */
-		if (panel_contains(y, x) && player_can_see_bold(y, x))
+		if (panel_contains(ny, nx) && player_can_see_bold(ny, nx))
 		{
 			/* Visual effects */
-			print_rel(missile_char, missile_attr, y, x);
-			move_cursor_relative(y, x);
+			print_rel(bolt_char(y, x, ny, nx), missile_attr, ny, nx);
+			move_cursor_relative(ny, nx);
 			if (fresh_before) Term_fresh();
 			Term_xtra(TERM_XTRA_DELAY, msec);
-			lite_spot(y, x);
+			lite_spot(ny, nx);
 			if (fresh_before) Term_fresh();
 		}
 
@@ -2388,6 +2384,10 @@ void do_cmd_fire(void)
 			/* Pause anyway, for consistancy */
 			Term_xtra(TERM_XTRA_DELAY, msec);
 		}
+
+		/* Advance */
+		x = nx;
+		y = ny;
 
 		/* Handle monster */
 		if (cave_m_idx[y][x] > 0)
@@ -2532,7 +2532,7 @@ void do_cmd_throw(void)
 	byte missile_attr;
 	char missile_char;
 
-	char o_name[80];
+	char o_name[160];
 
 	int path_n = 0;
 	u16b path_g[256];
@@ -2649,19 +2649,15 @@ void do_cmd_throw(void)
 		/* Hack -- Stop before hitting walls */
 		if (!cave_floor_bold(ny, nx)) break;
 
-		/* Advance */
-		x = nx;
-		y = ny;
-
 		/* Only do visuals if the player can "see" the missile */
-		if (panel_contains(y, x) && player_can_see_bold(y, x))
+		if (panel_contains(ny, nx) && player_can_see_bold(ny, nx))
 		{
 			/* Visual effects */
-			print_rel(missile_char, missile_attr, y, x);
-			move_cursor_relative(y, x);
+			print_rel(bolt_char(y, x, ny, nx), missile_attr, ny, nx);
+			move_cursor_relative(ny, nx);
 			if (fresh_before) Term_fresh();
 			Term_xtra(TERM_XTRA_DELAY, msec);
-			lite_spot(y, x);
+			lite_spot(ny, nx);
 			if (fresh_before) Term_fresh();
 		}
 
@@ -2671,6 +2667,10 @@ void do_cmd_throw(void)
 			/* Pause anyway, for consistancy */
 			Term_xtra(TERM_XTRA_DELAY, msec);
 		}
+
+		/* Advance */
+		x = nx;
+		y = ny;
 
 		/* Handle monster */
 		if (cave_m_idx[y][x] > 0)
@@ -2695,9 +2695,9 @@ void do_cmd_throw(void)
 
 				/* Some monsters get "destroyed" */
 				if ((r_ptr->flags3 & (RF3_DEMON)) ||
-				    (r_ptr->flags3 & (RF3_UNDEAD)) ||
-				    (r_ptr->flags2 & (RF2_STUPID)) ||
-				    (strchr("Evg", r_ptr->d_char)))
+					 (r_ptr->flags3 & (RF3_UNDEAD)) ||
+					 (r_ptr->flags2 & (RF2_STUPID)) ||
+					 (strchr("Evg", r_ptr->d_char)))
 				{
 					/* Special note at death */
 					note_dies = " is destroyed.";

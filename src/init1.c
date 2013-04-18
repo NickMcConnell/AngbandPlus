@@ -639,20 +639,47 @@ errr init_v_info_txt(FILE *fp, char *buf)
 		/* Process 'D' for "Description" */
 		if (buf[0] == 'D')
 		{
+			char xtra[1024];
+			char sym, *t, *u = xtra;
+
+			int c;
+
 			/* Acquire the text */
 			s = buf+2;
 
+			/* Apply run-length encoding */
+			for (t = s; *t;)
+			{
+				/* Count occurences of current symbol; limit runs to 127 characters */
+				for (sym = *t, c = 0; (*t == sym) && (c < 127); t++, c++);
+
+				/* Efficiently handle single characters */
+				if (c == 1)
+				{
+					*(u++) = sym;
+				}
+				else
+				{
+					/* Hack -- high bit indicates a run */
+					*(u++) = c | 0x80;
+					*(u++) = sym;
+				}
+			}
+
+			/* Terminate */
+			*u = '\0';
+
 			/* Hack -- Verify space */
-			if (v_head->text_size + strlen(s) + 8 > fake_text_size) return (7);
+			if (v_head->text_size + strlen(xtra) + 8 > fake_text_size) return (7);
 
 			/* Advance and Save the text index */
 			if (!v_ptr->text) v_ptr->text = ++v_head->text_size;
 
 			/* Append chars to the name */
-			strcpy(v_text + v_head->text_size, s);
+			strcpy(v_text + v_head->text_size, xtra);
 
 			/* Advance the index */
-			v_head->text_size += strlen(s);
+			v_head->text_size += strlen(xtra);
 
 			/* Next... */
 			continue;

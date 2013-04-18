@@ -881,9 +881,6 @@ bool make_attack_normal(int m_idx)
 
 				case RBE_PARALYZE:
 				{
-					/* Hack -- Prevent perma-paralysis via damage */
-					if (p_ptr->paralyzed && (damage < 1)) damage = 1;
-
 					/* Take damage */
 					take_hit(damage, ddesc);
 

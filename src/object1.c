@@ -1747,6 +1747,12 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		object_desc_str_macro(t, " (charging)");
 	}
 
+	/* Indicate identify status */
+	if (o_ptr->ident & IDENT_MENTAL)
+	{
+		object_desc_str_macro(t, " (*ID*)");
+	}
+
 
 	/* No more details wanted */
 	if (mode < 3)
@@ -2634,7 +2640,6 @@ s16b label_to_equip(int c)
 }
 
 
-
 /*
  * Determine which equipment slot (if any) an item likes
  */
@@ -3418,7 +3423,40 @@ static int get_tag(int *cp, char tag)
 	cptr s;
 
 
-	/* Check every object */
+	/* Check for special tags first */
+	for (i = 0; i < INVEN_TOTAL; ++i)
+	{
+		object_type *o_ptr = &inventory[i];
+
+		/* Skip non-objects */
+		if (!o_ptr->k_idx) continue;
+
+		/* Skip empty inscriptions */
+		if (!o_ptr->note) continue;
+
+		/* Find a '@' */
+		s = strchr(quark_str(o_ptr->note), '@');
+
+		/* Process all tags */
+		while (s)
+		{
+			/* Check the special tags */
+			if ((s[1] == p_ptr->command_cmd) && (s[2] == tag))
+			{
+				/* Save the actual inventory ID */
+				*cp = i;
+
+				/* Success */
+				return (TRUE);
+			}
+
+			/* Find another '@' */
+			s = strchr(s + 1, '@');
+		}
+	}
+
+
+	/* Check for normal tags */
 	for (i = 0; i < INVEN_TOTAL; ++i)
 	{
 		object_type *o_ptr = &inventory[i];
@@ -3437,16 +3475,6 @@ static int get_tag(int *cp, char tag)
 		{
 			/* Check the normal tags */
 			if (s[1] == tag)
-			{
-				/* Save the actual inventory ID */
-				*cp = i;
-
-				/* Success */
-				return (TRUE);
-			}
-
-			/* Check the special tags */
-			if ((s[1] == p_ptr->command_cmd) && (s[2] == tag))
 			{
 				/* Save the actual inventory ID */
 				*cp = i;

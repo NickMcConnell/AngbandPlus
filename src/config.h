@@ -171,12 +171,12 @@
 /*
  * OPTION: Hack -- Compile in support for "Borg mode"
  */
-/* #define ALLOW_BORG */
+#define ALLOW_BORG
 
 /*
  * OPTION: Hack -- Compile in support for "Debug Commands"
  */
-/* #define ALLOW_DEBUG */
+#define ALLOW_DEBUG
 
 /*
  * OPTION: Hack -- Compile in support for "Spoiler Generation"
@@ -283,7 +283,7 @@
 /*
  * Allow "Borgs" to yield "high scores"
  */
-/* #define SCORE_BORGS */
+#define SCORE_BORGS
 
 /*
  * Allow "Cheaters" to yield "high scores"
@@ -302,7 +302,7 @@
 /*
  * OPTION: Maximum flow depth when using "MONSTER_FLOW"
  */
-#define MONSTER_FLOW_DEPTH 32
+#define MONSTER_FLOW_DEPTH 64
 
 
 /*
@@ -352,12 +352,12 @@
 /*
  * OPTION: Allow the use of "sound" in various places.
  */
-#define USE_SOUND
+/*#define USE_SOUND*/
 
 /*
  * OPTION: Allow the use of "graphics" in various places
  */
-#define USE_GRAPHICS
+/*#define USE_GRAPHICS*/
 
 
 /*

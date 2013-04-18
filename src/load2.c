@@ -113,7 +113,7 @@ static void note(cptr msg)
 /*
  * Hack -- determine if an item is "wearable" (or a missile)
  */
-static bool wearable_p(object_type *o_ptr)
+bool wearable_p(object_type *o_ptr)
 {
 	/* Valid "tval" codes */
 	switch (o_ptr->tval)
@@ -497,8 +497,8 @@ static void rd_item(object_type *o_ptr)
 
 		rd_s16b(&o_ptr->ac);
 
-		rd_byte(&old_dd);
-		rd_byte(&old_ds);
+		rd_byte(&o_ptr->dd);
+		rd_byte(&o_ptr->ds);
 
 		strip_bytes(2);
 
@@ -524,8 +524,8 @@ static void rd_item(object_type *o_ptr)
 
 		rd_s16b(&o_ptr->ac);
 
-		rd_byte(&old_dd);
-		rd_byte(&old_ds);
+		rd_byte(&o_ptr->dd);
+		rd_byte(&o_ptr->ds);
 
 		rd_byte(&o_ptr->ident);
 
@@ -554,7 +554,7 @@ static void rd_item(object_type *o_ptr)
 		/* Old special powers */
 		strip_bytes(2);
 	}
-	
+
 	else
 	{
 		/* Special powers */
@@ -758,12 +758,6 @@ static void rd_item(object_type *o_ptr)
 		if (!e_ptr->name) o_ptr->name2 = 0;
 	}
 
-
-	/* Acquire standard fields */
-	o_ptr->ac = k_ptr->ac;
-	o_ptr->dd = k_ptr->dd;
-	o_ptr->ds = k_ptr->ds;
-
 	/* Acquire standard weight */
 	o_ptr->weight = k_ptr->weight;
 
@@ -808,13 +802,6 @@ static void rd_item(object_type *o_ptr)
 
 		/* Obtain the ego-item info */
 		e_ptr = &e_info[o_ptr->name2];
-
-		/* Hack -- keep some old fields */
-		if ((o_ptr->dd < old_dd) && (o_ptr->ds == old_ds))
-		{
-			/* Keep old boosted damage dice */
-			o_ptr->dd = old_dd;
-		}
 
 		/* Hack -- extract the "broken" flag */
 		if (!e_ptr->cost) o_ptr->ident |= (IDENT_BROKEN);

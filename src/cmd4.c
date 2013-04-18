@@ -2599,7 +2599,7 @@ static void do_cmd_knowledge_artifacts(void)
 
 	char file_name[1024];
 
-	char o_name[80];
+	char o_name[160];
 
 	bool okay[MAX_A_IDX];
 
@@ -2785,7 +2785,7 @@ static void do_cmd_knowledge_objects(void)
 
 	FILE *fff;
 
-	char o_name[80];
+	char o_name[160];
 
 	char file_name[1024];
 
@@ -2835,6 +2835,219 @@ static void do_cmd_knowledge_objects(void)
 }
 
 
+/* Pluralize a name */
+static void plural_aux(char *name)
+{
+	 int len = strlen(name);
+
+	 if (strstr(name, "coins"))
+	 {
+		  char buf[80];
+		  strcpy (buf, "piles of ");
+		  strcat (buf, name);
+		  strcpy (name, buf);
+		  return;
+	 }
+	 else if (strstr(name, "Manes"))
+	 {
+		  return;
+	 }
+	 else if (name[len-1]=='y')
+	 {
+		  strcpy(&(name[len-1]), "ies");
+	 }
+	 else if (streq(&(name[len-4]), "ouse"))
+	 {
+		  strcpy (&(name[len-4]), "ice");
+	 }
+	 else if (streq(&(name[len-3]), "man"))
+	 {
+		  strcpy (&(name[len-3]), "men");
+	 }
+	 else if (streq(&(name[len-2]), "ex"))
+	 {
+		  strcpy (&(name[len-2]), "ices");
+	 }
+	 else if (streq(&(name[len-3]), "olf"))
+	 {
+		  strcpy (&(name[len-3]), "olves");
+	 }
+	 else if ((streq(&(name[len-2]), "ch")) || (name[len-1] == 's'))
+	 {
+		  strcpy (&(name[len]), "es");
+	 }
+	 else
+	 {
+		  strcpy (&(name[len]), "s");
+	 }
+}
+
+
+/*
+ * Total kill count
+ *
+ * Ignore player ghosts.
+ */
+static void do_cmd_knowledge_kill_count(void)
+{
+	int k;
+
+	FILE *fff;
+
+	char buf[80];
+
+	char file_name[1024];
+
+	s16b t;
+	u32b total = 0;
+
+	/* Temporary file */
+	if (path_temp(file_name, 1024)) return;
+
+	/* Open a new file */
+	fff = my_fopen(file_name, "w");
+
+	/* Monsters slain */
+	for (k = 1; k < MAX_R_IDX - 1; k++)
+	{
+		monster_race *r_ptr = &r_info[k];
+
+		/* Count the number killed */
+		t = r_ptr->r_pkills;
+
+		if (t > 0)
+		{
+			total += t;
+		}
+	}
+
+	if (total < 1)
+	{
+		fprintf(fff,"You have defeated no enemies yet.\n\n");
+	}
+	else if (total == 1)
+	{
+		fprintf(fff,"You have defeated one enemy.\n\n");
+	}
+	else
+	{
+		fprintf(fff,"You have defeated %lu enemies.\n\n", total);
+	}
+
+	/* Scan the monster races */
+	for (k = 1; k < MAX_R_IDX - 1; k++)
+	{
+		monster_race *r_ptr = &r_info[k];
+
+		if (r_ptr->flags1 & RF1_UNIQUE)
+		{
+			/* Unique is dead */
+			if (r_ptr->max_num == 0)
+			{
+				/* Print a message */
+				fprintf(fff, "     %s\n", (r_name + r_ptr->name));
+			}
+
+			/* Count deaths by this monster */
+			t = r_ptr->r_deaths;
+
+			/* We've been killed */
+			if (t > 0)
+			{
+				/* Choose correct pronoun */
+				if (r_ptr->flags1 & RF1_MALE) strcpy(buf, "He");
+				else if (r_ptr->flags1 & RF1_FEMALE) strcpy(buf, "She");
+				else strcpy(buf, "It");
+
+				/* Unique is alive */
+				if (r_ptr->max_num != 0)
+				{
+					/* Print a message */
+					fprintf(fff, "     %s is still alive.\n", (r_name + r_ptr->name));
+				}
+
+				fprintf(fff, "          %s %s slain %d of your ancestors.\n",
+						  buf, ((r_ptr->max_num == 0) ? "had" : "has"), t);
+			}
+		}
+		else
+		{
+			/* Count the number killed */
+			t = r_ptr->r_pkills;
+
+			if (t > 0)
+			{
+				if (t < 2)
+				{
+					/* Creeping coins have a special identifier */
+					if (strstr(r_name + r_ptr->name, "coins"))
+					{
+						fprintf(fff, "     1 pile of %s\n", (r_name + r_ptr->name));
+					}
+					/* Normal monster */
+					else
+					{
+						fprintf(fff, "     1 %s\n", (r_name + r_ptr->name));
+					}
+				}
+				else
+				{
+					/* Pluralize */
+					strcpy(buf, (r_name + r_ptr->name));
+					plural_aux(buf);
+					fprintf(fff, "     %d %s\n", t, buf);
+				}
+			}
+
+			/* Count deaths by this monster */
+			t = r_ptr->r_deaths;
+
+			/* We've been killed */
+			if (t > 0)
+			{
+				/* No kills at all */
+				if (r_ptr->r_tkills == 0)
+				{
+					/* Pluralize */
+					strcpy(buf, (r_name + r_ptr->name));
+					plural_aux(buf);
+
+					/* Print a message */
+					fprintf(fff, "     No %s have been defeated.\n", buf);
+				}
+				/* Our ancestors killed some */
+				else if (r_ptr->r_pkills == 0)
+				{
+					/* Pluralize */
+					strcpy(buf, (r_name + r_ptr->name));
+					if (r_ptr->r_tkills > 1) plural_aux(buf);
+
+					/* Print a message */
+					fprintf(fff, "     Your ancestors have defeated %d %s.\n",
+							  r_ptr->r_tkills, buf);
+				}
+
+				fprintf(fff, "          They have slain %d of your ancestors.\n", t);
+			}
+		}
+	}
+
+	fprintf(fff,"----------------------------------------------\n");
+
+	/* Don't display trivial totals */
+	if (total > 1) fprintf(fff,"   Total: %lu creature%s killed.\n", total, ((total == 1) ? "" : "s"));
+
+	/* Close the file */
+	my_fclose(fff);
+
+	/* Display the file contents */
+	show_file(file_name, "Kill Count", 0, 0);
+
+	/* Remove the file */
+	fd_kill(file_name);
+}
+
+
 /*
  * Interact with "knowledge"
  */
@@ -2847,8 +3060,11 @@ void do_cmd_knowledge(void)
 	FILE_TYPE(FILE_TYPE_TEXT);
 
 
-	/* Save screen */
-	screen_save();
+	/* Enter "icky" mode */
+	character_icky = TRUE;
+
+	/* Save the screen */
+	Term_save();
 
 
 	/* Interact until done */
@@ -2864,9 +3080,10 @@ void do_cmd_knowledge(void)
 		prt("(1) Display known artifacts", 4, 5);
 		prt("(2) Display known uniques", 5, 5);
 		prt("(3) Display known objects", 6, 5);
+		prt("(4) Display kill count", 7, 5);
 
 		/* Prompt */
-		prt("Command: ", 8, 0);
+		prt("Command: ", 9, 0);
 
 		/* Prompt */
 		i = inkey();
@@ -2895,10 +3112,17 @@ void do_cmd_knowledge(void)
 			do_cmd_knowledge_objects();
 		}
 
+		/* Kill count */
+		else if (i == '4')
+		{
+			/* Spawn */
+			do_cmd_knowledge_kill_count();
+		}
+
 		/* Unknown option */
 		else
 		{
-			bell("Illegal command for knowledge!");
+			bell("Invalid knowledge command.");
 		}
 
 		/* Flush messages */
@@ -2906,8 +3130,11 @@ void do_cmd_knowledge(void)
 	}
 
 
-	/* Load screen */
-	screen_load();
+	/* Restore the screen */
+	Term_load();
+
+	/* Leave "icky" mode */
+	character_icky = FALSE;
 }
 
 

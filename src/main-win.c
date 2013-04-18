@@ -1148,6 +1148,8 @@ static int new_palette(void)
  */
 static bool init_graphics()
 {
+#ifdef USE_GRAPHICS
+
 	/* Initialize once */
 	if (!can_use_graphics)
 	{
@@ -1188,6 +1190,10 @@ static bool init_graphics()
 
 	/* Result */
 	return (can_use_graphics);
+
+#endif
+
+	return FALSE;
 }
 
 
@@ -1196,6 +1202,8 @@ static bool init_graphics()
  */
 static bool init_sound()
 {
+#ifdef USE_SOUND
+
 	/* Initialize once */
 	if (!can_use_sound)
 	{
@@ -1220,9 +1228,13 @@ static bool init_sound()
 		/* Sound available */
 		can_use_sound = TRUE;
 	}
-	
+
 	/* Result */
 	return (can_use_sound);
+
+#endif
+
+	return FALSE;
 }
 
 
@@ -1701,10 +1713,10 @@ static errr Term_xtra_win_sound(int v)
 	/* Illegal sound */
 	if ((v < 0) || (v >= SOUND_MAX)) return (1);
 
+#ifdef USE_SOUND
+
 	/* Unknown sound */
 	if (!sound_file[v]) return (1);
-
-#ifdef USE_SOUND
 
 #ifdef WIN32
 

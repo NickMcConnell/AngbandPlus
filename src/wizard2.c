@@ -117,6 +117,137 @@ static void prt_binary(u32b flags, int row, int col)
 
 
 /*
+ * Output a rarity graph for a type of object.
+ */
+static void prt_alloc(byte tval, byte sval, int row, int col)
+{
+	int i, j;
+
+	int home, lev;
+
+	u32b maxd = 1, maxr = 1, maxt = 1;
+
+	u32b rarity[MAX_DEPTH];
+	u32b total[MAX_DEPTH];
+	u32b display[20];
+
+	byte c = TERM_WHITE;
+	cptr r = "+--common--+";
+
+	object_kind *k_ptr;
+
+	/* Get the entry */
+	alloc_entry *table = alloc_kind_table;
+
+	/* Wipe the tables */
+	C_WIPE(rarity, MAX_DEPTH, u32b);
+	C_WIPE(total, MAX_DEPTH, u32b);
+	C_WIPE(display, 20, u32b);
+
+	/* Scan all entries */
+	for (i = 0; i < MAX_DEPTH; i++)
+	{
+		/* Base level */
+		lev = ((i * (GREAT_OBJ - 1)) + (1 + i * 5433L / 1000)) / GREAT_OBJ;
+
+		for (j = 0; j < alloc_kind_size; j++)
+		{
+			/* Objects are sorted by depth */
+			if (table[j].level > lev) break;
+
+			/* Acquire this kind */
+			k_ptr = &k_info[table[j].index];
+
+			/* Accumulate probabilities */
+			total[i] += table[j].prob1;
+
+			/* Accumulate probabilities */
+			if ((k_ptr->tval == tval) && (k_ptr->sval == sval))
+			{
+				home = k_ptr->level;
+				rarity[i] += table[j].prob1;
+			}
+		}
+	}
+
+	/* Find maxima */
+	for (i = 0; i < MAX_DEPTH; i++)
+	{
+		if (rarity[i] > maxr) maxr = rarity[i];
+		if (total[i] > maxt) maxt = total[i];
+	}
+
+	/* Simulate a log graph */
+	if (maxt / maxr > 32)
+	{
+		c = TERM_L_WHITE;
+		r = "+-uncommon-+";
+	}
+	if (maxt / maxr > 1024)
+	{
+		c = TERM_SLATE;
+		r = "+---rare---+";
+	}
+	if (maxt / maxr > 32768L)
+	{
+		c = TERM_L_DARK;
+		r = "+--unique--+";
+	}
+
+	/* Calculate probabilities for each range */
+	for (i = 0; i < 20; i++)
+	{
+		/* Shift the values into view */
+		for (j = i * MAX_DEPTH / 20; j < (i + 1) * MAX_DEPTH / 20; j++)
+		{
+			display[i] += rarity[j] * maxt * 10 / total[j];
+		}
+
+		/* Correct proportions */
+		display[i] /= maxr;
+
+		/* Track maximum */
+		if (display[i] > maxd) maxd = display[i];
+	}
+
+	/* Normalize */
+	for (i = 0; i < 20; i++)
+	{
+		display[i] = display[i] * 10 / maxd;
+	}
+
+	/* Graph the rarities */
+	for (i = 0; i < 20; i++)
+	{
+		Term_putch(col, row + i + 2, TERM_WHITE,  '|');
+
+		/* Note the level */
+		if ((i * MAX_DEPTH / 20 <= home) && (home < (i + 1) * MAX_DEPTH / 20))
+		{
+			c_prt(TERM_RED, format("%.*s", display[i], "**********"), row + i + 1, col + 1);
+		}
+		else
+		{
+			c_prt(c, format("%.*s", display[i], "**********"), row + i + 1, col + 1);
+		}
+	}
+
+	/* Make it look nice */
+	prt(r, row, col);
+	prt(format("| 1 : %d", maxt / maxr), row + 1, col);
+
+	Term_putch(col, row + 3, TERM_WHITE,  '6');
+
+	Term_putch(col, row + 9, TERM_WHITE,  'A');
+	Term_putch(col, row + 10, TERM_WHITE,  'L');
+	Term_putch(col, row + 11, TERM_WHITE, 'L');
+	Term_putch(col, row + 12, TERM_WHITE, 'O');
+	Term_putch(col, row + 13, TERM_WHITE, 'C');
+
+	prt("+", row + 21, col);
+}
+
+/*
  * Hack -- Teleport to the target
  */
 static void do_cmd_wiz_bamf(void)
@@ -281,7 +412,6 @@ static void wiz_display_item(object_type *o_ptr)
 
 	char buf[256];
 
-
 	/* Extract the flags */
 	object_flags(o_ptr, &f1, &f2, &f3);
 
@@ -293,21 +423,21 @@ static void wiz_display_item(object_type *o_ptr)
 	prt(buf, 2, j);
 
 	prt(format("kind = %-5d  level = %-4d  tval = %-5d  sval = %-5d",
-	           o_ptr->k_idx, k_info[o_ptr->k_idx].level,
-	           o_ptr->tval, o_ptr->sval), 4, j);
+				  o_ptr->k_idx, k_info[o_ptr->k_idx].level,
+				  o_ptr->tval, o_ptr->sval), 4, j);
 
 	prt(format("number = %-3d  wgt = %-6d  ac = %-5d    damage = %dd%d",
-	           o_ptr->number, o_ptr->weight,
-	           o_ptr->ac, o_ptr->dd, o_ptr->ds), 5, j);
+				  o_ptr->number, o_ptr->weight,
+				  o_ptr->ac, o_ptr->dd, o_ptr->ds), 5, j);
 
 	prt(format("pval = %-5d  toac = %-5d  tohit = %-4d  todam = %-4d",
-	           o_ptr->pval, o_ptr->to_a, o_ptr->to_h, o_ptr->to_d), 6, j);
+				  o_ptr->pval, o_ptr->to_a, o_ptr->to_h, o_ptr->to_d), 6, j);
 
 	prt(format("name1 = %-4d  name2 = %-4d  cost = %ld",
-	           o_ptr->name1, o_ptr->name2, (long)object_value(o_ptr)), 7, j);
+				  o_ptr->name1, o_ptr->name2, (long)object_value(o_ptr)), 7, j);
 
 	prt(format("ident = %04x  timeout = %-d",
-	           o_ptr->ident, o_ptr->timeout), 8, j);
+				  o_ptr->ident, o_ptr->timeout), 8, j);
 
 	prt("+------------FLAGS1------------+", 10, j);
 	prt("AFFECT..........SLAY......BRAND.", 11, j);
@@ -335,6 +465,8 @@ static void wiz_display_item(object_type *o_ptr)
 	prt("        opdretitsehtierltxrtesss", 17, j+32);
 	prt("        westreshtntsdcedeptedeee", 18, j+32);
 	prt_binary(f3, 19, j+32);
+
+	prt_alloc(o_ptr->tval, o_ptr->sval, 2, 65);
 }
 
 
@@ -414,15 +546,6 @@ static void strip_name(char *buf, int k_idx)
 
 
 /*
- * Hack -- title for each column
- *
- * This will not work with "EBCDIC", I would think.  XXX XXX XXX
- */
-static char head[3] =
-{ 'a', 'A', '0' };
-
-
-/*
  * Acquire an object kind for creation (or zero)
  *
  * List up to 50 choices in three columns
@@ -449,7 +572,7 @@ static int wiz_create_itemtype(void)
 	{
 		row = 2 + (num % 20);
 		col = 30 * (num / 20);
-		ch = head[num/20] + (num%20);
+		ch = listsym[num];
 		prt(format("[%c] %s", ch, tvals[num].desc), row, col);
 	}
 
@@ -460,10 +583,7 @@ static int wiz_create_itemtype(void)
 	if (!get_com("Get what type of object? ", &ch)) return (0);
 
 	/* Analyze choice */
-	num = -1;
-	if ((ch >= head[0]) && (ch < head[0] + 20)) num = ch - head[0];
-	if ((ch >= head[1]) && (ch < head[1] + 20)) num = ch - head[1] + 20;
-	if ((ch >= head[2]) && (ch < head[2] + 10)) num = ch - head[2] + 40;
+	num = list_choice(ch);
 
 	/* Bail out if choice is illegal */
 	if ((num < 0) || (num >= max_num)) return (0);
@@ -492,7 +612,7 @@ static int wiz_create_itemtype(void)
 			/* Prepare it */
 			row = 2 + (num % 20);
 			col = 30 * (num / 20);
-			ch = head[num/20] + (num%20);
+			ch = listsym[num];
 
 			/* Acquire the "name" of object "i" */
 			strip_name(buf, i);
@@ -512,10 +632,7 @@ static int wiz_create_itemtype(void)
 	if (!get_com(format("What Kind of %s? ", tval_desc), &ch)) return (0);
 
 	/* Analyze choice */
-	num = -1;
-	if ((ch >= head[0]) && (ch < head[0] + 20)) num = ch - head[0];
-	if ((ch >= head[1]) && (ch < head[1] + 20)) num = ch - head[1] + 20;
-	if ((ch >= head[2]) && (ch < head[2] + 10)) num = ch - head[2] + 40;
+	num = list_choice(ch);
 
 	/* Bail out if choice is "illegal" */
 	if ((num < 0) || (num >= max_num)) return (0);
@@ -1019,7 +1136,7 @@ static void wiz_create_item(void)
 	apply_magic(i_ptr, p_ptr->depth, FALSE, FALSE, FALSE);
 
 	/* Drop the object from heaven */
-	drop_near(i_ptr, -1, py, px);
+	drop_near(i_ptr, 0, py, px);
 
 	/* All done */
 	msg_print("Allocated.");
@@ -1335,7 +1452,7 @@ static void do_cmd_wiz_query(void)
 		case 's': mask |= (CAVE_SEEN); break;
 		case 'v': mask |= (CAVE_VIEW); break;
 		case 't': mask |= (CAVE_TEMP); break;
-		case 'w': mask |= (CAVE_WALL); break;
+/*		case 'w': mask |= (CAVE_WALL); break;*/
 	}
 
 	/* Scan map */

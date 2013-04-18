@@ -558,7 +558,7 @@ int fd_make(cptr file, int mode)
 	/* Hack -- Try to parse the path */
 	if (path_parse(buf, 1024, file)) return (-1);
 
-#if defined(MACINTOSH) || defined(WINDOWS)
+#if defined(MACINTOSH)
 
 	/* Create the file, fail if exists, write-only, binary */
 	return (open(buf, O_CREAT | O_EXCL | O_WRONLY | O_BINARY));
@@ -2239,7 +2239,19 @@ void msg_print(cptr msg)
 	if (p && (!msg || ((p + n) > 72)))
 	{
 		/* Flush */
-		msg_flush(p);
+		if (!p_ptr->paralyzed && (p_ptr->stun < 100))
+		{
+			msg_flush(p);
+		}
+		/* Clear the line */
+		else
+		{
+			/* Time passes */
+			Term_xtra(TERM_XTRA_DELAY, 10);
+
+			/* Clear the previous message */
+			Term_erase(0, 0, 255);
+		}
 
 		/* Forget it */
 		msg_flag = FALSE;

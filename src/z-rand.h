@@ -36,7 +36,7 @@
  * For example, if M is 100, you get "percentile dice"
  */
 #define rand_int(M) \
-	((s32b)(Rand_div(M)))
+	((s32b)Rand_div(M))
 
 /*
  * Generates a random long integer X where A<=X<=B

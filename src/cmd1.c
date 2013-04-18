@@ -483,7 +483,7 @@ void py_pickup(int pickup)
 
 	s16b this_o_idx, next_o_idx = 0;
 
-	char o_name[80];
+	char o_name[160];
 
 
 	/* Scan the pile of objects */
@@ -883,7 +883,7 @@ void hit_trap(int y, int x)
  */
 void py_attack(int y, int x)
 {
-	int num = 0, k, bonus, chance;
+	int k, bonus, chance;
 
 	monster_type *m_ptr;
 	monster_race *r_ptr;
@@ -931,6 +931,7 @@ void py_attack(int y, int x)
 		return;
 	}
 
+	p_ptr->energy_use = 100 / p_ptr->num_blow;
 
 	/* Access the weapon */
 	o_ptr = &inventory[INVEN_WIELD];
@@ -940,45 +941,50 @@ void py_attack(int y, int x)
 	chance = (p_ptr->skill_thn + (bonus * BTH_PLUS_ADJ));
 
 
-	/* Attack once for each legal blow */
-	while (num++ < p_ptr->num_blow)
+	/* Test for hit */
+	if (test_hit_norm(chance, r_ptr->ac, m_ptr->ml))
 	{
-		/* Test for hit */
-		if (test_hit_norm(chance, r_ptr->ac, m_ptr->ml))
+		/* Sound */
+		sound(SOUND_HIT);
+
+		/* Message */
+		msg_format("You hit %s.", m_name);
+
+		/* Hack -- bare hands do one damage */
+		k = 1;
+
+		/* Handle normal weapon */
+		if (o_ptr->k_idx)
 		{
-			/* Sound */
-			sound(SOUND_HIT);
+			k = damroll(o_ptr->dd, o_ptr->ds);
+			k = tot_dam_aux(o_ptr, k, m_ptr);
+			if (p_ptr->impact && (k > 50)) do_quake = TRUE;
+			k = critical_norm(o_ptr->weight, o_ptr->to_h, k);
+			k += o_ptr->to_d;
+		}
 
-			/* Message */
-			msg_format("You hit %s.", m_name);
+		/* Apply the player damage bonuses */
+		k += p_ptr->to_d;
 
-			/* Hack -- bare hands do one damage */
-			k = 1;
+		/* No negative damage */
+		if (k < 0) k = 0;
 
-			/* Handle normal weapon */
-			if (o_ptr->k_idx)
-			{
-				k = damroll(o_ptr->dd, o_ptr->ds);
-				k = tot_dam_aux(o_ptr, k, m_ptr);
-				if (p_ptr->impact && (k > 50)) do_quake = TRUE;
-				k = critical_norm(o_ptr->weight, o_ptr->to_h, k);
-				k += o_ptr->to_d;
-			}
+		/* Complex message */
+		if (p_ptr->wizard)
+		{
+			msg_format("You do %d (out of %d) damage.", k, m_ptr->hp);
+		}
 
-			/* Apply the player damage bonuses */
-			k += p_ptr->to_d;
+		/* Damage, check for fear and death */
+		if (mon_take_hit(cave_m_idx[y][x], k, &fear, NULL))
+		{
+			/* Dead monster */
+		}
 
-			/* No negative damage */
-			if (k < 0) k = 0;
-
-			/* Complex message */
-			if (p_ptr->wizard)
-			{
-				msg_format("You do %d (out of %d) damage.", k, m_ptr->hp);
-			}
-
-			/* Damage, check for fear and death */
-			if (mon_take_hit(cave_m_idx[y][x], k, &fear, NULL)) break;
+		/* No death */
+		else
+		{
+			message_pain(cave_m_idx[y][x], k);
 
 			/* Confusion attack */
 			if (p_ptr->confusing)
@@ -1010,18 +1016,17 @@ void py_attack(int y, int x)
 				}
 			}
 		}
-
-		/* Player misses */
-		else
-		{
-			/* Sound */
-			sound(SOUND_MISS);
-
-			/* Message */
-			msg_format("You miss %s.", m_name);
-		}
 	}
 
+	/* Player misses */
+	else
+	{
+		/* Sound */
+		sound(SOUND_MISS);
+
+		/* Message */
+		msg_format("You miss %s.", m_name);
+	}
 
 	/* Hack -- delay fear messages */
 	if (fear && m_ptr->ml)

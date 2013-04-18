@@ -70,6 +70,7 @@ typedef s16b s16b_wid[DUNGEON_WID];
 typedef struct header header;
 typedef struct feature_type feature_type;
 typedef struct object_kind object_kind;
+typedef struct named_num named_num;
 typedef struct artifact_type artifact_type;
 typedef struct ego_item_type ego_item_type;
 typedef struct monster_blow monster_blow;
@@ -223,6 +224,13 @@ struct object_kind
 	bool aware;			/* The player is "aware" of the item's effects */
 
 	bool tried;			/* The player has "tried" one of the items */
+};
+
+
+struct named_num
+{
+	cptr name;		/* The name of this thing */
+	byte num;		/* A number associated with it */
 };
 
 
@@ -990,6 +998,8 @@ struct player_type
 	bool icky_wield;	/* Icky weapon */
 
 	s16b cur_lite;		/* Radius of lite (if any) */
+	byte sur_floor;	/* Number of surrounding floor grids */
+	byte sur_full;		/* Number of surrounding occupied grids */
 
 	u32b notice;		/* Special Updates (bit flags) */
 	u32b update;		/* Pending Updates (bit flags) */

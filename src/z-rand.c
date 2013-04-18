@@ -1,7 +1,7 @@
 /* File: z-rand.c */
 
 /*
- * Copyright (c) 1997 Ben Harrison, and others
+ * Copyright (c) 1999 Eric Bock, Ben Harrison, and others
  *
  * This software may be copied and distributed for educational, research,
  * and not for profit purposes provided that this copyright and statement
@@ -11,7 +11,6 @@
 
 /*
  * This file provides an optimized random number generator.
- *
  *
  * This code provides both a "quick" random number generator (4 bytes of
  * state), and a "decent" random number generator (256 bytes of state),
@@ -49,7 +48,6 @@
 #define LCRNG(X)        ((X) * 1103515245 + 12345)
 
 
-
 /*
  * Use the "simple" LCRNG
  */
@@ -71,6 +69,7 @@ u16b Rand_place;
  * Current "state" table for the "complex" RNG
  */
 u32b Rand_state[RAND_DEG];
+
 
 
 

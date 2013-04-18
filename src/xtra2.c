@@ -1879,7 +1879,7 @@ void monster_death(int m_idx)
 		delete_object_idx(this_o_idx);
 
 		/* Drop it */
-		drop_near(i_ptr, -1, y, x);
+		drop_near(i_ptr, 0, y, x);
 	}
 
 	/* Forget objects */
@@ -1902,7 +1902,7 @@ void monster_death(int m_idx)
 		apply_magic(i_ptr, -1, TRUE, TRUE, TRUE);
 
 		/* Drop it in the dungeon */
-		drop_near(i_ptr, -1, y, x);
+		drop_near(i_ptr, 0, y, x);
 
 
 		/* Get local object */
@@ -1918,7 +1918,7 @@ void monster_death(int m_idx)
 		apply_magic(i_ptr, -1, TRUE, TRUE, TRUE);
 
 		/* Drop it in the dungeon */
-		drop_near(i_ptr, -1, y, x);
+		drop_near(i_ptr, 0, y, x);
 	}
 
 
@@ -1966,7 +1966,7 @@ void monster_death(int m_idx)
 		}
 
 		/* Drop it in the dungeon */
-		drop_near(i_ptr, -1, y, x);
+		drop_near(i_ptr, 0, y, x);
 	}
 
 	/* Reset the object level */
@@ -2079,7 +2079,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
-	s32b div, new_exp, new_exp_frac;
+	u32b div, mod, new_exp, new_exp_frac;
 
 
 	/* Redraw (later) if needed */
@@ -2130,29 +2130,36 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 			msg_format("You have slain %s.", m_name);
 		}
 
-		/* Maximum player level */
-		div = p_ptr->max_lev;
-
-		/* Give some experience for the kill */
-		new_exp = ((long)r_ptr->mexp * r_ptr->level) / div;
-
-		/* Handle fractional experience */
-		new_exp_frac = ((((long)r_ptr->mexp * r_ptr->level) % div)
-		                * 0x10000L / div) + p_ptr->exp_frac;
-
-		/* Keep track of experience */
-		if (new_exp_frac >= 0x10000L)
+		if (r_ptr->mexp)
 		{
-			new_exp++;
-			p_ptr->exp_frac = new_exp_frac - 0x10000L;
-		}
-		else
-		{
-			p_ptr->exp_frac = new_exp_frac;
-		}
+			div = r_ptr->mexp + r_ptr->r_pkills;
 
-		/* Gain experience */
-		gain_exp(new_exp);
+			/* Reduce experience for killing unseen monsters */
+			if (!m_ptr->ml) div *= 5;
+
+			mod = p_ptr->max_lev * div;
+			new_exp_frac = ((long)r_ptr->mexp * r_ptr->mexp % mod) * r_ptr->level % mod;
+
+			/* calculate the integer exp part */
+			new_exp = ((long)r_ptr->mexp * r_ptr->level / p_ptr->max_lev) * r_ptr->mexp / div;
+
+			/* Handle fractional experience */
+			new_exp_frac = (new_exp_frac * 0x10000L / mod) + p_ptr->exp_frac;
+
+			/* Keep track of experience */
+			if (new_exp_frac >= 0x10000L)
+			{
+				new_exp++;
+				p_ptr->exp_frac = new_exp_frac - 0x10000L;
+			}
+			else
+			{
+				p_ptr->exp_frac = new_exp_frac;
+			}
+
+			/* Gain experience */
+			gain_exp(new_exp);
+		}
 
 		/* Generate treasure */
 		monster_death(m_idx);
@@ -2242,6 +2249,48 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 }
 
 
+/*
+ * Handle a request to change the current panel
+ *
+ * Return TRUE if the panel was changed.
+ */
+bool change_panel(int dir)
+{
+	int y = p_ptr->wy + ddy[dir] * PANEL_HGT;
+	int x = p_ptr->wx + ddx[dir] * PANEL_WID;
+
+	/* Verify the row */
+	if (y < 0) y = 0;
+	if (y > DUNGEON_HGT - SCREEN_HGT) y = DUNGEON_HGT - SCREEN_HGT;
+
+	/* Verify the col */
+	if (x < 0) x = 0;
+	if (x > DUNGEON_WID - SCREEN_WID) x = DUNGEON_WID - SCREEN_WID;
+
+	/* Handle "changes" */
+	if ((p_ptr->wy != y) || (p_ptr->wx != x))
+	{
+		/* Update panel */
+		p_ptr->wy = y;
+		p_ptr->wx = x;
+
+		/* Update stuff */
+		p_ptr->update |= (PU_MONSTERS);
+
+		/* Redraw map */
+		p_ptr->redraw |= (PR_MAP);
+
+		/* Handle stuff */
+		handle_stuff();
+
+		/* Success */
+		return TRUE;
+	}
+
+	/* No change */
+	return FALSE;
+}
+
 
 
 /*
@@ -2260,12 +2309,18 @@ void verify_panel(void)
 
 	bool scroll = FALSE;
 
-
 	/* Initial row */
 	i = p_ptr->wy;
 
+	/* Scroll screen when off-center */
+	if (center_player && (!avoid_center || !p_ptr->running) && (py != p_ptr->wy+SCREEN_HGT / 2))
+	{
+		i = py - SCREEN_HGT / 2;
+		if (i < 0) i = 0;
+		if (i > DUNGEON_HGT - SCREEN_HGT) i = DUNGEON_HGT - SCREEN_HGT;
+	}
 	/* Scroll screen when 2 grids from top/bottom edge */
-	if ((py < p_ptr->wy + 2) || (py >= p_ptr->wy+SCREEN_HGT - 2))
+	else if ((py < p_ptr->wy + 2) || (py >= p_ptr->wy+SCREEN_HGT - 2))
 	{
 		i = ((py - PANEL_HGT / 2) / PANEL_HGT) * PANEL_HGT;
 		if (i < 0) i = 0;
@@ -2289,8 +2344,15 @@ void verify_panel(void)
 	/* Initial col */
 	i = p_ptr->wx;
 
+	/* Scroll screen when off-center */
+	if (center_player && (!avoid_center || !p_ptr->running) && (px != p_ptr->wx+SCREEN_WID / 2))
+	{
+		i = px - SCREEN_WID / 2;
+		if (i < 0) i = 0;
+		if (i > DUNGEON_WID - SCREEN_WID) i = DUNGEON_WID - SCREEN_WID;
+	}
 	/* Scroll screen when 4 grids from left/right edge */
-	if ((px < p_ptr->wx + 4) || (px >= p_ptr->wx+SCREEN_WID - 4))
+	else if ((px < p_ptr->wx + 4) || (px >= p_ptr->wx+SCREEN_WID - 4))
 	{
 		i = ((px - PANEL_WID / 2) / PANEL_WID) * PANEL_WID;
 		if (i < 0) i = 0;
@@ -2310,12 +2372,11 @@ void verify_panel(void)
 		scroll = TRUE;
 	}
 
-
 	/* Scroll */
 	if (scroll)
 	{
 		/* Optional disturb on "panel change" */
-		if (disturb_panel) disturb(0, 0);
+		if (disturb_panel && !center_player) disturb(0, 0);
 
 		/* Redraw map */
 		p_ptr->redraw |= (PR_MAP);
@@ -2507,9 +2568,6 @@ sint target_dir(char ch)
  * Currently, a monster is "target_able" if it is visible, and if
  * the player can hit it with a projection, and the player is not
  * hallucinating.  This allows use of "use closest target" macros.
- *
- * Future versions may restrict the ability to target "trappers"
- * and "mimics", but the semantics is a little bit weird.
  */
 bool target_able(int m_idx)
 {
@@ -2517,12 +2575,14 @@ bool target_able(int m_idx)
 	int px = p_ptr->px;
 
 	monster_type *m_ptr;
+	monster_race *r_ptr;
 
 	/* No monster */
 	if (m_idx <= 0) return (FALSE);
 
 	/* Get monster */
 	m_ptr = &m_list[m_idx];
+	r_ptr = &r_info[m_ptr->r_idx];
 
 	/* Monster must be alive */
 	if (!m_ptr->r_idx) return (FALSE);
@@ -2537,7 +2597,7 @@ bool target_able(int m_idx)
 	if (p_ptr->image) return (FALSE);
 
 	/* Hack -- Never target trappers XXX XXX XXX */
-	/* if (CLEAR_ATTR && (CLEAR_CHAR)) return (FALSE); */
+	if ((r_ptr->flags1 & RF1_CHAR_CLEAR) && (r_ptr->flags1 & RF1_ATTR_CLEAR)) return (FALSE);
 
 	/* Assume okay */
 	return (TRUE);
@@ -2772,6 +2832,10 @@ static bool target_set_interactive_accept(int y, int x)
 	if (cave_m_idx[y][x] > 0)
 	{
 		monster_type *m_ptr = &m_list[cave_m_idx[y][x]];
+		monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+		/* XXX XXX XXX Hack -- Never target trappers */
+		if ((r_ptr->flags1 & RF1_CHAR_CLEAR) && (r_ptr->flags1 & RF1_ATTR_CLEAR)) return (FALSE);
 
 		/* Visible monsters */
 		if (m_ptr->ml) return (TRUE);
@@ -2914,6 +2978,8 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 	int query;
 
 	char out_val[160];
+
+	s32b max_size = 0;
 
 
 	/* Repeat forever */
@@ -3234,7 +3300,7 @@ bool target_set_interactive(int mode)
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
-	int i, d, m;
+	int i, d, m, t, bd;
 
 	int y = py;
 	int x = px;
@@ -3326,13 +3392,28 @@ bool target_set_interactive(int mode)
 
 				case 'p':
 				{
+					/* Recenter the map around the player */
+					verify_panel();
+
+					/* Update stuff */
+					p_ptr->update |= (PU_MONSTERS);
+
+					/* Redraw map */
+					p_ptr->redraw |= (PR_MAP);
+
+					/* Window stuff */
+					p_ptr->window |= (PW_OVERHEAD);
+
+					/* Handle stuff */
+					handle_stuff();
+
 					y = py;
 					x = px;
 				}
 
 				case 'o':
 				{
-					flag = !flag;
+					flag = FALSE;
 					break;
 				}
 
@@ -3375,11 +3456,81 @@ bool target_set_interactive(int mode)
 			/* Hack -- move around */
 			if (d)
 			{
+				int y2 = p_ptr->wy;
+				int x2 = p_ptr->wx;
+
 				/* Find a new monster */
 				i = target_pick(temp_y[m], temp_x[m], ddy[d], ddx[d]);
 
+				/* Request to target past last interesting grid */
+				while (flag && (i < 0))
+				{
+					/* Note the change */
+					if (change_panel(d))
+					{
+						int v = temp_y[m];
+						int u = temp_x[m];
+
+						/* Recalculate interesting grids */
+						target_set_interactive_prepare(mode);
+
+						/* Look at interesting grids */
+						flag = TRUE;
+
+						/* Find a new monster */
+						i = target_pick(v, u, ddy[d], ddx[d]);
+
 				/* Use that grid */
 				if (i >= 0) m = i;
+			}
+					/* Nothing interesting */
+					else
+					{
+						/* Restore previous position */
+						p_ptr->wy = y2;
+						p_ptr->wx = x2;
+
+						/* Update stuff */
+						p_ptr->update |= (PU_MONSTERS);
+
+						/* Redraw map */
+						p_ptr->redraw |= (PR_MAP);
+
+						/* Window stuff */
+						p_ptr->window |= (PW_OVERHEAD);
+
+						/* Handle stuff */
+						handle_stuff();
+
+						/* Recalculate interesting grids */
+						target_set_interactive_prepare(mode);
+
+						/* Look at boring grids */
+						flag = FALSE;
+
+						/* Move */
+						x += ddx[d];
+						y += ddy[d];
+
+						/* Apply the motion */
+						if ((y >= p_ptr->wy+SCREEN_HGT) || (y < p_ptr->wy) ||
+							 (x >= p_ptr->wx+SCREEN_WID) || (x < p_ptr->wx))
+						{
+							if (change_panel(d)) target_set_interactive_prepare(mode);
+						}
+
+						/* Slide into legality */
+						if (x >= DUNGEON_WID-1) x = DUNGEON_WID - 2;
+						else if (x <= 0) x = 1;
+
+						/* Slide into legality */
+						if (y >= DUNGEON_HGT-1) y = DUNGEON_HGT - 2;
+						else if (y <= 0) y = 1;
+					}
+				}
+
+				/* Use that grid */
+				m = i;
 			}
 		}
 
@@ -3418,6 +3569,21 @@ bool target_set_interactive(int mode)
 
 				case 'p':
 				{
+					/* Recenter the map around the player */
+					verify_panel();
+
+					/* Update stuff */
+					p_ptr->update |= (PU_MONSTERS);
+
+					/* Redraw map */
+					p_ptr->redraw |= (PR_MAP);
+
+					/* Window stuff */
+					p_ptr->window |= (PW_OVERHEAD);
+
+					/* Handle stuff */
+					handle_stuff();
+
 					y = py;
 					x = px;
 				}
@@ -3429,7 +3595,27 @@ bool target_set_interactive(int mode)
 
 				case 'm':
 				{
-					flag = !flag;
+					flag = TRUE;
+
+					m = 0;
+					bd = 999;
+
+					/* Pick a nearby monster */
+					for (i = 0; i < temp_n; i++)
+					{
+						t = distance(y, x, temp_y[i], temp_x[i]);
+
+						/* Pick closest */
+						if (t < bd)
+						{
+							m = i;
+							bd = t;
+						}
+					}
+
+					/* Nothing interesting */
+					if (bd == 999) flag = FALSE;
+
 					break;
 				}
 
@@ -3461,13 +3647,20 @@ bool target_set_interactive(int mode)
 				x += ddx[d];
 				y += ddy[d];
 
-				/* Slide into legality */
-				if ((x >= DUNGEON_WID-1) || (x >= p_ptr->wx+SCREEN_WID)) x--;
-				else if ((x <= 0) || (x < p_ptr->wx)) x++;
+				/* Apply the motion */
+				if ((y >= p_ptr->wy+SCREEN_HGT) || (y < p_ptr->wy) ||
+					 (x >= p_ptr->wx+SCREEN_WID) || (x < p_ptr->wx))
+				{
+					if (change_panel(d)) target_set_interactive_prepare(mode);
+				}
 
 				/* Slide into legality */
-				if ((y >= DUNGEON_HGT-1) || (y >= p_ptr->wy+SCREEN_HGT)) y--;
-				else if ((y <= 0) || (y < p_ptr->wy)) y++;
+				if (x >= DUNGEON_WID-1) x = DUNGEON_WID - 2;
+				else if (x <= 0) x = 1;
+
+				/* Slide into legality */
+				if (y >= DUNGEON_HGT-1) y = DUNGEON_HGT - 2;
+				else if (y <= 0) y = 1;
 			}
 		}
 	}
@@ -3477,6 +3670,21 @@ bool target_set_interactive(int mode)
 
 	/* Clear the top line */
 	prt("", 0, 0);
+
+	/* Recenter the map around the player */
+	verify_panel();
+
+	/* Update stuff */
+	p_ptr->update |= (PU_MONSTERS);
+
+	/* Redraw map */
+	p_ptr->redraw |= (PR_MAP);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_OVERHEAD);
+
+	/* Handle stuff */
+	handle_stuff();
 
 	/* Failure to set target */
 	if (!p_ptr->target_set) return (FALSE);

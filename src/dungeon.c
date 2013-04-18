@@ -1051,13 +1051,8 @@ static void process_world(void)
 static bool enter_wizard_mode(void)
 {
 	/* Ask first time */
-	if (!(p_ptr->noscore & 0x0002))
+	if (!(p_ptr->noscore & 0x0002) && verify_special)
 	{
-		/* Mention effects */
-		msg_print("You are about to enter 'wizard' mode for the very first time!");
-		msg_print("This is a form of cheating, and your game will not be scored!");
-		msg_print(NULL);
-
 		/* Verify request */
 		if (!get_check("Are you sure you want to enter wizard mode? "))
 		{
@@ -1081,25 +1076,15 @@ static bool enter_wizard_mode(void)
  */
 static bool verify_debug_mode(void)
 {
-	static int verify = 1;
-
 	/* Ask first time */
-	if (verify && verify_special)
+	if (!(p_ptr->noscore & 0x0008) && verify_special)
 	{
-		/* Mention effects */
-		msg_print("You are about to use the dangerous, unsupported, debug commands!");
-		msg_print("Your machine may crash, and your savefile may become corrupted!");
-		msg_print(NULL);
-
 		/* Verify request */
 		if (!get_check("Are you sure you want to use the debug commands? "))
 		{
 			return (FALSE);
 		}
 	}
-
-	/* Verified */
-	verify = 0;
 
 	/* Mark savefile */
 	p_ptr->noscore |= 0x0008;
@@ -1125,25 +1110,15 @@ extern void do_cmd_debug(void);
  */
 static bool verify_borg_mode(void)
 {
-	static int verify = 1;
-
 	/* Ask first time */
-	if (verify && verify_special)
+	if (!(p_ptr->noscore & 0x0010) && verify_special)
 	{
-		/* Mention effects */
-		msg_print("You are about to use the dangerous, unsupported, borg commands!");
-		msg_print("Your machine may crash, and your savefile may become corrupted!");
-		msg_print(NULL);
-
 		/* Verify request */
 		if (!get_check("Are you sure you want to use the borg commands? "))
 		{
 			return (FALSE);
 		}
 	}
-
-	/* Verified */
-	verify = 0;
 
 	/* Mark savefile */
 	p_ptr->noscore |= 0x0010;
@@ -2521,6 +2496,18 @@ static void process_some_user_pref_files(void)
 
 	/* Process the "user.prf" file */
 	(void)process_pref_file("user.prf");
+
+	/* Process the "<race>.prf" file (silly) */
+	sprintf(buf, "%s.prf", race_info[p_ptr->prace].title);
+
+	/* Process the "<race>.prf" file (silly) */
+	(void)process_pref_file(buf);
+
+	/* Process the "<class>.prf" file */
+	sprintf(buf, "%s.prf", class_info[p_ptr->pclass].title);
+
+	/* Process the "<class>.prf" file */
+	(void)process_pref_file(buf);
 
 	/* Process the "PLAYER.prf" file */
 	sprintf(buf, "%s.prf", op_ptr->base_name);

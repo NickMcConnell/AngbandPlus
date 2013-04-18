@@ -2425,7 +2425,7 @@ void update_view(void)
 
 	int pg = GRID(py,px);
 
-	int i, g, o2;
+	int i, g, o2, y, x;
 
 	int radius;
 
@@ -2435,10 +2435,41 @@ void update_view(void)
 	int fast_temp_n = 0;
 	u16b *fast_temp_g = temp_g;
 
+	byte *fast_cave_feat = &cave_feat[0][0];
 	byte *fast_cave_info = &cave_info[0][0];
 
+	byte feat;
 	byte info;
 
+	byte *s_ptr = &p_ptr->sur_floor;
+	byte *t_ptr = &p_ptr->sur_full;
+
+	/* Get surrounding floor info for the AI */
+	*s_ptr = 0;
+	*t_ptr = 0;
+
+	for (i = 0; i < 8; i++)
+	{
+		y = py + ddy_ddd[i];
+		x = px + ddx_ddd[i];
+
+		/* Ignore invalid grids */
+		if (!in_bounds(y, x)) continue;
+
+		/* Adjacent grid is part of a room or clear */
+		if ((cave_info[y][x] & CAVE_ROOM) || cave_floor_bold(y, x))
+		{
+			/* Take note */
+			(*s_ptr)++;
+		}
+
+		/* Adjacent grid is occupied */
+		if (!cave_empty_bold(y, x))
+		{
+			/* Take note */
+			(*t_ptr)++;
+		}
+	}
 
 	/*** Step 0 -- Begin ***/
 
@@ -2552,18 +2583,19 @@ void update_view(void)
 
 			/* Check bits */
 			if ((bits0 & (p->bits_0)) ||
-			    (bits1 & (p->bits_1)) ||
-			    (bits2 & (p->bits_2)) ||
-			    (bits3 & (p->bits_3)))
+				 (bits1 & (p->bits_1)) ||
+				 (bits2 & (p->bits_2)) ||
+				 (bits3 & (p->bits_3)))
 			{
 				/* Extract grid value XXX XXX XXX */
 				g = pg + *((s16b*)(((byte*)(p))+o2));
 
 				/* Get grid info */
+				feat = fast_cave_feat[g];
 				info = fast_cave_info[g];
 
 				/* Handle wall */
-				if (info & (CAVE_WALL))
+				if (feat & (CAVE_WALL))
 				{
 					/* Clear bits */
 					bits0 &= ~(p->bits_0);
@@ -2600,12 +2632,12 @@ void update_view(void)
 #ifdef UPDATE_VIEW_COMPLEX_WALL_ILLUMINATION
 
 							/* Check for "complex" illumination */
-							if ((!(cave_info[yy][xx] & (CAVE_WALL)) &&
+							if ((!(cave_feat[yy][xx] & (CAVE_WALL)) &&
 							      (cave_info[yy][xx] & (CAVE_GLOW))) ||
-							    (!(cave_info[y][xx] & (CAVE_WALL)) &&
+								 (!(cave_feat[y][xx] & (CAVE_WALL)) &&
 							      (cave_info[y][xx] & (CAVE_GLOW))) ||
-							    (!(cave_info[yy][x] & (CAVE_WALL)) &&
-							      (cave_info[yy][x] & (CAVE_GLOW))))
+								 (!(cave_feat[yy][x] & (CAVE_WALL)) &&
+									(cave_info[yy][x] & (CAVE_GLOW))))
 							{
 								/* Mark as seen */
 								info |= (CAVE_SEEN);
@@ -2910,7 +2942,7 @@ void update_flow(void)
 		tx = flow_x[flow_head];
 
 		/* Forget that entry (with wrap) */
-		if (++flow_head == TEMP_MAX) flow_head = 0;
+		if (++flow_head == FLOW_MAX) flow_head = 0;
 
 		/* Child cost */
 		n = cave_cost[ty][tx] + 1;
@@ -2921,7 +2953,7 @@ void update_flow(void)
 		/* Add the "children" */
 		for (d = 0; d < 8; d++)
 		{
-			int old_head = flow_tail;
+			int old_tail = flow_tail;
 
 			/* Child location */
 			y = ty + ddy_ddd[d];
@@ -2947,7 +2979,7 @@ void update_flow(void)
 			if (++flow_tail == FLOW_MAX) flow_tail = 0;
 
 			/* Hack -- Overflow by forgetting new entry */
-			if (flow_tail == flow_head) flow_tail = old_head;
+			if (flow_tail == flow_head) flow_tail = old_tail;
 		}
 	}
 
@@ -2968,12 +3000,17 @@ void map_area(void)
 {
 	int i, x, y, y1, y2, x1, x2;
 
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+
+	/* Maximum distance to show */
+	int d = rand_range(MAX_SIGHT, MAX_SIGHT * 3 / 2);
 
 	/* Pick an area to map */
-	y1 = p_ptr->wy - randint(10);
-	y2 = p_ptr->wy+SCREEN_HGT + randint(10);
-	x1 = p_ptr->wx - randint(20);
-	x2 = p_ptr->wx+SCREEN_WID + randint(20);
+	y1 = py - d;
+	y2 = py + d;
+	x1 = px - d;
+	x2 = px + d;
 
 	/* Efficiency -- shrink to fit legal bounds */
 	if (y1 < 1) y1 = 1;
@@ -2986,6 +3023,9 @@ void map_area(void)
 	{
 		for (x = x1; x < x2; x++)
 		{
+			/* Ignore distant grids */
+			if (distance(py, px, y, x) > d) continue;
+
 			/* All non-walls are "checked" */
 			if (cave_feat[y][x] < FEAT_SECRET)
 			{
@@ -3073,8 +3113,8 @@ void wiz_lite(void)
 					int yy = y + ddy_ddd[i];
 					int xx = x + ddx_ddd[i];
 
-					/* Perma-lite the grid */
-					cave_info[yy][xx] |= (CAVE_GLOW);
+					/* Wizards perma-lite the grid */
+					if (p_ptr->wizard) cave_info[yy][xx] |= (CAVE_GLOW);
 
 					/* Memorize normal features */
 					if (cave_feat[yy][xx] > FEAT_INVIS)
@@ -3249,18 +3289,6 @@ void cave_set_feat(int y, int x, int feat)
 {
 	/* Change the feature */
 	cave_feat[y][x] = feat;
-
-	/* Handle "wall/door" grids */
-	if (feat >= FEAT_DOOR_HEAD)
-	{
-		cave_info[y][x] |= (CAVE_WALL);
-	}
-
-	/* Handle "floor"/etc grids */
-	else
-	{
-		cave_info[y][x] &= ~(CAVE_WALL);
-	}
 
 	/* Notice/Redraw */
 	if (character_dungeon)
@@ -3544,6 +3572,61 @@ sint project_path(u16b *gp, int range, int y1, int x1, int y2, int x2, int flg)
 
 
 /*
+ * Calculate "incremental motion". Used by project() and shoot().
+ * Assumes that (*y,*x) lies on the path from (y1,x1) to (y2,x2).
+ */
+void mmove2(int *y, int *x, int y1, int x1, int y2, int x2)
+{
+	int dy, dx, dist, shift;
+
+	/* Extract the distance travelled */
+	dy = (*y < y1) ? y1 - *y : *y - y1;
+	dx = (*x < x1) ? x1 - *x : *x - x1;
+
+	/* Number of steps */
+	dist = (dy > dx) ? dy : dx;
+
+	/* We are calculating the next location */
+	dist++;
+
+
+	/* Calculate the total distance along each axis */
+	dy = (y2 < y1) ? (y1 - y2) : (y2 - y1);
+	dx = (x2 < x1) ? (x1 - x2) : (x2 - x1);
+
+	/* Paranoia -- Hack -- no motion */
+	if (!dy && !dx) return;
+
+
+	/* Move mostly vertically */
+	if (dy > dx)
+	{
+		/* Extract a shift factor */
+		shift = (dist * dx + (dy-1) / 2) / dy;
+
+		/* Sometimes move along the minor axis */
+		(*x) = (x2 < x1) ? (x1 - shift) : (x1 + shift);
+
+		/* Always move along major axis */
+		(*y) = (y2 < y1) ? (y1 - dist) : (y1 + dist);
+	}
+
+	/* Move mostly horizontally */
+	else
+	{
+		/* Extract a shift factor */
+		shift = (dist * dy + (dx-1) / 2) / dx;
+
+		/* Sometimes move along the minor axis */
+		(*y) = (y2 < y1) ? (y1 - shift) : (y1 + shift);
+
+		/* Always move along major axis */
+		(*x) = (x2 < x1) ? (x1 - dist) : (x1 + dist);
+	}
+}
+
+
+/*
  * Determine if a bolt spell cast from (y1,x1) to (y2,x2) will arrive
  * at the final destination, assuming that no monster gets in the way,
  * using the "project_path()" function to check the projection path.
@@ -3597,11 +3680,13 @@ void scatter(int *yp, int *xp, int y, int x, int d, int m)
 {
 	int nx, ny;
 
+	int c = 0;
+
 	/* Unused */
 	m = m;
 
 	/* Pick a location */
-	while (TRUE)
+	while (c++ < 1000)
 	{
 		/* Pick a new location */
 		ny = rand_spread(y, d);
@@ -3615,6 +3700,12 @@ void scatter(int *yp, int *xp, int y, int x, int d, int m)
 
 		/* Require "line of sight" */
 		if (los(y, x, ny, nx)) break;
+	}
+
+	if (c == 1000)
+	{
+		ny = *yp;
+		nx = *xp;
 	}
 
 	/* Save the location */
@@ -3708,6 +3799,9 @@ void disturb(int stop_search, int unused_flag)
 	{
 		/* Cancel */
 		p_ptr->running = 0;
+
+		/* Check for new panel if appropriate */
+		if (center_player && avoid_center) verify_panel();
 
 		/* Calculate torch radius */
 		p_ptr->update |= (PU_TORCH);

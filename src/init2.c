@@ -2057,8 +2057,8 @@ static errr init_other(void)
 	/* Padded into array */
 	C_MAKE(cave_info, DUNGEON_HGT, byte_256);
 
-	/* Feature array */
-	C_MAKE(cave_feat, DUNGEON_HGT, byte_wid);
+	/* Padded feature array */
+	C_MAKE(cave_feat, DUNGEON_HGT, byte_256);
 
 	/* Entity arrays */
 	C_MAKE(cave_o_idx, DUNGEON_HGT, s16b_wid);
@@ -2067,7 +2067,6 @@ static errr init_other(void)
 	/* Flow arrays */
 	C_MAKE(cave_cost, DUNGEON_HGT, byte_wid);
 	C_MAKE(cave_when, DUNGEON_HGT, byte_wid);
-
 
 	/*** Prepare "vinfo" array ***/
 

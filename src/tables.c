@@ -40,13 +40,25 @@ s16b ddy_ddd[9] =
 
 
 /*
- * Global array for converting numbers to uppercase hecidecimal digit
+ * Global array for converting numbers to uppercase hexidecimal digits
  * This array can also be used to convert a number to an octal digit
  */
 char hexsym[16] =
 {
 	'0', '1', '2', '3', '4', '5', '6', '7',
 	'8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
+};
+
+/*
+ * Global array for converting numbers to a logical list symbol
+ */
+char listsym[62] =
+{
+	'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+	'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
+	'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+	'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
+	'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'
 };
 
 
@@ -1136,6 +1148,111 @@ byte old_blows_table[11][12] =
 #endif
 
 
+/*
+ * The table of "symbol info" -- each entry is a string of the form
+ * "X:desc" where "X" is the trigger, and "desc" is the "info".
+ */
+cptr ident_info[] =
+{
+	" :Dark grids",
+	"!:Potions and flasks",
+	"\":Amulets",
+	"#:Walls (or secret doors)",
+	"$:Treasure",
+	"%:Magma or quartz veins",
+	/* "&:unused", */
+	"':Open doors",
+	"(:Soft armor",
+	"):Shields",
+	"*:Veins with treasure",
+	"+:Closed doors",
+	",:Food and mushrooms",
+	"-:Wands and rods",
+	".:Floor",
+	"/:Polearms (axe/pike/etc)",
+	/* "0:unused", */
+	"1:Entrance to General Store",
+	"2:Entrance to Armory",
+	"3:Entrance to Weaponsmith",
+	"4:Entrance to Temple",
+	"5:Entrance to Alchemy shop",
+	"6:Entrance to Magic store",
+	"7:Entrance to Black Market",
+	"8:Entrance to your home",
+	/* "9:unused", */
+	"::Rubble",
+	";:Glyphs of warding",
+	"<:Up staircases",
+	"=:Rings",
+	">:Down staircases",
+	"?:Scrolls",
+	"@:You",
+	"A:Angel",
+	"B:Bird",
+	"C:Canine",
+	"D:Ancient Dragon/Wyrm",
+	"E:Elemental",
+	"F:Dragon Fly",
+	"G:Ghost",
+	"H:Hybrid",
+	"I:Insect",
+	"J:Snake",
+	"K:Killer Beetle",
+	"L:Lich",
+	"M:Multi-Headed Reptile",
+	/* "N:unused", */
+	"O:Ogre",
+	"P:Giant Humanoid",
+	"Q:Quylthulg",
+	"R:Reptile/Amphibian",
+	"S:Spider/Scorpion/Tick",
+	"T:Troll",
+	"U:Major Demon",
+	"V:Vampire",
+	"W:Wight/Wraith/etc",
+	"X:Xorn/Xaren/etc",
+	"Y:Yeti",
+	"Z:Zephyr Hound",
+	"[:Hard armor",
+	"\\:Hafted weapons (mace/whip/etc)",
+	"]:Misc. armor",
+	"^:Traps",
+	"_:Staffs",
+	/* "`:unused", */
+	"a:Ant",
+	"b:Bat",
+	"c:Centipede",
+	"d:Dragon",
+	"e:Floating Eye",
+	"f:Feline",
+	"g:Golem",
+	"h:Hobbit/Elf/Dwarf",
+	"i:Icky Thing",
+	"j:Jelly",
+	"k:Kobold",
+	"l:Louse",
+	"m:Mold",
+	"n:Naga",
+	"o:Orc",
+	"p:Person/Human",
+	"q:Quadruped",
+	"r:Rodent",
+	"s:Skeleton",
+	"t:Townsperson",
+	"u:Minor Demon",
+	"v:Vortex",
+	"w:Worm/Worm-Mass",
+	/* "x:unused", */
+	"y:Yeek",
+	"z:Zombie/Mummy",
+	"{:Ammunition (arrow/bolt/shot)",
+	"|:Edged weapons (sword/dagger/etc)",
+	"}:Launchers (bow/crossbow/sling)",
+	"~:Misc. items",
+	NULL
+};
+
+
 
 /*
  * Store owners (exactly four "possible" owners per store, chosen randomly)
@@ -1146,8 +1263,8 @@ owner_type owners[MAX_STORES][MAX_OWNERS] =
 	{
 		/* General store */
 		{ "Bilbo the Friendly",		200,	170, 108,  5, 15, RACE_HOBBIT},
-		{ "Rincewind the Chicken",	200,	175, 108,  4, 12, RACE_HUMAN},
-		{ "Snafu the Midget",		300,	170, 107,  5, 15, RACE_GNOME},
+		{ "Mirban the Hasty",		350,	200,  90,  3, 21, RACE_HUMAN},
+		{ "Sultan the Midget",		300,	170, 107,  5, 15, RACE_GNOME},
 		{ "Lyar-el the Comely",		300,	165, 107,  6, 18, RACE_ELF},
 	},
 	{
@@ -2586,6 +2703,7 @@ cptr option_text[OPT_MAX] =
 	"show_details",				/* OPT_show_details */
 	"ring_bell",				/* OPT_ring_bell */
 	"show_flavors",				/* OPT_flavors */
+
 	"run_ignore_stairs",		/* OPT_run_ignore_stairs */
 	"run_ignore_doors",			/* OPT_run_ignore_doors */
 	"run_cut_corners",			/* OPT_run_cut_corners */
@@ -2602,6 +2720,7 @@ cptr option_text[OPT_MAX] =
 	"verify_special",			/* OPT_verify_special */
 	"allow_quantity",			/* OPT_allow_quantity */
 	NULL,						/* xxx */
+
 	"auto_haggle",				/* OPT_auto_haggle */
 	"auto_scum",				/* OPT_auto_scum */
 	"testing_stack",			/* OPT_testing_stack */
@@ -2618,16 +2737,17 @@ cptr option_text[OPT_MAX] =
 	NULL,						/* xxx track_target */
 	"smart_learn",				/* OPT_smart_learn */
 	"smart_cheat",				/* OPT_smart_cheat */
+
 	"view_reduce_lite",			/* OPT_view_reduce_lite */
 	"hidden_player",			/* OPT_hidden_player */
 	"avoid_abort",				/* OPT_avoid_abort */
 	"avoid_other",				/* OPT_avoid_other */
 	"flush_failure",			/* OPT_flush_failure */
 	"flush_disturb",			/* OPT_flush_disturb */
-	NULL,						/* xxx flush_command */
 	"fresh_before",				/* OPT_fresh_before */
 	"fresh_after",				/* OPT_fresh_after */
-	NULL,						/* xxx fresh_message */
+	"center_player",			/* OPT_center_player */
+	"avoid_center",			/* OPT_avoid_center */
 	"compress_savefile",		/* OPT_compress_savefile */
 	"hilite_player",			/* OPT_hilite_player */
 	"view_yellow_lite",			/* OPT_view_yellow_lite */
@@ -2658,6 +2778,7 @@ cptr option_desc[OPT_MAX] =
 	"Show details in monster descriptions",		/* OPT_show_details */
 	"Audible bell (on errors, etc)",			/* OPT_ring_bell */
 	"Show flavors in object descriptions",		/* OPT_show_flacors */
+
 	"When running, ignore stairs",				/* OPT_run_ignore_stairs */
 	"When running, ignore doors",				/* OPT_run_ignore_doors */
 	"When running, cut corners",				/* OPT_run_cut_corners */
@@ -2674,6 +2795,7 @@ cptr option_desc[OPT_MAX] =
 	"Verify use of special commands",			/* OPT_verify_special */
 	"Allow quantity specification",				/* OPT_allow_quantity */
 	NULL,										/* xxx */
+
 	"Auto-haggle in stores",					/* OPT_auto_haggle */
 	"Auto-scum for good levels",				/* OPT_auto_scum */
 	"Allow objects to stack on floor",			/* OPT_testing_stack */
@@ -2690,16 +2812,17 @@ cptr option_desc[OPT_MAX] =
 	NULL,										/* xxx */
 	"Monsters learn from their mistakes",		/* OPT_smart_learn */
 	"Monsters exploit players weaknesses",		/* OPT_smart_cheat */
+
 	"Reduce lite-radius when running",			/* OPT_view_reduce_lite */
 	"Hide player symbol when running",			/* OPT_hidden_player */
 	"Avoid checking for user abort",			/* OPT_avoid_abort */
 	"Avoid processing special colors",			/* OPT_avoid_other */
 	"Flush input on various failures",			/* OPT_flush_failure */
 	"Flush input whenever disturbed",			/* OPT_flush_disturb */
-	NULL,										/* xxx */
 	"Flush output before every command",		/* OPT_fresh_before */
 	"Flush output after various things",		/* OPT_fresh_after */
-	NULL,										/* xxx */
+	"Always center on the player (*slow*)",	/* OPT_center_player */
+	"Avoid centering while running",				/* OPT_avoid_center */
 	"Compress messages in savefiles",			/* OPT_compress_savefile */
 	"Hilite the player with the cursor",		/* OPT_hilite_player */
 	"Use special colors for torch lite",		/* OPT_view_yellow_lite */
@@ -2714,70 +2837,73 @@ cptr option_desc[OPT_MAX] =
  */
 bool option_norm[OPT_MAX] =
 {
-	FALSE,		/* OPT_rogue_like_commands */
-	FALSE,		/* OPT_quick_messages */
+	TRUE,		/* OPT_rogue_like_commands */
+	TRUE,		/* OPT_quick_messages */
 	TRUE,		/* OPT_floor_query_flag */
-	FALSE,		/* OPT_carry_query_flag */
+	TRUE,		/* OPT_carry_query_flag */
 	FALSE,		/* OPT_use_old_target */
 	TRUE,		/* OPT_always_pickup */
-	FALSE,		/* OPT_always_repeat */
+	TRUE,		/* OPT_always_repeat */
 	FALSE,		/* OPT_depth_in_feet */
-	FALSE,		/* OPT_stack_force_notes */
-	FALSE,		/* OPT_stack_force_costs */
+	TRUE,		/* OPT_stack_force_notes */
+	TRUE,		/* OPT_stack_force_costs */
 	TRUE,		/* OPT_show_labels */
 	TRUE,		/* OPT_show_weights */
 	TRUE,		/* OPT_show_choices */
 	TRUE,		/* OPT_show_details */
-	TRUE,		/* OPT_ring_bell */
-	TRUE,		/* OPT_show_flavors */
-	TRUE,		/* OPT_run_ignore_stairs */
+	FALSE,		/* OPT_ring_bell */
+	FALSE,		/* OPT_show_flavors */
+
+	FALSE,		/* OPT_run_ignore_stairs */
 	TRUE,		/* OPT_run_ignore_doors */
 	TRUE,		/* OPT_run_cut_corners */
 	TRUE,		/* OPT_run_use_corners */
-	TRUE,		/* OPT_disturb_move */
+	FALSE,		/* OPT_disturb_move */
 	TRUE,		/* OPT_disturb_near */
-	TRUE,		/* OPT_disturb_panel */
+	FALSE,		/* OPT_disturb_panel */
 	TRUE,		/* OPT_disturb_state */
 	TRUE,		/* OPT_disturb_minor */
 	TRUE,		/* OPT_disturb_other */
-	FALSE,		/* OPT_alert_hitpoint */
+	TRUE,		/* OPT_alert_hitpoint */
 	FALSE,		/* OPT_alert_failure */
 	TRUE,		/* OPT_verify_destroy */
 	TRUE,		/* OPT_verify_special */
 	TRUE,		/* OPT_allow_quantity */
 	FALSE,		/* xxx */
+
 	TRUE,		/* OPT_auto_haggle */
 	FALSE,		/* OPT_auto_scum */
-	FALSE,		/* OPT_testing_stack */
-	FALSE,		/* OPT_testing_carry */
-	FALSE,		/* OPT_expand_look */
-	FALSE,		/* OPT_expand_list */
+	TRUE,		/* OPT_testing_stack */
+	TRUE,		/* OPT_testing_carry */
+	TRUE,		/* OPT_expand_look */
+	TRUE,		/* OPT_expand_list */
 	TRUE,		/* OPT_view_perma_grids */
 	FALSE,		/* OPT_view_torch_grids */
-	TRUE,		/* OPT_dungeon_align */
+	FALSE,		/* OPT_dungeon_align */
 	TRUE,		/* OPT_dungeon_stair */
-	FALSE,		/* OPT_flow_by_sound */
-	FALSE,		/* OPT_flow_by_smell */
+	TRUE,		/* OPT_flow_by_sound */
+	TRUE,		/* OPT_flow_by_smell */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
-	FALSE,		/* OPT_smart_learn */
+	TRUE,		/* OPT_smart_learn */
 	FALSE,		/* OPT_smart_cheat */
+
 	FALSE,		/* OPT_view_reduce_lite */
 	FALSE,		/* OPT_hidden_player */
 	FALSE,		/* OPT_avoid_abort */
 	FALSE,		/* OPT_avoid_other */
 	TRUE,		/* OPT_flush_failure */
 	FALSE,		/* OPT_flush_disturb */
-	FALSE,		/* xxx */
 	TRUE,		/* OPT_fresh_before */
 	FALSE,		/* OPT_fresh_after */
-	FALSE,		/* xxx */
+	TRUE,			/* OPT_center_player */
+	FALSE,		/* OPT_avoid_center */
 	TRUE,		/* OPT_compress_savefile */
 	FALSE,		/* OPT_hilite_player */
-	FALSE,		/* OPT_view_yellow_lite */
-	FALSE,		/* OPT_view_bright_lite */
-	FALSE,		/* OPT_view_granite_lite */
-	FALSE		/* OPT_view_special_lite */
+	TRUE,		/* OPT_view_yellow_lite */
+	TRUE,		/* OPT_view_bright_lite */
+	TRUE,		/* OPT_view_granite_lite */
+	TRUE		/* OPT_view_special_lite */
 };
 
 
@@ -2860,14 +2986,14 @@ byte option_page[4][16] =
 		OPT_flush_disturb,
 		OPT_fresh_before,
 		OPT_fresh_after,
+		OPT_center_player,
+		OPT_avoid_center,
 		OPT_compress_savefile,
 		OPT_hilite_player,
 		OPT_view_yellow_lite,
 		OPT_view_bright_lite,
 		OPT_view_granite_lite,
-		OPT_view_special_lite,
-		255,
-		255
+		OPT_view_special_lite
 	}
 };
 
