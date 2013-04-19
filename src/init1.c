@@ -581,14 +581,14 @@ static cptr k_info_flags3[32] =
 	"IGNORE_ELEM",
 	"IGNORE_NON_ELEM",
 	"IGNORE_DISEN",
-	"XXX1",
+	"FAERY",
 	"XXX2",
 	"EASY_KNOW",
 	"HIDE_TYPE",
 	"XXX3",
 	"XXX4",
-	"XXX5",
-	"XXX6",
+	"TOUGH",
+	"SMALL",
 	"TAINT",
 	"DRAIN_ITEM",
 	"DISRUPT",
@@ -921,6 +921,22 @@ static cptr k_info_act[POW_MAX] =
 	"RESTORE_VIGOR",
 	"RESTORE_WIT",
 	"RESTORE_GRACE",
+	"POWDER_HASTE",
+	"POWDER_HEAL",
+	"POWDER_CONFUSING",
+	"POWDER_SLEEPING",
+	"POWDER_CALMING",
+	"POWDER_TRANSFORMING",
+	"POWDER_FLASH",
+	"POWDER_DARKNESS",
+	"POWDER_POISONING",
+	"POWDER_BURNING",
+	"POWDER_FREEZING",
+	"POWDER_INCINERATION",
+	"POWDER_ICE_BLAST",
+	"POWDER_ENERGY",
+	"OIL_LANTERN",
+	"OIL_BURNING",
 };
 
 /*** Initialize from ascii template files ***/
@@ -3285,19 +3301,18 @@ errr parse_w_info(char *buf, header *head)
 	/* Process 'X' for "More Info" (one line only) */
 	else if (buf[0] == 'X')
 	{
-		int spot, dis, byp, chr;
+		int spot, dis, chr;
 
 		/* There better be a current r_ptr */
 		if (!w_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (4 != sscanf(buf+2, "%d:%d:%d:%d",
-			            &spot, &dis, &byp, &chr)) return (PARSE_ERROR_GENERIC);
+		if (3 != sscanf(buf+2, "%d:%d:%d",
+			            &spot, &dis, &chr)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
 		w_ptr->spot_factor = spot;
 		w_ptr->disarm_factor = dis;
-		w_ptr->bypass_factor = byp;
 		w_ptr->max_charges = chr;
 	}
 
@@ -4229,20 +4244,19 @@ errr parse_p_info(char *buf, header *head)
 	/* Process 'R' for "Racial Skills" (one line only) */
 	else if (buf[0] == 'R')
 	{
-		int dis, byp, dev, sav, stl, per, thn, thb, tht, dig, alc, map;
+		int dis, dev, sav, stl, per, thn, thb, tht, dig, alc, map;
 
 		/* There better be a current pr_ptr */
 		if (!pr_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (SK_MAX != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d",
-		                &dis, &byp, &dev, &sav, &stl, &per,
+		if (SK_MAX != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d",
+		                &dis, &dev, &sav, &stl, &per,
 						&thn, &thb, &tht, &dig, &alc, &map)) 
 						return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
 		pr_ptr->r_skill[SK_DIS] = dis;
-		pr_ptr->r_skill[SK_BYP] = byp;
 		pr_ptr->r_skill[SK_DEV] = dev;
 		pr_ptr->r_skill[SK_SAV] = sav;
 		pr_ptr->r_skill[SK_STL] = stl;
@@ -4561,20 +4575,19 @@ errr parse_c_info(char *buf, header *head)
 	/* Process 'C' for "Class Skills" (one line only) */
 	else if (buf[0] == 'C')
 	{
-		int dis, byp, dev, sav, stl, per, thn, thb, tht, dig, alc, map;
+		int dis, dev, sav, stl, per, thn, thb, tht, dig, alc, map;
 
 		/* There better be a current pc_ptr */
 		if (!pc_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (SK_MAX != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d",
-		                &dis, &byp, &dev, &sav, &stl, &per,
+		if (SK_MAX != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d",
+		                &dis, &dev, &sav, &stl, &per,
 						&thn, &thb, &tht, &dig, &alc, &map)) 
 						return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
 		pc_ptr->c_skill[SK_DIS] = dis;
-		pc_ptr->c_skill[SK_BYP] = byp;
 		pc_ptr->c_skill[SK_DEV] = dev;
 		pc_ptr->c_skill[SK_SAV] = sav;
 		pc_ptr->c_skill[SK_STL] = stl;
@@ -4590,20 +4603,19 @@ errr parse_c_info(char *buf, header *head)
 	/* Process 'X' for "Xtra Skills" (one line only) */
 	else if (buf[0] == 'X')
 	{
-		int dis, byp, dev, sav, stl, per, thn, thb, tht, dig, alc, map;
+		int dis, dev, sav, stl, per, thn, thb, tht, dig, alc, map;
 
 		/* There better be a current pc_ptr */
 		if (!pc_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 		
 		/* Scan for the values */
-		if (SK_MAX != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d",
-		                &dis, &byp, &dev, &sav, &stl, &per,
+		if (SK_MAX != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d",
+		                &dis, &dev, &sav, &stl, &per,
 						&thn, &thb, &tht, &dig, &alc, &map)) 
 						return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
 		pc_ptr->x_skill[SK_DIS] = dis;
-		pc_ptr->x_skill[SK_BYP] = byp;
 		pc_ptr->x_skill[SK_DEV] = dev;
 		pc_ptr->x_skill[SK_SAV] = sav;
 		pc_ptr->x_skill[SK_STL] = stl;

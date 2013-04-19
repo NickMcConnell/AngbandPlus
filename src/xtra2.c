@@ -1188,7 +1188,7 @@ void verify_panel(void)
 /*
  * Monster health description
  */
-static void look_mon_desc(char *buf, size_t max, int m_idx)
+static void look_mon_desc(char *buf, size_t max, int m_idx, int skill, int range, int object_to_hit)
 {
 	monster_type *m_ptr = &mon_list[m_idx];
 
@@ -1229,7 +1229,176 @@ static void look_mon_desc(char *buf, size_t max, int m_idx)
 	if (m_ptr->monfear) my_strcat(buf, ", afraid", max);
 	if (m_ptr->calmed) my_strcat(buf, ", calmed", max);
 	if (m_ptr->stunned) my_strcat(buf, ", stunned", max);
+
+	/*
+	 * Show to-hit chance. Show melee to-hit by default. Show archery
+	 * or throwing hit chance if the player is shooting or throwing.
+	 */
+	int dist = distance(p_ptr->py, p_ptr->px, m_ptr->fy, m_ptr->fx);
+
+	if ((p_ptr->command_cmd == 'v') || (p_ptr->command_cmd == 'f'))
+	{
+		/* We already know the base skill for archery and throwing. */
+		skill = skill - dist;
+	}
+	else
+	{
+		/* We have to calculate melee skill and object to-hit here. */
+		object_type *o_ptr;
+		o_ptr = &inventory[INVEN_WIELD];
+		skill = p_ptr->skill[SK_THN] + p_ptr->to_h + object_to_h(o_ptr);
+		object_to_hit = object_to_h(o_ptr);
+	}
+
+	monster_race *r_ptr = get_monster_real(m_ptr);
+	int ac = r_ptr->ac;
+	int chance;
+	int critical_hit_chance = 0;
+	int ambush_chance = 0;
+	int ambush_remainder = 0;
+
+	/* Increment skill (diminishing returns) */
+	if (skill <= 10) skill *= 9;
+	else if (skill <= 20) skill = 9 + (skill * 8);
+	else if (skill <= 30) skill = 27 + (skill * 7);
+	else skill = 54 + (skill * 6);
+
+	/* High ACs are harder to hit */
+	if (ac > (skill + 1) / 2) ac += ac / 2;
+
+	/* Calculate to-hit percentage */
+	if (skill <= 0) chance = 0;
+	else chance = 100 - ((ac * 100)/skill);
+
+	/* Calculate the minimum chance */ 
+	if ((p_ptr->command_cmd == 'v') && (chance < 10))
+	{
+		chance = 10;
+	}
+	else if ((p_ptr->command_cmd == 'f') && (chance < 10))
+	{
+		chance = 10;
+	}
+	else if (chance < 40)
+	{
+		if (chance < 1) chance = 25;
+		else if (chance < 40) chance = 40;
+	}
+
+	/* Calculate critical hit chance */
+	if (chance > 90)
+	{
+		critical_hit_chance = (chance - 90) * (chance - 90);
+	}
+
+	/* Calculate ambush chance */
+	if (m_ptr->blinded || m_ptr->confused || m_ptr->monfear || m_ptr->sleep)
+	{
+		/* Extract "shot" power */
+		ambush_chance = ((p_ptr->to_h + object_to_hit) * 2) +10;
+
+		/* Improved critical hits for some classes */
+		if (cp_ptr->flags & CF_AMBUSH) ambush_chance += p_ptr->lev +10;
+
+		/* Potion of Sneakiness increases critical chance */
+		if (p_ptr->tim_stealth) ambush_chance += +20;
+
+		if (cp_ptr->flags & CF_AMBUSH) ambush_remainder = 5 * (ambush_chance % 2);
+		ambush_chance = ambush_chance / 2;
+	}
+
+	critical_hit_chance += ambush_chance;
+	if (critical_hit_chance > 100) critical_hit_chance = 100;
+
+	/*
+	 * Check if the path is blocked
+	 */
+	int i;
+	int blocked = 0;
+	int y = p_ptr->py;
+	int x = p_ptr->px;
+	int path_n;
+	u16b path_g[256];
+
+	/* Calculate the path */
+	path_n = project_path(path_g, dist, p_ptr->py, p_ptr->px, m_ptr->fy, m_ptr->fx, 0);
+
+	/* Project along the path */
+	for (i = 0; i < path_n; ++i)
+	{
+		int ny = GRID_Y(path_g[i]);
+		int nx = GRID_X(path_g[i]);
+
+		/* Hack -- Stop before hitting walls */
+		if (!cave_floor_bold(ny, nx))
+		{
+			blocked = 1;
+			break;
+		}
+
+		/* Advance */
+		x = nx;
+		y = ny;
+	}
+
+	/* Print to-hit chance to buffer */
+
+	if ((p_ptr->command_cmd == 'v') && (range >= dist) && (!(blocked)))
+	{
+		if ((critical_hit_chance) && (dist > 1))
+		{
+			if (ambush_remainder)
+			{
+				my_strcat(buf, format(", %d%%+%d.%d%%", chance, critical_hit_chance, ambush_remainder), max);
+			}
+			else
+			{
+				my_strcat(buf, format(", %d%%+%d%%", chance, critical_hit_chance), max);
+			}
+		}
+		else
+		{
+			my_strcat(buf, format(", %d%%", chance), max);
+		}
+	}
+	else if ((p_ptr->command_cmd == 'f') && (range >= dist) && (!(blocked)))
+	{
+		if ((critical_hit_chance) && (dist > 1))
+		{
+			if (ambush_remainder)
+			{
+				my_strcat(buf, format(", %d%%+%d.%d%%", chance, critical_hit_chance, ambush_remainder), max);
+			}
+			else
+			{
+				my_strcat(buf, format(", %d%%+%d%%", chance, critical_hit_chance), max);
+			}
+		}
+		else
+		{
+			my_strcat(buf, format(", %d%%", chance), max);
+		}
+	}
+	else if (p_ptr->command_cmd == 'l')
+	{
+		if (critical_hit_chance)
+		{
+			if (ambush_remainder)
+			{
+				my_strcat(buf, format(", %d%%+%d.%d%%", chance, critical_hit_chance, ambush_remainder), max);
+			}
+			else
+			{
+				my_strcat(buf, format(", %d%%+%d%%", chance, critical_hit_chance), max);
+			}
+		}
+		else
+		{
+			my_strcat(buf, format(", %d%%", chance), max);
+		}
+	}
 }
+
 
 /*
  * Angband sorting algorithm -- quick sort in place
@@ -1547,7 +1716,7 @@ int target_dir(char ch)
  * Future versions may restrict the ability to target "trappers"
  * and "mimics", but the semantics is a little bit weird.
  */
-static bool target_able(int m_idx)
+static bool target_able(int m_idx, int range)
 {
 	monster_type *m_ptr;
 
@@ -1566,6 +1735,9 @@ static bool target_able(int m_idx)
 	/* Monster must be projectable */
 	if (!projectable(p_ptr->py, p_ptr->px, m_ptr->fy, m_ptr->fx)) return (FALSE);
 
+	/* Monster must be in range */
+	if (distance(m_ptr->fy, m_ptr->fx, p_ptr->py, p_ptr->px) > range) return (FALSE);
+
 	/* Hack -- no targeting hallucinations */
 	if (p_ptr->image) return (FALSE);
 
@@ -1581,7 +1753,7 @@ static bool target_able(int m_idx)
  *
  * We return TRUE if the target is "okay" and FALSE otherwise.
  */
-bool target_okay(void)
+bool target_okay(int range)
 {
 	/* No target */
 	if (!p_ptr->target_set) return (FALSE);
@@ -1595,7 +1767,7 @@ bool target_okay(void)
 		int m_idx = p_ptr->target_who;
 
 		/* Accept reasonable targets */
-		if (target_able(m_idx))
+		if (target_able(m_idx, range))
 		{
 			monster_type *m_ptr = &mon_list[m_idx];
 
@@ -1615,10 +1787,10 @@ bool target_okay(void)
 /*
  * Set the target to a monster (or nobody)
  */
-void target_set_monster(int m_idx)
+void target_set_monster(int m_idx, int range)
 {
 	/* Acceptable target */
- 	if ((m_idx > 0) && target_able(m_idx))
+ 	if ((m_idx > 0) && target_able(m_idx, range))
 	{
 		monster_type *m_ptr = &mon_list[m_idx];
 
@@ -1844,7 +2016,7 @@ static bool target_set_interactive_accept(int y, int x)
  *
  * Return the number of target_able monsters in the set.
  */
-static void target_set_interactive_prepare(int mode)
+static void target_set_interactive_prepare(int mode, int range)
 {
 	int y, x;
 
@@ -1872,7 +2044,7 @@ static void target_set_interactive_prepare(int mode)
 				if (!(cave_m_idx[y][x] > 0)) continue;
 
 				/* Must be a targettable monster */
-			 	if (!target_able(cave_m_idx[y][x])) continue;
+			 	if (!target_able(cave_m_idx[y][x], range)) continue;
 			}
 
 			/* Save the location */
@@ -1911,7 +2083,7 @@ static void target_set_interactive_prepare(int mode)
  *
  * This function must handle blindness/hallucination.
  */
-static int target_set_interactive_aux(int y, int x, int mode, cptr info)
+static int target_set_interactive_aux(int y, int x, int mode, int to_hit, int object_to_hit, int range, cptr info)
 {
 	s16b this_o_idx, next_o_idx = 0;
 	cptr s1, s2, s3;
@@ -1919,6 +2091,8 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 	int feat, query;
 
 	char out_val[256];
+
+	int dist = distance(y, x, p_ptr->py, p_ptr->px);
 
 	/* Repeat forever */
 	while (TRUE)
@@ -1933,6 +2107,49 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 		s1 = "You see ";
 		s2 = "";
 		s3 = "";
+
+		/* Is the player targeting with something? Is it in range and not blocked? */
+
+		if (p_ptr->command_cmd == 'm') range = p_ptr->spell_range;
+		else if (p_ptr->command_cmd == 'a') range = p_ptr->spell_range;
+		else if (p_ptr->command_cmd == 'y') range = p_ptr->spell_range;
+		else if (p_ptr->command_cmd == 'e') range = p_ptr->spell_range;
+
+		if (range >= dist)
+		{
+			/*
+	 		* Check if the path is blocked
+	 		*/
+			int i;
+			int blocked = 0;
+			int path_n;
+			int xx = x;
+			int yy = y;
+			u16b path_g[256];
+
+			/* Calculate the path */
+			path_n = project_path(path_g, dist, p_ptr->py, p_ptr->px, yy, xx, 0);
+
+			/* Project along the path */
+			for (i = 0; i < path_n; ++i)
+			{
+				int ny = GRID_Y(path_g[i]);
+				int nx = GRID_X(path_g[i]);
+
+				/* Hack -- Stop before hitting walls */
+				if (!cave_floor_bold(ny, nx))
+				{
+					blocked = 1;
+					break;
+				}
+
+				/* Advance */
+				xx = nx;
+				yy = ny;
+			}
+
+			if (!blocked) s1 = "You target ";
+		}
 
 		/* The player */
 		if (cave_m_idx[y][x] < 0)
@@ -1950,10 +2167,20 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 			cptr name = "something strange";
 
 			/* Display a message */
-			if (cheat_wizard) strnfmt(out_val, sizeof(out_val), 
-				"%s%s%s%s [%s] (%d:%d)", s1, s2, s3, name, info, y, x);
-			else strnfmt(out_val, sizeof(out_val), 
-				"%s%s%s%s [%s]", s1, s2, s3, name, info);
+			if (dist > 0)
+			{
+				if (cheat_wizard) strnfmt(out_val, sizeof(out_val), 
+					"%s%s%s%s at %d ft [%s] (%d:%d)", s1, s2, s3, name, dist * 10, info, y, x);
+				else strnfmt(out_val, sizeof(out_val), 
+					"%s%s%s%s at %d ft [%s]", s1, s2, s3, name, dist * 10, info);
+			}
+			else
+			{
+				if (cheat_wizard) strnfmt(out_val, sizeof(out_val), 
+					"%s%s%s%s (%d:%d)", s1, s2, s3, name, info, y, x);
+				else strnfmt(out_val, sizeof(out_val), 
+					"%s%s%s%s [%s]", s1, s2, s3, name, info);
+			}
 			prt(out_val, 0, 0);
 			move_cursor_relative(y, x);
 			query = inkey();
@@ -2021,20 +2248,38 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 						char buf[100];
 
 						/* Describe the monster */
-						look_mon_desc(buf, sizeof(buf), cave_m_idx[y][x]);
+						look_mon_desc(buf, sizeof(buf), cave_m_idx[y][x], to_hit, range, object_to_hit);
 
 						/* Describe, and prompt for recall */
-						if (cheat_wizard)
+						if (dist > 0)
 						{
-							strnfmt(out_val, sizeof(out_val),
-								"%s%s%s%s (%s) [r,%s] (%d:%d)",
-								s1, s2, s3, m_name, buf, info, y, x);
+							if (cheat_wizard)
+							{
+								strnfmt(out_val, sizeof(out_val),
+									"%s%s%s%s at %d ft (%s) [r,%s] (%d:%d)",
+									s1, s2, s3, m_name, dist * 10, buf, info, y, x);
+							}
+							else
+							{
+								strnfmt(out_val, sizeof(out_val),
+									"%s%s%s%s at %d ft (%s) [r,%s]",
+									s1, s2, s3, m_name, dist * 10, buf, info);
+							}
 						}
 						else
 						{
-							strnfmt(out_val, sizeof(out_val),
-								"%s%s%s%s (%s) [r,%s]",
-								s1, s2, s3, m_name, buf, info);
+							if (cheat_wizard)
+							{
+								strnfmt(out_val, sizeof(out_val),
+									"%s%s%s%s (%s) [r,%s] (%d:%d)",
+									s1, s2, s3, m_name, buf, info, y, x);
+							}
+							else
+							{
+								strnfmt(out_val, sizeof(out_val),
+									"%s%s%s%s (%s) [r,%s]",
+									s1, s2, s3, m_name, buf, info);
+							}
 						}
 
 						prt(out_val, 0, 0);
@@ -2134,17 +2379,35 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 				while (TRUE)
 				{
 					/* Describe the pile */
-					if (cheat_wizard)
+					if (dist > 0)
 					{
-						strnfmt(out_val, sizeof(out_val),
-							"%s%s%sa pile of %d objects [r,%s] (%d:%d)", 
-							s1, s2, s3, floor_num, info, y, x);
+						if (cheat_wizard)
+						{
+							strnfmt(out_val, sizeof(out_val),
+								"%s%s%sa pile of %d objects at %d ft [r,%s] (%d:%d)", 
+								s1, s2, s3, floor_num, dist * 10, info, y, x);
+						}
+						else
+						{
+							strnfmt(out_val, sizeof(out_val),
+								"%s%s%sa pile of %d objects at %d ft [r,%s]",
+								s1, s2, s3, floor_num, dist * 10, info);
+						}
 					}
 					else
 					{
-						strnfmt(out_val, sizeof(out_val),
-							"%s%s%sa pile of %d objects [r,%s]",
-							s1, s2, s3, floor_num, info);
+						if (cheat_wizard)
+						{
+							strnfmt(out_val, sizeof(out_val),
+								"%s%s%sa pile of %d objects [r,%s] (%d:%d)", 
+								s1, s2, s3, floor_num, info, y, x);
+						}
+						else
+						{
+							strnfmt(out_val, sizeof(out_val),
+								"%s%s%sa pile of %d objects [r,%s]",
+								s1, s2, s3, floor_num, info);
+						}
 					}
 					prt(out_val, 0, 0);
 					move_cursor_relative(y, x);
@@ -2214,15 +2477,31 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 				object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
 
 				/* Describe the object */
-				if (cheat_wizard)
+				if (dist > 0)
 				{
-					strnfmt(out_val, sizeof(out_val),
-						"%s%s%s%s [%s] (%d:%d)", s1, s2, s3, o_name, info, y, x);
+					if (cheat_wizard)
+					{
+						strnfmt(out_val, sizeof(out_val),
+							"%s%s%s%s at %d ft [%s] (%d:%d)", s1, s2, s3, o_name, dist * 10, info, y, x);
+					}
+					else
+					{
+						strnfmt(out_val, sizeof(out_val),
+							"%s%s%s%s at %d ft [%s]", s1, s2, s3, o_name, dist * 10, info);
+					}
 				}
 				else
 				{
-					strnfmt(out_val, sizeof(out_val),
-						"%s%s%s%s [%s]", s1, s2, s3, o_name, info);
+					if (cheat_wizard)
+					{
+						strnfmt(out_val, sizeof(out_val),
+							"%s%s%s%s [%s] (%d:%d)", s1, s2, s3, o_name, info, y, x);
+					}
+					else
+					{
+						strnfmt(out_val, sizeof(out_val),
+							"%s%s%s%s [%s]", s1, s2, s3, o_name, info);
+					}
 				}
 
 				prt(out_val, 0, 0);
@@ -2277,15 +2556,31 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 					}
 				}
 				
-				if (cheat_wizard)
+				if (dist > 0)
 				{
-					strnfmt(out_val, sizeof(out_val), 
-						"%s%s%s%s [%s] (%d:%d)", s1, s2, s3, t_name, info, y, x);
+					if (cheat_wizard)
+					{
+						strnfmt(out_val, sizeof(out_val), 
+							"%s%s%s%s at %d ft [%s] (%d:%d)", s1, s2, s3, t_name, dist * 10, info, y, x);
+					}
+					else
+					{
+						strnfmt(out_val, sizeof(out_val),
+							"%s%s%s%s at %d ft [%s]", s1, s2, s3, t_name, dist * 10, info);
+					}
 				}
 				else
 				{
-					strnfmt(out_val, sizeof(out_val),
-						"%s%s%s%s [%s]", s1, s2, s3, t_name, info);
+					if (cheat_wizard)
+					{
+						strnfmt(out_val, sizeof(out_val), 
+							"%s%s%s%s [%s] (%d:%d)", s1, s2, s3, t_name, info, y, x);
+					}
+					else
+					{
+						strnfmt(out_val, sizeof(out_val),
+							"%s%s%s%s [%s]", s1, s2, s3, t_name, info);
+					}
 				}
 				prt(out_val, 0, 0);
 				move_cursor_relative(y, x);
@@ -2346,15 +2641,31 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 			}
 
 			/* Display a message */
-			if (cheat_wizard)
+			if (dist > 0)
 			{
-				strnfmt(out_val, sizeof(out_val),
-					"%s%s%s%s%s [%s] (%d:%d)", s1, s2, s3, name, lock, info, y, x);
+				if (cheat_wizard)
+				{
+					strnfmt(out_val, sizeof(out_val),
+						"%s%s%s%s%s at %d ft [%s] (%d:%d)", s1, s2, s3, name, lock, dist * 10, info, y, x);
+				}
+				else
+				{
+					strnfmt(out_val, sizeof(out_val),
+						"%s%s%s%s%s at %d ft [%s]", s1, s2, s3, name, lock, dist * 10, info);
+				}
 			}
 			else
 			{
-				strnfmt(out_val, sizeof(out_val),
-					"%s%s%s%s%s [%s]", s1, s2, s3, name, lock, info);
+				if (cheat_wizard)
+				{
+					strnfmt(out_val, sizeof(out_val),
+						"%s%s%s%s%s [%s] (%d:%d)", s1, s2, s3, name, lock, info, y, x);
+				}
+				else
+				{
+					strnfmt(out_val, sizeof(out_val),
+						"%s%s%s%s%s [%s]", s1, s2, s3, name, lock, info);
+				}
 			}
 			prt(out_val, 0, 0);
 			move_cursor_relative(y, x);
@@ -2415,7 +2726,7 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
  * This command will cancel any old target, even if used from
  * inside the "look" command.
  */
-bool target_set_interactive(int mode)
+bool target_set_interactive(int mode, int to_hit, int object_to_hit, int range)
 {
 	int i, d, m, t, bd;
 
@@ -2430,10 +2741,10 @@ bool target_set_interactive(int mode)
 	char info[80];
 
 	/* Cancel target */
-	target_set_monster(0);
+	target_set_monster(0, 0);
 
 	/* Prepare the "temp" array */
-	target_set_interactive_prepare(mode);
+	target_set_interactive_prepare(mode, range);
 
 	/* Start near the player */
 	m = 0;
@@ -2448,7 +2759,7 @@ bool target_set_interactive(int mode)
 			x = temp_x[m];
 
 			/* Allow target */
-			if ((cave_m_idx[y][x] > 0) && target_able(cave_m_idx[y][x]))
+			if ((cave_m_idx[y][x] > 0) && target_able(cave_m_idx[y][x], range))
 			{
 				strcpy(info, "q,t,p,o,+,-,<dir>");
 			}
@@ -2460,7 +2771,7 @@ bool target_set_interactive(int mode)
 			}
 
 			/* Describe and Prompt */
-			query = target_set_interactive_aux(y, x, mode, info);
+			query = target_set_interactive_aux(y, x, mode, to_hit, object_to_hit, range, info);
 
 			/* Cancel tracking */
 			/* health_track(0); */
@@ -2533,10 +2844,10 @@ bool target_set_interactive(int mode)
 				{
 					int m_idx = cave_m_idx[y][x];
 
-					if ((m_idx > 0) && target_able(m_idx))
+					if ((m_idx > 0) && target_able(m_idx, range))
 					{
 						health_track(m_idx);
-						target_set_monster(m_idx);
+						target_set_monster(m_idx, range);
 						done = TRUE;
 					}
 					else
@@ -2577,7 +2888,7 @@ bool target_set_interactive(int mode)
 					if (change_panel(d))
 					{
 						/* Recalculate interesting grids */
-						target_set_interactive_prepare(mode);
+						target_set_interactive_prepare(mode, range);
 
 						/* Find a new monster */
 						i = target_pick(old_y, old_x, ddy[d], ddx[d]);
@@ -2587,7 +2898,7 @@ bool target_set_interactive(int mode)
 						{
 
 							/* Recalculate interesting grids */
-							target_set_interactive_prepare(mode);
+							target_set_interactive_prepare(mode, range);
 						}
 
 						/* Handle stuff */
@@ -2608,7 +2919,7 @@ bool target_set_interactive(int mode)
 			else strcpy(info, "q,t,p,<dir>");
 
 			/* Describe and Prompt (enable "TARGET_LOOK") */
-			query = target_set_interactive_aux(y, x, mode | TARGET_LOOK, info);
+			query = target_set_interactive_aux(y, x, mode | TARGET_LOOK, to_hit, object_to_hit, range, info);
 
 			/* Cancel tracking */
 			/* health_track(0); */
@@ -2716,7 +3027,7 @@ bool target_set_interactive(int mode)
 						handle_stuff();
 
 						/* Recalculate interesting grids */
-						target_set_interactive_prepare(mode);
+						target_set_interactive_prepare(mode, range);
 					}
 				}
 
@@ -2771,7 +3082,7 @@ bool target_set_interactive(int mode)
  *
  * Currently this function applies confusion directly.
  */
-bool get_aim_dir(int *dp)
+bool get_aim_dir(int *dp, int to_hit, int object_to_hit, int range)
 {
 	int dir;
 	char ch;
@@ -2780,7 +3091,7 @@ bool get_aim_dir(int *dp)
 	if (repeat_pull(dp))
 	{
 		/* Verify */
-		if (!(*dp == 5 && !target_okay()))
+		if (!(*dp == 5 && !target_okay(range)))
 		{
 			return (TRUE);
 		}
@@ -2798,13 +3109,13 @@ bool get_aim_dir(int *dp)
 	dir = p_ptr->command_dir;
 
 	/* Hack -- auto-target if requested */
-	if (use_old_target && target_okay()) dir = 5;
+	if (use_old_target && target_okay(range)) dir = 5;
 
 	/* Ask until satisfied */
 	while (!dir)
 	{
 		/* Choose a prompt */
-		if (!target_okay())
+		if (!target_okay(range))
 		{
 			p = "Direction ('*' to choose a target, Escape to cancel)? ";
 		}
@@ -2822,7 +3133,7 @@ bool get_aim_dir(int *dp)
 			/* Set new target, use target if legal */
 			case '*':
 			{
-				if (target_set_interactive(TARGET_KILL)) dir = 5;
+				if (target_set_interactive(TARGET_KILL, to_hit, object_to_hit, range)) dir = 5;
 				break;
 			}
 
@@ -2832,7 +3143,7 @@ bool get_aim_dir(int *dp)
 			case '0':
 			case '.':
 			{
-				if (target_okay()) dir = 5;
+				if (target_okay(range)) dir = 5;
 				break;
 			}
 
@@ -2925,6 +3236,76 @@ bool get_rep_dir(int *dp)
 
 		/* Oops */
 		if (!dir) bell("Illegal repeatable direction!");
+	}
+
+	/* Aborted */
+	if (!dir) return (FALSE);
+
+	/* Save desired direction */
+	p_ptr->command_dir = dir;
+
+	/* Save direction */
+	(*dp) = dir;
+
+	repeat_push(dir);
+
+	/* Success */
+	return (TRUE);
+}
+
+/*
+ * Request a "proficiency" direction (1,2,3,4,6,7,8,9, or 5) from the user.
+ *
+ * Return TRUE if a direction was chosen, otherwise return FALSE.
+ *
+ * This function tracks and uses the "global direction", and uses
+ * that as the "desired direction", if it is set.
+ */
+bool get_proficiency_dir(int *dp, int mapping)
+{
+	int dir;
+
+	char ch;
+
+	cptr p;
+
+	if (repeat_pull(dp))
+	{
+		return (TRUE);
+	}
+
+	/* Initialize */
+	(*dp) = 0;
+
+	/* Global direction */
+	dir = p_ptr->command_dir;
+
+	/* Choose a prompt */
+	if (mapping) p = "You study your maps. Direction (Escape to cancel)? ";
+	else p = "Direction (Escape to cancel)? ";
+
+	/* Get a command (or Cancel) */
+	if (!get_com(p, &ch)) return (FALSE);
+
+	/* Analyze */
+	switch (ch)
+	{
+		/* Center */
+		case 't':
+		case '5':
+		case '0':
+		case '.':
+		{
+			dir = 5;
+			break;
+		}
+
+		/* Possible direction */
+		default:
+		{
+			dir = target_dir(ch);
+			break;
+		}
 	}
 
 	/* Aborted */

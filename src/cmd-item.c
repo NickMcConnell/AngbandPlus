@@ -887,8 +887,12 @@ void do_cmd_refill(void)
 static void do_cmd_eat_food_aux(int item)
 {
 	bool ident = FALSE;
+	int plev = p_ptr->lev;
 
 	object_type *o_ptr;
+
+	/* Calculate power for influence effect */
+	int influence = ((plev > 12) ? plev : 6 + plev/2);
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -912,7 +916,7 @@ static void do_cmd_eat_food_aux(int item)
 	if (object_activation(o_ptr)) 
 	{
 		/* Actually use the power */
-		if (!do_power(k_info[o_ptr->k_idx].activation, 0, 0, 0, 20, 20, 15+rand_int(10), FALSE, &ident)) 
+		if (!do_power(k_info[o_ptr->k_idx].activation, 0, 0, 0, plev, plev, influence, FALSE, &ident)) 
 			return;
 	}
 	else
@@ -1324,66 +1328,43 @@ void do_cmd_read_scroll(void)
 	do_cmd_read_scroll_aux(item);
 }
 
-#define USAGE_WAND		4		/* Difficulty for aiming wands */
-#define USAGE_STAFF		3		/* Difficulty for using staves */
-#define USAGE_TALISMAN	5		/* Difficulty for zapping rods */
-#define USAGE_ROD		3		/* Difficulty for invoking talismans */
-#define USAGE_ARTIFACT	3		/* Difficulty for activating artifacts */
-
 /* 
  * Check for item success
- * 
- * There are two kinds of check - binary, and non-binary. Binary checks return 
- * 100 if successful and 0 if not. Non-binary checks return a percentage between 100
- * and 0 reflecting success level.
  */
-static int check_item_success(int diff, int lev, bool binary)
+static int check_item_success(int lev)
 {
-	int chance;
-	
-	int result, i;
+	int chance, fail_rate;
 
 	/* Base chance of success */
 	chance = p_ptr->skill[SK_DEV];
+			
+	/* Count the first 10 item levels twice */
+	chance = chance - ((lev > 10) ? 10 : lev);
+
+	/* Count the first 4 item levels three times */
+	chance = chance - ((lev > 4) ? 4 : lev);
 
 	/* Confusion hurts skill */
 	if (p_ptr->confused) chance = chance / 2;
-
+			
 	/* Stunning hurts skill */
 	if (p_ptr->stun > PY_STUN_HEAVY) chance = chance / 2;
 	else if (p_ptr->stun) chance = (chance * 2) / 3;
-
+			
 	/* High level objects are harder */
-	chance = chance - ((lev > 50) ? 50 : lev);
+	if (lev > 80) chance -= 57;
+	else chance -= ((lev > 51) ? 30 + (lev/3) : lev - ((lev-10)/10));
 
-	/* Give everyone a (slight) chance */
-	if ((chance < diff) && (rand_int(diff - chance + 1) == 0))
-	{
-		chance = diff;
-	}
-	else if (chance < 0) return 0;
+	/* Calculate fail rate */
+	if (chance < 2) fail_rate = 100;
+	else if (chance == 2) fail_rate = 80;
+	else fail_rate = (200/chance);
+
+	if (fail_rate > 100) fail_rate = 100;
 
 	/* Check for success */
-	if (chance > 0) i = (randint(chance) - diff + 1);
-	else i = (1 - diff);
-
-	/* Check exact failure percentage */
-	if (i < 0)
-	{
-		if (!binary)
-		{
-			int j = 0 - (10 * diff * i);
-
-			result = ((0 - randint(j)) * 5) + 100;
-
-			if (result < 0) result = 0;
-		}
-		/* If a binary check, ignore results below 0 */
-		else result = 0;
-	}
-	else result = 100;
-
-	return (result);
+	if (fail_rate > rand_int(100)) return 0;
+	else return 1;
 }
 
 /*
@@ -1396,6 +1377,7 @@ static int check_item_success(int diff, int lev, bool binary)
 static void do_cmd_use_staff_aux(int item)
 {
 	bool ident = FALSE;
+	int plev = p_ptr->lev;
 
 	object_type *o_ptr;
 
@@ -1425,7 +1407,7 @@ static void do_cmd_use_staff_aux(int item)
 	p_ptr->energy_use = 100;
 
 	/* Roll for usage */
-	if (!check_item_success(USAGE_STAFF, k_info[o_ptr->k_idx].level, TRUE))
+	if (!check_item_success(k_info[o_ptr->k_idx].level))
 	{
 		if (flush_failure) flush();
 		message(MSG_FAIL, 0, "You failed to use the staff properly.");
@@ -1448,7 +1430,7 @@ static void do_cmd_use_staff_aux(int item)
 	sound(MSG_ZAP);
 
 	/* Actually use the power */
-	use_charge = do_power(k_info[o_ptr->k_idx].activation, 0, 0, 0, 20, 20, 15 + rand_int(10), FALSE, &ident);
+	use_charge = do_power(k_info[o_ptr->k_idx].activation, 0, 0, 0, 20, 20, 10 + plev/2, FALSE, &ident);
 
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
@@ -1524,7 +1506,7 @@ void do_cmd_use_staff(void)
 	int  item;
 	cptr q, s;
 
-	/* Restrict choices to wands */
+	/* Restrict choices to staves */
 	item_tester_tval = TV_STAFF;
 
 	/* Get an item */
@@ -1583,12 +1565,12 @@ static void do_cmd_aim_wand_aux(int item)
 	}
 
 	/* Allow direction to be cancelled for free */
-	if (!get_aim_dir(&dir)) return;
+	if (!get_aim_dir(&dir, 0, 0, p_ptr->spell_range)) return;
 
 	/* Take a turn */
 	p_ptr->energy_use = 100;
 
-	check = check_item_success(USAGE_WAND, k_info[o_ptr->k_idx].level, FALSE);
+	check = check_item_success(k_info[o_ptr->k_idx].level);
 
 	/* Roll for usage */
 	if (!check)
@@ -1624,9 +1606,6 @@ static void do_cmd_aim_wand_aux(int item)
 		power = k_info[k].activation;
 	}
 
-	/* Partial success */
-	plev = ((plev - 1) * check) / 100 + 1;
-	
 	/* Actually use the power */
 	if (!do_power(power, 0, dir, 20, plev, plev, 10 + plev/2, FALSE, &ident)) 
 		return;
@@ -1738,11 +1717,15 @@ static void do_cmd_zap_rod_aux(int item)
 {
 	bool ident;
 	int chance;
+	int plev = p_ptr->lev;
 
 	object_type *o_ptr;
 
 	/* Hack -- let perception get aborted */
 	bool use_charge;
+
+	/* Calculate power for influence effects */
+	int influence = ((plev > 12) ? plev : 6 + plev/2);
 
 	/* Get the item (in the pack) */
 	if (item >= 0) o_ptr = &inventory[item];
@@ -1766,7 +1749,7 @@ static void do_cmd_zap_rod_aux(int item)
 	if (p_ptr->confused) chance = chance / 2;
 
 	/* Roll for usage */
-	if (!check_item_success(USAGE_ROD, k_info[o_ptr->k_idx].level, TRUE))
+	if (!check_item_success(k_info[o_ptr->k_idx].level))
 	{
 		if (flush_failure) flush();
 		message(MSG_FAIL, 0, "You failed to use the rod properly.");
@@ -1780,7 +1763,7 @@ static void do_cmd_zap_rod_aux(int item)
 	sound(MSG_ZAP);
 
 	/* Actually use the power */
-	use_charge = do_power(k_info[o_ptr->k_idx].activation, 0, 0, 0, 10, 10, 10, FALSE, &ident);
+	use_charge = do_power(k_info[o_ptr->k_idx].activation, 0, 0, 0, 10, 10, influence, FALSE, &ident);
 
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
@@ -1843,6 +1826,9 @@ static void do_cmd_invoke_talisman_aux(int item)
 
 	object_type *o_ptr;
 
+	/* Calculate power for influence effects */
+	int influence = ((plev > 12) ? plev : 6 + plev/2);
+
 	/* Get the item (in the pack) */
 	if (item >= 0)
 	{
@@ -1856,7 +1842,7 @@ static void do_cmd_invoke_talisman_aux(int item)
 	}
 
 	/* Get a direction, allow cancel */
-	if (!get_aim_dir(&dir)) return;
+	if (!get_aim_dir(&dir, 0, 0, p_ptr->spell_range)) return;
 
 	/* Take a turn */
 	p_ptr->energy_use = 100;
@@ -1864,7 +1850,7 @@ static void do_cmd_invoke_talisman_aux(int item)
 	/* Not identified yet */
 	ident = FALSE;
 
-	check = check_item_success(USAGE_TALISMAN, k_info[o_ptr->k_idx].level, FALSE);
+	check = check_item_success(k_info[o_ptr->k_idx].level);
 
 	/* Roll for usage */
 	if (!check)
@@ -1877,14 +1863,11 @@ static void do_cmd_invoke_talisman_aux(int item)
 	/* Increase timeout by full amount (from k_info) */
 	o_ptr->timeout += o_ptr->pval;
 
-	/* Partial success */
-	plev = ((plev - 1) * check) / 100 + 1;
-
 	/* Sound */
 	sound(MSG_ZAP);
 
 	/* Actually use the power */
-	if (!do_power(k_info[o_ptr->k_idx].activation, 0, dir, 10, plev, plev, plev, FALSE, &ident)) 
+	if (!do_power(k_info[o_ptr->k_idx].activation, 0, dir, 10, plev, plev, influence, FALSE, &ident)) 
 		return;
 
 	/* Combine / Reorder the pack (later) */
@@ -1985,7 +1968,7 @@ static void do_cmd_activate_aux(int item)
 	if (o_ptr->a_idx) lev = a_info[o_ptr->a_idx].level;
 
 	/* Roll for usage */
-	if (!check_item_success(USAGE_ARTIFACT, k_info[o_ptr->k_idx].level, TRUE))
+	if (!check_item_success(k_info[o_ptr->k_idx].level))
 	{
 		if (flush_failure) flush();
 		message(MSG_FAIL, 0, "You failed to activate it properly.");
@@ -2008,6 +1991,7 @@ static void do_cmd_activate_aux(int item)
 		artifact_type *a_ptr = &a_info[o_ptr->a_idx];
 		char o_name[80];
 		bool ident = FALSE;
+		int plev = p_ptr->lev;
 
 		/* Get the basic name of the object */
 		object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 0);
@@ -2015,8 +1999,11 @@ static void do_cmd_activate_aux(int item)
 		/* Give the appropriate message */
 		message_format(MSG_EFFECT, a_ptr->activation, "Your %s glows...", o_name);
 
+		/* Calculate power for influence effects */
+		int influence = ((plev > 12) ? plev : 6 + plev/2);
+
 		/* Actually use the power */
-		if (!do_power(a_ptr->activation, 0, 0, 0, p_ptr->lev, p_ptr->lev, p_ptr->lev, FALSE, &ident)) 
+		if (!do_power(a_ptr->activation, 0, 0, 0, p_ptr->lev, p_ptr->lev, influence, FALSE, &ident)) 
 			return;
 
 		/* Know the activation */

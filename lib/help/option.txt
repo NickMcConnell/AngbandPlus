@@ -157,7 +157,7 @@ Show flavors in object descriptions [show_flavors] (default: yes)
     objects whose type is known.  This does not affect objects in stores.
 
 ***** <show_piles>
-Show stacks as white '&' [show_piles] (default: no)
+Show stacks as white '&' [show_piles] (default: yes)
     Stacks of items on the floor are shown using the "&" symbol in white.
     Otherwise, the top object is shown.
 
@@ -468,4 +468,4 @@ Avoid centering while running [run_avoid_center] (default: no)
     command, only when the running finishes.
 
 
-======================= Last updated for EyAngband 0.5.0 ======================
+======================= Last updated for FayAngband 1.1.0 =====================

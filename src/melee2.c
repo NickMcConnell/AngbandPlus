@@ -517,6 +517,24 @@ static int choose_attack_spell(int m_idx)
 		if (!(sf1 || sf2 || sf3)) return (0);
 	}
 
+	/* Limit spell choice if outside random monster spell range */
+	if (m_ptr->cdis > (randint(6) + randint(6) + 5))
+	{
+		/* No spells that require being in range */
+		sf1 &= ~(SRF1_SIGHT_MASK);
+		sf2 &= ~(SRF2_SIGHT_MASK);
+		sf3 &= ~(SRF3_SIGHT_MASK);
+		sf1 &= ~(SRF1_SUMMON_MASK);
+		sf2 &= ~(SRF2_SUMMON_MASK);
+		sf3 &= ~(SRF3_SUMMON_MASK);
+		sf1 &= ~(SRF1_ANNOY_MASK);
+		sf2 &= ~(SRF2_ANNOY_MASK);
+		sf3 &= ~(SRF3_ANNOY_MASK);
+
+		/* No spells left */
+		if (!(sf1 || sf2 || sf3)) return (0);
+	}
+
 	/* Limit spell choice if they can't see player (not LOS) */
 	if (mon_not_see_player)
 	{

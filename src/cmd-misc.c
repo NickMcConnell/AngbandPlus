@@ -19,7 +19,7 @@
 void do_cmd_target(void)
 {
 	/* Target set */
-	if (target_set_interactive(TARGET_KILL))
+	if (target_set_interactive(TARGET_KILL, 0, 0, 0))
 	{
 		message(MSG_GENERIC, 0, "Target Selected.");
 	}
@@ -37,7 +37,7 @@ void do_cmd_target(void)
 void do_cmd_look(void)
 {
 	/* Look around */
-	if (target_set_interactive(TARGET_LOOK))
+	if (target_set_interactive(TARGET_LOOK, 0, 0, 0))
 	{
 		message(MSG_GENERIC, 0, "Target Selected.");
 	}
@@ -1526,18 +1526,218 @@ void do_cmd_view_map(void)
 }
 
 /*
- * Place trap
+ * Use proficiency
  */
-void do_cmd_place_trap(void)
+void do_cmd_proficiency(void)
 {
-	if (!(cp_ptr->flags & CF_TRAP_PLACE))
+	int lore, reserves, escapes, superlore;
+	bool ignore_me;
+	int use_charge = 0;
+
+	lore = p_ptr->lore - p_ptr->lore_uses;
+	reserves = p_ptr->reserves - p_ptr->reserves_uses;
+	escapes = p_ptr->escapes - p_ptr->escapes_uses;
+	superlore = 0;
+	if (p_stat(A_INT) + p_stat(A_WIS) >= 33) superlore = 1;
+
+	if ((lore > 0) && (superlore))
 	{
-		message (MSG_FAIL, 0, "You lack the knowledge to place traps!");
-		return;
+		if (reserves > 0)
+		{
+			if (escapes > 0) prt ("Which one: (d)ungeon lore, (i)dentify pack, (a)nalyse item, (r)ecover, (s)hift?", 0 , 0);
+			else prt ("Which proficiency: (d)ungeon lore, (i)dentify pack, (a)nalyse item, (r)ecover?", 0 , 0);
+		}
+		else if (escapes > 0) prt ("Which proficiency: (d)ungeon lore, (i)dentify pack, (a)nalyse item, (s)hift?", 0, 0);
+		else prt ("Use which proficiency: (d)ungeon lore, (i)dentify pack, (a)nalyse item?", 0, 0);
+	}
+	else if (lore > 0)
+	{
+		if (reserves > 0)
+		{
+			if (escapes > 0) prt ("Use which proficiency: (i)dentify, (c)ave lore, (r)ecover, (s)hift?", 0 , 0);
+			else prt ("Use which proficiency: (i)dentify, (c)ave lore, (r)ecover?", 0 , 0);
+		}
+		else if (escapes > 0) prt ("Use which proficiency: (i)dentify, (c)ave lore, (s)hift?", 0, 0);
+		else prt ("Use which proficiency: (i)dentify, (c)ave lore?", 0, 0);
+	}
+	else
+	{
+		if (reserves > 0)
+		{
+			if (escapes > 0) prt ("Use which proficiency: (r)ecover, (s)hift?", 0 , 0);
+			else prt ("Use which proficiency: (r)ecover?", 0 , 0);
+		}
+		else if (escapes > 0) prt ("Use which proficiency: (s)hift?", 0, 0);
+		else
+		{
+			prt ("You can't use any proficiencies right now.", 0, 0);
+			return;
+		}
 	}
 
-	place_trap_player(p_ptr->py, p_ptr->px);
+       	flush();
+       	int ch;
+       	ch = inkey();
+      	prt("", 0, 0);
 
-	/* Take a turn */
-	p_ptr->energy_use = 100;
+	/* Analyse the answer */
+
+	/* Dungeon lore */
+	if ((ch == 'd') && (lore > 0) && (superlore))
+	{
+		/* Check some conditions */
+		if (p_ptr->blind)
+		{
+			message(MSG_FAIL, 0, "You can't see anything.");
+			return;
+		}
+		if (!player_can_see_bold(p_ptr->py, p_ptr->px))
+		{
+			message(MSG_FAIL, 0, "You need some light.");
+			return;
+		}
+		if (p_ptr->confused)
+		{
+			message(MSG_FAIL, 0, "You are too confused!");
+			return;
+		}
+
+		use_charge = do_power(334, 0, 0, 0, 0, 0, 0, FALSE, &ignore_me);
+		if (use_charge) p_ptr->lore_uses++;
+
+		/* Take a turn */
+		if (use_charge) p_ptr->energy_use = 100;
+	}
+
+	/* Identify Pack */
+	else if ((ch == 'i') && (lore > 0) && (superlore))
+	{
+		/* Check some conditions */
+		if (p_ptr->blind)
+		{
+			message(MSG_FAIL, 0, "You can't see anything.");
+			return;
+		}
+		if (!player_can_see_bold(p_ptr->py, p_ptr->px))
+		{
+			message(MSG_FAIL, 0, "You need some light.");
+			return;
+		}
+		if (p_ptr->confused)
+		{
+			message(MSG_FAIL, 0, "You are too confused!");
+			return;
+		}
+
+		use_charge = do_power(196, 0, 0, 0, 0, 0, 0, FALSE, &ignore_me);
+		if (use_charge) p_ptr->lore_uses++;
+
+		/* Take a turn */
+		if (use_charge) p_ptr->energy_use = 100;
+	}
+
+	/* Analyse Item */
+	else if ((ch == 'a') && (lore > 0) && (superlore))
+	{
+		/* Check some conditions */
+		if (p_ptr->blind)
+		{
+			message(MSG_FAIL, 0, "You can't see anything.");
+			return;
+		}
+		if (!player_can_see_bold(p_ptr->py, p_ptr->px))
+		{
+			message(MSG_FAIL, 0, "You need some light.");
+			return;
+		}
+		if (p_ptr->confused)
+		{
+			message(MSG_FAIL, 0, "You are too confused!");
+			return;
+		}
+
+		use_charge = do_power(335, 0, 0, 0, 0, 0, 0, FALSE, &ignore_me);
+		if (use_charge) p_ptr->lore_uses++;
+
+		/* Take a turn */
+		if (use_charge) p_ptr->energy_use = 100;
+	}
+
+	/* Identify */
+	else if ((ch == 'i') && (lore > 0))
+	{
+		/* Check some conditions */
+		if (p_ptr->blind)
+		{
+			message(MSG_FAIL, 0, "You can't see anything.");
+			return;
+		}
+		if (!player_can_see_bold(p_ptr->py, p_ptr->px))
+		{
+			message(MSG_FAIL, 0, "You need some light.");
+			return;
+		}
+		if (p_ptr->confused)
+		{
+			message(MSG_FAIL, 0, "You are too confused!");
+			return;
+		}
+
+		use_charge = do_power(195, 0, 0, 0, 0, 0, 0, FALSE, &ignore_me);
+		if (use_charge) p_ptr->lore_uses++;
+
+		/* Take a turn */
+		if (use_charge) p_ptr->energy_use = 100;
+	}
+
+	/* Cave Lore */
+	else if ((ch == 'c') && (lore > 0))
+	{
+		/* Check some conditions */
+		if (p_ptr->blind)
+		{
+			message(MSG_FAIL, 0, "You can't see anything.");
+			return;
+		}
+		if (!player_can_see_bold(p_ptr->py, p_ptr->px))
+		{
+			message(MSG_FAIL, 0, "You need some light.");
+			return;
+		}
+		if (p_ptr->confused)
+		{
+			message(MSG_FAIL, 0, "You are too confused!");
+			return;
+		}
+
+		use_charge = do_power(333, 0, 0, 0, 0, 0, 0, FALSE, &ignore_me);
+		if (use_charge) p_ptr->lore_uses++;
+
+		/* Take a turn */
+		if (use_charge) p_ptr->energy_use = 100;
+	}
+
+	/* Recover */
+	else if ((ch == 'r') && (reserves > 0))
+	{
+		use_charge = do_power(7, 0, 0, 0, 0, 0, 0, FALSE, &ignore_me);
+		if (use_charge) p_ptr->reserves_uses++;
+
+		/* Take a turn */
+		if (use_charge) p_ptr->energy_use = 100;
+	}
+
+	/* Shift */
+	else if ((ch == 's') && (escapes > 0))
+	{
+		use_charge = do_power(332, 0, 0, 0, 0, 0, 0, FALSE, &ignore_me);
+		if (use_charge) p_ptr->escapes_uses++;
+
+		/* Take a turn */
+		if (use_charge) p_ptr->energy_use = 100;
+	}
+
+	else return;
+
+	p_ptr->redraw |= (PR_MANA);
 }

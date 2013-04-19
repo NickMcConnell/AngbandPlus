@@ -44,14 +44,14 @@
 /*
  * Current version string
  */
-#define VERSION_STRING	"1.0.1"
+#define VERSION_STRING	"1.1.0"
 
 /*
  * Current version numbers
  */
 #define VERSION_MAJOR	1
-#define VERSION_MINOR	0
-#define VERSION_PATCH	1
+#define VERSION_MINOR	1
+#define VERSION_PATCH	0
 #define VERSION_EXTRA	0
 
 /*
@@ -346,9 +346,8 @@
 
 /*
  * Normal levels get at least 14 monsters.
- * Fay: increased to 17 to balance the removal of new monster allocation.
  */
-#define MIN_M_ALLOC_LEVEL	17
+#define MIN_M_ALLOC_LEVEL	14
 
 /*
  * The town starts out with 4 residents during the day
@@ -516,7 +515,7 @@
  * Indexes of the various "skills" (hard-coded by savefiles, etc)
  */
 #define SK_DIS	0	/* Disarm */
-#define SK_BYP	1	/* Bypass Trap */
+#define SK_MAP	1	/* Mapping */
 #define SK_DEV	2	/* Magical device */
 #define SK_SAV	3	/* Saving Throw */
 #define SK_STL	4	/* Stealth */
@@ -526,12 +525,11 @@
 #define SK_THT	8	/* To hit (throwing) */
 #define SK_DIG	9	/* Digging */
 #define SK_ALC	10	/* Alchemy */
-#define SK_MAP	11	/* Mapping */
 
 /*
  * Total number of skills.
  */
-#define SK_MAX	12
+#define SK_MAX	11
 
 /* 
  * Indexes of the various "resistances" (hard-coded by savefiles, etc)
@@ -632,47 +630,58 @@
 #define ROW_RACE		1
 #define COL_RACE		0	/* <race name> */
 
+/*
 #define ROW_CLASS		2
-#define COL_CLASS		0	/* <class name> */
+#define COL_CLASS		0	<class name> */
 
-#define ROW_TITLE		3
+#define ROW_TITLE		2
 #define COL_TITLE		0	/* <title> or <mode> */
 
-#define ROW_LEVEL		4
+#define ROW_LEVEL		3
 #define COL_LEVEL		0	/* "LEVEL xxxxxx" */
 
+/*
 #define ROW_EXP			5
-#define COL_EXP			0	/* "NEXT xxxxxxx" */
+#define COL_EXP			0	"NEXT xxxxxxx" */
 
-#define ROW_GOLD		6
+#define ROW_GOLD		4
 #define COL_GOLD		0	/* "AU xxxxxxxxx" */
 
-#define ROW_EQUIPPY		7
+#define ROW_EQUIPPY		5
 #define COL_EQUIPPY		0	/* equippy chars */
 
-#define ROW_STAT		8
+#define ROW_STAT		6
 #define COL_STAT		0	/* "xxx   xxxxxx" */
 
-#define ROW_AC			15
+#define ROW_AC			13
 #define COL_AC			0	/* "Cur AC xxxxx" */
 
-#define ROW_HP			16
+#define ROW_HP			14
 #define COL_HP			0	 /* "HP xxx/xxx" */
 
-#define ROW_SP			17
+#define ROW_SP			15
 #define COL_SP			0	/* "SP xxx/xxx" */
 
-#define ROW_INFO		18
-#define COL_INFO		0	/* Monster Health bar */
+#define ROW_LORE       		16
+#define COL_LORE       		0	/* "Lore x/x" */
 
-#define ROW_DISEASED	20
+#define ROW_RESERVES          	17
+#define COL_RESERVES          	0	/* "Reserves x/x" */
+
+#define ROW_ESCAPES          	18
+#define COL_ESCAPES          	0	/* "Escapes x/x" */
+
+#define ROW_DISEASED	19
 #define COL_DISEASED	0	/* "diseased" */
 
-#define ROW_CUT			21
+#define ROW_CUT			20
 #define COL_CUT			0	/* <cut> */
 
-#define ROW_STUN		22
+#define ROW_STUN		21
 #define COL_STUN		0	/* <stun> */
+
+#define ROW_INFO		22
+#define COL_INFO		0	/* Monster Health bar */
 
 #define ROW_HUNGRY		(Term->hgt - 1)
 #define COL_HUNGRY		0	/* "Weak" / "Hungry" / "Full" / "Gorged" */
@@ -1398,8 +1407,8 @@
 #define SV_ARROW_SILVER_TIP	3	
 #define SV_ARROW_IRON_TIP	4	
 #define SV_ARROW_BITER		5
-#define SV_ARROW_STINGER	6	
-#define SV_ARROW_SEEKER		7
+#define SV_ARROW_SEEKER		6	
+#define SV_ARROW_STINGER	7
 #define SV_ARROW_BLACKROCK	8	
 #define SV_ARROW_DREAD		9
 
@@ -1438,8 +1447,8 @@
 #define SV_FLANGED_MACE			17	
 #define SV_SPIKED_CLUB			18	
 #define SV_BATTLESTAFF			19	
-#define SV_FLAIL				20	
-#define SV_MORNING_STAR			21	
+#define SV_MORNING_STAR			20	
+#define SV_FLAIL				21	
 #define SV_LEAD_FILLED_MACE		22	
 #define SV_BACULUS				23	
 #define SV_DOUBLE_BALL_FLAIL	24  
@@ -1904,14 +1913,12 @@
 #define SV_POTION_CURE_DISEASE			39
 #define SV_POTION_RESTORE_MANA			40
 #define SV_POTION_RESTORE_EXP			41
-
 #define SV_POTION_RES_VIGOR			42
 #define SV_POTION_RES_WIT			43
 #define SV_POTION_RES_GRACE			44
 /* xxx Restore potion removed */	
 /* xxx Restore potion removed */	
 /* xxx Restore potion removed */	
-
 #define SV_POTION_INC_STR				48
 #define SV_POTION_INC_INT				49
 #define SV_POTION_INC_WIS				50
@@ -1922,8 +1929,8 @@
 #define SV_POTION_ENLIGHTENMENT			55
 #define SV_POTION_STAR_ENLIGHTENMENT	56
 #define SV_POTION_EXPERIENCE			58
-#define SV_POTION_RESIST_HEAT			59
-#define SV_POTION_RESIST_COLD			60
+#define SV_POTION_RESIST_HEAT_COLD		59
+/* xxx */
 #define SV_POTION_RESISTANCE			61
 #define SV_POTION_STAR_RESISTANCE		62
 #define SV_POTION_INVISIBILITY			63
@@ -2514,14 +2521,14 @@
 #define TR3_IGNORE_ELEM		0x00001000L	/* Item ignores elemental damage */
 #define TR3_IGNORE_NON_ELEM	0x00002000L	/* Item ignores non-elemental damage */
 #define TR3_IGNORE_DISEN	0x00004000L	/* Item ignores Disenchantment */  
-#define TR3_XXX1			0x00008000L
+#define TR3_FAERY			0x00008000L	/* Faery race */
 #define TR3_XXX2			0x00010000L
 #define TR3_EASY_KNOW		0x00020000L	/* Item is known if aware */
 #define TR3_HIDE_TYPE		0x00040000L	/* Item hides description */
 #define TR3_XXX3			0x00080000L	/* Item shows Tohit */
 #define TR3_XXX4			0x00100000L
-#define TR3_XXX5			0x00200000L
-#define TR3_XXX6			0x00400000L
+#define TR3_TOUGH			0x00200000L	/* Race is tough and gets more Resources */
+#define TR3_SMALL			0x00400000L	/* Race is small and get more Escapes */
 #define TR3_TAINT			0x00800000L /* Item is tainted */
 #define TR3_DRAIN_ITEM		0x01000000L	/* Drains other items */ 
 #define TR3_DISRUPT			0x02000000L	/* Interferes with spellcasting */
@@ -4105,9 +4112,29 @@ extern int PlayerUID;
 #define POW_RESTORE_VIGOR		313
 #define POW_RESTORE_WIT			314
 #define POW_RESTORE_GRACE		315
+#define POW_POWDER_HASTE		316
+#define POW_POWDER_HEAL			317
+#define POW_POWDER_CONFUSING		318
+#define POW_POWDER_SLEEPING		319
+#define POW_POWDER_CALMING		320
+#define POW_POWDER_TRANSFORMING		321
+#define POW_POWDER_FLASH		322
+#define POW_POWDER_DARKNESS		323
+#define POW_POWDER_POISONING		324
+#define POW_POWDER_BURNING		325
+#define POW_POWDER_FREEZING		326
+#define POW_POWDER_INCINERATION		327
+#define POW_POWDER_ICE_BLAST		328
+#define POW_POWDER_ENERGY		329
+#define POW_OIL_LANTERN			330
+#define POW_OIL_BURNING			331
+#define POW_SHIFT			332
+#define POW_CAVE_LORE			333
+#define POW_DUNGEON_LORE		334
+#define POW_ANALYSE_ITEM		335
 
 /* Total number of powers in the game + 1 */
-#define POW_MAX					316
+#define POW_MAX					336
 
 /* 
  * Hack - variables defined in order to be compatible with the general main*.c files.

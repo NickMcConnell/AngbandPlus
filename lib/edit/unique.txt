@@ -12,7 +12,7 @@
 # index pointing to the entry in monster.txt that the unique is based on, and a colour that
 # superceeds the colour in monster.txt. 
 
-V:1.0.1
+V:1.1.0
 
 N:1:Farmer Maggot
 R:2:w
@@ -1643,7 +1643,7 @@ D: elbows, knees, back and thorax.
 
 N:111:Qlzqqlzuup, the Emperor Quylthulg
 R:664:v
-I:130:4000:30:1:0
+I:130:4000:30:5:0
 W:98:3:3000000
 F:ATTR_MULTI | CHAOTIC | DROP_4D2 | EMPTY_MIND | INVISIBLE | NEVER_BLOW |
 F:NEVER_MOVE | NO_BLIND | NO_CALM | NO_FEAR | NO_SLEEP | ONLY_ITEM | NO_CONF |

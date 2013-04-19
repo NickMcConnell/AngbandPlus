@@ -104,11 +104,168 @@ void damage_player(int dam, cptr kb_str)
 	/* Window stuff */
 	p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
 
-	/* Dead player */
+	/* Wounded or dead player */
 	if (p_ptr->chp < 0)
-	{
+	{	
+		int chance = rand_int(3);
+
+		int death = 0;
+		if (rp_ptr->special == RACE_SPECIAL_ANGEL) if (1 > rand_int(4)) death = 1;
+		if (rp_ptr->special == RACE_SPECIAL_DEMON) if (1 > rand_int(4)) death = 2;
+		if (p_ptr->faery) if (1 > rand_int(2)) death = 3;
+
+		if (chance == 0)
+		{
+			/* Wound against Vigor */
+			bell ("You suffer a nasty internal wound!");
+			message(MSG_HITPOINT_WARN, TRUE, "*** YOU SUFFER A NASTY INTERNAL WOUND! ***");
+			if (p_ptr->wound_vigor) death = 0;
+
+			if ((p_ptr->wound_vigor == 0) && (death == 0))
+			{				
+				if ((p_ptr->sustain_str) && (p_ptr->sustain_con))
+				{
+					p_ptr->wound_vigor = 1;
+					message(MSG_EFFECT, 0, "Your strength and constitution were protected from permanent damage.");
+				}
+
+				else if (p_ptr->sustain_con)
+				{
+					p_ptr->wound_vigor = 2;
+					message(MSG_EFFECT, 0, "Your strength was permanently damaged. Your constitution was protected from permanent damage.");
+				}
+
+				else if (p_ptr->sustain_str)
+				{
+					p_ptr->wound_vigor = 3;
+					message(MSG_EFFECT, 0, "Your constitution was permanently damaged. Your strength was protected from permanent damage.");
+				}
+								
+				else
+				{
+					p_ptr->wound_vigor = 4;
+					message(MSG_EFFECT, 0, "Your strength and constitution were permanently damaged.");
+				}
+				
+				(void)do_dec_stat(A_STR, randint(4), FALSE, FALSE);
+				(void)do_dec_stat(A_CON, randint(4), FALSE, FALSE);
+				
+				p_ptr->chp = ((p_ptr->mhp)/2);
+				(void)set_poisoned(0);
+				(void)set_cut(0);
+				(void)set_stun(0);
+				(void)set_confused(0);
+				(void)set_blind(0);
+				(void)set_slow(0);
+				(void)set_paralyzed(0);
+
+				return;
+			}
+		}
+		
+		else if (chance == 1)
+		{
+			/* Wound against Wit */
+			bell ("Your brain is damaged!");
+			message(MSG_HITPOINT_WARN, TRUE, "*** YOUR BRAIN IS DAMAGED! ***");
+			if (p_ptr->wound_wit) death = 0;
+
+			if ((p_ptr->wound_wit == 0) && (death == 0))
+			{
+				if ((p_ptr->sustain_int) && (p_ptr->sustain_wis))
+				{
+					p_ptr->wound_wit = 1;
+					message(MSG_EFFECT, 0, "Your intelligence and wisdom were protected from permanent damage.");
+				}
+								
+				else if (p_ptr->sustain_wis)
+				{
+					p_ptr->wound_wit = 2;
+					message(MSG_EFFECT, 0, "Your intelligence was permanently damaged. Your wisdom was protected from permanent damage.");
+				}
+				
+				else if (p_ptr->sustain_int)
+				{
+					p_ptr->wound_wit = 3;
+					message(MSG_EFFECT, 0, "Your wisdom was permanently damaged. Your intelligence was protected from permanent damage.");
+				}
+
+				else
+				{
+					p_ptr->wound_wit = 4;
+					message(MSG_EFFECT, 0, "Your intelligence and wisdom were permanently damaged.");
+				}
+
+				(void)do_dec_stat(A_INT, randint(4), FALSE, FALSE);
+				(void)do_dec_stat(A_WIS, randint(4), FALSE, FALSE);
+
+				p_ptr->chp = ((p_ptr->mhp)/2);
+				(void)set_poisoned(0);
+				(void)set_cut(0);
+				(void)set_stun(0);
+				(void)set_confused(0);
+				(void)set_blind(0);
+				(void)set_slow(0);
+				(void)set_paralyzed(0);
+
+				return;
+			}
+		}
+		
+		else
+		{
+			/* Wound against Grace */
+			bell ("A broken back renders you graceless!");
+			message(MSG_HITPOINT_WARN, TRUE, "*** A BROKEN BACK RENDERS YOU GRACELESS! ***");
+			if (p_ptr->wound_grace) death = 0;
+
+			if ((p_ptr->wound_grace == 0) && (death == 0))
+			{				
+				if ((p_ptr->sustain_dex) && (p_ptr->sustain_chr))
+				{
+					p_ptr->wound_grace = 1;
+					message(MSG_EFFECT, 0, "Your dexterity and charisma were protected from permanent damage.");
+				}
+				
+				else if (p_ptr->sustain_chr)
+				{
+					p_ptr->wound_grace = 2;
+					message(MSG_EFFECT, 0, "Your dexterity was permanently damaged. Your charisma was protected from permanent damage.");
+				}
+
+				else if (p_ptr->sustain_dex)
+				{
+					p_ptr->wound_grace = 3;
+					message(MSG_EFFECT, 0, "Your charisma was permanently damaged. Your dexterity was protected from permanent damage.");
+				}
+								
+				else
+				{
+					p_ptr->wound_grace = 4;
+					message(MSG_EFFECT, 0, "Your dexterity and charisma were permanently damaged.");
+				}
+				
+				(void)do_dec_stat(A_DEX, randint(4), FALSE, FALSE);
+				(void)do_dec_stat(A_CHR, randint(4), FALSE, FALSE);
+
+				p_ptr->chp = ((p_ptr->mhp)/2);
+				(void)set_poisoned(0);
+				(void)set_cut(0);
+				(void)set_stun(0);
+				(void)set_confused(0);
+				(void)set_blind(0);
+				(void)set_slow(0);
+				(void)set_paralyzed(0);
+
+				return;
+			}
+		}
+
 		/* Hack -- Note death */
-		message(MSG_DEATH, TRUE, "You die.");
+		if (death == 0) message(MSG_DEATH, TRUE, "You die.");
+		else if (death == 1) message(MSG_DEATH, TRUE, "Your spirit abandons this dying body. You return to Heaven.");
+		else if (death == 2) message(MSG_DEATH, TRUE, "Your spirit abandons this dying body. You return to Hell.");
+		else if (death == 3) message(MSG_DEATH, TRUE, "Your half-faery constitution can't handle the system shock. You die.");
 		message_flush();
 
 		/* Note cause of death */
@@ -2147,7 +2304,7 @@ bool set_tim_stealth(int v)
 	{
 		if (!p_ptr->tim_stealth)
 		{
-			message(MSG_EFFECT, 0, "You feel treacherous! Your movements grow more silent.");
+			message(MSG_EFFECT, 0, "Your movements grow more silent.");
 			notice = TRUE;
 		}
 	}

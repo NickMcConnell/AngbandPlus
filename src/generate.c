@@ -101,7 +101,7 @@
 /*
  * Dungeon generation values
  */
-#define DUN_UNUSUAL	200	/* Level/chance of unusual room */
+#define DUN_UNUSUAL	185	/* Level/chance of unusual room */
 #define DUN_DEST	35	/* 1/chance of having a destroyed level */
 #define SMALL_LEVEL 10	/* 1/chance of smaller size */
 
@@ -125,7 +125,7 @@
 #define DUN_STR_QC	40	/* 1/chance of treasure per quartz */
 
 /*
- * Dungeon treausre allocation values
+ * Dungeon treasure allocation values
  */
 #define DUN_AMT_ROOM	8	/* Amount of objects for rooms */
 #define DUN_AMT_ITEM	2	/* Amount of objects for rooms/corridors */
@@ -3216,6 +3216,7 @@ static void cave_gen(void)
 
 	bool destroyed = FALSE;
 	bool quest_vault = FALSE;
+	bool greater_vault = FALSE;
 
 	dun_data dun_body;
 
@@ -3226,35 +3227,47 @@ static void cave_gen(void)
 	mon_gen = MIN_M_ALLOC_LEVEL;
 	obj_gen = Rand_normal(DUN_AMT_ROOM, 3);
 
-	/* Possible "destroyed" level */
-	if ((p_ptr->depth > 10) && (rand_int(DUN_DEST) == 0)) destroyed = TRUE;
-
+	/* A small level */
 	if (((adult_force_small_lev) || (randint(SMALL_LEVEL)==1)) && 
-		(quest_check(p_ptr->depth) != QUEST_VAULT))
-    {
-		int l, m;
+		(quest_check(p_ptr->depth) != QUEST_VAULT) && (rand_int(300) > p_ptr->depth))
+    	{
+		int l, m, chance;
 
-		while (TRUE)
+		/* Possible "destroyed" level */
+		if ((p_ptr->depth > 10) && (rand_int(DUN_DEST) == 0)) destroyed = TRUE;
+		
+		chance = rand_int(4);
+		if (chance == 0)
 		{
-			l = randint(MAX_DUNGEON_HGT / (2 * PANEL_HGT));
-			m = randint(MAX_DUNGEON_WID / (2 * PANEL_WID));
-
-			p_ptr->cur_map_hgt = l * (2 * PANEL_HGT);
-			p_ptr->cur_map_wid = m * (2 * PANEL_WID);
-			
-			/* Exit if less than normal dungeon */
-			if ((p_ptr->cur_map_hgt < MAX_DUNGEON_HGT) || (p_ptr->cur_map_wid < MAX_DUNGEON_WID)) break;
+			m = 1;
+			l = 3;
 		}
+		else if (chance == 1)
+		{
+			m = 3;
+			l = 1;
+		}
+		else
+		{
+			m = 2;
+			l = 2;
+		}
+		
+		p_ptr->cur_map_hgt = l * (2 * PANEL_HGT);
+		p_ptr->cur_map_wid = m * (2 * PANEL_WID);
 
 		if (cheat_room) message_format(MSG_CHEAT, 0, "A 'small' dungeon level (%dx%d).", m, l);
 
-		if (!adult_force_small_lev) rating += ((m + l <= 3) ? 15 : 10);
+		/* if (!adult_force_small_lev) rating += ((m + l <= 3) ? 15 : 10); */
+		rating += ((m + l <= 3) ? 15 : 10);
 	}
 	else
 	{
-	/* Full-sized dungeon */
 		p_ptr->cur_map_hgt = MAX_DUNGEON_HGT;
 		p_ptr->cur_map_wid = MAX_DUNGEON_WID;
+
+		/* All full-sized dungeons now have at least one greater vault */
+		greater_vault = TRUE;
 	}
 
 	/* Hack -- Start with basic granite */
@@ -3319,7 +3332,13 @@ static void cave_gen(void)
 			continue;
 		}
 
-		/* First, build a quest vault if needed */
+		/* First, if this a a huge level, try to build a greater vault */
+		if (greater_vault)
+		{
+			if (room_build(by, bx, 8)) greater_vault = FALSE;
+		}
+
+		/* Build a quest vault if needed */
 		if ((quest_check(p_ptr->depth) == QUEST_VAULT) && (quest_item_slot() == -1) &&
 			(!quest_vault))
 		{
@@ -3485,20 +3504,16 @@ static void cave_gen(void)
 
 	/* To make small levels a bit more playable */
 	if (p_ptr->cur_map_hgt < MAX_DUNGEON_HGT || p_ptr->cur_map_wid < MAX_DUNGEON_WID)
-
-
-
-
 	{
 		int small_tester = mon_gen;
 
-		mon_gen = ((i * p_ptr->cur_map_hgt) / MAX_DUNGEON_HGT) +1;
-		mon_gen = ((i * p_ptr->cur_map_wid) / MAX_DUNGEON_WID) +1;
+		mon_gen = ((mon_gen * p_ptr->cur_map_hgt) / MAX_DUNGEON_HGT) +1;
+		mon_gen = ((mon_gen * p_ptr->cur_map_wid) / MAX_DUNGEON_WID) +1;
 
 		if (mon_gen > small_tester) mon_gen = small_tester;
 		else if (cheat_hear)
 		{
-			message_format(MSG_CHEAT, 0, "Reduced monsters base from %d to %d", small_tester, i);
+			message_format(MSG_CHEAT, 0, "Reduced monsters base from %d to %d", small_tester, mon_gen);
 		}
 	}
 

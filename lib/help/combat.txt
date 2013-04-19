@@ -27,12 +27,21 @@ advisedly: it has actually been done...)
 Firing a missile (while wielding the appropriate launcher) is the only way to
 get the "full" power out of the missile.  You may of course throw an arrow at
 a monster without shooting it, but you will find the effects may not be what
-you had hoped.
+you had hoped. Note that the targeting interface tells the distance in feet
+between you and the target. If the monster is out of range, the description
+changes from "You target" to "You see".
 
 Hits and misses are determined by ability to hit versus armor class.  A hit
 is a strike that does some damage; a miss may in fact reach a target, but
 fails to do any damage.  Higher armor classes make it harder to do damage,
 and so lead to more misses.
+
+You may check your melee hit chance against a monster by (l)ooking at it. If
+you see two percentage scores (like 92% + 4%) the first score is your hit
+chance and the second score your critical hit chance if you hit. Similarly, you
+can check your archery hit chance by targeting a monster with a bow, and
+your throwing hit chance by targeting it with a thrown weapon.
+
 
 === Your Melee Weapon ===
 
@@ -63,10 +72,9 @@ If you score a critical hit with a melee weapon, the effect depends on the
 weapon type.  Swords will cause open wounds, making the enemy bleed, incurring
 additional wounds over time.  Blunt weapons can cause concussions, stunning and
 occasionally confusing your opponents.  Axes and polearms will simply provide a 
-greater amount of bonus damage.  Warriors, due to their extensive martial
-training, have a higher chance of scoring critical hits with melee weapons than
-any other class.  Priests or Shamans will never score a critical hit with a
-weapon that displeases their god.
+greater amount of bonus damage.  Priests or Shamans will never score a critical
+hit with a weapon that displeases their god.
+
 
 === Missile Weapons - Bow and Arrows ===
 
@@ -89,38 +97,45 @@ see exactly how effective it is with your current bow.
 Like melee weapons, you will occasionally get critical hits with bows.  These
 can cause additional damage, and sometimes can make an enemy bleed.
 
+
 === Missile Weapons - Thrown ===
 
 You can throw effectively any weapons that weigh less than 10 lbs.  Throwing
 heavier weapons doesn't cause any damage.  The range traversed depends on your
-strength and the weight of the object.  Some items, such as flasks of lantern oil,
-can indeed be quite effective thrown - the largest class of these are the powders,
-which can create many special effects upon an enemy, and some more powerful types
-can injure a group of enemies.
+strength and the weight of the object.  Some items, such as flasks of lantern
+oil, can indeed be quite effective thrown - the largest class of these are the
+powders, which can create many special effects upon an enemy, and some more
+powerful types can injure a group of enemies.
 
-Strength affects how far you can throw affects. When your Strength reaches 18,
-you will get double damage with trown weapons (but not with powder vials). STR 25+
-gives triple damage.
+Powders and oils have a bigger radius if you score a critical hit with them.
+Normally the radius increases by one. Rogues may score a great hit which
+increases radius by two.
+
+Strength affects how far you can throw affects. When your Strength reaches 17,
+you will get double damage with trown weapons (but not with powder vials). STR
+25+ gives triple damage.
 
 
 === Critical Hits ===
 
-Ocasionally, for all combat types, you will score a critical hit - a hit so
-effective that it does extra damage.  Depending on the type of weapon involved,
-this can have additional effects.
+Occasionally, for all combat types, you will score a critical hit - a hit so
+effective that it does extra damage. Depending on the type of weapon involved,
+this can have additional effects. You can't get criticals against unseen monsters.
 
-You will usually only get criticals against sleeping, scared, confused, or blind
-monsters. If the monster is not distracted, divide critical chance by ten.
+There are two ways to score critical hits.
 
-Critical chance in percentages is 5 + character's to-hit bonus + weapon's to-hit
-bonus. Rogues get to add 5 + half their level. (Note that your bow's to-hit bonus
-has no effect here. Only the arrow's to-hit bonus matters.) Blessed weapons increase
-critical chance by 5, and Potion of Sneakiness by 10. You can't get criticals
-against unseen monsters.
+You can get Ambush-criticals against sleeping, scared, confused, or blind
+monsters. Ambush chance in percentages is 5 + character's to-hit bonus +
+weapon's to-hit bonus. Rogues get to add 5 + half their level. (Note that your
+bow's to-hit bonus has no effect here. Only the arrow's to-hit bonus matters.)
+
+You can also get criticals if you have a truly overpowering combat skill versus
+your opponent. Once your hit chance reaches 91% or higher, your gain a bonus to
+your critical hit chance. The bonus is (hit chance -90) * (hit chance -90).
 
 Rogues get double power thrown criticals, and one-and-half power melee and
 archery criticals. Warriors get double power melee criticals. Rangers get double
 power archery criticals.
 
 
-====================== Last updated for FayAngband 1.0.1 ======================
+====================== Last updated for FayAngband 1.1.0 ======================

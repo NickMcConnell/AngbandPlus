@@ -1,7 +1,7 @@
 
 
                              ************************
-                             **  FayAngband 1.0.1  **
+                             **  FayAngband 1.1.0  **
                              ************************
                                  By Mikko Lehtinen
 

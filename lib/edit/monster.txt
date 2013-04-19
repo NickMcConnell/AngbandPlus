@@ -3,14 +3,14 @@
 #This file is currently in transition. Documentation will return in a future 
 #version.
 
-V:1.0.1
+V:1.1.0
 
 N:0:<player>
 G:@:w
 
 N:1:scruffy little dog
 G:C:U
-I:110:2:20:1:5
+I:110:2:20:5:5
 W:0:3:0
 B:BITE:HURT:1d1
 F:ANIMAL | RAND_25 | HURT_FIRE | HURT_ELEC | HURT_ACID | HURT_COLD
@@ -23,7 +23,7 @@ F:UNIQUE
 
 N:3:boil-covered ^wretch
 G:t:g
-I:110:2:6:1:0
+I:110:2:6:5:0
 W:0:1:0
 B:DROOL
 F:HAS_LITE | MALE | PERSON | RAND_25 | TAKE_ITEM
@@ -31,7 +31,7 @@ D:Ugly doesn't begin to describe him.
 
 N:4:filthy street urchin
 G:t:D
-I:110:3:4:1:40
+I:110:3:4:5:40
 W:0:2:0
 B:TOUCH:EAT_GOLD
 B:BEG
@@ -40,7 +40,7 @@ D:He looks squalid and thoroughly revolting.
 
 N:5:village idiot
 G:t:G
-I:120:8:6:1:0
+I:120:8:6:5:0
 W:0:1:0
 B:DROOL
 F:MALE | PERSON | RAND_25 | TAKE_ITEM
@@ -48,7 +48,7 @@ D:Drooling and comical, but then, what do you expect?
 
 N:6:pitiful-looking beggar
 G:t:U
-I:110:3:10:1:40
+I:110:3:10:5:40
 W:0:1:0
 B:BEG
 F:MALE | PERSON | RAND_25 | TAKE_ITEM
@@ -56,7 +56,7 @@ D:You just can't help feeling sorry for him.
 
 N:7:innocent bystander
 G:t:w
-I:110:3:4:1:50
+I:110:3:4:5:50
 W:0:1:0
 B:HIT:HURT:1d1
 F:HAS_LITE | MALE | ONLY_GOLD | PERSON | RAND_50 | TAKE_ITEM
@@ -82,7 +82,7 @@ D:A hardy, street-wise crook that knows an easy catch when he sees one.
 
 N:10:singing, happy drunk
 G:t:y
-I:110:4:10:1:0
+I:110:4:10:5:0
 W:0:1:0
 B:BEG
 F:HAS_LITE | MALE | ONLY_GOLD | PERSON | RAND_50 | TAKE_ITEM
@@ -90,7 +90,7 @@ D:He makes you glad to be sober.
 
 N:11:aimless-looking merchant
 G:t:o
-I:110:6:10:1:255
+I:110:6:10:5:255
 W:0:1:0
 B:HIT:HURT:1d3
 F:HAS_LITE | MALE | ONLY_GOLD | PERSON | RAND_50 | TAKE_ITEM
@@ -124,7 +124,7 @@ D:No job is too low for him.
 
 N:15:stray cow
 G:q:U
-I:100:5:5:1:60
+I:100:5:5:5:60
 W:0:3:0
 B:BUTT:HURT:1d1
 F:ANIMAL | RAND_25 | HURT_FIRE | HURT_COLD | HURT_ACID | HURT_ELEC | STUPID
@@ -136,7 +136,7 @@ D:It wandered in from the fields outside, and now it won't leave.
 
 N:16:grey mushroom patch
 G:,:s
-I:110:1:2:1:0
+I:110:1:2:5:0
 W:1:1:1
 B:SPORE:CONFUSE:1d4
 F:PLANT | EMPTY_MIND | NEVER_MOVE | STUPID | DROP_MIMIC | DROP_60 | NO_BLIND |
@@ -145,7 +145,7 @@ D:A small patch of grey mushrooms.
 
 N:17:jackal
 G:C:U
-I:110:3:10:3:10
+I:110:3:10:5:10
 W:1:1:1
 B:BITE:HURT:1d1
 F:ANIMAL | GRP_27 | HURT_FIRE | HURT_COLD | EGO
@@ -169,7 +169,7 @@ D:Slithering slowly towards you, it measures nearly eight feet.
 
 N:20:grey mold
 G:m:s
-I:110:2:2:5:30
+I:110:2:2:7:30
 W:1:1:1
 B:SPORE:HURT:1d4
 F:PLANT | EMPTY_MIND | NEVER_MOVE | NO_BLIND | NO_CUT | NO_FEAR | NO_SLEEP | 
@@ -178,7 +178,7 @@ D:A small strange growth.
 
 N:21:fruit bat
 G:b:o
-I:120:1:20:3:10
+I:120:1:20:5:10
 W:1:1:1
 B:BITE:HURT:1d1
 F:ANIMAL | EGO | GRP_18 | NO_BLIND | SEE_INVIS | NO_TRAP
@@ -186,7 +186,7 @@ D:A fast-moving pest.
 
 N:22:white icky thing
 G:i:w
-I:110:9:12:7:10
+I:110:9:12:9:10
 W:1:1:2
 B:TOUCH:HURT:1d2
 F:EMPTY_MIND | RAND_25 | RAND_50 | HURT_COLD
@@ -194,7 +194,7 @@ D:It is a smallish, slimy, icky creature.
 
 N:23:soldier ant
 G:a:W
-I:110:6:10:4:10
+I:110:6:10:6:10
 W:1:1:2
 B:BITE:HURT:1d2
 F:ANIMAL | BASH_DOOR | WEIRD_MIND | HURT_FIRE
@@ -206,11 +206,11 @@ I:110:8:20:15:10
 W:1:1:2
 B:HIT:HURT:1d5
 F:BASH_DOOR | DROP_60 | EVIL | OPEN_DOOR | RES_POIS
-D:It is a squat and ugly humanoid .
+D:It is a squat and ugly humanoid.
 
 N:25:yellow mushroom patch
 G:,:y
-I:110:1:3:1:0
+I:110:1:3:5:0
 W:1:1:3
 B:SPORE:TERRIFY:1d5
 F:PLANT | EMPTY_MIND | NEVER_MOVE | STUPID | DROP_MIMIC | DROP_60 | NO_BLIND |
@@ -237,7 +237,7 @@ D:It is about four feet long and carnivorous.
 
 N:28:giant green frog
 G:R:g
-I:110:9:12:8:30
+I:110:9:12:9:30
 W:1:2:8
 B:BITE:HURT:1d3
 F:ANIMAL | BASH_DOOR | RAND_25
@@ -253,7 +253,7 @@ D:Eight feet in length, its brown scales glisten in the pale light.
 
 N:30:floating eye
 G:e:o
-I:110:10:3:6:10
+I:110:10:3:7:10
 W:1:2:2
 B:GAZE:PARALYZE
 F:HURT_LITE | STUPID | NEVER_MOVE | NO_FEAR | SEE_INVIS | EMPTY_MIND
@@ -261,7 +261,7 @@ D:A disembodied eye, floating a few feet above the ground.
 
 N:31:shrieker mushroom patch
 G:,:R
-I:110:1:4:1:0
+I:110:1:4:5:0
 W:1:3:4
 B:SPORE:CONFUSE:1d4
 F:PLANT | EMPTY_MIND | NEVER_MOVE | NEVER_BLOW | STUPID | DROP_MIMIC | 
@@ -275,7 +275,7 @@ D: small airholes.
 
 N:32:big-eared bat
 G:b:D
-I:120:4:20:4:15
+I:120:4:20:6:15
 W:2:1:2
 B:BITE:HURT:1d1
 F:ANIMAL | EGO | GRP_18 | NO_BLIND | SEE_INVIS | NO_TRAP 
@@ -283,7 +283,7 @@ D:A fast-moving pest with big ears.
 
 N:33:giant white mouse
 G:r:w
-I:110:2:8:4:20
+I:110:2:8:6:20
 W:2:1:1
 B:BITE:HURT:1d2
 F:ANIMAL | MULTIPLY | RAND_50 | HURT_ELEC
@@ -291,7 +291,7 @@ D:It is about three feet long with large teeth.
 
 N:34:white worm mass
 G:w:w
-I:100:10:7:1:10
+I:100:10:7:5:10
 W:2:1:1
 B:CRAWL:POISON:1d2
 F:ANIMAL | HURT_LITE | MULTIPLY | NO_FEAR | RAND_25 | RAND_50 | RES_POIS |
@@ -347,7 +347,7 @@ D:A rather shifty individual.
 
 N:40:novice ^mage
 G:l:r
-I:110:14:16:6:10
+I:110:14:16:7:10
 W:2:1:16
 B:HIT:HURT:1d4
 F:DROP_60 | GRP_PEER | GRP_9 | HAS_LITE | MALE | OPEN_DOOR | PERSON | EGO |
@@ -394,7 +394,7 @@ D:A small black and orange lizard.
 
 N:45:blubbering icky thing
 G:i:W
-I:110:17:14:4:10
+I:110:17:14:6:10
 W:2:1:16
 B:CRAWL:EAT_FOOD
 B:CRAWL:POISON:1d4
@@ -404,7 +404,7 @@ D:It is a smallish, slimy, icky, hungry creature.
 
 N:46:white jelly
 G:j:w
-I:120:36:2:1:99
+I:120:36:2:5:99
 W:2:1:20
 B:TOUCH:POISON:1d2
 F:PLANT | NO_BLIND | NO_CUT | NO_FEAR | NO_CONF | NO_STUN | RES_POIS | 
@@ -441,7 +441,7 @@ D: fistful of needles.
 
 N:50:spotted mushroom patch
 G:,:o
-I:110:1:4:1:0
+I:110:1:4:5:0
 W:2:3:9
 B:SPORE:POISON:2d4
 F:PLANT | EMPTY_MIND | NEVER_MOVE | STUPID | DROP_MIMIC | DROP_60 | NO_BLIND |
@@ -463,7 +463,7 @@ D:He has some training in both magic and fighting, though not much in either.
 
 N:52:novice ^mystic
 G:l:o
-I:110:13:16:4:10
+I:110:13:16:6:10
 W:3:1:17
 B:HIT:HURT:1d2
 F:DROP_60 | GRP_PEER | GRP_9 | HAS_LITE | MALE | OPEN_DOOR | PERSON | EGO | 
@@ -484,7 +484,7 @@ D:A white ghostly form.
 
 N:54:blue jelly
 G:j:b
-I:120:45:2:1:99
+I:120:45:2:5:99
 W:3:1:35
 B:TOUCH:COLD:1d4
 F:PLANT | NO_BLIND | NO_CUT | NO_FEAR | NO_CONF | NO_STUN | RES_COLD | 
@@ -511,7 +511,7 @@ D:It is a strange growth on the dungeon floor.
 
 N:57:radiation eye
 G:e:R
-I:110:11:4:6:10
+I:110:11:4:7:10
 W:3:1:18
 B:GAZE:LOSE_STR:1d6
 F:HURT_LITE | NEVER_FAIL | STUPID | NEVER_MOVE | NO_FEAR | SEE_INVIS |
@@ -537,7 +537,7 @@ D:It is about two feet long and has sharp pincers.
 
 N:60:green worm mass
 G:w:g
-I:100:15:7:3:10
+I:100:15:7:5:10
 W:3:1:4
 B:CRAWL:ACID:1d3
 F:ANIMAL | HURT_LITE | MULTIPLY | NO_FEAR | RAND_25 | RAND_50 | RES_ACID |
@@ -546,7 +546,7 @@ D:It is a large mass of green worms, spreading foul-smelling slime as it goes.
 
 N:61:giant silver mouse
 G:r:W
-I:110:2:8:4:20
+I:110:2:8:6:20
 W:3:1:3
 B:BITE:EAT_LITE:1d2
 F:ANIMAL | HURT_DARK | MULTIPLY | RAND_50 | HURT_ELEC
@@ -555,7 +555,7 @@ D: falls on it, it seems to grow stronger.
 
 N:62:silver jelly
 G:j:W
-I:120:45:2:1:99
+I:120:45:2:5:99
 W:3:2:45
 B:TOUCH:EAT_LITE:1d3
 B:TOUCH:EAT_LITE:1d3
@@ -575,7 +575,7 @@ D:It is a dog-headed humanoid, looking at you menacingly.
 
 N:64:yellow worm mass
 G:w:y
-I:100:18:7:4:10
+I:100:18:7:6:10
 W:3:2:12
 B:CRAWL:LOSE_DEX:1d3
 F:ANIMAL | HURT_LITE | MULTIPLY | NO_FEAR | RAND_25 | RAND_50 | STUPID |
@@ -605,7 +605,7 @@ D: jugular
 
 N:67:maggot mass
 G:w:o
-I:100:11:7:3:10
+I:100:11:7:5:10
 W:3:4:4
 B:CRAWL:DISEASE:1d2
 F:ANIMAL | HURT_LITE | MULTIPLY | NO_FEAR | RAND_25 | RAND_50 | STUPID |
@@ -672,7 +672,7 @@ D:He is often found in huge numbers in deep caves.
 
 N:74:giant white rat
 G:r:W
-I:110:3:8:7:30
+I:110:3:8:8:30
 W:4:1:4
 B:BITE:POISON:1d3
 F:ANIMAL | MULTIPLY | RAND_25 | HURT_ELEC
@@ -680,7 +680,7 @@ D:It is a very vicious rodent.
 
 N:75:noxious mushroom patch
 G:,:G
-I:110:1:4:1:0
+I:110:1:4:5:0
 W:4:1:8
 B:SPORE:DISEASE:2d4
 F:PLANT | EMPTY_MIND | NEVER_MOVE | STUPID | DROP_MIMIC | DROP_60 | NO_BLIND |
@@ -744,7 +744,7 @@ D:A huge snake, its tough grey scales form a formidable armor.
 
 N:82:yellow jelly
 G:j:y
-I:120:50:2:1:99
+I:120:50:2:5:99
 W:4:1:60
 B:TOUCH:POISON:1d2
 B:TOUCH:POISON:1d2
@@ -793,7 +793,7 @@ D:It scuttles towards you.
 
 N:87:rabid jackal
 G:C:G
-I:110:5:15:5:5
+I:110:5:15:7:5
 W:4:3:40
 B:BITE:DISEASE:2d3
 B:BITE:DISEASE:2d3
@@ -836,7 +836,7 @@ D:It is a smallish, slimy, icky, nasty creature.
 
 N:92:noxious mold
 G:m:G
-I:110:45:2:8:30
+I:110:45:2:9:30
 W:5:1:60
 B:SPORE:DISEASE:1d5
 F:PLANT | EMPTY_MIND | NEVER_MOVE | NO_BLIND | NO_CUT | NO_FEAR | NO_SLEEP | 
@@ -882,7 +882,7 @@ D:It is a small animated kobold skeleton.
 
 N:97:pink jelly
 G:j:R
-I:120:90:2:1:99
+I:120:90:2:3:99
 W:5:1:100
 B:TOUCH:LOSE_STR:1d4
 F:PLANT | NO_BLIND | NO_CUT | NO_FEAR | NO_CONF | NO_STUN | EMPTY_MIND | 
@@ -976,7 +976,7 @@ D:It is a pile of silver coins, crawling forward on thousands of tiny legs.
 
 N:107:green jelly
 G:j:g
-I:120:90:2:1:99
+I:120:90:2:5:99
 W:6:1:115
 B:TOUCH:ACID:1d4
 F:PLANT | NO_BLIND | NO_CUT | NO_FEAR | NO_CONF | NO_STUN | RES_ACID | 
@@ -1042,7 +1042,7 @@ D:Vermin, deadly not on its own account, but because of the disease it carries.
 
 N:114:purple mushroom patch
 G:,:v
-I:110:1:4:1:0
+I:110:1:4:5:0
 W:6:2:25
 B:SPORE:LOSE_CON:1d2
 B:SPORE:LOSE_CON:1d2
@@ -1088,7 +1088,7 @@ D: shambles forward.
 
 N:118:noxious jelly
 G:j:G
-I:120:90:2:1:99
+I:120:90:2:5:99
 W:7:1:150
 B:TOUCH:DISEASE:1d3
 B:TOUCH:DISEASE:1d3
@@ -1114,7 +1114,7 @@ D:It looks poisonous.
 
 N:121:huge cockroach
 G:I:U
-I:120:2:6:5:55
+I:120:2:6:7:55
 W:7:2:14
 B:CRAWL:DISEASE:2d1
 F:ANIMAL | HURT_LITE | MULTIPLY | RAND_25 | RAND_50 | STUPID |
@@ -1161,7 +1161,7 @@ D:It is almost insubstantial.
 
 N:126:bloodshot eye
 G:e:r
-I:110:25:5:6:10
+I:110:25:5:7:10
 W:7:3:90
 B:GAZE:BLIND:2d6
 F:HURT_LITE | NEVER_MOVE | NO_FEAR | SEE_INVIS | EMPTY_MIND | STUPID | 
@@ -1371,7 +1371,7 @@ D:A ratlike creature with a humanlike face.
 
 N:147:clear mushroom patch
 G:,:w
-I:120:1:5:1:0
+I:120:1:5:5:0
 W:9:2:18
 B:SPORE:HURT:1d1
 F:PLANT | EMPTY_MIND | NEVER_MOVE | STUPID | NO_BLIND | NO_CUT | NO_FEAR | 
@@ -1441,7 +1441,7 @@ D:A small, dog head humanoid, it seems maddened. It is foaming at the mouth.
 
 N:154:blind eye
 G:e:w
-I:110:32:2:6:10
+I:110:32:2:7:10
 W:9:5:240
 F:NEVER_MOVE | NO_FEAR | SEE_INVIS | EMPTY_MIND | NEVER_FAIL | STUPID | 
 F:NEVER_BLOW | HURT_ACID
@@ -1707,7 +1707,7 @@ D: enough to bore through solid rock.
 
 N:181:spotted jelly
 G:j:o
-I:120:90:2:1:50
+I:120:90:2:5:50
 W:11:3:400
 B:TOUCH:ACID:2d6
 B:TOUCH:ACID:2d6
@@ -1812,7 +1812,7 @@ D:Short and stocky, it resembles a beardless dwarfs with a misshapen head.
 
 N:191:grape jelly
 G:j:v
-I:120:180:2:1:99
+I:120:180:2:5:99
 W:12:3:720
 B:TOUCH:EXP_1
 F:PLANT | NO_BLIND | NO_CUT | NO_FEAR | NO_CONF | NO_STUN | RES_POIS | 
@@ -1970,7 +1970,7 @@ D: rudimentary intelligence guided by an evil mind has tracked you down.
 
 N:207:Magic mushroom patch
 G:,:b
-I:140:1:30:5:0
+I:140:1:30:7:0
 W:13:3:300
 B:SPORE:CONFUSE
 B:SPORE:CONFUSE
@@ -2626,7 +2626,7 @@ D:A sharp tailed bat, with shiney golden skin
 
 N:269:Evil eye
 G:e:g
-I:110:54:7:6:10
+I:110:54:7:7:10
 W:18:3:1400
 B:GAZE:EXP_1
 B:GAZE:EXP_1
@@ -2739,7 +2739,7 @@ D:It is a large, powerful jackal, who seems to have a sense of purpose.
 
 N:279:quylthulg
 G:Q:y
-I:110:23:10:1:0
+I:110:23:10:5:0
 W:20:1:4000
 F:CHAOTIC | EMPTY_MIND | INVISIBLE | NEVER_BLOW | NEVER_MOVE | NO_BLIND | 
 F:NO_CALM | NO_FEAR | NO_SLEEP | NO_CONF | NEVER_FAIL
@@ -3179,7 +3179,7 @@ D:A ten foot tall humanoid with powerful muscles.
 
 N:322:natural quylthulg
 G:Q:b
-I:110:45:10:1:0
+I:110:45:10:5:0
 W:25:1:6000
 F:ANIMAL | CHAOTIC | EMPTY_MIND | INVISIBLE | NEVER_BLOW | NEVER_MOVE |
 F:NO_BLIND | NO_CALM | NO_FEAR | NO_SLEEP | NO_CONF | NEVER_FAIL
@@ -3985,7 +3985,7 @@ D:A hideous, beastly, four-armed unclean giant.
 
 N:393:nexus quylthulg
 G:Q:R
-I:110:56:10:1:0
+I:110:56:10:5:0
 W:31:1:9500
 F:CHAOTIC | EMPTY_MIND | INVISIBLE | NEVER_BLOW | NEVER_MOVE | NO_BLIND |
 F:NO_CALM | NO_FEAR | NO_SLEEP | NO_CONF | RES_NEXU | NEVER_FAIL
@@ -4127,7 +4127,7 @@ D: that something this beautiful could be dangerous.
 
 N:405:memory moss
 G:,:r
-I:110:2:30:1:5
+I:110:2:30:5:5
 W:32:3:1000
 B:HIT:CONFUSE:1d4
 B:HIT:CONFUSE:1d4
@@ -5250,7 +5250,7 @@ F:UNIQUE
 
 N:496:rotting quylthulg
 G:Q:u
-I:120:115:20:1:0
+I:120:115:20:5:0
 W:40:1:60000
 F:CHAOTIC | EMPTY_MIND | INVISIBLE | NEVER_BLOW | NEVER_MOVE | NO_BLIND |
 F:NO_CALM | NO_FEAR | NO_SLEEP | NO_CONF | RES_DISEASE | NEVER_FAIL
@@ -6156,7 +6156,7 @@ F:UNIQUE
 
 N:570:demonic quylthulg
 G:Q:r
-I:120:333:20:1:0
+I:120:333:20:5:0
 W:51:1:150000
 F:CHAOTIC | EMPTY_MIND | EVIL | INVISIBLE | NEVER_BLOW | NEVER_MOVE | 
 F:NO_BLIND | NO_CALM | NO_FEAR | NO_SLEEP | NO_CONF | NEVER_FAIL
@@ -6413,7 +6413,7 @@ D: to be in their path.
 
 N:591:draconic quylthulg
 G:Q:g
-I:120:500:20:1:0
+I:120:500:20:5:0
 W:58:2:300000
 F:CHAOTIC | EMPTY_MIND | INVISIBLE | NEVER_BLOW | NEVER_MOVE | NO_BLIND |
 F:NO_CALM | NO_FEAR | NO_SLEEP | NO_CONF | NEVER_FAIL
@@ -6604,7 +6604,7 @@ D: immaterial state.
 
 N:607:dark quylthulg
 G:Q:s
-I:120:666:20:1:0
+I:120:666:20:5:0
 W:63:3:400000
 F:CHAOTIC | EMPTY_MIND | EVIL | INVISIBLE | NEVER_BLOW | NEVER_MOVE | 
 F:NO_BLIND | NO_CALM | NO_FEAR | NO_SLEEP | NO_CONF | RES_DARK | NEVER_FAIL
@@ -6906,7 +6906,7 @@ F:UNIQUE
 
 N:628:greater draconic quylthulg
 G:Q:G
-I:120:1000:20:1:0
+I:120:1000:20:5:0
 W:71:3:500000
 F:CHAOTIC | EMPTY_MIND | INVISIBLE | NEVER_BLOW | NEVER_MOVE | NO_BLIND | 
 F:NO_CALM | NO_FEAR | NO_SLEEP | NO_CONF | NEVER_FAIL
@@ -6916,7 +6916,7 @@ D: light.
 
 N:629:greater rotting quylthulg
 G:Q:U
-I:120:1000:20:1:0
+I:120:1000:20:5:0
 W:71:3:500000
 F:CHAOTIC | EMPTY_MIND | INVISIBLE | NEVER_BLOW | NEVER_MOVE | NO_BLIND | 
 F:NO_CALM | NO_FEAR | NO_SLEEP | NO_CONF | RES_DISEASE | NEVER_FAIL
@@ -6926,7 +6926,7 @@ D: throbs and writhes.
 
 N:630:greater demonic quylthulg
 G:Q:R
-I:120:1050:20:1:0
+I:120:1050:20:5:0
 W:71:3:500000
 F:CHAOTIC | EMPTY_MIND | EVIL | INVISIBLE | NEVER_BLOW | NEVER_MOVE | 
 F:NO_BLIND | NO_CALM | NO_FEAR | NO_SLEEP | NO_CONF | NEVER_FAIL
@@ -7018,7 +7018,7 @@ D: spikes.
 
 N:636:master quylthulg
 G:Q:B
-I:120:2200:30:1:0
+I:120:2200:30:5:0
 W:75:3:600000
 F:CHAOTIC | EMPTY_MIND | INVISIBLE | NEVER_BLOW | NEVER_MOVE | NO_BLIND | 
 F:NO_CALM | NO_FEAR | NO_SLEEP | NO_CONF | NEVER_FAIL

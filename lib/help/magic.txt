@@ -1,6 +1,6 @@
 === Magic and Magic types ===
 
-Most classes (except Warriors and thieves) can cast magic spells of one form or
+Most classes (except Warriors and Rogues) can cast magic spells of one form or
 another.  Mages, mystics, priests, paladins, spellswords and rangers all cast 
 book-based spells, while bards use musical instruments.  Note that Paladins and
 spellswords can only gain spell abilities upon reaching levels 5, and rangers
@@ -22,6 +22,11 @@ or a bonus to dexterity or mana, or they suffer a severe penalty to spell
 success rates. Also, every magic-using class suffers from wearing heavy armor,
 though different classes can wear different amounts of armor safely.  Finally,
 some magic items may hinder your spellcasting abilities.
+
+Magic-users should note that many monsters in the dungeon are either resistant
+or vulnerable to many elements. If a monster is especially vulnerable to, say,
+fire, it will take 1.5 times the normal damage from fire bolts and other fire
+based attacks (like fire brands).
 
 
 === Book-Based Magic ===
@@ -82,4 +87,4 @@ exception: they function at a higher power level. For example, Cure Light Wounds
 becomes Cure Medium Wounds if eaten by a Shaman.
 
 
-====================== Last updated for FayAngband 1.0.1 ======================
+====================== Last updated for FayAngband 1.1.0 ======================

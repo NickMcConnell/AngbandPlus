@@ -174,51 +174,107 @@ static void display_player_xtra_info(void)
 
 	char buf[160];
 
-	/* Upper middle */
-	col = 26;
-
 	/* Left */
 	col = 1;
 
-	/* Level */
-	Term_putstr(col, 10, -1, TERM_WHITE, "Level");
-	if (p_ptr->lev >= p_ptr->max_lev) attr = TERM_L_GREEN;
-	else attr = TERM_YELLOW;
+	/* Wounds */
+	Term_putstr(col, 11, -1, TERM_WHITE, "Wounds");
 
-	Term_putstr(col + 8, 10, -1, attr, format("%10d", p_ptr->lev));
-
-	/* Current Experience */
-	Term_putstr(col, 11, -1, TERM_WHITE, "Cur Exp");
-	if (p_ptr->exp >= p_ptr->max_exp) attr = TERM_L_GREEN;
-	else attr = TERM_YELLOW;
-		
-	Term_putstr(col + 8, 11, -1, attr, format("%10ld", p_ptr->exp));
-
-	/* Maximum Experience */
-	Term_putstr(col, 12, -1, TERM_WHITE, "Max Exp");
-	Term_putstr(col + 8, 12, -1, TERM_L_GREEN, format("%10ld", p_ptr->max_exp));
-
-	/* Advance Experience */
-	Term_putstr(col, 13, -1, TERM_WHITE, "Adv Exp");
-	if (p_ptr->lev < PY_MAX_LEVEL)
+	if ((p_ptr->wound_vigor) && (p_ptr->wound_wit) && (p_ptr->wound_grace))
 	{
-		s32b advance = ((player_exp[p_ptr->lev - 1] * p_ptr->expfact) / 100L);
-		Term_putstr(col + 8, 13, -1, TERM_L_GREEN, format("%10ld", advance));
+		Term_putstr(col+15, 11, -1, TERM_VIOLET, ("All"));
 	}
-	else Term_putstr(col+8, 13, -1, TERM_L_GREEN, format("%10s", "********"));
+	else if ((p_ptr->wound_vigor) && (p_ptr->wound_wit))
+	{
+		Term_putstr(col+7, 11, -1, TERM_RED, ("Vigor & Wit"));
+	}
+	else if ((p_ptr->wound_vigor) && (p_ptr->wound_grace))
+	{
+		Term_putstr(col+7, 11, -1, TERM_RED, ("Vigor&Grace"));
+	}
+	else if ((p_ptr->wound_wit) && (p_ptr->wound_grace))
+	{
+		Term_putstr(col+7, 11, -1, TERM_RED, ("Wit & Grace"));
+	}
+	else if (p_ptr->wound_vigor)
+	{
+		Term_putstr(col+13, 11, -1, TERM_YELLOW, ("Vigor"));
+	}
+	else if (p_ptr->wound_wit)
+	{
+		Term_putstr(col+15, 11, -1, TERM_YELLOW, ("Wit"));
+	}
+	else if (p_ptr->wound_grace)
+	{
+		Term_putstr(col+13, 11, -1, TERM_YELLOW, ("Grace"));
+	}
+	else
+	{
+		Term_putstr(col+14, 11, -1, TERM_L_GREEN, ("None"));
+	}
 
-	/* Gold */
-	Term_putstr(col, 15, -1, TERM_WHITE, "Gold");
-	Term_putstr(col + 8, 15, -1, TERM_L_GREEN,format("%10ld", p_ptr->au));
+	int current_lore = p_ptr->lore - p_ptr->lore_uses;
+	if (current_lore < 0) current_lore = 0;
 
-	/* Burden */
-	if (p_ptr->total_weight % 10)
-		sprintf(buf, "%ld.%ld/%ld", p_ptr->total_weight / 10L, p_ptr->total_weight % 10L,
-		adj_str_wgt[p_stat(A_STR)] * 6L);
-	else 
-		sprintf(buf, "%ld/%ld", p_ptr->total_weight / 10L, adj_str_wgt[p_stat(A_STR)] * 6L);
-	Term_putstr(col, 16, -1, TERM_WHITE, "Burden");
-	Term_putstr(col + 8, 16, -1, TERM_L_GREEN, format("%10s", buf));
+	int current_reserves = p_ptr->reserves - p_ptr->reserves_uses;
+	if (current_reserves < 0) current_reserves = 0;
+
+	int current_escapes = p_ptr->escapes - p_ptr->escapes_uses;
+	if (current_escapes < 0) current_escapes = 0;
+
+	/* Hit Points */
+	Term_putstr(col, 12, -1, TERM_WHITE, "HP");
+	if (p_ptr->chp >= p_ptr->mhp) attr = TERM_L_GREEN;
+	else if (p_ptr->chp == 0) attr = TERM_RED;
+	else attr = TERM_YELLOW;
+	Term_putstr(col+8, 12, -1, attr, format("%4d /%4d", (int)p_ptr->chp, (int)p_ptr->mhp));
+
+	/* Spell Points */
+	if (p_ptr->msp > 0)
+	{
+		Term_putstr(col, 13, -1, TERM_WHITE, "SP");
+		if (p_ptr->chp >= p_ptr->msp) attr = TERM_L_GREEN;
+		else if (p_ptr->csp == 0) attr = TERM_RED;
+		else attr = TERM_YELLOW;
+		Term_putstr(col+8, 13, -1, attr, format("%4d /%4d", (int)p_ptr->csp, (int)p_ptr->msp));
+	}
+
+	/* Lore */
+	if (p_ptr->lore > 0)
+	{
+		if (p_stat(A_INT) + p_stat(A_WIS) >= 33)
+		{
+			Term_putstr(col, 14, -1, TERM_WHITE, "*Lore*");
+		}
+		else
+		{
+			Term_putstr(col, 14, -1, TERM_WHITE, "Lore");
+		}
+		if (current_lore >= p_ptr->lore) attr = TERM_L_GREEN;
+		else if (current_lore == 0) attr = TERM_RED;
+		else attr = TERM_YELLOW;
+		Term_putstr(col+8, 14, -1, attr, format("%4d /%4d", (int)current_lore, (int)p_ptr->lore));
+	}
+
+	/* Reserves */
+	if (p_ptr->reserves > 0)
+	{
+		Term_putstr(col, 15, -1, TERM_WHITE, "Reserves");
+		if (current_reserves >= p_ptr->reserves) attr = TERM_L_GREEN;
+		else if (current_reserves == 0) attr = TERM_RED;
+		else attr = TERM_YELLOW;
+		Term_putstr(col+8, 15, -1, attr, format("%4d /%4d", (int)current_reserves, (int)p_ptr->reserves));
+	}
+
+	/* Escapes */
+	if (p_ptr->escapes > 0)
+	{
+		Term_putstr(col, 16, -1, TERM_WHITE, "Escapes");
+		if (current_escapes >= p_ptr->escapes) attr = TERM_L_GREEN;
+		else if (current_escapes == 0) attr = TERM_RED;
+		else attr = TERM_YELLOW;
+		Term_putstr(col+8, 16, -1, attr, format("%4d /%4d", (int)current_escapes, (int)p_ptr->escapes));
+	}
 
 	/* Left Middle */
 	col = 21;
@@ -229,8 +285,8 @@ static void display_player_xtra_info(void)
 
 	/* Total Armor */
 	sprintf(buf, "[%d,%+d]", base, plus);
-	Term_putstr(col, 10, -1, TERM_WHITE, "Armor");
-	Term_putstr(col + 5, 10, -1, TERM_L_BLUE, format("%13s", buf));
+	Term_putstr(col, 11, -1, TERM_WHITE, "Armor");
+	Term_putstr(col + 5, 11, -1, TERM_L_BLUE, format("%13s", buf));
 
 	/* Melee weapon */
 	o_ptr = &inventory[INVEN_WIELD];
@@ -262,31 +318,42 @@ static void display_player_xtra_info(void)
 
 	/* Range attacks */
 	sprintf(buf, "(%+d)", hit);
-	Term_putstr(col, 15, -1, TERM_WHITE, "Shoot");
-	Term_putstr(col + 5, 15, -1, TERM_L_BLUE, format("%13s", buf));
+	Term_putstr(col, 14, -1, TERM_WHITE, "Shoot");
+	Term_putstr(col + 5, 14, -1, TERM_L_BLUE, format("%13s", buf));
 
 	/* Shots */
 	sprintf(buf, "%d/turn", p_ptr->num_fire);
-	Term_putstr(col, 16, -1, TERM_WHITE, "Shots");
-	Term_putstr(col + 5, 16, -1, TERM_L_BLUE, format("%13s", buf));
+	Term_putstr(col, 15, -1, TERM_WHITE, "Shots");
+	Term_putstr(col + 5, 15, -1, TERM_L_BLUE, format("%13s", buf));
+
+	/* Thrown Damage */
+	sprintf(buf, "%d*", p_ptr->num_fire);
+	Term_putstr(col, 16, -1, TERM_WHITE, "Thrown Damage");
+	if (p_stat(A_STR) >= 25) Term_putstr(col + 16, 16, -1, TERM_L_BLUE, format ("3*"));
+	else if (p_stat(A_STR) >= 17) Term_putstr(col + 16, 16, -1, TERM_L_BLUE, format ("2*"));
+	else Term_putstr(col + 16, 16, -1, TERM_L_BLUE, format ("1*"));
+
+	/* Shots */
+	sprintf(buf, "%d/turn", p_ptr->num_fire);
+	Term_putstr(col, 15, -1, TERM_WHITE, "Shots");
+	Term_putstr(col + 5, 15, -1, TERM_L_BLUE, format("%13s", buf));
 
 	/* Right Middle */
 	col=41;
 
+	/* Racial Ability */
+	put_str("Racial Ability", 11, col);
+	display_player_race_power(12, col);
+
 	/* Infra */
 	sprintf(buf, "%d ft", p_ptr->see_infra * 10);
-	Term_putstr(col, 10, -1, TERM_WHITE, "Infra");
-	Term_putstr(col + 5, 10, -1, TERM_L_BLUE, format("%9s", buf));
+	Term_putstr(col, 15, -1, TERM_WHITE, "Infra");
+	Term_putstr(col + 5, 15, -1, TERM_L_BLUE, format("%9s", buf));
 
-	/* Racial Ability */
-	put_str("Racial Ability", 12, col);
-	display_player_race_power(13, col);
-
-	/* Thrown Damage */
-	put_str("   Thrown Dam.", 16, col);
-	if (p_stat(A_STR) >= 25) Term_putstr(col, 16, -1, TERM_L_BLUE, format ("3*"));
-	else if (p_stat(A_STR) >= 18) Term_putstr(col, 16, -1, TERM_L_BLUE, format ("2*"));
-	else Term_putstr(col, 16, -1, TERM_L_BLUE, format ("1*"));
+	/* Spell and Device Range */
+	sprintf(buf, "%d ft", p_ptr->spell_range * 10);
+	Term_putstr(col, 16, -1, TERM_WHITE, "Spells");
+	Term_putstr(col + 6, 16, -1, TERM_L_BLUE, format("%8s", buf));
 
 	/* Bottom */
 	col = 1;
@@ -332,7 +399,6 @@ static void display_player_skill_info(void)
 
 	/* Basic abilities */
 	xskill[SK_DIS] = p_ptr->skill[SK_DIS];
-	xskill[SK_BYP] = p_ptr->skill[SK_BYP];
 	xskill[SK_DEV] = p_ptr->skill[SK_DEV];
 	xskill[SK_SAV] = p_ptr->skill[SK_SAV];
 	xskill[SK_STL] = p_ptr->skill[SK_STL];
@@ -341,43 +407,38 @@ static void display_player_skill_info(void)
 	xskill[SK_ALC] = p_ptr->skill[SK_ALC];
 	xskill[SK_MAP] = p_ptr->skill[SK_MAP];
 
-	put_str("Saving Throw", 10, col);
-	desc = likert(xskill[SK_SAV] - 10, 5);  
-	if (cheat_wizard) c_put_str(likert_color, format("%9d", xskill[SK_SAV]), 10, col+13);
-	else c_put_str(likert_color, format("%9s", desc), 10, col+13);
-
-	put_str("Stealth", 11, col);
-	desc = likert(xskill[SK_STL], 1);
-	if (cheat_wizard) c_put_str(likert_color, format("%9d", xskill[SK_STL]), 11, col+13);
+	put_str("Saving Throw", 11, col);
+	desc = likert(xskill[SK_SAV] - 11, 5);  
+	if (cheat_wizard) c_put_str(likert_color, format("%9d", xskill[SK_SAV]), 11, col+13);
 	else c_put_str(likert_color, format("%9s", desc), 11, col+13);
 
-	put_str("Fighting", 12, col);
-	desc = likert(xskill[SK_THN], 2);
-	if (cheat_wizard) c_put_str(likert_color, format("%9d", xskill[SK_THN]), 12, col+13);
+	put_str("Stealth", 12, col);
+	desc = likert(xskill[SK_STL], 1);
+	if (cheat_wizard) c_put_str(likert_color, format("%9d", xskill[SK_STL]), 12, col+13);
 	else c_put_str(likert_color, format("%9s", desc), 12, col+13);
 
-	put_str("Shooting", 13, col);
-	desc = likert(xskill[SK_THB], 2);
-	if (cheat_wizard) c_put_str(likert_color, format("%9d", xskill[SK_THB]), 13, col+13);
+	put_str("Fighting", 13, col);
+	desc = likert(xskill[SK_THN], 2);
+	if (cheat_wizard) c_put_str(likert_color, format("%9d", xskill[SK_THN]), 13, col+13);
 	else c_put_str(likert_color, format("%9s", desc), 13, col+13);
 
-	put_str("Throwing", 14, col);
-	desc = likert(xskill[SK_THT], 2);
-	if (cheat_wizard) c_put_str(likert_color, format("%9d", xskill[SK_THT]), 14, col+13);
+	put_str("Shooting", 14, col);
+	desc = likert(xskill[SK_THB], 2);
+	if (cheat_wizard) c_put_str(likert_color, format("%9d", xskill[SK_THB]), 14, col+13);
 	else c_put_str(likert_color, format("%9s", desc), 14, col+13);
 
-	put_str("Disarming", 15, col);
-	desc = likert(xskill[SK_DIS], 8);
-	if (cheat_wizard) c_put_str(likert_color, format("%9d", xskill[SK_DIS]), 15, col+13);
+	put_str("Throwing", 15, col);
+	desc = likert(xskill[SK_THT], 2);
+	if (cheat_wizard) c_put_str(likert_color, format("%9d", xskill[SK_THT]), 15, col+13);
 	else c_put_str(likert_color, format("%9s", desc), 15, col+13);
 
-	put_str("Bypass Trap", 16, col);
-	desc = likert(xskill[SK_BYP], 5);
-	if (cheat_wizard) c_put_str(likert_color, format("%9d", xskill[SK_BYP]), 16, col+13);
-	else c_put_str(likert_color, format("%9s", desc), 16, col+13); 
+	put_str("Disarming", 16, col);
+	desc = likert(xskill[SK_DIS], 8);
+	if (cheat_wizard) c_put_str(likert_color, format("%9d", xskill[SK_DIS]), 16, col+13);
+	else c_put_str(likert_color, format("%9s", desc), 16, col+13);
 
 	put_str("Magic Device", 17, col);
-	desc = likert(xskill[SK_DEV], 6);
+	desc = likert(xskill[SK_DEV], 5);
 	if (cheat_wizard) c_put_str(likert_color, format("%9d", xskill[SK_DEV]), 17, col+13);
 	else c_put_str(likert_color, format("%9s", desc), 17, col+13);
 
@@ -653,8 +714,6 @@ static void display_player_resists_info(void)
 
 	byte attr1, attr2;
 
-	c_put_str(TERM_WHITE, "Resistances:", 13, 2);
-
 	for (i = 0, j = 0; i < RS_MAX; i++)
 	{
 		x = (j / ((RS_MAX + 2) / 3));
@@ -723,7 +782,7 @@ static void display_player_resists_info(void)
 			if (p_ptr->tim_res[i]) attr1 = TERM_L_BLUE;
 			else if (p_ptr->dis_res[i] > resist_caps[i].normal) 
 			{
-				if (resist_caps[i].normal > rp_ptr->res[i]) attr1 = TERM_VIOLET;
+				if (resist_caps[i].normal > (rp_ptr->res[i] + cp_ptr->res[i])) attr1 = TERM_VIOLET;
 				else attr1 = TERM_GREEN;
 			}
 			else if (p_ptr->dis_res[i] == resist_caps[i].normal) attr1 = TERM_GREEN;
@@ -798,55 +857,95 @@ static void display_player_misc_info(void)
 	/* Dump it */
 	c_put_str(TERM_L_BLUE, p, 5, 8);
 
-	/* Hit Points */
-	put_str("HP", 6, 1);
-	sprintf(buf, "%d/%d", p_ptr->chp, p_ptr->mhp);
+	/* Age */
+	put_str("Age", 6, 1);
+	sprintf(buf, "%d", (int)p_ptr->age);
 	c_put_str(TERM_L_BLUE, buf, 6, 8);
 
-	/* Spell Points */
-	put_str("SP", 7, 1);
-	sprintf(buf, "%d/%d", p_ptr->csp, p_ptr->msp);
+	/* Height */
+	put_str("Height", 7, 1);
+	sprintf(buf, "%d", (int)p_ptr->ht);
 	c_put_str(TERM_L_BLUE, buf, 7, 8);
+
+	/* Weight */
+	put_str("Weight", 8, 1);
+	sprintf(buf, "%d", (int)p_ptr->wt);
+	c_put_str(TERM_L_BLUE, buf, 8, 8);
+
+	/* Status */
+	put_str("Status", 9, 1);
+	sprintf(buf, "%d", (int)p_ptr->sc);
+	c_put_str(TERM_L_BLUE, buf, 9, 8);
 
 	col = 21;
 
-	/* Age */
-	Term_putstr(col, 2, -1, TERM_WHITE, "Age");
-	Term_putstr(col+14, 2, -1, TERM_L_BLUE, format("%4d", (int)p_ptr->age));
+	/* Level */
+	int attr;
+	Term_putstr(col, 1, -1, TERM_WHITE, "Level");
+	if (p_ptr->lev >= p_ptr->max_lev) attr = TERM_L_BLUE;
+	else attr = TERM_BLUE;
+	if (p_ptr->max_lev > 9)
+	{
+		Term_putstr(col+12, 1, -1, attr, format("%3d/%2d", (int)p_ptr->lev, (int)p_ptr->max_lev));
+	}
+	else
+	{
+		Term_putstr(col+14, 1, -1, attr, format("%2d/%1d", (int)p_ptr->lev, (int)p_ptr->max_lev));
+	}
 
-	/* Height */
-	Term_putstr(col, 3, -1, TERM_WHITE, "Height");
-	Term_putstr(col+14, 3, -1, TERM_L_BLUE, format("%4d", (int)p_ptr->ht));
+	/* Current Experience */
+	Term_putstr(col, 2, -1, TERM_WHITE, "Cur Exp");
+	if (p_ptr->lev >= p_ptr->max_lev) attr = TERM_L_BLUE;
+	else attr = TERM_BLUE;
+	Term_putstr(col+8, 2, -1, attr, format("%10d", (int)p_ptr->exp));
 
-	/* Weight */
-	Term_putstr(col, 4, -1, TERM_WHITE, "Weight");
-	Term_putstr(col+14, 4, -1, TERM_L_BLUE, format("%4d", (int)p_ptr->wt));
+	/* Maximum Experience */
+	Term_putstr(col, 3, -1, TERM_WHITE, "Max Exp");
+	Term_putstr(col+8, 3, -1, TERM_L_BLUE, format("%10d", (int)p_ptr->max_exp));
 
-	/* Status */
-	Term_putstr(col, 5, -1, TERM_WHITE, "Status");
-	Term_putstr(col + 14, 5, -1, TERM_L_BLUE, format("%4d", (int)p_ptr->sc));
+	/* Advance Experience */
+	Term_putstr(col, 4, -1, TERM_WHITE, "Adv Exp");
+	if (p_ptr->lev < PY_MAX_LEVEL)
+	{
+		s32b advance = ((player_exp[p_ptr->lev - 1] * p_ptr->expfact) / 100L);
+		Term_putstr(col + 8, 4, -1, TERM_L_BLUE, format("%10ld", advance));
+	}
+	else Term_putstr(col+8, 4, -1, TERM_L_BLUE, format("%10s", "********"));
 
    	/* Deepest recall level */
-   	Term_putstr(col, 7, -1, TERM_WHITE, "Current Depth");
+   	Term_putstr(col, 5, -1, TERM_WHITE, "Current Depth");
    	if (!depth_in_feet) 
 	{
-		Term_putstr(col+14, 7, -1, TERM_L_BLUE, format("%4d", (int)p_ptr->max_depth));
+		Term_putstr(col+14, 5, -1, TERM_L_BLUE, format("%4d", (int)p_ptr->max_depth));
 	}
 	else 
 	{
-		Term_putstr(col+11, 7, -1, TERM_L_BLUE, format("%4d Ft", (int)p_ptr->max_depth * 50));
+		Term_putstr(col+11, 5, -1, TERM_L_BLUE, format("%4d Ft", (int)p_ptr->max_depth * 50));
 	}
 
    	/* Minimum depth */
-   	Term_putstr(col, 8, -1, TERM_WHITE, "Min Depth");
+   	Term_putstr(col, 6, -1, TERM_WHITE, "Min Depth");
    	if (!depth_in_feet) 
 	{
-		Term_putstr(col+14, 8, -1, TERM_L_BLUE, format("%4d", (int)p_ptr->min_depth));
+		Term_putstr(col+14, 6, -1, TERM_L_BLUE, format("%4d", (int)p_ptr->min_depth));
 	}
 	else 
 	{
-		Term_putstr(col+11, 8, -1, TERM_L_BLUE, format("%4d Ft", (int)p_ptr->min_depth * 50));
+		Term_putstr(col+11, 6, -1, TERM_L_BLUE, format("%4d Ft", (int)p_ptr->min_depth * 50));
 	}
+
+	/* Gold */
+	Term_putstr(col, 8, -1, TERM_WHITE, "Gold");
+	Term_putstr(col + 8, 8, -1, TERM_L_BLUE,format("%10ld", p_ptr->au));
+
+	/* Burden */
+	if (p_ptr->total_weight % 10)
+		sprintf(buf, "%ld.%ld/%ld", p_ptr->total_weight / 10L, p_ptr->total_weight % 10L,
+		adj_str_wgt[p_stat(A_STR)] * 6L);
+	else 
+		sprintf(buf, "%ld/%ld", p_ptr->total_weight / 10L, adj_str_wgt[p_stat(A_STR)] * 6L);
+	Term_putstr(col, 9, -1, TERM_WHITE, "Burden");
+	Term_putstr(col + 8, 9, -1, TERM_L_BLUE, format("%10s", buf));
 }
 
 /*
@@ -1165,7 +1264,39 @@ static void display_player_stat_info(void)
 		/* Race bonus */
 		if (!rp_ptr->special) n = rp_ptr->r_adj[stat];
 		else n = rsp_ptr[(p_ptr->max_lev) / 5]->r_adj[stat] + rp_ptr->r_adj[stat];
-	
+
+		/*** Hack: wounds affect race bonus ***/
+		if (stat == 0)
+		{
+			if (p_ptr->wound_vigor == 2) n += -1;
+			if (p_ptr->wound_vigor == 4) n += -1;
+		}
+		else if (stat == 1)
+		{
+			if (p_ptr->wound_wit == 2) n += -1;
+			if (p_ptr->wound_wit == 4) n += -1;
+		}
+		else if (stat == 2)
+		{
+			if (p_ptr->wound_wit == 3) n += -1;
+			if (p_ptr->wound_wit == 4) n += -1;
+		}
+		else if (stat == 3)
+		{
+			if (p_ptr->wound_grace == 2) n += -1;
+			if (p_ptr->wound_grace == 4) n += -1;
+		}
+		else if (stat == 4)
+		{
+			if (p_ptr->wound_vigor == 3) n += -1;
+			if (p_ptr->wound_vigor == 4) n += -1;
+		}
+		else if (stat == 5)
+		{
+			if (p_ptr->wound_grace == 3) n += -1;
+			if (p_ptr->wound_grace == 4) n += -1;
+		}
+
 		/* Good */
 		if (n > 0)
 		{
@@ -1629,6 +1760,8 @@ void analyze_weapon(const object_type *o_ptr)
 {
 	int i;
 	int dam = 0;
+	int penalty = 0;
+	int str_needed, dex_needed, max_blows;
 
 	byte ds = object_ds(o_ptr);
 	byte dd = object_dd(o_ptr);
@@ -1637,20 +1770,84 @@ void analyze_weapon(const object_type *o_ptr)
 	byte slays[SL_MAX];
 	bool any_slay = FALSE;
 
-	/* Heavy weapons */
-	if (adj_str_hold[p_stat(A_STR)] < object_weight(o_ptr) / 10)
+	text_out("\n");
+
+	/* How much STR you need */
+	for (i = 0; i < 31; i++)
 	{
-		int penalty = (object_weight(o_ptr) / 10) - adj_str_hold[p_stat(A_STR)];
-
-		text_out_c(TERM_L_RED, "You are too weak to use this weapon effectively! ");
-
-		ds = (ds * 2) / (penalty + 2);
-		dd = (dd * 2) / (penalty + 2);
+		if (adj_str_hold[i] >= object_weight(o_ptr) / 10)
+		{
+			str_needed = i;
+			break;
+		}
 	}
 
+	/* Find out the effective weapon weight */
+	int wgt_val = (object_weight(o_ptr) / 10);
+	if (wgt_val > 29) wgt_val = 29;
+
+	if (!((cp_ptr->flags & CF_BLESS_WEAPON) && (!p_ptr->bless_blade) &&
+		((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_POLEARM))))
+	{
+		if ((cp_ptr->flags & CF_BETTER_BLOWS) && (wgt_val > 12)) wgt_val--;
+		if (cp_ptr->flags & CF_BETTER_BLOWS) wgt_val--;
+	}
+
+	if (cp_ptr->flags & CF_WORSE_BLOWS) wgt_val++;
+
+	if (wgt_val < 0) wgt_val = 0;
+	if (wgt_val > 29) wgt_val = 29;
+
+	/* Maximum number of blows? How much DEX needed for that? */
+	max_blows = weapon_wgt_blows[wgt_val];
+	for (i = 0; i < 31; i++)
+	{
+		if (adj_dex_blows[i] == max_blows)
+		{
+			dex_needed = i;
+			break;
+		}
+	}
+
+	/* Penalties for too low STR */
+	if (str_needed > p_stat(A_STR))
+	{
+		penalty = (object_weight(o_ptr) / 10) - adj_str_hold[p_stat(A_STR)];
+	}
+
+	/* If you cannot use the weapon fully competently, display info about needed stats */
+	if (str_needed > p_stat(A_STR))
+	{
+		text_out_c(TERM_L_RED, "You need ");
+		text_out_c(TERM_L_RED, format("%d ", str_needed));
+		if (dex_needed > p_stat(A_DEX))
+		{
+			text_out_c(TERM_L_RED, "STR to use this weapon effectively and ");
+			text_out_c(TERM_L_RED, format("%d ", dex_needed));
+			text_out_c(TERM_L_RED, "DEX to get the full ");
+			text_out_c(TERM_L_RED, format("%d ", max_blows));
+			text_out_c(TERM_L_RED, "blows with it!\n\n");
+		}
+		else
+		{
+			text_out_c(TERM_L_RED, "STR to use this weapon effectively!\n\n");
+		}
+	}
+	else if (dex_needed > p_stat(A_DEX))
+	{
+		text_out_c(TERM_L_RED, "You need ");
+		text_out_c(TERM_L_RED, format("%d ", dex_needed));
+		text_out_c(TERM_L_RED, "DEX to get the full ");
+		text_out_c(TERM_L_RED, format("%d ", max_blows));
+		text_out_c(TERM_L_RED, "blows with this weapon!\n\n");
+	}
+
+	/* Print damage */
+	ds = (ds * 2) / (penalty + 2);
+	dd = (dd * 2) / (penalty + 2);
 	dam = ((ds + 1) * 5 * dd);
 
-	text_out("\nUsing this weapon, you are, in your current condition, able to score ");
+	text_out("Using this weapon, you are, in your current condition, able to score ");
 	text_out_c(TERM_L_GREEN, format("%d ", blows));
 	if (blows > 1) text_out("blows per round. Each blow will do an average damage of ");
 	else text_out("blow per round, averaging a damage of ");
@@ -1680,6 +1877,22 @@ void analyze_weapon(const object_type *o_ptr)
 		
 	if (any_slay) text_out(" vs. unaffected monsters.\n"); 
 	else text_out(" vs. any monster.\n"); 
+
+	/* Ambush chance */
+	int ambush_remainder = 0;
+	int ambush = (p_ptr->to_h + object_to_h(o_ptr)) +5;
+	if (cp_ptr->flags & CF_AMBUSH)
+	{
+		ambush += (p_ptr->lev +10)/2;
+		ambush_remainder = 5 * ((p_ptr->lev +10) % 2);
+	}
+	if (p_ptr->tim_stealth) ambush += 10;
+
+	text_out("\nWith this weapon, you have a ");
+	text_out_c(TERM_L_GREEN, format("%d", ambush));
+	if (ambush_remainder) text_out_c(TERM_L_GREEN, format (".%d", ambush_remainder));
+	text_out_c(TERM_L_GREEN, "%");
+	text_out(" bonus to your critical hit chance against sleeping, scared, confused, or blind monsters.\n");
 }
 
 /*
@@ -1740,12 +1953,28 @@ void analyze_ammo(const object_type *o_ptr)
 		else text_out_c(TERM_L_GREEN, format("%d", dam / 10));
 			
 		if (any_slay) text_out(" vs. unaffected monsters. "); 
-		else text_out(" vs. any monster. "); 
+		else text_out(" vs. any monster. ");
 	}
 
 	text_out("It has a ");
 	text_out_c(TERM_L_GREEN, format("%d%%", k_info[o_ptr->k_idx].breakage));
 	text_out(" chance of breaking on contact.\n");
+
+	/* Ambush chance */
+	int ambush_remainder = 0;
+	int ambush = (p_ptr->to_h + object_to_h(o_ptr)) +5;
+	if (cp_ptr->flags & CF_AMBUSH)
+	{
+		ambush += (p_ptr->lev +10)/2;
+		ambush_remainder = 5 * ((p_ptr->lev +10) % 2);
+	}
+	if (p_ptr->tim_stealth) ambush += 10;
+
+	text_out("\nWith this arrow, either thrown or fired from any bow, you have a ");
+	text_out_c(TERM_L_GREEN, format("%d", ambush));
+	if (ambush_remainder) text_out_c(TERM_L_GREEN, format (".%d", ambush_remainder));
+	text_out_c(TERM_L_GREEN, "%");
+	text_out(" bonus to you critical hit chance against sleeping, scared, confused, or blind monsters.\n");
 }
 
 /* 
@@ -2167,11 +2396,55 @@ void list_object(const object_type *o_ptr, int mode)
 					case TV_POTION:			text_out("When quaffed, it "); break;
 					case TV_SCROLL:			text_out("When read, it "); break;
 					case TV_WAND:			text_out("When aimed, it "); break;
+					case TV_POWDER:			text_out("When you throw it at a monster and it hits, it "); break;
+					case TV_FLASK:			text_out("When you refuel a lantern with it, it "); break;
 					case TV_STAFF: default: text_out("When used, it "); break;
 				}
 			}
 
 			text_out(format("%s", buf));
+
+			/* Show fail rate */
+			if ((o_ptr->tval == TV_TALISMAN) || (o_ptr->tval == TV_ROD) || (o_ptr->tval == TV_WAND)
+				|| (o_ptr->tval == TV_STAFF) || (o_ptr->tval ==  TV_DRAG_ARMOR) || (o_ptr->a_idx))
+			{
+				int lev = k_info[o_ptr->k_idx].level;
+
+				int chance;
+				int fail_rate;
+
+				/* Base chance of success */
+				chance = p_ptr->skill[SK_DEV];
+			
+				/* Count the first 10 item levels twice */
+				chance = chance - ((lev > 10) ? 10 : lev);
+
+				/* Count the first 4 item levels three times */
+				chance = chance - ((lev > 4) ? 4 : lev);
+
+				/* Confusion hurts skill */
+				if (p_ptr->confused) chance = chance / 2;
+			
+				/* Stunning hurts skill */
+				if (p_ptr->stun > PY_STUN_HEAVY) chance = chance / 2;
+				else if (p_ptr->stun) chance = (chance * 2) / 3;
+			
+				/* High level objects are harder */
+				if (lev > 80) chance -= 57;
+				else chance -= ((lev > 51) ? 30 + (lev/3) : lev - ((lev-10)/10));
+
+				/* Calculate fail rate */
+				if (chance < 2) fail_rate = 100;
+				else if (chance == 2) fail_rate = 80;
+				else fail_rate = (200/chance);
+
+				if (fail_rate > 100) fail_rate = 100;
+
+				/* Print fail rate */
+				text_out(", with a ");
+				text_out_c(TERM_YELLOW, format ("%d%%", fail_rate));
+				text_out(" fail rate");
+			}
 
 			if ((i > 0) && (j > 0)) 
 			{
@@ -2189,10 +2462,405 @@ void list_object(const object_type *o_ptr, int mode)
 			}
 			else if (i > 0)
 			{
-				text_out(", recharging every turn.");
+				text_out(", recharging every turn.  ");
 			}
 			else text_out(".  ");
+
 			anything = TRUE;
+
+			/*				
+			 * If item power has damage, radius, or beam chance, show them
+			 */
+			int plev = p_ptr->lev;
+			int beam, dlev, llev;
+
+			switch (o_ptr->tval)
+			{
+				case TV_STAFF:		beam = 0; dlev = 20; llev = 20; break;
+				case TV_WAND:		beam = 20; dlev = plev; llev = 20; break;
+				case TV_ROD:		beam = 0; dlev = 10; llev = 10; break;
+				case TV_TALISMAN:	beam = 10; dlev = plev; llev = plev; break;
+				case TV_FOOD:		beam = 0; dlev = plev; llev = 20; break;
+				case TV_SCROLL:		beam = 0; dlev = 20; llev = 30; break;
+				default:		beam = 0; dlev = plev; plev = plev; break;
+			}
+
+			switch (object_activation(o_ptr))
+			{
+				case POW_POWDER_HASTE:
+				case POW_POWDER_HEAL:
+				case POW_POWDER_CONFUSING:
+				case POW_POWDER_SLEEPING:
+				case POW_POWDER_CALMING:
+				case POW_POWDER_TRANSFORMING:
+					text_out("On a critical hit, the powder cloud will spread.  "); break;
+				case POW_POWDER_FLASH:
+				case POW_POWDER_DARKNESS:
+					text_out("Damage ");
+					text_out_c(TERM_L_GREEN, "5d7");
+					text_out(". On a critical hit, the powder cloud will spread.  "); break;
+				case POW_POWDER_POISONING:
+					text_out("Damage ");
+					text_out_c(TERM_L_GREEN, "3d14");
+					text_out(".  On a critical hit, the powder cloud will spread.  "); break;
+				case POW_POWDER_BURNING:
+				case POW_POWDER_FREEZING:
+					text_out("Damage ");
+					text_out_c(TERM_L_GREEN, "3d16");
+					text_out(".  On a critical hit, the powder cloud will spread.  "); break;
+				case POW_POWDER_INCINERATION:
+				case POW_POWDER_ICE_BLAST:
+					text_out("Damage ");
+					text_out_c(TERM_L_GREEN, "8d30");
+					text_out(", radius ");
+					text_out_c(TERM_L_GREEN, format ("2"));
+					text_out(".  On a critical hit, the powder cloud will spread further.  "); break;
+				case POW_POWDER_ENERGY:
+					text_out("Damage ");
+					text_out_c(TERM_L_GREEN, "10d60");
+					text_out(", radius ");
+					text_out_c(TERM_L_GREEN, format ("2"));
+					text_out(".  On a critical hit, the powder cloud will spread further.  "); break;
+				case POW_OIL_LANTERN:
+					text_out("When you throw it at a monster and it hits, it burns the monster.  ");
+					text_out("Damage ");
+					text_out_c(TERM_L_GREEN, "2d4");
+					text_out(".  On a critical hit, the oil slick will spread.  "); break;
+				case POW_OIL_BURNING:
+					text_out("When you throw it at a monster and it hits, it burns the monster.  ");
+					text_out("Damage ");
+					text_out_c(TERM_L_GREEN, "3d10");
+					text_out(".  On a critical hit, the oil slick will spread.  "); break;
+				case POW_DETONATE:
+					text_out("It is a powerful thrown weapon.  ");
+					text_out("Damage ");
+					text_out_c(TERM_L_GREEN, "25d25");
+					text_out(".  "); break;
+				case POW_BOLT_MISSILE:
+					text_out("Damage ");
+					text_out_c(TERM_L_GREEN, format ("2d6"));
+					text_out(".  "); break;
+				case POW_BOLT_ELEC:
+					text_out("Damage ");
+					text_out_c(TERM_L_GREEN, format ("%dd6", (3 + ((dlev - 5) / 4))));
+					beam = beam -10;
+					if (beam > 0)
+					{	text_out(", beam chance ");
+						text_out_c(TERM_L_GREEN, format ("%d%%", beam));
+					}
+					text_out(".  ");
+					break;
+				case POW_BOLT_COLD_1:
+					text_out("Damage ");
+					text_out_c(TERM_L_GREEN, format ("%dd6", 5 + ((dlev - 5) / 4)));
+					beam = beam -10;
+					if (beam > 0)
+					{	text_out(", beam chance ");
+						text_out_c(TERM_L_GREEN, format ("%d%%", beam));
+					}
+					text_out(".  ");
+					break;
+				case POW_BOLT_COLD_2:
+					text_out("Damage ");
+					text_out_c(TERM_L_GREEN, format ("%dd6", 10 + ((dlev - 5) / 4)));
+					beam = beam -10;
+					if (beam > 0)
+					{	text_out(", beam chance ");
+						text_out_c(TERM_L_GREEN, format ("%d%%", beam));
+					}
+					text_out(".  "); break;
+				case POW_BOLT_ACID_1:
+					text_out("Damage ");
+					text_out_c(TERM_L_GREEN, format ("%dd6", 3 + (dlev / 4)));
+					if (beam > 0)
+					{	text_out(", beam chance ");
+						text_out_c(TERM_L_GREEN, format ("%d%%", beam));
+					}
+					text_out(".  "); break;
+				case POW_BOLT_ACID_2:
+					text_out("Damage ");
+					text_out_c(TERM_L_GREEN, format ("%dd7", 3 + ((dlev - 5) / 4)));
+					if (beam > 0)
+					{	text_out(", beam chance ");
+						text_out_c(TERM_L_GREEN, format ("%d%%", beam));
+					}
+					text_out(".  "); break;
+				case POW_BOLT_FIRE_1:
+					text_out("Damage ");
+					text_out_c(TERM_L_GREEN, format ("10d6"));
+					if (beam > 0)
+					{	text_out(", beam chance ");
+						text_out_c(TERM_L_GREEN, format ("%d%%", beam));
+					}
+					text_out(".  "); break;
+				case POW_BOLT_FIRE_2:
+					text_out("Damage ");
+					text_out_c(TERM_L_GREEN, format ("%dd6", 5 + (dlev / 5)));
+					if (beam > 0)
+					{	text_out(", beam chance ");
+						text_out_c(TERM_L_GREEN, format ("%d%%", beam));
+					}
+					text_out(".  "); break;
+				case POW_BOLT_FIRE_3:
+					text_out("Damage ");
+					text_out_c(TERM_L_GREEN, format ("%dd7", 7 + ((dlev - 5) / 3)));
+					if (beam > 0)
+					{	text_out(", beam chance ");
+						text_out_c(TERM_L_GREEN, format ("%d%%", beam));
+					}
+					text_out(".  "); break;
+				case POW_BOLT_FORCE_2:
+					text_out("Damage ");
+					text_out_c(TERM_L_GREEN, format ("%dd8", 3 + (dlev / 5)));
+					if (beam > 0)
+					{	text_out(", beam chance ");
+						text_out_c(TERM_L_GREEN, format ("%d%%", beam));
+					}
+					text_out(".  "); break;
+				case POW_BOLT_LITE:
+				case POW_BOLT_DARK:
+					text_out("Damage ");
+					text_out_c(TERM_L_GREEN, format ("4d7"));
+					text_out(".  "); break;
+				case POW_BOLT_WATER:
+					text_out("Damage ");
+					text_out_c(TERM_L_GREEN, format ("5d6"));
+					text_out(".  "); break;
+				case POW_BOLT_MANA:
+					text_out("Damage ");
+					text_out_c(TERM_L_GREEN, format ("%dd6", 6 + ((dlev - 5) / 4)));
+					if (beam > 0)
+					{	text_out(", beam chance ");
+						text_out_c(TERM_L_GREEN, format ("%d%%", beam));
+					}
+					text_out(".  "); break;
+				case POW_BEAM_WEAK_LITE:
+					text_out("Damage ");
+					text_out_c(TERM_L_GREEN, format ("9d8"));
+					text_out(".  "); break;
+				case POW_BALL_POISON:
+					text_out("Damage ");
+					text_out_c(TERM_L_GREEN, format ("15"));
+					text_out(", radius ");
+					text_out_c(TERM_L_GREEN, format ("2"));
+					text_out(".  "); break;
+				case POW_BALL_ACID:
+				case POW_BALL_ELEC_1:
+					text_out("Damage ");
+					text_out_c(TERM_L_GREEN, format ("%d", 35 + (dlev *2)));
+					text_out(", radius ");
+					text_out_c(TERM_L_GREEN, format ("2"));
+					text_out(".  "); break;
+				case POW_BALL_ELEC_2:
+					text_out("Damage ");
+					text_out_c(TERM_L_GREEN, format ("210"));
+					text_out(", radius ");
+					text_out_c(TERM_L_GREEN, format ("3"));
+					text_out(".  "); break;
+				case POW_BALL_FIRE_1:
+					text_out("Damage ");
+					text_out_c(TERM_L_GREEN, format ("80"));
+					text_out(", radius ");
+					text_out_c(TERM_L_GREEN, format ("2"));
+					text_out(".  "); break;
+				case POW_BALL_FIRE_2:
+					text_out("Damage ");
+					text_out_c(TERM_L_GREEN, format ("%d", 50 + (dlev)));
+					text_out(", radius ");
+					text_out_c(TERM_L_GREEN, format ("%d", (dlev < 40) ? 2 : 3));
+					text_out(".  "); break;
+				case POW_BALL_FIRE_3:
+					text_out("Damage ");
+					text_out_c(TERM_L_GREEN, format ("%d", 90 + (dlev * 2)));
+					text_out(", radius ");
+					text_out_c(TERM_L_GREEN, format ("%d", (dlev < 40) ? 3 : 4));
+					text_out(".  "); break;
+				case POW_BALL_COLD_1:
+					text_out("Damage ");
+					text_out_c(TERM_L_GREEN, format ("%d", 30 + (dlev)));
+					text_out(", radius ");
+					text_out_c(TERM_L_GREEN, format ("%d", (dlev < 35) ? 2 : 3));
+					text_out(".  "); break;
+				case POW_BALL_COLD_2:
+					text_out("Damage ");
+					text_out_c(TERM_L_GREEN, format ("%d", 60 + (dlev * 2)));
+					text_out(", radius ");
+					text_out_c(TERM_L_GREEN, format ("%d", (dlev < 35) ? 3 : 4));
+					text_out(".  "); break;
+				case POW_BALL_COLD_3:
+					text_out("Damage ");
+					text_out_c(TERM_L_GREEN, format ("180"));
+					text_out(", radius ");
+					text_out_c(TERM_L_GREEN, format ("4"));
+					text_out(".  "); break;
+				case POW_STAR_BEAM_W_LITE:
+					text_out("Damage ");
+					text_out_c(TERM_L_GREEN, format ("6d8"));
+					text_out(".  "); break;
+				case POW_STAR_BALL_ELEC:
+					text_out("Damage ");
+					text_out_c(TERM_L_GREEN, format ("40"));
+					text_out(", radius ");
+					text_out_c(TERM_L_GREEN, format ("3"));
+					text_out(".  "); break;
+				case POW_DRAIN_LIFE_1:
+					text_out("Damage ");
+					text_out_c(TERM_L_GREEN, format ("%d", (50 + dlev)));
+					text_out(".  "); break;
+				case POW_DRAIN_LIFE_2:
+					text_out("Damage ");
+					text_out_c(TERM_L_GREEN, format ("110"));
+					text_out(".  "); break;
+				case POW_DRAIN_LIFE_3:
+					text_out("Damage ");
+					text_out_c(TERM_L_GREEN, format ("180"));
+					text_out(".  "); break;
+				case POW_DISPEL_ALL:
+					text_out("Damage ");
+					text_out_c(TERM_L_GREEN, format ("%d", (dlev * 6)));
+					text_out(".  "); break;
+				case POW_DISPEL_UNDEAD_1:
+					text_out("Damage ");
+					text_out_c(TERM_L_GREEN, format ("1d%d", (dlev * 3)));
+					text_out(".  "); break;
+				case POW_DISPEL_EVIL_3:
+					text_out("Damage ");
+					text_out_c(TERM_L_GREEN, format ("1d%d", (dlev * 3)));
+					text_out(".  "); break;
+				case POW_HOLY_1:
+					text_out("Damage ");
+					text_out_c(TERM_L_GREEN, format ("1d%d", (dlev * 6)));
+					text_out(".  "); break;
+				case POW_LIGHT_AREA_2: 
+				case POW_DARK_AREA:
+					text_out("Damage ");
+					text_out_c(TERM_L_GREEN, format ("2d%d", (dlev/2)));
+					text_out(", radius ");
+					text_out_c(TERM_L_GREEN, format ("%d", (dlev/10) + 1));
+					text_out(".  "); break;
+				case POW_SHRPOISON:
+					if (cp_ptr->flags & CF_SHROOM_MAGIC)
+					{
+						text_out("When eaten by a Shaman, it makes you breath poison.  ");
+						text_out("Damage ");
+						text_out_c(TERM_L_GREEN, format ("150+1d%d", (dlev*2)));
+						text_out(".  ");
+					}
+					break;
+				case POW_SHRBLIND:
+					if (cp_ptr->flags & CF_SHROOM_MAGIC)
+					{
+						text_out("When eaten by a Shaman, it attempts to blind all monsters in line of sight.  ");
+					}
+					break;
+				case POW_SHRSCARE:
+					if (cp_ptr->flags & CF_SHROOM_MAGIC)
+					{
+						text_out("When eaten by a Shaman, it attempts to scare all monsters in line of sight.  ");
+					}
+					break;
+				case POW_SHRCONFUSE:
+					if (cp_ptr->flags & CF_SHROOM_MAGIC)
+					{
+						text_out("When eaten by a Shaman, it attempts to confuse all monsters in line of sight.  ");
+					}
+					break;
+				case POW_SHRHALLUCINATE:
+					if (cp_ptr->flags & CF_SHROOM_MAGIC)
+					{
+						text_out("When eaten by a Shaman, it provides temporary see invisible.  ");
+					}
+					break;
+				case POW_SHRPARALYZE:
+					if (cp_ptr->flags & CF_SHROOM_MAGIC)
+					{
+						text_out("When eaten by a Shaman, it attempts to paralyze all monsters in line of sight.  ");
+					}
+					break;
+				case POW_SHRNAIVITY:
+					if (cp_ptr->flags & CF_SHROOM_MAGIC)
+					{
+						text_out("When eaten by a Shaman, it restores mana to full level.  ");
+					}
+					break;
+				case POW_SHRSTUPIDITY:
+					if (cp_ptr->flags & CF_SHROOM_MAGIC)
+					{
+						text_out("When eaten by a Shaman, it makes you go berserk.  ");
+					}
+					break;
+				case POW_SHRAMNESIA:
+					if (cp_ptr->flags & CF_SHROOM_MAGIC)
+					{
+						text_out("When eaten by a Shaman, it makes you invisible.  ");
+					}
+					break;
+				case POW_SHRDISEASE:
+					if (cp_ptr->flags & CF_SHROOM_MAGIC)
+					{
+						text_out("When eaten by a Shaman, it makes you breath nether.  ");
+						text_out("Damage ");
+						text_out_c(TERM_L_GREEN, format ("250+1d%d", (dlev*2)));
+						text_out(".  ");
+					}
+					break;
+				case POW_SHRHEAL_1:
+					if (cp_ptr->flags & CF_SHROOM_MAGIC)
+					{
+						text_out("When eaten by a Shaman, it reduces cuts and heals you a moderate amount.  ");
+					}
+					break;
+				case POW_SHRHEAL_2:
+					if (cp_ptr->flags & CF_SHROOM_MAGIC)
+					{
+						text_out("When eaten by a Shaman, it reduces cuts and heals you a large amount.  ");
+					}
+					break;
+				case POW_DRAGON_BLACK:
+				case POW_DRAGON_BLUE:
+				case POW_DRAGON_WHITE:
+				case POW_DRAGON_RED:
+						text_out("Damage ");
+						text_out_c(TERM_L_GREEN, format ("125+1d%d", (dlev*2)));
+						text_out(", radius ");
+						text_out_c(TERM_L_GREEN, format ("2"));
+						text_out(".  "); break;
+				case POW_DRAGON_GREEN:
+						text_out("Damage ");
+						text_out_c(TERM_L_GREEN, format ("150+1d%d", (dlev*2)));
+						text_out(", radius ");
+						text_out_c(TERM_L_GREEN, format ("2"));
+						text_out(".  "); break;
+				case POW_DRAGON_GOLD:
+				case POW_DRAGON_SILVER:
+						text_out("Damage ");
+						text_out_c(TERM_L_GREEN, format ("100+1d%d", (dlev*2)));
+						text_out(", radius ");
+						text_out_c(TERM_L_GREEN, format ("2"));
+						text_out(".  "); break;
+				case POW_DRAGON_MH:
+				case POW_DRAGON_SPIRIT:
+				case POW_DRAGON_SHADOW:
+				case POW_DRAGON_ETHER:
+						text_out("Damage ");
+						text_out_c(TERM_L_GREEN, format ("250+1d%d", (dlev*2)));
+						text_out(", radius ");
+						text_out_c(TERM_L_GREEN, format ("2"));
+						text_out(".  "); break;
+				case POW_DRAGON_CHAOS:
+				case POW_DRAGON_TIME:
+						text_out("Damage ");
+						text_out_c(TERM_L_GREEN, format ("350+1d%d", (dlev*2)));
+						text_out(", radius ");
+						text_out_c(TERM_L_GREEN, format ("2"));
+						text_out(".  "); break;
+				case POW_DRAGON_POWER:
+						text_out("Damage ");
+						text_out_c(TERM_L_GREEN, format ("400+1d%d", (dlev*2)));
+						text_out(", radius ");
+						text_out_c(TERM_L_GREEN, format ("2"));
+						text_out(".  "); break;
+			}
 		}
 	}
 
@@ -2224,12 +2892,12 @@ void list_object(const object_type *o_ptr, int mode)
 
 		if (i >= 10)
 		{
-			text_out("\nYou think it values at around ");
+			text_out("You think it values at around ");
 			text_out_c(TERM_ORANGE, format("%d", i / 10));
 			text_out(" gp.  ");
 		}
-		else if (i) text_out("\nIt appears to be of little value.  ");
-		else text_out("\nIt appears to be totally worthless.  ");
+		else if (i) text_out("It appears to be of little value.  ");
+		else text_out("It appears to be totally worthless.  ");
 
 		anything = TRUE;
 	}

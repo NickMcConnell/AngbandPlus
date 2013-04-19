@@ -19,7 +19,12 @@ treasure.
 
 If there's one thing the dungeons of EyAngband don't lack, its monsters.  As
 you travel down the murky depths, you will encounter many different types of 
-creatures, some very dangerous, while others only mildly annoying. 
+creatures, some very dangerous, while others only mildly annoying.
+
+Many monsters in the dungeon are either resistant or vulnerable to many
+elements. If a monster is especially vulnerable to, say, fire, it will take 1.5
+times the normal damage from fire bolts and other fire based attacks (like fire
+brands).
 
 The following are some of the most important creature types:
 
@@ -136,4 +141,4 @@ This memory can be passed on to a new character even after you die by means
 of a reduced save file.
 
 
-====================== Last updated for FayAngband 1.0.1 ======================
+====================== Last updated for FayAngband 1.1.0 ======================

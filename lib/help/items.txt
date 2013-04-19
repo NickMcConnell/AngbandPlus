@@ -142,19 +142,20 @@ Potions
     Potions usually are vulnerable to cold attacks.
 
 Scrolls
-    Scrolls are an ubiquitous item type.  They can produce many different effects
-    when 'r'ead.  Reading a scroll causes the parchment to disintegrate as the
-    scroll takes effect.  Some scrolls which prompt for more information can be
-    aborted (by pressing ESCAPE), which will stop reading the scroll before it
-    disintegrates.  You cannot read a scroll while blinded or in darkness.
+    Scrolls are an ubiquitous item type.  They can produce many different
+    effects when 'r'ead.  Reading a scroll causes the parchment to disintegrate
+    as the scroll takes effect.  Some scrolls which prompt for more information
+    can be aborted (by pressing ESCAPE), which will stop reading the scroll
+    before it disintegrates.  You cannot read a scroll while blinded or in
+    darkness.
 
     Scrolls may be destroyed by fire and acid attacks.
 
 Wands
     Wands are short sticks imbued with magical power.  All wands have a limited
-    amount of charges.  Wand abilities always require a target - whether a monster,
-    or a dungeon feature, you must always choose where to apply the effect.  Wands
-    may be used with the 'a'im command.
+    amount of charges.  Wand abilities always require a target - whether a
+    monster, or a dungeon feature, you must always choose where to apply the
+    effect.  Wands may be used with the 'a'im command.
 
     Wands usually are vulnerable to electrical attacks.
 

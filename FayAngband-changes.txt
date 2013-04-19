@@ -1,0 +1,492 @@
+FayAngband 1.1, "Tough but Fairy"
+=================================
+
+Not so hard anymore!
+	- Proficiencies
+	- Critical wounds below 0 HP
+	- More information, less guesswork
+	- Changed level size
+	- Simplified character creation
+
+More tactical gameplay!
+	- Range is much more relevant
+	- New take on hit chance and critical hits
+	- Tweaks to melee weapons
+	- Streamlined magical devices and distraction spells
+	- Miscellaneous changes
+
+Read on for details.
+
+
+Proficiencies
+-------------
+
+This release has probably as many changes as Fay 1.0 had compared to EyAngband. I didn't want to release until it was "done". Let's start with proficiencies.
+
+Fay 1.0 was too hard, and proficiencies is one of the changes that addresses this. It was particularly frustrating to return to dungeon after you had spent all your resources in a big fight -- and lost. In Angband you could just start slowly accumulating resources again on easier dungeon levels, but that's not really an option in Fay. Proficiencies are designed to make you less dependant on resources.
+
+The second reason for proficiences is that I wanted to make INT and WIS *still* more important for non-casters. (Charisma too, but see "spell range" below for that.)
+
+Why do I call them proficiencies? Because after I had removed the (p)lace traps command, I had letter p available on the keyboard.
+
+To use proficiencies, just press p and choose: "Use which proficiency: (i)dentify, (c)ave lore, (r)ecover, (s)hift?"
+
+You can see your Reserves, Escapes, and Lore points on the left side of the screen below HPs and SPs. The proficiency points are refreshed each time you go down a staircase.
+
+Let's handle Reserves and Escapes first.
+
+	* RECOVER, which uses a point of Reserves, is simply Cure Critical
+	  Wounds. You can use Recover even when blind or confused.
+
+	* SHIFT, which uses a point of Escapes, is directed teleportation.
+	  Choose a direction, and Shift tries hard to teleport you in that
+	  direction, usually at least 150 feet away if there are enough empty
+	  floor squares to land on in that direction, and never further than
+	  250 feet. You can use shift while blind or confused. You can't choose
+	  a direction if you are confused.
+
+The in-game flavour for Shift is that the Realms of Angband and the Faery Realm are very close. If you know where to look, you can find a small portal (a "mouse-hole") and enter through it to the Faery Realm. Then you shift back to the Realm of Angband, in a different location. Faery races are obviously best at shifting, but all characters will eventually learn the secret.
+
+Reserves and Escapes accumulate as you gain levels:
+
+LEVEL	RESERVES	LEVEL	ESCAPES
+10	1		15	1
+20	2		25	2
+30	3		35	3
+40	4		45	4
+50	5		55	5
+			65	6
+
+Races have bonuses or penalties at the tables:
+
+- All faery races (elf, dwarf, gnome) get +10 levels to Escapes.
+
+- All small races (hit die 8-) get -5 levels to Reserves, and +5 levels to Escapes. Small races are better at shifting because they can easily slip through the mouse-holes. On the other hand, they are worse at recovering from damage.
+
+- All tough races (hit die 11+) get +5 levels to Reserves table, and -5 levels to Escapes.
+
+- These modifiers are cumulative. For example, gnomes get +10 levels to Escapes for being faeries and +5 for being small. So they get to start the game with one point of Escapes.
+
+Ok, now the Lore table. Lore points and available proficiencies are derived from your Intelligence and Wisdom like this:
+
+INT+WIS	LORE POINTS	AVAILABLE PROFICIENCIES
+
+22+	Lore 1		Identify, Cave Lore
+33+	*Lore* 1	Dungeon Lore, Identify Pack, Analyse Item
+44+	*Lore* 2
+55+	*Lore* 3
+
+As you can see in the table, INT+WIS 22+ gives you access to Common Lore, with two proficiencies:
+
+	* IDENTIFY.
+
+	* CAVE LORE is directed detection for doors, stairs, and minerals.
+	  It also grants a bonus to your next mapping attempt.
+
+INT+WIS 33+ gives access to Greater Lore (aka *Lore*). At first, you don't get any extra Lore points.
+
+	* DUNGEON LORE is directed detection for mapping, minerals, and --
+	  most importantly -- traps. It also grants a bonus to your next
+	  mapping attempt. (Tip: don't forget to use Dungeon Lore on vaults.)
+
+	* IDENTIFY PACK.
+
+	* ANALYSE ITEM tests a skill: Alchemy for potions, Perception
+	  otherwise. If you succeed, you identify the item fully. In case of
+	  potions, you also learn all alchemical information. 
+
+To give more relevance for Lore, I removed scrolls and staves of Detect Treasure, spells and staves of Detect Doors and Stairs, and Identify spell. I made scrolls of Identify rarer in shops and more expensive. Scrolls of *Identify* are also rarer.
+
+Note that peeking at artifact.txt is cheating. Play fair and use your *Lore*! :)
+
+
+Critical wounds below 0 HP
+--------------------------
+
+You no longer necessarily die when your hitpoints fall under zero! Instead, you suffer a random wound that hurts two of your abilities.
+
+Internal wound hurts Vigor (STR & CON), brain damage hurts Wit (INT & WIS), and broken back hurts Grace (DEX & CHR). One point of damage to each ability is substracted from your racial bonus, so it is *truly permanent damage*, but sustain protects from this. Note that wounds have the same ability pairs as Restore potions and Sustain rings.
+
+After being wounded, your hitpoints are set to 50 % of the new maximum. Adrenalin surge then cures all poison, cuts, stunning, confusion, blindness, paralyzation, and slowing. If you already have the same type of wound, you die.
+
+Faery races (elf, dwarf, and gnome) have a 1/2 chance of dying when wounded.  "Your half-faery constitution can't handle the system shock. You die." This is to balance their shifting skills.
+  
+Angels and demons have a 1/4 chance of getting banished when wounded.  "Your spirit abandons this dying body. You return to Heaven." This is mostly for flavour. I like it that humans and animalistic races are a bit tougher than the "special" races.
+
+Let me know what you think of wounds. Is -1/-1 permanent penalty to abilities too bad, or just right? Did you continue playing after being wounded? I might introduce a mega-rare mushroom that cures wounds... I find that mostly I'm happy to continue playing after a stupid mistake, even with slightly reduced stats.
+
+
+More information, less guesswork
+--------------------------------
+
+I want FayAngband to be a game full of interesting tactical choices. You can't really make good choices unless you know what's happening inside the game. So I decided to give the player access to lots of new information. You no longer have to depend on guesswork.
+
+- (I)nspecting a weapon shows how much STR you would need to use it effectively, and how much DEX you would need to get the full blows. It also shows your ambush chance with that weapon.
+
+- You can now check fail rates by inspecting devices. Most magic items also show damage, beam chance, and radius when inspected.
+
+- Powder vials and oil flasks now have descriptions when inspected. (I had to add powers that do nothing.)
+
+- Mushrooms show their enhanced effects when a Shaman inspects them.
+
+- Monster lore now shows the monster's saving throws against status effects. It looks like this: "He cannot be confused. Wands & staves have a 43% chance of affecting him, other sources 59%." Bard and mystics have more powerful distraction spells, and monster lore looks a bit different for them: "He cannot be confused. Your spells have a 70% chance of affecting him, wands & staves 29%, other sources 61%." Since monster's saves are based purely on its level, you gain access to them once you kill one monster and learn its level.
+
+- When you (l)ook at a monster, you see your melee to-hit chance and critical hit chance in the monster status line like this: (undamaged, confused, 92%+4%). When you target a monster with bow & arrow or a thrown weapon, you see your to-hit chance with that weapon, taking the range in account. Monster armor rating is now always known.
+
+
+Changed level size
+------------------
+
+There are no more tiny levels (too dangerous) or normal huge levels (boring in Fay because you are supposed to clear levels completely before diving). Half of the levels are now square-shaped (2x2), and the other half are narrow (1x3 or 3x1).
+
+Greater vaults don't fit in these small levels. I decided to have Fay occasionally generate a huge level with an almost guaranteed greater vault.
+
+Fixed a stupid bug: small levels didn't get the correct amount of monsters. Tiny levels were OK but larger ones had too few monsters. I also restored minimum monster allocation level back to 14, the EyAngband default. I had erroneusly increased this to 17 because I didn't realize there was a bug in monster allocation. These extra monsters made Star's competition (which had normal sized levels) even more difficult.
+
+
+Simplified character creation
+-----------------------------
+
+Standard roller is now the only stat creation method. All rolled characters have exactly the old maximum of 66 points in stats, so hopefully you don't miss the autoroller or point-based too much.
+
+Keep rolling until you are happy! Remember that many different stat combinations are viable in FayAngband for every class, and that every stat is important. Also, stats go up and down a lot in the dungeons, so precise min-maxing might not be so beneficial after all.
+
+I also removed some other birth options: birth_force_small_lev, birth_ironman, birth_autoscum. FayAngband is itself a kind of Ironman-option, so I saw no need for these.
+
+
+Range is much more relevant
+---------------------------
+
+Range is now much more relevant tactically in all forms of combat.
+
+The most radical change is this: Charisma determines your spell and magical device range. Range is shorter than it used to be. (Remember that Charisma also affects your Device skill.)
+
+Monster spell range is also shorter, and random: 2d6+5 squares. It's a good idea to keep the average monster spell range in mind, it is 120 feet. Monster range is rolled every turn before the monster chooses what it is going to do. So monsters are less likely to shoot or cast attack spells at long range. Monsters are still able to cast some spells, like healing, outside spell range. 
+
+I changed almost every bow and arrow to make equipment choices more interesting and range more relevant. For example, Flight Arrows now have a mighty +6 bonus to range, allowing you to shoot beyond probable monster spell range. They may be worth carrying now.
+ 
+I also reduced thrown weapon range, and made weapon weight more important. You can't throw anything beyond short bow range (80 feet).
+
+Now you really have to pay attention to range. To make it easier, I modified the targeting interface. Now, when looking or targeting, you can see the distance between you and the target grid. You can no longer choose monsters that are out of range in the default mode. Now you first have to press 'o' to be able to target someone out of range. In the 'o' mode the description changes from "You target" to "You see" if the target square is out of range or if the line of fire is blocked by a wall. You can no longer accidentally target a monster that is out of range with targeting keymaps like "f1*".
+
+
+New take on hit chance and critical hits
+----------------------------------------
+
+I noticed that hit chance was very often at the maximum 95%. The extra skill points were worthless, and I hated it.
+
+There are now two ways to score critical hits. The first is ambushing sleeping, confused, scared or blind monsters, which works just like in Fay 1.0. The second is overpowering your opponent with superior combat skill. When your hit chance exceeds 90%, your critical hit chance increases by (chance-90)*(chance-90). If the difference between your skill and monster's AC is huge, you will easily devastate it!
+
+I tweaked minimum to-hit chances also. The minimum chance in ranged combat is 10 %. The minimum to-hit chance in melee combat is 25 %.
+
+Other changes to critical hits:
+
+- Powder clouds will spread on a critical hit. Fun! This opens interesting tactical opportunities. Oil flasks now explode just like powders and cause fire damage. Rogues (only) may get great critical hits, which increase radius by two.
+
+- You can't get criticals with ranged weapons if the target is in melee range. 
+
+- Potion of Sneakiness changed back to Potion of Stealth. It doesn't increase ambush chance anymore but the stealth boost lasts six times longer. There were too many effects that increased ambush chance.
+
+- Rangers now only get one extra shot, at level 25. But their superior bow skill and better archery criticals are much more effective now.
+
+
+Tweaks to melee weapons
+-----------------------
+
+I continued rebalancing melee weapons. See also changes in 1.0.1.
+
+- Rebalanced weapon prefixes so that starting weapons won't get out of hand now that early heavy weapons deal much more damage. Ursan weapons are better, and many light prefixes are worse. Despite nerfing, Gnomish Broad Axe, Grippli Glaive and Rattikin Two-Handed Sword are probably the best starting weapons for warriors.
+
+- After my balancing effort, Fellpurr weapons had got boring. What to do? I decided to give Fellpurrs some cat-like habits. "Wrapped up in courtly etiquette and fine silk, the Fellpurr culture at its heart is playful, competitive, and sometimes cruel. They love hunting animals and Faeries, often just for the fun of it." Added slay animal at 1.1 and slay faery at 1.2 to the Fellpurr weapon prefix.
+
+- Forester's, Hunter's, Iron, Silver prefixes: increased slays to 1.3.  Iron-Tipped Arrow: increased slay demon to 1.3.
+
+- Made Long Sword lighter. It's still not a very good weapon without prefixes, but many prefixes work beautifully with it. Interestingly, both heavy Ursan Long Swords (two blows) and light Elven or Fellpurr Long Swords (three blows) are excellent weapons for a starting warrior. Rattikin and Gnome Spellswords like Long Swords, too.
+
+- STR 14 is now enough to swing weapons weighing 18 lbs (up from 16 lbs). STR 14 used to be useful only for warriors and shamans. Now Broad Axe (18 lbs) is a fine starting weapon for bards and rangers at least, and vargr spellsword gets a cool Vargr Two-Handed Sword (also 18 lbs).
+
+- Swapped names: Morning Star and Flail. Flail has now has damage 5d4 and weighs less, 19 lbs. Made Flail available to all classes as a starting weapon.
+
+- Made Halberd a bit lighter to make it available to characters with STR 16.
+
+
+Streamlined magical devices and distraction spells
+--------------------------------------------------
+
+In order to add new information to (I)nspecting magical items and to monster lore, I had to do a lot of streamlining.
+
+- Rebalanced device fail rates. You can't get partial successes with wands or talismans anymore. Charisma is even more important than before. Often you need to boost Charisma to get tolerable fail rates for a given device; just like you need to boost STR or DEX to use weapons.
+
+- Rebalanced and streamlined monster saving throws against status effects. Wands and staves are very effective at beating monster saves until character level 20. In the late game all the other sources -- spells, mushrooms, powders, artifacts, and talismans -- will get much better than wands & staves.
+
+- Calm-effects no longer have +50% power compared to other effects. To compensate, non-wounded monsters have to make their saving throw twice to resist calming. CALM_NON_CHAOS is the only Calm-effect with non-standard power.
+
+
+Miscellaneous changes
+---------------------
+
+- Made identifying worn equipment much faster.
+
+- Level feelings were a bit off for small levels. Gave small levels a bonus to level feelings. The feeling "What a boring level" can't be generated anymore, which is appropriate because there are no boring levels in Fay :). "This level can't be all bad" is now the lowest level feeling.
+
+- Character level now affects the power of shaman's mushroom breaths.
+
+- Potion of Resist Heat & Cold replaces separate potions.
+
+- Fixed a bug: when firing, throwing, etc. diagonally, the objects often flew 10 feet beyond the maximum range.
+
+- Redesigned the character sheet.
+
+- Removed the skill Bypass Trap, mostly to unclutter the character sheet.  There were few situations where the skill mattered.
+
+- You are now asked to confirm stepping on a known trap.
+
+- Innate resistances from race + class can now exceed normal resistance caps.  Previously only racial resistances could exceed caps. This change is most important for rangers, demons and angels. For example, an Angel Ranger can now have permanent fire resistance at 74 % instead of the normal maximum 55 %. Level 50 Demon Ranger specialised in fire has fire resistance at full 100 %. That's how I imagined it worked from the beginning. :) Reduced Angels' light resistance to 90 % to prevent any race/class combination from having higher than 100 % resistances.
+
+- Doubled thrown weapon damage now comes at STR 17 (lowered from 18).
+
+- To compensate spellcasters for their reduces spell range, I gave some more mana to spellcasters with lower than 18 spell stat.
+
+- I also boosted Mages' Charisma by  one, it's now at +2. I moved one point from Priests' Charisma (now +1) to Intelligence (now -1). It seems natural that Mages have better CHR than Priests now that they really need it for those long, beaming elemental attacks. (Mystics have already benefited from other changes -- *Lore*, better distraction spells, better powder vials -- so no buff for them. Mystics also don't rely on beams as much.)
+
+- Updated help files.
+
+
+
+
+FayAngband 1.0.1 changes
+========================
+
+Bugfixes
+--------
+
+- Phlogiston didn't work on magic lanterns.
+
+- Bug with the artifact spellbooks: The Codex of Ultimate Wisdom (in
+  Inventory) was really the Necronomicon when used, and Mathemagical
+  calculations was really the codex of ultimate Wisdom.
+
+- Some mage spellbooks were not available at the bookstore.
+
+- Fixed a bug with starting weapons: characters couldn't get the last weapon on
+  their list.
+
+- Rogues only had level +2.5 percentage point bonus to critical hits, should
+  be level +5.
+
+- Added wands of Sleep Monster, Confuse Monster, and Blind Monster back to game,
+  but made their rarity 0. This allows Wand of Wonder to replicate their
+  effects, and fixes the bug. (I had removed the wands to make the effects
+  exclusive to powder vials.)
+
+
+Combat rebalancing
+------------------
+
+- Increased damage for early weapons weighting more than 16 lbs. (Max one
+  blow/turn.) Now both STR and DEX based characters should be competitive
+  right from the start.
+
+- Flail damage reduced a little, 2d7 -> 3d4. Bastard Sword now weighs 14 lbs
+  and deals 1d15 damage, so it's a perfect weapon for many starting Warriors.
+
+- Broad Axe is now a common starting weapon, and Broad Sword a good starting
+  weapon, so only warriors and spellswords can get it.
+
+- Reordered the starting weapon lists so that if two weapons have a tie at
+  damage per turn, choose the weapon with more blows.
+
+- If STR is 18+, double thrown weapon damage. If STR is 25+, triple thrown
+  weapon damage. Only applies to weapons, not powder vial effects.
+
+- Increased all classes' throwing skill by +1 per 10 levels to help powders
+  (which do not get any enchantment bonuses).
+
+- Shamans now only get better blows with bludgeoning and blessed weapons.
+
+
+Other stuff
+-----------
+
+- Nerfed Curse Equipment and *Curse Equipment*.
+
+- Panel size doesn't affect detection area anymore. Detection area is a square
+  about the size of the smallest possible dungeon level in FayAngband. That's
+  also the size of the panel you would get on classic terminal screen. All
+  detection spells and mapping "bounce off" dungeon border. You always get the
+  same sized square, even if you cast detect at a corner of the dungeon.
+  Detection spells flash with yellow stars, so you can easily tell the detected
+  area. Much of the code stolen from Vanilla 3.2. and Oangband 1.1.0.
+
+- All sorts of magical disarm now only work on known traps. This is to prevent
+  potentially slow and boring gameplay at vaults.
+
+- Allow Scroll of Trap Detection, but it is now as deep and expensive as
+  Enchant Weapon. Found in shops only rarely. Also Word of Recall exists as a
+  scroll but it's rare and expensive.
+
+- Potion of Stealth changed to Potion of Sneakiness. In addition to temporary
+  Stealth bonus, it also increases critical hit chance by 10 percentage points
+  against distracted monsters. Increased the cost a little.
+
+- Added some scrolls to the shops: Identify is now 33 % more common and Remove
+  Curse 100 % more common.
+
+- Restore potions now restore two stats. Restore Vigor (STR & CON), Restore Wit
+  (INT & WIS), and Restore Grace (DEX & CHR). Also tweaked the sustain rings to
+  have the same names and ability pairs.
+
+- Updated and corrected many help files.
+
+
+
+Original release, FayAngband 1.0
+================================
+
+I've reanimated an old favorite, EyAngband! Since I'm not Eytan, I'm calling this attempt FayAngband.
+
+All the features I wanted are already in place, and I've been playtesting this for some months. So I'm brave enough to give version number 1.0.
+
+I've never before coded anything in C. Mostly I just copied and pasted stuff from other places. So I'm sure the code is ugly in some places. But hey, it works!
+
+Big thanks for all Angband coders for making the code so readable and easy to understand. Most of all, thanks to Eytan Zweig. EyAngband is a wonderful variant, and easy to build on.
+
+I've had three major design goals:
+
+1) FayAngband should not reward slow playing. Instead, it should reward good tactics, and taking calculated risks.
+
+2) Make the gameplay faster. Remove unnecessary tedium.
+
+3) Characters should be different from each other. All character classes should have their distinct personality, and all stats should be important for all classes.
+
+- Mikko Lehtinen, January 2011
+
+
+
+Radically different stairs
+--------------------------
+
+Stairs up now take you straight back to the town. Stairs down take you somewhere near your maximum depth. There's no more need for Word of Recall.
+
+Morgoth isn't sleeping anymore, now he's preparing for war. The minimum difficulty level increases by one each time the player takes the stairs down.
+
+When you take the stairs in town, you are asked where you want to navigate. Do you want to descend to (e)asier depth than before, (s)ame depth, (l)ower depth, or perhaps (d)ive two levels deeper? So you can still control how fast you dive, as long as your current depth is at least as deep as the minimum depth.
+
+If you dive fast, you'll get some wiggle room on deeper levels. For example, you could dive fast early, and then return to level 15 several times.
+
+Winners who dove fast get a big score multiplier.
+
+How do these changes affect gameplay?
+
+- Slowly accumulating power on easy dungeon levels is no longer an option.
+
+- Diving fast has many benefits, but it is also more dangerous in this variant. I hope that the player will usually navigate to the "just right" difficulty level for his power level. In this variant, you have to live on the edge.
+
+- To keep up with the ever-strengthening monsters, it is recommended that you try to clean each level throughoutly. This is how many people like to play anyway, and in this variant it's the best strategy.
+
+
+
+More pressure to dive
+---------------------
+
+All the levels are now small. No new monsters get generated on a level.
+
+To add some time pressure, food now costs much more. (Apples, beef jerkys and slime molds are somewhat cheaper than food rations, but they weigh double per food unit.)
+
+Spellcasters lose Satisfy Hunger, and gain Phlogiston, which refuels your light source (from Zangband).
+
+
+
+Mapping skill
+-------------
+
+There's a new skill, Mapping. When you arrive at a new dungeon level, you make a Mapping skill check. If you succeed, you have mapped the route from the town to this level. So you get to start on stairs leading to surface. There's only a 1/3 chance of stairs up being generated elsewhere on the level.
+
+If you succeeded in Mapping, there's a chance that you have followed a map drawn by someone else -- say, an ancient Dwarven map -- to this place, and get a random map effect to help you. In the case of the Dwarven map, you get Magic Mapping plus Detect Treasure.
+
+
+
+Intelligence, Wisdom and Charisma rebalanced
+--------------------------------------------
+
+Intelligence, Wisdom and Charisma should now be important to all characters.
+
+I've invented some new skill bonuses, swapped some bonuses around, and modified bonus tables to make stat bonuses/penalties to skills much more important.
+
+Intelligence: Intelligence represents the character's ability in logic and language. Intelligent characters are better mappers, and they also mix potions, pick locks and disarm traps more effectively.
+
+Wisdom: Wise character are at peace with the world, full of common sense, and always aware of their surroundings. Wise characters have a good perception, and have a better chance of resisting magical spells cast upon them by monsters.
+
+Charisma: Charisma is more than just appearances and personality. It also represents the character's metaphysical presence, his "aura". Charismatic characters are very good with magical devices. They will also receive better prices from store owners, whereas a character with a very low charisma may be robbed blind. Finally, a high charisma will allow monsters that are magically calmed to remain non-aggressive longer.
+
+
+
+Perception governs trap detection
+---------------------------------
+
+I've removed all magical trap detection.
+
+Mapping skill sometimes detects nearby traps on a new level, but usually you have to depend on your Perception.
+
+As you walk around the dungeon, you are always keeping watch for traps. Your Perception skill sometimes allows you to notice traps before you step on them. You only get one chance to notice a given trap, and repeated searching won't help.
+
+
+
+Identify is less important
+--------------------------
+
+I got really bored with having to identify everything. It slowed down the game too much.
+
+Now, you find all weapons and armours already identified. Also, you automatically sense charges on wands and staves.
+
+You still have to identify scrolls, potions, mushrooms, rings, amulets, light sources, wands, staves, and rods. Note that all these can also be id'd by use. You still have to *identify* artifacts.
+
+There's no more Staff of Perception.
+
+
+
+Critical hits are more interesting
+----------------------------------
+
+You will usually only get criticals against sleeping, scared, confused, or blind monsters. If the monster is not distracted, divide critical chance by ten.
+
+Critical chance in percentages is 5 + character's to-hit bonus + weapon's to-hit bonus. Rogues get to add 5 + half their level. (Note that your bow's to-hit bonus has no effect here. Only the arrow's to-hit bonus matters.) You can't get criticals against unseen monsters.
+
+Rogues get double power thrown criticals, and one-and-half power melee and archery criticals. Warriors get double power melee criticals. Rangers get double power archery criticals.
+
+
+
+Rebalanced character classes
+----------------------------
+
+Classes are Warrior, Rogue, Priest, Shaman, Mage, Spellsword, Ranger, Mystic, and Bard. I've tried to make the classes more distinct from each other.
+
+All the classes have changed, but these two are *new*:
+
+Rogue is a professional criminal, attracted to the dungeon by the promise of hidden riches and great wealth. Rogue is is the only class that can sell loot to the shops. Even rogues can only sell *expensive* items - an item's evaluated price must be at least your minimum depth in feet. Rogue is the only character whose stealth improves with experience. She is the master at fighting dirty. She prefers to murder sleeping monsters, or to distract opponents with powder vials before assassinating them. When attacking sleeping, scared, confused or blind opponents, rogue gets criticals hits much more often than other classes. Her criticals are also more deadly, especially with thrown weapons. Rogue is the best thrower of all classes. She usually spots traps before stumbling on them, and knows more about traps than the other classes.
+
+Shaman is a "primitive" warrior/priest, with a belief system based on nature spirits. Shaman is a skilled fighter with blunt or blessed weapons, and can often get more blows with them than the other classes. She receives prayers at a slower pace then the priest, but can receive even the most powerful of prayers. Unlike priest, shaman can choose her prayers, but she can't cast her spells in as heavy armour. In addition to priestly prayers, shaman also practices her own special form of magic, based on eating magical mushrooms, and asking favours from their Mother Spirits. Shaman is a very perceptive character, and stealthier than a priest. Because a shaman is really a dual class character, it takes more experience to advance her. Wisdom determines shaman's spellcasting ability.
+
+
+
+Throwing fixed
+--------------
+
+You can now throw effectively any weapons that weigh less than 10 lbs. This should make throwing a bit more interesting.
+
+I also removed some effects from Wands to make Powder Vials more competitive. Confusion is now exclusive to Powder Vials.
+
+(EyAngband actually had a serious bug with throwing: thrown weapons never caused any damage.)
+
+
+
+Arcane spellcasters specialize in Fire or Frost
+-----------------------------------------------
+
+Eytan spent a lot of effort on making the mage attack spells more interesting. For example, he added lots of elemental resistances and vulnerabilities to monsters. I like this. But I disagree with Eytan's decision to make all four elemental attack spells just as efficient. The vulnerabilities are less interesting if you can always just pick the right spell for the job.
+
+In FayAngband, an arcane spellcaster's race determines whether she specializes in Fire or Frost.  (Arcane spellcasters are mage, spellsword, ranger and mystic.) For example, Fellpurs are fire wizards, Vargrs love frost, and Elves choose their specialty at random.
+
+The specialty affects some of the available spellbooks. Fire mages start the game with the spellbook "Esoteric Energies", frost mages with "Winter Witchcraft". Fire mages are most adept with fire spells, good with lightning, so-so with acid, and will never learn Frost Bolt.
+
+The specialty also affects basic resistances. This is most important for rangers, who have the best resistances of all classes.

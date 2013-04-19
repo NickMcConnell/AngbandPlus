@@ -263,11 +263,9 @@ Cast a spell (m)
 
 --- Other Character Abilities ---
 
-Set a monster trap (p)
-    Thieves possess the ability to set traps for unwary monsters.  Only one
-    monster trap can exist on a dungeon level at any given time.  If you want
-    to create a second trap, either you or a monster must first deactivate the
-    first one.
+Use a proficiciency (p)
+    If you have any proficiency points (Lore, Reserves, Escapes), pressing p
+    lets you select which one you want to use.
 
 Use racial power (U) or Operate a racial power (O)
     Angels, and demons above a certain level, possess spell-like powers which
@@ -328,8 +326,8 @@ Activate an artifact (A)
 
 Eat some food (E)
     You may use this command to eat food in your inventory.  Note that you can
-    sometimes find food in the dungeon, but it is not always wise to eat strange 
-    food.  This command takes some energy.
+    sometimes find food in the dungeon, but it is not always wise to eat
+    strange food.  This command takes some energy.
 
 Aim a wand (a) or Zap a wand (z)
     Wands must be aimed in a direction to be used.  Wands are magical devices,
@@ -603,4 +601,4 @@ HTML screen dump (right-paren)
     be read in web browsers.
 
 
-====================== Last updated for FayAngband 1.0.1 ======================
+====================== Last updated for FayAngband 1.1.0 ======================

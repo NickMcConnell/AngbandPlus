@@ -494,6 +494,14 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->msp);
 	wr_s16b(p_ptr->csp);
 	wr_u16b(p_ptr->csp_frac);
+	
+	wr_s16b(p_ptr->wound_vigor);
+	wr_s16b(p_ptr->wound_wit);
+	wr_s16b(p_ptr->wound_grace);
+
+	wr_s16b(p_ptr->lore_uses);
+	wr_s16b(p_ptr->reserves_uses);
+	wr_s16b(p_ptr->escapes_uses);
 
 	/* Max Player and Dungeon Levels */
 	wr_s16b(p_ptr->max_lev);
@@ -536,6 +544,7 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->tim_bravery);
 	wr_s16b(p_ptr->stability);
 	wr_s16b(p_ptr->racial_power);
+	wr_s16b(p_ptr->mapping_bonus);
 
 	/* Write resistances */
 	for (i = 0; i < RS_MAX; i++) wr_s16b(p_ptr->tim_res[i]);

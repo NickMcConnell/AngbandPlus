@@ -600,7 +600,6 @@ struct trap_widget
 
 	byte spot_factor;		/* Difficulty to spot the trap; only one try */
 	byte disarm_factor;		/* Difficulty to disarm at dlev 100 */
-	byte bypass_factor;		/* Difficulty to bypass at dlev 100 */
 
 	byte max_charges;		/* Maximum amount of charges */
 
@@ -1123,6 +1122,18 @@ struct player_type
 	s16b csp;			/* Cur mana pts */
 	u16b csp_frac;		/* Cur mana frac (times 2^16) */
 
+	s16b wound_vigor;	/* Internal wound, STR & CON */
+	s16b wound_wit;		/* Brain damage, INT & WIS */
+	s16b wound_grace;	/* Broken back, DEX & CHR */
+				/* 0 no wound, 1 wound with no permanent damage, */
+				/* 2 wound with first stat permanently damaged, */
+				/* 3 wound with second stat permanently damaged, */
+				/* 4 wound with both stats permanently damaged */
+
+	s16b lore_uses;		/* How many Lore points the player has used */
+	s16b reserves_uses;	/* How many Reserves points the player has used */
+	s16b escapes_uses;	/* How many Escapes points the player has used */
+
 	byte stat_max[A_MAX];	/* Current "maximal" stat values */
 	byte stat_cur[A_MAX];	/* Current "natural" stat values */
 
@@ -1167,6 +1178,8 @@ struct player_type
 	s16b energy;		/* Current energy */
 
 	s16b food;			/* Current nutrition */
+
+	s16b mapping_bonus;	/* Bonus to the next mapping attempt */
 
 	bool searching;		/* Currently searching */
 	bool hear_invis;	/* Currently hearing inivisible creatures */
@@ -1317,6 +1330,8 @@ struct player_type
 
 	bool bless_blade;	/* Blessed blade */
 
+	bool faery;		/* Faery race */
+
 	s16b dis_to_h;		/* Known bonus to hit */
 	s16b dis_to_a;		/* Known bonus to ac */
 
@@ -1343,9 +1358,15 @@ struct player_type
 	byte num_blow;		/* Number of blows */
 	s16b num_fire;		/* Number of shots */
 
+	s16b spell_range;	/* Range for spells and devices */
+
 	s16b pspeed;		/* Current speed */
 
 	u16b cur_quest;		/* Current quest */
+
+	s16b lore;		/* How many Lore points the player has used */
+	s16b reserves;		/* How many Reserves points the player has used */
+	s16b escapes;		/* How many Escapes points the player has used */
 
 	/* Generation fields (for quick start) */
 	s32b au_birth;			/* Birth gold */

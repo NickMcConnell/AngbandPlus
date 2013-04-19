@@ -25,26 +25,17 @@
 /*
  * Determine if the player "hits" a monster 
  *
- * Note -- Always miss 5%, always hit 5%, otherwise random.
  */
-static bool test_hit(int skill, int ac, int vis)
+static int test_hit(int skill, int ac, int vis)
 {
-	int k;
+	int chance;
+	int critical_hit_chance = 0;
 
-	/* Percentile dice */
-	k = rand_int(100);
-
-	/* Hack -- Instant miss or hit */
-	if (k < 10) return ((k < 5) ? TRUE : FALSE);
-
-	/* No point in continuing if you don't have the skill */
-	if (skill <= 0) return (FALSE);
-
-	/* Incrememnt skill (diminishing returns) */
-	if (skill <= 10) skill *= 10;
-	else if (skill <= 20) skill = 10 + (skill * 9);
-	else if (skill <= 30) skill = 30 + (skill * 8);
-	else skill = 60 + (skill * 7);
+	/* Increment skill (diminishing returns) */
+	if (skill <= 10) skill *= 9;
+	else if (skill <= 20) skill = 9 + (skill * 8);
+	else if (skill <= 30) skill = 27 + (skill * 7);
+	else skill = 54 + (skill * 6);
 
 	/* High ACs are harder to hit */
 	if (ac > (skill + 1) / 2) ac += ac / 2;
@@ -52,35 +43,59 @@ static bool test_hit(int skill, int ac, int vis)
 	/* Invisible monsters are harder to hit */
 	if (!vis) ac += ac / 2;
 
-	/* No point in continuing if it's impossible to hit */
-	if (ac > skill) return (FALSE);
+	/* Calculate to-hit percentage */
+	if (skill <= 0) chance = 0;
+	else chance = 100 - ((ac * 100)/skill);
 
-	/* Power competes against armor */
-	if (rand_int(skill) >= ac) return (TRUE);
+	/* Calculate the minimum chance */ 
+	if ((p_ptr->command_cmd == 'v') && (chance < 10))
+	{
+		chance = 10;
+	}
+	else if ((p_ptr->command_cmd == 'f') && (chance < 10))
+	{
+		chance = 10;
+	}
+	else if (chance < 40)
+	{
+		if (chance < 1) chance = 25;
+		else if (chance < 40) chance = 40;
+	}
 
-	/* Assume miss */
-	return (FALSE);
+	/* Calculate critical hit chance */
+	if (chance > 90)
+	{
+		critical_hit_chance = (chance - 90) * (chance - 90);
+	}
+
+	/* Make the percentage roll. Return negative value in the attack misses. */
+	if (!(chance > rand_int(100))) critical_hit_chance = -1;
+
+	return critical_hit_chance;
 }
 
 /*
  * Critical hits (from objects fired by player)
  * Factor in item weight, total plusses, and player level.
  */
-static int critical_shot(const object_type *o_ptr, byte *special, int dam)
+static int critical_shot(const object_type *o_ptr, byte *special, int dam, bool ambush, int critical_hit_chance)
 {
 	int i, k;
 
-	/* Extract "shot" power */
-	i = ((p_ptr->to_h + object_to_h(o_ptr)) * 2) +10;
+	if (ambush)
+	{
+		/* Extract "shot" power */
+		i = ((p_ptr->to_h + object_to_h(o_ptr)) * 2) +10;
 
-	/* Improved critical hits for some classes */
-	if (cp_ptr->flags & CF_AMBUSH) i += p_ptr->lev +10;
+		/* Improved ambush chance for some classes */
+		if (cp_ptr->flags & CF_AMBUSH) i += p_ptr->lev +10;
+	}
+	else i = 0;
 
-	/* Potion of Sneakiness increases critical chance */
-	if (p_ptr->tim_stealth) i += +20;
+	i += (critical_hit_chance * 2);
 
 	/* Critical hit */
-	if (randint(200) <= i)
+	if (rand_int(200) < i)
 	{
 		k = p_ptr->lev + randint(500);
 
@@ -114,21 +129,24 @@ static int critical_shot(const object_type *o_ptr, byte *special, int dam)
  * Critical hits (from objects thrown by player)
  * Factor in item weight, total plusses, and player level.
  */
-static int critical_throw(const object_type *o_ptr, int dam)
+static int critical_throw(const object_type *o_ptr, int dam, bool ambush, int critical_hit_chance)
 {
 	int i, k;
 
-	/* Extract "shot" power */
-	i = ((p_ptr->to_h + object_to_h(o_ptr)) * 2) +10;
+	if (ambush)
+	{
+		/* Extract "shot" power */
+		i = ((p_ptr->to_h + object_to_h(o_ptr)) * 2) +10;
 
-	/* Improved critical hits for some classes */
-	if (cp_ptr->flags & CF_AMBUSH) i += p_ptr->lev +10;
+		/* Improved ambush chance for some classes */
+		if (cp_ptr->flags & CF_AMBUSH) i += p_ptr->lev +10;
+	}
+	else i = 0;
 
-	/* Potion of Sneakiness increases critical chance */
-	if (p_ptr->tim_stealth) i += +20;
+	i += critical_hit_chance * 2;
 
 	/* Critical hit */
-	if (randint(200) <= i)
+	if (rand_int(200) < i)
 	{
 		k = p_ptr->lev + randint(500);
 		
@@ -157,31 +175,68 @@ static int critical_throw(const object_type *o_ptr, int dam)
 }
 
 /*
+ * Critical hits (from powder vials thrown by player)
+ */
+static int critical_powder(bool ambush, int critical_hit_chance)
+{
+	int i;
+
+	if (ambush)
+	{
+		/* Extract "shot" power */
+		i = (p_ptr->to_h * 2) +10;
+
+		/* Improved ambush chance for some classes */
+		if (cp_ptr->flags & CF_AMBUSH) i += p_ptr->lev +10;
+	}
+	else i = 0;
+
+	i += critical_hit_chance * 2;
+
+	/* Critical hit */
+	if (rand_int(200) < i)
+	{
+		if ((cp_ptr->flags & CF_BETTER_THROW) && (rand_int(5) < 2))
+		{
+			message(MSG_CRITICAL_HIT, 0,"It was a great hit!");
+			return 2;
+		}
+		else
+		{
+			message(MSG_CRITICAL_HIT, 0,"It was a good hit!");
+			return 1;
+		}
+	}
+
+	return 0;
+}
+
+/*
  * Critical hits (by player)
  *
  * Factor in weapon weight, total plusses, player level.
  */
-static int critical_norm(const object_type *o_ptr, byte *special, int dam)
+static int critical_norm(const object_type *o_ptr, byte *special, int dam, bool ambush, int critical_hit_chance)
 {
 	int i, k;
 
 	/* No critical hit with "bad" weapons */
 	if ((cp_ptr->flags & CF_BLESS_WEAPON) && (p_ptr->icky_wield)) return (dam);
-	
-	/* Extract "blow" power */
-	i = ((p_ptr->to_h + object_to_h(o_ptr)) * 2) +10;
 
-	/* Improved critical hits for blessed blades */
-	if (p_ptr->bless_blade) i += 10;
+	if (ambush)
+	{
+		/* Extract "blow" power */
+		i = ((p_ptr->to_h + object_to_h(o_ptr)) * 2) +10;
 
-	/* Improved critical hits for some classes */
-	if (cp_ptr->flags & CF_AMBUSH) i += p_ptr->lev +10;
+		/* Improved ambush chance for some classes */
+		if (cp_ptr->flags & CF_AMBUSH) i += p_ptr->lev +10;
+	}
+	else i = 0;
 
-	/* Potion of Sneakiness increases critical chance */
-	if (p_ptr->tim_stealth) i += +20;
+	i += critical_hit_chance * 2;
 
 	/* Chance */
-	if (randint(200) <= i)
+	if (rand_int(200) < i)
 	{
 		k = ((p_ptr->to_h + object_to_h(o_ptr)) * 4) + (p_ptr->lev * 2) + randint(600);
 
@@ -200,21 +255,21 @@ static int critical_norm(const object_type *o_ptr, byte *special, int dam)
 		}
 		else if (k < 700)
 		{
-			message(MSG_CRITICAL_HIT, 0, "It was a great hit!");
+			message(MSG_CRITICAL_HIT, 0,"It was a great hit!");
 			if (o_ptr->tval == TV_POLEARM) dam = ((11 * dam) / 5) + 10;
 			else if (o_ptr->tval == TV_SWORD) dam = ((3 * dam) / 2) + 5;
 			else dam = dam + 5;
 		}
 		else if (k < 900)
 		{
-			message(MSG_CRITICAL_HIT, 0, "It was a superb hit!");
+			message(MSG_CRITICAL_HIT, 0,"It was a superb hit!");
 			if (o_ptr->tval == TV_POLEARM) dam = 3 * dam + 15;
 			else if (o_ptr->tval == TV_SWORD) dam = ((8 * dam) / 5) + 8;
 			else dam = ((3 * dam) / 2) + 8;
 		}
 		else if (k < 1300)
 		{
-			message(MSG_CRITICAL_HIT, 0, "It was a *GREAT* hit!");
+			message(MSG_CRITICAL_HIT, 0,"It was a *GREAT* hit!");
 			if (o_ptr->tval == TV_POLEARM) dam = ((16 * dam) / 5) + 20;
 			else if (o_ptr->tval == TV_SWORD) dam = 2 * dam + 13;
 			else dam = ((8 * dam) / 5) + 13;
@@ -223,7 +278,7 @@ static int critical_norm(const object_type *o_ptr, byte *special, int dam)
 		}
 		else
 		{
-			message(MSG_CRITICAL_HIT, 0, "It was a *SUPERB* hit!");
+			message(MSG_CRITICAL_HIT, 0,"It was a *SUPERB* hit!");
 			if (o_ptr->tval == TV_POLEARM) dam = ((7 * dam) / 2) + 25;
 			if (o_ptr->tval == TV_SWORD) dam = ((12 * dam) / 5) + 16;
 			else dam = 2 * dam + 16;
@@ -1111,6 +1166,7 @@ void py_attack(int y, int x)
 {
 	int num = 0;
 	int k, chance;
+	int critical_hit_chance = 0;
 
 	monster_type *m_ptr = &mon_list[cave_m_idx[y][x]];
 	monster_race *r_ptr = get_monster_real(m_ptr);
@@ -1123,6 +1179,7 @@ void py_attack(int y, int x)
 
 	bool fear = FALSE;
 	bool do_quake = FALSE;
+	bool ambush = FALSE;
 
 	/* Disturb the player */
 	disturb(0);
@@ -1182,7 +1239,9 @@ void py_attack(int y, int x)
 		}
 
 		/* Test for hit */
-		if (test_hit(chance, r_ptr->ac, m_ptr->ml))
+		critical_hit_chance = (test_hit(chance, r_ptr->ac, m_ptr->ml));
+
+		if (critical_hit_chance >= 0)
 		{
 			/* Message */
 			message_format(MSG_HIT, m_ptr->r_idx, "You hit %s.", m_name);
@@ -1205,11 +1264,13 @@ void py_attack(int y, int x)
 				/* Critical hits only against visible monsters */
 				if (m_ptr->ml)
 				{
-					/* You usually get critical hits only against distracted monsters */
-					if (m_ptr->blinded || m_ptr->confused || m_ptr->monfear || m_ptr->sleep || (1 > rand_int(10)))
+					/* You get ambush criticals only against distracted monsters */
+					if (m_ptr->blinded || m_ptr->confused || m_ptr->monfear || m_ptr->sleep)
 					{
-						k = critical_norm(o_ptr, &special, k);
+						ambush = TRUE;
 					}
+
+					k = critical_norm(o_ptr, &special, k, ambush, critical_hit_chance);
 				}
 			}
 
@@ -1433,32 +1494,10 @@ static void move_player(int dir, int jumping)
 			}
 			else
 			{
-				int i, diff;
-
-				trap_widget *w_ptr = &w_info[t_ptr->w_idx];
-
-				/* Get the "bypass" factor */
-				i = p_ptr->skill[SK_BYP];
-
-				/* Penalize some conditions */
-				if (p_ptr->blind || !player_can_see_bold(p_ptr->py, p_ptr->px)) i = i / 10;
-				if (p_ptr->confused || p_ptr->image) i = i / 7;
-
-				/* Extract the difficulty */
-				diff = 1 + (w_ptr->bypass_factor * p_ptr->depth) / 100;
-
-				/* Extract power */
-				i -= diff;
-
 				/* Protection from traps */
 				if (p_ptr->safety)
 				{
 					message_format(MSG_RESIST, 0, "Through divine influence, %s fails to trigger!", trap_name(t_ptr->w_idx, 2));
-				}
-				/* Attempt bypass */
-				else if (rand_int(100) < i)
-				{
-					message_format(MSG_RESIST, 0, "You have avoided %s!", trap_name(t_ptr->w_idx, 2));
 				}
 				else 
 				{
@@ -2232,6 +2271,12 @@ void do_cmd_go_down(void)
 			if (!get_check(out_val)) return;
 		}
 
+		/* Verify leaving with unused Lore points */
+		if (p_ptr->lore > p_ptr->lore_uses)
+		{
+			sprintf(out_val, "You haven't used all your Lore points yet. Are you sure? ");
+			if (!get_check(out_val)) return;
+		}
 
 		/* Ask the player where she wants to navigate. Choose the right question depending on circumstances. */
 
@@ -2291,7 +2336,6 @@ void do_cmd_go_down(void)
 			}
 		}
 
-
 		/* Second set of questions: Max Depth +1 is quest level */
 		else if ((quest_check(p_ptr->max_depth +1) == QUEST_FIXED) || (quest_check(p_ptr->max_depth +1) == QUEST_FIXED_U))
 		{
@@ -2340,8 +2384,6 @@ void do_cmd_go_down(void)
 				return;
 			}
 		}
-
-
 
 		/* Third set of questions: Not near the quest depth */
 		else
@@ -2399,10 +2441,15 @@ void do_cmd_go_down(void)
 
 		/* Hack -- take a turn */
 		p_ptr->energy_use = 100;
+		
+		/* Reset Proficiency uses */
+		p_ptr->lore_uses = 0;
+		p_ptr->reserves_uses = 0;
+		p_ptr->escapes_uses = 0;
 
 		/* If you make a Mapping check, you start standing on a stair. You get two tries. */
-		if ((rand_int(55+((p_ptr->max_depth)/2)) < p_ptr->skill[SK_MAP]) ||
-			(rand_int(55+((p_ptr->max_depth)/2)) < p_ptr->skill[SK_MAP]))
+		if ((rand_int(56+((p_ptr->max_depth)/2)) < p_ptr->skill[SK_MAP]) ||
+			(rand_int(56+((p_ptr->max_depth)/2)) < p_ptr->skill[SK_MAP]))
 		{
 			p_ptr->create_up_stair = TRUE;
 		}
@@ -2410,8 +2457,10 @@ void do_cmd_go_down(void)
 		{
 			p_ptr->create_up_stair = FALSE;
 			message(MSG_GENERIC, 0, "You enter the confusing maze of down staircases.");
-		}
 
+			/* Reset the mapping bonus */
+			p_ptr->mapping_bonus = 0;
+		}
 
 		/* Leaving */
 		p_ptr->leaving = TRUE;
@@ -2564,10 +2613,26 @@ static void do_cmd_walk_or_jump(int jumping)
 		/* Get location */
 		y = p_ptr->py + ddy[dir];
 		x = p_ptr->px + ddx[dir];
+
+		/* Verify legality */
+		if (!do_cmd_walk_test(y, x)) return;
 	}
 
-	/* Verify legality */
-	if (!do_cmd_walk_test(y, x)) return;
+	/* There's a known trap in the target square */
+	else if (w_info[t_list[cave_t_idx[y][x]].w_idx].flags & WGF_PLAYER)
+	{
+		trap_type *t_ptr = &t_list[cave_t_idx[y][x]];
+
+		/* Confirm stepping on a known trap */
+		if (t_ptr->visible)
+		{
+			if (!get_check("Do you really want to step on a trap? "))
+			{
+				p_ptr->energy_use = 0;
+				return;
+			}
+		}
+	}
 
 	/* Allow repeated command */
 	if (p_ptr->command_arg)
@@ -2810,6 +2875,7 @@ void do_cmd_fire(void)
 	int i, j, y, x, ty, tx;
 	int tdam, tdis, thits;
 	int chance;
+	int critical_hit_chance = 0;
 	u32b f1, f2, f3;
 
 	object_type *o_ptr;
@@ -2819,6 +2885,7 @@ void do_cmd_fire(void)
 	object_type object_type_body;
 
 	bool hit_body = FALSE;
+	bool ambush = FALSE;
 
 	byte missile_attr;
 	char missile_char;
@@ -2875,12 +2942,6 @@ void do_cmd_fire(void)
 		o_ptr = &o_list[0 - item];
 	}
 
-	/* Get a direction (or cancel) */
-	if (!get_aim_dir(&dir)) return;
-
-	/* Nullify invisiblity */
-	if (p_ptr->invis) nullify_invis();
-
 	/* Get local object */
 	i_ptr = &object_type_body;
 
@@ -2892,6 +2953,21 @@ void do_cmd_fire(void)
 
 	/* Describe the object */
 	object_desc(o_name, sizeof(o_name), i_ptr, FALSE, (display_insc_msg ? 3 : 2));
+
+	/* Calculate hit-bonus */
+	chance = p_ptr->skill[SK_THB] + p_ptr->to_h + object_to_h(i_ptr) + object_to_h(j_ptr);
+
+	/* Extract the "base range" */
+	tdis = bow_range(j_ptr);
+
+	/* Hack - Arrow pval is always a range bonus/penalty */
+	tdis += i_ptr->pval;
+
+	/* Get a direction (or cancel) */
+	if (!get_aim_dir(&dir, chance, object_to_h(i_ptr), tdis)) return;
+
+	/* Nullify invisiblity */
+	if (p_ptr->invis) nullify_invis();
 
 	/* Reduce and describe inventory */
 	if (item >= 0)
@@ -2921,17 +2997,8 @@ void do_cmd_fire(void)
 	/* Base damage from fired object plus launcher bonus */
 	tdam = damroll(object_dd(i_ptr), object_ds(i_ptr));
 
-	/* Actually "fire" the object */
-	chance = p_ptr->skill[SK_THB] + p_ptr->to_h + object_to_h(i_ptr) + object_to_h(j_ptr);
-
 	/* Boost the damage by multiplier */
 	tdam *= bow_might(j_ptr);
-
-	/* Extract the "base range" */
-	tdis = bow_range(j_ptr);
-
-	/* Hack - Arrow pval is always a range bonus/penalty */
-	tdis += i_ptr->pval;
 
 	/* Take a (partial) turn */
 	p_ptr->energy_use = (100 / thits);
@@ -2945,7 +3012,7 @@ void do_cmd_fire(void)
 	tx = p_ptr->px + 99 * ddx[dir];
 
 	/* Check for "target request" */
-	if ((dir == 5) && target_okay())
+	if ((dir == 5) && target_okay(tdis))
 	{
 		tx = p_ptr->target_col;
 		ty = p_ptr->target_row;
@@ -3027,7 +3094,9 @@ void do_cmd_fire(void)
 			}
 
 			/* Did we hit it (penalize distance travelled) */
-			if (test_hit(chance2, r_ptr->ac, m_ptr->ml))
+			critical_hit_chance = test_hit(chance2, r_ptr->ac, m_ptr->ml);
+
+			if (critical_hit_chance >= 0)
 			{
 				bool fear = FALSE;
 
@@ -3065,14 +3134,16 @@ void do_cmd_fire(void)
 				/* Apply special damage XXX XXX XXX */
 				tdam = tot_dam_aux(i_ptr, tdam, m_ptr, &special);
 
-				/* Critical hits only against visible monsters */
-				if (m_ptr->ml)
+				/* Critical hits only against visible monsters not in melee range */
+				if ((m_ptr->ml) && (distance(p_ptr->py, p_ptr->px, y, x) > 1))
 				{
-					/* You usually get criticals only against distracted monsters */
-					if (m_ptr->blinded || m_ptr->confused || m_ptr->monfear || m_ptr->sleep || (1 > rand_int(10)))
+					/* Ambush criticals only against distracted monsters */
+					if (m_ptr->blinded || m_ptr->confused || m_ptr->monfear || m_ptr->sleep)
 					{
-					tdam = critical_shot(i_ptr, &special, tdam);
+						ambush = TRUE;
 					}
+
+					tdam = critical_shot(i_ptr, &special, tdam, ambush, critical_hit_chance);
 				}
 
 				/* No negative damage */
@@ -3147,6 +3218,8 @@ void do_cmd_throw(void)
 	int dir, item;
 	int i, j, y, x, ty, tx;
 	int chance, tdam, tdis;
+	int critical_hit_chance = 0;
+	int plev = p_ptr->lev;
 	u32b f1, f2, f3;
 
 	int mul, div;
@@ -3158,6 +3231,7 @@ void do_cmd_throw(void)
 
 	bool hit_body = FALSE;
 	bool aware;
+	bool ambush = FALSE;
 
 	byte missile_attr;
 	char missile_char;
@@ -3188,9 +3262,6 @@ void do_cmd_throw(void)
 		o_ptr = &o_list[0 - item];
 	}
 
-	/* Get a direction (or cancel) */
-	if (!get_aim_dir(&dir)) return;
-
 	/* Get local object */
 	i_ptr = &object_type_body;
 
@@ -3213,17 +3284,23 @@ void do_cmd_throw(void)
 	missile_attr = object_attr(i_ptr);
 	missile_char = object_char(i_ptr);
 
-	/* Extract a "distance multiplier" */
-	mul = 10;
+	/* Chance of hitting */
+	chance = p_ptr->skill[SK_THT] + p_ptr->to_h + object_to_h(i_ptr);
 
-	/* Enforce a minimum "weight" of one pound */
-	div = ((object_weight(i_ptr) > 10) ? object_weight(i_ptr) : 10);
+	/* Extract a "distance multiplier" */
+	mul = 6;
+
+	/* Enforce a minimum "weight" of 3.5 pounds */
+	div = ((object_weight(i_ptr) > 35) ? object_weight(i_ptr) : 35);
 
 	/* Hack -- Distance -- Reward strength, penalize weight */
 	tdis = (adj_str_blow[p_stat(A_STR)] + 20) * mul / div;
 
-	/* Max distance of 10 */
-	if (tdis > 10) tdis = 10;
+	/* Max distance of 8 */
+	if (tdis > 8) tdis = 8;
+
+	/* Get a direction (or cancel) */
+	if (!get_aim_dir(&dir, chance, object_to_h(i_ptr), tdis)) return;
 
 	/* Hack -- Base damage from thrown object */
 	if (!(i_ptr->tval == TV_BOW) && (object_weight(i_ptr) < 100) && (object_weight(i_ptr) <= (10 * p_stat(A_STR))))
@@ -3231,13 +3308,10 @@ void do_cmd_throw(void)
 			tdam = damroll(object_dd(i_ptr), object_ds(i_ptr));
 
 			if (p_stat(A_STR) >= 25) tdam = tdam *3;
-			else if (p_stat(A_STR) >= 18) tdam = tdam *2;
+			else if (p_stat(A_STR) >= 17) tdam = tdam *2;
 		}
 
 	else tdam = damroll(0, 0);
-
-	/* Chance of hitting */
-	chance = p_ptr->skill[SK_THT] + p_ptr->to_h + object_to_h(i_ptr);
 
 	/* Take a turn */
 	p_ptr->energy_use = 100;
@@ -3251,7 +3325,7 @@ void do_cmd_throw(void)
 	tx = p_ptr->px + 99 * ddx[dir];
 
 	/* Check for "target request" */
-	if ((dir == 5) && target_okay())
+	if ((dir == 5) && target_okay(tdis))
 	{
 		tx = p_ptr->target_col;
 		ty = p_ptr->target_row;
@@ -3307,7 +3381,9 @@ void do_cmd_throw(void)
 			hit_body = TRUE;
 
 			/* Did we hit it (penalize range) */
-			if (test_hit(chance2, r_ptr->ac, m_ptr->ml))
+			critical_hit_chance = test_hit(chance2, r_ptr->ac, m_ptr->ml);
+
+			if (critical_hit_chance >= 0)
 			{
 				bool fear = FALSE;
 
@@ -3345,107 +3421,139 @@ void do_cmd_throw(void)
 				if	(i_ptr->tval == TV_POWDER)
 				{
 					aware = FALSE;
+
+					int spread = 0;
+
+					/* Critical hits only against visible monsters not in melee range */
+					if ((m_ptr->ml) && (distance(p_ptr->py, p_ptr->px, y, x) > 1))
+					{
+						/* Ambush criticals only against distracted monsters */
+						if (m_ptr->blinded || m_ptr->confused || m_ptr->monfear || m_ptr->sleep)
+						{
+							ambush = TRUE;
+						}
+
+						spread = critical_powder(ambush, critical_hit_chance);
+					}
+
 					switch (i_ptr->sval)
 					{
 						case SV_POWDER_SLEEP:
 						{
-							if (strike(GF_SLEEP_ALL, y, x, 20, 0)) aware = TRUE;
+							if (spread) message(MSG_EFFECT, 0, "The cloud spreads.");
+							if (strike(GF_SLEEP_ALL, y, x, ((plev > 12) ? plev : 6 + plev/2), spread)) aware = TRUE;
 							break;
 						}
 						case SV_POWDER_CONFUSE:
 						{
-							if (strike(GF_CONF_ALL, y, x, 20, 0)) aware = TRUE;
+							if (spread) message(MSG_EFFECT, 0, "The cloud spreads.");
+							if (strike(GF_CONF_ALL, y, x, ((plev > 12) ? plev : 6 + plev/2), spread)) aware = TRUE;
 							break;
 						}
 						case SV_POWDER_STARTLE:
 						{
-							if (strike(GF_SCARE_ALL, y, x, 20, 0)) aware = TRUE;
+							if (spread) message(MSG_EFFECT, 0, "The cloud spreads.");
+							if (strike(GF_SCARE_ALL, y, x, ((plev > 12) ? plev : 6 + plev/2), spread)) aware = TRUE;
 							break;
 						}
 						case SV_POWDER_FLASH:
 						{
 							message(MSG_EFFECT, 0, "The powder bursts in a bright flash of light.");
-							(void)strike(GF_BLIND_ALL, y, x, 12, 0);
-							(void)strike(GF_LITE_WEAK, y, x, damroll(5 , 7), 0);
+							if (spread) message(MSG_EFFECT, 0, "The cloud spreads.");
+							(void)strike(GF_BLIND_ALL, y, x, ((plev > 12) ? plev : 6 + plev/2), spread);
+							(void)strike(GF_LITE_WEAK, y, x, damroll(5 , 7), spread);
 							aware = TRUE;
 							break;
 						}
 						case SV_POWDER_DARKNESS:
 						{
 							message(MSG_EFFECT, 0, "The powder bursts into a cloud of darkness.");
-							(void)strike(GF_BLIND_ALL, y, x, 12, 0);
-							(void)strike(GF_DARK_WEAK, y, x, damroll(5 , 7), 0);
+							if (spread) message(MSG_EFFECT, 0, "The cloud spreads.");
+							(void)strike(GF_BLIND_ALL, y, x, ((plev > 12) ? plev : 6 + plev/2), spread);
+							(void)strike(GF_DARK_WEAK, y, x, damroll(5 , 7), spread);
 							aware = TRUE;
 							break;
 						}
 						case SV_POWDER_FIRE1:
 						{
 							message(MSG_EFFECT, 0, "The powder bursts in a firey explosion.");
-							(void)strike(GF_FIRE, y, x, 2 * damroll(3 , 8), 0);
+							if (spread) message(MSG_EFFECT, 0, "The cloud spreads.");
+							(void)strike(GF_FIRE, y, x, damroll(3 , 16), spread);
 							aware = TRUE;
 							break;
 						}
 						case SV_POWDER_FIRE2:
 						{
 							message(MSG_EFFECT, 0, "The powder bursts in a firey inferno.");
-							(void)strike(GF_FIRE, y, x, 60 + 2 * damroll(8 , 8), 2);
+							if (spread) message(MSG_EFFECT, 0, "The cloud spreads.");
+							(void)strike(GF_FIRE, y, x, damroll(8 , 30), 2 + spread);
 							aware = TRUE;
 							break;
 						}
 						case SV_POWDER_COLD1:
 						{
 							message(MSG_EFFECT, 0, "The powder bursts into an icy mist.");
-							(void)strike(GF_COLD, y, x, 2 * damroll(3 , 8), 0);
+							if (spread) message(MSG_EFFECT, 0, "The cloud spreads.");
+							(void)strike(GF_COLD, y, x, damroll(3 , 16), spread);
 							aware = TRUE;
 							break;
 						}
 						case SV_POWDER_COLD2:
 						{
 							message(MSG_EFFECT, 0, "The powder bursts in an explosion of frost.");
-							(void)strike(GF_ICE , y, x, 60 + 2 * damroll(8 , 8), 2);
+							if (spread) message(MSG_EFFECT, 0, "The cloud spreads.");
+							(void)strike(GF_ICE , y, x, damroll(8 , 30), 2 + spread);
 							aware = TRUE;
 							break;
 						}
 						case SV_POWDER_ENERGY:
 						{
 							message(MSG_EFFECT, 0, "The powder bursts in an explosion of pure energy.");
-							(void)strike(GF_MANA, y, x, 100 + 4 * damroll(10 , 10), 2);
+							if (spread) message(MSG_EFFECT, 0, "The cloud spreads.");
+							(void)strike(GF_MANA, y, x, damroll(10 , 60), 2 + spread);
 							aware = TRUE;
 							break;
 						}
 						case SV_POWDER_POISON:
 						{
 							message(MSG_EFFECT, 0, "The powder bursts into noxius vapours.");
-							(void)strike(GF_POIS, y, x, 2 * damroll(3 , 7), 0);
+							if (spread) message(MSG_EFFECT, 0, "The cloud spreads.");
+							(void)strike(GF_POIS, y, x, damroll(3 , 14), spread);
 							aware = TRUE;
 							break;
 						}
 						case SV_POWDER_HASTE:
 						{
-							if (strike(GF_SPEED_ALL, y, x, 0, 0)) aware = TRUE;
+							if (spread) message(MSG_EFFECT, 0, "The cloud spreads.");
+							if (strike(GF_SPEED_ALL, y, x, 0, spread)) aware = TRUE;
 							break;
 						}
 						case SV_POWDER_HEAL:
 						{
-							if (strike(GF_HEAL_ALL, y, x, damroll(4, 8), 0)) aware = TRUE;
+							if (spread) message(MSG_EFFECT, 0, "The cloud spreads.");
+							if (strike(GF_HEAL_ALL, y, x, damroll(4, 8), spread)) aware = TRUE;
 							break;
 						}
 						case SV_POWDER_SLOW:
 						{
-							if (strike(GF_SLOW_ALL, y, x, 20, 0)) aware = TRUE;
+							if (spread) message(MSG_EFFECT, 0, "The cloud spreads.");
+							if (strike(GF_SLOW_ALL, y, x, ((plev > 12) ? plev : 6 + plev/2), spread)) aware = TRUE;
 							break;
 						}
 						case SV_POWDER_CALM:
 						{
-							if (strike(GF_CALM_ALL, y, x, 20, 0)) aware = TRUE;
+							if (spread) message(MSG_EFFECT, 0, "The cloud spreads.");
+							if (strike(GF_CALM_ALL, y, x, ((plev > 12) ? plev : 6 + plev/2), spread)) aware = TRUE;
 							break;
 						}
 						case SV_POWDER_POLYMORPH:
 						{
-							if (strike(GF_POLY_ALL, y, x, 20, 0)) aware = TRUE;
+							if (spread) message(MSG_EFFECT, 0, "The cloud spreads.");
+							if (strike(GF_POLY_ALL, y, x, ((plev > 12) ? plev : 6 + plev/2), spread)) aware = TRUE;
 							break;
 						}
 					}
+
 					if ((!object_aware_p(i_ptr)) && aware)
 					{
 						object_aware(i_ptr);
@@ -3458,19 +3566,57 @@ void do_cmd_throw(void)
 					p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 				}
 
+				else if	(i_ptr->tval == TV_FLASK)
+				{
+					aware = FALSE;
+					int spread = 0;
+					if (1 > rand_int(3)) spread = 1;
+
+					/* Critical hits only against visible monsters not in melee range */
+					if ((m_ptr->ml) && (distance(p_ptr->py, p_ptr->px, y, x)))
+					{
+						/* Ambush criticals only against distracted monsters */
+						if (m_ptr->blinded || m_ptr->confused || m_ptr->monfear || m_ptr->sleep)
+						{
+							ambush = TRUE;
+						}
+
+						spread = critical_powder(ambush, critical_hit_chance);
+					}
+
+					switch (i_ptr->sval)
+					{
+						case SV_FLASK_LANTERN:
+						{
+							message(MSG_EFFECT, 0, "The oil ignites.");
+							if (spread) message(MSG_EFFECT, 0, "The oil slick spreads.");
+							(void)strike(GF_FIRE, y, x, damroll(2 , 4), spread);
+							break;
+						}
+						case SV_FLASK_BURNING:
+						{
+							message(MSG_EFFECT, 0, "The oil burns with intense flames.");
+							if (spread) message(MSG_EFFECT, 0, "The oil slick spreads.");
+							(void)strike(GF_FIRE, y, x, damroll(3 , 10), spread);
+							break;
+						}
+					}
+				}
 				else
 				{
 					/* Apply special damage XXX XXX XXX */
 					tdam = tot_dam_aux(i_ptr, tdam, m_ptr, &special);
 
-					/* Critical hits only against visible monsters */
-					if (m_ptr->ml)
+					/* Critical hits only against visible monsters not in melee range */
+					if ((m_ptr->ml) && (distance(p_ptr->py, p_ptr->px, y, x)))
 					{
-						/* You usually get criticals only against distracted monsters */
-						if (m_ptr->blinded || m_ptr->confused || m_ptr->monfear || m_ptr->sleep || (1 > rand_int(10)))
+						/* Ambush criticals only against distracted monsters */
+						if (m_ptr->blinded || m_ptr->confused || m_ptr->monfear || m_ptr->sleep)
 						{
-							tdam = critical_throw(i_ptr, tdam);
+							ambush = TRUE;
 						}
+
+						tdam = critical_throw(i_ptr, tdam, ambush, critical_hit_chance);
 					}
 
 					/* No negative damage */

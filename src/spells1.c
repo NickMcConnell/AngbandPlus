@@ -187,6 +187,92 @@ void teleport_away(int m_idx, int dis)
 }
 
 /*
+ * Shift the player to a location up to 25 grids away,
+ * in a direction chosen by the player.
+ */
+void shift_player(int x_adjust, int y_adjust)
+{
+	int d, i;
+	int dis = 25;
+	int min = 15;
+
+	int y = p_ptr->py;
+	int x = p_ptr->px;
+
+	bool look = TRUE;
+	bool adjust = TRUE;
+	int boostx = 2;
+	int boosty = 2;
+
+	/* Look until done */
+	while (look)
+	{
+		/* Try several locations */
+		for (i = 0; i < 5000; i++)
+		{
+			/* Pick a (possibly illegal) location */
+			while (TRUE)
+			{
+				y = rand_spread(p_ptr->py, dis);
+				x = rand_spread(p_ptr->px, dis);
+				d = distance(p_ptr->py, p_ptr->px, y, x);
+				if ((d >= min) && (d <= dis)) break;
+			}
+
+			/* Ignore illegal locations */
+			if (!in_bounds_fully(y, x)) continue;
+
+			/* Require "naked" floor space */
+			if (!cave_naked_bold(y, x)) continue;
+
+			/* No teleporting into vaults and such */
+			if (cave_info[y][x] & (CAVE_ICKY)) continue;
+
+			/* Is the location in the right direction? */
+			look = FALSE;
+			if (adjust)
+			{
+				if (x_adjust < 0)
+				{
+					if (p_ptr->px <= x + boostx) look = TRUE;
+				}
+				if (x_adjust > 0)
+				{
+					if (p_ptr->px >= x - boostx) look = TRUE;
+				}
+				if (y_adjust < 0)
+				{
+					if (p_ptr->py <= y + boosty) look = TRUE;
+				}
+				if (y_adjust > 0)
+				{
+					if (p_ptr->py >= y - boosty) look = TRUE;
+				}
+			}
+
+			/* Stop looking */
+			break;
+		}
+
+		/* Decrease the minimum distance */
+		min = min -1;
+		if (min < 0) min = 0;
+
+		if (50 > rand_int(100)) boostx = boostx -1;
+		else boosty = boosty -1;
+	}
+
+	/* Sound */
+	sound(MSG_TELEPORT);
+
+	/* Move player */
+	monster_swap(p_ptr->py, p_ptr->px, y, x);
+
+	/* Handle stuff XXX XXX XXX */
+	handle_stuff();
+}
+
+/*
  * Teleport the player to a location up to "dis" grids away.
  *
  * If no such spaces are readily available, the distance may increase.
@@ -385,6 +471,11 @@ void teleport_player_level(void)
 			/* New depth */
 			p_ptr->depth--;
 			p_ptr->min_depth++;
+
+			/* Reset Proficiency uses */
+			p_ptr->lore_uses = 0;
+			p_ptr->reserves_uses = 0;
+			p_ptr->escapes_uses = 0;
 
 			/* Leaving */
 			p_ptr->leaving = TRUE;
@@ -2275,8 +2366,8 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			do_poly = TRUE;
 
 			/* Powerful monsters can resist */
-			if ((m_ptr->u_idx) ||
-				(r_ptr->level + resist > rand_int((dam > 5) ? dam * 2 : 10)))
+			int success_chance = 100 - (100*(r_ptr->level + resist +1)) / ((dam > 5) ? dam * 2 : 10);
+			if ((m_ptr->u_idx) || (!(success_chance > rand_int(100))))
 			{
 				note = " is unaffected!";
 				do_poly = FALSE;
@@ -2351,7 +2442,8 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			if (seen) obvious = TRUE;
 
 			/* Powerful monsters can resist */
-			if (r_ptr->level + resist > rand_int((dam > 5) ? dam * 2 : 10))
+			int success_chance = 100 - (100*(r_ptr->level + resist +1)) / ((dam > 5) ? dam * 2 : 10);
+			if (!(success_chance > rand_int(100)))
 			{
 				note = " is unaffected!";
 				obvious = FALSE;
@@ -2375,8 +2467,8 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			if (seen) obvious = TRUE;
 
 			/* Attempt a saving throw */
-			if ((r_ptr->flags3 & (RF3_NO_SLEEP)) ||
-				(r_ptr->level + resist > rand_int((dam > 5) ? dam * 2 : 10)))
+			int success_chance = 100 - (100*(r_ptr->level + resist +1)) / ((dam > 5) ? dam * 2 : 10);
+			if ((r_ptr->flags3 & (RF3_NO_SLEEP)) || (!(success_chance > rand_int(100))))
 			{
 				/* Memorize a flag */
 				if (r_ptr->flags3 & (RF3_NO_SLEEP))
@@ -2406,8 +2498,8 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			if (seen) obvious = TRUE;
 
 			/* Attempt a saving throw */
-			if ((r_ptr->flags3 & (RF3_NO_BLIND)) ||
-				(r_ptr->level + resist > rand_int((dam > 5) ? dam * 2 : 10)))
+			int success_chance = 100 - (100*(r_ptr->level + resist +1)) / ((dam > 5) ? dam * 2 : 10);
+			if ((r_ptr->flags3 & (RF3_NO_BLIND)) || (!(success_chance > rand_int(100))))
 			{
 				/* Memorize a flag */
 				if (r_ptr->flags3 & (RF3_NO_BLIND))
@@ -2436,9 +2528,11 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		{
 			if (seen) obvious = TRUE;
 
-			/* Attempt a saving throw */
+			/* Attempt a saving throw. Non-wounded monsters have to save twice to resist calming. */
+			int success_chance = 100 - (100*(r_ptr->level + resist +1)) / ((dam > 5) ? dam * 2 : 10);
 			if ((r_ptr->flags3 & (RF3_NO_CALM)) ||
-				(r_ptr->level + resist > rand_int((dam > 5) ? dam * 2 : 10)))
+				!(!(success_chance > rand_int(100)) ||
+				((m_ptr->hp == m_ptr->maxhp) && (!(success_chance > rand_int(100))))  ))
 			{
 				/* Memorize a flag */
 				if (r_ptr->flags3 & (RF3_NO_CALM))
@@ -2471,8 +2565,8 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			do_conf = damroll(3, (dam / 2)) + 1;
 
 			/* Attempt a saving throw */
-			if ((r_ptr->flags3 & (RF3_NO_CONF)) ||
-				(r_ptr->level + resist > rand_int((dam > 5) ? dam * 2 : 10)))
+			int success_chance = 100 - (100*(r_ptr->level + resist +1)) / ((dam > 5) ? dam * 2 : 10);
+			if ((r_ptr->flags3 & (RF3_NO_CONF)) || (!(success_chance > rand_int(100))))
 			{
 				/* Memorize a flag */
 				if (r_ptr->flags3 & (RF3_NO_CONF))
@@ -2705,8 +2799,8 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			do_fear = damroll(3, (dam / 2)) + 1;
 
 			/* Attempt a saving throw */
-			if ((r_ptr->flags3 & (RF3_NO_FEAR)) ||
-				(r_ptr->level + resist > rand_int((dam > 5) ? dam * 2 : 10)))
+			int success_chance = 100 - (100*(r_ptr->level + resist +1)) / ((dam > 5) ? dam * 2 : 10);
+			if ((r_ptr->flags3 & (RF3_NO_FEAR)) || (!(success_chance > rand_int(100))))
 			{
 				lore_learn(m_ptr, LRN_FLAG3, RF3_NO_FEAR, FALSE);
 
@@ -2926,9 +3020,11 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 				/* Obvious */
 				if (seen) obvious = TRUE;
 
-				/* Attempt a saving throw */
+				/* Attempt a saving throw. Non-wounded monsters have to succeed twice to resist calming. */
+				int success_chance = 100 - (100*(r_ptr->level + resist +1)) / ((dam > 5) ? dam * 2 : 10);
 				if ((r_ptr->flags3 & (RF3_NO_CALM)) ||
-				(r_ptr->level + resist > rand_int((dam > 5) ? dam * 2 : 10)))
+					!(!(success_chance > rand_int(100)) ||
+					((m_ptr->hp == m_ptr->maxhp) && (!(success_chance > rand_int(100))))  ))
 				{
 					/* Memorize a flag */
 					if (r_ptr->flags3 & (RF3_NO_CALM))
@@ -2973,9 +3069,11 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 				/* Obvious */
 				if (seen) obvious = TRUE;
 
-				/* Attempt a saving throw */
+				/* Attempt a saving throw. Non-wounded monsters have to succeed twice to resist calming. */
+				int success_chance = 100 - (100*(r_ptr->level + resist +1)) / ((dam > 5) ? dam * 2 : 10);
 				if ((r_ptr->flags3 & (RF3_NO_CALM)) ||
-					(r_ptr->level + resist > rand_int((dam > 5) ? dam * 2 : 10)))
+					!(!(success_chance > rand_int(100)) ||
+					((m_ptr->hp == m_ptr->maxhp) && (!(success_chance > rand_int(100))))  ))
 				{
 					/* Memorize a flag */
 					if (r_ptr->flags3 & (RF3_NO_CALM))
@@ -3023,9 +3121,11 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 				/* Obvious */
 				if (seen) obvious = TRUE;
 
-				/* Attempt a saving throw */
+				/* Attempt a saving throw. Non-wounded monsters have to succeed twice to resist calming. */
+				int success_chance = 100 - (100*(r_ptr->level + resist +1)) / ((dam > 5) ? dam * 2 : 10);
 				if ((r_ptr->flags3 & (RF3_NO_CALM)) ||
-					(r_ptr->level + resist > rand_int((dam > 5) ? dam * 2 : 10)))
+					!(!(success_chance > rand_int(100)) ||
+					((m_ptr->hp == m_ptr->maxhp) && (!(success_chance > rand_int(100))))  ))
 				{
 					/* Memorize a flag */
 					if (r_ptr->flags3 & (RF3_NO_CALM))
@@ -4127,8 +4227,13 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 		grids++;
 	}
 
+	/* Max range for the player/monsters */
+	int max_range;
+	if (who > 0) max_range = 18;
+	else max_range = p_ptr->spell_range;
+
 	/* Calculate the projection path */
-	path_n = project_path(path_g, MAX_RANGE, y1, x1, y2, x2, flg);
+	path_n = project_path(path_g, max_range, y1, x1, y2, x2, flg);
 
 	/* Hack -- Handle stuff */
 	handle_stuff();
@@ -4464,7 +4569,7 @@ void dimen_door(int dis, int fail)
 	s16b old_target_col = p_ptr->target_col;
 
 	expand_look = TRUE;
-	okay = target_set_interactive(TARGET_FREE);
+	okay = target_set_interactive(TARGET_FREE, 0, 0, 0);
 	expand_look = old_expand_look;
 	if (!okay) return;
 

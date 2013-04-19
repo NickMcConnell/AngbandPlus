@@ -114,7 +114,7 @@ static void sense_inventory(void)
 		case CF_PSEUDO_ID1: delay1 = 150000L / (p_ptr->lev + 5); break;
 		case CF_PSEUDO_ID2: delay1 = 80000L / (p_ptr->lev + 5); break;
 		case CF_PSEUDO_ID3: delay1 = 80000L / ((p_ptr->lev * p_ptr->lev) + 50); break;
-		case CF_PSEUDO_ID4: delay1 = 10000L / ((p_ptr->lev * p_ptr->lev) + 50); break;
+		case CF_PSEUDO_ID4: delay1 = 15000L / ((p_ptr->lev * p_ptr->lev) + 50); break;
 		/* No pseudo-ID */
 		default: return;
 	}
@@ -122,7 +122,7 @@ static void sense_inventory(void)
 	delay2 = delay1 / 25;
 
 	if (delay1 < 5) delay1 = 5;
-	if (delay2 < 3) delay2 = 3;
+	if (delay2 < 1) delay2 = 1;
 
 	heavy = ((cp_ptr->flags & CF_PSEUDO_ID_HEAVY) ? TRUE : FALSE);
 
@@ -1179,7 +1179,7 @@ static void process_command(void)
 		case 'G': do_cmd_study(); break;				/* Gain new spells/prayers */
 		case 'b': do_cmd_browse(); break;				/* Browse a book */
 		case 'm': do_cmd_magic(); break;				/* Cast a spell */
-		case 'p': do_cmd_place_trap(); break;			/* Place a trap */
+		case 'p': do_cmd_proficiency(); break;	   		     	/* Use proficiency */
 		case 'U': do_cmd_racial(); break;				/* Use a racial power */
 
 		/*** Use various objects ***/
@@ -1763,7 +1763,7 @@ static void dungeon(void)
 	p_ptr->command_wrk = USE_INVEN;
 
 	/* Cancel the target */
-	target_set_monster(0);
+	target_set_monster(0, 0);
 
 	/* Cancel the health bar */
 	health_track(0);
@@ -1928,7 +1928,7 @@ static void dungeon(void)
 	/* Mapping effects? */
 	if (p_ptr->create_up_stair == TRUE)
 	{
-		if (rand_int(55+((p_ptr->max_depth)/2)) < 1000 + p_ptr->skill[SK_MAP])
+		if (rand_int(56+((p_ptr->max_depth)/2)) < p_ptr->skill[SK_MAP])
 		{
 			int random_map;
 			random_map = rand_int(4);
@@ -1936,38 +1936,40 @@ static void dungeon(void)
 			if (random_map == 0)
 			{
 				message(MSG_GENERIC, 0, "Some Gnomish adventurers gave you a map leading to this level.");
-				map_area();
-				detect_traps(0);
-				detect_treasure(0);
+				map_area(0, 0);
+				detect_traps(0, 0, 0);
+				detect_treasure(0, 0, 0);
 			}
 
 			else if (random_map == 1)
 			{
 				message(MSG_GENERIC, 0, "You unfold an old Rattikin map of this area.");
-				map_area();
-				detect_traps(0);
+				map_area(0, 0);
+				detect_traps(0, 0, 0);
 			}
 
 			else if (random_map == 2)
 			{
 				message(MSG_GENERIC, 0, "You have followed an ancient Dwarven map to this level.");
-				map_area();
-				detect_treasure(0);
+				map_area(0, 0);
+				detect_treasure(0, 0, 0);
 			}
 
 			else
 			{
 				message(MSG_GENERIC, 0, "You have a sketchy Orcish map of this place.");
-				detect_traps(0);
-				detect_doors(0);
-				detect_stairs(0);
+				detect_traps(0, 0, 0);
+				detect_doors(0, 0, 0);
+				detect_stairs(0, 0, 0);
 			}
 		}
 		else
 		{
 			message(MSG_GENERIC, 0, "You've mapped a safe path back to surface.");
 		}
-		p_ptr->create_up_stair = FALSE;
+
+		/* Reset the mapping bonus */
+		p_ptr->mapping_bonus = 0;
 	}
 
 	/* Announce (or repeat) the feeling */
@@ -2349,7 +2351,7 @@ void play_game(bool new_game)
 		if (p_ptr->window) window_stuff();
 
 		/* Cancel the target */
-		target_set_monster(0);
+		target_set_monster(0, 0);
 
 		/* Cancel the health bar */
 		health_track(0);

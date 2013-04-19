@@ -30,12 +30,25 @@ AC:           Armor class helps prevent you getting killed.  It may be
               increased by equipping more and better armor, and by increasing 
               your Dexterity.  
 HP:           Each character has hit points, representing how much damage he 
-              can sustain before he dies.  The maximum number of hit points is
-              derived from race, class, level, and constitution.  Hit points 
-              may be regained by resting, or by a variety of magical means.
+              can sustain before he suffers a permanent wound or, if he already
+              has the same wound, dies. The maximum number of hit points is
+              derived from race, class, level, and constitution. Hit points may
+              be regained by resting, or by a variety of magical means. Once
+              your character suffers a permanent wound, adrenalin surge heals
+              him to 50 % of maximum hitpoints and cures all poison, cuts,
+              stunning, confusion, blindness, and slowing. 
 SP:           Each character has spell points, or mana, which represents how 
               many spells a character can cast (or tunes he can play). Mana may
               be regained by resting or some rare magical means.
+Lore:         You may use Lore points to use many proficiencies. They refresh
+              every time you take the stairs down.
+Reserves:     You may use Reserves to use the proficiency Recover. Recover
+              restores hitpoints and cures many status effects. Reserves points
+              refresh every time you take the stairs down.
+Escapes:      You may spend Escapes to use the proficiency Shift, which is
+              directed teleportation. Escapes points refresh every time you
+              take the stairs down.
+
 
 === Stats ===
 
@@ -53,6 +66,9 @@ Intelligence: Intelligence represents the character's ability in logic and
               number of spell points they receive, and the chance for spells to
               fail. Intelligent characters are better mappers, and they also
               mix potions, pick locks and disarm traps more effectively.
+              Intelligence and Wisdom together determine your Lore points. They
+              are used to identify objects or to gather information about your
+              surroundings.
 Wisdom:       Wise character are at peace with the world, full of common sense,
               and always aware of their surroundings. Wisdom affects the
               spellcasting abilities of priests, paladins, and mystics. For
@@ -60,7 +76,8 @@ Wisdom:       Wise character are at peace with the world, full of common sense,
               learn each level, the number of spell points  they receive, and
               the chance for spells to fail. Wise characters also have a good
               perception, and have a better chance of resisting magical spells
-              cast upon them by monsters.
+              cast upon them by monsters. Wisdom and Intelligence together
+              determine your Lore points.
 Dexterity:    Dexterity is a combination of agility and quickness.  A high 
               dexterity may allow a character to get multiple blows with 
               lighter weapons, and will significantly increase his chances of 
@@ -77,10 +94,11 @@ Charisma:     Charisma is more than just appearances and personality. It also
               affects the spellcasting abilities of bards, affecting the number
               of spell points they receive and the chance of their tunes
               failing. Charismatic characters are very good with magical
-              devices. They will also receive better prices from store owners,
-              whereas a character with a very low charisma may be robbed blind.
-              Finally, a high charisma will allow monsters that are magically
-              calmed to remain non-aggressive longer.
+              devices, and they get better range with spells and devices. They
+              will also receive better prices from store owners, whereas a
+              character with a very low charisma may be robbed blind. Finally,
+              a high charisma will allow monsters that are magically calmed to
+              remain non-aggressive longer.
 
 
 === Skills ===
@@ -107,24 +125,24 @@ Throwing:     Using thrown weapons depends on this skill.  The higher your
               character's throwing ability, the more frequently he will hit 
               his target.  
 Disarming:    Disarming is the ability to safely remove traps and pick locks on 
-              chests and doors. A trap must be found before it can be disarmed.  
-Bypass Trap:  If you are aware of a trap's location, there is a small chance 
-              (larger if you are a thief) that you can step into its square 
-              without triggering it.  This skill represents this ability.
+              chests and doors. A trap must be found before it can be disarmed.
 Magic Device: The chance of succesfully using a magical device such as a wand,
               staff, or any activatable object depends on this skill.
 Perception:   Perception affects your chances of finding traps and secret
               doors. You will automatically keep watch for traps, and you get
-              only get one chance to detect them. In comparison, you usually have
-              to actively look for secret doors, and use the (s)earch command
-              many times. High perception also sometimes lets you "hear" nearby
-              monsters.
+              only get one chance to detect them. In comparison, you usually
+              have to actively look for secret doors, and use the (s)earch
+              command many times. High perception also sometimes lets you
+              "hear" nearby monsters. Perception skill helps when you use the
+              proficiency Analyse Item to fully identify any non-potions.
 Digging:      Digging is a tedious art, but characters with a higher skill
               may do it much faster than others. 
 Alchemy:      Mixing potions is a hazardous art, and without a high alchemy 
               skill it is likely to cause accidental explosions or no effect
               at all.  Characters who excel in alchemy may learn alchemical 
-              formulae by simply quaffing potions.
+              formulae by simply quaffing potions.  Alchemy skill helps when
+              you use the proficiency Analyse Item to find out alchemical
+              information about potions.
 Mapping:      Mapping is a very useful skill in the depths of Angband. If you
               succeed in mapping your path to the depths, you get to begin a new
               dungeon level standing on a stairway leading back to surface.
@@ -143,5 +161,15 @@ Racial Ab.:   Angels and Demons, being more magical than the other races, may
               have access to special, innate, magical spells.  These can be 
               activated by the 'U' command, and need some time to recharge.
 
+Wounds:       Your character may have three kinds of wounds: VIGOR, WIT, and
+              GRACE. Each wound hurts two of your abilities. If your character
+              doesn't have an ability sustained at the time of being wounded,
+              one point of ability damage is reduced from the racial bonus. This
+              is truly permanent damage. If your character ever suffers the same
+              wound again, she instantly dies. Half-faery races have a 50%
+              chance of dying when they receive any wound because of their more
+              fragile constitution. Angels and Demons have a 25 % chance of
+              getting banished when they are wounded.
 
-====================== Last updated for FayAngband 1.0.1 ======================
+
+====================== Last updated for FayAngband 1.1.0 ======================

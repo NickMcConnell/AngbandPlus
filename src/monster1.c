@@ -17,6 +17,8 @@ static cptr wd_he[3] =
 { "it", "he", "she" };
 static cptr wd_his[3] =
 { "its", "his", "her" };
+static cptr wd_him[3] =
+{ "it", "him", "her" };
 
 /*
  * Pluralizer.  Args(count, singular, plural)
@@ -970,9 +972,17 @@ void describe_monster(int r_idx, int u_idx, bool spoilers)
 		text_out(format("%^s has an armor rating of ",wd_he[msex]));
 		text_out_c (TERM_L_GREEN,format("%d", r_ptr->ac));
 
+		/* Life rating */
 		if (u_idx) text_out(" and a life rating of ");
 		else text_out(" and a average life rating of ");
 		text_out_c(TERM_L_GREEN,format("%d", r_ptr->life));
+		text_out(".  ");
+	}
+	else
+	{
+		/* In Fay, armor rating is always known */
+		text_out(format("%^s has an armor rating of ",wd_he[msex]));
+		text_out_c (TERM_L_GREEN,format("%d", r_ptr->ac));
 		text_out(".  ");
 	}
 
@@ -1082,8 +1092,92 @@ void describe_monster(int r_idx, int u_idx, bool spoilers)
 		}
 
 		/* End */
-		text_out(".  ");
+		text_out(". ");
 	}
+
+	/* Describe success chance for status effects */
+
+	/* Calculate success chances */
+	int success_wand, success_spell, success_boosted_spell, success_power, success_influence, dam, resist;
+	int plev = p_ptr->lev;
+
+	if (l_ptr->r_tkills)
+	{
+
+		if (u_idx) resist = 5;
+		else resist = 1;
+
+		dam = 10 + plev/2;
+		success_wand = 100 - (100*(r_ptr->level + resist +1)) / ((dam > 5) ? dam * 2 : 10);
+		if (success_wand < 0) success_wand = 0;
+
+		dam = ((plev > 12) ? plev : 6 + plev/2);
+		success_spell = 100 - (100*(r_ptr->level + resist +1)) / ((dam > 5) ? dam * 2 : 10);
+		if (success_spell < 0) success_spell = 0;
+
+		dam = ((plev > 12) ? plev : 6 + plev/2);
+		dam = apply_sp_mod(dam, p_ptr->sp_inf);
+		success_boosted_spell = 100 - (100*(r_ptr->level + resist +1)) / ((dam > 5) ? dam * 2 : 10);
+		if (success_boosted_spell < 0) success_spell = 0;
+
+		dam = ((plev>11) ? plev + (plev/4) : 8 + plev/2);
+		dam = apply_sp_mod(dam, p_ptr->sp_inf);
+		success_power = 100 - (100*(r_ptr->level + resist +1)) / ((dam > 5) ? dam * 2 : 10);
+		if (success_power < 0) success_power = 0;
+
+		dam = ((plev > 10) ? plev + (plev/2) : 10 + plev/2);
+		dam = apply_sp_mod(dam, p_ptr->sp_inf);
+		success_influence = 100 - (100*(r_ptr->level + resist +1)) / ((dam > 5) ? dam * 2 : 10);
+		if (success_influence < 0) success_influence = 0;
+
+
+		/* Print success chances */
+
+		if (cp_ptr->flags & CF_INFLUENCE)
+		{
+			text_out("Your spells have a ");
+			text_out_c(TERM_L_BLUE,format("%d%%", success_influence));
+			text_out(format(" chance of affecting %s", wd_him[msex]));
+			text_out(", wands & staves ");
+			text_out_c(TERM_L_BLUE,format("%d%%", success_wand));
+			text_out(", other sources ");
+			text_out_c(TERM_L_BLUE,format("%d%%", success_spell));
+			text_out(".  ");
+		}
+		else if (cp_ptr->flags & CF_POWER)
+		{
+			text_out("Your spells have a ");
+			text_out_c(TERM_L_BLUE,format("%d%%", success_power));
+			text_out(format(" chance of affecting %s", wd_him[msex]));
+			text_out(", wands & staves ");
+			text_out_c(TERM_L_BLUE,format("%d%%", success_wand));
+			text_out(", other sources ");
+			text_out_c(TERM_L_BLUE,format("%d%%", success_spell));
+			text_out(".  ");
+		}
+		else if (p_ptr->sp_inf)
+		{
+			text_out("Your spells have a ");
+			text_out_c(TERM_L_BLUE,format("%d%%", success_boosted_spell));
+			text_out(format(" chance of affecting %s", wd_him[msex]));
+			text_out(", wands & staves ");
+			text_out_c(TERM_L_BLUE,format("%d%%", success_wand));
+			text_out(", other sources ");
+			text_out_c(TERM_L_BLUE,format("%d%%", success_spell));
+			text_out(".  ");
+		}
+		else
+		{
+			text_out("Wands & staves have a ");
+			text_out_c(TERM_L_BLUE,format("%d%%", success_wand));
+			text_out(format(" chance of affecting %s, ", wd_him[msex]));
+			text_out("other sources ");
+			text_out_c(TERM_L_BLUE,format("%d%%", success_spell));
+			text_out(".  ");
+		}
+	}
+
+
 
 	/* Collect resistances */
 	vn = collect_mon_resists(flags3, vp);

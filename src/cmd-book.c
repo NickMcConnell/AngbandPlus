@@ -1415,12 +1415,14 @@ void do_cmd_study(void)
  */
 static bool aux_spell_cast(int index, int sub)
 {
+	int plev = p_ptr->lev;
+
 	/* Various class flags influence things */
-	int	beam = ((cp_ptr->flags & CF_BEAM) ? ((p_ptr->lev - 10) * 2) : (p_ptr->lev - 10));
-	int damlev = ((cp_ptr->flags & CF_POWER) ? p_ptr->lev + (p_ptr->lev / 2) : p_ptr->lev);
-	int durlev = ((cp_ptr->flags & CF_POWER) ? p_ptr->lev + (p_ptr->lev / 2) : p_ptr->lev);
-	int inflev = ((cp_ptr->flags & CF_INFLUENCE) ? p_ptr->lev + (p_ptr->lev / 2) :
-					((cp_ptr->flags & CF_POWER) ? p_ptr->lev + (p_ptr->lev / 4) : p_ptr->lev));
+	int	beam = ((cp_ptr->flags & CF_BEAM) ? ((plev - 10) * 2) : (plev - 10));
+	int damlev = ((cp_ptr->flags & CF_POWER) ? plev + (plev/2) : plev);
+	int durlev = ((cp_ptr->flags & CF_POWER) ? plev + (plev/2) : plev);
+	int inflev = ((cp_ptr->flags & CF_INFLUENCE) ? ((plev > 10) ? plev + (plev/2) : 10 + plev/2) :
+			((cp_ptr->flags & CF_POWER) ? ((plev>11) ? plev + (plev/4) : 8 + plev/2) : ((plev > 12) ? plev : 6 + plev/2)));
 	bool ignore_me;
 
 	/* A spell was cast */

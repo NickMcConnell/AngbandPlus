@@ -741,6 +741,14 @@ static errr rd_extra(void)
 	rd_s16b(&p_ptr->msp);
 	rd_s16b(&p_ptr->csp);
 	rd_u16b(&p_ptr->csp_frac);
+	
+	rd_u16b(&p_ptr->wound_vigor);
+	rd_u16b(&p_ptr->wound_wit);
+	rd_u16b(&p_ptr->wound_grace);
+
+	rd_u16b(&p_ptr->lore_uses);
+	rd_u16b(&p_ptr->reserves_uses);
+	rd_u16b(&p_ptr->escapes_uses);
 
 	rd_s16b(&p_ptr->max_lev);
 	rd_s16b(&p_ptr->max_depth);
@@ -789,6 +797,7 @@ static errr rd_extra(void)
 	rd_s16b(&p_ptr->tim_bravery);
 	rd_s16b(&p_ptr->stability);
 	rd_s16b(&p_ptr->racial_power);
+	rd_s16b(&p_ptr->mapping_bonus);
 
 	/* Read resistances */
 	for (i = 0; i < RS_MAX; i++) rd_s16b(&p_ptr->tim_res[i]);

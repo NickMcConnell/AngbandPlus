@@ -128,6 +128,7 @@ static void prt_level(void)
 /*
  * Display the experience
  */
+/*
 static void prt_exp(void)
 {
 	char out_val[8];
@@ -136,7 +137,6 @@ static void prt_exp(void)
 	{
 		long val = (long)(((player_exp[p_ptr->lev - 1] * p_ptr->expfact) / 100L) - p_ptr->exp);
 
-		/* Boundary check */
 		if (val < 0) val = 0;
 
 		sprintf(out_val, "%7ld", val);
@@ -158,6 +158,7 @@ static void prt_exp(void)
 		c_put_str(TERM_L_GREEN, "******* ", ROW_EXP, COL_EXP + 5);
 	}
 }
+*/
 
 /*
  * Prints current gold
@@ -289,6 +290,98 @@ static void prt_sp(void)
 	else
 	{
 		put_str("             ", ROW_SP, COL_SP);
+	}
+}
+
+/*
+ * Prints players Lore, Reserves, and Escapes
+ */
+static void prt_proficiency(void)
+{
+	char tmp[32];
+	byte color, offset;
+
+	offset = 9;
+
+	/* Lore */
+	if (p_ptr->lore)
+	{
+		if (p_ptr->lore_uses == 0)
+		{
+			color = TERM_L_GREEN;
+		}
+		else if (p_ptr->lore_uses < p_ptr->lore)
+		{
+			color = TERM_YELLOW;
+		}
+		else
+		{
+			color = TERM_RED;
+		}
+
+		if ((p_stat(A_INT) + p_stat(A_WIS)) >= 33)
+		{
+			put_str("*Lore*  ", ROW_LORE, COL_LORE);
+		}
+		else put_str("Lore  ", ROW_LORE, COL_LORE);
+
+		sprintf(tmp, "%d/%d", ((p_ptr->lore - p_ptr->lore_uses >= 0) ? p_ptr->lore - p_ptr->lore_uses : 0), p_ptr->lore);
+		c_put_str(color, tmp, ROW_LORE, COL_LORE + offset);
+	}
+	else
+	{
+		put_str("             ", ROW_LORE, COL_LORE);
+	}
+
+	/* Reserves */
+	if (p_ptr->reserves)
+	{
+		if (p_ptr->reserves_uses == 0)
+		{
+			color = TERM_L_GREEN;
+		}
+		else if (p_ptr->reserves_uses < p_ptr->reserves)
+		{
+			color = TERM_YELLOW;
+		}
+		else
+		{
+			color = TERM_RED;
+		}
+
+		put_str("Reserves  ", ROW_RESERVES, COL_RESERVES);
+		/* sprintf(tmp, "%d/%d", p_ptr->chp); */
+		sprintf(tmp, "%d/%d", ((p_ptr->reserves - p_ptr->reserves_uses >= 0) ? p_ptr->reserves - p_ptr->reserves_uses : 0), p_ptr->reserves);
+		c_put_str(color, tmp, ROW_RESERVES, COL_RESERVES + offset);
+	}
+	else
+	{
+		put_str("             ", ROW_RESERVES, COL_RESERVES);
+	}
+
+	/* Escapes */
+	if (p_ptr->escapes)
+	{
+		if (p_ptr->escapes_uses == 0)
+		{
+			color = TERM_L_GREEN;
+		}
+		else if (p_ptr->escapes_uses < p_ptr->escapes)
+		{
+			color = TERM_YELLOW;
+		}
+		else
+		{
+			color = TERM_RED;
+		}
+
+		put_str("Escapes  ", ROW_ESCAPES, COL_ESCAPES);
+		sprintf(tmp, "%d/%d", ((p_ptr->escapes - p_ptr->escapes_uses >= 0) ? p_ptr->escapes - p_ptr->escapes_uses : 0), p_ptr->escapes);
+		c_put_str(color, tmp, ROW_ESCAPES, COL_ESCAPES + offset);
+	}
+	else
+	{
+		put_str("             ", ROW_ESCAPES, COL_ESCAPES);
 	}
 }
 
@@ -852,14 +945,14 @@ static void prt_frame_basic(void)
 	if (!rp_ptr->special) s=p_name + rp_ptr->name;
 		else s=rsp_ptr[(p_ptr->max_lev)/5]->name;
 	prt_field(s, ROW_RACE, COL_RACE);
-	prt_field(c_name + cp_ptr->name, ROW_CLASS, COL_CLASS);
+	/* prt_field(c_name + cp_ptr->name, ROW_CLASS, COL_CLASS); */
 
 	/* Title */
 	prt_title();
 
 	/* Level/Experience */
 	prt_level();
-	prt_exp();
+	/* prt_exp(); */
 	
 	/* All Stats */
 	for (i = 0; i < A_MAX; i++) prt_stat(i);
@@ -872,6 +965,7 @@ static void prt_frame_basic(void)
 
 	/* Spellpoints */
 	prt_sp();
+	prt_proficiency();
 
 	/* Gold */
 	prt_gold();
@@ -1897,8 +1991,7 @@ byte calc_blows(const object_type *o_ptr, bool full)
 		/* Hack - Boost digging skill by weapon weight */
 		p_ptr->skill[SK_DIG] += (object_weight(o_ptr) / 10);
 
-		/* Hack - Now modify the value according to class */
-		
+		/* Hack - Now modify the value according to class */	
 		if (!((cp_ptr->flags & CF_BLESS_WEAPON) && (!p_ptr->bless_blade) &&
 			((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_POLEARM))))
 		{
@@ -1973,6 +2066,7 @@ byte calc_blows(const object_type *o_ptr, bool full)
 static void calc_bonuses(void)
 {
 	int i, j, hold;
+	int temp;
 	int res, cur_cap;
 	int dis_res, dis_cap;
 
@@ -2054,8 +2148,14 @@ static void calc_bonuses(void)
 	p_ptr->sp_dam = 0;
 	p_ptr->sp_inf = 0;
 
+	/* Proficiency points */
+	p_ptr->lore = 0;
+	p_ptr->reserves = 0;
+	p_ptr->escapes = 0;
+
 	/* Clear all the flags */
 	p_ptr->aggravate = FALSE;
+	p_ptr->faery = FALSE;
 	p_ptr->teleport = FALSE;
 	p_ptr->exp_drain = FALSE;
 	p_ptr->taint_inv = FALSE;
@@ -2100,9 +2200,9 @@ static void calc_bonuses(void)
 	/* Extract resistances */
 	for (i = 0 ; i < RS_MAX ; i++)
 	{
-		/* Race can increase caps */
-		cur_cap = (rp_ptr->res[i] > resist_caps[i].normal) ? 
-			rp_ptr->res[i] : resist_caps[i].normal;
+		/* Innate resistances (class + race) can increase caps */
+		cur_cap = ((rp_ptr->res[i] + cp_ptr->res[i]) > resist_caps[i].normal) ? 
+			(rp_ptr->res[i] + cp_ptr->res[i]) : resist_caps[i].normal;
 
 		/* Base resistance = class + race */
 		p_ptr->res[i] = ((rp_ptr->res[i] + cp_ptr->res[i]) * p_ptr->lev) / 50;
@@ -2129,6 +2229,7 @@ static void calc_bonuses(void)
 	if (f3 & (TR3_SEE_INVIS)) p_ptr->see_inv = TRUE;
 	if (f3 & (TR3_INVIS)) p_ptr->invis = TRUE;
 	if (f3 & (TR3_LUCK)) p_ptr->luck = TRUE;
+	if (f3 & (TR3_FAERY)) p_ptr->faery = TRUE;
 
 	/* "semi-immunities" */
 	if (f2 & (TR2_FREE_ACT)) p_ptr->free_act = TRUE;
@@ -2159,6 +2260,35 @@ static void calc_bonuses(void)
 	if (f1 & (TR1_SUST_DEX)) p_ptr->sustain_dex = TRUE;
 	if (f1 & (TR1_SUST_CON)) p_ptr->sustain_con = TRUE;
 	if (f1 & (TR1_SUST_CHR)) p_ptr->sustain_chr = TRUE;
+
+	/*** Wounds ***/
+	if (p_ptr->wound_vigor == 2) p_ptr->stat_add[A_STR] += -1;
+	if (p_ptr->wound_vigor == 3) p_ptr->stat_add[A_CON] += -1;
+	if (p_ptr->wound_vigor == 4) p_ptr->stat_add[A_STR] += -1;
+	if (p_ptr->wound_vigor == 4) p_ptr->stat_add[A_CON] += -1;
+	if (p_ptr->wound_wit == 2) p_ptr->stat_add[A_INT] += -1;
+	if (p_ptr->wound_wit == 3) p_ptr->stat_add[A_WIS] += -1;
+	if (p_ptr->wound_wit == 4) p_ptr->stat_add[A_INT] += -1;
+	if (p_ptr->wound_wit == 4) p_ptr->stat_add[A_WIS] += -1;
+	if (p_ptr->wound_grace == 2) p_ptr->stat_add[A_DEX] += -1;
+	if (p_ptr->wound_grace == 3) p_ptr->stat_add[A_CHR] += -1;
+	if (p_ptr->wound_grace == 4) p_ptr->stat_add[A_DEX] += -1;
+	if (p_ptr->wound_grace == 4) p_ptr->stat_add[A_CHR] += -1;
+
+	/* Calculate Reserves */
+	temp = p_ptr->lev;
+	if (f3 & (TR3_TOUGH)) temp += 5;
+	if (f3 & (TR3_SMALL)) temp -= 5;
+	p_ptr->reserves = temp / 10;
+	if (p_ptr->reserves < 0) p_ptr->reserves = 0;
+
+	/* Calculate Escapes */
+	temp = p_ptr->lev -5;
+	if (f3 & (TR3_FAERY)) temp += 10;
+	if (f3 & (TR3_SMALL)) temp += 5;
+	if (f3 & (TR3_TOUGH)) temp -= 5;
+	p_ptr->escapes = temp / 10;
+	if (p_ptr->escapes < 0) p_ptr->escapes = 0;
 
 	/*** Analyze equipment ***/
 
@@ -2418,7 +2548,7 @@ static void calc_bonuses(void)
 		p_ptr->tim_flag2 |= TR2_BRAVERY;
 	}
 
-	/* Temporary "Beserk" */
+	/* Temporary "Berserk" */
 	if (p_ptr->rage)
 	{
 		/* 
@@ -2566,9 +2696,6 @@ static void calc_bonuses(void)
 	p_ptr->skill[SK_DIS] += adj_dex_dis[p_stat(A_DEX)];
 	p_ptr->skill[SK_DIS] += adj_int_dis[p_stat(A_INT)];
 
-	/* Affect Skill -- bypass (DEX) */
-	p_ptr->skill[SK_BYP] += adj_dex_dis[p_stat(A_DEX)];
-
 	/* Affect Skill -- magic devices (CHR) */
 	p_ptr->skill[SK_DEV] += adj_chr_dev[p_stat(A_CHR)];
 
@@ -2577,6 +2704,7 @@ static void calc_bonuses(void)
 
 	/* Affect Skill -- mapping (INT) */
 	p_ptr->skill[SK_MAP] += adj_int_map[p_stat(A_INT)];
+	p_ptr->skill[SK_MAP] += p_ptr->mapping_bonus;
 
 	/* Affect Skill -- saving throw (WIS) */
 	p_ptr->skill[SK_SAV] += adj_wis_sav[p_stat(A_WIS)];
@@ -2610,6 +2738,15 @@ static void calc_bonuses(void)
 
 	/* Obtain the "hold" value */
 	hold = adj_str_hold[p_stat(A_STR)];
+
+	/* Spell and device range */
+	p_ptr->spell_range = adj_chr_range[p_stat(A_CHR)];
+
+	/* Calculate Lore */
+	if ((p_stat(A_INT) + p_stat(A_WIS)) >= 55) p_ptr->lore = 3;
+	else if ((p_stat(A_INT) + p_stat(A_WIS)) >= 44) p_ptr->lore = 2;
+	else if ((p_stat(A_INT) + p_stat(A_WIS)) >= 22) p_ptr->lore = 1;
+	else p_ptr->lore = 0;
 
 	/*** Analyze current bow ***/
 
@@ -2645,11 +2782,8 @@ static void calc_bonuses(void)
 			/* Hack -- Rangers love Bows */
 			if (cp_ptr->flags & CF_EXTRA_SHOT)
 			{
-				/* Extra shot at level 20 */
-				if (p_ptr->lev >= 20) p_ptr->num_fire++;
-
-				/* Extra shot at level 40 */
-				if (p_ptr->lev >= 40) p_ptr->num_fire++;
+				/* Extra shot at level 25 */
+				if (p_ptr->lev >= 25) p_ptr->num_fire++;
 			}
 		}
 
@@ -3080,6 +3214,7 @@ void update_stuff(void)
 	{
 		p_ptr->update &= ~(PU_MANA);
 		calc_mana();
+		calc_bonuses();
 	}
 
 	if (p_ptr->update & (PU_SPELLS))
@@ -3188,7 +3323,7 @@ void redraw_stuff(void)
 		if (!rp_ptr->special) s=p_name + rp_ptr->name;
 			else s=rsp_ptr[(p_ptr->max_lev)/5]->name;
 		prt_field(s, ROW_RACE, COL_RACE);
-		prt_field(c_name + cp_ptr->name, ROW_CLASS, COL_CLASS);
+		/* prt_field(c_name + cp_ptr->name, ROW_CLASS, COL_CLASS); */
 	}
 
 	if (p_ptr->redraw & (PR_TITLE))
@@ -3207,7 +3342,7 @@ void redraw_stuff(void)
 	{
 		p_ptr->redraw &= ~(PR_EXP);
 		prt_exp_bar();
-		prt_exp();
+		/* prt_exp(); */
 	}
 
 	if (p_ptr->redraw & (PR_STATS))
@@ -3219,6 +3354,7 @@ void redraw_stuff(void)
 		prt_stat(A_DEX);
 		prt_stat(A_CON);
 		prt_stat(A_CHR);
+		prt_proficiency();
 	}
 
 	if (p_ptr->redraw & (PR_ARMOR))
@@ -3231,12 +3367,14 @@ void redraw_stuff(void)
 	{
 		p_ptr->redraw &= ~(PR_HP);
 		prt_hp();
+		prt_proficiency();
 	}
 
 	if (p_ptr->redraw & (PR_MANA))
 	{
 		p_ptr->redraw &= ~(PR_MANA);
 		prt_sp();
+		prt_proficiency();
 	}
 
 	if (p_ptr->redraw & (PR_GOLD))

@@ -142,7 +142,7 @@ byte adj_str_hold[A_RANGE] =
 	12		/* 11 */,
 	14		/* 12 */,
 	15		/* 13 */,
-	16		/* 14 */,
+	18		/* 14 */,
 	19		/* 15 */,
 	20		/* 16 */,
 	21		/* 17 */,
@@ -311,45 +311,6 @@ byte adj_str_unarmed[A_RANGE] =
 	12	/* 28 */,
 	15	/* 29 */,
 	20	/* 30 */
-};
-
-/*
- * Stat Table (CHR) -- Magic devices
- * (the gaps mirror the blows per turn table)
- */
-byte adj_chr_dev[A_RANGE] =
-{
-	0	/* 0 */,
-	1	/* 1 */,
-	2	/* 2 */,
-	3	/* 3 */,
-	4	/* 4 */,
-	5	/* 5 */,
-	6	/* 6 */,
-	7	/* 7 */,
-	8	/* 8 */,
-	10	/* 9 */,
-	11	/* 10 */,
-	12	/* 11 */,
-	13	/* 12 */,
-	14	/* 13 */,
-	16	/* 14 */,
-	17	/* 15 */,
-	18	/* 16 */,
-	19	/* 17 */,
-	20	/* 18 */,
-	22	/* 19 */,
-	23	/* 20 */,
-	24	/* 21 */,
-	25	/* 22 */,
-	26	/* 23 */,
-	28	/* 24 */,
-	29	/* 25 */,
-	30	/* 26 */,
-	32	/* 27 */,
-	33	/* 28 */,
-	34	/* 29 */,
-	36	/* 30 */	
 };
 
 /*
@@ -809,6 +770,83 @@ byte adj_con_mhp[A_RANGE] =
 };
 
 /*
+ * Stat Table (CHR) -- Magic devices
+ * (the gaps mirror the blows per turn table)
+ */
+byte adj_chr_dev[A_RANGE] =
+{
+	0	/* 0 */,
+	1	/* 1 */,
+	2	/* 2 */,
+	3	/* 3 */,
+	4	/* 4 */,
+	5	/* 5 */,
+	6	/* 6 */,
+	7	/* 7 */,
+	8	/* 8 */,
+	10	/* 9 */,
+	11	/* 10 */,
+	12	/* 11 */,
+	13	/* 12 */,
+	14	/* 13 */,
+	16	/* 14 */,
+	17	/* 15 */,
+	18	/* 16 */,
+	19	/* 17 */,
+	20	/* 18 */,
+	22	/* 19 */,
+	23	/* 20 */,
+	24	/* 21 */,
+	25	/* 22 */,
+	26	/* 23 */,
+	28	/* 24 */,
+	29	/* 25 */,
+	30	/* 26 */,
+	32	/* 27 */,
+	33	/* 28 */,
+	34	/* 29 */,
+	36	/* 30 */	
+};
+
+/*
+ * Stat Table (CHR) -- Spell & Device Range
+ */
+byte adj_chr_range[A_RANGE] =
+{
+	1	/* 0 */,
+	1	/* 1 */,
+	2	/* 2 */,
+	2	/* 3 */,
+	3	/* 4 */,
+	4	/* 5 */,
+	5	/* 6 */,
+	6	/* 7 */,
+	7	/* 8 */,
+	8	/* 9 */,
+	8	/* 10 */,
+	9	/* 11 */,
+	9	/* 12 */,
+	10	/* 13 */,
+	10	/* 14 */,
+	11	/* 15 */,
+	11	/* 16 */,
+	12	/* 17 */,
+	12	/* 18 */,
+	13	/* 19 */,
+	13	/* 20 */,
+	13	/* 21 */,
+	14	/* 22 */,
+	14	/* 23 */,
+	14	/* 24 */,
+	15	/* 25 */,
+	15	/* 26 */,
+	15	/* 27 */,
+	16	/* 28 */,
+	16	/* 29 */,
+	16	/* 30 */	
+};
+
+/*
  * Stat Table (CHR) -- payment percentages
  */
 byte adj_chr_gold[A_RANGE] =
@@ -894,32 +932,32 @@ byte adj_mag_study[A_RANGE] =
 	0		/* 2 */,
 	0		/* 3 */,
 	0		/* 4 */,
-	10		/* 5 */,
-	20		/* 6 */,
-	30		/* 7 */,
-	40		/* 8 */,
-	45		/* 9 */,
-	48		/* 10 */,
-	50		/* 11 */,
-	52		/* 12 */,
-	54		/* 13 */,
-	56		/* 14 */,
-	57		/* 15 */,
-	60		/* 16 */,
-	62		/* 17 */,
-	68		/* 18 */,
-	83		/* 19 */,
-	93		/* 20 */,
-	103		/* 21 */,
-	113		/* 22 */,
-	118		/* 23 */,
-	120		/* 24 */,
-	122		/* 25 */,
-	124		/* 26 */,
-	126		/* 27 */,
-	128		/* 28 */,
-	130		/* 29 */,
-	132		/* 30 */
+	9		/* 5 */,
+	19		/* 6 */,
+	29		/* 7 */,
+	39		/* 8 */,
+	44		/* 9 */,
+	46		/* 10 */,
+	48		/* 11 */,
+	50		/* 12 */,
+	52		/* 13 */,
+	54		/* 14 */,
+	56		/* 15 */,
+	58		/* 16 */,
+	61		/* 17 */,
+	65		/* 18 */,
+	80		/* 19 */,
+	90		/* 20 */,
+	100		/* 21 */,
+	110		/* 22 */,
+	115		/* 23 */,
+	117		/* 24 */,
+	119		/* 25 */,
+	121		/* 26 */,
+	123		/* 27 */,
+	125		/* 28 */,
+	127		/* 29 */,
+	129		/* 30 */
 };
 
 /*
@@ -930,22 +968,22 @@ byte adj_mag_mana[A_RANGE] =
 	0   	/* 0 */,
 	0   	/* 1 */,
 	0   	/* 2 */,
-	0   	/* 3 */,
-	0   	/* 4 */,
-	10  	/* 5 */,
-	15  	/* 6 */,
-	17  	/* 7 */,
-	20  	/* 8 */,
-	22  	/* 9 */,
-	25  	/* 10 */,
-	27  	/* 11 */,
-	30  	/* 12 */,
-	31  	/* 13 */,
-	33  	/* 14 */,
-	35  	/* 15 */,
-	40  	/* 16 */,
-	47  	/* 17 */,
-	55  	/* 18 */,
+	1   	/* 3 */,
+	8   	/* 4 */,
+	15  	/* 5 */,
+	21  	/* 6 */,
+	25  	/* 7 */,
+	28  	/* 8 */,
+	32  	/* 9 */,
+	35  	/* 10 */,
+	37  	/* 11 */,
+	39  	/* 12 */,
+	41  	/* 13 */,
+	43  	/* 14 */,
+	45  	/* 15 */,
+	48  	/* 16 */,
+	52  	/* 17 */,
+	60  	/* 18 */,
 	75  	/* 19 */,
 	100 	/* 20 */,
 	125 	/* 21 */,
@@ -993,7 +1031,7 @@ byte adj_mag_extra_mana[A_RANGE] =
 	90		/* 25 */,
 	95		/* 26 */,
 	100		/* 27 */,
-	105 	/* 28 */,
+	105 		/* 28 */,
 	110		/* 29 */,
 	120		/* 30 */
 };
@@ -1465,8 +1503,8 @@ spell_book books[SV_BOOK_MAX] =
 			{ POW_DETECT_MONSTERS,		"Detect Monsters",			 2,  2, 23 },
 			{ POW_BOLT_ELEC_X,		"Lightning Bolt",			 2, -1, 29 },
 			{ POW_BALL_POISON,		"Stinking Cloud",			 3,  3, 27 },
-			{ POW_DETECT_DOOR_STAIR,	"Find Doors and Stairs",		 3,  4, 25 },
 			{ POW_BOLT_ACID_X,		"Acid Bolt",				 3, -1, 36 },
+			{ POW_INFRAVISION,		"Infravision",				 4,  4, 35 },
 			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }
 		}
 	},
@@ -1480,8 +1518,8 @@ spell_book books[SV_BOOK_MAX] =
 			{ POW_DETECT_MONSTERS,		"Detect Monsters",			 2,  2, 23 },
 			{ POW_BOLT_ACID_X,		"Acid Bolt",				 2, -1, 29 },
 			{ POW_BALL_POISON,		"Stinking Cloud",			 3,  3, 27 },
-			{ POW_DETECT_DOOR_STAIR,	"Find Doors and Stairs",		 3,  4, 25 },
 			{ POW_BOLT_ELEC_X,		"Lightning Bolt",			 3, -1, 36 },
+			{ POW_INFRAVISION,		"Infravision",				 4,  4, 35 },
 			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }
 		}
 	},
@@ -1491,14 +1529,13 @@ spell_book books[SV_BOOK_MAX] =
 		{
 			{ POW_CONFUSE_MONSTER,	"Confuse Monster",			 4,  3, 26 },
 			{ POW_SLEEP_MONSTER,	"Sleep Monster",			 4,  5, 26 },
-			{ POW_INFRAVISION,		"Infravision",				 4,  4, 35 },
 			{ POW_BOLT_MISSILE_X,	"Magic Missile",			 5, -2, 25 },
-			{ POW_SHIELD,			"Shield",					 5,  7, 60 },
-			{ POW_TELE_MAJOR,		"Teleport Self",			 7,  6, 35 },
+			{ POW_SHIELD,		"Shield",					 5,  7, 60 },
+			{ POW_TELE_MAJOR,	"Teleport Self",			 7,  6, 35 },
 			{ POW_BEAM_WEAK_LITE,	"Spear of Light",			 7,  7, 35 },
-			{ POW_STONE_TO_MUD,		"Turn Stone to Mud",		 9,  7, 44 },
+			{ POW_STONE_TO_MUD,	"Turn Stone to Mud",		 9,  7, 44 },
 			{ POW_PHLOGISTON,	"Phlogiston",			 9,  8, 45 },
-			{ 0, NULL, 99,  0, 0 }
+			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }
 		}
 	},
 	{
@@ -1508,12 +1545,11 @@ spell_book books[SV_BOOK_MAX] =
 			{ POW_SLEEP_ALL,		"Sleep All",				11,  9, 45 },
 			{ POW_CREATE_DOOR,		"Create Doors",				11, 13, 35 },
 			{ POW_SLOW_MONSTER,		"Slow Monster",				11,  9, 50 },
-			{ POW_IDENTIFY,			"Identify Item",			11,  8, 75 },
 			{ POW_BALL_FIRE_X,		"Fire Ball",				12, -3, 31 },
 			{ POW_BALL_ELEC_X,		"Lightning Ball",			13, -3, 36 },
 			{ POW_BALL_ACID_X,		"Acid Ball",				14, -3, 41 },
-			{ POW_DETECT_ENCHANT,	"Detect Enchantment",		15, 10, 40 },
-			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }
+			{ POW_DETECT_ENCHANT,		"Detect Enchantment",			15, 10, 40 },
+			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }
 		}
 	},
 	{
@@ -1523,12 +1559,11 @@ spell_book books[SV_BOOK_MAX] =
 			{ POW_SLEEP_ALL,		"Sleep All",				11,  9, 45 },
 			{ POW_CREATE_DOOR,		"Create Doors",				11, 13, 35 },
 			{ POW_SLOW_MONSTER,		"Slow Monster",				11,  9, 50 },
-			{ POW_IDENTIFY,			"Identify Item",			11,  8, 75 },
 			{ POW_BALL_COLD_X,		"Frost Ball",				12, -3, 31 },
 			{ POW_BALL_ACID_X,		"Acid Ball",				13, -3, 36 },
 			{ POW_BALL_ELEC_X,		"Lightning Ball",			14, -3, 41 },
 			{ POW_DETECT_ENCHANT,	"Detect Enchantment",		15, 10, 40 },
-			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }
+			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }
 		}
 	},
 	{		
@@ -1540,11 +1575,10 @@ spell_book books[SV_BOOK_MAX] =
 			{ POW_BLIND_MONSTER,	"Blind Monster",			19, 12, 60 },
 			{ POW_SLOW_ALL,			"Slow All",					19, 20, 33 },
 			{ POW_MAGIC_LOCK,		"Magic Lock",				21, 25, 50 },
-			{ POW_IDENTIFY_PACK,	"Identify Pack",			21, 24, 80 },
 			{ POW_TELE_OTHER,		"Teleport Other",			23,  8, 60 },
 			{ POW_EARTHQUAKE,		"Earthquake",				25, 18, 60 },
 			{ POW_HASTE_SELF_1,		"Haste Self",				30, 12, 65 },
-			{ 0, NULL, 99,  0, 0 }
+			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }
 		}
 	},
 	{
@@ -1646,9 +1680,9 @@ spell_book books[SV_BOOK_MAX] =
 			{ POW_BOLDNESS,			"Boldness",					 1,  2, 25 },
 			{ POW_LIGHT_AREA_2,		"Call Light",				 3,  2, 25 },
 			{ POW_SAFETY,			"Protection from Traps",	 3,  3, 27 },
-			{ POW_DETECT_DOOR_STAIR,"Detect Doors/Stairs",		 3,  3, 27 },
 			{ POW_CURE_TAINT,		"Cleanse Taint",			 3,  3, 28 },
-			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }
+			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 },
+			{ 0, NULL, 99,  0, 0 }
 		}
 	},
 	{
@@ -1718,12 +1752,11 @@ spell_book books[SV_BOOK_MAX] =
 		{
 			{ POW_DETECT_MONSTERS,	"Detect Monsters",			 3,  3, 50 },
 			{ POW_DETECT_ALL,		"Detection",				10,  8, 80 },
-			{ POW_IDENTIFY,			"Perception",				20, 20, 80 },
 			{ POW_PROBE_ALL,		"Probing",					25, 20, 80 },
 			{ POW_MAP_2,			"Clairvoyance",				35, 50, 80 },
 			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 },
 			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 },
-			{ 0, NULL, 99,  0, 0 }
+			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }
 		}
 	},
 	{
@@ -2032,7 +2065,7 @@ option_type options[OPT_NORMAL] =
 	{"easy_direction",		"Open/Disarm/Close without direction",		FALSE},
 	{"easy_alter",			"Open/Disarm doors/traps on movement",		FALSE},
 	{"easy_floor",			"Display floor stacks in a list",   		FALSE},
-	{"show_piles",			"Show stacks as white '&'",					FALSE},
+	{"show_piles",			"Show stacks as white '&'",					TRUE},
 	{"center_player",		"Center map continuously",					FALSE},
 	{"run_avoid_center",	"Avoid centering while running",			FALSE},
 	{"scroll_target",		"Scroll map while targetting",				TRUE },
@@ -2073,7 +2106,7 @@ option_type options_birth[OPT_BIRTH] =
 	{"birth_easy_mode",			"Easy mode",								FALSE},
 	{"birth_nightmare_mode",	"Nightmare mode",							FALSE},
 	{"birth_retain_squelch",	"Retain squelch settings",					FALSE},
-	{"birth_weighted_roller",	"Allow specification of stat weighings",	TRUE},
+	{"birth_weighted_roller",	"Allow specification of stat weighings",	FALSE},
 };
 
 option_type options_cheat[OPT_CHEAT] =
@@ -2233,12 +2266,12 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 	/*** Birth ***/
 
 	{
-		OPT_birth_point_based,
-		OPT_birth_auto_roller,
-		OPT_birth_weighted_roller,
 		OPT_birth_random_hp,
 		OPT_birth_start_kit,
 		OPT_birth_retain_squelch,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
 		OPT_NONE,
 		OPT_NONE,
 		OPT_NONE,
@@ -2256,13 +2289,13 @@ byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 	{
 		OPT_birth_easy_mode,
 		OPT_birth_nightmare_mode,
-		OPT_birth_autoscum,
 		OPT_birth_preserve,
-		OPT_birth_ironman,
 		OPT_birth_no_stores,
 		OPT_birth_no_feelings,
 		OPT_birth_no_artifacts,
-		OPT_birth_force_small_lev,
+		OPT_NONE,
+		OPT_NONE,
+		OPT_NONE,
 		OPT_NONE,
 		OPT_NONE,
 		OPT_NONE,

@@ -3367,16 +3367,16 @@ void update_flow(void)
  * We must never attempt to map the outer dungeon walls, or we
  * might induce illegal cave grid references.
  */
-void map_area(void)
+void map_area(int x_adjust, int y_adjust)
 {
 	byte feat;
 	int i, x, y, y1, y2, x1, x2;
 
 	/* Pick an area to map */
-	y1 = p_ptr->py - 10;
-	y2 = p_ptr->py + 11;
-	x1 = p_ptr->px - 32;
-	x2 = p_ptr->px + 33;
+	y1 = p_ptr->py - 10 + y_adjust;
+	y2 = p_ptr->py + 11 + y_adjust;
+	x1 = p_ptr->px - 32 + x_adjust;
+	x2 = p_ptr->px + 33 + x_adjust;
 
 	if (y1 < 1)
 	{
@@ -3799,7 +3799,17 @@ int project_path(u16b *gp, int range, int y1, int x1, int y2, int x2, int flg)
 			gp[n++] = GRID(y,x);
 
 			/* Hack -- Check maximum range */
-			if ((n + (k >> 1)) >= range) break;
+			int tempfrac = frac;
+			if (m)
+			{
+				tempfrac += m;
+				if (tempfrac >= half)
+				{
+					if (distance(y1, x1, y + sy, x + sx) > range) break;
+				}
+				else if (distance(y1, x1, y + sy, x) > range) break;
+			}
+			else if ((distance(y1, x1, y + sy, x) > range)) break;
 
 			/* Sometimes stop at destination grid */
 			if (!(flg & (PROJECT_THRU)))
@@ -3861,7 +3871,17 @@ int project_path(u16b *gp, int range, int y1, int x1, int y2, int x2, int flg)
 			gp[n++] = GRID(y,x);
 
 			/* Hack -- Check maximum range */
-			if ((n + (k >> 1)) >= range) break;
+			int tempfrac = frac;
+			if (m)
+			{
+				tempfrac += m;
+				if (tempfrac >= half)
+				{
+					if ((distance(y1, x1, y + sy, x + sx) > range)) break;
+				}
+				else if ((distance(y1, x1, y + sy, x) > range)) break;
+			}
+			if ((distance(y1, x1, y, x + sx) > range)) break;
 
 			/* Sometimes stop at destination grid */
 			if (!(flg & (PROJECT_THRU)))
@@ -3916,8 +3936,8 @@ int project_path(u16b *gp, int range, int y1, int x1, int y2, int x2, int flg)
 			/* Save grid */
 			gp[n++] = GRID(y,x);
 
-			/* Hack -- Check maximum range */
-			if ((n + (n >> 1)) >= range) break;
+			/* Hack -- Check maximum range. */
+			if ((distance(y1, x1, y + sy, x + sx) > range)) break;
 
 			/* Sometimes stop at destination grid */
 			if (!(flg & (PROJECT_THRU)))

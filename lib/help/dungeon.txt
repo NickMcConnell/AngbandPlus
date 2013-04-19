@@ -351,11 +351,20 @@ before wandering into a hoard of death molds...
 
 
 === Upon Death and Dying ===
- 
-If your character falls below 0 hit points, he has died and cannot be
-restored.  A tombstone showing information about your character will be
-displayed.  You are also permitted to get a record of your character, and
-all your equipment (identified) either on the screen or in a file.
+
+If your character falls below 0 hit points, she suffers a permanent wound
+that hurts two of her abilities. There are three different types of wounds.
+One point of damage to each ability is substacted from your character's
+racial bonus, so it is truly permanent, but sustain protects from this.
+After being wounded, your character's hitpoints are set to 50 % of the new
+maximum. Adrenalin surge then cures all poison, cuts, stunning, confusion,
+blindness, and slowing.
+
+If your character already has the same type of wound, she has died and
+cannot be restored. A tombstone showing information about your character
+will be displayed.  You are also permitted to get a record of your
+character, and all your equipment (identified) either on the screen or in
+a file.
 
 Your character will leave behind a reduced save file, which contains only
 the monster memory and your option choices.  It may be restored, in which
@@ -372,4 +381,4 @@ any of the "cheating options", will prevent your character from appearing
 on the high score list.
 
 
-====================== Last updated for FayAngband 1.0.1 ======================
+====================== Last updated for FayAngband 1.1.0 ======================

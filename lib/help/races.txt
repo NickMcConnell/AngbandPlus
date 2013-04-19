@@ -4,7 +4,7 @@ There are thirteen different races that you can choose from in FayAngband.
 Some races are restricted as to what profession they may be, and each race 
 has its own adjustments to a character's stats and abilities. The race stat
 adjustment lasts throughout the game, raising the maximum levels the character
-can otherwise acheive in this stat. Most races also have intrinsic abilities.
+can otherwise achieve in this stat. Most races also have intrinsic abilities.
 
 ***** <Human>
 Human
@@ -25,7 +25,9 @@ Elf
     magic, but they are not as good at hand weapons or digging. Elves may 
     choose any class. They are resistant to attacks involving bright light.
     Elven arcane spellcasters specialise in either fire or frost, chosen
-    randomly.
+    randomly. As half-faeries, Elves learn to Shift earlier than other races.
+    Half-faeries are more fragile than other races and often die when they are
+    wounded critically.
 
 ***** <Dwarf>
 Dwarf
@@ -43,7 +45,9 @@ Dwarf
     challenges at imagined foes. In other words, dwarves are miserable at
     stealth. Just as comfortable relying on their hearing as on their eyes, 
     they can never be truly blinded. Dwarven arcane spellcasters, "smith-mages",
-    specialise in fire.
+    specialise in fire. As half-faeries, Dwarves learn to Shift earlier than
+    other races. Half-faeries are more fragile than other races and often die
+    when they are wounded critically.
 
 ***** <Gnome>
 Gnome
@@ -55,7 +59,9 @@ Gnome
     fighting with hand weapons, but are quite capable of using ranged attacks.
     As comfortable below ground as above it, gnomes have fair infra-vision, and
     are intrinsically protected against paralysis and some slowing effects.
-    Gnomish arcane spellcasters specialise in frost.
+    Gnomish arcane spellcasters specialise in frost. As half-faeries, Gnomes
+    learn to Shift earlier than other races. Half-faeries are more fragile than
+    other races and often die when they are wounded critically.
 
 ***** <Grippli>
 Grippli
@@ -96,11 +102,13 @@ Rattikin
 Felpurr
     The most civilized of the animalistic races, the felpurr are a noble race 
     of humanoid felines, who live in large cities situated where the climate is
-    warm. They are dexterous and smart, but lack muscle strength. They also 
-    have limited infravision. They can play all classes well. Felpurr are 
-    legendary for their luck - it somehow always seems that they manage to find
-    the best loot during their travels and adventures. Fellpurr arcane
-    spellcasters specialise in fire.
+    warm. Wrapped up in courtly etiquette and fine silk, the Fellpurr culture at
+    its heart is playful, competitive, and sometimes cruel. They love hunting
+    animals and Faeries, often just for the fun of it. They are dexterous and
+    smart, but lack muscle strength. They also have limited infravision. They
+    can play all classes well. Felpurr are legendary for their luck - it
+    somehow always seems that they manage to find the best loot during their
+    travels and adventures. Fellpurr arcane spellcasters specialise in fire.
 
 ***** <Ursa>
 Ursa
@@ -148,7 +156,8 @@ Angel
     against the basic fibre of their being and doing so provides them with only
     minimal experience rewards. During their time on this plane, they can 
     choose to belong to any trade - except, of course, thievery. Angelic arcane
-    spellcasters specialise in fire.
+    spellcasters specialise in fire. When an Angel is wounded critically, his
+    spirit sometimes escapes to Heaven.
 
 ***** <Demon>
 Demon
@@ -163,7 +172,8 @@ Demon
     gain levels slowly. They can play warriors, rogues, spellswords, mages and 
     rangers. Demons are masters of torture in all its forms, and therefore
     demon arcane spellcasters can specialise in either fire or frost, chosen
-    randomly.
+    randomly. When a Demon is wounded critically, her spirit may escape to Hell.
+
 
 === Recommended combinations of Race and Class ===
 
@@ -274,7 +284,7 @@ Hezrou     - Sustain Constituion.
 Glabrezu   - None.
 Nalfeshnee - Regeneration. 
 Pit Fiend  - None.
-Balrog     - Immune to Fire.
+Balrog     - None.
 
 
 ====================== Last updated for FayAngband 1.0.0 ======================

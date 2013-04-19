@@ -1,0 +1,83 @@
+=== Proficiencies ===
+
+If you have any proficiency points (Lore, Reserves, or Escapes) you may use your
+proficiencies by pressing 'p' and choosing which proficiency you want to use.
+You can see your Reserves, Escapes, and Lore points on the left side of the
+screen below HPs and SPs. The proficiency points are refreshed each time you go
+down a staircase.
+
+
+=== Reserves and Escapes ===
+
+Reserves and Escapes accumulate as you gain levels:
+
+LEVEL	RESERVES	LEVEL	ESCAPES
+10	1		15	1
+20	2		25	2
+30	3		35	3
+40	4		45	4
+50	5		55	5
+			65	6
+
+Races have bonuses or penalties at the tables:
+
+- All faery races (elf, dwarf, gnome) get +10 levels to Escapes.
+- All small races (hit die 8-) get -5 levels to Reserves, and +5 levels to
+  Escapes. 
+- All tough races (hit die 11+) get +5 levels to Reserves table, and -5 levels
+  to Escapes.
+- These modifiers are cumulative. For example, Gnomes get +10 levels to Escapes
+  for being faeries and +5 for being small. So they get to start the game with
+  one point of Escapes.
+
+Both Reserves and Escapes allow you to use one proficiency:
+
+  RECOVER, which uses a point of Reserves, is simply Cure Critical Wounds. You
+  can use Recover even when blind or confused.
+
+  SHIFT, which uses a point of Escapes, is directed teleportation.  Choose a
+  direction, and Shift tries hard to teleport you in that direction, usually at
+  least 150 feet away if there are enough empty floor squares to land on in that
+  direction, and never further than 250 feet. You can use shift while blind or
+  confused. You can't choose a direction if you are confused.
+
+The flavour for Shift is that the Realms of Angband and the Faery Realm are
+very close. If you know where to look, you can find a small portal (a
+"mouse-hole") and enter through it to the Faery Realm. Then you shift back to
+the Realm of Angband, in a different location. Faery races are obviously best
+at shifting, but all characters will eventually learn the secret. Small races
+are better at shifting because they can easily slip through the mouse-holes. On
+the other hand, they are worse at recovering from damage.
+
+
+=== Lore ===
+
+INT+WIS		LORE POINTS	AVAILABLE PROFICIENCIES
+22+		Lore 1		Identify, Cave Lore
+33+		*Lore* 1	Dungeon Lore, Identify Pack, Analyse Item
+44+		*Lore* 2
+55+		*Lore* 3
+
+Lore points and available proficiencies are derived from your Intelligence and
+Wisdom. As you can see in the table, INT+WIS 22+ gives you access to Common
+Lore, with two proficiencies:
+ 
+  IDENTIFY.
+
+  CAVE LORE is directed detection for doors, stairs, and minerals.  It also
+  grants a bonus to your next mapping attempt.
+
+You gain access to Greater Lore, also known as *Lore*, when your INT+WIS
+reaches 33+. At first, you don't get any extra Lore points.
+
+  DUNGEON LORE is directed detection for mapping, minerals, and -- most
+  importantly -- traps. It also grants a bonus to your next mapping attempt.
+
+  IDENTIFY PACK.
+
+  ANALYSE ITEM tests a skill: Alchemy for potions, Perception otherwise. If you
+  succeed, you identify the item fully. In case of potions, you also learn all
+  alchemical information. 
+
+
+====================== Last updated for FayAngband 1.1.0 ======================

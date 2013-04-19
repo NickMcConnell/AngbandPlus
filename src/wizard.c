@@ -405,7 +405,7 @@ static void prt_slays(const object_type *o_ptr, byte from, byte to, int row, int
 static void do_cmd_wiz_bamf(void)
 {
 	/* Must have a target */
-	if (target_okay())
+	if (target_okay(p_ptr->spell_range))
 	{
 		/* Teleport to the target */
 		teleport_player_to(p_ptr->target_row, p_ptr->target_col);
@@ -2980,7 +2980,7 @@ void do_cmd_debug(void)
 		/* Magic Mapping */
 		case 'm':
 		{
-			map_area();
+			map_area(0, 0);
 			break;
 		}
 

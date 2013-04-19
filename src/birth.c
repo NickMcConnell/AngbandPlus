@@ -74,6 +74,7 @@ static int w_choice[18][2] =
 	{TV_BLUNT, SV_QUARTERSTAFF},
 	{TV_BLUNT, SV_MACE},
 	{TV_POLEARM, SV_LONGSPEAR},
+	{TV_BLUNT, SV_FLAIL}, 
 	{TV_POLEARM, SV_BROAD_AXE},
 	/* Weapons available to classes with WEAPON_GOOD */
 	{TV_BLUNT, SV_BULLWHIP}, 
@@ -81,9 +82,8 @@ static int w_choice[18][2] =
 	{TV_SWORD, SV_BROAD_SWORD},
 	{TV_SWORD, SV_LONG_SWORD}, 
 	{TV_SWORD, SV_BASTARD_SWORD},
-	{TV_BLUNT, SV_FLAIL},
+	{TV_BLUNT, SV_MORNING_STAR},
 	{TV_POLEARM, SV_GLAIVE},
-	{TV_BLUNT, SV_MORNING_STAR}, 
 	{TV_SWORD, SV_TWO_HANDED_SWORD} 
 };
 
@@ -188,7 +188,7 @@ static void get_stats(void)
 	int dice[18];
 
 	/* Roll and verify some stats */
-	while ((j < 42) || (j > 54))
+	while ((j < 54) || (j > 54))
 	{
 		/* Roll some dice */
 		for (j = i = 0; i < 18; i++)
@@ -384,6 +384,11 @@ static void player_wipe(void)
 	/* Wipe the player */
 	(void)WIPE(p_ptr, player_type);
 
+	/* You can't use proficiencies until the first dungeon level */
+	p_ptr->lore_uses = 1;
+	p_ptr->reserves_uses = 1;
+	p_ptr->escapes_uses = 1;
+
 	/* Clear the inventory */
 	for (i = 0; i < INVEN_MAX; i++)
 	{
@@ -561,7 +566,7 @@ static void player_outfit(void)
 
 		/* Do the entire list? */
 		if (cp_ptr->flags & CF_WEAPON_GOOD)	last = 18;
-		else last = 9;
+		else last = 10;
 
 		/* Find the best weapon for the player */
 		for (i = 0; i < last; i++)
@@ -1225,6 +1230,11 @@ static bool player_birth_aux_2(void)
 		/* Fully healed and rested */
 		p_ptr->chp = p_ptr->mhp;
 		p_ptr->csp = p_ptr->msp;
+		
+		/* Reset wounds and proficiencies */
+		p_ptr->wound_vigor = 0;
+		p_ptr->wound_wit = 0;
+		p_ptr->wound_grace = 0;
 
 		/* Display the player */
 		display_player(CSCREEN_BIRTH);

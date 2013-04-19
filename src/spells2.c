@@ -490,7 +490,7 @@ void phlogiston(void)
  * Hack - displays areas effected by detection spells.
  *
  */
-static void animate_detect(void)
+static void animate_detect(int color, int x_adjust, int y_adjust)
 {
 	int y, x;
 	int x1, x2, y1, y2;
@@ -499,10 +499,10 @@ static void animate_detect(void)
 	int px = p_ptr->px;
 
 	/* Pick an area to map */
-	y1 = p_ptr->py - 11;
-	y2 = p_ptr->py + 12;
-	x1 = p_ptr->px - 33;
-	x2 = p_ptr->px + 34;
+	y1 = p_ptr->py - 11 + y_adjust;
+	y2 = p_ptr->py + 12 + y_adjust;
+	x1 = p_ptr->px - 33 + x_adjust;
+	x2 = p_ptr->px + 34 + x_adjust;
 
 	if (y1 < 1)
 	{
@@ -542,7 +542,14 @@ static void animate_detect(void)
 			if (panel_contains(y, x))
 			{
 				/* Hack -- Visual effects -- Display a yellow star */
+				if (color == 2)
+				{
+				print_rel('*', TERM_L_BLUE, y, x);
+				}
+				else
+				{
 				print_rel('*', TERM_YELLOW, y, x);
+				}
 			}
 		}
 	}
@@ -583,24 +590,23 @@ static void animate_detect(void)
 
 }
 
-
 /*
  * Detect all traps nearby
  */
-bool detect_traps(int animate)
+bool detect_traps(int animate, int x_adjust, int y_adjust)
 {
 	int i, y, x;
 	int x1, x2, y1, y2;
 
 	bool detect = FALSE;
 
-	if (animate) animate_detect();
+	if (animate) animate_detect(animate, x_adjust, y_adjust);
 
 	/* Pick an area to map */
-	y1 = p_ptr->py - 11;
-	y2 = p_ptr->py + 11;
-	x1 = p_ptr->px - 33;
-	x2 = p_ptr->px + 33;
+	y1 = p_ptr->py - 11 + y_adjust;
+	y2 = p_ptr->py + 11 + y_adjust;
+	x1 = p_ptr->px - 33 + x_adjust;
+	x2 = p_ptr->px + 33 + x_adjust;
 
 	if (y1 < 1)
 	{
@@ -667,19 +673,19 @@ bool detect_traps(int animate)
 /*
  * Detect all doors nearby
  */
-bool detect_doors(int animate)
+bool detect_doors(int animate, int x_adjust, int y_adjust)
 {
 	int y, x;
 	int x1, x2, y1, y2;
 	bool detect = FALSE;
 
-	if (animate) animate_detect();
+	if (animate) animate_detect(animate, x_adjust, y_adjust);
 
 	/* Pick an area to map */
-	y1 = p_ptr->py - 11;
-	y2 = p_ptr->py + 12;
-	x1 = p_ptr->px - 33;
-	x2 = p_ptr->px + 34;
+	y1 = p_ptr->py - 11 + y_adjust;
+	y2 = p_ptr->py + 12 + y_adjust;
+	x1 = p_ptr->px - 33 + x_adjust;
+	x2 = p_ptr->px + 34 + x_adjust;
 
 	if (y1 < 1)
 	{
@@ -751,23 +757,22 @@ bool detect_doors(int animate)
 }
 
 
-
 /*
  * Detect all stairs nearby
  */
-bool detect_stairs(int animate)
+bool detect_stairs(int animate, int x_adjust, int y_adjust)
 {
 	int y, x;
 	int x1, x2, y1, y2;
 	bool detect = FALSE;
 
-	if (animate) animate_detect();
+	if (animate) animate_detect(animate, x_adjust, y_adjust);
 
 	/* Pick an area to map */
-	y1 = p_ptr->py - 11;
-	y2 = p_ptr->py + 12;
-	x1 = p_ptr->px - 33;
-	x2 = p_ptr->px + 34;
+	y1 = p_ptr->py - 11 + y_adjust;
+	y2 = p_ptr->py + 12 + y_adjust;
+	x1 = p_ptr->px - 33 + x_adjust;
+	x2 = p_ptr->px + 34 + x_adjust;
 
 	if (y1 < 1)
 	{
@@ -832,19 +837,19 @@ bool detect_stairs(int animate)
 /*
  * Detect any treasure nearby
  */
-bool detect_treasure(int animate)
+bool detect_treasure(int animate, int x_adjust, int y_adjust)
 {
 	int y, x;
 	int x1, x2, y1, y2;
 	bool detect = FALSE;
 
-	if (animate) animate_detect();
+	if (animate) animate_detect(animate, x_adjust, y_adjust);
 
 	/* Pick an area to map */
-	y1 = p_ptr->py - 11;
-	y2 = p_ptr->py + 12;
-	x1 = p_ptr->px - 33;
-	x2 = p_ptr->px + 34;
+	y1 = p_ptr->py - 11 + y_adjust;
+	y2 = p_ptr->py + 12 + y_adjust;
+	x1 = p_ptr->px - 33 + x_adjust;
+	x2 = p_ptr->px + 34 + x_adjust;
 
 	if (y1 < 1)
 	{
@@ -919,7 +924,7 @@ bool detect_objects_gold(int animate)
 
 	bool detect = FALSE;
 
-	if (animate) animate_detect();
+	if (animate) animate_detect(0, 0, 0);
 
 	/* Pick an area to map */
 	y1 = p_ptr->py - 11;
@@ -1004,7 +1009,7 @@ bool detect_objects_normal(int animate)
 
 	bool detect = FALSE;
 
-	if (animate) animate_detect();
+	if (animate) animate_detect(0, 0, 0);
 
 	/* Pick an area to map */
 	y1 = p_ptr->py - 11;
@@ -1093,7 +1098,7 @@ bool detect_objects_magic(int animate)
 	bool found;
 	bool detect = FALSE;
 
-	if (animate) animate_detect();
+	if (animate) animate_detect(0, 0, 0);
 
 	/* Pick an area to map */
 	y1 = p_ptr->py - 11;
@@ -1215,7 +1220,7 @@ bool detect_monsters_normal(int animate)
 
 	bool flag = FALSE;
 
-	if (animate) animate_detect();
+	if (animate) animate_detect(0, 0, 0);
 
 	/* Pick an area to map */
 	y1 = p_ptr->py - 11;
@@ -1301,7 +1306,7 @@ bool detect_monsters_invis(int animate)
 
 	bool flag = FALSE;
 
-	if (animate) animate_detect();
+	if (animate) animate_detect(0, 0, 0);
 
 	/* Pick an area to map */
 	y1 = p_ptr->py - 11;
@@ -1397,7 +1402,7 @@ bool detect_monsters_evil(int animate)
 
 	bool flag = FALSE;
 
-	if (animate) animate_detect();
+	if (animate) animate_detect(0, 0, 0);
 
 	/* Pick an area to map */
 	y1 = p_ptr->py - 11;
@@ -1490,12 +1495,12 @@ bool detect_all(int animate)
 {
 	bool detect = FALSE;
 
-	if (animate) animate_detect();
+	if (animate) animate_detect(0, 0, 0);
 
 	/* Detect everything but traps */
-	if (detect_doors(0)) detect = TRUE;
-	if (detect_stairs(0)) detect = TRUE;
-	if (detect_treasure(0)) detect = TRUE;
+	if (detect_doors(0, 0, 0)) detect = TRUE;
+	if (detect_stairs(0, 0, 0)) detect = TRUE;
+	if (detect_treasure(0, 0 , 0)) detect = TRUE;
 	if (detect_objects_gold(0)) detect = TRUE;
 	if (detect_objects_normal(0)) detect = TRUE;
 	if (detect_monsters_invis(0)) detect = TRUE;
@@ -2200,6 +2205,148 @@ bool identify_fully(void)
 			if (potion_alch[i].sval1 == o_ptr->sval) potion_alch[i].known1 = TRUE;
 			if (potion_alch[i].sval2 == o_ptr->sval) potion_alch[i].known2 = TRUE;
 		}
+	}
+
+	/* Squelch it? */
+	if (item < INVEN_WIELD) squelch = squelch_itemp(o_ptr);
+
+	/* Mark the item as fully known */
+	o_ptr->ident |= (IDENT_MENTAL);
+
+	/* Mark the artifact as "aware" */
+	if (o_ptr->a_idx) 
+	{
+		artifact_type *a_ptr = &a_info[o_ptr->a_idx];
+
+		/* Aware of the artifact and its abilities */
+		artifact_aware(a_ptr);
+		artifact_known(a_ptr);
+	}
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Combine / Reorder the pack (later) */
+	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Description */
+	object_desc(o_name, sizeof(o_name), o_ptr, TRUE, 3);
+
+	/* Describe */
+	if (item >= INVEN_WIELD)
+	{
+		message_format(MSG_DESCRIBE, 0, "%^s: %s (%c).",
+		           describe_use(item), o_name, index_to_label(item));
+	}
+	else if (item >= 0)
+	{
+		message_format(MSG_DESCRIBE, 0, "In your pack: %s (%c).", o_name, 
+			index_to_label(item));
+ 	}
+ 	else
+ 	{
+		message_format(MSG_DESCRIBE, 0, "On the ground: %s.", o_name);	
+ 	}
+ 
+	/* Now squelch it if needed */
+	if (squelch == 1) 
+	{
+		do_squelch_item(o_ptr);
+	} 
+	else 
+	{
+		/* Track the object */
+		object_actual_track(o_ptr);
+
+		/* Hack -- Handle stuff */
+		handle_stuff();
+
+		/* Describe it fully */
+		screen_object(o_ptr, TRUE);
+	}
+
+	/* Success */
+	return TRUE;
+}
+
+
+/*
+ * Analyse an object in the inventory.
+ *
+ * This routine returns TRUE if an item was identified or if the player failed the skill test.
+ */
+bool analyse_item(void)
+{
+	int i;
+	int item;
+	int squelch=0;
+
+	object_type *o_ptr;
+
+	char o_name[80];
+
+	cptr q, s;
+
+	/* Only un-*id*'ed items */
+	item_tester_hook = item_tester_unknown_star;
+
+	/* Get an item */
+	q = "Analyse which item? ";
+	s = "You have nothing to analyse.";
+	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return FALSE;
+
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
+
+	/* Learn all alchemical info if potion */
+	if ((o_ptr->tval == TV_POTION) && (rand_int(100) < p_ptr->skill[SK_ALC]))
+	{
+		/* Identify it fully */
+		object_aware(o_ptr);
+		object_known(o_ptr);
+
+		potion_alch[o_ptr->sval].known1 = TRUE;
+		potion_alch[o_ptr->sval].known2 = TRUE;
+
+		for (i = 0; i < SV_POTION_MAX; i++)
+		{
+			if (potion_alch[i].sval1 == o_ptr->sval) potion_alch[i].known1 = TRUE;
+			if (potion_alch[i].sval2 == o_ptr->sval) potion_alch[i].known2 = TRUE;
+		}
+	}
+
+	/* If not potion, identify it fully */
+	else if ((!(o_ptr->tval == TV_POTION)) && (rand_int(40) < p_ptr->skill[SK_PER]))
+	{
+		object_aware(o_ptr);
+		object_known(o_ptr);
+	}
+
+	/* Failed test */
+	else if (o_ptr->tval == TV_POTION)
+	{
+		message(MSG_EFFECT, 0, "You fail the Alchemy skill test.");
+		return TRUE;
+	}
+	else
+	{
+		message(MSG_EFFECT, 0, "You fail the Perception skill test.");
+		return TRUE;
 	}
 
 	/* Squelch it? */
@@ -3395,7 +3542,7 @@ bool fire_ball(int typ, int dir, int dam, int rad)
 	tx = p_ptr->px + 99 * ddx[dir];
 
 	/* Hack -- Use an actual "target" */
-	if ((dir == 5) && target_okay())
+	if ((dir == 5) && target_okay(p_ptr->spell_range))
 	{
 		flg &= ~(PROJECT_STOP);
 
@@ -3420,7 +3567,7 @@ void fire_ball_combo(int t1, int t2, int t3, int t4, int dir, int dam, int rad)
 	int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
 
 	/* Hack -- Use an actual "target" */
-	if ((dir == 5) && target_okay())
+	if ((dir == 5) && target_okay(p_ptr->spell_range))
 	{
 		ty = p_ptr->target_row;
 		tx = p_ptr->target_col;
@@ -3485,7 +3632,7 @@ static bool project_hook(int typ, int dir, int dam, int flg)
 	tx = p_ptr->px + ddx[dir];
 
 	/* Hack -- Use an actual "target" */
-	if ((dir == 5) && target_okay())
+	if ((dir == 5) && target_okay(p_ptr->spell_range))
 	{
 		ty = p_ptr->target_row;
 		tx = p_ptr->target_col;

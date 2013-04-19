@@ -32,7 +32,7 @@ mation about any command, consult the help file "cmddesc.txt".
  m  Cast a spell                         M  Full dungeon map
  n  (unused)                             N  (unused)
  o  Open a door or chest                 O  (unused)
- p  Place a trap                         P  (unused)
+ p  Use a proficiency                    P  (unused)
  q  Quaff a potion                       Q  Quit (commit suicide)
  r  Read a scroll                        R  Rest for a period
  s  Search for traps/doors               S  Toggle search mode
@@ -91,7 +91,7 @@ mation about any command, consult the help file "cmddesc.txt".
  m  Cast a spell                         M  Full dungeon map
  n  (walk - south east)                  N  (run - south east)
  o  Open a door or chest                 O  Use racial ability
- p  Place a trap                         P  Browse a book
+ p  Use a proficiency                    P  Browse a book
  q  Quaff a potion                       Q  Quit (commit suicide)
  r  Read a scroll                        R  Rest for a period
  s  Search for traps/doors               S  Invoke a Talisman
@@ -133,4 +133,4 @@ mation about any command, consult the help file "cmddesc.txt".
  /  Identify symbol                      ?  Help
 
 
-======================= Last updated for EyAngband 0.5.0 ======================
+====================== Last updated for FayAngband 1.1.0 ======================
