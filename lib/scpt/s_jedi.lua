@@ -260,10 +260,10 @@ JHEALING = add_spell
 	["fail"] = 	45,
 		["random"] =    0,
 	["spell"] = 	function()
-			return hp_player(player.mhp * (15 + get_level(HEALING, 35)) / 100)
+			return hp_player(player.mhp * (15 + get_level(JHEALING, 35)) / 100)
 	end,
 	["info"] = 	function()
-			return "heal "..(15 + get_level(HEALING, 35)).."% = "..(player.mhp * (15 + get_level(HEALING, 35)) / 100).."hp"
+			return "heal "..(15 + get_level(JHEALING, 35)).."% = "..(player.mhp * (15 + get_level(JHEALING, 35)) / 100).."hp"
 	end,
 	["desc"] =	{
 			"Heals a percent of hitpoints",
@@ -283,11 +283,11 @@ JRECOVERY = add_spell
 	["spell"] = 	function()
 			local obvious
 			obvious = set_poisoned(player.poisoned / 2)
-			if get_level(RECOVERY, 50) >= 5 then
+			if get_level(JRECOVERY, 50) >= 5 then
 				obvious = is_obvious(set_poisoned(0), obvious)
 				obvious = is_obvious(set_cut(0), obvious)
 			end
-			if get_level(RECOVERY, 50) >= 10 then
+			if get_level(JRECOVERY, 50) >= 10 then
 				obvious = is_obvious(do_res_stat(A_STR, TRUE), obvious)
 				obvious = is_obvious(do_res_stat(A_CON, TRUE), obvious)
 				obvious = is_obvious(do_res_stat(A_DEX, TRUE), obvious)
@@ -295,7 +295,7 @@ JRECOVERY = add_spell
 				obvious = is_obvious(do_res_stat(A_INT, TRUE), obvious)
 				obvious = is_obvious(do_res_stat(A_CHR, TRUE), obvious)
 			end
-			if get_level(RECOVERY, 50) >= 15 then
+			if get_level(JRECOVERY, 50) >= 15 then
 				obvious = is_obvious(restore_level(), obvious)
 			end
 			return obvious
@@ -323,17 +323,17 @@ JSENSEHIDDEN = add_spell
 	["inertia"] = 	{ 1, 10 },
 	["spell"] = 	function()
 			local obvious = nil
-			obvious = detect_traps(15 + get_level(SENSEHIDDEN, 40, 0))
-			if get_level(SENSEHIDDEN, 50) >= 15 then
-				obvious = is_obvious(set_tim_invis(10 + randint(20) + get_level(SENSEHIDDEN, 40)), obvious)
+			obvious = detect_traps(15 + get_level(JSENSEHIDDEN, 40, 0))
+			if get_level(JSENSEHIDDEN, 50) >= 15 then
+				obvious = is_obvious(set_tim_invis(10 + randint(20) + get_level(JSENSEHIDDEN, 40)), obvious)
 			end
 			return obvious
 	end,
 	["info"] = 	function()
-			if get_level(SENSEHIDDEN, 50) >= 15 then
-				return "rad "..(15 + get_level(SENSEHIDDEN, 40)).." dur "..(10 + get_level(SENSEHIDDEN, 40)).."+d20"
+			if get_level(JSENSEHIDDEN, 50) >= 15 then
+				return "rad "..(15 + get_level(JSENSEHIDDEN, 40)).." dur "..(10 + get_level(JSENSEHIDDEN, 40)).."+d20"
 			else
-				return "rad "..(15 + get_level(SENSEHIDDEN, 40))
+				return "rad "..(15 + get_level(JSENSEHIDDEN, 40))
 			end
 	end,
 	["desc"] =	{
@@ -354,17 +354,17 @@ JSENSEMONSTERS = add_spell
 	["inertia"] = 	{ 1, 10 },
 	["spell"] = 	function()
 			local obvious
-			obvious = detect_monsters_normal(10 + get_level(SENSEMONSTERS, 40, 0))
-			if get_level(SENSEMONSTERS, 50) >= 30 then
-				obvious = is_obvious(set_tim_esp(10 + randint(10) + get_level(SENSEMONSTERS, 20)), obvious)
+			obvious = detect_monsters_normal(10 + get_level(JSENSEMONSTERS, 40, 0))
+			if get_level(JSENSEMONSTERS, 50) >= 30 then
+				obvious = is_obvious(set_tim_esp(10 + randint(10) + get_level(JSENSEMONSTERS, 20)), obvious)
 			end
 			return obvious
 	end,
 	["info"] = 	function()
-			if get_level(SENSEMONSTERS, 50) >= 30 then
-				return "rad "..(10 + get_level(SENSEMONSTERS, 40)).." dur "..(10 + get_level(SENSEMONSTERS, 20)).."+d10"
+			if get_level(JSENSEMONSTERS, 50) >= 30 then
+				return "rad "..(10 + get_level(JSENSEMONSTERS, 40)).." dur "..(10 + get_level(JSENSEMONSTERS, 20)).."+d10"
 			else
-				return "rad "..(10 + get_level(SENSEMONSTERS, 40))
+				return "rad "..(10 + get_level(JSENSEMONSTERS, 40))
 			end
 	end,
 	["desc"] =	{
@@ -384,7 +384,7 @@ JVISION = add_spell
 		["random"] =    0,
 	["inertia"] = 	{ 2, 200 },
 	["spell"] = 	function()
-			if get_level(VISION, 50) >= 25 then
+			if get_level(JVISION, 50) >= 25 then
 				wiz_lite_extra()
 			else
 				map_area()
@@ -438,7 +438,7 @@ JDISARM = add_spell
 	["spell"] = 	function()
 			local obvious
 			obvious = destroy_doors_touch()
-			if get_level(DISARM, 50) >= 10 then obvious = is_obvious(destroy_traps_touch(), obvious) end
+			if get_level(JDISARM, 50) >= 10 then obvious = is_obvious(destroy_traps_touch(), obvious) end
 			return obvious
 	end,
 	["info"] = 	function()

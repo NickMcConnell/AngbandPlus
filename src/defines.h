@@ -214,6 +214,19 @@
 #define MA_WOUND        0x0004
 #define MA_STUN         0x0008
 #define MA_FULL_SLOW    0x0010
+#define MA_POIS         0x0020
+#define MA_SLEEP        0x0040
+
+#define MAX_SPID        17
+#define MAX_BASILISK    8
+#define MAX_NINJA       8
+
+
+/* Dragon combat */
+
+#define MAX_DA          17
+
+
 
 /* Mindcraft */
 #define MAX_MINDCRAFT_POWERS  12
@@ -461,7 +474,7 @@
 #define SUBRACE_SAVE    9               /* Ugly hack, should be in foo-info, the subrace saved to the savefile */
 #define PY_MAX_EXP      99999999L       /* Maximum exp */
 #define PY_MAX_GOLD     999999999L      /* Maximum gold */
-#define PY_MAX_LEVEL    50              /* Maximum level */ // fury change fury
+#define PY_MAX_LEVEL    75              /* Maximum level */ // fury change fury
 
 /*
  * Player "food" crucial values
@@ -668,6 +681,8 @@
 
 #define ROW_MH                  19
 #define COL_MH                  0       /* "MH xxxxx/xxxxx" */
+
+
 
 #define ROW_INFO                (Term->hgt - 4)
 #define COL_INFO                0       /* "xxxxxxxxxxxx" */
@@ -4740,7 +4755,11 @@ extern int PlayerUID;
 #define SKILL_STUN              57
 #define SKILL_BOULDER           58
 #define SKILL_GEOMANCY          59
+#define SKILL_JEDI              89
 #define SKILL_THROWING          95
+#define SKILL_DRAGON            99
+#define SKILL_SPIDER            100
+#define SKILL_BASILISK          101
 /* Ugly but needed */
 #define MAX_SKILLS              200
 
@@ -4749,7 +4768,7 @@ extern int PlayerUID;
 #define SKF1_AUTO_HIDE          0x00000002      /* Tries to rehide at calc_bonus */
 #define SKF1_RANDOM_GAIN        0x00000004      /* Can be randomly gained by certain quests & such */
 
-#define MAX_MELEE               3
+#define MAX_MELEE               6
 
 /*
  * Player specialities, should be external but ti would be a mess

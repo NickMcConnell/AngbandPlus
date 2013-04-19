@@ -43,7 +43,7 @@ I:70:& Bolt~
 I:70:& Arrow~
 I:98:& Cloak~
 I:46:& Fur Cloak~
-A:0:0:1:2:3:4
+A:33:34:1:2:3:4
 O:1:2:3:4
 G:1:U
 W:24
@@ -113,7 +113,7 @@ I:95:& Main Gauche (Offhand)~
 I:95:& Short Sword (Offhand)~
 I:95:& Dagger (Offhand)~
 I:33:& Barbed Arrow~
-A:23:0:1:2:3:4
+A:23:24:1:2:3:4
 O:9:10:11:12
 G:3:w
 W:24
@@ -160,7 +160,7 @@ I:100:Remove Curse
 I:100:Remove Curse
 I:100:*Remove Curse*
 I:100:*Remove Curse*
-A:99:0:1:2:3:4
+A:99:39:1:2:3:4
 O:13:14:15:16
 G:4:g
 W:24
@@ -221,7 +221,7 @@ I:100:Recharging
 I:100:Satisfy Hunger
 I:100:Satisfy Hunger
 I:100:Satisfy Hunger
-A:0:0:1:2:3:4
+A:8:48:1:2:3:4
 O:17:18:19:20
 G:5:b
 W:24
@@ -260,7 +260,7 @@ T:60:55:15
 T:60:55:16
 T:60:55:17
 T:70:55:22
-A:0:0:1:2:3:4
+A:27:44:1:2:3:4
 O:21:22:23:24
 G:6:r
 W:24
@@ -1201,85 +1201,6 @@ O:213:213:213:213
 A:0:0:1:2:3:4
 G:8:g
 W:4
-
-N:91:Supplies
-I:100:& Ration~ of Cram
-I:60:& Shovel~
-I:50:& Pick~
-I:70:& Bolt~
-I:70:& Arrow~
-I:98:& Cloak~
-I:46:& Fur Cloak~
-A:27:44:1:2:3:4
-O:214:214:214:214
-G:1:U
-W:24
-
-N:92:Hunter HQ
-A:29:0:0:0:0:0
-O:215:215:215:215
-G:+:U
-W:24
-
-N:93:Arms and Armour
-I:100:& Dagger~
-I:100:& Sabre~
-I:100:& Battle Axe~
-I:100:& Hatchet~
-I:100:& Bolt~
-I:100:& Bolt~
-I:100:& Bolt~
-I:100:& Bolt~
-I:100:& Vibrosword~
-I:100:& Vibroblade~
-I:100:& Combat Suit~
-I:100:& Combat Helm~
-I:100:& Power Crossbow~
-I:100:& Ultimate Combat Suit~
-I:100:& Superior Combat Suit~
-I:100:& Advanced Combat Suit~
-I:100:& Advanced Combat Helm~
-I:100:& Electronic Vibrosword~
-I:100:& Power Vibrosword~
-I:100:& Doom Vibrosword~
-A:23:24:1:2:3:25
-O:216:216:216:216
-G:3:w
-W:24
-
-N:94:Medic's Bay
-I:100:Remove Curse
-I:100:Word of Recall
-I:100:Word of Recall
-I:100:Word of Recall
-#I:100:Cure Light Wounds
-T:100:71:34
-#I:100:Cure Serious Wounds
-#I:100:Cure Serious Wounds
-T:100:71:35
-T:100:71:35
-I:100:Cure Critical Wounds
-I:100:Cure Critical Wounds
-I:100:Restore Life Levels
-I:100:Restore Life Levels
-I:100:Restore Life Levels
-I:100:Word of Recall
-I:100:Word of Recall
-I:100:Word of Recall
-I:100:Cure Critical Wounds
-I:100:Cure Critical Wounds
-I:100:Restore Life Levels
-I:100:Restore Life Levels
-I:100:Restore Life Levels
-I:100:Remove Curse
-I:100:Remove Curse
-I:100:*Remove Curse*
-I:100:*Remove Curse*
-A:0:29:1:2:3:4
-O:217:217:217:217
-G:4:g
-W:24
-
 
 # N:<index>:<name>
 # I:<proba>:<item name>

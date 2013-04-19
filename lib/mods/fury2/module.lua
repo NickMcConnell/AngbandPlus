@@ -1,10 +1,10 @@
 add_module
 {
-	["name"]    = "Town Version",
-	["version"] = { 3, 0, 0 },
+	["name"]    = "FuryBand T",
+	["version"] = { 4, 0, 0 },
 	["author"]  = { "The Fury", "thefurry@hvc.rr.com" },
 	["desc"] = {
-		"The alternate mode of FuryBand, one town, one dungeon",
+		"The alternate mode of FuryMod, one town, one dungeon",
 		},
 
 	["rand_quest"] = TRUE,
@@ -21,13 +21,13 @@ add_module
 	["random_artifact_armor_chance"] = 40,
 	["random_artifact_jewelry_chance"] = 10,
 
-	["max_plev"] = 50,
+	["max_plev"] = 75,
 	["max_skill_overage"] = 7,
 	
 
 	["mod_savefiles"]=
 	{
-		"Town Version",
+		"FuryBand T",
 	},
 	["layout"] = 
 	{ 

@@ -1,7 +1,7 @@
 add_module
 {
 	["name"]    = "FuryBand",
-	["version"] = { 3, 0, 0 },
+	["version"] = { 4, 0, 0 },
 	["author"]  = { "The Fury", "thefurry@hvc.rr.com" },
 	["desc"] = {
 		"The base version of FuryMod with the wildnerness, towns, and dungeons",
@@ -20,8 +20,8 @@ add_module
 	["random_artifact_weapon_chance"] = 40,
 	["random_artifact_armor_chance"] = 40,
 	["random_artifact_jewelry_chance"] = 40,
-
-	["max_plev"] = 50,
+	["orc_name"] = "Monster",
+	["max_plev"] = 75,
 	["max_skill_overage"] = 5,
 	
 

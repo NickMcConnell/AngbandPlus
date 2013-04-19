@@ -795,7 +795,7 @@ N:73:& Short Bow~
 G:}:U
 I:19:12:0
 W:3:0:30:50
-P:-3:0d0:0:0:0
+P:0:0d0:0:0:0
 A:3/1:50/2
 F:SHOW_MODS
 D:A piece of bent wood, fitted with a string. Easy to transport and use, but
@@ -805,7 +805,7 @@ N:74:& Long Bow~
 G:}:U
 I:19:13:0
 W:10:0:40:120
-P:-5:0d0:0:0:0
+P:0:0d0:0:0:0
 A:10/1:70/2
 F:SHOW_MODS
 D:A bow almost as long as a human. It takes considerable strength and skill to
@@ -816,7 +816,7 @@ N:75:& Light Crossbow~
 G:}:s
 I:19:23:0
 W:15:0:110:140
-P:-3:0d0:0:0:0
+P:0:0d0:0:0:0
 A:15/1:60/2
 F:SHOW_MODS
 D:A metal bow mounted on a wooden stock. It is used for shooting bolts. This
@@ -827,7 +827,7 @@ N:76:& Heavy Crossbow~
 G:}:s
 I:19:24:0
 W:30:0:200:300
-P:-4:0d0:0:0:0
+P:0:0d0:0:0:0
 A:30/1:80/2
 F:SHOW_MODS
 D:A metal bow mounted on a wooden stock, with attached cocking mechanism. It
@@ -6488,53 +6488,6 @@ D:from all but the most faithful followers of Yavanna.
 
 ### Dwarven Rings of Power - added for Theme
 ### (here at the bottom to make sure they're not generated instead of the actual rings, since I'm reusing svals)
-N:819:& Ring~
-G:=:d
-I:45:13:0
-W:70:0:2:65000
-P:0:0d0:0:0:0
-A:
-F:INSTA_ART
-
-N:820:& Ring~
-G:=:d
-I:45:14:0
-W:70:0:2:65000
-P:0:0d0:0:0:0
-A:
-F:INSTA_ART
-
-N:821:& Ring~
-G:=:d
-I:45:15:0
-W:70:0:2:65000
-P:0:0d0:0:0:0
-A:
-F:INSTA_ART
-
-N:822:& Ring~
-G:=:d
-I:45:33:0
-W:70:0:2:65000
-P:0:0d0:0:0:0
-A:
-F:INSTA_ART
-
-N:823:& Ring~
-G:=:d
-I:45:8:0
-W:70:0:2:65000
-P:0:0d0:0:0:0
-A:
-F:INSTA_ART
-
-N:824:& Ring~
-G:=:d
-I:45:9:0
-W:70:0:2:65000
-P:0:0d0:0:0:0
-A:
-F:INSTA_ART
 
 ### More God relics ###
 N:825:& Piece~ of the Relic of Aule
@@ -7266,7 +7219,7 @@ F:IGNORE_ACID | IGNORE_FIRE | IGNORE_ELEC | IGNORE_COLD | RES_CONF | RES_CHAOS |
 
 N:901:& Curved Lightsaber~
 G:|:R
-I:23:55:1
+I:23:56:1
 W:50:0:15:15000
 P:10:6d6:0:0:0
 A:50/1:40/1
@@ -7274,7 +7227,7 @@ F:SHOW_MODS | VORPAL | REFLECT | RES_FEAR | BLESSED | LEVELS | SPELL | MANA | LI
 
 N:902:& Doublended Lightsaber~
 G:|:R
-I:23:55:1
+I:23:57:1
 W:99:0:30:25000
 P:15:9d9:0:0:0
 A:70/1:80/1
@@ -7424,7 +7377,7 @@ N:918:& Light Magic Crossbow~
 G:}:R
 I:19:23:1
 W:40:0:110:200
-A:40/1:60/2
+A:50/1:60/2
 F:SHOW_MODS | MANA
 D:A bow mounted on a wooden stock. It is used for shooting bolts. This
 D:design is relatively light and not too difficult to cock, but also shoots its
@@ -7843,18 +7796,125 @@ A:3/1
 F:SPECIAL_GENE
 P:0:1d1:0:0:0
 
+N:1009:& Handclaw~
+G:]:s
+I:31:67:2
+W:10:0:30:100
+P:3:2d1:6:6:0
+A:10/1
+F:SHOW_MODS | VORPAL | 
+D:The Handclaw is a band of metal with sharp claws 
+D:stretching across the back of the hand, so it can be 
+D:used as a weapon.
+
+N:1010:& Wakizashi~
+G:|:s
+I:23:80:0
+W:10:0:100:1000
+P:0:3d3:0:0:0
+A:10/1
+F:SHOW_MODS |
+D:A sword similar to a katana but smaller, measuring between 
+D:12 and 24 inches.  It is suitable for fighting in close quarters.
 
 
+N:1011:& Shuriken~
+G:{:s
+I:11:30:0
+W:12:0:50:600
+P:0:3d4:0:0:0
+A:12/1
+F:SHOW_MODS | VORPAL | THROWING |
+D:Shuriken are throwing stars with six sharp points.  
+D:When thrown they are spun rapidly and so create a 
+D:saw effect when hitting the enemy. 
 
 
+N:1012:& Jutte~
+G:/:s
+I:22:31:0
+W:15:0:200:1500
+P:0:2d7:0:0:0
+A:15/1
+F:SHOW_MODS | 
+D:The jutte is an iron pole measuring about 18 to 28 inches long.  
+D:It can be used as a weapon, but it's main function is for defence or 
+D:restraint.  A single hook, called a kagi is fixed near the handle and 
+D:this allows trapping or even breaking weapons.
 
 
+N:1013:& Kunai~
+G:/:s
+I:22:32:0
+W:12:0:150:800
+P:0:2d6:0:0:0
+A:12/1
+F:SHOW_MODS
+D:a small spear like weapon, measuring about 24 inches.  Kunai normally have a 
+D:leaf-shaped blade.  They can be strapped to a stick to create a longer spear. 
+
+#Pluralisation wrong here :(
+
+N:1014:& Nunchuks~
+G:\:u
+I:21:21:0
+W:15:0:150:1000
+P:0:3d3:0:0:0
+A:15/1
+F:COULD2H | SHOW_MODS
+f:COULD2H
+D:Nunchuks are two sticks connected at their ends with a short 
+D:chain or rope.  They can be wielded two handed.
 
 
+N:1015:misc 1
+G:-:d
+I:65:98:-1:SPELL=Sleep Monster
+W:3:0:10:100
+A:3/1
+F:SPECIAL_GENE
+P:0:1d1:0:0:0
+
+N:1016:misc 2
+G:-:d
+I:65:98:-1:SPELL=Stun Monster
+W:3:0:10:100
+A:3/1
+F:SPECIAL_GENE
+P:0:1d1:0:0:0
+
+N:1017:misc 3
+G:-:d
+I:65:98:-1:SPELL=Stun Monsters
+W:3:0:10:100
+A:3/1
+F:SPECIAL_GENE
+P:0:1d1:0:0:0
+
+N:1018:misc 4
+G:-:d
+I:65:98:-1:SPELL=Sleep Monsters
+W:3:0:10:100
+A:3/1
+F:SPECIAL_GENE
+P:0:1d1:0:0:0
+
+N:1019:misc 5
+G:-:d
+I:65:98:-1:SPELL=Kill Monsters
+W:3:0:10:100
+A:3/1
+F:SPECIAL_GENE
+P:0:1d1:0:0:0
 
 
-
-
+N:1020:misc 6
+G:-:d
+I:65:98:-1:SPELL=Kill Monster
+W:3:0:10:100
+A:3/1
+F:SPECIAL_GENE
+P:0:1d1:0:0:0
 
 
 

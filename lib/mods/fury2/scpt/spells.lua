@@ -11,7 +11,7 @@ SKILL_LIGHT = 91
 SKILL_NINJA = 92
 SKILL_PHASING = 93
 SKILL_MINDBLADE = 94
-
+SKILL_BASILISK = 101
 
 -- Create the schools
 SCHOOL_MANA = add_school
@@ -425,6 +425,15 @@ SCHOOL_HUNTING = add_school
 	
 }
 
+SCHOOL_BASILISK = add_school
+{
+	["name"] = "Basilisk Powers", 
+	["skill"] = SKILL_BASILISK,
+	["spell_power"] = FALSE,
+
+	
+}
+
 -- The God specific schools, all tied to the prayer skill
 SCHOOL_ERU = add_school
 {
@@ -528,7 +537,7 @@ tome_dofile("s_ninja.lua")
 tome_dofile("s_phase.lua")
 tome_dofile("s_const.lua")
 tome_dofile("s_mblade.lua")
-
+tome_dofile("s_basilisk.lua")
 -- Gods' specific spells
 tome_dofile("s_eru.lua")
 tome_dofile("s_manwe.lua")
@@ -757,7 +766,7 @@ school_book[96] =
 	ARMOUR_SUPERAC, ARMOUR_NETHWAVE, ARMOUR_NEXSHIELD
 }
 
-school_book[97] =
+school_book[94] =
 {
 	THROWMINDBLADE, MIND_BLADE, MINDSPEED, MINDSHIELD
 }
@@ -765,4 +774,9 @@ school_book[97] =
 school_book[98] =
 {
 	SURVEY_AREA, FIND_HIDDEN, DISMANTLE, SPARKY_SKILLS, BUILD_DOOR, KNOCK_DOWN_WALL, PLUMBERS_MATE, BUILD_WALL, BUILD_STAIR, NAIL_GUNS, DEMOLITION, REBUILD_DUNGEON  
+}
+
+school_book[95] =
+{
+	BASILISK_SLEEP_BOLT, BASILISK_STUN_BOLT, BASILISK_SLEEP_BALL, BASILISK_STUN_BALL, BASILISK_KILL_BOLT, BASILISK_KILL_BALL
 }

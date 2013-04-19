@@ -1,3 +1,80 @@
+Tenth Release (4.0)
+
+Engine Changes
+
+	Fixed the Chargeable Weapon bugs
+	Fixed Lost Sword Crash Bug
+	Game now supports level 75 characters. *** SAVEFILES ARE NOT COMPATIBLE ***
+	Normal now displays when characters food is less than full, but more than hungry
+
+
+Help Changes
+
+	Fixed Help files again
+
+Skill Changes
+
+
+	Removed a lot of the skills from FF quests
+	New Skill "Dragon-Combat" (note to modders, must have skill index of 99 to work)
+	New Skill "Spider-Combat" (note to modders, must have skill index of 100 to work)
+	New Skill "Basilisk-Combat" (note to modders, must have skill index of 101 to work)
+	Fixed Jedi power bugs
+	Fixed Perfect Casting bug
+	Fixed Construction Survery Area Bug
+	Removed First-aid as a default skill
+
+
+
+	Jedi and Swordmastery skill now affects Jedi Dodge chance. Items worn on the hands, head, and arms make it harder to dodge. Weapons,
+	armor, and cloaks make no difference to the dodge chance
+
+
+ObjecT/Artifact Changes
+
+	Added in CosmicGerbil's Ninja weapons and Ninja Script
+	Removed the AC penalty for bows and crossbows
+	Removed the Dwarven Rings
+	Added in new Jedi-related Artifacts, thanks to CosmicGerbil
+
+
+Power Changes
+	
+	Fixed Breathe Lightning Description
+	New school "Basilisk Powers" Linked in with the Basilisk Combat skill
+
+Monster Changes
+	
+	Most of the Chaos monsters now do CHAOS damage when they attack.
+	Most birds now do a PECK attack, instead of BITE attack
+	Crystal Drakes do SLASH attacks, instead of HURT attacks
+	Mature * Dragons give less XP than Ancient * Dragons
+	
+
+Race/Class Changes
+	
+	Removed Golden Armour power from dragons	
+	Removed auto-id from some races
+	Wainriders now cannot increase the stealth skill
+	Wainriders now cannot increase the devices skill
+	Dragons don't get Barehand-combat anymore
+	Dragons now get Dragon-combat
+	New Race "Monster"
+	New Subraces for "Monster"
+	Spiders don't have barehand anymore
+	Spiders now get Spider-combat
+	Golems now have some modifications
+	Jedi cannot wear hard or dragon armour
+	Jedi cannot wield or use ranged weapons
+
+Other Changes
+	
+	The Temple's Remove Curse now deducts gold. No more freebies
+	Hunter Encampment is now blocked off from the rest of the map
+	Dungeon in Hunter Encampment now goes to level 127, has random quests, and all monsters are leveled to twice the dungeon level.
+	
+	
+
 Ninth Release (3.0)
 
 Engine Changes

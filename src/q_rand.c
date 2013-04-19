@@ -322,7 +322,7 @@ bool quest_random_feeling_hook(char *fmt)
 			  }
 		  case 3:
 			  {
-				  cmsg_format(TERM_YELLOW, "Gandalf steps sheepishly away from a dead %s:");
+				  cmsg_format(TERM_YELLOW, "Gandalf steps sheepishly away from a dead monster:");
 				  cmsg_format(TERM_YELLOW, "'Ah please help me ! A group of %s stole my staff! I'm nothing without it'", r_info[random_quests[dun_level].r_idx].name + r_name);
 				 lost_sword_fury = 3;
 				  break;

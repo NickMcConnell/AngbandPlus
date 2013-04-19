@@ -676,7 +676,7 @@ BREATH_LIGHTENING2 = add_power
 			end
 
 
-			msg_print("You breathe Poison.")
+			msg_print("You breathe Lightening.")
 	
 			fire_ball(GF_ELEC, dir, dam, 2)
 			

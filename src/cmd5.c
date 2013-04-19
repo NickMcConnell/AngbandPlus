@@ -2732,18 +2732,18 @@ int add_item_ability(object_type *o_ptr)
         {strcpy(power_desc[num],"Brand Light 10000 golds");powers[num++]=16;}
         {strcpy(power_desc[num],"Brand Dark 5000 golds");powers[num++]=17;}
         {strcpy(power_desc[num],"Brand Magic 20000 golds");powers[num++]=18;}
-        if (o_ptr->tval == TV_SWORD || TV_AXE || TV_HAFTED || TV_POLEARM) {strcpy(power_desc[num],"Always Hit 500000000 golds");powers[num++]=20;}
+        if ((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_AXE) || (o_ptr->tval == TV_HAFTED) || (o_ptr->tval == TV_POLEARM)) {strcpy(power_desc[num],"Always Hit 500000000 golds");powers[num++]=20;}
         {strcpy(power_desc[num],"Regeneration 50000 golds");powers[num++]=21;}
         if (o_ptr->tval == TV_SHIELD) {strcpy(power_desc[num],"Reflecting 25000 golds");powers[num++]=22;}
         {strcpy(power_desc[num],"Magic Breath 50000000 golds");powers[num++]=23;}
         {strcpy(power_desc[num],"Throwing 15000 golds");powers[num++]=24;}
         {strcpy(power_desc[num],"Sheath: Fire 15000 golds");powers[num++]=25;}
-		{strcpy(power_desc[num],"Auto ID 100000 golds");powers[num++]=26;}
+		{strcpy(power_desc[num],"Auto ID 1000000 golds");powers[num++]=26;}
 		{strcpy(power_desc[num],"Sentient 400000 golds");powers[num++]=27;}
 		{strcpy(power_desc[num],"Sheath: Electricity 15000 golds");powers[num++]=28;}
 		{strcpy(power_desc[num],"Sheath: Acid 15000 golds");powers[num++]=29;}
 		{strcpy(power_desc[num],"Sheath: Cold 15000 golds");powers[num++]=30;}
-		{strcpy(power_desc[num],"Spell Contain 15000 golds");powers[num++]=31;}
+	//	{strcpy(power_desc[num],"Spell Contain 15000 golds");powers[num++]=31;}
 		{strcpy(power_desc[num],"Res Morgul 150000 golds");powers[num++]=32;}
 		if(!num) {msg_print("No powers to use.");return 0;}
 
@@ -3000,7 +3000,7 @@ int add_item_ability(object_type *o_ptr)
                         if (p_ptr->au >= 5000)
                         {
                                 msg_print("Your item gained a new ability!");
-                                p_ptr->au -= 445000;
+                                 p_ptr->au -= 5000;
                                 o_ptr->art_flags4 |= TR4_LITE2;
 								//	p_ptr->redraw |= (PR_BASIC);
                                 p_ptr->redraw |= (PR_BASIC);
@@ -3091,7 +3091,7 @@ int add_item_ability(object_type *o_ptr)
                         if (p_ptr->au >= 150000)
                         {
                                 msg_print("Your item gained a new ability!");
-                                p_ptr->au -= 40000;
+                                p_ptr->au -= 150000;
                                 o_ptr->art_flags2 |= TR2_LIFE;
                                 p_ptr->redraw |= (PR_BASIC);
                         }
@@ -3133,7 +3133,7 @@ int add_item_ability(object_type *o_ptr)
                         {
                                 msg_print("Your item gained a new ability!");
                                 p_ptr->au -= 50000000;
-                                o_ptr->art_flags2 |= TR5_MAGIC_BREATH;
+                                o_ptr->art_flags5 |= TR5_MAGIC_BREATH;
                                 p_ptr->redraw |= (PR_BASIC);
 
                         }
@@ -3148,6 +3148,7 @@ int add_item_ability(object_type *o_ptr)
                                 p_ptr->redraw |= (PR_BASIC);
                         }
                         else msg_print("You don't have enough money...");
+						break;
 				case 25:
                         if (p_ptr->au >= 15000)
                         {
@@ -3157,8 +3158,9 @@ int add_item_ability(object_type *o_ptr)
                                 p_ptr->redraw |= (PR_BASIC);
                         }
                         else msg_print("You don't have enough money...");
+						break;
 				case 26:
-                        if (p_ptr->au >= 100000)
+                        if (p_ptr->au >= 1000000)
                         {
                                 msg_print("Your item gained a new ability!");
                                 p_ptr->au -= 1000000;
@@ -3209,15 +3211,15 @@ int add_item_ability(object_type *o_ptr)
                         }
 						 else msg_print("You don't have enough money...");
                         break;
-							case 31:
+				/*			case 31:
                         if (p_ptr->au >= 15000)
                         {
                                 msg_print("Your item gained a new ability!");
                                 p_ptr->au -= 15000;
                                 o_ptr->art_flags5 |= TR5_SPELL_CONTAIN;
                                 p_ptr->redraw |= (PR_BASIC);
-                        }
-						 else msg_print("You don't have enough money...");
+                        } 
+						 else msg_print("You don't have enough money...");*/
                         break;
 							case 32:
                         if (p_ptr->au >= 150000)

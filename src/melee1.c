@@ -292,13 +292,13 @@ bool carried_make_attack_normal(int r_idx)
 		case RBE_CHAOS:
 			power = 5;
 			break;
-				case RBE_PIETY:
+		case RBE_PIETY:
 			power = 60;
 			break;
-					case RBE_FOOD:
+		case RBE_FOOD:
 			power = 60;
 			break;
-						case RBE_SLASH:
+		case RBE_SLASH:
 			power = 50;
 			break;
 		}

@@ -366,6 +366,8 @@ static void prt_ac(void)
 }
 
 
+
+
 /*
  * Prints Cur/Max hit points
  */
@@ -597,7 +599,7 @@ static void prt_hunger(void)
 	/* Normal */
 	else if (p_ptr->food < PY_FOOD_FULL)
 	{
-		c_put_str(TERM_L_GREEN, "      ", ROW_HUNGRY, COL_HUNGRY);
+		c_put_str(TERM_L_GREEN, "Normal ", ROW_HUNGRY, COL_HUNGRY);
 	}
 
 	/* Full */
@@ -2923,6 +2925,20 @@ void calc_bonuses(bool silent)
 	{
 		apply_flags(cp_ptr->oflags1[i], cp_ptr->oflags2[i], cp_ptr->oflags3[i], cp_ptr->oflags4[i], cp_ptr->oflags5[i], cp_ptr->oesp[i], cp_ptr->opval[i], 0, 0, 0, 0);
 	}
+    if (p_ptr->melee_style == SKILL_DRAGON)
+	{
+	p_ptr->pspeed += get_skill_scale(SKILL_DRAGON, 5);
+	}
+    if (p_ptr->melee_style == SKILL_SPIDER)
+	{
+	p_ptr->pspeed += get_skill_scale(SKILL_SPIDER, 5);
+	}
+
+    if (p_ptr->melee_style == SKILL_BASILISK)
+	{
+	p_ptr->pspeed += get_skill_scale(SKILL_BASILISK, 5);
+	}
+
 
 	if (p_ptr->melee_style == SKILL_HAND)
 	{
@@ -3683,6 +3699,77 @@ void calc_bonuses(bool silent)
 		}
 	}
 
+	else if ((p_ptr->melee_style == SKILL_DRAGON))
+	{
+		int plev = get_skill(SKILL_DRAGON);
+
+		p_ptr->num_blow = 0;
+
+		if (plev > 9) p_ptr->num_blow++;
+		if (plev > 19) p_ptr->num_blow++;
+		if (plev > 29) p_ptr->num_blow++;
+		if (plev > 34) p_ptr->num_blow++;
+		if (plev > 39) p_ptr->num_blow++;
+		if (plev > 44) p_ptr->num_blow++;
+		if (plev > 49) p_ptr->num_blow++;
+
+		if (monk_heavy_armor()) p_ptr->num_blow /= 2;
+			p_ptr->to_h += (plev / 3);
+			p_ptr->to_d += (plev / 3);
+
+			p_ptr->dis_to_h += (plev / 3);
+			p_ptr->dis_to_d += (plev / 3);
+		p_ptr->num_blow += 2 + extra_blows;
+
+	}
+
+	else if ((p_ptr->melee_style == SKILL_SPIDER))
+	{
+		int plev = get_skill(SKILL_SPIDER);
+
+		p_ptr->num_blow = 0;
+
+		if (plev > 9) p_ptr->num_blow++;
+		if (plev > 19) p_ptr->num_blow++;
+		if (plev > 29) p_ptr->num_blow++;
+		if (plev > 34) p_ptr->num_blow++;
+		if (plev > 39) p_ptr->num_blow++;
+		if (plev > 44) p_ptr->num_blow++;
+		if (plev > 49) p_ptr->num_blow++;
+
+		if (monk_heavy_armor()) p_ptr->num_blow /= 2;
+			p_ptr->to_h += (plev / 3);
+			p_ptr->to_d += (plev / 3);
+
+			p_ptr->dis_to_h += (plev / 3);
+			p_ptr->dis_to_d += (plev / 3);
+		p_ptr->num_blow += 2 + extra_blows;
+
+	}
+	else if ((p_ptr->melee_style == SKILL_BASILISK))
+	{
+		int plev = get_skill(SKILL_BASILISK);
+
+		p_ptr->num_blow = 0;
+
+		if (plev > 9) p_ptr->num_blow++;
+		if (plev > 19) p_ptr->num_blow++;
+		if (plev > 29) p_ptr->num_blow++;
+		if (plev > 34) p_ptr->num_blow++;
+		if (plev > 39) p_ptr->num_blow++;
+		if (plev > 44) p_ptr->num_blow++;
+		if (plev > 49) p_ptr->num_blow++;
+
+		if (monk_heavy_armor()) p_ptr->num_blow /= 2;
+			p_ptr->to_h += (plev / 3);
+			p_ptr->to_d += (plev / 3);
+
+			p_ptr->dis_to_h += (plev / 3);
+			p_ptr->dis_to_d += (plev / 3);
+		p_ptr->num_blow += 2 + extra_blows;
+
+	}
+
 	/* Monsters that only have their "natural" attacks */
 	else if (!r_info[p_ptr->body_monster].body_parts[BODY_WEAPON])
 	{
@@ -3787,6 +3874,38 @@ void calc_bonuses(bool silent)
 	{
 		p_ptr->dodge_chance = 0;
 	}
+
+
+// Jedi Dodge Ability
+		if (get_skill(SKILL_JEDI))
+	{
+		/* Get the armor weight */
+		int cur_wgt = 0;
+
+	
+		cur_wgt += p_ptr->inventory[INVEN_HEAD].weight;
+		cur_wgt += p_ptr->inventory[INVEN_ARM].weight;
+		cur_wgt += p_ptr->inventory[INVEN_HANDS].weight;
+	
+
+		/* Base dodge chance */
+		p_ptr->dodge_chance = get_skill_scale(SKILL_JEDI, 150) + get_skill(SKILL_SWORD);
+
+		/* Armor weight bonus/penalty */
+		p_ptr->dodge_chance -= cur_wgt * 2;
+
+		/* Encumberance bonus/penalty */
+		p_ptr->dodge_chance = p_ptr->dodge_chance - (calc_total_weight() / 100);
+
+		/* Never below 0 */
+		if (p_ptr->dodge_chance < 0) p_ptr->dodge_chance = 0;
+	}
+	else
+	{
+		p_ptr->dodge_chance = 0;
+	}
+
+
 
 	/* Parse all the weapons */
 	i = 0;

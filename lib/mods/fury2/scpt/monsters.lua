@@ -105,8 +105,7 @@ add_hooks{
 	-- Good beings (except swans, GWoPs, Wyrm Spirits, and some joke uniques) are coaligned with Maiar 
 
 	monst_al_add(MSTATUS_FRIEND, {25, 29, 45, 97, 109, 147, 225, 335, 346, 443, 581, 629, 699, 853, 984, 1007, 1017}, {21})
-
-	-- Non-evil humanoids are neutral to Humans, Dunedain, Druedain, Rohirrim
+-- Non-evil humanoids are neutral to Humans, Dunedain, Druedain, Rohirrim
 	elseif ((get_race_name() == "Human") or 
 	(get_race_name() == "Dunadan") or 
 	(get_race_name() == "Druadan") or 
@@ -173,6 +172,7 @@ add_hooks{
 	elseif get_race_name() == "Yeek" then
 	monst_al_add(MSTATUS_NEUTRAL, {580, 583, 594, 653, 655, 659, 661},{19})
 
+	
 	-- Oathbreakers are coaligned if player is wielding Anduril
 	-- It's dirty, but it works, and it doesn't bother checking demons and the races who can't wield weapons.
 	elseif get_object(INVEN_WIELD).name1 == 83 then

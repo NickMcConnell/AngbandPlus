@@ -5,9 +5,9 @@
 
 W:D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 W:D:Xg=====================gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggX
-W:D:Xgggggg==============gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggX
-W:D:Xggqgggg==============ggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggX
-W:D:Xgggggggggg===========ggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggX
+W:D:XgMMMgg==============gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggX
+W:D:XgMqMggg==============ggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggX
+W:D:XgMMMgggggg===========ggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggX
 W:D:XWWAAWCCCWWWW===========WWWgggWWWWWgggggggggWWWWWWWWWWggggWWWWWWWWWWWWWggggWWWWWWWWggggWWWWWWWWWggggX
 W:D:XWWAAAACCCCWWWWAA========WWWWWWWWWWWWWggggggggWWWWWWWWWWWWWWWWWWWWWWWWWWggWWWWWWWWWWWWWWWWWWWWWWEEEEX
 W:D:XWWWWAAAAAW%AAAA========WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW.EEEEEEEEX

@@ -2221,6 +2221,7 @@ static void do_lore(int r_idx, int flag)
 	do_byte(&r_ptr->r_blows[2], flag);
 	do_byte(&r_ptr->r_blows[3], flag);
 
+
 	/* Memorize flags */
 	do_u32b(&r_ptr->r_flags1, flag); 	/* Just to remind you */
 	do_u32b(&r_ptr->r_flags2, flag); 	/* flag is unrelated to */

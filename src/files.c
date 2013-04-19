@@ -1760,7 +1760,7 @@ static void display_player_various(void)
 
 	put_str("Mel.dmg/Rnd:", 18, 55);     /* From PsiAngband */
 
-	if (p_ptr->melee_style == SKILL_HAND || p_ptr->melee_style == SKILL_BEAR)
+	if (p_ptr->melee_style == SKILL_HAND || p_ptr->melee_style == SKILL_BEAR || p_ptr->melee_style == SKILL_DRAGON || p_ptr->melee_style == SKILL_SPIDER || p_ptr->melee_style == SKILL_BASILISK)
 	{
 		/* This is all based on py_attack_hand */
 		martial_arts *blow_table, *min_attack, *max_attack;
@@ -1772,6 +1772,27 @@ static void display_player_various(void)
 			max_blow = MAX_MA;
 			plev = get_skill(SKILL_HAND);
 		}
+		else if (p_ptr->melee_style == SKILL_DRAGON) /* SKILL_DRAGON */
+		{
+			blow_table = da_blows;
+			max_blow = MAX_DA;
+			plev = get_skill(SKILL_DRAGON);
+		}
+		else if (p_ptr->melee_style == SKILL_SPIDER) /* SKILL_SPIDER */
+		{
+			blow_table = spid_blows;
+			max_blow = MAX_SPID;
+			plev = get_skill(SKILL_SPIDER);
+		}
+
+
+		else if (p_ptr->melee_style == SKILL_BASILISK) /* SKILL_BASILISK */
+		{
+			blow_table = basilisk_blows;
+			max_blow = MAX_BASILISK;
+			plev = get_skill(SKILL_BASILISK);
+		}
+
 		else /* SKILL_BEAR */
 		{
 			blow_table = bear_blows;
@@ -2425,7 +2446,7 @@ static cptr object_flag_names[197] =
 	"Unique.ESP",
 	"Spider ESP",
 	NULL,
-	NULL,
+	"No Stun",
 	NULL,
 	NULL,
 	NULL,

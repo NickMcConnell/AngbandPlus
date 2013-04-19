@@ -225,7 +225,7 @@ N:18:of Melkor
 I:22:2:-4
 W:65:45:200:100000
 P:0:4d6:12:24:0
-F:BRAND_POIS | CURSED | DRAIN_HP | DRAIN_MANA | ESP_GOOD | HEAVY_CURSE | RES_BLIND | RES_CONF | RES_DARK | RES_LITE | RES_NETHER | STEALTH | TY_CURSE | WIS
+F:BRAND_POIS | CURSED | DRAIN_HP | DRAIN_MANA | ESP_GOOD | HEAVY_CURSE | THROWING | RES_BLIND | RES_CONF | RES_DARK | RES_LITE | RES_NETHER | STEALTH | TY_CURSE | WIS
 D:The mighty spear used once by Melkor to slay the trees of Valinor.
 
 # The Galvorn Plate Mail of Eol
@@ -1045,7 +1045,7 @@ N:97:'Aiglos'
 I:22:2:4
 W:15:45:50:180000
 P:0:3d6:15:25:5
-F:ACTIVATE | BLESSED | BRAND_COLD | BRAND_ELEC | DEX | FREE_ACT | HIDE_TYPE | KILL_UNDEAD | LITE1 | RES_COLD | RES_ELEC | RES_LITE | SHOW_MODS | SLAY_GIANT | SLAY_ORC | SLAY_TROLL | SLOW_DIGEST | WIS
+F:ACTIVATE | BLESSED | BRAND_COLD | BRAND_ELEC | DEX | FREE_ACT | THROWING | HIDE_TYPE | KILL_UNDEAD | LITE1 | RES_COLD | RES_ELEC | RES_LITE | SHOW_MODS | SLAY_GIANT | SLAY_ORC | SLAY_TROLL | SLOW_DIGEST | WIS
 a:HARDCORE=BA_ELEC_2
 D:The mighty spear of Gil-galad, famed as "Snow-point" in the songs of 
 D:Elves, against which all the foul corruptions of Sauron dashed in vain.
@@ -1060,7 +1060,7 @@ N:98:of Caradhras
 I:22:2:4
 W:15:45:50:77777
 P:0:4d6:15:15:0
-F:ACTIVATE | BLESSED | BRAND_FIRE | ESP_GIANT | FEATHER | HIDE_TYPE | HOLD_LIFE | INFRA | INT | RES_FEAR | RES_FIRE | RES_LITE | SEARCH | SEE_INVIS | SHOW_MODS | SLAY_DEMON | SLAY_DRAGON | SLAY_EVIL | SLAY_GIANT | SLAY_UNDEAD | SPEED | TUNNEL | WIS
+F:ACTIVATE | BLESSED | BRAND_FIRE | ESP_GIANT | FEATHER | HIDE_TYPE | HOLD_LIFE | THROWING | INFRA | INT | RES_FEAR | RES_FIRE | RES_LITE | SEARCH | SEE_INVIS | SHOW_MODS | SLAY_DEMON | SLAY_DRAGON | SLAY_EVIL | SLAY_GIANT | SLAY_UNDEAD | SPEED | TUNNEL | WIS
 a:HARDCORE=STONE_MUD
 D:A magical spear, rumoured to have been forged by Orome himself
 D:in the coldest reach of the cruel Redhorn.
@@ -1070,7 +1070,7 @@ N:99:'Nimloth'
 I:22:2:3
 W:15:12:50:30000
 P:0:2d4:11:13:0
-F:BLESSED | BRAND_COLD | INFRA | RES_COLD | RES_DARK | SEE_INVIS | SHOW_MODS | SLAY_UNDEAD | SPEED | STEALTH
+F:BLESSED | BRAND_COLD | INFRA | RES_COLD | RES_DARK | SEE_INVIS | SHOW_MODS | SLAY_UNDEAD | SPEED | STEALTH | THROWING
 D:A thin spike of thrice-forged steel caps a straight sylvan shaft cut from 
 D:a legendary tree; spells to break the will of the undead and strike cold 
 D:fear into the hearts of foes lie on this perfectly balanced spear.
@@ -1786,14 +1786,16 @@ D:A mighty suit of dragon armour, set with the scales of dragons of both
 D:Law and Chaos, and with power over both. Loknare means Dragonblaze.
 
 # The Hard Leather Armour of Himring
-N:167:of Himring
-I:36:6:0
-W:50:20:100:35000
-P:6:0d0:0:0:15
-F:ACTIVATE | RES_CHAOS | RES_NETHER | RES_POIS
-a:HARDCORE=PROT_EVIL
-D:Contained within this studded cuirass of pliable leather is the memory of 
-D:unvanquished Himring, defiant fortress surrounded by the legions of Morgoth.
+
+# The Lightsaber of Luke Skywalker
+N:167:of Luke Skywalker
+I:23:55:5
+W:50:10:15:50000
+P:10:5d5:12:12:0
+F:ACTIVATE | HIDE_TYPE | INSTA_ART | INT | DEX | CON | SPEED | FREE_ACT | RES_ACID | 
+F:RES_NEXUS | RES_NETHER | RES_POIS | LEVELS | VORPAL | REFLECT | SPELL | LITE2 | RES_FEAR
+a:HARDCORE=CURE_700
+D:The lightsaber of the young jedi Luke Skywalker, the son of Anakin Skywalker.
 
 # The Soft Leather Armour 'Hithlomir'
 N:168:'Hithlomir'
@@ -2528,62 +2530,70 @@ D:This amulet contains the power of Mandos, the Doomsman of the
 D:Valar. It will grant you protection against the foul dark magic 
 D:of Melkor, though you will still need your wits and strength 
 D:about you as you face your ultimate foe.
+# Jedi Artifacts from CosmicGerbil
+# The Lightsaber of Anankin Skywalker
+# Lol, no resist fire ;)
+N:249:of Anankin Skywalker
+I:23:55:4
+W:40:10:15:40000
+P:10:5d5:10:15:0
+F:ACTIVATE | HIDE_TYPE | INSTA_ART | STR | DEX | CON | SPEED |
+F:RES_SHARDS | RES_COLD | RES_BLIND |  LEVELS | VORPAL | REFLECT | SPELL | LITE2 | RES_FEAR
+a:HARDCORE=GORLIM
+D:This lightsaber once belonged to Anankin Skywalker, a fearless jedi and a skilled pilot, who D:unfortunately succumbed to the powers of the Dark Side.
 
-### Dwarven Rings of Power ###
-N:249:of the Firebeards
-I:45:13:3
-W:70:15:2:40000
-P:0:1d1:5:10:0
-F:AUTO_CURSE | DRAIN_MANA | ESP_GOOD | HEAVY_CURSE | HIDE_TYPE | INSTA_ART | INVIS | RES_FEAR | RES_FIRE | STR | SUST_STR | TUNNEL
-D:"Seven for the Dwarf-lords in their halls of stone..." This is one of 
-D:the lesser rings of Power that once belonged to the Firebeard clan of 
-D:dwarves, the proud and strong Naugrim who fought with Elu Thingol in 
-D:Doriath.
+# The Lighsaber of Obi Wan Kenobi
+N:250:of Obi Wan Kenobi
+I:23:55:5
+W:50:10:15:50000
+P:10:5d5:10:10:0
+F:ACTIVATE | HIDE_TYPE | INSTA_ART | INT | DEX | CON | CHR | SPEED | RES_FIRE |
+F:RES_ELEC | RES_DARK | RES_POIS |  LEVELS | VORPAL | REFLECT | SPELL | LITE2 | RES_FEAR
+a:HARDCORE=PROT_EVIL
+D:The lightsaber of the jedi knight Obi Wan Kenobi, a skilled and wise jedi.
 
-N:250:of the Broadbeams
-I:45:14:3
-W:70:15:2:40000
-P:0:1d1:0:0:10
-F:AUTO_CURSE | DRAIN_EXP | ESP_NONLIVING | HEAVY_CURSE | HIDE_TYPE | INSTA_ART | INT | INVIS | RES_BLIND | RES_SOUND | SUST_INT | TUNNEL
-D:"Seven for the Dwarf-lords in their halls of stone..." This is one of 
-D:the lesser rings of Power that once belonged to the Broadbeam clan of 
-D:Dwarves, the shrewd and stout dwarves from Belegost.
+# The Jedi Master Robe of Yoda
+N:251:of Yoda
+I:36:79:10
+W:90:25:20:100000
+P:1:0d0:0:0:25
+F:ACTIVATE | HIDE_TYPE | INSTA_ART | INT | WIS | DEX | CHR | LUCK | SEARCH | SAFETY
+F:FREE_ACT | FLY | SPEED | RES_DISEN | ESP_EVIL | SUST_WIS |
+a:HARDCORE=BLADETURNER
+D:It looks like an old worn jedi robe. However it contains awesome powers, as it is really the robe D:of Yoda, one of the greatest and wisest of jedi masters. 
 
-N:251:of the Ironfists
-I:45:15:3
-W:70:15:2:40000
-P:0:1d1:10:10:0
-F:ESP_ORC | HIDE_TYPE | INSTA_ART | INVIS | RES_CHAOS | RES_COLD | SUST_WIS | TUNNEL | WIS
-D:"Seven for the Dwarf-lords in their halls of stone..." This is one of 
-D:the lesser rings of Power that once belonged to the Ironfist clan of 
-D:Dwarves, wise fighters of old.
+# The Curved Lighsaber of Count Dooku
+N:252:of Count Dooku
+I:23:55:6
+W:60:10:15:60000
+P:10:6d6:12:12:0
+F:ACTIVATE | HIDE_TYPE | INSTA_ART | INT | DEX | CHR | STEALTH | FREE_ACT | RES_FIRE | 
+F:RES_CHAOS | RES_SHARDS | RES_POIS | LEVELS | VORPAL | REFLECT | SPELL | LITE2 | RES_FEAR
+a:HARDCORE=CHARM_OTHERS
+D:The lightsaber of Count Dooku, once a great jedi knight, but sadly he has turned to the Dark D:Side.
 
-N:252:of the Stiffbeards
-I:45:33:3
-W:70:15:2:40000
-P:0:1d1:5:10:5
-F:CON | ESP_UNDEAD | HIDE_TYPE | INSTA_ART | INVIS | REFLECT | RES_DISEN | SUST_CON | TUNNEL
-D:"Seven for the Dwarf-lords in their halls of stone..." This is one of 
-D:the lesser rings of Power that once belonged to the Stiffbeard clan of 
-D:Dwarves, hardy and stout folk of Aule.
+# The Doublended Lightsaber of Darth Maul
+N:253:of Darth Maul
+I:23:55:4
+W:40:10:15:40000
+P:10:9d9:10:12:0
+F:ACTIVATE | HIDE_TYPE | INSTA_ART | STR | DEX | SPEED | FREE_ACT | RES_FIRE | 
+F:RES_COLD | RES_ACID | RES_POIS |LEVELS | VORPAL | REFLECT | SPELL | LITE2 | RES_FEAR
+a:HARDCORE=TELE_AWAY
+D:The lightsaber of Darth Maul, an evil jedi, skilled in the ways of the Dark Side.
 
-N:253:of the Blacklocks
-I:45:8:3
-W:70:15:2:40000
-P:0:1d1:0:0:0
-F:DEX | HIDE_TYPE | INSTA_ART | INVIS | LUCK | NO_MAGIC | RES_NEXUS | SUST_DEX | TUNNEL
-D:"Seven for the Dwarf-lords in their halls of stone..." This is one of 
-D:the lesser rings of Power that once belonged to the Blacklock clan of 
-D:Dwarves, deft craftsmen who loved to quarrel and distrusted magic.
 
-N:254:of the Stonefoots
-I:45:9:3
-W:70:16:2:40000
-P:0:1d1:0:0:6
-F:CHR | DRAIN_EXP | HIDE_TYPE | INSTA_ART | INVIS | LITE3 | RES_SHARDS | SUST_CHR | TUNNEL
-D:"Seven for the Dwarf-lords in their halls of stone..." This is one of 
-D:the lesser rings of Power that once belonged to the Stonefoot clan of 
-D:Dwarves, set in their ways.
+# The Jedi Robe of Obi Wan Kenobi
+N:254:of Obi Wan Kenobi
+I:36:78:3
+W:30:25:20:10000
+P:1:0d0:0:0:15
+F:HIDE_TYPE | INSTA_ART | INT | DEX | CON | SPEED | SAFETY
+F:FREE_ACT | FLY | RES_DISEN | SUST_DEX |
+D:It looks like an old worn jedi robe. However it contains awesome powers, as it is really the robe D:of Obi Wan Kenobi, a skilled and wise jedi.
+
+
+
 
 N:255:of Trone
 I:36:16:4

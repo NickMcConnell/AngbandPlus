@@ -50,7 +50,7 @@ N:2:Perfect casting
 D:Allows you to reach 0% failure rate on spells
 D:Prereq: Powers skill@35
 I:6
-k:35:Power
+k:35:Powers
 
 N:3:Extra Max Blow(1)
 D:Increases your max possible blows number by 1

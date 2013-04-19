@@ -639,13 +639,13 @@ A:56:100:0:1:0:0:57:58
 O:100:0:0:0
 F:BIG | DOUBLE | NO_STREAMERS | RANDOM_TOWNS | ADJUST_LEVEL_1 | ADJUST_LEVEL_1_2 |
 
-N:41:Abandoned Castles
-D:Bg:an entrance to an abandoned castle
-W:1:30:1:0:14:160
+N:41:Abandoned Castle
+D:AC:an entrance to an abandoned castle
+W:1:127:1:0:14:160
 L:1:100:1:0:1:0
 A:56:100:56:0:56:0:57:58
 O:20:20:20:20
-F:CAVERN | FILL_METHOD_0 | SMALL
+F:CAVERN | FILL_METHOD_0 | SMALL | ADJUST_LEVEL_2 | PRINCIPAL | RANDOM_TOWNS
 R:100:0
 
 

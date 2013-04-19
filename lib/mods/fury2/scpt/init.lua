@@ -46,7 +46,6 @@ tome_dofile("joke.lua")
 tome_dofile("yelling.lua")
 tome_dofile("newskills.lua")
 tome_dofile("quest.lua")
-
 -- Some tests, if the file is not present, this is fine
 tome_dofile_anywhere(ANGBAND_DIR_SCPT, "dg_test.lua", FALSE)
 
@@ -58,7 +57,9 @@ tome_dofile("monsters.lua")
 
 -- Add miscellaneous stuff
 tome_dofile("misc.lua")
+-- tome_dofile("c.lua")
 tome_dofile("runecrft.lua")
+tome_dofile("ninjaweapons.lua")
 
 add_hooks
 {

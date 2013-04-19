@@ -7338,6 +7338,17 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 		}
 	}
 
+		if ((!a_rad) && get_skill(SKILL_JEDI) && (who > 0))
+	{
+		int chance = (p_ptr->dodge_chance - ((r_info[who].level * 5) / 6)) / 3;
+
+		if ((chance > 0) && magik(chance))
+		{
+			msg_print("You dodge a magical attack!");
+			return (TRUE);
+		}
+	}
+
 	/* Effects done by the plane cannot bounce */
 	if (p_ptr->reflect && !a_rad && !(randint(10) == 1) && ((who != -101) && (who != -100)))
 	{

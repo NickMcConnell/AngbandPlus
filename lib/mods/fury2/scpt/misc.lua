@@ -347,7 +347,25 @@ add_hooks
 add_hooks
 {
 	[HOOK_WIELD_SLOT] =     function (obj, ideal)
-			if ((obj.tval == 5 and obj.sval == 0 and obj.pval == 1)) then
+			if ((obj.tval == 11 and obj.sval == 55 and obj.pval == 0)) then
+				local slot
+				
+					if(ideal == TRUE) then
+						slot = INVEN_WIELD
+					else
+						slot = get_slot(INVEN_WIELD)
+					end
+				
+				
+				return TRUE, slot
+			end
+	end,
+}
+
+add_hooks
+{
+	[HOOK_WIELD_SLOT] =     function (obj, ideal)
+			if ((obj.tval == 5 and obj.sval == 0 and obj.pval == 0)) then
 				local slot
 				
 					if(ideal == TRUE) then
@@ -371,3 +389,20 @@ function __jedi_saber(obj)
       end        
 end 
 add_hook_script(HOOK_WIELD_SLOT, "__jedi_saber", "__jedi_saber") 
+
+
+function __jedi_wear(obj) 
+    local str = get_class_name() 
+    local type4 = obj.tval
+    local type2 = obj.sval
+         if (str == "Jedi") and (type4 == 38 or type4 == 37 or type4 ==19) then 
+	 return TRUE, -1 
+      end        
+end 
+add_hook_script(HOOK_WIELD_SLOT, "__jedi_wear", "__jedi_wear") 
+
+
+
+
+
+

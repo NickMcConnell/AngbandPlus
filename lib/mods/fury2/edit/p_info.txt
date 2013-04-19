@@ -6,7 +6,7 @@ G:k:+0:+500:Monster-lore
 G:k:+0:+500:Prayer
 G:k:+1000:+0:Spell-learning
 G:k:+0:+400:Udun
-G:k:+1000:+600:First-aid
+
 
 C:N:0:Warrior
 C:D:0:Simple fighters, they hack away with their trusty weapon.
@@ -144,7 +144,8 @@ C:a:k:+0:1000:Combat
 C:a:k:=0:=0:Hafted-mastery
 C:a:k:=0:=0:Polearm-mastery
 C:a:k:+2000:+1000:Barehand-combat
-C:a:k:=0:=0:Weaponmastery
+C:a:k:+1000:+0:Weaponmastery
+C:a:k:+1000:+500:Sword-mastery
 C:a:k:+4000:+2000:Stealth
 C:k:+2000:+2000:Sneakiness
 C:k:+1000:+2000:Disarming
@@ -166,11 +167,13 @@ C:a:O:23:32:1d1
 C:a:g:Melkor Bauglir
 C:a:k:+0:+600:Sword-mastery
 C:a:k:=0:=0:Axe-mastery
+C:a:k:+1000:=0:Devices
 C:a:k:=0:=0:Hafted-mastery
 C:a:k:=0:=0:Polearm-mastery
 C:a:k:+0:+500:Critical-hits
 C:a:k:+0:+500:Powers
 C:a:k:+0:+500:Spirituality 
+C:a:k:=0:=0:Stealth 
 C:a:k:+1000:+200:Prayer 
 C:a:k:=0:=0:Antimagic
 
@@ -1143,6 +1146,7 @@ C:k:+1000:+850:Weaponmastery
 C:k:+1000:+1000:Jedi
 C:k:+0:+1000:Light
 C:k:+0:+1000:Dark
+C:k:+1000:+1000:Jedi-Dodge
 C:b:25:Spread blows
 C:b:1:Extra Max Blow(1)
 C:b:1:Extra Max Blow(2)
@@ -1483,6 +1487,7 @@ R:E:1:1:1:2:1:1:1
 R:C:Archer | Loremaster | Mage | Priest | Rogue | Warrior | Pacifist | 
 R:Z:merchant abilities
 R:k:+2000:+1000:Backstab
+R:k:+2000:+1000:Barehand-combat
 R:k:+1000:+500:Stealing
 
 
@@ -2046,11 +2051,10 @@ R:M:50:150:200:-200:80:120:54:-50:100:60
 R:E:0:1:0:6:1:1:1
 R:G:AC_LEVEL
 R:R:1:0
-R:k:+0:+1000:Barehand-combat
-R:F:FLY
+R:k:+1000:+1000:Dragon-combat
+R:F:FLY |  
 R:C:Loremaster | Mage | Priest | Warrior | Berserker
 #R:G:EVIL
-R:Z:Golden Armour
 R:k:+1000:+000:Disarming
 R:k:+500:+000:Devices
 R:k:-1000:+000:Spirituality
@@ -2137,15 +2141,14 @@ R:F:PRECOGNITION
 R:R:50:4
 R:F:MANA | SPEED
 R:Z:web
-R:k:+1000:+1000:Barehand-combat
+R:k:+1000:+1000:Spider-combat
 R:k:+1000:+500:Stealth
-R:k:+1000:+1000:Weaponmastery
-R:k:+1000:+1000:Sword-mastery
+
 
 R:N:28:Golem
 R:D:A clay golem, brough to life in a strong fire by a powerful sorceror
 R:D:They are very strong, but very stupid and slow.
-R:S:12:-10:-5:0:12:-5:-2
+R:S:12:-10:-5:0:12:-5:-4
 R:K:0:0:20:-10:5:20:15:0
 R:P:25:200:0:95
 R:M:255:70:72:6:100:25:66:4:100:20
@@ -2154,21 +2157,23 @@ R:C:Berserker | Warrior | Archer |
 R:G:NO_FOOD |
 R:G:AC_LEVEL | 
 R:R:1:-5
-R:F:SEE_INVIS | HOLD_LIFE | RES_FIRE | SUST_STR | RES_FEAR | SUST_CON | SLOW_DIGEST | SPEED |
-R:R:10:-1
+R:F:SEE_INVIS | HOLD_LIFE | RES_FIRE | SUST_STR | RES_FEAR | SUST_CON | SLOW_DIGEST | SPEED | ANTIMAGIC_50 | NO_MAGIC
+R:R:10:-2
 R:F:SPEED | DEX |
-R:R:20:-1
+R:R:20:-2
 R:F:SPEED | DEX |
-R:R:30:-1
+R:R:30:-2
 R:F:SPEED | DEX |
-R:R:40:-1
+R:R:40:-2
 R:F:SPEED | DEX | MAGIC_BREATH |
-R:R:50:-1
+R:R:50:-2
 R:F:SPEED | DEX |
 R:C:Warrior | Archer
 R:O:70:32:2d3
 R:k:+1000:+600:Boulder-throwing
-R:k:=0:=0:Antimagic
+R:k:=-5000:=0:Powers
+R:k:=-5000:=0:Spirituality
+R:k:=0:=0:Prayer
 R:Z:Feed Self
 
 R:N:29:Ent-wife
@@ -2240,6 +2245,26 @@ R:k:+500:+000:Sneakiness
 R:k:-500:+000:Weaponmastery
 R:k:+000:+000:Archery 
 
+
+R:N:32:Monster
+R:D:Monsters are the various creatures of Middle-Earth
+R:D:that tend to be amazingly powerful. 
+# They all get an inherent CHR penalty, other stats depend on subrace.
+R:S:0:0:0:0:0:-3:0
+# Again, here everything depends on subrace
+R:K:0:0:0:0:0:0:0:0
+R:P:10:170:3:109
+R:M:14:6:72:6:180:25:66:4:150:20
+# Everything at zero here, depends on type of 
+R:E:0:0:0:0:0:0:0
+R:C:Warrior | Archer | Mage | Rogue | Priest | Loremaster | Jedi | Berserker | War-Mage
+R:k:+500:+000:Disarming
+R:k:+050:+000:Devices
+R:k:-500:+000:Spirituality
+R:k:+000:+000:Stealth
+R:k:+000:+000:Sneakiness
+R:k:+000:+000:Weaponmastery
+R:k:+000:+000:Archery
 
 I:
 S:N:0: 
@@ -2382,7 +2407,6 @@ S:k:+3000:+000:Stealth
 S:k:+400:+000:Sneakiness
 S:k:-500:+000:Weaponmastery
 S:k:-500:+000:Archery
-
 
 
 S:N:9:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
@@ -3420,6 +3444,254 @@ S:R:50:1
 S:F:WIS | SEARCH | INT | ESP_GOOD
 S:k:+0:+1000:Mindcraft
 S:k:+0:+1000:Knowledge
+
+S:N:50:2-Headed-Hydra
+S:D:B:This is the two headed variety of the hydra
+S:S:6:1:2:0:0:-2:0:115
+S:K:0:0:1:1:5:2:0:0
+S:P:0:20:3
+S:M:0:0:0:0:0:0:0:0:0:0
+S:E:0:1:0:1:+2:+2:0
+S:A:Monster
+S:C:F:Archer | Warrior
+S:G:NO_SUBRACE_CHANGE
+S:R:1:0
+S:F:SUST_WIS | SUST_INT | ESP_DRAGON
+S:R:5:1
+S:F:WIS | SEARCH | ESP_ANIMAL
+S:R:10:1
+S:F:INT | SEARCH | RES_POIS
+S:R:15:1
+S:F:WIS | SEARCH | ESP_SPIDER
+S:R:20:1
+S:F:WIS | SEARCH | INT |  ESP_ORC
+S:R:30:1
+S:F:WIS | SEARCH | INT | ESP_GIANT
+S:R:40:1
+S:F:SEARCH | WIS | ESP_EVIL
+S:R:50:1
+S:F:WIS | SEARCH | INT | ESP_GOOD
+S:k:+0:+1000:Mindcraft
+S:k:+0:+1000:Knowledge
+S:k:+2000:+1000:Barehand-combat
+S:Z:fire breath
+S:Z:breath poison
+
+S:N:51:Naga
+S:D:B:This is a snake form monster
+S:S:2:-1:4:-3:-2:-2:0:130
+S:K:0:0:1:1:5:2:0:0
+S:P:1:20:3
+S:M:0:0:0:0:0:0:0:0:0:0
+S:E:2:1:1:4:1:0:0
+S:A:Monster
+S:C:F:Archer | Mage | Jedi 
+S:R:1:-4
+S:F:SUST_WIS | SPEED | RES_POIS
+S:R:5:1
+S:F:RES_ACID
+S:R:40:1
+S:F:IM_ACID
+S:k:+1000:+500:Weaponmastery
+S:k:+1000:+500:Sword-mastery
+S:k:=0:=0:Archery
+
+S:N:52:Catoblepas
+S:D:B:A strange ox-like form with a huge head.
+S:S:4:2:-2:-3:4:-2:0:50
+S:K:0:0:1:1:5:2:0:0
+S:P:2:20:3
+S:M:0:0:0:0:0:0:0:0:0:0
+S:E:0:1:0:2:1:0:0
+S:A:Monster
+S:C:F:Archer | Mage | Jedi 
+S:R:1:0
+S:F:SUST_CON | RES_POIS
+S:R:5:2
+S:F:CON | STR
+S:R:40:4
+S:F:CON | STR
+S:k:+1000:+500:Combat
+S:k:+2000:+1000:Barehand-combat
+S:k:=0:=0:Archery
+S:k:=0:=0:Prayer
+S:k:=0:=0:Powers
+
+S:N:53:Basilisk
+S:D:B:An evil reptile that preys on unsuspecting travellers.
+S:S:5:2:2:-4:3:-2:0:200
+S:K:0:0:1:1:5:2:0:0
+S:P:4:20:3
+S:M:0:0:0:0:0:0:0:0:0:0
+S:E:0:1:0:2:1:0:0
+S:A:Monster
+S:C:F:Archer | Warrior | Jedi 
+S:R:1:0
+S:F:FREE_ACT | RES_POIS | 
+S:R:5:0
+S:F:CLIMB
+S:R:40:4
+S:F:CON | STR
+S:k:+1000:+500:Combat
+S:k:+2000:+1000:Basilisk-combat
+S:k:+1000:+500:Mindcraft
+S:k:+1000:+500:Mind
+S:k:+1000:+500:Powers
+
+S:N:54:Gug
+S:D:B:A hideous, beastly, four-armed unclean giant
+S:S:4:-2:-2:-2:4:-2:0:50
+S:K:0:0:1:1:5:2:0:0
+S:P:4:20:3
+S:M:0:0:0:0:0:0:0:0:0:0
+S:E:2:1:2:4:1:1:0
+S:A:Monster
+S:C:F:Archer | Jedi 
+S:R:1:0
+S:F:RES_POIS | RES_ACID
+S:R:5:1
+S:F:STR
+S:R:25:2
+S:F:STR
+S:R:40:4
+S:F:IM_ACID
+S:k:+1000:+500:Combat
+S:k:+1000:+250:Weaponmastery
+S:k:+1000:+250:Hafted-mastery
+
+S:N:55:Ettin
+S:D:B:A hideous, beastly, 2 headed, four-armed monster
+S:S:6:-6:-6:-4:4:-6:0:0
+S:K:0:0:1:1:5:2:0:0
+S:P:5:20:3
+S:M:0:0:0:0:0:0:0:0:0:0
+S:E:2:1:2:4:2:1:0
+S:A:Monster
+S:C:F:Archer | Jedi | Mage
+S:R:1:0
+S:F:SUST_STR | 
+S:k:+1000:+500:Combat
+S:k:+1000:+250:Weaponmastery
+S:k:+1000:+500:Hafted-mastery
+S:k:+1000:+500:Boulder-throwing
+
+S:N:56:Xorn
+S:D:B:A huge creature of the Earth.
+S:S:4:-3:-3:-4:4:-6:0:50
+S:K:0:0:1:1:5:2:0:0
+S:P:3:20:3
+S:M:0:0:0:0:0:0:0:0:0:0
+S:E:2:1:1:4:2:1:0
+S:A:Monster
+S:C:F:Archer | Jedi | Mage
+S:R:1:-2
+S:F:RES_FIRE | RES_COLD | RES_ELEC | RES_POIS | SENS_ACID | SPEED
+S:R:10:0
+S:F:WRAITH | CLIMB
+S:R:40:0
+S:F:IM_FIRE  
+S:R:45:0
+S:F:IM_COLD
+S:R:50:0
+S:F:IM_ELEC
+S:k:+1000:+500:Combat
+S:k:+1000:+250:Weaponmastery
+S:k:+1000:+500:Hafted-mastery
+S:k:+1000:+500:Boulder-throwing
+S:G:NO_CUT | SEMI_WRAITH
+
+S:N:57:Eye Druj
+S:D:B:A glowing skull possessed by sorcerous power.
+S:S:-4:5:5:-4:-4:-6:0:300
+S:K:0:0:1:1:5:2:0:0
+S:P:-4:20:3
+S:M:0:0:0:0:0:0:0:0:0:0
+S:E:0:1:0:1:0:0:0
+S:A:Monster
+S:C:F:Archer | Warrior|
+S:R:1:0
+S:F:FEATHER | FREE_ACT | LITE1 | RES_POIS | 
+S:R:1:0
+S:F:REGEN | SEE_INVIS | SLOW_DIGEST | SUST_CHR |
+S:R:1:-2
+S:F:SPEED |
+S:R:5:0
+S:F:ESP_ANIMAL | RES_FIRE | RES_COLD | SUST_WIS |
+S:R:5:1
+S:F:LUCK | SPEED |
+S:R:10:0
+S:F:ESP_ORC | RES_ELEC | RES_ACID | SUST_INT | WATER_BREATH |
+S:R:10:1
+S:F:LUCK | SPEED |
+S:R:15:0
+S:F:ESP_TROLL | FLY | RES_CONF | RES_LITE | SUST_CON |
+S:R:15:1
+S:F:LUCK | SPEED | SPELL |
+S:R:20:0
+S:F:ESP_DRAGON | ESP_GIANT | LITE2 | RES_BLIND | SUST_DEX |
+S:R:20:1
+S:F:LUCK | SPEED | AUTO_ID
+S:R:25:0
+S:F:ESP_UNDEAD | ESP_NONLIVING | RES_DISEN | RES_CHAOS | SUST_STR |
+S:R:25:1
+S:F:LUCK | SPEED |
+S:R:30:0
+S:F:ESP_EVIL | ESP_DEMON | RES_SOUND |
+S:R:30:1
+S:F:LUCK | SPEED | SPELL |
+S:R:35:0
+S:F:CLIMB | ESP_GOOD | ESP_THUNDERLORD | RES_SHARDS |
+S:R:35:1
+S:F:LUCK | SPEED |
+S:R:40:0
+S:F:ESP_UNIQUE | LITE3 | PRECOGNITION | RES_NEXUS | RES_NETHER |
+S:R:40:1
+S:F:LUCK | SPEED |
+S:R:45:0
+S:F:ESP_ALL | IM_ACID | IM_ELEC | IM_FIRE | IM_COLD | MAGIC_BREATH |
+S:R:45:1
+S:F:SPEED | SPELL |
+S:R:50:0
+S:F:IM_NETHER | REFLECT | WRAITH |
+S:R:50:1
+S:F:LUCK | SPEED |
+S:k:=0:=0:Combat
+S:k:=0:=0:Weaponmastery
+S:k:+1000:+1000:Mindcraft
+S:k:+1000:+1000:Mastery
+S:k:+1000:+1000:Possession
+S:k:+1000:+1000:Summoning
+S:k:+1000:+1000:Corpse-preservation
+S:k:+1000:+1000:Udun
+S:k:+1000:+1000:Innate
+
+S:N:58:Nightwalker
+S:D:B:A huge giant garbed in black, more massive than a titan and stronger than a dragon
+S:S:4:2:2:2:4:-6:0:125
+S:K:0:0:1:1:5:2:0:0
+S:P:4:20:3
+S:M:0:0:0:0:0:0:0:0:0:0
+S:E:1:1:1:2:1:1:0
+S:A:Monster
+S:C:F:Archer | Jedi | Mage
+S:R:1:0
+S:F:RES_FIRE | RES_COLD | 
+S:R:5:0
+S:F:RES_ELEC | RES_POIS | 
+S:R:40:0
+S:F:IM_FIRE  
+S:R:45:0
+S:F:IM_COLD
+S:R:50:0
+S:F:IM_ELEC
+S:k:+1000:+500:Combat
+S:k:+1000:+250:Weaponmastery
+S:k:+1000:+600:Hafted-mastery
+S:k:+1000:+500:Mindcraft
+S:k:+1000:+500:Powers
+S:G:NO_CUT | 
+
+
 
 
 I:

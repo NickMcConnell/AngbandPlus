@@ -1212,7 +1212,32 @@ s32b player_exp[PY_MAX_LEVEL] =
 	3500000L,
 	4000000L,
 	4500000L,
-	5000000L
+	5000000L,
+	7000000L,
+	7500000L,
+	8000000L,
+	8500000L,
+	9000000L,
+	9500000L,
+	10000000L,
+	15000000L,
+	20000000L,
+	25000000L,
+	30000000L,
+	35000000L,
+	40000000L,
+	45000000L,
+	50000000L,
+	55000000L,
+	60000000L,
+	65000000L,
+	70000000L,
+	75000000L,
+	80000000L,
+	85000000L,
+	90000000L,
+	95000000L,
+	99000000L,
 };
 
 
@@ -2509,6 +2534,61 @@ martial_arts ma_blows[MAX_MA] =
 	{ "You hit %s with a Crushing Blow.", 48, 35, 20, 12, MA_STUN, 18 },
 };
 
+
+
+martial_arts da_blows[MAX_DA] =
+{
+	{ "You claw %s.", 1, 0, 6, 6, MA_WOUND, 20 },
+	{ "You bite %s.", 2, 0, 4, 6, MA_WOUND, 30 },
+	{ "You slap %s with your tail.", 3, 0, 4, 7, MA_STUN, 10 },
+	{ "You slash %s with your claws.", 5, 5, 4, 7, MA_WOUND, 40 },
+	{ "You stomp on %s.", 7, 5, 6, 8, MA_STUN | MA_FULL_SLOW, 50 },
+	{ "You headbutt %s.", 9, 10, 6, 9, MA_STUN, 20 },
+	{ "You kick %s.", 11, 10, 7, 7, MA_SLOW, 0 },
+	{ "You bite and slash %s.", 13, 12, 8, 9, MA_STUN | MA_WOUND, 50 },
+	{ "You slash %s with your tail.", 16, 15, 10, 7, MA_STUN | MA_WOUND, 20 },
+	{ "You slap %s with a wing.", 20, 20, 10, 8, MA_STUN, 20 },
+	{ "You hit %s with your neck.", 25, 25, 12, 9, MA_STUN, 50 },
+	{ "You ram %s with your horn.", 29, 25, 14, 12, MA_WOUND, 50 },
+	{ "You claw and slash %s.", 33, 30, 12, 16, MA_WOUND | MA_STUN, 60 },
+	{ "You punch %s.", 37, 35, 16, 18, MA_STUN, 30 },
+	{ "You fall on %s.", 41, 35, 18, 20, MA_STUN | MA_FULL_SLOW, 18 },
+	{ "You hit %s with a Dragon Fist.", 45, 35, 20, 25, MA_STUN, 20 },
+	{ "You hit %s with Dragon's Fury.", 48, 35, 20, 25, MA_STUN | MA_WOUND, 60 },
+};
+
+martial_arts spid_blows[MAX_SPID] =
+{
+	{ "You bite %s.", 1, 0, 3, 4, MA_POIS, 50 },
+	{ "You slash %s.", 2, 0, 3, 6, MA_WOUND, 20 },
+	{ "You plunge your stinger into %s.", 3, 0, 3, 7, MA_POIS, 50 },
+	{ "You hit %s with your leg.", 5, 5, 4, 5, 0, 0 },
+	{ "You hit %s with two of your legs.", 7, 5, 3, 8, 0, 0 },
+	{ "You throw a web at %s.", 9, 10, 5, 5, MA_FULL_SLOW | MA_STUN, 50 },
+	{ "You bite %s with your fangs.", 11, 10, 6, 5, MA_POIS, 70 },
+	{ "You slam your legs into %s.", 13, 12, 8, 5, MA_STUN, 6 },
+	{ "You double-kick %s.", 16, 15, 10, 5, MA_STUN, 8 },
+	{ "You hit %s with your stinger.", 20, 20, 10, 6, MA_POIS, 60 },
+	{ "You throw a sticky web onto %s.", 25, 25, 10, 8, MA_FULL_SLOW | MA_STUN | MA_SLOW, 70 },
+	{ "You gash %s with a leg.", 29, 25, 12, 7, MA_WOUND, 80 },
+	{ "You hit %s with a spin kick.", 33, 30, 12, 9, MA_STUN, 50 },
+	{ "You stab %s with a leg.", 37, 35, 16, 9, MA_STUN | MA_WOUND, 60 },
+	{ "You hit %s with a flying kick.", 41, 35, 16, 12, MA_STUN, 12 },
+	{ "You slam your stinger into %s.", 45, 35, 20, 15, MA_POIS, 90 },
+	{ "You hit %s with a Crushing Blow.", 48, 35, 20, 20, MA_STUN, 18 },
+};
+
+martial_arts basilisk_blows[MAX_BASILISK] =
+{
+	{ "You stare at %s.", 1, 0, 3, 4, MA_SLEEP | MA_STUN, 20 },
+	{ "You bite %s.", 4, 0, 4, 4, MA_WOUND, 20 },
+	{ "You bite %s.", 9, 2, 5, 5, MA_WOUND, 30 },
+	{ "You hit %s with your tail.", 15, 6, 6, 5, 0, 0 },
+	{ "You bite and stare at %s.", 25, 10, 7, 7, MA_STUN | MA_WOUND | MA_SLEEP, 10 },
+	{ "You leap at %s.", 30, 15, 8, 7, MA_STUN | MA_WOUND, 60 },
+	{ "You give the stare of death %s.", 35, 20, 15, 10, MA_STUN | MA_WOUND | MA_SLEEP, 90 },
+	{ "You smash %s with your tail.", 40, 25, 20, 15, MA_STUN | MA_WOUND, 55 },
+};
 /*
  *   cptr    desc;      A verbose attack description
  *   int     min_level; Minimum level to use

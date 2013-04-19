@@ -389,3 +389,20 @@ function __jedi_saber(obj)
       end        
 end 
 add_hook_script(HOOK_WIELD_SLOT, "__jedi_saber", "__jedi_saber") 
+
+
+function __jedi_wear(obj) 
+    local str = get_class_name() 
+    local type4 = obj.tval
+    local type2 = obj.sval
+         if (str == "Jedi") and (type4 == 38 or type4 == 37 or type4 ==19) then 
+	 return TRUE, -1 
+      end        
+end 
+add_hook_script(HOOK_WIELD_SLOT, "__jedi_wear", "__jedi_wear") 
+
+
+
+
+
+

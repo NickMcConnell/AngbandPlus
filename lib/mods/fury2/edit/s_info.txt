@@ -47,7 +47,7 @@ N:8:Symbiosis
 D:Ability to enter in symbiosis with monsters unable to move by themselves
 D:Spells use the intelligence stat
 A:20:Use symbiotic powers
-G:70
+G:90
 F:RANDOM_GAIN
 
 N:9:Music
@@ -114,22 +114,22 @@ F:RANDOM_GAIN
 N:18:Sword-mastery
 D:Ability to use swords
 G:0
-F:
+
 
 N:19:Axe-mastery
 D:Ability to use axes
 G:0
-F:RANDOM_GAIN
+
 
 N:20:Polearm-mastery
 D:Ability to use polearms
 G:0
-F:RANDOM_GAIN
+
 
 N:21:Hafted-mastery
 D:Ability to use hafted weapons
 G:0
-F:RANDOM_GAIN
+
 
 N:22:Backstab
 D:Ability to backstab fleeing and sleeping monsters to increase damage
@@ -145,24 +145,24 @@ N:24:Sling-mastery
 D:Ability to use slings
 A:23:Fire piercing shots
 G:0
-F:RANDOM_GAIN
+
 
 N:25:Bow-mastery
 D:Ability to use bows
 A:23:Fire piercing shots
 G:0
-F:RANDOM_GAIN
+
 
 N:26:Crossbow-mastery
 D:Ability to use crossbows
 A:23:Fire piercing shots
 G:0
-F:RANDOM_GAIN
+
 
 N:27:Boomerang-mastery
 D:Ability to use boomerangs
 G:0
-F:RANDOM_GAIN
+
 
 N:28:Spirituality
 D:General ability to use spiritual skills and also influence your Saving Throw
@@ -245,13 +245,14 @@ N:43:Innate
 D:Ability to gain and cast innate spells
 D:Spells use the intelligence stat
 A:8:Use an Innate Power
-G:0
+G:10
 F:RANDOM_GAIN
 
 N:44:Summoning
 D:Ability to create totems from monsters and use them to summon monsters
 A:13:Manipulate totems
 G:60
+F:RANDOM_GAIN
 
 N:45:Power
 D:Ability to increase the power of spells
@@ -355,6 +356,7 @@ G:0
 N:89:Jedi
 D:Ability to understand the raw force of the universe
 A:891:Use Jedi Powers
+
 G:0
 F:RANDOM_GAIN
 
@@ -380,10 +382,31 @@ A:691:Mind-blade Powers
 
 N:95:Throwing
 D:Improves your ability to throw weapons
+F:RANDOM_GAIN
 
 N:96:Hunter
 D:Ability to use the Hunter Equipment
 A:690:Hunter Equipment
+
+N:99:Dragon-combat
+D:Ability to fight like a dragon
+G:70
+
+N:100:Spider-combat
+D:Ability to fight like a spider, and use spider powers
+G:70
+
+N:101:Basilisk-combat
+D:Ability to fight like a spider, and use spider powers
+G:70
+A:131:Basilisk Powers
+
+N:102:Jedi-Dodge
+D:Ability to dodge
+G:70
+A:16:Check dodge chance
+
+
 
 
 E:Movement:Antimagic
@@ -553,7 +576,9 @@ f:Mastery:Powers%20
 
 
 f:Barehand-combat:Combat%50
-
+f:Dragon-combat:Combat%50
+f:Spider-combat:Combat%50
+f:Basilisk-combat:Combat%50
 E:Innate:Antimagic
 
 f:Innate:Powers%6
@@ -629,6 +654,9 @@ T:TreeRoot:Monster-lore
 T:Combat:Weaponmastery
 T:Combat:Archery
 T:Combat:Barehand-combat
+T:Combat:Dragon-combat
+T:Combat:Spider-combat
+T:Combat:Basilisk-combat
 T:Combat:Bearform-combat
 T:Combat:Boulder-throwing
 T:Combat:Antimagic
@@ -660,6 +688,7 @@ T:Powers:Alchemy
 T:Powers:Jedi
 T:Jedi:Dark
 T:Jedi:Light
+T:Jedi:Jedi-Dodge
 T:Powers:Phasing
 T:Spirituality:Prayer
 T:Spirituality:Mindcraft

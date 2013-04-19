@@ -2439,6 +2439,26 @@ static void py_attack_hand(int *k, monster_type *m_ptr, s32b *special)
 		max = MAX_MA;
 		plev = get_skill(SKILL_HAND);
 	}
+		else if (p_ptr->melee_style == SKILL_DRAGON)
+	{
+		blow_table = da_blows;
+		max = MAX_DA;
+		plev = get_skill(SKILL_DRAGON);
+	}
+				else if (p_ptr->melee_style == SKILL_SPIDER)
+	{
+		blow_table = spid_blows;
+		max = MAX_SPID;
+		plev = get_skill(SKILL_SPIDER);
+	}
+
+	else if (p_ptr->melee_style == SKILL_BASILISK)
+	{
+		blow_table = basilisk_blows;
+		max = MAX_BASILISK;
+		plev = get_skill(SKILL_BASILISK);
+	}
+
 	ma_ptr = &blow_table[0];
 	old_ptr = &blow_table[0];
 
@@ -2526,11 +2546,33 @@ static void py_attack_hand(int *k, monster_type *m_ptr, s32b *special)
 	{
 		if (magik(ma_ptr->power))
 		{
-			*special |= SPEC_CUT;
+		*special |= SPEC_CUT;
 		}
 		if (!desc) msg_format(ma_ptr->desc, m_name);
 		desc = TRUE;
 	}
+
+if (ma_ptr->effect & MA_SLEEP)
+	{
+		if (magik(ma_ptr->power))
+		{
+		project_hack(GF_OLD_SLEEP, (3 * p_ptr->lev));
+		}
+		if (!desc) msg_format(ma_ptr->desc, m_name);
+		desc = TRUE;
+	}
+
+// MA_POIS, for spiders (THE GP FURY)
+		if (ma_ptr->effect & MA_POIS)
+	{
+		if (magik(ma_ptr->power))
+		{
+			*special |= SPEC_POIS;
+		}
+		if (!desc) msg_format(ma_ptr->desc, m_name);
+		desc = TRUE;
+	}
+
 
 	*k = critical_norm(plev * (randint(10)), ma_ptr->min_level, *k, -1, &done_crit);
 

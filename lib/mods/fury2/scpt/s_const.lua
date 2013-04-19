@@ -22,7 +22,7 @@ SURVEY_AREA = add_spell
 		
 					if (get_level(constructor_powers, 50) >= 28) then
 						-- enlightenment
-						wiz_lite()
+						wiz_lite_extra()
 					elseif (get_level(constructor_powers, 50) >= 15) then
 						--magic map and detect traps
 						map_area()
