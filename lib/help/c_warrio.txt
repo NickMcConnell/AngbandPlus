@@ -34,10 +34,10 @@ Combat                  2.000           [0.800]
 Sneakiness              1.000           [0.900]
   Stealth               0.000           [0.400]
   Disarming             1.000           [0.900]
-Magic                   1.000           [0.300]
-  Magic-Device          1.000           [1.150]
+Powers                  1.000           [0.300]
+  Devices               0.000           [0.150]
 Spirituality            1.000           [0.400]
-  Prayer                0.000           [0.500]
+Prayer                  0.000           [0.500]
 Monster-lore            0.000           [0.500]
 
 #####GInnate Abilities:
@@ -51,4 +51,3 @@ A Warrior begins the game with:
     a Ring of Fear Resistance
     a Broad Sword
     a Chain Mail
-

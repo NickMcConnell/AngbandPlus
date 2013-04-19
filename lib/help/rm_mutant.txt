@@ -1,0 +1,24 @@
+~~~~~01|Mutant
+~~~~~02|Race Modifiers|Mutant
+#####R=== Mutants ===
+
+#####GDescription
+These horrible creatures have four arms and two heads, but their body 
+has no magic and amulets and rings fail.
+
+
+#####GStat Modifiers
+Strength       +2  
+Intelligence   +1   
+Wisdom         +0    
+Dexterity      -1  
+Constitution   +0 
+Charisma       -6     
+Hit Dice       +3 sides        
+Exp Penalty    +50%
+
+
+#####GStarting Equipment
+A Mutant character begins the game with:
+    Some rations
+    Some torches

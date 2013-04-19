@@ -1,0 +1,261 @@
+  [FuryBand 3.0.0 Character Sheet]
+
+ Name  : Glayrd                 Age                 50       STR:     32       
+ Sex   : Male                   Height              49       INT:     14       
+ Race  : Vampire Dwarf          Weight             150       WIS:     14       
+ Class : Axemaster              Social Class        63       DEX:     22       
+ Body  : Player                                              CON:     23       
+ God   : Aule the Smith                                      CHR:      3       
+                                                                               
+ + To Melee Hit          65 Level             22    Hit Points       -5/   304 
+ + To Melee Damage       40 Experience     17782    Spell Points     10/    18 
+ + To Ranged Hit         53 Max Exp        17782    Sanity          115/   115 
+ + To Ranged Damage       3 Exp to Adv.    18900    Piety                  619 
+   AC                 18+-4 Gold           23220    Speed            Fast (+6) 
+                                                                               
+                         (Miscellaneous Abilities)                             
+ Fighting    : Legendary[25]Perception  : Very Bad     Blows/Round:  7         
+ Bows/Throw  : Heroic       Searching   : Very Bad     Shots/Round:  1         
+ Saving Throw: Bad          Disarming   : Very Bad     Mel.dmg/Rnd:  7d5+280   
+ Stealth     : Bad          Magic Device: Bad          Infra-Vision: 50 feet   
+                                                       Tactic:       berserker 
+                                                       Explor:       running   
+                         (Character Background)                                
+          You are the only child of a Dwarven Warrior.  You are a              
+          credit to the family.  You have dark brown eyes, straight            
+          brown hair, a one foot-long beard, and a dark complexion.            
+                                                                               
+
+
+  [Miscellaneous information]
+
+ Joke monsters:        OFF
+ Maximize mode:        ON
+ Preserve Mode:        ON
+ Autoscum:             ON
+ Small Levels:         ALWAYS
+ Arena Levels:         ON
+ Always unusual rooms: OFF
+ Persistent Dungeons:  OFF
+
+ Recall Depth:
+        Barrow-Downs: Level 10 (500')
+        Orc Cave: Level 22 (1100')
+
+ Your body was a Player.
+ You have defeated 670 enemies.
+ You saved 10 princesses.
+ You found none of the relic pieces.
+
+ You started your adventure the 43rd Yavie of the 2890th year of the third age.
+ You ended your adventure the 44th Yavie of the 2890th year of the third age.
+ Your adventure lasted 1 day.
+
+     Your Attributes:
+You are dead, killed by a Black orc on level 22 of Orc Cave.
+You can drain life from a foe.
+You can use secret passages.
+Your eyes are sensitive to infrared light.
+You levitate just over the ground.
+You can climb high mountains.
+You have free action.
+You are unlucky.
+You know everything.
+You have a firm hold on your life force.
+You are carrying a permanent light.
+You are resistant to acid.
+You are resistant to lightning.
+You are resistant to fire.
+You are resistant to cold.
+You are resistant to poison.
+You are resistant to darkness.
+You are resistant to confusion.
+You are resistant to nether forces.
+You are completely fearless.
+Your eyes are resistant to blindness.
+Your dexterity is sustained.
+Your intelligence is affected by your equipment.
+Your wisdom is affected by your equipment.
+Your charisma is affected by your equipment.
+Your stealth is affected by your equipment.
+Your digging ability is affected by your equipment.
+Your speed is affected by your equipment.
+
+
+                    adefkmnopsuxz{|@            
+        Add Int   : .......2........            
+        Add Wis   : .......2........            
+        Add Chr   : .........5......            
+        Add Stea. : ....5..2........            
+        Add Tun.. : ..............1.            
+        Add Speed : .......2........            
+        Slay Anim.: .+..............            
+        Fire Brand: .+..............            
+        Sust Str  : ................            
+        Sust Int  : ................            
+        Sust Wis  : ................            
+        Sust Dex  : ....+...........            
+        Sust Con  : ................            
+        Sust Chr  : ................            
+        Invisible : ................            
+        Mul life  : ................            
+        Sens Fire : ................            
+        Reflect   : ................            
+        Free Act  : ...........+....            
+        Hold Life : ...............+            
+        Res Acid  : .......+........            
+        Res Elec  : ......+.........            
+        Res Fire  : ......+.........            
+        Res Cold  : ......+........+            
+        Res Pois  : ...............+            
+        Res Fear  : ..+.............            
+        Res Light : ................            
+        Res Dark  : ...............+            
+        Res Blind : ...............+            
+        Res Conf  : ....+...........            
+        Res Sound : ................            
+        Res Shard : ................            
+        Res Neth  : ...............+            
+        Res Nexus : ................            
+        Res Chaos : ................            
+        Res Disen : ................            
+        Levitate  : ...+............            
+        Lite      : ...............+            
+        Activate  : ....+..+........            
+        Cursed    : ..+.+...........            
+        Climb     : ...............+            
+
+ Corruption list:
+Vampiric Teeth:
+  Your teeth allow you to drain blood to feed yourself
+  However your stomach now only accepts blood.
+
+Vampiric Strength:
+  Your body seems somewhat dead
+  In this near undead state it has improved strength, constitution and intelligence
+  But reduced dexterity, wisdom and charisma.
+
+Vampire:
+  You are a Vampire. As such you resist cold, poison, darkness and nether.
+  Your life is sustained, but you cannot stand the light of the sun.
+
+
+Skills (points left: 0)
+ - Combat                                        27.974 [0.900]
+          - Weaponmastery                        27.432 [0.950]
+                   . Sword-mastery               00.000 [0.300]
+                   . Axe-mastery                 27.100 [0.900]
+                   . Hafted-mastery              00.000 [0.300]
+                   . Polearm-mastery             00.000 [0.300]
+          - Archery                              04.350 [0.600]
+                   . Throwing                    15.250 [0.750]
+          . Antimagic                            00.000 [0.550]
+ - Sneakiness                                    02.900 [2.000]
+          . Stealth                             -01.000 [0.400]
+          . Disarming                            03.200 [2.000]
+ - Powers                                        01.621 [0.300]
+          . Devices                              03.050 [1.150]
+          . Alchemy                              01.000 [0.300]
+ - Spirituality                                  06.800 [0.400]
+          . Prayer                               10.000 [0.500]
+ - Monster-lore                                  00.000 [0.500]
+          . Construction                         25.000 [1.000]
+          . First-aid                            01.000 [0.600]
+
+Abilities
+ * Extra Max Blow(1)
+ * Extra Max Blow(2)
+
+
+  [Character Equipment]
+
+a) a Hatchet (1d5) (+0,+0)
+        It can be wielded two-handed.  
+d) The Wooden Boomerang of Valen (1d8) (+15,+3)
+    It does extra damage from fire and dark
+    .  It is especially deadly against natural creatures.  It cannot be
+    harmed by acid, cold, lightning or fire.  
+    It was given to you as a reward.
+e) a Ring of Fear Resistance {cursed}
+    It makes you completely fearless.  It
+    is cursed.  It cannot be harmed by acid, cold, lightning or fire.  
+f) a Ring of Levitation
+k) The Amulet of Faramir (+18,+0) [+8] (+5) {cursed}
+    It
+    can be activated for word of recall every 200 turns if it is being
+    worn. It increases your stealth by 5.  It sustains your dexterity.  It
+    provides resistance to confusion.  It is cursed.  It cannot be harmed
+    by acid, cold, lightning or fire.  
+    It was given to you as a reward.
+m) a Brass Lantern (with 13491 turns of light)
+    It provides light (radius 2) when
+    fueled.  It cannot be harmed by fire.  
+n) a Thunderlord Coat of Resist Lightning [9,+6]
+    It provides resistance to 
+    electricity, fire and cold.  It cannot be harmed by electricity.  
+    It was given to you as a reward.
+o) The Cloak 'Holcolleth' [1,+4] (+2)
+    It can be activated for sleep nearby
+    monsters every 55 turns if it is being worn. It increases your 
+    intelligence, wisdom, stealth and speed by 2.  It provides resistance 
+    to acid.  It cannot be harmed by acid, cold, lightning or fire.  
+    You found it lying on the floor of a special level.
+p) (nothing)
+s) an Orc Skull [5,+0] (-5)
+u) (nothing)
+x) a Pair of Hard Leather Boots of Free Action [3,+1]
+z) (nothing)
+{) (nothing)
+|) a Pick (+1)
+    It increases your 
+    ability to tunnel by 1.  
+
+
+  [Character Inventory]
+
+a) a Rock of Tulkas [10,+11] (+3) {100% off}
+    It increases your strength and constitution
+     by 3.  It sustains your strength.  It provides immunity to fire.  
+b) a Lembas
+c) a Flask of oil
+    
+d) a Potion of Cure Light Insanity
+e) 2 Potions of Speed
+f) 8 Scrolls of Darkness
+    
+g) a Scroll of Word of Recall
+    
+h) 3 Scrolls of Satisfy Hunger
+    
+i) a Rod Tip of Disarming (50 Mana to cast)
+j) an Elven Double Ring Mail (-2 to accuracy) [15,+7] (+1 to stealth)
+k) a Hard Leather Armour (-1 to accuracy) [6,+5]
+l) The Leather Scale Mail 'Thalkettoth' (-1) [11,+25] (+3)
+m) The Set of Leather Gloves 'Cammithrim' [1,+10]
+n) The Pair of Metal Shod Boots 'Obelen' [6,+10] {100% off}
+    It
+    sustains your strength and wisdom.  It provides resistance to sound
+     and shards.  It cannot be harmed by acid, cold, lightning or fire.  
+    You stole it from the Footwear Shop.
+o) The Main Gauche of Maedhros (2d5) (+12,+15) (+3)
+p) a Broad Sword of Slay Maia (4d3) (+9,+7)
+q) a Vampiric Dark Sword of Life (3d6) (+18,+21)(0%) {100% off}
+    It generates an antimagic field.  
+    It decreases your hit points by 0%.  It does extra damage from dark.  
+    It drains life from your foes.  It provides resistance to life draining
+    .  
+    You stole it from the Expensive Black Market.
+r) (nothing)
+s) (nothing)
+t) (nothing)
+u) (nothing)
+v) (nothing)
+w) (nothing)
+
+
+  [Home Inventory - Bree ]
+
+a) The Parchment - Map of Thror
+b) an Essence of Chaos
+
+

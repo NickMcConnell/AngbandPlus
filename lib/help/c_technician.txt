@@ -1,0 +1,51 @@
+#####R== Technicians ===
+
+#####GDescription
+Technicians are strange rogues that do not know how to fight,
+but have studied magic devices enough to be very powerful
+at them. They can use these devices to do anything a powerful
+sorcer can do, with the drawback of having to find suitable
+equiptment. They can also learn some minor magic to recharge 
+their wands and check to see how many charges they have left.
+
+
+#####GStarting Stat Modifiers
+Strength       -2
+Intelligence   +2
+Wisdom         -2
+Dexterity      +5
+Constitution   -1
+Charisma       -1
+Bonus Blows    0
+Hit Die        +d6
+Exp Penalty    25%
+
+#####GStarting Skills
+#####BSkill                   Start Level     Skill Point Gains
+Combat                  0.000           [0.000]
+Sneakiness              1.000           [2.000]
+  Stealth               1.000           [1.500]
+  Disarming             1.000           [2.000]
+  Stealing              1.000           [2.000]
+  Dodging               1.000           [2.000]
+Powers                  1.000           [0.800]
+  Devices               1.000           [2.000]
+  Meta                  1.000           [0.900]
+  Knowledge             1.000           [0.800]
+Spirituality            1.000           [0.700]
+  Prayer                0.000           [0.500]
+Monster-lore            0.000           [0.500]
+
+
+#####GStarting Equipment
+A Technician begins the game with:
+    an admantite rod of nothing 
+    a rod tip of fire bolt
+    a spellbook of recharge
+    a spellbook of identify
+    a highly charge wand of manathrust
+
+
+
+
+

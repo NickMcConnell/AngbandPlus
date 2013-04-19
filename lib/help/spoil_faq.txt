@@ -1,38 +1,22 @@
 |||||oy
 ~~~~~01|Help|Spoiled FAQ
 ~~~~~02|FAQ - contains spoilers
-#####R                             ToME Spoiler FAQ
-#####R                     Updated for version 2.3.x
+#####R                             FuryBand Spoiler FAQ
+#####R                          Updated for version 3.0.0
 
 #####G------------------------------------------------------------------------------
 
-This page contains significant spoilers. Don't browse it unless you want some 
+This page contains significant spoilers. Don;t browse it unless you want some 
 parts of the game ruined, but don't expect the spoilers to spoil you completely!
 
-~~~~~06|Spoilers|Merton the lost Hobbit quest
-#####G------------------------------------------------------------------------------
-#####GQ: I'm in the Maze, but I cannot find Merton!
-
-A: Merton appears on a *random* level between dungeon level 26 (1300') and
-36 (1800'). Each maze level is one panel by one panel in size, but *full* of
-passageways - so you may have to do quite a bit of tunnelling to search the
-whole level.
-
-#####G------------------------------------------------------------------------------
-#####GQ: I've found Merton, now what?
-
-A: There is a new command that has been added to ToME that allows you to pass 
-objects to creatures. What would you try and do if you had a broken leg and 
-needed to get back to the town?
 ~~~~~07|Spoilers|Lothlorien Poisoned water quest
 #####G------------------------------------------------------------------------------
 #####GQ: I'm trying to find the Poisoned water quest at Lothlorien, but cannot
 #####G   find the quest entrance!
 
-A: This quest is located in the wilderness. To the west of Lothlorien are 4 
+A: This quest is located in the wilderness. To the west of Lothlorien is 4 
 water squares in an upside down L shape. One of these squares will contain the
-quest. (Viewed from the Wilderness map).  There is no yellow > sign, so don't
-bother looking for one.
+quest. (Viewed from the Wilderness map).
 ~~~~~20|Spoilers|God Quest - directions
 ~~~~~23|Gods|Quest - Spoilers
 #####G------------------------------------------------------------------------------
@@ -51,9 +35,8 @@ somewhere in the quadrant that is between the south and east axes.
 A: It [[[[[BIS] there. However, when your god told you to look for it VERY  
 carefully, s/he meant it. Regardless of your game settings, the relic will only
 be created once in the temple, at a random place. If you have searched the 
-whole temple once over, and not located it, then you have missed it, and it is
-lost forever.  Each temple has 5 dungeon levels, and the relic might be on
-any of these 5 levels.
+whole temple once over, and not located it, someone else has found it before 
+you, and it is lost forever.
 ~~~~~22|Spoilers|God Quest - how many?
 #####G------------------------------------------------------------------------------
 #####GQ: Apparently my god has lost another piece of his relic and wants me to go 
@@ -62,12 +45,10 @@ any of these 5 levels.
 A: You can receive up to five god quests, with the final piece yielding an 
 extra reward. However you will only receive extra quests if you have 
 sucessfully completed all the previous ones. 
-~~~~~19|Deathmolds on Mount Doom and other quest areas.
+~~~~~27|Secret Valley?
 #####G------------------------------------------------------------------------------
-#####GQ: How do I complete the special no-teleport level quests with a Deathmold?
+#####GQ: What's this Secret Valley place in the northern part of the wilderness?
 
-A: You will need either some morphic oils, some mimicry skill, or the ring of 
-Flare. Deathmolds are marked as experimental for a reason you know. Morphic 
-oils can also help if you're having trouble communictaing with monsters. A very
-beautiful Elf springs to mind as possibly causing some problems if you are in 
-Deathmold form.
+This is a stay-over from regular ToME, where that valley is the location of 
+Gondolin. In FuryBand, Gondolin is elsewhere, and the Secret Valley is simply a 
+cosmetic change to avoid confusion.

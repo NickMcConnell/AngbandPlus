@@ -1,0 +1,40 @@
+~~~~~01|Legolas
+~~~~~02|Race Modifiers|Legolas
+#####R=== Legolas Race ===
+
+#####GDescription
+Legolas is an elf, one of the Nine members of the Fellowship of the 
+Ring.  He is the son of the King of the Wood-elves, and a powerful 
+archer.
+
+#####GStat Modifiers
+Strength       +0
+Intelligence   +3
+Wisdom         +2  
+Dexterity      +5   
+Constitution   +3 
+Charisma       +10      
+Hit Dice       +10 sides
+Exp Penalty    +100%
+
+#####GRacial Skill Modifiers:
+#####BSkill                Start Mod    Skill Point Gains Mod
+Combat                  
+  Weaponmastery         1.200           [0.100]
+    Sword-mastery       1.000           [1.000]
+  Archery               5.000           [1.000]
+Sneakiness              1.000           [0.200]
+  Stealth               2.000           [1.000]
+  Disarming             0.200           [0.000]    
+Powers                
+  Devices              -1.000           [0.000]
+Spirituality            0.200           [0.000]
+
+#####GStarting Equipment
+Legolas begins the game with:
+    The Elven Cloak of Mellyrn
+    The Dagger 'Belangil'
+    The Long Bow of Legolas 
+    A Ring of Fear Resistance
+    Some rations
+    Some torches

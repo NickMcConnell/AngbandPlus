@@ -22,7 +22,7 @@
  */
 
 
-#if !defined(MACINTOSH) && !defined(WINDOWS) && !defined(ACORN)
+#if !defined(MACINTOSH) && !defined(WINDOWS) && !defined(ACORN) && !defined(USE_ISO)
 
 
 /*
@@ -720,7 +720,7 @@ usage:
 
 #ifdef USE_ISO
 				puts("  -miso              To use ISO");
-#endif /* USE_ISO */
+#endif  USE_ISO 
 
 #ifdef USE_SDL
 				puts("  -msdl              To use SDL");
@@ -735,7 +735,7 @@ usage:
 				puts("  -- -fs             Start with full-screen display");
 				puts("  -- -s #            Request font size");
 				puts("  -- -f <font>       Request true-type font by name");
-#endif /* USE_SDL */
+#endif  USE_SDL 
 
 				/* Actually abort the process */
 				quit(NULL);

@@ -2275,7 +2275,7 @@ void player_flags(u32b *f1, u32b *f2, u32b *f3, u32b *f4, u32b *f5, u32b *esp)
 /*
  * Object flag names
  */
-static cptr object_flag_names[192] =
+static cptr object_flag_names[197] =
 {
 	"Add Str",
 	"Add Int",
@@ -2296,7 +2296,7 @@ static cptr object_flag_names[192] =
 	"Slay Anim.",
 	"Slay Evil",
 	"Slay Und.",
-	"Slay Demon",
+	"Slay Maia",
 	"Slay Orc",
 	"Slay Troll",
 	"Slay Giant",
@@ -2407,15 +2407,15 @@ static cptr object_flag_names[192] =
 	NULL,
 	NULL,
 	NULL,
+    NULL,
 	NULL,
-	NULL,
-	NULL,
+  	
 
 	"Orc.ESP",
 	"Troll.ESP",
 	"Dragon.ESP",
 	"Giant.ESP",
-	"Demon.ESP",
+	"Maia.ESP",
 	"Undead.ESP",
 	"Evil.ESP",
 	"Animal.ESP",
@@ -2458,7 +2458,7 @@ static void display_player_ben_one(int mode)
 
 	u32b f1, f2, f3, f4, f5, esp;
 
-	u16b b[INVEN_TOTAL - INVEN_WIELD + 1][10];
+	u16b b[INVEN_TOTAL - INVEN_WIELD + 1][12];
 
 	int d[INVEN_TOTAL - INVEN_WIELD + 1];
 
@@ -2491,6 +2491,8 @@ static void display_player_ben_one(int mode)
 		b[n][7] = (u16b)(f4 >> 16);
 		b[n][8] = (u16b)(esp & 0xFFFF);
 		b[n][9] = (u16b)(esp >> 16);
+		b[n][10] = (u16b)(f5 & 0xFFFF);
+		b[n][11] = (u16b)(f5 >> 16);
 		d[n] = o_ptr->pval;
 	}
 
@@ -2511,6 +2513,8 @@ static void display_player_ben_one(int mode)
 	b[n][7] = (u16b)(f4 >> 16);
 	b[n][8] = (u16b)(esp & 0xFFFF);
 	b[n][9] = (u16b)(esp >> 16);
+	b[n][10] = (u16b)(f5 & 0xFFFF);
+	b[n][11] = (u16b)(f5 >> 16);
 
 	/* Index */
 	n = INVEN_TOTAL - INVEN_WIELD;
@@ -2529,6 +2533,8 @@ static void display_player_ben_one(int mode)
 	b[n][7] = (u16b)(f4 >> 16);
 	b[n][8] = (u16b)(esp & 0xFFFF);
 	b[n][9] = (u16b)(esp >> 16);
+	b[n][10] = (u16b)(f5 & 0xFFFF);
+	b[n][11] = (u16b)(f5 >> 16);
 
 	/* Generate the equip chars */
 	sprintf(dummy, " ");

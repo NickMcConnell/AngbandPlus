@@ -1,0 +1,22 @@
+~~~~~01|Outcast
+~~~~~02|Race Modifiers|Outcast
+#####R=== Outcasts ===
+
+#####GDescription
+Outcasts are hated and cast out by all free races for various reasons.
+They are unlucky, but are strong and smart.
+
+#####GStat Modifiers
+Strength       +4
+Intelligence   +4   
+Wisdom         +0 
+Dexterity      +3  
+Constitution   +4 
+Charisma       -999     
+Hit Dice       +3 sides        
+Exp Penalty    +0%
+
+#####GStarting Equipment
+An Outcast character begins the game with:
+    Some rations
+    Some torches

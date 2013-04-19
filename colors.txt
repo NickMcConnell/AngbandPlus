@@ -1,0 +1,29 @@
+New Colors
+i = Indian Red
+p = Pink
+z = Gold
+c = Royal Blue
+a = Aquamarine
+O = Dark Orchid (like purple)
+C = Chocolate
+f = Firebrick
+k = Dark Khaki
+K = Khaki
+A = Cadet Blue
+e = Steel Blue
+E = Light Steel Blue
+F = Sandy Brown
+h = Orchid
+H = Honeydew
+I = Yellow green
+j = Olive Drab
+J = Purple (not like violet)
+l = Dark Slate Gray
+L = Salmon
+m = Crimson
+M = Moccasin
+n = Dark Sea Green
+S = Teal
+q = Old Lace
+Q = Tan
+

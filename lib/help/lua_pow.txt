@@ -11,7 +11,7 @@ You *must* download and install my lua example files from
 so.
 
 The (commented) accompanying script file for this tutorial is 
-lib\scpt\pheonix.lua. Open it in your text editor!
+lib\scrpt\pheonix.lua. Open it in your text editor!
 
 #####R=== The Racial Power ===
 
@@ -194,19 +194,19 @@ close the [[[[[Badd_power] function.
 #####R=== Finishing the LUA file ===
 
 Save this as a text file 'pheonix.lua' Put it into the lib\scrpt directory 
-of ToME, and open the init.lua file which you'll find in the same 
+of FuryBand, and open the init.lua file which you'll find in the same 
 directory. 
 
 Add the following line and resave the init.lua file.
 
-#####Btome_dofile("pheonix.lua")
+#####BFuryBand_dofile("pheonix.lua")
 
-This ensures that ToME loads your file on start-up. Because you've installed 
+This ensures that FuryBand loads your file on start-up. Because you've installed 
 the example scripts, this has all been done for you.
 
 #####R=== A quick word about comments ===
 
-One of the reasons Angband has so many variants is because the source code is 
+One of the reason Angband has so many variants is because the source code is 
 clearly commented. Almost every line of code has an accompanying comment, 
 explaining what that line does. It's good practice to add comments to any code 
 or script you write. It's helpful to others who are learning, anyone who takes 
@@ -251,7 +251,7 @@ the p_info.txt entry for it.
 
 Note the [[[[[BR:Z:] line. 
 
-If all is well, you should be able to start ToME now and breathe fire! Once 
+If all is well, you should be able to start FuryBand now and breathe fire! Once 
 you get to lvl 10 anyhow. Don't forget, this is the kind of thing wizard mode 
 was invented for! Ctrl-A and confirm at the prompt, and then 'e' will allow 
 you to alter stats, including experience. Approx 1000 exp should do to get you 
@@ -260,7 +260,6 @@ to clvl 10.
 Ready for more? How about adding a new *****lua_skil.txt*0[skill] ?
 
                              [[[[[gThis file by fearoffours (fearoffours@moppy.co.uk)]
-
 
 
 

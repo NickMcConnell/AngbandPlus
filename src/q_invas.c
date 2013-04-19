@@ -124,8 +124,10 @@ bool quest_invasion_turn_hook(char *fmt)
 	cmsg_print(TERM_YELLOW, "'Here we are, Gondolin, you must speak with Turgon now.'");
 
 	p_ptr->wild_mode = FALSE;
-	p_ptr->wilderness_x = 49;
-	p_ptr->wilderness_y = 11;
+	p_ptr->wilderness_x = 3;
+p_ptr->wilderness_y = 11;
+//	p_ptr->wilderness_x = 49;
+//	p_ptr->wilderness_y = 11;
 	p_ptr->town_num = 2;
 	p_ptr->oldpx = p_ptr->px = 117;
 	p_ptr->oldpy = p_ptr->py = 24;

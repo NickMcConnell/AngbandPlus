@@ -7,7 +7,7 @@ Half-Ogres are a crossbreed between a human and an ogre. They are big, bad, and
 stupid. For warriors, they have all the necessary attributes, and they can even
 become priests: after all, they are related to Ogre Magi, from whom they have
 learned the skill of setting trapped runes once their level is high enough. Like
-orcs, they resist darkness, and like trolls, they have their strength sustained.
+Orcs, they resist darkness, and like Trolls, they have their strength sustained.
 
 #####GStat Modifiers
 Strength        +3   
@@ -26,6 +26,6 @@ Combat
 Sneakiness             -0.100           [0.000]
   Stealth              -2.000           [0.000]
   Disarming            -0.300           [0.000]
-Magic                   
-  Magic-Device         -0.500           [0.000]
+Powers                 
+  Devices              -0.500           [0.000]
 Spirituality           -2.500           [0.000]

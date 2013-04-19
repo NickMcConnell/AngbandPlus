@@ -109,3 +109,40 @@ F:M:204:3
 
 # Fake blank feature
 F: :0:3
+
+### Flowers for Theme ###
+
+#Elanor (yellow)
+F:E:79:3
+
+#Fumellar (red)
+F:F:80:3
+
+#Anemones (purple)
+F:A:81:3
+
+#Niphredil (white)
+F:N:82:3
+
+#Iris (blue)
+F:R:83:3
+
+### Destroyed town features ###
+
+# Dead/burnt tree
+F:D:92:3
+
+# Ash
+F:H:93:3
+
+# Fire
+F:=:205:3
+
+# Permanent rubble
+F:$:206:3
+
+# Tainted water
+F:%:174:3
+
+# Barrow-Downs entrance
+F:q:7:3:0:0:0:0:0:41

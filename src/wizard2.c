@@ -575,8 +575,13 @@ tval_desc2 tvals[] =
 	{ TV_HAFTED, "Hafted Weapon" },
 	{ TV_AXE, "Axe" },
 	{ TV_BOW, "Bow" },
+	{ TV_PISTOL, "Pistols" },
+	{ TV_RIFLE, "Rifles" },
+	{ TV_BULLET, "Pistol Bullets" },
+	{ TV_RBULLET, "Rifle Bullets" },
 	{ TV_BOOMERANG, "Boomerang" },
 	{ TV_ARROW, "Arrows" },
+	
 	{ TV_BOLT, "Bolts" },
 	{ TV_SHOT, "Shots" },
 	{ TV_SHIELD, "Shield" },

@@ -4,14 +4,13 @@
 
 #####GDescription
 
-Another powerful undead creature, the spectre is a ghastly apparition,
-surrounded by an unearthly glow.  They exist only partially on our
+Another powerful undead creature: the spectre is a ghastly apparition,
+surrounded by an unearthly glow. They exist only partially on our
 plane of existence: half-corporeal, they can pass through walls, though 
-this requires a sacrifice of some of their life-force.  As a result 
+this requires a sacrifice of some of their life-force. As a result 
 they cannot rest whilst passing through a wall. 
-
-As undead, they have a firm hold on their life force, can see invisible, and
-resist poison and cold.  They also resist nether.  Spectres make superb
+As undead, they have a firm hold on their life force, see invisible, and
+resist poison and cold. They also resist nether.  Spectres make superb
 spellcasters, but their physical form is very weak.  Like Zombies,
 Spectres gain almost no nutrition from ordinary food.
 
@@ -33,8 +32,8 @@ Combat
 Sneakiness              0.200           [0.000]
   Stealth               2.000           [0.000]
   Disarming             0.200           [0.000]
-Magic                   
-  Magic-Device          0.800           [0.000]
+Powers                   
+  Devices               0.800           [0.000]
 Spirituality            0.700           [0.000]
 
 #####GStarting Equipment

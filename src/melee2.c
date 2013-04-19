@@ -909,6 +909,19 @@ static void breath(int m_idx, int typ, int dam_hp, int rad)
 	(void)project(m_idx, rad, p_ptr->py, p_ptr->px, dam_hp, typ, flg);
 }
 
+static void cloud_breath(int m_idx, int typ, int dam_hp, int rad)
+{
+	int flg = PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_STAY;
+
+	monster_type *m_ptr = &m_list[m_idx];
+	monster_race *r_ptr = race_inf(m_ptr);
+
+	/* Determine the radius of the blast */
+	if (rad < 1) rad = (r_ptr->flags2 & (RF2_POWERFUL)) ? 3 : 2;
+
+	/* Target the player with a ball attack */
+	(void)project(m_idx, rad, p_ptr->py, p_ptr->px, dam_hp, typ, flg);
+}
 
 /*
  * Monster casts a breath (or ball) attack at another monster.
@@ -928,6 +941,18 @@ static void monst_breath_monst(int m_idx, int y, int x, int typ, int dam_hp, int
 	(void)project(m_idx, rad, y, x, dam_hp, typ, flg);
 }
 
+static void monst_breath_cloud_monst(int m_idx, int y, int x, int typ, int dam_hp, int rad)
+{
+	int flg = PROJECT_STOP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL | PROJECT_STAY;
+
+	monster_type *m_ptr = &m_list[m_idx];
+	monster_race *r_ptr = race_inf(m_ptr);
+
+	/* Determine the radius of the blast */
+	if (rad < 1) rad = (r_ptr->flags2 & (RF2_POWERFUL)) ? 3 : 2;
+
+	(void)project(m_idx, rad, y, x, dam_hp, typ, flg);
+}
 
 /*
  * Monster casts a bolt at another monster
@@ -1612,7 +1637,7 @@ static bool monst_spell_monst(int m_idx)
 				else
 					if (blind) monster_msg("%^s mumbles.", m_name);
 					else monster_msg("%^s casts a stinking cloud at %s.", m_name, t_name);
-				monst_breath_monst(m_idx, y, x, GF_POIS, damroll(12, 2), 2);
+				monst_breath_cloud_monst(m_idx, y, x, GF_POIS, damroll(12, 2), 2);
 				break;
 			}
 
@@ -2458,7 +2483,7 @@ static bool monst_spell_monst(int m_idx)
 			{
 				if (disturb_other) disturb(1, 0);
 				if (blind || !see_m) monster_msg("%^s mumbles.", m_name);
-				else monster_msg("%^s magically summons greater demons!", m_name);
+				else monster_msg("%^s magically summons greater Maiar!", m_name);
 				if (blind && count) monster_msg("You hear heavy steps nearby.");
 				if (friendly)
 					summon_specific_friendly(y, x, rlev, SUMMON_HI_DEMON, TRUE);
@@ -2591,7 +2616,7 @@ static bool monst_spell_monst(int m_idx)
 			{
 				if (disturb_other) disturb(1, 0);
 				if (blind || !see_m) monster_msg("%^s mumbles.", m_name);
-				else monster_msg("%^s magically summons a demon from the Courts of Chaos!", m_name);
+				else monster_msg("%^s magically summons a Maia from the Void!", m_name);
 				for (k = 0; k < 1; k++)
 				{
 					if (friendly)
@@ -2728,6 +2753,7 @@ static bool monst_spell_monst(int m_idx)
 					monster_msg("You hear many powerful things appear nearby.");
 				}
 				break;
+		
 			}
 		}
 
@@ -3596,7 +3622,7 @@ bool make_attack_spell(int m_idx)
 				disturb(1, 0);
 				if (blind) msg_format("%^s mumbles.", m_name);
 				else msg_format("%^s casts a stinking cloud.", m_name);
-				breath(m_idx, GF_POIS,
+				cloud_breath(m_idx, GF_POIS,
 				       damroll(12, 2), 2);
 				update_smart_learn(m_idx, DRS_POIS);
 				break;
@@ -4409,7 +4435,7 @@ bool make_attack_spell(int m_idx)
 			{
 				disturb(1, 0);
 				if (blind) msg_format("%^s mumbles.", m_name);
-				else msg_format("%^s magically summons greater demons!", m_name);
+				else msg_format("%^s magically summons greater Maiar!", m_name);
 				if (blind && count) msg_print("You hear heavy steps nearby.");
 				summon_cyber();
 				break;
@@ -4518,7 +4544,7 @@ bool make_attack_spell(int m_idx)
 			{
 				disturb(1, 0);
 				if (blind) msg_format("%^s mumbles.", m_name);
-				else msg_format("%^s magically summons a demon from the Courts of Chaos!", m_name);
+				else msg_format("%^s magically summons a Maia from the Void!", m_name);
 				for (k = 0; k < 1; k++)
 				{
 					count += summon_specific(y, x, rlev, SUMMON_DEMON);
@@ -4636,6 +4662,7 @@ bool make_attack_spell(int m_idx)
 					msg_print("You hear many powerful things appear nearby.");
 				}
 				break;
+		
 			}
 		}
 	}
@@ -5780,6 +5807,18 @@ static bool monst_attack_monst(int m_idx, int t_idx)
 		case RBE_ABOMINATION:
 			power = 20;
 			break;
+				case RBE_CHAOS:
+			power = 5;
+			break;
+				case RBE_PIETY:
+			power = 60;
+			break;
+						case RBE_FOOD:
+			power = 60;
+			break;
+							case RBE_SLASH:
+			power = 50;
+			break;
 		}
 
 
@@ -5841,9 +5880,9 @@ static bool monst_attack_monst(int m_idx, int t_idx)
 					break;
 				}
 
-			case RBM_XXX1:
+			case RBM_PECK:
 				{
-					act = "XXX1's %s.";
+					act = "pecks %s.";
 					break;
 				}
 
@@ -5925,10 +5964,10 @@ static bool monst_attack_monst(int m_idx, int t_idx)
 					break;
 				}
 
-			case RBM_XXX4:
+			case RBM_HUG:
 				{
-					act = "projects XXX4's at %s.";
-					touched = FALSE;
+					act = "hugs %s.";
+				touched = TRUE;
 					break;
 				}
 
@@ -5959,6 +5998,21 @@ static bool monst_attack_monst(int m_idx, int t_idx)
 			case RBM_SHOW:
 				{
 					act = "sings to %s.";
+					touched = FALSE;
+					t_ptr->csleep = 0;
+					break;
+				}
+			
+			case RBM_HOWL:
+				{
+					act = "howls at %s.";
+					touched = FALSE;
+					t_ptr->csleep = 0;
+					break;
+				}
+					case RBM_ROAR:
+				{
+					act = "roars at %s.";
 					touched = FALSE;
 					t_ptr->csleep = 0;
 					break;
@@ -5997,6 +6051,10 @@ static bool monst_attack_monst(int m_idx, int t_idx)
 
 			case RBE_HURT:
 			case RBE_SANITY:
+			case RBE_CHAOS:
+			case RBE_PIETY:
+			case RBE_FOOD:
+			case RBE_SLASH:
 				{
 					damage -= (damage * ((ac < 150) ? ac : 150) / 250);
 					break;
@@ -6182,7 +6240,7 @@ static bool monst_attack_monst(int m_idx, int t_idx)
 			case RBM_CLAW:
 			case RBM_BITE:
 			case RBM_STING:
-			case RBM_XXX1:
+			case RBM_PECK:
 			case RBM_BUTT:
 			case RBM_CRUSH:
 			case RBM_ENGULF:
@@ -7370,6 +7428,7 @@ static void process_monster(int m_idx, bool is_frien)
 						if (f1 & (TR1_SLAY_DRAGON)) flg3 |= (RF3_DRAGON);
 						if (f1 & (TR1_SLAY_TROLL)) flg3 |= (RF3_TROLL);
 						if (f1 & (TR1_SLAY_GIANT)) flg3 |= (RF3_GIANT);
+						if (f5 & (TR5_KILL_VAMPIRE)) flg3 |= (RF7_VAMPIRE);
 						if (f1 & (TR1_SLAY_ORC)) flg3 |= (RF3_ORC);
 						if (f1 & (TR1_SLAY_DEMON)) flg3 |= (RF3_DEMON);
 						if (f1 & (TR1_SLAY_UNDEAD)) flg3 |= (RF3_UNDEAD);

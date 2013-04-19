@@ -1,0 +1,49 @@
+~~~~~01|Berserker
+~~~~~02|Classes|Berserker
+#####R=== Berserkers ===
+
+#####GDescription
+Truly fearsome warriors indeed, a Berserker is immune to fear and paralysis.
+As they gain levels they will also be able to reflect bolts with their tough 
+skin alone. They can also remove cursed equipment by sheer force alone.
+
+
+#####GStarting Stat Modifiers
+Strength         +10
+Intelligence     -20
+Wisdom           -20
+Dexterity        +6
+Constitution     +6
+Charisma         -5
+Bonus Blows       3
+Hit Die          +d14
+Exp Penalty       60%
+
+#####GStarting Skills:
+#####BSkill                   Start Level     Skill Point Gains
+Combat                  3.000           [1.100]
+  Weaponmastery         2.000           [1.150]
+    Hafted-mastery      2.000           [1.000]
+  Barehanded-combat     1.000           [0.400]
+  Antimagic             1.000           [0.750]
+Sneakiness              0.600           [0.000]
+  Stealth               1.000           [0.000]
+  Disarming             0.200           [0.000]
+Spirituality            1.500           [0.000]
+  
+#####GInnate Abilities:
+#####BAbility              Character level
+Extra-Max-Blow(1)           1
+Extra-Max-Blow(2)           1
+Spread-blows                25
+All-Around Attack           15
+Whirlwind                   30
+
+
+#####GStarting Equipment
+A berserker begins the game with:
+    A ring of fear resistance
+    A War Hammer
+    A suit of Augmented Chain Mail
+
+

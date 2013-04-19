@@ -1,0 +1,24 @@
+~~~~~01|Baby
+~~~~~02|Race Modifiers|Baby
+#####R=== Babies ===
+
+#####GDescription
+A young member of the race, they are weaker and stupider than normal, 
+but are forced to quickly learn or perish.
+
+
+#####GStat Modifiers
+Strength       -3 
+Intelligence   -3   
+Wisdom         -3    
+Dexterity      -3  
+Constitution   -3 
+Charisma       -3     
+Hit Dice       -2 sides        
+Exp Penalty    -10%
+
+
+#####GStarting Equipment
+A Baby character begins the game with:
+    Some rations
+    Some torches

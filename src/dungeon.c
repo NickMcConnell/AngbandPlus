@@ -246,8 +246,12 @@ byte select_sense(object_type *o_ptr, bool ok_combat, bool ok_magic)
 	{
 	case TV_SHOT:
 	case TV_ARROW:
+	case TV_BULLET:
+	case TV_RBULLET:
 	case TV_BOLT:
 	case TV_BOW:
+	case TV_PISTOL:
+	case TV_RIFLE:
 	case TV_DIGGING:
 	case TV_HAFTED:
 	case TV_POLEARM:
@@ -3682,6 +3686,22 @@ static void process_command(void)
 			p_ptr->redraw |= (PR_MH);
 			break;
 		}
+		case '(':
+		{
+			irc_connect();
+			break;
+		}
+	case ')':
+		{
+			irc_disconnect();
+			break;
+		}
+		case 'J':
+		{
+		special_weapon_charge();
+			break;
+		}
+
 
 		/* Drop an item */
 	case 'd':
@@ -4209,12 +4229,7 @@ static void process_command(void)
 			if (p_ptr->control) break;
 			if (p_ptr->wild_mode) break;
 
-			if (p_ptr->inside_arena)
-			{
-				msg_print("You're in the arena now. This is hand-to-hand!");
-				msg_print(NULL);
-				break;
-			}
+		
 
 			do_cmd_throw();
 			break;
@@ -4423,6 +4438,7 @@ static void process_command(void)
 		/* Help */
 	case '?':
 		{
+		
 			do_cmd_help();
 			break;
 		}
@@ -4502,6 +4518,12 @@ static void process_command(void)
 			do_cmd_version();
 			break;
 		}
+			case 'W':
+		{
+			do_cmd_portable_hole();
+			break;
+		}
+
 
 		/* Repeat level feeling */
 	case KTRL('F'):

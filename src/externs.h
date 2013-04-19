@@ -91,7 +91,7 @@ extern int cli_total;
 extern quest_type quest_init_tome[MAX_Q_IDX_INIT];
 extern int max_body_part[BODY_MAX];
 extern gf_name_type gf_names[];
-
+extern bool always_hit_check();
 
 /* variable.c */
 extern cptr copyright[5];
@@ -1917,3 +1917,17 @@ extern void abandon_god(int god);
 extern int wisdom_scale(int max);
 extern int find_god(cptr name);
 extern void follow_god(int god, bool silent);
+extern bool protection_check();
+extern bool always_hit_check();
+extern bool safety_check();
+
+
+
+
+extern void take_piety_hit(int damage, cptr hit_from);
+
+extern void take_food_hit(int damage, cptr hit_from);
+extern int hero_lost_sword(int hero);
+extern void special_weapon_charge();
+extern void do_cmd_tweak(object_type *o_ptr);
+extern int add_item_ability(object_type *o_ptr);

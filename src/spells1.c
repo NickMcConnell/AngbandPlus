@@ -1072,6 +1072,8 @@ byte spell_color(int type)
 		case GF_NETHER:
 			return (0x07);
 		case GF_CHAOS:
+		
+		case GF_ATTACK:
 			return (mh_attr(15));
 		case GF_DISENCHANT:
 			return (0x05);
@@ -1157,6 +1159,7 @@ byte spell_color(int type)
 		case GF_NETHER:
 			return (randint(4) == 1 ? TERM_SLATE : TERM_L_DARK);
 		case GF_CHAOS:
+		case GF_ATTACK:
 			return (mh_attr(15));
 		case GF_DISENCHANT:
 			return (randint(5) != 1 ? TERM_L_BLUE : TERM_VIOLET);
@@ -1302,7 +1305,8 @@ void take_hit(int damage, cptr hit_from)
 
 	/* Disturb */
 	disturb(1, 0);
-
+        /* Protection item? */
+        if (protection_check()) damage = damage / 2;
 	/* Apply "invulnerability" */
 	if (p_ptr->invuln && (damage < 9000))
 	{
@@ -1601,6 +1605,86 @@ void take_sanity_hit(int damage, cptr hit_from)
 }
 
 
+
+
+
+/* Decrease player's piety. This is a copy of the function above. */
+void take_piety_hit(int damage, cptr hit_from)
+{
+	int old_cgrace = p_ptr->grace;
+
+	char death_message[80];
+
+	int warning = (p_ptr->grace * hitpoint_warn / 10);
+
+
+	/* Paranoia */
+	if (death) return;
+
+	/* Disturb */
+	disturb(1, 0);
+
+
+	/* Hurt the player */
+		p_ptr->grace -= damage;
+//	p_ptr->grace = p_ptr->grace - damage;
+//	set_grace(p_ptr->grace - damage);
+//	inc_piety(p_ptr->pgod, -50);
+	/* Display the hitpoints */
+	p_ptr->redraw |= (PR_PIETY);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_PLAYER);
+
+	/* Dead player */
+	
+	/* Hitpoint warning */
+
+}
+
+
+// decrease player's food
+
+void take_food_hit(int damage, cptr hit_from)
+{
+	int old_food = p_ptr->food;
+
+	char death_message[80];
+
+	int warning = (p_ptr->food * hitpoint_warn / 10);
+
+
+	/* Paranoia */
+	if (death) return;
+
+	/* Disturb */
+	disturb(1, 0);
+
+
+	/* Hurt the player */
+		p_ptr->food -= damage;
+//	p_ptr->grace = p_ptr->grace - damage;
+//	set_grace(p_ptr->grace - damage);
+//	inc_piety(p_ptr->pgod, -50);
+	/* Display the hitpoints */
+	p_ptr->redraw |= (PR_HUNGER);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_PLAYER);
+
+	/* Dead player */
+	
+	/* Hitpoint warning */
+
+}
+
+
+
+
+
+
+
+
 /*
  * Note that amulets, rods, and high-level spell books are immune
  * to "inventory damage" of any kind.  Also sling ammo and shovels.
@@ -1618,8 +1702,13 @@ static bool hates_acid(object_type *o_ptr)
 	{
 		/* Wearable items */
 	case TV_ARROW:
+	case TV_BULLET:
+	case TV_RBULLET:
+
 	case TV_BOLT:
 	case TV_BOW:
+	case TV_PISTOL:
+	case TV_RIFLE:
 	case TV_SWORD:
 	case TV_AXE:
 	case TV_HAFTED:
@@ -1694,6 +1783,8 @@ static bool hates_fire(object_type *o_ptr)
 	{
 		/* Special case for archers */
 	case TV_ARROW:
+	case TV_BULLET:
+	case TV_RBULLET:
 		{
 			return TRUE;
 		};
@@ -1701,6 +1792,8 @@ static bool hates_fire(object_type *o_ptr)
 		/* Wearable */
 	case TV_LITE:
 	case TV_BOW:
+	case TV_RIFLE:
+	case TV_PISTOL:
 	case TV_HAFTED:
 	case TV_POLEARM:
 	case TV_BOOTS:
@@ -2009,7 +2102,7 @@ void acid_dam(int dam, cptr kb_str)
 	/* Resist the damage */
 	if (p_ptr->resist_acid) dam = (dam + 2) / 3;
 	if (p_ptr->oppose_acid) dam = (dam + 2) / 3;
-
+	if (p_ptr->sensible_acid) dam = (dam + 2) * 2;
 	if ((!(p_ptr->oppose_acid || p_ptr->resist_acid)) &&
 	                randint(HURT_CHANCE) == 1)
 		(void) do_dec_stat(A_CHR, STAT_DEC_NORMAL);
@@ -2039,7 +2132,8 @@ void elec_dam(int dam, cptr kb_str)
 	/* Resist the damage */
 	if (p_ptr->oppose_elec) dam = (dam + 2) / 3;
 	if (p_ptr->resist_elec) dam = (dam + 2) / 3;
-
+        
+  if (p_ptr->sensible_elec) dam = (dam + 2) * 2;
 	if ((!(p_ptr->oppose_elec || p_ptr->resist_elec)) &&
 	                randint(HURT_CHANCE) == 1)
 		(void) do_dec_stat(A_DEX, STAT_DEC_NORMAL);
@@ -2095,6 +2189,7 @@ void cold_dam(int dam, cptr kb_str)
 	if (p_ptr->immune_cold || (dam <= 0)) return;
 
 	/* Resist the damage */
+	if (p_ptr->sensible_cold) dam = (dam + 2) * 2;
 	if (p_ptr->resist_cold) dam = (dam + 2) / 3;
 	if (p_ptr->oppose_cold) dam = (dam + 2) / 3;
 
@@ -4214,7 +4309,7 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 					else name = "Nycadaemon";
 
 					if (place_monster_one(y, x, test_monster_name(name), 0, FALSE, (!who) ? MSTATUS_PET : MSTATUS_ENEMY))
-						msg_print("A demon emerges from the hell!");
+						msg_print("A Maia emerges from the Void!");
 				}
 
 				do_kill = TRUE;
@@ -4577,6 +4672,9 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
 
 			skipped = TRUE;
 
+			
+			
+		
 			dam = 0;
 			break;
 		}
@@ -5190,7 +5288,7 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
 	case GF_TIME:
 		{
 			if (seen) obvious = TRUE;
-			if (r_ptr->flags4 & (RF4_BR_TIME))
+			if (r_ptr->flags4 & (RF4_BR_TIME)) (r_ptr->flags7 & (RF7_RES_TIME));
 			{
 				note = " resists.";
 				dam *= 3;
@@ -5265,10 +5363,22 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
 			break;
 		}
 
-		/* Pure damage */
+		/* Pure damage -- Not Anymore, THE FURY*/
 	case GF_MANA:
 		{
-			if (seen) obvious = TRUE;
+	
+		if (r_ptr->flags7 & (RF7_IM_MANA))
+			{
+				dam = 0;
+				note = " is immune.";
+				if (seen) r_ptr->r_flags7 |= (RF7_IM_MANA);
+			}
+				if (r_ptr->flags7 & (RF7_RES_MANA))
+			{
+				note = " resists a lot.";
+				dam /= 3;
+				if (seen) r_ptr->r_flags7 |= (RF7_RES_MANA);
+			}
 			break;
 		}
 
@@ -6281,11 +6391,10 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
 	case GF_LITE:
 		{
 			if (seen) obvious = TRUE;
-			if (r_ptr->flags4 & (RF4_BR_LITE))
+			if ((r_ptr->flags4 & (RF4_BR_LITE)) || (r_ptr->flags7 & (RF7_RES_LITE)))
 			{
 				note = " resists.";
-				dam *= 2;
-				dam /= (randint(6) + 6);
+                                dam /= 9;
 			}
 			else if (r_ptr->flags3 & (RF3_HURT_LITE))
 			{
@@ -6305,7 +6414,8 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
 
 			/* Likes darkness... */
 			if ((r_ptr->flags4 & (RF4_BR_DARK)) ||
-			                (r_ptr->flags3 & RF3_ORC) ||
+			                (r_ptr->flags3 & RF3_ORC) || 
+							(r_ptr->flags7 & RF7_RES_DARK) || 
 			                (r_ptr->flags3 & RF3_HURT_LITE))
 			{
 				note = " resists.";

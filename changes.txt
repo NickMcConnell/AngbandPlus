@@ -1,55 +1,165 @@
-T.o.M.E 2.3.2 aka "Unrealized Reality" changes
+Ninth Release (3.0)
 
-Interface changes:
-- If easy_disarm is off, don't trigger known traps while walking normally.
-  Added a new extended command "blunder" to let players trigger traps on
-  purpose. -- gwooledge
-- Lots of documentation, spelling and grammar fixes, including:
-  * the now-outdated race/class ability tables, replaced with skill tables
-  * the missing documentation for the set of extended commands
-  * far too many others to mention here
-  -- gwooledge
-- Added sanity and speed to the character screen (and hence the text dump).
-  Consolidated HP and SP into one line to make room. -- gwooledge
-- Allow shopping to use the correct keys in roguelike mode. -- gwooledge
-- Push a certain potion type a little deeper into the dungeon -- Neil
-- Make piety display light blue when praying, to make it easier to tell
-  when you're praying. -- gwooledge
-- Don't display ordinary resists when there's also an immunity to the same
-  element, in an object description. -- gwooledge
-- Display the (colored) character for uniques in the Known Uniques list (~2).
-  -- gwooledge
-- Add "Check abilities" extended command/macro.  This gives roguelike keyset
-  players a way to access the ability screen other than "\N", although it's
-  still one more keystroke than "\N" is.... -- gwooledge
-- Clean up some offensive messages, patch courtesy of 'The Fury' -- Neil
-- Include the resistances grid on character sheets dumped on death.
-  This makes them consistent with the ones generated before death, and
-  is more informative and useful for post mortem analyses. -- gwooledge
-- Examining a totem will recall the monster it summons -- Neil
-- Examining a corpse will recall the monster it was -- Neil
+Engine Changes
+	Added in New Flag, SENS_ACID. 
+	Added in New Flag, SENS_ELEC.
+	Changed Status Screen Settings
+	RES_MANA works now
+	Added in New Flag, KIN_PROTECT, when the monster with this flag is killed, it summons about 5-6 monsters with the same symbol around you.
+	New Colors, read colors.txt for the symbol info 
+	Removed BRAND_FIREWALL, BRAND_WATERWALL, and BRAND_FORCE. They don't work that well.
+	Added new attacks, PECK and HUG
+	Ego Captains DO NOT have KIN_PROTECT
+	New Attack Effect: CHAOS
+	New Flag: KILL_VAMPIRE, and Monster Flag: VAMPIRE
+	Graphics files come with FuryBand by default, no more downloading extra stuff.
+	PIETY added as monster effect type. Decreases piety with each hit. 
+	FOOD added as a monster effect type. Decreases food with each hit. Note that the hitdie for the monster attack should be high, otherwise the effect isn't noticeable
+	Named the Lost Sword Guy (but doesn't save, so it is random each time you load)
+	HOWL added as an attack type
+	ROAR added as an attack type
+	SLASH added as an attack effect. Whatever the hit die is is thrown right into cuts, *and* normal damage....
+	SAFETY should work now. No more permenant stuns
+	Fixed some object descriptions
+	Renamed Maiaologists to Maia-lore
+	New Flag, CHARGEABLE, using gold, it is possible to upgrade items with many different flags. 
+	Started updating tiles
+	The Automatizer should work now.
+	Status screen "evilcurse" bug should be fixed now
+	Monsters that steal no longer blink, they now get scared and run away. This is more realistic and entertaining.
+	
 
-Object changes:
-- Prevent random artifact bolts from giving extra blows -- Neil
-- Correct the types of certain artifact trap sets to match their weights
-  and descriptions. -- gwooledge
-- Potions of Cure Insanity were too cheap. -- gwooledge
+Item Changes
+	Lightsabers can only be wielded by the Jedi Class
+	Added in Throwing Weapons, with a throwing skill. Anduril has throwing, as do daggers, spiked daggers, and stilettos. 
+	New EgoItem, *Slay Vampire*
+	Iron Spikes can be wielded, and have KILL_VAMPIRE as flag.
+	Added new ego item, Well-Balanced. They get bonuses from the throwing skill
+	New Ego Item, Chargeable. It has the CHARGEABLE flag
+	Some color changes
+	Thunderlord coat back in
+	Trone's Coat back in
+	Fixed a lot of things showing up as black boxes
+	Increased the depth of magic bows/xbows
+	Fixed some spells showing up in books when they shouldn't
+	Boots of Nevrast give climb
 
-Player changes:
-- Warriors no longer get a secret special three bonus blows spread over the
-  50 character levels.  The three blows are now tied to Weaponmastery.
-  Module authors should adjust accordingly, or their warriors may get three
-  blows they didn't have before. -- Neil
+Monster Changes
+	Variant Maintainers depth changed from 10 to 20
+	Crystal Drakes and Great Crystal Drakes do SLASH
+	Swordsman do SLASH
+	Some color changes
+	Defenceless Molds get KIN_PROTECT, not WYRM_PROTECT
 
-Bug fixes:
-- Don't allow trap doors on quest levels or on chests. -- gwooledge
-- Update view after high-powered globe of light. -- gwooledge
-- Don't allow use of stairs (any < or > movement command) while rooted
-  to the floor (by the Yavanna spell). -- gwooledge
-- Try again to keep traps from wrecking a certain plot element -- Neil
-- Fix module file handling for multi-user installs.  Now character sheets,
-  automatizer file, and the rest will be read and written in
-  ~/.tome/2.3/modulename as they should. -- Neil
-- Try harder to save persistent levels when recalling out -- Neil
-- Fix all sub-racial skill bonuses, along with Maia racial skill bonuses
-  -- Neil
+Tweaked classes and races
+	Beastmasters get Summoning as a skill
+	Axemasters can get throwing skill
+	Ninjas can get throwing skill, along with large modifiers to stealth, disarm, and sneakiness
+	Tweaks to Rogues, and Assassins
+	Tweaks to War Mages, including skill changes, and more resists.
+	Modified what classes are recommended for each race
+	Modified subraces and what races they work with
+	Golems and Maiar can no longer be Mutants
+	Classes that will have throwing are Ninja, Rogue, Assassin. Races include Human, Easterling, Kobold, Druadan. 
+	New class: Thrower. They get skills in throwing and in boomerangs. They also start out with a small supply of throwing daggers.
+	New class- Hunter
+	Hunters start out in their own custom town, with custom stores and weapons. For a dungeon, they have a small 30 level dungeon to complete
+	Golems can't be ancient, or vampire
+	Spiders can be ancient
+	Gave unbelievers some more points for sword-mastery
+	Dragons get golden armour. Pay 500,000 gold to increase your ac. From Annals of Ea
+	Mutants can wield rings
+
+
+Tweaked skills:
+	The Mind-blade skill now increases the mindcraft skill
+	Throwing Skill, weapons with THROWING flag do extra damage when thrown
+	New skill- Hunter powers
+	Constructor Powers Work!!!!
+	Fixed spell descriptions
+
+
+
+
+
+
+
+Eighth Release (2.7)
+
+Fixed the Iron Spike from getting mixed in with the normal spikes
+Golems have the feed self ability
+Made Phase-Warriors a little bit stronger, but they are still weak. They get innate im_nether
+Removed Spider Claws for the time being, so spiders are back to no shields/weapons
+Added in new Class War-Mage, and new subclasses for it
+Changed the rarity of the Lich monster ego from 22 to 11, so they will appear more often now. 
+Fixed description bug of Eagles and Dragons
+
+Seventh Release (2.5)
+
+Fixed Phasing, Maia, Ninja, and Jedi school spells/powers from showing up in spellbooks
+Added in Help Files, thanks to CosmicGerbil
+Added in the Hydra-Hybrid Dragon Subrace, Thanks to 2manyusernames for the idea
+Added in Mirurver. Thanks to CosmicGerbil for the script and item
+Added in some Mindcraft related objects. Thanks to Aran
+Added in SoulKnives. New class, thanks to Aran
+Added in the rest of the alchemy recipes
+Fixed Barrow Wights Misspelling
+Some Skulls are now wieldable
+Made a certain Artifact wieldable...
+
+*KNOWN ISSUES*
+Attack messages don't always show up, but this only happens in FuryBand
+Sometimes the terrain gets corrupted, going up and down the staircase fixes it.
+
+
+Sixth Release (2.0)
+
+BRAND_FIREWALL, BRAND_WATERWALL, and BRAND_FORCE work now.
+Removed the Insanity Attack Messages so that the above brands would work
+Greatly increased the cost of the Amulets of the Valar
+Stinking Cloud (BA_POIS) now leaves a small cloud of poison for a few turns
+R_IMMUNITY for EGO items now has a small chance of giving IM_NETHER in addition to the normal immunities
+Four new flags: GERBIL, RACEX, XEN, COMBINE, which are all race flags that do what it sounds like they do
+I think fixed the Orc Caves bug
+Started adding in firearms to the source code, but not to the game itself. They don't work at the moment
+Staffs can be wielded in the shield slot, and give the player a resist or flag. Note that the effect becomes less as the charges go down
+Staffs that are being wielded are also easier to 'U'se.
+Minor tweaks
+Minor changes to captions
+
+Fifth Release
+
+Added new flag PROTECT for objects. It halves all damage that you recieve. From NewAngband
+Added new flag ALWAYS_HIT for objects. It always hits what you attack. From NewAngband
+Added new flag SAFETY for objects. It makes you immune to stuns. From NewAngband
+Helms of Serenity have a 50% chance of having the SAFETY flag
+Dragon Mails of Defense have a 50% chance of having the PROTECT flag
+Misc. Balances and Changes here and there
+
+Fourth Release
+
+Added in Ninjas, complete with Ninja Skills
+Added in a bunch of new Maiaology equipment, with new spells
+Added in a group of new amulets
+
+Third Release
+
+New Class: Phase Warrior
+New Skill and School: Phasing
+New Monsters
+New Weapons
+Spider Race now has subraces, thanks to The Falcon
+Spiders now have a choice between Barehand and wielding a Spider Claw
+
+
+
+Second Release
+
+Don't use the RES_MANA flag. It doesn't work
+
+Added in Mindflayer, thanks to the Cosmic Gerbil
+Added in a bunch of new bows, thanks to the Cosmic Gerbil
+Added in the wall Hound
+A couple other misc. changes.
+
+First Release

@@ -2,7 +2,7 @@
 ~~~~~43|Macros
 ~~~~~44|Keymaps
 #####R======================================================================
-#####B                          ToME Macro FAQ
+#####B                          FuryBand Macro FAQ
 
                  Original Angband Macro FAQ by Jim Lyon
                         (jplyon@attglobal.net)
@@ -22,11 +22,11 @@
 #####G1.1 About this FAQ
 #####G----------------------------------------------------------------------
 
-This FAQ is mean to be a companion to the standard ToME help files
-for using inscriptions, macros, and keymaps. The ToME help files
+This FAQ is mean to be a companion to the standard FuryBand help files
+for using inscriptions, macros, and keymaps. The FuryBand help files
 which also describe them are listed in the "References" section.
 
-This documentation is for ToME, version 4.2.x.
+This documentation is for FuryBand, version 4.2.x.
 
 #####B==================================
 #####B          SPOILER ALERT
@@ -92,7 +92,7 @@ Shift  Shift
 
 #####G= System abbreviations =
 #####G-----------------------------------
-Each system that ToME compiles on has a semi-standard 3-letter
+Each system that FuryBand compiles on has a semi-standard 3-letter
 abbreviation. These are commonly referred to in the source and docs
 using "xxx" as a "wildcard" standing for any one of them. In this
 document "***" is used instead because there are actual generic files
@@ -152,7 +152,7 @@ Now inscribe the second weapon:
 4) @w0  Wield when object 0 is chosen
 5)      (Hit Enter)
 
-Finally, ToME (unlike standard 'Vanilla' Angband) does
+Finally, FuryBand (unlike standard 'Vanilla' Angband) does
 not have an automatic trigger key to swap items, so it must be
 created. Select a key that is not being used for any other commands
 ('X' in the normal keyset is free - see *****command.txt*0[command.txt]), and create
@@ -173,14 +173,14 @@ the default keymap "w0". You may also press "w0" directly to swap.
 #####G2.2 Using the macro-recorder
 #####G----------------------------------------------------------------------
 
-You may find all the key-presses involved in ToME a long and time-consuming way 
+You may find all the key-presses involved in FuryBand a long and time-consuming way 
 to play the game. There are ways to speed up repeated commands by assigning 
 them to a trigger key which can help. These are called macros or keymaps.
 
-The most obvious use for these in ToME is for mage-types, especially sorcerors, 
+The most obvious use for these in FuryBand is for mage-types, especially sorcerors, 
 who rely on their spells for just about everything. Typing mbaa*t in order to 
 fire a Manathrust is fine if you only have to do it once or twice, but can 
-quickly get annoying when you're doing it every move. Far easier to assign that
+quickly get annoying when you're doing every move. Far easier to assign that 
 sequence of keypresses to a single trigger key which you can then press as many 
 times as you need. (Until your SP run out of course!)
 
@@ -207,7 +207,7 @@ room and there's a nasty small kobold. What do we do?
 10)                 (choose trigger key)
 11) @               opens macro saving/loading screen
 12) 2               appends macros to a file
-13)                 (choose a name for the file, e.g. sorceror.prf)
+13)                 (choose a name for the file eg sorceror.prf)
 14)                 (Hit Enter)
 15)                 (Hit Esc to exit the editor)
 
@@ -218,9 +218,7 @@ cast at the targetted monster.
 This technique can be used for all the other skills as well (Use Mindcraft, 
 Forge Ammo) etc.
 
-[[[[[B*]If you answer no the recorder continues recording keypresses. If
-you know you have made a mistake, you need to answer yes, and then not
-save the macro!
+[[[[[B*]If you answer no the recorder continues recording keypresses. If you know you have made a mistake, you need to answer yes, and then not save the macro!
 
 ~~~~~12
 #####G----------------------------------------------------------------------
@@ -250,7 +248,7 @@ inscriptions used, and one of the most useful.
 4) !*   Don't do anything with this item without verifying
 5)      (Hit Enter)
 
-This inscription is commonly used on Scrolls of Word of Recall...
+This inscription is commonly used on Scrolls of Recall,...
 ~~~~~8
 #####G----------------------------------------------------------------------
 #####G2.4 Saving these macros and keymaps for reuse
@@ -279,7 +277,7 @@ remove the duplicate macros and keymaps added. These will be added
 after the headers "# Automatic macro dump" and "# Automatic keymap
 dump". The ones you added will be the very last ones in the list. The
 others are the entire set of keymaps and macros from all other prefs
-loaded. (This step isn't necessary, but is very helpful.)
+loaded. (This step isn't necessary, but is very helpful)
 
 ~~~~~32
 #####R======================================================================
@@ -301,7 +299,7 @@ Example: The Nice Shiny Armor (-3) [35,+25] {resDk,resDis,A:Geno}
 
 Inscriptions can "number" an item so that you don't have to know where
 it is in your inventory.
-Example: inscribing your scrolls {@r1} lets you use '1' at the prompt
+Example: inscribing your spellbooks {@r1} lets you use '1' at the prompt
 for which scroll to read, instead of having to use the inventory letter,
 which can change unnoticed.
 
@@ -310,12 +308,6 @@ labeling of items independent of inventory position.
 
 Note that the game produces "fake" inscriptions, which look like real
 inscriptions, but are really just displayed the same way (e.g. "cursed").
-
-Finally, if you are in symbiosis with another creature, you can name it by
-inscribing it with "#named SomeName" (the word "#named" must be entered
-literally at the start of the inscription).  This will tell the game that
-your symbiotic partner should be referred to by its name, rather than simply
-"Your white jelly".  This has no effect on game play other than the aesthetic.
 
 #####G----------------------------------------------------------------------
 #####G3.2 Macros
@@ -398,7 +390,7 @@ depends on whether the *****option.txt*1[option (quick_messages)] is set. Then t
 will start executing in the middle of its action string, with equally
 dangerous results as in the above case. Note that some messages caused
 by a command are quite rare, and others could be produced by a game
-state change like becoming hungry that has nothing to do with the command.
+state change like becoming hungry that has nothing to do the command.
 
 These types of problems are more common when using an action such as
 auto-firing where a trigger key is repeatedly pressed.
@@ -452,7 +444,7 @@ need to rest, it can be used to swap it with another helm.
 
 Inscribing weapons with {@w1@w0}, {@w2@w0} allows directly wielding a
 specific one. If you don't want that ability, you can just inscribe
-both with {@w0}. These can also be inscribed as just {@1@0} and {@2@0}
+both with {w0}. These can also be inscribed as just {@1@0} and {@2@0}
 if you don't inscribe any other items with numbers, although this is
 not recommended.
 
@@ -521,7 +513,7 @@ items on the floor.
 
 *****option.txt*1[(quick_messages)] allows any key to cancel a message.
 
-In ToME, multiple items on the floor are displayed in a list.
+In FuryBand, multiple items on the floor are displayed in a list.
 This allows the player to select an item from the floor by entering an
 item index when there is a pile (more than one item). This generally
 complicates writing these macros.
@@ -560,7 +552,7 @@ k   - Kill item
 \s  - skip the "you destroy the <item>" message.
 
 Destroy a single item on floor below you. Doesn't prompt for a count.
-This won't work for piles, which will prompt you for the item. Works
+This won't work for piles, which will prompt you  for the item. Works
 correctly when (quick_messages) is off, because there is no prompt
 for how many to destroy.
 
@@ -596,10 +588,10 @@ the yes/no question "Really destroy a <item>?", and the following "ay"
 will aim a rod, and then ignore the 'y' key press, and the final escape
 will cancel the aiming. Works correctly when (quick_messages) is off.
 When (quick_messages) is on, and there is no pile, the 'a' will cancel
-the message, and the following 'y' will be passed through as an
+the message, and the following 'y' will be passed thru as an
 unimplemented command, and the space will cancel the error message.
 
-Backslashes "\\" may be required to keep the 'y's from being
+Backspaces "\\" may be required to keep the 'y's from being
 interpreted as keymaps in case 'y' has been assigned one.
 
 #####G----------------------------------------------------------------------
@@ -750,7 +742,7 @@ from previous ones.
 
 Here <$RACE> is the name of the character's race, <$CLASS> is the name
 of its class, and <$PLAYER> is the character's name. Both <$RACE> and
-<$CLASS> have a fixed number of choices. These are listed for ToME
+<$CLASS> have a fixed number of choices. These are listed for FuryBand
 in section *****macrofaq.txt*7["Pref file loading order"].
 
 Your character's name is the one that appears during game play in the
@@ -766,7 +758,7 @@ having the same (default) pref files.
 Example: "Grog the Elder" and "Grog the Younger" would both try to
 load the same pref file "Grog_the.prf".
 
-In recent versions of ToME "<$PLAYER>.prf" is the default filename
+In recent versions of FuryBand "<$PLAYER>.prf" is the default filename
 when saving your macros and keymaps from the (@) Interact with macros
 screen. Just hit Enter to accept that name.
 
@@ -1115,7 +1107,7 @@ different from the "underlying" command set.
 
 #####B= Query Macro/Keymap =
 
-In ToME this is easy:
+In FuryBand this is easy:
 1) @    Interact with macros
 2) 3    Query a macro
 OR 7    Query a keymap
@@ -1146,7 +1138,7 @@ it should usually generate a message of some kind. If there isn't one,
 it may respond: "Type '?' for help.". Some keys may not generate any
 message at all. Function keys are a good example.
 
-In ToME, the game will also generate "silly" error messages
+In FuryBand, the game will also generate "silly" error messages
 which may not look like error messages at first. After a few repeated
 key presses it uses the standard "Type '?' for help." message.
 
@@ -1433,7 +1425,7 @@ will reappear if the real inscription is removed.
 #####G----------------------------------------------------------------------
 
 These added when your character gets a "feeling" about an item.
-In ToME these are "special" inscriptions, like "fake" inscriptions
+In FuryBand these are "special" inscriptions, like "fake" inscriptions
 above, which don't overwrite user inscriptions. They just hide user
 inscriptions, which are still there.
 
@@ -1463,7 +1455,7 @@ are documented in *****command.txt*0["command.txt"].
 #####G8.1 Keysets
 #####G----------------------------------------------------------------------
 
-ToME supports two "keysets", which are fully customisable sets of
+FuryBand supports two "keysets", which are fully customisable sets of
 keymaps. The "original" command set is close to the built-in commands,
 with some additions for ease of use such as number keys moving you in
 that direction. The "roguelike" command set allows easy movement on a
@@ -1506,7 +1498,7 @@ b j n
 +<dir> - alter
 .<dir> - run
 
-Digits AREN'T built-in movement commands in ToME. They are actually
+Digits AREN'T built-in movement commands in FuryBand. They are actually
 keymaps found in the standard pref file "pref.prf". The digits are
 direction arguments to the (;) Walk command.
 
@@ -1710,10 +1702,10 @@ overwrite settings from earlier files.
 
 
 = $RACE =
-Can be one of any of the races in ToME.
+Can be one of any of the races in FuryBand.
 
 = $CLASS =
-Can be one of any of the classes in ToME.
+Can be one of any of the classes in FuryBand.
 
 = $PLAYER =
 The name of the current player being loaded or born. See section
@@ -1724,7 +1716,7 @@ The name of the current player being loaded or born. See section
 
 "user-mac.prf"
 This is the only user pref file with example macros that ships with
-ToME. A good set of examples.
+FuryBand. A good set of examples.
 
 "pref-win.prf"
 This is the same as (missing) "pref-dos.prf" and "pref-ibm.prf".
@@ -2008,7 +2000,7 @@ you hit Enter.
 You may type in an action string to replace the one after the prompt.
 Hit Enter when you are finished.
 
-For ToME you can quit the command assignment by hitting
+For FuryBand you can quit the command assignment by hitting
 Esc. The new action entered won't be assigned, and the previous one
 will remain unaltered.
 
@@ -2205,7 +2197,7 @@ bound to it, that will fire when you try to enter a store.
     These are keys that shouldn't be bound to macros or have their
     behavior altered.
 
-#####B= Keys with dangerous ToME meanings =
+#####B= Keys with dangerous FuryBand meanings =
 (Q) Quit (commit suicide), (k) destroy item, (^A) Enter Debug mode...
 Using these as triggers is dangerous in case, for some reason, you
 wind up in a situation where the macro hasn't loaded or is disabled.
@@ -2241,7 +2233,7 @@ For example, if NumLock is on under X11 the 'X' macro won't work.
 #####G12.3 Recovering
 #####G----------------------------------------------------------------------
 
-Restarting ToME clears all macros entered during the last session.
+Restarting FuryBand clears all macros entered during the last session.
 
 You can use "Load a pref file" in the "Interact with macros" screen to
 reload a good set of prefs, overwriting bad ones being used. This will

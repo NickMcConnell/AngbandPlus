@@ -828,7 +828,7 @@ void self_knowledge(FILE *fff)
 			info[i++] = "You have dragon blood in your veins.";
 		/* Not implemented */
 		else if (r_ptr->flags3 & RF3_DEMON)
-			info[i++] = "You have demon blood in your veins.";
+			info[i++] = "You have Maia blood in your veins.";
 		/* Not implemented */
 		else if (r_ptr->flags3 & RF3_UNDEAD)
 			info[i++] = "You are an undead.";
@@ -1035,7 +1035,7 @@ void self_knowledge(FILE *fff)
 		if (r_ptr->flags6 & RF6_S_KIN)
 			info[i++] = "You can magically summon some Kins.";
 		if (r_ptr->flags6 & RF6_S_HI_DEMON)
-			info[i++] = "You can magically summon greater demons.";
+			info[i++] = "You can magically summon greater Maiar.";
 		if (r_ptr->flags6 & RF6_S_MONSTER)
 			info[i++] = "You can magically summon a monster.";
 		if (r_ptr->flags6 & RF6_S_MONSTERS)
@@ -1048,10 +1048,11 @@ void self_knowledge(FILE *fff)
 			info[i++] = "You can magically summon hounds.";
 		if (r_ptr->flags6 & RF6_S_HYDRA)
 			info[i++] = "You can magically summon hydras.";
+	
 		if (r_ptr->flags6 & RF6_S_ANGEL)
 			info[i++] = "You can magically summon an angel.";
 		if (r_ptr->flags6 & RF6_S_DEMON)
-			info[i++] = "You can magically summon a demon.";
+			info[i++] = "You can magically summon a Maia.";
 		if (r_ptr->flags6 & RF6_S_UNDEAD)
 			info[i++] = "You can magically summon an undead.";
 		if (r_ptr->flags6 & RF6_S_DRAGON)
@@ -1251,7 +1252,7 @@ void self_knowledge(FILE *fff)
 			if (p_ptr->telepathy & ESP_DRAGON) info[i++] = "You can sense the presence of dragons.";
 			if (p_ptr->telepathy & ESP_SPIDER) info[i++] = "You can sense the presence of spiders.";
 			if (p_ptr->telepathy & ESP_GIANT) info[i++] = "You can sense the presence of giants.";
-			if (p_ptr->telepathy & ESP_DEMON) info[i++] = "You can sense the presence of demons.";
+			if (p_ptr->telepathy & ESP_DEMON) info[i++] = "You can sense the presence of Maiar.";
 			if (p_ptr->telepathy & ESP_UNDEAD) info[i++] = "You can sense presence of undead.";
 			if (p_ptr->telepathy & ESP_EVIL) info[i++] = "You can sense the presence of evil beings.";
 			if (p_ptr->telepathy & ESP_ANIMAL) info[i++] = "You can sense the presence of animals.";
@@ -1322,6 +1323,14 @@ void self_knowledge(FILE *fff)
 	if (p_ptr->sh_elec)
 	{
 		info[i++] = "You are surrounded with electricity.";
+	}
+	if (p_ptr->sh_acid)
+	{
+		info[i++] = "You are surrounded with acid.";
+	}
+		if (p_ptr->sh_cold)
+	{
+		info[i++] = "You are surrounded with cold.";
 	}
 	if (p_ptr->antimagic)
 	{
@@ -1618,7 +1627,7 @@ void self_knowledge(FILE *fff)
 		}
 		if (f1 & (TR1_SLAY_DEMON))
 		{
-			info[i++] = "Your weapon strikes at demons with holy wrath.";
+			info[i++] = "Your weapon strikes at Maiar with holy wrath.";
 		}
 		if (f1 & (TR1_SLAY_ORC))
 		{
@@ -1632,6 +1641,13 @@ void self_knowledge(FILE *fff)
 		{
 			info[i++] = "Your weapon is especially deadly against giants.";
 		}
+
+		if (f5 & (TR5_KILL_VAMPIRE))
+		{
+			info[i++] = "Your weapon kills vampires.";
+		}
+
+
 		if (f1 & (TR1_SLAY_DRAGON))
 		{
 			info[i++] = "Your weapon is especially deadly against dragons.";
@@ -1645,7 +1661,7 @@ void self_knowledge(FILE *fff)
 		/* Special "kill" flags */
 		if (f5 & (TR5_KILL_DEMON))
 		{
-			info[i++] = "Your weapon is a great bane of demons.";
+			info[i++] = "Your weapon is a great bane of Maiar.";
 		}
 		/* Special "kill" flags */
 		if (f5 & (TR5_KILL_UNDEAD))
@@ -2755,7 +2771,7 @@ bool detect_monsters_xxx(u32b match_flag, int rad)
 		switch (match_flag)
 		{
 		case RF3_DEMON:
-			desc_monsters = "demons";
+			desc_monsters = "Maiar";
 			break;
 		case RF3_UNDEAD:
 			desc_monsters = "the undead";
@@ -2874,8 +2890,13 @@ static bool item_tester_hook_weapon(object_type *o_ptr)
 	case TV_HAFTED:
 	case TV_POLEARM:
 	case TV_BOW:
+	case TV_PISTOL:
+	case TV_RIFLE:
 	case TV_BOLT:
 	case TV_ARROW:
+	case TV_BULLET:
+	case TV_RBULLET:
+
 	case TV_SHOT:
 		{
 			return (TRUE);
@@ -6517,6 +6538,11 @@ bool fire_ball_beam(int typ, int dir, int dam, int rad)
 	/* Analyze the "dir" and the "target".  Hurt items on floor. */
 	return (project(0, (rad > 16) ? 16 : rad, ty, tx, dam, typ, flg));
 }
+
+
+
+
+
 
 
 void teleport_swap(int dir)

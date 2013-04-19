@@ -2017,7 +2017,7 @@ static bool do_cmd_disarm_chest(int y, int x, s16b o_idx)
 	/* Must find the trap first. */
 	if (!object_known_p(o_ptr))
 	{
-		msg_print("I don't see any traps.");
+		msg_print("There don't appear to be any traps.");
 	}
 
 	/* Already disarmed/unlocked */
@@ -2988,6 +2988,9 @@ int breakage_chance(object_type *o_ptr)
 	case TV_POTION2:
 	case TV_BOTTLE:
 	case TV_FOOD:
+	case TV_BULLET:
+	case TV_RBULLET:
+	
 		{
 			return (100);
 		}
@@ -3604,6 +3607,9 @@ void do_cmd_throw(void)
 	int boulder_add = 0;
 	int boulder_mult = 0;
 
+	int throw1_add = 0;
+	int throw1_mult = 0;
+
 	int cur_dis, visible;
 
 	object_type forge;
@@ -3664,6 +3670,11 @@ void do_cmd_throw(void)
 		boulder_mult = get_skill_scale(SKILL_BOULDER, 6);
 	}
 
+if (f5 & TR5_THROWING)
+{
+		throw1_add = get_skill_scale(SKILL_THROWING, 80);
+		throw1_mult = get_skill_scale(SKILL_THROWING, 6);
+}
 	/* Get a direction (or cancel) */
 	if (!get_aim_dir(&dir)) return;
 
@@ -3722,7 +3733,7 @@ void do_cmd_throw(void)
 
 	/* Extract a "distance multiplier" */
 	/* Changed for 'launcher' corruption */
-	mul = 10 + (2 * (p_ptr->throw_mult - 1)) + (2 * boulder_mult);
+	mul = 10 + (2 * (p_ptr->throw_mult - 1)) + (2 * boulder_mult) + (2 * throw1_mult);
 
 	/* Enforce a minimum "weight" of one pound */
 	div = ((q_ptr->weight > 10) ? q_ptr->weight : 10);
@@ -3734,8 +3745,8 @@ void do_cmd_throw(void)
 	if (tdis > mul) tdis = mul;
 
 	/* Hack -- Base damage from thrown object */
-	tdam = damroll(q_ptr->dd, q_ptr->ds) + q_ptr->to_d + boulder_add;
-	tdam *= p_ptr->throw_mult + boulder_mult;
+	tdam = damroll(q_ptr->dd, q_ptr->ds) + q_ptr->to_d + boulder_add + throw1_add;
+	tdam *= p_ptr->throw_mult + boulder_mult + throw1_mult;
 
 	/* Chance of hitting - adjusted for Weaponmasters -- Gumby */
 	chance = (p_ptr->skill_tht + (p_ptr->to_h * BTH_PLUS_ADJ));

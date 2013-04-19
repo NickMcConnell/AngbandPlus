@@ -2712,7 +2712,7 @@ errr init_sdl(int argc, char **argv)
 	filename[PATH_MAX] = 0;
 	path_build(filename, PATH_MAX, ANGBAND_DIR_XTRA, "graf/icon.png");
 	SDL_WM_SetIcon(IMG_Load(filename), 0);
-	SDL_WM_SetCaption("ToME", "tome");
+	SDL_WM_SetCaption("FuryBand", "FuryBand");
 
 	/* SDL video settings, dependent on whether hardware is available */
 	if (videoInfo->hw_available)

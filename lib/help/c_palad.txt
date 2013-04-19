@@ -6,7 +6,7 @@
 
 #####GDescription
 A Paladin is a warrior-priest at the service of *****g_tulkas.txt*0[Tulkas]. As such, his duty
-is to be ever vigilant against the forces of evil and even seek and destroy
+is to ever be vigilant against the forces of evil and even seek and destroy
 those monsters which are evil to the core, especially the foulest
 spawns of hell. Luckily, his quest is eased by the blessing bestowed
 by Tulkas himself.
@@ -30,9 +30,9 @@ Combat                  2.000           [0.800]
 Sneakiness              1.000           [0.900]
   Stealth               0.000           [0.400]
   Disarming		0.000		[0.900]
-Magic                   1.000           [0.900]
-  Magic-Device          1.000           [1.050]
-  Spell-power           0.000           [0.600]
+Powers                  1.000           [0.900]
+  Devices               1.000           [1.050]
+  Power                 0.000           [0.600]
 Spirituality            1.000           [1.000]
   Prayer                1.000           [1.400]
   Mindcraft             0.000           [0.600]

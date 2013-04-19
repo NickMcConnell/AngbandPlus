@@ -1,0 +1,52 @@
+~~~~~01|Jedi
+~~~~~02|Classes|Jedi
+#####R=== Jedis ===
+
+#####GDescription
+
+Jedis are wise and powerful.
+
+
+#####GStarting Stat Modifiers
+Strength         +6
+Intelligence     +2
+Wisdom           +2
+Dexterity        +2
+Constitution     +0
+Charisma         -4
+Hit Die          +d9
+Exp Penalty       0%
+
+#####GStarting Skills:
+#####BSkill                   Start Level     Skill Point Gains
+Combat                  2.000           [0.800]
+  Weaponmastery         1.000           [0.850]
+    Swordmastery        1.000           [1.000]
+  Archery               1.000           [0.600]
+Sneakiness              1.000           [0.900]
+  Stealth               1.000           [1.000]
+  Disarming             1.000           [0.900]
+Powers                  1.000           [1.000]
+  Devices               0.000           [0.150]
+  Jedi                  1.000           [1.000]
+      Dark              0.000           [1.000]
+      Light             0.000           [1.000]
+Spirituality            1.000           [0.400]
+
+
+#####GInnate Abilities:
+#####BAbility              Character level
+Extra-Max-Blow(1)           1
+Extra-Max-Blow(2)           1
+Spread-blows                25
+
+
+#####GStarting Equipment
+A Jedi begins the game with:
+    A ring of fear resistance
+    A Lightsaber
+    A Jedi Robe
+
+
+
+

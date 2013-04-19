@@ -93,6 +93,7 @@
  * Hack -- allow use of "screen saver" mode
  */
 #define USE_SAVER
+#define USE_ISO
 
 /*
  * Menu constants -- see "ANGBAND.RC"
@@ -214,7 +215,7 @@
 #define NOICONS           /* IDI_* icon IDs */
 #define NOMDI             /* MDI support */
 #define NOHELP            /* Help support */
-
+// IRC = TRUE
 /* Not defined since it breaks Borland C++ 5.5 */
 /* #define NOCTLMGR */    /* Control management and controls */
 
@@ -1889,12 +1890,12 @@ static errr Term_xtra_win_sound(int v)
 #ifdef WIN32
 
 	/* Play the sound, catch errors */
-	return (PlaySound(sound_file[v], 0, SND_FILENAME | SND_ASYNC));
+//	return (PlaySound(sound_file[v], 0, SND_FILENAME | SND_ASYNC));
 
 #else /* WIN32 */
 
 /* Play the sound, catch errors */
-	return (sndPlaySound(sound_file[v], SND_ASYNC));
+//	return (sndPlaySound(sound_file[v], SND_ASYNC));
 
 #endif /* WIN32 */
 

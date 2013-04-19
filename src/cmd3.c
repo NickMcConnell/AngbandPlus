@@ -267,6 +267,7 @@ void do_cmd_wield(void)
 		o_ptr = &o_list[0 - item];
 	}
 
+   
 	/* Check the slot */
 	slot = wield_slot(o_ptr);
 
@@ -302,7 +303,17 @@ void do_cmd_wield(void)
 
 	/* Extract the flags */
 	object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
-
+   if ((f5 & (TR5_ONLY_MALE)) && (p_ptr->psex != SEX_MALE))
+    {
+                msg_print("Only males may use this!");
+                return;
+    }
+	     if ((f5 & (TR5_ONLY_FEMALE)) && (p_ptr->psex != SEX_FEMALE))
+    {
+                msg_print("Only females may use this!");
+                return;
+    }
+object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
 	/* Two handed weapons can't be wielded with a shield */
 	if ((is_slot_ok(slot - INVEN_WIELD + INVEN_ARM)) &&
 	                (f4 & TR4_MUST2H) &&
@@ -1407,7 +1418,7 @@ static cptr ident_info[] =
 	"R:Reptile/Amphibian",
 	"S:Spider/Scorpion/Tick",
 	"T:Troll",
-	"U:Major Demon",
+	"U:Major Maia",
 	"V:Vampire",
 	"W:Wight/Wraith/etc",
 	"X:Xorn/Xaren/etc",
@@ -1439,7 +1450,7 @@ static cptr ident_info[] =
 	"r:Rodent",
 	"s:Skeleton",
 	"t:Townsperson",
-	"u:Minor Demon",
+	"u:Minor Maia",
 	"v:Vortex",
 	"w:Worm/Worm-Mass",
 	/* "x:unused", */
@@ -2236,9 +2247,9 @@ void do_cmd_portable_hole(void)
 
 
 	/* Portable holes can be used only by merchants */
-#if 0 /* DGDGDGDG -- use a skill */
-	if (cp_ptr->magic_key != MKEY_TELEKINESIS) return;
-#endif
+// #if 0 /* DGDGDGDG -- use a skill */
+//	if (cp_ptr->magic_key != MKEY_TELEKINESIS) return;
+// #endif
 
 	/* Is it currently wielded? */
 	if (!p_ptr->inventory[INVEN_TOOL].k_idx ||

@@ -28,6 +28,6 @@ Combat
 Sneakiness             -0.100           [0.000]
   Stealth              -2.000           [0.000]
   Disarming            -0.600           [0.000]
-Magic                   
-  Magic-Device         -0.800           [0.000]
+Powers                   
+  Devices              -0.800           [0.000]
 Spirituality           -3.000           [0.000]

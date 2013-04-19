@@ -895,4 +895,3 @@ Back to the *****lua.hlp*0[lua help index] .
 
 
                                                      [[[[[gThis file by Chris Hadgis]
-

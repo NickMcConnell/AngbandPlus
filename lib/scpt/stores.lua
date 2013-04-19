@@ -27,6 +27,30 @@ store_buy_list
 		TV_HARD_ARMOR,
 		TV_DRAG_ARMOR,
 	},
+	["Arms and Armour"] =
+	{
+		TV_SHOT,
+		TV_BOLT,
+		TV_ARROW,
+		TV_BOOMERANG,
+		TV_BOW,
+		TV_DIGGING,
+		TV_HAFTED,
+		TV_POLEARM,
+		TV_SWORD,
+		TV_AXE,
+		TV_MSTAFF,
+		TV_BOOTS,
+		TV_GLOVES,
+		TV_CROWN,
+		TV_HELM,
+		TV_SHIELD,
+		TV_CLOAK,
+		TV_SOFT_ARMOR,
+		TV_HARD_ARMOR,
+		TV_DRAG_ARMOR,
+	},
+	
 	["Weaponsmith"] =
 	{
 		TV_SHOT,
@@ -40,6 +64,20 @@ store_buy_list
 		TV_SWORD,
 		TV_AXE,
 		TV_MSTAFF,
+	},
+		["Supplies"] =
+	{
+		TV_CORPSE,
+		TV_FOOD,
+		TV_LITE,
+		TV_FLASK,
+		TV_SPIKE,
+		TV_SHOT,
+		TV_ARROW,
+		TV_BOLT,
+		TV_DIGGING,
+		TV_CLOAK,
+		TV_BOTTLE,
 	},
 	-- We use a function because we want to restrict to blessed weapons and god spells
 	["Temple"] = function (obj)
@@ -101,6 +139,35 @@ store_buy_list
 	["Pet Shop"] =
 	{
 		TV_EGG,
+	},
+-- Theme stores
+
+	["Hunting Supply Store"] =
+	{
+		TV_TRAPKIT,
+		TV_BOOMERANG,
+		TV_SHOT,
+		TV_BOLT,
+		TV_ARROW,
+		TV_BOW,
+		TV_POTION2,
+	},
+
+	["Runic Magic Shop"] = 
+	{
+		TV_RUNE1,
+		TV_RUNE2,
+	},
+
+	["Construction Supply Store"] = 
+	{
+		TV_LITE,
+		TV_DIGGING,
+	},
+
+	["Music Store"] = 
+	{
+		TV_INSTRUMENT,
 	},
 }
 

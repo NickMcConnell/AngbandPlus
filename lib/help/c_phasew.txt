@@ -1,0 +1,55 @@
+~~~~~01|Phase-Warrior
+~~~~~02|Classes|Phase-Warrior
+#####R=== Phase-Warriors ===
+
+#####GDescription
+
+Phase-Warriors are weak, but powerful fighters who phase in and out of 
+existance.
+
+
+#####GStarting Stat Modifiers
+Strength         +5
+Intelligence     -2
+Wisdom           -2
+Dexterity        +2
+Constitution     -10
+Charisma         -10
+Hit Die          -5
+Exp Penalty       0%
+
+#####GStarting Skills:
+#####BSkill                   Start Level     Skill Point Gains
+Combat                  2.000           [0.800]
+  Weaponmastery         1.000           [1.000]
+    Sword-mastery       0.000           [0.700]
+    Axe-mastery         0.000           [0.700]
+    Hafted-mastery      0.000           [0.700]
+    Polearm-mastery     0.000           [0.700]
+  Archery               1.000           [0.600]
+Sneakiness              1.000           [0.900]
+  Stealth               0.000           [1.000]
+  Disarming             1.000           [0.900]
+Powers                  1.000           [0.900]
+  Devices               0.000           [0.150]
+  Movement              1.000           [1.000]
+  Phasing               1.000           [1.000]
+Spirituality            1.000           [0.400]
+
+
+#####GInnate Abilities:
+#####BAbility              Character level
+Extra-Max-Blow(1)           1
+Extra-Max-Blow(2)           1
+Spread-blows                25
+
+
+#####GStarting Equipment
+A Phase-Warrior begins the game with:
+    A ring of fear resistance
+    A Chain Mail
+    A Long Sword
+
+
+
+

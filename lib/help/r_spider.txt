@@ -1,0 +1,31 @@
+~~~~~01|Spider
+~~~~~02|Races|Spiders
+#####R=== Spiders ===
+
+#####GDescription
+Spiders are immensely powerful wizards and sorcerers, but are
+physically weak, and unable to take much damage
+
+#####GStat Modifiers
+Strength        -3
+Intelligence    +2   
+Wisdom          +2  
+Dexterity       +2  
+Constitution    -2  
+Charisma        -2      
+Hit Dice Sides   5        
+Exp Penalty     -50%
+
+#####GRacial Skill Modifiers:
+#####BSkill                Start Mod    Skill Point Gains Mod
+Combat                  
+  Barehand-combat        1.000           [1.000]
+  Weaponmastery         1.000           [1.000]
+  Sword-mastery         1.000           [1.000]
+Sneakiness              0.000           [0.000]
+  Stealth               1.000           [0.500]
+  
+
+
+
+

@@ -1,0 +1,25 @@
+~~~~~01|Wraith
+~~~~~02|Race Modifiers|Wraith
+#####R=== Wraith Spiders ===
+
+#####GDescription
+These spiders have gained the ability to pass unnoticed, and have 
+mysterious ways of travelling.  It's wisdom is sustained.
+
+
+#####GStat Modifiers
+Strength       0 
+Intelligence   0   
+Wisdom        +3    
+Dexterity      0   
+Constitution   0   
+Charisma       0      
+Hit Dice      +0 sides        
+Exp Penalty   +0%
+
+#####GSkill Bonuses (supplementary to existing skills)
+Power           0.000           [0.200]
+Meta            1.000           [0.600]
+
+
+

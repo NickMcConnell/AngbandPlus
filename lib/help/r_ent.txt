@@ -4,11 +4,11 @@
 
 #####GDescription
 The Ents are a powerful race dating back to the beginning of the world and
-are the eldest of all animals or plants that inhabit Arda. Spirits of the land,
+are the  eldest of all animals or plants that inhabit Arda. Spirits of the land,
 they were summoned to guard the forests of Middle-earth. Being much like
-trees they are very slow but strong, and very susceptible to fire.
-As the Shepherds of the Trees, they have the innate ability to cause trees to
-rise about them for protection.
+trees they are very slow but strong, and very susceptible to fire. They cannot
+be poisoned, however, and their bark is very tough. As the Shepherds of the Trees,
+they have the innate ability to cause trees to rise about them for protection.
 
 #####GStat Modifiers
 Strength        +10   
@@ -30,8 +30,8 @@ Combat
 Sneakiness              0.500           [0.000]
   Stealth              -6.000           [0.000]
   Disarming             0.500           [0.000]
-Magic                   
-  Magic-Device          0.500           [0.000]
+Powers                  
+  Devices              0.500           [0.000]
 Spirituality           10.000           [0.000]
 
 #####GInnate Abilities:

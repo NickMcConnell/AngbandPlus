@@ -954,7 +954,7 @@ static void compare_weapon_aux1(object_type *o_ptr, int col, int r)
 	}
 	if (f1 & (TR1_SLAY_DEMON))
 	{
-		compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, 3, "Demons:",
+		compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, 3, "Maiar:",
 		                    f1, f2, f3, TERM_YELLOW);
 	}
 	if (f1 & (TR1_SLAY_ORC))
@@ -985,12 +985,12 @@ static void compare_weapon_aux1(object_type *o_ptr, int col, int r)
 	if (f1 & (TR1_BRAND_ACID))
 	{
 		compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, 3, "Acid:",
-		                    f1, f2, f3, TERM_RED);
+		                    f1, f2, f3, TERM_GREEN);
 	}
 	if (f1 & (TR1_BRAND_ELEC))
 	{
 		compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, 3, "Elec:",
-		                    f1, f2, f3, TERM_RED);
+		                    f1, f2, f3, TERM_L_BLUE);
 	}
 	if (f1 & (TR1_BRAND_FIRE))
 	{
@@ -1000,13 +1000,42 @@ static void compare_weapon_aux1(object_type *o_ptr, int col, int r)
 	if (f1 & (TR1_BRAND_COLD))
 	{
 		compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, 3, "Cold:",
-		                    f1, f2, f3, TERM_RED);
+		                    f1, f2, f3, TERM_L_WHITE);
 	}
 	if (f1 & (TR1_BRAND_POIS))
 	{
 		compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, 3, "Poison:",
-		                    f1, f2, f3, TERM_RED);
+		                    f1, f2, f3, TERM_L_GREEN);
 	}
+	if (f5 & (TR5_BRAND_LIGHT))
+	{
+		compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, 3, "Light:",
+		                    f1, f2, f3, TERM_YELLOW);
+	}
+
+	if (f5 & (TR5_BRAND_DARK))
+	{
+		compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, 3, "Dark:",
+		                    f1, f2, f3, TERM_L_DARK);
+	}
+	if (f5 & (TR5_BRAND_MAGIC))
+	{
+		compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, 3, "Magic:",
+		                    f1, f2, f3, TERM_UMBER);
+	}
+	if (f5 & (TR5_BRAND_WATER))
+	{
+		compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, 3, "Water:",
+		                    f1, f2, f3, TERM_BLUE);
+	}
+		if (f5 & (TR5_BRAND_DEATH))
+	{
+		compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, 3, "Death:",
+		                    f1, f2, f3, TERM_SLATE);
+	}
+
+
+	
 }
 
 

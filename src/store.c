@@ -406,6 +406,8 @@ static s32b price_item(object_type *o_ptr, int greed, bool flip)
 		case TV_SHOT:
 		case TV_ARROW:
 		case TV_BOLT:
+		case TV_BULLET:
+		case TV_RBULLET:
 			price /= 5;
 			break;
 		}
@@ -514,6 +516,8 @@ static void mass_produce(object_type *o_ptr)
 	case TV_HAFTED:
 	case TV_DIGGING:
 	case TV_BOW:
+	case TV_RIFLE:
+	case TV_PISTOL:
 		{
 			if (o_ptr->name2) break;
 			if (cost <= 10L) size += mass_roll(3, 5);
@@ -525,6 +529,8 @@ static void mass_produce(object_type *o_ptr)
 	case TV_SHOT:
 	case TV_ARROW:
 	case TV_BOLT:
+	case TV_BULLET:
+	case TV_RBULLET:
 		{
 			if (cost <= 5L) size += mass_roll(5, 5);
 			if (cost <= 50L) size += mass_roll(5, 5);
@@ -3303,7 +3309,7 @@ void store_examine(void)
 {
 	int i;
 	int item;
-
+bool browse;
 	object_type *o_ptr;
 
 	char o_name[80];
@@ -3360,7 +3366,19 @@ void store_examine(void)
 	msg_format("Examining %s...", o_name);
 
 	/* Describe it fully */
-	if (o_ptr->tval < TV_BOOK)
+	/* Should we read it like a spellbook or describe it normally? */
+	browse = FALSE;
+	if (o_ptr->tval == TV_INSTRUMENT || o_ptr->tval == TV_DAEMON_BOOK)
+	{
+		browse = get_check("Browse spells in this item? ");
+	}
+	else if (o_ptr->tval >= TV_BOOK)
+	{
+		browse = TRUE;
+	}
+
+	/* Describe it fully, or browse its spells, as specified above */
+	if (!browse)
 	{
 		if (!object_out_desc(o_ptr, NULL, FALSE, TRUE)) msg_print("You see nothing special.");
 		/* Books are read */

@@ -5,15 +5,15 @@
 #####GDescription
 Dwarves are the headstrong miners and fighters of legend. Since dungeons 
 are the natural home of a dwarf, they are excellent choices for a warrior 
-or priest. Dwarves tend to be stronger and tougher but less agile and
+or priest. Dwarves tend to be stronger and tougher but slower and less 
 intelligent than humans. Because they are so headstrong and are somewhat 
 wise, they resist spells which are cast on them. Dwarves also have very 
 good infra-vision because they live underground. They do have one big 
-drawback, though: dwarves are loud-mouthed and proud, singing in boisterous 
+drawback, though. Dwarves are loudmouthed and proud, singing in loud 
 voices, arguing with themselves for no good reason, and screaming out 
 challenges at nearby foes. In other words, dwarves have miserable 
-stealth. They can never be blinded, and they can also open secret tunnels
-through rock.
+stealth. They can never be blinded, can make fire anywhere they go,  and 
+can also open secret passages. 
 
 #####GStat Modifiers
 Strength        +2   
@@ -34,6 +34,7 @@ Combat
 Sneakiness              0.700           [0.000]
   Stealth              -1.000           [0.000]
   Disarming             0.200           [0.000]
-Magic                   
-  Magic-Device          0.900           [0.000]
+Powers                
+  Devices               0.900           [0.000]
 Spirituality            5.000           [0.000]
+Construction            4.000           [1.000]

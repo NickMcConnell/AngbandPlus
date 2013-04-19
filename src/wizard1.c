@@ -189,10 +189,13 @@ static grouper group_item[] =
 	{ TV_MSTAFF, NULL },
 
 	{ TV_BOW, "Bows and Slings" },
+	{ TV_PISTOL, "Guns" },
+	{ TV_RIFLE, NULL },
 
 	{ TV_SHOT, "Ammo" },
 	{ TV_ARROW, NULL },
 	{ TV_BOLT, NULL },
+
 
 	{ TV_BOOMERANG, "Boomerangs" },
 
@@ -224,7 +227,7 @@ static grouper group_item[] =
 	{ TV_STAFF, "Staves" },
 
 	{ TV_BOOK, "Books (Magic, Gods, Music)" },
-	{ TV_DAEMON_BOOK, "Demonic Equipment" },
+	{ TV_DAEMON_BOOK, "Maiaic Equipment" },
 
 	{ TV_RUNE1, "Runes" },
 	{ TV_RUNE2, NULL },
@@ -311,6 +314,8 @@ static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val, int 
 	{
 		/* Bows */
 	case TV_BOW:
+	case TV_PISTOL:
+	case TV_RIFLE:
 		{
 			break;
 		}
@@ -319,6 +324,9 @@ static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val, int 
 	case TV_SHOT:
 	case TV_BOLT:
 	case TV_ARROW:
+	case TV_BULLET:
+	case TV_RBULLET:
+
 
 		/* Boomerangs */
 	case TV_BOOMERANG:
@@ -535,10 +543,14 @@ static grouper group_artifact[] =
 	{ TV_MSTAFF, "Mage Staffs" },
 
 	{ TV_BOW, "Bows" },
+	{ TV_RIFLE, "Rifles" },
+	{ TV_PISTOL, "Pistols" },
 
 	{ TV_SHOT, "Ammo" },
 	{ TV_ARROW, NULL },
 	{ TV_BOLT, NULL },
+	{ TV_BULLET, NULL},
+	{ TV_RBULLET, NULL},
 
 	{ TV_BOOMERANG, "Boomerangs" },
 
@@ -555,7 +567,7 @@ static grouper group_artifact[] =
 	{ TV_GLOVES, "Gloves" },
 	{ TV_BOOTS, "Boots" },
 
-	{ TV_DAEMON_BOOK, "Demonic Equipment" },
+	{ TV_DAEMON_BOOK, "Maiaic Equipment" },
 
 	{ TV_LITE, "Light Sources" },
 	{ TV_AMULET, "Amulets" },
@@ -631,9 +643,10 @@ static flag_desc slay_flags_desc[] =
 	{ TR1_SLAY_ANIMAL, "Animal" },
 	{ TR1_SLAY_EVIL, "Evil" },
 	{ TR1_SLAY_UNDEAD, "Undead" },
-	{ TR1_SLAY_DEMON, "Demon" },
+	{ TR1_SLAY_DEMON, "Maia" },
 	{ TR1_SLAY_ORC, "Orc" },
 	{ TR1_SLAY_TROLL, "Troll" },
+	{ TR5_KILL_VAMPIRE, "Vampire" },
 	{ TR1_SLAY_GIANT, "Giant" },
 	{ TR1_SLAY_DRAGON, "Dragon" },
 	{ TR1_KILL_DRAGON, "Xdragon" }
@@ -1214,6 +1227,7 @@ static bool make_fake_artifact(object_type *o_ptr, int name1)
 	/* Extract the fields */
 #if 0
 	o_ptr->pval = a_ptr->pval;
+	o_ptr->pval3 = a_ptr->pval3;
 	o_ptr->ac = a_ptr->ac;
 	o_ptr->dd = a_ptr->dd;
 	o_ptr->ds = a_ptr->ds;
@@ -1501,7 +1515,7 @@ static void spoil_mon_info(cptr fname)
 	bool breath, magic, sin;
 	cptr p, q;
 	cptr vp[64];
-	u32b flags1, flags2, flags3, flags4, flags5, flags6, flags9;
+	u32b flags1, flags2, flags3, flags4, flags5, flags6, flags7, flags9;
 
 
 	/* Build the filename */
@@ -1541,6 +1555,7 @@ static void spoil_mon_info(cptr fname)
 		flags4 = r_ptr->flags4;
 		flags5 = r_ptr->flags5;
 		flags6 = r_ptr->flags6;
+		flags7 = r_ptr->flags7;
 		flags9 = r_ptr->flags9;
 		breath = FALSE;
 		magic = FALSE;
@@ -1634,8 +1649,10 @@ static void spoil_mon_info(cptr fname)
 		if (flags3 & (RF3_UNDEAD)) spoil_out(" undead");
 
 		if (flags3 & (RF3_DRAGON)) spoil_out(" dragon");
-		else if (flags3 & (RF3_DEMON)) spoil_out(" demon");
+		else if (flags3 & (RF3_DEMON)) spoil_out(" Maia");
 		else if (flags3 & (RF3_GIANT)) spoil_out(" giant");
+else if (flags7 & (RF7_VAMPIRE)) spoil_out(" vampire");
+
 		else if (flags3 & (RF3_TROLL)) spoil_out(" troll");
 		else if (flags3 & (RF3_ORC)) spoil_out(" orc");
 		else if (flags3 & (RF3_THUNDERLORD)) spoil_out (" Thunderlord");
@@ -1831,18 +1848,17 @@ static void spoil_mon_info(cptr fname)
 		if (flags6 & (RF6_S_HOUND)) vp[vn++] = "summon hounds";
 		if (flags6 & (RF6_S_HYDRA)) vp[vn++] = "summon hydras";
 		if (flags6 & (RF6_S_ANGEL)) vp[vn++] = "summon an angel";
-		if (flags6 & (RF6_S_DEMON)) vp[vn++] = "summon a demon";
+		if (flags6 & (RF6_S_DEMON)) vp[vn++] = "summon a Maia";
 		if (flags6 & (RF6_S_UNDEAD)) vp[vn++] = "summon an undead";
 		if (flags6 & (RF6_S_DRAGON)) vp[vn++] = "summon a dragon";
 		if (flags4 & (RF4_S_ANIMAL)) vp[vn++] = "summon animal";
 		if (flags6 & (RF6_S_ANIMALS)) vp[vn++] = "summon animals";
 		if (flags6 & (RF6_S_HI_UNDEAD)) vp[vn++] = "summon greater undead";
 		if (flags6 & (RF6_S_HI_DRAGON)) vp[vn++] = "summon ancient dragons";
-		if (flags6 & (RF6_S_HI_DEMON)) vp[vn++] = "summon greater demons";
+		if (flags6 & (RF6_S_HI_DEMON)) vp[vn++] = "summon greater Maiar";
 		if (flags6 & (RF6_S_WRAITH)) vp[vn++] = "summon Ringwraith";
 		if (flags6 & (RF6_S_UNIQUE)) vp[vn++] = "summon unique monsters";
-
-		if (vn)
+       	if (vn)
 		{
 			magic = TRUE;
 			if (breath)
@@ -2137,7 +2153,8 @@ static void spoil_mon_info(cptr fname)
 			case RBM_STING:
 				p = "sting";
 				break;
-			case RBM_XXX1:
+			case RBM_PECK:
+				p = "peck";
 				break;
 			case RBM_BUTT:
 				p = "butt";
@@ -2172,7 +2189,8 @@ static void spoil_mon_info(cptr fname)
 			case RBM_SPORE:
 				p = "release spores";
 				break;
-			case RBM_XXX4:
+			case RBM_HUG:
+				p = "hug";
 				break;
 			case RBM_BEG:
 				p = "beg";
@@ -2185,6 +2203,12 @@ static void spoil_mon_info(cptr fname)
 				break;
 			case RBM_SHOW:
 				p = "sing";
+				break;
+					case RBM_HOWL:
+				p = "howl";
+				break;
+						case RBM_ROAR:
+				p = "roar";
 				break;
 			}
 
@@ -2293,6 +2317,20 @@ static void spoil_mon_info(cptr fname)
 				break;
 			case RBE_PARASITE:
 				q = "parasite";
+				break;
+						case RBE_CHAOS:
+				q = "chaos";
+				break;
+						case RBE_PIETY:
+				q = "ruins your piety";
+				break;
+
+							case RBE_FOOD:
+				q = "causes hunger";
+				break;
+
+									case RBE_SLASH:
+				q = "causes severe cuts";
 				break;
 			}
 

@@ -137,9 +137,9 @@ static void activate_module()
 	version_patch = VERSION_PATCH;
 
 	/* Change window name if needed */
-	if (strcmp(game_module, "ToME"))
+	if (strcmp(game_module, "FuryBand"))
 	{
-		strnfmt(angband_term_name[0], 79, "T-Engine: %s", game_module);
+		strnfmt(angband_term_name[0], 79, "Fury-Engine: %s", game_module);
 		Term_xtra(TERM_XTRA_RENAME_MAIN_WIN, 0);
 	}
 
@@ -197,8 +197,8 @@ bool select_module()
 		Term_clear();
 
 		/* Let the user choose */
-		c_put_str(TERM_YELLOW, "Welcome to ToME, you must select a module to play,", 1, 12);
-		c_put_str(TERM_YELLOW, "either ToME official module or third party ones.", 2, 13);
+		c_put_str(TERM_YELLOW, "Welcome to FuryBand, you must select a module to play,", 1, 12);
+		c_put_str(TERM_YELLOW, "either Furyband official module or third party ones.", 2, 13);
 		put_str("Press 8/2/4/6 to move, Return to select and Esc to quit.", 4, 3);
 
 		dump_modules(sel, max);

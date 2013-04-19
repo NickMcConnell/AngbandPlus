@@ -1766,9 +1766,14 @@ static bool wearable_p(object_type *o_ptr)
 	case TV_ROD_MAIN:
 	case TV_SHOT:
 	case TV_ARROW:
+	case TV_BULLET:
+	case TV_RBULLET:
 	case TV_BOLT:
 	case TV_BOOMERANG:
 	case TV_BOW:
+	case TV_PISTOL:
+	case TV_RIFLE:
+
 	case TV_DIGGING:
 	case TV_HAFTED:
 	case TV_POLEARM:

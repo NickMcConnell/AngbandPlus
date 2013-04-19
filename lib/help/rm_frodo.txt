@@ -1,0 +1,38 @@
+~~~~~01|Frodo
+~~~~~02|Race Modifiers|Frodo
+#####R=== Frodo Race ===
+
+#####GDescription
+Frodo is a hobbit, one of the Nine members of the Fellowship of the 
+Ring.  It is his task to take the One Ring and cast it into the Cracks
+of Doom.
+
+#####GStat Modifiers
+Strength       +0
+Intelligence   +3
+Wisdom         +3  
+Dexterity      +5   
+Constitution   -6  
+Charisma       +5      
+Hit Dice       +0 sides
+Exp Penalty    +50%
+
+#####GRacial Skill Modifiers:
+#####BSkill                Start Mod    Skill Point Gains Mod
+Combat                  
+  Weaponmastery         1.000           [0.100]
+    Sword-mastery       1.000           [0.250]
+Sneakiness              1.000           [1.000]
+  Stealth               2.000           [1.000]
+Powers                
+  Devices              +5.000           [1.000]
+Spirituality            0.200           [0.000]
+
+#####GStarting Equipment
+Frodo begins the game with:
+    The Jewel 'Evenstar'
+    The Phial of Galadriel
+    The Short Sword 'Sting' 
+    A Ring of Fear Resistance
+    Some rations
+    Some torches

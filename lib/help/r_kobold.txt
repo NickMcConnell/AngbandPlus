@@ -23,9 +23,10 @@ Exp Penalty     +25%
 Combat                  
   Weaponmastery         1.000           [0.000]
   Archery	       -0.800           [0.000]
+      Throwing          1.000           [0.500]
 Sneakiness              0.100           [0.000]
   Stealth              -1.000           [0.000]
   Disarming            -0.200           [0.000]
-Magic                   
-  Magic-Device         -0.300           [0.000]
+Powers                 
+  Devices              -0.300           [0.000]
 Spirituality           -1.000           [0.000]

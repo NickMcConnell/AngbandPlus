@@ -289,6 +289,18 @@ bool carried_make_attack_normal(int r_idx)
 		case RBE_ABOMINATION:
 			power = 30;
 			break;
+		case RBE_CHAOS:
+			power = 5;
+			break;
+				case RBE_PIETY:
+			power = 60;
+			break;
+					case RBE_FOOD:
+			power = 60;
+			break;
+						case RBE_SLASH:
+			power = 50;
+			break;
 		}
 
 
@@ -397,9 +409,9 @@ bool carried_make_attack_normal(int r_idx)
 					break;
 				}
 
-			case RBM_XXX1:
+			case RBM_PECK:
 				{
-					act = "XXX1's you.";
+					act = "pecks you.";
 					break;
 				}
 
@@ -486,9 +498,10 @@ bool carried_make_attack_normal(int r_idx)
 					break;
 				}
 
-			case RBM_XXX4:
+			case RBM_HUG:
 				{
-					act = "projects XXX4's at you.";
+					act = "hugs you.";
+					touched = TRUE;
 					break;
 				}
 
@@ -520,6 +533,17 @@ bool carried_make_attack_normal(int r_idx)
 					else
 						act = "sings 'I love you, you love me.'";
 					sound(SOUND_SHOW);
+					break;
+				}
+			
+			case RBM_HOWL:
+				{
+					act = "howls at you.";
+					break;
+				}
+					case RBM_ROAR:
+				{
+					act = "roars at you.";
 					break;
 				}
 			}
@@ -1111,6 +1135,9 @@ bool carried_make_attack_normal(int r_idx)
 					break;
 
 				}
+
+
+
 			case RBE_TIME:
 				{
 					switch (randint(10))
@@ -1180,6 +1207,100 @@ bool carried_make_attack_normal(int r_idx)
 					take_hit(damage, ddesc);
 					break;
 				}
+	case RBE_CHAOS:
+				{
+						if (p_ptr->resist_chaos)
+						{
+							damage *= 6;
+							damage /= (randint(6) + 6);
+						}
+					switch(randint(10))
+					{
+					case 1:
+					case 2:
+						{
+								if (!p_ptr->resist_conf)
+								{
+									(void)set_confused(p_ptr->confused + rand_int(20) + 10);
+								}
+								break;
+						}
+					case 3:
+					case 4:
+						{
+							if (!p_ptr->resist_chaos)
+							{
+								(void)set_image(p_ptr->image + randint(10));
+							}
+							break;
+						}
+					case 5:
+					case 6:
+								{
+								if (!p_ptr->resist_neth && !p_ptr->resist_chaos)
+								{
+										if (p_ptr->hold_life && (rand_int(100) < 75))
+											{
+												msg_print("You keep hold of your life force!");
+											}
+								else if (p_ptr->hold_life)
+											{
+												msg_print("You feel your life slipping away!");
+												lose_exp(500 + (p_ptr->exp / 1000) * MON_DRAIN_LIFE);
+											}
+								else
+											{
+												msg_print("You feel your life draining away!");
+												lose_exp(5000 + (p_ptr->exp / 100) * MON_DRAIN_LIFE);
+											}
+								}
+								break;
+								}
+					case 7:
+					case 8:
+					case 9:
+					case 10:
+
+								{
+								carried_monster_hit = TRUE;
+								take_hit(damage, ddesc);
+								break;
+								}
+				
+
+
+					} //end case bracket
+				} // end chaos bracket
+			case RBE_PIETY:
+				{
+					obvious = TRUE;
+
+					take_piety_hit(damage, ddesc);
+					break;
+				}
+
+						case RBE_FOOD:
+				{
+					obvious = TRUE;
+
+					take_food_hit(damage, ddesc);
+					break;
+				}
+		case RBE_SLASH:
+				{
+					obvious = TRUE;
+					damage -= (damage * ((ac < 150) ? ac : 150) / 250);
+				set_cut(p_ptr->cut + damage);
+		//		msg_print("You feel your life draining away!");
+					p_ptr->update |= (PR_CUT);
+				//	do_cut = (10 + randint(15) + damage) / (damage + 1);
+					/* Take damage */
+					carried_monster_hit = TRUE;
+					take_hit(damage, ddesc);
+			//		take_slash_hit(damage, ddesc);
+					break;
+				}
+
 			}
 
 
@@ -1292,6 +1413,14 @@ bool carried_make_attack_normal(int r_idx)
 				{
 					r_ptr->r_flags3 |= RF3_IM_ELEC;
 				}
+				if (p_ptr->sh_acid && alive)
+				{
+					r_ptr->r_flags3 |= RF3_IM_ACID;
+				}
+				if (p_ptr->sh_cold && alive)
+				{
+					r_ptr->r_flags3 |= RF3_IM_COLD;
+				}
 				touched = FALSE;
 			}
 		}
@@ -1309,7 +1438,7 @@ bool carried_make_attack_normal(int r_idx)
 			case RBM_CLAW:
 			case RBM_BITE:
 			case RBM_STING:
-			case RBM_XXX1:
+			case RBM_PECK:
 			case RBM_BUTT:
 			case RBM_CRUSH:
 			case RBM_ENGULF:
@@ -1546,6 +1675,18 @@ bool make_attack_normal(int m_idx, byte divis)
 		case RBE_ABOMINATION:
 			power = 20;
 			break;
+				case RBE_CHAOS:
+			power = 5;
+			break;
+				case RBE_PIETY:
+			power = 60;
+			break;
+				case RBE_FOOD:
+			power = 60;
+			break;
+					case RBE_SLASH:
+			power = 50;
+			break;
 		}
 
 
@@ -1691,9 +1832,9 @@ bool make_attack_normal(int m_idx, byte divis)
 					break;
 				}
 
-			case RBM_XXX1:
+			case RBM_PECK:
 				{
-					act = "XXX1's you.";
+					act = "pecks you.";
 					break;
 				}
 
@@ -1780,9 +1921,10 @@ bool make_attack_normal(int m_idx, byte divis)
 					break;
 				}
 
-			case RBM_XXX4:
+			case RBM_HUG:
 				{
-					act = "projects XXX4's at you.";
+					act = "hugs you.";
+					touched = TRUE;
 					break;
 				}
 
@@ -1817,6 +1959,16 @@ bool make_attack_normal(int m_idx, byte divis)
 					else
 						act = "sings 'I love you, you love me.'";
 					sound(SOUND_SHOW);
+					break;
+				}
+						case RBM_HOWL:
+				{
+					act = "howls at you.";
+					break;
+				}
+							case RBM_ROAR:
+				{
+					act = "roars at you.";
 					break;
 				}
 			}
@@ -2032,7 +2184,12 @@ bool make_attack_normal(int m_idx, byte divis)
 						msg_print("You quickly protect your money pouch!");
 
 						/* Occasional blink anyway */
-						if (rand_int(3)) blinked = TRUE;
+					//	if (rand_int(3)) blinked = TRUE;
+						tmp = m_ptr->monfear + p_ptr->shield_power_opt;
+						fear = TRUE;
+
+						/* Set fear */
+						m_ptr->monfear = (tmp < 200) ? tmp : 200;
 					}
 
 					/* Eat gold */
@@ -2083,7 +2240,12 @@ bool make_attack_normal(int m_idx, byte divis)
 						p_ptr->window |= (PW_PLAYER);
 
 						/* Blink away */
-						blinked = TRUE;
+					//	blinked = TRUE;
+						tmp = m_ptr->monfear + p_ptr->shield_power_opt;
+						fear = TRUE;
+
+						/* Set fear */
+						m_ptr->monfear = (tmp < 200) ? tmp : 200;
 					}
 
 					break;
@@ -2103,7 +2265,12 @@ bool make_attack_normal(int m_idx, byte divis)
 						msg_print("You grab hold of your backpack!");
 
 						/* Occasional "blink" anyway */
-						blinked = TRUE;
+					//	blinked = TRUE;
+						tmp = m_ptr->monfear + p_ptr->shield_power_opt;
+						fear = TRUE;
+
+						/* Set fear */
+						m_ptr->monfear = (tmp < 200) ? tmp : 200;
 
 						/* Obvious */
 						obvious = TRUE;
@@ -2222,7 +2389,12 @@ bool make_attack_normal(int m_idx, byte divis)
 						obvious = TRUE;
 
 						/* Blink away */
-						blinked = TRUE;
+					//	blinked = TRUE;
+						tmp = m_ptr->monfear + p_ptr->shield_power_opt;
+						fear = TRUE;
+
+						/* Set fear */
+						m_ptr->monfear = (tmp < 200) ? tmp : 200;
 
 						/* Done */
 						break;
@@ -2737,6 +2909,8 @@ bool make_attack_normal(int m_idx, byte divis)
 					break;
 
 				}
+
+
 			case RBE_TIME:
 				{
 					switch (randint(10))
@@ -2814,6 +2988,99 @@ bool make_attack_normal(int m_idx, byte divis)
 
 					break;
 				}
+			case RBE_CHAOS:
+				{
+						if (p_ptr->resist_chaos)
+						{
+							damage *= 6;
+							damage /= (randint(6) + 6);
+						}
+					switch(randint(10))
+					{
+					case 1:
+					case 2:
+						{
+								if (!p_ptr->resist_conf)
+								{
+									(void)set_confused(p_ptr->confused + rand_int(20) + 10);
+								}
+								break;
+						}
+					case 3:
+					case 4:
+						{
+							if (!p_ptr->resist_chaos)
+							{
+								(void)set_image(p_ptr->image + randint(10));
+							}
+							break;
+						}
+					case 5:
+					case 6:
+								{
+								if (!p_ptr->resist_neth && !p_ptr->resist_chaos)
+								{
+										if (p_ptr->hold_life && (rand_int(100) < 75))
+											{
+												msg_print("You keep hold of your life force!");
+											}
+								else if (p_ptr->hold_life)
+											{
+												msg_print("You feel your life slipping away!");
+												lose_exp(500 + (p_ptr->exp / 1000) * MON_DRAIN_LIFE);
+											}
+								else
+											{
+												msg_print("You feel your life draining away!");
+												lose_exp(5000 + (p_ptr->exp / 100) * MON_DRAIN_LIFE);
+											}
+								}
+								break;
+								}
+					case 7:
+					case 8:
+					case 9:
+					case 10:
+
+								{
+								carried_monster_hit = TRUE;
+								take_hit(damage, ddesc);
+								break;
+								}
+				
+
+
+					} //end case bracket
+				} // end chaos bracket
+							case RBE_PIETY:
+				{
+					obvious = TRUE;
+
+					take_piety_hit(damage, ddesc);
+					break;
+				}
+										case RBE_FOOD:
+				{
+					obvious = TRUE;
+
+					take_food_hit(damage, ddesc);
+					break;
+				}
+
+						case RBE_SLASH:
+				{
+					obvious = TRUE;
+					damage -= (damage * ((ac < 150) ? ac : 150) / 250);
+								set_cut(p_ptr->cut + damage);
+			//	msg_print("You feel your life draining away!");
+					p_ptr->update |= (PR_CUT);
+					/* Take damage */
+					carried_monster_hit = TRUE;
+					take_hit(damage, ddesc);
+			//		take_slash_hit(damage, ddesc);
+					break;
+				}
+
 			}
 
 
@@ -2972,6 +3239,46 @@ bool make_attack_normal(int m_idx, byte divis)
 							r_ptr->r_flags3 |= RF3_IM_ELEC;
 					}
 				}
+				if (p_ptr->sh_acid && alive)
+				{
+					if (!(r_ptr->flags3 & RF3_IM_ACID))
+					{
+						msg_format("%^s gets melted!", m_name);
+						if (mon_take_hit(m_idx, damroll(2, 6), &fear,
+						                 " turns into a puddle of goop."))
+						{
+							blinked = FALSE;
+							alive = FALSE;
+						}
+					}
+					else
+					{
+						if (m_ptr->ml)
+							r_ptr->r_flags3 |= RF3_IM_ACID;
+					}
+				}
+
+
+	if (p_ptr->sh_cold && alive)
+				{
+					if (!(r_ptr->flags3 & RF3_IM_COLD))
+					{
+						msg_format("%^s gets frozen!", m_name);
+						if (mon_take_hit(m_idx, damroll(2, 6), &fear,
+						                 " turns into a frozen mess."))
+						{
+							blinked = FALSE;
+							alive = FALSE;
+						}
+					}
+					else
+					{
+						if (m_ptr->ml)
+							r_ptr->r_flags3 |= RF3_IM_ACID;
+					}
+				}
+
+
 				if (p_ptr->shield && (p_ptr->shield_opt & SHIELD_COUNTER) && alive)
 				{
 					msg_format("%^s gets bashed by your mystic shield!", m_name);
@@ -3044,7 +3351,7 @@ bool make_attack_normal(int m_idx, byte divis)
 			case RBM_CLAW:
 			case RBM_BITE:
 			case RBM_STING:
-			case RBM_XXX1:
+			case RBM_PECK:
 			case RBM_BUTT:
 			case RBM_CRUSH:
 			case RBM_ENGULF:
@@ -3084,8 +3391,8 @@ bool make_attack_normal(int m_idx, byte divis)
 	/* Blink away */
 	if (blinked)
 	{
-		msg_print("The thief flees laughing!");
-		teleport_away(m_idx, MAX_SIGHT * 2 + 5);
+	//	msg_print("The thief flees laughing!");
+	//	teleport_away(m_idx, MAX_SIGHT * 2 + 5);
 	}
 
 

@@ -1,0 +1,24 @@
+~~~~~01|Golem
+~~~~~02|Races|Golem
+#####R=== Golems ===
+
+#####GDescription
+Golems are creatures made from clay and brought to life in a strong 
+fire by a powerful sorceror.  They are very strong, but very stupid 
+and slow.
+
+#####GStat Modifiers
+Strength        +12
+Intelligence    -10   
+Wisdom          -5   
+Dexterity        0   
+Constitution    +12   
+Charisma        -5       
+Hit Dice Sides  25         
+Exp Penalty     +100%
+
+#####GRacial Skill Modifiers:
+#####BSkill                Start Mod    Skill Point Gains Mod
+Combat                  
+  Boulder-throwing   1.000           [0.600]
+ 

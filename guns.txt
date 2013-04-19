@@ -1,0 +1,442 @@
+Ignore this!!! Don't work quite yet
+N:933:& .22 Pistol~
+G:}:U
+I:41:11:0
+W:3:0:30:50
+P:0:0d0:0:0:0
+A:3/1:50/2
+F:SHOW_MODS |
+D:A piece of bent wood, fitted with a string. Easy to transport and use, but
+D:its effect is not very impressive. You can 'f'ire it after you 'w'ield it.
+
+N:934:& 22 Bullet~
+G:{:U
+I:42:1:0
+W:3:0:2:1
+P:0:3d4:0:0:0
+A:15/1:3/1:50/1
+F:SHOW_MODS
+D:A .22 caliber bullet
+D:You can use it for 'f'iring a pistol.
+
+N:935:& .45 Pistol~
+G:}:U
+I:41:12:0
+W:3:0:30:50
+P:-3:0d0:0:0:0
+A:3/1:50/2
+F:SHOW_MODS
+D:A piece of bent wood, fitted with a string. Easy to transport and use, but
+D:its effect is not very impressive. You can 'f'ire it after you 'w'ield it.
+
+N:936:& .45 Bullet~
+G:{:U
+I:42:2:0
+W:3:0:2:1
+P:0:8d5:0:0:0
+A:15/1:3/1:50/1
+F:SHOW_MODS
+D:A .45 caliber bullet
+D:You can use it for 'f'iring a pistol.
+
+N:937:& .22 Rifle~
+G:}:U
+I:44:12:0
+W:3:0:30:50
+P:0:0d0:0:0:0
+A:3/1:50/2
+F:SHOW_MODS
+
+N:938:& .22 Rifle Bullet~
+G:{:U
+I:43:5:0
+W:3:0:2:1
+P:0:6d4:0:0:0
+A:15/1:3/1:50/1
+F:SHOW_MODS
+D:A .45 caliber bullet
+D:You can use it for 'f'iring a pistol.
+
+N:939:& M16 Bullet~
+G:{:U
+I:43:6:0
+W:3:0:2:1
+P:0:5d6:0:0:0
+A:15/1:3/1:50/1
+F:SHOW_MODS
+D:A .45 caliber bullet
+D:You can use it for 'f'iring a M16.
+
+
+N:940:& .50 Bullet~
+G:{:U
+I:42:3:0
+W:3:0:2:1
+P:0:8d8:0:0:0
+A:15/1:3/1:50/1
+F:SHOW_MODS
+D:A .45 caliber bullet
+D:You can use it for 'f'iring a pistol.
+
+N:941:& Sniper Bullet~
+G:{:U
+I:43:4:0
+W:3:0:2:1
+P:0:10d10:0:0:0
+A:15/1:3/1:50/1
+F:SHOW_MODS
+D:A .45 caliber bullet
+D:You can use it for 'f'iring a pistol.
+
+N:942:& .50 Pistol~
+G:}:U
+I:41:13:0
+W:3:0:30:50
+P:0:0d0:0:0:0
+A:3/1:50/2
+F:SHOW_MODS
+
+N:943:& M16 Rifle~
+G:}:U
+I:44:13:0
+W:3:0:30:50
+P:0:0d0:0:0:0
+A:3/1:50/2
+F:SHOW_MODS
+
+N:944:& Machine Gun~
+G:}:U
+I:44:14:0
+W:3:0:30:50
+P:0:0d0:0:0:0
+A:3/1:50/2
+F:SHOW_MODS
+
+N:945:& Sniper Rifle~
+G:}:U
+I:44:15:0
+W:3:0:30:50
+P:0:0d0:0:0:0
+A:3/1:50/2
+F:SHOW_MODS
+
+
+
+
+
+N:939:& Indian Red~
+G:t:i
+I:11:25:-5
+W:5:0:1:0
+P:5:1d1:0:0:0
+A:1/10
+F:CHR | 
+D:A yellowing, mud-stained, Orc skull.
+
+N:940:& Pink~
+G:t:p
+I:11:25:-5
+W:5:0:1:0
+P:5:1d1:0:0:0
+A:1/10
+
+N:941:& Gold~
+G:t:z
+I:11:25:-5
+W:5:0:1:0
+P:5:1d1:0:0:0
+A:1/10
+
+N:942:& Royal Blue~
+G:t:c
+I:11:25:-5
+W:5:0:1:0
+P:5:1d1:0:0:0
+A:1/10
+
+N:943:& Aquamarine~
+G:t:a
+I:11:25:-5
+W:5:0:1:0
+P:5:1d1:0:0:0
+A:1/10
+
+N:944:& Dark Orchid~
+G:t:O
+I:11:25:-5
+W:5:0:1:0
+P:5:1d1:0:0:0
+A:1/10
+
+N:945:& Chocolate~
+G:t:C
+I:11:25:-5
+W:5:0:1:0
+P:5:1d1:0:0:0
+A:1/10
+
+N:946:& Firebrick~
+G:t:f
+I:11:25:-5
+W:5:0:1:0
+P:5:1d1:0:0:0
+A:1/10
+
+N:947:& Dark Khaki~
+G:t:k
+I:11:25:-5
+W:5:0:1:0
+P:5:1d1:0:0:0
+A:1/10
+
+N:948:& Khaki~
+G:t:K
+I:11:25:-5
+W:5:0:1:0
+P:5:1d1:0:0:0
+A:1/10
+
+N:949:& Cadet Blue~
+G:t:A
+I:11:25:-5
+W:5:0:1:0
+P:5:1d1:0:0:0
+A:1/10
+
+N:950:& Steel Blue~
+G:t:e
+I:11:25:-5
+W:5:0:1:0
+P:5:1d1:0:0:0
+A:1/10
+
+N:951:& Light Steel Blue~
+G:t:E
+I:11:25:-5
+W:5:0:1:0
+P:5:1d1:0:0:0
+A:1/10
+
+N:952:& Sandy Brown~
+G:t:F
+I:11:25:-5
+W:5:0:1:0
+P:5:1d1:0:0:0
+A:1/10
+
+N:953:& Orchid~
+G:t:h
+I:11:25:-5
+W:5:0:1:0
+P:5:1d1:0:0:0
+A:1/10
+
+N:954:& Honeydew~
+G:t:H
+I:11:25:-5
+W:5:0:1:0
+P:5:1d1:0:0:0
+A:1/10
+
+N:955:& Yellow Green~
+G:t:I
+I:11:25:-5
+W:5:0:1:0
+P:5:1d1:0:0:0
+A:1/10
+
+N:956:& Olive Drab~
+G:t:j
+I:11:25:-5
+W:5:0:1:0
+P:5:1d1:0:0:0
+A:1/10
+
+N:957:& Purple~
+G:t:J
+I:11:25:-5
+W:5:0:1:0
+P:5:1d1:0:0:0
+A:1/10
+
+N:958:& Dark Slate Gray~
+G:t:l
+I:11:25:-5
+W:5:0:1:0
+P:5:1d1:0:0:0
+A:1/10
+
+N:959:& Dark Gray~
+G:t:D
+I:11:25:-5
+W:5:0:1:0
+P:5:1d1:0:0:0
+A:1/10
+
+
+N:960:& Red~
+G:t:r
+I:11:25:-5
+W:5:0:1:0
+P:5:1d1:0:0:0
+A:1/10
+
+N:961:& Light Gray~
+G:t:W
+I:11:25:-5
+W:5:0:1:0
+P:5:1d1:0:0:0
+A:1/10
+
+N:962:& Light Green~
+G:t:G
+I:11:25:-5
+W:5:0:1:0
+P:5:1d1:0:0:0
+A:1/10
+
+N:963:& White~
+G:t:w
+I:11:25:-5
+W:5:0:1:0
+P:5:1d1:0:0:0
+A:1/10
+
+N:964:& Green~
+G:t:g
+I:11:25:-5
+W:5:0:1:0
+P:5:1d1:0:0:0
+A:1/10
+
+N:965:& Violet~
+G:t:v
+I:11:25:-5
+W:5:0:1:0
+P:5:1d1:0:0:0
+A:1/10
+
+N:966:& Light Blue~
+G:t:B
+I:11:25:-5
+W:5:0:1:0
+P:5:1d1:0:0:0
+A:1/10
+
+N:967:& Gray~
+G:t:s
+I:11:25:-5
+W:5:0:1:0
+P:5:1d1:0:0:0
+A:1/10
+
+N:968:& Blue~
+G:t:b
+I:11:25:-5
+W:5:0:1:0
+P:5:1d1:0:0:0
+A:1/10
+
+N:969:& Yellow~
+G:t:y
+I:11:25:-5
+W:5:0:1:0
+P:5:1d1:0:0:0
+A:1/10
+
+N:970:& Light Brown~
+G:t:U
+I:11:25:-5
+W:5:0:1:0
+P:5:1d1:0:0:0
+A:1/10
+
+N:971:& Orange~
+G:t:o
+I:11:25:-5
+W:5:0:1:0
+P:5:1d1:0:0:0
+A:1/10
+
+N:972:& Brown~
+G:t:u
+I:11:25:-5
+W:5:0:1:0
+P:5:1d1:0:0:0
+A:1/10
+
+N:973:& Light Red~
+G:t:R
+I:11:25:-5
+W:5:0:1:0
+P:5:1d1:0:0:0
+A:1/10
+
+
+N:974:& Salmon~
+G:t:L
+I:11:25:-5
+W:5:0:1:0
+P:5:1d1:0:0:0
+A:1/10
+
+N:975:& Crimson~
+G:t:m
+I:11:25:-5
+W:5:0:1:0
+P:5:1d1:0:0:0
+A:1/10
+
+N:976:& Moccasin~
+G:t:M
+I:11:25:-5
+W:5:0:1:0
+P:5:1d1:0:0:0
+A:1/10
+
+N:977:& Dark Sea Green~
+G:t:n
+I:11:25:-5
+W:5:0:1:0
+P:5:1d1:0:0:0
+A:1/10
+
+N:978:& Teal~
+G:t:S
+I:11:25:-5
+W:5:0:1:0
+P:5:1d1:0:0:0
+A:1/10
+
+N:979:& Old Lace~
+G:t:q
+I:11:25:-5
+W:5:0:1:0
+P:5:1d1:0:0:0
+A:1/10
+
+N:980:& Tan~
+G:t:Q
+I:11:25:-5
+W:5:0:1:0
+P:5:1d1:0:0:0
+A:1/10
+
+
+
+N:256:'Vorpal Blade'
+I:23:17:2
+W:50:30:150:250000
+P:0:8d8:32:32:0
+F:VORPAL |
+F:SLAY_EVIL |
+F:FREE_ACT | LITE2 | SEE_INVIS | SLOW_DIGEST | REGEN | SPEED | STR |DEX
+
+
+N:257:of Westernesse
+I:11:55:0
+W:1:1:2:40000
+P:0:4d5:0:0:6
+F:ACTIVATE |  ACTIVATE_NO_WIELD | KILL_DEMON | SHOW_MODS | SLAY_EVIL | KILL_VAMPIRE
+a:HARDCORE=STONE_MUD
+D:This is the fabled Iron Spike of Westernesse

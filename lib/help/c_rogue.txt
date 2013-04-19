@@ -31,16 +31,18 @@ Combat                  1.000           [0.700]
   Weaponmastery         1.000           [0.700]
     Sword-mastery       1.000           [0.300]
       Critical-hits     1.000           [0.500]
+  Archery
+      Throwing          1.000           [0.750]
 Sneakiness              1.000           [2.000]
-  Stealth               1.000           [1.500]
+  Stealth               1.000           [2.000]
   Disarming             1.000           [2.000]
   Backstab              1.000           [1.000]
   Stealing              1.000           [2.000]
   Dodging               1.000           [2.000]
-Magic                   1.000           [0.700]
-  Magic-Device          1.000           [1.550]
-  Conveyance            0.000           [0.500]
-  Divination            0.000           [0.500]
+Powers                  1.000           [0.700]
+  Devices               0.000           [0.550]
+  Movement              0.000           [0.500]
+  Knowledge             0.000           [0.500]
   Temporal              0.000           [0.500]
 Spirituality            1.000           [0.700]
   Prayer                0.000           [0.500]
@@ -56,7 +58,6 @@ A Rogue begins the game with:
     a Dagger
     a Catapult Trap Set
     some Iron Shots
-
 
 
 

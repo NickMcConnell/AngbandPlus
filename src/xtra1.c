@@ -2535,9 +2535,12 @@ void apply_flags(u32b f1, u32b f2, u32b f3, u32b f4, u32b f5, u32b esp, s16b pva
 	if (f1 & (TR1_BLOWS)) extra_blows += pval;
 	if (f5 & (TR5_CRIT)) p_ptr->xtra_crit += pval;
 
+
 	/* Hack -- Sensible fire */
 	if (f2 & (TR2_SENS_FIRE)) p_ptr->sensible_fire = TRUE;
-
+	if (f5 & (TR5_SENS_COLD)) p_ptr->sensible_cold = TRUE;
+	if (esp & (ESP_SENS_ACID)) p_ptr->sensible_acid = TRUE;
+	if (esp & (ESP_SENS_ELEC)) p_ptr->sensible_elec = TRUE;
 	/* Hack -- cause earthquakes */
 	if (f1 & (TR1_IMPACT)) p_ptr->impact = TRUE;
 
@@ -2597,6 +2600,8 @@ void apply_flags(u32b f1, u32b f2, u32b f3, u32b f4, u32b f5, u32b esp, s16b pva
 	if (f2 & (TR2_REFLECT)) p_ptr->reflect = TRUE;
 	if (f3 & (TR3_SH_FIRE)) p_ptr->sh_fire = TRUE;
 	if (f3 & (TR3_SH_ELEC)) p_ptr->sh_elec = TRUE;
+	if (f5 & (TR5_SH_ACID)) p_ptr->sh_acid = TRUE;
+		if (f5 & (TR5_SH_COLD)) p_ptr->sh_cold = TRUE;
 	if (f3 & (TR3_NO_MAGIC)) p_ptr->anti_magic = TRUE;
 	if (f3 & (TR3_NO_TELE)) p_ptr->anti_tele = TRUE;
 
@@ -2829,7 +2834,8 @@ void calc_bonuses(bool silent)
 
 	p_ptr->sensible_fire = FALSE;
 	p_ptr->sensible_lite = FALSE;
-
+    p_ptr->sensible_acid = FALSE;
+	p_ptr->sensible_cold = FALSE;
 	p_ptr->immune_acid = FALSE;
 	p_ptr->immune_elec = FALSE;
 	p_ptr->immune_fire = FALSE;
@@ -4823,7 +4829,7 @@ void dump_fates(FILE *outfile)
 {
 	int i;
 	char buf[120];
-
+bool pending = FALSE;
 	if (!outfile) return;
 
 	for (i = 0; i < MAX_FATES; i++)
@@ -4833,6 +4839,12 @@ void dump_fates(FILE *outfile)
 			fate_desc(buf, i);
 			fprintf(outfile, "%s\n", buf);
 		}
+if ((fates[i].fate) && !(fates[i].know)) pending = TRUE;
+	}
+	if (pending)
+	{
+		fprintf(outfile, "You do not know all of your fate.\n");
+
 	}
 }
 
@@ -4853,3 +4865,30 @@ int luck(int min, int max)
 
 	return (luck + min);
 }
+bool safety_check()
+{
+        u32b f1, f2, f3, f4, f5, esp;
+        int i;
+        object_type *o_ptr;
+
+        i = 24;
+        while (i <= 52)
+        {
+                /* Get the item */
+                o_ptr = &p_ptr->inventory[i];
+
+                /* Examine the item */
+                object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
+
+                /* Check for the SAFETY flag */
+                if (o_ptr->k_idx && (esp & (ESP_SAFETY)))
+                {
+                        return (TRUE);
+                }
+
+                i++;
+        }
+        /* Default */
+        return (FALSE);
+}        
+   

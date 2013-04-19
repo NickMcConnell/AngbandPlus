@@ -258,7 +258,8 @@ load_palette(const char *fname, unsigned char *palette)
  * @return darkended color.
  * @author Hj. Malthaner
  */
-static inline int darken(const int dunkel, const PIXVAL farbe)
+static  int 
+darken(const int dunkel, const PIXVAL farbe)
 {
     int r,g,b; 
      

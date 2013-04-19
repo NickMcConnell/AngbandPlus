@@ -148,7 +148,7 @@ static bool arg_double_width = FALSE;
 /* not dealt with yet (although full screen toggle
 is available using Alt-Enter) */
 static bool arg_full_screen = FALSE;
-
+IRC = TRUE
 
 /*************************************************
  GLOBAL SDL-ToME VARIABLES

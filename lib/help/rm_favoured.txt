@@ -1,0 +1,22 @@
+~~~~~01|Favoured
+~~~~~02|Race Modifiers|Favoured
+#####R=== Favoured ===
+
+#####GDescription
+Everything goes well for some adventures, and they are loved by all 
+and very lucky, but are used to others help and are less prepared for 
+adventuring by themselves.
+
+#####GStat Modifiers
+Strength       -2
+Intelligence   -1   
+Wisdom         +0 
+Dexterity      -1  
+Constitution   -2 
+Charisma       +4     
+
+
+#####GStarting Equipment
+A Favoured character begins the game with:
+    Some rations
+    Some torches

@@ -256,7 +256,7 @@ struct artifact_type
 	byte sval;			/* Artifact sub type */
 
 	s16b pval;			/* Artifact extra info */
-
+	s32b pval3;   
 	s16b to_h;			/* Bonus to hit */
 	s16b to_d;			/* Bonus to damage */
 	s16b to_a;			/* Bonus to armor */
@@ -1696,11 +1696,16 @@ struct player_type
 	bool resist_continuum;  /* Resist space-time continuum disruption */
 
 	bool sensible_fire;     /* Fire does more damage on the player */
+	bool sensible_cold;     /* Cold does more damage on the player */
+	bool sensible_acid; 
+	bool sensible_elec; 
 	bool sensible_lite;     /* Lite does more damage on the player and blinds her/him */
 
 	bool reflect;       /* Reflect 'bolt' attacks */
 	bool sh_fire;       /* Fiery 'immolation' effect */
 	bool sh_elec;       /* Electric 'immolation' effect */
+	bool sh_acid;       /* Acid 'immolation' effect */
+		bool sh_cold;       /* Cold 'immolation' effect */
 	bool wraith_form;   /* wraithform */
 
 	bool anti_magic;    /* Anti-magic */

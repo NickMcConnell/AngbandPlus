@@ -1609,7 +1609,7 @@ option_type option_info[] =
 
 #endif /* 0 */
 
-	{ &option_ingame_help, TRUE, 5, 1,
+	{ &option_ingame_help, FALSE, 5, 1,
 	  "ingame_help", "Ingame contextual help" },
 
 	{ &exp_need, FALSE, 5, 2,
@@ -4349,7 +4349,7 @@ monster_power monster_powers[96] =
 		{ 0, "(none)", 0, FALSE },
 		{ RF6_S_THUNDERLORD, "Summon Thunderlords", 90, TRUE },
 		{ RF6_S_KIN, "Summon Kin", 80, FALSE },
-		{ RF6_S_HI_DEMON, "Summon Greater Demons", 90, TRUE },
+		{ RF6_S_HI_DEMON, "Summon Greater Maiar", 90, TRUE },
 		{ RF6_S_MONSTER, "Summon Monster", 50, FALSE },
 		{ RF6_S_MONSTERS, "Summon Monsters", 60, TRUE },
 		{ RF6_S_ANT, "Summon Ants", 30, FALSE },
@@ -4357,13 +4357,13 @@ monster_power monster_powers[96] =
 		{ RF6_S_HOUND, "Summon Hound", 50, TRUE },
 		{ RF6_S_HYDRA, "Summon Hydra", 40, TRUE },
 		{ RF6_S_ANGEL, "Summon Angel", 60, TRUE },
-		{ RF6_S_DEMON, "Summon Demon", 60, TRUE },
+		{ RF6_S_DEMON, "Summon Maia", 60, TRUE },
 		{ RF6_S_UNDEAD, "Summon Undead", 70, TRUE },
 		{ RF6_S_DRAGON, "Summon Dragon", 70, TRUE },
 		{ RF6_S_HI_UNDEAD, "Summon High Undead", 90, TRUE },
 		{ RF6_S_HI_DRAGON, "Summon High Dragon", 90, TRUE },
 		{ RF6_S_WRAITH, "Summon Wraith", 90, TRUE },
-		{ 0, "(none)", 0, FALSE },
+				
 	};
 
 /* Tval descriptions */
@@ -4422,6 +4422,19 @@ tval_desc tval_descs[] =
 		"Arrows are the standard ammunition for bows.  You can carry "
 		"them in your quiver if you have a bow equipped."
 	},
+		{
+		TV_BULLET,
+		"Bullets are devastating weapons. These are for Pistols "
+		"them in your quiver if you have a pistol equipped."
+	},
+
+		{
+		TV_RBULLET,
+		"Bullets are devastating weapons. These are for Rifle "
+		"them in your quiver if you have a Rifle equipped."
+	},
+
+
 	{
 		TV_BOLT,
 		"Bolts are the standard ammunition for crossbows.  You can "
@@ -4431,6 +4444,18 @@ tval_desc tval_descs[] =
 		TV_BOW,
 		"Slings, bows and crossbows are used to attack monsters "
 		"from a distance."
+	},
+
+		{
+		TV_PISTOL,
+		"A small, hand-held gun that is far more powerful than it appears "
+		"It shoots pistol bullets."
+	},
+
+			{
+		TV_RIFLE,
+		"A large gun that is far more powerful than it appears "
+		"It shoots rifle bullets."
 	},
 	{
 		TV_DIGGING,
@@ -4618,8 +4643,8 @@ tval_desc tval_descs[] =
 	},
 	{
 		TV_DAEMON_BOOK,
-		"This unholy demon equipment is used with the Demonology skill to control "
-		"the school of demon power."
+		"This Maiac equipment is used with the Maia-lore skill to control "
+		"the school of Maia power."
 	},
 	{0, ""},
 };
@@ -4761,7 +4786,7 @@ gf_name_type gf_names[] =
 	{ GF_DISP_UNDEAD, "dispel undead" },
 	{ GF_DISP_EVIL, "dispel evil" },
 	{ GF_DISP_ALL, "dispel" },
-	{ GF_DISP_DEMON, "dispel demons" },
+	{ GF_DISP_DEMON, "dispel Maiar" },
 	{ GF_DISP_LIVING, "dispel living creatures" },
 	{ GF_ROCKET, "rocket" },
 	{ GF_NUKE, "nuke" },
@@ -4796,9 +4821,9 @@ gf_name_type gf_names[] =
 	{ GF_BETWEEN_GATE, "jumpgate creation" },
 	{ GF_WINDS_MANA, "" },
 	{ GF_DEATH, "death" },
-	{ GF_CONTROL_DEMON, "control demon" },
-	{ GF_RAISE_DEMON, "raise demon" },
-	{ GF_TRAP_DEMONSOUL, "*control demon*" },
+	{ GF_CONTROL_DEMON, "control Maia" },
+	{ GF_RAISE_DEMON, "raise Maia" },
+	{ GF_TRAP_DEMONSOUL, "*control Maia*" },
 	{ GF_ATTACK, "projected melee attacks" },
 	{ -1, NULL },
 };

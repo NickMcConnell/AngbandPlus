@@ -13,12 +13,12 @@ below from most luck to least luck.
 
 Hobbit (+5); 
 Maia (+4); 
-Gnome, Dunadan, Thunderlord (+2); 
+Gnome, Dunadan (+2); 
 Beorning (+1);
 Half-Ogre, Dark Elf, Ent (-2); 
 Orc (-3); 
 Troll (-4); 
-Petty Dwarf, DeathMold, Yeek (-5).
+Petty Dwarf, Yeek (-5).
 
 Most subraces start with no luck points. Those that start with luck are listed
 below from most luck to least luck.
@@ -50,8 +50,11 @@ Luck < -30 is treated as -30 and luck > 30 is treated as +30.
 #####G3. Items affecting luck
 Elven cloaks give a bonus to luck.
 
-Only one type of ego item is lucky, or perhaps that should be unlucky.
 All Morgul items have -10 luck.
+Weapons of Telchar give a bonus to luck.
+Weapons of the Glamhoth are unlucky.
+Lucky amulets give a bonus to luck.
+Unlucky amulets are, well, unlucky.
 
 Artifacts can affect your luck. Beware: not all artifacts give you good luck.
 Listed below are the artifacts which affect your luck.
@@ -64,26 +67,40 @@ The Ring of Power 'Vilya' (+3)
 The Metal Cap of Thengel (+3)
 The Shadow Cloak of Luthien (+2)
 The Set of Cesti of Fingolfin (+4)
+The Broken Dagger 'Angrist' (+5)
 The Long Sword 'Anduril' (+4)
+The Long Sword of Dernhelm (+5)
 The Long Bow of Bard (+2)
-The Mage Staff of Eternity (+12)
+The Mage Staff of Manwe (+12)
+The Golden Harp of Thorin (+2)
 The Harp of Maglor (+3)
 The Drum of the Sky (+2)
 The Harp of Daeron (+1)
-The Long Sword of Eternity (+10)
+The Long Sword of Tulkas (+10)
 The Robe of Great Luck (+60)
-The Heavy Crossbow of Eternity (+5)
+The Heavy Crossbow of Orome (+5)
 The Iron Helm of Knowledge (-6)
 The Shield of Deflection of Gil-galad (+5)
 The Set of Gauntlets of Eol (+3)
 The Demonblade of Gothmog (-20)
-The Long Sword 'Durandil' (+3)
-The Phial of Undeath (-5)
-The Ring of Phasing (+15)
-The Blue Stone 'Toris Mejistos' (+2)
-The Silver Bolt 'Stone-biter' (+3)
+The Elven Cloak of Peregrin Took (+3)
+The Ring 'Fuin' (+15)
+The Blue Stone 'Coimir' (+2)
 The Elven Cloak of Mellyrn (+4)
 The Set of Cesti 'Skycleaver' (+1)
+The Robe of Belegaer (+5)
+The Harp of Tom Bombadil (+4)
+The Horn 'Valaroma' (+4)
+The Sceptre of Numenor (-3)
+The Rod of Annuminas (+4)
+The Lucerne Hammer of the Eruchin (+10)
+The Trident of Ulmo (+10)
+The Broad Axe of Aule (+10)
+The Rapier of Vaire (+10)
+The Long Bow of Irmo (+5)
+The Sling of Nessa (+5)
+The Boomerang of Varda (+5)
+The Ring of Power of the Blacklocks (+3)
 
 #####G4. What does it affect.
 It affects your chance to-hit in ranged combat and melee combat.
@@ -110,3 +127,4 @@ Learning.
 
 
                                    Written for ToME 2.0 by Chris Hadgis
+				   Updated for FuryBand 3.0.0 by Cosmic Gerbil

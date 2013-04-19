@@ -1,0 +1,28 @@
+~~~~~01|Acid
+~~~~~02|Race Modifiers|Acid
+#####R=== Acid Hounds ===
+
+#####GDescription
+These hounds are resistant to acid, and also they are able to breathe 
+acid.  At level 45, they become immune to acid.
+
+#####GStat Modifiers
+Strength       +1
+Intelligence   +1   
+Wisdom         +1 
+Dexterity      +1  
+Constitution   +1
+Charisma       -5     
+Hit Dice       +0 sides        
+Exp Penalty    +0%
+
+#####GRacial Skill Modifiers:
+#####BSkill                Start Mod    Skill Point Gains Mod
+
+Powers                  0.000           [0.000]
+  Water                 1.000           [0.900]
+
+#####GStarting Equipment
+An Acid hound character begins the game with:
+    Some rations
+    Some torches

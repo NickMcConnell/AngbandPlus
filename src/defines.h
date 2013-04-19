@@ -461,7 +461,7 @@
 #define SUBRACE_SAVE    9               /* Ugly hack, should be in foo-info, the subrace saved to the savefile */
 #define PY_MAX_EXP      99999999L       /* Maximum exp */
 #define PY_MAX_GOLD     999999999L      /* Maximum gold */
-#define PY_MAX_LEVEL    50              /* Maximum level */
+#define PY_MAX_LEVEL    50              /* Maximum level */ // fury change fury
 
 /*
  * Player "food" crucial values
@@ -1432,6 +1432,12 @@
 #define TV_DRAG_ARMOR   38      /* Dragon Scale Mail */
 #define TV_LITE         39      /* Lites (including Specials) */
 #define TV_AMULET       40      /* Amulets (including Specials) */
+
+#define TV_PISTOL       41
+#define TV_BULLET       42
+#define TV_RBULLET      43
+#define TV_RIFLE		44
+
 #define TV_RING         45      /* Rings (including Specials) */
 #define TV_TRAPKIT      46      /* Trapkits */
 #define TV_TOTEM        54      /* Summoner totems */
@@ -1444,6 +1450,10 @@
 #define TV_POTION2      72      /* Second set of potion */
 #define TV_FLASK        77
 #define TV_FOOD         80
+
+
+
+
 #define TV_HYPNOS       99      /* To wield monsters !:) */
 #define TV_GOLD         100     /* Gold can only be picked up by players */
 #define TV_RANDART      102     /* Random Artifacts */
@@ -1455,6 +1465,9 @@
 #define TV_MUSIC_BOOK   113
 #define TV_DRUID_BOOK   114
 #define TV_DAEMON_BOOK  115
+
+
+
 
 
 /* The "sval" codes for TV_JUNK */
@@ -1498,6 +1511,8 @@
 #define SV_LONG_BOW                     13	/* (x3) */
 #define SV_LIGHT_XBOW                   23	/* (x3) */
 #define SV_HEAVY_XBOW                   24	/* (x4) */
+
+
 
 /* The "sval" codes for TV_DIGGING */
 #define SV_SHOVEL                        1
@@ -2051,6 +2066,24 @@
 #define SV_FOOD_GREAT_HEALTH            41
 #define SV_FOOD_FORTUNE_COOKIE          42
 
+#define SV_22PISTOL		11
+#define SV_45PISTOL     12
+#define SV_50PISTOL     13
+
+
+#define SV_BULLET      1
+#define SV_45BULLET    2
+#define SV_50BULLET    3
+
+#define SV_SNIPER			1
+#define SV_22RIFLEBULLET	2
+#define SV_M16BULLET		3
+
+#define SV_22RIFLE 12
+#define SV_M16RIFLE 13
+#define SV_MACHINEGUNRIFLE 14
+#define SV_SNIPERRIFLE 15
+
 /* The "sval" codes for TV_BATERIE */
 #define SV_BATERIE_POISON    1
 #define SV_BATERIE_EXPLOSION 2
@@ -2083,6 +2116,11 @@
 #define SV_DEMONBLADE  55
 #define SV_DEMONSHIELD 56
 #define SV_DEMONHORN   57
+
+/* the "sval" codes for TV_BULLETS */
+
+
+
 
 /*
  * Special "sval" limit -- first "normal" food
@@ -2808,7 +2846,7 @@
 #define TR1_KILL_DRAGON         0x01000000L     /* Execute Dragon */
 #define TR1_VORPAL                      0x02000000L     /* Later */
 #define TR1_IMPACT                      0x04000000L     /* Cause Earthquakes */
-#define TR1_BRAND_POIS                  0x08000000L
+#define TR1_BRAND_POIS           0x08000000L
 #define TR1_BRAND_ACID          0x10000000L
 #define TR1_BRAND_ELEC          0x20000000L
 #define TR1_BRAND_FIRE          0x40000000L
@@ -2947,7 +2985,23 @@
 #define TR5_ACTIVATE_NO_WIELD   0x00002000L     /* Can be 'A'ctivated without being wielded */
 #define TR5_MAGIC_BREATH        0x00004000L     /* Can breath anywere */
 #define TR5_WATER_BREATH        0x00008000L     /* Can breath underwater */
-#define TR5_WIELD_CAST          0x00010000L     /* Need to be wielded to cast spelsl fomr it(if it can be wiekded) */
+#define TR5_WIELD_CAST          0x00010000L     /* Need to be wielded to cast spesll from it(if it can be wiekded) */
+#define TR5_ONLY_MALE           0x00020000L     /* Only usable to males */
+#define TR5_ONLY_FEMALE         0x00040000L      /* Only usable to females */
+#define TR5_BRAND_LIGHT         0x00080000L     /* Light Brand */
+#define TR5_BRAND_DARK          0x00100000L      /* Dark Brand */
+#define TR5_BRAND_MAGIC         0x00200000L     /* Magic brand */
+#define TR5_SH_ACID             0x00400000L     /* Gives a Acid Sheath */
+#define TR5_SH_COLD             0x00800000L     /* Gives a Cold Sheath */
+#define TR5_BRAND_WATER         0x01000000L     /* Water Brand */
+#define TR5_BRAND_DEATH         0x02000000L     /* Death Brand */
+#define TR5_KILL_VAMPIRE        0x04000000L     // *KILLS* vampires
+#define TR5_THROWING            0x08000000L      // throwable
+#define TR5_SENS_COLD           0x10000000L     /* Sensitive to cold */
+#define TR5_CHARGEABLE          0x20000000L    // Chargeable
+#define TR5_PROTECTION          0x40000000L     /* Protection */
+#define TR5_ALWAYS_HIT          0x80000000L     /* Weapon Always Hits */
+#define TR5_NULL_MASK           0xFFFFFFFCL
 
 /* ESP defines */
 #define ESP_ORC                 0x00000001L
@@ -2963,7 +3017,12 @@
 #define ESP_NONLIVING           0x00000400L
 #define ESP_UNIQUE              0x00000800L
 #define ESP_SPIDER              0x00001000L
+#define ESP_SAFETY              0x00002000L
+#define ESP_SENS_ACID           0x00004000L
+#define ESP_SENS_ELEC           0x00008000L
 #define ESP_ALL                 0x80000000L
+
+// free object flags = 18
 
 /* Number of group of flags to choose from */
 #define MAX_FLAG_GROUP          12
@@ -3111,7 +3170,7 @@
 #define RBM_CLAW         5
 #define RBM_BITE         6
 #define RBM_STING        7
-#define RBM_XXX1         8
+#define RBM_PECK         8
 #define RBM_BUTT         9
 #define RBM_CRUSH       10
 #define RBM_ENGULF      11
@@ -3123,11 +3182,13 @@
 #define RBM_GAZE        17
 #define RBM_WAIL        18
 #define RBM_SPORE       19
-#define RBM_XXX4        20
+#define RBM_HUG        20
 #define RBM_BEG         21
 #define RBM_INSULT      22
 #define RBM_MOAN        23
 #define RBM_SHOW        24
+#define RBM_HOWL        25
+#define RBM_ROAR        26
 
 
 /*
@@ -3168,6 +3229,10 @@
 #define RBE_HALLU       32
 #define RBE_PARASITE    33
 #define RBE_ABOMINATION 34
+#define RBE_CHAOS       35
+#define RBE_PIETY       36
+#define RBE_FOOD        37
+#define RBE_SLASH       38
 
 
 /*** Monster flag values (hard-coded) ***/
@@ -3412,34 +3477,44 @@
 #define RF7_DROP_ART            0x00008000  /* Monster drop one art */
 #define RF7_DROP_RANDART        0x00010000  /* Monster drop one randart */
 #define RF7_AI_PLAYER           0x00020000  /* Controlled by the player */
-#define RF7_NO_THEFT		0x00040000  /* Monster is immune to theft */
-#define RF7_SPIRIT		0x00080000  /* This is a Spirit, coming from the Void */
+#define RF7_NO_THEFT		    0x00040000  /* Monster is immune to theft */
+#define RF7_SPIRIT		        0x00080000  /* This is a Spirit, coming from the Void */
 #define RF7_IM_MELEE            0x00100000  /* IM melee */
-
+#define RF7_RES_LITE            0x00200000  /* Resistance to light */
+#define RF7_RES_DARK            0x00400000  /* Resistance to darkness */
+#define RF7_RES_TIME            0x00800000  /* Resistance to time */
+#define RF7_RES_MELEE           0x01000000  /* Resistance to melee */
+#define RF7_STARWARS            0x02000000  /* Monster is a Alliance Member */
+#define RF7_NORSE               0x04000000  /* Monster is from Norse Mythos */
+#define RF7_RES_MANA            0x08000000  /* Resists Mana Damage (Yes, I am Evil) THE FURY */
+#define RF7_IM_MANA             0x10000000  /* Immune to Mana Damage (Yes, I am Evil) THE FURY */
+#define RF7_VAMPIRE             0x20000000 // is vampire
+// 3
 
 /*
  * Monster race flags
  */
 #define RF8_DUNGEON             0x00000001
 #define RF8_WILD_TOWN           0x00000002
-#define RF8_XXX8X02             0x00000004
+#define RF8_RACEX               0x00000004 // Race X monsters; mainly Half Life Related
 #define RF8_WILD_SHORE          0x00000008
 #define RF8_WILD_OCEAN          0x00000010
 #define RF8_WILD_WASTE          0x00000020
 #define RF8_WILD_WOOD           0x00000040
 #define RF8_WILD_VOLCANO        0x00000080
-#define RF8_XXX8X08             0x00000100
+#define RF8_XEN                 0x00000100
 #define RF8_WILD_MOUNTAIN       0x00000200
 #define RF8_WILD_GRASS          0x00000400
 #define RF8_NO_CUT              0x00000800
 #define RF8_CTHANGBAND          0x00001000  /* Not used in ToME */
-/* XXX */
+#define RF8_GERBIL              0x00002000
 #define RF8_ZANGBAND            0x00004000  /* Not used in ToME */
 #define RF8_JOKEANGBAND         0x00008000
 #define RF8_ANGBAND             0x00010000
+#define RF8_COMBINE             0x00020000
 
 #define RF8_WILD_TOO            0x80000000
-
+// 13
 
 /*
  * Monster race flags
@@ -3459,7 +3534,9 @@
 #define RF9_ONLY_DEPTH          0x00001000      /* The monster can only be generated at the GIVEN depth */
 #define RF9_SPECIAL_GENE        0x00002000      /* The monster can only be generated in special conditions like quests, special dungeons, ... */
 #define RF9_NEVER_GENE          0x00004000      /* The monster cannot be normaly generated */
-
+#define RF9_KIN_PROTECT         0x00008000      // summons its kin on death. Good for r_ego captains
+// 16
+// free monster flags = 32
 
 /*
  * Hack -- choose "intelligent" spells when desperate
@@ -3480,7 +3557,8 @@
     RF6_S_HI_DRAGON | RF6_S_HI_UNDEAD | RF6_S_WRAITH | RF6_S_UNIQUE | \
     RF6_S_THUNDERLORD | RF6_S_BUG | RF6_S_RNG | RF6_S_ANIMALS)
 
-
+#define RF7_INT_MASK \
+	(RF7_S_MONEY)
 /*
  * Hack -- "bolt" spells that may hurt fellow monsters
  */
@@ -3510,7 +3588,8 @@
      RF6_S_UNDEAD | RF6_S_DRAGON | RF6_S_HI_UNDEAD | RF6_S_HI_DRAGON | \
      RF6_S_WRAITH | RF6_S_UNIQUE | RF6_S_THUNDERLORD | RF6_S_BUG | RF6_S_RNG | \
      RF6_S_ANIMALS)
-
+#define RF7_SUMMON_MASK \
+	(RF7_S_MONEY)
 
 /*** Macro Definitions ***/
 
@@ -3864,7 +3943,7 @@ extern int PlayerUID;
 
 /*** Color constants ***/
 
-
+// fury changes here
 /*
  * Angband "attributes" (with symbols, and base (R,G,B) codes)
  *
@@ -3887,7 +3966,34 @@ extern int PlayerUID;
 #define TERM_L_GREEN            13  /* 'G' */   /* 0,4,0 */
 #define TERM_L_BLUE             14  /* 'B' */   /* 0,4,4 */
 #define TERM_L_UMBER            15  /* 'U' */   /* 3,2,1 */
-
+#define TERM_INDIAN_RED         16  // i
+#define TERM_PINK               17
+#define TERM_GOLD               18
+#define TERM_ROYAL_BLUE         19
+#define TERM_AQUAMARINE         20
+#define TERM_DARK_ORCHID        21
+#define TERM_CHOCOLATE          22
+#define TERM_FIREBRICK          23
+#define TERM_KHAKI              24
+#define TERM_DARK_KHAKI         25
+#define TERM_CADET_BLUE         26
+#define TERM_STEEL_BLUE         27
+#define TERM_LIGHT_STEEL_BLUE   28
+#define TERM_SANDY_BROWN        29
+#define TERM_ORCHID             30
+#define TERM_HONEYDEW           31
+#define TERM_YELLOW_GREEN       32
+#define TERM_OLIVE_DRAB         33
+#define TERM_PURPLE             34
+#define TERM_DARK_SLATE_GRAY    35
+#define TERM_SALMON             36
+#define TERM_CRIMSON            37
+#define TERM_MOCCASIN           38
+#define TERM_DARK_SEA_GREEN     39
+#define TERM_TEAL               40
+#define TERM_ANTIQUE_WHITE      41
+#define TERM_OLD_LACE           42
+#define TERM_TAN                43
 
 /*** Graphics constants ***/
 
@@ -4634,7 +4740,7 @@ extern int PlayerUID;
 #define SKILL_STUN              57
 #define SKILL_BOULDER           58
 #define SKILL_GEOMANCY          59
-
+#define SKILL_THROWING          95
 /* Ugly but needed */
 #define MAX_SKILLS              200
 

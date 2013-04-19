@@ -26,63 +26,95 @@
 #
 # Have fun with this!     --Matt G
 
-N:8:Farmer Maggot
-3
-says, 'I'm carrying CASH!'
-smirks, 'You wouldn't kill me, would you?'
-gleefully shows off a nifty object he just bought.
-2
-screams, 'Don't hurt a poor helpless hobbit!'
-yells, 'Where are my vicious dogs when I need them?'
-
 N:63:Smeagol
 27
-sniggers.
+snickers.
 grovels.
-picks his nose.
+whines.
 pines for his precious.
 searches his pockets.
 eats some slimy creatures.
-mutters, 'My precious, wheres my precious?'
-shouts, 'No Master Hobbitsisisisis!'
-cries, 'The ring was ours for agesisisisis!'
-says, 'Smeagol sneeking! ME! Shneekingsisis!'
-screams, 'Nasty Hobbitsisisisis...'
-says, 'Come on, quickly, follow Smeagol'
-says, 'Every way is guarded, silly foolsis!'
-says, 'Nasty Bagginis, stole my precious.'
-says, 'She will kill them oh yes she will precious.'
-whines, 'Weees wants some fishises.'
-says, 'Whats has its got in its pocketses, hmmm?'
-whimpers, 'We've lost itses we have.'
-says, 'He'll eastus all the world if he getsitses it.'
-says, 'No food, no rest; Smeagol a SNEAK!'
-says, 'What a dainty little dish you will be for her.'
-says, 'Hobbitses always SOOOO Polite.'
-screams, 'Stop, Thief!'
-says, 'Makeses him drop his weapon precious.'
-grovels, 'He has only four fingers on the black hand.'
-growls, 'Not nice Hobbits, not sensible!'
-says, 'If you findesis it, give it us back.'
+mutters: 'My preciouss, where iss my preciouss?'
+shouts: 'No Master Hobbitsisisisis!'
+cries: 'The ring was ours for agesisisisis!'
+says: 'Smeagol sneaking! ME! Shneeeakingsisis!'
+screams: 'Nassty Hobbitsisisisis...'
+says: 'Come on, quickly, follow Smeagol!'
+coughs: 'Gollum! Gollum!'
+says: 'Every way is guarded, silly foolsis!'
+says: 'Nassty Bagginsis, stole my precious.'
+says: 'She will kill them, oh yes she will preciouss.'
+says: 'Does it guess easy? It must have a competition with us, preciouss!'
+hisses: 'What has it got in its pocketses?'
+whimpers: 'We've lost it, we have.'
+says: 'No food, no rest; Smeagol a SNEAK!'
+says: 'What a dainty little dish you will be for her.'
+says: 'Hobbitses always SOOOO polite.'
+screams: 'Stop, Thief!'
+says: 'Makeses him drop his weapon precious.'
+grovels: 'He has only four fingers on the black hand.'
+growls: 'Not nice Hobbits, not sensible!'
+says: 'If you findesis it, give it us back.'
 3
 says, 'Don't hurt us, mastersisis.'
 says, 'Poor Smeagol, poor Smeagol.'
 says, 'No AH! Don't hurtsis us.'
 
-N:135:Mughash the Kobold Lord
-4
-says, 'I may be a kobold, but I can beat you!'
-says, 'Feel my wrath, fool!'
-says, 'Death and destruction make me happy!'
-snickers evilly.
-2
-screams, 'Cowards! Why did you abandon me?'
-begs for mercy.
-
-N:137:Wormtongue, Agent of Saruman
+N:102:Lurtz, Uruk Captain of the White Hand
+N:140:Lagduf, the Snaga
+N:170:Radbug, the Goblin
+N:186:Grishnakh, the Hill Orc
+N:215:Golfimbul, the Hill Orc Chief
+N:260:Ufthak of Cirith Ungol
+N:314:Shagrat, the Orc Captain
+N:315:Gorbag, the Orc Captain
+N:330:Bolg, Son of Azog
+N:350:Ugluk, the Uruk
+N:356:Lugdush, the Uruk
+N:370:Muzgash, the Snaga
+N:373:Azog, King of the Uruk-Hai
+N:399:Mauhur, the Uruk
+17
+fingers his blade and grins evilly.
+says, 'I'll bet your innards would taste real sweet...'
+says, 'I love the smell of fresh blood.'
+wonders aloud how many experience points you're worth.
+sings, 'Clap! Snap! the black crack!'
+sings, 'Grip, grab! Pinch, nab!'
+sings, 'And down down to Goblin-town you go, my lad!'
+sings, 'Clash, crash! Crush, smash!'
+sings, 'Hammer and tongs! Knocker and gongs!'
+sings, 'Pound, pound, far underground!'
+sings, 'Ho, ho! my lad!'
+sings ' Swish, smack! Whip crack!'
+sings 'Batter and beat! Yammer and bleat!'
+sings, 'Work, work! Nor dare to shirk,'
+sings, 'While Goblins quaff, and Goblins laugh,'
+sings, 'Round and round far underground...'
+sings, 'Below, my lad!'
 6
-whines and sniggers.
-leafs through 'Cowards Monthly.'
+screams, 'Hey, orcs have rights too!'
+says, 'You're just prejudiced against orc-kind, aren't you?'
+begs, 'Spare me and I'll get you Ringil! Really!'
+says, 'Next time, I'm bringing more Uruks with me!'
+says, 'Don't hate me because I'm ugly!'
+whimpers and grovels.
+
+N:137:Grima Wormtongue, Agent of Saruman
+3
+says, 'Lathspell I name you, Ill-news; and Ill-news is an ill guest they say.'
+says, 'Forbid his staff!'
+yells, 'You lie!'
+3
+screams, 'Let me go, let me go!'
+says, 'My messages are useless now!'
+hisses, 'You told me to; you made me do it!'
+
+N:412:Lotho Sackville-Baggins, Betrayer of the Shire
+N:374:Bill Ferny
+N:437:Harry Goatleaf, Gatekeeper of Bree
+5
+whines and snickers.
 whispers nasty things.
 says, 'I'll slaughter you slowly...'
 giggles as he fingers his knife.
@@ -93,231 +125,334 @@ whines, 'This is not my fault!'
 screams, 'Help! Help!'
 
 N:138:Robin Hood, the Outlaw
-6
+5
 eyes your money pouch covetously.
 says, 'You look like Nottingham's man to me!'
 says, 'I bet I can shoot better than you...'
-says, 'Give 'til it hurts!'
-says, 'Don't force me to put an arrow in your skull...'
-says, 'Kevin Costner has soiled my name!'
+says, 'Give till it hurts!'
+says, 'Do not force me to put an arrow in your skull...'
 3
 begs you to spare his life.
 says, 'But I'm a GOOD guy, really!'
 says, 'Money? Sure, take it all back!'
 
-#N:169:Brodda, the Easterling
-#N:291:Ulfast, Son of Ulfang
+N:254:Maedhros the Tall
+N:263:Maglor the Mighty Singer
+N:268:Celegorm the Fair
+N:274:Caranthir the Dark
+N:276:Curufin the Crafty
+N:318:Amrod, Son of Feanor
+N:319:Amras, Son of Feanor
+8
+says, 'I swore an oath which none shall break.'
+says, 'I sword an oath which none should take.'
+says, 'I swore by the name of even Iluvatar.'
+says, 'I called the Everlasting Dark upon me if I kept it not.'
+says, 'I named Manwe my witness.'
+says, 'I named Varda, and hallowed Taniquetil, my witnesses.'
+says, 'I will pursue with vengeance and hatred.'
+says, 'None shall keep or hold a Silmaril from me.'
+3
+says, 'I accept my fate.'
+says, 'This must be payment for the Kinslaying.'
+says, 'The blood of my kin burns my hands.'
 
-N:180:Orfax, Son of Boldor
-N:237:Boldor, King of the Yeeks
-5
-wonders aloud about the quality of your weapon.
-spouts torrents of taunts.
-shouts, 'YEEK! YEEK! YEEK!'
-says, 'I'll teach you to respect yeeks!'
-says, 'Feel lucky, punk?'
-2
-sobs, 'I didn't MEAN it...'
-whimpers and moans.
-
-N:200:Hobbes the Tiger
-4
-says, 'Why were people put here? TIGER FOOD!'
-says, 'Yum! Adventurer sandwiches!'
-says, 'I ate Calvin, now I'll eat YOU!'
-says, 'I'll make your short life nasty and brutish!'
-1
-yells, 'Ow! Get me back to the comics!'
-
-N:140:Lagduf, the Snaga
-N:186:Grishnakh, the Hill Orc
-N:215:Golfimbul, the Hill Orc Chief
-N:260:Ufthak of Cirith Ungol
-N:314:Shagrat, the Orc Captain
-N:315:Gorbag, the Orc Captain
-N:330:Bolg, Son of Azog
-N:350:Ugluk, the Uruk
-N:356:Lugdush, the Uruk
-N:373:Azog, King of the Uruk-Hai
-19
+N:169:Brodda, the Easterling
+N:291:Ulfast, Son of Ulfang
+N:413:Ulwarth, Son of Ulfang
+N:392:Sangahyando of Umbar
+N:380:Angamaite of Umbar
+N:573:Lorgan, Chief of the Easterlings
+N:987:Uldor the Accursed
+N:990:Ulfang the Black
+11
 fingers his blade and grins evilly.
 snickers, 'Now, I strike a blow for *our* side!'
-says, 'Orcs don't get no respect... I'm gonna change that!'
-calls your mother nasty names.
-says, 'I'll bet your innards would taste real sweet...'
+calls you names.
 belches and spits.
 scratches his armpits.
 says, 'I love the smell of fresh blood.'
 says, 'Yeeha! Another idiot to slaughter!'
-hawks a loogie in your direction.
-farts thunderously.
 wonders aloud how many experience points you're worth.
-says, 'I love being psychotic!'
 says, 'My brain's on fire with the feeling to kill!'
 says, 'I shall torture you slowly.'
-calls you a scum-sucking pig-dog.
-says, 'I shall break you!'
-says, 'You're not so tough, loser!'
-says, 'Heh-heh, heh-heh, killing people is cool.'
-6
-screams, 'Hey, orcs have rights too!'
-says, 'You're just prejudiced against orc-kind, aren't you?'
-begs, 'Spare me and I'll get you Ringil! Really!'
-says, 'Next time, I'm bringing more Uruks with me!'
-says, 'Don't hate me because I'm ugly!'
-whimpers and grovels.
-
-N:382:Mime, the Nibelung
-4
-says, 'Wagner misrepresented us!'
-says, 'I'll mess up all your stuff!'
-says, 'Give me the Rheingold, or die!'
-hums 'Ride of the Valkyries.'
-1
-screams, 'Help! Murder! Murder!'
-
-#N:392:Sangahyando of Umbar
-#N:380:Angamaite of Umbar
+says, 'I shall have your head!'
+3
+whimpers, 'No, I will really fight on your side!'
+says, 'Morgoth made me do it.'
+says, 'Please don't kill me!'
 
 #This next may be unnecessarily evil... :-]
-
 N:393:It
-6
+4
 says, 'Nyah, nyah, betcha can't find me!'
-says, 'Come get some!'
 magically summons mighty undead opponents!
-chuckles evilly.
-magically summons Cyberdemons!
-summons special opponents!
+casts a spell and cackles evilly.
+magically summons special opponents!
 2
 howls, 'I'll be back!'
-whimpers, 'They said this invisibility thing was better than it is!'
+whimpers, 'They said this invisibility thing was fool-proof!'
 
-N:441:Barney the Dinosaur
-7
-says, 'Cooperation! That's the magic word!'
-mutters, 'I *hate* those Teletubbies...'
-says, 'Won't you be my friend?'
-says, 'Let's all sing a HAPPY SONG!'
-mugs for the camera.
-simpers disgustingly.
-chews up a 'Tinky Winky' doll.
-3
-begs, 'Don't! Think of the children!'
-screams, 'But I'm a big TV star!'
-sobs, 'All right! I apologise! I really really do!'
-
-N:505:Groo the Wanderer
-4
-says: 'A fray! A fray!'
-says: 'Groo does what Groo does best!'
-says: 'All right, you savage, mindless creature. Prepare to meet your equal!'
-says: 'I will slay you, and hack you, and waste you, and destroy you!'
-3
-says: 'Did I err?'
-says: 'I did not think Groo could be frightened...'
-says: 'I need no aid! Groo is beyond help!'
-
-N:934:Fangorn the Treebeard
-6
-says: 'The night stretches out on the Isengard!'
-says: 'Trolls are strong, Ents are STRONGER!'
-says: 'Saruman will now stop using his axes on the trees...'
-says: 'have you seen some Ent women ?'
-says: 'I will crush all those burarum ... those orcs!'
-says: 'I am totally of the side of nobody since nobody is totally of my side...'
+N:441:Tom Bombadil
+8
+sings, 'Hey dol! merry dol! ring a dong dillo!'
+sings, 'Old Tom Bombadil water-lilies bringing...'
+sings, 'Goldberry, Goldberry, merry yellow berry-o!'
+sings, 'Hey! Come derry dol! Can you hear me singing?'
+says, 'Eat earth! Dig deep! Drink water! Go to sleep!'
+says, 'Bombadil is talking!'
+sings, 'Hey! Come derry dol! Hop along, my hearties!'
+sings, 'Old Tom Bombadil is a merry fellow!'
 0
 
-N:732:Bull Gates
-10
-says, '640K should be enough for ANYBODY!'
-says, 'Buy Windows 2000; the filesystem rocks!'
-says, 'Linux?  Never heard of it...'
-says, 'Resistance is futile--you will be assimilated.'
-says, 'NT is the solution for ALL your needs!'
-hacks out some code and calls it a Service Pack.
-says, 'We don't have a monopoly... Mac OS still exists!'
-wonders if he should buy a small country.
-says, 'Where will we let you go today?  The Recycle Bin!'
-cackles diabolically.
-3
-sobs, 'OK, Linux doesn't suck. Let me live?'
-screams, 'Is megalomania THAT bad?'
-apologises for MS-DOS.
+#N:467:Beorn, the Shape-Changer
+6
+says, 'They don't look dangerous!'
+laughs a great rolling laugh.
+says, 'O ho, so you've had trouble with THEM, have you?'
+says, 'I don't need your service, thank you.'
+asks, 'Where are they? Killed, eaten, gone home?'
+admonishes, 'I would have given them more than fireworks!'
+0
 
-N:733:Santa Claus
-8
-says, 'Ho ho ho! You're gonna die!'
-says, 'You're gettin' COAL in your stocking!'
-says, 'On Smasher, on Crasher, now dash away all!'
-chortles sadistically.
-says, 'You're on the Naughty List!'
-says, 'No presents for you, ever!'
-says, 'I'll sic my man-eating reindeer on you!'
-says, 'I hate Christmas so much that I've gone psychotic!'
-3
-sobs, 'Think of the children you'll disappoint!'
-sobs, 'No, Virginia, there isn't... not any more...'
-attempts to buy you off with offers of goodies.
+N:489:Varda, Lady of the Stars
+N:490:Vaire, the Weaver
+N:492:Irmo of Lorien
+N:497:Este, the Gentle
+N:498:Nienna, the Sorrowful
+N:506:Nessa the Lithe
+N:511:Orome, the Huntsman of the Valar
+N:515:Vana, the Ever-young
+56
+gazes southwards.
+reveals: The Helcaraxe is in the north-west.
+gazes northwards.
+reveals: Don't bring any glassware to the Helcaraxe.
+gazes eastwards.
+reveals: The Wastelands of the North are guarded by the Hunter.
+gazes westwards.
+reveals: The Withered Heath is in the Grey Mountains.
+sings softly.
+reveals: Utumno has not been destroyed completely.
+whispers something.
+reveals: The Blue Wizards are trapped in Utumno.
+weeps quietly.
+reveals: Utumno is in the north-east.
+looks at you sadly.
+reveals: There is an artifact that will let you identify items.
+turns away from you.
+reveals: There is a powerful artifact guarded in Near Harad.
+says, 'Don't you have a quest to complete, child?'
+reveals: The Castle of Dol Amroth is in the south.
+gazes southwards.
+reveals: A strange creature guards the Maze in the south.
+gazes northwards.
+reveals: Cirith Ungol is poisonous.
+gazes eastwards.
+reveals: There is a passage to The Lonely Isle in the southwest.
+gazes westwards.
+reveals: Saruman waits for you beneath Isengard.
+sings softly.
+reveals: To get to Khazad-Dum, you must pass through Moria.
+whispers something.
+reveals: There is a snowy passage through the Misty Mountains.
+weeps quietly.
+reveals: The Witch-Realm of Angmar will poison and disenchant.
+looks at you sadly.
+reveals: There is a great treasure in the Blue Mountains.
+turns away from you.
+reveals: You must bring a Map and a Key to Smaug's lair in Erebor.
+says, 'Don't you have a quest to complete, child?'
+reveals: Beware of the Deep Marshes.
+gazes southwards.
+reveals: Level 95 of Angband is a special level.
+gazes northwards.
+reveals: Level 85 of Angband is a special level.
+gazes eastwards.
+reveals: Level 70 of Angband is a special level.
+gazes westwards.
+reveals: Level 21 of the Orc Caves is a special level.
+sings softly.
+reveals: Level 35 of Moria is a special level.
+whispers something.
+reveals: The last level of Mount Doom never changes.
+weeps quietly.
+reveals: Mirkwood forest will lead you to the Heart of the World.
+looks at you sadly.
+reveals: There is a small water cave in Moria.
+0
 
-N:764:Uriel, Angel of Fire
-N:765:Azriel, Angel of Death
-N:769:Gabriel, the Messenger
+N:493:Bert the Stone Troll
+N:494:Bill the Stone Troll
+N:495:Tom the Stone Troll
 7
-says, 'Repent, evildoer!'
-says, 'My righteousness shall cleanse you!'
-says, 'Don't EVER steal from the collection plate!'
-says, 'God may love you, but *I* don't!'
-says, 'I shall smite thee with extreme prejudice!'
-says, 'Hope you like eternal damnation!'
-says, 'Verily, it is too late for thee.'
-3
-screams, 'Help! I am undone!'
-says, 'The Most High hath ordained this; I must follow.'
-screams, 'My God, my God, why hast thou forsaken me?'
+asks, 'What are yer?'
+asks, 'What's a burrahobbit got to do with my pockets?'
+muses, 'You wouldn't make above a mouthful.'
+taunts, 'You're a fat fool!'
+says, 'You're a booby.'
+says, 'That'll teach yer!'
+says, 'I won't take that from you!'
+0
 
+N:505:Groo the Wanderer
+0
+1
+says: 'A fray! A fray!'
+
+N:523:N:523:Ingeborg, the Runemistress
+6
+says: 'Hey, I just had a neat idea!'
+says:  'Ringil?  Never heard of it where I come from!'
+scribbles busily on a stack of parchment.
+mutters something in an unknown tongue.
+cuddles something warm and fuzzy.
+offers you a hug.
+3
+shrieks: 'Oh my! I'm doomed!'
+protests: 'Awww, I just wanted to hug you...'
+protests: 'Hey, it's only a game--please don't hurt me!'
+
+N:531:Lindal Lossehelin
+N:552:Erianyth, the Sorceress
+N:557:Karrazix the Brave
+N:564:Sir Physt
+N:572:Slappy, Abbess of Pain
+5
+asks, 'Hey, you got a Cloak of Air I can borrow?'
+states matter-of-factly, 'You're not as tough as I am.'
+asks, 'Are you going to DiTL this one?'
+brags, 'My CON is higher than yours.'
+gloats, 'I got Boots of Speed from that stupid princess.'
+2
+screams, 'See you on the t-o-m-e.net forums!'
+screams, 'ToME rules!'
+
+N:535:Zizzo, Last of the Yeeks
+N:569:Nick LeYeek, Second Last of the Yeeks
+N:595:Orfax, son of Boldor
+N:596:Boldor, King of the Yeeks
+5
+wonders aloud about your STR.
+spouts torrents of obscenities.
+shouts, 'YEEK! YEEK! YEEK!'
+wonders aloud how many experience points you're worth.
+says, 'I'll teach you to respect yeeks!'
+2
+sobs, 'I didn't MEAN it...'
+whimpers and moans.
+
+N:660:Eol, the Dark Elf
+5
+says, 'I acknowledge not your law.'
+says, 'I care nothing for your secrets.'
+says, 'I came not to spy on you but to claim my own.'
+screams, 'My son you shall not withhold from me!'
+screams, 'You shall not hold what is mine!'
+1
+'Here you may yet die the same death as I.'
+
+N:697:Smaug the Golden
+12
+says, 'Well, thief! I smell you and I feel your air. I hear your breath.'
+says, 'Come along! Help yourself, there is plenty and to spare.'
+says, 'You have nice manners for a thief and a liar.'
+wonders: 'Who are you and where do you come from, may I ask?'
+says, 'Lucky numbers don't often come off.'
+says, 'Some nasty scheme of those Lake-men, or I'm a lizard.'
+brags, 'I kill where I wish and none dare resist.'
+brags, 'I laid low the warriors of old whose like is not in the world today.'
+brags, 'Now I am old and strong, strong, strong!'
+brags, 'My armour is like tenfold shields, my teeth are swords, my claws spears.'
+brags, 'The shock of my tail is a thunderbolt, my wings a hurricane!'
+brags, 'I am armoured above and below with iron scales and hard gems.'
+2
+wails, 'No, no, no! Not the Black Arrow!'
+admits defeat.
+
+N:714:Quickbeam, the Ent
+2
+says, 'I like birds, even when they chatter.'
+shouts, 'Ra-hoom-rah!'
+0
+
+N:715:Glaurung, Father of the Dragons
+5
+calls you a thankless fosterling.
+taunts, 'Captain foolhardy!'
+calls you The Usurper of Nargothrond!
+says, 'If thou wilt be slain, I will slay thee gladly.'
+lectures, 'They lie who say we do not honour the valour of foes.'
+1
+lets out a bloodcurdling scream.
+
+N:771:Saruman of Many Colours
+3
+says, 'One ill turn deserves another.'
+brags, 'Whoever strikes me shall be accursed.'
+admonishes, 'Meddle not in policies which you do not understand.'
+3
+says, 'Spare me your pity. I would hate you even more for it.'
+croaks, 'Do not expect me to wish you health and long life.'
+lets out a shrill shriek
 
 N:850:Carcharoth, the Jaws of Thirst
-N:846:Fenris Wolf
 N:840:Draugluin, Sire of All Werewolves
-8
+7
 barks and bellows frighteningly!
 says, 'Oh good, another chew toy!'
 says, 'Yummy! I was getting tired of chicken...'
 lets out an earsplitting howl.
 drools all over the dungeon.
-lifts his leg at the nearest wall.
 says, 'Bad adventurer! No more living for you!'
 snarls and howls.
-3
+1
 cringes and whimpers.
-says, 'Look, I promise I won't bite the mailman anymore!'
-says, 'Hey, put that rolled-up newspaper down!'
 
-N:830:Cantoras, the Skeletal Lord
-N:831:Mephistopheles, Lord of Hell
 N:818:The Mouth of Sauron
-N:819:Klingsor, Evil Master of Magic
+6
+asks, 'Anyone with authority to treat with me? Not thou at least!'
+says, 'This time thou hast stuck out thy nose too far.'
+says, 'Thou shalt see what comes to him who defy Sauron the Great.'
+says, 'Take swift counsel with what little wit is left to you.'
+says, 'And now thou shalt endure the slow torment of years!'
+says, 'Do not bandy words in your insolence with the Mouth of Sauron!'
+1
+screams, 'This CAN'T be happening!'
+shouts, 'Kill me if you want, the Boss will get you!'
+
 N:804:Vecna, the Emperor Lich
 N:844:Feagwath the Undead Sorceror
 N:856:Gothmog, the High Captain of Balrogs
 N:860:Sauron, the Sorcerer
-12
+8
 brags, 'My power is beyond compare!'
-snorts, 'A mere mortal dares challenge my might? HA!'
+snorts, 'A mere mortal dares challenge my might?'
 says, 'Not another one! I just finished chewing on the last!'
-wonders aloud how many XP you're worth.
-leafs through 'Evil Geniuses For Dummies'.
-mutters, 'Another darn loser to kill...'
-says, 'Angband shall claim your remains!'
-says, 'Another 12 skulls and I get that reward from the Boss!'
+wonders aloud how many experience points you're worth.
+says, 'Hell shall claim your remains!'
 yawns at your pathetic efforts to kill him.
 says, 'Minions, slaughter this fool!'
 says, 'Set thine house in order, for thou shalt die...'
-says, 'I'm no god... God has MERCY!'
 2
 screams, 'This CAN'T be happening!'
-shouts, 'Kill me if you want, the Boss will getcha!'
+shouts, 'Kill me if you want, the Boss will get you!'
+
+N:853:Huan, Wolfhound of the Valar
+1
+asks, 'Have you seen Carcharoth? I seek him.'
+0
+
+N:861:Dark God, the Mighty Coder of Valinor
+6
+says 'Hullo'.
+emits a low 'hmmmm'.
+screams 'I came from Valinor for YOU!'.
+laughs out loudly.
+mutters something about bugs.
+asks you about the new version.
+1
+screams 'ToME rules!'.
 
 N:928:Mathilde, the Science Student
 3
@@ -327,16 +462,21 @@ skips along happily.
 1
 is surrounded by the purple aura of the RNG. Touch at your peril.
 
-N:861:Dark God, the Mighty Coder of Hell
-6
-says 'Hullo'.
-emits a low 'hmmmm'.
-screams 'I came from the Hells for YOU!'
-laughs out loudly.
-mutters something about bugs.
-asks you about the new version.
-1
-screams 'ToME rules!'.
+N:934:Fangorn the Treebeard
+5
+says: 'The night stretches out on the Isengard!'
+says: 'Trolls are strong, Ents are STRONGER!'
+says: 'Hoom, hm, ah well.'
+says: 'Saruman will now stop using his axes on the trees...'
+says: 'I will crush all those burarum ... those orcs!'
+says: 'I am totally of the side of nobody since nobody is totally of my side...'
+0
+
+N:954:The Witch-King of Angmar
+2
+says, 'Do you not know Death when you see it?'
+says, 'Thou fool. No living man may hinder me!'
+0
 
 N:969:Princess
 4
@@ -345,13 +485,18 @@ screams 'Help me !!!'.
 whines 'I need your help, great hero...'.
 implores you to help her.
 1
-screams 'I am too young to die!'.
+screams 'I didn't REALIZE I was STANDING on the stairs, OKAY???'.
 
-N:970:Merton Proudfoot, the lost hobbit
-1
-whines 'Please help me, noble hero! My leg is broken, and I cannot walk.'
-1
-whines 'No, please don't hurt me!'
+N:1010:The Insane Player
+4
+screams, 'There can be only one!'
+makes a chattering noise with his teeth.
+screams, 'Morgoth is MY quarry! GO AWAY!!!'
+scrapes some slime off the wall and eats it, repeating 'grow mold!'
+2
+whimpers, 'You sure looked harmless.'
+sobs uncontrollably.
+
 
 N:1039:Improv, the mighty MoLD
 2

@@ -1013,6 +1013,9 @@ s32b flag_cost(object_type * o_ptr, int plusses)
 	if (f2 & TR2_IM_FIRE) total += 10000;
 	if (f2 & TR2_IM_COLD) total += 10000;
 	if (f2 & TR2_SENS_FIRE) total -= 100;
+		if (f5 & TR5_SENS_COLD) total -= 100;
+			if (esp & ESP_SENS_ACID) total -= 100;
+		if (esp & ESP_SENS_ELEC) total -= 100;
 	if (f2 & TR2_REFLECT) total += 10000;
 	if (f2 & TR2_FREE_ACT) total += 4500;
 	if (f2 & TR2_HOLD_LIFE) total += 8500;
@@ -1034,6 +1037,8 @@ s32b flag_cost(object_type * o_ptr, int plusses)
 	if (f2 & TR2_RES_DISEN) total += 10000;
 	if (f3 & TR3_SH_FIRE) total += 5000;
 	if (f3 & TR3_SH_ELEC) total += 5000;
+	if (f5 & TR5_SH_ACID) total += 5000;
+		if (f5 & TR5_SH_COLD) total += 5000;
 	if (f3 & TR3_DECAY) total += 0;
 	if (f3 & TR3_NO_TELE) total += 2500;
 	if (f3 & TR3_NO_MAGIC) total += 2500;
@@ -1078,6 +1083,15 @@ s32b flag_cost(object_type * o_ptr, int plusses)
 	if (f4 & TR4_DG_CURSE) total -= 25000;
 	if (f4 & TR4_CLONE) total -= 10000;
 	if (f4 & TR4_LEVELS) total += o_ptr->elevel * 2000;
+	if (f5 & TR5_BRAND_LIGHT) total += 1000;
+
+	  if (f5 & TR5_BRAND_DARK) total += 500;
+
+	      if (f5 & TR5_BRAND_MAGIC) total += 1500;
+		  if (f5 & TR5_BRAND_WATER) total += 500;
+
+		  if (f5 & TR5_BRAND_DEATH) total += 44500;
+	
 
 	/* Also, give some extra for activatable powers... */
 
@@ -1261,6 +1275,8 @@ s32b object_value_real(object_type *o_ptr)
 	switch (o_ptr->tval)
 	{
 	case TV_BOW:
+	case TV_PISTOL:
+	case TV_RIFLE:
 	case TV_BOOMERANG:
 	case TV_DIGGING:
 	case TV_HAFTED:
@@ -1437,6 +1453,8 @@ s32b object_value_real(object_type *o_ptr)
 
 		/* Bows/Weapons */
 	case TV_BOW:
+	case TV_RIFLE:
+	case TV_PISTOL:
 	case TV_BOOMERANG:
 	case TV_DIGGING:
 	case TV_HAFTED:
@@ -1466,6 +1484,9 @@ s32b object_value_real(object_type *o_ptr)
 	case TV_SHOT:
 	case TV_ARROW:
 	case TV_BOLT:
+	case TV_BULLET:
+	case TV_RBULLET:
+	
 		{
 			/* Hack -- negative hit/damage bonuses */
 			if (o_ptr->to_h + o_ptr->to_d < 0 && !value) return (0L);
@@ -1745,6 +1766,8 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 
 		/* Weapons and Armor */
 	case TV_BOW:
+	case TV_RIFLE:
+	case TV_PISTOL:
 	case TV_BOOMERANG:
 	case TV_DIGGING:
 	case TV_HAFTED:
@@ -1788,7 +1811,9 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 	case TV_BOLT:
 	case TV_ARROW:
 	case TV_SHOT:
-		{
+	case TV_BULLET:
+	case TV_RBULLET:
+			{
 			/* Require identical knowledge of both items */
 			if (object_known_p(o_ptr) != object_known_p(j_ptr)) return (0);
 
@@ -2258,6 +2283,7 @@ void random_artifact_resistance(object_type * o_ptr)
 			give_resistance = TRUE;
 		}
 		break;
+
 	}
 
 	if (give_power)
@@ -2717,7 +2743,7 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 	case TV_BOLT:
 	case TV_ARROW:
 	case TV_SHOT:
-		{
+			{
 			if ((power == 1) && !o_ptr->name2)
 			{
 				if (randint(100) < 30)
@@ -3945,7 +3971,7 @@ void add_random_ego_flag(object_type *o_ptr, int fego, bool *limit_blows)
 	if (fego & ETR4_R_IMMUNITY)
 	{
 		/* Give a random immunity */
-		switch (randint(4))
+		switch (randint(5))
 		{
 		case 1:
 			{
@@ -3970,6 +3996,14 @@ void add_random_ego_flag(object_type *o_ptr, int fego, bool *limit_blows)
 				o_ptr->art_flags2 |= TR2_IM_COLD;
 				o_ptr->art_flags3 |= TR3_IGNORE_COLD;
 				break;
+
+			}
+			case 5:
+			{
+				o_ptr->art_flags4 |= TR4_IM_NETHER;
+			
+				break;
+
 			}
 		}
 	}
@@ -4164,6 +4198,7 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 		o_ptr->to_h = a_ptr->to_h;
 		o_ptr->to_d = a_ptr->to_d;
 		o_ptr->weight = a_ptr->weight;
+		o_ptr->pval3 = a_ptr->pval3;
 		o_ptr->number = 1;
 
 		/* Hack -- extract the "cursed" flag */
@@ -4212,8 +4247,12 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 	case TV_AXE:
 	case TV_BOOMERANG:
 	case TV_BOW:
+	case TV_PISTOL:
+	case TV_RIFLE:
 	case TV_SHOT:
 	case TV_ARROW:
+	case TV_BULLET:
+	case TV_RBULLET:
 	case TV_BOLT:
 	case TV_TRAPKIT:
 		{
@@ -4507,6 +4546,15 @@ bool kind_is_theme(int k_idx)
 	case TV_ARROW:
 		prob = match_theme.combat;
 		break;
+
+
+		case TV_BULLET:
+		prob = match_theme.combat;
+		break;
+		case TV_RBULLET:
+		prob = match_theme.combat;
+		break;
+
 	case TV_BOLT:
 		prob = match_theme.combat;
 		break;
@@ -4516,6 +4564,15 @@ bool kind_is_theme(int k_idx)
 	case TV_BOW:
 		prob = match_theme.combat;
 		break;
+
+	case TV_PISTOL:
+		prob = match_theme.combat;
+		break;
+
+		case TV_RIFLE:
+		prob = match_theme.combat;
+		break;
+
 	case TV_HAFTED:
 		prob = match_theme.combat;
 		break;
@@ -4715,6 +4772,8 @@ bool kind_is_good(int k_idx)
 
 		/* Weapons -- Good unless damaged */
 	case TV_BOW:
+	case TV_PISTOL:
+	case TV_RIFLE:
 	case TV_SWORD:
 	case TV_AXE:
 	case TV_HAFTED:
@@ -4732,6 +4791,9 @@ bool kind_is_good(int k_idx)
 		/* Ammo -- Arrows/Bolts are good */
 	case TV_BOLT:
 	case TV_ARROW:
+	case TV_BULLET:
+	case TV_RBULLET:
+
 		{
 			return (TRUE);
 		}
@@ -4878,9 +4940,12 @@ bool make_object(object_type *j_ptr, bool good, bool great, obj_theme theme)
 	/* Hack -- generate multiple spikes/missiles */
 	switch (j_ptr->tval)
 	{
-	case TV_SPIKE:
+//	case TV_SPIKE:
 	case TV_SHOT:
 	case TV_ARROW:
+	case TV_BULLET:
+	case TV_RBULLET:
+
 	case TV_BOLT:
 		{
 			j_ptr->number = (byte)damroll(6, 7);

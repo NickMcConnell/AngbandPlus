@@ -1,5 +1,5 @@
 /*
-** $Id: lauxlib.h,v 1.4 2002/01/04 03:31:23 pelpel Exp $
+** $Id: lauxlib.h,v 1.2 2001/11/26 23:00:23 darkgod Exp $
 ** Auxiliary functions for building Lua libraries
 ** See Copyright Notice in lua.h
 */
@@ -49,7 +49,7 @@ LUALIB_API int luaL_findstring (const char *name, const char *const list[]);
 */
 
 #define luaL_arg_check(L, cond,numarg,extramsg) if (!(cond)) \
-					       luaL_argerror(L, numarg,extramsg)
+                                               luaL_argerror(L, numarg,extramsg)
 #define luaL_check_string(L,n)	(luaL_check_lstr(L, (n), NULL))
 #define luaL_opt_string(L,n,d)	(luaL_opt_lstr(L, (n), (d), NULL))
 #define luaL_check_int(L,n)	((int)luaL_check_number(L, n))

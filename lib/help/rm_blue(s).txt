@@ -1,0 +1,27 @@
+~~~~~01|Blue
+~~~~~02|Race Modifiers|Blue
+#####R=== Blue Spiders ===
+
+#####GDescription
+This spider is wreathed in living lightning.  It is especially nimble 
+and agile, and its dexterity is not sapped easily.  It is resistant to
+electricity, and is surrounded by an electric sheath.  This spider has 
+the ability to dazzle monsters.
+
+
+#####GStat Modifiers
+Strength       0   
+Intelligence   0   
+Wisdom         0    
+Dexterity     +3   
+Constitution   0   
+Charisma       0      
+Hit Dice      +0 sides        
+Exp Penalty   +0%
+
+#####GSkill Bonuses (supplementary to existing skills)
+Power           0.000           [0.200]
+Air             1.000           [0.600]
+
+
+

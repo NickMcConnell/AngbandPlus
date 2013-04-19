@@ -2931,13 +2931,20 @@ bool set_stun(int v)
 {
 	int old_aux, new_aux;
 	bool notice = FALSE;
-
+	int i;
+   
+//	u32b f1, f2, f3, f4, f5, esp;
+//    object_type *o_ptr;
+//	object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
+	
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
 	if (PRACE_FLAG(PR1_NO_STUN)) v = 0;
-
+//	if (o_ptr->k_idx && (esp & (ESP_SAFETY))) v = 0;
+    if (safety_check()) v = 0;
+	
 	/* Knocked out */
 	if (p_ptr->stun > 100)
 	{
@@ -2961,7 +2968,7 @@ bool set_stun(int v)
 	{
 		old_aux = 0;
 	}
-
+ //    if (safety_check()) old_aux = 0;
 	/* Knocked out */
 	if (v > 100)
 	{
@@ -3932,9 +3939,11 @@ void monster_death(int m_idx)
 	bool cloned = FALSE;
 	bool create_stairs = FALSE;
 	int force_coin = get_coin_type(r_ptr);
-
+	
+	
 	object_type forge;
 	object_type *q_ptr;
+
 
 	/* Get the location */
 	y = m_ptr->fy;
@@ -4330,7 +4339,19 @@ void monster_death(int m_idx)
 
 		place_monster_aux(yy, xx, test_monster_name("Great Wyrm of Power"), FALSE, FALSE, m_ptr->status);
 	}
-
+	else if (r_ptr->flags9 & RF9_KIN_PROTECT)
+	{
+	
+		int x = p_ptr->px, y = p_ptr->py, k;
+		int rlev = ((r_ptr->level >= 1) ? r_ptr->level : 1);
+		cmsg_print(TERM_VIOLET, "The monsters kin come to avenge it!");
+        summon_kin_type = r_ptr->d_char;
+				for (k = 0; k < 6; k++)
+			{
+				summon_specific(y, x, rlev, SUMMON_KIN);
+				
+			}
+	}
 	/* Let monsters explode! */
 	for (i = 0; i < 4; i++)
 	{
@@ -4443,16 +4464,27 @@ void monster_death(int m_idx)
 			case RBE_SANITY:
 				typ = GF_MISSILE;
 				break;
+			case RBE_CHAOS:
+				typ = GF_CHAOS;
+				break;
+						case RBE_PIETY:
+				typ = GF_MISSILE;
+				break;
+								case RBE_FOOD:
+				typ = GF_MISSILE;
+				break;
+								case RBE_SLASH:
+				typ = GF_SHARDS;
+				break;
 			}
 
 			project(m_idx, 3, y, x, damage, typ, flg);
 			break;
 		}
 	}
-
-	if ((!force_coin) && (magik(10 + get_skill_scale(SKILL_PRESERVATION, 75))) && (!(m_ptr->mflag & MFLAG_NO_DROP)))
-		place_corpse(m_ptr);
-
+		
+	if ((!force_coin) && (magik(10 + get_skill_scale(SKILL_PRESERVATION, 75))) && (!(m_ptr->mflag & MFLAG_NO_DROP))) place_corpse(m_ptr);
+	
 	/* Take note of any dropped treasure */
 	if (visible && (dump_item || dump_gold))
 	{
@@ -7144,7 +7176,7 @@ void gain_level_reward(int chosen_reward)
 		break;
 
 	case REW_SER_DEMO:
-		msg_format("%s rewards you with a demonic servant!", chaos_patrons[p_ptr->chaos_patron]);
+		msg_format("%s rewards you with a Maiaic servant!", chaos_patrons[p_ptr->chaos_patron]);
 		if (!(summon_specific_friendly(p_ptr->py, p_ptr->px, dun_level, SUMMON_DEMON, FALSE)))
 			msg_print("Nobody ever turns up...");
 		break;

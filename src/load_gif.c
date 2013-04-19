@@ -14,7 +14,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
-#include <allegro.h>
+// #include <allegro.h>
 #include <string.h>
 
 int _color_load_depth(int depth);

@@ -1,13 +1,11 @@
 add_module
 {
-	["name"]    = "ToME",
-	["version"] = { 2, 3, 2 },
-	["author"]  = { "DarkGod", "darkgod@t-o-m-e.net" },
+	["name"]    = "FuryBand",
+	["version"] = { 3, 0, 0 },
+	["author"]  = { "The Fury", "thefurry@hvc.rr.com" },
 	["desc"] = {
-		"The Tales of Middle-earth, the standard and official game.",
-		"You are set on a quest to investigate the old tower of Dol Guldur.",
-		"But who knows what will happen...",
-	},
+		"The base version of FuryMod with the wildnerness, towns, and dungeons",
+		},
 
 	["rand_quest"] = TRUE,
 	["C_quest"] = TRUE,
@@ -19,18 +17,17 @@ add_module
 	["astral_wild_x"] = 45,
 	["astral_wild_y"] = 19,
 
-	["random_artifact_weapon_chance"] = 30,
-	["random_artifact_armor_chance"] = 20,
-	["random_artifact_jewelry_chance"] = 20,
+	["random_artifact_weapon_chance"] = 40,
+	["random_artifact_armor_chance"] = 40,
+	["random_artifact_jewelry_chance"] = 40,
 
 	["max_plev"] = 50,
-	["max_skill_overage"] = 4,
-	["skill_per_level"] = function()
-		return 6
-	end,
+	["max_skill_overage"] = 5,
+	
 
 	["mod_savefiles"]=
 	{
-		"ToME",
+		"FuryBand",
 	},
+	
 }

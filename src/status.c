@@ -187,13 +187,12 @@ void status_item(void)
 	row_x_start = 0;
 	az_line(STATNM_LENGTH, flag_arr);
 	row_bival("Sh.fire", 3, TR3_SH_FIRE, yo++, flag_arr);
-	row_bival("Sh.elec", 3, TR3_SH_ELEC, yo++, flag_arr);
-	row_bival("Regen", 3, TR3_REGEN, yo++, flag_arr);
+    row_bival("Sh.elec", 3, TR3_SH_ELEC, yo++, flag_arr);
+    row_bival("Regen", 3, TR3_REGEN, yo++, flag_arr);
 	row_bival("SlowDigest", 3, TR3_SLOW_DIGEST, yo++, flag_arr);
 	row_bival("Precog", 4, TR4_PRECOGNITION, yo++, flag_arr);
 	row_bival("Auto.Id", 4, TR4_AUTO_ID, yo++, flag_arr);
 	row_bival("Spell.In", 5, TR5_SPELL_CONTAIN, yo++, flag_arr);
-
 	c_put_str(TERM_WHITE, "Press ESC to continue", 23, 0);
 	Term_fresh();
 	while (1)

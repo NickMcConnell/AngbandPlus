@@ -164,7 +164,7 @@ void GetEventsNoWait();
  * @returns time since progrma start in milliseconds
  * @author Hj. Malthaner
  */
-long long dr_time(void);
+long  dr_time(void);
 
 
 /**

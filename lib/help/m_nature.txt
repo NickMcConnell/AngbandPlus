@@ -1,26 +1,26 @@
 |||||oy
-~~~~~01|Magic|Nature School
-~~~~~02|Nature Magic
+~~~~~01|Powers|Nature School
+~~~~~02|Nature Powers
 ~~~~~03|Skills|Nature - Spell Info
-#####R === ToME Magic - Nature School ===
+#####R === FuryBand Powers - Nature School ===
 
 The nature school of magic contains spells that interact with nature. There
 are rumours of a "Tome of the Tree" which contains all the nature school
 spells within its bindings.
 
 Worshipping the Goddess Yavanna Kementari also gives the ability to cast spells
-from the nature school at a level of 1/2 of your prayer level. E.g. if the skill
+from the nature school at a level of 1/2 of your prayer level. e.g. If the skill
 "Spirituality: Prayer" is at level 10, you can cast up to level 5 nature school
 spells.
 
 #####GNature Spells
-There are five spells available for the nature school. These spells are:
+There are six spells available for the nature school. These Spells are:
 1. [[[[[GGrow Trees] (dual school level 6)
    Makes trees grow extremely quickly around you.
 #####v   Your Nature and Temporal skills must have reached a combined average level 
 #####v   of 6 in order to cast this spell.
 2. [[[[[GHealing] (school level 10)
-   Heals a portion of your hitpoints.
+   Heals a percent of hitpoints.
 3. [[[[[GRecovery] (school level 15)
    Reduces the length of time that you are poisoned.
    At spell level 5 it cures poison and cuts.
@@ -30,6 +30,8 @@ There are five spells available for the nature school. These spells are:
    Increases your body's regeneration rate.
 5. [[[[[GSummon Animal] (school level 25)
    Summons a leveled animal to your aid.
+6. [[[[[GGrow Athelas] (school level 30)
+   Cures Black Breath.
 
 
 #####GAir spells that can be cast with Nature skill
@@ -47,7 +49,7 @@ There are five spells available for the nature school. These spells are:
 #####GUdun spells that can be cast with Nature skill
 
 1. [[[[[DGenocide] (dual school level 25)
-   Genocides all monsters of a specified race on the level.
+   Genocides all monsters of a race on the level.
    At level 10 it can genocide all monsters near you.
 #####v   Your Nature and Udun skills must have reached a combined average level 
 #####v   of 25 in order to cast this spell.

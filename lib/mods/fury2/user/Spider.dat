@@ -1,0 +1,433 @@
+  [FuryMod Town Version 1.0.3 Character Sheet]
+
+ Name  : Jehrak                 Age                  1       STR:     40       
+ Sex   : Male                   Height               0       INT:     40       
+ Race  : Spider Ancient         Weight               1       WIS:     40       
+ Class : Master                 Social Class         1       DEX:     40       
+ Body  : Player                                              CON:     40       
+ God   : Eru Iluvatar                                        CHR:     40       
+                                                                               
+ + To Melee Hit          87 Level             50    Max Hit Points       384   
+ + To Melee Damage       82 Experience  22240289    Cur Hit Points       384   
+ + To Ranged Hit         87 Max Exp     22240289    Max SP (Mana)       2305   
+ + To Ranged Damage       0 Exp to Adv.    *****    Cur SP (Mana)       2305   
+   AC                36+222 Gold        10547117    Piety             -14249   
+                                                                               
+                         (Miscellaneous Abilities)                             
+ Fighting    : Legendary[45]Perception  : Good         Blows/Round:  29        
+ Bows/Throw  : Legendary[15]Searching   : Very Good    Shots/Round:  1         
+ Saving Throw: Very Good    Disarming   : Bad          Mel.dmg/Rnd:  2436-7018 
+ Stealth     : Excellent    Magic Device: Bad          Infra-Vision: 1430 feet 
+                                                       Tactic:       berserker 
+                                                       Explor:       running   
+                         (Character Background)                                
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+
+
+  [Miscellaneous information]
+
+ Joke monsters:        OFF
+ Maximize mode:        ON
+ Preserve Mode:        ON
+ Autoscum:             ON
+ Small Levels:         ALWAYS
+ Arena Levels:         ON
+ Always unusual rooms: OFF
+ Persistent Dungeons:  OFF
+
+ Recall Depth:
+        Angband: Level 112 (5600')
+
+ Your body was a Player.
+ You have defeated 3147 enemies.
+ You saved 48 princesses.
+ You found none of the relic pieces.
+
+ You started your adventure the 43rd Yavie of the 2890th year of the third age.
+ You ended your adventure the 5th Quelle of the 2890th year of the third age.
+ Your adventure lasted 19 days.
+
+     Your Attributes:
+You are dead, killed by Ripe Old Age in the town of Bree.
+You are able throw a thick and very resistant spider web.
+You are protected by a mystic shield.
+Your eyes are sensitive to infrared light.
+You can see invisible creatures.
+You levitate just over the ground.
+You can climb high mountains.
+You have free action.
+You regenerate quickly.
+Your appetite is small.
+You have ESP.
+You are very lucky.
+You have a firm hold on your life force.
+You are carrying a permanent light.
+You are completely immune to acid.
+You are completely immune to lightning.
+You are completely immune to fire.
+You are completely immune to cold.
+You are resistant to poison.
+You are resistant to bright light.
+You are resistant to darkness.
+You are resistant to confusion.
+You are resistant to sonic attacks.
+You are resistant to disenchantment.
+You are resistant to chaos.
+You are resistant to blasts of shards.
+You are resistant to nexus attacks.
+You are resistant to nether forces.
+You are completely fearless.
+Your eyes are resistant to blindness.
+Your strength is sustained.
+Your intelligence is sustained.
+Your wisdom is sustained.
+Your constitution is sustained.
+Your dexterity is sustained.
+Your charisma is sustained.
+Your strength is affected by your equipment.
+Your intelligence is affected by your equipment.
+Your wisdom is affected by your equipment.
+Your dexterity is affected by your equipment.
+Your constitution is affected by your equipment.
+Your charisma is affected by your equipment.
+Your stealth is affected by your equipment.
+Your searching ability is affected by your equipment.
+Your infravision is affected by your equipment.
+Your speed is affected by your equipment.
+Your attack speed is affected by your equipment.
+
+Skills (points left: 0)
+ - Combat                                        13.600 [0.300]
+          . Barehand-combat                      43.000 [0.500]
+ - Sneakiness                                    01.000 [0.900]
+          . Stealth                              00.000 [0.400]
+          . Disarming                            01.000 [0.300]
+ - Powers                                        50.000 [1.000]
+          . Devices                              01.000 [1.000]
+          . Power                                50.000 [0.600]
+          . Mastery                              50.000 [1.200]
+          . Energy                               00.900 [0.900]
+          - Geomancy                             01.000 [0.300]
+                   . Fire                        03.000 [1.000]
+                   . Water                       01.000 [1.000]
+                   . Air                         04.000 [1.000]
+                   . Earth                       01.000 [1.000]
+          . Meta                                 01.000 [1.000]
+          . Movement                             01.000 [1.000]
+          . Knowledge                            01.000 [1.000]
+          . Temporal                             01.000 [1.000]
+          . Mind                                 01.000 [1.000]
+          . Nature                               01.000 [1.000]
+          . Runecraft                            00.000 [0.900]
+          . Innate                               00.000 [0.900]
+ - Spirituality                                  29.050 [0.550]
+          . Prayer                               00.000 [0.500]
+ - Monster-lore                                  00.000 [0.800]
+          . First-aid                            01.000 [0.600]
+
+Abilities
+ * Perfect casting
+
+
+  [Fates]
+
+You are fated to meet a White midge on level 18.
+You are fated to die on level 1.
+You are fated to find a 0 on level 1.
+You are fated to meet a Blue jelly on level 18.
+
+
+  [Character Equipment]
+
+e) The Ring of Power 'Nenya' (+9,+9) (+2) {cursed}
+        It can be activated for healing (800) every 100+d200 turns if it is
+    being worn. It increases your strength, intelligence, wisdom, 
+    dexterity, constitution, charisma, stealth, speed and luck by 2.  It
+    sustains your intelligence, wisdom and charisma.  It provides immunity 
+    to cold.  It provides immunity to paralysis.  It provides resistance 
+    to life draining and blindness.  It allows you to see invisible
+    monsters.  It gives telepathic powers.  It is cursed.  It cannot be
+    harmed by acid, cold, lightning or fire.  
+    You found it in the remains of Nodens, Lord of the Great Abyss on level 97
+    of Angband.
+f) The Ring of Power 'Vilya' (+12,+12) (+3)
+    It can be activated for greater healing (900) every
+    200+d200 turns if it is being worn. It increases your strength, 
+    intelligence, wisdom, dexterity, constitution, charisma, speed and 
+    luck by 3.  It sustains your strength, dexterity and constitution.  It
+    provides immunity to electricity.  It provides immunity to paralysis.  
+    It provides resistance to life draining, poison and disenchantment.  
+    It allows you to levitate.  It allows you to see invisible monsters.  
+    It slows your metabolism.  It speeds your regenerative powers.  It
+    cannot be harmed by acid, cold, lightning or fire.  
+    You found it in the remains of Shub-Niggurath, Black Goat of the Woods on
+    level 112 of Angband.
+g) The Ring of Power 'Narya' (+6,+6) (+1)
+    It can be activated for healing (500) every
+    200+d100 turns if it is being worn. It increases your strength, 
+    intelligence, wisdom, dexterity, constitution, charisma, speed and 
+    luck by 1.  It sustains your strength, wisdom, constitution and 
+    charisma.  It provides immunity to fire.  It provides immunity to
+    paralysis.  It makes you completely fearless.  It provides resistance 
+    to nether.  It allows you to see invisible monsters.  It speeds your
+    regenerative powers.  It cannot be harmed by acid, cold, lightning or
+    fire.  
+    You found it in the remains of a Great Ice Worm on level 73 of Angband.
+h) The Ring 'Kemban' (+9)
+    
+    It increases your speed and ability to score critical hits by 9.  It
+    makes you completely fearless.  It provides resistance to cold, light, 
+    dark, blindness and nether.  It slows your metabolism.  It cannot be
+    harmed by acid, cold, lightning or fire.  
+    You found it in the remains of Nyogtha, the Thing that Should not Be on
+    level 100 of Angband.
+i) The Ring 'Heruntin' (+6)
+    It increases your searching, infravision, speed, 
+    attack speed and ability to score critical hits by 6.  It sustains 
+    your intelligence.  It provides resistance to dark and sound.  It
+    allows you to fly.  It slows your metabolism.  It cannot be harmed by
+    acid, cold, lightning or fire.  
+    You found it lying on the ground on level 96 of Angband.
+j) The Speed Ring of Lornen (+17 to speed)
+    It increases 
+    your dexterity, constitution, stealth, speed, attack speed and ability
+    to score critical hits by 17.  It sustains your strength, intelligence
+    , wisdom, dexterity and constitution.  It provides resistance to acid, 
+    electricity, blindness, confusion, shards, nether and nexus.  It
+    cannot be harmed by acid, cold, lightning or fire.  
+    You found it in the remains of a Greater Balrog on level 73 of Angband.
+k) The Elfstone 'Elessar' (+7,+7) [+10] (+4)
+    
+    It can be activated for heal and cure black breath every 200 turns if
+    it is being worn. It provides light (radius 3) forever.  It increases 
+    your strength, wisdom, charisma and speed by 4.  It makes you
+    completely fearless.  It provides resistance to fire, poison and 
+    disenchantment.  It cannot be harmed by acid, cold, lightning or fire.
+    
+    You found it in the remains of Fluithuin the Ogress, Consort of Morgoth on
+    level 75 of Angband.
+m) The Arkenstone of Thrain (+3)
+    It can be activated for detection every 30+d30
+    turns if it is being worn. It provides light (radius 3) forever.  It 
+    increases your speed and luck by 3.  It provides resistance to life
+    draining, light, dark and chaos.  It allows you to see invisible
+    monsters.  It allows you to sense the presence of orcs.  It cannot be
+    harmed by acid, cold, lightning or fire.  
+    You found it in the remains of a Dracolisk on level 63 of Angband.
+n) The Leather Scale Mail 'Thalkettoth' (-1) [11,+25] (+3)
+    It 
+    increases your dexterity and speed by 3.  It provides resistance to 
+    acid, poison and shards.  It cannot be harmed by acid, cold, lightning
+    or fire.  
+    You found it in the remains of a Great Worm of Perplexity on level 98 of
+    Angband.
+o) The Cloak 'Holcolleth' [1,+4] (+2)
+    It can be activated for sleep nearby monsters every 55 turns
+     if it is being worn. It increases your intelligence, wisdom, stealth
+     and speed by 2.  It provides resistance to acid.  It cannot be harmed
+    by acid, cold, lightning or fire.  
+    It was given to you as a reward.
+p) The Shield of Deflection of Gil-galad [10,+20] (+5)
+    It can be activated for starlight (75)
+    every 75+d75 turns if it is being worn. It provides light (radius 1)
+    forever.  It increases your wisdom, charisma, searching and luck by 5.
+    It sustains your wisdom, dexterity and charisma.  It provides
+    resistance to acid, electricity, dark and disenchantment.  It cannot
+    be harmed by acid, cold, lightning or fire.  
+    You found it in the remains of Ancalagon the Black on level 72 of Angband.
+q) The Small Mithril Shield of Thorin [3,+25] (+4)
+    
+    It increases your strength and constitution by 4.  It provides
+    immunity to acid.  It provides immunity to paralysis.  It provides
+    resistance to sound, shards and chaos.  It allows you to sense the
+    presence of orcs.  It cannot be harmed by acid, cold, lightning or
+    fire.  
+    You found it in the remains of The Unicorn of Order on level 106 of
+    Angband.
+s) The Massive Iron Crown of Morgoth [0,+0] (+125) {cursed}
+    It provides light (radius 1) forever.  It increases your 
+    strength, intelligence, wisdom, dexterity, constitution, charisma and 
+    infravision by 125.  It provides resistance to acid, electricity, fire
+    , cold, poison, light, dark, confusion, nether and nexus.  It allows
+    you to see invisible monsters.  It gives telepathic powers.  It is
+    permanently cursed.  It cannot be harmed by acid, cold, lightning or
+    fire.  
+    You found it in the remains of a Munchkin on level 77 of Angband.
+u) The Set of Gauntlets 'Paurnimmen' [2,+15] (+4)
+    It
+    can be activated for frost bolt (6d8) every 7+d7 turns if it is being
+    worn. It can be used to store a spell.  It increases your constitution
+     by 4.  It sustains your constitution.  It provides resistance to cold
+    .  It speeds your regenerative powers.  It cannot be harmed by acid,
+    cold, lightning or fire.  
+    It was given to you as a reward.
+v) a Set of Mithril Gauntlets of Free Action [4,+17]
+x) a Pair of Soft Leather Boots of Speed [2,+7] (+10)
+y) The Pair of Hard Leather Boots of Feanor [3,+20] (+15)
+    It can be activated for speed (dur
+    20+d20) every 250 turns if it is being worn. It increases your speed
+     by 15.  It provides resistance to nexus.  It cannot be harmed by
+    acid, cold, lightning or fire.  
+    You found it lying in a vault on level 99 of Angband.
+z) (nothing)
+{) (nothing)
+|) The Rod of Annuminas (+4)
+    It can be
+    activated for rune of protection every 400 turns if it is being worn. 
+    It can be used to store a spell.  It increases your charisma and luck
+     by 4.  It provides immunity to paralysis.  It provides resistance to 
+    confusion.  It has been blessed by the gods.  It cannot be harmed by
+    acid, cold, lightning or fire.  
+    You found it in the remains of a Great Worm of Balance on level 73 of
+    Angband.
+
+
+  [Character Inventory]
+
+a) 3 Potions of *Healing*
+b) The Crumpled Scroll of Mass Resurrection
+    It cannot be harmed by acid, cold, lightning or fire.  
+    You found it in the remains of an Oathbreaker on level 76 of Angband.
+c) The Ring of Power of Akhorahil the Blind (+1) {cursed}
+    
+    It provides light (radius 3) forever.  It increases your charisma by 1
+    .  It makes you invisible.  It sustains your intelligence.  It
+    provides resistance to fire, nether and nexus.  It allows you to
+    levitate.  It allows you to see invisible monsters.  It produces a
+    fiery sheath.  It drains experience.  It is heavily cursed.  It cannot
+    be dropped while cursed.  It cannot be harmed by acid, cold, lightning
+    or fire.  
+    You found it in the remains of Akhorahil the Blind on level 99 of Angband.
+d) a Glowing Ring of Intelligence (+6)
+    
+    It provides light (radius 1) forever.  It increases your intelligence
+     by 6.  It sustains your intelligence.  It cannot be harmed by acid,
+    cold, lightning or fire.  
+    You bought it from the Black Market.
+e) a Draconic Ring of Intelligence (+4,+2) [+2] (+6)
+    It increases your intelligence by 
+    6.  It sustains your intelligence.  It allows you to sense the
+    presence of dragons.  It cannot be harmed by acid, cold, lightning or
+    fire.  
+    You bought it from the Black Market.
+f) a Demonic Ring of Speed (+11)
+g) a Dazzling Ring of Speed (+11)
+h) The Ring of Vandil (+9)
+    It increases your charisma and 
+    speed by 9.  It provides resistance to poison, blindness, confusion
+     and nexus.  It allows you to fly.  It allows you to see invisible
+    monsters.  It cannot be harmed by acid, cold, lightning or fire.  
+    You found it in the remains of a Great Worm of Balance on level 73 of
+    Angband.
+i) a Blessed Ring of Speed [+7] (+7)
+j) The Ring of Barahir (+1)
+    It can be activated for dispel small life every 55+d55 turns
+     if it is being worn. It increases your strength, intelligence, wisdom
+    , dexterity, constitution, charisma, stealth and searching by 1.  It
+    provides resistance to poison and dark.  It allows you to see
+    invisible monsters.  It cannot be harmed by acid, cold, lightning or
+    fire.  
+    You found it in the remains of a Dracolisk on level 59 of Angband.
+k) a Lucky Amulet of the Magi (-4,-4) (+4 to searching)
+    It
+    can be used to store a spell.  It increases your intelligence, 
+    searching and luck by 4.  It sustains your intelligence.  It provides
+    immunity to paralysis.  It provides resistance to blindness and 
+    confusion.  It slows your metabolism.  It has been blessed by the
+    gods.  It cannot be harmed by acid, cold, lightning or fire.  
+    You found it in the remains of an Ancient black dragon on level 105 of
+    Angband.
+l) The Amulet of Carlammas (+2)
+    It can be activated for protection from evil (dur level*3 +
+    d25) every 225+d225 turns if it is being worn. It increases your 
+    constitution by 2.  It provides resistance to fire.  It cannot be
+    harmed by acid, cold, lightning or fire.  
+    You found it in the remains of Corwin, Lord of Avalon on level 97 of
+    Angband.
+m) The Amulet of Onumlada (+3)
+    It increases your dexterity, stealth, infravision and speed by 
+    3.  It sustains your dexterity.  It provides resistance to poison, 
+    dark, shards, nexus and disenchantment.  It speeds your regenerative
+    powers.  It cannot be harmed by acid, cold, lightning or fire.  
+    You found it in the remains of Cantoras, the Skeletal Lord on level 98 of
+    Angband.
+n) The Metal Brigandine Armour of the Rohirrim [19,+15] (+2)
+    It increases your strength, dexterity and speed by 2.  It
+    makes you completely fearless.  It provides resistance to acid, 
+    electricity, fire, cold, confusion, sound and shards.  It cannot be
+    harmed by acid, cold, lightning or fire.  
+    You found it lying on the ground on level 61 of Angband.
+o) a Shield of Deflection of Resistance [10,+28]
+    It provides
+    resistance to acid, electricity, fire and cold.  It cannot be harmed
+    by acid, cold, lightning or fire.  
+    You found it in the remains of a Great Worm of Perplexity on level 98 of
+    Angband.
+p) The Pair of Soft Leather Boots 'Dal-i-thalion' [2,+15] (+5)
+    It can be activated for remove fear and cure poison every 5
+    turns if it is being worn. It increases your dexterity and charisma by 
+    5.  It sustains your constitution and charisma.  It provides immunity
+    to paralysis.  It provides resistance to confusion, nether and chaos.  
+    It cannot be harmed by acid, cold, lightning or fire.  
+    It was given to you as a reward.
+q) The Katana 'Arahtar' (3d4) (+4,+17) (+3 attacks)
+r) The Great Scimitar 'Anyaraur' (4d5) (+17,+14) (+3 attacks)
+    It must be wielded two-handed.  It 
+    increases your attack speed by 3.  It produces chaotic effects.  It is
+    very sharp and can make your foes bleed.  It strikes at undead with
+    holy wrath.  It is especially deadly against natural creatures.  It
+    cannot be harmed by acid, cold, lightning or fire.  
+    You found it in the remains of a Great Bile Worm on level 96 of Angband.
+s) The Key of Thorin
+    
+    It cannot be harmed by acid, cold, lightning or fire.  
+    You found it in the remains of Sauron, the Sorcerer on level 99 of Angband.
+t) The Parchment - Map of Thror
+u) (nothing)
+v) (nothing)
+w) (nothing)
+
+
+  [Home Inventory - Bree ]
+
+a) The Star of Elendil (+1)
+    
+    It can be activated for light (dam 2d15) & map area every 50+d50 turns
+     if it is being worn. It grants you the power of detect curses if it
+    is being worn.  It provides light (radius 4) forever.  It increases 
+    your speed by 1.  It provides resistance to life draining.  It allows
+    you to see invisible monsters.  It cannot be harmed by acid, cold,
+    lightning or fire.  
+    You found it in the remains of a Great Ice Worm on level 73 of Angband.
+b) The Silmaril of the Seas (+2) {cursed}
+    
+    It can be activated for word of recall every 200 turns if it is being
+    worn. It grants you the power of banish evil if it is being worn.  It
+    provides light (radius 5) forever.  It increases your intelligence by 
+    2.  It provides resistance to light, dark, nether, nexus and chaos.  
+    It allows you to see invisible monsters.  It allows you to sense the
+    presence of evil beings.  It drains life and experience.  It is
+    heavily cursed.  It can re-curse itself.  It cannot be harmed by acid,
+    cold, lightning or fire.  
+    You found it in the remains of Atlas, the Titan on level 77 of Angband.
+c) The Pair of Soft Leather Boots of Wormtongue (-10,-10) [2,+10] (+3)
+d) The Long Sword 'Sereghathol' (E:25, L:2) (5d5) (+32,+32) (+2 to speed)
+e) The Mighty Hammer 'Grond' (E:25, L:2) (9d9) (+25,+25) [+10]
+    
+    It must be wielded two-handed.  It can be activated for alter reality
+    every 100 turns if it is being worn. It can cause earthquakes.  It is
+    a great bane of dragons.  It is especially deadly against orcs.  It is
+    especially deadly against trolls.  It is a great bane of demons.  It
+    is a great bane of undead.  It fights against evil with holy fury.  It
+    is especially deadly against natural creatures.  It provides
+    resistance to acid, electricity, fire and cold.  It allows you to see
+    invisible monsters.  It gives telepathic powers.  It produces an
+    anti-magic shell.  It aggravates nearby creatures.  It cannot be
+    harmed by acid, cold, lightning or fire.  
+    You found it in the remains of a Great Worm of Balance on level 73 of
+    Angband.
+
+

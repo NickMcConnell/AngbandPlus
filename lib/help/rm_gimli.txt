@@ -1,0 +1,39 @@
+~~~~~01|Gimli
+~~~~~02|Race Modifiers|Gimli
+#####R=== Gimli Race ===
+
+#####GDescription
+Gimli is a dwarf, one of the Nine members of the Fellowship of the 
+Ring.  He is the son of Gloin, who was one of the thirteen companions
+of Thorin Oakenshield, on Bilbo's great adventure.
+
+#####GStat Modifiers
+Strength       +3
+Intelligence   +3
+Wisdom         -2  
+Dexterity      -4   
+Constitution   +5  
+Charisma       -2      
+Hit Dice       +10 sides
+Exp Penalty    +100%
+
+#####GRacial Skill Modifiers:
+#####BSkill                Start Mod    Skill Point Gains Mod
+Combat                  
+  Weaponmastery         1.200           [0.100]
+    Axe-mastery         1.000           [1.000]
+Sneakiness              1.000           [0.200]
+  Stealth              -2.000           [0.000]
+  Disarming            -0.200           [0.000]    
+Powers                
+  Devices              -1.000           [0.000]
+Spirituality            0.200           [0.000]
+
+#####GStarting Equipment
+Gimli begins the game with:
+    The Pair of Metal Shod Boots of Gimli
+    The Lochaber Axe of the Dwarves
+    The Mattock of Nain 
+    A Ring of Fear Resistance
+    Some rations
+    Some torches

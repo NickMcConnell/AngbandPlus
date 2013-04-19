@@ -160,6 +160,8 @@ static void corpse_effect(object_type *o_ptr, bool cutting)
 			case RBM_BEG:
 			case RBM_INSULT:
 			case RBM_MOAN:
+			case RBM_HOWL:
+			case RBM_ROAR:
 				{
 					continue;
 				}
@@ -3777,7 +3779,7 @@ void do_cmd_use_staff(void)
 	/* Get an item */
 	q = "Use which staff? ";
 	s = "You have no staff to use.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR | USE_EXTRA))) return;
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR | USE_EXTRA | USE_EQUIP))) return;
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -3819,7 +3821,11 @@ void do_cmd_use_staff(void)
 	{
 		chance /= 3;
 	}
-
+    // Is it being wielded?
+	if ((p_ptr->inventory[INVEN_ARM].k_idx) && (p_ptr->inventory[INVEN_ARM].tval == TV_STAFF))
+	{
+		chance /= 3;
+	}
 	/* Give everyone a (slight) chance */
 	if ((chance < USE_DEVICE) && (rand_int(USE_DEVICE - chance + 1) == 0))
 	{
@@ -3980,7 +3986,7 @@ void do_cmd_aim_wand(void)
 	/* Get an item */
 	q = "Aim which wand? ";
 	s = "You have no wand to aim.";
-	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR | USE_EXTRA))) return;
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR | USE_EXTRA | USE_EQUIP))) return;
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -6517,7 +6523,7 @@ turn_monsters(40 + p_ptr->lev);
 
 		case ACT_SUMMON_DEMON:
 			{
-				if (!doit) return "summon demon every 666+d333 turns";
+				if (!doit) return "summon mMaia every 666+d333 turns";
 				if (randint(3) == 1)
 				{
 					if (summon_specific(p_ptr->py, p_ptr->px, ((plev * 3) / 2), SUMMON_DEMON))

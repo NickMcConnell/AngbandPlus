@@ -27,11 +27,12 @@ Combat
 Sneakiness
   Stealth              -2.000           [0.000]
   Disarming            -0.200           [0.000]
-Magic                   
-  Magic-Device         -1.000           [0.000]
+Powers              
+  Devices              -1.000           [0.000]
 Spirituality            0.200           [0.000]
 
 #####GStarting Equipment
 A barbarian character begins the game with:
     Some rations
     Some torches
+    

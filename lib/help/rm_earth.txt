@@ -1,0 +1,28 @@
+~~~~~01|Earth
+~~~~~02|Race Modifiers|Earth
+#####R=== Earth Hounds ===
+
+#####GDescription
+These hounds are resistant to shards, and also they are able to breathe 
+shards.
+
+#####GStat Modifiers
+Strength       +4
+Intelligence   -4   
+Wisdom         -4 
+Dexterity      -4  
+Constitution   +5
+Charisma       +0     
+Hit Dice       +0 sides        
+Exp Penalty    +0%
+
+#####GRacial Skill Modifiers:
+#####BSkill                Start Mod    Skill Point Gains Mod
+
+Powers                  0.000           [0.000]
+  Earth                 1.000           [0.900]
+
+#####GStarting Equipment
+An Earth hound character begins the game with:
+    Some rations
+    Some torches

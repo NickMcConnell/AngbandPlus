@@ -1,0 +1,29 @@
+~~~~~01|Cold
+~~~~~02|Race Modifiers|Cold
+#####R=== Cold Hounds ===
+
+#####GDescription
+These hounds are resistant to cold.  They are the speediest of all 
+hounds, and as they gain levels, they become even faster.  At level 45 
+they become immune to cold.  They are able to breathe cold.
+
+#####GStat Modifiers
+Strength       +1
+Intelligence   +0   
+Wisdom         +0 
+Dexterity      +0  
+Constitution   +1 
+Charisma       +0     
+Hit Dice       +0 sides        
+Exp Penalty    +0%
+
+#####GRacial Skill Modifiers:
+#####BSkill                Start Mod    Skill Point Gains Mod
+
+Combat                  0.000           [0.000]
+  Barehand-combat       1.000           [0.600]
+
+#####GStarting Equipment
+A Cold hound character begins the game with:
+    Some rations
+    Some torches

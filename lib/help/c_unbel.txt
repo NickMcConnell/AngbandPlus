@@ -62,4 +62,3 @@ space-time continuum, so preventing teleportation, to sense the magical
 emanations coming from traps and to destroy these around them. 
 These abilities are accessed using the 'm' key.
 
-

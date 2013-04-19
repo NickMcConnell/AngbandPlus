@@ -1,0 +1,33 @@
+~~~~~01|Druedain
+~~~~~02|Races|Druadan
+#####R=== Druedain ===
+
+#####GDescription
+An ancient branch of the race of Men, they are somewhat weaker, but wiser
+and better at disguise. They can learn to throw poisoned darts (of which 
+they carry an unlimited supply). They are also inherently resistant to 
+poison, and can become adequate fighters.
+
+#####GStat Modifiers
+Strength        -2   
+Intelligence    -3   
+Wisdom          2   
+Dexterity       3   
+Constitution    -2  
+Charisma        -2       
+Hit Dice Sides  9         
+Exp Penalty     +15%
+
+#####GRacial Skill Modifiers:
+#####BSkill                Start Mod    Skill Point Gains Mod
+Combat                   
+  Weaponmastery           1.000           [0.000]
+  Archery                 0.800           [0.000]
+    Boomerang-mastery     0.000           [0.250]
+    Throwing              1.000           [0.500]
+Sneakiness                0.100           [0.000]
+  Stealth                 1.000           [0.000]
+  Disarming              -0.200           [0.000]
+Powers                   
+  Devices                -0.300           [0.000]
+Spirituality             -0.200           [0.000]

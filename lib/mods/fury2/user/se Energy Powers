@@ -1,0 +1,184 @@
+  [FuryMod Town Version 1.1.4 Character Sheet]
+
+ Name  : The Fury               Age                 15       STR:     14       
+ Sex   : Male                   Height              61       INT:     12       
+ Race  : Druadan                Weight             191       WIS:     14       
+ Class : Ammoless archer        Social Class         6       DEX:     23       
+ Body  : Player                                              CON:     15       
+ God   : Nobody                                              CHR:      9       
+                                                                               
+ + To Melee Hit           4 Level              1    Hit Points       -1/    13 
+ + To Melee Damage        0 Experience        10    Spell Points      7/     9 
+ + To Ranged Hit         13 Max Exp           10    Sanity           10/    10 
+ + To Ranged Damage       8 Exp to Adv.       14                               
+   AC                   4+7 Gold             204    Speed               Normal 
+                                                                               
+                         (Miscellaneous Abilities)                             
+ Fighting    : Bad          Perception  : Bad          Blows/Round:  1         
+ Bows/Throw  : Fair         Searching   : Bad          Shots/Round:  1         
+ Saving Throw: Bad          Disarming   : Bad          Mel.dmg/Rnd:  nil!      
+ Stealth     : Bad          Magic Device: Bad          Infra-Vision: 0 feet    
+                                                       Tactic:       normal    
+                                                       Explor:       normal    
+                         (Character Background)                                
+          You are one of several children of a Druadan Hunter.  You            
+          have black eyes, wavy black hair and a very dark                     
+          complexion.                                                          
+                                                                               
+
+
+  [Miscellaneous information]
+
+ Joke monsters:        OFF
+ Maximize mode:        ON
+ Preserve Mode:        ON
+ Autoscum:             ON
+ Small Levels:         ALWAYS
+ Arena Levels:         ON
+ Always unusual rooms: OFF
+ Persistent Dungeons:  OFF
+
+ Recall Depth:
+        Angband: Level 1 (50')
+
+ Your body was a Player.
+ You have defeated 7 enemies.
+ You saved no princesses.
+
+ You started your adventure the 43rd Yavie of the 2890th year of the third age.
+ You ended your adventure the 43rd Yavie of the 2890th year of the third age.
+ Your adventure lasted 0 days.
+
+     Your Attributes:
+You are dead, killed by a Cave spider on level 1 of Angband.
+You can throw poisoned darts.
+You can see invisible creatures.
+You can sense the presence of evil beings.
+You are unlucky.
+You are resistant to poison.
+You are completely fearless.
+Your charisma is sustained.
+Your wisdom is affected by your equipment.
+Your digging ability is affected by your equipment.
+
+
+                    adefkmnopsuxz{|@            
+        Add Wis   : .2..............            
+        Add Tun.. : ..............1.            
+        Slay Evil : .+..............            
+        Slay Und. : .+..............            
+        Slay Demon: .+..............            
+        Sust Str  : ................            
+        Sust Int  : ................            
+        Sust Wis  : ................            
+        Sust Dex  : ................            
+        Sust Con  : ................            
+        Sust Chr  : .+..............            
+        Invisible : ................            
+        Mul life  : ................            
+        Sens Fire : ................            
+        Reflect   : ................            
+        Free Act  : ................            
+        Hold Life : ................            
+        Res Acid  : ................            
+        Res Elec  : ................            
+        Res Fire  : ................            
+        Res Cold  : ................            
+        Res Pois  : ...............+            
+        Res Fear  : .+..............            
+        Res Light : ................            
+        Res Dark  : ................            
+        Res Blind : ................            
+        Res Conf  : ................            
+        Res Sound : ................            
+        Res Shard : ................            
+        Res Neth  : ................            
+        Res Nexus : ................            
+        Res Chaos : ................            
+        Res Disen : ................            
+        See Invis : .+..............            
+        Blessed   : .+..............            
+        Evil.ESP  : .+..............            
+
+Skills (points left: 0)
+ - Combat                                        01.000 [0.800]
+          . Weaponmastery                        02.000 [0.500]
+          - Archery                              01.800 [0.750]
+                   . Sling-mastery               00.000 [0.200]
+                   . Bow-mastery                 00.000 [0.200]
+                   . Crossbow-mastery            00.000 [0.200]
+                   . Boomerang-mastery           01.000 [1.250]
+ - Sneakiness                                    01.100 [0.900]
+          . Stealth                              01.000 [0.400]
+          . Disarming                            00.800 [0.900]
+ - Powers                                        02.000 [1.000]
+          . Devices                              00.700 [1.100]
+          . Energy                               01.000 [1.000]
+ - Spirituality                                  00.800 [0.400]
+          . Prayer                               00.000 [0.500]
+ - Monster-lore                                  00.000 [0.500]
+          . First-aid                            01.000 [0.600]
+
+
+  [Character Equipment]
+
+a) (nothing)
+d) a Small Wooden Boomerang of Aman (1d4) (+9,+8) [+4] (+2) {100% off}
+        It increases your wisdom by 2.  It strikes at demons with holy wrath.  
+    It strikes at undead with holy wrath.  It fights against evil with
+    holy fury.  It sustains your charisma.  It makes you completely
+    fearless.  It allows you to see invisible monsters.  It allows you to
+    sense the presence of evil beings.  It has been blessed by the gods.  
+    You stole it from the Weaponsmith.
+e) (nothing)
+f) (nothing)
+k) (nothing)
+m) a Brass Lantern (with 6993 turns of light)
+    It provides light (radius 2) when
+    fueled.  It cannot be harmed by fire.  
+n) a Soft Leather Armour [4,+0]
+    
+o) (nothing)
+p) (nothing)
+s) (nothing)
+u) (nothing)
+x) (nothing)
+z) (nothing)
+{) (nothing)
+|) a Pick (+1) {25% off}
+    It increases your ability to
+    tunnel by 1.  
+
+
+  [Character Inventory]
+
+a) 4 Rations of Cram
+b) 5 Flasks of oil
+    
+c) a Morphic Oil of Abomination
+d) a Potion of Slow Poison
+e) a Potion of Booze
+f) a Scroll of Word of Recall
+    
+g) a Scroll of Phase Door
+h) a Dagger (1d5) (+0,+0)
+    
+i) a Small Wooden Boomerang (1d4) (+0,+0)
+    
+j) a Parchment - Adventurer's Guide to Middle-earth
+    
+k) (nothing)
+l) (nothing)
+m) (nothing)
+n) (nothing)
+o) (nothing)
+p) (nothing)
+q) (nothing)
+r) (nothing)
+s) (nothing)
+t) (nothing)
+u) (nothing)
+v) (nothing)
+w) (nothing)
+
+

@@ -14,3 +14,10 @@
 # New tiles
 ?:[EQU $GRAF new]
 %:graf-new.prf
+
+# 
+# TomeTik
+#
+#D. Gervais tiles
+?:[EQU $GRAF gervais]
+%:graf-gervais.prf

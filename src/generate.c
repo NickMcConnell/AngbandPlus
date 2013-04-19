@@ -3609,7 +3609,7 @@ static void build_type6(int by0, int bx0)
 	else
 	{
 		/* Message */
-		name = "demon";
+		name = "maia";
 
 		/* Restrict monster selection */
 		get_mon_num_hook = vault_aux_demon;
@@ -7466,6 +7466,11 @@ bool level_generate_dungeon(cptr name)
 
 	/* Hack, seems like once a room overrode the level boundaries, this is BAD */
 	set_bounders(empty_level);
+	/* I think this is supposed to go here instead of in cave_gen(),
+	 * since this is the only function in which empty_level ever gets
+	 * set. --dsb */
+	if ((empty_level) && (randint(DARK_EMPTY) != 1 || (randint(100) > dun_level)))
+		wiz_lite();
 
 	/* Determine the character location */
 	if (!new_player_spot(branch))

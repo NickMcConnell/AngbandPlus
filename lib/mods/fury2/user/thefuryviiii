@@ -1,0 +1,393 @@
+  [FuryMod Town Version 1.1.3 Character Sheet]
+
+ Name  : The Fury VIII          Age                 21       STR:     36       
+ Sex   : Male                   Height              63       INT:      7       
+ Race  : RohanKnight Barbarian  Weight              81       WIS:     11       
+ Class : Swordmaster            Social Class         1       DEX:     32       
+ Body  : Player                                              CON:     34       
+ God   : Melkor Bauglir                                      CHR:     10       
+                                                                               
+ + To Melee Hit         115 Level             34    Hit Points     -148/   670 
+ + To Melee Damage       63 Experience    827876    Spell Points     14/    14 
+ + To Ranged Hit         60 Max Exp       827876    Sanity          130/   175 
+ + To Ranged Damage      22 Exp to Adv.   857500    Piety                17704 
+   AC                 37+93 Gold          453846    Speed           Fast (+17) 
+                                                                               
+                         (Miscellaneous Abilities)                             
+ Fighting    : Legendary[70]Perception  : Poor         Blows/Round:  11        
+ Bows/Throw  : Legendary[17]Searching   : Fair         Shots/Round:  2         
+ Saving Throw: Poor         Disarming   : Fair         Mel.dmg/Rnd:  11d5+693  
+ Stealth     : Superb       Magic Device: Very Good    Infra-Vision: 0 feet    
+                                                       Tactic:       normal    
+                                                       Explor:       normal    
+                         (Character Background)                                
+          You are one of several children of a Serf.  You have                 
+          blue-gray eyes, curly auburn hair, and an average                    
+          complexion.                                                          
+                                                                               
+
+
+  [Miscellaneous information]
+
+ Joke monsters:        OFF
+ Maximize mode:        ON
+ Preserve Mode:        ON
+ Autoscum:             ON
+ Small Levels:         ALWAYS
+ Arena Levels:         ON
+ Always unusual rooms: OFF
+ Persistent Dungeons:  OFF
+
+ Recall Depth:
+        Angband: Level 45 (2250')
+
+ Your body was a Player.
+ You have defeated 2074 enemies.
+ You saved 44 princesses.
+ You found none of the relic pieces.
+
+ You started your adventure the 43rd Yavie of the 2890th year of the third age.
+ You ended your adventure the 46th Yavie of the 2890th year of the third age.
+ Your adventure lasted 3 days.
+
+     Your Attributes:
+You are dead, killed by an Ethereal dragon on level 45 of Angband.
+You can teleport yourself short distances.
+You can use rohir powers.
+You can see invisible creatures.
+You can breathe without air.
+You have free action.
+You regenerate quickly.
+You are unlucky.
+You have a firm hold on your life force.
+You reflect arrows and bolts.
+You are surrounded with a fiery aura.
+You are carrying a permanent light.
+You are resistant to acid.
+You are resistant to lightning.
+You are resistant to fire.
+You are resistant to cold.
+You are resistant to poison.
+You are resistant to confusion.
+You are resistant to sonic attacks.
+You are resistant to disenchantment.
+You are resistant to blasts of shards.
+You are resistant to nether forces.
+You are completely fearless.
+Your eyes are resistant to blindness.
+Your constitution is sustained.
+Your dexterity is sustained.
+Your strength is affected by your equipment.
+Your intelligence is affected by your equipment.
+Your wisdom is affected by your equipment.
+Your dexterity is affected by your equipment.
+Your constitution is affected by your equipment.
+Your stealth is affected by your equipment.
+Your searching ability is affected by your equipment.
+Your digging ability is affected by your equipment.
+Your speed is affected by your equipment.
+Your weapon burns your foes.
+Your weapon freezes your foes.
+Your weapon strikes at undead with holy wrath.
+
+
+                    adefkmnopsuxz{|@            
+        Add Str   : ......2........+            
+        Add Int   : .........2.....+            
+        Add Wis   : .........2.....+            
+        Add Dex   : .3....2.........            
+        Add Con   : ..........4....+            
+        Add Chr   : ...............+            
+        Add Stea. : .3..5...........            
+        Add Sear. : .........2......            
+        Add Tun.. : ..............5.            
+        Add Speed : ......2....6...+            
+        Slay Evil : .............+..            
+        Slay Und. : +...............            
+        Fire Brand: +...............            
+        Cold Brand: +...............            
+        Sust Str  : ................            
+        Sust Int  : ................            
+        Sust Wis  : ................            
+        Sust Dex  : ....+...........            
+        Sust Con  : ..........+.....            
+        Sust Chr  : ................            
+        Invisible : ................            
+        Mul life  : ................            
+        Sens Fire : ................            
+        Reflect   : ........+.......            
+        Free Act  : ..+....+........            
+        Hold Life : .......+........            
+        Res Acid  : ......+.........            
+        Res Elec  : ......+.........            
+        Res Fire  : +.....+........+            
+        Res Cold  : +.....+...+.....            
+        Res Pois  : ......+.........            
+        Res Fear  : ......+........+            
+        Res Light : ................            
+        Res Dark  : ................            
+        Res Blind : .........+......            
+        Res Conf  : ....+.+.........            
+        Res Sound : ......+.........            
+        Res Shard : .......+........            
+        Res Neth  : .......+........            
+        Res Nexus : ................            
+        Res Chaos : ................            
+        Res Disen : ++..............            
+        Aura Fire : +...............            
+        Lite      : +...............            
+        See Invis : .......+.+......            
+        Regen     : ..........+.....            
+        Xtra Shots: .+..............            
+        Activate  : +...+..+.++.....            
+        Cursed    : +...............            
+        Sentient  : +...............            
+
+ Corruption list:
+Demon Spirit:
+  Increases your intelligence by 1
+  But reduce your charisma by 2
+
+Blink:
+  You can teleport yourself short distances (10 squares).
+  Level=3, Cost=3, Stat=WIS, Difficulty=12
+
+
+Skills (points left: 0)
+ - Combat                                        43.904 [0.900]
+          - Weaponmastery                        41.967 [1.150]
+                   . Sword-mastery               41.600 [0.700]
+                   . Axe-mastery                 00.000 [0.300]
+                   . Hafted-mastery              00.000 [0.300]
+                   . Polearm-mastery             00.000 [0.300]
+          - Archery                              14.600 [0.600]
+                   . Bow-mastery                 01.000 [0.300]
+          . Antimagic                            00.000 [0.550]
+ - Sneakiness                                    13.565 [0.900]
+          . Stealth                              02.300 [0.500]
+          . Disarming                            14.400 [0.900]
+          . Stealing                             01.000 [0.300]
+ - Powers                                        02.830 [0.300]
+          . Devices                              12.000 [1.150]
+          . Knowledge                            03.100 [0.300]
+          . Udun                                 00.000 [0.400]
+ - Spirituality                                  04.380 [0.400]
+          . Prayer                               03.500 [0.500]
+ - Monster-lore                                  00.000 [0.500]
+          . First-aid                            01.000 [0.600]
+
+Abilities
+ * Ammo creation
+ * Extra Max Blow(1)
+ * Extra Max Blow(2)
+ * Spread blows
+
+
+  [Character Equipment]
+
+a) The Dagger of Peregrin (E:335123, L:31) (1d5) (+34,+21) {cursed}
+        It can be activated for frost bolt (6d8) every 7+d7 turns if it is
+    being worn. It provides light (radius 1) forever.  It does extra
+    damage from fire and frost.  It strikes at undead with holy wrath.  It
+    provides resistance to fire, cold and disenchantment.  It produces a
+    fiery sheath.  It is cursed.  It cannot be harmed by acid, cold,
+    lightning or fire.  
+    It was given to you as a reward.
+d) The Long Bow 'Belthronding' (x3) (+20,+22) (+3)
+    It increases your dexterity and 
+    stealth by 3.  It provides resistance to disenchantment.  It fires
+    missiles excessively fast.  It cannot be harmed by acid, cold,
+    lightning or fire.  
+    It was given to you as a reward.
+e) a Ring of Free Action {cursed}
+f) a Ring of Protection [+11]
+k) The Amulet of Faramir (+18,+0) [+8] (+5)
+    It can be activated for word of recall
+    every 200 turns if it is being worn. It increases your stealth by 5.  
+    It sustains your dexterity.  It provides resistance to confusion.  It
+    cannot be harmed by acid, cold, lightning or fire.  
+    It was given to you as a reward.
+m) a Dwarven Lantern
+n) The Metal Brigandine Armour of the Rohirrim [19,+15] (+2)
+    It increases your strength, dexterity
+     and speed by 2.  It makes you completely fearless.  It provides
+    resistance to acid, electricity, fire, cold, poison, confusion and 
+    sound.  It cannot be harmed by acid, cold, lightning or fire.  
+    You found it in the remains of Gachapin on level 33 of Angband.
+o) an Ethereal Cloak of Protection [1,+16]
+    It can
+    be activated for wraith-form every 50+d50 turns if it is being worn. 
+    It provides immunity to paralysis.  It provides resistance to life
+    draining, shards and nether.  It allows you to breathe without air.  
+    It allows you to see invisible monsters.  It cannot be harmed by acid,
+    cold, lightning or fire.  
+    It was given to you as a reward.
+p) a Large Leather Shield of Reflection [4,+9]
+    It reflects bolts and arrows.  It
+    cannot be harmed by acid, cold, lightning or fire.  
+    It was given to you as a reward.
+s) The Iron Helm 'Holhenneth' [5,+9] (+2)
+    It can be activated for detection
+    every 55+d55 turns if it is being worn. It increases your intelligence
+    , wisdom and searching by 2.  It provides resistance to blindness.  It
+    allows you to see invisible monsters.  It cannot be harmed by acid,
+    cold, lightning or fire.  
+    It was given to you as a reward.
+u) The Set of Gauntlets 'Paurnimmen' [2,+15] (+4)
+    It can be activated for frost bolt
+    (6d8) every 7+d7 turns if it is being worn. It can be used to store a
+    spell.  It increases your constitution by 4.  It sustains your 
+    constitution.  It provides resistance to cold.  It speeds your
+    regenerative powers.  It cannot be harmed by acid, cold, lightning or
+    fire.  
+    It was given to you as a reward.
+x) a Pair of Metal Shod Boots of Speed [6,+1] (+6)
+    It increases your speed by 6.  
+    It was given to you as a reward.
+z) (nothing)
+{) 22 Silver Arrows (3d4) (+6,+6)
+|) a Pick of Digging (+5)
+
+
+  [Character Inventory]
+
+a) The Potion of Winning
+    It can be activated for decreasing
+    Charisma.  
+    You found it lying on the ground on level 3 of Angband.
+b) 20 Rations of Cram
+    
+c) 3 Potions of Healing
+d) a Potion of Curing
+e) a Wooden Rod of Trap Location (10/10)
+f) a Ring of Nether Resistance
+g) a Ring Mail of Resist Fire (-2 to accuracy) [12,+2]
+h) a Small Metal Shield of Resistance [3,+9]
+i) a Dark Sword of Slay Demon (3d6) (+7,+4)
+j) (nothing)
+k) (nothing)
+l) (nothing)
+m) (nothing)
+n) (nothing)
+o) (nothing)
+p) (nothing)
+q) (nothing)
+r) (nothing)
+s) (nothing)
+t) (nothing)
+u) (nothing)
+v) (nothing)
+w) (nothing)
+
+
+  [Home Inventory - Bree ]
+
+a) a Potion of Cure Serious Insanity
+b) 2 Scrolls of Summon Never-Moving Pet
+c) a Fireproof Scroll of Divination
+    It cannot be
+    harmed by fire.  
+    You bought it from the Black Market.
+d) a Wooden Rod of the Istari of Nothing (20/20)
+e) a Ring of Levitation
+    It allows you to levitate.  It
+    cannot be harmed by acid, cold, lightning or fire.  
+    You found it lying on the ground on level 10 of Angband.
+f) a Ring of Accuracy (+15)
+g) a Ring of Damage (+8)
+h) a Ring of Light and Darkness Resistance
+i) an Amulet of Protection from Evil
+j) The Necklace of Girion [10,+0] (+5)
+    It can be
+    activated for grow mushrooms every 50+d50 turns if it is being worn. 
+    It increases your charisma by 5.  It sustains your charisma.  It
+    provides resistance to poison and nexus.  It allows you to see
+    invisible monsters.  It cannot be harmed by acid, cold, lightning or
+    fire.  
+    It was given to you as a reward.
+k) The Key of Orthanc
+    It can be activated for perilous
+    identify every turn if it is being worn. It provides light (radius 1)
+    forever.  It cannot be harmed by acid, cold, lightning or fire.  
+    It was given to you as a reward.
+l) The Pearl 'Nimphelos' (+1)
+    It grants you the power of dazzle if
+    it is being worn.  It provides light (radius 3) forever.  It increases 
+    your searching and infravision by 1.  It cannot be harmed by acid,
+    cold, lightning or fire.  
+    It was given to you as a reward.
+m) The Chain Mail of Arvedui (-2) [14,+15] (+2)
+    It increases your strength and 
+    charisma by 2.  It provides resistance to acid, electricity, fire, 
+    cold, shards, nexus and chaos.  It cannot be harmed by acid, cold,
+    lightning or fire.  
+    You found it in the remains of a Monastic lich on level 34 of Angband.
+n) The Metal Cap of Thengel [3,+12] (+3)
+    
+    It increases your wisdom, charisma and luck by 3.  It provides
+    resistance to confusion.  It cannot be harmed by acid, cold, lightning
+    or fire.  
+    You found it in the remains of a Hill troll on level 37 of Angband.
+o) a Gnomish Helm of Light [5,+3] (+5)
+    It
+    provides light (radius 1) forever.  It increases your searching and 
+    infravision by 5.  It provides resistance to light.  
+    It was given to you as a reward.
+p) The Battle Axe 'Lotharang' (2d8) (+4,+3) (+1)
+    It can be activated for cure serious
+    wounds every 3+d3 turns if it is being worn. It increases your 
+    strength and dexterity by 1.  It is especially deadly against orcs.  
+    It is especially deadly against trolls.  It cannot be harmed by acid,
+    cold, lightning or fire.  
+    You found it in the remains of a Fire-drake on level 36 of Angband.
+q) The Dagger 'Belangil' (2d4) (+6,+9) (+2)
+    It
+    can be activated for frost ball (48) every 5+d5 turns if it is being
+    worn. It increases your dexterity, speed and attack speed by 2.  It
+    does extra damage from frost.  It poisons your foes.  It provides
+    resistance to cold.  It allows you to see invisible monsters.  It
+    slows your metabolism.  It speeds your regenerative powers.  It cannot
+    be harmed by acid, cold, lightning or fire.  
+    It was given to you as a reward.
+r) The Dagger of Rilia (2d4) (+4,+3)
+    It can be activated for stinking cloud
+    (12), rad. 3, every 4+d4 turns if it is being worn. It poisons your
+    foes.  It is especially deadly against orcs.  It provides resistance 
+    to poison and disenchantment.  It cannot be harmed by acid, cold,
+    lightning or fire.  
+    You found it in the remains of Robin Hood, the Outlaw on level 10 of
+    Angband.
+s) The Rapier 'Forasgil' (2d4) (+12,+19)
+    It does extra damage from frost.  It is especially deadly
+    against natural creatures.  It provides resistance to cold and light.  
+    It cannot be harmed by acid, cold, lightning or fire.  
+    You found it lying on the ground on level 18 of Angband.
+t) The Long Sword 'Elvagil' (3d4) (+5,+7) (+2)
+    It increases 
+    your dexterity, charisma and stealth by 2.  It is especially deadly
+    against orcs.  It is especially deadly against trolls.  It allows you
+    to levitate.  It allows you to see invisible monsters.  It allows you
+    to sense the presence of orcs and trolls.  It cannot be harmed by
+    acid, cold, lightning or fire.  
+    You found it in the remains of Gachapin on level 33 of Angband.
+u) The Two-Handed Sword 'Anglachel' (4d6) (+13,+17) (+2)
+    It must
+    be wielded two-handed.  It increases your strength by 2.  It does
+    extra damage from fire.  It poisons your foes.  It is very sharp and
+    can cut your foes.  It is a great bane of dragons.  It is especially
+    deadly against trolls.  It provides immunity to paralysis.  It
+    provides resistance to fire and poison.  It gives telepathic powers.  
+    It slows your metabolism.  It speeds your regenerative powers.  It 
+    drains life.  It cannot be harmed by acid, cold, lightning or fire.  
+    It was given to you as a reward.
+v) The Mace 'Falarim' (3d4) (+11,-11) (+5)
+    It can be wielded two-handed.  It 
+    increases your wisdom and charisma by 5.  It does extra damage from 
+    fire.  It produces chaotic effects.  It drains life from your foes.  
+    It is a great bane of dragons.  It is especially deadly against orcs.  
+    It cannot be harmed by acid, cold, lightning or fire.  
+    You found it in the remains of Androg the Outlaw on level 19 of Angband.
+w) 25 Arrows (1d4) (+4,+5) {90% off}
+    
+
+

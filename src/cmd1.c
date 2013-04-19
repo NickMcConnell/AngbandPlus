@@ -22,7 +22,7 @@ bool test_hit_fire(int chance, int ac, int vis)
 {
 	int k;
 
-
+  
 	/* Percentile dice */
 	k = rand_int(100);
 
@@ -56,7 +56,7 @@ bool test_hit_norm(int chance, int ac, int vis)
 
 	/* Percentile dice */
 	k = rand_int(100);
-
+    if (always_hit_check()) return (TRUE);
 	/* Hack -- Instant miss or hit */
 	if (k < 10) return (k < 5);
 
@@ -214,6 +214,10 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr,
 	{
 	case TV_SHOT:
 	case TV_ARROW:
+
+	case TV_BULLET:
+	case TV_RBULLET:
+
 	case TV_BOLT:
 	case TV_BOOMERANG:
 	case TV_HAFTED:
@@ -222,6 +226,8 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr,
 	case TV_AXE:
 	case TV_DIGGING:
 		{
+
+
 			/* Slay Animal */
 			if ((f1 & (TR1_SLAY_ANIMAL)) && (r_ptr->flags3 & (RF3_ANIMAL)))
 			{
@@ -298,6 +304,18 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr,
 
 				if (mult < 3) mult = 3;
 			}
+// vampire fury boost
+
+			if ((f5 & (TR5_KILL_VAMPIRE)) && (r_ptr->flags7 & (RF7_VAMPIRE)))
+			{
+				if (m_ptr->ml)
+				{
+					r_ptr->r_flags7 |= (RF7_VAMPIRE);
+				}
+
+				if (mult < 15) mult = 15;
+			}
+
 
 			/* Slay Dragon  */
 			if ((f1 & (TR1_SLAY_DRAGON)) && (r_ptr->flags3 & (RF3_DRAGON)))
@@ -321,6 +339,17 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr,
 				if (mult < 5) mult = 5;
 			}
 
+
+
+	/* Execute Dragon */
+
+
+	
+
+		
+
+
+
 			/* Execute Undead */
 			if ((f5 & (TR5_KILL_UNDEAD)) && (r_ptr->flags3 & (RF3_UNDEAD)))
 			{
@@ -342,8 +371,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr,
 
 				if (mult < 5) mult = 5;
 			}
-
-
+       
 			/* Brand (Acid) */
 			if (f1 & (TR1_BRAND_ACID))
 			{
@@ -489,6 +517,102 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr,
 					if (mult < 3) mult = 3;
 					if (magik(50)) *special |= SPEC_POIS;
 				}
+			}
+ 
+			      /* Brand (Light) */
+                        if ((f5 & (TR5_BRAND_LIGHT)))
+			{
+				/* Notice immunity */
+                                if (r_ptr->flags7 & (RF7_RES_LITE))
+				{
+					if (m_ptr->ml)
+					{
+                                                r_ptr->r_flags7 |= (RF7_RES_LITE);
+					}
+				}            
+                                /* Notice susceptibility */
+                                 if (r_ptr->flags3 & (RF3_HURT_LITE))
+				{
+					if (m_ptr->ml)
+					{
+                                                r_ptr->r_flags3 |= (RF3_HURT_LITE);
+					}
+                                        if (mult < 6) mult = 6;
+				}
+
+				/* Otherwise, take the damage */
+				else
+				{
+					if (mult < 3) mult = 3;
+				}
+			}
+
+						  if ((f5 & (TR5_BRAND_DARK)))
+			{
+				/* Notice immunity */
+                                if (r_ptr->flags3 & (RF3_DEMON) || r_ptr->flags3 & (RF3_UNDEAD) || r_ptr->flags7 & (RF7_RES_DARK))
+				{
+                                        /* Does nothing */
+                                }
+
+				/* Otherwise, take the damage */
+				else
+				{
+					if (mult < 3) mult = 3;
+				}
+			}
+
+
+
+	
+
+
+
+			  if ((f5 & (TR5_BRAND_WATER)))
+			{
+				/* Notice immunity */
+                                if (r_ptr->flags3 & (RF3_RES_WATE) || r_ptr->flags7 & (RF7_AQUATIC))
+				{
+                                        /* Does nothing */
+                                }
+
+				/* Otherwise, take the damage */
+				else
+				{
+					if (mult < 3) mult = 3;
+				}
+			}
+
+
+	
+
+
+
+	  if ((f5 & (TR5_BRAND_DEATH)))
+			{
+				/* Notice immunity */
+                                if (r_ptr->flags3 & (RF3_UNDEAD))
+				{
+                                        /* Does nothing */
+                                }
+
+				/* Otherwise, take the damage */
+				else
+				{
+					if (mult < 15) mult = 15;
+				}
+			}
+
+
+
+
+
+
+
+ /* Brand (Magic) */
+                        if ((f5 & (TR5_BRAND_MAGIC)))
+			{
+                                if (mult < 4) mult = 4;      
 			}
 
 			/* Wounding */
@@ -1019,6 +1143,7 @@ static void carried_monster_attack(s16b m_idx, bool *fear, bool *mdeath,
 		case RBE_TIME:
 			power = 5;
 			break;
+
 		case RBE_SANITY:
 			power = 60;
 			break;
@@ -1030,6 +1155,19 @@ static void carried_monster_attack(s16b m_idx, bool *fear, bool *mdeath,
 			break;
 		case RBE_ABOMINATION:
 			power = 20;
+			break;
+				case RBE_CHAOS:
+			power = 5;
+			break;
+				case RBE_PIETY:
+			power = 60;
+			break;
+
+					case RBE_FOOD:
+			power = 60;
+			break;
+						case RBE_SLASH:
+			power = 50;
 			break;
 		}
 
@@ -1092,9 +1230,9 @@ static void carried_monster_attack(s16b m_idx, bool *fear, bool *mdeath,
 					break;
 				}
 
-			case RBM_XXX1:
+			case RBM_PECK:
 				{
-					act = "XXX1's %s.";
+					act = "pecks %s.";
 					break;
 				}
 
@@ -1168,10 +1306,10 @@ static void carried_monster_attack(s16b m_idx, bool *fear, bool *mdeath,
 					break;
 				}
 
-			case RBM_XXX4:
+			case RBM_HUG:
 				{
-					act = "projects XXX4's at %s.";
-					touched = FALSE;
+					act = "hugs %s.";
+					touched = TRUE;
 					break;
 				}
 
@@ -1202,6 +1340,21 @@ static void carried_monster_attack(s16b m_idx, bool *fear, bool *mdeath,
 			case RBM_SHOW:
 				{
 					act = "sings to %s.";
+					touched = FALSE;
+					t_ptr->csleep = 0;
+					break;
+				}
+
+						case RBM_HOWL:
+				{
+					act = "howls at %s.";
+					touched = FALSE;
+					t_ptr->csleep = 0;
+					break;
+				}
+						case RBM_ROAR:
+				{
+					act = "roars at %s.";
 					touched = FALSE;
 					t_ptr->csleep = 0;
 					break;
@@ -1237,6 +1390,10 @@ static void carried_monster_attack(s16b m_idx, bool *fear, bool *mdeath,
 
 			case RBE_HURT:
 			case RBE_SANITY:
+			case RBE_CHAOS:
+			case RBE_PIETY:
+			case RBE_FOOD:
+			case RBE_SLASH:
 				{
 					damage -= (damage * ((ac < 150) ? ac : 150) / 250);
 					break;
@@ -1424,7 +1581,7 @@ static void carried_monster_attack(s16b m_idx, bool *fear, bool *mdeath,
 			case RBM_CLAW:
 			case RBM_BITE:
 			case RBM_STING:
-			case RBM_XXX1:
+			case RBM_PECK:
 			case RBM_BUTT:
 			case RBM_CRUSH:
 			case RBM_ENGULF:
@@ -1663,6 +1820,18 @@ static void incarnate_monster_attack(s16b m_idx, bool *fear, bool *mdeath,
 		case RBE_PARASITE:
 			power = 5;
 			break;
+				case RBE_CHAOS:
+			power = 5;
+			break;
+				case RBE_PIETY:
+			power = 60;
+			break;
+					case RBE_FOOD:
+			power = 60;
+			break;
+							case RBE_SLASH:
+			power = 50;
+			break;
 		}
 
 
@@ -1724,9 +1893,9 @@ static void incarnate_monster_attack(s16b m_idx, bool *fear, bool *mdeath,
 					break;
 				}
 
-			case RBM_XXX1:
+			case RBM_PECK:
 				{
-					act = "XXX1's %s.";
+					act = "pecks %s.";
 					break;
 				}
 
@@ -1800,10 +1969,10 @@ static void incarnate_monster_attack(s16b m_idx, bool *fear, bool *mdeath,
 					break;
 				}
 
-			case RBM_XXX4:
+			case RBM_HUG:
 				{
-					act = "project XXX4's at %s.";
-					touched = FALSE;
+					act = "hugs %s.";
+					touched = TRUE;
 					break;
 				}
 
@@ -1834,6 +2003,20 @@ static void incarnate_monster_attack(s16b m_idx, bool *fear, bool *mdeath,
 			case RBM_SHOW:
 				{
 					act = "sing to %s.";
+					touched = FALSE;
+					t_ptr->csleep = 0;
+					break;
+				}
+						case RBM_HOWL:
+				{
+					act = "howls at %s.";
+					touched = FALSE;
+					t_ptr->csleep = 0;
+					break;
+				}
+						case RBM_ROAR:
+				{
+					act = "roars at %s.";
 					touched = FALSE;
 					t_ptr->csleep = 0;
 					break;
@@ -1869,6 +2052,10 @@ static void incarnate_monster_attack(s16b m_idx, bool *fear, bool *mdeath,
 
 			case RBE_HURT:
 			case RBE_SANITY:
+			case RBE_CHAOS:
+			case RBE_PIETY:
+			case RBE_FOOD:
+			case RBE_SLASH:
 				{
 					damage -= (damage * ((ac < 150) ? ac : 150) / 250);
 					break;
@@ -2056,7 +2243,7 @@ static void incarnate_monster_attack(s16b m_idx, bool *fear, bool *mdeath,
 			case RBM_CLAW:
 			case RBM_BITE:
 			case RBM_STING:
-			case RBM_XXX1:
+			case RBM_PECK:
 			case RBM_BUTT:
 			case RBM_CRUSH:
 			case RBM_ENGULF:
@@ -2557,7 +2744,7 @@ void py_attack(int y, int x, int max_blow)
 		msg_format("%^s is immune to melee attacks.");
 		return;
 	}
-
+	
 	/* Auto-Recall if possible and visible */
 	if (m_ptr->ml) monster_race_track(m_ptr->r_idx, m_ptr->ego);
 
@@ -2662,7 +2849,7 @@ void py_attack(int y, int x, int max_blow)
 
 						/* Hack -- bare hands do one damage */
 						k = 1;
-
+						
 						/* Select a chaotic effect (50% chance) */
 						if ((f1 & TR1_CHAOTIC) && (rand_int(2) == 0))
 						{
@@ -2739,6 +2926,7 @@ void py_attack(int y, int x, int max_blow)
 							}
 
 							k = critical_norm(o_ptr->weight, o_ptr->to_h, k, o_ptr->tval, &done_crit);
+ 
 
 							/* Stunning blow */
 							if (magik(get_skill(SKILL_STUN)) && (o_ptr->tval == TV_HAFTED) && (o_ptr->weight > 50) && done_crit)
@@ -3027,6 +3215,9 @@ void py_attack(int y, int x, int max_blow)
 								msg_format("%^s is unaffected.", m_name);
 							}
 						}
+
+
+
 					}
 
 					/* Player misses */
@@ -5471,7 +5662,7 @@ void do_cmd_engrave()
 
 	energy_use += 300;
 }
-
+     
 
 /*
  * Let's do a spinning around attack:                   -- DG --
@@ -5497,3 +5688,57 @@ void do_spin()
 		}
 	}
 }
+bool protection_check()
+{
+        u32b f1, f2, f3, f4, f5, esp;
+        int i;
+        object_type *o_ptr;
+
+        i = 24;
+        while (i <= 52)
+        {
+                /* Get the item */
+                o_ptr = &p_ptr->inventory[i];
+
+                /* Examine the item */
+                object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
+
+                /* Check for the PROTECTION flag */
+                if (o_ptr->k_idx && (f5 & (TR5_PROTECTION)))
+                {
+                        return (TRUE);
+                }
+
+                i++;
+        }
+        /* Default */
+        return (FALSE);
+}       
+
+
+bool always_hit_check()
+{
+        u32b f1, f2, f3, f4, f5, esp;
+        int i;
+        object_type *o_ptr;
+
+        i = 24;
+        while (i <= 52)
+        {
+                /* Get the item */
+                o_ptr = &p_ptr->inventory[i];
+
+                /* Examine the item */
+                object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
+
+                /* Check for the ALWAYS_HIT flag */
+                if (o_ptr->k_idx && (f5 & (TR5_ALWAYS_HIT)))
+                {
+                        return (TRUE);
+                }
+
+                i++;
+        }
+        /* Default */
+        return (FALSE);
+}   

@@ -1,0 +1,61 @@
+|||||oy
+~~~~~01|Tourist
+~~~~~02|Classes|Tourist
+#####R=== Tourists ===
+
+#####RWARNING! This is intended to be a chalange class, and as such
+#####Ris more difficult than the others. It is not recommended for begginers.
+
+
+#####GDescription
+Tourists are strange being on vacation from the turmoils of life in 
+Lower Earth. They are unprepared for the harsh realties of Middle-Earth
+Tourists learn a few skills, but are bad at them, and can not worship
+the ‘foreign devil-gods’, or use ‘foreign magic wish-wash’, except for
+20c magic wishing stones bought from a worn out shop that are 
+’guaranteed to work!’
+
+#####GStarting Stat Modifiers
+Strength         +1
+Intelligence     -2
+Wisdom           +1
+Dexterity        +1
+Constitution     +0
+Charisma         +1
+Bonus Blows       0
+Hit Die          +d8
+Exp Penalty      40%
+
+#####GStarting Skills:
+#####BSkill                   Start Level     Skill Point Gains
+Combat                  0.000           [0.250]
+(“Fighting? What’s that, some kind of game?”)
+  Weaponmastery         1.000           [0.100]
+  (They can wield a butter knife, but not much else!)
+  Barehand-combat       1.000           [0.500]
+  (All those bar-fights suddenly come in handy...)
+  Antimagic             0.000           [0.200]
+  (“Magic-shmagic!”)
+Sneakiness              0.000           [0.000]
+(“OH! Please Mr. dragon could you just pose next to that Lich!”)
+  Disarming             0.000           [0.300]
+  (Two words: Mouse traps)
+  Dodging               0.000           [0.300]
+  (From dodging all those projectiles from annoyed celebrities...)
+Powers                  0.000           [0.400]
+(For bellow stones)
+  Devices               0.000           [0.500]
+  (From the constant use of the magic camera!)
+  Runecraft             1.000           [0.400]
+  (“These 20c magic stone *will* work!”)
+  Alchemy               0.000           [0.300]
+  (Tourists are determined to learn how everything works)
+Spirituality            0.000           [0.000]
+(Beware the evil foreign devil-gods)
+  Music                 0.000           [0.300]
+  (“La-La-LAAAA!!!”)
+Monster-lore            1.000           [0.400]
+(“Save the whales!”)
+  Symbiosis             0.000           [0.450]
+  (“Awww... what a cute little Deathmold...”)
+

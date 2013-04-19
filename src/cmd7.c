@@ -2480,15 +2480,22 @@ bool item_tester_hook_empower(object_type *o_ptr)
 
 		/* misc other items */
 	case TV_BOW:
+	case TV_PISTOL:
+	case TV_RIFLE:
 	case TV_BOOMERANG:
 	case TV_INSTRUMENT:
 	case TV_DIGGING:
 	case TV_LITE:
+	
 
 		/* Ammo */
 	case TV_SHOT:
 	case TV_ARROW:
 	case TV_BOLT:
+
+	case TV_BULLET:
+	case TV_RBULLET:
+
 
 		/* Armor of various sorts */
 	case TV_BOOTS:
@@ -3774,7 +3781,7 @@ void do_cmd_alchemist(void)
 		(void)alchemist_items_check(tval, sval, ego, -1, TRUE);
 
 		/* Enchant stacks of ammunition at a time */
-		if ( o_ptr->tval == TV_SHOT || o_ptr->tval == TV_ARROW || o_ptr->tval == TV_BOLT )
+		if ( o_ptr->tval == TV_SHOT || o_ptr->tval == TV_ARROW || o_ptr->tval == TV_BOLT || o_ptr->tval == TV_BULLET || o_ptr->tval == TV_BULLET)
 		{
 			qty = 1;
 			while (qty < o_ptr->number && alchemist_items_check(tval, sval, ego, -1, FALSE))
@@ -3853,7 +3860,9 @@ void do_cmd_alchemist(void)
 			}
 			else if (o_ptr->tval == TV_SHOT
 			                || o_ptr->tval == TV_ARROW
-			                || o_ptr->tval == TV_BOLT)
+			                || o_ptr->tval == TV_BOLT
+							|| o_ptr->tval == TV_BULLET
+							|| o_ptr->tval == TV_RBULLET)
 			{
 				o_ptr->pval2 = pval2;
 			}
@@ -7499,6 +7508,8 @@ void symbiotic_info(char *p, int power)
 		}
 	}
 }
+
+
 
 
 /*

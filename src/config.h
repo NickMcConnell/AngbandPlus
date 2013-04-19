@@ -65,7 +65,7 @@
  * OPTION: Use the icky BSD "tchars" methods in "main-gcu.c"
  */
 /* #define USE_TCHARS */
-
+// #define USE_ISO
 
 /*
  * OPTION: Use "blocking getch() calls" in "main-gcu.c".
@@ -446,7 +446,7 @@
 /*
  * OPTION: Person to bother if something goes wrong.
  */
-#define MAINTAINER      "darkgod@t-o-m-e.net"
+#define MAINTAINER      "thefury@furytech.net"
 
 
 /*

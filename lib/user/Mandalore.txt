@@ -1,0 +1,1341 @@
+  [FuryBand 3.0.0 Character Sheet]
+
+ Name  : Mandalore              Age                 19       STR!     40       
+ Sex   : Male                   Height              73       INT!     40       
+ Race  : Vampire Human          Weight             164       WIS!     36       
+ Class : Hunter                 Social Class         1       DEX!     32       
+ Body  : Player                                              CON!     37       
+ God   : Nobody                                              CHR!     10       
+                                                                               
+ + To Melee Hit         120 Level             50    Hit Points     1139/  1139 
+ + To Melee Damage      104 Experience  99999994    Spell Points    309/   309 
+ + To Ranged Hit         74 Max Exp     99999994    Sanity          755/   755 
+ + To Ranged Damage      14 Exp to Adv.    *****                               
+   AC                 72+65 Gold          756130    Speed           Fast (+29) 
+                                                                               
+                         (Miscellaneous Abilities)                             
+ Fighting    : Legendary[82]Perception  : Heroic       Blows/Round:  17        
+ Bows/Throw  : Legendary[20]Searching   : Heroic       Shots/Round:  1         
+ Saving Throw: Bad          Disarming   : Superb       Mel.dmg/Rnd:  119d7+1768
+ Stealth     : Fair         Magic Device: Bad          Infra-Vision: 0 feet    
+                                                       Tactic:       berserker 
+                                                       Explor:       normal    
+                         (Character Background)                                
+          You are one of several children of a Yeoman.  You are the            
+          black sheep of the family.  You have brown eyes, curly               
+          black hair, and a dark complexion.                                   
+                                                                               
+
+
+  [Miscellaneous information]
+
+ Joke monsters:        OFF
+ Maximize mode:        ON
+ Preserve Mode:        ON
+ Autoscum:             ON
+ Small Levels:         ALWAYS
+ Arena Levels:         ON
+ Always unusual rooms: ON
+ Persistent Dungeons:  OFF
+
+ Recall Depth:
+        Angband: Level 99 (4950')
+        Barrow-Downs: Level 1 (50')
+        Orodruin: Level 99 (4950')
+        Cirith Ungol: Level 50 (2500')
+        Illusory Castle: Level 52 (2600')
+        Maze: Level 37 (1850')
+        Erebor: Level 72 (3600')
+        The Old Forest: Level 25 (1250')
+        Moria: Level 50 (2500')
+        Dol Guldur: Level 70 (3500')
+        The Sacred Land Of Mountains: Level 70 (3500')
+        The Withered Heath: Level 30 (1500')
+        The Helcaraxe: Level 40 (2000')
+        Emyn Luin: Level 70 (3500')
+        Angmar: Level 90 (4500')
+        Isengard: Level 40 (2000')
+        Abandoned Castles: Level 30 (1500')
+
+ Your body is a Player.
+ You are currently in the town of Minas Anor.
+ You have defeated 5856 enemies.
+ You destroyed the One Ring, thus weakening Sauron.
+ You abandoned Gondolin when it most needed you, thus causing its destruction.
+ You saved Bree from a dreadful Nazgul.
+ You saved no princesses.
+
+ You started your adventure the 43rd Yavie of the 2890th year of the third age.
+ It is currently the 51st Yavie of the 2890th year of the third age.
+ You have been adventuring for 8 days.
+
+                    adefkmnopsuxz{|@            
+        Add Str   : ..3.4.........5.            
+        Add Int   : ...*...2........            
+        Add Wis   : ..3.4..2........            
+        Add Dex   : ..........4.....            
+        Add Con   : ..3........3....            
+        Add Chr   : ....4..2........            
+        Add Stea. : ..3....2...3....            
+        Add Sear. : .....4..........            
+        Add Tun.. : ..............5.            
+        Add Speed : .*.*4..2...3....            
+        Add Blows : ..3.............            
+        Slay Maia : ..............+.            
+        Slay Orc  : ..............+.            
+        Slay Troll: ..............+.            
+        Sharpness : +...............            
+        Acid Brand: ..............+.            
+        Fire Brand: +...............            
+        Sust Str  : ..............+.            
+        Sust Int  : ................            
+        Sust Wis  : ................            
+        Sust Dex  : ................            
+        Sust Con  : ................            
+        Sust Chr  : ................            
+        Invisible : ..+....+........            
+        Mul life  : ................            
+        Sens Fire : ...+............            
+        Reflect   : ................            
+        Free Act  : ..........+.....            
+        Hold Life : .+....+........+            
+        Imm Acid  : ...+..*+..+.....            
+        Imm Elec  : ...+..*.........            
+        Imm Fire  : .+.++.*+........            
+        Imm Cold  : ...+..*+.......+            
+        Res Pois  : ...++....+.....+            
+        Res Fear  : ....+..........+            
+        Res Light : ...+..+..+....+.            
+        Res Dark  : ......+..+....++            
+        Res Blind : .........+......            
+        Res Conf  : ......+..+....+.            
+        Res Sound : .........+......            
+        Res Shard : ......+.........            
+        Imm Neth  : ......*........+            
+        Res Nexus : ......+.........            
+        Res Chaos : ......+.......+.            
+        Res Disen : ....+.++........            
+        Aura Fire : ......+.........            
+        Aura Elec : ......+.........            
+        Levitate  : ......+.........            
+        Lite      : ..............++            
+        See Invis : .........+......            
+        Digestion : ..........+.....            
+        Regen     : ......+.........            
+        Activate  : .+..++.+..+...+.            
+        Drain Exp : ..+.............            
+        Cursed    : ..+.............            
+        Hvy Curse : ..+.............            
+        Fly       : ......+.........            
+        Climb     : ...........+..+.            
+
+ Corruption list:
+Vampiric Teeth:
+  Your teeth allow you to drain blood to feed yourself
+  However your stomach now only accepts blood.
+
+Vampiric Strength:
+  Your body seems somewhat dead
+  In this near undead state it has improved strength, constitution and intelligence
+  But reduced dexterity, wisdom and charisma.
+
+Vampire:
+  You are a Vampire. As such you resist cold, poison, darkness and nether.
+  Your life is sustained, but you cannot stand the light of the sun.
+
+
+Skills (points left: 0)
+ - Combat                                        50.000 [0.800]
+          - Weaponmastery                        50.000 [0.850]
+                   . Sword-mastery               50.000 [1.000]
+          - Archery                              02.200 [0.600]
+                   . Crossbow-mastery            09.000 [1.000]
+                   . Throwing                    01.000 [1.000]
+          . Hunter                               50.000 [1.000]
+ - Sneakiness                                    26.470 [0.900]
+          . Stealth                              00.000 [0.400]
+          . Disarming                            50.000 [0.900]
+          . Backstab                             38.000 [1.000]
+          . Stealing                             01.000 [0.500]
+ - Powers                                        20.800 [0.900]
+ - Monster-lore                                  00.000 [0.500]
+          . First-aid                            01.000 [0.600]
+
+Abilities
+ * Extra Max Blow(1)
+ * Extra Max Blow(2)
+ * Spread blows
+
+
+  [Fates]
+
+You are fated to find a Club on level 19.
+
+
+  [Character Equipment]
+
+a) a Doom Vibrosword (7d7) (+10,+10)
+d) The Light Magic Crossbow 'Cubragol' (x3) (+10,+14) (+10)
+        It can be activated for fire branding of bolts every 999 turns if it
+    is being worn. It increases your speed by 10.  It provides resistance 
+    to life draining and fire.  It cannot be harmed by acid, cold,
+    lightning or fire.  
+    You found it in the remains of a Dracolich on level 70 of Erebor.
+e) The Ring of Power of Ji Indur Dawndeath (+3 attacks)
+    It 
+    increases your strength, wisdom, constitution, stealth and attack speed
+     by 3.  It makes you invisible.  It drains experience.  It cannot be
+    dropped while cursed.  It cannot be harmed by acid, cold, lightning or
+    fire.  
+    You found it in the remains of Ji Indur Dawndeath on level 60 of Dol
+    Guldur.
+f) a Radiant Ring of Speed of the Elements (+11)
+    It grants you the power of illuminate if it is being worn.  It
+    provides light (radius 3) forever.  It increases your intelligence and 
+    speed by 11.  It provides resistance to acid, electricity, fire, cold, 
+    poison and light.  It renders you especially vulnerable to fire.  It
+    cannot be harmed by acid, cold, lightning or fire.  
+    You found it lying in a vault on level 70 of Erebor.
+k) The Elfstone 'Elessar' (+7,+7) [+10] (+4)
+    It can be
+    activated for heal and cure black breath every 200 turns if it is
+    being worn. It provides light (radius 3) forever.  It increases your 
+    strength, wisdom, charisma and speed by 4.  It makes you completely
+    fearless.  It provides resistance to fire, poison and disenchantment.  
+    It cannot be harmed by acid, cold, lightning or fire.  
+    You found it lying in a vault on level 66 of Erebor.
+m) The Phial of Galadriel (+4)
+    It can be
+    activated for light area (dam 2d15) every 10+d10 turns if it is being
+    worn. It provides light (radius 3) forever.  It prevents stuns. It 
+    increases your searching and luck by 4.  It cannot be harmed by acid,
+    cold, lightning or fire.  
+    You found it lying in a vault on level 30 of Abandoned Castles.
+n) an Ultimate Combat Suit (+10,+10) [50,+9]
+o) The Shadow Cloak of Luthien [6,+20] (+2)
+    It can
+    be activated for restore life levels every 450 turns if it is being
+    worn. It can be used to store a spell.  It increases your intelligence
+    , wisdom, charisma, stealth, speed and luck by 2.  It makes you
+    invisible.  It provides resistance to acid, fire, cold and 
+    disenchantment.  It cannot be harmed by acid, cold, lightning or fire.
+    
+    You found it lying on the floor of a special level.
+p) a Staff of Reveal Ways[1|25]
+s) an Advanced Combat Helm [8,+9]
+u) The Set of Cesti of Fingolfin (+10,+10) [5,+20] (+4)
+    It can be activated
+    for arrows (150) every 90+d90 turns if it is being worn. It grants you
+    the power of magic missile if it is being worn.  It increases your 
+    dexterity and luck by 4.  It provides immunity to paralysis.  It
+    provides resistance to acid.  It slows your metabolism.  It cannot be
+    harmed by acid, cold, lightning or fire.  
+    You found it lying in a vault on level 30 of Abandoned Castles.
+x) The Pair of Hard Leather Boots of Nevrast [3,+13] (+3)
+    It 
+    increases your constitution, stealth and speed by 3.  It allows you to
+    climb mountains.  It cannot be harmed by acid, cold, lightning or
+    fire.  
+    You found it lying in a vault on level 23 of Abandoned Castles.
+z) (nothing)
+{) (nothing)
+|) The Dwarven Pick of Erebor (+5,+20) (+5)
+    It can
+    be activated for open a secret passage every 75 turns if it is being
+    worn. It provides light (radius 1) forever.  It increases your 
+    strength and ability to tunnel by 5.  It does extra damage from acid.  
+    It is especially deadly against orcs.  It is especially deadly against
+    trolls.  It strikes at demons with holy wrath.  It sustains your 
+    strength.  It provides resistance to light, dark and chaos.  It allows
+    you to climb mountains.  It cannot be harmed by acid, cold, lightning
+    or fire.  
+    You found it lying in a vault on level 72 of Erebor.
+
+
+  [Character Inventory]
+
+a) 6 Sprigs of Athelas
+b) 6 Potions of Cure Insanity {25% off}
+c) a Potion of Speed
+d) 8 Potions of Healing
+e) 4 Potions of Restore Life Levels
+f) a Potion of Enlightenment
+g) 4 Potions of Curing
+h) 56 Scrolls of Satisfy Hunger {25% off}
+i) 2 Scrolls of *Destruction*
+j) a Silver Rod of Recall (100/100)
+k) a Mithril Rod of the Istari of Home Summoning (320/320)
+l) a Ring of Speed (+12)
+m) The Ring of Power 'Nenya' (+9,+9) (+2)
+    It can be
+    activated for healing (800) every 100+d200 turns if it is being worn. 
+    It increases your strength, intelligence, wisdom, dexterity, 
+    constitution, charisma, stealth, speed and luck by 2.  It sustains 
+    your intelligence, wisdom and charisma.  It provides immunity to cold.
+    It provides immunity to paralysis.  It provides resistance to life
+    draining and blindness.  It allows you to see invisible monsters.  It
+    gives telepathic powers.  It cannot be harmed by acid, cold, lightning
+    or fire.  
+    You found it in the remains of a Great Wyrm of Power on level 99 of
+    Orodruin.
+n) The Anchor of Space-Time
+    It provides light (radius 2) forever.  It prevents the
+    space-time continuum from being disrupted.  It cannot be harmed by
+    acid, cold, lightning or fire.  
+    You found it in the remains of Julian, Master of Arden Forest on level 30
+    of Abandoned Castles.
+o) The Silmaril of Flames (+2) {cursed}
+    It can be activated for invulnerability (dur
+    8+d8) every 1000 turns if it is being worn. It grants you the power of 
+    banish evil if it is being worn.  It provides light (radius 5)
+    forever.  It increases your strength by 2.  It provides resistance to 
+    fire, light, dark, shards, nether, nexus and chaos.  It allows you to
+    see invisible monsters.  It allows you to sense the presence of evil
+    beings.  It drains mana and experience.  It is heavily cursed.  It can
+    re-curse itself.  It cannot be harmed by acid, cold, lightning or
+    fire.  
+    You found it in the remains of a Great Worm of Fire on level 99 of
+    Orodruin.
+p) Portable hole
+q) (nothing)
+r) (nothing)
+s) (nothing)
+t) (nothing)
+u) (nothing)
+v) (nothing)
+w) (nothing)
+
+
+  [Home Inventory - Gondolin ]
+
+a) a Dragon Helm of Water Breathing [8,+22]
+b) a Heavy Magic Crossbow (*Reloader*) (x6) (+25,+38)(40%)
+c) The Key of Thorin
+d) The Cup of Thror
+e) The Parchment - Map of Thror
+
+
+  [Home Inventory - Minas Anor ]
+
+a) a Tilkal Rod of Capacity of Nothing (400/400)
+b) a Ring of Damage (+23)
+c) a Radiant Ring of Speed (+10)
+d) a Radiant Ring of Speed (+7)
+e) The Necklace 'Nauglamir' (+3)
+    It provides light (radius 3) forever.  It increases your 
+    strength, dexterity, constitution, infravision and speed by 3.  It
+    provides immunity to paralysis.  It makes you completely fearless.  It
+    allows you to see invisible monsters.  It speeds your regenerative
+    powers.  It cannot be harmed by acid, cold, lightning or fire.  
+    You found it in the remains of Naugladur, Lord of Nogrod on level 70 of
+    Emyn Luin.
+f) an Amulet of Anti-Magic
+g) The Arkenstone of Thrain (+3)
+    It can be activated for detection every 30+d30 turns if it
+    is being worn. It provides light (radius 3) forever.  It increases 
+    your speed and luck by 3.  It provides resistance to life draining, 
+    light, dark and chaos.  It allows you to see invisible monsters.  It
+    allows you to sense the presence of orcs.  It cannot be harmed by
+    acid, cold, lightning or fire.  
+    You found it lying on the floor of a special level.
+h) The Palantir of Orthanc (+2)
+i) a Psychoactive Skin of Permanence (+5,+5) [10,+19](20%) (+1 to stealth)
+    It reduces damages
+    you take by 50%, physical and magical. It increases your stealth by 1.
+    It increases your mana capacity by 20%.  It sustains your strength, 
+    intelligence, wisdom, dexterity, constitution and charisma.  It
+    provides resistance to life draining, acid, electricity, fire, cold
+     and poison.  It speeds your regenerative powers.  It cannot be harmed
+    by acid, cold, lightning or fire.  
+    You found it in the remains of The Physics Teacher on level 67 of Erebor.
+j) a Psychoactive Skin of the Ithryn (+2 to damage) [10,+22](40%) (+2 to stealth)
+k) a Chargeable Cord Armour of the Maiar [6,+14]
+    
+    It grants you the power of berserk if it is being worn.  It can be
+    upgraded with gold  It provides immunity to paralysis.  It makes you
+    completely fearless.  It provides resistance to acid, electricity, 
+    fire, cold and nether.  It allows you to sense the presence of trolls, 
+    giants and evil beings.  It has been blessed by the gods.  It cannot
+    be harmed by acid, cold, lightning or fire.  
+    You found it in the remains of Poor, the Thief on level 12 of Abandoned
+    Castles.
+l) The Cloak 'Menelcol' [1,+25] (+5)
+    It can be activated for starlight (75) every 75+d75 turns if
+    it is being worn. It provides light (radius 1) forever.  It increases 
+    your charisma, searching and infravision by 5.  It sustains your 
+    charisma.  It provides immunity to electricity.  It provides
+    resistance to cold, light and dark.  It allows you to breathe without
+    air.  It allows you to fly.  It allows you to see invisible monsters.  
+    It cannot be harmed by acid, cold, lightning or fire.  
+    You found it lying on the floor of a special level.
+
+
+  [The Museum Inventory - Bree ]
+
+a) The Ring of Power of Ji Indur Dawndeath (+3 to speed)
+    It increases your 
+    constitution, stealth and speed by 3.  It makes you invisible.  It
+    sustains your wisdom.  It makes you completely fearless.  It provides
+    resistance to light, dark, blindness and confusion.  It drains 
+    experience.  It cannot be dropped while cursed.  It cannot be harmed
+    by acid, cold, lightning or fire.  
+    You found it in the remains of Ji Indur Dawndeath on level 23 of Abandoned
+    Castles.
+b) The Ring of Power of Uvatha the Horseman (+3% of critical hits)
+    It increases your strength, charisma and ability to score
+    critical hits by 3.  It makes you invisible.  It sustains your 
+    intelligence.  It provides resistance to electricity, fire and light.  
+    It allows you to fly.  It drains experience.  It cannot be dropped
+    while cursed.  It cannot be harmed by acid, cold, lightning or fire.  
+    You found it in the remains of Uvatha the Horseman in the town of Bree .
+c) The Ring of Earas (+2)
+    
+    It increases your constitution by 2.  It makes you invisible.  It
+    sustains your constitution.  It provides resistance to confusion, 
+    nexus and disenchantment.  It allows you to levitate.  It cannot be
+    harmed by acid, cold, lightning or fire.  
+    You found it in the remains of Ji Indur Dawndeath on level 60 of Dol
+    Guldur.
+d) The Ring of Durin (+2) {cursed}
+    It grants you the power of midas touch if it is being worn.  It 
+    increases your strength, constitution and charisma by 2.  It sustains 
+    your strength, constitution and charisma.  It provides resistance to 
+    life draining, acid, cold, dark, nether and chaos.  It allows you to
+    sense the presence of evil beings.  It drains experience.  It
+    aggravates nearby creatures.  It is heavily cursed.  It cannot be
+    harmed by acid, cold, lightning or fire.  
+    You found it in the remains of The Necromancer of Dol Guldur on level 70
+    of Dol Guldur.
+e) The Jedi Master Robe of Atholos [6,+12]
+    It sustains your intelligence, wisdom and dexterity.  It
+    provides immunity to electricity.  It provides immunity to paralysis.  
+    It provides resistance to cold, light, dark, confusion, nexus and 
+    chaos.  It cannot be harmed by acid, cold, lightning or fire.  
+    You found it in the remains of Great Cthulhu on level 58 of Dol Guldur.
+f) The Broken Dagger 'Ossaur' (1d1) (+0,+3) (+4)
+    
+    It increases your intelligence by 4.  It does extra damage from acid
+     and fire.  It is very sharp and can make your foes bleed.  It is
+    especially deadly against dragons.  It is especially deadly against
+    orcs.  It is especially deadly against giants.  It strikes at demons
+    with holy wrath.  It cannot be harmed by acid, cold, lightning or
+    fire.  
+    You found it in the remains of Uvatha the Horseman in the town of Bree .
+g) The Dagger of Samwise (E:10, L:1) (1d5) (+4,+6)
+    
+    It can be activated for fire bolt (9d8) every 8+d8 turns if it is
+    being worn. It provides light (radius 1) forever.  It is easy to
+    throw. It does extra damage from fire.  It provides resistance to fire
+    .  It cannot be harmed by acid, cold, lightning or fire.  
+h) The Broad Sword 'Glamdring' (4d3) (+9,+14) (+1)
+    It provides
+    light (radius 1) forever.  It increases your searching by 1.  It does
+    extra damage from fire.  It is especially deadly against orcs.  It
+    strikes at demons with holy wrath.  It fights against evil with holy
+    fury.  It provides resistance to fire and light.  It allows you to
+    sense the presence of orcs.  It slows your metabolism.  It has been
+    blessed by the gods.  It cannot be harmed by acid, cold, lightning or
+    fire.  
+i) The Halberd 'Gabeorech' (E:0, L:0) (3d7) (+0,-4) [10,+0] (+4)
+    It can be wielded two-handed.  It increases your dexterity by 4
+    .  It produces chaotic effects.  It is very sharp and can make your
+    foes bleed.  It is especially deadly against trolls.  It is especially
+    deadly against giants.  It fights against evil with holy fury.  It has
+    been blessed by the gods.  It cannot be harmed by acid, cold,
+    lightning or fire.  
+    You found it in the remains of a Great unclean one on level 70 of Dol
+    Guldur.
+
+
+  [The Museum Inventory - Gondolin ]
+
+a) The Crumpled Scroll of Mass Resurrection
+    It cannot be harmed by acid, cold, lightning or fire.  
+    You found it lying on the ground on level 62 of Erebor.
+b) The Ring of Power of Adunaphel the Quiet (+4)
+    It increases 
+    your charisma by 4.  It makes you invisible.  It provides resistance 
+    to nether and disenchantment.  It allows you to levitate.  It speeds
+    your regenerative powers.  It drains experience.  It cannot be dropped
+    while cursed.  It cannot be harmed by acid, cold, lightning or fire.  
+    You found it in the remains of Adunaphel the Quiet on level 64 of Erebor.
+c) The Ring of Barahir (+1)
+    
+    It can be activated for dispel small life every 55+d55 turns if it is
+    being worn. It increases your strength, intelligence, wisdom, 
+    dexterity, constitution, charisma, stealth and searching by 1.  It
+    provides resistance to poison and dark.  It allows you to see
+    invisible monsters.  It cannot be harmed by acid, cold, lightning or
+    fire.  
+    You found it in the remains of Lord Borel of Hendrake on level 62 of
+    Erebor.
+d) The Amulet of Carlammas (+2)
+    It can be activated for protection from evil (dur level*3 +
+    d25) every 225+d225 turns if it is being worn. It increases your 
+    constitution by 2.  It provides resistance to fire.  It cannot be
+    harmed by acid, cold, lightning or fire.  
+    You found it lying in a vault on level 60 of Erebor.
+e) The Chain Mail of Peregrin Took (+3,+5) [14,+11] (+2)
+    It can be
+    activated for rays of fear in every direction if it is being worn. It
+    provides light (radius 1) forever.  It increases your strength by 2.  
+    It sustains your strength.  It makes you completely fearless.  It
+    allows you to sense the presence of trolls.  It speeds your
+    regenerative powers.  It cannot be harmed by acid, cold, lightning or
+    fire.  
+    You found it lying in a vault on level 60 of Erebor.
+f) The Small Metal Shield of Calmarimo [3,+2]
+    It provides
+    immunity to electricity.  It makes you completely fearless.  It
+    provides resistance to poison, confusion, nether and disenchantment.  
+    It cannot be harmed by acid, cold, lightning or fire.  
+    You found it in the remains of Adunaphel the Quiet on level 64 of Erebor.
+g) The Battle Axe 'Gunden' (2d8) (+8,+5) (+4)
+    
+    It can be wielded two-handed.  It increases your wisdom and charisma
+     by 4.  It does extra damage from electricity.  It produces chaotic
+    effects.  It is very sharp and can cut your foes.  It is especially
+    deadly against dragons.  It strikes at undead with holy wrath.  It has
+    been blessed by the gods.  It cannot be harmed by acid, cold,
+    lightning or fire.  
+    You found it in the remains of an Eldrak in the town of Gondolin .
+h) a Climbing Set
+
+
+  [The Museum Inventory - Minas Anor ]
+
+a) a Note of Eru [10,+5] (+3)
+b) a Rock of Tulkas [10,+4] (+3)
+c) The Maiashield of Gothmog [13,+13] (+4)
+    It 
+    increases your dexterity by 4.  It makes you invisible.  It sustains 
+    your strength, dexterity and constitution.  It provides immunity to
+    paralysis.  It provides resistance to life draining.  It allows you to
+    levitate.  It produces a fiery sheath.  It can re-curse itself.  It
+    cannot be harmed by acid, cold, lightning or fire.  
+    You found it in the remains of Sir Physt on level 99 of Orodruin.
+d) The Maiahorn of Gothmog [2,+13] (-5)
+    It
+    provides light (radius 2) forever.  It decreases your charisma by 5.  
+    It allows you to see invisible monsters.  It allows you to sense the
+    presence of Maiar.  It slows your metabolism.  It speeds your
+    regenerative powers.  It can re-curse itself.  It cannot be harmed by
+    acid, cold, lightning or fire.  
+    You found it in the remains of a Dreadlord on level 66 of Erebor.
+e) a Mini-Axe of Aule [10,+0] (+3)
+f) a Coral Stone of Ulmo [10,+7] (+3)
+g) a Coral Stone of Ulmo [10,-11] (+3) {cursed}
+h) The Ring of the Blacklocks (+3)
+    It 
+    increases your dexterity, ability to tunnel and luck by 3.  It makes
+    you invisible.  It sustains your dexterity.  It provides resistance to 
+    nexus.  It produces an anti-magic shell.  It cannot be harmed by acid,
+    cold, lightning or fire.  
+    You found it lying in a vault on level 72 of Erebor.
+i) The Ring of the Stonefoots [+6] (+3)
+    It provides light
+    (radius 3) forever.  It increases your charisma and ability to tunnel
+     by 3.  It makes you invisible.  It sustains your charisma.  It
+    provides resistance to shards.  It drains experience.  It cannot be
+    harmed by acid, cold, lightning or fire.  
+    You found it lying in a vault on level 66 of Erebor.
+j) The Ring of the Firebeards (+5,+10) (+3)
+    It increases your 
+    strength and ability to tunnel by 3.  It makes you invisible.  It
+    sustains your strength.  It makes you completely fearless.  It
+    provides resistance to fire.  It allows you to sense the presence of 
+    good beings.  It drains mana.  It can re-curse itself.  It cannot be
+    harmed by acid, cold, lightning or fire.  
+    You found it in the remains of Bahamut, Celestial Dragon of Good on level
+    66 of Erebor.
+k) The Ring of the Broadbeams [+10] (+3)
+    It increases your intelligence and ability to tunnel by 3
+    .  It makes you invisible.  It sustains your intelligence.  It
+    provides resistance to blindness and sound.  It allows you to sense
+    the presence of non-living things.  It drains experience.  It can
+    re-curse itself.  It cannot be harmed by acid, cold, lightning or
+    fire.  
+    You found it in the remains of a Sky Drake on level 70 of Erebor.
+l) The Ring of the Ironfists (+10,+10) (+3)
+    It 
+    increases your wisdom and ability to tunnel by 3.  It makes you
+    invisible.  It sustains your wisdom.  It provides resistance to cold
+     and chaos.  It allows you to sense the presence of orcs.  It cannot
+    be harmed by acid, cold, lightning or fire.  
+    You found it in the remains of Dworkin Barimen on level 66 of Erebor.
+m) The Ring of Lurim [+15] (+1)
+    
+    It can be activated for ball of fire and resist fire every 50+d50 turns
+     if it is being worn. It increases your constitution by 1.  It
+    sustains your wisdom.  It provides resistance to fire, cold, light and 
+    nexus.  It allows you to levitate.  It allows you to see invisible
+    monsters.  It cannot be harmed by acid, cold, lightning or fire.  
+    You found it in the remains of an Ancient red dragon on level 99 of
+    Orodruin.
+n) The Ring of Gildi (+0)
+    It decreases your constitution by 0.  It sustains your wisdom
+     and constitution.  It provides resistance to sound, nether and 
+    disenchantment.  It speeds your regenerative powers.  It cannot be
+    harmed by acid, cold, lightning or fire.  
+    You found it in the remains of Durin's Bane on level 50 of Moria.
+o) The Ring of the Stiffbeards (+5,+10) [+5] (+3)
+    It 
+    increases your constitution and ability to tunnel by 3.  It makes you
+    invisible.  It sustains your constitution.  It provides resistance to 
+    disenchantment.  It allows you to sense the presence of undead.  It
+    reflects bolts and arrows.  It cannot be harmed by acid, cold,
+    lightning or fire.  
+    You found it in the remains of The Unicorn of Order on level 70 of Erebor.
+p) The Ring of Adilirim (-6) {cursed}
+    
+    It decreases your speed by 6.  It makes you invisible.  It makes you
+    completely fearless.  It provides resistance to fire.  It drains 
+    experience.  It induces random teleportation.  It fills you with the
+    Black Breath.  It is heavily cursed.  It carries an ancient foul
+    curse.  It cannot be harmed by acid, cold, lightning or fire.  
+    You found it in the remains of Barney the Dinosaur on level 69 of Angband.
+q) a Sorcerous Amulet of Brilliance (-52,-25)(140%) (+7)
+    
+    It provides light (radius 1) forever.  It increases your intelligence, 
+    wisdom and spell power by 7.  It increases your mana capacity by 140%.
+    It cannot be harmed by acid, cold, lightning or fire.  
+    You found it in the remains of a Mature gold dragon on level 66 of Erebor.
+r) The Amulet of Ingwe (+3)
+    
+    It can be activated for dispel evil (level*5) every 300+d300 turns if
+    it is being worn. It increases your intelligence, wisdom, charisma, 
+    searching and infravision by 3.  It provides immunity to paralysis.  
+    It provides resistance to acid, electricity and cold.  It allows you
+    to see invisible monsters.  It cannot be harmed by acid, cold,
+    lightning or fire.  
+    You found it in the remains of a Great Ice Worm on level 66 of Erebor.
+s) The Jewel 'Evenstar' (+3)
+    
+    It can be activated for restore stats and life levels every 750 turns
+     if it is being worn. It provides light (radius 1) forever.  It 
+    increases your constitution by 3.  It sustains your intelligence, 
+    wisdom and constitution.  It provides resistance to life draining, 
+    cold, dark and nether.  It speeds your regenerative powers.  It cannot
+    be harmed by acid, cold, lightning or fire.  
+    You found it in the remains of a Great Worm of Perplexity on level 67 of
+    Erebor.
+t) The Palantir of Orthanc (+2)
+    It can be activated for clairvoyance every 100+d100 turns if it
+    is being worn. It provides light (radius 2) forever.  It increases 
+    your intelligence, wisdom, searching and infravision by 2.  It
+    provides resistance to blindness.  It allows you to see invisible
+    monsters.  It gives telepathic powers.  It drains mana.  It aggravates
+    nearby creatures.  It cannot be harmed by acid, cold, lightning or
+    fire.  
+    You found it in the remains of a Great Worm of Many Colours on level 72 of
+    Erebor.
+u) The Black Banner of Gondor (-3)
+    It can be activated for summon undead every 666+d333 turns if
+    it is being worn. It provides light (radius 1) forever.  It decreases 
+    your stealth by 3.  It makes you invisible.  It provides resistance to 
+    dark, nether and chaos.  It allows you to sense the presence of undead
+    .  It cannot be harmed by acid, cold, lightning or fire.  
+    You found it lying in a vault on level 66 of Erebor.
+v) The Silmaril of the Seas (+2) {cursed}
+    It can be
+    activated for word of recall every 200 turns if it is being worn. It
+    grants you the power of banish evil if it is being worn.  It provides
+    light (radius 5) forever.  It increases your intelligence by 2.  It
+    provides resistance to light, dark, nether, nexus and chaos.  It
+    allows you to see invisible monsters.  It allows you to sense the
+    presence of evil beings.  It drains life and experience.  It is
+    heavily cursed.  It can re-curse itself.  It cannot be harmed by acid,
+    cold, lightning or fire.  
+    You found it lying in a vault on level 72 of Erebor.
+w) The Chain Mail of Silin (-18,-51) [14,+2](20%)
+    It increases your 
+    hit points by 20%.  It sustains your charisma.  It provides immunity 
+    to fire.  It makes you completely fearless.  It provides resistance to 
+    dark.  It cannot be harmed by acid, cold, lightning or fire.  
+    You found it in the remains of Sauron, the Sorcerer on level 99 of Angband.
+x) The Augmented Chain Mail of Caspanion (-2) [16,+20] (+3)
+    
+    It can be activated for destroy doors and traps every 10 turns if it
+    is being worn. It increases your intelligence, wisdom and constitution
+     by 3.  It provides resistance to acid, poison, confusion and chaos.  
+    It cannot be harmed by acid, cold, lightning or fire.  
+    You found it lying in a vault on level 72 of Erebor.
+a) The Double Chain Mail of Rahalas [16,+5]
+    It sustains your 
+    constitution.  It provides immunity to nether.  It cannot be harmed by
+    acid, cold, lightning or fire.  
+    You found it in the remains of a Balrog Captain on level 99 of Orodruin.
+b) The Metal Lamellar Armour 'Vandireb' (-3 to accuracy) [23,+10]
+    
+    It sustains your constitution and charisma.  It provides resistance to 
+    fire and chaos.  It cannot be harmed by acid, cold, lightning or fire.
+    
+    You found it in the remains of an Ancient white dragon on level 70 of
+    Angband.
+c) The Mithril Chain Mail 'Belegennon' (-1 to accuracy) [28,+20] (+4 to stealth)
+    It can be activated for heal (777), curing and heroism every
+    300 turns if it is being worn. It increases your intelligence, wisdom
+     and stealth by 4.  It makes you completely fearless.  It provides
+    resistance to life draining, acid, electricity, fire, cold, poison and 
+    dark.  It allows you to see invisible monsters.  It cannot be harmed
+    by acid, cold, lightning or fire.  
+    You found it in the remains of Tselakus, the Dreadlord on level 69 of
+    Angband.
+d) The Mithril Plate Mail of Celeborn (-3) [35,+25] (+4)
+    It can be activated for genocide every 500 turns if it is
+    being worn. It increases your strength and charisma by 4.  It provides
+    resistance to acid, electricity, fire, cold, dark, confusion and 
+    disenchantment.  It allows you to sense the presence of orcs.  It
+    cannot be harmed by acid, cold, lightning or fire.  
+    You found it lying in a vault on level 72 of Erebor.
+e) The Psychoactive Skin of Fuindor (-8,-7) [10,-1] (-5 to stealth) {cursed}
+    It reduces damages
+    you take by 50%, physical and magical. It decreases your stealth by 5.
+    It decreases your mana capacity by 100%.  It sustains your strength.  
+    It provides immunity to acid and nether.  It provides resistance to 
+    electricity.  It speeds your regenerative powers.  It induces random
+    teleportation.  It is heavily cursed.  It carries an ancient foul
+    curse.  It cannot be harmed by acid, cold, lightning or fire.  
+    You found it in the remains of a Great Worm of Perplexity on level 72 of
+    Erebor.
+f) The Psychoactive Skin of Curunir (-40,-40) [38,+0] (+10)
+    It can be activated for ball of lightning (100) every 500 turns
+     if it is being worn. It can be used to store a spell.  It increases 
+    your speed by 10.  It sustains your strength, intelligence, dexterity, 
+    constitution and charisma.  It provides immunity to electricity and 
+    cold.  It cannot be harmed by acid, cold, lightning or fire.  
+    You found it lying in a vault on level 69 of Angband.
+g) The Soft Leather Armour of the Sandworm [30,+0] (+5 to stealth)
+    It increases your 
+    strength, stealth, infravision and ability to tunnel by 5.  It
+    provides resistance to acid, electricity, fire and poison.  It allows
+    you to sense the presence of animals.  It cannot be harmed by acid,
+    cold, lightning or fire.  
+    You found it in the remains of The Sandworm Queen on level 30 of The
+    Withered Heath.
+h) The Leather Scale Mail 'Teithil' (-1 to accuracy) [11,+0]
+    It provides resistance to poison, light, confusion, 
+    nexus and disenchantment.  It cannot be harmed by acid, cold,
+    lightning or fire.  
+    You found it in the remains of Shelob, Spider of Darkness on level 50 of
+    Cirith Ungol.
+i) The Leather Jerkin of Dimbar [7,+14]
+    It provides immunity to acid and electricity.  It
+    provides resistance to light, confusion and disenchantment.  It cannot
+    be harmed by acid, cold, lightning or fire.  
+    You found it in the remains of an Ancient black dragon on level 71 of
+    Erebor.
+j) The Thunderlord Coat of Trone [9,+20] (+4 to speed)
+    It increases your intelligence, constitution, stealth and speed
+     by 4.  It provides immunity to fire.  It provides resistance to acid, 
+    electricity, cold and nexus.  It allows you to fly.  It allows you to
+    sense the presence of thunderlords.  It reflects bolts and arrows.  It
+    produces a fiery sheath.  It cannot be harmed by acid, cold, lightning
+    or fire.  
+    You found it in the remains of Trone, the Rebel Thunderlord on level 70 of
+    The Sacred Land Of Mountains.
+k) The Cloak of Ghan-buri-Ghan (+5,+5) [14,+0] (+5)
+    It grants you the power of berserk if it
+    is being worn.  It increases your dexterity, stealth and speed by 5.  
+    It makes you invisible.  It sustains your dexterity.  It cannot be
+    harmed by acid, cold, lightning or fire.  
+    You found it lying in a vault on level 69 of Angband.
+l) The Cloak 'Colannon' [1,+15] (+3 to speed)
+    It can be
+    activated for teleport (range 100) every 45 turns if it is being worn. 
+    It increases your stealth and speed by 3.  It provides resistance to 
+    acid and nexus.  It cannot be harmed by acid, cold, lightning or fire.
+    
+    You found it lying in a vault on level 25 of The Old Forest.
+m) The Cloak 'Holcolleth' [1,+4] (+2)
+    It can be
+    activated for sleep nearby monsters every 55 turns if it is being
+    worn. It increases your intelligence, wisdom, stealth and speed by 2.  
+    It provides resistance to acid.  It cannot be harmed by acid, cold,
+    lightning or fire.  
+    You found it lying in a vault on level 25 of The Old Forest.
+n) a Chargeable Snakeskin Cloak [1,+13]
+    It can be
+    upgraded with gold  
+    You found it lying in a vault on level 66 of Erebor.
+o) The Mouse Fur of Rungil [1,+11] (+1 to stealth)
+    It increases your 
+    stealth by 1.  It provides immunity to fire.  It provides resistance 
+    to life draining, shards, nether and nexus.  It cannot be harmed by
+    acid, cold, lightning or fire.  
+    You found it lying in a vault on level 72 of Erebor.
+p) The Large Leather Shield of Celegorm [4,+20]
+    It provides
+    resistance to acid, electricity, fire, cold, light, dark and sound.  
+    It cannot be harmed by acid, cold, lightning or fire.  
+    You found it in the remains of a Great Worm of Fire on level 40 of
+    Isengard.
+q) The Large Metal Shield of Anarion [5,+20]
+    It sustains your strength, intelligence, wisdom, dexterity, 
+    constitution and charisma.  It provides resistance to acid, 
+    electricity, fire, cold and confusion.  It allows you to sense the
+    presence of evil beings.  It cannot be harmed by acid, cold, lightning
+    or fire.  
+    You found it in the remains of a Great Worm of Perplexity on level 72 of
+    Erebor.
+r) The Tower Shield of Eloth [10,+0]
+    It provides immunity to acid.  It provides immunity to
+    paralysis.  It provides resistance to light, shards and chaos.  It
+    reflects bolts and arrows.  It cannot be harmed by acid, cold,
+    lightning or fire.  
+    You found it in the remains of Elenwe the Lost on level 40 of The
+    Helcaraxe.
+s) The Small Mithril Shield of Thorin [3,+25] (+4)
+    It increases your strength and constitution by 4.  It
+    provides immunity to acid.  It provides immunity to paralysis.  It
+    provides resistance to blindness, sound and chaos.  It allows you to
+    sense the presence of orcs.  It cannot be harmed by acid, cold,
+    lightning or fire.  
+    You found it lying in a vault on level 72 of Erebor.
+t) The Large Mithril Shield of Gil-galad [10,+20] (+5)
+    It can be
+    activated for starlight (75) every 75+d75 turns if it is being worn. 
+    It provides light (radius 1) forever.  It increases your wisdom, 
+    charisma, searching and luck by 5.  It sustains your wisdom, dexterity
+     and charisma.  It provides resistance to acid, electricity, dark and 
+    disenchantment.  It cannot be harmed by acid, cold, lightning or fire.
+    
+    You found it lying in a vault on level 70 of Erebor.
+u) The Large Mithril Shield of Celth [8,+25]
+    It sustains your 
+    intelligence.  It provides immunity to acid.  It provides immunity to
+    paralysis.  It provides resistance to poison.  It reflects bolts and
+    arrows.  It cannot be harmed by acid, cold, lightning or fire.  
+    You found it lying in a vault on level 66 of Erebor.
+v) The Iron Crown 'Aureb' [0,+12]
+    It sustains your 
+    intelligence and wisdom.  It makes you completely fearless.  It
+    provides resistance to electricity and poison.  It allows you to see
+    invisible monsters.  It cannot be harmed by acid, cold, lightning or
+    fire.  
+    You found it in the remains of a Nightwalker on level 72 of Erebor.
+w) The Jewel Encrusted Crown of Numenor [0,+18] (+3)
+    It
+    can be activated for analyze monster every 500+d200 turns if it is
+    being worn. It provides light (radius 1) forever.  It increases your 
+    intelligence, dexterity, charisma, searching and speed by 3.  It
+    provides immunity to paralysis.  It provides resistance to cold, light
+    , dark, blindness, sound and shards.  It allows you to see invisible
+    monsters.  It drains mana.  It cannot be harmed by acid, cold,
+    lightning or fire.  
+    You found it lying in a vault on level 72 of Erebor.
+x) The Jewel Encrusted Crown of Brielos [0,+14]
+    It sustains your 
+    charisma.  It provides resistance to light, dark and chaos.  It allows
+    you to see invisible monsters.  It cannot be harmed by acid, cold,
+    lightning or fire.  
+    You found it in the remains of Nyogtha, the Thing that Should not Be on
+    level 85 of Orodruin.
+a) The Metal Cap of Thengel [3,+12] (+3)
+    It increases your wisdom, charisma and luck by 3.
+    It provides resistance to confusion.  It cannot be harmed by acid,
+    cold, lightning or fire.  
+    You found it in the remains of Bahamut, Celestial Dragon of Good on level
+    66 of Erebor.
+b) The Iron Helm of Knowledge [6,+20] (-6)
+    It can be activated for whispers from beyond(sanity
+    drain) 100+d200 turns if it is being worn. It provides light (radius
+    1) forever.  It decreases your luck by 6.  It identifies all items for
+    you.  It cannot be harmed by acid, cold, lightning or fire.  
+    You found it in the remains of The Glass Golem on level 52 of Illusory
+    Castle.
+c) The Iron Helm of Gorlim (+25,+25) [5,+10] (-5) {cursed}
+    It can be activated for rays of fear in every direction if it
+    is being worn. It decreases your intelligence, wisdom and searching by 
+    5.  It provides immunity to cold.  It provides immunity to paralysis.  
+    It makes you completely fearless.  It provides resistance to acid, 
+    fire, poison and disenchantment.  It allows you to see invisible
+    monsters.  It produces an anti-magic shell.  It drains life.  It
+    induces random teleportation.  It is heavily cursed.  It carries an
+    ancient foul curse.  It cannot be harmed by acid, cold, lightning or
+    fire.  
+    You found it in the remains of Raou the Conqueror on level 67 of Erebor.
+d) The Steel Helm of Hammerhand [6,+20] (+3)
+    
+    It grants you the power of berserk if it is being worn.  It increases 
+    your strength, dexterity and constitution by 3.  It sustains your 
+    strength, dexterity and constitution.  It makes you completely
+    fearless.  It provides resistance to acid, cold, dark and nexus.  It
+    slows your metabolism.  It cannot be harmed by acid, cold, lightning
+    or fire.  
+    You found it in the remains of The Minotaur of the Labyrinth on level 37
+    of Maze.
+e) The Gnomish Helm 'Vilithar' [5,+13] (+5)
+    It increases your searching and infravision by 5.  It sustains 
+    your constitution and charisma.  It provides resistance to blindness, 
+    sound and shards.  It cannot be harmed by acid, cold, lightning or
+    fire.  
+    You found it in the remains of Vecna, the Emperor Lich on level 85 of
+    Orodruin.
+f) a Third Eye of the Noldor [1,+11] (+3 to stealth)
+    It can be activated for detect treasure every 10+d20 turns if
+    it is being worn. It increases your dexterity, stealth, searching and 
+    spell power by 3.  It sustains your dexterity.  It allows you to sense
+    the presence of orcs, evil beings and good beings.  
+    You found it in the remains of Caine, the Conspirator on level 66 of
+    Erebor.
+g) The Set of Gauntlets 'Camlost' (-11,-12) [2,+0] (-3) {cursed}
+    It decreases your strength and dexterity by 3.  It provides
+    immunity to fire and cold.  It provides immunity to paralysis.  It
+    provides resistance to poison, nether and disenchantment.  It drains 
+    mana.  It induces random teleportation.  It aggravates nearby
+    creatures.  It is heavily cursed.  It carries an ancient foul curse.  
+    It cannot be harmed by acid, cold, lightning or fire.  
+    You found it lying in a vault on level 69 of Angband.
+h) The Set of Cesti 'Athrim' [5,+13]
+    It sustains your 
+    intelligence.  It provides resistance to electricity, light, sound, 
+    shards and nexus.  It cannot be harmed by acid, cold, lightning or
+    fire.  
+    You found it lying in a vault on level 70 of Erebor.
+i) The Pair of Soft Leather Boots of Bardhoron [2,+20]
+    It sustains your 
+    wisdom, constitution and charisma.  It provides resistance to poison
+     and chaos.  It cannot be harmed by acid, cold, lightning or fire.  
+    You found it lying in a vault on level 66 of Erebor.
+j) The Pair of Metal Shod Boots of Gimli (+5,+5) [4,+10] (+4)
+    It grants you the
+    power of magic map if it is being worn.  It increases your searching, 
+    infravision and ability to tunnel by 4.  It allows you to climb
+    mountains.  It cannot be harmed by acid, cold, lightning or fire.  
+    You found it lying in a vault on level 72 of Erebor.
+k) The Double Axe 'Tanna' (3d6) (+26,+15)
+    It must be wielded
+    two-handed.  It does extra damage from frost and dark.  It produces
+    chaotic effects.  It drains life from your foes.  It is especially
+    deadly against orcs.  It is a great bane of Maiar.  It cannot be
+    harmed by acid, cold, lightning or fire.  
+    You found it in the remains of an Ettin on level 40 of Isengard.
+l) The Beaked Axe of Hurin (2d6) (+12,+20) (+3)
+    It
+    must be wielded two-handed.  It can be activated for berserker and +10
+    to speed (50) every 100+d200 turns if it is being worn. It provides
+    light (radius 1) forever.  It increases your strength and constitution
+     by 3.  It does extra damage from acid.  It is especially deadly
+    against orcs.  It is especially deadly against trolls.  It is a great
+    bane of Maiar.  It provides resistance to acid.  It drains mana.  It
+    cannot be harmed by acid, cold, lightning or fire.  
+    You found it lying in a vault on level 72 of Erebor.
+m) The Beaked Axe of Dain Ironfoot (2d6) (+8,+10) (+3)
+    It can be
+    activated for drain life (120) every 400 turns if it is being worn. It 
+    increases your wisdom and constitution by 3.  It is especially deadly
+    against dragons.  It allows you to sense the presence of undead and 
+    evil beings.  It slows your metabolism.  It cannot be harmed by acid,
+    cold, lightning or fire.  
+    You found it lying in a vault on level 72 of Erebor.
+n) The Battle Axe of Balli Stonehand (3d8) (+8,+11) [+5] (+3)
+    It can be wielded
+    two-handed.  It increases your strength, constitution and stealth by 3
+    .  It is especially deadly against orcs.  It is especially deadly
+    against trolls.  It strikes at demons with holy wrath.  It provides
+    immunity to paralysis.  It provides resistance to acid, electricity, 
+    fire, cold and blindness.  It allows you to levitate.  It allows you
+    to see invisible monsters.  It allows you to sense the presence of 
+    non-living things.  It speeds your regenerative powers.  It cannot be
+    harmed by acid, cold, lightning or fire.  
+    You found it lying in a vault on level 66 of Erebor.
+o) The Great Axe of Durin (4d4) (+10,+20) [+15] (+3)
+    It must be wielded
+    two-handed.  It increases your strength, constitution and ability to
+    tunnel by 3.  It does extra damage from acid and fire.  It is
+    especially deadly against dragons.  It is especially deadly against
+    orcs.  It is especially deadly against trolls.  It is a great bane of
+    Maiar.  It provides immunity to paralysis.  It makes you completely
+    fearless.  It provides resistance to acid, fire, light, dark and chaos
+    .  It allows you to sense the presence of evil beings.  It cannot be
+    harmed by acid, cold, lightning or fire.  
+    You found it lying in a vault on level 66 of Erebor.
+p) The Dagger 'Belangil' (2d4) (+6,+9) (+2)
+    It can be
+    activated for frost ball (48) every 5+d5 turns if it is being worn. It
+    is easy to throw. It increases your dexterity, speed and attack speed
+     by 2.  It does extra damage from frost.  It poisons your foes.  It
+    provides resistance to cold.  It allows you to see invisible monsters.
+    It slows your metabolism.  It speeds your regenerative powers.  It
+    cannot be harmed by acid, cold, lightning or fire.  
+    You found it in the remains of an Eldrak on level 50 of Moria.
+q) The Dagger of Meriadoc (E:10, L:1) (1d5) (+4,+6)
+    It can
+    be activated for lightning bolt (4d8) every 6+d6 turns if it is being
+    worn. It is easy to throw. It does extra damage from electricity.  It
+    provides resistance to electricity and poison.  It cannot be harmed by
+    acid, cold, lightning or fire.  
+    You found it lying in a vault on level 66 of Erebor.
+r) The Rapier 'Forasgil' (2d4) (+12,+19)
+    It does extra
+    damage from frost.  It is especially deadly against natural creatures.
+    It provides resistance to cold and light.  It cannot be harmed by
+    acid, cold, lightning or fire.  
+    You found it lying in a vault on level 72 of Erebor.
+s) The Short Sword 'Gilettar' (1d7) (+3,+7) (+2)
+    It increases your 
+    attack speed by 2.  It is especially deadly against natural creatures.
+    It provides resistance to disenchantment.  It allows you to see
+    invisible monsters.  It slows your metabolism.  It speeds your
+    regenerative powers.  It cannot be harmed by acid, cold, lightning or
+    fire.  
+    You found it lying in a vault on level 66 of Erebor.
+t) The Sabre 'Careth Asdriag' (2d7) (+6,+8) (+2 to speed)
+    It increases your 
+    dexterity, constitution, speed and attack speed by 2.  It is
+    especially deadly against dragons.  It is especially deadly against
+    orcs.  It is especially deadly against trolls.  It is especially
+    deadly against giants.  It is especially deadly against natural
+    creatures.  It allows you to sense the presence of animals.  It cannot
+    be harmed by acid, cold, lightning or fire.  
+    You found it lying in a vault on level 66 of Erebor.
+u) The Long Sword of Dernhelm (3d5) (+20,+25) (+5)
+    It provides light
+    (radius 1) forever.  It increases your stealth, speed and luck by 5.  
+    It is very sharp and can cut your foes.  It is very sharp and can make
+    your foes bleed.  It is a great bane of undead.  It fights against
+    evil with holy fury.  It provides immunity to paralysis.  It makes you
+    completely fearless.  It provides resistance to life draining and 
+    disenchantment.  It allows you to see invisible monsters.  It allows
+    you to sense the presence of unique beings.  It has been blessed by
+    the gods.  It can resist being shattered by morgul beings.  It cannot
+    be harmed by acid, cold, lightning or fire.  
+    You found it in the remains of Fuinur, Lord of the Haradrim on level 90 of
+    Angmar.
+v) The Long Sword of Angmar (4d5) (-22,-25) (-10 to speed) {cursed}
+    It decreases your strength, wisdom, charisma and speed by 10.  
+    It does extra damage from fire.  It drains life from your foes.  It
+    makes you invisible.  It provides immunity to paralysis.  It renders
+    you incorporeal.  It allows you to see invisible monsters.  It allows
+    you to sense the presence of undead.  It slows your metabolism.  It
+    prevents teleportation.  It aggravates nearby creatures.  It is
+    heavily cursed.  It carries an ancient morgothian curse.  It can clone
+    monsters.  It cannot be harmed by acid, cold, lightning or fire.  
+    You found it lying in a vault on level 25 of The Old Forest.
+w) The Scimitar 'Haradekket' (4d3) (+9,+11) (+2 attacks)
+    It 
+    increases your intelligence, wisdom and attack speed by 2.  It is
+    especially deadly against dragons.  It strikes at demons with holy
+    wrath.  It strikes at undead with holy wrath.  It fights against evil
+    with holy fury.  It is especially deadly against natural creatures.  
+    It provides resistance to blindness, nexus, chaos and disenchantment.  
+    It allows you to see invisible monsters.  It has been blessed by the
+    gods.  It cannot be harmed by acid, cold, lightning or fire.  
+    You found it in the remains of a Multi-hued drake on level 66 of Erebor.
+x) The Two-Handed Sword of Teldalin (4d6) (+17,+24) (+4)
+    
+    It must be wielded two-handed.  It increases your constitution by 4.  
+    It does extra damage from acid.  It poisons your foes.  It is very
+    sharp and can cut your foes.  It is especially deadly against giants.  
+    It is a great bane of Maiar.  It strikes at undead with holy wrath.  
+    It is especially deadly against natural creatures.  It cannot be
+    harmed by acid, cold, lightning or fire.  
+    You found it in the remains of a Great Wyrm of Power on level 99 of
+    Orodruin.
+a) The Two-Handed Sword 'Finin' (4d6) (+21,+15) (+5)
+    It must be wielded two-handed.  It provides light (radius 1)
+    forever.  It increases your charisma by 5.  It does extra damage from 
+    fire.  It poisons your foes.  It is a great bane of dragons.  It is a
+    great bane of Maiar.  It cannot be harmed by acid, cold, lightning or
+    fire.  
+    You found it in the remains of Artsi, the Champion of Chaos on level 99 of
+    Orodruin.
+b) a Diamond Edge of the Noldor (7d5) (+33,+36) [+7] (+8 to stealth)
+    It increases your wisdom, dexterity, constitution, stealth
+     and ability to tunnel by 8.  It is very sharp and can cut your foes.  
+    It is very sharp and can make your foes bleed.  It fights against evil
+    with holy fury.  It sustains your constitution.  It provides immunity
+    to paralysis.  It provides resistance to life draining, acid, 
+    electricity, fire, cold and poison.  It allows you to levitate.  It
+    allows you to see invisible monsters.  It speeds your regenerative
+    powers.  It has been blessed by the gods.  It cannot be harmed by
+    acid, cold, lightning or fire.  
+    You found it lying in a vault on level 71 of Angband.
+c) The Dark Sword of Galain (3d6) (+18,+17) (+5 to speed)
+    It generates an
+    antimagic field.  It increases your strength and speed by 5.  It does
+    extra damage from acid, electricity, frost and dark.  It is a great
+    bane of dragons.  It is especially deadly against trolls.  It cannot
+    be harmed by acid, cold, lightning or fire.  
+    You found it lying in a vault on level 66 of Erebor.
+d) a Black Dark Sword of the Noldor (3d6) (+18,+21) [+18] (+2 to stealth)
+    It generates an
+    antimagic field.  It increases your wisdom, dexterity, constitution
+     and stealth by 2.  It does extra damage from dark.  It is very sharp
+    and can make your foes bleed.  It fights against evil with holy fury.  
+    It sustains your charisma.  It provides immunity to cold.  It provides
+    immunity to paralysis.  It provides resistance to life draining, acid, 
+    electricity, fire, poison, dark and chaos.  It allows you to levitate.
+    It allows you to see invisible monsters.  It speeds your regenerative
+    powers.  It has been blessed by the gods.  It cannot be harmed by
+    acid, cold, lightning or fire.  
+    You found it in the remains of a Great Venom Wyrm on level 66 of Erebor.
+e) The Dark Sword of Earamir (3d6) (-4,+1) (+1 to speed)
+    
+    It generates an antimagic field.  It increases your speed by 1.  It
+    does extra damage from dark.  It is especially deadly against dragons.
+    It is especially deadly against orcs.  It is especially deadly against
+    giants.  It is a great bane of Maiar.  It cannot be harmed by acid,
+    cold, lightning or fire.  
+    You found it in the remains of Santa Claus on level 52 of Illusory Castle.
+f) The Spiked Dagger 'Noring' (2d4) (+15,+9)
+    
+    It is easy to throw. It does extra damage from fire.  It produces
+    chaotic effects.  It is very sharp and can cut your foes.  It is very
+    sharp and can make your foes bleed.  It is especially deadly against
+    orcs.  It is a great bane of Maiar.  It is a great bane of undead.  It
+    cannot be harmed by acid, cold, lightning or fire.  
+    You found it lying in a vault on level 72 of Erebor.
+g) The Spiked Dagger of Nathor (2d4) (+3,-2) (-3) {cursed}
+    It is easy to
+    throw. It decreases your intelligence and wisdom by 3.  It produces
+    chaotic effects.  It is very sharp and can cut your foes.  It is very
+    sharp and can make your foes bleed.  It is a great bane of dragons.  
+    It fills you with the Black Breath.  It is heavily cursed.  It carries
+    an ancient foul curse.  It cannot be harmed by acid, cold, lightning
+    or fire.  
+    You found it in the remains of Harowen the Black Hand on level 72 of
+    Erebor.
+h) The Trident 'Ithalad' (2d5) (+25,+14) [4,+0] (+3)
+    It can be wielded two-handed.  It is easy to throw. It 
+    increases your intelligence and dexterity by 3.  It does extra damage 
+    from frost.  It produces chaotic effects.  It is especially deadly
+    against dragons.  It is especially deadly against orcs.  It is
+    especially deadly against natural creatures.  It cannot be harmed by
+    acid, cold, lightning or fire.  
+    You found it lying in a vault on level 79 of Angband.
+i) The Glaive of Pain (E:45, L:3) (9d6) (+0,+30)
+    It can be wielded
+    two-handed.  It drains mana.  It cannot be harmed by acid, cold,
+    lightning or fire.  
+    You found it lying in a vault on level 72 of Erebor.
+j) The Scythe of Belebri (5d3) (+24,+17) [1,+0] (+1)
+    It can be wielded
+    two-handed.  It provides light (radius 1) forever.  It increases your 
+    charisma by 1.  It does extra damage from electricity and frost.  It
+    is especially deadly against trolls.  It is a great bane of Maiar.  It
+    strikes at undead with holy wrath.  It cannot be harmed by acid, cold,
+    lightning or fire.  
+    You found it lying in a vault on level 85 of Orodruin.
+k) The Scythe of Feangwe (5d3) (+7,+15) [1,+0] (+1)
+    It can be
+    wielded two-handed.  It increases your intelligence and dexterity by 1
+    .  It does extra damage from light.  It produces chaotic effects.  It
+    is very sharp and can make your foes bleed.  It cannot be harmed by
+    acid, cold, lightning or fire.  
+    You found it in the remains of a Barrow wight on level 66 of Erebor.
+l) The Lance of Eorlingas (4d6) (+3,+21) (+2)
+    It
+    must be wielded two-handed.  It increases your strength, dexterity and 
+    speed by 2.  It is especially deadly against orcs.  It is especially
+    deadly against trolls.  It fights against evil with holy fury.  It
+    makes you completely fearless.  It allows you to see invisible
+    monsters.  It cannot be harmed by acid, cold, lightning or fire.  
+    You found it in the remains of a Great Worm of Balance on level 66 of
+    Erebor.
+m) The Quarterstaff 'Nar-i-vagil' (3d3) (+10,+20) (+3)
+    It can be wielded two-handed.  It increases your intelligence
+     by 3.  It does extra damage from fire.  It is especially deadly
+    against natural creatures.  It provides resistance to fire.  It cannot
+    be harmed by acid, cold, lightning or fire.  
+    You found it in the remains of a Great Worm of Fire on level 67 of Erebor.
+n) a Deathly Mace (Holy Avenger) (3d4) (+39,+59) [-5](-60%) (-3)
+    
+    It can be wielded two-handed.  It decreases your wisdom by 3.  It
+    decreases your mana capacity and hit points by 60%.  It does extra
+    damage from death.  It strikes at demons with holy wrath.  It strikes
+    at undead with holy wrath.  It fights against evil with holy fury.  It
+    sustains your dexterity.  It allows you to see invisible monsters.  It
+    has been blessed by the gods.  It aggravates nearby creatures.  It
+    carries an ancient foul curse.  It can re-curse itself.  
+    You found it in the remains of Ancalagon the Black on level 72 of Erebor.
+o) The Ball-and-Chain of Eldal (4d3) (+30,-3) (+2 to speed)
+    
+    It can be wielded two-handed.  It provides light (radius 1) forever.  
+    It increases your wisdom, constitution, charisma, ability to tunnel, 
+    speed and attack speed by 2.  It does extra damage from frost.  It can
+    cause earthquakes.  It is a great bane of dragons.  It is especially
+    deadly against orcs.  It is especially deadly against trolls.  It
+    strikes at demons with holy wrath.  It strikes at undead with holy
+    wrath.  It fights against evil with holy fury.  It is especially
+    deadly against natural creatures.  It cannot be harmed by acid, cold,
+    lightning or fire.  
+    You found it in the remains of a Master mindcrafter on level 85 of
+    Orodruin.
+p) The Flail 'Totila' (3d6) (+6,+8) (+2 to stealth)
+    It can be wielded two-handed.  It can be activated for 
+    confuse monster every 15 turns if it is being worn. It provides light
+    (radius 1) forever.  It increases your stealth by 2.  It does extra
+    damage from fire.  It fights against evil with holy fury.  It provides
+    resistance to fire and confusion.  It cannot be harmed by acid, cold,
+    lightning or fire.  
+    You found it lying in a vault on level 72 of Erebor.
+q) The Two-Handed Flail 'Thunderfist' (5d6) (+5,+18) (+4)
+    It must be wielded
+    two-handed.  It increases your strength and constitution by 4.  It
+    does extra damage from electricity and fire.  It is especially deadly
+    against orcs.  It is especially deadly against trolls.  It is
+    especially deadly against natural creatures.  It makes you completely
+    fearless.  It provides resistance to electricity, fire and dark.  It
+    cannot be harmed by acid, cold, lightning or fire.  
+    You found it lying in a vault on level 85 of Orodruin.
+r) The Mattock of Nain (+12,+18) (+6 to searching)
+    It can be
+    activated for stone to mud every 5 turns if it is being worn. It 
+    increases your strength, searching, infravision and ability to tunnel
+     by 6.  It does extra damage from acid.  It is especially deadly
+    against dragons.  It is especially deadly against orcs.  It is
+    especially deadly against trolls.  It is especially deadly against
+    giants.  It provides resistance to acid, dark and disenchantment.  It
+    allows you to climb mountains.  It allows you to sense the presence of 
+    orcs.  It cannot be harmed by acid, cold, lightning or fire.  
+    You found it lying in a vault on level 66 of Erebor.
+s) The Sling of the Thain (x6) (+15,+15) (+4)
+    It increases your 
+    dexterity and constitution by 4.  It provides resistance to nether.  
+    It fires missiles with extra might.  It fires missiles excessively
+    fast.  It cannot be harmed by acid, cold, lightning or fire.  
+    You found it in the remains of a Great Swamp Worm on level 69 of Angband.
+t) The Short Willow Bow 'Lorguind' (x5) (+19,+16) (+3 to speed)
+    
+    It provides light (radius 1) forever.  It increases your strength, 
+    intelligence, wisdom, dexterity and speed by 3.  It fires missiles
+    with extra might.  It fires missiles excessively fast.  It cannot be
+    harmed by acid, cold, lightning or fire.  
+    You found it lying in a vault on level 66 of Erebor.
+u) The Short Willow Bow of Echauglar (x4) (+11,+10) (+2 to speed)
+    It provides light
+    (radius 1) forever.  It increases your wisdom, dexterity, constitution
+     and speed by 2.  It fires missiles with extra might.  It cannot be
+    harmed by acid, cold, lightning or fire.  
+    You found it in the remains of a Great Worm of Fire on level 72 of Erebor.
+v) The Long Magic Bow 'Belthronding' (x3) (+20,+22) (+3)
+    
+    It increases your dexterity and stealth by 3.  It provides resistance 
+    to disenchantment.  It fires missiles excessively fast.  It cannot be
+    harmed by acid, cold, lightning or fire.  
+    You found it in the remains of Bahamut, Celestial Dragon of Good on level
+    66 of Erebor.
+w) The Long Magic Bow of Legolas (x6) (+17,+19) (+3)
+    It increases your dexterity, stealth and infravision by 3
+    .  It provides immunity to paralysis.  It allows you to sense the
+    presence of orcs.  It fires missiles with extra might.  It fires
+    missiles excessively fast.  It cannot be harmed by acid, cold,
+    lightning or fire.  
+    You found it lying in a vault on level 66 of Erebor.
+x) The Seeker Arrow of Bard (8d4) (+20,+15)
+    It does extra
+    damage from acid, electricity, fire and frost.  It poisons your foes.  
+    It is a great bane of dragons.  It is especially deadly against orcs.  
+    It is especially deadly against trolls.  It is especially deadly
+    against giants.  It strikes at demons with holy wrath.  It strikes at
+    undead with holy wrath.  It fights against evil with holy fury.  It is
+    especially deadly against natural creatures.  It cannot be harmed by
+    acid, cold, lightning or fire.  
+    You found it in the remains of a Great Worm of Law on level 66 of Erebor.
+a) The Metal Boomerang of Beor (4d5) (+8,+12) (+4 to speed)
+    
+    It increases your dexterity and speed by 4.  It provides resistance to 
+    acid, electricity, fire and cold.  It cannot be harmed by acid, cold,
+    lightning or fire.  
+    You found it lying in a vault on level 30 of Abandoned Castles.
+b) The Metal Boomerang 'Glimdrir' (5d5) (+15,+16) (+3 to speed) {cursed}
+    It 
+    increases your dexterity and speed by 3.  It poisons your foes.  It
+    strikes at undead with holy wrath.  It fights against evil with holy
+    fury.  It provides immunity to paralysis.  It provides resistance to 
+    acid, electricity, fire, cold and sound.  It speeds your regenerative
+    powers.  It prevents teleportation.  It is cursed.  It cannot be
+    harmed by acid, cold, lightning or fire.  
+    You found it lying in a vault on level 25 of The Old Forest.
+c) 2 Portable hole
+d) The Rod of Annuminas (+4)
+    It can be
+    activated for rune of protection every 400 turns if it is being worn. 
+    It can be used to store a spell.  It increases your charisma and luck
+     by 4.  It provides immunity to paralysis.  It provides resistance to 
+    confusion.  It has been blessed by the gods.  It cannot be harmed by
+    acid, cold, lightning or fire.  
+    You found it lying in a vault on level 66 of Erebor.
+e) The Red Arrow of Gondor
+    It can be
+    activated for mass human summoning every 1000 turns.  It cannot be
+    harmed by acid, cold, lightning or fire.  
+    You found it in the remains of a Great Worm of Balance on level 66 of
+    Erebor.
+f) The Mage Staff of Saruman (1d4) (+5,+5)(80%) (+4)
+    It can be activated for ball of cold (48) every 400 turns if it
+    is being worn. It grants you the power of weigh magic if it is being
+    worn.  It can be used to store a spell.  It does extra damage from
+    pure magic.  It increases your intelligence, speed and spell power by 
+    4.  It increases your mana capacity by 80%.  It does extra damage from 
+    dark.  It cannot be harmed by acid, cold, lightning or fire.  
+    You found it in the remains of Cantoras, the Skeletal Lord on level 66 of
+    Erebor.
+g) The Mage Staff 'Bered' (1d4) (+0,+0) [+2]
+    It can be wielded two-handed.  It provides light (radius 1)
+    forever.  It does extra damage from pure magic.  It sustains your 
+    intelligence.  It provides immunity to paralysis.  It allows you to
+    fly.  It allows you to see invisible monsters.  It cannot be harmed by
+    acid, cold, lightning or fire.  
+    You found it in the remains of Godzilla on level 85 of Orodruin.
+
+
+  [The Museum Inventory - Caras Galadhon ]
+
+a) The Ring of Power of Dwar, Dog Lord of Waw (+2 to stealth)
+    It 
+    increases your strength, charisma, stealth and searching by 2.  It
+    makes you invisible.  It sustains your strength and dexterity.  It
+    provides resistance to acid and nexus.  It drains experience.  It
+    cannot be dropped while cursed.  It cannot be harmed by acid, cold,
+    lightning or fire.  
+    You found it in the remains of Dwar, Dog Lord of Waw on level 70 of
+    Angband.
+b) The Great Axe of Ingang (4d4) (+23,+13)
+    It must be wielded two-handed.  It provides light (radius 1)
+    forever.  It does extra damage from acid and light.  It drains life
+    from your foes.  It is a great bane of dragons.  It is especially
+    deadly against orcs.  It is especially deadly against trolls.  It
+    cannot be harmed by acid, cold, lightning or fire.  
+    You found it in the remains of an Ancient bronze dragon on level 70 of
+    Angband.
+c) The Long Sword 'Elvagil' (3d4) (+5,+7) (+2)
+    It increases your dexterity, charisma and stealth by 2.  It is
+    especially deadly against orcs.  It is especially deadly against
+    trolls.  It allows you to levitate.  It allows you to see invisible
+    monsters.  It allows you to sense the presence of orcs and trolls.  It
+    cannot be harmed by acid, cold, lightning or fire.  
+    You found it in the remains of Jack of Shadows on level 70 of Angband.
+d) The Awl-Pike of Ardanyar (E:25, L:2) (1d8) (+21,+12) [9,+0] (+2 to speed)
+    
+    It can be wielded two-handed.  It increases your strength, speed and 
+    attack speed by 2.  It does extra damage from light.  It strikes at
+    demons with holy wrath.  It cannot be harmed by acid, cold, lightning
+    or fire.  
+    You found it in the remains of a Black Balrog on level 70 of Angband.
+e) The Halberd of Silwaewe (E:45, L:3) (3d7) (+15,+16) [10,+0] (+3)
+    
+    It can be wielded two-handed.  It increases your dexterity and 
+    constitution by 3.  It does extra damage from electricity and light.  
+    It is especially deadly against orcs.  It fights against evil with
+    holy fury.  It cannot be harmed by acid, cold, lightning or fire.  
+    You found it in the remains of Jack of Shadows on level 70 of Angband.
+f) The Heavy Lance of Rhunen (6d8) (+2,-1) [5,+0] (+1 attack)
+    
+    It must be wielded two-handed.  It increases your intelligence, 
+    dexterity and attack speed by 1.  It does extra damage from 
+    electricity.  It is especially deadly against dragons.  It is
+    especially deadly against orcs.  It strikes at undead with holy wrath.
+    It is especially deadly against natural creatures.  It cannot be
+    harmed by acid, cold, lightning or fire.  
+    You found it in the remains of Dwar, Dog Lord of Waw on level 70 of
+    Angband.
+g) The Sling 'Leinghar' (x5) (+8,+3) (+3)
+    It provides light (radius 1) forever.  It increases your 
+    wisdom, dexterity and constitution by 3.  It fires missiles with extra
+    might.  It cannot be harmed by acid, cold, lightning or fire.  
+    You found it in the remains of a Grey wraith on level 70 of Angband.
+
+

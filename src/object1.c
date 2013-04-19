@@ -822,9 +822,6 @@ void reset_visuals(void)
 
 
 
-
-
-
 /*
  * Obtain the "flags" for an item
  */
@@ -1478,8 +1475,12 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	case TV_SHOT:
 	case TV_BOLT:
 	case TV_ARROW:
+	case TV_BULLET:
+	case TV_RBULLET:
 	case TV_BOOMERANG:
 	case TV_BOW:
+	case TV_PISTOL:
+	case TV_RIFLE:
 	case TV_HAFTED:
 	case TV_POLEARM:
 	case TV_MSTAFF:
@@ -2232,7 +2233,9 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	case TV_SHOT:
 	case TV_BOLT:
 	case TV_ARROW:
-		/* Exploding arrow? */
+	case TV_BULLET:
+	case TV_RBULLET:
+	/* Exploding arrow? */
 		if (o_ptr->pval2 != 0)
 			t = object_desc_str(t, " (exploding)");
 		/* No break, we want to continue the description */
@@ -2261,6 +2264,8 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 
 		/* Bows get a special "damage string" */
 	case TV_BOW:
+	case TV_PISTOL:
+	case TV_RIFLE:
 
 		/* Mega-Hack -- Extract the "base power" */
 		power = (o_ptr->sval % 10);
@@ -2806,19 +2811,25 @@ void display_weapon_damage(object_type *o_ptr)
 	if (full && (f1 & TR1_SLAY_ORC)) output_dam(o_ptr, 3, 0, "orcs", NULL, &first);
 	if (full && (f1 & TR1_SLAY_TROLL)) output_dam(o_ptr, 3, 0, "trolls", NULL, &first);
 	if (full && (f1 & TR1_SLAY_GIANT)) output_dam(o_ptr, 3, 0, "giants", NULL, &first);
+	if (full && (f5 & TR5_KILL_VAMPIRE)) output_dam(o_ptr, 3, 0, "vampires", NULL, &first);
 	if (full && (f1 & TR1_KILL_DRAGON)) output_dam(o_ptr, 5, 0, "dragons", NULL, &first);
 	else if (full && (f1 & TR1_SLAY_DRAGON)) output_dam(o_ptr, 3, 0, "dragons", NULL, &first);
 	if (full && (f5 & TR5_KILL_UNDEAD)) output_dam(o_ptr, 5, 0, "undead", NULL, &first);
 	else if (full && (f1 & TR1_SLAY_UNDEAD)) output_dam(o_ptr, 3, 0, "undead", NULL, &first);
-	if (full && (f5 & TR5_KILL_DEMON)) output_dam(o_ptr, 5, 0, "demons", NULL, &first);
-	else if (full && (f1 & TR1_SLAY_DEMON)) output_dam(o_ptr, 3, 0, "demons", NULL, &first);
+	if (full && (f5 & TR5_KILL_DEMON)) output_dam(o_ptr, 5, 0, "Maiar", NULL, &first);
+	else if (full && (f1 & TR1_SLAY_DEMON)) output_dam(o_ptr, 3, 0, "Maiar", NULL, &first);
 
 	if (full && (f1 & TR1_BRAND_FIRE)) output_dam(o_ptr, 3, 6, "non fire resistant creatures", "fire susceptible creatures", &first);
 	if (full && (f1 & TR1_BRAND_COLD)) output_dam(o_ptr, 3, 6, "non cold resistant creatures", "cold susceptible creatures", &first);
 	if (full && (f1 & TR1_BRAND_ELEC)) output_dam(o_ptr, 3, 6, "non lightning resistant creatures", "lightning susceptible creatures", &first);
 	if (full && (f1 & TR1_BRAND_ACID)) output_dam(o_ptr, 3, 6, "non acid resistant creatures", "acid susceptible creatures", &first);
 	if (full && (f1 & TR1_BRAND_POIS)) output_dam(o_ptr, 3, 6, "non poison resistant creatures", "poison susceptible creatures", &first);
-
+	if (full && (f5 & TR5_BRAND_LIGHT)) output_dam(o_ptr, 3, 6, "non light resistant creatures", "light susceptible creatures", &first);
+	if (full && (f5 & TR5_BRAND_DARK)) output_dam(o_ptr, 3, 6, "non dark resistant creatures", "dark susceptible creatures", &first);
+	if (full && (f5 & TR5_BRAND_WATER)) output_dam(o_ptr, 3, 6, "non water resistant creatures", "water susceptible creatures", &first);
+	if (full && (f5 & TR5_BRAND_MAGIC)) output_dam(o_ptr, 3, 6, "non magic resistant creatures", "magic susceptible creatures", &first);
+	if (full && (f5 & TR5_BRAND_DEATH)) output_dam(o_ptr, 1, 15, "undead monsters", "living creatures", &first);
+   
 	output_dam(o_ptr, 1, 0, (first) ? "all monsters" : "other monsters", NULL, &first);
 
 	text_out(".");
@@ -2901,12 +2912,14 @@ void display_ammo_damage(object_type *o_ptr)
 	if (full && (f1 & TR1_SLAY_ORC)) output_ammo_dam(o_ptr, 3, 0, "orcs", NULL, &first);
 	if (full && (f1 & TR1_SLAY_TROLL)) output_ammo_dam(o_ptr, 3, 0, "trolls", NULL, &first);
 	if (full && (f1 & TR1_SLAY_GIANT)) output_ammo_dam(o_ptr, 3, 0, "giants", NULL, &first);
+if (full && (f5 & TR5_KILL_VAMPIRE)) output_ammo_dam(o_ptr, 3, 0, "vampires", NULL, &first);
+
 	if (full && (f1 & TR1_KILL_DRAGON)) output_ammo_dam(o_ptr, 5, 0, "dragons", NULL, &first);
 	else if (full && (f1 & TR1_SLAY_DRAGON)) output_ammo_dam(o_ptr, 3, 0, "dragons", NULL, &first);
 	if (full && (f5 & TR5_KILL_UNDEAD)) output_ammo_dam(o_ptr, 5, 0, "undeads", NULL, &first);
 	else if (full && (f1 & TR1_SLAY_UNDEAD)) output_ammo_dam(o_ptr, 3, 0, "undeads", NULL, &first);
-	if (full && (f5 & TR5_KILL_DEMON)) output_ammo_dam(o_ptr, 5, 0, "demons", NULL, &first);
-	else if (full && (f1 & TR1_SLAY_DEMON)) output_ammo_dam(o_ptr, 3, 0, "demons", NULL, &first);
+	if (full && (f5 & TR5_KILL_DEMON)) output_ammo_dam(o_ptr, 5, 0, "Maiar", NULL, &first);
+	else if (full && (f1 & TR1_SLAY_DEMON)) output_ammo_dam(o_ptr, 3, 0, "Maiar", NULL, &first);
 
 	if (full && (f1 & TR1_BRAND_FIRE)) output_ammo_dam(o_ptr, 3, 6, "non fire resistant creatures", "fire susceptible creatures", &first);
 	if (full && (f1 & TR1_BRAND_COLD)) output_ammo_dam(o_ptr, 3, 6, "non cold resistant creatures", "cold susceptible creatures", &first);
@@ -3168,6 +3181,41 @@ bool object_out_desc(object_type *o_ptr, FILE *fff, bool trim_down, bool wait_fo
 			else
 				text_out("It has a spell stored inside.  ");
 		}
+           if (f5 & (TR5_ONLY_MALE))
+        {
+               text_out("It is only usable to males.  ");
+        }
+		     if (f5 & (TR5_ONLY_FEMALE))
+        {
+                text_out("It is only usable to females.  ");
+        }
+
+	 		     if (f5 & (TR5_CHARGEABLE))
+        {
+                text_out("It can be upgraded with gold  ");
+        }
+		
+
+				   if (f5 & (TR5_BRAND_MAGIC))
+        {
+                text_out("It does extra damage from pure magic.  ");
+        }
+  if (f5 & (TR5_PROTECTION))
+	{
+                text_out("It reduces damages you take by 50%, physical and magical. ");
+	}
+    if (f5 & (TR5_THROWING))
+	{
+                text_out("It is easy to throw. ");
+	}
+   if (f5 & (TR5_ALWAYS_HIT))
+	{
+                text_out("It always hits. ");
+	}
+   if (esp & (ESP_SAFETY))
+	{
+                text_out("It prevents stuns. ");
+	}
 
 		/* Pick up stat bonuses */
 		vn = 0;
@@ -3280,6 +3328,28 @@ bool object_out_desc(object_type *o_ptr, FILE *fff, bool trim_down, bool wait_fo
 			vc[vn] = TERM_L_WHITE;
 			vp[vn++] = "frost";
 		}
+		 if (f5 & (TR5_BRAND_LIGHT))
+		 {
+			 vc[vn] = TERM_YELLOW;
+			vp[vn++] = "light";
+		 }
+
+		  if (f5 & (TR5_BRAND_DARK))
+		 {
+			 vc[vn] = TERM_L_DARK;
+			vp[vn++] = "dark";
+		 }
+		   if (f5 & (TR5_BRAND_WATER))
+		 {
+			 vc[vn] = TERM_BLUE;
+			vp[vn++] = "water";
+		 }
+		     if (f5 & (TR5_BRAND_DEATH))
+		 {
+			 vc[vn] = TERM_SLATE;
+			vp[vn++] = "death";
+		 }
+
 		/* Describe */
 		if (vn)
 		{
@@ -3355,9 +3425,15 @@ bool object_out_desc(object_type *o_ptr, FILE *fff, bool trim_down, bool wait_fo
 		{
 			text_out("It is especially deadly against giants.  ");
 		}
+
+		if (f5 & (TR5_KILL_VAMPIRE))
+		{
+			text_out("It kills vampires  ");
+		}
+
 		if (f5 & (TR5_KILL_DEMON))
 		{
-			text_out("It is a great bane of demons.  ");
+			text_out("It is a great bane of Maiar.  ");
 		}
 		else if (f1 & (TR1_SLAY_DEMON))
 		{
@@ -3506,7 +3582,7 @@ bool object_out_desc(object_type *o_ptr, FILE *fff, bool trim_down, bool wait_fo
 			}
 			if (f2 & (TRAP2_ONLY_DEMON))
 			{
-				text_out("It can only be set off by demons.  ");
+				text_out("It can only be set off by Maiar.  ");
 			}
 			if (f2 & (TRAP2_ONLY_UNDEAD))
 			{
@@ -3622,6 +3698,22 @@ bool object_out_desc(object_type *o_ptr, FILE *fff, bool trim_down, bool wait_fo
 		{
 			text_out("It renders you especially vulnerable to fire.  ");
 		}
+
+			if (f5 & (TR5_SENS_COLD))
+		{
+			text_out("It renders you especially vulnerable to cold.  ");
+		}
+					if (esp & (ESP_SENS_ACID))
+		{
+			text_out("It renders you especially vulnerable to acid.  ");
+		}
+
+						if (esp & (ESP_SENS_ELEC))
+		{
+			text_out("It renders you especially vulnerable to electricity.  ");
+		}
+
+
 		if (f3 & (TR3_WRAITH))
 		{
 			text_out("It renders you incorporeal.  ");
@@ -3665,7 +3757,7 @@ bool object_out_desc(object_type *o_ptr, FILE *fff, bool trim_down, bool wait_fo
 				if (esp & ESP_DRAGON) vp[vn++] = "dragons";
 				if (esp & ESP_SPIDER) vp[vn++] = "spiders";
 				if (esp & ESP_GIANT) vp[vn++] = "giants";
-				if (esp & ESP_DEMON) vp[vn++] = "demons";
+				if (esp & ESP_DEMON) vp[vn++] = "Maiar";
 				if (esp & ESP_UNDEAD) vp[vn++] = "undead";
 				if (esp & ESP_EVIL) vp[vn++] = "evil beings";
 				if (esp & ESP_ANIMAL) vp[vn++] = "animals";
@@ -3733,7 +3825,14 @@ bool object_out_desc(object_type *o_ptr, FILE *fff, bool trim_down, bool wait_fo
 		{
 			text_out("It fires missiles excessively fast.  ");
 		}
-
+	if (f5 & (TR5_SH_ACID))
+		{
+			text_out("It produces an acid sheath.  ");
+		}
+	if (f5 & (TR5_SH_COLD))
+		{
+			text_out("It produces an cold sheath.  ");
+		}
 		vn = 0;
 		if (f5 & (TR5_DRAIN_MANA))
 		{
@@ -4137,6 +4236,8 @@ s16b wield_slot_ideal(object_type *o_ptr, bool ideal)
 	case TV_BOOMERANG:
 	case TV_BOW:
 	case TV_INSTRUMENT:
+	case TV_PISTOL:
+	case TV_RIFLE:
 		{
 			return ideal ? INVEN_BOW : get_slot(INVEN_BOW);
 		}
@@ -4233,6 +4334,44 @@ s16b wield_slot_ideal(object_type *o_ptr, bool ideal)
 			}
 			return -1;
 		}
+	case TV_BULLET:
+		{
+			if (ideal)
+			{
+				return INVEN_AMMO;
+			}
+			else if (p_ptr->inventory[INVEN_AMMO].k_idx &&
+			         object_similar(o_ptr, &p_ptr->inventory[INVEN_AMMO]) &&
+			         p_ptr->inventory[INVEN_AMMO].number + o_ptr->number < MAX_STACK_SIZE)
+			{
+				return get_slot(INVEN_AMMO);
+			}
+			else if ((p_ptr->inventory[INVEN_BOW].k_idx) && (p_ptr->inventory[INVEN_BOW].tval == TV_PISTOL))
+			{
+				if ((p_ptr->inventory[INVEN_BOW].sval >= 10) && (p_ptr->inventory[INVEN_BOW].sval < 20))
+					return get_slot(INVEN_AMMO);
+			}
+			return -1;
+		}
+	case TV_RBULLET:
+		{
+			if (ideal)
+			{
+				return INVEN_AMMO;
+			}
+			else if (p_ptr->inventory[INVEN_AMMO].k_idx &&
+			         object_similar(o_ptr, &p_ptr->inventory[INVEN_AMMO]) &&
+			         p_ptr->inventory[INVEN_AMMO].number + o_ptr->number < MAX_STACK_SIZE)
+			{
+				return get_slot(INVEN_AMMO);
+			}
+			else if ((p_ptr->inventory[INVEN_BOW].k_idx) && (p_ptr->inventory[INVEN_BOW].tval == TV_RIFLE))
+			{
+				if ((p_ptr->inventory[INVEN_BOW].sval >= 10) && (p_ptr->inventory[INVEN_BOW].sval < 20))
+					return get_slot(INVEN_AMMO);
+			}
+			return -1;
+		}
 
 	case TV_BOLT:
 		{
@@ -4248,7 +4387,7 @@ s16b wield_slot_ideal(object_type *o_ptr, bool ideal)
 			}
 			else if ((p_ptr->inventory[INVEN_BOW].k_idx) && (p_ptr->inventory[INVEN_BOW].tval == TV_BOW))
 			{
-				if (p_ptr->inventory[INVEN_BOW].sval >= 20)
+				if (p_ptr->inventory[INVEN_BOW].sval >= 20  && (p_ptr->inventory[INVEN_BOW].sval < 30))
 					return get_slot(INVEN_AMMO);
 			}
 			return -1;
@@ -4549,6 +4688,7 @@ byte get_item_letter_color(object_type *o_ptr)
  *
  * Hack -- do not display "trailing" empty slots
  */
+
 void show_inven_aux(bool mirror, bool everything)
 {
 	int i, j, k, l, z = 0;

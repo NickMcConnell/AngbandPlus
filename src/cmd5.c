@@ -2581,3 +2581,656 @@ int find_spell(char *name)
 
 	return spell;
 }
+
+
+void special_weapon_charge()
+{
+                char new_name[80];
+                char dummy_name[80];
+                char ch = 0;
+                int item;
+                int amber_power = 0;
+                object_type             *o_ptr;
+                cptr q, s;
+                u32b f1, f2, f3, f4, f5, esp;
+
+                /* Get an item */
+                q = "Which item? ";
+                s = "You have no items!";
+                if (!get_item(&item, q, s, (USE_INVEN | USE_EQUIP | USE_FLOOR))) return;
+
+                /* Get the item (in the pack) */
+                if (item >= 0)
+                {
+                        o_ptr = &p_ptr->inventory[item];
+                }
+                /* Get the item (on the floor) */
+                else
+                {
+                        o_ptr = &o_list[0 - item];
+                }
+                object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
+                if (f5 & (TR5_CHARGEABLE))
+                {
+                        while (TRUE)
+			{
+                                if (!get_com("Do what? [N]ame item, [T]weak", &ch))
+				{
+					amber_power = 0;
+					break;
+				}
+
+                                if (ch == 'N' || ch == 'n')
+				{
+					amber_power = 1;
+					break;
+				}
+
+                                if (ch == 'T' || ch == 't')
+				{
+					amber_power = 2;
+					break;
+				}
+                        }
+                        if (amber_power == 1)
+                        {
+                                if (!(get_string("How do you want to call the item?", dummy_name, 80))) return;
+                                else
+                                {
+                                        strcpy(new_name, dummy_name);
+                                        o_ptr->art_name = quark_add(new_name);
+                                }
+                        }
+                        if (amber_power == 2)
+                        {
+                                
+                                do_cmd_tweak(o_ptr);
+                        }
+                }
+                else
+                {
+                                if (!(get_string("How do you want to call this item?", dummy_name, 80))) return;
+                                else
+                                {
+                                        strcpy(new_name, dummy_name);
+                                        o_ptr->art_name = quark_add(new_name);
+                                }
+                }
+                        
+}
+
+void do_cmd_tweak(object_type *o_ptr)
+{
+        int tweakchoice = 0;
+        char ch = 0;
+        if (!get_com("[I]increase pval, [A]dd new ability?", &ch)) return;
+        if (ch == 'I' || ch == 'i')
+        {
+                int pricemod = o_ptr->pval * 10000;
+                int finalprice = 0;
+
+                finalprice = pricemod + (10000 * o_ptr->pval);
+                if (o_ptr->pval >= 10)
+                {
+                        msg_print("You cannot raise pval beyond 10 this way!");
+                        return;
+                }
+                msg_format("It will cost %d gold to increase pval...", finalprice);
+                if (!get_com("Increase pval? [Y/N]", &ch)) return;
+                if (ch == 'Y' || ch == 'y')
+                {
+                        if (p_ptr->au >= finalprice)
+                        {
+                                msg_print("Your item glows with a blinding light!");
+                                o_ptr->pval += 1;
+                                p_ptr->au -= finalprice;
+                                p_ptr->redraw |= (PR_BASIC);
+                        }
+                        else msg_print("You do not have enough money.");
+                }
+        }
+        if (ch == 'A' || ch == 'a')
+        {
+                add_item_ability(o_ptr);
+        }
+}
+
+int add_item_ability(object_type *o_ptr)
+{
+	int                     Power = -1;
+        int                     num = 0, dir = 0 , i;
+        int     magictype;
+
+	int             powers[36];
+	char            power_desc[36][80];
+
+	bool            flag, redraw;
+        int             ask, plev = p_ptr->lev;
+
+        char            choice, ch;
+
+	char            out_val[160];
+        int k,count;
+
+        /* List the powers */
+        {strcpy(power_desc[num],"Random Resistance 1500 golds");powers[num++]=0;}
+        if (o_ptr->tval == TV_BOOTS) {strcpy(power_desc[num],"Increase speed 200000 golds");powers[num++]=1;}
+        {strcpy(power_desc[num],"Extra attacks 200000 golds");powers[num++]=2;}
+        {strcpy(power_desc[num],"Immunity: Fire 200000 golds");powers[num++]=3;}
+        {strcpy(power_desc[num],"Immunity: Cold 200000 golds");powers[num++]=4;}
+        {strcpy(power_desc[num],"Immunity: Elec 200000 golds");powers[num++]=5;}
+        {strcpy(power_desc[num],"Immunity: Acid 200000 golds");powers[num++]=6;}
+        {strcpy(power_desc[num],"Invisibility 150000 golds");powers[num++]=7;}
+        {strcpy(power_desc[num],"Immunity: Nether 400000 golds");powers[num++]=8;}
+        {strcpy(power_desc[num],"Wraith Form 500000 golds");powers[num++]=9;}
+        {strcpy(power_desc[num],"Permanent Light 5000 golds");powers[num++]=10;}
+        {strcpy(power_desc[num],"Brand Fire 7500 golds");powers[num++]=11;}
+        {strcpy(power_desc[num],"Brand Cold 7500 golds");powers[num++]=12;}
+        {strcpy(power_desc[num],"Brand Elec 7500 golds");powers[num++]=13;}
+        {strcpy(power_desc[num],"Brand Acid 7500 golds");powers[num++]=14;}
+        {strcpy(power_desc[num],"Brand Poison 7500 golds");powers[num++]=15;}
+        {strcpy(power_desc[num],"Brand Light 10000 golds");powers[num++]=16;}
+        {strcpy(power_desc[num],"Brand Dark 5000 golds");powers[num++]=17;}
+        {strcpy(power_desc[num],"Brand Magic 20000 golds");powers[num++]=18;}
+        if (o_ptr->tval == TV_SWORD || TV_AXE || TV_HAFTED || TV_POLEARM) {strcpy(power_desc[num],"Always Hit 500000000 golds");powers[num++]=20;}
+        {strcpy(power_desc[num],"Regeneration 50000 golds");powers[num++]=21;}
+        if (o_ptr->tval == TV_SHIELD) {strcpy(power_desc[num],"Reflecting 25000 golds");powers[num++]=22;}
+        {strcpy(power_desc[num],"Magic Breath 50000000 golds");powers[num++]=23;}
+        {strcpy(power_desc[num],"Throwing 15000 golds");powers[num++]=24;}
+        {strcpy(power_desc[num],"Sheath: Fire 15000 golds");powers[num++]=25;}
+		{strcpy(power_desc[num],"Auto ID 100000 golds");powers[num++]=26;}
+		{strcpy(power_desc[num],"Sentient 400000 golds");powers[num++]=27;}
+		{strcpy(power_desc[num],"Sheath: Electricity 15000 golds");powers[num++]=28;}
+		{strcpy(power_desc[num],"Sheath: Acid 15000 golds");powers[num++]=29;}
+		{strcpy(power_desc[num],"Sheath: Cold 15000 golds");powers[num++]=30;}
+		{strcpy(power_desc[num],"Spell Contain 15000 golds");powers[num++]=31;}
+		{strcpy(power_desc[num],"Res Morgul 150000 golds");powers[num++]=32;}
+		if(!num) {msg_print("No powers to use.");return 0;}
+
+	/* Nothing chosen yet */
+	flag = FALSE;
+
+	/* No redraw yet */
+	redraw = FALSE;
+
+	/* Build a prompt (accept all spells) */
+	if (num <= 26)
+	{
+		/* Build a prompt (accept all spells) */
+                strnfmt(out_val, 78, "(Powers %c-%c, *=List, ESC=exit) Add which ability? ",
+			I2A(0), I2A(num - 1));
+	}
+	else
+	{
+                strnfmt(out_val, 78, "(Powers %c-%c, *=List, ESC=exit) Add which ability? ",
+			I2A(0), '0' + num - 27);
+	}
+
+	/* Get a spell from the user */
+	while (!flag && get_com(out_val, &choice))
+	{
+		/* Request redraw */
+		if ((choice == ' ') || (choice == '*') || (choice == '?'))
+		{
+			/* Show the list */
+			if (!redraw)
+			{
+				byte y = 1, x = 0;
+				int ctr = 0;
+				char dummy[80];
+
+				strcpy(dummy, "");
+
+				/* Show list */
+				redraw = TRUE;
+
+				/* Save the screen */
+				Term_save();
+
+				prt ("", y++, x);
+
+				while (ctr < num && ctr < 17)
+				{
+					sprintf(dummy, "%c) %s", I2A(ctr), power_desc[ctr]);
+					prt(dummy, y + ctr, x);
+					ctr++;
+				}
+				while (ctr < num)
+				{
+					if (ctr < 26)
+					{
+						sprintf(dummy, " %c) %s", I2A(ctr), power_desc[ctr]);
+					}
+					else
+					{
+						sprintf(dummy, " %c) %s", '0' + ctr - 26, power_desc[ctr]);
+					}
+					prt(dummy, y + ctr - 17, x + 40);
+					ctr++;
+				}
+				if (ctr < 17)
+				{
+					prt ("", y + ctr, x);
+				}
+				else
+				{
+					prt ("", y + 17, x);
+				}
+			}
+
+			/* Hide the list */
+			else
+			{
+				/* Hide list */
+				redraw = FALSE;
+
+				/* Restore the screen */
+				Term_load();
+			}
+
+			/* Redo asking */
+			continue;
+		}
+
+		if (choice == '\r' && num == 1)
+		{
+			choice = 'a';
+		}
+
+		if (isalpha(choice))
+		{
+			/* Note verify */
+			ask = (isupper(choice));
+
+			/* Lowercase */
+			if (ask) choice = tolower(choice);
+
+			/* Extract request */
+			i = (islower(choice) ? A2I(choice) : -1);
+		}
+		else
+		{
+			ask = FALSE; /* Can't uppercase digits */
+
+			i = choice - '0' + 26;
+		}
+
+		/* Totally Illegal */
+		if ((i < 0) || (i >= num))
+		{
+			bell();
+			continue;
+		}
+
+		/* Save the spell index */
+		Power = powers[i];
+
+		/* Verify it */
+		if (ask)
+		{
+			char tmp_val[160];
+
+			/* Prompt */
+			strnfmt(tmp_val, 78, "Use %s? ", power_desc[i]);
+
+			/* Belay that order */
+			if (!get_check(tmp_val)) continue;
+		}
+
+		/* Stop the loop */
+		flag = TRUE;
+	}
+
+	/* Restore the screen */
+	if (redraw) Term_load();
+
+	/* Abort if needed */
+	if (!flag) 
+	{
+		energy_use = 0;
+                return num;
+	}
+
+        switch(Power)
+        {
+                case 0:
+                        if (p_ptr->au >= 1500)
+                        {
+                                msg_print("Your item gained a resistance!");
+                                p_ptr->au -= 1500;
+                                random_resistance(o_ptr, FALSE, ((randint(34)+4)));
+                                p_ptr->redraw |= (PR_BASIC);
+                        }
+                        else msg_print("You don't have enough money...");
+                        break;
+                case 1:
+                        if (p_ptr->au >= 200000)
+                        {
+                                msg_print("Your item gained a new ability!");
+                                p_ptr->au -= 200000;
+                                o_ptr->art_flags1 |= TR1_SPEED;
+                               p_ptr->redraw |= (PR_BASIC);
+                        }
+                        else msg_print("You don't have enough money...");
+                        break;
+                case 2:
+                        if (p_ptr->au >= 200000)
+                        {
+                                msg_print("Your item gained a new ability!");
+                                p_ptr->au -= 200000;
+                                o_ptr->art_flags1 |= TR1_BLOWS;
+                                p_ptr->redraw |= (PR_BASIC);
+                        }
+                        else msg_print("You don't have enough money...");
+                        break;
+                case 3:
+                        if (p_ptr->au >= 200000)
+                        {
+                                msg_print("Your item gained a new ability!");
+                                p_ptr->au -= 200000;
+                                o_ptr->art_flags2 |= TR2_IM_FIRE;
+                                p_ptr->redraw |= (PR_BASIC);
+                        }
+                        else msg_print("You don't have enough money...");
+                        break;
+                case 4:
+                        if (p_ptr->au >= 200000)
+                        {
+                                msg_print("Your item gained a new ability!");
+                                p_ptr->au -= 200000;
+                                o_ptr->art_flags2 |= TR2_IM_COLD;
+                                p_ptr->redraw |= (PR_BASIC);
+                        }
+                        else msg_print("You don't have enough money...");
+                        break;
+                case 5:
+                        if (p_ptr->au >= 200000)
+                        {
+                                msg_print("Your item gained a new ability!");
+                                p_ptr->au -= 200000;
+                                o_ptr->art_flags2 |= TR2_IM_ELEC;
+                                p_ptr->redraw |= (PR_BASIC);
+                        }
+                        else msg_print("You don't have enough money...");
+                        break;
+                case 6:
+                        if (p_ptr->au >= 200000)
+                        {
+                                msg_print("Your item gained a new ability!");
+                                p_ptr->au -= 200000;
+                                o_ptr->art_flags2 |= TR2_IM_ACID;
+                                p_ptr->redraw |= (PR_BASIC);
+                        }
+                        else msg_print("You don't have enough money...");
+                        break;
+                case 7:
+                        if (p_ptr->au >= 150000)
+                        {
+                                msg_print("Your item gained a new ability!");
+                                p_ptr->au -= 150000;
+                                o_ptr->art_flags2 |= TR2_INVIS;
+                                p_ptr->redraw |= (PR_BASIC);
+                        }
+                        else msg_print("You don't have enough money...");
+                        break;
+                case 8:
+                        if (p_ptr->au >= 400000)
+                        {
+                                msg_print("Your item gained a new ability!");
+                                p_ptr->au -= 400000;
+                               o_ptr->art_flags4 |= TR4_IM_NETHER;
+                                
+							//	o_ptr->art_oesp |= ESP_ALL;
+							//	p_ptr->redraw |= (PR_BASIC);
+								p_ptr->redraw |= (PR_BASIC);
+                        }
+                        else msg_print("You don't have enough money...");
+                        break;
+                case 9:
+                        if (p_ptr->au >= 500000)
+                        {
+                                msg_print("Your item gained a new ability!");
+                                p_ptr->au -= 500000;
+                                o_ptr->art_flags3 |= TR3_WRAITH;
+                                p_ptr->redraw |= (PR_BASIC);
+                        }
+                        else msg_print("You don't have enough money...");
+                        break;
+                case 10:
+                        if (p_ptr->au >= 5000)
+                        {
+                                msg_print("Your item gained a new ability!");
+                                p_ptr->au -= 445000;
+                                o_ptr->art_flags4 |= TR4_LITE2;
+								//	p_ptr->redraw |= (PR_BASIC);
+                                p_ptr->redraw |= (PR_BASIC);
+                        }
+                        else msg_print("You don't have enough money...");
+                        break;
+                case 11:
+                        if (p_ptr->au >= 7500)
+                        {
+                                msg_print("Your item gained a new ability!");
+                                p_ptr->au -= 7500;
+                                o_ptr->art_flags1 |= TR1_BRAND_FIRE;
+                                p_ptr->redraw |= (PR_BASIC);
+                        }
+                        else msg_print("You don't have enough money...");
+                        break;
+                case 12:
+                        if (p_ptr->au >= 7500)
+                        {
+                                msg_print("Your item gained a new ability!");
+                                p_ptr->au -= 7500;
+                                o_ptr->art_flags1 |= TR1_BRAND_COLD;
+                                p_ptr->redraw |= (PR_BASIC);
+                        }
+                        else msg_print("You don't have enough money...");
+                        break;
+                case 13:
+                        if (p_ptr->au >= 7500)
+                        {
+                                msg_print("Your item gained a new ability!");
+                                p_ptr->au -= 7500;
+                                o_ptr->art_flags1 |= TR1_BRAND_ELEC;
+                                p_ptr->redraw |= (PR_BASIC);
+                        }
+                        else msg_print("You don't have enough money...");
+                        break;
+                case 14:
+                        if (p_ptr->au >= 7500)
+                        {
+                                msg_print("Your item gained a new ability!");
+                                p_ptr->au -= 7500;
+                                o_ptr->art_flags1 |= TR1_BRAND_ACID;
+                                p_ptr->redraw |= (PR_BASIC);
+                        }
+                        else msg_print("You don't have enough money...");
+                        break;
+                case 15:
+                        if (p_ptr->au >= 7500)
+                        {
+                                msg_print("Your item gained a new ability!");
+                                p_ptr->au -= 7500;
+                                o_ptr->art_flags1 |= TR1_BRAND_POIS;
+                                p_ptr->redraw |= (PR_BASIC);
+                        }
+                        else msg_print("You don't have enough money...");
+                        break;
+                case 16:
+                        if (p_ptr->au >= 10000)
+                        {
+                                msg_print("Your item gained a new ability!");
+                                p_ptr->au -= 10000;
+                                o_ptr->art_flags5 |= TR5_BRAND_LIGHT;
+                                p_ptr->redraw |= (PR_BASIC);
+                        }
+                        else msg_print("You don't have enough money...");
+                        break;
+                case 17:
+                        if (p_ptr->au >= 5000)
+                        {
+                                msg_print("Your item gained a new ability!");
+                                p_ptr->au -= 5000;
+                                o_ptr->art_flags5 |= TR5_BRAND_DARK;
+                                p_ptr->redraw |= (PR_BASIC);
+                        }
+                        else msg_print("You don't have enough money...");
+                        break;
+                case 18:
+                        if (p_ptr->au >= 20000)
+                        {
+                                msg_print("Your item gained a new ability!");
+                                p_ptr->au -= 20000;
+                                o_ptr->art_flags5 |= TR5_BRAND_MAGIC;
+                                p_ptr->redraw |= (PR_BASIC);
+                        }
+                        else msg_print("You don't have enough money...");
+                        break;
+                case 19:
+                        if (p_ptr->au >= 150000)
+                        {
+                                msg_print("Your item gained a new ability!");
+                                p_ptr->au -= 40000;
+                                o_ptr->art_flags2 |= TR2_LIFE;
+                                p_ptr->redraw |= (PR_BASIC);
+                        }
+                        else msg_print("You don't have enough money...");
+                        break;
+                case 20:
+                        if (p_ptr->au >= 500000000)
+                        {
+                                msg_print("Your item gained a new ability!");
+								p_ptr->au -= 500000000;
+                                o_ptr->art_flags5 |= TR5_ALWAYS_HIT;
+                                p_ptr->redraw |= (PR_BASIC);
+                               
+                        }
+                        else msg_print("You don't have enough money...");
+                        break;
+                case 21:
+                        if (p_ptr->au >= 50000)
+                        {
+                                msg_print("Your item gained a new ability!");
+                                p_ptr->au -= 50000;
+                                o_ptr->art_flags3 |= TR3_REGEN;
+                                p_ptr->redraw |= (PR_BASIC);
+                        }
+                        else msg_print("You don't have enough money...");
+                        break;
+                case 22:
+                        if (p_ptr->au >= 25000)
+                        {
+                                msg_print("Your item gained a new ability!");
+                                p_ptr->au -= 25000;
+                                o_ptr->art_flags2 |= TR2_REFLECT;
+                                p_ptr->redraw |= (PR_BASIC);
+                        }
+                        else msg_print("You don't have enough money...");
+                        break;
+                case 23:
+                        if (p_ptr->au >= 50000000)
+                        {
+                                msg_print("Your item gained a new ability!");
+                                p_ptr->au -= 50000000;
+                                o_ptr->art_flags2 |= TR5_MAGIC_BREATH;
+                                p_ptr->redraw |= (PR_BASIC);
+
+                        }
+                        else msg_print("You don't have enough money...");
+                        break;
+                case 24:
+                        if (p_ptr->au >= 15000)
+                        {
+                                msg_print("Your item gained a new ability!");
+                                p_ptr->au -= 15000;
+                                o_ptr->art_flags5 |= TR5_THROWING;
+                                p_ptr->redraw |= (PR_BASIC);
+                        }
+                        else msg_print("You don't have enough money...");
+				case 25:
+                        if (p_ptr->au >= 15000)
+                        {
+                                msg_print("Your item gained a new ability!");
+                                p_ptr->au -= 15000;
+                                o_ptr->art_flags3 |= TR3_SH_FIRE;
+                                p_ptr->redraw |= (PR_BASIC);
+                        }
+                        else msg_print("You don't have enough money...");
+				case 26:
+                        if (p_ptr->au >= 100000)
+                        {
+                                msg_print("Your item gained a new ability!");
+                                p_ptr->au -= 1000000;
+                                o_ptr->art_flags4 |= TR4_AUTO_ID;
+                                p_ptr->redraw |= (PR_BASIC);
+                        }
+                        else msg_print("You don't have enough money...");
+                        break;
+				case 27:
+                        if (p_ptr->au >= 400000)
+                        {
+                                msg_print("Your item gained a new ability!");
+                                p_ptr->au -= 400000;
+                                o_ptr->art_flags4 |= TR4_LEVELS;
+								o_ptr->elevel = 1;
+								o_ptr->exp = 1;
+                                p_ptr->redraw |= (PR_BASIC);
+                        }
+                        else msg_print("You don't have enough money...");
+						break;
+				case 28:
+                        if (p_ptr->au >= 15000)
+                        {
+                                msg_print("Your item gained a new ability!");
+                                p_ptr->au -= 15000;
+                                o_ptr->art_flags3 |= TR3_SH_ELEC;
+                                p_ptr->redraw |= (PR_BASIC);
+                        }
+						 else msg_print("You don't have enough money...");
+                        break;
+				case 29:
+                        if (p_ptr->au >= 15000)
+                        {
+                                msg_print("Your item gained a new ability!");
+                                p_ptr->au -= 15000;
+                                o_ptr->art_flags5 |= TR5_SH_ACID;
+                                p_ptr->redraw |= (PR_BASIC);
+                        }
+						 else msg_print("You don't have enough money...");
+                        break;
+				case 30:
+                        if (p_ptr->au >= 15000)
+                        {
+                                msg_print("Your item gained a new ability!");
+                                p_ptr->au -= 15000;
+                                o_ptr->art_flags5 |= TR5_SH_COLD;
+                                p_ptr->redraw |= (PR_BASIC);
+                        }
+						 else msg_print("You don't have enough money...");
+                        break;
+							case 31:
+                        if (p_ptr->au >= 15000)
+                        {
+                                msg_print("Your item gained a new ability!");
+                                p_ptr->au -= 15000;
+                                o_ptr->art_flags5 |= TR5_SPELL_CONTAIN;
+                                p_ptr->redraw |= (PR_BASIC);
+                        }
+						 else msg_print("You don't have enough money...");
+                        break;
+							case 32:
+                        if (p_ptr->au >= 150000)
+                        {
+                                msg_print("Your item gained a new ability!");
+                                p_ptr->au -= 150000;
+                                o_ptr->art_flags5 |= TR5_RES_MORGUL;
+                                p_ptr->redraw |= (PR_BASIC);
+                        }
+						 else msg_print("You don't have enough money...");
+                        break;
+
+        }
+        energy_use = 100;
+        return num;
+}

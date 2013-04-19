@@ -1,3 +1,4 @@
+int lost_sword_fury;
 static int randquest_hero[] = { 20, 13, 15, 16, 9, 17, 18, -1 };
 
 bool is_randhero()
@@ -132,13 +133,53 @@ void princess_death(s32b m_idx, s32b r_idx)
 	}
 }
 
+
+
 void hero_death(s32b m_idx, s32b r_idx)
 {
+	
 	random_quests[dun_level].type = 0;
 	random_quests[dun_level].done = TRUE;
 
-	cmsg_print(TERM_YELLOW, "The adventurer steps out of the shadows and picks up his sword:");
-	cmsg_print(TERM_YELLOW, "'Ah ! my sword ! my trusty sword ! Thanks.");
+	
+	switch(lost_sword_fury)
+	{
+	case 1:
+			{
+				cmsg_print(TERM_YELLOW, "Frodo steps up next to you and picks up his sword:");
+				cmsg_print(TERM_YELLOW, "'Ah ! my sword ! my trusty sword ! Thanks.");
+				break;
+			} 
+	case 2:
+			{
+				cmsg_print(TERM_YELLOW, "Bob runs up next to you, and grabs his sword:");
+				cmsg_print(TERM_YELLOW, "'Ah ! my sword ! my trusty sword ! Thanks.");
+				break;
+			} 
+	case 3:
+		
+			{
+				cmsg_print(TERM_YELLOW, "Gandalf walks up to you, and takes up his sword:");
+				cmsg_print(TERM_YELLOW, "'Ah ! my sword ! my trusty sword ! Thanks.");
+				break;
+			} 
+	case 4:
+			{
+				cmsg_print(TERM_YELLOW, "Neil grabs his sword from the monster:");
+				cmsg_print(TERM_YELLOW, "'Ah ! my sword ! my trusty sword ! Thanks.");
+				break;
+			} 
+	case 5:
+			{
+				cmsg_print(TERM_YELLOW, "The sword levitates, and a voice starts speaking:");
+				cmsg_print(TERM_YELLOW, "'Ah ! my sword ! my trusty sword ! Thanks.");
+				break;
+			} 
+
+	}
+
+//	cmsg_print(TERM_YELLOW, "The adventurer steps out of the shadows and picks up his sword:");
+//	cmsg_print(TERM_YELLOW, "'Ah ! my sword ! my trusty sword ! Thanks.");
 
 	if (!can_create_companion())
 	{
@@ -244,23 +285,73 @@ bool quest_random_turn_hook(char *fmt)
 	quest[QUEST_RANDOM].data[1] = 0;
 	return (FALSE);
 }
+
+
+
+
+
+
+
+
 bool quest_random_feeling_hook(char *fmt)
 {
+	
 	if (!(dungeon_flags1 & DF1_PRINCIPAL)) return (FALSE);
 	if ((dun_level < 1) || (dun_level >= MAX_RANDOM_QUEST)) return (FALSE);
 	if (!random_quests[dun_level].type) return (FALSE);
 	if (p_ptr->inside_quest) return (FALSE);
 	if (!dun_level) return (FALSE);
-
+	
 	if (is_randhero())
 	{
-		cmsg_format(TERM_YELLOW, "A strange man wrapped in a dark cloak steps out of the shadows:");
-		cmsg_format(TERM_YELLOW, "'Ah please help me ! A group of %s stole my sword! I'm nothing without it'", r_info[random_quests[dun_level].r_idx].name + r_name);
+		  switch(randint(5))
+  {
+		  case 1:
+			  {
+				cmsg_format(TERM_YELLOW, "Frodo the Hobbit, wrapped in a dark cloak steps out of the shadows:");
+				cmsg_format(TERM_YELLOW, "'Ah please help me ! A group of %s stole my sword! I'm nothing without it'", r_info[random_quests[dun_level].r_idx].name + r_name);
+				lost_sword_fury = 1;
+				break;
+			  }
+		  case 2:
+			  {
+				  cmsg_format(TERM_YELLOW, "Bob the Adventurer, jumps from behind a rock:");
+				  cmsg_format(TERM_YELLOW, "'Ah please help me ! A group of %s stole my sword! I'm nothing without it'", r_info[random_quests[dun_level].r_idx].name + r_name);
+				 lost_sword_fury = 2;
+				  break;
+			  }
+		  case 3:
+			  {
+				  cmsg_format(TERM_YELLOW, "Gandalf steps sheepishly away from a dead %s:");
+				  cmsg_format(TERM_YELLOW, "'Ah please help me ! A group of %s stole my staff! I'm nothing without it'", r_info[random_quests[dun_level].r_idx].name + r_name);
+				 lost_sword_fury = 3;
+				  break;
+			  }
+		  case 4:
+			  {
+				  cmsg_format(TERM_YELLOW, "Neil greets you at the bottom of the stairs:");
+				  cmsg_format(TERM_YELLOW, "'Ah please help me ! A group of %s stole my sword! I'm nothing without it'", r_info[random_quests[dun_level].r_idx].name + r_name);
+				  lost_sword_fury = 4;
+				  break;
+			  }
+		  case 5:
+			  {
+			  {cmsg_format(TERM_YELLOW, "A voice appears from nowhere:");
+			  cmsg_format(TERM_YELLOW, "'Ah please help me ! A group of %s stole my sword! I'm nothing without it'", r_info[random_quests[dun_level].r_idx].name + r_name);
+			 lost_sword_fury = 5;
+			  break;
+			  }
+			  }
+		
+	//	cmsg_format(TERM_YELLOW, "A strange man wrapped in a dark cloak steps out of the shadows:");
+	//	cmsg_format(TERM_YELLOW, "'Ah please help me ! A group of %s stole my sword! I'm nothing without it'", r_info[random_quests[dun_level].r_idx].name + r_name);
 	}
+		  }
 	else
 		cmsg_format(TERM_YELLOW, "You hear someone shouting: 'Leave me alone, stupid %s'", r_info[random_quests[dun_level].r_idx].name + r_name);
 	return (FALSE);
 }
+
 bool quest_random_gen_hero_hook(char *fmt)
 {
 	int i;

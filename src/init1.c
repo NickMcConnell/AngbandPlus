@@ -53,7 +53,7 @@ static cptr r_info_blow_method[] =
 	"CLAW",
 	"BITE",
 	"STING",
-	"XXX1",
+	"PECK",
 	"BUTT",
 	"CRUSH",
 	"ENGULF",
@@ -65,11 +65,13 @@ static cptr r_info_blow_method[] =
 	"GAZE",
 	"WAIL",
 	"SPORE",
-	"XXX4",
+	"HUG",
 	"BEG",
 	"INSULT",
 	"MOAN",
 	"SHOW",
+	"HOWL",
+	"ROAR",
 	NULL
 };
 
@@ -114,6 +116,10 @@ static cptr r_info_blow_effect[] =
 	"HALLU",
 	"PARASITE",
 	"ABOMINATION",
+	"CHAOS",
+	"PIETY",
+	"FOOD",
+	"SLASH",
 	NULL
 };
 
@@ -379,16 +385,16 @@ static cptr r_info_flags7[] =
 	"NO_THEFT",
 	"SPIRIT",
 	"IM_MELEE",
-	"XXX7X21",
-	"XXX7X22",
-	"XXX7X23",
-	"XXX7X24",
-	"XXX7X25",
-	"XXX7X26",
-	"XXX7X27",
-	"XXX7X28",
-	"XXX7X29",
-	"XXX7X30",
+	"RES_LITE",
+	"RES_DARK",
+	"RES_TIME",
+	"RES_MELEE",
+	"STARWARS",
+	"NORSE",
+	"RES_MANA",
+	"IM_MANA",
+	"VAMPIRE",
+	"XX7X30",
 	"XXX7X31",
 };
 
@@ -399,22 +405,22 @@ static cptr r_info_flags8[] =
 {
 	"WILD_ONLY",
 	"WILD_TOWN",
-	"XXX8X02",
+	"RACEX",
 	"WILD_SHORE",
 	"WILD_OCEAN",
 	"WILD_WASTE",
 	"WILD_WOOD",
 	"WILD_VOLCANO",
-	"XXX8X08",
+	"XEN",
 	"WILD_MOUNTAIN",
 	"WILD_GRASS",
 	"NO_CUT",
 	"CTHANGBAND",
-	"XXX8X13",
+	"GERBIL",
 	"ZANGBAND",
 	"JOKEANGBAND",
 	"BASEANGBAND",
-	"XXX8X17",
+	"COMBINE",
 	"XXX8X18",
 	"XXX8X19",
 	"XXX8X20",
@@ -452,7 +458,7 @@ static cptr r_info_flags9[] =
 	"ONLY_DEPTH",
 	"SPECIAL_GENE",
 	"NEVER_GENE",
-	"XXX9X15",
+	"KIN_PROTECT",
 	"XXX9X16",
 	"XXX9X17",
 	"XXX9X18",
@@ -690,22 +696,22 @@ cptr k_info_flags5[] =
 	"MAGIC_BREATH",
 	"WATER_BREATH",
 	"WIELD_CAST",
-	"XXX8X17",
-	"XXX8X18",
-	"XXX8X19",
-	"XXX8X20",
-	"XXX8X21",
-	"XXX8X22",
-	"XXX8X23",
-	"XXX8X24",
-	"XXX8X25",
-	"XXX8X26",
-	"XXX8X27",
-	"XXX8X28",
-	"XXX8X29",
-	"XXX8X02",
-	"XXX8X22",
-};
+	"ONLY_MALE",
+	"ONLY_FEMALE",
+	"BRAND_LIGHT",
+	"BRAND_DARK",
+	"BRAND_MAGIC",
+	"SH_ACID",
+	"SH_COLD",
+	"BRAND_WATER",
+	"BRAND_DEATH",
+	"KILL_VAMPIRE",
+	"THROWING",
+	"SENS_COLD",
+	"CHARGEABLE",
+	"PROTECT",
+	"ALWAYS_HIT",
+	};
 
 /*
  * ESP flags
@@ -725,10 +731,10 @@ cptr esp_flags[] =
 	"ESP_NONLIVING",
 	"ESP_UNIQUE",
 	"ESP_SPIDER",
-	"XXX8X02",
-	"XXX8X02",
-	"XXX8X02",
-	"XXX8X02",
+	"SAFETY",
+	"SENS_ACID",
+	"SENS_ELEC",
+	"XXX8X16",
 	"XXX8X17",
 	"XXX8X18",
 	"XXX8X19",
@@ -1415,6 +1421,7 @@ static const char *activation_names[] =
 /*
  * Convert a "color letter" into an "actual" color
  * The colors are: dwsorgbuDWvyRGBU, as shown below
+fury changes here
  */
 int color_char_to_attr(char c)
 {
@@ -1453,6 +1460,66 @@ int color_char_to_attr(char c)
 		return (TERM_L_BLUE);
 	case 'U':
 		return (TERM_L_UMBER);
+		case 'i':
+		return (TERM_INDIAN_RED);
+			case 'p':
+		return (TERM_PINK);
+			case 'z':
+		return (TERM_GOLD);
+			case 'c':
+		return (TERM_ROYAL_BLUE);
+
+			case 'a':
+		return (TERM_AQUAMARINE);
+			case 'O':
+		return (TERM_DARK_ORCHID);
+					case 'C':
+		return (TERM_CHOCOLATE);
+					case 'f':
+		return (TERM_FIREBRICK);
+						case 'K':
+		return (TERM_KHAKI);
+							case 'k':
+		return (TERM_DARK_KHAKI);
+		
+							case 'A':
+		return (TERM_CADET_BLUE);
+								case 'e':
+		return (TERM_STEEL_BLUE);
+									case 'E':
+		return (TERM_LIGHT_STEEL_BLUE);
+
+		case 'F':
+		return (TERM_SANDY_BROWN);
+
+			case 'h':
+		return (TERM_ORCHID);
+					case 'H':
+		return (TERM_HONEYDEW);
+							case 'I':
+		return (TERM_YELLOW_GREEN);
+									case 'j':
+		return (TERM_OLIVE_DRAB);
+											case 'J':
+		return (TERM_PURPLE);
+case 'l':
+		return (TERM_DARK_SLATE_GRAY);
+case 'L':
+		return (TERM_SALMON);
+case 'm':
+		return (TERM_CRIMSON);
+case 'M':
+		return (TERM_MOCCASIN);
+case 'n':
+		return (TERM_DARK_SEA_GREEN);
+case 'S':
+		return (TERM_TEAL);
+case 'P':
+		return (TERM_ANTIQUE_WHITE);
+case 'q':
+		return (TERM_OLD_LACE);
+case 'Q':
+		return (TERM_TAN);
 	}
 
 	return ( -1);
@@ -4350,7 +4417,7 @@ errr init_k_info_txt(FILE *fp, char *buf)
 			/* Next... */
 			continue;
 		}
-
+// Fury Fury Fury
 		/* Process 'I' for "Info" (one line only) */
 		if (buf[0] == 'I')
 		{
@@ -4382,7 +4449,7 @@ errr init_k_info_txt(FILE *fp, char *buf)
 			k_ptr->sval = sval;
 			k_ptr->pval = pval;
 			k_ptr->pval2 = pval2;
-
+			
 			/* Next... */
 			continue;
 		}
@@ -5115,8 +5182,8 @@ errr init_a_info_txt(FILE *fp, char *buf)
 
 	/* Current entry */
 	artifact_type *a_ptr = NULL;
-
-
+   
+	
 	/* Just before the first record */
 	error_idx = -1;
 
@@ -5207,7 +5274,7 @@ errr init_a_info_txt(FILE *fp, char *buf)
 
 			/* Point at the "info" */
 			a_ptr = &a_info[i];
-
+		
 			/* Hack -- Verify space */
 			if (a_head->name_size + strlen(s) + 8 > fake_name_size) return (7);
 
@@ -5280,18 +5347,30 @@ errr init_a_info_txt(FILE *fp, char *buf)
 		if (buf[0] == 'I')
 		{
 			int tval, sval, pval;
+			long pval3;
 
+
+		
 			/* Scan for the values */
+	
+
+				
+	
 			if (3 != sscanf(buf + 2, "%d:%d:%d",
-			                &tval, &sval, &pval))
+		                &tval, &sval, &pval))
 			{
 				return (1);
-			}
+			} 
+	
+
+
 
 			/* Save the values */
 			a_ptr->tval = tval;
 			a_ptr->sval = sval;
 			a_ptr->pval = pval;
+		//	a_ptr->pval3 = pval3;
+		
 
 			/* Verify */
 			if (!lookup_kind(tval, sval)) return (6);
@@ -12006,7 +12085,7 @@ static cptr process_dungeon_file_expr(char **sp, char *fp)
 			/* Variant name */
 			else if (streq(b + 1, "VARIANT"))
 			{
-				v = "ToME";
+				v = "FuryBand";
 			}
 
 			/* Wilderness */

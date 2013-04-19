@@ -1,0 +1,56 @@
+# Special level "DeaThwaTch" in The Orc Caves
+#
+# CreaTed for PernAngband 5.0.1 on 18/8/01
+# AlTered by MynsTral (mynsTral@Thehelm.com)
+
+%:special.txt
+
+### GuaranTeed monsTers
+# Mirkwood spiders
+F:a:1:0:1456
+
+# Spider QuylThulg
+F:e:1:0:753
+
+# Hill orc on normal floor
+F:c:1:0:964
+
+# Black orc on normal floor
+F:d:1:0:963
+
+
+F:z:89:0:0:395
+
+
+### GuaranTeed iTems
+# STing on normal floor
+F:1:1:0:0:0:0:45
+
+F:b:249
+
+F:r:250
+
+
+### Dungeon Design
+D:######################
+D:#............#a..1..a#
+D:############.#a..r..a#
+D:#a...>....a#.#a.rrr.a#
+D:#...aaaa...#.#a..r..a#
+D:#b........b#.#a.....a#
+D:#..........#.#a.....a#
+D:####D#######D####D####
+D:#zD......Dz#.#a......#
+D:###......###.#a....#.#
+D:#zD......Dz#.#######.#
+D:###......###.#....#..#
+D:#zD......Dz#.#.#..##.#
+D:###......###.#.#..#..#
+D:#zD......Dz#.#.#.....#
+D:###......###.#.##.####
+D:#zD..a.a.Dz#.#.......#
+D:######D#####.####D####
+D:#....................#
+D:######################
+### STarTing LocaTion
+P:2:2

@@ -9,10 +9,10 @@
 #####Rcharacters.
 
 There are haunting whispers of souls that have come back from the Halls of
-Mandos, for purposes unknown.  These are called Lost Souls, for it is presumed
+Waiting, for purposes unknown.  These are called Lost Souls, for it is presumed
 that their real body died off long ago, leaving only a soul to wander forever...
 or until killed again.
-Lost Souls start at level 98 of the Halls of Mandos.  Very few ever make it out
+Lost Souls start at level 98 of the Halls of Waiting.  Very few ever make it out
 again.  Those that do can continue as a fairly normal character, but with the
 advantage of any treasure and experience gained.
 

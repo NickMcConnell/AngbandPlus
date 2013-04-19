@@ -1,7 +1,7 @@
 |||||oy
 ~~~~~01|Dungeons|Spoilers
 ~~~~~02|Spoilers|Dungeons
-#####R=== ToME's DUNGEONS ===
+#####R=== FuryBands DUNGEONS ===
 
 There are numerous dungeons within Middle-earth, but not all
 of them are required to be ventured into. The original Angband
@@ -41,7 +41,7 @@ waits for you at level 99, and Morgoth at level 100. This
 dungeon can be found near Gondolin.
 
 
-#####GAdditional ToME Dungeons
+#####GAdditional FuryBand Dungeons
 #####G------------------------
 
 In addition to the basic 4 dungeons, there are numerous other
@@ -57,7 +57,7 @@ adventurer, and will damage you BY THEMSELVES just by you walking
 within them!
 
 #####GOrc Cave
-A dark tunnel leading to an Orc Cave, guarded at its base by Azog,
+A dark tunnel leading to an Orc Cave, guarded at it's base by Azog,
 King of the Uruk-Hai. Also somewhere within this dungeon is the
 hidden special level called Deathwatch.
 Equivalent to dungeon levels 10 to 22.
@@ -73,11 +73,11 @@ Equivalent to dungeon levels 13 to 25.
 
 #####GHelcaraxe
 The Grinding Ice of Helcaraxe is a bitterly cold series of caverns,
-and guarded by the White Balrog.
+and guarded by Elenwe the Lost.
 Equivalent to dungeon levels 20 to 40.
 
-#####GThe Sandworm lair
-A deep sandhole where most worms originated, it is guarded at its
+#####GThe Withered Heath
+A deep sandhole where most worms originated, it is guarded at it's
 base by the Sandworm Queen.
 Equivalent to dungeon levels 22 to 30.
 
@@ -85,7 +85,7 @@ Equivalent to dungeon levels 22 to 30.
 A dark passage leading into the heart of the world, the Heart of
 the Earth is the source of all the earth's changes. Some claim it
 to be the home of Golgarach, the Living Rock, who assists in the
-creation of new, ever-changing landforms.
+creation of new, ever changing landforms.
 Equivalent to dungeon levels 25 to 36.
 
 #####GMaze
@@ -106,10 +106,11 @@ Equivalent to dungeon levels 26 to 40.
 
 #####GThe Mines of Moria
 A stone door leads down to the depths of the Moria. Once the home of
-the dwarves, the mines have been taken over by creeping evil things, and
+the dwarves, evil things have crept in and taken over the mines.
+Once the home of the dwarves, now orcs have taken over the mines, and
 unlucky adventurers may well stumble upon their training grounds. In
 the depths lurks Durin's Bane, the Balrog of Moria, and return from
-these depths can be difficult....
+these depths can be difficult . . .
 Equivalent to dungeon levels 30 to 50.
 
 #####GThe Small Water Cave
@@ -170,4 +171,4 @@ ravages of Nether, and is guarded by Tik'srvzllat.
 
 
                              Created by Dawnmist for PernAngband 5.x.x
-                                                Updated for ToME 2.1.x
+                                             Updated for FuryBand 3.0.0

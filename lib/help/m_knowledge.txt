@@ -1,0 +1,37 @@
+|||||oy
+~~~~~01|Powers|Knowledge School
+~~~~~02|Knowledge Powers
+~~~~~03|Skills|Knowledge - Spell Info
+#####R === FuryBand Powers - Knowledge School ===
+
+The knowledge school of magic contains spells where magic is used to 
+psychically gain information about things. There are rumours of a "Tome of 
+Knowledge" which contains all the divination school spells within it's bindings.
+
+Worshipping the God Eru Iluvatar also gives the ability to cast spells from
+the knowledge school at a level of 2/3 of your prayer level. e.g. If the 
+skill "Spirituality: Prayer" is at level 12, you can cast up to level 8 
+divination school spells.
+
+#####sKnowledge Spells
+There are six spells available for the knowledge school. These Spells are:
+1. [[[[[sSense Monsters] (school level 1)
+   Detects all monsters near you.
+   At spell level 30 it allows you to sense monster minds for a while.
+2. [[[[[sSense Hidden] (school level 5)
+   Detects the traps in a certain radius around you.
+   At spell level 15 it allows you to sense invisible for a while.
+3. [[[[[sIdentify] (school level 8)
+   Asks for an object and identifies it.
+   At spell level 17 it identifies all objects in the inventory.
+   At spell level 27 it identifies all objects in the inventory and in a 
+     radius on the floor, as well as probing monsters in that radius.
+4. [[[[[sReveal Ways] (school level 9)
+   Detects the doors/stairs/ways in a certain radius around you.
+5. [[[[[sVision] (school level 15)
+   Detects the layout of the surrounding area.
+   At spell level 25 it maps and lights the whole level.
+6. [[[[[sGreater Identify] (school level 35)
+   Asks for an object and fully identifies it, providing the full list of 
+   powers (*ID*).
+   Cast at yourself it will reveal your powers (Self Knowledge)

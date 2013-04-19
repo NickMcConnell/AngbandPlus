@@ -1268,7 +1268,7 @@ void init_skill(s32b value, s32b mod, int i)
 
 void do_get_new_skill()
 {
-	char *items[4];
+	char *items[5];
 	int skl[4];
 	s32b val[4], mod[4];
 	bool used[MAX_SKILLS];
@@ -1308,7 +1308,7 @@ void do_get_new_skill()
 			i = rand_int(max_a);
 
 			/* Does it pass the check? */
-			if (!magik(s_info[i].random_gain_chance))
+			if (!magik(s_info[available_skills[i]].random_gain_chance))
 				continue;
 		}
 		while (used[available_skills[i]]);
@@ -1336,14 +1336,15 @@ void do_get_new_skill()
 			mod[max] = 300;
 			val[max] = 1000;
 		}
-		if (s_ptr->value + val[max] > SKILL_MAX) val[max] = SKILL_MAX - s_ptr->value;
-		skl[max] = available_skills[i];
+	 if (s_ptr->value + val[max] > SKILL_MAX) val[max] = SKILL_MAX - s_ptr->value;
+                skl[max] = available_skills[i];
 		items[max] = (char *)string_make(format("%-40s: +%02ld.%03ld value, +%01d.%03d modifier", s_ptr->name + s_name, val[max] / SKILL_STEP, val[max] % SKILL_STEP, mod[max] / SKILL_STEP, mod[max] % SKILL_STEP));
 	}
-
+ items[max] = (char *)string_make("One skill point, no restrictions.");
 	while (TRUE)
 	{
-		res = ask_menu("Choose a skill to learn(a-d to choose, ESC to cancel)?", (char **)items, 4);
+		
+		 res = ask_menu("Choose a skill to learn(a-d to choose, ESC to cancel)?", (char **)items, 5);
 
 		/* Ok ? lets learn ! */
 		if (res > -1)
@@ -1351,6 +1352,11 @@ void do_get_new_skill()
 			skill_type *s_ptr;
 			bool oppose = FALSE;
 			int oppose_skill = -1;
+if (res == 4)
+                       {
+                         p_ptr->skill_points++;
+                          break;
+                       }
 
 			/* Check we don't oppose an existing skill */
 			for (i = 0; i < max_s_idx; i++)
@@ -1402,7 +1408,7 @@ void do_get_new_skill()
 	}
 
 	/* Free them ! */
-	for (max = 0; max < 4; max++)
+	for (max = 0; max < 5; max++)
 	{
 		string_free(items[max]);
 	}

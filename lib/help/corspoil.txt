@@ -1,6 +1,6 @@
 ~~~~~01|Corruptions (Spoiler)
 ~~~~~02|Spoilers|Corruptions
-#####R=== ToME Corruptions Spoiler ===
+#####R=== FuryBand Corruptions Spoiler ===
 
 Sometimes adventurers become exposed to the dark powers of Morgoth. If they 
 are unable to resist these powers, they become corrupted. Corruptions can 
@@ -117,8 +117,8 @@ It is not removable.
 
 [[[[[BVampiric Strength]
   Your body seems somewhat dead
-  In this near-undead state it has improved strength, constitution and
-  intelligence, but also reduced dexterity, wisdom and charisma.
+  In this near undead state it has improved strength, constitution and intelligence
+  But reduced dexterity, wisdom and charisma.
 [[[[[GGain message: Your body seems more dead than alive.]
 It is not removable.
 It depends on:
@@ -132,5 +132,4 @@ It depends on:
 It is not removable.
 It depends on:
   Vampiric Strength
-
 

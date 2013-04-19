@@ -1279,7 +1279,7 @@ static void print_power_batch(int *p, int start, int max, bool mode)
 		j++;
 	}
 	if (mode) prt("", 2 + j, 20);
-	prt(format("Select a power (a-%c), +/- to scroll:", I2A(j - 1)), 0, 0);
+	prt(format("Select a power (a-%c), @ to select by name, +/- to scroll:", I2A(j - 1)), 0, 0);
 }
 
 
@@ -1348,6 +1348,30 @@ static power_type* select_power(int *x_idx)
 				Term_load();
 				character_icky = FALSE;
 			}
+else if (which == '@')
+			{
+				char buf[80];
+
+				buf[0] = '\0';
+				if (!get_string("Power name: ", buf, 79))				{
+					ret = NULL;
+					break;
+				}
+
+				/* Find the requested power */
+				for (i = 0; i < max; i++)
+				{
+				if (!strcmp(buf, powers_type[p[i]].name))
+						break;
+				}
+				if ((i < max))
+				{
+					*x_idx = p[i];
+					ret = &powers_type[p[i]];
+					break;
+				}
+			}
+
 			else
 			{
 				which = tolower(which);

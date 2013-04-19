@@ -246,6 +246,7 @@ static void roff_aux(int r_idx, int ego, int remem)
 		if (r_ptr->flags3 & (RF3_ORC)) flags3 |= (RF3_ORC);
 		if (r_ptr->flags3 & (RF3_TROLL)) flags3 |= (RF3_TROLL);
 		if (r_ptr->flags3 & (RF3_GIANT)) flags3 |= (RF3_GIANT);
+		if (r_ptr->flags7 & (RF7_VAMPIRE)) flags7 |= (RF7_VAMPIRE);
 		if (r_ptr->flags3 & (RF3_DRAGON)) flags3 |= (RF3_DRAGON);
 		if (r_ptr->flags3 & (RF3_DEMON)) flags3 |= (RF3_DEMON);
 		if (r_ptr->flags3 & (RF3_UNDEAD)) flags3 |= (RF3_UNDEAD);
@@ -254,6 +255,12 @@ static void roff_aux(int r_idx, int ego, int remem)
 		if (r_ptr->flags3 & (RF3_ANIMAL)) flags3 |= (RF3_ANIMAL);
 		if (r_ptr->flags3 & (RF3_THUNDERLORD)) flags3 |= (RF3_THUNDERLORD);
 		if (r_ptr->flags7 & (RF7_SPIDER)) flags7 |= (RF7_SPIDER);
+			if (r_ptr->flags7 & (RF7_STARWARS)) flags7 |= (RF7_STARWARS);
+				if (r_ptr->flags7 & (RF7_NORSE)) flags7 |= (RF7_NORSE);
+					if (r_ptr->flags8 & (RF8_GERBIL)) flags8 |= (RF8_GERBIL);
+			if (r_ptr->flags8 & (RF8_XEN)) flags8 |= (RF8_XEN);
+				if (r_ptr->flags8 & (RF8_RACEX)) flags8 |= (RF8_RACEX);
+					if (r_ptr->flags8 & (RF8_COMBINE)) flags8 |= (RF8_COMBINE);
 
 		/* Know "forced" flags */
 		if (r_ptr->flags1 & (RF1_FORCE_DEPTH)) flags1 |= (RF1_FORCE_DEPTH);
@@ -601,13 +608,20 @@ static void roff_aux(int r_idx, int ego, int remem)
 
 		/* Describe the "race" */
 		if (flags3 & (RF3_DRAGON)) text_out_c(TERM_VIOLET, " dragon");
-		else if (flags3 & (RF3_DEMON)) text_out_c(TERM_VIOLET, " demon");
+		else if (flags3 & (RF3_DEMON)) text_out_c(TERM_VIOLET, " maia");
 		else if (flags3 & (RF3_GIANT)) text_out_c(TERM_VIOLET, " giant");
+		else if (flags7 & (RF7_VAMPIRE)) text_out_c(TERM_VIOLET, " vampire");
 		else if (flags3 & (RF3_TROLL)) text_out_c(TERM_VIOLET, " troll");
 		else if (flags3 & (RF3_ORC)) text_out_c(TERM_VIOLET, " orc");
 		else if (flags3 & (RF3_THUNDERLORD))text_out_c(TERM_VIOLET, " Thunderlord");
 		else if (flags7 & (RF7_SPIDER)) text_out_c(TERM_VIOLET, " spider");
 		else if (flags7 & (RF7_NAZGUL)) text_out_c(TERM_VIOLET, " Nazgul");
+		else if (flags7 & (RF7_STARWARS)) text_out_c(TERM_VIOLET, " Alliance Member");
+		else if (flags7 & (RF7_NORSE)) text_out_c(TERM_VIOLET, " Norseman");
+		else if (flags8 & (RF8_GERBIL)) text_out_c(TERM_VIOLET, " Gerbil");
+		else if (flags8 & (RF8_RACEX)) text_out_c(TERM_VIOLET, " Race X creature");
+		else if (flags8 & (RF8_XEN)) text_out_c(TERM_VIOLET, " Xen creature");
+			else if (flags8 & (RF8_COMBINE)) text_out_c(TERM_VIOLET, " Combine creature");
 		else text_out(" creature");
 
 		/* Group some variables */
@@ -829,17 +843,16 @@ static void roff_aux(int r_idx, int ego, int remem)
 	if (flags6 & (RF6_S_HOUND)) vp[vn++] = "summon hounds";
 	if (flags6 & (RF6_S_HYDRA)) vp[vn++] = "summon hydras";
 	if (flags6 & (RF6_S_ANGEL)) vp[vn++] = "summon an angel";
-	if (flags6 & (RF6_S_DEMON)) vp[vn++] = "summon a demon";
+	if (flags6 & (RF6_S_DEMON)) vp[vn++] = "summon a maia";
 	if (flags6 & (RF6_S_UNDEAD)) vp[vn++] = "summon an undead";
 	if (flags6 & (RF6_S_DRAGON)) vp[vn++] = "summon a dragon";
 	if (flags4 & (RF4_S_ANIMAL)) vp[vn++] = "summon animal";
 	if (flags6 & (RF6_S_ANIMALS)) vp[vn++] = "summon animals";
 	if (flags6 & (RF6_S_HI_UNDEAD)) vp[vn++] = "summon Greater Undead";
 	if (flags6 & (RF6_S_HI_DRAGON)) vp[vn++] = "summon Ancient Dragons";
-	if (flags6 & (RF6_S_HI_DEMON)) vp[vn++] = "summon Greater Demons";
+	if (flags6 & (RF6_S_HI_DEMON)) vp[vn++] = "summon Greater maiar";
 	if (flags6 & (RF6_S_WRAITH)) vp[vn++] = "summon Ringwraith";
 	if (flags6 & (RF6_S_UNIQUE)) vp[vn++] = "summon Unique Monsters";
-
 	/* Describe spells */
 	if (vn)
 	{
@@ -1093,6 +1106,12 @@ static void roff_aux(int r_idx, int ego, int remem)
 		vp[vn++] = "poison";
 		color[vn - 1] = TERM_L_GREEN;
 	}
+		if (flags7 & (RF7_IM_MANA))
+	{
+		vp[vn++] = "mana";
+		color[vn - 1] = TERM_YELLOW;
+	}
+
 
 	/* Describe immunities */
 	if (vn)
@@ -1125,6 +1144,11 @@ static void roff_aux(int r_idx, int ego, int remem)
 	if (flags3 & (RF3_RES_NEXU)) vp[vn++] = "nexus";
 	if (flags3 & (RF3_RES_DISE)) vp[vn++] = "disenchantment";
 	if (flags3 & (RF3_RES_TELE)) vp[vn++] = "teleportation";
+    if (flags7 & (RF7_RES_LITE)) vp[vn++] = "light";
+	if (flags7 & (RF7_RES_DARK)) vp[vn++] = "darkness";
+	if (flags7 & (RF7_RES_TIME)) vp[vn++] = "time";
+    if (flags7 & (RF7_RES_MELEE)) vp[vn++] = "melee attacks";
+	if (flags7 & (RF7_RES_MANA)) vp[vn++] = "mana";
 
 	/* Describe resistances */
 	if (vn)
@@ -1381,7 +1405,8 @@ static void roff_aux(int r_idx, int ego, int remem)
 		case RBM_STING:
 			p = "sting";
 			break;
-		case RBM_XXX1:
+		case RBM_PECK:
+			p = "peck";
 			break;
 		case RBM_BUTT:
 			p = "butt";
@@ -1416,7 +1441,8 @@ static void roff_aux(int r_idx, int ego, int remem)
 		case RBM_SPORE:
 			p = "release spores";
 			break;
-		case RBM_XXX4:
+		case RBM_HUG:
+			p = "hug";
 			break;
 		case RBM_BEG:
 			p = "beg";
@@ -1429,6 +1455,12 @@ static void roff_aux(int r_idx, int ego, int remem)
 			break;
 		case RBM_SHOW:
 			p = "sing";
+			break;
+				case RBM_HOWL:
+			p = "howl";
+			break;
+		case RBM_ROAR:
+			p = "roar";
 			break;
 		}
 
@@ -1537,6 +1569,18 @@ static void roff_aux(int r_idx, int ego, int remem)
 			break;
 		case RBE_PARASITE:
 			q = "parasite";
+			break;
+				case RBE_CHAOS:
+			q = "chaos";
+			break;
+				case RBE_PIETY:
+			q = "ruins your piety";
+			break;
+					case RBE_FOOD:
+			q = "causes hunger";
+			break;
+						case RBE_SLASH:
+			q = "causes severe cuts";
 			break;
 		}
 
@@ -1665,7 +1709,6 @@ static void roff_name(int r_idx, int ego)
 	if (use_bigtile && (a2 & 0x80)) Term_addch(255, 255);
 	Term_addstr( -1, TERM_WHITE, "'):");
 }
-
 /*
  * Hack -- Display the "name" and "attr/chars" of a monster race on top
  */
@@ -1675,7 +1718,7 @@ static void roff_top(int r_idx, int ego)
 	Term_erase(0, 0, 255);
 
 	/* Reset the cursor */
-	Term_gotoxy(0, 0);
+ Term_gotoxy(0, 0);
 
 	roff_name(r_idx, ego);
 }
@@ -1697,6 +1740,7 @@ void screen_roff(int r_idx, int ego, int remember)
 	/* Describe monster */
 	roff_top(r_idx, ego);
 }
+
 
 /*
  * Ddescribe the given monster race at the current pos of the "term" window
