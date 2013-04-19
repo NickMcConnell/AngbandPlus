@@ -3944,24 +3944,34 @@ void place_corpse(monster_type *m_ptr)
 void monster_death(int m_idx)
 {
 	int i, y, x, ny, nx;
+	
 
+	char *txt;
+
+	cptr vp[64];
+	byte vc[64];
+	int vn;
 	int dump_item = 0;
 	int dump_gold = 0;
 
 	s16b this_o_idx, next_o_idx = 0;
-
+	u32b f1, f2, f3, f4, f5, esp;
 	monster_type *m_ptr = &m_list[m_idx];
 
 	monster_race *r_ptr = race_inf(m_ptr);
-
+	
+	
 	bool visible = (m_ptr->ml || (r_ptr->flags1 & (RF1_UNIQUE)));
-
+	
+	 
 
 	bool cloned = FALSE;
 	bool create_stairs = FALSE;
 	int force_coin = get_coin_type(r_ptr);
 
+	
 
+	
 	object_type forge;
 	object_type *q_ptr;
 
@@ -4294,33 +4304,33 @@ void monster_death(int m_idx)
 			}
 			else if (strstr((r_name + r_ptr->name), "Maedhros the Tall"))
 			{
-				a_idx = 64;
+				a_idx = ART_MAEDHROS;
 				chance = 100;
 			}			
 			else if (strstr((r_name + r_ptr->name), "Vort the Kobold Queen"))
 			{
-				a_idx = 69;
+				a_idx = ART_VORT;
 				chance = 100;
 			}	
 			else if (strstr((r_name + r_ptr->name), "Trone, the Rebel Thunderlord"))
 			{
-				a_idx = 255;
+				a_idx = ART_TRON;
 				chance = 100;
 			}				
 
 			else if (strstr((r_name + r_ptr->name), "Grip, Farmer Maggot's dog"))
 			{
-				a_idx = 274;
+				a_idx = ART_GRIP;
 				chance = 100;
 			}				
 			else if (strstr((r_name + r_ptr->name), "Wolf, Farmer Maggot's dog"))
 			{
-				a_idx = 276;
+				a_idx = ART_WOLF;
 				chance = 100;
 			}				
 			else if (strstr((r_name + r_ptr->name), "Fang, Farmer Maggot's dog"))
 			{
-				a_idx = 275;
+				a_idx = ART_FANG;
 				chance = 100;
 			}				
 			if ((a_idx > 0) && ((randint(99) < chance) || (wizard)))
@@ -4533,8 +4543,24 @@ void monster_death(int m_idx)
 			break;
 		}
 	}
+// new flag makes monsters ALWAYS drop corpse if they're so allowed. 
+//	if ((!force_coin) && (magik(10 + get_skill_scale(SKILL_PRESERVATION, 75))) && (!(m_ptr->mflag & MFLAG_NO_DROP))) place_corpse(m_ptr);
+	if ((!force_coin) && (!(m_ptr->mflag & MFLAG_NO_DROP)))
+		{
 
-	if ((!force_coin) && (magik(10 + get_skill_scale(SKILL_PRESERVATION, 75))) && (!(m_ptr->mflag & MFLAG_NO_DROP))) place_corpse(m_ptr);
+		object_flags(&p_ptr->inventory[INVEN_WIELD], &f1, &f2, &f3, &f4, &f5, &esp);
+		
+		if  (esp & ESP_ALWAYS_CORPSE)
+			{
+				place_corpse(m_ptr);
+			}
+		else if (magik(10 + get_skill_scale(SKILL_PRESERVATION, 75)))
+		{
+			place_corpse(m_ptr);
+		}
+		
+		}
+
 
 	/* Take note of any dropped treasure */
 	if (visible && (dump_item || dump_gold))

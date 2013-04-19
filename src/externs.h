@@ -1945,3 +1945,9 @@ extern void do_cmd_tweak(object_type *o_ptr);
 extern int add_item_ability(object_type *o_ptr);
 
 extern s16b wield_slot_ideal(object_type *o_ptr, bool ideal);
+
+/* Lua-fied Descriptions Test */
+extern cptr orc_name;
+extern cptr orc_name_p;
+
+

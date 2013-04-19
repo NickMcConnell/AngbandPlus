@@ -7816,6 +7816,25 @@ A:
 F:INSTA_ART | SPECIAL_GENE
 D:It looks a small tag with writing on it...
 
+N:1019:Knowledge
+G:=:d
+I:45:89:-10
+W:60:0:2:340
+P:0:0d0:0:0:0
+A:60/15:90/2
+F:EASY_KNOW | IGNORE_ACID | IGNORE_COLD | IGNORE_ELEC | IGNORE_FIRE | AUTO_ID | STEALTH | CHR
+f:AUTO_ID
+D:This ring allows you know what kind of items you are handling.
+
+N:1020:Safety
+G:=:d
+I:45:88:0
+W:40:0:2:340
+P:0:0d0:0:0:0
+A:30/15:60/2
+F:EASY_KNOW | IGNORE_ACID | IGNORE_COLD | IGNORE_ELEC | IGNORE_FIRE | SAFETY
+f:SAFETY
+D:This ring protects you from stuns
 
 
 

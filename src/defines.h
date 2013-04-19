@@ -934,6 +934,14 @@
 #define ART_STONE_LORE                  15
 #define ART_PALANTIR_ITHIL              208
 
+
+#define ART_MAEDHROS                    64
+#define ART_VORT 						69
+#define ART_GRIP                        274
+#define ART_WOLF                        276
+#define ART_FANG                        275
+
+
 /* Amulets */
 #define ART_CARLAMMAS                   4
 #define ART_INGWE                       5
@@ -3046,6 +3054,7 @@
 #define ESP_SENS_ACID           0x00004000L
 #define ESP_SENS_ELEC           0x00008000L
 #define ESP_UNBREAKABLE			0x00010000L
+#define ESP_ALWAYS_CORPSE		0x00020000L   // Monsters will always drop a corpse
 
 
 

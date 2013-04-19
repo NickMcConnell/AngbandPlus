@@ -3239,6 +3239,18 @@ f:BRAND_WATER |
 R:33
 F:WATER_BREATH
 
+N:255:of Taxidermy
+T:21:0:255
+T:22:0:255
+T:23:0:255
+T:24:0:255
+X:A:70:70
+W:50:5:20:0
+C:1:1:0:0
+R:100
+F:ALWAYS_CORPSE
+f:ALWAYS_CORPSE
+
 # N: serial number : ego type
 # D: description
 # T: tval : min sval : max sval

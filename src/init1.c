@@ -734,7 +734,7 @@ cptr esp_flags[] =
 	"SENS_ACID",
 	"SENS_ELEC",
 	"UNBREAKABLE",
-	"XXX8X17",
+	"ALWAYS_CORPSE",
 	"XXX8X18",
 	"XXX8X19",
 	"XXX8X20",
@@ -1459,65 +1459,61 @@ int color_char_to_attr(char c)
 		return (TERM_L_BLUE);
 	case 'U':
 		return (TERM_L_UMBER);
-		case 'i':
+	case 'i':
 		return (TERM_INDIAN_RED);
-			case 'p':
+	case 'p':
 		return (TERM_PINK);
-			case 'z':
+	case 'z':
 		return (TERM_GOLD);
-			case 'c':
+	case 'c':
 		return (TERM_ROYAL_BLUE);
-
-			case 'a':
+	case 'a':
 		return (TERM_AQUAMARINE);
-			case 'O':
+	case 'O':
 		return (TERM_DARK_ORCHID);
-					case 'C':
+	case 'C':
 		return (TERM_CHOCOLATE);
-					case 'f':
+	case 'f':
 		return (TERM_FIREBRICK);
-						case 'K':
+	case 'K':
 		return (TERM_KHAKI);
-							case 'k':
+	case 'k':
 		return (TERM_DARK_KHAKI);
-
-							case 'A':
+	case 'A':
 		return (TERM_CADET_BLUE);
-								case 'e':
+	case 'e':
 		return (TERM_STEEL_BLUE);
-									case 'E':
+	case 'E':
 		return (TERM_LIGHT_STEEL_BLUE);
-
-		case 'F':
+	case 'F':
 		return (TERM_SANDY_BROWN);
-
-			case 'h':
+	case 'h':
 		return (TERM_ORCHID);
-					case 'H':
+	case 'H':
 		return (TERM_HONEYDEW);
-							case 'I':
+	case 'I':
 		return (TERM_YELLOW_GREEN);
-									case 'j':
+	case 'j':
 		return (TERM_OLIVE_DRAB);
-											case 'J':
+	case 'J':
 		return (TERM_PURPLE);
-case 'l':
+	case 'l':
 		return (TERM_DARK_SLATE_GRAY);
-case 'L':
+	case 'L':
 		return (TERM_SALMON);
-case 'm':
+	case 'm':
 		return (TERM_CRIMSON);
-case 'M':
+	case 'M':
 		return (TERM_MOCCASIN);
-case 'n':
+	case 'n':
 		return (TERM_DARK_SEA_GREEN);
-case 'S':
+	case 'S':
 		return (TERM_TEAL);
-case 'P':
+	case 'P':
 		return (TERM_ANTIQUE_WHITE);
-case 'q':
+	case 'q':
 		return (TERM_OLD_LACE);
-case 'Q':
+	case 'Q':
 		return (TERM_TAN);
 	}
 

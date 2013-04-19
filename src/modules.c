@@ -118,6 +118,7 @@ static void dump_modules(int sel, int max)
 
 static void activate_module()
 {
+	int i; 
 	/* Initialize the module table */
 	call_lua("assign_current_module", "(s)", "", game_module);
 
@@ -136,6 +137,8 @@ static void activate_module()
 	version_minor = VERSION_MINOR;
 	version_patch = VERSION_PATCH;
 
+	
+	
 	/* Change window name if needed */
 	if (strcmp(game_module, "FuryBand"))
 	{

@@ -39,6 +39,8 @@ function max_modules()
         return i
 end
 
+	
+
 function get_module_name(j)
         local i = 0
         for k, e in modules do
@@ -48,6 +50,17 @@ function get_module_name(j)
                 end
         end
 end
+
+function get_orc_name(j)
+        local i = 0
+        for k, e in modules do
+                if type(k) == "number" and type(e) == "table" then
+                        if i == j then return e.orc_name end
+	                i = i + 1
+                end
+        end
+end
+
 
 function get_module_desc(j)
         local i = 0
@@ -129,7 +142,7 @@ function add_module(t)
         assert(t.desc, "No module desc")
         assert(t.author, "No module author")
         assert(t.mod_savefiles, "No loadable savefiles module mark")
-
+		
         for _, e in modules do
                 if type(e) == "table" and e.name == t.name then
                         error("Module name already defined: "..t.name)
@@ -155,6 +168,9 @@ function add_module(t)
                 t.desc = d
         end
 
+
+		
+		
         if not t.rand_quest then t.rand_quest = FALSE end
         if not t.C_quest then t.C_quest = FALSE end
 
@@ -175,11 +191,16 @@ function add_module(t)
             t.random_artifact_jewelry_chance = 20
         end
 
-        if not t.max_plev then t.max_plev = 50 end
+        if not t.max_plev then t.max_plev = 75 end
         if not t.max_skill_overage then t.max_skill_overage = 4 end
         if not t.skill_per_level then t.skill_per_level = function() return 6 end end
 
         if not t.allow_birth then t.allow_birth = TRUE end
-
+		
+		if not t.orc_name then t.orcname = " orc" end
+	
+		
+		
+		
         tinsert(modules, t)
 end

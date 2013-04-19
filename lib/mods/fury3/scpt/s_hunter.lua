@@ -212,3 +212,29 @@ HSENSEHIDDEN = add_spell
 			"At level 15 it allows you to sense invisible for a while"
 	}
 }
+
+HUNTERIDENTIFY = add_spell
+{
+	["name"] = 	"Greater Identify",
+	["school"] = 	{SCHOOL_HUNTING},
+	["level"] = 	45,
+	["mana"] = 	1,
+	["mana_max"] = 	2,
+	["fail"] =  1,
+	["spell"] = 	function()
+			if get_check("Cast on yourself?") == TRUE then
+				self_knowledge()
+			else
+				identify_fully()
+			end
+			return TRUE
+	end,
+	["info"] = 	function()
+		       	return ""
+	end,
+	["desc"] =	{
+			"Asks for an object and fully identify it, providing the full list of powers",
+			"Cast at yourself it will reveal your powers"
+	}
+}
+

@@ -1263,7 +1263,7 @@ void self_knowledge(FILE *fff)
 		if (p_ptr->telepathy & ESP_ALL) info[i++] = "You have ESP.";
 		else
 		{
-			if (p_ptr->telepathy & ESP_ORC) info[i++] = "You can sense the presence of orcs.";
+			if (p_ptr->telepathy & ESP_ORC) info[i++] = strcat("You can sense the presence of", orc_name,".");
 			if (p_ptr->telepathy & ESP_TROLL) info[i++] = "You can sense the presence of trolls.";
 			if (p_ptr->telepathy & ESP_DRAGON) info[i++] = "You can sense the presence of dragons.";
 			if (p_ptr->telepathy & ESP_SPIDER) info[i++] = "You can sense the presence of spiders.";

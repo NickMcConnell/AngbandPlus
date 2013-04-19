@@ -101,14 +101,14 @@ F:R_CHAR_o | R_CHAR_y | R_CHAR_k | BASEANGBAND
 M:FORCE_MAXHP | FRIENDS | SMART | DROP_1D2 | 
 
 N:6:Chieftain
-G:*:E
+G:*:L
 I:+10:%200d%100:+10:%120:-3
 W:+5:4:%120:%200:A
 B:*:*:+1d+2
 B:*:*:+1d+2
 B:*:*:+1d+2
 B:*:*:+1d+2
-F:R_CHAR_T | R_CHAR_P | R_CHAR_O | BASEANGBAND
+F:R_CHAR_T | R_CHAR_P | R_CHAR_O | R_CHAR_C | R_CHAR_Z BASEANGBAND
 M:FORCE_MAXHP | FRIENDS | SMART | DROP_1D2 | 
 
 N:7:Shaman
@@ -180,7 +180,7 @@ B:*:*:+0d+0
 B:*:*:+0d+0
 B:HIT:HURT:=2d=9
 B:HIT:HURT:=2d=9
-F:R_CHAR_O | R_CHAR_o
+F:R_CHAR_O | R_CHAR_o | R_CHAR_k
 M:SMART | FORCE_MAXHP | DROP_1D2
 O:FRIENDS
 S:1_IN_6 | BA_COLD | BO_FIRE | TRAPS | HEAL | HOLD | S_MONSTER | TPORT | CAUSE_2
@@ -195,7 +195,7 @@ S:1_IN_4 | ARROW_3
 N:16:Warper
 G:*:M
 I:+0:%90d%100:+10:%90:+0
-W:+10:5:%90:%120:A
+W:+10:7:%90:%120:A
 F:R_CHAR_o | R_CHAR_k | R_CHAR_O | 
 M:SMART | FORCE_MAXHP | DROP_1D2
 O:FRIENDS
@@ -203,15 +203,51 @@ S:1_IN_4 | MISSILE | CAUSE_1 | CONF | BLINK
 S:TELE_TO | TELE_AWAY | 
 
 N:17:Mutant
+G:*:K
+I:-10:%300d%200:+10:%140:-3
+W:+15:4:%120:%300:A
+B:*:*:+3d+3
+B:*:*:+3d+3
+B:*:*:+3d+3
+B:*:*:+3d+3
+F:R_CHAR_T | R_CHAR_P | R_CHAR_O | 
+M:FORCE_MAXHP | FRIENDS | SMART | DROP_1D2 | DROP_GOOD | NO_CUT
+
+N:18:Weak
 G:*:k
-I:-10:%400d%200:+10:%140:-3
+I:-10:%50d%50:-10:%75:-3
+W:-5:15:%50:%50:B
+B:*:*:-2d-2
+B:*:*:-2d-2
+B:*:*:-2d-2
+B:*:*:-2d-2
+F:R_CHAR_D | DRAGON
+M:FORCE_MAXHP | 
+
+N:19:Mindcrafter
+G:*:j
+I:+0:%125d%100:+10:%120:+0
+W:+15:4:%120:%150:A
+B:*:*:+0d+0
+B:*:*:+0d+0
+B:HIT:HURT:=2d=9
+B:HIT:HURT:=2d=9
+F:R_CHAR_O | R_CHAR_o | R_CHAR_k
+M:SMART | FORCE_MAXHP | DROP_1D2
+O:FRIENDS
+S:1_IN_6 | CONF | BLIND | HOLD | SLOW | MIND_BLAST | S_MONSTER | BLINK
+
+N:20:Elder
+G:*:l
+I:-10:%200d%200:+10:%140:-3
 W:+15:4:%120:%300:A
 B:*:*:+2d+2
 B:*:*:+2d+2
 B:*:*:+2d+2
 B:*:*:+2d+2
-F:R_CHAR_T | R_CHAR_P | R_CHAR_O | BASEANGBAND
-M:FORCE_MAXHP | FRIENDS | SMART | DROP_1D2 | DROP_GOOD | NO_CUT
+F:R_CHAR_U | R_CHAR_u | 
+M:FORCE_MAXHP | SMART | DROP_1D2 | DROP_GREAT | NO_CUT
+S:1_IN_8 | BLIND | CONF | MIND_BLAST | CAUSE_3 | S_DEMON 
 
 # N:x:ego name
 # G:x:y                 x is the char, y the attribute, * means the normal one

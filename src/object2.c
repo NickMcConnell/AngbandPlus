@@ -1016,6 +1016,7 @@ s32b flag_cost(object_type * o_ptr, int plusses)
 		if (f5 & TR5_SENS_COLD) total -= 100;
 			if (esp & ESP_SENS_ACID) total -= 100;
 		if (esp & ESP_SENS_ELEC) total -= 100;
+	if (esp & ESP_ALWAYS_CORPSE) total += 10000;	
 	if (f2 & TR2_REFLECT) total += 10000;
 	if (f2 & TR2_FREE_ACT) total += 4500;
 	if (f2 & TR2_HOLD_LIFE) total += 8500;

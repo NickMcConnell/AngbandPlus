@@ -608,7 +608,9 @@ static void roff_aux(int r_idx, int ego, int remem)
 		else if (flags3 & (RF3_GIANT)) text_out_c(TERM_VIOLET, " giant");
 		else if (flags7 & (RF7_VAMPIRE)) text_out_c(TERM_VIOLET, " vampire");
 		else if (flags3 & (RF3_TROLL)) text_out_c(TERM_VIOLET, " troll");
+		
 		else if (flags3 & (RF3_ORC)) text_out_c(TERM_VIOLET, " orc");
+		
 		else if (flags3 & (RF3_THUNDERLORD))text_out_c(TERM_VIOLET, " Thunderlord");
 		else if (flags7 & (RF7_SPIDER)) text_out_c(TERM_VIOLET, " spider");
 		else if (flags7 & (RF7_NAZGUL)) text_out_c(TERM_VIOLET, " Nazgul");

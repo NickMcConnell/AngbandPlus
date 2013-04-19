@@ -127,6 +127,7 @@ C:O:37:6:1d1
 C:O:21:8:2d1
 C:O:32:5:1d1
 C:O:30:6:1d1
+C:O:20:4:1d1
 C:k:+3000:+1100:Combat
 C:k:+2000:+1150:Weaponmastery
 C:k:+2000:+1000:Hafted-mastery
@@ -151,7 +152,7 @@ C:b:30:Whirlwind
 C:a:N:Berserker
 C:a:D:The berserker,a fighter much more savage then even barbarians.
 C:a:D:However, they cannot use any magical devices nor can they read any scrolls.
-
+C:a:O:40:13:1d1
 
 C:N:2:Jedi
 C:D:0:Wise and Powerful
@@ -174,6 +175,7 @@ C:E:0:0:0:0:0:0:0
 C:R:1:0
 C:O:45:38:1d1
 C:O:36:79:1d1
+C:O:20:4:1d1
 C:k:=0:=0:Antimagic
 C:k:+1000:+600:Archery
 C:k:=0:=0:Axe-mastery
@@ -265,19 +267,21 @@ C:a:O:39:66:3d1
 C:a:O:23:69:1d1
 C:a:O:37:66:1d1
 C:a:O:32:66:1d1
+C:a:O:20:4:1d1
 
 C:a:N:Hunter (Med)
 C:a:O:23:70:3d1
 C:a:O:39:66:1d1
 C:a:O:37:68:1d1
 C:a:O:32:67:1d1
+C:a:O:20:4:1d1
 
 C:a:N:Hunter (Adv)
 C:a:O:23:79:3d1
 C:a:O:39:66:1d1
 C:a:O:32:67:1d1
 C:a:O:37:69:1d1
-
+C:a:O:20:4:1d1
 
 
 C:N:30:Test

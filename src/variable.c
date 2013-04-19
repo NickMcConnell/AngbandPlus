@@ -1666,3 +1666,6 @@ s32b max_gods = MAX_GODS_INIT;
  * Timers
  */
 timer_type *gl_timers = NULL;
+/* Lua-fied Descriptions Test */
+cptr orc_name;
+cptr orc_name_p;

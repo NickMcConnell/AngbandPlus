@@ -993,7 +993,7 @@ static void compare_weapon_aux1(object_type *o_ptr, int col, int r)
 		if (compare_weapon_aux2(o_ptr, primary_weapon_blows(o_ptr), r++, col, 2, "Animals:",
 		                    f1, f2, f3, TERM_YELLOW)) return;
 	if (f1 & (TR1_SLAY_ORC))
-		if (compare_weapon_aux2(o_ptr, primary_weapon_blows(o_ptr), r++, col, 3, "Orcs:",
+		if (compare_weapon_aux2(o_ptr, primary_weapon_blows(o_ptr), r++, col, 3, "Orcs",
 		                    f1, f2, f3, TERM_YELLOW)) return;
 	if (f1 & (TR1_SLAY_TROLL))
 		if (compare_weapon_aux2(o_ptr, primary_weapon_blows(o_ptr), r++, col, 3, "Trolls:",
