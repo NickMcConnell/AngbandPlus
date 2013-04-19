@@ -1,6 +1,6 @@
 /*
 ** Lua binding: dungeon
-** Generated automatically by tolua 4.0a - angband on 08/01/07 21:25:54.
+** Generated automatically by tolua 4.0a - angband on 02/25/10 19:01:20.
 */
 
 #include "lua/tolua.h"
@@ -2842,6 +2842,8 @@ int tolua_dungeon_open (lua_State* tolua_S)
  tolua_constant(tolua_S,NULL,"FEAT_MUD",FEAT_MUD);
  tolua_constant(tolua_S,NULL,"FEAT_ICE_WALL",FEAT_ICE_WALL);
  tolua_constant(tolua_S,NULL,"FEAT_TREES",FEAT_TREES);
+ tolua_constant(tolua_S,NULL,"FEAT_FIRTREE",FEAT_FIRTREE);
+ tolua_constant(tolua_S,NULL,"FEAT_MALLORN",FEAT_MALLORN);
  tolua_constant(tolua_S,NULL,"FEAT_MOUNTAIN",FEAT_MOUNTAIN);
  tolua_constant(tolua_S,NULL,"FEAT_SANDWALL",FEAT_SANDWALL);
  tolua_constant(tolua_S,NULL,"FEAT_SANDWALL_H",FEAT_SANDWALL_H);
@@ -3142,6 +3144,8 @@ void tolua_dungeon_close (lua_State* tolua_S)
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"FEAT_MUD");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"FEAT_ICE_WALL");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"FEAT_TREES");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"FEAT_FIRTREE");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"FEAT_MALLORN");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"FEAT_MOUNTAIN");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"FEAT_SANDWALL");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"FEAT_SANDWALL_H");

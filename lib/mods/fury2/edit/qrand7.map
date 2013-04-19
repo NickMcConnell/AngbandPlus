@@ -6,6 +6,7 @@ F:,:172:6
 
 # Princess
 F:p:1:6:969
+F:s:1:6:40
 
 # Lit permanent wall
 F:x:61:6
@@ -25,11 +26,26 @@ F:W:84:6
 # Shallow water
 F:w:187:6
 
-# Dungeon wayout
-D:ttttt      
-D:tGGGt  ,x, 
-D:tGpGt  x,x 
-D:tGGGt  ,x, 
-D:ttttt      
-D:      ,x,  
-D:           
+# Dungeon wayout 
+
+D:...................
+D:...................
+D:....xxx.xxx.xxx....
+D:....x,x.x,x.x,x....
+D:..xxxDxxxDxxxDxxx..
+D:..x.......D.D...x..
+D:..xxxDxxGGG.xxxxx..
+D:....D..sGpG.D,x....
+D:..xxxDxxGGG.xxxxx..
+D:..x.......D.D...x..
+D:..xxxDxxxDxxxDxxx..
+D:....x,x.x,x.x,x....
+D:....xxx.xxx.xxx....
+D:...................
+D:...................
+
+
+
+
+
+           

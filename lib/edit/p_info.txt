@@ -21,9 +21,9 @@ C:D:1:Baron
 C:D:1:Duke
 C:D:1:Lord
 C:g:All Gods
-C:S:5:-2:-2:2:2:-1:0:3
+C:S:5:-2:-2:2:2:-1:0:1
 C:K:10:10:0:1:10:10:10:10
-C:X:12:7:10:0:0:0:45:45
+C:X:0:0:0:0:0:0:0:0
 C:P:9:0
 C:B:4:30:5
 C:E:0:0:0:0:0:0
@@ -145,14 +145,14 @@ C:a:k:=0:=0:Hafted-mastery
 C:a:k:=0:=0:Polearm-mastery
 C:a:k:+2000:+1000:Barehand-combat
 C:a:k:+1000:+0:Weaponmastery
-C:a:k:+1000:+500:Sword-mastery
+C:a:k:+1000:+600:Sword-mastery
 C:a:k:+4000:+2000:Stealth
-C:k:+2000:+2000:Sneakiness
-C:k:+1000:+2000:Disarming
-C:a:k:+1000:+2000:Stealing
+C:a:k:+2000:+2000:Sneakiness
+C:a:k:+1000:+750:Disarming
+C:a:k:+1000:+1000:Stealing
 C:a:k:+3000:+2000:Dodging
-C:a:k:+1000:+2000:Backstab
-C:a:k:+1000:+2000:Ninja
+C:a:k:+1000:+1000:Backstab
+C:a:k:+1000:+1000:Ninja
 C:a:k:+1000:+1000:Throwing
 
 C:a:N:Warrior
@@ -450,7 +450,7 @@ C:a:k:+0:-100:Crossbow-mastery
 C:a:k:+0:-100:Sling-mastery
 C:a:k:+1000:+700:Boomerang-mastery
 C:a:k:+1000:+700:Powers
-C:a:k:+1000:+1000:Energy
+C:a:k:+1000:+7000:Energy
 C:a:O:15:1:1d1
 C:a:O:111:50:1d1
 C:a:b:2:Perfect casting
@@ -598,7 +598,7 @@ C:a:k:+0:-500:Movement
 C:a:k:+1000:+800:Knowledge
 C:a:k:+0:+100:Powers
 C:a:k:=0:=0:Backstab
-C:a:k:+1000:+450:Devices
+C:a:k:+1000:+650:Devices
 C:a:O:66:22:1d3
 
 C:N:4:Loremaster
@@ -1055,9 +1055,9 @@ C:F:SPEED
 C:E:0:0:0:0:0:0:0
 C:O:37:6:1d1
 C:O:21:8:1d1
-C:k:+3000:+1100:Combat
-C:k:+2000:+1150:Weaponmastery
-C:k:+2000:+1000:Hafted-mastery
+C:k:+3000:+900:Combat
+C:k:+2000:+950:Weaponmastery
+C:k:+2000:+9000:Hafted-mastery
 C:k:=0:=0:Sword-mastery
 C:k:=0:=0:Axe-mastery
 C:k:=0:=0:Polearm-mastery
@@ -1068,7 +1068,7 @@ C:k:=0:=0:Devices
 C:k:=0:=0:Prayer
 C:k:=0:=0:Monster-lore
 C:k:+1000:+750:Antimagic
-C:k:+0:+500:Stunning-blows
+C:k:+0:+600:Stunning-blows
 C:Z:berserk
 C:b:1:Extra Max Blow(1)
 C:b:1:Extra Max Blow(2)
@@ -1103,7 +1103,7 @@ C:Z:summon monsters
 C:Z:turn pet into companion
 C:k:+1000:+1000:Symbiosis
 C:k:+1000:+1000:Summoning
-C:R:35:0
+C:R:15:0
 C:F:RES_FEAR
 C:E:0:0:0:0:0:0:0
 
@@ -1122,9 +1122,9 @@ C:D:1:Guardian
 C:D:1:Consular
 C:D:1:Master
 C:D:1:Lord
-C:S:6:2:2:2:0:-4:2:3
+C:S:6:2:2:2:0:-4:2:1
 C:K:10:10:0:1:10:10:10:10
-C:X:12:7:10:0:0:0:45:45
+C:X:0:0:10:0:0:0:0:0
 C:P:9:0
 C:B:4:30:5
 C:E:0:0:0:0:0:0:0
@@ -1139,11 +1139,11 @@ C:k:+0:+150:Devices
 C:k:+1000:+900:Disarming
 C:k:=0:=0:Hafted-mastery
 C:k:=0:=0:Polearm-mastery
-C:k:+1000:+1000:Powers
+C:k:+1000:+900:Powers
 C:k:+1000:+900:Sneakiness
 C:k:+1000:+400:Spirituality
-C:k:+1000:+1000:Stealth
-C:k:+1000:+1000:Sword-mastery
+C:k:+1000:+900:Stealth
+C:k:+1000:+900:Sword-mastery
 C:k:+1000:+850:Weaponmastery
 C:k:+1000:+1000:Jedi
 C:k:+0:+1000:Light
@@ -1180,9 +1180,9 @@ C:D:1:Baron
 C:D:1:Duke
 C:D:1:Lord
 C:g:All Gods
-C:S:5:-2:-2:2:-10:-10:10:3
+C:S:5:-2:-2:2:-10:-10:10:0
 C:K:10:10:0:1:10:10:10:10
-C:X:12:7:10:0:0:0:45:45
+C:X:0:0:0:0:0:0:0:0
 C:P:-5:0
 C:B:4:30:5
 C:E:0:0:0:0:0:0
@@ -1206,9 +1206,9 @@ C:k:+1000:+900:Sneakiness
 C:k:+1000:+400:Spirituality
 C:k:+0:+1000:Stealth
 C:k:+0:+700:Sword-mastery
-C:k:+1000:+1000:Weaponmastery
-C:k:+1000:+1000:Phasing
-C:k:+1000:+1000:Movement
+C:k:+1000:+900:Weaponmastery
+C:k:+1000:+900:Phasing
+C:k:+1000:+900:Movement
 C:b:25:Spread blows
 C:b:1:Extra Max Blow(1)
 C:b:1:Extra Max Blow(2)
@@ -1234,7 +1234,7 @@ C:D:1:Duke
 C:D:1:Lord
 C:S:4:2:-1:3:1:-2:0:0
 C:K:20:36:30:4:16:20:56:20
-C:X:7:13:9:0:0:0:15:15
+C:X:0:0:0:0:0:0:0:0
 C:C:H:L:9000:2:40
 C:B:5:35:4
 C:P:8:0
@@ -1272,7 +1272,7 @@ C:D:1:Lord
 C:g:All Gods
 C:S:2:2:2:2:-10:-10:10:3
 C:K:10:10:0:1:10:10:10:10
-C:X:12:7:10:0:0:0:45:45
+C:X:0:0:0:0:0:0:0:0
 C:P:5:0
 C:B:4:30:5
 C:E:0:0:0:0:0:0
@@ -1371,7 +1371,7 @@ C:D:1:Duke
 C:D:1:Lord
 C:S:5:2:2:2:2:-20:0:3
 C:K:10:10:0:1:10:10:10:10
-C:X:12:7:10:0:0:0:45:45
+C:X:0:0:0:0:0:0:0:0
 C:P:15:0
 C:B:4:30:5
 C:E:0:0:0:0:0:0
@@ -3326,6 +3326,7 @@ S:R:40:1
 S:F:SEARCH | WIS | ESP_EVIL
 S:R:50:1
 S:F:WIS | SEARCH | INT | ESP_GOOD
+S:k:+0:+500:Powers
 S:k:+0:+1000:Mindcraft
 S:k:+0:+1000:Knowledge
 S:k:+2000:+1000:Hydra-combat

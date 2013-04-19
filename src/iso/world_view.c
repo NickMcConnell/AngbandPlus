@@ -133,7 +133,8 @@ static bool is_wall(int feat)
 {
   return 
     (feat >= FEAT_MAGMA &&  feat <= FEAT_PERM_SOLID) || 
-    (feat >= FEAT_TREES &&  feat <= FEAT_SANDWALL_K); 
+    (feat >= FEAT_TREES &&  feat <= FEAT_SANDWALL_K) ||
+	(feat == FEAT_FIRTREE) || (feat == FEAT_MALLORN); 
 }
 
 

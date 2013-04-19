@@ -710,7 +710,7 @@ cptr k_info_flags5[] =
 	"CHARGEABLE",
 	"PROTECT",
 	"ALWAYS_HIT",
-	};
+};
 
 /*
  * ESP flags
@@ -753,7 +753,7 @@ cptr esp_flags[] =
 
 /* Specially handled properties for ego-items */
 
-static cptr ego_flags[] =
+cptr ego_flags[] =
 {
 	"SUSTAIN",
 	"OLD_RESIST",
@@ -4845,7 +4845,7 @@ errr init_al_info_txt(FILE *fp, char *buf)
 		if (buf[0] == 'a')
 		{
 			int qty;
-			if ( 1 != sscanf(buf + 2, "%d", &qty))
+			if (1 != sscanf(buf + 2, "%d", &qty))
 			{
 				return (1);
 			}
@@ -4873,14 +4873,15 @@ errr init_al_info_txt(FILE *fp, char *buf)
 			/*Verify that complete description information is
 			  Recorded for previous Artifact flag
 			*/
-			if (a_ptr
-			                && (!a_ptr->group || !a_ptr->desc || !a_ptr->item_desc != !a_ptr->rtval)
-			   )
+			if (a_ptr && (!a_ptr->group || !a_ptr->desc || !a_ptr->item_desc != !a_ptr->rtval))
+			{
+				msg_print("Not enough info before A: Line.");
 				return (1);
+			}
 
 			a_ptr = &a_select_flags[a_idx++];
 
-			if ( 7 != sscanf(buf + 2, "%d:%d:%d:%d:%d:%d:%ld",
+			if (7 != sscanf(buf + 2, "%d:%d:%d:%d:%d:%d:%ld",
 			                 &group, &rtval, &rsval, &rpval, &pval, &level, &xp))
 				return (1);
 			a_ptr->group = group;
@@ -4894,7 +4895,7 @@ errr init_al_info_txt(FILE *fp, char *buf)
 		}
 
 		/*Anything else here MUST be a artifact flag line*/
-		if ( !a_ptr)
+		if (!a_ptr)
 			return (3);
 
 		if (buf[0] == 'F')
@@ -4921,18 +4922,18 @@ errr init_al_info_txt(FILE *fp, char *buf)
 			char *s, *t;
 			int idx = 0;
 
-			if ( a_ptr->rflag[0] )
+			if (a_ptr->rflag[0])
 			{
 				msg_print("duplicate f: entries for one corpse");
 				return (5);
 			}
 
-			if ( a_ptr->rtval != TV_CORPSE )
+			if (a_ptr->rtval != TV_CORPSE)
 			{
 				msg_print("f: section for corpse flags only");
 				return (5);
 			}
-			if ( a_ptr->rpval )
+			if (a_ptr->rpval)
 			{
 				msg_print("Can't specify r_info.txt index with f: section");
 				return (5);
@@ -4951,7 +4952,7 @@ errr init_al_info_txt(FILE *fp, char *buf)
 					while ((*t == ' ') || (*t == '|')) t++;
 				}
 
-				if ( idx > 5 )
+				if (idx > 5)
 				{
 					msg_print("Limit on race flags is currently 6");
 					return (5);
@@ -5346,30 +5347,19 @@ errr init_a_info_txt(FILE *fp, char *buf)
 		if (buf[0] == 'I')
 		{
 			int tval, sval, pval;
-			long pval3;
-
-
 
 			/* Scan for the values */
-
-
-
-
 			if (3 != sscanf(buf + 2, "%d:%d:%d",
 		                &tval, &sval, &pval))
 			{
 				return (1);
 			}
 
-
-
-
 			/* Save the values */
 			a_ptr->tval = tval;
 			a_ptr->sval = sval;
 			a_ptr->pval = pval;
 		//	a_ptr->pval3 = pval3;
-
 
 			/* Verify */
 			if (!lookup_kind(tval, sval)) return (6);
@@ -7458,7 +7448,7 @@ errr init_ra_info_txt(FILE *fp, char *buf)
 		/* There better be a current ra_ptr */
 		if (!ra_ptr) return (3);
 
-		/* Process 'T' for "Tval/Sval" (up to 5 lines) */
+		/* Process 'T' for "Tval/Sval" (up to 20 lines) */
 		if (buf[0] == 'T')
 		{
 			int tv, minsv, maxsv;

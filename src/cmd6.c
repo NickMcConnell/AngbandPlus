@@ -3793,7 +3793,6 @@ void do_cmd_use_staff(void)
 		o_ptr = &o_list[0 - item];
 	}
 
-
 	/* Mega-Hack -- refuse to use a pile from the ground */
 	if ((item < 0) && (o_ptr->number > 1))
 	{
@@ -3821,11 +3820,13 @@ void do_cmd_use_staff(void)
 	{
 		chance /= 3;
 	}
+
     // Is it being wielded?
-	if ((p_ptr->inventory[INVEN_ARM].k_idx) && (p_ptr->inventory[INVEN_ARM].tval == TV_STAFF))
+	if (item >= INVEN_ARM || item <= INVEN_ARM_MAX)
 	{
 		chance /= 3;
 	}
+
 	/* Give everyone a (slight) chance */
 	if ((chance < USE_DEVICE) && (rand_int(USE_DEVICE - chance + 1) == 0))
 	{
@@ -6910,9 +6911,8 @@ turn_monsters(40 + p_ptr->lev);
 			{
 				if (!doit) return "alchemy every 500 turns";
 				msg_print("It glows bright yellow...");
-				(void) alchemy();
-
 				o_ptr->timeout = 500;
+				(void) alchemy();
 
 				break;
 			}
@@ -7894,7 +7894,7 @@ turn_monsters(40 + p_ptr->lev);
 
 	/* Set timeout for junkarts
 	 * Note that I still need to set the timeouts for other
-	 * (non-random) artifacts above 
+	 * (non-random) artifacts above
 	 */
 	if (is_junkart && doit)
 		o_ptr->timeout = activation_info[o_ptr->pval2].cost / 10;

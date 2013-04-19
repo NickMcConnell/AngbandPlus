@@ -31,6 +31,190 @@ W:0:0:0:0
 P:0:0d0:0:0:0
 A:
 
+##### Mushrooms #####
+N:1:Blindness
+G:,:d
+I:80:1:500
+W:5:0:1:0
+P:0:0d0:0:0:0
+A:5/1
+D:'E'ating this mushrooms will blind you if you eat it. You cannot cast magic 
+D:or see monsters when you are blinded. You can still use magic items or
+D:quaff potions.
+
+N:2:Fear
+G:,:d
+I:80:2:500
+W:5:0:1:0
+P:0:0d0:0:0:0
+A:5/1
+D:'E'ating this mushroom will make you scared if you eat it.
+D:You will not be able to hit your enemies in combat if you're scared.
+
+N:3:Confusion
+G:,:d
+I:80:3:500
+W:5:0:1:0
+P:0:0d0:0:0:0
+A:5/1
+D:'E'ating this mushroom will confuse you. You will not be able to cast spells,
+D:use wands, staves or scrolls. You can still quaff potions, though.
+
+N:4:Hallucination
+G:,:d
+I:80:4:500
+W:10:0:1:0
+P:0:0d0:0:0:0
+A:10/1
+D:'E'ating this mushroom will make you hallucinate.
+D:You will not be able to recognise any monster or item.
+
+N:5:Cure Poison
+G:,:d
+I:80:12:500
+W:10:0:1:60
+P:0:0d0:0:0:0
+A:10/1
+D:'E'ating this mushroom will cure you from poison.
+
+N:6:Cure Blindness
+G:,:d
+I:80:13:500
+W:10:0:1:50
+P:0:0d0:0:0:0
+A:10/1
+D:'E'ating this mushroom will cure you from blindness.
+
+N:7:Cure Fear
+G:,:d
+I:80:14:500
+W:10:0:1:25
+P:0:0d0:0:0:0
+A:10/1
+D:'E'ating this mushroom will cure your paranoia.  Paranoia is the state when you are
+D:too afraid to attack monsters.
+
+N:8:Cure Confusion
+G:,:d
+I:80:15:500
+W:10:0:1:50
+P:0:0d0:0:0:0
+A:10/1
+D:'E'ating this mushroom will cure your confusion.  Confusion is when you are too confused
+D:to cast spells, zap staves, aim wands or read scrolls.
+
+N:9:Weakness
+G:,:d
+I:80:6:500
+W:10:0:1:0
+P:0:5d5:0:0:0
+A:10/1
+D:'E'ating this mushroom will reduce your strength by one point.
+
+N:10:Unhealth
+G:,:d
+I:80:10:500
+W:15:0:1:50
+P:0:10d10:0:0:0
+A:15/1
+D:'E'ating this mushroom will reduce your constitution by one point.
+
+N:11:Restore Constitution
+G:,:d
+I:80:18:500
+W:20:0:1:350
+P:0:0d0:0:0:0
+A:20/1
+D:'E'ating this mushroom will restore your constitution. Your constitution
+D:needs restoring when it is displayed in yellow.
+
+N:12:Restoring
+G:,:d
+I:80:19:500
+W:20:0:1:1000
+P:0:0d0:0:0:0
+A:20/8:30/4:40/1
+D:'E'ating this mushroom will restore your strength, dexterity, constitution,
+D:intelligence, wisdom and charisma. These need restoring when they
+D:are displayed in yellow.
+
+N:13:Stupidity
+G:,:d
+I:80:8:500
+W:15:0:1:0
+P:0:0d0:0:0:0
+A:15/1
+D:'E'ating this mushroom will reduce your intelligence by one point.
+D:That's a bad thing.
+
+N:14:Naivety
+G:,:d
+I:80:9:500
+W:15:0:1:0
+P:0:0d0:0:0:0
+A:15/1
+D:'E'ating this mushroom will reduce your wisdom by one point.
+D:That's a bad thing.
+
+N:15:Poison
+G:,:d
+I:80:0:500
+W:5:0:1:0
+P:0:4d4:0:0:0
+A:5/1
+D:'E'ating this mushroom will poison you. Poisoning makes you lose one hitpoint
+D:per turn until you magically stop the poison or until your body has
+D:fought off the poison.
+D:That's a bad thing.
+
+N:16:Sickness
+G:,:d
+I:80:7:500
+W:10:0:1:0
+P:0:4d4:0:0:0
+A:10/1
+D:'E'ating this mushroom will reduce your constitution by one point.
+D:It will also damage you quite severely in the process.
+D:That's a bad thing.
+
+N:17:Paralysis
+G:,:d
+I:80:5:500
+W:20:0:1:0
+P:0:0d0:0:0:0
+A:20/1
+D:'E'ating this mushroom will paralyse you for a certain time.
+D:Any nearby monsters will take this opportunity to kill you.
+D:That's a bad thing.
+
+N:18:Restore Strength
+G:,:d
+I:80:17:500
+W:20:0:1:350
+P:0:0d0:0:0:0
+A:20/1
+D:'E'ating this mushroom will restore your strength. Your strength
+D:needs restoring when it is displayed in yellow.
+
+N:19:Disease
+G:,:d
+I:80:11:500
+W:20:0:1:50
+P:0:10d10:0:0:0
+A:20/1
+D:'E'ating this mushroom will reduce your strength by one point.
+D:It will also damage you quite severely in the process.
+D:That's a bad thing.
+
+N:20:Cure Serious Wounds
+G:,:d
+I:80:16:500
+W:15:0:1:75
+P:0:0d0:0:0:0
+A:15/1
+D:'E'ating this mushroom will heal an amount of hit points. Your hit pointsF
+D:need healing when they are displayed in yellow.
+
 ##### Normal Food #####
 N:21:& Ration~ of Cram
 G:,:U
@@ -42,6 +226,57 @@ D:It is biscuitish, keeps good indefinitely, is supposed to be sustaining but
 D:certainly not entertaining. Its origin is Esgaroth, the city of Lake-men.
 D:You can 'E'at it.
 
+N:22:& Round Seed-Cake~
+G:,:U
+I:80:32:500
+W:0:0:2:1
+P:0:0d0:0:0:0
+A:
+D:It's a treat, but 'E'ating it will only fill your stomach for a short time.
+
+N:23:& Strip~ of Venison
+G:,:u
+I:80:33:1500
+W:0:0:2:2
+P:0:0d0:0:0:0
+A:
+D:It looks great, and 'E'ating will fill your stomach well.
+
+N:24:& Slime Mold~
+G:,:g
+I:80:36:3000
+W:1:0:5:2
+P:0:0d0:0:0:0
+A:1/1
+D:It looks disgusting, if you really want to you can 'E'at it.
+D:Not an incredible taste experience, but that'd be asking a bit much.
+
+# New - now Lembas works as a scroll of Satisfy Hunger
+N:25:& Lembas~
+G:,:B
+I:80:37:0
+W:5:0:3:10
+P:0:0d0:0:0:0
+A:10/1:20/1:5/1
+D:Small golden-brown wafers wrapped in silver leaves. Its fabrication is a 
+D:secret of the Elves, and it sustains life where nothing else can. If you 
+D:'E'at it, you will be full.
+
+N:26:& Pint~ of Fine Ale
+G:,:y
+I:80:38:500
+W:0:0:5:1
+P:0:0d0:0:0:0
+A:
+D:A bottle of a dark beer-like beverage from Eriador. You can drink it by pressing 'E'.
+
+N:27:& Pint~ of Old Winyards
+G:,:r
+I:80:39:1000
+W:0:0:10:2
+P:0:0d0:0:0:0
+A:
+D:A bottle of fine wine from Eriador. You can drink it by pressing 'E'.
 
 ##### Extra digger #####
 N:28:& Mattock~
@@ -61,7 +296,7 @@ I:40:18:0
 W:60:0:3:90000
 P:0:0d0:0:0:0
 A:
-F:INSTA_ART | 
+F:INSTA_ART | SPECIAL_GENE
 
 ##### Edged Weapons #####
 N:30:& Broken Dagger~
@@ -77,7 +312,7 @@ N:31:& Hand and a Half Sword~
 G:|:W
 I:23:21:0
 W:15:0:140:350
-P:0:4d4:0:0:0
+P:0:3d4:0:0:0
 A:15/1
 F:COULD2H | SHOW_MODS
 f:COULD2H
@@ -92,7 +327,7 @@ N:32:& Scimitar~
 G:|:W
 I:23:18:0
 W:10:0:130:250
-P:0:4d3:0:0:0
+P:0:2d5:0:0:0
 A:10/1
 F:SHOW_MODS
 D:This oriental blade has 2 edges and is deeply curved. It has a wide
@@ -111,7 +346,7 @@ N:34:& Broad Sword~
 G:|:W
 I:23:16:0
 W:10:0:150:255
-P:0:4d3:0:0:0
+P:0:2d5:0:0:0
 A:10/1:15/1
 F:SHOW_MODS | 
 D:This broader version of the long sword is a standard weapon in the army
@@ -145,7 +380,7 @@ N:37:& Two-Handed Sword~
 G:|:W
 I:23:25:0
 W:30:0:200:775
-P:0:4d6:0:0:0
+P:0:3d6:0:0:0
 A:30/1:40/1
 F:MUST2H | SHOW_MODS
 f:MUST2H
@@ -157,7 +392,7 @@ N:38:& Main Gauche~
 G:|:W
 I:23:5:0
 W:3:0:30:25
-P:0:2d3:0:0:0
+P:0:1d5:0:0:0
 A:3/1
 F:SHOW_MODS
 D:This blade is sinuously curved and tipped with a harpoon-like end.
@@ -168,7 +403,7 @@ N:39:& Cutlass~
 G:|:W
 I:23:12:0
 W:5:0:110:85
-P:0:2d5:0:0:0
+P:0:1d7:0:0:0
 A:5/1
 F:SHOW_MODS
 D:This oriental weapon is a short, thick, curving sword
@@ -206,7 +441,7 @@ N:42:& Long Sword~
 G:|:W
 I:23:17:0
 W:10:0:130:300
-P:0:3d4:0:0:0
+P:0:2d5:0:0:0
 A:10/1:20/1
 F:SHOW_MODS
 D:A long straight sword, tapering to a pronounced point. Mainly good for
@@ -217,7 +452,7 @@ N:43:& Dagger~
 G:|:W
 I:23:4:0
 W:0:0:12:10
-P:0:1d5:0:0:0
+P:0:1d4:0:0:0
 A:0/1:10/1:20/1:5/1
 F:SHOW_MODS | THROWING
 D:It's the standard weapon of rogues and thieves.  The blade is
@@ -227,7 +462,7 @@ N:44:& Rapier~
 G:|:W
 I:23:7:0
 W:5:0:40:42
-P:0:2d4:0:0:0
+P:0:1d6:0:0:0
 A:5/1
 F:SHOW_MODS
 D:The rapier's hilt consisted of a pair of oval guards pierced with holes,
@@ -238,7 +473,7 @@ N:45:& Sabre~
 G:|:W
 I:23:11:0
 W:5:0:50:50
-P:0:3d3:0:0:0
+P:0:1d7:0:0:0
 A:5/1
 F:SHOW_MODS
 D:A long, one-edged, slightly curved sword with a knuckle guard and short
@@ -248,7 +483,7 @@ N:46:& Small Sword~
 G:|:W
 I:23:8:0
 W:5:0:75:48
-P:0:1d8:0:0:0
+P:0:1d6:0:0:0
 A:5/1
 F:SHOW_MODS
 D:It's the favourite weapon of strong mages and thieves, the blade is
@@ -259,7 +494,7 @@ N:47:& Broken Sword~
 G:|:D
 I:23:2:0
 W:0:0:30:2
-P:0:2d2:-2:-4:0
+P:0:1d2:-2:-4:0
 A:0/2:5/2
 F:SHOW_MODS
 D:Just a hilt and a few inches of blade, broken off in a jagged stump.
@@ -270,7 +505,7 @@ N:48:& Ball-and-Chain~
 G:\:D
 I:21:6:0
 W:20:0:150:200
-P:0:4d3:0:0:0
+P:0:2d4:0:0:0
 A:20/1
 F:COULD2H | SHOW_MODS
 f:COULD2H
@@ -281,7 +516,7 @@ N:49:& Whip~
 G:\:D
 I:21:2:0
 W:3:0:30:30
-P:0:1d4:0:0:0
+P:0:1d6:0:0:0
 A:3/1
 F:SHOW_MODS
 D:This weapon is light and easy to fight with. It has nasty barbs and
@@ -304,7 +539,7 @@ N:51:& Two-Handed Flail~
 G:\:y
 I:21:18:0
 W:45:0:280:590
-P:0:4d6:0:0:0
+P:0:2d6:0:0:0
 A:45/1
 F:MUST2H | SHOW_MODS
 f:MUST2H
@@ -316,7 +551,7 @@ N:52:& Morning Star~
 G:\:D
 I:21:12:0
 W:10:0:150:396
-P:0:5d3:0:0:0
+P:0:2d6:0:0:0
 A:10/1
 F:SHOW_MODS
 D:This weapon consists of a large club with chains that have wooden balls
@@ -326,7 +561,7 @@ N:53:& Mace~
 G:\:D
 I:21:5:0
 W:5:0:120:130
-P:0:3d4:0:0:0
+P:0:2d4:0:0:0
 A:5/1
 F:COULD2H | SHOW_MODS
 f:COULD2H
@@ -337,7 +572,7 @@ N:54:& Quarterstaff~
 G:\:U
 I:21:3:0
 W:10:0:150:200
-P:5:3d3:0:0:0
+P:5:1d9:0:0:0
 A:10/1
 F:COULD2H | SHOW_MODS
 f:COULD2H
@@ -351,7 +586,7 @@ N:55:& War Hammer~
 G:\:D8
 I:21:8:0
 W:5:0:120:225
-P:0:3d5:0:0:0
+P:0:3d3:0:0:0
 A:5/1
 F:COULD2H | SHOW_MODS
 f:COULD2H
@@ -361,7 +596,7 @@ N:56:& Lead-Filled Mace~
 G:\:D
 I:21:15:0
 W:15:0:180:502
-P:0:4d6:0:0:0
+P:0:3d4:0:0:0
 A:15/1
 F:COULD2H | SHOW_MODS
 f:COULD2H
@@ -371,7 +606,7 @@ N:57:& Mace~ of Disruption
 G:\:v
 I:21:20:0
 W:80:0:400:4300
-P:0:6d6:0:0:0
+P:0:5d8:0:0:0
 A:80/5
 F:MUST2H | SHOW_MODS | SLAY_UNDEAD
 f:MUST2H | SLAY_UNDEAD
@@ -382,7 +617,7 @@ N:58:& Lucerne Hammer~
 G:\:B
 I:21:10:0
 W:10:0:120:376
-P:0:4d5:0:0:0
+P:0:2d5:0:0:0
 A:10/1
 F:COULD2H | SHOW_MODS
 f:COULD2H
@@ -403,7 +638,7 @@ N:60:& Glaive~
 G:/:s
 I:22:13:0
 W:20:0:190:363
-P:5:3d5:0:0:0
+P:5:2d6:0:0:0
 A:20/1
 F:COULD2H | SHOW_MODS
 f:COULD2H
@@ -417,7 +652,7 @@ N:61:& Halberd~
 G:/:s
 I:22:15:0
 W:25:0:190:430
-P:10:3d7:0:0:0
+P:10:3d5:0:0:0
 A:25/1
 F:COULD2H | SHOW_MODS
 f:COULD2H
@@ -455,7 +690,7 @@ N:64:& Spear~
 G:/:s
 I:22:2:0
 W:5:0:50:36
-P:12:2d4:0:0:0
+P:12:1d6:0:0:0
 A:5/1
 F:SHOW_MODS | THROWING
 D:Spears tend to have a strong, wide, leaf-shaped head with a ridge down the
@@ -468,7 +703,7 @@ N:65:& Trident~
 G:/:y
 I:22:5:0
 W:5:0:70:120
-P:4:2d5:0:0:0
+P:4:1d8:0:0:0
 A:5/1
 F:COULD2H | SHOW_MODS | THROWING
 f:COULD2H
@@ -481,7 +716,7 @@ N:66:& Lance~
 G:/:s
 I:22:20:0
 W:10:0:300:230
-P:4:4d6:0:0:0
+P:4:2d8:0:0:0
 A:10/1
 F:MUST2H | SHOW_MODS
 f:MUST2H
@@ -514,7 +749,7 @@ N:69:& Lochaber Axe~
 G:\:D
 I:24:28:0
 W:45:0:250:750
-P:0:4d6:0:0:0
+P:0:3d8:0:0:0
 A:45/1
 F:COULD2H | SHOW_MODS
 f:COULD2H
@@ -1132,7 +1367,7 @@ I:45:24:0
 W:30:0:2:500
 P:0:0d0:0:0:0
 A:30/1
-F:HIDE_TYPE | IGNORE_ACID | IGNORE_COLD | IGNORE_ELEC | IGNORE_FIRE | STR | SUST_STR
+F:HIDE_TYPE | IGNORE_ACID | IGNORE_COLD | IGNORE_ELEC | IGNORE_FIRE | STR | SUST_STR | 
 f:STR
 D:This bauble magically improves your strength.
 
@@ -1499,6 +1734,13 @@ A:15/1
 D:This scroll will try to enchant a piece of armour in your possession, making it more effective
 D:in protecting you. Highly enchanted armour is likely not to accept this enchantment, however.
 
+N:176:Identify
+G:?:d
+I:70:12:0
+W:1:0:5:50
+P:0:0d0:0:0:0
+A:1/1:10/1:30/1:5/1
+D:If you read this scroll, the identity of an item you specify will be laid open to you.
 
 N:177:*Identify*
 G:?:d
@@ -1888,7 +2130,15 @@ A:25/1
 D:This incantation lets you fight as a warrior of Valinor for quite a while, supreme in attack and
 D:defence.
 
-
+N:220:Word of Recall
+G:?:d
+I:70:11:0
+W:5:0:5:150
+P:0:0d0:0:0:0
+A:5/1
+D:The spell on this scroll will slowly build an ethereal conduit to the surface for you if you are in
+D:a dungeon, and into the dungeon if you are above ground. Upon completion, which takes a while, you
+D:will suddenly be translocated to the other place.
 
 N:221:*Destruction*
 G:?:d
@@ -2453,7 +2703,7 @@ I:65:18:-1:SPELL=Essence of Speed
 W:25:0:10:100
 A:25/2
 P:0:1d1:0:0:0
-F:SPEED
+
 
 N:286:Banishment
 G:-:d
@@ -2555,7 +2805,7 @@ I:55:23:-1:SPELL=Artifact Thunderlords
 W:50:0:10:12000
 P:0:1d4:0:0:0
 A:50/200
-F:EASY_USE | FULL_NAME | NORM_ART | NO_RECHARGE | RECHARGED | 
+F:EASY_USE | FULL_NAME | NORM_ART | NO_RECHARGE | RECHARGED | SPECIAL_GENE
 D:Blow this horn if you are in dire need of leaving your current location fast.
 
 # XXX
@@ -2605,7 +2855,7 @@ I:55:6:-1:SPELL=Wings of Winds
 W:25:0:50:100
 A:25/2
 P:0:1d2:0:0:0
-F:SPEED
+
 
 
 N:306:Shake
@@ -2631,7 +2881,13 @@ A:20/1
 P:0:1d2:0:0:0
 F:TELEPORT
 
-
+N:309:Probability Travel
+G:_:d
+I:55:10:-1:SPELL=Probability Travel
+W:50:0:50:100
+A:50/3
+P:0:1d2:0:0:0
+F:TELEPORT
 
 N:310:Recovery
 G:_:d
@@ -2662,7 +2918,6 @@ I:55:14:-1:SPELL=Identify
 W:10:0:50:100
 A:10/1
 P:0:1d2:0:0:0
-F:SPECIAL_GENE
 
 N:314:Sense Hidden
 G:_:d
@@ -2878,7 +3133,14 @@ F:IGNORE_ACID | IGNORE_COLD | IGNORE_ELEC | IGNORE_FIRE
 D:A rod of knowledge which will tell you about nearby creatures' health.
 D:If they are sleeping, the intrusion will wake them.
 
-
+N:354:Recall
+G:-:d
+I:66:3:80
+W:30:0:15:4500
+P:0:1d1:0:0:0
+A:30/4
+F:IGNORE_ACID | IGNORE_COLD | IGNORE_ELEC | IGNORE_FIRE
+D:A rod which can transport you from the depths to your home and back.
 
 N:355:Illumination
 G:-:d
@@ -3607,6 +3869,42 @@ A:10/1
 F:FOUNTAIN
 D:This unhealthy drink damages your health, reducing your physical constitution.
 
+###### Here start the maps #####
+# Map of Bree
+N:440:Map of Bree
+G:?:s
+I:8:200:0
+W:3:0:5:100
+P:0:0d0:0:0:0
+A:3/3
+D:A map, showing the town of Bree and the landscape around it.
+
+# Map of Gondolin
+N:441:Map of Gondolin
+G:?:s
+I:8:201:0
+W:70:0:5:50000
+P:0:0d0:0:0:0
+A:70/3
+D:A map detailing the place of the hidden city of Gondolin. 
+
+# Map of Lothlorien
+N:442:Map of Lothlorien
+G:?:s
+I:8:202:0
+W:6:0:5:1000
+P:0:0d0:0:0:0
+A:6/3
+D:A map vaguely describing the forest of Lothlorien and the elven settlements therein.
+
+# Map of Minas Anor
+N:443:Map of Minas Anor
+G:?:s
+I:8:203:0
+W:36:0:5:10000
+P:0:0d0:0:0:0
+A:36/3
+D:A map of the great city of Gondor.
 
 # XXX Numbers 444-464 unused #
 N:465:& Silver Arrow~
@@ -3754,7 +4052,7 @@ I:45:57:0
 W:70:0:2:65000
 P:0:0d0:0:0:0
 A:
-F:INSTA_ART | 
+F:INSTA_ART | SPECIAL_GENE
 
 ##### And here starts the gold/gems #####
 N:480:copper
@@ -3893,7 +4191,7 @@ I:21:50:0
 W:15:0:200:1000
 P:0:10d10:0:0:0
 A:
-F:INSTA_ART | MUST2H | SHOW_MODS | 
+F:INSTA_ART | MUST2H | SHOW_MODS | SPECIAL_GENE
 f:MUST2H
 
 N:499:& Massive Iron Crown~
@@ -3902,7 +4200,7 @@ I:33:50:0
 W:44:0:20:1000
 P:0:1d1:0:0:0
 A:
-F:INSTA_ART | 
+F:INSTA_ART | SPECIAL_GENE
 
 ##### Objects 500 to 511 are "Special Artifacts" #####
 # These objects do not specify "full names" because the artifact name
@@ -4004,7 +4302,7 @@ I:45:34:0
 W:80:0:2:100000
 P:0:0d0:0:0:0
 A:
-F:INSTA_ART | 
+F:INSTA_ART | SPECIAL_GENE
 
 # The Ring of Power 'Nenya' -- see artifact list
 N:509:& Ring~
@@ -4141,7 +4439,7 @@ N:528:& Trifurcate Spear~
 G:/:o
 I:22:26:0
 W:35:0:140:400
-P:5:3d7:0:0:0
+P:5:2d9:0:0:0
 A:35/3
 F:SHOW_MODS
 D:This deadly spear's point has three branches, suited for inflicting
@@ -4238,7 +4536,7 @@ N:542:& Club~
 G:\:u
 I:21:1:0
 W:0:0:100:3
-P:0:3d2:0:0:0
+P:0:1d4:0:0:0
 A:0/1
 F:SHOW_MODS
 D:A stout heavy stick, thicker at one end. Useful for
@@ -4304,7 +4602,7 @@ N:548:& Great Scimitar~
 G:|:W
 I:23:22:0
 W:40:0:240:500
-P:0:5d4:0:0:0
+P:0:4d5:0:0:0
 A:40/3
 F:MUST2H | SHOW_MODS
 f:MUST2H
@@ -4336,7 +4634,7 @@ N:551:& Fauchard~
 G:/:s
 I:22:6:0
 W:18:0:155:301
-P:8:3d4:0:0:0
+P:8:1d10:0:0:0
 A:18/2
 F:COULD2H | SHOW_MODS
 f:COULD2H
@@ -4358,7 +4656,7 @@ N:553:& Heavy Lance~
 G:/:s
 I:22:29:0
 W:43:0:400:700
-P:5:6d8:0:0:0
+P:5:4d8:0:0:0
 A:43/2
 F:MUST2H | SHOW_MODS
 f:MUST2H
@@ -4472,7 +4770,12 @@ W:1:0:5:2
 A:1/1
 P:0:1d1:0:0:0
 
-
+N:565:Poison
+G:*:G
+I:4:1:5
+W:0:0:4:2
+A:0/1
+P:0:1d1:0:0:0
 
 N:566:Nothing
 G:-:d
@@ -4510,9 +4813,19 @@ W:5:0:10:50
 P:0:1d1:0:0:0
 A:5/1
 
+N:570:Explosion
+G:*:G
+I:4:2:50
+W:0:0:4:2
+A:0/1:20/1:40/1:60/1
+P:0:1d1:0:0:0
 
-
-
+N:571:Teleport
+G:*:G
+I:4:3:190
+W:0:0:4:2
+A:5/1:20/1:40/1:60/1
+P:0:1d1:0:0:0
 
 N:572:Nothing
 G:":d
@@ -4532,9 +4845,26 @@ F:FULL_NAME | NORM_ART
 D:This magical potion contains a small part of the power of
 D:Eru Iluvatar on Middle-Earth.
 
+N:574:Cold
+G:*:G
+I:4:4:200
+W:0:0:4:2
+A:5/1:20/1:40/1:60/1
+P:0:1d1:0:0:0
 
+N:575:Fire
+G:*:G
+I:4:5:200
+W:0:0:4:2
+A:5/1:20/1:40/1:60/1
+P:0:1d1:0:0:0
 
-
+N:576:Acid
+G:*:G
+I:4:6:200
+W:0:0:4:2
+A:6/1:20/1:40/1:60/1
+P:0:1d1:0:0:0
 
 # XXX
 # XXX
@@ -4564,7 +4894,26 @@ a:HARDCORE=BA_ELEC_4
 D:This sparkling circlet grants you protection, makes electricity less
 D:dangerous and even allows you to call forth a ball of lightning.
 
+N:579:Life
+G:*:G
+I:4:7:300
+W:0:0:4:2
+A:0/1:20/1:40/1:60/1
+P:0:1d1:0:0:0
 
+N:580:Confusion
+G:*:G
+I:4:8:100
+W:0:0:4:2
+A:0/1:20/1:40/1:60/1
+P:0:1d1:0:0:0
+
+N:581:Light
+G:*:G
+I:4:9:60
+W:0:0:4:2
+A:0/1:20/1:40/1:60/1
+P:0:1d1:0:0:0
 
 # XXX
 # XXX
@@ -4583,7 +4932,13 @@ F:FOUNTAIN
 D:This magical brew will temporarily hide you from sight, and also attunes you to this state so
 D:that your eyes can still perceive your hidden form.
 
-
+N:584:Chaos
+G:*:G
+I:4:10:200
+W:20:0:4:2
+A:20/1
+P:0:1d1:0:0:0
+F:ATTR_MULTI
 
 # Potion of Corruption
 N:585:Corruption
@@ -4606,7 +4961,12 @@ F:HIDE_TYPE | IGNORE_ACID | IGNORE_COLD | IGNORE_ELEC | IGNORE_FIRE | INVIS
 f:INVIS
 D:This magical bauble will hide you from sight.
 
-
+N:587:Time
+G:*:G
+I:4:11:600
+W:20:0:4:2
+A:20/1:40/1:60/1
+P:0:1d1:0:0:0
 
 # XXX
 ######### Here are the parchments ########
@@ -4899,7 +5259,12 @@ D:Combined with proper skill, this cloak can make you seem
 D:like a different creature. Otherwise, it just provides some
 D:extra protection.
 
-
+N:640:Magic
+G:*:G
+I:4:12:700
+W:20:0:4:2
+A:30/1:50/1:80/1
+P:0:1d1:0:0:0
 
 # XXX
 # XXX
@@ -4985,7 +5350,7 @@ I:39:106:0
 W:15:0:15:20000
 P:0:0d0:0:0:0
 A:
-F:INSTA_ART | 
+F:INSTA_ART | SPECIAL_GENE
 
 # Here are the boomerangs
 N:648:& Small Wooden Boomerang~
@@ -5185,7 +5550,14 @@ A:15/1:25/1:35/1:5/1
 F:ACTIVATE | ACTIVATE_NO_WIELD
 
 ### Two more scrolls ###
-
+N:677:Reset Recall
+G:?:d
+I:70:23:0
+W:20:0:5:125
+P:0:0d0:0:0:0
+A:20/1:25/1:35/1
+D:A strange formula is inscribed on this scroll, which allows you to define another place as the
+D:location to which recalls shall move you.
 
 N:678:Divination
 G:?:d
@@ -5196,9 +5568,193 @@ A:30/1:45/1:55/1
 D:This scroll is inscribed with a ritual which allows you to discern what fate holds in store for
 D:you.
 
+### Here comes the Runes ###
+N:679:Self
+G:?:b
+I:105:0:0
+W:3:0:2:40
+P:0:1d1:0:0:0
+A:3/1
+F:EASY_KNOW
+D:A rune signifying the caster.
 
+N:680:Ray
+G:?:b
+I:105:2:0
+W:10:0:2:300
+P:0:1d1:0:0:0
+A:10/1
+F:EASY_KNOW | IGNORE_COLD | IGNORE_ELEC
+D:A rune signifying a beam or ray.
 
+N:681:Sphere
+G:?:b
+I:105:3:0
+W:15:0:2:1000
+P:0:1d1:0:0:0
+A:15/1
+F:EASY_KNOW | IGNORE_COLD | IGNORE_ELEC | IGNORE_FIRE
+D:A rune signifying a ball or sphere.
 
+N:682:Knowledge
+G:?:b
+I:104:91:0
+W:6:0:2:200
+P:0:1d1:0:0:0
+A:6/1
+F:EASY_KNOW
+D:A rune signifying knowledge.
+
+N:683:Life
+G:?:D
+I:104:53:0
+W:3:0:2:200
+P:0:1d1:0:0:0
+A:3/1
+F:EASY_KNOW
+D:A rune signifying life.
+
+N:684:Fire
+G:?:r
+I:104:5:0
+W:10:0:2:300
+P:0:1d1:0:0:0
+A:10/1
+F:EASY_KNOW | IGNORE_FIRE
+D:A rune signifying flame.
+
+N:685:Cold
+G:?:b
+I:104:4:0
+W:12:0:2:300
+P:0:1d1:0:0:0
+A:12/1
+F:EASY_KNOW | IGNORE_COLD
+D:A rune signifying cold.
+
+N:686:Lightning
+G:?:W
+I:104:1:0
+W:13:0:2:300
+P:0:1d1:0:0:0
+A:13/1
+F:EASY_KNOW | IGNORE_ELEC
+D:A rune signifying a lightning beam.
+
+N:687:Acid
+G:?:B
+I:104:3:0
+W:16:0:2:300
+P:0:1d1:0:0:0
+A:16/1
+F:EASY_KNOW | IGNORE_ACID
+D:A rune signifying acid.
+
+N:688:Element
+G:?:g
+I:104:10:0
+W:23:0:2:1000
+P:0:1d1:0:0:0
+A:23/1
+F:EASY_KNOW | IGNORE_ACID | IGNORE_COLD | IGNORE_ELEC | IGNORE_FIRE
+D:A rune signifying an element.
+
+N:689:Chaos
+G:?:v
+I:104:30:0
+W:26:0:2:2000
+P:0:1d1:0:0:0
+A:26/1
+F:ATTR_MULTI | EASY_KNOW | IGNORE_ACID | IGNORE_COLD | IGNORE_ELEC | IGNORE_FIRE
+D:A rune signifying raw chaos.
+
+N:690:Mind
+G:?:D
+I:104:85:0
+W:19:0:2:3000
+P:0:1d1:0:0:0
+A:19/1
+F:EASY_KNOW | IGNORE_ELEC
+D:A rune signifying the mind.
+
+N:691:Holding
+G:?:B
+I:104:75:0
+W:5:0:2:500
+P:0:1d1:0:0:0
+A:5/1
+F:EASY_KNOW | IGNORE_ACID
+D:A rune signifying the action of holding, or sleep.
+
+N:692:Arrow
+G:?:b
+I:105:1:0
+W:6:0:2:100
+P:0:1d1:0:0:0
+A:6/1
+F:EASY_KNOW | IGNORE_ELEC
+D:A rune signifying an arrow.
+
+N:693:Power Surge
+G:?:b
+I:105:4:0
+W:50:0:2:5000
+P:0:1d1:0:0:0
+A:50/1
+F:EASY_KNOW | IGNORE_ACID | IGNORE_COLD | IGNORE_ELEC | IGNORE_FIRE
+D:A rune signifying a powerful surge.
+
+N:694:Armageddon
+G:?:b
+I:105:5:0
+W:30:0:2:4000
+P:0:1d1:0:0:0
+A:30/1
+F:EASY_KNOW | IGNORE_ACID | IGNORE_COLD | IGNORE_ELEC | IGNORE_FIRE
+D:A rune signifying a powerful blast.
+
+N:695:Gravity
+G:?:G
+I:104:35:0
+W:16:0:2:300
+P:0:1d1:0:0:0
+A:16/1
+F:EASY_KNOW | IGNORE_ACID
+D:A rune signifying the forces of gravity.
+
+N:696:Extra Life
+G:*:G
+I:4:13:900
+W:50:0:4:2
+A:50/1:70/1:90/1
+P:0:1d1:0:0:0
+
+# XXX
+N:697:Undeath
+G:?:G
+I:104:92:0
+W:35:0:2:1000
+P:0:1d1:0:0:0
+A:35/1
+F:EASY_KNOW | IGNORE_ACID
+D:A rune signifying undeath.
+
+N:698:Protection
+G:?:G
+I:104:74:0
+W:45:0:2:1500
+P:0:1d1:0:0:0
+A:45/1
+F:EASY_KNOW | IGNORE_ACID
+D:A rune signifying protection.
+
+N:699:Cloud
+G:?:b
+I:105:6:0
+W:40:5:2:4500
+A:40/1
+P:0:1d1:0:0:0
+F:IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD | IGNORE_ACID
 
 # XXX
 # The Ring of Precognition (now a k_info.txt artifact)
@@ -5255,7 +5811,7 @@ N:721:& Dark Sword~
 G:|:D
 I:23:33:0
 W:25:0:70:500
-P:0:3d6:0:0:0
+P:0:3d7:0:0:0
 A:25/1:80/2
 F:ANTIMAGIC_50 | SHOW_MODS | BRAND_DARK
 f:ANTIMAGIC_50
@@ -5375,7 +5931,7 @@ I:45:54:0
 W:20:0:2:16000
 P:0:0d0:0:0:0
 A:20/3
-F:EASY_KNOW | FLY | IGNORE_ACID | IGNORE_COLD | IGNORE_ELEC | IGNORE_FIRE
+F:EASY_KNOW | FLY | IGNORE_ACID | IGNORE_COLD | IGNORE_ELEC | IGNORE_FIRE | 
 f:FLY
 D:This ring is imbued with the power of eagles. It grants you the power of flight.
 
@@ -5493,7 +6049,7 @@ I:45:55:0
 W:110:0:2:300000
 P:0:0d0:0:0:0
 A:110/5
-F:INSTA_ART | 
+F:INSTA_ART | SPECIAL_GENE
 
 N:771:& Holy Tome~ of Mandos
 G:?:w
@@ -5524,7 +6080,7 @@ N:777:& Shadow Blade~
 G:|:D
 I:23:32:1
 W:50:0:45:2000
-P:0:2d5:-2:2:0
+P:0:4d4:-2:2:0
 A:48/4:60/2:80/1
 F:IGNORE_ACID | RES_DARK | STEALTH | BRAND_DARK
 f:STEALTH
@@ -5553,7 +6109,45 @@ D:A petrified serpent's tongue, hung on a thin chain to be clasped around your n
 D:like a snake, able to wriggle out of tight corners, impervious to poisons and poisonous
 D:yourself.
 
+N:780:Darkness
+G:*:G
+I:4:14:20
+W:0:0:4:1
+A:0/1:20/1:40/1
+P:0:1d1:0:0:0
+D:It's a gem that eats all light that reaches it.  It's perfectly black.
 
+N:781:Knowledge
+G:*:G
+I:4:15:100
+W:0:0:4:1
+A:20/1:30/1:70/1
+P:0:1d1:0:0:0
+D:It's a blue gem with countless formulae scribbled on it.
+
+N:782:Force
+G:*:G
+I:4:16:180
+W:0:0:4:1
+A:10/1:40/1
+P:0:1d1:0:0:0
+D:It's a green gem that can barely contain the forces in it.
+
+N:783:Lightning
+G:*:G
+I:4:17:200
+W:0:0:4:1
+A:28/1
+P:0:1d1:0:0:0
+D:It's a white gem.  Inside you see lightning rage.
+
+N:784:Mana
+G:*:G
+I:4:18:400
+W:0:0:4:1
+A:45/2
+P:0:1d1:0:0:0
+D:It's an everchanging gem.  You feel the magic throbbing through it.
 # XXX
 # XXX
 # XXX
@@ -5596,7 +6190,7 @@ N:788:& Maiablade~
 G:|:R
 I:115:55:0
 W:10:0:150:500
-P:0:3d8:0:0:0
+P:0:4d6:0:0:0
 A:10/1
 F:SHOW_MODS | SLAY_DEMON | WIELD_CAST | ACTIVATE
 
@@ -5622,17 +6216,17 @@ F:LITE2 | WIELD_CAST
 N:791:& Maiaclaw~
 G:]:R
 I:115:78:0
-W:20:0:30:500
+W:30:0:30:500
 P:3:1d1:4:4:0
-A:20/1
+A:30/1
 F:WIELD_CAST | RES_FIRE
 
 N:792:& Maia Hooves~
 G:]:R
 I:115:97:2
-W:20:0:30:500
+W:50:0:30:500
 P:3:1d1:0:0:0
-A:40/1
+A:50/1
 F:WIELD_CAST | SPEED
 
 # XXX
@@ -5756,9 +6350,23 @@ F:SHOW_MODS | SLAY_ANIMAL
 D:A huge axe, the sort used for slaughtering animals, this weapon is unusually deadly against
 D:natural creatures.
 
+N:806:& Runestone~
+G:?:v
+I:105:255:0
+W:10:0:2:300
+P:0:1d1:0:0:0
+A:10/3:20/2:30/1:60/1
+F:IGNORE_ACID | IGNORE_COLD | IGNORE_ELEC | IGNORE_FIRE
+D:A small oval stone. One surface is flat, as if something ought to be scratched or inscribed into
+D:it.
 
-
-
+N:807:& Fortune cookie~
+G:,:U
+I:80:42:500
+W:0:0:2:10
+P:0:0d0:0:0:0
+A:0/1:10/1:5/1
+D:A small, sweet bakery product, with a scrap of paper inside.
 
 # XXX was the Portable Hole
 N:808:Portable hole
@@ -5939,11 +6547,40 @@ A:1/1
 D:It's chewing tobacco, and not very nutritious. It is said to 
 D:contain great stress-relieving properties.
 
+#Prized at stores :P
+N:832:& Ear~ of Corn
+G:,:y
+I:80:32:500
+W:1:0:2:1
+P:0:0d0:0:0:0
+A:5/1
+D:It's raw, and you don't have any means of cooking it, but it 
+D:can provide sustenance just like any other food. 
 
+N:833:& Tater~
+G:.:U
+I:80:32:300
+W:1:0:2:5
+P:0:0d0:0:0:0
+A:1/1
+D:A small round potato, it looks good to 'E'at. Might 
+D:go well with rabbit stew.
 
+N:834:& Strawberry~
+G:.:R
+I:80:32:300
+W:1:0:2:8
+P:0:0d0:0:0:0
+A:1/1
+D:A small red berry, it smells delicious. You can 'E'at it.
 
-
-
+N:835:& Turnip~
+G:.:w
+I:80:32:500
+W:1:0:2:10
+P:0:0d0:0:0:0
+A:1/1
+D:A round, tart-smelling vegetable. You can 'E'at it.
 
 N:836:& Jar~ of Honey
 G:~:y
@@ -6032,7 +6669,118 @@ P:0:0d0:0:0:0
 A:30/1
 D:This scroll humanely neuters all nearby monsters.
 
+### Maps ###
+### Massimiliano Marangio's map ###
+N:847:Map of Middle-earth
+G:?:s
+I:8:204:0
+W:70:0:30:100000
+P:0:0d0:0:0:0
+A:70/3
+D:A large map describing all lands of Middle-earth.
 
+# Map of Edoras
+N:848:Map of Edoras
+G:?:s
+I:8:205:0
+W:10:0:5:500
+P:0:0d0:0:0:0
+A:
+D:A map of the capital city of Rohan.
+
+# Map of Esgaroth
+N:849:Map of Esgaroth
+G:?:s
+I:8:206:0
+W:15:0:5:1500
+P:0:0d0:0:0:0
+A:
+D:A map of the city upon the Long Lake at the foot 
+D:of the Lonely Mountain.
+
+# Map of Hobbiton
+N:850:Map of Hobbiton
+G:?:s
+I:8:207:0
+W:5:0:5:150
+P:0:0d0:0:0:0
+A:
+D:A map of the famous Halfling village.
+
+# Map of Osgiliath
+N:851:Map of Osgiliath
+G:?:s
+I:8:208:0
+W:25:0:5:10000
+P:0:0d0:0:0:0
+A:
+D:A map of the proud stronghold of Gondor.
+
+# Map of Pelargir
+N:852:Map of Pelargir
+G:?:s
+I:8:209:0
+W:25:0:5:10000
+P:0:0d0:0:0:0
+A:
+D:A map of the great city of Men at the mouth 
+D:of the Anduin river.
+
+# Map of Beorn's domain
+N:853:Map of Beorn's domain
+G:?:s
+I:8:210:0
+W:20:0:5:3000
+P:0:0d0:0:0:0
+A:
+D:A map showing the location of the house of Beorn.
+
+# Map of Dale
+N:854:Map of Dale
+G:?:s
+I:8:211:0
+W:10:0:5:200
+P:0:0d0:0:0:0
+A:
+D:A map of the area where Dale is being rebuilt.
+
+# Map of Henneth Annun
+N:855:Map of Henneth Annun
+G:?:s
+I:8:212:0
+W:70:0:5:30000
+P:0:0d0:0:0:0
+A:
+D:A map showing the secret location of the Ranger 
+D:outpost in Ithilien.
+
+# Map of Helm's Deep
+N:856:Map of Helm's Deep
+G:?:s
+I:8:213:0
+W:50:0:5:3000
+P:0:0d0:0:0:0
+A:
+D:A map showing the location of the greatest 
+D:fortress in Rohan.
+
+# Map of Thranduil's realm
+N:857:Map of Thranduil's realm
+G:?:s
+I:8:214:0
+W:60:0:5:8000
+P:0:0d0:0:0:0
+A:
+D:A map showing the location of the secret realm 
+D:of the Wood-elves.
+
+# Map of Imladris
+N:858:Map of Imladris
+G:?:s
+I:8:215:0
+W:60:0:5:9000
+P:0:0d0:0:0:0
+A:
 
 ### Axes from T-Plus ###
 N:859:& Bearded Axe~
@@ -6121,6 +6869,31 @@ F:IGNORE_ACID
 D:A sturdy shield made of a metal alloy, with a mithril 
 D:coating.
 
+### Artifacts ###
+# New artifacts needed for Erebor quest
+N:867:Map
+G:?:U
+I:8:33:0
+W:70:0:30:50000
+P:0:0d0:0:0:0
+A:
+F:INSTA_ART
+D:At first glance, this looks like another crumpled piece of paper. 
+D:As you smooth out the parchment, you see the faint outline of a 
+D:map... You have a feeling you might find use for this map one day.
+D:Better hang on to it, you never know when you might need it.
+
+N:868:& Key~
+G:-:W
+I:11:13:0
+W:70:0:5:50000
+P:0:0d0:0:0:0
+A:
+F:INSTA_ART
+D:As you clear away some mud from this item, you notice that it is 
+D:actually a small silver key. You wonder what it opens. Perhaps 
+D:you should hang on to this key, you might find it useful later.
+D:Better hang on to it, you never know when you might need it.
 
 # New artifact that acts as a junkart
 N:869:& Cup~
@@ -6238,6 +7011,7 @@ A:
 F:INSTA_ART
 D:A musical instrument made of pure shining gold.
 
+### Map of the Northern Reaches
 
 
 N:881:& Spiked Dagger~
@@ -6372,13 +7146,26 @@ A:20/1
 F:HIDE_TYPE | INFRA | SEARCH
 D:This helm was made by gnomes.
 
+N:894:& Alchemic Arcanorum~
+G:*:G
+I:4:255:200
+W:1:0:50:5000
+A:20/1
+P:0:1d1:0:0:0
+F:ATTR_MULTI | FULL_NAME | ACTIVATE | ACTIVATE_NO_WIELD | EASY_USE
+F:SPECIAL_GENE | IGNORE_COLD | IGNORE_ELEC | IGNORE_FIRE | IGNORE_ACID
+a:SPELL=Use Arcanorum
+D:A shimmering glass orb, slightly larger than the Soothsayer's crystal
+D:ball.  As an Alchemist, you can use this to store and collect the
+D:powers of the Essences you find or accumulate in your travels.
+
 N:898:& Lightsaber~
 G:|:R
 I:23:55:1
 W:100:0:15:10000
 P:10:5d5:0:0:0
-A:60/10:50/10
-F:SHOW_MODS | VORPAL | REFLECT | RES_FEAR | BLESSED | SPELL | LITE2 | LEVELS
+A:60/6:50/4
+F:SHOW_MODS | VORPAL | REFLECT | RES_FEAR | BLESSED | SPELL | LITE2 | LEVELS | 
 D:A small lightsaber
 
 N:899:& Jedi Robe~
@@ -6386,7 +7173,7 @@ G:(:b
 I:36:78:0
 W:1:0:20:5
 P:6:0d0:0:0:0
-A:10/1:9/1
+A:50/7:70/4
 F:IGNORE_ACID | IGNORE_FIRE | IGNORE_ELEC | IGNORE_COLD | RES_CONF |
 D:A light brown and white robe. 
 
@@ -6395,7 +7182,7 @@ G:(:b
 I:36:79:0
 W:1:0:20:400
 P:6:0d0:0:0:0
-A:20/1:30/1
+A:70/5:800/3
 F:IGNORE_ACID | IGNORE_FIRE | IGNORE_ELEC | IGNORE_COLD | RES_CONF | RES_CHAOS | RES_LITE | RES_DARK
 D:A darker two-toned robe. 
 
@@ -6404,8 +7191,8 @@ G:|:R
 I:23:56:1
 W:50:0:15:15000
 P:10:6d6:0:0:0
-A:50/1:40/1
-F:SHOW_MODS | VORPAL | REFLECT | RES_FEAR | BLESSED | SPELL | MANA | LITE2 | LEVELS
+A:80/3:90/1
+F:SHOW_MODS | VORPAL | REFLECT | RES_FEAR | BLESSED | SPELL | MANA | LITE2 | LEVELS | 
 D:A lightsaber with the blade emitted at a 45 degree angle
 
 N:902:& Doublended Lightsaber~
@@ -6413,8 +7200,8 @@ G:|:R
 I:23:57:1
 W:99:0:30:25000
 P:15:9d9:0:0:0
-A:70/1:80/1
-F:SHOW_MODS | VORPAL | REFLECT | RES_FEAR | BLESSED |  MANA | SPELL | LITE2 | LEVELS
+A:90/5:95/2
+F:SHOW_MODS | VORPAL | REFLECT | RES_FEAR | BLESSED |  MANA | SPELL | LITE2 | LEVELS | 
 D:A double sided lightsaber. 
 
 N:903:& Small Mithril Boomerang~
@@ -6453,67 +7240,6 @@ P:0:3d5:0:0:0
 F:SHOW_MODS | IGNORE_ACID |
 D:This crossbow bolt has a mithril tip.
 
-N:908:& Short Yew bow~
-G:}:U
-I:19:12:1
-W:5:0:30:100
-A:5/1:50/2
-F:SHOW_MODS | STEALTH
-D:A piece of bent wood from a yew tree, fitted with a string.
-D:Easy to transport and use, but its effect is not very impressive.
-D:You can 'f'ire it after you 'w'ield it.
-
-N:909:& Long Yew bow~
-G:}:U
-I:19:13:1
-W:15:0:40:240
-A:15/1:70/2
-F:SHOW_MODS | STEALTH
-D:A bow made from the wood of a yew tree. This bow is almost as long as a human.
-D:It takes considerable strength and skill to use and is rather awkward to carry
-D:around inside buildings. Nevertheless, it shoots arrows with astonishing force.
-D:You can 'f'ire it after you 'w'ield it.
-
-N:910:& Short Willow Bow~
-G:}:U
-I:19:12:1
-W:5:0:30:100
-A:5/1:50/2
-F:SHOW_MODS | DEX |
-D:A piece of bent willow wood, fitted with a string. Easy to transport and use, but
-D:its effect is not very impressive. You can 'f'ire it after you 'w'ield it.
-
-N:911:& Long Willow Bow~
-G:}:U
-I:19:13:2
-W:15:0:40:240
-A:15/1:70/2
-F:SHOW_MODS | DEX
-D:A bow made from willow wood that is almost as long as a human. It takes
-D:considerable strength and skill to use and is rather awkward to carry around
-D:inside buildings. Nevertheless, it shoots arrows with astonishing force.
-D:You can 'f'ire it after you 'w'ield it.
-
-N:912:& Light Mithril Crossbow~
-G:}:B
-I:19:23:0
-W:17:0:110:200
-A:17/1:60/2
-F:SHOW_MODS | IGNORE_ACID
-D:A mithril bow mounted on a wooden stock. It is used for shooting bolts. This
-D:design is relatively light and not too difficult to cock, but also shoots its
-D:quarrels with less force. You can 'f'ire with it after you 'w'ield it.
-
-N:913:& Heavy Mithril Crossbow~
-G:}:B
-I:19:24:0
-W:35:0:200:500
-A:35/1:80/2
-F:SHOW_MODS | IGNORE_ACID
-D:A mithril bow mounted on a wooden stock, with attached cocking mechanism. It
-D:takes considerable time and strength to cock it and it's rather heavy.
-D:However, it hurls its ammunition with incredible force. You can 'f'ire with
-D:it after you 'w'ield it.
 
 N:914:& Vorpal Arrow~
 G:{:r
@@ -6533,50 +7259,7 @@ P:0:3d4:0:0:0
 F:SHOW_MODS | VORPAL
 D:This crossbow bolt has a very sharp tip.
 
-#For Rangers
 
-N:916:& Short Magic Bow~
-G:}:R
-I:19:12:1
-W:40:0:30:100
-A:40/1:50/2
-F:SHOW_MODS | MANA
-D:A piece of bent wood, fitted with a string. Easy to transport and use, but
-D:its effect is not very impressive. It increases you mana while you are
-D:wielding it. You can 'f'ire it after you 'w'ield it.
-
-N:917:& Long Magic Bow~
-G:}:R
-I:19:13:1
-W:55:0:40:240
-A:55/1:70/2
-F:SHOW_MODS | MANA
-D:A bow made from wood that is almost as long as a human. It takes
-D:considerable strength and skill to use and is rather awkward to carry around
-D:inside buildings. Nevertheless, it shoots arrows with astonishing force.
-D:It increases your mana while you are weilding it. You can 'f'ire it after you 'w'ield it.
-
-N:918:& Light Magic Crossbow~
-G:}:R
-I:19:23:1
-W:40:0:110:200
-A:50/1:60/2
-F:SHOW_MODS | MANA
-D:A bow mounted on a wooden stock. It is used for shooting bolts. This
-D:design is relatively light and not too difficult to cock, but also shoots its
-D:quarrels with less force. It increases you mana while you are weilding it.
-D:You can 'f'ire with it after you 'w'ield it.
-
-N:919:& Heavy Magic Crossbow~
-G:}:R
-I:19:24:1
-W:70:0:200:500
-A:70/1:80/2
-F:SHOW_MODS | MANA
-D:A bow mounted on a wooden stock, with attached cocking mechanism. It
-D:takes considerable time and strength to cock it and it's rather heavy.
-D:However, it hurls its ammunition with incredible force. It increases you mana
-D:while you are weilding it. You can 'f'ire with it after you 'w'ield it. 
 
 
 N:921:& Spider Claws~
@@ -6602,7 +7285,7 @@ I:115:65:3
 W:50:0:30:500000
 P:10:1d1:0:0:0
 A:50/2
-F:WIELD_CAST | WATER_BREATH | RES_FEAR | RES_CHAOS | INT |  LUCK
+F:WIELD_CAST | WATER_BREATH | RES_FEAR | RES_CHAOS | INT |  LUCK | SPECIAL_GENE
 D:A piece of coral that seems to radiate the power of Ulmo himself. 
 
 N:924:& Shining Star of Varda~
@@ -6611,7 +7294,7 @@ I:115:64:3
 W:50:0:30:500000
 P:10:1d1:0:0:0
 A:50/2
-F:WIELD_CAST | LITE3 | RES_LITE | RES_DARK | WIS | CHR | LITE2
+F:WIELD_CAST | LITE3 | RES_LITE | RES_DARK | WIS | CHR | LITE2 | SPECIAL_GENE
 D:A gem that seems to radiate the power of Varda herself. 
 
 N:925:& Grim Reaper Figure of Mandos~
@@ -6620,7 +7303,7 @@ I:115:66:3
 W:50:0:30:500000
 P:10:1d1:0:0:0
 A:50/2
-F:WIELD_CAST | CON | IM_NETHER | RES_CHAOS
+F:WIELD_CAST | CON | IM_NETHER | RES_CHAOS | SPECIAL_GENE
 D:A small figurine of the Grim Reaper that seems to radiate the power of Mandos himself.
 
 N:926:& Balrog Tooth of Melkor~
@@ -6629,7 +7312,7 @@ I:115:23:3
 W:50:0:30:500000
 P:10:1d1:0:0:0
 A:50/2
-F:WIELD_CAST | CON | IM_FIRE | STR | SH_FIRE
+F:WIELD_CAST | CON | IM_FIRE | STR | SH_FIRE | SPECIAL_GENE
 D:A large balrog's tooth that seem to radiate the power of Melkor himself. 
 
 N:927:& Rock of Tulkas~
@@ -6638,7 +7321,7 @@ I:115:22:3
 W:50:0:30:500000
 P:10:1d1:0:0:0
 A:50/2
-F:WIELD_CAST | CON | IM_FIRE | STR | SUST_STR
+F:WIELD_CAST | CON | IM_FIRE | STR | SUST_STR | SPECIAL_GENE
 D:A hard rock that seems to radiate the power of Tulkas himself.
 
 N:928:& Mini-Axe of Aule~
@@ -6647,7 +7330,7 @@ I:115:63:3
 W:50:0:30:500000
 P:10:1d1:0:0:0
 A:50/2
-F:WIELD_CAST | WIS | RES_FEAR | RES_FIRE | IM_ACID | RES_POIS | SH_ACID
+F:WIELD_CAST | WIS | RES_FEAR | RES_FIRE | IM_ACID | RES_POIS | SH_ACID | SPECIAL_GENE
 D:A small axe that seems to radiate the power of Aule.
 
 N:929:& Apple of Yavanna~
@@ -6656,7 +7339,7 @@ I:115:24:3
 W:50:0:30:500000
 P:10:1d1:0:0:0
 A:50/2
-F:WIELD_CAST | RES_FEAR | CHR | INT | WIS | DEX | RES_SOUND
+F:WIELD_CAST | RES_FEAR | CHR | INT | WIS | DEX | RES_SOUND | SPECIAL_GENE
 D:An apple that does not seem to rot. It seems to radiate the power of Yavanna herself.
 
 N:930:& Wings of Manwe~
@@ -6665,7 +7348,7 @@ I:115:21:5
 W:50:0:30:500000
 P:10:1d1:0:0:0
 A:50/2
-F:WIELD_CAST | SPEED | STR | IM_ELEC | RES_CONF | 
+F:WIELD_CAST | SPEED | STR | IM_ELEC | RES_CONF | SPECIAL_GENE
 D:A beautifully sculpted set of small wings. You can feel the power of Manwe in them.
 
 N:931:& Note of Eru~
@@ -6674,7 +7357,7 @@ I:115:20:3
 W:50:0:30:500000
 P:10:1d1:0:0:0
 A:50/2
-F:WIELD_CAST | IM_NETHER | RES_CONF | INT | WIS
+F:WIELD_CAST | IM_NETHER | RES_CONF | INT | WIS | SPECIAL_GENE
 D:A small rock with a message from Eru himself.
 
 N:932:& Third Eye~
@@ -6701,7 +7384,7 @@ G:(:b
 I:36:2:1
 W:30:20:20:1000
 P:10:0d0:5:5:5
-A:50/1
+A:70/2
 F:STEALTH | PROTECT | MANA | RES_ELEC | REGEN
 D:A fist-sized glob of ectoplasm which, when commanded, envelops the user and his equipment. 
 
@@ -6746,7 +7429,7 @@ I:23:66:0
 W:10:0:50:255
 P:0:5d5:0:0:0
 A:10/1:15/1
-F:SHOW_MODS | VORPAL | WOUNDING | SPECIAL_GENE
+F:SHOW_MODS | VORPAL | WOUNDING | SPECIAL_GENE | 
 D:A large sword that vibrates, causing it to do massive damage on contact with
 D:an enemy.
 
@@ -6774,7 +7457,7 @@ I:32:66:0
 W:20:0:75:75
 P:5:1d3:0:0:0
 A:20/1
-F:ESP_ALL | SEE_INVIS | RES_LITE | RES_DARK | SPECIAL_GENE  | RES_CONF
+F:ESP_ALL | SEE_INVIS | RES_LITE | RES_DARK | SPECIAL_GENE | RES_CONF
 D:A large helmet that can protect the entire head, while providing unique features
 
 N:985:& Power Crossbow~
@@ -6783,7 +7466,7 @@ I:19:24:3
 W:30:0:200:300
 P:0:0d0:0:0:0
 A:30/1:80/2
-F:SHOW_MODS | SPECIAL_GENE  | XTRA_MIGHT
+F:SHOW_MODS | SPECIAL_GENE | XTRA_MIGHT
 D:A retrofitted Heavy Crossbow; improved significantly by the Hunters. Standard
 D:issue for each of their warriors.
 
@@ -6803,45 +7486,46 @@ I:31:66:0
 W:50:0:40:100
 P:5:1d1:2:2:0
 A:50/1
+F:SPECIAL_GENE | 
 D:A set of metal gloves with nasty spikes and barbs, and some extra boosters as well.
 
 N:988:& Advanced Combat Suit~
 G:[:e
-I:37:67:0
+I:37:66:0
 W:25:0:220:2050
 P:18:1d4:+2:+2:0
 A:25/1
-F:REFLECT | RES_SHARDS | FLY | RES_FIRE | RES_ELEC | RES_ACID | RES_COLD | SPECIAL_GENE
+F:REFLECT | RES_SHARDS | SPECIAL_GENE | FLY | RES_FIRE | RES_ELEC | RES_ACID | RES_COLD | 
 D:A suit of advanced composite.
 
 N:989:& Superior Combat Suit~
 G:[:e
-I:37:68:0
-W:50:3:220:10050
+I:37:66:0
+W:25:0:220:10050
 P:20:1d4:+5:+5:0
-A:50/1
-F:REFLECT | RES_SHARDS | FLY | RES_FIRE | RES_ELEC | RES_ACID | RES_COLD | SPECIAL_GENE
+A:25/1
+F:REFLECT | RES_SHARDS | SPECIAL_GENE | FLY | RES_FIRE | RES_ELEC | RES_ACID | RES_COLD | 
 F:RES_CHAOS
 D:A suit of advanced composite.
 
 N:990:& Ultimate Combat Suit~
 G:[:e
-I:37:69:0
-W:75:2:220:2220500
+I:37:66:0
+W:25:0:220:2220500
 P:50:1d4:+10:+10:0
-A:75/1
+A:25/1
 F:FEATHER | FLY | HOLD_LIFE | IGNORE_ACID | IGNORE_COLD | IGNORE_ELEC |  
 F:IGNORE_FIRE | REGEN | IM_ACID  | RES_CHAOS | IM_COLD | RES_CONF | RES_DARK | RES_DISEN | IM_ELEC | 
-F:IM_FIRE | RES_LITE | IM_NETHER | AUTO_ID | SPECIAL_GENE
-F:RES_NEXUS | RES_SHARDS |  SH_ELEC | SH_FIRE | SH_COLD | SH_ACID
+F:IM_FIRE | RES_LITE | IM_NETHER | AUTO_ID | 
+F:RES_NEXUS | RES_SHARDS |  SPECIAL_GENE | SH_ELEC | SH_FIRE | SH_COLD | SH_ACID
 
 N:991:& Advanced Combat Helm~
 G:]:e
-I:32:67:0
+I:32:66:0
 W:20:0:75:2005
 P:8:1d3:0:0:0
 A:20/1
-F:ESP_ALL | SEE_INVIS | RES_LITE | RES_DARK | RES_CONF | RES_BLIND | RES_POIS | RES_SOUND | SPECIAL_GENE
+F:ESP_ALL | SEE_INVIS | RES_LITE | RES_DARK | SPECIAL_GENE | RES_CONF | RES_BLIND | RES_POIS | RES_SOUND | AUTO_ID
 D:A large helmet that can protect the entire head, while providing unique features
 D:A suit of advanced composite.
 
@@ -6851,7 +7535,7 @@ I:23:69:0
 W:10:0:50:755
 P:0:5d5:0:0:0
 A:10/1:15/1
-F:SHOW_MODS | VORPAL | WOUNDING | BRAND_ELEC
+F:SHOW_MODS | VORPAL | WOUNDING | SPECIAL_GENE | BRAND_ELEC
 D:A large sword that vibrates, causing it to do massive damage on contact with
 D:an enemy.
 
@@ -6861,7 +7545,7 @@ I:23:70:0
 W:10:0:50:57155
 P:0:5d5:0:0:0
 A:10/1:15/1
-F:SHOW_MODS | VORPAL | WOUNDING | BRAND_MAGIC
+F:SHOW_MODS | VORPAL | WOUNDING | SPECIAL_GENE | BRAND_MAGIC
 D:A large sword that vibrates, causing it to do massive damage on contact with
 D:an enemy.
 
@@ -6871,7 +7555,7 @@ I:23:79:0
 W:10:0:50:1001550
 P:0:7d7:0:0:0
 A:10/1:15/1
-F:SHOW_MODS | VORPAL | WOUNDING |  | BRAND_MAGIC | BRAND_DEATH 
+F:SHOW_MODS | VORPAL | WOUNDING | SPECIAL_GENE | BRAND_MAGIC | BRAND_DEATH 
 F:BRAND_FIRE
 D:A large sword that vibrates, causing it to do massive damage on contact with
 D:an enemy.
@@ -6882,7 +7566,7 @@ I:31:66:2
 W:50:0:40:100
 P:5:1d1:8:8:0
 A:50/1
-F:BLOWS
+F:SPECIAL_GENE | BLOWS
 D:A set of metal gloves with nasty spikes and barbs, and some extra boosters as well.
 
 N:996:& Thunderlord Coat~
@@ -7062,108 +7746,6 @@ D:Nunchuks are two sticks connected at their ends with a short
 D:chain or rope.  They can be wielded two handed.
 
 
-N:1015:misc 1
-G:-:d
-I:65:98:-1:SPELL=Sleep Monster
-W:3:0:10:100
-A:3/1
-F:SPECIAL_GENE
-P:0:1d1:0:0:0
-
-N:1016:misc 2
-G:-:d
-I:65:98:-1:SPELL=Stun Monster
-W:3:0:10:100
-A:3/1
-F:SPECIAL_GENE
-P:0:1d1:0:0:0
-
-N:1017:misc 3
-G:-:d
-I:65:98:-1:SPELL=Stun Monsters
-W:3:0:10:100
-A:3/1
-F:SPECIAL_GENE
-P:0:1d1:0:0:0
-
-N:1018:misc 4
-G:-:d
-I:65:98:-1:SPELL=Sleep Monsters
-W:3:0:10:100
-A:3/1
-F:SPECIAL_GENE
-P:0:1d1:0:0:0
-
-N:1019:misc 5
-G:-:d
-I:65:98:-1:SPELL=Kill Monsters
-W:3:0:10:100
-A:3/1
-F:SPECIAL_GENE
-P:0:1d1:0:0:0
-
-
-N:1020:misc 6
-G:-:d
-I:65:98:-1:SPELL=Kill Monster
-W:3:0:10:100
-A:3/1
-F:SPECIAL_GENE
-P:0:1d1:0:0:0
-
-
-
-N:1021:misc 7
-G:-:d
-I:65:98:-1:SPELL=Breathe Fire
-W:3:0:10:100
-A:3/1
-F:SPECIAL_GENE
-P:0:1d1:0:0:0
-
-
-N:1022:misc 8
-G:-:d
-I:65:98:-1:SPELL=Breathe Poison
-W:3:0:10:100
-A:3/1
-F:SPECIAL_GENE
-P:0:1d1:0:0:0
-
-N:1023:misc 9
-G:-:d
-I:65:98:-1:SPELL=Breathe Fire Wall
-W:3:0:10:100
-A:3/1
-F:SPECIAL_GENE
-P:0:1d1:0:0:0
-
-
-N:1024:misc 10
-G:-:d
-I:65:98:-1:SPELL=Breathe Poison Wall
-W:3:0:10:100
-A:3/1
-F:SPECIAL_GENE
-P:0:1d1:0:0:0
-
-
-N:1025:misc 11
-G:-:d
-I:65:98:-1:SPELL=Aura of Fire
-W:3:0:10:100
-A:3/1
-F:SPECIAL_GENE
-P:0:1d1:0:0:0
-
-
-N:1026:misc 12
-G:-:d
-I:65:98:-1:SPELL=Aura of Poison
-W:3:0:10:100
-A:3/1
-F:SPECIAL_GENE
-P:0:1d1:0:0:0
 
 
 

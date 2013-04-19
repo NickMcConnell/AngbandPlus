@@ -667,8 +667,6 @@ static bool gamble_comm(int cmd)
 static bool inn_comm(int cmd)
 {
 	bool vampire;
-	bool hurtlite;
-
 
 	/* Extract race info */
 	vampire = ((PRACE_FLAG(PR1_VAMPIRE)) || (p_ptr->mimic_form == resolve_mimic_name("Vampire")));
@@ -708,8 +706,6 @@ static bool inn_comm(int cmd)
 				return (FALSE);
 			}
 
-
-
 			/* Vampires rest during daytime */
 			if (vampire && nighttime)
 			{
@@ -718,13 +714,10 @@ static bool inn_comm(int cmd)
 				return (FALSE);
 			}
 
-
-
 			/* Must cure HP draining status first */
 			if ((p_ptr->poisoned > 0) || (p_ptr->cut > 0))
 			{
 				msg_print("You need a healer, not a room.");
-				msg_print(NULL);
 				msg_print("Sorry, but I don't want anyone dying in here.");
 				return (FALSE);
 			}
@@ -915,11 +908,10 @@ static void town_history(void)
 	screen_load();
 }
 
-
 /*
  * compare_weapon_aux2 -KMW-
  */
-static void compare_weapon_aux2(object_type *o_ptr, int numblows, int r, int c, int mult, char attr[80], u32b f1, u32b f2, u32b f3, byte color)
+static bool compare_weapon_aux2(object_type *o_ptr, int numblows, int r, int c, int mult, char attr[80], u32b f1, u32b f2, u32b f3, byte color)
 {
 	char tmp_str[80];
 
@@ -928,9 +920,13 @@ static void compare_weapon_aux2(object_type *o_ptr, int numblows, int r, int c, 
 	        numblows * ((o_ptr->dd * mult) + o_ptr->to_d),
 	        numblows * ((o_ptr->ds * o_ptr->dd * mult) + o_ptr->to_d));
 	put_str(tmp_str, r, c + 8);
-	r++;
-}
 
+	if (r > 17)
+		return 1;
+	else
+		return 0;
+
+}
 
 /*
  * compare_weapon_aux1 -KMW-
@@ -941,105 +937,79 @@ static void compare_weapon_aux1(object_type *o_ptr, int col, int r)
 
 	object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
 
-
-	if (f1 & (TR1_SLAY_ANIMAL))
-	{
-		compare_weapon_aux2(o_ptr, primary_weapon_blows(o_ptr), r++, col, 2, "Animals:",
-		                    f1, f2, f3, TERM_YELLOW);
-	}
-	if (f1 & (TR1_SLAY_EVIL))
-	{
-		compare_weapon_aux2(o_ptr, primary_weapon_blows(o_ptr), r++, col, 2, "Evil:",
-		                    f1, f2, f3, TERM_YELLOW);
-	}
-	if (f1 & (TR1_SLAY_UNDEAD))
-	{
-		compare_weapon_aux2(o_ptr, primary_weapon_blows(o_ptr), r++, col, 3, "Undead:",
-		                    f1, f2, f3, TERM_YELLOW);
-	}
-	if (f1 & (TR1_SLAY_DEMON))
-	{
-		compare_weapon_aux2(o_ptr, primary_weapon_blows(o_ptr), r++, col, 3, "Maiar:",
-		                    f1, f2, f3, TERM_YELLOW);
-	}
-	if (f1 & (TR1_SLAY_ORC))
-	{
-		compare_weapon_aux2(o_ptr, primary_weapon_blows(o_ptr), r++, col, 3, "Orcs:",
-		                    f1, f2, f3, TERM_YELLOW);
-	}
-	if (f1 & (TR1_SLAY_TROLL))
-	{
-		compare_weapon_aux2(o_ptr, primary_weapon_blows(o_ptr), r++, col, 3, "Trolls:",
-		                    f1, f2, f3, TERM_YELLOW);
-	}
-	if (f1 & (TR1_SLAY_GIANT))
-	{
-		compare_weapon_aux2(o_ptr, primary_weapon_blows(o_ptr), r++, col, 3, "Giants:",
-		                    f1, f2, f3, TERM_YELLOW);
-	}
-	if (f1 & (TR1_SLAY_DRAGON))
-	{
-		compare_weapon_aux2(o_ptr, primary_weapon_blows(o_ptr), r++, col, 3, "Dragons:",
-		                    f1, f2, f3, TERM_YELLOW);
-	}
-	if (f1 & (TR1_KILL_DRAGON))
-	{
-		compare_weapon_aux2(o_ptr, primary_weapon_blows(o_ptr), r++, col, 5, "Dragons:",
-		                    f1, f2, f3, TERM_YELLOW);
-	}
-	if (f1 & (TR1_BRAND_ACID))
-	{
-		compare_weapon_aux2(o_ptr, primary_weapon_blows(o_ptr), r++, col, 3, "Acid:",
-		                    f1, f2, f3, TERM_GREEN);
-	}
-	if (f1 & (TR1_BRAND_ELEC))
-	{
-		compare_weapon_aux2(o_ptr, primary_weapon_blows(o_ptr), r++, col, 3, "Elec:",
-		                    f1, f2, f3, TERM_L_BLUE);
-	}
-	if (f1 & (TR1_BRAND_FIRE))
-	{
-		compare_weapon_aux2(o_ptr, primary_weapon_blows(o_ptr), r++, col, 3, "Fire:",
-		                    f1, f2, f3, TERM_RED);
-	}
-	if (f1 & (TR1_BRAND_COLD))
-	{
-		compare_weapon_aux2(o_ptr, primary_weapon_blows(o_ptr), r++, col, 3, "Cold:",
-		                    f1, f2, f3, TERM_L_WHITE);
-	}
-	if (f1 & (TR1_BRAND_POIS))
-	{
-		compare_weapon_aux2(o_ptr, primary_weapon_blows(o_ptr), r++, col, 3, "Poison:",
-		                    f1, f2, f3, TERM_L_GREEN);
-	}
-	if (f5 & (TR5_BRAND_LIGHT))
-	{
-		compare_weapon_aux2(o_ptr, primary_weapon_blows(o_ptr), r++, col, 3, "Light:",
-		                    f1, f2, f3, TERM_YELLOW);
-	}
-
-	if (f5 & (TR5_BRAND_DARK))
-	{
-		compare_weapon_aux2(o_ptr, primary_weapon_blows(o_ptr), r++, col, 3, "Dark:",
-		                    f1, f2, f3, TERM_L_DARK);
-	}
-	if (f5 & (TR5_BRAND_MAGIC))
-	{
-		compare_weapon_aux2(o_ptr, primary_weapon_blows(o_ptr), r++, col, 4, "Magic:",
-		                    f1, f2, f3, TERM_UMBER);
-	}
-	if (f5 & (TR5_BRAND_WATER))
-	{
-		compare_weapon_aux2(o_ptr, primary_weapon_blows(o_ptr), r++, col, 3, "Water:",
-		                    f1, f2, f3, TERM_BLUE);
-	}
-		if (f5 & (TR5_BRAND_DEATH))
-	{
+	// first seven can always be printed
+	if (f5 & (TR5_BRAND_DEATH))
 		compare_weapon_aux2(o_ptr, primary_weapon_blows(o_ptr), r++, col, 15, "Death:",
 		                    f1, f2, f3, TERM_SLATE);
+	if (f5 & (TR5_BRAND_MAGIC))
+		compare_weapon_aux2(o_ptr, primary_weapon_blows(o_ptr), r++, col, 4, "Magic:",
+		                    f1, f2, f3, TERM_UMBER);
+	if (f1 & (TR1_BRAND_ACID))
+		compare_weapon_aux2(o_ptr, primary_weapon_blows(o_ptr), r++, col, 3, "Acid:",
+		                    f1, f2, f3, TERM_GREEN);
+	if (f1 & (TR1_BRAND_ELEC))
+		compare_weapon_aux2(o_ptr, primary_weapon_blows(o_ptr), r++, col, 3, "Elec:",
+		                    f1, f2, f3, TERM_L_BLUE);
+	if (f1 & (TR1_BRAND_FIRE))
+		compare_weapon_aux2(o_ptr, primary_weapon_blows(o_ptr), r++, col, 3, "Fire:",
+		                    f1, f2, f3, TERM_RED);
+	if (f1 & (TR1_BRAND_COLD))
+		compare_weapon_aux2(o_ptr, primary_weapon_blows(o_ptr), r++, col, 3, "Cold:",
+		                    f1, f2, f3, TERM_L_WHITE);
+	if (f1 & (TR1_BRAND_POIS))
+		if (compare_weapon_aux2(o_ptr, primary_weapon_blows(o_ptr), r++, col, 3, "Poison:",
+		                    f1, f2, f3, TERM_L_GREEN)) return;
+	if (f1 & (TR1_KILL_DRAGON))
+	{
+		if (compare_weapon_aux2(o_ptr, primary_weapon_blows(o_ptr), r++, col, 5, "Dragons:",
+		                    f1, f2, f3, TERM_SALMON)) return;
 	}
-
-
+	else if (f1 & (TR1_SLAY_DRAGON))
+		if (compare_weapon_aux2(o_ptr, primary_weapon_blows(o_ptr), r++, col, 3, "Dragons:",
+		                    f1, f2, f3, TERM_YELLOW)) return;
+	if (f5 & (TR5_KILL_UNDEAD))
+	{
+		if (compare_weapon_aux2(o_ptr, primary_weapon_blows(o_ptr), r++, col, 5, "Undead:",
+		                    f1, f2, f3, TERM_SALMON)) return;
+	}
+	else if (f1 & (TR1_SLAY_UNDEAD))
+		if (compare_weapon_aux2(o_ptr, primary_weapon_blows(o_ptr), r++, col, 3, "Undead:",
+		                    f1, f2, f3, TERM_YELLOW)) return;
+	if (f5 & (TR5_KILL_DEMON))
+	{
+		if (compare_weapon_aux2(o_ptr, primary_weapon_blows(o_ptr), r++, col, 5, "Maiar:",
+		                    f1, f2, f3, TERM_SALMON)) return;
+	}
+	else if (f1 & (TR1_SLAY_DEMON))
+		if (compare_weapon_aux2(o_ptr, primary_weapon_blows(o_ptr), r++, col, 3, "Maiar:",
+		                    f1, f2, f3, TERM_YELLOW)) return;
+	if (f1 & (TR1_SLAY_EVIL))
+		if (compare_weapon_aux2(o_ptr, primary_weapon_blows(o_ptr), r++, col, 2, "Evil:",
+		                    f1, f2, f3, TERM_YELLOW)) return;
+	if (f5 & (TR5_KILL_VAMPIRE))
+		if (compare_weapon_aux2(o_ptr, primary_weapon_blows(o_ptr), r++, col, 15, "Vampire:",
+		                    f1, f2, f3, TERM_GOLD)) return;
+	if (f1 & (TR1_SLAY_ANIMAL))
+		if (compare_weapon_aux2(o_ptr, primary_weapon_blows(o_ptr), r++, col, 2, "Animals:",
+		                    f1, f2, f3, TERM_YELLOW)) return;
+	if (f1 & (TR1_SLAY_ORC))
+		if (compare_weapon_aux2(o_ptr, primary_weapon_blows(o_ptr), r++, col, 3, "Orcs:",
+		                    f1, f2, f3, TERM_YELLOW)) return;
+	if (f1 & (TR1_SLAY_TROLL))
+		if (compare_weapon_aux2(o_ptr, primary_weapon_blows(o_ptr), r++, col, 3, "Trolls:",
+		                    f1, f2, f3, TERM_YELLOW)) return;
+	if (f1 & (TR1_SLAY_GIANT))
+		if (compare_weapon_aux2(o_ptr, primary_weapon_blows(o_ptr), r++, col, 3, "Giants:",
+		                    f1, f2, f3, TERM_YELLOW)) return;
+	if (f5 & (TR5_BRAND_LIGHT))
+		if (compare_weapon_aux2(o_ptr, primary_weapon_blows(o_ptr), r++, col, 3, "Light:",
+		                    f1, f2, f3, TERM_YELLOW)) return;
+	if (f5 & (TR5_BRAND_DARK))
+		if (compare_weapon_aux2(o_ptr, primary_weapon_blows(o_ptr), r++, col, 3, "Dark:",
+		                    f1, f2, f3, TERM_L_DARK)) return;
+	if (f5 & (TR5_BRAND_WATER))
+		if (compare_weapon_aux2(o_ptr, primary_weapon_blows(o_ptr), r++, col, 3, "Water:",
+		                    f1, f2, f3, TERM_BLUE)) return;
 
 }
 
@@ -1052,22 +1022,21 @@ static void list_weapon(object_type *o_ptr, int row, int col)
 
 	char tmp_str[80];
 
-
 	object_desc(o_name, o_ptr, TRUE, 0);
 	c_put_str(TERM_YELLOW, o_name, row, col);
-	strnfmt(tmp_str, 80, "To Hit: %d   To Damage: %d", o_ptr->to_h, o_ptr->to_d);
+	strnfmt(tmp_str, 80, " To Hit: %d   To Damage: %d", o_ptr->to_h, o_ptr->to_d);
 	put_str(tmp_str, row + 1, col);
-	strnfmt(tmp_str, 80, "Dice: %d   Sides: %d", o_ptr->dd, o_ptr->ds);
+	strnfmt(tmp_str, 80, " Dice: %d   Sides: %d", o_ptr->dd, o_ptr->ds);
 	put_str(tmp_str, row + 2, col);
-	strnfmt(tmp_str, 80, "(As primary) # of Blows: %d", primary_weapon_blows (o_ptr));
+	strnfmt(tmp_str, 80, " (As primary) # of Blows: %d", primary_weapon_blows (o_ptr));
 	put_str(tmp_str, row + 3, col);
-	c_put_str(TERM_YELLOW, "Possible Damage:", row + 5, col);
+	c_put_str(TERM_YELLOW, "Possible Damage:", row + 4, col);
 	strnfmt(tmp_str, 80, "One Strike: %d-%d damage", o_ptr->dd + o_ptr->to_d,
 	        (o_ptr->ds*o_ptr->dd) + o_ptr->to_d);
-	put_str(tmp_str, row + 6, col + 1);
+	put_str(tmp_str, row + 5, col + 1);
 	strnfmt(tmp_str, 80, "One Attack: %d-%d damage", primary_weapon_blows (o_ptr) * (o_ptr->dd + o_ptr->to_d),
 	        primary_weapon_blows (o_ptr) * (o_ptr->ds*o_ptr->dd + o_ptr->to_d));
-	put_str(tmp_str, row + 7, col + 1);
+	put_str(tmp_str, row + 6, col + 1);
 }
 
 
@@ -1076,7 +1045,7 @@ static void list_weapon(object_type *o_ptr, int row, int col)
  */
 static bool item_tester_hook_melee_weapon(object_type *o_ptr)
 {
-	return (wield_slot(o_ptr) == INVEN_WIELD);
+	return (wield_slot(o_ptr) >= INVEN_WIELD && wield_slot(o_ptr) <= INVEN_WIELD_MAX);
 }
 
 /*
@@ -1084,27 +1053,17 @@ static bool item_tester_hook_melee_weapon(object_type *o_ptr)
  */
 static bool compare_weapons(void)
 {
-	int item, item2, i;
+	int item, item2;
 
-	object_type *o1_ptr, *o2_ptr, *orig_ptr;
-
-	object_type *i_ptr;
+	object_type *o1_ptr, *o2_ptr, *i_ptr, *orig_ptr;
 
 	cptr q, s;
 
-
 	clear_bldg(6, 18);
 
-	o1_ptr = NULL;
-	o2_ptr = NULL;
-	i_ptr = NULL;
-
-	/* Store copy of original wielded weapon in pack slot */
 	i_ptr = &p_ptr->inventory[INVEN_WIELD];
 	orig_ptr = &p_ptr->inventory[INVEN_PACK];
-	object_copy(orig_ptr, i_ptr);
 
-	i = 6;
 	/* Get first weapon */
 	/* Restrict choices to meele weapons */
 	item_tester_hook = item_tester_hook_melee_weapon;
@@ -1117,9 +1076,8 @@ static bool compare_weapons(void)
 		return (FALSE);
 	}
 
-	/* Get the item (in the pack) */
-	if (item >= 0)
-		o1_ptr = &p_ptr->inventory[item];
+	/* Get the item */
+	o1_ptr = &p_ptr->inventory[item];
 
 	/* Get second weapon */
 	/* Restrict choices to melee weapons */
@@ -1133,30 +1091,35 @@ static bool compare_weapons(void)
 		return (FALSE);
 	}
 
-	/* Get the item (in the pack) */
-	if (item2 >= 0) o2_ptr = &p_ptr->inventory[item2];
+	/* Get the item */
+	o2_ptr = &p_ptr->inventory[item2];
 
-	put_str("Based on your current abilities, here is what your weapons will do", 4, 2);
+	put_str("Based on your current abilities, here is what your weapons will do:", 4, 2);
+	put_str("                                                                           ", 5, 2);
 
-	i_ptr = &p_ptr->inventory[INVEN_WIELD];
+	/* Store copy of original wielded weapon in pack slot */
+	object_copy(orig_ptr, i_ptr);
+
 	object_copy(i_ptr, o1_ptr);
 	calc_bonuses(TRUE);
 
-	list_weapon(o1_ptr, i, 2);
-	compare_weapon_aux1(o1_ptr, 2, i + 8);
+	list_weapon(o1_ptr, 5, 2);
+	compare_weapon_aux1(o1_ptr, 2, 12);
 
-	i_ptr = &p_ptr->inventory[INVEN_WIELD];
-	if (item2 == INVEN_WIELD)
+	if (item != item2)
+	{
+		if (item2 == INVEN_WIELD)
+			object_copy(i_ptr, orig_ptr);
+		else
+			object_copy(i_ptr, o2_ptr);
+		calc_bonuses(TRUE);
+
+		list_weapon(o2_ptr, 5, 40);
+		compare_weapon_aux1(o2_ptr, 40, 12);
+	}
+
+	if (item2 != INVEN_WIELD)
 		object_copy(i_ptr, orig_ptr);
-	else
-		object_copy(i_ptr, o2_ptr);
-	calc_bonuses(TRUE);
-
-	list_weapon(o2_ptr, i, 40);
-	compare_weapon_aux1(o2_ptr, 40, i + 8);
-
-	i_ptr = &p_ptr->inventory[INVEN_WIELD];
-	object_copy(i_ptr, orig_ptr);
 	calc_bonuses(TRUE);
 
 	object_wipe(orig_ptr);
@@ -1175,11 +1138,7 @@ static bool compare_weapons(void)
 static bool fix_item(int istart, int iend, int ispecific, bool iac,
                      int ireward, bool set_reward)
 {
-	int i;
-
-	int j = 9;
-
-	int maxenchant = (p_ptr->lev / 5);
+	int i, j = 9, maxenchant = (p_ptr->lev / 5);
 
 	object_type *o_ptr;
 
@@ -1187,15 +1146,6 @@ static bool fix_item(int istart, int iend, int ispecific, bool iac,
 
 	bool repaired = FALSE;
 
-#if 0
-	if (set_reward && p_ptr->rewards[ireward])
-	{
-		msg_print("You already have been rewarded today.");
-		msg_print(NULL);
-
-		return (FALSE);
-	}
-#endif
 	clear_bldg(5, 18);
 	strnfmt(tmp_str, 80, "  Based on your skill, we can improve up to +%d", maxenchant);
 	prt(tmp_str, 5, 0);
@@ -1260,21 +1210,13 @@ static bool fix_item(int istart, int iend, int ispecific, bool iac,
 	}
 	else
 	{
-#if 0
-		if (set_reward)
-			p_ptr->rewards[ireward] = TRUE;
-#endif
-		msg_print("Press the spacebar to continue");
+		msg_print("Press a key to continue.");
 		msg_print(NULL);
-
-		/* Window stuff */
-		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
 	}
 	clear_bldg(5, 18);
 
 	return (repaired);
 }
-
 
 /*
  * Research Item
@@ -1284,7 +1226,6 @@ static bool research_item(void)
 	clear_bldg(5, 18);
 	return (identify_fully());
 }
-
 
 /*
  * Show the current quest monster.
@@ -1474,7 +1415,6 @@ static void select_quest_monster(void)
 
 	int amt;
 
-
 	/*
 	 * Set up the hooks -- no bounties on uniques or monsters
 	 * with no corpses
@@ -1507,8 +1447,6 @@ static void select_quest_monster(void)
 	get_mon_num_hook = NULL;
 	get_mon_num_prep();
 }
-
-
 
 /*
  * Sell a corpse for a reward.
@@ -2263,6 +2201,7 @@ void do_cmd_bldg(void)
 
 		/* Handle stuff */
 		handle_stuff();
+
 	}
 
 	/* Flush messages XXX XXX XXX */
@@ -2287,4 +2226,10 @@ void do_cmd_bldg(void)
 
 	/* Window stuff */
 	p_ptr->window |= (PW_OVERHEAD);
+
+	/* Notice stuff */
+	notice_stuff();
+
+	/* Handle stuff */
+		handle_stuff();
 }

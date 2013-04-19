@@ -1655,6 +1655,26 @@ option_type option_info[] =
 	{ &inventory_no_move, FALSE, 5, 8,
 	  "inventory_no_move", "In option windows, just omit the select char" },
 
+	{ &precog_ego, TRUE, 5, 9,
+	  "precog_ego", "Precognition: ego items" },
+
+	{ &precog_dragon, TRUE, 5, 10,
+	  "precog_dragon", "Precog: dragonscale equipment" },
+
+	{ &precog_artifact, TRUE, 5, 11,
+	  "precog_artifact", "Precog: artifacts" },
+
+	{ &precog_vaults, TRUE, 5, 12,
+	  "precog_vaults", "Precog: vaults" },
+
+	{ &precog_uniques, TRUE, 5, 13,
+	  "precog_uniques", "Precog: unique monsters" },
+
+	{ &precog_fates, TRUE, 5, 14,
+	  "precog_fates", "Precog: fates" },
+
+	{ &precog_specifics, TRUE, 5, 15,
+	  "precog_specifics", "Precog: dungeon oddities" },
 
 	/*** Birth Options ***/
 

@@ -68,6 +68,13 @@ static bool grab_one_power(int *ra_idx, object_type *o_ptr, bool good, s16b *max
 		if (f5 & ra_ptr->aflags5) continue;
 		if (esp & ra_ptr->aesp) continue;
 
+		// Zop: no such way to have two powers or activation
+		if (ra_ptr->power != -1)
+		{
+			if (f3 & TR3_ACTIVATE) continue;
+			if (o_ptr->xtra2) continue;
+		}
+
 		/* ok */
 		ok_ra[ok_num++] = i;
 	}
@@ -114,33 +121,9 @@ static bool grab_one_power(int *ra_idx, object_type *o_ptr, bool good, s16b *max
 	return (ret);
 }
 
-void give_activation_power (object_type * o_ptr)
+void give_power (object_type *o_ptr, int type)
 {
-	/* int type = 0, chance = 0; */
-
-
-	/* A type was chosen... */
-#if 0 /* DGDGDGDG -- Todo later */
 	o_ptr->xtra2 = type;
-	o_ptr->art_flags3 |= TR3_ACTIVATE;
-	o_ptr->timeout = 0;
-#else
-	o_ptr->xtra2 = 0;
-	o_ptr->art_flags3 &= ~TR3_ACTIVATE;
-	o_ptr->timeout = 0;
-#endif
-}
-
-
-int get_activation_power()
-{
-	object_type *o_ptr, forge;
-
-	o_ptr = &forge;
-
-	give_activation_power(o_ptr);
-
-	return o_ptr->xtra2;
 }
 
 #define MIN_NAME_LEN 5
@@ -188,7 +171,6 @@ void build_prob(cptr learn)
 		ltotal[c_prev][c_cur]++;
 	}
 }
-
 
 /*
  * Use W. Sheldon Simms' random name generator.  Generate a random word using
@@ -264,13 +246,32 @@ void get_random_name(char * return_name)
 		sprintf(return_name, "of %s", word);
 }
 
+void curse_artifact(object_type *o_ptr)
+{
+	if (o_ptr->pval) o_ptr->pval = 0 - ((o_ptr->pval) - randint(4));
+	if (o_ptr->to_a) o_ptr->to_a = 0 - ((o_ptr->to_a) + randint(4));
+	if (o_ptr->to_h) o_ptr->to_h = 0 - ((o_ptr->to_h) + randint(4));
+	if (o_ptr->to_d) o_ptr->to_d = 0 - ((o_ptr->to_d) + randint(4));
+
+	o_ptr->art_flags3 |= ( TR3_HEAVY_CURSE | TR3_CURSED );
+#if 0 /* Silly */
+	if (randint(4) == 1) o_ptr-> art_flags3 |= TR3_PERMA_CURSE;
+#endif
+	if (randint(3) == 1) o_ptr-> art_flags3 |= TR3_TY_CURSE;
+	if (randint(2) == 1) o_ptr-> art_flags3 |= TR3_AGGRAVATE;
+	if (randint(3) == 1) o_ptr-> art_flags3 |= TR3_DRAIN_EXP;
+	if (randint(3) == 1) o_ptr-> art_flags4 |= TR4_BLACK_BREATH;
+	if (randint(2) == 1) o_ptr-> art_flags3 |= TR3_TELEPORT;
+	else if (randint(3) == 1) o_ptr->art_flags3 |= TR3_NO_TELE;
+
+	o_ptr->ident |= IDENT_CURSED;
+}
 
 bool create_artifact(object_type *o_ptr, bool a_scroll, bool get_name)
 {
 	char new_name[80];
 	int powers = 0, i;
-	s32b total_flags, total_power = 0;
-	bool a_cursed = FALSE;
+	bool a_cursed = FALSE, zop_ra = FALSE;
 	u32b f1, f2, f3, f4, f5, esp;
 	s16b *max_times;
 	s16b pval = 0;
@@ -281,15 +282,22 @@ bool create_artifact(object_type *o_ptr, bool a_scroll, bool get_name)
 	if ((!a_scroll) && (randint(A_CURSED) == 1)) a_cursed = TRUE;
 
 	i = 0;
-	while (ra_gen[i].chance)
+
+	// Zop ra_info.txt detection,
+	if (ra_gen[i].chance == 101)
+		zop_ra = TRUE;
+
+	while (magik(ra_gen[i].chance))
 	{
 		powers += damroll(ra_gen[i].dd, ra_gen[i].ds) + ra_gen[i].plus;
 		i++;
 	}
 
-	if ((!a_cursed) && (randint(30) == 1)) powers *= 2;
+	// save for possible cursed artifact
+	i = 1 + powers / 2;
 
-	if (a_cursed) powers /= 2;
+	if ((randint(30) == 1)) powers *= 2;
+	else if (a_cursed) powers *= 2;
 
 	C_MAKE(max_times, max_ra_idx, s16b);
 
@@ -305,9 +313,8 @@ bool create_artifact(object_type *o_ptr, bool a_scroll, bool get_name)
 
 		ra_ptr = &ra_info[ra_idx];
 
-		if (wizard) msg_format("Additing randart power: %d", ra_idx);
-
-		total_power += ra_ptr->value;
+		if (wizard)
+			msg_format("ra power: %d", ra_idx);
 
 		o_ptr->art_flags1 |= ra_ptr->flags1;
 		o_ptr->art_flags2 |= ra_ptr->flags2;
@@ -332,13 +339,74 @@ bool create_artifact(object_type *o_ptr, bool a_scroll, bool get_name)
 		if (ra_ptr->max_to_a > 0) o_ptr->to_a += randint(ra_ptr->max_to_a);
 		if (ra_ptr->max_to_a < 0) o_ptr->to_a -= randint( -ra_ptr->max_to_a);
 
-		/* Hack -- obtain pval */
-		if (((pval > ra_ptr->max_pval) && ra_ptr->max_pval) || (!pval)) pval = ra_ptr->max_pval;
-	};
+		/* Hack -- obtain max pval from list*/
+		if (((pval > ra_ptr->max_pval) && ra_ptr->max_pval) || (!pval))
+			pval = ra_ptr->max_pval;
+
+		// Add a power marked bad?
+		if (ra_ptr->power != -1)
+			give_power(o_ptr, ra_ptr->power);
+	}
+
+	if (a_cursed)
+	{
+		if (zop_ra)
+			while (i)
+			{
+				int ra_idx;
+				randart_part_type *ra_ptr;
+
+				i--;
+
+				if (!grab_one_power(&ra_idx, o_ptr, FALSE, max_times)) continue;
+
+				ra_ptr = &ra_info[ra_idx];
+
+				if (wizard)
+					msg_format("cursed ra power: %d", ra_idx);
+
+				/* add flags, always cursed */
+				o_ptr->art_flags1 |= ra_ptr->flags1;
+				o_ptr->art_flags2 |= ra_ptr->flags2;
+				o_ptr->art_flags3 |= ra_ptr->flags3 | TR3_CURSED;
+				o_ptr->art_flags4 |= ra_ptr->flags4;
+				o_ptr->art_flags5 |= ra_ptr->flags5;
+				o_ptr->art_esp |= ra_ptr->esp;
+
+				add_random_ego_flag(o_ptr, ra_ptr->fego, &limit_blows);
+
+				/* get flags */
+				object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
+
+				/* acquire "cursed" flag */
+				o_ptr->ident |= (IDENT_CURSED);
+
+				/* Hack -- obtain bonuses */
+				if (ra_ptr->max_to_h > 0) o_ptr->to_h += randint(ra_ptr->max_to_h);
+				if (ra_ptr->max_to_h < 0) o_ptr->to_h -= randint( -ra_ptr->max_to_h);
+				if (ra_ptr->max_to_d > 0) o_ptr->to_d += randint(ra_ptr->max_to_d);
+				if (ra_ptr->max_to_d < 0) o_ptr->to_d -= randint( -ra_ptr->max_to_d);
+				if (ra_ptr->max_to_a > 0) o_ptr->to_a += randint(ra_ptr->max_to_a);
+				if (ra_ptr->max_to_a < 0) o_ptr->to_a -= randint( -ra_ptr->max_to_a);
+
+				/* Hack -- obtain max pval from list*/
+				if (((pval > ra_ptr->max_pval) && ra_ptr->max_pval) || (!pval))
+					pval = ra_ptr->max_pval;
+
+				if (ra_ptr->power != -1)
+					give_power(o_ptr, ra_ptr->power);
+
+			}
+		else
+		 	curse_artifact (o_ptr);
+	}
+
 	C_FREE(max_times, max_ra_idx, s16b);
 
-	if (pval > 0) o_ptr->pval = randint(pval);
-	if (pval < 0) o_ptr->pval = randint( -pval);
+	if (pval > 0)
+		o_ptr->pval = randint(pval);
+	else if (pval < 0)
+		o_ptr->pval = randint( -pval);
 
 	/* No insane number of blows */
 	if (limit_blows && (o_ptr->art_flags1 & TR1_BLOWS))
@@ -349,14 +417,6 @@ bool create_artifact(object_type *o_ptr, bool a_scroll, bool get_name)
 	/* Just to be sure */
 	o_ptr->art_flags3 |= ( TR3_IGNORE_ACID | TR3_IGNORE_ELEC |
 	                       TR3_IGNORE_FIRE | TR3_IGNORE_COLD);
-
-	total_flags = flag_cost(o_ptr, o_ptr->pval);
-	if (cheat_peek) msg_format("%ld", total_flags);
-
-	if (a_cursed) curse_artifact(o_ptr);
-
-	/* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
 
 	if (get_name)
 	{
@@ -392,8 +452,8 @@ bool create_artifact(object_type *o_ptr, bool a_scroll, bool get_name)
 	o_ptr->art_name = quark_add(new_name);
 	o_ptr->name2 = o_ptr->name2b = 0;
 
-	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP);
+	/* Extract the flags */
+	object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
 
 	/* HACKS for ToME */
 	if (o_ptr->tval == TV_CLOAK && o_ptr->sval == SV_MIMIC_CLOAK)
@@ -406,6 +466,23 @@ bool create_artifact(object_type *o_ptr, bool a_scroll, bool get_name)
 	{
 		o_ptr->pval2 = -1;
 	}
+
+	if (f4 & TR4_LEVELS)
+	{
+		object_kind *k_ptr = &k_info[o_ptr->k_idx];
+
+		o_ptr->elevel = (k_ptr->level / 10) + 1;
+		o_ptr->exp = player_exp[o_ptr->elevel - 1];
+		if (o_ptr->pval < 0)
+			o_ptr->pval = 0;
+		o_ptr->pval2 = 1;
+		o_ptr->pval3 = 0;
+	}
+	else if	(!o_ptr->pval)
+		o_ptr->pval = 1;
+
+	/* Window stuff */
+	p_ptr->window |= (PW_INVEN | PW_EQUIP);
 
 	return TRUE;
 }
@@ -492,5 +569,3 @@ bool artifact_scroll(void)
 	/* Something happened */
 	return (TRUE);
 }
-
-

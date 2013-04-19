@@ -1897,7 +1897,7 @@ put_str("Shots/Round:", 17, 55);
    put_str(desc, 18, 69);
 
    put_str("Infra-Vision:", 19, 55);
-   put_str(format("%d feet", p_ptr->see_infra * 10), 19, 69); 
+   put_str(format("%d feet", p_ptr->see_infra * 10), 19, 69);
 
 	/* jk - add tactic */
 	put_str("Tactic:", 20, 55);
@@ -2447,8 +2447,8 @@ static cptr object_flag_names[182] =
 	"Fireproof",
 	"Coldproof",
 	"Chargeable",
-	"Could 2Hnd",
-	"Reqre 2Hnd",
+	"Shld.2Hand",
+	"Req. 2Hand",
 	"Activate",
 	NULL,
 	NULL,
@@ -2888,7 +2888,7 @@ for (n = 0; n < INVEN_TOTAL - INVEN_WIELD + 1; n++)
    dispx++;
    is_green = (dispx & 0x02);
    dispcolor = (is_green ? TERM_GOLD : TERM_SLATE);
-   c = '.'; 
+   c = '.';
 
 				if (b[n][i])
 				{

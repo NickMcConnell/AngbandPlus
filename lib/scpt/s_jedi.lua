@@ -422,7 +422,7 @@ JSTARIDENTIFY = add_spell
 {
 	["name"] = 	"Force Learn",
 	["school"] = 	{SCHOOL_LIGHT},
-	["level"] = 	35,
+	["level"] = 	25,
 	["mana"] = 	30,
 	["mana_max"] = 	30,
 	["fail"] = 	80,

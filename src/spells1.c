@@ -1785,6 +1785,7 @@ static bool hates_fire(object_type *o_ptr)
 	case TV_ARROW:
 	case TV_BULLET:
 	case TV_RBULLET:
+	case TV_BOOMERANG:
 		{
 			return TRUE;
 		};
@@ -3213,7 +3214,7 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 			if ((f_info[c_ptr->feat].flags1 & FF1_PERMANENT)) break;
 
 			/* Trees *will* burn */
-			if (c_ptr->feat == FEAT_TREES)
+			if ((c_ptr->feat == FEAT_TREES) || (c_ptr->feat == FEAT_FIRTREE) || (c_ptr->feat == FEAT_MALLORN))
 			{
 				cave_set_feat(y, x, FEAT_DEAD_TREE);
 
@@ -3367,7 +3368,7 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 			/* "Permanent" features will stay */
 			if ((f_info[c_ptr->feat].flags1 & FF1_PERMANENT)) break;
 
-			if ((c_ptr->feat == FEAT_TREES) ||
+			if ((c_ptr->feat == FEAT_TREES) || (c_ptr->feat == FEAT_FIRTREE) || (c_ptr->feat == FEAT_MALLORN) ||
 			                (c_ptr->feat == FEAT_SMALL_TREES))
 			{
 				/* Destroy the grid */
@@ -3387,18 +3388,18 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 			/* "Permanent" features will stay */
 			if ((f_info[c_ptr->feat].flags1 & FF1_PERMANENT)) break;
 
-			if (((c_ptr->feat == FEAT_TREES) ||
+			if (((c_ptr->feat == FEAT_TREES) || (c_ptr->feat == FEAT_FIRTREE) || (c_ptr->feat == FEAT_MALLORN) ||
 			     (c_ptr->feat == FEAT_SMALL_TREES) ||
 			     (f_info[c_ptr->feat].flags1 & FF1_FLOOR)) &&
 			    (rand_int(100) < 30))
 			{
 				/* Flow change */
-				if (c_ptr->feat == FEAT_TREES) p_ptr->update |= (PU_FLOW);
+				if ((c_ptr->feat == FEAT_TREES) || (c_ptr->feat == FEAT_FIRTREE) || (c_ptr->feat == FEAT_MALLORN)) p_ptr->update |= (PU_FLOW);
 
 				cave_set_feat(y, x, FEAT_ASH);
 
 				/* Silly thing to destroy trees when a yavanna worshipper */
-				if (c_ptr->feat == FEAT_TREES || c_ptr->feat == FEAT_SMALL_TREES)
+				if (c_ptr->feat == FEAT_TREES || c_ptr->feat == FEAT_SMALL_TREES || c_ptr->feat == FEAT_FIRTREE || c_ptr->feat == FEAT_MALLORN)
 					inc_piety(GOD_YAVANNA, -50);
 
 				/* Visibility change */

@@ -1689,7 +1689,7 @@ static void process_world(void)
 		int feature = cave[p_ptr->py][p_ptr->px].feat;
 
 		/* Player can walk through or fly over trees */
-		if ((has_ability(AB_TREE_WALK) || p_ptr->fly) && (feature == FEAT_TREES))
+		if ((has_ability(AB_TREE_WALK) || p_ptr->fly) && (feature == FEAT_TREES) || (feature == FEAT_FIRTREE) || (feature == FEAT_MALLORN))
 		{
 			/* Do nothing */
 		}
@@ -3439,7 +3439,7 @@ static void process_world(void)
 					p_ptr->oldpy = p_ptr->py;
 
 					/* Leaving */
-					is_recall = TRUE;
+					is_recall = FALSE;
 
 					p_ptr->leaving = TRUE;
 					p_ptr->wild_mode = FALSE;
@@ -3965,12 +3965,12 @@ static void process_command(void)
 				{
 					p_ptr->wilderness_x = p_ptr->px;
 					p_ptr->wilderness_y = p_ptr->py;
-					p_ptr->wild_mode = !p_ptr->wild_mode;
+					// p_ptr->wild_mode = !p_ptr->wild_mode;
 					do_cmd_go_down();
 
 					if (dun_level == 0)
 					{
-						p_ptr->wild_mode = !p_ptr->wild_mode;
+						//p_ptr->wild_mode = !p_ptr->wild_mode;
 					}
 					else
 					{
@@ -4725,9 +4725,6 @@ static void process_command(void)
 	}
 }
 
-
-
-
 /*
  * Process the player
  *
@@ -4741,9 +4738,7 @@ void process_player(void)
 
 	int speed_use;
 
-
 	/*** Apply energy ***/
-
 	if (hack_corruption)
 	{
 		msg_print("You feel different!");
@@ -4766,12 +4761,13 @@ void process_player(void)
 		speed_use = 0;
 	}
 
+
 	/* Give the player some energy */
 	p_ptr->energy += extract_energy[speed_use];
 
+
 	/* No turn yet */
 	if (p_ptr->energy < 100) return;
-
 
 	/*** Check for interupts ***/
 
@@ -5017,10 +5013,8 @@ void process_player(void)
 			/* Use some energy */
 			p_ptr->energy -= energy_use;
 
-
 			/* Hack -- constant hallucination */
 			if (p_ptr->image) p_ptr->redraw |= (PR_MAP);
-
 
 			/* Shimmer monsters if needed */
 			if (!avoid_other && !use_graphics && shimmer_monsters)
@@ -5064,15 +5058,15 @@ void process_player(void)
 				/* Shimmer multi-hued objects */
 				for (i = 1; i < o_max; i++)
 				{
-					/* Acquire object -- for speed only base items are allowed to shimmer */
+					/* Acquire object */
 					object_type *o_ptr = &o_list[i];
 					object_kind *k_ptr = &k_info[o_ptr->k_idx];
 
 					/* Skip dead or carried objects */
 					if ((!o_ptr->k_idx) || (!o_ptr->ix)) continue;
 
-					/* Skip non-multi-hued monsters */
-					if (!(k_ptr->flags5 & (TR5_ATTR_MULTI))) continue;
+					/* Skip non-multi-hued items */
+					if (!((k_ptr->flags5 & TR5_ATTR_MULTI) || (o_ptr->art_flags5 & TR5_ATTR_MULTI))) continue;
 
 					/* Reset the flag */
 					shimmer_objects = TRUE;
@@ -5190,7 +5184,6 @@ void process_player(void)
 				wiz_dark();
 			}
 		}
-
 
 		/* Hack -- notice death */
 		if (!alive || death) break;
@@ -5439,6 +5432,7 @@ static void dungeon(void)
 	/* Main loop */
 	while (TRUE)
 	{
+
 		/* Hack -- Compact the monster list occasionally */
 		if (m_cnt + 32 > max_m_idx) compact_monsters(64);
 
@@ -5451,8 +5445,6 @@ static void dungeon(void)
 
 		/* Hack -- Compress the object list occasionally */
 		if (o_cnt + 32 < o_max) compact_objects(0);
-
-
 
 		/* Process the player */
 		process_player();
@@ -5507,7 +5499,6 @@ static void dungeon(void)
 
 #endif /* pelpel */
 
-
 		total_friends = 0;
 		total_friend_levels = 0;
 
@@ -5534,7 +5525,6 @@ static void dungeon(void)
 
 		/* Hack -- Notice death or departure */
 		if (!alive || death) break;
-
 
 		/* Process the world */
 		process_world();
@@ -5586,7 +5576,6 @@ static void dungeon(void)
 			p_ptr->wilderness_x = d_info[dungeon_type].ix;
 			p_ptr->wilderness_y = d_info[dungeon_type].iy;
 		}
-
 		dungeon_type = DUNGEON_WILDERNESS;
 	}
 
@@ -5599,11 +5588,11 @@ static void dungeon(void)
 			p_ptr->wilderness_x = d_info[dungeon_type].ox;
 			p_ptr->wilderness_y = d_info[dungeon_type].oy;
 		}
-
 		dungeon_type = DUNGEON_WILDERNESS;
 	}
 
 	is_recall = FALSE;
+
 }
 
 

@@ -701,7 +701,7 @@ N:64:of Maedhros
 I:23:5:3
 W:15:30:30:22500
 P:0:2d5:12:15:0
-F:DEX | FREE_ACT | HIDE_TYPE | INT | SEE_INVIS | SHOW_MODS | SLAY_GIANT | SLAY_TROLL | SPECIAL_GENE | SPEED
+F:DEX | FREE_ACT | HIDE_TYPE | INT | SEE_INVIS | SHOW_MODS | SLAY_GIANT | SLAY_TROLL | SPEED
 D:A short thrusting blade with a large guard worn by Maedhros the Tall, 
 D:eldest son of Feanor, and wielded with his left hand after the loss of 
 D:his right hand in the pits of Thangorodrim.

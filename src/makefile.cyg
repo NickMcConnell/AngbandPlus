@@ -85,7 +85,7 @@ LIBDIR = ./lib/
 #
 # This is my compiler of choice, it seems to work most everywhere
 #
-CC = gcc
+CC = gcc-3
 
 #
 # resource complier
@@ -126,7 +126,7 @@ WRES = windres
 ##
 ## For cygwin
 ##
-COPTS = -s -Wall -mno-cygwin -O2 -fno-strength-reduce
+COPTS = -mno-cygwin -s -Wall -O2 -fno-strength-reduce
 INCLUDES =
 DEFINES = -DWINDOWS -DUSE_TRANSPARENCY -DUSE_EGO_GRAPHICS -DSUPPORT_GAMMA \
 	-DUSE_PRECISE_CMOVIE \

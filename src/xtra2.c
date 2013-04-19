@@ -2499,6 +2499,8 @@ bool set_tim_invis(int v)
 	/* Open */
 	if (v)
 	{
+		if (p_ptr->see_inv)
+			return 0;
 		if (!p_ptr->tim_invis)
 		{
 			msg_print("Your eyes feel very sensitive!");
@@ -3596,7 +3598,7 @@ void check_experience(void)
          next_lev = (player_exp[p_ptr->lev - 1] / 100L *p_ptr->expfact);
 
       gained++;
-      lite_spot(p_ptr->py, p_ptr->px); 
+      lite_spot(p_ptr->py, p_ptr->px);
 
 		/* Save the highest level */
 		if (p_ptr->lev > p_ptr->max_plv)
@@ -3892,7 +3894,7 @@ void place_corpse(monster_type *m_ptr)
 	}
 
 	/* The creature is an animated skeleton. */
-	if (!(r_ptr->flags9 & RF9_DROP_CORPSE) && (r_ptr->flags9 & RF9_DROP_SKELETON))
+	else if (r_ptr->flags9 & RF9_DROP_SKELETON)
 	{
 		/* Wipe the object */
 		object_prep(i_ptr, lookup_kind(TV_CORPSE, SV_CORPSE_SKELETON));
@@ -4702,6 +4704,8 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 			object_type *o_ptr;
 //			object_kind *k_ptr;
 			u32b f1, f2, f3, f4, f5, esp;
+
+			// first count the number of items with LEVELS
 			int i = 0;
 			if (p_ptr->body_parts[0] == INVEN_WIELD)
 			{
@@ -4725,8 +4729,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 					i++;
 			}
 
-			/* Access the weapon */
-//			k_ptr = &k_info[o_ptr->k_idx];
+			// hand out xp based on i
 			if (p_ptr->body_parts[2] == INVEN_WIELD)
 			{
 				o_ptr = &p_ptr->inventory[INVEN_WIELD + 2];
@@ -7544,14 +7547,6 @@ bool test_object_wish(char *name, object_type *o_ptr, object_type *forge, char *
 		   /* Hack hack hackery */
 		   (o_ptr->tval == TV_ROD_MAIN && strstr(name, "rod of")))
 		{
-#if 0 // DGDGDGDG
-			/* You can't wish for a wish ! */
-			if ((o_ptr->tval == TV_STAFF) && (o_ptr->sval == SV_STAFF_WISHING))
-			{
-				msg_format("You cannot %s for a wish !", what);
-				return FALSE;
-			}
-#endif
 			/* try all ego */
 			for (j = max_e_idx - 1; j >= 0; j--)
 			{
@@ -7697,7 +7692,7 @@ void make_wish(void)
 
 	if (test_object_wish(name, o_ptr, &forge, "wish"))
 	{
-		msg_print("Your wish becomes truth!");
+		msg_print("Your item wish becomes truth!");
 
 		/* Give it to the player */
 		drop_near(o_ptr, -1, p_ptr->py, p_ptr->px);
@@ -7781,7 +7776,7 @@ void make_wish(void)
 
 					/* Create the monster */
 					if (place_monster_one(wy, wx, i, j, FALSE, mstatus))
-						msg_print("Your wish becomes truth!");
+						msg_print("Your monster wish becomes truth!");
 
 					/* Don't search any more */
 					return;

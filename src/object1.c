@@ -982,10 +982,9 @@ void object_flags(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3, u32b *f4, u3
 int object_power(object_type *o_ptr)
 {
 	object_kind *k_ptr = &k_info[o_ptr->k_idx];
-	int power = -1;
 
-	/* Base object */
-	power = k_ptr->power;
+	/* Base object, -1 is no power */
+	int power = k_ptr->power;
 
 	/* Ego-item */
 	if (o_ptr->name2)
@@ -1003,11 +1002,23 @@ int object_power(object_type *o_ptr)
 	}
 
 	/* Artifact */
-	if (o_ptr->name1)
+	else if (o_ptr->name1)
 	{
 		artifact_type *a_ptr = &a_info[o_ptr->name1];
 
 		if (power == -1) power = a_ptr->power;
+	}
+
+	else if (o_ptr->xtra2)
+	{
+		u32b f1, f2, f3, f4, f5, esp;
+		object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
+
+		// Zop: there is an xtra2 set without activate -- hopefully it's a randart with granted power
+		if (!(f3 & TR3_ACTIVATE))
+		{
+			power = o_ptr->xtra2;
+		}
 	}
 
 	return (power);
@@ -2543,7 +2554,10 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	/* Sensed stuff */
 	if (o_ptr->ident & (IDENT_SENSE))
 	{
-		strcpy(tmp_val2, sense_desc[o_ptr->sense]);
+		if (o_ptr->ident & (IDENT_MENTAL))
+			o_ptr->ident &= ~(IDENT_SENSE);
+		else
+			strcpy(tmp_val2, sense_desc[o_ptr->sense]);
 	}
 
 	/* Hack - Note "cursed" if the item is 'known' and cursed */
@@ -3105,7 +3119,7 @@ void display_ammo_damage(object_type *o_ptr)
 	if (full && (f1 & TR1_SLAY_ORC)) output_ammo_dam(o_ptr, 3, 0, "orcs", NULL, &first);
 	if (full && (f1 & TR1_SLAY_TROLL)) output_ammo_dam(o_ptr, 3, 0, "trolls", NULL, &first);
 	if (full && (f1 & TR1_SLAY_GIANT)) output_ammo_dam(o_ptr, 3, 0, "giants", NULL, &first);
-if (full && (f5 & TR5_KILL_VAMPIRE)) output_ammo_dam(o_ptr, 3, 0, "vampires", NULL, &first);
+	if (full && (f5 & TR5_KILL_VAMPIRE)) output_ammo_dam(o_ptr, 3, 0, "vampires", NULL, &first);
 
 	if (full && (f1 & TR1_KILL_DRAGON)) output_ammo_dam(o_ptr, 5, 0, "dragons", NULL, &first);
 	else if (full && (f1 & TR1_SLAY_DRAGON)) output_ammo_dam(o_ptr, 3, 0, "dragons", NULL, &first);
@@ -3119,9 +3133,13 @@ if (full && (f5 & TR5_KILL_VAMPIRE)) output_ammo_dam(o_ptr, 3, 0, "vampires", NU
 	if (full && (f1 & TR1_BRAND_ELEC)) output_ammo_dam(o_ptr, 3, 6, "non lightning resistant creatures", "lightning susceptible creatures", &first);
 	if (full && (f1 & TR1_BRAND_ACID)) output_ammo_dam(o_ptr, 3, 6, "non acid resistant creatures", "acid susceptible creatures", &first);
 	if (full && (f1 & TR1_BRAND_POIS)) output_ammo_dam(o_ptr, 3, 6, "non poison resistant creatures", "poison susceptible creatures", &first);
+	if (full && (f5 & TR5_BRAND_DEATH)) output_ammo_dam(o_ptr, 1, 15, "undead monsters", "living creatures", &first);
 
 	output_ammo_dam(o_ptr, 1, 0, (first) ? "all monsters" : "other monsters", NULL, &first);
-	text_out(". ");
+	text_out(".  ");
+
+	if (f4 & TR4_LEVELS)
+		return;
 
 	if (o_ptr->pval2)
 	{
@@ -3275,13 +3293,22 @@ bool object_out_desc(object_type *o_ptr, FILE *fff, bool trim_down, bool wait_fo
 			}
 		}
 
+		if (f4 & TR4_ULTIMATE)
+		{
+			if ((wield_slot(o_ptr) == INVEN_WIELD) ||
+			                (wield_slot(o_ptr) == INVEN_BOW))
+				text_out_c(TERM_VIOLET, "It is the ultimate weapon.  ");
+			else
+				text_out_c(TERM_VIOLET, "It is the ultimate armor.  ");
+		}
+
 		if ((f4 & TR4_LEVELS) && (!trim_down))
 		{
 			int j = 0;
 
 			if (count_bits(o_ptr->pval3) == 0) text_out("It is sentient");
 			else if (count_bits(o_ptr->pval3) > 1) text_out("It is sentient and has access to the realms of ");
-			else text_out("It is sentient and can have access to the realm of ");
+			else text_out("It is sentient and has access to the realm of ");
 
 			first = TRUE;
 			txt = "";
@@ -3296,18 +3323,6 @@ bool object_out_desc(object_type *o_ptr, FILE *fff, bool trim_down, bool wait_fo
 
 			text_out(".  ");
 		}
-
-		if (f4 & TR4_ULTIMATE)
-		{
-			if ((wield_slot(o_ptr) == INVEN_WIELD) ||
-			                (wield_slot(o_ptr) == INVEN_BOW))
-				text_out_c(TERM_VIOLET, "It is part of the trinity of the ultimate weapons.  ");
-			else
-				text_out_c(TERM_VIOLET, "It is the ultimate armor.  ");
-		}
-
-		if (f4 & TR4_COULD2H) text_out("It should be wielded two-handed.  ");
-		if (f4 & TR4_MUST2H) text_out("It must be wielded two-handed.  ");
 
 		/* Mega-Hack -- describe activation */
 		if (f3 & (TR3_ACTIVATE))
@@ -3326,7 +3341,7 @@ bool object_out_desc(object_type *o_ptr, FILE *fff, bool trim_down, bool wait_fo
 			if (f5 & (TR5_ACTIVATE_NO_WIELD))
 				text_out(".  ");
 			else
-				text_out(" if it is being worn. ");
+				text_out(" if it is being worn.  ");
 		}
 		/* Granted power */
 		if (object_power(o_ptr) != -1)
@@ -3367,6 +3382,19 @@ bool object_out_desc(object_type *o_ptr, FILE *fff, bool trim_down, bool wait_fo
 			text_out("It generates an antimagic field.  ");
 		}
 
+		if (f4 & TR4_PRECOGNITION)
+			text_out("It grants precognition.  ");
+
+		if (f4 & (TR4_AUTO_ID))
+		{
+			text_out("It identifies all items for you.  ");
+		}
+        if (f5 & (TR5_CHARGEABLE))
+        {
+            text_out("It can be upgraded with gold.  ");
+        }
+
+
 		if (f5 & TR5_SPELL_CONTAIN)
 		{
 			if (o_ptr->pval2 == -1)
@@ -3374,37 +3402,18 @@ bool object_out_desc(object_type *o_ptr, FILE *fff, bool trim_down, bool wait_fo
 			else
 				text_out("It has a spell stored inside.  ");
 		}
-           if (f5 & (TR5_ONLY_MALE))
-        {
-               text_out("It is only usable to males.  ");
-        }
-		     if (f5 & (TR5_ONLY_FEMALE))
-        {
-                text_out("It is only usable to females.  ");
-        }
-
-	 		     if (f5 & (TR5_CHARGEABLE))
-        {
-                text_out("It can be upgraded with gold.  ");
-        }
-
-
-    if (f5 & (TR5_PROTECTION))
-	{
-                text_out("It reduces damages you take by 50%, physical and magical. ");
-	}
-    if (f5 & (TR5_THROWING))
-	{
-                text_out("It is easy to throw. ");
-	}
-   if (f5 & (TR5_ALWAYS_HIT))
-	{
-                text_out("It always hits. ");
-	}
-   if (esp & (ESP_SAFETY))
-	{
-                text_out("It prevents stuns. ");
-	}
+		if (f5 & (TR5_PROTECTION))
+		{
+		    text_out("It reduces damages you take by 50%, physical and magical.  ");
+		}
+		if (f5 & (TR5_ALWAYS_HIT))
+		{
+		    text_out("It always hits.  ");
+		}
+		if (esp & (ESP_SAFETY))
+		{
+		    text_out("It prevents stuns.  ");
+		}
 
 		/* Pick up stat bonuses */
 		vn = 0;
@@ -3420,7 +3429,7 @@ bool object_out_desc(object_type *o_ptr, FILE *fff, bool trim_down, bool wait_fo
 		if (f1 & (TR1_TUNNEL)) vp[vn++] = "ability to tunnel";
 		if (f1 & (TR1_SPEED)) vp[vn++] = "speed";
 		if (f1 & (TR1_BLOWS)) vp[vn++] = "attack speed";
-		if (f5 & (TR5_CRIT)) vp[vn++] = "ability to score critical hits";
+		if (f5 & (TR5_CRIT)) vp[vn++] = "critical hit chance";
 		if (f5 & (TR5_LUCK)) vp[vn++] = "luck";
 		if (f1 & (TR1_SPELL)) vp[vn++] = "spell power";
 
@@ -3429,18 +3438,19 @@ bool object_out_desc(object_type *o_ptr, FILE *fff, bool trim_down, bool wait_fo
 		{
 			int i;
 
-			/* Intro */
-			text_out("It ");
-
 			/* What it does */
-			if (o_ptr->pval > 0) text_out("increases ");
-			else text_out("decreases ");
+			if (o_ptr->pval > 0)
+				text_out("It increases");
+			else if (o_ptr->pval < 0)
+				text_out("It decreases");
+			else
+				text_out("It does not yet affect");
 
 			/* List */
 			for (i = 0; i < vn; i++)
 			{
 				/* Connectives */
-				if (i == 0) text_out("your ");
+				if (i == 0) text_out(" your ");
 				else if (i < (vn - 1)) text_out(", ");
 				else text_out(" and ");
 
@@ -3448,11 +3458,15 @@ bool object_out_desc(object_type *o_ptr, FILE *fff, bool trim_down, bool wait_fo
 				text_out(vp[i]);
 			}
 
-			text_out(" by ");
-			if (o_ptr->pval > 0)
-				text_out_c(TERM_L_GREEN, format("%i", o_ptr->pval));
-			else
-				text_out_c(TERM_L_RED, format("%i", -o_ptr->pval));
+			if (o_ptr->pval != 0)
+			{
+				text_out(" by ");
+				if (o_ptr->pval > 0)
+					text_out_c(TERM_L_GREEN, format("%i", o_ptr->pval));
+				else
+					text_out_c(TERM_L_RED, format("%i", -o_ptr->pval));
+			}
+
 			text_out(".  ");
 		}
 
@@ -3482,15 +3496,17 @@ bool object_out_desc(object_type *o_ptr, FILE *fff, bool trim_down, bool wait_fo
 				text_out(vp[1]);
 			}
 
-			text_out(" by ");
-			percent = 100 * o_ptr->pval / ( munchkin_multipliers ? 5 : 10 );
+			if (o_ptr->pval != 0)
+			{
+				text_out(" by ");
+				percent = 100 * o_ptr->pval / ( munchkin_multipliers ? 5 : 10 );
 
-			if (o_ptr->pval > 0)
-				text_out_c(TERM_L_GREEN, format("%i%%", percent));
-			else if (o_ptr->pval > 0)
-				text_out_c(TERM_L_RED, format("%i%%", -percent));
-			else
-				text_out_c(TERM_YELLOW, format("%i%%", percent));
+				if (o_ptr->pval > 0)
+					text_out_c(TERM_L_GREEN, format("%i%%", percent));
+				else
+					text_out_c(TERM_L_RED, format("%i%%", -percent));
+
+			}
 			text_out(".  ");
 		}
 
@@ -3520,26 +3536,26 @@ bool object_out_desc(object_type *o_ptr, FILE *fff, bool trim_down, bool wait_fo
 			vc[vn] = TERM_L_WHITE;
 			vp[vn++] = "frost";
 		}
-		 if (f5 & (TR5_BRAND_LIGHT))
-		 {
-			 vc[vn] = TERM_YELLOW;
+		if (f5 & (TR5_BRAND_LIGHT))
+		{
+			vc[vn] = TERM_YELLOW;
 			vp[vn++] = "light";
-		 }
-		 if (f5 & (TR5_BRAND_DARK))
-		 {
-			 vc[vn] = TERM_L_DARK;
+		}
+		if (f5 & (TR5_BRAND_DARK))
+		{
+			vc[vn] = TERM_L_DARK;
 			vp[vn++] = "dark";
-		 }
-		 if (f5 & (TR5_BRAND_WATER))
-		 {
-			 vc[vn] = TERM_BLUE;
+		}
+		if (f5 & (TR5_BRAND_WATER))
+		{
+			vc[vn] = TERM_BLUE;
 			vp[vn++] = "water";
-		 }
-		 if (f5 & (TR5_BRAND_DEATH))
-		 {
-			 vc[vn] = TERM_SLATE;
+		}
+		if (f5 & (TR5_BRAND_DEATH))
+		{
+			vc[vn] = TERM_SLATE;
 			vp[vn++] = "death";
-		 }
+		}
  		if (f5 & (TR5_BRAND_MAGIC))
 		{
 			vc[vn] = TERM_ORANGE;
@@ -3551,13 +3567,13 @@ bool object_out_desc(object_type *o_ptr, FILE *fff, bool trim_down, bool wait_fo
 			int i;
 
 			/* Intro */
-			text_out("It does extra damage ");
+			text_out("It hits ");
 
 			/* List */
 			for (i = 0; i < vn; i++)
 			{
 				/* Connectives */
-				if (i == 0) text_out("from ");
+				if (i == 0) text_out("with ");
 				else if (i < (vn - 1)) text_out(", ");
 				else text_out(" and ");
 
@@ -3623,7 +3639,7 @@ bool object_out_desc(object_type *o_ptr, FILE *fff, bool trim_down, bool wait_fo
 
 		if (f5 & (TR5_KILL_VAMPIRE))
 		{
-			text_out("It kills vampires  ");
+			text_out("It kills vampires.  ");
 		}
 
 		if (f5 & (TR5_KILL_DEMON))
@@ -3795,16 +3811,15 @@ bool object_out_desc(object_type *o_ptr, FILE *fff, bool trim_down, bool wait_fo
 			}
 		}
 
+		vn = 0;
 		if (f2 & (TR2_FREE_ACT))
 		{
-			text_out("It provides immunity to paralysis.  ");
+			vp[vn++] = "paralysis";
 		}
 		if (f2 & (TR2_RES_FEAR))
 		{
-			text_out("It makes you completely fearless.  ");
+			vp[vn++] = "fear";
 		}
-
-		vn = 0;
 		if (f2 & (TR2_HOLD_LIFE))
 		{
 			vp[vn++] = "life draining";
@@ -4068,10 +4083,6 @@ bool object_out_desc(object_type *o_ptr, FILE *fff, bool trim_down, bool wait_fo
 		{
 			text_out("It has been blessed by the gods.  ");
 		}
-		if (f4 & (TR4_AUTO_ID))
-		{
-			text_out("It identifies all items for you.  ");
-		}
 
 		if (f3 & (TR3_TELEPORT))
 		{
@@ -4147,6 +4158,23 @@ bool object_out_desc(object_type *o_ptr, FILE *fff, bool trim_down, bool wait_fo
 		{
 			text_out("It can resist being shattered by morgul beings.  ");
 		}
+
+		if (f4 & TR4_COULD2H) text_out("It should be wielded two-handed.  ");
+		if (f4 & TR4_MUST2H) text_out("It must be wielded two-handed.  ");
+        if (f5 & (TR5_ONLY_MALE))
+        {
+        	text_out("It is only usable to males.  ");
+        }
+		if (f5 & (TR5_ONLY_FEMALE))
+        {
+            text_out("It is only usable to females.  ");
+        }
+
+		if (f5 & (TR5_THROWING))
+		{
+		    text_out("It is easy to throw.  ");
+		}
+
 		if ((f3 & (TR3_IGNORE_ACID)) && (f3 & (TR3_IGNORE_FIRE)) && (f3 & (TR3_IGNORE_COLD)) && (f3 & (TR3_IGNORE_ELEC)))
 		{
 			text_out("It cannot be harmed by acid, cold, lightning or fire.  ");
@@ -4282,9 +4310,9 @@ bool object_out_desc(object_type *o_ptr, FILE *fff, bool trim_down, bool wait_fo
 		}
 		/* useful for debugging
 		else
-	{
+		{
 			text_out("\nYou ordered it from a catalog in the Town.");
-	}*/
+		}*/
 	}
 
 	if (fff)
@@ -4892,11 +4920,11 @@ void show_inven_aux(bool mirror, bool everything)
 	int row, col, len, lim;
 	int wid, hgt;
 	object_type *o_ptr;
-	char o_name[80];
+	char o_name[120];
 	char tmp_val[80];
 	int out_index[23];
 	byte out_color[23];
-	char out_desc[23][80];
+	char out_desc[23][120];
 
 
 	/* Retrive current screen size */
@@ -4909,10 +4937,10 @@ void show_inven_aux(bool mirror, bool everything)
 	col = mirror ? 0 : 50;
 
 	/* Default "max-length" */
-	len = 79 - col;
+	len = 119 - col;
 
 	/* Maximum space allowed for descriptions */
-	lim = 79 - 3;
+	lim = 119 - 3;
 
 	/* Require space for weight (if needed) */
 	if (show_weights) lim -= 9;
@@ -5070,11 +5098,11 @@ void show_equip_aux(bool mirror, bool everything)
 	int wid, hgt;
 	object_type *o_ptr;
 	char tmp_val[80];
-	char o_name[80];
+	char o_name[160];
 	int out_index[INVEN_TOOL - INVEN_WIELD];
 	int out_rindex[INVEN_TOOL - INVEN_WIELD];
 	byte out_color[INVEN_TOOL - INVEN_WIELD];
-	char out_desc[INVEN_TOOL - INVEN_WIELD][80];
+	char out_desc[INVEN_TOOL - INVEN_WIELD][160];
 
 
 	/* Retrive current screen size */
@@ -5087,10 +5115,10 @@ void show_equip_aux(bool mirror, bool everything)
 	col = mirror ? 0 : 50;
 
 	/* Maximal length */
-	len = 79 - col;
+	len = 159 - col;
 
 	/* Maximum space allowed for descriptions */
-	lim = 79 - 3;
+	lim = 159 - 3;
 
 	/* Require space for labels (if needed) */
 	if (show_labels) lim -= (14 + 2);

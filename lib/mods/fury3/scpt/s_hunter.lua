@@ -1,7 +1,4 @@
 -- Hunter Abilities
-function get_hfirebeam_dam()
-	return 3 + get_level(HUNTER_FLAMEBEAM, 20), 1 + get_level(HUNTER_FLAMEBEAM, 15)
-end
 HUNTER_FLAMEBEAM = add_spell
 {
 	["name"] = 	"Flamethrower",
@@ -14,47 +11,19 @@ HUNTER_FLAMEBEAM = add_spell
 			local ret, dir	
 			ret, dir = get_aim_dir()
 			if ret == FALSE then return end
-			return fire_beam(GF_FIRE, dir, damroll(get_hfirebeam_dam()))
+			return fire_beam(GF_FIRE, dir, damroll(5 + get_level(HUNTER_FLAMEBEAM, 20), 1 + get_level(HUNTER_FLAMEBEAM, 15)))
 	              end,
 	["info"] = 	function()
+			return "dam "..(5 + get_level(HUNTER_FLAMEBEAM, 20).."d"..(1 + get_level(HUNTER_FLAMEBEAM, 15)))
 			
-			return ""
 	end,
 	["desc"] =	{
-			"Fires a beam of Fire",
+			"Fires a spray of fire from your wrist mounted flamethrower",
 			}
 
 				
 }
 
-HUNTERIDENTIFY = add_spell
-{
-	["name"] = 	"Greater Identify",
-	["school"] = 	{SCHOOL_HUNTING},
-	["level"] = 	1,
-	["mana"] = 	1,
-	["mana_max"] = 	1,
-	["fail"] = 	0,
-	["spell"] = 	function()
-			if get_check("Cast on yourself?") == TRUE then
-				self_knowledge()
-			else
-				identify_fully()
-			end
-			return TRUE
-	end,
-	["info"] = 	function()
-		       	return ""
-	end,
-	["desc"] =	{
-			"Asks for an object and fully identify it, providing the full list of powers",
-			"Cast at yourself it will reveal your powers"
-	}
-}
-
-function get_hpoisdart_dam()
-	return 3 + get_level(HUNTER_POISDART, 20), 1 + get_level(HUNTER_POISDART, 15)
-end
 HUNTER_POISDART = add_spell
 {
 	["name"] = 	"Poison Darts",
@@ -67,21 +36,19 @@ HUNTER_POISDART = add_spell
 			local ret, dir	
 			ret, dir = get_aim_dir()
 			if ret == FALSE then return end
-			return fire_bolt(GF_POIS, dir, damroll(get_hpoisdart_dam()))
+			return fire_bolt(GF_POIS, dir, damroll(5 + get_level(HUNTER_POISDART, 25), 1 + get_level(HUNTER_POISDART, 20)))
 	              end,
 	["info"] = 	function()
 			
-			return ""
+			return "dam "..(5 + get_level(HUNTER_POISDART, 25).."d"..1 + (get_level(HUNTER_POISDART, 20)))
 	end,
 	["desc"] =	{
-			"Launch a Poison Dart",
+			"Launch a Poison Dart from your knee launcher",
 			}
 
 				
 }
-function get_hflamethrow_dam()
-	return 3 + get_level(HUNTER_FLAMETHROW, 20), 1 + get_level(HUNTER_FLAMETHROW, 15)
-end
+
 HUNTER_FLAMETHROW = add_spell
 {
 	["name"] = 	"Mega Flamethrower",
@@ -94,14 +61,14 @@ HUNTER_FLAMETHROW = add_spell
 			local ret, dir	
 			ret, dir = get_aim_dir()
 			if ret == FALSE then return end
-			return fire_ball_beam(GF_HOLY_FIRE, dir, damroll(get_hflamethrow_dam()), 4)
+			return fire_ball_beam(GF_HELL_FIRE, dir, 20 + get_level(HUNTER_FLAMETHROW, 500), 5)
 	              end,
 	["info"] = 	function()
 			
-			return ""
+			return "dam "..((20 + get_level(HUNTER_FLAMETHROW, 500)).." rad "..5)
 	end,
 	["desc"] =	{
-			"Fires a small burst of Fire",
+			"Fires a massive ball of fire",
 			}
 
 				
@@ -111,7 +78,7 @@ HUNTER_ROCKET = add_spell
 {
 	["name"] = 	"Rocket Launcher",
 	["school"] = 	SCHOOL_HUNTING,
-	["level"] = 	10,
+	["level"] = 	30,
 	["mana"] = 	10,
 	["fail"] = 	10,
 		["random"] =    0,
@@ -123,10 +90,10 @@ HUNTER_ROCKET = add_spell
 	              end,
 	["info"] = 	function()
 			
-			return ""
+			return "dam "..((20 + get_level(HUNTER_ROCKET, 500)).." rad "..(2 + get_level(HUNTER_ROCKET, 5)))
 	end,
 	["desc"] =	{
-			"Launches a Rocket",
+			"Launches a Wrist-Rocket",
 			}
 
 				
@@ -136,7 +103,7 @@ HUNTER_MISSILE = add_spell
 {
 	["name"] = 	"Missile Launcher",
 	["school"] = 	SCHOOL_HUNTING,
-	["level"] = 	25,
+	["level"] = 	20,
 	["mana"] = 	25,
 	["fail"] = 	10,
 		["random"] =    0,
@@ -144,11 +111,11 @@ HUNTER_MISSILE = add_spell
 			local ret, dir	
 			ret, dir = get_aim_dir()
 			if ret == FALSE then return end
-			return fire_ball(GF_MISSILE, dir, 20 + get_level(HUNTER_MISSILE, 500), 2 + get_level(HUNTER_MISSILE, 5))
+			return fire_ball(GF_MISSILE, dir, 25 + get_level(HUNTER_MISSILE, 500), 3 + get_level(HUNTER_MISSILE, 5))
 	              end,
 	["info"] = 	function()
 			
-			return ""
+			return "dam "..((25 + get_level(HUNTER_MISSILE, 500)).." rad "..(3 + get_level(HUNTER_MISSILE, 5)))
 	end,
 	["desc"] =	{
 			"Launches a Missile",
@@ -162,18 +129,20 @@ HUNTER_NUKE = add_spell
 	["name"] = 	"Mini-Nuke",
 	["school"] = 	SCHOOL_HUNTING,
 	["level"] = 	50,
-	["mana"] = 	100,
+	["mana"] = 	125,
 	["fail"] = 	10,
 		["random"] =    0,
 	["spell"] = 	function()
 			local ret, dir	
 			ret, dir = get_aim_dir()
 			if ret == FALSE then return end
-			return fire_ball(GF_NUKE, dir, 20 + get_level(HUNTER_NUKE, 500), 2 + get_level(HUNTER_NUKE, 5))
+			return fire_ball(GF_NUKE, dir, 100 + get_level(HUNTER_NUKE, 500), 3 + get_level(HUNTER_NUKE, 5)),
+					fire_ball(GF_HELL_FIRE, dir, 100 + get_level(HUNTER_NUKE, 500), 3 + get_level(HUNTER_NUKE, 5)),
+					fire_ball(GF_HOLY_FIRE, dir, 100 + get_level(HUNTER_NUKE, 500), 3 + get_level(HUNTER_NUKE, 5))
 	              end,
 	["info"] = 	function()
 			
-			return ""
+			return "dam "..((100 + get_level(HUNTER_NUKE, 500)).." rad "..(3 + get_level(HUNTER_NUKE, 5)))
 	end,
 	["desc"] =	{
 			"Launches a Nuke",

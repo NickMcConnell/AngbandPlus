@@ -18,7 +18,7 @@ THROWDAGGER = add_spell
 			return fire_bolt(GF_ARROW, dir, (5 + get_level(THROWDAGGER)))
 	end,
 	["info"] = 	function()
-			return ""
+			return "dam "..(5 + get_level(THROWDAGGER))
 	end,
 	["desc"] =	{
 			"Thow a Ninja Dagger",
@@ -43,7 +43,7 @@ POISONSTAR = add_spell
 			return fire_bolt(GF_POIS, dir, (5 + get_level(POISONSTAR)))
 	end,
 	["info"] = 	function()
-			return ""
+			return "dam "..(5 + get_level(POISONSTAR))
 	end,
 	["desc"] =	{
 			"Thows a poisoned throwing knife",

@@ -1849,7 +1849,7 @@ static void do_item(object_type *o_ptr, int flag)
 	do_byte(&o_ptr->number, flag);
 	do_s32b(&o_ptr->weight, flag);
 
-	do_byte(&o_ptr->name1, flag);
+	do_s16b(&o_ptr->name1, flag);
 	do_s16b(&o_ptr->name2, flag);
 	do_s16b(&o_ptr->name2b, flag);
 	do_s16b(&o_ptr->timeout, flag);

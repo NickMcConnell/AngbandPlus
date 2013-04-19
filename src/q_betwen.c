@@ -85,6 +85,7 @@ bool quest_between_gen_hook(char *fmt)
 
 	return TRUE;
 }
+
 bool quest_between_finish_hook(char *fmt)
 {
 	s32b q_idx;
@@ -96,16 +97,18 @@ bool quest_between_finish_hook(char *fmt)
 
 	c_put_str(TERM_YELLOW, "Ah you finally arrived, I hope your travel wasn't too hard.", 8, 0);
 	c_put_str(TERM_YELLOW, "As a reward you can freely use the Void Jumpgates for quick travel.", 9, 0);
+
+	/* item name has changed, no longer SPECIAL_GENE
 	c_put_str(TERM_YELLOW, "Oh and take that horn, it shall serve you well.", 10, 0);
 
-	/* prepare the reward */
+	// prepare the reward
 	q_ptr = &forge;
 	object_prep(q_ptr, test_item_name("& Golden Horn~ of the Thunderlords"));
 	q_ptr->found = OBJ_FOUND_REWARD;
 	q_ptr->number = 1;
 
 
-	/* Mega-Hack -- Actually create the Golden Horn of the Thunderlords */
+	// Mega-Hack -- Actually create the Golden Horn of the Thunderlords
 	k_allow_special[test_item_name("& Golden Horn~ of the Thunderlords")] = TRUE;
 	apply_magic(q_ptr, -1, TRUE, TRUE, TRUE);
 	k_allow_special[test_item_name("& Golden Horn~ of the Thunderlords")] = FALSE;
@@ -114,6 +117,7 @@ bool quest_between_finish_hook(char *fmt)
 	q_ptr->discount = 100;
 	q_ptr->ident |= IDENT_STOREB;
 	(void)inven_carry(q_ptr, FALSE);
+	*/
 
 	/* Continue the plot */
 	*(quest[q_idx].plot) = QUEST_NULL;

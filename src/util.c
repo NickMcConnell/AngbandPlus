@@ -3559,7 +3559,6 @@ s32b get_quantity(cptr prompt, s32b max)
 	int aamt;
 
 	char tmp[80];
-
 	char buf[80];
 
 

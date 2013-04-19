@@ -1172,10 +1172,6 @@ s16b get_mon_num(int level)
 	return (table[i].index);
 }
 
-
-
-
-
 /*
  * Build a string describing a monster in some way.
  *
@@ -2159,6 +2155,12 @@ s16b place_monster_one(int y, int x, int r_idx, int ego, bool slp, int status)
 		return 0;
 	}
 
+	if (p_ptr->px == x && p_ptr->py == y)
+	{
+		if (place_monster_one_race) KILL(place_monster_one_race, monster_race);
+		return 0;
+	}
+
 	/* Verify location */
 	if (!in_bounds(y, x))
 	{
@@ -2347,7 +2349,7 @@ s16b place_monster_one(int y, int x, int r_idx, int ego, bool slp, int status)
 		if (r_ptr->flags1 & (RF1_UNIQUE))
 		{
 			/* Message for cheaters */
-			if ((cheat_hear) || (p_ptr->precognition)) msg_format("Deep Unique (%s).", name);
+			if ((cheat_hear) || (p_ptr->precognition && precog_uniques)) cmsg_format(TERM_L_RED, "Deep Unique (%s).", name);
 
 			/* Boost rating by twice delta-depth */
 			rating += (r_ptr->level - dun_level) * 2;
@@ -2357,7 +2359,7 @@ s16b place_monster_one(int y, int x, int r_idx, int ego, bool slp, int status)
 		else
 		{
 			/* Message for cheaters */
-			if ((cheat_hear) || (p_ptr->precognition)) msg_format("Deep Monster (%s).", name);
+			if ((cheat_hear) || (p_ptr->precognition && precog_uniques)) cmsg_format(TERM_ORANGE, "Deep Monster (%s).", name);
 
 			/* Boost rating by delta-depth */
 			rating += (r_ptr->level - dun_level);
@@ -2368,7 +2370,7 @@ s16b place_monster_one(int y, int x, int r_idx, int ego, bool slp, int status)
 	else if (r_ptr->flags1 & (RF1_UNIQUE))
 	{
 		/* Unique monsters induce message */
-		if ((cheat_hear) || (p_ptr->precognition)) msg_format("Unique (%s).", name);
+		if ((cheat_hear) || (p_ptr->precognition && precog_uniques)) cmsg_format(TERM_L_RED, "Unique (%s).", name);
 	}
 
 
@@ -3082,7 +3084,7 @@ bool alloc_monster(int dis, bool slp)
 	{
 		if (alloc_horde(y, x))
 		{
-			if ((cheat_hear) || (p_ptr->precognition)) msg_print("Monster horde.");
+			if ((cheat_hear) || (p_ptr->precognition && precog_specifics)) msg_print("Monster horde.");
 			return (TRUE);
 		}
 	}

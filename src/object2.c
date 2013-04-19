@@ -1223,12 +1223,8 @@ s32b object_value_real(object_type *o_ptr)
 
 	if (f5 & TR5_TEMPORARY) return (0L);
 
-	if (o_ptr->art_flags1 || o_ptr->art_flags2 || o_ptr->art_flags3)
-	{
-		value += flag_cost (o_ptr, o_ptr->pval);
-	}
 	/* Artifact */
-	else if (o_ptr->name1)
+	if (o_ptr->name1)
 	{
 		artifact_type *a_ptr = &a_info[o_ptr->name1];
 
@@ -1261,6 +1257,11 @@ s32b object_value_real(object_type *o_ptr)
 			value += e_ptr->cost;
 		}
 	}
+	else if (o_ptr->art_flags1 || o_ptr->art_flags2 || o_ptr->art_flags3 || o_ptr->art_flags4 || o_ptr->art_flags5)
+	{
+		value += flag_cost (o_ptr, o_ptr->pval);
+	}
+
 
 	/* Pay the spell */
 	if (f5 & TR5_SPELL_CONTAIN)
@@ -1299,10 +1300,6 @@ s32b object_value_real(object_type *o_ptr)
 	case TV_TRAPKIT:
 	case TV_INSTRUMENT:
 		{
-#if 0 /* DG - no */
-			/* Hack -- Negative "pval" is always bad */
-			if (o_ptr->pval < 0) return (0L);
-#endif
 			/* No pval */
 			if (!o_ptr->pval) break;
 
@@ -1557,10 +1554,6 @@ s32b object_value(object_type *o_ptr)
 	/* Return the final value */
 	return (value);
 }
-
-
-
-
 
 /*
  * Determine if an item can "absorb" a second item
@@ -2193,27 +2186,24 @@ static void object_mention(object_type *o_ptr)
 	/* Artifact */
 	if (artifact_p(o_ptr))
 	{
-		/* Silly message */
-		msg_format("Artifact (%s)", o_name);
+		cmsg_format(TERM_VIOLET, "Artifact (%s)", o_name);
 	}
 
 	/* Random Artifact */
 	else if (o_ptr->art_name)
 	{
-		msg_print("Random artifact");
+		cmsg_print(TERM_YELLOW, "Random artifact");
 	}
 
 	/* Ego-item */
 	else if (ego_item_p(o_ptr))
 	{
-		/* Silly message */
-		msg_format("Ego-item (%s)", o_name);
+		cmsg_format(TERM_L_DARK, "Ego-item (%s)", o_name);
 	}
 
 	/* Normal item */
 	else
 	{
-		/* Silly message */
 		msg_format("Object (%s)", o_name);
 	}
 }
@@ -2700,71 +2690,72 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 	switch (o_ptr->tval)
 	{
 	case TV_TRAPKIT:
-		{
-			/* Good */
-			if (power > 0) o_ptr->to_a += randint(5);
+	{
+		/* Good */
+		if (power > 0) o_ptr->to_a += randint(5);
 
-			/* Very good */
-			if (power > 1) o_ptr->to_a += randint(5);
+		/* Very good */
+		if (power > 1) o_ptr->to_a += randint(5);
 
-			/* Bad */
-			if (power < 0) o_ptr->to_a -= randint(5);
+		/* Bad */
+		if (power < 0) o_ptr->to_a -= randint(5);
 
-			/* Very bad */
-			if (power < -1) o_ptr->to_a -= randint(5);
+		/* Very bad */
+		if (power < -1) o_ptr->to_a -= randint(5);
 
-			break;
-		}
+		break;
+	}
 	case TV_MSTAFF:
+	{
+		if (is_ego_p(o_ptr, EGO_MSTAFF_SPELL))
 		{
-			if (is_ego_p(o_ptr, EGO_MSTAFF_SPELL))
+			int gf[2], i;
+
+			for (i = 0; i < 2; i++)
 			{
-				int gf[2], i;
+				int k = 0;
 
-				for (i = 0; i < 2; i++)
+				gf[i] = 0;
+				while (!k)
 				{
-					int k = 0;
-
-					gf[i] = 0;
-					while (!k)
-					{
-						k = lookup_kind(TV_RUNE1, (gf[i] = rand_int(MAX_GF)));
-					}
+					k = lookup_kind(TV_RUNE1, (gf[i] = rand_int(MAX_GF)));
 				}
-
-				o_ptr->pval = gf[0] + (gf[1] << 16);
-				o_ptr->pval3 = rand_int(RUNE_MOD_MAX) + (rand_int(RUNE_MOD_MAX) << 16);
-				o_ptr->pval2 = randint(70) + (randint(70) << 8);
 			}
-			else
-				o_ptr->art_flags5 |= (TR5_SPELL_CONTAIN | TR5_WIELD_CAST);
-			break;
+
+			o_ptr->pval = gf[0] + (gf[1] << 16);
+			o_ptr->pval3 = rand_int(RUNE_MOD_MAX) + (rand_int(RUNE_MOD_MAX) << 16);
+			o_ptr->pval2 = randint(70) + (randint(70) << 8);
 		}
+		else
+			o_ptr->art_flags5 |= (TR5_SPELL_CONTAIN | TR5_WIELD_CAST);
+		break;
+	}
 	case TV_BOLT:
 	case TV_ARROW:
 	case TV_SHOT:
+	{
+		if ((power == 1) && !o_ptr->name2)
+		{
+			if (randint(100) < 30)
 			{
-			if ((power == 1) && !o_ptr->name2)
-			{
-				if (randint(100) < 30)
-				{
-					/* Exploding missile */
-					int power[27] = {GF_ELEC, GF_POIS, GF_ACID,
-					                 GF_COLD, GF_FIRE, GF_PLASMA, GF_LITE,
-					                 GF_DARK, GF_SHARDS, GF_SOUND,
-					                 GF_CONFUSION, GF_FORCE, GF_INERTIA,
-					                 GF_MANA, GF_METEOR, GF_ICE, GF_CHAOS,
-					                 GF_NETHER, GF_NEXUS, GF_TIME,
-					                 GF_GRAVITY, GF_KILL_WALL, GF_AWAY_ALL,
-					                 GF_TURN_ALL, GF_NUKE, GF_STUN,
-					                 GF_DISINTEGRATE};
+				/* Exploding missile */
+				int power[27] = {GF_ELEC, GF_POIS, GF_ACID,
+				                 GF_COLD, GF_FIRE, GF_PLASMA, GF_LITE,
+				                 GF_DARK, GF_SHARDS, GF_SOUND,
+				                 GF_CONFUSION, GF_FORCE, GF_INERTIA,
+				                 GF_MANA, GF_METEOR, GF_ICE, GF_CHAOS,
+				                 GF_NETHER, GF_NEXUS, GF_TIME,
+				                 GF_GRAVITY, GF_KILL_WALL, GF_AWAY_ALL,
+				                 GF_TURN_ALL, GF_NUKE, GF_STUN,
+				                 GF_DISINTEGRATE};
 
-					o_ptr->pval2 = power[rand_int(27)];
-				}
+				o_ptr->pval2 = power[rand_int(27)];
 			}
-			break;
 		}
+		break;
 	}
+
+	} // switch bracket
 }
 
 
@@ -2844,58 +2835,61 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 	/* Analyze type */
 	if (process_hooks(HOOK_APPLY_MAGIC, "(O,d,d)", o_ptr, level, power))
 		return;
+
 	switch (o_ptr->tval)
 	{
 	case TV_CLOAK:
-		{
-			if (o_ptr->sval == SV_ELVEN_CLOAK)
-				o_ptr->pval = randint(4);        /* No cursed elven cloaks...? */
-			else if (o_ptr->sval == SV_MIMIC_CLOAK)
-			{
-				s32b mimic;
+	{
+		if (o_ptr->sval == SV_ELVEN_CLOAK)
+			o_ptr->pval = randint(4);        /* No cursed elven cloaks */
 
-				call_lua("find_random_mimic_shape", "(d,d)", "d", level, TRUE, &mimic);
-				o_ptr->pval2 = mimic;
-			}
-			break;
+		else if (o_ptr->sval == SV_MIMIC_CLOAK)
+		{
+			s32b mimic;
+
+			call_lua("find_random_mimic_shape", "(d,d)", "d", level, TRUE, &mimic);
+			o_ptr->pval2 = mimic;
 		}
+		break;
+	}
 	case TV_DRAG_ARMOR:
+	{
+		/* Rating boost */
+		rating += 30;
+
+		/* Mention the item */
+		if ((cheat_peek) || (p_ptr->precognition && precog_dragon)) object_mention(o_ptr);
+
+		break;
+	}
+	case TV_SHIELD:
+	{
+		if (o_ptr->sval == SV_DRAGON_SHIELD)
 		{
 			/* Rating boost */
-			rating += 30;
+			rating += 5;
 
 			/* Mention the item */
-			if ((cheat_peek) || (p_ptr->precognition)) object_mention(o_ptr);
-
-			break;
+			if ((cheat_peek) || (p_ptr->precognition && precog_dragon)) object_mention(o_ptr);
+			dragon_resist(o_ptr);
 		}
-	case TV_SHIELD:
-		{
-			if (o_ptr->sval == SV_DRAGON_SHIELD)
-			{
-				/* Rating boost */
-				rating += 5;
-
-				/* Mention the item */
-				if ((cheat_peek) || (p_ptr->precognition)) object_mention(o_ptr);
-				dragon_resist(o_ptr);
-			}
-			break;
-		}
-	case TV_HELM:
-		{
-			if (o_ptr->sval == SV_DRAGON_HELM)
-			{
-				/* Rating boost */
-				rating += 5;
-
-				/* Mention the item */
-				if ((cheat_peek) || (p_ptr->precognition)) object_mention(o_ptr);
-				dragon_resist(o_ptr);
-			}
-			break;
-		}
+		break;
 	}
+	case TV_HELM:
+	{
+		if (o_ptr->sval == SV_DRAGON_HELM)
+		{
+			/* Rating boost */
+			rating += 5;
+
+			/* Mention the item */
+			if ((cheat_peek) || (p_ptr->precognition && precog_dragon)) object_mention(o_ptr);
+			dragon_resist(o_ptr);
+		}
+		break;
+	}
+
+	} // switch bracket
 }
 
 
@@ -3191,7 +3185,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 					o_ptr->pval = 1 + m_bonus(3, level);
 
 					/* Mention the item */
-					if ((cheat_peek) || (p_ptr->precognition)) object_mention(o_ptr);
+					if ((cheat_peek) || (p_ptr->precognition && precog_ego)) object_mention(o_ptr);
 					break;
 				}
 
@@ -3203,7 +3197,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 					o_ptr->to_d = 1 + m_bonus(5, level);
 
 					/* Mention the item */
-					if ((cheat_peek) || (p_ptr->precognition)) object_mention(o_ptr);
+					if ((cheat_peek) || (p_ptr->precognition && precog_ego)) object_mention(o_ptr);
 					break;
 				}
 
@@ -3293,7 +3287,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 					rating += 25;
 
 					/* Mention the item */
-					if ((cheat_peek) || (p_ptr->precognition)) object_mention(o_ptr);
+					if ((cheat_peek) || (p_ptr->precognition && precog_ego)) object_mention(o_ptr);
 
 					break;
 				}
@@ -3522,7 +3516,7 @@ static void a_m_aux_4(object_type *o_ptr, int level, int power)
 			/* Rating boost */
 			rating += 25;
 			/*  Mention the item */
-			if ((cheat_peek) || (p_ptr->precognition)) object_mention(o_ptr);
+			if ((cheat_peek) || (p_ptr->precognition && precog_artifact)) object_mention(o_ptr);
 		}
 		break;
 	case TV_POTION2:
@@ -4095,7 +4089,7 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 
 			k_ptr->artifact = TRUE;
 
-			if (cheat_peek || p_ptr->precognition) object_mention(o_ptr);
+			if (cheat_peek || (p_ptr->precognition && precog_artifact)) object_mention(o_ptr);
 		}
 
 		return;
@@ -4213,7 +4207,7 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 		good_item_flag = TRUE;
 
 		/* Cheat -- peek at the item */
-		if ((cheat_peek) || (p_ptr->precognition)) object_mention(o_ptr);
+		if ((cheat_peek) || (p_ptr->precognition && precog_artifact)) object_mention(o_ptr);
 
 		/* Spell in it ? no ! */
 		if (a_ptr->flags5 & TR5_SPELL_CONTAIN)
@@ -4398,7 +4392,10 @@ try_an_other_ego:
 		}
 
 		/* Cheat -- describe the item */
-		if ((cheat_peek) || (p_ptr->precognition)) object_mention(o_ptr);
+		if ((cheat_peek) || (p_ptr->precognition && precog_ego))
+			object_mention(o_ptr);
+		else if (p_ptr->precognition && (o_ptr->art_flags5 & TR5_CHARGEABLE))
+			object_mention(o_ptr);
 	}
 
 
@@ -4942,15 +4939,19 @@ bool make_object(object_type *j_ptr, bool good, bool great, obj_theme theme)
 	/* Hack -- generate multiple spikes/missiles */
 	switch (j_ptr->tval)
 	{
-//	case TV_SPIKE:
+	case TV_SPIKE:
+		{
+			j_ptr->number = 1 + (byte)damroll(1, 4);
+		}
+	break;
+
 	case TV_SHOT:
 	case TV_ARROW:
 	case TV_BULLET:
 	case TV_RBULLET:
-
 	case TV_BOLT:
 		{
-			j_ptr->number = (byte)damroll(6, 7);
+			j_ptr->number = 3 + (byte)damroll(6, 7);
 		}
 	}
 
@@ -4965,7 +4966,7 @@ bool make_object(object_type *j_ptr, bool good, bool great, obj_theme theme)
 		rating += (k_info[j_ptr->k_idx].level - dun_level);
 
 		/* Cheat -- peek at items */
-		if ((cheat_peek) || (p_ptr->precognition)) object_mention(j_ptr);
+		if ((cheat_peek) || (p_ptr->precognition && precog_ego)) object_mention(j_ptr);
 	}
 
 	/* Success */

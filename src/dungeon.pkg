@@ -487,6 +487,9 @@ typedef unsigned int u32b;
  */
 #define FEAT_FIRE               0xCD 
 
+#define FEAT_FIRTREE            0xDB
+#define FEAT_MALLORN            0xF3
+
 /* Feature 0xCE -- pile of rubble (permanent) */
 /* Features 0xCF - 0xFF -- unused */
 /** @} */

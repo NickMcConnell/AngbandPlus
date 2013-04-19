@@ -205,7 +205,6 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr,
 
 	u32b f1, f2, f3, f4, f5, esp;
 
-
 	/* Extract the flags */
 	object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
 
@@ -519,8 +518,8 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr,
                     	r_ptr->r_flags7 |= (RF7_RES_LITE);
 					}
 				}
-                                /* Notice susceptibility */
-                if (r_ptr->flags3 & (RF3_HURT_LITE))
+                /* Notice susceptibility */
+                else if (r_ptr->flags3 & (RF3_HURT_LITE))
 				{
 
 					if (m_ptr->ml)
@@ -542,18 +541,19 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr,
 				/* Notice immunity */
 				if (r_ptr->flags3 & (RF3_DEMON) || r_ptr->flags3 & (RF3_UNDEAD) || r_ptr->flags7 & (RF7_RES_DARK))
                 {
-                                        /* Does nothing */
+                    /* Does nothing */
                 }
                	else
                	{
                	if (mult < 3) mult = 3;
                	}
 			}
+
 			if ((f5 & (TR5_BRAND_WATER)))
 			{
                 if (r_ptr->flags3 & (RF3_RES_WATE) || r_ptr->flags7 & (RF7_AQUATIC))
 				{
-                                        /* Does nothing */
+                    /* Does nothing */
                 }
 				else
 				{
@@ -565,7 +565,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr,
 			{
                 if (r_ptr->flags3 & (RF3_UNDEAD))
 				{
-                                        /* Does nothing */
+                	/* Does nothing */
                 }
 				else
 				{
@@ -588,13 +588,25 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr,
 						r_info[m_ptr->r_idx].r_flags8 |= (RF8_NO_CUT);
 					}
 				}
-
-				/* Otherwise, take the damage */
 				else
 				{
 					if (magik(50)) *special |= SPEC_CUT;
 				}
 			}
+
+			if (r_ptr->flags7 & RF7_RES_MELEE)
+			{
+				if (m_ptr->ml)
+				{
+               		r_ptr->r_flags7 |= (RF7_RES_MELEE);
+               	}
+
+				if (mult > 1)
+					return (tdam);
+
+				return (tdam / 2);
+			}
+
 			break;
 		}
 	}
@@ -732,7 +744,7 @@ static void hit_trap(void)
 	if (c_ptr->t_idx != 0)
 	{
 		ident = player_activate_trap_type(p_ptr->py, p_ptr->px, NULL, -1);
-		if (ident)
+		if (ident && !(t_info[c_ptr->t_idx].ident))
 		{
 			t_info[c_ptr->t_idx].ident = TRUE;
 			msg_format("You identified the trap as %s.",
@@ -945,7 +957,7 @@ bool touch_zap_player(monster_type *m_ptr)
 				teleport_player (50);
 				return (1);
 			}
-				
+
 		}
 	}
 
@@ -955,7 +967,7 @@ bool touch_zap_player(monster_type *m_ptr)
 
 		if (!(p_ptr->resist_chaos) && !(p_ptr->oppose_cc))
 		{
-			
+
 
 			char aura_dam[80];
 			msg_print("You are splattered with raw chaos!");
@@ -1208,25 +1220,17 @@ static void carried_monster_attack(s16b m_idx, bool *fear, bool *mdeath,
 		switch (effect)
 		{
 		case RBE_HURT:
-			{
-				power = 60;
-				break;
-			}
+			power = 60;
+			break;
 		case RBE_POISON:
-			{
-				power = 5;
-				break;
-			}
+			power = 5;
+			break;
 		case RBE_UN_BONUS:
-			{
-				power = 20;
-				break;
-			}
+			power = 20;
+			break;
 		case RBE_UN_POWER:
-			{
-				power = 15;
-				break;
-			}
+			power = 15;
+			break;
 		case RBE_EAT_GOLD:
 			power = 5;
 			break;
@@ -1318,17 +1322,17 @@ static void carried_monster_attack(s16b m_idx, bool *fear, bool *mdeath,
 		case RBE_ABOMINATION:
 			power = 20;
 			break;
-				case RBE_CHAOS:
+		case RBE_CHAOS:
 			power = 5;
 			break;
-				case RBE_PIETY:
+		case RBE_PIETY:
 			power = 60;
 			break;
 
-					case RBE_FOOD:
+		case RBE_FOOD:
 			power = 60;
 			break;
-						case RBE_SLASH:
+		case RBE_SLASH:
 			power = 50;
 			break;
 		}
@@ -2643,7 +2647,7 @@ static void py_attack_hand(int *k, monster_type *m_ptr, s32b *special)
 		if (!desc) msg_format(ma_ptr->desc, m_name);
 		desc = TRUE;
 	}
-	
+
 
 if (ma_ptr->effect & MA_SLEEP)
 	{
@@ -2662,7 +2666,7 @@ if (ma_ptr->effect & MA_FIRE)
 		project_hack(GF_FIRE, (3 * p_ptr->lev));
 		}
 	if (!desc) msg_format(ma_ptr->desc, m_name);
-		desc = TRUE; 
+		desc = TRUE;
 	}
 
 // MA_POIS, for spiders (THE GP FURY)
@@ -2673,7 +2677,7 @@ if (ma_ptr->effect & MA_FIRE)
 			*special |= SPEC_POIS;
 		}
 	if (!desc) msg_format(ma_ptr->desc, m_name);
-		desc = TRUE; 
+		desc = TRUE;
 	}
 
 
@@ -2750,8 +2754,7 @@ void do_nazgul(int *k, int *num, int num_blow, int weap, monster_race *r_ptr,
 		{
 			if (mundane)
 			{
-				msg_print
-				("The Ringwraith is IMPERVIOUS to the mundane weapon.");
+				msg_print ("The Ringwraith is IMPERVIOUS to the mundane weapon.");
 				*k = 0;
 			}
 
@@ -2789,8 +2792,8 @@ void do_nazgul(int *k, int *num, int num_blow, int weap, monster_race *r_ptr,
 			}
 		}
 
-		/* If any damage is done, then 25% chance of getting the Black Breath */
-		if (*k)
+		/* If any damage is done (or 5%), then 25% chance of getting the Black Breath */
+		if (*k || magik(5))
 		{
 			if (magik(25))
 			{
@@ -2899,15 +2902,7 @@ void py_attack(int y, int x, int max_blow)
 	                !(p_ptr->stun || p_ptr->confused || p_ptr->image ||
 	                  !(m_ptr->ml)))
 	{
-		if (!(p_ptr->inventory[INVEN_WIELD].art_name))
-		{
-			msg_format("You stop to avoid hitting %s.", m_name);
-			return;
-		}
-
-		if (!
-		                (streq
-		                 (quark_str(p_ptr->inventory[INVEN_WIELD].art_name), "'Stormbringer'")))
+		if (!(p_ptr->inventory[INVEN_WIELD].art_name)) // Zop: inven_wield + 1?
 		{
 			msg_format("You stop to avoid hitting %s.", m_name);
 			return;
@@ -2957,7 +2952,7 @@ void py_attack(int y, int x, int max_blow)
 			if ( (p_ptr->body_parts[2] == INVEN_WIELD) ) weapons++;
 		}
 
-		/* Attack with ALL the weapons !!!!! -- ooh that's gonna hurt YOU */
+		/* Attack with ALL the weapon */
 		for (weap = 0; weap < weapons; ++weap)
 		{
 			/* Monster is already dead ? oh :( */
@@ -2965,7 +2960,6 @@ void py_attack(int y, int x, int max_blow)
 
 			/* Reset the blows counter */
 			num = 0;
-			
 
 			o_ptr = &p_ptr->inventory[INVEN_WIELD + weap];
 			bonus = p_ptr->to_h + p_ptr->to_h_melee + o_ptr->to_h;
@@ -2973,7 +2967,6 @@ void py_attack(int y, int x, int max_blow)
 			object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
 
 			/* Calculate the "attack quality" */
-
 			if (!(f4 & TR4_NEVER_BLOW))
 			{
 
@@ -3157,7 +3150,7 @@ void py_attack(int y, int x, int max_blow)
 						/* May it clone the monster ? */
 						if ((f4 & TR4_CLONE) && magik(30))
 						{
-							msg_format("Oh no ! Your weapon clones %^s!",
+							msg_format("Oh no! Your weapon clones %^s!",
 							           m_name);
 							multiply_monster(c_ptr->m_idx, FALSE, TRUE);
 						}
@@ -3360,9 +3353,6 @@ void py_attack(int y, int x, int max_blow)
 								msg_format("%^s is unaffected.", m_name);
 							}
 						}
-
-
-
 					}
 
 					/* Player misses */
@@ -3571,7 +3561,7 @@ bool player_can_enter(byte feature)
 		}
 	}
 
-	if (feature == FEAT_TREES)
+	if ((feature == FEAT_TREES) || (feature == FEAT_FIRTREE) || (feature == FEAT_MALLORN))
 	{
 		if (p_ptr->fly ||
 		    pass_wall ||
@@ -3615,7 +3605,7 @@ bool player_can_enter(byte feature)
  */
 void move_player_aux(int dir, int do_pickup, int run, bool disarm)
 {
-	int y, x, tmp;
+	int y, x, i, tmp;
 
 	cave_type *c_ptr = &cave[p_ptr->py][p_ptr->px];
 
@@ -3779,10 +3769,14 @@ void move_player_aux(int dir, int do_pickup, int run, bool disarm)
 	m_ptr = &m_list[c_ptr->m_idx];
 	mr_ptr = race_inf(m_ptr);
 
-	if (p_ptr->inventory[INVEN_WIELD].art_name)
+
+	for (i = 0; i < 3; i++)
 	{
-		if (streq(quark_str(p_ptr->inventory[INVEN_WIELD].art_name), "'Stormbringer'"))
-			stormbringer = TRUE;
+		if (p_ptr->inventory[INVEN_WIELD + i].art_name)
+		{
+			if (streq(quark_str(p_ptr->inventory[INVEN_WIELD + i].art_name), "'Stormbringer'"))
+				stormbringer = TRUE;
+		}
 	}
 
 	/* Hack -- attack monsters */

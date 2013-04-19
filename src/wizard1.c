@@ -152,7 +152,71 @@ static cptr attr_to_text(byte a)
 		return ("L.Blue");
 	case TERM_L_UMBER:
 		return ("L.Umber");
-	}
+/*adding the new colors*/
+	case TERM_INDIAN_RED:
+		return ("I.Red");
+
+	case TERM_PINK:
+		return ("Pink");
+	case TERM_GOLD:
+		return ("Gold");		
+	case TERM_ROYAL_BLUE:
+		return ("R.Blue");		
+	case TERM_AQUAMARINE:
+		return ("Aquamarine");			
+	case TERM_DARK_ORCHID:
+		return ("D.Orchid");			
+	case TERM_CHOCOLATE:
+		return ("Chocolate");		
+	case TERM_FIREBRICK:
+		return ("Firebrick");		
+
+	case TERM_KHAKI:
+		return ("Khaki");
+	case TERM_DARK_KHAKI:
+		return ("D.Khaki");		
+	case TERM_CADET_BLUE:
+		return ("C.Blue");		
+	case TERM_STEEL_BLUE:
+		return ("S.Blue");			
+	case TERM_LIGHT_STEEL_BLUE:
+		return ("LS.Blue");			
+	case TERM_SANDY_BROWN:
+		return ("S.Brown");		
+	case TERM_ORCHID:
+		return ("Orchid");	
+
+	case TERM_CRIMSON:
+		return ("Crimson");
+	case TERM_SALMON:
+		return ("Salmon");		
+	case TERM_DARK_SLATE_GRAY:
+		return ("DS.Gray");		
+	case TERM_PURPLE:
+		return ("Purple");			
+	case TERM_OLIVE_DRAB:
+		return ("Olivedrab");			
+	case TERM_YELLOW_GREEN:
+		return ("Y.Green");		
+	case TERM_HONEYDEW:
+		return ("Honeydew");		
+		
+	case TERM_MOCCASIN:
+		return ("Moccasin");
+	case TERM_DARK_SEA_GREEN:
+		return ("D.S.Green");		
+	case TERM_TEAL:
+		return ("Teal");		
+	case TERM_ANTIQUE_WHITE:
+		return ("A.White");			
+	case TERM_OLD_LACE:
+		return ("OldLace");			
+	case TERM_TAN:
+		return ("Tan");		
+
+		
+		
+		}
 
 	/* Oops */
 	return ("Icky");
@@ -369,6 +433,8 @@ static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val, int 
 
 /*
  * Create a spoiler file for items
+ 
+	Made more amazing by The Fury in 2010 to export to a CSV file
  */
 static void spoil_obj_desc(cptr fname)
 {
@@ -400,17 +466,14 @@ static void spoil_obj_desc(cptr fname)
 
 
 	/* Header */
-	sprintf(buf, "Basic Items Spoilers for %s %ld.%ld.%ld%s",
-	        game_module, VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH, IS_CVS);
+
 	spoiler_underline(buf);
 	spoiler_blanklines(2);
 
 	/* More Header */
-	fprintf(fff, "%-45s     %8s%7s%5s%9s\n",
+	fprintf(fff, "%s,%s,%s,%s,%s\n",
 	        "Description", "Dam/AC", "Wgt", "Lev", "Cost");
-	fprintf(fff, "%-45s     %8s%7s%5s%9s\n",
-	        "----------------------------------------",
-	        "------", "---", "---", "----");
+
 
 	/* List the groups */
 	for (i = 0; TRUE; i++)
@@ -454,7 +517,7 @@ static void spoil_obj_desc(cptr fname)
 				kind_info(buf, dam, wgt, &e, &v, who[s]);
 
 				/* Dump it */
-				fprintf(fff, "     %-45s%8s%7s%5d%9ld\n",
+				fprintf(fff, "\"%s\",\"%s\",\"%s\",\"%d\",\"%ld\"\n",
 				        buf, dam, wgt, e, (long)(v));
 			}
 
@@ -1351,12 +1414,17 @@ static void spoil_artifact(cptr fname)
 
 
 
+
+
 /*
  * Create a spoiler file for monsters   -BEN-
+ 
+	Now prints to CSV for easy manipulation - 2010 The Fury
  */
 static void spoil_mon_desc(cptr fname)
 {
 	int i, n = 0;
+	int q = 0;
 
 	s16b *who;
 
@@ -1369,7 +1437,10 @@ static void spoil_mon_desc(cptr fname)
 	char ac[80];
 	char hp[80];
 	char exp[80];
+	char expr[80];
+	char change[80];
 
+	
 	/* Build the filename */
 	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, fname);
 
@@ -1390,16 +1461,14 @@ static void spoil_mon_desc(cptr fname)
 	C_MAKE(who, max_r_idx, s16b);
 
 	/* Dump the header */
-	sprintf(buf, "Monster Spoilers for %s %ld.%ld.%ld%s",
-	        game_module, VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH, IS_CVS);
+
 	spoiler_underline(buf);
 	spoiler_blanklines(2);
 
 	/* Dump the header */
-	fprintf(fff, "%-40.40s%4s%4s%6s%8s%4s  %11.11s\n",
-	        "Name", "Lev", "Rar", "Spd", "Hp", "Ac", "Visual Info");
-	fprintf(fff, "%-40.40s%4s%4s%6s%8s%4s  %11.11s\n",
-	        "----", "---", "---", "---", "--", "--", "-----------");
+	fprintf(fff, "%s,%s,%s,%s,%s,%s,%s,%s\n",
+	        "Name", "Lev", "Rar", "Spd", "Hp", "Ac", "Visual Info", "Experience");
+	
 
 
 	/* Scan the monsters */
@@ -1419,14 +1488,21 @@ static void spoil_mon_desc(cptr fname)
 
 		cptr name = (r_name + r_ptr->name);
 
+		strncpy(change, name, 80);
+	for(q = 0; q < 80; ++q){
+     if (change[q] == ','){  // Look for a '
+         change[q] = ' '; // replace with a `
+			}
+		}
+		
 		/* Get the "name" */
 		if (r_ptr->flags1 & (RF1_UNIQUE))
 		{
-			sprintf(nam, "[U] %s", name);
+			sprintf(nam, "[U] %s", change);
 		}
 		else
 		{
-			sprintf(nam, "The %s", name);
+			sprintf(nam, "The %s", change);
 		}
 
 
@@ -1459,16 +1535,21 @@ static void spoil_mon_desc(cptr fname)
 			sprintf(hp, "%dd%d", r_ptr->hdice, r_ptr->hside);
 		}
 
+		/* Ok, I have no idea who was responsible for the next few lines of code, 
+			but I'm not impressed. They were getting the experience information
+			and decided next line to overwrite that variable with the monster color
+			Oi. Now fixed so that the spoiler file displays BOTH sets of information
+						- The Fury (2010) */
 
 		/* Experience */
-		sprintf(exp, "%ld", (long)(r_ptr->mexp));
+		sprintf(expr, "%ld", (long)(r_ptr->mexp));
 
 		/* Hack -- use visual instead */
 		sprintf(exp, "%s '%c'", attr_to_text(r_ptr->d_attr), r_ptr->d_char);
 
 		/* Dump the info */
-		fprintf(fff, "%-40.40s%4s%4s%6s%8s%4s  %11.11s\n",
-		        nam, lev, rar, spd, hp, ac, exp);
+		fprintf(fff, "\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"\n",
+		        nam, lev, rar, spd, hp, ac, exp, expr);
 	}
 
 	/* End it */
@@ -2784,7 +2865,100 @@ static void spoil_spells(cptr fname)
 	msg_print("Successfully created a spoiler file.");
 }
 
+int ilog2 (int x)
+{
+    int l = 0;
+    if(x >= 1<<16){ x>>=16; l=16; }
+    if(x >= 1<<8) { x>>=8; l|=8; }
+    if(x >= 1<<4) { x>>=4; l|=4; }
+    if(x >= 1<<2) { x>>=2; l|=2; }
+    if(x >= 1<<1) l|=1;
+    return l;
+}
 
+extern cptr k_info_flags1[];
+extern cptr k_info_flags2[];
+extern cptr k_info_flags3[];
+extern cptr k_info_flags4[];
+extern cptr k_info_flags5[];
+extern cptr esp_flags[];
+extern cptr ego_flags[];
+
+static void spoil_randart(cptr fname)
+{
+	char buf[1024];
+	int i;
+
+	/* Build the filename */
+	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, fname);
+
+	/* File type is "TEXT" */
+	FILE_TYPE(FILE_TYPE_TEXT);
+
+	fff = my_fopen(buf, "w");
+
+	/* Oops */
+	if (!fff)
+	{
+		msg_print("Cannot create spoiler file.");
+		return;
+	}
+
+	for (i = 0; i < max_ra_idx; i++)
+	{
+		int cur_t = 0;
+		randart_part_type *ra_ptr = &ra_info[i];
+
+		fprintf(fff,"N:");
+		fprintf(fff, "%i\n", i);
+
+		fprintf(fff,"X:");
+		fprintf(fff, "%d:%d\n", (int)ra_ptr->value, (int)ra_ptr->max);
+
+		while (ra_ptr->tval[cur_t] && ra_ptr->tval[cur_t] != 255)
+		{
+			fprintf(fff,"T:%i:%i:%i\n", ra_ptr->tval[cur_t], ra_ptr->min_sval[cur_t], ra_ptr->max_sval[cur_t]);
+			cur_t++;
+		}
+
+		fprintf(fff,"C:");
+		fprintf(fff,"%i:%i:%i:%i\n", ra_ptr->max_to_d, ra_ptr->max_to_h, ra_ptr->max_to_a, (int)ra_ptr->max_pval);
+
+
+		fprintf(fff,"W:");
+		fprintf(fff,"%i:%i:%i\n", ra_ptr->level, ra_ptr->rarity, ra_ptr->mrarity);
+
+		fprintf(fff,"F:");
+		if (ra_ptr->flags1)
+			fprintf (fff,k_info_flags1[ilog2(ra_ptr->flags1)]);
+		else if (ra_ptr->flags2)
+			fprintf (fff,k_info_flags2[ilog2(ra_ptr->flags2)]);
+		else if (ra_ptr->flags3)
+			fprintf (fff,k_info_flags3[ilog2(ra_ptr->flags3)]);
+		else if (ra_ptr->flags4)
+			fprintf (fff,k_info_flags4[ilog2(ra_ptr->flags4)]);
+		else if (ra_ptr->flags5)
+			fprintf (fff,k_info_flags5[ilog2(ra_ptr->flags5)]);
+		else if (ra_ptr->esp)
+			fprintf (fff,esp_flags[ilog2(ra_ptr->esp)]);
+		else if (ra_ptr->fego)
+			fprintf (fff,ego_flags[ilog2(ra_ptr->fego)]);
+
+		fprintf(fff,"\n\n");
+	}
+
+	// sprintf(buf, "%s", s);
+
+	/* Check for errors */
+	if (ferror(fff) || my_fclose(fff))
+	{
+		msg_print("Cannot close spoiler file.");
+		return;
+	}
+
+	/* Message */
+	msg_print("Successfully created a spoiler file.");
+}
 
 /*
  * Forward declare
@@ -2815,15 +2989,16 @@ void do_cmd_spoilers(void)
 		prt("Create a spoiler file.", 2, 0);
 
 		/* Prompt for a file */
-		prt("(1) Brief Object Info  (obj-desc.spo)", 5, 5);
+		prt("(1) Brief Object Info  (obj-desc.csv)", 5, 5);
 		prt("(2) Full Artifact Info (artifact.spo)", 6, 5);
-		prt("(3) Brief Monster Info (mon-desc.spo)", 7, 5);
+		prt("(3) Brief Monster Info (mon-desc.csv)", 7, 5);
 		prt("(4) Full Monster Info  (mon-info.spo)", 8, 5);
 		prt("(5) Full Essences Info (ess-info.spo)", 9, 5);
 		prt("(6) Spell Info         (spell.spo)", 10, 5);
+		prt("(7) Randart Table      (randart.spo)", 11, 5);
 
 		/* Prompt */
-		prt("Command: ", 12, 0);
+		prt("Command: ", 13, 0);
 
 		/* Get a choice */
 		i = inkey();
@@ -2837,7 +3012,7 @@ void do_cmd_spoilers(void)
 		/* Option (1) */
 		else if (i == '1')
 		{
-			spoil_obj_desc("obj-desc.spo");
+			spoil_obj_desc("obj-desc.csv");
 		}
 
 		/* Option (2) */
@@ -2849,7 +3024,7 @@ void do_cmd_spoilers(void)
 		/* Option (3) */
 		else if (i == '3')
 		{
-			spoil_mon_desc("mon-desc.spo");
+			spoil_mon_desc("mon-desc.csv");
 		}
 
 		/* Option (4) */
@@ -2868,6 +3043,12 @@ void do_cmd_spoilers(void)
 		else if (i == '6')
 		{
 			spoil_spells("spell.spo");
+		}
+
+		/* Option (7) */
+		else if (i == '7')
+		{
+			spoil_randart("randart.spo");
 		}
 
 		/* Oops */

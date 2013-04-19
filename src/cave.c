@@ -328,8 +328,6 @@ bool los(int y1, int x1, int y2, int x2)
 	return (TRUE);
 }
 
-
-
 /*
  * Returns true if the player's grid is dark
  */
@@ -337,8 +335,6 @@ bool no_lite(void)
 {
 	return (!player_can_see_bold(p_ptr->py, p_ptr->px));
 }
-
-
 
 /*
  * Determine if a given location may be "destroyed"
@@ -428,9 +424,6 @@ static void image_monster(byte *ap, char *cp)
 	}
 }
 
-
-
-
 /*
  * Hack -- Legal object codes
  */
@@ -478,7 +471,6 @@ static void image_object(byte *ap, char *cp)
 	}
 }
 
-
 /*
  * Hack -- Random hallucination
  */
@@ -497,7 +489,6 @@ static void image_random(byte *ap, char *cp)
 	}
 }
 
-
 /*
  * The 16x16 tile of the terrain supports lighting
  */
@@ -515,7 +506,6 @@ static bool feat_supports_lighting(byte feat)
 }
 
 #endif
-
 
 char get_shimmer_color()
 {
@@ -540,12 +530,11 @@ char get_shimmer_color()
 	return (TERM_VIOLET);
 }
 
-
 /*
- * Table of breath colors.  Must match listings in a single set of 
+ * Table of breath colors.  Must match listings in a single set of
  * monster spell flags.
  *
- * The value "255" is special.  Monsters with that kind of breath 
+ * The value "255" is special.  Monsters with that kind of breath
  * may be any color.
  */
 static byte breath_to_attr[32][2] =
@@ -588,8 +577,8 @@ static byte breath_to_attr[32][2] =
 /*
  * Multi-hued monsters shimmer acording to their breaths.
  *
- * If a monster has only one kind of breath, it uses both colors 
- * associated with that breath.  Otherwise, it just uses the first 
+ * If a monster has only one kind of breath, it uses both colors
+ * associated with that breath.  Otherwise, it just uses the first
  * color for any of its breaths.
  *
  * If a monster does not breath anything, it can be any color.
@@ -650,7 +639,7 @@ static byte multi_hued_attr(monster_race *r_ptr)
 		}
 
 		/*
-		 * Remember (but do not immediately store) the second color 
+		 * Remember (but do not immediately store) the second color
 		 * of the first breath.
 		 */
 		if (breaths == 1)
@@ -672,7 +661,6 @@ static byte multi_hued_attr(monster_race *r_ptr)
 	/* Pick a color at random */
 	return (allowed_attrs[rand_int(stored_colors)]);
 }
-
 
 /*
  * Extract the attr/char to display at the given (legal) map location
@@ -1280,7 +1268,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 
 				/* Multi-hued attr */
 				if (!avoid_other && attr_mutable &&
-				                (k_info[o_ptr->k_idx].flags5 & TR5_ATTR_MULTI))
+				                ((k_info[o_ptr->k_idx].flags5 & TR5_ATTR_MULTI) || (o_ptr->art_flags5 & TR5_ATTR_MULTI)))
 				{
 					*ap = get_shimmer_color();
 				}
@@ -1320,7 +1308,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 
 				/* Multi-hued attr */
 				if (!avoid_other && attr_mutable &&
-				                (k_info[o_ptr->k_idx].flags5 & TR5_ATTR_MULTI))
+				                ((k_info[o_ptr->k_idx].flags5 & TR5_ATTR_MULTI) || (o_ptr->art_flags5 & TR5_ATTR_MULTI)))
 				{
 					*ap = get_shimmer_color();
 				}
@@ -1847,7 +1835,7 @@ void map_info_default(int y, int x, byte *ap, char *cp)
 
 				/* Multi-hued attr */
 				if (!avoid_other &&
-				                (k_info[o_ptr->k_idx].flags5 & TR5_ATTR_MULTI))
+				                ((k_info[o_ptr->k_idx].flags5 & TR5_ATTR_MULTI) || (o_ptr->art_flags5 & TR5_ATTR_MULTI)))
 				{
 					*ap = get_shimmer_color();
 				}
@@ -1887,7 +1875,7 @@ void map_info_default(int y, int x, byte *ap, char *cp)
 
 				/* Multi-hued attr */
 				if (!avoid_other && !use_graphics &&
-				                (k_info[o_ptr->k_idx].flags5 & TR5_ATTR_MULTI))
+				                ((k_info[o_ptr->k_idx].flags5 & TR5_ATTR_MULTI) || (o_ptr->art_flags5 & TR5_ATTR_MULTI)))
 				{
 					*ap = get_shimmer_color();
 				}
@@ -2075,10 +2063,6 @@ void print_rel(char c, byte a, int y, int x)
 		Term_draw(panel_col_of(x) + 1, y - panel_row_prt, a2, c2);
 	}
 }
-
-
-
-
 
 /*
  * Memorize interesting viewable object/features in the given grid
@@ -2284,9 +2268,6 @@ void lite_spot(int y, int x)
 	}
 }
 
-
-
-
 /*
  * Prints the map of the dungeon
  *
@@ -2394,10 +2375,6 @@ void prt_map(void)
 	(void)Term_set_cursor(v);
 }
 
-
-
-
-
 /*
  * Display highest priority object in the RATIO by RATIO area
  */
@@ -2457,6 +2434,8 @@ static byte priority_table[][2] =
 	{ FEAT_GRASS, 20 },
 	{ FEAT_DARK_PIT, 20 },
 	{ FEAT_TREES, 20 },
+	{ FEAT_FIRTREE, 20},
+	{ FEAT_MALLORN, 20},
 	{ FEAT_MOUNTAIN, 20 },
 	{ FEAT_ICE, 20},
 	{ FEAT_SAND, 20},
@@ -2788,11 +2767,6 @@ void do_cmd_view_map(void)
 	character_icky = FALSE;
 }
 
-
-
-
-
-
 /*
  * Some comments on the dungeon related data structures and functions...
  *
@@ -2902,7 +2876,7 @@ void do_cmd_view_map(void)
  * which grids have been "memorized" by the player.  This flag is used by
  * the "map_info()" function to determine if a grid should be displayed.
  * This flag is used in a few other places to determine if the player can
- * "know" about a given grid.  This flag must be very fast. 
+ * "know" about a given grid.  This flag must be very fast.
  *
  * The "CAVE_GLOW" flag is saved in the savefile and is used to determine
  * which grids are "permanently illuminated".  This flag is used by the
@@ -3054,7 +3028,7 @@ void do_cmd_view_map(void)
  * two wall grids which form the "entrance" to the room would not be marked
  * as "CAVE_SEEN", since of the three "touching" grids nearer to the player
  * than each wall grid, only the farthest of these grids is itself marked
- * "CAVE_GLOW". 
+ * "CAVE_GLOW".
  *
  *
  * Here are some pictures of the legal "light source" radius values, in
@@ -3065,7 +3039,7 @@ void do_cmd_view_map(void)
  *
  *       Rad=0     Rad=1      Rad=2        Rad=3
  *      No-Lite  Torch,etc   Lantern     Artifacts
- *    
+ *
  *                                          333
  *                             333         43334
  *                  212       32123       3321233
@@ -3182,9 +3156,6 @@ struct vinfo_type
  * The array of "vinfo" objects, initialized by "vinfo_init()"
  */
 static vinfo_type vinfo[VINFO_MAX_GRIDS];
-
-
-
 
 /*
  * Slope scale factor
@@ -3325,8 +3296,6 @@ static vinfo_type vinfo[VINFO_MAX_GRIDS];
 /* 124 :     93103      28 */
 /* 125 :    100000      13 */
 
-
-
 /*
  * Forward declare
  */
@@ -3354,8 +3323,6 @@ struct vinfo_hack
 	long slopes_min[MAX_SIGHT + 1][MAX_SIGHT + 1];
 	long slopes_max[MAX_SIGHT + 1][MAX_SIGHT + 1];
 };
-
-
 
 /*
  * Sorting hook -- comp function -- array of long's (see below)
@@ -3386,7 +3353,6 @@ static void ang_sort_swap_hook_longs(vptr u, vptr v, int a, int b)
 	x[a] = x[b];
 	x[b] = temp;
 }
-
 
 
 /*
@@ -3672,7 +3638,6 @@ errr vinfo_init(void)
 	/* Success */
 	return (0);
 }
-
 
 
 /*
@@ -4122,7 +4087,7 @@ void update_view(void)
 
 
 /*
- * Clear monster light 
+ * Clear monster light
  */
 void forget_mon_lite(void)
 {
@@ -4605,12 +4570,6 @@ void update_flow(void)
 
 }
 
-
-
-
-
-
-
 /*
  * Hack -- map the current panel (plus some) ala "magic mapping"
  */
@@ -4672,8 +4631,6 @@ void map_area(void)
 	/* Window stuff */
 	p_ptr->window |= (PW_OVERHEAD);
 }
-
-
 
 /*
  * Light up the dungeon using "clairvoyance"
@@ -4832,10 +4789,6 @@ void wiz_dark(void)
 	/* Window stuff */
 	p_ptr->window |= (PW_OVERHEAD);
 }
-
-
-
-
 
 /*
  * Change the "feat" flag for a grid, and notice/redraw the grid
@@ -5000,8 +4953,6 @@ void mmove2(int *y, int *x, int y1, int x1, int y2, int x2)
 	}
 }
 
-
-
 /*
  * Determine if a bolt spell cast from (y1,x1) to (y2,x2) will arrive
  * at the final destination, assuming no monster gets in the way.
@@ -5038,9 +4989,6 @@ bool projectable(int y1, int x1, int y2, int x2)
 	/* Assume obstruction */
 	return (FALSE);
 }
-
-
-
 
 /*
  * Standard "find me a location" function
@@ -5087,9 +5035,6 @@ void scatter(int *yp, int *xp, int y, int x, int d, int m)
 	}
 }
 
-
-
-
 /*
  * Track a new monster
  */
@@ -5101,8 +5046,6 @@ void health_track(int m_idx)
 	/* Redraw (later) */
 	p_ptr->redraw |= (PR_HEALTH);
 }
-
-
 
 /*
  * Hack -- track the given monster race
@@ -5117,8 +5060,6 @@ void monster_race_track(int r_idx, int ego)
 	p_ptr->window |= (PW_MONSTER);
 }
 
-
-
 /*
  * Hack -- track the given object kind
  */
@@ -5130,8 +5071,6 @@ void object_track(object_type *o_ptr)
 	/* Window stuff */
 	p_ptr->window |= (PW_OBJECT);
 }
-
-
 
 /*
  * Something has happened to disturb the player.

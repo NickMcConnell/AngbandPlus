@@ -408,7 +408,7 @@ DEVICE_RADAGAST = add_spell
 	do_res_stat(A_INT, TRUE)
 	do_res_stat(A_CHR, TRUE)
 	restore_level()
-	clean_corruptions()
+	lose_all_corruptions() 
 	hp_player(5000)
 	heal_insanity(5000)
 	set_poisoned(0)

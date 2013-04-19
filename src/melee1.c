@@ -1943,7 +1943,7 @@ bool make_attack_normal(int m_idx, byte divis)
 
 			case RBM_MOAN:
 				{
-					if (strstr((r_name + r_ptr->name), "Mathilde, the Science Student"))
+					if (strstr((r_name + r_ptr->name), "Mathilde"))
 						act = desc_moan[rand_int(3) + 4];
 					else
 						act = desc_moan[rand_int(4)];
@@ -1960,12 +1960,12 @@ bool make_attack_normal(int m_idx, byte divis)
 					sound(SOUND_SHOW);
 					break;
 				}
-						case RBM_HOWL:
+			case RBM_HOWL:
 				{
 					act = "howls at you.";
 					break;
 				}
-							case RBM_ROAR:
+			case RBM_ROAR:
 				{
 					act = "roars at you.";
 					break;

@@ -66,7 +66,7 @@ add_hooks
         [HOOK_KEYPRESS] = function (key)
                         if key == strbyte('<') then
                                 if dun_level == 0 then
-                                        msg_print('No going up')
+                                        msg_print('The sky is clouded by heavy fumes coming from the Thangorodrim.')
                                 	return TRUE
                                 end
                         end

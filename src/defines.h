@@ -881,7 +881,8 @@
 /* Feature 0xCC -- Underground Tunnel */
 #define FEAT_FIRE               0xCD /* 205 */
 /* Feature 0xCE -- pile of rubble (permanent) */
-
+#define FEAT_FIRTREE            0xDB // so that they can burn and be tree-walked THE FURY
+#define FEAT_MALLORN            0xF3 // so that they can burn and be tree walked THE FURY
 /* Features 0xCF - 0xFF -- unused */
 
 
@@ -3571,6 +3572,23 @@
 #define RF9_NEVER_GENE          0x00004000      /* The monster cannot be normaly generated */
 #define RF9_KIN_PROTECT         0x00008000      // summons its kin on death. Good for r_ego captains
 // 16
+
+
+
+/** @def RF2_AURA_FIRE
+ * @note Burns in melee 
+ */
+#define RF2_AURA_FIRE                   0x00004000      
+/** @def RF2_AURA_ELEC
+ * @note Shocks in melee 
+ */
+#define RF2_AURA_ELEC                   0x00008000      
+
+/** @def RF3_AURA_COLD
+ * @note Freezes in melee 
+ */
+#define RF3_AURA_COLD                        0x00000400      
+
 
 /*
  * Hack -- choose "intelligent" spells when desperate

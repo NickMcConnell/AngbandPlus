@@ -1,17 +1,5 @@
 constructor_powers = 88
 
-MKEY_CONSTRUCT_POWERS = 88
-add_mkey
-{
-        ["mkey"] =      MKEY_CONSTRUCT_POWERS,
-        ["fct"] =       function()
-             		execute_magic(constructor_powers)
-
-                	-- use up some energy
-                	energy_use = energy_use + 100;
-        end
-}
-
 SURVEY_AREA = add_spell
 		{
 			["name"] = 	"Survey area",
@@ -49,6 +37,7 @@ SURVEY_AREA = add_spell
 						detect_stairs(DEFAULT_RADIUS)
 						detect_doors(DEFAULT_RADIUS)
 					end
+					return TRUE
 			end,
 			["info"] = 	function()
                                 return " "
@@ -82,7 +71,7 @@ DISMANTLE = add_spell
 						ret, dir = get_aim_dir();
 	
 						-- Got direction ok?
-						if (ret == FALSE) then return end
+						if (ret == FALSE) then return FALSE end
 
 						-- fire beam of disarming (like a wand of trap/door destruction
 						fire_beam(GF_KILL_TRAP, dir, 1)
@@ -90,6 +79,7 @@ DISMANTLE = add_spell
 						-- player-centered radius 1 ball of disarm trap. (Works like a spell of trap/door destruction)
 						fire_ball(GF_KILL_TRAP, 0, 1, 1)
 					end
+					return TRUE
 			end,
 			["info"] =	function()
                                 return " "
@@ -122,7 +112,7 @@ SPARKY_SKILLS = add_spell
 	
 					-- Got direction ok?
 					if (ret == FALSE) then 
-						return 
+						return FALSE
 					end
 
 					-- calculate damage  as (skill level * 2) +d20
@@ -137,6 +127,7 @@ SPARKY_SKILLS = add_spell
 					
 					-- grant temp electric resist for 20+(skill level * 3) + d10
 					if player.oppose_elec == 0 then set_oppose_elec(randint(10) + 20 + get_level(constructor_powers, 20)*3) end
+					return TRUE
 
 			end,
 			["info"] =	function()
@@ -166,6 +157,7 @@ BUILD_DOOR = add_spell
 					-- project a door under the player
 					project(0, 0, player.py, player.px, 0, GF_MAKE_DOOR, PROJECT_GRID + PROJECT_ITEM)
 					msg_print("You build a door.")
+					return TRUE
 			end,
 			["info"] = 	function()
                                 return " "
@@ -196,28 +188,29 @@ KNOCK_DOWN_WALL = add_spell
 					ret, dir = get_aim_dir();
 	
 					-- Got direction ok?
-					if (ret == FALSE) then return end					
+					if (ret == FALSE) then return FALSE end					
 
 					if (get_level(constructor_powers, 50) >= 34) then
 						-- ask for input
 						ret2, which = get_com("[D]ig corridor or [E]xcavate chamber?", 2)
 
 						-- did user press ESC?
-						if (ret2 == FALSE) then return end
+						if (ret2 == FALSE) then return FALSE end
 						-- which did they choose?
 						if (which == strbyte('D')) or (which == strbyte('d')) then
 							-- fire a beam
 							project_hook(GF_KILL_WALL, dir, 1, PROJECT_BEAM + PROJECT_KILL + PROJECT_GRID + PROJECT_WALL)
-							return
+							return TRUE
 						end 
 	
 						if (which == strbyte('E')) or (which == strbyte('e')) then 
 							fire_ball(GF_KILL_WALL, dir, 1, 3)
-							return
+							return TRUE
 						end
 
 					else
 						wall_to_mud(dir)
+						return TRUE
 					end
 			end,
 			["info"] = 	function()
@@ -251,7 +244,7 @@ PLUMBERS_MATE = add_spell
 	
 					-- Got direction ok?
 					if (ret == FALSE) then 
-						return 
+						return FALSE
 					end
 
 					dam = get_level(constructor_powers, 50)*2 + 30
@@ -266,7 +259,7 @@ PLUMBERS_MATE = add_spell
 					if player.oppose_pois == 0 then 
 						set_oppose_pois(randint(10) + 30 + get_level(constructor_powers, 20)*3) 
 					end
-
+					return TRUE
 			end,
 			["info"] = 	function()
                                 return " dam "..(get_level(constructor_powers, 50)*2 + 30).."    dur "..(30 + get_level(constructor_powers, 20)*3).."+1d10"
@@ -298,27 +291,28 @@ BUILD_WALL = add_spell
 					if (get_level(constructor_powers, 50) >= 42) then
 						ret2, which = get_com("[B]uild straight wall or [F]ill hole?", 2)
 						-- corridor?
-						if (ret2 == FALSE) then return end
+						if (ret2 == FALSE) then return FALSE end
 
 						-- Get the direction
 						ret, dir = get_aim_dir();
 	
 						-- Got direction ok?
-						if (ret == FALSE) then return end
+						if (ret == FALSE) then return FALSE end
 
 						if (which == strbyte('B')) or (which == strbyte('b')) then
 							-- Fire the bolt/ball.
 							project_hook(GF_STONE_WALL, dir, 1, PROJECT_BEAM + PROJECT_KILL + PROJECT_GRID)
-							return
+							return TRUE
 						end 
 	
 						if (which == strbyte('F')) or (which == strbyte('f')) then 
 							fire_ball(GF_STONE_WALL, dir, 1, 3)
-							return
+							return TRUE
 						end
 					else
 						project(0, 0, player.py, player.px, 0, GF_STONE_WALL, PROJECT_GRID + PROJECT_ITEM)
 						msg_print("You build a section of wall.")
+						return TRUE
 					end
 			end,
 			["info"] = 	function()
@@ -345,12 +339,14 @@ BUILD_STAIR = add_spell
 				["random"] =    0,
 			["fail"] = 	35,
 			["spell"] = 	function()
-					stair_creation();
+					stair_creation()
+					return TRUE
 			end,
 			["info"] = 	function()
                                 return " "
                         end,
 		}
+
 NAIL_GUNS = add_spell
 		{
 			["name"] = 	"Nail guns",
@@ -413,16 +409,17 @@ NAIL_GUNS = add_spell
 						ret, dir = get_aim_dir();
 	
 						-- Got direction ok?
-						if (ret == FALSE) then return end
+						if (ret == FALSE) then return FALSE end
 
 						fire_bolt(GF_SHARDS, dir, dam)
-						return
 					end
+					return TRUE
 			end,
 			["info"] = 	function()
                                 return " dam "..(20 + get_level(constructor_powers, 50)*3).." "
                         end,
 		}
+
 DEMOLITION = add_spell
 		{
 			["name"] = 	"Demolition",
@@ -445,6 +442,7 @@ DEMOLITION = add_spell
 			["spell"] = 	function()
 					msg_print("You call in the demolition men!")
 					fire_ball(GF_DISINTEGRATE, 0, 1, 40)
+					return TRUE
 			end,
 			["info"] = 	function()
                                 return " "
@@ -470,7 +468,8 @@ REBUILD_DUNGEON = add_spell
 	},
 				["random"] =    0,
 			["spell"] = 	function()
-					alter_reality();
+					alter_reality()
+					return TRUE
 			end,
 			["info"] = 	function()
                                 return " "
@@ -519,5 +518,13 @@ FIND_HIDDEN = add_spell
 	}
 }
 
-
+MKEY_CONSTRUCT_POWERS = 88
+add_mkey
+{
+        ["mkey"] =      MKEY_CONSTRUCT_POWERS,
+        ["fct"] =       function()
+             	execute_magic(constructor_powers)
+                	energy_use = energy_use + 100;
+        end
+}
 

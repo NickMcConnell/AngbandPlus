@@ -11,6 +11,6 @@ Thanks to the programmers of Adamant, T-Plus, Tome and a half, and anyone else t
 Thanks to Cosmic Gerbil for a lot of the weapons, and the help files
 Thanks to ISNorden for some ideas.
 
-and an INSANELY LARGE amount of thanks to Zop for fixing a lot of the bugs and making a gold release possible.
+and an INSANELY LARGE amount of thanks to Zop for fixing a lot of the bugs and making this release possible.
 
 Also, thanks to everyone on the TOME forums for assistance with programming

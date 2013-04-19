@@ -6216,17 +6216,17 @@ F:LITE2 | WIELD_CAST
 N:791:& Maiaclaw~
 G:]:R
 I:115:78:0
-W:20:0:30:500
+W:30:0:30:500
 P:3:1d1:4:4:0
-A:20/1
+A:30/1
 F:WIELD_CAST | RES_FIRE
 
 N:792:& Maia Hooves~
 G:]:R
 I:115:97:2
-W:20:0:30:500
+W:50:0:30:500
 P:3:1d1:0:0:0
-A:40/1
+A:50/1
 F:WIELD_CAST | SPEED
 
 # XXX
@@ -7273,7 +7273,7 @@ D:Vicious claws that rip holes through living things
 N:922:& Maia Armour~
 G:[:R
 I:115:96:0
-W:20:0:30:500
+W:50:0:30:500
 P:10:1d1:0:0:0
 A:50/1
 F:WIELD_CAST | RES_NETHER
@@ -7579,101 +7579,6 @@ F:RES_FIRE | RES_COLD |
 D:This suit of thick impregnated cloth is worn by the riders of flying steeds,
 D:and protects them from extremes of temperatures.
 
-N:997:Survery Area
-G:-:d
-I:65:99:-1:SPELL=Survey area
-W:3:0:10:100
-A:3/1
-F:SPECIAL_GENE
-P:0:1d1:0:0:0
-
-N:998:Dismantle
-G:-:d
-I:65:98:-1:SPELL=Dismantle
-W:3:0:10:100
-A:3/1
-F:SPECIAL_GENE
-P:0:1d1:0:0:0
-
-N:999:Sparky Skills
-G:-:d
-I:65:98:-1:SPELL=Sparky Skills
-W:3:0:10:100
-A:3/1
-F:SPECIAL_GENE
-P:0:1d1:0:0:0
-
-N:1000:Build Door
-G:-:d
-I:65:98:-1:SPELL=Build Door
-W:3:0:10:100
-A:3/1
-F:SPECIAL_GENE
-P:0:1d1:0:0:0
-
-N:1001:Knock down wall
-G:-:d
-I:65:98:-1:SPELL=Knock down wall
-W:3:0:10:100
-A:3/1
-F:SPECIAL_GENE
-P:0:1d1:0:0:0
-
-N:1002:Plumbers Mate
-G:-:d
-I:65:98:-1:SPELL=Plumbers Mate
-W:3:0:10:100
-A:3/1
-F:SPECIAL_GENE
-P:0:1d1:0:0:0
-
-N:1003:Build walls
-G:-:d
-I:65:98:-1:SPELL=Build walls
-W:3:0:10:100
-A:3/1
-F:SPECIAL_GENE
-P:0:1d1:0:0:0
-
-N:1004:Build stairs
-G:-:d
-I:65:98:-1:SPELL=Build stairs
-W:3:0:10:100
-A:3/1
-F:SPECIAL_GENE
-P:0:1d1:0:0:0
-
-N:1005:Nail guns
-G:-:d
-I:65:98:-1:SPELL=Nail guns
-W:3:0:10:100
-A:3/1
-F:SPECIAL_GENE
-P:0:1d1:0:0:0
-
-N:1006:Demolition
-G:-:d
-I:65:98:-1:SPELL=Demolition
-W:3:0:10:100
-A:3/1
-F:SPECIAL_GENE
-P:0:1d1:0:0:0
-
-N:1007:Rebuild entire dungeon
-G:-:d
-I:65:98:-1:SPELL=Rebuild entire dungeon
-W:3:0:10:100
-A:3/1
-F:SPECIAL_GENE
-P:0:1d1:0:0:0
-
-N:1008:Find Traps
-G:-:d
-I:65:98:-1:SPELL=Find Traps
-W:3:0:10:100
-A:3/1
-F:SPECIAL_GENE
-P:0:1d1:0:0:0
 
 N:1009:& Handclaw~
 G:]:s
@@ -7746,106 +7651,7 @@ D:Nunchuks are two sticks connected at their ends with a short
 D:chain or rope.  They can be wielded two handed.
 
 
-N:1015:misc 1
-G:-:d
-I:65:98:-1:SPELL=Sleep Monster
-W:3:0:10:100
-A:3/1
-F:SPECIAL_GENE
-P:0:1d1:0:0:0
 
-N:1016:misc 2
-G:-:d
-I:65:98:-1:SPELL=Stun Monster
-W:3:0:10:100
-A:3/1
-F:SPECIAL_GENE
-P:0:1d1:0:0:0
-
-N:1017:misc 3
-G:-:d
-I:65:98:-1:SPELL=Stun Monsters
-W:3:0:10:100
-A:3/1
-F:SPECIAL_GENE
-P:0:1d1:0:0:0
-
-N:1018:misc 4
-G:-:d
-I:65:98:-1:SPELL=Sleep Monsters
-W:3:0:10:100
-A:3/1
-F:SPECIAL_GENE
-P:0:1d1:0:0:0
-
-N:1019:misc 5
-G:-:d
-I:65:98:-1:SPELL=Kill Monsters
-W:3:0:10:100
-A:3/1
-F:SPECIAL_GENE
-P:0:1d1:0:0:0
-
-
-N:1020:misc 6
-G:-:d
-I:65:98:-1:SPELL=Kill Monster
-W:3:0:10:100
-A:3/1
-F:SPECIAL_GENE
-P:0:1d1:0:0:0
-
-N:1021:misc 7
-G:-:d
-I:65:98:-1:SPELL=Breathe Fire
-W:3:0:10:100
-A:3/1
-F:SPECIAL_GENE
-P:0:1d1:0:0:0
-
-
-N:1022:misc 8
-G:-:d
-I:65:98:-1:SPELL=Breathe Poison
-W:3:0:10:100
-A:3/1
-F:SPECIAL_GENE
-P:0:1d1:0:0:0
-
-N:1023:misc 9
-G:-:d
-I:65:98:-1:SPELL=Breathe Fire Wall
-W:3:0:10:100
-A:3/1
-F:SPECIAL_GENE
-P:0:1d1:0:0:0
-
-
-N:1024:misc 10
-G:-:d
-I:65:98:-1:SPELL=Breathe Poison Wall
-W:3:0:10:100
-A:3/1
-F:SPECIAL_GENE
-P:0:1d1:0:0:0
-
-
-N:1025:misc 11
-G:-:d
-I:65:98:-1:SPELL=Aura of Fire
-W:3:0:10:100
-A:3/1
-F:SPECIAL_GENE
-P:0:1d1:0:0:0
-
-
-N:1026:misc 12
-G:-:d
-I:65:98:-1:SPELL=Aura of Poison
-W:3:0:10:100
-A:3/1
-F:SPECIAL_GENE
-P:0:1d1:0:0:0
 
 
 

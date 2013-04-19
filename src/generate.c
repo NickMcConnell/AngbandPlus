@@ -1255,7 +1255,7 @@ void build_rectangle(int y1, int x1, int y2, int x2, int feat, int info)
 /*
  * Place water through the dungeon using recursive fractal algorithm
  *
- * Why do those good at math and/or algorithms tend *not* to 
+ * Why do those good at math and/or algorithms tend *not* to
  * place any spaces around binary operators? I've been always
  * wondering. This seems almost a unversal phenomenon...
  * Tried to make those conform to the rule, but there may still
@@ -1639,7 +1639,7 @@ static void destroy_level(void)
 	cave_type *c_ptr;
 
 	/* Note destroyed levels */
-	if ((cheat_room) || (p_ptr->precognition)) msg_print("Destroyed Level");
+	if ((cheat_room) || (p_ptr->precognition && precog_specifics)) msg_print("Destroyed Level");
 
 	/* Drop a few epi-centers (usually about two) */
 	for (n = 0; n < randint(5); n++)
@@ -3310,7 +3310,7 @@ static void build_type5(int by0, int bx0)
 
 
 	/* Describe */
-	if (cheat_room || p_ptr->precognition)
+	if (cheat_room || (p_ptr->precognition && precog_specifics))
 	{
 		/* Room type */
 		msg_format("Monster nest (%s)", name);
@@ -3673,7 +3673,7 @@ static void build_type6(int by0, int bx0)
 
 
 	/* Message */
-	if (cheat_room || p_ptr->precognition)
+	if (cheat_room || (p_ptr->precognition && precog_specifics))
 	{
 		/* Room type */
 		msg_format("Monster pit (%s)", name);
@@ -4079,7 +4079,7 @@ static void build_type7(int by0, int bx0)
 #endif
 
 	/* Message */
-	if (cheat_room || p_ptr->precognition) msg_print("Lesser Vault");
+	if (cheat_room || (p_ptr->precognition && precog_vaults)) msg_print("Lesser Vault");
 
 	/* Boost the rating */
 	rating += v_ptr->rat;
@@ -4139,7 +4139,7 @@ static void build_type8(int by0, int bx0)
 #endif
 
 	/* Message */
-	if (cheat_room || p_ptr->precognition) msg_print("Greater Vault");
+	if (cheat_room || (p_ptr->precognition && precog_vaults)) msg_print("Greater Vault");
 
 	/* Boost the rating */
 	rating += v_ptr->rat;
@@ -7033,7 +7033,7 @@ bool level_generate_dungeon(cptr name)
 	{
 		empty_level = TRUE;
 
-		if (cheat_room || p_ptr->precognition)
+		if (cheat_room || (p_ptr->precognition && precog_specifics))
 		{
 			msg_print("Arena level.");
 		}
@@ -7306,7 +7306,7 @@ bool level_generate_dungeon(cptr name)
 	/* Add some sand streamers */
 	if ((dungeon_flags1 & DF1_SAND_VEIN) && !rand_int(4))
 	{
-		if ((cheat_room) || (p_ptr->precognition)) msg_print("Sand vein.");
+		if ((cheat_room) || (p_ptr->precognition && precog_specifics)) msg_print("Sand vein.");
 		build_streamer(FEAT_SANDWALL, DUN_STR_SC);
 	}
 
@@ -7322,12 +7322,12 @@ bool level_generate_dungeon(cptr name)
 	/* Hack -- Add some rivers if requested */
 	if ((dungeon_flags1 & DF1_WATER_RIVER) && !rand_int(4))
 	{
-		if (cheat_room || p_ptr->precognition) msg_print("River of water.");
+		if (cheat_room || (p_ptr->precognition && precog_specifics)) msg_print("River of water.");
 		add_river(FEAT_DEEP_WATER, FEAT_SHAL_WATER);
 	}
 	if ((dungeon_flags1 & DF1_LAVA_RIVER) && !rand_int(4))
 	{
-		if ((cheat_room) || (p_ptr->precognition)) msg_print("River of lava.");
+		if ((cheat_room) || (p_ptr->precognition && precog_specifics)) msg_print("River of lava.");
 		add_river(FEAT_DEEP_LAVA, FEAT_SHAL_LAVA);
 	}
 
@@ -7341,7 +7341,7 @@ bool level_generate_dungeon(cptr name)
 			if (rand_int(3) == 0)
 			{
 				add_river(FEAT_DEEP_WATER, FEAT_SHAL_WATER);
-				if (!said && ((cheat_room) || (p_ptr->precognition))) msg_print("Rivers of water.");
+				if (!said && ((cheat_room) || (p_ptr->precognition && precog_specifics))) msg_print("Rivers of water.");
 				said = TRUE;
 			}
 		}
@@ -7357,7 +7357,7 @@ bool level_generate_dungeon(cptr name)
 			if (rand_int(3) == 0)
 			{
 				add_river(FEAT_DEEP_LAVA, FEAT_SHAL_LAVA);
-				if (!said && ((cheat_room) || (p_ptr->precognition))) msg_print("Rivers of lava.");
+				if (!said && ((cheat_room) || (p_ptr->precognition && precog_specifics))) msg_print("Rivers of lava.");
 				said = TRUE;
 			}
 		}
@@ -8372,7 +8372,7 @@ static bool cave_gen(void)
 			good_item_flag = TRUE;
 
 			/* Make cheaters and precog aware of the ghost */
-			if (cheat_hear || p_ptr->precognition) msg_print("Player Ghost.");
+			if (cheat_hear || (p_ptr->precognition && precog_specifics)) msg_print("Player Ghost.");
 
 			/* Stop trying to place the ghost */
 			break;
@@ -8719,10 +8719,11 @@ void generate_grid_mana()
 	{
 		xtra_magic = TRUE;
 
-		if (cheat_room || p_ptr->precognition)
-		{
-			msg_print("Magical level");
-		}
+		if (!p_ptr->wild_mode)
+			if (cheat_room || (p_ptr->precognition && precog_specifics))
+			{
+				msg_print("Magical level");
+			}
 	}
 
 	mult = ((xtra_magic) ? 3 : 2);
@@ -9025,7 +9026,7 @@ void generate_cave(void)
 				/* Requested size level */
 				if (d_ptr->size_x != -1)
 				{
-					if (cheat_room || p_ptr->precognition)
+					if (cheat_room || (p_ptr->precognition && precog_specifics))
 					{
 						msg_print ("A 'size' dungeon level.");
 					}
@@ -9050,7 +9051,7 @@ void generate_cave(void)
 				else if (!(dungeon_flags1 & DF1_BIG) &&
 				                (dungeon_flags1 & DF1_SMALLEST))
 				{
-					if (cheat_room || p_ptr->precognition)
+					if (cheat_room || (p_ptr->precognition && precog_specifics))
 					{
 						msg_print ("A 'small' dungeon level.");
 					}
@@ -9078,7 +9079,7 @@ void generate_cave(void)
 				                 (dungeon_flags1 & DF1_SMALL) ||
 				                 (small_levels && rand_int(SMALL_LEVEL) == 0)))
 				{
-					if (cheat_room || p_ptr->precognition)
+					if (cheat_room || (p_ptr->precognition && precog_specifics))
 					{
 						msg_print ("A 'small' dungeon level.");
 					}
@@ -9180,7 +9181,7 @@ void generate_cave(void)
 				{
 					/* Give message to cheaters */
 					if (cheat_room || cheat_hear ||
-					                cheat_peek || cheat_xtra || p_ptr->precognition)
+					                cheat_peek || cheat_xtra || (p_ptr->precognition && precog_specifics))
 					{
 						/* Message */
 						why = "boring level";

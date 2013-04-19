@@ -733,7 +733,7 @@ bool player_activate_trap_type(s16b y, s16b x, object_type *i_ptr, s16b item)
 		/* Aggravation Trap */
 	case TRAP_OF_AGGRAVATION:
 		{
-			msg_print("You hear a hollow noise echoing through the dungeons.");
+			msg_print("You hear a hollow noise echoing through the area.");
 			aggravate_monsters(1);
 			break;
 		}
@@ -741,7 +741,7 @@ bool player_activate_trap_type(s16b y, s16b x, object_type *i_ptr, s16b item)
 		/* Multiplication Trap */
 	case TRAP_OF_MULTIPLICATION:
 		{
-			msg_print("You hear a loud click.");
+			msg_print("You hear a loud set of clicks.");
 			for (k = -1; k <= 1; k++)
 				for (l = -1; l <= 1; l++)
 				{
@@ -1973,7 +1973,7 @@ void player_activate_door_trap(s16b y, s16b x)
 
 	/* Hit the trap */
 	ident = player_activate_trap_type(y, x, NULL, -1);
-	if (ident)
+	if (ident && !(t_info[c_ptr->t_idx].ident))
 	{
 		t_info[c_ptr->t_idx].ident = TRUE;
 		msg_format("You identified that trap as %s.",
@@ -3416,4 +3416,3 @@ bool mon_hit_trap(int m_idx)
 	/* did it die? */
 	return (dead);
 }
-

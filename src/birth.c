@@ -1202,12 +1202,13 @@ static void player_outfit(void)
 #define MAX_RANDOM_QUESTS_TYPES ((7 * 3) + (7 * 1))
 int random_quests_types[MAX_RANDOM_QUESTS_TYPES] =
 {
-	1, 5, 6, 10, 11, 12, 14,          /* Princess type */
-	1, 5, 6, 10, 11, 12, 14,          /* Princess type */
-	1, 5, 6, 10, 11, 12, 14,          /* Princess type */
+	1, 19, 6, 10, 11, 12, 19,          /* Princess type */
+	1, 5, 7, 7, 8, 12, 14,          /* Princess type */
+	1, 5, 7, 10, 8, 12, 14,          /* Princess type */
 	20, 13, 15, 16, 9, 17, 18,          /* Hero Sword Quest */
 };
 
+ 
 /* Enforce OoD monsters until this level */
 #define RQ_LEVEL_CAP 49
 

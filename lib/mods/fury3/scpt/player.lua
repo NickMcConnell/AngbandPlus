@@ -7,11 +7,7 @@ function __birth_hook_objects()
 
 	-- Grace delay for adding piety
 	GRACE_DELAY = 0
-		local obj = create_object(20, 4);
-		obj.ident = bor(obj.ident, IDENT_MENTAL, IDENT_KNOWN)
-		inven_carry(obj, FALSE)
-		end_object(obj)
-	
+
 	-- Provide a book of Geyser to Geomancers
 	if get_class_name() == "Geomancer" then
 		local obj = create_object(TV_BOOK, 255);
@@ -22,65 +18,62 @@ function __birth_hook_objects()
 	end
 
 	-- Provide a book of prayer to priests
+	
 	if get_class_name() == "Priest(Eru)" then
-		local obj = create_object(TV_BOOK, 255);
-		obj.pval = find_spell("See the Music")
+		local obj = create_object(115, 20);
 		obj.ident = bor(obj.ident, IDENT_MENTAL, IDENT_KNOWN)
 		inven_carry(obj, FALSE)
 		end_object(obj)
 	end
+
 	if get_class_name() == "Priest(Manwe)" then
-		local obj = create_object(TV_BOOK, 255);
-		obj.pval = find_spell("Manwe's Blessing")
+		local obj = create_object(115, 21);
 		obj.ident = bor(obj.ident, IDENT_MENTAL, IDENT_KNOWN)
 		inven_carry(obj, FALSE)
 		end_object(obj)
 	end
+	
+	
+	
 	if get_class_name() == "Druid" then
-		local obj = create_object(TV_BOOK, 255);
-		obj.pval = find_spell("Charm Animal")
+		local obj = create_object(115, 24);
 		obj.ident = bor(obj.ident, IDENT_MENTAL, IDENT_KNOWN)
 		inven_carry(obj, FALSE)
 		end_object(obj)
 	end
+
 	if get_class_name() == "Dark-Priest" then
-		local obj = create_object(TV_BOOK, 255);
-		obj.pval = find_spell("Curse")
+		local obj = create_object(115, 23);
 		obj.ident = bor(obj.ident, IDENT_MENTAL, IDENT_KNOWN)
 		inven_carry(obj, FALSE)
 		end_object(obj)
 	end
 	if get_class_name() == "Paladin" then
-		local obj = create_object(TV_BOOK, 255);
-		obj.pval = find_spell("Divine Aim")
+		local obj = create_object(115, 22);
 		obj.ident = bor(obj.ident, IDENT_MENTAL, IDENT_KNOWN)
 		inven_carry(obj, FALSE)
 		end_object(obj)
 	end
 	if get_class_name() == "Stonewright" then
-		local obj = create_object(TV_BOOK, 255);
-		obj.pval = find_spell("Firebrand")
+		local obj = create_object(115, 63);
 		obj.ident = bor(obj.ident, IDENT_MENTAL, IDENT_KNOWN)
 		inven_carry(obj, FALSE)
 		end_object(obj)
 	end
 	if get_class_name() == "Priest(Varda)" then
-		local obj = create_object(TV_BOOK, 255);
-		obj.pval = find_spell("Light of Valinor")
+		local obj = create_object(115, 64);
 		obj.ident = bor(obj.ident, IDENT_MENTAL, IDENT_KNOWN)
 		inven_carry(obj, FALSE)
 		end_object(obj)
 	end
 	if get_class_name() == "Priest(Ulmo)" then
-		local obj = create_object(TV_BOOK, 255);
-		obj.pval = find_spell("Song of Belegaer")
+		local obj = create_object(115, 65);
 		obj.ident = bor(obj.ident, IDENT_MENTAL, IDENT_KNOWN)
 		inven_carry(obj, FALSE)
 		end_object(obj)
 	end
 	if get_class_name() == "Priest(Mandos)" then
-		local obj = create_object(TV_BOOK, 255);
-		obj.pval = find_spell("Tears of Luthien")
+		local obj = create_object(115, 66);
 		obj.ident = bor(obj.ident, IDENT_MENTAL, IDENT_KNOWN)
 		inven_carry(obj, FALSE)
 		end_object(obj)
@@ -101,68 +94,7 @@ function __birth_hook_objects()
 		player.corruption(CORRUPT_VAMPIRE_VAMPIRE, TRUE)
 	end
 
-	-- Start the Red (Fire) dragons with a book of Light (Theme)
-	if get_subrace_name() == "Red" then
-		local obj = create_object(TV_BOOK, 255);
-		obj.pval = find_spell("Globe of Light")
-		obj.ident = bor(obj.ident, IDENT_MENTAL, IDENT_KNOWN)
-		inven_carry(obj, FALSE)
-		end_object(obj)
-	end
-
-	-- Start the Black (Water) dragons with a book of Geyser (Theme)
-	if get_subrace_name() == "Black" then
-		local obj = create_object(TV_BOOK, 255);
-		obj.pval = find_spell("Geyser")
-		obj.ident = bor(obj.ident, IDENT_MENTAL, IDENT_KNOWN)
-		inven_carry(obj, FALSE)
-		end_object(obj)
-	end
-
-	-- Start the Green (Air) dragons with a book of Noxious Cloud (Theme)
-	if get_subrace_name() == "Green" then
-		local obj = create_object(TV_BOOK, 255);
-		obj.pval = find_spell("Noxious Cloud")
-		obj.ident = bor(obj.ident, IDENT_MENTAL, IDENT_KNOWN)
-		inven_carry(obj, FALSE)
-		end_object(obj)
-	end
-
-	-- Start the Blue (Earth) dragons with a book of Stone Skin (Theme)
-	if get_subrace_name() == "Blue" then
-		local obj = create_object(TV_BOOK, 255);
-		obj.pval = find_spell("Stone Skin")
-		obj.ident = bor(obj.ident, IDENT_MENTAL, IDENT_KNOWN)
-		inven_carry(obj, FALSE)
-		end_object(obj)
-	end
-
-	-- Start the White dragons with a book of Sense Monsters (Theme)
-	if get_subrace_name() == "White" then
-		local obj = create_object(TV_BOOK, 255);
-		obj.pval = find_spell("Sense Monsters")
-		obj.ident = bor(obj.ident, IDENT_MENTAL, IDENT_KNOWN)
-		inven_carry(obj, FALSE)
-		end_object(obj)
-	end
-
-	-- Start the Ethereal dragons with a book of Recharge (Theme)
-	if get_subrace_name() == "Ethereal" then
-		local obj = create_object(TV_BOOK, 255);
-		obj.pval = find_spell("Recharge")
-		obj.ident = bor(obj.ident, IDENT_MENTAL, IDENT_KNOWN)
-		inven_carry(obj, FALSE)
-		end_object(obj)
-	end
-
-	-- Start the Peace-mages with a book of Blink (Theme)
-	if get_class_name() == "Peace-mage" then
-		local obj = create_object(TV_BOOK, 255);
-		obj.pval = find_spell("Phase Door")
-		obj.ident = bor(obj.ident, IDENT_MENTAL, IDENT_KNOWN)
-		inven_carry(obj, FALSE)
-		end_object(obj)
-	end
+	
 
 	-- Provide everyone with a scroll of WoR (Theme)
 	if get_race_name() == "Human" then

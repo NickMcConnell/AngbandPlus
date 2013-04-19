@@ -6216,17 +6216,17 @@ F:LITE2 | WIELD_CAST
 N:791:& Maiaclaw~
 G:]:R
 I:115:78:0
-W:20:0:30:500
+W:30:0:30:500
 P:3:1d1:4:4:0
-A:20/1
+A:30/1
 F:WIELD_CAST | RES_FIRE
 
 N:792:& Maia Hooves~
 G:]:R
 I:115:97:2
-W:20:0:30:500
+W:50:0:30:500
 P:3:1d1:0:0:0
-A:40/1
+A:50/1
 F:WIELD_CAST | SPEED
 
 # XXX
@@ -7746,106 +7746,7 @@ D:Nunchuks are two sticks connected at their ends with a short
 D:chain or rope.  They can be wielded two handed.
 
 
-N:1015:misc 1
-G:-:d
-I:65:98:-1:SPELL=Sleep Monster
-W:3:0:10:100
-A:3/1
-F:SPECIAL_GENE
-P:0:1d1:0:0:0
 
-N:1016:misc 2
-G:-:d
-I:65:98:-1:SPELL=Stun Monster
-W:3:0:10:100
-A:3/1
-F:SPECIAL_GENE
-P:0:1d1:0:0:0
-
-N:1017:misc 3
-G:-:d
-I:65:98:-1:SPELL=Stun Monsters
-W:3:0:10:100
-A:3/1
-F:SPECIAL_GENE
-P:0:1d1:0:0:0
-
-N:1018:misc 4
-G:-:d
-I:65:98:-1:SPELL=Sleep Monsters
-W:3:0:10:100
-A:3/1
-F:SPECIAL_GENE
-P:0:1d1:0:0:0
-
-N:1019:misc 5
-G:-:d
-I:65:98:-1:SPELL=Kill Monsters
-W:3:0:10:100
-A:3/1
-F:SPECIAL_GENE
-P:0:1d1:0:0:0
-
-
-N:1020:misc 6
-G:-:d
-I:65:98:-1:SPELL=Kill Monster
-W:3:0:10:100
-A:3/1
-F:SPECIAL_GENE
-P:0:1d1:0:0:0
-
-N:1021:misc 7
-G:-:d
-I:65:98:-1:SPELL=Breathe Fire
-W:3:0:10:100
-A:3/1
-F:SPECIAL_GENE
-P:0:1d1:0:0:0
-
-
-N:1022:misc 8
-G:-:d
-I:65:98:-1:SPELL=Breathe Poison
-W:3:0:10:100
-A:3/1
-F:SPECIAL_GENE
-P:0:1d1:0:0:0
-
-N:1023:misc 9
-G:-:d
-I:65:98:-1:SPELL=Breathe Fire Wall
-W:3:0:10:100
-A:3/1
-F:SPECIAL_GENE
-P:0:1d1:0:0:0
-
-
-N:1024:misc 10
-G:-:d
-I:65:98:-1:SPELL=Breathe Poison Wall
-W:3:0:10:100
-A:3/1
-F:SPECIAL_GENE
-P:0:1d1:0:0:0
-
-
-N:1025:misc 11
-G:-:d
-I:65:98:-1:SPELL=Aura of Fire
-W:3:0:10:100
-A:3/1
-F:SPECIAL_GENE
-P:0:1d1:0:0:0
-
-
-N:1026:misc 12
-G:-:d
-I:65:98:-1:SPELL=Aura of Poison
-W:3:0:10:100
-A:3/1
-F:SPECIAL_GENE
-P:0:1d1:0:0:0
 
 
 

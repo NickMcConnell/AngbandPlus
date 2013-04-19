@@ -118,8 +118,7 @@ add_quest
 					total_winner = WINNER_NORMAL
                 			has_won = WINNER_NORMAL
 					player.redraw = bor(player.redraw, PR_TITLE)
-
-		                        quest(MORGOTH_QUEST).status = QUEST_STATUS_FINISHED
+                    quest(MORGOTH_QUEST).status = QUEST_STATUS_FINISHED
                                 end
                         end,
         },

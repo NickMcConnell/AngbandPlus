@@ -3824,7 +3824,7 @@ void calc_bonuses(bool silent)
 
 		if (monk_heavy_armor()) p_ptr->num_blow /= 2;
 
-		p_ptr->num_blow = 2; 
+		p_ptr->num_blow = 2;
 
 		if (!monk_heavy_armor())
 		{
@@ -3855,7 +3855,7 @@ void calc_bonuses(bool silent)
 
 			p_ptr->dis_to_h += (plev / 3);
 			p_ptr->dis_to_d += (plev / 3);
-		p_ptr->num_blow = 2; 
+		p_ptr->num_blow = 2;
 
 	}
 	else if ((p_ptr->melee_style == SKILL_SPIDER))
@@ -3878,7 +3878,7 @@ void calc_bonuses(bool silent)
 
 			p_ptr->dis_to_h += (plev / 3);
 			p_ptr->dis_to_d += (plev / 3);
-	p_ptr->num_blow = 2; 
+	p_ptr->num_blow = 2;
 
 	}
 	else if ((p_ptr->melee_style == SKILL_BASILISK))
@@ -3901,7 +3901,7 @@ void calc_bonuses(bool silent)
 
 			p_ptr->dis_to_h += (plev / 3);
 			p_ptr->dis_to_d += (plev / 3);
-		p_ptr->num_blow = 2; 
+		p_ptr->num_blow = 2;
 
 	}
 
@@ -3925,7 +3925,7 @@ void calc_bonuses(bool silent)
 
 			p_ptr->dis_to_h += (plev / 3);
 			p_ptr->dis_to_d += (plev / 3);
-		p_ptr->num_blow = 2; 
+		p_ptr->num_blow = 2;
 
 	}
 
@@ -4978,13 +4978,13 @@ void gain_fate(byte fate)
 				fates[i].level = (level < 1) ? 1 : (level > 98) ? 98 : level;
 				fates[i].serious = TRUE;
 				fates[i].know = FALSE;
-				if ((wizard) || (p_ptr->precognition)) msg_format("New fate : Death on level %d", fates[i].level);
+				if ((wizard) || (p_ptr->precognition && precog_fates)) msg_format("New fate : Death on level %d", fates[i].level);
 				break;
 
 			case FATE_NO_DIE_MORTAL:
 				fates[i].serious = TRUE;
 				p_ptr->no_mortal = TRUE;
-				if ((wizard) || (p_ptr->precognition)) msg_format("New fate : Never to die by the hand of a mortal being.");
+				if ((wizard) || (p_ptr->precognition && precog_fates)) msg_format("New fate : Never to die by the hand of a mortal being.");
 				break;
 			}
 

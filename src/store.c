@@ -317,10 +317,6 @@ static void purchase_analyze(s32b price, s32b value, s32b guess)
 	}
 }
 
-
-
-
-
 /*
  * We store the current "store number" here so everyone can access it
  */
@@ -340,8 +336,6 @@ static store_type *st_ptr = NULL;
  * We store the current "owner type" here so everyone can access it
  */
 static owner_type *ot_ptr = NULL;
-
-
 
 /*
  * Determine the price of an item (qty one) in a store.
@@ -591,13 +585,6 @@ static void mass_produce(object_type *o_ptr)
 	o_ptr->number = size - (size * discount / 100);
 }
 
-
-
-
-
-
-
-
 /*
  * Determine if a store item can "absorb" another item
  *
@@ -743,8 +730,6 @@ bool is_blessed(object_type *o_ptr)
 	if (f3 & TR3_BLESSED) return (TRUE);
 	else return (FALSE);
 }
-
-
 
 /*
  * Determine if the current store will purchase the given item
@@ -2577,7 +2562,7 @@ void store_stole(void)
 		st_ptr->bad_buy = 0;
 
 		/* Kicked out for a LONG time */
-		st_ptr->store_open = turn + 500000 + randint(500000);
+		st_ptr->store_open = turn + 50000 + randint(500000);
 	}
 
 	/* Not kicked out */
@@ -2813,7 +2798,7 @@ void store_purchase(void)
 				j_ptr->note = 0;
 
 				/* Hack -- If a rod or wand, allocate total maximum
-				 * timeouts or charges between those picked up and 
+				 * timeouts or charges between those picked up and
 				 * those left behind. -LM-
 				 */
 				if (o_ptr->tval == TV_WAND)
@@ -2907,7 +2892,7 @@ void store_purchase(void)
 	else
 	{
 		/* Hack -- If a rod or wand, allocate total maximum
-		 * timeouts or charges between those picked up and 
+		 * timeouts or charges between those picked up and
 		 * those left behind. -LM-
 		 */
 		if (o_ptr->tval == TV_WAND)
@@ -3162,7 +3147,7 @@ void store_sell(void)
 			q_ptr->number = amt;
 
 			/*
-			 * Hack -- If a rod or wand, let the shopkeeper know just 
+			 * Hack -- If a rod or wand, let the shopkeeper know just
 			 * how many charges he really paid for. -LM-
 			 */
 			if (o_ptr->tval == TV_WAND)
@@ -3183,7 +3168,7 @@ void store_sell(void)
 			purchase_analyze(price, value, dummy);
 
 			/*
-			 * Hack -- Allocate charges between those wands or rods sold 
+			 * Hack -- Allocate charges between those wands or rods sold
 			 * and retained, unless all are being sold. -LM-
 			 */
 			if (o_ptr->tval == TV_WAND)
@@ -3228,7 +3213,7 @@ void store_sell(void)
 		q_ptr->ident |= IDENT_MENTAL;
 
 		/*
-		 * Hack -- Allocate charges between those wands or rods sold 
+		 * Hack -- Allocate charges between those wands or rods sold
 		 * and retained, unless all are being sold. -LM-
 		 */
 		if (o_ptr->tval == TV_WAND)
@@ -3270,7 +3255,7 @@ void store_sell(void)
 		msg_format("You drop %s (%c).", o_name, index_to_label(item));
 
 		/*
-		 * Hack -- Allocate charges between those wands or rods sold 
+		 * Hack -- Allocate charges between those wands or rods sold
 		 * and retained, unless all are being sold. -LM-
 		 */
 		if (o_ptr->tval == TV_WAND)
@@ -3309,7 +3294,7 @@ void store_examine(void)
 {
 	int i;
 	int item;
-bool browse;
+	bool browse;
 	object_type *o_ptr;
 
 	char o_name[80];
@@ -3391,15 +3376,10 @@ bool browse;
 	return;
 }
 
-
-
-
-
 /*
  * Hack -- set this to leave the store
  */
 static bool leave_store = FALSE;
-
 
 /*
  * Process a command in a store
@@ -3801,10 +3781,8 @@ void do_cmd_store(void)
 	/* Forget the view */
 	forget_view();
 
-
 	/* Hack -- Character is in "icky" mode */
 	character_icky = TRUE;
-
 
 	/* No command argument */
 	command_arg = 0;
@@ -3815,14 +3793,12 @@ void do_cmd_store(void)
 	/* No automatic command */
 	command_new = 0;
 
-
 	/* Save the store number */
 	cur_store_num = which;
 
 	/* Save the store and owner pointers */
 	st_ptr = &town_info[p_ptr->town_num].store[cur_store_num];
 	ot_ptr = &ow_info[st_ptr->owner];
-
 
 	/* Start at the beginning */
 	store_top = 0;
@@ -3854,7 +3830,6 @@ void do_cmd_store(void)
 
 		/* Clear */
 		clear_from(21);
-
 
 		/* Basic commands */
 		c_prt(TERM_YELLOW, " ESC.", 22, 0);
@@ -3925,7 +3900,6 @@ void do_cmd_store(void)
 
 				char o_name[80];
 
-
 				/* Give a message */
 				msg_print("Your pack overflows!");
 
@@ -3984,7 +3958,6 @@ void do_cmd_store(void)
 	/* Hack -- Character is no longer in "icky" mode */
 	character_icky = FALSE;
 
-
 	/* Hack -- Cancel automatic command */
 	command_new = 0;
 
@@ -3997,10 +3970,8 @@ void do_cmd_store(void)
 	/* Flush messages XXX XXX XXX */
 	msg_print(NULL);
 
-
 	/* Clear the screen */
 	Term_clear();
-
 
 	/* Update everything */
 	p_ptr->update |= (PU_VIEW | PU_MON_LITE);
@@ -4015,7 +3986,6 @@ void do_cmd_store(void)
 	/* Window stuff */
 	p_ptr->window |= (PW_OVERHEAD);
 }
-
 
 
 /*
@@ -4121,7 +4091,6 @@ void store_maint(int town_num, int store_num)
 		}
 	}
 
-
 	/* Choose the number of slots to keep */
 	j = st_ptr->stock_num;
 
@@ -4139,7 +4108,6 @@ void store_maint(int town_num, int store_num)
 
 	/* Destroy objects until only "j" slots are left */
 	while (st_ptr->stock_num > j) store_delete();
-
 
 	/* Choose the number of slots to fill */
 	j = st_ptr->stock_num;
@@ -4186,7 +4154,6 @@ void store_init(int town_num, int store_num)
 
 	/* Activate the new owner */
 	ot_ptr = &ow_info[st_ptr->owner];
-
 
 	/* Initialize the store */
 	st_ptr->store_open = 0;

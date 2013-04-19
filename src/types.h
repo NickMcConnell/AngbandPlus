@@ -803,7 +803,7 @@ struct object_type
 	byte elevel;            /* Item exp level */
 	s32b exp;               /* Item exp */
 
-	byte name1;			/* Artifact type, if any */
+	s16b name1;			/* Artifact type, if any */
 	s16b name2;                     /* Ego-Item type, if any */
 	s16b name2b;                    /* Second Ego-Item type, if any */
 

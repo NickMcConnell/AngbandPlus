@@ -1220,12 +1220,6 @@ void do_cmd_beastmaster(void)
 	p_ptr->window |= (PW_PLAYER);
 }
 
-
-/*
- * Set of variables and functions to create an artifact
- */
-
-
 /* LOG2 is a constant (compile-time) method of converting a single
  * set bit into a number. Works well, but for variable (runtime)
  * expressions, use a loop instead.. much smaller code*/
@@ -1238,8 +1232,6 @@ void do_cmd_beastmaster(void)
 int flags_select[32*5];
 int activation_select;
 
-/* Return true if the player is wielding the philosopher's stone
- */
 bool alchemist_has_stone(void)
 {
 	if (p_ptr->inventory[INVEN_LITE].name1 == 209)
@@ -1249,7 +1241,7 @@ bool alchemist_has_stone(void)
 }
 
 /*
- Display a group of flags from a_select flags, and return
+ Display a group of flags from a_select_flags, and return
  the number of flags displayed (even invisible ones)
  */
 int show_flags(byte group, int pval)
@@ -1263,7 +1255,7 @@ int show_flags(byte group, int pval)
 
 	group++;  /* Adjust - no zero group */
 
-	for ( i = 0 ; a_select_flags[i].group ; i++)
+	for (i = 0 ; a_select_flags[i].group ; i++)
 	{
 		if (a_select_flags[i].group != group)
 			continue;
@@ -1282,7 +1274,7 @@ int show_flags(byte group, int pval)
 				        a_select_flags[i].xp);
 
 			/* Note: Somebody is VERY clever, and it wasn't me. Text printed as
-			 * TERM_DARK is actually printed as TERM_BLUE *SPACES* to prevent the
+			 * TERM_DARK is actually printed as *SPACES* to prevent the
 			 * player from using a 'cut-and-paste' enabled terminal to see
 			 * what he shouldn't.  Thus, simply setting the color to TERM_DARK
 			 * will entirely prevent the unspoiled player from knowing that it's
@@ -1292,25 +1284,25 @@ int show_flags(byte group, int pval)
 			{
 			case 1:
 				color = TERM_YELLOW;
-				break;   /* Flag was set by the player (just now)*/
+				break; /* Flag was set by the player (just now)*/
 			case 0:
 				color = TERM_WHITE;
-				break;   /* This flag can be set, player is 'aware' of it*/
+				break; /* This flag can be set, player is 'aware' of it*/
 			case - 1:
 				color = TERM_L_GREEN;
 				break; /* Flag is already set*/
 			case - 2:
 				color = TERM_DARK;
-				break;     /* Invisible option */
+				break; /* Invisible option */
 			case - 3:
 				color = TERM_RED;
-				break;     /* Flag is set, but player isn't 'aware' of it */
+				break; /* Flag is set, but player isn't 'aware' of it */
 			case - 4:
 				color = TERM_L_DARK;
-				break;  /* Flag is not set, player is 'aware', but it's beyond thier skill */
+				break; /* Flag is not set, player is 'aware', but it's beyond thier skill */
 			default:
 				color = TERM_DARK;
-				break;     /* Just in Case*/
+				break; /* Just in Case*/
 			}
 		}
 		/* For alchemists who have the stone, at least show all the flags... */
@@ -1331,14 +1323,13 @@ void show_levels(void)
 	Term_clear();
 	c_prt(TERM_WHITE, "[a] Stats, sustains, luck, speed, vision, etc.          ", 3, 10);
 	c_prt(TERM_WHITE, "[b] Misc. (Auras, light, see invis, etc)                ", 4, 10);
-	c_prt(TERM_WHITE, "[c] Weapon Branding                                     ", 5, 10);
-	c_prt(TERM_WHITE, "[d] Resistances and Immunities                          ", 6, 10);
-	c_prt(TERM_WHITE, "[e] ESP and Curses                                      ", 7, 10);
-	c_prt(TERM_WHITE, "[f] Activation                                          ", 8, 10);
-	c_prt(TERM_DARK , "[g] Abilities Gained                                    ", 9, 10);
-	c_prt(TERM_WHITE, "[h] Display Required Essences and items                 ", 10, 10);
-	c_prt(TERM_WHITE, "[i] Done! Finalize and commit changes.                  ", 11, 10);
-	/*No need to return anything - if the valid selections change, it'll be a code level change.*/
+	c_prt(TERM_WHITE, "[c] Weapon branding                                     ", 5, 10);
+	c_prt(TERM_WHITE, "[d] Resistances and immunities                          ", 6, 10);
+	c_prt(TERM_WHITE, "[e] ESP and curses                                      ", 7, 10);
+	c_prt(TERM_WHITE, "[f] Activations                                         ", 8, 10);
+	c_prt(TERM_DARK , "[g] Abilities gained                                    ", 9, 10);
+	c_prt(TERM_WHITE, "[h] Display required items                              ", 10, 10);
+	c_prt(TERM_WHITE, "[i] Done: Finalize and commit changes.                  ", 11, 10);
 }
 
 s32b get_flags_exp(int pval, int oldpval)
@@ -1346,13 +1337,13 @@ s32b get_flags_exp(int pval, int oldpval)
 	int i;
 	s32b exp = 0;
 
-	for (i = 0 ; a_select_flags[i].group ; i++ )
+	for (i = 0; a_select_flags[i].group; i++)
 	{
 		if (a_select_flags[i].xp == 0)
 			break;
 		else
 		{
-			if ( a_select_flags[i].group <= 5 && flags_select[i] )
+			if (a_select_flags[i].group <= 5 && flags_select[i])
 			{
 				s32b xp = a_select_flags[i].xp;
 				int factor = 1, oldfactor = 0;
@@ -1362,9 +1353,9 @@ s32b get_flags_exp(int pval, int oldpval)
 				 * dependant flag is set, flags which they can't set
 				 * cannot effect the exp in any way, whether their set or not
 				 */
-				if ( flags_select[i] < -1 )
+				if (flags_select[i] < -1)
 					continue;
-				if ( flags_select[i] == -1 )
+				if (flags_select[i] == -1)
 					oldfactor = 1;
 
 				if (a_select_flags[i].pval)
@@ -1388,19 +1379,20 @@ s32b get_flags_exp(int pval, int oldpval)
 					 * much more doable, but not too easily.
 					 */
 					factor = (pval * pval / 4 + pval);
-					if ( flags_select[i] == -1 )
+					if (flags_select[i] == -1)
 					{
 						oldfactor = oldpval * oldpval / 4 + oldpval;
 					}
 				}
 				exp += xp * factor - xp * oldfactor;
 			}
-			if ( a_select_flags[i].group == 88 && a_select_flags[i].flag == -activation_select )
+			else if (a_select_flags[i].group == 88 && a_select_flags[i].flag == -activation_select)
 			{
 				exp += a_select_flags[i].xp;
 			}
 		}
 	}
+
 	if ( alchemist_has_stone() ) exp = exp / 4;
 	return exp;
 }
@@ -1413,29 +1405,30 @@ s32b get_flags_exp(int pval, int oldpval)
 int calc_rqty(int i, int pval, int oldpval)
 {
 	/* return 0 if flag is greater than size of flags_select && ! activation */
-	if ( a_select_flags[i].group > 5 )
+	if (a_select_flags[i].group > 5)
 	{
-		if ( activation_select == a_select_flags[i].flag)
+		if (-activation_select == a_select_flags[i].flag)
 			return 1;
 		else
 			return 0;
 	}
 
 	/* return 0 if the flag wasn't set */
-	if ( flags_select[i] < -1 || flags_select[i] == 0 )
+	if (flags_select[i] < -1 || flags_select[i] == 0)
 		return 0;
 
 	/* Return change in pval if the flag was already set */
-	if ( flags_select[i] == -1 && a_select_flags[i].pval)
+	if (flags_select[i] == -1 && a_select_flags[i].pval)
 		return pval - oldpval;
 
 	/* Return pval if the flag will be set this time */
-	else if ( a_select_flags[i].pval )
+	if (a_select_flags[i].pval)
 		return pval;
 
 	/* Return 0 if the flag is unknown */
-	else if ( flags_select[i] == -1 )
+	if (flags_select[i] == -1)
 		return 0;
+
 	return 1;
 }
 
@@ -1447,7 +1440,6 @@ int calc_rqty(int i, int pval, int oldpval)
  * other artifact item helper function.
  */
 
-
 int check_artifact_items(int pval, int oldpval, int mode)
 {
 	int i, j, k, row = 1 , col = 15, rqty, orqty, trqty;
@@ -1457,11 +1449,12 @@ int check_artifact_items(int pval, int oldpval, int mode)
 
 	/* For temporary items, waive the item requirements,
 	 * except for the corpse... */
-	for ( j = 0 ; a_select_flags[j].group ; j++)
-		if (a_select_flags[j].flag == 4*32 && flags_select[j] == 1 )
+	for (j = 0; a_select_flags[j].group; j++)
+		if (a_select_flags[j].flag == 4*32 && flags_select[j] == 1)
 			temporary = j;
+
 	/* Check for enough items */
-	for (i = 0; a_select_flags[i].group ; i++)
+	for (i = 0; a_select_flags[i].group; i++)
 	{
 		/* For temporary items, ignore
 		 everything except the one item
@@ -1470,17 +1463,17 @@ int check_artifact_items(int pval, int oldpval, int mode)
 			continue;
 
 		/* Calc quantity is done per flag, because
-		 some have a pval, some don't, some where already
+		 some have a pval, some don't, some were already
 		 set at pval=2, etc
 		 */
 		rqty = orqty = calc_rqty(i, pval, oldpval);
 
 		/* If no item is associated with this flag,
 		 or this flag wasn't set or didn't change */
-		if ( !a_select_flags[i].rtval || !rqty)
+		if (!a_select_flags[i].rtval || !rqty)
 			continue;
 
-		for ( k = 0 ; k < INVEN_WIELD ; k++ )
+		for (k = 0; k < INVEN_WIELD; k++)
 		{
 			object_type *o_ptr = &p_ptr->inventory[k];
 
@@ -1493,16 +1486,16 @@ int check_artifact_items(int pval, int oldpval, int mode)
 				/* Corpse validation is COMPLICATED!
 				 * But at least we don't have to do this twice.
 				 */
-				if ( a_select_flags[i].rtval == TV_CORPSE )
+				if (a_select_flags[i].rtval == TV_CORPSE)
 				{
 					bool itemgood = TRUE;
 
-					/*Specified race not this one */
-					if ( o_ptr->pval2 != a_select_flags[i].rpval && a_select_flags[i].rpval)
+					/* does item's race match required race, if required race is set */
+					if (o_ptr->pval2 != a_select_flags[i].rpval && a_select_flags[i].rpval)
 						continue;
 
-					/* Race flag (any monster who...)*/
-					for ( j = 0 ; !a_select_flags[i].rpval && a_select_flags[i].rflag[j] && j < 6 && itemgood ; j++)
+					/* Race flag */
+					for (j = 0; !a_select_flags[i].rpval && a_select_flags[i].rflag[j] && j < 6 && itemgood; j++)
 					{
 						int flag = a_select_flags[i].rflag[j] / 32;
 						u32b mask = 1 << (a_select_flags[i].rflag[j] % 32);
@@ -1541,25 +1534,25 @@ int check_artifact_items(int pval, int oldpval, int mode)
 							msg_print("This code should never be hit!");
 						}
 					}
-					if ( ! itemgood )
+					if (!itemgood)
 						continue;
 
 				}
 				/* Validate pval of good item */
-				else if ( a_select_flags[i].rpval)
+				else if (a_select_flags[i].rpval)
 				{
 					/* Must have matching signs */
-					if ( (o_ptr->pval < 0) != (a_select_flags[i].rpval < 0))
+					if ((o_ptr->pval < 0) != (a_select_flags[i].rpval < 0))
 						continue;
 					/* Must be greater than */
-					if ( abs(o_ptr->pval) < abs(a_select_flags[i].rpval))
+					if (abs(o_ptr->pval) < abs(a_select_flags[i].rpval))
 						continue;
 				}
 
-				trqty = MIN(o_ptr->number, rqty);
+				trqty = MAX(0, MIN(o_ptr->number, rqty));
 				rqty -= trqty;
 
-				if ( mode == 1 )
+				if (mode == 1)
 				{
 					inven_item_increase(k, -trqty);
 					inven_item_describe(k);
@@ -1577,12 +1570,20 @@ int check_artifact_items(int pval, int oldpval, int mode)
 
 		if (rqty)
 		{
-			good = FALSE;
+			// don't let it fail for mode 1, artifact won't be made and items won't have proper amounts
+			if (mode != 1)
+				good = FALSE;
+			else
+			{
+				char ch;
+				get_com("A required ingredient was consumed in a previous power!", &ch);
+			}
+
 			/* Oops, we didn't have enough of this object
 			 when actually creating the artifact.
 			 unset this flag
 			 */
-			if ( mode == 1 )
+			if (mode == 1)
 			{
 				flags_select[i] = -4;
 			}
@@ -1594,7 +1595,7 @@ int check_artifact_items(int pval, int oldpval, int mode)
 			 * We may have already destroyed a unique corpse,
 			 * or some other hard-to-find item.
 			 */
-			if ( mode == -1 )
+			if (mode == -1)
 				return FALSE;
 		}
 
@@ -1603,32 +1604,33 @@ int check_artifact_items(int pval, int oldpval, int mode)
 		 place, because otherwise we don't know how many the player
 		 has, as opposed to how many they need.
 		 */
-		if ( mode == 0 )
+		if (mode == 0)
 		{
 			char *o_name = al_name + a_select_flags[i].item_desc;
+
 			if (orqty > 1 && a_select_flags[i].pval && a_select_flags[i].item_descp)
 				o_name = al_name + a_select_flags[i].item_descp;
 
-			if ( rqty )
+			if (rqty)
 			{
-				if ( orqty > 1 )
+				if (orqty > 1)
 					c_prt(TERM_RED, format(" you are missing %d of the %d %s", rqty, orqty, o_name), row++, col);
-				else if ( is_a_vowel(o_name[0]))
+				else if (is_a_vowel(o_name[0]))
 					c_prt(TERM_RED, format(" you are missing an %s", o_name), row++, col);
 				else
 					c_prt(TERM_RED, format(" you are missing a %s", o_name), row++, col);
 			}
 			else
 			{
-				if ( orqty > 1 )
+				if (orqty > 1)
 					c_prt(TERM_GREEN, format(" you have the %d %s", orqty, o_name), row++, col);
-				else if ( is_a_vowel(o_name[0]))
+				else if (is_a_vowel(o_name[0]))
 					c_prt(TERM_GREEN, format(" you have an %s", o_name), row++, col);
 				else
 					c_prt(TERM_GREEN, format(" you have a %s", o_name), row++, col);
 			}
 
-			if ( row > 21 )
+			if (row > 21)
 			{
 				row = 1;
 				if (!good)
@@ -1641,15 +1643,16 @@ int check_artifact_items(int pval, int oldpval, int mode)
 
 	} /* End of group associated with this a_select_flags entry */
 
-	if ( mode == 0 )
+	if (mode == 0)
 	{
-		while ( row < 22 )
+		while (row < 22)
 			c_prt(TERM_GREEN, "                            ", row++, col);
 		if (!good)
 			(void)get_com("You are missing some items:", &ch);
 		else
 			(void)get_com("You have these needed items on hand:", &ch);
 	}
+
 	return good;
 }
 
@@ -1663,30 +1666,30 @@ bool artifact_display_or_use(int pval, int oldpval, bool use)
 	bool enough;
 
 	/* Temporary Items require only one item, and no essences. */
-	for ( i = 0 ; a_select_flags[i].group ; i++)
-		if ( a_select_flags[i].flag == 32*4)
+	for (i = 0; a_select_flags[i].group; i++)
+		if (a_select_flags[i].flag == 32*4)
 		{
-			if ( use )
+			if (use)
 				return check_artifact_items(pval, oldpval, 1);
 			else
 				return check_artifact_items(pval, oldpval, 0);
 		}
 
-	for ( i = 0 ; i < MAX_BATERIE_SVAL ; i++ )
+	for (i = 0; i < MAX_BATERIE_SVAL; i++)
 		essence[i] = essenceh[i] = 0;
 
 	/* Accumulate a list of required essences */
-	for ( al_idx = 0; al_idx < max_al_idx ; al_idx++ )
-		if ( alchemist_recipes[al_idx].tval == 0 )
-			for ( i = 0 ; a_select_flags[i].group ; i++)
+	for (al_idx = 0; al_idx < max_al_idx; al_idx++)
+		if (alchemist_recipes[al_idx].tval == 0)
+			for (i = 0; a_select_flags[i].group; i++)
 			{
 				int rqty = calc_rqty(i, pval, oldpval);
 
 				/* If the flag isn't being set, rqty will be zero */
-				if ( !rqty)
+				if (!rqty)
 					continue;
 
-				if ( alchemist_recipes[al_idx].sval == a_select_flags[i].flag )
+				if (alchemist_recipes[al_idx].sval == a_select_flags[i].flag)
 					essence[alchemist_recipes[al_idx].sval_essence] +=
 					        alchemist_recipes[al_idx].qty * rqty;
 			}
@@ -1695,10 +1698,10 @@ bool artifact_display_or_use(int pval, int oldpval, bool use)
 	 * that will be consumed in the creation of this artifact */
 
 	/* Check for existence of required quatities of essences. */
-	for ( i = 0 ; i < INVEN_WIELD ; i++ )
+	for (i = 0; i < INVEN_WIELD; i++)
 	{
-		for ( j = 0 ; j < MAX_BATERIE_SVAL ; j++)
-			if ( p_ptr->inventory[i].tval == TV_BATERIE && p_ptr->inventory[i].sval == j + 1)
+		for (j = 0; j < MAX_BATERIE_SVAL; j++)
+			if (p_ptr->inventory[i].tval == TV_BATERIE && p_ptr->inventory[i].sval == j + 1)
 			{
 				essenceh[j] += p_ptr->inventory[i].number;
 			}
@@ -1706,20 +1709,20 @@ bool artifact_display_or_use(int pval, int oldpval, bool use)
 
 	/* Check for enough essences */
 	enough = TRUE;
-	for ( i = 0 ; i < MAX_BATERIE_SVAL ; i++)
-		if ( essenceh[i] < essence[i] )
+	for (i = 0; i < MAX_BATERIE_SVAL; i++)
+		if (essenceh[i] < essence[i])
 		{
 			enough = FALSE;
 			break;
 		}
 
 	/* Check for items */
-	if ( enough )
+	if (enough)
 		enough = check_artifact_items(pval, oldpval, -1);
 
 
 	/* Display recipe list if they don't have enough, or not enough exp */
-	if (!enough || !use )
+	if (!enough || !use)
 	{
 		int row = 1 , col = 15;
 		bool good = FALSE;
@@ -1728,20 +1731,20 @@ bool artifact_display_or_use(int pval, int oldpval, bool use)
 		/* display of list of required essences */
 		/* Note: there are only 12 or so essences, so this list
 		 * will ALWAYS fit on the screen */
-		for ( i = 0 ; i < MAX_BATERIE_SVAL ; i++)
-			if ( essence[i] )
+		for (i = 0; i < MAX_BATERIE_SVAL; i++)
+			if (essence[i])
 			{
 				int missing = -MIN(essenceh[i] - essence[i], 0);
 				good = TRUE;
-				if ( missing )
+				if (missing)
 					c_prt(TERM_RED, format("%d of the required %d essences of %s",
 					                       missing, essence[i],
-					                       k_name + k_info[lookup_kind(TV_BATERIE, i + 1)].name ),
+					                       k_name + k_info[lookup_kind(TV_BATERIE, i + 1)].name),
 					      row++, col);
 				else
 					c_prt(TERM_GREEN, format("you have the needed %d essences of %s",
 					                         essence[i],
-					                         k_name + k_info[lookup_kind(TV_BATERIE, i + 1)].name ),
+					                         k_name + k_info[lookup_kind(TV_BATERIE, i + 1)].name),
 					      row++, col);
 			}
 
@@ -1765,7 +1768,7 @@ bool artifact_display_or_use(int pval, int oldpval, bool use)
 
 	/* If they do have enough, and they have enough exp, consume them */
 	for (i = 0 ; i < MAX_BATERIE_SVAL ; i++)
-		for ( k = 0 ; k < INVEN_WIELD && essence[i] > 0 ; k++)
+		for (k = 0 ; k < INVEN_WIELD && essence[i] > 0 ; k++)
 			if (p_ptr->inventory[k].tval == TV_BATERIE
 			                && p_ptr->inventory[k].sval == i + 1
 			                && essence[i])
@@ -1794,53 +1797,53 @@ void display_activation_info(int num)
 	object_type forge;
 	int i;
 
-
 	/* find the a_select_flags number of this activation type... */
-	for ( i = 0 ; a_select_flags[i].group ; i++)
+	for (i = 0 ; a_select_flags[i].group ; i++)
 		if (a_select_flags[i].group == 88 && a_select_flags[i].flag == -num )
 			break;
 
 	object_wipe(&forge);
 	forge.xtra2 = num;
+	forge.art_name = 1;
+
 	/* Print out various information about this activation... */
-	/* min level, experience, required items (and essences)
-	   full description (from activation_aux) */
 	if (wizard)
-		c_prt(TERM_WHITE, format("  number:%d          ", num), 5, 5);
+	{
+		c_prt(TERM_WHITE,    "+-----------------------------------", 4, 5);
+		c_prt(TERM_WHITE, format("| Number:%d          ", num), 5, 5);
+	}
 	else
-		c_prt(TERM_WHITE, "                                    ", 5, 5);
-	c_prt(TERM_WHITE, format("  Level:%d                              ", a_select_flags[i].level), 6, 5);
-	c_prt(TERM_WHITE, format("  Exp  :%d                              ", a_select_flags[i].xp), 7, 5);
-	c_prt(TERM_WHITE, format("  Item :%s                              ", al_name + a_select_flags[i].item_desc), 8, 5);
-	c_prt(TERM_WHITE, "                                                                  ", 9, 5);
-	c_prt(TERM_WHITE, format("  %s  ", activation_aux(&forge, 0, 0)), 9, 5);
-	c_prt(TERM_WHITE, "                                    ", 10, 5);
+		c_prt(TERM_WHITE,    "+-----------------------------------", 5, 5);
+
+	c_prt(TERM_WHITE, format("| Level :%d                             ", a_select_flags[i].level), 6, 5);
+	c_prt(TERM_WHITE, format("| Exp   :%d                             ", a_select_flags[i].xp), 7, 5);
+	c_prt(TERM_WHITE, format("| Item  :%s                             ", al_name + a_select_flags[i].item_desc), 8, 5);
+	c_prt(TERM_WHITE,        "|                                       ", 9, 5);
+	c_prt(TERM_WHITE, format("| Power :%s                             ", activation_aux(&forge, 0, 0)), 9, 5);
+	c_prt(TERM_WHITE,        "+-----------------------------------", 10, 5);
 	inkey();
 }
 
-void select_an_activation(void)
+void select_an_activation(int oldxtra2)
 {
 	int i, lev, wid, hgt, max, begin = 0, sel = 0;
 	cptr act_list[150];  /* currently, ~127 hardcoded activations */
 	int act_ref[150];
 	char c;
-	/* How do we want to do this? */
-	/* Ideally, we let them select from a list, which includes all the activations that they've ecountered in any form.
+
+	/* How do we want to do this?
+	Ideally, we let them select from a list, which includes all the activations that they've ecountered in any form.
 	Problems with this idea include mainly the lack of any (current) place to store which activations they've seen, and
 	that they'll not get credit for any seen before we start tracking it.
-
-	So - list is everything. If they select one which they're to low-level for
+	So, list is everything. If they select one which they're too low-level for
 	or if the explicitly request it, we'll display info about this item.
 	We'll also get our descriptions from the activation_aux(ACT_CONSTANT)
 	function, because they are more complete, and include even lua-scripted ones.
-	msg_print("Since the code to actually let you select one isn't here");
-	msg_print("You will automatically get the activation 'Dawn'");
-	activation_select = ACT_DAWN;
 	*/
 
 	/* Build a list of available activations at the player's level */
 	lev = get_skill(SKILL_ALCHEMY);
-	for ( i = max = 0 ; max < (sizeof(act_list) / sizeof(cptr)) && a_select_flags[i].group ; i++)
+	for (i = max = 0; max < (sizeof(act_list) / sizeof(cptr)) && a_select_flags[i].group; i++)
 		if (a_select_flags[i].group == 88 && a_select_flags[i].level <= lev )
 		{
 			act_ref[max] = -a_select_flags[i].flag;  /* Activation number */
@@ -1887,14 +1890,20 @@ void select_an_activation(void)
 		}
 		else if (c == '\r')
 		{
-			display_activation_info(act_ref[sel]);
+			// chose the same activation as is on the item
+			if (oldxtra2 == act_ref[sel])
+			{
+				activation_select = 0;
+				return;
+			}
+			c_prt(TERM_WHITE, "Activation has been selected (press enter).                        ", 0, 0);
+			c = inkey();
 			activation_select = act_ref[sel];
 			return;
 		}
 	}
 	activation_select = 0;
 }
-
 
 /* Consume 'num' magic essences and return true.
  * If there aren't enough essences, return false */
@@ -1939,29 +1948,26 @@ bool magic_essence(int num)
 void do_cmd_create_artifact(object_type *q_ptr)
 {
 	int max, i = 0, j, cur_set = 0, abord = FALSE, done = FALSE;
-	int skill;
 	s32b exp = 0;
-
 	char out_val[160];
 	char choice = 0;
 	bool lockpval = FALSE;
-	int pval;
-	int oldpval;
+	int pval = q_ptr->pval;
+	int oldpval = pval;
+	int skill = get_skill(SKILL_ALCHEMY);
+
 	energy_use = 100;
 
-	pval = q_ptr->pval;
-	oldpval = pval;
-	skill = get_skill(SKILL_ALCHEMY);
-
-	if ( !pval )
+	if (!pval)
 		pval = 1;
-	/* No activation added on this round */
+
+	/* reset activation select */
 	activation_select = 0;
 
 	/* Save the current flags */
-	for (i = 0 ; a_select_flags[i].group ; i++)
+	for (i = 0; a_select_flags[i].group; i++)
 	{
-		if ( a_select_flags[i].flag < 0 || a_select_flags[i].group > 5)
+		if (a_select_flags[i].flag < 0 || a_select_flags[i].group > 5)
 			continue;
 
 		flags_select[i] = 0;
@@ -1987,7 +1993,7 @@ void do_cmd_create_artifact(object_type *q_ptr)
 			if (q_ptr->art_esp & 1 << (a_select_flags[i].flag % 32)) flags_select[i] = -1;
 			break;
 		default:
-			/*This will not be hit, inspite of activations, because of the <= 5 above...*/
+			/*This will not be hit, in spite of activations menu, because of the <> above...*/
 			break;
 		}
 		/*
@@ -1997,26 +2003,26 @@ void do_cmd_create_artifact(object_type *q_ptr)
 		 */
 
 		/* Set various flags if they haven't *ID*'d an artifact with this flag set.*/
-		if ( !(alchemist_known_artifacts[a_select_flags[i].flag / 32] & (1 << (a_select_flags[i].flag % 32)) ))
+		if (!(alchemist_known_artifacts[a_select_flags[i].flag / 32] & (1 << (a_select_flags[i].flag % 32))))
 		{
 			/* If this item has an ability that depends on pval which the player
 			 * cannot set, don't allow them to change the pval either. */
-			if ( a_select_flags[i].pval && flags_select[i])
+			if (a_select_flags[i].pval && flags_select[i])
 				lockpval = TRUE;
 
 			/* Set the color and set-ablitity of this flag */
-			if ( flags_select[i] )
+			if (flags_select[i])
 				flags_select[i] = -3;
 			else
 				flags_select[i] = -2;
 			continue;
 		}
-		else if ( skill < a_select_flags[i].level )
+		else if (skill < a_select_flags[i].level)
 		{
 			/* If the alchemist has not passed the skill level for this flag,
 			 Set this flag as unsettable.
 			 */
-			if ( flags_select[i])
+			if (flags_select[i])
 				lockpval = TRUE;
 			else
 				flags_select[i] = -4;
@@ -2028,30 +2034,28 @@ void do_cmd_create_artifact(object_type *q_ptr)
 	Term_save();
 	Term_clear();
 
-
-	/* Everlasting love ... ... nevermind :) */
-	while ( !done && !abord)
+	while (!done && !abord)
 	{
 		c_prt((q_ptr->exp - exp > 0) ? TERM_L_GREEN : TERM_L_RED, format("Experience left: %ld", q_ptr->exp - exp), 2, 0);
 
 		/* Display the menu, but don't display it if we just
-		 * displayed a message (it erases the screen, creating a blink message */
-		if ( cur_set < 6 || cur_set == 7 )
+		 * displayed a message (it erases the screen, creating a blank message */
+		if (cur_set < 6 || cur_set == 7)
 			show_levels();
 
 		c_prt((q_ptr->exp - exp > 0) ? TERM_L_GREEN : TERM_L_RED, format("Experience left: %ld", q_ptr->exp - exp), 2, 0);
 
 		prt("Enter to accept, Escape to abort", 1, 0);
 
-		abord = !get_com("Play around with which group of powers?[a-g]", &choice);
+		abord = !get_com("Control which group of powers?[a-g]", &choice);
 
-		if ( choice == ESCAPE)
+		if (choice == ESCAPE)
+		{
 			abord = TRUE;
-
-		if ( abord )
 			continue;  /*or break, same diff */
+		}
 
-		if ( isalpha(choice))
+		if (isalpha(choice))
 		{
 			if (isupper(choice))
 				choice = tolower(choice);
@@ -2063,45 +2067,62 @@ void do_cmd_create_artifact(object_type *q_ptr)
 			continue;
 		}
 
-		if ( cur_set == 5 )
+		if (cur_set == 2)
 		{
-			if (q_ptr->xtra2 && !activation_select
-			                && !get_check("This item already activates! Choose a different activation?")) continue;
-			select_an_activation();
+			int i = wield_slot_ideal(q_ptr, 1);
+			if (i != INVEN_WIELD && i != INVEN_BOW)
+			{
+				msg_print("This item is not a weapon.");
+				cur_set = 8; // show_levels would overwrite message otherwise
+				continue;
+			}
+		}
+		else if (cur_set == 5)
+		{
+			if (q_ptr->xtra2 && !activation_select && !get_check("Choose a different activation?"))
+				continue;
+
+			if (q_ptr->xtra2)
+				select_an_activation(q_ptr->xtra2);
+			else
+				select_an_activation(-1);
+
 			exp = get_flags_exp(pval, oldpval);
 			continue;
 		}
-		if ( cur_set == 6 )
+		else if (cur_set == 6)
 		{
-			msg_print("This option is not available");
+			msg_print("This option is not available.");
 			continue;
 		}
-		if ( cur_set == 7 )
+		else if (cur_set == 7)
 		{
 			artifact_display_or_use(pval, oldpval, FALSE);
 			continue;
 		}
-		if ( cur_set == 8 )
+		else if (cur_set == 8)
 		{
-			if (q_ptr->exp - exp < 0)
-				msg_print("Not enough experience for the flags you've selected.");
+			if (q_ptr->exp < exp)
+				msg_print("Not enough experience to power artifact.");
 			else
 				done = TRUE;
 			continue;
 		}
 
-		if (cur_set < 0 || cur_set > 4 )
+		if (cur_set < 0 || cur_set > 4)
 		{
 			bell();
 			continue;
 		}
 
-
 		while (!done && !abord)
 		{
-			/* Chose the flags */
 			exp = 0;
+
+			// number of selectable flags in this cur_set
 			max = show_flags(cur_set, pval);
+
+			//
 			exp = get_flags_exp(pval, oldpval);
 			c_prt((q_ptr->exp - exp > 0) ? TERM_L_GREEN : TERM_L_RED, format("Experience left: %ld", q_ptr->exp - exp), 2, 0);
 
@@ -2124,19 +2145,20 @@ void do_cmd_create_artifact(object_type *q_ptr)
 			{
 				if (choice == 'I')
 				{
-					if ( lockpval )
+					if (lockpval)
 					{
-						msg_print("You cannot do that - you don't know how!");
+						msg_print("You don't yet know how to increase one of the stats!");
 						continue;
 					}
 					pval++;
+					if (pval > 30) pval = 30;
 					break;
 				}
 				else if (choice == 'D')
 				{
-					if ( lockpval )
+					if (lockpval)
 					{
-						msg_print("You cannot do that - you don't know how!");
+						msg_print("You don't yet know how to decrease one of the stats!");
 						continue;
 					}
 					pval--;
@@ -2173,17 +2195,17 @@ void do_cmd_create_artifact(object_type *q_ptr)
 				else
 				{
 					/*Find the i'th flag in group cur_set...*/
-					for ( j = 0 ; a_select_flags[j].group ; j++)
+					for (j = 0; a_select_flags[j].group; j++)
 						if (a_select_flags[j].group == cur_set + 1)
 							if (!i--) break;
 
-					if ( flags_select[j] == -4 )
+					if (flags_select[j] == -4)
 					{
 						msg_format("You need at least %d skill in alchemy.",
 						           a_select_flags[j].level);
 						continue;
 					}
-					if ( flags_select[j] != 0 && flags_select[j] != 1)
+					if (flags_select[j] != 0 && flags_select[j] != 1)
 					{
 						bell();
 						continue;
@@ -2199,24 +2221,30 @@ void do_cmd_create_artifact(object_type *q_ptr)
 	}/* main screen (flag select screen) select and redraw loop*/
 
 	/* Abort if not enough experience, or no flags added */
-	if ( q_ptr->exp - exp < 0 || exp == 0 )
+	if (q_ptr->exp < exp || exp == 0)
 		abord = TRUE;
 
 	/* Display the recipe, or use up the essences.
 	 * Note that this has to be done before the screen
 	 * is restored. This is because it's also called from
 	 * within the loop to display the required items. */
-	if ( !abord )
+	if (!abord)
+	{
 		if (!artifact_display_or_use(pval, oldpval, TRUE))
+		{
 			abord = TRUE;
+		}
+	}
 
 	/* Restore the screen */
 	Term_load();
 	character_icky = FALSE;
 
 	/* Return if abort, or missing ingredients */
-	if ( abord )
+	if (abord)
 		return;
+
+	msg_print("At last, the item is wrought by your alchemy!");
 
 	/* Actually create the artifact */
 	q_ptr->exp -= exp;
@@ -2272,21 +2300,19 @@ void do_cmd_create_artifact(object_type *q_ptr)
 			q_ptr->xtra2 = activation_select;
 		}
 
-
 		/* Set the 'show modifier' flag */
 		q_ptr->art_flags3 |= TR3_SHOW_MODS;
 
 		/* For temporary items, set a timeout.
 		 * alchemist_skill^2 for now */
-		if ( q_ptr->art_flags5 & TR5_TEMPORARY )
+		if (q_ptr->art_flags5 & TR5_TEMPORARY)
 		{
 			int lev = get_skill(SKILL_ALCHEMY);
 			q_ptr->timeout = lev * lev * 3;
 		}
 
 		/* Describe the new artifact */
-		object_out_desc(q_ptr, NULL, FALSE, TRUE);
-
+		//object_out_desc(q_ptr, NULL, FALSE, TRUE);
 
 		/* Name the new artifact */
 		strcpy(dummy_name, "of an Alchemist");
@@ -2294,10 +2320,9 @@ void do_cmd_create_artifact(object_type *q_ptr)
 			strcpy(new_name, "of an Alchemist");
 		else
 		{
-			if ((strncmp(dummy_name, "of ", 3) == 0) ||
-			                (strncmp(dummy_name, "Of ", 3) == 0) ||
-			                ((dummy_name[0] == '\'') &&
-			                 (dummy_name[strlen(dummy_name) - 1] == '\'')))
+			if ((strncmp(dummy_name, "of ", 3) == 0) || (strncmp(dummy_name, "Of ", 3) == 0) ||
+			                ((dummy_name[0] == '\'') &&	(dummy_name[strlen(dummy_name) - 1] == '\'')) ||
+			                ((dummy_name[0] == '\"') &&	(dummy_name[strlen(dummy_name) - 1] == '\"')))
 			{
 				strcpy(new_name, dummy_name);
 			}
@@ -2308,12 +2333,13 @@ void do_cmd_create_artifact(object_type *q_ptr)
 				strcat(new_name, "'");
 			}
 		}
+
 		/* Identify it fully */
 		object_aware(q_ptr);
 		object_known(q_ptr);
 
 		/* Mark the item as fully known */
-		q_ptr->ident |= (IDENT_MENTAL);
+		q_ptr->ident |= IDENT_MENTAL;
 		q_ptr->ident |= IDENT_STOREB;  /* This will be used later on... */
 
 		/* Save the inscription */
@@ -2349,7 +2375,7 @@ void do_cmd_create_artifact(object_type *q_ptr)
 		 * becomes sane. Sticky bug to figure out, let me tell you.
 		 * Note also that this is cycling backwards - this is so
 		 * that the same effect doesn't cause us to skip items. */
-		for ( i = INVEN_WIELD - 1 ; i >= 0 ; i-- )
+		for (i = INVEN_WIELD - 1; i >= 0; i--)
 			inven_item_optimize(i);
 	}
 
@@ -2421,7 +2447,7 @@ bool item_tester_hook_empower(object_type *o_ptr)
 	 */
 
 	/* Never Empower a cursed item */
-	if ( cursed_p(o_ptr))
+	if (cursed_p(o_ptr))
 	{
 		return FALSE;
 	}
@@ -2432,7 +2458,7 @@ bool item_tester_hook_empower(object_type *o_ptr)
 	                && !(o_ptr->art_flags4 & TR4_ULTIMATE))
 		return TRUE;
 
-	switch ( o_ptr->tval)
+	switch (o_ptr->tval)
 	{
 		/* Empowerable objects: Traditional alchemist stuff */
 	case TV_WAND:
@@ -2466,7 +2492,7 @@ bool item_tester_hook_empower(object_type *o_ptr)
 		/* Ego item stuff */
 		/* Disallow ego dragon armour before you can create artifacts.*/
 	case TV_DRAG_ARMOR:
-		if ( lev < 25)
+		if (lev < 25)
 			return FALSE;
 		/* FALL THROUGH! no break here. */
 
@@ -2509,17 +2535,22 @@ bool item_tester_hook_empower(object_type *o_ptr)
 	case TV_HARD_ARMOR:
 
 		/* Disallow ANY creation of ego items below level 5*/
-		if ( lev < 5)
+		if (lev < 5)
 			return FALSE;
 
 		/* empowering an ego item creates an artifact or a
 		 * double ego item, disallow below level 25 */
-		if ( lev < 25 && o_ptr->name2)
-			return FALSE;
+		if (o_ptr->name2)
+		{
+			if (has_ability(AB_CREATE_ART))
+				return TRUE;
+			if (lev < 25)
+				return FALSE;
+		}
 
 		/* Empowering an artifact can create a more powerful
 		 * artifact, disallow below level 50 */
-		if ( lev < 50 && artifact_p(o_ptr))
+		if (lev < 50 && artifact_p(o_ptr))
 			return FALSE;
 
 		return TRUE;
@@ -2591,10 +2622,10 @@ void do_cmd_toggle_artifact(object_type *o_ptr)
 	{
 		bool okay = TRUE;
 
-		if ( !alchemist_has_stone())
+		if (!alchemist_has_stone())
 		{
-			msg_print("Creating an artifact will result into a permanent loss of 10 hp.");
-			if (!get_check("Are you sure you want to do that?")) return;
+			msg_print("Creating an artifact will result into a permanent loss of 30 hp.");
+			if (!get_check("Are you sure?")) return;
 		}
 
 		if (!magic_essence(get_skill(SKILL_ALCHEMY)))
@@ -2616,10 +2647,7 @@ void do_cmd_toggle_artifact(object_type *o_ptr)
 
 		if (!okay) return;
 
-		/* he/she got warned */
-		p_ptr->hp_mod -= 10;
-
-		/* Ok toggle it */
+		p_ptr->hp_mod -= 30;
 		o_ptr->art_flags4 |= TR4_ART_EXP;
 		o_ptr->name2 = 0;
 		o_ptr->name2b = 0;
@@ -2709,7 +2737,7 @@ bool alchemist_items_check(int tval, int sval, int ego, int tocreate, bool messa
 
 				o_ptr->ident |= IDENT_STOREB;
 			}
-			else if ( tocreate < -1)
+			else if (tocreate < -1)
 			{
 				/*It's not valid to create more than one
 				 * thing at a time, so if it's less than -1,
@@ -2732,10 +2760,10 @@ bool alchemist_items_check(int tval, int sval, int ego, int tocreate, bool messa
 					                && (o_ptr->number >= rqty ))
 					{
 						/* At this point, the item is required, destroy it. */
-						if ( tocreate )
+						if (tocreate)
 						{
 							inven_item_increase(j, 0 - rqty);
-							if ( message)
+							if (message)
 								inven_item_describe(j);
 							inven_item_optimize(j);
 						}
@@ -2745,7 +2773,7 @@ bool alchemist_items_check(int tval, int sval, int ego, int tocreate, bool messa
 						break;
 					}
 				}
-				if ( j == INVEN_WIELD)
+				if (j == INVEN_WIELD)
 					/* This ingredient was not found, cannot do recipe */
 					return FALSE;
 			}/*destroying items, or just checking for existence */
@@ -3399,12 +3427,12 @@ void alchemist_learn_all(int lev)
 {
 	int i;
 
-	if ( !get_skill(SKILL_ALCHEMY) )
+	if (!get_skill(SKILL_ALCHEMY))
 		return;
 
 	/* msg_format("You learn about level %d items",lev); */
 
-	for ( i = 0 ; i < max_k_idx ; i++ )
+	for (i = 0 ; i < max_k_idx ; i++)
 		if ( k_info[i].level <= lev )
 			if (alchemist_exists(k_info[i].tval, k_info[i].sval, 0, 0))
 				k_info[i].know = TRUE;
@@ -3416,7 +3444,7 @@ void alchemist_learn_ego(int ego)
 	int i;
 
 	/* some Paranoia*/
-	if ( !ego || ego >= max_e_idx )
+	if (!ego || ego >= max_e_idx)
 		return;
 
 	/* Get the ego items name */
@@ -3471,10 +3499,10 @@ int alchemist_learn_object(object_type *o_ptr)
 	k_info[o_ptr->k_idx].know = TRUE;
 
 	/* Not Paranoia, identify_fully calls this always */
-	if ( !get_skill(SKILL_ALCHEMY) )
+	if (!get_skill(SKILL_ALCHEMY))
 		return FALSE;
 
-	if ( artifact_p(o_ptr) )
+	if (artifact_p(o_ptr))
 	{
 		char o_name[80];
 		u32b f1, f2, f3, f4, f5, esp;
@@ -3491,6 +3519,7 @@ int alchemist_learn_object(object_type *o_ptr)
 		object_desc(o_name, o_ptr, 1, 0);
 		msg_format("You learn all about the abilities of %s!", o_name);
 	}
+
 	if (o_ptr->name2)
 		alchemist_learn_ego(o_ptr->name2);
 
@@ -3535,14 +3564,14 @@ void alchemist_gain_level(int lev)
 		object_wipe(o_ptr);
 		/* learn about some basic ego items */
 		/* Note that this is just to get you started. */
-		for ( ego = 0 ; egos[ego] ; ego++)
+		for (ego = 0; egos[ego]; ego++)
 		{
 			o_ptr->name2 = egos[ego];
 			alchemist_learn_object(o_ptr);
 		}
 		msg_print("You recall your old master teaching you about elemental item infusing");
 	}
-	if ( lev == 10)
+	if (lev == 10)
 	{
 		/*For 'hard rooms' Players only, learn about diggers.*/
 		if (ironman_rooms)
@@ -3553,12 +3582,12 @@ void alchemist_gain_level(int lev)
 			alchemist_learn_object(o_ptr);
 		}
 	}
-	if ( lev == 25)
+	if (lev == 25)
 	{
 		msg_print("You recall your old master reminiscing about legendary infusings.");
 		msg_print("You wonder about shocking daggers of slay evil");
 	}
-	if ( lev == 50)
+	if (lev == 50)
 	{
 		/* learn about Temporary item creation */
 		/* Note that this is the ONLY way to learn this,
@@ -3575,7 +3604,7 @@ void alchemist_gain_level(int lev)
 	 * things here quickly drops behind the level at which you
 	 * are finding items.
 	 */
-	if ( (lev & 0x3) != 0 )
+	if ((lev & 0x3) != 0)
 		return;
 	lev = (lev >> 2) + 1;
 	alchemist_learn_all(lev);
@@ -3610,6 +3639,7 @@ void do_cmd_alchemist(void)
 	int askill;
 	bool repeat = 0;
 	char ch;
+	char check_desc[80];
 
 	object_type *o_ptr, *q_ptr;
 	object_type forge, forge2;
@@ -3704,10 +3734,11 @@ void do_cmd_alchemist(void)
 		{
 			o_ptr = &o_list[0 - item];
 		}
+
 		/* Create an artifact from an ego or double ego item,
 		 * from a previous artifact, or finish an artifact
 		 */
-		if ((askill >= 25) && (artifact_p(o_ptr) || o_ptr->name2) && has_ability(AB_CREATE_ART))
+		if ((artifact_p(o_ptr) || o_ptr->name2) && has_ability(AB_CREATE_ART))
 		{
 			if (get_check("Create an artifact?"))
 			{
@@ -3718,23 +3749,17 @@ void do_cmd_alchemist(void)
 			else if (artifact_p(o_ptr) || (o_ptr->name2 && o_ptr->name2b))
 				return;
 		}
-		/*Ok, now we have the item, so we can now pick recipes.
-		 Note: No recipe is known unless we have 'extracted' from
-		 that object type. I.E. the 'know' flag (also greater identify)
-		 is set.
-		 */
 
-		/* Here we're not setting what kind of ego item it IS,
-		 * where' just deciding that it CAN be an ego item */
 		if ( o_ptr->name2 && o_ptr->name2b ) {
 			msg_print("This item is maximally empowered.");
 			return;
 		}
-		if ( o_ptr->name2 ) /* creating a DUAL ego */
+
+		if (o_ptr->name2) /* creating a DUAL ego */
 			ego = TRUE;
-		if ( o_ptr->tval < 40 && o_ptr->tval != TV_BOTTLE)
+		if (o_ptr->tval < 40 && o_ptr->tval != TV_BOTTLE)
 			ego = TRUE;
-		if ( o_ptr->tval == TV_ROD_MAIN || o_ptr->tval == TV_DAEMON_BOOK || o_ptr->tval == TV_BOOK)
+		if (o_ptr->tval == TV_ROD_MAIN || o_ptr->tval == TV_DAEMON_BOOK || o_ptr->tval == TV_BOOK)
 			ego = TRUE;
 
 		sval = o_ptr->sval;
@@ -3765,7 +3790,7 @@ void do_cmd_alchemist(void)
 				break;
 			}
 		}
-		if ( o_ptr->sval != sval )
+		if (o_ptr->sval != sval)
 			ego = TRUE;
 
 		tval = o_ptr->tval;
@@ -3782,7 +3807,7 @@ void do_cmd_alchemist(void)
 		else
 			sval = alchemist_recipe_select(&tval, 0, 0, FALSE);
 
-		if ( sval < 0 || ego < 0)
+		if (sval < 0 || ego < 0)
 			return;
 
 		/* Check to make sure we have enough essences */
@@ -3797,11 +3822,15 @@ void do_cmd_alchemist(void)
 		/* Take a turn */
 		energy_use = 100;
 
+		// take description to check later
+		
+		object_desc (check_desc, o_ptr, 0, 2);
+
 		/* Use up the essences */
 		(void)alchemist_items_check(tval, sval, ego, -1, TRUE);
 
 		/* Enchant stacks of ammunition at a time */
-		if ( o_ptr->tval == TV_SHOT || o_ptr->tval == TV_ARROW || o_ptr->tval == TV_BOLT || o_ptr->tval == TV_BULLET || o_ptr->tval == TV_BULLET)
+		if (o_ptr->tval == TV_SHOT || o_ptr->tval == TV_ARROW || o_ptr->tval == TV_BOLT || o_ptr->tval == TV_BULLET || o_ptr->tval == TV_RBULLET)
 		{
 			qty = 1;
 			while (qty < o_ptr->number && alchemist_items_check(tval, sval, ego, -1, FALSE))
@@ -3810,20 +3839,22 @@ void do_cmd_alchemist(void)
 		else
 			qty = 1;
 
+		// check to see if item moved slot in inventory
+		if (item >= 0)
+		{
+			char new_desc[80];
+			object_desc (new_desc, o_ptr, 0, 2);
+
+			while (strcmp(check_desc, new_desc))
+			{
+				o_ptr = &p_ptr->inventory[--item];
+				object_desc (new_desc, o_ptr, 0, 2);
+			}
+		}
+
 		/* Copy the object */
 		q_ptr = &forge;
 		object_copy(q_ptr, o_ptr);
-
-		if ( o_ptr->tval == TV_WAND)
-		{
-			/* distribute charges on wands */
-			q_ptr->pval = o_ptr->pval / o_ptr->number;
-			o_ptr->pval -= q_ptr->pval;
-		}
-
-		o_ptr = q_ptr;
-		o_ptr->number = qty;
-		carry_o_ptr = TRUE;
 
 		/* Destroy the initial object */
 		if (item >= 0)
@@ -3840,8 +3871,12 @@ void do_cmd_alchemist(void)
 			floor_item_optimize(0 - item);
 		}
 
+		// point at the new item(s)
+		o_ptr = q_ptr;
+		o_ptr->number = qty;
+		carry_o_ptr = TRUE;
 
-		if ( ego )
+		if (ego)
 		{
 			int pval, pval2;
 			s32b pval3;
@@ -3861,7 +3896,7 @@ void do_cmd_alchemist(void)
 			 */
 			apply_magic(o_ptr, askill * 2, FALSE, FALSE, FALSE);
 			/* Remember what the old pval was, so that we can re-apply it. */
-			if ( o_ptr->tval == TV_WAND
+			if (o_ptr->tval == TV_WAND
 			                || o_ptr->tval == TV_RING
 			                || o_ptr->tval == TV_AMULET
 			                || o_ptr->tval == TV_STAFF)
@@ -3891,10 +3926,10 @@ void do_cmd_alchemist(void)
 				o_ptr->pval2 = pval2;
 			}
 
-			/* Calculate failure rate, lev=val/2500+5 */
 			value = MIN(e_info[o_ptr->name2].cost, 50000);
 			if (o_ptr->name2b) value += MIN(e_info[o_ptr->name2b].cost, 50000);
-			basechance = (value / 1000 + 5 - get_skill_scale(SKILL_ALCHEMY, 100) ) * 10;
+
+			basechance = (value / 750 + 5 - get_skill_scale(SKILL_ALCHEMY, 100) ) * 3;
 			if ( basechance < 0) basechance = 0;
 			if ( basechance > 100) basechance = 100;
 
@@ -3908,23 +3943,20 @@ void do_cmd_alchemist(void)
 			object_prep(o_ptr, lookup_kind(tval, sval));
 			hack_apply_magic_power = -99;
 			apply_magic(o_ptr, askill * 2, FALSE, FALSE, FALSE);
-			if ( o_ptr->tval == TV_WAND || o_ptr->tval == TV_STAFF)
+			if (o_ptr->tval == TV_WAND || o_ptr->tval == TV_STAFF)
 				o_ptr->pval = 0;
 			value = object_value_real(o_ptr);
 
-			basechance = k_info[o_ptr->k_idx].level - askill * 2;
-			basechance *= 10;
+			basechance = (k_info[o_ptr->k_idx].level - askill * 2) * 10;
 
-			/* Can't fail more that 100% of the time... */
+			/* Can't fail more than 100% of the time... */
 			if (basechance > 100)
 				basechance = 100;
-			/* Always success in creation of potion of detonations */
+
+			/* Easier success in creation of potion of detonations */
 			if (o_ptr->tval == TV_POTION && o_ptr->sval == SV_POTION_DETONATIONS)
 			{
 				basechance /= 10;
-#if 0 /* Let's see how it works */
-				o_ptr->discount = 100;
-#endif
 			}
 		}
 
@@ -3935,7 +3967,7 @@ void do_cmd_alchemist(void)
 		 things to make are 'bad', like a potion of
 		 detonations...
 		 */
-		/* Problem - to restrictive. We need something
+		/* Problem - too restrictive. We need something
 		 which requires less money. But at the same time,
 		 we don't want an 'easy cash' situation. Maybe something
 		 like '10% * level difference', meaning at skill level 5,
@@ -3953,31 +3985,46 @@ void do_cmd_alchemist(void)
 		 Time*/
 
 		/* 0% failure if you have the stone */
-		if ( alchemist_has_stone())
+		if (alchemist_has_stone())
 			basechance = 0;
 
 		if (basechance > 0 && value)
 		{
+			s32b safevalue = (basechance * value / 20);
 			char string[80];
-			string[0] = '0';
-			string[1] = 0;
+			char buf[10];
 
-			msg_format("The chance of success is only %d%%!", 100-basechance);
-			get_string("How much gold do you want to add?", string, 50);
-			i = atoi(string);
-			/* Note: don't trust the user to enter a positive number... */
-			if ( i < 0)
+			msg_format("The recipe is high level! The chance of success is only %d%%;", 100-basechance);
+			msg_format("You need to add %ld gold for 100%%.", safevalue);
+
+			// util.c type of prompt code, but with minimum of zero.
+			sprintf(string, "How much will you add? (0-%ld): ", safevalue);
+			sprintf(buf, "%i", 0);
+
+			if (!get_string(string, buf, 9))
 				i = 0;
-			if ( i > p_ptr->au)
+			else
+			{
+				i = atoi(buf);
+
+				/* A letter means "all" */
+				if (isalpha(buf[0]) || i > safevalue)
+					i = safevalue;
+			}
+
+			// They're out to get me!
+			if (i < 0)
+				i = 0;
+			if (i > p_ptr->au)
 				i = p_ptr->au;
 
 			if (i)
 			{
-				basechance = basechance - (i * 20) / value;
+				basechance = basechance - (i * 20 + 1) / value;
 				msg_format("The chance of success improved to %d%%.", 100-basechance);
 			}
 
-			if (randint(100) < basechance )
+			if (randint(100) < basechance)
 				/*creation failed, even with the extra gold...*/
 				carry_o_ptr = FALSE;
 
@@ -3996,9 +4043,9 @@ void do_cmd_alchemist(void)
 
 		object_desc(o_name, o_ptr, FALSE, 0);
 
-		if ( carry_o_ptr)
+		if (carry_o_ptr)
 		{
-			msg_format("You have successfully created %s %s",
+			msg_format("You have successfully created %s %s.",
 			           (o_ptr->number > 1 ? "some" : (is_a_vowel(o_name[0]) ? "an" : "a")),
 			           o_name);
 
@@ -4017,7 +4064,7 @@ void do_cmd_alchemist(void)
 			if (o_ptr->name1) /* created ego item */
 				level += e_info[o_ptr->name2].level;
 
-			msg_format("Your attempt backfires! Your %s explodes!", o_name);
+			msg_format("Your attempt backfires! The %s explodes in your hands!", o_name);
 			take_hit(damroll(3, level - askill ) , "Alchemical Explosion");
 			p_ptr->redraw |= (PR_HP);
 		}
@@ -4091,7 +4138,7 @@ void do_cmd_alchemist(void)
 			 * and if no action was taken, return
 			 */
 			ego = 0;
-			if ( o_ptr->name2)
+			if (o_ptr->name2)
 				ego = o_ptr->name2;
 
 			/* For ego staves and wands (not of nothing), discharge before extracting the ego */
@@ -4122,7 +4169,7 @@ void do_cmd_alchemist(void)
 			                || (ego && !(alchemist_known_egos[ego / 32] & (1 << (ego % 32)))))
 			                && randint(3) == 1)
 			{
-				msg_print("While destroying it, you gain insight into this item");
+				msg_print("The extraction is especially enlightening.");
 				/* If over level 10, the player has a chance of 'greater ID'
 				 * on extracted items
 				 */
@@ -4150,6 +4197,7 @@ void do_cmd_alchemist(void)
 
 					/* Modify quantity */
 					q_ptr->number = 1;
+					q_ptr->discount = o_ptr->discount;
 
 					/* Unstack the copied staff */
 					o_ptr->number--;
@@ -4176,14 +4224,14 @@ void do_cmd_alchemist(void)
 					bool create_item = TRUE;
 
 					tval = o_ptr->tval;
-					if ( !ego && (tval == TV_POTION || tval == TV_POTION2))
+					if (!ego && (tval == TV_POTION || tval == TV_POTION2))
 						tval = TV_BOTTLE;
 
 					sval = o_ptr->sval;
 
 					if (!ego)
 					{
-						switch ( tval)
+						switch (tval)
 						{
 						case TV_WAND:
 							sval = SV_WAND_NOTHING;
@@ -4218,6 +4266,8 @@ void do_cmd_alchemist(void)
 						object_wipe(s_ptr);
 						object_prep(s_ptr, lookup_kind(tval, sval));
 						s_ptr->number = 1;
+						if (ego)
+							s_ptr->discount = o_ptr->discount;
 
 						/* Force creation of non ego non cursed */
 						hack_apply_magic_power = -99;
@@ -4303,8 +4353,7 @@ void do_cmd_alchemist(void)
 					}
 				}
 			}
-		}
-		while ( repeat == 1);
+		} while (repeat == 1);
 
 		/* If we carry empty items, add them to the p_ptr->inventory */
 		if (carry_s_ptr)
@@ -4394,7 +4443,7 @@ void do_cmd_alchemist(void)
 
 
 /*
- * Command to ask favors from your god.
+ * Command to toggle praying
  */
 void do_cmd_pray(void)
 {

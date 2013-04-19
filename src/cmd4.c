@@ -11,6 +11,7 @@
  */
 
 #include "angband.h"
+#include "externs.h"
 
 
 /*
@@ -4396,6 +4397,53 @@ void do_cmd_knowledge_notes(void)
 }
 
 
+static void clear_lines42(int min_row, int max_row)
+{
+	int i;
+
+
+	for (i = min_row; i <= max_row; i++)
+	{
+		prt("", i, 0);
+	}
+}
+
+
+
+static void show_bounties2(void)
+{
+	int i, j = 6;
+
+	monster_race* r_ptr;
+
+	char buff[80];
+
+	clear_lines42(1, 18);
+	
+
+	c_prt(TERM_YELLOW, "Currently active bounties:", 4, 2);
+
+	for (i = 1; i < MAX_BOUNTIES; i++, j++)
+	{
+		r_ptr = &r_info[bounties[i][0]];
+
+		strnfmt(buff, 80, "%-30s (%d gp)", r_name + r_ptr->name, bounties[i][1]);
+
+		prt(buff, j, 2);
+
+		if (j >= 17)
+		{
+			msg_print("Press space for more.");
+			msg_print(NULL);
+			clear_lines42(1, 18);
+			
+			j = 5;
+		}
+	}
+}
+
+
+
 /*
  * Interact with "knowledge"
  */
@@ -4435,6 +4483,7 @@ void do_cmd_knowledge(void)
 		prt("(0) Display known traps", 13, 5);
 		prt("(A) Display known dungeon towns", 14, 5);
 		if (take_notes) prt("(B) Display notes", 15, 5);
+		prt("(C) Display current bounties", 16, 5);
 
 		/* Prompt */
 		prt("Command: ", 17, 0);
@@ -4544,6 +4593,12 @@ void do_cmd_knowledge(void)
 				else bell();
 
 				break;
+			}
+		
+		case 'C':
+		case 'c':
+			{
+				show_bounties2();
 			}
 
 			/* Unknown option */

@@ -1,10 +1,10 @@
 add_module
 {
 	["name"]    = "FuryBand T",
-	["version"] = { 5, 0, 3 },
+	["version"] = { 5, 1, 0 },
 	["author"]  = { "The Fury", "thefury@furytech.net" },
 	["desc"] = {
-		"The alternate mode of FuryMod, one town, one dungeon",
+		"This version is closer to Angband in that there's only one town and one dungeon.",
 		},
 
 	["rand_quest"] = TRUE,
@@ -17,12 +17,12 @@ add_module
         ["astral_wild_x"] = 35,
         ["astral_wild_y"] = 21,
 
-	["random_artifact_weapon_chance"] = 40,
-	["random_artifact_armor_chance"] = 40,
-	["random_artifact_jewelry_chance"] = 10,
+	["random_artifact_weapon_chance"] = 33,
+	["random_artifact_armor_chance"] = 33,
+	["random_artifact_jewelry_chance"] = 34,
 
 	["max_plev"] = 75,
-	["max_skill_overage"] = 7,
+	["max_skill_overage"] = 5,
 	
 	["mod_savefiles"]=
 	{

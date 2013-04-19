@@ -27,10 +27,6 @@ static cptr wd_his[3] = { "its", "his", "her" };
 (((c) == 1) ? (s) : (p))
 
 
-
-
-
-
 /*
  * Determine if the "armor" is known
  * The higher the level, the fewer kills needed.
@@ -1173,7 +1169,7 @@ static void roff_aux(int r_idx, int ego, int remem)
 		for (n = 0; n < vn; n++)
 		{
 			/* Intro */
-			if (n == 0) text_out(" resists ");
+			if (n == 0) text_out(" repels ");
 			else if (n < vn - 1) text_out(", ");
 			else text_out(" and ");
 
@@ -1620,16 +1616,16 @@ static void roff_aux(int r_idx, int ego, int remem)
 		case RBE_PARASITE:
 			q = "parasite";
 			break;
-				case RBE_CHAOS:
+		case RBE_CHAOS:
 			q = "chaos";
 			break;
-				case RBE_PIETY:
+		case RBE_PIETY:
 			q = "ruins your piety";
 			break;
-					case RBE_FOOD:
+		case RBE_FOOD:
 			q = "causes hunger";
 			break;
-						case RBE_SLASH:
+		case RBE_SLASH:
 			q = "causes severe cuts";
 			break;
 		}

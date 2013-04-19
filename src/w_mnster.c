@@ -1,6 +1,6 @@
 /*
 ** Lua binding: monster
-** Generated automatically by tolua 4.0a - angband on 08/01/07 21:25:27.
+** Generated automatically by tolua 4.0a - angband on 02/25/10 19:01:17.
 */
 
 #include "lua/tolua.h"
@@ -2540,8 +2540,8 @@ int tolua_monster_open (lua_State* tolua_S)
  tolua_constant(tolua_S,NULL,"RF2_ATTR_ANY",RF2_ATTR_ANY);
  tolua_constant(tolua_S,NULL,"RF2_POWERFUL",RF2_POWERFUL);
  tolua_constant(tolua_S,NULL,"RF2_ELDRITCH_HORROR",RF2_ELDRITCH_HORROR);
- tolua_constant(tolua_S,NULL,"RF8_AURA_FIRE",RF8_AURA_FIRE);
- tolua_constant(tolua_S,NULL,"RF8_AURA_ELEC",RF8_AURA_ELEC);
+ tolua_constant(tolua_S,NULL,"RF2_AURA_FIRE",RF2_AURA_FIRE);
+ tolua_constant(tolua_S,NULL,"RF2_AURA_ELEC",RF2_AURA_ELEC);
  tolua_constant(tolua_S,NULL,"RF2_OPEN_DOOR",RF2_OPEN_DOOR);
  tolua_constant(tolua_S,NULL,"RF2_BASH_DOOR",RF2_BASH_DOOR);
  tolua_constant(tolua_S,NULL,"RF2_PASS_WALL",RF2_PASS_WALL);
@@ -2568,7 +2568,7 @@ int tolua_monster_open (lua_State* tolua_S)
  tolua_constant(tolua_S,NULL,"RF3_ANIMAL",RF3_ANIMAL);
  tolua_constant(tolua_S,NULL,"RF3_THUNDERLORD",RF3_THUNDERLORD);
  tolua_constant(tolua_S,NULL,"RF3_GOOD",RF3_GOOD);
- tolua_constant(tolua_S,NULL,"RF8_AURA_COLD",RF8_AURA_COLD);
+ tolua_constant(tolua_S,NULL,"RF3_AURA_COLD",RF3_AURA_COLD);
  tolua_constant(tolua_S,NULL,"RF3_NONLIVING",RF3_NONLIVING);
  tolua_constant(tolua_S,NULL,"RF3_HURT_LITE",RF3_HURT_LITE);
  tolua_constant(tolua_S,NULL,"RF3_HURT_ROCK",RF3_HURT_ROCK);
@@ -2960,8 +2960,8 @@ void tolua_monster_close (lua_State* tolua_S)
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"RF2_ATTR_ANY");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"RF2_POWERFUL");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"RF2_ELDRITCH_HORROR");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"RF_AURA_FIRE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"RF_AURA_ELEC");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"RF2_AURA_FIRE");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"RF2_AURA_ELEC");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"RF2_OPEN_DOOR");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"RF2_BASH_DOOR");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"RF2_PASS_WALL");
@@ -2988,7 +2988,7 @@ void tolua_monster_close (lua_State* tolua_S)
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"RF3_ANIMAL");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"RF3_THUNDERLORD");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"RF3_GOOD");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"RF_AURA_COLD");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"RF3_AURA_COLD");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"RF3_NONLIVING");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"RF3_HURT_LITE");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"RF3_HURT_ROCK");

@@ -1,3 +1,59 @@
+Twelfth Release (5.1)
+
+Core Changes
+	
+	LightBranded Swords should no longer damage light-resistant monsters per Zop
+	RandArt Changes per Zop
+	Weapon Wielding changes per Zop
+	RES_MELEE works per Zop
+	More than 255 Artifacts supported Per Zop
+	Assorted other changes by Zop
+	Added the option to show current bounties in the "~" menu
+	Monster and Object Lists print out to CSV files now
+	Fir Trees and Mallorn Trees should Burn now. And should be passable with TreeWalking
+
+
+Spell Changes
+
+	Constructor Powers fixed per Zop
+	Full overhaul on Hunter Powers
+	Lowered the level Jedi's get "Force Learn"
+	Added Info on Some Ninja Powers
+	
+
+Monster Changes
+
+	Mother Hydra's now have the correct character
+	Reduced Experience given by Chtonians and other drastically over the top monsters
+	Moved great unclean ones to level 63 from level 53, as they're far more powerful than anything in that depth
+	Surtur the Giant Balrog now how has the "U" symbol
+	Increased Health of Mature Red and Bronze Dragons to match level
+	Removed most monsters from being aligned based on your player race
+	More Monster Egos
+
+
+Class/Race Changes
+
+	Ninjas get less of a modifier to Backstab, Ninja, Stealin, and Disarming. 
+	Ninjas get an increase of a modifier to swordmastery
+	Lowered the SkillOverLevel to 5 from 7
+	Major rebalance of the races and classes. 
+
+Store Changes
+	Added options for recharging at Furyband T
+
+Object Changes
+	Increased depth of some of the Maia weapons
+	More EGO items
+
+Level Changes
+	
+	No more Maedhros at Deathwatch
+	Improved the Spiders Lair
+	Some NEW Princess Quest Levels
+
+
+
 Eleventh Release (5.0/Gold)
 
 Class/race changes

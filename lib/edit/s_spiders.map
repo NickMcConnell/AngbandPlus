@@ -7,17 +7,19 @@
 
 ### GuaranTeed monsTers
 # Mirkwood spiders
-F:a:1:0:277
+F:a:1:88:277
 
 # Spider QuylThulg
-F:b:1:0:753
+F:b:1:88:753
 
 # Hill orc on normal floor
-F:c:1:0:964
+F:c:1:88:964
 
 # Black orc on normal floor
-F:d:1:0:963
+F:d:1:88:963
 
+# dirt
+F:,:88:0
 
 
 ### GuaranTeed iTems
@@ -27,30 +29,31 @@ F:1:1:0:0:0:0:239
 
 
 ### Dungeon Design
-D:....TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-D:....>..T...................................................................................................
-D:T.d....Td..................................................................................................
-D:T.a....T.......a.......................a................................a..................................
-D:TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT...................................................................
-D:T..........................................................................................................
-D:T..........................................................................................................
-D:TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT...................................................
-D:T................................................###.......................................................
-D:T................................................#b#TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.......
-D:T................................................#1#.a.....................................................
-D:T................a.........T.................#####c#####...................................................
-D:T............................................#b.......b#...................................................									
-D:T............................................#####+#####...................................................
-D:T...a............... a.....................................................................................
-D:TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT...........................................................
-D:T......................aTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT........................
-D:T................d....................................................a....................................
-D:T.........................a............a...................................................................
-D:TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT.................................
-D:T..........................................................................................................
-D:T.......................................a..................................................................
-D:TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
-
+D:ttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt
+D:tttttTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTt
+D:tt,,,>,,Tttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttaaaatt
+D:tT,d,,,,,d,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,ttttttttttttttttttttttttttttttttttttttttttttaaaatt
+D:tT,a,,,,Ttttttttatttttttttttttttttttttttattttttttttttttttt,ttttttttttttttatttttttttttttttttttttttttttttt,tttt
+D:tTTTTTTTTTTTTTTTTTTTTTTTTT,TTTTTTTTTTTTTTttttttttttttttttt,tttttttttttttt,tttttttttttttttttttttttttttttt,tttt
+D:tTttttaaaatttttttttttttttt,tttttttttttttttttttttttt,tttttt,,,,,,,,,,,,,,,,tttttttttttttttttttttttttttttt,tttt
+D:tTtttta,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,ttttttttttttttttttttt,tttttttttttttttttttttttttttttt,tttt
+D:tTTTTTTTTTTTTTTTTTTTTTTTTT,TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTtttttttttttttttt,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,tttt
+D:tTtttttttttttttttttttttttt,ttttttttttttttttttttttt###tttttttttttttttttttt,ttttttttttttttttttttttttttttttttttt
+D:tTtttttttttttttttttttttttt,ttttttttttttttttttttttt#b#TTTTTTTTTTTTTTTTTTTT,TTTTTTTTTTTTTTTTTTTTTTTTTTTtttttttt
+D:tTtttttttttttttttttttttttt,ttttttttttttttttttttttt#1#tatttttttttttttttttt,ttttttttttttttttttttttttttttttttttt
+D:tTtttttttttttttttta,,,,,,,,,,,,,,,,,,,,ttttttt#####c#####tttttttttttttttt,ttttttttttttttttttttttttttttttttttt
+D:tTtttttttttttttttttttttttt,ttttttttttt,ttttttt#b,,,,,,,b#tttttttttttttttt,ttttttttttttttttttttttttttttttttttt									
+D:tTtttttttttttttttttttttttt,ttttttttttt,ttttttt#####+#####tttttttttttttttt,ttttttttttttttttttttttttttttttttttt
+D:tTttta,,,,,,,,,,,,,,,,a,,,,ttttttttttt,,,,,,,,,,,,,,atttttttttttttttttttt,ttttttttttttttttttttttttttttttttttt
+D:tTTTTT,TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTaaaatttttttttttttttttttt,ttttttttttttttttttttttttttttttttttt
+D:tTtttt,tttttttttttttttttaTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT,TTTTTTTTTTttttttttttttttttttttttttt
+D:tTtttt,,,,,,,,,,,,d,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,a,,aattttttttttttttttttttttttttttttttt
+D:tTtttttttttttttttttttttttttattttttttttttattttttttttttttttttttttttttttttttaaattttttttttttttttttttttttttttttttt
+D:tTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTaaattttttttttttttttttttttttttttttttt
+D:tTttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt
+D:tTtttttttttttttttttttttttttttttttttttttttattttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt
+D:tTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTt
+D:ttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt
 
 ### STarTing LocaTion
-P:1:1
+P:5:6

@@ -917,11 +917,20 @@ static void power_activate(int power)
 				msg_print("There's something in the way!");
 				break;
 			}
-			else if (c_ptr->feat == FEAT_TREES)
+			else if ((c_ptr->feat == FEAT_TREES) || (c_ptr->feat == FEAT_FIRTREE))
 			{
 				msg_print("You don't like the woody taste!");
 				break;
 			}
+			
+			else if (c_ptr->feat == FEAT_MALLORN)
+			
+			{
+				msg_print("You don't dare to eat a Mallorn!");
+				break;
+				
+			}
+			
 			else
 			{
 				if ((c_ptr->feat >= FEAT_DOOR_HEAD) &&

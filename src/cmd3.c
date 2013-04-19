@@ -224,6 +224,199 @@ bool is_slot_ok(int slot)
 	}
 }
 
+int wield_weapon (object_type *item_ptr, int slot)
+{
+	u32b f1, f2, f3, f4, f5, esp;
+	object_type *o_ptr;
+	char o_name[80];
+
+	if (slot > INVEN_WIELD_MAX || p_ptr->body_parts[slot - INVEN_WIELD] != INVEN_WIELD)
+		return 0;
+
+	if (cursed_p(&p_ptr->inventory[slot]))
+	{
+		int i = wield_weapon (item_ptr, slot + 1);
+		if (i) return i;
+
+		object_desc(o_name, &p_ptr->inventory[slot], FALSE, 0);
+		msg_format("The %s you are %s appears to be cursed.",
+		           o_name, describe_use(slot));
+		return 0;
+	}
+
+	o_ptr = &p_ptr->inventory[slot + INVEN_ARM - INVEN_WIELD];
+
+	if (o_ptr->k_idx)
+	{
+		object_flags(item_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
+
+		// prevent 2H weapon from wearing if wielding shield
+		if (f4 & TR4_MUST2H)
+		{
+			int i = wield_weapon (item_ptr, slot + 1);
+			if (i) return i;
+
+			object_desc(o_name, item_ptr, FALSE, 0);
+			msg_format("You cannot wear your %s while wearing a shield.", o_name);
+			return 0;
+		}
+		if (f4 & TR4_COULD2H)
+		{
+			int i = wield_weapon (item_ptr, slot + 1);
+			if (i) return i;
+
+			switch (slot)
+			{
+			case INVEN_WIELD:
+				strcpy(o_name,"Do you want to wield it with your primary shield? ");
+			break;
+			case INVEN_WIELD + 1:
+				strcpy(o_name,"Do you want to wield it with your second shield? ");
+			break;
+			case INVEN_WIELD + 2:
+				strcpy(o_name,"Do you want to wield it with your third shield? ");
+			break;
+			default:
+				strcpy(o_name,"Do you want to wield it with a shield? ");
+			}
+
+			if (get_check(o_name))
+			{
+				return slot;
+			}
+			return 0;
+
+		}
+	}
+
+	// no shield found, is there a weapon already being worn in this slot?
+	o_ptr = &p_ptr->inventory[slot];
+	if (o_ptr->k_idx)
+	{
+		int i = wield_weapon (item_ptr, slot + 1);
+		if (i) return i;
+
+		switch (slot)
+		{
+		case INVEN_WIELD:
+			strcpy(o_name,"Switch with your primary weapon? ");
+		break;
+		case INVEN_WIELD + 1:
+			strcpy(o_name,"Switch with your second weapon? ");
+		break;
+		case INVEN_WIELD + 2:
+			strcpy(o_name,"Switch with your third weapon? ");
+		break;
+		default:
+			strcpy(o_name,"Switch with current weapon? ");
+		}
+
+		if (get_check(o_name))
+		{
+			return slot;
+		}
+		return 0;
+	}
+
+	return slot;
+}
+
+int wield_shield (int slot)
+{
+	u32b f1, f2, f3, f4, f5, esp;
+	object_type *o_ptr;
+	char o_name[80];
+
+	if (slot > INVEN_ARM_MAX || p_ptr->body_parts[slot - INVEN_WIELD] != INVEN_ARM)
+		return 0;
+
+	if (cursed_p(&p_ptr->inventory[slot]))
+	{
+		int i = wield_shield (slot + 1);
+		if (i) return i;
+
+		object_desc(o_name, &p_ptr->inventory[slot], FALSE, 0);
+		msg_format("The %s you are %s appears to be cursed.",
+		           o_name, describe_use(slot));
+		return 0;
+	}
+
+	o_ptr = &p_ptr->inventory[slot - INVEN_ARM + INVEN_WIELD];
+
+	// prevent shield from being put on if wielding 2H weapon
+	if (o_ptr->k_idx)
+	{
+		object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
+
+		if (f4 & TR4_MUST2H)
+		{
+			int i = wield_shield (slot + 1);
+			if (i) return i;
+
+			object_desc(o_name, o_ptr, FALSE, 0);
+			msg_format("You cannot wield a shield with your %s.", o_name);
+			return 0;
+		}
+		if (f4 & TR4_COULD2H)
+		{
+			int i = wield_shield (slot + 1);
+			if (i) return i;
+
+			switch (slot)
+			{
+			case INVEN_ARM:
+				strcpy(o_name,"Do you want to restrict your primary weapon? ");
+			break;
+			case INVEN_ARM + 1:
+				strcpy(o_name,"Do you want to restrict your second weapon? ");
+			break;
+			case INVEN_ARM + 2:
+				strcpy(o_name,"Do you want to restrict your third weapon? ");
+			break;
+			default:
+				strcpy(o_name,"Do you want to restrict a weapon? ");
+			}
+
+			if (get_check(o_name))
+			{
+				return slot;
+			}
+			return 0;
+		}
+	}
+
+	// no weapon found, is there a shield already being worn in this slot?
+	o_ptr = &p_ptr->inventory[slot];
+	if (o_ptr->k_idx)
+	{
+		int i = wield_shield (slot + 1);
+		if (i) return i;
+
+		switch (slot)
+		{
+		case INVEN_ARM:
+			strcpy(o_name,"Switch your current shield? ");
+		break;
+		case INVEN_ARM + 1:
+			strcpy(o_name,"Switch your second shield? ");
+		break;
+		case INVEN_ARM + 2:
+			strcpy(o_name,"Switch your third shield? ");
+		break;
+		default:
+			strcpy(o_name,"Switch current shield? ");
+		}
+
+		if (get_check(o_name))
+		{
+			return slot;
+		}
+		return 0;
+
+	}
+
+	return slot;
+}
 
 /*
  * Wield or wear a single item from the pack or floor
@@ -231,13 +424,10 @@ bool is_slot_ok(int slot)
 void do_cmd_wield(void)
 {
 	int item, slot, num = 1;
-	int tryable;
 
 	object_type forge;
 
-	object_type *q_ptr;
-
-	object_type *o_ptr, *i_ptr;
+	object_type *q_ptr, *o_ptr, *wpn_ptr, *shield_ptr;
 
 	cptr act;
 
@@ -246,7 +436,6 @@ void do_cmd_wield(void)
 	cptr q, s;
 
 	u32b f1, f2, f3, f4, f5, esp;
-
 
 	/* Restrict the choices */
 	item_tester_hook = item_tester_hook_wear;
@@ -261,24 +450,17 @@ void do_cmd_wield(void)
 	{
 		o_ptr = &p_ptr->inventory[item];
 	}
-
 	/* Get the item (on the floor) */
 	else
 	{
 		o_ptr = &o_list[0 - item];
 	}
 
-	/* Check the slot */
-	slot = wield_slot(o_ptr);
-
-	/* Prevent wielding into a cursed slot */
-	if (cursed_p(&p_ptr->inventory[slot]))
-	{
-		object_desc(o_name, &p_ptr->inventory[slot], FALSE, 0);
-		msg_format("The %s you are %s appears to be cursed.",
-		           o_name, describe_use(slot));
-		return;
-	}
+	// find a slot, use ideal for weapons, shields, other non-multiple equip slots
+	if (o_ptr->tval == TV_RING || o_ptr->tval == TV_GLOVES || o_ptr->tval == TV_BOOTS || o_ptr->tval == TV_CROWN || o_ptr->tval == TV_HELM)
+		slot = wield_slot(o_ptr);
+	else
+		slot = wield_slot_ideal(o_ptr, 1);
 
 	if ((cursed_p(o_ptr)) && (wear_confirm)
 	                && (object_known_p(o_ptr) || (o_ptr->ident & (IDENT_SENSE))))
@@ -291,12 +473,103 @@ void do_cmd_wield(void)
 			return;
 	}
 
+	object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
+
 	if (process_hooks(HOOK_WIELD, "(d)", item)) return;
 
-	tryable = 0;
-	try_another_shield_slot:
+	// two special cases, ARM and WIELD
+	if (slot == INVEN_ARM)
+	{
+		// recursively find a slot the player wants, if there's another possible ARM slot
+		if (p_ptr->body_parts[slot - INVEN_WIELD + 1] == INVEN_ARM)
+			slot = wield_shield(slot);
+		else
+		{
+			if (cursed_p(&p_ptr->inventory[slot]))
+			{
+				object_desc(o_name, &p_ptr->inventory[slot], FALSE, 0);
+				msg_format("The %s you are %s appears to be cursed.",
+				           o_name, describe_use(slot));
+				return;
+			}
 
-	object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
+			// simply check the weapon
+			wpn_ptr = &p_ptr->inventory[INVEN_WIELD];
+
+			if (wpn_ptr->k_idx)
+			{
+				object_flags(wpn_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
+
+				if (f4 & TR4_MUST2H)
+				{
+					object_desc(o_name, wpn_ptr, FALSE, 0);
+					msg_format("You cannot wield a shield with your %s.", o_name);
+					return;
+				}
+				if (f4 & TR4_COULD2H)
+				{
+					if (!get_check("Do you want to restrict your weapon? "))
+					{
+						return;
+					}
+				}
+			}
+		}
+
+	}
+	else if (slot == INVEN_WIELD)
+	{
+		// recursively find a slot the player wants, if there's another possible WIELD slot
+		if (p_ptr->body_parts[slot - INVEN_WIELD + 1] == INVEN_WIELD)
+			slot = wield_weapon(o_ptr, slot);
+		else
+		{
+			if (cursed_p(&p_ptr->inventory[slot]))
+			{
+				object_desc(o_name, &p_ptr->inventory[slot], FALSE, 0);
+				msg_format("The %s you are %s appears to be cursed.",
+				           o_name, describe_use(slot));
+				return;
+			}
+
+			// simply check for shield
+			shield_ptr = &p_ptr->inventory[INVEN_ARM];
+
+			if (shield_ptr->k_idx)
+			{
+				//object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
+				if (f4 & TR4_MUST2H)
+				{
+					object_desc(o_name, o_ptr, FALSE, 0);
+					msg_format("You cannot wield the %s with a shield.", o_name);
+					return;
+				}
+				if (f4 & TR4_COULD2H)
+				{
+					if (!get_check("Wield it restricted by your shield? "))
+					{
+						return;
+					}
+				}
+			}
+		}
+	}
+	else
+	{
+		/* Prevent wielding into a cursed slot */
+		if (cursed_p(&p_ptr->inventory[slot]))
+		{
+			object_desc(o_name, &p_ptr->inventory[slot], FALSE, 0);
+			msg_format("The %s you are %s appears to be cursed.",
+			           o_name, describe_use(slot));
+			return;
+		}
+
+		slot = wield_slot(o_ptr);
+	}
+
+	if (!slot) return;
+
 	if ((f5 & (TR5_ONLY_MALE)) && (p_ptr->psex != SEX_MALE))
     {
          msg_print("Only males may use this!");
@@ -307,96 +580,6 @@ void do_cmd_wield(void)
         msg_print("Only females may use this!");
         return;
     }
-
-	if ((is_slot_ok(slot - INVEN_WIELD + INVEN_ARM)) &&
-	                (f4 & TR4_MUST2H) &&
-	                (p_ptr->inventory[slot - INVEN_WIELD + INVEN_ARM].k_idx != 0))
-	{
-		if ( (p_ptr->body_parts[slot - INVEN_WIELD + 1] == INVEN_ARM) )
-		{
-			slot = slot + 1;
-			goto try_another_shield_slot;
-		}
-		else
-			if ( tryable ) goto tried_another_shield_slot;
-
-		object_desc(o_name, o_ptr, FALSE, 0);
-		msg_format("You cannot wield your %s with a shield.", o_name);
-		return;
-	}
-
-	if (is_slot_ok(slot - INVEN_ARM + INVEN_WIELD))
-	{
-		i_ptr = &p_ptr->inventory[slot - INVEN_ARM + INVEN_WIELD];
-
-		/* Extract the flags */
-		object_flags(i_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
-
-		/* Prevent shield from being put on if wielding 2H */
-		if ((f4 & TR4_MUST2H) && (i_ptr->k_idx) &&
-		                (p_ptr->body_parts[slot - INVEN_WIELD] == INVEN_ARM))
-		{
-			if ( (p_ptr->body_parts[slot - INVEN_WIELD + 1] == INVEN_ARM) )
-			{
-				slot = slot + 1;
-				goto try_another_shield_slot;
-			}
-			else
-				if ( tryable ) goto tried_another_shield_slot;
-
-			object_desc(o_name, o_ptr, FALSE, 0);
-			msg_format("You cannot wield your %s with a two-handed weapon.", o_name);
-			return;
-		}
-
-		if ( ((p_ptr->body_parts[slot - INVEN_WIELD] == INVEN_ARM) &&
-		                (f4 & TR4_COULD2H)))
-		{
-			if ( (p_ptr->body_parts[slot - INVEN_WIELD + 1] == INVEN_ARM) )
-			{
-				tryable = slot;
-				slot = slot + 1;
-
-				goto try_another_shield_slot;
-			}
-
-			tried_another_shield_slot:
-
-			if ( tryable )
-				slot = tryable;
-
-			if (!get_check("Are you sure you want to restrict your fighting? "))
-			{
-				return;
-			}
-		}
-	}
-
-
-	/* Extract the flags */
-	object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
-
-	try_another_weapon_slot:
-
-	if ((is_slot_ok(slot - INVEN_WIELD + INVEN_ARM)) &&
-	                (p_ptr->inventory[slot - INVEN_WIELD + INVEN_ARM].k_idx != 0) &&
-	                (f4 & TR4_COULD2H))
-	{
-		if ( (p_ptr->body_parts[slot - INVEN_WIELD + 1] == INVEN_WIELD) )
-		{
-			tryable = slot;
-			slot = slot + 1;
-
-			goto try_another_weapon_slot;
-		} else
-			if ( tryable )
-				slot = tryable;
-
-		if (!get_check("Are you sure you want to use this weapon with a shield?"))
-		{
-			return;
-		}
-	}
 
 	/* Can we take off existing item */
 	if (slot != INVEN_AMMO)
@@ -783,7 +966,7 @@ void do_cmd_destroy(void)
 	/* Artifacts cannot be destroyed */
 	if (artifact_p(o_ptr) || o_ptr->art_name)
 	{
-//		byte feel = SENSE_SPECIAL;
+		byte feel = SENSE_SPECIAL;
 
 		energy_use = 0;
 
@@ -791,13 +974,14 @@ void do_cmd_destroy(void)
 		msg_format("You cannot destroy %s.", o_name);
 
 		/* Hack -- Handle icky artifacts */
-//		if (cursed_p(o_ptr)) feel = SENSE_TERRIBLE;
+		if (cursed_p(o_ptr)) feel = SENSE_TERRIBLE;
 
 		/* Hack -- inscribe the artifact */
-//		o_ptr->sense = feel;
+		o_ptr->sense = feel;
 
 		/* We have "felt" it (again) */
-		o_ptr->ident |= (IDENT_SENSE);
+		if (!(o_ptr->ident & (IDENT_MENTAL)))
+			o_ptr->ident |= (IDENT_SENSE);
 
 		/* Combine the pack */
 		p_ptr->notice |= (PN_COMBINE);

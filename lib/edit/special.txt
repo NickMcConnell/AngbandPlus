@@ -23,6 +23,12 @@ F:.:1:0
 # Tree
 F:T:96:0
 
+# Fir Tree
+F:t:219:0
+
+# dirt path
+F:d:88:0
+
 # Mountain
 F:M:97:0
 

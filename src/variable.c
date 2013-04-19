@@ -344,6 +344,14 @@ bool testing_stack; 			/* Test the stacking code */
 
 bool testing_carry; 			/* Test the carrying code */
 
+bool precog_ego;
+bool precog_artifact;
+bool precog_vaults;
+bool precog_uniques;
+bool precog_fates;
+bool precog_specifics;
+bool precog_dragon;
+
 
 /* Cheating options */
 

@@ -288,6 +288,13 @@ extern bool always_small_level;
 extern bool flavored_attacks;
 #endif
 extern bool player_symbols;
+extern bool precog_ego;
+extern bool precog_artifact;
+extern bool precog_vaults;
+extern bool precog_uniques;
+extern bool precog_fates;
+extern bool precog_specifics;
+extern bool precog_dragon;
 extern byte hitpoint_warn;
 extern byte delay_factor;
 extern s16b autosave_freq;
@@ -1271,10 +1278,8 @@ extern bool unsafe;
 extern void describe_attack_fully(int type, char* r);
 extern s16b do_poly_monster(int y, int x);
 
-
 /* spells2.c */
 extern bool remove_curse_object(object_type *o_ptr, bool all);
-extern void curse_artifact(object_type * o_ptr);
 extern void grow_things(s16b type, int rad);
 extern void grow_grass(int rad);
 extern void grow_trees(int rad);
@@ -1415,7 +1420,6 @@ extern bool item_tester_hook_artifactable(object_type *o_ptr);
 extern bool passwall(int dir, bool safe);
 extern bool project_hook(int typ, int dir, int dam, int flg);
 extern void random_misc (object_type * o_ptr, bool is_scroll);
-extern void random_plus(object_type * o_ptr, bool is_scroll);
 extern bool reset_recall(bool no_trepas_max_depth);
 extern void remove_dg_curse(void);
 
@@ -1448,6 +1452,7 @@ extern void do_cmd_bldg(void);
 extern bool show_god_info(bool ext);
 extern void enter_quest(void);
 extern void select_bounties(void);
+extern void show_bounties(void);
 
 /* util.c */
 extern void scansubdir(cptr dir);
@@ -1938,3 +1943,5 @@ extern int hero_lost_sword(int hero);
 extern void special_weapon_charge();
 extern void do_cmd_tweak(object_type *o_ptr);
 extern int add_item_ability(object_type *o_ptr);
+
+extern s16b wield_slot_ideal(object_type *o_ptr, bool ideal);

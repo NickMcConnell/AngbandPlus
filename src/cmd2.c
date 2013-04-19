@@ -19,7 +19,7 @@ void do_cmd_immovable_special(void);
  */
 static bool do_cmd_bash_altar(int y, int x)
 {
-	msg_print("Are you mad ? You want to anger the gods ?");
+	msg_print("Are you mad? You want to anger the gods?");
 	return (FALSE);
 }
 
@@ -176,7 +176,7 @@ void do_cmd_go_up(void)
 
 		if (dungeon_flags2 & DF2_NO_EASY_MOVE)
 		{
-			msg_print("Some powerfull force prevents your from teleporting.");
+			msg_print("Some powerful force prevents you from teleporting.");
 			return;
 		}
 
@@ -210,7 +210,7 @@ void do_cmd_go_up(void)
 		/* Hack -- take a turn */
 		energy_use = 100;
 #else
-energy_use = 0;
+		energy_use = 0;
 #endif
 
 		/* Success */
@@ -428,7 +428,7 @@ void do_cmd_go_down(void)
 
 		if (dungeon_flags2 & DF2_NO_EASY_MOVE)
 		{
-			msg_print("Some powerfull force prevents your from teleporting.");
+			msg_print("Some powerful force prevents you from teleporting.");
 			return;
 		}
 
@@ -534,8 +534,16 @@ void do_cmd_go_down(void)
 			}
 			else
 			{
-				msg_print
-				("You don't feel yourself experienced enough to go there...");
+				msg_print ("You aren't experienced enough to go there...");
+				if (p_ptr->wild_mode)
+				{
+					msg_print ("Changing view...");
+					p_ptr->wilderness_x = p_ptr->px;
+					p_ptr->wilderness_y = p_ptr->py;
+					p_ptr->oldpx = MAX_WID / 2;
+					p_ptr->oldpy = MAX_HGT / 2;
+					change_wild_mode();
+				}
 				dun_level = old_dun;
 				return;
 			}
@@ -1536,7 +1544,7 @@ bool do_cmd_tunnel_aux(int y, int x, int dir)
 		msg_print(f_text + f_ptr->tunnel);
 	}
 
-	else if ((c_ptr->feat == FEAT_TREES) || (c_ptr->feat == FEAT_DEAD_TREE))
+	else if ((c_ptr->feat == FEAT_TREES) || (c_ptr->feat == FEAT_DEAD_TREE) || (c_ptr->feat == FEAT_FIRTREE))
 	{
 		/* Chop Down */
 		skill_req = 10;
@@ -2749,7 +2757,7 @@ static void do_cmd_walk_jump(int pickup, bool disarm)
 		p_ptr->oldpy = MAX_HGT / 2;
 
 		/* Inform the player of his horrible fate :=) */
-		msg_print("You are ambushed !");
+		msg_print("You are ambushed!");
 	}
 
 	/* Cancel repeat unless we may continue */

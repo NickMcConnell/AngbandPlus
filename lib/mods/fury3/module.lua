@@ -1,13 +1,13 @@
 add_module
 {
 	["name"]    = "FuryBand G",
-	["version"] = { 1, 0, 0 },
-	["author"]  = { "The Fury", "thefurry@hvc.rr.com" },
+	["version"] = { 1, 1, 0 },
+	["author"]  = { "The Fury", "thefury@furytech.net" },
 	["desc"] = {
-		"A challenge for those who think that they are invincible",
+		"A much harder version of T. All monsters are double the player level.",
 		},
 
-	["rand_quest"] = TRUE,
+	["rand_quest"] = FALSE,
 	["C_quest"] = FALSE,
 
 	["base_dungeon"] = 4,
@@ -17,12 +17,12 @@ add_module
         ["astral_wild_x"] = 1,
         ["astral_wild_y"] = 1,
 
-	["random_artifact_weapon_chance"] = 40,
-	["random_artifact_armor_chance"] = 40,
-	["random_artifact_jewelry_chance"] = 10,
+	["random_artifact_weapon_chance"] = 33,
+	["random_artifact_armor_chance"] = 33,
+	["random_artifact_jewelry_chance"] = 34,
 
 	["max_plev"] = 75,
-	["max_skill_overage"] = 7,
+	["max_skill_overage"] = 5,
 	
 	["mod_savefiles"]=
 	{

@@ -59,12 +59,12 @@ T:MF_ALL
 N:3:Lich
 G:L:*
 I:%100:+0d+1:+10:+20:-10
-W:+30:10:+0:%200:B
+W:+20:10:+0:%200:B
 B:TOUCH:LOSE_DEX:+0d+0
 B:TOUCH:LOSE_DEX:+0d+0
 B:TOUCH:UN_POWER:+0d+0
 B:TOUCH:EXP_40:+0d+0
-F:DROP_SKELETON | SMART | R_CHAR_h | R_CHAR_p | R_CHAR_P | R_CHAR_O
+F:DROP_SKELETON | R_CHAR_h | R_CHAR_p | R_CHAR_P | R_CHAR_O | R_CHAR_o
 H:UNDEAD | NONLIVING | R_CHAR_Z | R_CHAR_A | R_CHAR_E | R_CHAR_g
 M:UNDEAD | IM_COLD | IM_POIS | NO_FEAR | NO_CONF
 M:NO_SLEEP | SMART | EVIL | COLD_BLOOD
@@ -101,7 +101,7 @@ F:R_CHAR_o | R_CHAR_y | R_CHAR_k | BASEANGBAND
 M:FORCE_MAXHP | FRIENDS | SMART | DROP_1D2 | 
 
 N:6:Chieftain
-G:*:*
+G:*:E
 I:+10:%200d%100:+10:%120:-3
 W:+5:4:%120:%200:A
 B:*:*:+1d+2
@@ -148,6 +148,7 @@ W:+1:1:%100:%110:A
 F:R_CHAR_y | R_CHAR_k | R_CHAR_O | R_CHAR_o | BASEANGBAND
 S:1_IN_4 | ARROW_2
 
+
 N:11:Rogue
 G:*:b
 I:+2:+0d+0:+0:+10:-30
@@ -170,6 +171,47 @@ I:+2:+0d+0:+0:+0:+0
 W:+0:15:+0:+0:B
 F:WILD_TOWN
 H:ANIMAL
+
+N:14:Sorceror
+G:*:f
+I:+0:%150d%100:+10:%120:+0
+W:+15:4:%120:%150:A
+B:*:*:+0d+0
+B:*:*:+0d+0
+B:HIT:HURT:=2d=9
+B:HIT:HURT:=2d=9
+F:R_CHAR_O | R_CHAR_o
+M:SMART | FORCE_MAXHP | DROP_1D2
+O:FRIENDS
+S:1_IN_6 | BA_COLD | BO_FIRE | TRAPS | HEAL | HOLD | S_MONSTER | TPORT | CAUSE_2
+
+N:15:Master Archer
+G:*:q
+I:+0:+2d+2:+0:+0:+0
+W:+10:10:%100:%125:A
+F:R_CHAR_y | R_CHAR_k | R_CHAR_O | R_CHAR_o | 
+S:1_IN_4 | ARROW_3
+
+N:16:Warper
+G:*:M
+I:+0:%90d%100:+10:%90:+0
+W:+10:1:%90:%120:A
+F:R_CHAR_o | R_CHAR_k | R_CHAR_O | 
+M:SMART | FORCE_MAXHP | DROP_1D2
+O:FRIENDS
+S:1_IN_4 | MISSILE | CAUSE_1 | CONF | BLINK
+S:TELE_TO | TELE_AWAY | 
+
+N:17:Mutant
+G:*:k
+I:-10:%400d%200:+10:%140:-3
+W:+15:4:%120:%300:A
+B:*:*:+2d+2
+B:*:*:+2d+2
+B:*:*:+2d+2
+B:*:*:+2d+2
+F:R_CHAR_T | R_CHAR_P | R_CHAR_O | BASEANGBAND
+M:FORCE_MAXHP | FRIENDS | SMART | DROP_1D2 | DROP_GOOD | NO_CUT
 
 # N:x:ego name
 # G:x:y                 x is the char, y the attribute, * means the normal one
