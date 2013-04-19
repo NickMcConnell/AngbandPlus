@@ -17,3 +17,11 @@ To download source code for (for example) PsiAngband 1.0.7 from Github:
 2. Select 'Commits'
 3. Select 'Browse code' from next to PsiAngband 1.0.7 in the list
 4. Select the ZIP button (note that the download will have a silly name)
+
+To compare two releases:
+1. Choose the branch of the variant the first release is from
+2. Select 'Commits'
+3. Record the SHA1 hash (jumble of letters and numbers) for the release you want
+4. Repeat 1 to 3 for the second release
+5. If the first hash is xxxxx, and the second yyyyy, go to the URL
+   https://github.com/angbandplus/AngbandPlus/compare/xxxxx...yyyyy
