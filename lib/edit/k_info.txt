@@ -1596,21 +1596,64 @@ F:EASY_KNOW | IGNORE_ACID | IGNORE_COLD | IGNORE_ELEC | IGNORE_FIRE | SEE_INVIS
 f:SEE_INVIS
 D:This magical piece of jewellery allows your eyes to perceive beings otherwise unseen.
 
-N:159:& Slingshot~
-G:}:d
-I:19:2:1
-W:5:0:10:10
-P:0:0d0:0:0:0
-A:6/1
-F:SHOW_MODS | XTRA_MIGHT
-f:XTRA_MIGHT
 
-N:160:& Palantir~
-G:~:y
-I:39:97:0
-W:0:0:0:0
-P:0:0d0:0:0:0
-F:INSTA_ART
+
+N:156:Sustain Strength
+G:=:d
+I:45:10:0
+W:20:0:2:400
+A:20/1
+F:SUST_STR | EASY_KNOW
+f:SUST_STR
+D:This magical bauble protects your physical force against attacks attempting to drain it.
+
+N:157:Sustain Intelligence
+G:=:d
+I:45:11:0
+W:20:0:2:400
+A:20/1
+F:SUST_INT | EASY_KNOW
+f:SUST_INT
+D:This magical ring protects your intellect against attempts to lower it.
+
+N:158:Sustain Wisdom
+G:=:d
+I:45:12:0
+W:20:0:2:400
+A:20/1
+F:SUST_WIS | EASY_KNOW
+f:SUST_WIS
+D:This magical ring protects you from attempts to make you more foolish.
+
+N:159:Sustain Constitution
+G:=:d
+I:45:13:0
+W:20:0:2:400
+A:20/1
+F:SUST_CON | EASY_KNOW
+f:SUST_CON
+D:This magical ring protects your health, making it impossible for your opponents to lower it.
+
+N:160:Sustain Dexterity
+G:=:d
+I:45:14:0
+W:20:0:2:400
+A:20/1
+F:SUST_DEX | EASY_KNOW
+f:SUST_DEX
+D:This magical ring protects your nerves, so that you will never become clumsy.
+
+N:161:Sustain Charisma
+G:=:d
+I:45:15:0
+W:20:0:2:400
+A:20/1
+F:SUST_CHR | EASY_KNOW
+f:SUST_CHR
+D:This ring magically protects your beauty and charm from attempts to make you ugly.
+
+
+
 
 N:162:Slaying
 G:=:d
@@ -6375,7 +6418,7 @@ G:`:B
 I:12:1:0
 W:40:0:2:5000
 A:40/3
-D:It is used by merchants as an extra carrying space.
+D:It is used by merchants as an extra carrying space. 'w'ield it, and hit 'W' to use it.
 
 N:809:Critical Hits
 G:=:d
@@ -6663,7 +6706,7 @@ D:amulet makes you feel less adept at using magic.
 # They reuse some svals and so colours will match. This will change when ToME3 comes out.
 N:840:Wizardry
 G:=:d
-I:45:10:2
+I:45:63:2
 W:100:0:2:125000
 P:0:0d0:0:0:0
 A:100/10
@@ -6675,7 +6718,7 @@ D:and augments the wearer's magical reserves.
 
 N:841:Vitality
 G:=:d
-I:45:11:2
+I:45:61:2
 W:100:0:2:125000
 P:0:0d0:0:0:0
 A:100/10
@@ -6686,7 +6729,7 @@ D:This valuable ring enhances and protects the wearer's life force in every way.
 
 N:842:Clear Thought
 G:=:d
-I:45:12:0
+I:45:62:0
 W:100:0:2:125000
 P:0:0d0:0:0:0
 A:100/10
@@ -6898,7 +6941,7 @@ D:coating.
 ### Added in Theme
 N:866:& Large Mithril Shield~
 G:):B
-I:34:10:0
+I:34:11:0
 W:50:0:80:7000
 P:8:1d2:0:0:10
 A:50/2
@@ -7418,7 +7461,7 @@ D:A mask of pure crystal, it seems to help you to see things deeper.
 
 N:934:& Psychoactive Skin~
 G:(:b
-I:36:2:1
+I:36:25:1
 W:30:20:20:1000
 P:10:0d0:5:5:5
 A:70/2
@@ -7744,15 +7787,28 @@ D:This ring protects you from stuns
 N:1021:& Jedi's Hood~
 G:]:u
 I:32:51:0
-W:3:0:10:10
+W:25:10:10:10
 P:4:0d0:0:0:0
-A:3/1
+A:25/10
 F:RES_BLIND
 D:A Jedi's hood.
 
 
+N:1022:& Slingshot~
+G:}:d
+I:19:3:1
+W:5:0:10:10
+P:0:0d0:0:0:0
+A:6/1
+F:SHOW_MODS | XTRA_MIGHT
+f:XTRA_MIGHT
 
-
+N:1023:& Palantir~
+G:~:y
+I:39:97:0
+W:0:0:0:0
+P:0:0d0:0:0:0
+F:INSTA_ART
 
 
 

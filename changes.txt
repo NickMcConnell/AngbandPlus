@@ -67,12 +67,13 @@ Object Changes
 	2 New Rings: Ring of Knowledge (found deep in the dungeon and gives auto_id at the expense of stealth), and  Safety (protects you from getting stunned)
 	Fixed some Artifact Sets, thanks to JohnCW9
 
+
 Level Changes
 	
 	No more Maedhros at Deathwatch
 	Improved the Spiders Lair
 	Some NEW Princess Quest Levels
-	
+	Fixed Shelob's Lair
 
 
 
