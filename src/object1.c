@@ -2746,13 +2746,94 @@ if ((first)) { (first) = FALSE; text_out((txt)); } else text_out(", ");
 /*
  * Display the damage done with a multiplier
  */
-void output_dam(object_type *o_ptr, int mult, int mult2, cptr against, cptr against2, bool *first)
+
+int primary_weapon_blows(object_type *o_ptr)
+{
+	u32b f1, f2, f3, f4, f5, esp;
+	s16b num_blow;
+	object_type *shield;
+
+	object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
+
+	if (f1 & (TR1_BLOWS))
+		num_blow = (p_ptr->num_blow + o_ptr->pval);
+	else
+		num_blow = p_ptr->num_blow;
+
+	shield = &p_ptr->inventory[INVEN_ARM];
+	object_flags(shield, &f1, &f2, &f3, &f4, &f5, &esp);
+
+	if (f1 & (TR1_BLOWS))
+		num_blow += p_ptr->bonus_blow + shield->pval;
+	else
+		num_blow += p_ptr->bonus_blow;
+
+	return ((num_blow > 0) ? num_blow : 0);
+
+};
+
+int sec_weapon_blows(object_type *o_ptr)
+{
+	u32b f1, f2, f3, f4, f5, esp;
+	s16b num_blow;
+	object_type *shield;
+
+	object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
+
+	if (f1 & (TR1_BLOWS))
+		num_blow = (p_ptr->num_blow2 + o_ptr->pval);
+	else
+		num_blow = p_ptr->num_blow2;
+
+	shield = &p_ptr->inventory[INVEN_ARM + 1];
+	object_flags(shield, &f1, &f2, &f3, &f4, &f5, &esp);
+
+	if (f1 & (TR1_BLOWS))
+		num_blow += p_ptr->bonus_blow + shield->pval;
+	else
+		num_blow += p_ptr->bonus_blow;
+
+	return ((num_blow > 0) ? num_blow : 0);
+
+};
+
+int ter_weapon_blows(object_type *o_ptr)
+{
+	u32b f1, f2, f3, f4, f5, esp;
+	s16b num_blow;
+	object_type *shield;
+
+	object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
+
+	if (f1 & (TR1_BLOWS))
+		num_blow = (p_ptr->num_blow3 + o_ptr->pval);
+	else
+		num_blow = p_ptr->num_blow3;
+
+	shield = &p_ptr->inventory[INVEN_ARM + 2];
+	object_flags(shield, &f1, &f2, &f3, &f4, &f5, &esp);
+
+	if (f1 & (TR1_BLOWS))
+		num_blow += p_ptr->bonus_blow + shield->pval;
+	else
+		num_blow += p_ptr->bonus_blow;
+
+	return ((num_blow > 0) ? num_blow : 0);
+
+};
+
+void output_dam(object_type *o_ptr, int mult, int mult2, cptr against, cptr against2, bool *first, int slot)
 {
 	int dam;
 
 	dam = (o_ptr->dd + (o_ptr->dd * o_ptr->ds)) * 5 * mult;
 	dam += (o_ptr->to_d + p_ptr->to_d + p_ptr->to_d_melee) * 10;
-	dam *= p_ptr->num_blow;
+	if (slot == 1)
+		dam *= primary_weapon_blows (o_ptr);
+	else if (slot == 2)
+		dam *= sec_weapon_blows (o_ptr);
+	else
+		dam *= ter_weapon_blows (o_ptr);
 	CHECK_FIRST("", *first);
 	if (dam > 0)
 	{
@@ -2769,7 +2850,7 @@ void output_dam(object_type *o_ptr, int mult, int mult2, cptr against, cptr agai
 	{
 		dam = (o_ptr->dd + (o_ptr->dd * o_ptr->ds)) * 5 * mult2;
 		dam += (o_ptr->to_d + p_ptr->to_d + p_ptr->to_d_melee) * 10;
-		dam *= p_ptr->num_blow;
+		dam *= primary_weapon_blows (o_ptr);
 		CHECK_FIRST("", *first);
 		if (dam > 0)
 		{
@@ -2787,6 +2868,114 @@ void output_dam(object_type *o_ptr, int mult, int mult2, cptr against, cptr agai
 /*
  * Outputs the damage we do/would do with the weapon
  */
+
+void display_weapon3_damage(object_type *o_ptr)
+{
+	object_type forge, *old_ptr = &forge;
+	u32b f1, f2, f3, f4, f5, esp;
+	bool first = TRUE;
+	bool full = o_ptr->ident & (IDENT_MENTAL);
+
+	/* Extract the flags */
+	object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
+
+	/* Ok now the hackish stuff, we replace the current weapon with this one */
+	object_copy(old_ptr, &p_ptr->inventory[INVEN_WIELD + 2]);
+	object_copy(&p_ptr->inventory[INVEN_WIELD + 2], o_ptr);
+	calc_bonuses(TRUE);
+
+	text_out("\nAs a third weapon, it would have ");
+	text_out_c(TERM_L_GREEN, format("%d ", ter_weapon_blows(o_ptr)));
+	text_out(format("blow%s and do an average damage per turn of ", (ter_weapon_blows(o_ptr) == 1) ? "" : "s"));
+
+	if (full && (f1 & TR1_SLAY_ANIMAL)) output_dam(o_ptr, 2, 0, "animals", NULL, &first, 3);
+	if (full && (f1 & TR1_SLAY_EVIL)) output_dam(o_ptr, 2, 0, "evil creatures", NULL, &first, 3);
+	if (full && (f1 & TR1_SLAY_ORC)) output_dam(o_ptr, 3, 0, "orcs", NULL, &first, 3);
+	if (full && (f1 & TR1_SLAY_TROLL)) output_dam(o_ptr, 3, 0, "trolls", NULL, &first, 3);
+	if (full && (f1 & TR1_SLAY_GIANT)) output_dam(o_ptr, 3, 0, "giants", NULL, &first, 3);
+	if (full && (f5 & TR5_KILL_VAMPIRE)) output_dam(o_ptr, 3, 0, "vampires", NULL, &first, 3);
+	if (full && (f1 & TR1_KILL_DRAGON)) output_dam(o_ptr, 5, 0, "dragons", NULL, &first, 3);
+	else if (full && (f1 & TR1_SLAY_DRAGON)) output_dam(o_ptr, 3, 0, "dragons", NULL, &first, 3);
+	if (full && (f5 & TR5_KILL_UNDEAD)) output_dam(o_ptr, 5, 0, "undead", NULL, &first, 3);
+	else if (full && (f1 & TR1_SLAY_UNDEAD)) output_dam(o_ptr, 3, 0, "undead", NULL, &first, 3);
+	if (full && (f5 & TR5_KILL_DEMON)) output_dam(o_ptr, 5, 0, "Maiar", NULL, &first, 3);
+	else if (full && (f1 & TR1_SLAY_DEMON)) output_dam(o_ptr, 3, 0, "Maiar", NULL, &first, 3);
+
+	if (full && (f1 & TR1_BRAND_FIRE)) output_dam(o_ptr, 3, 6, "non fire resistant creatures", "fire susceptible creatures", &first, 3);
+	if (full && (f1 & TR1_BRAND_COLD)) output_dam(o_ptr, 3, 6, "non cold resistant creatures", "cold susceptible creatures", &first, 3);
+	if (full && (f1 & TR1_BRAND_ELEC)) output_dam(o_ptr, 3, 6, "non lightning resistant creatures", "lightning susceptible creatures", &first, 3);
+	if (full && (f1 & TR1_BRAND_ACID)) output_dam(o_ptr, 3, 6, "non acid resistant creatures", "acid susceptible creatures", &first, 3);
+	if (full && (f1 & TR1_BRAND_POIS)) output_dam(o_ptr, 3, 6, "non poison resistant creatures", "poison susceptible creatures", &first, 3);
+	if (full && (f5 & TR5_BRAND_LIGHT)) output_dam(o_ptr, 3, 6, "non light resistant creatures", "light susceptible creatures", &first, 3);
+	if (full && (f5 & TR5_BRAND_DARK)) output_dam(o_ptr, 3, 6, "non dark resistant creatures", "dark susceptible creatures", &first, 3);
+	if (full && (f5 & TR5_BRAND_WATER)) output_dam(o_ptr, 3, 6, "non water resistant creatures", "water susceptible creatures", &first, 3);
+	if (full && (f5 & TR5_BRAND_MAGIC)) output_dam(o_ptr, 3, 6, "non magic resistant creatures", "magic susceptible creatures", &first, 3);
+	if (full && (f5 & TR5_BRAND_DEATH)) output_dam(o_ptr, 1, 15, "undead monsters", "living creatures", &first, 3);
+
+	output_dam(o_ptr, 1, 0, (first) ? "all monsters" : "other monsters", NULL, &first, 3);
+
+	text_out(".");
+
+	/* get our weapon back */
+	object_copy(&p_ptr->inventory[INVEN_WIELD + 2], old_ptr);
+
+}
+
+void display_weapon2_damage(object_type *o_ptr)
+{
+	object_type forge, *old_ptr = &forge;
+	u32b f1, f2, f3, f4, f5, esp;
+	bool first = TRUE;
+	bool full = o_ptr->ident & (IDENT_MENTAL);
+
+	/* Extract the flags */
+	object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
+
+	/* Ok now the hackish stuff, we replace the current weapon with this one */
+	object_copy(old_ptr, &p_ptr->inventory[INVEN_WIELD + 1]);
+	object_copy(&p_ptr->inventory[INVEN_WIELD + 1], o_ptr);
+	calc_bonuses(TRUE);
+
+	text_out("\nAs a second weapon, it would have ");
+	text_out_c(TERM_L_GREEN, format("%d ", sec_weapon_blows(o_ptr)));
+	text_out(format("blow%s and do an average damage per turn of ", (sec_weapon_blows(o_ptr) == 1) ? "" : "s"));
+
+	if (full && (f1 & TR1_SLAY_ANIMAL)) output_dam(o_ptr, 2, 0, "animals", NULL, &first, 2);
+	if (full && (f1 & TR1_SLAY_EVIL)) output_dam(o_ptr, 2, 0, "evil creatures", NULL, &first, 2);
+	if (full && (f1 & TR1_SLAY_ORC)) output_dam(o_ptr, 3, 0, "orcs", NULL, &first, 2);
+	if (full && (f1 & TR1_SLAY_TROLL)) output_dam(o_ptr, 3, 0, "trolls", NULL, &first, 2);
+	if (full && (f1 & TR1_SLAY_GIANT)) output_dam(o_ptr, 3, 0, "giants", NULL, &first, 2);
+	if (full && (f5 & TR5_KILL_VAMPIRE)) output_dam(o_ptr, 3, 0, "vampires", NULL, &first, 2);
+	if (full && (f1 & TR1_KILL_DRAGON)) output_dam(o_ptr, 5, 0, "dragons", NULL, &first, 2);
+	else if (full && (f1 & TR1_SLAY_DRAGON)) output_dam(o_ptr, 3, 0, "dragons", NULL, &first, 2);
+	if (full && (f5 & TR5_KILL_UNDEAD)) output_dam(o_ptr, 5, 0, "undead", NULL, &first, 2);
+	else if (full && (f1 & TR1_SLAY_UNDEAD)) output_dam(o_ptr, 3, 0, "undead", NULL, &first, 2);
+	if (full && (f5 & TR5_KILL_DEMON)) output_dam(o_ptr, 5, 0, "Maiar", NULL, &first, 2);
+	else if (full && (f1 & TR1_SLAY_DEMON)) output_dam(o_ptr, 3, 0, "Maiar", NULL, &first, 2);
+
+	if (full && (f1 & TR1_BRAND_FIRE)) output_dam(o_ptr, 3, 6, "non fire resistant creatures", "fire susceptible creatures", &first, 2);
+	if (full && (f1 & TR1_BRAND_COLD)) output_dam(o_ptr, 3, 6, "non cold resistant creatures", "cold susceptible creatures", &first, 2);
+	if (full && (f1 & TR1_BRAND_ELEC)) output_dam(o_ptr, 3, 6, "non lightning resistant creatures", "lightning susceptible creatures", &first, 2);
+	if (full && (f1 & TR1_BRAND_ACID)) output_dam(o_ptr, 3, 6, "non acid resistant creatures", "acid susceptible creatures", &first, 2);
+	if (full && (f1 & TR1_BRAND_POIS)) output_dam(o_ptr, 3, 6, "non poison resistant creatures", "poison susceptible creatures", &first, 2);
+	if (full && (f5 & TR5_BRAND_LIGHT)) output_dam(o_ptr, 3, 6, "non light resistant creatures", "light susceptible creatures", &first, 2);
+	if (full && (f5 & TR5_BRAND_DARK)) output_dam(o_ptr, 3, 6, "non dark resistant creatures", "dark susceptible creatures", &first, 2);
+	if (full && (f5 & TR5_BRAND_WATER)) output_dam(o_ptr, 3, 6, "non water resistant creatures", "water susceptible creatures", &first, 2);
+	if (full && (f5 & TR5_BRAND_MAGIC)) output_dam(o_ptr, 3, 6, "non magic resistant creatures", "magic susceptible creatures", &first, 2);
+	if (full && (f5 & TR5_BRAND_DEATH)) output_dam(o_ptr, 1, 15, "undead monsters", "living creatures", &first, 2);
+
+	output_dam(o_ptr, 1, 0, (first) ? "all monsters" : "other monsters", NULL, &first, 2);
+
+	text_out(".");
+
+	/* get our weapon back */
+	object_copy(&p_ptr->inventory[INVEN_WIELD + 1], old_ptr);
+
+	if ( (p_ptr->body_parts[2] == INVEN_WIELD) )
+		   display_weapon3_damage (o_ptr);
+
+}
+
 void display_weapon_damage(object_type *o_ptr)
 {
 	object_type forge, *old_ptr = &forge;
@@ -2802,40 +2991,44 @@ void display_weapon_damage(object_type *o_ptr)
 	object_copy(&p_ptr->inventory[INVEN_WIELD], o_ptr);
 	calc_bonuses(TRUE);
 
-	text_out("\nUsing it you would have ");
-	text_out_c(TERM_L_GREEN, format("%d ", p_ptr->num_blow));
-	text_out(format("blow%s and do an average damage per turn of ", (p_ptr->num_blow) ? "s" : ""));
+	text_out("\n\nAs your main weapon, it would have ");
+	text_out_c(TERM_L_GREEN, format("%d ", primary_weapon_blows(o_ptr)));
+	text_out(format("blow%s and do an average damage per turn of ", (primary_weapon_blows(o_ptr) == 1) ? "" : "s"));
 
-	if (full && (f1 & TR1_SLAY_ANIMAL)) output_dam(o_ptr, 2, 0, "animals", NULL, &first);
-	if (full && (f1 & TR1_SLAY_EVIL)) output_dam(o_ptr, 2, 0, "evil creatures", NULL, &first);
-	if (full && (f1 & TR1_SLAY_ORC)) output_dam(o_ptr, 3, 0, "orcs", NULL, &first);
-	if (full && (f1 & TR1_SLAY_TROLL)) output_dam(o_ptr, 3, 0, "trolls", NULL, &first);
-	if (full && (f1 & TR1_SLAY_GIANT)) output_dam(o_ptr, 3, 0, "giants", NULL, &first);
-	if (full && (f5 & TR5_KILL_VAMPIRE)) output_dam(o_ptr, 3, 0, "vampires", NULL, &first);
-	if (full && (f1 & TR1_KILL_DRAGON)) output_dam(o_ptr, 5, 0, "dragons", NULL, &first);
-	else if (full && (f1 & TR1_SLAY_DRAGON)) output_dam(o_ptr, 3, 0, "dragons", NULL, &first);
-	if (full && (f5 & TR5_KILL_UNDEAD)) output_dam(o_ptr, 5, 0, "undead", NULL, &first);
-	else if (full && (f1 & TR1_SLAY_UNDEAD)) output_dam(o_ptr, 3, 0, "undead", NULL, &first);
-	if (full && (f5 & TR5_KILL_DEMON)) output_dam(o_ptr, 5, 0, "Maiar", NULL, &first);
-	else if (full && (f1 & TR1_SLAY_DEMON)) output_dam(o_ptr, 3, 0, "Maiar", NULL, &first);
+	if (full && (f1 & TR1_SLAY_ANIMAL)) output_dam(o_ptr, 2, 0, "animals", NULL, &first, 1);
+	if (full && (f1 & TR1_SLAY_EVIL)) output_dam(o_ptr, 2, 0, "evil creatures", NULL, &first, 1);
+	if (full && (f1 & TR1_SLAY_ORC)) output_dam(o_ptr, 3, 0, "orcs", NULL, &first, 1);
+	if (full && (f1 & TR1_SLAY_TROLL)) output_dam(o_ptr, 3, 0, "trolls", NULL, &first, 1);
+	if (full && (f1 & TR1_SLAY_GIANT)) output_dam(o_ptr, 3, 0, "giants", NULL, &first, 1);
+	if (full && (f5 & TR5_KILL_VAMPIRE)) output_dam(o_ptr, 3, 0, "vampires", NULL, &first, 1);
+	if (full && (f1 & TR1_KILL_DRAGON)) output_dam(o_ptr, 5, 0, "dragons", NULL, &first, 1);
+	else if (full && (f1 & TR1_SLAY_DRAGON)) output_dam(o_ptr, 3, 0, "dragons", NULL, &first, 1);
+	if (full && (f5 & TR5_KILL_UNDEAD)) output_dam(o_ptr, 5, 0, "undead", NULL, &first, 1);
+	else if (full && (f1 & TR1_SLAY_UNDEAD)) output_dam(o_ptr, 3, 0, "undead", NULL, &first, 1);
+	if (full && (f5 & TR5_KILL_DEMON)) output_dam(o_ptr, 5, 0, "Maiar", NULL, &first, 1);
+	else if (full && (f1 & TR1_SLAY_DEMON)) output_dam(o_ptr, 3, 0, "Maiar", NULL, &first, 1);
 
-	if (full && (f1 & TR1_BRAND_FIRE)) output_dam(o_ptr, 3, 6, "non fire resistant creatures", "fire susceptible creatures", &first);
-	if (full && (f1 & TR1_BRAND_COLD)) output_dam(o_ptr, 3, 6, "non cold resistant creatures", "cold susceptible creatures", &first);
-	if (full && (f1 & TR1_BRAND_ELEC)) output_dam(o_ptr, 3, 6, "non lightning resistant creatures", "lightning susceptible creatures", &first);
-	if (full && (f1 & TR1_BRAND_ACID)) output_dam(o_ptr, 3, 6, "non acid resistant creatures", "acid susceptible creatures", &first);
-	if (full && (f1 & TR1_BRAND_POIS)) output_dam(o_ptr, 3, 6, "non poison resistant creatures", "poison susceptible creatures", &first);
-	if (full && (f5 & TR5_BRAND_LIGHT)) output_dam(o_ptr, 3, 6, "non light resistant creatures", "light susceptible creatures", &first);
-	if (full && (f5 & TR5_BRAND_DARK)) output_dam(o_ptr, 3, 6, "non dark resistant creatures", "dark susceptible creatures", &first);
-	if (full && (f5 & TR5_BRAND_WATER)) output_dam(o_ptr, 3, 6, "non water resistant creatures", "water susceptible creatures", &first);
-	if (full && (f5 & TR5_BRAND_MAGIC)) output_dam(o_ptr, 3, 6, "non magic resistant creatures", "magic susceptible creatures", &first);
-	if (full && (f5 & TR5_BRAND_DEATH)) output_dam(o_ptr, 1, 15, "undead monsters", "living creatures", &first);
-   
-	output_dam(o_ptr, 1, 0, (first) ? "all monsters" : "other monsters", NULL, &first);
+	if (full && (f1 & TR1_BRAND_FIRE)) output_dam(o_ptr, 3, 6, "non fire resistant creatures", "fire susceptible creatures", &first, 1);
+	if (full && (f1 & TR1_BRAND_COLD)) output_dam(o_ptr, 3, 6, "non cold resistant creatures", "cold susceptible creatures", &first, 1);
+	if (full && (f1 & TR1_BRAND_ELEC)) output_dam(o_ptr, 3, 6, "non lightning resistant creatures", "lightning susceptible creatures", &first, 1);
+	if (full && (f1 & TR1_BRAND_ACID)) output_dam(o_ptr, 3, 6, "non acid resistant creatures", "acid susceptible creatures", &first, 1);
+	if (full && (f1 & TR1_BRAND_POIS)) output_dam(o_ptr, 3, 6, "non poison resistant creatures", "poison susceptible creatures", &first, 1);
+	if (full && (f5 & TR5_BRAND_LIGHT)) output_dam(o_ptr, 3, 6, "non light resistant creatures", "light susceptible creatures", &first, 1);
+	if (full && (f5 & TR5_BRAND_DARK)) output_dam(o_ptr, 3, 6, "non dark resistant creatures", "dark susceptible creatures", &first, 1);
+	if (full && (f5 & TR5_BRAND_WATER)) output_dam(o_ptr, 3, 6, "non water resistant creatures", "water susceptible creatures", &first, 1);
+	if (full && (f5 & TR5_BRAND_MAGIC)) output_dam(o_ptr, 3, 6, "non magic resistant creatures", "magic susceptible creatures", &first, 1);
+	if (full && (f5 & TR5_BRAND_DEATH)) output_dam(o_ptr, 1, 15, "undead monsters", "living creatures", &first, 1);
+
+	output_dam(o_ptr, 1, 0, (first) ? "all monsters" : "other monsters", NULL, &first, 1);
 
 	text_out(".");
 
 	/* get our weapon back */
 	object_copy(&p_ptr->inventory[INVEN_WIELD], old_ptr);
+
+	if ( (p_ptr->body_parts[1] == INVEN_WIELD) )
+		   display_weapon2_damage (o_ptr);
+
 	calc_bonuses(TRUE);
 }
 
@@ -3087,7 +3280,7 @@ bool object_out_desc(object_type *o_ptr, FILE *fff, bool trim_down, bool wait_fo
 			int j = 0;
 
 			if (count_bits(o_ptr->pval3) == 0) text_out("It is sentient");
-			else if (count_bits(o_ptr->pval3) > 1) text_out("It is sentient and can have access to the realms of ");
+			else if (count_bits(o_ptr->pval3) > 1) text_out("It is sentient and has access to the realms of ");
 			else text_out("It is sentient and can have access to the realm of ");
 
 			first = TRUE;
@@ -3113,7 +3306,7 @@ bool object_out_desc(object_type *o_ptr, FILE *fff, bool trim_down, bool wait_fo
 				text_out_c(TERM_VIOLET, "It is the ultimate armor.  ");
 		}
 
-		if (f4 & TR4_COULD2H) text_out("It can be wielded two-handed.  ");
+		if (f4 & TR4_COULD2H) text_out("It should be wielded two-handed.  ");
 		if (f4 & TR4_MUST2H) text_out("It must be wielded two-handed.  ");
 
 		/* Mega-Hack -- describe activation */
@@ -3192,15 +3385,11 @@ bool object_out_desc(object_type *o_ptr, FILE *fff, bool trim_down, bool wait_fo
 
 	 		     if (f5 & (TR5_CHARGEABLE))
         {
-                text_out("It can be upgraded with gold  ");
+                text_out("It can be upgraded with gold.  ");
         }
-		
 
-				   if (f5 & (TR5_BRAND_MAGIC))
-        {
-                text_out("It does extra damage from pure magic.  ");
-        }
-  if (f5 & (TR5_PROTECTION))
+
+    if (f5 & (TR5_PROTECTION))
 	{
                 text_out("It reduces damages you take by 50%, physical and magical. ");
 	}
@@ -3280,8 +3469,10 @@ bool object_out_desc(object_type *o_ptr, FILE *fff, bool trim_down, bool wait_fo
 			/* What it does */
 			if (o_ptr->pval > 0)
 				text_out("It increases");
-			else
+			else if (o_ptr->pval < 0)
 				text_out("It decreases");
+			else
+				text_out("It does not yet affect");
 
 			text_out(" your ");
 			text_out(vp[0]);
@@ -3294,11 +3485,12 @@ bool object_out_desc(object_type *o_ptr, FILE *fff, bool trim_down, bool wait_fo
 			text_out(" by ");
 			percent = 100 * o_ptr->pval / ( munchkin_multipliers ? 5 : 10 );
 
-
 			if (o_ptr->pval > 0)
 				text_out_c(TERM_L_GREEN, format("%i%%", percent));
-			else
+			else if (o_ptr->pval > 0)
 				text_out_c(TERM_L_RED, format("%i%%", -percent));
+			else
+				text_out_c(TERM_YELLOW, format("%i%%", percent));
 			text_out(".  ");
 		}
 
@@ -3333,23 +3525,26 @@ bool object_out_desc(object_type *o_ptr, FILE *fff, bool trim_down, bool wait_fo
 			 vc[vn] = TERM_YELLOW;
 			vp[vn++] = "light";
 		 }
-
-		  if (f5 & (TR5_BRAND_DARK))
+		 if (f5 & (TR5_BRAND_DARK))
 		 {
 			 vc[vn] = TERM_L_DARK;
 			vp[vn++] = "dark";
 		 }
-		   if (f5 & (TR5_BRAND_WATER))
+		 if (f5 & (TR5_BRAND_WATER))
 		 {
 			 vc[vn] = TERM_BLUE;
 			vp[vn++] = "water";
 		 }
-		     if (f5 & (TR5_BRAND_DEATH))
+		 if (f5 & (TR5_BRAND_DEATH))
 		 {
 			 vc[vn] = TERM_SLATE;
 			vp[vn++] = "death";
 		 }
-
+ 		if (f5 & (TR5_BRAND_MAGIC))
+		{
+			vc[vn] = TERM_ORANGE;
+			vp[vn++] = "pure magic";
+		}
 		/* Describe */
 		if (vn)
 		{
@@ -3371,7 +3566,6 @@ bool object_out_desc(object_type *o_ptr, FILE *fff, bool trim_down, bool wait_fo
 			}
 			text_out(".  ");
 		}
-
 
 		if (f1 & (TR1_BRAND_POIS))
 		{
@@ -3397,7 +3591,7 @@ bool object_out_desc(object_type *o_ptr, FILE *fff, bool trim_down, bool wait_fo
 
 		if (f1 & (TR1_VORPAL))
 		{
-			text_out("It is very sharp and can cut your foes.  ");
+			text_out("It can cause damaging strikes.  ");
 		}
 
 		if (f5 & (TR5_WOUNDING))
@@ -3413,6 +3607,7 @@ bool object_out_desc(object_type *o_ptr, FILE *fff, bool trim_down, bool wait_fo
 		{
 			text_out("It is especially deadly against dragons.  ");
 		}
+
 		if (f1 & (TR1_SLAY_ORC))
 		{
 			text_out("It is especially deadly against orcs.  ");
@@ -3439,6 +3634,7 @@ bool object_out_desc(object_type *o_ptr, FILE *fff, bool trim_down, bool wait_fo
 		{
 			text_out("It strikes at demons with holy wrath.  ");
 		}
+
 		if (f5 & (TR5_KILL_UNDEAD))
 		{
 			text_out("It is a great bane of undead.  ");
@@ -3447,6 +3643,7 @@ bool object_out_desc(object_type *o_ptr, FILE *fff, bool trim_down, bool wait_fo
 		{
 			text_out("It strikes at undead with holy wrath.  ");
 		}
+
 		if (f1 & (TR1_SLAY_EVIL))
 		{
 			text_out("It fights against evil with holy fury.  ");
@@ -3696,24 +3893,20 @@ bool object_out_desc(object_type *o_ptr, FILE *fff, bool trim_down, bool wait_fo
 
 		if (f2 & (TR2_SENS_FIRE))
 		{
-			text_out("It renders you especially vulnerable to fire.  ");
+			text_out("It renders you vulnerable to fire.  ");
 		}
-
-			if (f5 & (TR5_SENS_COLD))
+		if (f5 & (TR5_SENS_COLD))
 		{
-			text_out("It renders you especially vulnerable to cold.  ");
+			text_out("It renders you vulnerable to cold.  ");
 		}
-					if (esp & (ESP_SENS_ACID))
+		if (esp & (ESP_SENS_ACID))
 		{
-			text_out("It renders you especially vulnerable to acid.  ");
+			text_out("It renders you vulnerable to acid.  ");
 		}
-
-						if (esp & (ESP_SENS_ELEC))
+		if (esp & (ESP_SENS_ELEC))
 		{
-			text_out("It renders you especially vulnerable to electricity.  ");
+			text_out("It renders you vulnerable to electricity.  ");
 		}
-
-
 		if (f3 & (TR3_WRAITH))
 		{
 			text_out("It renders you incorporeal.  ");
@@ -3757,7 +3950,7 @@ bool object_out_desc(object_type *o_ptr, FILE *fff, bool trim_down, bool wait_fo
 				if (esp & ESP_DRAGON) vp[vn++] = "dragons";
 				if (esp & ESP_SPIDER) vp[vn++] = "spiders";
 				if (esp & ESP_GIANT) vp[vn++] = "giants";
-				if (esp & ESP_DEMON) vp[vn++] = "Maiar";
+				if (esp & ESP_DEMON) vp[vn++] = "maiar";
 				if (esp & ESP_UNDEAD) vp[vn++] = "undead";
 				if (esp & ESP_EVIL) vp[vn++] = "evil beings";
 				if (esp & ESP_ANIMAL) vp[vn++] = "animals";
@@ -3987,23 +4180,27 @@ bool object_out_desc(object_type *o_ptr, FILE *fff, bool trim_down, bool wait_fo
 		if (object_known_p(o_ptr))
 		{
 			/* Damage display for weapons */
-			if (wield_slot(o_ptr) == INVEN_WIELD)
+			if ( (wield_slot_ideal(o_ptr,1) == INVEN_WIELD) )
 				display_weapon_damage(o_ptr);
 
 			/* Breakage/Damage display for boomerangs */
 			if (o_ptr->tval == TV_BOOMERANG)
 			{
-				if (artifact_p(o_ptr))
+				if (artifact_p(o_ptr) || esp & ESP_UNBREAKABLE)
 					text_out("\nIt can never be broken.");
 				else
-					text_out("\nIt has 1% chance to break upon hit.");
+				{
+					text_out("\nIt has ");
+					text_out_c(TERM_L_RED, "1");
+					text_out("% chance to break upon hit.");
+				}
 				display_ammo_damage(o_ptr);
 			}
 
 			/* Breakage/Damage display for ammo */
 			if (wield_slot(o_ptr) == INVEN_AMMO)
 			{
-				if (artifact_p(o_ptr))
+				if (artifact_p(o_ptr) || esp & ESP_UNBREAKABLE)
 				{
 					text_out("\nIt can never be broken.");
 				}
@@ -4498,7 +4695,7 @@ cptr mention_use(int i)
 		{
 			p = "Playing";
 		}
-		else if (adj_str_hold[p_ptr->stat_ind[A_STR]] < o_ptr->weight / 10) 
+		else if (adj_str_hold[p_ptr->stat_ind[A_STR]] < o_ptr->weight / 10)
 		{
 			p = "Just holding";
 		}
@@ -4574,7 +4771,7 @@ cptr describe_use(int i)
 		break;
 	case INVEN_TOOL:
 		p = "using as a tool";
-		break; 
+		break;
 	default:
 		p = "carrying in your pack";
 		break;
@@ -5567,7 +5764,6 @@ bool get_item_floor(int *cp, cptr pmt, cptr str, int mode)
 	/* Restrict inventory indexes */
 	while ((i1 <= i2) && (!get_item_okay(i1))) i1++;
 	while ((i1 <= i2) && (!get_item_okay(i2))) i2--;
-
 
 	/* Full equipment */
 	e1 = INVEN_WIELD;
@@ -6853,7 +7049,7 @@ void object_gain_level(object_type *o_ptr)
 
 	/* First it can gain some tohit and todam */
 	if ((o_ptr->tval == TV_AXE) || (o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_POLEARM) ||
-	                (o_ptr->tval == TV_HAFTED) || (o_ptr->tval == TV_MSTAFF))
+	                (o_ptr->tval == TV_HAFTED) || (o_ptr->tval == TV_MSTAFF) || (o_ptr->tval == TV_BOOMERANG))
 	{
 		int k = rand_int(100);
 
@@ -6877,11 +7073,13 @@ void object_gain_level(object_type *o_ptr)
 
 			gain_flag_group_flag(o_ptr, FALSE);
 
-			if (!o_ptr->pval) o_ptr->pval = 1;
+			if (!o_ptr->pval)
+				o_ptr->pval = 1;
 			else
 			{
-				while (magik(20 - (o_ptr->pval * 2))) o_ptr->pval++;
+				if (o_ptr->pval > 4) return;
 
+				while (magik(20 - (o_ptr->pval * 2))) o_ptr->pval++;
 				if (o_ptr->pval > 5) o_ptr->pval = 5;
 			}
 		}
@@ -6986,9 +7184,3 @@ bool apply_flags_set(s16b a_idx, s16b set_idx,
 	}
 	return (FALSE);
 }
-
-
-
-
-
-

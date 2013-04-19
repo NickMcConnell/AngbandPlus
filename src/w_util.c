@@ -1,6 +1,6 @@
 /*
 ** Lua binding: util
-** Generated automatically by tolua 4.0a - angband on Wed Feb 11 21:29:14 2004.
+** Generated automatically by tolua 4.0a - angband on 08/01/07 21:25:07.
 */
 
 #include "lua/tolua.h"
@@ -3496,6 +3496,52 @@ tolua_lerror:
  return 0;
 }
 
+/* function: note_spot */
+static int toluaI_util_note_spot00(lua_State* tolua_S)
+{
+ if (
+ !tolua_istype(tolua_S,1,LUA_TNUMBER,0) ||
+ !tolua_istype(tolua_S,2,LUA_TNUMBER,0) ||
+ !tolua_isnoobj(tolua_S,3)
+ )
+ goto tolua_lerror;
+ else
+ {
+  int y = ((int)  tolua_getnumber(tolua_S,1,0));
+  int x = ((int)  tolua_getnumber(tolua_S,2,0));
+ {
+  note_spot(y,x);
+ }
+ }
+ return 0;
+tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'note_spot'.");
+ return 0;
+}
+
+/* function: lite_spot */
+static int toluaI_util_lite_spot00(lua_State* tolua_S)
+{
+ if (
+ !tolua_istype(tolua_S,1,LUA_TNUMBER,0) ||
+ !tolua_istype(tolua_S,2,LUA_TNUMBER,0) ||
+ !tolua_isnoobj(tolua_S,3)
+ )
+ goto tolua_lerror;
+ else
+ {
+  int y = ((int)  tolua_getnumber(tolua_S,1,0));
+  int x = ((int)  tolua_getnumber(tolua_S,2,0));
+ {
+  lite_spot(y,x);
+ }
+ }
+ return 0;
+tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'lite_spot'.");
+ return 0;
+}
+
 /* Open function */
 int tolua_util_open (lua_State* tolua_S)
 {
@@ -3520,42 +3566,6 @@ int tolua_util_open (lua_State* tolua_S)
  tolua_constant(tolua_S,NULL,"TERM_L_GREEN",TERM_L_GREEN);
  tolua_constant(tolua_S,NULL,"TERM_L_BLUE",TERM_L_BLUE);
  tolua_constant(tolua_S,NULL,"TERM_L_UMBER",TERM_L_UMBER);
-
- tolua_constant(tolua_S,NULL,"TERM_INDIAN_RED",TERM_INDIAN_RED);
-  tolua_constant(tolua_S,NULL,"TERM_PINK",TERM_PINK);
-   tolua_constant(tolua_S,NULL,"TERM_GOLD",TERM_GOLD);
- tolua_constant(tolua_S,NULL,"TERM_ROYAL_BLUE",TERM_ROYAL_BLUE);
-  tolua_constant(tolua_S,NULL,"TERM_AQUAMARINE",TERM_AQUAMARINE);
- tolua_constant(tolua_S,NULL,"TERM_DARK_ORCHID",TERM_DARK_ORCHID);
-  tolua_constant(tolua_S,NULL,"TERM_CHOCOLATE",TERM_CHOCOLATE);
- tolua_constant(tolua_S,NULL,"TERM_FIREBRICK",TERM_FIREBRICK);
-  tolua_constant(tolua_S,NULL,"TERM_KHAKI",TERM_KHAKI);
-   tolua_constant(tolua_S,NULL,"TERM_DARK_KHAKI",TERM_DARK_KHAKI);
- tolua_constant(tolua_S,NULL,"TERM_CADET_BLUE",TERM_CADET_BLUE);
-  tolua_constant(tolua_S,NULL,"TERM_STEEL_BLUE",TERM_STEEL_BLUE);
-   tolua_constant(tolua_S,NULL,"TERM_LIGHT_STEEL_BLUE",TERM_LIGHT_STEEL_BLUE);
- tolua_constant(tolua_S,NULL,"TERM_SANDY_BROWN",TERM_SANDY_BROWN);
-  tolua_constant(tolua_S,NULL,"TERM_ORCHID",TERM_ORCHID);
- tolua_constant(tolua_S,NULL,"TERM_HONEYDEW",TERM_HONEYDEW);
-  tolua_constant(tolua_S,NULL,"TERM_YELLOW_GREEN",TERM_YELLOW_GREEN);
-   tolua_constant(tolua_S,NULL,"TERM_OLIVE_DRAB",TERM_OLIVE_DRAB);
-    tolua_constant(tolua_S,NULL,"TERM_PURPLE",TERM_PURPLE);
- tolua_constant(tolua_S,NULL,"TERM_DARK_SLATE_GRAY",TERM_DARK_SLATE_GRAY);
- tolua_constant(tolua_S,NULL,"TERM_SALMON",TERM_SALMON);
- tolua_constant(tolua_S,NULL,"TERM_CRIMSON",TERM_CRIMSON);
- tolua_constant(tolua_S,NULL,"TERM_MOCCASIN",TERM_MOCCASIN);
- tolua_constant(tolua_S,NULL,"TERM_DARK_SEA_GREEN",TERM_DARK_SEA_GREEN);
- tolua_constant(tolua_S,NULL,"TERM_TEAL",TERM_TEAL);
- tolua_constant(tolua_S,NULL,"TERM_ANTIQUE_WHITE",TERM_ANTIQUE_WHITE);
- tolua_constant(tolua_S,NULL,"TERM_OLD_LACE",TERM_OLD_LACE);
- tolua_constant(tolua_S,NULL,"TERM_TAN",TERM_TAN);
-
-
-
-
-
-
-
  tolua_constant(tolua_S,NULL,"HOOK_MONSTER_DEATH",HOOK_MONSTER_DEATH);
  tolua_constant(tolua_S,NULL,"HOOK_OPEN",HOOK_OPEN);
  tolua_constant(tolua_S,NULL,"HOOK_GEN_QUEST",HOOK_GEN_QUEST);
@@ -3814,6 +3824,8 @@ int tolua_util_open (lua_State* tolua_S)
  tolua_function(tolua_S,NULL,"display_list",toluaI_util_display_list00);
  tolua_function(tolua_S,NULL,"file_character",toluaI_util_file_character00);
  tolua_function(tolua_S,NULL,"calc_bonuses",toluaI_util_calc_bonuses00);
+ tolua_function(tolua_S,NULL,"note_spot",toluaI_util_note_spot00);
+ tolua_function(tolua_S,NULL,"lite_spot",toluaI_util_lite_spot00);
  return 1;
 }
 /* Close function */
@@ -3838,36 +3850,6 @@ void tolua_util_close (lua_State* tolua_S)
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TERM_L_GREEN");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TERM_L_BLUE");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TERM_L_UMBER");
-
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TERM_PINK");
-  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TERM_GOLD");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TERM_ROYAL_BLUE");
-  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TERM_AQUAMARINE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TERM_DARK_ORCHID");
-  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TERM_CHOCOLATE");
-   lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TERM_FIREBRICK");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TERM_KHAKI");
-  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TERM_DARK_KHAKI");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TERM_CADET_BLUE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TERM_STEEL_BLUE");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TERM_LIGHT_STEEL_BLUE");
-  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TERM_SANDY_BROWN");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TERM_ORCHID");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TERM_HONEYDEW");
-  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TERM_YELLOW_GREEN");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TERM_OLIVE_DRAB");
-  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TERM_PURPLE");
-   lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TERM_DARK_SLATE_GRAY");
-  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TERM_SALMON");
-    lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TERM_CRIMSON");
-  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TERM_MOCCASIN");
-    lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TERM_DARK_SEA_GREEN");
-  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TERM_TEAL");
-  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TERM_ANTIQUE_WHITE");
-  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TERM_OLD_LACE");
-  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TERM_TAN");
-
-
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"HOOK_MONSTER_DEATH");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"HOOK_OPEN");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"HOOK_GEN_QUEST");
@@ -4178,4 +4160,6 @@ void tolua_util_close (lua_State* tolua_S)
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"display_list");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"file_character");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"calc_bonuses");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"note_spot");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"lite_spot");
 }

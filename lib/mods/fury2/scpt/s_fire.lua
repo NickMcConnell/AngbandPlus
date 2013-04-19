@@ -50,7 +50,7 @@ GLOBELIGHT2 = add_spell
 {
 	["name"] = 	"Glowing Orb 'o Light",
 	["school"] = 	SCHOOL_FIRE,
-	["level"] = 	1,
+	["level"] = 	25,
 	["mana"] = 	2,
 	["mana_max"] =  10,
 	["fail"] = 	10,

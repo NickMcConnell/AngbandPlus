@@ -19,6 +19,9 @@ BOOK_HUNTING = 79
 BOOK_MINDBLADE = 94
 BOOK_CONST = 98
 BOOK_BASILISK = 95
+BOOK_HYDRA    = 105
+
+
 GF_INSTA_DEATH = add_spell_type
 {
 	["color"]       = { TERM_DARK, 0 },
@@ -501,6 +504,22 @@ add_mkey
 				-- No magic
 	
 		s = get_school_spell("cast", "is_ok_spell", BOOK_BASILISK)
+		-- Actualy cast the choice
+		if (s ~= -1) then
+			cast_school_spell(s, spell(s))
+		end
+	end,
+}
+
+
+add_mkey
+{
+	["mkey"] = 132,
+	["fct"] = function()
+		local s
+				-- No magic
+	
+		s = get_school_spell("cast", "is_ok_spell", BOOK_HYDRA)
 		-- Actualy cast the choice
 		if (s ~= -1) then
 			cast_school_spell(s, spell(s))

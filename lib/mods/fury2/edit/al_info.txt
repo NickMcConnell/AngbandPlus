@@ -2278,6 +2278,18 @@ I:1:241:20:MAGIC  },/*Noldor*/
 
 I:1:242:20:DARKNESS  },/*Noldor*/
 
+I:1:243:4:CHAOS  },/*Slay Vamp*/
+I:1:243:4:DARKNESS  },*/Slay Vamp*/
+
+I:1:244:4:FORCE  },*/Well-Balanced*/
+
+I:1:246:8:ACID  },*/Acid*/
+
+
+
+
+
+
 
 
 

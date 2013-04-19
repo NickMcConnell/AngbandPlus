@@ -1,0 +1,16 @@
+Add descriptions for all monsters
+--- Add descriptions for all objects
+Add descriptions for all races
+--- Add descriptions for all artifacts/egos
+Balance Jedi
+Balance Berserkers
+Balance Monster race
+Tweak weapons
+Make Dragons/trolls/giants stronger
+Handicap multiarmed races more, since all weapons attack now
+Adjust Chargeable items some more
+More quirky classes/races
+Maybe increase level of the Gondolin quest, and increase difficulty/reward
+Remove duplicate Utgard-Loke
+Update Helpfiles
+Fix Wand bug?

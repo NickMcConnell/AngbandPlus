@@ -1,4 +1,4 @@
-/* File: util.c */
+	/* File: util.c */
 
 /* Purpose: Angband utilities -BEN- */
 
@@ -4340,7 +4340,7 @@ void strlower(char *buf)
 {
 	byte i = 0;
 
-	while ((buf[i] != 0) && (i < 256))
+	while ((buf[i] != 0))
 	{
 		if (isupper(buf[i])) buf[i] = tolower(buf[i]);
 

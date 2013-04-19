@@ -1516,12 +1516,6 @@ static void fix_m_list(void)
 				/* Only visible monsters */
 				if (!r_ptr->total_visible) continue;
 
-				/* Uniques */
-				if (r_ptr->flags1 & RF1_UNIQUE)
-				{
-					attr = TERM_L_BLUE;
-				}
-
 				/* Have we ever killed one? */
 				if (r_ptr->r_tkills)
 				{
@@ -1534,10 +1528,18 @@ static void fix_m_list(void)
 							attr = TERM_RED;
 						}
 					}
+					else
+					{
+						if (r_ptr->flags1 & RF1_UNIQUE)
+						{
+							attr = TERM_GOLD;
+						}
+					}
 				}
 				else
 				{
-					if (!(r_ptr->flags1 & RF1_UNIQUE)) attr = TERM_GREEN;
+					if (!(r_ptr->flags1 & RF1_UNIQUE))	attr = TERM_GREEN;
+					else 								attr = TERM_L_BLUE;
 				}
 
 
@@ -1552,7 +1554,6 @@ static void fix_m_list(void)
 				}
 
 				num++;
-
 			}
 
 		}
@@ -1802,10 +1803,15 @@ static void calc_mana(void)
 	cur_wgt = 0;
 	cur_wgt += p_ptr->inventory[INVEN_BODY].weight;
 	cur_wgt += p_ptr->inventory[INVEN_HEAD].weight;
+	cur_wgt += p_ptr->inventory[INVEN_HEAD_MAX].weight;
 	cur_wgt += p_ptr->inventory[INVEN_ARM].weight;
+	cur_wgt += p_ptr->inventory[INVEN_ARM + 1].weight;
+	cur_wgt += p_ptr->inventory[INVEN_ARM_MAX].weight;
 	cur_wgt += p_ptr->inventory[INVEN_OUTER].weight;
 	cur_wgt += p_ptr->inventory[INVEN_HANDS].weight;
+	cur_wgt += p_ptr->inventory[INVEN_HANDS_MAX].weight;
 	cur_wgt += p_ptr->inventory[INVEN_FEET].weight;
+	cur_wgt += p_ptr->inventory[INVEN_FEET_MAX].weight;
 
 	/* Determine the weight allowance */
 	max_wgt = 200 + get_skill_scale(SKILL_COMBAT, 500);
@@ -2223,6 +2229,7 @@ void calc_body()
 
 	for (i = 0; i < b_weapon; i++)
 		p_ptr->body_parts[INVEN_WIELD - INVEN_WIELD + i] = INVEN_WIELD;
+
 	if (body_parts[BODY_WEAPON])
 		p_ptr->body_parts[INVEN_BOW - INVEN_WIELD] = INVEN_BOW;
 
@@ -2231,7 +2238,8 @@ void calc_body()
 		p_ptr->body_parts[INVEN_BODY - INVEN_WIELD + i] = INVEN_BODY;
 		p_ptr->body_parts[INVEN_OUTER - INVEN_WIELD + i] = INVEN_OUTER;
 		p_ptr->body_parts[INVEN_LITE - INVEN_WIELD + i] = INVEN_LITE;
-		p_ptr->body_parts[INVEN_AMMO - INVEN_WIELD + i] = INVEN_AMMO;
+		if (body_parts[BODY_WEAPON])
+			p_ptr->body_parts[INVEN_AMMO - INVEN_WIELD + i] = INVEN_AMMO;
 		p_ptr->body_parts[INVEN_CARRY - INVEN_WIELD + i] = INVEN_CARRY;
 	}
 
@@ -2249,7 +2257,8 @@ void calc_body()
 		p_ptr->body_parts[INVEN_ARM - INVEN_WIELD + i] = INVEN_ARM;
 		p_ptr->body_parts[INVEN_HANDS - INVEN_WIELD + i] = INVEN_HANDS;
 	}
-	if (body_parts[BODY_ARMS])
+
+	if (body_parts[BODY_ARMS] || body_parts[BODY_LEGS])
 		p_ptr->body_parts[INVEN_TOOL - INVEN_WIELD] = INVEN_TOOL;
 
 	for (i = 0; i < b_legs; i++)
@@ -2289,10 +2298,15 @@ void calc_body_bonus()
 	if (r_ptr->flags2 & RF2_REFLECTING) p_ptr->reflect = TRUE;
 	if (r_ptr->flags2 & RF2_INVISIBLE) p_ptr->invis += 20;
 	if (r_ptr->flags2 & RF2_REGENERATE) p_ptr->regenerate = TRUE;
-	if (r_ptr->flags2 & RF2_AURA_FIRE) p_ptr->sh_fire = TRUE;
-	if (r_ptr->flags2 & RF2_AURA_ELEC) p_ptr->sh_elec = TRUE;
+	if (r_ptr->flags8 & RF8_AURA_FIRE) p_ptr->sh_fire = TRUE;
+	if (r_ptr->flags8 & RF8_AURA_ELEC) p_ptr->sh_elec = TRUE;
+	if (r_ptr->flags8 & RF8_AURA_COLD) p_ptr->sh_cold = TRUE;
+	if (r_ptr->flags8 & RF8_AURA_ACID) p_ptr->sh_acid = TRUE;
 	if (r_ptr->flags2 & RF2_PASS_WALL) p_ptr->wraith_form = TRUE;
 	if (r_ptr->flags3 & RF3_SUSCEP_FIRE) p_ptr->sensible_fire = TRUE;
+	if (r_ptr->flags9 & RF9_SUSCEP_ELEC) p_ptr->sensible_elec = TRUE;
+	if (r_ptr->flags3 & RF3_SUSCEP_COLD) p_ptr->sensible_cold = TRUE;
+	if (r_ptr->flags9 & RF9_SUSCEP_ACID) p_ptr->sensible_acid = TRUE;
 	if (r_ptr->flags3 & RF3_IM_ACID) p_ptr->resist_acid = TRUE;
 	if (r_ptr->flags3 & RF3_IM_ELEC) p_ptr->resist_elec = TRUE;
 	if (r_ptr->flags3 & RF3_IM_FIRE) p_ptr->resist_fire = TRUE;
@@ -2336,7 +2350,7 @@ int get_weaponmastery_skill()
 	object_type *o_ptr;
 
 	i = 0;
-	/* All weapons must be of the same type */
+
 	while ((p_ptr->body_parts[i] == INVEN_WIELD) && (i < INVEN_TOTAL))
 	{
 		o_ptr = &p_ptr->inventory[INVEN_WIELD + i];
@@ -2492,9 +2506,8 @@ void calc_gods()
 	}
 }
 
-/* Apply flags */
-static int extra_blows;
 static int extra_shots;
+
 void apply_flags(u32b f1, u32b f2, u32b f3, u32b f4, u32b f5, u32b esp, s16b pval, s16b tval, s16b to_h, s16b to_d, s16b to_a)
 {
 	/* Affect stats */
@@ -2533,10 +2546,7 @@ void apply_flags(u32b f1, u32b f2, u32b f3, u32b f4, u32b f5, u32b esp, s16b pva
 	/* Affect speed */
 	if (f1 & (TR1_SPEED)) p_ptr->pspeed += pval;
 
-	/* Affect blows */
-	if (f1 & (TR1_BLOWS)) extra_blows += pval;
 	if (f5 & (TR5_CRIT)) p_ptr->xtra_crit += pval;
-
 
 	/* Hack -- Sensible fire */
 	if (f2 & (TR2_SENS_FIRE)) p_ptr->sensible_fire = TRUE;
@@ -2545,7 +2555,7 @@ void apply_flags(u32b f1, u32b f2, u32b f3, u32b f4, u32b f5, u32b esp, s16b pva
 	if (esp & (ESP_SENS_ELEC)) p_ptr->sensible_elec = TRUE;
 	/* Hack -- cause earthquakes */
 	if (f1 & (TR1_IMPACT)) p_ptr->impact = TRUE;
-
+	if (f5 & (TR5_WOUNDING)) p_ptr->meleewound = TRUE;
 	/* Affect invisibility */
 	if (f2 & (TR2_INVIS)) p_ptr->invis += (pval * 10);
 
@@ -2603,7 +2613,7 @@ void apply_flags(u32b f1, u32b f2, u32b f3, u32b f4, u32b f5, u32b esp, s16b pva
 	if (f3 & (TR3_SH_FIRE)) p_ptr->sh_fire = TRUE;
 	if (f3 & (TR3_SH_ELEC)) p_ptr->sh_elec = TRUE;
 	if (f5 & (TR5_SH_ACID)) p_ptr->sh_acid = TRUE;
-		if (f5 & (TR5_SH_COLD)) p_ptr->sh_cold = TRUE;
+	if (f5 & (TR5_SH_COLD)) p_ptr->sh_cold = TRUE;
 	if (f3 & (TR3_NO_MAGIC)) p_ptr->anti_magic = TRUE;
 	if (f3 & (TR3_NO_TELE)) p_ptr->anti_tele = TRUE;
 
@@ -2737,7 +2747,7 @@ void calc_bonuses(bool silent)
 	old_invis = p_ptr->invis;
 
 	/* Clear extra blows/shots */
-	extra_blows = extra_shots = 0;
+	extra_shots = 0;
 
 	/* Clear the stat modifiers */
 	for (i = 0; i < 6; i++) p_ptr->stat_add[i] = 0;
@@ -2767,6 +2777,8 @@ void calc_bonuses(bool silent)
 
 	/* Start with a single blow per turn */
 	p_ptr->num_blow = 1;
+	p_ptr->num_blow2 = 1;
+	p_ptr->num_blow3 = 1;
 
 	/* Start with a single shot per turn */
 	p_ptr->num_fire = 1;
@@ -2792,6 +2804,7 @@ void calc_bonuses(bool silent)
 	p_ptr->xtra_might = 0;
 	p_ptr->auto_id = FALSE;
 	p_ptr->impact = FALSE;
+	p_ptr->meleewound = FALSE;
 	p_ptr->see_inv = FALSE;
 	p_ptr->free_act = FALSE;
 	p_ptr->slow_digest = FALSE;
@@ -2829,6 +2842,8 @@ void calc_bonuses(bool silent)
 	p_ptr->reflect = FALSE;
 	p_ptr->sh_fire = FALSE;
 	p_ptr->sh_elec = FALSE;
+	p_ptr->sh_acid = FALSE;
+	p_ptr->sh_cold = FALSE;
 	p_ptr->anti_magic = FALSE;
 	p_ptr->anti_tele = FALSE;
 	p_ptr->water_breath = FALSE;
@@ -2911,7 +2926,7 @@ void calc_bonuses(bool silent)
 	/* Mimic override body's bonuses */
 	if (p_ptr->mimic_form)
 	{
-		extra_blows += calc_mimic();
+		p_ptr->bonus_blow += calc_mimic();
 	}
 	else
 	{
@@ -2939,7 +2954,10 @@ void calc_bonuses(bool silent)
 	p_ptr->pspeed += get_skill_scale(SKILL_BASILISK, 5);
 	}
 
-
+    if (p_ptr->melee_style == SKILL_HYDRA)
+	{
+	p_ptr->pspeed += get_skill_scale(SKILL_HYDRA, 3);
+	}
 	if (p_ptr->melee_style == SKILL_HAND)
 	{
 		/* Unencumbered Monks become faster every 10 levels */
@@ -3002,7 +3020,7 @@ void calc_bonuses(bool silent)
 		}
 	}
 
-
+	p_ptr->bonus_blow = 0;
 	/* Scan the usable inventory */
 	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
 	{
@@ -3029,6 +3047,26 @@ void calc_bonuses(bool silent)
 		}
 
 		apply_flags(f1, f2, f3, f4, f5, esp, o_ptr->pval, o_ptr->tval, o_ptr->to_h, o_ptr->to_d, o_ptr->to_a);
+
+		if (f1 & (TR1_BLOWS))
+		{
+			if (i == INVEN_ARM)
+				p_ptr->num_blow += o_ptr->pval;
+			else if (i == INVEN_ARM + 1)
+				p_ptr->num_blow2 += o_ptr->pval;
+			else if (i == INVEN_ARM_MAX)
+				p_ptr->num_blow3 += o_ptr->pval;
+
+			else if (i == INVEN_WIELD)
+				p_ptr->num_blow += o_ptr->pval;
+			else if (i == INVEN_WIELD + 1)
+				p_ptr->num_blow2 += o_ptr->pval;
+			else if (i == INVEN_WIELD_MAX)
+				p_ptr->num_blow3 += o_ptr->pval;
+
+			else
+				p_ptr->bonus_blow += o_ptr->pval;
+		}
 
 		if (o_ptr->name1)
 		{
@@ -3618,17 +3656,16 @@ void calc_bonuses(bool silent)
 		p_ptr->skill_dig += (o_ptr->weight / 10);
 	}
 
-	/* Examine the main weapon */
-	o_ptr = &p_ptr->inventory[INVEN_WIELD];
-
 	/* Assume not heavy */
 	p_ptr->heavy_wield = FALSE;
 
-	/* Normal weapons */
-	if (o_ptr->k_idx && !p_ptr->heavy_wield)
+	/* Examine the main weapon */
+	o_ptr = &p_ptr->inventory[INVEN_WIELD];
+
+	/* Normal weapon */
+	if (o_ptr->k_idx)
 	{
 		int str_index, dex_index;
-
 		int num = 0, wgt = 0, mul = 0, div = 0;
 
 		analyze_blow(&num, &wgt, &mul);
@@ -3655,7 +3692,7 @@ void calc_bonuses(bool silent)
 		if (p_ptr->num_blow > num) p_ptr->num_blow = num;
 
 		/* Add in the "bonus blows" */
-		p_ptr->num_blow += extra_blows;
+//		p_ptr->num_blow += extra_blows;
 
 		/* Special class bonus blows */
 		p_ptr->num_blow += p_ptr->lev * cp_ptr->extra_blows / 50;
@@ -3670,7 +3707,107 @@ void calc_bonuses(bool silent)
 		/* Require at least one blow */
 		if (p_ptr->num_blow < 1) p_ptr->num_blow = 1;
 	}
-	/* Different calculation for bear form with empty hands */
+
+	o_ptr = &p_ptr->inventory[INVEN_WIELD + 1];
+
+	/* Normal weapon2 */
+	if (o_ptr->k_idx)
+	{
+		int str_index, dex_index;
+		int num = 0, wgt = 0, mul = 0, div = 0;
+
+		analyze_blow(&num, &wgt, &mul);
+
+		/* Enforce a minimum "weight" (tenth pounds) */
+		div = ((o_ptr->weight < wgt) ? wgt : o_ptr->weight);
+
+		/* Access the strength vs weight */
+		str_index = (adj_str_blow[p_ptr->stat_ind[A_STR]] * mul / div);
+
+		/* Maximal value */
+		if (str_index > 11) str_index = 11;
+
+		/* Index by dexterity */
+		dex_index = (adj_dex_blow[p_ptr->stat_ind[A_DEX]]);
+
+		/* Maximal value */
+		if (dex_index > 11) dex_index = 11;
+
+		/* Use the blows table */
+		p_ptr->num_blow2 = blows_table[str_index][dex_index];
+
+		/* Maximal value */
+		if (p_ptr->num_blow2 > num) p_ptr->num_blow2 = num;
+
+		/* Add in the "bonus blows" */
+//		p_ptr->num_blow2 += extra_blows;
+
+		/* Special class bonus blows */
+		p_ptr->num_blow2 += p_ptr->lev * cp_ptr->extra_blows / 50;
+
+		/* Weapon specialization bonus blows */
+		if (get_weaponmastery_skill() != -1)
+			p_ptr->num_blow2 += get_skill_scale(get_weaponmastery_skill(), 2);
+
+		/* Bonus blows for plain weaponmastery skill */
+		p_ptr->num_blow2 += get_skill_scale(SKILL_MASTERY, 3);
+
+		/* Require at least one blow */
+		if (p_ptr->num_blow2 < 1) p_ptr->num_blow2 = 1;
+	}
+
+	o_ptr = &p_ptr->inventory[INVEN_WIELD_MAX];
+
+	/* Normal weapon3 */
+	if (o_ptr->k_idx)
+	{
+		int str_index, dex_index;
+
+		int num = 0, wgt = 0, mul = 0, div = 0;
+
+		analyze_blow(&num, &wgt, &mul);
+
+		/* Enforce a minimum "weight" (tenth pounds) */
+		div = ((o_ptr->weight < wgt) ? wgt : o_ptr->weight);
+
+		/* Access the strength vs weight */
+		str_index = (adj_str_blow[p_ptr->stat_ind[A_STR]] * mul / div);
+
+		/* Maximal value */
+		if (str_index > 11) str_index = 11;
+
+		/* Index by dexterity */
+		dex_index = (adj_dex_blow[p_ptr->stat_ind[A_DEX]]);
+
+		/* Maximal value */
+		if (dex_index > 11) dex_index = 11;
+
+		/* Use the blows table */
+		p_ptr->num_blow3 = blows_table[str_index][dex_index];
+
+		/* Maximal value */
+		if (p_ptr->num_blow3 > num) p_ptr->num_blow3 = num;
+
+		/* Add in the "bonus blows" */
+//		p_ptr->num_blow3 += extra_blows;
+
+		/* Special class bonus blows */
+		p_ptr->num_blow3 += p_ptr->lev * cp_ptr->extra_blows / 50;
+
+		/* Weapon specialization bonus blows */
+		if (get_weaponmastery_skill() != -1)
+			p_ptr->num_blow3 += get_skill_scale(get_weaponmastery_skill(), 2);
+
+		/* Bonus blows for plain weaponmastery skill */
+		p_ptr->num_blow3 += get_skill_scale(SKILL_MASTERY, 3);
+
+		/* Require at least one blow */
+		if (p_ptr->num_blow3 < 1) p_ptr->num_blow3 = 1;
+	}
+
+
+
+	/* Different calculation for monks with empty hands */
 	else if ((p_ptr->melee_style == SKILL_HAND) && monk_empty_hands())
 	{
 		int plev = get_skill(SKILL_HAND);
@@ -3687,7 +3824,7 @@ void calc_bonuses(bool silent)
 
 		if (monk_heavy_armor()) p_ptr->num_blow /= 2;
 
-		p_ptr->num_blow += 1 + extra_blows;
+		p_ptr->num_blow = 2; 
 
 		if (!monk_heavy_armor())
 		{
@@ -3698,7 +3835,6 @@ void calc_bonuses(bool silent)
 			p_ptr->dis_to_d += (plev / 3);
 		}
 	}
-
 	else if ((p_ptr->melee_style == SKILL_DRAGON))
 	{
 		int plev = get_skill(SKILL_DRAGON);
@@ -3719,10 +3855,9 @@ void calc_bonuses(bool silent)
 
 			p_ptr->dis_to_h += (plev / 3);
 			p_ptr->dis_to_d += (plev / 3);
-		p_ptr->num_blow += 2 + extra_blows;
+		p_ptr->num_blow = 2; 
 
 	}
-
 	else if ((p_ptr->melee_style == SKILL_SPIDER))
 	{
 		int plev = get_skill(SKILL_SPIDER);
@@ -3743,7 +3878,7 @@ void calc_bonuses(bool silent)
 
 			p_ptr->dis_to_h += (plev / 3);
 			p_ptr->dis_to_d += (plev / 3);
-		p_ptr->num_blow += 2 + extra_blows;
+	p_ptr->num_blow = 2; 
 
 	}
 	else if ((p_ptr->melee_style == SKILL_BASILISK))
@@ -3766,7 +3901,31 @@ void calc_bonuses(bool silent)
 
 			p_ptr->dis_to_h += (plev / 3);
 			p_ptr->dis_to_d += (plev / 3);
-		p_ptr->num_blow += 2 + extra_blows;
+		p_ptr->num_blow = 2; 
+
+	}
+
+		else if ((p_ptr->melee_style == SKILL_HYDRA))
+	{
+		int plev = get_skill(SKILL_HYDRA);
+
+		p_ptr->num_blow = 0;
+
+		if (plev > 9) p_ptr->num_blow++;
+		if (plev > 19) p_ptr->num_blow++;
+		if (plev > 29) p_ptr->num_blow++;
+		if (plev > 34) p_ptr->num_blow++;
+		if (plev > 39) p_ptr->num_blow++;
+		if (plev > 44) p_ptr->num_blow++;
+		if (plev > 49) p_ptr->num_blow++;
+
+		if (monk_heavy_armor()) p_ptr->num_blow /= 2;
+			p_ptr->to_h += (plev / 3);
+			p_ptr->to_d += (plev / 3);
+
+			p_ptr->dis_to_h += (plev / 3);
+			p_ptr->dis_to_d += (plev / 3);
+		p_ptr->num_blow = 2; 
 
 	}
 
@@ -3795,7 +3954,7 @@ void calc_bonuses(bool silent)
 		p_ptr->num_blow = blows_table[str_index][dex_index];
 
 		/* Add in the "bonus blows" */
-		p_ptr->num_blow += extra_blows;
+		p_ptr->num_blow += p_ptr->bonus_blow;
 
 		/* Maximal value */
 		if (p_ptr->num_blow > 4) p_ptr->num_blow = 4;
@@ -3817,7 +3976,7 @@ void calc_bonuses(bool silent)
 
 		p_ptr->num_blow = 0;
 
-		p_ptr->num_blow += 2 + (plev / 5) + extra_blows;
+		p_ptr->num_blow += 2 + (plev / 5) + p_ptr->bonus_blow;
 
 		p_ptr->to_h -= (plev / 5);
 		p_ptr->dis_to_h -= (plev / 5);
@@ -3850,7 +4009,6 @@ void calc_bonuses(bool silent)
 	{
 		/* Get the armor weight */
 		int cur_wgt = 0;
-
 		cur_wgt += p_ptr->inventory[INVEN_BODY].weight;
 		cur_wgt += p_ptr->inventory[INVEN_HEAD].weight;
 		cur_wgt += p_ptr->inventory[INVEN_ARM].weight;
@@ -3872,39 +4030,33 @@ void calc_bonuses(bool silent)
 	}
 	else
 	{
-		p_ptr->dodge_chance = 0;
-	}
-
-
-// Jedi Dodge Ability
+		// Jedi Dodge Ability
 		if (get_skill(SKILL_JEDI))
-	{
+		{
 		/* Get the armor weight */
-		int cur_wgt = 0;
+			int cur_wgt = 0;
 
-	
-		cur_wgt += p_ptr->inventory[INVEN_HEAD].weight;
-		cur_wgt += p_ptr->inventory[INVEN_ARM].weight;
-		cur_wgt += p_ptr->inventory[INVEN_HANDS].weight;
-	
+			cur_wgt += p_ptr->inventory[INVEN_HEAD].weight;
+			cur_wgt += p_ptr->inventory[INVEN_ARM].weight;
+			cur_wgt += p_ptr->inventory[INVEN_HANDS].weight;
 
-		/* Base dodge chance */
-		p_ptr->dodge_chance = get_skill_scale(SKILL_JEDI, 150) + get_skill(SKILL_SWORD);
+			/* Base dodge chance */
+			p_ptr->dodge_chance = get_skill_scale(SKILL_JEDI, 150) + get_skill(SKILL_SWORD);
 
-		/* Armor weight bonus/penalty */
-		p_ptr->dodge_chance -= cur_wgt * 2;
+			/* Armor weight bonus/penalty */
+			p_ptr->dodge_chance -= cur_wgt * 2;
 
-		/* Encumberance bonus/penalty */
-		p_ptr->dodge_chance = p_ptr->dodge_chance - (calc_total_weight() / 100);
+			/* Encumberance bonus/penalty */
+			p_ptr->dodge_chance = p_ptr->dodge_chance - (calc_total_weight() / 100);
 
-		/* Never below 0 */
-		if (p_ptr->dodge_chance < 0) p_ptr->dodge_chance = 0;
+			/* Never below 0 */
+			if (p_ptr->dodge_chance < 0) p_ptr->dodge_chance = 0;
+		}
+		else
+		{
+			p_ptr->dodge_chance = 0;
+		}
 	}
-	else
-	{
-		p_ptr->dodge_chance = 0;
-	}
-
 
 
 	/* Parse all the weapons */
@@ -4948,7 +5100,7 @@ void dump_fates(FILE *outfile)
 {
 	int i;
 	char buf[120];
-bool pending = FALSE;
+	bool pending = FALSE;
 	if (!outfile) return;
 
 	for (i = 0; i < MAX_FATES; i++)
@@ -4958,7 +5110,7 @@ bool pending = FALSE;
 			fate_desc(buf, i);
 			fprintf(outfile, "%s\n", buf);
 		}
-if ((fates[i].fate) && !(fates[i].know)) pending = TRUE;
+		if ((fates[i].fate) && !(fates[i].know)) pending = TRUE;
 	}
 	if (pending)
 	{
@@ -4984,6 +5136,7 @@ int luck(int min, int max)
 
 	return (luck + min);
 }
+
 bool safety_check()
 {
         u32b f1, f2, f3, f4, f5, esp;
@@ -5009,5 +5162,4 @@ bool safety_check()
         }
         /* Default */
         return (FALSE);
-}        
-   
+}

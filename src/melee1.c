@@ -535,7 +535,7 @@ bool carried_make_attack_normal(int r_idx)
 					sound(SOUND_SHOW);
 					break;
 				}
-			
+
 			case RBM_HOWL:
 				{
 					act = "howls at you.";
@@ -1266,7 +1266,7 @@ bool carried_make_attack_normal(int r_idx)
 								take_hit(damage, ddesc);
 								break;
 								}
-				
+
 
 
 					} //end case bracket
@@ -1408,7 +1408,6 @@ bool carried_make_attack_normal(int r_idx)
 				{
 					r_ptr->r_flags3 |= RF3_IM_FIRE;
 				}
-
 				if (p_ptr->sh_elec && alive)
 				{
 					r_ptr->r_flags3 |= RF3_IM_ELEC;
@@ -2454,11 +2453,11 @@ bool make_attack_normal(int m_idx, byte divis)
 					o_ptr = &p_ptr->inventory[INVEN_LITE];
 
 					/* Drain fuel */
-					if ((o_ptr->pval > 0) && (!artifact_p(o_ptr)))
+					if ((o_ptr->timeout > 0) && (!artifact_p(o_ptr)))
 					{
 						/* Reduce fuel */
-						o_ptr->pval -= (250 + randint(250));
-						if (o_ptr->pval < 1) o_ptr->pval = 1;
+						o_ptr->timeout -= (250 + randint(250));
+						if (o_ptr->timeout < 1) o_ptr->timeout = 1;
 
 						/* Notice */
 						if (!p_ptr->blind)
@@ -3047,7 +3046,7 @@ bool make_attack_normal(int m_idx, byte divis)
 								take_hit(damage, ddesc);
 								break;
 								}
-				
+
 
 
 					} //end case bracket
@@ -3202,12 +3201,23 @@ bool make_attack_normal(int m_idx, byte divis)
 
 			if (touched)
 			{
+				s16b dicenum = 2;
+
 				if (p_ptr->sh_fire && alive)
 				{
 					if (!(r_ptr->flags3 & RF3_IM_FIRE))
 					{
-						msg_format("%^s is suddenly very hot!", m_name);
-						if (mon_take_hit(m_idx, damroll(2, 6), &fear,
+						if ( (r_ptr->flags3 & RF3_SUSCEP_FIRE) )
+						{
+							dicenum = 6;
+							r_ptr->r_flags3 |= (RF3_SUSCEP_FIRE);
+							msg_format("%^s is scorched by your flames!", m_name);
+						}
+						else
+						{
+							msg_format("%^s is burned by your flames!", m_name);
+						}
+						if (mon_take_hit(m_idx, damroll(dicenum, 6), &fear,
 						                 " turns into a pile of ash."))
 						{
 							blinked = FALSE;
@@ -3225,9 +3235,19 @@ bool make_attack_normal(int m_idx, byte divis)
 				{
 					if (!(r_ptr->flags3 & RF3_IM_ELEC))
 					{
-						msg_format("%^s gets zapped!", m_name);
-						if (mon_take_hit(m_idx, damroll(2, 6), &fear,
-						                 " turns into a pile of cinder."))
+						if ( (r_ptr->flags9 & RF9_SUSCEP_ELEC) )
+						{
+							dicenum = 6;
+							r_ptr->r_flags9 |= (RF9_SUSCEP_ELEC);
+							msg_format("%^s is electrocuted!", m_name);
+						}
+						else
+						{
+							msg_format("%^s is zapped!", m_name);
+						}
+
+						if (mon_take_hit(m_idx, damroll(dicenum, 6), &fear,
+						                 " turns into cinder pieces."))
 						{
 							blinked = FALSE;
 							alive = FALSE;
@@ -3243,8 +3263,18 @@ bool make_attack_normal(int m_idx, byte divis)
 				{
 					if (!(r_ptr->flags3 & RF3_IM_ACID))
 					{
-						msg_format("%^s gets melted!", m_name);
-						if (mon_take_hit(m_idx, damroll(2, 6), &fear,
+						if ( (r_ptr->flags9 & RF9_SUSCEP_ACID) )
+						{
+							dicenum = 6;
+							r_ptr->r_flags9 |= (RF9_SUSCEP_ACID);
+							msg_format("%^s is noticebly corroded!", m_name);
+						}
+						else
+						{
+							msg_format("%^s is harmed by acid!", m_name);
+						}
+
+						if (mon_take_hit(m_idx, damroll(dicenum, 6), &fear,
 						                 " turns into a puddle of goop."))
 						{
 							blinked = FALSE;
@@ -3259,12 +3289,22 @@ bool make_attack_normal(int m_idx, byte divis)
 				}
 
 
-	if (p_ptr->sh_cold && alive)
+				if (p_ptr->sh_cold && alive)
 				{
 					if (!(r_ptr->flags3 & RF3_IM_COLD))
 					{
-						msg_format("%^s gets frozen!", m_name);
-						if (mon_take_hit(m_idx, damroll(2, 6), &fear,
+						if ( (r_ptr->flags3 & RF3_SUSCEP_COLD) )
+						{
+							dicenum = 6;
+							r_ptr->r_flags3 |= (RF3_SUSCEP_COLD);
+							msg_format("%^s is well frostbitten!", m_name);
+						}
+						else
+						{
+							msg_format("%^s is frosted!", m_name);
+						}
+
+						if (mon_take_hit(m_idx, damroll(dicenum, 6), &fear,
 						                 " turns into a frozen mess."))
 						{
 							blinked = FALSE;
@@ -3411,5 +3451,3 @@ bool make_attack_normal(int m_idx, byte divis)
 	/* Assume we attacked */
 	return (TRUE);
 }
-
-

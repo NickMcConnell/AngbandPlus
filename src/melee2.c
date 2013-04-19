@@ -2753,7 +2753,7 @@ static bool monst_spell_monst(int m_idx)
 					monster_msg("You hear many powerful things appear nearby.");
 				}
 				break;
-		
+
 			}
 		}
 
@@ -4662,7 +4662,7 @@ bool make_attack_spell(int m_idx)
 					msg_print("You hear many powerful things appear nearby.");
 				}
 				break;
-		
+
 			}
 		}
 	}
@@ -6002,7 +6002,7 @@ static bool monst_attack_monst(int m_idx, int t_idx)
 					t_ptr->csleep = 0;
 					break;
 				}
-			
+
 			case RBM_HOWL:
 				{
 					act = "howls at %s.";
@@ -6191,15 +6191,15 @@ static bool monst_attack_monst(int m_idx, int t_idx)
 				if (touched)
 				{
 					/* Aura fire */
-					if ((tr_ptr->flags2 & RF2_AURA_FIRE) &&
+					if ((tr_ptr->flags8 & RF8_AURA_FIRE) &&
 					                !(r_ptr->flags3 & RF3_IM_FIRE))
 					{
 						if (m_ptr->ml || t_ptr->ml)
 						{
 							blinked = FALSE;
-							monster_msg("%^s is suddenly very hot!", m_name);
+							monster_msg("%^s is hit by flames!", m_name);
 							if (t_ptr->ml)
-								tr_ptr->r_flags2 |= RF2_AURA_FIRE;
+								tr_ptr->r_flags8 |= RF8_AURA_FIRE;
 						}
 						project(t_idx, 0, m_ptr->fy, m_ptr->fx,
 						        damroll (1 + ((t_ptr->level) / 26),
@@ -6208,20 +6208,81 @@ static bool monst_attack_monst(int m_idx, int t_idx)
 					}
 
 					/* Aura elec */
-					if ((tr_ptr->flags2 & (RF2_AURA_ELEC)) && !(r_ptr->flags3 & (RF3_IM_ELEC)))
+					if ((tr_ptr->flags8 & (RF8_AURA_ELEC)) && !(r_ptr->flags3 & (RF3_IM_ELEC)))
 					{
 						if (m_ptr->ml || t_ptr->ml)
 						{
 							blinked = FALSE;
-							monster_msg("%^s gets zapped!", m_name);
+							monster_msg("%^s is zapped!", m_name);
 							if (t_ptr->ml)
-								tr_ptr->r_flags2 |= RF2_AURA_ELEC;
+								tr_ptr->r_flags8 |= RF8_AURA_ELEC;
 						}
 						project(t_idx, 0, m_ptr->fy, m_ptr->fx,
 						        damroll (1 + ((t_ptr->level) / 26),
 						                 1 + ((t_ptr->level) / 17)),
 						        GF_ELEC, PROJECT_KILL | PROJECT_STOP);
 					}
+
+					if ((tr_ptr->flags8 & (RF8_AURA_COLD)) && !(r_ptr->flags3 & (RF3_IM_COLD)))
+					{
+						if (m_ptr->ml || t_ptr->ml)
+						{
+							blinked = FALSE;
+							monster_msg("%^s is hit by frost!", m_name);
+							if (t_ptr->ml)
+								tr_ptr->r_flags8 |= RF8_AURA_COLD;
+						}
+						project(t_idx, 0, m_ptr->fy, m_ptr->fx,
+						        damroll (1 + ((t_ptr->level) / 26),
+						                 1 + ((t_ptr->level) / 17)),
+						        GF_COLD, PROJECT_KILL | PROJECT_STOP);
+					}
+
+					if ((tr_ptr->flags8 & (RF8_AURA_ACID)) && !(r_ptr->flags3 & (RF3_IM_ACID)))
+					{
+						if (m_ptr->ml || t_ptr->ml)
+						{
+							blinked = FALSE;
+							monster_msg("%^s is corroded by acid vapor!", m_name);
+							if (t_ptr->ml)
+								tr_ptr->r_flags8 |= RF8_AURA_ACID;
+						}
+						project(t_idx, 0, m_ptr->fy, m_ptr->fx,
+						        damroll (1 + ((t_ptr->level) / 26),
+						                 1 + ((t_ptr->level) / 17)),
+						        GF_ACID, PROJECT_KILL | PROJECT_STOP);
+					}
+
+					if ((tr_ptr->flags8 & (RF8_AURA_LITE)) &&	!((r_ptr->flags4 & (RF4_BR_LITE)) || (r_ptr->flags7 & (RF7_RES_LITE)) || (r_ptr->flags8 & (RF8_AURA_LITE))))
+					{
+						if (m_ptr->ml || t_ptr->ml)
+						{
+							blinked = FALSE;
+							monster_msg("%^s is seared by light!", m_name);
+							if (t_ptr->ml)
+								tr_ptr->r_flags8 |= RF8_AURA_LITE;
+						}
+						project(t_idx, 0, m_ptr->fy, m_ptr->fx,
+						        damroll (1 + ((t_ptr->level) / 26),
+						                 1 + ((t_ptr->level) / 17)),
+						        GF_LITE_WEAK, PROJECT_KILL | PROJECT_STOP);
+					}
+
+					if ((tr_ptr->flags8 & (RF8_AURA_DARK)) &&	!((r_ptr->flags4 & (RF4_BR_DARK)) || (r_ptr->flags7 & (RF7_RES_DARK)) || (r_ptr->flags8 & (RF8_AURA_DARK))))
+					{
+						if (m_ptr->ml || t_ptr->ml)
+						{
+							blinked = FALSE;
+							monster_msg("%^s is damaged by darkness!", m_name);
+							if (t_ptr->ml)
+								tr_ptr->r_flags8 |= RF8_AURA_DARK;
+						}
+						project(t_idx, 0, m_ptr->fy, m_ptr->fx,
+						        damroll (1 + ((t_ptr->level) / 26),
+						                 1 + ((t_ptr->level) / 17)),
+						        GF_DARK_WEAK, PROJECT_KILL | PROJECT_STOP);
+					}
+
 
 				}
 			}

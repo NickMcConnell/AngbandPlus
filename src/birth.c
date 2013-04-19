@@ -483,7 +483,10 @@ static void get_extra(void)
 	p_ptr->exit_bldg = TRUE;  /* only used for arena now -KMW- */
 
 	/* Hitdice */
-	p_ptr->hitdie = rp_ptr->r_mhp + rmp_ptr->r_mhp + cp_ptr->c_mhp;
+	if ( rp_ptr->r_mhp + rmp_ptr->r_mhp + cp_ptr->c_mhp < 1 )
+		p_ptr->hitdie = 1;
+	else
+		p_ptr->hitdie = rp_ptr->r_mhp + rmp_ptr->r_mhp + cp_ptr->c_mhp;
 
 	/* Initial hitpoints */
 	p_ptr->mhp = p_ptr->hitdie;
@@ -573,6 +576,7 @@ static void get_history(void)
 
 		/* Acquire the textual history */
 		(void)strcat(buf, bg[i].info + rp_text);
+		(void)strcat(buf," ");
 
 		/* Add in the social class */
 		social_class += (int)(bg[i].bonus) - 50;
@@ -2447,8 +2451,8 @@ static bool player_birth_aux_ask()
 			            "If you do not want any optional quests, enter 0.");
 
 			/* Ask the number of additional quests */
-			while (TRUE)
-			{
+//			while (TRUE)
+//			{
 				put_str(format("Number of quests? (0-%u) ",
 				               MAX_RANDOM_QUEST - 1), 20, 2);
 
@@ -2469,8 +2473,8 @@ static bool player_birth_aux_ask()
 					/* Break on valid input */
 					if ((v < MAX_RANDOM_QUEST) && ( v >= 0 )) break;
 				}
-				break;
-			}
+//				break;
+//			}
 
 			/* Clear */
 			clear_from(15);

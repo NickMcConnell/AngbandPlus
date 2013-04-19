@@ -182,8 +182,8 @@ static cptr r_info_flags2[] =
 	"ATTR_ANY",
 	"POWERFUL",
 	"ELDRITCH_HORROR",
-	"AURA_FIRE",
-	"AURA_ELEC",
+	"XXX1XX15",
+	"XXX1XX16",
 	"OPEN_DOOR",
 	"BASH_DOOR",
 	"PASS_WALL",
@@ -217,7 +217,7 @@ static cptr r_info_flags3[] =
 	"ANIMAL",
 	"THUNDERLORD",
 	"GOOD",
-	"AURA_COLD",  /* TODO: Implement aura_cold */
+	"XXX3XXX",
 	"NONLIVING",
 	"HURT_LITE",
 	"HURT_ROCK",
@@ -421,15 +421,15 @@ static cptr r_info_flags8[] =
 	"JOKEANGBAND",
 	"BASEANGBAND",
 	"COMBINE",
-	"XXX8X18",
-	"XXX8X19",
-	"XXX8X20",
-	"XXX8X21",
-	"XXX8X22",
-	"XXX8X23",
-	"XXX8X24",
-	"XXX8X25",
-	"XXX8X26",
+	"AURA_FIRE",
+	"AURA_ELEC",
+	"AURA_COLD",
+	"AURA_ACID",
+	"AURA_POIS",
+	"AURA_DARK",
+	"AURA_LITE",
+	"AURA_CHAOS",
+	"AURA_NORSE_CHAOS",
 	"XXX8X27",
 	"XXX8X28",
 	"XXX8X29",
@@ -476,7 +476,6 @@ static cptr r_info_flags9[] =
 	"XXX9X30",
 	"XXX9X31",
 };
-
 
 /*
  * Object flags
@@ -734,7 +733,7 @@ cptr esp_flags[] =
 	"SAFETY",
 	"SENS_ACID",
 	"SENS_ELEC",
-	"XXX8X16",
+	"UNBREAKABLE",
 	"XXX8X17",
 	"XXX8X18",
 	"XXX8X19",
@@ -748,7 +747,7 @@ cptr esp_flags[] =
 	"XXX8X27",
 	"XXX8X28",
 	"XXX8X29",
-	"XXX8X02",
+	"XXX8X30",
 	"ESP_ALL",
 };
 
@@ -1481,7 +1480,7 @@ int color_char_to_attr(char c)
 		return (TERM_KHAKI);
 							case 'k':
 		return (TERM_DARK_KHAKI);
-		
+
 							case 'A':
 		return (TERM_CADET_BLUE);
 								case 'e':
@@ -4449,7 +4448,7 @@ errr init_k_info_txt(FILE *fp, char *buf)
 			k_ptr->sval = sval;
 			k_ptr->pval = pval;
 			k_ptr->pval2 = pval2;
-			
+
 			/* Next... */
 			continue;
 		}
@@ -4719,10 +4718,10 @@ int get_r_flag(char *what)
 			return 7*32 + i;
 		if (streq(what, r_info_flags9[i]))
 			return 8*32 + i;
-	}
+		}
 
 	/* Oops */
-	msg_format("Unknown race flag '%s'.", what);
+	msg_format("Unknown monster race flag '%s'.", what);
 
 	/* Error */
 	return ( -1);
@@ -5182,8 +5181,8 @@ errr init_a_info_txt(FILE *fp, char *buf)
 
 	/* Current entry */
 	artifact_type *a_ptr = NULL;
-   
-	
+
+
 	/* Just before the first record */
 	error_idx = -1;
 
@@ -5274,7 +5273,7 @@ errr init_a_info_txt(FILE *fp, char *buf)
 
 			/* Point at the "info" */
 			a_ptr = &a_info[i];
-		
+
 			/* Hack -- Verify space */
 			if (a_head->name_size + strlen(s) + 8 > fake_name_size) return (7);
 
@@ -5350,18 +5349,18 @@ errr init_a_info_txt(FILE *fp, char *buf)
 			long pval3;
 
 
-		
-			/* Scan for the values */
-	
 
-				
-	
+			/* Scan for the values */
+
+
+
+
 			if (3 != sscanf(buf + 2, "%d:%d:%d",
 		                &tval, &sval, &pval))
 			{
 				return (1);
-			} 
-	
+			}
+
 
 
 
@@ -5370,7 +5369,7 @@ errr init_a_info_txt(FILE *fp, char *buf)
 			a_ptr->sval = sval;
 			a_ptr->pval = pval;
 		//	a_ptr->pval3 = pval3;
-		
+
 
 			/* Verify */
 			if (!lookup_kind(tval, sval)) return (6);

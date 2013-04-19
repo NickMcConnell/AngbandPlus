@@ -1698,6 +1698,12 @@ static void process_world(void)
 		{
 			/* Do nothing */
 		}
+	    else if ( (f_info[feature].flags1 & FF1_WEB) &&
+	    		   ((r_info[p_ptr->body_monster].flags7 & RF7_SPIDER) || (p_ptr->mimic_form != resolve_mimic_name("Spider")))
+	    		)
+		{
+			/* Do nothing */
+		}
 		else if (PRACE_FLAG(PR1_SEMI_WRAITH) && (!p_ptr->wraith_form) && (f_info[cave[p_ptr->py][p_ptr->px].feat].flags1 & FF1_CAN_PASS))
 		{
 			int amt = 1 + ((p_ptr->lev) / 5);
@@ -2821,8 +2827,6 @@ static void process_world(void)
 	 */
 	if (((turn % 3000) == 0) && p_ptr->black_breath)
 	{
-		u32b f1, f2, f3, f4, f5;
-
 		bool be_silent = FALSE;
 
 		/* check all equipment for the Black Breath flag. */
@@ -4229,7 +4233,7 @@ static void process_command(void)
 			if (p_ptr->control) break;
 			if (p_ptr->wild_mode) break;
 
-		
+
 
 			do_cmd_throw();
 			break;
@@ -4438,7 +4442,7 @@ static void process_command(void)
 		/* Help */
 	case '?':
 		{
-		
+
 			do_cmd_help();
 			break;
 		}
@@ -6158,4 +6162,3 @@ void play_game(bool new_game)
 	/* Quit */
 	quit(NULL);
 }
-

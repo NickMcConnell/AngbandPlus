@@ -662,11 +662,12 @@ static bool gamble_comm(int cmd)
  * Now that the ghosts are temporarily disabled in 2.8.X, this function
  * will not be that useful.  I will keep it in the hopes the player
  * ghost code does become a reality again. Does help to avoid filthy urchins.
- * Resting at night is also a quick way to restock stores -KMW- 
+ * Resting at night is also a quick way to restock stores -KMW-
  */
 static bool inn_comm(int cmd)
 {
 	bool vampire;
+	bool hurtlite;
 
 
 	/* Extract race info */
@@ -707,6 +708,8 @@ static bool inn_comm(int cmd)
 				return (FALSE);
 			}
 
+
+
 			/* Vampires rest during daytime */
 			if (vampire && nighttime)
 			{
@@ -714,6 +717,8 @@ static bool inn_comm(int cmd)
 				msg_print(NULL);
 				return (FALSE);
 			}
+
+
 
 			/* Must cure HP draining status first */
 			if ((p_ptr->poisoned > 0) || (p_ptr->cut > 0))
@@ -939,105 +944,104 @@ static void compare_weapon_aux1(object_type *o_ptr, int col, int r)
 
 	if (f1 & (TR1_SLAY_ANIMAL))
 	{
-		compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, 2, "Animals:",
+		compare_weapon_aux2(o_ptr, p_ptr->bonus_blow, r++, col, 2, "Animals:",
 		                    f1, f2, f3, TERM_YELLOW);
 	}
 	if (f1 & (TR1_SLAY_EVIL))
 	{
-		compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, 2, "Evil:",
+		compare_weapon_aux2(o_ptr, p_ptr->bonus_blow, r++, col, 2, "Evil:",
 		                    f1, f2, f3, TERM_YELLOW);
 	}
 	if (f1 & (TR1_SLAY_UNDEAD))
 	{
-		compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, 3, "Undead:",
+		compare_weapon_aux2(o_ptr, p_ptr->bonus_blow, r++, col, 3, "Undead:",
 		                    f1, f2, f3, TERM_YELLOW);
 	}
 	if (f1 & (TR1_SLAY_DEMON))
 	{
-		compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, 3, "Maiar:",
+		compare_weapon_aux2(o_ptr, p_ptr->bonus_blow, r++, col, 3, "Maiar:",
 		                    f1, f2, f3, TERM_YELLOW);
 	}
 	if (f1 & (TR1_SLAY_ORC))
 	{
-		compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, 3, "Orcs:",
+		compare_weapon_aux2(o_ptr, p_ptr->bonus_blow, r++, col, 3, "Orcs:",
 		                    f1, f2, f3, TERM_YELLOW);
 	}
 	if (f1 & (TR1_SLAY_TROLL))
 	{
-		compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, 3, "Trolls:",
+		compare_weapon_aux2(o_ptr, p_ptr->bonus_blow, r++, col, 3, "Trolls:",
 		                    f1, f2, f3, TERM_YELLOW);
 	}
 	if (f1 & (TR1_SLAY_GIANT))
 	{
-		compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, 3, "Giants:",
+		compare_weapon_aux2(o_ptr, p_ptr->bonus_blow, r++, col, 3, "Giants:",
 		                    f1, f2, f3, TERM_YELLOW);
 	}
 	if (f1 & (TR1_SLAY_DRAGON))
 	{
-		compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, 3, "Dragons:",
+		compare_weapon_aux2(o_ptr, p_ptr->bonus_blow, r++, col, 3, "Dragons:",
 		                    f1, f2, f3, TERM_YELLOW);
 	}
 	if (f1 & (TR1_KILL_DRAGON))
 	{
-		compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, 5, "Dragons:",
+		compare_weapon_aux2(o_ptr, p_ptr->bonus_blow, r++, col, 5, "Dragons:",
 		                    f1, f2, f3, TERM_YELLOW);
 	}
 	if (f1 & (TR1_BRAND_ACID))
 	{
-		compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, 3, "Acid:",
+		compare_weapon_aux2(o_ptr, p_ptr->bonus_blow, r++, col, 3, "Acid:",
 		                    f1, f2, f3, TERM_GREEN);
 	}
 	if (f1 & (TR1_BRAND_ELEC))
 	{
-		compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, 3, "Elec:",
+		compare_weapon_aux2(o_ptr, p_ptr->bonus_blow, r++, col, 3, "Elec:",
 		                    f1, f2, f3, TERM_L_BLUE);
 	}
 	if (f1 & (TR1_BRAND_FIRE))
 	{
-		compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, 3, "Fire:",
+		compare_weapon_aux2(o_ptr, p_ptr->bonus_blow, r++, col, 3, "Fire:",
 		                    f1, f2, f3, TERM_RED);
 	}
 	if (f1 & (TR1_BRAND_COLD))
 	{
-		compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, 3, "Cold:",
+		compare_weapon_aux2(o_ptr, p_ptr->bonus_blow, r++, col, 3, "Cold:",
 		                    f1, f2, f3, TERM_L_WHITE);
 	}
 	if (f1 & (TR1_BRAND_POIS))
 	{
-		compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, 3, "Poison:",
+		compare_weapon_aux2(o_ptr, p_ptr->bonus_blow, r++, col, 3, "Poison:",
 		                    f1, f2, f3, TERM_L_GREEN);
 	}
 	if (f5 & (TR5_BRAND_LIGHT))
 	{
-		compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, 3, "Light:",
+		compare_weapon_aux2(o_ptr, p_ptr->bonus_blow, r++, col, 3, "Light:",
 		                    f1, f2, f3, TERM_YELLOW);
 	}
 
 	if (f5 & (TR5_BRAND_DARK))
 	{
-		compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, 3, "Dark:",
+		compare_weapon_aux2(o_ptr, p_ptr->bonus_blow, r++, col, 3, "Dark:",
 		                    f1, f2, f3, TERM_L_DARK);
 	}
 	if (f5 & (TR5_BRAND_MAGIC))
 	{
-		compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, 3, "Magic:",
+		compare_weapon_aux2(o_ptr, p_ptr->bonus_blow, r++, col, 3, "Magic:",
 		                    f1, f2, f3, TERM_UMBER);
 	}
 	if (f5 & (TR5_BRAND_WATER))
 	{
-		compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, 3, "Water:",
+		compare_weapon_aux2(o_ptr, p_ptr->bonus_blow, r++, col, 3, "Water:",
 		                    f1, f2, f3, TERM_BLUE);
 	}
 		if (f5 & (TR5_BRAND_DEATH))
 	{
-		compare_weapon_aux2(o_ptr, p_ptr->num_blow, r++, col, 3, "Death:",
+		compare_weapon_aux2(o_ptr, p_ptr->bonus_blow, r++, col, 3, "Death:",
 		                    f1, f2, f3, TERM_SLATE);
 	}
 
 
-	
-}
 
+}
 
 /*
  * list_weapon -KMW-
@@ -1055,14 +1059,14 @@ static void list_weapon(object_type *o_ptr, int row, int col)
 	put_str(tmp_str, row + 1, col);
 	strnfmt(tmp_str, 80, "Dice: %d   Sides: %d", o_ptr->dd, o_ptr->ds);
 	put_str(tmp_str, row + 2, col);
-	strnfmt(tmp_str, 80, "Number of Blows: %d", p_ptr->num_blow);
+	strnfmt(tmp_str, 80, "(As primary) # of Blows: %d", primary_weapon_blows (o_ptr));
 	put_str(tmp_str, row + 3, col);
 	c_put_str(TERM_YELLOW, "Possible Damage:", row + 5, col);
 	strnfmt(tmp_str, 80, "One Strike: %d-%d damage", o_ptr->dd + o_ptr->to_d,
 	        (o_ptr->ds*o_ptr->dd) + o_ptr->to_d);
 	put_str(tmp_str, row + 6, col + 1);
-	strnfmt(tmp_str, 80, "One Attack: %d-%d damage", p_ptr->num_blow*(o_ptr->dd + o_ptr->to_d),
-	        p_ptr->num_blow*(o_ptr->ds*o_ptr->dd + o_ptr->to_d));
+	strnfmt(tmp_str, 80, "One Attack: %d-%d damage", primary_weapon_blows (o_ptr) * (o_ptr->dd + o_ptr->to_d),
+	        primary_weapon_blows (o_ptr) * (o_ptr->ds*o_ptr->dd + o_ptr->to_d));
 	put_str(tmp_str, row + 7, col + 1);
 }
 
@@ -1283,7 +1287,7 @@ static bool research_item(void)
 
 
 /*
- * Show the current quest monster. 
+ * Show the current quest monster.
  */
 static void show_quest_monster(void)
 {
@@ -1851,14 +1855,14 @@ bool bldg_process_command(store_type *s_ptr, int i)
 
 	case BACT_ENCHANT_WEAPON:
 		{
-			paid = fix_item(INVEN_WIELD, INVEN_WIELD, 0, FALSE,
+			paid = fix_item(INVEN_WIELD, INVEN_WIELD_MAX, 0, FALSE,
 			                BACT_ENCHANT_WEAPON, set_reward);
 			break;
 		}
 
 	case BACT_ENCHANT_ARMOR:
 		{
-			paid = fix_item(INVEN_BODY, INVEN_FEET, 0, TRUE,
+			paid = fix_item(INVEN_BODY, INVEN_FEET_MAX, 0, TRUE,
 			                BACT_ENCHANT_ARMOR, set_reward);
 			break;
 		}
@@ -2284,5 +2288,3 @@ void do_cmd_bldg(void)
 	/* Window stuff */
 	p_ptr->window |= (PW_OVERHEAD);
 }
-
-

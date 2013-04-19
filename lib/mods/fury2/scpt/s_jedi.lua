@@ -3,6 +3,8 @@ function get_electricbolt_dam()
 	return 3 + get_level(ELECTRICBOLT, 50), 1 + get_level(ELECTRICBOLT, 20)
 end
 
+
+
 ELECTRICBOLT = add_spell
 {
 	["name"] = 	"Lightening Bolt",
@@ -17,7 +19,9 @@ ELECTRICBOLT = add_spell
 
 			ret, dir = get_aim_dir()
 			if ret == FALSE then return end
-			return fire_bolt(GF_ELEC, dir, damroll(get_electricbolt_dam()))
+			return fire_bolt_or_beam(2 * get_level(ELECTRICBOLT, 85), GF_ELEC, dir, damroll(get_electricbolt_dam()))
+
+			
 	end,
 	["info"] = 	function()
 			local x, y
@@ -44,7 +48,11 @@ FORCEPUSH = add_spell
 
 			ret, dir = get_aim_dir()
 			if ret == FALSE then return end
-			return fire_bolt(GF_FORCE, dir, damroll(get_electricbolt_dam()))
+			return fire_ball(GF_FORCE, dir, damroll(get_electricbolt_dam()), 2 + get_level(FORCEPUSH, 5))
+			
+
+			
+			
 	end,
 	["info"] = 	function()
 			local x, y
@@ -65,13 +73,13 @@ FORCEPULL = add_spell
 	["mana"] = 	10,
 	["mana_max"] =  50,
 	["fail"] = 	10,
-		["random"] =    0,
+	["random"] =    0,
 	["spell"] = 	function()
 			local ret, dir	
 
 			ret, dir = get_aim_dir()
 			if ret == FALSE then return end
-			return fire_bolt(GF_TELEKINESIS, dir, damroll(get_electricbolt_dam()))
+			return fire_ball(GF_TELEKINESIS, dir, damroll(get_electricbolt_dam()), 2 + get_level(FORCEPULL, 5))
 	end,
 	["info"] = 	function()
 			local x, y
@@ -170,7 +178,7 @@ FORCEKILL = add_spell
 	["level"] =     50,
 	["mana"] =      500,
 	["mana_max"] =  500,
-	["fail"] =      100,
+	["fail"] =      80,
 		["random"] =    0,
 	["spell"] =     function()
 		local ret, dir, type
@@ -467,7 +475,7 @@ FESSENCESPEED = add_spell
 		       	return "dur "..(10 + get_level(FESSENCESPEED, 50)).."+d10 speed "..(5 + get_level(FESSENCESPEED, 20))
 	end,
 	["desc"] =	{
-			"Magically increases the passing of time around you",
+			"The Jedi moves like the wind",
 	}
 }
 

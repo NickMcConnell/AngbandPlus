@@ -1,0 +1,115 @@
+# Special level "Orthanc" in Isengard
+#
+# Created by Burb Lulls
+
+%:special.txt
+
+### Terrain
+
+# Fire
+F:F:205:3
+
+# Copper Pillar
+F:I:213:3
+
+# Dead Tree
+F:O:92:3
+
+# Tainted Water
+F:i:174:3
+
+# Orthanc's Door
+F:U:217:3
+
+# Ash
+F:,:93:3
+
+### Guaranteed Monsters
+
+# Ent on ash
+F:V:93:0:708
+
+# Elite uruk on ash
+F:a:93:0:866
+
+# Ettin on ash
+F:b:93:0:621
+
+# Ettin on normal floor
+F:B:1:0:621
+
+# Colossus on normal floor
+F:C:1:0:558
+
+# Ancient Red Dragon on ash
+F:c:93:0:644
+
+# Great Hell Wyrm on normal floor
+F:E:1:0:756
+
+# Infernal Device on normal floor
+F:o:1:0:1444
+
+### Sharkey and Grima!
+
+# Saruman on normal floor
+F:S:1:0:771
+
+# Wormtongue on normal floor
+F:W:1:0:137
+
+### The Prize?
+
+# The Palantir Of Orthanc
+F:*:1:0:0:0:0:202
+
+### Dungeon Design
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+D:XOOOOOOOOOOOOOOOOOOOOOOO,,,,,,,,,b,,,,,,,,,,,,,,,,b,,,OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO,,,,,,,,iiiiiiiiiiiiiiiiiiiii,,,,,,,,,,X
+D:XOOOOOOOOOOOOOOOOO,,,,,,,,,b,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,OOOOOOOOOOOOOOOOOOOOO,,,,,,,,,,iiiiiiiiiiiiiiiiiiiiii,,,,,,,,,,,X
+D:XOOOOOOOOOOOOOOO,,,,,,,,XXXXXXXXXXXXXXXXXXXXXXXXXX,,,,,,,c,,,,,a,,,OOOOOOOOOOOOO,,,,,,b,,,,,iiiiiiiiiiiiiiiiiiiiii,,,,,,,,,,,,X
+D:XOOOOOOOOOOOOO,,,b,,XXXXX.^^^^^^^^..BBB..........XXXXX,,,,,,,aaVaa,,,,,,OOO,,,,,,,,a,,,,,,iiiiiiiiiiiiiiiiiiiiiii,,,,,,,,,,,,,X
+D:XOOOOOOOOOO,,,,,,XXXX.....^^^XX^^^BBBBBBBBBXXC.......XXXX,,,,bba,,,a,,,,,,,,,,,,,c,,,,,,iiiiiiiiiiiiiiiiiiiiiiii,,,,,,,,,,,,,,X
+D:XOOOOOOOO,,,b,,XXX........^^^XX^^^BBBoBBBBBXXC..........XXX,,,,,,a,b,,c,,,,,aa,,,,,,,,iiiiiiiiiiiiiiiiiiiiiiiii,,,,,,,,,,,,,,,X
+D:XOOOOOOO,,,,,XXX..........^^^^^^^^..BBB...................XXXiiiii,,,aa,,,,a,,b,a,,,,iiiiiiiiiiiiiiiiiiiiiii,,,,,,,,,,,,,,,,,,X
+D:XOOOOOO,,,,XXX.....XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.....XXXiiii,,b,,,,,,,,a,,,,,iiiiiiiiiiiiiiiiiiiiiii,,,,,,,b,,,,,,,,,,,X
+D:XOOOOOO,,XXX.....XXX^.^.^.^.^.^XX...........XXE.......XXX^^^^^XXXiii,,,,,,a,aaVa,,,iiiiiiiiiiiiiiiiiiii,,,,b,,,b,,,,,,aaaaaaaaX
+D:XOOOOO,,XX......XX.^.^.^.^.^.^.oX..I..I..I..XXC.........XX^^^^^^XXiiii,,,,,,,ba,a,,iiiiiiiiiiiiiiiii,,,,,,,,,b,,,,OOOOOaaaaaaaX
+D:XOOOOO,XX......XX.^...CGGGG.^.^XX...........XX^^^^GGGG...XX^^^^^^XXiiiiiiii,,,,,,,iiiiiiiiiiiiiii,,,,,,a,b,,,,,,OOOOO,,,,,,,,,X
+D:XOOOO,,XX.....XX.^.^..CGFFG^.^.DoBBBBBBBBBBBoX^^^^GFFG....XX^^^^^XXiiiiiiiiiiiiiiiiiiiiiiiiii,,,,,,,,a,,,,,,,,,OOOO,,,,,a,,,,,X
+D:XOOO,,XX.....XX...^.^.CGFFG.^.^XX...........XX^^^^GFFG.....XX.....XXiiiiiiiiiiiiiiiiiiiiii,,,,,,b,,,aVa,,,,,,OOOOOa,,,,a,,,,,,X
+D:XOOO,,XX.....XX....^.^.GGGG^.^.oX..I..I..I..XX^^^^GGGG.....XX.....XX.iiiiiiiiiiiiiiiiiiii,,,,,,,b,,,,,,,a,,,OOOOOO,,a,,,,,,,,,X
+D:XOO,,XX.....XX......^.^.^.^.^E^XX...........DD..............XX.....XX..iiiiiiiiiiiiiiiiii,,,,ab,,,a,,,,,,,,OOOOOOOO,,,,,,,,,,,X
+D:XOO,bXX..I.EXX.......^.^.^.XXXXXXXXXXXXXXXXXXXXX............oX..I..XX.a.iiiiiiiiiiiiiiiiiii,,,,,a,,,,,,,,,,OOOOOOOOO,,,,,,,,,,X
+D:XO,,,XX.....XX........^.^.XG...................XX...........XX.....XX.c..iiiiiiiiiiiiiiiiiii,,,aV,,,b,a,,,,OOOOOOOOOO,,,,,,,,,X
+D:XO,,,XX..I..XX.........^.XG...lllllllFlllllll...XX...GGGGG..GG..I..UU.aa.biiiiiiiiiiiiiiiiii,,,,a,,,,,,,,,OOOOOOOOOOOO,,,,,,,,X
+D:XOOccXXBBBBBXX...o..o...XG...lI.....lll.....Il...XX..GFFFG^^GG.....UUaVac..iiiiiiiiiiiiiiiiii,,a,,,,,,,,,OOOOOOOOOOOOOO,,,,,,,X
+D:XOObbXXBBIBBXX........o^XX..ll...............ll..XX..GFFFG^BXXE.I..UU.aa.,.iiiiiiiiiiiiiiiiii,,,,,,,a,,,OOOOOOOOOOOOOO,,,,,,,,X
+D:XOObbXX^^^..XX......o^^^#D..lFFll.G..F..G.llFFl..XX.CGFFFG^BXX^^^^^UU.ba.c.iiiiiiiiiiiiiiiiiii,,ba,,,,,,OOOOOOOOOOOOO,,,,,,,,,X
+D:X0ObbXX0^^..XX^^^^^^^^^^#D..ll.....SFFF......ll..XX.CGFFFG^BDD^^^^^UU.aV...iiiiiiiiiiiiiiiiiii,,,,,,,,,OOOOOOOOOOOOO,,,,,,,,,,X
+D:XAObbXXA^^..XX^^^^^^^^^^#D..ll.....WFFF*.....ll..XX.CGFFFG^BDD^^^^^UUb..a.iiiiiiiiiiiiiiiiiii,,,,,,,,,OOOOOOOOOOOOOO,,,,,,,,,,X
+D:XOObbXX^^^..XX......o^^^#D..lFFll.G..F..G.llFFl..XX.CGFFFG^BXX^^^^^UU.ca..iiiiiiiiiiiiiiiiii,,,,a,,,,b,OOOOOOOOOOOO,,,,,,,,,,,X
+D:XOOccXXBBIBBXX........o^XX..ll...............ll..XX..GFFFG^BXXE.I..UU.aE.iiiiiiiiiiiiiiiiii,,,,,,a,,,,,OOOOOOOOOOO,,,,,,,,,,,,X
+D:XO,,,XXBBBBBXX..........XG...lI.....lll.....Il...XX..GFFFG^^GG.....UU...iiiiiiiiiiiiiiiiiiiii,,,aVa,,,,OOOOOOOOOOOO,,,,,,,,,,,X
+D:XOO,,XX..I..XX...o..o....XG...lllllllFlllllll...XX...GGGGG..GG..I..UU.iiiiiiiiiiiiiiiiiiiiiiii,,,a,,,a,OOOOOOOOOOOOO,,,,,,,,,,X
+D:XOO,,XX.....XX........^.^.XG...................XX...........XX.....XXiiiiiiiiiiiiiiiiiiiiiiiiii,,,,,,,,,OOOOOOOOOOOO,,,,,,,,,,X
+D:XOO,,XX..I.EXX.......^.^.^.XXXXXXXXXXXXXXXXXXXXX............oX..I..XXiiiiiiiiiiiiiiiiiiiiiiiiiiiiii,,,b,,,OOOOOOOOOOO,,,,,,,,OX
+D:XO,,,XX.....XX......^.^.^.^.^E.XX...........DD..............XX.....XXiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii,,,,,OOOOOOOOOO,,,,>,,,,OX
+D:XOO,,,XX.....XX....^.^.GGGG^.^.oX..I..I..I..XX^^^^GGGG.....XX.....XXiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii,,,,OOOOOOOOOOO,,,,,,,OOX
+D:XOOO,,XX.....XX...^.^.CGFFG.^.^XX...........XX^^^^GFFG.....XX.....XXiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiib,,OOOOOOOOOOO,,,,,,OOX
+D:XOOO,,,XX.....XX.^.^.^CGFFG^.^.DoBBBBBBBBBBBoX^^^^GFFG....XX^^^^^XXiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii,a,OOOOOOOOOOO,,,,OOOX
+D:XOOOO,,XX......XX.^.^.CGGGG.^.^XX...........XX^^^^GGGG...XX^^^^^^XXiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii,,,b,OOOOOOOOOOOOOOOX
+D:XOOOO,,,XX......XX.^.^.^.^.^.^.oX..I..I..I..XXC.........XX^^^^^^XXiiiiiiiiiiiiiii,b,,c,,iiiiiiiiiiiiiiiiii,,,,,,OOOOOOOOOOOOOOX
+D:XOOOO,,,,XXX.....XXX^.^.^.^.^.^XX...........XXE.......XXX^^^^^XXXiiiiiiiii,,,,,,,,,,,,,,,iiiiiiiiiiiiiiiiii,b,a,,OOOOOOOOOOOOOX
+D:XOOOOO,,,,,XXX.....XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.....XXXiiiiiiiiiaaa,c,b,,,,,,,,,iiiiiiiiiiiiiiiiiiii,,,,,,b,,,OOOOOOOOX
+D:XOOOOOO,,,,,,XXX..........^^^^^^^^...E....................XXXiiiiiiii,,aaVaa,bOOO,,b,,iiiiiiiiiiiiiiiiiiiiiiii,,a,,,,,,OOOOOOOX
+D:XOOOOOOOO,b,,,,XXX........^^^XX^^^...o.....XXC..........XXXiiiiiiii,,c,,aaa,OOOOOO,,,iiiiiiiiiiiiiiiiiiiiiiiiiiiii,,,,,,,,,,OOX
+D:XOOOOOOOOOO,,,,,,XXXX.....^^^XX^^^...E.....XXC.......XXXXiiiiiiiiiiii,,,,,,OOOOOO,,,iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii,,,,,,,,,,X
+D:XOOOOOOOOOOOO,,,,b,,XXXXX.^^^^^^^^...............XXXXXiiiiiiiiiiiiiiiii,,,OOOOO,,,,iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii,,,,,,,,X
+D:XOOOOOOOOOOOOOO,,,,,,,,,XXXXXXXXXXXXXXXXXXXXXXXXXX,,iiiiiiiiiiiiiiii,,,,OOOOOOOO,,,iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii,,,,,,X
+D:XOOOOOOOOOOOOOOOOO,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,iiiiiiiiiiiiiii,,,,OOOOOOOOOOOOO,,,iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii,,,X
+D:XOOOOOOOOOOOOOOOOOOOOO,,,,,,,,,,,,,,,,,,,,,,iiiiiiiiiiiiiiiii,,OOOOOOOOOOOOOOOOO,,iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii,X
+D:XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+### Starting Location
+P:31:125

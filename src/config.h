@@ -395,7 +395,7 @@
  * for storing pref-files and character-dumps.
  */
 #if defined(SET_UID) && !defined(MACH_O_CARBON) && !defined(NO_HOME_TOME)
-#define PRIVATE_USER_PATH "~/.tome"
+#define PRIVATE_USER_PATH "~/.furyband"
 #endif /* SET_UID && !MACH_O_CARBON */
 
 

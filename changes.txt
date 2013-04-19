@@ -1,3 +1,73 @@
+Eleventh Release (5.0/Gold)
+
+Class/race changes
+
+	Increased the level at which Jedi get AutoID and Precognition
+	Increased the level at which Berserkers get AutoID
+	Decreased the level at which Berserkers get Berserkers Recall
+	Jedi cannot have gods or pray
+	Dragons get -200 to sneakiness modifier
+	Berserkers now Aggravate
+	Jedi can ONLY wield lightsabers now as weapons
+	Non-jedi characters can't wear jedi robes or lightsabers
+	Mutants get -2 to speed at start 
+	Mutants now have 4 ring slots
+	Easterlings start with antimagic
+	Berserkers get stunning blows skill
+	Jedi get to pick their choice of lightsaber at start
+	Phase-warriors get Wraith at level 15 instead of level 25
+	Nightwalkers get a a little more intelligence and wisdom at start
+	Ettins only have 2 arms, not 4
+	Gugs get boulder throwing
+	Nagas have 1 set of arms, 2 heads, and only -2 to speed
+	2 Headed Hydras now have Hydra-combat as their melee rather than barehand
+	
+
+Skill Changes
+	
+	Increased the Basilisk Kill power level to 40, and Kill Monsters power to 50
+	Jedi-Dodge now increases the Jedi skill
+	Jedi no longer given by FF
+	Glowing Orb o' Light increased to Level 25, since it's pretty devestating a level 1 power
+	Increased the mana usage and failrate for the Basilisk kill monsters power
+	Jedi Lightening bolt has a chance to fire a beam 
+	Force Push and Pull now to BALL instead of BOLT
+	Decreased the fail rate of Force Kill
+	Minor adjustment to spider-combat
+	Constructer Dismantle Trap no longer has a beam mode
+
+Object Changes
+
+	Most of the objects now have a description
+	Staffs of Wings of the Winds and Wands of the Essence of Speed no longer give bonuses to speed when wielded
+	Removed the Map of Forodwaith
+	Greatly increased the rarity and depth of Deathly, Light, and Chargeable items
+	Increased the depths of some of the randart powers
+	Jedi items are now found much deeper and are rarer
+	Increased the depth of Psychoactive skins
+	
+Bug Fixes
+
+	Battle Scarred Veteran and Mean Looking Mercenary now have proper hitpoints. No more UBERnasty Town monsters
+	Most monsters now give the correct experience, no more mega xp from killing simple monsters (Thanks to Zop)
+	Various other bugs and nuisances fixed by Zop
+	Chiokovos no longer have : in front of the name
+
+Engine Fixes
+	
+	ALL weapons now attack for multiarmed characters (Thanks to Zop)
+	New Module "Furyband G", one dungeon, uber-classes, no towns, how deep can you go?
+	The ADJUST_LEVEL_PLAYER flag for dungeons works now. Makes all monsters Player Level * 2. 
+	No longer uses tome as the path internally
+	Furyband G can now load saved games
+	Fixed crash with hyrda-combat
+	Damages for weapons now show up correctly in the character sheet and the compare weapons screens
+	Leveling to level 75 should work correctly now (thanks to Zop)
+
+
+
+
+
 Tenth Release (4.0)
 
 Engine Changes

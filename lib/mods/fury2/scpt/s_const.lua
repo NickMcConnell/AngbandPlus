@@ -1,4 +1,17 @@
 constructor_powers = 88
+
+MKEY_CONSTRUCT_POWERS = 88
+add_mkey
+{
+        ["mkey"] =      MKEY_CONSTRUCT_POWERS,
+        ["fct"] =       function()
+             		execute_magic(constructor_powers)
+
+                	-- use up some energy
+                	energy_use = energy_use + 100;
+        end
+}
+
 SURVEY_AREA = add_spell
 		{
 			["name"] = 	"Survey area",
@@ -61,22 +74,10 @@ DISMANTLE = add_spell
 			["fail"] = 		10,
 				["random"] =    0,
 			["spell"] =	function()
-					local ret, dir, dam
-	
-					if (get_level(constructor_powers, 50) >= 11) then
-
-						-- Get the direction
-						ret, dir = get_aim_dir();
-	
-						-- Got direction ok?
-						if (ret == FALSE) then return end
-
-						-- fire beam of disarming (like a wand of trap/door destruction
-						fire_beam(GF_KILL_TRAP, dir, 1)
-					else
+					
 						-- player-centered radius 1 ball of disarm trap. (Works like a spell of trap/door destruction)
 						fire_ball(GF_KILL_TRAP, 0, 1, 1)
-					end
+					
 			end,
 			["info"] =	function()
                                 return " "

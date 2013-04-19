@@ -1,0 +1,529 @@
+  [FuryBand T 2.1.0 Character Sheet]
+
+ Name  : Death                  Age                125       Str!     40     40
+ Sex   : Male                   Height              88       Int:     27     27
+ Race  : Vampire High-Elf       Weight             217       Wis:     25     25
+ Class : Maia-lore              Social Class        39       DEX!     32       
+ Body  : Player                                              Con!     40     40
+ God   : Melkor Bauglir                                      Chr:     30     30
+                                                                               
+ + To Melee Hit         108 Level             46    Hit Points      -78/  1118 
+ + To Melee Damage       80 Experience   8661951    Spell Points    266/   266 
+ + To Ranged Hit         61 Max Exp      8661951    Sanity          376/   396 
+ + To Ranged Damage      15 Exp to Adv.  9000000    Piety                48753 
+   AC                21+107 Gold          368224    Speed           Fast (+10) 
+                                                                               
+                         (Miscellaneous Abilities)                             
+ Fighting    : Legendary[75]Perception  : Excellent    Blows/Round:  13        
+ Bows/Throw  : Legendary[12]Searching   : Superb       Shots/Round:  2         
+ Saving Throw: Good         Disarming   : Superb       Mel.dmg/Rnd:  39d8+1040 
+ Stealth     : Heroic       Magic Device: Superb       Infra-Vision: 40 feet   
+                                                       Tactic:       normal    
+                                                       Explor:       normal    
+                         (Character Background)                                
+          You are the only child of a Telerin Ranger.  You have light          
+          grey eyes, wavy black hair, and a fair complexion.                   
+                                                                               
+                                                                               
+
+
+  [Miscellaneous information]
+
+ Joke monsters:        OFF
+ Maximize mode:        ON
+ Preserve Mode:        ON
+ Autoscum:             ON
+ Small Levels:         ALWAYS
+ Arena Levels:         ON
+ Always unusual rooms: OFF
+ Persistent Dungeons:  OFF
+
+ Recall Depth:
+        Angband: Level 65 (3250')
+
+ Your body was a Player.
+ You have defeated 4128 enemies.
+ You saved 64 princesses.
+ You found none of the relic pieces.
+
+ You started your adventure the 43rd Yavie of the 2890th year of the third age.
+ You ended your adventure the 47th Yavie of the 2890th year of the third age.
+ Your adventure lasted 4 days.
+
+     Your Attributes:
+You are dead, killed by a Death vortex on level 65 of Angband.
+You can drain life from a foe.
+Your eyes are sensitive to infrared light.
+You can see invisible creatures.
+You can climb high mountains.
+You have free action.
+You regenerate quickly.
+Your appetite is small.
+You have ESP.
+You are lucky.
+You know everything.
+You have a firm hold on your life force.
+You reflect arrows and bolts.
+You are carrying a permanent light.
+You are resistant to acid.
+You are completely immune to lightning.
+You are completely immune to fire.
+You are completely immune to cold.
+You are resistant to poison.
+You are resistant to darkness.
+You are resistant to confusion.
+You are resistant to sonic attacks.
+You are resistant to disenchantment.
+You are resistant to chaos.
+You are resistant to nexus attacks.
+You are immune to nether forces.
+You are completely fearless.
+Your eyes are resistant to blindness.
+Your dexterity is sustained.
+Your strength is affected by your equipment.
+Your intelligence is affected by your equipment.
+Your wisdom is affected by your equipment.
+Your dexterity is affected by your equipment.
+Your constitution is affected by your equipment.
+Your stealth is affected by your equipment.
+Your searching ability is affected by your equipment.
+Your digging ability is affected by your equipment.
+Your speed is affected by your equipment.
+Your weapon strikes at Maiar with holy wrath.
+
+
+                    adefkmnopsuxz{|@            
+        Add Str   : .........3.....+            
+        Add Int   : .1.............+            
+        Add Wis   : .1.......3.....+            
+        Add Dex   : .1..............            
+        Add Con   : .........3.3...+            
+        Add Chr   : ...............+            
+        Add Stea. : ....5..3...3....            
+        Add Sear. : .....4..........            
+        Add Tun.. : ..............4.            
+        Add Speed : .1.....3.3.3....            
+        Slay Maia : +...............            
+        Sust Str  : ................            
+        Sust Int  : ................            
+        Sust Wis  : ................            
+        Sust Dex  : ....+...........            
+        Sust Con  : ................            
+        Sust Chr  : ................            
+        Invisible : ............+...            
+        Mul life  : ................            
+        Sens Fire : ................            
+        Reflect   : ........+.......            
+        Free Act  : ..+.............            
+        Hold Life : ..+............+            
+        Res Acid  : .......+........            
+        Imm Elec  : .+....*..+......            
+        Imm Fire  : .+....*..++....+            
+        Imm Cold  : .+....*..+.....+            
+        Res Pois  : ..+............+            
+        Res Fear  : .........+.....+            
+        Res Light : .........+.....+            
+        Res Dark  : ...............+            
+        Res Blind : .........+......            
+        Res Conf  : ....+....+.....+            
+        Res Sound : .........+......            
+        Res Shard : ................            
+        Imm Neth  : ......*........+            
+        Res Nexus : ......++........            
+        Res Chaos : .........+......            
+        Res Disen : ..+.............            
+        Lite      : ..+......+.....+            
+        See Invis : .........+.....+            
+        Digestion : .+..............            
+        Regen     : ........++......            
+        Xtra Might: .+..............            
+        Xtra Shots: .+..............            
+        Activate  : +...++.+.+......            
+        Climb     : ...........+....            
+        Giant.ESP : ...+............            
+
+ Corruption list:
+Vampiric Teeth:
+  Your teeth allow you to drain blood to feed yourself
+  However your stomach now only accepts blood.
+
+Vampiric Strength:
+  Your body seems somewhat dead
+  In this near undead state it has improved strength, constitution and intelligence
+  But reduced dexterity, wisdom and charisma.
+
+Vampire:
+  You are a Vampire. As such you resist cold, poison, darkness and nether.
+  Your life is sustained, but you cannot stand the light of the sun.
+
+
+Skills (points left: 0)
+ - Combat                                        50.000 [0.750]
+          - Weaponmastery                        50.000 [0.750]
+                   . Sword-mastery               50.000 [0.700]
+          . Archery                              04.500 [0.400]
+ - Sneakiness                                    50.000 [2.900]
+          . Stealth                              05.900 [0.500]
+          . Disarming                            50.000 [2.900]
+ - Powers                                        46.408 [0.700]
+          . Devices                              16.800 [1.150]
+          . Udun                                 00.000 [0.400]
+          . Maia-lore                            50.000 [1.000]
+ - Spirituality                                  14.100 [0.700]
+          . Prayer                               00.000 [0.500]
+ - Monster-lore                                  00.000 [0.500]
+          . Symbiosis                            01.300 [0.400]
+          . First-aid                            01.000 [0.600]
+
+Abilities
+ * Extra Max Blow(1)
+ * Extra Max Blow(2)
+ * Spread blows
+
+
+  [Character Equipment]
+
+a) a Maiablade (3d8) (+9,+9)
+        It can be activated for Unknown! if it is being worn. It strikes at
+    demons with holy wrath.  
+d) The Short Willow Bow of Amras (x3) (+12,+15) (+1 to speed)
+    It increases your intelligence, wisdom, 
+    dexterity and speed by 1.  It provides resistance to electricity, fire
+     and cold.  It slows your metabolism.  It fires missiles with extra
+    might.  It fires missiles excessively fast.  It cannot be harmed by
+    acid, cold, lightning or fire.  
+    You found it in the remains of a Bloodletter of Khorne on level 45 of
+    Angband.
+e) a Glowing Ring of Lordly Protection [+18]
+    It provides light (radius 1) forever.  It provides immunity to
+    paralysis.  It provides resistance to life draining, poison and 
+    disenchantment.  It cannot be harmed by acid, cold, lightning or fire.
+    
+    You found it in the remains of an Ancient blue dragon on level 62 of
+    Angband.
+f) a Draconic Ring of Damage (+2,+12) [+9]
+    It allows you to sense the presence of dragons.  It cannot be
+    harmed by acid, cold, lightning or fire.  
+    You bought it from the Black Market.
+k) The Amulet of Faramir (+18,+0) [+8] (+5)
+    It can be activated for word of
+    recall every 200 turns if it is being worn. It increases your stealth
+     by 5.  It sustains your dexterity.  It provides resistance to 
+    confusion.  It cannot be harmed by acid, cold, lightning or fire.  
+    It was given to you as a reward.
+m) The Phial of Galadriel (+4)
+    It can be activated for light area
+    (dam 2d15) every 10+d10 turns if it is being worn. It provides light
+    (radius 3) forever.  It prevents stuns. It increases your searching
+     and luck by 4.  It cannot be harmed by acid, cold, lightning or fire.
+    
+    It was given to you as a reward.
+n) The Great Eagle Down Coat 'Galadunt' [9,+5]
+    It provides immunity to electricity, 
+    fire, cold and nether.  It provides resistance to nexus.  It cannot be
+    harmed by acid, cold, lightning or fire.  
+    You found it in the remains of The Lucky Hobbit on level 43 of Angband.
+o) The Cloak 'Colannon' [1,+15] (+3 to speed)
+    
+    It can be activated for teleport (range 100) every 45 turns if it is
+    being worn. It increases your stealth and speed by 3.  It provides
+    resistance to acid and nexus.  It cannot be harmed by acid, cold,
+    lightning or fire.  
+    It was given to you as a reward.
+p) a Maiashield of Reflection [5,+13]
+    It speeds your regenerative powers.  
+    It reflects bolts and arrows.  It cannot be harmed by acid, cold,
+    lightning or fire.  
+    You found it lying on the ground on level 50 of Angband.
+s) The Golden Crown of Gondor [0,+13] (+3)
+    It can be
+    activated for heal 700 hit points every 250 turns if it is being worn. 
+    It provides light (radius 1) forever.  It increases your strength, 
+    wisdom, constitution and speed by 3.  It makes you completely
+    fearless.  It provides resistance to electricity, fire, cold, light, 
+    blindness, confusion, sound and chaos.  It allows you to see invisible
+    monsters.  It gives telepathic powers.  It speeds your regenerative
+    powers.  It cannot be harmed by acid, cold, lightning or fire.  
+    It was given to you as a reward.
+u) a Maiaclaw (+4,+4) [3,+5]
+    It provides resistance to fire.  
+x) The Pair of Hard Leather Boots of Nevrast [3,+12] (+3)
+    It 
+    increases your constitution, stealth and speed by 3.  It allows you to
+    climb mountains.  It cannot be harmed by acid, cold, lightning or
+    fire.  
+    It was given to you as a reward.
+z) a Draconic quylthulg (480 hp)
+{) (nothing)
+|) a Mattock of Digging (+4)
+    It increases your ability to tunnel by 
+    4.  It cannot be harmed by acid, cold, lightning or fire.  
+    You found it in the remains of a Spectral tyrannosaur on level 43 of
+    Angband.
+
+
+  [Character Inventory]
+
+a) a Lembas
+b) 2 Sprigs of Athelas
+c) 6 Bottles of Miruvor
+d) 2 Pinches of Longbottom Leaf
+e) a Potion of Cure Insanity
+f) a Potion of Cure Critical Wounds
+g) a Potion of Enlightenment
+h) a Silver Rod of Capacity of Trap Location (200/200)
+i) a Silver Rod of Disarming (100/100)
+j) a Golden Rod of Simplicity of Recall (125/125)
+k) a Rod Tip of Enlightenment (40 Mana to cast)
+l) a Ring of Speed (+3)
+m) The Star of Elendil (+1)
+n) The Anchor of Space-Time
+o) The Light War Axe 'Cam-tal-crist' (2d5) (+12,+15) (+4)
+p) The Slingshot of the Thain (x6) (+15,+15) (+4)
+q) Portable hole
+r) (nothing)
+s) (nothing)
+t) (nothing)
+u) (nothing)
+v) (nothing)
+w) (nothing)
+
+
+  [Home Inventory - Bree ]
+
+a) a Maiaclaw (+4,+4) [3,-7] {cursed}
+    It provides resistance to fire.  It is cursed.  
+b) a Maia Armour [10,+5]
+    It provides
+    resistance to nether.  
+c) The Crumpled Scroll of Mass Resurrection
+d) a Mithril Rod of Healing (160/160)
+e) a Ring of Accuracy (+16)
+f) The Ring of Findri (+6,+8) (+5)
+    It increases your wisdom by 5.  It sustains 
+    your intelligence.  It provides resistance to acid and dark.  It slows
+    your metabolism.  It cannot be harmed by acid, cold, lightning or
+    fire.  
+    You found it in the remains of a Death drake on level 46 of Angband.
+g) a Blessed Ring of Slaying (+7,+8) [+6] (+1) {100% off}
+    It 
+    increases your wisdom by 1.  It provides resistance to life draining.  
+    It allows you to see invisible monsters.  It has been blessed by the
+    gods.  It cannot be harmed by acid, cold, lightning or fire.  
+    You stole it from the Black Market.
+h) The Amulet of Andiliang (+3)
+    It increases your intelligence by 3
+    .  It provides immunity to paralysis.  It provides resistance to 
+    poison, light, confusion, shards and nexus.  It induces random
+    teleportation.  It cannot be harmed by acid, cold, lightning or fire.  
+    
+    You found it in the remains of The Blubbering idiot, agent of black
+    market, Simon the weak on level 25 of Angband.
+i) The Necklace of Girion [10,+0] (+5)
+    It can be activated for 
+    grow mushrooms every 50+d50 turns if it is being worn. It increases 
+    your charisma by 5.  It sustains your charisma.  It provides
+    resistance to poison and nexus.  It allows you to see invisible
+    monsters.  It cannot be harmed by acid, cold, lightning or fire.  
+    You found it in the remains of The Icky Queen on level 20 of Angband.
+j) The Pearl 'Nimphelos' (+1)
+    
+    It grants you the power of dazzle if it is being worn.  It provides
+    light (radius 3) forever.  It increases your searching and infravision
+     by 1.  It allows you to see invisible monsters.  It cannot be harmed
+    by acid, cold, lightning or fire.  
+    You found it lying in a vault on level 54 of Angband.
+k) The Chain Mail of Peregrin Took (+3,+5) [14,+11] (+2)
+    It can be
+    activated for rays of fear in every direction if it is being worn. It
+    provides light (radius 1) forever.  It increases your strength by 2.  
+    It sustains your strength.  It makes you completely fearless.  It
+    allows you to sense the presence of trolls.  It speeds your
+    regenerative powers.  It cannot be harmed by acid, cold, lightning or
+    fire.  
+    You found it in the remains of a Grave wight on level 28 of Angband.
+l) a Handclaw of Slaying (+11,+10) [3,+18]
+    It
+    is very sharp and can cut your foes.  
+    You bought it from the Black Market.
+m) a Climbing Set
+
+
+  [The Museum Inventory - Bree ]
+
+a) The Ring of Power of Akhorahil the Blind (+3 to stealth)
+    It increases your stealth by 3.  
+    It makes you invisible.  It sustains your intelligence.  It provides
+    resistance to cold, poison and shards.  It drains experience.  It
+    cannot be dropped while cursed.  It cannot be harmed by acid, cold,
+    lightning or fire.  
+    You found it in the remains of Akhorahil the Blind on level 53 of Angband.
+b) a Sorcerous Amulet of Brilliance (-42,-41)(120%) (+6)
+    
+    It provides light (radius 1) forever.  It increases your intelligence, 
+    wisdom and spell power by 6.  It increases your mana capacity by 120%.
+    It cannot be harmed by acid, cold, lightning or fire.  
+    You found it in the remains of an Ancient white dragon on level 61 of
+    Angband.
+c) The Amulet of Carlammas (+2)
+    It can be activated for protection from evil (dur level*3 +
+    d25) every 225+d225 turns if it is being worn. It increases your 
+    constitution by 2.  It provides resistance to fire.  It cannot be
+    harmed by acid, cold, lightning or fire.  
+    You found it in the remains of a Great Venom Wyrm on level 55 of Angband.
+d) The Key of Orthanc
+    
+    It can be activated for perilous identify every turn if it is being
+    worn. It provides light (radius 1) forever.  It cannot be harmed by
+    acid, cold, lightning or fire.  
+    You found it in the remains of Fafner the Dragon on level 48 of Angband.
+e) The Chain Mail of Arvedui (-2) [14,+15] (+2)
+    
+    It increases your strength and charisma by 2.  It provides resistance 
+    to acid, electricity, fire, cold, sound, shards and nexus.  It cannot
+    be harmed by acid, cold, lightning or fire.  
+    It was given to you as a reward.
+f) The Metal Brigandine Armour of the Rohirrim [19,+15] (+2)
+    It increases your strength, dexterity
+     and speed by 2.  It makes you completely fearless.  It provides
+    resistance to acid, electricity, fire, cold, blindness, confusion and 
+    sound.  It cannot be harmed by acid, cold, lightning or fire.  
+    It was given to you as a reward.
+g) The Soft Leather Armour 'Hithlomir' [4,+20] (+4)
+    It increases your stealth and 
+    searching by 4.  It provides resistance to acid, electricity, fire, 
+    cold and dark.  It cannot be harmed by acid, cold, lightning or fire.  
+    
+    You found it in the remains of The Philosophy Teacher on level 61 of
+    Angband.
+h) The Leather Scale Mail 'Thalkettoth' (-1) [11,+25] (+3)
+    It increases your dexterity and speed by 3.  It provides
+    resistance to acid, confusion and shards.  It cannot be harmed by
+    acid, cold, lightning or fire.  
+    You found it in the remains of Kavlax the Many-Headed on level 56 of
+    Angband.
+i) The Leather Jerkin of Hadoronwe (-64,-29) [7,+1](20%)
+    It increases your hit points by 20%.  It sustains your 
+    intelligence and dexterity.  It provides immunity to paralysis.  It
+    makes you completely fearless.  It provides resistance to nether and 
+    disenchantment.  It cannot be harmed by acid, cold, lightning or fire.
+    
+    You found it in the remains of Hagen, son of Alberich on level 38 of
+    Angband.
+j) The Cloak of Thorongil [1,+10]
+    It provides immunity to paralysis.  It makes you completely
+    fearless.  It provides resistance to acid.  It allows you to see
+    invisible monsters.  It cannot be harmed by acid, cold, lightning or
+    fire.  
+    It was given to you as a reward.
+k) The Short Sword (Offhand) of Quendon (-2,-8) [-2,+7] (-3 attacks)
+    It decreases your attack speed by 3.  
+    It sustains your strength.  It provides immunity to electricity.  It
+    makes you completely fearless.  It provides resistance to sound.  It 
+    drains experience.  It aggravates nearby creatures.  It cannot be
+    harmed by acid, cold, lightning or fire.  
+    You found it in the remains of Akhorahil the Blind on level 53 of Angband.
+l) The Jewel Encrusted Crown of Nolinen [0,+1]
+    
+    It sustains your wisdom and dexterity.  It provides immunity to
+    paralysis.  It provides resistance to light, confusion and nether.  It
+    cannot be harmed by acid, cold, lightning or fire.  
+    You found it in the remains of Barney the Dinosaur on level 54 of Angband.
+m) The Gnomish Helm 'Celemeth' [5,+4] (+5)
+    
+    It provides light (radius 1) forever.  It increases your searching and 
+    infravision by 5.  It provides immunity to paralysis.  It provides
+    resistance to electricity, blindness and chaos.  It cannot be harmed
+    by acid, cold, lightning or fire.  
+    You found it in the remains of a High priest on level 43 of Angband.
+n) The Double Axe 'Adind' (E:45, L:3) (3d6) (+22,+10) (+4)
+    It
+    must be wielded two-handed.  It increases your charisma by 4.  It does
+    extra damage from dark.  It is very sharp and can make your foes
+    bleed.  It is especially deadly against natural creatures.  It cannot
+    be harmed by acid, cold, lightning or fire.  
+    You found it in the remains of an Adventurer yeek on level 49 of Angband.
+o) The Broad Axe 'Orchast' (2d7) (+20,+14) (+4)
+    
+    It can be wielded two-handed.  It can be activated for detect orcs
+    every 10 turns if it is being worn. It increases your dexterity and 
+    searching by 4.  It is especially deadly against orcs.  It cannot be
+    harmed by acid, cold, lightning or fire.  
+    You found it in the remains of Lorgan, Chief of the Easterlings on level
+    51 of Angband.
+p) The Battle Axe of Balli Stonehand (3d8) (+8,+11) [+5] (+3)
+    It can be wielded two-handed.  It increases your 
+    strength, constitution and stealth by 3.  It is especially deadly
+    against orcs.  It is especially deadly against trolls.  It strikes at
+    demons with holy wrath.  It provides immunity to paralysis.  It
+    provides resistance to acid, electricity, fire, cold and blindness.  
+    It allows you to levitate.  It allows you to see invisible monsters.  
+    It allows you to sense the presence of non-living things.  It speeds
+    your regenerative powers.  It cannot be harmed by acid, cold,
+    lightning or fire.  
+    You found it in the remains of a High priest on level 43 of Angband.
+q) The Broad Sword 'Guthwine' (4d4) (+6,+7) (+1)
+    It
+    provides light (radius 1) forever.  It increases your ability to score
+    critical hits by 1.  It is very sharp and can make your foes bleed.  
+    It is especially deadly against orcs.  It makes you completely
+    fearless.  It provides resistance to blindness.  It allows you to
+    sense the presence of orcs.  It cannot be harmed by acid, cold,
+    lightning or fire.  
+    You found it in the remains of a Dread on level 37 of Angband.
+r) The Pike 'Til-i-arc' (3d4) (+10,+12) [+10] (+2)
+    It can
+    be wielded two-handed.  It increases your intelligence by 2.  It does
+    extra damage from fire and frost.  It is especially deadly against
+    trolls.  It is especially deadly against giants.  It strikes at demons
+    with holy wrath.  It sustains your intelligence.  It provides
+    resistance to fire and cold.  It allows you to sense the presence of 
+    giants.  It slows your metabolism.  It cannot be harmed by acid, cold,
+    lightning or fire.  
+    You found it in the remains of a Colour out of space on level 38 of
+    Angband.
+s) The Lead-Filled Mace of Hardoron (4d6) (+24,+9) (+3)
+    It can be wielded two-handed.  It increases your dexterity by 
+    3.  It does extra damage from electricity.  It produces chaotic
+    effects.  It is a great bane of dragons.  It is especially deadly
+    against trolls.  It strikes at undead with holy wrath.  It cannot be
+    harmed by acid, cold, lightning or fire.  
+    You found it in the remains of Groo, the Wanderer on level 54 of Angband.
+t) The Short Bow of Amrod (x4) (+12,+15) (+2)
+    
+    It increases your strength and constitution by 2.  It provides
+    resistance to electricity, fire and cold.  It speeds your regenerative
+    powers.  It fires missiles with extra might.  It cannot be harmed by
+    acid, cold, lightning or fire.  
+    It was given to you as a reward.
+u) The Silver Bolt of Gwath (3d5) (+8,+7) (+3)
+    It increases your intelligence and 
+    dexterity by 3.  It is especially deadly against dragons.  It fights
+    against evil with holy fury.  It has been blessed by the gods.  It
+    cannot be harmed by acid, cold, lightning or fire.  
+    You found it in the remains of an Ancient blue dragon on level 62 of
+    Angband.
+v) The Wooden Boomerang of Silion (1d8) (+25,+13)
+    It does extra damage from acid, light and dark.  It poisons
+    your foes.  It is especially deadly against trolls.  It is especially
+    deadly against giants.  It is especially deadly against natural
+    creatures.  It cannot be harmed by acid, cold, lightning or fire.  
+    You found it in the remains of Umuiyan, Doorkeeper of Tevildo on level 62
+    of Angband.
+w) The Harp of Thorin (+2 to stealth)
+    It can be activated for mass charm every 750 turns if it is
+    being worn. It grants you the power of remove fear if it is being
+    worn.  It increases your charisma, stealth, infravision, ability to
+    tunnel and luck by 2.  It sustains your charisma.  It cannot be harmed
+    by acid, cold, lightning or fire.  
+    You found it in the remains of Ulik the Troll on level 52 of Angband.
+x) The Sceptre of Numenor (-3 to speed)
+    
+    It can be activated for dispel good (level*5) every 300+d300 turns if
+    it is being worn. It can be used to store a spell.  It decreases your 
+    strength, constitution, charisma, speed and luck by 3.  It renders you
+    incorporeal.  It can re-curse itself.  It cannot be harmed by acid,
+    cold, lightning or fire.  
+    You found it in the remains of a Bloodthirster on level 52 of Angband.
+
+

@@ -211,7 +211,7 @@ void teleport_away(int m_idx, int dis)
 
 	if (p_ptr->resist_continuum)
 	{
-		msg_print("The space-time continuum can't be disrupted.");
+		msg_print("The space-time continuum cannot be disrupted.");
 		return;
 	}
 
@@ -326,7 +326,7 @@ void teleport_to_player(int m_idx)
 
 	if (p_ptr->resist_continuum)
 	{
-		msg_print("The space-time continuum can't be disrupted.");
+		msg_print("The space-time continuum cannot be disrupted.");
 		return;
 	}
 
@@ -443,7 +443,7 @@ void teleport_player(int dis)
 
 	if (p_ptr->resist_continuum && (!teleport_player_bypass))
 	{
-		msg_print("The space-time continuum can't be disrupted.");
+		msg_print("The space-time continuum cannot be disrupted.");
 		return;
 	}
 
@@ -669,7 +669,7 @@ void teleport_monster_to(int m_idx, int ny, int nx)
 
 	if (p_ptr->resist_continuum)
 	{
-		msg_print("The space-time continuum can't be disrupted.");
+		msg_print("The space-time continuum cannot be disrupted.");
 		return;
 	}
 
@@ -740,7 +740,7 @@ void teleport_player_to(int ny, int nx)
 
 	if (p_ptr->resist_continuum)
 	{
-		msg_print("The space-time continuum can't be disrupted.");
+		msg_print("The space-time continuum cannot be disrupted.");
 		return;
 	}
 
@@ -839,13 +839,13 @@ void teleport_player_level(void)
 	}
 	if (dungeon_flags2 & DF2_NO_EASY_MOVE)
 	{
-		msg_print("Some powerfull force prevents your from teleporting.");
+		msg_print("Some powerful force prevents your from teleporting.");
 		return;
 	}
 
 	if (p_ptr->resist_continuum)
 	{
-		msg_print("The space-time continuum can't be disrupted.");
+		msg_print("The space-time continuum cannot be disrupted.");
 		return;
 	}
 
@@ -1072,7 +1072,7 @@ byte spell_color(int type)
 		case GF_NETHER:
 			return (0x07);
 		case GF_CHAOS:
-		
+
 		case GF_ATTACK:
 			return (mh_attr(15));
 		case GF_DISENCHANT:
@@ -1637,7 +1637,7 @@ void take_piety_hit(int damage, cptr hit_from)
 	p_ptr->window |= (PW_PLAYER);
 
 	/* Dead player */
-	
+
 	/* Hitpoint warning */
 
 }
@@ -1673,7 +1673,7 @@ void take_food_hit(int damage, cptr hit_from)
 	p_ptr->window |= (PW_PLAYER);
 
 	/* Dead player */
-	
+
 	/* Hitpoint warning */
 
 }
@@ -1985,8 +1985,8 @@ static int inven_damage(inven_func typ, int perc)
 				}
 
 				/*
-				 * Hack -- If rods or wand are destroyed, the total maximum 
-				 * timeout or charges of the stack needs to be reduced, 
+				 * Hack -- If rods or wand are destroyed, the total maximum
+				 * timeout or charges of the stack needs to be reduced,
 				 * unless all the items are being destroyed. -LM-
 				 */
 				if ((o_ptr->tval == TV_WAND)
@@ -2132,7 +2132,7 @@ void elec_dam(int dam, cptr kb_str)
 	/* Resist the damage */
 	if (p_ptr->oppose_elec) dam = (dam + 2) / 3;
 	if (p_ptr->resist_elec) dam = (dam + 2) / 3;
-        
+
   if (p_ptr->sensible_elec) dam = (dam + 2) * 2;
 	if ((!(p_ptr->oppose_elec || p_ptr->resist_elec)) &&
 	                randint(HURT_CHANCE) == 1)
@@ -4672,9 +4672,6 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
 
 			skipped = TRUE;
 
-			
-			
-		
 			dam = 0;
 			break;
 		}
@@ -5288,7 +5285,7 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
 	case GF_TIME:
 		{
 			if (seen) obvious = TRUE;
-			if (r_ptr->flags4 & (RF4_BR_TIME)) (r_ptr->flags7 & (RF7_RES_TIME));
+			if (r_ptr->flags4 & (RF4_BR_TIME) || r_ptr->flags7 & (RF7_RES_TIME))
 			{
 				note = " resists.";
 				dam *= 3;
@@ -5366,7 +5363,7 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
 		/* Pure damage -- Not Anymore, THE FURY*/
 	case GF_MANA:
 		{
-	
+
 		if (r_ptr->flags7 & (RF7_IM_MANA))
 			{
 				dam = 0;
@@ -6414,8 +6411,8 @@ bool project_m(int who, int r, int y, int x, int dam, int typ)
 
 			/* Likes darkness... */
 			if ((r_ptr->flags4 & (RF4_BR_DARK)) ||
-			                (r_ptr->flags3 & RF3_ORC) || 
-							(r_ptr->flags7 & RF7_RES_DARK) || 
+			                (r_ptr->flags3 & RF3_ORC) ||
+							(r_ptr->flags7 & RF7_RES_DARK) ||
 			                (r_ptr->flags3 & RF3_HURT_LITE))
 			{
 				note = " resists.";
@@ -7338,7 +7335,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 		}
 	}
 
-		if ((!a_rad) && get_skill(SKILL_JEDI) && (who > 0))
+	if ((!a_rad) && get_skill(SKILL_JEDI) && (who > 0))
 	{
 		int chance = (p_ptr->dodge_chance - ((r_info[who].level * 5) / 6)) / 3;
 

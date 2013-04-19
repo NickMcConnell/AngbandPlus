@@ -356,7 +356,7 @@ endif
 # Build the binary. The new base target.
 #
 
-TARGET = tome
+TARGET = ../furyband
 TOLUA = ./tolua
 
 default: $(TARGET) $(TOLUA)

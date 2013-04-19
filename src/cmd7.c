@@ -1536,6 +1536,7 @@ int check_artifact_items(int pval, int oldpval, int mode)
 						case 8:
 							if ( !(r_info[o_ptr->pval2].flags9 & mask) ) itemgood = FALSE;
 							break;
+
 						default:
 							msg_print("This code should never be hit!");
 						}
@@ -1830,7 +1831,7 @@ void select_an_activation(void)
 
 	So - list is everything. If they select one which they're to low-level for
 	or if the explicitly request it, we'll display info about this item.
-	We'll also get our descriptions from the activation_aux(ACT_CONSTANT) 
+	We'll also get our descriptions from the activation_aux(ACT_CONSTANT)
 	function, because they are more complete, and include even lua-scripted ones.
 	msg_print("Since the code to actually let you select one isn't here");
 	msg_print("You will automatically get the activation 'Dawn'");
@@ -2486,7 +2487,7 @@ bool item_tester_hook_empower(object_type *o_ptr)
 	case TV_INSTRUMENT:
 	case TV_DIGGING:
 	case TV_LITE:
-	
+
 
 		/* Ammo */
 	case TV_SHOT:
@@ -2540,7 +2541,7 @@ bool item_tester_hook_empower(object_type *o_ptr)
 
 	/* return true if it's a 'of nothing' item;
 	 * does nothing for TV_ROD_MAIN and TV_BOOK
-	 */ 
+	 */
 	return (sval == o_ptr->sval
 
 	        /* or if it's artifactable */
@@ -3191,7 +3192,17 @@ int alchemist_recipe_select(int *tval, int sval, int ego, bool recipe)
 		if (ego)
 		{
 			/* Find matching ego items */
-			for (num = 0, i = 1; (num < 40) && (i < max_e_idx) ; i++)
+
+			char skipped = 0;
+			num = 0;
+			if (mod40 != 0)
+			{
+				strip_and_print("--MORE--", TERM_WHITE, num);
+				validc[num] = TERM_WHITE;
+				choice[num++] = -1;
+			}
+
+			for (i = 1; (num < 39) && (i < max_e_idx) ; i++)
 			{
 				int j;
 				ego_item_type *e_ptr = &e_info[i];
@@ -3201,7 +3212,7 @@ int alchemist_recipe_select(int *tval, int sval, int ego, bool recipe)
 					continue;
 
 				/* search in permitted tvals/svals for allowed egos */
-				for ( j = 0 ; j < 6 ; j ++ )
+				for ( j = 0 ; j < 10 ; j ++ )
 					if ( e_ptr->tval[j] == *tval
 					                && sval >= e_ptr->min_sval[j]
 					                && sval <= e_ptr->max_sval[j])
@@ -3215,6 +3226,9 @@ int alchemist_recipe_select(int *tval, int sval, int ego, bool recipe)
 						if (ego != -1 && e_ptr->before == e_info[ego].before)
 							continue;
 
+						if (skipped++ < mod40*39)
+							continue;
+
 						/*Color it red of the alchemist doesn't have the essences to create it*/
 						if (!alchemist_items_check(*tval, 0, i, 0, TRUE))
 							color = TERM_RED;
@@ -3225,6 +3239,13 @@ int alchemist_recipe_select(int *tval, int sval, int ego, bool recipe)
 						choice[num++] = i;
 						break;
 					}
+			}
+
+			if (num == 39)
+			{
+				strip_and_print("--MORE--", TERM_WHITE, num);
+				validc[num] = TERM_WHITE;
+				choice[num++] = -1;
 			}
 		}
 		else
@@ -3508,6 +3529,7 @@ void alchemist_gain_level(int lev)
 		        , 122/*projectile of flame*/
 		        , 123/*projectile of frost*/
 		        , 137/*Lite of fearlessness*/
+				, 384/*Fearless lite*/
 		        , 0 /*terminator*/
 		};
 		object_wipe(o_ptr);
@@ -3533,13 +3555,7 @@ void alchemist_gain_level(int lev)
 	}
 	if ( lev == 25)
 	{
-		msg_print("You recall your old master reminiscing about legendary infusings");
-		msg_print("and the Philosophers' stone");
-
-		/* No auto-learn on artifacts - by this level, you'll have *ID*'d several */
-	}
-	if ( lev == 25)
-	{
+		msg_print("You recall your old master reminiscing about legendary infusings.");
 		msg_print("You wonder about shocking daggers of slay evil");
 	}
 	if ( lev == 50)
@@ -3601,22 +3617,22 @@ void do_cmd_alchemist(void)
 
 	cptr q, s;
 
-	/* With the new skill system, we can no longer depend on
-	 * check_exp to handle the changes and learning involved in
-	 * gaining levels.
-	 * So we'll have to check for it here.
-	 */
 	alchemist_check_level();
 	askill = get_skill(SKILL_ALCHEMY);
-
-
-	q_ptr = &forge;
 
 	o_ptr = &p_ptr->inventory[INVEN_HANDS];
 	if ((o_ptr->tval != TV_GLOVES) || (o_ptr->sval != SV_SET_OF_LEATHER_GLOVES))
 	{
-		msg_print("You must wear gloves in order to do alchemy.");
-		return;
+		o_ptr = &p_ptr->inventory[INVEN_HANDS + 1];
+		if ((o_ptr->tval != TV_GLOVES) || (o_ptr->sval != SV_SET_OF_LEATHER_GLOVES))
+		{
+			o_ptr = &p_ptr->inventory[INVEN_HANDS_MAX];
+			if ((o_ptr->tval != TV_GLOVES) || (o_ptr->sval != SV_SET_OF_LEATHER_GLOVES))
+			{
+				msg_print("You must wear leather gloves for alchemy.");
+				return;
+			}
+		}
 	}
 
 	if (p_ptr->confused)
@@ -3710,6 +3726,10 @@ void do_cmd_alchemist(void)
 
 		/* Here we're not setting what kind of ego item it IS,
 		 * where' just deciding that it CAN be an ego item */
+		if ( o_ptr->name2 && o_ptr->name2b ) {
+			msg_print("This item is maximally empowered.");
+			return;
+		}
 		if ( o_ptr->name2 ) /* creating a DUAL ego */
 			ego = TRUE;
 		if ( o_ptr->tval < 40 && o_ptr->tval != TV_BOTTLE)

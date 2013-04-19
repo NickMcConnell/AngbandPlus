@@ -12,6 +12,7 @@ SKILL_NINJA = 92
 SKILL_PHASING = 93
 SKILL_MINDBLADE = 94
 SKILL_BASILISK = 101
+SKILL_HYDRA   = 103
 
 -- Create the schools
 SCHOOL_MANA = add_school
@@ -434,6 +435,16 @@ SCHOOL_BASILISK = add_school
 	
 }
 
+SCHOOL_HYDRA = add_school
+{
+	["name"] = "Hydra Powers", 
+	["skill"] = SKILL_HYDRA,
+	["spell_power"] = FALSE,
+
+	
+}
+
+
 -- The God specific schools, all tied to the prayer skill
 SCHOOL_ERU = add_school
 {
@@ -538,6 +549,7 @@ tome_dofile("s_phase.lua")
 tome_dofile("s_const.lua")
 tome_dofile("s_mblade.lua")
 tome_dofile("s_basilisk.lua")
+tome_dofile("s_hydra.lua")
 -- Gods' specific spells
 tome_dofile("s_eru.lua")
 tome_dofile("s_manwe.lua")
@@ -569,7 +581,7 @@ school_book[68] = {
 
 -- The book of the eternal flame
 school_book[1] = {
-	GLOBELIGHT, GLOBELIGHT2, FIREGOLEM, FIREFLASH, FIREWALL, FIERYAURA,
+	GLOBELIGHT, FIREGOLEM, FIREFLASH, FIREWALL, FIERYAURA, GLOBELIGHT2,
 }
 
 -- The book of the blowing winds
@@ -779,4 +791,9 @@ school_book[98] =
 school_book[95] =
 {
 	BASILISK_SLEEP_BOLT, BASILISK_STUN_BOLT, BASILISK_SLEEP_BALL, BASILISK_STUN_BALL, BASILISK_KILL_BOLT, BASILISK_KILL_BALL
+}
+
+school_book[105] =
+{
+	HYDRAFIRE, HYDRAPOISON, HYDRAFIREWALL, HYDRAPOISWALL, HYDRAFIREAURA, HYDRAPOISAURA
 }

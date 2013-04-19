@@ -1,0 +1,241 @@
+  [FuryMod Town Version 1.0.3 Character Sheet]
+
+ Name  : The fury the Spider    Age                  1       STR:      3       
+ Sex   : Male                   Height               1       INT:     29       
+ Race  : Spider Ancient         Weight               1       WIS:     25       
+ Class : Master                 Social Class         2       DEX:     13       
+ Body  : Player                                              CON:     10       
+ God   : Melkor Bauglir                                      CHR:     10       
+                                                                               
+ + To Melee Hit          16 Level             29    Max Hit Points        36   
+ + To Melee Damage       -1 Experience     51305    Cur Hit Points        -8   
+ + To Ranged Hit         16 Max Exp        51305    Max SP (Mana)        826   
+ + To Ranged Damage       0 Exp to Adv.    67500    Cur SP (Mana)        663   
+   AC                  8+56 Gold           87849    Piety               2634   
+                                                                               
+                         (Miscellaneous Abilities)                             
+ Fighting    : Good         Perception  : Fair         Blows/Round:  1         
+ Bows/Throw  : Fair         Searching   : Fair         Shots/Round:  1         
+ Saving Throw: Poor         Disarming   : Bad          Mel.dmg/Rnd:  1-13      
+ Stealth     : Superb       Magic Device: Excellent    Infra-Vision: 120 feet  
+                                                       Tactic:       normal    
+                                                       Explor:       normal    
+                         (Character Background)                                
+                                                                               
+                                                                               
+                                                                               
+                                                                               
+
+
+  [Miscellaneous information]
+
+ Joke monsters:        OFF
+ Maximize mode:        ON
+ Preserve Mode:        ON
+ Autoscum:             ON
+ Small Levels:         ALWAYS
+ Arena Levels:         ON
+ Always unusual rooms: OFF
+ Persistent Dungeons:  OFF
+
+ Recall Depth:
+        Angband: Level 28 (1400')
+
+ Your body was a Player.
+ You have defeated 923 enemies.
+ You saved 27 princesses.
+ You found none of the relic pieces.
+
+ You started your adventure the 43rd Yavie of the 2890th year of the third age.
+ You ended your adventure the 44th Yavie of the 2890th year of the third age.
+ Your adventure lasted 1 day.
+
+     Your Attributes:
+You are dead, killed by a Dunlending on level 28 of Angband.
+You are able throw a thick and very resistant spider web.
+You are poisoned.
+Your eyes are sensitive to infrared light.
+You can see invisible creatures.
+You levitate just over the ground.
+You can climb high mountains.
+You have free action.
+You can sense the presence of orcs.
+You can sense the presence of trolls.
+You can sense the presence of evil beings.
+You are lucky.
+You are surrounded with a fiery aura.
+You are carrying a permanent light.
+You are resistant to fire.
+You are resistant to bright light.
+You are resistant to darkness.
+You are resistant to confusion.
+You are resistant to sonic attacks.
+You are resistant to blasts of shards.
+You are completely fearless.
+Your eyes are resistant to blindness.
+Your dexterity is sustained.
+Your charisma is sustained.
+Your intelligence is affected by your equipment.
+Your wisdom is affected by your equipment.
+Your constitution is affected by your equipment.
+Your charisma is affected by your equipment.
+Your stealth is affected by your equipment.
+Your searching ability is affected by your equipment.
+Your digging ability is affected by your equipment.
+
+Skills (points left: 0)
+ - Combat                                        03.000 [0.400]
+          . Barehand-combat                      04.000 [0.500]
+ - Sneakiness                                    09.280 [0.900]
+          . Stealth                              03.200 [0.400]
+ - Powers                                        36.710 [1.000]
+          . Devices                              13.000 [1.000]
+          . Power                                36.600 [0.600]
+          . Mastery                              36.800 [1.200]
+          . Energy                               00.900 [0.900]
+                   . Fire                        01.000 [1.000]
+                   . Water                       01.000 [1.000]
+                   . Air                         01.000 [1.000]
+                   . Earth                       01.000 [1.000]
+          . Meta                                 01.000 [1.000]
+          . Movement                             01.000 [1.000]
+          . Knowledge                            01.000 [1.000]
+          . Temporal                             01.000 [1.000]
+          . Mind                                 01.000 [1.000]
+          . Nature                               01.000 [1.000]
+          . Udun                                 00.400 [0.400]
+          . Runecraft                            00.000 [0.900]
+          . Innate                               05.400 [0.900]
+ - Spirituality                                  05.235 [0.550]
+          . Prayer                               03.500 [0.500]
+ - Monster-lore                                  00.800 [0.800]
+          . First-aid                            01.000 [0.600]
+
+
+  [Character Equipment]
+
+e) a Ring of Confusion Resistance
+f) The Ring of Malievri [+9] (+3)
+    It increases your intelligence, 
+    constitution and charisma by 3.  It provides immunity to paralysis.  
+    It makes you completely fearless.  It provides resistance to dark, 
+    sound and shards.  It cannot be harmed by acid, cold, lightning or
+    fire.  
+    You found it in the remains of a Deep one on level 26 of Angband.
+g) a Ring of Protection [+17] {cursed}
+h) (nothing)
+i) (nothing)
+j) (nothing)
+k) The Amulet of Faramir (+18,+0) [+8] (+5)
+m) a Brass Lantern (with 6816 turns of light)
+    It
+    provides light (radius 2) when fueled.  It cannot be harmed by fire.  
+n) The Robe 'Lerumar' [2,+1]
+    
+    It sustains your dexterity and charisma.  It provides immunity to
+    paralysis.  It makes you completely fearless.  It cannot be harmed by
+    acid, cold, lightning or fire.  
+    You found it in the remains of The Blubbering idiot, agent of black
+    market, Simon the weak on level 7 of Angband.
+o) an Elven Cloak of Immolation [4,+8] (+4 to stealth)
+    It increases your stealth
+    , searching and luck by 4.  It provides resistance to fire.  It
+    produces a fiery sheath.  It cannot be harmed by acid, cold, lightning
+    or fire.  
+    It was given to you as a reward.
+p) (nothing)
+q) (nothing)
+s) The Hard Leather Cap of Thranduil [2,+10] (+2)
+    It increases your intelligence and 
+    wisdom by 2.  It provides resistance to light and blindness.  It
+    allows you to sense the presence of orcs, trolls and evil beings.  It
+    cannot be harmed by acid, cold, lightning or fire.  
+    It was given to you as a reward.
+u) (nothing)
+v) (nothing)
+x) (nothing)
+y) (nothing)
+z) (nothing)
+{) (nothing)
+|) a Pick of Digging (+5)
+
+
+  [Character Inventory]
+
+a) 3 Flasks of oil
+    
+b) a Potion of Healing
+c) 2 Scrolls of Word of Recall
+    
+d) a Scroll of Identify
+e) a Silver Rod of Nothing (100/100)
+f) a Ring of Searching (+1)
+g) The Key of Orthanc
+    It can be activated for perilous
+    identify every turn if it is being worn. It provides light (radius 1)
+    forever.  It cannot be harmed by acid, cold, lightning or fire.  
+    It was given to you as a reward.
+h) an Elven Leather Scale Mail (-1 to accuracy) [11,+9] (+3 to stealth)
+i) (nothing)
+j) (nothing)
+k) (nothing)
+l) (nothing)
+m) (nothing)
+n) (nothing)
+o) (nothing)
+p) (nothing)
+q) (nothing)
+r) (nothing)
+s) (nothing)
+t) (nothing)
+u) (nothing)
+v) (nothing)
+w) (nothing)
+
+
+  [Home Inventory - Bree ]
+
+a) an Arrow Trap Set for Evil (+12,+11) [+11] (+1)
+b) The Augmented Chain Mail of Caspanion (-2) [16,+20] (+3)
+    It can be activated for destroy doors
+    and traps every 10 turns if it is being worn. It increases your 
+    intelligence, wisdom and constitution by 3.  It makes you completely
+    fearless.  It provides resistance to acid, poison and confusion.  It
+    cannot be harmed by acid, cold, lightning or fire.  
+    It was given to you as a reward.
+c) a Double Chain Mail of the Maiar (-2 to accuracy) [16,+19]
+    It grants you the power of berserk if
+    it is being worn.  It provides immunity to paralysis.  It makes you
+    completely fearless.  It provides resistance to acid, electricity, 
+    fire, cold and confusion.  It allows you to sense the presence of 
+    trolls, giants and evil beings.  It has been blessed by the gods.  It
+    cannot be harmed by acid, cold, lightning or fire.  
+    You found it in the remains of Angamaite of Umbar on level 25 of Angband.
+d) The Cloak of Thorongil [1,+10]
+    
+    It provides immunity to paralysis.  It makes you completely fearless.  
+    It provides resistance to acid.  It allows you to see invisible
+    monsters.  It cannot be harmed by acid, cold, lightning or fire.  
+    It was given to you as a reward.
+e) an Ethereal Feathered Cloak of Protection [1,+26]
+    It can be activated for wraith-form
+    every 50+d50 turns if it is being worn. It provides immunity to
+    paralysis.  It provides resistance to life draining and shards.  It
+    allows you to see invisible monsters.  It cannot be harmed by acid,
+    cold, lightning or fire.  
+    It was given to you as a reward.
+f) The Iron Helm 'Holhenneth' [5,+10] (+2)
+    It can be activated for detection
+    every 55+d55 turns if it is being worn. It increases your intelligence
+    , wisdom and searching by 2.  It provides resistance to blindness.  It
+    allows you to see invisible monsters.  It cannot be harmed by acid,
+    cold, lightning or fire.  
+    It was given to you as a reward.
+g) a Gnomish Helm of the Noldor [5,+11] (+6)
+    It can be activated for detect
+    treasure every 10+d20 turns if it is being worn. It increases your 
+    dexterity, searching and infravision by 6.  It sustains your dexterity
+    .  It allows you to sense the presence of orcs.  
+    It was given to you as a reward.
+
+

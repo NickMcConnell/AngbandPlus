@@ -348,7 +348,7 @@ C:D:0:As deadly with a bow as a warrior is with a sword.
 C:D:1:Rock Thrower
 C:D:1:Slinger
 C:D:1:Great Slinger
-C:D:1:Tosser
+C:D:1:Novice Bowman
 C:D:1:Bowman
 C:D:1:Great Bowman
 C:D:1:Great Bowman
@@ -1040,7 +1040,10 @@ C:F:SUST_CON
 C:F:SUST_DEX
 C:F:REGEN
 C:F:SPEED
+C:F:AGGRAVATE
+C:R:20:1
 C:F:AUTO_ID
+C:Z:Berserker's Recall
 C:R:40:1
 C:F:SPEED
 C:F:REFLECT
@@ -1048,7 +1051,6 @@ C:R:45:1
 C:F:SPEED
 C:R:50:1
 C:F:SPEED
-C:Z:Berserker's Recall
 C:E:0:0:0:0:0:0:0
 C:O:37:6:1d1
 C:O:21:8:1d1
@@ -1065,6 +1067,7 @@ C:k:=0:=0:Devices
 C:k:=0:=0:Prayer
 C:k:=0:=0:Monster-lore
 C:k:+1000:+750:Antimagic
+C:k:+0:+500:Stunning-blows
 C:Z:berserk
 C:b:1:Extra Max Blow(1)
 C:b:1:Extra Max Blow(2)
@@ -1118,7 +1121,6 @@ C:D:1:Guardian
 C:D:1:Consular
 C:D:1:Master
 C:D:1:Lord
-C:g:All Gods
 C:S:6:2:2:2:0:-4:2:3
 C:K:10:10:0:1:10:10:10:10
 C:X:12:7:10:0:0:0:45:45
@@ -1128,7 +1130,6 @@ C:E:0:0:0:0:0:0:0
 C:R:1:0
 C:O:45:38:1d1
 C:O:36:78:1d1
-C:O:23:55:1d1
 C:k:=0:=0:Antimagic
 C:k:+1000:+600:Archery
 C:k:=0:=0:Axe-mastery
@@ -1147,6 +1148,7 @@ C:k:+1000:+1000:Jedi
 C:k:+0:+1000:Light
 C:k:+0:+1000:Dark
 C:k:+1000:+1000:Jedi-Dodge
+C:k:=0:=0:Prayer
 C:b:25:Spread blows
 C:b:1:Extra Max Blow(1)
 C:b:1:Extra Max Blow(2)
@@ -1157,9 +1159,9 @@ C:R:10:1
 C:F:ESP_UNIQUE | 
 C:R:15:1
 C:F:ESP_ALL
-C:R:20:1
+C:R:30:1
 C:F:AUTO_ID
-C:R:25:1
+C:R:45:1
 C:F:PRECOGNITION
 
 C:a:N:Jedi
@@ -1183,7 +1185,7 @@ C:X:12:7:10:0:0:0:45:45
 C:P:-5:0
 C:B:4:30:5
 C:E:0:0:0:0:0:0
-C:R:25:0
+C:R:15:0
 C:F:WRAITH
 C:R:30:0
 C:F:RES_FEAR
@@ -1537,7 +1539,7 @@ R:S:-2:2:1:3:2:1:5
 R:K:15:18:18:5:12:15:-10:20
 R:P:7:110:4:10
 R:M:21:12:36:3:60:3:33:3:50:3
-R:E:1:1:1:2:1:0:1
+R:E:1:1:1:2:1:1:1
 R:C:Archer | Loremaster | Mage | Rogue | Warrior | Pacifist | BeastMaster
 R:R:1:0
 R:F:SUST_DEX
@@ -2059,7 +2061,7 @@ R:k:+1000:+000:Disarming
 R:k:+500:+000:Devices
 R:k:-1000:+000:Spirituality
 R:k:-10000:+000:Stealth
-R:k:+000:+000:Sneakiness
+R:k:+000:-200:Sneakiness
 R:k:+1000:+200:Powers
 
 R:N:25:Easterling
@@ -2079,6 +2081,7 @@ R:R:15:0
 R:F:RES_CONF
 R:k:+1000:+100:Combat
 R:k:+500:+100:Weaponmastery
+R:k:+1000:+500:Antimagic
 R:k:+0:+200:Sword-mastery
 R:k:+0:+200:Axe-mastery
 R:k:+0:+200:Hafted-mastery
@@ -2266,8 +2269,9 @@ R:k:+000:+000:Sneakiness
 R:k:+000:+000:Weaponmastery
 R:k:+000:+000:Archery
 
+
 I:
-S:N:0: 
+S:N:0:Classical
 S:D:A:A normal member of the race.
 S:S:0:0:0:0:0:0:0:100
 S:K:0:0:0:0:0:0:0:0
@@ -2276,7 +2280,7 @@ S:M:0:0:0:0:0:0:0:0:0:0
 S:E:0:0:0:0:0:0:0
 S:A:Beorning | Dark-Elf | DeathMold | Dunadan | Dwarf | Elf | Ent | Gnome | Half-Elf | Mindflayer
 S:A:Half-Ogre | High-Elf | Hobbit | Human | Kobold | Maia | Orc | Petty-Dwarf | RohanKnight |
-S:A:Thunderlord | Troll | Wood-Elf | Yeek | Eagle | Druadan | Easterling |  | Golem | Ent-wife |
+S:A:Thunderlord | Troll | Wood-Elf | Yeek | Eagle | Druadan | Easterling | Golem | Ent-wife |
 
 S:N:1:Vampire
 S:D:B:Vampires are powerful undead, wielding great powers they still fear the
@@ -2408,6 +2412,19 @@ S:k:+400:+000:Sneakiness
 S:k:-500:+000:Weaponmastery
 S:k:-500:+000:Archery
 
+S:N:8:LostSoul
+S:D:A:In some very rare occasions souls can come back from the Halls of Mandos.
+S:G:ASTRAL | NO_SUBRACE_CHANGE
+S:S:0:0:0:0:0:0:0:100
+S:K:0:0:0:0:0:0:0:0
+S:P:0:0:0
+S:M:0:0:0:0:0:0:0:0:0:0
+S:E:0:0:0:0:0:0:0
+S:A:Beorning | Dark-Elf | DeathMold | Dunadan | Dwarf | Elf | Ent | Gnome | Half-Elf | Half-Ogre | High-Elf | Hobbit | Human | Kobold | Maia | Orc | Petty-Dwarf | RohanKnight | Thunderlord | Troll | Wood-Elf | Yeek |  | Mindflayer
+S:R:1:0
+S:F:SEE_INVIS
+S:O:70:32:25d2
+S:O:70:12:25d3
 
 S:N:9:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 S:D:A:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
@@ -2936,10 +2953,11 @@ S:S:4:1:0:1:0:-6:0:60
 S:K:0:0:0:-5:0:0:5:-5
 S:P:5:50:0
 S:M:0:0:0:0:0:0:0:0:0:0
-S:E:1:0:1:0:1:0:0
+S:E:1:0:1:2:1:0:0
 S:C:A:Warrior
 S:C:F:Mage
-S:R:1:0
+S:R:1:-2
+S:F:SPEED
 S:A:Human | Half-Elf | Elf | Hobbit | Gnome | Dwarf | Mindflayer
 S:A:Orc | Troll | Dunadan | High-Elf | Half-Ogre | Beorning | 
 S:A:Druadan | Petty-Dwarf | Dark-Elf | Ent | RohanKnight | 
@@ -3422,7 +3440,7 @@ S:S:0:1:2:0:0:-2:0:115
 S:K:0:0:1:1:5:2:0:0
 S:P:0:20:3
 S:M:0:0:0:0:0:0:0:0:0:0
-S:E:0:0:0:0:+1:0:0
+S:E:0:0:0:0:1:0:0
 S:A:Dragon
 S:C:F:Archer | Warrior
 S:G:NO_SUBRACE_CHANGE
@@ -3451,7 +3469,7 @@ S:S:6:1:2:0:0:-2:0:115
 S:K:0:0:1:1:5:2:0:0
 S:P:0:20:3
 S:M:0:0:0:0:0:0:0:0:0:0
-S:E:0:1:0:1:+2:+2:0
+S:E:0:1:0:1:2:2:0
 S:A:Monster
 S:C:F:Archer | Warrior
 S:G:NO_SUBRACE_CHANGE
@@ -3473,7 +3491,7 @@ S:R:50:1
 S:F:WIS | SEARCH | INT | ESP_GOOD
 S:k:+0:+1000:Mindcraft
 S:k:+0:+1000:Knowledge
-S:k:+2000:+1000:Barehand-combat
+S:k:+2000:+1000:Hydra-combat
 S:Z:fire breath
 S:Z:breath poison
 
@@ -3483,10 +3501,10 @@ S:S:2:-1:4:-3:-2:-2:0:130
 S:K:0:0:1:1:5:2:0:0
 S:P:1:20:3
 S:M:0:0:0:0:0:0:0:0:0:0
-S:E:2:1:1:4:1:0:0
+S:E:1:1:1:4:2:0:0
 S:A:Monster
 S:C:F:Archer | Mage | Jedi 
-S:R:1:-4
+S:R:1:-2
 S:F:SUST_WIS | SPEED | RES_POIS
 S:R:5:1
 S:F:RES_ACID
@@ -3558,14 +3576,15 @@ S:F:IM_ACID
 S:k:+1000:+500:Combat
 S:k:+1000:+250:Weaponmastery
 S:k:+1000:+250:Hafted-mastery
+S:k:+1000:+500:Boulder-throwing
 
 S:N:55:Ettin
-S:D:B:A hideous, beastly, 2 headed, four-armed monster
+S:D:B:A hideous, beastly, 2 headed monster
 S:S:6:-6:-6:-4:4:-6:0:0
 S:K:0:0:1:1:5:2:0:0
 S:P:5:20:3
 S:M:0:0:0:0:0:0:0:0:0:0
-S:E:2:1:2:4:2:1:0
+S:E:1:1:2:4:2:1:0
 S:A:Monster
 S:C:F:Archer | Jedi | Mage
 S:R:1:0
@@ -3667,7 +3686,7 @@ S:k:+1000:+1000:Innate
 
 S:N:58:Nightwalker
 S:D:B:A huge giant garbed in black, more massive than a titan and stronger than a dragon
-S:S:4:2:2:2:4:-6:0:125
+S:S:4:4:4:2:4:-6:0:125
 S:K:0:0:1:1:5:2:0:0
 S:P:4:20:3
 S:M:0:0:0:0:0:0:0:0:0:0

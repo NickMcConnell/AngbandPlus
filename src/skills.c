@@ -609,7 +609,8 @@ s16b melee_skills[MAX_MELEE] =
 	SKILL_BEAR,
 	SKILL_DRAGON,
 	SKILL_SPIDER,
-	SKILL_BASILISK
+	SKILL_BASILISK,
+	SKILL_HYDRA
 };
 char *melee_names[MAX_MELEE] =
 {
@@ -619,6 +620,7 @@ char *melee_names[MAX_MELEE] =
 	"Dragon Combat",
 	"Spider Combat",
 	"Basilisk Combat",
+	"Hydra Combat",
 };
 static bool melee_bool[MAX_MELEE];
 static int melee_num[MAX_MELEE];

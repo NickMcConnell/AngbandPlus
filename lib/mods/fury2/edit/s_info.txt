@@ -356,9 +356,8 @@ G:0
 N:89:Jedi
 D:Ability to understand the raw force of the universe
 A:891:Use Jedi Powers
-
 G:0
-F:RANDOM_GAIN
+
 
 N:90:Dark
 D:Ability to use Dark Side Powers
@@ -393,11 +392,11 @@ D:Ability to fight like a dragon
 G:70
 
 N:100:Spider-combat
-D:Ability to fight like a spider, and use spider powers
+D:Ability to fight like a spider
 G:70
 
 N:101:Basilisk-combat
-D:Ability to fight like a spider, and use spider powers
+D:Ability to fight like a basilisk, and use spider powers
 G:70
 A:131:Basilisk Powers
 
@@ -406,7 +405,10 @@ D:Ability to dodge
 G:70
 A:16:Check dodge chance
 
-
+N:103:Hydra-combat
+D:Ability to fight like a hydra, and use hydra powers
+G:70
+A:132:Hydra Powers
 
 
 E:Movement:Antimagic
@@ -440,6 +442,7 @@ f:Jedi:Powers%10
 
 f:Dark:Jedi%10
 f:Light:Jedi%10
+f:Jedi-Dodge:Jedi%10
 
 f:Symbiosis:Monster-lore%10
 
@@ -579,6 +582,7 @@ f:Barehand-combat:Combat%50
 f:Dragon-combat:Combat%50
 f:Spider-combat:Combat%50
 f:Basilisk-combat:Combat%50
+f:Hydra-combat:Combat%50
 E:Innate:Antimagic
 
 f:Innate:Powers%6
@@ -590,7 +594,7 @@ f:Summoning:Monster-lore%10
 
 f:Power:Powers%20
 
-
+E:Jedi-Dodge:Dodging
 f:Dodging:Sneakiness%10
 
 
@@ -656,6 +660,7 @@ T:Combat:Archery
 T:Combat:Barehand-combat
 T:Combat:Dragon-combat
 T:Combat:Spider-combat
+T:Combat:Hydra-combat
 T:Combat:Basilisk-combat
 T:Combat:Bearform-combat
 T:Combat:Boulder-throwing

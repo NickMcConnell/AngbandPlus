@@ -117,12 +117,12 @@ static void roff_aux(int r_idx, int ego, int remem)
 	bool breath = FALSE;
 	bool magic = FALSE;
 
-	u32b	flags1;
-	u32b	flags2;
-	u32b	flags3;
-	u32b	flags4;
-	u32b	flags5;
-	u32b	flags6;
+	u32b flags1;
+	u32b flags2;
+	u32b flags3;
+	u32b flags4;
+	u32b flags5;
+	u32b flags6;
 	u32b flags7;
 	u32b flags8;
 	u32b flags9;
@@ -255,12 +255,12 @@ static void roff_aux(int r_idx, int ego, int remem)
 		if (r_ptr->flags3 & (RF3_ANIMAL)) flags3 |= (RF3_ANIMAL);
 		if (r_ptr->flags3 & (RF3_THUNDERLORD)) flags3 |= (RF3_THUNDERLORD);
 		if (r_ptr->flags7 & (RF7_SPIDER)) flags7 |= (RF7_SPIDER);
-			if (r_ptr->flags7 & (RF7_STARWARS)) flags7 |= (RF7_STARWARS);
-				if (r_ptr->flags7 & (RF7_NORSE)) flags7 |= (RF7_NORSE);
-					if (r_ptr->flags8 & (RF8_GERBIL)) flags8 |= (RF8_GERBIL);
-			if (r_ptr->flags8 & (RF8_XEN)) flags8 |= (RF8_XEN);
-				if (r_ptr->flags8 & (RF8_RACEX)) flags8 |= (RF8_RACEX);
-					if (r_ptr->flags8 & (RF8_COMBINE)) flags8 |= (RF8_COMBINE);
+		if (r_ptr->flags7 & (RF7_STARWARS)) flags7 |= (RF7_STARWARS);
+		if (r_ptr->flags7 & (RF7_NORSE)) flags7 |= (RF7_NORSE);
+		if (r_ptr->flags8 & (RF8_GERBIL)) flags8 |= (RF8_GERBIL);
+		if (r_ptr->flags8 & (RF8_XEN)) flags8 |= (RF8_XEN);
+		if (r_ptr->flags8 & (RF8_RACEX)) flags8 |= (RF8_RACEX);
+		if (r_ptr->flags8 & (RF8_COMBINE)) flags8 |= (RF8_COMBINE);
 
 		/* Know "forced" flags */
 		if (r_ptr->flags1 & (RF1_FORCE_DEPTH)) flags1 |= (RF1_FORCE_DEPTH);
@@ -621,7 +621,7 @@ static void roff_aux(int r_idx, int ego, int remem)
 		else if (flags8 & (RF8_GERBIL)) text_out_c(TERM_VIOLET, " Gerbil");
 		else if (flags8 & (RF8_RACEX)) text_out_c(TERM_VIOLET, " Race X creature");
 		else if (flags8 & (RF8_XEN)) text_out_c(TERM_VIOLET, " Xen creature");
-			else if (flags8 & (RF8_COMBINE)) text_out_c(TERM_VIOLET, " Combine creature");
+		else if (flags8 & (RF8_COMBINE)) text_out_c(TERM_VIOLET, " Combine creature");
 		else text_out(" creature");
 
 		/* Group some variables */
@@ -634,8 +634,7 @@ static void roff_aux(int r_idx, int ego, int remem)
 
 			/* calculate the fractional exp part scaled by 100, */
 			/* must use long arithmetic to avoid overflow  */
-			j = ((((long)r_ptr->mexp * r_ptr->level % p_ptr->lev) *
-			      (long)1000 / p_ptr->lev + 5) / 10);
+			j = ((((long)r_ptr->mexp * r_ptr->level % p_ptr->lev) *	(long)1000 / p_ptr->lev + 5) / 10);
 
 			/* Mention the experience */
 			text_out(" is worth ");
@@ -662,22 +661,74 @@ static void roff_aux(int r_idx, int ego, int remem)
 		}
 	}
 
-	if ((flags2 & (RF2_AURA_FIRE)) && (flags2 & (RF2_AURA_ELEC)))
+	vn = 0;
+	if (flags8 & (RF8_AURA_FIRE))
 	{
-		text_out(format("%^s is surrounded by ", wd_he[msex]));
-		text_out_c(TERM_VIOLET, "flames and electricity");
-		text_out(".  ");
+		vp[vn] = "fire";
+		color[vn++] = TERM_RED;
 	}
-	else if (flags2 & (RF2_AURA_FIRE))
+	if (flags8 & (RF8_AURA_ELEC))
 	{
-		text_out(format("%^s is surrounded by ", wd_he[msex]));
-		text_out_c(TERM_ORANGE, "flames");
-		text_out(".  ");
+		vp[vn] = "electricity";
+		color[vn++] = TERM_L_BLUE;
 	}
-	else if (flags2 & (RF2_AURA_ELEC))
+	if (flags8 & (RF8_AURA_COLD))
 	{
-		text_out(format("%^s is surrounded by ", wd_he[msex]));
-		text_out_c(TERM_L_BLUE, "electricity");
+		vp[vn] = "frost";
+		color[vn++] = TERM_L_WHITE;
+	}
+	if (flags8 & (RF8_AURA_ACID))
+	{
+		vp[vn] = "acidic vapor";
+		color[vn++] = TERM_GREEN;
+	}
+	if (flags8 & (RF8_AURA_POIS))
+	{
+		vp[vn] = "poisonous gas";
+		color[vn++] = TERM_L_GREEN;
+	}
+	if ((flags8 & (RF8_AURA_DARK)) && (flags8 & (RF8_AURA_LITE)))
+	{
+			vp[vn] = "erratic lights";
+			color[vn++] = TERM_SLATE;
+	}
+	else
+	{
+		if (flags8 & (RF8_AURA_DARK))
+		{
+			vp[vn] = "darkness";
+			color[vn++] = TERM_L_DARK;
+		}
+		if (flags8 & (RF8_AURA_LITE))
+		{
+			vp[vn] = "light";
+			color[vn++] = TERM_YELLOW;
+		}
+	}
+	if ((flags8 & (RF8_AURA_CHAOS)) || (flags8 & (RF8_AURA_NORSE_CHAOS)))
+	{
+		vp[vn] = "chaos";
+		color[vn++] = TERM_VIOLET;
+	}
+
+	if (vn)
+	{
+		/* Intro */
+		text_out(format("%^s", wd_he[msex]));
+
+		/* Scan */
+		for (n = 0; n < vn; n++)
+		{
+			/* Intro */
+			if (n == 0) text_out(" is surrounded by ");
+			else if (n < vn - 1) text_out(", ");
+			else text_out(" and ");
+
+			/* Dump */
+			text_out_c(color[n], vp[n]);
+		}
+
+		/* End */
 		text_out(".  ");
 	}
 
@@ -687,7 +738,6 @@ static void roff_aux(int r_idx, int ego, int remem)
 		text_out_c(TERM_L_UMBER, "reflects");
 		text_out(" bolt spells.  ");
 	}
-
 
 	/* Describe escorts */
 	if ((flags1 & (RF1_ESCORT)) || (flags1 & (RF1_ESCORTS)))
@@ -1106,7 +1156,7 @@ static void roff_aux(int r_idx, int ego, int remem)
 		vp[vn++] = "poison";
 		color[vn - 1] = TERM_L_GREEN;
 	}
-		if (flags7 & (RF7_IM_MANA))
+	if (flags7 & (RF7_IM_MANA))
 	{
 		vp[vn++] = "mana";
 		color[vn - 1] = TERM_YELLOW;
@@ -1911,7 +1961,7 @@ bool monster_shallow_water(int r_idx)
 
 	if (!monster_dungeon(r_idx)) return FALSE;
 
-	if (r_ptr->flags2 & RF2_AURA_FIRE)
+	if (r_ptr->flags8 & RF8_AURA_FIRE)
 		return FALSE;
 	else
 		return TRUE;
@@ -1926,7 +1976,7 @@ bool monster_lava(int r_idx)
 
 	if (((r_ptr->flags3 & RF3_IM_FIRE) ||
 	                (r_ptr->flags7 & RF7_CAN_FLY)) &&
-	                !(r_ptr->flags3 & RF3_AURA_COLD))
+	                !(r_ptr->flags8 & RF8_AURA_COLD))
 		return TRUE;
 	else
 		return FALSE;
@@ -1994,7 +2044,7 @@ bool monster_can_cross_terrain(byte feat, monster_race *r_ptr)
 	/* Shallow water */
 	else if (feat == FEAT_SHAL_WATER)
 	{
-		if (r_ptr->flags2 & RF2_AURA_FIRE)
+		if (r_ptr->flags8 & RF8_AURA_FIRE)
 			return FALSE;
 		else
 			return TRUE;

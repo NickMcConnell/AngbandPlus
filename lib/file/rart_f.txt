@@ -34,7 +34,7 @@ The Tome of Chaos
 The Dagger ``Thanc''
 The Tome of Elven Household Magic
 a Piece of the Mage Staff of Olorin
-a Parchment titled ``Magic for the Layman''
+a Parchment ``Magic for the Layman''
 The Shopping Bag of Gaffer Gamgee
 The Bag of Magic Toys
 The Skull of Ancient Wisdom
@@ -55,23 +55,23 @@ The Blood of Death
 Darkgod's Doll of the Player
 The Skeleton of Nob
 The Magical Honey Jar
-a Parchment titled ``Concerning Hobbits''
-a Parchment titled ``On Beren and Luthien''
+a Parchment ``Concerning Hobbits''
+a Parchment ``On Beren and Luthien''
 The Fifteenth Eye of Sauron
 The Sixteenth Eye of Sauron
 The Seventeenth Eye of Sauron
 The Crystal Ball of The Witch-King of Angmar
-a Parchment titled ``Secrets of the Gnomish Wizards''
+a Parchment ``Secrets of the Gnomish Wizards''
 The Medallion of Good Will
 The Immortal Skull of Telepathy
 The Ultimate Slime Mold
 Saruman's Big Book of Brutality
 The Shopping List of Barliman
-a Parchment titled ''There And Back Again''
+a Parchment ``There And Back Again''
 The Portable Soldier
 The Torch of Isengard
 One Rune to Rule them All
-a Parchment titled ''Famous Last Words''
+a Parchment ``Famous Last Words''
 The Fire of Orthanc
 Radagast's Compendium of Strange Behaviour
 The Antique Acorn of Watchfulness
@@ -79,7 +79,7 @@ The Horn of Ages
 Gandalf's Portable Pandemonium
 The Perfect Symbiote
 Curunir's Book of Impossible Occurences
-a Parchment titled ''Of the Kinslaying Wars''
+a Parchment ``Of the Kinslaying Wars''
 The Altruistic Assassin
 The Pipe of Buckland
 The True Totem of an Ostrich

@@ -278,7 +278,7 @@ static bool between_effect(void)
 
 		if (p_ptr->resist_continuum)
 		{
-			msg_print("The space-time continuum can't be disrupted.");
+			msg_print("The space-time continuum cannot be disrupted.");
 			return (TRUE);
 		}
 
@@ -2980,6 +2980,12 @@ int breakage_chance(object_type *o_ptr)
 	        1 + ((get_skill(SKILL_ARCHERY)) ? (get_skill_scale(SKILL_ARCHERY, 10)) : 0);
 
 	/* Examine the item type */
+
+	u32b f1, f2, f3, f4, f5, esp;
+	object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
+
+	if (esp & ESP_UNBREAKABLE) return 0;
+
 	switch (o_ptr->tval)
 	{
 		/* Always break */
@@ -2990,7 +2996,7 @@ int breakage_chance(object_type *o_ptr)
 	case TV_FOOD:
 	case TV_BULLET:
 	case TV_RBULLET:
-	
+
 		{
 			return (100);
 		}
@@ -3467,14 +3473,14 @@ void do_cmd_fire(void)
 					/* Complex message */
 					if (wizard)
 					{
-						msg_format("You do %d (out of %d) damage.",
+						msg_format("You do %d damage (%d life left).",
 						           tdam, m_ptr->hp);
 					}
 
 					/* Hit the monster, check for death */
 					if (mon_take_hit(c_ptr->m_idx, tdam, &fear, note_dies))
 					{
-						/* Dead monster */
+
 					}
 
 					/* No death */
@@ -4219,14 +4225,25 @@ void do_cmd_boomerang(void)
 				/* Complex message */
 				if (wizard)
 				{
-					msg_format("You do %d (out of %d) damage.",
+					msg_format("You do %d damage (%d left).",
 					           tdam, m_ptr->hp);
 				}
 
 				/* Hit the monster, check for death */
 				if (mon_take_hit(c_ptr->m_idx, tdam, &fear, note_dies))
 				{
-					/* Dead monster */
+						u32b f1, f2, f3, f4, f5, esp, div, new_exp;
+
+						object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
+
+						if (f4 & TR4_LEVELS)
+						{
+							div = p_ptr->max_plv;
+							new_exp = ((long)r_ptr->mexp * r_ptr->level) / (div * 2);
+							o_ptr->exp += new_exp;
+							check_experience_obj(o_ptr);
+						}
+
 				}
 
 				/* No death */

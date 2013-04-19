@@ -1595,7 +1595,7 @@ void sanity_blast(monster_type * m_ptr, bool necro)
 		}
 
 		/* Undead characters are 50% likely to be unaffected */
-		if ((PRACE_FLAG(PR1_UNDEAD)) || (p_ptr->mimic_form == resolve_mimic_name("Vampire")))
+		if ((PRACE_FLAG(PR1_UNDEAD)) || (PRACE_FLAG(PR1_VAMPIRE)) || (p_ptr->mimic_form == resolve_mimic_name("Vampire")))
 		{
 			if (randint(100) < (25 + (p_ptr->lev))) return;
 		}
@@ -1604,6 +1604,7 @@ void sanity_blast(monster_type * m_ptr, bool necro)
 	{
 		msg_print("Your sanity is shaken by reading the Necronomicon!");
 	}
+
 	if (randint(power) < p_ptr->skill_sav) /* Mind blast */
 	{
 		if (!p_ptr->resist_conf)
@@ -2630,7 +2631,9 @@ s16b place_monster_one(int y, int x, int r_idx, int ego, bool slp, int status)
 	/* Need to match dungeon level ? */
 	base = dun_level;
 	if (dungeon_flags2 & DF2_ADJUST_LEVEL_PLAYER)
-		base = p_ptr->lev * 2;
+	//	base = p_ptr->lev * 2;
+		min_level = max_level = p_ptr->lev * 2;
+		add_level = TRUE;
 
 	if (dungeon_flags2 & DF2_ADJUST_LEVEL_1_2)
 	{

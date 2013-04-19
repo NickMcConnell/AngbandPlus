@@ -1,7 +1,7 @@
 add_module
 {
 	["name"]    = "FuryBand T",
-	["version"] = { 4, 0, 0 },
+	["version"] = { 5, 0, 1 },
 	["author"]  = { "The Fury", "thefurry@hvc.rr.com" },
 	["desc"] = {
 		"The alternate mode of FuryMod, one town, one dungeon",
@@ -24,7 +24,6 @@ add_module
 	["max_plev"] = 75,
 	["max_skill_overage"] = 7,
 	
-
 	["mod_savefiles"]=
 	{
 		"FuryBand T",

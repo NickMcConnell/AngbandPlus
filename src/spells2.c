@@ -807,7 +807,7 @@ void self_knowledge(FILE *fff)
 			info[i++] = "You can move monsters.";
 		/* Not implemented */
 #if 0
-		/* They are disabled, because the r_info.txt array has to
+		/* They are disabled, because the r_info.txt array has too
 		 * few RF2_TAKE_ITEM flags... */
 		if (r_ptr->flags2 & RF2_TAKE_ITEM)
 			info[i++] = "You can pick up items.";
@@ -842,8 +842,22 @@ void self_knowledge(FILE *fff)
 			info[i++] = "You are inherently evil.";
 		else if (r_ptr->flags3 & RF3_GOOD)
 			info[i++] = "You are inherently good.";
-		if (r_ptr->flags3 & RF3_AURA_COLD)
+
+		if (r_ptr->flags8 & RF8_AURA_COLD)
 			info[i++] = "You are surrounded by a chilly aura.";
+		if (r_ptr->flags8 & RF8_AURA_ACID)
+			info[i++] = "You are surrounded by an acidic vapor.";
+		if (r_ptr->flags8 & RF8_AURA_FIRE)
+			info[i++] = "You are surrounded by flames.";
+		if (r_ptr->flags8 & RF8_AURA_ELEC)
+			info[i++] = "You are surrounded by electricity.";
+		if (r_ptr->flags8 & RF8_AURA_DARK)
+			info[i++] = "You are surrounded by darkness.";
+		if (r_ptr->flags8 & RF8_AURA_LITE)
+			info[i++] = "You are surrounded by light.";
+		if ((r_ptr->flags8 & RF8_AURA_CHAOS) || (r_ptr->flags8 & RF8_AURA_NORSE_CHAOS))
+			info[i++] = "You are surrounded by chaos.";
+
 		/* Not implemented */
 		if (r_ptr->flags3 & RF3_NONLIVING)
 			info[i++] = "You are not living.";
@@ -1033,7 +1047,7 @@ void self_knowledge(FILE *fff)
 		if (r_ptr->flags6 & RF6_S_THUNDERLORD)
 			info[i++] = "You can magically summon some Thunderlords.";
 		if (r_ptr->flags6 & RF6_S_KIN)
-			info[i++] = "You can magically summon some Kins.";
+			info[i++] = "You can magically summon kin.";
 		if (r_ptr->flags6 & RF6_S_HI_DEMON)
 			info[i++] = "You can magically summon greater Maiar.";
 		if (r_ptr->flags6 & RF6_S_MONSTER)
@@ -1048,7 +1062,7 @@ void self_knowledge(FILE *fff)
 			info[i++] = "You can magically summon hounds.";
 		if (r_ptr->flags6 & RF6_S_HYDRA)
 			info[i++] = "You can magically summon hydras.";
-	
+
 		if (r_ptr->flags6 & RF6_S_ANGEL)
 			info[i++] = "You can magically summon an angel.";
 		if (r_ptr->flags6 & RF6_S_DEMON)
@@ -2940,8 +2954,11 @@ bool item_tester_hook_armour(object_type *o_ptr)
 		{
 			switch (o_ptr->sval)
 			{
-			case SV_DEMONHORN:
-			case SV_DEMONSHIELD:
+			case SV_DEMONBLADE:
+				{
+					return (FALSE);
+				}
+			default:
 				{
 					return (TRUE);
 				}
@@ -4553,9 +4570,9 @@ bool item_tester_hook_recharge(object_type *o_ptr)
  * Scroll of recharging --> recharge(130)
  * Scroll of *recharging* --> recharge(200)
  *
- * It is harder to recharge high level, and highly charged wands, 
- * staffs, and rods.  The more wands in a stack, the more easily and 
- * strongly they recharge.  Staffs, however, each get fewer charges if 
+ * It is harder to recharge high level, and highly charged wands,
+ * staffs, and rods.  The more wands in a stack, the more easily and
+ * strongly they recharge.  Staffs, however, each get fewer charges if
  * stacked.
  *
  * XXX XXX XXX Beware of "sliding index errors".
@@ -6554,7 +6571,7 @@ void teleport_swap(int dir)
 
 	if (p_ptr->resist_continuum)
 	{
-		msg_print("The space-time continuum can't be disrupted.");
+		msg_print("The space-time continuum cannot be disrupted.");
 		return;
 	}
 
@@ -6661,7 +6678,7 @@ void swap_position(int lty, int ltx)
 
 	if (p_ptr->resist_continuum)
 	{
-		msg_print("The space-time continuum can't be disrupted.");
+		msg_print("The space-time continuum cannot be disrupted.");
 		return;
 	}
 
@@ -6985,7 +7002,7 @@ bool teleport_monster(int dir)
 
 	if (p_ptr->resist_continuum)
 	{
-		msg_print("The space-time continuum can't be disrupted.");
+		msg_print("The space-time continuum cannot be disrupted.");
 		return FALSE;
 	}
 

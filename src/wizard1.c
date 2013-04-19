@@ -1515,7 +1515,7 @@ static void spoil_mon_info(cptr fname)
 	bool breath, magic, sin;
 	cptr p, q;
 	cptr vp[64];
-	u32b flags1, flags2, flags3, flags4, flags5, flags6, flags7, flags9;
+	u32b flags1, flags2, flags3, flags4, flags5, flags6, flags7, flags8, flags9;
 
 
 	/* Build the filename */
@@ -1556,6 +1556,7 @@ static void spoil_mon_info(cptr fname)
 		flags5 = r_ptr->flags5;
 		flags6 = r_ptr->flags6;
 		flags7 = r_ptr->flags7;
+		flags8 = r_ptr->flags8;
 		flags9 = r_ptr->flags9;
 		breath = FALSE;
 		magic = FALSE;
@@ -1696,15 +1697,44 @@ else if (flags7 & (RF7_VAMPIRE)) spoil_out(" vampire");
 			spoil_out(buf);
 		}
 
-		if (flags2 & (RF2_AURA_FIRE))
+		if (flags8 & (RF8_AURA_FIRE))
 		{
 			sprintf(buf, "%s is surrounded by flames.  ", wd_che[msex]);
 			spoil_out(buf);
 		}
-
-		if (flags2 & (RF2_AURA_ELEC))
+		if (flags8 & (RF8_AURA_ELEC))
 		{
 			sprintf(buf, "%s is surrounded by electricity.  ", wd_che[msex]);
+			spoil_out(buf);
+		}
+		if (flags8 & (RF8_AURA_COLD))
+		{
+			sprintf(buf, "%s is surrounded by frost.  ", wd_che[msex]);
+			spoil_out(buf);
+		}
+		if (flags8 & (RF8_AURA_ACID))
+		{
+			sprintf(buf, "%s is surrounded by an acidic vapor.  ", wd_che[msex]);
+			spoil_out(buf);
+		}
+		if (flags8 & (RF8_AURA_POIS))
+		{
+			sprintf(buf, "%s is surrounded by poisonous gas.  ", wd_che[msex]);
+			spoil_out(buf);
+		}
+		if (flags8 & (RF8_AURA_LITE))
+		{
+			sprintf(buf, "%s is enveloped in light.  ", wd_che[msex]);
+			spoil_out(buf);
+		}
+		if (flags8 & (RF8_AURA_DARK))
+		{
+			sprintf(buf, "%s is enveloped in darkness.  ", wd_che[msex]);
+			spoil_out(buf);
+		}
+		if ((flags8 & (RF8_AURA_CHAOS)) || (flags8 & (RF8_AURA_NORSE_CHAOS)))
+		{
+			sprintf(buf, "%s is surrounded by pure chaos.  ", wd_che[msex]);
 			spoil_out(buf);
 		}
 

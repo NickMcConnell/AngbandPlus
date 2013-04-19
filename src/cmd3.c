@@ -231,6 +231,7 @@ bool is_slot_ok(int slot)
 void do_cmd_wield(void)
 {
 	int item, slot, num = 1;
+	int tryable;
 
 	object_type forge;
 
@@ -267,21 +268,15 @@ void do_cmd_wield(void)
 		o_ptr = &o_list[0 - item];
 	}
 
-   
 	/* Check the slot */
 	slot = wield_slot(o_ptr);
 
 	/* Prevent wielding into a cursed slot */
 	if (cursed_p(&p_ptr->inventory[slot]))
 	{
-		/* Describe it */
 		object_desc(o_name, &p_ptr->inventory[slot], FALSE, 0);
-
-		/* Message */
 		msg_format("The %s you are %s appears to be cursed.",
 		           o_name, describe_use(slot));
-
-		/* Cancel the command */
 		return;
 	}
 
@@ -290,35 +285,41 @@ void do_cmd_wield(void)
 	{
 		char dummy[512];
 
-		/* Describe it */
 		object_desc(o_name, o_ptr, FALSE, 0);
-
 		strnfmt(dummy, 512, "Really use the %s {cursed}? ", o_name);
 		if (!(get_check(dummy)))
 			return;
 	}
 
-	/* Can we wield */
 	if (process_hooks(HOOK_WIELD, "(d)", item)) return;
 
-	/* Extract the flags */
+	tryable = 0;
+	try_another_shield_slot:
+
 	object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
-   if ((f5 & (TR5_ONLY_MALE)) && (p_ptr->psex != SEX_MALE))
+	if ((f5 & (TR5_ONLY_MALE)) && (p_ptr->psex != SEX_MALE))
     {
-                msg_print("Only males may use this!");
-                return;
+         msg_print("Only males may use this!");
+         return;
     }
-	     if ((f5 & (TR5_ONLY_FEMALE)) && (p_ptr->psex != SEX_FEMALE))
+    if ((f5 & (TR5_ONLY_FEMALE)) && (p_ptr->psex != SEX_FEMALE))
     {
-                msg_print("Only females may use this!");
-                return;
+        msg_print("Only females may use this!");
+        return;
     }
-object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
-	/* Two handed weapons can't be wielded with a shield */
+
 	if ((is_slot_ok(slot - INVEN_WIELD + INVEN_ARM)) &&
 	                (f4 & TR4_MUST2H) &&
 	                (p_ptr->inventory[slot - INVEN_WIELD + INVEN_ARM].k_idx != 0))
 	{
+		if ( (p_ptr->body_parts[slot - INVEN_WIELD + 1] == INVEN_ARM) )
+		{
+			slot = slot + 1;
+			goto try_another_shield_slot;
+		}
+		else
+			if ( tryable ) goto tried_another_shield_slot;
+
 		object_desc(o_name, o_ptr, FALSE, 0);
 		msg_format("You cannot wield your %s with a shield.", o_name);
 		return;
@@ -335,14 +336,35 @@ object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
 		if ((f4 & TR4_MUST2H) && (i_ptr->k_idx) &&
 		                (p_ptr->body_parts[slot - INVEN_WIELD] == INVEN_ARM))
 		{
+			if ( (p_ptr->body_parts[slot - INVEN_WIELD + 1] == INVEN_ARM) )
+			{
+				slot = slot + 1;
+				goto try_another_shield_slot;
+			}
+			else
+				if ( tryable ) goto tried_another_shield_slot;
+
 			object_desc(o_name, o_ptr, FALSE, 0);
 			msg_format("You cannot wield your %s with a two-handed weapon.", o_name);
 			return;
 		}
 
-		if ((p_ptr->body_parts[slot - INVEN_WIELD] == INVEN_ARM) &&
-		                (f4 & TR4_COULD2H))
+		if ( ((p_ptr->body_parts[slot - INVEN_WIELD] == INVEN_ARM) &&
+		                (f4 & TR4_COULD2H)))
 		{
+			if ( (p_ptr->body_parts[slot - INVEN_WIELD + 1] == INVEN_ARM) )
+			{
+				tryable = slot;
+				slot = slot + 1;
+
+				goto try_another_shield_slot;
+			}
+
+			tried_another_shield_slot:
+
+			if ( tryable )
+				slot = tryable;
+
 			if (!get_check("Are you sure you want to restrict your fighting? "))
 			{
 				return;
@@ -354,10 +376,22 @@ object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
 	/* Extract the flags */
 	object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
 
+	try_another_weapon_slot:
+
 	if ((is_slot_ok(slot - INVEN_WIELD + INVEN_ARM)) &&
 	                (p_ptr->inventory[slot - INVEN_WIELD + INVEN_ARM].k_idx != 0) &&
 	                (f4 & TR4_COULD2H))
 	{
+		if ( (p_ptr->body_parts[slot - INVEN_WIELD + 1] == INVEN_WIELD) )
+		{
+			tryable = slot;
+			slot = slot + 1;
+
+			goto try_another_weapon_slot;
+		} else
+			if ( tryable )
+				slot = tryable;
+
 		if (!get_check("Are you sure you want to use this weapon with a shield?"))
 		{
 			return;
@@ -433,7 +467,6 @@ object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
 		}
 	}
 
-
 	/* Wear the new stuff */
 	object_copy(o_ptr, q_ptr);
 
@@ -459,7 +492,7 @@ object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
 	}
 	else if (slot == INVEN_AMMO)
 	{
-		act = "In your quiver you have";
+		act = "In your quiver, you have";
 	}
 	else if (slot == INVEN_TOOL)
 	{
@@ -562,10 +595,22 @@ void do_cmd_takeoff(void)
 	/* Take off the item */
 	(void)inven_takeoff(item, 255, FALSE);
 
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Recalculate torch */
+	p_ptr->update |= (PU_TORCH);
+
 	/* Recalculate hitpoint */
 	p_ptr->update |= (PU_HP);
 
+	/* Recalculate mana */
+	p_ptr->update |= (PU_MANA | PU_SPELLS);
+
+	/* Redraw monster hitpoint */
 	p_ptr->redraw |= (PR_MH);
+
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
 }
 
 
@@ -621,7 +666,7 @@ void do_cmd_drop(void)
 			if (f4 & TR4_CURSE_NO_DROP)
 			{
 				/* Oops */
-				msg_print("Hmmm, you seem to be unable to drop it.");
+				msg_print("Hmmm, you are unable to drop it.");
 
 				/* Nope */
 				return;
@@ -728,7 +773,7 @@ void do_cmd_destroy(void)
 	if ((f4 & TR4_CURSE_NO_DROP) && cursed_p(o_ptr))
 	{
 		/* Oops */
-		msg_print("Hmmm, you seem to be unable to destroy it.");
+		msg_print("Hmmm, you are unable to destroy it.");
 
 		/* Nope */
 		return;
@@ -738,7 +783,7 @@ void do_cmd_destroy(void)
 	/* Artifacts cannot be destroyed */
 	if (artifact_p(o_ptr) || o_ptr->art_name)
 	{
-		byte feel = SENSE_SPECIAL;
+//		byte feel = SENSE_SPECIAL;
 
 		energy_use = 0;
 
@@ -746,10 +791,10 @@ void do_cmd_destroy(void)
 		msg_format("You cannot destroy %s.", o_name);
 
 		/* Hack -- Handle icky artifacts */
-		if (cursed_p(o_ptr)) feel = SENSE_TERRIBLE;
+//		if (cursed_p(o_ptr)) feel = SENSE_TERRIBLE;
 
 		/* Hack -- inscribe the artifact */
-		o_ptr->sense = feel;
+//		o_ptr->sense = feel;
 
 		/* We have "felt" it (again) */
 		o_ptr->ident |= (IDENT_SENSE);

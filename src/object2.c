@@ -1091,7 +1091,7 @@ s32b flag_cost(object_type * o_ptr, int plusses)
 		  if (f5 & TR5_BRAND_WATER) total += 500;
 
 		  if (f5 & TR5_BRAND_DEATH) total += 44500;
-	
+
 
 	/* Also, give some extra for activatable powers... */
 
@@ -1486,7 +1486,7 @@ s32b object_value_real(object_type *o_ptr)
 	case TV_BOLT:
 	case TV_BULLET:
 	case TV_RBULLET:
-	
+
 		{
 			/* Hack -- negative hit/damage bonuses */
 			if (o_ptr->to_h + o_ptr->to_d < 0 && !value) return (0L);
@@ -1501,7 +1501,7 @@ s32b object_value_real(object_type *o_ptr)
 			}
 
 			/* Special attack (exploding arrow) */
-			if (o_ptr->pval2 != 0) value *= 14;
+			if (o_ptr->pval2 != 0) value *= 4;
 
 			/* Done */
 			break;
@@ -2141,7 +2141,7 @@ s16b m_bonus(int max, int level)
 
 /*
  * Tinker with the random artifact to make it acceptable
- * for a certain depth; also connect a random artifact to an 
+ * for a certain depth; also connect a random artifact to an
  * object.
  */
 static void finalize_randart(object_type* o_ptr, int lev)
@@ -2491,7 +2491,7 @@ static bool make_ego_item(object_type *o_ptr, bool good)
 		if (!e_ptr->name) continue;
 
 		/* Must have the correct fields */
-		for (j = 0; j < 6; j++)
+		for (j = 0; j < 10; j++)
 		{
 			if (e_ptr->tval[j] == o_ptr->tval)
 			{
@@ -3996,12 +3996,11 @@ void add_random_ego_flag(object_type *o_ptr, int fego, bool *limit_blows)
 				o_ptr->art_flags2 |= TR2_IM_COLD;
 				o_ptr->art_flags3 |= TR3_IGNORE_COLD;
 				break;
-
 			}
-			case 5:
+		case 5:
 			{
 				o_ptr->art_flags4 |= TR4_IM_NETHER;
-			
+
 				break;
 
 			}
@@ -4223,6 +4222,7 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 		/* Give a basic exp/exp level to an artifact that needs it */
 		if (a_ptr->flags4 & TR4_LEVELS)
 		{
+			if (o_ptr->elevel) return;
 			o_ptr->elevel = (k_ptr->level / 10) + 1;
 			o_ptr->exp = player_exp[o_ptr->elevel - 1];
 		}
@@ -4418,6 +4418,7 @@ try_an_other_ego:
 		/* Hack give a basic exp/exp level to an object that needs it */
 		if (f4 & TR4_LEVELS)
 		{
+			if (o_ptr->elevel) return ;
 			o_ptr->elevel = (k_ptr->level / 10) + 1;
 			o_ptr->exp = player_exp[o_ptr->elevel - 1];
 		}
@@ -4435,7 +4436,8 @@ try_an_other_ego:
 		}
 
 		/* Hacccccccckkkkk attack ! :) -- To prevent som ugly crashs */
-		if ((o_ptr->tval == TV_MSTAFF) && (o_ptr->sval == SV_MSTAFF) && (o_ptr->pval < 0))
+	//	if ((o_ptr->tval == TV_MSTAFF) && (o_ptr->sval == SV_MSTAFF) && (o_ptr->pval < 0))
+	if ((o_ptr->tval == TV_MSTAFF) &&  (o_ptr->pval < 0))
 		{
 			o_ptr->pval = 0;
 		}
@@ -5824,6 +5826,8 @@ bool inven_carry_okay(object_type *o_ptr)
 	if (o_ptr->tval == TV_GOLD) return FALSE;
 
 	/* Empty slot? */
+// 	msg_format ("inven_cnt: %d ",inven_cnt);
+
 	if (inven_cnt < INVEN_PACK) return (TRUE);
 
 	/* Similar slot? */
@@ -6169,9 +6173,9 @@ void inven_drop(int item, int amt, int dy, int dx, bool silent)
 		object_copy(q_ptr, o_ptr);
 
 		/*
-		 * Hack -- If rods or wands are dropped, the total maximum timeout or 
-		 * charges need to be allocated between the two stacks.  If all the items 
-		 * are being dropped, it makes for a neater message to leave the original 
+		 * Hack -- If rods or wands are dropped, the total maximum timeout or
+		 * charges need to be allocated between the two stacks.  If all the items
+		 * are being dropped, it makes for a neater message to leave the original
 		 * stack's pval alone. -LM-
 		 */
 		if (o_ptr->tval == TV_WAND)
@@ -6695,4 +6699,3 @@ object_type *get_object(int item)
 		return &o_list[0 - item];
 	}
 }
-

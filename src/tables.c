@@ -1792,7 +1792,7 @@ int chaos_rewards[MAX_PATRON][20] =
 		REW_POLY_SLF, REW_HEAL_FUL, REW_HEAL_FUL, REW_GAIN_ABL, REW_SER_UNDE,
 		REW_CHAOS_WP, REW_GOOD_OBJ, REW_GOOD_OBJ, REW_GOOD_OBS, REW_GOOD_OBS
 	},
-	
+
 	/* Chardros the Reaper: */
 	{
 		REW_WRATH, REW_WRATH, REW_HURT_LOT, REW_PISS_OFF, REW_H_SUMMON,
@@ -1800,7 +1800,7 @@ int chaos_rewards[MAX_PATRON][20] =
 		REW_GENOCIDE, REW_MASS_GEN, REW_MASS_GEN, REW_DISPEL_C, REW_GOOD_OBJ,
 		REW_CHAOS_WP, REW_GOOD_OBS, REW_GOOD_OBS, REW_AUGM_ABL, REW_AUGM_ABL
 	},
-	
+
 	/* Hionhurn the Executioner: */
 	{
 		REW_WRATH, REW_WRATH, REW_CURSE_WP, REW_CURSE_AR, REW_RUIN_ABL,
@@ -1808,7 +1808,7 @@ int chaos_rewards[MAX_PATRON][20] =
 		REW_MASS_GEN, REW_MASS_GEN, REW_HEAL_FUL, REW_GAIN_ABL, REW_GAIN_ABL,
 		REW_CHAOS_WP, REW_GOOD_OBS, REW_GOOD_OBS, REW_AUGM_ABL, REW_AUGM_ABL
 	},
-	
+
 	/* Xiombarg the Sword-Queen: */
 	{
 		REW_TY_CURSE, REW_TY_CURSE, REW_PISS_OFF, REW_RUIN_ABL, REW_LOSE_ABL,
@@ -1816,8 +1816,8 @@ int chaos_rewards[MAX_PATRON][20] =
 		REW_GENOCIDE, REW_DISPEL_C, REW_GOOD_OBJ, REW_GOOD_OBJ, REW_SER_MONS,
 		REW_GAIN_ABL, REW_CHAOS_WP, REW_GAIN_EXP, REW_AUGM_ABL, REW_GOOD_OBS
 	},
-	
-	
+
+
 	/* Pyaray the Tentacled Whisperer of Impossible Secretes: */
 	{
 		REW_WRATH, REW_TY_CURSE, REW_PISS_OFF, REW_H_SUMMON, REW_H_SUMMON,
@@ -1825,7 +1825,7 @@ int chaos_rewards[MAX_PATRON][20] =
 		REW_POLY_SLF, REW_SER_DEMO, REW_HEAL_FUL, REW_GAIN_ABL, REW_GAIN_ABL,
 		REW_CHAOS_WP, REW_DO_HAVOC, REW_GOOD_OBJ, REW_GREA_OBJ, REW_GREA_OBS
 	},
-	
+
 	/* Balaan the Grim: */
 	{
 		REW_TY_CURSE, REW_HURT_LOT, REW_CURSE_WP, REW_CURSE_AR, REW_RUIN_ABL,
@@ -1833,7 +1833,7 @@ int chaos_rewards[MAX_PATRON][20] =
 		REW_SER_UNDE, REW_HEAL_FUL, REW_HEAL_FUL, REW_GAIN_EXP, REW_GAIN_EXP,
 		REW_CHAOS_WP, REW_GOOD_OBJ, REW_GOOD_OBS, REW_GREA_OBS, REW_AUGM_ABL
 	},
-	
+
 	/* Arioch, Duke of Hell: */
 	{
 		REW_WRATH, REW_PISS_OFF, REW_RUIN_ABL, REW_LOSE_EXP, REW_H_SUMMON,
@@ -1841,7 +1841,7 @@ int chaos_rewards[MAX_PATRON][20] =
 		REW_POLY_SLF, REW_MASS_GEN, REW_SER_DEMO, REW_HEAL_FUL, REW_CHAOS_WP,
 		REW_CHAOS_WP, REW_GOOD_OBJ, REW_GAIN_EXP, REW_GREA_OBJ, REW_AUGM_ABL
 	},
-	
+
 	/* Eequor, Blue Lady of Dismay: */
 	{
 		REW_WRATH, REW_TY_CURSE, REW_PISS_OFF, REW_CURSE_WP, REW_RUIN_ABL,
@@ -1849,7 +1849,7 @@ int chaos_rewards[MAX_PATRON][20] =
 		REW_GOOD_OBJ, REW_GOOD_OBJ, REW_SER_MONS, REW_HEAL_FUL, REW_GAIN_EXP,
 		REW_GAIN_ABL, REW_CHAOS_WP, REW_GOOD_OBS, REW_GREA_OBJ, REW_AUGM_ABL
 	},
-	
+
 	/* Narjhan, Lord of Beggars: */
 	{
 		REW_WRATH, REW_CURSE_AR, REW_CURSE_WP, REW_CURSE_WP, REW_CURSE_AR,
@@ -1857,7 +1857,7 @@ int chaos_rewards[MAX_PATRON][20] =
 		REW_POLY_WND, REW_HEAL_FUL, REW_HEAL_FUL, REW_GAIN_EXP, REW_AUGM_ABL,
 		REW_GOOD_OBJ, REW_GOOD_OBJ, REW_CHAOS_WP, REW_GREA_OBJ, REW_GREA_OBS
 	},
-	
+
 	/* Balo the Jester: */
 	{
 		REW_WRATH, REW_SER_DEMO, REW_CURSE_WP, REW_CURSE_AR, REW_LOSE_EXP,
@@ -1865,7 +1865,7 @@ int chaos_rewards[MAX_PATRON][20] =
 		REW_DESTRUCT, REW_MASS_GEN, REW_CHAOS_WP, REW_GREA_OBJ, REW_HURT_LOT,
 		REW_AUGM_ABL, REW_RUIN_ABL, REW_H_SUMMON, REW_GREA_OBS, REW_AUGM_ABL
 	},
-	
+
 	/* Khorne the Bloodgod: */
 	{
 		REW_WRATH, REW_HURT_LOT, REW_HURT_LOT, REW_H_SUMMON, REW_H_SUMMON,
@@ -1873,7 +1873,7 @@ int chaos_rewards[MAX_PATRON][20] =
 		REW_POLY_SLF, REW_POLY_WND, REW_HEAL_FUL, REW_GOOD_OBJ, REW_GOOD_OBJ,
 		REW_CHAOS_WP, REW_GOOD_OBS, REW_GOOD_OBS, REW_GREA_OBJ, REW_GREA_OBS
 	},
-	
+
 	/* Slaanesh: */
 	{
 		REW_WRATH, REW_PISS_OFF, REW_PISS_OFF, REW_RUIN_ABL, REW_LOSE_ABL,
@@ -1881,7 +1881,7 @@ int chaos_rewards[MAX_PATRON][20] =
 		REW_POLY_SLF, REW_HEAL_FUL, REW_HEAL_FUL, REW_GOOD_OBJ, REW_GAIN_EXP,
 		REW_GAIN_EXP, REW_CHAOS_WP, REW_GAIN_ABL, REW_GREA_OBJ, REW_AUGM_ABL
 	},
-	
+
 	/* Nurgle: */
 	{
 		REW_WRATH, REW_PISS_OFF, REW_HURT_LOT, REW_RUIN_ABL, REW_LOSE_ABL,
@@ -1889,7 +1889,7 @@ int chaos_rewards[MAX_PATRON][20] =
 		REW_POLY_SLF, REW_POLY_WND, REW_HEAL_FUL, REW_GOOD_OBJ, REW_GAIN_ABL,
 		REW_GAIN_ABL, REW_SER_UNDE, REW_CHAOS_WP, REW_GREA_OBJ, REW_AUGM_ABL
 	},
-	
+
 	/* Tzeentch: */
 	{
 		REW_WRATH, REW_CURSE_WP, REW_CURSE_AR, REW_RUIN_ABL, REW_LOSE_ABL,
@@ -1897,7 +1897,7 @@ int chaos_rewards[MAX_PATRON][20] =
 		REW_POLY_SLF, REW_POLY_WND, REW_HEAL_FUL, REW_CHAOS_WP, REW_GREA_OBJ,
 		REW_GAIN_ABL, REW_GAIN_ABL, REW_GAIN_EXP, REW_GAIN_EXP, REW_AUGM_ABL
 	},
-	
+
 	/* Khaine: */
 	{
 		REW_WRATH, REW_HURT_LOT, REW_PISS_OFF, REW_LOSE_ABL, REW_LOSE_EXP,
@@ -2534,7 +2534,7 @@ martial_arts ma_blows[MAX_MA] =
 	{ "You hit %s with a Crushing Blow.", 48, 35, 20, 12, MA_STUN, 18 },
 };
 
-
+// Dragon combat
 
 martial_arts da_blows[MAX_DA] =
 {
@@ -2557,6 +2557,8 @@ martial_arts da_blows[MAX_DA] =
 	{ "You hit %s with Dragon's Fury.", 48, 35, 20, 25, MA_STUN | MA_WOUND, 60 },
 };
 
+// Spider combat
+
 martial_arts spid_blows[MAX_SPID] =
 {
 	{ "You bite %s.", 1, 0, 3, 4, MA_POIS, 50 },
@@ -2575,8 +2577,10 @@ martial_arts spid_blows[MAX_SPID] =
 	{ "You stab %s with a leg.", 37, 35, 16, 9, MA_STUN | MA_WOUND, 60 },
 	{ "You hit %s with a flying kick.", 41, 35, 16, 12, MA_STUN, 12 },
 	{ "You slam your stinger into %s.", 45, 35, 20, 15, MA_POIS, 90 },
-	{ "You hit %s with a Crushing Blow.", 48, 35, 20, 20, MA_STUN, 18 },
+	{ "You hit %s with a Crushing Blow.", 48, 35, 20, 20, MA_STUN | MA_WOUND, 18 },
 };
+
+// Basilisk combat
 
 martial_arts basilisk_blows[MAX_BASILISK] =
 {
@@ -2589,6 +2593,20 @@ martial_arts basilisk_blows[MAX_BASILISK] =
 	{ "You give the stare of death %s.", 35, 20, 15, 10, MA_STUN | MA_WOUND | MA_SLEEP, 90 },
 	{ "You smash %s with your tail.", 40, 25, 20, 15, MA_STUN | MA_WOUND, 55 },
 };
+
+martial_arts hydra_blows[MAX_HYDRA] =
+{
+	{ "You bite %s.", 1, 0, 4, 4, MA_WOUND, 20 },
+	{ "You bite %s.", 4, 0, 5, 6, MA_POIS | MA_WOUND, 20 },
+	{ "You bite %s hard.", 9, 2, 7, 5, MA_POIS | MA_WOUND, 30 },
+	{ "You hit %s with your tail.", 15, 6, 7, 5, MA_POIS, 0 },
+	{ "You slam %s with your tail.", 25, 10, 8, 8, MA_STUN, 10 },
+	{ "You leap at %s.", 30, 15, 8, 7, MA_STUN | MA_WOUND, 60 },
+	{ "You bite  %s.", 35, 20, 15, 13, MA_WOUND | MA_POIS, 90 },
+	{ "You slam %s to the ground.", 40, 25, 20, 18, MA_STUN | MA_WOUND | MA_POIS, 55 },
+};
+
+
 /*
  *   cptr    desc;      A verbose attack description
  *   int     min_level; Minimum level to use
@@ -2684,7 +2702,7 @@ magic_power mindcraft_powers[MAX_MINDCRAFT_POWERS] =
 		"Powerful wave of pure telekinetic forces."
 	},
 		};
-	
+
 	magic_power necro_powers[MAX_NECRO_POWERS] =
 		{
 			/* Level gained,  cost,  %fail,  name,  desc */
@@ -2851,7 +2869,7 @@ cptr deity_standing[11] =
 
 /*
  * Name and description (max. 10 lines) of the gods.
- * Only the first four lines are printed at birth. 
+ * Only the first four lines are printed at birth.
  */
 
 deity_type deity_info_init[MAX_GODS_INIT] =
@@ -3183,7 +3201,7 @@ flags_group flags_groups[MAX_FLAG_GROUP] =
 	{
 		"Air",
 		TERM_BLUE,
-		5,
+		4,
 		TR1_WIS | TR1_STEALTH | TR1_INFRA | TR1_SPEED,
 		TR2_RES_LITE | TR2_RES_DARK | TR2_RES_BLIND | TR2_SUST_WIS,
 		TR3_FEATHER | TR3_SEE_INVIS | TR3_BLESSED,
@@ -3203,7 +3221,7 @@ flags_group flags_groups[MAX_FLAG_GROUP] =
 	{
 		"Mind",
 		TERM_YELLOW,
-		7,
+		5,
 		TR1_INT | TR1_SEARCH,
 		TR2_SUST_INT | TR2_RES_CONF | TR2_RES_FEAR,
 		0,
@@ -3213,7 +3231,7 @@ flags_group flags_groups[MAX_FLAG_GROUP] =
 	{
 		"Shield",
 		TERM_RED,
-		7,
+		6,
 		TR1_DEX,
 		TR2_SUST_DEX | TR2_INVIS | TR2_REFLECT | TR2_HOLD_LIFE | TR2_RES_SOUND | TR2_RES_NEXUS,
 		TR3_REGEN,
@@ -3233,7 +3251,7 @@ flags_group flags_groups[MAX_FLAG_GROUP] =
 	{
 		"Magic",
 		TERM_L_BLUE,
-		10,
+		8,
 		TR1_MANA | TR1_SPELL,
 		TR2_RES_CHAOS | TR2_RES_DISEN,
 		TR3_WRAITH,
@@ -3243,7 +3261,7 @@ flags_group flags_groups[MAX_FLAG_GROUP] =
 	{
 		"Antimagic",
 		TERM_L_DARK,
-		10,
+		8,
 		TR1_VAMPIRIC | TR1_CHAOTIC | TR1_BLOWS | TR1_SPEED,
 		TR2_LIFE | TR2_REFLECT | TR2_FREE_ACT | TR2_HOLD_LIFE,
 		TR3_NO_MAGIC | TR3_NO_TELE | TR3_SEE_INVIS,
@@ -3738,7 +3756,7 @@ quest_type quest_init_tome[MAX_Q_IDX_INIT] =
 		},
 		QUEST_STATUS_TAKEN,
 		70,
-	
+
 		&plots[PLOT_MAIN],
 		HOOK_TYPE_C,
 		quest_necro_init_hook,
@@ -3762,7 +3780,7 @@ quest_type quest_init_tome[MAX_Q_IDX_INIT] =
 		},
 		QUEST_STATUS_UNTAKEN,
 		99,
-	
+
 		&plots[PLOT_MAIN],
 		HOOK_TYPE_C,
 		quest_sauron_init_hook,
@@ -3786,13 +3804,13 @@ quest_type quest_init_tome[MAX_Q_IDX_INIT] =
 		},
 		QUEST_STATUS_UNTAKEN,
 		100,
-	
+
 		&plots[PLOT_MAIN],
 		HOOK_TYPE_C,
 		quest_morgoth_init_hook,
 		{0, 0},
 	},
-	
+
 	/* Bree plot */
 	{
 		FALSE,
@@ -3812,13 +3830,13 @@ quest_type quest_init_tome[MAX_Q_IDX_INIT] =
 		},
 		QUEST_STATUS_UNTAKEN,
 		5,
-	
+
 		&plots[PLOT_BREE],
 		HOOK_TYPE_C,
 		quest_thieves_init_hook,
 		{0, 0},
 	},
-	
+
 	{
 		FALSE,
 		TRUE,
@@ -3837,13 +3855,13 @@ quest_type quest_init_tome[MAX_Q_IDX_INIT] =
 		},
 		QUEST_STATUS_UNTAKEN,
 		5,
-	
+
 		NULL,
 		HOOK_TYPE_C,
 		quest_random_init_hook,
 		{0, 0},
 	},
-	
+
 	{
 		FALSE,
 		FALSE,
@@ -3862,13 +3880,13 @@ quest_type quest_init_tome[MAX_Q_IDX_INIT] =
 		},
 		QUEST_STATUS_UNTAKEN,
 		25,
-	
+
 		&plots[PLOT_OTHER],
 		HOOK_TYPE_C,
 		quest_hobbit_init_hook,
 		{0, 0},
 	},
-	
+
 	{
 		FALSE,
 		FALSE,
@@ -3887,13 +3905,13 @@ quest_type quest_init_tome[MAX_Q_IDX_INIT] =
 		},
 		QUEST_STATUS_UNTAKEN,
 		40,
-	
+
 		&plots[PLOT_BREE],
 		HOOK_TYPE_C,
 		quest_nazgul_init_hook,
 		{0, 0},
 	},
-	
+
 	{
 		FALSE,
 		FALSE,
@@ -3912,13 +3930,13 @@ quest_type quest_init_tome[MAX_Q_IDX_INIT] =
 		},
 		QUEST_STATUS_UNTAKEN,
 		30,
-	
+
 		&plots[PLOT_BREE],
 		HOOK_TYPE_C,
 		quest_troll_init_hook,
 		{FALSE, 0},
 	},
-	
+
 	{
 		FALSE,
 		FALSE,
@@ -3937,13 +3955,13 @@ quest_type quest_init_tome[MAX_Q_IDX_INIT] =
 		},
 		QUEST_STATUS_UNTAKEN,
 		30,
-	
+
 		&plots[PLOT_BREE],
 		HOOK_TYPE_C,
 		quest_wight_init_hook,
 		{FALSE, 0},
 	},
-	
+
 	/* Lorien plot */
 	{
 		FALSE,
@@ -3963,7 +3981,7 @@ quest_type quest_init_tome[MAX_Q_IDX_INIT] =
 		},
 		QUEST_STATUS_UNTAKEN,
 		25,
-	
+
 		&plots[PLOT_LORIEN],
 		HOOK_TYPE_C,
 		quest_spider_init_hook,
@@ -3987,7 +4005,7 @@ quest_type quest_init_tome[MAX_Q_IDX_INIT] =
 		},
 		QUEST_STATUS_UNTAKEN,
 		30,
-	
+
 		&plots[PLOT_LORIEN],
 		HOOK_TYPE_C,
 		quest_poison_init_hook,
@@ -4012,7 +4030,7 @@ quest_type quest_init_tome[MAX_Q_IDX_INIT] =
 		},
 		QUEST_STATUS_UNTAKEN,
 		20,
-	
+
 		&plots[PLOT_OTHER],
 		HOOK_TYPE_C,
 		quest_narsil_init_hook,
@@ -4037,7 +4055,7 @@ quest_type quest_init_tome[MAX_Q_IDX_INIT] =
 		},
 		QUEST_STATUS_UNTAKEN,
 		30,
-	
+
 		&plots[PLOT_GONDOLIN],
 		HOOK_TYPE_C,
 		quest_eol_init_hook,
@@ -4061,7 +4079,7 @@ quest_type quest_init_tome[MAX_Q_IDX_INIT] =
 		},
 		QUEST_STATUS_UNTAKEN,
 		37,
-	
+
 		&plots[PLOT_GONDOLIN],
 		HOOK_TYPE_C,
 		quest_nirnaeth_init_hook,
@@ -4085,7 +4103,7 @@ quest_type quest_init_tome[MAX_Q_IDX_INIT] =
 		},
 		QUEST_STATUS_UNTAKEN,
 		80,
-	
+
 		&plots[PLOT_GONDOLIN],
 		HOOK_TYPE_C,
 		quest_invasion_init_hook,
@@ -4110,7 +4128,7 @@ quest_type quest_init_tome[MAX_Q_IDX_INIT] =
 		},
 		QUEST_STATUS_UNTAKEN,
 		80,
-	
+
 		&plots[PLOT_MINAS],
 		HOOK_TYPE_C,
 		quest_between_init_hook,
@@ -4134,13 +4152,13 @@ quest_type quest_init_tome[MAX_Q_IDX_INIT] =
 		},
 		QUEST_STATUS_UNTAKEN,
 		99,
-	
+
 		&plots[PLOT_MAIN],
 		HOOK_TYPE_C,
 		quest_one_init_hook,
 		{0, 0},
 	},
-	
+
 	{
 		FALSE,
 		FALSE,
@@ -4159,13 +4177,13 @@ quest_type quest_init_tome[MAX_Q_IDX_INIT] =
 		},
 		QUEST_STATUS_UNTAKEN,
 		3,
-	
+
 		&plots[PLOT_OTHER],
 		HOOK_TYPE_C,
 		quest_shroom_init_hook,
 		{0, 0},
 	},
-	
+
 	{
 		FALSE,
 		FALSE,
@@ -4184,13 +4202,13 @@ quest_type quest_init_tome[MAX_Q_IDX_INIT] =
 		},
 		QUEST_STATUS_UNTAKEN,
 		60,
-	
+
 		&plots[PLOT_OTHER],
 		HOOK_TYPE_C,
 		quest_thrain_init_hook,
 		{0, 0},
 	},
-	
+
 	/* The 2 ultra endings go here */
 	{
 		FALSE,
@@ -4210,7 +4228,7 @@ quest_type quest_init_tome[MAX_Q_IDX_INIT] =
 		},
 		QUEST_STATUS_UNTAKEN,
 		150,
-	
+
 		&plots[PLOT_MAIN],
 		HOOK_TYPE_C,
 		quest_ultra_good_init_hook,
@@ -4234,7 +4252,7 @@ quest_type quest_init_tome[MAX_Q_IDX_INIT] =
 		},
 		QUEST_STATUS_UNTAKEN,
 		150,
-	
+
 		&plots[PLOT_MAIN],
 		HOOK_TYPE_C,
 		quest_ultra_evil_init_hook,
@@ -4259,7 +4277,7 @@ quest_type quest_init_tome[MAX_Q_IDX_INIT] =
 		},
 		QUEST_STATUS_UNTAKEN,
 		15,
-	
+
 		&plots[PLOT_LORIEN],
 		HOOK_TYPE_C,
 		quest_wolves_init_hook,
@@ -4284,7 +4302,7 @@ quest_type quest_init_tome[MAX_Q_IDX_INIT] =
 		},
 		QUEST_STATUS_UNTAKEN,
 		25,
-	
+
 		&plots[PLOT_GONDOLIN],
 		HOOK_TYPE_C,
 		quest_dragons_init_hook,
@@ -4309,7 +4327,7 @@ quest_type quest_init_tome[MAX_Q_IDX_INIT] =
 		},
 		QUEST_STATUS_UNTAKEN,
 		45,
-	
+
 		&plots[PLOT_MINAS],
 		HOOK_TYPE_C,
 		quest_haunted_init_hook,
@@ -4334,7 +4352,7 @@ quest_type quest_init_tome[MAX_Q_IDX_INIT] =
 		},
 		QUEST_STATUS_UNTAKEN,
 		60,
-	
+
 		&plots[PLOT_KHAZAD],
 		HOOK_TYPE_C,
 		quest_evil_init_hook,
@@ -4443,7 +4461,7 @@ monster_power monster_powers[96] =
 		{ RF6_S_HI_UNDEAD, "Summon High Undead", 90, TRUE },
 		{ RF6_S_HI_DRAGON, "Summon High Dragon", 90, TRUE },
 		{ RF6_S_WRAITH, "Summon Wraith", 90, TRUE },
-				
+
 	};
 
 /* Tval descriptions */
@@ -4479,7 +4497,7 @@ tval_desc tval_descs[] =
 		TV_TOOL,
 		"Tools can be digging implements, climbing equipment and such. "
 		"They have their own slot in your inventory."
-	
+
 	},
 	{
 		TV_INSTRUMENT,
@@ -4502,19 +4520,17 @@ tval_desc tval_descs[] =
 		"Arrows are the standard ammunition for bows.  You can carry "
 		"them in your quiver if you have a bow equipped."
 	},
-		{
+	{
 		TV_BULLET,
 		"Bullets are devastating weapons. These are for Pistols "
 		"them in your quiver if you have a pistol equipped."
 	},
 
-		{
+	{
 		TV_RBULLET,
 		"Bullets are devastating weapons. These are for Rifle "
 		"them in your quiver if you have a Rifle equipped."
 	},
-
-
 	{
 		TV_BOLT,
 		"Bolts are the standard ammunition for crossbows.  You can "
@@ -4531,8 +4547,7 @@ tval_desc tval_descs[] =
 		"A small, hand-held gun that is far more powerful than it appears "
 		"It shoots pistol bullets."
 	},
-
-			{
+	{
 		TV_RIFLE,
 		"A large gun that is far more powerful than it appears "
 		"It shoots rifle bullets."
@@ -4598,15 +4613,13 @@ tval_desc tval_descs[] =
 		TV_ROD,
 		"Rod tips are the physical bindings of powerful "
 		"spells.  Zap (attach) them to a rod to get a fully "
-		"functional rod. Each spell takes some mana from the rod "
-		"it is attached to to work."
+		"functional rod. Each spell takes some mana from its rod."
 	},
 	{
 		TV_ROD_MAIN,
 		"Rods contain mana reserves used to cast spells in rod "
 		"tips.  Zap (attach) a rod tip to them to get a fully "
-		"functional rod. Each spell takes some mana from the rod "
-		"it is attached to to work."
+		"functional rod. Each spell takes some mana from its rod."
 	},
 	{
 		TV_SCROLL,

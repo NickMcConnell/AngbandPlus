@@ -1,6 +1,6 @@
 /*
 ** Lua binding: player_c
-** Generated automatically by tolua 4.0a - angband on Fri Jan 30 19:43:25 2004.
+** Generated automatically by tolua 4.0a - angband on 08/01/07 21:25:52.
 */
 
 #include "lua/tolua.h"
@@ -1805,17 +1805,10 @@ int tolua_player_c_open (lua_State* tolua_S)
  tolua_constant(tolua_S,NULL,"SKILL_STEALING",SKILL_STEALING);
  tolua_constant(tolua_S,NULL,"SKILL_SORCERY",SKILL_SORCERY);
  tolua_constant(tolua_S,NULL,"SKILL_HAND",SKILL_HAND);
-  tolua_constant(tolua_S,NULL,"SKILL_DRAGON",SKILL_DRAGON);
-    tolua_constant(tolua_S,NULL,"SKILL_SPIDER",SKILL_SPIDER);
-
-
-	tolua_constant(tolua_S,NULL,"SKILL_BASILISK",SKILL_BASILISK);
  tolua_constant(tolua_S,NULL,"SKILL_THAUMATURGY",SKILL_THAUMATURGY);
  tolua_constant(tolua_S,NULL,"SKILL_SUMMON",SKILL_SUMMON);
  tolua_constant(tolua_S,NULL,"SKILL_SPELL",SKILL_SPELL);
  tolua_constant(tolua_S,NULL,"SKILL_DODGE",SKILL_DODGE);
-
-  tolua_constant(tolua_S,NULL,"SKILL_JEDI",SKILL_JEDI);
  tolua_constant(tolua_S,NULL,"SKILL_BEAR",SKILL_BEAR);
  tolua_constant(tolua_S,NULL,"SKILL_LORE",SKILL_LORE);
  tolua_constant(tolua_S,NULL,"SKILL_PRESERVATION",SKILL_PRESERVATION);
@@ -1920,14 +1913,10 @@ void tolua_player_c_close (lua_State* tolua_S)
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SKILL_STEALING");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SKILL_SORCERY");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SKILL_HAND");
-  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SKILL_DRAGON");
-    lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SKILL_SPIDER");
-	   lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SKILL_BASILISK");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SKILL_THAUMATURGY");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SKILL_SUMMON");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SKILL_SPELL");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SKILL_DODGE");
-  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SKILL_JEDI");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SKILL_BEAR");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SKILL_LORE");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"SKILL_PRESERVATION");

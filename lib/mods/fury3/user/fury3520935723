@@ -1,0 +1,526 @@
+  [FuryBand T 2.1.0 Character Sheet]
+
+ Name  : Death II               Age                 42       Str:     33     40
+ Sex   : Male                   Height              46       INT:     24       
+ Race  : Vampire Dwarf          Weight             141       WIS:     24       
+ Class : Axemaster              Social Class        43       DEX!     31       
+ Body  : Player                                              Con!     35     36
+ God   : Nobody                                              CHR:     24       
+                                                                               
+ + To Melee Hit          87 Level             46    Hit Points      -15/   898 
+ + To Melee Damage       90 Experience   6583973    Spell Points     53/    53 
+ + To Ranged Hit         24 Max Exp      6703935    Sanity          373/   373 
+ + To Ranged Damage       0 Exp to Adv.  6750000                               
+   AC                 46+65 Gold          244018    Speed           Fast (+10) 
+                                                                               
+                         (Miscellaneous Abilities)                             
+ Fighting    : Legendary[62]Perception  : Superb       Blows/Round:  12        
+ Bows/Throw  : Heroic       Searching   : Superb       Shots/Round:  1         
+ Saving Throw: Fair         Disarming   : Superb       Mel.dmg/Rnd:  24d6+1080 
+ Stealth     : Superb       Magic Device: Superb       Infra-Vision: 70 feet   
+                                                       Tactic:       normal    
+                                                       Explor:       normal    
+                         (Character Background)                                
+          You are the only child of a Dwarven Miner.  You are a                
+          credit to the family.  You have dark brown eyes, straight            
+          brown hair, a two foot-long beard, and a dark complexion.            
+                                                                               
+
+
+  [Miscellaneous information]
+
+ Joke monsters:        OFF
+ Maximize mode:        ON
+ Preserve Mode:        ON
+ Autoscum:             ON
+ Small Levels:         ALWAYS
+ Arena Levels:         ON
+ Always unusual rooms: OFF
+ Persistent Dungeons:  OFF
+
+ Recall Depth:
+        Angband: Level 53 (2650')
+
+ Your body was a Player.
+ You have defeated 3158 enemies.
+ You saved 49 princesses.
+
+ You started your adventure the 43rd Yavie of the 2890th year of the third age.
+ You ended your adventure the 47th Yavie of the 2890th year of the third age.
+ Your adventure lasted 4 days.
+
+     Your Attributes:
+You are dead, killed by an Elder vampire on level 52 of Angband.
+You can drain life from a foe.
+You can drive yourself into a berserk frenzy.
+You can run for your life after hitting something.
+You can use secret passages.
+You can embolden yourself.
+You are bleeding.
+Your eyes are sensitive to infrared light.
+You can see invisible creatures.
+You can climb high mountains.
+You have free action.
+You are very lucky.
+You have a firm hold on your life force.
+You are carrying a permanent light.
+You are completely immune to acid.
+You are completely immune to lightning.
+You are completely immune to fire.
+You are resistant to cold.
+You are resistant to poison.
+You are resistant to darkness.
+You are resistant to confusion.
+You are resistant to disenchantment.
+You are resistant to nether forces.
+You are completely fearless.
+Your eyes are resistant to blindness.
+Your dexterity is sustained.
+Your charisma is sustained.
+Your strength is affected by your equipment.
+Your wisdom is affected by your equipment.
+Your dexterity is affected by your equipment.
+Your constitution is affected by your equipment.
+Your charisma is affected by your equipment.
+Your stealth is affected by your equipment.
+Your searching ability is affected by your equipment.
+Your infravision is affected by your equipment.
+Your digging ability is affected by your equipment.
+Your speed is affected by your equipment.
+Your weapon strikes at evil with extra force.
+Your weapon is especially deadly against orcs.
+Your weapon is especially deadly against trolls.
+Your weapon is especially deadly against giants.
+
+
+                    adefkmnopsuxz{|@            
+        Add Str   : ....5...........            
+        Add Wis   : .........3......            
+        Add Dex   : .......5........            
+        Add Con   : 3...............            
+        Add Chr   : .2.......3......            
+        Add Stea. : .2.....5...2....            
+        Add Sear. : .....4.....2....            
+        Add Infra : .2..............            
+        Add Tun.. : .2............1.            
+        Add Speed : ....5..5........            
+        Slay Evil : +...............            
+        Slay Orc  : +...............            
+        Slay Troll: +...............            
+        Slay Giant: +...............            
+        Sharpness : ..........+.....            
+        Sust Str  : ................            
+        Sust Int  : ................            
+        Sust Wis  : ................            
+        Sust Dex  : ......++........            
+        Sust Con  : ................            
+        Sust Chr  : .+..............            
+        Invisible : .......+........            
+        Mul life  : ................            
+        Sens Fire : ................            
+        Reflect   : ................            
+        Free Act  : ..+........+....            
+        Hold Life : ..+............+            
+        Imm Acid  : ......*.........            
+        Imm Elec  : ....*.*.........            
+        Imm Fire  : ......*.........            
+        Res Cold  : ...............+            
+        Res Pois  : ..+............+            
+        Res Fear  : ...............+            
+        Res Light : ......+.........            
+        Res Dark  : ......+........+            
+        Res Blind : ...............+            
+        Res Conf  : ..+.+....+......            
+        Res Sound : ................            
+        Res Shard : ................            
+        Res Neth  : ...............+            
+        Res Nexus : ................            
+        Res Chaos : ................            
+        Res Disen : ..+...+.........            
+        Lite      : ...............+            
+        See Invis : +...............            
+        Activate  : .+...+..........            
+        Climb     : ...............+            
+
+ Corruption list:
+Vampiric Teeth:
+  Your teeth allow you to drain blood to feed yourself
+  However your stomach now only accepts blood.
+
+Vampiric Strength:
+  Your body seems somewhat dead
+  In this near undead state it has improved strength, constitution and intelligence
+  But reduced dexterity, wisdom and charisma.
+
+Vampire:
+  You are a Vampire. As such you resist cold, poison, darkness and nether.
+  Your life is sustained, but you cannot stand the light of the sun.
+
+
+Skills (points left: 0)
+ - Combat                                        50.000 [0.900]
+          - Weaponmastery                        50.000 [0.950]
+                   . Sword-mastery               00.000 [0.300]
+                   . Axe-mastery                 50.000 [0.900]
+                   . Hafted-mastery              00.000 [0.300]
+                   . Polearm-mastery             00.000 [0.300]
+          - Archery                              10.200 [0.600]
+                   . Throwing                    44.500 [0.750]
+          . Antimagic                            00.000 [0.550]
+ - Sneakiness                                    50.000 [2.000]
+          . Stealth                             -01.000 [0.400]
+          . Disarming                            49.200 [2.000]
+ - Powers                                        01.657 [0.300]
+          . Devices                              24.900 [1.150]
+ - Spirituality                                  06.000 [0.400]
+          . Prayer                               00.000 [0.500]
+ - Monster-lore                                  00.000 [0.500]
+          . Construction                         50.000 [1.000]
+          . First-aid                            01.000 [0.600]
+
+Abilities
+ * Extra Max Blow(1)
+ * Extra Max Blow(2)
+ * Spread blows
+
+
+  [Fates]
+
+You are fated to meet a Blubbering idiot on level 1.
+
+
+  [Character Equipment]
+
+a) The Broad Axe 'Barukkheled' (2d6) (+13,+19) (+3)
+        It can be wielded two-handed.  It increases your constitution by 3.  
+    It is especially deadly against orcs.  It is especially deadly against
+    trolls.  It is especially deadly against giants.  It fights against
+    evil with holy fury.  It allows you to see invisible monsters.  It
+    cannot be harmed by acid, cold, lightning or fire.  
+    It was given to you as a reward.
+d) The Harp of Thorin (+2 to stealth)
+    It can be activated for mass charm
+    every 750 turns if it is being worn. It grants you the power of remove
+    fear if it is being worn.  It increases your charisma, stealth, 
+    infravision, ability to tunnel and luck by 2.  It sustains your 
+    charisma.  It cannot be harmed by acid, cold, lightning or fire.  
+    It was given to you as a reward.
+e) a Ring of Lordly Protection [+20] {100% off}
+    It provides immunity to paralysis.  It
+    provides resistance to life draining, poison, confusion and 
+    disenchantment.  It cannot be harmed by acid, cold, lightning or fire.
+    
+    You stole it from the Jewelry Shop.
+f) a Ring of Damage (+15) {cursed}
+k) a Wings of Manwe [10,+7] (+5 to speed)
+    It increases your strength and 
+    speed by 5.  It provides immunity to electricity.  It provides
+    resistance to confusion.  
+m) The Phial of Galadriel (+4)
+    It can be activated for light area (dam
+    2d15) every 10+d10 turns if it is being worn. It provides light
+    (radius 3) forever.  It prevents stuns. It increases your searching
+     and luck by 4.  It cannot be harmed by acid, cold, lightning or fire.
+    
+    It was given to you as a reward.
+n) The Rusty Chain Mail of Ruilmirin (-5 to accuracy) [14,+4]
+    It sustains your dexterity.  It
+    provides immunity to acid, electricity and fire.  It provides
+    resistance to light, dark and disenchantment.  It cannot be harmed by
+    acid, cold, lightning or fire.  
+    You found it in the remains of a Green drake on level 35 of Angband.
+o) The Cloak of Ghan-buri-Ghan (+5,+5) [14,+0] (+5)
+    It
+    grants you the power of berserk if it is being worn.  It increases 
+    your dexterity, stealth and speed by 5.  It makes you invisible.  It
+    sustains your dexterity.  It cannot be harmed by acid, cold, lightning
+    or fire.  
+    It was given to you as a reward.
+p) (nothing)
+s) The Metal Cap of Thengel [3,+12] (+3)
+    It increases your wisdom, charisma and 
+    luck by 3.  It provides resistance to confusion.  It cannot be harmed
+    by acid, cold, lightning or fire.  
+    It was given to you as a reward.
+u) a Handclaw (+5,+5) [3,+0]
+x) a Rogue's Pair of Soft Leather Boots of Free Action [2,+13] (+2 to stealth)
+    It grants you the power of panic hit
+     if it is being worn.  It increases your stealth, searching and luck
+     by 2.  It provides immunity to paralysis.  It cannot be harmed by
+    acid, cold, lightning or fire.  
+    You bought it from the Rare Footwear Shop.
+z) (nothing)
+{) (nothing)
+|) a Shovel (+1)
+    It increases your ability to
+    tunnel by 1.  
+
+
+  [Character Inventory]
+
+a) 3 Lembases
+b) 3 Sprigs of Athelas
+c) a Potion of Cure Critical Wounds
+d) 6 Potions of Curing
+e) 2 Scrolls of Word of Recall
+    
+f) 4 Scrolls of Satisfy Hunger
+    
+g) a Silver Rod of the Istari of Recall (200/200)
+h) a Ring of Clear Thought {100% off}
+    It can be activated for cure insanity every 200 turns if
+    it is being worn. It sustains your intelligence and wisdom.  It makes
+    you completely fearless.  It provides resistance to confusion.  It
+    cannot be harmed by acid, cold, lightning or fire.  
+    You stole it from the Rare Jewelry Shop.
+i) The Anchor of Space-Time
+    It provides light (radius 2)
+    forever.  It prevents the space-time continuum from being disrupted.  
+    It cannot be harmed by acid, cold, lightning or fire.  
+    It was given to you as a reward.
+j) 3 Daggers of Slay Evil (1d5) (+8,+4)
+k) a Spiked Dagger of the Noldor (2d4) (+11,+17) [+12] (+4 to stealth)
+l) a Well-balanced Curved Lightsaber of Slay Troll (E:140, L:6) (6d6) (+11,+10) [1
+    It provides light (radius 2) forever.  
+    It is easy to throw. It increases your spell power by 1.  It increases
+     your mana capacity by 20%.  It is very sharp and can cut your foes.  
+    It is especially deadly against trolls.  It makes you completely
+    fearless.  It reflects bolts and arrows.  It has been blessed by the
+    gods.  
+    You found it lying on the ground on level 50 of Angband.
+m) The Spear 'Nimloth' (2d4) (+11,+13) (+3 to speed)
+    It increases 
+    your stealth, infravision and speed by 3.  It does extra damage from 
+    frost.  It strikes at undead with holy wrath.  It provides resistance 
+    to cold and dark.  It allows you to see invisible monsters.  It has
+    been blessed by the gods.  It cannot be harmed by acid, cold,
+    lightning or fire.  
+    You found it in the remains of a Dark elven shade on level 51 of Angband.
+n) The Trident of Duinath (E:0, L:0) (2d5) (+4,+3) [4,+0] (+4)
+    
+    It can be wielded two-handed.  It is easy to throw. It increases your 
+    strength, intelligence and constitution by 4.  It is especially deadly
+    against trolls.  It cannot be harmed by acid, cold, lightning or fire.
+    
+    You found it in the remains of The Blubbering idiot, agent of black
+    market, Simon the weak on level 5 of Angband.
+o) (nothing)
+p) (nothing)
+q) (nothing)
+r) (nothing)
+s) (nothing)
+t) (nothing)
+u) (nothing)
+v) (nothing)
+w) (nothing)
+
+
+  [Home Inventory - Bree ]
+
+a) 2 Scrolls of Summon Never-Moving Pet
+b) a Scroll of Acquirement
+c) a Wand of Tidal Wave[3|21] (10 charges)
+d) a Staff of Wings of Winds[7|27] (10 charges) (+10 to speed)
+e) a Ring of Accuracy (+20)
+f) a Ring of Speed (+4) {100% off}
+    It increases your speed
+     by 4.  It cannot be harmed by acid, cold, lightning or fire.  
+    You stole it from the Jewelry Shop.
+g) a Rohirric Amulet of Protection from Evil (+3 to speed) {100% off}
+    It can be activated for protection
+    from evil (dur level*3 + d25) every 225+d225 turns if it is being
+    worn. It increases your speed by 3.  It makes you completely fearless.
+    It allows you to sense the presence of evil beings.  It has been
+    blessed by the gods.  
+    You stole it from the Black Market.
+h) The Necklace of Girion [10,+0] (+5)
+    It can be activated for grow
+    mushrooms every 50+d50 turns if it is being worn. It increases your 
+    charisma by 5.  It sustains your charisma.  It provides resistance to 
+    poison and nexus.  It allows you to see invisible monsters.  It cannot
+    be harmed by acid, cold, lightning or fire.  
+    You found it in the remains of Pip, the Braver from Another World on level
+    42 of Angband.
+i) The Amulet of Faramir (+18,+0) [+8] (+5)
+    It can be activated for word of recall every 200 turns
+     if it is being worn. It increases your stealth by 5.  It sustains 
+    your dexterity.  It provides resistance to confusion.  It cannot be
+    harmed by acid, cold, lightning or fire.  
+    You found it in the remains of Bill the Stone Troll on level 51 of Angband.
+j) an Elven Metal Lamellar Armour (-3 to accuracy) [23,+18] (+1 to stealth)
+k) a Jedi Master Robe of Resist Cold [6,+3]
+    
+    It provides resistance to cold, light, dark, confusion and chaos.  It
+    cannot be harmed by acid, cold, lightning or fire.  
+    You found it in the remains of Boldor, King of the Yeeks on level 15 of
+    Angband.
+l) an Ethereal Elven Cloak [4,+20] (+1 to stealth)
+m) an Ethereal Mouse Fur of Protection [1,+28]
+    It can be activated for wraith-form every 50+d50 turns if it
+    is being worn. It provides immunity to paralysis.  It provides
+    resistance to life draining and shards.  It allows you to see
+    invisible monsters.  It cannot be harmed by acid, cold, lightning or
+    fire.  
+    It was given to you as a reward.
+n) a Feathered Cloak of Aman [1,+10] (+2 to stealth)
+    It increases your stealth by 2.  It
+    provides resistance to chaos.  It cannot be harmed by acid, cold,
+    lightning or fire.  
+    It was given to you as a reward.
+o) a Crusader Axe of the Maiar (2d5) (+12,+5) [+1]
+p) a Chargeable Long Sword (3d4) (+9,+9)
+q) a Chargeable Wakizashi (3d3) (+8,+9)
+r) The Small Wooden Boomerang of Braiquen (E:10, L:1) (1d4) (+15,+14)
+    It does extra damage from fire and 
+    light.  It is a great bane of dragons.  It is especially deadly
+    against orcs.  It strikes at undead with holy wrath.  It cannot be
+    harmed by acid, cold, lightning or fire.  
+    You found it in the remains of a Young red dragon on level 23 of Angband.
+
+
+  [The Museum Inventory - Bree ]
+
+a) The Maiablade of Gothmog (7d6) (+13,+13) (-20)
+    
+    It provides light (radius 1) forever.  It decreases your luck by 20.  
+    It does extra damage from fire.  It poisons your foes.  It produces
+    chaotic effects.  It is very sharp and can make your foes bleed.  It
+    strikes at demons with holy wrath.  It fights against evil with holy
+    fury.  It can re-curse itself.  It can resist being shattered by
+    morgul beings.  It cannot be harmed by acid, cold, lightning or fire.  
+    
+    You found it lying on the ground on level 47 of Angband.
+b) The Maiahorn of Gothmog [2,+13] (-5)
+    It provides
+    light (radius 2) forever.  It decreases your charisma by 5.  It allows
+    you to see invisible monsters.  It allows you to sense the presence of 
+    Maiar.  It slows your metabolism.  It speeds your regenerative powers.
+    It can re-curse itself.  It cannot be harmed by acid, cold, lightning
+    or fire.  
+    You found it in the remains of a Vampire lord on level 42 of Angband.
+c) The Ring 'Varang' {cursed}
+    
+    It makes you invisible.  It sustains your wisdom and charisma.  It
+    provides resistance to acid, light, blindness, sound and shards.  It
+    slows your metabolism.  It aggravates nearby creatures.  It is cursed.
+    It can re-curse itself.  It cannot be harmed by acid, cold, lightning
+    or fire.  
+    You found it in the remains of a Greater mummy on level 28 of Angband.
+d) The Ring of Valmin (+2)
+    
+    It increases your intelligence and wisdom by 2.  It sustains your 
+    intelligence and charisma.  It provides immunity to paralysis.  It
+    cannot be harmed by acid, cold, lightning or fire.  
+    You found it lying on the ground on level 24 of Angband.
+e) The Ring of Ardanie (-7) {cursed}
+    It decreases 
+    your constitution and charisma by 7.  It sustains your constitution.  
+    It provides resistance to nether and nexus.  It slows your metabolism.
+    It induces random teleportation.  It aggravates nearby creatures.  It
+    is heavily cursed.  It cannot be harmed by acid, cold, lightning or
+    fire.  
+    You found it in the remains of Hagen, son of Alberich on level 35 of
+    Angband.
+f) The Amulet of Saeron (+3 to infravision)
+    It can be used to store a spell.  It increases your 
+    infravision by 3.  It sustains your strength, intelligence, wisdom and 
+    dexterity.  It provides immunity to paralysis.  It provides resistance 
+    to cold and dark.  It cannot be harmed by acid, cold, lightning or
+    fire.  
+    You found it in the remains of a Dunlending on level 28 of Angband.
+g) The Star of Elendil (+1)
+    It
+    can be activated for light (dam 2d15) & map area every 50+d50 turns if
+    it is being worn. It grants you the power of detect curses if it is
+    being worn.  It provides light (radius 4) forever.  It increases your 
+    speed by 1.  It provides resistance to life draining.  It allows you
+    to see invisible monsters.  It cannot be harmed by acid, cold,
+    lightning or fire.  
+    You found it in the remains of a Green Thunderlord on level 47 of Angband.
+h) The Key of Orthanc
+    
+    It can be activated for perilous identify every turn if it is being
+    worn. It provides light (radius 1) forever.  It cannot be harmed by
+    acid, cold, lightning or fire.  
+    It was given to you as a reward.
+i) The Cloak 'Holcolleth' [1,+4] (+2)
+    It can be activated for sleep nearby
+    monsters every 55 turns if it is being worn. It increases your 
+    intelligence, wisdom, stealth and speed by 2.  It provides resistance 
+    to acid.  It cannot be harmed by acid, cold, lightning or fire.  
+    You found it lying on the ground on level 32 of Angband.
+j) The Light War Axe 'Cam-tal-crist' (2d5) (+12,+15) (+4)
+    It increases 
+    your dexterity by 4.  It is very sharp and can cut your foes.  It is
+    very sharp and can make your foes bleed.  It cannot be harmed by acid,
+    cold, lightning or fire.  
+    It was given to you as a reward.
+k) The Broad Axe 'Orchast' (2d7) (+20,+14) (+4)
+    It can be wielded two-handed.  It can
+    be activated for detect orcs every 10 turns if it is being worn. It 
+    increases your dexterity and searching by 4.  It is especially deadly
+    against orcs.  It cannot be harmed by acid, cold, lightning or fire.  
+    It was given to you as a reward.
+l) The Broad Axe of Anwen (2d6) (-8,-4) (-6) {cursed}
+    It can be wielded two-handed.  It 
+    decreases your charisma by 6.  It does extra damage from frost and 
+    light.  It drains experience.  It fills you with the Black Breath.  It
+    is heavily cursed.  It cannot be harmed by acid, cold, lightning or
+    fire.  
+    You found it in the remains of Barney the Dinosaur on level 39 of Angband.
+m) The Small Sword of Telemel (1d8) (+16,+11)
+    
+    It does extra damage from electricity and frost.  It produces chaotic
+    effects.  It is especially deadly against dragons.  It fights against
+    evil with holy fury.  It is especially deadly against natural
+    creatures.  It cannot be harmed by acid, cold, lightning or fire.  
+    You found it lying on the ground on level 24 of Angband.
+n) The Cutlass 'Gondricam' (2d5) (+10,+11) (+3)
+    It increases 
+    your dexterity and stealth by 3.  It provides resistance to acid, 
+    electricity, fire and cold.  It allows you to levitate.  It allows you
+    to see invisible monsters.  It speeds your regenerative powers.  It
+    cannot be harmed by acid, cold, lightning or fire.  
+    You found it in the remains of Kavlax the Many-Headed on level 44 of
+    Angband.
+o) The Broad Sword 'Orcrist' (4d3) (+10,+15) (+3)
+    It provides light (radius 1) forever.  It increases your 
+    searching by 3.  It does extra damage from frost.  It is especially
+    deadly against dragons.  It is especially deadly against orcs.  It
+    fights against evil with holy fury.  It provides resistance to cold
+     and dark.  It allows you to sense the presence of orcs and dragons.  
+    It slows your metabolism.  It speeds your regenerative powers.  It
+    cannot be harmed by acid, cold, lightning or fire.  
+    You found it in the remains of a Dunlending on level 28 of Angband.
+p) The Two-Handed Sword 'Anglachel' (4d6) (+13,+17) (+2)
+    It
+    must be wielded two-handed.  It increases your strength by 2.  It does
+    extra damage from fire.  It poisons your foes.  It is very sharp and
+    can cut your foes.  It is a great bane of dragons.  It is especially
+    deadly against trolls.  It provides immunity to paralysis.  It
+    provides resistance to fire and poison.  It allows you to see
+    invisible monsters.  It allows you to sense the presence of dragons.  
+    It slows your metabolism.  It speeds your regenerative powers.  It 
+    drains life.  It cannot be harmed by acid, cold, lightning or fire.  
+    It was given to you as a reward.
+q) The Fauchard of Barch (3d4) (+10,+4) [8,+0] (+3)
+    It can be wielded two-handed.  It 
+    increases your charisma by 3.  It does extra damage from frost.  It
+    drains life from your foes.  It is very sharp and can cut your foes.  
+    It strikes at undead with holy wrath.  It is especially deadly against
+    natural creatures.  It has been blessed by the gods.  It cannot be
+    harmed by acid, cold, lightning or fire.  
+    You found it in the remains of Amlach, son of Imlach on level 9 of Angband.
+r) The Horn of Boromir (+3)
+    
+    It can be activated for mass human summoning every 1000 turns if it is
+    being worn. It increases your strength and constitution by 3.  It
+    makes you completely fearless.  It provides resistance to fire.  It
+    aggravates nearby creatures.  It cannot be harmed by acid, cold,
+    lightning or fire.  
+    You found it in the remains of a Dark elven shade on level 51 of Angband.
+s) a Climbing Set
+    
+    It allows you to climb mountains.  
+
+

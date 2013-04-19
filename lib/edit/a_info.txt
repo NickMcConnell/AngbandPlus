@@ -1788,14 +1788,14 @@ D:Law and Chaos, and with power over both. Loknare means Dragonblaze.
 # The Hard Leather Armour of Himring
 
 # The Lightsaber of Luke Skywalker
-N:167:of Luke Skywalker
-I:23:55:5
-W:50:10:15:50000
-P:10:5d5:12:12:0
-F:ACTIVATE | HIDE_TYPE | INSTA_ART | INT | DEX | CON | SPEED | FREE_ACT | RES_ACID | 
-F:RES_NEXUS | RES_NETHER | RES_POIS | LEVELS | VORPAL | REFLECT | SPELL | LITE2 | RES_FEAR
-a:HARDCORE=CURE_700
-D:The lightsaber of the young jedi Luke Skywalker, the son of Anakin Skywalker.
+#N:167:of Luke Skywalker
+#I:23:55:5
+#W:50:10:15:50000
+#P:10:5d5:12:12:0
+#F:ACTIVATE | HIDE_TYPE | INSTA_ART | INT | DEX | CON | SPEED | FREE_ACT | RES_ACID | LEVELS
+#F:RES_NEXUS | RES_NETHER | RES_POIS |  VORPAL | REFLECT | SPELL | LITE2 | RES_FEAR
+#a:HARDCORE=CURE_700
+#D:The lightsaber of the young jedi Luke Skywalker, the son of Anakin Skywalker.
 
 # The Soft Leather Armour 'Hithlomir'
 N:168:'Hithlomir'
@@ -2538,8 +2538,8 @@ N:249:of Anankin Skywalker
 I:23:55:4
 W:40:10:15:40000
 P:10:5d5:10:15:0
-F:ACTIVATE | HIDE_TYPE | INSTA_ART | STR | DEX | CON | SPEED |
-F:RES_SHARDS | RES_COLD | RES_BLIND |  LEVELS | VORPAL | REFLECT | SPELL | LITE2 | RES_FEAR
+F:ACTIVATE | HIDE_TYPE | INSTA_ART | STR | DEX | CON | SPEED | LEVELS 
+F:RES_SHARDS | RES_COLD | RES_BLIND |   VORPAL | REFLECT | SPELL | LITE2 | RES_FEAR
 a:HARDCORE=GORLIM
 D:This lightsaber once belonged to Anankin Skywalker, a fearless jedi and a skilled pilot, who D:unfortunately succumbed to the powers of the Dark Side.
 
@@ -2548,8 +2548,8 @@ N:250:of Obi Wan Kenobi
 I:23:55:5
 W:50:10:15:50000
 P:10:5d5:10:10:0
-F:ACTIVATE | HIDE_TYPE | INSTA_ART | INT | DEX | CON | CHR | SPEED | RES_FIRE |
-F:RES_ELEC | RES_DARK | RES_POIS |  LEVELS | VORPAL | REFLECT | SPELL | LITE2 | RES_FEAR
+F:ACTIVATE | HIDE_TYPE | INSTA_ART | INT | DEX | CON | CHR | SPEED | RES_FIRE | LEVELS
+F:RES_ELEC | RES_DARK | RES_POIS | VORPAL | REFLECT | SPELL | LITE2 | RES_FEAR
 a:HARDCORE=PROT_EVIL
 D:The lightsaber of the jedi knight Obi Wan Kenobi, a skilled and wise jedi.
 
@@ -2559,26 +2559,27 @@ I:36:79:10
 W:90:25:20:100000
 P:1:0d0:0:0:25
 F:ACTIVATE | HIDE_TYPE | INSTA_ART | INT | WIS | DEX | CHR | LUCK | SEARCH | SAFETY
-F:FREE_ACT | FLY | SPEED | RES_DISEN | ESP_EVIL | SUST_WIS |
+F:FREE_ACT | FLY | SPEED | RES_DISEN | ESP_EVIL | SUST_WIS | 
 a:HARDCORE=BLADETURNER
 D:It looks like an old worn jedi robe. However it contains awesome powers, as it is really the robe D:of Yoda, one of the greatest and wisest of jedi masters. 
 
 # The Curved Lighsaber of Count Dooku
 N:252:of Count Dooku
-I:23:55:6
+I:23:56:6
 W:60:10:15:60000
 P:10:6d6:12:12:0
-F:ACTIVATE | HIDE_TYPE | INSTA_ART | INT | DEX | CHR | STEALTH | FREE_ACT | RES_FIRE | 
+F:ACTIVATE | HIDE_TYPE | INSTA_ART | INT | DEX | CHR | STEALTH | FREE_ACT | RES_FIRE | LEVELS
 F:RES_CHAOS | RES_SHARDS | RES_POIS | LEVELS | VORPAL | REFLECT | SPELL | LITE2 | RES_FEAR
 a:HARDCORE=CHARM_OTHERS
-D:The lightsaber of Count Dooku, once a great jedi knight, but sadly he has turned to the Dark D:Side.
+D:The lightsaber of Count Dooku, once a great jedi knight, but sadly he has turned to the Dark 
+D:Side.
 
 # The Doublended Lightsaber of Darth Maul
 N:253:of Darth Maul
-I:23:55:4
+I:23:57:4
 W:40:10:15:40000
 P:10:9d9:10:12:0
-F:ACTIVATE | HIDE_TYPE | INSTA_ART | STR | DEX | SPEED | FREE_ACT | RES_FIRE | 
+F:ACTIVATE | HIDE_TYPE | INSTA_ART | STR | DEX | SPEED | FREE_ACT | RES_FIRE | LEVELS
 F:RES_COLD | RES_ACID | RES_POIS |LEVELS | VORPAL | REFLECT | SPELL | LITE2 | RES_FEAR
 a:HARDCORE=TELE_AWAY
 D:The lightsaber of Darth Maul, an evil jedi, skilled in the ways of the Dark Side.
@@ -2590,7 +2591,8 @@ W:30:25:20:10000
 P:1:0d0:0:0:15
 F:HIDE_TYPE | INSTA_ART | INT | DEX | CON | SPEED | SAFETY
 F:FREE_ACT | FLY | RES_DISEN | SUST_DEX |
-D:It looks like an old worn jedi robe. However it contains awesome powers, as it is really the robe D:of Obi Wan Kenobi, a skilled and wise jedi.
+D:It looks like an old worn jedi robe. However it contains awesome powers, as it is really the robe 
+D:of Obi Wan Kenobi, a skilled and wise jedi.
 
 
 

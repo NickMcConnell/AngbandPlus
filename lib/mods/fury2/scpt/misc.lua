@@ -37,7 +37,7 @@ function drunk_takes_wine(m_idx, item)
 	m_ptr = monster(m_idx)
 	o_ptr = get_object(item)
 
-	if (m_ptr.r_idx == test_monster_name("Singing, happy drunk")) 
+	if (m_ptr.r_idx == test_monster_name("Singing, happy drunk"))
 			and (o_ptr.tval == TV_FOOD) and ((o_ptr.sval == 38) or (o_ptr.sval == 39)) then
 
 		cmsg_print(TERM_YELLOW, "'Hic!'")
@@ -57,15 +57,15 @@ end
 add_hook_script(HOOK_GIVE, "drunk_takes_wine", "drunk_takes_wine")
 
 -- winged races are allowed soft armor only, no cloaks (from T-Plus)
-function __hook_wings_wear(obj) 
-    local str = get_race_name() 
+function __hook_wings_wear(obj)
+    local str = get_race_name()
     local type = obj.tval
-         if (str == "Dragon" or str == "Eagle") and (type == 37) then 
-            return TRUE, -1 
-         end        
-end 
+         if (str == "Dragon" or str == "Eagle") and (type == 37) then
+            return TRUE, -1
+         end
+end
 
-add_hook_script(HOOK_WIELD_SLOT, "__hook_wings_wear", "__hook_wings_wear") 
+add_hook_script(HOOK_WIELD_SLOT, "__hook_wings_wear", "__hook_wings_wear")
 
 
 
@@ -112,7 +112,7 @@ function hobbit_food(m_idx, item)
 	m_ptr = monster(m_idx)
 	o_ptr = get_object(item)
 
-	if (m_ptr.r_idx == test_monster_name("Scruffy-looking hobbit")) 
+	if (m_ptr.r_idx == test_monster_name("Scruffy-looking hobbit"))
 	and (o_ptr.tval == TV_FOOD) then
 		cmsg_print(TERM_YELLOW, "'Yum!'")
 		inven_item_increase(item, -1)
@@ -144,7 +144,7 @@ function smeagol_ring(m_idx, item)
    end
 end
 
-add_hook_script(HOOK_GIVE, "smeagol_ring", "smeagol_ring") 
+add_hook_script(HOOK_GIVE, "smeagol_ring", "smeagol_ring")
 
 -- functions to check for Map and Key of Thror before proceeding in Erebor
 -- Thank you, Massimiliano Marangio :-)
@@ -254,7 +254,7 @@ function spider_move(y, x, m_idx)
 						lite_spot(m_ptr.fy, m_ptr.fx)
 						-- Don't get any other messages
 						return TRUE
-					-- This should not arise (neutral monster, non-wall passing, on a web already), but better 
+					-- This should not arise (neutral monster, non-wall passing, on a web already), but better
 					-- to be safe...
 					else
 						-- Don't get the message more than once, then give it them...
@@ -295,14 +295,14 @@ add_hooks
 	[HOOK_WIELD_SLOT] =     function (obj, ideal)
 			if ((obj.tval == 55) or (obj.tval ==65)) then
 				local slot
-				
+
 					if(ideal == TRUE) then
 						slot = INVEN_ARM
 					else
 						slot = get_slot(INVEN_ARM)
 					end
-				
-				
+
+
 				return TRUE, slot
 			end
 	end,
@@ -313,14 +313,14 @@ add_hooks
 	[HOOK_WIELD_SLOT] =     function (obj, ideal)
 			if ((obj.tval == 11 and obj.sval == 25)) then
 				local slot
-				
+
 					if(ideal == TRUE) then
 						slot = INVEN_HEAD
 					else
 						slot = get_slot(INVEN_HEAD)
 					end
-				
-				
+
+
 				return TRUE, slot
 			end
 	end,
@@ -331,14 +331,14 @@ add_hooks
 	[HOOK_WIELD_SLOT] =     function (obj, ideal)
 			if ((obj.tval == 1 and obj.sval == 1)) then
 				local slot
-				
+
 					if(ideal == TRUE) then
 						slot = INVEN_HEAD
 					else
 						slot = get_slot(INVEN_HEAD)
 					end
-				
-				
+
+
 				return TRUE, slot
 			end
 	end,
@@ -349,14 +349,14 @@ add_hooks
 	[HOOK_WIELD_SLOT] =     function (obj, ideal)
 			if ((obj.tval == 11 and obj.sval == 55 and obj.pval == 0)) then
 				local slot
-				
+
 					if(ideal == TRUE) then
 						slot = INVEN_WIELD
 					else
 						slot = get_slot(INVEN_WIELD)
 					end
-				
-				
+
+
 				return TRUE, slot
 			end
 	end,
@@ -367,42 +367,67 @@ add_hooks
 	[HOOK_WIELD_SLOT] =     function (obj, ideal)
 			if ((obj.tval == 5 and obj.sval == 0 and obj.pval == 0)) then
 				local slot
-				
+
 					if(ideal == TRUE) then
 						slot = INVEN_WIELD
 					else
 						slot = get_slot(INVEN_WIELD)
 					end
-				
-				
+
+
 				return TRUE, slot
 			end
 	end,
 }
 
-function __jedi_saber(obj) 
-    local str = get_class_name() 
+function __jedi_saber(obj)
+    local str = get_class_name()
     local type4 = obj.tval
     local type2 = obj.sval
-         if (str ~= "Jedi") and (type4 == 23 and type2 == 55 ) then 
-	 return TRUE, -1 
-      end        
-end 
-add_hook_script(HOOK_WIELD_SLOT, "__jedi_saber", "__jedi_saber") 
+         if (str ~= "Jedi") and (type4 == 23 and type2 == 55 ) then
+	 return TRUE, -1
+      end
+         if (str ~= "Jedi") and (type4 == 23 and type2 == 56 ) then
+	 return TRUE, -1
+      end
+         if (str ~= "Jedi") and (type4 == 23 and type2 == 57 ) then
+	 return TRUE, -1
+      end
+	  
+	           if (str ~= "Jedi") and (type4 == 36 and type2 == 78 ) then
+	 return TRUE, -1
+      end
+	  
+	           if (str ~= "Jedi") and (type4 == 36 and type2 == 79 ) then
+	 return TRUE, -1
+      end
+
+end
+add_hook_script(HOOK_WIELD_SLOT, "__jedi_saber", "__jedi_saber")
 
 
-function __jedi_wear(obj) 
-    local str = get_class_name() 
+function __jedi_wear(obj)
+    local str = get_class_name()
     local type4 = obj.tval
     local type2 = obj.sval
-         if (str == "Jedi") and (type4 == 38 or type4 == 37 or type4 ==19) then 
-	 return TRUE, -1 
-      end        
-end 
-add_hook_script(HOOK_WIELD_SLOT, "__jedi_wear", "__jedi_wear") 
+         if (str == "Jedi") and (type4 == 38 or type4 == 37 or type4 ==19 or type4 ==22 or type4 == 24 or type4 == 21 or type4 == 15) then
+	 return TRUE, -1
+      end
+end
+add_hook_script(HOOK_WIELD_SLOT, "__jedi_wear", "__jedi_wear")
 
+function __jedi_wear2(obj)
+    local str = get_class_name()
+    local type4 = obj.tval
+    local type2 = obj.sval
+         if (str == "Jedi") and (type4 == 23) and (type2 <= 54 or type2 >=58) then
+	 return TRUE, -1
+      end
+	  
 
-
+	  
+end
+add_hook_script(HOOK_WIELD_SLOT, "__jedi_wear2", "__jedi_wear2")
 
 
 

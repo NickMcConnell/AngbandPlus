@@ -125,7 +125,7 @@ BASILISK_KILL_BOLT = add_spell
 {
 	["name"] = 	"Kill Monster",
 	["school"] = 	SCHOOL_BASILISK,
-	["level"] = 	35,
+	["level"] = 	40,
 	["mana"] = 	200,
 	["mana_max"] =  300,
 	["fail"] = 	10,
@@ -152,10 +152,10 @@ BASILISK_KILL_BALL = add_spell
 {
 	["name"] =      "Kill Monsters",
 	["school"] =    SCHOOL_BASILISK,
-	["level"] =     45,
-	["mana"] =      200,
-	["mana_max"] =  300,
-	["fail"] =      35,
+	["level"] =     50,
+	["mana"] =      400,
+	["mana_max"] =  500,
+	["fail"] =      55,
 	["spell"] =     function()
 		local ret, dir, type
 		if (get_level(FIREFLASH, 50) >= 20) then

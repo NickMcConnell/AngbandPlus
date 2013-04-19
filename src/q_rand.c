@@ -16,13 +16,13 @@ bool is_randhero()
 void do_get_new_obj(int y, int x)
 {
 	obj_theme theme;
-	char *items[3];
-	object_type *q_ptr[3], forge[3];
+	char *items[4];
+	object_type *q_ptr[4], forge[4];
 	int max = 0, res, i;
 
 	/* Create 3 ones */
 	max = 0;
-	for (i = 0; i < 3; i++)
+	for (i = 0; i < 4; i++)
 	{
 		/* Get local object */
 		q_ptr[max] = &forge[max];
@@ -48,7 +48,7 @@ void do_get_new_obj(int y, int x)
 
 	while (TRUE)
 	{
-		res = ask_menu("Choose a reward to get(a-c to choose, ESC to cancel)?", (char **)items, 3);
+		res = ask_menu("Choose a reward to get(a-d to choose, ESC to cancel)?", (char **)items, 4);
 
 		/* Ok ? lets learn ! */
 		if (res > -1)
@@ -61,7 +61,7 @@ void do_get_new_obj(int y, int x)
 		}
 	}
 
-	for (i = 0; i < 3; i++)
+	for (i = 0; i < 4; i++)
 	{
 
 		object_type *o_ptr = q_ptr[i];
@@ -85,7 +85,7 @@ void do_get_new_obj(int y, int x)
 		}
 	}
 
-	for (i = 0; i < 3; i++)
+	for (i = 0; i < 4; i++)
 		C_KILL(items[i], 100, char);
 
 }
@@ -137,11 +137,11 @@ void princess_death(s32b m_idx, s32b r_idx)
 
 void hero_death(s32b m_idx, s32b r_idx)
 {
-	
+
 	random_quests[dun_level].type = 0;
 	random_quests[dun_level].done = TRUE;
 
-	
+
 	switch(lost_sword_fury)
 	{
 	case 1:
@@ -149,32 +149,32 @@ void hero_death(s32b m_idx, s32b r_idx)
 				cmsg_print(TERM_YELLOW, "Frodo steps up next to you and picks up his sword:");
 				cmsg_print(TERM_YELLOW, "'Ah ! my sword ! my trusty sword ! Thanks.");
 				break;
-			} 
+			}
 	case 2:
 			{
 				cmsg_print(TERM_YELLOW, "Bob runs up next to you, and grabs his sword:");
 				cmsg_print(TERM_YELLOW, "'Ah ! my sword ! my trusty sword ! Thanks.");
 				break;
-			} 
+			}
 	case 3:
-		
+
 			{
 				cmsg_print(TERM_YELLOW, "Gandalf walks up to you, and takes up his sword:");
 				cmsg_print(TERM_YELLOW, "'Ah ! my sword ! my trusty sword ! Thanks.");
 				break;
-			} 
+			}
 	case 4:
 			{
 				cmsg_print(TERM_YELLOW, "Neil grabs his sword from the monster:");
 				cmsg_print(TERM_YELLOW, "'Ah ! my sword ! my trusty sword ! Thanks.");
 				break;
-			} 
+			}
 	case 5:
 			{
 				cmsg_print(TERM_YELLOW, "The sword levitates, and a voice starts speaking:");
 				cmsg_print(TERM_YELLOW, "'Ah ! my sword ! my trusty sword ! Thanks.");
 				break;
-			} 
+			}
 
 	}
 
@@ -295,13 +295,13 @@ bool quest_random_turn_hook(char *fmt)
 
 bool quest_random_feeling_hook(char *fmt)
 {
-	
+
 	if (!(dungeon_flags1 & DF1_PRINCIPAL)) return (FALSE);
 	if ((dun_level < 1) || (dun_level >= MAX_RANDOM_QUEST)) return (FALSE);
 	if (!random_quests[dun_level].type) return (FALSE);
 	if (p_ptr->inside_quest) return (FALSE);
 	if (!dun_level) return (FALSE);
-	
+
 	if (is_randhero())
 	{
 		  switch(randint(5))
@@ -342,7 +342,7 @@ bool quest_random_feeling_hook(char *fmt)
 			  break;
 			  }
 			  }
-		
+
 	//	cmsg_format(TERM_YELLOW, "A strange man wrapped in a dark cloak steps out of the shadows:");
 	//	cmsg_format(TERM_YELLOW, "'Ah please help me ! A group of %s stole my sword! I'm nothing without it'", r_info[random_quests[dun_level].r_idx].name + r_name);
 	}

@@ -1,0 +1,235 @@
+  [FuryMod Town Version 1.1.3 Character Sheet]
+
+ Name  : Dr. Fury               Age                 23       STR:     18       
+ Sex   : Male                   Height              58       INT:     10       
+ Race  : RohanKnight Barbarian  Weight              85       WIS:     14       
+ Class : Alchemist              Social Class         3       DEX:     20       
+ Body  : Player                                              Con:     17     18
+ God   : Tulkas                                              CHR:     15       
+                                                                               
+ + To Melee Hit          35 Level             21    Hit Points      157/   157 
+ + To Melee Damage       26 Experience     18007    Spell Points     27/    27 
+ + To Ranged Hit         30 Max Exp        18007    Sanity          -30/   110 
+ + To Ranged Damage       0 Exp to Adv.    18700    Piety                  736 
+   AC                 13+58 Gold           26972    Speed            Fast (+6) 
+                                                                               
+                         (Miscellaneous Abilities)                             
+ Fighting    : Legendary[7] Perception  : Bad          Blows/Round:  2         
+ Bows/Throw  : Superb       Searching   : Bad          Shots/Round:  1         
+ Saving Throw: Bad          Disarming   : Very Bad     Mel.dmg/Rnd:  6d4+52    
+ Stealth     : Fair         Magic Device: Poor         Infra-Vision: 0 feet    
+                                                       Tactic:       berserker 
+                                                       Explor:       normal    
+                         (Character Background)                                
+          You are one of several children of a Devoted Mercenary.              
+          You have blue eyes, wavy brown hair, and an average                  
+          complexion.                                                          
+                                                                               
+
+
+  [Miscellaneous information]
+
+ Joke monsters:        OFF
+ Maximize mode:        ON
+ Preserve Mode:        ON
+ Autoscum:             ON
+ Small Levels:         ALWAYS
+ Arena Levels:         ON
+ Always unusual rooms: OFF
+ Persistent Dungeons:  OFF
+
+ Recall Depth:
+        Angband: Level 18 (900')
+
+ Your body was a Player.
+ You have defeated 675 enemies.
+ You saved 17 princesses.
+ You found none of the relic pieces.
+
+ You started your adventure the 43rd Yavie of the 2890th year of the third age.
+ You ended your adventure the 44th Yavie of the 2890th year of the third age.
+ Your adventure lasted 1 day.
+
+     Your Attributes:
+You are dead, killed by a Vampire gnome on level 18 of Angband.
+You can use rohir powers.
+You can see invisible creatures.
+You levitate just over the ground.
+You have free action.
+You can sense the presence of orcs.
+You can sense the presence of trolls.
+You are lucky.
+You have a firm hold on your life force.
+You reflect arrows and bolts.
+You are resistant to acid.
+You are resistant to lightning.
+You are resistant to fire.
+You are resistant to cold.
+You are resistant to poison.
+You are resistant to confusion.
+You are resistant to chaos.
+You are completely fearless.
+Your dexterity is sustained.
+Your wisdom is affected by your equipment.
+Your dexterity is affected by your equipment.
+Your charisma is affected by your equipment.
+Your stealth is affected by your equipment.
+Your digging ability is affected by your equipment.
+Your weapon is especially deadly against orcs.
+Your weapon is especially deadly against trolls.
+
+
+                    adefkmnopsuxz{|@            
+        Add Dex   : 2...............            
+        Add Chr   : 2...............            
+        Add Stea. : 2.....5.........            
+        Add Tun.. : ..............1.            
+        Add Speed : ...............+            
+        Slay Orc  : +...............            
+        Slay Troll: +...............            
+        Sust Str  : ................            
+        Sust Int  : ................            
+        Sust Wis  : ................            
+        Sust Dex  : ................            
+        Sust Con  : ................            
+        Sust Chr  : ................            
+        Invisible : ................            
+        Mul life  : ................            
+        Sens Fire : ................            
+        Reflect   : ........+.......            
+        Free Act  : .......+........            
+        Hold Life : ................            
+        Res Acid  : ......+.........            
+        Res Elec  : ......+.........            
+        Res Fire  : ......+.........            
+        Res Cold  : ......+.........            
+        Res Pois  : ......+.........            
+        Res Fear  : ...............+            
+        Res Light : ................            
+        Res Dark  : ................            
+        Res Blind : ................            
+        Res Conf  : ......+.........            
+        Res Sound : ................            
+        Res Shard : ................            
+        Res Neth  : ................            
+        Res Nexus : ................            
+        Res Chaos : ......+.........            
+        Res Disen : ................            
+        Levitate  : +..........+....            
+        See Invis : +...............            
+        Orc.ESP   : +.....+.........            
+        Troll.ESP : +...............            
+
+Skills (points left: 0)
+ - Combat                                        29.350 [0.700]
+          . Weaponmastery                        28.100 [0.900]
+          . Archery                              01.000 [0.000]
+ - Sneakiness                                    03.935 [0.900]
+          . Stealth                             -09.100 [0.500]
+          . Disarming                            00.800 [0.000]
+ - Powers                                        06.330 [0.900]
+          . Devices                              04.250 [1.250]
+                   . Fire                        00.000 [0.100]
+                   . Water                       00.000 [0.100]
+                   . Air                         00.000 [0.100]
+                   . Earth                       00.000 [0.100]
+          . Meta                                 00.000 [0.500]
+          . Movement                             00.000 [0.100]
+          . Knowledge                            10.000 [0.500]
+          . Temporal                             00.000 [0.100]
+          . Mind                                 00.000 [0.100]
+          . Nature                               00.000 [0.100]
+          . Runecraft                            00.000 [0.700]
+          . Innate                               00.000 [0.100]
+          . Alchemy                              28.200 [0.800]
+ - Spirituality                                  06.100 [0.800]
+          . Prayer                               05.000 [0.500]
+ - Monster-lore                                  00.000 [0.500]
+          . First-aid                            01.000 [0.600]
+
+Abilities
+ * Perfect casting
+
+
+  [Character Equipment]
+
+a) The Long Sword 'Elvagil' (3d4) (+5,+7) (+2)
+        It increases your dexterity, charisma and stealth by 2.  It is
+    especially deadly against orcs.  It is especially deadly against
+    trolls.  It allows you to levitate.  It allows you to see invisible
+    monsters.  It allows you to sense the presence of orcs and trolls.  It
+    cannot be harmed by acid, cold, lightning or fire.  
+    It was given to you as a reward.
+d) (nothing)
+e) a Ring of Spell [Divine Aim]
+f) a Ring of Protection [+13]
+k) The Amulet of Faramir (+18,+0) [+8] (+5)
+m) a Brass Lantern (with 2283 turns of light)
+    It provides light (radius 2) when
+    fueled.  It cannot be harmed by fire.  
+n) an Elven Soft Leather Armour [4,+19] (+5 to stealth)
+    It increases your stealth by 5.
+    It provides resistance to acid, electricity, fire, cold, poison and 
+    chaos.  It allows you to sense the presence of orcs.  It cannot be
+    harmed by acid, cold, lightning or fire.  
+    You made it yourself.
+o) an Ethereal Mouse Fur [1,+18]
+p) a Buckler of Reflection [1,+6]
+s) The Metal Cap of Thengel [3,+12] (+3)
+u) a Set of Leather Gloves [1,+0]
+    
+x) a Pair of Hard Leather Boots of Levitation [3,+5]
+z) (nothing)
+{) (nothing)
+|) a Pick (+1)
+    It increases your ability to tunnel by 1.  
+
+
+  [Character Inventory]
+
+a) a Book of Divine Aim
+    
+b) 3 Rations of Cram
+    
+c) 4 Flasks of oil
+    
+d) a Potion of Cure Light Insanity
+e) 5 Scrolls of Word of Recall
+    
+f) 46 Scrolls of Nothing
+g) a Copper Rod of Nothing (20/20)
+h) 2 Rod Tips of Nothing (1 Mana to cast)
+i) a Staff of Nothing[1|1] (1 charge)
+j) a Staff of Disarm[2|10] (21 charges)
+k) a Staff of Disarm[2|17] (15 charges)
+l) an Amulet of Nothing
+m) a Buckler [1,+0]
+n) 4 Essences of Teleport
+o) 6 Essences of Life
+p) an Alchemic Arcanorum
+    It can
+    be activated for absorbing or extracting Essences.  It contains 52
+    Essences of Poison, 10 Essences of Explosion, 22 Essences of Teleport, 8
+    Essences of Cold, 34 Essences of Fire, 60 Essences of Life, 30 Essences of
+    Confusion, 23 Essences of Light, 8 Essences of Chaos, 2 Essences of Time,
+    2 Essences of Magic, 86 Essences of Darkness, 55 Essences of Knowledge, 19
+    Essences of Force, 61 Essences of Lightning and 10 Essences of Mana.  
+    It cannot be harmed by acid, cold, lightning or fire.  
+q) 43 Empty Bottles
+r) (nothing)
+s) (nothing)
+t) (nothing)
+u) (nothing)
+v) (nothing)
+w) (nothing)
+
+
+  [Home Inventory - Bree ]
+
+a) a Ring of Spell
+b) a Venomous Dagger (1d5) (+4,+5)
+    It poisons your
+    foes.  It provides resistance to poison.  
+    You made it yourself.
+
+

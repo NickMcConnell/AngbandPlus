@@ -2931,12 +2931,12 @@ bool set_stun(int v)
 {
 	int old_aux, new_aux;
 	bool notice = FALSE;
-	int i;
-   
+//	int i;
+
 //	u32b f1, f2, f3, f4, f5, esp;
 //    object_type *o_ptr;
 //	object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
-	
+
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
@@ -2944,7 +2944,7 @@ bool set_stun(int v)
 	if (PRACE_FLAG(PR1_NO_STUN)) v = 0;
 //	if (o_ptr->k_idx && (esp & (ESP_SAFETY))) v = 0;
     if (safety_check()) v = 0;
-	
+
 	/* Knocked out */
 	if (p_ptr->stun > 100)
 	{
@@ -3517,6 +3517,7 @@ bool set_food(int v)
  */
 void check_experience(void)
 {
+	s32b next_lev, prev_lev;
 	int i, gained = 0;
 	bool level_reward = FALSE;
 	bool level_corruption = FALSE;
@@ -3544,40 +3545,58 @@ void check_experience(void)
 	p_ptr->redraw |= (PR_EXP);
 
 	/* Handle stuff */
-	handle_stuff();
+ /* Handle stuff */
+   handle_stuff();
 
+   if (p_ptr->lev < 40)  // Zop: overflow protection
+      prev_lev = (player_exp[p_ptr->lev - 2] * p_ptr->expfact / 100L);
+   else
+      prev_lev = (player_exp[p_ptr->lev - 2] / 100L *p_ptr->expfact);
 
-	/* Lose levels while possible */
-	while ((p_ptr->lev > 1) &&
-	                (p_ptr->exp < (player_exp[p_ptr->lev - 2] * p_ptr->expfact / 100L)))
-	{
-		/* Lose a level */
-		p_ptr->lev--;
-		gained--;
-		lite_spot(p_ptr->py, p_ptr->px);
+   /* Lose levels while possible */
+   while ((p_ptr->lev > 1) && (p_ptr->exp < prev_lev))
+   {
+      /* Lose a level */
+      p_ptr->lev--;
+      if (p_ptr->lev < 40)
+         prev_lev = (player_exp[p_ptr->lev - 2] * p_ptr->expfact / 100L);
+      else
+         prev_lev = (player_exp[p_ptr->lev - 2] / 100L *p_ptr->expfact);
 
-		/* Update some stuff */
-		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS | PU_SANITY);
+      gained--;
+      lite_spot(p_ptr->py, p_ptr->px);
 
-		/* Redraw some stuff */
-		p_ptr->redraw |= (PR_LEV | PR_TITLE | PR_EXP);
+      /* Update some stuff */
+      p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA | PU_SPELLS | PU_SANITY);
 
-		/* Window stuff */
-		p_ptr->window |= (PW_PLAYER);
+      /* Redraw some stuff */
+      p_ptr->redraw |= (PR_LEV | PR_TITLE | PR_EXP);
 
-		/* Handle stuff */
-		handle_stuff();
-	}
+      /* Window stuff */
+      p_ptr->window |= (PW_PLAYER);
 
+      /* Handle stuff */
+      handle_stuff();
+   }
 
-	/* Gain levels while possible */
-	while ((p_ptr->lev < PY_MAX_LEVEL) && (p_ptr->lev < max_plev) &&
-	                (p_ptr->exp >= (player_exp[p_ptr->lev - 1] * p_ptr->expfact / 100L)))
-	{
-		/* Gain a level */
-		p_ptr->lev++;
-		gained++;
-		lite_spot(p_ptr->py, p_ptr->px);
+   if (p_ptr->lev < 40)  // Zop: overflow protection
+      next_lev = (player_exp[p_ptr->lev - 1] * p_ptr->expfact / 100L);
+   else
+      next_lev = (player_exp[p_ptr->lev - 1] / 100L *p_ptr->expfact);
+
+   /* Gain levels while possible */
+   while ((p_ptr->lev < PY_MAX_LEVEL) && (p_ptr->lev < max_plev) &&
+                   (p_ptr->exp >= next_lev))
+   {
+      /* Gain a level */
+      p_ptr->lev++;
+      if (p_ptr->lev < 40)
+         next_lev = (player_exp[p_ptr->lev - 1] * p_ptr->expfact / 100L);
+      else
+         next_lev = (player_exp[p_ptr->lev - 1] / 100L *p_ptr->expfact);
+
+      gained++;
+      lite_spot(p_ptr->py, p_ptr->px); 
 
 		/* Save the highest level */
 		if (p_ptr->lev > p_ptr->max_plv)
@@ -3939,8 +3958,8 @@ void monster_death(int m_idx)
 	bool cloned = FALSE;
 	bool create_stairs = FALSE;
 	int force_coin = get_coin_type(r_ptr);
-	
-	
+
+
 	object_type forge;
 	object_type *q_ptr;
 
@@ -4341,7 +4360,7 @@ void monster_death(int m_idx)
 	}
 	else if (r_ptr->flags9 & RF9_KIN_PROTECT)
 	{
-	
+
 		int x = p_ptr->px, y = p_ptr->py, k;
 		int rlev = ((r_ptr->level >= 1) ? r_ptr->level : 1);
 		cmsg_print(TERM_VIOLET, "The monsters kin come to avenge it!");
@@ -4349,7 +4368,7 @@ void monster_death(int m_idx)
 				for (k = 0; k < 6; k++)
 			{
 				summon_specific(y, x, rlev, SUMMON_KIN);
-				
+
 			}
 	}
 	/* Let monsters explode! */
@@ -4482,9 +4501,9 @@ void monster_death(int m_idx)
 			break;
 		}
 	}
-		
+
 	if ((!force_coin) && (magik(10 + get_skill_scale(SKILL_PRESERVATION, 75))) && (!(m_ptr->mflag & MFLAG_NO_DROP))) place_corpse(m_ptr);
-	
+
 	/* Take note of any dropped treasure */
 	if (visible && (dump_item || dump_gold))
 	{
@@ -4681,23 +4700,79 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		if (!note)
 		{
 			object_type *o_ptr;
-			object_kind *k_ptr;
+//			object_kind *k_ptr;
 			u32b f1, f2, f3, f4, f5, esp;
+			int i = 0;
+			if (p_ptr->body_parts[0] == INVEN_WIELD)
+			{
+				o_ptr = &p_ptr->inventory[INVEN_WIELD];
+				object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
+				if ((o_ptr->k_idx) && (f4 & TR4_LEVELS))
+					i++;
+			}
+			if (p_ptr->body_parts[1] == INVEN_WIELD)
+			{
+				o_ptr = &p_ptr->inventory[INVEN_WIELD + 1];
+				object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
+				if ((o_ptr->k_idx) && (f4 & TR4_LEVELS))
+					i++;
+			}
+			if (p_ptr->body_parts[2] == INVEN_WIELD)
+			{
+				o_ptr = &p_ptr->inventory[INVEN_WIELD + 2];
+				object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
+				if ((o_ptr->k_idx) && (f4 & TR4_LEVELS))
+					i++;
+			}
 
 			/* Access the weapon */
-			o_ptr = &p_ptr->inventory[INVEN_WIELD];
-			k_ptr = &k_info[o_ptr->k_idx];
-			object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
-
-			/* Can the weapon gain levels ? */
-			if ((o_ptr->k_idx) && (f4 & TR4_LEVELS))
+//			k_ptr = &k_info[o_ptr->k_idx];
+			if (p_ptr->body_parts[2] == INVEN_WIELD)
 			{
-				/* Give some experience for the kill */
-				new_exp = ((long)r_ptr->mexp * m_ptr->level) / (div * 2);
+				o_ptr = &p_ptr->inventory[INVEN_WIELD + 2];
+				object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
 
-				/* Gain experience */
-				o_ptr->exp += new_exp;
-				check_experience_obj(o_ptr);
+				if ((o_ptr->k_idx) && (f4 & TR4_LEVELS))
+				{
+					/* Give some experience for the kill */
+					new_exp = ((long)r_ptr->mexp * m_ptr->level) / (div * (2 + i));
+
+					/* Gain experience */
+					o_ptr->exp += new_exp;
+					check_experience_obj(o_ptr);
+				}
+			}
+
+			if (p_ptr->body_parts[1] == INVEN_WIELD)
+			{
+				o_ptr = &p_ptr->inventory[INVEN_WIELD + 1];
+				object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
+
+				if ((o_ptr->k_idx) && (f4 & TR4_LEVELS))
+				{
+					/* Give some experience for the kill */
+					new_exp = ((long)r_ptr->mexp * m_ptr->level) / (div * (2 + i));
+
+					/* Gain experience */
+					o_ptr->exp += new_exp;
+					check_experience_obj(o_ptr);
+				}
+			}
+
+			if (p_ptr->body_parts[0] == INVEN_WIELD)
+			{
+				o_ptr = &p_ptr->inventory[INVEN_WIELD];
+				object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
+
+				if ((o_ptr->k_idx) && (f4 & TR4_LEVELS))
+				{
+					/* Give some experience for the kill */
+					new_exp = ((long)r_ptr->mexp * m_ptr->level) / (div * (2 + i));
+
+					/* Gain experience */
+					o_ptr->exp += new_exp;
+					check_experience_obj(o_ptr);
+				}
 			}
 		}
 
@@ -7490,7 +7565,7 @@ bool test_object_wish(char *name, object_type *o_ptr, object_type *forge, char *
 				{
 					int z;
 
-					for (z = 0; z < 6; z++)
+					for (z = 0; z < 10; z++)
 					{
 						if (e_ptr->tval[z] == k_ptr->tval)
 						{
@@ -7520,7 +7595,7 @@ bool test_object_wish(char *name, object_type *o_ptr, object_type *forge, char *
 					{
 						int z;
 
-						for (z = 0; z < 6; z++)
+						for (z = 0; z < 10; z++)
 						{
 							if (eb_ptr->tval[z] == k_ptr->tval)
 							{
@@ -7718,7 +7793,7 @@ void make_wish(void)
 
 
 /*
- * Corrupted have a 1/3 chance of losing a mutation each time this is called, 
+ * Corrupted have a 1/3 chance of losing a mutation each time this is called,
  * assuming they have any in the first place
  */
 void corrupt_corrupted(void)

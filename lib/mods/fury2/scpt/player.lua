@@ -274,6 +274,18 @@ add_hooks
       end
    end
 }
+add_hooks
+{
+
+[HOOK_BIRTH_OBJECTS] = function()
+if get_class_name() == "Hunter" then
+	player.wilderness_y = 3;
+	player.wilderness_x = 3;
+	player.py = 3
+	player.px = 3
+	end
+	end
+}
 
 
 -- Register in the hook list

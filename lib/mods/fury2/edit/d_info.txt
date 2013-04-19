@@ -36,7 +36,7 @@ V:2.0.0
 ### Wilderness(purely cosmetic, never used) ###
 
 N:0:Wilderness
-D:Wil:a way to the Wilderness
+D:Wil:a way to the Wilderness.
 W:0:0:0:0:14:500
 L:89:80:199:20:1:0
 A:96:100:56:0:56:0:57:58
@@ -46,6 +46,34 @@ R:100:0
 
 ### The principal dungeons, they were created by spliting the vanilla dungeon ###
 
+N:1:Mirkwood
+D:Mkw:a way to the Mirkwood Forest.
+W:11:33:5:0:14:160
+L:89:95:199:5:88:0
+A:96:100:97:0:56:0:202:96
+O:20:20:20:20
+F:FILL_METHOD_0 | FLAT | NO_DESTROY | NO_DOORS | PRINCIPAL
+R:100:0
+
+N:2:Barad-Dur
+D:BDr:a door to the tower of Barad-Dur.
+W:34:66:15:0:14:160
+L:88:67:93:33:1:0
+L:0:100:0
+A:97:50:56:50:56:0:57:97
+A:0:100:0
+O:20:20:20:20
+F:CAVERN | FILL_METHOD_2 | LAVA_RIVER |  NO_STREAMERS | PRINCIPAL
+R:100:0
+
+N:3:Angband
+D:Ang:an entrance to the Pits of Angband.
+W:67:100:30:0:14:160
+L:1:100:1:0:1:0
+A:56:100:56:0:56:0:57:58
+O:20:20:20:20
+F:ADJUST_LEVEL_1 | ADJUST_LEVEL_1_2 | CAVERN | FILL_METHOD_0 | NO_EASY_MOVE | | PRINCIPAL
+R:100:0
 
 N:4:Angband
 D:Ang:a way to Angband.
@@ -55,7 +83,6 @@ A:56:100:56:0:56:0:57:58
 O:20:20:20:20
 F:PRINCIPAL | RANDOM_TOWNS | NO_STREAMERS
 R:100:0
-
 # Theme adds *fog* (dense mist) on the Barrow-Downs :)
 
 # The Additional dungeons
@@ -69,7 +96,7 @@ L:86:90:205:10:1:0
 A:177:100:0:0:0:0:85:87
 O:10:10:30:30
 E:2d10:10:FIRE
-F:CAVE | FILL_METHOD_0 | LAVA_RIVER | NO_EASY_MOVE | NO_RECALL | NO_STREAMERS
+F:CAVE | FILL_METHOD_0 | LAVA_RIVER | NO_EASY_MOVE |  NO_STREAMERS
 R:100:1
 M:IM_FIRE
 
@@ -155,7 +182,7 @@ R:30:0
 # Levels 128-150
 # Where Melkor lurks for the final battle!
 N:11:The Void
-D:Vod:a jumpgate to the Void
+D:Vod:a jumpgate to the Void.
 W:128:150:40:0:20:160
 L:183:97:102:3:0:0
 A:183:90:102:10:0:0:102:102
@@ -180,7 +207,7 @@ G:dungeon2
 F:FILL_METHOD_3 | SMALL
 R:100:0
 N:13:Fury's Castle
-D:FC:A large castle set in the hills... Beware of Uniques
+D:FC:A large castle set in the hills... Beware of Uniques.
 W:10:30:10:0:50:10
 L:1:100:1:1:1:0
 A:56:100:56:1:56:0:57:58
@@ -190,8 +217,9 @@ R:75:3
 M:R_CHAR_p
 R:25:3
 M:R_CHAR_t
+
 N:14:Den of Dogs
-D:DoD:a small house full of frenzied dogs
+D:DoD:a small house full of frenzied dogs.
 W:20:50:25:0:50:200
 L:89:100:0:1:0:0
 A:96:100:0:1:0:0:0:0
@@ -201,6 +229,7 @@ R:90:3
 M:R_CHAR_Z
 R:10:3
 M:R_CHAR_t
+
 N:15:Fort Blade
 D:FB:a gigantic fort. 
 W:50:80:30:0:40:200
@@ -378,7 +407,7 @@ W:45:70:20:0:14:160
 L:89:100:89:0:89:0
 A:97:100:56:0:56:0:97:97
 O:20:20:20:20
-F:FILL_METHOD_0 | FINAL_ARTIFACT_228 | FINAL_GUARDIAN_789 | FLAT | NO_STREAMERS | RANDOM_TOWNS
+F:FILL_METHOD_0 | FINAL_ARTIFACT_255 | FINAL_GUARDIAN_789 | FLAT | NO_STREAMERS | RANDOM_TOWNS
 R:60:3
 M:CAN_FLY
 R:40:0
@@ -458,7 +487,7 @@ R:100:0
 # levels 75-80
 # Guarded by The Hunter
 N:31:Forodwaith
-D:NWa:a path leading through the wastelands of the North
+D:NWa:a path leading through the wastelands of the North.
 W:75:80:40:0:14:160
 L:90:20:93:40:88:40
 A:90:20:93:40:88:40:88:211
@@ -475,7 +504,7 @@ M:COLD_BLOOD | HURT_LITE | IM_COLD
 # levels 60-70
 # Guarded by Naugladur, who has Nauglamir
 N:32:Emyn Luin
-D:ELu:a path into the depths of the Blue Mountains
+D:ELu:a path into the depths of the Blue Mountains.
 W:60:70:30:0:14:160
 L:89:45:81:5:88:50
 A:215:100:215:0:215:0:56:211
@@ -492,7 +521,7 @@ M:R_CHAR_k | R_CHAR_o
 #levels 25-35
 #Guarded by Prince Imrahil (yes, he's evil in this game)
 N:33:Dol Amroth
-D:DAm:a way to the top of the castle of Dol Amroth
+D:DAm:a way to the top of the castle of Dol Amroth.
 W:25:35:15:0:14:160
 L:1:100:1:0:1:0
 A:56:100:56:0:56:0:57:58
@@ -508,7 +537,7 @@ M:SMART | TAKE_ITEM
 #levels 80-90
 #Guarded by Fuinur, who has Eowyn's sword
 N:34:Angmar
-D:WRA:a dark path through the Witch Realm of Angmar
+D:WRA:a dark path through the Witch Realm of Angmar.
 W:80:90:49:0:14:160
 L:93:70:174:20:226:10
 A:214:100:214:0:214:0:214:214
@@ -526,7 +555,7 @@ M:DEMON | NONLIVING | RES_DISE | UNDEAD
 #levels 20-25
 #Guarded by Herumor, who has the heavy crossbow of Umbar
 N:35:Near Harad
-D:NHa:a desert path into Near Harad
+D:NHa:a desert path into Near Harad.
 W:20:25:15:0:14:160
 L:91:100:91:0:91:0
 A:91:100:91:0:91:0:98:91
@@ -545,12 +574,12 @@ M:R_CHAR_p | WILD_TOO
 #levels 35-40 
 #It has the Palantir of Orthanc and Sharkey at the end.
 N:36:Isengard
-D:Isg:a passage to the caves beneath Isengard
+D:Isg:a passage to the caves beneath Isengard.
 W:35:40:20:0:14:160
 L:88:100:1:0:1:0
 A:97:100:56:0:56:0:57:97
 O:20:20:20:20
-F:ADJUST_LEVEL_2 | CAVE | FILL_METHOD_0 | FINAL_ARTIFACT_202 | FINAL_GUARDIAN_771 | NO_STREAMERS
+F:ADJUST_LEVEL_2 | CAVE | FILL_METHOD_0 | NO_STREAMERS
 R:20:0
 R:30:3
 M:R_CHAR_T | TROLL
@@ -562,7 +591,7 @@ M:ORC | R_CHAR_O | R_CHAR_o
 # levels 40-45
 # Guarded by Marda and the Robe of Belegaer
 N:37:Tol Eressea
-D:TEr:a way to the Lonely Isle
+D:TEr:a way to the Lonely Isle.
 W:40:45:40:0:14:160
 L:84:60:222:40:222:0
 A:211:100:211:0:211:0:211:211
@@ -579,7 +608,7 @@ M:R_CHAR_B
 #levels 101-127
 #Guarded by no one (yet!)
 N:38:Utumno
-D:Utu:an entrance to the depths of Utumno
+D:Utu:an entrance to the depths of Utumno.
 W:101:127:30:0:14:160
 L:1:100:1:0:1:0
 A:56:100:56:0:56:0:57:58
@@ -588,8 +617,8 @@ F:ADJUST_LEVEL_1 | ADJUST_LEVEL_1_2 | CAVERN | FILL_METHOD_0 | NO_EASY_MOVE | NO
 R:100:0
 
 N:39:Den of Dogs
-D:DoD:a small house full of frenzied dogs
-W:20:50:25:0:50:200
+D:DoD:a small house full of frenzied dogs.
+W:70:100:25:0:50:200
 L:89:100:0:1:0:0
 A:96:100:0:1:0:0:0:0
 O:50:0:0:0
@@ -600,13 +629,22 @@ R:10:3
 M:R_CHAR_t
 
 N:40:Fort Fury
-D:FF:a gigantic fort. 
-W:50:80:30:0:40:200
+D:FF:a gigantic fort.
+W:60:100:30:0:40:200
 L:1:100:0:1:0:0
 A:56:100:0:1:0:0:57:58
 O:100:0:0:0
-E:2d2:77:LITE
-F:BIG | DOUBLE | NO_STREAMERS | RANDOM_TOWNS
+F:BIG | DOUBLE | NO_STREAMERS | RANDOM_TOWNS | ADJUST_LEVEL_1 | ADJUST_LEVEL_1_2 |
+
+N:41:Abandoned Castle
+D:AC:an entrance to an abandoned castle.
+W:1:127:1:0:14:160
+L:1:100:1:0:1:0
+A:56:100:56:0:56:0:57:58
+O:20:20:20:20
+F:CAVERN | FILL_METHOD_0 | SMALL | ADJUST_LEVEL_2 | PRINCIPAL | RANDOM_TOWNS
+R:100:0
+
 
 # N:<index>:<name>
 # D:<3 letter short name>:<long name>

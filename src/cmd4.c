@@ -113,13 +113,11 @@ void do_cmd_change_name(void)
 	/* Forever */
 	while (1)
 	{
-		/* keep mode below 7 */
-		mode = (mode + 6) % 6;
 
-		/* Display the player */
+		mode = (mode + 7) % 7;
+
 		display_player(mode);
 
-		/* Prompt */
 		if (mode == 0)
 		{
 			Term_putstr(14, 22, -1, TERM_WHITE,

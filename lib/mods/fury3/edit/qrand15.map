@@ -1,0 +1,38 @@
+# Floor
+F:.:1:6
+
+# Marker
+F:,:172:6
+
+# Princess
+F:p:1:6:969
+
+# Shrieker Mushroom
+F:s:1:0:40
+
+# Lit permanent wall
+F:x:61:6
+
+# Lit glass wall
+F:G:188:6
+
+# Door
+F:D:38:6
+
+# Floor with Trap
+F:t:1:8:0:0:0:0:*
+
+# Deep water
+F:W:84:6
+
+# Shallow water
+F:w:187:6
+
+# Dungeon wayout
+D:xxxxxxxxxxxxxx
+D:x,x,GpG,x,x..x
+D:x,x,GGG,x,x..x
+D:x,xDx,xDx,x..x
+D:xDx,xDx,xDx..x
+D:s,s.....s,s..x
+D:xxxxx.xxxxxxxx

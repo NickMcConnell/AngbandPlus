@@ -67,6 +67,7 @@ extern martial_arts bear_blows[MAX_BEAR];
 extern martial_arts ma_blows[MAX_MA];
 extern martial_arts da_blows[MAX_DA];
 extern martial_arts spid_blows[MAX_SPID];
+extern martial_arts hydra_blows[MAX_HYDRA];
 extern martial_arts basilisk_blows[MAX_BASILISK];
 extern magic_power mindcraft_powers[MAX_MINDCRAFT_POWERS];
 extern magic_power necro_powers[MAX_NECRO_POWERS];
@@ -1117,6 +1118,9 @@ extern bool is_enemy(monster_type *m_ptr, monster_type *t_ptr);
 
 /* object1.c */
 /* object2.c */
+extern int primary_weapon_blows(object_type *o_ptr);
+extern int sec_weapon_blows(object_type *o_ptr);
+extern int ter_weapon_blows(object_type *o_ptr);
 extern byte get_item_letter_color(object_type *o_ptr);
 extern void describe_device(object_type *o_ptr);
 extern void object_pickup(int this_o_idx);

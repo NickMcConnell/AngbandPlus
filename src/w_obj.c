@@ -1,6 +1,6 @@
 /*
 ** Lua binding: object
-** Generated automatically by tolua 4.0a - angband on Fri Jan 30 19:43:22 2004.
+** Generated automatically by tolua 4.0a - angband on 08/01/07 21:25:21.
 */
 
 #include "lua/tolua.h"
@@ -4170,6 +4170,26 @@ tolua_lerror:
  return 0;
 }
 
+/* function: psychometry */
+static int toluaI_object_psychometry00(lua_State* tolua_S)
+{
+ if (
+ !tolua_isnoobj(tolua_S,1)
+ )
+ goto tolua_lerror;
+ else
+ {
+ {
+  bool toluaI_ret = (bool)  psychometry();
+ tolua_pushnumber(tolua_S,(long)toluaI_ret);
+ }
+ }
+ return 1;
+tolua_lerror:
+ tolua_error(tolua_S,"#ferror in function 'psychometry'.");
+ return 0;
+}
+
 /* function: remove_curse_object */
 static int toluaI_object_remove_curse_object00(lua_State* tolua_S)
 {
@@ -4224,9 +4244,6 @@ int tolua_object_open (lua_State* tolua_S)
  tolua_constant(tolua_S,NULL,"TR1_SLAY_ORC",TR1_SLAY_ORC);
  tolua_constant(tolua_S,NULL,"TR1_SLAY_TROLL",TR1_SLAY_TROLL);
  tolua_constant(tolua_S,NULL,"TR1_SLAY_GIANT",TR1_SLAY_GIANT);
-
- tolua_constant(tolua_S,NULL,"TR5_KILL_VAMPIRE",TR5_KILL_VAMPIRE);
-
  tolua_constant(tolua_S,NULL,"TR1_SLAY_DRAGON",TR1_SLAY_DRAGON);
  tolua_constant(tolua_S,NULL,"TR1_KILL_DRAGON",TR1_KILL_DRAGON);
  tolua_constant(tolua_S,NULL,"TR1_VORPAL",TR1_VORPAL);
@@ -4236,7 +4253,6 @@ int tolua_object_open (lua_State* tolua_S)
  tolua_constant(tolua_S,NULL,"TR1_BRAND_ELEC",TR1_BRAND_ELEC);
  tolua_constant(tolua_S,NULL,"TR1_BRAND_FIRE",TR1_BRAND_FIRE);
  tolua_constant(tolua_S,NULL,"TR1_BRAND_COLD",TR1_BRAND_COLD);
- tolua_constant(tolua_S,NULL,"TR5_THROWING",TR5_THROWING);
  tolua_constant(tolua_S,NULL,"TR1_NULL_MASK",TR1_NULL_MASK);
  tolua_constant(tolua_S,NULL,"TR2_SUST_STR",TR2_SUST_STR);
  tolua_constant(tolua_S,NULL,"TR2_SUST_INT",TR2_SUST_INT);
@@ -4251,10 +4267,6 @@ int tolua_object_open (lua_State* tolua_S)
  tolua_constant(tolua_S,NULL,"TR2_IM_FIRE",TR2_IM_FIRE);
  tolua_constant(tolua_S,NULL,"TR2_IM_COLD",TR2_IM_COLD);
  tolua_constant(tolua_S,NULL,"TR2_SENS_FIRE",TR2_SENS_FIRE);
-  tolua_constant(tolua_S,NULL,"TR5_SENS_COLD",TR5_SENS_COLD);
-   tolua_constant(tolua_S,NULL,"ESP_SENS_ACID",ESP_SENS_ACID);
-
-     tolua_constant(tolua_S,NULL,"ESP_SENS_ELEC",ESP_SENS_ELEC);
  tolua_constant(tolua_S,NULL,"TR2_REFLECT",TR2_REFLECT);
  tolua_constant(tolua_S,NULL,"TR2_FREE_ACT",TR2_FREE_ACT);
  tolua_constant(tolua_S,NULL,"TR2_HOLD_LIFE",TR2_HOLD_LIFE);
@@ -4277,8 +4289,6 @@ int tolua_object_open (lua_State* tolua_S)
  tolua_constant(tolua_S,NULL,"TR2_NULL_MASK",TR2_NULL_MASK);
  tolua_constant(tolua_S,NULL,"TR3_SH_FIRE",TR3_SH_FIRE);
  tolua_constant(tolua_S,NULL,"TR3_SH_ELEC",TR3_SH_ELEC);
- tolua_constant(tolua_S,NULL,"TR5_SH_ACID",TR5_SH_ACID);
-  tolua_constant(tolua_S,NULL,"TR5_SH_COLD",TR5_SH_COLD);
  tolua_constant(tolua_S,NULL,"TR3_AUTO_CURSE",TR3_AUTO_CURSE);
  tolua_constant(tolua_S,NULL,"TR3_DECAY",TR3_DECAY);
  tolua_constant(tolua_S,NULL,"TR3_NO_TELE",TR3_NO_TELE);
@@ -4412,9 +4422,6 @@ int tolua_object_open (lua_State* tolua_S)
  tolua_constant(tolua_S,NULL,"TV_ARROW",TV_ARROW);
  tolua_constant(tolua_S,NULL,"TV_BOLT",TV_BOLT);
  tolua_constant(tolua_S,NULL,"TV_BOW",TV_BOW);
-
-  tolua_constant(tolua_S,NULL,"TV_PISTOL",TV_PISTOL);
-   tolua_constant(tolua_S,NULL,"TV_RIFLE",TV_RIFLE);
  tolua_constant(tolua_S,NULL,"TV_DIGGING",TV_DIGGING);
  tolua_constant(tolua_S,NULL,"TV_HAFTED",TV_HAFTED);
  tolua_constant(tolua_S,NULL,"TV_POLEARM",TV_POLEARM);
@@ -4953,6 +4960,8 @@ int tolua_object_open (lua_State* tolua_S)
  tolua_constant(tolua_S,NULL,"OBJ_FOUND_RUBBLE",OBJ_FOUND_RUBBLE);
  tolua_constant(tolua_S,NULL,"OBJ_FOUND_REWARD",OBJ_FOUND_REWARD);
  tolua_constant(tolua_S,NULL,"OBJ_FOUND_STORE",OBJ_FOUND_STORE);
+ tolua_constant(tolua_S,NULL,"OBJ_FOUND_STOLEN",OBJ_FOUND_STOLEN);
+ tolua_constant(tolua_S,NULL,"OBJ_FOUND_SELFMADE",OBJ_FOUND_SELFMADE);
  tolua_cclass(tolua_S,"obj_theme","");
  tolua_tablevar(tolua_S,"obj_theme","treasure",toluaI_get_object_obj_theme_treasure,toluaI_set_object_obj_theme_treasure);
  tolua_tablevar(tolua_S,"obj_theme","combat",toluaI_get_object_obj_theme_combat,toluaI_set_object_obj_theme_combat);
@@ -5158,6 +5167,7 @@ int tolua_object_open (lua_State* tolua_S)
  tolua_function(tolua_S,NULL,"value_check_aux2",toluaI_object_value_check_aux200);
  tolua_function(tolua_S,NULL,"value_check_aux2_magic",toluaI_object_value_check_aux2_magic00);
  tolua_function(tolua_S,NULL,"select_sense",toluaI_object_select_sense00);
+ tolua_function(tolua_S,NULL,"psychometry",toluaI_object_psychometry00);
  tolua_function(tolua_S,NULL,"remove_curse_object",toluaI_object_remove_curse_object00);
  return 1;
 }
@@ -5193,7 +5203,6 @@ void tolua_object_close (lua_State* tolua_S)
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR1_SLAY_ORC");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR1_SLAY_TROLL");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR1_SLAY_GIANT");
- lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR5_KILL_VAMPIRE");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR1_SLAY_DRAGON");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR1_KILL_DRAGON");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR1_VORPAL");
@@ -5203,8 +5212,6 @@ void tolua_object_close (lua_State* tolua_S)
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR1_BRAND_ELEC");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR1_BRAND_FIRE");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR1_BRAND_COLD");
-
-  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR5_THROWING");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR1_NULL_MASK");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR2_SUST_STR");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR2_SUST_INT");
@@ -5219,10 +5226,6 @@ void tolua_object_close (lua_State* tolua_S)
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR2_IM_FIRE");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR2_IM_COLD");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR2_SENS_FIRE");
-  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR5_SENS_COLD");
-  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ESP_SENS_ACID");
-    lua_pushnil(tolua_S); lua_setglobal(tolua_S,"ESP_SENS_ELEC");
-
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR2_REFLECT");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR2_FREE_ACT");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR2_HOLD_LIFE");
@@ -5245,8 +5248,6 @@ void tolua_object_close (lua_State* tolua_S)
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR2_NULL_MASK");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR3_SH_FIRE");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR3_SH_ELEC");
-  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR5_SH_ACID");
-    lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR5_SH_COLD");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR3_AUTO_CURSE");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR3_DECAY");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"TR3_NO_TELE");
@@ -5918,6 +5919,8 @@ void tolua_object_close (lua_State* tolua_S)
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"OBJ_FOUND_RUBBLE");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"OBJ_FOUND_REWARD");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"OBJ_FOUND_STORE");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"OBJ_FOUND_STOLEN");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"OBJ_FOUND_SELFMADE");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"obj_theme");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"object_kind");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"artifact_type");
@@ -6007,5 +6010,6 @@ void tolua_object_close (lua_State* tolua_S)
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"value_check_aux2");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"value_check_aux2_magic");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"select_sense");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"psychometry");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"remove_curse_object");
 }

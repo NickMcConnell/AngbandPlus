@@ -1,6 +1,6 @@
 /*
 ** Lua binding: dungeon
-** Generated automatically by tolua 4.0a - angband on Mon Feb 23 21:37:01 2004.
+** Generated automatically by tolua 4.0a - angband on 08/01/07 21:25:54.
 */
 
 #include "lua/tolua.h"

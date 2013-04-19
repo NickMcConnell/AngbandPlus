@@ -256,7 +256,7 @@ struct artifact_type
 	byte sval;			/* Artifact sub type */
 
 	s16b pval;			/* Artifact extra info */
-	s32b pval3;   
+	s32b pval3;
 	s16b to_h;			/* Bonus to hit */
 	s16b to_d;			/* Bonus to damage */
 	s16b to_a;			/* Bonus to armor */
@@ -488,6 +488,7 @@ struct monster_race
 	u32b flags7;			/* Flags 7 (movement related abilities) */
 	u32b flags8;			/* Flags 8 (wilderness info) */
 	u32b flags9;			/* Flags 9 (drops info) */
+	u32b auras;
 
 	monster_blow blow[4];           /* Up to four blows per round */
 
@@ -539,6 +540,7 @@ struct monster_race
 	u32b r_flags7;			/* Observed racial flags */
 	u32b r_flags8;                  /* Observed racial flags */
 	u32b r_flags9;                  /* Observed racial flags */
+	u32b r_auras;
 
 	bool on_saved;                  /* Is the (unique) on a saved level ? */
 
@@ -1484,7 +1486,6 @@ struct player_type
 	s16b wt;			/* Weight */
 	s16b sc;			/* Social Class */
 
-
 	s32b au;			/* Current Gold */
 
 	s32b max_exp;		/* Max experience */
@@ -1656,7 +1657,6 @@ struct player_type
 
 	s16b cur_lite;		/* Radius of lite (if any) */
 
-
 	u32b notice;		/* Special Updates (bit flags) */
 	u32b update;		/* Pending Updates (bit flags) */
 	u32b redraw;		/* Normal Redraws (bit flags) */
@@ -1697,15 +1697,15 @@ struct player_type
 
 	bool sensible_fire;     /* Fire does more damage on the player */
 	bool sensible_cold;     /* Cold does more damage on the player */
-	bool sensible_acid; 
-	bool sensible_elec; 
+	bool sensible_acid;
+	bool sensible_elec;
 	bool sensible_lite;     /* Lite does more damage on the player and blinds her/him */
 
 	bool reflect;       /* Reflect 'bolt' attacks */
 	bool sh_fire;       /* Fiery 'immolation' effect */
-	bool sh_elec;       /* Electric 'immolation' effect */
+	bool sh_elec;       /* Elec 'immolation' effect */
 	bool sh_acid;       /* Acid 'immolation' effect */
-		bool sh_cold;       /* Cold 'immolation' effect */
+	bool sh_cold;       /* Cold 'immolation' effect */
 	bool wraith_form;   /* wraithform */
 
 	bool anti_magic;    /* Anti-magic */
@@ -1741,6 +1741,7 @@ struct player_type
 	byte xtra_might;        /* Extra might bow */
 	bool impact;		/* Earthquake blows */
 	bool auto_id;           /* Auto id items */
+	bool meleewound;	/* WOUNDING flag */
 
 	s16b invis;             /* Invisibility */
 
@@ -1779,7 +1780,10 @@ struct player_type
 	s16b skill_tht;		/* Skill: To hit (throwing) */
 	s16b skill_dig;		/* Skill: Digging */
 
-	s16b num_blow;		/* Number of blows */
+	s16b bonus_blow;	/* Bonus blows (pval)*/
+	s16b num_blow;		/* Blows for first weapon*/
+	s16b num_blow2;		/* Second weapon slot */
+	s16b num_blow3;
 	s16b num_fire;		/* Number of shots */
 	s16b xtra_crit;         /* % of increased crits */
 
@@ -1994,7 +1998,7 @@ struct alchemist_recipe
 {
 	int     sval_essence;
 	byte	tval;
-	byte	sval;
+	u16b	sval;
 	byte	qty;
 };
 

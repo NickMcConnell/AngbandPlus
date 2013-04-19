@@ -1424,6 +1424,7 @@ static void display_player_middle(void)
 {
 	int show_tohit = p_ptr->dis_to_h;
 	int show_todam = p_ptr->dis_to_d;
+	s32b next_lev;
 
 	object_type *o_ptr = &p_ptr->inventory[INVEN_WIELD];
 	char num[7];
@@ -1473,12 +1474,15 @@ static void display_player_middle(void)
 		put_str("Exp to Adv.", 12, 28);
 		c_put_str(TERM_L_GREEN, "    *****", 12, 28 + 11);
 	}
-	else
-	{
-		prt_lnum("Exp to Adv.",
-		         (s32b)(player_exp[p_ptr->lev - 1] * p_ptr->expfact / 100L),
-		         12, 28, TERM_L_GREEN);
-	}
+   else
+   {
+      if (p_ptr->lev < 40)  // Zop: overflow protection
+         next_lev = (player_exp[p_ptr->lev - 1] * p_ptr->expfact / 100L);
+      else
+         next_lev = (player_exp[p_ptr->lev - 1] / 100L *p_ptr->expfact);
+
+      prt_lnum("Exp to Adv.", next_lev, 12, 28, TERM_L_GREEN);
+   }
 
 	prt_lnum("Gold       ", p_ptr->au, 13, 28, TERM_L_GREEN);
 
@@ -1707,7 +1711,7 @@ static void display_player_various(void)
 
 	/* variables for all types of melee damage */
 	dambonus = p_ptr->dis_to_d;
-	blows = p_ptr->num_blow;
+	blows = p_ptr->bonus_blow;
 
 	/* Basic abilities */
 	xdis = p_ptr->skill_dis;
@@ -1753,123 +1757,147 @@ static void display_player_various(void)
 
 
 	put_str("Blows/Round:", 16, 55);
-	put_str(format("%d", p_ptr->num_blow), 16, 69);
-
-	put_str("Shots/Round:", 17, 55);
-	put_str(format("%d", p_ptr->num_fire), 17, 69);
-
-	put_str("Mel.dmg/Rnd:", 18, 55);     /* From PsiAngband */
-
-	if (p_ptr->melee_style == SKILL_HAND || p_ptr->melee_style == SKILL_BEAR || p_ptr->melee_style == SKILL_DRAGON || p_ptr->melee_style == SKILL_SPIDER || p_ptr->melee_style == SKILL_BASILISK)
+	i = primary_weapon_blows (o_ptr);
+	if (p_ptr->body_parts[1] == INVEN_WIELD)
 	{
-		/* This is all based on py_attack_hand */
-		martial_arts *blow_table, *min_attack, *max_attack;
-		int max_blow, plev, i;
-
-		if (p_ptr->melee_style == SKILL_HAND)
-		{
-			blow_table = ma_blows;
-			max_blow = MAX_MA;
-			plev = get_skill(SKILL_HAND);
-		}
-		else if (p_ptr->melee_style == SKILL_DRAGON) /* SKILL_DRAGON */
-		{
-			blow_table = da_blows;
-			max_blow = MAX_DA;
-			plev = get_skill(SKILL_DRAGON);
-		}
-		else if (p_ptr->melee_style == SKILL_SPIDER) /* SKILL_SPIDER */
-		{
-			blow_table = spid_blows;
-			max_blow = MAX_SPID;
-			plev = get_skill(SKILL_SPIDER);
-		}
-
-
-		else if (p_ptr->melee_style == SKILL_BASILISK) /* SKILL_BASILISK */
-		{
-			blow_table = basilisk_blows;
-			max_blow = MAX_BASILISK;
-			plev = get_skill(SKILL_BASILISK);
-		}
-
-		else /* SKILL_BEAR */
-		{
-			blow_table = bear_blows;
-			max_blow = MAX_BEAR;
-			plev = get_skill(SKILL_BEAR);
-		}
-		min_attack = blow_table;
-		i = max_blow - 1;
-		while (blow_table[i].min_level > plev && i != 0)
-			--i;
-		max_attack = &blow_table[i];
-
-		dambonus += p_ptr->to_d_melee;
-		tmp = min_attack->dd + dambonus;
-		if (tmp < 0) tmp = 0;
-		tmp2 = maxroll(max_attack->dd, max_attack->ds) + dambonus;
-		if (tmp2 < 0) tmp2 = 0;
-		if (!tmp && !tmp2)
-			desc = "0";
-		else
-			desc = format("%d-%d", blows * tmp, blows * tmp2);
+		o_ptr = &p_ptr->inventory[INVEN_WIELD + 1];
+		i += sec_weapon_blows (o_ptr);
 	}
-	else if (!r_info[p_ptr->body_monster].body_parts[BODY_WEAPON])
+	if (p_ptr->body_parts[2] == INVEN_WIELD)
 	{
-		if (r_info[p_ptr->body_monster].flags1 & RF1_NEVER_BLOW)
-			desc = "nil!";
-		else
-		{
-			tmp = tmp2 = 0;
-			for (i = 0; i < blows; i++)
-			{
-				tmp += r_info[p_ptr->body_monster].blow[i].d_dice;
-				tmp2 += maxroll(r_info[p_ptr->body_monster].blow[i].d_dice,
-				                r_info[p_ptr->body_monster].blow[i].d_side);
-			}
-			if (dambonus > 0)
-			{
-				tmp += dambonus;
-				tmp2 += dambonus;
-			}
-			desc = format("%d-%d", tmp, tmp2);
-		}
+		o_ptr = &p_ptr->inventory[INVEN_WIELD + 2];
+		i += ter_weapon_blows (o_ptr);
 	}
-	else
-	{
-		/* Increase the bonus to damage for weapon combat */
-		dambonus += p_ptr->to_d_melee;
+	put_str(format("%d", i), 16, 69);
 
-		/* Access the first weapon */
-		o_ptr = &p_ptr->inventory[INVEN_WIELD];
+put_str("Shots/Round:", 17, 55);
+   put_str(format("%d", p_ptr->num_fire), 17, 69);
 
-		if (object_known_p(o_ptr)) dambonus += o_ptr->to_d;
+   o_ptr = &p_ptr->inventory[INVEN_WIELD];
 
-		damdice = o_ptr->dd;
-		damsides = o_ptr->ds;
+   if (p_ptr->melee_style == SKILL_HAND || p_ptr->melee_style == SKILL_BEAR || p_ptr->melee_style == SKILL_DRAGON || p_ptr->melee_style == SKILL_SPIDER || p_ptr->melee_style == SKILL_BASILISK || p_ptr->melee_style == SKILL_HYDRA)
+   { // From PsiAngband
+      int max_blow, plev, i;
+      martial_arts *blow_table, *min_attack, *max_attack;
 
-		if ((damdice == 0) || (damsides == 0))
+      put_str("Mel.dmg/Rnd:", 18, 55);
+
+      /* This is all based on py_attack_hand */
+
+      if (p_ptr->melee_style == SKILL_HAND)
+      {
+         blow_table = ma_blows;
+         max_blow = MAX_MA;
+         plev = get_skill(SKILL_HAND);
+      }
+      else if (p_ptr->melee_style == SKILL_DRAGON) /* SKILL_DRAGON */
+      {
+         blow_table = da_blows;
+         max_blow = MAX_DA;
+         plev = get_skill(SKILL_DRAGON);
+      }
+      else if (p_ptr->melee_style == SKILL_SPIDER) /* SKILL_SPIDER */
+      {
+         blow_table = spid_blows;
+         max_blow = MAX_SPID;
+         plev = get_skill(SKILL_SPIDER);
+      }
+      else if (p_ptr->melee_style == SKILL_BASILISK) /* SKILL_BASILISK */
+      {
+         blow_table = basilisk_blows;
+         max_blow = MAX_BASILISK;
+         plev = get_skill(SKILL_BASILISK);
+      }
+				else if (p_ptr->melee_style == SKILL_HYDRA) /* SKILL_HYDRA */
 		{
-			if (dambonus <= 0)
-				desc = "nil!";
-			else
-				desc = format("%d", blows * dambonus);
+			blow_table = hydra_blows;
+			max_blow = MAX_HYDRA;
+			plev = get_skill(SKILL_HYDRA);
 		}
-		else
-		{
-			if (dambonus == 0)
-				desc = format("%dd%d", blows * damdice, damsides);
-			else
-				desc = format("%dd%d%c%d", blows * damdice, damsides,
-				              ( dambonus > 0 ? '+' : '\0' ), blows * dambonus );
-		}
-	}
-	put_str(desc, 18, 69);
 
+      else /* SKILL_BEAR */
+      {
+         blow_table = bear_blows;
+         max_blow = MAX_BEAR;
+         plev = get_skill(SKILL_BEAR);
+      }
 
-	put_str("Infra-Vision:", 19, 55);
-	put_str(format("%d feet", p_ptr->see_infra * 10), 19, 69);
+      min_attack = blow_table;
+      i = max_blow - 1;
+      while (blow_table[i].min_level > plev && i != 0)
+         --i;
+      max_attack = &blow_table[i];
+
+      dambonus += p_ptr->to_d_melee;
+      tmp = min_attack->dd + dambonus;
+      if (tmp < 0) tmp = 0;
+      tmp2 = maxroll(max_attack->dd, max_attack->ds) + dambonus;
+      if (tmp2 < 0) tmp2 = 0;
+      if (!tmp && !tmp2)
+         desc = "0";
+      else
+         desc = format("%d-%d", primary_weapon_blows (o_ptr) * tmp, primary_weapon_blows (o_ptr) * tmp2);
+
+      put_str(desc, 18, 69);
+   }
+   else if (!r_info[p_ptr->body_monster].body_parts[BODY_WEAPON])
+   {
+
+      if (r_info[p_ptr->body_monster].flags1 & RF1_NEVER_BLOW)
+         desc = "nil!";
+      else
+      {
+         tmp = tmp2 = 0;
+         for (i = 0; i < blows; i++)
+         {
+            tmp += r_info[p_ptr->body_monster].blow[i].d_dice;
+            tmp2 += maxroll(r_info[p_ptr->body_monster].blow[i].d_dice,
+                            r_info[p_ptr->body_monster].blow[i].d_side);
+         }
+         if (dambonus > 0)
+         {
+            tmp += dambonus;
+            tmp2 += dambonus;
+         }
+         desc = format("%d-%d", tmp, tmp2);
+      }
+      put_str(desc, 18, 69);
+   }
+   else
+   {
+      put_str("Damg./Round:", 18, 55);
+
+      // Increase the bonus to damage for weapon combat /
+      dambonus += p_ptr->to_d_melee;
+
+      if (object_known_p(o_ptr)) dambonus += o_ptr->to_d;
+
+      damdice = o_ptr->dd;
+      damsides = o_ptr->ds;
+
+      if ((damdice == 0) || (damsides == 0))
+      {
+         if (dambonus <= 0)
+            desc = "nil!";
+         else
+            desc = format("%d", primary_weapon_blows (o_ptr) * dambonus);
+      }
+      else
+      {
+         blows = primary_weapon_blows (o_ptr);
+
+         if (dambonus == 0)
+            desc = format("%dd%d", blows * damdice, damsides);
+         else
+            desc = format("%dd%d%c%d", blows * damdice, damsides,
+                          ( dambonus > 0 ? '+' : '\0' ), blows * dambonus );
+      }
+   }
+
+   put_str(desc, 18, 69);
+
+   put_str("Infra-Vision:", 19, 55);
+   put_str(format("%d feet", p_ptr->see_infra * 10), 19, 69); 
 
 	/* jk - add tactic */
 	put_str("Tactic:", 20, 55);
@@ -1913,9 +1941,6 @@ void wield_monster_flags(u32b *f1, u32b *f2, u32b *f3, u32b *f4, u32b *f5, u32b 
 }
 
 
-/*
- * Obtain the "flags" for the player as if he was an item
- */
 void player_flags(u32b *f1, u32b *f2, u32b *f3, u32b *f4, u32b *f5, u32b *esp)
 {
 	int i;
@@ -1935,6 +1960,7 @@ void player_flags(u32b *f1, u32b *f2, u32b *f3, u32b *f4, u32b *f5, u32b *esp)
 	if (get_skill(SKILL_MINDCRAFT) >= 40) (*esp) |= ESP_ALL;
 	if (p_ptr->melee_style == SKILL_HAND && get_skill(SKILL_HAND) > 24 && !monk_heavy_armor())
 		(*f2) |= TR2_FREE_ACT;
+
 /* Hack - from Lua */
 	if (get_skill(SKILL_MANA) >= 35) (*f1) |= TR1_MANA;
 	if (get_skill(SKILL_AIR) >= 50) (*f5) |= (TR5_MAGIC_BREATH | TR5_WATER_BREATH);
@@ -2257,8 +2283,11 @@ void player_flags(u32b *f1, u32b *f2, u32b *f3, u32b *f4, u32b *f5, u32b *esp)
 
 		if (r_ptr->flags2 & RF2_REFLECTING) (*f2) |= TR2_REFLECT;
 		if (r_ptr->flags2 & RF2_REGENERATE) (*f3) |= TR3_REGEN;
-		if (r_ptr->flags2 & RF2_AURA_FIRE) (*f3) |= TR3_SH_FIRE;
-		if (r_ptr->flags2 & RF2_AURA_ELEC) (*f3) |= TR3_SH_ELEC;
+		if (r_ptr->flags8 & RF8_AURA_FIRE) (*f3) |= TR3_SH_FIRE;
+		if (r_ptr->flags8 & RF8_AURA_ELEC) (*f3) |= TR3_SH_ELEC;
+		if (r_ptr->flags8 & RF8_AURA_COLD) (*f5) |= TR5_SH_COLD;
+		if (r_ptr->flags8 & RF8_AURA_ACID) (*f5) |= TR5_SH_ACID;
+
 		if (r_ptr->flags2 & RF2_PASS_WALL) (*f3) |= TR3_WRAITH;
 		if (r_ptr->flags3 & RF3_SUSCEP_FIRE) (*f2) |= TR2_SENS_FIRE;
 		if (r_ptr->flags3 & RF3_IM_ACID) (*f2) |= TR2_RES_ACID;
@@ -2293,43 +2322,42 @@ void player_flags(u32b *f1, u32b *f2, u32b *f3, u32b *f4, u32b *f5, u32b *esp)
 	}
 }
 
-/*
- * Object flag names
- */
-static cptr object_flag_names[197] =
+// get_line("damages.txt", ANGBAND_DIR_FILE, buf, i)
+
+static cptr object_flag_names[182] =
 {
-	"Add Str",
-	"Add Int",
-	"Add Wis",
-	"Add Dex",
-	"Add Con",
-	"Add Chr",
-	"Mul Mana",
-	"Mul SPower",
-	"Add Stea.",
-	"Add Sear.",
-	"Add Infra",
-	"Add Tun..",
-	"Add Speed",
-	"Add Blows",
-	"Chaotic",
-	"Vampiric",
-	"Slay Anim.",
-	"Slay Evil",
-	"Slay Und.",
-	"Slay Maia",
-	"Slay Orc",
-	"Slay Troll",
-	"Slay Giant",
-	"Slay Drag.",
-	"Kill Drag.",
-	"Sharpness",
-	"Impact",
-	"Poison Brd",
+	"SlayAnimal",
+	"SlayEvil",
+	"SlayUndead",
+	"SlayMaia",
+	"SlayOrc",
+	"SlayTroll",
+	"SlayGiant",
+	"SlayDragon",
+	"KillDragon",
+	"KillMaia",
+	"KillUndead",
+	"KillVampre",
+ 	"Chaotic",
+ 	"Vampiric",
+	"Earthquake",
+	"Always Hit",
 	"Acid Brand",
 	"Elec Brand",
 	"Fire Brand",
 	"Cold Brand",
+	"Pois.Brand",
+	"LightBrand",
+	"Dark Brand",
+	"MagicBrand",
+	"WaterBrand",
+	"DeathBrand",
+	"Sharpness",
+	"Wounding",
+	"ResMorgul",
+	"Sentient",
+	"Throwable",
+	"Unbreakbl.",
 
 	"Sust Str",
 	"Sust Int",
@@ -2337,16 +2365,16 @@ static cptr object_flag_names[197] =
 	"Sust Dex",
 	"Sust Con",
 	"Sust Chr",
-	"Invisible",
-	"Mul life",
-	"Imm Acid",
-	"Imm Elec",
-	"Imm Fire",
-	"Imm Cold",
-	"Sens Fire",
-	"Reflect",
 	"Free Act",
 	"Hold Life",
+	"Blessed",
+	"Reflect",
+	"No Stun",
+	"Protection",
+	NULL,
+	NULL,
+	NULL,
+	NULL,
 	"Res Acid",
 	"Res Elec",
 	"Res Fire",
@@ -2364,204 +2392,462 @@ static cptr object_flag_names[197] =
 	"Res Chaos",
 	"Res Disen",
 
-
-
-	"Aura Fire",
-	"Aura Elec",
-	"Auto Curse",
-	NULL,
-	"NoTeleport",
-	"AntiMagic",
-	"WraithForm",
-	"EvilCurse",
-	NULL,
-	NULL,
-	NULL,
-	NULL,
+	"Acid Aura",
+	"Elec Aura",
+	"Fire Aura",
+	"Cold Aura",
 	"Levitate",
-	"Lite",
-	"See Invis",
-	NULL,
+	"Fly",
+	"Climb",
+	"Light",
 	"Digestion",
 	"Regen",
-	"Xtra Might",
-	"Xtra Shots",
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	"Activate",
-	"Drain Exp",
+	"See Invis",
+	"Invisible",
+	"WraithForm",
+	"Knowledge",
+	"Precogntn.",
+	"Trinity",
+	"Magic Brth",
+	"Water Brth",
+	"Spell-Hold",
+	"Immovable",
 	"Teleport",
-	"Aggravate",
-	"Blessed",
-	"Cursed",
-	"Hvy Curse",
-	"Prm Curse",
-
-	"No blows",
-	"Precogn.",
-	"B.Breath",
-	"Recharge",
-	"Fly",
-	"Mrg.Curse",
-	NULL,
-	NULL,
-	"Sentient",
 	"Clone",
-	NULL,
-	"Climb",
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
+	"NoTeleport",
+	"Anti-Magic",
+	"Temporary",
+	"Male  Only",
+	"FemaleOnly",
 	NULL,
 	NULL,
 	NULL,
 	NULL,
 	NULL,
-	"Imm Neth",
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-    NULL,
-	NULL,
-  	
 
-	"Orc.ESP",
-	"Troll.ESP",
-	"Dragon.ESP",
-	"Giant.ESP",
-	"Maia.ESP",
-	"Undead.ESP",
-	"Evil.ESP",
-	"Animal.ESP",
-	"TLord.ESP",
-	"Good.ESP",
-	"Nlive.ESP",
-	"Unique.ESP",
+	"Add Str",
+	"Add Int",
+	"Add Wis",
+	"Add Dex",
+	"Add Con",
+	"Add Chr",
+	"Mul Mana",
+	"Add SPower",
+	"Add Stlth.",
+	"Add Search",
+	"Add Infra",
+	"Add Speed",
+	"Add Blows",
+	"Mul life",
+	"Add Crits",
+	"Add Luck",
+	"Tunneling",
+	"Acidproof",
+	"Elecproof",
+	"Fireproof",
+	"Coldproof",
+	"Chargeable",
+	"Could 2Hnd",
+	"Reqre 2Hnd",
+	"Activate",
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+
+	"Sens Acid",
+	"Sens Elec",
+	"Sens Fire",
+	"Sens Cold",
+	"Drain XP",
+	"Drain SP",
+	"Drain HP",
+	"Cursed",
+	"Auto Curse",
+	"Hvy Curse",
+	"B.Breath",
+	"EvilCurse",
+	"Mrg.Curse",
+	"Prm Curse",
+	"CurseDrop",
+	"Decaying",
+	"Orc    ESP",
+	"Troll  ESP",
+	"Dragon ESP",
+	"Giant  ESP",
+	"Maia   ESP",
+	"Undead ESP",
+	"Evil   ESP",
+	"Animal ESP",
+	"TLord  ESP",
+	"Good   ESP",
+	"Nlive  ESP",
+	"Unique ESP",
 	"Spider ESP",
-	NULL,
-	"No Stun",
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	NULL,
-	"Full ESP",
+	"Full   ESP",
+	"Aggravate",
+	"No blows",
+
 };
 
-/*
- * Summarize resistances
- */
-static void display_player_ben_one(int mode)
+u32b get_object_flag_group(int i, u32b *f1, u32b *f2, u32b *f3, u32b *f4, u32b *f5, u32b *esp)
 {
-	int i, n, x, y, z, dispx, modetemp, xtemp;
+	if ( i < 0 ) return 0;
+	i++;
 
+	if ( i < 10  ) return (*f1);
+	if ( i < 13 ) return (*f5);
+	if ( i < 16 ) return (*f1);
+	if ( i == 16 ) return (*f5);
+
+	if ( i < 22 ) return (*f1);
+	if ( i < 28 ) return (*f5);
+	if ( i == 28 ) return (*f1);
+	if ( i == 29 ) return (*f5);
+	if ( i == 30 ) return (*f4);
+	if ( i == 31 ) return (*f5);
+	if ( i == 32 ) return (*esp);
+
+	if ( i < 41 ) return (*f2);
+	if ( i == 41 ) return (*f3);
+	if ( i == 42 ) return (*f2);
+	if ( i == 43 ) return (*esp);
+	if ( i == 44 ) return (*f5);
+	if ( i < 65 ) return (*f2);
+
+	if ( i == 65 ) return (*f5);
+	if ( i == 66 ) return (*f3);
+	if ( i == 67 ) return (*f3);
+	if ( i == 68 ) return (*f5);
+	if ( i == 69 ) return (*f3);
+	if ( i == 70 ) return (*f4);
+	if ( i == 71 ) return (*f4);
+	if ( i == 72 )
+	{
+		if ( *f3 & TR3_LITE1 ) return (1);
+		else if ( *f4 & (TR4_LITE2 | TR4_LITE3) ) return (1);
+		else return (0);
+	}
+	if ( i < 76 ) return (*f3);
+	if ( i == 76 ) return (*f2);
+	if ( i == 77 ) return (*f3);
+	if ( i < 81 ) return (*f4);
+	if ( i < 85 ) return (*f5);
+	if ( i == 85 ) return (*f3);
+	if ( i == 86 ) return (*f4);
+	if ( i == 87 ) return (*f3);
+	if ( i == 88 ) return (*f3);
+	if ( i < 92 ) return (*f5);
+	if ( i == 92 ) return (*f3);
+	if ( i == 93 ) return (*f3);
+	if ( i < 97 ) return (*f4);
+
+	if ( i < 110 ) return (*f1);
+	if ( i == 110 ) return (*f2);
+	if ( i == 111 ) return (*f5);
+	if ( i == 112 ) return (*f5);
+	if ( i == 113 ) return (*f1);
+	if ( i < 118 ) return (*f3);
+	if ( i == 118 ) return (*f5);
+	if ( i == 119 ) return (*f4);
+	if ( i == 120 ) return (*f4);
+	if ( i == 121 ) return (*f3);
+	if ( i == 122 ) return (*f5);
+	if ( i < 127 ) return (*f4);
+	if ( i == 127 ) return (*f5);
+	if ( i == 128 ) return (*f4);
+
+	if ( i < 131 ) return (*esp);
+	if ( i == 131 ) return (*f2);
+	if ( i == 132 ) return (*f5);
+	if ( i == 133 ) return (*f3);
+	if ( i == 134 ) return (*f5);
+	if ( i == 135 ) return (*f5);
+	if ( i < 139 ) return (*f3);
+	if ( i == 139 ) return (*f4);
+	if ( i == 140 ) return (*f4);
+	if ( i == 141 ) return (*f3);
+	if ( i == 142 ) return (*f3);
+	if ( i == 143 ) return (*f4);
+	if ( i == 144 ) return (*f3);
+
+	if ( i < 159 ) return (*esp);
+	if ( i == 159 ) return (*f3);
+	if ( i == 160 ) return (*f4);
+
+	return 0;
+
+}
+
+u32b get_object_flag_bit(int i)
+{
+	if ( i < 0 ) return 0;
+	i++;
+
+	if ( i == 1  ) return (TR1_SLAY_ANIMAL);
+	if ( i == 2  ) return (TR1_SLAY_EVIL);
+	if ( i == 3  ) return (TR1_SLAY_UNDEAD);
+	if ( i == 4  ) return (TR1_SLAY_DEMON);
+	if ( i == 5  ) return (TR1_SLAY_ORC);
+	if ( i == 6  ) return (TR1_SLAY_TROLL);
+	if ( i == 7  ) return (TR1_SLAY_GIANT);
+	if ( i == 8  ) return (TR1_SLAY_DRAGON);
+	if ( i == 9  ) return (TR1_KILL_DRAGON);
+	if ( i == 10 ) return (TR5_KILL_DEMON);
+	if ( i == 11 ) return (TR5_KILL_UNDEAD);
+	if ( i == 12 ) return (TR5_KILL_VAMPIRE);
+	if ( i == 13 ) return (TR1_CHAOTIC);
+	if ( i == 14 ) return (TR1_VAMPIRIC);
+	if ( i == 15 ) return (TR1_IMPACT);
+	if ( i == 16 ) return (TR5_ALWAYS_HIT);
+	if ( i == 17 ) return (TR1_BRAND_ACID);
+	if ( i == 18 ) return (TR1_BRAND_ELEC);
+	if ( i == 19 ) return (TR1_BRAND_FIRE);
+	if ( i == 20 ) return (TR1_BRAND_COLD);
+	if ( i == 21 ) return (TR1_BRAND_POIS);
+	if ( i == 22 ) return (TR5_BRAND_LIGHT);
+	if ( i == 23 ) return (TR5_BRAND_DARK);
+	if ( i == 24 ) return (TR5_BRAND_MAGIC);
+	if ( i == 25 ) return (TR5_BRAND_WATER);
+	if ( i == 26 ) return (TR5_BRAND_DEATH);
+	if ( i == 27 ) return (TR5_WOUNDING);
+	if ( i == 28 ) return (TR1_VORPAL);
+	if ( i == 29 ) return (TR5_RES_MORGUL);
+	if ( i == 30 ) return (TR4_LEVELS);
+	if ( i == 31 ) return (TR5_THROWING);
+	if ( i == 32 ) return (ESP_UNBREAKABLE);
+
+
+	if ( i == 33 ) return (TR2_SUST_STR);
+	if ( i == 34 ) return (TR2_SUST_INT);
+	if ( i == 35 ) return (TR2_SUST_WIS);
+	if ( i == 36 ) return (TR2_SUST_DEX);
+	if ( i == 37 ) return (TR2_SUST_CON);
+	if ( i == 38 ) return (TR2_SUST_CHR);
+	if ( i == 39 ) return (TR2_FREE_ACT);
+	if ( i == 40 ) return (TR2_HOLD_LIFE);
+	if ( i == 41 ) return (TR3_BLESSED);
+	if ( i == 42 ) return (TR2_REFLECT);
+	if ( i == 43 ) return (ESP_SAFETY);
+	if ( i == 44 ) return (TR5_PROTECTION);
+	if ( i < 49 ) return (0);
+	if ( i == 49 ) return (TR2_RES_ACID);
+	if ( i == 50 ) return (TR2_RES_ELEC);
+	if ( i == 51 ) return (TR2_RES_FIRE);
+	if ( i == 52 ) return (TR2_RES_COLD);
+	if ( i == 53 ) return (TR2_RES_POIS);
+	if ( i == 54 ) return (TR2_RES_FEAR);
+	if ( i == 55 ) return (TR2_RES_LITE);
+	if ( i == 56 ) return (TR2_RES_DARK);
+	if ( i == 57 ) return (TR2_RES_BLIND);
+	if ( i == 58 ) return (TR2_RES_CONF);
+	if ( i == 59 ) return (TR2_RES_SOUND);
+	if ( i == 60 ) return (TR2_RES_SHARDS);
+	if ( i == 61 ) return (TR2_RES_NETHER);
+	if ( i == 62 ) return (TR2_RES_NEXUS);
+	if ( i == 63 ) return (TR2_RES_CHAOS);
+	if ( i == 64 ) return (TR2_RES_DISEN);
+
+
+	if ( i == 65 ) return (TR5_SH_ACID);
+	if ( i == 66 ) return (TR3_SH_ELEC);
+	if ( i == 67 ) return (TR3_SH_FIRE);
+	if ( i == 68 ) return (TR5_SH_COLD);
+	if ( i == 69 ) return (TR3_FEATHER);
+	if ( i == 70 ) return (TR4_FLY);
+	if ( i == 71 ) return (TR4_CLIMB);
+	if ( i == 72 ) return (1); // special case
+	if ( i == 73 ) return (TR3_SLOW_DIGEST);
+	if ( i == 74 ) return (TR3_REGEN);
+	if ( i == 75 ) return (TR3_SEE_INVIS);
+	if ( i == 76 ) return (TR2_INVIS);
+	if ( i == 77 ) return (TR3_WRAITH);
+	if ( i == 78 ) return (TR4_AUTO_ID);
+	if ( i == 79 ) return (TR4_PRECOGNITION);
+	if ( i == 80 ) return (TR4_ULTIMATE);
+
+	if ( i == 81 ) return (TR5_MAGIC_BREATH);
+	if ( i == 82 ) return (TR5_WATER_BREATH);
+	if ( i == 83 ) return (TR5_SPELL_CONTAIN);
+	if ( i == 84 ) return (TR5_IMMOVABLE);
+	if ( i == 85 ) return (TR3_TELEPORT);
+	if ( i == 86 ) return (TR4_CLONE);
+	if ( i == 87 ) return (TR3_NO_TELE);
+	if ( i == 88 ) return (TR3_NO_MAGIC);
+	if ( i == 89 ) return (TR5_TEMPORARY);
+	if ( i == 90 ) return (TR5_ONLY_MALE);
+	if ( i == 91 ) return (TR5_ONLY_FEMALE);
+	if ( i < 97 ) return (0); // not displayed here
+
+
+	if ( i == 97  ) return (TR1_STR);
+	if ( i == 98  ) return (TR1_INT);
+	if ( i == 99  ) return (TR1_WIS);
+	if ( i == 100 ) return (TR1_DEX);
+	if ( i == 101 ) return (TR1_CON);
+	if ( i == 102 ) return (TR1_CHR);
+	if ( i == 103 ) return (TR1_MANA);
+	if ( i == 104 ) return (TR1_SPELL);
+	if ( i == 105 ) return (TR1_STEALTH);
+	if ( i == 106 ) return (TR1_SEARCH);
+	if ( i == 107 ) return (TR1_INFRA);
+	if ( i == 108 ) return (TR1_SPEED);
+	if ( i == 109 ) return (TR1_BLOWS);
+	if ( i == 110 ) return (TR2_LIFE);
+	if ( i == 111 ) return (TR5_CRIT);
+	if ( i == 112 ) return (TR5_LUCK);
+	if ( i == 113 ) return (TR1_TUNNEL);
+	if ( i == 114 ) return (TR3_IGNORE_ACID);
+	if ( i == 115 ) return (TR3_IGNORE_ELEC);
+	if ( i == 116 ) return (TR3_IGNORE_FIRE);
+	if ( i == 117 ) return (TR3_IGNORE_COLD);
+	if ( i == 118 ) return (TR5_CHARGEABLE);
+	if ( i == 119 ) return (TR4_COULD2H);
+	if ( i == 120 ) return (TR4_MUST2H);
+	if ( i == 121 ) return (TR3_ACTIVATE);
+	if ( i < 129 ) return (0); // not displayed
+
+
+	if ( i == 129 ) return (ESP_SENS_ACID);
+	if ( i == 130 ) return (ESP_SENS_ELEC);
+	if ( i == 131 ) return (TR2_SENS_FIRE);
+	if ( i == 132 ) return (TR5_SENS_COLD);
+	if ( i == 133 ) return (TR3_DRAIN_EXP);
+	if ( i == 134 ) return (TR5_DRAIN_MANA);
+	if ( i == 135 ) return (TR5_DRAIN_HP);
+	if ( i == 136 ) return (TR3_CURSED);
+	if ( i == 137 ) return (TR3_AUTO_CURSE);
+	if ( i == 138 ) return (TR3_HEAVY_CURSE);
+	if ( i == 139 ) return (TR4_BLACK_BREATH);
+	if ( i == 140 ) return (TR4_DG_CURSE);
+	if ( i == 141 ) return (TR3_TY_CURSE);
+	if ( i == 142 ) return (TR3_PERMA_CURSE);
+	if ( i == 143 ) return (TR4_CURSE_NO_DROP);
+	if ( i == 144 ) return (TR3_DECAY);
+
+
+	if ( i == 145 ) return (ESP_ORC);
+	if ( i == 146 ) return (ESP_TROLL);
+	if ( i == 147 ) return (ESP_DRAGON);
+	if ( i == 148 ) return (ESP_GIANT);
+	if ( i == 149 ) return (ESP_DEMON);
+	if ( i == 150 ) return (ESP_UNDEAD);
+	if ( i == 151 ) return (ESP_EVIL);
+	if ( i == 152 ) return (ESP_ANIMAL);
+	if ( i == 153 ) return (ESP_THUNDERLORD);
+	if ( i == 154 ) return (ESP_GOOD);
+	if ( i == 155 ) return (ESP_NONLIVING);
+	if ( i == 156 ) return (ESP_UNIQUE);
+	if ( i == 157 ) return (ESP_SPIDER);
+	if ( i == 158 ) return (ESP_ALL);
+	if ( i == 159 ) return (TR3_AGGRAVATE);
+	if ( i == 160 ) return (TR4_NEVER_BLOW);
+
+	return 0;
+}
+
+void disp_immune(int i)
+{
+	int n, flag, dispx;
+	u32b f1, f2, f3, f4, f5, esp;
 	object_type *o_ptr;
 
-	char dummy[80], c;
-
-	u32b f1, f2, f3, f4, f5, esp;
-
-	u16b b[INVEN_TOTAL - INVEN_WIELD + 1][12];
-
-	int d[INVEN_TOTAL - INVEN_WIELD + 1];
-
-	bool got;
-
-	byte a;
-
-	cptr name;
-
-	/* Scan equipment */
-	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
+	dispx = 0;
+	if ( i == 1 ) flag = TR2_IM_ACID;
+	else if ( i == 2 ) flag = TR2_IM_ELEC;
+	else if ( i == 3 ) flag = TR2_IM_FIRE;
+	else if ( i == 4 ) flag = TR2_IM_COLD;
+	else if ( i == 5 )
 	{
-		/* Index */
-		n = (i - INVEN_WIELD);
+		for (n = INVEN_WIELD; n < INVEN_TOTAL; n++)
+		{
+			if (!p_ptr->body_parts[n - INVEN_WIELD]) continue;
 
-		/* Object */
-		o_ptr = &p_ptr->inventory[i];
+			dispx++;
+			o_ptr = &p_ptr->inventory[n];
+			object_flags_known(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
 
-		/* Known object flags */
+			if ( f4 & TR4_IM_NETHER ) {
+				Term_putch(51 + dispx, 16, TERM_VIOLET, '*'); // cant use i the same here
+			}
+		}
+ 		return;
+	}
+
+	for (n = INVEN_WIELD; n < INVEN_TOTAL; n++)
+	{
+		if (!p_ptr->body_parts[n - INVEN_WIELD]) continue;
+
+		dispx++;
+		o_ptr = &p_ptr->inventory[n];
 		object_flags_known(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
 
-		/* Incorporate */
-		b[n][0] = (u16b)(f1 & 0xFFFF);
-		b[n][1] = (u16b)(f1 >> 16);
-		b[n][2] = (u16b)(f2 & 0xFFFF);
-		b[n][3] = (u16b)(f2 >> 16);
-		b[n][4] = (u16b)(f3 & 0xFFFF);
-		b[n][5] = (u16b)(f3 >> 16);
-		b[n][6] = (u16b)(f4 & 0xFFFF);
-		b[n][7] = (u16b)(f4 >> 16);
-		b[n][8] = (u16b)(esp & 0xFFFF);
-		b[n][9] = (u16b)(esp >> 16);
-		b[n][10] = (u16b)(f5 & 0xFFFF);
-		b[n][11] = (u16b)(f5 >> 16);
+		if ( f2 & flag ) {
+			Term_putch(51 + dispx, 3 + i, TERM_VIOLET, '*');
+		}
+	}
+
+
+}
+
+static void display_player_ben_one(int mode)
+{
+	int i, n, x, y, dispcolor, total, dispx, immuneflag;
+	object_type *o_ptr;
+	char dummy[80], c;
+	u32b f1, f2, f3, f4, f5, esp, ftemp, bit;
+	bool b[INVEN_TOTAL - INVEN_WIELD + 1][32];
+	int d[INVEN_TOTAL - INVEN_WIELD + 1];
+	cptr name;
+
+
+	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
+	{
+		n = (i - INVEN_WIELD);
+		o_ptr = &p_ptr->inventory[i];
+		object_flags_known(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
+
+		for (x = 0; x < 32; x++)
+		{
+			ftemp = get_object_flag_group (mode * 32 + x, &f1, &f2, &f3, &f4, &f5, &esp);
+			bit = get_object_flag_bit (mode * 32 + x);
+
+			if (ftemp & bit) b[n][x] = 1; else b[n][x] = 0;
+
+		}
+
 		d[n] = o_ptr->pval;
 	}
 
-	/* Carried symbiote */
 	n = INVEN_CARRY - INVEN_WIELD;
-
-	/* Player flags */
 	wield_monster_flags(&f1, &f2, &f3, &f4, &f5, &esp);
+	for (x = 0; x < 32; x++)
+	{
+		ftemp = get_object_flag_group (mode * 32 + x, &f1, &f2, &f3, &f4, &f5, &esp);
+		bit = get_object_flag_bit (mode * 32 + x);
 
-	/* Incorporate */
-	b[n][0] = (u16b)(f1 & 0xFFFF);
-	b[n][1] = (u16b)(f1 >> 16);
-	b[n][2] = (u16b)(f2 & 0xFFFF);
-	b[n][3] = (u16b)(f2 >> 16);
-	b[n][4] = (u16b)(f3 & 0xFFFF);
-	b[n][5] = (u16b)(f3 >> 16);
-	b[n][6] = (u16b)(f4 & 0xFFFF);
-	b[n][7] = (u16b)(f4 >> 16);
-	b[n][8] = (u16b)(esp & 0xFFFF);
-	b[n][9] = (u16b)(esp >> 16);
-	b[n][10] = (u16b)(f5 & 0xFFFF);
-	b[n][11] = (u16b)(f5 >> 16);
+		if (ftemp & bit) b[n][x] = 1; else b[n][x] = 0;
+	}
 
-	/* Index */
+
 	n = INVEN_TOTAL - INVEN_WIELD;
-
-	/* Player flags */
 	player_flags(&f1, &f2, &f3, &f4, &f5, &esp);
+	for (x = 0; x < 32; x++)
+	{
+		ftemp = get_object_flag_group (mode * 32 + x, &f1, &f2, &f3, &f4, &f5, &esp);
+		bit = get_object_flag_bit (mode * 32 + x);
 
-	/* Incorporate */
-	b[n][0] = (u16b)(f1 & 0xFFFF);
-	b[n][1] = (u16b)(f1 >> 16);
-	b[n][2] = (u16b)(f2 & 0xFFFF);
-	b[n][3] = (u16b)(f2 >> 16);
-	b[n][4] = (u16b)(f3 & 0xFFFF);
-	b[n][5] = (u16b)(f3 >> 16);
-	b[n][6] = (u16b)(f4 & 0xFFFF);
-	b[n][7] = (u16b)(f4 >> 16);
-	b[n][8] = (u16b)(esp & 0xFFFF);
-	b[n][9] = (u16b)(esp >> 16);
-	b[n][10] = (u16b)(f5 & 0xFFFF);
-	b[n][11] = (u16b)(f5 >> 16);
+		if (ftemp & bit) b[n][x] = 1; else b[n][x] = 0;
+	}
 
-	/* Generate the equip chars */
+
+
 	sprintf(dummy, " ");
 	for (i = 0; i < INVEN_TOTAL - INVEN_WIELD; i++)
 	{
-		/* If you have that body part then show it */
 		if (p_ptr->body_parts[i])
 		{
 			strcat(dummy, format("%c", i + 'a'));
@@ -2569,147 +2855,108 @@ static void display_player_ben_one(int mode)
 	}
 	strcat(dummy, "@");
 
-	/* Scan cols */
 	for (x = 1; x > -1; x--)
 	{
-		/* Label */
 		Term_putstr(x * 40 + 11, 3, -1, TERM_WHITE, dummy);
 
-		/* Scan rows */
 		for (y = 0; y < 16; y++)
 		{
-			if (mode == 3 && x == 1)
-			{
-				modetemp = 4;
-				xtemp = 0;
-			}
-			else
-			{
-				modetemp = mode;
-				xtemp = x;
-			}
+			i = 16 * x + y;
+			name = object_flag_names[32 * mode + i];
+			if (!name) continue;
 
-			for (z = mode; z <= modetemp; z++)
+			Term_putch(x * 40 + 10, y + 4, TERM_WHITE, ':');
+			dispx = 0;
+			total = 0;
+
+			if ( mode == 1 )
 			{
-				if (mode == 3 && x == 1 && z == modetemp) xtemp = 1;
-				name = object_flag_names[32 * modetemp + 16 * xtemp + y];
-				got = FALSE;
+				if (i == 16) immuneflag = 1; // if mode * 32 + i == 49
+				else if (i == 17) immuneflag = 2;
+				else if (i == 18) immuneflag = 3;
+				else if (i == 19) immuneflag = 4;
+				else if (i == 28) immuneflag = 5;
+			} else
+				immuneflag = 0;
 
-				/* No name */
-				if (!name) continue;
+for (n = 0; n < INVEN_TOTAL - INVEN_WIELD + 1; n++)
+{
+   bool is_green;
 
-				/* Dump colon */
-				if (!(modetemp == 1 && x == 0 && y > 7 && y < 12))
+   if ((n < INVEN_TOTAL - INVEN_WIELD) && (!p_ptr->body_parts[n])) continue;
+
+   dispx++;
+   is_green = (dispx & 0x02);
+   dispcolor = (is_green ? TERM_GOLD : TERM_SLATE);
+   c = '.'; 
+
+				if (b[n][i])
 				{
-					Term_putch(x * 40 + 10, y + 4, TERM_WHITE, ':');
-				}
-
-				/* Check flags */
-				dispx = 0;
-				for (n = 0; n < INVEN_TOTAL - INVEN_WIELD + 1; n++)
-				{
-					/* Change colour every two columns */
-					bool is_green = (dispx & 0x02);
-					a = (is_green ? TERM_GREEN : TERM_SLATE);
-					c = '.';
-
-					/* If the body part doesn't exists then skip it :) */
-					if ((n < INVEN_TOTAL - INVEN_WIELD) && (!p_ptr->body_parts[n])) continue;
-
-					/* Increment the drawing coordinates */
-					dispx++;
-
-					/* Check flag */
-					if (b[n][2 * modetemp + xtemp] & (1 << y))
+					dispcolor = (is_green ? TERM_L_GREEN : TERM_WHITE);
+					if (mode == 3 && !(x == 0 && (y == 13 || y == 6)) && !(x == 1 && y > 0))
 					{
-						a = (is_green ? TERM_L_GREEN : TERM_WHITE);
-						if (modetemp == 1 && x == 0 && y > 7 && y < 12)
+						if (n == INVEN_TOTAL - INVEN_WIELD)
 						{
-							c = '*';
-						}
-						else if (modetemp == 0 && x == 0 && y < 14 && (y < 6 || y > 7))
-						{
-							if (n == INVEN_TOTAL - INVEN_WIELD)
-							{
-								c = '+';
-							}
-							else
-							{
-								c = d[n];
-								if (c < 0)
-								{
-									c = -c;
-									a = TERM_RED;
-								}
-								c = (c > 9 ? '*' : I2D(c));
-							}
+							c = '?';
+							dispcolor = TERM_ORANGE;
 						}
 						else
 						{
-							c = '+';
+							c = d[n];
+							total = total + c;
+							if (c < 0) {
+								c = -c;
+								dispcolor = TERM_RED;
+							}
+							c = (c > 9 ? '*' : I2D(c));
 						}
-						got = TRUE;
-					}
-
-					/* HACK - Check for nether immunity and
-					   apply to Res Neth line */
-					if (modetemp == 1 && x == 1 && y == 12)
-					{
-						if (b[n][7] & (1 << 6))
-						{
-							a = (is_green ? TERM_L_GREEN : TERM_WHITE);
-							c = '*';
-							got = TRUE;
-						}
-					}
-
-					/* Monochrome */
-					if (!use_color) a = TERM_WHITE;
-
-					/* Dump flag */
-					if (modetemp == 1 && x == 0 && y > 7 && y < 12)
-					{
-						if (c == '*') Term_putch(40 + 11 + dispx, y - 4, a, c);
 					}
 					else
 					{
-						Term_putch(x * 40 + 11 + dispx, y + 4, a, c);
+						c = '+';
+						total = 1;
 					}
-				}
 
-				a = TERM_WHITE;
-				if (use_color && got)
-				{
-					if (modetemp == 1 && x == 0 && y > 7 && y < 12)
-					{
-						a = TERM_L_GREEN;
-					}
-					else if (modetemp != 0)
-					{
-						a = TERM_GREEN;
-					}
 				}
-
-				/* HACK - Check for nether immunity and change "Res Neth" */
-				if (modetemp == 1 && x == 1 && y == 12 && p_ptr->immune_neth)
-				{
-					name = "Imm Neth";
-					a = TERM_L_GREEN;
-				}
-
-				/* Dump name */
-				if (modetemp == 1 && x == 0 && y > 7 && y < 12)
-				{
-					if (got) Term_putstr(40, y - 4, -1, a, name);
-				}
-				else
-				{
-					Term_putstr(x * 40, y + 4, -1, a, name);
-				}
+				Term_putch(x * 40 + 11 + dispx, y + 4, dispcolor, c);
 			}
+
+			if (use_color)
+			{
+				if ( total > 0 )
+					if (mode == 4)
+						if ( x == 0 )
+							dispcolor = TERM_RED;
+						 else
+						 	dispcolor = TERM_YELLOW;
+					else
+						dispcolor = TERM_GREEN;
+				else if ( total < 0 )
+					dispcolor = TERM_RED;
+				else
+					dispcolor = TERM_SLATE;
+			} else
+				dispcolor = TERM_WHITE;
+
+			if ( immuneflag )
+			{
+				n = dispcolor;
+				dispcolor = TERM_L_GREEN;
+				if ( immuneflag == 1 && p_ptr->immune_acid ) {name = "Imm Acid"; disp_immune (1);}
+				else if ( immuneflag == 2 && p_ptr->immune_elec ) {name = "Imm Elec"; disp_immune (2);}
+				else if ( immuneflag == 3 && p_ptr->immune_fire ) {name = "Imm Fire"; disp_immune (3);}
+				else if ( immuneflag == 4 && p_ptr->immune_cold ) {name = "Imm Cold"; disp_immune (4);}
+				else if ( immuneflag == 5 && p_ptr->immune_neth ) {name = "Imm Neth"; disp_immune (5);}
+				else dispcolor = n;
+				immuneflag = 0;
+			}
+
+			Term_putstr(x * 40, y + 4, -1, dispcolor, name);
+
 		}
 	}
 }
+
 
 
 /*
@@ -3375,6 +3622,9 @@ errr file_character(cptr name, bool full)
 
 	/* a little bit of stuff */
 	display_player (5);
+	file_character_print_grid(fff, FALSE, FALSE);
+
+	display_player (6);
 	file_character_print_grid(fff, FALSE, FALSE);
 
 	/* Dump corruptions */
