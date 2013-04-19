@@ -641,13 +641,190 @@ F:BIG | DOUBLE | NO_STREAMERS | RANDOM_TOWNS | ADJUST_LEVEL_1 | ADJUST_LEVEL_1_2
 
 N:41:Abandoned Castle
 D:AC:an entrance to an abandoned castle.
-W:1:127:1:0:14:160
+W:98:127:1:0:14:160
 L:1:100:1:0:1:0
 A:56:100:56:0:56:0:57:58
 O:20:20:20:20
 F:CAVERN | FILL_METHOD_0 | SMALL | ADJUST_LEVEL_2 | PRINCIPAL | RANDOM_TOWNS
 R:100:0
 
+
+N:42:Caves of Helm's Deep
+D:Hlms:a dark tunnel leading to the caves of Helm Deep.
+W:1:10:1:0:35:200
+L:88:100:1:0:1:0
+A:97:100:56:0:56:0:97:97
+O:50:15:10:25
+F:FILL_METHOD_0 | RANDOM_TOWNS | BIG | PRINCIPAL
+R:30:3
+M:R_CHAR_d
+R:20:0
+R:50:3
+M:R_CHAR_O | R_CHAR_o | R_CHAR_T
+
+
+N:43:Moria Outskirts
+D:MO:a stone door leading to the Outskirts of Moria.
+W:1:10:1:0:40:40
+L:88:100:1:0:1:0
+A:97:100:56:0:56:0:57:97
+O:30:50:10:5
+F:FILL_METHOD_2 | NO_STREAMERS | WATER_RIVER | PRINCIPAL
+R:40:3
+M:ORC
+R:30:3
+M:GIANT | TROLL
+R:20:3
+M:DEMON
+R:10:0
+
+N:44:Plains of Rohan
+D:PoR:a way to the Plains of Rohan
+W:1:10:1:0:14:160
+L:89:95:199:5:88:0
+A:96:100:97:0:56:0:202:96
+O:20:20:20:20
+F:FILL_METHOD_0 | FLAT | NO_DESTROY | NO_DOORS | PRINCIPAL | EMPTY 
+R:90:0
+M:ORC
+R:90:3
+M:R_CHAR_O | R_CHAR_o |
+
+N:45:Plains of Gondor
+D:PoG:a way to the Plains of Gondor
+W:1:10:1:0:14:160
+L:89:95:199:5:88:0
+A:96:100:97:0:56:0:202:96
+O:20:20:20:20
+F:FILL_METHOD_0 | FLAT | NO_DESTROY | NO_DOORS | PRINCIPAL | EMPTY | BIG | DOUBLE
+R:60:3
+M:ORC | R_CHAR_O | R_CHAR_o | R_CHAR_p
+R:20:3
+M:GIANT | TROLL | ANIMAL 
+R:20:3
+M:DEMON
+R:10:0
+
+# Marshes
+N:46:Marshes
+D:Mar:a path to the Marshes
+W:1:10:1:0:14:160
+L:89:50:84:25:96:25
+A:89:100:56:0:56:0:89:89
+O:10:10:30:30
+F:FILL_METHOD_0 | PRINCIPAL | FLAT | EMPTY | BIG | NO_DOORS
+R:10:0
+R:10:3
+M:AQUATIC
+R:40:1
+M:IM_COLD
+S:BA_WATE
+R:40:3
+M:IM_COLD
+
+# Marshes
+N:47:Marshes
+D:Mar:a path to the Marshes
+W:1:10:1:0:14:160
+L:89:50:84:50:96:0
+A:96:75:84:50:56:0:84:84
+O:10:10:30:30
+F:FILL_METHOD_0 | PRINCIPAL | FLAT | BIG | NO_DOORS | EMPTY | CIRCULAR_ROOMS
+R:10:0
+R:10:3
+M:AQUATIC
+R:40:1
+M:IM_COLD
+S:BA_WATE
+R:40:3
+M:IM_COLD
+
+N:48:Harad
+D:Ha:a desert path into Harad.
+W:1:10:1:0:14:160
+L:91:100:91:0:91:0
+A:91:100:91:0:91:0:98:91
+O:20:20:20:20
+F:CAVE | CAVERN | EMPTY | FILL_METHOD_4 | FLAT | NO_DESTROY | NO_DOORS | NO_SHAFT | NO_STREAMERS | RANDOM_TOWNS | PRINCIPAL
+R:30:0
+R:70:3
+M:R_CHAR_p | 
+
+N:49:Mirkwood Outskirts
+D:MkwO:a way to the Mirkwood Outskirts.
+W:1:10:1:0:14:160
+L:89:95:199:5:88:0
+A:96:100:97:0:56:0:202:96
+O:20:20:20:20
+F:FILL_METHOD_0 | FLAT | NO_DESTROY | NO_DOORS | PRINCIPAL
+R:100:0
+
+N:50:Gondolin Outskirts
+D:MO:a stone door leading to the Outskirts of Gondolin.
+W:1:10:1:0:40:40
+L:88:100:1:0:1:0
+A:97:100:56:0:56:0:57:97
+O:30:50:10:5
+F:FILL_METHOD_2 | NO_STREAMERS | WATER_RIVER | PRINCIPAL
+R:40:3
+M:ORC | DEMON
+R:30:3
+M:GIANT | TROLL | 
+R:20:3
+
+N:51:The Old Forest Outskirts
+D:OFrO:a path into the Old Forest Outskirts.
+W:1:10:1:0:15:100
+L:88:76:84:16:199:8
+L:68:16:16
+A:96:100:56:0:56:0:202:96
+O:20:5:15:30
+F:FILL_METHOD_3 | FLAT | NO_DESTROY | NO_DOORS | NO_STREAMERS | RANDOM_TOWNS | WATER_RIVERS
+R:30:0
+R:40:3
+M:ANIMAL
+R:30:3
+M:R_CHAR_h | R_CHAR_l | UNDEAD
+
+N:52:Mirkwood Outskirts
+D:MkwO:a way to the Mirkwood Outskirts.
+W:1:10:1:0:14:160
+L:89:95:199:5:88:0
+A:96:100:97:0:56:0:202:96
+O:20:20:20:20
+F:FILL_METHOD_0 | FLAT | NO_DESTROY | NO_DOORS | PRINCIPAL
+R:100:0
+
+N:53:Mirkwood Outskirts
+D:MkwO:a way to the Mirkwood Outskirts.
+W:1:10:1:0:14:160
+L:89:95:199:5:88:0
+A:96:100:97:0:56:0:202:96
+O:20:20:20:20
+F:FILL_METHOD_0 | FLAT | NO_DESTROY | NO_DOORS | PRINCIPAL
+R:100:0
+
+N:54:Underground Caverns
+D:UC:a dark tunnel leading to the underground caverns.
+W:1:10:1:0:35:200
+L:88:100:1:0:1:0
+A:97:100:56:0:56:0:97:97
+O:50:15:10:25
+F:FILL_METHOD_0 | RANDOM_TOWNS | BIG | PRINCIPAL | ADJUST_LEVEL_1 | FINAL_GUARDIAN_268
+R:30:3
+M:R_CHAR_d
+R:20:0
+R:50:3
+M:R_CHAR_O | R_CHAR_o | R_CHAR_T
+
+N:55:Angband
+D:Ang:a way to Angband.
+W:1:127:1:0:14:160
+L:1:100:1:0:1:0
+A:56:100:56:0:56:0:57:58
+O:20:20:20:20
+F:PRINCIPAL | RANDOM_TOWNS | NO_STREAMERS
+R:100:0
 
 # N:<index>:<name>
 # D:<3 letter short name>:<long name>

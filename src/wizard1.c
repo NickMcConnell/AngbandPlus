@@ -330,11 +330,13 @@ static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val, int 
 	object_type *q_ptr;
 
 	object_kind *k_ptr;
-
+	
+	
 
 	/* Get local object */
 	q_ptr = &forge;
 
+    
 	/* Prepare a fake item */
 	object_prep(q_ptr, k);
 
@@ -361,14 +363,14 @@ static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val, int 
 	/* Value */
 	(*val) = object_value(q_ptr);
 
-
+	
 	/* Hack */
 	if (!buf || !dam || !wgt) return;
 
 
 	/* Description (too brief) */
 	object_desc_store(buf, q_ptr, FALSE, 0);
-
+	
 
 	/* Misc info */
 	strcpy(dam, "");
@@ -428,6 +430,7 @@ static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val, int 
 
 	/* Weight */
 	sprintf(wgt, "%3ld.%ld", q_ptr->weight / 10, q_ptr->weight % 10);
+
 }
 
 
@@ -446,7 +449,7 @@ static void spoil_obj_desc(cptr fname)
 
 	char wgt[80];
 	char dam[80];
-
+	
 
 	/* Build the filename */
 	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, fname);
@@ -471,7 +474,7 @@ static void spoil_obj_desc(cptr fname)
 	spoiler_blanklines(2);
 
 	/* More Header */
-	fprintf(fff, "%s,%s,%s,%s,%s\n",
+	fprintf(fff, "%s,%s,%s,%s,%s\n,",
 	        "Description", "Dam/AC", "Wgt", "Lev", "Cost");
 
 
@@ -512,12 +515,12 @@ static void spoil_obj_desc(cptr fname)
 			{
 				int e;
 				s32b v;
-
+				
 				/* Describe the kind */
 				kind_info(buf, dam, wgt, &e, &v, who[s]);
 
 				/* Dump it */
-				fprintf(fff, "\"%s\",\"%s\",\"%s\",\"%d\",\"%ld\"\n",
+				fprintf(fff, "\"%s\",\"%s\",\"%s\",\"%d\",\"%ld\",\n",
 				        buf, dam, wgt, e, (long)(v));
 			}
 

@@ -3521,5 +3521,5 @@ extern u16b has_won;
  * @note TRUE if allowing joke monsters, otherwise FALSE.
  */
 extern bool joke_monsters;
-
+extern bool one_town;
 extern s16b max_dlv[999999];

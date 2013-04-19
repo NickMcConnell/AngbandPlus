@@ -2,7 +2,7 @@ bool quest_main_monsters_hook(char *fmt)
 {
 	s32b r_idx;
 	r_idx = get_next_arg(fmt);
-
+	if (one_town) return FALSE;
 	/* Sauron */
 	if (r_idx == 860)
 	{

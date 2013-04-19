@@ -3824,7 +3824,7 @@ void calc_bonuses(bool silent)
 
 		if (monk_heavy_armor()) p_ptr->num_blow /= 2;
 
-		p_ptr->num_blow = 2;
+	//	p_ptr->num_blow = 2;
 
 		if (!monk_heavy_armor())
 		{
@@ -3855,7 +3855,7 @@ void calc_bonuses(bool silent)
 
 			p_ptr->dis_to_h += (plev / 3);
 			p_ptr->dis_to_d += (plev / 3);
-		p_ptr->num_blow = 2;
+	//	p_ptr->num_blow = 2;
 
 	}
 	else if ((p_ptr->melee_style == SKILL_SPIDER))
@@ -3878,7 +3878,7 @@ void calc_bonuses(bool silent)
 
 			p_ptr->dis_to_h += (plev / 3);
 			p_ptr->dis_to_d += (plev / 3);
-	p_ptr->num_blow = 2;
+	//p_ptr->num_blow = 2;
 
 	}
 	else if ((p_ptr->melee_style == SKILL_BASILISK))
@@ -3901,7 +3901,7 @@ void calc_bonuses(bool silent)
 
 			p_ptr->dis_to_h += (plev / 3);
 			p_ptr->dis_to_d += (plev / 3);
-		p_ptr->num_blow = 2;
+//		p_ptr->num_blow = 2;
 
 	}
 
@@ -3925,7 +3925,7 @@ void calc_bonuses(bool silent)
 
 			p_ptr->dis_to_h += (plev / 3);
 			p_ptr->dis_to_d += (plev / 3);
-		p_ptr->num_blow = 2;
+//		p_ptr->num_blow = 2;
 
 	}
 

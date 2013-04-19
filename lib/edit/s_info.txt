@@ -343,10 +343,7 @@ G:0
 F:RANDOM_GAIN
 
 
-N:68:First-aid
-D:Ability to cure small wounds and bleeding.
-I:1000
-A:1004:First aid
+
 
 N:88:Construction
 D:Ability to use constructor powers
@@ -705,7 +702,6 @@ T:Monster-lore:Possession
 T:Monster-lore:Symbiosis
 T:Monster-lore:Mimicry
 T:Monster-lore:Construction
-T:Monster-lore:First-aid
 T:Weaponmastery:Sword-mastery
 T:Weaponmastery:Axe-mastery
 T:Weaponmastery:Hafted-mastery

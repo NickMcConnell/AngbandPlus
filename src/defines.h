@@ -1827,6 +1827,47 @@
 #define SV_RING_DURIN                   57
 #define SV_RING_SPELL                   58
 #define SV_RING_CRIT                    59
+#define SV_RING_1                    60
+#define SV_RING_2                    61
+#define SV_RING_3                    62
+#define SV_RING_4                    63
+#define SV_RING_5                    64
+#define SV_RING_6                    65
+#define SV_RING_7                    66
+#define SV_RING_8                    67
+#define SV_RING_9                    68
+#define SV_RING_10                    69
+#define SV_RING_11                   70
+#define SV_RING_12                    71
+#define SV_RING_13                  72
+#define SV_RING_14                  73
+#define SV_RING_15                  74
+#define SV_RING_16                  75
+#define SV_RING_17                  76
+#define SV_RING_18                  77
+#define SV_RING_19                  78
+#define SV_RING_20                  79
+#define SV_RING_21                  80
+#define SV_RING_22                  81
+#define SV_RING_23                  82
+#define SV_RING_24                  83
+#define SV_RING_25                  84
+#define SV_RING_26                  85
+#define SV_RING_27                  86
+#define SV_RING_28                  87
+#define SV_RING_29                  88
+#define SV_RING_30                  89
+#define SV_RING_31                  90
+#define SV_RING_32                  91
+#define SV_RING_33                  92
+#define SV_RING_34                  93
+#define SV_RING_35                  94
+#define SV_RING_36                  95
+#define SV_RING_37                  96
+#define SV_RING_38                  97
+#define SV_RING_39                  98
+#define SV_RING_40                  99
+
 
 /* The "sval" codes for TV_STAFF */
 #define SV_STAFF_SCHOOL                 1
@@ -4470,7 +4511,7 @@ extern int PlayerUID;
 #define BIT(x) (1L << (x))
 
 /* Town defines */
-#define TOWN_RANDOM     20              /* First random town */
+#define TOWN_RANDOM     25              /* First random town */
 #define TOWN_DUNGEON    4               /* Maximun number of towns per dungeon */
 #define TOWN_CHANCE     50              /* Chance of 1 town */
 

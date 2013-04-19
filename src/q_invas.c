@@ -89,6 +89,7 @@ bool quest_invasion_turn_hook(char *fmt)
 	bool old_quick_messages = quick_messages;
 
 	if (cquest.status != QUEST_STATUS_UNTAKEN) return (FALSE);
+	if (one_town) return (FALSE);
 	if (p_ptr->lev < 45) return (FALSE);
 
 	/* Wait until the end of the current quest */

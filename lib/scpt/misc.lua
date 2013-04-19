@@ -68,9 +68,6 @@ end
 add_hook_script(HOOK_WIELD_SLOT, "__hook_wings_wear", "__hook_wings_wear")
 
 
-
-
-
 -- A not-too-scummy way of generating junk for ammo
 function food_vessel(object)
    if ((object.tval == 80) and (object.sval == 43)) or
@@ -95,14 +92,15 @@ function longbottom_leaf(object)
 end
 add_hook_script(HOOK_EAT, "longbottom_leaf", "longbottom_leaf")
 
+
 function miruvor(object)
 if (object.tval == 80) and (object.sval == 43) then
-cmsg_print(TERM_WHITE, "You are full!")
-set_food(PY_FOOD_MAX - 1)
-set_oppose_cold(9999)
-do_res_stat(A_STR, TRUE)
-return FALSE
-end
+		cmsg_print(TERM_WHITE, "You are full!")
+		set_food(PY_FOOD_MAX - 1)
+		set_oppose_cold(9999)
+		do_res_stat(A_STR, TRUE)
+		return FALSE
+	end
 end
 add_hook_script(HOOK_EAT, "miruvor", "miruvor")
 
@@ -181,6 +179,7 @@ add_building_action
 	end
 }
 
+-- Fixes the gate problems
 function minas_gate()
         if (quest(16).status == QUEST_STATUS_FINISHED) and (player.wilderness_y == 56) and (player.wilderness_x == 60) and (player.wild_mode == FALSE) then
                 cave(35,10).feat = 159
@@ -290,6 +289,8 @@ function spider_move(y, x, m_idx)
 end
 add_hook_script(HOOK_MOVE, "spider_move", "spider_move")
 
+-- Custom wielding of skulls and staffs
+
 add_hooks
 {
 	[HOOK_WIELD_SLOT] =     function (obj, ideal)
@@ -380,6 +381,8 @@ add_hooks
 	end,
 }
 
+-- Only Jedi can use Lightsabers, while not really canon, it makes for better balance
+
 function __jedi_saber(obj)
     local str = get_class_name()
     local type4 = obj.tval
@@ -405,6 +408,7 @@ function __jedi_saber(obj)
 end
 add_hook_script(HOOK_WIELD_SLOT, "__jedi_saber", "__jedi_saber")
 
+-- Or wear their robes
 
 function __jedi_wear(obj)
     local str = get_class_name()

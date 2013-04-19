@@ -1728,6 +1728,10 @@ option_type option_info[] =
 	{ &fate_option, TRUE, 6, 18,
 	  "fate_option", "You can receive fates, good or bad" },
 
+	{ &one_town, FALSE, 6, 20,
+	  "one_town", "Only one town" },	  
+	  
+	  
 	/* XXX 17 is used BEFORE */
 
 	/*** Stacking ***/

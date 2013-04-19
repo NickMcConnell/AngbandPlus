@@ -732,7 +732,7 @@ extern u32b dungeon_flags2@level_flags2;
 /** @def TOWN_RANDOM
  * @note First random town 
  */
-#define TOWN_RANDOM     20              
+#define TOWN_RANDOM     25              
 
 /** @def TOWN_DUNGEON
  * @note Maximun number of towns per dungeon 

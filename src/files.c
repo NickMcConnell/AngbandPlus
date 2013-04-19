@@ -3494,6 +3494,11 @@ errr file_character(cptr name, bool full)
 		fprintf(fff, "\n Arena Levels:         ON");
 	else
 		fprintf(fff, "\n Arena Levels:         OFF");
+		
+	if (one_town)
+		fprintf(fff, "\n Only One Town:        ON");
+	else
+		fprintf(fff, "\n Only One Town:        OFF");		
 
 	if (ironman_rooms)
 		fprintf(fff, "\n Always unusual rooms: ON");

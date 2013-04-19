@@ -2104,6 +2104,21 @@ bool kind_is_randart(int k_idx)
 	return (FALSE);
 }
 
+bool safe_to_gene(int r_idx)
+{
+monster_race *r_ptr = &r_info[r_idx];
+
+if (strstr((r_name + r_ptr->name), "The Princess")) 
+	return (FALSE);
+if (strstr((r_name + r_ptr->name), "Adventurer"))	
+	return (FALSE);
+
+return(TRUE);
+
+}
+	
+
+
 /*
  * Attempt to place a monster of the given race at the given location.
  *
@@ -2266,13 +2281,26 @@ s16b place_monster_one(int y, int x, int r_idx, int ego, bool slp, int status)
 	}
 
 	/* Unallow some uniques to be generated outside of their quests/special levels/dungeons */
-	if ((r_ptr->flags9 & RF9_SPECIAL_GENE) && (!m_allow_special[r_idx]))
+	if ((r_ptr->flags9 & RF9_SPECIAL_GENE) && (!m_allow_special[r_idx]) && (!one_town))
 	{
-		if (wizard) cmsg_format(TERM_L_RED, "WARNING: Refused monster(%d): SPECIAL_GENE", r_idx);
+		if (wizard) cmsg_format(TERM_L_RED, "WARNING: Refused monster(%d): SPECIAL_GENE OT-", r_idx);
 		if (place_monster_one_race) KILL(place_monster_one_race, monster_race);
 		return 0;
 	}
 
+	if ((r_ptr->flags9 & RF9_SPECIAL_GENE) && (!m_allow_special[r_idx]) && (one_town))
+	{
+		if (safe_to_gene(r_idx) == TRUE)
+		if (wizard) cmsg_format(TERM_L_RED, "WARNING: Allowed monster(%d): SPECIAL_GENE OT+", r_idx);
+		return 1;
+		
+		if (wizard) cmsg_format(TERM_L_RED, "WARNING: Refused monster(%d): SPECIAL_GENE OT+", r_idx);
+		if (place_monster_one_race) KILL(place_monster_one_race, monster_race);		
+		return 0;
+	
+	}
+	
+	
 	/* Disallow Spirits in The Void, now this *IS* an ugly hack, I hate to do it ... */
 	if ((r_ptr->flags7 & RF7_SPIRIT) && (dungeon_type != DUNGEON_VOID))
 	{

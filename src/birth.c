@@ -2503,7 +2503,7 @@ static bool player_birth_aux_ask()
 
 	/* Init the plots */
 	call_lua("get_module_info", "(s)", "d", "C_quest", &allow_quest);
-	if (allow_quest)
+	if ((allow_quest) && (!one_town))
 	{
 		plots[PLOT_MAIN] = QUEST_NECRO;
 		quest[plots[PLOT_MAIN]].status = QUEST_STATUS_TAKEN;

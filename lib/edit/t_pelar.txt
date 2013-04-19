@@ -40,6 +40,10 @@ F:j:74:3:0:0:0:0:0:15
 # Beastmaster
 F:k:74:3:0:0:0:0:0:16
 
+F:z:74:3:0:0:0:0:0:7
+
+F:|:7:3:0:0:0:0:0:48
+
 D:######################################################################################################################################################################################################
 D:#-------------------------------------------------@VVVVV@##VVVVV@@-----------------------------------------------------------------------------------------------------------------------------------#                                                                                                                                                                                      #
 D:#-------------------------------------------------@VVVVV@####VVVVV@----------------------------------------------------------------------------------------------------------------------------------#
@@ -69,7 +73,7 @@ D:#-------------------------------------------------@VVVVV@####,,,,,,O,,,OOOO,,,
 D:#-------------------------------------------------@VVVVV@####,,,,,,,OOOO,,,,,,##.........####VVVV#,,,,OOOO,,,,,,,,,,,,,O,,,#####VVVVV@@@------------------------------------aaaaaaaaaaaaaaaaaaaaaaaaa#
 D:#-------------------------------------------------@VVVVV@####,,,,OOOO,,,TTT,,,##................#,,,,,,,,OOOO,,,,,,,,,,OOOOOOO#####VVVVV@@@------------------------------aaaaaaaaaaaaaaaaaaaaaaaaaaaa#
 D:#-------------------------------------------------@VVVVV@####,OOOO,,,,,TTTTT,.##...............####,,,,,,,,,OOO,,,,,,,,O,,,,,,,,,#####VVVVV@@@-----------------------aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa#
-D:#-------------------------------------------------OOOOOOOOOOOOO,,,,,,,,,TTT,,,##..................####,,,,,,O,,OOO,,,,,O,,,,,,,,,,,,#####VVVVV@@@----------------aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa#
+D:#------------------------------------------------|OOOOOOOOOOOOO,,,,,,,,,TTT,,,##..................####,,,,,,O,,OOO,,,,,O,,,,,,,,,,,,#####VVVVV@@@----------------aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa#
 D:#-------------------------------------------------@VVVVV@####,,,,,,,,,,,,,,,,,##......,#cc#..........####,,,O,,,,,O,###d###,,,,,,,,,,,,#####VVVVV@@@---------aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa#
 D:#-------------------------------------------------@VVVVV@#######################.....########...........####O,,,,,,O#######,,,,,,,,,,,,,,,#####VVVVV@-----aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa#
 D:#-------------------------------------------------OVVVVVVVVVVVVVVVVVVVVVVVVVVV......c########c.............####,,#############,,,,,,,#####,,,#####VVVVV@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa#
@@ -85,7 +89,7 @@ D:#-------------------------------------------------@VVVVV@####,,,,O,,,,O,,####,
 D:#-------------------------------------------------@VVVVV@####,,##f##,,,O,,,,,,##..####,,,,,,,##aaaaaaa##,,,,,,,,,,,,,######aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa#
 D:#-------------------------------------------------@VVVVV@####,,#####,,,,O,,,,,##O###,,,,,,,,,,##aaaaaaa##,,,,,,,,#####aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa#
 D:#-------------------------------------------------@VVVVV@####,,#####,,,,,O,,,,#O###,,,,,,,,,,,,##aaaaaaa##,,,######aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa#
-D:#-------------------------------------------------@VVVVV@####,,,,O,,,,,,,,O,,,OO,,,,,#######,,,,##aaaaaaa#####aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa#
+D:#-------------------------------------------------@VVVVV@####,,,,O,,,,,,,,O,,,OO,,,,,###z###,,,,##aaaaaaa#####aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa#
 D:#-------------------------------------------------@VVVVV@####,,,,O,,,,,.,,OOOO,O,,,,,#######,,,,,##aaaaaaa##aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa#
 D:#-------------------------------------------------@VVVVV@####,,##k##,,,,,O##j##,O,,,,#######,,,,,,##aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa#
 D:#-------------------------------------------------@VVVVV@####,,#####,,,,O,#####,,O,,,#######,,,,,,###aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa#

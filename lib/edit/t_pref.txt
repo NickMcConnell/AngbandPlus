@@ -146,3 +146,8 @@ F:%:174:3
 
 # Barrow-Downs entrance
 F:q:7:3:0:0:0:0:0:41
+
+# Helm's Deep Caves
+F:}:7:3:0:0:0:0:0:42
+
+# Khazad's Moria Outskirts

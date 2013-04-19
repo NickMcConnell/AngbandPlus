@@ -284,6 +284,9 @@ extern bool speak_unique;
 extern bool small_levels;
 extern bool empty_levels;
 extern bool always_small_level;
+
+extern bool one_town;
+
 #if 0 /* It's controlled by insanity -- pelpel */
 extern bool flavored_attacks;
 #endif

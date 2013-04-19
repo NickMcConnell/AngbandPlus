@@ -8624,6 +8624,23 @@ static int toluaI_set_player_joke_monsters(lua_State* tolua_S)
  return 0;
 }
 
+/* get function: one_town */
+static int toluaI_get_player_one_town(lua_State* tolua_S)
+{
+ tolua_pushnumber(tolua_S,(long)one_town);
+ return 1;
+}
+
+/* set function: one_town */
+static int toluaI_set_player_one_town(lua_State* tolua_S)
+{
+ if (!tolua_istype(tolua_S,1,LUA_TNUMBER,0))
+ TOLUA_ERR_ASSIGN;
+  one_town = ((bool)  tolua_getnumber(tolua_S,1,0));
+ return 0;
+}
+
+
 /* get function: max_dlv */
 static int toluaI_get_player_max_dlv(lua_State* tolua_S)
 {
@@ -9242,6 +9259,8 @@ int tolua_player_open (lua_State* tolua_S)
  tolua_globalvar(tolua_S,"total_winner",toluaI_get_player_total_winner,toluaI_set_player_total_winner);
  tolua_globalvar(tolua_S,"has_won",toluaI_get_player_has_won,toluaI_set_player_has_won);
  tolua_globalvar(tolua_S,"joke_monsters",toluaI_get_player_joke_monsters,toluaI_set_player_joke_monsters);
+ 
+ tolua_globalvar(tolua_S,"one_town",toluaI_get_player_one_town,toluaI_set_player_one_town);
  tolua_globalarray(tolua_S,"max_dlv",toluaI_get_player_max_dlv,toluaI_set_player_max_dlv);
  return 1;
 }
@@ -9567,6 +9586,9 @@ void tolua_player_close (lua_State* tolua_S)
  lua_pop(tolua_S,1);
  lua_getglobals(tolua_S);
  lua_pushstring(tolua_S,"joke_monsters"); lua_pushnil(tolua_S); lua_rawset(tolua_S,-3);
+ lua_pop(tolua_S,1);
+  lua_getglobals(tolua_S);
+ lua_pushstring(tolua_S,"one_town"); lua_pushnil(tolua_S); lua_rawset(tolua_S,-3);
  lua_pop(tolua_S,1);
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"max_dlv");
 }

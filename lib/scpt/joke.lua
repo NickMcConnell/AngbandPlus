@@ -1,6 +1,6 @@
 -- Place a monster in a good spot
 function gen_joke_place_monster(r_idx)
-	local try = 1000
+	local try = 100
 	local x
 	local y
 	while try > 0 do

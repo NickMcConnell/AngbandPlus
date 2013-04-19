@@ -1452,3 +1452,15 @@ I:25000:180:108:2:2
 C:100:100:100
 L:Dwarf | Petty-Dwarf | Human | RohanKnight | Hobbit 
 H:Dragon | Orc | Dark-Elf | Half-Ogre | Troll | Dragon | DarkMaia
+
+N:218:Master Thron(Jedi)
+I:25000:180:108:2:2
+C:100:100:100
+L:Dwarf | Petty-Dwarf | Human | RohanKnight | Hobbit 
+H:Dragon | Orc | Dark-Elf | Half-Ogre | Troll | Dragon | DarkMaia
+
+N:219:Master Sifo-Dyas(Jedi)
+I:25000:180:108:2:2
+C:100:100:100
+L:Dwarf | Petty-Dwarf | Human | RohanKnight | Hobbit 
+H:Dragon | Orc | Dark-Elf | Half-Ogre | Troll | Dragon | DarkMaia

@@ -3,8 +3,8 @@
 # Maximum number of towns
 M:T:100
 
-# Maximum number of non random towns(must be < 20)
-M:t:18
+# Maximum number of non random towns(must be < 25)
+M:t:20
 
 # Maximum x size of the wilderness
 M:X:101
@@ -46,22 +46,22 @@ M:s:16
 M:E:300
 
 # Maximum number of dungeon types in d_info.txt
-M:D:42
+M:D:56
 
 # Maximum number of trap types in tr_info.txt
 M:U:176
 
 # Maximum number of terrain types in wf_info.txt
-M:W:63
+M:W:65
 
 # Maximum number of owners types in ow_info.txt
-M:N:220
+M:N:221
 
 # Maximum number of building actions in ba_info.txt
-M:B:100
+M:B:101
 
 # Maximum number of store types in st_info.txt
-M:S:100
+M:S:104
 
 # Maximum size for "o_list[]"
 M:O:1024

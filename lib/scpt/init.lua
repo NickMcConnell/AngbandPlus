@@ -16,7 +16,7 @@ tome_dofile("powers.lua")
 
 -- Add the mimic shapes
 tome_dofile("mimic.lua")
-tome_dofile("riding.lua")
+
 
 -- Add the corruptions
 tome_dofile("corrupt.lua")
@@ -41,10 +41,10 @@ tome_dofile("berserk.lua")
 tome_dofile("arcan.lua")
 tome_dofile("building.lua")
 -- Add joke stuff
-tome_dofile("drunk.lua")
+
 tome_dofile("joke.lua")
 tome_dofile("yelling.lua")
-tome_dofile("newskills.lua")
+
 
 -- Some tests, if the file is not present, this is fine
 tome_dofile_anywhere(ANGBAND_DIR_SCPT, "dg_test.lua", FALSE)
@@ -57,7 +57,8 @@ tome_dofile("monsters.lua")
 
 -- Add miscellaneous stuff
 tome_dofile("misc.lua")
--- tome_dofile("c.lua")
 tome_dofile("runecrft.lua")
 tome_dofile("aws_road.lua")
 tome_dofile("ninjaweapons.lua")
+tome_dofile("jedi_quest.lua")
+tome_dofile("one_town.lua")

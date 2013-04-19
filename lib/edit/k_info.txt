@@ -7741,7 +7741,14 @@ F:EASY_KNOW | IGNORE_ACID | IGNORE_COLD | IGNORE_ELEC | IGNORE_FIRE | SAFETY
 f:SAFETY
 D:This ring protects you from stuns
 
-
+N:1021:& Jedi's Hood~
+G:]:u
+I:32:51:0
+W:3:0:10:10
+P:4:0d0:0:0:0
+A:3/1
+F:RES_BLIND
+D:A Jedi's hood.
 
 
 

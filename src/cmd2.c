@@ -4935,7 +4935,7 @@ byte show_monster_inven(int m_idx, int *monst_list)
 	char tmp_val[80];
 
 	int out_index[23];
-
+// was 23
 	byte out_color[23];
 
 	char out_desc[23][80];

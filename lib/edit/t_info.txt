@@ -130,3 +130,17 @@
 ?:[AND [EQU $TOWN 18] [NOT [EQU $TOWN_DESTROY18 1] ] ]
 %:t_hunt.txt
 ?:1
+
+# Jedi
+?:[AND [EQU $TOWN 19] [EQU $TOWN_DESTROY19 1] ]
+%:t_d_jedi.txt
+?:[AND [EQU $TOWN 19] [NOT [EQU $TOWN_DESTROY19 1] ] ]
+%:t_jedi.txt
+?:1
+
+# Basic
+?:[AND [EQU $TOWN 20] [EQU $TOWN_DESTROY20 1] ]
+%:t_basic.txt
+?:[AND [EQU $TOWN 20] [NOT [EQU $TOWN_DESTROY20 1] ] ]
+%:t_basic.txt
+?:1

@@ -45,6 +45,10 @@ F:j:74:3:0:0:0:0:0:16
 
 F:k:74:3:0:0:0:0:0:90
 
+F:z:74:3:0:0:0:0:0:7
+
+F:|:7:3:0:0:0:0:0:51
+
 D:######################################################################################################################################################################################################
 D:#bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbhhhhhhhhhhhhhhhhhhhhhhhhhhihhhhhhhccccchhOOhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh#
 D:#bccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccbb------------------------OO-------ccmccTOO------------------------------------------------------------------------------------------#
@@ -95,7 +99,7 @@ D:#-----------------------------------------------------------------------------
 D:#-----------------------------------------------------------------------------------hhhh---OO--------hhh-----hhh-------------------------------------------------------------------------------------#
 D:#--------------------------------------------------TT-----TT------TT-----hhhh------hhhhhh--OO-------hhhhh---hhhhh------------------------------------------------------------------------------------#
 D:#-------------------------------------------------TTTT---TTTT----TTTT---hhhhhh----hhhhhhhh-OO------hhhhhhh--hh5hh--TT---TT---TT----------------------------------------------------------------------#
-D:#--------------------------------------------------TT-----TT------TT---hhh3hhhh---hhhh2hhh-OO------hhh0hhh--------TTkT-TTTT-TTTT---------------------------------------------------------------------#
+D:#--------------------------------------------------TT-----TT------TT---hhh3hhhh---hhhh2hhh-OO------hhh0hhh--------TTkT-TTzT-TTTT------------------------------------------------------------------|--#
 D:#OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO#
 D:#OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO#
 D:#------------------------------------------------------------------##e###-hhhh-hhh------hhhOO-hh-----hhhh----h-hh-TTTT-TTTT-TTTT---------------------------------------------------------------------#

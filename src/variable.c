@@ -269,6 +269,9 @@ bool speak_unique; 		/* Speaking uniques + shopkeepers */
 bool small_levels; 		/* Allow unusually small dungeon levels */
 bool empty_levels; 		/* Allow empty 'arena' levels */
 bool always_small_level;         /* Small levels */
+
+bool one_town;  // Fury's One Town OPTION
+
 #if 0 /* It's controlled by insanity -- pelpel */
 bool flavored_attacks;           /* Show silly messages when fighting */
 #endif

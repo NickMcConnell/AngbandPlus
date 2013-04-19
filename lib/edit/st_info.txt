@@ -1252,10 +1252,7 @@ I:100:Remove Curse
 I:100:Word of Recall
 I:100:Word of Recall
 I:100:Word of Recall
-#I:100:Cure Light Wounds
 T:100:71:34
-#I:100:Cure Serious Wounds
-#I:100:Cure Serious Wounds
 T:100:71:35
 T:100:71:35
 I:100:Cure Critical Wounds
@@ -1278,6 +1275,286 @@ I:100:*Remove Curse*
 A:0:29:1:2:3:4
 O:217:217:217:217
 G:4:g
+W:24
+
+N:95:Jedi Supplies
+I:100:& Lightsaber~
+I:100:& Lightsaber~
+I:100:& Lightsaber~
+I:100:& Lightsaber~
+I:100:& Lightsaber~
+I:100:& Curved Lightsaber~
+I:100:& Curved Lightsaber~
+I:100:& Doublended Lightsaber~
+I:100:& Jedi Robe~
+I:100:& Jedi Master Robe~
+I:100:Word of Recall
+I:100:Word of Recall
+I:100:Word of Recall
+I:100:Remove Curse
+I:100:Remove Curse
+I:100:*Remove Curse*
+I:100:*Remove Curse*
+I:100:& Ration~ of Cram
+I:100:& Ration~ of Cram
+I:100:& Shovel~
+I:50:& Pick~
+A:23:24:0:2:3:25
+O:218:218:218:218
+G:3:w
+W:24
+
+N:96:Jedi Council
+A:29:100:0:0:0:0
+O:219:219:219:219
+G:+:U
+W:24
+
+
+N:97:General Store
+I:100:& Wooden Torch~
+I:100:& Brass Lantern~
+I:100:& Flask~ of oil
+I:100:& Ration~ of Cram
+I:100:& Round Seed-Cake~
+I:90:& Strip~ of Venison
+I:70:& Pint~ of Old Winyards
+I:80:& Pint~ of Fine Ale
+I:60:& Shovel~
+I:50:& Pick~
+I:100:& Iron Spike~
+I:70:& Iron Shot~
+I:70:& Bolt~
+I:70:& Arrow~
+I:98:& Cloak~
+I:46:& Fur Cloak~
+A:33:34:1:2:3:4
+O:1:2:3:4
+G:1:U
+W:24
+
+N:98:Armoury
+I:70:& Pair~ of Soft Leather Boots
+I:60:& Pair~ of Hard Leather Boots
+I:80:& Hard Leather Cap~
+I:70:& Metal Cap~
+I:65:& Iron Helm~
+I:100:& Robe~
+I:90:& Soft Leather Armour~
+I:90:& Soft Studded Leather~
+I:90:& Hard Leather Armour~
+I:85:& Hard Studded Leather~
+I:90:& Leather Scale Mail~
+I:80:& Metal Scale Mail~
+I:75:& Chain Mail~
+I:80:& Augmented Chain Mail~
+I:75:& Metal Brigandine Armour~
+I:68:& Bar Chain Mail~
+I:100:& Set~ of Leather Gloves
+I:80:& Set~ of Gauntlets
+I:100:& Small Leather Shield~
+I:90:& Large Leather Shield~
+I:80:& Small Metal Shield~
+I:99:& Buckler~
+I:50:& Tower Shield~
+A:25:0:1:2:3:4
+O:5:6:7:8
+G:2:s
+W:24
+
+N:99:Weaponsmith
+I:100:& Dagger~
+I:100:& Main Gauche~
+I:100:& Rapier~
+I:100:& Small Sword~
+I:100:& Short Sword~
+I:100:& Sabre~
+I:100:& Cutlass~
+I:100:& Tulwar~
+I:100:& Broad Sword~
+I:100:& Long Sword~
+I:100:& Scimitar~
+I:100:& Katana~
+I:100:& Bastard Sword~
+I:100:& Spear~
+I:100:& Awl-Pike~
+I:100:& Trident~
+I:100:& Pike~
+I:100:& Beaked Axe~
+I:100:& Broad Axe~
+I:50:& Lance~
+I:100:& Battle Axe~
+I:100:& Hatchet~
+I:100:& Sling~
+I:100:& Short Bow~
+I:100:& Long Bow~
+I:100:& Light Crossbow~
+I:100:& Iron Shot~
+I:100:& Arrow~
+I:100:& Bolt~
+I:100:& Whip~
+I:100:& Small Wooden Boomerang~
+I:95:& Main Gauche (Offhand)~
+I:95:& Short Sword (Offhand)~
+I:95:& Dagger (Offhand)~
+I:33:& Barbed Arrow~
+A:23:24:1:2:3:4
+O:9:10:11:12
+G:3:w
+W:24
+
+N:100:Temple
+I:100:& Quarterstaff~
+I:100:& Mace~
+I:100:& War Hammer~
+I:100:& Lucerne Hammer~
+I:100:& Morning Star~
+I:100:& Flail~
+I:100:& Lead-Filled Mace~
+I:100:Remove Curse
+I:100:Blessing
+I:100:Holy Chant
+I:100:Heroism
+I:100:Word of Recall
+I:100:Word of Recall
+I:100:Word of Recall
+#I:100:Cure Light Wounds
+T:100:71:34
+#I:100:Cure Serious Wounds
+#I:100:Cure Serious Wounds
+T:100:71:35
+T:100:71:35
+I:100:Cure Critical Wounds
+I:100:Cure Critical Wounds
+I:100:Restore Life Levels
+I:100:Restore Life Levels
+I:100:Restore Life Levels
+I:100:& Whip~
+I:100:& Mace~
+I:100:& Ball-and-Chain~
+I:100:& War Hammer~
+I:100:Word of Recall
+I:100:Word of Recall
+I:100:Word of Recall
+I:100:Cure Critical Wounds
+I:100:Cure Critical Wounds
+I:100:Restore Life Levels
+I:100:Restore Life Levels
+I:100:Restore Life Levels
+I:100:Remove Curse
+I:100:Remove Curse
+I:100:*Remove Curse*
+I:100:*Remove Curse*
+A:99:39:1:2:3:4
+O:13:14:15:16
+G:4:g
+W:24
+
+N:101:Alchemy shop
+I:100:Enchant Weapon To-Hit
+I:100:Enchant Weapon To-Dam
+I:100:Enchant Armor
+I:100:Identify
+I:100:Identify
+I:100:Identify
+I:100:Identify
+I:100:Light
+I:100:Phase Door
+I:100:Phase Door
+T:100:70:9
+I:100:Monster Confusion
+I:100:Magic Mapping
+I:100:Treasure Detection
+I:100:Object Detection
+I:100:Trap Detection
+I:100:Detect Invisible
+I:100:Recharging
+I:100:Satisfy Hunger
+I:100:Word of Recall
+I:100:Word of Recall
+I:100:Word of Recall
+I:100:Word of Recall
+T:100:70:9
+T:100:70:9
+#I:100:Restore Strength
+T:100:71:42
+I:100:Restore Intelligence
+I:100:Restore Wisdom
+I:100:Restore Dexterity
+#I:100:Restore Constitution
+T:100:71:46
+I:100:Restore Charisma
+I:100:Identify
+I:100:*Identify*
+I:100:*Identify*
+I:100:*Identify*
+I:100:*Identify*
+I:100:*Identify*
+I:100:*Identify*
+I:100:Light
+#I:100:Restore Strength
+T:100:71:42
+I:100:Restore Intelligence
+I:100:Restore Wisdom
+I:100:Restore Dexterity
+#I:100:Restore Constitution
+T:100:71:46
+I:100:Restore Charisma
+I:100:Enchant Armor
+I:100:Enchant Armor
+I:100:Recharging
+I:100:Satisfy Hunger
+I:100:Satisfy Hunger
+I:100:Satisfy Hunger
+A:8:48:1:2:3:4
+O:17:18:19:20
+G:5:b
+W:24
+
+N:102:Magic shop
+I:100:Protection
+I:100:Levitation
+I:100:Protection
+I:100:Fire Resistance
+I:100:Cold Resistance
+I:100:Charisma
+I:100:Slow Digestion
+T:100:40:3
+I:100:Acid Resistance
+I:100:Lightning Resistance
+I:100:Searching
+I:100:Cure Light Wounds
+# Rods
+I:100:Probing
+I:25:& Wooden Rod~ of#
+# Book
+T:100:111:50
+# Wands
+T:100:65:3
+T:100:65:8
+T:100:65:11
+T:100:65:16
+T:100:65:22
+# Staves
+T:100:55:3
+T:100:55:5
+T:100:55:8
+T:100:55:9
+T:100:55:14
+T:60:55:15
+T:60:55:16
+T:60:55:17
+T:70:55:22
+A:27:44:1:2:3:4
+O:21:22:23:24
+G:6:r
+W:24
+
+N:103:Black Market
+A:67:68:1:2:3:4
+O:25:26:27:28
+G:7:D
+F:ALL_ITEM | MEDIUM_LEVEL
 W:24
 
 
