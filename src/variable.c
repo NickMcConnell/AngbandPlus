@@ -79,6 +79,8 @@ bool generating_level;          /* Are we in the middle of generating it? */
 
 u32b mutate_seed;               /* Seed used to gain a random mutation */
 u32b unmutate_seed;             /* Seed used to lose a random mutation */
+u32b stair_usage = 1;		/* Detect stair-scummers, and babewynify the occasional level */
+u32b action_usage = 5 * STAIR_MOVE_RATIO; /* Detect stair-scummers, and babewynify the occasional level */
 
 #ifdef USE_NEW_MAGIC
  #ifdef SUPPORT_OLD_MAGIC

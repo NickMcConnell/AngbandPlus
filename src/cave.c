@@ -5094,7 +5094,7 @@ byte real_difficulty()
 	
 	/* Penalize preserve, maximize modes */
 	if (preserve_mode) add -= 2;
-	if (maximize_mode) add -= 3;
+	if (!maximize_mode) add += 3;
 	
 	/* Vanilla town is harder than normal */
 	if (vanilla_town) add += 1;

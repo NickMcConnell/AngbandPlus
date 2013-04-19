@@ -3,6 +3,29 @@ the standard Zangband 2.6.2.) No long explanations, just a list. See
 code for details. In reversed chronological order (more or less).
 See z_update.txt for details on Zangband 2.6.2:
 
+Frazband 0.4.1
+- Fixed display bug in birth routines.
+- Added safeguard against getting quests to kill friendlies.
+- Touchy monsters now get angry successfully.
+- Fixed problems and potential problems with options.
+- Touchy monsters now go hostile rather than friendly if
+advanced_monst_groups is turned off.
+- Townsfolk will now no longer flee into the dungeon.
+- Stopped caution messages when taking useless scrolls from home.
+- Many players will now never see spontaneous babewyn incursions.
+- Allowed protect_savefile to be turned off when importing
+0.4.0 savefiles due to it being mistakenly on by default.
+- Adjusted difficulty levels slightly.
+- Gaining a spell now prompts the player to write it.
+- Made duplicate quests very unlikely.
+- Players can now see their new magic system spell abilities at the
+end of the 'known spells' list.
+- Added birth option to hide object graphics at stores.
+- Added option to automatically show lists.
+- Updated help files.
+- Changed some monster rarities.
+- Removed the GHB. (Can be uncommented if you want it back.)
+
 Frazband 0.4.0:
 - New magic system.
 - Old magic system retained as an option, but with modifications.

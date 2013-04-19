@@ -989,11 +989,10 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->max_lev);
 	wr_s16b(p_ptr->max_depth);
 
+	/* may move this */
+	wr_u32b(stair_usage);
+	wr_u32b(action_usage);
 	/* More info */
-	wr_s16b(0);     /* oops */
-	wr_s16b(0);     /* oops */
-	wr_s16b(0);     /* oops */
-	wr_s16b(0);     /* oops */
 	wr_s16b(p_ptr->sc);
 	wr_s16b(0);     /* oops */
 

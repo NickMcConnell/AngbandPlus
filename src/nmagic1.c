@@ -1467,6 +1467,79 @@ static u16b save_spell_list(cptr string, u16b position)
 }
 
 /*
+ * Write a specific spell list into a specific spellbook
+ */
+
+bool write_list(cptr string, object_type *o_ptr)
+{
+	int 		item;
+
+	s16b		quantity;
+	
+	/* Track the object kind */
+	object_kind_track(o_ptr->k_idx);
+
+	/* Hack -- Handle stuff */
+	handle_stuff();
+	
+	/* Are we writing to a stack? */
+	if (o_ptr->number > 1)
+	{
+		/* Find out how many to write to */
+		quantity = get_quantity(format("Write in how many books? (1-%d): ",
+					o_ptr->number), o_ptr->number);
+
+		if (!quantity) return FALSE;
+		
+		if (quantity < o_ptr->number)
+		{
+			/* Unstack all but one book */
+			object_type forge;
+			object_type *q_ptr;
+
+			/* Get local object */
+			q_ptr = &forge;
+
+			/* Obtain a local object */
+			object_copy(q_ptr, o_ptr);
+
+			/* Modify quantity */
+			q_ptr->number = o_ptr->number - quantity;
+
+			o_ptr->number = quantity;
+	
+			/* Save the new list */
+			o_ptr->spell_list = save_spell_list(string, o_ptr->spell_list);
+
+			/* Unstack */
+			p_ptr->total_weight -= q_ptr->weight;
+			item = inven_carry(q_ptr);
+
+			/* Message */
+			msg_print("You unstack your book.");
+		}
+		else
+		{
+			/* Write to all */
+			o_ptr->spell_list = save_spell_list(string, o_ptr->spell_list);
+		}
+	}
+	else
+	{	
+		/* Save it */
+		o_ptr->spell_list = save_spell_list(string, o_ptr->spell_list);
+	}
+
+	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+	p_ptr->redraw |= (PR_EQUIPPY);
+	p_ptr->window |= (PW_INVEN);
+	handle_stuff();
+
+	/* Success */
+	return TRUE;
+}
+
+/*
  * Write a spell into a spellbook
  */
 bool do_cmd_write_magic()
@@ -1476,7 +1549,6 @@ bool do_cmd_write_magic()
 	bool 		is_list = FALSE;
 
 	object_type 	*o_ptr;
-	s16b		quantity;
 	char 		string[(MAX_SPELLS_IN_BOOK * 2) + 1];
 	int		num;
 
@@ -1539,6 +1611,13 @@ bool do_cmd_write_magic()
 			return FALSE;
 		}
 
+		/* require empty spellbook */
+		if (num)
+		{
+			msg_print("Can only write a list to an empty spell book.");
+			return FALSE;
+		}
+
 		/* Copy string */
 		strcpy(string, quarky_str((u16b) spell));
 	}
@@ -1560,6 +1639,14 @@ bool do_cmd_write_magic()
 		string[(num * 2) + 2] = '\0';
 	}
 
+	/* Write it */
+	write_list(string, o_ptr);
+		
+	/* Report */
+	if (is_list) msg_print("You write a list of spells.");
+	else msg_format("You write the spell: %s.", new_spell_name[spell]);
+
+#if 0
 	/* Track the object kind */
 	object_kind_track(o_ptr->k_idx);
 
@@ -1622,7 +1709,7 @@ bool do_cmd_write_magic()
 	p_ptr->redraw |= (PR_EQUIPPY);
 	p_ptr->window |= (PW_INVEN);
 	handle_stuff();
-
+#endif /* 0 */
 	/* Success */
 	return TRUE;
 }

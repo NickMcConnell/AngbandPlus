@@ -334,7 +334,9 @@ void chg_virtue(int virtue, int amount)
 		{
 			babewyn_incursion();
 		}
-		else if (one_in_(BABEWYNIFY_LEVEL_CHANCE/amount))
+		/* stair_usage is never 0, don't worry */
+		else if (one_in_(BABEWYNIFY_LEVEL_CHANCE/amount) && preserve_mode && 
+				action_usage / stair_usage < STAIR_MOVE_RATIO)
 		{
 			babewynify_level(TRUE);
 		}

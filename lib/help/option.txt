@@ -537,6 +537,12 @@ Always centre on the player   [center_player]
 Avoid centring while running   [avoid_center]
     Turns off the player centring option when running.
 
+***** <auto_lists>
+Display lists of choices automatically   [auto_lists]
+    With this option on, for any choice when you can enter '*' to get
+    a list of options, such as when wielding an item, a list will be
+    displayed automatically, without having to press '*'.
+
 ***** <monster_light>
 Allow monsters to carry lights   [monster_light]
     With this option on, monsters that should glow (eg. fire vortexes)
@@ -725,6 +731,13 @@ The good old days ...   [ironman_moria]
     high resists, no targeting, and several other changes to game
     play. The end quest also becomes to kill Muar, the Balrog on level
     50.
+
+***** <ironman_shop_equip>
+Disable object graphics in stores   [ironman_shop_equip]
+    This option removes object graphics from stores (other than your
+    home), which makes it impossible to figure out what colour certain 
+    objects are without buying or identifying them, something some 
+    people regard as cheating.
 
 
 ***** <Testing>

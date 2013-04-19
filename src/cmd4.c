@@ -3836,7 +3836,7 @@ static void do_cmd_knowledge_spells(void)
 	FILE 	*fff;
 	char 	file_name[1024];
 	char	buf[30];
-	int 	i;
+	int 	i, j;
 	cptr desc;
 	
 
@@ -3868,6 +3868,13 @@ static void do_cmd_knowledge_spells(void)
 					new_spell_desc[i]);
 		}
 
+	/* Give spell stats at the end */
+	fprintf(fff, "Abilities:\n\n");
+
+	for (i = 0; i < NUM_MAG_ACTIONS; ++i)
+		for (j = 0; j < NUM_AVAIL_MAG_TARGETS; ++j)
+			if (p_ptr->magic_fields[i][j]) fprintf(fff, "%s %s: %d\n", linking_magic_action_names[i], linking_magic_target_names[j], p_ptr->magic_fields[i][j]);
+	
 	/* Close the file */
 	my_fclose(fff);
 

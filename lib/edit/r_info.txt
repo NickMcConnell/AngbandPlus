@@ -645,7 +645,7 @@ D:A fast-moving pest.
 N:38:Nameless One
 G:N:d
 I:130:24d100:30:75:0
-W:80:2:0:2:5000000
+W:80:6:0:2:5000000
 O:0:0:0
 B:HIT:CONFUSE:14d12
 B:HIT:TERRIFY:14d12
@@ -665,21 +665,21 @@ D:The notion of this creature constantly slips from your mind,
 D:and you are unable to even attach a simple label to it. 
 D:All you can sense is the massive threat it poses.
 
-N:39:Greater hell-beast
-G:U:s
-I:115:15d75:10:75:99
-W:3:6:0:5:84
-O:0:0:0
-B:GAZE
-B:GAZE
-B:CRUSH
-F:WILD_DUNGEON_01
-F:EVIL | IM_FIRE | SILLY |
-F:RES_NETH | RES_WATE | RES_PLAS | RES_DISE | RES_NEXU |
-F:KILL_WALL | FORCE_MAXHP | CAN_SWIM | DROP_CORPSE
-S:1_IN_9 |
-S:TPORT | BLINK | TELE_AWAY
-D:This unholy abomination will crush you. Flee while you can! 
+#N:39:Greater hell-beast
+#G:U:s
+#I:115:15d75:10:75:99
+#W:3:6:0:5:84
+#O:0:0:0
+#B:GAZE
+#B:GAZE
+#B:CRUSH
+#F:WILD_DUNGEON_01
+#F:EVIL | IM_FIRE | SILLY |
+#F:RES_NETH | RES_WATE | RES_PLAS | RES_DISE | RES_NEXU |
+#F:KILL_WALL | FORCE_MAXHP | CAN_SWIM | DROP_CORPSE
+#S:1_IN_9 |
+#S:TPORT | BLINK | TELE_AWAY
+#D:This unholy abomination will crush you. Flee while you can! 
 
 N:40:Shrieker mushroom patch
 G:,:R
@@ -896,7 +896,7 @@ D:It is as big as a wolf.
 N:57:Formless One
 G:N:d
 I:130:20d100:30:70:0
-W:70:2:0:2:2300000
+W:70:6:0:2:2300000
 O:0:0:0
 B:HIT:CONFUSE:12d12
 B:HIT:TERRIFY:12d12
@@ -2794,7 +2794,7 @@ D:glowing strangely, and you don't really understand him.
 N:200:Iron monk
 G:p:o
 I:140:75d10:25:35:10
-W:34:1:0:5:9500
+W:34:2:0:5:9500
 O:0:0:0
 B:HIT:UN_POWER:1d5
 B:HIT:HURT:1d12
@@ -8519,7 +8519,7 @@ D:It is a towering glacier of ice.
 N:571:Brujah neonate
 G:V:u
 I:130:30d10:20:25:10
-W:41:2:0:1:14802
+W:41:4:0:1:14802
 O:20:30:50
 B:HIT:HURT:4d12
 B:HIT:HURT:4d12
@@ -8534,7 +8534,7 @@ D:strength, carrying a sword. It wants to kill you.
 N:572:Brujah neonate
 G:V:U
 I:130:30d10:20:25:10
-W:41:4:0:69:14802
+W:41:8:0:69:14802
 O:20:30:50
 B:HIT:HURT:4d12
 B:HIT:HURT:4d12
@@ -8597,7 +8597,7 @@ D:fists.
 N:576:Tremere neonate
 G:V:r
 I:110:30d10:40:25:5
-W:44:2:6:1:20774
+W:44:4:6:1:20774
 O:20:30:50
 B:HIT:HURT:2d12
 B:HIT:HURT:2d12
@@ -8663,7 +8663,7 @@ D:You have not seen it yet.
 N:580:Tremere neonate
 G:V:R
 I:110:30d10:40:25:5
-W:44:4:6:69:20774
+W:44:8:6:69:20774
 O:20:30:50
 B:HIT:HURT:2d12
 B:HIT:HURT:2d12
@@ -8715,7 +8715,7 @@ D:strange dancing motion.
 N:583:Gangrel neonate
 G:V:u
 I:110:50d10:20:55:10
-W:38:2:0:1:11174
+W:38:4:0:1:11174
 O:20:30:50
 B:CLAW:PENETRATE:33d1
 B:CLAW:LOSE_CON:5d11
@@ -8914,7 +8914,7 @@ D:A vastly intelligent whale from the stars.
 N:595:Gangrel neonate
 G:V:U
 I:110:50d10:20:55:10
-W:38:4:0:69:11174
+W:38:8:0:69:11174
 O:20:30:50
 B:CLAW:PENETRATE:33d1
 B:CLAW:LOSE_CON:5d11
@@ -8929,7 +8929,7 @@ D:attack you.
 N:596:Martin Gray
 G:V:D
 I:110:50d10:40:25:5
-W:46:8:6:69:28774
+W:46:16:6:69:28774
 O:20:30:50
 B:HIT:HURT:2d12
 B:HIT:HURT:2d12
@@ -9224,7 +9224,7 @@ D:you, a coldness saps your soul.
 N:613:Brujah ancilla
 G:V:U
 I:140:50d10:20:30:10
-W:59:4:0:69:71339
+W:59:8:0:69:71339
 O:20:30:50
 B:HIT:HURT:12d12
 B:HIT:HURT:12d12
@@ -9259,7 +9259,7 @@ D:A strange reptilian hybrid with seven heads dripping venom.
 N:615:Gangrel ancilla
 G:V:u
 I:115:15d100:20:70:10
-W:54:2:0:1:46078
+W:54:4:0:1:46078
 O:20:30:50
 B:CLAW:PENETRATE:80d1
 B:CLAW:LOSE_CON:15d10
@@ -9333,7 +9333,7 @@ D:A huge draconic form enveloped in clouds of poisonous vapour.
 N:619:Gangrel ancilla
 G:V:U
 I:115:15d100:20:70:10
-W:54:4:0:69:46078
+W:54:8:0:69:46078
 O:20:30:50
 B:CLAW:PENETRATE:80d1
 B:CLAW:LOSE_CON:15d10
@@ -9449,7 +9449,7 @@ D:A swirling spiral of mist, constantly changing its appearance.
 N:626:Tremere ancilla
 G:V:r
 I:115:50d10:60:30:1
-W:53:2:6:1:65078
+W:53:4:6:1:65078
 O:20:30:50
 B:HIT:HURT:4d12
 B:HIT:HURT:4d12
@@ -9501,7 +9501,7 @@ D:one is dark. His hair is long and white.
 N:629:Tremere ancilla
 G:V:R
 I:115:50d10:60:30:1
-W:53:4:6:69:65078
+W:53:8:6:69:65078
 O:20:30:50
 B:HIT:HURT:4d12
 B:HIT:HURT:4d12
@@ -9916,7 +9916,7 @@ D:Giant headless humanoid abominations created by a magical mutation.
 N:654:Lasombra
 G:V:D
 I:115:15d100:20:70:10
-W:59:2:2:1:130078
+W:59:4:2:1:130078
 O:20:30:50
 B:HIT:HURT:12d12
 B:HIT:HURT:12d12
@@ -9954,7 +9954,7 @@ D:without organs or members..."
 N:656:Toreador ancilla
 G:V:o
 I:140:50d10:60:30:1
-W:56:4:0:1:56078
+W:56:8:0:1:56078
 O:20:30:50
 B:HIT:PENETRATE:45d1
 B:HIT:PENETRATE:45d1
@@ -10028,7 +10028,7 @@ D:It is a demon of lizard form with cruel-looking jaws.
 N:660:Toreador ancilla
 G:V:y
 I:140:50d10:60:30:1
-W:56:8:0:69:56078
+W:56:16:0:69:56078
 O:20:30:50
 B:HIT:PENETRATE:45d1
 B:HIT:PENETRATE:45d1
@@ -10224,7 +10224,7 @@ D:of innumerable sailors!
 N:670:Nosferatu ancilla
 G:V:o
 I:115:50d10:20:30:10
-W:49:2:0:1:42078
+W:49:4:0:1:42078
 O:20:30:50
 B:HIT:HURT:12d12
 B:HIT:HURT:12d12
@@ -10289,7 +10289,7 @@ D:A massive elephantine form with eyes twisted by madness.
 N:674:Nosferatu ancilla
 G:V:y
 I:115:50d10:20:30:10
-W:49:4:0:69:42078
+W:49:8:0:69:42078
 O:20:30:50
 B:HIT:HURT:12d12
 B:HIT:HURT:12d12
@@ -10345,7 +10345,7 @@ D:itself in unearthly shadows.
 N:677:War TARDIS
 G:N:D
 I:140:255d100:100:37:0
-W:97:40:1:3:3000000
+W:97:80:1:3:3000000
 O:0:0:0
 B:HIT:LOSE_ALL:200d1
 B:HIT:LOSE_ALL:200d1
@@ -10787,7 +10787,7 @@ D:Fighting for a good cause.
 N:700:Elder Vampire
 G:V:u
 I:140:45d100:25:70:1
-W:71:2:0:1:1500000
+W:71:4:0:1:1500000
 O:20:30:50
 B:HIT:HURT:12d12
 B:HIT:HURT:12d12
@@ -10889,7 +10889,7 @@ D:have called this creature a dragon-turtle.
 N:705:Elder Vampire
 G:V:U
 I:140:45d100:25:70:1
-W:71:4:0:69:1500000
+W:71:8:0:69:1500000
 O:20:30:50
 B:HIT:HURT:12d12
 B:HIT:HURT:12d12
@@ -11196,7 +11196,7 @@ D:It is a massive humanoid demon wreathed in flames.
 N:721:Elder Tremere
 G:V:R
 I:140:45d100:25:70:1
-W:73:10:6:69:1900000
+W:73:20:6:69:1900000
 O:20:30:50
 B:HIT:FIRE:24d12
 B:HIT:ELEC:24d12
@@ -11350,7 +11350,7 @@ D:great muscles.  It regards you with contempt.
 N:729:Elder Tremere
 G:V:r
 I:140:45d100:25:70:1
-W:73:5:6:1:1900000
+W:73:10:6:1:1900000
 O:20:30:50
 B:HIT:FIRE:24d12
 B:HIT:ELEC:24d12
@@ -12539,7 +12539,7 @@ D:upstart troublemaker without the wisdom to control your actions.
 N:786:Garou
 G:C:w
 I:120:13d100:20:50:10
-W:55:2:0:2:185330
+W:55:4:0:2:185330
 B:BITE:HURT:12d12
 B:CLAW:HURT:18d12
 B:CLAW:HURT:18d12
@@ -12552,7 +12552,7 @@ D:of power and invincibility.
 N:787:Garou mystic
 G:C:w
 I:120:30d100:20:60:10
-W:66:2:0:2:500000
+W:66:4:0:2:500000
 B:BITE:HURT:16d12
 B:CLAW:HURT:24d12
 B:CLAW:HURT:24d12
@@ -13577,7 +13577,7 @@ D:hints at internal organs best left to the imagination.
 N:837:Brujah ancilla
 G:V:u
 I:140:50d10:20:30:10
-W:59:2:0:1:71339
+W:59:4:0:1:71339
 O:20:30:50
 B:HIT:HURT:12d12
 B:HIT:HURT:12d12
@@ -14431,7 +14431,7 @@ D:The tortured soul of a once powerful wyrm.
 N:880:Garou
 G:C:w
 I:120:13d100:20:50:10
-W:63:2:0:2:18533
+W:63:4:0:2:18533
 B:BITE:HURT:12d12
 B:CLAW:HURT:18d12
 B:CLAW:HURT:18d12

@@ -1371,8 +1371,20 @@ static void rd_extra(void)
 	/* Repair maximum dungeon level */
 	if (p_ptr->max_depth < 0) p_ptr->max_depth = 1;
 
+	/* May move this */
+	if (!f_older_than(0, 4, 1))
+	{
+		rd_u32b(&stair_usage);
+		rd_u32b(&action_usage);
+	}
+	else
+	{
+		strip_bytes(8);
+		stair_usage = 1;
+		action_usage = 5 * STAIR_MOVE_RATIO;
+	}
+
 	/* More info */
-	strip_bytes(8);
 	rd_s16b(&p_ptr->sc);
 	strip_bytes(2);
 
@@ -2642,6 +2654,36 @@ static errr rd_savefile_new_aux(void)
 	/* Switch streams on for old savefiles */
 	if (z_older_than(2, 2, 7))
 		terrain_streams = TRUE;
+
+	/* 0.4.0 accidentally turned protect_savefile on by default, give a chance to reverse it */
+	if (protect_savefile && f_major == 0 && f_minor == 4 && f_patch == 0)
+	{
+		Term_clear();
+		Term_putstr(5, 13, -1, TERM_WHITE,
+				"You have the 'protect_savefile' birth option turned on. This allows");
+		Term_putstr(5, 14, -1, TERM_WHITE,
+				"you to quit without saving and avoid saving when dying. It also");
+		Term_putstr(5, 15, -1, TERM_WHITE,
+				"halves your difficulty level and throttles your score. This was");
+		Term_putstr(5, 16, -1, TERM_WHITE,
+				"accidentally turned on by default in version 0.4.0, so you may now");
+		Term_putstr(5, 17, -1, TERM_WHITE,
+				"AT THIS POINT ONLY turn it off if you didn't want it on.");
+		Term_putstr(5, 19, -1, TERM_WHITE,
+				"Turn off protect_savefile? (y/n)");
+		while (1)
+		{
+			i = inkey();
+			if (i == 'y' || i == 'Y')
+			{
+				option_info[213].o_val = FALSE;
+				protect_savefile = FALSE;
+			}
+			else if (i != 'n' && i != 'N') continue;
+			break;
+		}
+	}
+	else fprintf(stderr, "not doing it, z_major = ");
 
 	/*
 	 * Munchkin players are marked

@@ -3019,7 +3019,9 @@ static void process_player(void)
 		{
 			/* Use some energy */
 			p_ptr->energy -= p_ptr->energy_use;
-
+			
+			/* Count meaningful actions */
+			if (!p_ptr->resting) ++action_usage;
 
 			/* Hack -- constant hallucination */
 			if (p_ptr->image) p_ptr->redraw |= (PR_MAP);

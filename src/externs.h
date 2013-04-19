@@ -84,7 +84,9 @@ extern cptr new_spell_name[MAX_SPELLS_CURRENT];
 extern cptr new_spell_desc[MAX_SPELLS_CURRENT];
 extern int spell_stats[MAX_SPELLS_CURRENT][8];
 extern cptr god_names[MAX_GOD];
+extern cptr linking_magic_action_names[NUM_MAG_ACTIONS];
 extern cptr magic_action_names[NUM_MAG_ACTIONS];
+extern cptr linking_magic_target_names[NUM_MAG_TARGETS];
 extern cptr magic_target_names[NUM_MAG_TARGETS];
 
 /* variable.c */
@@ -120,6 +122,8 @@ extern byte difficulty_level;
 extern bool generating_level;
 extern u32b mutate_seed;
 extern u32b unmutate_seed;
+extern u32b stair_usage;
+extern u32b action_usage;
 #ifdef USE_NEW_MAGIC
  #ifdef SUPPORT_OLD_MAGIC
 extern bool old_magic_user;
@@ -873,6 +877,7 @@ extern int calculate_spell_level(int spell);
 extern bool spell_okay_new(int spell, bool known, bool ever);
 extern bool do_cmd_record_magic();
 extern bool do_cmd_create_spell_list();
+extern bool write_list(cptr string, object_type *o_ptr);
 extern bool do_cmd_write_magic();
 extern void calc_spells_new(void);
 /* nmagic2.c */

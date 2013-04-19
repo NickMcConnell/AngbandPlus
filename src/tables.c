@@ -7084,8 +7084,8 @@ option_type option_info[OPT_MAX] =
 	{FALSE, 5, "view_bright_lite",		"Use special colours for 'viewable' grids" },
 	{FALSE, 5, "view_granite_lite",		"Use special colours for wall grids (slow)" },
 	{FALSE, 5, "view_special_lite",		"Use special colours for floor grids (slow)" },
+
 	{TRUE,  5, "show_3_combat",		"Show third party combat messages" },
-	
 	{TRUE,  0, NULL,					"Number 65" },
 	{TRUE,  0, NULL,					"Number 66" },
 	{TRUE,  0, NULL,					"Number 67" },
@@ -7196,7 +7196,7 @@ option_type option_info[OPT_MAX] =
 	{FALSE, 1, "use_command",			"Allow unified use command" },
 	{FALSE, 5, "center_player",			"Always centre on the player (*slow*)" },
 	{FALSE, 5, "avoid_center",			"Avoid centring while running" },
-	{TRUE,  0, NULL,					"Number 172" },
+	{FALSE, 5, "auto_lists",			"Display lists of choices automatically" },
 	{TRUE,  0, NULL,					"Number 173" },
 	{TRUE,  0, NULL,					"Number 174" },
 	{TRUE,  0, NULL,					"Number 175" },
@@ -7228,8 +7228,7 @@ option_type option_info[OPT_MAX] =
 	{FALSE, 7, "ironman_empty_levels",	"Always create empty 'arena' levels" },
 	{TRUE,  6, "terrain_streams",		"Create terrain 'streamers' in the dungeon" },
 	{FALSE,  7, "ironman_moria",			"The good old days..." },
-	/*{FALSE, 6, "munchkin_death",		"Ask for saving death" },*/
-	{FALSE,  0, NULL,                                        "Number 220" },
+	{FALSE, 0, NULL,		"Ask for saving death" },
 	{FALSE, 6, "ironman_rooms",			"Always generate very unusual rooms" },
 	{TRUE,  6, "maximize_mode",			"Maximise stats" },
 	{TRUE,  6, "preserve_mode",			"Preserve artifacts" },
@@ -7237,7 +7236,7 @@ option_type option_info[OPT_MAX] =
 	{FALSE, 6, "point_based",			"Generate character using a point system" },
 	{TRUE,  6, "silly_monsters",		"Allow silly monsters" },
 	{FALSE, 6, "ironman_nightmare",		"Nightmare mode (this isn't even remotely fair!)" },
-	{TRUE, 6, NULL,						"Number 211" },
+	{FALSE, 7, "ironman_shop_equip",	"Disable object graphics in stores" },
 	{TRUE,  6, "friendly_monsters",				"Allow friendly monsters" },
 	{FALSE,  6, "protect_savefile",				"Allow player to avoid saving" },
 	{TRUE,  6, "super_powerful_monst",		"Allow obscenely powerful monsters" },
@@ -7250,6 +7249,7 @@ option_type option_info[OPT_MAX] =
 	{TRUE,  0, NULL,					"Number 221" },
 	{TRUE,  0, NULL,					"Number 222" },
 	{TRUE,  0, NULL,					"Number 223" },
+	
 	{FALSE, 0, NULL,					"Number 224" },
 	{FALSE, 5, "monster_light",			"Allow monsters to carry lights" },
 	{TRUE,  0, NULL,					"Turn on muliplayer client - server code" },
@@ -9806,12 +9806,34 @@ cptr god_names[MAX_GOD]={
 	"I'm a god",
 };
 
+cptr linking_magic_action_names[NUM_MAG_ACTIONS]={
+	"Create",
+	"Destroy",
+	"Alter",
+	"Control",
+	"Divine"
+};
+
 cptr magic_action_names[NUM_MAG_ACTIONS]={
 	"Creation",
 	"Destruction",
 	"Alteration",
 	"Control",
 	"Divination"
+};
+
+cptr linking_magic_target_names[NUM_MAG_TARGETS]={
+	"Mind",
+	"Body",
+	"Life",
+	"Nature",
+	"Magic Itself",
+	"Energy",
+	"Matter",
+	"Exotic Substances",
+	"Reality",
+	"Free",
+	"Free"
 };
 
 cptr magic_target_names[NUM_MAG_TARGETS]={

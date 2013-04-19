@@ -1547,7 +1547,7 @@ static bool get_moves(int m_idx, int *mm)
 		{
 			/* Try to find safe place */
 			if (!find_safety(m_idx, &y, &x, (r_ptr->flags1 & RF1_QUESTOR) ?
-						FALSE : TRUE))
+						FALSE : TRUE) && p_ptr->depth != 0)
 			{
 				/* This is not a very "smart" method XXX XXX */
 				if (!reversed)
@@ -2556,7 +2556,11 @@ static void process_monster(int m_idx)
 	bool            did_kill_wall;
 	bool            gets_angry = FALSE;
 	field_mon_test	mon_enter_test;
-	
+
+	/* Check for hostility */
+	if (!advanced_monst_groups && (m_ptr->group == GP_TOUCHY_BULLY || m_ptr->group == GP_TOUCHY))
+		m_ptr->smart &= ~SM_FRIENDLY;
+
 	/* Handle obfuscation */
 	if (check_obfuscate(r_ptr, (m_ptr->mflag2 & MFLAG2_UNDETECTED), FALSE))
 		m_ptr->mflag2 |= MFLAG2_OBFUSCATED;
@@ -2874,7 +2878,8 @@ static void process_monster(int m_idx)
 
 	/* Frightened non-quest monsters can use stairs to escape */
 	if (m_ptr->monfear && !(r_ptr->flags1 & RF1_QUESTOR) && 
-			(c_ptr->feat == FEAT_LESS || c_ptr->feat == FEAT_MORE))
+			(c_ptr->feat == FEAT_LESS || c_ptr->feat == FEAT_MORE) &&
+			p_ptr->depth != 0)
 	{
 		/* Escape */
 		msg_format("%^s flees %s the stairs", 

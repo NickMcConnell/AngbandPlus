@@ -141,12 +141,18 @@ static int get_mindcraft_power(int *sn)
 	(void)strnfmt(out_val, 78, "(%^ss %c-%c, *=List, ESC=exit) Use which %s? ",
 	              p, I2A(0), I2A(num - 1), p);
 
+	/* Hack for auto_lists */
+	bool first = TRUE;
+	
 	/* Get a spell from the user */
-	while (!flag && get_com(out_val, &choice))
+	while (!flag && ((auto_lists && first && (choice = '*')) || get_com(out_val, &choice)))
 	{
 		/* Request redraw */
 		if ((choice == ' ') || (choice == '*') || (choice == '?'))
 		{
+			/* Hack for auto_lists */
+			first = FALSE;
+
 			/* Show the list */
 			if (!redraw)
 			{

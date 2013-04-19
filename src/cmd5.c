@@ -97,6 +97,14 @@ static int get_spell_old(int *sn, cptr prompt, int sval, bool known, bool realm_
 	(void)strnfmt(out_val, 78, "(%^ss %c-%c, *=List, ESC=exit) %^s which %s? ",
 		p, I2A(0), I2A(num - 1), prompt, p);
 
+	/* List automatically if requested */
+	if (auto_lists)
+	{
+		redraw = TRUE;
+		screen_save();
+		print_spells_old(spells, num, 1, 20, use_realm - 1);
+	}
+	
 	/* Get a spell from the user */
 	while (!flag && get_com(out_val, &choice))
 	{
@@ -299,6 +307,14 @@ static int get_spell_new(int *sn, cptr prompt, const object_type *o_ptr, bool kn
 	/* Build a prompt (accept all spells) */
 	(void)strnfmt(out_val, 78, "(%^ss %c-%c, *=List, ESC=exit) %^s which %s? ",
 		p, I2A(0), I2A(num - 1), prompt, p);
+
+	/* List automatically if requested */
+	if (auto_lists)
+	{
+		redraw = TRUE;
+		screen_save();
+		print_spells_new(spells, num, 1, 20);
+	}
 
 	/* Get a spell from the user */
 	while (!flag && get_com(out_val, &choice))
@@ -836,6 +852,15 @@ void do_cmd_study_new(void)
 
 	int	spell = -1;
 
+
+	int 		item;
+
+	object_type 	*o_ptr;
+	char 		string[(MAX_SPELLS_IN_BOOK * 2) + 1];
+	int		num;
+
+	cptr 		q, s;
+
 #ifdef SUPPORT_OLD_MAGIC
 	/* Hack - Old magic users can't use this function */
 	if (old_magic_user)
@@ -906,6 +931,56 @@ void do_cmd_study_new(void)
 
 	/* One less spell available */
 	p_ptr->new_spells--;
+
+	/* 
+	 * Now we write it to a spellbook
+	 */
+
+	/* Firstly we get the book to write in. Restrict choices to spellbooks */
+	item_tester_tval = TV_SPELLBOOK;
+
+	/* Get an item */
+	q = "Now write this spell in which book? ";
+	s = "You will have to write this spell to a spellbook to use it.";
+	if (!get_item(&item, q, s, USE_INVEN)) return;
+	
+	/* Get the item */
+	o_ptr = &inventory[item];
+
+	/* Extract the current spell list */
+	if (o_ptr->spell_list) 
+	{
+		strncpy(string, quarky_str(o_ptr->spell_list), (MAX_SPELLS_IN_BOOK * 2) + 1);
+	}
+	else
+	{
+		string[0] = '\0';
+	}
+
+	/* Check how many spells we have */
+	num = string ? strlen(string) / 2 : 0;
+
+	/* Sanity check */
+	if (num < 0 || num > MAX_SPELLS_IN_BOOK)
+	{
+		msg_print("Bad number of spells in spell book.");
+		return;
+	}
+
+	/* Is it full? */
+	if (num == MAX_SPELLS_IN_BOOK)
+	{
+		msg_print("The spellbook is full.");
+		return;
+	}
+	
+	/* Construct the new string to hold the spell */
+	string[num * 2] = spell_char_1(spell);
+	string[(num * 2) + 1] = spell_char_2(spell);
+	string[(num * 2) + 2] = '\0';
+
+	/* Write it */
+	write_list(string, o_ptr);
 
 	/* Message if needed */
 	if (p_ptr->new_spells)
@@ -3705,12 +3780,18 @@ void do_cmd_pet(void)
 		prt("", y + 17, x);
 	}
 
+	/* Hack for auto_lists */
+	bool first = TRUE;
+	
 	/* Get a command from the user */
-	while (!flag && get_com(out_val, &choice))
+	while (!flag && ((auto_lists && first && (choice = '*')) || get_com(out_val, &choice)))
 	{
 		/* Request redraw */
 		if ((choice == ' ') || (choice == '*') || (choice == '?'))
 		{
+			/* Hack for auto_lists */
+			first = FALSE;
+
 			/* Show the list */
 			if (!redraw)
 			{

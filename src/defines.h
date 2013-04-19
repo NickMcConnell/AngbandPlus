@@ -57,7 +57,7 @@
 #define NEW_VERSION    0
 #define NEW_VER_MAJOR  0
 #define NEW_VER_MINOR  4
-#define NEW_VER_PATCH  0
+#define NEW_VER_PATCH  1
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 2
 #define FAKE_VER_MINOR 6
@@ -751,6 +751,9 @@
 /* Depth at which this may happen */
 #define NEXUS_APPEAR_DEPTH	75
 
+
+/* Ratio of moves to stair uses identifying people who use stairs a lot */
+#define STAIR_MOVE_RATIO 900
 
 /* 
  * The special levels and level features
@@ -3820,7 +3823,7 @@
 #define use_command				p_ptr->options[153]
 #define center_player			p_ptr->options[154]
 #define avoid_center			p_ptr->options[155]
-/* {TRUE,  0, NULL,					"Number 172" }, p_ptr->options[156] */
+#define auto_lists			p_ptr->options[156]
 /* {TRUE,  0, NULL,					"Number 173" }, p_ptr->options[157] */
 /* {TRUE,  0, NULL,					"Number 174" }, p_ptr->options[158] */
 /* {TRUE,  0, NULL,					"Number 175" }, p_ptr->options[159] */
@@ -3862,9 +3865,10 @@
 #define point_based				p_ptr->birth[16]
 #define silly_monsters			p_ptr->birth[17]
 #define ironman_nightmare		p_ptr->birth[18]
-#define friendly_monsters		p_ptr->birth[19]
-#define protect_savefile		p_ptr->birth[20]
-#define super_powerful_monst		p_ptr->birth[21]
+#define ironman_shop_equip		p_ptr->birth[19]
+#define friendly_monsters		p_ptr->birth[20]
+#define protect_savefile		p_ptr->birth[21]
+#define super_powerful_monst		p_ptr->birth[22]
 /* {TRUE,  0, NULL,					"Number 215" }, p_ptr->birth[22] */
 /* {TRUE,  0, NULL,					"Number 215" }, p_ptr->birth[23] */
 /* {TRUE,  0, NULL,					"Number 216" }, p_ptr->birth[24] */

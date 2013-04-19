@@ -2824,6 +2824,9 @@ errr file_character(cptr name, bool full)
 	}
 
 	fprintf(fff, "\n\n  [Miscellaneous information]\n");
+#ifdef USE_DIFFICULTY
+		fprintf(fff, "\n Difficulty:         %d", (int) real_difficulty());
+#endif /* USE_DIFFICULTY */
 	if (maximize_mode)
 		fprintf(fff, "\n Maximize Mode:      ON");
 	else

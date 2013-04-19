@@ -94,6 +94,9 @@ void do_cmd_go_up(void)
 			 */
 			p_ptr->energy_use = 0;
 
+			/* Count stair usage */
+			++stair_usage;
+			
 			/* Success */
 			msg_print("You enter a maze of up staircases.");
 
@@ -218,6 +221,9 @@ void do_cmd_go_down(void)
 		{
 			p_ptr->energy_use = 0;
 
+			/* Count stair usage */
+			++stair_usage;
+			
 			/* Success */
 			msg_print("You enter a maze of down staircases.");
 

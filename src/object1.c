@@ -3498,7 +3498,7 @@ void show_floor(int y, int x)
 		put_str(tmp_val, j + 1, col);
 
 		/* Display the entry itself */
-		/*c_put_str(out_color[j], out_desc[j], j + 1, col + 3);*/
+		c_put_str(out_color[j], out_desc[j], j + 1, col + 3);
 
 		/* Display the weight if needed */
 		if (show_weights)
@@ -3904,7 +3904,9 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 		prt(tmp_val, 0, 0);
 
 		/* Get a key */
-		which = inkey();
+		/* Hack: Display lists automatically if requested */
+		if (auto_lists && !p_ptr->command_see) which = '*';
+		else which = inkey();
 
 		/* Parse it */
 		switch (which)

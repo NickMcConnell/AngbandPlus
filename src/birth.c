@@ -24,7 +24,7 @@
 /*
  * Maximum number of tries for selection of a proper quest monster
  */
-#define MAX_TRIES 100
+#define MAX_TRIES 200
 
 
 /*
@@ -3438,8 +3438,10 @@ static bool get_player_quests(void)
 	quest_type *q_ptr;
 
 	int	r_idx;
-	int	i, j, v, level;
-
+	int	i, j, k, v, level;
+	int 	already_selected[50];
+	bool 	okay;
+	
 	/*** User enters number of quests ***/
 	/* Heino Vander Sanden and Jimmy De Laet */
 
@@ -3521,14 +3523,32 @@ static bool get_player_quests(void)
 			if (r_ptr->flags1 & (RF1_NEVER_MOVE | RF1_FRIENDS)) continue;
 
 			/* Only kill enemies */
-
+			if ((r_ptr->flags7 & RF7_FRIENDLY) || r_ptr->default_group > GP_MAX_HOSTILE) continue;
 
 			/* Super-powerful monsters shouldn't be necessary to kill */
 			if (r_ptr->flags7 & RF7_SPOWER) continue;
 		
 			/* Unkillable monsters can't be quests */
 			if (r_ptr->flags2 & RF2_UNKILLABLE) continue;
+
+			/* Assume OK */
+			okay = TRUE;
 			
+			/* Reject monsters already chosen much of the time */
+			for (k = 0; k < MIN_RANDOM_QUEST + v - 1 - i; ++k)
+			{
+				if (already_selected[k] == r_idx)
+				{
+					/* Definitely reject duplicate uniques */
+					if (r_ptr->flags1 & RF1_UNIQUE) okay = FALSE;
+
+					/* Reject anyway if feel confident */
+					if (j < MAX_TRIES / 2) okay = FALSE;
+				}
+			}
+
+			if (!okay) continue;
+
 			/* Save the index if the monster is deeper than current monster */
 			if (!q_ptr->r_idx || (r_info[r_idx].level > r_info[q_ptr->r_idx].level))
 			{
@@ -3541,6 +3561,9 @@ static bool get_player_quests(void)
 			 */
 			if (r_ptr->level > (q_ptr->level + (q_ptr->level / 20) + 1)) break;
 		}
+
+		/* Save choice */
+		already_selected[MIN_RANDOM_QUEST + v - 1 - i] = q_ptr->r_idx;
 
 		quest_r_ptr = &r_info[q_ptr->r_idx];
 
@@ -3765,7 +3788,7 @@ static bool player_birth_aux_1(void)
 #endif /* USE_DIFFICULTY */
 	
 	/* Clear */
-	clear_from(14);
+	clear_from(13);
 
 	if (!get_player_quests()) return (FALSE);
 	

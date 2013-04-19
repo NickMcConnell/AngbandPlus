@@ -794,12 +794,18 @@ void do_cmd_racial_power(void)
 
 	if (!repeat_pull(&i) || i<0 || i>=num)
 	{
+		/* Hack for auto_lists */
+		bool first = TRUE;
+		
 		/* Get a spell from the user */
-		while (!flag && get_com(out_val, &choice))
+		while (!flag && ((auto_lists && first && (choice = '*')) || get_com(out_val, &choice)))
 		{
 			/* Request redraw */
 			if ((choice == ' ') || (choice == '*') || (choice == '?'))
 			{
+				/* Hack for auto_lists */
+				first = FALSE;
+
 				/* Show the list */
 				if (!redraw)
 				{

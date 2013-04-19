@@ -1570,7 +1570,7 @@ s16b place_monster_one(int y, int x, int r_idx, bool slp,
 	}
 	/* Friendly? */
 	else if (pet || friendly || (r_ptr->flags7 & RF7_FRIENDLY) ||
-			m_ptr->group > GP_MAX_HOSTILE)
+			(advanced_monst_groups && m_ptr->group > GP_MAX_HOSTILE))
 	{
 		set_friendly(m_ptr);
 	}

@@ -941,7 +941,8 @@ static bool cave_gen(void)
 	 */
 
 	/* A few levels have babewyns and such appearing */
-	if (one_in_(BABEWYN_LEVEL_CHANCE))
+	if (one_in_(BABEWYN_LEVEL_CHANCE) && preserve_mode &&
+			action_usage / stair_usage < STAIR_MOVE_RATIO)
 	{
 		babewynify_level(FALSE);
 	}

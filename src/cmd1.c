@@ -2366,7 +2366,7 @@ void move_player(int dir, int do_pickup)
 				/* Touchy monsters don't like this */
 				if (m_ptr->group == GP_TOUCHY || m_ptr->group == GP_TOUCHY_BULLY)
 				{
-					anger_monster(c_ptr->m_idx);
+					anger_monster(area(py, px)->m_idx);
 				}
 			}
 			else

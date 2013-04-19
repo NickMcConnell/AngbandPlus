@@ -1,7 +1,7 @@
 
 
                              **********************
-                             **  Frazband 0.4.0  **
+                             **  Frazband 0.4.1  **
                              **********************
 
               Based on Moria:    Copyright (c) 1985 Robert Alan Koeneke

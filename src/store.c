@@ -1300,11 +1300,13 @@ static void display_entry(int pos)
 	/* Hack -- fake monochrome */
 	if (!use_color /*|| ironman_moria*/) a = TERM_WHITE;
 
-	Term_draw(3, i + 6, a, c);
 
 	/* Describe an item in the home */
 	if (st_ptr->type == BUILD_STORE_HOME)
 	{
+		/* Draw the item */
+		Term_draw(3, i + 6, a, c);
+		
 		maxwid = 75;
 
 		/* Leave room for weights, if necessary -DRS- */
@@ -1328,6 +1330,9 @@ static void display_entry(int pos)
 	/* Describe an item (fully) in a store */
 	else
 	{
+		/* Maybe draw the item */
+		if (!ironman_shop_equip) Term_draw(3, i + 6, a, c);
+		
 		/* Must leave room for the "price" */
 		maxwid = 65;
 
@@ -2400,7 +2405,7 @@ static void store_purchase(int *store_top)
 	object_copy(j_ptr, o_ptr);
 
 	/* for spell scrolls, check usefulness */
-	if (o_ptr->tval == TV_SPELL_SCROLL)
+	if (o_ptr->tval == TV_SPELL_SCROLL && st_ptr->type != BUILD_STORE_HOME)
 	{
 		if (calculate_spell_level(o_ptr->pval) > 50)
 		{
