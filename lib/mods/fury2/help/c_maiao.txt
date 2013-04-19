@@ -1,0 +1,54 @@
+|||||oy
+~~~~~01|Maiaologist
+~~~~~02|Classes|Maiaologist
+#####R=== Maiaologists ===
+
+#####GDescription
+Masters of the school of Maiaology, they both trained in melee fighting 
+than using Maia spells to enhance their combat potential.
+
+Their spells are contained in specific blades, shields and helms (actually
+shaped in the form of horns) which when wielded allow the Maiaologist to
+cast spells unique to her class; each piece of equipment holds 3 spells.
+
+See the information on the *****m_maiao.txt*0[Maiaology] school of magic for more details.
+
+#####GStarting Stat Modifiers
+Strength         +5
+Intelligence     -2
+Wisdom           -2
+Dexterity        +2
+Constitution     +2
+Charisma         -1
+Bonus Blows       3
+Hit Die          +d9
+Exp Penalty       0%
+
+#####GStarting Skills:
+#####BSkill                   Start Level     Skill Point Gains
+Combat                  2.000           [0.750]
+  Weaponmastery         1.000           [0.750]
+    Sword-mastery       0.000           [0.600]
+  Archery               2.000           [0.400]
+Sneakiness              2.000           [1.800]
+  Stealth               0.000           [0.400]
+  Disarming             2.000           [1.800]
+Powers                  2.000           [0.700]
+  Devices               1.000           [1.150]
+  Maiaology             1.000           [1.000]
+Spirituality            2.000           [0.700]
+  Prayer                0.000           [0.500]
+Monster-lore            0.000           [0.500]
+
+#####GInnate Abilities:
+#####BAbility              Character level
+Extra Max Blow(1)           1
+Extra Max Blow(2)           1
+Spread blows                25
+
+#####GStarting Equipment
+A Maialogist begins the game with:
+    a Ring of Fear Resistance
+    a Maiablade
+    a Chain Mail
+   

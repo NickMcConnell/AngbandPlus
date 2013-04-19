@@ -1,0 +1,35 @@
+|||||oy
+~~~~~01|Powers|Water School
+~~~~~02|Water Powers
+~~~~~03|Skills|Water - Spell Info
+#####R === FuryBand Powers - Water School ===
+
+The water school of magic contains spells where the element of water is
+used to create the final spell effect. There are rumours of a "Tome of the
+Everrunning Wave" which contains all the water school spells within it's
+bindings.
+
+Worshipping the Goddess Yavanna Kementari also gives the ability to cast spells
+from the water school at a level of 1/2 of your prayer level. e.g. If the skill
+"Spirituality: Prayer" is at level 10, you can cast up to level 5 water school
+spells.
+
+#####bWater Spells
+There are six spells available for the water school. These Spells are:
+1. [[[[[bGeyser] (school level 1)
+   Shoots a geyser of water from your fingertips.
+   Sometimes it can blast through its first target
+2. [[[[[bVapor] (school level 2)
+   Fills the air with toxic moisture to eradicate annoying creatures.
+3. [[[[[bEnt's Potion] (school level 6)
+   Fills up your stomach (i.e. satisfy hunger).
+   At spell level 5 it emboldens your heart (boldness).
+   At level 12 it make you heroic.
+4. [[[[[bIce Ball] (school level 10)
+   Conjures a ball of ICE to FREEZE your foes.
+5. [[[[[bTidal Wave] (school level 16)
+   Summons a monstrous tidal wave that will expand and crush monsters under
+   it's mighty waves.
+6. [[[[[bIce Storm] (school level 22)
+   Engulfs you in a storm of roaring cold that strikes your foes.
+   At spell level 10 it turns into shards of ice.

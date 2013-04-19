@@ -1,0 +1,25 @@
+~~~~~01|Gug
+~~~~~02|Race Modifiers|Gug
+#####R=== Gug ===
+
+#####GDescription
+A hideous, beastly, four-armed unclean giant.  Gugs are 
+resistant to poison and acid.  As they gain experience, their 
+strength increases and they eventually become immune to acid.
+
+#####GStat Modifiers
+Strength        +4   
+Intelligence    -2   
+Wisdom          -2   
+Dexterity       -2   
+Constitution    +4   
+Charisma        -2       
+Hit Dice Sides   4         
+Exp Penalty     +120%
+
+#####GRacial Skills
+Combat            	    1.000           [0.500]         
+  Weaponmastery             1.000           [0.250]
+    Hafted-mastery	    1.000           [0.250]
+  Archery                   
+    Boulder-throwing	    1.000	    [0.500]

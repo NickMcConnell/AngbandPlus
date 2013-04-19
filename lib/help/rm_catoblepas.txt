@@ -1,0 +1,23 @@
+~~~~~01|Catoblepas
+~~~~~02|Race Modifiers|Catoblepas
+#####R=== Catoblepas ===
+
+#####GDescription
+A strange ox-like form with a huge head.  Catoblepas have their 
+constitution sustained and are resistant to poison.  As they gain 
+experience, their constitution and strength increase. 
+
+#####GStat Modifiers
+Strength        +4   
+Intelligence    +2   
+Wisdom          -2   
+Dexterity       -3   
+Constitution    +4   
+Charisma        -2       
+Hit Dice Sides   2         
+Exp Penalty     +120%
+
+#####GRacial Skills
+Combat             	    1.000           [0.500]        
+  Barehand-combat           2.000           [1.000]
+  

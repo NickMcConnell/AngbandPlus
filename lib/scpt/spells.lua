@@ -576,12 +576,12 @@ tome_dofile("s_music.lua")
 
 -- Create the crystal of mana
 school_book[68] = {
-	MANATHRUST, DELCURSES, RESISTS, MANASHIELD, MANASTORM
+	MANATHRUST, DELCURSES, RESISTS, MANASHIELD,
 }
 
 -- The book of the eternal flame
 school_book[1] = {
-	GLOBELIGHT, FIREGOLEM, FIREFLASH, FIREWALL, FIERYAURA, GLOBELIGHT2,
+	GLOBELIGHT, FIREGOLEM, FIREFLASH, FIREWALL, FIERYAURA,
 }
 
 -- The book of the blowing winds

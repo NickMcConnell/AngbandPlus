@@ -1,0 +1,54 @@
+~~~~~01|Hunter
+~~~~~02|Classes|Hunter
+#####R=== Hunters ===
+
+#####GDescription
+
+Stranded fighters from another realm, have few supplies,
+and must survive in a hostile environment.
+
+
+#####GStarting Stat Modifiers
+Strength         +5
+Intelligence     +2
+Wisdom           +2
+Dexterity        +2
+Constitution     +2
+Charisma         -20
+Bonus Blows       3
+Hit Die          +d15
+Exp Penalty       0%
+
+#####GStarting Skills:
+#####BSkill                   Start Level     Skill Point Gains
+Combat                  2.000           [0.800]
+  Weaponmastery         1.000           [0.850]
+    Sword-mastery       3.000           [1.000]
+  Archery               1.000           [0.600]
+      Crossbow-mastery  1.000           [1.000]
+      Throwing          1.000           [1.000]
+  Hunter                1.000           [1.000]
+Sneakiness              1.000           [0.900]
+  Stealth               0.000           [0.400]
+  Disarming             1.000           [0.900]
+Powers                  1.000           [0.900]
+
+Monster-lore            0.000           [0.500]
+
+#####GInnate Abilities:
+#####BAbility              Character level
+Extra Max Blow(1)           1
+Extra Max Blow(2)           1
+Spread blows                25
+
+#####GStarting Equipment
+A Hunter begins the game with:
+    a Ring of Fear Resistance
+    a Glowlamp
+    a Combat Suit
+    a Combat Helm
+    a Pair of Combat Gauntlets
+    a Vibrosword
+    12 Virbroblades
+    a Heavy Crossbow
+    52 Bolts

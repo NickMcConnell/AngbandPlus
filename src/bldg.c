@@ -944,98 +944,98 @@ static void compare_weapon_aux1(object_type *o_ptr, int col, int r)
 
 	if (f1 & (TR1_SLAY_ANIMAL))
 	{
-		compare_weapon_aux2(o_ptr, p_ptr->bonus_blow, r++, col, 2, "Animals:",
+		compare_weapon_aux2(o_ptr, primary_weapon_blows(o_ptr), r++, col, 2, "Animals:",
 		                    f1, f2, f3, TERM_YELLOW);
 	}
 	if (f1 & (TR1_SLAY_EVIL))
 	{
-		compare_weapon_aux2(o_ptr, p_ptr->bonus_blow, r++, col, 2, "Evil:",
+		compare_weapon_aux2(o_ptr, primary_weapon_blows(o_ptr), r++, col, 2, "Evil:",
 		                    f1, f2, f3, TERM_YELLOW);
 	}
 	if (f1 & (TR1_SLAY_UNDEAD))
 	{
-		compare_weapon_aux2(o_ptr, p_ptr->bonus_blow, r++, col, 3, "Undead:",
+		compare_weapon_aux2(o_ptr, primary_weapon_blows(o_ptr), r++, col, 3, "Undead:",
 		                    f1, f2, f3, TERM_YELLOW);
 	}
 	if (f1 & (TR1_SLAY_DEMON))
 	{
-		compare_weapon_aux2(o_ptr, p_ptr->bonus_blow, r++, col, 3, "Maiar:",
+		compare_weapon_aux2(o_ptr, primary_weapon_blows(o_ptr), r++, col, 3, "Maiar:",
 		                    f1, f2, f3, TERM_YELLOW);
 	}
 	if (f1 & (TR1_SLAY_ORC))
 	{
-		compare_weapon_aux2(o_ptr, p_ptr->bonus_blow, r++, col, 3, "Orcs:",
+		compare_weapon_aux2(o_ptr, primary_weapon_blows(o_ptr), r++, col, 3, "Orcs:",
 		                    f1, f2, f3, TERM_YELLOW);
 	}
 	if (f1 & (TR1_SLAY_TROLL))
 	{
-		compare_weapon_aux2(o_ptr, p_ptr->bonus_blow, r++, col, 3, "Trolls:",
+		compare_weapon_aux2(o_ptr, primary_weapon_blows(o_ptr), r++, col, 3, "Trolls:",
 		                    f1, f2, f3, TERM_YELLOW);
 	}
 	if (f1 & (TR1_SLAY_GIANT))
 	{
-		compare_weapon_aux2(o_ptr, p_ptr->bonus_blow, r++, col, 3, "Giants:",
+		compare_weapon_aux2(o_ptr, primary_weapon_blows(o_ptr), r++, col, 3, "Giants:",
 		                    f1, f2, f3, TERM_YELLOW);
 	}
 	if (f1 & (TR1_SLAY_DRAGON))
 	{
-		compare_weapon_aux2(o_ptr, p_ptr->bonus_blow, r++, col, 3, "Dragons:",
+		compare_weapon_aux2(o_ptr, primary_weapon_blows(o_ptr), r++, col, 3, "Dragons:",
 		                    f1, f2, f3, TERM_YELLOW);
 	}
 	if (f1 & (TR1_KILL_DRAGON))
 	{
-		compare_weapon_aux2(o_ptr, p_ptr->bonus_blow, r++, col, 5, "Dragons:",
+		compare_weapon_aux2(o_ptr, primary_weapon_blows(o_ptr), r++, col, 5, "Dragons:",
 		                    f1, f2, f3, TERM_YELLOW);
 	}
 	if (f1 & (TR1_BRAND_ACID))
 	{
-		compare_weapon_aux2(o_ptr, p_ptr->bonus_blow, r++, col, 3, "Acid:",
+		compare_weapon_aux2(o_ptr, primary_weapon_blows(o_ptr), r++, col, 3, "Acid:",
 		                    f1, f2, f3, TERM_GREEN);
 	}
 	if (f1 & (TR1_BRAND_ELEC))
 	{
-		compare_weapon_aux2(o_ptr, p_ptr->bonus_blow, r++, col, 3, "Elec:",
+		compare_weapon_aux2(o_ptr, primary_weapon_blows(o_ptr), r++, col, 3, "Elec:",
 		                    f1, f2, f3, TERM_L_BLUE);
 	}
 	if (f1 & (TR1_BRAND_FIRE))
 	{
-		compare_weapon_aux2(o_ptr, p_ptr->bonus_blow, r++, col, 3, "Fire:",
+		compare_weapon_aux2(o_ptr, primary_weapon_blows(o_ptr), r++, col, 3, "Fire:",
 		                    f1, f2, f3, TERM_RED);
 	}
 	if (f1 & (TR1_BRAND_COLD))
 	{
-		compare_weapon_aux2(o_ptr, p_ptr->bonus_blow, r++, col, 3, "Cold:",
+		compare_weapon_aux2(o_ptr, primary_weapon_blows(o_ptr), r++, col, 3, "Cold:",
 		                    f1, f2, f3, TERM_L_WHITE);
 	}
 	if (f1 & (TR1_BRAND_POIS))
 	{
-		compare_weapon_aux2(o_ptr, p_ptr->bonus_blow, r++, col, 3, "Poison:",
+		compare_weapon_aux2(o_ptr, primary_weapon_blows(o_ptr), r++, col, 3, "Poison:",
 		                    f1, f2, f3, TERM_L_GREEN);
 	}
 	if (f5 & (TR5_BRAND_LIGHT))
 	{
-		compare_weapon_aux2(o_ptr, p_ptr->bonus_blow, r++, col, 3, "Light:",
+		compare_weapon_aux2(o_ptr, primary_weapon_blows(o_ptr), r++, col, 3, "Light:",
 		                    f1, f2, f3, TERM_YELLOW);
 	}
 
 	if (f5 & (TR5_BRAND_DARK))
 	{
-		compare_weapon_aux2(o_ptr, p_ptr->bonus_blow, r++, col, 3, "Dark:",
+		compare_weapon_aux2(o_ptr, primary_weapon_blows(o_ptr), r++, col, 3, "Dark:",
 		                    f1, f2, f3, TERM_L_DARK);
 	}
 	if (f5 & (TR5_BRAND_MAGIC))
 	{
-		compare_weapon_aux2(o_ptr, p_ptr->bonus_blow, r++, col, 3, "Magic:",
+		compare_weapon_aux2(o_ptr, primary_weapon_blows(o_ptr), r++, col, 4, "Magic:",
 		                    f1, f2, f3, TERM_UMBER);
 	}
 	if (f5 & (TR5_BRAND_WATER))
 	{
-		compare_weapon_aux2(o_ptr, p_ptr->bonus_blow, r++, col, 3, "Water:",
+		compare_weapon_aux2(o_ptr, primary_weapon_blows(o_ptr), r++, col, 3, "Water:",
 		                    f1, f2, f3, TERM_BLUE);
 	}
 		if (f5 & (TR5_BRAND_DEATH))
 	{
-		compare_weapon_aux2(o_ptr, p_ptr->bonus_blow, r++, col, 3, "Death:",
+		compare_weapon_aux2(o_ptr, primary_weapon_blows(o_ptr), r++, col, 15, "Death:",
 		                    f1, f2, f3, TERM_SLATE);
 	}
 

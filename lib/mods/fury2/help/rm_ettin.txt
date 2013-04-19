@@ -1,0 +1,24 @@
+~~~~~01|Ettin
+~~~~~02|Race Modifiers|Ettin
+#####R=== Ettin ===
+
+#####GDescription
+A hideous, beastly, 2 headed monster.  Ettin have 
+their strength sustained.
+
+#####GStat Modifiers
+Strength        +6   
+Intelligence    -6   
+Wisdom          -6   
+Dexterity       -4   
+Constitution    +4   
+Charisma        -6       
+Hit Dice Sides   5         
+Exp Penalty     +120%
+
+#####GRacial Skills
+Combat      		    1.000           [0.500]               
+  Weaponmastery             1.000           [0.250]
+    Hafted-mastery	    1.000	    [0.500]
+  Archery                   
+    Boulder-throwing        1.000	    [0.500]

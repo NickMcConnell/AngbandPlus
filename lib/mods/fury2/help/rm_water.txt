@@ -1,0 +1,28 @@
+~~~~~01|Water
+~~~~~02|Race Modifiers|Water
+#####R=== Water Hounds ===
+
+#####GDescription
+These hounds are resistant to cold and can breathe underwater.  At 
+level 45 they become immune to cold.  They are able to breathe water.
+
+#####GStat Modifiers
+Strength       -3
+Intelligence   +4  
+Wisdom         +4 
+Dexterity      +3 
+Constitution   -2 
+Charisma       +1     
+Hit Dice       +0 sides        
+Exp Penalty    +0%
+
+#####GRacial Skill Modifiers:
+#####BSkill                Start Mod    Skill Point Gains Mod
+
+Combat                  0.000           [0.000]
+  Barehand-combat       1.000           [0.600]
+
+#####GStarting Equipment
+A Water hound character begins the game with:
+    Some rations
+    Some torches

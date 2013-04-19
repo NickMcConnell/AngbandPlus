@@ -1,0 +1,28 @@
+~~~~~01|Blessed
+~~~~~02|Race Modifiers|Blessed
+#####R=== Blessed ===
+
+#####GDescription
+Rare beings that have been touched by a valar to spread their holy 
+word.  They are wise and loved by all, but a bit weaker.
+
+#####GStat Modifiers
+Strength       -1
+Intelligence   +1   
+Wisdom         +3 
+Dexterity      -1  
+Constitution   -1 
+Charisma       +3     
+Hit Dice       +0 sides        
+Exp Penalty    +40%
+
+#####GRacial Skill Modifiers:
+#####BSkill                Start Mod    Skill Point Gains Mod
+
+Spirituality            1.000           [0.300]
+  Prayer                1.000           [0.200]
+
+#####GStarting Equipment
+A Blessed character begins the game with:
+    Some rations
+    Some torches

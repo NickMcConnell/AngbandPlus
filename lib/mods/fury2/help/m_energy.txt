@@ -1,0 +1,41 @@
+|||||oy
+~~~~~01|Powers|Energy School
+~~~~~02|Energy Powers
+~~~~~03|Skills|Energy - Spell Info
+#####R === FuryBand Powers - Energy School ===
+
+The energy school of magic contains spells where the raw force of magic is used
+to create the final spell effect. 
+
+Worshipping the God Eru Iluvatar also gives the ability to cast spells from
+the energy school at a level of 1/2 of your prayer level. e.g. If the skill 
+"Spirituality: Prayer" is at level 10, you can cast up to level 5 energy school
+spells.
+
+#####sEnergy Spells
+There are five spells available for the energy school. These Spells are:
+1. [[[[[sManathrust] (school level 1)
+   Conjures up mana into a powerful bolt.
+   The damage is irresistible and will increase with spell level
+2. [[[[[sRemove Curses] (school level 10)
+   Remove curses of worn objects.
+   At spell level 20 switches to *remove curses*
+3. [[[[[sElemental Shield] (school level 20)
+   Provide resistances to the four basic elements.
+4. [[[[[sDisruption Shield] (school level 45)
+   Uses mana instead of hitpoints to take damage.
+   At spell level 5 switches to Globe of Invulnerability.
+   The spell breaks as soon as a melee, shooting, throwing or magical skill
+   action is attempted, and lasts only a short time.
+5. [[[[[sManastorm] (school level 50)
+   Conjures up mana into a powerful storm.  The damage is irresistible 
+   and will increase with level.
+
+
+#####GUdun spells that can be cast with Energy skill
+
+1. [[[[[DDrain] (dual school level 1)
+   Drains the mana contained in wands, staves and rods to increase yours.
+#####v   Your Energy and Udun skills must have reached a combined average level 
+#####v   of 1 in order to cast this spell.
+   

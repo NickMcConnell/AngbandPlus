@@ -1,0 +1,29 @@
+~~~~~01|Ent-wife
+~~~~~02|Races|Ent-wife
+#####R=== Ent-wives ===
+
+#####GDescription
+Long-lost partners of the ents, Ent-wives are not as strong as an ent, 
+though still mighty, they are wise and respect nature.
+
+#####GStat Modifiers
+Strength        +7  
+Intelligence     0   
+Wisdom          +5   
+Dexterity       -3   
+Constitution    +8   
+Charisma         0       
+Hit Dice Sides  14        
+Exp Penalty     +110%
+
+#####GRacial Skill Modifiers:
+#####BSkill                Start Mod    Skill Point Gains Mod
+
+Powers                  
+  Nature               0.000           [0.300]
+Spirituality           0.000           [0.000]
+Monster-lore	       0.000           [0.200]
+
+#####GInnate Abilities:
+#####BAbility              Character level
+Tree-walking                1

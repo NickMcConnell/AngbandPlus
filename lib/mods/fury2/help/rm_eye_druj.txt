@@ -1,0 +1,32 @@
+~~~~~01|Eye Druj
+~~~~~02|Race Modifiers|Eye Druj
+#####R=== Eye Druj ===
+
+#####GDescription
+A glowing skull possessed by sorcerous power.  Eye druj have many 
+powers, including resistance to poison and paralysis.  As they gain 
+levels, they become swifter, luckier, are able to sustain all of 
+thier stats and even breathe underwater.
+
+#####GStat Modifiers
+Strength        -4   
+Intelligence    +5   
+Wisdom          +5   
+Dexterity       -4   
+Constitution    -4   
+Charisma        -6       
+Hit Dice Sides  -4         
+Exp Penalty     +120%
+
+#####GRacial Skills
+
+Powers                      
+  Mastery                   1.000           [1.000]
+  Innate		    1.000	    [1.000]
+  Udun			    1.000	    [1.000]
+Spirituality            
+  Mindcraft		    1.000	    [1.000]
+Monster-lore
+  Summoning		    1.000	    [1.000]
+  Corpse-preservation	    1.000	    [1.000]
+  Possession		    1.000	    [1.000]

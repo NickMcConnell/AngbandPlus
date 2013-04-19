@@ -2698,6 +2698,10 @@ void do_cmd_tweak(object_type *o_ptr)
 
 int add_item_ability(object_type *o_ptr)
 {
+	u32b f1, f2, f3, f4, f5, esp;
+
+
+
 	int             Power = -1;
     int             num = 0, i;
 
@@ -2709,52 +2713,255 @@ int add_item_ability(object_type *o_ptr)
 
     char            choice;
 	char            out_val[160];
-
+	object_flags(o_ptr, &f1, &f2, &f3, &f4, &f5, &esp);
         /* List the powers */
 //        {strcpy(power_desc[num],"Random Resistance 7500 gold");powers[num++]=0;}
-        {strcpy(power_desc[num],"Immunity: Fire 400000 gold");powers[num++]=3;}
-        {strcpy(power_desc[num],"Immunity: Cold 200000 gold");powers[num++]=4;}
-        {strcpy(power_desc[num],"Immunity: Elec 200000 gold");powers[num++]=5;}
-        {strcpy(power_desc[num],"Immunity: Acid 200000 gold");powers[num++]=6;}
-//        {strcpy(power_desc[num],"Immunity: Nether 400000 gold");powers[num++]=8;}
-        {strcpy(power_desc[num],"Permanent Light 5000 gold");powers[num++]=10;}
-        {strcpy(power_desc[num],"Regeneration 50000 gold");powers[num++]=21;}
+        if (!(o_ptr->art_flags2 & TR2_IM_FIRE))
+		{
+			strcpy(power_desc[num],"Immunity: Fire 400000 gold");powers[num++]=3;
+		}
 
-        {strcpy(power_desc[num],"Invisibility 150000 gold");powers[num++]=7;}
-        {strcpy(power_desc[num],"Auto ID 1000000 gold");powers[num++]=26;}
-        {strcpy(power_desc[num],"Wraith Form 500000 gold");powers[num++]=9;}
-        {strcpy(power_desc[num],"Magic Breath 50000000 gold");powers[num++]=23;}
+		if (!(o_ptr->art_flags2 & TR2_IM_COLD))
+		{
+			strcpy(power_desc[num],"Immunity: Cold 200000 gold");powers[num++]=4;
+		}
 
-        if (o_ptr->tval == TV_BOOTS) {strcpy(power_desc[num],"Increase speed 800000 gold");powers[num++]=1;}
-        if ((o_ptr->tval == TV_BOOTS || o_ptr->tval == TV_BOOMERANG || o_ptr->tval == TV_CLOAK)) {strcpy(power_desc[num],"Stealth 25000 gold");powers[num++]=33;}
-        if ((o_ptr->tval == TV_SOFT_ARMOR) || (o_ptr->tval == TV_HARD_ARMOR)) {strcpy(power_desc[num],"Hold Life 75000 gold");powers[num++]=34;}
-        if (o_ptr->tval == TV_SHIELD) {strcpy(power_desc[num],"Reflecting 25000 gold");powers[num++]=22;}
-	    if (o_ptr->tval == TV_RING) {strcpy(power_desc[num],"Flying 300000 gold");powers[num++]=19;}
+		if (!(o_ptr->art_flags2 & TR2_IM_ELEC))
 
-        if (o_ptr->tval == TV_SWORD) {strcpy(power_desc[num],"Brand Fire 7500 gold");powers[num++]=11;}
-        if (o_ptr->tval == TV_POLEARM) {strcpy(power_desc[num],"Brand Cold 7500 gold");powers[num++]=12;}
-        if (o_ptr->tval == TV_AXE) {strcpy(power_desc[num],"Brand Elec 7500 gold");powers[num++]=13;}
-        if (o_ptr->tval == TV_HAFTED) {strcpy(power_desc[num],"Brand Acid 7500 gold");powers[num++]=14;}
-        if (o_ptr->tval == TV_BOOMERANG) {strcpy(power_desc[num],"Brand Poison 7500 gold");powers[num++]=15; strcpy(power_desc[num],"Unbreakable 50000 gold");powers[num++]=35;}
-
-        if ((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_AXE) || (o_ptr->tval == TV_HAFTED) || (o_ptr->tval == TV_POLEARM)) {strcpy(power_desc[num],"Brand Light 10000 gold");powers[num++]=16;}
-        if ((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_AXE) || (o_ptr->tval == TV_HAFTED) || (o_ptr->tval == TV_POLEARM)) {strcpy(power_desc[num],"Brand Dark 5000 gold");powers[num++]=17;}
-        if ((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_AXE) || (o_ptr->tval == TV_HAFTED) || (o_ptr->tval == TV_POLEARM)) {strcpy(power_desc[num],"Throwing 15000 gold");powers[num++]=24;}
-        if ((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_AXE) || (o_ptr->tval == TV_HAFTED) || (o_ptr->tval == TV_POLEARM)) {strcpy(power_desc[num],"Res Morgul 150000 gold");powers[num++]=32;}
-        if ((o_ptr->tval == TV_BOOMERANG) || (o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_AXE) || (o_ptr->tval == TV_HAFTED) || (o_ptr->tval == TV_POLEARM))
         {
-        	strcpy(power_desc[num],"Sentient 400000 gold");powers[num++]=27;
-			strcpy(power_desc[num],"Critical Hits 500000 gold");powers[num++]=36;
+			strcpy(power_desc[num],"Immunity: Elec 200000 gold");powers[num++]=5;
+		}
+
+		if (!(o_ptr->art_flags2 & TR2_IM_ACID))
+        {
+			strcpy(power_desc[num],"Immunity: Acid 200000 gold");powers[num++]=6;
+		}
+
+		
+		//        {strcpy(power_desc[num],"Immunity: Nether 400000 gold");powers[num++]=8;}
+		
+		
+		if (!(o_ptr->art_flags4 & TR4_LITE2))
+		{
+			strcpy(power_desc[num],"Permanent Light 5000 gold");powers[num++]=10;
+		}
+        
+		if (!(o_ptr->art_flags3 & TR3_REGEN))
+		{
+			strcpy(power_desc[num],"Regeneration 50000 gold");powers[num++]=21;
+		}
+		if (!(o_ptr->art_flags2 & TR2_INVIS))
+        {
+			strcpy(power_desc[num],"Invisibility 150000 gold");powers[num++]=7;
+		}
+		if (!(o_ptr->art_flags4 & TR4_AUTO_ID))
+        {
+			strcpy(power_desc[num],"Auto ID 1000000 gold");powers[num++]=26;
+		}
+		if (!(o_ptr->art_flags3 & TR3_WRAITH))
+        {
+			strcpy(power_desc[num],"Wraith Form 500000 gold");powers[num++]=9;
+		}
+		if (!(o_ptr->art_flags5 & TR5_MAGIC_BREATH))
+        {
+			strcpy(power_desc[num],"Magic Breath 50000000 gold");powers[num++]=23;
+		}
+
+        if (o_ptr->tval == TV_BOOTS) 
+		{
+			if (!(o_ptr->art_flags1 & TR1_SPEED))
+			{
+				strcpy(power_desc[num],"Increase speed 800000 gold");powers[num++]=1;
+			}
+		}
+        
+		
+		if ((o_ptr->tval == TV_BOOTS || o_ptr->tval == TV_BOOMERANG || o_ptr->tval == TV_CLOAK))
+		{
+			if (!(o_ptr->art_flags1 == TR1_STEALTH))
+
+			{
+				strcpy(power_desc[num],"Stealth 25000 gold");powers[num++]=33;
+			}
+		}
+       
+		
+		if ((o_ptr->tval == TV_SOFT_ARMOR) || (o_ptr->tval == TV_HARD_ARMOR)) 
+		{
+			if (!(o_ptr->art_flags2 == TR2_HOLD_LIFE))
+			{
+				strcpy(power_desc[num],"Hold Life 75000 gold");powers[num++]=34;
+			}
+		}
+        
+		
+		if (o_ptr->tval == TV_SHIELD)
+		{
+			if (!(o_ptr->art_flags2 == TR2_REFLECT))
+			{
+				strcpy(power_desc[num],"Reflecting 25000 gold");powers[num++]=22;
+			}
+		}
+		if (o_ptr->tval == TV_RING)  
+	
+		{
+				if (!(o_ptr->art_flags4 == TR4_FLY))
+						
+			{
+						strcpy(power_desc[num],"Flying 300000 gold");powers[num++]=19;
+			}
+		}
+	
+
+        if (o_ptr->tval == TV_SWORD) 
+		{
+			if (!(o_ptr->art_flags1 == TR1_BRAND_FIRE))
+			{
+			strcpy(power_desc[num],"Brand Fire 7500 gold");powers[num++]=11;
+			}
+		}
+
+		if (o_ptr->tval == TV_POLEARM) 
+		{
+			if (!(o_ptr->art_flags1 == TR1_BRAND_COLD))
+			{
+				strcpy(power_desc[num],"Brand Cold 7500 gold");powers[num++]=12;
+			}
+		}
+        
+		
+		if (o_ptr->tval == TV_AXE)
+		{
+			if (!(o_ptr->art_flags1 == TR1_BRAND_ELEC))
+			{
+				strcpy(power_desc[num],"Brand Elec 7500 gold");powers[num++]=13;
+			}
+		}
+      
+		if (o_ptr->tval == TV_HAFTED) 
+		{
+			if (!(o_ptr->art_flags1 == TR1_BRAND_ACID))
+			{
+				strcpy(power_desc[num],"Brand Acid 7500 gold");powers[num++]=14;
+			}
         }
-        if ((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_AXE) || (o_ptr->tval == TV_HAFTED) || (o_ptr->tval == TV_POLEARM)) {strcpy(power_desc[num],"Extra attacks 800000 gold");powers[num++]=2;}
-        if ((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_AXE) || (o_ptr->tval == TV_HAFTED) || (o_ptr->tval == TV_POLEARM)) {strcpy(power_desc[num],"Always Hit 500000000 gold");powers[num++]=20;}
+		
+		if (o_ptr->tval == TV_BOOMERANG) 
+		{
+			if (!(o_ptr->art_flags1 == TR1_BRAND_POIS))
+			{
+				strcpy(power_desc[num],"Brand Poison 7500 gold");powers[num++]=15; 
+			}
+			if (!(o_ptr->art_esp == ESP_UNBREAKABLE))
+			{
+				strcpy(power_desc[num],"Unbreakable 50000 gold");powers[num++]=35;
+			}
+		}
 
-        if ((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_RING)) {strcpy(power_desc[num],"Sheath: Fire 75000 gold");powers[num++]=25;}
-        if ((o_ptr->tval == TV_AXE) || (o_ptr->tval == TV_RING)) {strcpy(power_desc[num],"Sheath: Electricity 75000 gold");powers[num++]=28;}
-        if ((o_ptr->tval == TV_HAFTED) || (o_ptr->tval == TV_RING)) {strcpy(power_desc[num],"Sheath: Acid 75000 gold");powers[num++]=29;}
-        if ((o_ptr->tval == TV_POLEARM) || (o_ptr->tval == TV_RING)) {strcpy(power_desc[num],"Sheath: Cold 75000 gold");powers[num++]=30;}
+        if ((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_AXE) || (o_ptr->tval == TV_HAFTED) || (o_ptr->tval == TV_POLEARM)) 
+		{
+			if (!(o_ptr->art_flags5 == TR5_BRAND_LIGHT))
+			{
+				strcpy(power_desc[num],"Brand Light 10000 gold");powers[num++]=16;
+			}
+		}
+        
+		
+		if ((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_AXE) || (o_ptr->tval == TV_HAFTED) || (o_ptr->tval == TV_POLEARM))
+		{
+			if (!(o_ptr->art_flags5 == TR5_BRAND_DARK))
+			{
+				strcpy(power_desc[num],"Brand Dark 5000 gold");powers[num++]=17;
+			}
+        }
+		
+		
+		if ((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_AXE) || (o_ptr->tval == TV_HAFTED) || (o_ptr->tval == TV_POLEARM)) 
+		{
+			if (!(o_ptr->art_flags5 == TR5_THROWING))
+			{
+				strcpy(power_desc[num],"Throwing 15000 gold");powers[num++]=24;
+			}
+		}
+        
+		if ((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_AXE) || (o_ptr->tval == TV_HAFTED) || (o_ptr->tval == TV_POLEARM)) 
+		{
+			if (!(o_ptr->art_flags5 == TR5_RES_MORGUL))
+			{
+				strcpy(power_desc[num],"Res Morgul 150000 gold");powers[num++]=32;
+			}
+		}
+        
+		
+		if ((o_ptr->tval == TV_BOOMERANG) || (o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_AXE) || (o_ptr->tval == TV_HAFTED) || (o_ptr->tval == TV_POLEARM))
+        {
+			if (!(o_ptr->art_flags4 == TR4_LEVELS))
+			{
+        	strcpy(power_desc[num],"Sentient 400000 gold");powers[num++]=27;
+			}
+			
+			if (!(o_ptr->art_flags5 == TR5_CRIT))
+			{
+			strcpy(power_desc[num],"Critical Hits 500000 gold");powers[num++]=36;
+			}
+        }
+        
+		
+		
+		if ((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_AXE) || (o_ptr->tval == TV_HAFTED) || (o_ptr->tval == TV_POLEARM))
+		{
+			if (!(o_ptr->art_flags1 == TR1_BLOWS))
+			{
+			strcpy(power_desc[num],"Extra attacks 800000 gold");powers[num++]=2;
+			}
+		}
+        
+		if ((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_AXE) || (o_ptr->tval == TV_HAFTED) || (o_ptr->tval == TV_POLEARM))
+		{
+			if (!(o_ptr->art_flags5 == TR5_ALWAYS_HIT))		
+			{
+				strcpy(power_desc[num],"Always Hit 500000000 gold");powers[num++]=20;
+			}
+		}
 
-	/* Nothing chosen yet */
+        if ((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_RING)) 
+		{
+				if 	(!(o_ptr->art_flags3 == TR3_SH_FIRE))
+
+			{
+				strcpy(power_desc[num],"Sheath: Fire 75000 gold");powers[num++]=25;
+			}
+        }
+		
+		if ((o_ptr->tval == TV_AXE) || (o_ptr->tval == TV_RING)) 
+		{
+				if 	(!(o_ptr->art_flags3 == TR3_SH_ELEC))
+				{
+					strcpy(power_desc[num],"Sheath: Electricity 75000 gold");powers[num++]=28;
+				}
+
+		}
+		
+		
+		if ((o_ptr->tval == TV_HAFTED) || (o_ptr->tval == TV_RING)) 
+		{
+			if 	(!(o_ptr->art_flags5 == TR5_SH_ACID))
+			{
+				strcpy(power_desc[num],"Sheath: Acid 75000 gold");powers[num++]=29;
+			}
+		
+		}
+
+		if ((o_ptr->tval == TV_POLEARM) || (o_ptr->tval == TV_RING)) 
+		{	
+			if 	(!(o_ptr->art_flags5 == TR5_SH_COLD))
+				{
+					{strcpy(power_desc[num],"Sheath: Cold 75000 gold");powers[num++]=30;}
+				}
+		}
+	
+		
+		/* Nothing chosen yet */
 	flag = FALSE;
 
 	/* No redraw yet */
@@ -2912,7 +3119,7 @@ int add_item_ability(object_type *o_ptr)
                         else msg_print("You don't have enough money...");
                         break;
                 case 1:
-                        if (p_ptr->au >= 800000)
+                        if (!(o_ptr->art_flags1 & TR1_SPEED) && (p_ptr->au >= 800000))
                         {
                                 msg_print("Your item now increases your speed!");
                                 p_ptr->au -= 800000;
@@ -2923,7 +3130,7 @@ int add_item_ability(object_type *o_ptr)
                         else msg_print("You don't have enough money...");
                         break;
                 case 2:
-                        if (p_ptr->au >= 800000)
+                        if (!(o_ptr->art_flags1 == TR1_BLOWS) && (p_ptr->au >= 800000))
                         {
                                 msg_print("Your item now increases attack speed!");
                                 p_ptr->au -= 800000;
@@ -2934,7 +3141,7 @@ int add_item_ability(object_type *o_ptr)
                         else msg_print("You don't have enough money...");
                         break;
                 case 3:
-                        if (p_ptr->au >= 400000)
+                        if (!(o_ptr->art_flags2 & TR2_IM_FIRE) && (p_ptr->au >= 400000))
                         {
                                 msg_print("Your item now gives immunity to FIRE!");
                                 p_ptr->au -= 400000;
@@ -2945,7 +3152,7 @@ int add_item_ability(object_type *o_ptr)
                         else msg_print("You don't have enough money...");
                         break;
                 case 4:
-                        if (p_ptr->au >= 200000)
+                        if (!(o_ptr->art_flags2 & TR2_IM_COLD) && (p_ptr->au >= 200000))
                         {
                                 msg_print("Your item now gives immunity to COLD!");
                                 p_ptr->au -= 200000;
@@ -2956,7 +3163,7 @@ int add_item_ability(object_type *o_ptr)
                         else msg_print("You don't have enough money...");
                         break;
                 case 5:
-                        if (p_ptr->au >= 200000)
+                        if (!(o_ptr->art_flags2 & TR2_IM_ELEC) && (p_ptr->au >= 200000))
                         {
                                 msg_print("Your item now gives immunity to ELECTRICITY!");
                                 p_ptr->au -= 200000;
@@ -2967,7 +3174,7 @@ int add_item_ability(object_type *o_ptr)
                         else msg_print("You don't have enough money...");
                         break;
                 case 6:
-                        if (p_ptr->au >= 200000)
+                        if (!(o_ptr->art_flags2 & TR2_IM_ACID) && (p_ptr->au >= 200000))
                         {
                                 msg_print("Your item now gives immunity to ACID!");
                                 p_ptr->au -= 200000;
@@ -2978,7 +3185,7 @@ int add_item_ability(object_type *o_ptr)
                         else msg_print("You don't have enough money...");
                         break;
                 case 7:
-                        if (p_ptr->au >= 150000)
+                        if (!(o_ptr->art_flags2 & TR2_INVIS) && (p_ptr->au >= 150000))
                         {
                                 msg_print("Your item now makes you invisible!");
                                 p_ptr->au -= 150000;
@@ -3001,7 +3208,7 @@ int add_item_ability(object_type *o_ptr)
                         else msg_print("You don't have enough money...");
                         break;
                 case 9:
-                        if (p_ptr->au >= 500000)
+                        if (!(o_ptr->art_flags3 & TR3_WRAITH) && (p_ptr->au >= 500000))
                         {
                                 msg_print("Your item now allows you to pass through walls!");
                                 p_ptr->au -= 500000;
@@ -3012,7 +3219,7 @@ int add_item_ability(object_type *o_ptr)
                         else msg_print("You don't have enough money...");
                         break;
                 case 10:
-                        if (p_ptr->au >= 5000)
+                        if (!(o_ptr->art_flags4 & TR4_LITE2) && (p_ptr->au >= 5000))
                         {
                                 msg_print("Your item now radiates light!");
                                  p_ptr->au -= 5000;
@@ -3023,7 +3230,7 @@ int add_item_ability(object_type *o_ptr)
                         else msg_print("You don't have enough money...");
                         break;
                 case 11:
-                        if (p_ptr->au >= 7500)
+                        if (!(o_ptr->art_flags1 == TR1_BRAND_FIRE) && (p_ptr->au >= 7500))
                         {
                                 msg_print("Your item now strikes with fire!");
                                 p_ptr->au -= 7500;
@@ -3033,7 +3240,7 @@ int add_item_ability(object_type *o_ptr)
                         else msg_print("You don't have enough money...");
                         break;
                 case 12:
-                        if (p_ptr->au >= 7500)
+                        if (!(o_ptr->art_flags1 == TR1_BRAND_COLD) && (p_ptr->au >= 7500))
                         {
                                 msg_print("Your item now strikes with cold!");
                                 p_ptr->au -= 7500;
@@ -3043,7 +3250,7 @@ int add_item_ability(object_type *o_ptr)
                         else msg_print("You don't have enough money...");
                         break;
                 case 13:
-                        if (p_ptr->au >= 7500)
+                        if (!(o_ptr->art_flags1 == TR1_BRAND_ELEC) && (p_ptr->au >= 7500))
                         {
                                 msg_print("Your item now strikes with electricity!");
                                 p_ptr->au -= 7500;
@@ -3053,7 +3260,7 @@ int add_item_ability(object_type *o_ptr)
                         else msg_print("You don't have enough money...");
                         break;
                 case 14:
-                        if (p_ptr->au >= 7500)
+                        if (!(o_ptr->art_flags1 == TR1_BRAND_ACID) && (p_ptr->au >= 7500))
                         {
                                 msg_print("Your item now strikes with acid!");
                                 p_ptr->au -= 7500;
@@ -3063,7 +3270,7 @@ int add_item_ability(object_type *o_ptr)
                         else msg_print("You don't have enough money...");
                         break;
                 case 15:
-                        if (p_ptr->au >= 7500)
+                        if (!(o_ptr->art_flags1 == TR1_BRAND_POIS) && (p_ptr->au >= 7500))
                         {
                                 msg_print("Your item now strikes with poison!");
                                 p_ptr->au -= 7500;
@@ -3073,7 +3280,7 @@ int add_item_ability(object_type *o_ptr)
                         else msg_print("You don't have enough money...");
                         break;
                 case 16:
-                        if (p_ptr->au >= 10000)
+                        if (!(o_ptr->art_flags5 == TR5_BRAND_LIGHT) && (p_ptr->au >= 10000))
                         {
                                 msg_print("Your item now strikes with light!");
                                 p_ptr->au -= 10000;
@@ -3083,7 +3290,7 @@ int add_item_ability(object_type *o_ptr)
                         else msg_print("You don't have enough money...");
                         break;
                 case 17:
-                        if (p_ptr->au >= 5000)
+                        if (!(o_ptr->art_flags5 == TR5_BRAND_DARK) && (p_ptr->au >= 5000))
                         {
                                 msg_print("Your item now strikes with darkness!");
                                 p_ptr->au -= 5000;
@@ -3103,7 +3310,8 @@ int add_item_ability(object_type *o_ptr)
                         else msg_print("You don't have enough money...");
                         break;
                 case 19:
-                        if (p_ptr->au >= 150000)
+					
+					if  (!(o_ptr->art_flags4 & TR4_FLY) && (p_ptr->au >= 150000))
                         {
                                 msg_print("Your item now allows you to fly!");
                                 p_ptr->au -= 150000;
@@ -3111,7 +3319,9 @@ int add_item_ability(object_type *o_ptr)
                                 p_ptr->redraw |= (PR_BASIC);
 								p_ptr->update |= (PU_BONUS);
                         }
-                        else msg_print("You don't have enough money...");
+                        else msg_print("Can't add flag...");
+						
+
                         break;
                 case 20:
                         if (p_ptr->au >= 500000000)
@@ -3125,7 +3335,7 @@ int add_item_ability(object_type *o_ptr)
                         else msg_print("You don't have enough money...");
                         break;
                 case 21:
-                        if (p_ptr->au >= 50000)
+                        if (!(o_ptr->art_flags3 & TR3_REGEN) && (p_ptr->au >= 50000))
                         {
                                 msg_print("Your item now increases your regeneration!");
                                 p_ptr->au -= 50000;
@@ -3147,7 +3357,7 @@ int add_item_ability(object_type *o_ptr)
                         else msg_print("You don't have enough money...");
                         break;
                 case 23:
-                        if (p_ptr->au >= 50000000)
+                        if (!(o_ptr->art_flags5 & TR5_MAGIC_BREATH) && (p_ptr->au >= 50000000))
                         {
                                 msg_print("Your item now provides air!");
                                 p_ptr->au -= 50000000;
@@ -3158,7 +3368,7 @@ int add_item_ability(object_type *o_ptr)
                         else msg_print("You don't have enough money...");
                         break;
                 case 24:
-                        if (p_ptr->au >= 15000)
+                        if (!(o_ptr->art_flags5 == TR5_THROWING) && (p_ptr->au >= 15000))
                         {
                                 msg_print("Your item is now easy to throw!");
                                 p_ptr->au -= 15000;
@@ -3168,7 +3378,7 @@ int add_item_ability(object_type *o_ptr)
                         else msg_print("You don't have enough money...");
 						break;
 				case 25:
-                        if (p_ptr->au >= 75000)
+                        if (!(o_ptr->art_flags3 & TR3_SH_FIRE) && (p_ptr->au >= 75000))
                         {
                                 msg_print("Your item is now surrounded by flames!");
                                 p_ptr->au -= 75000;
@@ -3179,7 +3389,7 @@ int add_item_ability(object_type *o_ptr)
                         else msg_print("You don't have enough money...");
 						break;
 				case 26:
-                        if (p_ptr->au >= 1000000)
+                        if (!(o_ptr->art_flags4 & TR4_AUTO_ID) && (p_ptr->au >= 1000000))
                         {
                                 msg_print("Your item now identifies all items!");
                                 p_ptr->au -= 1000000;
@@ -3202,7 +3412,7 @@ int add_item_ability(object_type *o_ptr)
                         else msg_print("You don't have enough money...");
 						break;
 				case 28:
-                        if (p_ptr->au >= 75000)
+                        if (!(o_ptr->art_flags3 & TR3_SH_ELEC) && (p_ptr->au >= 75000))
                         {
                                 msg_print("Your item is now emitting electricity!");
                                 p_ptr->au -= 75000;
@@ -3213,18 +3423,26 @@ int add_item_ability(object_type *o_ptr)
 						 else msg_print("You don't have enough money...");
                         break;
 				case 29:
-                        if (p_ptr->au >= 75000)
-                        {
+                        if (!(o_ptr->art_flags5 & TR5_SH_ACID) && (p_ptr->au >= 75000))
+						{
+					
+					
                                 msg_print("Your item is now sheathed in acid!");
                                 p_ptr->au -= 75000;
                                 o_ptr->art_flags5 |= TR5_SH_ACID;
                                 p_ptr->redraw |= (PR_BASIC);
 								p_ptr->update |= (PU_BONUS);
                         }
-						 else msg_print("You don't have enough money...");
-                        break;
+						 else 
+							 
+							 {
+							 msg_print("You don't have enough money...");
+							 }
+
+						  break;
+
 				case 30:
-                        if (p_ptr->au >= 75000)
+                        if (!(o_ptr->art_flags5 & TR5_SH_COLD) && (p_ptr->au >= 75000))
                         {
                                 msg_print("Your item is now freezing the air!");
                                 p_ptr->au -= 75000;
@@ -3232,8 +3450,14 @@ int add_item_ability(object_type *o_ptr)
                                 p_ptr->redraw |= (PR_BASIC);
 								p_ptr->update |= (PU_BONUS);
                         }
-						 else msg_print("You don't have enough money...");
-                        break;
+						 else 
+		
+							 {
+							 msg_print("You don't have enough money...");
+							 }
+		 
+
+							break;
 				case 31:
                         if (p_ptr->au >= 300000)
                         {
@@ -3246,7 +3470,7 @@ int add_item_ability(object_type *o_ptr)
 						 else msg_print("You don't have enough money...");
                         break;
 				case 32:
-                        if (p_ptr->au >= 150000)
+                        if (!(o_ptr->art_flags5 == TR5_RES_MORGUL) && (p_ptr->au >= 150000))
                         {
                                 msg_print("Your item now resist morgul beings!");
                                 p_ptr->au -= 150000;
@@ -3256,7 +3480,7 @@ int add_item_ability(object_type *o_ptr)
 						 else msg_print("You don't have enough money...");
 						break;
 				case 33:
-                        if (p_ptr->au >= 25000)
+                        if (!(o_ptr->art_flags1 == TR1_STEALTH) && (p_ptr->au >= 25000))
                         {
                                 msg_print("Your item now improves your stealth!");
                                 p_ptr->au -= 25000;
@@ -3267,7 +3491,7 @@ int add_item_ability(object_type *o_ptr)
 						 else msg_print("You don't have enough money...");
                         break;
 				case 34:
-                        if (p_ptr->au >= 75000)
+                        if (!(o_ptr->art_flags2 == TR2_HOLD_LIFE) && (p_ptr->au >= 75000))
                         {
                                 msg_print("Your item now sustains your experience!");
                                 p_ptr->au -= 75000;
@@ -3278,7 +3502,7 @@ int add_item_ability(object_type *o_ptr)
 						 else msg_print("You don't have enough money...");
 						 break;
 				case 35:
-                        if (p_ptr->au >= 50000)
+                        if (!(o_ptr->art_esp == ESP_UNBREAKABLE) && (p_ptr->au >= 50000))
                         {
                                 msg_print("Your item now cannot break!");
                                 p_ptr->au -= 50000;

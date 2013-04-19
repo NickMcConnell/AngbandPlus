@@ -1,0 +1,25 @@
+~~~~~01|Naga
+~~~~~02|Race Modifiers|Naga
+#####R=== Naga ===
+
+#####GDescription
+This is a snake form monster.  Nagas are swift moving monsters, 
+they have their wisom sustained and are resistant to poison. As they 
+gain experience, they become resistant to acid and eventually totally 
+immune to acid. 
+
+#####GStat Modifiers
+Strength        +2   
+Intelligence    -1   
+Wisdom          +4   
+Dexterity       -3   
+Constitution    -3   
+Charisma        -2       
+Hit Dice Sides   1         
+Exp Penalty     +120%
+
+#####GRacial Skills
+Combat                     
+  Weaponmastery             1.000           [0.500]
+    Swordmastery	    1.000	    [0.500]
+  

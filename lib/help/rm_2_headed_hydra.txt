@@ -1,0 +1,28 @@
+~~~~~01|2 headed-Hydra
+~~~~~02|Race Modifiers|2 headed-Hydra
+#####R=== 2 headed-Hydras ===
+
+
+#####GDescription
+This is the two headed variety of the hydra.  Their intelligence and 
+wisdom are sustained and they have ESP.  As they gain experience, their 
+intelligence, wisdom, ESP powers and searching skills increase.  They are 
+also able to breath fire and poison.
+
+#####GStat Modifiers
+Strength        +6   
+Intelligence    +1   
+Wisdom          +2   
+Dexterity       +0   
+Constitution    +0   
+Charisma        -2       
+Hit Dice Sides   0         
+Exp Penalty     +120%
+
+#####GRacial Skills
+Combat                     
+  Hydra-combat              2.000           [1.000]
+Powers                      1.000           [0.200]
+  Knowledge                 0.000           [1.000]
+Spirituality                
+  Mindcraft		    0.000	    [1.000]

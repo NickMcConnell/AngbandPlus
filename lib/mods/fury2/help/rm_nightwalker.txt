@@ -1,0 +1,28 @@
+~~~~~01|Nightwalker
+~~~~~02|Race Modifiers|Nightwalker
+#####R=== Nightwalker ===
+
+#####GDescription
+Nightwalkers are huge giants garbed in black, more massive than a 
+titan and stronger than a dragon.  They are resistant to fire and 
+cold and as they gain experience, they become resistant to electricity 
+and poison.  Eventually, they will become immune to fire, cold and 
+electricity.
+
+#####GStat Modifiers
+Strength        +4   
+Intelligence    +4   
+Wisdom          +4   
+Dexterity       +2   
+Constitution    +4   
+Charisma        -6       
+Hit Dice Sides   4         
+Exp Penalty     +120%
+
+#####GRacial Skills
+Combat                      1.000	    [0.500]
+  Weaponmastery             1.000           [0.250]
+    Hafted-mastery          1.000           [0.600]
+Powers                      1.000           [0.500]
+Spirituality               
+  Mindcraft		    1.000	    [0.500]

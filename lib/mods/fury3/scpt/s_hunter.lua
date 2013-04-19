@@ -26,6 +26,32 @@ HUNTER_FLAMEBEAM = add_spell
 
 				
 }
+
+HUNTERIDENTIFY = add_spell
+{
+	["name"] = 	"Greater Identify",
+	["school"] = 	{SCHOOL_HUNTING},
+	["level"] = 	1,
+	["mana"] = 	1,
+	["mana_max"] = 	1,
+	["fail"] = 	0,
+	["spell"] = 	function()
+			if get_check("Cast on yourself?") == TRUE then
+				self_knowledge()
+			else
+				identify_fully()
+			end
+			return TRUE
+	end,
+	["info"] = 	function()
+		       	return ""
+	end,
+	["desc"] =	{
+			"Asks for an object and fully identify it, providing the full list of powers",
+			"Cast at yourself it will reveal your powers"
+	}
+}
+
 function get_hpoisdart_dam()
 	return 3 + get_level(HUNTER_POISDART, 20), 1 + get_level(HUNTER_POISDART, 15)
 end

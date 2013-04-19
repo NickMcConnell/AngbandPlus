@@ -4001,33 +4001,34 @@ extern int PlayerUID;
 #define TERM_L_BLUE             14  /* 'B' */   /* 0,4,4 */
 #define TERM_L_UMBER            15  /* 'U' */   /* 3,2,1 */
 #define TERM_INDIAN_RED         16  // i
-#define TERM_PINK               17
-#define TERM_GOLD               18
-#define TERM_ROYAL_BLUE         19
-#define TERM_AQUAMARINE         20
-#define TERM_DARK_ORCHID        21
-#define TERM_CHOCOLATE          22
-#define TERM_FIREBRICK          23
-#define TERM_KHAKI              24
-#define TERM_DARK_KHAKI         25
-#define TERM_CADET_BLUE         26
-#define TERM_STEEL_BLUE         27
-#define TERM_LIGHT_STEEL_BLUE   28
-#define TERM_SANDY_BROWN        29
-#define TERM_ORCHID             30
-#define TERM_HONEYDEW           31
-#define TERM_YELLOW_GREEN       32
-#define TERM_OLIVE_DRAB         33
-#define TERM_PURPLE             34
-#define TERM_DARK_SLATE_GRAY    35
-#define TERM_SALMON             36
-#define TERM_CRIMSON            37
-#define TERM_MOCCASIN           38
-#define TERM_DARK_SEA_GREEN     39
-#define TERM_TEAL               40
-#define TERM_ANTIQUE_WHITE      41
-#define TERM_OLD_LACE           42
-#define TERM_TAN                43
+#define TERM_PINK               17  // p
+#define TERM_GOLD               18  // z
+#define TERM_ROYAL_BLUE         19  // c
+#define TERM_AQUAMARINE         20  // a
+#define TERM_DARK_ORCHID        21  // O
+#define TERM_CHOCOLATE          22  // C
+#define TERM_FIREBRICK          23  // f
+#define TERM_KHAKI              24  // k
+#define TERM_DARK_KHAKI         25  // K
+#define TERM_CADET_BLUE         26  // A
+#define TERM_STEEL_BLUE         27  // e
+#define TERM_LIGHT_STEEL_BLUE   28  // E
+#define TERM_SANDY_BROWN        29  // F
+#define TERM_ORCHID             30  // h
+#define TERM_HONEYDEW           31  // H
+#define TERM_YELLOW_GREEN       32  // I
+#define TERM_OLIVE_DRAB         33  // j
+#define TERM_PURPLE             34  // J
+#define TERM_DARK_SLATE_GRAY    35  // l
+#define TERM_SALMON             36  // L
+#define TERM_CRIMSON            37  // m
+#define TERM_MOCCASIN           38  // M
+#define TERM_DARK_SEA_GREEN     39  // n
+#define TERM_TEAL               40  // S
+#define TERM_ANTIQUE_WHITE      41 
+
+#define TERM_OLD_LACE           42  // q
+#define TERM_TAN                43  // Q
 
 /*** Graphics constants ***/
 

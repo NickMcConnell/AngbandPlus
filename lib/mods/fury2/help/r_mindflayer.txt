@@ -1,0 +1,31 @@
+~~~~~01|Mindflayer
+~~~~~02|Races|Mindflayer
+#####R=== Mindflayers ===
+
+#####GDescription
+Mindflayers are a race of humanoid creatures who live underground.  They
+are very intelligent and wise, but not very strong or tough.  They make
+excellent magicians or mindcrafters.  However, they look odd, with 
+octopus-like heads.
+
+
+#####GStat Modifiers
+Strength        -4   
+Intelligence    +5  
+Wisdom          +4   
+Dexterity        0   
+Constitution    -2   
+Charisma        -2      
+Hit Dice Sides   8        
+Exp Penalty     +30%
+
+#####GRacial Skill Modifiers:
+#####BSkill                Start Mod    Skill Point Gains Mod
+Combat
+  Weaponmastery        -0.500           [0.000]             
+Sneakiness              0.500           [0.000]
+  Stealth               1.000           [0.000]
+  Disarming             1.100           [0.000]
+Powers                   
+  Devices               1.500           [0.000]
+Spirituality            5.000           [0.000]

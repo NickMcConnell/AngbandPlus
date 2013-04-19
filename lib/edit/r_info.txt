@@ -2888,7 +2888,7 @@ D:He is a cunning and devious orc. Short and broad, he has crooked
 D:legs and arms that hang almost to the ground. 
 
 N:187:Giant tan bat
-G:b:U
+G:b:Q
 I:130:3d8:12:20:50
 W:10:2:600:18
 E:0:1:1:0:1:0
@@ -6701,7 +6701,7 @@ S:HEAL | SCARE | BO_ACID | BA_ACID | TPORT | S_MONSTER
 D:A Petty-Dwarf, one of the last of his race. He betrayed Turin 
 D:Turambar and gave him up to Morgoth's forces. 
 
-N:420:Heckblade
+N:420:Doomblade
 G:|:v
 I:120:13d13:20:40:20
 W:27:2:0:130
@@ -13054,7 +13054,7 @@ D:slicing through rock. It seems to be surrounded by an impenetrable
 D:shadow.
 
 N:762:Fundin Bluecloak
-G:k:B
+G:k:c
 I:130:50d100:25:195:10
 W:56:2:1400:20000
 E:1:1:1:2:1:1
@@ -22847,28 +22847,6 @@ S:1_IN_3 |
 S:BR_FIRE | BR_COLD | BR_SHAR | BR_SOUN | ROCKET | 
 S:S_MONSTERS | S_KIN | TELE_TO | HEAL 
 
-N:1310:Improv, the mighty MoLD
-G:m:v
-I:150:170d100:40:140:0
-W:127:2:3000:50000
-E:3:0:3:6:1:0
-O:20:20:20:20
-B:SPORE:UN_BONUS:10d10
-B:SPORE:EXP_80:10d10
-B:SPORE:TIME:10d10
-B:SPORE:TIME:10d10
-F:UNIQUE | NEVER_MOVE | CAN_SWIM |
-F:FORCE_MAXHP | WEIRD_MIND | DROP_CORPSE |
-F:REFLECTING | AURA_ELEC | ONLY_ITEM | DROP_4D2 |
-F:DROP_GOOD | DROP_GREAT | FORCE_SLEEP | RES_NETH |
-F:SMART | POWERFUL | RES_TELE | REGENERATE | CAN_FLY |
-F:DG_CURSE | WYRM_PROTECT | EVIL | DROP_RANDART
-F:IM_ACID | IM_FIRE | IM_ELEC | IM_POIS | 
-F:NO_CONF | NO_SLEEP | NO_FEAR | NO_STUN |
-F:HAS_LITE | RES_WATE | NO_CUT
-S:1_IN_2 |
-S:S_HI_DRAGON | S_KIN | BR_DISI | HEAL | TPORT |
-S:TELE_LEVEL | TELE_TO
 
 N:1311:Hobo
 G:t:g
@@ -23249,23 +23227,6 @@ F:IM_ACID | IM_COLD | IM_ELEC | IM_POIS | NO_CONF | NO_SLEEP | RES_TELE
 S:1_IN_2 | 
 S:CAUSE_3 | BO_WATE | BO_MANA | BA_CHAO
 
-N:1347:Utgard-Loke
-G:P:w
-I:120:40d70:30:62:15
-W:67:3:0:490000
-O:0:100:0:0
-B:HIT:COLD:12d12
-B:HIT:COLD:12d12
-B:HIT:COLD:12d12
-B:HIT:COLD:12d12
-F:ESCORT | UNIQUE | IM_COLD | AURA_COLD | DROP_CORPSE
-F:FORCE_SLEEP | FORCE_MAXHP | CAN_SWIM
-F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | MOVE_BODY |
-F:SMART | TAKE_ITEM | OPEN_DOOR | BASH_DOOR |
-F:EVIL | GIANT | MALE 
-S:1_IN_3 | 
-S:HEAL | TELE_TO | 
-S:S_KIN | BR_COLD 
 
 N:1348:Ultra-elite paladin
 G:p:w
@@ -23823,8 +23784,8 @@ F:PET | FRIENDS | EMPTY_MIND | WEIRD_MIND | NEVER_MOVE
 S:1_IN_2
 S:BLINK
 
-N:1385:Ancient Obese Dragon
-G:D:W
+N:1385:Ancient Vile Dragon
+G:D:C
 I:90:50d50:1:1000:200
 W:63:5:32756:100
 E:1:2:1:1:6:1

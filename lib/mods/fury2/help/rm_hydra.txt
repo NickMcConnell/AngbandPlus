@@ -1,0 +1,25 @@
+~~~~~01|Hydra-hybrid
+~~~~~02|Race Modifiers|Hydra-hybrid
+#####R=== Hydra-hybrids ===
+
+#####GDescription
+These dragons are a hybrid of a Hydra. Magical or natural No one knows. They lack a breath weapon, but have 2 heads.
+They are quite observant and rather wise and a bit smarter.
+
+
+#####GStat Modifiers
+Strength       0 
+Intelligence  +1   
+Wisdom        +2    
+Dexterity      0   
+Constitution   0   
+Charisma      -2    
+Hit Dice      +0 sides        
+Exp Penalty   +20%
+
+#####GSkill Bonuses (supplementary to existing skills)
+Mindcraft       0.000           [1.000]
+Knowledge       0.000           [1.000]
+
+
+

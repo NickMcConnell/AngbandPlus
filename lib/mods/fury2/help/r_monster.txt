@@ -1,0 +1,30 @@
+~~~~~01|Monsters
+~~~~~02|Races|Monsters
+#####R=== Monsters ===
+
+#####GDescription
+Monsters are the various creatures of Middle-Earth 
+that tend to be amazingly powerful.  Types of monsters include 
+2-Headed-Hydras, Nagas, Catoblepas', Basilisks, Gugs, Ettins, 
+Xorns, Eye Druj and Nightwalkers.
+
+#####GStat Modifiers
+Strength        +0   
+Intelligence    +0   
+Wisdom          +0   
+Dexterity       +0   
+Constitution    +0   
+Charisma        -3       
+Hit Dice Sides  10         
+Exp Penalty     +170%
+
+#####GRacial Skills
+Combat                     
+  Weaponmastery             0.000           [0.000]
+  Archery                   0.000           [0.000]
+Sneakiness                  0.000           [0.000]
+  Stealth                   0.000           [0.000]
+  Disarming                 0.500           [0.000]
+Powers                      1.000           [0.200]
+  Devices                   0.050           [0.000]
+Spirituality               -0.500           [0.000]

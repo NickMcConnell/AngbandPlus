@@ -312,7 +312,7 @@ N:31:& Hand and a Half Sword~
 G:|:W
 I:23:21:0
 W:15:0:140:350
-P:0:4d4:0:0:0
+P:0:3d4:0:0:0
 A:15/1
 F:COULD2H | SHOW_MODS
 f:COULD2H
@@ -327,7 +327,7 @@ N:32:& Scimitar~
 G:|:W
 I:23:18:0
 W:10:0:130:250
-P:0:4d3:0:0:0
+P:0:2d5:0:0:0
 A:10/1
 F:SHOW_MODS
 D:This oriental blade has 2 edges and is deeply curved. It has a wide
@@ -346,7 +346,7 @@ N:34:& Broad Sword~
 G:|:W
 I:23:16:0
 W:10:0:150:255
-P:0:4d3:0:0:0
+P:0:2d5:0:0:0
 A:10/1:15/1
 F:SHOW_MODS | 
 D:This broader version of the long sword is a standard weapon in the army
@@ -380,7 +380,7 @@ N:37:& Two-Handed Sword~
 G:|:W
 I:23:25:0
 W:30:0:200:775
-P:0:4d6:0:0:0
+P:0:3d6:0:0:0
 A:30/1:40/1
 F:MUST2H | SHOW_MODS
 f:MUST2H
@@ -392,7 +392,7 @@ N:38:& Main Gauche~
 G:|:W
 I:23:5:0
 W:3:0:30:25
-P:0:2d3:0:0:0
+P:0:1d5:0:0:0
 A:3/1
 F:SHOW_MODS
 D:This blade is sinuously curved and tipped with a harpoon-like end.
@@ -403,7 +403,7 @@ N:39:& Cutlass~
 G:|:W
 I:23:12:0
 W:5:0:110:85
-P:0:2d5:0:0:0
+P:0:1d7:0:0:0
 A:5/1
 F:SHOW_MODS
 D:This oriental weapon is a short, thick, curving sword
@@ -441,7 +441,7 @@ N:42:& Long Sword~
 G:|:W
 I:23:17:0
 W:10:0:130:300
-P:0:3d4:0:0:0
+P:0:2d5:0:0:0
 A:10/1:20/1
 F:SHOW_MODS
 D:A long straight sword, tapering to a pronounced point. Mainly good for
@@ -452,7 +452,7 @@ N:43:& Dagger~
 G:|:W
 I:23:4:0
 W:0:0:12:10
-P:0:1d5:0:0:0
+P:0:1d4:0:0:0
 A:0/1:10/1:20/1:5/1
 F:SHOW_MODS | THROWING
 D:It's the standard weapon of rogues and thieves.  The blade is
@@ -462,7 +462,7 @@ N:44:& Rapier~
 G:|:W
 I:23:7:0
 W:5:0:40:42
-P:0:2d4:0:0:0
+P:0:1d6:0:0:0
 A:5/1
 F:SHOW_MODS
 D:The rapier's hilt consisted of a pair of oval guards pierced with holes,
@@ -473,7 +473,7 @@ N:45:& Sabre~
 G:|:W
 I:23:11:0
 W:5:0:50:50
-P:0:3d3:0:0:0
+P:0:1d7:0:0:0
 A:5/1
 F:SHOW_MODS
 D:A long, one-edged, slightly curved sword with a knuckle guard and short
@@ -483,7 +483,7 @@ N:46:& Small Sword~
 G:|:W
 I:23:8:0
 W:5:0:75:48
-P:0:1d8:0:0:0
+P:0:1d6:0:0:0
 A:5/1
 F:SHOW_MODS
 D:It's the favourite weapon of strong mages and thieves, the blade is
@@ -494,7 +494,7 @@ N:47:& Broken Sword~
 G:|:D
 I:23:2:0
 W:0:0:30:2
-P:0:2d2:-2:-4:0
+P:0:1d2:-2:-4:0
 A:0/2:5/2
 F:SHOW_MODS
 D:Just a hilt and a few inches of blade, broken off in a jagged stump.
@@ -505,7 +505,7 @@ N:48:& Ball-and-Chain~
 G:\:D
 I:21:6:0
 W:20:0:150:200
-P:0:4d3:0:0:0
+P:0:2d4:0:0:0
 A:20/1
 F:COULD2H | SHOW_MODS
 f:COULD2H
@@ -516,7 +516,7 @@ N:49:& Whip~
 G:\:D
 I:21:2:0
 W:3:0:30:30
-P:0:1d4:0:0:0
+P:0:1d6:0:0:0
 A:3/1
 F:SHOW_MODS
 D:This weapon is light and easy to fight with. It has nasty barbs and
@@ -539,7 +539,7 @@ N:51:& Two-Handed Flail~
 G:\:y
 I:21:18:0
 W:45:0:280:590
-P:0:4d6:0:0:0
+P:0:2d6:0:0:0
 A:45/1
 F:MUST2H | SHOW_MODS
 f:MUST2H
@@ -551,7 +551,7 @@ N:52:& Morning Star~
 G:\:D
 I:21:12:0
 W:10:0:150:396
-P:0:5d3:0:0:0
+P:0:2d6:0:0:0
 A:10/1
 F:SHOW_MODS
 D:This weapon consists of a large club with chains that have wooden balls
@@ -561,7 +561,7 @@ N:53:& Mace~
 G:\:D
 I:21:5:0
 W:5:0:120:130
-P:0:3d4:0:0:0
+P:0:2d4:0:0:0
 A:5/1
 F:COULD2H | SHOW_MODS
 f:COULD2H
@@ -572,7 +572,7 @@ N:54:& Quarterstaff~
 G:\:U
 I:21:3:0
 W:10:0:150:200
-P:5:3d3:0:0:0
+P:5:1d9:0:0:0
 A:10/1
 F:COULD2H | SHOW_MODS
 f:COULD2H
@@ -586,7 +586,7 @@ N:55:& War Hammer~
 G:\:D8
 I:21:8:0
 W:5:0:120:225
-P:0:3d5:0:0:0
+P:0:3d3:0:0:0
 A:5/1
 F:COULD2H | SHOW_MODS
 f:COULD2H
@@ -596,7 +596,7 @@ N:56:& Lead-Filled Mace~
 G:\:D
 I:21:15:0
 W:15:0:180:502
-P:0:4d6:0:0:0
+P:0:3d4:0:0:0
 A:15/1
 F:COULD2H | SHOW_MODS
 f:COULD2H
@@ -606,7 +606,7 @@ N:57:& Mace~ of Disruption
 G:\:v
 I:21:20:0
 W:80:0:400:4300
-P:0:6d6:0:0:0
+P:0:5d8:0:0:0
 A:80/5
 F:MUST2H | SHOW_MODS | SLAY_UNDEAD
 f:MUST2H | SLAY_UNDEAD
@@ -617,7 +617,7 @@ N:58:& Lucerne Hammer~
 G:\:B
 I:21:10:0
 W:10:0:120:376
-P:0:4d5:0:0:0
+P:0:2d5:0:0:0
 A:10/1
 F:COULD2H | SHOW_MODS
 f:COULD2H
@@ -638,7 +638,7 @@ N:60:& Glaive~
 G:/:s
 I:22:13:0
 W:20:0:190:363
-P:5:3d5:0:0:0
+P:5:2d6:0:0:0
 A:20/1
 F:COULD2H | SHOW_MODS
 f:COULD2H
@@ -652,7 +652,7 @@ N:61:& Halberd~
 G:/:s
 I:22:15:0
 W:25:0:190:430
-P:10:3d7:0:0:0
+P:10:3d5:0:0:0
 A:25/1
 F:COULD2H | SHOW_MODS
 f:COULD2H
@@ -690,7 +690,7 @@ N:64:& Spear~
 G:/:s
 I:22:2:0
 W:5:0:50:36
-P:12:2d4:0:0:0
+P:12:1d6:0:0:0
 A:5/1
 F:SHOW_MODS | THROWING
 D:Spears tend to have a strong, wide, leaf-shaped head with a ridge down the
@@ -703,7 +703,7 @@ N:65:& Trident~
 G:/:y
 I:22:5:0
 W:5:0:70:120
-P:4:2d5:0:0:0
+P:4:1d8:0:0:0
 A:5/1
 F:COULD2H | SHOW_MODS | THROWING
 f:COULD2H
@@ -716,7 +716,7 @@ N:66:& Lance~
 G:/:s
 I:22:20:0
 W:10:0:300:230
-P:4:4d6:0:0:0
+P:4:2d8:0:0:0
 A:10/1
 F:MUST2H | SHOW_MODS
 f:MUST2H
@@ -749,7 +749,7 @@ N:69:& Lochaber Axe~
 G:\:D
 I:24:28:0
 W:45:0:250:750
-P:0:4d6:0:0:0
+P:0:3d8:0:0:0
 A:45/1
 F:COULD2H | SHOW_MODS
 f:COULD2H
@@ -1367,7 +1367,7 @@ I:45:24:0
 W:30:0:2:500
 P:0:0d0:0:0:0
 A:30/1
-F:HIDE_TYPE | IGNORE_ACID | IGNORE_COLD | IGNORE_ELEC | IGNORE_FIRE | STR | SUST_STR
+F:HIDE_TYPE | IGNORE_ACID | IGNORE_COLD | IGNORE_ELEC | IGNORE_FIRE | STR | SUST_STR | 
 f:STR
 D:This bauble magically improves your strength.
 
@@ -4439,7 +4439,7 @@ N:528:& Trifurcate Spear~
 G:/:o
 I:22:26:0
 W:35:0:140:400
-P:5:3d7:0:0:0
+P:5:2d9:0:0:0
 A:35/3
 F:SHOW_MODS
 D:This deadly spear's point has three branches, suited for inflicting
@@ -4536,7 +4536,7 @@ N:542:& Club~
 G:\:u
 I:21:1:0
 W:0:0:100:3
-P:0:3d2:0:0:0
+P:0:1d4:0:0:0
 A:0/1
 F:SHOW_MODS
 D:A stout heavy stick, thicker at one end. Useful for
@@ -4602,7 +4602,7 @@ N:548:& Great Scimitar~
 G:|:W
 I:23:22:0
 W:40:0:240:500
-P:0:5d4:0:0:0
+P:0:4d5:0:0:0
 A:40/3
 F:MUST2H | SHOW_MODS
 f:MUST2H
@@ -4634,7 +4634,7 @@ N:551:& Fauchard~
 G:/:s
 I:22:6:0
 W:18:0:155:301
-P:8:3d4:0:0:0
+P:8:1d10:0:0:0
 A:18/2
 F:COULD2H | SHOW_MODS
 f:COULD2H
@@ -4656,7 +4656,7 @@ N:553:& Heavy Lance~
 G:/:s
 I:22:29:0
 W:43:0:400:700
-P:5:6d8:0:0:0
+P:5:4d8:0:0:0
 A:43/2
 F:MUST2H | SHOW_MODS
 f:MUST2H
@@ -5811,7 +5811,7 @@ N:721:& Dark Sword~
 G:|:D
 I:23:33:0
 W:25:0:70:500
-P:0:3d6:0:0:0
+P:0:3d7:0:0:0
 A:25/1:80/2
 F:ANTIMAGIC_50 | SHOW_MODS | BRAND_DARK
 f:ANTIMAGIC_50
@@ -5931,7 +5931,7 @@ I:45:54:0
 W:20:0:2:16000
 P:0:0d0:0:0:0
 A:20/3
-F:EASY_KNOW | FLY | IGNORE_ACID | IGNORE_COLD | IGNORE_ELEC | IGNORE_FIRE
+F:EASY_KNOW | FLY | IGNORE_ACID | IGNORE_COLD | IGNORE_ELEC | IGNORE_FIRE | 
 f:FLY
 D:This ring is imbued with the power of eagles. It grants you the power of flight.
 
@@ -6080,7 +6080,7 @@ N:777:& Shadow Blade~
 G:|:D
 I:23:32:1
 W:50:0:45:2000
-P:0:2d5:-2:2:0
+P:0:4d4:-2:2:0
 A:48/4:60/2:80/1
 F:IGNORE_ACID | RES_DARK | STEALTH | BRAND_DARK
 f:STEALTH
@@ -6190,7 +6190,7 @@ N:788:& Maiablade~
 G:|:R
 I:115:55:0
 W:10:0:150:500
-P:0:3d8:0:0:0
+P:0:4d6:0:0:0
 A:10/1
 F:SHOW_MODS | SLAY_DEMON | WIELD_CAST | ACTIVATE
 
@@ -7240,67 +7240,6 @@ P:0:3d5:0:0:0
 F:SHOW_MODS | IGNORE_ACID |
 D:This crossbow bolt has a mithril tip.
 
-N:908:& Short Yew bow~
-G:}:U
-I:19:12:1
-W:5:0:30:100
-A:5/1:50/2
-F:SHOW_MODS | STEALTH
-D:A piece of bent wood from a yew tree, fitted with a string.
-D:Easy to transport and use, but its effect is not very impressive.
-D:You can 'f'ire it after you 'w'ield it.
-
-N:909:& Long Yew bow~
-G:}:U
-I:19:13:1
-W:15:0:40:240
-A:15/1:70/2
-F:SHOW_MODS | STEALTH
-D:A bow made from the wood of a yew tree. This bow is almost as long as a human.
-D:It takes considerable strength and skill to use and is rather awkward to carry
-D:around inside buildings. Nevertheless, it shoots arrows with astonishing force.
-D:You can 'f'ire it after you 'w'ield it.
-
-N:910:& Short Willow Bow~
-G:}:U
-I:19:12:1
-W:5:0:30:100
-A:5/1:50/2
-F:SHOW_MODS | DEX |
-D:A piece of bent willow wood, fitted with a string. Easy to transport and use, but
-D:its effect is not very impressive. You can 'f'ire it after you 'w'ield it.
-
-N:911:& Long Willow Bow~
-G:}:U
-I:19:13:2
-W:15:0:40:240
-A:15/1:70/2
-F:SHOW_MODS | DEX
-D:A bow made from willow wood that is almost as long as a human. It takes
-D:considerable strength and skill to use and is rather awkward to carry around
-D:inside buildings. Nevertheless, it shoots arrows with astonishing force.
-D:You can 'f'ire it after you 'w'ield it.
-
-N:912:& Light Mithril Crossbow~
-G:}:B
-I:19:23:0
-W:17:0:110:200
-A:17/1:60/2
-F:SHOW_MODS | IGNORE_ACID
-D:A mithril bow mounted on a wooden stock. It is used for shooting bolts. This
-D:design is relatively light and not too difficult to cock, but also shoots its
-D:quarrels with less force. You can 'f'ire with it after you 'w'ield it.
-
-N:913:& Heavy Mithril Crossbow~
-G:}:B
-I:19:24:0
-W:35:0:200:500
-A:35/1:80/2
-F:SHOW_MODS | IGNORE_ACID
-D:A mithril bow mounted on a wooden stock, with attached cocking mechanism. It
-D:takes considerable time and strength to cock it and it's rather heavy.
-D:However, it hurls its ammunition with incredible force. You can 'f'ire with
-D:it after you 'w'ield it.
 
 N:914:& Vorpal Arrow~
 G:{:r
@@ -7320,50 +7259,7 @@ P:0:3d4:0:0:0
 F:SHOW_MODS | VORPAL
 D:This crossbow bolt has a very sharp tip.
 
-#For Rangers
 
-N:916:& Short Magic Bow~
-G:}:R
-I:19:12:1
-W:40:0:30:100
-A:40/1:50/2
-F:SHOW_MODS | MANA
-D:A piece of bent wood, fitted with a string. Easy to transport and use, but
-D:its effect is not very impressive. It increases you mana while you are
-D:wielding it. You can 'f'ire it after you 'w'ield it.
-
-N:917:& Long Magic Bow~
-G:}:R
-I:19:13:1
-W:55:0:40:240
-A:55/1:70/2
-F:SHOW_MODS | MANA
-D:A bow made from wood that is almost as long as a human. It takes
-D:considerable strength and skill to use and is rather awkward to carry around
-D:inside buildings. Nevertheless, it shoots arrows with astonishing force.
-D:It increases your mana while you are weilding it. You can 'f'ire it after you 'w'ield it.
-
-N:918:& Light Magic Crossbow~
-G:}:R
-I:19:23:1
-W:40:0:110:200
-A:50/1:60/2
-F:SHOW_MODS | MANA
-D:A bow mounted on a wooden stock. It is used for shooting bolts. This
-D:design is relatively light and not too difficult to cock, but also shoots its
-D:quarrels with less force. It increases you mana while you are weilding it.
-D:You can 'f'ire with it after you 'w'ield it.
-
-N:919:& Heavy Magic Crossbow~
-G:}:R
-I:19:24:1
-W:70:0:200:500
-A:70/1:80/2
-F:SHOW_MODS | MANA
-D:A bow mounted on a wooden stock, with attached cocking mechanism. It
-D:takes considerable time and strength to cock it and it's rather heavy.
-D:However, it hurls its ammunition with incredible force. It increases you mana
-D:while you are weilding it. You can 'f'ire with it after you 'w'ield it. 
 
 
 N:921:& Spider Claws~
@@ -7389,7 +7285,7 @@ I:115:65:3
 W:50:0:30:500000
 P:10:1d1:0:0:0
 A:50/2
-F:WIELD_CAST | WATER_BREATH | RES_FEAR | RES_CHAOS | INT |  LUCK
+F:WIELD_CAST | WATER_BREATH | RES_FEAR | RES_CHAOS | INT |  LUCK | SPECIAL_GENE
 D:A piece of coral that seems to radiate the power of Ulmo himself. 
 
 N:924:& Shining Star of Varda~
@@ -7398,7 +7294,7 @@ I:115:64:3
 W:50:0:30:500000
 P:10:1d1:0:0:0
 A:50/2
-F:WIELD_CAST | LITE3 | RES_LITE | RES_DARK | WIS | CHR | LITE2
+F:WIELD_CAST | LITE3 | RES_LITE | RES_DARK | WIS | CHR | LITE2 | SPECIAL_GENE
 D:A gem that seems to radiate the power of Varda herself. 
 
 N:925:& Grim Reaper Figure of Mandos~
@@ -7407,7 +7303,7 @@ I:115:66:3
 W:50:0:30:500000
 P:10:1d1:0:0:0
 A:50/2
-F:WIELD_CAST | CON | IM_NETHER | RES_CHAOS
+F:WIELD_CAST | CON | IM_NETHER | RES_CHAOS | SPECIAL_GENE
 D:A small figurine of the Grim Reaper that seems to radiate the power of Mandos himself.
 
 N:926:& Balrog Tooth of Melkor~
@@ -7416,7 +7312,7 @@ I:115:23:3
 W:50:0:30:500000
 P:10:1d1:0:0:0
 A:50/2
-F:WIELD_CAST | CON | IM_FIRE | STR | SH_FIRE
+F:WIELD_CAST | CON | IM_FIRE | STR | SH_FIRE | SPECIAL_GENE
 D:A large balrog's tooth that seem to radiate the power of Melkor himself. 
 
 N:927:& Rock of Tulkas~
@@ -7425,7 +7321,7 @@ I:115:22:3
 W:50:0:30:500000
 P:10:1d1:0:0:0
 A:50/2
-F:WIELD_CAST | CON | IM_FIRE | STR | SUST_STR
+F:WIELD_CAST | CON | IM_FIRE | STR | SUST_STR | SPECIAL_GENE
 D:A hard rock that seems to radiate the power of Tulkas himself.
 
 N:928:& Mini-Axe of Aule~
@@ -7434,7 +7330,7 @@ I:115:63:3
 W:50:0:30:500000
 P:10:1d1:0:0:0
 A:50/2
-F:WIELD_CAST | WIS | RES_FEAR | RES_FIRE | IM_ACID | RES_POIS | SH_ACID
+F:WIELD_CAST | WIS | RES_FEAR | RES_FIRE | IM_ACID | RES_POIS | SH_ACID | SPECIAL_GENE
 D:A small axe that seems to radiate the power of Aule.
 
 N:929:& Apple of Yavanna~
@@ -7443,7 +7339,7 @@ I:115:24:3
 W:50:0:30:500000
 P:10:1d1:0:0:0
 A:50/2
-F:WIELD_CAST | RES_FEAR | CHR | INT | WIS | DEX | RES_SOUND
+F:WIELD_CAST | RES_FEAR | CHR | INT | WIS | DEX | RES_SOUND | SPECIAL_GENE
 D:An apple that does not seem to rot. It seems to radiate the power of Yavanna herself.
 
 N:930:& Wings of Manwe~
@@ -7452,7 +7348,7 @@ I:115:21:5
 W:50:0:30:500000
 P:10:1d1:0:0:0
 A:50/2
-F:WIELD_CAST | SPEED | STR | IM_ELEC | RES_CONF | 
+F:WIELD_CAST | SPEED | STR | IM_ELEC | RES_CONF | SPECIAL_GENE
 D:A beautifully sculpted set of small wings. You can feel the power of Manwe in them.
 
 N:931:& Note of Eru~
@@ -7461,7 +7357,7 @@ I:115:20:3
 W:50:0:30:500000
 P:10:1d1:0:0:0
 A:50/2
-F:WIELD_CAST | IM_NETHER | RES_CONF | INT | WIS
+F:WIELD_CAST | IM_NETHER | RES_CONF | INT | WIS | SPECIAL_GENE
 D:A small rock with a message from Eru himself.
 
 N:932:& Third Eye~

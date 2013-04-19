@@ -1,0 +1,30 @@
+~~~~~01|Fire
+~~~~~02|Race Modifiers|Fire 
+#####R=== Fire Hounds ===
+
+#####GDescription
+These hounds are surrounded by a fiery sheath and are resistant to fire  
+Their strength is sustained, and as they gain levels, they become even 
+stronger, and at level 45 they become immune to fire.  They are able to 
+breathe fire.
+
+#####GStat Modifiers
+Strength       +3
+Intelligence   +0   
+Wisdom         +0 
+Dexterity      +0  
+Constitution   +0 
+Charisma       +0     
+Hit Dice       +0 sides        
+Exp Penalty    +0%
+
+#####GRacial Skill Modifiers:
+#####BSkill                Start Mod    Skill Point Gains Mod
+
+Powers                  0.000           [0.000]
+  Fire                  1.000           [1.000]
+
+#####GStarting Equipment
+A Fire hound character begins the game with:
+    Some rations
+    Some torches

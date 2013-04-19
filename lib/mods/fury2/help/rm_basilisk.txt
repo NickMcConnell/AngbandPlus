@@ -1,0 +1,27 @@
+~~~~~01|Basilisk
+~~~~~02|Race Modifiers|Basilisk
+#####R=== Basilisk ===
+
+#####GDescription
+A Basilisk is an evil reptile that preys on unsuspecting 
+travellers.  They are resistant to poison and unable to 
+be paralysed.  They gain skills in climbing as they gain 
+experience and also their strength and constitution increase.
+
+#####GStat Modifiers
+Strength        +5   
+Intelligence    +2   
+Wisdom          +2   
+Dexterity       -4   
+Constitution    +3   
+Charisma        -2       
+Hit Dice Sides   4         
+Exp Penalty     +120%
+
+#####GRacial Skills
+Combat                      1.000	    [0.500]
+  Basilisk-combat           2.000           [1.000]
+Powers                      1.000           [0.500]
+     Mind                   1.000           [0.500]
+Spirituality               
+  Mindcraft		    1.000	    [0.500]

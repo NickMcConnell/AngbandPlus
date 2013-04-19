@@ -1,0 +1,25 @@
+~~~~~01|Ancient
+~~~~~02|Race Modifiers|Ancient
+#####R=== Ancients ===
+
+#####GDescription
+An old member of the race, they have lost the strength of their early 
+years and have become scarred, but they have become very wise and 
+smart, and their eyes can see what others can't.
+
+
+#####GStat Modifiers
+Strength       -3 
+Intelligence   +3   
+Wisdom         +5 
+Dexterity      -2  
+Constitution   -3 
+Charisma       -2     
+Hit Dice       -3 sides        
+Exp Penalty    +10%
+
+
+#####GStarting Equipment
+An Ancient character begins the game with:
+    Some rations
+    Some torches

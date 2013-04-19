@@ -1,8 +1,8 @@
 add_module
 {
 	["name"]    = "FuryBand",
-	["version"] = { 5, 0, 1 },
-	["author"]  = { "The Fury", "thefurry@hvc.rr.com" },
+	["version"] = { 5, 0, 3 },
+	["author"]  = { "The Fury", "thefury@furytech.net" },
 	["desc"] = {
 		"The base version of FuryMod with the wildnerness, towns, and dungeons",
 		},

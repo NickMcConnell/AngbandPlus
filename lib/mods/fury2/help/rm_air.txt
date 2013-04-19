@@ -1,0 +1,28 @@
+~~~~~01|Air
+~~~~~02|Race Modifiers|Air
+#####R=== Air Hounds ===
+
+#####GDescription
+These hounds are resistant to poison, and also they are able to breathe 
+poison.  They are the only kind of hound that is able to fly.
+
+#####GStat Modifiers
+Strength       +0
+Intelligence   +2   
+Wisdom         +2 
+Dexterity      +4  
+Constitution   +0
+Charisma       -4     
+Hit Dice       +0 sides        
+Exp Penalty    +0%
+
+#####GRacial Skill Modifiers:
+#####BSkill                Start Mod    Skill Point Gains Mod
+
+Powers                  0.000           [0.000]
+  Air                   1.000           [0.900]
+
+#####GStarting Equipment
+An Air hound character begins the game with:
+    Some rations
+    Some torches

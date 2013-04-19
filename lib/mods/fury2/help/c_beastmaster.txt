@@ -1,0 +1,37 @@
+~~~~~01|BeastMaster
+~~~~~02|Classes|BeastMaster
+#####R=== BeastMasters ===
+
+#####GDescription
+
+A beastmaster is a warrior that chose to make peace with some monsters.
+He can thus summon them at will when in 
+
+
+#####GStarting Stat Modifiers
+Strength         +2
+Intelligence     -4
+Wisdom           -2
+Dexterity        +2
+Constitution     +2
+Charisma         +5
+Hit Die          +d0
+Exp Penalty       20%
+
+#####GStarting Skills:
+#####BSkill                   Start Level     Skill Point Gains
+Combat                  0.000           [0.000]
+  Weaponmastery        -0.100           [0.000]
+    Archery            -0.500           [0.000]
+Sneakiness              0.600           [0.000]
+  Stealth               1.000           [0.000]
+  Disarming             0.200           [0.000]
+Powers                  
+  Devices               1.300           [1.000]
+Spirituality            1.500           [0.000]
+  Summoning             1.000           [1.000]
+  Symbiosis             1.000           [1.000]
+
+
+
+

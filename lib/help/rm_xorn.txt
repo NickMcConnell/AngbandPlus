@@ -1,0 +1,29 @@
+~~~~~01|Xorn
+~~~~~02|Race Modifiers|Xorn
+#####R=== Xorn ===
+
+#####GDescription
+A Xorn is a huge creature of the Earth.  Swift moving 
+creatures, Xorn are resistant to fire, cold, electricity 
+and poison.  However they are sensitive to acid.  Xorns are able 
+to move through rock, although they will take damage from it.  As they 
+gain experience, Xorns become able to move through rock without 
+suffering any damage and also their climbing skills increase.  
+They also become immune to fire, cold and eventually electricity.
+
+#####GStat Modifiers
+Strength        +4   
+Intelligence    -3   
+Wisdom          -3   
+Dexterity       -4   
+Constitution    +4   
+Charisma        -6       
+Hit Dice Sides   3         
+Exp Penalty     +20%
+
+#####GRacial Skills
+Combat                      1.000	    [0.500]   
+  Weaponmastery             1.000           [0.250]
+    Hafted-mastery	    1.000	    [0.500]
+  Archery                   
+    Boulder-throwing	    1.000	    [0.500]

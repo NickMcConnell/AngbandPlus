@@ -1,0 +1,31 @@
+~~~~~01|Hound
+~~~~~02|Races|Hound
+#####R=== Hounds ===
+
+#####GDescription
+Hounds are huge dogs. They can't wield much, but make good mages and 
+masters.
+
+#####GStat Modifiers
+Strength        -3 
+Intelligence    +4   
+Wisdom          +4   
+Dexterity       -3   
+Constitution    +4   
+Charisma        -5       
+Hit Dice Sides   9        
+Exp Penalty     +150%
+
+#####GRacial Skill Modifiers:
+#####BSkill                Start Mod    Skill Point Gains Mod
+
+Combat                  
+  Weaponmastery         1.000           [1.000]
+  Barehand-combat       2.000           [2.000]
+Sneakiness              0.000           [0.000]
+  Stealth              -1.000           [0.000]
+  Disarming             1.000           [0.000]
+Powers                 
+  Devices               0.500           [0.000]
+Spirituality            1.000           [0.000]
+

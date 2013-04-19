@@ -1,0 +1,58 @@
+~~~~~01|Assassin
+~~~~~02|Classes|Assassin
+#####R=== Assassins ===
+#####GDescription
+Assassin are similar to Rogues, but have trained their combat abilities more
+extensively by neglecting the study of magic. They also tend to be more stealthy
+and careful in their dungeon exploration, but aren't so good at stealing,
+trapping and disarming as their more "peaceful" counterparts.
+
+Assassins have access to the schools of *****m_movement.txt*0[Movement], *****m_knowledge.txt*0[Knowledge] and *****m_tempo.txt*0[Temporal] magic.
+
+#####GStarting Stat Modifiers
+Strength       +2
+Intelligence   +1
+Wisdom         -2
+Dexterity      +3
+Constitution   +1
+Charisma       -1
+Bonus Blows    0
+Hit Die        +d6
+Exp Penalty    25%
+
+#####GStarting Skills
+#####BSkill                   Start Level     Skill Point Gains
+Combat                  0.000           [0.100]
+  Weaponmastery         0.000           [0.100]
+    Sword-mastery       0.000           [0.300]
+      Critical-hits     1.000           [0.300]
+  Archery
+    Boomerang-mastery   1.000           [0.300]
+    Throwing            1.000           [0.400]
+Sneakiness              1.000           [2.000]
+  Stealth               0.000           [0.500]
+  Disarming             0.000           [-1.000]
+  Backstab              0.000           [1.000]
+  Stealing              0.000           [-1.800]
+  Dodging               1.000           [2.000]
+Powers                  0.000           [-0.500]
+  Devices               0.000           [-0.800]
+  Movement              0.000           [-0.400]
+  Knowledge             0.000           [-0.400]
+  Temporal              0.000           [-0.300]
+Spirituality            1.000           [0.700]
+  Prayer                0.000           [0.500]
+Monster-lore            0.000           [0.500]
+
+*An Assassin cannot learn the Archery skill, but it is shown in his skill 
+screen because Boomerang-mastery is a sub-skill of it.
+
+#####GInnate Abilities:
+#####BAbility              Character level
+Extra Max Blow(1)           10
+
+#####GStarting Equipment
+An Assassin begins the game with:
+    a Dagger
+
+

@@ -1,0 +1,26 @@
+~~~~~01|White
+~~~~~02|Race Modifiers|White
+#####R=== White Spiders ===
+
+#####GDescription
+A spider which brings cold into everywhere it scuttles, it is cunning 
+and calculating.  It's intelligence is sustained, and it is resistant 
+to cold.  This spider can breathe cold.
+
+
+#####GStat Modifiers
+Strength       0 
+Intelligence  +3   
+Wisdom         0    
+Dexterity      0   
+Constitution   0   
+Charisma       0      
+Hit Dice      +0 sides        
+Exp Penalty   +0%
+
+#####GSkill Bonuses (supplementary to existing skills)
+Power           0.000           [0.200]
+knowledge       1.000           [0.600]
+
+
+

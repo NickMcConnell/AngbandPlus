@@ -1,0 +1,28 @@
+~~~~~01|Ethereal
+~~~~~02|Race Modifiers|Ethereal
+#####R=== Ethereal Hounds ===
+
+#####GDescription
+These hounds undead creatures, able to pass through solid objects with 
+ease. They are resistant to disenchantment.
+
+#####GStat Modifiers
+Strength       -5
+Intelligence   +5   
+Wisdom         +5 
+Dexterity      -5  
+Constitution   -5
+Charisma       -5     
+Hit Dice       +0 sides        
+Exp Penalty    +0%
+
+#####GRacial Skill Modifiers:
+#####BSkill                Start Mod    Skill Point Gains Mod
+
+Powers                  0.000           [0.000]
+  Meta                  1.000           [0.900]
+
+#####GStarting Equipment
+An Ethereal hound character begins the game with:
+    Some rations
+    Some torches

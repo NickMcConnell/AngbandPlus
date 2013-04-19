@@ -1,0 +1,38 @@
+~~~~~01|Pippin
+~~~~~02|Race Modifiers|Pippin
+#####R=== Pippin Race ===
+
+#####GDescription
+Pippin is a hobbit, one of the Nine members of the Fellowship of the 
+Ring.
+
+#####GStat Modifiers
+Strength       -1
+Intelligence   +2
+Wisdom         -2  
+Dexterity      +4   
+Constitution   -4  
+Charisma       +2      
+Hit Dice       +0 sides
+Exp Penalty    +50%
+
+#####GRacial Skill Modifiers:
+#####BSkill                Start Mod    Skill Point Gains Mod
+Combat                  
+  Weaponmastery         1.200           [0.100]
+    Sword-mastery       1.000           [0.500]
+Sneakiness              1.000           [1.000]
+  Stealth               2.000           [1.000]
+  Disarming             0.200           [1.000]
+Powers                
+  Devices              +1.000           [0.000]
+Spirituality            0.500           [0.000]
+
+#####GStarting Equipment
+Pippin begins the game with:
+    The Chain Mail of Peregrin Took
+    The Elven Cloak of Peregrin Took
+    The Dagger of Peregrin 
+    A Ring of Fear Resistance
+    Some rations
+    Some torches

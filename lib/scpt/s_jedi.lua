@@ -3,7 +3,17 @@ function get_electricbolt_dam()
 	return 3 + get_level(ELECTRICBOLT, 50), 1 + get_level(ELECTRICBOLT, 20)
 end
 
+function get_forcepush_dam()
+	return 3 + get_level(FORCEPUSH, 50), 1 + get_level(FORCEPUSH, 20)
+end
 
+function get_forcepull_dam()
+	return 3 + get_level(FORCEPULL, 50), 1 + get_level(FORCEPULL, 20)
+end
+
+function get_forcegrip_dam()
+	return 3 + get_level(FORCEGRIP, 50), 1 + get_level(FORCEPULL, 20)
+end
 
 ELECTRICBOLT = add_spell
 {
@@ -48,7 +58,7 @@ FORCEPUSH = add_spell
 
 			ret, dir = get_aim_dir()
 			if ret == FALSE then return end
-			return fire_ball(GF_FORCE, dir, damroll(get_electricbolt_dam()), 2 + get_level(FORCEPUSH, 5))
+			return fire_ball(GF_FORCE, dir, damroll(get_forcepush_dam()), 2 + get_level(FORCEPUSH, 5))
 			
 
 			
@@ -57,7 +67,7 @@ FORCEPUSH = add_spell
 	["info"] = 	function()
 			local x, y
 
-			x, y = get_electricbolt_dam()
+			x, y = get_forcepush_dam()
 			return "dam "..x.."d"..y
 	end,
 	["desc"] =	{
@@ -79,12 +89,12 @@ FORCEPULL = add_spell
 
 			ret, dir = get_aim_dir()
 			if ret == FALSE then return end
-			return fire_ball(GF_TELEKINESIS, dir, damroll(get_electricbolt_dam()), 2 + get_level(FORCEPULL, 5))
+			return fire_ball(GF_TELEKINESIS, dir, damroll(get_forcepull_dam()), 2 + get_level(FORCEPULL, 5))
 	end,
 	["info"] = 	function()
 			local x, y
 
-			x, y = get_electricbolt_dam()
+			x, y = get_forcepull_dam()
 			return "dam "..x.."d"..y
 	end,
 	["desc"] =	{
@@ -106,12 +116,12 @@ FORCEGRIP = add_spell
 
 			ret, dir = get_aim_dir()
 			if ret == FALSE then return end
-			return fire_bolt(GF_UNBREATH, dir, damroll(get_electricbolt_dam()))
+			return fire_bolt(GF_UNBREATH, dir, damroll(get_forcegrip_dam()))
 	end,
 	["info"] = 	function()
 			local x, y
 
-			x, y = get_electricbolt_dam()
+			x, y = get_forcegrip_dam()
 			return "dam "..x.."d"..y
 	end,
 	["desc"] =	{

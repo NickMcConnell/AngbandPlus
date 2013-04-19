@@ -1,0 +1,26 @@
+~~~~~01|Black
+~~~~~02|Race Modifiers|Black
+#####R=== Black Spiders ===
+
+#####GDescription
+This spider glistens with poison, and other noxious chemicals.  It is
+resistant to acid, and at level 45 becomes completely immune to acid.
+This spider's charisma is sustained, and it can spit acid.
+
+
+#####GStat Modifiers
+Strength       0   
+Intelligence   0   
+Wisdom         0    
+Dexterity      0   
+Constitution   0   
+Charisma      +3      
+Hit Dice      +0 sides        
+Exp Penalty   +0%
+
+#####GSkill Bonuses (supplementary to existing skills)
+Power           0.000           [0.200]
+Water           1.000           [0.600]
+
+
+

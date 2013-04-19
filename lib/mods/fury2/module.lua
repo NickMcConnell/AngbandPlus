@@ -1,8 +1,8 @@
 add_module
 {
 	["name"]    = "FuryBand T",
-	["version"] = { 5, 0, 1 },
-	["author"]  = { "The Fury", "thefurry@hvc.rr.com" },
+	["version"] = { 5, 0, 3 },
+	["author"]  = { "The Fury", "thefury@furytech.net" },
 	["desc"] = {
 		"The alternate mode of FuryMod, one town, one dungeon",
 		},
@@ -13,9 +13,9 @@ add_module
 	["base_dungeon"] = 4,
 	["death_dungeon"] = 28,
 
-	 ["astral_dungeon"] = 1,
-        ["astral_wild_x"] = 1,
-        ["astral_wild_y"] = 1,
+	 ["astral_dungeon"] = 4,
+        ["astral_wild_x"] = 35,
+        ["astral_wild_y"] = 21,
 
 	["random_artifact_weapon_chance"] = 40,
 	["random_artifact_armor_chance"] = 40,

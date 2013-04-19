@@ -355,6 +355,7 @@ C:D:1:Great Bowman
 C:D:1:Archer
 C:D:1:Archer
 C:D:1:Great Archer
+C:g:All Gods
 C:S:2:1:0:2:1:1:0:0
 C:K:10:10:0:1:10:10:10:10
 C:X:8:10:10:0:0:0:30:45
@@ -1300,36 +1301,24 @@ C:b:5:Extra Max Blow(2)
 
 C:a:N:Fire Warrior
 C:a:D:This War-Mage uses fire to supplement his sword skills
-C:R:5:0
-C:F:RES_FIRE
-C:R:25:0
-C:F:SH_FIRE
-C:R:45:0
-C:F:IM_FIRE
 C:a:k:+1000:+500:Fire
 C:a:k:+1000:+300:Power
 
 
 C:a:N:Air Warrior
 C:a:D:This War-Mage uses air skills to supplement his sword skills
-C:R:5:0
-C:F:RES_POIS
 C:a:k:+1000:+500:Air
 C:a:k:+1000:+300:Power
 
 
 C:a:N:Earth Warrior
 C:a:D:This War-Mage uses earth skills to supplement his sword skills
-C:R:5:0
-C:F:RES_SHARDS
 C:a:k:+1000:+500:Earth
 C:a:k:+1000:+300:Power
 
 
 C:a:N:Water Warrior
 C:a:D:This War-Mage uses water skills to supplement his sword skills
-C:R:5:0
-C:F:WATER_BREATH
 C:a:k:+1000:+500:Water
 C:a:k:+1000:+300:Power
 
@@ -1356,16 +1345,16 @@ C:a:k:+1000:+300:Power
 
 C:a:N:Death Warrior
 C:a:D:This War-Mage uses raw power to supplement his sword skills.
-C:a:D:Sadly, this much power comes at the cost of aggravating everyone.
 C:a:g:Melkor Bauglir
-C:R:1:0
 C:a:O:115:55:1d1
-C:F:AGGRAVATE | RES_NETHER
 C:a:k:+1000:+2000:Innate
 C:a:k:+1000:+1000:Maia-lore
 C:a:k:+1000:+300:Power
 C:a:k:+1000:+1000:Udun
-
+C:a:k:+1000:=0:Energy
+C:a:k:+1000:=0:Nature
+C:a:k:+1000:=0:Movement
+C:a:k:+1000:=0:Fire 
 
 C:N:17:Hunter
 C:D:0:Stranded fighters from another realm, have few supplies,
@@ -2202,28 +2191,9 @@ R:k:+0:+300:Nature
 R:k:+0:+200:Monster-lore
 R:b:1:Tree walking
 
-R:N:30:Hound
-R:D:Hounds are huge dogs. They can't wield much, but make good mages/masters.
-# R:S:str:int:wis:dex:con:chr:luck
-R:S:-3:4:4:-3:4:-5:0
-R:K:5:5:5:-10:5:5:5:-20
-R:P:9:250:5:100
-R:M:50:150:200:-200:80:120:54:-50:100:60
-# R:E:weapons:torso:arms:finger:head:legs
-R:E:0:1:0:2:1:2:2
-R:C:Mage | War-Mage
-R:R:1:0
-R:k:+1000:+1000:Weaponmastery
-R:k:+2000:+2000:Barehand-combat
-R:C:Loremaster | Mage | Priest | 
-#R:G:EVIL
-R:k:+1000:+000:Disarming
-R:k:+500:+000:Devices
-R:k:+1000:+000:Spirituality
-R:k:-10000:+000:Stealth
-R:k:+000:+000:Sneakiness
 
-R:N:31:Mindflayer
+
+R:N:30:Mindflayer
 R:D:A race of intelligent, wise creatures, with octopus-like heads.
 R:S:-4:5:4:0:-2:-2:0
 R:K:11:15:10:1:5:10:-5:0
@@ -2249,7 +2219,7 @@ R:k:-500:+000:Weaponmastery
 R:k:+000:+000:Archery 
 
 
-R:N:32:Monster
+R:N:31:Monster
 R:D:Monsters are the various creatures of Middle-Earth
 R:D:that tend to be amazingly powerful. 
 # They all get an inherent CHR penalty, other stats depend on subrace.
@@ -3104,140 +3074,7 @@ S:k:+1000:+300:Spirituality
 # S:k:value:modifier:skill name
 # S:b:level:ability
 
-S:N:32:Fire
-S:S:3:0:0:0:0:0:0:100
-S:K:0:0:0:0:-2:2:5:0
-S:P:0:0:1
-S:M:0:0:0:0:0:0:0:0:0:0
-S:E:0:0:0:0:0:0:0
-S:A:Hound
-S:C:F:Mage
-S:G:NO_SUBRACE_CHANGE
-S:R:1:0
-S:F:SUST_STR | SH_FIRE | RES_FIRE
-S:R:5:1
-S:F:STR
-S:R:10:1
-S:F:STR
-S:R:15:1
-S:F:STR
-S:R:20:1
-S:F:STR
-S:R:30:1
-S:F:STR
-S:R:40:1
-S:F:STR
-S:R:45:0
-S:F:IM_FIRE
-S:R:50:1
-S:F:STR
-S:Z:fire breath
-S:k:+1000:+1000:Fire
-
-S:N:33:Cold
-S:S:1:0:0:0:2:0:0:200
-S:K:0:0:0:0:-2:2:5:0
-S:P:0:0:1
-S:M:0:0:0:0:0:0:0:0:0:0
-S:E:0:0:0:0:0:0:0
-S:A:Hound 
-S:C:F:Mage
-S:G:NO_SUBRACE_CHANGE
-S:R:1:0
-S:F:RES_COLD
-S:R:5:1
-S:F:SPEED
-S:R:10:1
-S:F:SPEED
-S:R:15:1
-S:F:SPEED
-S:R:20:1
-S:F:SPEED
-S:R:30:1
-S:F:SPEED
-S:R:40:1
-S:F:SPEED
-S:R:45:0
-S:F:IM_COLD
-S:R:50:1
-S:F:SPEED
-S:Z:cold breath
-S:k:+1000:+600:Barehand-combat
-
-S:N:34:Water
-S:S:-3:4:4:3:-2:1:0:400
-S:K:0:0:0:0:-2:2:5:0
-S:P:0:0:1
-S:M:0:0:0:0:0:0:0:0:0:0
-S:E:0:0:0:0:0:0:0
-S:A:Hound 
-S:C:F:Warrior | Archer
-S:G:NO_SUBRACE_CHANGE
-S:R:1:0
-S:F:RES_COLD | WATER_BREATH
-S:R:45:0
-S:F:IM_COLD 
-S:Z:breath water
-S:k:+1000:+600:Barehand-combat
-
-S:N:35:Earth
-S:S:4:-4:-4:-4:5:0:0:100
-S:K:0:0:0:0:-2:2:5:0
-S:P:0:0:1
-S:M:0:0:0:0:0:0:0:0:0:0
-S:E:0:0:0:0:0:0:0
-S:A:Hound 
-S:C:F:Warrior | Archer
-S:G:NO_SUBRACE_CHANGE
-S:R:1:0
-S:F:RES_SHARDS 
-S:Z:breath shards
-S:k:+1000:+900:Earth
-
-S:N:36:Air
-S:S:0:2:2:4:0:-4:0:100
-S:K:0:0:0:0:-2:2:5:0
-S:P:0:0:1
-S:M:0:0:0:0:0:0:0:0:0:0
-S:E:0:0:0:0:0:0:0
-S:A:Hound 
-S:C:F:Warrior | Archer
-S:G:NO_SUBRACE_CHANGE
-S:R:1:0
-S:F:RES_POIS | FLY 
-S:Z:breath poison
-S:k:+1000:+900:Air
-
-S:N:37:Acid
-S:S:1:1:1:1:1:-5:0:100
-S:K:0:0:0:0:-2:2:5:0
-S:P:0:0:1
-S:M:0:0:0:0:0:0:0:0:0:0
-S:E:0:0:0:0:0:0:0
-S:A:Hound 
-S:C:F:Warrior | Archer
-S:G:NO_SUBRACE_CHANGE
-S:R:1:0
-S:F:RES_ACID  
-S:R:45:0
-S:F:IM_ACID  
-S:Z:Breath of acid
-S:k:+1000:+900:Water
-
-S:N:38:Ethereal
-S:S:-5:5:5:-5:-5:-5:0:500
-S:K:0:0:0:0:-2:2:5:0
-S:P:0:0:1
-S:M:0:0:0:0:0:0:0:0:0:0
-S:E:0:0:0:0:0:0:0
-S:A:Hound 
-S:C:F:Warrior | Archer
-S:G:NO_SUBRACE_CHANGE
-S:R:1:0
-S:F:WRAITH | RES_DISEN  
-S:k:+1000:+900:Meta
-
-S:N:39:Aragorn
+S:N:32:Aragorn
 S:D:A:A ranger from the north, on his way to POWER
 S:S:4:2:2:4:4:-2:1:100
 S:K:-2:-10:2:-2:0:1:12:5
@@ -3259,7 +3096,7 @@ S:k:+1200:+100:Weaponmastery
 S:k:+500:+000:Archery
 S:k:+1000:+1000:Sword-mastery
 
-S:N:40:Pippin
+S:N:33:Pippin
 S:D:A:A small hobbit
 S:S:-1:2:-2:4:-4:2:4:100
 S:K:-2:-10:2:-2:0:1:12:5
@@ -3279,7 +3116,7 @@ S:k:+1200:+100:Weaponmastery
 S:k:=0:=0:Archery
 S:k:+1000:+500:Sword-mastery
 
-S:N:41:Frodo
+S:N:34:Frodo
 S:D:A:A small hobbit carrying the One Ring
 S:S:0:3:3:5:-6:5:-2:100
 S:K:-2:-10:2:-2:0:1:12:5
@@ -3299,7 +3136,7 @@ S:k:+1000:+100:Weaponmastery
 S:k:=0:=0:Archery
 S:k:+1000:+250:Sword-mastery
 
-S:N:42:Gimli
+S:N:35:Gimli
 S:D:A:A short, fat dwarf
 S:S:3:3:-2:-4:5:-2:0:100
 S:K:-2:-10:2:-2:0:1:12:5
@@ -3321,7 +3158,7 @@ S:k:+1200:+100:Weaponmastery
 S:k:=0:=0:Archery
 S:k:+1000:+1000:Axe-mastery
 
-S:N:43:Legolas
+S:N:36:Legolas
 S:D:A:A powerful archer
 S:G:XTRA_MIGHT_BOW | 
 S:S:0:3:2:5:3:10:5:100
@@ -3342,7 +3179,7 @@ S:k:+1200:+100:Weaponmastery
 S:k:+5000:+1000:Archery
 S:k:+1000:+1000:Sword-mastery
 
-S:N:44:Red
+S:N:37:Red
 S:D:B:A spider grown fearsome and strong, it is atuned to fire.
 S:S:3:0:0:0:0:0:0:100
 S:K:0:0:0:0:-2:2:5:0
@@ -3361,7 +3198,7 @@ S:k:+500:+200:Barehand-combat
 S:k:+1000:+600:Fire
 S:k:+000:+200:Power
 
-S:N:45:Black
+S:N:38:Black
 S:D:B:This spider glistens with poison, and other noxious chemicals.
 S:S:0:0:0:0:0:3:0:100
 S:K:2:0:1:0:0:0:0:0
@@ -3379,7 +3216,7 @@ S:Z:spit acid
 S:k:+1000:+600:Water
 S:k:+000:+200:Power
 
-S:N:46:Blue
+S:N:39:Blue
 S:D:B:This spider is wreathed in living lightning.
 S:D:B:It is especially nimble and agile, and its dexterity  
 S:D:B:is not sapped easily.
@@ -3397,7 +3234,7 @@ S:Z:dazzle
 S:k:+1000:+600:Air
 S:k:+000:+200:Power
 
-S:N:47:White
+S:N:40:White
 S:D:B:A spider which brings cold into everywhere it scuttles, 
 S:D:B:it is cunning and calculating.
 S:S:0:3:0:0:0:0:0:100
@@ -3414,7 +3251,7 @@ S:Z:cold breath
 S:k:+1000:+600:Knowledge
 S:k:+000:+200:Power
 
-S:N:48:Wraith
+S:N:41:Wraith
 S:D:B:These spiders have gained the ability to pass unnoticed, 
 S:D:B:and have mysterious ways of travelling.
 S:S:0:0:3:0:0:0:0:100
@@ -3432,7 +3269,7 @@ S:F:WRAITH |
 S:k:+1000:+600:Meta
 S:k:+000:+200:Power
 
-S:N:49:Hydra-Hybrids
+S:N:42:Hydra-Hybrids
 S:D:B:These dragons are a hybrid of a Hydra. Magical or natural
 S:D:B:No one knows. They lack a breath weapon, but have 2 heads.
 S:D:B:They are quite observant and rather wise and a bit smarter.
@@ -3463,7 +3300,7 @@ S:F:WIS | SEARCH | INT | ESP_GOOD
 S:k:+0:+1000:Mindcraft
 S:k:+0:+1000:Knowledge
 
-S:N:50:2-Headed-Hydra
+S:N:43:2-Headed-Hydra
 S:D:B:This is the two headed variety of the hydra
 S:S:6:1:2:0:0:-2:0:115
 S:K:0:0:1:1:5:2:0:0
@@ -3495,7 +3332,7 @@ S:k:+2000:+1000:Hydra-combat
 S:Z:fire breath
 S:Z:breath poison
 
-S:N:51:Naga
+S:N:44:Naga
 S:D:B:This is a snake form monster
 S:S:2:-1:4:-3:-2:-2:0:130
 S:K:0:0:1:1:5:2:0:0
@@ -3514,7 +3351,7 @@ S:k:+1000:+500:Weaponmastery
 S:k:+1000:+500:Sword-mastery
 S:k:=0:=0:Archery
 
-S:N:52:Catoblepas
+S:N:45:Catoblepas
 S:D:B:A strange ox-like form with a huge head.
 S:S:4:2:-2:-3:4:-2:0:50
 S:K:0:0:1:1:5:2:0:0
@@ -3535,7 +3372,7 @@ S:k:=0:=0:Archery
 S:k:=0:=0:Prayer
 S:k:=0:=0:Powers
 
-S:N:53:Basilisk
+S:N:46:Basilisk
 S:D:B:An evil reptile that preys on unsuspecting travellers.
 S:S:5:2:2:-4:3:-2:0:200
 S:K:0:0:1:1:5:2:0:0
@@ -3556,7 +3393,7 @@ S:k:+1000:+500:Mindcraft
 S:k:+1000:+500:Mind
 S:k:+1000:+500:Powers
 
-S:N:54:Gug
+S:N:47:Gug
 S:D:B:A hideous, beastly, four-armed unclean giant
 S:S:4:-2:-2:-2:4:-2:0:50
 S:K:0:0:1:1:5:2:0:0
@@ -3578,7 +3415,7 @@ S:k:+1000:+250:Weaponmastery
 S:k:+1000:+250:Hafted-mastery
 S:k:+1000:+500:Boulder-throwing
 
-S:N:55:Ettin
+S:N:48:Ettin
 S:D:B:A hideous, beastly, 2 headed monster
 S:S:6:-6:-6:-4:4:-6:0:0
 S:K:0:0:1:1:5:2:0:0
@@ -3594,7 +3431,7 @@ S:k:+1000:+250:Weaponmastery
 S:k:+1000:+500:Hafted-mastery
 S:k:+1000:+500:Boulder-throwing
 
-S:N:56:Xorn
+S:N:49:Xorn
 S:D:B:A huge creature of the Earth.
 S:S:4:-3:-3:-4:4:-6:0:50
 S:K:0:0:1:1:5:2:0:0
@@ -3619,7 +3456,7 @@ S:k:+1000:+500:Hafted-mastery
 S:k:+1000:+500:Boulder-throwing
 S:G:NO_CUT | SEMI_WRAITH
 
-S:N:57:Eye Druj
+S:N:50:Eye Druj
 S:D:B:A glowing skull possessed by sorcerous power.
 S:S:-4:5:5:-4:-4:-6:0:300
 S:K:0:0:1:1:5:2:0:0
@@ -3684,7 +3521,7 @@ S:k:+1000:+1000:Corpse-preservation
 S:k:+1000:+1000:Udun
 S:k:+1000:+1000:Innate
 
-S:N:58:Nightwalker
+S:N:51:Nightwalker
 S:D:B:A huge giant garbed in black, more massive than a titan and stronger than a dragon
 S:S:4:4:4:2:4:-6:0:125
 S:K:0:0:1:1:5:2:0:0

@@ -47,7 +47,7 @@ N:8:Symbiosis
 D:Ability to enter in symbiosis with monsters unable to move by themselves
 D:Spells use the intelligence stat
 A:20:Use symbiotic powers
-G:90
+G:0
 F:RANDOM_GAIN
 
 N:9:Music

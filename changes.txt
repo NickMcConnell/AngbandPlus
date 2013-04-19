@@ -21,6 +21,10 @@ Class/race changes
 	Gugs get boulder throwing
 	Nagas have 1 set of arms, 2 heads, and only -2 to speed
 	2 Headed Hydras now have Hydra-combat as their melee rather than barehand
+	War Mages don't get flags now...
+	Priests get the god amulet for their respective gods.
+	Fixed problem with Udun and Death Warriors
+	Archers can worship gods
 	
 
 Skill Changes
@@ -35,6 +39,9 @@ Skill Changes
 	Decreased the fail rate of Force Kill
 	Minor adjustment to spider-combat
 	Constructer Dismantle Trap no longer has a beam mode
+	Removed Manastorm and Glowing Orb of Light for the time being
+	Various other minor adjustments to the Jedi powers
+
 
 Object Changes
 
@@ -45,13 +52,19 @@ Object Changes
 	Increased the depths of some of the randart powers
 	Jedi items are now found much deeper and are rarer
 	Increased the depth of Psychoactive skins
+	Chargeable items have been temporarily disabled
+	Removed the mithril/yew/magic bows and crossbows
+	Reduced weapon damage dice to original value, except for a few artifacts
+	God amulets are now never generated. 
+	Fixed bug with Staff of Radagast
+	Loknare is now a Balance Dragon Mail not a Power Dragon Mail
+	
 	
 Bug Fixes
 
 	Battle Scarred Veteran and Mean Looking Mercenary now have proper hitpoints. No more UBERnasty Town monsters
 	Most monsters now give the correct experience, no more mega xp from killing simple monsters (Thanks to Zop)
 	Various other bugs and nuisances fixed by Zop
-	Chiokovos no longer have : in front of the name
 
 Engine Fixes
 	
@@ -64,7 +77,15 @@ Engine Fixes
 	Damages for weapons now show up correctly in the character sheet and the compare weapons screens
 	Leveling to level 75 should work correctly now (thanks to Zop)
 
-
+Monster Fixes
+	
+	Chiokovos no longer have : in front of the name
+	Only one Utgard-Loke now
+	Giant Tan Bats are now Tan
+	Fundin Bluecoat is now Royal Blue 
+	Ancient Obese Dragon is now Ancient Vile Dragon
+	Removed duplicate Improv
+	Heckblade now is called Doomblade
 
 
 
