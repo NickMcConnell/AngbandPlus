@@ -1689,7 +1689,8 @@ static void process_world(void)
 		int feature = cave[p_ptr->py][p_ptr->px].feat;
 
 		/* Player can walk through or fly over trees */
-		if ((has_ability(AB_TREE_WALK) || p_ptr->fly) && (feature == FEAT_TREES) || (feature == FEAT_FIRTREE) || (feature == FEAT_MALLORN))
+		//feature == FEAT_TREES) || (feature == FEAT_FIRTREE) || (feature == FEAT_MALLORN)
+		if ((has_ability(AB_TREE_WALK) || p_ptr->fly) && (f_info[feature].flags1 & FF1_TREE))
 		{
 			/* Do nothing */
 		}

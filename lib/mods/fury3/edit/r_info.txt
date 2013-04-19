@@ -23957,7 +23957,7 @@ D:The winner of the FuryMod Town Version Ancient Spider Master
 
 N:1448:Mature white dragon
 G:d:w
-I:110:95d60:20:40:70
+I:110:75d60:20:40:70
 W:54:1:0:1200
 O:50:50:0:0
 B:CLAW:HURT:4d8
@@ -23973,7 +23973,7 @@ S:BR_COLD
 
 N:1449:Mature blue dragon
 G:d:b
-I:110:95d60:20:40:70
+I:110:75d60:20:40:70
 W:54:1:0:1250
 O:50:50:0:0
 B:CLAW:HURT:4d8
@@ -23990,7 +23990,7 @@ S:BR_ELEC
 
 N:1450:Mature green dragon
 G:d:g
-I:110:93d60:20:40:70
+I:110:73d60:20:40:70
 W:54:1:0:1700
 O:50:50:0:0
 B:CLAW:HURT:4d8
@@ -24007,7 +24007,7 @@ S:BR_POIS
 
 N:1451:Mature bronze dragon
 G:d:U
-I:110:90d40:20:40:150
+I:110:70d40:20:40:150
 W:54:2:0:1800
 O:50:50:0:0
 B:CLAW:HURT:5d8
@@ -24024,7 +24024,7 @@ S:BR_CONF
 
 N:1452:Mature red dragon
 G:d:r
-I:110:98d40:20:40:30
+I:110:78d40:20:40:30
 W:54:1:0:1700
 O:50:50:0:0
 B:CLAW:HURT:5d4
@@ -24041,7 +24041,7 @@ S:BR_FIRE
 
 N:1453:Mature gold dragon
 G:d:z
-I:110:90d30:20:45:150
+I:110:70d30:20:45:150
 W:57:2:0:1620
 O:50:50:0:0
 B:CLAW:HURT:4d4
@@ -24058,7 +24058,7 @@ S:BR_SOUN
 
 N:1454:Mature black dragon
 G:d:D
-I:110:95d30:20:40:30
+I:110:75d30:20:40:30
 W:54:1:0:1400
 O:50:50:0:0
 B:CLAW:HURT:4d8
@@ -24075,7 +24075,7 @@ S:BR_ACID
 
 N:1455:Mature multi-hued dragon
 G:d:v
-I:110:90d30:20:40:50
+I:110:70d30:20:40:50
 W:58:2:0:1950
 O:50:50:0:0
 B:CLAW:HURT:4d10

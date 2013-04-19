@@ -3560,8 +3560,8 @@ bool player_can_enter(byte feature)
 				return (FALSE);
 		}
 	}
-
-	if ((feature == FEAT_TREES) || (feature == FEAT_FIRTREE) || (feature == FEAT_MALLORN))
+// (feature == FEAT_TREES) || (feature == FEAT_FIRTREE) || (feature == FEAT_MALLORN)
+	if (f_info[feature].flags1 & FF1_TREE)
 	{
 		if (p_ptr->fly ||
 		    pass_wall ||

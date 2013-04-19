@@ -552,7 +552,7 @@ D:2:an ice wall blocking your way
 
 N:96:tree
 G:#:G
-F:CAN_FLY | CAN_PASS | SUPPORT_LIGHT
+F:CAN_FLY | CAN_PASS | SUPPORT_LIGHT | TREE
 F:WALL | NO_WALK | NO_VISION
 F:DONT_NOTICE_RUNNING
 F:TUNNELABLE
@@ -828,7 +828,7 @@ F:FLOOR | DONT_NOTICE_RUNNING | CAN_RUN
 
 N:202:small tree
 G:#:g
-F:FLOOR | DONT_NOTICE_RUNNING | CAN_RUN | SUPPORT_LIGHT | REMEMBER
+F:FLOOR | DONT_NOTICE_RUNNING | CAN_RUN | SUPPORT_LIGHT | REMEMBER | TREE
 F:NO_VISION
 
 # Just to have a town entrance picture
@@ -958,7 +958,7 @@ D:2:an unusually thick wall of ice barring your way
 #BUG - these do not burn.
 N:219:fir tree
 G:#:g
-F:CAN_FLY | CAN_PASS | SUPPORT_LIGHT
+F:CAN_FLY | CAN_PASS | SUPPORT_LIGHT | TREE
 F:WALL | NO_WALK | NO_VISION
 F:DONT_NOTICE_RUNNING
 F:TUNNELABLE
@@ -1095,7 +1095,7 @@ D:2:a wooden board blocking your way
 #BUG - these do not burn.
 N:237:white tree
 G:#:w
-F:CAN_FLY | CAN_PASS | SUPPORT_LIGHT
+F:CAN_FLY | CAN_PASS | SUPPORT_LIGHT | TREE
 F:WALL | NO_WALK | NO_VISION | PERMANENT 
 F:DONT_NOTICE_RUNNING
 D:1:You cannot tunnel through that.
@@ -1143,7 +1143,7 @@ D:2:a dry moat blocking your way
 N:243:Mallorn
 G:*:y
 S:y:W:W:y:w:W:y
-F:CAN_FLY | CAN_PASS | SUPPORT_LIGHT
+F:CAN_FLY | CAN_PASS | SUPPORT_LIGHT | TREE
 F:WALL | NO_WALK | NO_VISION
 F:DONT_NOTICE_RUNNING
 D:1:It isn't a good idea to harm a Mallorn.

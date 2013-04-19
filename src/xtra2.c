@@ -4265,34 +4265,64 @@ void monster_death(int m_idx)
 			if (strstr((r_name + r_ptr->name), "Marda, rider of the Gold Laronth"))
 			{
 				a_idx = ART_MARDA;
-				chance = 50;
+				chance = 100;
 			}
 			else if (strstr((r_name + r_ptr->name), "Saruman of Many Colours"))
 			{
 				a_idx = ART_PALANTIR;
-				chance = 30;
+				chance = 100;
 			}
 			else if (strstr((r_name + r_ptr->name), "Hagen, son of Alberich"))
 			{
 				a_idx = ART_NIMLOTH;
-				chance = 66;
+				chance = 100;
 			}
 			else if (strstr((r_name + r_ptr->name), "Durin's Bane"))
 			{
 				a_idx = ART_CALRIS;
-				chance = 60;
+				chance = 100;
 			}
 			else if (strstr((r_name + r_ptr->name), "Gothmog, the High Captain of Balrogs"))
 			{
 				a_idx = ART_GOTHMOG;
-				chance = 50;
+				chance = 100;
 			}
 			else if (strstr((r_name + r_ptr->name), "Eol, the Dark Elf"))
 			{
 				a_idx = ART_ANGUIREL;
-				chance = 50;
+				chance = 100;
 			}
+			else if (strstr((r_name + r_ptr->name), "Maedhros the Tall"))
+			{
+				a_idx = 64;
+				chance = 100;
+			}			
+			else if (strstr((r_name + r_ptr->name), "Vort the Kobold Queen"))
+			{
+				a_idx = 69;
+				chance = 100;
+			}	
+			else if (strstr((r_name + r_ptr->name), "Trone, the Rebel Thunderlord"))
+			{
+				a_idx = 255;
+				chance = 100;
+			}				
 
+			else if (strstr((r_name + r_ptr->name), "Grip, Farmer Maggot's dog"))
+			{
+				a_idx = 274;
+				chance = 100;
+			}				
+			else if (strstr((r_name + r_ptr->name), "Wolf, Farmer Maggot's dog"))
+			{
+				a_idx = 276;
+				chance = 100;
+			}				
+			else if (strstr((r_name + r_ptr->name), "Fang, Farmer Maggot's dog"))
+			{
+				a_idx = 275;
+				chance = 100;
+			}				
 			if ((a_idx > 0) && ((randint(99) < chance) || (wizard)))
 			{
 				if (a_info[a_idx].cur_num == 0)

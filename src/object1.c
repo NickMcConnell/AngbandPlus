@@ -27,7 +27,7 @@
 /*
  * Max sizes of the following arrays
  */
-#define MAX_ROCKS      62       /* Used with rings (min 58) */
+#define MAX_ROCKS      99       /* Used with rings (min 58) */
 #define MAX_AMULETS    34       /* Used with amulets (min 30) */
 #define MAX_WOODS      35       /* Used with staffs (min 32) */
 #define MAX_METALS     39       /* Used with wands/rods (min 32/30) */
@@ -56,7 +56,14 @@ static cptr ring_adj[MAX_ROCKS] =
 	"Spikard", "Serpent", "Wedding", "Double",
 	"Plain", "Brass", "Scarab", "Shining",
 	"Rusty", "Transparent", "Copper", "Black Opal", "Nickel",
-	"Glass", "Fluorspar", "Agate",
+	"Glass", "Fluorspar", "Agate", 	"Aspen", "Balsa", "Banyan", "Birch", "Cedar",
+	"Cottonwood", "Cypress", "Dogwood", "Elm", "Eucalyptus",
+	"Hemlock", "Hickory", "Ironwood", "Locust", "Mahogany",
+	"Maple", "Mulberry", "Oak", "Pine", "Redwood",
+	"Rosewood", "Spruce", "Sycamore", "Teak", "Walnut",
+	"Mistletoe", "Hawthorn", "Bamboo", "Silver", "Runed",
+	"Golden", "Ashen", "Gnarled", "Ivory", "Willow", 
+		
 };
 
 static byte ring_col[MAX_ROCKS] =
@@ -74,7 +81,14 @@ static byte ring_col[MAX_ROCKS] =
 	TERM_BLUE, TERM_GREEN, TERM_YELLOW, TERM_ORANGE,
 	TERM_YELLOW, TERM_ORANGE, TERM_L_GREEN, TERM_YELLOW,
 	TERM_RED, TERM_WHITE, TERM_UMBER, TERM_L_DARK, TERM_L_WHITE,
-	TERM_WHITE, TERM_BLUE, TERM_L_WHITE
+	TERM_WHITE, TERM_BLUE, TERM_L_WHITE, TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER,
+	TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER,
+	TERM_L_UMBER, TERM_L_UMBER, TERM_UMBER, TERM_L_UMBER, TERM_UMBER,
+	TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER, TERM_RED,
+	TERM_RED, TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER, TERM_UMBER,
+	TERM_GREEN, TERM_L_UMBER, TERM_L_UMBER, TERM_L_WHITE, TERM_UMBER,
+	TERM_YELLOW, TERM_SLATE, TERM_UMBER, TERM_L_WHITE, TERM_L_UMBER, 
+		
 };
 
 

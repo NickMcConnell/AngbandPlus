@@ -4290,11 +4290,12 @@ F:INSTA_ART
 
 # The Ring of Tulkas -- see artifact list
 # Gone in Theme
-#N:507:& Ring~
-#G:=:d
-#I:45:33:0
-#W:90:0:2:150000
-#F:INSTA_ART
+N:507:& Ring~
+G:=:d
+I:45:33:0
+W:90:0:2:150000
+F:INSTA_ART
+
 # The Ring of Power 'Narya' -- see artifact list
 N:508:& Ring~
 G:=:d
@@ -6488,6 +6489,42 @@ D:from all but the most faithful followers of Yavanna.
 
 ### Dwarven Rings of Power - added for Theme
 ### (here at the bottom to make sure they're not generated instead of the actual rings, since I'm reusing svals)
+N:819:& Ring~
+G:=:d
+I:45:93:0
+W:70:0:2:65000
+F:INSTA_ART
+
+N:820:& Ring~
+G:=:d
+I:45:94:0
+W:70:0:2:65000
+F:INSTA_ART
+
+N:821:& Ring~
+G:=:d
+I:45:95:0
+W:70:0:2:65000
+F:INSTA_ART
+
+N:822:& Ring~
+G:=:d
+I:45:96:0
+W:70:0:2:65000
+F:INSTA_ART
+
+N:823:& Ring~
+G:=:d
+I:45:97:0
+W:70:0:2:65000
+F:INSTA_ART
+
+N:824:& Ring~
+G:=:d
+I:45:98:0
+W:70:0:2:65000
+F:INSTA_ART
+
 
 ### More God relics ###
 N:825:& Piece~ of the Relic of Aule
@@ -7649,6 +7686,56 @@ F:COULD2H | SHOW_MODS
 f:COULD2H
 D:Nunchuks are two sticks connected at their ends with a short 
 D:chain or rope.  They can be wielded two handed.
+
+N:1015:& Ring~
+G:=:y
+I:45:52:5
+W:50:25:2:75000
+F:INSTA_ART
+
+# 
+N:1016:& Dog Tag~
+G:,:z
+I:11:20:0
+W:70:0:50:100000
+P:0:0d0:0:0:0
+A:
+F:INSTA_ART | SPECIAL_GENE
+D:It looks a small tag with writing on it...
+
+N:1017:& Dog Tag~
+G:,:z
+I:11:21:0
+W:70:0:50:100000
+P:0:0d0:0:0:0
+A:
+F:INSTA_ART | SPECIAL_GENE
+D:It looks a small tag with writing on it...
+
+N:1018:& Dog Tag~
+G:,:z
+I:11:22:0
+W:70:0:50:100000
+P:0:0d0:0:0:0
+A:
+F:INSTA_ART | SPECIAL_GENE
+D:It looks a small tag with writing on it...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

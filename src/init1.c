@@ -813,7 +813,7 @@ static cptr f_info_flags1[] =
 	"WEB",
 	"ATTR_MULTI",
 	"SUPPORT_GROWTH",
-	"XXX1",
+	"TREE",
 	"XXX1",
 	"XXX1",
 	"XXX1",

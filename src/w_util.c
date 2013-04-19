@@ -3722,6 +3722,7 @@ int tolua_util_open (lua_State* tolua_S)
  tolua_constant(tolua_S,NULL,"FF1_NO_VISION",FF1_NO_VISION);
  tolua_constant(tolua_S,NULL,"FF1_CAN_LEVITATE",FF1_CAN_LEVITATE);
  tolua_constant(tolua_S,NULL,"FF1_CAN_PASS",FF1_CAN_PASS);
+  tolua_constant(tolua_S,NULL,"FF1_TREE",FF1_TREE);
  tolua_constant(tolua_S,NULL,"FF1_FLOOR",FF1_FLOOR);
  tolua_constant(tolua_S,NULL,"FF1_WALL",FF1_WALL);
  tolua_constant(tolua_S,NULL,"FF1_PERMANENT",FF1_PERMANENT);
@@ -4018,6 +4019,7 @@ void tolua_util_close (lua_State* tolua_S)
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"FF1_NO_VISION");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"FF1_CAN_LEVITATE");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"FF1_CAN_PASS");
+ lua_pushnil(tolua_S); lua_setglobal(tolua_S,"FF1_TREE");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"FF1_FLOOR");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"FF1_WALL");
  lua_pushnil(tolua_S); lua_setglobal(tolua_S,"FF1_PERMANENT");

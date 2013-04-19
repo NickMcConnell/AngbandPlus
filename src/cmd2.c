@@ -1543,8 +1543,8 @@ bool do_cmd_tunnel_aux(int y, int x, int dir)
 	{
 		msg_print(f_text + f_ptr->tunnel);
 	}
-
-	else if ((c_ptr->feat == FEAT_TREES) || (c_ptr->feat == FEAT_DEAD_TREE) || (c_ptr->feat == FEAT_FIRTREE))
+	//(c_ptr->feat == FEAT_TREES) || (c_ptr->feat == FEAT_DEAD_TREE) || (c_ptr->feat == FEAT_FIRTREE)
+	else if (f_ptr->flags1 & FF1_TREE)
 	{
 		/* Chop Down */
 		skill_req = 10;

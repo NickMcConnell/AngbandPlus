@@ -970,7 +970,7 @@
 
 /* Thunderlord flying suit */
 #define ART_MARDA               26
-#define ART_TRON                27
+
 
 /* Soft Armour */
 #define ART_THALKETTOTH         28
@@ -1126,6 +1126,8 @@
 #define ART_ORCHAST             156
 #define ART_NIGHT               157
 #define ART_NATUREBANE          158
+
+#define ART_TRON                255
 
 /* Spell for various object */
 #define SPELL_ID_PLAIN          1
@@ -3122,6 +3124,7 @@
 #define FF1_WEB                 0x00010000L
 #define FF1_ATTR_MULTI          0x00020000L
 #define FF1_SUPPORT_GROWTH      0x00040000L
+#define FF1_TREE                0x00080000L
 
 /*** Dungeon type flags -- DG ***/
 #define DF1_PRINCIPAL           0x00000001L	/* Is a principal dungeon */

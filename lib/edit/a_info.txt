@@ -701,7 +701,7 @@ N:64:of Maedhros
 I:23:5:3
 W:15:30:30:22500
 P:0:2d5:12:15:0
-F:DEX | FREE_ACT | HIDE_TYPE | INT | SEE_INVIS | SHOW_MODS | SLAY_GIANT | SLAY_TROLL | SPEED
+F:DEX | FREE_ACT | HIDE_TYPE | INT | SEE_INVIS | SHOW_MODS | SLAY_GIANT | SLAY_TROLL | SPEED | SPECIAL_GENE
 D:A short thrusting blade with a large guard worn by Maedhros the Tall, 
 D:eldest son of Feanor, and wielded with his left hand after the loss of 
 D:his right hand in the pits of Thangorodrim.
@@ -754,7 +754,7 @@ N:69:of Rilia
 I:23:4:0
 W:5:40:12:35000
 P:0:2d4:4:3:0
-F:ACTIVATE | BRAND_POIS | RES_DISEN | RES_POIS | SHOW_MODS | SLAY_ORC | THROWING 
+F:ACTIVATE | BRAND_POIS | RES_DISEN | RES_POIS | SHOW_MODS | SLAY_ORC | THROWING | SPECIAL_GENE
 a:HARDCORE=BA_POIS_1
 D:A large stiletto dagger that glistens with odourless poison, to which the 
 D:wearer seems oddly immune.
@@ -774,7 +774,7 @@ N:71:'Calris'
 I:23:21:5
 W:30:15:140:100000
 P:0:5d4:-20:20:0
-F:AGGRAVATE | AUTO_CURSE | CON | COULD2H | CURSED | DRAIN_HP | ESP_DEMON | ESP_DRAGON | HEAVY_CURSE | HIDE_TYPE | KILL_DRAGON | RES_DISEN | SHOW_MODS | SLAY_DEMON | SLAY_EVIL | SLAY_TROLL
+F:AGGRAVATE | AUTO_CURSE | CON | COULD2H | CURSED | DRAIN_HP | ESP_DEMON | ESP_DRAGON | HEAVY_CURSE | HIDE_TYPE | KILL_DRAGON | RES_DISEN | SHOW_MODS | SLAY_DEMON | SLAY_EVIL | SLAY_TROLL | SPECIAL_GENE
 f:COULD2H
 D:This sword has runes of power incised on its ornate hilt and a single 
 D:blood channel that gleams coldly blue as you grasp this mighty weapon of 
@@ -919,7 +919,7 @@ N:84:'Anguirel'
 I:23:17:2
 W:20:30:130:40000
 P:0:3d4:8:12:0
-F:AGGRAVATE | BRAND_ELEC | CON | CURSED | FREE_ACT | HIDE_TYPE | RES_DARK | RES_ELEC | RES_LITE | SEE_INVIS | SHOW_MODS | SLAY_DEMON | SLAY_EVIL | SPEED | STR | VORPAL | WOUNDING
+F:AGGRAVATE | BRAND_ELEC | CON | CURSED | FREE_ACT | HIDE_TYPE | RES_DARK | RES_ELEC | RES_LITE | SEE_INVIS | SHOW_MODS | SLAY_DEMON | SLAY_EVIL | SPEED | STR | VORPAL | WOUNDING | SPECIAL_GENE
 D:Forged of black galvorn by the Dark-Elven smith Eol, this blade has the 
 D:living lightning trapped inside.
 
@@ -1070,7 +1070,7 @@ N:99:'Nimloth'
 I:22:2:3
 W:15:12:50:30000
 P:0:2d4:11:13:0
-F:BLESSED | BRAND_COLD | INFRA | RES_COLD | RES_DARK | SEE_INVIS | SHOW_MODS | SLAY_UNDEAD | SPEED | STEALTH | THROWING
+F:BLESSED | BRAND_COLD | INFRA | RES_COLD | RES_DARK | SEE_INVIS | SHOW_MODS | SLAY_UNDEAD | SPEED | STEALTH | THROWING | SPECIAL_GENE
 D:A thin spike of thrice-forged steel caps a straight sylvan shaft cut from 
 D:a legendary tree; spells to break the will of the undead and strike cold 
 D:fear into the hearts of foes lie on this perfectly balanced spear.
@@ -1334,7 +1334,7 @@ N:123:of Gothmog
 I:21:2:-2
 W:20:15:120:100000
 P:0:3d6:15:16:0
-F:AGGRAVATE | BRAND_FIRE | CURSED | DEX | DRAIN_HP | ESP_DEMON | ESP_SPIDER | HEAVY_CURSE | HIDE_TYPE | INFRA | INT | LITE1 | REGEN | RES_FIRE | RES_LITE | SHOW_MODS | SLAY_ANIMAL | SLAY_DEMON | VORPAL | WOUNDING
+F:AGGRAVATE | BRAND_FIRE | CURSED | DEX | DRAIN_HP | ESP_DEMON | ESP_SPIDER | HEAVY_CURSE | HIDE_TYPE | INFRA | INT | LITE1 | REGEN | RES_FIRE | RES_LITE | SHOW_MODS | SLAY_ANIMAL | SLAY_DEMON | VORPAL | WOUNDING | SPECIAL_GENE
 D:With this unbearably bright whip of flame, the Balrog Gothmog has become 
 D:known for never having lost in combat.
 
@@ -1424,8 +1424,7 @@ P:0:1d1:0:0:0
 F:BLOWS | CON | CRIT | DEX | IGNORE_ACID | IGNORE_COLD | IGNORE_ELEC | IGNORE_FIRE | INSTA_ART | RES_ACID | RES_BLIND | RES_CONF | RES_ELEC | RES_NETHER | RES_NEXUS | RES_SHARDS | SPEED | STEALTH | SUST_CON | SUST_DEX | SUST_INT | SUST_STR | SUST_WIS
 D:An incredibly  powerful ring for warriors, making them
 D:move quicker, attack faster, be stealthier, and tougher.
-D:Based on a Randart THE FURY found while playing
-D:as a mage
+
 
 N:133:of Taniquetil
 I:39:97:2
@@ -2000,7 +1999,7 @@ N:202:of Orthanc
 I:39:104:2
 W:75:60:200:100000
 P:0:10d10:0:0:0
-F:ACTIVATE | AGGRAVATE | DRAIN_MANA | ESP_ALL | HIDE_TYPE | INFRA | INSTA_ART | INT | LITE2 | RES_BLIND | SEARCH | SEE_INVIS | WIS
+F:ACTIVATE | AGGRAVATE | DRAIN_MANA | ESP_ALL | HIDE_TYPE | INFRA | INSTA_ART | INT | LITE2 | RES_BLIND | SEARCH | SEE_INVIS | WIS | SPECIAL_GENE
 a:HARDCORE=PALANTIR
 D:A shining white ball of unbreakable crystal, the ancient Palantiri 
 D:were used by kings of Numenor and later by the Exiles for rapid 
@@ -2594,9 +2593,6 @@ F:FREE_ACT | FLY | RES_DISEN | SUST_DEX |
 D:It looks like an old worn jedi robe. However it contains awesome powers, as it is really the robe 
 D:of Obi Wan Kenobi, a skilled and wise jedi.
 
-
-
-
 N:255:of Trone
 I:36:16:4
 W:30:3:80:65000
@@ -2606,3 +2602,263 @@ F:STEALTH | ESP_THUNDERLORD | CON | INT | SPEED |
 F:RES_ACID | RES_ELEC | IM_FIRE | RES_COLD
 D:The flying suit of Trone.  It protects the user from fire and 
 D:imps are said to be less annoying with this on.
+
+# The Ring of Flare
+# (note: pval reduced to 3, otherwise it would probably be preferable 
+# even to The One Ring!)
+
+N:256:of Flare
+I:45:52:3
+W:50:35:2:75000
+F:STR | CON | CHR | HIDE_TYPE |
+F:IM_FIRE | ACTIVATE | SEARCH |
+F:ESP_THUNDERLORD | SEE_INVIS | FLY |
+F:INSTA_ART
+a:HARDCORE=DIM_DOOR
+Z:swap position
+D:The mighty ring of the Thunderlord Flare that makes the wearer 
+D:strong and healthy.  Once a ring of power, it was
+D:given to Flare by Celegorm when he arrived on Middle-earth with a full nest 
+D:of Thunderlords.
+
+# The Ring of Tulkas
+
+N:257:of Tulkas
+I:45:33:4
+W:70:50:2:175000
+F:STR | DEX | CON | HIDE_TYPE | 
+F:ACTIVATE | SPEED | ESP_EVIL | 
+F:INSTA_ART
+a:HARDCORE=TULKAS
+
+# The Thunderlord Coat of Marda
+
+N:258:of Marda
+I:36:16:5
+W:70:3:80:80000
+P:9:0d0:0:0:25
+F:FREE_ACT | RES_BLIND | RES_CONF | RES_FEAR | DRAIN_MANA | 
+F:REFLECT | RES_NEXUS | SH_FIRE | SUST_INT | SUST_CON | SUST_CHR |
+F:ESP_THUNDERLORD | CON | CHR | INT | 
+F:RES_ACID | RES_ELEC | IM_COLD | RES_COLD | AGGRAVATE | HEAVY_CURSE |
+F:CURSED
+D:The flying suit of Marda, very powerful armour that protects 
+D:the wearer from cold.  Wonderful as this mighty 
+D:armour is, beware wearing it, for it has been cursed by a 
+D:powerful wizard since Marda had it and is said to have gained 
+D:a couple of undesirable side-effects...
+
+# The Cloak 'Colluin'
+N:259:'Colluin'
+I:35:1:0
+W:5:45:10:40000
+P:1:0d0:0:0:20
+F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_POIS | ACTIVATE | ESP_GOOD
+a:HARDCORE=COLLUIN
+D:A cape worn by a hero from Valinor, a land utterly beyond the strife 
+D:of Elements.
+
+# The Broad Sword 'Aeglin'
+
+N:260:'Aeglin'
+I:23:16:4
+W:20:90:150:95000
+P:0:2d5:12:16:0
+F:SEARCH | BLESSED | LITE1 | HIDE_TYPE | 
+F:BRAND_ELEC | SLAY_ORC | SLAY_GIANT | SLAY_TROLL | RES_FEAR |
+F:RES_ELEC | RES_FIRE | RES_BLIND | ESP_ORC | ESP_GIANT | ESP_TROLL | 
+F:SLOW_DIGEST | SHOW_MODS
+D:Like unto Orcrist and Glamdring, and like them long lost, this sword is 
+D:continually coved in tiny arcs of captive lightning that flash and dance 
+D:eerily in the globe of light they create.
+
+N:261:'Aglarang'
+I:23:20:5
+W:35:25:50:40000
+P:0:8d4:0:0:0
+F:DEX | TUNNEL | SPEED | HIDE_TYPE | 
+F:SUST_DEX | SHOW_MODS
+F:COULD2H
+f:COULD2H
+D:An utterly perfect, cleanly chiselled sword, with a edge that effortlessly 
+D:slices rock and bone, and spells to render the wearer lithe and nimble.  It 
+D:is combat incarnate.
+
+N:262:of Wrath
+I:22:5:2
+W:15:35:300:90000
+P:0:3d8:16:18:0
+F:STR | DEX | HIDE_TYPE | CHAOTIC | DRAIN_MANA | 
+F:SLAY_EVIL | KILL_UNDEAD | RES_LITE | RES_DARK | SEE_INVIS | 
+F:BLESSED | SHOW_MODS
+F:COULD2H
+f:COULD2H
+D:A massive triple-pronged spear, so great it normally requires two hands to 
+D:wield, evoking the spirit of Osse who with it pierced legions of 
+D:evil and undead.
+
+# The Long Sword of the Dawn
+
+N:263:of the Dawn
+I:23:17:3
+W:40:160:130:250000
+P:0:3d5:20:20:0
+F:ACTIVATE | BRAND_FIRE | FREE_ACT | RES_FIRE | INFRA | LEVELS |
+F:SLAY_EVIL | SLAY_DRAGON | SLAY_UNDEAD | SLAY_DEMON | VORPAL | CLONE |
+F:CHR | SUST_CHR | RES_FEAR | RES_LITE | RES_BLIND | REGEN | SHOW_MODS
+a:HARDCORE=DAWN
+D:Forged in the farthest East by a race of mighty spellcasters, this 
+D:shiny pale sword gleams with the rays of rising sun as you invoke 
+D:its power of commanding legions of powerful immortal warriors...
+
+N:264:of Himring
+I:36:6:0
+W:50:20:100:35000
+P:6:0d0:0:0:15
+F:RES_CHAOS | RES_NETHER | RES_POIS | ACTIVATE
+a:HARDCORE=PROT_EVIL
+D:Contained within this studded cuirass of pliable leather is the memory of 
+D:unvanquished Himring, defiant fortress surrounded by the legions of Morgoth.
+
+N:265:of Undeath
+I:39:103:-5
+W:20:10:10:0
+P:0:1d1:0:0:0
+F:CURSED | INT | WIS | CON | DEX | CHR | STR | ACTIVATE |
+F:LITE3 | LITE2 | LUCK | MAGIC_BREATH
+F:INSTA_ART | DG_CURSE | ESP_UNDEAD |
+a:HARDCORE=UNDEATH
+
+N:266:'Excalibur'
+I:23:23:0
+W:40:80:200:60000
+P:0:3d8:10:10:10
+F:COULD2H | VORPAL | WOUNDING | SLAY_EVIL | SLAY_DRAGON | BLESSED
+F:KILL_UNDEAD | HOLD_LIFE | FREE_ACT | SUST_WIS | SUST_INT | RES_MORGUL
+F:IM_NETHER | RES_CONF | RES_DISEN | SUST_CHR
+f:COULD2H | VORPAL | WOUNDING
+D:A legendary sword known for its sharpness and righteousness.
+
+N:267:of Law
+I:21:21:2
+W:20:55:140:47500
+P:0:3d3:5:5:0
+F:COULD2H | BLOWS | SPEED | SLAY_EVIL
+f:COULD2H
+D:These nunchuks are enhanced to quickly tear down evil.
+
+N:268:'Dark-Smiter'
+I:23:7:0
+W:20:8:40:15000
+P:0:3d3:14:15:0
+F:BRAND_DARK | RES_DARK | SHOW_MODS | KILL_UNDEAD | 
+D:A slender, tapered blade whose wielder strikes dark blows with deadly 
+D:accuracy.
+
+N:269:'Firescale'
+I:38:4:0
+W:70:9:500:300000
+P:30:2d4:-4:0:25
+F:ACTIVATE | ESP_DRAGON | FREE_ACT | IM_FIRE | LITE2 | SEE_INVIS | SAFETY | SH_FIRE
+a:HARDCORE=BR_FIRE
+D:A massive suit of heavy dragon scales deeply saturated with brilliant red.  
+D:It throbs with angry energies.
+
+
+N:272:'Chyden'
+I:32:87:7
+W:80:40:1:50000
+P:1:1d1:0:0:7
+F:SEARCH | STEALTH | SPELL | ESP_EVIL | ESP_GOOD | AUTO_ID | WIS | INT | SEE_INVIS | FLY
+D:This eye's originator is long forgotten. Since it has been in the hands
+D:of countless generations of magi, it has seen the world many times over.
+
+N:273:of Tell
+I:23:4:0
+W:25:100:12:13000
+P:0:3d1:4:6:0
+F:BRAND_ELEC | LEVELS | RES_ELEC | SHOW_MODS | THROWING | ALWAYS_HIT
+D:A truly unique weapon the causes it's wielder to never miss. However, this comes at the cost of damage
+
+# Dog Tag #1
+N:274:of Grip
+I:11:20:0
+W:70:100:50:10
+P:0:0d0:0:0:0
+F:HIDE_TYPE | INSTA_ART | SPECIAL_GENE
+D:It's the dog tag from Grip, one of Farmer Maggot's dogs.
+
+N:275:of Fang
+I:11:21:0
+W:70:100:50:10
+P:0:0d0:0:0:0
+F:HIDE_TYPE | INSTA_ART | SPECIAL_GENE
+D:It's the dog tag from Fang, one of Farmer Maggot's dogs.
+
+N:276:of Wolf
+I:11:22:0
+W:70:100:50:10
+P:0:0d0:0:0:0
+F:HIDE_TYPE | INSTA_ART | SPECIAL_GENE
+D:It's the dog tag from Wolf, one of Farmer Maggot's dogs.
+
+N:277:of the Firebeards
+I:45:93:3
+W:70:15:2:40000
+P:0:1d1:5:10:0
+F:AUTO_CURSE | DRAIN_MANA | ESP_GOOD | HEAVY_CURSE | HIDE_TYPE | INSTA_ART | INVIS | RES_FEAR | RES_FIRE | STR | SUST_STR | TUNNEL
+D:"Seven for the Dwarf-lords in their halls of stone..." This is one of 
+D:the lesser rings of Power that once belonged to the Firebeard clan of 
+D:dwarves, the proud and strong Naugrim who fought with Elu Thingol in 
+D:Doriath.
+
+N:278:of the Broadbeams
+I:45:94:3
+W:70:15:2:40000
+P:0:1d1:0:0:10
+F:AUTO_CURSE | DRAIN_EXP | ESP_NONLIVING | HEAVY_CURSE | HIDE_TYPE | INSTA_ART | INT | INVIS | RES_BLIND | RES_SOUND | SUST_INT | TUNNEL
+D:"Seven for the Dwarf-lords in their halls of stone..." This is one of 
+D:the lesser rings of Power that once belonged to the Broadbeam clan of 
+D:Dwarves, the shrewd and stout dwarves from Belegost.
+
+N:279:of the Ironfists
+I:45:95:3
+W:70:15:2:40000
+P:0:1d1:10:10:0
+F:ESP_ORC | HIDE_TYPE | INSTA_ART | INVIS | RES_CHAOS | RES_COLD | SUST_WIS | TUNNEL | WIS
+D:"Seven for the Dwarf-lords in their halls of stone..." This is one of 
+D:the lesser rings of Power that once belonged to the Ironfist clan of 
+D:Dwarves, wise fighters of old.
+
+N:280:of the Stiffbeards
+I:45:96:3
+W:70:15:2:40000
+P:0:1d1:5:10:5
+F:CON | ESP_UNDEAD | HIDE_TYPE | INSTA_ART | INVIS | REFLECT | RES_DISEN | SUST_CON | TUNNEL
+D:"Seven for the Dwarf-lords in their halls of stone..." This is one of 
+D:the lesser rings of Power that once belonged to the Stiffbeard clan of 
+D:Dwarves, hardy and stout folk of Aule.
+
+N:281:of the Blacklocks
+I:45:97:3
+W:70:15:2:40000
+P:0:1d1:0:0:0
+F:DEX | HIDE_TYPE | INSTA_ART | INVIS | LUCK | NO_MAGIC | RES_NEXUS | SUST_DEX | TUNNEL
+D:"Seven for the Dwarf-lords in their halls of stone..." This is one of 
+D:the lesser rings of Power that once belonged to the Blacklock clan of 
+D:Dwarves, deft craftsmen who loved to quarrel and distrusted magic.
+
+N:282:of the Stonefoots
+I:45:98:3
+W:70:16:2:40000
+P:0:1d1:0:0:6
+F:CHR | DRAIN_EXP | HIDE_TYPE | INSTA_ART | INVIS | LITE3 | RES_SHARDS | SUST_CHR | TUNNEL
+D:"Seven for the Dwarf-lords in their halls of stone..." This is one of 
+D:the lesser rings of Power that once belonged to the Stonefoot clan of 
+D:Dwarves, set in their ways.
+
+
+
+
+
+

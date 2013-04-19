@@ -11,6 +11,7 @@ Core Changes
 	Added the option to show current bounties in the "~" menu
 	Monster and Object Lists print out to CSV files now
 	Fir Trees and Mallorn Trees should Burn now. And should be passable with TreeWalking
+	NEW F_INFO FLAG = TREE, anything with TREE flag can be passed with TREEWALKING and flying. Additionally, they will burn :)
 
 
 Spell Changes
@@ -19,6 +20,8 @@ Spell Changes
 	Full overhaul on Hunter Powers
 	Lowered the level Jedi's get "Force Learn"
 	Added Info on Some Ninja Powers
+	More constructor powers fixed by me
+	
 	
 
 Monster Changes
@@ -38,6 +41,7 @@ Class/Race Changes
 	Ninjas get an increase of a modifier to swordmastery
 	Lowered the SkillOverLevel to 5 from 7
 	Major rebalance of the races and classes. 
+	More uniques have guaranteed artifacts
 
 Store Changes
 	Added options for recharging at Furyband T
@@ -45,6 +49,7 @@ Store Changes
 Object Changes
 	Increased depth of some of the Maia weapons
 	More EGO items
+	More Artifacts (some by Zop, some by Me, and Some from Other Variants)
 
 Level Changes
 	

@@ -3214,7 +3214,8 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 			if ((f_info[c_ptr->feat].flags1 & FF1_PERMANENT)) break;
 
 			/* Trees *will* burn */
-			if ((c_ptr->feat == FEAT_TREES) || (c_ptr->feat == FEAT_FIRTREE) || (c_ptr->feat == FEAT_MALLORN))
+			// (c_ptr->feat == FEAT_TREES) || (c_ptr->feat == FEAT_FIRTREE) || (c_ptr->feat == FEAT_MALLORN)
+			if (f_info[c_ptr->feat].flags1 & FF1_TREE)
 			{
 				cave_set_feat(y, x, FEAT_DEAD_TREE);
 
@@ -3367,9 +3368,8 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 		{
 			/* "Permanent" features will stay */
 			if ((f_info[c_ptr->feat].flags1 & FF1_PERMANENT)) break;
-
-			if ((c_ptr->feat == FEAT_TREES) || (c_ptr->feat == FEAT_FIRTREE) || (c_ptr->feat == FEAT_MALLORN) ||
-			                (c_ptr->feat == FEAT_SMALL_TREES))
+			//(c_ptr->feat == FEAT_TREES) || (c_ptr->feat == FEAT_FIRTREE) || (c_ptr->feat == FEAT_MALLORN) || (c_ptr->feat == FEAT_SMALL_TREES)
+			if (f_info[c_ptr->feat].flags1 & FF1_TREE)
 			{
 				/* Destroy the grid */
 				cave_set_feat(y, x, FEAT_DEAD_TREE);
@@ -3387,19 +3387,19 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 		{
 			/* "Permanent" features will stay */
 			if ((f_info[c_ptr->feat].flags1 & FF1_PERMANENT)) break;
-
-			if (((c_ptr->feat == FEAT_TREES) || (c_ptr->feat == FEAT_FIRTREE) || (c_ptr->feat == FEAT_MALLORN) ||
-			     (c_ptr->feat == FEAT_SMALL_TREES) ||
+			//(c_ptr->feat == FEAT_TREES) || (c_ptr->feat == FEAT_FIRTREE) || (c_ptr->feat == FEAT_MALLORN) ||  (c_ptr->feat == FEAT_SMALL_TREES) ||
+			if (( (f_info[c_ptr->feat].flags1 & FF1_TREE) ||
 			     (f_info[c_ptr->feat].flags1 & FF1_FLOOR)) &&
 			    (rand_int(100) < 30))
 			{
 				/* Flow change */
-				if ((c_ptr->feat == FEAT_TREES) || (c_ptr->feat == FEAT_FIRTREE) || (c_ptr->feat == FEAT_MALLORN)) p_ptr->update |= (PU_FLOW);
+				// (c_ptr->feat == FEAT_TREES) || (c_ptr->feat == FEAT_FIRTREE) || (c_ptr->feat == FEAT_MALLORN)
+				if (f_info[c_ptr->feat].flags1 & FF1_TREE) p_ptr->update |= (PU_FLOW);
 
 				cave_set_feat(y, x, FEAT_ASH);
 
 				/* Silly thing to destroy trees when a yavanna worshipper */
-				if (c_ptr->feat == FEAT_TREES || c_ptr->feat == FEAT_SMALL_TREES || c_ptr->feat == FEAT_FIRTREE || c_ptr->feat == FEAT_MALLORN)
+				if (f_info[c_ptr->feat].flags1 & FF1_TREE)
 					inc_piety(GOD_YAVANNA, -50);
 
 				/* Visibility change */

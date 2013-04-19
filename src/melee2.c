@@ -6958,7 +6958,7 @@ static void process_monster(int m_idx, bool is_frien)
 		}
 
 		/* Hack -- trees are obstacle */
-		else if ((cave[ny][nx].feat == FEAT_TREES || FEAT_FIRTREE || FEAT_MALLORN) && (r_ptr->flags9 & RF9_KILL_TREES))
+		else if ((f_info[c_ptr->feat].flags1 == FF1_TREE) && (r_ptr->flags9 & RF9_KILL_TREES))
 		{
 			do_move = TRUE;
 

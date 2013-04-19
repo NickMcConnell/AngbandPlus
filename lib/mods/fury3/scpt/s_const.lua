@@ -21,21 +21,24 @@ SURVEY_AREA = add_spell
 	},
 			["spell"] = 	function()
 		
-					if (get_level(constructor_powers, 50) >= 28) then
+					if (get_level(SURVEY_AREA, 50) >= 28) then
 						-- enlightenment
 						wiz_lite_extra()
-					elseif (get_level(constructor_powers, 50) >= 15) then
+						detect_traps(25 + get_level(SURVEY_AREA, 40, 0))
+					elseif (get_level(SURVEY_AREA, 50) >= 15) then
 						--magic map and detect traps
 						map_area()
-						detect_traps(15 + get_level(constructor_powers, 40, 0))
+						detect_traps(15 + get_level(SURVEY_AREA, 40, 0))
+						
 					elseif (get_level(constructor_powers, 50) >= 5) then
 						-- detect doors, traps, stairs
-						detect_traps(15 + get_level(constructor_powers, 40, 0))
+						detect_traps(15 + get_level(SURVEY_AREA, 40, 0))
 						detect_stairs(DEFAULT_RADIUS)
 						detect_doors(DEFAULT_RADIUS)
 					else 
 						detect_stairs(DEFAULT_RADIUS)
 						detect_doors(DEFAULT_RADIUS)
+						
 					end
 					return TRUE
 			end,
@@ -65,7 +68,7 @@ DISMANTLE = add_spell
 			["spell"] =	function()
 					local ret, dir, dam
 	
-					if (get_level(constructor_powers, 50) >= 11) then
+					if (get_level(DISMANTLE, 50) >= 11) then
 
 						-- Get the direction
 						ret, dir = get_aim_dir();
@@ -116,22 +119,22 @@ SPARKY_SKILLS = add_spell
 					end
 
 					-- calculate damage  as (skill level * 2) +d20
-					dam = get_level(constructor_powers, 50)*2 + randint(20)
+					dam = get_level(SPARKY_SKILLS, 50)*2 + randint(20)
 
 					-- Fire the bolt/ball.
-					if (get_level(constructor_powers, 50) >= 21) then
+					if (get_level(SPARKY_SKILLS, 50) >= 21) then
 						fire_ball(GF_ELEC, dir, dam, 2)
 					else
 						fire_bolt(GF_ELEC, dir, dam)
 					end
 					
 					-- grant temp electric resist for 20+(skill level * 3) + d10
-					if player.oppose_elec == 0 then set_oppose_elec(randint(10) + 20 + get_level(constructor_powers, 20)*3) end
+					if player.oppose_elec == 0 then set_oppose_elec(randint(10) + 20 + get_level(SPARKY_SKILLS, 20)*3) end
 					return TRUE
 
 			end,
 			["info"] =	function()
-                                return " dam "..(get_level(constructor_powers, 50)*2).."+d20  dur "..(20 + get_level(constructor_powers, 20)*3).."+1d10"
+                                return " dam "..(get_level(SPARKY_SKILLS, 50)*2).."+d20  dur "..(20 + get_level(SPARKY_SKILLS, 20)*3).."+1d10"
                         end,
 		}
 BUILD_DOOR = add_spell
@@ -190,7 +193,7 @@ KNOCK_DOWN_WALL = add_spell
 					-- Got direction ok?
 					if (ret == FALSE) then return FALSE end					
 
-					if (get_level(constructor_powers, 50) >= 34) then
+					if (get_level(KNOCK_DOWN_WALL, 50) >= 34) then
 						-- ask for input
 						ret2, which = get_com("[D]ig corridor or [E]xcavate chamber?", 2)
 
@@ -247,22 +250,22 @@ PLUMBERS_MATE = add_spell
 						return FALSE
 					end
 
-					dam = get_level(constructor_powers, 50)*2 + 30
+					dam = get_level(PLUMBERS_MATE, 50)*2 + 30
 
 					-- Fire the bolt/ball.
-					if (get_level(constructor_powers, 50) >= 25) then
+					if (get_level(PLUMBERS_MATE, 50) >= 25) then
 						fire_ball(GF_POIS, dir, dam, 3)
 					else
 						fire_bolt(GF_POIS, dir, dam)
 					end
 
 					if player.oppose_pois == 0 then 
-						set_oppose_pois(randint(10) + 30 + get_level(constructor_powers, 20)*3) 
+						set_oppose_pois(randint(10) + 30 + get_level(PLUMBERS_MATE, 20)*3) 
 					end
 					return TRUE
 			end,
 			["info"] = 	function()
-                                return " dam "..(get_level(constructor_powers, 50)*2 + 30).."    dur "..(30 + get_level(constructor_powers, 20)*3).."+1d10"
+                                return " dam "..(get_level(PLUMBERS_MATE, 50)*2 + 30).."    dur "..(30 + get_level(PLUMBERS_MATE, 20)*3).."+1d10"
                         end,
 		}
 BUILD_WALL = add_spell
@@ -288,7 +291,7 @@ BUILD_WALL = add_spell
 					local which, ret, dir, x, y
 
 
-					if (get_level(constructor_powers, 50) >= 42) then
+					if (get_level(BUILD_WALL, 50) >= 23) then
 						ret2, which = get_com("[B]uild straight wall or [F]ill hole?", 2)
 						-- corridor?
 						if (ret2 == FALSE) then return FALSE end
@@ -369,10 +372,10 @@ NAIL_GUNS = add_spell
 			["spell"] = 	function()
 					local ret, dir, dam, repeats, y, x
 	
-					dam = 20 + get_level(constructor_powers, 50)*3
-					repeats = get_level(constructor_powers)/2
+					dam = 20 + get_level(NAIL_GUNS, 50)*3
+					repeats = get_level(NAIL_GUNS)/2
 
-					if (get_level(constructor_powers, 50) >= 40) then
+					if (get_level(NAIL_GUNS, 50) >= 9) then
 
 						-- fire multiple nails at random grids
 						while (repeats > 0) do
@@ -416,7 +419,7 @@ NAIL_GUNS = add_spell
 					return TRUE
 			end,
 			["info"] = 	function()
-                                return " dam "..(20 + get_level(constructor_powers, 50)*3).." "
+                                return " dam "..(20 + get_level(NAIL_GUNS, 50)*3).." "
                         end,
 		}
 
