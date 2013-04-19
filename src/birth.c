@@ -67,24 +67,24 @@ static start_item start_kit[5] =
 static int w_choice[18][2] =
 {
 	{TV_SWORD, SV_DAGGER},
-	{TV_SWORD, SV_SHORT_SWORD}, 
-	{TV_SWORD, SV_BROAD_SWORD}, 
-	{TV_BLUNT, SV_CLUB}, 
-	{TV_BLUNT, SV_MACE},
-	{TV_BLUNT, SV_QUARTERSTAFF},
 	{TV_POLEARM, SV_HATCHET}, 
+	{TV_BLUNT, SV_CLUB},
 	{TV_POLEARM, SV_SHORTSPEAR}, 
-	{TV_POLEARM, SV_LONGSPEAR}, 
-	/* Weapons available to classes with WEAPON_GOOD */
-	{TV_SWORD, SV_LONG_SWORD}, 
-	{TV_SWORD, SV_BASTARD_SWORD}, 
-	{TV_SWORD, SV_TWO_HANDED_SWORD}, 
-	{TV_BLUNT, SV_BULLWHIP}, 
-	{TV_BLUNT, SV_MORNING_STAR}, 
-	{TV_BLUNT, SV_FLAIL}, 
-	{TV_POLEARM, SV_AWL_PIKE}, 
+	{TV_SWORD, SV_SHORT_SWORD},
+	{TV_BLUNT, SV_QUARTERSTAFF},
+	{TV_BLUNT, SV_MACE},
+	{TV_POLEARM, SV_LONGSPEAR},
 	{TV_POLEARM, SV_BROAD_AXE},
-	{TV_POLEARM, SV_GLAIVE}
+	/* Weapons available to classes with WEAPON_GOOD */
+	{TV_BLUNT, SV_BULLWHIP}, 
+	{TV_POLEARM, SV_AWL_PIKE}, 
+	{TV_SWORD, SV_BROAD_SWORD},
+	{TV_SWORD, SV_LONG_SWORD}, 
+	{TV_SWORD, SV_BASTARD_SWORD},
+	{TV_BLUNT, SV_FLAIL},
+	{TV_POLEARM, SV_GLAIVE},
+	{TV_BLUNT, SV_MORNING_STAR}, 
+	{TV_SWORD, SV_TWO_HANDED_SWORD} 
 };
 
 /*
@@ -560,13 +560,13 @@ static void player_outfit(void)
 		int last;
 
 		/* Do the entire list? */
-		if (cp_ptr->flags & CF_WEAPON_GOOD)	last = 17;
-		else last = 8;
+		if (cp_ptr->flags & CF_WEAPON_GOOD)	last = 18;
+		else last = 9;
 
 		/* Find the best weapon for the player */
 		for (i = 0; i < last; i++)
 		{
-			/* Hack - only blynt weapons for priests */
+			/* Hack - only blunt weapons for priests */
 			if (cp_ptr->flags & CF_BLESS_WEAPON) 
 			{
 				/* default */

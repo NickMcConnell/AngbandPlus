@@ -9,6 +9,9 @@ time, and more than six different primary developers.  Without such files,
 we must rely on simpler methods, such as change logs, source file diffs, and
 word of mouth.  Some of this information is summarized in this file.
 
+FayAngband home page is at
+(http://www.mikkolehtinen.net/fayangband_description.html).
+
 If you want to know more about EyAngband, visit the EyAngband home page
 (http://eyangband.sourceforge.net).
 
@@ -151,4 +154,4 @@ All changes made by Mikko Lehtinen are public domain, and may be used freely by
 all users insofar as the above licenses are respected for accompanying code.
 
 
-====================== Last updated for FayAngband 1.0.0 ======================
+====================== Last updated for FayAngband 1.0.1 ======================

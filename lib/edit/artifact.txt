@@ -50,7 +50,7 @@
 
 # Version stamp (required)
 
-V:1.0.0
+V:1.0.1
 
 ## Artifact Perma-Lights ##
 
@@ -236,19 +236,19 @@ U:BIZZARE:100:100
 # The Necronomicon
 
 N:20:[The Necronomicon]
-I:90:22:0:0
+I:90:23:0:0
 W:75:20:60:10000000
 
 # The Codex of Ultimate Wisdom
 
 N:21:[The Codex of Ultimate Wisdom]
-I:90:23:0:0
+I:90:24:0:0
 W:90:20:75:12500000
 
-# The Codex of Ultimate Wisdom
+# Mathemagical Calculation
 
 N:22:[Mathemagical Calculations]
-I:90:24:0:0
+I:90:25:0:0
 W:60:20:30:7500000
 
 ## Artifact Musical Instruments ##

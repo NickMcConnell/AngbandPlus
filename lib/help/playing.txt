@@ -1,7 +1,7 @@
 === How Commands Work ===
 
-Most of your interaction with EyAngband will take the form of "commands". Every
-EyAngband command consists of an "underlying command" plus a variety of 
+Most of your interaction with FayAngband will take the form of "commands".
+Every FayAngband command consists of an "underlying command" plus a variety of 
 optional or required arguments, such as a repeat count, a direction, or the 
 index of an inventory object.  Commands are normally specified by typing a 
 series of keypresses, from which the underlying command is extracted, along 
@@ -78,7 +78,7 @@ machine, causing unexpected results.  In general, these special keys are
 control keys, and often, you can disable their special effects.
 
 If you are playing on a UNIX or similar system, then Ctrl-C will interrupt 
-EyAngband.  The second and third interrupt will induce a warning bell, and the
+FayAngband.  The second and third interrupt will induce a warning bell, and the
 fourth will induce both a warning bell and a special message, since the fifth
 will quit the game, after killing your character.  Also, Ctrl-Z will suspend 
 the game, and return you to the original command shell, until you resume the 
@@ -94,7 +94,7 @@ as explained above.
 Pressing backslash ("\") before a command will bypass all keymaps, and the next
 keypress will be interpreted as an "underlying command" key, unless it is a 
 caret ("^"), in which case the keypress after that will be turned into a 
-control-key and interpreted as a command in the underlying EyAngband keyset.  
+control-key and interpreted as a command in the underlying FayAngband keyset.  
 The backslash key is useful for creating macro actions which are not affected 
 by any keymap definitions that may be in force, for example, the sequence "\" + 
 "." + "6" will always mean "run east", even if the "." key has been mapped to a
@@ -132,7 +132,7 @@ This character is ignored, but it is safest to use a SPACE or ESCAPE which are
 always ignored as commands in case you type the command just after the count 
 expires.
 
-You can tell EyAngband to automatically use a repeat count of 99 with commands 
+You can tell FayAngband to automatically use a repeat count of 99 with commands 
 you normally want to repeat (open, disarm, tunnel, bash, alter, etc) by 
 setting the "always_repeat" option.
  
@@ -166,7 +166,7 @@ If you enter a number between 0 and 9, the first item engraved with "@#" where
 shovel engraved with "@0" and you type "w" (for wield) and then 0, you will 
 wield the shovel.  This is very useful for macros (see below), since you can 
 use this to select an object regardless of its location in your pack.  For 
-example, EyAngband automatically defines a macro for the key "X" to do "w0".  
+example, FayAngband automatically defines a macro for the key "X" to do "w0".  
 If you then engrave both your digging instrument and your primary weapon with 
 @0, pressing X will wield whichever one is not being currently wielded (letting
 you quickly switch between them).  Multiple numbers can be engraved on the same
@@ -185,4 +185,4 @@ an object will allow you to be very paranoid about the object.  Note that
 "selling" and "dropping" both use the "d" command.
 
 
-======================= Last updated for EyAngband 0.5.0 ======================
+====================== Last updated for FayAngband 1.0.1 ======================

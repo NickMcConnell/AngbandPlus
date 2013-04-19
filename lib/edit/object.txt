@@ -66,7 +66,7 @@
 
 # Version stamp (required)
 
-V:1.0.0
+V:1.0.1
 
 ##### Non-kind (contains the "pile" picture) #####
 
@@ -323,7 +323,7 @@ U:SHRCLEAR_MIND
 N:36:Restore Strength
 G:,:d
 I:80:17:500
-W:20:0:1:1750
+W:20:0:1:1200
 X:1:1d3:100
 A:20/50
 F:EASY_KNOW
@@ -332,7 +332,7 @@ U:SHRRESTORE_STR
 N:37:Restore Constitution
 G:,:d
 I:80:18:500
-W:20:0:1:1750
+W:20:0:1:1200
 X:1:1d3:100
 A:20/50
 F:EASY_KNOW
@@ -341,7 +341,7 @@ U:SHRRESTORE_CON
 N:38:Restore Dexterity
 G:,:d
 I:80:19:500
-W:20:0:1:1750
+W:20:0:1:1200
 X:1:1d3:100
 A:20/50
 F:EASY_KNOW
@@ -456,29 +456,29 @@ X:13:1d1:10
 A:5/50
 F:FEATHER | EASY_KNOW
 
-N:52:Sustain Strength and Charisma
+N:52:Sustain Vigor
 G:=:d
 I:45:5:0
 W:22:0:2:5000
 X:13:1d1:10
 A:22/50
-F:SUST_STR | SUST_CHR | EASY_KNOW
+F:SUST_STR | SUST_CON | EASY_KNOW
 
-N:53:Sustain Constitution and Dexterity
+N:53:Sustain Wit
 G:=:d
 I:45:6:0
 W:22:0:2:5000
 X:13:1d1:10
 A:22/50
-F:SUST_CON | SUST_DEX | EASY_KNOW
+F:SUST_INT | SUST_WIS | EASY_KNOW
 
-N:54:Sustain Intelligence and Wisdom
+N:54:Sustain Grace
 G:=:d
 I:45:7:0
 W:22:0:2:5000
 X:13:1d1:10
 A:22/50
-F:SUST_INT | SUST_WIS | EASY_KNOW
+F:SUST_DEX | SUST_CHR | EASY_KNOW
 
 N:55:Sustain All
 G:=:d
@@ -962,14 +962,14 @@ A:20/50
 F:EASY_KNOW
 U:TELE_LEVEL
 
-#N:111:Word of Recall
-#G:?:d
-#I:70:12:0
-#W:5:0:5:750
-#X:2:1d1:50
-#A:40/12
-#F:EASY_KNOW
-#U:WORD_RECALL
+N:111:Word of Recall
+G:?:d
+I:70:12:0
+W:50:0:5:3000
+X:2:1d1:50
+A:50/50
+F:EASY_KNOW
+U:WORD_RECALL
 
 N:112:Alter Reality
 G:?:d
@@ -1079,14 +1079,7 @@ A:0/50
 F:EASY_KNOW
 U:LIGHT_AREA_2
 
-#N:124:Magic Mapping
-#G:?:d
-#I:70:26:0
-#W:5:0:5:200
-#X:2:1d1:50
-#A:5/50
-#F:EASY_KNOW
-#U:MAP_1
+#N:124:XXX
 
 N:125:Treasure Detection
 G:?:d
@@ -1106,14 +1099,14 @@ A:0/50
 F:EASY_KNOW
 U:DETECT_ITEM
 
-#N:127:Trap Detection
-#G:?:d
-#I:70:29:0
-#W:5:0:5:100
-#X:2:1d1:50
-#A:4/50
-#F:EASY_KNOW
-#U:DETECT_TRAP
+N:127:Trap Detection
+G:?:d
+I:70:29:0
+W:15:0:5:4000
+X:2:1d1:50
+A:15/50
+F:EASY_KNOW
+U:DETECT_TRAP
 
 N:128:Door/Stair Location
 G:?:d
@@ -1448,10 +1441,10 @@ A:30/8
 F:EASY_KNOW
 U:RISK_HACK
 
-N:165:Stealth
+N:165:Sneakiness
 G:!:d
 I:75:23:2
-W:5:0:4:200
+W:5:0:4:250
 X:3:1d1:100
 A:5/15:20/50
 F:EASY_KNOW
@@ -1610,59 +1603,38 @@ A:40/50
 F:EASY_KNOW
 U:RESTORE_LEVEL
 
-N:183:Restore Strength
+N:183:Restore Vigor
 G:!:d
 I:75:42:2
 W:25:0:4:1500
 X:3:1d1:100
 A:25/50
 F:EASY_KNOW
-U:RESTORE_STR
+U:RESTORE_VIGOR
 
-N:184:Restore Intelligence
+N:184:Restore Wit
 G:!:d
 I:75:43:2
 W:25:0:4:1500
 X:3:1d1:100
 A:25/50
 F:EASY_KNOW
-U:RESTORE_INT
+U:RESTORE_WIT
 
-N:185:Restore Wisdom
+N:185:Restore Grace
 G:!:d
 I:75:44:2
 W:25:0:4:1500
 X:3:1d1:100
 A:25/50
 F:EASY_KNOW
-U:RESTORE_WIS
+U:RESTORE_GRACE
 
-N:186:Restore Dexterity
-G:!:d
-I:75:45:2
-W:25:0:4:1500
-X:3:1d1:100
-A:25/50
-F:EASY_KNOW
-U:RESTORE_DEX
+#N:186:XXX
 
-N:187:Restore Constitution
-G:!:d
-I:75:46:2
-W:25:0:4:1500
-X:3:1d1:100
-A:25/50
-F:EASY_KNOW
-U:RESTORE_CON
+#N:187:XXX
 
-N:188:Restore Charisma
-G:!:d
-I:75:47:2
-W:20:0:4:1500
-X:3:1d1:100
-A:20/50
-F:EASY_KNOW
-U:RESTORE_CHR
+#N:188:XXX
 
 N:189:Strength
 G:!:d
@@ -1865,8 +1837,6 @@ P:0:1d1:0:0
 F:EASY_KNOW | THROWING
 
 N:211:Transforming
-
-
 G:*:d	
 I:76:7:0
 W:12:0:2:400
@@ -2022,14 +1992,14 @@ A:3/50
 F:EASY_KNOW
 U:BEAM_WEAK_LITE
 
-#N:228:Sleep Monster
-#G:-:d
-#I:65:8:0
-#W:5:0:10:2500
-#X:13:1d1:25
-#A:5/50
-#F:EASY_KNOW
-#U:SLEEP_MONSTER
+N:228:Sleep Monster
+G:-:d
+I:65:8:0
+W:5:0:10:2500
+X:13:1d1:25
+A:5/0
+F:EASY_KNOW
+U:SLEEP_MONSTER
 
 N:229:Slow Monster
 G:-:d
@@ -2040,14 +2010,14 @@ A:5/50
 F:EASY_KNOW
 U:SLOW_MONSTER
 
-#N:230:Confuse Monster
-#G:-:d
-#I:65:10:0
-#W:5:0:10:2500
-#X:13:1d1:25
-#A:5/50
-#F:EASY_KNOW
-#U:CONFUSE_MONSTER
+N:230:Confuse Monster
+G:-:d
+I:65:10:0
+W:5:0:10:2500
+X:13:1d1:25
+A:5/0
+F:EASY_KNOW
+U:CONFUSE_MONSTER
 
 N:231:Scare Monster
 G:-:d
@@ -2067,14 +2037,14 @@ A:5/17
 F:EASY_KNOW
 U:CALM_MONSTER
 
-#N:233:Blind Monster
-#G:-:d
-#I:65:13:0
-#W:7:0:10:2500
-#X:13:1d1:25
-#A:7/50
-#F:EASY_KNOW
-#U:BLIND_MONSTER
+N:233:Blind Monster
+G:-:d
+I:65:13:0
+W:7:0:10:2500
+X:13:1d1:25
+A:7/0
+F:EASY_KNOW
+U:BLIND_MONSTER
 
 N:234:Drain Life
 G:-:d
@@ -2499,14 +2469,7 @@ A:14/50
 F:IGNORE_ELEM | IGNORE_NON_ELEM | EASY_KNOW
 U:DARK_AREA
 
-#N:280:Trap Location
-#G:-:d
-#I:67:2:70
-#W:5:0:17:4400
-#X:13:1d1:10
-#A:14/50
-#F:IGNORE_ELEM | IGNORE_NON_ELEM | EASY_KNOW
-#U:DETECT_TRAP
+#N:280:XXX
 
 N:281:Door/Stair Location
 G:-:d
@@ -2526,14 +2489,7 @@ U:DETECT_DOOR_STAIR
 #F:IGNORE_ELEM | IGNORE_NON_ELEM | EASY_KNOW
 #U:IDENTIFY
 
-#N:283:Recall
-#G:-:d
-#I:67:5:60
-#W:30:0:17:32500
-#X:13:1d1:10
-#A:30/13
-#F:IGNORE_ELEM | IGNORE_NON_ELEM | EASY_KNOW
-#U:WORD_RECALL
+#N:283:XXX
 
 N:284:Illumination
 G:-:d
@@ -2544,14 +2500,7 @@ A:20/50
 F:IGNORE_ELEM | IGNORE_NON_ELEM | EASY_KNOW
 U:LIGHT_AREA_2
 
-#N:285:Magic Mapping
-#G:-:d
-#I:67:7:99
-#W:65:0:17:50000
-#X:13:1d1:10
-#A:65/13
-#F:IGNORE_ELEM | IGNORE_NON_ELEM | EASY_KNOW
-#U:MAP_1
+#N:285:XXX
 
 N:286:Detection
 G:-:d
@@ -2596,7 +2545,6 @@ W:80:0:17:100000
 X:13:1d1:10
 A:80/6
 F:IGNORE_ELEM | IGNORE_NON_ELEM | EASY_KNOW
-
 U:HEAL_4
 
 N:291:Restoration
@@ -3926,28 +3874,28 @@ F:EASY_KNOW
 N:432:& Flail~
 G:\:D
 I:21:20:0
-W:0:0:160:1000
+W:5:0:160:1000
 X:12:1d1:10
-A:0/50:15/40:25/1
-P:0:2d7:0:0
+A:5/50:15/40:25/1
+P:0:3d4:0:0
 F:EASY_KNOW
 
 N:433:& Morning Star~
 G:\:D
 I:21:21:0
-W:5:0:190:1250
+W:5:0:200:1250
 X:12:1d1:10
 A:5/25:18/25:30/1
-P:0:2d8:0:0
+P:0:3d8:0:0
 F:EASY_KNOW
 
 N:434:& Lead-Filled Mace~
 G:\:D
 I:21:22:0
-W:10:0:205:2000
+W:10:0:210:2000
 X:12:1d1:10
-A:10/50:25/50:30/1
-P:0:2d14:0:0
+A:10/30:30/50:45/1
+P:0:3d10:0:0
 F:EASY_KNOW
 
 N:435:& Baculus~
@@ -4202,7 +4150,7 @@ I:22:20:0
 W:0:0:180:900
 X:12:1d1:10
 A:0/25:10/17:15/1
-P:0:3d5:0:0
+P:0:3d7:0:0
 F:EASY_KNOW
 
 N:463:& Glaive~
@@ -4210,8 +4158,8 @@ G:/:D
 I:22:21:0
 W:5:0:200:1150
 X:12:1d1:10
-A:5/30:15/12:20/1
-P:0:4d4:0:0
+A:5/25:18/25:30/1
+P:0:2d13:0:0
 F:EASY_KNOW
 
 N:464:& Beaked Axe~
@@ -4384,7 +4332,7 @@ F:EASY_KNOW
 N:482:& Broad Sword~
 G:|:W
 I:23:10:0
-W:0:0:90:350
+W:0:0:90:500
 X:12:1d1:10
 A:0/20:10/30:15/1
 P:0:2d4:0:0
@@ -4474,10 +4422,10 @@ F:EASY_KNOW
 N:492:& Bastard Sword~
 G:|:s
 I:23:20:0
-W:0:0:170:900
+W:5:0:160:900
 X:12:1d1:10
-A:0/14:10/30:15/1
-P:0:2d8:0:0
+A:5/25:18/25:30/1
+P:0:1d15:0:0
 F:EASY_KNOW
 
 N:493:& Two-Handed Sword~
@@ -4486,7 +4434,7 @@ I:23:21:0
 W:5:0:190:1250
 X:12:1d1:10
 A:5/10:15/35:15/1
-P:0:2d10:0:0
+P:0:2d12:0:0
 F:EASY_KNOW
 
 N:494:& Backsword~
@@ -4495,7 +4443,7 @@ I:23:22:0
 W:10:0:200:2000
 X:12:1d1:10
 A:10/14:30/50:45/1
-P:0:2d14:0:0
+P:0:2d15:0:0
 F:EASY_KNOW
 
 N:495:& Claymore~
@@ -4555,7 +4503,7 @@ F:EASY_KNOW
 N:501:& Executioner's Sword~
 G:|:s
 I:23:29:0
-W:5:0:250:50000
+W:95:0:250:50000
 X:12:1d1:10
 A:95/50
 P:0:3d80:0:0

@@ -2147,7 +2147,7 @@ bool set_tim_stealth(int v)
 	{
 		if (!p_ptr->tim_stealth)
 		{
-			message(MSG_EFFECT, 0, "You feel your movements grow more silent!");
+			message(MSG_EFFECT, 0, "You feel treacherous! Your movements grow more silent.");
 			notice = TRUE;
 		}
 	}

@@ -142,7 +142,6 @@ info_entry power_info[POW_MAX] =
 	{POW_HOLY_1,			"dispels all evil in line of sight and cures and heals you"},
 	{POW_HOLY_2,			"dispels all evil in line of sight and cures and heals you"},
 	{POW_GENOCIDE,			"removes all monsters of the symbol you choose from the level"},
-
 	{POW_MASS_GENOCIDE,		"removes nearby monsters except uniques"},
 	{POW_EARTHQUAKE,		"destroys the nearby dungeon"},
 	{POW_DESTRUCTION,		"destroys objects and monsters, and banishes uniques"},
@@ -158,7 +157,7 @@ info_entry power_info[POW_MAX] =
 	{POW_DETECT_TRAP_DOOR,	"detects hidden traps, stairs and doors on the current screen"},
 	{POW_DETECT_ITEM,		"detects all objects on the current panel"},
 	{POW_DETECT_ENCHANT,	"detects magical objects on the current panel"},
-	{POW_DETECT_ALL,		"detects everything of interest on the panel"},
+	{POW_DETECT_ALL,		"detects everything of interest on the panel, except traps"},
 	{POW_ABSORB_HIT,		"temporarily reverses the effect of damage"},
 	{POW_BLESS_1,			"provides a short-term bonus to hit and ac, immunity to taint"},
 	{POW_BLESS_2,			"provides a medium-term bonus to hit and ac, immunity to taint"},
@@ -175,7 +174,7 @@ info_entry power_info[POW_MAX] =
 	{POW_INVIS_2,			"temporarily turns you invisible"},
 	{POW_RESILIENCE,		"temporarily raises your AC by 50 and reduces all damage by 66%"},
 	{POW_INFRAVISION,		"temporarily increases the range of your infravision"},
-	{POW_STEALTH,			"temporarily increases your stealth"},
+	{POW_STEALTH,			"temporarily increases your stealth and critical hit chance"},
 	{POW_SEE_INVIS,			"provides temporary see invisible"},
 	{POW_PROT_EVIL_1,		"provides temporary protection from lesser evil creatures"},
 	{POW_PROT_EVIL_2,		"provides temporary protection from lesser evil creatures"},
@@ -315,10 +314,10 @@ info_entry power_info[POW_MAX] =
 	{POW_SHRSCARE,			"scares"},
 	{POW_SHRCONFUSE,		"confuses"},
 	{POW_SHRHALLUCINATE,		"makes you see unseen things"},
-	{POW_SHRPARALYZE,		"causes paralysis"},
+	{POW_SHRPARALYZE,		"paralyzes"},
 	{POW_SHRNAIVITY,		"causes wondrous daydreams"},
 	{POW_SHRSTUPIDITY,		"clouds your intelligence with empty rage"},
-	{POW_SHRAMNESIA,		"clouds the consciousness"},
+	{POW_SHRAMNESIA,		"clouds consciousness"},
 	{POW_SHRDISEASE,		"fills your mouth with disease"},
 	{POW_SHRCURE_POISON,		"removes all poison from your body"},
 	{POW_SHRCURE_DISEASE,		"rids your body of all disease"},
@@ -331,7 +330,10 @@ info_entry power_info[POW_MAX] =
 	{POW_SHRRESTORE_CON,		"restores your constitution"},
 	{POW_SHRRESTORE_DEX,		"restores your dexterity"},
 	{POW_SHRRESTORE_STATS,		"restores all stats"},
-	{POW_PHLOGISTON,		"refuels your light source"}
+	{POW_PHLOGISTON,		"refuels your light source"},
+	{POW_RESTORE_VIGOR,		"restores your strength and constitution"},
+	{POW_RESTORE_WIT,		"restores your intelligence and wisdom"},
+	{POW_RESTORE_GRACE,		"restores your dexterity and charisma"}
 };
 
 /*
@@ -1456,56 +1458,56 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 		}
 		case POW_DETECT_MONSTERS:
 		{
-			if (detect_monsters_normal()) *obvious = TRUE;
+			if (detect_monsters_normal(1)) *obvious = TRUE;
 			break;
 		}
 		case POW_DETECT_EVIL:
 		{
-			if (detect_monsters_evil()) *obvious = TRUE;
+			if (detect_monsters_evil(1)) *obvious = TRUE;
 			break;
 		}
 		case POW_DETECT_INVIS:
 		{
-			if (detect_monsters_invis()) *obvious = TRUE;
+			if (detect_monsters_invis(1)) *obvious = TRUE;
 			break;
 		}
 		case POW_DETECT_TRAP:
 		{
-			if (detect_traps()) *obvious = TRUE;
+			if (detect_traps(1)) *obvious = TRUE;
 			break;
 		}
 		case POW_DETECT_TRAP_DOOR:
 		{
-			if (detect_traps()) *obvious = TRUE;
-			if (detect_doors()) *obvious = TRUE;
-			if (detect_stairs()) *obvious = TRUE;
+			if (detect_traps(1)) *obvious = TRUE;
+			if (detect_doors(0)) *obvious = TRUE;
+			if (detect_stairs(0)) *obvious = TRUE;
 			break;
 		}
 		case POW_DETECT_DOOR_STAIR:
 		{
-			if (detect_doors()) *obvious = TRUE;
-			if (detect_stairs()) *obvious = TRUE;
+			if (detect_doors(1)) *obvious = TRUE;
+			if (detect_stairs(0)) *obvious = TRUE;
 			break;
 		}
 		case POW_DETECT_TREASURE:
 		{
-			if (detect_treasure()) *obvious = TRUE;
-			if (detect_objects_gold()) *obvious = TRUE;
+			if (detect_treasure(1)) *obvious = TRUE;
+			if (detect_objects_gold(0)) *obvious = TRUE;
 			break;
 		}
 		case POW_DETECT_ITEM:
 		{
-			if (detect_objects_normal()) *obvious = TRUE;
+			if (detect_objects_normal(1)) *obvious = TRUE;
 			break;
 		}
 		case POW_DETECT_ENCHANT:
 		{
-			if (detect_objects_magic()) *obvious = TRUE;
+			if (detect_objects_magic(1)) *obvious = TRUE;
 			break;
 		}
 		case POW_DETECT_ALL:
 		{
-			if (detect_all()) *obvious = TRUE;
+			if (detect_all(1)) *obvious = TRUE;
 			break;
 		}
 		case POW_ABSORB_HIT:
@@ -2172,9 +2174,9 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 		case POW_MAP_3:
 		{
 			wiz_lite();
-			(void)detect_traps();
-			(void)detect_doors();
-			(void)detect_stairs();
+			(void)detect_traps(1);
+			(void)detect_doors(0);
+			(void)detect_stairs(0);
 			*obvious = TRUE;
 			break;
 		}
@@ -2200,12 +2202,12 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 			wiz_lite();
 			(void)do_inc_stat(A_INT);
 			(void)do_inc_stat(A_WIS);
-			(void)detect_traps();
-			(void)detect_doors();
-			(void)detect_stairs();
-			(void)detect_treasure();
-			(void)detect_objects_gold();
-			(void)detect_objects_normal();
+			(void)detect_traps(1);
+			(void)detect_doors(0);
+			(void)detect_stairs(0);
+			(void)detect_treasure(0);
+			(void)detect_objects_gold(0);
+			(void)detect_objects_normal(0);
 			identify_pack();
 			*obvious = TRUE;
 			break;
@@ -2294,7 +2296,7 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 		}
 		case POW_CURSE_EQUIP_1:
 		{
-			i = rand_int(5);
+			i = rand_int(8);
 
 			if ((i == 0) && curse_armor()) *obvious = TRUE;
 			else if ((i == 1) && curse_weapon()) *obvious = TRUE;
@@ -2303,8 +2305,12 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 		}
 		case POW_CURSE_EQUIP_2:
 		{
-			if (curse_armor()) *obvious = TRUE;
-			if (curse_weapon()) *obvious = TRUE;
+			if (rand_int(2) == 0)
+			{
+				if (curse_armor()) *obvious = TRUE;
+			}
+			else if (curse_weapon()) *obvious = TRUE;
+
 			if (curse_minor()) *obvious = TRUE;
 			break;
 		}
@@ -3127,6 +3133,24 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 		{
 			phlogiston();
 			*obvious = TRUE;
+			break;
+		}
+		case POW_RESTORE_VIGOR:
+		{
+			if (do_res_stat(A_STR)) *obvious = TRUE;
+			if (do_res_stat(A_CON)) *obvious = TRUE;
+			break;
+		}
+		case POW_RESTORE_WIT:
+		{
+			if (do_res_stat(A_INT)) *obvious = TRUE;
+			if (do_res_stat(A_WIS)) *obvious = TRUE;
+			break;
+		}
+		case POW_RESTORE_GRACE:
+		{
+			if (do_res_stat(A_DEX)) *obvious = TRUE;
+			if (do_res_stat(A_CHR)) *obvious = TRUE;
 			break;
 		}
 	}

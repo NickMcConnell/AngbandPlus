@@ -2922,7 +2922,7 @@ void do_cmd_debug(void)
 		/* Detect everything */
 		case 'd':
 		{
-			detect_all();
+			detect_all(1);
 			break;
 		}
 

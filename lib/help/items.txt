@@ -12,12 +12,12 @@ object command, 'I'.  This command provides you information about an object and
 its uses as well as information as to what attacks may damage or destroy the 
 object, where you obtained it, and various other data.  The type of information 
 given varies with the item type.  Only partial and unreliable information is 
-availble for unidentified objects.  If an object has been identified, but is 
+available for unidentified objects.  If an object has been identified, but is 
 noted as having possible "hidden powers", you'll need to *identify* it to get 
 the full description.
 
-When 'I'nspecting objects, thieves get the additional ability to estimate its
-value. (Thieves are the only characters that can sell items to the shops.)
+When 'I'nspecting objects, rogues get the additional ability to estimate its
+value. (Rogues are the only characters that can sell items to the shops.)
 
 
 === Object Identification ===
@@ -39,16 +39,16 @@ identify for all classes.
 There are three types of item in the game. Those whose use is immediately 
 obvious and require no identification include weapons, armor, instruments,
 torches, and food rations. The second, and largest, class, consists of the
-items such as potions, and scrolls - where, once you know what one particular
-item does, you'll automatically recognize identical items when you meet them
-again.  So if you identify one potion of cure light wounds, the next one will
-not require identification.  The final class falls somewhere between the second
-and third types - items such as wands and staves where some information (their
-effect) is available once you identify one, but the rest (number of charges)
-must be determined for each item.  Other items in this catagory are rings,
-amulets, and lanterns which affect your statistics - once you identify one ring
-of strength you'll recognize when another ring modifies strength, but you won't
-know if it raises or lowers it without further identification.
+items such as wands, potions, and scrolls - where, once you know what one
+particular item does, you'll automatically recognize identical items when you
+meet them again.  So if you identify one potion of cure light wounds, the next
+one will not require identification.  The final class falls somewhere between
+the second and third types - where some information (their effect) is available
+once you identify one, but the rest must be determined for each item.  Items in
+this catagory include rings, amulets, and lanterns which affect your statistics
+- once you identify one ring of strength you'll recognize when another ring
+modifies strength, but you won't know if it raises or lowers it without further
+identification.
 
 Finally, for some rare artifacts found deep in the dungeon, simply identifying
 them may not be sufficient.  For these items, you may need a scroll of 
@@ -152,10 +152,9 @@ Scrolls
 
 Wands
     Wands are short sticks imbued with magical power.  All wands have a limited
-    amount of charges, and you must identify them to know how much, though you
-    don't need this information to use them.  Wand abilities always require a 
-    target - whether a monster, or a dungeon feature, you must always choose 
-    where to apply the effect.  Wands may be used with the 'a'im command.
+    amount of charges.  Wand abilities always require a target - whether a monster,
+    or a dungeon feature, you must always choose where to apply the effect.  Wands
+    may be used with the 'a'im command.
 
     Wands usually are vulnerable to electrical attacks.
 
@@ -187,4 +186,4 @@ Rods
     Rods are indestructible.
 
 
-====================== Last updated for FayAngband 1.0.0 ======================
+====================== Last updated for FayAngband 1.0.1 ======================

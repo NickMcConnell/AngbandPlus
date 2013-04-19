@@ -3373,16 +3373,32 @@ void map_area(void)
 	int i, x, y, y1, y2, x1, x2;
 
 	/* Pick an area to map */
-	y1 = p_ptr->wy - randint(10);
-	y2 = p_ptr->wy + SCREEN_HGT + randint(10);
-	x1 = p_ptr->wx - randint(20);
-	x2 = p_ptr->wx + SCREEN_WID + randint(20);
+	y1 = p_ptr->py - 10;
+	y2 = p_ptr->py + 11;
+	x1 = p_ptr->px - 32;
+	x2 = p_ptr->px + 33;
 
-	/* Efficiency -- shrink to fit legal bounds */
-	if (y1 < 1) y1 = 1;
-	if (y2 > p_ptr->cur_map_hgt-1) y2 = p_ptr->cur_map_hgt-1;
-	if (x1 < 1) x1 = 1;
-	if (x2 > p_ptr->cur_map_wid-1) x2 = p_ptr->cur_map_wid-1;
+	if (y1 < 1)
+	{
+		y1 = 1;
+		if (y2 < 21) y2 = 21;
+	}
+	else if (y2 > p_ptr->cur_map_hgt-1)
+	{
+		y2 = p_ptr->cur_map_hgt-1;
+		if (y1 > (p_ptr->cur_map_hgt-1-20)) y1 = p_ptr->cur_map_hgt-1-20;
+	}
+
+	if (x1 < 1)
+	{
+		x1 = 1;
+		if (x2 < 65) x2 = 65;
+	}
+	else if (x2 > p_ptr->cur_map_wid-1)
+	{
+		x2 = p_ptr->cur_map_wid-1;
+		if (x1 > (p_ptr->cur_map_wid-1-64)) x1 = p_ptr->cur_map_wid-1-64;
+	}
 
 	/* Scan that area */
 	for (y = y1; y < y2; y++)

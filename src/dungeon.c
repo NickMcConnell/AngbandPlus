@@ -1928,7 +1928,7 @@ static void dungeon(void)
 	/* Mapping effects? */
 	if (p_ptr->create_up_stair == TRUE)
 	{
-		if (rand_int(55+((p_ptr->max_depth)/2)) < p_ptr->skill[SK_MAP])
+		if (rand_int(55+((p_ptr->max_depth)/2)) < 1000 + p_ptr->skill[SK_MAP])
 		{
 			int random_map;
 			random_map = rand_int(4);
@@ -1937,30 +1937,30 @@ static void dungeon(void)
 			{
 				message(MSG_GENERIC, 0, "Some Gnomish adventurers gave you a map leading to this level.");
 				map_area();
-				detect_traps();
-				detect_treasure();
+				detect_traps(0);
+				detect_treasure(0);
 			}
 
 			else if (random_map == 1)
 			{
 				message(MSG_GENERIC, 0, "You unfold an old Rattikin map of this area.");
 				map_area();
-				detect_traps();
+				detect_traps(0);
 			}
 
 			else if (random_map == 2)
 			{
 				message(MSG_GENERIC, 0, "You have followed an ancient Dwarven map to this level.");
 				map_area();
-				detect_treasure();
+				detect_treasure(0);
 			}
 
 			else
 			{
 				message(MSG_GENERIC, 0, "You have a sketchy Orcish map of this place.");
-				detect_traps();
-				detect_doors();
-				detect_stairs();
+				detect_traps(0);
+				detect_doors(0);
+				detect_stairs(0);
 			}
 		}
 		else

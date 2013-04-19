@@ -98,6 +98,11 @@ can indeed be quite effective thrown - the largest class of these are the powder
 which can create many special effects upon an enemy, and some more powerful types
 can injure a group of enemies.
 
+Strength affects how far you can throw affects. When your Strength reaches 18,
+you will get double damage with trown weapons (but not with powder vials). STR 25+
+gives triple damage.
+
+
 === Critical Hits ===
 
 Ocasionally, for all combat types, you will score a critical hit - a hit so
@@ -109,12 +114,13 @@ monsters. If the monster is not distracted, divide critical chance by ten.
 
 Critical chance in percentages is 5 + character's to-hit bonus + weapon's to-hit
 bonus. Rogues get to add 5 + half their level. (Note that your bow's to-hit bonus
-has no effect here. Only the arrow's to-hit bonus matters.) You can't get
-criticals against unseen monsters.
+has no effect here. Only the arrow's to-hit bonus matters.) Blessed weapons increase
+critical chance by 5, and Potion of Sneakiness by 10. You can't get criticals
+against unseen monsters.
 
 Rogues get double power thrown criticals, and one-and-half power melee and
 archery criticals. Warriors get double power melee criticals. Rangers get double
 power archery criticals.
 
 
-====================== Last updated for FayAngband 1.0.0 ======================
+====================== Last updated for FayAngband 1.0.1 ======================

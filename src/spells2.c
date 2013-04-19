@@ -118,15 +118,16 @@ bool curse_armor(void)
 	/* Describe */
 	object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 3);
 
-	/* Attempt a saving throw for artifacts */
-	if (o_ptr->a_idx && (rand_int(100) < 75))
+	/* Attempt a saving throw for artifacts and ego items */
+
+	if ((o_ptr->a_idx && (rand_int(100) < 75)) || ((o_ptr->e_idx && rand_int(100) < 40)))
 	{
 		/* Cool */
 		message_format(MSG_ITEM_RESIST, o_ptr->k_idx, 
-			"A terrible balck aura tries to surround %s, but it resists the effects!", o_name);
+			"A terrible black aura tries to surround %s, but it resists the effects!", o_name);
 	}
 
-	/* not artifact or failed save... */
+	/* not artifact/ego or failed save... */
 	else
 	{
 		/* Oops */
@@ -176,15 +177,15 @@ bool curse_weapon(void)
 	/* Describe */
 	object_desc(o_name, sizeof(o_name), o_ptr, FALSE, 3);
 
-	/* Attempt a saving throw */
-	if (o_ptr->a_idx && (rand_int(100) < 75))
+	/* Attempt a saving throw for artifacts and ego items */
+	if ((o_ptr->a_idx && (rand_int(100) < 75)) || ((o_ptr->e_idx && rand_int(100) < 40)))
 	{
 		/* Cool */
 		message_format(MSG_ITEM_RESIST, o_ptr->k_idx, 
-			"A terrible balck aura tries to surround %s, but it resists the effects!", o_name);
+			"A terrible black aura tries to surround %s, but it resists the effects!", o_name);
 	}
 
-	/* not artifact or failed save... */
+	/* not artifact/ego or failed save... */
 	else
 	{
 		/* Oops */
@@ -238,11 +239,12 @@ bool curse_minor(void)
 		/* Already cursed */
 		if (cursed_p(o_ptr)) continue;
 
-		/* Artifacts resist */
+		/* Artifacts resist always */
 		if (o_ptr->a_idx) continue;
 
-		/* Ego items save */
-		if (o_ptr->e_idx && rand_int(100) < 50) continue;
+		/* Ego items save at 75 %, other items save at 40 % */
+		if (o_ptr->e_idx && rand_int(100) < 75) continue;
+		else if (rand_int(100) < 40) continue;
 
 		/* Curse the object */
 		if ((k == INVEN_WIELD) || (k == INVEN_BOW))
@@ -419,7 +421,7 @@ void set_recall(void)
 }
 
 /*
- * Charge a lite (torch or latern)
+ * Charge a light (torch or lantern)
  */
 void phlogiston(void)
 {
@@ -433,7 +435,7 @@ void phlogiston(void)
 
 
 	/* It's a lamp */
-	if ((o_ptr->tval == TV_LITE) && (o_ptr->sval == SV_LANTERN))
+	if ((o_ptr->tval == TV_LITE) && (o_ptr->sval == SV_LANTERN | SV_LANTERN_SHADOWS | SV_LANTERN_INFRAVISION | SV_LANTERN_BRIGHTNESS | SV_LANTERN_SIGHT | SV_LANTERN_FEARLESS | SV_LANTERN_INT | SV_LANTERN_WIS | SV_LANTERN_TELEPATHY | SV_LANTERN_TIME | SV_LANTERN_CHERADENINE))
 	{
 		max_flog = FUEL_LAMP;
 
@@ -485,15 +487,144 @@ void phlogiston(void)
 
 
 /*
- * Detect all traps on current panel
+ * Hack - displays areas effected by detection spells.
+ *
  */
-bool detect_traps(void)
+static void animate_detect(void)
 {
 	int y, x;
-	int i;
+	int x1, x2, y1, y2;
+	int msec = op_ptr->delay_factor * op_ptr->delay_factor;
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+
+	/* Pick an area to map */
+	y1 = p_ptr->py - 11;
+	y2 = p_ptr->py + 12;
+	x1 = p_ptr->px - 33;
+	x2 = p_ptr->px + 34;
+
+	if (y1 < 1)
+	{
+		y1 = 1;
+		if (y2 < 22) y2 = 22;
+	}
+	else if (y2 > p_ptr->cur_map_hgt-1)
+	{
+		y2 = p_ptr->cur_map_hgt-1;
+		if (y1 > (p_ptr->cur_map_hgt-1-21)) y1 = p_ptr->cur_map_hgt-1-21;
+	}
+
+	if (x1 < 1)
+	{
+		x1 = 1;
+		if (x2 < 66) x2 = 66;
+	}
+	else if (x2 > p_ptr->cur_map_wid-1)
+	{
+		x2 = p_ptr->cur_map_wid-1;
+		if (x1 > (p_ptr->cur_map_wid-1-65)) x1 = p_ptr->cur_map_wid-1-65;
+	}
+
+	/* Hack - Needs to last a bit longer to be visible */
+	msec *= 6;
+
+	/* Scan the maximal area of detection */
+	for (y = y1; y < y2; y++)
+	{
+		for (x = x1; x < x2; x++)
+		{
+
+			/* Ignore "illegal" locations */
+			if (!in_bounds(y, x)) continue;
+
+			/* Only show the region that the player can see */
+			if (panel_contains(y, x))
+			{
+				/* Hack -- Visual effects -- Display a yellow star */
+				print_rel('*', TERM_YELLOW, y, x);
+			}
+		}
+	}
+
+	/* Flush the image of detected region */
+	if (fresh_before) Term_fresh();
+
+	/* Delay (efficiently) */
+	Term_xtra(TERM_XTRA_DELAY, msec);
+
+	/* Now erase the effect */
+	for (y = y1; y < y2; y++)
+	{
+		for (x = x1; x < x2; x++)
+		{
+			/* Ignore "illegal" locations */
+			if (!in_bounds(y, x)) continue;
+
+			/* Enforce a "circular" area
+			if (distance(py, px, y, x) > rad) continue; */
+
+			/* Hack -- Erase only if needed */
+			if (panel_contains(y, x))
+			{
+				lite_spot(y, x);
+			}
+		}
+	}
+
+	/* Hack -- center the cursor */
+	move_cursor_relative(py, px);
+
+	/* Flush screen back to normal */
+	if (fresh_before) Term_fresh();
+
+	/* Exit */
+	return;
+
+}
+
+
+/*
+ * Detect all traps nearby
+ */
+bool detect_traps(int animate)
+{
+	int i, y, x;
+	int x1, x2, y1, y2;
 
 	bool detect = FALSE;
 
+	if (animate) animate_detect();
+
+	/* Pick an area to map */
+	y1 = p_ptr->py - 11;
+	y2 = p_ptr->py + 11;
+	x1 = p_ptr->px - 33;
+	x2 = p_ptr->px + 33;
+
+	if (y1 < 1)
+	{
+		y1 = 1;
+		if (y2 < 21) y2 = 21;
+	}
+	else if (y2 > p_ptr->cur_map_hgt-1)
+	{
+		y2 = p_ptr->cur_map_hgt-1;
+		if (y1 > (p_ptr->cur_map_hgt-1-21)) y1 = p_ptr->cur_map_hgt-1-21;
+	}
+
+	if (x1 < 1)
+	{
+		x1 = 1;
+		if (x2 < 65) x2 = 65;
+	}
+	else if (x2 > p_ptr->cur_map_wid-1)
+	{
+		x2 = p_ptr->cur_map_wid-1;
+		if (x1 > (p_ptr->cur_map_wid-1-65)) x1 = p_ptr->cur_map_wid-1-65;
+	}
+
+	/* Scan traps */
 	for (i = 1; i < t_max; i++)
 	{
 		trap_type *t_ptr = &t_list[i];
@@ -509,7 +640,7 @@ bool detect_traps(void)
 		if (!trap_detectable(y, x)) continue;
 
 		/* Only detect nearby traps */
-		if (!panel_contains(y, x)) continue;
+		if ((y1 > y) || (y2 < y) || (x1 > x) || (x2 < x)) continue;
 
 		/* Set to visible */
 		t_list[i].visible = TRUE;
@@ -526,7 +657,7 @@ bool detect_traps(void)
 	/* Describe */
 	if (detect)
 	{
-		message(MSG_DETECT, 0, "You sense the presence of traps!");
+		message(MSG_DETECT, 0, "You detect traps!");
 	}
 
 	/* Result */
@@ -534,19 +665,54 @@ bool detect_traps(void)
 }
 
 /*
- * Detect all doors on current panel
+ * Detect all doors nearby
  */
-bool detect_doors(void)
+bool detect_doors(int animate)
 {
 	int y, x;
-
+	int x1, x2, y1, y2;
 	bool detect = FALSE;
 
-	/* Scan the panel */
-	for (y = p_ptr->wy; y < p_ptr->wy+SCREEN_HGT; y++)
+	if (animate) animate_detect();
+
+	/* Pick an area to map */
+	y1 = p_ptr->py - 11;
+	y2 = p_ptr->py + 12;
+	x1 = p_ptr->px - 33;
+	x2 = p_ptr->px + 34;
+
+	if (y1 < 1)
 	{
-		for (x = p_ptr->wx; x < p_ptr->wx+SCREEN_WID; x++)
+		y1 = 1;
+		if (y2 < 22) y2 = 22;
+	}
+	else if (y2 > p_ptr->cur_map_hgt-1)
+	{
+		y2 = p_ptr->cur_map_hgt-1;
+		if (y1 > (p_ptr->cur_map_hgt-1-21)) y1 = p_ptr->cur_map_hgt-1-21;
+	}
+
+	if (x1 < 1)
+	{
+		x1 = 1;
+		if (x2 < 66) x2 = 66;
+	}
+	else if (x2 > p_ptr->cur_map_wid-1)
+	{
+		x2 = p_ptr->cur_map_wid-1;
+		if (x1 > (p_ptr->cur_map_wid-1-65)) x1 = p_ptr->cur_map_wid-1-65;
+	}
+
+
+	/* Scan the maximal area of detection */
+	for (y = y1; y < y2; y++)
+	{
+		for (x = x1; x < x2; x++)
 		{
+
+			/* Ignore "illegal" locations */
+			if (!in_bounds(y, x)) continue;
+
 			/* Detect secret doors */
 			if (cave_feat[y][x] == FEAT_SECRET)
 			{
@@ -570,6 +736,7 @@ bool detect_doors(void)
 				/* Obvious */
 				detect = TRUE;
 			}
+
 		}
 	}
 
@@ -583,65 +750,135 @@ bool detect_doors(void)
 	return (detect);
 }
 
+
+
 /*
- * Detect all stairs on current panel
+ * Detect all stairs nearby
  */
-bool detect_stairs(void)
+bool detect_stairs(int animate)
 {
 	int y, x;
-
+	int x1, x2, y1, y2;
 	bool detect = FALSE;
 
-	/* Scan the panel */
-	for (y = p_ptr->wy; y < p_ptr->wy+SCREEN_HGT; y++)
+	if (animate) animate_detect();
+
+	/* Pick an area to map */
+	y1 = p_ptr->py - 11;
+	y2 = p_ptr->py + 12;
+	x1 = p_ptr->px - 33;
+	x2 = p_ptr->px + 34;
+
+	if (y1 < 1)
 	{
-		for (x = p_ptr->wx; x < p_ptr->wx+SCREEN_WID; x++)
+		y1 = 1;
+		if (y2 < 22) y2 = 22;
+	}
+	else if (y2 > p_ptr->cur_map_hgt-1)
+	{
+		y2 = p_ptr->cur_map_hgt-1;
+		if (y1 > (p_ptr->cur_map_hgt-1-21)) y1 = p_ptr->cur_map_hgt-1-21;
+	}
+
+	if (x1 < 1)
+	{
+		x1 = 1;
+		if (x2 < 66) x2 = 66;
+	}
+	else if (x2 > p_ptr->cur_map_wid-1)
+	{
+		x2 = p_ptr->cur_map_wid-1;
+		if (x1 > (p_ptr->cur_map_wid-1-65)) x1 = p_ptr->cur_map_wid-1-65;
+	}
+
+
+	/* scan the maximal area of detection */
+	for (y = y1; y < y2; y++)
+	{
+		for (x = x1; x < x2; x++)
 		{
-			/* Detect stairs */
+
+			/* ignore "illegal" locations */
+			if (!in_bounds(y, x)) continue;
+
+			/* detect stairs */
 			if ((cave_feat[y][x] == FEAT_LESS) ||
 			    (cave_feat[y][x] == FEAT_MORE))
 			{
-				/* Hack -- Memorize */
+				/* hack -- memorize */
 				cave_info[y][x] |= (CAVE_MARK);
 
-				/* Redraw */
+				/* redraw */
 				lite_spot(y, x);
 
-				/* Obvious */
+				/* obvious */
 				detect = TRUE;
 			}
 		}
 	}
 
-	/* Describe */
+	/* describe */
 	if (detect)
 	{
 		message(MSG_DETECT, 0, "You sense the presence of stairs!");
 	}
 
-	/* Result */
+	/* result */
 	return (detect);
 }
 
+
+
 /*
- * Detect any treasure on the current panel
+ * Detect any treasure nearby
  */
-bool detect_treasure(void)
+bool detect_treasure(int animate)
 {
 	int y, x;
-
+	int x1, x2, y1, y2;
 	bool detect = FALSE;
 
-	/* Scan the current panel */
-	for (y = p_ptr->wy; y < p_ptr->wy+SCREEN_HGT; y++)
+	if (animate) animate_detect();
+
+	/* Pick an area to map */
+	y1 = p_ptr->py - 11;
+	y2 = p_ptr->py + 12;
+	x1 = p_ptr->px - 33;
+	x2 = p_ptr->px + 34;
+
+	if (y1 < 1)
 	{
-		for (x = p_ptr->wx; x < p_ptr->wx+SCREEN_WID; x++)
+		y1 = 1;
+		if (y2 < 22) y2 = 22;
+	}
+	else if (y2 > p_ptr->cur_map_hgt-1)
+	{
+		y2 = p_ptr->cur_map_hgt-1;
+		if (y1 > (p_ptr->cur_map_hgt-1-21)) y1 = p_ptr->cur_map_hgt-1-21;
+	}
+
+	if (x1 < 1)
+	{
+		x1 = 1;
+		if (x2 < 66) x2 = 66;
+	}
+	else if (x2 > p_ptr->cur_map_wid-1)
+	{
+		x2 = p_ptr->cur_map_wid-1;
+		if (x1 > (p_ptr->cur_map_wid-1-65)) x1 = p_ptr->cur_map_wid-1-65;
+	}
+
+
+	/* scan the maximal area of detection */
+	for (y = y1; y < y2; y++)
+	{
+		for (x = x1; x < x2; x++)
 		{
 			/* Notice embedded gold */
 			if ((cave_feat[y][x] == FEAT_MAGMA_H) ||
-			    (cave_feat[y][x] == FEAT_QUARTZ_H))
+			    (cave_feat[y][x] == FEAT_MAGMA_H))
 			{
-				/* Expose the gold */
+				/*Expose the gold */
 				cave_feat[y][x] += 0x02;
 			}
 
@@ -671,14 +908,46 @@ bool detect_treasure(void)
 	return (detect);
 }
 
+
 /*
- * Detect all "gold" objects on the current panel
+ * Detect all "gold" objects nearby
  */
-bool detect_objects_gold(void)
+bool detect_objects_gold(int animate)
 {
 	int i, y, x;
+	int x1, x2, y1, y2;
 
 	bool detect = FALSE;
+
+	if (animate) animate_detect();
+
+	/* Pick an area to map */
+	y1 = p_ptr->py - 11;
+	y2 = p_ptr->py + 11;
+	x1 = p_ptr->px - 33;
+	x2 = p_ptr->px + 33;
+
+	if (y1 < 1)
+	{
+		y1 = 1;
+		if (y2 < 21) y2 = 21;
+	}
+	else if (y2 > p_ptr->cur_map_hgt-1)
+	{
+		y2 = p_ptr->cur_map_hgt-1;
+		if (y1 > (p_ptr->cur_map_hgt-1-21)) y1 = p_ptr->cur_map_hgt-1-21;
+	}
+
+	if (x1 < 1)
+	{
+		x1 = 1;
+		if (x2 < 65) x2 = 65;
+	}
+	else if (x2 > p_ptr->cur_map_wid-1)
+	{
+		x2 = p_ptr->cur_map_wid-1;
+		if (x1 > (p_ptr->cur_map_wid-1-65)) x1 = p_ptr->cur_map_wid-1-65;
+	}
 
 	/* Scan objects */
 	for (i = 1; i < o_max; i++)
@@ -696,7 +965,7 @@ bool detect_objects_gold(void)
 		x = o_ptr->ix;
 
 		/* Only detect nearby objects */
-		if (!panel_contains(y, x)) continue;
+		if ((y1 > y) || (y2 < y) || (x1 > x) || (x2 < x)) continue;
 
 		/* Detect "gold" objects */
 		if (o_ptr->tval == TV_GOLD)
@@ -722,14 +991,48 @@ bool detect_objects_gold(void)
 	return (detect);
 }
 
+
+
+
 /*
- * Detect all "normal" objects on the current panel
+ * Detect all "normal" objects nearby
  */
-bool detect_objects_normal(void)
+bool detect_objects_normal(int animate)
 {
 	int i, y, x;
+	int x1, x2, y1, y2;
 
 	bool detect = FALSE;
+
+	if (animate) animate_detect();
+
+	/* Pick an area to map */
+	y1 = p_ptr->py - 11;
+	y2 = p_ptr->py + 11;
+	x1 = p_ptr->px - 33;
+	x2 = p_ptr->px + 33;
+
+	if (y1 < 1)
+	{
+		y1 = 1;
+		if (y2 < 21) y2 = 21;
+	}
+	else if (y2 > p_ptr->cur_map_hgt-1)
+	{
+		y2 = p_ptr->cur_map_hgt-1;
+		if (y1 > (p_ptr->cur_map_hgt-1-21)) y1 = p_ptr->cur_map_hgt-1-21;
+	}
+
+	if (x1 < 1)
+	{
+		x1 = 1;
+		if (x2 < 65) x2 = 65;
+	}
+	else if (x2 > p_ptr->cur_map_wid-1)
+	{
+		x2 = p_ptr->cur_map_wid-1;
+		if (x1 > (p_ptr->cur_map_wid-1-65)) x1 = p_ptr->cur_map_wid-1-65;
+	}
 
 	/* Scan objects */
 	for (i = 1; i < o_max; i++)
@@ -747,7 +1050,7 @@ bool detect_objects_normal(void)
 		x = o_ptr->ix;
 
 		/* Only detect nearby objects */
-		if (!panel_contains(y, x)) continue;
+		if ((y1 > y) || (y2 < y) || (x1 > x) || (x2 < x)) continue;
 
 		/* Detect "real" objects */
 		if (o_ptr->tval != TV_GOLD)
@@ -774,7 +1077,7 @@ bool detect_objects_normal(void)
 }
 
 /*
- * Detect all "magic" objects on the current panel.
+ * Detect all "magic" objects nearby
  *
  * This will light up all spaces with "magic" items, including artifacts,
  * ego-items, potions, scrolls, books, rods, wands, staves, amulets, rings,
@@ -782,13 +1085,44 @@ bool detect_objects_normal(void)
  *
  * It can probably be argued that this function is now too powerful.
  */
-bool detect_objects_magic(void)
+bool detect_objects_magic(int animate)
 {
 	int i, y, x, tv, sv;
+	int x1, x2, y1, y2;
 
 	bool found;
 	bool detect = FALSE;
-	
+
+	if (animate) animate_detect();
+
+	/* Pick an area to map */
+	y1 = p_ptr->py - 11;
+	y2 = p_ptr->py + 11;
+	x1 = p_ptr->px - 33;
+	x2 = p_ptr->px + 33;
+
+	if (y1 < 1)
+	{
+		y1 = 1;
+		if (y2 < 21) y2 = 21;
+	}
+	else if (y2 > p_ptr->cur_map_hgt-1)
+	{
+		y2 = p_ptr->cur_map_hgt-1;
+		if (y1 > (p_ptr->cur_map_hgt-1-21)) y1 = p_ptr->cur_map_hgt-1-21;
+	}
+
+	if (x1 < 1)
+	{
+		x1 = 1;
+		if (x2 < 65) x2 = 65;
+	}
+	else if (x2 > p_ptr->cur_map_wid-1)
+	{
+		x2 = p_ptr->cur_map_wid-1;
+		if (x1 > (p_ptr->cur_map_wid-1-65)) x1 = p_ptr->cur_map_wid-1-65;
+	}
+
 	/* Scan all objects */
 	for (i = 1; i < o_max; i++)
 	{
@@ -805,7 +1139,7 @@ bool detect_objects_magic(void)
 		x = o_ptr->ix;
 
 		/* Only detect nearby objects */
-		if (!panel_contains(y, x)) continue;
+		if ((y1 > y) || (y2 < y) || (x1 > x) || (x2 < x)) continue;
 
 		found = FALSE;
 
@@ -872,13 +1206,44 @@ bool detect_objects_magic(void)
 }
 
 /*
- * Detect all "normal" monsters on the current panel
+ * Detect all "normal" monsters nearby
  */
-bool detect_monsters_normal(void)
+bool detect_monsters_normal(int animate)
 {
 	int i, y, x;
+	int x1, x2, y1, y2;
 
 	bool flag = FALSE;
+
+	if (animate) animate_detect();
+
+	/* Pick an area to map */
+	y1 = p_ptr->py - 11;
+	y2 = p_ptr->py + 11;
+	x1 = p_ptr->px - 33;
+	x2 = p_ptr->px + 33;
+
+	if (y1 < 1)
+	{
+		y1 = 1;
+		if (y2 < 21) y2 = 21;
+	}
+	else if (y2 > p_ptr->cur_map_hgt-1)
+	{
+		y2 = p_ptr->cur_map_hgt-1;
+		if (y1 > (p_ptr->cur_map_hgt-1-21)) y1 = p_ptr->cur_map_hgt-1-21;
+	}
+
+	if (x1 < 1)
+	{
+		x1 = 1;
+		if (x2 < 65) x2 = 65;
+	}
+	else if (x2 > p_ptr->cur_map_wid-1)
+	{
+		x2 = p_ptr->cur_map_wid-1;
+		if (x1 > (p_ptr->cur_map_wid-1-65)) x1 = p_ptr->cur_map_wid-1-65;
+	}
 
 	/* Scan monsters */
 	for (i = 1; i < mon_max; i++)
@@ -896,7 +1261,7 @@ bool detect_monsters_normal(void)
 		x = m_ptr->fx;
 
 		/* Only detect nearby monsters */
-		if (!panel_contains(y, x)) continue;
+		if ((y1 > y) || (y2 < y) || (x1 > x) || (x2 < x)) continue;
 
 		/* Detect all non-invisible monsters */
 		if (!(r_ptr->flags2 & (RF2_INVISIBLE)))
@@ -927,13 +1292,44 @@ bool detect_monsters_normal(void)
 }
 
 /*
- * Detect all "invisible" monsters on current panel
+ * Detect all "invisible" monsters nearby
  */
-bool detect_monsters_invis(void)
+bool detect_monsters_invis(int animate)
 {
 	int i, y, x;
+	int x1, x2, y1, y2;
 
 	bool flag = FALSE;
+
+	if (animate) animate_detect();
+
+	/* Pick an area to map */
+	y1 = p_ptr->py - 11;
+	y2 = p_ptr->py + 11;
+	x1 = p_ptr->px - 33;
+	x2 = p_ptr->px + 33;
+
+	if (y1 < 1)
+	{
+		y1 = 1;
+		if (y2 < 21) y2 = 21;
+	}
+	else if (y2 > p_ptr->cur_map_hgt-1)
+	{
+		y2 = p_ptr->cur_map_hgt-1;
+		if (y1 > (p_ptr->cur_map_hgt-1-21)) y1 = p_ptr->cur_map_hgt-1-21;
+	}
+
+	if (x1 < 1)
+	{
+		x1 = 1;
+		if (x2 < 65) x2 = 65;
+	}
+	else if (x2 > p_ptr->cur_map_wid-1)
+	{
+		x2 = p_ptr->cur_map_wid-1;
+		if (x1 > (p_ptr->cur_map_wid-1-65)) x1 = p_ptr->cur_map_wid-1-65;
+	}
 
 	/* Scan monsters */
 	for (i = 1; i < mon_max; i++)
@@ -951,7 +1347,7 @@ bool detect_monsters_invis(void)
 		x = m_ptr->fx;
 
 		/* Only detect nearby monsters */
-		if (!panel_contains(y, x)) continue;
+		if ((y1 > y) || (y2 < y) || (x1 > x) || (x2 < x)) continue;
 
 		/* Detect invisible monsters */
 		if (r_ptr->flags2 & (RF2_INVISIBLE))
@@ -992,13 +1388,44 @@ bool detect_monsters_invis(void)
 }
 
 /*
- * Detect all "evil" monsters on current panel
+ * Detect all "evil" monsters nearby
  */
-bool detect_monsters_evil(void)
+bool detect_monsters_evil(int animate)
 {
 	int i, y, x;
+	int x1, x2, y1, y2;
 
 	bool flag = FALSE;
+
+	if (animate) animate_detect();
+
+	/* Pick an area to map */
+	y1 = p_ptr->py - 11;
+	y2 = p_ptr->py + 11;
+	x1 = p_ptr->px - 33;
+	x2 = p_ptr->px + 33;
+
+	if (y1 < 1)
+	{
+		y1 = 1;
+		if (y2 < 21) y2 = 21;
+	}
+	else if (y2 > p_ptr->cur_map_hgt-1)
+	{
+		y2 = p_ptr->cur_map_hgt-1;
+		if (y1 > (p_ptr->cur_map_hgt-1-21)) y1 = p_ptr->cur_map_hgt-1-21;
+	}
+
+	if (x1 < 1)
+	{
+		x1 = 1;
+		if (x2 < 65) x2 = 65;
+	}
+	else if (x2 > p_ptr->cur_map_wid-1)
+	{
+		x2 = p_ptr->cur_map_wid-1;
+		if (x1 > (p_ptr->cur_map_wid-1-65)) x1 = p_ptr->cur_map_wid-1-65;
+	}
 
 	/* Scan monsters */
 	for (i = 1; i < mon_max; i++)
@@ -1016,7 +1443,7 @@ bool detect_monsters_evil(void)
 		x = m_ptr->fx;
 
 		/* Only detect nearby monsters */
-		if (!panel_contains(y, x)) continue;
+		if ((y1 > y) || (y2 < y) || (x1 > x) || (x2 < x)) continue;
 
 		/* Detect evil monsters */
 		if (r_ptr->flags4 & (RF4_EVIL))
@@ -1057,21 +1484,22 @@ bool detect_monsters_evil(void)
 }
 
 /*
- * Detect everything
+ * Detect everything but traps
  */
-bool detect_all(void)
+bool detect_all(int animate)
 {
 	bool detect = FALSE;
 
-	/* Detect everything */
-/*	if (detect_traps()) detect = TRUE;	*/
-	if (detect_doors()) detect = TRUE;
-	if (detect_stairs()) detect = TRUE;
-	if (detect_treasure()) detect = TRUE;
-	if (detect_objects_gold()) detect = TRUE;
-	if (detect_objects_normal()) detect = TRUE;
-	if (detect_monsters_invis()) detect = TRUE;
-	if (detect_monsters_normal()) detect = TRUE;
+	if (animate) animate_detect();
+
+	/* Detect everything but traps */
+	if (detect_doors(0)) detect = TRUE;
+	if (detect_stairs(0)) detect = TRUE;
+	if (detect_treasure(0)) detect = TRUE;
+	if (detect_objects_gold(0)) detect = TRUE;
+	if (detect_objects_normal(0)) detect = TRUE;
+	if (detect_monsters_invis(0)) detect = TRUE;
+	if (detect_monsters_normal(0)) detect = TRUE;
 
 	/* Result */
 	return (detect);

@@ -916,7 +916,11 @@ static cptr k_info_act[POW_MAX] =
 	"SHRRESTORE_STR",
 	"SHRRESTORE_CON",
 	"SHRRESTORE_DEX",
-	"SHRRESTORE_STATS"
+	"SHRRESTORE_STATS",
+	"PHLOGISTON",
+	"RESTORE_VIGOR",
+	"RESTORE_WIT",
+	"RESTORE_GRACE",
 };
 
 /*** Initialize from ascii template files ***/
@@ -1497,7 +1501,7 @@ errr parse_f_info(char *buf, header *head)
 		error_idx = i;
 
 		/* Point at the "info" */
-		f_ptr = f_ptr = (feature_type*)head->info_ptr + i;
+		f_ptr = (feature_type*)head->info_ptr + i;
 
 		/* Store the name */
 		if (!(f_ptr->name = add_name(head, s)))
@@ -1767,9 +1771,9 @@ errr parse_d_info(char *buf, header *head)
 		s=buf+2;
 
 		/* Analyze the race flag */
-		if (!d_ptr->r_flag) for (n1 = 0; r_info_flags1[n1]; n1++)
+		if (!d_ptr->r_flag) for (n1 = 0; r_info_flags4[n1]; n1++)
 		{
-			if (streq(s, r_info_flags1[n1]))
+			if (streq(s, r_info_flags4[n1]))
 			{
 				d_ptr->r_flag = n1 + 1;
 				break;

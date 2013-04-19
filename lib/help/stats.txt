@@ -42,8 +42,10 @@ SP:           Each character has spell points, or mana, which represents how
 Strength:     Strength is critical to fighting effectively in melee and with 
               missile weapons. Increases in Strength allow you to use heavier
               weapons, and make you more likely to hit through armor.  Strength
-              is also useful in tunneling and for carrying heavy items without
-              being slowed down.
+              is useful in tunneling and for carrying heavy items without being
+              slowed down. Strong character may also throw objects longer
+              distances, and very strong characters gain double or triple
+              damage with thrown weapons.
 Intelligence: Intelligence represents the character's ability in logic and
               language. It affects the spellcasting abilities of mages, as well
               as spellswords, rangers and mystics. For these classes, this stat
@@ -142,4 +144,4 @@ Racial Ab.:   Angels and Demons, being more magical than the other races, may
               activated by the 'U' command, and need some time to recharge.
 
 
-====================== Last updated for FayAngband 1.0.0 ======================
+====================== Last updated for FayAngband 1.0.1 ======================

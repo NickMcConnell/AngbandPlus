@@ -74,7 +74,10 @@ static int critical_shot(const object_type *o_ptr, byte *special, int dam)
 	i = ((p_ptr->to_h + object_to_h(o_ptr)) * 2) +10;
 
 	/* Improved critical hits for some classes */
-	if (cp_ptr->flags & CF_AMBUSH) i += p_ptr->lev +5;
+	if (cp_ptr->flags & CF_AMBUSH) i += p_ptr->lev +10;
+
+	/* Potion of Sneakiness increases critical chance */
+	if (p_ptr->tim_stealth) i += +20;
 
 	/* Critical hit */
 	if (randint(200) <= i)
@@ -119,7 +122,10 @@ static int critical_throw(const object_type *o_ptr, int dam)
 	i = ((p_ptr->to_h + object_to_h(o_ptr)) * 2) +10;
 
 	/* Improved critical hits for some classes */
-	if (cp_ptr->flags & CF_AMBUSH) i += p_ptr->lev +5;
+	if (cp_ptr->flags & CF_AMBUSH) i += p_ptr->lev +10;
+
+	/* Potion of Sneakiness increases critical chance */
+	if (p_ptr->tim_stealth) i += +20;
 
 	/* Critical hit */
 	if (randint(200) <= i)
@@ -169,7 +175,10 @@ static int critical_norm(const object_type *o_ptr, byte *special, int dam)
 	if (p_ptr->bless_blade) i += 10;
 
 	/* Improved critical hits for some classes */
-	if (cp_ptr->flags & CF_AMBUSH) i += p_ptr->lev +5;
+	if (cp_ptr->flags & CF_AMBUSH) i += p_ptr->lev +10;
+
+	/* Potion of Sneakiness increases critical chance */
+	if (p_ptr->tim_stealth) i += +20;
 
 	/* Chance */
 	if (randint(200) <= i)
@@ -3220,7 +3229,11 @@ void do_cmd_throw(void)
 	if (!(i_ptr->tval == TV_BOW) && (object_weight(i_ptr) < 100) && (object_weight(i_ptr) <= (10 * p_stat(A_STR))))
 		{
 			tdam = damroll(object_dd(i_ptr), object_ds(i_ptr));
+
+			if (p_stat(A_STR) >= 25) tdam = tdam *3;
+			else if (p_stat(A_STR) >= 18) tdam = tdam *2;
 		}
+
 	else tdam = damroll(0, 0);
 
 	/* Chance of hitting */

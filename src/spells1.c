@@ -1145,9 +1145,9 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 				trap_widget *w_ptr = &w_info[t_ptr->w_idx];
 				
 				/* Only disarm anti-player floor and chest traps, and locks */
-				if ((w_ptr->flags & WGF_PLAYER) && 
-					((w_ptr->flags & WGF_FLOOR) || (w_ptr->flags & WGF_LOCK) ||
-					 (w_ptr->flags & WGF_CHEST)))
+				if ((w_ptr->flags & WGF_PLAYER) &&
+					(((w_ptr->flags & WGF_FLOOR) && (trap_disarmable(y, x))) || (w_ptr->flags & WGF_LOCK) ||
+					 ((w_ptr->flags & WGF_CHEST) && (trap_disarmable(y, x)))))
 				{
 					delete_trap(y, x);
 
@@ -1206,7 +1206,7 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 				}
 
 				/* Disarm anti-player floor traps */
-				if ((w_ptr->flags & WGF_PLAYER) && 
+				if ((w_ptr->flags & WGF_PLAYER) && (trap_disarmable(y, x)) &&
 					((w_ptr->flags & WGF_FLOOR) || (w_ptr->flags & WGF_CHEST)))
 				{
 					delete_trap(y, x);

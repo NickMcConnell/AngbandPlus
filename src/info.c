@@ -282,6 +282,12 @@ static void display_player_xtra_info(void)
 	put_str("Racial Ability", 12, col);
 	display_player_race_power(13, col);
 
+	/* Thrown Damage */
+	put_str("   Thrown Dam.", 16, col);
+	if (p_stat(A_STR) >= 25) Term_putstr(col, 16, -1, TERM_L_BLUE, format ("3*"));
+	else if (p_stat(A_STR) >= 18) Term_putstr(col, 16, -1, TERM_L_BLUE, format ("2*"));
+	else Term_putstr(col, 16, -1, TERM_L_BLUE, format ("1*"));
+
 	/* Bottom */
 	col = 1;
 

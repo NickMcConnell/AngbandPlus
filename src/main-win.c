@@ -40,7 +40,7 @@
  * If "USE_GRAPHICS" is defined, then "readdib.h" and "readdib.c" must
  * be placed into "src/", and the "8x8.bmp" bitmap file must be placed
  * into "lib/xtra/graf".  In any case, some "*.fon" files (including
- * "8X13.FON" if nothing else) must be placed into "lib/xtra/font/".
+ * "8x16x.FON" if nothing else) must be placed into "lib/xtra/font/".
  * If "USE_SOUND" is defined, then some special library (for example,
  * "winmm.lib") may need to be linked in, and desired "*.WAV" sound
  * files must be placed into "lib/xtra/sound/".  All of these extra
@@ -352,7 +352,7 @@ typedef struct _term_data term_data;
  * Note the use of "font_want" for the names of the font file requested by
  * the user, and the use of "font_file" for the currently active font file.
  *
- * The "font_file" is uppercased, and takes the form "8X13.FON", while
+ * The "font_file" is uppercased, and takes the form "8x16x.FON", while
  * "font_want" can be in almost any form as long as it could be construed
  * as attempting to represent the name of a font.
  */
@@ -961,7 +961,7 @@ static void save_prefs_aux(term_data *td, cptr sec_name)
 	WritePrivateProfileString(sec_name, "Visible", buf, ini_file);
 
 	/* Font */
-	strcpy(buf, td->font_file ? td->font_file : "8X13.FON");
+	strcpy(buf, td->font_file ? td->font_file : "8x16x.FON");
 	WritePrivateProfileString(sec_name, "Font", buf, ini_file);
 
 	/* Bizarre */
@@ -1058,7 +1058,7 @@ static void load_prefs_aux(term_data *td, cptr sec_name)
 	td->maximized = (GetPrivateProfileInt(sec_name, "Maximized", td->maximized, ini_file) != 0);
 
 	/* Desired font, with default */
-	GetPrivateProfileString(sec_name, "Font", "8X13.FON", tmp, 127, ini_file);
+	GetPrivateProfileString(sec_name, "Font", "8x16x.FON", tmp, 127, ini_file);
 
 	/* Bizarre */
 	td->bizarre = (GetPrivateProfileInt(sec_name, "Bizarre", TRUE, ini_file) != 0);
@@ -1629,7 +1629,7 @@ static void term_change_font(term_data *td)
 		if (term_force_font(td, tmp))
 		{
 			/* Access the standard font file */
-			path_build(tmp, sizeof(tmp), ANGBAND_DIR_XTRA_FONT, "8X13.FON");
+			path_build(tmp, sizeof(tmp), ANGBAND_DIR_XTRA_FONT, "8x16x.FON");
 
 			/* Force the use of that font */
 			(void)term_force_font(td, tmp);
@@ -2691,7 +2691,7 @@ static void init_windows(void)
 		if (term_force_font(td, buf))
 		{
 			/* Access the standard font file */
-			path_build(buf, sizeof(buf), ANGBAND_DIR_XTRA_FONT, "8X13.FON");
+			path_build(buf, sizeof(buf), ANGBAND_DIR_XTRA_FONT, "8x16x.FON");
 
 			/* Force the use of that font */
 			(void)term_force_font(td, buf);
@@ -4830,7 +4830,7 @@ static void init_stuff(void)
 	validate_dir(ANGBAND_DIR_XTRA_FONT);
 
 	/* Build the filename */
-	path_build(path, sizeof(path), ANGBAND_DIR_XTRA_FONT, "8X13.FON");
+	path_build(path, sizeof(path), ANGBAND_DIR_XTRA_FONT, "8x16x.FON");
 
 	/* Hack -- Validate the basic font */
 	validate_file(path);

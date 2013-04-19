@@ -67,4 +67,19 @@ offer spells up to level 20 - to cast better spells, you must find better
 quality musical instruments.
 
 
-======================= Last updated for EyAngband 0.5.0 ======================
+=== Mushroom Magic ===
+
+Shamans practice their own special form of magic, based on eating magical
+mushrooms, and asking favours from their Mother Spirits.
+
+Bad mushroom effects are either changed to a positive version of the effect or
+targeted at monsters instead of you, depending on the mushroom. If you (I)nspect
+a mushroom, you can read a description that hints at both negative and positive
+effects.
+
+Good effects are mostly not altered. The mushrooms that cure wounds are an
+exception: they function at a higher power level. For example, Cure Light Wounds
+becomes Cure Medium Wounds if eaten by a Shaman.
+
+
+====================== Last updated for FayAngband 1.0.1 ======================

@@ -40,4 +40,4 @@ no when prompted, and you will be directed to the normal character creation
 process.
 
 
-======================= Last updated for EyAngband 0.5.0 ======================
+====================== Last updated for FayAngband 1.0.1 ======================

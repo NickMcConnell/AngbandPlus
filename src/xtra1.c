@@ -1898,8 +1898,14 @@ byte calc_blows(const object_type *o_ptr, bool full)
 		p_ptr->skill[SK_DIG] += (object_weight(o_ptr) / 10);
 
 		/* Hack - Now modify the value according to class */
-		if ((cp_ptr->flags & CF_BETTER_BLOWS) && (wgt_val > 12)) wgt_val--;
-		if (cp_ptr->flags & CF_BETTER_BLOWS) wgt_val--;
+		
+		if (!((cp_ptr->flags & CF_BLESS_WEAPON) && (!p_ptr->bless_blade) &&
+			((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_POLEARM))))
+		{
+			if ((cp_ptr->flags & CF_BETTER_BLOWS) && (wgt_val > 12)) wgt_val--;
+			if (cp_ptr->flags & CF_BETTER_BLOWS) wgt_val--;
+		}
+
 		if (cp_ptr->flags & CF_WORSE_BLOWS) wgt_val++;
 
 		if (wgt_val < 0) wgt_val = 0;

@@ -133,17 +133,7 @@ fuel a lantern (which gives more light than a torch), but also, they can be
 ignited and thrown at monsters from a distance.  So it is often a good idea to
 have a few extra flasks of oil.  Press escape to leave the store.  If you want,
 take time to visit the rest of the stores.  One of the buildings, marked with 
-an "8", is your "home", and is not a real store.  
-
-The store marked with "0" is not a store either, but rather the adventurer's 
-guild.  Enter the guild, and notice that they are not very impressed with you 
-at the moment - you will have to convince them of your worth.  You will be 
-presented with a list of quests which you may take.  Press 'g' to indicate that
-you want a quest, then pick 'a' - the easy quest, as otherwise you may get 
-yourself killed quickly.  The screen will then change to describe a task you
-must fulfill - usually, killing 10-12 of some monster type, on dungeon level
-1.  Remember this, (though if you forget you can always access this information
-again by pressing CTRL and Q). 
+an "8", is your "home", and is not a real store.
 
 Now, it's time to actually get into the dungeon.  Move to the staircase, 
 represented by the ">" symbol, and press ">", to go down the stairs. You will be
@@ -212,4 +202,4 @@ the symbols which you may encounter in the dungeon, and information about
 creating new characters.
 
 
-====================== Last updated for FayAngband 1.0.0 ======================
+====================== Last updated for FayAngband 1.0.1 ======================

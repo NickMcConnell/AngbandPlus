@@ -44,14 +44,14 @@
 /*
  * Current version string
  */
-#define VERSION_STRING	"1.0.0"
+#define VERSION_STRING	"1.0.1"
 
 /*
  * Current version numbers
  */
 #define VERSION_MAJOR	1
 #define VERSION_MINOR	0
-#define VERSION_PATCH	0
+#define VERSION_PATCH	1
 #define VERSION_EXTRA	0
 
 /*
@@ -1795,12 +1795,12 @@
 /* The "sval" codes for TV_ROD */
 #define SV_ROD_SUMMON			 0
 #define SV_ROD_DARKNESS			 1
-#define SV_ROD_DETECT_TRAP		 2
+/* xxx */
 #define SV_ROD_DETECT_DOOR		 3
 #define SV_ROD_IDENTIFY			 4
-#define SV_ROD_RECALL			 5
+/* xxx */
 #define SV_ROD_ILLUMINATION		 6
-#define SV_ROD_MAPPING			 7
+/* xxx */
 #define SV_ROD_DETECTION		 8
 #define SV_ROD_PROBING			 9
 #define SV_ROD_CURING			10
@@ -1836,7 +1836,7 @@
 #define SV_SCROLL_RECHARGING			23
 #define SV_SCROLL_ELEMENTAL_BRAND		24
 #define SV_SCROLL_LIGHT					25
-#define SV_SCROLL_MAPPING				26
+/* xxx */
 #define SV_SCROLL_DETECT_GOLD			27
 #define SV_SCROLL_DETECT_ITEM			28
 #define SV_SCROLL_DETECT_TRAP			29
@@ -1886,7 +1886,7 @@
 #define SV_POTION_DETONATIONS			20
 #define SV_POTION_DEATH					21
 #define SV_POTION_RISK					22
-#define SV_POTION_STEALTH				23
+#define SV_POTION_SNEAKINESS				23
 #define SV_POTION_INFRAVISION			24
 #define SV_POTION_DETECT_INVIS			25
 #define SV_POTION_SPEED					26
@@ -1904,12 +1904,14 @@
 #define SV_POTION_CURE_DISEASE			39
 #define SV_POTION_RESTORE_MANA			40
 #define SV_POTION_RESTORE_EXP			41
-#define SV_POTION_RES_STR				42
-#define SV_POTION_RES_INT				43
-#define SV_POTION_RES_WIS				44
-#define SV_POTION_RES_DEX				45
-#define SV_POTION_RES_CON				46
-#define SV_POTION_RES_CHR				47
+
+#define SV_POTION_RES_VIGOR			42
+#define SV_POTION_RES_WIT			43
+#define SV_POTION_RES_GRACE			44
+/* xxx Restore potion removed */	
+/* xxx Restore potion removed */	
+/* xxx Restore potion removed */	
+
 #define SV_POTION_INC_STR				48
 #define SV_POTION_INC_INT				49
 #define SV_POTION_INC_WIS				50
@@ -2011,7 +2013,6 @@
 #define SV_BOOK_PRIEST7			18
 #define SV_BOOK_PRIEST8			19
 #define SV_BOOK_PRIEST9			20
-/* xxx */
 #define SV_BOOK_MYSTIC1			21
 #define SV_BOOK_MYSTIC2			22
 #define SV_BOOK_NECRONOMICON	23
@@ -4101,9 +4102,12 @@ extern int PlayerUID;
 #define POW_SHRRESTORE_DEX		310
 #define POW_SHRRESTORE_STATS		311
 #define POW_PHLOGISTON			312
+#define POW_RESTORE_VIGOR		313
+#define POW_RESTORE_WIT			314
+#define POW_RESTORE_GRACE		315
 
 /* Total number of powers in the game + 1 */
-#define POW_MAX					313
+#define POW_MAX					316
 
 /* 
  * Hack - variables defined in order to be compatible with the general main*.c files.

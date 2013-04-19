@@ -28,7 +28,7 @@ Allow specification of minimal stats [birth_auto_roller] (default: no)
     based creation and the weighted roller.
 
 ***** <birth_weighted_roller>
-Allow specification of stat weighings [birth_weighted_roller] (default: no)
+Allow specification of stat weighings [birth_weighted_roller] (default: yes)
     This allows the player to set weighings for the various stats ask the game
     to keep on rolling until a character with appropriate stats is generated. 
     Like the auto roller, using this method can lead to better characters than 
@@ -126,9 +126,10 @@ Restrict the creation of artifacts [birth_no_artifacts] (default: no)
     No artifacts will be created. Ever. Just *how* masochistic are you?
 
 ***** <birth_force_small_lev>
-All levels will be generated as small [birth_force_small_lev] (default: no)
+All levels will be generated as small [birth_force_small_lev] (default: yes)
     All levels will be generated as small levels, giving you less space to 
-    which you can run...
+    which you can run... Note that FayAngband is designed to be played with
+    small levels. Turning this option off will likely result in a boring game.
 
 ==== Sub-Set 3 - Monster AI options ====
 
@@ -162,4 +163,4 @@ Monsters chase recent locations [birth_flow_by_smell] (default: yes)
     in the dungeon.  This has no effect unless "flow_by_sound" is also set.
 
 
-======================= Last updated for EyAngband 0.5.1 ======================
+====================== Last updated for FayAngband 1.0.1 ======================
