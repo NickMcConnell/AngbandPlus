@@ -246,9 +246,15 @@ static void roff_aux(int r_idx, int remem)
 		}
 
 		/* Dead unique who never hurt us */
-		else if (dead)
+		else if (dead && !(flags7 & RF7_FRIENDLY))
 		{
 			c_roff(TERM_L_DARK, "You have slain this foe.  ");
+		}
+
+		/* Dead friendly uniques */
+		else if (dead)
+		{
+			c_roff(TERM_L_DARK, "This creature has been killed.  ");
 		}
 	}
 
@@ -496,7 +502,7 @@ static void roff_aux(int r_idx, int remem)
 		else if (flags3 & RF3_GIANT)    c_roff(TERM_L_BLUE, " giant");
 		else if (flags3 & RF3_TROLL)    c_roff(TERM_L_BLUE, " troll");
 		else if (flags3 & RF3_ORC)      c_roff(TERM_L_BLUE, " orc");
-		else if (flags3 & RF3_AMBERITE) c_roff(TERM_L_BLUE, " Amberite");
+		else if (flags3 & RF3_AMBERITE) c_roff(TERM_L_BLUE, " Ringwraith");
 		else if (flags2 & RF2_QUANTUM)  c_roff(TERM_L_BLUE, " quantum creature");
 		else                            c_roff(TERM_WHITE, " creature");
 
@@ -732,10 +738,11 @@ static void roff_aux(int r_idx, int remem)
 	if (flags6 & (RF6_S_DEMON))         vp[vn++] = "summon a demon";
 	if (flags6 & (RF6_S_UNDEAD))        vp[vn++] = "summon an undead";
 	if (flags6 & (RF6_S_DRAGON))        vp[vn++] = "summon a dragon";
+	if (flags4 & (RF4_S_HI_DEMON))      vp[vn++] = "summon Greater Demons";
 	if (flags6 & (RF6_S_HI_UNDEAD))     vp[vn++] = "summon Greater Undead";
 	if (flags6 & (RF6_S_HI_DRAGON))     vp[vn++] = "summon Ancient Dragons";
 	if (flags6 & (RF6_S_CYBER))         vp[vn++] = "summon Cyberdemons";
-	if (flags6 & (RF6_S_AMBERITES))     vp[vn++] = "summon Lords of Amber";
+	if (flags6 & (RF6_S_SPECIAL))     vp[vn++] = "summon specific creatures";
 	if (flags6 & (RF6_S_UNIQUE))        vp[vn++] = "summon Unique Monsters";
 
 	/* Describe spells */
@@ -1259,6 +1266,7 @@ static void roff_aux(int r_idx, int remem)
 			case RBE_DISEASE:	q = "disease"; break;
 			case RBE_TIME:      q = "time"; break;
 			case RBE_EXP_VAMP:  q = "drain life force"; break;
+			case RBE_PENETRATE:	q = "penetrate"; break;
 		}
 
 
@@ -1370,7 +1378,7 @@ static void roff_top(int r_idx)
 	a2 = r_ptr->x_attr;
 
 	/* Hack -- fake monochrome */
-	if (!use_color || ironman_moria)
+	if (!use_color/* || ironman_moria*/)
 	{
 		a1 = TERM_WHITE;
 		a2 = TERM_WHITE;
@@ -1517,7 +1525,7 @@ void display_visible(void)
 		a2 = r_ptr->x_attr;
 
 		/* Hack -- fake monochrome */
-		if (!use_color || ironman_moria)
+		if (!use_color /*|| ironman_moria*/)
 		{
 			a1 = TERM_WHITE;
 			a2 = TERM_WHITE;
@@ -1599,7 +1607,8 @@ bool monster_quest(int r_idx)
 
 	/* No quests to kill friendly monsters */
 	if (r_ptr->flags7 & RF7_FRIENDLY) return FALSE;
-
+	if (r_ptr->default_group > GP_MAX_HOSTILE) return FALSE;
+	
 	return TRUE;
 }
 
@@ -1609,6 +1618,20 @@ bool monster_dungeon(int r_idx)
 	monster_race *r_ptr = &r_info[r_idx];
 
 	if (r_ptr->flags8 & RF8_DUNGEON)
+		return TRUE;
+	else
+		return FALSE;
+}
+
+
+bool monster_vault(int r_idx)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+
+	if ((r_ptr->flags8 & RF8_DUNGEON) && 
+			(r_ptr->default_group <= GP_MAX_HOSTILE ||
+			r_ptr->default_group == GP_TOUCHY || 
+			r_ptr->default_group == GP_TOUCHY_BULLY))
 		return TRUE;
 	else
 		return FALSE;
@@ -1796,7 +1819,9 @@ bool monster_swamp_wild(int r_idx)
 
 monster_hook_type get_monster_hook(void)
 {
-	if (p_ptr->depth)
+	if (making_vault)
+		return &(monster_vault);
+	else if (p_ptr->depth)
 	{
 		/* In dungeon */
 		return &(monster_dungeon);
@@ -1857,12 +1882,16 @@ monster_hook_type get_monster_hook2(int y, int x)
 	else if (w_ptr->info & WILD_INFO_ACID)
 	{
 		/* Acid */
-		wild_mon_hook = &monster_acid_wild;
+		/* Old version causes infinite function loops - segfaults */
+		/* wild_mon_hook = &monster_acid_wild; */
+		wild_mon_hook = &validate_mon_wild;
 	}
 	else if (w_ptr->info & WILD_INFO_LAVA)
 	{
 		/* Lava */
-		wild_mon_hook = &monster_lava_wild;
+		/* Old version causes infinite function loops - segfaults */
+		/* wild_mon_hook = &monster_lava_wild; */
+		wild_mon_hook = &validate_mon_wild;
 	}
 	else
 	{
@@ -1924,6 +1953,8 @@ void set_friendly(monster_type *m_ptr)
 void set_pet(monster_type *m_ptr)
 {
 	m_ptr->smart |= SM_PET;
+	m_ptr->smart |= SM_FRIENDLY;
+	m_ptr->group = GP_ALLY;
 }
 
 
@@ -1940,8 +1971,13 @@ void set_hostile(monster_type *m_ptr)
 /*
  * Anger the monster
  */
-void anger_monster(monster_type *m_ptr)
+void anger_monster(int m_idx)
 {
+	int i,j;
+	s16b idx;
+
+	monster_type *m_ptr = &m_list[m_idx];
+	
 	if (!is_hostile(m_ptr))
 	{
 		char m_name[80];
@@ -1954,6 +1990,25 @@ void anger_monster(monster_type *m_ptr)
 		chg_virtue(V_HONOUR, -1);
 		chg_virtue(V_JUSTICE, -1);
 		chg_virtue(V_COMPASSION, -1);
+
+		/* If it is a master, anger its subordinates */
+		if (m_ptr->mflag2 & MFLAG2_MASTER)
+		{
+			for (i = m_max - 1; i >= 1; i--)
+			{
+				/* Skip itself */
+				if (i == m_idx) continue;
+				
+				idx = i;
+				/* Paranoid about loops */
+				for (j=0; j<1000 && m_list[idx].master_m_idx &&
+						idx != m_idx; ++j)
+				{
+					idx = m_list[idx].master_m_idx;
+				}
+				if (idx == m_idx) set_hostile(&m_list[i]);
+			}
+		}
 	}
 }
 
@@ -2039,25 +2094,104 @@ bool monster_can_cross_terrain(byte feat, monster_race *r_ptr)
 /*
  * Check if two monsters are enemies
  */
-bool are_enemies(const monster_type *m_ptr, const monster_type *n_ptr)
+static bool one_hates_two(const int m_idx, const int n_idx)
 {
+	const monster_type *m_ptr = &m_list[m_idx];
+	const monster_type *n_ptr = &m_list[n_idx];
 	const monster_race *r_ptr = &r_info[m_ptr->r_idx];
 	const monster_race *s_ptr = &r_info[n_ptr->r_idx];
 
+	
+	/* Pets never fight */
+	if (is_pet(m_ptr) && is_pet(n_ptr)) return FALSE;
+
+	
+	
 	/* Friendly vs. opposite aligned normal or pet */
 	if (((r_ptr->flags3 & RF3_EVIL) &&
-		  (s_ptr->flags3 & RF3_GOOD)) ||
-		 ((r_ptr->flags3 & RF3_GOOD) &&
-		  (s_ptr->flags3 & RF3_EVIL)))
+		(s_ptr->flags3 & RF3_GOOD)) && 
+		!((r_ptr->flags3 & RF3_GOOD) &&
+		(s_ptr->flags3 & RF3_EVIL)))
 	{
 		return TRUE;
 	}
 
-	/* Hostile vs. non-hostile */
-	if (is_hostile(m_ptr) != is_hostile(n_ptr))
+	/* Allies vs enemies */
+	if (is_hostile(m_ptr) && n_ptr->group == GP_ALLY) 
 	{
 		return TRUE;
 	}
+	
+	if (advanced_monst_groups)
+	{
+		/* Indiscriminate monsters fight almost anything */
+		if (m_ptr->group == GP_EXTREME_INDISCRIM) return TRUE;
+		else if (m_ptr->group == GP_VERY_INDISCRIM && m_ptr->r_idx != n_ptr->r_idx)
+			return TRUE;
+		else if (m_ptr->group == GP_INDISCRIMINATE && r_ptr->d_char != s_ptr->d_char)
+			return TRUE;
+
+		/* Bullies attack only substantially weaker monsters */
+		else if ((m_ptr->group == GP_BULLY || m_ptr->group == GP_TOUCHY_BULLY)
+				&& r_ptr->level > (s_ptr->level * 2))
+			return TRUE;
+
+		/* Adventurers and guardians attack enemies */
+		else if (is_hostile(n_ptr) && (m_ptr->group == GP_ADVENTURER
+					|| m_ptr->group == GP_GUARDIAN)) return TRUE;
+
+		/* Vicious plants attack all animal life, with a few exceptions */
+		else if (m_ptr->group == GP_VICIOUS_PLANT && (!strchr("ijm,", s_ptr->d_char))
+				&& (!strstr((r_name + s_ptr->name), "arden"))
+				&& (!(s_ptr->flags3 & RF3_NONLIVING))
+				&& (!(s_ptr->flags3 & RF3_UNDEAD))
+				&& (!(s_ptr->flags3 & RF3_DEMON))) return TRUE;
+		/* Mimics attack all tasty non-mimics */
+		else if (m_ptr->group == GP_VICIOUS_MIMIC && (!(s_ptr->flags1 & RF1_CHAR_MIMIC))
+				&& (!(s_ptr->flags3 & RF3_NONLIVING))
+				&& (!(s_ptr->flags3 & RF3_UNDEAD))
+				&& (!(s_ptr->flags3 & RF3_DEMON))) return TRUE;
+		/* Zephyr hounds and Zephyr Lords hate everything else */
+		else if (m_ptr->group == GP_ZEPHYR && s_ptr->d_char != 'Z'
+				&& (!strstr((r_name + s_ptr->name), "Zephyr")))
+			return TRUE;
+	}
+
+	/* Default */
+	return FALSE;
+}
+
+bool are_enemies(int m_idx, int n_idx)
+{
+	s16b cur_n_idx = n_idx;
+	s16b cur_m_idx = m_idx;
+	s16b m_master_idx = m_list[m_idx].master_m_idx;
+	s16b n_master_idx = m_list[n_idx].master_m_idx;
+	
+	int i;
+	
+	if (advanced_monst_groups)
+	{
+		/* Find out their masters. Paranoid about loops. */
+		for (i=0; i<1000 && (m_master_idx || n_master_idx); ++i)
+		{
+			if (m_master_idx && m_list[m_master_idx].r_idx) 
+			{
+				cur_m_idx = m_master_idx;
+				m_master_idx = m_list[m_master_idx].master_m_idx;
+			}
+			if (n_master_idx && m_list[n_master_idx].r_idx) 
+			{
+				cur_n_idx = n_master_idx;
+				n_master_idx = m_list[n_master_idx].master_m_idx;
+			}
+		}
+	}
+
+	/* Same master? */
+	if (cur_m_idx == cur_n_idx) return FALSE;
+	
+	if (one_hates_two(cur_m_idx, cur_n_idx) || one_hates_two(cur_n_idx, cur_m_idx)) return TRUE;
 
 	/* Default */
 	return FALSE;

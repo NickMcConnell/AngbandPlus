@@ -88,7 +88,7 @@ SRCS = \
 	z-util.c z-virt.c z-form.c z-rand.c z-term.c \
 	variable.c tables.c util.c cave.c \
 	object1.c object2.c monster1.c monster2.c \
-	xtra1.c xtra2.c spells1.c spells2.c \
+	xtra1.c xtra2.c spells1.c spells2.c nmagic1.c nmagic2.c \
 	melee1.c melee2.c save.c files.c fields.c\
 	cmd1.c cmd2.c cmd3.c cmd4.c cmd5.c cmd6.c \
 	store.c birth.c load.c \
@@ -105,7 +105,7 @@ OBJS = \
 	z-util.o z-virt.o z-form.o z-rand.o z-term.o \
 	variable.o tables.o util.o cave.o \
 	object1.o object2.o monster1.o monster2.o \
-	xtra1.o xtra2.o spells1.o spells2.o \
+	xtra1.o xtra2.o spells1.o spells2.o nmagic1.o nmagic2.o \
 	melee1.o melee2.o save.o files.o fields.o\
 	cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o \
 	store.o birth.o load.o \
@@ -208,18 +208,17 @@ endif
 
 ##
 ## Graphics under X11 in linux.  (Run with the -g option)
-## Note: Get the 16x16.bmp file, and put in [Z]directory/lib/xtra/graf
-##       to get 256 colours.
-##
-#CFLAGS = -Wall -O2 -fno-strength-reduce -pipe -g \
-#         -D"USE_X11" -D"USE_GCU" -D"USE_VCS" -D"USE_TRANSPARENCY"
-#LIBS = -lX11 -lcurses -ltermcap -L/usr/X11R6/lib $(PYLIB)
+## Note: Get the 8x8.bmp file, and put in [F]directory/lib/xtra/graf
+#
+CFLAGS = -Wall -O2 -fno-strength-reduce -pipe -g \
+         -D"USE_X11" -D"USE_GCU" -D"USE_VCS" -D"USE_TRANSPARENCY"
+LIBS = -lX11 -lcurses -ltermcap -L/usr/X11R6/lib $(PYLIB)
 
 ## Option: Use XAW instead of pure X11
-CFLAGS = -Wall -O2 -fno-strength-reduce -pipe -g \
-          -D"USE_XAW" -D"USE_GCU" -D"USE_VCS" -D"USE_TRANSPARENCY"
-LIBS = -L/usr/X11R6/lib -lXaw -lXext -lSM -lICE -lXmu -lXt\
-          -lX11 -lcurses $(PYLIB)
+#CFLAGS = -Wall -O2 -fno-strength-reduce -pipe -g \
+#          -D"USE_XAW" -D"USE_GCU" -D"USE_VCS" -D"USE_TRANSPARENCY"
+#LIBS = -L/usr/X11R6/lib -lXaw -lXext -lSM -lICE -lXmu -lXt\
+#          -lX11 -lcurses $(PYLIB)
 
 
 ##
@@ -388,16 +387,16 @@ LIBS = -L/usr/X11R6/lib -lXaw -lXext -lSM -lICE -lXmu -lXt\
 # Build the "ZAngband" program
 #
 
-zangband: $(OBJS)
-	$(CC) $(CFLAGS) -o zangband $(OBJS) $(LDFLAGS) $(LIBS)
+frazband: $(OBJS)
+	$(CC) $(CFLAGS) -o frazband $(OBJS) $(LDFLAGS) $(LIBS)
 
 
 #
 # Hack -- "install" as the base target
 #
 
-install: zangband
-	cp zangband ..
+install: frazband
+	cp frazband ..
 
 
 #
@@ -471,6 +470,8 @@ monster2.o: monster2.c $(INCS)
 mspells1.o: mspells1.c $(INCS)
 mspells2.o: mspells2.c $(INCS)
 mutation.o: mutation.c $(INCS)
+nmagic1.o: nmagic1.c $(INCS)
+nmagic2.o: nmagic2.c $(INCS)
 notes.o: notes.c $(INCS)
 object1.o: object1.c $(INCS)
 object2.o: object2.c $(INCS)

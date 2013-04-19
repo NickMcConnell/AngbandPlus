@@ -1,4 +1,4 @@
-=== Zangband Options ===
+=== Frazband Options ===
 
 Most of the "options" are accessible through the '=' command, which
 provides an interface to the various "sets" of options available to the
@@ -83,9 +83,14 @@ Auto-haggle in stores    [auto_haggle]
     actual price that you pay for an item, as opposed to the price
     that the shop-keeper will suggest.
 
+***** <toggle_xp>    
+Reverse experience display    [toggle_xp]
+    Display the amount of extra experience needed to reach the next
+    level, instead of the total amount needed.
+
 ***** <stack_allow_items>
-Allow weapons and armor to stack    [stack_allow_items]
-    Allow identical weapons and armor to be combined into a stack. This
+Allow weapons and armour to stack    [stack_allow_items]
+    Allow identical weapons and armour to be combined into a stack. This
     also allows unidentified, but identical, ammo to be combined, which
     may result in the auto-identification of some of the ammo, but
     which makes it a lot easier to actually use unidentified ammo.
@@ -221,7 +226,7 @@ Disturb whenever boring things happen    [disturb_minor]
 
 ***** <disturb_other>
 Disturb whenever random things happen    [disturb_other]
-    In Zangband, uncursed teleporting items may teleport you around
+    In Frazband, uncursed teleporting items may teleport you around
     sometimes, asking for your confirmation (and possibly disturbing
     your rest). If you unset this option, they will stop asking you
     and teleporting you randomly. Cursed items will neither ask for
@@ -268,7 +273,7 @@ Allow unusually small dungeon levels    [small_levels]
 Allow empty 'arena' levels      [empty_levels]
     Normal dungeon levels consist mostly of rock. If this option is in
     use, levels which have empty floor instead of solid rock may  also 
-    be created (somewhat remniscent of Nethack's "big-room" levels). 
+    be created (somewhat reminiscent of Nethack's "big-room" levels). 
     These levels can be extremely deadly, especially with breathing
     monsters (since there are few obstructions to shield). Arena levels
     may have vaults, nests and pits in them like normal levels. Some
@@ -285,22 +290,22 @@ Auto-scum for good levels    [auto_scum]
 
 ***** <view_perma_grids>
 Map remembers all perma-lit grids    [view_perma_grids]
-    Memorize all perma-lit floor grids which are seen by the player.
+    Memorise all perma-lit floor grids which are seen by the player.
     This option allows you to keep track of which explored floor grids
     were perma-lit, but does not distinguish between dark floor grids,
     unexplored floor grids, and unknown grids.  Turning off this option
     allows the player to always know which lit floor grids are in line
     of sight, but this is better accomplished by the "view_bright_lite"
     option.  Note that any non-floor grids which is seen by the player
-    are always memorized, and "object" which is seen by the player is
-    memorized independantly from the memorization of the grid itself.
+    are always memorised, and "object" which is seen by the player is
+    memorised independently from the memorisation of the grid itself.
 
 ***** <view_torch_grids>
 Map remembers all torch-lit grids    [view_torch_grids]
-    Memorize all (torch-lit) floor grids which are seen by the player.
+    Memorise all (torch-lit) floor grids which are seen by the player.
     This option not only allows you to keep track of which floor grids
     have been explored, but also which ones are "dark", because the use
-    of this option activates a special "color scheme" for the display
+    of this option activates a special "colour scheme" for the display
     of floor grids, in which "dark" grids are drawn in "dark gray",
     "lit" grids are drawn in "white", and (if the "view_bright_lite"
     option is set) "lit" grids which are also in line of sight are
@@ -325,33 +330,27 @@ Generate dungeons with connected stairs    [dungeon_stair]
 Allow notes to be appended to a file    [take_notes]
     Allows you to use the ':' command to take notes. The notes will be
     appended to a text file baring the same name and in the same
-    directory as your safevile but with the .txt extension.
+    directory as your savefile but with the .txt extension.
 
 ***** <auto_notes>
 Automatically note important events    [auto_notes]
     With this option enabled the game will automatically create a file
     which logs important events such as gaining a level, finding an
-    artifact or kiling a Unique. The automatic notes will be
+    artifact or killing a Unique. The automatic notes will be
     appended to a text file baring the same name and in the same
-    directory as your safevile but with the .txt extension.
+    directory as your savefile but with the .txt extension.
 
-
+***** <advanced_monst_groups>
+More Complex Monster Relationships    [advanced_monst_groups]
+    Without this option, there are only two types of monsters, those who
+    want to kill you, and those who are friendly, and want to kill the
+    ones who want to kill you. With this option enabled, monsters show
+    a wider range of behaviours; some are non-hostile but easy to
+    provoke, some will attack anything they encounter etc.
+    
+    
 ***** <Efficiency>
 === Efficiency Options ===
-
-***** <view_reduce_lite>
-Reduce lite-radius when running    [view_reduce_lite]
-    Reduce the "radius" of the player's "lite" to that of a "torch"
-    when the player is "running", which makes running more "efficient",
-    but is extremely annoying.  Certain older versions of Angband used
-    this behavior always, so "purists" should turn it on.
-
-***** <view_reduce_view>
-Reduce view-radius in town    [view_reduce_view]
-    Reduce the "radius" of the player's "view" by half when the player
-    is in town.  This makes running faster in town, and also allows the
-    player to ignore monsters in town which are more than ten grids
-    away, which is usually safe, since none have distance attacks.
 
 ***** <avoid_abort>
 Avoid checking for user abort    [avoid_abort]
@@ -366,17 +365,17 @@ Avoid checking for user abort    [avoid_abort]
     user takes damage from starvation.
 
 ***** <avoid_other>
-Avoid processing special colors    [avoid_other]
+Avoid processing special colours    [avoid_other]
     Avoid processing the "multi-hued" or "clear" attributes of
     monsters. This will cause all "multi-hued" monsters to appear
     "violet" and all "clear" monsters to appear "white", and will cause
     "trappers" and "lurkers" to be visible on some machines, but it may
     greatly increase efficiency especially when telepathy is active.
     Certain systems may choose to set this option if they are unable to
-    support the special "color" processing, but if they handle graphics
+    support the special "colour" processing, but if they handle graphics
     "correctly", by using attr/char pairs with the "high bits" set,
     then not only will the game correctly avoid using any "dangerous"
-    color processing, but it will allow such processing to occur when
+    colour processing, but it will allow such processing to occur when
     it is not dangerous. So if you are using graphics, and you use a
     "normal" attr/char for the "floor" grids, then you can use the
     "special lighting effects" for floors.
@@ -449,9 +448,9 @@ Show labels in object lists    [show_labels]
     labels indicate what the player is "using" the object for, such as
     "wielding" or "wearing" (in a given location). After you have
     played for a while, this information is no longer useful, and can
-    be annoying. Note that in Zangband 2.1.0 and later this option no
-    longer controls the "plain flavored object descriptions": a
-    separate option for them has been added under "Zangband Options".
+    be annoying. Note that in Frazband 2.1.0 and later this option no
+    longer controls the "plain flavoured object descriptions": a
+    separate option for them has been added under "Frazband Options".
 
 ***** <show_weights>
 Show weights in object lists    [show_weights]
@@ -460,13 +459,13 @@ Show weights in object lists    [show_weights]
     displaying any of these lists.
 
 ***** <use_color>
-Use color if possible (slow)    [use_color]
-    This option enables the software support for "color". Since this
+Use colour if possible (slow)    [use_color]
+    This option enables the software support for "colour". Since this
     makes the game slower, you should always disable this option if you
-    are using a machine which is not capable of using color.
+    are using a machine which is not capable of using colour.
 
 ***** <hilite_player>
-Hilite the player with the cursor    [hilite_player]
+Highlight the player with the cursor    [hilite_player]
     Place the visible cursor on the player. This looks fine on some
     Unix machines, but horrible on most graphics machines. Note that
     only some machines are able to *not* show the cursor, but on those
@@ -474,15 +473,15 @@ Hilite the player with the cursor    [hilite_player]
     better.
 
 ***** <view_yellow_lite>
-Use special colors for torch-lit grids    [view_yellow_lite]
-    This option causes special colors to be used for "torch-lit" grids
+Use special colours for torch-lit grids    [view_yellow_lite]
+    This option causes special colours to be used for "torch-lit" grids
     in certain situations (see the entries for"view_granite_lite" and
     "view_special_lite"). Turning this option off will slightly improve
     game speed.
 
 ***** <view_bright_lite>
-Use special colors for 'viewable' grids    [view_bright_lite]
-    This option causes special colors to be used for non "viewable"
+Use special colours for 'viewable' grids    [view_bright_lite]
+    This option causes special colours to be used for non "viewable"
     grids in certain situations (see "view_granite_lite" and
     "view_special_lite"). When this option is set, floor grids which
     are normally drawn in "white" but which are not currently
@@ -493,8 +492,8 @@ Use special colors for 'viewable' grids    [view_bright_lite]
     speed of the game.
 
 ***** <view_granite_lite>
-Use special colors for wall grids (slow)    [view_granite_lite]
-    This option activates a special color scheme for all "wall" grids
+Use special colours for wall grids (slow)    [view_granite_lite]
+    This option activates a special colour scheme for all "wall" grids
     which are normally drawn in "white" (as walls and rubble normally
     are). When the player is blind, we use "dark gray", else if the
     grid is torch-lit, we use "yellow" (or "white") depending on the
@@ -505,8 +504,8 @@ Use special colors for wall grids (slow)    [view_granite_lite]
     increase the speed of the game.
 
 ***** <view_special_lite>
-Use special colors for floor grids (slow)    [view_special_lite]
-    This option activates a special color scheme for all "floor" grids
+Use special colours for floor grids (slow)    [view_special_lite]
+    This option activates a special colour scheme for all "floor" grids
     which are normally drawn in "white" (as they normally are). When the
     player is blind, we use "dark gray", else if the grid is torch-lit,
     we use "yellow" (or "white") depending on the "view_yellow_lite"
@@ -514,24 +513,29 @@ Use special colors for floor grids (slow)    [view_special_lite]
     "view_bright_lite" option is set, and the grid is not in line of
     sight, we use "gray", otherwise we use the normal "white". Turning
     this option off will probably increase the speed of the game.
+    
+***** <show_3_combat>
+Show third party combat messages    [show_3_combat]
+    This option controls whether or not the player should always receive
+    messages when a monster attacks another monster.
 
 ***** <plain_descriptions>
 Plain object descriptions    [plain_descriptions]
-    In Zangband, this option disables "full" names for identified
-    'flavored' objects, in other words, if this option is not in use,
+    In Frazband, this option disables "full" names for identified
+    'flavoured' objects, in other words, if this option is not in use,
     an identified Potion of Speed could be listed (for example) as a
     Blue Potion of Speed. If you prefer simpler, less verbose
     descriptions, set this option.
 
 ***** <center_player>
-Always center on the player   [center_player]
+Always centre on the player   [center_player]
     Scrolls the map with each move the player makes so as to keep the
-    player at the center of the map.  This reduces the chance of the
+    player at the centre of the map.  This reduces the chance of the
     player being hit by an offscreen breath.
 
 ***** <avoid_center>
-Avoid centering while running   [avoid_center]
-    Turns off the player centering option when running.
+Avoid centring while running   [avoid_center]
+    Turns off the player centring option when running.
 
 ***** <monster_light>
 Allow monsters to carry lights   [monster_light]
@@ -543,60 +547,45 @@ Allow monsters to carry lights   [monster_light]
 ***** <StartUp>
 === Birth Options ===
 
-While cheating makes the game easier, the following options can make
-Zangband harder. So if you think the game is too easy, or if you want
-to impress your friends, then switch on the following options. The
-startup-options can only be accessed while creating a new character
+The startup-options can only be accessed while creating a new character
 (press '=' while creating the character). There is no way to turn them
-off after the creation is finished!
+off after the creation is finished! Most of them affect the difficulty
+of the game, and so will also affect your score.
 
 ***** <stupid_monsters>
 Monsters behave stupidly    [stupid_monsters]
-    Zangband 2.1.0 incorporates Keldon Jones' improved monster
-    Artificial Intelligence patch. While this patch most certainly
-    makes monsters behave more realistically, they will also be more
-    deadly with the improved AI. If you are a sissy, set this option to
-    get the old, really stupid monster AI.
+    Zangband 2.1.0 incorporated Keldon Jones' improved monster
+    Artificial Intelligence patch, and Frazband has further increased
+    monster intelligence. While this patch most certainly makes monsters
+    behave more realistically, they will also be more deadly with the
+    improved AI. If you are a sissy, set this option to get the old,
+    really stupid monster AI.
     Note that the new AI is a bit processing power expensive. If you
-    have an old computer (386sx) and Zangband is running too slowly,
+    have an old computer (386sx) and Frazband is running too slowly,
     you could try turning stupid_monsters on. Or buying that Pentium II
-    so you can run Zangband. :-)
+    so you can run Frazband. :-)
 
 ***** <vanilla_town>
 Use 'vanilla' town without quests and wilderness   [vanilla_town]
     Uses the basic town known from the standard Angband and older
-    versions of Zangband. This town is only one screen in size and
-    contains only the 8 Zangband stores, your home, and the stairs to
+    versions of Frazband. This town is only one screen in size and
+    contains only the 8 Frazband stores, your home, and the stairs to
     the dungeon. If you use the 'vanilla' town, then there is no
     wilderness, no special buildings and no set quests (but you can
     still use the random quests). This also speeds up the game on
     slower machines, since the wilderness doesn't need to be created.
-
-***** <ironman_shops>
-Stores are permanently closed   [ironman_shops]
-    This option closes all shops. Try to survive in the deeps of
-    the dungeon without supplies from town.
 
 ***** <ironman_small_levels>
 Always create unusually small dungeon levels   [ironman_small_levels]
     If this option is enabled, then every level will be smaller than
     usual. See the 'Allow unusually small dungeon levels' option above.
 
-***** <ironman_downward>
-Don't allow climbing upwards/recalling    [ironman_downward]
-    You are not allowed to climb upwards, or recall to town. All stairs
-    are downstairs and every time you teleport level, you'll teleport
-    to a deeper level. This option may be dangerous in combination with
-    the 'small_levels' options, since the creation of quest-monsters
-    may fail on very cramped levels, trapping you on the level with no
-    stairs up or down.
-
 ***** <ironman_autoscum>
 Permanently enable the autoscummer   [ironman_autoscum]
     This option switches the "autoscummer" permanently on, so that only
     "good" levels are created.  This can mean, that there are good
     items on this level, or that the level is protected by especially
-    powerful monsters. In Zangband it often is the later, so use this
+    powerful monsters. In Frazband it often is the later, so use this
     option with care.
 
 ***** <ironman_hard_quests>
@@ -606,40 +595,27 @@ Quest monsters get reinforcements   [ironman_hard_quests]
     If you leave the level while some quest monsters are still alive,
     then all killed quest monsters are revived on your next visit.
 
-***** <ironman_empty_levels>
-Always create empty 'arena' levels   [ironman_empty_levels]
-    If this option is enabled, then every level will be an arena level.
-    See the 'Allow empty 'arena' levels' option above.
-
+***** <ironman_los>
+Monsters use player line of sight    [ironman_los]
+    This option means that if you can shoot at a monster, the monster
+    is guaranteed to be able to shoot back, as long as it has ranged
+    capability. Of course, the reverse is also true.
+    
 ***** <terrain_streams>
 Create terrain 'streamers' in the dungeon   [terrain_streams]
     Allows the creation of terrain streamers in the dungeon. This
     allows the creation of 'lakes' and 'rivers' of water, lava and
     trees.
 
-***** <ironman_moria>
-The good old days ...   [ironman_moria]
-    This option induces Zangband to mimic certain aspects of the game
-    of Moria.  This includes the lack of colour, inability to gain the
-    high resists, no tragetting, and several other changes to game
-    play.
-
-***** <munchkin_death>
-Ask for saving death   [munchkin_death]
-    If your character dies and this option is enabled, you will be
-    asked if you will be given the opportunity to avoid dying.
-    Enabling this option will prevent your character's score from being
-    entered into the high-score table and is considered cheating.
-
 ***** <ironman_rooms>
 Always generate very unusual rooms   [ironman_rooms]
-    Forces the game to always generate intersting rooms such as pits,
+    Forces the game to always generate interesting rooms such as pits,
     nests and vaults. You will consequently find lots of out-of-depth
     items and monsters.
 
 ***** <maximize_mode>
-Maximize stats   [maximize_mode]
-    The "maximize" flag, if set when the character was created, causes
+Maximise stats   [maximize_mode]
+    The "maximise" flag, if set when the character was created, causes
     the "race" and "class" stat bonuses to be applied as "equipment"
     bonuses. This usually makes the character harder at the beginning
     of the game, but easier later on, since the stats are no longer
@@ -662,7 +638,7 @@ Specify 'minimal' stats   [autoroller]
 Generate character using a point system   [point_based]
     Allows you to specify your character's starting statistics using a
     point-based allocation system. You start with a certain number of
-    points which may be allocted to your different statistics. As your
+    points which may be allocated to your different statistics. As your
     stats increase, it takes more points to increase them further. If
     you do not use all your points, you will be rewarded with gold
     coins.
@@ -676,14 +652,79 @@ Allow silly monsters   [silly_monsters]
 Nightmare mode   [ironman_nightmare]
     It isn't even remotely fair - don't say we didn't warn you!
 
+***** <accelerated_develop>
+Get nice items much more often    [accelerated_develop]
+    This greatly increases the chance of you finding powerful items, as
+    well as boosting your experience gains.
+    
+***** <friendly_monsters>
+Allow friendly monsters    [friendly_monsters]
+    The presence of friendly monsters can in some cases lead to huge
+    battles between legions of summoned creatures, which some may find
+    irritating. This allows you to turn them off.
+    
+***** <protect_savefile>
+Allow player to avoid saving    [protect_savefile]
+    Traditionally, Angband has not supported the kind of "save, load,
+    reload, reload" business you get with many modern computer games, 
+    choosing to try to emulate reality. Once you do something, you
+    can't reload and do it differently, and once you're dead, you are
+    dead. However, since so many people, (sometimes including the
+    author!) like to play in a way which ensures that you won't lose
+    a favourite character due to a moment of madness, to the point of
+    finding all sorts of ways of getting round the rules, we've decided
+    to bring this in as an official option. With this option, you will
+    be able to quit without saving, and avoid saving when you die. This
+    option causes a massive reduction in your score, and should
+    *definitely* always be mentioned when talking or boasting about a
+    game you have played with it on.
+    
+***** <super_powerful_monst>
+Allow obscenely powerful monsters    [super_powerful_monst]
+    There are a few non-unique types of monsters in Frazband which
+    represent a sort of "other world" which your character has little 
+    interest in, but aren't really meant to be killed, merely avoided
+    (or genocided), such is their power. You can turn them off by
+    deselecting this option if you don't like this idea.
+
 
 ***** <AI>
 === Artificial Intelligence Options ===
+
+This section is a bit of a misnomer at the moment. These options are
+also permanent.
 
 ***** <smart_packs>
 Pack monsters use new AI    [smart_packs]
     Allows monsters which normally appear in groups to behave
     "smarter".
+
+***** <ironman_shops>
+Stores are permanently closed   [ironman_shops]
+    This option closes all shops. Try to survive in the deeps of
+    the dungeon without supplies from town.
+
+***** <ironman_downward>
+Don't allow climbing upwards/recalling    [ironman_downward]
+    You are not allowed to climb upwards, or recall to town. All stairs
+    are downstairs and every time you teleport level, you'll teleport
+    to a deeper level. This option may be dangerous in combination with
+    the 'small_levels' options, since the creation of quest-monsters
+    may fail on very cramped levels, trapping you on the level with no
+    stairs up or down.
+
+***** <ironman_empty_levels>
+Always create empty 'arena' levels   [ironman_empty_levels]
+    If this option is enabled, then every level will be an arena level.
+    See the 'Allow empty 'arena' levels' option above.
+
+***** <ironman_moria>
+The good old days ...   [ironman_moria]
+    This option induces Frazband to mimic certain aspects of the game
+    of Moria.  This includes the lack of colour, inability to gain the
+    high resists, no targeting, and several other changes to game
+    play. The end quest also becomes to kill Muar, the Balrog on level
+    50.
 
 
 ***** <Testing>
@@ -784,5 +825,6 @@ Original   : Ben Harrison
 Updated    : Zangband 2.1.* by Topi Ylinen
 Updated    : Zangband 2.2.0 through 2.2.6c by Robert Ruehlmann
 Updated    : Zangband DevTeam
-Last update: December 28, 2000
+Updated    : Benjamin Mann
+Last update: Aug 16, 2006
 

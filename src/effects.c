@@ -91,6 +91,20 @@ bool set_confused(int v)
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
+#ifdef USE_DIFFICULTY
+	if (difficulty_level < NORM_DIFFICULTY && v > p_ptr->confused)
+	{
+		u32b temp;
+		temp = (u32b)(v - p_ptr->confused);
+		temp *= EASY_LESS_STUNNING * 2L;
+		temp /= (EASY_LESS_STUNNING + (u32b)diff_num[difficulty_level]);
+		/* This is a trick so the division rounds to nearest, rather than downwards */
+		++temp;
+		temp /= 2L;
+		v = p_ptr->confused + (int) temp;
+	}
+#endif /* USE_DIFFICULTY */
+	
 	/* Open */
 	if (v)
 	{
@@ -1328,6 +1342,20 @@ bool set_stun(int v)
 		v = 0;
 	}
 
+#ifdef USE_DIFFICULTY
+	if (difficulty_level < NORM_DIFFICULTY && v > p_ptr->stun)
+	{
+		u32b temp;
+		temp = (u32b)(v - p_ptr->stun);
+		temp *= EASY_LESS_STUNNING * 2L;
+		temp /= (EASY_LESS_STUNNING + (u32b)diff_num[difficulty_level]);
+		/* This is a trick so the division rounds to nearest, rather than downwards */
+		++temp;
+		temp /= 2L;
+		v = p_ptr->stun + (int) temp;
+	}
+#endif /* USE_DIFFICULTY */
+	
 	/* Knocked out */
 	if (p_ptr->stun > 100)
 	{
@@ -2175,9 +2203,9 @@ static cptr desc_stat_pos[] =
 	"strong",
 	"smart",
 	"wise",
-	"dextrous",
+	"agile",
 	"healthy",
-	"cute"
+	"charismatic"
 };
 
 
@@ -2191,7 +2219,7 @@ static cptr desc_stat_neg[] =
 	"naive",
 	"clumsy",
 	"sickly",
-	"ugly"
+	"uncharismatic"
 };
 
 
@@ -2635,6 +2663,12 @@ void take_hit(int damage, cptr hit_from)
 
 	int warning = (p_ptr->mhp * hitpoint_warn / 10);
 
+#ifdef USE_DIFFICULTY
+	u32b tmpdamage;
+	u32b tmpnumber;
+#endif /* USE_DIFFICULTY */
+	
+
 
 	/* Paranoia */
 	if (p_ptr->is_dead) return;
@@ -2651,6 +2685,16 @@ void take_hit(int damage, cptr hit_from)
 		}
 		else
 		{
+			/* 
+			 * Further reduce the dominance of invulnerability
+			 * by letting big hits wear it away
+			 */
+			if (damage > 100 && randint1(600) < damage)
+			{
+				--p_ptr->invuln;
+				if (!p_ptr->invuln) 
+					msg_print("Your shield of invulnerability collapses!");
+			}
 			return;
 		}
 	}
@@ -2659,10 +2703,70 @@ void take_hit(int damage, cptr hit_from)
 	{
 		damage /= 10;
 		if ((damage == 0) && one_in_(10)) damage = 1;
+		/* 
+		 * Reduce the dominance of wraithform
+		 * by letting big hits wear it away
+		 */
+		if (damage > 100 && randint1(600) < damage)
+		{
+			--p_ptr->wraith_form;
+			if (!p_ptr->wraith_form) 
+				msg_print("Damage forces you into corporeality!");
+		}
 	}
 
 	/* Hurt the player */
+#ifdef USE_DIFFICULTY
+	if (difficulty_level == NORM_DIFFICULTY || !damage) p_ptr->chp -= damage;
+	else
+	{
+		tmpdamage = (u32b)(damage);
+		tmpdamage *= 0x10000L;      /* *65536 */
+		
+		/* Paranoia - check for overflow */
+		if (damage > 65535) tmpdamage = 0xFFFFFFFFL;
+		if (difficulty_level > NORM_DIFFICULTY)
+		{
+			tmpdamage /= DIFFICULT_PLAYER_HP_FACTOR;
+			tmpnumber = DIFFICULT_PLAYER_HP_FACTOR + (u32b)diff_num[difficulty_level];
+			/* Check for overflow */
+			if (0xFFFFFFFFL/tmpnumber < tmpdamage) tmpdamage = 0xFFFFFFFFL;
+			else tmpdamage *= tmpnumber;
+			p_ptr->chp -= (s16b)(tmpdamage >> 16);       /* div 65536 */
+
+			/* Does the fractional damage go below 0? */
+			if ((u32b) p_ptr->chp_frac < (tmpdamage & 0xFFFF))  /* mod 65536 */
+			{
+				--p_ptr->chp;
+				p_ptr->chp_frac = (u16b)(0x10000L + (u32b) p_ptr->chp_frac - (tmpdamage & 0xFFFF));
+			}
+			else
+			{
+				p_ptr->chp_frac = (u16b)((u32b) p_ptr->chp_frac - (tmpdamage & 0xFFFF));
+			}
+		}
+		else
+		{
+			tmpdamage /= (EASY_PLAYER_HP_FACTOR + (u32b)diff_num[difficulty_level]);
+			tmpdamage *= EASY_PLAYER_HP_FACTOR;
+			p_ptr->chp -= (s16b)(tmpdamage >> 16);       /* div 65536 */
+
+			/* Does the fractional damage go below 0? */
+			if ((u32b) p_ptr->chp_frac < (tmpdamage & 0xFFFF))  /* mod 65536 */
+			{
+				--p_ptr->chp;
+				p_ptr->chp_frac = (u16b)(0x10000L + (u32b) p_ptr->chp_frac - (tmpdamage & 0xFFFF));
+			}
+			else
+			{
+				p_ptr->chp_frac = (u16b)((u32b) p_ptr->chp_frac - (tmpdamage & 0xFFFF));
+			}
+		}
+			
+	}
+#else /* USE_DIFFICULTY */
 	p_ptr->chp -= damage;
+#endif /* USE_DIFFICULTY */
 
 	/* Display the hitpoints */
 	p_ptr->redraw |= (PR_HP);

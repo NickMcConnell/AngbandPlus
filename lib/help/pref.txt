@@ -1,15 +1,15 @@
 === User Pref Files ===
 
-Zangband allows you to change various aspects of the game to suit your
-tastes. You may define keymaps (changing the way Zangband maps your
+Frazband allows you to change various aspects of the game to suit your
+tastes. You may define keymaps (changing the way Frazband maps your
 keypresses to underlying commands), create macros (allowing you to map
 a single keypress to a series of keypresses), modify the visuals
 (allowing you to change the appearance of monsters, objects, or terrain
-features), change the colors (allowing you to make a given color
+features), change the colours (allowing you to make a given colour
 brighter, darker, or even completely different), or set options
 (turning them off or on).
 
-Zangband stores your preferences in files called "user pref files",
+Frazband stores your preferences in files called "user pref files",
 which contain comments and "user pref commands", which are simple
 strings describing one aspect of the system about which the user has a
 preference. There are many ways to load a user pref file, and in fact,
@@ -20,7 +20,7 @@ especially on multiuser systems. You may also enter single user pref
 commands directly, using the special "Enter a user pref command"
 command, activated by "double quote". You may have to use the "redraw"
 command (^R) after changing certain of the aspects of the game, to
-allow Zangband to adapt to your changes.
+allow Frazband to adapt to your changes.
 
 When the game starts up, after you have loaded an old character, or
 created a new character, some user pref files are loaded automatically.
@@ -30,7 +30,7 @@ pref commands which will work on all platforms. Then one of
 is loaded. These files contain attr/char changes to allow the monsters,
 objects, and/or terrain features to look "better" on your system. Then
 the "pref-xxx.prf" file is loaded. This file contains pre-defined
-system specific stuff (macros, color definitions, etc). Then, the
+system specific stuff (macros, colour definitions, etc). Then, the
 "user-xxx.prf" file is loaded. This file contains user-defined system
 specific stuff. The "user-xxx.prf" file is used as the "default" user
 pref file in many places. The "xxx" is the "system suffix" for your
@@ -44,7 +44,7 @@ create new user pref files, append information to existing user pref
 files, and/or interact with various of the user preferences in a more
 intuitive way than the user pref commands allow. The commands include
 "Interact with macros" (@), "Interact with visuals" (%), and "Interact
-with colors" (&), described below.
+with colours" (&), described below.
 
 
 ***** <Commands>
@@ -71,8 +71,8 @@ Interact with visuals (%)
      monsters, objects, and terrain features. You must use the "redraw"
      command (^R) to redraw the map after changing attr/char mappings.
 
-Interact with colors (&)
-     Allow the user to interact with colors. This command only
+Interact with colours (&)
+     Allow the user to interact with colours. This command only
      works on some systems.
  
 Interact with the system (!)
@@ -106,10 +106,10 @@ actions.
 
 The special "\" command (which must be encoded in macros as "\\") is
 very useful in macros, since it bypasses all keymaps and allows the
-next keystroke to be considered a command in the underlying Zangband
-command set. For a list of the Zangband command set, see the
+next keystroke to be considered a command in the underlying Frazband
+command set. For a list of the Frazband command set, see the
 "command.txt" help file. For example, a macro which maps Shift-KP6 to
-"\" + "." + "6" will induce the "run east" behavior, regardless of what
+"\" + "." + "6" will induce the "run east" behaviour, regardless of what
 keyset the user has chosen, and regardless of what keymaps have been
 defined.
 
@@ -124,7 +124,7 @@ the form "P:<str>", which defines the encoded macro trigger.
 The "Interact with macros" command also allows you to define "keymaps",
 which are vaguely related to macros. A keymap maps a single keypress to
 a series of keypresses, which bypass both other keymaps and any macros.
-Zangband uses keymaps to map the original and the roguelike keysets to
+Frazband uses keymaps to map the original and the roguelike keysets to
 the underlying command set, and allows the user to modify or add
 keymaps of their own. Note that all keymap actions must be specified
 using underlying commands, not keypresses from the original or
@@ -149,7 +149,7 @@ visual information, currently including the choice of what attr/char
 values are used to represent various monsters, objects, or terrain
 features. Note that in combination appropriate support in "main-xxx.c",
 and with the use of the "use_graphics" flag, you may be able to specify
-that "graphic bitmaps" should be used instead of normal "colored
+that "graphic bitmaps" should be used instead of normal "coloured
 characters" for various things.
 
 When interactively modifying the attr/char values for monsters,
@@ -169,17 +169,17 @@ Keymaps can be specified in user pref files as lines of the form
 "U:<N>:<A>/<C>".
 
 
-***** <Colors>
---- User Pref Files (Colors) ---
+***** <Colours>
+--- User Pref Files (Colours) ---
 
-The "Interact with colors" command allows you to change the actual
-internal values used to display various colors. This command may or may
+The "Interact with colours" command allows you to change the actual
+internal values used to display various colours. This command may or may
 not have any effect on your machine. Advanced machines may allow you to
-change the actual RGB values used to represent each of the 16 colors
-used by Zangband, and perhaps even allow you to define new colors which
-are not currently used by Zangband.
+change the actual RGB values used to represent each of the 16 colours
+used by Frazband, and perhaps even allow you to define new colours which
+are not currently used by Frazband.
 
-Colors can be specified in user pref files as lines of the form
+Colours can be specified in user pref files as lines of the form
 "V:<N>:<V>:<R>:<G>:<B>".
 
 
@@ -195,6 +195,6 @@ form "X:<option>" or "Y:<option>" respectively.
 Original   : Alexander Cutler and Andy Astrand
 Updated    : (2.7.6) by Russ Allbery (rra@cs.stanford.edu)
 Updated    : (2.7.9) by Ben Harrison (benh@phial.com)
-Updated    : Zangband 2.2.0 through 2.2.6c by Robert Ruehlmann
+Updated    : Frazband 2.2.0 through 2.2.6c by Robert Ruehlmann
 Updated    : Zangband DevTeam
 Last update: January 13, 2000

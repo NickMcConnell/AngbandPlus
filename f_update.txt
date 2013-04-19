@@ -1,0 +1,34 @@
+This is a document file listing the changes in Frazband (compared to
+the standard Zangband 2.6.2.) No long explanations, just a list. See
+code for details. In reversed chronological order (more or less).
+See z_update.txt for details on Zangband 2.6.2:
+
+Frazband 0.4.0:
+- New magic system.
+- Old magic system retained as an option, but with modifications.
+- Lots of new monsters, removed monsters and modified monsters. 
+- Sauron and Morgoth are now the main quests.
+- Difficulty system.
+- Birth option to be able to reload badly progressing games.
+- Improved monster AI.
+- Many new types of monster behaviour.
+- Modifications to the artifact list.
+- Fighter-type characters get more hitpoints.
+- Melee skill now boosts AC.
+- 'Summon Amberite' spell changed to 'Summon Special', which summons
+different (hardcoded) creatures for each monster.
+- 'Summon greater demon' spell from Angband restored.
+- Levels have a chance of becoming 'babewynified'.
+- Some monsters can now 'obfuscate'.
+- Uniques which are 'killed' by other monsters now disappear, or 
+genuinely die if friendly, to stop the player from being able to kill
+one with one spell if a giant fight is going on.
+- 'Accelerated development' option added.
+- 'Show third party combat messages' option added.
+- Friendly monsters can now be disabled.
+- Added warning messages when you first spot uniques or
+significantly out of depth monsters.
+- 'disturb when out of detection range' now prints a message, and
+does so regardless of whether or not the player is running.
+- Other stuff...
+

@@ -47,6 +47,10 @@ byte z_major;           /* Savefile version for Zangband */
 byte z_minor;
 byte z_patch;
 
+byte f_major;           /* Savefile version for Frazband */
+byte f_minor;
+byte f_patch;
+
 /*
  * Savefile information
  */
@@ -69,6 +73,19 @@ bool arg_force_roguelike;	/* Command arg -- Request roguelike keyset */
 /*
  * Various things
  */
+byte difficulty_level;          /* Difficulty level, from 0 to 100, 50 is core rules */
+
+bool generating_level;          /* Are we in the middle of generating it? */
+
+u32b mutate_seed;               /* Seed used to gain a random mutation */
+u32b unmutate_seed;             /* Seed used to lose a random mutation */
+
+#ifdef USE_NEW_MAGIC
+ #ifdef SUPPORT_OLD_MAGIC
+bool old_magic_user; 		/* Using the old magic system */
+ #endif /* SUPPORT_OLD_MAGIC */
+#endif /* USE_NEW_MAGIC */
+
 bool character_generated;	/* The character exists */
 bool character_dungeon;		/* The character has a dungeon */
 bool character_loaded;		/* The character was loaded from a savefile */
@@ -78,6 +95,9 @@ bool character_icky;		/* The game is in an icky full screen mode */
 bool character_xtra;		/* The game is in an icky startup mode */
 
 u32b seed_flavor;		/* Hack -- consistent object colors */
+
+bool making_vault = FALSE;	/* Currently making a vault 
+				Only toggled during fill_treasure() for now */
 
 bool msg_flag;			/* Used in msg_print() for "buffering" */
 
@@ -161,6 +181,7 @@ bool cheat_room;
 bool cheat_xtra;
 bool cheat_know;
 bool cheat_live;
+bool cheat_muta;
 
 
 /*
@@ -175,6 +196,8 @@ bool good_item_flag;	/* True if "Artifact" on this level */
 bool closing_flag;		/* Dungeon is closing */
 
 bool fake_monochrome;	/* Use fake monochrome for effects */
+
+s32b level_flags=0L;    /* Miscellaneous level flags */
 
 
 /*
@@ -283,12 +306,38 @@ cptr *quark__str;
 /*
  * Current Quark time - for least recently used algorithm
  */
-u16b quark__tim;
+s16b quark__tim;
 
 /*
  * Time of last access for each quark
  */
-u16b *quark__use;
+s16b *quark__use;
+
+
+/*
+ * The number of fixed spell lists
+ */
+s16b spell_list_num;
+
+/*
+ * The pointers to the fixed spell lists [SPELL_LIST_MAX]
+ */
+cptr *spell_list_str;
+
+/*
+ * Pointers to the names of the spell lists
+ */
+cptr *spell_list_name;
+
+/*
+ * Current spell list time - for least recently used algorithm
+ */
+s16b spell_list_tim;
+
+/*
+ * Time of last access for each fixed spell list
+ */
+s16b *spell_list_use;
 
 
 /*
@@ -916,5 +965,9 @@ bool monster_terrain_sensitive = TRUE;
 
 /* Get rid of this... */
 int mutant_regenerate_mod = 100;
+
+/* The Orb can only ever appear once */
+bool had_orb = FALSE;
+
 
 

@@ -1,0 +1,13 @@
+# q_muar.txt
+
+# Name
+Q:9:N:Muar
+
+# Definition
+Q:9:Q:1:0:0:1:50:719:0
+
+# Description for quest
+?:[LEQ $QUEST9 2]
+Q:9:T:Your quest is to find and destroy Muar, the Balrog!
+?:1
+

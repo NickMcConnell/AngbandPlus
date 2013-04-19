@@ -1,5 +1,6 @@
 /* File: externs.h */
 
+
 /* Purpose: extern declarations (variables and functions) */
 
 /*
@@ -24,6 +25,7 @@ extern const s16b ddy_cdd[8];
 extern const char hexsym[16];
 extern const char listsym[];
 extern cptr color_char;
+extern const u16b diff_num[MAX_DIFFICULTY-MIN_DIFFICULTY+1];
 extern const byte adj_mag_study[];
 extern const byte adj_mag_mana[];
 extern const byte adj_mag_fail[];
@@ -58,7 +60,7 @@ extern const u32b fake_spell_flags[4];
 extern const byte realm_choices1[];
 extern const byte realm_choices2[];
 extern cptr realm_names[];
-extern cptr spell_names[7][32];
+extern cptr spell_names[8][32];
 extern const byte deadliness_conversion[151];
 extern const byte chest_traps[64];
 extern cptr player_title[MAX_CLASS][PY_MAX_LEVEL/5];
@@ -77,6 +79,13 @@ extern cptr silly_attacks[MAX_SILLY_ATTACK];
 extern const field_action f_action[];
 extern const mutation_type mutations[MUT_SETS_MAX * MUT_PER_SET];
 extern const mutation_type race_powers[MAX_RACE_POWERS];
+extern const mutation_type given_powers[MAX_GIVEN_POWERS];
+extern cptr new_spell_name[MAX_SPELLS_CURRENT];
+extern cptr new_spell_desc[MAX_SPELLS_CURRENT];
+extern int spell_stats[MAX_SPELLS_CURRENT][8];
+extern cptr god_names[MAX_GOD];
+extern cptr magic_action_names[NUM_MAG_ACTIONS];
+extern cptr magic_target_names[NUM_MAG_TARGETS];
 
 /* variable.c */
 extern cptr copyright[5];
@@ -93,6 +102,9 @@ extern u32b sf_xtra;
 extern byte z_major;
 extern byte z_minor;
 extern byte z_patch;
+extern byte f_major;
+extern byte f_minor;
+extern byte f_patch;
 extern u32b sf_when;
 extern u16b sf_lives;
 extern u16b sf_saves;
@@ -103,6 +115,16 @@ extern byte arg_graphics;
 extern bool arg_monochrome;
 extern bool arg_force_original;
 extern bool arg_force_roguelike;
+/*extern byte game_speed_level;*/
+extern byte difficulty_level;
+extern bool generating_level;
+extern u32b mutate_seed;
+extern u32b unmutate_seed;
+#ifdef USE_NEW_MAGIC
+ #ifdef SUPPORT_OLD_MAGIC
+extern bool old_magic_user;
+ #endif /* SUPPORT_OLD_MAGIC */
+#endif /* USE_NEW_MAGIC */
 extern bool character_generated;
 extern bool character_dungeon;
 extern bool character_loaded;
@@ -110,6 +132,7 @@ extern bool character_saved;
 extern bool character_icky;
 extern bool character_xtra;
 extern u32b seed_flavor;
+extern bool making_vault;
 extern bool msg_flag;
 extern s16b min_hgt;
 extern s16b max_hgt;
@@ -162,11 +185,13 @@ extern bool cheat_room;
 extern bool cheat_xtra;
 extern bool cheat_know;
 extern bool cheat_live;
+extern bool cheat_muta;
 extern byte feeling;
 extern s16b rating;
 extern bool good_item_flag;
 extern bool closing_flag;
 extern bool fake_monochrome;
+extern s32b level_flags;
 extern s16b max_panel_rows, max_panel_cols;
 extern s16b panel_row_min, panel_row_max;
 extern s16b panel_col_min, panel_col_max;
@@ -199,8 +224,13 @@ extern bool *macro__cmd;
 extern char *macro__buf;
 extern s16b quark__num;
 extern cptr *quark__str;
-extern u16b quark__tim;
-extern u16b *quark__use;
+extern s16b quark__tim;
+extern s16b *quark__use;
+extern s16b spell_list_num;
+extern cptr *spell_list_str;
+extern cptr *spell_list_name;
+extern s16b spell_list_tim;
+extern s16b *spell_list_use;
 extern option_type option_info[OPT_MAX];
 extern u32b window_flag[8];
 extern u32b window_mask[8];
@@ -312,6 +342,7 @@ extern cptr gf_color[MAX_GF];
 extern int highscore_fd;
 extern bool monster_terrain_sensitive;
 extern int mutant_regenerate_mod;
+extern bool had_orb;
 
 /* birth.c */
 extern void player_birth(void);
@@ -361,7 +392,11 @@ extern void health_track(int m_idx);
 extern void monster_race_track(int r_idx);
 extern void object_kind_track(int k_idx);
 extern void disturb(bool stop_search);
-
+#ifdef USE_DIFFICULTY
+extern byte real_difficulty();
+#endif /* USE_DIFFICULTY */
+extern bool get_luck(/*int type, */int prob, bool small);
+	
 /* cmd1.c */
 extern int deadliness_calc(int attack_power);
 extern bool test_hit_fire(int chance, int ac, int vis);
@@ -442,9 +477,17 @@ extern void do_cmd_time(void);
 
 /* cmd5.c */
 extern void do_cmd_browse(void);
-extern void do_cmd_browse_aux(const object_type *o_ptr);
+#ifdef USE_NEW_MAGIC
+extern void do_cmd_browse_aux_new(const object_type *o_ptr);
+extern void do_cmd_study_new(void);
+extern void do_cmd_cast_new(void);
+#endif /* USE_NEW_MAGIC */
+#if !defined(USE_NEW_MAGIC) || defined(SUPPORT_OLD_MAGIC)
+extern void do_cmd_browse_aux_old(const object_type *o_ptr);
 extern void do_cmd_study(void);
 extern void do_cmd_cast(void);
+#endif /* !defined(USE_NEW_MAGIC) || defined(SUPPORT_OLD_MAGIC) */
+extern void do_cmd_browse_aux(const object_type *o_ptr);
 extern void do_cmd_pray(void);
 extern void do_cmd_pet(void);
 
@@ -543,6 +586,7 @@ extern void display_visible(void);
 extern void create_name(int type, char *name);
 
 /* monster2.c */
+extern bool check_obfuscate(monster_race *r_ptr, bool undetected, bool detection);
 extern cptr horror_desc[MAX_SAN_HORROR];
 extern cptr funny_desc[MAX_SAN_FUNNY];
 extern cptr funny_comments[MAX_SAN_COMMENT];
@@ -559,19 +603,27 @@ extern void lore_treasure(int m_idx, int num_item, int num_gold);
 extern void update_mon_vis(u16b r_idx, int increment);
 extern void update_mon(int m_idx, bool full);
 extern void update_monsters(bool full);
-extern bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp, bool friendly, bool pet);
-extern bool place_monster(int y, int x, bool slp, bool grp);
+extern bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp, 
+		bool friendly, bool pet, byte nature, s16b master);
+extern bool place_monster(int y, int x, bool slp, bool grp, int r_idx);
 extern bool alloc_horde(int y, int x);
-extern bool alloc_monster(int dis, bool slp);
-extern bool summon_specific(int who, int y1, int x1, int lev, int type, bool group, bool friendly, bool pet);
-extern bool summon_named_creature(int oy, int ox, int r_idx, bool slp, bool group_ok, bool pet);
-extern bool multiply_monster(int m_idx, bool clone, bool friendly, bool pet);
+extern bool alloc_monster(int dis, bool slp, int r_idx);
+extern bool summon_specific(int who, int y1, int x1, int lev, int type, bool group, 
+		bool friendly, bool pet, byte nature, s16b master);
+extern bool summon_named_creature(int oy, int ox, int r_idx, bool slp, bool group_ok, 
+		bool friendly, bool pet, byte nature, s16b master);
+extern bool multiply_monster(int m_idx, bool clone, bool friendly, bool pet, byte nature, s16b master);
 extern void update_smart_learn(int m_idx, int what);
-extern bool place_monster_one(int y, int x, int r_idx, bool slp, bool friendly, bool pet);
+extern s16b place_monster_one(int y, int x, int r_idx, bool slp, 
+		bool friendly, bool pet, byte nature, s16b master);
 extern void monster_drop_carried_objects(monster_type *m_ptr);
+extern bool babewyn_incursion(void);
+extern void babewynify_level(bool attack_player);
+
 
 /* monster3.c (currently in monster1.c) */
 extern bool monster_dungeon(int r_idx);
+extern bool monster_vault(int r_idx);
 extern bool monster_quest(int r_idx);
 extern bool monster_ocean(int r_idx);
 extern bool monster_shore(int r_idx);
@@ -592,9 +644,9 @@ extern monster_hook_type get_monster_hook2(int y, int x);
 extern void set_friendly(monster_type *m_ptr);
 extern void set_pet(monster_type *m_ptr);
 extern void set_hostile(monster_type *m_ptr);
-extern void anger_monster(monster_type *m_ptr);
+extern void anger_monster(int m_idx);
 extern bool monster_can_cross_terrain(byte feat, monster_race *r_ptr);
-extern bool are_enemies(const monster_type *m_ptr1, const monster_type *m_ptr2);
+extern bool are_enemies(int m_idx, int n_idx);
 extern bool monster_living(const monster_race *r_ptr);
 
 /* flavor.c */
@@ -692,7 +744,8 @@ extern bool make_gold(object_type *j_ptr, int coin_type);
 extern void place_gold(int y, int x);
 extern s16b drop_near(object_type *o_ptr, int chance, int y, int x);
 extern void acquirement(int y1, int x1, int num, bool great, bool known);
-extern cptr item_activation(const object_type *o_ptr);
+/*extern cptr item_activation(const object_type *o_ptr);*/
+extern void item_activation(const object_type *o_ptr, char *buf);
 extern void combine_pack(void);
 extern void reorder_pack(void);
 extern bool can_player_destroy_object(object_type *o_ptr);
@@ -724,6 +777,7 @@ extern bool detect_stairs(void);
 extern bool detect_treasure(void);
 extern bool detect_objects_gold(void);
 extern bool detect_objects_normal(void);
+extern bool detect_objects_artifacts(void);
 extern bool detect_objects_magic(void);
 extern bool detect_monsters_normal(void);
 extern bool detect_monsters_invis(void);
@@ -733,7 +787,7 @@ extern bool detect_monsters_string(cptr);
 extern bool detect_monsters_nonliving(void);
 extern bool detect_monsters_living(void);
 extern bool detect_all(void);
-extern bool wall_stone(void);
+extern bool wall_stone(int dir);
 extern bool speed_monsters(void);
 extern bool slow_monsters(void);
 extern bool sleep_monsters(void);
@@ -748,7 +802,7 @@ extern bool dispel_undead(int dam);
 extern bool dispel_monsters(int dam);
 extern bool dispel_living(int dam);
 extern bool dispel_demons(int dam);
-extern bool raise_dead(int y, int x, bool pet);
+extern bool raise_dead(int y, int x, bool pet, bool friendly, byte nature, s16b master);
 extern bool turn_undead(void);
 extern bool destroy_area(int y1, int x1, int r);
 extern bool earthquake(int cy, int cx, int r);
@@ -807,6 +861,24 @@ extern bool teleport_swap(int dir);
 extern bool project_hook(int typ, int dir, int dam, u16b flg);
 extern bool project_hack(int typ, int dam);
 
+#ifdef USE_NEW_MAGIC
+/* nmagic1.c */
+extern int spell_ability_rating(int spell);
+extern int get_spell_from_grand_list(int *sn, cptr prompt, bool known, bool lists, 
+		bool *is_list, int do_with_written);
+extern void spell_info_new(char *p, int spell);
+extern s16b spell_chance_new(int spell);
+extern int calculate_mana(int spell);
+extern int calculate_spell_level(int spell);
+extern bool spell_okay_new(int spell, bool known, bool ever);
+extern bool do_cmd_record_magic();
+extern bool do_cmd_create_spell_list();
+extern bool do_cmd_write_magic();
+extern void calc_spells_new(void);
+/* nmagic2.c */
+extern bool cast_spell_new(int spell, bool success);
+#endif /* USE_NEW_MAGIC */
+
 /* spells3.c */
 extern bool teleport_away(int m_idx, int dis);
 extern void teleport_to_player(int m_idx);
@@ -827,6 +899,9 @@ extern void alter_reality(void);
 extern bool warding_glyph(void);
 extern bool explosive_rune(void);
 extern void identify_pack(void);
+extern void fully_identify_pack(void);
+extern void identify_everything(int dist);
+extern void fully_identify_everything(int dist);
 extern bool remove_curse(void);
 extern bool remove_all_curse(void);
 extern bool alchemy(void);
@@ -844,7 +919,13 @@ extern bool potion_smash_effect(int who, int y, int x, int k_idx);
 extern void display_spell_list(void);
 extern s16b spell_chance(int spell, int realm);
 extern bool spell_okay(int spell, bool known, int realm);
-extern void print_spells(byte *spells, int num, int y, int x, int realm);
+#ifdef USE_NEW_MAGIC
+extern void print_spells_new(u16b *spells, int num, int y, int x);
+#endif /* USE_NEW_MAGIC */
+#if !defined(USE_NEW_MAGIC) || defined(SUPPORT_OLD_MAGIC)
+extern void print_spells_old(byte *spells, int num, int y, int x, int realm);
+#endif /* !defined(USE_NEW_MAGIC) || defined(SUPPORT_OLD_MAGIC) */
+/* extern void print_spells(byte *spells, int num, int y, int x, int realm); */
 extern bool hates_acid(const object_type *o_ptr);
 extern bool hates_elec(const object_type *o_ptr);
 extern bool hates_fire(const object_type *o_ptr);
@@ -891,6 +972,7 @@ extern void gamble_craps(void);
 extern void gamble_spin_wheel(void);
 extern void gamble_dice_slots(void);
 extern bool inn_rest(void);
+extern bool do_cmd_rest_home(void);
 extern void build_init(int town_num, int build_num, byte build_type);
 
 /* util.c */
@@ -923,6 +1005,12 @@ extern sint macro_find_exact(cptr pat);
 extern char inkey(void);
 extern cptr quark_str(s16b num);
 extern s16b quark_add(cptr str);
+extern s16b quark_create_single(cptr str, s16b position);
+extern cptr spell_list_string(s16b num);
+extern bool spell_list_wipe(s16b dead);
+extern s16b spell_list_add(cptr str);
+extern void single_quark_free(s16b i);
+extern cptr quarky_str(s16b i);
 extern void message_init(void);
 extern s16b message_num(void);
 extern cptr message_str(int age);
@@ -1032,8 +1120,14 @@ extern bool set_wraith_form(int v);
 extern bool set_tim_esp(int v);
 extern bool tgt_pt(int *x, int *y);
 extern void do_poly_wounds(void);
-extern int mon_damage_mod(const monster_type *m_ptr, int dam, int type);
+extern int mon_damage_mod(const monster_type *m_ptr, const monster_race *r_ptr, int dam, int type);
 extern void exp_for_kill(const monster_race *r_ptr, s32b *new_exp, s32b *new_exp_frac);
+#ifdef USE_NEW_MAGIC
+extern int get_player_choice_long(cptr *choices, int num, int col, int wid, int height, 
+		cptr helpfile, bool pregame, void (*hook)(int, cptr), bool (*hook2)(int));
+extern int get_player_sort_choice_long(int keep, cptr *choices, int num, int col, int wid, int height, 
+		cptr helpfile, bool pregame, void (*hook)(int, cptr), bool (*hook2)(int));
+#endif /* USE_NEW_MAGIC */
 
 /* mspells1.c */
 extern bool clean_shot(int y1, int x1, int y2, int x2, bool friendly);

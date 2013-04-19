@@ -165,6 +165,7 @@ void object_flags_known(const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
 }
 
 
+#ifdef NOT_DEFINED
 /*
  * Determine the "Activation" (if any) for an artifact
  * Return a string, or NULL for "no activation"
@@ -309,11 +310,11 @@ cptr item_activation(const object_type *o_ptr)
 			}
 			case ACT_GENOCIDE:
 			{
-				return "genocide every 500 turns";
+				return "purge every 500 turns";
 			}
 			case ACT_MASS_GENO:
 			{
-				return "mass genocide every 1000 turns";
+				return "mass purge every 1000 turns";
 			}
 			case ACT_CHARM_ANIMAL:
 			{
@@ -569,7 +570,7 @@ cptr item_activation(const object_type *o_ptr)
 			}
 			case ART_EONWE:
 			{
-				return "mass genocide every 1000 turns";
+				return "mass purge every 1000 turns";
 			}
 			case ART_LOTHARANG:
 			{
@@ -601,7 +602,7 @@ cptr item_activation(const object_type *o_ptr)
 			}
 			case ART_CELEBORN:
 			{
-				return "genocide every 500 turns";
+				return "purge every 500 turns";
 			}
 			case ART_LUTHIEN:
 			{
@@ -740,65 +741,780 @@ cptr item_activation(const object_type *o_ptr)
 	/* Require dragon scale mail */
 	if (o_ptr->tval != TV_DRAG_ARMOR) return ("a strange glow");
 
+	/* 
+	 * New hack: divide damage by player level
+	 */
+	
+	/* Buffer to put the string into */
+	cptr buf[80];
+	int level = p_ptr->lev;
+		
 	/* Branch on the sub-type */
 	switch (o_ptr->sval)
 	{
 		case SV_DRAGON_BLUE:
 		{
-			return "breathe lightning (330) every 50+d50 turns";
+			/* return "breathe lightning (330) every 50+d50 turns"; */
+			snprintf(buf, 80, "breathe lightning (%d) every 50+d50 turns", 300*level/50);
+			return *buf;
 		}
 		case SV_DRAGON_WHITE:
 		{
-			return "breathe frost (370) every 50+d50 turns";
+			/* return "breathe frost (370) every 50+d50 turns"; */
+			snprintf(buf, 80, "breathe frost (%d) every 50+d50 turns", 370*level/50);
+			return *buf;
 		}
 		case SV_DRAGON_BLACK:
 		{
-			return "breathe acid (430) every 50+d50 turns";
+			/* return "breathe acid (430) every 50+d50 turns"; */
+			snprintf(buf, 80, "breathe acid (%d) every 50+d50 turns", 430*level/50);
+			return *buf;
 		}
 		case SV_DRAGON_GREEN:
 		{
-			return "breathe poison gas (500) every 50+d50 turns";
+			/* return "breathe poison gas (500) every 50+d50 turns"; */
+			snprintf(buf, 80, "breathe poison gas (%d) every 50+d50 turns", 500*level/50);
+			return *buf;
 		}
 		case SV_DRAGON_RED:
 		{
-			return "breathe fire (670) every 50+d50 turns";
+			/* return "breathe fire (670) every 50+d50 turns"; */
+			snprintf(buf, 80, "breathe fire (%d) every 50+d50 turns", 670*level/50);
+			return (cptr) *buf;
 		}
 		case SV_DRAGON_MULTIHUED:
 		{
-			return "breathe multi-hued (840) every 25+d25 turns";
+			/* return "breathe multi-hued (840) every 25+d25 turns"; */
+			snprintf(buf, 80, "breathe multi-hued (%d) every 50+d50 turns", 840*level/50);
+			return (cptr) *buf;
 		}
 		case SV_DRAGON_BRONZE:
 		{
-			return "breathe confusion (400) every 50+d50 turns";
+			/* return "breathe confusion (400) every 50+d50 turns"; */
+			snprintf(buf, 80, "breathe confusion (%d) every 50+d50 turns", 400*level/50);
+			return (cptr) *buf;
 		}
 		case SV_DRAGON_GOLD:
 		{
-			return "breathe sound (430) every 50+d50 turns";
+			/* return "breathe sound (430) every 50+d50 turns"; */
+			snprintf(buf, 80, "breathe sound (%d) every 50+d50 turns", 430*level/50);
+			return buf;
 		}
 		case SV_DRAGON_CHAOS:
 		{
-			return "breathe chaos/disenchant (740) every 30+d30 turns";
+			/* return "breathe chaos/disenchant (740) every 30+d30 turns"; */
+			snprintf(buf, 80, "breathe chaos/disenchant (%d) every 30+d30 turns", 740*level/50);
+			return buf;
 		}
 		case SV_DRAGON_LAW:
 		{
-			return "breathe sound/shards (750) every 30+d30 turns";
+			/* return "breathe sound/shards (750) every 30+d30 turns"; */
+			snprintf(buf, 80, "breathe sound/shards (%d) every 30+d30 turns", 750*level/50);
+			return buf;
 		}
 		case SV_DRAGON_BALANCE:
 		{
-			return "breathe balance (850) every 30+d30 turns";
+			/* return "breathe balance (850) every 30+d30 turns"; */
+			snprintf(buf, 80, "breathe balance (%d) every 30+d30 turns", 850*level/50);
+			return buf;
 		}
 		case SV_DRAGON_SHINING:
 		{
-			return "breathe light/darkness (670) every 30+d30 turns";
+			/* return "breathe light/darkness (670) every 30+d30 turns"; */
+			snprintf(buf, 80, "breathe light/darkness (%d) every 30+d30 turns", 670*level/50);
+			return buf;
 		}
 		case SV_DRAGON_POWER:
 		{
-			return "breathe the elements (1000) every 30+d30 turns";
+			/* return "breathe the elements (1000) every 30+d30 turns"; */
+			snprintf(buf, 80, "breathe the elements (%d) every 30+d30 turns", 1000*level/50);
+			return buf;
 		}
 	}
 
 	/* Oops */
 	return "breathe air";
+}
+#endif /* NOT_DEFINED */
+
+
+/*
+ * Determine the "Activation" (if any) for an artifact
+ * Return a string, or NULL for "no activation"
+ */
+void item_activation(const object_type *o_ptr, char *buf)
+{
+	u32b f1, f2, f3;
+	int plev = p_ptr->lev;
+
+	/* Default */
+	strcpy(buf, "");
+
+	/* Extract the flags */
+	object_flags(o_ptr, &f1, &f2, &f3);
+
+	/* Require activation ability */
+	if (!(f3 & (TR3_ACTIVATE))) 
+	{
+		strcpy(buf, "nothing");
+		return;
+	}
+
+	if (o_ptr->activate < 128)
+	{
+		switch (o_ptr->activate)
+		{
+			case ACT_SUNLIGHT:
+			{
+				strcpy(buf, "beam of sunlight every 10 turns"); return;
+			}
+			case ACT_BO_MISS_1:
+			{
+				strcpy(buf, "magic missile (3d6) every 2 turns"); return;
+			}
+			case ACT_BA_POIS_1:
+			{
+				strcpy(buf, "stinking cloud (25), rad. 3, every 4+d4 turns"); return;
+			}
+			case ACT_BO_ELEC_1:
+			{
+				strcpy(buf, "lightning bolt (6d8) every 6+d6 turns"); return;
+			}
+			case ACT_BO_ACID_1:
+			{
+				strcpy(buf, "acid bolt (8d8) every 5+d5 turns"); return;
+			}
+			case ACT_BO_COLD_1:
+			{
+				strcpy(buf, "frost bolt (9d8) every 7+d7 turns"); return;
+			}
+			case ACT_BO_FIRE_1:
+			{
+				strcpy(buf, "fire bolt (11d8) every 8+d8 turns"); return;
+			}
+			case ACT_BA_COLD_1:
+			{
+				strcpy(buf, "ball of cold (100) every 400 turns"); return;
+			}
+			case ACT_BA_FIRE_1:
+			{
+				strcpy(buf, "ball of fire (150) every 400 turns"); return;
+			}
+			case ACT_DRAIN_1:
+			{
+				strcpy(buf, "drain life (200) every 100+d100 turns"); return;
+			}
+			case ACT_BA_COLD_2:
+			{
+				strcpy(buf, "ball of cold (200) every 300 turns"); return;
+			}
+			case ACT_BA_ELEC_2:
+			{
+				strcpy(buf, "ball of lightning (200) every 500 turns"); return;
+			}
+			case ACT_DRAIN_2:
+			{
+				strcpy(buf, "drain life (250) every 400 turns"); return;
+			}
+			case ACT_VAMPIRE_1:
+			{
+				strcpy(buf, "vampiric drain (3*100) every 400 turns"); return;
+			}
+			case ACT_BO_MISS_2:
+			{
+				strcpy(buf, "arrows (250) every 90+d90 turns"); return;
+			}
+			case ACT_BA_FIRE_2:
+			{
+				strcpy(buf, "fire ball (250) every 225+d225 turns"); return;
+			}
+			case ACT_BA_COLD_3:
+			{
+				strcpy(buf, "ball of cold (400) every 325+d325 turns"); return;
+			}
+			case ACT_BA_ELEC_3:
+			{
+				strcpy(buf, "ball of lightning (500) every 425+d425 turns"); return;
+			}
+			case ACT_WHIRLWIND:
+			{
+				strcpy(buf, "whirlwind attack every 250 turns"); return;
+			}
+			case ACT_VAMPIRE_2:
+			{
+				strcpy(buf, "vampiric drain (3*200) every 400 turns"); return;
+			}
+			case ACT_CALL_CHAOS:
+			{
+				strcpy(buf, "call chaos every 350 turns"); return;
+			}
+			case ACT_ROCKET:
+			{
+				strcpy(buf, "launch rocket (300+level) every 400 turns"); return;
+			}
+			case ACT_DISP_EVIL:
+			{
+				strcpy(buf, "dispel evil (level*5) every 300+d300 turns"); return;
+			}
+			case ACT_BA_MISS_3:
+			{
+				strcpy(buf, "elemental breath (500) every 500 turns"); return;
+			}
+			case ACT_DISP_GOOD:
+			{
+				strcpy(buf, "dispel good (level*5) every 300+d300 turns"); return;
+			}
+			case ACT_CONFUSE:
+			{
+				strcpy(buf, "confuse monster every 15 turns"); return;
+			}
+			case ACT_SLEEP:
+			{
+				strcpy(buf, "sleep nearby monsters every 55 turns"); return;
+			}
+			case ACT_QUAKE:
+			{
+				strcpy(buf, "earthquake (rad 10) every 50 turns"); return;
+			}
+			case ACT_TERROR:
+			{
+				strcpy(buf, "terror every 3 * (level+10) turns"); return;
+			}
+			case ACT_TELE_AWAY:
+			{
+				strcpy(buf, "teleport away every 200 turns"); return;
+			}
+			case ACT_BANISH_EVIL:
+			{
+				strcpy(buf, "banish evil every 250+d250 turns"); return;
+			}
+			case ACT_GENOCIDE:
+			{
+				strcpy(buf, "purge every 500 turns"); return;
+			}
+			case ACT_MASS_GENO:
+			{
+				strcpy(buf, "mass purge every 1000 turns"); return;
+			}
+			case ACT_CHARM_ANIMAL:
+			{
+				strcpy(buf, "charm animal every 300 turns"); return;
+			}
+			case ACT_CHARM_UNDEAD:
+			{
+				strcpy(buf, "enslave undead every 333 turns"); return;
+			}
+			case ACT_CHARM_OTHER:
+			{
+				strcpy(buf, "charm monster every 400 turns"); return;
+			}
+			case ACT_CHARM_ANIMALS:
+			{
+				strcpy(buf, "animal friendship every 500 turns"); return;
+			}
+			case ACT_CHARM_OTHERS:
+			{
+				strcpy(buf, "mass charm every 750 turns"); return;
+			}
+			case ACT_SUMMON_ANIMAL:
+			{
+				strcpy(buf, "summon animal every 200+d300 turns"); return;
+			}
+			case ACT_SUMMON_PHANTOM:
+			{
+				strcpy(buf, "summon phantasmal servant every 200+d200 turns"); return;
+			}
+			case ACT_SUMMON_ELEMENTAL:
+			{
+				strcpy(buf, "summon elemental every 750 turns"); return;
+			}
+			case ACT_SUMMON_DEMON:
+			{
+				strcpy(buf, "summon demon every 666+d333 turns"); return;
+			}
+			case ACT_SUMMON_UNDEAD:
+			{
+				strcpy(buf, "summon undead every 666+d333 turns"); return;
+			}
+			case ACT_CURE_LW:
+			{
+				strcpy(buf, "remove fear & heal 30 hp every 10 turns"); return;
+			}
+			case ACT_CURE_MW:
+			{
+				strcpy(buf, "heal 75 hp & wounds every 3+d3 turns"); return;
+			}
+			case ACT_CURE_POISON:
+			{
+				strcpy(buf, "remove fear and cure poison every 5 turns"); return;
+			}
+			case ACT_REST_LIFE:
+			{
+				strcpy(buf, "restore life levels every 450 turns"); return;
+			}
+			case ACT_REST_ALL:
+			{
+				strcpy(buf, "restore stats and life levels every 750 turns"); return;
+			}
+			case ACT_CURE_700:
+			{
+				strcpy(buf, "heal 700 hit points every 250 turns"); return;
+			}
+			case ACT_CURE_1000:
+			{
+				strcpy(buf, "heal 1000 hit points every 888 turns"); return;
+			}
+			case ACT_ESP:
+			{
+				strcpy(buf, "temporary ESP (dur 25+d30) every 200 turns"); return;
+			}
+			case ACT_BERSERK:
+			{
+				strcpy(buf, "heroism and berserk (dur 50+d50) every 100+d100 turns"); return;
+			}
+			case ACT_PROT_EVIL:
+			{
+				strcpy(buf, "protect evil (dur level*3 + d25) every 225+d225 turns"); return;
+			}
+			case ACT_RESIST_ALL:
+			{
+				strcpy(buf, "resist elements (dur 40+d40) every 200 turns"); return;
+			}
+			case ACT_SPEED:
+			{
+				strcpy(buf, "speed (dur 20+d20) every 250 turns"); return;
+			}
+			case ACT_XTRA_SPEED:
+			{
+				strcpy(buf, "speed (dur 75+d75) every 200+d200 turns"); return;
+			}
+			case ACT_WRAITH:
+			{
+				strcpy(buf, "wraith form (level/2 + d(level/2)) every 1000 turns"); return;
+			}
+			case ACT_INVULN:
+			{
+				strcpy(buf, "invulnerability (dur 8+d8) every 1000 turns"); return;
+			}
+			case ACT_LIGHT:
+			{
+				strcpy(buf, "light area (dam 2d15) every 10+d10 turns"); return;
+			}
+			case ACT_MAP_LIGHT:
+			{
+				strcpy(buf, "light (dam 2d15) & map area every 50+d50 turns"); return;
+			}
+			case ACT_DETECT_ALL:
+			{
+				strcpy(buf, "detection every 55+d55 turns"); return;
+			}
+			case ACT_DETECT_XTRA:
+			{
+				strcpy(buf, "detection, probing and identify true every 1000 turns"); return;
+			}
+			case ACT_ID_FULL:
+			{
+				strcpy(buf, "identify true every 750 turns"); return;
+			}
+			case ACT_ID_PLAIN:
+			{
+				strcpy(buf, "identify spell every 10 turns"); return;
+			}
+			case ACT_RUNE_EXPLO:
+			{
+				strcpy(buf, "explosive rune every 200 turns"); return;
+			}
+			case ACT_RUNE_PROT:
+			{
+				strcpy(buf, "rune of protection every 400 turns"); return;
+			}
+			case ACT_SATIATE:
+			{
+				strcpy(buf, "satisfy hunger every 200 turns"); return;
+			}
+			case ACT_DEST_DOOR:
+			{
+				strcpy(buf, "destroy doors every 10 turns"); return;
+			}
+			case ACT_STONE_MUD:
+			{
+				strcpy(buf, "stone to mud every 5 turns"); return;
+			}
+			case ACT_RECHARGE:
+			{
+				strcpy(buf, "recharging every 70 turns"); return;
+			}
+			case ACT_ALCHEMY:
+			{
+				strcpy(buf, "alchemy every 500 turns"); return;
+			}
+			case ACT_DIM_DOOR:
+			{
+				strcpy(buf, "dimension door every 100 turns"); return;
+			}
+			case ACT_TELEPORT_1:
+			{
+				strcpy(buf, "teleport (range 100) every 50+d50 turns"); return;
+			}
+			case ACT_TELEPORT_2:
+			{
+				strcpy(buf, "teleport (range 100) every 45 turns"); return;
+			}
+			case ACT_RECALL:
+			{
+				strcpy(buf, "word of recall every 200 turns"); return;
+			}
+			default:
+			{
+				/* No randart activation */
+				break;
+			}
+		}
+	}	
+	else
+	{
+		/* Some artifacts can be activated */
+		switch (o_ptr->activate - 128)
+		{
+			case ART_NARTHANC:
+			{
+				strcpy(buf, "fire bolt (11d8) every 8+d8 turns"); return;
+			}
+			case ART_NIMTHANC:
+			{
+				strcpy(buf, "frost bolt (8d8) every 7+d7 turns"); return;
+			}
+			case ART_DETHANC:
+			{
+				strcpy(buf, "lightning bolt (6d8) every 6+d6 turns"); return;
+			}
+			case ART_RILIA:
+			{
+				strcpy(buf, "stinking cloud (25) every 4+d4 turns"); return;
+			}
+			case ART_BELANGIL:
+			{
+				strcpy(buf, "frost ball (100) every 5+d5 turns"); return;
+			}
+			case ART_DAL:
+			{
+				strcpy(buf, "remove fear and cure poison every 5 turns"); return;
+			}
+			case ART_RINGIL:
+			{
+				strcpy(buf, "frost ball (200) every 300 turns"); return;
+			}
+			case ART_DAWN:
+			{
+				strcpy(buf, "summon the Legion of the Dawn every 500+d500 turns"); return;
+			}
+			case ART_ANDURIL:
+			{
+				strcpy(buf, "fire ball (150) every 400 turns"); return;
+			}
+			case ART_FIRESTAR:
+			{
+				strcpy(buf, "large fire ball (200) every 100 turns"); return;
+			}
+			case ART_FEANOR:
+			{
+				strcpy(buf, "haste self (20+d20 turns) every 200 turns"); return;
+			}
+			case ART_THEODEN:
+			{
+				strcpy(buf, "drain life (200) every 400 turns"); return;
+			}
+			case ART_TURMIL:
+			{
+				strcpy(buf, "drain life (200) every 70 turns"); return;
+			}
+			case ART_CASPANION:
+			{
+				strcpy(buf, "door and trap destruction every 10 turns"); return;
+			}
+			case ART_AVAVIR:
+			{
+				strcpy(buf, "word of recall every 200 turns"); return;
+			}
+			case ART_TARATOL:
+			{
+				strcpy(buf, "haste self (20+d20 turns) every 100+d100 turns"); return;
+			}
+			case ART_ERIRIL:
+			{
+				strcpy(buf, "identify every 10 turns"); return;
+			}
+			case ART_OLORIN:
+			{
+				strcpy(buf, "probing, detection and full id every 1000 turns"); return;
+			}
+			case ART_EONWE:
+			{
+				strcpy(buf, "mass purge every 1000 turns"); return;
+			}
+			case ART_LOTHARANG:
+			{
+				strcpy(buf, "cure wounds (100) every 3+d3 turns"); return;
+			}
+			case ART_BRAND:
+			{
+				strcpy(buf, "fire branding of bolts every 999 turns"); return;
+			}
+			case ART_ANGUIREL:
+			{
+				strcpy(buf, "a getaway every 35 turns"); return;
+			}
+			case ART_AEGLOS:
+			{
+				strcpy(buf, "lightning ball (200) every 500 turns"); return;
+			}
+			case ART_OROME:
+			{
+				strcpy(buf, "stone to mud every 5 turns"); return;
+			}
+			case ART_SOULKEEPER:
+			{
+				strcpy(buf, "heal (1000) every 888 turns"); return;
+			}
+			case ART_BELEGENNON:
+			{
+				strcpy(buf, "heal (777), curing and heroism every 300 turns"); return;
+			}
+			case ART_CELEBORN:
+			{
+				strcpy(buf, "purge every 500 turns"); return;
+			}
+			case ART_LUTHIEN:
+			{
+				strcpy(buf, "restore life levels every 450 turns"); return;
+			}
+			case ART_ULMO:
+			{
+				strcpy(buf, "teleport away every 150 turns"); return;
+			}
+			case ART_COLLUIN:
+			{
+				strcpy(buf, "resistance (20+d20 turns) every 111 turns"); return;
+			}
+			case ART_HOLCOLLETH:
+			{
+				strcpy(buf, "Sleep II every 55 turns"); return;
+			}
+			case ART_THINGOL:
+			{
+				strcpy(buf, "recharge item every 70 turns"); return;
+			}
+			case ART_COLANNON:
+			{
+				strcpy(buf, "teleport every 45 turns"); return;
+			}
+			case ART_TOTILA:
+			{
+				strcpy(buf, "confuse monster every 15 turns"); return;
+			}
+			case ART_CAMMITHRIM:
+			{
+				strcpy(buf, "magic missile (3d6) every 2 turns"); return;
+			}
+			case ART_PAURHACH:
+			{
+				strcpy(buf, "fire bolt (11d8) every 8+d8 turns"); return;
+			}
+			case ART_CORWIN:
+			{
+				strcpy(buf, "frost bolt (8d8) every 7+d7 turns"); return;
+			}
+			case ART_PAURAEGEN:
+			{
+				strcpy(buf, "lightning bolt (6d8) every 6+d6 turns"); return;
+			}
+			case ART_PAURNEN:
+			{
+				strcpy(buf, "acid bolt (8d8) every 5+d5 turns"); return;
+			}
+			case ART_FINGOLFIN:
+			{
+				strcpy(buf, "a magical arrow (250) every 90+d90 turns"); return;
+			}
+			case ART_HOLHENNETH:
+			{
+				strcpy(buf, "detection every 55+d55 turns"); return;
+			}
+			case ART_GONDOR:
+			{
+				strcpy(buf, "heal (700) every 250 turns"); return;
+			}
+			case ART_RAZORBACK:
+			{
+				strcpy(buf, "star ball (1500) every 100 turns"); return;
+			}
+			case ART_BLADETURNER:
+			{
+				strcpy(buf, "breathe elements (1500), berserk rage, bless, and resistance"); return;
+			}
+			case ART_GALADRIEL:
+			{
+				strcpy(buf, "illumination every 10+d10 turns"); return;
+			}
+			case ART_ELENDIL:
+			{
+				strcpy(buf, "magic mapping and light every 50+d50 turns"); return;
+			}
+			case ART_THRAIN:
+			{
+				strcpy(buf, "clairvoyance and recall, draining you"); return;
+			}
+			case ART_INGWE:
+			{
+				strcpy(buf, "dispel evil (x5) every 300+d300 turns"); return;
+			}
+			case ART_CARLAMMAS:
+			{
+				strcpy(buf, "protection from evil every 225+d225 turns"); return;
+			}
+			case ART_BARAHIR:
+			{
+				strcpy(buf, "a strangling attack (200) every 100+d100 turns"); return;
+			}
+			case ART_TULKAS:
+			{
+				strcpy(buf, "haste self (75+d75 turns) every 150+d150 turns"); return;
+			}
+			case ART_NARYA:
+			{
+				strcpy(buf, "large fire ball (250) every 225+d225 turns"); return;
+			}
+			case ART_NENYA:
+			{
+				strcpy(buf, "large frost ball (400) every 325+d325 turns"); return;
+			}
+			case ART_VILYA:
+			{
+				strcpy(buf, "large lightning ball (500) every 425+d425 turns"); return;
+			}
+			case ART_POWER:
+			{
+				strcpy(buf, "bizarre things every 450+d450 turns"); return;
+			}
+			case ART_DOR: case ART_TERROR:
+			{
+				strcpy(buf, "rays of fear in every direction"); return;
+			}
+		}
+	}
+
+	if (o_ptr->tval == TV_RING)
+	{
+		switch (o_ptr->sval)
+		{
+			case SV_RING_FLAMES:
+				strcpy(buf, "ball of fire and resist fire"); return;
+			case SV_RING_ICE:
+				strcpy(buf, "ball of cold and resist cold"); return;
+			case SV_RING_ACID:
+				strcpy(buf, "ball of acid and resist acid"); return;
+			default:
+				return;
+		}
+	}
+
+	/* Require dragon scale mail */
+	if (o_ptr->tval != TV_DRAG_ARMOR) 
+	{
+		strcpy(buf, "a strange glow"); return;
+	}
+
+	/* 
+	 * New: divide damage by player level
+	 */
+	
+	/* Branch on the sub-type */
+	switch (o_ptr->sval)
+	{
+		case SV_DRAGON_BLUE:
+		{
+			/* return "breathe lightning (330) every 50+d50 turns"; */
+			snprintf(buf, 80, "breathe lightning (%d) every 50+d50 turns", 300*plev/50);
+			return;
+		}
+		case SV_DRAGON_WHITE:
+		{
+			/* return "breathe frost (370) every 50+d50 turns"; */
+			snprintf(buf, 80, "breathe frost (%d) every 50+d50 turns", 370*plev/50);
+			return;
+		}
+		case SV_DRAGON_BLACK:
+		{
+			/* return "breathe acid (430) every 50+d50 turns"; */
+			snprintf(buf, 80, "breathe acid (%d) every 50+d50 turns", 430*plev/50);
+			return;
+		}
+		case SV_DRAGON_GREEN:
+		{
+			/* return "breathe poison gas (500) every 50+d50 turns"; */
+			snprintf(buf, 80, "breathe poison gas (%d) every 50+d50 turns", 500*plev/50);
+			return;
+		}
+		case SV_DRAGON_RED:
+		{
+			/* return "breathe fire (670) every 50+d50 turns"; */
+			snprintf(buf, 80, "breathe fire (%d) every 50+d50 turns", 670*plev/50);
+			return;
+		}
+		case SV_DRAGON_MULTIHUED:
+		{
+			/* return "breathe multi-hued (840) every 25+d25 turns"; */
+			snprintf(buf, 80, "breathe multi-hued (%d) every 50+d50 turns", 840*plev/50);
+			return;
+		}
+		case SV_DRAGON_BRONZE:
+		{
+			/* return "breathe confusion (400) every 50+d50 turns"; */
+			snprintf(buf, 80, "breathe confusion (%d) every 50+d50 turns", 400*plev/50);
+			return;
+		}
+		case SV_DRAGON_GOLD:
+		{
+			/* return "breathe sound (430) every 50+d50 turns"; */
+			snprintf(buf, 80, "breathe sound (%d) every 50+d50 turns", 430*plev/50);
+			return;
+		}
+		case SV_DRAGON_CHAOS:
+		{
+			/* return "breathe chaos/disenchant (740) every 30+d30 turns"; */
+			snprintf(buf, 80, "breathe chaos/disenchant (%d) every 30+d30 turns", 740*plev/50);
+			return;
+		}
+		case SV_DRAGON_LAW:
+		{
+			/* return "breathe sound/shards (750) every 30+d30 turns"; */
+			snprintf(buf, 80, "breathe sound/shards (%d) every 30+d30 turns", 750*plev/50);
+			return;
+		}
+		case SV_DRAGON_BALANCE:
+		{
+			/* return "breathe balance (850) every 30+d30 turns"; */
+			snprintf(buf, 80, "breathe balance (%d) every 30+d30 turns", 850*plev/50);
+			return;
+		}
+		case SV_DRAGON_SHINING:
+		{
+			/* return "breathe light/darkness (670) every 30+d30 turns"; */
+			snprintf(buf, 80, "breathe light/darkness (%d) every 30+d30 turns", 670*plev/50);
+			return;
+		}
+		case SV_DRAGON_POWER:
+		{
+			/* return "breathe the elements (1000) every 30+d30 turns"; */
+			snprintf(buf, 80, "breathe the elements (%d) every 30+d30 turns", 1000*plev/50);
+			return;
+		}
+	}
+
+	/* Oops */
+	{
+		strcpy(buf, "breathe air"); return;
+	}
 }
 
 
@@ -822,14 +1538,50 @@ bool identify_fully_aux(const object_type *o_ptr)
 	if (f3 & (TR3_ACTIVATE))
 	{
 		info[i++] = "It can be activated for...";
-		info[i++] = item_activation(o_ptr);
+		/* Necessary because we want things to depend on level */
+		/* Next line was old */
+		/*info[i++] = item_activation(o_ptr);*/
+		char buf[80];
+		item_activation(o_ptr, buf);
+		info[i++] = (cptr) buf;
 		info[i++] = "...if it is being worn.";
 	}
 
 	/* Books, a hack */
-	if ((o_ptr->tval >= TV_BOOKS_MIN) && (o_ptr->tval <= TV_BOOKS_MAX))
+	if (((o_ptr->tval >= TV_BOOKS_MIN) && (o_ptr->tval <= TV_BOOKS_MAX)) || o_ptr->tval == TV_SPELLBOOK)
 	{
 		do_cmd_browse_aux(o_ptr);
+		return (TRUE);
+	}
+
+	/* Spell scrolls, a hack */
+	if (o_ptr->tval == TV_SPELL_SCROLL)
+	{
+		if (calculate_spell_level(o_ptr->pval) > 50)
+		{
+			msg_print("The scroll is incomprehensible");
+		}
+		else
+		{
+			char buf[30];
+			cptr desc;
+			switch (spell_ability_rating(o_ptr->pval))
+			{
+				case 0: desc="Error";		break;
+				case 1: desc="Excellent";	break;
+				case 2: desc="Good";		break;
+				case 3: desc="Fair";		break;
+				case 4: desc="Poor";		break;
+				case 5:	desc="Very poor";	break;
+				/* Paranoia */
+				default: desc="Error";		break;
+			}
+			spell_info_new(buf, o_ptr->pval);
+			msg_format("Affinity: %s, Level: %d, Mana: %d, Fail: %d%%, %s",
+					desc, calculate_spell_level(o_ptr->pval),
+					calculate_mana(o_ptr->pval), spell_chance_new(o_ptr->pval), buf);
+			msg_format("%s", new_spell_desc[o_ptr->pval]);
+		}
 		return (TRUE);
 	}
 
@@ -1207,21 +1959,29 @@ bool identify_fully_aux(const object_type *o_ptr)
 		info[i++] = "It carries an ancient foul curse.";
 	}
 
-	if (f3 & (TR3_IGNORE_ACID))
+	if ((f3 & (TR3_IGNORE_ACID)) && (f3 & (TR3_IGNORE_ELEC))
+			&& (f3 & (TR3_IGNORE_FIRE)) && (f3 & (TR3_IGNORE_COLD)))
 	{
-		info[i++] = "It cannot be harmed by acid.";
+		info[i++] = "It cannot be harmed by the elements.";
 	}
-	if (f3 & (TR3_IGNORE_ELEC))
+	else
 	{
-		info[i++] = "It cannot be harmed by electricity.";
-	}
-	if (f3 & (TR3_IGNORE_FIRE))
-	{
-		info[i++] = "It cannot be harmed by fire.";
-	}
-	if (f3 & (TR3_IGNORE_COLD))
-	{
-		info[i++] = "It cannot be harmed by cold.";
+		if (f3 & (TR3_IGNORE_ACID))
+		{
+			info[i++] = "It cannot be harmed by acid.";
+		}
+		if (f3 & (TR3_IGNORE_ELEC))
+		{
+			info[i++] = "It cannot be harmed by electricity.";
+		}
+		if (f3 & (TR3_IGNORE_FIRE))
+		{
+			info[i++] = "It cannot be harmed by fire.";
+		}
+		if (f3 & (TR3_IGNORE_COLD))
+		{
+			info[i++] = "It cannot be harmed by cold.";
+		}
 	}
 
 
@@ -1812,13 +2572,13 @@ bool item_tester_hook_is_good(const object_type *o_ptr)
 	
 	/* Ego item or artifact */
 	if (o_ptr->xtra_name) return (TRUE);
-	
-	/* Positve AC bonus */
+
+	/* Positive AC bonus */
 	if (o_ptr->to_a > 0) return (TRUE);
-	
+
 	/* Good attack + defence */
 	if (o_ptr->to_h + o_ptr->to_d > 0) return (TRUE);
-	
+
 	/* Everthing else isn't good */
 	return (FALSE);
 }
@@ -1848,7 +2608,10 @@ bool item_tester_hook_is_book(const object_type *o_ptr)
 		case TV_TRUMP_BOOK:
 		case TV_ARCANE_BOOK:
 		case TV_LIFE_BOOK:
-		
+		case TV_WIZARDRY_BOOK:
+		case TV_SPELLBOOK:
+		case TV_SPELL_SCROLL:
+
 		/* It is a book */	
 		return (TRUE);
 	}
@@ -1884,8 +2647,8 @@ bool item_tester_okay(const object_type *o_ptr)
 	if (item_tester_tval)
 	{
 		/* Is it a spellbook? If so, we need a hack -- TY */
-		if ((item_tester_tval <= TV_DEATH_BOOK) &&
-			(item_tester_tval >= TV_LIFE_BOOK))
+		if ((item_tester_tval <= TV_BOOKS_MAX) &&
+			(item_tester_tval >= TV_BOOKS_MIN))
 			return check_book_realm(o_ptr->tval);
 		else
 			if (item_tester_tval != o_ptr->tval) return (FALSE);
@@ -1960,14 +2723,14 @@ void display_inven(void)
 		attr = tval_to_attr[o_ptr->tval % 128];
 
 		/* Grey out charging items */
-		if (o_ptr->timeout && 
+		if (o_ptr->timeout &&
 			((o_ptr->tval != TV_LITE) || (o_ptr->flags3 & TR3_INSTA_ART)))
 		{
 			attr = TERM_L_DARK;
 		}
 
 		/* Hack -- fake monochrome */
-		if (!use_color || ironman_moria) attr = TERM_WHITE;
+		if (!use_color /*|| ironman_moria*/) attr = TERM_WHITE;
 
 		/* Display the entry itself */
 		Term_putstr(3, i, n, attr, o_name);
@@ -2045,7 +2808,7 @@ void display_equip(void)
 		}
 
 		/* Hack -- fake monochrome */
-		if (!use_color || ironman_moria) attr = TERM_WHITE;
+		if (!use_color /*|| ironman_moria*/) attr = TERM_WHITE;
 
 		/* Display the entry itself */
 		Term_putstr(3, i - INVEN_WIELD, n, attr, o_name);
@@ -2152,7 +2915,7 @@ void show_inven(void)
 		}
 		
 		/* Fake monochrome */
-		if (!use_color || ironman_moria)
+		if (!use_color /*|| ironman_moria*/)
 		{
 			out_color[k] = TERM_WHITE;
 		}
@@ -2205,7 +2968,7 @@ void show_inven(void)
 #endif
 
 		/* Fake monochrome */
-		if (!use_color || ironman_moria)
+		if (!use_color /*|| ironman_moria*/)
 		{
 			/* Hack - no equippy char */
 			a = TERM_WHITE;
@@ -2290,7 +3053,7 @@ void show_equip(void)
 		}
 		
 		/* Fake monochrome */
-		if (!use_color || ironman_moria)
+		if (!use_color /*|| ironman_moria*/)
 		{
 			out_color[k] = TERM_WHITE;
 		}
@@ -2346,7 +3109,7 @@ void show_equip(void)
 #endif
 
 		/* Fake monochrome */
-		if (!use_color || ironman_moria)
+		if (!use_color /*|| ironman_moria*/)
 		{
 			/* Hack - no equippy char */
 			a = TERM_WHITE;
@@ -2518,6 +3281,7 @@ static bool get_item_allow(int item)
  */
 static bool get_item_okay(int i)
 {
+
 	/* Illegal items */
 	if ((i < 0) || (i >= INVEN_TOTAL)) return (FALSE);
 
@@ -2734,7 +3498,7 @@ void show_floor(int y, int x)
 		put_str(tmp_val, j + 1, col);
 
 		/* Display the entry itself */
-		c_put_str(out_color[j], out_desc[j], j + 1, col + 3);
+		/*c_put_str(out_color[j], out_desc[j], j + 1, col + 3);*/
 
 		/* Display the weight if needed */
 		if (show_weights)

@@ -954,11 +954,12 @@ static void do_cmd_quaff_potion_aux(int item)
 
 		case SV_POTION_RESISTANCE:
 		{
-			(void)set_oppose_acid(p_ptr->oppose_acid + rand_range(20, 40));
-			(void)set_oppose_elec(p_ptr->oppose_elec + rand_range(20, 40));
-			(void)set_oppose_fire(p_ptr->oppose_fire + rand_range(20, 40));
-			(void)set_oppose_cold(p_ptr->oppose_cold + rand_range(20, 40));
-			(void)set_oppose_pois(p_ptr->oppose_pois + rand_range(20, 40));
+			int dur = rand_range(20, 40);
+			(void)set_oppose_acid(p_ptr->oppose_acid + dur);
+			(void)set_oppose_elec(p_ptr->oppose_elec + dur);
+			(void)set_oppose_fire(p_ptr->oppose_fire + dur);
+			(void)set_oppose_cold(p_ptr->oppose_cold + dur);
+			(void)set_oppose_pois(p_ptr->oppose_pois + dur);
 			ident = TRUE;
 			break;
 		}
@@ -1161,7 +1162,8 @@ static void do_cmd_read_scroll_aux(int item)
 		{
 			for (k = 0; k < randint1(3); k++)
 			{
-				if (summon_specific(0, py, px, p_ptr->depth, 0, TRUE, FALSE, FALSE))
+				if (summon_specific(0, py, px, p_ptr->depth, 0, TRUE, 
+							FALSE, FALSE, GP_COPY, 0))
 				{
 					ident = TRUE;
 				}
@@ -1173,7 +1175,8 @@ static void do_cmd_read_scroll_aux(int item)
 		{
 			for (k = 0; k < randint1(3); k++)
 			{
-				if (summon_specific(0, py, px, p_ptr->depth, SUMMON_UNDEAD, TRUE, FALSE, FALSE))
+				if (summon_specific(0, py, px, p_ptr->depth, SUMMON_UNDEAD, 
+							TRUE, FALSE, FALSE, GP_COPY, 0))
 				{
 					ident = TRUE;
 				}
@@ -1719,7 +1722,8 @@ static void do_cmd_use_staff_aux(int item)
 		{
 			for (k = 0; k < randint1(4); k++)
 			{
-				if (summon_specific(0, py, px, p_ptr->depth, 0, TRUE, FALSE, FALSE))
+				if (summon_specific(0, py, px, p_ptr->depth, 0, TRUE, 
+							FALSE, FALSE, GP_COPY, 0))
 				{
 					ident = TRUE;
 				}
@@ -1926,13 +1930,13 @@ static void do_cmd_use_staff_aux(int item)
 
 		case SV_STAFF_POWER:
 		{
-			if (dispel_monsters(300)) ident = TRUE;
+			if (dispel_monsters(200)) ident = TRUE;
 			break;
 		}
 
 		case SV_STAFF_HOLINESS:
 		{
-			if (dispel_evil(300)) ident = TRUE;
+			if (dispel_evil(200)) ident = TRUE;
 			k = 3 * p_ptr->lev;
 			if (set_protevil(p_ptr->protevil + randint1(25) + k)) ident = TRUE;
 			if (set_poisoned(0)) ident = TRUE;
@@ -3000,7 +3004,7 @@ static void do_cmd_activate_aux(int item)
 			case SV_DRAGON_BLUE:
 			{
 				msg_print("You breathe lightning.");
-				(void)fire_ball(GF_ELEC, dir, 330, 2);
+				(void)fire_ball(GF_ELEC, dir, 330*p_ptr->lev/50, 2);
 				o_ptr->timeout = (s16b)rand_range(50, 100);
 				break;
 			}
@@ -3008,7 +3012,7 @@ static void do_cmd_activate_aux(int item)
 			case SV_DRAGON_WHITE:
 			{
 				msg_print("You breathe frost.");
-				(void)fire_ball(GF_COLD, dir, 370, 2);
+				(void)fire_ball(GF_COLD, dir, 370*p_ptr->lev/50, 2);
 				o_ptr->timeout = (s16b)rand_range(50, 100);
 				break;
 			}
@@ -3016,7 +3020,7 @@ static void do_cmd_activate_aux(int item)
 			case SV_DRAGON_BLACK:
 			{
 				msg_print("You breathe acid.");
-				(void)fire_ball(GF_ACID, dir, 430, 2);
+				(void)fire_ball(GF_ACID, dir, 430*p_ptr->lev/50, 2);
 				o_ptr->timeout = (s16b)rand_range(50, 100);
 				break;
 			}
@@ -3024,7 +3028,7 @@ static void do_cmd_activate_aux(int item)
 			case SV_DRAGON_GREEN:
 			{
 				msg_print("You breathe poison gas.");
-				(void)fire_ball(GF_POIS, dir, 500, 2);
+				(void)fire_ball(GF_POIS, dir, 500*p_ptr->lev/50, 2);
 				o_ptr->timeout = (s16b)rand_range(50, 100);
 				break;
 			}
@@ -3032,7 +3036,7 @@ static void do_cmd_activate_aux(int item)
 			case SV_DRAGON_RED:
 			{
 				msg_print("You breathe fire.");
-				(void)fire_ball(GF_FIRE, dir, 670, 2);
+				(void)fire_ball(GF_FIRE, dir, 670*p_ptr->lev/50, 2);
 				o_ptr->timeout = (s16b)rand_range(50, 100);
 				break;
 			}
@@ -3049,7 +3053,7 @@ static void do_cmd_activate_aux(int item)
 				           ((chance == 2) ? GF_COLD :
 				            ((chance == 3) ? GF_ACID :
 				             ((chance == 4) ? GF_POIS : GF_FIRE)))),
-				          dir, 840, 2);
+				          dir, 840*p_ptr->lev/50, 2);
 				o_ptr->timeout = (s16b)rand_range(25, 50);
 				break;
 			}
@@ -3057,7 +3061,7 @@ static void do_cmd_activate_aux(int item)
 			case SV_DRAGON_BRONZE:
 			{
 				msg_print("You breathe confusion.");
-				(void)fire_ball(GF_CONFUSION, dir, 400, 2);
+				(void)fire_ball(GF_CONFUSION, dir, 400*p_ptr->lev/50, 2);
 				o_ptr->timeout = (s16b)rand_range(50, 100);
 				break;
 			}
@@ -3065,7 +3069,7 @@ static void do_cmd_activate_aux(int item)
 			case SV_DRAGON_GOLD:
 			{
 				msg_print("You breathe sound.");
-				(void)fire_ball(GF_SOUND, dir, 430, 2);
+				(void)fire_ball(GF_SOUND, dir, 430*p_ptr->lev/50, 2);
 				o_ptr->timeout = (s16b)rand_range(50, 100);
 				break;
 			}
@@ -3076,7 +3080,7 @@ static void do_cmd_activate_aux(int item)
 				msg_format("You breathe %s.",
 				           ((chance == 1 ? "chaos" : "disenchantment")));
 				(void)fire_ball((chance == 1 ? GF_CHAOS : GF_DISENCHANT),
-				          dir, 740, 2);
+				          dir, 740*p_ptr->lev/50, 2);
 				o_ptr->timeout = (s16b)rand_range(30, 60);
 				break;
 			}
@@ -3087,7 +3091,7 @@ static void do_cmd_activate_aux(int item)
 				msg_format("You breathe %s.",
 				           ((chance == 1 ? "sound" : "shards")));
 				(void)fire_ball((chance == 1 ? GF_SOUND : GF_SHARDS),
-				          dir, 750, 2);
+				          dir, 750*p_ptr->lev/50, 2);
 				o_ptr->timeout = (s16b)rand_range(30, 60);
 				break;
 			}
@@ -3102,7 +3106,7 @@ static void do_cmd_activate_aux(int item)
 				(void)fire_ball(((chance == 1) ? GF_CHAOS :
 				           ((chance == 2) ? GF_DISENCHANT :
 				            ((chance == 3) ? GF_SOUND : GF_SHARDS))),
-				          dir, 840, 2);
+				          dir, 840*p_ptr->lev/50, 2);
 				o_ptr->timeout = (s16b)rand_range(30, 60);
 				break;
 			}
@@ -3112,7 +3116,7 @@ static void do_cmd_activate_aux(int item)
 				chance = randint0(2);
 				msg_format("You breathe %s.",
 				           ((chance == 0 ? "light" : "darkness")));
-				(void)fire_ball((chance == 0 ? GF_LITE : GF_DARK), dir, 670, 2);
+				(void)fire_ball((chance == 0 ? GF_LITE : GF_DARK), dir, 670*p_ptr->lev/50, 2);
 				o_ptr->timeout = (s16b)rand_range(30, 60);
 				break;
 			}
@@ -3120,7 +3124,7 @@ static void do_cmd_activate_aux(int item)
 			case SV_DRAGON_POWER:
 			{
 				msg_print("You breathe the elements.");
-				(void)fire_ball(GF_MISSILE, dir, 1000, 3);
+				(void)fire_ball(GF_MISSILE, dir, 1000*p_ptr->lev/50, 3);
 				o_ptr->timeout = (s16b)rand_range(30, 60);
 				break;
 			}

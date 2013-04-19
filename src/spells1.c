@@ -110,7 +110,7 @@ static byte spell_color(int type)
 		}
 	}
 	/* Normal tiles or ASCII */
-	else if (use_color && !ironman_moria)
+	else if (use_color /*&& !ironman_moria*/)
 	{
 		byte a;
 		char c;
@@ -1175,12 +1175,12 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 
 				if (seen) r_ptr->r_flags3 |= (RF3_RES_NETH);
 			}
-			else if (r_ptr->flags3 & RF3_EVIL)
+			/*else if (r_ptr->flags3 & RF3_EVIL)
 			{
 				dam /= 2;
 				note = " resists somewhat.";
 				if (seen) r_ptr->r_flags3 |= (RF3_EVIL);
-			}
+			}*/
 			break;
 		}
 
@@ -1210,8 +1210,8 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			if (seen) obvious = TRUE;
 			do_poly = TRUE;
 			do_conf = (rand_range(5, 16) + r) / (r + 1);
-			if ((r_ptr->flags4 & RF4_BR_CHAO) ||
-			   ((r_ptr->flags3 & RF3_DEMON) && one_in_(3)))
+			if /*(*/(r_ptr->flags4 & RF4_BR_CHAO)/* ||
+			   ((r_ptr->flags3 & RF3_DEMON) && one_in_(3)))*/
 			{
 				note = " resists.";
 				dam *= 3; dam /= rand_range(7, 12);
@@ -1440,17 +1440,17 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 				dam *= 2;
 			}
 
-			if (r_ptr->flags1 & RF1_UNIQUE)
+			/*if (r_ptr->flags1 & RF1_UNIQUE)
 			{
-				if (r_ptr->level > randint0(p_ptr->lev * 3))
+				if (r_ptr->level > randint0(p_ptr->lev * 5))
 				{
-					note = " resists.";
+					note = " resists a lot.";
 					dam /= 8;
 				}
-			}
+			}*/
 			break;
+		
 		}
-
 		case GF_PSI:
 		{
 			if (seen) obvious = TRUE;
@@ -1886,7 +1886,8 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			if (m_ptr->mspeed < 150) m_ptr->mspeed += 10;
 
 			/* Attempt to clone. */
-			if (multiply_monster(c_ptr->m_idx, TRUE, friendly, pet))
+			if (multiply_monster(c_ptr->m_idx, TRUE, 
+						friendly, pet, m_ptr->group, m_ptr->master_m_idx))
 			{
 				note = " spawns!";
 			}
@@ -1911,6 +1912,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 
 			/* No overflow */
 			if (m_ptr->hp > m_ptr->maxhp) m_ptr->hp = m_ptr->maxhp;
+			if (m_ptr->otherinflicted > m_ptr->maxhp - m_ptr->hp) m_ptr->otherinflicted = m_ptr->maxhp - m_ptr->hp;
 
 			chg_virtue(V_VITALITY, 1);
 
@@ -2740,17 +2742,19 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 	if (r_ptr->flags1 & RF1_QUESTOR) do_poly = FALSE;
 
 	/* "Unique" and "quest" monsters can only be "killed" by the player. */
-	if ((r_ptr->flags1 & RF1_UNIQUE) || (r_ptr->flags1 & RF1_QUESTOR) ||
+	/*if ((r_ptr->flags1 & RF1_UNIQUE) || (r_ptr->flags1 & RF1_QUESTOR) ||
 		 (r_ptr->flags3 & RF3_UNIQUE_7))
 	{
 		if (who && (dam > m_ptr->hp)) dam = m_ptr->hp;
-	}
+	}*/
 
 	/* Modify the damage */
-	dam = mon_damage_mod(m_ptr, dam, 0);
-
+	dam = mon_damage_mod(m_ptr, r_ptr, dam, 0);
+	
 	/* Check for death */
-	if (dam > m_ptr->hp)
+	if (dam > m_ptr->hp && !(who && ((((r_ptr->flags1 & RF1_UNIQUE) && 
+			!(r_ptr->flags7 & RF7_FRIENDLY)) || 
+			(r_ptr->flags1 & RF1_QUESTOR)/* || (r_ptr->flags3 & RF3_UNIQUE_7)*/))))
 	{
 		/* Extract method of death */
 		note = note_dies;
@@ -2903,11 +2907,49 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		m_ptr->csleep = 0;
 
 		/* Hurt the monster */
-		m_ptr->hp -= dam;
+		if (((r_ptr->flags1 & RF1_UNIQUE) || (r_ptr->flags1 & RF1_QUESTOR)
+					/* || (r_ptr->flags3 & RF3_UNIQUE_7)*/))
+		{
+			m_ptr->otherinflicted += dam;
+			if (m_ptr->otherinflicted > m_ptr->maxhp - m_ptr->hp) 
+				m_ptr->hp = m_ptr->maxhp - m_ptr->otherinflicted;
+		}
+		else m_ptr->hp -= dam;
 
 		/* Dead monster */
-		if (m_ptr->hp < 0)
+		if (!(r_ptr->flags7 & RF7_FRIENDLY) && (m_ptr->hp < 0) && 
+				((r_ptr->flags1 & RF1_UNIQUE) || (r_ptr->flags1 & RF1_QUESTOR)
+					/*|| (r_ptr->flags3 & RF3_UNIQUE_7)*/))
 		{
+		        if (m_ptr->ml && show_3_combat) msg_format("%^s vanishes!", m_name);
+			if (r_ptr->flags1 & RF1_QUESTOR) 
+			{
+				alloc_monster(MAX_SIGHT + 5, FALSE, m_ptr->r_idx);
+			}
+			delete_monster_idx(c_ptr->m_idx);
+		}
+		else if (m_ptr->hp < 0)
+		{
+			/* Friendly uniques are always in danger! */
+			if (r_ptr->flags1 & RF1_UNIQUE)
+			{
+				r_ptr->max_num = 0;
+		
+				/* If notes are on, write a note */
+				if (take_notes && auto_notes)
+				{
+					char notes[80];
+		
+					/* Get true name even if blinded/hallucinating */
+					cptr monst = (r_name + r_ptr->name);
+		
+					/* Write note */
+					sprintf(notes, "%s was killed.", monst);
+		
+					add_note(notes, 'U');
+				}
+			}
+	
 			bool sad = FALSE;
 			
 			s16b old_m_d_head = mon_d_head;
@@ -2946,7 +2988,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			{
 				if (see_s)
 				{
-					msg_format("%^s%s", m_name, note);
+					if (show_3_combat) msg_format("%^s%s", m_name, note);
 				}
 				else
 				{
@@ -2956,7 +2998,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 
 			if (sad)
 			{
-				msg_print("You feel sad for a moment.");
+				if (show_3_combat) msg_print("You feel sad for a moment.");
 			}
 		}
 
@@ -2966,7 +3008,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			/* Give detailed messages if visible or destroyed */
 			if (note && seen)
 			{
-				msg_format("%^s%s", m_name, note);
+				if (show_3_combat) msg_format("%^s%s", m_name, note);
 			}
 			/* Hack -- Pain message */
 			else if (see_s)
@@ -3004,7 +3046,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		else
 		{
 			/* HACK - anger the monster before showing the sleep message */
-			if (do_sleep) anger_monster(m_ptr);
+			if (do_sleep) anger_monster(c_ptr->m_idx);
 
 			/* Give detailed messages if visible or destroyed */
 			if (note && seen)
@@ -3023,7 +3065,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 
 			/* Anger monsters */
 			if (((dam > 0) || get_angry) && !do_sleep)
-				anger_monster(m_ptr);
+				anger_monster(c_ptr->m_idx);
 
 			/* Take note */
 			if ((fear || do_fear) && (m_ptr->ml))

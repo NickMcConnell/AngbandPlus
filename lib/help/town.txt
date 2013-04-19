@@ -1,7 +1,7 @@
 === The Town and Wilderness ===
 
 
-After you have created your character, you will begin your Zangband
+After you have created your character, you will begin your Frazband
 adventure in the town. Symbols appearing on your screen will represent
 the walls, floor, objects, features, and creatures lurking about. In
 order to direct your character through his adventure, you will enter
@@ -48,14 +48,14 @@ passes and if you enter the town at night, the town will be dark.
 Fortunately, the various shops and the other special buildings are open
 on a 24-hour basis.
 
-Later versions of Zangband have introduced a dramatically extended town
+Later versions of Frazband have introduced a dramatically extended town
 level to the game. In addition to the basic town and the standard nine
 shops, new buildings and multiple towns separated by a wilderness were
 added. 
 
 While most people welcome these new additions, they are not for
 everyone and consequently, there are two possible town options in
-Zangband - the 'Standard' town(s) and the 'Vanilla' town. The default
+Frazband - the 'Standard' town(s) and the 'Vanilla' town. The default
 is the standard town. The vanilla town option can be selected during
 character generation. (see option.txt#StartUp [3])
 
@@ -71,7 +71,7 @@ The 'standard' town consists of a large world which contains themed
 wilderness terrain (mountainous areas, oceans, plains, etc). There are
 several towns located in various parts of the world. The wilderness is
 not uninhabited and can be dangerous indeed for the unwary. As a
-general rule, the further your character gets from civilization the
+general rule, the further your character gets from civilisation the
 more cautious he or she should be.  Your character will start in a
 relatively harmless area of the wilderness.
 
@@ -82,10 +82,10 @@ get through the first few levels of the game.  As your character gains
 levels, you will need to journey into the wilderness seeking other
 towns and cities to purchase and sell higher-level objects.
 
-Zangband contains more than 100 different kinds of shops each with
+Frazband contains more than 100 different kinds of shops each with
 different themes. Specialist stores may stock powerful items but
 usually at steep premiums.  Note that some shops offer services, rather
-than products. You should also note that the largere towns, do not
+than products. You should also note that the larger towns, do not
 contain entrances to the dungeon.  You must be within a certain
 proximity to a dungeon entrance for spells and scrolls which teleport
 you to the dungeon to work.
@@ -97,8 +97,8 @@ you to the dungeon to work.
 The vanilla town consists of nine shops (including a home) and an
 impenetrable wall which surrounds the town. There are no other
 embellishments. The nine shops available are similar to those in
-standard Angband (withth addition of a book store) and are designed to
-be sufficient for an entire game of Zangband.
+standard Angband (with the addition of a book store) and are designed to
+be sufficient for an entire game of Frazband.
 
 
 ***** <Townspeople>
@@ -111,7 +111,7 @@ constant annoyance, but not harmful. Public drunks wander about the
 town singing, and are of no threat to anyone. Sneaky rogues who work
 for the black market are always greedily eyeing your backpack for
 potential new 'purchases'. . . And finally, what town would be complete
-without a swarm of half drunk warriors, who take offense or become
+without a swarm of half drunk warriors, who take offence or become
 annoyed just for the fun of it.
 
 Most of the townspeople should be avoided by the largest possible
@@ -164,10 +164,10 @@ object, they will add it to their inventory. If it was a bad bargain,
 they simply throw the item away. In any case, you may receive some
 knowledge of the item if another is encountered.
 
-Note that in Zangband, store owners will buy more items than they sell.
+Note that in Frazband, store owners will buy more items than they sell.
 Consequently, it is possible to sell an item to a shopkeeper and not
 to have it appear in the store's inventory of things to sell.  If you
-plan to buy somehting back at a later date, make sure you sell the item
+plan to buy something back at a later date, make sure you sell the item
 in a store that stocks such items.
 
 
@@ -183,7 +183,7 @@ often.
 
 If you consistently bargain well in a store, that is, you reach the
 final offer much more often than not, then the store owner will
-eventually recognize that you are a superb haggler, and will go
+eventually recognise that you are a superb haggler, and will go
 directly to the final offer instead of haggling with you. Items which
 cost less than 10 gold pieces do not count, as haggling well with these
 items is usually either very easy or almost impossible. The more
@@ -214,7 +214,7 @@ will charge an elf player more and pay less for items the player is
 selling).
 
 Finally, when selling objects, the cap on the store owner's purse is
-applied so that even a favored race with a high charisma can not sell
+applied so that even a favoured race with a high charisma can not sell
 an item for more than that amount. This cap applies only to single
 items so it is possible to sell a stack of similar items for more than
 the cap on the store owner's purse.
@@ -225,16 +225,16 @@ the cap on the store owner's purse.
 
 Junk Stores ("0")
      Junk stores stock, lets face it, junk.  But you may occasionally
-     find smoething of use within them.
+     find something of use within them.
 
-General Suplies Stores ("1")
+General Supplies Stores ("1")
      General stores typically stock basic necessities for entering the
      dungeon such as food, drink, some clothing, torches, lamps, oil,
      shovels, picks, and spikes. Some general stores (notably the
      "Dungeon Supplies" store) may also sell basic magical items.
 
 Armour Stores ("2")
-     Armour stores are where the town's armor is fashioned. All sorts
+     Armour stores are where the town's armour is fashioned. All sorts
      of protective gear may be bought and sold here.
 
 Weapons Stores ("3")

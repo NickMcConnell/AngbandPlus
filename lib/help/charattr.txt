@@ -2,8 +2,8 @@
 
 During the process of Character Generation (see birth.txt [1]), you
 will select your character's three primary attributes - its sex, race
-and class. If you select a spellcasting class, you will also make a
-choice of magic realms at that time. Your character will be randomly
+and class. If you select a spellcasting class, you will also determine
+your magical abilities at this time. Your character will be randomly
 assigned a number of other attributes such as height, weight, social
 class, and background history
 
@@ -68,12 +68,12 @@ characters start with more gold). Each character also starts out
 with a few useful items, which may be kept, or sold to a
 shop-keeper for more gold.
 
---- Armor Class ---
+--- Armour Class ---
 
-Each character has an armor class, representing how well the character
-can avoid damage. Your armor class is affected by your dexterity and
-your equipment. A more detailed discussion of Armor Class can be found
-in the Combat section (see attack.txt#Armor [3]). 
+Each character has an armour class, representing how well the character
+can avoid damage. Your armour class is affected by your dexterity, your
+equipment and your melee skill. A more detailed discussion of Armour
+Class can be found in the Combat section (see attack.txt#Armour [3]). 
 
 --- Hit Points ---
 
@@ -117,7 +117,7 @@ there are no significant gameplay differences between the two sexes.
 ***** <TheRaces>
 === Races ===
 
-There are thirty different races that you can choose from in Zangband.
+There are thirty different races that you can choose from in Frazband.
 Each race has various strengths and weaknesses and its own adjustments
 to a character's stats and abilities. Many races also have intrinsic
 abilities and powers.
@@ -311,7 +311,7 @@ Draconian
      wings, they can easily escape any pit trap unharmed.
 
 Mind Flayer
-     A secretive and mysterious ancient race. Their civilization may
+     A secretive and mysterious ancient race. Their civilisation may
      well be older than any other on our planet, and their intelligence
      and wisdom are naturally sustained, and are so great that they
      enable Mind Flayers to become more powerful spellcasters than any
@@ -337,7 +337,7 @@ Golem
      Golems gain very little nutrition from ordinary food. They need to
      collect scrolls of satisfy hunger, or perish of exhaustion when
      the life force animating their body runs out. In the most recent
-     version Golems also gain natural armor class bonus from their
+     version Golems also gain natural armour class bonus from their
      tough body.
 
 Skeleton
@@ -426,7 +426,7 @@ Beastman
 === Classes ===
  
 There are eleven different classes that you can choose from in
-Zangband. Each class has various strengths and weaknesses and its own
+Frazband. Each class has various strengths and weaknesses and its own
 adjustments to a character's stats and abilities. Many classes also
 have intrinsic abilities and powers. These are often linked to the
 character's experience level and only become available later in the
@@ -455,7 +455,7 @@ Mage
     A Mage is a spell caster that must live by his wits as he cannot
     hope to simply hack his way through the dungeon like a warrior. In
     addition to his spellbooks, a mage should carry a range of magical
-    devices to help him in his endeavors which he can master far more
+    devices to help him in his endeavours which he can master far more
     easily than anyone else. A mage is also better able to resist the
     effects of spells cast at him by his enemies.
 
@@ -463,14 +463,12 @@ Mage
     spell casting ability. Good Wisdom and Dexterity also help. There
     is no rule that says a mage cannot become a good fighter, but
     spells are the mage's true strength. With two notable exceptions,
-    mages should avoid wearing armor on their hands as this can
+    mages should avoid wearing armour on their hands as this can
     restrict their spell casting ability. 
 
-    Unlike other spellcasting classes, mages can freely choose any two
-    magic realms, although they will never be as good at Life magic as
-    a priest. Otherwise, mages tend to learn and cast all the spells in
-    their realms better than any other character except the high mage
-    who has concentrated his efforts so as to excel in a single realm.
+    Mages get the maximum six points to spend on both magic actions and 
+    magic targets, although they find certain priest-type spells 
+    involving the creation of life energy difficult.
 
 Priest
     A Priest is a character devoted to serving a higher power. They
@@ -491,14 +489,14 @@ Priest
     by the Gods. High level priests who practice Life magic will learn
     to invoke the power of their patron deity to bless such weapons.
 
-    There are two types of priests in Zangband: the ordinary priests
-    who, select Life magic as their primary realm, and the 'dark'
-    priests, who select Death magic instead. Since the natural
-    inclination of priests is towards Life Magic, priests who select
-    Life magic will be able to learn their prayers faster and better
-    than their evil colleagues. Priests can also select a secondary
-    realm from the other five realms, and should be able to learn all
-    spells in it although not as efficiently as mages.
+    Priests start off with three points in life magic, and have two 
+    more to allocate to targets. They have only one free point for
+    actions, but start with two in creation, and one in each of control,
+    change and divination. Priests are not permitted to learn certain
+    spells which are seen as dishonourable or as perverting themselves
+    or reality, although they can still learn plenty of more "natural"
+    attack spells. In future versions of Frazband, priests may be able
+    to choose different gods which lead to all this being changed.
 
 Rogue
     A Rogue is a character that prefers to live by his cunning, but is
@@ -515,18 +513,13 @@ Rogue
     Intelligence and Dexterity but Strength and Constitution are
     important too.
 
-    There are several subtypes of Rogues in Zangband and the exact type
-    is determined by the realm of magic chosen. The common Thief, will
-    probably be content with Arcane magic and its wide applicability.
-    The Burglar, on the other hand, is more interested in the Sorcery
-    spells, which allow him or her to do the job fast and efficiently.
-    Assassins' partiality for Death magic is well known, and they are
-    feared for it. Finally, there is the Card Shark, who will opt for
-    Trump magic, and shuffles the decks with amazing proficiency.
+    Rogues start with a point in divination magic and a point in body
+    magic, and have one point of actions and two points of targets to
+    allocate.
 
     As a rogue increases in experience, his proficiency with the sling
     improves and he will ultimately gain two additional shots per round
-    with his favorite missile launcher.
+    with his favourite missile launcher.
 
 Ranger
     A Ranger is a combination of a warrior and a mage who has developed
@@ -545,12 +538,10 @@ Ranger
     dual class character, more experience is required for him to
     advance through the levels.
 
-    All rangers are trained in Nature magic, and all Nature spells are
-    available to them. They even learn these spells almost as fast as
-    mages. They can also select a secondary realm and may choose from
-    any realm except Life magic, but they are slow learners of the
-    second realm, and may find themselves unable to learn some of the
-    highest level spells.
+    Rangers start off with three points in nature magic, and have two
+    other points to allocate to targets. They can allocate four points
+    to actions freely, although most will take at least some proficiency
+    in creation and alteration magic.
 
 Paladin
     A Paladin is a combination of a warrior and a priest. Paladins are
@@ -568,14 +559,11 @@ Paladin
     magic realm. Because a paladin is really a dual class character,
     more experience is required for him to advance through the levels.
 
-    There are two types of Paladins: those trained in Life magic and
-    their evil counterparts (the 'Death Knights') who are trained in
-    Death magic. An 'ordinary' paladin will gain experience for
-    destroying high-level spellbooks from all the magic realms except
-    Life. A Death Knight, on the other hand, is very tolerant of the
-    other realms and will only gain experience for destroying
-    high-level Life books.
-
+    Paladins have no choice in their magic, they have two points in life
+    magic, two points in creation, and one in control, alteration and
+    divination. In future versions of Frazband, paladins may be able to 
+    choose different gods which lead to this being changed.
+    
     As a Paladin gains in experience he will become more confident in
     his abilities to defeat his enemies and in his deity's power to
     protect him. As a result, Paladins become resistant to fear at
@@ -584,7 +572,7 @@ Paladin
 Warrior-Mage
     A Warrior-Mage is precisely what the name suggests: a cross between
     the warrior and mage classes. While their brothers, the rangers,
-    specialize in Nature magic and survival skills, true Warrior-Mages
+    specialise in Nature magic and survival skills, true Warrior-Mages
     attempt to reach the best of both worlds. As warriors they are much
     superior to the usual Mage class.
 
@@ -593,11 +581,9 @@ Warrior-Mage
     does not come without a price as Warrior-Mages require more
     experience to advance levels than any other class.
 
-    Warrior-mages begin the game with Arcane magic, and they can freely
-    select another realm of magic. Although they do not gain new spells
-    as fast as regular mages, they will eventually learn every spell in
-    both realms, thus making a very competitive choice for players who
-    appreciate Arcane magic.
+    Warrior-mages have the same magic as normal mages, except they
+    only get five points to allocate to each of the sets of disciplines,
+    instead of six.
 
 Chaos-Warrior
     Chaos Warriors are the feared servants of the terrible Demon Lords
@@ -613,8 +599,9 @@ Chaos-Warrior
     and chance.
 
     Chaos Warriors are, as one might expect, trained in Chaos magic.
-    They are not interested in any other form of magic. They can learn
-    every Chaos spell.
+    They are not interested in any other form of magic. As such, they
+    have three points in destruction and in exotica, and no points to
+    allocate.
 
     As a chaos-warrior gains in experience, he becomes more confident
     of his ability to defeat his enemies and will learn to resist fear
@@ -624,31 +611,28 @@ Chaos-Warrior
 
 Monk
     The Monk character class is very different from all other classes.
-    Although they can use weapons and armor just like any other class,
+    Although they can use weapons and armour just like any other class,
     their training in martial arts makes them much more powerful with
-    no armor or weapons. To gain the resistances necessary for
+    no armour or weapons. To gain the resistances necessary for
     survival at higher levels a monk may need to wear some kind of
-    armor, but if the armor he wears is too heavy, it will severely
-    disturb his martial arts maneuvers. 
+    armour, but if the armour he wears is too heavy, it will severely
+    disturb his martial arts manoeuvres. 
 
     As a monk gains in experience he learns, new, powerful forms of
     attack and is able to land more blows per round. His defensive
-    capabilities increase likewise. Fortunately, the amount of armor a
+    capabilities increase likewise. Fortunately, the amount of armour a
     monk can wear, while still fighting efficiently, also increases
     with experience.
 
-    In addition, the monk's agility allows him to resist paralyzing
-    attacks once he reaches a high enough level (but only if his armor
+    In addition, the monk's agility allows him to resist paralysing
+    attacks once he reaches a high enough level (but only if his armour
     is not restricting his movement). Monk's are able to move quickly
     and will become faster and be able to strike more quickly as they
     gain experience.
 
-    The different sects of monks are devoted to different areas of
-    magic. The typical monk is interested in the harmony of nature, and
-    studies Nature magic. An idealist monk would select Life magic, and
-    try to work to benefit his neighbor. But there are also dark
-    monks, who practice Death magic. A monk will eventually learn all
-    prayers in the discipline of their choice.
+    Monks exist who have have spread their studies into almost every
+    area, and so monks get three points in each of the two sets of the 
+    disciplines to allocate, with no restrictions.
 
 Mindcrafter
     The Mindcrafter is a unique class that uses the powers of the mind
@@ -661,7 +645,7 @@ Mindcrafter
     A Mindcrafter's primary stat is Wisdom since this is used to
     determine how well he / she can perform the psychic powers, and in
     combat a Mindcrafter is roughly the equivalent of a priest. Unlike
-    the priest, however, a Mindcrafter is never penalized for wielding
+    the priest, however, a Mindcrafter is never penalised for wielding
     an edged weapon.
 
     Although the powers of a Mindcrafter may seem like magic, this is
@@ -678,26 +662,15 @@ Mindcrafter
     telepathy.
 
 High Mage
-    High mages are mages who specialize in one particular field of
-    magic and learn it very well - much better than the ordinary mage.
-    For the price of giving up a second realm of magic, they gain
-    substantial benefits in the mana costs, minimum levels, and failure
-    rates in the spells of the realm of their specialty.
-
-    A high mage's prime statistic is intelligence as this determines
-    his spell casting ability. Good wisdom and dexterity also help.
-    There is no rule that says a high mage cannot become a good
-    fighter, but spells are the mage's true strength. With two notable
-    exceptions, high mages should avoid wearing armor on their hands as
-    this can restrict their spell casting ability.
-
-    High mages may freely choose any realm but it should be noted that
-    a high mage specializing in Life Magic will not learn it as well as
-    a priest.
+    The new magic system implemented by Frazband has made the concept of
+    the high mage obsolete. However, they can still be created under
+    the old magic system. A high mage is simply a mage who learns only
+    one realm of spells instead of two, but as such is far better at
+    casting those spells.
  
 
 ***** <PrimaryStats>
-=== Primary Statistcs ===
+=== Primary Statistics ===
 
 Each character has six primary "stats", strength, intelligence, wisdom,
 dexterity, constitution, and charisma, which modify the abilities of
@@ -726,18 +699,18 @@ Strength
      will dramatically increase the amount of damage done with each
      hit. Strength also has a marginal effect on your chance to hit
      your opponent. Characters with low strength may receive penalties.
-     Strength is also useful in tunneling, bashing and in carrying
+     Strength is also useful in tunnelling, bashing and in carrying
      heavy items without being slowed down.
  
 Intelligence
      Intelligence affects the spellcasting abilities of mage-like
-     spellcasters (high mages, mages, warrior-mages, rangers, chaos
-     warriors and rogues). Intelligence will affect the number of
-     spells these classes may learn each level, the number of spell
-     points they receive and their spell fail rates. These classes
-     cannot learn spells if their intelligence is 7 or lower. Also,
-     intelligent characters are better at using magic devices, picking
-     locks and disarming traps.
+     spellcasters (mages, warrior-mages, rangers, chaos warriors and
+     rogues). Intelligence will affect the number of spells these
+     classes may learn each level, the number of spell points they
+     receive and their spell fail rates. These classes cannot learn
+     spells if their intelligence is 7 or lower. Also, intelligent
+     characters are better at using magic devices, picking locks and
+     disarming traps.
  
 Wisdom
      Wisdom affects the ability of priest-like spellcasters (priests,
@@ -788,7 +761,8 @@ Melee
      his dexterity and strength are high enough, he may receive more
      blows per round with lighter weapons. Strength and dexterity both
      modify the ability to hit an opponent. This skill increases with
-     the level of the character.
+     the level of the character. Melee skill also increases the
+     character's ability to avoid taking damage from physical attacks.
  
 Bows and Throws
      Using ranged missile weapons (and throwing objects) is included in
@@ -847,7 +821,7 @@ Infra-vision
      see walls and objects. Infra-vision will allow a character to see
      any warm-blooded creatures up to a certain distance. This ability
      works equally well with or with out a light source. The majority
-     of Zangband's creatures are cold-blooded, and will not be detected
+     of Frazband's creatures are cold-blooded, and will not be detected
      unless lit up by a light source. Most non human races have innate
      infra-vision ability. Human can gain infra-vision only if it is
      magically enhanced.
@@ -980,11 +954,12 @@ High Mage     30+7  36+13 30+9   2    15/20       10+15  10+10
 Original   : (??)
 Updated    : (??)
 Updated    : Zangband DevTeam
-Last update: May 25, 2001
+Updated    : Benjamin Mann
+Last update: Aug 15, 2006
 
 ***** Begin Hyperlinks
 ***** [1] birth.txt
 ***** [2] charattr.txt#PrimaryStats
-***** [3] defend.txt#Armor
+***** [3] defend.txt#Armour
 ***** [4] charattr.txt#PrimarySkills
 

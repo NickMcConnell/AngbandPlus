@@ -42,6 +42,23 @@ bool player_has_mut(int mutation)
 	}
 } 
  
+/* Select a random mutation */
+
+int random_mutation(bool gain, int upto)
+{
+	if (cheat_muta) return randint1(upto);
+	
+	if (gain)
+	{
+		mutate_seed = mutate_seed * 1103515245 + 12345;
+		return ((mutate_seed >> 4) % upto)+1;
+	}
+	else
+	{
+		unmutate_seed = unmutate_seed * 1103515245 + 12345;
+		return ((unmutate_seed >> 4) % upto)+1;
+	}
+}
 
 /*
  * Select a random mutation.
@@ -66,11 +83,34 @@ static bool select_mutation(int choose_mut, bool gain, int *mutation)
 	/* Sanity check */
 	if (choose_mut < 0 || choose_mut > 193) choose_mut = 0;
 
+	/* Some characters are protected from excessive mutation */
+	if (gain && (p_ptr->pclass == CLASS_PRIEST || p_ptr->pclass == CLASS_PALADIN) 
+			&& (p_ptr->prace != RACE_BEASTMAN))
+	{
+		/* How many mutations do we have? */
+		int mutations = 0;
+		int i;
+
+		for (i=0; i<MUT_PER_SET; ++i)
+		{
+			if (p_ptr->muta1 & (1L << i)) ++mutations;
+			if (p_ptr->muta2 & (1L << i)) ++mutations;
+			if (p_ptr->muta3 & (1L << i)) ++mutations;
+		}
+
+		/* Too many */
+		if (mutations >= 16)
+		{
+			msg_print("The power of your god prevents you from mutating.");
+			return FALSE;
+		}
+	}
+	
 	attempts_left = (choose_mut ? 1 : (gain ? 20 : 2000));
 
 	while (attempts_left--)
 	{
-		switch (choose_mut ? choose_mut : randint1(193))
+		switch (choose_mut ? choose_mut : random_mutation(gain, 193))
 		{
 		case 1: case 2: case 3: case 4:
 			/* Spit acid */
@@ -844,7 +884,7 @@ int calc_mutant_regenerate_mod(void)
 	 * Beastman get 10 "free" mutations and
 	 * only 5% decrease per additional mutation
 	 */
-	if (p_ptr->prace == RACE_BEASTMAN)
+	if (p_ptr->prace == RACE_BEASTMAN || p_ptr->pclass == CLASS_CHAOS_WARRIOR)
 	{
 		count -= 10;
 		mod = 5;
@@ -1155,7 +1195,8 @@ void mutation_power_aux(const mutation_type *mut_ptr)
 
 		for (i = 0; i < 8; i++)
 		{
-			(void)summon_specific(-1, py, px, lvl, SUMMON_BIZARRE1, FALSE, TRUE, TRUE);
+			(void)summon_specific(-1, py, px, lvl, SUMMON_BIZARRE1, FALSE, 
+					      TRUE, TRUE, GP_ALLY, 0);
 		}
 	}
 
@@ -1486,8 +1527,8 @@ void mutation_random_aux(const mutation_type *mut_ptr)
 	{
 		bool pet = (one_in_(6));
 
-		if (summon_specific((pet ? -1 : 0), p_ptr->py, p_ptr->px,
-				 p_ptr->depth, SUMMON_DEMON, TRUE, FALSE, pet))
+		if (summon_specific((pet ? -1 : 0), p_ptr->py, p_ptr->px, p_ptr->depth, SUMMON_DEMON, 
+					TRUE, pet, pet, (pet ? GP_ALLY : GP_FIXATED_ON_PLAYER), 0))
 		{
 			msg_print("You have attracted a demon!");
 			disturb(FALSE);
@@ -1578,8 +1619,8 @@ void mutation_random_aux(const mutation_type *mut_ptr)
 	{
 		bool pet = (one_in_(3));
 
-		if (summon_specific((pet ? -1 : 0), p_ptr->py, p_ptr->px,
-			 p_ptr->depth, SUMMON_ANIMAL, TRUE, FALSE, pet))
+		if (summon_specific((pet ? -1 : 0), p_ptr->py, p_ptr->px, p_ptr->depth, SUMMON_ANIMAL, 
+					TRUE, pet, pet, (pet ? GP_ALLY : GP_FIXATED_ON_PLAYER), 0))
 		{
 			msg_print("You have attracted an animal!");
 			disturb(FALSE);
@@ -1608,7 +1649,7 @@ void mutation_random_aux(const mutation_type *mut_ptr)
 		msg_print("You feel insubstantial!");
 		msg_print(NULL);
 		(void)set_wraith_form(p_ptr->wraith_form +
-			 rand_range(p_ptr->lev / 2, p_ptr->lev));
+			 rand_range(8, 16));
 	}
 
 	else if (mut_ptr->which == MUT2_POLY_WOUND)
@@ -1663,8 +1704,8 @@ void mutation_random_aux(const mutation_type *mut_ptr)
 	{
 		bool pet = (one_in_(5));
 
-		if (summon_specific((pet ? -1 : 0), p_ptr->py, p_ptr->px,
-			 p_ptr->depth, SUMMON_DRAGON, TRUE, FALSE, pet))
+		if (summon_specific((pet ? -1 : 0), p_ptr->py, p_ptr->px, p_ptr->depth, SUMMON_DRAGON, 
+					TRUE, pet, pet, (pet ? GP_ALLY : GP_FIXATED_ON_PLAYER), 0))
 		{
 			msg_print("You have attracted a dragon!");
 			disturb(FALSE);

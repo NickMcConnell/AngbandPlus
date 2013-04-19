@@ -29,13 +29,13 @@
 /*
  * Name of the version/variant
  */
-#define VERSION_NAME "ZAngband"
+#define VERSION_NAME "Frazband"
 
 
 /*
  * Current version string
  */
-#define VERSION_STRING	"2.6.2"
+#define VERSION_STRING	"2.8.1"
 
 
 /*
@@ -48,27 +48,32 @@
 #define SAVEFILE_VERSION 26
 
 /* Added for ZAngband */
-#ifdef USE_SCRIPT
+/* Note - actually based on Zangband 2.6.2 */
+/*#ifdef USE_SCRIPT
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 3
 #define FAKE_VER_MINOR 0
-#define FAKE_VER_PATCH 0
-#else /* USE_SCRIPT */
+#define FAKE_VER_PATCH 0*/
+#define NEW_VERSION    0
+#define NEW_VER_MAJOR  0
+#define NEW_VER_MINOR  4
+#define NEW_VER_PATCH  0
 #define FAKE_VERSION   0
 #define FAKE_VER_MAJOR 2
 #define FAKE_VER_MINOR 6
 #define FAKE_VER_PATCH 2
-#endif /* USE_SCRIPT */
 
 #define ANGBAND_2_8_1
 #define ZANGBAND
 #define ZANGBAND_BIGSCREEN
 #define ZANGBAND_WILDERNESS
+#define FRAZBAND
 
 /*
- * This value is not currently used
+ * This value indicates what game it is.
+ * For Zangband, it is zero.
  */
-#define VERSION_EXTRA   0
+#define VERSION_EXTRA   1
 
 /*
  * Number of grids in each block (vertically)
@@ -108,6 +113,26 @@
 
 /* Hack XXX  Start of the sea types = 2^16 - 65*/
 #define WILD_SEA	65471
+
+/* 
+ * Difficulty levels 
+ */
+#define MIN_DIFFICULTY 	0
+#define MAX_DIFFICULTY	100
+#define NORM_DIFFICULTY 50
+
+/*
+ * Difficulty factors.
+ * At 1000, the effect is doubled or halved as appropriate at levels 25 and 75.
+ * The lower the number, the GREATER the effect.
+ * Changes are proportional, so 500 or 2000 doubles or halves things.
+ */
+#define DIFFICULT_PLAYER_HP_FACTOR 	1500L
+#define EASY_PLAYER_HP_FACTOR		1000L
+#define DIFFICULT_MONSTER_HP_FACTOR	1000L
+#define EASY_MONSTER_HP_FACTOR		1000L
+#define EASY_LESS_STUNNING		1000L
+#define EASY_LESS_CONFUSING		1000L
 
 /*
  * Quest constants
@@ -471,9 +496,27 @@
 #define MUT3_GOOD_LUCK                  0x80000000L
 
 /*
+ * The gods
+ */
+#define GOD_AGOD		0
+
+#define MAX_GOD			1
+
+/*
  * The racial powers
  */
 #define MAX_RACE_POWERS		28
+#define MAX_GIVEN_POWERS	2
+
+
+/*
+ * Shared given powers
+ */
+#define SHARED_POWER_BASE	MAX_GOD*2
+
+#define GIVEN_POWER_TURN	0
+#define MAX_SHARED_GIVEN_POWERS	1
+
 
 
 /* Monk martial arts... */
@@ -576,8 +619,14 @@
  * OPTION: Maximum number of "quarks" (see "utils.c")
  * Default: assume at most 512 different inscriptions are used
  */
-#define QUARK_MAX       768
+#ifdef USE_NEW_MAGIC /* Doing this is probably very silly */
+#define QUARK_MAX       1024
+#define SPELL_LIST_MAX	64
+#else /* USE_NEW_MAGIC */
+#define QUARK_MAX	768
+#endif /* USE_NEW_MAGIC */
 /* Was 512... 256 quarks added for random artifacts */
+/* Now adding (excessively) 256 for spell lists in the new magic system */
 
 /*
  * Number of times to pass through quark list while compacting.
@@ -667,7 +716,7 @@
  */
 #define PET_CLOSE_DIST				1
 #define PET_FOLLOW_DIST				6
-#define PET_SEEK_DIST				10
+#define PET_SEEK_DIST				20
 #define PET_DESTROY_DIST			255
 #define PET_SPACE_DIST				(-10)
 #define PET_AWAY_DIST				(-25)
@@ -678,7 +727,7 @@
  * during the creation of an object (see "get_obj_num()" in "object.c").
  * Lower values yield better objects more often.
  */
-#define GREAT_OBJ       50
+#define GREAT_OBJ       48
 
 
 /*
@@ -697,6 +746,30 @@
 /* 1/x chance of hurting even if invulnerable! */
 #define PENETRATE_INVULNERABILITY 13
 
+/* Chance of nexus crawlers targetting teleporters at high level */
+#define NEXUS_APPEAR_CHANCE	5000
+/* Depth at which this may happen */
+#define NEXUS_APPEAR_DEPTH	75
+
+
+/* 
+ * The special levels and level features
+ */
+
+/* Chance of a babewyn level */
+#define BABEWYN_LEVEL_CHANCE	500
+
+/* Chance of the Orb appearing */
+#define ORB_LEVEL_CHANCE	1000
+/* Depth at which the Orb can appear */
+#define ORB_LEVEL_DEPTH		80
+
+
+/* Chance of a level babewynifying upon learning */
+#define BABEWYNIFY_LEVEL_CHANCE	500
+
+/* Chance of babewyns appearing in a babewyn level */
+#define BABEWYN_APPEAR_CHANCE	5000
 
 
 /*
@@ -717,8 +790,20 @@
 /*
  * Maximum flow depth when using "MONSTER_FLOW"
  */
-#define MONSTER_FLOW_DEPTH 32
+#define MONSTER_FLOW_DEPTH 3200
 
+
+/*
+ * Number of previous locations remembered by friendlies or pets.
+ */
+
+#define MONSTER_LOCATION_MEMORY 3000
+
+/*
+ * Radius in which we look for new places to go.
+ */
+
+#define MON_LOOK_NEW_RAD 3
 
 /*
  * There is a 1/160 chance per round of creating a new monster
@@ -778,6 +863,7 @@
 #define CH_DEATH        0x10
 #define CH_TRUMP        0x20
 #define CH_ARCANE       0x40
+#define CH_WIZARDRY     0x80
 
 
 /*
@@ -791,7 +877,8 @@
 #define REALM_DEATH        5
 #define REALM_TRUMP        6
 #define REALM_ARCANE       7
-#define MAX_REALM          7
+#define REALM_WIZARDRY     8
+#define MAX_REALM          8
 
 /*
  * Magic-books for the realms
@@ -799,6 +886,41 @@
 #define REALM1_BOOK     (p_ptr->realm1 + TV_LIFE_BOOK - 1)
 #define REALM2_BOOK     (p_ptr->realm2 + TV_LIFE_BOOK - 1)
 
+
+/*
+ * Constants for the new magic system 
+ */
+
+#define MAX_SPELLS_ABSOLUTE	2048	/* The number of spells-1 (NULL spell)  */
+#define MAX_SPELLS_CURRENT	205	/* The number of spells-1 (NULL spell)  */
+#define MAX_SPELLS_IN_BOOK	7	/* The number of spells in any given spellbook */
+#define MAX_SPELLS_KNOWN_TOTAL	100	/* The maximum number of spells a character can know. 
+										Needs balancing */
+
+/* Actions */
+
+#define MAG_CREATE		0
+#define MAG_DESTROY		1
+#define MAG_CHANGE		2
+#define MAG_CONTROL		3
+#define MAG_DIVINE		4
+
+#define NUM_MAG_ACTIONS		5
+
+/* Targets */
+
+#define MAG_MIND		0
+#define MAG_BODY		1
+#define MAG_LIFE		2
+#define MAG_NATURE		3
+#define MAG_MAGIC		4
+#define MAG_ENERGY		5
+#define MAG_MATTER		6
+#define MAG_STUFF		7
+#define MAG_REAL		8
+
+#define NUM_AVAIL_MAG_TARGETS	9
+#define NUM_MAG_TARGETS		11
 
 /*
  * Maximum number of "normal" pack slots, and the index of the "overflow"
@@ -1282,6 +1404,8 @@
 #define FT_BUILD_INN			0x008C
 #define FT_BUILD_HEALER			0x008D
 
+#define FT_SPECIAL_ORB			0x0100
+
 
 /*** Artifact indexes (see "lib/edit/a_info.txt") ***/
 
@@ -1719,6 +1843,14 @@
 #define TV_POTION       75
 #define TV_FLASK        77
 #define TV_FOOD         80
+
+/* #ifdef USE_NEW_MAGIC */
+
+#define TV_SPELLBOOK    98
+#define TV_SPELL_SCROLL 99
+
+/*  #ifdef SUPPORT_OLD_MAGIC */
+
 #define TV_LIFE_BOOK    90
 #define TV_SORCERY_BOOK 91
 #define TV_NATURE_BOOK  92
@@ -1726,10 +1858,27 @@
 #define TV_DEATH_BOOK   94
 #define TV_TRUMP_BOOK   95
 #define TV_ARCANE_BOOK  96
+#define TV_WIZARDRY_BOOK 97
+
+/*  #endif */ /* SUPPORT_OLD_MAGIC */
+
+/* #else */ /* USE_NEW_MAGIC */
+
+/*#define TV_LIFE_BOOK    90
+#define TV_SORCERY_BOOK 91
+#define TV_NATURE_BOOK  92
+#define TV_CHAOS_BOOK   93
+#define TV_DEATH_BOOK   94
+#define TV_TRUMP_BOOK   95
+#define TV_ARCANE_BOOK  96
+#define TV_WIZARDRY_BOOK 97*/
+
+/* #endif */ /* USE_NEW_MAGIC */
+
 #define TV_GOLD         100     /* Gold can only be picked up by players */
 
 #define TV_BOOKS_MIN    TV_LIFE_BOOK  /* First tval of spellbooks */
-#define TV_BOOKS_MAX    TV_ARCANE_BOOK  /* Last tval of spellbooks */
+#define TV_BOOKS_MAX    TV_WIZARDRY_BOOK  /* Last tval of spellbooks */
 
 /* Any subvalue */
 #define SV_ANY 					255
@@ -2268,6 +2417,7 @@
 #define SV_FOOD_WAYBREAD                37
 #define SV_FOOD_PINT_OF_ALE             38
 #define SV_FOOD_PINT_OF_WINE            39
+#define SV_FOOD_MUSHROOM		40
 
 
 /*
@@ -2397,15 +2547,41 @@
 #define SM_OPP_POIS             0x00100000
 #define SM_MIMIC                0x00200000 /* XXX Unknown Mimic */
 #define SM_CLONED               0x00400000 /* XXX Cloned */
-#define SM_PET                  0x00800000 /* XXX Pet */
+#define SM_PET                  0x00800000 /* Obeys player commands */
 #define SM_IMM_ACID             0x01000000
 #define SM_IMM_ELEC             0x02000000
 #define SM_IMM_FIRE             0x04000000
 #define SM_IMM_COLD             0x08000000
-#define SM_FRIENDLY             0x10000000 /* XXX Friendly */
+#define SM_FRIENDLY             0x10000000 /* Won't attack the player  */
 #define SM_IMM_REFLECT          0x20000000
 #define SM_IMM_FREE             0x40000000
 #define SM_IMM_MANA             0x80000000
+
+
+/*
+ * Different groups that creatures may belong to.
+ */
+#define GP_COPY			0
+#define GP_MINION		1
+#define GP_INDISCRIMINATE	2
+#define GP_VERY_INDISCRIM	3
+#define GP_EXTREME_INDISCRIM	4
+#define GP_FIXATED_ON_PLAYER	5
+#define GP_VICIOUS_PLANT	6
+#define GP_VICIOUS_MIMIC	7
+#define GP_ZEPHYR		8
+
+#define GP_MAX_HOSTILE		63
+/* Non-hostile groups */
+#define GP_NEUTRAL		64
+#define GP_BULLY		65
+#define GP_INNOCENT		66
+#define GP_GUARDIAN		67
+#define GP_ADVENTURER		68
+#define GP_ALLY			69
+#define GP_TOUCHY		70
+#define GP_TOUCHY_BULLY		71
+
 
 
 /*
@@ -2498,10 +2674,16 @@
 #define PW_OBJECT       0x00000200L     /* Display object recall */
 #define PW_DUNGEON      0x00000400L     /* Display dungeon view */
 #define PW_SNAPSHOT     0x00000800L     /* Display snap-shot */
-#define PW_VISIBLE		0x00001000L		/* Display monster visible list */
+#define PW_VISIBLE	0x00001000L	/* Display monster visible list */
 #define PW_SCRIPT       0x00002000L     /* Display script messages */
 #define PW_BORG_1       0x00004000L     /* Display borg messages */
 #define PW_BORG_2       0x00008000L     /* Display borg status */
+
+
+/*** Level flags - currently we have only one ***/
+
+#define BABEWYN_LEVEL	0x00000001L
+
 
 
 
@@ -2519,6 +2701,7 @@
 #define SUMMON_DEMON                16
 #define SUMMON_UNDEAD               17
 #define SUMMON_DRAGON               18
+#define SUMMON_HI_DEMON             20
 #define SUMMON_HI_UNDEAD            21
 #define SUMMON_HI_DRAGON            22
 #define SUMMON_AMBERITES            31
@@ -2540,6 +2723,10 @@
 #define SUMMON_PHANTOM              47
 #define SUMMON_ELEMENTAL            48
 #define SUMMON_BLUE_HORROR          49
+#define SUMMON_NEXUS_CRAWLER        50
+#define SUMMON_NATURAL_BABEWYN      51
+#define SUMMON_LESSER_GARDEN        52
+#define SUMMON_GREATER_GARDEN       53
 
 
 
@@ -2712,15 +2899,25 @@
 /*
  * Special Monster Flags (all temporary)
  */
-#define MFLAG_VIEW      0x01    /* Monster is in line of sight */
-#define MFLAG_TEMP      0x02    /* Monster is marked for project_hack() */
-#define MFLAG_XXX2      0x04    /* (unused) */
-#define MFLAG_XXX3      0x08    /* (unused) */
-#define MFLAG_BORN      0x10    /* Monster is still being born */
-#define MFLAG_NICE      0x20    /* Monster is still being nice */
-#define MFLAG_SHOW      0x40    /* Monster is recently memorized */
-#define MFLAG_MARK      0x80    /* Monster is currently memorized */
-
+#define MFLAG_VIEW		0x01	/* Monster is in line of sight */
+#define MFLAG_TEMP		0x02	/* Monster is marked for project_hack() */
+#define MFLAG_XXX2		0x04	/* (unused) */
+#define MFLAG_XXX3		0x08	/* (unused) */
+#define MFLAG_BORN		0x10	/* Monster is still being born */
+#define MFLAG_NICE		0x20	/* Monster is still being nice */
+#define MFLAG_SHOW		0x40	/* Monster is recently memorized */
+#define MFLAG_MARK		0x80	/* Monster is currently memorized */
+/*
+ * More permanent
+ */
+#define MFLAG2_UNDETECTED	0x01	/* Monster has not been detected */
+#define MFLAG2_OBFUSCATED	0x02	/* Monster is obfuscated */
+#define MFLAG2_REVERSING	0x04	/* Monster is reversing for position */
+#define MFLAG2_JUST_HIT		0x08	/* Monster has been hit by player between turns */
+#define MFLAG2_IDLE		0x10	/* Monster has just done nothing */
+#define MFLAG2_TEMP_OBSTRUCTED	0x20	/* Monster is blocked by another monster */
+#define MFLAG2_MASTER		0x40	/* Monster has summons or escorts */
+#define MFLAG2_XXX7		0x80	/* (unused) */
 
 
 /*
@@ -2942,6 +3139,7 @@
 #define RBE_DISEASE     29
 #define RBE_TIME        30
 #define RBE_EXP_VAMP    31
+#define RBE_PENETRATE   32
 
 
 /*** Monster flag values (hard-coded) ***/
@@ -2999,7 +3197,7 @@
 #define RF2_SHAPECHANGER    0x00000400  /* TY: shapechanger */
 #define RF2_ATTR_ANY        0x00000800  /* TY: Attr_any */
 #define RF2_POWERFUL        0x00001000  /* Monster has strong breath */
-#define RF2_XXX_1			0x00002000
+#define RF2_XXX_1           0x00002000
 #define RF2_AURA_FIRE       0x00004000  /* Burns in melee */
 #define RF2_AURA_ELEC       0x00008000  /* Shocks in melee */
 #define RF2_OPEN_DOOR       0x00010000  /* Monster can open doors */
@@ -3016,7 +3214,7 @@
 #define RF2_BRAIN_4         0x08000000
 #define RF2_BRAIN_5         0x10000000
 #define RF2_BRAIN_6         0x20000000
-#define RF2_BRAIN_7         0x40000000
+#define RF2_UNKILLABLE      0x40000000
 #define RF2_QUANTUM         0x80000000  /* Monster has quantum behavior */
 
 /*
@@ -3049,7 +3247,7 @@
 #define RF3_RES_PLAS        0x01000000  /* Resist plasma */
 #define RF3_RES_NEXU        0x02000000  /* Resist nexus */
 #define RF3_RES_DISE        0x04000000  /* Resist disenchantment */
-#define RF3_UNIQUE_7        0x08000000  /* Is a "Nazgul" unique */
+#define RF3_PLANT           0x08000000  /* Is a plant */
 #define RF3_NO_FEAR         0x10000000  /* Cannot be scared */
 #define RF3_NO_STUN         0x20000000  /* Cannot be stunned */
 #define RF3_NO_CONF         0x40000000  /* Cannot be confused */
@@ -3060,7 +3258,7 @@
  */
 #define RF4_SHRIEK          0x00000001  /* Shriek for help */
 #define RF4_ELDRITCH_HORROR 0x00000002  /* Sanity-blasting horror */
-#define RF4_XXX3            0x00000004  /* (?) */
+#define RF4_S_HI_DEMON      0x00000004  /* (?) */
 #define RF4_ROCKET          0x00000008  /* TY: Rocket */
 #define RF4_ARROW_1         0x00000010  /* Fire an arrow (light) */
 #define RF4_ARROW_2         0x00000020  /* Fire an arrow (heavy) */
@@ -3160,7 +3358,7 @@
 #define RF6_S_DRAGON        0x08000000  /* Summon Dragon */
 #define RF6_S_HI_UNDEAD     0x10000000  /* Summon Greater Undead */
 #define RF6_S_HI_DRAGON     0x20000000  /* Summon Ancient Dragon */
-#define RF6_S_AMBERITES     0x40000000  /* Summon Amberites */
+#define RF6_S_SPECIAL     0x40000000  /* Summon Amberites */
 #define RF6_S_UNIQUE        0x80000000  /* Summon Unique Monster */
 
 /*
@@ -3173,7 +3371,10 @@
 #define RF7_SILLY			0x00000010  /* Monster is "silly" */
 #define RF7_LITE_1			0x00000020	/* Monster carries a small lite */
 #define RF7_LITE_2			0x00000040	/* Monster carries a large lite */
-
+#define RF7_SPOWER			0x00000080	/* Monster is obscenely powerful */
+#define RF7_OBFUSCATE		0x00000100   /* Monster obfuscates well */
+#define RF7_S_OBFUSCATE         0x00000200   /* Monster is very difficult to pick up on */
+	
 /*
  * Monster race wilderness flags
  */
@@ -3230,7 +3431,7 @@
  */
 
 #define RF4_INT_MASK \
-   0L
+   (RF4_S_HI_DEMON)
 
 #define RF5_INT_MASK \
   (RF5_HOLD | RF5_SLOW | RF5_CONF | RF5_BLIND | RF5_SCARE)
@@ -3241,7 +3442,7 @@
     RF6_S_KIN | RF6_S_CYBER | RF6_S_MONSTER | RF6_S_MONSTERS | \
     RF6_S_ANT | RF6_S_SPIDER | RF6_S_HOUND | RF6_S_HYDRA | \
     RF6_S_ANGEL | RF6_S_DRAGON | RF6_S_UNDEAD | RF6_S_DEMON | \
-    RF6_S_HI_DRAGON | RF6_S_HI_UNDEAD | RF6_S_AMBERITES | RF6_S_UNIQUE)
+    RF6_S_HI_DRAGON | RF6_S_HI_UNDEAD | RF6_S_SPECIAL | RF6_S_UNIQUE)
 
 
 /*
@@ -3319,7 +3520,7 @@
 /* Hack -- summon spells */
 
 #define RF4_SUMMON_MASK \
-    0L
+    (RF4_S_HI_DEMON)
 
 #define RF5_SUMMON_MASK \
     0L
@@ -3328,7 +3529,7 @@
     (RF6_S_KIN | RF6_S_CYBER | RF6_S_MONSTER | RF6_S_MONSTERS | RF6_S_ANT | \
      RF6_S_SPIDER | RF6_S_HOUND | RF6_S_HYDRA | RF6_S_ANGEL | RF6_S_DEMON | \
      RF6_S_UNDEAD | RF6_S_DRAGON | RF6_S_HI_UNDEAD | RF6_S_HI_DRAGON | \
-     RF6_S_AMBERITES | RF6_S_UNIQUE)
+     RF6_S_SPECIAL | RF6_S_UNIQUE)
 
 
 /*
@@ -3499,10 +3700,10 @@
 #define	view_bright_lite		p_ptr->options[46]
 #define view_granite_lite		p_ptr->options[47]
 #define	view_special_lite		p_ptr->options[48]
-
+#define show_3_combat                   p_ptr->options[49]
+	
 /* Option Set 2 */
 
-/* {TRUE,  0, NULL,					"Number 64" }, p_ptr->options[49] */
 /* {TRUE,  0, NULL,					"Number 65" }, p_ptr->options[50] */
 /* {TRUE,  0, NULL,					"Number 66" }, p_ptr->options[51] */
 /* {TRUE,  0, NULL,					"Number 67" }, p_ptr->options[52] */
@@ -3661,10 +3862,10 @@
 #define point_based				p_ptr->birth[16]
 #define silly_monsters			p_ptr->birth[17]
 #define ironman_nightmare		p_ptr->birth[18]
-/* {TRUE,  0, NULL,					"Number 211" }, p_ptr->birth[19] */
-/* {TRUE,  0, NULL,					"Number 212" }, p_ptr->birth[20] */
-/* {TRUE,  0, NULL,					"Number 213" }, p_ptr->birth[21] */
-/* {TRUE,  0, NULL,					"Number 214" }, p_ptr->birth[22] */
+#define friendly_monsters		p_ptr->birth[19]
+#define protect_savefile		p_ptr->birth[20]
+#define super_powerful_monst		p_ptr->birth[21]
+/* {TRUE,  0, NULL,					"Number 215" }, p_ptr->birth[22] */
 /* {TRUE,  0, NULL,					"Number 215" }, p_ptr->birth[23] */
 /* {TRUE,  0, NULL,					"Number 216" }, p_ptr->birth[24] */
 /* {TRUE,  0, NULL,					"Number 217" }, p_ptr->birth[25] */
@@ -3706,7 +3907,7 @@
 /* {TRUE,  0, NULL,					"Number 250" },p_ptr->options[188] */
 #define auto_notes				p_ptr->options[189]
 #define take_notes				p_ptr->options[190]
-/* {TRUE,  0, NULL,					"Number 253" }, p_ptr->options[191] */
+#define advanced_monst_groups			p_ptr->options[191]
 #define testing_stack			svr_ptr->options[30]
 /* {TRUE,  0, NULL,					"Number 255" }, svr_ptr->options[31] */
 
@@ -3984,6 +4185,26 @@
  */
 #define is_hostile(T) \
 	 ((bool)(!(is_pet(T) || is_friendly(T))))
+
+
+#ifdef USE_NEW_MAGIC
+/*
+ * Translate between spell numbers and two-character strings,
+ * so we can store spell lists as quarks.
+ * We use numbers between 1 and 127 in the strings
+ */
+#define spell_number(X,Y) \
+	((u16b)((X - 1)+((Y - 1) * 126)))
+
+#define spell_char_1(X) \
+	((char)((X % 126) + 1))
+
+#define spell_char_2(X) \
+	((char)((X / 126) + 1))
+
+
+
+#endif /* USE_NEW_MAGIC */
 
 
 
@@ -4290,15 +4511,16 @@ extern int PlayerUID;
 #define FIELD_INFO_DUMMY13	0x4000
 #define FIELD_INFO_DUMMY14  0x8000
 
-#define FTYPE_NOTHING	0
+#define FTYPE_NOTHING		0
 #define FTYPE_TRAP		1
 #define FTYPE_DOOR		2
 #define FTYPE_BUILD		3
 #define FTYPE_FEAT		4
 #define FTYPE_QUEST		5
 #define FTYPE_FIELD		6
-#define FTYPE_CORPSE	7
+#define FTYPE_CORPSE		7
 #define FTYPE_MISC		8
+#define FTYPE_SPECIAL		9
 
 /*
  * Field Actions

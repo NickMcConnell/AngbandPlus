@@ -13,7 +13,8 @@ OBJS = \
 	effects.o fields.o files.o flavor.o generate.o \
 	grid.o init1.o init2.o load.o \
 	melee1.o melee2.o mind.o monster1.o \
-	monster2.o mspells1.o mspells2.o mutation.o notes.o\
+	monster2.o mspells1.o mspells2.o mutation.o 
+	nmagic1.o nmagic2.o notes.o\
 	obj_kind.o object1.o object2.o racial.o \
 	rooms.o save.o scores.o script.o \
 	spells1.o spells2.o spells3.o store.o \
@@ -39,21 +40,21 @@ GLIBS= -lgrx20
 # Targets
 #
 
-default: zangband.exe
-	copy zangband.exe ..
-	del zangband.exe
+default: frazband.exe
+	copy frazband.exe ..
+	del frazband.exe
 
-install: zangband.exe
-	copy zangband.exe ..
+install: frazband.exe
+	copy frazband.exe ..
 
-all: zangband.exe
+all: frazband.exe
 	@echo All done.  Use 'make install' to install.
 
 #
 # Link Executables
 #
 
-zangband.exe: $(OBJS)
+frazband.exe: $(OBJS)
 	$(CC) $(CFLAGS) -o $@ $(OBJS) $(LIBS)
 
 # Compile source files

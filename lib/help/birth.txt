@@ -1,10 +1,9 @@
 === Creating a Character ===
 
-Zangband is a roleplaying game, in which you, the player, control a
-character in the world of Zangband. Perhaps the most important thing
-you control is the birth of your character, in which you choose or
-allow to be chosen various attributes that will affect the future life
-of your character.
+Frazband is a game in which you, the player, control a character in 
+the world of Frazband. Perhaps the most important thing you control is
+the birth of your character, in which you choose or allow to be chosen 
+various attributes that will affect the future life of your character.
 
 Character creation, or birth, is controlled through a variety of
 choices as to constraints on the type of character you wish to play,
@@ -25,10 +24,10 @@ on the final screen, use delete or backspace to restart.
 ***** <BirthOptions>
 === Birth Options ===
 
-During character generation you may press '=' at any time to access
+During character generation you may press '=' at most points to access
 the options screen. A more detailed description of the various options
 can be found in the section on the Options Page (see option.txt [3]).
-Here you may set yout 'Birth options' which are options set at birth
+Here you may set your 'Birth options' which are options set at birth
 and which cannot be changed again during the game. Note that you may
 change your birth option preferences in game but these will only have
 effect in your next character. Perhaps one of the most important
@@ -44,8 +43,8 @@ based character generation system (see below [d]).
 
 Once you begin character generation you will be asked to choose
 your character's three primary attributes - its sex, race and
-class. If you have selected a spellcasting class, you will also be
-prompted for your choice of magic realm(s).
+class. If you are a member of most spellcasting classes, you will next 
+be prompted for your choice of magic realm(s) or skills.
 
 Your character's sex has a minimal effect on game play - females start
 with slightly more gold, males are generally heavier and so can bash
@@ -59,7 +58,7 @@ and Magic Realms (see magic.txt#MagicRealms [7]) sections.
 Each character has a few secondary attributes, height, weight, social
 class, and background history, which are randomly determined, but which
 are affected by the sex and race of the character. In general, these
-attributes are only used to provide "flavor" to the character, to
+attributes are only used to provide "flavour" to the character, to
 assist in the roll playing, but they do have a few minor effects on the
 game. For example, background history affects social class, which
 affects the amount of money the character will start with. And weight
@@ -152,19 +151,41 @@ Sprite        No    Yes    Yes
 Beastman      Yes   Yes    Yes
 
 ***** <ChoosingMagic>
-=== Choosing Your Magic Realm(s) ===
+=== Choosing Your Magic Skills ===
 
-If you have selected a spellcasting class, you will next be prompted
-for your choice of magic realm(s). The magic system, as implemented in
-Zangband, consists of seven realms: Life, Arcane, Sorcery, Nature,
-Trump, Chaos and Death. In general, Life is primarily defensive but
-also offers spells to attack evil creatures, Arcane offers utility
-spells and some limited offensive capability, Sorcery offers utility
-and defensive spells, Nature offers both defensive and offensive
-spells, Trump specializes in teleportation and summoning spells and
-Chaos and Death are offensive. A more complete description of the magic
-realms and spellcasting in general can be found in the section on the
-Magic Realms (see magic.txt#MagicRealms [7]).
+If you have selected a spellcasting class, you will probably next be 
+prompted for your choice of magic abilities. (A few spellcasting
+classes have no such choice.) Frazband contains two entirely separate
+magic systems, which you choose between at the very start. The old 
+magic system is a somewhat modified version of the magic system used in
+Zangband. Support for this magic system may be removed at a later date.
+We encourage the player to use the new magic system, which is the
+'proper' system for Frazband, and the only one for which further
+development is planned.
+
+In the new magic system, spellcasters learn to perform certain 
+"actions" upon certain "targets". For example, a fireball is cast by 
+performing the creation action on the energy target. There are five 
+different actions, and nine different targets, and the player allocates
+a limited number of points to these actions and targets, to represent
+the skill of their character at performing the actions and affecting
+the targets. So a character skilled at creation magic and energy magic 
+will be very good at casting fireballs.
+
+Choosing sensible magical abilities is easy in the new magic system,
+simply select one of the default skillsets in the leftmost column. When
+you want to decide on the details yourself, further information can be
+found in the section on the new magic system. (see newmagic.txt [7]).
+
+The old magic system in Frazband consists of eight realms: Life, Arcane, 
+Sorcery, Nature, Morphism, Wizardry, Chaos and Death. In general, Life 
+is primarily defensive but also offers spells to attack evil creatures, 
+Arcane offers utility spells and some limited offensive capability, 
+Sorcery offers utility and defensive spells, Nature and Morphism offer 
+both defensive and offensive spells, and Wizardry, Chaos and Death are 
+offensive. A more complete description of the magic realms and 
+spellcasting in general can be found in the section on the Magic Realms 
+(see magic.txt#MagicRealms [8]).
 
 Where possible, it is generally a good idea to pick one defensive realm
 and one offensive realm. If you pick the realms always in the same
@@ -175,7 +196,7 @@ pick the correct spellbook to use in the game.
 ***** <Restrictions>
 --- Class/Realm Restrictions ---
 
-In Zangband, spellcasting classes can select either one or two realms
+In Frazband, spellcasting classes can select either one or two realms
 from those available. Some classes which can learn two realms may learn
 their first realm 'better' than their second.
 
@@ -206,7 +227,7 @@ Once you have chosen your race, class and (if applicable) your magic
 realm(s), you will be asked how many random quests you wish to be
 assigned. You may choose any number between 0 and 49. A more detailed
 discussion of random quests can be found in the Dungeon section (see
-dungeon.txt#RandomQuests [8]).
+dungeon.txt#RandomQuests [9]).
 
 
 ***** <AutoRoller>
@@ -215,8 +236,8 @@ dungeon.txt#RandomQuests [8]).
 The auto-roller is a quick means of generating start-up characters
 based on a set of user-selected criteria. If you choose to use the
 auto-roller, you will be presented with a column giving the maximum
-possible statistics (see charattr.txt#PrimaryStats [9]) for your choice
-of race, class and maximize mode (see option.txt#StartUp [3]). You will
+possible statistics (see charattr.txt#PrimaryStats [a]) for your choice
+of race, class and maximise mode (see option.txt#StartUp [3]). You will
 then be prompted to enter your desired statistics which should not
 exceed the maximum statistics displayed on the screen.
 
@@ -226,19 +247,19 @@ specified criteria. Each stat is rolled as a number from 8 to 17, with
 a normal distribution, and is then immediately modified based upon the
 race and class which you have chosen. The exact quantum of this
 modification can be found in the Character Attributes section (see
-charattr.txt#StatBonusTable [a]).
+charattr.txt#StatBonusTable [b]).
 
 ***** <CharDisplay>
 Once a character that matches or exceeds your expectations has been
 rolled, the computer will display the character for you to look at and
-also display the character's life-rating (see below [b]). If you accept
+also display the character's life-rating (see below [c]). If you accept
 the rolled character (by pressing 'Esc'), you will be asked for its
-name (see below [c]). If not, you may press 'r' to resume rolling and
+name (see below [d]). If not, you may press 'r' to resume rolling and
 searching for the next match or, if this is not your first match, 'p'
 to return to the previous character which met your criteria.
 
 Note: The statistics are not independent of each other and trying to
-maximize each one using the auto-roller will not work. A good idea is
+maximise each one using the auto-roller will not work. A good idea is
 to specify statistics close to maximum that are critical for your class
 (for example, high wisdom for priests, intelligence for mages and
 strength and dexterity for warriors). You should set minimum acceptable
@@ -254,7 +275,7 @@ or reject. The 'r', 'p' and 'Esc' keys will work as outlined above.
 This alternative method of determining your starting statistics gives
 you 48 'points' which may be 'spent' on increasing your statistics
 according to your own preference.  Using this system you are better
-able to customize your character but may not get such high individual
+able to customise your character but may not get such high individual
 statistics as are possible with th auto-roller. Note that as your stats
 get higher it takes more points to increase them further. Also note
 that should you choose not to spend all your points, you will be given
@@ -313,7 +334,7 @@ Which items you are given will depend upon your chosen race and class
 and the number of such items depends on chance. For example, all
 classes receive either food rations or scrolls of satisfy hunger but
 the number of rations or scrolls received is random. Typically, you
-will receive a weapon, a piece of armor, some food, some torches and
+will receive a weapon, a piece of armour, some food, some torches and
 a magical item although there is some variance from this.
 
 
@@ -321,7 +342,8 @@ a magical item although there is some variance from this.
 Original   : (??)
 Updated    : (??)
 Updated    : Zangband DevTeam
-Last update: May 24, 2001
+Updated    : Benjamin Mann
+Last update: Aug 16, 2001
 
 ***** Begin Hyperlinks
 ***** [1] birth.txt#AutoRoller
@@ -330,11 +352,12 @@ Last update: May 24, 2001
 ***** [4] town.txt#TownLevel
 ***** [5] charattr.txt#TheRaces
 ***** [6] charattr.txt#TheClasses
-***** [7] magic.txt#MagicRealms
-***** [8] dungeon.txt#RandomQuests
-***** [9] charattr.txt#PrimaryStats
-***** [a] charattr.txt#StatBonusTable
-***** [b] birth.txt#LifeRating
-***** [c] birth.txt#CharName
-***** [d] birth.txt#PointBased
+***** [7] newmagic.txt
+***** [8] magic.txt#MagicRealms
+***** [9] dungeon.txt#RandomQuests
+***** [a] charattr.txt#PrimaryStats
+***** [b] charattr.txt#StatBonusTable
+***** [c] birth.txt#LifeRating
+***** [d] birth.txt#CharName
+***** [e] birth.txt#PointBased
 

@@ -24,7 +24,7 @@ immediately after holding down the ctrl key and press 'a' will be
 processed as a debug command. The debug commands are:
 
 "ESC": Cancel the debug prompt.
-'"': Generate spoliers on artifacts, objects and monsters.
+'"': Generate spoilers on artifacts, objects and monsters.
 'a': Cure everything that ails you.
 'b': Asks you for a target on screen, and takes you there.
 'c': Create any object. This command brings up a screen to choose a
@@ -53,8 +53,8 @@ processed as a debug command. The debug commands are:
      compared to others of its type.
 'p': Phase door.
 'q': Marks current quests as completed.
-'r': Recieve Chaos Patron gift/punishment. A command count may be used
-     used to specify which gift you wish to recieve. For a list, go to
+'r': Receive Chaos Patron gift/punishment. A command count may be used
+     used to specify which gift you wish to receive. For a list, go to
      the Chaos Patron spoiler page, and start from the first entry of
      the 'What can they do?' section, starting with one.
 's': Use the command count to try summoning that many random monsters
@@ -72,7 +72,7 @@ processed as a debug command. The debug commands are:
 'C': [To be completed].
 'F': do_cmd_wiz_feature. Takes a command count.
 'H': Summons a group of similar creatures(never OOD).
-'M': Get a Mutation. Use the commmand count to specify a mutation.
+'M': Get a Mutation. Use the command count to specify a mutation.
 'N': Summon a pet. Must use command count to specify index # of pet.
 'Z': All the monsters on the level vanish (not killed).
 '_': Debugs the monster flow code.

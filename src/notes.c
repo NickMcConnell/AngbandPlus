@@ -19,16 +19,20 @@
  */
 cptr notes_file(void)
 {
-	char fname[15];
+	char fname[40];
 	static char buf[1024];
-	char base_name[9];
 
+#if ((defined(WINDOWS) || defined(MSDOS)) && !defined(WIN32) && !defined(__WIN32__))
+	char base_name[9];
 	/* Hack -- extract first 8 characters of name */
 	(void)strnfmt(base_name, 9, "%s", player_base);
 
 	/* Create the file name from the character's name plus .txt */
 	(void)strnfmt(fname, 15, "%s.txt", base_name);
-
+#else /* defined(WINDOWS) || defined(MSDOS) */
+	(void)strnfmt(fname, 15, "%s.txt", player_base);
+#endif /* defined(WINDOWS) || defined(MSDOS) */
+	
 	path_build(buf, 1024, ANGBAND_DIR_SAVE, fname);
 
 	/* return the filename */

@@ -1,6 +1,6 @@
 === General Information ===
 
-This document gives a brief introduction to Zangband. You will probably
+This document gives a brief introduction to Frazband. You will probably
 want to browse through all the "help files", especially the sections on
 available commands (see command.txt [1] and commdesc.txt [2]), before
 beginning any serious adventuring...
@@ -9,14 +9,14 @@ beginning any serious adventuring...
 ***** <Overview>
 === An Overview ===
 
-The game of Zangband is a single player dungeon simulation. A player
-may choose from a number of races, classes and magic realms when
+The game of Frazband is a single player dungeon simulation. A player
+may choose from a number of races, classes and magic skills when
 creating a character (see charattr.txt [3]), and then "run" that
 character over a period of days, weeks, even months. Deep down inside,
 the real objective of the game is to increase your experience, and
 certain other characteristics, and also to collect useful items, to
-give you a decent chance against the great Serpent of Chaos, who lurks
-somewhere in the depths of the dungeon.
+give you a decent chance against the great Morgoth, who lurks somewhere 
+in the depths of the dungeon.
 
 The player will begin his adventure on the town level where he may
 acquire supplies, weapons, armor, and magical devices by bartering with
@@ -27,30 +27,31 @@ descend into the dungeon where fantastic adventures await his coming!
 ***** <Winning>
 --- Winning The Game ---
 
-Once your character has killed Oberon, who lives on level 99 (4950') in
+Once your character has killed Sauron, who lives on level 99 (4950') in
 the dungeon, a magical staircase will appear that will finally allow
-you to reach level 100. The Serpent of Chaos lurks on this level of his
-dungeon, and you will not be able to go below his level until you have
-killed him. Try to avoid wandering around on level 100 unless you are
-ready for him, since it has a habit of coming at you across the
-dungeon, to slay you for your impudence.
+you to reach level 100. Morgoth lurks on this level of his dungeon, and
+you will not be able to go below his level until you have killed him.
+Try to avoid wandering around on level 100 unless you are ready for him,
+since it has a habit of coming at you across the dungeon, to slay you
+for your impudence.
 
-The Serpent of Chaos cannot be killed by some of the easier methods
-used on normal creatures. The Serpent of Chaos, like all other "Unique"
-monsters, will simply teleport away to another region of the level if
-you attempt to use a spell such as destruction is upon it. The Serpent
-of Chaos, like some other monsters, cannot be polymorphed, slept,
-charmed, or genocided. Magical spells like Mana Storm and Orb of
-Draining are effective against it, as are some of the more powerful
-weapons, but it is difficult to kill and if allowed to escape for a
-time it will heal itself rapidly.
+Morgoth cannot be killed by some of the easier methods used on normal
+creatures. Morgoth, like all other "Unique" monsters, will simply
+teleport away to another region of the level if you attempt to use a
+spell such as destruction is upon it. Morgoth, like some other monsters,
+cannot be polymorphed, slept, charmed, or genocided. Magical spells like
+Mana Storm and Holy Orb are effective against him, as are some of the
+more powerful weapons, but he is difficult to kill and if allowed to
+escape for a time he will heal himself rapidly.
 
-If you should actually survive the attempt of killing the Serpent of
-Chaos, you will receive the status of WINNER. You may continue to
-explore, and may even save the game and play more later, but since you
-have defeated the toughest creature alive, there is really not much
-point. Unless you wish to listen to the rumors of a powerful ring
-buried somewhere in the dungeon...
+If you should actually survive the attempt of killing Morgoth, you will
+receive the status of WINNER. You may continue to explore, and will even
+find some *very* tough monsters at lower levels to try to kill, though
+this gets quickly gets very difficult, (no matter how big and tough you
+think you are, there's always someone bigger and tougher), but since you
+have achieved your goal, you may want to retire. Unless you wish to
+listen to the rumors of a powerful ring buried somewhere in the
+dungeon...
 
 When you are ready to retire, simply "commit suicide" ("^K") to have
 your character entered into the high score list as a winner. Note that
@@ -75,88 +76,19 @@ memory containing all the experience of past incarnations.
 
 
  
-***** <DevTeam>
-=== The Zangband DevTeam ===
-
-Zangband is currently maintained by a small development team which
-includes both Zangband's original creator, Topi Ylinen, and Robert
-Ruehlmann who maintained and developed the game from versions 2.01d
-through to 2.2.6c. Robert coordinates the efforts of the DevTeam and
-is the designated project leader.
-
-Since its inception, Zangband has developed a reputation for being more
-difficult than other Angband variants and its maintainers are known for
-their devious and contrary natures. The DevTeam neither confirms nor
-denies its intention to live up to this perception.
+***** <About>
+=== About Frazband ===
 
 
-***** <Web>
-=== Zangband on the Web ===
 
---- zangband.org ---
-
-Zangband.org is the official Zangband website. It contains links to the
-latest source code and binary downloads as well as documentation,
-spoilers and other useful and fun zangband-related pages.
-
---- Sourceforge.net ---
-
-The DevTeam recently moved its cvs repository to sourceforge.net. This
-also allows us to make use of sourceforge.net's excellent utilities
-including bug tracking, 3rd-party patch submission, mailing lists, etc.
-If you want to follow zangband's development closely, you should get
-a user account with sourceforge and visit our project site located at
-http://sourceforge.net/projects/zangband/ frequently.
-
---- FTP Sites ---
-
-Zangband sources and executables are uploaded regularly to the official
-Angband ftp site (ftp://clockwork.dementia.org/angband/). Zangband
-files are located in the ./Variant/ZAngband/ subdirectoy.
-
-
---- ZangbandTk ---
-
-ZangbandTk is a graphical Windows port of Zangband which adds several
-new features and a very nice interface to Zangband. If you use Windows,
-you may want to take a look at the AngbandTk homepage which can be
-found at (http://persweb.direct.ca/dbaker/angbandtk.html/). ZangbandTk
-is more properly termed a variant of Zangband but, other than the
-graphical interface, the differences are fairly minor. ZangbandTk is
-typically only updated for official releases of Zangband and not for
-the development releases. ZangbandTk is maintained by Tim Baker.
-
-
---- The Angband Newsgroup ---
-
-The Angband newsgroup (rec.games.roguelike.angband) is a forum for the
-discussion of all things relating to Angband and its variants
-(including Zangband) and is a good place to ask various questions about
-both game play and game design. Be sure to include '[Z]' in your
-subject heading so people know your question is about Zangband.
-
-
---- #Angband IRC Chat ---
-
-Join the #Angband IRC channel located at irc.worldirc.org. Most of the
-DevTeam are regulars and sometimes we're even talking about Zangband!!
-
-
-***** <VersionNumber>
-=== Version Numbering System ===
-
-Zangband uses a version numbering system similar to that of Linux. Odd
-minor version numbers (for example 2.3.2) denote a development version.
-Even minor version numbers (for example 2.2.7 ) denote a stable
-release. The development versions are released for beta-testing and are
-likely to contain bugs of varying significance.
 
 
 --
 Original   : (??)
 Updated    : (??)
 Updated    : Zangband DevTeam
-Last update: February 19, 2001
+Updated    : Benjamin Mann
+Last update: Aug 15, 2006
 
 
 ***** Begin Hyperlinks

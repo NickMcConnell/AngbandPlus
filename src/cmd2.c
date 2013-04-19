@@ -566,7 +566,8 @@ static void chest_trap(int y, int x, s16b o_idx)
 			if (randint1(100) < p_ptr->depth)
 				(void)activate_hi_summon();
 			else
-				(void)summon_specific(0, y, x, p_ptr->depth, 0, TRUE, FALSE, FALSE);
+				(void)summon_specific(0, y, x, p_ptr->depth, 0, TRUE, 
+						      FALSE, FALSE, GP_COPY, 0);
 		}
 	}
 
@@ -2860,7 +2861,7 @@ void do_cmd_fire_aux(int item, object_type *j_ptr)
 				if (tdam < 0) tdam = 0;
 
 				/* Modify the damage */
-				tdam = mon_damage_mod(m_ptr, tdam, 0);
+				tdam = mon_damage_mod(m_ptr, r_ptr, tdam, 0);
 
 				/* Complex message */
 				if (p_ptr->wizard)
@@ -2882,7 +2883,7 @@ void do_cmd_fire_aux(int item, object_type *j_ptr)
 					message_pain(c_ptr->m_idx, tdam);
 
 					/* Anger the monster */
-					if (tdam > 0) anger_monster(m_ptr);
+					if (tdam > 0) anger_monster(c_ptr->m_idx);
 
 					/* Take note */
 					if (fear && m_ptr->ml)
@@ -3293,7 +3294,7 @@ void do_cmd_throw_aux(int mult)
 				if (tdam < 0) tdam = 0;
 
 				/* Modify the damage */
-				tdam = mon_damage_mod(m_ptr, tdam, 0);
+				tdam = mon_damage_mod(m_ptr, r_ptr, tdam, 0);
 
 				/* Complex message */
 				if (p_ptr->wizard)
@@ -3316,7 +3317,7 @@ void do_cmd_throw_aux(int mult)
 
 					/* Anger the monster */
 					if ((tdam > 0) && !object_is_potion(q_ptr))
-						anger_monster(m_ptr);
+						anger_monster(c_ptr->m_idx);
 
 					/* Take note */
 					if (fear && m_ptr->ml)
@@ -3344,7 +3345,8 @@ void do_cmd_throw_aux(int mult)
 		/* Always break */
 		breakage = 100;
 
-		if (!(summon_named_creature(y, x, q_ptr->pval, FALSE, FALSE, TRUE)))
+		if (!(summon_named_creature(y, x, q_ptr->pval, FALSE, FALSE, 
+						TRUE, TRUE, GP_ALLY, 0)))
 		{
 			msg_print("The Figurine writhes and then shatters.");
 		}

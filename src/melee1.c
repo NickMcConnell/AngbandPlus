@@ -225,9 +225,11 @@ bool make_attack_normal(int m_idx)
 			case RBE_DISEASE:   power =  5; break;
 			case RBE_TIME:      power =  5; break;
 			case RBE_EXP_VAMP:  power =  5; break;
+			case RBE_PENETRATE: power = 20; break;
 		}
 
-
+		m_ptr->mflag2 &= ~(MFLAG2_UNDETECTED);
+		
 		/* Monster hits player */
 		if (!effect || check_hit(power, rlev))
 		{
@@ -744,7 +746,7 @@ bool make_attack_normal(int m_idx)
 							}
 
 							/* Steal the items */
-							inven_item_increase(i, -1);
+							inven_item_increase(i, 0); /* was (i, -1) */
 							inven_item_optimize(i);
 
 							/* Obvious */
@@ -1339,6 +1341,7 @@ bool make_attack_normal(int m_idx)
 							/* Heal */
 							m_ptr->hp += damroll(4, damage / 6);
 							if (m_ptr->hp > m_ptr->maxhp) m_ptr->hp = m_ptr->maxhp;
+							if (m_ptr->otherinflicted > m_ptr->maxhp - m_ptr->hp) m_ptr->otherinflicted = m_ptr->maxhp - m_ptr->hp;
 
 							/* Redraw (later) if needed */
 							if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
@@ -1349,6 +1352,11 @@ bool make_attack_normal(int m_idx)
 								msg_format("%^s appears healthier.", m_name);
 							}
 						}
+					}
+					case RBE_PENETRATE:
+					{
+						obvious=TRUE;
+						take_hit(damage, ddesc);
 					}
 				}
 			}
@@ -1374,7 +1382,7 @@ bool make_attack_normal(int m_idx)
 			{
 				/* Critical hit (zero if non-critical) */
 				tmp = monster_critical(d_dice, d_side, damage);
-
+				
 				/* Roll for damage */
 				switch (tmp)
 				{
@@ -1435,7 +1443,7 @@ bool make_attack_normal(int m_idx)
 						int dam = damroll(2, 6);
 
 						/* Modify the damage */
-						dam = mon_damage_mod(m_ptr, dam, 0);
+						dam = mon_damage_mod(m_ptr, r_ptr, dam, 0);
 
 						msg_format("%^s is suddenly very hot!", m_name);
 
@@ -1460,7 +1468,7 @@ bool make_attack_normal(int m_idx)
 						int dam = damroll(2, 6);
 
 						/* Modify the damage */
-						dam = mon_damage_mod(m_ptr, dam, 0);
+						dam = mon_damage_mod(m_ptr, r_ptr, dam, 0);
 
 						msg_format("%^s gets zapped!", m_name);
 

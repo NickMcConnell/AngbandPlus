@@ -1913,6 +1913,12 @@ char inkey(void)
  * quarks wouldn't be affected by the compaction process.  These game
  * inscriptions / strings should never be deallocated.  No matter how
  * rarely they are used.
+ *
+ * quark_add_perm() was removed, we add a function quark_create_single()
+ * mostly for spellbooks. Any quark added with this will not be used
+ * by any other object, and so when the spell list changes, the quark
+ * can be changed with the same function. quark__use is made negative to 
+ * indicate such a quark.
  */
 
 
@@ -1921,14 +1927,16 @@ char inkey(void)
  */
 static s16b compact_quarks(void)
 {
+	s16b temp;
 	s16b i, empty = 1;
 	
-	u16b min_use = quark__use[quark__num - 1];
+	s16b min_use = quark__use[quark__num - 1];
 	
 	/* Find least recently used quark */
 	for (i = 1; i < quark__num; i++)
 	{
-		if (quark__use[i] < min_use)
+		if ((min_use >= 0 && quark__use[i] >= 0 && quark__use[i] < min_use) ||
+				(min_use < 0 && (quark__use[i] >= 0 || quark__use[i] > min_use)))
 		{
 			/* Less used than current quark? */
 			empty = i;
@@ -1940,7 +1948,9 @@ static s16b compact_quarks(void)
 	for (i = 1; i < quark__num; i++)
 	{
 		/* Hack XXX XXX - just use old value divided by QUARK_COMPACT */
-		quark__use[i] = quark__use[i] / QUARK_COMPACT;
+		temp = quark__use[i] / QUARK_COMPACT;
+		if (temp || quark__use[i] >= 0) quark__use[i] = temp;
+		else quark__use[i] = -1;
 	}
 
 	/* 
@@ -1950,7 +1960,7 @@ static s16b compact_quarks(void)
 	 * size of a s16b.
 	 */
 	quark__tim = quark__num + 1;
-
+	
 	return (empty);
 }
 
@@ -1966,7 +1976,7 @@ s16b quark_add(cptr str)
 	for (i = 1; i < quark__num; i++)
 	{
 		/* Check for equality */
-		if (streq(quark__str[i], str)) return (i);
+		if (streq(quark__str[i], str) && quark__use[i] >= 0) return (i);
 	}
 
 	/* Paranoia -- Require room */
@@ -1998,6 +2008,68 @@ s16b quark_add(cptr str)
 
 
 /*
+ * Add a new "quark" to the set of quarks which cannot be shared,
+ * or update the quark in a given position.
+ */
+s16b quark_create_single(cptr str, s16b position)
+{
+	int i;
+
+	/* Does it already exist? */
+	if (position > 0)
+	{
+		i = position;
+			
+		/* Delete the old quark */
+		string_free(quark__str[i]);
+	}
+	/* Otherwise, we need somewhere to put it */
+	else
+	{
+		/* Paranoia -- Require room */
+		if (quark__num == QUARK_MAX)
+		{
+			i = compact_quarks();
+			
+			/* Paranoia - no room? */
+			if (!i) return (0);
+			
+			/* Delete the old quark */
+			string_free(quark__str[i]);
+		}
+		else
+		{
+			/* New maximal quark */
+			i = quark__num;
+			++quark__num;
+		}
+	}
+	
+	/* Add a new quark */
+	quark__str[i] = string_make(str);
+
+	/* Mark as single */
+	++quark__tim;
+	quark__use[i] = -(quark__tim);
+
+	/* Return the index */
+	return (i);
+}
+
+
+/*
+ * Removes "single quark status" from a possible quark
+ */
+void single_quark_free(s16b i)
+{
+	/* Is it a single quark? */
+	if (!i || quark__use[i] >= 0) return;
+	quark__use[i] = 0;
+}
+
+
+
+/*
  * This function looks up a quark
  */
 cptr quark_str(s16b i)
@@ -2011,7 +2083,12 @@ cptr quark_str(s16b i)
 	q = quark__str[i];
 	
 	/* Save the access time */
-	quark__use[i] = ++quark__tim;
+	if (quark__use[i] >= 0) quark__use[i] = ++quark__tim;
+	else
+	{
+		++quark__tim;
+		quark__use[i] = -(quark__tim);
+	}
 	
 	/* Compact from time to time */
 	if (quark__tim > QUARK_COMPACT * QUARK_MAX)
@@ -2022,6 +2099,217 @@ cptr quark_str(s16b i)
 	/* Return the quark */
 	return (q);
 }
+
+
+static void spell_list_wipe_aux(object_type *o_ptr, s16b dead)
+{
+	/* Skip dead objects */
+	if (!o_ptr->k_idx) return;
+
+	/* Skip non-spellbooks */
+	if (o_ptr->tval != TV_SPELLBOOK) return;
+
+	/* Skip unaffected spellbooks */
+	if (o_ptr->spell_list > (-dead)) return;
+
+	/* Spellbooks with other spell lists merely shift by 1 */
+	if (o_ptr->spell_list < (-dead))
+	{
+		++o_ptr->spell_list;
+	}
+	/* Otherwise, we need a quark */
+	else
+	{
+		o_ptr->spell_list = quark_create_single(spell_list_str[dead], 
+				o_ptr->spell_list);
+	}
+}
+
+/* 
+ * Wipe a spell list, turning any books using it back to the quarks 
+ */
+bool spell_list_wipe(s16b dead)
+{
+	int i,j,k;
+	
+	/* 
+	 * We slide everything down, to keep the right order.
+	 * First, fix all spell books
+	 */
+	for (i = 1; i < town_count; i++)
+	for (j = 0; j < town[i].numstores; j++)
+	for (k = 0; k < town[i].store[j].stock_num; k++)
+		spell_list_wipe_aux(&(town[i].store[j].stock[k]), dead);
+	for (i = 0; i < INVEN_PACK; i++)
+		spell_list_wipe_aux(&inventory[i], dead);
+	for (i = 1; i < o_max; i++)
+		spell_list_wipe_aux(&o_list[i], dead);
+	
+	/* Now we shift the spell lists themselves */
+	for (i = dead; i < spell_list_num - 1; i++)
+	{
+		string_free(spell_list_str[i]);
+		spell_list_str[i] = string_make(spell_list_str[i+1]);
+		string_free(spell_list_name[i]);
+		spell_list_name[i] = string_make(spell_list_name[i+1]);
+	}
+	
+	/* And now wipe the last one */
+	string_free(spell_list_str[spell_list_num - 1]);
+	string_free(spell_list_name[spell_list_num - 1]);
+	--spell_list_num;
+
+	/* Success */
+	return TRUE;
+}
+
+
+/*
+ * We have similar structures to store spell lists,
+ * referenced by negative numbers
+ */
+static s16b compact_spell_lists(void)
+{
+	s16b i, empty = 1;
+	
+	s16b min_use = spell_list_use[spell_list_num - 1];
+	
+	/* Find least recently used spell list */
+	for (i = 1; i < spell_list_num; i++)
+	{
+		if (spell_list_use[i] < min_use)
+		{
+			/* Less used than current spell list? */
+			empty = i;
+			min_use = spell_list_use[i];
+		}
+	}
+		
+	/* Reset all the times to something "smaller" */
+	for (i = 1; i < spell_list_num; i++)
+	{
+		/* Hack XXX XXX - just use old value divided by QUARK_COMPACT */
+		spell_list_use[i] = spell_list_use[i] / QUARK_COMPACT;
+	}
+
+	/* Reset the time */
+	spell_list_tim = spell_list_num + 1;
+
+	return (empty);
+}
+
+
+/*
+ * Add a new "spell list" to the set of spell lists.
+ */
+s16b spell_list_add(cptr str)
+{
+	int i;
+
+	char buf[80];
+	buf[0] = '\0';
+
+/* Shouldn't be necessary */
+#if 0
+	/* Look for an existing spell list */
+	for (i = 1; i < spell_list_num; i++)
+	{
+		/* If it's equal, reject */
+		if (streq(spell_list_str[i], str)) 
+		{
+			msg_format("This is identical to the spell list: %s",
+					spell_list_name[i]);
+			return (0);
+		}
+	}
+#endif /* 0 */
+	
+	/* Get a name */
+	if (!(get_string("Name of list: ", buf, 80))) return (0);
+
+	/* Check the name */
+	for (i = 1; i < spell_list_num; i++)
+	{
+		/* If it's equal, reject */
+		if (streq(spell_list_name[i], buf)) 
+		{
+			msg_print("You already have a spell list by this name!");
+			return (0);
+		}
+	}
+	
+	/* Paranoia -- Require room */
+	if (spell_list_num == SPELL_LIST_MAX)
+	{
+		i = compact_spell_lists();
+		
+		/* Paranoia - no room? */
+		if (!i) return (0);
+		
+		/* Delete the old spell list */
+		spell_list_wipe(i);
+
+		/* Put the new one on the end */
+		i = SPELL_LIST_MAX - 1;
+	}
+	else
+	{
+		/* New maximal spell list */
+		spell_list_num = i + 1;
+	}
+	
+	/* Add a new spell list */
+	spell_list_str[i] = string_make(str);
+
+	/* Save the name */
+	spell_list_name[i] = string_make(buf);
+
+	/* Save the time */
+	spell_list_use[i] = ++spell_list_tim;
+
+	/* Return the index */
+	return (-i);
+}
+
+
+/*
+ * This function looks up a spell list
+ */
+cptr spell_list_string(s16b i)
+{
+	cptr q;
+
+	/* Paranoia */
+	if ((i > 0) || (-i >= spell_list_num)) return (NULL);
+
+	/* Access the spell list */
+	q = spell_list_str[-i];
+	
+	/* Save the access time */
+	spell_list_use[-i] = ++spell_list_tim;
+	
+	/* Compact from time to time */
+	if (spell_list_tim > QUARK_COMPACT * QUARK_MAX)
+	{
+		(void)compact_spell_lists();
+	}
+
+	/* Return the spell list */
+	return (q);
+}
+
+/* 
+ * Look up something which may be a spell list or a quark
+ */
+cptr quarky_str(s16b i)
+{
+	if (!i) return (NULL);
+	else if (i > 0) return (quark_str(i));
+	else return (spell_list_string(i));
+}
+	
+
+
 
 
 
@@ -2410,7 +2698,7 @@ static void msg_flush(int x)
 	byte a = TERM_L_BLUE;
 
 	/* Hack -- fake monochrome */
-	if (!use_color || ironman_moria) a = TERM_WHITE;
+	if (!use_color /*|| ironman_moria*/) a = TERM_WHITE;
 
 	if (!p_ptr->skip_more)
 	{
@@ -2478,7 +2766,7 @@ void msg_print_color(byte attr, cptr msg)
 
 
 	/* Hack -- fake monochrome */
-	if (!use_color || ironman_moria) attr = TERM_WHITE;
+	if (!use_color /*|| ironman_moria*/) attr = TERM_WHITE;
 
 	/* Hack -- Reset */
 	if (!msg_flag) p = 0;
@@ -2684,7 +2972,7 @@ void msg_format_color(byte attr, cptr fmt, ...)
 void c_put_str(byte attr, cptr str, int row, int col)
 {
 	/* Hack -- fake monochrome */
-	if (!use_color || ironman_moria) attr = TERM_WHITE;
+	if (!use_color /*|| ironman_moria*/) attr = TERM_WHITE;
 
 	/* Position cursor, Dump the attr/text */
 	Term_putstr(col, row, -1, attr, str);
@@ -2708,7 +2996,7 @@ void put_str(cptr str, int row, int col)
 void c_prt(byte attr, cptr str, int row, int col)
 {
 	/* Hack -- fake monochrome */
-	if (!use_color || ironman_moria) attr = TERM_WHITE;
+	if (!use_color /*|| ironman_moria*/) attr = TERM_WHITE;
 
 	/* Clear line, position cursor */
 	Term_erase(col, row, 255);
@@ -2753,7 +3041,7 @@ void c_roff(byte a, cptr str)
 
 
 	/* Hack -- fake monochrome */
-	if (!use_color || ironman_moria) a = TERM_WHITE;
+	if (!use_color /*|| ironman_moria*/) a = TERM_WHITE;
 
 
 	/* Obtain the size */
@@ -2911,7 +3199,7 @@ bool askfor_aux(char *buf, int len)
 	Term_erase(x, y, len);
 	
 	/* Fake monochrome */
-	if (!use_color || ironman_moria)
+	if (!use_color /*|| ironman_moria*/)
 	{
 		Term_putstr(x, y, -1, TERM_WHITE, buf);
 	}
@@ -3212,7 +3500,6 @@ void request_command(int shopping)
 	int mode;
 
 	cptr act;
-
 
 	/* Roguelike */
 	if (rogue_like_commands)

@@ -1,0 +1,20 @@
+#!/usr/bin/perl -w
+use strict;
+#use diagnostics;
+
+my $casenumber = 1;
+
+while (<STDIN>) 
+{
+	if (m/case/)
+	{
+		s/case/case $casenumber/;
+		$casenumber++;
+	}
+	if (m/spell_god_ok/)
+	{
+		$casenumber = 1;
+	}
+	print;
+}
+

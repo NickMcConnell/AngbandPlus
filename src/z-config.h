@@ -16,7 +16,6 @@
 /* Allow various special stuff (sound, graphics, etc.) */
 #define USE_SPECIAL
 
-
 /*
  * Look through the following lines, and where a comment includes the
  * tag "OPTION:", examine the associated "#define" statements, and decide
@@ -172,7 +171,7 @@
 /*
  * OPTION: Hack -- Compile in support for "Cyborg" mode
  */
-/*#define ALLOW_BORG*/
+/* #define ALLOW_BORG */
 
 #ifdef USE_DEBUG
 
@@ -298,7 +297,7 @@
 /*
  * OPTION: Allow the use of "music" in various places
  */
-/* #define USE_MUSIC */
+/*#define USE_MUSIC*/
 
 #endif /* USE_SPECIAL */
 
@@ -353,7 +352,7 @@
  * or "/usr/games/lib/angband/", or "/pkg/angband/lib".
  */
 #ifndef DEFAULT_PATH
-# define DEFAULT_PATH "./lib/"
+ #define DEFAULT_PATH "./lib/"
 #endif
 
 
@@ -362,16 +361,16 @@
  * for storing pref-files and character-dumps.
  */
 #ifdef SET_UID
-#define PRIVATE_USER_PATH "~/.angband"
+ #define PRIVATE_USER_PATH "~/.angband"
 #endif /* SET_UID */
 
 
 /*
  * On multiuser systems, add the "uid" to savefile names
  */
-#ifdef SET_UID
+/* #ifdef SET_UID
 # define SAVEFILE_USE_UID
-#endif
+#endif */
 
 
 /*
@@ -408,12 +407,6 @@
  */
 #define CAPITALIZE_USER_NAME
 
-
-
-/*
- * OPTION: Person to bother if something goes wrong.
- */
-#define MAINTAINER	"rr9@angband.org"
 
 
 /*
@@ -472,6 +465,18 @@
 #endif
 
 
+
+/* 
+ * We're making a new magic system
+ */
+#define USE_OLD_MAGIC
+#define USE_NEW_MAGIC
+#define SUPPORT_OLD_MAGIC
+
+/*
+ * Implement a difficulty level system
+ */
+#define USE_DIFFICULTY
 
 /*
  * OPTION: Attempt to prevent all "cheating"

@@ -111,6 +111,7 @@ static cptr r_info_blow_effect[] =
 	"DISEASE",
 	"TIME",
 	"EXP_VAMP",
+	"PENETRATE",
 	NULL
 };
 
@@ -189,7 +190,7 @@ static cptr r_info_flags2[] =
 	"BRAIN_4",
 	"BRAIN_5",
 	"BRAIN_6",
-	"BRAIN_7",
+	"UNKILLABLE",
 	"QUANTUM"
 };
 
@@ -225,7 +226,7 @@ static cptr r_info_flags3[] =
 	"RES_PLAS",
 	"RES_NEXU",
 	"RES_DISE",
-	"UNIQUE_7",
+	"PLANT",
 	"NO_FEAR",
 	"NO_STUN",
 	"NO_CONF",
@@ -239,7 +240,7 @@ static cptr r_info_flags4[] =
 {
 	"SHRIEK",
 	"ELDRITCH_HORROR",
-	"XXX3X4",
+	"S_HI_DEMON",
 	"ROCKET",
 	"ARROW_1",
 	"ARROW_2",
@@ -345,7 +346,7 @@ static cptr r_info_flags6[] =
 	"S_DRAGON",
 	"S_HI_UNDEAD",
 	"S_HI_DRAGON",
-	"S_AMBERITES",
+	"S_SPECIAL",
 	"S_UNIQUE"
 };
 
@@ -362,9 +363,9 @@ static cptr r_info_flags7[] =
 	"SILLY",
 	"LITE_1",
 	"LITE_2",
-	"XXX7X7",
-	"XXX7X8",
-	"XXX7X9",
+	"SPOWER",
+	"OBFUSCATE",
+	"S_OBFUSCATE",
 	"XXX7X10",
 	"XXX7X11",
 	"XXX7X12",
@@ -2287,17 +2288,25 @@ errr init_r_info_txt(FILE *fp, char *buf)
 		{
 			int lev, rar, pad;
 			long exp;
+			int grp;
 
 			/* Scan for the values */
-			if (4 != sscanf(buf+2, "%d:%d:%d:%ld",
-				&lev, &rar, &pad, &exp)) return (PARSE_ERROR_GENERIC);
-
+			if (5 != sscanf(buf+2, "%d:%d:%d:%d:%ld",
+				&lev, &rar, &pad, &grp, &exp)) 
+			{
+				grp = 0;
+				if (4 != sscanf(buf+2, "%d:%d:%d:%ld",
+					&lev, &rar, &pad, &exp)) 
+					return (PARSE_ERROR_GENERIC);
+			}
+			
 			/* Save the values */
 			r_ptr->level = lev;
 			r_ptr->rarity = rar;
 			r_ptr->extra = pad;
+			r_ptr->default_group = (byte) grp;
 			r_ptr->mexp = exp;
-
+			
 			/* Next... */
 			continue;
 		}

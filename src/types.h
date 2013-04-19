@@ -369,10 +369,10 @@ struct monster_race
 	u32b flags8;			/* Flags 8 (wilderness info) */
 	u32b flags9;			/* Flags 9 (drops info) */
 
-	monster_blow blow[4];	/* Up to four blows per round */
+	monster_blow blow[4];		/* Up to four blows per round */
 
 
-	byte level;				/* Level of creature */
+	byte level;			/* Level of creature */
 	byte rarity;			/* Rarity of creature */
 
 
@@ -398,7 +398,7 @@ struct monster_race
 	byte r_wake;			/* Number of times woken up (?) */
 	byte r_ignore;			/* Number of times ignored (?) */
 
-	byte r_xtra1;			/* Something (unused) */
+	byte default_group;		/* Is it friendly, innocent...? */
 	byte r_xtra2;			/* Something (unused) */
 
 	byte r_drop_gold;		/* Max number of gold dropped at once */
@@ -487,7 +487,7 @@ struct cave_type
 
 	s16b fld_idx;		/* Field in this grid */
 
-	byte cost;		/* Hack -- cost of flowing */
+	s16b cost;		/* Hack -- cost of flowing */
 	byte when;		/* Hack -- when cost was computed */
 };
 
@@ -759,12 +759,16 @@ struct object_type
 
 	byte dd, ds;		/* Damage dice/sides */	
 
-	byte ident;			/* Special flags */
+	byte ident;		/* Special flags */
 
 	byte marked;		/* Object is marked */
 
-	u16b inscription;	/* Inscription index */
-	u16b xtra_name;      /* Extra Name (Artifacts and ego items) */
+	s16b inscription;	/* Inscription index */
+	s16b xtra_name;      	/* Extra Name (Artifacts and ego items) */
+
+#ifdef USE_NEW_MAGIC
+	s16b spell_list;	/* Spells written in a book, for the new magic system */
+#endif /* USE_NEW_MAGIC */
 
 	u32b flags1;        /* Flags, set 1 */
 	u32b flags2;        /* Flags, set 2 */
@@ -825,6 +829,7 @@ struct monster_type
 	s16b fx;			/* X location on map */
 
 	s16b hp;			/* Current Hit points */
+	s16b otherinflicted;            /* Damage caused by other monsters */
 	s16b maxhp;			/* Max Hit points */
 
 	s16b csleep;		/* Inactive counter */
@@ -839,13 +844,23 @@ struct monster_type
 
 	byte cdis;			/* Current dis from player */
 
-	byte mflag;			/* Extra monster flags */
-
+	byte mflag;			/* Extra transient monster flags */
+	byte mflag2;			/* Extra non-transient monster flags */
+	
+	byte lastmove;		/* Records the last movement made */
+	byte hits;		/* How many turns we've been hit without reply */
+	
 	bool ml;			/* Monster is "visible" */
 
 	s16b hold_o_idx;	/* Object being held (if any) */
 
+	s16b been_y[MONSTER_LOCATION_MEMORY]; /* Recent locations */
+	s16b been_x[MONSTER_LOCATION_MEMORY];
+
 	u32b smart;			/* Field for "smart_learn" */
+
+	byte group;			/* Decide friends and enemies */
+	s16b master_m_idx;		/* Master (if any) */
 };
 
 /* Forward declare */
@@ -1214,9 +1229,18 @@ struct player_type
 	byte psex;			/* Sex index */
 	byte prace;			/* Race index */
 	byte pclass;		/* Class index */
+
+#ifdef USE_NEW_MAGIC
+	byte magic_fields[NUM_MAG_ACTIONS][NUM_MAG_TARGETS];    /* Magic specialities */
+ #ifdef SUPPORT_OLD_MAGIC
 	byte realm1;		/* First magic realm */
-	
 	byte realm2;		/* Second magic realm */
+ #endif /* SUPPORT_OLD_MAGIC */
+#else /* USE_NEW_MAGIC */
+	byte realm1;		/* First magic realm */
+	byte realm2;		/* Second magic realm */
+#endif /* USE_NEW_MAGIC */
+
 	byte hitdie;		/* Hit dice (sides) */
 	s16b age;			/* Characters age */
 	
@@ -1298,11 +1322,21 @@ struct player_type
 	s16b vir_types[MAX_PLAYER_VIRTUES];
 	
 	s16b chaos_patron;	/* Players Chaos Patron */
+	/* Now used for storing gods as well, should probably rename */
+
 	s16b word_recall;		/* Word of recall counter */
 
 	s16b energy;		/* Current energy */
 	s16b food;			/* Current nutrition */
 
+#ifdef USE_NEW_MAGIC
+	u32b spell_found[64]; 		/* Spell flags */
+	u32b spell_learned[64]; 	/* Spell flags */
+	u32b spell_worked[64];		/* Spell flags */
+	u32b spell_forgotten[64];	/* Spell flags */
+
+	u16b spells[100]; 		/* Exact number undecided */
+ #ifdef SUPPORT_OLD_MAGIC
 	u32b spell_learned1;	/* Spell flags */
 	u32b spell_learned2;	/* Spell flags */
 	u32b spell_worked1;	/* Spell flags */
@@ -1311,9 +1345,24 @@ struct player_type
 	u32b spell_forgotten2;	/* Spell flags */
 
 	byte spell_order[64];	/* Spell order */
+ #endif /* SUPPORT_OLD_MAGIC */
+	
+#else /* USE_NEW_MAGIC */
+	u32b spell_learned1;	/* Spell flags */
+	u32b spell_learned2;	/* Spell flags */
+	u32b spell_worked1;	/* Spell flags */
+	u32b spell_worked2;	/* Spell flags */
+	u32b spell_forgotten1;	/* Spell flags */
+	u32b spell_forgotten2;	/* Spell flags */
 
+	byte spell_order[64];	/* Spell order */
+#endif /* USE_NEW_MAGIC */
+	
 	s16b player_hp[PY_MAX_LEVEL];	/* HP Array */
 
+	s16b big_luck;		/* How lucky the player has been recently, for balancing */
+	s16b small_luck;	/* How lucky the player has been recently, for balancing */
+	
 	char died_from[80];	/* Cause of death */
 	char history[4][60];	/* Initial history */
 
@@ -1332,6 +1381,8 @@ struct player_type
 						 * characters (such as Amberite Paladins)
 						 */
 
+
+	
 	/*** Temporary fields ***/
 
 	bool playing;		/* True if player is playing */
@@ -1716,6 +1767,10 @@ struct high_score
 	char max_dun[4];		/* Max Dungeon Level (number) */
 
 	char how[32];		/* Method of death (string) */
+
+#ifdef USE_DIFFICULTY
+	char dif_lev[4];	/* Difficulty level */
+#endif /* USE_DIFFICULTY */
 };
 
 /*

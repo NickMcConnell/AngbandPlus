@@ -35,7 +35,7 @@ Equipment list (e)
      of which may contain only a single object at a time, and each of
      which may only contain objects of the proper "type", and which
      include WIELD (weapon), BOW (missile launcher), LEFT (ring), RIGHT
-     (ring), NECK (amulet), LITE (light source), BODY (armor), OUTER
+     (ring), NECK (amulet), LITE (light source), BODY (armour), OUTER
      (cloak), ARM (shield), HEAD (helmet), HANDS (gloves), FEET
      (boots). You must be using an object to receive any of its special
      powers.
@@ -43,7 +43,7 @@ Equipment list (e)
 Drop an item (d)
      This drops an item from your inventory or equipment onto the
      dungeon floor. If the floor spot you are standing on already has
-     an object in it, Zangband will attempt to drop the item onto an
+     an object in it, Frazband will attempt to drop the item onto an
      adjacent space. Be warned that if the floor is full and you
      attempt to drop something, it may disappear and be destroyed.
      Doors and traps are considered objects for the purpose of
@@ -65,7 +65,7 @@ Wear/Wield equipment (w)
 Take off equipment (t) or Take off equipment (T)
      Use this command to take off a piece of equipment and return it
      to your inventory. Occasionally, you will run into a cursed item
-     which cannot be removed. These items normally penalize you in some
+     which cannot be removed. These items normally penalise you in some
      way and cannot be taken off until the curse is removed. If there
      is no room in your inventory for the item, your pack will overflow
      and you will drop the item after taking it off.
@@ -179,14 +179,14 @@ Toggle search mode (S) or Toggle search mode (#)
 ---  Alter Commands ---
 
 Tunnel (T) or Tunnel (^T)
-     Tunneling or mining is a very useful art. There are many kinds of
+     Tunnelling or mining is a very useful art. There are many kinds of
      rock, with varying hardness, including permanent rock (permanent),
      granite (very hard), quartz veins (hard), magma veins (soft), and
      rubble (very soft). Quartz and Magma veins may be displayed in a
      special way, and may sometimes contain treasure, in which case
      they will be displayed in a different way. Rubble sometimes covers
      an object. It is hard to tunnel unless you are wielding a heavy
-     weapon or a shovel or a pick. Tunneling ability increases with
+     weapon or a shovel or a pick. Tunnelling ability increases with
      strength and weapon weight. This command can take a count,
      requires a direction, and is affected by the "always_repeat"
      option.
@@ -262,11 +262,9 @@ Gain new spells or prayers (G)
      are able to learn new spells or prayers, the word "Study" will
      appear on the status line at the bottom of the screen. If you have
      a book in your possession, containing spells or prayers which you
-     may learn, then you may choose to study that book. If you are a
-     mage, rogue, or ranger, you may actually choose which spell to
-     study. If you are a priest or paladin, your gods will choose a
-     prayer for you. There are nine books of each type, some normally
-     found only in the dungeon.
+     may learn, then you may choose to study that book. You can choose
+     which spell to study unless you are a priest or paladin in the old
+     magic system, in which case your gods will choose a prayer for you.
 
 Cast a spell / Pray a prayer (m)
      To cast a spell, you must have previously learned the spell and
@@ -339,7 +337,7 @@ Uninscribe an object (})
 ---  Magical Object Commands ---
 
 Activate an artifact (A)
-     You have heard rumors of special weapons and armor deep in the
+     You have heard rumours of special weapons and armour deep in the
      Pits, items that can let you breath fire like a dragon or light
      rooms with just a thought. Should you ever be lucky enough to
      find such an item, this command will let you activate its special
@@ -353,7 +351,7 @@ Aim a wand (a) or Zap a wand (z)
      devices. They will fire a shot that affects the first object or
      creature encountered or fire a beam that affects anything in a
      given direction, depending on the wand. An obstruction such as a
-     door or wall will generally stop the effects from traveling any
+     door or wall will generally stop the effects from travelling any
      farther. This command requires a direction and can use a target.
 
 Use a staff (u) or Zap a staff (Z)
@@ -384,7 +382,7 @@ Fire an item (f) or Fire an item (t)
      If you throw something at a creature, your chances of hitting it
      are determined by your pluses to hit, your ability at throwing,
      and the object's pluses to hit. Once the creature is it, the
-     object may or may not do any damage to it. You've heard rumors
+     object may or may not do any damage to it. You've heard rumours
      that some objects found in the dungeon can do huge amounts of
      damage when thrown, but you're not sure which objects those
      are.... Note that flasks of oil will do a fairly large chunk
@@ -459,7 +457,7 @@ Full screen map (M)
 Locate player on map (L) or Where is the player (W)
      This command lets you scroll your map around, looking at all
      sectors of the current dungeon level, until you press escape, at
-     which point the map will be re-centered on the player if
+     which point the map will be re-centred on the player if
      necessary. To scroll the map around, simply press any of the
      "direction" keys. The top line will display the sector location,
      and the offset from your current sector. This command takes no
@@ -533,7 +531,7 @@ Display known uniques
      status. Once killed, unique monsters never show up again.
 
 Display known objects
-     This list all 'flavored' objects (such as rings, scrolls, wands,
+     This list all 'flavoured' objects (such as rings, scrolls, wands,
      potions, etc.) which you have identified.
 
 
@@ -547,14 +545,19 @@ Save and Quit (Ctrl-X)
      your savefile to play again with the same options and such.
 
 Save (Ctrl-S)
-     This command saves the game but doesn't exit Zangband. Use this
+     This command saves the game but doesn't exit Frazband. Use this
      frequently if you are paranoid about having the computer crash
      while you are playing.
 
 Quit (commit suicide) (Q)
-     Kills your character and exits Zangband. You will be prompted to
+     Kills your character and exits Frazband. You will be prompted to
      make sure you really want to do this, and then asked to verify
      that choice. Note that dead characters are dead forever.
+
+Quit Without Saving (Ctrl-D)
+     Exits Frazband without saving the game. This command needs to be
+     set through the birth options, and substantially reduces your
+     score.
 
 
 ***** <UserPref>
@@ -568,11 +571,11 @@ together with a detailed description of this function.
 --- Help ---
 
 Help (?)
-     Brings up the Zangband on-line help system. Note that the help
+     Brings up the Frazband on-line help system. Note that the help
      files are just text files in a particular format, and that other
      help files may be available on the Net. In particular, there are
      a variety of spoiler files which do not come with the standard
-     distribution. Check the place you got Zangband from or ask on the
+     distribution. Check the place you got Frazband from or ask on the
      newsgroup rec.games.roguelike.angband about them. 
 
 Identify Symbol (/)
@@ -599,7 +602,7 @@ Identify Symbol (/)
      on. Pressing ESCAPE at any point will exit this command.
  
 Game Version (V)
-     This command will tell you what version of Zangband you are using.
+     This command will tell you what version of Frazband you are using.
      For more information, see the "version.txt" help file.
 
 
@@ -609,14 +612,14 @@ Game Version (V)
 Toggle Choice Window (^E) 
      Toggles the display in the choice window (if available) between
      your inventory and your equipment. This command only applies if
-     you are running Zangband under a windowing environment and the
+     you are running Frazband under a windowing environment and the
      choice window is available. This also redraws the choice window.
 
 Redraw Screen (^R)
      This command adapts to various changes in global options, and
      redraws all of the windows. This command should be used after
      changing various global properties (options, attr/char mappings,
-     color definitions, etc). When in doubt, use it.
+     colour definitions, etc). When in doubt, use it.
         
 Load screen dump (left-paren)
      This command loads a "snap-shot" of the current screen from the
@@ -624,7 +627,7 @@ Load screen dump (left-paren)
         
 Save screen dump (right-paren)
      This command dumps a "snap-shot" of the current screen to the file
-     "dump.txt", including encoded color information.
+     "dump.txt", including encoded colour information.
 
 Command your pets (p)
      If you have pets then this command allows you to give orders
@@ -637,7 +640,7 @@ Command your pets (p)
 Original   : Alexander Cutler and Andy Astrand
 Updated    : (2.7.6) by Russ Allbery (rra@cs.stanford.edu)
 Updated    : (2.7.9) by Ben Harrison (benh@phial.com)
-Updated    : Zangband 2.2.0 through 2.2.6c by Robert Ruehlmann
+Updated    : Frazband 2.2.0 through 2.2.6c by Robert Ruehlmann
 Updated    : Zangband DevTeam
 Last update: June 2, 2000
 

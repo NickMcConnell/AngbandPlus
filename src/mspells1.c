@@ -534,7 +534,7 @@ static int choose_attack_spell(int m_idx, u32b f4, u32b f5, u32b f6)
 	byte spells[96];
 
 	int i;
-
+	
 	/* Smart monsters restrict their spell choices. */
 	if (!stupid_monsters && !(r_ptr->flags2 & (RF2_STUPID)))
 	{
@@ -564,6 +564,10 @@ static int choose_attack_spell(int m_idx, u32b f4, u32b f5, u32b f6)
 		            (f5 & (RF5_HEAL_MASK)) ||
 		            (f6 & (RF6_HEAL_MASK)));
 
+		/* Hack: monsters which cast spells fast may decide not to heal */
+		if (has_heal && randint0(100) < (r_ptr->freq_inate + r_ptr->freq_spell) / 4) 
+			has_heal = FALSE;
+
 		/*** Try to pick an appropriate spell type ***/
 
 		/* Hurt badly or afraid, attempt to flee */
@@ -586,7 +590,7 @@ static int choose_attack_spell(int m_idx, u32b f4, u32b f5, u32b f6)
 		}
 
 		/* Player is close and we have attack spells, blink away */
-		else if (has_tactic && (m_ptr->cdis < 4) && has_attack &&
+		else if (has_tactic && (r_ptr->extra == 11) && (m_ptr->cdis < 4) &&
 			 (randint0(100) < 75))
 		{
 			/* Choose tactical spell */
@@ -596,7 +600,7 @@ static int choose_attack_spell(int m_idx, u32b f4, u32b f5, u32b f6)
 		}
 
 		/* We're hurt (not badly), try to heal */
-		else if ((m_ptr->hp < m_ptr->maxhp * 3 / 4)
+		else if (has_heal && (m_ptr->hp < m_ptr->maxhp * 3 / 4)
 			 && (randint0(100) < 60))
 		{
 			/* Choose heal spell */
@@ -756,7 +760,8 @@ bool make_attack_spell(int m_idx)
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
-	int             k, chance, thrown_spell, rlev, failrate;
+	int 		thrown_spell = 0; /* To remove a warning */
+	int             k, chance, rlev, failrate;
 	u32b            f4, f5, f6;
 	monster_type    *m_ptr = &m_list[m_idx];
 	monster_race    *r_ptr = &r_info[m_ptr->r_idx];
@@ -764,6 +769,9 @@ bool make_attack_spell(int m_idx)
 	char            m_poss[80];
 	char            ddesc[80];
 
+	/* Hack - we may choose the spell before we're supposed to */
+	bool chosen = FALSE;
+	
 	/* Target location */
 	int x = px;
 	int y = py;
@@ -808,72 +816,121 @@ bool make_attack_spell(int m_idx)
 	/* XXX XXX XXX Handle "track_target" option (?) */
 
 
-	/* Hack -- require projectable player */
+	/* Hack -- require projectable player most of the time */
 	if (normal)
 	{
 		/* Check range */
 		if (m_ptr->cdis > MAX_RANGE) return (FALSE);
 
 		/* Check path */
-		if (!projectable(m_ptr->fy, m_ptr->fx, py, px)) return (FALSE);
+		if (!projectable(m_ptr->fy, m_ptr->fx, py, px)) 
+		{
+			if (stupid_monsters) return (FALSE);
+			/* 
+			 * Under certain cases we may cast a spell anyway,
+			 * despite not being able to see the player
+			 */
+
+			/* If we're scared, maybe we can teleport */
+			else if ((r_ptr->flags6 & (RF6_TPORT)) && 
+					((m_ptr->hp < m_ptr->maxhp / 4) || m_ptr->monfear) &&
+					one_in_(2))
+			{
+				thrown_spell = 165; /* RF6_TPORT */
+				chosen = TRUE;
+			}
+			/* If we're damaged, healing would be a good idea */
+			else if ((r_ptr->flags6 & (RF6_HEAL)) &&
+					m_ptr->hp < m_ptr->maxhp && one_in_(2))
+			{
+				thrown_spell = 162; /* RF6_HEAL */
+				chosen = TRUE;
+			}
+			/* Becoming invulnerable before the fight could be useful */
+			else if ((r_ptr->flags6 & (RF6_INVULNER)) &&
+					one_in_(8))
+			{
+				thrown_spell = 163; /* RF6_INVULNER */
+				chosen = TRUE;
+			}
+			/* 
+			 * If we're pretty close, we might be getting
+			 * hit by blast areas and not see an approach,
+			 * so we might like to blink
+			 */
+			else if (m_ptr->cdis < 6 && r_ptr->extra == 11 && (r_ptr->flags6 & (RF6_BLINK)) && !stupid_monsters)
+			{
+				thrown_spell = 164; /* RF6_BLINK */
+				chosen = TRUE;
+			}
+			/* OK, out of ideas, so cast no spell */
+			else
+			{
+				return (FALSE);
+			}
+		}
 	}
 
-	/* Extract the racial spell flags */
-	f4 = r_ptr->flags4;
-	f5 = r_ptr->flags5;
-	f6 = r_ptr->flags6;
-
-	/* Hack -- allow "desperate" spells */
-	if ((r_ptr->flags2 & (RF2_SMART)) && (m_ptr->hp < m_ptr->maxhp / 10) &&
-		 one_in_(2))
+	/* Don't need to do this if we already know what we're casting */
+	if (!chosen)
 	{
-		/* Require intelligent spells */
-		f4 &= (RF4_INT_MASK);
-		f5 &= (RF5_INT_MASK);
-		f6 &= (RF6_INT_MASK);
-
+		/* Extract the racial spell flags */
+		f4 = r_ptr->flags4;
+		f5 = r_ptr->flags5;
+		f6 = r_ptr->flags6;
+	
+		/* Hack -- allow "desperate" spells */
+		if ((r_ptr->flags2 & (RF2_SMART)) && (m_ptr->hp < m_ptr->maxhp / 10) &&
+			 one_in_(2))
+		{
+			/* Require intelligent spells */
+			f4 &= (RF4_INT_MASK);
+			f5 &= (RF5_INT_MASK);
+			f6 &= (RF6_INT_MASK);
+	
+			/* No spells left */
+			if (!f4 && !f5 && !f6) return (FALSE);
+		}
+	
+		/* Remove the "ineffective" spells */
+		remove_bad_spells(m_idx, &f4, &f5, &f6);
+	
 		/* No spells left */
 		if (!f4 && !f5 && !f6) return (FALSE);
-	}
-
-	/* Remove the "ineffective" spells */
-	remove_bad_spells(m_idx, &f4, &f5, &f6);
-
-	/* No spells left */
-	if (!f4 && !f5 && !f6) return (FALSE);
-
-	if (!stupid_monsters)
-	{
-		/* Check for a clean bolt shot */
-		if (((f4 & RF4_BOLT_MASK) ||
-		     (f5 & RF5_BOLT_MASK) ||
-		     (f6 & RF6_BOLT_MASK)) &&
-		     !(r_ptr->flags2 & RF2_STUPID) &&
-		     !clean_shot(m_ptr->fy, m_ptr->fx, py, px, FALSE))
+	
+		if (!stupid_monsters)
 		{
-			/* Remove spells that will only hurt friends */
-			f4 &= ~(RF4_BOLT_MASK);
-			f5 &= ~(RF5_BOLT_MASK);
-			f6 &= ~(RF6_BOLT_MASK);
+			/* Check for a clean bolt shot */
+			if (((f4 & RF4_BOLT_MASK) ||
+			     (f5 & RF5_BOLT_MASK) ||
+			     (f6 & RF6_BOLT_MASK)) &&
+			     !(r_ptr->flags2 & RF2_STUPID) &&
+			     !clean_shot(m_ptr->fy, m_ptr->fx, py, px, FALSE))
+			{
+				/* Remove spells that will only hurt friends */
+				f4 &= ~(RF4_BOLT_MASK);
+				f5 &= ~(RF5_BOLT_MASK);
+				f6 &= ~(RF6_BOLT_MASK);
+			}
+	
+			/* Check for a possible summon */
+			if (((f4 & RF4_SUMMON_MASK) ||
+			     (f5 & RF5_SUMMON_MASK) ||
+			     (f6 & RF6_SUMMON_MASK)) &&
+			     !(r_ptr->flags2 & RF2_STUPID) &&
+			     !(summon_possible(py, px)))
+			{
+				/* Remove summoning spells */
+				f4 &= ~(RF4_SUMMON_MASK);
+				f5 &= ~(RF5_SUMMON_MASK);
+				f6 &= ~(RF6_SUMMON_MASK);
+			}
+	
+			/* No spells left */
+			if (!f4 && !f5 && !f6) return (FALSE);
 		}
-
-		/* Check for a possible summon */
-		if (((f4 & RF4_SUMMON_MASK) ||
-		     (f5 & RF5_SUMMON_MASK) ||
-		     (f6 & RF6_SUMMON_MASK)) &&
-		     !(r_ptr->flags2 & RF2_STUPID) &&
-		     !(summon_possible(py, px)))
-		{
-			/* Remove summoning spells */
-			f4 &= ~(RF4_SUMMON_MASK);
-			f5 &= ~(RF5_SUMMON_MASK);
-			f6 &= ~(RF6_SUMMON_MASK);
-		}
-
-		/* No spells left */
-		if (!f4 && !f5 && !f6) return (FALSE);
 	}
-
+	
 	/* Get the monster name (or "it") */
 	monster_desc(m_name, m_ptr, 0x00);
 
@@ -883,11 +940,13 @@ bool make_attack_spell(int m_idx)
 	/* Hack -- Get the "died from" name */
 	monster_desc(ddesc, m_ptr, 0x88);
 
-	thrown_spell = choose_attack_spell(m_idx, f4, f5, f6);
+	if (!chosen) thrown_spell = choose_attack_spell(m_idx, f4, f5, f6);
 
 	/* Abort if no spell was chosen */
 	if (!thrown_spell) return (FALSE);
 
+	m_ptr->mflag2 &= ~(MFLAG2_UNDETECTED);
+	
 	/* Extract the monster level */
 	rlev = ((r_ptr->level >= 1) ? r_ptr->level : 1);
 
@@ -898,7 +957,7 @@ bool make_attack_spell(int m_idx)
 	if (r_ptr->flags2 & RF2_STUPID) failrate = 0;
 
 	/* Check for spell failure (inate attacks never fail) */
-	if ((thrown_spell >= 128) && (randint0(100) < failrate))
+	if (((thrown_spell >= 128) || (thrown_spell == 98)) && (randint0(100) < failrate))
 	{
 		/* Message */
 		msg_format("%^s tries to cast a spell, but fails.", m_name);
@@ -931,9 +990,21 @@ bool make_attack_spell(int m_idx)
 		/* RF4_XXX3X4 */
 		case 96+2:
 		{
+			disturb(TRUE);
+			if (blind) msg_format("%^s mumbles.", m_name);
+			else msg_format("%^s magically summons greater demons!", m_name);
+			for (k = 0; k < 8; k++)
+			{
+				count += summon_specific(m_idx, y, x, rlev, SUMMON_HI_DEMON, 
+						TRUE, FALSE, FALSE, m_ptr->group, m_idx);
+			}
+			if (blind && count)
+			{
+				msg_print("You hear many powerful things appear nearby.");
+			}
 			break;
 		}
-
+		
 		/* RF4_XXX4X4 */
 		case 96+3:
 		{
@@ -1423,6 +1494,7 @@ bool make_attack_spell(int m_idx)
 					/* Heal */
 					m_ptr->hp += (6 * r1);
 					if (m_ptr->hp > m_ptr->maxhp) m_ptr->hp = m_ptr->maxhp;
+					if (m_ptr->otherinflicted > m_ptr->maxhp - m_ptr->hp) m_ptr->otherinflicted = m_ptr->maxhp - m_ptr->hp;
 
 					/* Redraw (later) if needed */
 					if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
@@ -1936,6 +2008,7 @@ bool make_attack_spell(int m_idx)
 					msg_format("%^s sounds healthier.", m_name);
 				}
 			}
+			if (m_ptr->otherinflicted > m_ptr->maxhp - m_ptr->hp) m_ptr->otherinflicted = m_ptr->maxhp - m_ptr->hp;
 
 			/* Redraw (later) if needed */
 			if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
@@ -2098,7 +2171,7 @@ bool make_attack_spell(int m_idx)
 			disturb(TRUE);
 			msg_format("%^s mutters quietly.", m_name);
 
-			(void)raise_dead(m_ptr->fy, m_ptr->fx, FALSE);
+			(void)raise_dead(m_ptr->fy, m_ptr->fx, FALSE, FALSE, m_ptr->group, m_idx);
 			break;
 		}
 
@@ -2112,10 +2185,11 @@ bool make_attack_spell(int m_idx)
 				((r_ptr->flags1) & RF1_UNIQUE ?
 				"minions" : "kin"));
 			summon_kin_type = r_ptr->d_char; /* Big hack */
-
+			
 			for (k = 0; k < 6; k++)
 			{
-				count += summon_specific(m_idx, y, x, rlev, SUMMON_KIN, TRUE, FALSE, FALSE);
+				count += summon_specific(m_idx, y, x, rlev, SUMMON_KIN, TRUE, 
+						FALSE, FALSE, m_ptr->group, m_idx);
 			}
 			if (blind && count) msg_print("You hear many things appear nearby.");
 
@@ -2141,7 +2215,8 @@ bool make_attack_spell(int m_idx)
 			else msg_format("%^s magically summons help!", m_name);
 			for (k = 0; k < 1; k++)
 			{
-				count += summon_specific(m_idx, y, x, rlev, 0, TRUE, FALSE, FALSE);
+				count += summon_specific(m_idx, y, x, rlev, 0, TRUE, 
+						FALSE, FALSE, m_ptr->group, m_idx);
 			}
 			if (blind && count) msg_print("You hear something appear nearby.");
 			break;
@@ -2155,7 +2230,8 @@ bool make_attack_spell(int m_idx)
 			else msg_format("%^s magically summons monsters!", m_name);
 			for (k = 0; k < 8; k++)
 			{
-				count += summon_specific(m_idx, y, x, rlev, 0, TRUE, FALSE, FALSE);
+				count += summon_specific(m_idx, y, x, rlev, 0, TRUE, 
+						FALSE, FALSE, m_ptr->group, m_idx);
 			}
 			if (blind && count) msg_print("You hear many things appear nearby.");
 			break;
@@ -2169,7 +2245,8 @@ bool make_attack_spell(int m_idx)
 			else msg_format("%^s magically summons ants.", m_name);
 			for (k = 0; k < 6; k++)
 			{
-				count += summon_specific(m_idx, y, x, rlev, SUMMON_ANT, TRUE, FALSE, FALSE);
+				count += summon_specific(m_idx, y, x, rlev, SUMMON_ANT, TRUE, 
+						FALSE, FALSE, m_ptr->group, m_idx);
 			}
 			if (blind && count) msg_print("You hear many things appear nearby.");
 			break;
@@ -2183,7 +2260,8 @@ bool make_attack_spell(int m_idx)
 			else msg_format("%^s magically summons spiders.", m_name);
 			for (k = 0; k < 6; k++)
 			{
-				count += summon_specific(m_idx, y, x, rlev, SUMMON_SPIDER, TRUE, FALSE, FALSE);
+				count += summon_specific(m_idx, y, x, rlev, SUMMON_SPIDER, TRUE, 
+						FALSE, FALSE, m_ptr->group, m_idx);
 			}
 			if (blind && count) msg_print("You hear many things appear nearby.");
 			break;
@@ -2197,7 +2275,8 @@ bool make_attack_spell(int m_idx)
 			else msg_format("%^s magically summons hounds.", m_name);
 			for (k = 0; k < 6; k++)
 			{
-				count += summon_specific(m_idx, y, x, rlev, SUMMON_HOUND, TRUE, FALSE, FALSE);
+				count += summon_specific(m_idx, y, x, rlev, SUMMON_HOUND, TRUE, 
+						FALSE, FALSE, m_ptr->group, m_idx);
 			}
 			if (blind && count) msg_print("You hear many things appear nearby.");
 			break;
@@ -2211,7 +2290,8 @@ bool make_attack_spell(int m_idx)
 			else msg_format("%^s magically summons hydras.", m_name);
 			for (k = 0; k < 6; k++)
 			{
-				count += summon_specific(m_idx, y, x, rlev, SUMMON_HYDRA, TRUE, FALSE, FALSE);
+				count += summon_specific(m_idx, y, x, rlev, SUMMON_HYDRA, TRUE, 
+						FALSE, FALSE, m_ptr->group, m_idx);
 			}
 			if (blind && count) msg_print("You hear many things appear nearby.");
 			break;
@@ -2225,7 +2305,8 @@ bool make_attack_spell(int m_idx)
 			else msg_format("%^s magically summons an angel!", m_name);
 			for (k = 0; k < 1; k++)
 			{
-				count += summon_specific(m_idx, y, x, rlev, SUMMON_ANGEL, TRUE, FALSE, FALSE);
+				count += summon_specific(m_idx, y, x, rlev, SUMMON_ANGEL, TRUE, 
+						FALSE, FALSE, m_ptr->group, m_idx);
 			}
 			if (blind && count) msg_print("You hear something appear nearby.");
 			break;
@@ -2236,10 +2317,11 @@ bool make_attack_spell(int m_idx)
 		{
 			disturb(TRUE);
 			if (blind) msg_format("%^s mumbles.", m_name);
-			else msg_format("%^s magically summons a demon from the Courts of Chaos!", m_name);
+			else msg_format("%^s magically summons a demon!", m_name);
 			for (k = 0; k < 1; k++)
 			{
-				count += summon_specific(m_idx, y, x, rlev, SUMMON_DEMON, TRUE, FALSE, FALSE);
+				count += summon_specific(m_idx, y, x, rlev, SUMMON_DEMON, TRUE, 
+						FALSE, FALSE, m_ptr->group, m_idx);
 			}
 			if (blind && count) msg_print("You hear something appear nearby.");
 			break;
@@ -2253,7 +2335,8 @@ bool make_attack_spell(int m_idx)
 			else msg_format("%^s magically summons an undead adversary!", m_name);
 			for (k = 0; k < 1; k++)
 			{
-				count += summon_specific(m_idx, y, x, rlev, SUMMON_UNDEAD, TRUE, FALSE, FALSE);
+				count += summon_specific(m_idx, y, x, rlev, SUMMON_UNDEAD, TRUE, 
+						FALSE, FALSE, m_ptr->group, m_idx);
 			}
 			if (blind && count) msg_print("You hear something appear nearby.");
 			break;
@@ -2267,7 +2350,8 @@ bool make_attack_spell(int m_idx)
 			else msg_format("%^s magically summons a dragon!", m_name);
 			for (k = 0; k < 1; k++)
 			{
-				count += summon_specific(m_idx, y, x, rlev, SUMMON_DRAGON, TRUE, FALSE, FALSE);
+				count += summon_specific(m_idx, y, x, rlev, SUMMON_DRAGON, TRUE, 
+						FALSE, FALSE, m_ptr->group, m_idx);
 			}
 			if (blind && count) msg_print("You hear something appear nearby.");
 			break;
@@ -2281,7 +2365,8 @@ bool make_attack_spell(int m_idx)
 			else msg_format("%^s magically summons greater undead!", m_name);
 			for (k = 0; k < 8; k++)
 			{
-				count += summon_specific(m_idx, y, x, rlev, SUMMON_HI_UNDEAD, TRUE, FALSE, FALSE);
+				count += summon_specific(m_idx, y, x, rlev, SUMMON_HI_UNDEAD, TRUE, 
+						FALSE, FALSE, m_ptr->group, m_idx);
 			}
 			if (blind && count)
 			{
@@ -2298,7 +2383,8 @@ bool make_attack_spell(int m_idx)
 			else msg_format("%^s magically summons ancient dragons!", m_name);
 			for (k = 0; k < 8; k++)
 			{
-				count += summon_specific(m_idx, y, x, rlev, SUMMON_HI_DRAGON, TRUE, FALSE, FALSE);
+				count += summon_specific(m_idx, y, x, rlev, SUMMON_HI_DRAGON, TRUE, 
+						FALSE, FALSE, m_ptr->group, m_idx);
 			}
 			if (blind && count)
 			{
@@ -2307,21 +2393,22 @@ bool make_attack_spell(int m_idx)
 			break;
 		}
 
-		/* RF6_S_AMBERITES */
+		/* RF6_S_SPECIAL */
 		case 160+30:
 		{
 			disturb(TRUE);
 			if (blind) msg_format("%^s mumbles.", m_name);
-			else msg_format("%^s magically summons Lords of Amber!", m_name);
+			else msg_format("%^s magically summons backup!", m_name);
 
 
 			for (k = 0; k < 8; k++)
 			{
-				count += summon_specific(m_idx, y, x, rlev, SUMMON_AMBERITES, TRUE, FALSE, FALSE);
+				count += summon_specific(m_idx, y, x, rlev, SUMMON_AMBERITES, TRUE, 
+						FALSE, FALSE, m_ptr->group, m_idx);
 			}
 			if (blind && count)
 			{
-				msg_print("You hear immortal beings appear nearby.");
+				msg_print("You hear many things appear nearby.");
 			}
 			break;
 		}
@@ -2334,11 +2421,13 @@ bool make_attack_spell(int m_idx)
 			else msg_format("%^s magically summons special opponents!", m_name);
 			for (k = 0; k < 8; k++)
 			{
-				count += summon_specific(m_idx, y, x, rlev, SUMMON_UNIQUE, TRUE, FALSE, FALSE);
+				count += summon_specific(m_idx, y, x, rlev, SUMMON_UNIQUE, TRUE, 
+						FALSE, FALSE, m_ptr->group, m_idx);
 			}
 			for (k = 0; k < 8; k++)
 			{
-				count += summon_specific(m_idx, y, x, rlev, SUMMON_HI_UNDEAD, TRUE, FALSE, FALSE);
+				count += summon_specific(m_idx, y, x, rlev, SUMMON_HI_UNDEAD, TRUE, 
+						FALSE, FALSE, m_ptr->group, m_idx);
 			}
 			if (blind && count)
 			{

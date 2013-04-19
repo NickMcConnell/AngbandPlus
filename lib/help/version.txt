@@ -1,3 +1,42 @@
+=== Frazband History and Information ===
+
+Frazband is based on Zangband 2.6.2, and most of the credit for the
+game should be directed towards the Zangband Devteam and their
+predecessors. This document details in brief the development of
+Frazband and its forbears, a more complete description of the course
+of Frazband development can be obtained by reviewing f_update.txt.
+
+
+=== Frazband 0.4.0 ===
+
+This is the first publicly released version of Frazband. It differs
+from Zangband 2.6.2 in many ways. Firstly, it mostly re-Tolkienises the
+fundamentals, with Morgoth restored to the positions of end of game
+baddie. Most notably, it introduces a new magic system, (though at
+present it's more of a reorganisation of the old one, few new spells
+have as of yet been added or removed.) The main goal here is to allow
+the discovery of new spells to be spaced out more evenly instead of
+bunched up in sets of eight, as well as making incremental expansion
+and the addition of new spells easy.
+
+It introduces a difficulty level which the player can set, (in addition
+to all the ironman options), and also makes reload capability a
+supported option which heavily lowers your score, rather than a cheat. 
+A host of new monsters have been brought in, including some *really*
+tough non-uniques at the lowest levels which are better avoided.
+Monster AI has been improved, particularly for mages, who will now try
+to keep their distance and shoot spells at a PC warrior instead of
+charging, and many different types of general monster behaviour have
+been introduced, no longer just the binary hostile/friendly options.
+
+Some monsters may now summon specific subordinate creatures. And since
+the damage from melee attacks from most monsters gets pretty pathetic 
+deeper in the dungeon compared to spells, some of them have been beefed
+up in this department. Since a lot of our changes are bad for warriors,
+fighter-types now have more hitpoints and can use melee skill to boost
+armour class to compensate. And various other things have been changed.
+ 
+
 === Zangband History and Information ===
 
 This document is intended to set forth the history of Zangband and its
@@ -54,9 +93,12 @@ Version 2.2.0 was written by Topi Ylinen - Zangband's original author.
 --- Review of 2.2.0 (by Topi Ylinen)---
 
 Zangband 2.2.0 could easily claim to be the most different version of
-Zangband so far. While the historical versions (Angband-- and Zangband 1.*) mainly
-restructured the set of monsters and items, and the 2.0.* - 2.1.* versions added
-new races and elements, Zangband 2.2.0 drastically alters the game fundamentals.
+Zangband so far. While the historical versions (Angband-- and Zangband
+1.*) mainly
+restructured the set of monsters and items, and the 2.0.* - 2.1.*
+versions added
+new races and elements, Zangband 2.2.0 drastically alters the game
+fundamentals.
 
 The new direction is related to Kangband, from which the new version   
 borrows such features as wilderness, new terrains and custom-built
@@ -67,8 +109,10 @@ anything from the game -- everything is in *addition* to the old
 features. Even the popular "random quests" of Zangband 2.1.1 are
 still available, although their depths are no longer random.
 
-However, the pre-programmed part of the game is only as large and rich as   
-the available maps and quests. Currently the wilderness map is relatively
+However, the pre-programmed part of the game is only as large and rich
+as   
+the available maps and quests. Currently the wilderness map is
+relatively
 small, and there are only a couple of quests, which will quickly become
 all too familiar to the player. Since new towns and quests can be added
 in the definition files (in lib/edit/) without having to recompile,
@@ -86,7 +130,8 @@ Zangband 2.* does not support 16-bit code anyway.
 
 
 Among the less obvious new features are of the new version are improved
-pet AI and s-lang support. The latter is not used yet, but it will enable
+pet AI and s-lang support. The latter is not used yet, but it will
+enable
 truly powerful customizability of the game, items, monsters, quests etc.
 in the lib/edit/ files: all functions can be invoked from the editable
 files without having to recompile.
@@ -97,8 +142,8 @@ files without having to recompile.
 This was the first version released by Robert Ruehlmann as the new
 maintainer of Zangband. In Robert's own words ....
 
-"ZAngband 2.1.0c was Topi's last version, he has got a job and and
-doesn't have enough time anymore to continue work on ZAngband.
+"Zangband 2.1.0c was Topi's last version, he has got a job and and
+doesn't have enough time anymore to continue work on Zangband.
 He asked for a new maintainer and I was the one to take over the task.
 May I introduce myself, my name is Robert Ruehlmann, I'm the creator
 of the graphical Angband versions for DOS and webmaster of
@@ -164,7 +209,7 @@ Robert would also like to thank:
         Dean Anderson, whose patch showed me the quickest way to
         implement the quests.
 
-        Adam Bolt, who created the new ZAngband tiles.
+        Adam Bolt, who created the new Zangband tiles.
 
         Scott Bigham, for the S-Lang patch.
 
@@ -176,7 +221,7 @@ Robert would also like to thank:
 
         Ken Wigle for allowing me to include his town and quest code.
 
-        Tim Baker for many patches and bugfixes and for ZAngbandTk.
+        Tim Baker for many patches and bugfixes and for ZangbandTk.
 
         Chris Weisiger for many new vault layouts.
 

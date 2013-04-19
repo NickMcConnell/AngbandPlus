@@ -53,6 +53,8 @@ static void monst_bolt_monst(int m_idx, int y, int x, int typ, int dam_hp)
  * at another monster.
  *
  * The player is only disturbed if able to be affected by the spell.
+ *
+ * Rarely use summoning spells, unless that's all we have or the player is close.
  */
 bool monst_spell_monst(int m_idx)
 {
@@ -123,8 +125,11 @@ bool monst_spell_monst(int m_idx)
 		/* Paranoia -- Skip dead monsters */
 		if (!t_ptr->r_idx) continue;
 
+		/* Not if it obfuscates */
+		if (check_obfuscate(tr_ptr, (t_ptr->mflag2 & MFLAG2_UNDETECTED), FALSE)) continue;
+
 		/* Monster must be 'an enemy' */
-		if (!are_enemies(m_ptr, t_ptr)) continue;
+		if (!are_enemies(m_idx, t_idx)) continue;
 
 		/* Monster must be projectable */
 		if (!projectable(m_ptr->fy, m_ptr->fx, t_ptr->fy, t_ptr->fx)) continue;
@@ -171,6 +176,21 @@ bool monst_spell_monst(int m_idx)
 			f6 &= ~(RF6_BALL_MASK);
 		}
 
+		/* Rarely summon if we have an alternative, unless the player is near */
+		if (m_ptr->cdis > 10 && 
+			 ((f4 & RF4_SUMMON_MASK) ||
+			  (f5 & RF5_SUMMON_MASK) ||
+			  (f6 & RF6_SUMMON_MASK)) &&
+			 ((f4 & ~(RF4_SUMMON_MASK)) ||
+			  (f5 & ~(RF5_SUMMON_MASK)) ||
+			  (f6 & ~(RF6_SUMMON_MASK))) &&
+			 (!(one_in_(10))))
+		{
+			f4 &= ~(RF4_SUMMON_MASK);
+			f5 &= ~(RF5_SUMMON_MASK);
+			f6 &= ~(RF6_SUMMON_MASK);
+		}
+			
 		/* Find another target if no spells available */
 		if (!f4 && !f5 && !f6)
 		{
@@ -246,7 +266,7 @@ bool monst_spell_monst(int m_idx)
 				{
 					if (see_m)
 					{
-						msg_format("%^s shrieks at %s.", m_name, t_name);
+						if (show_3_combat) msg_format("%^s shrieks at %s.", m_name, t_name);
 					}
 					else
 					{
@@ -266,7 +286,7 @@ bool monst_spell_monst(int m_idx)
 				{
 					if (see_m)
 					{
-						msg_format("%^s stares at %s.", m_name, t_name);
+						if (show_3_combat) msg_format("%^s stares at %s.", m_name, t_name);
 					}
 					else
 					{
@@ -282,6 +302,31 @@ bool monst_spell_monst(int m_idx)
 			/* RF4_XXX3X4 */
 			case 96+2:
 			{
+				if (known)
+				{
+					if (see_either)
+					{
+						disturb(TRUE);
+
+						msg_format("%^s magically summons greater demons!", m_name);
+					}
+					else
+					{
+						p_ptr->mon_fight = TRUE;
+					}
+				}
+
+				for (k = 0; k < 8; k++)
+				{
+					count += summon_specific(m_idx, y, x, rlev, SUMMON_HI_DEMON, TRUE, 
+							friendly, pet, m_ptr->group, m_idx);
+				}
+
+				if (known && !see_t && count)
+				{
+					p_ptr->mon_fight = TRUE;
+				}
+
 				break;
 			}
 
@@ -296,11 +341,11 @@ bool monst_spell_monst(int m_idx)
 
 						if (blind)
 						{
-							msg_format("%^s shoots something.", m_name);
+							if (show_3_combat) msg_format("%^s shoots something.", m_name);
 						}
 						else
 						{
-							msg_format("%^s fires a rocket at %s.", m_name, t_name);
+							if (show_3_combat) msg_format("%^s fires a rocket at %s.", m_name, t_name);
 						}
 					}
 					else
@@ -324,11 +369,11 @@ bool monst_spell_monst(int m_idx)
 					{
 						if (blind)
 						{
-							msg_format("%^s makes a strange noise.", m_name);
+							if (show_3_combat) msg_format("%^s makes a strange noise.", m_name);
 						}
 						else
 						{
-							msg_format("%^s fires an arrow at %s.", m_name, t_name);
+							if (show_3_combat) msg_format("%^s fires an arrow at %s.", m_name, t_name);
 						}
 					}
 					else
@@ -353,11 +398,11 @@ bool monst_spell_monst(int m_idx)
 					{
 						if (blind)
 						{
-							msg_format("%^s makes a strange noise.", m_name);
+							if (show_3_combat) msg_format("%^s makes a strange noise.", m_name);
 						}
 						else
 						{
-							msg_format("%^s fires an arrow at %s.", m_name, t_name);
+							if (show_3_combat) msg_format("%^s fires an arrow at %s.", m_name, t_name);
 						}
 					}
 					else
@@ -382,11 +427,11 @@ bool monst_spell_monst(int m_idx)
 					{
 						if (blind)
 						{
-							msg_format("%^s makes a strange noise.", m_name);
+							if (show_3_combat) msg_format("%^s makes a strange noise.", m_name);
 						}
 						else
 						{
-							msg_format("%^s fires a bolt at %s.", m_name, t_name);
+							if (show_3_combat) msg_format("%^s fires a bolt at %s.", m_name, t_name);
 						}
 					}
 					else
@@ -411,11 +456,11 @@ bool monst_spell_monst(int m_idx)
 					{
 						if (blind)
 						{
-							msg_format("%^s makes a strange noise.", m_name);
+							if (show_3_combat) msg_format("%^s makes a strange noise.", m_name);
 						}
 						else
 						{
-							msg_format("%^s fires a bolt at %s.", m_name, t_name);
+							if (show_3_combat) msg_format("%^s fires a bolt at %s.", m_name, t_name);
 						}
 					}
 					else
@@ -442,11 +487,11 @@ bool monst_spell_monst(int m_idx)
 
 						if (blind)
 						{
-							msg_format("%^s breathes.", m_name);
+							if (show_3_combat) msg_format("%^s breathes.", m_name);
 						}
 						else
 						{
-							msg_format("%^s breathes acid at %s.", m_name, t_name);
+							if (show_3_combat) msg_format("%^s breathes acid at %s.", m_name, t_name);
 						}
 					}
 					else
@@ -474,11 +519,11 @@ bool monst_spell_monst(int m_idx)
 
 						if (blind)
 						{
-							msg_format("%^s breathes.", m_name);
+							if (show_3_combat) msg_format("%^s breathes.", m_name);
 						}
 						else
 						{
-							msg_format("%^s breathes lightning at %s.", m_name, t_name);
+							if (show_3_combat) msg_format("%^s breathes lightning at %s.", m_name, t_name);
 						}
 					}
 					else
@@ -506,11 +551,11 @@ bool monst_spell_monst(int m_idx)
 
 						if (blind)
 						{
-							msg_format("%^s breathes.", m_name);
+							if (show_3_combat) msg_format("%^s breathes.", m_name);
 						}
 						else
 						{
-							msg_format("%^s breathes fire at %s.", m_name, t_name);
+							if (show_3_combat) msg_format("%^s breathes fire at %s.", m_name, t_name);
 						}
 					}
 					else
@@ -538,11 +583,11 @@ bool monst_spell_monst(int m_idx)
 
 						if (blind)
 						{
-							msg_format("%^s breathes.", m_name);
+							if (show_3_combat) msg_format("%^s breathes.", m_name);
 						}
 						else
 						{
-							msg_format("%^s breathes frost at %s.", m_name, t_name);
+							if (show_3_combat) msg_format("%^s breathes frost at %s.", m_name, t_name);
 						}
 					}
 					else
@@ -569,11 +614,11 @@ bool monst_spell_monst(int m_idx)
 
 						if (blind)
 						{
-							msg_format("%^s breathes.", m_name);
+							if (show_3_combat) msg_format("%^s breathes.", m_name);
 						}
 						else
 						{
-							msg_format("%^s breathes gas at %s.", m_name, t_name);
+							if (show_3_combat) msg_format("%^s breathes gas at %s.", m_name, t_name);
 						}
 					}
 					else
@@ -601,11 +646,11 @@ bool monst_spell_monst(int m_idx)
 
 						if (blind)
 						{
-							msg_format("%^s breathes.", m_name);
+							if (show_3_combat) msg_format("%^s breathes.", m_name);
 						}
 						else
 						{
-							msg_format("%^s breathes nether at %s.", m_name, t_name);
+							if (show_3_combat) msg_format("%^s breathes nether at %s.", m_name, t_name);
 						}
 					}
 					else
@@ -633,11 +678,11 @@ bool monst_spell_monst(int m_idx)
 
 						if (blind)
 						{
-							msg_format("%^s breathes.", m_name);
+							if (show_3_combat) msg_format("%^s breathes.", m_name);
 						}
 						else
 						{
-							msg_format("%^s breathes light at %s.", m_name, t_name);
+							if (show_3_combat) msg_format("%^s breathes light at %s.", m_name, t_name);
 						}
 					}
 					else
@@ -665,11 +710,11 @@ bool monst_spell_monst(int m_idx)
 
 						if (blind)
 						{
-							msg_format("%^s breathes.", m_name);
+							if (show_3_combat) msg_format("%^s breathes.", m_name);
 						}
 						else
 						{
-							msg_format("%^s breathes darkness at %s.", m_name, t_name);
+							if (show_3_combat) msg_format("%^s breathes darkness at %s.", m_name, t_name);
 						}
 					}
 					else
@@ -697,11 +742,11 @@ bool monst_spell_monst(int m_idx)
 
 						if (blind)
 						{
-							msg_format("%^s breathes.", m_name);
+							if (show_3_combat) msg_format("%^s breathes.", m_name);
 						}
 						else
 						{
-							msg_format("%^s breathes confusion at %s.", m_name, t_name);
+							if (show_3_combat) msg_format("%^s breathes confusion at %s.", m_name, t_name);
 						}
 					}
 					else
@@ -729,11 +774,11 @@ bool monst_spell_monst(int m_idx)
 
 						if (blind)
 						{
-							msg_format("%^s breathes.", m_name);
+							if (show_3_combat) msg_format("%^s breathes.", m_name);
 						}
 						else
 						{
-							msg_format("%^s breathes sound at %s.", m_name, t_name);
+							if (show_3_combat) msg_format("%^s breathes sound at %s.", m_name, t_name);
 						}
 					}
 					else
@@ -761,11 +806,11 @@ bool monst_spell_monst(int m_idx)
 
 						if (blind)
 						{
-							msg_format("%^s breathes.", m_name);
+							if (show_3_combat) msg_format("%^s breathes.", m_name);
 						}
 						else
 						{
-							msg_format("%^s breathes chaos at %s.", m_name, t_name);
+							if (show_3_combat) msg_format("%^s breathes chaos at %s.", m_name, t_name);
 						}
 					}
 					else
@@ -793,11 +838,11 @@ bool monst_spell_monst(int m_idx)
 
 						if (blind)
 						{
-							msg_format("%^s breathes.", m_name);
+							if (show_3_combat) msg_format("%^s breathes.", m_name);
 						}
 						else
 						{
-							msg_format("%^s breathes disenchantment at %s.", m_name, t_name);
+							if (show_3_combat) msg_format("%^s breathes disenchantment at %s.", m_name, t_name);
 						}
 					}
 					else
@@ -825,11 +870,11 @@ bool monst_spell_monst(int m_idx)
 
 						if (blind)
 						{
-							msg_format("%^s breathes.", m_name);
+							if (show_3_combat) msg_format("%^s breathes.", m_name);
 						}
 						else
 						{
-							msg_format("%^s breathes nexus at %s.", m_name, t_name);
+							if (show_3_combat) msg_format("%^s breathes nexus at %s.", m_name, t_name);
 						}
 					}
 					else
@@ -857,11 +902,11 @@ bool monst_spell_monst(int m_idx)
 
 						if (blind)
 						{
-							msg_format("%^s breathes.", m_name);
+							if (show_3_combat) msg_format("%^s breathes.", m_name);
 						}
 						else
 						{
-							msg_format("%^s breathes time at %s.", m_name, t_name);
+							if (show_3_combat) msg_format("%^s breathes time at %s.", m_name, t_name);
 						}
 					}
 					else
@@ -889,11 +934,11 @@ bool monst_spell_monst(int m_idx)
 
 						if (blind)
 						{
-							msg_format("%^s breathes.", m_name);
+							if (show_3_combat) msg_format("%^s breathes.", m_name);
 						}
 						else
 						{
-							msg_format("%^s breathes inertia at %s.", m_name, t_name);
+							if (show_3_combat) msg_format("%^s breathes inertia at %s.", m_name, t_name);
 						}
 					}
 					else
@@ -921,11 +966,11 @@ bool monst_spell_monst(int m_idx)
 
 						if (blind)
 						{
-							msg_format("%^s breathes.", m_name);
+							if (show_3_combat) msg_format("%^s breathes.", m_name);
 						}
 						else
 						{
-							msg_format("%^s breathes gravity at %s.", m_name, t_name);
+							if (show_3_combat) msg_format("%^s breathes gravity at %s.", m_name, t_name);
 						}
 					}
 					else
@@ -953,11 +998,11 @@ bool monst_spell_monst(int m_idx)
 
 						if (blind)
 						{
-							msg_format("%^s breathes.", m_name);
+							if (show_3_combat) msg_format("%^s breathes.", m_name);
 						}
 						else
 						{
-							msg_format("%^s breathes shards at %s.", m_name, t_name);
+							if (show_3_combat) msg_format("%^s breathes shards at %s.", m_name, t_name);
 						}
 					}
 					else
@@ -985,11 +1030,11 @@ bool monst_spell_monst(int m_idx)
 
 						if (blind)
 						{
-							msg_format("%^s breathes.", m_name);
+							if (show_3_combat) msg_format("%^s breathes.", m_name);
 						}
 						else
 						{
-							msg_format("%^s breathes plasma at %s.", m_name, t_name);
+							if (show_3_combat) msg_format("%^s breathes plasma at %s.", m_name, t_name);
 						}
 					}
 					else
@@ -1017,11 +1062,11 @@ bool monst_spell_monst(int m_idx)
 
 						if (blind)
 						{
-							msg_format("%^s breathes.", m_name);
+							if (show_3_combat) msg_format("%^s breathes.", m_name);
 						}
 						else
 						{
-							msg_format("%^s breathes force at %s.", m_name, t_name);
+							if (show_3_combat) msg_format("%^s breathes force at %s.", m_name, t_name);
 						}
 					}
 					else
@@ -1049,11 +1094,11 @@ bool monst_spell_monst(int m_idx)
 
 						if (blind)
 						{
-							msg_format("%^s breathes.", m_name);
+							if (show_3_combat) msg_format("%^s breathes.", m_name);
 						}
 						else
 						{
-							msg_format("%^s breathes mana at %s.", m_name, t_name);
+							if (show_3_combat) msg_format("%^s breathes mana at %s.", m_name, t_name);
 						}
 					}
 					else
@@ -1081,11 +1126,11 @@ bool monst_spell_monst(int m_idx)
 
 						if (blind)
 						{
-							msg_format("%^s mumbles.", m_name);
+							if (show_3_combat) msg_format("%^s mumbles.", m_name);
 						}
 						else
 						{
-							msg_format("%^s casts a ball of radiation at %s.", m_name, t_name);
+							if (show_3_combat) msg_format("%^s casts a ball of radiation at %s.", m_name, t_name);
 						}
 					}
 					else
@@ -1111,11 +1156,11 @@ bool monst_spell_monst(int m_idx)
 
 						if (blind)
 						{
-							msg_format("%^s breathes.", m_name);
+							if (show_3_combat) msg_format("%^s breathes.", m_name);
 						}
 						else
 						{
-							msg_format("%^s breathes toxic waste at %s.", m_name, t_name);
+							if (show_3_combat) msg_format("%^s breathes toxic waste at %s.", m_name, t_name);
 						}
 					}
 					else
@@ -1143,11 +1188,11 @@ bool monst_spell_monst(int m_idx)
 
 						if (blind)
 						{
-							msg_format("%^s mumbles frighteningly.", m_name);
+							if (show_3_combat) msg_format("%^s mumbles frighteningly.", m_name);
 						}
 						else
 						{
-							msg_format("%^s invokes raw Logrus upon %s.", m_name, t_name);
+							if (show_3_combat) msg_format("%^s invokes raw Logrus upon %s.", m_name, t_name);
 						}
 					}
 					else
@@ -1173,11 +1218,11 @@ bool monst_spell_monst(int m_idx)
 
 						if (blind)
 						{
-							msg_format("%^s breathes.", m_name);
+							if (show_3_combat) msg_format("%^s breathes.", m_name);
 						}
 						else
 						{
-							msg_format("%^s breathes disintegration at %s.", m_name, t_name);
+							if (show_3_combat) msg_format("%^s breathes disintegration at %s.", m_name, t_name);
 						}
 					}
 					else
@@ -1205,11 +1250,11 @@ bool monst_spell_monst(int m_idx)
 
 						if (blind)
 						{
-							msg_format("%^s mumbles.", m_name);
+							if (show_3_combat) msg_format("%^s mumbles.", m_name);
 						}
 						else
 						{
-							msg_format("%^s casts an acid ball at %s.", m_name, t_name);
+							if (show_3_combat) msg_format("%^s casts an acid ball at %s.", m_name, t_name);
 						}
 					}
 					else
@@ -1234,11 +1279,11 @@ bool monst_spell_monst(int m_idx)
 
 						if (blind)
 						{
-							msg_format("%^s mumbles.", m_name);
+							if (show_3_combat) msg_format("%^s mumbles.", m_name);
 						}
 						else
 						{
-							msg_format("%^s casts a lightning ball at %s.", m_name, t_name);
+							if (show_3_combat) msg_format("%^s casts a lightning ball at %s.", m_name, t_name);
 						}
 					}
 					else
@@ -1263,11 +1308,11 @@ bool monst_spell_monst(int m_idx)
 
 						if (blind)
 						{
-							msg_format("%^s mumbles.", m_name);
+							if (show_3_combat) msg_format("%^s mumbles.", m_name);
 						}
 						else
 						{
-							msg_format("%^s casts a fire ball at %s.", m_name, t_name);
+							if (show_3_combat) msg_format("%^s casts a fire ball at %s.", m_name, t_name);
 						}
 					}
 					else
@@ -1292,11 +1337,11 @@ bool monst_spell_monst(int m_idx)
 
 						if (blind)
 						{
-							msg_format("%^s mumbles.", m_name);
+							if (show_3_combat) msg_format("%^s mumbles.", m_name);
 						}
 						else
 						{
-							msg_format("%^s casts a frost ball at %s.", m_name, t_name);
+							if (show_3_combat) msg_format("%^s casts a frost ball at %s.", m_name, t_name);
 						}
 					}
 					else
@@ -1321,11 +1366,11 @@ bool monst_spell_monst(int m_idx)
 
 						if (blind)
 						{
-							msg_format("%^s mumbles.", m_name);
+							if (show_3_combat) msg_format("%^s mumbles.", m_name);
 						}
 						else
 						{
-							msg_format("%^s casts a stinking cloud at %s.", m_name, t_name);
+							if (show_3_combat) msg_format("%^s casts a stinking cloud at %s.", m_name, t_name);
 						}
 					}
 					else
@@ -1350,11 +1395,11 @@ bool monst_spell_monst(int m_idx)
 
 						if (blind)
 						{
-							msg_format("%^s mumbles.", m_name);
+							if (show_3_combat) msg_format("%^s mumbles.", m_name);
 						}
 						else
 						{
-							msg_format("%^s casts a nether ball at %s.", m_name, t_name);
+							if (show_3_combat) msg_format("%^s casts a nether ball at %s.", m_name, t_name);
 						}
 					}
 					else
@@ -1379,12 +1424,12 @@ bool monst_spell_monst(int m_idx)
 
 						if (blind)
 						{
-							msg_format("%^s mumbles.", m_name);
+							if (show_3_combat) msg_format("%^s mumbles.", m_name);
 						}
 						else
 						{
-							msg_format("%^s gestures fluidly at %s.", m_name, t_name);
-							msg_format("%^s is engulfed in a whirlpool.", t_name);
+							if (show_3_combat) msg_format("%^s gestures fluidly at %s.", m_name, t_name);
+							if (show_3_combat) msg_format("%^s is engulfed in a whirlpool.", t_name);
 						}
 					}
 					else
@@ -1409,11 +1454,11 @@ bool monst_spell_monst(int m_idx)
 
 						if (blind)
 						{
-							msg_format("%^s mumbles powerfully.", m_name);
+							if (show_3_combat) msg_format("%^s mumbles powerfully.", m_name);
 						}
 						else
 						{
-							msg_format("%^s invokes a mana storm upon %s.", m_name, t_name);
+							if (show_3_combat) msg_format("%^s invokes a mana storm upon %s.", m_name, t_name);
 						}
 					}
 					else
@@ -1438,11 +1483,11 @@ bool monst_spell_monst(int m_idx)
 
 						if (blind)
 						{
-							msg_format("%^s mumbles powerfully.", m_name);
+							if (show_3_combat) msg_format("%^s mumbles powerfully.", m_name);
 						}
 						else
 						{
-							msg_format("%^s invokes a darkness storm upon %s.", m_name, t_name);
+							if (show_3_combat) msg_format("%^s invokes a darkness storm upon %s.", m_name, t_name);
 						}
 					}
 					else
@@ -1465,7 +1510,7 @@ bool monst_spell_monst(int m_idx)
 				if (see_m)
 				{
 					/* Basic message */
-					msg_format("%^s draws psychic energy from %s.", m_name, t_name);
+					if (show_3_combat) msg_format("%^s draws psychic energy from %s.", m_name, t_name);
 				}
 
 				/* Heal the monster */
@@ -1475,7 +1520,7 @@ bool monst_spell_monst(int m_idx)
 					{
 						if (see_both)
 						{
-							msg_format("%^s is unaffected!", t_name);
+							if (show_3_combat) msg_format("%^s is unaffected!", t_name);
 						}
 					}
 					else
@@ -1483,6 +1528,7 @@ bool monst_spell_monst(int m_idx)
 						/* Heal */
 						m_ptr->hp += 6 * power;
 						if (m_ptr->hp > m_ptr->maxhp) m_ptr->hp = m_ptr->maxhp;
+						if (m_ptr->otherinflicted > m_ptr->maxhp - m_ptr->hp) m_ptr->otherinflicted = m_ptr->maxhp - m_ptr->hp;
 
 						/* Redraw (later) if needed */
 						if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
@@ -1490,7 +1536,7 @@ bool monst_spell_monst(int m_idx)
 						/* Special message */
 						if (see_m)
 						{
-							msg_format("%^s appears healthier.", m_name);
+							if (show_3_combat) msg_format("%^s appears healthier.", m_name);
 						}
 					}
 				}
@@ -1505,7 +1551,7 @@ bool monst_spell_monst(int m_idx)
 			{
 				if (see_m)
 				{
-					msg_format("%^s gazes intently at %s.", m_name, t_name);
+					if (show_3_combat) msg_format("%^s gazes intently at %s.", m_name, t_name);
 				}
 
 				/* Attempt a saving throw */
@@ -1522,14 +1568,14 @@ bool monst_spell_monst(int m_idx)
 							tr_ptr->r_flags3 |= (RF3_NO_CONF);
 						}
 
-						msg_format("%^s is unaffected!", t_name);
+						if (show_3_combat) msg_format("%^s is unaffected!", t_name);
 					}
 				}
 				else
 				{
 					if (see_t)
 					{
-						msg_format("%^s is blasted by psionic energy.", t_name);
+						if (show_3_combat) msg_format("%^s is blasted by psionic energy.", t_name);
 					}
 
 					t_ptr->confused += (byte)rand_range(4, 8);
@@ -1547,7 +1593,7 @@ bool monst_spell_monst(int m_idx)
 			{
 				if (see_m)
 				{
-					msg_format("%^s gazes intently at %s.", m_name, t_name);
+					if (show_3_combat) msg_format("%^s gazes intently at %s.", m_name, t_name);
 				}
 
 				/* Attempt a saving throw */
@@ -1564,14 +1610,14 @@ bool monst_spell_monst(int m_idx)
 							tr_ptr->r_flags3 |= (RF3_NO_CONF);
 						}
 
-						msg_format("%^s is unaffected!", t_name);
+						if (show_3_combat) msg_format("%^s is unaffected!", t_name);
 					}
 				}
 				else
 				{
 					if (see_t)
 					{
-						msg_format("%^s is blasted by psionic energy.", t_name);
+						if (show_3_combat) msg_format("%^s is blasted by psionic energy.", t_name);
 					}
 
 					t_ptr->confused += (byte)rand_range(4, 8);
@@ -1593,7 +1639,7 @@ bool monst_spell_monst(int m_idx)
 				{
 					if (see_m)
 					{
-						msg_format("%^s points at %s and curses.", m_name, t_name);
+						if (show_3_combat) msg_format("%^s points at %s and curses.", m_name, t_name);
 					}
 					else
 					{
@@ -1603,7 +1649,7 @@ bool monst_spell_monst(int m_idx)
 
 				if (tr_ptr->level > randint1(rlev * 3) / 2)
 				{
-					if (see_both) msg_format("%^s resists!", t_name);
+					if (see_both) if (show_3_combat) msg_format("%^s resists!", t_name);
 				}
 				else
 				{
@@ -1622,7 +1668,7 @@ bool monst_spell_monst(int m_idx)
 				{
 					if (see_m)
 					{
-						msg_format("%^s points at %s and curses horribly.", m_name, t_name);
+						if (show_3_combat) msg_format("%^s points at %s and curses horribly.", m_name, t_name);
 					}
 					else
 					{
@@ -1632,7 +1678,7 @@ bool monst_spell_monst(int m_idx)
 
 				if (tr_ptr->level > randint1(rlev * 3) / 2)
 				{
-					if (see_both) msg_format("%^s resists!", t_name);
+					if (see_both) if (show_3_combat) msg_format("%^s resists!", t_name);
 				}
 				else
 				{
@@ -1651,7 +1697,7 @@ bool monst_spell_monst(int m_idx)
 				{
 					if (see_m)
 					{
-						msg_format("%^s points at %s, incanting terribly!", m_name, t_name);
+						if (show_3_combat) msg_format("%^s points at %s, incanting terribly!", m_name, t_name);
 					}
 					else
 					{
@@ -1661,7 +1707,7 @@ bool monst_spell_monst(int m_idx)
 
 				if (tr_ptr->level > randint1(rlev * 3) / 2)
 				{
-					if (see_both) msg_format("%^s resists!", t_name);
+					if (see_both) if (show_3_combat) msg_format("%^s resists!", t_name);
 				}
 				else
 				{
@@ -1680,7 +1726,7 @@ bool monst_spell_monst(int m_idx)
 				{
 					if (see_m)
 					{
-						msg_format("%^s points at %s, screaming the word, 'DIE!'", m_name, t_name);
+						if (show_3_combat) msg_format("%^s points at %s, screaming the word, 'DIE!'", m_name, t_name);
 					}
 					else
 					{
@@ -1690,7 +1736,7 @@ bool monst_spell_monst(int m_idx)
 
 				if (tr_ptr->level > randint1(rlev * 3) / 2)
 				{
-					if (see_both) msg_format("%^s resists!", t_name);
+					if (see_both) if (show_3_combat) msg_format("%^s resists!", t_name);
 				}
 				else
 				{
@@ -1709,7 +1755,7 @@ bool monst_spell_monst(int m_idx)
 				{
 					if (see_either)
 					{
-						msg_format("%^s casts an acid bolt at %s.", m_name, t_name);
+						if (show_3_combat) msg_format("%^s casts an acid bolt at %s.", m_name, t_name);
 					}
 					else
 					{
@@ -1730,7 +1776,7 @@ bool monst_spell_monst(int m_idx)
 				{
 					if (see_either)
 					{
-						msg_format("%^s casts a lightning bolt at %s.", m_name, t_name);
+						if (show_3_combat) msg_format("%^s casts a lightning bolt at %s.", m_name, t_name);
 					}
 					else
 					{
@@ -1751,7 +1797,7 @@ bool monst_spell_monst(int m_idx)
 				{
 					if (see_either)
 					{
-						msg_format("%^s casts a fire bolt at %s.", m_name, t_name);
+						if (show_3_combat) msg_format("%^s casts a fire bolt at %s.", m_name, t_name);
 					}
 					else
 					{
@@ -1772,7 +1818,7 @@ bool monst_spell_monst(int m_idx)
 				{
 					if (see_either)
 					{
-						msg_format("%^s casts a frost bolt at %s.", m_name, t_name);
+						if (show_3_combat) msg_format("%^s casts a frost bolt at %s.", m_name, t_name);
 					}
 					else
 					{
@@ -1800,7 +1846,7 @@ bool monst_spell_monst(int m_idx)
 				{
 					if (see_either)
 					{
-						msg_format("%^s casts a nether bolt at %s.", m_name, t_name);
+						if (show_3_combat) msg_format("%^s casts a nether bolt at %s.", m_name, t_name);
 					}
 					else
 					{
@@ -1821,7 +1867,7 @@ bool monst_spell_monst(int m_idx)
 				{
 					if (see_either)
 					{
-						msg_format("%^s casts a water bolt at %s.", m_name, t_name);
+						if (show_3_combat) msg_format("%^s casts a water bolt at %s.", m_name, t_name);
 					}
 					else
 					{
@@ -1842,7 +1888,7 @@ bool monst_spell_monst(int m_idx)
 				{
 					if (see_either)
 					{
-						msg_format("%^s casts a mana bolt at %s.", m_name, t_name);
+						if (show_3_combat) msg_format("%^s casts a mana bolt at %s.", m_name, t_name);
 					}
 					else
 					{
@@ -1863,7 +1909,7 @@ bool monst_spell_monst(int m_idx)
 				{
 					if (see_either)
 					{
-						msg_format("%^s casts a plasma bolt at %s.", m_name, t_name);
+						if (show_3_combat) msg_format("%^s casts a plasma bolt at %s.", m_name, t_name);
 					}
 					else
 					{
@@ -1884,7 +1930,7 @@ bool monst_spell_monst(int m_idx)
 				{
 					if (see_either)
 					{
-						msg_format("%^s casts an ice bolt at %s.", m_name, t_name);
+						if (show_3_combat) msg_format("%^s casts an ice bolt at %s.", m_name, t_name);
 					}
 					else
 					{
@@ -1905,7 +1951,7 @@ bool monst_spell_monst(int m_idx)
 				{
 					if (see_either)
 					{
-						msg_format("%^s casts a magic missile at %s.", m_name, t_name);
+						if (show_3_combat) msg_format("%^s casts a magic missile at %s.", m_name, t_name);
 					}
 					else
 					{
@@ -1926,7 +1972,7 @@ bool monst_spell_monst(int m_idx)
 				{
 					if (see_either)
 					{
-						msg_format("%^s casts a fearful illusion in front of %s.", m_name, t_name);
+						if (show_3_combat) msg_format("%^s casts a fearful illusion in front of %s.", m_name, t_name);
 					}
 					else
 					{
@@ -1936,11 +1982,11 @@ bool monst_spell_monst(int m_idx)
 
 				if (tr_ptr->flags3 & RF3_NO_FEAR)
 				{
-					if (see_t) msg_format("%^s refuses to be frightened.", t_name);
+					if (see_t) if (show_3_combat) msg_format("%^s refuses to be frightened.", t_name);
 				}
 				else if (tr_ptr->level > randint1(rlev * 3) / 2)
 				{
-					if (see_t) msg_format("%^s refuses to be frightened.", t_name);
+					if (see_t) if (show_3_combat) msg_format("%^s refuses to be frightened.", t_name);
 				}
 				else
 				{
@@ -1961,7 +2007,7 @@ bool monst_spell_monst(int m_idx)
 				{
 					if (see_either)
 					{
-						msg_format("%^s casts a spell, burning %s%s eyes.", m_name, t_name,
+						if (show_3_combat) msg_format("%^s casts a spell, burning %s%s eyes.", m_name, t_name,
 									  (streq(t_name, "it") ? "s" : "'s"));
 					}
 					else
@@ -1973,15 +2019,15 @@ bool monst_spell_monst(int m_idx)
 				/* Simulate blindness with confusion */
 				if (tr_ptr->flags3 & RF3_NO_CONF)
 				{
-					if (see_t) msg_format("%^s is unaffected.", t_name);
+					if (see_t) if (show_3_combat) msg_format("%^s is unaffected.", t_name);
 				}
 				else if (tr_ptr->level > randint1(rlev * 3) / 2)
 				{
-					if (see_t) msg_format("%^s is unaffected.", t_name);
+					if (see_t) if (show_3_combat) msg_format("%^s is unaffected.", t_name);
 				}
 				else
 				{
-					if (see_t) msg_format("%^s is blinded!", t_name);
+					if (see_t) if (show_3_combat) msg_format("%^s is blinded!", t_name);
 
 					t_ptr->confused += (byte)rand_range(12, 16);
 				}
@@ -1998,7 +2044,7 @@ bool monst_spell_monst(int m_idx)
 				{
 					if (see_either)
 					{
-						msg_format("%^s casts a mesmerizing illusion in front of %s.", m_name, t_name);
+						if (show_3_combat) msg_format("%^s casts a mesmerizing illusion in front of %s.", m_name, t_name);
 					}
 					else
 					{
@@ -2008,15 +2054,15 @@ bool monst_spell_monst(int m_idx)
 
 				if (tr_ptr->flags3 & RF3_NO_CONF)
 				{
-					if (see_t) msg_format("%^s disbelieves the feeble spell.", t_name);
+					if (see_t) if (show_3_combat) msg_format("%^s disbelieves the feeble spell.", t_name);
 				}
 				else if (tr_ptr->level > randint1(rlev * 3) / 2)
 				{
-					if (see_t) msg_format("%^s disbelieves the feeble spell.", t_name);
+					if (see_t) if (show_3_combat) msg_format("%^s disbelieves the feeble spell.", t_name);
 				}
 				else
 				{
-					if (see_t) msg_format("%^s seems confused.", t_name);
+					if (see_t) if (show_3_combat) msg_format("%^s seems confused.", t_name);
 
 					t_ptr->confused += (byte)rand_range(12, 16);
 				}
@@ -2033,7 +2079,7 @@ bool monst_spell_monst(int m_idx)
 				{
 					if (see_either)
 					{
-						msg_format("%^s drains power from %s%s muscles.", m_name, t_name,
+						if (show_3_combat) msg_format("%^s drains power from %s%s muscles.", m_name, t_name,
 									  (streq(t_name, "it") ? "s" : "'s"));
 					}
 					else
@@ -2044,15 +2090,15 @@ bool monst_spell_monst(int m_idx)
 
 				if (tr_ptr->flags1 & RF1_UNIQUE)
 				{
-					if (see_t) msg_format("%^s is unaffected.", t_name);
+					if (see_t) if (show_3_combat) msg_format("%^s is unaffected.", t_name);
 				}
 				else if (tr_ptr->level > randint1(rlev * 3) / 2)
 				{
-					if (see_t) msg_format("%^s is unaffected.", t_name);
+					if (see_t) if (show_3_combat) msg_format("%^s is unaffected.", t_name);
 				}
 				else
 				{
-					if (see_t) msg_format("%^s starts moving slower.", t_name);
+					if (see_t) if (show_3_combat) msg_format("%^s starts moving slower.", t_name);
 
 					t_ptr->mspeed -= 10;
 				}
@@ -2069,7 +2115,7 @@ bool monst_spell_monst(int m_idx)
 				{
 					if (see_either)
 					{
-						msg_format("%^s stares intently at %s.", m_name, t_name);
+						if (show_3_combat) msg_format("%^s stares intently at %s.", m_name, t_name);
 					}
 					else
 					{
@@ -2080,15 +2126,15 @@ bool monst_spell_monst(int m_idx)
 				if ((tr_ptr->flags1 & RF1_UNIQUE) ||
 					 (tr_ptr->flags3 & RF3_NO_STUN))
 				{
-					if (see_t) msg_format("%^s is unaffected.", t_name);
+					if (see_t) if (show_3_combat) msg_format("%^s is unaffected.", t_name);
 				}
 				else if (tr_ptr->level > randint1(rlev * 3) / 2)
 				{
-					if (see_t) msg_format("%^s is unaffected.", t_name);
+					if (see_t) if (show_3_combat) msg_format("%^s is unaffected.", t_name);
 				}
 				else
 				{
-					if (see_t) msg_format("%^s is paralyzed!", t_name);
+					if (see_t) if (show_3_combat) msg_format("%^s is paralyzed!", t_name);
 
 					t_ptr->stunned += (byte)rand_range(4, 8);
 				}
@@ -2106,7 +2152,7 @@ bool monst_spell_monst(int m_idx)
 				{
 					if (see_m)
 					{
-						msg_format("%^s concentrates on %s body.", m_name, m_poss);
+						if (show_3_combat) msg_format("%^s concentrates on %s body.", m_name, m_poss);
 					}
 					else
 					{
@@ -2117,7 +2163,7 @@ bool monst_spell_monst(int m_idx)
 				/* Allow quick speed increases to base+10 */
 				if (m_ptr->mspeed < r_ptr->speed + 10)
 				{
-					if (see_m) msg_format("%^s starts moving faster.", m_name);
+					if (see_m) if (show_3_combat) msg_format("%^s starts moving faster.", m_name);
 
 					m_ptr->mspeed += 10;
 				}
@@ -2125,7 +2171,7 @@ bool monst_spell_monst(int m_idx)
 				/* Allow small speed increases to base+20 */
 				else if (m_ptr->mspeed < r_ptr->speed + 20)
 				{
-					if (see_m) msg_format("%^s starts moving faster.", m_name);
+					if (see_m) if (show_3_combat) msg_format("%^s starts moving faster.", m_name);
 
 					m_ptr->mspeed += 2;
 				}
@@ -2140,7 +2186,7 @@ bool monst_spell_monst(int m_idx)
 				{
 					if (see_m)
 					{
-						msg_format("%^s invokes the Hand of Doom upon %s!", m_name, t_name);
+						if (show_3_combat) msg_format("%^s invokes the Hand of Doom upon %s!", m_name, t_name);
 					}
 					else
 					{
@@ -2150,21 +2196,26 @@ bool monst_spell_monst(int m_idx)
 
 				if (tr_ptr->flags1 & RF1_UNIQUE)
 				{
-					if (see_both) msg_format("^%s is unaffected!", t_name);
+					if (see_both) if (show_3_combat) msg_format("^%s is unaffected!", t_name);
 				}
 				else
 				{
 					if ((r_ptr->level + randint1(20)) >
 						(tr_ptr->level + rand_range(10, 30)))
 					{
-						t_ptr->hp = t_ptr->hp -
-						  (((s32b)(rand_range(65, 90) * t_ptr->hp)) / 100);
+						s32b damage = (((rand_range(65, 90) * t_ptr->hp)) / 100);
+						if (damage > t_ptr->hp - 1) damage = t_ptr->hp - 1;
 
-						if (t_ptr->hp < 1) t_ptr->hp = 1;
+						if (tr_ptr->flags1 & RF1_QUESTOR /*|| tr_ptr->flags3 & RF3_UNIQUE_7*/)
+						{
+							t_ptr->otherinflicted += damage;
+							if (t_ptr->otherinflicted > t_ptr->maxhp - t_ptr->hp) t_ptr->hp = t_ptr->maxhp - t_ptr->otherinflicted;
+						}
+						else t_ptr->hp -= damage;
 					}
 					else
 					{
-						if (see_both) msg_format("%^s resists!", t_name);
+						if (see_both) if (show_3_combat) msg_format("%^s resists!", t_name);
 					}
 				}
 
@@ -2180,7 +2231,7 @@ bool monst_spell_monst(int m_idx)
 				{
 					if (see_m)
 					{
-						msg_format("%^s concentrates on %s wounds.", m_name, m_poss);
+						if (show_3_combat) msg_format("%^s concentrates on %s wounds.", m_name, m_poss);
 					}
 					else
 					{
@@ -2201,7 +2252,7 @@ bool monst_spell_monst(int m_idx)
 					{
 						if (see_m)
 						{
-							msg_format("%^s looks completely healed!", m_name);
+							if (show_3_combat) msg_format("%^s looks completely healed!", m_name);
 						}
 						else
 						{
@@ -2215,13 +2266,14 @@ bool monst_spell_monst(int m_idx)
 				{
 					if (see_m)
 					{
-						msg_format("%^s looks healthier.", m_name);
+						if (show_3_combat) msg_format("%^s looks healthier.", m_name);
 					}
 					else
 					{
 						p_ptr->mon_fight = TRUE;
 					}
 				}
+				if (m_ptr->otherinflicted > m_ptr->maxhp - m_ptr->hp) m_ptr->otherinflicted = m_ptr->maxhp - m_ptr->hp;
 
 				/* Redraw (later) if needed */
 				if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
@@ -2233,7 +2285,7 @@ bool monst_spell_monst(int m_idx)
 					m_ptr->monfear = 0;
 
 					/* Message */
-					if (see_m) msg_format("%^s recovers %s courage.", m_name, m_poss);
+					if (see_m) if (show_3_combat) msg_format("%^s recovers %s courage.", m_name, m_poss);
 				}
 
 				break;
@@ -2247,7 +2299,7 @@ bool monst_spell_monst(int m_idx)
 					if (see_m)
 					{
 						disturb(TRUE);
-						msg_format("%^s casts a Globe of Invulnerability.", m_name);
+						if (show_3_combat) msg_format("%^s casts a Globe of Invulnerability.", m_name);
 					}
 					else
 					{
@@ -2265,7 +2317,7 @@ bool monst_spell_monst(int m_idx)
 			{
 				if (see_m)
 				{
-					msg_format("%^s blinks away.", m_name);
+					if (show_3_combat) msg_format("%^s blinks away.", m_name);
 				}
 
 				(void)teleport_away(m_idx, 10);
@@ -2278,7 +2330,7 @@ bool monst_spell_monst(int m_idx)
 			{
 				if (see_m)
 				{
-					msg_format("%^s teleports away.", m_name);
+					if (show_3_combat) msg_format("%^s teleports away.", m_name);
 				}
 
 				(void)teleport_away(m_idx, MAX_SIGHT * 2 + 5);
@@ -2314,7 +2366,7 @@ bool monst_spell_monst(int m_idx)
 				{
 					if (see_either)
 					{
-						msg_format("%^s teleports %s away.", m_name, t_name);
+						if (show_3_combat) msg_format("%^s teleports %s away.", m_name, t_name);
 					}
 					else
 					{
@@ -2329,7 +2381,7 @@ bool monst_spell_monst(int m_idx)
 						if (see_t)
 						{
 							tr_ptr->r_flags3 |= RF3_RES_TELE;
-							msg_format("%^s is unaffected!", t_name);
+							if (show_3_combat) msg_format("%^s is unaffected!", t_name);
 						}
 
 						resists_tele = TRUE;
@@ -2339,7 +2391,7 @@ bool monst_spell_monst(int m_idx)
 						if (see_t)
 						{
 							tr_ptr->r_flags3 |= RF3_RES_TELE;
-							msg_format("%^s resists!", t_name);
+							if (show_3_combat) msg_format("%^s resists!", t_name);
 						}
 
 						resists_tele = TRUE;
@@ -2374,11 +2426,11 @@ bool monst_spell_monst(int m_idx)
 				{
 					if (see_m)
 					{
-						msg_format("%^s gestures in shadow.", m_name);
+						if (show_3_combat) msg_format("%^s gestures in shadow.", m_name);
 
 						if (see_t)
 						{
-							msg_format("%^s is surrounded by darkness.", t_name);
+							if (show_3_combat) msg_format("%^s is surrounded by darkness.", t_name);
 						}
 					}
 					else
@@ -2411,9 +2463,9 @@ bool monst_spell_monst(int m_idx)
 			/* RF6_RAISE_DEAD */
 			case 160+15:
 			{
-				if (raise_dead(m_ptr->fy, m_ptr->fx, (bool)(!is_hostile(m_ptr))) && known && see_m)
+				if (raise_dead(m_ptr->fy, m_ptr->fx, friendly, pet, m_ptr->group, m_idx))
 				{
-					msg_format("%^s mutters quietly.", m_name);
+					if (show_3_combat) msg_format("%^s mutters quietly.", m_name);
 				}
 				break;
 			}
@@ -2427,7 +2479,7 @@ bool monst_spell_monst(int m_idx)
 					{
 						disturb(TRUE);
 
-						msg_format("%^s magically summons %s %s.", m_name, m_poss,
+						if (show_3_combat) msg_format("%^s magically summons %s %s.", m_name, m_poss,
 									  ((r_ptr->flags1 & RF1_UNIQUE) ? "minions" : "kin"));
 					}
 					else
@@ -2440,7 +2492,8 @@ bool monst_spell_monst(int m_idx)
 
 				for (k = 0; k < 6; k++)
 				{
-					count += summon_specific(m_idx, y, x, rlev, SUMMON_KIN, TRUE, friendly, pet);
+					count += summon_specific(m_idx, y, x, rlev, SUMMON_KIN, TRUE, 
+							friendly, pet, m_ptr->group, m_idx);
 				}
 
 				if (known && !see_t && count)
@@ -2460,7 +2513,7 @@ bool monst_spell_monst(int m_idx)
 					{
 						disturb(TRUE);
 
-						msg_format("%^s magically summons Cyberdemons!", m_name);
+						if (show_3_combat) msg_format("%^s magically summons Cyberdemons!", m_name);
 					}
 					else
 					{
@@ -2489,7 +2542,7 @@ bool monst_spell_monst(int m_idx)
 					{
 						disturb(TRUE);
 
-						msg_format("%^s magically summons help!", m_name);
+						if (show_3_combat) msg_format("%^s magically summons help!", m_name);
 					}
 					else
 					{
@@ -2497,7 +2550,8 @@ bool monst_spell_monst(int m_idx)
 					}
 				}
 
-				count += summon_specific(m_idx, y, x, rlev, type, FALSE, friendly, pet);
+				count += summon_specific(m_idx, y, x, rlev, type, FALSE, 
+						friendly, pet, m_ptr->group, m_idx);
 
 				if (known && !see_t && count)
 				{
@@ -2518,7 +2572,7 @@ bool monst_spell_monst(int m_idx)
 					{
 						disturb(TRUE);
 
-						msg_format("%^s magically summons monsters!", m_name);
+						if (show_3_combat) msg_format("%^s magically summons monsters!", m_name);
 					}
 					else
 					{
@@ -2528,7 +2582,8 @@ bool monst_spell_monst(int m_idx)
 
 				for (k = 0; k < 8; k++)
 				{
-					count += summon_specific(m_idx, y, x, rlev, type, TRUE, friendly, pet);
+					count += summon_specific(m_idx, y, x, rlev, type, TRUE, 
+							friendly, pet, m_ptr->group, m_idx);
 				}
 
 				if (known && !see_t && count)
@@ -2548,7 +2603,7 @@ bool monst_spell_monst(int m_idx)
 					{
 						disturb(TRUE);
 
-						msg_format("%^s magically summons ants.", m_name);
+						if (show_3_combat) msg_format("%^s magically summons ants.", m_name);
 					}
 					else
 					{
@@ -2558,7 +2613,8 @@ bool monst_spell_monst(int m_idx)
 
 				for (k = 0; k < 6; k++)
 				{
-					count += summon_specific(m_idx, y, x, rlev, SUMMON_ANT, TRUE, friendly, pet);
+					count += summon_specific(m_idx, y, x, rlev, SUMMON_ANT, TRUE, 
+							friendly, pet, m_ptr->group, m_idx);
 				}
 
 				if (known && !see_t && count)
@@ -2578,7 +2634,7 @@ bool monst_spell_monst(int m_idx)
 					{
 						disturb(TRUE);
 
-						msg_format("%^s magically summons spiders.", m_name);
+						if (show_3_combat) msg_format("%^s magically summons spiders.", m_name);
 					}
 					else
 					{
@@ -2588,7 +2644,8 @@ bool monst_spell_monst(int m_idx)
 
 				for (k = 0; k < 6; k++)
 				{
-					count += summon_specific(m_idx, y, x, rlev, SUMMON_SPIDER, TRUE, friendly, pet);
+					count += summon_specific(m_idx, y, x, rlev, SUMMON_SPIDER, TRUE, 
+							friendly, pet, m_ptr->group, m_idx);
 				}
 
 				if (known && !see_t && count)
@@ -2608,7 +2665,7 @@ bool monst_spell_monst(int m_idx)
 					{
 						disturb(TRUE);
 
-						msg_format("%^s magically summons hounds.", m_name);
+						if (show_3_combat) msg_format("%^s magically summons hounds.", m_name);
 					}
 					else
 					{
@@ -2618,7 +2675,8 @@ bool monst_spell_monst(int m_idx)
 
 				for (k = 0; k < 6; k++)
 				{
-					count += summon_specific(m_idx, y, x, rlev, SUMMON_HOUND, TRUE, friendly, pet);
+					count += summon_specific(m_idx, y, x, rlev, SUMMON_HOUND, TRUE, 
+							friendly, pet, m_ptr->group, m_idx);
 				}
 
 				if (known && !see_t && count)
@@ -2638,7 +2696,7 @@ bool monst_spell_monst(int m_idx)
 					{
 						disturb(TRUE);
 
-						msg_format("%^s magically summons hydras.", m_name);
+						if (show_3_combat) msg_format("%^s magically summons hydras.", m_name);
 					}
 					else
 					{
@@ -2648,7 +2706,8 @@ bool monst_spell_monst(int m_idx)
 
 				for (k = 0; k < 6; k++)
 				{
-					count += summon_specific(m_idx, y, x, rlev, SUMMON_HYDRA, TRUE, friendly, pet);
+					count += summon_specific(m_idx, y, x, rlev, SUMMON_HYDRA, TRUE, 
+							friendly, pet, m_ptr->group, m_idx);
 				}
 
 				if (known && !see_t && count)
@@ -2668,7 +2727,7 @@ bool monst_spell_monst(int m_idx)
 					{
 						disturb(TRUE);
 
-						msg_format("%^s magically summons an angel!", m_name);
+						if (show_3_combat) msg_format("%^s magically summons an angel!", m_name);
 					}
 					else
 					{
@@ -2678,7 +2737,8 @@ bool monst_spell_monst(int m_idx)
 
 				for (k = 0; k < 1; k++)
 				{
-					count += summon_specific(m_idx, y, x, rlev, SUMMON_ANGEL, TRUE, friendly, pet);
+					count += summon_specific(m_idx, y, x, rlev, SUMMON_ANGEL, TRUE, 
+							friendly, pet, m_ptr->group, m_idx);
 				}
 
 				if (known && !see_t && count)
@@ -2698,7 +2758,7 @@ bool monst_spell_monst(int m_idx)
 					{
 						disturb(TRUE);
 
-						msg_format("%^s magically summons a demon from the Courts of Chaos!", m_name);
+						if (show_3_combat) msg_format("%^s magically summons a demon!", m_name);
 					}
 					else
 					{
@@ -2708,7 +2768,8 @@ bool monst_spell_monst(int m_idx)
 
 				for (k = 0; k < 1; k++)
 				{
-					count += summon_specific(m_idx, y, x, rlev, SUMMON_DEMON, TRUE, friendly, pet);
+					count += summon_specific(m_idx, y, x, rlev, SUMMON_DEMON, TRUE, 
+							friendly, pet, m_ptr->group, m_idx);
 				}
 
 				if (known && !see_t && count)
@@ -2728,7 +2789,7 @@ bool monst_spell_monst(int m_idx)
 					{
 						disturb(TRUE);
 
-						msg_format("%^s magically summons undead.", m_name);
+						if (show_3_combat) msg_format("%^s magically summons undead.", m_name);
 					}
 					else
 					{
@@ -2738,7 +2799,8 @@ bool monst_spell_monst(int m_idx)
 
 				for (k = 0; k < 1; k++)
 				{
-					count += summon_specific(m_idx, y, x, rlev, SUMMON_UNDEAD, TRUE, friendly, pet);
+					count += summon_specific(m_idx, y, x, rlev, SUMMON_UNDEAD, TRUE, 
+							friendly, pet, m_ptr->group, m_idx);
 				}
 
 				if (known && !see_t && count)
@@ -2758,7 +2820,7 @@ bool monst_spell_monst(int m_idx)
 					{
 						disturb(TRUE);
 
-						msg_format("%^s magically summons a dragon!", m_name);
+						if (show_3_combat) msg_format("%^s magically summons a dragon!", m_name);
 					}
 					else
 					{
@@ -2768,7 +2830,8 @@ bool monst_spell_monst(int m_idx)
 
 				for (k = 0; k < 1; k++)
 				{
-					count += summon_specific(m_idx, y, x, rlev, SUMMON_DRAGON, TRUE, friendly, pet);
+					count += summon_specific(m_idx, y, x, rlev, SUMMON_DRAGON, TRUE, 
+							friendly, pet, m_ptr->group, m_idx);
 				}
 
 				if (known && !see_t && count)
@@ -2790,7 +2853,7 @@ bool monst_spell_monst(int m_idx)
 					{
 						disturb(TRUE);
 
-						msg_format("%^s magically summons undead.", m_name);
+						if (show_3_combat) msg_format("%^s magically summons undead.", m_name);
 					}
 					else
 					{
@@ -2800,7 +2863,8 @@ bool monst_spell_monst(int m_idx)
 
 				for (k = 0; k < 8; k++)
 				{
-					count += summon_specific(m_idx, y, x, rlev, type, TRUE, friendly, pet);
+					count += summon_specific(m_idx, y, x, rlev, type, TRUE, 
+							friendly, pet, m_ptr->group, m_idx);
 				}
 
 				if (known && !see_t && count)
@@ -2822,7 +2886,7 @@ bool monst_spell_monst(int m_idx)
 					{
 						disturb(TRUE);
 
-						msg_format("%^s magically summons ancient dragons!", m_name);
+						if (show_3_combat) msg_format("%^s magically summons ancient dragons!", m_name);
 					}
 					else
 					{
@@ -2832,7 +2896,8 @@ bool monst_spell_monst(int m_idx)
 
 				for (k = 0; k < 8; k++)
 				{
-					count += summon_specific(m_idx, y, x, rlev, type, TRUE, friendly, pet);
+					count += summon_specific(m_idx, y, x, rlev, type, TRUE, 
+							friendly, pet, m_ptr->group, m_idx);
 				}
 
 				if (known && !see_t && count)
@@ -2843,7 +2908,7 @@ bool monst_spell_monst(int m_idx)
 				break;
 			}
 
-			/* RF6_S_AMBERITES */
+			/* RF6_S_SPECIAL */
 			case 160+30:
 			{
 				if (known)
@@ -2852,7 +2917,7 @@ bool monst_spell_monst(int m_idx)
 					{
 						disturb(TRUE);
 
-						msg_format("%^s magically summons Lords of Amber!", m_name);
+						if (show_3_combat) msg_format("%^s magically summons backup!", m_name);
 					}
 					else
 					{
@@ -2862,7 +2927,8 @@ bool monst_spell_monst(int m_idx)
 
 				for (k = 0; k < 8; k++)
 				{
-					count += summon_specific(m_idx, y, x, rlev, SUMMON_AMBERITES, TRUE, FALSE, FALSE);
+					count += summon_specific(m_idx, y, x, rlev, SUMMON_AMBERITES, TRUE, 
+							friendly, pet, m_ptr->group, m_idx);
 				}
 
 				if (known && !see_t && count)
@@ -2882,7 +2948,7 @@ bool monst_spell_monst(int m_idx)
 					{
 						disturb(TRUE);
 
-						msg_format("%^s magically summons special opponents!", m_name);
+						if (show_3_combat) msg_format("%^s magically summons special opponents!", m_name);
 					}
 					else
 					{
@@ -2892,7 +2958,8 @@ bool monst_spell_monst(int m_idx)
 
 				for (k = 0; k < 8; k++)
 				{
-					count += summon_specific(m_idx, y, x, rlev, SUMMON_UNIQUE, TRUE, FALSE, FALSE);
+					count += summon_specific(m_idx, y, x, rlev, SUMMON_UNIQUE, TRUE, 
+							FALSE, FALSE, m_ptr->group, m_idx);
 				}
 
 				if (known && !see_t && count)
@@ -2911,7 +2978,7 @@ bool monst_spell_monst(int m_idx)
 
 		if (fear && see_t)
 		{
-			msg_format("%^s flees in terror!", t_name);
+			if (show_3_combat) msg_format("%^s flees in terror!", t_name);
 		}
 
 		/* Remember what the monster did, if we saw it */

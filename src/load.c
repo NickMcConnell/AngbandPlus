@@ -113,6 +113,28 @@ static bool z_older_than(byte x, byte y, byte z)
 
 
 /*
+ * The above function, adapted for Frazband
+ */
+static bool f_older_than(byte x, byte y, byte z)
+{
+	/* Much older, or much more recent */
+	if (f_major < x) return (TRUE);
+	if (f_major > x) return (FALSE);
+
+	/* Distinctly older, or distinctly more recent */
+	if (f_minor < y) return (TRUE);
+	if (f_minor > y) return (FALSE);
+
+	/* Barely older, or barely more recent */
+	if (f_patch < z) return (TRUE);
+	if (f_patch > z) return (FALSE);
+
+	/* Identical versions */
+	return (FALSE);
+}
+
+
+/*
  * Hack -- Show information on the screen, one line at a time.
  *
  * Avoid the top two lines, to avoid interference with "msg_print()".
@@ -320,6 +342,8 @@ static void rd_item(object_type *o_ptr)
 	object_kind *k_ptr;
 
 	char buf[128];
+
+	int i;
 	
 	/* Old flags from pre [Z] 2.5.3 */
 	byte name1, name2, xtra1, xtra2;
@@ -439,11 +463,52 @@ static void rd_item(object_type *o_ptr)
 	}
 
 	/* Save the inscription */
-	if (buf[0]) o_ptr->inscription = quark_add(buf);
+	if (buf[0]) 
+	{
+		o_ptr->inscription = quark_add(buf);
+		if (!f_older_than(0, 2, 0))
+			rd_s16b(&(quark__use[o_ptr->inscription]));
+	}
 
 	rd_string(buf, 128);
-	if (buf[0]) o_ptr->xtra_name = quark_add(buf);
+	if (buf[0]) 
+	{
+		o_ptr->xtra_name = quark_add(buf);
+		if (!f_older_than(0, 2, 0))
+			rd_s16b(&(quark__use[o_ptr->xtra_name]));
+	}
 
+	/* Magic list for spellbooks */
+	if (!f_older_than(0, 2, 0))
+	{
+#ifdef USE_NEW_MAGIC
+		rd_string(buf, 128);
+		if (buf[0]) 
+		{
+			/* Check it against saved spell lists */
+			for (i = 1; i < spell_list_num; i++)
+			{
+				/* Check for equality */
+				if (streq(spell_list_str[i], buf))
+				{
+					o_ptr->spell_list = -i;
+					goto found_spell_list;
+				}
+			}
+			
+			o_ptr->spell_list = quark_add(buf);
+			if (!f_older_than(0, 2, 0))
+				rd_s16b(&(quark__use[o_ptr->spell_list]));
+			else
+				quark__use[o_ptr->spell_list] = -1;
+			
+		}
+#else /* USE_NEW_MAGIC */
+		rd_string(buf, 128);
+#endif /* USE_NEW_MAGIC */
+	}
+	found_spell_list:
+		
 	/* The Python object */
 	if (!z_older_than(2, 2, 4))
 	{
@@ -682,7 +747,6 @@ static void rd_monster(monster_type *m_ptr)
 
 	/* Read the monster race */
 	rd_s16b(&m_ptr->r_idx);
-
 	/* Read the other information */
 	if (sf_version < 6)
 	{
@@ -713,12 +777,39 @@ static void rd_monster(monster_type *m_ptr)
 		m_ptr->invulner = 0;
 	else
 		rd_byte(&m_ptr->invulner);
-
+	
 	if (!(z_major == 2 && z_minor == 0 && z_patch == 6))
 		rd_u32b(&m_ptr->smart);
 	else
 		m_ptr->smart = 0;
-	rd_byte(&tmp8u);
+
+	if (!f_older_than(0,2,0))
+	{
+		rd_s16b(&m_ptr->otherinflicted);
+		rd_byte(&m_ptr->mflag2);
+		rd_byte(&m_ptr->lastmove);
+		rd_byte(&m_ptr->hits);
+	}
+	else
+	{
+		m_ptr->otherinflicted = 0;
+		m_ptr->mflag2 = 0x00;
+		m_ptr->lastmove = 0;
+		m_ptr->hits = 0;
+	}
+	if (!f_older_than(0,2,0))
+		rd_byte(&m_ptr->group);
+	else
+	{
+		if (is_friendly(m_ptr)) m_ptr->group = GP_ALLY;
+		else m_ptr->group = GP_MINION;
+	}
+	if (!f_older_than(0,2,0))
+		rd_s16b(&m_ptr->master_m_idx);
+	else
+		m_ptr->master_m_idx = 0;
+	if (f_older_than(0,2,0))
+		rd_byte(&tmp8u);
 }
 
 
@@ -787,7 +878,7 @@ static void rd_lore(int r_idx)
 		rd_byte(&r_ptr->r_ignore);
 
 		/* Extra stuff */
-		rd_byte(&r_ptr->r_xtra1);
+		rd_byte(&tmp8u);
 		rd_byte(&r_ptr->r_xtra2);
 
 		/* Count drops */
@@ -1013,6 +1104,7 @@ static void rd_options(void)
 	cheat_xtra = (c & 0x0800) ? TRUE : FALSE;
 	cheat_know = (c & 0x1000) ? TRUE : FALSE;
 	cheat_live = (c & 0x2000) ? TRUE : FALSE;
+	cheat_muta = (c & 0x4000) ? TRUE : FALSE;
 
 	/* Pre-2.8.0 savefiles are done */
 	if (older_than(2, 8, 0)) return;
@@ -1137,7 +1229,7 @@ static bool player_detected = FALSE;
  */
 static void rd_extra(void)
 {
-	int i;
+	int i,j;
 
 	byte tmp8u;
 	s16b tmp16s;
@@ -1156,8 +1248,47 @@ static void rd_extra(void)
 	rd_byte(&p_ptr->prace);
 	rd_byte(&p_ptr->pclass);
 	rd_byte(&p_ptr->psex);
+
+	if (!f_older_than(0, 2, 0))
+	{
+#ifdef USE_NEW_MAGIC
+		/* Read the magic specialities */
+		for (i=0; i<NUM_MAG_ACTIONS; ++i)
+			for (j=0; j<NUM_MAG_TARGETS; ++j) /* NUM_MAG_TARGETS-5 may solve some problems */
+			{
+				rd_byte(&p_ptr->magic_fields[i][j]);
+
+				/* Nothing was -1, now 0 */
+				if (p_ptr->magic_fields[i][j] == 255) p_ptr->magic_fields[i][j] = 0;
+			}
+#else /* USE_NEW_MAGIC */
+		strip_bytes(NUM_MAG_ACTIONS * NUM_MAG_TARGETS);
+#endif /* USE_NEW_MAGIC */
+	}
+	else
+	{
+#ifdef USE_NEW_MAGIC
+		/* We don't have any pertinent to the new system */
+		for (i=0; i<NUM_MAG_ACTIONS; ++i)
+			for (j=0; j<NUM_MAG_TARGETS; ++j)
+				p_ptr->magic_fields[i][j]=-1;
+#endif /* USE_NEW_MAGIC */
+	}
+#if 0
+	if (f_older_than(<<new version>>))
+	{
+		strip_bytes(2);
+	}
+#endif /* 0 */
+#if 1
+#if defined(SUPPORT_OLD_MAGIC) || !defined(USE_NEW_MAGIC)
 	rd_byte(&p_ptr->realm1);
 	rd_byte(&p_ptr->realm2);
+#else /* defined(SUPPORT_OLD_MAGIC) || !defined(USE_NEW_MAGIC) */
+	strip_bytes(2);
+#endif /* defined(SUPPORT_OLD_MAGIC) || !defined(USE_NEW_MAGIC) */
+#endif /* 1 */
+	
 	rd_byte(&tmp8u); /* oops */
 
 	/* Special Race/Class info */
@@ -1378,6 +1509,16 @@ static void rd_extra(void)
 	/* Turn of last "feeling" */
 	rd_s32b(&old_turn);
 
+	/* Read the level flags */
+	if (!f_older_than(0, 2, 0))
+	{
+		rd_s32b(&level_flags);
+	}
+	else
+	{
+		/* Default is to have no flags */
+		level_flags = 0L;
+	}
 	/* Current turn */
 	rd_s32b(&turn);
 	
@@ -2366,7 +2507,7 @@ static errr rd_savefile_new_aux(void)
 
 	/* Mention the savefile version */
 	note(format("Loading a %d.%d.%d savefile...",
-		z_major, z_minor, z_patch));
+		f_major, f_minor, f_patch));
 
 
 	/* Hack -- Warn about "obsolete" versions */
@@ -2374,6 +2515,13 @@ static errr rd_savefile_new_aux(void)
 	{
 		note("Warning -- converting obsolete save file.");
 	}
+	/* Note old Zangband savefiles */
+	else if (f_older_than(0, 2, 0))
+	{
+		note(format("Converting a %d.%d.%d Zangband savefile...",
+			z_major, z_minor, z_patch));
+	}
+		
 
 
 	/* Strip the version bytes */
@@ -2419,6 +2567,74 @@ static errr rd_savefile_new_aux(void)
 	if (arg_fiddle) note("Loaded Randomizer Info");
 
 
+	/* Read mutation seeds */
+	if (!f_older_than(0, 2, 0))
+	{
+		rd_u32b(&mutate_seed);
+		rd_u32b(&unmutate_seed);
+	}
+	else
+	{
+		/* Just use the time of creation */
+		mutate_seed = sf_when;
+		unmutate_seed = sf_when;
+	}
+
+
+	/* Read the difficulty level */
+	if (!f_older_than(0, 2, 0))
+	{
+#ifdef USE_DIFFICULTY
+		rd_byte(&difficulty_level);
+#else /* USE_DIFFICULTY */
+		strip_bytes(1);
+#endif /* USE_DIFFICULTY */
+	}
+#ifdef USE_DIFFICULTY
+	else
+	{
+		/* Default is 50 */
+		difficulty_level = 50;
+	}
+#endif /* USE_DIFFICULTY */
+	
+	/* Uncomment this when we remove support for the old magic system */
+#if 0
+	if (f_older_than(<<new version>>))
+	{
+		/* Check we're not using the old magic system */
+		byte temp;
+		rd_byte(&temp);
+		if (temp)
+		{
+			note("Cannot import character using old-system magic");
+			return (116);
+		}
+	}
+#endif /* 0 */
+
+	/* And then comment this out */
+#if 1
+	/* Are we using the old magic system? */
+	if (!f_older_than(0, 2, 0))
+	{
+#if defined(USE_NEW_MAGIC) && defined(SUPPORT_OLD_MAGIC)
+	
+		rd_byte(&old_magic_user);
+#else /* defined(USE_NEW_MAGIC) && defined(SUPPORT_OLD_MAGIC) */
+		
+		strip_bytes(1);
+#endif /* defined(USE_NEW_MAGIC) && defined(SUPPORT_OLD_MAGIC) */
+	}
+	else
+	{
+#if defined(USE_NEW_MAGIC) && defined(SUPPORT_OLD_MAGIC)
+		/* Assume we are a mage, for the moment */
+		old_magic_user = TRUE;
+#endif /* defined(USE_NEW_MAGIC) && defined(SUPPORT_OLD_MAGIC) */
+	}
+#endif /* 1 */
+	
 	/* Then the options */
 	rd_options();
 	if (arg_fiddle) note("Loaded Option Flags");
@@ -2474,7 +2690,7 @@ static errr rd_savefile_new_aux(void)
 			/* Hack -- Reset the death counter */
 			r_ptr->max_num = 100;
 			if (r_ptr->flags1 & RF1_UNIQUE) r_ptr->max_num = 1;
-			if (r_ptr->flags3 & RF3_UNIQUE_7) r_ptr->max_num = 7;
+			/* (unused) if (r_ptr->flags3 & RF3_UNIQUE_7) r_ptr->max_num = 7; */
 		}
 	}
 
@@ -2977,10 +3193,50 @@ static errr rd_savefile_new_aux(void)
 	rp_ptr = &race_info[p_ptr->prace];
 	cp_ptr = &class_info[p_ptr->pclass];
 
+#ifdef USE_NEW_MAGIC
+ #ifdef SUPPORT_OLD_MAGIC
+	/* 
+	 * If we have a warrior, we note that it can't be an old magic user,
+	 * in case this is important for importing into future versions
+	 */
+	if (p_ptr->pclass == CLASS_WARRIOR || p_ptr->pclass == CLASS_MINDCRAFTER) old_magic_user = FALSE;
+ #endif /* SUPPORT_OLD_MAGIC */
+#endif /* USE_NEW_MAGIC */
+
 	/* Important -- Initialize the magic */
 	mp_ptr = &magic_info[p_ptr->pclass];
 
 
+
+	if (!f_older_than(0, 2, 0))
+	{
+#ifdef USE_NEW_MAGIC
+		/* Read spell data */
+		for (i = 0; i < 64; i++)
+		{
+			rd_u32b(&p_ptr->spell_found[i]);
+			rd_u32b(&p_ptr->spell_learned[i]);
+			rd_u32b(&p_ptr->spell_worked[i]);
+			rd_u32b(&p_ptr->spell_forgotten[i]);
+		}
+	
+		for (i = 0; i < 100; i++)
+		{
+			rd_u16b(&p_ptr->spells[i]);
+		}
+#else /* USE_NEW_MAGIC */
+		strip_bytes(1224);
+#endif /* USE_NEW_MAGIC */
+	}
+
+#if 0
+	if (f_older_than(<<new version>>))
+	{
+		strip_bytes(88);
+	}
+#endif /* 0 */
+#if 1
+#if defined(SUPPORT_OLD_MAGIC) || !defined(USE_NEW_MAGIC)
 	/* Read spell info */
 	rd_u32b(&p_ptr->spell_learned1);
 	rd_u32b(&p_ptr->spell_learned2);
@@ -2993,8 +3249,39 @@ static errr rd_savefile_new_aux(void)
 	{
 		rd_byte(&p_ptr->spell_order[i]);
 	}
+#else /* defined(SUPPORT_OLD_MAGIC) || !defined(USE_NEW_MAGIC) */
+	strip_bytes(88);
+#endif /* defined(SUPPORT_OLD_MAGIC) || !defined(USE_NEW_MAGIC) */
+#endif /* 1 */
+	
+	/* Read special spell lists */
+	if (!f_older_than(0,2,0))
+	{
+		rd_s16b(&spell_list_num);
 
+		char buf[80];
+		for (i=1; i<spell_list_num; ++i)
+		{
+			rd_string(buf, 80);
+			spell_list_str[i] = string_make(buf);
+			rd_string(buf, 80);
+			spell_list_name[i] = string_make(buf);
+			rd_s16b(&spell_list_use[i]);
+		}
+	}
 
+	/* Read the luck */
+	if (!f_older_than(0,2,0))
+	{
+		rd_s16b(&p_ptr->big_luck);
+		rd_s16b(&p_ptr->small_luck);
+	}
+	else
+	{
+		p_ptr->big_luck = 0;
+		p_ptr->small_luck = 0;
+	}
+	
 	/* Read the inventory */
 	if (rd_inventory())
 	{

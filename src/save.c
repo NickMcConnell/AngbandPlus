@@ -565,7 +565,8 @@ static void wr_item(const object_type *o_ptr)
 	/* Save the inscription (if any) */
 	if (o_ptr->inscription)
 	{
-		wr_string(quark_str(o_ptr->inscription));
+		wr_string(quark__str[o_ptr->inscription]);
+		wr_s16b(quark__use[o_ptr->inscription]);
 	}
 	else
 	{
@@ -575,12 +576,28 @@ static void wr_item(const object_type *o_ptr)
 	/* If it is a named item, save the name */
 	if (o_ptr->xtra_name)
 	{
-		wr_string(quark_str(o_ptr->xtra_name));
+		wr_string(quark__str[o_ptr->xtra_name]);
+		wr_s16b(quark__use[o_ptr->xtra_name]);
 	}
 	else
 	{
 		wr_string("");
 	}
+
+#ifdef USE_NEW_MAGIC
+	/* If it is a spellbook with spells, save the spells */
+	if (o_ptr->spell_list)
+	{
+		wr_string(quarky_str(o_ptr->spell_list));
+		if (o_ptr->spell_list > 0) wr_s16b(quark__use[o_ptr->spell_list]);
+	}
+	else
+	{
+		wr_string("");
+	}
+#else
+	wr_string("");
+#endif /* USE_NEW_MAGIC */
 
 	/* No Python object */
 	wr_s32b(0);
@@ -614,7 +631,12 @@ static void wr_monster(const monster_type *m_ptr)
 	wr_byte(m_ptr->monfear);
 	wr_byte(m_ptr->invulner);
 	wr_u32b(m_ptr->smart);
-	wr_byte(0);
+	wr_s16b(m_ptr->otherinflicted);
+	wr_byte(m_ptr->mflag2);
+	wr_byte(m_ptr->lastmove);
+	wr_byte(m_ptr->hits);
+	wr_byte(m_ptr->group);
+	wr_s16b(m_ptr->master_m_idx);
 }
 
 /*
@@ -667,7 +689,7 @@ static void wr_lore(int r_idx)
 	wr_byte(r_ptr->r_ignore);
 
 	/* Extra stuff */
-	wr_byte(r_ptr->r_xtra1);
+	wr_byte(r_ptr->default_group);
 	wr_byte(r_ptr->r_xtra2);
 
 	/* Count drops */
@@ -818,6 +840,7 @@ static void wr_options(void)
 	if (cheat_xtra) c |= 0x0800;
 	if (cheat_know) c |= 0x1000;
 	if (cheat_live) c |= 0x2000;
+	if (cheat_muta) c |= 0x4000;
 
 	wr_u16b(c);
 
@@ -884,7 +907,7 @@ static void wr_ghost(void)
  */
 static void wr_extra(void)
 {
-	int i;
+	int i,j;
 
 	wr_string(player_name);
 
@@ -899,8 +922,22 @@ static void wr_extra(void)
 	wr_byte(p_ptr->prace);
 	wr_byte(p_ptr->pclass);
 	wr_byte(p_ptr->psex);
+	for (i=0; i<NUM_MAG_ACTIONS; ++i)
+		for (j=0; j<NUM_MAG_TARGETS; ++j)
+#ifdef USE_NEW_MAGIC
+			wr_byte(p_ptr->magic_fields[i][j]);
+#else /* USE_NEW_MAGIC */
+			wr_byte(-1);
+#endif /* USE_NEW_MAGIC */
+
+#if defined(SUPPORT_OLD_MAGIC) || !defined(USE_NEW_MAGIC)
 	wr_byte(p_ptr->realm1);
 	wr_byte(p_ptr->realm2);
+#else /* defined(SUPPORT_OLD_MAGIC) || !defined(USE_NEW_MAGIC) */
+	wr_byte(0);
+	wr_byte(0);
+#endif /* defined(SUPPORT_OLD_MAGIC) || !defined(USE_NEW_MAGIC) */
+
 	wr_byte(0);	/* oops */
 
 	wr_byte(p_ptr->hitdie);
@@ -1053,6 +1090,9 @@ static void wr_extra(void)
 
 	/* Turn of last "feeling" */
 	wr_s32b(old_turn);
+
+	/* Level flags */
+	wr_s32b(level_flags);
 
 	/* Current turn */
 	wr_s32b(turn);
@@ -1394,11 +1434,12 @@ static bool wr_savefile_new(void)
 
 	/* Dump the file header */
 	xor_byte = 0;
-	wr_byte(FAKE_VER_MAJOR);
+	/* Add 3 so it will always be differentiated from Zangband saves */
+	wr_byte(NEW_VER_MAJOR + 3);
 	xor_byte = 0;
-	wr_byte(FAKE_VER_MINOR);
+	wr_byte(NEW_VER_MINOR);
 	xor_byte = 0;
-	wr_byte(FAKE_VER_PATCH);
+	wr_byte(NEW_VER_PATCH);
 	xor_byte = 0;
 
 	tmp8u = (byte)randint0(256);
@@ -1435,6 +1476,30 @@ static bool wr_savefile_new(void)
 	wr_randomizer();
 
 
+	/* Write the mutation seeds */
+	wr_u32b(mutate_seed);
+	wr_u32b(unmutate_seed);
+
+
+#ifdef USE_DIFFICULTY
+	/* Write the difficulty level */
+	wr_byte(difficulty_level);
+#else /* USE_DIFFICULTY */
+	wr_byte(0);
+#endif /* USE_DIFFICULTY */
+
+#if defined(USE_NEW_MAGIC) && defined(SUPPORT_OLD_MAGIC)
+	/* Is a magic using character using the old or new magic systems */
+	wr_byte(old_magic_user ? 1 : 0);
+
+#else /* defined(USE_NEW_MAGIC) && defined(SUPPORT_OLD_MAGIC) */
+ #ifdef USE_NEW_MAGIC
+	wr_byte(0);
+ #else /* USE_NEW_MAGIC */
+	wr_byte(1);
+ #endif /* USE_NEW_MAGIC */
+#endif /* defined(USE_NEW_MAGIC) && defined(SUPPORT_OLD_MAGIC) */
+	
 	/* Write the boolean "options" */
 	wr_options();
 
@@ -1524,7 +1589,32 @@ static bool wr_savefile_new(void)
 		wr_s16b(p_ptr->player_hp[i]);
 	}
 
+#ifdef USE_NEW_MAGIC
 
+	/* Write spell data */
+	for (i = 0; i < 64; i++)
+	{
+		wr_u32b(p_ptr->spell_found[i]);
+		wr_u32b(p_ptr->spell_learned[i]);
+		wr_u32b(p_ptr->spell_worked[i]);
+		wr_u32b(p_ptr->spell_forgotten[i]);
+	}
+
+	/* Dump the ordered spells */
+	for (i = 0; i < 100; i++)
+	{
+		wr_u16b(p_ptr->spells[i]);
+	}
+
+#else /* USE_NEW_MAGIC */
+
+	for (i = 0; i < 1224; i++)
+		wr_byte(0);
+
+#endif /* USE_NEW_MAGIC */
+
+#if defined(SUPPORT_OLD_MAGIC) || !defined(USE_NEW_MAGIC)
+	
 	/* Write spell data */
 	wr_u32b(p_ptr->spell_learned1);
 	wr_u32b(p_ptr->spell_learned2);
@@ -1538,6 +1628,35 @@ static bool wr_savefile_new(void)
 	{
 		wr_byte(p_ptr->spell_order[i]);
 	}
+	
+#else /* defined(SUPPORT_OLD_MAGIC) || !defined(USE_NEW_MAGIC) */
+
+	for (i = 0; i < 88; i++)
+		wr_byte(0);
+
+#endif /* defined(SUPPORT_OLD_MAGIC) || !defined(USE_NEW_MAGIC) */
+
+
+#ifdef USE_NEW_MAGIC	
+	/* Write any saved spell lists */
+	wr_s16b(spell_list_num);
+
+	for (i=1; i<spell_list_num; ++i)
+	{
+		wr_string(spell_list_str[i]);
+		wr_string(spell_list_name[i]);
+		wr_u16b(spell_list_use[i]);
+	}
+#else /* USE_NEW_MAGIC */
+	wr_s16b(0);
+#endif /* USE_NEW_MAGIC */
+
+	/* Write the luck */
+	wr_s16b(p_ptr->big_luck);
+	wr_s16b(p_ptr->small_luck);
+
+
+	
 
 
 	/* Write the inventory */
@@ -1951,9 +2070,31 @@ bool load_player(void)
 	{
 
 		/* Extract version */
-		z_major = vvv[0];
-		z_minor = vvv[1];
-		z_patch = vvv[2];
+
+		/* Zangbandy saves */
+		if (vvv[0] < 3)
+		{
+			z_major = vvv[0];
+			z_minor = vvv[1];
+			z_patch = vvv[2];
+				
+			f_major = 0;
+			f_minor = 1;
+			f_patch = 0;
+		}
+		/* Frazband saves */
+		else
+		{
+			/* - 3 differentiates Frazband and Zangband savefiles */
+			f_major = vvv[0] - 3;
+			f_minor = vvv[1];
+			f_patch = vvv[2];
+			
+			z_major = 2;
+			z_minor = 6;
+			z_patch = 2;
+		}
+		
 		sf_extra = vvv[3];
 		sf_major = 2;
 		sf_minor = 8;
@@ -1961,15 +2102,16 @@ bool load_player(void)
 
 
 		/* Pre-2.1.0: Assume 2.0.6 (same as 2.0.0 - 2.0.5) */
-		if ((z_major == sf_major) &&
+		/*if ((z_major == sf_major) &&
 		    (z_minor == sf_minor) &&
 		    (z_patch == sf_patch))
 		{
 			z_major = 2;
 			z_minor = 0;
 			z_patch = 6;
-		}
+		}*/
 
+		/* This is silly, we've just set sf_major = 2 */
 		/* Very old savefiles */
 		if ((sf_major == 5) && (sf_minor == 2))
 		{

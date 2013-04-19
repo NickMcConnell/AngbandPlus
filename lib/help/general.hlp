@@ -1,4 +1,4 @@
-An Introduction to Zangband and general information.
+An Introduction to Frazband and general information.
 
 Please choose one of the following online help files:
 
@@ -6,10 +6,8 @@ Please choose one of the following online help files:
     (1) An Overview                (general.txt#Overview)
     (2) Winning the Game           (general.txt#Winning)
     (3) Upon Death and Dying       (general.txt#UponDeath)
-    (4) The Zangband DevTeam       (general.txt#DevTeam)
-    (5) Zangband on the Web        (general.txt#Web)
-    (6) Version Numbering          (general.txt#VersionNumber)
-    (7) Version History            (version.txt)
+    (4) About Frazband             (general.txt#About)
+    (5) Version History            (version.txt)
 
     (?) Help System Commands       (helpinfo.txt)
 
@@ -18,7 +16,5 @@ Please choose one of the following online help files:
 ***** [1] general.txt#Overview
 ***** [2] general.txt#Winning
 ***** [3] general.txt#UponDeath
-***** [4] general.txt#DevTeam
-***** [5] general.txt#Web
-***** [6] general.txt#VersionNumber
-***** [7] version.txt
+***** [4] general.txt#About
+***** [5] version.txt

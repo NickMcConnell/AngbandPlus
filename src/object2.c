@@ -765,6 +765,9 @@ s16b get_obj_num(int level, int min_level)
 		if (value1 < 0L) break;
 	}
 
+	/* Heinous hack - make all spell scrolls similar */
+	if (table[i].index > 456 && table[i].index < 469) return 457;
+	
 	/* Result */
 	return (table[i].index);
 }
@@ -1289,6 +1292,17 @@ s32b object_value_real(const object_type *o_ptr)
 			         r_info[o_ptr->pval].level * 5L);
 			break;
 		}
+#ifdef USE_NEW_MAGIC
+		/* Spell scrolls, relative to spell level and rarity */
+		case TV_SPELL_SCROLL:
+		{
+			value = ((spell_stats[o_ptr->pval][2] + 2) *
+			         (spell_stats[o_ptr->pval][2] + 2) * 
+				 (spell_stats[o_ptr->pval][3] > 8 ? 5L : 3L));
+			break;
+		}
+#endif /* USE_NEW_MAGIC */			
+		
 	}
 
 	/* No negative value */
@@ -1473,6 +1487,21 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 			return (FALSE);
 		}
 
+		/* Spell scrolls need the same spell */
+		case TV_SPELL_SCROLL:
+		{
+			return (o_ptr->pval == j_ptr->pval) ? TRUE : FALSE;
+		}
+
+		/* Spellbooks need the same spell list */
+		case TV_SPELLBOOK:
+		{
+			if (o_ptr->spell_list == j_ptr->spell_list) return TRUE;
+			if (!o_ptr->spell_list || !j_ptr->spell_list) return FALSE;
+			return (streq(quarky_str(o_ptr->spell_list),quarky_str(j_ptr->spell_list))) 
+				? TRUE : FALSE;
+		}
+
 		/* Figurines and Statues */
 		case TV_FIGURINE:
 		case TV_STATUE:
@@ -1614,6 +1643,11 @@ bool object_similar(const object_type *o_ptr, const object_type *j_ptr)
 	/* Need to be identical ego items or artifacts */
 	if (o_ptr->xtra_name != j_ptr->xtra_name) return (FALSE);
 
+#ifdef USE_NEW_MAGIC
+	/* New spellbooks have to have the same spells */
+	if (o_ptr->spell_list != j_ptr->spell_list) return (FALSE);
+#endif /* USE_NEW_MAGIC */
+	
 	/* Hack -- require semi-matching "inscriptions" */
 	if (o_ptr->inscription && j_ptr->inscription &&
 	    (o_ptr->inscription != j_ptr->inscription))
@@ -1739,6 +1773,11 @@ s16b lookup_kind(int tval, int sval)
  */
 void object_wipe(object_type *o_ptr)
 {
+	/* Get rid of any single quarks */
+	single_quark_free(o_ptr->inscription);
+	single_quark_free(o_ptr->xtra_name);
+	single_quark_free(o_ptr->spell_list);
+	
 	/* Wipe the structure */
 	(void)WIPE(o_ptr, object_type);
 }
@@ -3594,6 +3633,42 @@ static void a_m_aux_4(object_type *o_ptr)
 			break;
 		}
 
+#ifdef USE_NEW_MAGIC
+		case TV_SPELL_SCROLL:
+		{
+			int i = 1;
+			int level;
+
+			/* Pick a random spell */
+			while (1)
+			{
+				/* Choose randomly */
+				i = randint1(MAX_SPELLS_CURRENT - 1);
+
+				/* Prefer more common spells */
+				if (!one_in_(spell_stats[i][3])) continue;
+
+				/* Normal depth of the spell */
+				level = spell_stats[i][2];
+				
+				/* Prefer less out-of-depth spells */
+				if ((object_level < level) && 
+					!one_in_(level - object_level)) continue;
+
+				break;
+			}
+
+			o_ptr->pval = i;
+
+			if (cheat_peek)
+			{
+				msg_format("Spell scroll of %s", new_spell_name[i]);
+			}
+
+			break;
+		}
+#endif /* USE_NEW_MAGIC */
+
 		case TV_STATUE:
 		{
 			int i = 1;
@@ -3849,6 +3924,18 @@ byte kind_is_match(int k_idx)
 {
 	object_kind *k_ptr = &k_info[k_idx];
 
+#ifdef USE_NEW_MAGIC
+	/* Rule out spellbooks of the wrong type */
+ #ifdef SUPPORT_OLD_MAGIC
+	if (!old_magic_user && k_ptr->tval >= TV_BOOKS_MIN && k_ptr->tval <= TV_BOOKS_MAX) return (0);
+	if (old_magic_user && (k_ptr->tval == TV_SPELLBOOK || k_ptr->tval == TV_SPELL_SCROLL)) return (0);
+ #else /* SUPPORT_OLD_MAGIC */
+	if (k_ptr->tval >= TV_BOOKS_MIN && k_ptr->tval <= TV_BOOKS_MAX) return (0);
+ #endif /* SUPPORT_OLD_MAGIC */
+#else /* USE_NEW_MAGIC */
+	if (k_ptr->tval == TV_SPELLBOOK || k_ptr->tval == TV_SPELL_SCROLL) return (0);
+#endif /* USE_NEW_MAGIC */
+	
 	/* Does the tval match? */
 	if ((match_tv != TV_ANY) && (k_ptr->tval != match_tv)) return (0);
 
@@ -3920,14 +4007,43 @@ byte kind_is_theme(int k_idx)
 		case TV_POTION:		return (match_theme.magic);
 		case TV_FLASK:		return (match_theme.tools);
 		case TV_FOOD:		return (match_theme.tools);
+#ifdef USE_NEW_MAGIC
+ #ifdef SUPPORT_OLD_MAGIC
+		case TV_LIFE_BOOK:	return (old_magic_user ? match_theme.magic : 0);
+		case TV_SORCERY_BOOK:   return (old_magic_user ? match_theme.magic : 0);
+		case TV_NATURE_BOOK:    return (old_magic_user ? match_theme.magic : 0);
+		case TV_CHAOS_BOOK:     return (old_magic_user ? match_theme.magic : 0);
+		case TV_DEATH_BOOK:     return (old_magic_user ? match_theme.magic : 0);
+		case TV_TRUMP_BOOK:     return (old_magic_user ? match_theme.magic : 0);
+		case TV_ARCANE_BOOK:    return (old_magic_user ? match_theme.magic : 0);
+		case TV_WIZARDRY_BOOK:  return (old_magic_user ? match_theme.magic : 0);
+		case TV_SPELLBOOK:      return (old_magic_user ? 0 : match_theme.magic);
+		case TV_SPELL_SCROLL:   return (old_magic_user ? 0 : match_theme.magic);
+ #else /* SUPPORT_OLD_MAGIC */
+		case TV_LIFE_BOOK:	return (0);
+		case TV_SORCERY_BOOK:   return (0);
+		case TV_NATURE_BOOK:    return (0);
+		case TV_CHAOS_BOOK:     return (0);
+		case TV_DEATH_BOOK:     return (0);
+		case TV_TRUMP_BOOK:     return (0);
+		case TV_ARCANE_BOOK:    return (0);
+		case TV_WIZARDRY_BOOK:  return (0);
+		case TV_SPELLBOOK:      return (match_theme.magic);
+		case TV_SPELL_SCROLL:   return (match_theme.magic);
+ #endif /* SUPPORT_OLD_MAGIC */
+#else /* USE_NEW_MAGIC */
 		case TV_LIFE_BOOK:	return (match_theme.magic);
-		case TV_SORCERY_BOOK: return (match_theme.magic);
-		case TV_NATURE_BOOK:  return (match_theme.magic);
-		case TV_CHAOS_BOOK:   return (match_theme.magic);
-		case TV_DEATH_BOOK:   return (match_theme.magic);
-		case TV_TRUMP_BOOK:   return (match_theme.magic);
-		case TV_ARCANE_BOOK:  return (match_theme.magic);
-		
+		case TV_SORCERY_BOOK:   return (match_theme.magic);
+		case TV_NATURE_BOOK:    return (match_theme.magic);
+		case TV_CHAOS_BOOK:     return (match_theme.magic);
+		case TV_DEATH_BOOK:     return (match_theme.magic);
+		case TV_TRUMP_BOOK:     return (match_theme.magic);
+		case TV_ARCANE_BOOK:    return (match_theme.magic);
+		case TV_WIZARDRY_BOOK:  return (match_theme.magic);
+		case TV_SPELLBOOK:      return (0);
+		case TV_SPELL_SCROLL:   return (0);
+#endif /* USE_NEW_MAGIC */
+					
 		/* Paranoia */
 		default:	return (0);
 	}
@@ -3949,7 +4065,6 @@ bool make_object(object_type *o_ptr, u16b delta_level, obj_theme theme)
 	byte obj_level;
 	byte flags;
 	int k_idx = 0, count = 5;
-
 
 	/* Chance of "special object" */
 	if (delta_level > 0)
@@ -4757,7 +4872,7 @@ void inven_item_increase(int item, int num)
 	num -= o_ptr->number;
 
 	/* Change the number and weight */
-	if (num)
+	/* if (num) */
 	{
 		/* Add the number */
 		o_ptr->number += num;
@@ -5044,6 +5159,11 @@ s16b inven_carry(object_type *o_ptr)
 			if (!j_ptr->k_idx) break;
 
 			/* Hack -- readable books always come first */
+			if ((o_ptr->tval == TV_SPELLBOOK) &&
+			    (j_ptr->tval != TV_SPELLBOOK)) break;
+			if ((j_ptr->tval == TV_SPELLBOOK) &&
+			    (o_ptr->tval != TV_SPELLBOOK)) continue;
+
 			if ((o_ptr->tval == REALM1_BOOK) &&
 			    (j_ptr->tval != REALM1_BOOK)) break;
 			if ((j_ptr->tval == REALM1_BOOK) &&
@@ -5083,6 +5203,28 @@ s16b inven_carry(object_type *o_ptr)
 			{
 				if (o_ptr->timeout > j_ptr->timeout) break;
 				if (o_ptr->timeout < j_ptr->timeout) continue;
+			}
+
+			/* 
+			 * Spellbooks sort by spell list position, 
+			 * with (large) negative numbers first
+			 */
+			if (o_ptr->tval == TV_SPELLBOOK)
+			{
+				if (o_ptr->spell_list < 0)
+				{
+					if (j_ptr->spell_list >= 0) break;
+					if (o_ptr->spell_list > j_ptr->spell_list) break;
+					if (o_ptr->spell_list < j_ptr->spell_list) continue;
+				}
+				else
+				{
+					if (j_ptr->spell_list < 0) continue;
+					if (!o_ptr->spell_list) continue;
+					if (!j_ptr->spell_list) break;
+					if (o_ptr->spell_list > j_ptr->spell_list) continue;
+					if (o_ptr->spell_list < j_ptr->spell_list) break;
+				}
 			}
 
 			/* Determine the "value" of the pack item */
@@ -5403,6 +5545,11 @@ void reorder_pack(void)
 			if (!j_ptr->k_idx) break;
 
 			/* Hack -- readable books always come first */
+			if ((o_ptr->tval == TV_SPELLBOOK) &&
+			    (j_ptr->tval != TV_SPELLBOOK)) break;
+			if ((j_ptr->tval == TV_SPELLBOOK) &&
+			    (o_ptr->tval != TV_SPELLBOOK)) continue;
+
 			if ((o_ptr->tval == REALM1_BOOK) &&
 			    (j_ptr->tval != REALM1_BOOK)) break;
 			if ((j_ptr->tval == REALM1_BOOK) &&
@@ -5437,6 +5584,28 @@ void reorder_pack(void)
 			{
 				if (o_ptr->pval < j_ptr->pval) break;
 				if (o_ptr->pval > j_ptr->pval) continue;
+			}
+
+			/* 
+			 * Spellbooks sort by spell list position, 
+			 * with (large) negative numbers first
+			 */
+			if (o_ptr->tval == TV_SPELLBOOK)
+			{
+				if (o_ptr->spell_list < 0)
+				{
+					if (j_ptr->spell_list >= 0) break;
+					if (o_ptr->spell_list > j_ptr->spell_list) break;
+					if (o_ptr->spell_list < j_ptr->spell_list) continue;
+				}
+				else
+				{
+					if (j_ptr->spell_list < 0) continue;
+					if (!o_ptr->spell_list) continue;
+					if (!j_ptr->spell_list) break;
+					if (o_ptr->spell_list > j_ptr->spell_list) continue;
+					if (o_ptr->spell_list < j_ptr->spell_list) break;
+				}
 			}
 
 			/* Determine the "value" of the pack item */
@@ -5549,34 +5718,77 @@ void display_koff(int k_idx)
 	Term_putstr(0, 0, -1, TERM_WHITE, o_name);
 
 	/* Warriors are illiterate */
-	if (!(p_ptr->realm1 || p_ptr->realm2)) return;
+	if (p_ptr->pclass == CLASS_WARRIOR || p_ptr->pclass == CLASS_MINDCRAFTER) return;
+	/* Easier to do that now, than check which magic system we're on */
+	/* if (!(p_ptr->realm1 || p_ptr->realm2)) return; */
 
 	/* Display spells in readible books */
-	if ((q_ptr->tval == REALM1_BOOK) ||
-	    (q_ptr->tval == REALM2_BOOK))
+#if !defined(USE_NEW_MAGIC) || defined(SUPPORT_OLD_MAGIC)
+ #ifdef USE_NEW_MAGIC
+	if (old_magic_user)
+ #endif /* USE_NEW_MAGIC */
 	{
-		int     sval;
-		int     spell = -1;
-		int     num = 0;
-		byte    spells[64];
-
-
-		/* Access the item's sval */
-		sval = q_ptr->sval;
-
-		/* Extract spells */
-		for (spell = 0; spell < 32; spell++)
+		if ((q_ptr->tval == REALM1_BOOK) ||
+		    (q_ptr->tval == REALM2_BOOK))
 		{
-			/* Check for this spell */
-			if (fake_spell_flags[sval] & (1L << spell))
-			{
-				/* Collect this spell */
-				spells[num++] = spell;
-			}
-		}
+			int     sval;
+			int     spell = -1;
+			int     num = 0;
+			byte    spells[64];
 
-		/* Print spells */
-		print_spells(spells, num, 2, 0,
-		    (q_ptr->tval == REALM1_BOOK ? p_ptr->realm1 - 1 : p_ptr->realm2 - 1));
+
+			/* Access the item's sval */
+			sval = q_ptr->sval;
+	
+			/* Extract spells */
+			for (spell = 0; spell < 32; spell++)
+			{
+				/* Check for this spell */
+				if (fake_spell_flags[sval] & (1L << spell))
+				{
+					/* Collect this spell */
+					spells[num++] = spell;
+				}
+			}
+
+			/* Print spells */
+			print_spells_old(spells, num, 2, 0,
+			    (q_ptr->tval == REALM1_BOOK ? p_ptr->realm1 - 1 : p_ptr->realm2 - 1));
+		}
 	}
+#endif /* !defined(USE_NEW_MAGIC) || defined(SUPPORT_OLD_MAGIC) */
+#ifdef USE_NEW_MAGIC
+ #ifdef SUPPORT_OLD_MAGIC
+	else
+ #endif /* SUPPORT_OLD_MAGIC */
+	{
+		if (q_ptr->tval == TV_SPELLBOOK)
+		{
+			int     spell = -1;
+			int     num = 0;
+			u16b spells[MAX_SPELLS_IN_BOOK];
+
+			cptr string = quark_str(q_ptr->spell_list);
+
+			/* Check how many spells we have */
+			num = strlen(string) / 2;
+
+			/* Sanity check */
+			if (num < 0 || num > MAX_SPELLS_IN_BOOK)
+			{
+				/* msg_print("Bad number of spells in spell book"); */
+				return;
+			}
+	
+			/* Extract spells */
+			for (spell = 0; spell < num; ++spell)
+			{
+				spells[spell] = spell_number(string[spell * 2],string[(spell * 2) + 1]);
+			}
+			
+			/* Print spells */
+			print_spells_new(spells, num, 2, 0);
+		}
+	}
+#endif /* USE_NEW_MAGIC */
 }

@@ -1536,7 +1536,7 @@ static errr init_r_info(void)
 
 	/* Close it */
 	my_fclose(fp);
-
+	
 	/* Errors */
 	if (err)
 	{
@@ -2123,9 +2123,15 @@ static errr init_other(void)
 
 	/* Quark variables */
 	C_MAKE(quark__str, QUARK_MAX, cptr);
-	C_MAKE(quark__use, QUARK_MAX, u16b);
+	C_MAKE(quark__use, QUARK_MAX, s16b);
+	quark__num = 1;
 
-	
+	/* Spell list variables */
+	C_MAKE(spell_list_str, SPELL_LIST_MAX, cptr);
+	C_MAKE(spell_list_name, SPELL_LIST_MAX, cptr);
+	C_MAKE(spell_list_use, SPELL_LIST_MAX, s16b);
+	spell_list_num = 1;
+
 	/* Prepare the "message" package */
 	message_init();
 
@@ -2174,7 +2180,7 @@ static errr init_other(void)
 	/*** Pre-allocate space for the "format()" buffer ***/
 
 	/* Hack -- Just call the "format()" function */
-	(void)format("%s (%s).", "Robert Ruehlmann", MAINTAINER);
+	(void)format("%s %s.", "This variant of Angband is called ", VERSION_NAME);
 
 
 	/* Success */

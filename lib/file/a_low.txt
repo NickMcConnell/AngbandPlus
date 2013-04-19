@@ -1,13 +1,13 @@
 N:*:Default
 85
 'Ehr Rhee'
-of Eastwood
+of Coucew
 'Zir Dawn'
 'Lor Goth'
 of the Foo
 of Pobox
 of Demos
-of Talos
+of Acisubo
 of Evasion
 of Traveling
 of Balmoth
@@ -18,70 +18,70 @@ of Glenda
 'Van's Shield'
 of Lesser Shielding
 'Dasmiff'
-'Pizza'
+'Ridras'
 'Whisperfeet'
 of Shifting
 'Curator'
-'Astrosuit'
-'Combat Enviro-Suit'
-'Bubble'
-of Clay
-'Force Shield'
-of Glass
-of Illusion
-of Phantasm
-of the Jester
-of the Joker
+'Adasma'
+'Fissa'
+'Burrle'
+of Nuqui
+'Leanegoka'
+of Smaise
+of Ourleer
+of Ivipre
+of Dalmar
+of Lutefreme
 of the Mirror Image
-of Misery
-of the Unseen
-of the Scarecrow
-of Sand
+of Demir
+of Queece
+of the kouti
+of Meget
 'Sad Giant's Shield'
 'Weakstone'
-of Halloween
-'Blank'
-'Sheet'
-'Wind Fan'
+of Ruwonse
+'Veeri'
+'Akiyi'
+'Rezoid'
 of Humility
 of Passion
-of the Humpback
-of Bobble
+of Ankegre
+of Oreasiogri
 'Midnight Resistance'
-of Zombi
-'Kid Gloves'
-'Babel'
-'Grand Prix'
-'Krypton Egg'
-'Mindbender'
-'Goonie'
-'Risk'
-'Iron Maiden'
-'Generator'
-of Transylvania
+of Truglaboo
+'Asetounar'
+'Seese'
+'Tetatu'
+'Jaiglaw'
+'Pesirigo'
+'Dugea'
+'Eebeffe'
+'Iddel'
+'Rebulso'
+of Reatikela
 'Zaxxon'
 'Wapiti'
-'Deja-Vu'
-of the Apparition
-of the Wormhole
-of Holy Smoke
-of the Masochist
-of King Nothing
-of the Stuntman
-of the Kemma
-of the Keva
-'Full Metal Hand'
-'Wooden Box'
-of Blind Justice
-of the Mortals
-of Compactness
-of Proximity
-of Satisfaction
+'Dexicew'
+of Hifel
+of Dirsipair
+of Rimaidut
+of Savrai
+of Nesosceul
+of Gasicar
+of the Rahaggo
+of Calpi
+'Ridane'
+'Gorex'
 of Gurnemanz
 of Tannhaeuser
-of Martin
-of Coral
-of Barahir
-'Dal-i-Thalion'
-'Paurnimmen'
-of Hide-and-Seek
+of Truglaboo
+'Asetounar'
+'Seese'
+'Tetatu'
+'Jaiglaw'
+'Pesirigo'
+'Dugea'
+'Eebeffe'
+'Iddel'
+'Rebulso'
+of Reatikela

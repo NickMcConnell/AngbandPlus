@@ -20,9 +20,9 @@
  */
 void check_experience(void)
 {
-	bool level_reward = FALSE;
+	int level_reward = 0;
 	bool multi_rew = FALSE;
-	bool level_mutation = FALSE;
+	int level_mutation = 0;
 
 	/* Hack -- lower limit */
 	if (p_ptr->exp < 0) p_ptr->exp = 0;
@@ -71,6 +71,7 @@ void check_experience(void)
 	while ((p_ptr->lev < PY_MAX_LEVEL) &&
 	       (p_ptr->exp >= (player_exp[p_ptr->lev-1] * p_ptr->expfact / 100L)))
 	{
+		if (ironman_moria && !p_ptr->total_winner && p_ptr->lev > PY_MAX_LEVEL-21) break;
 		/* Gain a level */
 		p_ptr->lev++;
 		lite_spot(p_ptr->py, p_ptr->px);
@@ -104,18 +105,17 @@ void check_experience(void)
 				 */
 				for (i = p_ptr->max_lev; i < p_ptr->lev; i++)
 				{
-					if (one_in_(5)) level_mutation = TRUE;
+					if (one_in_(5)) ++level_mutation;
 				}
 			}
 
-			p_ptr->max_lev = p_ptr->lev;
 
 			if ((p_ptr->pclass == CLASS_CHAOS_WARRIOR) ||
 			    (p_ptr->muta2 & MUT2_CHAOS_GIFT))
 			{
-				level_reward = TRUE;
+				level_reward = p_ptr->lev-p_ptr->max_lev;
 			}
-
+			p_ptr->max_lev = p_ptr->lev;
 
 		}
 
@@ -137,22 +137,22 @@ void check_experience(void)
 		/* Handle stuff */
 		handle_stuff();
 
-		if (level_reward)
+		while (level_reward>0)
 		{
 			if (!multi_rew)
 			{
 				gain_level_reward(0);
-				multi_rew = TRUE;
+				/*multi_rew = TRUE;*/
 			}
 			
-			level_reward = FALSE;
+			--level_reward;
 		}
 
-		if (level_mutation)
+		while (level_mutation>0)
 		{
 			msg_print("You feel different...");
 			(void)gain_mutation(0);
-			level_mutation = FALSE;
+			--level_mutation;
 		}
 	}
 }
@@ -248,7 +248,7 @@ bool monster_death(int m_idx, bool explode)
 		/* Update some things */
 		p_ptr->update |= (PU_MON_LITE);
 	}
-	
+
 	/* Get the location */
 	y = m_ptr->fy;
 	x = m_ptr->fx;
@@ -300,6 +300,7 @@ bool monster_death(int m_idx, bool explode)
 				case RBE_DISEASE:   typ = GF_POIS; break;
 				case RBE_TIME:      typ = GF_TIME; break;
 				case RBE_EXP_VAMP:  typ = GF_MISSILE; break;
+				case RBE_PENETRATE: typ = GF_MISSILE; break;
 			}
 
 			(void)project(m_idx, 3, y, x, damage, typ, flg);
@@ -318,7 +319,7 @@ bool monster_death(int m_idx, bool explode)
 			/* Quest is not active */
 			if (quest[i].status != QUEST_STATUS_TAKEN)
 				continue;
-
+			
 			/* Quest is not a dungeon quest */
 			if (quest[i].flags & QUEST_FLAG_PRESET)
 				continue;
@@ -332,7 +333,7 @@ bool monster_death(int m_idx, bool explode)
 			if ((quest[i].type == QUEST_TYPE_FIND_ARTIFACT) ||
 			    (quest[i].type == QUEST_TYPE_FIND_EXIT))
 				continue;
-
+			
 			/* Interesting quest */
 			if ((quest[i].type == QUEST_TYPE_KILL_NUMBER) ||
 			    (quest[i].type == QUEST_TYPE_KILL_ALL))
@@ -570,7 +571,7 @@ bool monster_death(int m_idx, bool explode)
 						 FIELD_ACT_INIT, m_ptr);
 				}
 			}
-			
+
 			/* We dropped a corpse */
 			dropped_corpse = TRUE;		
 		}
@@ -640,8 +641,9 @@ bool monster_death(int m_idx, bool explode)
 
 			if (attempts > 0)
 			{
-				if (summon_specific((pet ? -1 : 0), wy, wx, 100, SUMMON_DAWN,
-										  FALSE, is_friendly(m_ptr), pet))
+				if (summon_specific((pet ? -1 : 0), wy, wx, 100, SUMMON_DAWN, FALSE, 
+							is_friendly(m_ptr), pet, m_ptr->group, 
+							m_ptr->master_m_idx))
 				{
 					if (player_can_see_bold(wy, wx))
 						msg_print("A new warrior steps forth!");
@@ -650,6 +652,19 @@ bool monster_death(int m_idx, bool explode)
 		}
 	}
 
+	/* Mega^4-hack -- We can eat mushrooms we kill! */
+	else if (strstr((r_text + r_ptr->text), "Yum!"))
+	{
+		/* Get local object */
+		q_ptr = &forge;
+
+		/* Prepare to make a Blade of Chaos */
+		object_prep(q_ptr, lookup_kind(TV_FOOD, SV_FOOD_MUSHROOM));
+
+		/* Drop it in the dungeon */
+		(void)drop_near(q_ptr, -1, y, x);
+	}
+		
 	/* Pink horrors are replaced with 2 Blue horrors */
 	else if (strstr((r_name + r_ptr->name), "ink horror"))
 	{
@@ -660,8 +675,9 @@ bool monster_death(int m_idx, bool explode)
 			int wy = y, wx = x;
 			bool pet = is_pet(m_ptr);
 
-			if (summon_specific((pet ? -1 : 0), wy, wx, 100, SUMMON_BLUE_HORROR,
-									  FALSE, is_friendly(m_ptr), pet))
+			if (summon_specific((pet ? -1 : 0), wy, wx, 100, SUMMON_BLUE_HORROR, FALSE, 
+						is_friendly(m_ptr), pet, m_ptr->group,
+						m_ptr->master_m_idx))
 			{
 				if (player_can_see_bold(wy, wx))
 					notice = TRUE;
@@ -717,7 +733,7 @@ bool monster_death(int m_idx, bool explode)
 	/* Mega-Hack -- drop "winner" treasures */
 	else if (r_ptr->flags1 & RF1_DROP_CHOSEN)
 	{
-		if (strstr((r_name + r_ptr->name), "Serpent of Chaos"))
+		if (strstr((r_name + r_ptr->name), "Morgoth, Lord of Darkness"))
 		{
 			/* Make Grond */
 			create_named_art(ART_GROND, y, x);
@@ -889,6 +905,10 @@ bool monster_death(int m_idx, bool explode)
 	 */
 	if (reward)
 	{
+		/* Reward factor */
+		j = ((p_ptr->depth) / 25) + 1;
+		i = j;
+			
 		while (TRUE)
 		{
 			/* Get local object */
@@ -900,23 +920,28 @@ bool monster_death(int m_idx, bool explode)
 			/* Average of 20 great objects per game */
 			if (randint0(number_of_quests()) < 20)
 			{
-				/* Make a great object */
-				(void)make_object(q_ptr, 30, dun_theme);
+				/* Make a great object, unless very low level */
+				(void)make_object(q_ptr, 15 + (p_ptr->depth > 15 ? 15 : p_ptr->depth), dun_theme);
 			}
 			else
 			{
 				/* Make a good object */
 				(void)make_object(q_ptr, 15, dun_theme);
 			}
-		
+
 			/* We need a 'good' item - so check the price */
-			if (object_value_real(q_ptr) > 100 * p_ptr->depth) break;
+			if (object_value_real(q_ptr) > 140 * j * p_ptr->depth) 
+			{
+				--i;
+
+				/* Drop it in the dungeon */
+				(void)drop_near(q_ptr, -1, y, x);
+			}
+
+			if (!i) break;
 		}
-		
-		/* Drop it in the dungeon */
-		(void)drop_near(q_ptr, -1, y, x);
 	}
-	
+
 	/* Reset the object level */
 	object_level = base_level;
 
@@ -928,7 +953,7 @@ bool monster_death(int m_idx, bool explode)
 	if (!(r_ptr->flags1 & RF1_QUESTOR)) return (dropped_corpse);
 
 	/* Winner? */
-	if (strstr((r_name + r_ptr->name), "Serpent of Chaos"))
+	if (strstr((r_name + r_ptr->name), ironman_moria ? "Muar" : "Morgoth, Lord of Darkness"))
 	{
 		/* Total winner */
 		p_ptr->total_winner = TRUE;
@@ -941,7 +966,7 @@ bool monster_death(int m_idx, bool explode)
 		msg_print("You have won the game!");
 		msg_print("You may retire (commit suicide) when you are ready.");
 	}
-	
+
 	/* Return TRUE if we dropped a corpse for the player to see */
 	return (dropped_corpse);
 }
@@ -955,12 +980,14 @@ bool monster_death(int m_idx, bool explode)
  *
  * "type" is not yet used and should be 0.
  */
-int mon_damage_mod(const monster_type *m_ptr, int dam, int type)
+int mon_damage_mod(const monster_type *m_ptr, const monster_race *r_ptr, int dam, int type)
 {
 	/* Hack - ignore type for now */
 	(void) type;
-	
+
 	if (m_ptr->invulner && !one_in_(PENETRATE_INVULNERABILITY))
+		return (0);
+	else if (r_ptr->flags2 & RF2_UNKILLABLE)
 		return (0);
 	else
 		return (dam);
@@ -1026,6 +1053,10 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 	bool		corpse = FALSE;
 	int         i;
 
+#ifdef USE_DIFFICULTY
+	u32b tmpdamage;
+#endif /* USE_DIFFICULTY */	
+
 	/* Redraw (later) if needed */
 	if (p_ptr->health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
 
@@ -1033,7 +1064,28 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 	m_ptr->csleep = 0;
 
 	/* Hurt it */
+#ifdef USE_DIFFICULTY
+	if (difficulty_level == NORM_DIFFICULTY) m_ptr->hp -= dam;
+	else if (dam)
+	{
+		/* Paranoia: Check for overflow */
+		if (0x7FFFFFFFL / (u32b)(dam) < (difficulty_level > NORM_DIFFICULTY ?
+					DIFFICULT_MONSTER_HP_FACTOR : 
+					EASY_MONSTER_HP_FACTOR + (u32b)(diff_num[difficulty_level])))
+			tmpdamage = 0xFFFFFFFFL;
+		else tmpdamage = (u32b)(dam) * 2L * (difficulty_level > NORM_DIFFICULTY ? 
+				DIFFICULT_MONSTER_HP_FACTOR : 
+				EASY_MONSTER_HP_FACTOR + (u32b)(diff_num[difficulty_level]));
+		tmpdamage /= (difficulty_level > NORM_DIFFICULTY ? 
+				DIFFICULT_MONSTER_HP_FACTOR + (u32b)(diff_num[difficulty_level]) : 
+				EASY_MONSTER_HP_FACTOR);
+		++tmpdamage; /* A trick to get the division to round to nearest, rather than down */
+		tmpdamage /= 2L;
+		m_ptr->hp -= (s16b)(tmpdamage);
+	}
+#else /* USE_DIFFICULTY */
 	m_ptr->hp -= dam;
+#endif /* USE_DIFFICULTY */
 
 	/* It is dead now */
 	if (m_ptr->hp < 0)
@@ -1205,7 +1257,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 
 		/* Generate treasure */
 		corpse = monster_death(m_idx, TRUE);
-		
+
 		/* Handle fractional experience */
 		new_exp_frac += p_ptr->exp_frac;
 
@@ -1244,7 +1296,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		}
 
 		/* When the player kills a Nazgul, it stays dead */
-		if (r_ptr->flags3 & RF3_UNIQUE_7) r_ptr->max_num--;
+		/* (unused) if (r_ptr->flags3 & RF3_UNIQUE_7) r_ptr->max_num--;*/
 
 		/* Recall even invisible uniques or winners */
 		if (m_ptr->ml || (r_ptr->flags1 & RF1_UNIQUE) || corpse)
@@ -1258,9 +1310,9 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 			/* Hack -- Auto-recall */
 			monster_race_track(m_ptr->r_idx);
 		}
-		
+
 		/* Don't kill Amberites */
-		if ((r_ptr->flags3 & RF3_AMBERITE) && one_in_(2))
+		/*if ((r_ptr->flags3 & RF3_AMBERITE) && one_in_(2))
 		{
 			int curses = rand_range(2, 4);
 			bool stop_ty = FALSE;
@@ -1274,7 +1326,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 				stop_ty = activate_ty_curse(stop_ty, &count);
 			}
 			while (--curses);
-		}
+		}*/
 
 		/* Delete the monster */
 		delete_monster_idx(m_idx);
@@ -1286,6 +1338,11 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		return (TRUE);
 	}
 
+	/* Note the hit, if we're clever enough to think about it */
+	if (!stupid_monsters && !(r_ptr->flags2 & RF2_STUPID)
+			&& (!(r_ptr->flags1 & (RF1_NEVER_MOVE | RF1_FRIENDS))))
+		m_ptr->mflag2 |= MFLAG2_JUST_HIT;
+	
 	/* Mega-Hack -- Pain cancels fear */
 	if (m_ptr->monfear && (dam > 0))
 	{
@@ -1994,11 +2051,12 @@ static s16b target_pick(int y1, int x1, int dy, int dx)
 	return (b_i);
 }
 
-
 /*
  * Hack -- determine if a given location is "interesting"
+ * If symbol is not 0, interesting features
+ * must match it.
  */
-static bool target_set_accept(int y, int x)
+static bool target_set_accept(int y, int x, char symbol)
 {
 	int px = p_ptr->px;
 	int py = p_ptr->py;
@@ -2026,9 +2084,10 @@ static bool target_set_accept(int y, int x)
 	if (c_ptr->m_idx)
 	{
 		monster_type *m_ptr = &m_list[c_ptr->m_idx];
+		monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 		/* Visible monsters */
-		if (m_ptr->ml) return (TRUE);
+		if (m_ptr->ml && (!symbol || r_ptr->d_char == symbol)) return (TRUE);
 	}
 
 	/* Scan all objects in the grid */
@@ -2043,7 +2102,7 @@ static bool target_set_accept(int y, int x)
 		next_o_idx = o_ptr->next_o_idx;
 
 		/* Memorized object */
-		if (o_ptr->marked) return (TRUE);
+		if (o_ptr->marked && (!symbol || object_char(o_ptr) == symbol)) return (TRUE);
 	}
 	
 	/* Scan all fields in the grid */
@@ -2059,7 +2118,8 @@ static bool target_set_accept(int y, int x)
 
 		/* Memorized , lookable field */
 		if ((f_ptr->info & (FIELD_INFO_MARK | FIELD_INFO_NO_LOOK)) ==
-			 FIELD_INFO_MARK) return (TRUE);
+			 FIELD_INFO_MARK && 
+			 (!symbol || f_ptr->f_char == symbol)) return (TRUE);
 	}
 
 	/* Interesting memorized features */
@@ -2071,19 +2131,19 @@ static bool target_set_accept(int y, int x)
 			return (TRUE);
 
 		/* Notice doors */
-		if (c_ptr->feat == FEAT_OPEN) return (TRUE);
-		if (c_ptr->feat == FEAT_BROKEN) return (TRUE);
+		if (c_ptr->feat == FEAT_OPEN && (!symbol || symbol == '\'')) return (TRUE);
+		if (c_ptr->feat == FEAT_BROKEN && (!symbol || symbol == '\'')) return (TRUE);
 
 		/* Notice stairs */
-		if (c_ptr->feat == FEAT_LESS) return (TRUE);
-		if (c_ptr->feat == FEAT_MORE) return (TRUE);
+		if (c_ptr->feat == FEAT_LESS && (!symbol || symbol == '<')) return (TRUE);
+		if (c_ptr->feat == FEAT_MORE && (!symbol || symbol == '>')) return (TRUE);
 
 		/* Notice doors */
-		if (c_ptr->feat == FEAT_CLOSED) return (TRUE);
+		if (c_ptr->feat == FEAT_CLOSED && (!symbol || symbol == '+')) return (TRUE);
 
 		/* Notice veins with treasure */
-		if (c_ptr->feat == FEAT_MAGMA_K) return (TRUE);
-		if (c_ptr->feat == FEAT_QUARTZ_K) return (TRUE);
+		if (c_ptr->feat == FEAT_MAGMA_K && (!symbol || symbol == '*')) return (TRUE);
+		if (c_ptr->feat == FEAT_QUARTZ_K && (!symbol || symbol == '*')) return (TRUE);
 	}
 
 	/* Nope */
@@ -2096,7 +2156,7 @@ static bool target_set_accept(int y, int x)
  *
  * Return the number of target_able monsters in the set.
  */
-static void target_set_prepare(int mode)
+static void target_set_prepare(int mode, char symbol)
 {
 	int y, x;
 
@@ -2118,7 +2178,7 @@ static void target_set_prepare(int mode)
 			if (!expand_look && !player_can_see_bold(y, x)) continue;
 
 			/* Require "interesting" contents */
-			if (!target_set_accept(y, x)) continue;
+			if (!target_set_accept(y, x, symbol)) continue;
 
 			/* Require target_able monsters for "TARGET_KILL" */
 			if ((mode & (TARGET_KILL)) && !target_able(c_ptr->m_idx)) continue;
@@ -2316,14 +2376,26 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 						else
 						{
 							cptr attitude;
-
+ 
 							if (is_pet(m_ptr))
 								attitude = " (pet) ";
-							else if (is_friendly(m_ptr))
-								attitude = " (friendly) ";
-							else
+							else if (is_hostile(m_ptr))
 								attitude = " ";
-
+							else if (advanced_monst_groups)
+							{
+								if (m_ptr->group == GP_ALLY)
+									attitude = " (friendly) ";
+								else if (m_ptr->group == GP_TOUCHY_BULLY || 
+									m_ptr->group == GP_TOUCHY)
+									attitude = " (tolerant) ";
+								else if (m_ptr->group > GP_MAX_HOSTILE)
+									attitude = " (non-hostile) ";
+								else
+									attitude = " ";
+							}
+							else 
+								attitude = " (friendly) ";
+							
 							/* Describe, and prompt for recall */
 							sprintf(out_val, "%s%s%s%s (%s)%s[r,%s]",
 							    s1, s2, s3, m_name, look_mon_desc(c_ptr->m_idx),
@@ -2736,6 +2808,8 @@ bool target_set(int mode)
 
 	char	info[80];
 
+	char symbol = 0;
+
 	cave_type		*c_ptr;
 
 	int wid, hgt;
@@ -2753,7 +2827,7 @@ bool target_set(int mode)
 
 
 	/* Prepare the "temp" array */
-	target_set_prepare(mode);
+	target_set_prepare(mode, symbol);
 
 	/* Start near the player */
 	m = 0;
@@ -2798,6 +2872,14 @@ bool target_set(int mode)
 				case 'q':
 				{
 					done = TRUE;
+					break;
+				}
+
+				case '/':
+				{
+					if (!get_com("Enter character to look for, or ESC to look generally:", &symbol)) break;
+					if (symbol == ESCAPE) symbol = 0;
+					target_set_prepare(mode, symbol);
 					break;
 				}
 
@@ -2861,7 +2943,7 @@ bool target_set(int mode)
 					handle_stuff();
 
 					/* Recalculate interesting grids */
-					target_set_prepare(mode);
+					target_set_prepare(mode, symbol);
 
 					y = py;
 					x = px;
@@ -2910,7 +2992,7 @@ bool target_set(int mode)
 						int u = temp_x[m];
 
 						/* Recalculate interesting grids */
-						target_set_prepare(mode);
+						target_set_prepare(mode, symbol);
 
 						/* Look at interesting grids */
 						flag = TRUE;
@@ -2946,7 +3028,7 @@ bool target_set(int mode)
 						handle_stuff();
 
 						/* Recalculate interesting grids */
-						target_set_prepare(mode);
+						target_set_prepare(mode, symbol);
 
 						/* Look at boring grids */
 						flag = FALSE;
@@ -2973,7 +3055,7 @@ bool target_set(int mode)
 						if ((y >= panel_row_min + hgt - 2) || (y < panel_row_min) ||
 						    (x >= panel_col_min + wid - 14) || (x < panel_col_min))
 						{
-							if (change_panel(dy, dx)) target_set_prepare(mode);
+							if (change_panel(dy, dx)) target_set_prepare(mode, symbol);
 						}
 
 						/* Slide into legality */
@@ -3054,7 +3136,7 @@ bool target_set(int mode)
 					handle_stuff();
 
 					/* Recalculate interesting grids */
-					target_set_prepare(mode);
+					target_set_prepare(mode, symbol);
 
 					y = py;
 					x = px;
@@ -3131,7 +3213,7 @@ bool target_set(int mode)
 				if ((y >= panel_row_min + hgt - 2) || (y < panel_row_min) ||
 					 (x >= panel_col_min + wid - 14) || (x < panel_col_min))
 				{
-					if (change_panel(dy, dx)) target_set_prepare(mode);
+					if (change_panel(dy, dx)) target_set_prepare(mode, symbol);
 				}
 
 				/* Slide into legality */
@@ -3596,7 +3678,8 @@ void gain_level_reward(int chosen_reward)
 			msg_print("'My pets, destroy the arrogant mortal!'");
 			for (i = 0; i < rand_range(2, 6); i++)
 			{
-				(void)summon_specific(0, py, px, p_ptr->depth, 0, TRUE, FALSE, FALSE);
+				(void)summon_specific(0, py, px, p_ptr->depth, 0, TRUE, 
+						      FALSE, FALSE, GP_FIXATED_ON_PLAYER, 0);
 			}
 			break;
 		case REW_H_SUMMON:
@@ -3764,17 +3847,20 @@ void gain_level_reward(int chosen_reward)
 			break;
 		case REW_SER_DEMO:
 			msg_format("%s rewards you with a demonic servant!", chaos_patrons[p_ptr->chaos_patron]);
-			if (!summon_specific(-1, py, px, p_ptr->depth, SUMMON_DEMON, FALSE, TRUE, TRUE))
+			if (!summon_specific(-1, py, px, p_ptr->depth, SUMMON_DEMON, 
+						FALSE, TRUE, TRUE, GP_ALLY, 0))
 				msg_print("Nobody ever turns up...");
 			break;
 		case REW_SER_MONS:
 			msg_format("%s rewards you with a servant!", chaos_patrons[p_ptr->chaos_patron]);
-			if (!summon_specific(-1, py, px, p_ptr->depth, SUMMON_NO_UNIQUES, FALSE, TRUE, TRUE))
+			if (!summon_specific(-1, py, px, p_ptr->depth, SUMMON_NO_UNIQUES, 
+						FALSE, TRUE, TRUE, GP_ALLY, 0))
 				msg_print("Nobody ever turns up...");
 			break;
 		case REW_SER_UNDE:
 			msg_format("%s rewards you with an undead servant!", chaos_patrons[p_ptr->chaos_patron]);
-			if (!summon_specific(-1, py, px, p_ptr->depth, SUMMON_UNDEAD, FALSE, TRUE, TRUE))
+			if (!summon_specific(-1, py, px, p_ptr->depth, SUMMON_UNDEAD, 
+						FALSE, TRUE, TRUE, GP_ALLY, 0))
 				msg_print("Nobody ever turns up...");
 			break;
 		default:
@@ -3944,3 +4030,361 @@ bool get_hack_dir(int *dp)
 	/* A "valid" direction was entered */
 	return (TRUE);
 }
+
+
+#ifdef USE_NEW_MAGIC
+/*
+ * Generic "get choice from menu" function for long menus
+ * Adapted from get_player_choice()
+ *
+ * Returns the index of the choice, or -1 on failure (user abort)
+ */
+int get_player_choice_long(cptr *choices, int num, int col, int wid, int height, 
+		cptr helpfile, bool pregame, void (*hook)(int, cptr), 
+		bool (*hook2)(int))
+{
+	int top = 0, cur = 0;
+	/* int bot = 13; */
+	int i, j, dir;
+	char c;
+	char buf[80];
+	int partposition;
+	char parttype[80];
+	bool done = FALSE;
+	int hgt;
+
+
+
+	/* Autoselect if able */
+	/* if (num == 1) done = TRUE; */
+
+	/* Nothing has happened yet */
+	parttype[0] = '\0';
+	partposition = 0;
+	
+	/* Clear */
+	for (i = height; i < Term->hgt; i++)
+	{
+		Term_erase(col, i, Term->wid);	
+	}
+
+	/* Choose */
+	while (TRUE)
+	{
+		/*
+		 * Note to Melkor: What happens when the screen is resized?
+		 * There is no 'redraw' hook at this point... 
+		 * (That is why the original code restricted itself to what
+		 * would fit in the smallest possible screen.) -SF-
+		 */
+		hgt = Term->hgt - height - 2;
+
+		/* Clear */
+		for (i = height; i < Term->hgt; i++)
+		{
+			Term_erase(col, i, Term->wid);	
+		}
+		
+		/* Redraw the parttype */
+		Term_putstr(col, height, wid, TERM_UMBER, parttype);
+		
+		/* Redraw the list */
+		for (i = 0; ((i + top < num) && (i <= hgt)); i++)
+		{
+			/* This can probably be made more sensible */
+			if (i + top < 26)
+			{
+				sprintf(buf, "%s", choices[i + top]);
+			}
+			else
+			{
+				/* ToDo: Fix the ASCII dependency */
+				sprintf(buf, "%s", choices[i + top]);
+			}
+
+			/* Display */
+			if (i == (cur - top))
+			{
+				/* Highlight the current selection */
+				Term_putstr(col, i + height + 1, wid, TERM_L_BLUE, buf);
+			}
+			else
+			{
+				Term_putstr(col, i + height + 1, wid, TERM_WHITE, buf);
+			}
+		}
+
+		if (done) return (cur);
+
+		/* Display auxiliary information if any is available. */
+		if (hook) hook(cur, choices[cur]);
+
+		/* Move the cursor */
+		put_str("", height + 1 + cur - top, col);
+
+		c = inkey();
+
+		if (pregame && c == KTRL('X'))
+		{
+			remove_loc();
+			quit(NULL);
+		}
+		if (c == ESCAPE)
+		{
+			/* Return failure */
+			return (-1);
+		}
+		if (pregame && c == '*')
+		{
+			/* Select at random */
+			cur = randint0(num);
+
+			/* Move it onto the screen */
+			if ((cur < top) || (cur > top + hgt))
+			{
+				top = cur;
+			}
+
+			/* Done */
+			done = TRUE;
+		}
+		else if (c == '?' && pregame)
+		{
+			screen_save();
+			(void)show_file(helpfile, NULL, 0, 0);
+			screen_load();
+		}
+		else if (c == '=' && pregame)
+		{
+			screen_save();
+			do_cmd_options(OPT_FLAG_BIRTH | OPT_FLAG_SERVER | OPT_FLAG_PLAYER);
+			screen_load();
+		}
+		else if ((c == '\n') || (c == '\r'))
+		{
+			/* Done */
+			return (cur);
+		}
+		else if (isdigit(c))
+		{
+			/* Get a direction from the key */
+			dir = get_keymap_dir(c);
+
+			/* Going up? */
+			if (dir == 8)
+			{
+				if (cur != 0)
+				{
+					/* Move selection */
+					cur--;
+				}
+
+				if ((top > 0) && ((cur - top) < 4))
+				{
+					/* Scroll up */
+					top--;
+				}
+			}
+
+			/* Going down? */
+			if (dir == 2)
+			{
+				if (cur != (num - 1))
+				{
+					/* Move selection */
+					cur++;
+				}
+
+				if ((top + hgt < (num - 1)) && ((top + hgt - cur) < 4))
+				{
+					/* Scroll down */
+					top++;
+				}
+			}
+		}
+		/* 
+		 * This is different, we look for an option which
+		 * matches what has been partly typed in
+		 */
+		else if ((isalpha(c) || c == ' ') && partposition < 79)
+		{
+			/* Record keypress */
+			parttype[partposition] = c;
+			parttype[partposition + 1] = '\0';
+			++partposition;
+
+			/* Maybe this code could be better */
+			/* Does it match anything? */
+			i=0;
+			while (i<num)
+			{
+				/* Does any character fail to match? */
+				for (j=0; j<partposition; ++j)
+					if (FORCELOWER(parttype[j]) != FORCELOWER(choices[i][j +
+								(choices[i][0] == '{' ? 1 : 0)]))
+						goto not_this_one_1;
+				
+				/* Got something which matches, select it */
+				cur = i;
+				
+				/* Move it onto the screen */
+				if ((cur < top) || (cur > top + hgt))
+				{
+					top = cur;
+				}
+
+				/* And we are done */
+				break;
+
+				/* Otherwise, try the next one */
+				not_this_one_1: ++i;
+			}
+
+			/* Don't think we'll have this */
+			/*else
+			{
+				bell();
+			}*/
+		}
+
+		/* Take the last character off the search string */
+		else if (((c == 0x7F) || (c == KTRL('H'))) && partposition > 0)
+		{
+			/* Record keypress */
+			--partposition;
+			parttype[partposition] = '\0';
+
+			/* Maybe this code could be better */
+			/* Does it match anything? */
+			i=0;
+			while (i<num)
+			{
+				/* Does any character fail to match? */
+				for (j=0; j<partposition; ++j)
+					if (FORCELOWER(parttype[j]) != FORCELOWER(choices[i][j +
+								(choices[i][0] == '{' ? 1 : 0)]))
+						goto not_this_one_2;
+				
+				/* Got something which matches, select it */
+				cur = i;
+				
+				/* Move it onto the screen */
+				if ((cur < top) || (cur > top + hgt))
+				{
+					top = cur;
+				}
+
+				/* And we are done */
+				break;
+
+				/* Otherwise, try the next one */
+				not_this_one_2: ++i;
+			}
+
+			/* Don't think we'll have this */
+			/*else
+			{
+				bell();
+			}*/
+		}
+
+		/* Deletion */
+		else if (c == '-' && hook2) 
+		{
+			if (hook2(cur)) return (-2);
+		}
+
+		/* Invalid input */
+		else bell();
+	}
+
+	return (-1);
+}
+
+
+/*
+ * Sorting hook -- comp function -- strings (see below)
+ *
+ * We use "u" to point to an array of strings.
+ */
+static bool ang_sort_comp_hook_string(const vptr u, const vptr v, int a, int b)
+{
+	cptr *x = (cptr*)(u);
+
+	/* Hack - ignore v */
+	(void)v;
+
+	return (strcmp(x[a], x[b]) <= 0);
+}
+
+
+/*
+ * Sorting hook -- swap function -- array of strings (see below)
+ *
+ * We use "u" to point to an array of strings.
+ */
+static void ang_sort_swap_hook_string(const vptr u, const vptr v, int a, int b)
+{
+	cptr *x = (cptr*)(u);
+
+	cptr temp;
+
+	/* Hack - ignore v */
+	(void)v;
+
+	/* Swap */
+	temp = x[a];
+	x[a] = x[b];
+	x[b] = temp;
+}
+
+
+/*
+ * Present a long sorted list to the player, and get a selection
+ */
+int get_player_sort_choice_long(int keep, cptr *choices, int num, int col, int wid, int height, 
+                             cptr helpfile, bool pregame, void (*hook)(int, cptr), 
+			     bool (*hook2)(int))
+{
+	int i;
+	int choice;
+	cptr *strings;
+
+	C_MAKE(strings, num, cptr);
+
+	/* Initialise the sorted string array */
+	for (i = 0; i < num; i++)
+	{
+		strings[i] = choices[i];
+	}
+
+	/* Sort the strings */
+	ang_sort_comp = ang_sort_comp_hook_string;
+	ang_sort_swap = ang_sort_swap_hook_string;
+
+	/* Sort the (unique) slopes */
+	if (num > keep) ang_sort(&strings[keep], NULL, num - keep);
+
+	/* Get the choice */
+	choice = get_player_choice_long(strings, num, col, wid, height, 
+			helpfile, pregame, hook, hook2);
+
+	/* Invert the choice */
+	for (i = 0; i < num; i++)
+	{
+		/* Does the string match the one we selected? */
+		if (choices[i] == strings[choice])
+		{
+			/* Save the choice + exit */
+			choice = i;
+			break;
+		}
+	}
+
+	/* Free the strings */
+	C_KILL(strings, num, cptr);
+
+	/* Return the value from the list */
+	return (choice);
+}
+#endif /* USE_NEW_MAGIC */

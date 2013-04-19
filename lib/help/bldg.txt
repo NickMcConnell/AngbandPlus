@@ -6,7 +6,7 @@ Classical stores:
 Magic Shop: buy your wands, staffs, rings and amulets here.
 Alchemist: for all sorts of bubbling potions and scrolls.
 Weaponsmith: they deal in anything sharp and to the point.
-Armorer: to offer protection from the ravages of the dungeon.
+Armourer: to offer protection from the ravages of the dungeon.
 General Store: food, torches, ammo, some necessities.
 Temple Trade: those items permitted to the pious in life.
 Black Market: the prices are usurious, but some depths items!
@@ -18,11 +18,11 @@ Weaponmaster: Compares two weapons to allow you to see which is
 Zymurgist: Will identify items in your pack and recharge wands
   and staves.
 Magesmith (weapon): Will enchant your weapon.
-Magesmith (armor): Will enchant your armor.
+Magesmith (armour): Will enchant your armour.
 Mutalist: Will add or cure mutations.
 Map Maker: Will provide a map of part of the surrounding
   wilderness.
 All buildings are made of stone and unlikely to move around.
 
-This file is accurate for Zangband 2.5.3
+This file is accurate for Frazband 0.4.0
 

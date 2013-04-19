@@ -406,6 +406,9 @@ static bool cave_gen(void)
 
 	dun_data dun_body;
 
+	/* Level has no flags yet */
+	level_flags = 0L;
+	
 	/* Prepare allocation table */
 	get_mon_num_prep(get_monster_hook(), NULL);
 
@@ -884,7 +887,8 @@ static bool cave_gen(void)
 							group = TRUE;
 
 						/* Try to place the monster */
-						if (place_monster_aux(y, x, quest[i].r_idx, FALSE, group, FALSE, FALSE))
+						if (place_monster_aux(y, x, quest[i].r_idx, FALSE, 
+									group, FALSE, FALSE, GP_MINION, 0))
 						{
 							/* Success */
 							break;
@@ -929,7 +933,23 @@ static bool cave_gen(void)
 	/* Put some monsters in the dungeon */
 	for (i = i + k; i > 0; i--)
 	{
-		(void)alloc_monster(0, TRUE);
+		(void)alloc_monster(0, TRUE, 0);
+	}
+
+	/* 
+	 * New - some levels are special 
+	 */
+
+	/* A few levels have babewyns and such appearing */
+	if (one_in_(BABEWYN_LEVEL_CHANCE))
+	{
+		babewynify_level(FALSE);
+	}
+
+	/* The Orb can appear once */
+	if (p_ptr->depth >= ORB_LEVEL_DEPTH && !had_orb && one_in_(ORB_LEVEL_CHANCE))
+	{
+		/* Not implemented yet */
 	}
 
 	/* Place some traps in the dungeon */
@@ -1041,6 +1061,7 @@ static bool level_gen(cptr *why)
 {
 	int level_height, level_width;
 
+	generating_level = TRUE;
 	if (ironman_small_levels || (one_in_(SMALL_LEVEL) && small_levels))
 	{
 		if (cheat_room)
@@ -1082,7 +1103,8 @@ static bool level_gen(cptr *why)
 		*why = "could not place player";
 		return FALSE;
 	}
-	
+
+	generating_level = FALSE;
 	return TRUE;
 }
 

@@ -13,6 +13,7 @@
 #include "angband.h"
 
 
+#if !defined(USE_NEW_MAGIC) || defined(SUPPORT_OLD_MAGIC)
 /*
  * Allow user to choose a spell/prayer from the given book.
  *
@@ -23,7 +24,7 @@
  * The "prompt" should be "cast", "recite", or "study"
  * The "known" should be TRUE for cast/pray, FALSE for study
  */
-static int get_spell(int *sn, cptr prompt, int sval, bool known, bool realm_2)
+static int get_spell_old(int *sn, cptr prompt, int sval, bool known, bool realm_2)
 {
 	int         i;
 	int         spell;
@@ -112,7 +113,7 @@ static int get_spell(int *sn, cptr prompt, int sval, bool known, bool realm_2)
 				screen_save();
 
 				/* Display a list of spells */
-				print_spells(spells, num, 1, 20, use_realm - 1);
+				print_spells_old(spells, num, 1, 20, use_realm - 1);
 			}
 
 			/* Hide the list */
@@ -202,8 +203,286 @@ static int get_spell(int *sn, cptr prompt, int sval, bool known, bool realm_2)
 	/* Success */
 	return (TRUE);
 }
+#endif /* !defined(USE_NEW_MAGIC) || defined(SUPPORT_OLD_MAGIC) */
+
+#ifdef USE_NEW_MAGIC
+/*
+ * Allow user to choose a spell/prayer from the given book.
+ *
+ * If a valid spell is chosen, saves it in '*sn' and returns TRUE
+ * If the user hits escape, returns FALSE, and set '*sn' to -1
+ * If there are no legal choices, returns FALSE, and sets '*sn' to -2
+ *
+ * The "prompt" should be "cast", "recite", or "study"
+ * The "known" should be TRUE for cast/pray, FALSE for study
+ */
+static int get_spell_new(int *sn, cptr prompt, const object_type *o_ptr, bool known)
+{
+	int         i;
+	int         spell;
+	int         num = 0;
+	int         ask;
+	u16b        spells[MAX_SPELLS_CURRENT];
+	bool        flag, redraw, okay;
+	char        choice;
+	char        out_val[160];
+	cptr        p = "spell"; /* Used to choose between prayer and spell, repair this? */
+	cptr        string = quarky_str(o_ptr->spell_list);
+
+	/* Get the spell, if available */
+	if (repeat_pull(sn))
+	{
+		/* Verify the spell */
+		if (spell_okay_new(*sn, known, FALSE))
+		{
+			/* Success */
+			return (TRUE);
+		}
+	}
+
+	/* Check for blank spellbooks */
+	if (!string) 
+	{
+		msg_print("That spellbook has no spells in it!");
+		return FALSE;
+	}
+
+	/* Check how many spells we have */
+	num = strlen(string) / 2;
+
+	/* Sanity check */
+	if (num < 0 || num > MAX_SPELLS_IN_BOOK)
+	{
+		msg_print("Error - Bad number of spells in spell book");
+		return FALSE;
+	}
+	
+	/* Extract spells */
+	for (spell = 0; spell < num; ++spell)
+	{
+		spells[spell] = spell_number(string[spell * 2],string[(spell * 2) + 1]);
+	}
+
+	/* Assume no usable spells */
+	okay = FALSE;
+
+	/* Assume no spells available */
+	(*sn) = -2;
+
+	/* Check for "okay" spells */
+	for (i = 0; i < num; i++)
+	{
+		/* Look for "okay" spells */
+		if (spell_okay_new(spells[i], known, FALSE)) okay = TRUE;
+	}
+
+	/* No "okay" spells */
+	if (!okay) return (FALSE);
+
+	/* Assume cancelled */
+	*sn = (-1);
+
+	/* Nothing chosen yet */
+	flag = FALSE;
+
+	/* No redraw yet */
+	redraw = FALSE;
+
+	/* Show choices */
+	/* Update */
+	p_ptr->window |= (PW_SPELL);
+
+	/* Window stuff */
+	window_stuff();
 
 
+	/* Build a prompt (accept all spells) */
+	(void)strnfmt(out_val, 78, "(%^ss %c-%c, *=List, ESC=exit) %^s which %s? ",
+		p, I2A(0), I2A(num - 1), prompt, p);
+
+	/* Get a spell from the user */
+	while (!flag && get_com(out_val, &choice))
+	{
+		/* Request redraw */
+		if ((choice == ' ') || (choice == '*') || (choice == '?'))
+		{
+			/* Show the list */
+			if (!redraw)
+			{
+				/* Show list */
+				redraw = TRUE;
+
+				/* Save the screen */
+				screen_save();
+
+				/* Display a list of spells */
+				print_spells_new(spells, num, 1, 20);
+			}
+
+			/* Hide the list */
+			else
+			{
+				/* Hide list */
+				redraw = FALSE;
+
+				/* Restore the screen */
+				screen_load();
+			}
+
+			/* Redo asking */
+			continue;
+		}
+
+
+		/* Note verify */
+		ask = (isupper(choice));
+
+		/* Lowercase */
+		if (ask) choice = tolower(choice);
+
+		/* Extract request */
+		i = (islower(choice) ? A2I(choice) : -1);
+
+		/* Totally Illegal */
+		if ((i < 0) || (i >= num))
+		{
+			bell();
+			continue;
+		}
+
+		/* Save the spell index */
+		spell = spells[i];
+
+		/* Require "okay" spells */
+		if (!spell_okay_new(spell, known, FALSE))
+		{
+			bell();
+			msg_format("You may not %s that %s.", prompt, p);
+			continue;
+		}
+
+		/* Verify it */
+		if (ask)
+		{
+			char tmp_val[160];
+
+
+			/* Prompt */
+			(void)strnfmt(tmp_val, 78, "%^s %s (%d mana, %d%% fail)? ",
+				prompt, new_spell_name[spell],
+				calculate_mana(spell), spell_chance_new(spell));
+
+			/* Belay that order */
+			if (!get_check(tmp_val)) continue;
+		}
+
+		/* Stop the loop */
+		flag = TRUE;
+	}
+
+
+	/* Restore the screen */
+	if (redraw) screen_load();
+
+
+	/* Show choices */
+	/* Update */
+	p_ptr->window |= (PW_SPELL);
+
+	/* Window stuff */
+	window_stuff();
+
+
+	/* Abort if needed */
+	if (!flag) return (FALSE);
+
+	/* Save the choice */
+	(*sn) = spell;
+
+	repeat_push(*sn);
+
+	/* Success */
+	return (TRUE);
+}
+
+
+#endif /* USE_NEW_MAGIC */
+
+
+		
+#ifdef USE_NEW_MAGIC
+/*
+ * New version of do_cmd_browse_aux() for the new magic system.
+ * 
+ * Peruse the spells/prayers in a given book.  Note that we may
+ * bypass do_cmd_browse by calling this function directly (as we
+ * do from identify_fully_aux() which has the effect of allowing
+ * any book to be browsed regardless of the player's realm choice.
+ *
+ * Note that *all* spells in the book are listed
+ */
+void do_cmd_browse_aux_new(const object_type *o_ptr)
+{
+	int spell;
+	int num = 0;
+
+	u16b spells[MAX_SPELLS_IN_BOOK];
+
+	cptr string = quarky_str(o_ptr->spell_list);
+
+	/* Check how many spells we have */
+	num = string ? strlen(string) / 2 : 0;
+
+	/* Is it empty? */
+	if (!num)
+	{
+		msg_print("The spellbook is empty.");
+		return;
+	}
+	
+	/* Sanity check */
+	if (num < 0 || num > MAX_SPELLS_IN_BOOK)
+	{
+		msg_print("Bad number of spells in spell book");
+		return;
+	}
+	
+	/* Track the object kind */
+	object_kind_track(o_ptr->k_idx);
+
+	/* Hack -- Handle stuff */
+	handle_stuff();
+
+
+	/* Extract spells */
+	for (spell = 0; spell < num; ++spell)
+	{
+		spells[spell] = spell_number(string[spell * 2],string[(spell * 2) + 1]);
+	}
+
+	/* Save the screen */
+	screen_save();
+
+	/* Display the spells */
+	print_spells_new(spells, num, 1, 20);
+
+	/* Clear the top line */
+	prt("", 0, 0);
+
+	/* Prompt user */
+	put_str("[Press any key to continue]", 0, 23);
+
+	/* Wait for key */
+	(void)inkey();
+
+	/* Restore the screen */
+	screen_load();
+}
+#endif /* USE_NEW_MAGIC */
+
+
+
+#if !defined(USE_NEW_MAGIC) || defined(SUPPORT_OLD_MAGIC)
 /*
  * Peruse the spells/prayers in a given book.  Note that we may
  * bypass do_cmd_browse by calling this function directly (as we
@@ -212,7 +491,7 @@ static int get_spell(int *sn, cptr prompt, int sval, bool known, bool realm_2)
  *
  * Note that *all* spells in the book are listed
  */
-void do_cmd_browse_aux(const object_type *o_ptr)
+void do_cmd_browse_aux_old(const object_type *o_ptr)
 {
 	int sval;
 	int spell;
@@ -247,7 +526,7 @@ void do_cmd_browse_aux(const object_type *o_ptr)
 	screen_save();
 
 	/* Display the spells */
-	print_spells(spells, num, 1, 20, (o_ptr->tval - TV_BOOKS_MIN));
+	print_spells_old(spells, num, 1, 20, (o_ptr->tval - TV_BOOKS_MIN));
 
 	/* Clear the top line */
 	prt("", 0, 0);
@@ -261,8 +540,28 @@ void do_cmd_browse_aux(const object_type *o_ptr)
 	/* Restore the screen */
 	screen_load();
 }
+#endif /* !defined(USE_NEW_MAGIC) || defined(SUPPORT_OLD_MAGIC) */
 
 
+/*
+ * Peruse the spells/prayers in a given book.
+ * We need to know which magic system we're using.
+ */
+void do_cmd_browse_aux(const object_type *o_ptr)
+{
+#ifdef USE_NEW_MAGIC
+ #ifdef SUPPORT_OLD_MAGIC
+	if (old_magic_user) do_cmd_browse_aux_old(o_ptr);
+	else do_cmd_browse_aux_new(o_ptr);
+ #else /* SUPPORT_OLD_MAGIC */
+	do_cmd_browse_aux_new(o_ptr);
+ #endif /* SUPPORT_OLD_MAGIC */
+#else /* USE_NEW_MAGIC */
+	do_cmd_browse_aux_old(o_ptr);
+#endif /* USE_NEW_MAGIC */
+}
+	
+	
 /*
  * Peruse the spells/prayers in a book
  *
@@ -277,7 +576,9 @@ void do_cmd_browse(void)
 
 
 	/* Warriors are illiterate */
-	if (!(p_ptr->realm1 || p_ptr->realm2))
+	/*if (!(p_ptr->realm1 || p_ptr->realm2))*/
+	/* With the new magic, looking at classes is easier */
+	if (p_ptr->pclass == CLASS_WARRIOR || p_ptr->pclass == CLASS_MINDCRAFTER)
 	{
 		msg_print("You cannot read books!");
 		return;
@@ -302,8 +603,16 @@ void do_cmd_browse(void)
 #endif
 
 	/* Restrict choices to "useful" books */
+#ifdef USE_NEW_MAGIC
+ #ifdef SUPPORT_OLD_MAGIC
+	item_tester_tval = old_magic_user ? mp_ptr->spell_book : TV_SPELLBOOK;
+ #else /* SUPPORT_OLD_MAGIC */
+	item_tester_tval = TV_SPELLBOOK;
+ #endif /* SUPPORT_OLD_MAGIC */
+#else /* USE_NEW_MAGIC */
 	item_tester_tval = mp_ptr->spell_book;
-
+#endif /* USE_NEW_MAGIC */
+	
 	/* Get an item */
 	q = "Browse which book? ";
 	s = "You have no books that you can read.";
@@ -326,6 +635,7 @@ void do_cmd_browse(void)
 }
 
 
+#if defined(SUPPORT_OLD_MAGIC) || !defined(USE_NEW_MAGIC)
 /*
  * Study a book to gain a new spell/prayer
  */
@@ -342,6 +652,15 @@ void do_cmd_study(void)
 	object_type *o_ptr;
 
 	cptr q, s;
+
+#ifdef USE_NEW_MAGIC
+	/* New magic users need to be in their homes to study */
+	if (!old_magic_user)
+	{
+		msg_print("You cannot study in this environment.");
+		return;
+	}
+#endif /* USE_NEW_MAGIC */
 
 	if (!p_ptr->realm1)
 	{
@@ -407,7 +726,7 @@ void do_cmd_study(void)
 	if (mp_ptr->spell_book != TV_LIFE_BOOK)
 	{
 		/* Ask for a spell, allow cancel */
-		if (!get_spell(&spell, "study", sval, FALSE,
+		if (!get_spell_old(&spell, "study", sval, FALSE,
 		    (bool)(increment ? TRUE : FALSE)) && (spell == -1)) return;
 	}
 
@@ -505,6 +824,102 @@ void do_cmd_study(void)
 	/* Redraw Study Status */
 	p_ptr->redraw |= (PR_STUDY);
 }
+#endif /* defined(SUPPORT_OLD_MAGIC) || !defined(USE_NEW_MAGIC) */
+
+#ifdef USE_NEW_MAGIC
+/*
+ * Study a spell so it can be used - new magic version
+ */
+void do_cmd_study_new(void)
+{
+	int	i;
+
+	int	spell = -1;
+
+#ifdef SUPPORT_OLD_MAGIC
+	/* Hack - Old magic users can't use this function */
+	if (old_magic_user)
+	{
+		msg_print("That command does not work in stores.");
+		return;
+	}
+#endif /* SUPPORT_OLD_MAGIC */
+	
+	if (p_ptr->pclass == CLASS_WARRIOR || p_ptr->pclass == CLASS_MINDCRAFTER)
+	{
+		msg_print("You cannot read books!");
+		return;
+	}
+
+	if (!(p_ptr->new_spells))
+	{
+		msg_print("You cannot learn any new spells!");
+		return;
+	}
+
+	msg_format("You can learn %d new spell%s.", p_ptr->new_spells,
+		(p_ptr->new_spells == 1?"":"s"));
+	msg_print(NULL);
+
+
+	/* Is this necessary? */
+	/* Hack -- Handle stuff */
+	handle_stuff();
+
+	/* Ask for a spell, allow cancel */
+	if (!get_spell_from_grand_list(&spell, "study", FALSE, FALSE, NULL, 0)) return;
+
+	/* Nothing to study */
+	if (spell < 0)
+	{
+		/* Message */
+		msg_print("You do not have any more spells to study.");
+
+		/* Abort */
+		return;
+	}
+
+	
+	/* Learn the spell */
+	p_ptr->spell_learned[spell/32] |= (1L << (spell % 32));
+
+	/* Find the next open entry in "spells[]" */
+	for (i = 0; i < MAX_SPELLS_KNOWN_TOTAL; i++)
+	{
+		/* Stop at the first empty space */
+		if (!p_ptr->spells[i]) break;
+	}
+
+	/* Add the spell to the known list */
+	p_ptr->spells[i++] = spell;
+
+	/* Mention the result */
+	msg_format("You have learned the spell of %s.", new_spell_name[spell]);
+
+	if (spell_stats[spell][6])
+		chg_virtue(V_KNOWLEDGE, 1);
+	else
+		chg_virtue(V_FAITH, 1);
+
+	/* Sound */
+	sound(SOUND_STUDY);
+
+	/* One less spell available */
+	p_ptr->new_spells--;
+
+	/* Message if needed */
+	if (p_ptr->new_spells)
+	{
+		/* Message */
+		msg_format("You can learn %d more spell%s.",
+			p_ptr->new_spells,
+			(p_ptr->new_spells != 1) ? "s" : "");
+	}
+
+	/* Redraw Study Status */
+	p_ptr->redraw |= (PR_STUDY);
+}
+#endif /* USE_NEW_MAGIC */
 
 
 #define MAX_BIZARRE		6
@@ -625,7 +1040,7 @@ static void wild_magic(int spell)
 		}
 		case 33:
 		{
-			(void)wall_stone();
+			(void)wall_stone(-2);
 			break;
 		}
 		case 34:
@@ -636,7 +1051,8 @@ static void wild_magic(int spell)
 
 			for (i = 0; i < 8; i++)
 			{
-				(void)summon_specific(0, py, px, (p_ptr->depth * 3) / 2, type, TRUE, FALSE, FALSE);
+				(void)summon_specific(0, py, px, (p_ptr->depth * 3) / 2, type, TRUE, 
+						      FALSE, FALSE, GP_COPY, 0);
 			}
 			break;
 		}
@@ -795,6 +1211,8 @@ static bool cast_life_spell(int spell)
 		break;
 	case 28: /* Healing True */
 		(void)hp_player(2000);
+		(void)set_afraid(0);
+		(void)set_poisoned(0);
 		(void)set_stun(0);
 		(void)set_cut(0);
 		break;
@@ -808,7 +1226,7 @@ static bool cast_life_spell(int spell)
 		(void)confuse_monsters(plev * 4);
 		(void)turn_monsters(plev * 4);
 		(void)stasis_monsters(plev * 4);
-		(void)summon_specific(-1, py, px, plev, SUMMON_ANGEL, TRUE, TRUE, TRUE);
+		(void)summon_specific(-1, py, px, plev, SUMMON_ANGEL, TRUE, TRUE, TRUE, GP_ALLY, 0);
 		(void)set_shero(p_ptr->shero + rand_range(25, 50));
 		(void)hp_player(300);
 
@@ -1017,9 +1435,12 @@ static bool cast_nature_spell(int spell)
 		(void)charm_animal(dir, plev);
 		break;
 	case 6: /* Resist Environment */
-		(void)set_oppose_cold(p_ptr->oppose_cold + rand_range(20, 40));
-		(void)set_oppose_fire(p_ptr->oppose_fire + rand_range(20, 40));
-		(void)set_oppose_elec(p_ptr->oppose_elec + rand_range(20, 40));
+		{
+			int dur = rand_range(20, 40);
+			(void)set_oppose_cold(p_ptr->oppose_cold + dur);
+			(void)set_oppose_fire(p_ptr->oppose_fire + dur);
+			(void)set_oppose_elec(p_ptr->oppose_elec + dur);
+		}
 		break;
 	case 7: /* Cure Wounds + Poison */
 		(void)set_cut(0);
@@ -1038,10 +1459,11 @@ static bool cast_nature_spell(int spell)
 		break;
 	case 10: /* Nature Awareness -- downgraded */
 		map_area();
-		(void)detect_traps();
+		/*(void)detect_traps();
 		(void)detect_doors();
 		(void)detect_stairs();
-		(void)detect_monsters_normal();
+		(void)detect_monsters_normal();*/
+		(void)detect_all();
 		break;
 	case 11: /* Frost Bolt */
 		if (!get_aim_dir(&dir)) return FALSE;
@@ -1057,7 +1479,8 @@ static bool cast_nature_spell(int spell)
 		(void)slow_monsters();
 		break;
 	case 14: /* Summon Animals */
-		if (!(summon_specific(-1, py, px, plev, SUMMON_ANIMAL_RANGER, TRUE, TRUE, TRUE)))
+		if (!(summon_specific(-1, py, px, plev, SUMMON_ANIMAL_RANGER, TRUE, 
+						TRUE, TRUE, GP_ALLY, 0)))
 			no_trump = TRUE;
 		break;
 	case 15: /* Herbal Healing */
@@ -1076,11 +1499,14 @@ static bool cast_nature_spell(int spell)
 		(void)set_shield(p_ptr->shield + rand_range(30, 50));
 		break;
 	case 19: /* Resistance True */
-		(void)set_oppose_acid(p_ptr->oppose_acid + rand_range(20, 40));
-		(void)set_oppose_elec(p_ptr->oppose_elec + rand_range(20, 40));
-		(void)set_oppose_fire(p_ptr->oppose_fire + rand_range(20, 40));
-		(void)set_oppose_cold(p_ptr->oppose_cold + rand_range(20, 40));
-		(void)set_oppose_pois(p_ptr->oppose_pois + rand_range(20, 40));
+		{
+			int dur = rand_range(20, 40);
+			(void)set_oppose_acid(p_ptr->oppose_acid + dur);
+			(void)set_oppose_elec(p_ptr->oppose_elec + dur);
+			(void)set_oppose_fire(p_ptr->oppose_fire + dur);
+			(void)set_oppose_cold(p_ptr->oppose_cold + dur);
+			(void)set_oppose_pois(p_ptr->oppose_pois + dur);
+		}
 		break;
 	case 20: /* Animal Friendship */
 		(void)charm_animals(plev * 2);
@@ -1088,10 +1514,22 @@ static bool cast_nature_spell(int spell)
 	case 21: /* Stone Tell */
 		return identify_fully();
 	case 22: /* Wall of Stone */
-		(void)wall_stone();
+		(void)wall_stone(-2);
 		break;
-	case 23: /* Protection from Corrosion */
-		return rustproof();
+	case 23: /* Nature's Boon */
+		(void)do_res_stat(A_STR);
+		(void)do_res_stat(A_INT);
+		(void)do_res_stat(A_WIS);
+		(void)do_res_stat(A_DEX);
+		(void)do_res_stat(A_CON);
+		(void)do_res_stat(A_CHR);
+		(void)restore_level();
+		(void)remove_all_curse();
+		(void)set_afraid(0);
+		(void)set_poisoned(0);
+		(void)set_stun(0);
+		(void)set_cut(0);
+		break;
 	case 24: /* Earthquake */
 		(void)earthquake(py, px, 10);
 		break;
@@ -1124,9 +1562,10 @@ static bool cast_nature_spell(int spell)
 
 		(void)fire_ball(GF_COLD, dir, 70 + plev, (plev / 12) + 1);
 		break;
-	case 27: /* Lightning Storm */
+	case 27: /* Nature's Doom */
 		if (!get_aim_dir(&dir)) return FALSE;
-		(void)fire_ball(GF_ELEC, dir, 90 + plev, (plev / 12) + 1);
+
+		(void)fire_ball(GF_MISSILE, dir, 175 + (2 * plev), 0);
 		break;
 	case 28: /* Whirlpool */
 		if (!get_aim_dir(&dir)) return FALSE;
@@ -1149,14 +1588,25 @@ static bool cast_nature_spell(int spell)
 		(void)earthquake(py, px, 20 + (plev / 2));
 		(void)project(0, 1 + plev / 12, py, px,
 			100 + plev, GF_DISINTEGRATE, PROJECT_KILL | PROJECT_ITEM);
+		(void)set_hero(p_ptr->hero + rand_range(25, 50));
+		(void)hp_player(10);
+		(void)set_afraid(0);
+		if (!p_ptr->fast)
+		{
+			(void)set_fast(randint1(20 + plev) + plev);
+		}
+		else
+		{
+			(void)set_fast(p_ptr->fast + randint1(5));
+		}
 		break;
 	default:
 		msg_format("You cast an unknown Nature spell: %d.", spell);
 		msg_print(NULL);
 	}
 
-	if (no_trump)
-		msg_print("No animals arrive.");
+	/*if (no_trump)
+		msg_print("No animals arrive.");*/
 
 	return TRUE;
 }
@@ -1321,9 +1771,32 @@ static bool cast_chaos_spell(int spell)
 		(void)destroy_area(py, px, 15);
 		break;
 	case 15: /* Invoke Logrus */
-		if (!get_aim_dir(&dir)) return FALSE;
+		/* Power of Chaos */
+		/*if (!get_aim_dir(&dir)) return FALSE;
 
 		(void)fire_ball(GF_CHAOS, dir, plev + 66, plev / 5);
+		break;*/
+		if (one_in_(2)) (void)dispel_monsters(150);
+		if (one_in_(2)) (void)slow_monsters();
+		if (one_in_(2)) (void)sleep_monsters();
+		if (randint1(4) > 1) (void)explosive_rune();
+		if (randint1(4) > 1) (void)hp_player(150);
+		if (randint1(4) > 1)
+		{
+			(void)set_shero(p_ptr->shero + rand_range(25, 50));
+			(void)set_afraid(0);
+		}
+		if (randint1(4) > 1)
+		{
+			if (!p_ptr->fast)
+			{
+				(void)set_fast(rand_range(plev / 2, 20 + plev));
+			}
+			else
+			{
+				(void)set_fast(p_ptr->fast + randint1(5));
+			}
+		}
 		break;
 	case 16: /* Polymorph Other */
 		if (!get_aim_dir(&dir)) return FALSE;
@@ -1352,10 +1825,11 @@ static bool cast_chaos_spell(int spell)
 		break;
 	case 23: /* Summon monster, demon */
 		{
-			bool pet = (one_in_(3));
+			bool pet = TRUE; /*(one_in_(3));*/
 			bool group = !(pet && (plev < 50));
 
-			if (summon_specific((pet ? -1 : 0), py, px, (plev * 3) / 2, SUMMON_DEMON, group, FALSE, pet))
+			if (summon_specific((pet ? -1 : 0), py, px, (plev * 3) / 2, SUMMON_DEMON, group, 
+						FALSE, pet, GP_COPY, 0))
 			{
 				msg_print("The area fills with a stench of sulphur and brimstone.");
 
@@ -1371,7 +1845,13 @@ static bool cast_chaos_spell(int spell)
 
 		(void)fire_beam(GF_GRAVITY, dir, damroll(9 + ((plev - 5) / 4), 8));
 		break;
-	case 25: /* Meteor Swarm */
+	case 25: /* Mana Bolt */
+		if (!get_aim_dir(&dir)) return FALSE;
+
+		(void)fire_bolt_or_beam(beam, GF_MISSILE, dir,
+			75 + randint1(350 + (3*plev)));
+		break;
+	case 26: /* Meteor Swarm */
 		{
 			int x, y;
 			int b = rand_range(10, 20);
@@ -1404,17 +1884,11 @@ static bool cast_chaos_spell(int spell)
 			}
 		}
 		break;
-	case 26: /* Flame Strike */
+	case 27: /* Flame Strike */
 		(void)fire_ball(GF_FIRE, 0, 150 + (2 * plev), 8);
 		break;
-	case 27: /* Call Chaos */
+	case 28: /* Call Chaos */
 		call_chaos();
-		break;
-	case 28: /* Magic Rocket */
-		if (!get_aim_dir(&dir)) return FALSE;
-
-		msg_print("You launch a rocket!");
-		(void)fire_ball(GF_ROCKET, dir, 120 + plev, 2);
 		break;
 	case 29: /* Mana Storm */
 		if (!get_aim_dir(&dir)) return FALSE;
@@ -1552,8 +2026,8 @@ static bool cast_death_spell(int spell)
 	case 12: /* Poison Branding */
 		brand_weapon(2);
 		break;
-	case 13: /* Dispel Good */
-		(void)dispel_good(plev * 4);
+	case 13: /* Dispel Evil */
+		(void)dispel_evil(plev * 3);
 		break;
 	case 14: /* Genocide */
 		(void)genocide(TRUE);
@@ -1582,7 +2056,8 @@ static bool cast_death_spell(int spell)
 			if (die < 8)
 			{
 				msg_print("Oh no! Mouldering forms rise from the earth around you!");
-				(void)summon_specific(0, py, px, p_ptr->depth, SUMMON_UNDEAD, TRUE, FALSE, FALSE);
+				(void)summon_specific(0, py, px, p_ptr->depth, SUMMON_UNDEAD, TRUE, 
+						      FALSE, FALSE, GP_FIXATED_ON_PLAYER, 0);
 
 				chg_virtue(V_UNLIFE, 1);
 			}
@@ -1737,7 +2212,7 @@ static bool cast_death_spell(int spell)
 		break;
 	case 25: /* Raise the Dead */
 		{
-			if (raise_dead(py, px, (bool)(!one_in_(3))))
+			if (raise_dead(py, px, FALSE, (bool)(!one_in_(3)), GP_COPY, 0))
 			{
 				msg_print("Cold winds begin to blow around you, carrying with them the stench of decay...");
 				chg_virtue(V_UNLIFE, 1);
@@ -1854,628 +2329,363 @@ static bool cast_trump_spell(int spell, bool success)
 	int     dir;
 	int     beam;
 	int     plev = p_ptr->lev;
-	int     dummy = 0;
+	/*int     dummy = 0;
 	bool	no_trump = FALSE;
 	char	ppp[80];
-	char	tmp_val[160];
+	char	tmp_val[160];*/
 
 
 	if (p_ptr->pclass == CLASS_MAGE) beam = plev;
 	else if (p_ptr->pclass == CLASS_HIGH_MAGE) beam = plev + 10;
 	else beam = plev / 2;
-
+int die;
 	switch (spell)
 	{
-		case 0: /* Phase Door */
-			if (success)
-			{
-				teleport_player(10);
-			}
+		case 0: /* Spit Poison */
+			if (!get_aim_dir(&dir)) return FALSE;
+
+			(void)fire_bolt_or_beam(beam, GF_POIS, dir,
+			damroll(3 + ((plev - 1) / 5), 3));
+			(void)set_poisoned(p_ptr->poisoned > 10 ? p_ptr->poisoned - 10 : 0);
 			break;
-		case 1: /* Mind Blast */
-			if (success)
-			{
-				if (!get_aim_dir(&dir)) return FALSE;
-				(void)fire_bolt_or_beam(beam - 10, GF_PSI, dir,
-				                  damroll(3 + ((plev - 1) / 5), 3));
-			}
+		case 1: /* Remove Fear */
+			(void)set_afraid(0);
 			break;
-		case 2: /* Shuffle */
-			if (success)
-			{
-				/* A limited power 'wonder' spell */
-				int die = randint1(120);
-
-				if ((p_ptr->pclass == CLASS_ROGUE) ||
-					(p_ptr->pclass == CLASS_HIGH_MAGE))
-					die = (randint1(110)) + plev / 5;
-				/* Card sharks and high mages get a level bonus */
-
-				msg_print("You shuffle the deck and draw a card...");
-
-				if (die < 30)
-					chg_virtue(V_CHANCE, 1);
-
-				if (die < 7)
-				{
-					msg_print("Oh no! It's Death!");
-					for (dummy = 0; dummy < randint1(3); dummy++)
-						(void)activate_hi_summon();
-				}
-				else if (die < 14)
-				{
-					msg_print("Oh no! It's the Devil!");
-					(void)summon_specific(0, py, px, p_ptr->depth, SUMMON_DEMON, TRUE, FALSE, FALSE);
-				}
-				else if (die < 18)
-				{
-					int count = 0;
-
-					msg_print("Oh no! It's the Hanged Man.");
-					(void)activate_ty_curse(FALSE, &count);
-				}
-				else if (die < 22)
-				{
-					msg_print("It's the swords of discord.");
-					aggravate_monsters(0);
-				}
-				else if (die < 26)
-				{
-					msg_print("It's the Fool.");
-					(void)do_dec_stat(A_INT);
-					(void)do_dec_stat(A_WIS);
-				}
-				else if (die < 30)
-				{
-					msg_print("It's the picture of a strange monster.");
-					if (!(summon_specific(0, py, px, (p_ptr->depth * 3) / 2, rand_range(33, 38), TRUE, FALSE, FALSE)))
-						no_trump = TRUE;
-				}
-				else if (die < 33)
-				{
-					msg_print("It's the Moon.");
-					(void)unlite_area(10, 3);
-				}
-				else if (die < 38)
-				{
-					msg_print("It's the Wheel of Fortune.");
-					wild_magic(randint0(32));
-				}
-				else if (die < 40)
-				{
-					msg_print("It's a teleport trump card.");
-					teleport_player(10);
-				}
-				else if (die < 42)
-				{
-					msg_print("It's Justice.");
-					(void)set_blessed(p_ptr->blessed + p_ptr->lev);
-				}
-				else if (die < 47)
-				{
-					msg_print("It's a teleport trump card.");
-					teleport_player(100);
-				}
-				else if (die < 52)
-				{
-					msg_print("It's a teleport trump card.");
-					teleport_player(200);
-				}
-				else if (die < 60)
-				{
-					msg_print("It's the Tower.");
-					wall_breaker();
-				}
-				else if (die < 72)
-				{
-					msg_print("It's Temperance.");
-					(void)sleep_monsters_touch();
-				}
-				else if (die < 80)
-				{
-					msg_print("It's the Tower.");
-					(void)earthquake(py, px, 5);
-				}
-				else if (die < 82)
-				{
-					msg_print("It's the picture of a friendly monster.");
-					if (!(summon_specific(-1, py, px, (p_ptr->depth * 3) / 2, SUMMON_BIZARRE1, FALSE, TRUE, TRUE)))
-						no_trump = TRUE;
-				}
-				else if (die < 84)
-				{
-					msg_print("It's the picture of a friendly monster.");
-					if (!(summon_specific(-1, py, px, (p_ptr->depth * 3) / 2, SUMMON_BIZARRE2, FALSE, TRUE, TRUE)))
-						no_trump = TRUE;
-				}
-				else if (die < 86)
-				{
-					msg_print("It's the picture of a friendly monster.");
-					if (!(summon_specific(-1, py, px, (p_ptr->depth * 3) / 2, SUMMON_BIZARRE4, FALSE, TRUE, TRUE)))
-						no_trump = TRUE;
-				}
-				else if (die < 88)
-				{
-					msg_print("It's the picture of a friendly monster.");
-					if (!(summon_specific(-1, py, px, (p_ptr->depth * 3) / 2, SUMMON_BIZARRE5, FALSE, TRUE, TRUE)))
-						no_trump = TRUE;
-				}
-				else if (die < 96)
-				{
-					msg_print("It's the Lovers.");
-					if (get_aim_dir(&dir))
-						(void)charm_monster(dir, MIN(p_ptr->lev, 20));
-				}
-				else if (die < 101)
-				{
-					msg_print("It's the Hermit.");
-					(void)wall_stone();
-				}
-				else if (die < 111)
-				{
-					msg_print("It's the Judgement.");
-					do_cmd_rerate();
-					if (p_ptr->muta1 || p_ptr->muta2 || p_ptr->muta3)
-					{
-						msg_print("You are cured of all mutations.");
-						p_ptr->muta1 = p_ptr->muta2 = p_ptr->muta3 = 0;
-						p_ptr->update |= PU_BONUS;
-						handle_stuff();
-					}
-				}
-				else if (die < 120)
-				{
-					msg_print("It's the Sun.");
-					wiz_lite();
-				}
-				else
-				{
-					msg_print("It's the World.");
-					if (p_ptr->exp < PY_MAX_EXP)
-					{
-						s32b ee = (p_ptr->exp / 25) + 1;
-						if (ee > 5000) ee = 5000;
-						msg_print("You feel more experienced.");
-						gain_exp(ee);
-					}
-				}
-			}
-			break;
-		case 3: /* Reset Recall */
-			if (success)
-			{
-				/* Prompt */
-				sprintf(ppp, "Reset to which level (1-%d): ", p_ptr->max_depth);
-
-				/* Default */
-				sprintf(tmp_val, "%d", MAX(p_ptr->depth, 1));
-
-				/* Ask for a level */
-				if (get_string(ppp, tmp_val, 10))
-				{
-					/* Extract request */
-					dummy = atoi(tmp_val);
-
-					/* Paranoia */
-					if (dummy < 1) dummy = 1;
-
-					/* Paranoia */
-					if (dummy > p_ptr->max_depth) dummy = p_ptr->max_depth;
-
-					p_ptr->max_depth = dummy;
-
-					/* Accept request */
-					msg_format("Recall depth set to level %d (%d').", dummy, dummy * 50);
-				}
-				else
-				{
-					return FALSE;
-				}
-			}
-			break;
-		case 4: /* Teleport Self */
-			if (success)
-			{
-				teleport_player(plev * 4);
-			}
-			break;
-		case 5: /* Dimension Door */
-			if (success)
-			{
-				msg_print("You open a dimensional gate. Choose a destination.");
-				return dimension_door();
-			}
-			break;
-		case 6: /* Trump Spying */
-			if (success)
+		case 2: /* Sixth Sense */
+			(void)detect_traps();
+			(void)detect_monsters_normal();
+			if (!(p_ptr->telepathy) && (plev>35))
 			{
 				(void)set_tim_esp(p_ptr->tim_esp + rand_range(25, 55));
 			}
 			break;
-		case 7: /* Teleport Away */
-			if (success)
-			{
-				if (!get_aim_dir(&dir)) return FALSE;
-				(void)fire_beam(GF_AWAY_ALL, dir, plev);
-			}
+		case 3: /* Heroism */
+			(void)set_hero(p_ptr->hero + rand_range(25, 50));
+			(void)hp_player(10);
+			(void)set_afraid(0);
+			(void)set_poisoned(p_ptr->poisoned > 8 ? p_ptr->poisoned - 8 : 0);
 			break;
-		case 8: /* Trump Object */
-			if (success)
-			{
-				if (!get_aim_dir(&dir)) return FALSE;
-				fetch(dir, plev * 15, TRUE);
-			}
+		case 4: /* Resist Fire */
+			(void)set_oppose_fire(p_ptr->oppose_fire + rand_range(30, 60));
 			break;
-		case 9: /* Trump Animal */
-		{
-			bool pet = success; /* was (randint1(5) > 2) */
-			int type = (pet ? SUMMON_ANIMAL_RANGER : SUMMON_ANIMAL);
-			bool group = (pet ? FALSE : TRUE);
+		case 5: /* Resist Acid */
+			(void)set_oppose_acid(p_ptr->oppose_acid + rand_range(30, 60));
+			break;
+		case 6: /* Create Nutrients */
+			(void)set_food(PY_FOOD_MAX - 1);
+			break;
+		case 7: /* Spit Acid */
+			if (!get_aim_dir(&dir)) return FALSE;
 
-			if (success)
-				msg_print("You concentrate on the trump of an animal...");
+			(void)fire_bolt_or_beam(beam, GF_ACID, dir,
+			damroll(5 + ((plev - 5) / 4), 8));
+			break;
+		case 8: /* Relieve Wounds */
+			(void)hp_player(damroll(6, 10));
+			(void)set_cut(p_ptr->cut - 30);
+			break;
+		case 9: /* Breathe Frost */
+			if (!get_aim_dir(&dir)) return FALSE;
 
-			if (summon_specific((pet ? -1 : 0), py, px, plev, type, group, FALSE, pet))
+			(void)fire_ball(GF_COLD, dir, 15 + ((3 * plev) / 4), 2);
+			break;
+		case 10: /* Hands of Appraisal */
+			if (plev < 25)
+				return psychometry();
+			else 
+				return ident_spell();
+			break;
+		case 11: /* See Invisible */
+			(void)set_tim_invis(p_ptr->tim_invis + rand_range(36, 72));
+			break;
+		case 12: /* Adrenalin */
+			(void)set_shero(p_ptr->shero + rand_range(50, 75));
+			(void)hp_player(30);
+			(void)set_afraid(0);
+			(void)set_poisoned(p_ptr->poisoned / 2);
+			break;
+		case 13: /* Cure */
+			(void)set_afraid(0);
+			(void)set_poisoned(0);
+			(void)set_stun(0);
+			(void)set_cut(0);
+			break;
+		case 14: /* Breathe Fire */
+			if (!get_aim_dir(&dir)) return FALSE;
+
+			(void)fire_ball(GF_FIRE, dir, 40 + ((3 * plev) / 4), 2);
+			break;
+		case 15: /* Breathe Plasma */
+			if (!get_aim_dir(&dir)) return FALSE;
+
+			(void)fire_ball(GF_PLASMA, dir, 150 + (3 * plev), 2);
+			break;
+		case 16: /* Resist Cold */
+			(void)set_oppose_cold(p_ptr->oppose_cold + rand_range(30, 60));
+			break;
+		case 17: /* Resist Electricity */
+			(void)set_oppose_elec(p_ptr->oppose_elec + rand_range(30, 60));
+			break;
+		case 18: /* Resist Poison */
+			(void)set_oppose_pois(p_ptr->oppose_pois + rand_range(30, 60));
+			break;
+		case 19: /* Ironskin */
+			(void)set_shield(p_ptr->shield + rand_range(60, 100));
+			break;
+		case 20: /* Essence of Speed */
+			if (!p_ptr->fast)
 			{
-				if (!pet)
-					msg_print("An angry animal appears!");
+				(void)set_fast(randint1(100) + (3 * plev));
 			}
 			else
 			{
-				no_trump = TRUE;
-			}
-
-			break;
-		}
-		case 10: /* Phantasmal Servant */
-			if (success)
-			{
-				if (summon_specific(-1, py, px, (plev * 3) / 2, SUMMON_PHANTOM, FALSE, TRUE, TRUE))
-				{
-					msg_print("'Your wish, master?'");
-				}
-				else
-				{
-					no_trump = TRUE;
-				}
+				(void)set_fast(p_ptr->fast + randint1(plev));
 			}
 			break;
-		case 11: /* Trump Monster */
-		{
-			bool pet = success; /* was (randint1(5) > 2) */
-			int type = (pet ? SUMMON_NO_UNIQUES : 0);
-			bool group = (pet ? FALSE : TRUE);
+		case 21: /* Release Poison */
+			(void)fire_ball(GF_POIS, 0, 75 + plev, 2 + (plev/8));
+			break;
+		case 22: /* Breathe Shards */
+			if (!get_aim_dir(&dir)) return FALSE;
 
-			if (success)
-				msg_print("You concentrate on the trump of a monster...");
-
-			if (summon_specific((pet ? -1 : 0), py, px, (plev * 3) / 2, type, group, FALSE, pet))
+			(void)fire_ball(GF_SHARDS, dir, 60 + plev, 2);
+			break;
+		case 23: /* Electrocution */
+			(void)project(0, 1, py, px, (125 + (2 * plev)), GF_ELEC, PROJECT_KILL);
+			break;
+		case 24: /* Resistance */
 			{
-				if (!pet)
-					msg_print("An angry monster appears!");
+				int dur = rand_range(30, 60);
+				(void)set_oppose_acid(p_ptr->oppose_acid + dur);
+				(void)set_oppose_elec(p_ptr->oppose_elec + dur);
+				(void)set_oppose_fire(p_ptr->oppose_fire + dur);
+				(void)set_oppose_cold(p_ptr->oppose_cold + dur);
+				(void)set_oppose_pois(p_ptr->oppose_pois + dur);
+			}
+			break;
+		case 25: /* Breathe Lightning */
+			if (!get_aim_dir(&dir)) return FALSE;
+
+			(void)fire_beam(GF_ELEC, dir, damroll(9 + ((plev - 5) / 4), 8));
+			break;
+		case 26: /* Breathe Power */
+			/*int die;*/
+			die = randint1(100);
+			if (!get_aim_dir(&dir)) return FALSE;
+
+			if (one_in_(2))
+			{
+			do
+			{
+			die = randint1(100);
+			if (die < 5)
+			{
+				msg_print("You breathe light.");
+				(void)fire_ball(GF_LITE, dir, 10 + (plev / 5), 2);
+			}
+			else if (die < 10)
+			{
+				msg_print("You breathe darkness.");
+				(void)fire_ball(GF_DARK, dir, 15 + (plev / 5), 2);
+			}
+			else if (die < 14)
+			{
+				msg_print("You project a missile.");
+				(void)fire_bolt_or_beam(beam, GF_MISSILE, dir,
+			damroll(3 + ((plev - 1) / 5), 4));
+			}
+			else if (die < 19)
+			{
+				msg_print("You breathe nexus.");
+				(void)fire_ball(GF_NEXUS, dir, 10 + (plev / 2), 2);
+			}
+			else if (die < 23)
+			{
+				msg_print("You breathe time.");
+				(void)fire_ball(GF_TIME, dir, 15 + (plev / 2), 2);
+			}
+			else if (die < 28)
+			{
+				msg_print("You breathe inertia.");
+				(void)fire_ball(GF_INERTIA, dir, 20 + (plev / 2), 2);
+			}
+			else if (die < 32)
+			{
+				msg_print("You breathe frost.");
+				(void)fire_ball(GF_COLD, dir, 15 + ((3 * plev) / 4), 2);
+			}
+			else if (die < 37)
+			{
+				msg_print("You breathe acid.");
+				(void)fire_beam(GF_ACID, dir, damroll(4 + ((plev - 5) / 4), 8));
+			}
+			else if (die < 41)
+			{
+				msg_print("You breathe fire.");
+				(void)fire_ball(GF_FIRE, dir, 40 + ((3 * plev) / 4), 2);
+			}
+			else if (die < 45)
+			{
+				msg_print("You breathe lightning.");
+				(void)fire_beam(GF_ELEC, dir, damroll(9 + ((plev - 5) / 4), 8));
+			}
+			else if (die < 49)
+			{
+				msg_print("You breathe confusion.");
+				(void)fire_ball(GF_CONFUSION, dir, 50 + plev, 2);
+			}
+			else if (die < 53)
+			{
+				msg_print("You breathe disenchantment.");
+				(void)fire_ball(GF_DISENCHANT, dir, 55 + plev, 2);
+			}
+			else if (die < 57)
+			{
+				msg_print("You breathe shards.");
+				(void)fire_ball(GF_SHARDS, dir, 60 + plev, 2);
+			}
+			else if (die < 62)
+			{
+				msg_print("You breathe gravity.");
+				(void)fire_ball(GF_GRAVITY, dir, 60 + (2 * plev), 2);
+			}
+			else if (die < 66)
+			{
+				msg_print("You breathe force.");
+				(void)fire_ball(GF_FORCE, dir, 85 + (2 * plev), 2);
+			}
+			else if (die < 71)
+			{
+				msg_print("You breathe poison.");
+				(void)fire_ball(GF_POIS, dir, 100 + (6 * plev), 2);
+			}
+			else if (die < 75)
+			{
+				msg_print("You breathe plasma.");
+				(void)fire_ball(GF_PLASMA, dir, 150 + (6 * plev), 2);
+			}
+			else if (die < 79)
+			{
+				msg_print("You breathe toxic waste.");
+				(void)fire_ball(GF_NUKE, dir, 200 + (4 * plev), 2);
+			}
+			else if (die < 83)
+			{
+				msg_print("You breathe sound.");
+				(void)fire_ball(GF_SOUND, dir, 250 + (5 * plev), 2);
+			}
+			else if (die == 83)
+			{
+				msg_print("Everything comes out!!!");
+				(void)fire_ball(GF_LITE, dir, 2, 2);
+				(void)fire_ball(GF_DARK, dir, 2, 2);
+				(void)fire_bolt_or_beam(beam, GF_MISSILE, dir, 3);
+				(void)fire_ball(GF_NEXUS, dir, 3, 2);
+				(void)fire_ball(GF_TIME, dir, 4, 2);
+				(void)fire_ball(GF_INERTIA, dir, 4, 2);
+				(void)fire_ball(GF_COLD, dir, 5, 2);
+				(void)fire_beam(GF_ACID, dir, 7);
+				(void)fire_ball(GF_FIRE, dir, 8, 2);
+				(void)fire_beam(GF_ELEC, dir, 9);
+				(void)fire_ball(GF_CONFUSION, dir, 5 + (plev / 10), 2);
+				(void)fire_ball(GF_DISENCHANT, dir, 6 + (plev / 10), 2);
+				(void)fire_ball(GF_SHARDS, dir, 6 + (plev / 10), 2);
+				(void)fire_ball(GF_GRAVITY, dir, 60 + (plev / 5), 2);
+				(void)fire_ball(GF_FORCE, dir, 9 + (plev / 5), 2);
+				(void)fire_ball(GF_POIS, dir, 10 + (plev / 5), 2);
+				(void)fire_ball(GF_PLASMA, dir, 20 + (plev / 5), 2);
+				(void)fire_ball(GF_NUKE, dir, 15 + (plev / 2), 2);
+				(void)fire_ball(GF_SOUND, dir, 25 + (plev / 2), 2);
+				(void)fire_ball(GF_NETHER, dir, 35 + (plev / 2), 2);
+				(void)fire_ball(GF_CHAOS, dir, 40 + (plev / 2), 2);
+				(void)fire_ball(GF_DISINTEGRATE, dir, 45 + (plev / 2), 2);
+				(void)fire_ball(GF_MANA, dir, 25 + plev, 2);
+			}
+			else if (die < 88)
+			{
+				msg_print("You breathe nether.");
+				(void)fire_ball(GF_NETHER, dir, 300 + (12 * plev), 2);
+			}
+			else if (die < 92)
+			{
+				msg_print("You breathe chaos.");
+				(void)fire_ball(GF_CHAOS, dir, 300 + (7 * plev), 2);
+			}
+			else if (die < 97)
+			{
+				msg_print("You breathe disintegration.");
+				(void)fire_ball(GF_DISINTEGRATE, dir, 350 + (14 * plev), 2);
 			}
 			else
 			{
-				no_trump = TRUE;
+				msg_print("You breathe mana.");
+				(void)fire_ball(GF_MANA, dir, 350 + (15 * plev), 2);
 			}
+			}
+			while (one_in_(2));
+			}
+			else msg_print("Nothing seems to come.");
 
 			break;
-		}
-		case 12: /* Conjure Elemental */
-		{
-			bool pet = success; /* was (randint1(6) > 3) */
-			bool group = (pet ? FALSE : TRUE);
-
-			if (success)
-				msg_print("You concentrate on the trump of a monster...");
-
-			if (summon_specific((pet ? -1 : 0), py, px, (plev * 3) / 2, SUMMON_ELEMENTAL, group, FALSE, pet))
-			{
-				if (!pet)
-					msg_print("An angry elemental appears!");
-			}
-			else
-			{
-				no_trump = TRUE;
-			}
-
+		
+		case 27: /* Remove Wounds */
+			(void)hp_player(300 + randint1(400));
+			(void)set_cut(0);
 			break;
-		}
-		case 13: /* Teleport Level */
-			if (success)
-			{
-				(void)teleport_player_level();
-			}
+		case 28: /* Polymorph Self */
+			do_poly_self();
 			break;
-		case 14: /* Word of Recall */
-			if (success)
+		case 29: /* Polymorph Life */
+			do_cmd_rerate();
+			if (one_in_(2))
 			{
-				word_of_recall();
+				if (!lose_mutation(0))
+					msg_print("You feel oddly normal.");
+			}
+			if (one_in_(12))
+			{
+				msg_print("You have a sudden feeling of doom...");
+				(void)do_dec_stat(A_STR);
+				(void)do_dec_stat(A_DEX);
+				(void)do_dec_stat(A_CON);
+				(void)do_dec_stat(A_INT);
+				(void)do_dec_stat(A_WIS);
+				(void)do_dec_stat(A_CHR);
+				int count = 0;
+				(void)activate_ty_curse(FALSE, &count);
+				(void)lose_all_info();
 			}
 			break;
-		case 15: /* Banish */
-			if (success)
+		case 30: /* Mutate */
+			if (one_in_(12))
 			{
-				(void)banish_monsters(plev * 4);
+				msg_print("You have a sudden feeling of doom...");
+				(void)do_dec_stat(A_STR);
+				(void)do_dec_stat(A_DEX);
+				(void)do_dec_stat(A_CON);
+				(void)do_dec_stat(A_INT);
+				(void)do_dec_stat(A_WIS);
+				(void)do_dec_stat(A_CHR);
+				int count = 0;
+				(void)activate_ty_curse(FALSE, &count);
+				(void)lose_all_info();
 			}
+			(void)gain_mutation(0);
 			break;
-		case 16: /* Joker Card */
-		{
-			bool pet = success; /* was one_in_(2) */
-			bool group = (pet ? FALSE : TRUE);
+		case 31: /* Breathe Mana */
+			if (!get_aim_dir(&dir)) return FALSE;
 
-			if (success)
-				msg_print("You concentrate on a joker card...");
-
-			switch (randint1(4))
-			{
-				case 1: dummy = SUMMON_BIZARRE1; break;
-				case 2: dummy = SUMMON_BIZARRE2; break;
-				case 3: dummy = SUMMON_BIZARRE4; break;
-				case 4: dummy = SUMMON_BIZARRE5; break;
-			}
-
-			if (summon_specific((pet ? -1 : 0), py, px, (plev * 3) / 2, dummy, group, FALSE, pet))
-			{
-				if (!pet)
-					msg_print("An angry creature appears!");
-			}
-			else
-			{
-				no_trump = TRUE;
-			}
+			(void)fire_ball(GF_MANA, dir, 300 + (5 * plev), 2);
 			break;
-		}
-		case 17: /* Trump Spiders */
-		{
-			bool pet = success; /* (randint1(5) > 2) */
-			bool group = (pet ? FALSE : TRUE);
-
-			if (success)
-				msg_print("You concentrate on the trump of a spider...");
-
-			if (summon_specific((pet ? -1 : 0), py, px, plev, SUMMON_SPIDER, group, FALSE, pet))
-			{
-				if (!pet)
-					msg_print("An angry spiders appears!");
-			}
-			else
-			{
-				no_trump = TRUE;
-			}
-
-			break;
-		}
-		case 18: /* Trump Reptiles */
-		{
-			bool pet = success; /* was (randint1(5) > 2) */
-			bool group = (pet ? FALSE : TRUE);
-
-			if (success)
-				msg_print("You concentrate on the trump of a reptile...");
-
-			if (summon_specific((pet ? -1 : 0), py, px, (plev * 3) / 2, SUMMON_HYDRA, group, FALSE, pet))
-			{
-				if (!pet)
-					msg_print("An angry reptile appears!");
-			}
-			else
-			{
-				no_trump = TRUE;
-			}
-
-			break;
-		}
-		case 19: /* Trump Hounds */
-		{
-			bool pet = success; /* was (randint1(5) > 2) */
-
-			if (success)
-				msg_print("You concentrate on the trump of a hound...");
-
-			if (summon_specific((pet ? -1 : 0), py, px, plev, SUMMON_HOUND, TRUE, FALSE, pet))
-			{
-				if (!pet)
-					msg_print("Angry barking surrounds you!");
-			}
-			else
-			{
-				no_trump = TRUE;
-			}
-
-			break;
-		}
-		case 20: /* Trump Branding */
-			if (success)
-			{
-				brand_weapon(4);
-			}
-			break;
-		case 21: /* Living Trump */
-			if (success)
-			{
-				if (one_in_(8))
-					/* Teleport control */
-					dummy = 12;
-				else
-					/* Random teleportation (uncontrolled) */
-					dummy = 77;
-
-				/* Gain the mutation */
-				if (gain_mutation(dummy))
-					msg_print("You have turned into a Living Trump.");
-			}
-			break;
-		case 22: /* Death Dealing */
-			if (success)
-			{
-				(void)dispel_living(plev * 3);
-			}
-			break;
-		case 23: /* Trump Cyberdemon */
-		{
-			bool pet = success; /* was (randint1(10) > 3) */
-
-			if (success)
-				msg_print("You concentrate on the trump of a Cyberdemon...");
-
-			if (summon_specific((pet ? -1 : 0), py, px, plev * 2, SUMMON_CYBER, FALSE, FALSE, pet))
-			{
-				if (!pet)
-					msg_print("An angry Cyberdemon appears!");
-			}
-			else
-			{
-					no_trump = TRUE;
-			}
-
-			break;
-		}
-		case 24: /* Trump Divination */
-			if (success)
-			{
-				(void)detect_all();
-			}
-			break;
-		case 25: /* Trump Lore */
-			if (success)
-			{
-				return identify_fully();
-			}
-			break;
-		case 26: /* Trump Undead */
-		{
-			bool pet = success; /* (randint1(10) > 3) */
-			bool group = (pet ? FALSE : TRUE);
-
-			if (success)
-				msg_print("You concentrate on the trump of an undead creature...");
-
-			if (summon_specific((pet ? -1 : 0), py, px, plev * 2, SUMMON_UNDEAD, group, FALSE, pet))
-			{
-				if (!pet)
-					msg_print("An angry undead creature appears!");
-			}
-			else
-			{
-				no_trump = TRUE;
-			}
-
-			break;
-		}
-		case 27: /* Trump Dragon */
-		{
-			bool pet = success; /* was (randint1(10) > 3) */
-			bool group = (pet ? FALSE : TRUE);
-
-			if (success)
-				msg_print("You concentrate on the trump of a dragon...");
-
-			if (summon_specific((pet ? -1 : 0), py, px, plev * 2, SUMMON_DRAGON, group, FALSE, pet))
-			{
-				if (!pet)
-					msg_print("An angry dragon appears!");
-			}
-			else
-			{
-				no_trump = TRUE;
-			}
-
-			break;
-		}
-		case 28: /* Mass Trump */
-		{
-			no_trump = TRUE;
-
-			if (success)
-				msg_print("You concentrate on several trumps at once...");
-
-			for (dummy = 0; dummy < 3 + (plev / 10); dummy++)
-			{
-				bool pet = success; /* was (randint1(10) > 3) */
-				bool group = (pet ? FALSE : TRUE);
-				int type = (pet ? SUMMON_NO_UNIQUES : 0);
-
-				if (summon_specific((pet ? -1 : 0), py, px, (plev * 3) / 2, type, group, FALSE, pet))
-				{
-					if (!pet)
-						msg_print("An angry creature appears!");
-					no_trump = FALSE;
-				}
-			}
-			break;
-		}
-		case 29: /* Trump Demon */
-		{
-			bool pet = success; /* was (randint1(10) > 3) */
-			bool group = (pet ? FALSE : TRUE);
-
-			if (success)
-				msg_print("You concentrate on the trump of a demon...");
-
-			if (summon_specific((pet ? -1 : 0), py, px, plev * 2, SUMMON_DEMON, group, FALSE, pet))
-			{
-				if (!pet)
-					msg_print("An angry demon appears!");
-			}
-			else
-			{
-				no_trump = TRUE;
-			}
-
-			break;
-		}
-		case 30: /* Trump Ancient Dragon */
-		{
-			bool pet = success; /* was (randint1(10) > 3) */
-			bool group = (pet ? FALSE : TRUE);
-			int type = (pet ? SUMMON_HI_DRAGON_NO_UNIQUES : SUMMON_HI_DRAGON);
-
-			if (success)
-				msg_print("You concentrate on the trump of an ancient dragon...");
-
-			if (summon_specific((pet ? -1 : 0), py, px, plev * 2, type, group, FALSE, pet))
-			{
-				if (!pet)
-					msg_print("An angry ancient dragon appears!");
-			}
-			else
-			{
-				no_trump = TRUE;
-			}
-
-			break;
-		}
-		case 31: /* Trump Greater Undead */
-		{
-			bool pet = success; /* was (randint1(10) > 3) */
-			bool group = (pet ? FALSE : TRUE);
-			int type = (pet ? SUMMON_HI_UNDEAD_NO_UNIQUES : SUMMON_HI_UNDEAD);
-
-			if (success)
-				msg_print("You concentrate on the trump of a greater undead being...");
-
-			if (summon_specific((pet ? -1 : 0), py, px, plev * 2, type, group, FALSE, pet))
-			{
-				if (!pet)
-					msg_print("An angry greater undead creature appears!");
-			}
-			else
-			{
-				no_trump = TRUE;
-			}
-
-			break;
-		}
 		default:
-			msg_format("You cast an unknown Trump spell: %d.", spell);
+			msg_format("You cast an unknown Morphic spell: %d.", spell);
 			msg_print(NULL);
 	}
 
-	if (no_trump)
+	/*if (no_trump)
 	{
 		msg_print("Nobody answers to your Trump call.");
-	}
+	}*/
 
 	return TRUE;
 }
@@ -2629,6 +2839,215 @@ static bool cast_arcane_spell(int spell)
 }
 
 
+static bool cast_wizardry_spell(int spell)
+{
+
+	int px = p_ptr->px;
+	int py = p_ptr->py;
+
+	int	dir;
+	int	beam;
+	int	plev = p_ptr->lev;
+	int	i;
+	cave_type *c_ptr;
+
+	if (p_ptr->pclass == CLASS_MAGE) beam = plev;
+	else if (p_ptr->pclass == CLASS_HIGH_MAGE) beam = plev + 10;
+	else beam = plev / 2;
+
+
+
+	switch (spell)
+	{
+	case 0: /* Magic Missile */
+		if (!get_aim_dir(&dir)) return FALSE;
+
+		(void)fire_bolt_or_beam(beam - 10, GF_MISSILE, dir,
+			damroll(3 + ((plev - 1) / 5), 4));
+		break;
+	case 1: /* Trap / Door destruction */
+		(void)destroy_doors_touch();
+		break;
+	case 2: /* Detect Evil */
+		(void)detect_monsters_evil();
+		break;
+	case 3: /* Cure Light Wounds */
+		(void)hp_player(damroll(2, 10));
+		(void)set_cut(p_ptr->cut - 10);
+		break;
+	case 4: /* Stinking Cloud */
+		if (!get_aim_dir(&dir)) return FALSE;
+
+		(void)fire_ball(GF_POIS, dir, 10 + (plev / 2), 2);
+		break;
+	case 5: /* Stone to Mud */
+		if (!get_aim_dir(&dir)) return FALSE;
+
+		(void)wall_to_mud(dir);
+		break;
+	case 6: /* Lightning Bolt */
+		if (!get_aim_dir(&dir)) return FALSE;
+
+		(void)fire_bolt_or_beam(beam - 10, GF_ELEC, dir,
+			damroll(3 + ((plev - 5) / 4), 8));
+		break;
+	case 7: /* Resist Poison */
+		(void)set_oppose_pois(p_ptr->oppose_pois + rand_range(20, 40));
+		break;
+	case 8: /* Spear of Light */
+		if (!get_aim_dir(&dir)) return FALSE;
+		(void)lite_line(dir);
+		break;
+	case 9: /* Manaburst */
+		if (!get_aim_dir(&dir)) return FALSE;
+
+		(void)fire_ball(GF_MISSILE, dir,
+		    (damroll(3, 6) + plev + (plev / 4)), ((plev < 45) ? 1 : 2));
+			/* Shouldn't actually use GF_MANA, as it will destroy all
+			 * items on the floor */
+		break;
+	case 10: /* Satisfy Hunger */
+		(void)set_food(PY_FOOD_MAX - 1);
+		break;
+	case 11: /* Fire Bolt */
+		if (!get_aim_dir(&dir)) return FALSE;
+
+		(void)fire_bolt_or_beam(beam, GF_FIRE, dir,
+			damroll(8 + ((plev - 5) / 4), 8));
+		break;
+	case 12: /* Cure Poison */
+		(void)set_poisoned(0);
+		break;
+	case 13: /* Fire Ball */
+		if (!get_aim_dir(&dir)) return FALSE;
+
+		(void)fire_ball(GF_FIRE, dir, plev + 55, 2);
+		break;
+	case 14: /* Word of Destruction */
+		(void)destroy_area(py, px, 15);
+		break;
+	case 15: /* Genocide */
+		(void)genocide(TRUE);
+		break;
+	case 16: /* Resist Environment */
+		{
+			int dur = rand_range(20, 40);
+			(void)set_oppose_cold(p_ptr->oppose_cold + dur);
+			(void)set_oppose_fire(p_ptr->oppose_fire + dur);
+			(void)set_oppose_elec(p_ptr->oppose_elec + dur);
+		}
+		break;
+	case 17: /* Door Building */
+		(void)door_creation();
+		break;
+	case 18: /* Heroism */
+		(void)set_hero(p_ptr->hero + rand_range(25, 50));
+		(void)hp_player(10);
+		(void)set_afraid(0);
+		break;
+	case 19: /* Stair Building */
+		(void)stair_creation();
+		break;
+	case 20: /* Berserker */
+		(void)set_shero(p_ptr->shero + rand_range(25, 50));
+		(void)hp_player(30);
+		(void)set_afraid(0);
+		break;
+	case 21: /* Shield */
+		(void)set_shield(p_ptr->shield + rand_range(30, 50));
+		break;
+	case 22: /* Resistance */
+		{
+			int dur = rand_range(20, 40);
+			(void)set_oppose_acid(p_ptr->oppose_acid + dur);
+			(void)set_oppose_elec(p_ptr->oppose_elec + dur);
+			(void)set_oppose_fire(p_ptr->oppose_fire + dur);
+			(void)set_oppose_cold(p_ptr->oppose_cold + dur);
+			(void)set_oppose_pois(p_ptr->oppose_pois + dur);
+		}
+		break;
+	case 23: /* Mass Genocide */
+		(void)mass_genocide(TRUE);
+		break;
+	case 24: /* Frost Bolt */
+		if (!get_aim_dir(&dir)) return FALSE;
+		(void)fire_bolt_or_beam(beam - 10, GF_COLD, dir,
+			damroll(5 + ((plev - 5) / 4), 8));
+		break;
+	case 25: /* Polymorph Other */
+		if (!get_aim_dir(&dir)) return FALSE;
+
+		(void)poly_monster(dir);
+		break;
+	case 26: /* Earthquake */
+		(void)earthquake(py, px, 10);
+		break;
+	case 27: /* Doom Bolt -- always beam in 2.0.7 or later */
+		if (!get_aim_dir(&dir)) return FALSE;
+
+		(void)fire_beam(GF_MANA, dir, damroll(11 + ((plev - 5) / 4), 8));
+		break;
+	case 28: /* Blizzard */
+		if (!get_aim_dir(&dir)) return FALSE;
+
+		(void)fire_ball(GF_COLD, dir, 70 + plev, (plev / 12) + 1);
+		break;
+	case 29: /* Whirlpool */
+		if (!get_aim_dir(&dir)) return FALSE;
+		(void)fire_ball(GF_WATER, dir, 100 + plev, (plev / 12) + 1);
+		break;
+	case 30: /* Meteor Swarm */
+		{
+			int x, y;
+			int b = rand_range(10, 20);
+			for (i = 0; i < b; i++)
+			{
+				int count = 0;
+
+				while (count < 1000)
+				{
+					count++;
+
+					x = px - 5 + randint1(10);
+					y = py - 5 + randint1(10);
+
+					/* paranoia */
+					if (!in_bounds(y, x)) continue;
+
+					c_ptr = area(y, x);
+
+					/* keep going if not in LOS */
+					if (!player_has_los_grid(c_ptr)) continue;
+
+					/* if close enough - exit */
+					if (distance(py, px, y, x) < 6) break;
+				}
+
+				if (count >= 1000) break;
+
+				(void)project(0, 2, y, x, (plev * 3) / 2, GF_METEOR, PROJECT_KILL | PROJECT_JUMP | PROJECT_ITEM);
+			}
+		}
+		break;
+	case 31: /* Mana Storm */
+		if (!get_aim_dir(&dir)) return FALSE;
+
+		(void)fire_ball(GF_MANA, dir, 300 + (plev * 2), 4);
+		break;
+	default:
+		msg_format("You cast an unknown Wizardry spell: %d.", spell);
+		msg_print(NULL);
+	}
+
+	return TRUE;
+}
+
+
+
+
+
+
+#if defined(SUPPORT_OLD_MAGIC) || !defined(USE_NEW_MAGIC)
 /*
  * Cast a spell
  */
@@ -2712,7 +3131,7 @@ void do_cmd_cast(void)
 	else realm = p_ptr->realm1;
 
 	/* Ask for a spell */
-	if (!get_spell(&spell, ((mp_ptr->spell_book == TV_LIFE_BOOK) ? "recite" : "cast"),
+	if (!get_spell_old(&spell, ((mp_ptr->spell_book == TV_LIFE_BOOK) ? "recite" : "cast"),
 	               sval, TRUE, (bool)(increment ? TRUE : FALSE)))
 	{
 		if (spell == -2)
@@ -2757,10 +3176,10 @@ void do_cmd_cast(void)
 			chg_virtue(V_KNOWLEDGE, -1);
 
 
-		if (realm == REALM_TRUMP)
+		/*if (realm == REALM_TRUMP)
 		{
 			(void)cast_trump_spell(spell, FALSE);
-		}
+		}*/
 		else if ((o_ptr->tval == TV_CHAOS_BOOK) && (randint1(100) < spell))
 		{
 			msg_print("You produce a chaotic effect!");
@@ -2836,6 +3255,9 @@ void do_cmd_cast(void)
 			break;
 		case REALM_ARCANE: /* ARCANE */
 			cast = cast_arcane_spell(spell);
+			break;
+		case REALM_WIZARDRY: /* WIZARDRY */
+			cast = cast_wizardry_spell(spell);
 			break;
 		default:
 			cast = FALSE;
@@ -2924,6 +3346,234 @@ void do_cmd_cast(void)
 	p_ptr->window |= (PW_SPELL);
 #endif /* USE_SCRIPT */
 }
+#endif /* defined(SUPPORT_OLD_MAGIC) || !defined(USE_NEW_MAGIC) */
+
+
+#ifdef USE_NEW_MAGIC
+/*
+ * Cast a spell - new system
+ */
+void do_cmd_cast_new(void)
+{
+#ifdef USE_SCRIPT
+	use_skill_callback();
+#else /* USE_SCRIPT */
+	int	item, spell;
+	int	chance;
+	bool 	cast;
+	int 	smana;
+			
+	object_type	*o_ptr;
+
+	cptr q, s;
+
+	/* Require spell ability */
+	if (p_ptr->pclass == CLASS_WARRIOR || p_ptr->pclass == CLASS_MINDCRAFTER)
+	{
+		msg_print("You cannot cast spells!");
+		return;
+	}
+
+	/* Require lite */
+	if (p_ptr->blind || no_lite())
+	{
+		msg_print("You cannot see!");
+		return;
+	}
+
+	/* Not when confused */
+	if (p_ptr->confused)
+	{
+		msg_print("You are too confused!");
+		return;
+	}
+
+	/* Restrict choices to spell books */
+	item_tester_tval = TV_SPELLBOOK;
+
+	/* Get an item */
+	q = "Use which book? ";
+	s = "You have no spell books!";
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
+
+#ifdef USE_SCRIPT
+	if (object_cast_callback(o_ptr)) return;
+#endif /* USE_SCRIPT */
+
+	/* Track the object kind */
+	object_kind_track(o_ptr->k_idx);
+
+	/* Hack -- Handle stuff */
+	handle_stuff();
+
+	/* Ask for a spell */
+	if (!get_spell_new(&spell, "cast", o_ptr, TRUE))
+	{
+		if (spell == -2)
+			msg_print("You don't know any spells in that book.");
+		return;
+	}
+
+
+	/* Access the spell */
+	smana = calculate_mana(spell);
+	chance = spell_chance_new(spell);
+
+
+	/* Verify "dangerous" spells */
+	if (smana > p_ptr->csp)
+	{
+		/* Warning */
+		msg_print("You do not have enough mana to cast this spell.");
+
+		/* Verify */
+		if (!get_check("Attempt it anyway? ")) return;
+	}
+
+
+	/* Failed spell */
+	if (randint0(100) < chance)
+	{
+		if (flush_failure) flush();
+
+		msg_print("You failed to get the spell off!");
+		sound(SOUND_FAIL);
+		
+		if (randint1(100) < chance)
+			chg_virtue(spell_stats[spell][6] ? V_KNOWLEDGE : V_FAITH, -1);
+		
+/* May do something like this, but would have to have a different implementation */
+#if 0
+		else if ((o_ptr->tval == TV_CHAOS_BOOK) && (randint1(100) < spell))
+		{
+			msg_print("You produce a chaotic effect!");
+			wild_magic(spell);
+		}
+		else if ((o_ptr->tval == TV_DEATH_BOOK) && (randint1(100) < spell))
+		{
+			if ((sval == 3) && one_in_(2))
+			{
+				msg_print("Your sanity is shaken by reading the Necronomicon!");
+				
+				/* Mind blast */
+				if (!saving_throw(p_ptr->skill_sav * 100))
+				{
+					if (!p_ptr->resist_confu)
+					{
+						(void)set_confused(p_ptr->confused + rand_range(4, 8));
+					}
+					if (!p_ptr->resist_chaos && one_in_(3))
+					{
+						(void)set_image(p_ptr->image + rand_range(150, 400));
+					}
+				}
+
+				/* Lose int & wis */
+				else if (!saving_throw(p_ptr->skill_sav * 100))
+				{
+					(void)do_dec_stat(A_INT);
+					(void)do_dec_stat(A_WIS);
+				}
+			}
+			else
+			{
+				msg_print("It hurts!");
+				take_hit(damroll(o_ptr->sval + 1, 6), "a miscast Death spell");
+				if ((spell > 15) && one_in_(6) && !p_ptr->hold_life)
+					lose_exp(spell * 250);
+			}
+		}
+#endif /* 0 */
+	}
+
+	/* Process spell */
+	else
+	{
+		if ((randint1(100) < chance) && (chance < 50))
+		{
+			chg_virtue(spell_stats[spell][6] ? V_KNOWLEDGE : V_FAITH, 1);
+		}
+
+		/* Spells. */
+		cast = cast_spell_new(spell, TRUE);
+
+		/* Canceled spells cost neither a turn nor mana */
+		if (!cast) return;
+
+		/* A spell was cast */
+		if (!(p_ptr->spell_worked[spell/32] & (1L << (spell % 32))))
+		{
+			/* The spell worked */
+			p_ptr->spell_worked[spell/32] |= (1L << (spell % 32));
+
+			/* Gain experience */
+			gain_exp(spell_stats[spell][2] * spell_stats[spell][4]);
+
+			chg_virtue(spell_stats[spell][6] ? V_KNOWLEDGE : V_FAITH, 1);
+		}
+	}
+
+	/* Take a turn */
+	p_ptr->energy_use = 100;
+
+	/* Sufficient mana */
+	if (smana <= p_ptr->csp)
+	{
+		/* Use some mana */
+		p_ptr->csp -= smana;
+	}
+
+	/* Over-exert the player */
+	else
+	{
+		int oops = smana - p_ptr->csp;
+
+		/* No mana left */
+		p_ptr->csp = 0;
+		p_ptr->csp_frac = 0;
+
+		/* Message */
+		msg_print("You faint from the effort!");
+
+		/* Hack -- Bypass free action */
+		(void)set_paralyzed(p_ptr->paralyzed + randint1(5 * oops + 1));
+
+		chg_virtue(spell_stats[spell][6] ? V_KNOWLEDGE : V_FAITH, -10);
+
+		/* Damage CON (possibly permanently) */
+		if (one_in_(2))
+		{
+			bool perm = one_in_(4);
+
+			/* Message */
+			msg_print("You have damaged your health!");
+
+			/* Reduce constitution */
+			(void)dec_stat(A_CON, rand_range(15, 25), perm);
+		}
+	}
+
+	/* Redraw mana */
+	p_ptr->redraw |= (PR_MANA);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_PLAYER);
+	p_ptr->window |= (PW_SPELL);
+#endif /* USE_SCRIPT */
+}
+#endif /* USE_NEW_MAGIC */
 
 
 /*

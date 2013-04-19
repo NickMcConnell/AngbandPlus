@@ -676,8 +676,9 @@ static void Resize_term(AngbandWidget wnew)
 	int oy = wnew->angband.internal_border;
 
 	int i;
-	term_data *old_td = (term_data*)(Term->data);
+	term_data *old_td = NULL;
 	term_data *td = &data[0];
+	if (Term) old_td = (term_data*)(Term->data);
 
 	/* Hack - Find the term to activate */
 	for (i = 0; i < num_term; i++)
@@ -717,7 +718,7 @@ static void Resize_term(AngbandWidget wnew)
 	(void) Term_resize(cols, rows);
 
 	/* Activate the old term */
-	Term_activate(&old_td->t);
+	if (old_td) Term_activate(&old_td->t);
 }
 
 /*

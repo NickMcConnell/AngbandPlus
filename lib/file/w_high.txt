@@ -5,14 +5,11 @@ of Ultimate Might
 'World Ender'
 'Destructor'
 of Destruction
-'Impulse 255'
-'Disintegrator'
+'Impulse'
 'Vanquisher'
-'BGF-9000'
-'Mjollner'
+'Molliner'
 'Hand of God'
 'Deathstorm'
-'Devil's Instrument'
 'Word of God'
 'Idkfa'
 'Quietus'
@@ -22,25 +19,16 @@ of Death
 'Devastator'
 'Excsymyr'
 'Vorax'
-'Excalibur'
 of Muramasa
-'Heartseeker'
 'Bloodscourge'
-'Hand of Vecna'
-'Unmaker'
-'Apocalypse-Now'
 'Armageddon'
 'Devourer'
-'Soul Searer'
 'Abyss'
 'Cosmic Horror'
 'Dragon Fang'
 'Nemesis'
-'Doom!'
 'Death Wish'
-'Die Hard'
 'Exodus'
-'Terminator'
 'Exterminator'
 'Thunderstrike'
 'Bloodwych'
@@ -49,7 +37,6 @@ of Muramasa
 'Red Storm'
 'Dominator'
 'Conqueror'
-'Secret Weapon'
 'Angel of Death'
 'Destroying Angel'
 'Black Star'
@@ -57,9 +44,6 @@ of Muramasa
 'Surma'
 'Kalma'
 'Right Hand of Justice'
-'Fat Boy'
-'Megadeath'
-of the Fourth Horseman
 'Apocalyptica'
 'Doomsday'
 'Judgement of Heaven'
@@ -69,21 +53,37 @@ of the Fourth Horseman
 'Weapon Omega'
 'Finalizer'
 of Fargoal
-of Bleys
 of Gerard
-of Benedict
 of Elric
-of Eric
 of Erlik
 'Aeglin'
 'Aeglos'
-of Beowulf
-of Orome
 'Fatal Destiny'
-'Jehovah's Wrath'
 'Undying Samurai'
 'Eternal Verities'
 'Durindana'
 'Joyeuse'
 of the Eagle Lord
 'Azriel's Own'
+of Goalt
+of Sawisk
+of Pooswe
+of Luhi
+of Nampomi
+of Duquoo
+of Oarolla
+of Faska
+of Lobomp
+of Ohop
+'Dunadea'
+'Laldit'
+'Oilodut'
+'Elessate'
+'Talcam'
+'Daca'
+'Taneelate'
+'Colnor'
+'Rebiv'
+'Avioreer'
+'Rarra'
+'Loyewal'

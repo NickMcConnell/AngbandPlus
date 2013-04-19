@@ -202,6 +202,15 @@ bool racial_aux(s16b min_level, int cost, int use_stat, int difficulty)
 }
 
 
+static void cmd_given_power_aux(const mutation_type *mut_ptr)
+{
+	if (racial_aux(mut_ptr->level, mut_ptr->cost, mut_ptr->stat, mut_ptr->diff))
+	{
+		msg_print("You use a given power");
+	}
+}
+
+
 static void cmd_racial_power_aux(const mutation_type *mut_ptr)
 {
 	s16b        plev = p_ptr->lev;
@@ -637,6 +646,36 @@ struct power_desc_type
 	const mutation_type *power;
 };
 
+/*
+ * Determine whether a god supports a shared power
+ */
+static bool shared_power_ok(bool priest, s16b god, u32b power)
+{
+	/* Not a shared power? */
+	if (power < SHARED_POWER_BASE) return FALSE;
+
+	/* Paranoia */
+	if (power >= SHARED_POWER_BASE + MAX_SHARED_GIVEN_POWERS)
+	{
+		msg_print("Bad given power number");
+		return FALSE;
+	}
+
+	/* Check the possibilities */
+	switch (power - SHARED_POWER_BASE)
+	{
+		case GIVEN_POWER_TURN: 
+			return TRUE;
+
+		default: 
+			msg_print("Unknown shared power");
+			return FALSE;
+	}
+
+	/* We should never get here */
+	/*return FALSE;*/
+}
+
 
 /*
  * Allow user to choose a power (racial / mutation) to activate
@@ -685,6 +724,35 @@ void do_cmd_racial_power(void)
 			power_desc[num++].power = mut_ptr;
 		}	
 	}
+
+#ifdef USE_NEW_MAGIC
+	/* Look for given powers */
+	if (
+ #ifdef SUPPORT_OLD_MAGIC
+			!old_magic_user && 
+ #endif /* SUPPORT_OLD_MAGIC */
+			(p_ptr->pclass == CLASS_PRIEST || p_ptr->pclass == CLASS_PALADIN))
+	{
+		for (i = 0; i < MAX_GIVEN_POWERS; i++)
+		{
+			mut_ptr = &given_powers[i];
+			
+			if ((mut_ptr->which == (p_ptr->pclass == CLASS_PRIEST ? 
+					p_ptr->chaos_patron : p_ptr->chaos_patron + MAX_GOD))
+					|| shared_power_ok(p_ptr->pclass == CLASS_PRIEST,
+					p_ptr->chaos_patron, mut_ptr->which))
+			{
+				strcpy(power_desc[num].name, mut_ptr->name);
+				power_desc[num].level = mut_ptr->level;
+				power_desc[num].cost = mut_ptr->cost;
+				power_desc[num].fail = 100 -
+					racial_chance(mut_ptr->level, mut_ptr->stat, mut_ptr->diff);
+				power_desc[num].number = -2;
+				power_desc[num++].power = mut_ptr;
+			}
+		}
+	}
+#endif /* USE_NEW_MAGIC */
 
 	/* Not if we don't have any */
 	if (num == 0 && !p_ptr->muta1)
@@ -856,6 +924,12 @@ void do_cmd_racial_power(void)
 	{
 		cmd_racial_power_aux(power_desc[i].power);
 	}
+#ifdef USE_NEW_MAGIC
+	else if (power_desc[i].number == -2)
+	{
+		cmd_given_power_aux(power_desc[i].power);
+	}
+#endif /* USE_NEW_MAGIC */
 	else
 	{
 		mutation_power_aux(power_desc[i].power);

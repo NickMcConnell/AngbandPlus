@@ -105,8 +105,11 @@ static const grouper group_item[] =
 	{ TV_NATURE_BOOK,   "Books (Nature)" },
 	{ TV_CHAOS_BOOK,    "Books (Chaos)" },
 	{ TV_DEATH_BOOK,    "Books (Death)" },
-	{ TV_TRUMP_BOOK,    "Books (Trump)" },
+	{ TV_TRUMP_BOOK,    "Books (Morphism)" },
 	{ TV_ARCANE_BOOK,   "Books (Arcane)" },
+	{ TV_WIZARDRY_BOOK, "Books (Wizardry)" },
+	{ TV_SPELLBOOK,    "Books (General)" },
+	{ TV_SPELL_SCROLL,  "Spell Scrolls" },
 
 	{ TV_CHEST,         "Chests" },
 
@@ -651,7 +654,7 @@ typedef struct
 			1];     /* sentinel NULL */
 
 	/* A string describing an artifact's activation */
-	cptr activation;
+	char activation[80]; /* was cptr */
 
 	/* "Level 20, Rarity 30, 3.0 lbs, 20000 Gold" */
 	char misc_desc[80];
@@ -944,9 +947,15 @@ static void analyze_misc(const object_type *o_ptr, char *misc_desc)
 
 	a_ptr = &a_info[o_ptr->activate - 128];
 
+#ifdef L64
+	sprintf(misc_desc, "Level %u, Rarity %u, %d.%d lbs, %d Gold",
+		(uint)a_ptr->level, (uint)a_ptr->rarity,
+		a_ptr->weight / 10, a_ptr->weight % 10, a_ptr->cost);
+#else /* L64 */
 	sprintf(misc_desc, "Level %u, Rarity %u, %d.%d lbs, %ld Gold",
 		(uint)a_ptr->level, (uint)a_ptr->rarity,
 		a_ptr->weight / 10, a_ptr->weight % 10, a_ptr->cost);
+#endif /* L64 */
 }
 
 
@@ -973,12 +982,13 @@ static void object_analyze(const object_type *o_ptr, obj_desc_list *desc_ptr)
 
 	analyze_misc(o_ptr, desc_ptr->misc_desc);
 
-	desc_ptr->activation = item_activation(o_ptr);
+	/* desc_ptr->activation = item_activation(o_ptr); */
+	item_activation(o_ptr, desc_ptr->activation);
 
 	if (streq("nothing", desc_ptr->activation))
 	{
 		/* Display nothing, if there is no activation */
-		desc_ptr->activation = "";
+		strcpy(desc_ptr->activation, "");
 	}
 }
 
@@ -1720,7 +1730,7 @@ static void spoil_mon_info(cptr fname)
 		else if (flags3 & (RF3_GIANT)) spoil_out(" giant");
 		else if (flags3 & (RF3_TROLL)) spoil_out(" troll");
 		else if (flags3 & (RF3_ORC)) spoil_out(" orc");
-		else if (flags3 & (RF3_AMBERITE)) spoil_out (" Amberite");
+		else if (flags3 & (RF3_AMBERITE)) spoil_out (" Ringwraith");
 		else spoil_out(" creature");
 
 		spoil_out(" moves");
@@ -1924,10 +1934,11 @@ static void spoil_mon_info(cptr fname)
 		if (flags6 & (RF6_S_DEMON))           vp[vn++] = "summon a demon";
 		if (flags6 & (RF6_S_UNDEAD))          vp[vn++] = "summon an undead";
 		if (flags6 & (RF6_S_DRAGON))          vp[vn++] = "summon a dragon";
+		if (flags4 & (RF4_S_HI_DEMON))        vp[vn++] = "summon greater demons";
 		if (flags6 & (RF6_S_HI_UNDEAD))       vp[vn++] = "summon greater undead";
 		if (flags6 & (RF6_S_HI_DRAGON))       vp[vn++] = "summon ancient dragons";
 		if (flags6 & (RF6_S_CYBER))           vp[vn++] = "summon Cyberdemons";
-		if (flags6 & (RF6_S_AMBERITES))       vp[vn++] = "summon Lords of Amber";
+		if (flags6 & (RF6_S_SPECIAL))       vp[vn++] = "summon specific creatures";
 		if (flags6 & (RF6_S_UNIQUE))          vp[vn++] = "summon unique monsters";
 
 		if (vn)
@@ -2268,6 +2279,8 @@ static void spoil_mon_info(cptr fname)
 				case RBE_DISEASE:       q = "disease"; break;
 				case RBE_TIME:          q = "time"; break;
 				case RBE_EXP_VAMP:      q = "drain life force"; break;
+				case RBE_PENETRATE:     q = "penetrate"; break;
+							
 			}
 
 
@@ -2429,7 +2442,7 @@ static void spoil_mutation(cptr fname)
 			{
 				sprintf(buf, "- Chance/turn: 1-in-%d\n", mut_ptr->chance * 100);
 				spoil_out(buf);
-			}	
+			}
 		}
 
 		spoiler_blanklines(1);

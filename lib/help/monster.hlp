@@ -1,10 +1,10 @@
-Zangband Monsters.
+Frazband Monsters.
 
 Please choose one of the following online help files:
 
-    (0) Zangband Monsters            (monster.txt)
+    (0) Frazband Monsters            (monster.txt)
     (1) Monster Symbols              (monster.txt#MonsterSymbols)
-    (2) Monster Color                (monster.txt#MonsterColors)
+    (2) Monster Colour               (monster.txt#MonsterColours)
     (3) Monster Memory               (monster.txt#MonsterMemory)
     (4) Unique Monsters              (monster.txt#Uniques)
     (5) Eldritch Horrors             (monster.txt#EldritchHorror)
@@ -16,7 +16,7 @@ Please choose one of the following online help files:
 
 ***** [0] monster.txt
 ***** [1] monster.txt#MonsterSymbols
-***** [2] monster.txt#MonsterColors
+***** [2] monster.txt#MonsterColours
 ***** [3] monster.txt#MonsterMemory
 ***** [4] monster.txt#Uniques
 ***** [5] monster.txt#EldritchHorror

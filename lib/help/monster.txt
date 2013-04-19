@@ -1,6 +1,6 @@
-=== Zangband Monsters ===
+=== Frazband Monsters ===
 
-There are hundreds of different creatures in Zangband each of which
+There are hundreds of different creatures in Frazband each of which
 poses a unique challenge to the adventurer. As you progress deeper into
 the dungeon, the creatures will become progressively more difficult to
 defeat.
@@ -9,7 +9,7 @@ defeat.
 ***** <MonsterSymbols>
 === Monster Symbols ===
 
-Many monsters have the same letter symbol and sometimes color on the
+Many monsters have the same letter symbol and sometimes colour on the
 screen. The exact species or type of creature can be discovered by
 'l'ooking at it (see commdesc.txt#Looking [1]). 
  
@@ -47,11 +47,11 @@ symbol) of common objects found in the dungeon. These include the
 |, ), ?, !, &, $ and * symbols.
 
 
-***** <MonsterColors>
-=== Monster Colors ===
+***** <MonsterColours>
+=== Monster Colours ===
 
 You can often determine some information about a monster based solely
-on the color it is described as having, like 'a White Dragon'. In
+on the colour it is described as having, like 'a White Dragon'. In
 general, 'White' monsters are cold-based, 'Red' are fire-based, 'Blue'
 are electrical, 'Black' are acidic, and 'Green' are poisonous and a
 'Multi-Hued' monster is all of these. By being cold-based, we mean that
@@ -61,10 +61,10 @@ based.
 Unfortunately this rule is applied somewhat inconsistently and there
 are several notable exceptions so don't be surprised. If that 'Green'
 monster spits acid at you. Note that this rule cannot be applied to the
-actual color a creature is displayed as but only to a color in its
+actual colour a creature is displayed as but only to a colour in its
 name.
 
-Other color and attack-type relationships are 'Bronze' and confusion
+Other colour and attack-type relationships are 'Bronze' and confusion
 and 'Gold' and sound. Over time the inconsistencies referred to above
 will probably get cleaned up.
 
@@ -73,28 +73,28 @@ will probably get cleaned up.
 === Monster Memories ===
 
 Because there are so many monsters and because often different monsters
-share similar colors and symbols, it is very difficult to keep track of
-the capabilities of various creatures. Luckily, Zangband automatically
+share similar colours and symbols, it is very difficult to keep track of
+the capabilities of various creatures. Luckily, Frazband automatically
 keeps track of your experiences with a particular creature.
  
 This feature is called the monster memory. Your monster memory recalls
 the particular attacks of each creature (whether or not technically a
 monster) which you have suffered, as well as recalling if you have
 observed them to multiply or move erratically, or drop treasure, etc.
-Similary if you attack a creature with a magical attack and it resists,
+Similarly if you attack a creature with a magical attack and it resists,
 that fact is noted. 
 
 If you have killed enough of a particular creature, or suffered enough
 attacks, recalling the monster memory may also provide you with
-information not otherwise available, such as a armor class or hit dice.
+information not otherwise available, such as a armour class or hit dice.
 These are not explained, but may be useful to give the relative danger
 of each creature.
  
 Your monster memory may be accessed by pressing '/' and then entering
 the symbol you wish to research. Each monster with that symbol of which
 you have some knowledge will displayed in turn beginning with the
-deepest. Alternatively, you may enter targetting mode by pressing '*'
-and, with the curser over the creature in question, press 'r' to
+deepest. Alternatively, you may enter targeting mode by pressing '*'
+and, with the cursor over the creature in question, press 'r' to
 recall details.
 
 The best feature about your monster memory is that it can be passed on
@@ -106,9 +106,9 @@ character.
 ***** <Uniques>
 === Unique Monsters ===
 
-The monsters in Zangband are unique in that each variety of monster
+The monsters in Frazband are unique in that each variety of monster
 has its own set of physical and, where applicable, magical abilities.
-However, some monsters in Zangband are truly unique and this group
+However, some monsters in Frazband are truly unique and this group
 of monsters are often referred to as "Uniques".
 
 The Unique monsters are made unique for several reasons. Primarily,
@@ -123,7 +123,7 @@ Unique monsters are typically based on a normal monster. For example,
 Tom the Stone Troll is based on the Stone Troll monster. However,
 Unique monsters usually have more hitpoints, hit harder and cast
 spells more effectively than the monster on which they are based.
-Unique monsters are often a different color from other monsters of
+Unique monsters are often a different colour from other monsters of
 their type to allow the player to more easily distinguish them but
 this is not always true.
 
@@ -137,10 +137,10 @@ will teleoprt them from a level but will not kill them.
 
 --- Keeping Track of Uniques ---
 
-Since Unique monsters are often very difficult to defeat, most
+Since Unique monsters are often very difficult to defeat, many
 players will attempt to kill them all before attempting to battle
-the Serpent of Chaos (itself a Unique monster). This avoids the
-need to battle two very difficult oponents at the same time.
+Morgoth (himself a Unique monster). This avoids the need to battle two
+very difficult opponents at the same time.
 
 Each time your character happens upon a new Unique, this is
 recorded in your monster memory. Under the knowledge command ('~')
@@ -153,9 +153,9 @@ check this periodically to gauge your progress.
 Occasionally, you will find that a Unique monster will speak to you
 as it approaches. Typically, a monster will shout obscenities and
 challenges to combat but they may also refer to events relating to
-themselves. Zangband has no mechanism to allow you to respond to the
+themselves. Frazband has no mechanism to allow you to respond to the
 monsters (other than with violence). You may prevent Unique monsters
-from speaking by changing the approopriate option under the options
+from speaking by changing the appropriate option under the options
 menus.
 
 --- Rewards for Killing Uniques ---
@@ -170,8 +170,8 @@ is normally found.
 ***** <EldritchHorror>
 === Eldritch Horrors ===
 
-Some of the monsters in the dungeons of Zangband are so fearsome to
-look upon that doing so can have serious repurcussions. When you meet
+Some of the monsters in the dungeons of Frazband are so fearsome to
+look upon that doing so can have serious repercussions. When you meet
 one of these sanity blasting monsters, one of several nasty things
 may happen to you. These include having your intelligence and/or your
 wisdom temporarily reduced, becoming scared or confused, or suffering
@@ -193,7 +193,7 @@ Secondly, your pets are often so eager to destroy your opponents that
 they may forget all about you, and you get trampled under their feet
 as they charge at your foe. Pets are also rather easily irritable and
 once you do something which causes the slightest discomfort to them,
-they will revert to their normal behavior and consider you their main
+they will revert to their normal behaviour and consider you their main
 target. This is something to think about before lighting up a room if
 you have pet orcs. Needless to say, nobody wants to be your friend if
 you are aggravating them.
@@ -209,7 +209,7 @@ which can summon or otherwise produce more pets...
 
 You may obtain pets in several different ways. Some magic realms offer
 the ability to summon pets magically or to charm the creatures you
-meet. Mindcrafters may 'dominate' their oponents. Chaos patrons may
+meet. Mindcrafters may 'dominate' their opponents. Chaos patrons may
 grant pets as a gift to their devotees. Magical figurines can be thrown
 to create a pet and wands of charm monster may be used as their name
 suggests.

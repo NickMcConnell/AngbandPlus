@@ -235,7 +235,7 @@ void do_cmd_messages(void)
 			byte attr = message_color(i+j);
 
 			/* Hack -- fake monochrome */
-			if (!use_color || ironman_moria) attr = TERM_WHITE;
+			if (!use_color /*|| ironman_moria*/) attr = TERM_WHITE;
 
 			/* Apply horizontal scroll */
 			msg = ((int)strlen(msg) >= q) ? (msg + q) : "";
@@ -473,7 +473,7 @@ void init_options(byte flags)
 /*
  * Number of cheating options
  */
-#define CHEAT_MAX 6
+#define CHEAT_MAX 7
 
 typedef struct cheat_option_type cheat_option_type;
 
@@ -509,7 +509,10 @@ static const cheat_option_type cheat_info[CHEAT_MAX] =
 	"cheat_know",		"Know complete monster info" },
 
 	{ &cheat_live,		0x0020,
-	"cheat_live",		"Allow player to avoid death" }
+	"cheat_live",		"Allow player to avoid death" },
+
+	{ &cheat_muta,		0x0040,
+	"cheat_muta",		"Allow player to fiddle mutations" }
 };
 
 
@@ -797,7 +800,7 @@ static void do_cmd_options_aux(int page, cptr info)
 			if (i == k) a = TERM_L_BLUE;
 
 			/* Display the option text */
-			sprintf(buf, "%-48s: %s  (%.23s)",
+			snprintf(buf, 80, "%-48s: %s  (%.23s)",
 			        option_info[opt[i]].o_desc,
 			        (option_info[opt[i]].o_val ? "yes" : "no "),
 			        option_info[opt[i]].o_text);
@@ -912,7 +915,7 @@ static void do_cmd_options_win(void)
 			cptr s = angband_term_name[j];
 
 			/* Use color */
-			if (use_color && (j == x) && !ironman_moria) a = TERM_L_BLUE;
+			if (use_color && (j == x) /*&& !ironman_moria*/) a = TERM_L_BLUE;
 
 			/* Window name, staggered, centered */
 			Term_putstr(35 + j * 5 - strlen(s) / 2, 2 + j % 2, -1, a, s);
@@ -925,8 +928,18 @@ static void do_cmd_options_win(void)
 
 			cptr str = window_flag_desc[i];
 
+#ifdef USE_NEW_MAGIC
+			/* Hack - spell list doesn't make sense with the new magic system */
+ #ifdef SUPPORT_OLD_MAGIC
+			if (!old_magic_user)
+ #endif /* SUPPORT_OLD_MAGIC */
+			{
+				if (i == 2) str = NULL;
+			}
+#endif /* USE_NEW_MAGIC */
+
 			/* Use color */
-			if (use_color && (i == y) && !ironman_moria) a = TERM_L_BLUE;
+			if (use_color && (i == y) /*&& !ironman_moria*/) a = TERM_L_BLUE;
 
 			/* Unused option */
 			if (!str) str = "(Unused option)";
@@ -942,7 +955,7 @@ static void do_cmd_options_win(void)
 				a = TERM_WHITE;
 
 				/* Use color */
-				if (use_color && (i == y) && (j == x) && !ironman_moria)
+				if (use_color && (i == y) && (j == x) /*&& !ironman_moria*/)
 				{
 					a = TERM_L_BLUE;
 				}
@@ -2978,7 +2991,7 @@ void do_cmd_load_screen(void)
 			}
 
 			/* Hack -- fake monochrome */
-			if (!use_color || ironman_moria) a = TERM_WHITE;
+			if (!use_color /*|| ironman_moria*/) a = TERM_WHITE;
 
 			/* Put the attr/char */
 			Term_draw(x, y, a, c);
@@ -3499,7 +3512,11 @@ static void do_cmd_knowledge_kill_count(void)
 		else if (Total == 1)
 			fprintf(fff, "You have defeated one enemy.\n\n");
 		else
+#ifdef L64
+			fprintf(fff, "You have defeated %u enemies.\n\n", Total);
+#else /* L64 */
 			fprintf(fff, "You have defeated %lu enemies.\n\n", Total);
+#endif /* L64 */
 	}
 
 	/* Save total kills for later */
@@ -3556,8 +3573,13 @@ static void do_cmd_knowledge_kill_count(void)
 	}
 
 	fprintf(fff, "----------------------------------------------\n");
+#ifdef L64
+	fprintf(fff, "   Total: %u creature%s killed.\n",
+	        Total, (Total == 1 ? "" : "s"));
+#else /* L64 */
 	fprintf(fff, "   Total: %lu creature%s killed.\n",
 	        Total, (Total == 1 ? "" : "s"));
+#endif /* L64 */
 
 	/* Subtract off monsters you know you have killed */
 	temp -= Total;
@@ -3566,8 +3588,13 @@ static void do_cmd_knowledge_kill_count(void)
 	if (temp)
 	{
 		fprintf(fff, "\n");
+#ifdef L64
+		fprintf(fff, " Unseen: %u creature%s killed.\n",
+	       temp, (temp == 1 ? "" : "s"));
+#else /* L64 */
 		fprintf(fff, " Unseen: %lu creature%s killed.\n",
 	       temp, (temp == 1 ? "" : "s"));
+#endif /* L64 */
 	}
 	
 	/* Free the "who" array */
@@ -3800,6 +3827,59 @@ static void do_cmd_knowledge_notes(void)
 }
 
 
+#ifdef USE_NEW_MAGIC
+/* 
+ * Print known spells 
+ */
+static void do_cmd_knowledge_spells(void)
+{
+	FILE 	*fff;
+	char 	file_name[1024];
+	char	buf[30];
+	int 	i;
+	cptr desc;
+	
+
+	/* Open a temporary file */
+	fff = my_fopen_temp(file_name, sizeof(file_name));
+
+	/* Failure */
+	if (!fff) return;
+
+	for (i=1; i<MAX_SPELLS_CURRENT; ++i)
+		if ((p_ptr->spell_found[i / 32] & (1L << (i % 32)))
+				&& calculate_spell_level(i) <= 50)
+		{
+			switch (spell_ability_rating(i))
+			{
+				case 0: desc="Error";		break;
+				case 1: desc="Excellent";	break;
+				case 2: desc="Good";		break;
+				case 3: desc="Fair";		break;
+				case 4: desc="Poor";		break;
+				case 5:	desc="Very poor";	break;
+				/* Paranoia */
+				default: desc="Error";		break;
+			}
+			spell_info_new(buf, i);
+			fprintf(fff, "%s\nAffinity: %s, Level: %d, Mana: %d, Fail: %d%%, %s\n%s\n\n", 
+					new_spell_name[i], desc, calculate_spell_level(i),
+					calculate_mana(i), spell_chance_new(i), buf,
+					new_spell_desc[i]);
+		}
+
+	/* Close the file */
+	my_fclose(fff);
+
+	/* Display the file contents */
+	(void)show_file(file_name, "Known spells", 0, 0);
+
+	/* Remove the file */
+	(void)fd_kill(file_name);						
+}
+#endif /* USE_NEW_MAGIC */
+
+
 /*
  * Interact with "knowledge"
  */
@@ -3832,9 +3912,17 @@ void do_cmd_knowledge(void)
 		/* prt("(7) Display virtues", 10, 5); */
 		if (take_notes)
 			prt("(8) Display notes", 11, 5);
+#ifdef USE_NEW_MAGIC
+		if ((p_ptr->pclass != CLASS_WARRIOR && p_ptr->pclass != CLASS_MINDCRAFTER)
+ #ifdef SUPPORT_OLD_MAGIC
+			&& !old_magic_user
+ #endif /* SUPPORT_OLD_MAGIC */
+		   	)
+				prt("(9) Display known spells", 12, 5);
+#endif /* USE_NEW_MAGIC */
 
 		/* Prompt */
-		prt("Command: ", 13, 0);
+		prt("Command: ", 14, 0);
 
 		/* Prompt */
 		i = inkey();
@@ -3871,6 +3959,18 @@ void do_cmd_knowledge(void)
 			else
 				bell();
 			break;
+#ifdef USE_NEW_MAGIC
+		case '9': /* Known spells */
+		if ((p_ptr->pclass != CLASS_WARRIOR && p_ptr->pclass != CLASS_MINDCRAFTER)
+ #ifdef SUPPORT_OLD_MAGIC
+			&& !old_magic_user
+ #endif /* SUPPORT_OLD_MAGIC */
+		   	)
+				do_cmd_knowledge_spells();
+			else
+				bell();
+			break;
+#endif /* USE_NEW_MAGIC */
 		default: /* Unknown option */
 			bell();
 		}

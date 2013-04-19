@@ -45,6 +45,8 @@ SRCS = \
 	mspells1.c \
 	mspells2.c \
 	mutation.c \
+	nmagic1.c \
+	nmagic2.c \
 	notes.c \
 	obj_kind.c \
 	object1.c \
@@ -108,6 +110,8 @@ EXOBJS = \
 	mspells1.o \
 	mspells2.o \
 	mutation.o \
+	nmagic1.c \
+	nmagic2.c \
 	notes.o \
 	obj_kind.o \
 	object1.o \
@@ -158,18 +162,18 @@ INCS = \
 #
 
 
-default:	zangband
+default:	frazband
 
-install:	zangband movebin
+install:	frazband movebin
 
 movebin:
-	mv -f zangband.exe ../zangband.exe
+	mv -f frazband.exe ../frazband.exe
 
 cleanobjs:
 	rm -f $(EXOBJS)
 
 cleanbin:
-	rm -f zangband
+	rm -f frazband
 
 clean:	cleanobjs cleanbin
 
@@ -178,8 +182,8 @@ clean:	cleanobjs cleanbin
 # Dependency rules
 #
 
-zangband: $(EXOBJS)
-	$(CC) -o zangband $(EXOBJS) $(INCDIRS) $(LIBDIRS) $(LIBS)
+frazband: $(EXOBJS)
+	$(CC) -o frazband $(EXOBJS) $(INCDIRS) $(LIBDIRS) $(LIBS)
 
 
 #
@@ -291,6 +295,12 @@ mspells2.o: mspells2.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
 mutation.o: mutation.c $(INCS)
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
+
+nmagic1.o: nmagic1.c $(INCS)
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
+
+nmagic2.o: nmagic2.c $(INCS)
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
 notes.o: notes.c $(INCS)

@@ -1,4 +1,3 @@
-# CVS: Last edit by $Author: sfuerst $ on $Date: 2001/03/25 04:56:18 $
 # File: q_info.txt
 
 # Includes all the quest files
@@ -8,11 +7,11 @@
 
 # Oberon
 ?:[EQU $QUEST_NUMBER 8]
-%:q_oberon.txt
+%:q_sauron.txt
 
 # Serpent of Chaos
 ?:[EQU $QUEST_NUMBER 9]
-%:q_serpen.txt
+%:q_morgot.txt
 
 
 # Random quests (always adressed with number 40)

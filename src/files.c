@@ -1362,13 +1362,13 @@ static void likert(int x, int y, char *desc)
 		case 17:
 		{
 			likert_color = TERM_BLUE;
-			strcpy(desc, "Chaos Rank");
+			strcpy(desc, "Incredible");
 			return;
 		}
 		default:
 		{
 			likert_color = TERM_VIOLET;
-			sprintf(desc, "Amber [%d]", (int)((((x / y) - 17) * 5) / 2));
+			sprintf(desc, "Legendary [%d]", (int)((((x / y) - 17) * 5) / 2));
 			return;
 		}
 	}
@@ -1869,7 +1869,7 @@ static void display_player_equippy(int y, int x)
 		c = object_char(o_ptr);
 
 		/* No color */
-		if (!use_color || ironman_moria) a = TERM_WHITE;
+		if (!use_color /*|| ironman_moria*/) a = TERM_WHITE;
 
 		/* Clear the part of the screen */
 		if (!o_ptr->k_idx)
@@ -2212,7 +2212,7 @@ static void display_player_stat_info(void)
 			}
 
 			/* Handle monochrome */
-			if (!use_color || ironman_moria) a = TERM_WHITE;
+			if (!use_color /*|| ironman_moria*/) a = TERM_WHITE;
 
 			/* Dump proper character */
 			Term_putch(col, row + stat, a, c);
@@ -2309,7 +2309,7 @@ static void display_player_stat_info(void)
 
 
 		/* No color */
-		if (!use_color || ironman_moria) a = TERM_WHITE;
+		if (!use_color /*|| ironman_moria*/) a = TERM_WHITE;
 
 		/* Dump */
 		Term_putch(col, row + stat, a, c);
@@ -2368,10 +2368,13 @@ static void display_player_top(void)
 	}
 
 	/* Age, Height, Weight, Social */
-	prt_num("Age         ", (int)p_ptr->age, 2, COL_AGE, TERM_L_BLUE, 3);
-	prt_num("Height      ", (int)p_ptr->ht , 3, COL_AGE, TERM_L_BLUE, 3);
-	prt_num("Weight      ", (int)p_ptr->wt , 4, COL_AGE, TERM_L_BLUE, 3);
-	prt_num("Social Class", (int)p_ptr->sc , 5, COL_AGE, TERM_L_BLUE, 3);
+	prt_num("Age         ", (int)p_ptr->age, 		2, COL_AGE, TERM_L_BLUE, 3);
+	prt_num("Height      ", (int)p_ptr->ht, 		3, COL_AGE, TERM_L_BLUE, 3);
+	prt_num("Weight      ", (int)p_ptr->wt, 		4, COL_AGE, TERM_L_BLUE, 3);
+	prt_num("Social Class", (int)p_ptr->sc, 		5, COL_AGE, TERM_L_BLUE, 3);
+#ifdef USE_DIFFICULTY	
+	prt_num("Difficulty  ", (int)real_difficulty(), 	6, COL_AGE, TERM_L_BLUE, 3);
+#endif /* USE_DIFFICULTY */
 
 	/* Display the stats */
 	for (i = 0; i < A_MAX; i++)
@@ -2960,7 +2963,11 @@ errr file_character(cptr name, bool full)
 		else if (Total == 1)
 			fprintf(fff, "\n You have defeated one enemy.\n");
 		else
+#ifdef L64
+			fprintf(fff, "\n You have defeated %u enemies.\n", Total);
+#else /* L64 */
 			fprintf(fff, "\n You have defeated %lu enemies.\n", Total);
+#endif /* L64 */
 	}
 
 #if 0
@@ -3074,6 +3081,7 @@ bool show_file(cptr name, cptr what, int line, int mode)
 {
 	int i, n, k;
 	int wid, hgt;
+	int dir;
 
 	/* Number of "real" lines passed by */
 	int next = 0;
@@ -3417,7 +3425,7 @@ bool show_file(cptr name, cptr what, int line, int mode)
 		k = inkey();
 
 		/* Hack -- return to last screen */
-		if (k == '<') break;
+		if (k == '<' || k == KTRL('H')) break;
 
 		/* Show the help for the help */
 		if (k == '?')
@@ -3510,6 +3518,20 @@ bool show_file(cptr name, cptr what, int line, int mode)
 			line = line + hgt - 4;
 		}
 
+		/* Allow the use of arrows */
+		else if (isdigit(k))
+		{
+			/* Get a direction from the key */
+			dir = get_keymap_dir(k);
+
+			if (dir == 2) ++line;
+			else if (dir == 8)
+			{
+				--line;
+				if (line < 0) line = 0;
+			}
+		}
+		
 		/* Recurse on numbers */
 		if (menu)
 		{
@@ -3671,7 +3693,7 @@ void process_player_name(bool sf)
 #endif
 
 
-#if defined(WINDOWS) || defined(MSDOS)
+#if ((defined(WINDOWS) || defined(MSDOS)) && !defined(WIN32) && !defined(__WIN32__))
 
 	/* Hack -- max length */
 	if (k > 8) k = 8;
@@ -4292,17 +4314,6 @@ static void close_game_handle_death(void)
 		kingly();
 	}
 
-	/* Save memories */
-	if (!munchkin_death || get_check("Save death? "))
-	{
-		if (!save_player()) msg_print("death save failed!");
-	}
-
-#if 0
-	/* Dump bones file */
-	make_bones();
-#endif
-
 	/* Inform notes file that you are dead */
 	if (take_notes)
 	{
@@ -4320,6 +4331,71 @@ static void close_game_handle_death(void)
 		/* Output to the notes file */
 		output_note(buf);
 	}
+	
+	if (protect_savefile)
+	{
+		prt("You are dead. Really (D)ie, or or (E)xit now, without saving?", 0, 0);
+		msg_print(NULL);
+
+		/* Flush all input keys */
+		flush();
+
+		/* Save screen here out of loop to avoid saving more than once */
+		Term_save();
+		int i=0;
+		while (i==0)
+		{
+			/* Load screen */
+			Term_load();
+
+			/* Flush all input keys */
+			flush();
+
+			ch = inkey();
+
+			switch (ch)
+			{
+				case 'e':
+				case 'E':
+				exit(0);
+				break;
+				
+				case 'd':
+				case 'D':
+				i=1;
+				break;
+			}
+		}
+	}
+	
+	/* Save memories */
+	if (!munchkin_death || get_check("Save death? "))
+	{
+		if (!save_player()) msg_print("death save failed!");
+	}
+
+#if 0
+	/* Dump bones file */
+	make_bones();
+#endif
+
+	/* Inform notes file that you are dead */
+	/*if (take_notes)
+	{
+		char long_day[30];
+		char buf[80];
+		time_t ct = time((time_t*)NULL);*/
+
+		/* Get the date */
+		/*(void)strftime(long_day, 30, "%Y-%m-%d at %H:%M:%S", localtime(&ct));*/
+
+		/* Create string */
+		/*sprintf(buf, "\n%s was killed by %s on %s\n", player_name,
+			p_ptr->died_from, long_day);*/
+
+		/* Output to the notes file */
+		/*output_note(buf);
+	}*/
 
 	/* Enter player in high score list */
 	enter_score();

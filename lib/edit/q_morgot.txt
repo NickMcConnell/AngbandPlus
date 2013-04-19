@@ -1,0 +1,14 @@
+# q_morgot.txt
+
+# Name
+Q:9:N:Morgoth
+
+# Definition
+Q:9:Q:1:0:0:1:100:862:0
+
+# Description for quest
+?:[LEQ $QUEST9 2]
+Q:9:T:Having killed Sauron, victory lies within your grasp. You must destroy 
+Q:9:T:the Lord of Darkness, Morgoth himself!
+?:1
+

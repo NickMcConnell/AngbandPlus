@@ -695,7 +695,7 @@ sint project_path(coord *gp, int y1, int x1, int y2, int x2, u16b flg)
 	/* Paranoia */
 	if (sq > MAX_RANGE) sq = MAX_RANGE;
 	if (sq >= slope_count[sl]) sq = slope_count[sl] - 1;
-
+	
 	/* Length */
 	return (sq);
 }
@@ -1664,7 +1664,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 			/* Hack -- fake monochrome */
 			if (fake_monochrome)
 			{
-				if (p_ptr->invuln || !use_color || ironman_moria)
+				if (p_ptr->invuln || !use_color /*|| ironman_moria*/)
 				{
 					a = TERM_WHITE;
 				}
@@ -1775,7 +1775,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 	/* Hack -- fake monochrome */
 	if (fake_monochrome)
 	{
-		if (p_ptr->invuln || !use_color || ironman_moria) a = TERM_WHITE;
+		if (p_ptr->invuln || !use_color/* || ironman_moria*/) a = TERM_WHITE;
 		else if (p_ptr->wraith_form) a = TERM_L_DARK;
 	}
 
@@ -1812,7 +1812,7 @@ void print_rel(char c, byte a, int y, int x)
 		/* Hack -- fake monochrome */
 		if (fake_monochrome)
 		{
-			if (p_ptr->invuln || !use_color || ironman_moria) a = TERM_WHITE;
+			if (p_ptr->invuln || !use_color /*|| ironman_moria*/) a = TERM_WHITE;
 			else if (p_ptr->wraith_form) a = TERM_L_DARK;
 		}
 
@@ -4516,6 +4516,97 @@ static u16b flow_x = 0;
 static u16b flow_y = 0;
 
 
+
+
+
+
+bool not_wall(int y, int x)
+{
+	if (!in_bounds(y, x)) return FALSE;
+	cave_type *c_ptr=area(y, x);
+	if (cave_floor_grid(c_ptr)) return TRUE;
+	return (c_ptr->feat == FEAT_CLOSED || c_ptr->feat == FEAT_SECRET) ? TRUE : FALSE;
+}
+
+
+void assign_flow_complex(int py, int px)
+{
+	int i,j,n;
+	int ii,ij;
+	bool next;
+	int dist[MAX_HGT][MAX_WID];
+	bool ok[MAX_HGT][MAX_WID];
+	int hx[1000], hy[1000], nhx[1000], nhy[1000];
+	cave_type *c_ptr;
+	
+	for (i=0; i<MAX_HGT; ++i)
+	for (j=0; j<MAX_WID; ++j)
+	{
+		dist[i][j]=1000;
+		ok[i][j]=not_wall(i, j);
+	}
+	for (i=0; i<1000; ++i)
+	{
+		hx[i]=-1;
+		hy[i]=-1;
+		nhx[i]=-1;
+		nhy[i]=-1;
+	}
+	dist[px][py]=0;
+	ok[px][py]=FALSE;
+	hx[0]=px;
+	hy[0]=py;
+	n=0;
+	do
+	{
+		next=FALSE;
+		j=0;
+		for (i=0; hx[i]!=-1 && i<1000; ++i)
+		{
+			if (j>999)
+			{
+				msg_print("Fault in flow-finding");
+				return;
+			}
+			for (ii=-1; ii<=1; ++ii)
+			for (ij=-1; ij<=1; ++ij)
+			if (in_bounds(hx[i]+ii, hy[i]+ij))
+			if ((ii || ij) && ok[hx[i]+ii][hy[i]+ij])
+			{
+				ok[hx[i]+ii][hy[i]+ij]=FALSE;
+				dist[hx[i]+ii][hy[i]+ij]=n+1;
+				nhx[j]=hx[i]+ii;
+				nhy[j]=hy[i]+ij;
+				++j;
+				next=TRUE;
+			}
+		}
+		for (i=0; i<1000; ++i)
+		{
+			if (i<j)
+			{
+				hx[i]=nhx[i];
+				hy[i]=nhy[i];
+			}
+			else
+			{
+				hx[i]=-1;
+				hy[i]=-1;
+			}
+		}
+		++n;
+	}
+	while (n <= MONSTER_FLOW_DEPTH && n < 999 && next);
+	for (i=0; i<MAX_HGT; ++i)
+	for (j=0; j<MAX_WID; ++j)
+	if (in_bounds(i, j))
+	{
+		c_ptr = area(i, j);
+		c_ptr->cost = dist[i][j];
+	}
+}
+
+
 /*
  * Hack -- fill in the "cost" field of every grid that the player
  * can "reach" with the number of steps needed to reach that grid.
@@ -4646,6 +4737,7 @@ void update_flow(void)
 			if (flow_tail == flow_head) flow_tail = old_head;
 		}
 	}
+	if (p_ptr->depth) assign_flow_complex(px, py);
 }
 
 
@@ -4984,3 +5076,155 @@ void disturb(bool stop_search)
 	/* Flush the input if requested */
 	if (flush_disturb) flush();
 }
+
+#ifdef USE_DIFFICULTY
+/*
+ * Work out the real difficult level 
+ * Needs refining
+ */
+byte real_difficulty()
+{
+	int diff;
+	int add = 0;
+
+	diff = (int) difficulty_level;
+	
+	/* AI is not that big a deal (yet) */
+	if (stupid_monsters) add -= 4;
+	
+	/* Penalize preserve, maximize modes */
+	if (preserve_mode) add -= 2;
+	if (maximize_mode) add -= 3;
+	
+	/* Vanilla town is harder than normal */
+	if (vanilla_town) add += 1;
+	
+	/* so are hard quests */
+	if (ironman_hard_quests) add += number_of_quests() / 10;
+
+	/* Not too much of a reward since some people like playing with this. */
+	if (ironman_small_levels) add += 1;
+
+	/* Moria mode is hard */
+	if (ironman_moria) add += 4;
+
+	/* More ironman options */
+	if (ironman_empty_levels) add += 2;
+	if (ironman_nightmare) add += 8;
+	if (ironman_rooms) add += 2;
+
+	/* and some more */
+	if (ironman_downward) add += 10;
+	else if (ironman_shops) add += 2;
+	if (super_powerful_monst) add += 2;
+	
+	/* If the base difficulty is too low, you can't add to it */
+	if (diff < 10 && add > 0) add = 0;
+
+	/* There's not much of a differenc in the middle difficulty levels */
+	if (diff < 35 && add > (35 - diff))
+	{
+		add -= (35 - diff);
+		diff = 35;
+	}
+	if (diff > 65 && add < (diff - 65))
+	{
+		add += (diff - 65);
+		diff = 65;
+	}
+	if (diff < 65 && diff >= 35 && add > 0)
+	{
+		if (2 * add < 65 - diff) 
+		{
+			diff += (2 * add);
+		}
+		else
+		{
+			add -= ((65 - diff) / 2);
+			diff = 65 + add;
+		}
+	}
+	else if (diff > 35 && diff <= 65 && add < 0)
+	{
+		if (2 * add > 35 - diff) 
+		{
+			diff += (2 * add);
+		}
+		else
+		{
+			add += ((diff - 35) / 2);
+			diff = 35 + add;
+		}
+	}
+	else diff += add;
+
+	if (protect_savefile) diff /= 2;
+	if (diff > 100) diff = 100;
+	if (diff < 0) diff = 0;
+		
+	return (byte)diff;
+}
+#endif /* USE_DIFFICULTY */
+
+/*
+ * Decide whaether the player should be lucky/unlucky, 
+ * at a base probability of prob/100 of the better outcome,
+ * but modified according to how lucky the player has been
+ * recently in this function. 
+ *
+ * If small is true, use the small_luck index, otherwise big_luck.
+ *
+ * DISUSED
+ * If type is  0, it is lucky/unlucky.
+ * If type is  1, it is lucky/neutral.
+ * If type is -1, it is neutral/unlucky.
+ * END DISUSED
+ * 
+ * Returns whether the better result happens.
+ */
+bool get_luck(/*int type, */int prob, bool small)
+{
+	int factor = (small ? p_ptr->small_luck : p_ptr->big_luck);
+	int tmpfactor = factor;
+
+	int new_prob = prob;
+	bool lucky;
+
+	/* 
+	 * Maybe this method could be refined
+	 */
+
+	/* For every 100 in factor, shift new_prob halfway towards the "terminus" */
+	while (tmpfactor >= 100 || tmpfactor <= -100)
+	{
+		/* Have we been lucky? */
+		if (tmpfactor > 0)
+		{
+			new_prob /= 2;
+			tmpfactor -= 100;
+		}
+
+		/* Otherwise... */
+		else
+		{
+			/* Want to round division up */
+			new_prob = (new_prob + 101) / 2;
+			tmpfactor += 100;
+		}
+	}
+
+	/* Roll the dice */
+	lucky = (randint0(100) < new_prob) ? TRUE : FALSE;
+
+	/* Adjust the new factor based on type */
+	if (lucky /*&& type >= 0 */&& factor < 10000) factor += (100 - prob);
+	if (!lucky /*&& type <= 0 */&& factor > -10000) factor -= prob;
+
+	/* Store the new factor */
+	if (small) p_ptr->small_luck = factor;
+	else p_ptr->big_luck = factor;
+	
+	/* Return the result */
+	return (lucky);
+}
+

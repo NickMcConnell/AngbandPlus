@@ -25,6 +25,8 @@ angband_files = \
   magic.txt \
   monster.hlp \
   monster.txt \
+  newmagic.hlp \
+  newmagic.txt \
   objects.hlp \
   objects.txt \
   option.hlp \

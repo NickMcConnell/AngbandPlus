@@ -1,7 +1,7 @@
 === The Dungeon ===
 
 
-Although Zangband contains an extensive town level featuring multiple
+Although Frazband contains an extensive town level featuring multiple
 towns and a large wilderness area, the bulk of your adventuring will
 take place in the dungeon. Symbols appearing on your screen will
 represent the dungeon's walls, floor, objects, features, and creatures
@@ -53,8 +53,8 @@ to something you are more comfortable with.
 ***** <WithinDungeon>
 === Within The Dungeon ===
 
-Once your character is adequately supplied with food, light, armor, and
-weapons, he is ready to enter the dungeon. Move on top of the '>'
+Once your character is adequately supplied with food, light, armour, 
+and weapons, he is ready to enter the dungeon. Move on top of the '>'
 symbol and use the "Down" command (">").
 
 Your character will enter a maze of interconnecting staircases and
@@ -86,7 +86,7 @@ fuel, it stops supplying light. You will be warned as the light
 approaches this point. You may use the "Fuel" command ("F") to refuel
 your lantern (with flasks of oil) or your torch (with other torches),
 so it is a good idea to carry extra torches or flasks of oil, as
-appropriate. There are rumors of objects of exceptional power which
+appropriate. There are rumours of objects of exceptional power which
 glow with their own never-ending light.
 
 
@@ -106,7 +106,7 @@ town. It acts in two manners, depending upon your current location.
 If read within the dungeon, it will teleport you back to town. If read
 in town, it will teleport you back down to the deepest level of the
 dungeon which your character has previously been on. This makes the
-scroll very useful for getting back to the deeper levels of Zangband.
+scroll very useful for getting back to the deeper levels of Frazband.
 Once the scroll has been read it takes a while for the spell to act, so
 don't expect it to save you in a crisis. Reading a second scroll before
 the first has had a chance to take effect will cancel both scrolls.
@@ -114,12 +114,12 @@ the first has had a chance to take effect will cancel both scrolls.
 Since an accidental dive to a new depth (via a trapdoor, for example),
 may result in the Word of Recall dungeon depth being 'broken', so to
 speak (meaning that the next Word of Recall in town will take you back
-deeper than you would like to), there is a new feature in Zangband
+deeper than you would like to), there is a new feature in Frazband
 which allows you to read a scroll of Word of Recall on a different
 level and 'reset' the recall depth to that level (instead of the
 deepest level).
 
-A more complete description of Zangband objects is found elsewhere in
+A more complete description of Frazband objects is found elsewhere in
 the documentation (see objects.txt [2]).
 
 
@@ -158,12 +158,12 @@ benefit from a pick if trying to dig through a granite wall.
 It is sometimes possible to get a character trapped within the dungeon
 by using various magical spells and items. So it can be a good idea to
 always carry some kind of digging tool, even when you are not planning
-on tunneling for treasure.
+on tunnelling for treasure.
 
-There are rumors of certain incredibly profitable rooms buried deep in
+There are rumours of certain incredibly profitable rooms buried deep in
 the dungeon and completely surrounded by titanium and granite walls,
 requiring a digging implement or magical means to enter. The same
-rumors imply that these rooms are guarded by incredibly powerful
+rumours imply that these rooms are guarded by incredibly powerful
 monsters, so beware!
 
 
@@ -183,7 +183,7 @@ obstructions to get to them, but you can always find the stairs if you
 look hard enough. Stairs, like titanium walls, and the doors into
 shops, cannot be destroyed by any means.
 
-Many secret doors are used within the dungeon to confuse and demoralize
+Many secret doors are used within the dungeon to confuse and demoralise
 adventurers foolish enough to enter. But with some luck, and lots of
 concentration, you can find these secret doors. Secret doors will
 sometimes hide rooms or corridors, or even entire sections of that
@@ -219,7 +219,7 @@ other objects that are considered 'great' (see objects.txt)). A feeling
 is only indicative of the level at the time you entered it and has no
 impact on subsequent monsters generated or items dropped.
 
-In Zangband, the nastier the feeling prompt, the better the level. From
+In Frazband, the nastier the feeling prompt, the better the level. From
 worst to best, the prompts are as follows:
 
      'What a boring place...'
@@ -232,7 +232,7 @@ worst to best, the prompts are as follows:
      'This level looks very dangerous.'
      'You nearly faint as horrible visions of death fill your mind!'
 
-Zangband also uses two other feeling prompts to denote special things.
+Frazband also uses two other feeling prompts to denote special things.
 If you have not yet been on a level long enough to qualify for a prompt
 and press 'Ctrl-F', you will be given the prompt:
 

@@ -714,7 +714,13 @@ static void regen_monsters(void)
 
 			/* Do not over-regenerate */
 			if (m_ptr->hp > m_ptr->maxhp) m_ptr->hp = m_ptr->maxhp;
-
+			
+			/* 
+			 * Monsters can not have inflicted more damage
+			 * than actually has been inflicted.
+			 */
+			if (m_ptr->otherinflicted > m_ptr->maxhp - m_ptr->hp) m_ptr->otherinflicted = m_ptr->maxhp - m_ptr->hp;
+			
 			/* Redraw (later) if needed */
 			if (p_ptr->health_who == i) p_ptr->redraw |= (PR_HEALTH);
 		}
@@ -776,7 +782,10 @@ bool psychometry(void)
 
 
 	/* Get an item */
-	q = "Meditate on which item? ";
+	if (p_ptr->pclass == CLASS_MINDCRAFTER) 
+		q = "Meditate on which item? ";
+	else
+		q = "Try which item? ";
 	s = "You have nothing appropriate.";
 	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return (FALSE);
 
@@ -808,7 +817,10 @@ bool psychometry(void)
 	/* Skip non-feelings */
 	if (!feel)
 	{
-		msg_format("You do not perceive anything unusual about the %s.", o_name);
+		if (p_ptr->pclass == CLASS_MINDCRAFTER)
+			msg_format("You do not perceive anything unusual about the %s.", o_name);
+		else
+			msg_format("The %s doesn't appear to be unusual.", o_name);
 		return TRUE;
 	}
 
@@ -1016,7 +1028,7 @@ static void process_world(void)
 	if (one_in_(MAX_M_ALLOC_CHANCE) && !p_ptr->inside_quest)
 	{
 		/* Make a new monster */
-		(void)alloc_monster(MAX_SIGHT + 5, FALSE);
+		(void)alloc_monster(MAX_SIGHT + 5, FALSE, 0);
 	}
 
 	/* Hack -- Check for creature regeneration */
@@ -1551,6 +1563,10 @@ static void process_world(void)
 	if (p_ptr->confused)
 	{
 		(void)set_confused(p_ptr->confused - 1);
+#ifdef USE_DIFFICULTY
+		if (difficulty_level < 10 && randint0(20) > difficulty_level * 2)
+			(void)set_confused(0);
+#endif /* USE_DIFFICULTY */
 	}
 
 	/* Afraid */
@@ -1663,6 +1679,10 @@ static void process_world(void)
 
 		/* Apply some healing */
 		(void)set_stun(p_ptr->stun - adjust);
+#ifdef USE_DIFFICULTY
+		if (difficulty_level < 10 && randint0(20) > difficulty_level * 2)
+			(void)set_stun(0);
+#endif /* USE_DIFFICULTY */
 	}
 
 	/* Cut */
@@ -1692,6 +1712,12 @@ static void process_world(void)
 		}
 	}
 
+	/* Babewyns may appear */
+	if ((level_flags & BABEWYN_LEVEL) && one_in_(BABEWYN_APPEAR_CHANCE))
+	{
+		babewyn_incursion();
+	}
+
 
 	/*** Process Inventory ***/
 
@@ -1707,7 +1733,7 @@ static void process_world(void)
 	}
 
 	/* Rarely, take damage from the Jewel of Judgement */
-	if (one_in_(999) && !p_ptr->anti_magic)
+	/*if (one_in_(999) && !p_ptr->anti_magic)
 	{
 		if ((inventory[INVEN_LITE].tval) && !p_ptr->invuln &&
 		    (inventory[INVEN_LITE].sval == SV_LITE_THRAIN))
@@ -1715,7 +1741,7 @@ static void process_world(void)
 			msg_print("The Jewel of Judgement drains life from you!");
 			take_hit(MIN(p_ptr->lev, 50), "the Jewel of Judgement");
 		}
-	}
+	}*/
 
 
 	/* Process equipment */
@@ -2393,7 +2419,18 @@ static void process_command(void)
 				if (p_ptr->pclass == CLASS_MINDCRAFTER)
 					do_cmd_mindcraft();
 				else
+				{
+#ifdef USE_NEW_MAGIC
+ #ifdef SUPPORT_OLD_MAGIC
+					if (old_magic_user) 
+						do_cmd_cast();
+					else
+ #endif /* SUPPORT_OLD_MAGIC */
+						do_cmd_cast_new();
+#else /* USE_NEW_MAGIC */
 					do_cmd_cast();
+#endif /* USE_NEW_MAGIC */
+				}
 			}
 			
 			break;
@@ -2688,6 +2725,17 @@ static void process_command(void)
 		case KTRL('X'):
 		{
 			do_cmd_save_and_exit();
+			break;
+		}
+		
+		/* Quit without saving */
+		case KTRL('D'):
+		{
+			if (protect_savefile)
+			{
+				if (get_check("Quit without saving? ")) exit(0);
+			}
+			else msg_print("You can't do that!");
 			break;
 		}
 
@@ -3509,6 +3557,28 @@ static void load_all_pref_files(void)
 	}
 }
 
+static void set_monster_approach_values()
+{
+	int i;
+	for (i=1; i<1024; ++i)
+	{
+		monster_race *r_ptr = &r_info[i];
+		if (r_ptr->extra)
+		{
+			switch (r_ptr->extra)
+			{
+				case 1: if (p_ptr->pclass == CLASS_WARRIOR) r_ptr->extra = 10;
+				case 2: if (p_ptr->pclass == CLASS_PALADIN || p_ptr->pclass == CLASS_MONK || p_ptr->pclass == CLASS_ROGUE) r_ptr->extra = 10;
+				case 3: if (p_ptr->pclass == CLASS_WARRIOR_MAGE || p_ptr->pclass == CLASS_CHAOS_WARRIOR) r_ptr->extra = 10;
+				case 4: if (p_ptr->pclass == CLASS_PRIEST || p_ptr->pclass == CLASS_MINDCRAFTER) r_ptr->extra = 10;
+				case 5: if (p_ptr->pclass == CLASS_RANGER) r_ptr->extra = 10;
+				case 6: if (p_ptr->pclass == CLASS_MAGE || p_ptr->pclass == CLASS_HIGH_MAGE) r_ptr->extra = 10;
+				case 7: if (r_ptr->extra < 10) r_ptr->extra = 11; break;
+			}
+		}
+	}
+}
+
 
 /*
  * Actually play a game
@@ -3754,6 +3824,9 @@ void play_game(bool new_game)
 
 	/* Window stuff */
 	window_stuff();
+
+	/* Monster approach values */
+	(void) set_monster_approach_values();
 	
 	/* Process */
 	while (TRUE)

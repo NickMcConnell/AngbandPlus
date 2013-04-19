@@ -845,6 +845,7 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 		case TV_SPIKE:
 		case TV_FLASK:
 		case TV_CHEST:
+		case TV_SPELLBOOK:
 		{
 			break;
 		}
@@ -1077,9 +1078,9 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 		{
 			modstr = basenm;
 			if (mp_ptr->spell_book == TV_LIFE_BOOK)
-				basenm = "& Book~ of Trump Magic #";
+				basenm = "& Book~ of Morphic Magic #";
 			else
-				basenm = "& Trump Spellbook~ #";
+				basenm = "& Morphic Spellbook~ #";
 			break;
 		}
 
@@ -1093,6 +1094,22 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 			break;
 		}
 
+
+		case TV_WIZARDRY_BOOK:
+		{
+			modstr = basenm;
+			if (mp_ptr->spell_book == TV_LIFE_BOOK)
+				basenm = "& Book~ of Wizardry #";
+			else
+				basenm = "& Wizardry Spellbook~ #";
+			break;
+		}
+		
+		case TV_SPELL_SCROLL:
+		{
+			modstr = new_spell_name[o_ptr->pval];
+			break;
+		}
 
 		/* Hack -- Gold/Gems */
 		case TV_GOLD:
@@ -1753,6 +1770,29 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 	else if (!known && (o_ptr->ident & (IDENT_EMPTY)))
 	{
 		strcpy(tmp_val2, "empty");
+	}
+
+	/* Name spellbooks with spell lists */
+	else if (o_ptr->tval == TV_SPELLBOOK && o_ptr->spell_list < 0)
+	{
+		strcpy(tmp_val2, spell_list_name[-(o_ptr->spell_list)]);
+	}
+
+	/* Point out empty spellbooks */
+	else if (o_ptr->tval == TV_SPELLBOOK && !o_ptr->spell_list)
+	{
+		strcpy(tmp_val2, "empty");
+	}
+
+	/* Point out useless spell scrolls */
+	else if (o_ptr->tval == TV_SPELL_SCROLL && calculate_spell_level(o_ptr->pval) > 50)
+	{
+		strcpy(tmp_val2, "incomprehensible");
+	}
+	else if (o_ptr->tval == TV_SPELL_SCROLL && 
+			(p_ptr->spell_found[o_ptr->pval / 32] & (1L << (o_ptr->pval % 32))))
+	{
+		strcpy(tmp_val2, "recorded");
 	}
 
 	/* Note "tried" if the object has been tested unsuccessfully */

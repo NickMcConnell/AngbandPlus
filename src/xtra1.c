@@ -155,7 +155,7 @@ static void show_status_bar(cptr letter, byte *colour, int num)
 {
 	int i;
 	
-	if (!use_color || ironman_moria)
+	if (!use_color /*|| ironman_moria*/)
 	{
 		/* Make the symbols white if colour is not used */
 		for (i = 0; i < num; i++)
@@ -1089,7 +1089,7 @@ static void health_redraw(void)
 		Term_putstr(COL_INFO, ROW_INFO, 12, TERM_WHITE, "[----------]");
 
 		/* Hack -- fake monochrome */
-		if (!use_color || ironman_moria) attr = TERM_WHITE;
+		if (!use_color /*|| ironman_moria*/) attr = TERM_WHITE;
 
 		/* Dump the current "health" (use '*' symbols) */
 		Term_putstr(COL_INFO + 1, ROW_INFO, len, attr, "**********");
@@ -1243,6 +1243,16 @@ static void fix_equip(void)
  */
 static void fix_spell(void)
 {
+#ifdef USE_NEW_MAGIC
+	/* Hack - spell list doesn't make sense with the new magic system */
+ #ifdef SUPPORT_OLD_MAGIC
+	if (!old_magic_user)
+ #endif /* SUPPORT_OLD_MAGIC */
+	{
+		return;
+	}
+#endif /* USE_NEW_MAGIC */
+
 	int j;
 
 	/* Scan windows */
@@ -1339,7 +1349,7 @@ static void fix_message(void)
 			byte attr = message_color((s16b)i);
 
 			/* Hack -- fake monochrome */
-			if (!use_color || ironman_moria) attr = TERM_WHITE;
+			if (!use_color/* || ironman_moria*/) attr = TERM_WHITE;
 
 			/* Dump the message on the appropriate line */
 			Term_putstr(0, (h - 1) - i, -1, attr,
@@ -3532,6 +3542,10 @@ static void calc_bonuses(void)
 	/* Affect Skill -- combat (normal) (Level, by Class) */
 	p_ptr->skill_thn += (cp_ptr->x_thn * p_ptr->lev / 50);
 
+	/* New in 2.7.1 - good combat skill boosts AC */
+	p_ptr->to_a += (p_ptr->skill_thn > 50 ? p_ptr->skill_thn-50 : 0);
+	p_ptr->dis_to_a += (p_ptr->skill_thn > 50 ? p_ptr->skill_thn-50 : 0);
+	
 	/* Affect Skill -- combat (shooting) (Level, by Class) */
 	p_ptr->skill_thb += (cp_ptr->x_thb * p_ptr->lev / 50);
 
@@ -3686,7 +3700,16 @@ void update_stuff(void)
 	if (p_ptr->update & (PU_SPELLS))
 	{
 		p_ptr->update &= ~(PU_SPELLS);
+#ifdef USE_NEW_MAGIC
+ #ifdef SUPPORT_OLD_MAGIC
+		if (old_magic_user)
+			calc_spells();
+		else
+ #endif /* SUPPORT_OLD_MAGIC */
+			calc_spells_new();
+#else /* USE_NEW_MAGIC */
 		calc_spells();
+#endif /* USE_NEW_MAGIC */
 	}
 
 

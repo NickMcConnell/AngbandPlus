@@ -1153,6 +1153,61 @@ bool detect_objects_normal(void)
 
 
 /*
+ * Detect all artifacts in range
+ */
+bool detect_objects_artifacts(void)
+{
+	int px = p_ptr->px;
+	int py = p_ptr->py;
+
+	int i, y, x;
+
+	bool detect = FALSE;
+
+
+	/* Scan objects */
+	for (i = 1; i < o_max; i++)
+	{
+		object_type *o_ptr = &o_list[i];
+
+		/* Skip dead objects */
+		if (!o_ptr->k_idx) continue;
+
+		/* Skip held objects */
+		if (o_ptr->held_m_idx) continue;
+
+		/* Location */
+		y = o_ptr->iy;
+		x = o_ptr->ix;
+
+		if (distance(px, py, x, y) > MAX_DETECT) continue;
+
+		/* Detect artifacts */
+		if (o_ptr->flags3 & TR3_INSTA_ART)
+		{
+			/* Hack -- memorize it */
+			o_ptr->marked = TRUE;
+
+			/* Redraw */
+			lite_spot(y, x);
+
+			/* Detect */
+			detect = TRUE;
+		}
+	}
+
+	/* Describe */
+	if (detect)
+	{
+		msg_print("You sense the presence of artifacts!");
+	}
+
+	/* Result */
+	return (detect);
+}
+
+
+/*
  * Detect all "magic" objects in range.
  *
  * This will light up all spaces with "magic" items, including artifacts,
@@ -1205,6 +1260,7 @@ bool detect_objects_magic(void)
 		    (tv == TV_NATURE_BOOK) ||
 			(tv == TV_CHAOS_BOOK) ||
 		    (tv == TV_DEATH_BOOK) ||
+		    (tv == TV_WIZARDRY_BOOK) ||
 		    (tv == TV_TRUMP_BOOK) ||
 			(tv == TV_ARCANE_BOOK) ||
 		    ((o_ptr->to_a > 0) || (o_ptr->to_h + o_ptr->to_d > 0)))
@@ -1253,6 +1309,9 @@ bool detect_monsters_normal(void)
 		/* Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
 
+		/* Monsters may obfuscate */
+		if (check_obfuscate(r_ptr, (m_ptr->mflag2 & MFLAG2_UNDETECTED), TRUE)) continue;
+		
 		/* Location */
 		y = m_ptr->fy;
 		x = m_ptr->fx;
@@ -1272,8 +1331,12 @@ bool detect_monsters_normal(void)
 			/* Hack -- Detect monster */
 			m_ptr->mflag |= (MFLAG_MARK | MFLAG_SHOW);
 
+			/* It's not obfuscated any more */
+			m_ptr->mflag2 &= ~(MFLAG2_OBFUSCATED);
+
 			/* Update the monster */
 			update_mon(i, FALSE);
+			m_ptr->mflag2 &= ~(MFLAG2_UNDETECTED);
 
 			/* Detect */
 			flag = TRUE;
@@ -1312,6 +1375,9 @@ bool detect_monsters_invis(void)
 		/* Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
 
+		/* Monsters may obfuscate */
+		if (check_obfuscate(r_ptr, (m_ptr->mflag2 & MFLAG2_UNDETECTED), TRUE)) continue;
+				
 		/* Location */
 		y = m_ptr->fy;
 		x = m_ptr->fx;
@@ -1334,8 +1400,12 @@ bool detect_monsters_invis(void)
 			/* Hack -- Detect monster */
 			m_ptr->mflag |= (MFLAG_MARK | MFLAG_SHOW);
 
+			/* It's not obfuscated any more */
+			m_ptr->mflag2 &= ~(MFLAG2_OBFUSCATED);
+
 			/* Update the monster */
 			update_mon(i, FALSE);
+			m_ptr->mflag2 &= ~(MFLAG2_UNDETECTED);
 
 			/* Detect */
 			flag = TRUE;
@@ -1376,6 +1446,9 @@ bool detect_monsters_evil(void)
 		/* Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
 
+		/* Monsters may obfuscate */
+		if (check_obfuscate(r_ptr, (m_ptr->mflag2 & MFLAG2_UNDETECTED), TRUE)) continue;
+				
 		/* Location */
 		y = m_ptr->fy;
 		x = m_ptr->fx;
@@ -1401,8 +1474,12 @@ bool detect_monsters_evil(void)
 			/* Hack -- Detect monster */
 			m_ptr->mflag |= (MFLAG_MARK | MFLAG_SHOW);
 
+			/* It's not obfuscated any more */
+			m_ptr->mflag2 &= ~(MFLAG2_OBFUSCATED);
+
 			/* Update the monster */
 			update_mon(i, FALSE);
+			m_ptr->mflag2 &= ~(MFLAG2_UNDETECTED);
 
 			/* Detect */
 			flag = TRUE;
@@ -1441,6 +1518,9 @@ bool detect_monsters_nonliving(void)
 		/* Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
 
+		/* Monsters may obfuscate */
+		if (check_obfuscate(r_ptr, (m_ptr->mflag2 & MFLAG2_UNDETECTED), TRUE)) continue;
+				
 		/* Location */
 		y = m_ptr->fy;
 		x = m_ptr->fx;
@@ -1464,8 +1544,12 @@ bool detect_monsters_nonliving(void)
 			/* Hack -- Detect monster */
 			m_ptr->mflag |= (MFLAG_MARK | MFLAG_SHOW);
 
+			/* It's not obfuscated any more */
+			m_ptr->mflag2 &= ~(MFLAG2_OBFUSCATED);
+
 			/* Update the monster */
 			update_mon(i, FALSE);
+			m_ptr->mflag2 &= ~(MFLAG2_UNDETECTED);
 
 			/* Detect */
 			flag = TRUE;
@@ -1504,6 +1588,9 @@ bool detect_monsters_living(void)
 		/* Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
 
+		/* Monsters may obfuscate */
+		if (check_obfuscate(r_ptr, (m_ptr->mflag2 & MFLAG2_UNDETECTED), TRUE)) continue;
+		
 		/* Location */
 		y = m_ptr->fy;
 		x = m_ptr->fx;
@@ -1527,8 +1614,12 @@ bool detect_monsters_living(void)
 			/* Hack -- Detect monster */
 			m_ptr->mflag |= (MFLAG_MARK | MFLAG_SHOW);
 
+			/* It's not obfuscated any more */
+			m_ptr->mflag2 &= ~(MFLAG2_OBFUSCATED);
+
 			/* Update the monster */
 			update_mon(i, FALSE);
+			m_ptr->mflag2 &= ~(MFLAG2_UNDETECTED);
 
 			/* Detect */
 			flag = TRUE;
@@ -1568,6 +1659,9 @@ bool detect_monsters_string(cptr Match)
 		/* Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
 
+		/* Monsters may obfuscate */
+		if (check_obfuscate(r_ptr, (m_ptr->mflag2 & MFLAG2_UNDETECTED), TRUE)) continue;
+				
 		/* Location */
 		y = m_ptr->fy;
 		x = m_ptr->fx;
@@ -1590,8 +1684,12 @@ bool detect_monsters_string(cptr Match)
 			/* Hack -- Detect monster */
 			m_ptr->mflag |= (MFLAG_MARK | MFLAG_SHOW);
 
+			/* It's not obfuscated any more */
+			m_ptr->mflag2 &= ~(MFLAG2_OBFUSCATED);
+
 			/* Update the monster */
 			update_mon(i, FALSE);
+			m_ptr->mflag2 &= ~(MFLAG2_UNDETECTED);
 
 			/* Detect */
 			flag = TRUE;
@@ -1632,6 +1730,9 @@ bool detect_monsters_xxx(u32b match_flag)
 		/* Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
 
+		/* Monsters may obfuscate */
+		if (check_obfuscate(r_ptr, (m_ptr->mflag2 & MFLAG2_UNDETECTED), TRUE)) continue;
+				
 		/* Location */
 		y = m_ptr->fy;
 		x = m_ptr->fx;
@@ -1657,8 +1758,12 @@ bool detect_monsters_xxx(u32b match_flag)
 			/* Hack -- Detect monster */
 			m_ptr->mflag |= (MFLAG_MARK | MFLAG_SHOW);
 
+			/* It's not obfuscated any more */
+			m_ptr->mflag2 &= ~(MFLAG2_OBFUSCATED);
+
 			/* Update the monster */
 			update_mon(i, FALSE);
+			m_ptr->mflag2 &= ~(MFLAG2_UNDETECTED);
 
 			/* Detect */
 			flag = TRUE;
@@ -1872,15 +1977,23 @@ bool dispel_demons(int dam)
 /*
  * Raise the dead
  */
-bool raise_dead(int y, int x, bool pet)
+bool raise_dead(int y, int x, bool pet, bool friendly, byte nature, s16b master)
 {
 	s16b i;
 	int fx, fy;
 
 	bool    obvious = FALSE;
 
+	u32b status;
+
 	cave_type *c_ptr;
 
+	/* Work out a single number to carry pet, friendly, nature and master information */
+	status = (u16b) master;
+	status += (nature << 16);
+	if (pet) status |= 0x01000000;
+	if (friendly) status |= 0x02000000;
+	
 	/* Check all (nearby) fields */
 	for (i = 1; i < fld_max; i++)
 	{
@@ -1903,7 +2016,7 @@ bool raise_dead(int y, int x, bool pet)
 		c_ptr = area(fy, fx);
 
 		/* Raise Corpses / Skeletons */
-		if (field_hook_special(&c_ptr->fld_idx, FTYPE_CORPSE, (vptr) &pet))
+		if (field_hook_special(&c_ptr->fld_idx, FTYPE_CORPSE, (vptr) &status))
 		{
 			if (player_has_los_grid(c_ptr)) obvious = TRUE;
 		}
@@ -1992,7 +2105,7 @@ bool genocide(int player_cast)
 	}
 
 	/* Mega-Hack -- Get a monster symbol */
-	(void)(get_com("Choose a monster race (by symbol) to genocide: ", &typ));
+	(void)(get_com("Choose a monster race (by symbol) to purge: ", &typ));
 
 	/* Delete the monsters of that "type" */
 	for (i = 1; i < m_max; i++)
@@ -2025,7 +2138,7 @@ bool genocide(int player_cast)
 		if (player_cast)
 		{
 			/* Take damage */
-			take_hit(randint1(4), "the strain of casting Genocide");
+			take_hit(randint1(4), "the strain of casting Purge");
 		}
 
 		/* Visual feedback */
@@ -2104,7 +2217,7 @@ bool mass_genocide(int player_cast)
 		if (player_cast)
 		{
 			/* Hack -- visual feedback */
-			take_hit(randint1(3), "the strain of casting Mass Genocide");
+			take_hit(randint1(3), "the strain of casting Mass Purge");
 		}
 
 		move_cursor_relative(p_ptr->py, p_ptr->px);
@@ -3624,12 +3737,41 @@ bool glyph_creation(void)
 }
 
 
-bool wall_stone(void)
+bool wall_stone(int dir)
 {
 	u16b flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE;
+	
+	int tx, ty;
 
-	bool dummy = (project(0, 1, p_ptr->py, p_ptr->px, 0, GF_STONE_WALL, flg));
+	int dummy = 0;
 
+	/* Did we get to aim? */
+	if (dir != -2)
+	{
+		/* Use the given direction */
+		tx = p_ptr->px + ddx[dir];
+		ty = p_ptr->py + ddy[dir];
+	
+		/* Hack -- Use an actual "target" */
+		if (!ironman_moria && (dir == 5) && target_okay())
+		{
+			flg &= ~(PROJECT_STOP);
+			tx = p_ptr->target_col;
+			ty = p_ptr->target_row;
+		}
+
+		/* Analyze the "dir" and the "target".  Hurt items on floor. */
+		dummy =  (project(0, 0, ty, tx, 0, GF_STONE_WALL, flg));
+	}
+	else
+	{
+		for (ty=-1; ty<2; ++ty)
+			for (tx=-1; tx<2; ++tx)
+				if (ty || tx) 
+					dummy += (project(0, 0, p_ptr->py + ty, p_ptr->px + tx, 
+								0, GF_STONE_WALL, flg));
+	}
+	
 	/* Update stuff */
 	p_ptr->update |= (PU_VIEW | PU_FLOW);
 
@@ -3642,7 +3784,7 @@ bool wall_stone(void)
 	/* Window stuff */
 	p_ptr->window |= (PW_OVERHEAD | PW_DUNGEON);
 
-	return dummy;
+	return (bool) dummy;
 }
 
 
@@ -3788,7 +3930,8 @@ bool activate_ty_curse(bool stop_ty, int *count)
 			}
 			case 7: case 8: case 9: case 18:
 			{
-				(*count) += summon_specific(0, py, px, p_ptr->depth, 0, TRUE, FALSE, FALSE);
+				(*count) += summon_specific(0, py, px, p_ptr->depth, 0, TRUE, 
+							    FALSE, FALSE, GP_FIXATED_ON_PLAYER, 0);
 				if (!one_in_(6)) break;
 				
 				/* Fall through */
@@ -3890,46 +4033,60 @@ int activate_hi_summon(void)
 		switch (randint1(26) + (p_ptr->depth / 20))
 		{
 			case 1: case 2:
-				count += summon_specific(0, py, px, p_ptr->depth, SUMMON_ANT, TRUE, FALSE, FALSE);
+				count += summon_specific(0, py, px, p_ptr->depth, SUMMON_ANT, 
+						TRUE, FALSE, FALSE, GP_FIXATED_ON_PLAYER, 0);
 				break;
 			case 3: case 4:
-				count += summon_specific(0, py, px, p_ptr->depth, SUMMON_SPIDER, TRUE, FALSE, FALSE);
+				count += summon_specific(0, py, px, p_ptr->depth, SUMMON_SPIDER, 
+						TRUE, FALSE, FALSE, GP_FIXATED_ON_PLAYER, 0);
 				break;
 			case 5: case 6:
-				count += summon_specific(0, py, px, p_ptr->depth, SUMMON_HOUND, TRUE, FALSE, FALSE);
+				count += summon_specific(0, py, px, p_ptr->depth, SUMMON_HOUND, 
+						TRUE, FALSE, FALSE, GP_FIXATED_ON_PLAYER, 0);
 				break;
 			case 7: case 8:
-				count += summon_specific(0, py, px, p_ptr->depth, SUMMON_HYDRA, TRUE, FALSE, FALSE);
+				count += summon_specific(0, py, px, p_ptr->depth, SUMMON_HYDRA, 
+						TRUE, FALSE, FALSE, GP_FIXATED_ON_PLAYER, 0);
 				break;
 			case 9: case 10:
-				count += summon_specific(0, py, px, p_ptr->depth, SUMMON_ANGEL, TRUE, FALSE, FALSE);
+				count += summon_specific(0, py, px, p_ptr->depth, SUMMON_ANGEL, 
+						TRUE, FALSE, FALSE, GP_FIXATED_ON_PLAYER, 0);
 				break;
 			case 11: case 12:
-				count += summon_specific(0, py, px, p_ptr->depth, SUMMON_UNDEAD, TRUE, FALSE, FALSE);
+				count += summon_specific(0, py, px, p_ptr->depth, SUMMON_UNDEAD, 
+						TRUE, FALSE, FALSE, GP_FIXATED_ON_PLAYER, 0);
 				break;
 			case 13: case 14:
-				count += summon_specific(0, py, px, p_ptr->depth, SUMMON_DRAGON, TRUE, FALSE, FALSE);
+				count += summon_specific(0, py, px, p_ptr->depth, SUMMON_DRAGON, 
+						TRUE, FALSE, FALSE, GP_FIXATED_ON_PLAYER, 0);
 				break;
 			case 15: case 16:
-				count += summon_specific(0, py, px, p_ptr->depth, SUMMON_DEMON, TRUE, FALSE, FALSE);
+				count += summon_specific(0, py, px, p_ptr->depth, SUMMON_DEMON, 
+						TRUE, FALSE, FALSE, GP_FIXATED_ON_PLAYER, 0);
 				break;
 			case 17:
-				count += summon_specific(0, py, px, p_ptr->depth, SUMMON_AMBERITES, TRUE, FALSE, FALSE);
+				count += summon_specific(0, py, px, p_ptr->depth, SUMMON_AMBERITES, 
+						TRUE, FALSE, FALSE, GP_FIXATED_ON_PLAYER, 0);
 				break;
 			case 18: case 19:
-				count += summon_specific(0, py, px, p_ptr->depth, SUMMON_UNIQUE, TRUE, FALSE, FALSE);
+				count += summon_specific(0, py, px, p_ptr->depth, SUMMON_UNIQUE, 
+						TRUE, FALSE, FALSE, GP_FIXATED_ON_PLAYER, 0);
 				break;
 			case 20: case 21:
-				count += summon_specific(0, py, px, p_ptr->depth, SUMMON_HI_UNDEAD, TRUE, FALSE, FALSE);
+				count += summon_specific(0, py, px, p_ptr->depth, SUMMON_HI_UNDEAD, 
+						TRUE, FALSE, FALSE, GP_FIXATED_ON_PLAYER, 0);
 				break;
 			case 22: case 23:
-				count += summon_specific(0, py, px, p_ptr->depth, SUMMON_HI_DRAGON, TRUE, FALSE, FALSE);
+				count += summon_specific(0, py, px, p_ptr->depth, SUMMON_HI_DRAGON, 
+						TRUE, FALSE, FALSE, GP_FIXATED_ON_PLAYER, 0);
 				break;
 			case 24: case 25:
-				count += summon_specific(0, py, px, 100, SUMMON_CYBER, TRUE, FALSE, FALSE);
+				count += summon_specific(0, py, px, 100, SUMMON_CYBER, 
+						TRUE, FALSE, FALSE, GP_FIXATED_ON_PLAYER, 0);
 				break;
 			default:
-				count += summon_specific(0, py, px, (((p_ptr->depth * 3) / 2) + 5), 0, TRUE, FALSE, FALSE);
+				count += summon_specific(0, py, px, (((p_ptr->depth * 3) / 2) + 5), 0, 
+						TRUE, FALSE, FALSE, GP_FIXATED_ON_PLAYER, 0);
 		}
 	}
 
@@ -3946,6 +4103,7 @@ int summon_cyber(int who, int y, int x)
 
 	bool friendly = FALSE;
 	bool pet = FALSE;
+	byte group = GP_COPY;
 
 	/* Summoned by a monster */
 	if (who > 0)
@@ -3953,11 +4111,13 @@ int summon_cyber(int who, int y, int x)
 		monster_type *m_ptr = &m_list[who];
 		friendly = is_friendly(m_ptr);
 		pet = is_pet(m_ptr);
+		group = m_ptr->group;
 	}
 
 	for (i = 0; i < max_cyber; i++)
 	{
-		count += summon_specific(who, y, x, 100, SUMMON_CYBER, FALSE, friendly, pet);
+		count += summon_specific(who, y, x, 100, SUMMON_CYBER, FALSE, 
+				friendly, pet, group, who);
 	}
 
 	return count;
@@ -4118,3 +4278,4 @@ bool charm_animal(int dir, int plev)
 	u16b flg = PROJECT_STOP | PROJECT_KILL;
 	return (project_hook(GF_CONTROL_ANIMAL, dir, plev, flg));
 }
+

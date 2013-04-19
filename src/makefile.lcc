@@ -44,6 +44,8 @@ OBJS=\
 	streams.obj \
 	store.obj \
 	spells3.obj \
+	nmagic1.obj \
+	nmagic2.obj \
 	spells2.obj \
 	spells1.obj \
 	script.obj \
@@ -92,11 +94,11 @@ OBJS=\
 # Targets
 #
 
-zangband.exe:	$(OBJS)
-	$(LINK) -s -subsystem windows -o zangband.exe $(OBJS) $(LIBS)
+frazband.exe:	$(OBJS)
+	$(LINK) -s -subsystem windows -o frazband.exe $(OBJS) $(LIBS)
 
-install: zangband.exe
-	copy zangband.exe ..
+install: frazband.exe
+	copy frazband.exe ..
 
 clean:
 	del *.obj
@@ -436,6 +438,48 @@ SPELLS3_C=\
 
 spells3.obj: $(SPELLS3_C) spells3.c
 	$(CC) -c $(CFLAGS) spells3.c
+
+# Build NMAGIC1.C
+NMAGIC1_C=\
+	angband.h\
+	h-basic.h\
+	h-config.h\
+	h-system.h\
+	h-type.h\
+	h-define.h\
+	z-util.h\
+	z-virt.h\
+	z-form.h\
+	z-rand.h\
+	z-term.h\
+	z-config.h\
+	defines.h\
+	types.h\
+	externs.h\
+
+nmagic1.obj: $(NMAGIC1_C) nmagic1.c
+	$(CC) -c $(CFLAGS) nmagic1.c
+
+# Build NMAGIC2.C
+NMAGIC2_C=\
+	angband.h\
+	h-basic.h\
+	h-config.h\
+	h-system.h\
+	h-type.h\
+	h-define.h\
+	z-util.h\
+	z-virt.h\
+	z-form.h\
+	z-rand.h\
+	z-term.h\
+	z-config.h\
+	defines.h\
+	types.h\
+	externs.h\
+
+nmagic2.obj: $(NMAGIC2_C) nmagic2.c
+	$(CC) -c $(CFLAGS) nmagic2.c
 
 # Build SPELLS2.C
 SPELLS2_C=\

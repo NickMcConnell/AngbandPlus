@@ -1,0 +1,75 @@
+# qmrandom.txt
+
+
+Q:40:N:Random Quest
+Q:40:Q:7:0:0:0:24:0:0
+
+Q:41:N:Random Quest
+Q:41:Q:7:0:0:0:12:0:0
+
+Q:42:N:Random Quest
+Q:42:Q:7:0:0:0:38:0:0
+
+Q:43:N:Random Quest
+Q:43:Q:7:0:0:0:44:0:0
+
+Q:44:N:Random Quest
+Q:44:Q:7:0:0:0:6:0:0
+
+Q:45:N:Random Quest
+Q:45:Q:7:0:0:0:18:0:0
+
+Q:46:N:Random Quest
+Q:46:Q:7:0:0:0:32:0:0
+
+Q:47:N:Random Quest
+Q:47:Q:7:0:0:0:28:0:0
+
+Q:48:N:Random Quest
+Q:48:Q:7:0:0:0:8:0:0
+
+Q:49:N:Random Quest
+Q:49:Q:7:0:0:0:46:0:0
+
+Q:50:N:Random Quest
+Q:50:Q:7:0:0:0:40:0:0
+
+Q:51:N:Random Quest
+Q:51:Q:7:0:0:0:16:0:0
+
+Q:52:N:Random Quest
+Q:52:Q:7:0:0:0:34:0:0
+
+Q:53:N:Random Quest
+Q:53:Q:7:0:0:0:22:0:0
+
+Q:54:N:Random Quest
+Q:54:Q:7:0:0:0:10:0:0
+
+Q:55:N:Random Quest
+Q:55:Q:7:0:0:0:48:0:0
+
+Q:56:N:Random Quest
+Q:56:Q:7:0:0:0:14:0:0
+
+Q:57:N:Random Quest
+Q:57:Q:7:0:0:0:20:0:0
+
+Q:58:N:Random Quest
+Q:58:Q:7:0:0:0:26:0:0
+
+Q:59:N:Random Quest
+Q:59:Q:7:0:0:0:30:0:0
+
+Q:60:N:Random Quest
+Q:60:Q:7:0:0:0:36:0:0
+
+Q:61:N:Random Quest
+Q:61:Q:7:0:0:0:42:0:0
+
+Q:62:N:Random Quest
+Q:62:Q:7:0:0:0:4:0:0
+
+Q:63:N:Random Quest
+Q:63:Q:7:0:0:0:2:0:0
+

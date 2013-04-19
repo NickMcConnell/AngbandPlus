@@ -1361,3 +1361,13 @@ I:FEAT | VIS | MARK | NFT_LOOK | NO_OBJECT | PERM
 D:9:80:0:0:0:0:0:0
 F:2,field_action_door_build
 F:18,field_action_healer1 | 19,field_action_healer2
+
+# The Orb
+N:256:The Orb
+G:;:B
+W:100:9:0
+I:FEAT | VIS | NFT_LOOK | NO_OBJECT | PERM
+D:0:0:0:0:0:0:0:0
+F:2,field_action_door_build
+F:18,field_action_healer1 | 19,field_action_healer2
+

@@ -327,6 +327,19 @@ void chg_virtue(int virtue, int amount)
 {
 	int i;
 
+	/* People who find out stuff may get attacked by babewyns */
+	if ((virtue == V_KNOWLEDGE || virtue == V_ENLIGHTEN) && amount > 0 && p_ptr->depth)
+	{
+		if (level_flags & BABEWYN_LEVEL)
+		{
+			babewyn_incursion();
+		}
+		else if (one_in_(BABEWYNIFY_LEVEL_CHANCE/amount))
+		{
+			babewynify_level(TRUE);
+		}
+	}
+		
 	for (i = 0; i < MAX_PLAYER_VIRTUES; i++)
 	{
 		if (p_ptr->vir_types[i] == virtue)
@@ -399,5 +412,9 @@ void dump_virtues(FILE *OutFile)
 	}
 
 	if (p_ptr->wizard)
+#ifdef L64
+		fprintf(OutFile, "Your overall alignment is %d.\n", p_ptr->align);
+#else /* L64 */
 		fprintf(OutFile, "Your overall alignment is %ld.\n", p_ptr->align);
+#endif /* L64 */
 }

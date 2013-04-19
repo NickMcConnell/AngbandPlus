@@ -408,6 +408,7 @@ static bool high_level_book(const object_type *o_ptr)
 	if ((o_ptr->tval == TV_LIFE_BOOK) ||
 	    (o_ptr->tval == TV_SORCERY_BOOK) ||
 	    (o_ptr->tval == TV_NATURE_BOOK) ||
+	    (o_ptr->tval == TV_WIZARDRY_BOOK) ||
 	    (o_ptr->tval == TV_CHAOS_BOOK) ||
 	    (o_ptr->tval == TV_DEATH_BOOK) ||
 	    (o_ptr->tval == TV_TRUMP_BOOK))
@@ -446,7 +447,7 @@ bool destroy_item_aux(object_type *o_ptr, int amt)
 		/* Done */
 		return (FALSE);
 	}
-	
+
 	/* Take a turn */
 	p_ptr->energy_use += 100;
 	
@@ -641,8 +642,8 @@ void do_cmd_observe(void)
 	}
 
 
-	/* Require full knowledge */
-	if (!(o_ptr->ident & IDENT_MENTAL))
+	/* Require full knowledge in most cases */
+	if (!(o_ptr->ident & IDENT_MENTAL) && o_ptr->tval != TV_SPELL_SCROLL)
 	{
 		msg_print("You have no special knowledge about that item.");
 		return;
@@ -763,6 +764,7 @@ void do_cmd_inscribe(void)
 	/* Get a new inscription (possibly empty) */
 	if (get_string("Inscription: ", out_val, 80))
 	{
+		
 		/* Save the inscription */
 		o_ptr->inscription = quark_add(out_val);
 
@@ -1202,7 +1204,7 @@ static cptr ident_info[] =
 	"K:Killer Beetle",
 	"L:Lich",
 	"M:Multi-Headed Reptile",
-	/* "N:unused", */
+	"N:Something Wierd",
 	"O:Ogre",
 	"P:Giant Humanoid",
 	"Q:Quylthulg (Pulsing Flesh Mound)",
@@ -1345,7 +1347,7 @@ void ang_sort_swap_hook(const vptr u, const vptr v, int a, int b)
 
 	/* Hack - ignore v */
 	(void) v;
-	
+
 	/* Swap */
 	holder = who[a];
 	who[a] = who[b];
@@ -1374,8 +1376,8 @@ static void roff_top(int r_idx)
 	a2 = r_ptr->x_attr;
 
 	/* Hack -- fake monochrome */
-	if (!use_color || ironman_moria) a1 = TERM_WHITE;
-	if (!use_color || ironman_moria) a2 = TERM_WHITE;
+	if (!use_color/* || ironman_moria*/) a1 = TERM_WHITE;
+	if (!use_color/* || ironman_moria*/) a2 = TERM_WHITE;
 
 
 	/* Clear the top line */
@@ -1633,7 +1635,7 @@ void do_cmd_query_symbol(void)
 		if (query == ESCAPE) break;
 
 		/* Move to "prev" monster */
-		if (query == '-')
+		if (query == '-' || query == KTRL('H'))
 		{
 			if (++i == n)
 			{

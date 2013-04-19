@@ -147,9 +147,11 @@ static long equip_value(void)
  */
 static long total_points(void)
 {
+
 	long temp;
 	long mult = 100;
 	
+		
 	/* AI is not that big a deal (yet) */
 	if (stupid_monsters) mult -= 20;
 	
@@ -171,9 +173,14 @@ static long total_points(void)
 
 	/* More ironman options */
 	if (ironman_empty_levels) mult += 10;
-	if (ironman_nightmare) mult += 20;
+	if (ironman_nightmare) mult += 40;
 	if (ironman_rooms) mult +=10;
 
+	/* and some more */
+	if (ironman_downward) mult += 50;
+	else if (ironman_shops) mult += 10;
+	if (super_powerful_monst) mult += 5;
+	
 	if (mult < 5) mult = 5; /* At least 5% of the original score */
 
 	temp = p_ptr->max_exp + (100 * p_ptr->max_depth);
@@ -184,6 +191,23 @@ static long total_points(void)
 
 	if (ironman_downward) temp *= 2;
 
+#ifdef USE_DIFFICULTY
+	byte diff;
+	
+	diff = protect_savefile ? difficulty_level : difficulty_level / 2;
+	if (diff < 50) 
+	{
+		if (temp < 10000000L) temp = (temp * 100L) / (100L + diff_num[diff]);
+		else if (diff_num[diff] < 1000) temp = (temp / (100L + diff_num[diff])) * 100L;
+		else temp = temp / ((100L + diff_num[diff]) / 100L);
+	}
+	else if (diff > 50)
+	{
+		if (temp < 1000000000L / (diff_num[diff] + 500L)) temp = (temp * (diff_num[diff] + 500L)) / 500L;
+		else temp = (temp / 500L) * (diff_num[diff] + 500L);
+	}
+#endif /* USE_DIFFICULTY */
+	
 	return (temp);
 }
 
@@ -253,6 +277,9 @@ void display_scores_aux(int from, int to, int note, const high_score *score)
 		for (j = k, n = 0; j < i && n < 5; place++, j++, n++)
 		{
 			int pr, pc, clev, mlev, cdun, mdun;
+#ifdef USE_DIFFICULTY
+			int diff;
+#endif /* USE_DIFFICULTY */
 
 			cptr user, gold, when, aged;
 
@@ -288,6 +315,11 @@ void display_scores_aux(int from, int to, int note, const high_score *score)
 			mlev = atoi(the_score.max_lev);
 			cdun = atoi(the_score.cur_dun);
 			mdun = atoi(the_score.max_dun);
+
+#ifdef USE_DIFFICULTY
+			/* Extract the difficulty level */
+			diff = atoi(the_score.dif_lev);
+#endif /* USE_DIFFICULTY */
 
 			/* Hack -- extract the gold and such */
 			for (user = the_score.uid; isspace(*user); user++) /* loop */;
@@ -332,9 +364,15 @@ void display_scores_aux(int from, int to, int note, const high_score *score)
 			c_put_str(attr, out_val, n*4 + 3, 0);
 
 			/* And still another line of info */
+#ifdef USE_DIFFICULTY
+			sprintf(out_val,
+			        "               (Date %s, Gold %s, Turn %s, Diff %d).",
+			        when, gold, aged, diff);
+#else /* USE_DIFFICULTY */
 			sprintf(out_val,
 			        "               (User %s, Date %s, Gold %s, Turn %s).",
 			        user, when, gold, aged);
+#endif /* USE_DIFFICULTY */
 			c_put_str(attr, out_val, n*4 + 4, 0);
 		}
 
@@ -525,6 +563,11 @@ void enter_score(void)
 	/* Save the cause of death (31 chars) */
 	sprintf(the_score.how, "%-.31s", p_ptr->died_from);
 
+	
+#ifdef USE_DIFFICULTY
+	/* Save the difficulty level */
+	sprintf(the_score.dif_lev, "%3d", (int) real_difficulty());
+#endif /* USE_DIFFICULTY */
 
 	/* Lock (for writing) the highscore file, or fail */
 	if (fd_lock(highscore_fd, F_WRLCK)) return;
@@ -628,6 +671,12 @@ void predict_score(void)
 	strcpy(the_score.how, "nobody (yet!)");
 
 
+#ifdef USE_DIFFICULTY
+	/* Save the difficulty level */
+	sprintf(the_score.dif_lev, "%3d", (int) real_difficulty());
+#endif /* USE_DIFFICULTY */
+
+	
 	/* See where the entry would be placed */
 	j = highscore_where(&the_score);
 

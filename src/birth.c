@@ -106,8 +106,8 @@ static const hist_type bg[] =
 	{"of a Townsman.  ",                                     80, 2, 3, 90},
 	{"of a Guildsman.  ",                                    90, 2, 3, 105},
 	{"of a Landed Knight.  ",                                96, 2, 3, 120},
-	{"of a Noble Family in the Courts of Chaos.  ",          99, 2, 3, 130},
-	{"of the Royal Blood Line of Amber.  ",                 100, 2, 3, 140},
+	{"of a Noble Family.  ",   			         99, 2, 3, 130},
+	{"of a Royal Family.  ",                                100, 2, 3, 140},
 
 	{"You are the black sheep of the family.  ",             20, 3, 50, 20},
 	{"You are a credit to the family.  ",                    80, 3, 50, 55},
@@ -589,6 +589,92 @@ static const hist_type bg[] =
 
 	{"You have ", 100, 134, 120, 50 },
 };
+
+/*
+ * Predefined spellcaster types
+ */
+typedef struct preset_type preset_type;
+
+struct preset_type
+{
+	cptr name;
+	cptr desc1;
+	cptr desc2;
+	int actions[NUM_MAG_ACTIONS];
+	int targets[NUM_AVAIL_MAG_TARGETS];
+};
+
+#define NUM_PRESETS	20
+static preset_type spellcasters[NUM_PRESETS] = {
+	{"Standard Mage I", "", "A normal mage spell selection.", 
+		{2,0,1,2,1},{0,1,0,0,1,2,0,2,0}},
+	{"Standard Mage II", "", "A normal mage spell selection.", 
+		{2,0,1,2,1},{0,1,0,0,1,0,2,2,0}},
+	{"Standard Mage III", "", "A normal mage spell selection.", 
+		{0,2,1,2,1},{0,1,0,0,1,2,0,0,2}},
+	{"Standard Mage IV", "", "A normal mage spell selection.", 
+		{0,2,1,2,1},{0,1,2,0,1,0,0,0,2}},
+	{"Standard Mage V", "", "A normal mage spell selection.", 
+		{0,3,1,1,1},{0,2,0,0,1,0,0,3,0}},
+	{"Conjurer", "", "A mage skilled at calling other creatures to his aid.", 
+		{2,0,1,2,1},{3,1,0,0,0,0,0,2,0}},
+	{"Nature Mage", "A mage with a greater range of spells for different situations", 
+		"sacrificing a few basic spells like teleportation.", 
+		{3,0,0,2,1},{0,1,0,3,0,0,0,2,0}},
+	{"High Mage", "An example of a mage who sacrifices utility spells for",
+		"unmatched ability at casting powerful attack spells.", 
+		{4,0,1,0,1},{0,0,0,0,0,2,0,4,0}},
+	{"Utility Priest", "", "A priest skilled at utility spells.", 
+		{2,0,2,1,1},{0,1,3,0,1,0,0,0,0}},
+	{"Attack Priest", "", "A priest with a good range of attacking spells.", 
+		{3,0,1,1,1},{0,0,3,0,0,1,0,1,0}},
+	{"Summoning Priest", "", "A priest with some useful summoning spells.", 
+		{2,0,1,2,1},{1,1,3,0,0,0,0,0,0}},
+	{"High Priest", "", "A priest particularly skilled at core priest spells.", 
+		{3,0,1,1,1},{0,0,5,0,0,0,0,0,0}},
+	{"Normal Rogue", "", "A standard rogue spell selection.", 
+		{0,0,1,0,1},{0,1,0,1,1,0,0,0,0}},
+	{"Normal Ranger", "", "A standard ranger spell selection.", 
+		{1,0,1,1,1},{0,1,0,3,1,0,0,0,0}},
+	{"Fighting Mage", "", "A mage who can also fight.", 
+		{3,0,1,0,1},{0,1,0,0,1,1,0,2,0}},
+	{"Enhanced Warrior", "A warrior-mage who drops powerful attack spells in return",
+		"for spells which enhance his fighting ability and summons",
+		{0,0,2,2,1},{2,2,0,0,0,0,1,0,0}},
+	{"Enhancing Monk", "", "A monk who uses magic to enhance his combat abilities.", 
+		{0,0,1,1,1},{1,2,0,0,0,0,0,0,0}},
+	{"Nature Monk", "", "A monk with a broad range of spells based around nature.", 
+		{1,0,1,0,1},{0,0,0,3,0,0,0,0,0}},
+	{"Chaos Monk", "", "A monk with powerful attack spells.", 
+		{0,3,0,0,0},{0,0,0,0,0,0,0,3,0}},
+	{"Sorcerous Monk", "", "A monk with utility spells.",
+		{0,0,1,1,1},{0,2,0,0,1,0,0,0,0}},
+};
+/* create,destroy,change,control,divine */
+/* mind,body,life,nature,magic,energy,matter,stuff,real */
+
+static bool get_ok_presets(int *first_preset, int *last_preset)
+{
+	switch (p_ptr->pclass)
+	{
+		case CLASS_MAGE:	*first_preset = 0;
+					*last_preset = 7; break;
+		case CLASS_PRIEST:	*first_preset = 8;
+					*last_preset = 11; break;
+		case CLASS_ROGUE:	*first_preset = 12;
+					*last_preset = 12; break;
+		case CLASS_RANGER:	*first_preset = 13;
+					*last_preset = 13; break;
+		case CLASS_WARRIOR_MAGE:*first_preset = 14;
+					*last_preset = 15; break;
+		case CLASS_MONK:	*first_preset = 16;
+					*last_preset = 19; break;
+		default: 
+					return FALSE;
+	}
+	return TRUE;
+}
+
 
 
 
@@ -1345,7 +1431,7 @@ static void player_wipe(void)
 
 		/* Hack -- Reset the max counter */
 		if (r_ptr->flags1 & RF1_UNIQUE) r_ptr->max_num = 1;
-		if (r_ptr->flags3 & RF3_UNIQUE_7) r_ptr->max_num = 7;
+		/* (unused) if (r_ptr->flags3 & RF3_UNIQUE_7) r_ptr->max_num = 7; */
 
 		/* Clear player kills */
 		r_ptr->r_pkills = 0;
@@ -1357,8 +1443,15 @@ static void player_wipe(void)
 
 
 	/* Wipe the spells */
+#ifdef USE_NEW_MAGIC
+	for (i = 0; i < 100; ++i) p_ptr->spells[i] = 0;
+ #ifdef SUPPORT_OLD_MAGIC
 	for (i = 0; i < 64; i++) p_ptr->spell_order[i] = 99;
-
+ #endif /* SUPPORT_OLD_MAGIC */
+#else /* USE_NEW_MAGIC */
+	for (i = 0; i < 64; i++) p_ptr->spell_order[i] = 99;
+#endif /* USE_NEW_MAGIC */
+	
 	/* Clean the mutation count */
 	mutant_regenerate_mod = 100;
 
@@ -1369,6 +1462,7 @@ static void player_wipe(void)
 	cheat_xtra = FALSE;
 	cheat_know = FALSE;
 	cheat_live = FALSE;
+	cheat_muta = FALSE;
 
 	/* Default pet command settings */
 	p_ptr->pet_follow_distance = PET_FOLLOW_DIST;
@@ -1458,6 +1552,22 @@ static const byte player_init[MAX_CLASS][3][2] =
 		{ TV_RING, SV_RING_SUSTAIN_INT}
 	},
 };
+
+#ifdef USE_NEW_MAGIC
+/*
+ * Give players new spells under the new magic system 
+ */
+static void get_player_start_spells(void)
+{
+	int i;
+
+	/* For now, just give the player all depth 0 spells */
+	for (i=1; i<MAX_SPELLS_CURRENT; ++i)
+	{
+		if (!spell_stats[i][2]) p_ptr->spell_found[i / 32] |= (1L << (i % 32));
+	}
+}
+#endif /* USE_NEW_MAGIC */
 
 
 /*
@@ -1598,10 +1708,25 @@ static void player_outfit(void)
 		sv = player_init[p_ptr->pclass][i][1];
 
 		/* Hack to initialize spellbooks */
+#ifdef USE_NEW_MAGIC
+ #ifdef SUPPORT_OLD_MAGIC
+		if (old_magic_user)
+		{	
+			if (tv == TV_SORCERY_BOOK) tv = TV_LIFE_BOOK + p_ptr->realm1 - 1;
+			else if (tv == TV_DEATH_BOOK) tv = TV_LIFE_BOOK + p_ptr->realm2 - 1;
+		}
+		else
+ #endif /* SUPPORT_OLD_MAGIC */
+		{
+			if (tv == TV_SORCERY_BOOK || tv == TV_DEATH_BOOK 
+					|| tv == TV_NATURE_BOOK) tv = TV_SPELLBOOK;
+		}
+#else /* USE_NEW_MAGIC */
 		if (tv == TV_SORCERY_BOOK) tv = TV_LIFE_BOOK + p_ptr->realm1 - 1;
 		else if (tv == TV_DEATH_BOOK) tv = TV_LIFE_BOOK + p_ptr->realm2 - 1;
-
-		else if (tv == TV_RING && sv == SV_RING_RES_FEAR &&
+#endif /* USE_NEW_MAGIC */
+		
+		if (tv == TV_RING && sv == SV_RING_RES_FEAR &&
 		    p_ptr->prace == RACE_BARBARIAN)
 		{
 			/* Barbarians do not need a ring of resist fear */
@@ -1615,11 +1740,16 @@ static void player_outfit(void)
 		object_prep(q_ptr, lookup_kind(tv, sv));
 
 		/* Assassins begin the game with a poisoned dagger */
+#if defined(SUPPORT_OLD_MAGIC) || !defined(USE_NEW_MAGIC)
 		if (tv == TV_SWORD && p_ptr->pclass == CLASS_ROGUE &&
+ #ifdef USE_NEW_MAGIC
+			old_magic_user && 
+ #endif /* USE_NEW_MAGIC */
 			p_ptr->realm1 == REALM_DEATH)
 		{
 			add_ego_flags(q_ptr, EGO_BRAND_POIS);
 		}
+#endif /* defined(SUPPORT_OLD_MAGIC) || !defined(USE_NEW_MAGIC) */
 
 		/* These objects are "storebought" */
 		q_ptr->ident |= IDENT_STOREB;
@@ -1629,19 +1759,28 @@ static void player_outfit(void)
 
 		(void)inven_carry(q_ptr);
 	}
+	/* for the new magic system, give the player some spells */
+#ifdef USE_NEW_MAGIC
+ #ifdef SUPPORT_OLD_MAGIC
+	if (!old_magic_user)
+ #endif /* SUPPORT_OLD_MAGIC */
+	{
+		get_player_start_spells();
+	}
+#endif /* USE_NEW_MAGIC */
 }
 
 /* Locations of the tables on the screen */
 #define HEADER_ROW		1
-#define QUESTION_ROW	7
+#define QUESTION_ROW		7
 #define TABLE_ROW		10
 
-#define QUESTION_COL	3	
+#define QUESTION_COL		3	
 #define SEX_COL			0
 #define RACE_COL		12
-#define RACE_AUX_COL    27
+#define RACE_AUX_COL    	27
 #define CLASS_COL		27
-#define CLASS_AUX_COL   48
+#define CLASS_AUX_COL   	48
 #define REALM1_COL		48
 #define REALM2_COL		60
 
@@ -1660,6 +1799,16 @@ static void clear_question(void)
 		/* Clear line, position cursor */
 		Term_erase(0, i, 255);
 	}
+}
+
+/*
+ * Change I2A() to give capitals at 27-52
+ */
+static int i2a2Z(int i)
+{
+	if (i < 26) return I2A(i);
+	/* ToDo: Fix the ASCII dependency */
+	else return 'A' + (i - 26);
 }
 
 
@@ -1702,15 +1851,7 @@ static int get_player_choice(cptr *choices, int num, int col, int wid,
 		/* Redraw the list */
 		for (i = 0; ((i + top < num) && (i <= hgt)); i++)
 		{
-			if (i + top < 26)
-			{
-				sprintf(buf, "%c) %s", I2A(i + top), choices[i + top]);
-			}
-			else
-			{
-				/* ToDo: Fix the ASCII dependency */
-				sprintf(buf, "%c) %s", 'A' + (i + top - 26), choices[i + top]);
-			}
+			sprintf(buf, "%c) %s", i2a2Z(i + top), choices[i + top]);
 
 			/* Clear */
 			Term_erase(col, i + TABLE_ROW, wid);
@@ -1849,11 +1990,639 @@ static int get_player_choice(cptr *choices, int num, int col, int wid,
 		}
 
 		/* Invalid input */
-		bell();
+		else bell();
 	}
 
 	return (INVALID_CHOICE);
 }
+
+#define SM_INFO_ROW	HEADER_ROW + 8
+#define SM_ANSWER_ROW	HEADER_ROW + 13
+#define PRESET_COL	0
+#define ACTION_COL	31
+#define TARGET_COL	53
+#define END_COL		77
+static bool choose_specific_magic(int *amins, int *amaxes, int *ascores, int apoints,
+		int *tmins, int *tmaxes, int *tscores, int tpoints)
+{
+	int top = 0, cur = 0, column = 0;
+	/* int bot = 13; */
+	int i, dir;
+	char c;
+	char buf[80];
+	int hgt;
+	int num;
+	int apts = apoints;
+	int tpts = tpoints;
+	int first_preset, last_preset, num_presets;
+
+
+	/* Get the presets */
+	if (!(get_ok_presets(&first_preset, &last_preset))) return FALSE;
+
+	/* There is always a "Custom" preset */
+	num_presets = last_preset + 2 - first_preset;
+	
+	/* Choose */
+	while (TRUE)
+	{
+		/*
+		 * Apply the effect of any preset 
+		 */
+		if (column == 0)
+		{
+			/* Custom? */
+			if (cur == 0)
+			{
+				/* Set starting values */
+				for (i=0; i<NUM_MAG_ACTIONS; ++i)
+				{
+					ascores[i] = amins[i];
+				}
+				for (i=0; i<NUM_AVAIL_MAG_TARGETS; ++i)
+				{
+					tscores[i] = tmins[i];
+				}
+				apts = apoints;
+				tpts = tpoints;
+			}
+			else
+			{
+				for (i=0; i<NUM_MAG_ACTIONS; ++i)
+				{
+					ascores[i] = spellcasters[first_preset + cur - 1].actions[i];
+				}
+				for (i=0; i<NUM_AVAIL_MAG_TARGETS; ++i)
+				{
+					tscores[i] = spellcasters[first_preset + cur - 1].targets[i];
+				}
+				apts = 0;
+				tpts = 0;
+			}
+		}
+		/*
+		 * Note to Melkor: What happens when the screen is resized?
+		 * There is no 'redraw' hook at this point... 
+		 * (That is why the original code restricted itself to what
+		 * would fit in the smallest possible screen.) -SF-
+		 */
+		hgt = Term->hgt - TABLE_ROW - 1;
+
+		/* Clear */
+		clear_from(SM_INFO_ROW);
+		
+		/* Give the remaining points for both */
+		Term_putstr(ACTION_COL, SM_ANSWER_ROW-2, TARGET_COL-ACTION_COL, TERM_WHITE, "points:");
+		Term_putstr(TARGET_COL, SM_ANSWER_ROW-2, END_COL-TARGET_COL, TERM_WHITE, "points:");
+		/* We put the number of points at the right-hand edge */
+		sprintf(buf, "%d", apts);
+		Term_putstr(TARGET_COL-6, SM_ANSWER_ROW-2, 2, TERM_WHITE, buf);
+		sprintf(buf, "%d", tpts);
+		Term_putstr(END_COL-2, SM_ANSWER_ROW-2, 2, TERM_WHITE, buf);
+		
+		/* Redraw the presets */
+		for (i = 0; ((i + top < num_presets) && (i <= hgt)); i++)
+		{
+			/* The top preset will be a "custom" one, with no effect */
+			sprintf(buf, "%c) %s", i2a2Z(i + top), 
+					((i + top) == 0 ? "Custom" : 
+					 spellcasters[i + top + first_preset - 1].name));
+		
+			/* Display */
+			if (i == (cur - top) && column == 0)
+			{
+				/* Highlight the current selection */
+				Term_putstr(PRESET_COL, i + SM_ANSWER_ROW, 
+						ACTION_COL-PRESET_COL, TERM_L_BLUE, buf);
+			}
+			else
+			{
+				Term_putstr(PRESET_COL, i + SM_ANSWER_ROW, 
+						ACTION_COL-PRESET_COL, TERM_WHITE, buf);
+			}
+		}
+		/* Redraw the actions */
+		for (i = 0; ((i + top < NUM_MAG_ACTIONS) && (i <= hgt)); i++)
+		{
+			/* Prepare the first part */
+			sprintf(buf, "%c) %s", i2a2Z(i + top + num_presets), 
+					magic_action_names[i + top]);
+			
+			/* Display */
+			if (i == (cur - top) && column == 1)
+			{
+				/* Highlight the current selection */
+				Term_putstr(ACTION_COL, i + SM_ANSWER_ROW, 
+						TARGET_COL-ACTION_COL-2, TERM_L_BLUE, buf);
+			}
+			else
+			{
+				Term_putstr(ACTION_COL, i + SM_ANSWER_ROW, 
+						TARGET_COL-ACTION_COL-2, TERM_WHITE, buf);
+			}
+
+			/* We put the number of points at the right-hand edge */
+			sprintf(buf, "%d", ascores[i]);
+			
+			if (i == (cur - top) && column == 1)
+			{
+				/* Highlight the current selection */
+				Term_putstr(TARGET_COL-6, i + SM_ANSWER_ROW, 2, TERM_L_BLUE, buf);
+			}
+			else
+			{
+				Term_putstr(TARGET_COL-6, i + SM_ANSWER_ROW, 2, TERM_WHITE, buf);
+			}
+		}
+		/* Redraw the actions */
+		for (i = 0; ((i + top < NUM_AVAIL_MAG_TARGETS) && (i <= hgt)); i++)
+		{
+			/* Prepare the first part */
+			sprintf(buf, "%c) %s", i2a2Z(i + top + num_presets + NUM_MAG_ACTIONS), 
+					magic_target_names[i + top]);
+			
+			/* Display */
+			if (i == (cur - top) && column == 2)
+			{
+				/* Highlight the current selection */
+				Term_putstr(TARGET_COL, i + SM_ANSWER_ROW, 
+						END_COL-TARGET_COL-2, TERM_L_BLUE, buf);
+			}
+			else
+			{
+				Term_putstr(TARGET_COL, i + SM_ANSWER_ROW, 
+						END_COL-TARGET_COL-2, TERM_WHITE, buf);
+			}
+
+			/* We put the number of points at the right-hand edge */
+			sprintf(buf, "%d", tscores[i]);
+			
+			if (i == (cur - top) && column == 2)
+			{
+				/* Highlight the current selection */
+				Term_putstr(END_COL-2, i + SM_ANSWER_ROW, 2, TERM_L_BLUE, buf);
+			}
+			else
+			{
+				Term_putstr(END_COL-2, i + SM_ANSWER_ROW, 2, TERM_WHITE, buf);
+			}
+		}
+
+		/* Display auxiliary information if any is available. */
+		if (column == 0 && cur > 0)
+		{
+			Term_putstr(PRESET_COL + 3, SM_INFO_ROW, END_COL - PRESET_COL, 
+					TERM_WHITE, spellcasters[cur + first_preset - 1].desc1);
+			Term_putstr(PRESET_COL + 3, SM_INFO_ROW + 1, END_COL - PRESET_COL, 
+					TERM_WHITE, spellcasters[cur + first_preset - 1].desc2);
+		}
+
+		/* Move the cursor */
+		put_str("", SM_ANSWER_ROW + cur - top, (column == 2 ? TARGET_COL :
+					(column == 1 ? ACTION_COL : PRESET_COL)));
+
+		c = inkey();
+
+		if (c == KTRL('X'))
+		{
+			remove_loc();
+			quit(NULL);
+		}
+		if (c == ESCAPE)
+		{
+			/* Mega Hack - go back. */
+			return (FALSE);
+		}
+		if (c == '?')
+		{
+			screen_save();
+			(void)show_file("newmagic.txt", NULL, 0, 0);
+			screen_load();
+		}
+		else if (c == '=')
+		{
+			screen_save();
+			do_cmd_options(OPT_FLAG_BIRTH | OPT_FLAG_SERVER | OPT_FLAG_PLAYER);
+			screen_load();
+		}
+		else if ((c == '\n') || (c == '\r'))
+		{
+			/* We are done if we've used up all of our points */
+			if (!apts && !tpts) return (TRUE);
+			else bell();
+		}
+		else if (isdigit(c))
+		{
+			/* Get a direction from the key */
+			dir = get_keymap_dir(c);
+
+			/* Going up? */
+			if (dir == 8)
+			{
+				if (cur != 0)
+				{
+					/* Move selection */
+					cur--;
+				}
+
+				if ((top > 0) && ((cur - top) < 4))
+				{
+					/* Scroll up */
+					top--;
+				}
+			}
+
+			/* Going down? */
+			else if (dir == 2)
+			{
+				/* How many rows? */
+				if (column == 0) num = num_presets;
+				else if (column == 1) num = NUM_MAG_ACTIONS;
+				else num = NUM_AVAIL_MAG_TARGETS;
+				if (cur != (num - 1))
+				{
+					/* Move selection */
+					cur++;
+				}
+
+				if ((top + hgt < (num - 1)) && ((top + hgt - cur) < 4))
+				{
+					/* Scroll down */
+					top++;
+				}
+			}
+
+			/* Changing columns? */
+			else if (dir == 4 && column) --column;
+			else if (dir == 6 && column < 2) ++column;
+			else bell();
+		}
+		else if (isalpha(c))
+		{
+			/* Figure out what has been selected */
+			if (islower(c))
+			{
+				i = A2I(c);
+			}
+			else
+			{
+				i = c - 'A' + 26;
+			}
+
+			/* Validate input */
+			if ((i > -1) && (i < num_presets + NUM_MAG_ACTIONS + NUM_AVAIL_MAG_TARGETS))
+			{
+				if (i >= num_presets + NUM_MAG_ACTIONS)
+				{
+					column = 2;
+					cur = i - (num_presets + NUM_MAG_ACTIONS);
+				}
+				else if (i >= num_presets)
+				{
+					column = 1;
+					cur = i - (num_presets);
+				}
+				else
+				{
+					column = 0;
+					cur = i;
+				}
+
+				/* Move it onto the screen */
+				if ((cur < top) || (cur > top + hgt))
+				{
+					top = cur;
+				}
+
+				/* Increase? */
+				if (column == 1)
+				{
+					/* Spare points and room? */
+					if (apts && (!amaxes || ascores[cur] < amaxes[cur]))
+					{
+						/* Assign a point */
+						++ascores[cur];
+						--apts;
+					}
+					/* Otherwise complain */
+					else bell();
+				}
+				else if (column == 2)
+				{
+					/* Spare points and room? */
+					if (tpts && (!tmaxes || tscores[cur] < tmaxes[cur]))
+					{
+						/* Assign a point */
+						++tscores[cur];
+						--tpts;
+					}
+					/* Otherwise complain */
+					else bell();
+				}
+			}
+		}
+		
+		/* Adjust? */
+		else if (c == '+' || c == '}' || c == ']' || c == '.' || c == '>')
+		{
+			if (column == 1)
+			{
+				/* Spare points and room? */
+				if (apts && (!amaxes || ascores[cur] < amaxes[cur]))
+				{
+					/* Assign a point */
+					++ascores[cur];
+					--apts;
+				}
+				/* Otherwise complain */
+				else bell();
+			}
+			else if (column == 2)
+			{
+				/* Spare points and room? */
+				if (tpts && (!tmaxes || tscores[cur] < tmaxes[cur]))
+				{
+					/* Assign a point */
+					++tscores[cur];
+					--tpts;
+				}
+				/* Otherwise complain */
+				else bell();
+			}
+			else bell();
+		}
+		else if (c == '-' || c == '[' || c == '{' || c == ',' || c == '<')
+		{
+			if (column == 1)
+			{
+				/* Can we decrease? */
+				if (ascores[cur] > amins[cur])
+				{
+					/* Unassign a point */
+					--ascores[cur];
+					++apts;
+				}
+				/* Otherwise complain */
+				else bell();
+			}
+			else if (column == 2)
+			{
+				/* Can we decrease? */
+				if (tscores[cur] > tmins[cur])
+				{
+					/* Unassign a point */
+					--tscores[cur];
+					++tpts;
+				}
+				/* Otherwise complain */
+				else bell();
+			}
+			else bell();
+		}
+		else bell();
+	}
+
+	return (FALSE);
+}
+#if 0
+/*
+ * Generic "assign points" function, adapted from get_player_choice()
+ * Obselete.
+ */
+static bool assign_points(cptr *options, int *mins, int *maxes, int *scores, int points,
+		int num, int col, int wid, cptr helpfile, void (*hook)(cptr))
+{
+	int top = 0, cur = 0;
+	/* int bot = 13; */
+	int i, dir;
+	char c;
+	char buf[80];
+	bool done = FALSE;
+	int hgt;
+	int pointsleft = points;
+
+
+	/* Clear (TABLE_ROW-2 to make room to display remaining points) */
+	for (i = TABLE_ROW-2; i < Term->hgt; i++)
+	{
+		/* Clear */
+		Term_erase(col, i, Term->wid - wid);	
+	}
+
+	/* Set starting values */
+	for (i=0; i<num; ++i)
+	{
+		scores[i] = mins[i];
+	}
+	
+	/* Choose */
+	while (TRUE)
+	{
+		/*
+		 * Note to Melkor: What happens when the screen is resized?
+		 * There is no 'redraw' hook at this point... 
+		 * (That is why the original code restricted itself to what
+		 * would fit in the smallest possible screen.) -SF-
+		 */
+		hgt = Term->hgt - TABLE_ROW - 1;
+
+		/* Give the remaining points */
+		Term_erase(col, TABLE_ROW - 2, wid);
+		Term_putstr(col, TABLE_ROW - 2, wid-2, TERM_WHITE, "points:");
+		/* We put the number of points at the right-hand edge */
+		sprintf(buf, "%d", pointsleft);
+		Term_putstr(col+wid-2, TABLE_ROW - 2, 2, TERM_WHITE, buf);
+		
+		/* Redraw the list */
+		for (i = 0; ((i + top < num) && (i <= hgt)); i++)
+		{
+			/* Clear */
+			Term_erase(col, i + TABLE_ROW, wid);
+
+			/* Prepare the first part */
+			sprintf(buf, "%c) %s", I2A(i + top), options[i + top]);
+
+			/* Display */
+			if (i == (cur - top))
+			{
+				/* Highlight the current selection */
+				Term_putstr(col, i + TABLE_ROW, wid-2, TERM_L_BLUE, buf);
+			}
+			else
+			{
+				Term_putstr(col, i + TABLE_ROW, wid-2, TERM_WHITE, buf);
+			}
+
+			/* We put the number of points at the right-hand edge */
+			sprintf(buf, "%d", scores[i]);
+			
+			if (i == (cur - top))
+			{
+				/* Highlight the current selection */
+				Term_putstr(col+wid-2, i + TABLE_ROW, 2, TERM_L_BLUE, buf);
+			}
+			else
+			{
+				Term_putstr(col+wid-2, i + TABLE_ROW, 2, TERM_WHITE, buf);
+			}
+		}
+
+		if (done) return (cur);
+
+		/* Display auxiliary information if any is available. */
+		if (hook) hook(options[cur]);
+
+		/* Move the cursor */
+		put_str("", TABLE_ROW + cur - top, col);
+
+		c = inkey();
+
+		if (c == KTRL('X'))
+		{
+			remove_loc();
+			quit(NULL);
+		}
+		if (c == ESCAPE)
+		{
+			/* Mega Hack - go back. */
+			return (FALSE);
+		}
+		if (c == '?')
+		{
+			screen_save();
+			(void)show_file(helpfile, NULL, 0, 0);
+			screen_load();
+		}
+		else if (c == '=')
+		{
+			screen_save();
+			do_cmd_options(OPT_FLAG_BIRTH | OPT_FLAG_SERVER | OPT_FLAG_PLAYER);
+			screen_load();
+		}
+		else if ((c == '\n') || (c == '\r'))
+		{
+			/* We are done if we've used up all of our points */
+			if (pointsleft == 0) return (TRUE);
+			else bell();
+		}
+		else if (isdigit(c))
+		{
+			/* Get a direction from the key */
+			dir = get_keymap_dir(c);
+
+			/* Going up? */
+			if (dir == 8)
+			{
+				if (cur != 0)
+				{
+					/* Move selection */
+					cur--;
+				}
+
+				if ((top > 0) && ((cur - top) < 4))
+				{
+					/* Scroll up */
+					top--;
+				}
+			}
+
+			/* Going down? */
+			else if (dir == 2)
+			{
+				if (cur != (num - 1))
+				{
+					/* Move selection */
+					cur++;
+				}
+
+				if ((top + hgt < (num - 1)) && ((top + hgt - cur) < 4))
+				{
+					/* Scroll down */
+					top++;
+				}
+			}
+
+			/* Hack - allow left and right to become + and - */
+			else if (dir == 4) c = '-';
+			else if (dir == 6) c = '+';
+			else bell();
+		}
+		else if (isalpha(c))
+		{
+			/* Figure out what has been selected */
+			i = A2I(FORCELOWER(c));
+
+			/* Validate input */
+			if ((i > -1) && (i < num))
+			{
+				cur = i;
+
+				/* Move it onto the screen */
+				if ((cur < top) || (cur > top + hgt))
+				{
+					top = cur;
+				}
+
+				/* Increase or decrease? */
+				if (islower(c))
+				{
+					/* Spare points and room? */
+					if (pointsleft && (!maxes || scores[cur] < maxes[cur]))
+					{
+						/* Assign a point */
+						++scores[cur];
+						--pointsleft;
+					}
+					/* Otherwise complain */
+					else bell();
+				}
+				else
+				{
+					/* Can we decrease? */
+					if (scores[cur] > mins[cur])
+					{
+						/* Unassign a point */
+						--scores[cur];
+						++pointsleft;
+					}
+					/* Otherwise complain */
+					else bell();
+				}
+			}
+		}
+		
+		/* Invalid input */
+		else if (c != '+' && c != '-') bell();
+		
+		if (c == '+')
+		{
+			/* Spare points and room? */
+			if (pointsleft && (!maxes || scores[cur] < maxes[cur]))
+			{
+				/* Assign a point */
+				++scores[cur];
+				--pointsleft;
+			}
+			/* Otherwise complain */
+			else bell();
+		}
+		else if (c == '-')
+		{
+			/* Can we decrease? */
+			if (scores[cur] > mins[cur])
+			{
+				/* Unassign a point */
+				--scores[cur];
+				++pointsleft;
+			}
+			/* Otherwise complain */
+			else bell();
+		}
+	}
+
+	return (FALSE);
+}
+#endif /* 0 */
 
 
 /*
@@ -2100,7 +2869,19 @@ static bool get_player_class(void)
 	char    buf[80];
 	cptr classes[MAX_CLASS];
 
+	int good_classes = MAX_CLASS;
 
+
+
+#ifdef USE_NEW_MAGIC
+	/* Under the new magic system, high mages are silly */
+ #ifdef SUPPORT_OLD_MAGIC
+	if (!old_magic_user)
+ #endif /* SUPPORT_OLD_MAGIC */
+		/* the high mage is the last class, so... */
+		--good_classes;
+#endif /* USE_NEW_MAGIC */
+	
 	/* Extra info */
 	Term_putstr(QUESTION_COL, QUESTION_ROW, -1, TERM_WHITE,
 		"Your 'class' determines various intrinsic abilities and bonuses.");
@@ -2108,7 +2889,7 @@ static bool get_player_class(void)
 	    "Any entries in parentheses should only be used by advanced players.");
 
 	/* Tabulate classes */
-	for (i = 0; i < MAX_CLASS; i++)
+	for (i = 0; i < good_classes; i++)
 	{
 		/* Analyze */
 		if (!(rp_ptr->choice & (1L << i)))
@@ -2124,7 +2905,7 @@ static bool get_player_class(void)
 		classes[i] = string_make(buf);
 	}
 
-	p_ptr->pclass = get_player_choice(classes, MAX_CLASS, CLASS_COL, 20,
+	p_ptr->pclass = get_player_choice(classes, good_classes, CLASS_COL, 20,
                                       "charattr.txt#TheClasses",
                                       class_aux_hook);
 
@@ -2133,7 +2914,7 @@ static bool get_player_class(void)
 	{
 		p_ptr->pclass = 0;
 
-		for (i = 0; i < MAX_CLASS; i++)
+		for (i = 0; i < good_classes; i++)
 		{
 			/* Free the strings */
 			string_free(classes[i]);
@@ -2146,7 +2927,15 @@ static bool get_player_class(void)
 	cp_ptr = &class_info[p_ptr->pclass];
 	mp_ptr = &magic_info[p_ptr->pclass];
 
-	for (i = 0; i < MAX_CLASS; i++)
+#ifdef USE_NEW_MAGIC
+	/* Can't actually use it yet */
+	/*if (!(p_ptr->pclass == CLASS_WARRIOR || p_ptr->pclass == CLASS_MINDCRAFTER))
+	{
+		old_magic_user = TRUE;
+	}*/
+#endif /* USE_NEW_MAGIC */
+
+	for (i = 0; i < good_classes; i++)
 	{
 		/* Free the strings */
 		string_free(classes[i]);
@@ -2156,6 +2945,7 @@ static bool get_player_class(void)
 }
 
 
+#if defined(SUPPORT_OLD_MAGIC) || !defined(USE_NEW_MAGIC)
 /*
  * Choose the magical realms
  */
@@ -2194,7 +2984,7 @@ static bool get_player_realms(void)
 	Term_putstr(QUESTION_COL, QUESTION_ROW + 1, -1, TERM_WHITE,
 		"Nature has both defensive and offensive spells.");
 
-	choose = get_player_choice(realms, count, REALM1_COL, 10,
+	choose = get_player_choice(realms, count, REALM1_COL, 11,
                                "magic.txt#MagicRealms", NULL);
 
 	/* No selection? */
@@ -2228,7 +3018,7 @@ static bool get_player_realms(void)
 	/* No second realm? */
 	if (!count) return (TRUE);
 
-	choose = get_player_choice(realms, count, REALM2_COL, 10,
+	choose = get_player_choice(realms, count, REALM2_COL, 11,
                                "magic.txt#MagicRealms", NULL);
 
 	/* No selection? */
@@ -2238,6 +3028,401 @@ static bool get_player_realms(void)
 	p_ptr->realm2 = select[choose];
 
 	/* Done */
+	return (TRUE);
+}
+#endif /* defined(SUPPORT_OLD_MAGIC) || !defined(USE_NEW_MAGIC) */
+
+
+#ifdef USE_NEW_MAGIC
+/*
+ * Here is all the code for specifying magic specialities in the
+ * new magic system
+ */
+
+/*
+ * Decide whether a given god will take in someone of a given race
+ */
+static bool god_race_compatible(int god, int race)
+{
+	/* Assume OK for now */
+	return TRUE;
+}
+
+/* 
+ * Allow the player to choose a god 
+ */
+static bool get_player_god()
+{
+	cptr 	ok_gods[MAX_GOD];
+	int 	god_nums[MAX_GOD];
+	int 	num = 0;
+	
+	int 	i;
+
+	
+	/* Extra info */
+	Term_putstr(QUESTION_COL, QUESTION_ROW, -1, TERM_WHITE,
+		"Your god results in certain powers and restrictions,");
+	Term_putstr(QUESTION_COL, QUESTION_ROW + 1, -1, TERM_WHITE,
+	    	"as well as affecting the spells you can learn.");
+
+	/* Build a list of OK gods */
+	for (i=0; i<MAX_GOD; ++i)
+	{
+		if (god_race_compatible(i, p_ptr->prace))
+		{
+			ok_gods[num] = god_names[i];
+			god_nums[num] = i;
+			++num;
+		}
+	}
+
+	/* Paranoia */
+	if (!num) 
+	{
+		msg_print("Can't find any gods!");
+		return FALSE;
+	}
+	
+	/* Actually pick the god */
+	p_ptr->chaos_patron = god_nums[get_player_choice(ok_gods, num, REALM1_COL, 20,
+                                      "newmagic.txt#TheGods", NULL)];
+
+	/* No selection? */
+	if (p_ptr->chaos_patron == INVALID_CHOICE)
+	{
+		p_ptr->chaos_patron = 0;
+
+		return (FALSE);
+	}
+
+	return (TRUE);
+}
+
+/*
+ * Calculate how many points the player should have to spend
+ * on magic areas (and return it), as well as giving the player
+ * points assigned to a specific area directly if necessary,
+ * looking at the player's class and maybe god.
+ * Simple for now
+ */
+static int calculate_starting_magic_areas(int *min_scores)
+{
+	int i;
+
+	/* Base */
+	for (i=0; i<NUM_MAG_TARGETS; ++i)
+		min_scores[i] = 0;
+	
+	switch (p_ptr->pclass)
+	{
+		case CLASS_MAGE: return 6;
+		case CLASS_PRIEST:
+			min_scores[MAG_LIFE] = 3;
+			return 2;
+		case CLASS_ROGUE: min_scores[MAG_BODY] = 1;
+			return 2;
+		case CLASS_RANGER:
+			min_scores[MAG_NATURE] = 3;
+			return 2;
+		case CLASS_PALADIN:
+			min_scores[MAG_LIFE] = 2;
+			return 0;
+		case CLASS_WARRIOR_MAGE: return 5;
+		case CLASS_CHAOS_WARRIOR: 
+			min_scores[MAG_STUFF] = 3;
+			return 0;
+		case CLASS_MONK: return 3;
+		default: msg_print("Bad class accessing magic");
+	}
+	
+	/* This should be unreachable */
+	return 0;
+}
+
+/*
+ * Calculate how many points the player should have to spend
+ * on magic actions (and return it), as well as giving the player
+ * points assigned to a specific action directly if necessary,
+ * looking at the player's class and maybe god.
+ * Simple for now
+ */
+static int calculate_starting_magic_actions(int *min_scores)
+{
+	int i;
+
+	/* Base */
+	for (i=0; i<NUM_MAG_ACTIONS; ++i)
+		min_scores[i] = 0;
+
+	switch (p_ptr->pclass)
+	{
+		case CLASS_MAGE: return 6;
+		case CLASS_PRIEST: 
+			min_scores[MAG_CREATE] = 2;
+			min_scores[MAG_CONTROL] = 1;
+			min_scores[MAG_CHANGE] = 1;
+			min_scores[MAG_DIVINE] = 1;
+			return 1;
+		case CLASS_ROGUE: 
+			min_scores[MAG_DIVINE] = 1;
+			return 1;
+		case CLASS_RANGER: return 4;
+		case CLASS_PALADIN:
+			min_scores[MAG_CREATE] = 2;
+			min_scores[MAG_CONTROL] = 1;
+			min_scores[MAG_CHANGE] = 1;
+			min_scores[MAG_DIVINE] = 1;
+			return 0;
+		case CLASS_WARRIOR_MAGE: return 5;
+		case CLASS_CHAOS_WARRIOR:
+			min_scores[MAG_DESTROY] = 3;
+			return 0;
+		case CLASS_MONK: return 3;
+		default: msg_print("Bad class accessing magic");
+	}
+	
+	/* This should be unreachable */
+	return 0;
+}
+
+
+/*
+ * Actually decide the magic action/target scores
+ */
+static bool get_specific_magic_aux(int *action_scores, int *target_scores)
+{
+	int i;
+	
+	int action_points, target_points;
+
+	int min_action_scores[NUM_MAG_ACTIONS];
+	int current_action_scores[NUM_MAG_ACTIONS];
+	int min_target_scores[NUM_MAG_TARGETS];
+	int current_target_scores[NUM_MAG_TARGETS];
+	
+	
+	/* Calculate the number of points and the automatic min scores */
+	action_points = calculate_starting_magic_actions(min_action_scores);
+	target_points = calculate_starting_magic_areas(min_target_scores);
+
+	/* Do we have any points to distribute? */
+	if (!action_points && !target_points)
+	{
+		/* Store the results */
+		for (i=0; i<NUM_MAG_ACTIONS; ++i)
+			action_scores[i] = min_action_scores[i];
+		for (i=0; i<NUM_MAG_TARGETS; ++i)
+			target_scores[i] = min_target_scores[i];
+
+		/* Success */
+		return TRUE;
+	}
+	
+	/* 
+	 * OK, so we need to ask the player to distribute the points
+	 */
+
+	/* Clear screen */
+	Term_clear();
+
+	/* Instructions */
+	Term_putstr(QUESTION_COL, HEADER_ROW, -1, TERM_WHITE,
+	            "Please allocate your free points to your magic specialities.");
+	Term_putstr(QUESTION_COL, HEADER_ROW + 2, -1, TERM_WHITE,
+	            "You can choose one of several standard pattern on the right, or customise");
+	Term_putstr(QUESTION_COL, HEADER_ROW + 3, -1, TERM_WHITE,
+	            "your own. (Use the arrow keys to navigate, the indicated letter to select");
+	Term_putstr(QUESTION_COL, HEADER_ROW + 4, -1, TERM_WHITE,
+	            "a pattern or increase a stat, +/]/}/>/. to increase selected, -/[/{/</,");
+	Term_putstr(QUESTION_COL, HEADER_ROW + 5, -1, TERM_WHITE,
+	            "to decrease selected, 'enter' to accept, 'ESC' to restart character");
+	Term_putstr(QUESTION_COL, HEADER_ROW + 6, -1, TERM_WHITE,
+	            "creation, '=' for the birth options, '?' for help, and 'Ctrl-X' to quit.)");
+
+	/* Assign the points */
+	if (!(choose_specific_magic(min_action_scores, NULL, current_action_scores, action_points,
+					min_target_scores, NULL, current_target_scores, target_points)))
+	{
+		return FALSE;
+	}
+	
+	/* Store the results */
+	for (i=0; i<NUM_MAG_ACTIONS; ++i)
+		action_scores[i] = current_action_scores[i];
+	for (i=0; i<NUM_MAG_TARGETS; ++i)
+		target_scores[i] = current_target_scores[i];
+	
+	/* Success */
+	return TRUE;
+}
+
+/* 
+ * Decide on the score for a magic field, given the ability
+ * in the action and the target type
+ */
+static byte calculate_magic_field(int action, int target)
+{
+	/* We'll make it simple for now */
+	return (byte) (action + target + MIN(action, target));
+}
+
+/* 
+ * Overarching function to select magic specialities in the
+ * new magic system
+ */
+static bool get_specific_magic()
+{
+	int i,j;
+	
+	int target_scores[NUM_MAG_TARGETS];
+	int action_scores[NUM_MAG_ACTIONS];
+	
+	/* Do we have magic? */
+	if (p_ptr->pclass == CLASS_WARRIOR || p_ptr->pclass == CLASS_MINDCRAFTER) return TRUE;
+
+	/* Priests and paladins need a god */
+	if (p_ptr->pclass == CLASS_PRIEST || p_ptr->pclass == CLASS_PALADIN)
+	{
+		if (!get_player_god()) return FALSE;
+	}
+
+	/* Select magic */
+	if (!get_specific_magic_aux(action_scores,target_scores)) return FALSE;
+
+	/* Work out the score in each resultant discipline */
+	for (i=0; i<NUM_MAG_ACTIONS; ++i)
+		for (j=0; j<NUM_MAG_TARGETS; ++j)
+		{
+			p_ptr->magic_fields[i][j] = calculate_magic_field(action_scores[i],target_scores[j]);
+		}
+	
+	/* Success */
+	return TRUE;
+}
+
+
+#endif /* USE_NEW_MAGIC */
+
+
+
+#if 0
+/*
+ * Game speed
+ * Based on the random quest code
+ */
+static bool get_game_speed_level(void)
+{
+	char inp[80];
+
+	int	v;
+
+	/*** User enters game speed ***/
+
+	/* Extra info */
+	Term_putstr(5, 13, -1, TERM_WHITE,
+		"Now pick the speed of game you want, from 0 to 100. Higher numbers");
+	Term_putstr(5, 14, -1, TERM_WHITE,
+		"mean a quicker game. 50 is the default, which will mean progress at");
+	Term_putstr(5, 15, -1, TERM_WHITE,
+		"typical Angband speeds. The 40-60 range means very little difference.");
+	Term_putstr(5, 16, -1, TERM_WHITE,
+		"At a speed of 90, you should be able to complete a game in a matter of");
+	Term_putstr(5, 17, -1, TERM_WHITE,
+		"hours. Speeds above 90 or below 10 start to get silly.");
+	Term_putstr(5, 18, -1, TERM_WHITE,
+		"For new players, we recommend leaving it at 50 to start.");
+	
+	/* Ask the difficulty level */
+	while (TRUE)
+	{
+		put_str(format("Game speed? (%u-%u) ", MIN_GAME_SPEED, MAX_GAME_SPEED), 21, 2);
+
+		/* Get a the number of additional quest */
+		while (TRUE)
+		{
+			/* Move the cursor */
+			put_str("", 21, 37);
+
+			/* Default */
+			strcpy(inp, "50");
+
+			/* Get a response (or escape) */
+			if (!askfor_aux(inp, 3)) inp[0] = '\0';
+
+			v = atoi(inp);
+
+			/* Break on valid input */
+			if (v <= MAX_GAME_SPEED && v >= MIN_GAME_SPEED) break;
+		}
+		break;
+	}
+
+	/* Set the difficulty level */
+	game_speed_level = v;
+
+	/* Success */
+	return (TRUE);
+}
+#endif /* 0 */
+
+/*
+ * Difficulty level
+ * Based on the random quest code
+ */
+static bool get_difficulty_level(void)
+{
+	char inp[80];
+
+	int	v;
+
+	/*** User enters difficulty level ***/
+
+	/* Extra info */
+	Term_putstr(5, 13, -1, TERM_WHITE,
+		"Now pick your difficulty level, from 0 to 100. 0 is trivially easy,");
+	Term_putstr(5, 14, -1, TERM_WHITE,
+		"100 is probably impossible. 50 is the 'core rules' difficulty at");
+	Term_putstr(5, 15, -1, TERM_WHITE,
+		"which everything will be exactly as is described.");
+	Term_putstr(5, 16, -1, TERM_WHITE,
+		"This causes many things to be adjusted, but the official difficulty");
+	Term_putstr(5, 17, -1, TERM_WHITE,
+		"level will also be affected by certain birth options.");
+	Term_putstr(5, 18, -1, TERM_WHITE,
+		"For new players, we recommend leaving it at 50, and only playing on");
+	Term_putstr(5, 19, -1, TERM_WHITE,
+		"a lower difficulty level if things get really frustrating.");
+	
+	/* Ask the difficulty level */
+	while (TRUE)
+	{
+		put_str(format("Difficulty level? (%u-%u) ", MIN_DIFFICULTY, MAX_DIFFICULTY), 21, 2);
+
+		/* Get a the number of additional quest */
+		while (TRUE)
+		{
+			/* Move the cursor */
+			put_str("", 21, 37);
+
+			/* Default */
+			strcpy(inp, "50");
+
+			/* Get a response (or escape) */
+			if (!askfor_aux(inp, 3)) inp[0] = '\0';
+
+			v = atoi(inp);
+
+			/* Break on valid input */
+			if (v <= MAX_DIFFICULTY && v >= MIN_DIFFICULTY) break;
+		}
+		break;
+	}
+
+	/* Set the difficulty level */
+	difficulty_level = v;
+
+	/* Success */
 	return (TRUE);
 }
 
@@ -2262,26 +3447,27 @@ static bool get_player_quests(void)
 	Term_putstr(5, 15, -1, TERM_WHITE,
 		"You can enter the number of quests you'd like to perform in addition");
 	Term_putstr(5, 16, -1, TERM_WHITE,
-		"to the two obligatory ones ( Oberon and the Serpent of Chaos )");
+		"to the two obligatory ones ( Sauron and Morgoth )");
 	Term_putstr(5, 17, -1, TERM_WHITE,
 		"In case you do not want any additional quests, just enter 0");
-
 	Term_putstr(5, 18, -1, TERM_WHITE,
 		"If you want a random number of random quests, just enter *");
-
+	Term_putstr(5, 19, -1, TERM_WHITE,
+		"You can have up to 49 quests. (24 with ironman_moria.)");
+	
 	/* Ask the number of additional quests */
 	while (TRUE)
 	{
-		put_str(format("Number of additional quests? (<%u) ", MAX_RANDOM_QUEST - MIN_RANDOM_QUEST + 2), 20, 2);
+		put_str(format("Number of additional quests? (<%u) ", ironman_moria ? (MAX_RANDOM_QUEST - MIN_RANDOM_QUEST + 2) / 2 : MAX_RANDOM_QUEST - MIN_RANDOM_QUEST + 2), 21, 2);
 
 		/* Get a the number of additional quest */
 		while (TRUE)
 		{
 			/* Move the cursor */
-			put_str("", 20, 37);
+			put_str("", 21, 37);
 
 			/* Default */
-			strcpy(inp, "20");
+			strcpy(inp, ironman_moria ? "10" : "20");
 
 			/* Get a response (or escape) */
 			if (!askfor_aux(inp, 2)) inp[0] = '\0';
@@ -2290,7 +3476,7 @@ static bool get_player_quests(void)
 			if (inp[0] == '*')
 			{
 				/* 0 to 49 random quests */
-				v = randint0(50);
+				v = randint0(ironman_moria ? 25 : 50);
 			}
 			else
 			{
@@ -2298,14 +3484,14 @@ static bool get_player_quests(void)
 			}
 
 			/* Break on valid input */
-			if ((v <= MAX_RANDOM_QUEST - MIN_RANDOM_QUEST + 1) && (v >= 0)) break;
+			if ((((v <= MAX_RANDOM_QUEST - MIN_RANDOM_QUEST + 1) && !ironman_moria) || ((v <= ((MAX_RANDOM_QUEST - MIN_RANDOM_QUEST)/2) + 1) && ironman_moria)) && (v >= 0)) break;
 		}
 		break;
 	}
 
 	/* Init the random quests */
 	p_ptr->inside_quest = MIN_RANDOM_QUEST;
-	(void)process_dungeon_file("q_info.txt", INIT_ASSIGN);
+	(void)process_dungeon_file(ironman_moria ? "qm_info.txt" : "q_info.txt", INIT_ASSIGN);
 	p_ptr->inside_quest = 0;
 
 	/* Prepare allocation table */
@@ -2334,6 +3520,15 @@ static bool get_player_quests(void)
 			/* Look at the monster - only "hard" monsters for quests */
 			if (r_ptr->flags1 & (RF1_NEVER_MOVE | RF1_FRIENDS)) continue;
 
+			/* Only kill enemies */
+
+
+			/* Super-powerful monsters shouldn't be necessary to kill */
+			if (r_ptr->flags7 & RF7_SPOWER) continue;
+		
+			/* Unkillable monsters can't be quests */
+			if (r_ptr->flags2 & RF2_UNKILLABLE) continue;
+			
 			/* Save the index if the monster is deeper than current monster */
 			if (!q_ptr->r_idx || (r_info[r_idx].level > r_info[q_ptr->r_idx].level))
 			{
@@ -2357,6 +3552,7 @@ static bool get_player_quests(void)
 
 			q_ptr->max_num = 1;
 		}
+#if 0
 		else if (quest_r_ptr->flags3 & RF3_UNIQUE_7)
 		{
 			/* Mark uniques */
@@ -2364,6 +3560,7 @@ static bool get_player_quests(void)
 
 			q_ptr->max_num = randint1(quest_r_ptr->max_num);
 		}
+#endif /* 0 */
 		else
 		{
 			q_ptr->max_num = 5 + (s16b)randint0(q_ptr->level / 3 + 5) /
@@ -2372,18 +3569,78 @@ static bool get_player_quests(void)
 	}
 
 	/* Init the two main quests (Oberon + Serpent) */
-	p_ptr->inside_quest = QUEST_OBERON;
-	(void)process_dungeon_file("q_info.txt", INIT_ASSIGN);
-	quest[QUEST_OBERON].status = QUEST_STATUS_TAKEN;
-
+	if (!ironman_moria)
+	{
+		p_ptr->inside_quest = QUEST_OBERON;
+		(void)process_dungeon_file("q_info.txt", INIT_ASSIGN);
+		quest[QUEST_OBERON].status = QUEST_STATUS_TAKEN;
+	}
 	p_ptr->inside_quest = QUEST_SERPENT;
-	(void)process_dungeon_file("q_info.txt", INIT_ASSIGN);
+	(void)process_dungeon_file(ironman_moria ? "q_moria_info.txt" : "q_info.txt", INIT_ASSIGN);
 	quest[QUEST_SERPENT].status = QUEST_STATUS_TAKEN;
 	p_ptr->inside_quest = 0;
-
+	
 	return (TRUE);
 }
 
+
+#if defined(USE_NEW_MAGIC) && defined(USE_OLD_MAGIC)
+/* 
+ * Allow the player to decide whether to use 
+ * the old magic system or the new magic system.
+ * Returns TRUE if we are using the new magic system,
+ * False otherwise.
+ */
+static bool choose_magic_system()
+{
+	char inp[80];
+
+	/* Clear screen */
+	Term_clear();
+
+	/* Extra info */
+	Term_putstr(5, 14, -1, TERM_WHITE,
+		"Do you want to use the new magic system?");
+	Term_putstr(5, 15, -1, TERM_WHITE,
+		"This gives finer control over your magical abilities than the old,");
+	Term_putstr(5, 16, -1, TERM_WHITE,
+		"but more significantly, instead of finding set spellbooks, you");
+	Term_putstr(5, 17, -1, TERM_WHITE,
+		"find your own spells and prepare custom spellbooks with them.");
+	Term_putstr(5, 18, -1, TERM_WHITE,
+		"This is the official magic system of Frazband, if in doubt, say yes.");
+	
+	/* Get the answer */
+	while (TRUE)
+	{
+		put_str("Use new magic system? (y/n) ", 21, 2);
+
+		/* Get a the number of additional quest */
+		while (TRUE)
+		{
+			/* Move the cursor */
+			put_str("", 21, 31);
+
+			/* Default */
+			strcpy(inp, "y");
+
+			/* Get a response (or escape) */
+			if (!askfor_aux(inp, 1)) inp[0] = '\0';
+
+			/* Interpret the response */
+			if (inp[0] == 'y' || inp[0] == 'Y') return (TRUE);
+			
+			if (inp[0] == 'n' || inp[0] == 'N') return (FALSE);
+
+			/* The user is being silly */
+			bell();
+		}
+	}
+
+	/* This should never be reached */
+	return (FALSE);
+}
+#endif /* defined(USE_NEW_MAGIC) && defined(USE_OLD_MAGIC) */
 
 /*
  * Helper function for 'player_birth()'.
@@ -2395,6 +3652,11 @@ static bool get_player_quests(void)
  */
 static bool player_birth_aux_1(void)
 {
+
+	/* Initiate the mutation random seeds */
+	mutate_seed = time(NULL);
+	unmutate_seed = time(NULL)+1;
+	
 #ifdef USE_SCRIPT
 
 	int result;
@@ -2409,6 +3671,16 @@ static bool player_birth_aux_1(void)
 
 	/*** Instructions ***/
 
+#if defined(USE_NEW_MAGIC) && defined(USE_OLD_MAGIC)
+	/* Choose magic system */
+	old_magic_user = !choose_magic_system();
+#endif /* defined(USE_NEW_MAGIC) && defined(USE_OLD_MAGIC) */
+	
+#if defined(USE_NEW_MAGIC) && defined(SUPPORT_OLD_MAGIC) && !defined(USE_OLD_MAGIC)
+	/* We can't choose the old magic system any longer */
+	old_magic_user = FALSE;
+#endif /* defined(USE_NEW_MAGIC) && defined(SUPPORT_OLD_MAGIC) && !defined(USE_OLD_MAGIC) */
+	
 	/* Clear screen */
 	Term_clear();
 
@@ -2439,9 +3711,24 @@ static bool player_birth_aux_1(void)
 	/* Clean up */
 	clear_question();
 
+	/* Specify magic */
+#ifdef USE_NEW_MAGIC
+ #ifdef SUPPORT_OLD_MAGIC
+	if (old_magic_user)
+	{
+		/* Choose the magic realms */
+		if (!get_player_realms()) return (FALSE);
+	}
+	else
+ #endif /* SUPPORT_OLD_MAGIC */
+	{
+		if (!get_specific_magic()) return (FALSE);
+	}
+#else /* USE_NEW_MAGIC */
 	/* Choose the magic realms */
 	if (!get_player_realms()) return (FALSE);
-
+#endif /* USE_NEW_MAGIC */
+	
 	/* Clear */
 	Term_clear();
 
@@ -2472,8 +3759,16 @@ static bool player_birth_aux_1(void)
 		c_put_str(TERM_L_BLUE, realm_names[p_ptr->realm2], 7, 11);
 	}
 
-	if (!get_player_quests()) return (FALSE);
+	/* Get the difficulty level */
+#ifdef USE_DIFFICULTY
+	if (!get_difficulty_level()) return (FALSE);
+#endif /* USE_DIFFICULTY */
+	
+	/* Clear */
+	clear_from(14);
 
+	if (!get_player_quests()) return (FALSE);
+	
 #endif /* USE_SCRIPT */
 
 	/* Clear */
@@ -3145,11 +4440,19 @@ void player_birth(void)
 	/* Hack -- outfit the player */
 	player_outfit();
 
-	/* Set the message window flag as default */
+	/* Set the monster recall window flag as default */
 	if (!window_flag[1])
-		window_flag[1] |= PW_MESSAGE;
+		window_flag[1] |= PW_MONSTER;
 
-	/* Set the inv/equip window flag as default */
+	/* Set the message window flag as default */
 	if (!window_flag[2])
-		window_flag[2] |= PW_INVEN;
+		window_flag[2] |= PW_MESSAGE;
+
+	/* Set the equip/inven window flag as default */
+	if (!window_flag[3])
+		window_flag[3] |= PW_EQUIP;
+
+	/* Set the inven/equip window flag as default */
+	if (!window_flag[4])
+		window_flag[4] |= PW_INVEN;
 }

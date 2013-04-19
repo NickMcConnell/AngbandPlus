@@ -80,7 +80,7 @@ D:Take a Vampire out for dinner!
 
 S:2100 
 E:2159
-D:Warp Factor Nine. Now!
+D:That Nine Thing.
 
 S:2200 
 E:2359

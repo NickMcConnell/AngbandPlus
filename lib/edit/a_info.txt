@@ -66,12 +66,12 @@ P:0:1d1:0:0:0
 F:ACTIVATE | SEE_INVIS | HOLD_LIFE | INSTA_ART | SPEED | LITE
 
 
-# The Arkenstone of Thrain -> JoJ
+# The Arkenstone of Thrain
 # Was +2 WIS/DEX
 
-N:3:of Judgement
+N:3:of Thrain
 I:39:6:3
-W:80:50:5:150000
+W:60:50:5:150000
 P:0:1d1:0:0:0
 F:ACTIVATE | SEE_INVIS | HOLD_LIFE | RES_CONF | RES_CHAOS |
 F:INSTA_ART | SPEED | WIS | INT | LITE
@@ -81,7 +81,7 @@ F:INSTA_ART | SPEED | WIS | INT | LITE
 
 N:4:of Carlammas
 I:40:10:2
-W:80:10:3:60000
+W:65:10:3:60000
 F:CON | HIDE_TYPE | ACTIVATE | RES_FIRE | INSTA_ART
 
 
@@ -89,7 +89,7 @@ F:CON | HIDE_TYPE | ACTIVATE | RES_FIRE | INSTA_ART
 
 N:5:of Ingwe
 I:40:11:3
-W:95:30:3:90000
+W:75:30:3:90000
 F:WIS | CHR | INFRA | HIDE_TYPE |
 F:SEE_INVIS | FREE_ACT | ACTIVATE |
 F:RES_ACID | RES_COLD | RES_ELEC |
@@ -100,29 +100,29 @@ F:INSTA_ART
 
 N:6:of the Dwarves
 I:40:12:3
-W:100:50:3:75000
+W:75:50:3:75000
 F:STR | CON | INFRA | HIDE_TYPE |
 F:SEE_INVIS | FREE_ACT | REGEN | LITE | INSTA_ART
 
 
-# The Incandescent Light of Edison
+# The Incandescent Light of Errin
 # Thomas Alva Edison the "Wizard of Menlo Park"
 # patented 1,093 inventions.
 # inventor of the incandescent lightbulb
 # Default reward for The Dark Elven Lords Quest
 
-N:7:of Edison
+N:7:of Errin
 I:39:3:3
 W:35:10:5:20000
 P:0:1d1:0:0:0
 F:INSTA_ART | INFRA | SH_FIRE | SH_ELEC | LITE
 
 
-# The Ring of Barahir -> Frakir
+# The Ring of Barahir
 
-N:8:'Frakir'
+N:8:of Barahir
 I:45:32:1
-W:80:25:2:75000
+W:65:25:2:75000
 F:STR | INT | WIS | DEX | CON | CHR | STEALTH | HIDE_TYPE |
 F:RES_POIS | ACTIVATE | SEE_INVIS | SEARCH | INSTA_ART
 
@@ -131,7 +131,7 @@ F:RES_POIS | ACTIVATE | SEE_INVIS | SEARCH | INSTA_ART
 
 N:9:of Tulkas
 I:45:33:4
-W:100:50:2:175000
+W:75:50:2:175000
 F:STR | DEX | CON | HIDE_TYPE | ACTIVATE | SPEED | INSTA_ART
 
 
@@ -139,10 +139,10 @@ F:STR | DEX | CON | HIDE_TYPE | ACTIVATE | SPEED | INSTA_ART
 
 N:10:of Power (Narya)
 I:45:34:1
-W:100:30:2:100000
+W:70:30:2:100000
 P:0:1d1:10:10:0
 F:STR | INT | WIS | DEX | CON | CHR | SPEED | HIDE_TYPE |
-F:ACTIVATE | FREE_ACT | SEE_INVIS |
+F:ACTIVATE | FREE_ACT | SEE_INVIS | FEATHER | 
 F:SLOW_DIGEST | REGEN | SUST_STR | SUST_DEX | IM_FIRE |
 F:INSTA_ART
 
@@ -151,7 +151,7 @@ F:INSTA_ART
 
 N:11:of Power (Nenya)
 I:45:35:2
-W:105:40:2:200000
+W:80:40:2:200000
 P:0:1d1:11:11:0
 F:STR | INT | WIS | DEX | CON | CHR | SPEED | HIDE_TYPE |
 F:ACTIVATE | HOLD_LIFE | FREE_ACT | SEE_INVIS |
@@ -164,7 +164,7 @@ F:INSTA_ART
 
 N:12:of Power (Vilya)
 I:45:36:3
-W:105:50:2:300000
+W:90:50:2:300000
 P:0:1d1:12:12:0
 F:STR | INT | WIS | DEX | CON | CHR | SPEED | HIDE_TYPE |
 F:ACTIVATE | HOLD_LIFE | FREE_ACT | SEE_INVIS |
@@ -195,29 +195,31 @@ F:INSTA_ART
 
 
 # The Multi-Hued Dragon Scale Mail 'Razorback'
-# Was (-2) INT | WIS | STEALTH | HIDE_TYPE, (-3) to hit, 30 pounds (?)
+# Was not (-2) INT | WIS | STEALTH | HIDE_TYPE,           (-4) to hit, 500 pounds (?)
 
 N:16:'Razorback'
-I:38:6:0
-W:90:9:500:400000
-P:30:2d4:-4:0:25
+I:38:6:-2
+W:70:9:30:400000
+P:30:2d4:-3:0:25
 F:RES_FIRE | RES_COLD | RES_POIS | RES_LITE | RES_DARK |
-F:LITE | SEE_INVIS | AGGRAVATE | FREE_ACT | IM_ELEC |
+F:LITE | SEE_INVIS | AGGRAVATE | FREE_ACT | IM_ELEC | 
+F:INT | WIS | STEALTH | HIDE_TYPE | 
 F:ACTIVATE | INSTA_ART
 
 
 # The Power Dragon Scale Mail 'Bladeturner'
-# Was (-3) DEX | HIDE_TYPE, (-4) to hit, 50 pounds (?)
+# Was not (-3) DEX | HIDE_TYPE,                   (-8) to hit, 600 pounds (?)
 
 N:17:'Bladeturner'
-I:38:30:0
-W:95:3:600:500000
-P:50:2d4:-8:0:35
+I:38:30:-3
+W:75:3:50:500000
+P:50:2d4:-4:0:35
 F:HOLD_LIFE | REGEN |
 F:RES_ACID | RES_FIRE | RES_COLD | RES_ELEC | RES_POIS | FEATHER |
 F:RES_NETHER | RES_NEXUS | RES_CHAOS | RES_LITE | RES_DARK |
 F:RES_SHARDS | RES_SOUND | RES_DISEN | RES_BLIND | RES_CONF |
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD |
+F:DEX | HIDE_TYPE | 
 F:ACTIVATE | INSTA_ART
 
 
@@ -228,9 +230,9 @@ F:ACTIVATE | INSTA_ART
 
 N:19:'Soulkeeper'
 I:37:30:2
-W:100:9:420:300000
+W:80:9:420:300000
 P:40:2d4:-4:0:20
-F:CON | HOLD_LIFE | SUST_CON |
+F:CON | HOLD_LIFE | SUST_CON | RES_CONF | 
 F:RES_ACID | RES_COLD | RES_DARK | RES_NETHER | RES_NEXUS | RES_CHAOS |
 F:ACTIVATE | INSTA_ART
 
@@ -255,11 +257,11 @@ F:STR | DEX | HIDE_TYPE |
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_CONF | RES_SOUND
 F:INSTA_ART
 
-# The Mithril Chain Mail 'Belegennon' -> of Lohengrin
+# The Mithril Chain Mail 'Belegennon'
 
-N:22:of Lohengrin
+N:22:'Belegennon'
 I:37:20:4
-W:70:3:150:135000
+W:60:3:150:135000
 P:28:1d4:-1:0:20
 F:STEALTH | WIS | INT | SEE_INVIS |
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_POIS |
@@ -267,12 +269,12 @@ F:HOLD_LIFE | RES_NETHER | RES_DARK | RES_FEAR |
 F:ACTIVATE | INSTA_ART
 
 
-# The Mithril Plate Mail of Celeborn -> Julian
+# The Mithril Plate Mail of Celeborn
 
-N:23:of Julian
-I:37:3:4
-W:70:3:250:150000
-P:15:2d4:-2:0:40
+N:23:of Celeborn
+I:37:25:4
+W:60:3:250:150000
+P:35:2d4:-2:0:40
 F:STR | CHR | HIDE_TYPE |
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_DARK |
 F:RES_DISEN | ACTIVATE | INSTA_ART
@@ -301,7 +303,7 @@ F:RES_ACID | RES_POIS | RES_CONF | ACTIVATE
 # The Leather Jacket 'of Shiva's Avatar'
 # A reward for 'The Old Castle' quest
 
-N:26:of Shiva's Avatar
+N:26:of Shiva
 I:36:12:0
 W:52:30:120:150000
 P:12:1d2:0:0:20
@@ -337,7 +339,7 @@ N:30:of Thorin
 I:34:3:4
 W:52:6:65:60000
 P:5:1d3:0:0:25
-F:STR | CON | HIDE_TYPE | FREE_ACT | IM_ACID | RES_SOUND | RES_CHAOS
+F:STR | CON | HIDE_TYPE | FREE_ACT | IM_ACID | RES_SOUND | RES_CHAOS | RES_CONF
 F:INSTA_ART
 
 # The Large Leather Shield of Celegorm
@@ -353,17 +355,16 @@ F:INSTA_ART
 
 N:32:of Anarion
 I:34:5:0
-W:70:9:120:160000
+W:60:9:120:160000
 P:8:1d5:0:0:20
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | SUST_STR | SUST_INT |
 F:SUST_WIS | SUST_DEX | SUST_CON | SUST_CHR | INSTA_ART
 
 
-# The Hard Leather Cap of Ben Franklin
-# A Wise Brilliant Scientist and Politician
+# The Hard Leather Cap of the Skarna
 # A reward for 'The Old Castle' quest
 
-N:33:of Ben Franklin
+N:33:of the Skarna
 I:32:2:5
 W:52:20:15:10000
 P:2:0d0:0:0:18
@@ -386,7 +387,7 @@ F:CURSED | HEAVY_CURSE | PERMA_CURSE | NO_TELE | INSTA_ART | QUESTITEM
 
 N:35:of Beruthiel
 I:33:10:-25
-W:70:12:20:0
+W:60:12:20:0
 P:0:1d1:0:0:25
 F:STR | DEX | CON | HIDE_TYPE |
 F:FREE_ACT | SEE_INVIS | TELEPATHY | CURSED
@@ -422,7 +423,7 @@ F:INSTA_ART
 
 N:39:of Dor-Lomin
 I:32:7:4
-W:70:12:75:300000
+W:60:12:75:300000
 P:8:1d3:0:0:20
 F:STR | DEX | CON | HIDE_TYPE |
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_LITE | RES_BLIND |
@@ -438,9 +439,9 @@ P:5:1d3:0:0:10
 F:INT | WIS | SEARCH | HIDE_TYPE | RES_BLIND | SEE_INVIS | ACTIVATE
 F:INSTA_ART
 
-# The Iron Helm of Gorlim -> Terror Mask (for warriors only...)
+# The Iron Helm of Gorlim
 
-N:41:'Terror Mask'
+N:41:of Gorlim
 I:32:5:-1
 W:35:5:75:0
 P:5:1d3:25:25:10
@@ -450,22 +451,21 @@ F:RES_DISEN | RES_FEAR | FREE_ACT | RES_ACID | RES_COLD | RES_POIS |
 F:TELEPORT | INSTA_ART
 
 
-# The Golden Crown of Gondor -> Amber
+# The Golden Crown of Gondor
 
-N:42:of Amber
+N:42:of Gondor
 I:33:11:3
-W:70:40:30:125000
+W:60:40:30:125000
 P:0:1d1:0:0:15
 F:STR | WIS | CON | HIDE_TYPE | SPEED |
 F:RES_COLD | RES_FIRE | RES_LITE | RES_BLIND | RES_ELEC | RES_CONF |
 F:RES_CHAOS | LITE | SEE_INVIS | REGEN | ACTIVATE | INSTA_ART
 
 
-# The Cloak of Houdini
-# Escape Artist and Spiritualist
+# The Cloak of Khalarn
 # A reward for 'The Old Castle' quest
 
-N:43:of Houdini
+N:43:of Khalarn
 I:35:1:7
 W:52:20:10:10000
 P:1:0d0:0:0:19
@@ -522,7 +522,7 @@ F:STEALTH | RES_ACID | ACTIVATE | INSTA_ART
 
 N:49:of Luthien
 I:35:6:2
-W:70:40:5:55000
+W:60:40:5:55000
 P:6:0d0:0:0:20
 F:INT | WIS | CHR | HIDE_TYPE | SPEED | STEALTH |
 F:RES_ACID | RES_FIRE | RES_COLD | ACTIVATE |
@@ -533,7 +533,7 @@ F:RES_DARK | RES_LITE | INSTA_ART
 
 N:50:of Tuor
 I:35:6:4
-W:70:40:5:35000
+W:60:40:5:35000
 P:6:0d0:0:0:12
 F:STEALTH | FREE_ACT | IM_ACID | SEE_INVIS | INSTA_ART
 
@@ -568,9 +568,9 @@ P:2:1d1:0:0:15
 F:RES_FIRE | ACTIVATE | INSTA_ART
 
 
-# The Set of Gauntlets 'Paurnimmen' -> of Corwin
+# The Set of Gauntlets 'Paurnimmen'
 
-N:55:of Corwin
+N:55:'Paurnimmen'
 I:31:2:4
 W:17:20:25:10000
 P:2:1d1:0:0:15
@@ -595,9 +595,9 @@ P:2:1d1:0:0:15
 F:RES_ACID | ACTIVATE | INSTA_ART
 
 
-# The Set of Gauntlets 'Camlost' -> of Thanos
+# The Set of Gauntlets 'Camlost'
 
-N:58:of Thanos
+N:58:'Camlost'
 I:31:2:2
 W:17:20:25:0
 P:2:1d1:-11:-12:0
@@ -611,7 +611,7 @@ F:INSTA_ART
 
 N:59:of Fingolfin
 I:31:5:4
-W:70:15:40:110000
+W:60:15:40:110000
 P:5:1d1:10:10:20
 F:DEX | HIDE_TYPE |
 F:FREE_ACT | RES_ACID | ACTIVATE | SHOW_MODS | INSTA_ART
@@ -621,20 +621,20 @@ F:FREE_ACT | RES_ACID | ACTIVATE | SHOW_MODS | INSTA_ART
 
 N:60:of Feanor
 I:30:3:15
-W:70:120:40:300000
+W:60:120:40:300000
 P:3:1d1:0:0:20
-F:SPEED |
+F:SPEED | RES_CONF | 
 F:RES_NEXUS | ACTIVATE | INSTA_ART
 
 
-# The Pair of Soft Leather Boots 'Dal-i-thalion' -> of Flora
+# The Pair of Soft Leather Boots 'Dal-i-thalion'
 
-N:61:of Flora
+N:61:'Dal-i-thalion'
 I:30:2:5
 W:17:25:20:40000
 P:2:1d1:0:0:15
 F:DEX | HIDE_TYPE | CHR | SUST_CHR | ACTIVATE | FREE_ACT |
-F:RES_NETHER | RES_CHAOS | SUST_CON | INSTA_ART
+F:RES_NETHER | RES_CHAOS | RES_CONF | SUST_CON | INSTA_ART
 
 
 # The Pair of Metal Shod Boots of Thror
@@ -646,10 +646,10 @@ P:6:1d1:0:0:20
 F:STR | CON | HIDE_TYPE | SPEED | INSTA_ART
 
 
-# The Pair of Soft Leather Boots of Shiva's Avatar
+# The Pair of Soft Leather Boots of Shiva
 # Default reward for The Cloning Pits
 
-N:63:of Shiva's Avatar
+N:63:of Shiva
 I:30:2:4
 W:52:20:20:100000
 P:4:1d1:4:4:16
@@ -666,9 +666,9 @@ F:INT | DEX | HIDE_TYPE | SPEED |
 F:SLAY_TROLL | SLAY_GIANT | FREE_ACT | SEE_INVIS | SHOW_MODS | INSTA_ART
 
 
-# The Dagger 'Angrist' -> of Caine
+# The Dagger 'Angrist'
 
-N:65:of Caine
+N:65:'Angrist'
 I:23:4:4
 W:35:80:12:25000
 P:0:2d4:10:15:5
@@ -713,9 +713,9 @@ P:0:2d4:4:3:0
 F:SLAY_ORC | RES_POIS | RES_DISEN | ACTIVATE | SHOW_MODS | BRAND_POIS | THROW
 F:INSTA_ART
 
-# The Dagger 'Belangil' -> of Fiona
+# The Dagger 'Belangil'
 
-N:70:of Fiona
+N:70:'Belangil'
 I:23:4:2
 W:17:40:12:20000
 P:0:2d4:6:9:0
@@ -735,16 +735,16 @@ F:KILL_DRAGON | SLAY_EVIL | SLAY_DEMON | SLAY_TROLL | RES_DISEN |
 F:AGGRAVATE | CURSED | HEAVY_CURSE | SHOW_MODS | INSTA_ART
 
 
-# The Broad Sword 'Arunruth' -> 'Grayswandir'
+# The Sabre 'Arunruth'
 
-N:72:'Grayswandir'
+N:72:'Arunruth'
 I:23:11:4
-W:35:45:50:125000
+W:35:1:50:125000
 P:0:2d7:20:12:0
 F:STR | DEX | CON | SUST_CON | SUST_STR |
 F:REGEN | FREE_ACT | SEE_INVIS |
 F:RES_CHAOS | RES_NETHER | HOLD_LIFE | RES_FEAR |
-F:RES_COLD | BRAND_COLD |
+F:RES_COLD | BRAND_COLD | RES_CONF | 
 F:SLAY_DEMON | SLAY_EVIL | SLAY_DRAGON | SLAY_UNDEAD |
 F:SLOW_DIGEST | SHOW_MODS | HIDE_TYPE | BLESSED | INSTA_ART
 
@@ -760,9 +760,9 @@ F:SLAY_EVIL | BRAND_FIRE | SLAY_ORC | RES_FIRE | RES_LITE | LITE |
 F:SLOW_DIGEST | SHOW_MODS | INSTA_ART
 
 
-# The Broad Sword 'Aeglin' -> 'Nothung'
+# The Broad Sword 'Aeglin'
 
-N:74:'Nothung'
+N:74:'Aeglin'
 I:23:16:4
 W:35:90:150:95000
 P:0:2d5:12:16:0
@@ -804,9 +804,9 @@ F:RES_FIRE | RES_CONF | RES_CHAOS | FREE_ACT | SEE_INVIS | AGGRAVATE |
 F:SHOW_MODS | INSTA_ART
 
 
-# The Two-Handed Sword 'Mormegil' -> Twilight
+# The Two-Handed Sword 'Mormegil'
 
-N:78:'Twilight'
+N:78:'Mormegil'
 I:23:25:10
 W:52:15:250:0
 P:0:4d6:-40:-60:-50
@@ -829,15 +829,15 @@ F:SEE_INVIS | REGEN | SHOW_MODS | INSTA_ART
 
 N:80:'Crisdurian'
 I:23:28:0
-W:70:15:260:111000
+W:60:15:260:111000
 P:0:4d5:18:19:0
 F:SLAY_DRAGON | SLAY_EVIL | SLAY_UNDEAD | SLAY_TROLL | SLAY_GIANT |
 F:SLAY_ORC | SEE_INVIS | SHOW_MODS | VORPAL | BRAND_POIS
 F:INSTA_ART
 
-# The Katana 'Aglarang' -> of Groo
+# The Katana 'Aglarang'
 
-N:81:of Groo
+N:81:'Aglarang'
 I:23:20:2
 W:52:25:50:75000
 P:0:6d4:0:0:0
@@ -868,9 +868,9 @@ F:RES_FIRE | SUST_DEX | SEE_INVIS | ACTIVATE | SHOW_MODS | LITE
 F:INSTA_ART
 
 
-# The Long Sword 'Anguirel' -> Werewindle
+# The Long Sword 'Anguirel'
 
-N:84:'Werewindle'
+N:84:'Anguirel'
 I:23:17:2
 W:35:30:130:150000
 P:0:3d5:8:12:0
@@ -881,9 +881,9 @@ F:SUST_CON | SUST_STR | SUST_INT | SUST_WIS | RES_ELEC | RES_DARK |
 F:RES_DISEN | RES_FEAR | SPEED | INSTA_ART
 
 
-# The Long Sword 'Elvagil'-> 'Chainsword'
+# The Long Sword 'Elvagil'
 
-N:85:'Chainsword'
+N:85:'Elvagil'
 I:23:16:2
 W:52:15:130:66666
 P:0:9d5:-30:7:0
@@ -921,21 +921,21 @@ F:STR | DEX | CON | SLAY_EVIL | SLAY_UNDEAD | SLAY_ORC |
 F:BLOWS | FREE_ACT | RES_LITE | LITE | SEE_INVIS | SHOW_MODS
 F:INSTA_ART
 
-# The Scimitar 'Haradekket' -> Soulsword
+# The Scimitar 'Haradekket'
 
-N:89:'Soulsword'
+N:89:'Haradekket'
 I:23:18:2
 W:35:8:130:111111
 P:0:3d5:9:11:0
 F:INT | WIS | SEE_INVIS | BLESSED |
 F:SLAY_ANIMAL | SLAY_EVIL | SLAY_UNDEAD | SLAY_DRAGON | SLAY_DEMON |
-F:RES_CHAOS | RES_DISEN | RES_NEXUS | RES_NETHER | HOLD_LIFE |
+F:RES_CHAOS | RES_DISEN | RES_NEXUS | RES_NETHER | HOLD_LIFE | RES_CONF | 
 F:SHOW_MODS | INSTA_ART
 
 
-# The Short Sword Gilettar -> of Merlin
+# The Short Sword 'Gilettar'
 
-N:90:of Merlin
+N:90:'Gilettar'
 I:23:10:2
 W:35:8:80:35000
 P:0:1d10:3:7:0
@@ -948,7 +948,7 @@ F:INSTA_ART
 
 N:91:'Doomcaller'
 I:23:30:0
-W:100:25:180:250000
+W:80:25:180:250000
 P:0:6d5:18:28:-50
 F:KILL_DRAGON | SLAY_ANIMAL | SLAY_EVIL | BRAND_COLD | SLAY_TROLL |
 F:SLAY_ORC | FREE_ACT | RES_ACID | RES_ELEC | RES_FIRE | RES_COLD |
@@ -960,7 +960,7 @@ F:CHAOTIC | VORPAL | BRAND_FIRE | BRAND_POIS | LITE | INSTA_ART
 
 N:92:'Vorpal Blade'
 I:23:17:2
-W:80:30:150:250000
+W:65:30:150:250000
 P:0:4d5:32:32:0
 F:VORPAL | SLAY_EVIL |
 F:FREE_ACT | LITE | SEE_INVIS | SLOW_DIGEST | REGEN | SPEED | STR | DEX
@@ -1007,9 +1007,9 @@ F:BRAND_COLD | BRAND_FIRE | SLAY_DEMON | SLAY_TROLL | SLAY_GIANT |
 F:RES_FIRE | RES_COLD | SUST_INT | SLOW_DIGEST | SHOW_MODS | LITE
 F:INSTA_ART
 
-# The Spear 'Aeglos' -> Runespear (of Odin)
+# The Spear 'Aeglos'
 
-N:97:'Runespear'
+N:97:'Aeglos'
 I:22:2:4
 W:26:45:50:180000
 P:0:1d20:15:25:5
@@ -1019,9 +1019,9 @@ F:FREE_ACT | RES_FIRE | RES_ELEC | RES_LITE |
 F:SLOW_DIGEST | ACTIVATE | BLESSED | SHOW_MODS | LITE | THROW
 F:INSTA_ART
 
-# The Spear of Orome -> Destiny
+# The Spear of Orome
 
-N:98:of Destiny
+N:98:of Orome
 I:22:2:4
 W:26:45:50:77777
 P:0:1d10:15:15:0
@@ -1031,9 +1031,9 @@ F:RES_FIRE | RES_LITE | HOLD_LIFE | RES_FEAR | LITE | FEATHER |
 F:LITE | SEE_INVIS | ACTIVATE | BLESSED | SHOW_MODS | THROW
 F:INSTA_ART
 
-# The Spear 'Nimloth' -> Hagen
+# The Spear 'Nimloth'
 
-N:99:of Hagen
+N:99:'Nimloth'
 I:22:2:3
 W:26:12:50:30000
 P:0:1d10:11:13:0
@@ -1058,7 +1058,7 @@ I:22:25:3
 W:52:90:230:150000
 P:0:4d4:10:20:15
 F:CON | HIDE_TYPE |
-F:KILL_DRAGON | SLAY_DEMON | SLAY_TROLL | SLAY_ORC | FREE_ACT |
+F:KILL_DRAGON | SLAY_DEMON | SLAY_TROLL | SLAY_ORC | FREE_ACT | RES_CONF | 
 F:RES_ACID | RES_FIRE | RES_LITE | RES_DARK | RES_CHAOS | SHOW_MODS
 F:INSTA_ART
 
@@ -1096,9 +1096,9 @@ F:STR | DEX | HIDE_TYPE |
 F:SLAY_TROLL | SLAY_ORC | ACTIVATE | SHOW_MODS | INSTA_ART
 
 
-# The Lochaber Axe 'Mundwine' -> of the Dwarves
+# The Lochaber Axe 'Mundwine'
 
-N:105:of the Dwarves
+N:105:'Mundwine'
 I:22:28:10
 W:52:8:250:80000
 P:0:3d8:12:17:0
@@ -1145,7 +1145,7 @@ F:BLESSED | SHOW_MODS | INSTA_ART
 
 N:109:'Avavir'
 I:22:17:3
-W:70:8:250:18000
+W:60:8:250:18000
 P:0:5d3:8:8:10
 F:DEX | CHR | HIDE_TYPE |
 F:BRAND_COLD | BRAND_FIRE | FREE_ACT | RES_FIRE | RES_COLD |
@@ -1156,7 +1156,7 @@ F:RES_LITE | LITE | SEE_INVIS | ACTIVATE | SHOW_MODS | INSTA_ART
 
 N:110:of the Dawn
 I:23:17:3
-W:70:120:130:250000
+W:60:120:130:250000
 P:0:3d5:20:20:0
 F:ACTIVATE | LITE | BRAND_FIRE | FREE_ACT | RES_FIRE | INFRA |
 F:SLAY_EVIL | SLAY_DRAGON | SLAY_UNDEAD | SLAY_DEMON | VORPAL |
@@ -1194,7 +1194,7 @@ F:SHOW_MODS | LITE | INSTA_ART
 
 N:113:'Thunderfist'
 I:21:18:4
-W:75:38:300:160000
+W:65:38:300:160000
 P:0:3d6:5:18:0
 F:STR | HIDE_TYPE |
 F:SLAY_ANIMAL | BRAND_FIRE | BRAND_ELEC | SLAY_TROLL | SLAY_ORC |
@@ -1234,7 +1234,7 @@ F:KILL_DRAGON | BRAND_ELEC | IM_ELEC | ACTIVATE | SHOW_MODS | INSTA_ART
 
 N:117:of Aule
 I:21:8:4
-W:70:75:120:250000
+W:60:75:120:250000
 P:0:7d3:19:21:5
 F:WIS | HIDE_TYPE |
 F:KILL_DRAGON | SLAY_EVIL | BRAND_ELEC | SLAY_UNDEAD | SLAY_DEMON |
@@ -1262,9 +1262,9 @@ F:INT | WIS | HIDE_TYPE |
 F:SLAY_EVIL | RES_LITE | LITE | SEE_INVIS | ACTIVATE | SHOW_MODS | INSTA_ART
 
 
-# The Quarterstaff of Olorin -> Gandalf
+# The Quarterstaff of Olorin
 
-N:120:of Gandalf
+N:120:of Olorin
 I:21:3:4
 W:52:105:150:140000
 P:0:1d30:10:13:0
@@ -1278,7 +1278,7 @@ F:INSTA_ART
 
 N:121:'Deathwreaker'
 I:21:20:6
-W:100:38:400:444444
+W:80:38:400:444444
 P:0:6d8:18:18:0
 F:STR | TUNNEL | HIDE_TYPE | NO_TELE |
 F:SLAY_DRAGON | SLAY_ANIMAL | SLAY_EVIL | SLAY_UNDEAD | BRAND_FIRE |
@@ -1312,7 +1312,7 @@ F:RES_FEAR | SHOW_MODS | INSTA_ART
 
 N:124:'Belthronding'
 I:19:13:3
-W:70:20:40:35000
+W:60:20:40:35000
 P:0:0d0:20:22:0
 F:DEX | STEALTH | HIDE_TYPE | RES_DISEN | XTRA_SHOTS | SHOW_MODS
 F:INSTA_ART
@@ -1326,11 +1326,11 @@ P:0:0d0:17:19:0
 F:DEX | HIDE_TYPE | FREE_ACT | XTRA_MIGHT | SHOW_MODS | INSTA_ART
 
 
-# The Light Crossbow 'Cubragol' -> of Brand
+# The Light Crossbow 'Cubragol'
 
-N:126:of Brand
+N:126:'Cubragol'
 I:19:23:10
-W:80:25:60:50000
+W:65:25:60:50000
 P:0:0d0:10:14:0
 F:SPEED | RES_FIRE | XTRA_MIGHT | ACTIVATE | SHOW_MODS | INSTA_ART
 

@@ -1,0 +1,347 @@
+=== Frazband New Magic System ===
+
+Traditionally in Angband and its variants, magic spells are found in
+predefined spell books, which can be found in the dungeon. Angband has
+mage spell books and priest spell books, Zangband has many types of
+spell books which different classes may be able to select.
+
+While Frazband supports a modified version of the Zangband magic
+system, its primary magic system, which we encourage the use of is 
+rather different. Spells must still be cast from books, but the player
+finds magic in the dungeon in the form of individual spell scrolls, and
+uses them to create their own spell books. (Your home becomes an
+essential place in this magic system.)
+
+The spells a character in Frazband can cast are determined by a set of
+magical 'skills' chosen at character creation. You can, if you wish,
+almost completely ignore the details of this. Each character class has a
+number of pre-chosen skillsets from which you can select, giving a
+sensible range of spells. If you choose to use one of them, you can
+skip to the 'On Using Spells' section below. Otherwise, read on.
+
+In the new Frazband magic system, any spell works by causing a certain
+'action' to have an effect a certain 'target'. For example, a fireball
+involves the creation of fire, or energy, so a mage skilled at performing
+the action of 'creation', and affecting the target of 'energy' will be
+most skilled at casting fireballs. To identify the magic which flows
+through an item, a mage will want to be skilled at the action of
+'divination' (finding out information), and at affecting the target of
+'magic itself'. To charm a monster to fight on your side, the action of
+'control' and the target of 'the mind' are most useful.
+
+The different magical skills follow. Each spellcasting class will have a
+number of points to allocate to different 'actions', and more points to
+allocate to different 'targets', some classes are forced to put points
+into certain actions or targets.
+
+Most spells require only one action/target combination to be cast, and many
+can be cast with more than one, but there are spells which require two or
+more such combinations.
+
+***** <MagicActions>
+=== Magic Actions ===
+
+Creation
+     Creation magic created or enhances its target. Many powerful attacking
+     spells are creation spells, such as fireballs.
+
+Destruction
+     Destruction magic annihilates or lessens its target. Most destruction 
+     magic is aggressive, though there are exceptions, such as curse 
+     removal by destroying the magic of the curse.
+
+Alteration
+     Alteration magic covers any sort of instantaneous change in its target 
+     which is not creation or destruction. Teleportation, enhancement and 
+     hindering spells are often alteration spells.
+
+Control
+     Control magic is used to make its target behave in a particular way
+     whenever simply making an instant change is not enough. Control magic 
+     lies behind charming and summoning spells, certain enhancement spells 
+     and some interesting attack spells.
+
+Divination
+     Divination magic is used to find out information about the target. 
+     Chief amongst divination magic are detection and identify spells.
+
+***** <MagicTargets>
+=== Magic Targets ===
+
+The Mind
+     Mind magic works on the minds of creatures. Alteration magic on the
+     mind can achieve some interesting effects on monsters, and divination
+     can be useful, but the most useful type of magic to use on the mind is 
+     control magic. This can enhance the caster's own performance through
+     greater control over their own mind, and is necessary for charm spells
+     and most summoning spells.
+
+The Body
+     Body magic works directly on the physical bodies of creatures, either 
+     the caster of their opponents. Teleportation works by using alteration
+     magic on the body, also required by summoning spells, and most 
+     enhancement spells use alteration or control magic on the body.
+     Divination has some miscellaneous uses here. Affecting the bodies of
+     the unwilling is very difficult, so while a few hindrance spells use
+     body magic, no direct attacking spells using it, such as directly
+     destroying your opponents, are known.
+
+Life
+     Life magic works on life energy. Most priestly magic is achieved by
+     the creation and manipulation of life energy, and while destroying 
+     life energy is less versatile a power, it is rumoured to give access 
+     to some very powerful attack spells. Control magic used on life energy
+     can give useful life-draining powers.
+
+Nature
+     Nature magic gives the same effects as using magic on a wide variety 
+     of other targets by working through the 'meta-target' of nature. While
+     nothing is easy in this way, an experienced nature mage will have a
+     wide variety of attacking, defensive and utility spells, as well as
+     the only efficient way of casting healing spells outside of life
+     magic. The majority of nature magic is done through creation or 
+     alteration, though some uses divination or control.
+
+Magic Itself
+     This is magic specialised in affecting other forms of magic. The most 
+     important effects on this target are divination, which gives identify 
+     spells as well as useful detection spells, and creation, which can be
+     used to recharge items and infuse equipment with magical power.
+
+Energy
+     Most energy magic consists of offensive spells; creation gives fire 
+     and lightning attacks, and destruction gives cold and darkness
+     attacks, each can also be used to resist its opposite. Energy magic is   
+     the mainstay of the attacking arsenals of many mages, though monsters 
+     which resist most forms of attacks can give energy mages problems.
+
+Matter
+     The creation of matter is another prime attacking discipline, being 
+     the basis of acid and poison attacks, and while these do not have 
+     quite the utility of energy attacks, alteration, control and 
+     divination also give some useful spells when applied to matter, and
+     creation also gives the rather useful ability of resculping the 
+     dungeon.
+
+Exotic Substances
+     There are many things in the world whose nature is difficult to 
+     understand, such as the likes of nether, chaos and mana, or demons and
+     the undead. This magic attempts to affect such things. Chaos magic is 
+     a highly developed school which works by the application of 
+     destruction magic to this area, it takes a lot of skill, but its 
+     applications can be wide-ranging and very destructive. Creation also
+     gives some potent attack spells, which complement energy or matter
+     based attacks well. Control can be used to attempt to control undead
+     and demons.
+
+Reality
+     Reality magic is rare but powerful. Divination provides for the most
+     general of detection spells, destruction gives void-based attacks
+     which can hurt anything, and alteration, while too blunt a tool for 
+     delicate tasks, can simply *remove* huge swathes of opposition.
+     
+
+***** <ClassSpellAbil>
+=== Class Spell Ability ===
+
+Warriors
+     Warriors cast no spells. They hate magic.
+
+Mages
+     Mages get the maximum six points to spend on both actions and targets,
+     although they find certain priest-type spells involving the creation 
+     of life energy difficult.
+
+Priests
+     Priests start off with three points in life magic, and have two more
+     to allocate to targets. They have only one free point for actions, but
+     start with two in creation, and one in each of control, change and
+     divination. Priests are not permitted to learn certain spells which
+     are seen as dishonourable or as perverting themselves or reality,
+     although they can still learn plenty of more "natural" attack spells.
+     In future versions of Frazband, priests may be able to choose different
+     gods which lead to all this being changed.
+
+Rogues
+     Rogues start with a point in divination magic and a point in body
+     magic, and have one point of actions and two points of targets to
+     allocate.
+
+Rangers
+     Rangers start off with three points in nature magic, and have two
+     other points to allocate to targets. They can allocate four points to
+     actions freely, although most will take at least some proficiency in
+     creation and alteration magic.
+
+Paladins
+     Paladins have no choice in their magic, they have two points in life
+     magic, two points in creation, and one in control, alteration and
+     divination. In future versions of Frazband, paladins may be able to 
+     choose different gods which lead to this being changed.
+
+Warrior-Mages
+     Warrior-mages have the same magic as normal mages, except they
+     only get five points to allocate to each of the sets of disciplines,
+     instead of six.
+
+Chaos Warriors
+     Chaos Warriors are, as one might expect, trained in Chaos magic.
+     They are not interested in any other form of magic. As such, they have 
+     three points in destruction and in exotica, and no points to allocate.
+
+Monks
+     Monks exist who have have spread their studies into almost every area,   
+     and so monks get three points in each of the two sets of the 
+     disciplines to allocate, with no restrictions.
+
+Mindcrafter
+     Although the powers of a Mindcrafter may seem like magic, this is
+     not -- strictly speaking -- the case. They are mental powers,
+     independent of the ordinary sources of magic. Consequently,
+     Mindcrafters are not interested in 'magic' and learn no spells.
+
+High Mage
+     High mages are not used in this magic system. For such a character,
+     concentrate the points of a mage in just a few disciplines.
+
+  
+***** <TheGods>
+
+
+***** <CastingSpells>
+=== Using Spells ===
+
+When you begin the game, a member of a spellcasting class will have one
+or two spellbooks and will have a small selection of basic spells
+recorded. If you ever want to be able to cast a spell, the first thing
+you must do is go to your home. Here, you must study the spell, to
+learn it. You can not un-learn spells and can only know a limited
+number rising with your level and spellcasting stat, so be careful what
+you choose to study.
+
+Once you have learnt a spell, you must copy it into a spellbook, which
+you must also do at your home. Every spellbook can hold a maximum of
+seven spells. Spellbooks, once written, cannot be erased, but extra
+blank spellbooks can be found in the dungeon or bought in town. You can
+then cast the spell so long as you carry a spellbook with that spell in.
+
+To record, and so make available for study and use further spells, you
+must acquire spell scrolls. Each scroll contains one spell. Spell
+scrolls can be found in the dungeon or purchased in town, and they must
+be brought to your home to be recorded.
+
+You can find out about spells you have recorded by browsing the
+relevant 'knowledge' section (~), and you can find out about spells you
+have found on scrolls by examining (I) the scroll. Most important to
+observe is the affinity. This tells you how good your character is at
+casting the spell. If you have a good affinity for a spell, you
+probably want to learn it at some stage. But if you have a poor
+affinity for it, then you may be able to cast it, but it's probably not
+worthwhile, since you'll need far more experience and mana to do so
+than you would otherwise. Of course, you may want to make exceptions to
+these general rules. You will undoubtedly find that some spells are
+completely illegible, meaning you will never be able to cast them.
+
+You may wish to inscribe spell books with something like for the first,
+{@m1@b1_weak_attacks}, for the second, {@m2@b2_strong_attacks}, for the
+third, {@m3@b3_detection}, and so forth. Such a scheme allows you to
+keep track of what is in each spellbook, and also allows you to cast
+spells by, for example, 'm3a' instead of 'mca' which might fail if
+preceeding spellbooks were destroyed, as well as browsing the third
+spellbook with b3. If this paragraph is gobbledogook to you, don't
+worry!
+
+--- Armour and Spell Casting ---
+
+All spellcasting classes are penalised for wielding armour above a
+certain total combined weight. The threshold varies between 30lbs
+for a mage and 40lbs for a paladin. Typically, the more reliant on
+spells/prayers your class is deemed to be, the lower your weight
+allowance. If you exceed your weight limit, your mana will drop.
+This penalty is fairly stiff for low level characters but can
+generally be ignored by high level ones.
+
+--- Mage-Types and Gloves ---
+
+Spellcasters who use INT as the stat determining their spellcasting
+ability will be penalised heavily for wielding armour on their
+hands. The exception to this is that wielding gloves, gauntlets or
+cesti which boost DEX or which grant Free Action will result in no
+penalty. The rationale behind this is that the hands are needed to
+perform intricate gestures that accompany the casting of the spell
+and anything encumbering the hands would interfere with this. The
+priest-type classes (priest, paladin and monk) do not have the same
+restrictions as they are viewed as invoking the power of their
+deity directly through prayer.
+
+--- Casting Spells With Insufficient Mana ---
+
+Occasionally, you may try (either by accident or in desperation) to
+cast a spell when you have insufficient mana to do so. In these
+circumstances you will be told by the game that you do not have
+enough mana to cast the spell and then asked if you want to anyway.
+Casting the spell under these conditions has a drastically reduced
+chance of success and may also result in your constitution being
+damaged. It may also cause you to faint from the effort which will
+effectively paralyse you for several turns (even with free action).
+The CON drain and the paralysation may happen regardless of whether
+the casting was successful or not.
+
+--- Spell Durations ---
+
+Some spells such as Haste or Resistance grant an effect which
+wears off after a certain period of time. With very few exceptions,
+multiple castings of such spells are not cumulative in terms of the
+duration of the spell. In other words, casting a spell which has a
+duration of 20 turns three times will not result in a duration of
+60 turns. Typically, the subsequent castings will add only a small
+amount to the total duration.
+
+
+***** <SpellTypes>
+=== Spell Types ===
+
+--- Bolts and Beams ---
+
+A bolt spell is aimed in a direction or at a target but will hit
+the first monster or obstruction in its targeted direction. This
+may or may not be the intended target. Occasionally, you may note
+that your bolt spell hits multiple targets along the line of fire.
+This is because some bolt spells are granted a chance of 'beaming'
+which may be either fixed or level-dependent. A beam will hit every
+target within range along a 'straight' line in the direction in
+which it was aimed.
+
+--- Balls ---
+
+There are two things to remember about ball spells. Firstly, unlike
+bolt spells, they can be aimed at a specific target which allows
+you to target a specific monster as opposed to the first one in the
+direction you are aiming. Secondly, they have a radius (which
+varies from spell to spell). A radius value of one or more will
+result in the spell affecting monsters (and possibly objects, etc)
+around the target in addition to the target itself.
+
+--- Line-of-Sight ---
+
+Line-of-sight spells affect all monsters that that are currently
+in sight of your character. This includes monsters that may not
+currently be visible due to darkness but would be if it was light.
+
+--- Area ---
+
+Area spells affect an area around the player. The size of the area
+can vary considerably. For example, Light Area lights a single room
+while Detect Traps affects a map panel and Genocide the entire
+level.
+
+***** <Hints>
+=== Hints and Tips ===
+
+Confused? Just pick one of the preset combinations at the left of the
+screen.
+
+
+--
+Original   : Benjamin Mann
+Last update: Aug 16, 2006

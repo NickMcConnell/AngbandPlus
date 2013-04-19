@@ -1,6 +1,6 @@
 === Defending Yourself ===
  
-In Zangband, monsters may damage and otherwise harm you in a number of
+In Frazband, monsters may damage and otherwise harm you in a number of
 ways: in direct melee combat, by exploding next to you, by breathing
 on you and by casting spells. Some monsters referred to as "summoners"
 may not directly harm you but may summon other monsters to do their
@@ -10,13 +10,13 @@ Creatures will attack you in the same manner in which you attack them.
 If they move into you, they attack you. Virtually all monsters can
 lower your hit points by means of a melee attack, and if you lose too
 many, you die. Fortunately, this is also the attack most easily guarded
-against (by wielding armor). Each monster has a maximum of four melee
+against (by wielding armour). Each monster has a maximum of four melee
 attacks which may be of varying type, power and effect.
 
 In addition to pure damage, there can be a number of side-effects from
 a monster hitting you. For example, an especially powerful attack may
-stun you wound you. Stunning is cumulative and, if not addressed, may
-eventually result in you becoming knocked out which allows your
+stun you or wound you. Stunning is cumulative and, if not addressed,
+may eventually result in you becoming knocked out which allows your
 opponent to continue attacking while you lie helpless. Wounds will
 cause you to lose hit points each round until you either die or your
 wound heals. You will slowly recover from any wound except a Mortal
@@ -24,7 +24,7 @@ Wound with time and all wounds can be healed magically.
 
 In addition to cuts and stunning, some monsters melee attacks may have
 other consequences. These include causing you to become blind, scared,
-confused, poisoned or paralyzed. There are many others less common
+confused, poisoned or paralysed. There are many others less common
 effects. Full details of monsters melee ability may be found in the
 section on Monsters (see monster.txt).
 
@@ -32,53 +32,57 @@ Many monsters also have an array of magical spells which they may use
 against you and others can use various breath attacks on you from a
 distance. For example, a red dragon might breathe fire at you. You can
 defend yourself from the side-effects of melee attacks, monster spells
-and breath attacks by searching for armor that is resistant to that
+and breath attacks by searching for armour that is resistant to that
 form of attack.
 
 As you move down deeper into the dungeon in search of better items,
-you will need to steadily improve your defenses against pure damage,
+you will need to steadily improve your defences against pure damage,
 wounds, stunning, bolts, balls, and breaths of various kinds,
 reductions of exp and stats, theft, and a variety of miscellaneous
 magical attacks.
 
-***** <Armor>
-=== Armor Class ===
+***** <Armour>
+=== Armour Class ===
 
-Your armor class (or AC) is a number that describes the amount and the
-quality of armor being worn. Armor class will generally run from about
-0 to 150, but could become negative or greater than 150 with rarer
-armor or by magical means. Note the spell casters receive a penalty
-to their maximum mana for wielding armor that is too heavy. In addition,
-monks lose much of their bare handed fighting skill if their armor
-becomes too heavy.
+Your armour class (or AC) is a number that describes the amount and the
+quality of armour being worn. Armour class will generally run from about
+0 to 200, but could become negative or greater than 200 with rarer
+armour or by magical means. Note the spell casters receive a penalty
+to their maximum mana for wielding armour that is too heavy. In
+addition,
+monks lose much of their bare handed fighting skill if their armour
+becomes too heavy. Armour class is also affected by dexterity, and by
+melee skill.
  
-The larger your armor class, the more protective it is. A negative
-armor class would actually help get you hit. Armor protects you in
+The larger your armour class, the more protective it is. A negative
+armour class would actually help get you hit. Armour protects you in
 three manners. One, it makes you harder to be hit for damage. A hit for
-no damage is the same as a miss. Two, good armor will absorb some of
+no damage is the same as a miss. Two, good armour will absorb some of
 the damage that your character would have taken from normal attacks.
-Three, acid damage is reduced by wearing body armor (but the armor will
-be damaged instead). It is obvious that a high armor class is a must
-for surviving the deeper levels of Zangband. Note, however, that armor
+Three, acid damage is reduced by wearing body armour (but the armour
+will
+be damaged instead). It is obvious that a high armour class is a must
+for surviving the deeper levels of Frazband. Note, however, that armour
 class by itself will not protect you from the side effects of monster
 melee attacks mentioned above.
 
-Each piece of armor has a base armor value, which, like the damage from
+Each piece of armour has a base armour value, which, like the damage
+from
 weapons, is assumed known by the player, and a magic bonus, which will
-not be displayed unless the armor has been identified or was bought in
+not be displayed unless the armour has been identified or was bought in
 a store.
 
-Armor class values are always displayed between a set of brackets as
-'[#]' or '[#,+#]'. The first value is the armor class of the item. The
+Armour class values are always displayed between a set of brackets as
+'[#]' or '[#,+#]'. The first value is the armour class of the item. The
 second number is the magical bonus of the item which is only displayed
 if known, and will always have a sign preceding the value.
 
 Note: A few rings, amulets, and weapons also have the '[+#]' notation,
-indicating that they provide an armor bonus. Many pieces of heavy body
-armor will also have a '(-#)' before the '[#,+#]', which indicates that
-the weight of the armor decreases your chances of hitting monsters.
-This can range from nonexistent for very light armor to (-8) for the
-very heaviest armor!
+indicating that they provide an armour bonus. Many pieces of heavy body
+armour will also have a '(-#)' before the '[#,+#]', which indicates that
+the weight of the armour decreases your chances of hitting monsters.
+This can range from nonexistent for very light armour to (-8) for the
+very heaviest armour!
 
 
 ***** <ResistingMagic>
@@ -91,7 +95,7 @@ not apply. Also, there is no saving throw against monster breaths. For
 these types of attacks, your only recourse it to find items or other
 means which grant you 'resistance' to that type of attack.
 
-In Zangband there are many forms of resistance which may be obtained
+In Frazband there are many forms of resistance which may be obtained
 either as bonuses from your equipment, as the result of casting a
 magical spell, activating certain artifacts or as the result of a
 mutation. Unfortunately, not all attacks available to monsters can be
@@ -117,7 +121,7 @@ A common misconception amongst new players is that having multiple
 sources of a particular resistance will increase your character's
 resistance to attacks of that form. This is not true. You will get the
 same benefit from wielding a single Amulet of Resist Acid as wielding a
-Shield of Resist Acid, an {Armor-type} of Resist Acid and an artifact
+Shield of Resist Acid, an {Armour-type} of Resist Acid and an artifact
 weapon which grants acid resistance all at the same time.
 
 As stated above, however, it is possible to get double resistance for
@@ -131,32 +135,32 @@ of attacks.
 
 
 ***** <EgoArtifact>
-=== Ego Armor and Artifacts ===
+=== Ego Armour and Artifacts ===
 
-In addition to the ordinary armor items your character may find in
+In addition to the ordinary armour items your character may find in
 the dungeon, some of them may be endowed with additional powers.
-These armors are fall into two types(1) artifacts; and (2) ego armors.
+These armours are fall into two types(1) artifacts; and (2) ego armours.
 Unlike artifacts which are unique and may only be found once in each
-game, it is not unusual to find several ego armors of the same type
+game, it is not unusual to find several ego armours of the same type
 during the course of a character's adventures.
 
-In general, artifacts and ego armors may boost one or more of your
+In general, artifacts and ego armours may boost one or more of your
 primary statistics, may confer certain abilities upon your character
 and may grant resistance to certain forms of attack. Each Ego type may
-only be found on certain types of armor - for example, you can find a
+only be found on certain types of armour - for example, you can find a
 Shield of Elvenkind but not Boots of Elvenkind.
 
-Note: Zangband has extended the original Angband's concept of adding
+Note: Frazband has extended the original Angband's concept of adding
 random abilities to the various Ego types considerably. These can be
 either guaranteed or have only a varying chance of being granted. (See
-'Randabil.spo' for details of the random powers of Ego Armor).
+'Randabil.spo' for details of the random powers of Ego Armour).
 
 
---- Armor/Shields ---
+--- Armour/Shields ---
 
 of Resist Acid.
      A character using such an object will take only one third normal
-     damage from any acid thrown upon him.  In addition, armor so
+     damage from any acid thrown upon him.  In addition, armour so
      enchanted will resist the acid's effects and not be damaged by it.
 
 of Resist Lightning.
@@ -172,12 +176,12 @@ of Resist Cold.
      damage from frost and cold.
 
 of Resistance.
-     A character wearing armor with this ability will have resistance
+     A character wearing armour with this ability will have resistance
      to Acid, Cold, Fire, and Lightning as explained in each part
      above.
 
 of Elvenkind.
-     This is the same as Resistance armor, only generally better
+     This is the same as Resistance armour, only generally better
      enchanted. It will also make you more stealthy.
 
 of Permanence (Robes Only)
@@ -208,7 +212,7 @@ of the Magi
 of Might
      This item will both increase and sustain your strength, dexterity,
      and constitution and will also make you immune to any foe's attempt
-     to slow or paralyze you.
+     to slow or paralyse you.
 
 of Lordliness
      This item will both increase and sustain your wisdom and charisma.
@@ -261,16 +265,16 @@ of Electricity
 
 of Free Action
      This item will make you immune to any foe's attempt to slow or
-     paralyze you. A mage-type spellcaster who wields them will not
-     have their mana penalized.
+     paralyse you. A mage-type spellcaster who wields them will not
+     have their mana penalised.
 
 of Slaying
-     In addition to its armor bonus, this item will grant a bonus to
+     In addition to its armour bonus, this item will grant a bonus to
      your +to-hit and +to-dam.
 
 of Agility
      This item will increase your dexterity. A mage-type spellcaster
-     who wields them will not have their mana penalized.
+     who wields them will not have their mana penalised.
 
 of Power
      This item will increase your strength and will also grant a bonus
@@ -286,7 +290,7 @@ of Stealth
 
 of Free Action
      This item will make you immune to any foe's attempt to slow or
-     paralyze you.
+     paralyse you.
 
 of Speed
      These boots will make your character more speedy.
@@ -294,8 +298,8 @@ of Speed
 --- Special Items ---
      
 Dragon Scale Mails.
-     These extremely rare pieces of armor come in many different
-     colors, each protecting you against the relevant dragons.
+     These extremely rare pieces of armour come in many different
+     colours, each protecting you against the relevant dragons.
      Naturally they are all resistant to acid damage. They also
      occasionally allow you to breathe as a dragon would!
 
@@ -304,7 +308,7 @@ Dragon Shields and Helms
      random resistances.
 
 Other items
-     Apart from these there are some very rare, and well made armors
+     Apart from these there are some very rare, and well made armours
      in the dungeon with not necessarily any special abilities. These
      include Adamantite Plate Mail, Mithril Plate Mail, Mithril Chain
      Mail, Shields of Deflection, and Shadow Cloaks. The first four
@@ -412,7 +416,7 @@ Shards
     have sound resistance and not by shard resistance.
 
 Nexus
-    Nexus attacks are one of the most annoying attacks in Zangband but
+    Nexus attacks are one of the most annoying attacks in Frazband but
     will rarely kill you directly. A Nexus attack will damage the player
     and may teleport the player, teleport-level the player or swap two
     of your primary statistics around. Nexus resistance will reduce the
@@ -422,7 +426,7 @@ Nexus
 
 Chaos
     Chaos attacks are one of the most dangerous attack types in
-    Zangband. They have a relatively high maximum damage, and may also
+    Frazband. They have a relatively high maximum damage, and may also
     confuse the player, cause hallucination, reduce your character's
     experience and cause you to mutate. Chaos resistance will the
     damage taken from such attacks and negate all side-effects.
@@ -505,8 +509,8 @@ Free Action
     Free action is immunity to paralysis: this is foolproof except in
     the special case of the Ancient and Foul Curse which requires a
     successful saving throw as well as free action to avoid should it
-    attempt to paralyze you. Spells, potions of paralysis and being
-    hit-to-paralyze are completely protected against.
+    attempt to paralyse you. Spells, potions of paralysis and being
+    hit-to-paralyse are completely protected against.
 
 Hold-life
     Hold Life is protection from experience draining. It is 90%
@@ -517,7 +521,7 @@ Hold-life
 ***** <Recovering>
 === Recovering from Attacks ===
 
-You cannot combat with the creatures in Zangband and expect to come out
+You cannot combat with the creatures in Frazband and expect to come out
 unscathed every time. When a monster inflicts damage on you, you will
 need to take steps to recover from the damage as soon as possible.
 
@@ -575,4 +579,5 @@ exhaustive list is not provided in this document.
 Original   : (??), Leon Marrick and Chris Weisiger
 Updated    : (??)
 Updated    : Zangband DevTeam
-Last update: January 13, 2000
+Updated    : Benjamin Mann
+Last update: Aug 15, 2006

@@ -552,7 +552,11 @@ static s32b gamble_init(void)
 
 	/* Get the wager */
 	strcpy(out_val, "");
+#ifdef L64
+	sprintf(tmp_str,"Your wager (1-%d) ? ", maxbet);
+#else /* L64 */
 	sprintf(tmp_str,"Your wager (1-%ld) ? ", maxbet);
+#endif /* L64 */
 
 	/*
 	 * Use get_string() because we may need more than
@@ -591,10 +595,18 @@ static s32b gamble_init(void)
 		
 	msg_print(NULL);
 
+#ifdef L64
+	sprintf(tmp_str, "Gold before game: %9d", p_ptr->au);
+#else /* L64 */
 	sprintf(tmp_str, "Gold before game: %9ld", p_ptr->au);
+#endif /* L64 */
 	prt(tmp_str, 20, 2);
 
+#ifdef L64
+	sprintf(tmp_str, "Current Wager:    %9d", wager);
+#else /* L64 */
 	sprintf(tmp_str, "Current Wager:    %9ld", wager);
+#endif /* L64 */
 	prt(tmp_str, 21, 2);
 
 	/* Prevent savefile-scumming of the casino */
@@ -615,7 +627,11 @@ static bool gamble_again(bool win, int odds, s32b wager)
 	{
 		prt("YOU WON", 16, 37);
 		p_ptr->au += odds * wager;
+#ifdef L64
+		sprintf(tmp_str, "Payoff: %d", odds * wager);
+#else /* L64 */
 		sprintf(tmp_str, "Payoff: %ld", odds * wager);
+#endif /* L64 */
 		prt(tmp_str, 17, 37);
 	}
 	else
@@ -625,7 +641,11 @@ static bool gamble_again(bool win, int odds, s32b wager)
 		prt("", 17, 37);
 	}
 	
+#ifdef L64
+	sprintf(tmp_str, "Current Gold:     %9d", p_ptr->au);
+#else /* L64 */
 	sprintf(tmp_str, "Current Gold:     %9ld", p_ptr->au);
+#endif /* L64 */
 	prt(tmp_str, 22, 2);
 	prt("Again(Y/N)?", 18, 37);
 	move_cursor(18, 49);
@@ -895,7 +915,7 @@ void gamble_dice_slots(void)
 bool inn_rest(void)
 {
 	/* Only at night time */
-	if ((turn % (10L * TOWN_DAWN)) < 50000)
+	if ((turn % (10L * TOWN_DAWN)) < ((10L * TOWN_DAWN) / 2))
 	{
 		msg_print("The rooms are available only at night.");
 		msg_print(NULL);
@@ -915,7 +935,7 @@ bool inn_rest(void)
 	}
 
 	/* Rest all night */		
-	turn = ((turn / 50000) + 1) * 50000;
+	turn = ((turn / ((10L * TOWN_DAWN) / 2)) + 1) * ((10L * TOWN_DAWN) / 2);
 	p_ptr->chp = p_ptr->mhp;
 
 	/*
@@ -955,6 +975,96 @@ bool inn_rest(void)
 	msg_print("You awake refreshed for the new day.");
 	msg_print(NULL);
 
+	return (TRUE);
+}
+
+
+/*
+ * You can now rest at home just like resting in an inn,
+ * although there's nobody to feed you.
+ */
+bool do_cmd_rest_home(void)
+{
+	/* Hurt? */
+	if ((p_ptr->poisoned) || (p_ptr->cut))
+	{
+		/* Check if it's enough to kill us */
+		if (p_ptr->chp <= (p_ptr->poisoned / (adj_con_fix[p_ptr->stat_ind[A_CON]] + 1))
+				+ p_ptr->cut + MIN(0, p_ptr->cut-100) + MIN(0, p_ptr->cut-200))
+		{
+			msg_print("You are too badly hurt.");
+			msg_print(NULL);
+
+			return (FALSE);
+		}
+	}
+
+	/* Hungry? */
+	if (p_ptr->food < PY_FOOD_ALERT)
+	{
+		msg_print("You are too hungry, get food.");
+		msg_print(NULL);
+
+		return FALSE;
+	}
+
+	/* If it's night, rest all night */
+	if ((turn % (10L * TOWN_DAWN)) >= ((10L * TOWN_DAWN) / 2))
+	{
+		p_ptr->chp = p_ptr->mhp;
+
+		/*
+		 * Nightmare mode has a TY_CURSE at midnight...
+		 * and the player may want to avoid that.
+		 */
+		if (ironman_nightmare)
+		{
+			msg_print("Horrible visions flit through your mind as you sleep.");
+	
+			/* Pick a nightmare */
+			get_mon_num_prep(get_nightmare, NULL);
+	
+			/* Have some nightmares */
+			while (TRUE)
+			{
+				have_nightmare(get_mon_num(MAX_DEPTH));
+	
+				if (!one_in_(3)) break;
+			}
+	
+			/* Remove the monster restriction */
+			get_mon_num_prep(NULL, NULL);
+	
+			msg_print("You awake screaming.");
+			msg_print(NULL);
+			
+			return (TRUE);
+		}
+	
+		turn = ((turn / ((10L * TOWN_DAWN) / 2)) + 1) * ((10L * TOWN_DAWN) / 2);
+		
+		msg_print("You awake refreshed for the new day. But hungry.");
+		msg_print(NULL);
+
+	}
+	/* Or if it's day, rest all day */
+	else
+	{
+		turn = ((turn / ((10L * TOWN_DAWN) / 2)) + 1) * ((10L * TOWN_DAWN) / 2);
+		p_ptr->chp = p_ptr->mhp;
+
+		msg_print("You awake refreshed as night falls. But hungry.");
+		msg_print(NULL);
+	}
+	/* Normally heal the player */
+	(void)set_blind(0);
+	(void)set_confused(0);
+	p_ptr->stun = 0;
+	p_ptr->csp = p_ptr->msp;
+	
+	/* We need food now */
+	set_food(PY_FOOD_ALERT - 1);
+	
 	return (TRUE);
 }
 

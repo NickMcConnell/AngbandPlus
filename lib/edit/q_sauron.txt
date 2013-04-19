@@ -1,0 +1,13 @@
+# q_sauron.txt
+
+# Name
+Q:8:N:Sauron
+
+# Definition
+Q:8:Q:1:0:0:1:99:858:0
+
+# Description for quest
+?:[LEQ $QUEST8 2]
+Q:8:T:Sauron the Sorceror stands between you and Morgoth and cannot be bypassed by 
+Q:8:T:any means. Only when Sauron is dead will you be able to reach Morgoth.
+?:1

@@ -1,0 +1,16 @@
+# File: q_moria_info.txt
+
+# Includes all the quest files
+
+# Quest feature preferences
+#%:q_pref.txt
+
+# Serpent of Chaos
+?:[EQU $QUEST_NUMBER 9]
+%:q_muar.txt
+
+
+# Random quests (always adressed with number 40)
+?:[EQU $QUEST_NUMBER 40]
+%:qmrandom.txt
+

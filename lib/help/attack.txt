@@ -1,6 +1,6 @@
 === Attacking Monsters ===
  
-Attacking is simple in Zangband. If you move into a creature, you
+Attacking is simple in Frazband. If you move into a creature, you
 attack it. If you are wielding a weapon (including digging implements
 which are considered to be weapons) when you do so, the damage for the
 weapon is used when you hit a creature. Otherwise, you will attack with
@@ -80,7 +80,7 @@ weapon before it can be used in a fight. A secondary weapon can be kept
 by keeping it in the backpack, and switching it with the primary weapon
 when needed.
 
-Zangband assumes that your youth in the rough environment near the
+Frazband assumes that your youth in the rough environment near the
 dungeons has taught you the relative merits of different weapons, and
 displays as part of their description the damage dice which define
 their capabilities. The dice used for a given weapon is displayed as
@@ -92,7 +92,7 @@ weapon is also a consideration.
 In addition to their base damage, each weapon has two main magical
 characteristics, their bonus to your skill and their bonus to your
 deadliness, expressed as "(+#,+#)". A normal weapon would be "(+0,+0)"
-but many weapons in Zangband have bonuses to your skill and/or
+but many weapons in Frazband have bonuses to your skill and/or
 deadliness. These bonuses may be increased, subject to certain upper
 limits, by magical means through a process referred to as 'enchanting'.
 Some weapons are cursed, and will have penalties that hurt the player.
@@ -125,13 +125,13 @@ weapons very powerful given the proper missiles. This is especially
 true if both the launcher and the missile are enchanted.
 
 Hits and misses are determined by your ability to hit versus your
-target's armor class. A hit is a strike that does some damage; a miss
-may in fact reach a target, but fails to do any damage. Higher armor
+target's armour class. A hit is a strike that does some damage; a miss
+may in fact reach a target, but fails to do any damage. Higher armour
 class makes it harder to do damage, and so leads to more misses; it
 will also reduce the damage from a strike that actually occurs.
 
 The varying types of missile launchers each have their own strengths
-and weaknesses. Which can be summarized as follows:
+and weaknesses. Which can be summarised as follows:
 
                  energy to fire   multiplier   remarks
 Sling:                  50             2
@@ -174,15 +174,14 @@ has two attributes that make it deadly to your opponent (for example
 you are fighting a demon and your weapon slays both evil and demons
 (demons are evil)), only the most effective slay will apply.
 
-Zangband has extended the original Angband's concept of adding random
-abilities to the various Ego types considerably. These can be either
-guaranteed or have only a varying chance of being granted. (See
-'Randabil.spo' for details of the random powers of Ego Weapons).
+Many ego weapons have random abilities added to them, either guaranteed
+or with a random chance of being granted. (See 'Randabil.spo' for 
+details of the random powers of Ego Weapons).
 
 
 (Defender)
     A magical weapon that actually helps the wielder defend himself,
-    by increasing his/her armor class, and providing resistance
+    by increasing his/her armour class, and providing resistance
     against damage from fire, cold, acid and lightning attacks. It also
     grants levitation, increases your stealth, let you see invisible
     creatures and protects from paralyzation and some slowing attacks.
@@ -190,7 +189,7 @@ guaranteed or have only a varying chance of being granted. (See
 
 (Holy Avenger)
     A Holy Avenger is one of the more powerful of weapons. It will
-    increase your wisdom and your armor class and prevent you from
+    increase your wisdom and your armour class and prevent you from
     becoming afraid. This weapon will do extra damage when used against
     evil, demonic and undead creatures, and will also give you the
     ability to see invisible creatures. These weapons are also blessed
@@ -596,7 +595,7 @@ base damage dice are XdY is as follows:
 === Monk Attacks ===
 
 The Monk character is designed to be a barehanded fighter rather than
-using a weapon like the other Zangband classes. As a Monk's level
+using a weapon like the other Frazband classes. As a Monk's level
 increases the number of attacks they get per round increases and new,
 increasingly powerful attacks become available. Higher level attacks
 have a chance to stun the Monk's opponent.
@@ -694,7 +693,8 @@ monsters.
 Original   : (??) and Leon Marrick
 Updated    : (??)
 Updated    : Zangband DevTeam
-Last update: May 25, 2001
+Updated    : Benjamin Mann
+Last update: Aug 14, 2006
 
 ***** Begin Hyperlinks
 ***** [1] commdesc.txt#ThrowFire

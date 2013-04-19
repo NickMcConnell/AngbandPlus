@@ -613,8 +613,11 @@ static const tval_desc tvals[] =
 	{ TV_NATURE_BOOK,       "Nature Spellbook"     },
 	{ TV_CHAOS_BOOK,        "Chaos Spellbook"      },
 	{ TV_DEATH_BOOK,        "Death Spellbook"      },
-	{ TV_TRUMP_BOOK,        "Trump Spellbook"      },
+	{ TV_TRUMP_BOOK,        "Morphic Spellbook"    },
 	{ TV_ARCANE_BOOK,       "Arcane Spellbook"     },
+	{ TV_WIZARDRY_BOOK,     "Wizardry Spellbook"   },
+	{ TV_SPELLBOOK,        "Spellbook"            },
+	{ TV_SPELL_SCROLL,      "Spell Scroll"         },
 	{ TV_SPIKE,             "Spikes"               },
 	{ TV_DIGGING,           "Digger"               },
 	{ TV_CHEST,             "Chest"                },
@@ -1333,7 +1336,7 @@ static void do_cmd_wiz_summon(int num)
 
 	for (i = 0; i < num; i++)
 	{
-		(void)summon_specific(0, py, px, p_ptr->depth, 0, TRUE, FALSE, FALSE);
+		(void)summon_specific(0, py, px, p_ptr->depth, 0, TRUE, FALSE, FALSE, GP_COPY, 0);
 	}
 }
 
@@ -1372,9 +1375,9 @@ static void do_cmd_wiz_named(int r_idx, bool slp)
 		/* Require empty grids */
 		c_ptr = area(y, x);
 		if (!cave_empty_grid(c_ptr)) continue;
-
+		
 		/* Place it (allow groups) */
-		if (place_monster_aux(y, x, r_idx, slp, TRUE, FALSE, FALSE)) break;
+		if (place_monster_aux(y, x, r_idx, slp, TRUE, FALSE, FALSE, GP_COPY, 0)) break;
 	}
 }
 
@@ -1386,7 +1389,7 @@ static void do_cmd_wiz_named(int r_idx, bool slp)
  */
 static void do_cmd_wiz_named_friendly(int r_idx, bool slp)
 {
-	(void)summon_named_creature(p_ptr->py, p_ptr->px, r_idx, slp, TRUE, TRUE);
+	(void)summon_named_creature(p_ptr->py, p_ptr->px, r_idx, slp, TRUE, TRUE, TRUE, GP_COPY, 0);
 }
 
 
@@ -1770,6 +1773,141 @@ void output_monster_matlab(void)
 }
 #endif /* MATLAB */
 
+#ifdef USE_NEW_MAGIC
+static void do_cmd_make_spell_list()
+{
+	byte store_magic_fields[NUM_MAG_ACTIONS][NUM_MAG_TARGETS];
+
+	cptr offering[5];
+	
+	int type=0;
+	int action=0;
+	int target=0;
+
+
+	int i,j;
+	
+	/* Store the real scores */
+	for (i=0; i<NUM_MAG_ACTIONS; ++i)
+		for (j=0; j<NUM_MAG_TARGETS; ++j)
+		{
+			store_magic_fields[i][j] = p_ptr->magic_fields[i][j];
+		}
+
+	screen_save();
+	
+	/* Get the precise function */
+	offering[0] = "Action";
+	offering[1] = "Target";
+	offering[2] = "Combination";
+	offering[3] = "Everything";
+	offering[4] = "Now";
+	type = get_player_choice_long(offering, 5, 0, 60, 5, NULL, FALSE, NULL, NULL);
+	
+	/* Get the fields */
+	if (type == 0 || type == 2) action = get_player_choice_long(magic_action_names,
+			NUM_MAG_ACTIONS, 0, 60, 5, NULL, FALSE, NULL, NULL);
+	if (type == 1 || type == 2) target = get_player_choice_long(magic_target_names,
+			NUM_MAG_TARGETS, 0, 60, 5, NULL, FALSE, NULL, NULL);
+
+	/* Assign */
+	if (type == 0)
+	{
+		for (i=0; i<NUM_MAG_ACTIONS; ++i)
+			for (j=0; j<NUM_MAG_TARGETS; ++j)
+			{
+				p_ptr->magic_fields[i][j] = (i == action) ? 1 : 0;
+			}
+	}
+	else if (type == 1)
+	{
+		for (i=0; i<NUM_MAG_ACTIONS; ++i)
+			for (j=0; j<NUM_MAG_TARGETS; ++j)
+			{
+				p_ptr->magic_fields[i][j] = (j == target) ? 1 : 0;
+			}
+	}
+	else if (type == 2)
+	{
+		for (i=0; i<NUM_MAG_ACTIONS; ++i)
+			for (j=0; j<NUM_MAG_TARGETS; ++j)
+			{
+				p_ptr->magic_fields[i][j] = (i == action && j == target) ? 1 : 0;
+			}
+	}
+	
+	/* Make the list */
+	if (type != 3)
+	{
+		for (i=0; i<1000; ++i)
+			for (j=1; j<MAX_SPELLS_CURRENT; ++j)
+				if (calculate_spell_level(j) == i)
+					fprintf(stderr, "%s%d - %s\n", 
+							i<100 ? (i<10 ? "00" : "0") : "",
+							i, new_spell_name[j]);
+	}
+	else
+	{
+		for (action=0; action<NUM_MAG_ACTIONS; ++action)
+		for (target=0; target<NUM_MAG_TARGETS; ++target)
+		{
+			for (i=0; i<NUM_MAG_ACTIONS; ++i)
+				for (j=0; j<NUM_MAG_TARGETS; ++j)
+					p_ptr->magic_fields[i][j] = (i==action && j==target) ? 1 : 0;
+			fprintf(stderr, "%s,%s\n", 
+					magic_action_names[action], magic_target_names[target]);
+			for (i=0; i<1000; ++i)
+				for (j=1; j<MAX_SPELLS_CURRENT; ++j)
+					if (calculate_spell_level(j) == i)
+						fprintf(stderr, "%s%d - %s\n", 
+								i<100 ? (i<10 ? "00" : "0") : "",
+								i, new_spell_name[j]);
+		}
+		for (action=0; action<NUM_MAG_ACTIONS; ++action)
+		{
+			for (i=0; i<NUM_MAG_ACTIONS; ++i)
+				for (j=0; j<NUM_MAG_TARGETS; ++j)
+					p_ptr->magic_fields[i][j] = (i==action) ? 1 : 0;
+			fprintf(stderr, "%s\n", magic_action_names[action]);
+			for (i=0; i<1000; ++i)
+				for (j=1; j<MAX_SPELLS_CURRENT; ++j)
+					if (calculate_spell_level(j) == i)
+						fprintf(stderr, "%s%d - %s\n", 
+								i<100 ? (i<10 ? "00" : "0") : "",
+								i, new_spell_name[j]);
+		}
+		for (target=0; target<NUM_MAG_TARGETS; ++target)
+		{
+			for (i=0; i<NUM_MAG_ACTIONS; ++i)
+				for (j=0; j<NUM_MAG_TARGETS; ++j)
+					p_ptr->magic_fields[i][j] = (j==target) ? 1 : 0;
+			fprintf(stderr, "%s\n", magic_target_names[target]);
+			for (i=0; i<1000; ++i)
+				for (j=1; j<MAX_SPELLS_CURRENT; ++j)
+					if (calculate_spell_level(j) == i)
+						fprintf(stderr, "%s%d - %s\n", 
+								i<100 ? (i<10 ? "00" : "0") : "",
+								i, new_spell_name[j]);
+		}
+	}
+	
+	/* Restore stats */
+	if (type != 4)
+	{
+		for (i=0; i<NUM_MAG_ACTIONS; ++i)
+			for (j=0; j<NUM_MAG_TARGETS; ++j)
+			{
+				p_ptr->magic_fields[i][j] = store_magic_fields[i][j];
+			}
+	}
+
+	screen_load();
+
+	return;
+}
+#endif /* USE_NEW_MAGIC */
+
+
 /*
  * Ask for and parse a "debug command"
  * The "command_arg" may have been set.
@@ -1995,6 +2133,13 @@ void do_cmd_debug(void)
 			if (p_ptr->command_arg <= 0) p_ptr->command_arg = 1;
 			do_cmd_wiz_summon(p_ptr->command_arg);
 		break;
+
+		/* Dump some spell lists */
+#ifdef USE_NEW_MAGIC
+		case 'S':
+			(void) do_cmd_make_spell_list();
+		break;
+#endif /* USE_NEW_MAGIC */
 
 		/* Teleport */
 		case 't':

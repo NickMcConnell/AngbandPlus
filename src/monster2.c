@@ -78,6 +78,18 @@ cptr funny_comments[MAX_SAN_COMMENT] =
 	"Far out!"
 };
 
+/* See if a monster obfuscates. Returns true if it does. */
+bool check_obfuscate(monster_race *r_ptr, bool undetected, bool detection)
+{
+	bool obf1 = (r_ptr->flags7 & RF7_OBFUSCATE) ? TRUE : FALSE;
+	bool obf2 = (r_ptr->flags7 & RF7_S_OBFUSCATE) ? TRUE : FALSE;
+	if (!obf1 && !obf2) return FALSE;
+	if (undetected && !detection) return TRUE;
+	if (detection && (!undetected || one_in_(2))) return FALSE;
+	if ((obf1 && !obf2 && !one_in_(5)) || (!obf1 && obf2 && one_in_(3)) || (obf1 && obf2 && one_in_(10))) return FALSE;
+	return TRUE;
+}
+
 /*
  * Delete a monster by index.
  *
@@ -85,7 +97,7 @@ cptr funny_comments[MAX_SAN_COMMENT] =
  */
 void delete_monster_idx(int i)
 {
-	int x, y;
+	int j, x, y;
 
 	monster_type *m_ptr = &m_list[i];
 
@@ -99,6 +111,21 @@ void delete_monster_idx(int i)
 	x = m_ptr->fx;
 
 
+	/* If it's a master, release its servants, or give them to its master */
+	if (m_ptr->mflag2 & MFLAG2_MASTER)
+	{
+		s16b master = m_ptr->master_m_idx;
+
+		/* Paranoia */
+		if (!m_list[master].r_idx) master = 0;
+		
+		for (j = m_max - 1; j >= 1; j--)
+		{
+			if (j != i && m_list[j].master_m_idx == i) 
+				m_list[j].master_m_idx = master;
+		}
+	}
+	
 	/* Hack -- Reduce the racial counter */
 	r_ptr->cur_num--;
 
@@ -173,6 +200,11 @@ void delete_monster(int y, int x)
 
 	/* Delete the monster (if any) */
 	if (c_ptr->m_idx) delete_monster_idx(c_ptr->m_idx);
+	
+	monster_type *m_ptr = &m_list[c_ptr->m_idx];
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+	if (r_ptr->flags1 & RF1_QUESTOR)
+		alloc_monster(MAX_SIGHT + 5, FALSE, m_ptr->r_idx);
 }
 
 
@@ -467,7 +499,7 @@ void get_mon_num_prep(monster_hook_type monster_hook,
 	int i;
 
 	/* Todo: Check the hooks for non-changes */
-
+	
 	/* Set the new hooks */
 	get_mon_num_hook = monster_hook;
 	get_mon_num2_hook = monster_hook2;
@@ -485,9 +517,13 @@ void get_mon_num_prep(monster_hook_type monster_hook,
 		 * This makes more sense then adding the test to every
 		 * hook function.
 		 */
-		if ((!get_mon_num_hook || (*get_mon_num_hook)(entry->index)) &&
+		if (
+			(!get_mon_num_hook || (*get_mon_num_hook)(entry->index)) &&
 			(!get_mon_num2_hook || (*get_mon_num2_hook)(entry->index)) &&
-			(silly_monsters || !(r_info[entry->index].flags7 & RF7_SILLY)))
+			(silly_monsters || !(r_info[entry->index].flags7 & RF7_SILLY)) &&
+			(super_powerful_monst || !(r_info[entry->index].flags7 & RF7_SPOWER)) &&
+			(friendly_monsters || !(r_info[entry->index].flags7 & RF7_FRIENDLY))
+			)
 		{
 			/* Accept this monster */
 			entry->prob2 = entry->prob1;
@@ -589,8 +625,8 @@ s16b get_mon_num(int level)
 		r_ptr = &r_info[r_idx];
 
 		/* Hack -- "unique" monsters must be "unique" */
-		if (((r_ptr->flags1 & (RF1_UNIQUE)) ||
-			 (r_ptr->flags3 & (RF3_UNIQUE_7))) &&
+		if (((r_ptr->flags1 & (RF1_UNIQUE))/* ||
+			 (r_ptr->flags3 & (RF3_UNIQUE_7))*/) &&
 		    (r_ptr->cur_num >= r_ptr->max_num))
 		{
 			continue;
@@ -599,6 +635,7 @@ s16b get_mon_num(int level)
 		/* Hack -- don't create questors */
 		if (r_ptr->flags1 & RF1_QUESTOR)
 		{
+			/* msg_format("Questor %d abandoned",r_idx); */
 			continue;
 		}
 
@@ -1093,9 +1130,8 @@ void update_mon(int m_idx, bool full)
 	/* Detected */
 	if (m_ptr->mflag & (MFLAG_MARK)) flag = TRUE;
 
-
-	/* Nearby */
-	if (d <= MAX_SIGHT)
+	/* Nearby and not obfuscated */
+	if (d <= MAX_SIGHT && (!(m_ptr->mflag2 & MFLAG2_OBFUSCATED)))
 	{
 		/* Basic telepathy */
 		if (p_ptr->telepathy)
@@ -1206,6 +1242,23 @@ void update_mon(int m_idx, bool full)
 		/* It was previously unseen */
 		if (!m_ptr->ml)
 		{
+			/* First time we've seen it? */
+			if ((m_ptr->mflag2 & MFLAG2_UNDETECTED) && !generating_level)
+			{
+				/* We've seen it now */
+				m_ptr->mflag2 &= ~(MFLAG2_UNDETECTED);
+
+				/* Is it unique, or worryingly powerful? */
+				if (((r_ptr->flags1) & RF1_UNIQUE) || r_ptr->level > p_ptr->depth + 6 
+						|| r_ptr->level > (p_ptr->depth * 2) + 2)
+				{
+					/* Announce the sighting */
+					char m_name[80];
+					monster_desc(m_name, m_ptr, 0x88);
+					msg_format("You spot %^s!", m_name);
+				}
+			}
+				
 			/* Mark as visible */
 			m_ptr->ml = TRUE;
 
@@ -1327,6 +1380,7 @@ void update_monsters(bool full)
 
 /*
  * Attempt to place a monster of the given race at the given location.
+ * Returns the index of the monster, or 0 if it fails.
  *
  * To give the player a sporting chance, any monster that appears in
  * line-of-sight and is extremely dangerous can be marked as
@@ -1344,7 +1398,8 @@ void update_monsters(bool full)
  * This is the only function which may place a monster in the dungeon,
  * except for the savefile loading code.
  */
-bool place_monster_one(int y, int x, int r_idx, bool slp, bool friendly, bool pet)
+s16b place_monster_one(int y, int x, int r_idx, bool slp, 
+		bool friendly, bool pet, byte nature, s16b master)
 {
 	int			i;
 
@@ -1360,7 +1415,6 @@ bool place_monster_one(int y, int x, int r_idx, bool slp, bool friendly, bool pe
 
 	/* Verify location */
 	if (!in_bounds2(y, x)) return (FALSE);
-
 
 	/* Access the location */
 	c_ptr = area(y,x);
@@ -1389,7 +1443,7 @@ bool place_monster_one(int y, int x, int r_idx, bool slp, bool friendly, bool pe
 	}
 
 	/* Hack -- "unique" monsters must be "unique" */
-	if (((r_ptr->flags1 & (RF1_UNIQUE)) || (r_ptr->flags3 & (RF3_UNIQUE_7))) &&
+	if (((r_ptr->flags1 & (RF1_UNIQUE)) /*|| (r_ptr->flags3 & (RF3_UNIQUE_7))*/) &&
 		 (r_ptr->cur_num >= r_ptr->max_num))
 	{
 		/* Cannot create */
@@ -1491,17 +1545,42 @@ bool place_monster_one(int y, int x, int r_idx, bool slp, bool friendly, bool pe
 
 	/* Not visible */
 	m_ptr->ml = FALSE;
+	m_ptr->mflag2 |= MFLAG2_UNDETECTED;
+	if (!pet && ((r_ptr->flags7 & RF7_OBFUSCATE) || (r_ptr->flags7 & RF7_S_OBFUSCATE)))
+		m_ptr->mflag2 |= MFLAG2_OBFUSCATED;
+	else
+		m_ptr->mflag2 &= ~(MFLAG2_OBFUSCATED);
 
+	/* Assign group */
+	if (nature != GP_COPY) m_ptr->group = nature;
+	else 
+	{
+		if (r_ptr->default_group == GP_COPY)
+		{
+			if ((r_ptr->flags7 & RF7_FRIENDLY)) m_ptr->group = GP_ALLY;
+			else m_ptr->group = GP_MINION;
+		}
+		else m_ptr->group = r_ptr->default_group;
+	}
+	
 	/* Pet? */
 	if (pet)
 	{
 		set_pet(m_ptr);
 	}
 	/* Friendly? */
-	else if (friendly || (r_ptr->flags7 & RF7_FRIENDLY))
+	else if (pet || friendly || (r_ptr->flags7 & RF7_FRIENDLY) ||
+			m_ptr->group > GP_MAX_HOSTILE)
 	{
 		set_friendly(m_ptr);
 	}
+	/* Master? */
+	if (master)
+	{
+		m_ptr->master_m_idx = master;
+		m_list[master].mflag2 |= MFLAG2_MASTER;
+	}
+	else m_ptr->master_m_idx = 0;
 
 	/* Assume no sleeping */
 	m_ptr->csleep = 0;
@@ -1533,6 +1612,7 @@ bool place_monster_one(int y, int x, int r_idx, bool slp, bool friendly, bool pe
 
 	/* And start out fully healthy */
 	m_ptr->hp = m_ptr->maxhp;
+	m_ptr->otherinflicted = 0;
 
 
 	/* Extract the monster base speed */
@@ -1600,7 +1680,7 @@ bool place_monster_one(int y, int x, int r_idx, bool slp, bool friendly, bool pe
 #endif /* USE_SCRIPT */
 
 	/* Success */
-	return (TRUE);
+	return (c_ptr->m_idx);
 }
 
 
@@ -1613,7 +1693,8 @@ bool place_monster_one(int y, int x, int r_idx, bool slp, bool friendly, bool pe
 /*
  * Attempt to place a "group" of monsters around the given location
  */
-static bool place_monster_group(int y, int x, int r_idx, bool slp, bool friendly, bool pet)
+static bool place_monster_group(int y, int x, int r_idx, bool slp, 
+		bool friendly, bool pet, byte nature, s16b master)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
@@ -1687,7 +1768,7 @@ static bool place_monster_group(int y, int x, int r_idx, bool slp, bool friendly
 			if (!cave_empty_grid(c_ptr)) continue;
 
 			/* Attempt to place another monster */
-			if (place_monster_one(my, mx, r_idx, slp, friendly, pet))
+			if (place_monster_one(my, mx, r_idx, slp, friendly, pet, nature, master))
 			{
 				/* Add it to the "hack" set */
 				hack_y[hack_n] = my;
@@ -1773,16 +1854,19 @@ static bool place_monster_okay(int r_idx)
  * Note the use of the new "monster allocation table" code to restrict
  * the "get_mon_num()" function to "legal" escort types.
  */
-bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp, bool friendly, bool pet)
+bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp, 
+		bool friendly, bool pet, byte nature, s16b master)
 {
 	int             i;
 	monster_race    *r_ptr = &r_info[r_idx];
 	cave_type	*c_ptr;
 
+	s16b		created_monster_idx;
+	
 
 	/* Place one monster, or fail */
-	if (!place_monster_one(y, x, r_idx, slp, friendly, pet))
-		return (FALSE);
+	created_monster_idx = place_monster_one(y, x, r_idx, slp, friendly, pet, nature, master);
+	if (!created_monster_idx) return (FALSE);
 
 
 	/* Require the "group" flag */
@@ -1793,7 +1877,7 @@ bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp, bool friendl
 	if (r_ptr->flags1 & (RF1_FRIENDS))
 	{
 		/* Attempt to place a group */
-		(void)place_monster_group(y, x, r_idx, slp, friendly, pet);
+		(void)place_monster_group(y, x, r_idx, slp, friendly, pet, nature, master);
 	}
 
 
@@ -1828,14 +1912,16 @@ bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp, bool friendl
 			if (!z) break;
 
 			/* Place a single escort */
-			(void)place_monster_one(ny, nx, z, slp, friendly, pet);
+			(void)place_monster_one(ny, nx, z, slp, 
+						friendly, pet, nature, created_monster_idx);
 
 			/* Place a "group" of escorts if needed */
 			if ((r_info[z].flags1 & RF1_FRIENDS) ||
 			    (r_ptr->flags1 & RF1_ESCORTS))
 			{
 				/* Place a group of monsters */
-				(void)place_monster_group(ny, nx, z, slp, friendly, pet);
+				(void)place_monster_group(ny, nx, z, slp, 
+							  friendly, pet, nature, created_monster_idx);
 			}
 		}
 	}
@@ -1850,21 +1936,26 @@ bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp, bool friendl
  *
  * Attempt to find a monster appropriate to the "monster_level"
  */
-bool place_monster(int y, int x, bool slp, bool grp)
+bool place_monster(int y, int x, bool slp, bool grp, int r_idx)
 {
-	int r_idx;
+	/*int r_idx;*/
 
-	/* Prepare allocation table */
-	get_mon_num_prep(get_monster_hook(), get_monster_hook2(y, x));
+	/* Do we know what monster to place? */
+	if (!r_idx)
+	{
+		/* Prepare allocation table */
+		get_mon_num_prep(get_monster_hook(), get_monster_hook2(y, x));
 
-	/* Pick a monster */
-	r_idx = get_mon_num(monster_level);
+		/* Pick a monster */
+		r_idx = get_mon_num(monster_level);
+	}
 
 	/* Handle failure */
 	if (!r_idx) return (FALSE);
 
 	/* Attempt to place the monster */
-	if (place_monster_aux(y, x, r_idx, slp, grp, FALSE, FALSE)) return (TRUE);
+	if (place_monster_aux(y, x, r_idx, slp, grp, FALSE, FALSE, 
+				making_vault ? GP_MINION : GP_COPY, 0)) return (TRUE);
 
 	/* Oops */
 	return (FALSE);
@@ -1907,7 +1998,7 @@ bool alloc_horde(int y, int x)
 	while (--attempts)
 	{
 		/* Attempt to place the monster */
-		if (place_monster_aux(y, x, r_idx, FALSE, FALSE, FALSE, FALSE)) break;
+		if (place_monster_aux(y, x, r_idx, FALSE, FALSE, FALSE, FALSE, GP_COPY, 0)) break;
 	}
 
 	if (attempts < 1) return FALSE;
@@ -1921,7 +2012,7 @@ bool alloc_horde(int y, int x)
 		scatter(&cy, &cx, y, x, 5);
 
 		(void)summon_specific(m_idx, cy, cx, p_ptr->depth + 5, SUMMON_KIN,
-		                      TRUE, FALSE, FALSE);
+		                      TRUE, FALSE, FALSE, GP_COPY, 0);
 
 		y = cy;
 		x = cx;
@@ -1943,7 +2034,7 @@ bool alloc_horde(int y, int x)
  *
  * Use "monster_level" for the monster level
  */
-bool alloc_monster(int dis, bool slp)
+bool alloc_monster(int dis, bool slp, int r_idx)
 {
 	int py = p_ptr->py;
 	int px = p_ptr->px;
@@ -1992,7 +2083,7 @@ bool alloc_monster(int dis, bool slp)
 #endif /* MONSTER_HORDES */
 
 		/* Attempt to place the monster, allow groups */
-		if (place_monster(y, x, slp, TRUE)) return (TRUE);
+		if (place_monster(y, x, slp, TRUE, r_idx)) return (TRUE);
 
 #ifdef MONSTER_HORDES
 	}
@@ -2023,6 +2114,112 @@ static int summon_specific_who = -1;
 static int summon_specific_hostile = TRUE;
 
 
+bool testsummonspecific(int summoner,int try)
+{
+	switch (summoner)
+	{
+		case 5: 
+		case 23:
+		case 834: /* Hierarchs and Chamdar */
+		if (try==3 || try==4) return TRUE;
+		break;
+		case 68: /* The " " */
+		if (try==38 || try==57 || try==68) return TRUE;
+		break;
+		case 862: /* Morgoth himself */
+		if (try==719 || try==720 || try==792 || try==807 || try==813 || try==839 || 
+				try==843 || try==856) return TRUE;
+		case 860: /* Sauron */
+		if (try==755 || try==771 || try==805 || try==818 || try==840) return TRUE;
+		case 763:
+		case 792:
+		case 825: /* Tselakus, Murazor and the Spell-Beast. These are the Ringwraiths. */
+		if (try==206 || try==223 || try==274 || try==364 || try==396 || try==407 || 
+				try==414 || try==738 || try==825) return TRUE;
+		break;
+		case 671: /* Zephyr Lord */
+		if (try == 271 || try == 272 || try == 282 || try == 307 ||
+				try == 308 || try == 309 || try == 337 ||
+				try == 338 || try == 340 || try == 428 ||
+				try == 429 || try == 540 || try == 542 ||
+				try == 543 || try == 724 || try == 725 ||
+				try == 726 || try == 779 || try == 811 ||
+				try == 836 || try == 882 || try == 883)
+			return TRUE;
+		case 705:
+		case 721: /* Good vampire elders */
+		if (try==572 || try==580 || try==595 || try==596 || try==613 || try==619 || 
+				try==629 || try==660 || try==674) return TRUE;
+		break;
+		case 700:
+		case 729: /* Evil vampire elders */
+		if (try==571 || try==576 || try==583 || try==615 || try==626 || try==654 || 
+				try==656 || try==670 || try==837) return TRUE;
+		break;
+		case 652: /* Gravity bubbles */
+		if (try==summoner) return TRUE;
+		break;
+		case 677: /* The war tardis */
+		if (try==677 || try==38 || try==57 || try==68 || try==181) return TRUE;
+		break;
+		case 678: /* Good inconnu */
+		if (try==678) return TRUE;
+		case 780: /* And Etrius */
+		if (try==705 || try==721) return TRUE;
+		break;
+		case 680: /* Evil inconnu */
+		if (try==680 || try==700 || try==729) return TRUE;
+		break;
+		case 686: /* Methuselahs */
+		if (try==678 || try==680 || try==686) return TRUE;
+		break;
+		case 774: /* The King Vampire */
+		if (try==773) return TRUE;
+		break;
+		case 787: /* Garou mystics */
+		if (try==786 || try==880) return TRUE;
+		break;
+		case 813: /* Torak */
+		if (try==831 || try==824 || try==829 || try==835) return TRUE;
+		case 824: /* Ctuchik */
+		if (try==834) return TRUE;
+		case 831: /* Urvon */
+		if (try==5 || try==23 || try==61) return TRUE;
+		break;
+		case 492: /* Beasts of Ignorance */
+		if (try==246) return TRUE;
+		break;
+		case 246: /* Spirits of Ignorance */
+		if (try==443) return TRUE;
+		case 443: /* Babewyn kings */
+		if (try==799 || try==876) return TRUE;
+		break;
+		case 199: /* Sabbath */
+		if (try==19 || try==443) return TRUE;
+		break;
+		case 791: /* Xathethske */
+		if (try==859) return TRUE;
+		break;
+		case 441: /* Greater malevolent gardeners */
+		if (try==192 || try==711 || try==108 || try==267 || try==886 || try==887 || 
+				try==316 || try==324) return TRUE;
+		case 439: /* Lesser malevolent gardeners */
+		if (try==20 || try==76 || try==113 || try==146 || try==190 || try==40 || 
+				try==47 || try==72 || try==184 || try==486 ||
+				try==885) return TRUE;
+		break;
+		case 151: /* Fragments */
+		if (try==789) return TRUE;
+		break;
+		case 553: /* Large fragments */
+		if (try==151 || try==68 || try==859 || try==686 || try == 181) return TRUE;
+		break;
+	}
+	return FALSE;
+}
+
+
+
 /*
  * Hack -- help decide if a monster race is "okay" to summon
  */
@@ -2034,7 +2231,10 @@ static bool summon_specific_okay(int r_idx)
 
 	/* Hack - Only summon dungeon monsters */
 	if (!monster_dungeon(r_idx)) return (FALSE);
-
+	
+	/*if (r_idx>1 && summon_specific_who>1) okay=TRUE;
+	        else okay=FALSE;*/
+	
 	/* Hack -- identify the summoning monster */
 	if (summon_specific_who > 0)
 	{
@@ -2045,15 +2245,41 @@ static bool summon_specific_okay(int r_idx)
 
 		/* Good vs. evil */
 		if (((r_ptr->flags3 & RF3_EVIL) &&
-		     (s_ptr->flags3 & RF3_GOOD)) ||
-		    ((r_ptr->flags3 & RF3_GOOD) &&
-		     (s_ptr->flags3 & RF3_EVIL)))
+		     (s_ptr->flags3 & RF3_GOOD) && 
+		     !(r_ptr->flags3 & RF3_GOOD) &&
+		     !(s_ptr->flags3 & RF3_EVIL)) ||
+		     ((r_ptr->flags3 & RF3_GOOD) &&
+		     (s_ptr->flags3 & RF3_EVIL) &&
+		     !(r_ptr->flags3 & RF3_EVIL) &&
+		     !(s_ptr->flags3 & RF3_GOOD)))
 		{
 			return FALSE;
 		}
 
+		/* Only friendlies summon friendlies*/
+		if ((r_ptr->flags7 & RF7_FRIENDLY) &&
+			is_hostile(m_ptr))
+		{
+			return FALSE;
+		}
+		
+		/* Friendlies can't summon unfriendly uniques */
+		if (!(r_ptr->flags7 & RF7_FRIENDLY) &&
+			(r_ptr->flags1 & RF1_UNIQUE) &&
+			!is_hostile(m_ptr))
+		{
+			return FALSE;
+		}
+				
 		/* Hostile vs. non-hostile */
 		if (is_hostile(m_ptr) != summon_specific_hostile)
+		{
+			return FALSE;
+		}
+		
+		/* Only SPOWER's can summon other SPOWER's */
+		if ((r_ptr->flags7 & RF7_SPOWER) &&
+			!(s_ptr->flags7 & RF7_SPOWER))
 		{
 			return FALSE;
 		}
@@ -2117,6 +2343,12 @@ static bool summon_specific_okay(int r_idx)
 					  !(r_ptr->flags1 & RF1_UNIQUE));
 			break;
 		}
+		case SUMMON_HI_DEMON:
+		{
+			okay = ((r_ptr->d_char == 'U') &&
+					  !(r_ptr->flags1 & RF1_UNIQUE));
+			break;
+		}
 
 		case SUMMON_UNDEAD:
 		{
@@ -2148,8 +2380,14 @@ static bool summon_specific_okay(int r_idx)
 
 		case SUMMON_AMBERITES:
 		{
-			okay = (r_ptr->flags3 & (RF3_AMBERITE)) ? TRUE : FALSE;
-			break;
+			monster_type *m_ptr = &m_list[summon_specific_who];
+			/*if (r_idx == (m_ptr->r_idx-400)) okay=TRUE;
+				else okay=FALSE;*/
+			/*okay=testsummonspecific(m_ptr->r_idx,r_idx);*/
+			if (testsummonspecific(m_ptr->r_idx,r_idx)) return TRUE;
+			else return FALSE;
+			/*okay = (r_ptr->flags3 & (RF3_AMBERITE)) ? TRUE : FALSE;
+			break;*/
 		}
 
 		case SUMMON_UNIQUE:
@@ -2287,8 +2525,43 @@ static bool summon_specific_okay(int r_idx)
 			       !(r_ptr->flags1 & (RF1_UNIQUE)));
 			break;
 		}
-	}
 
+		case SUMMON_NEXUS_CRAWLER:
+		{
+			okay = ((strstr((r_name + r_ptr->name), "exus Crawler")) &&
+			       !(r_ptr->flags1 & (RF1_UNIQUE)));
+			break;
+		}
+
+		/* Hack - try to make ignorance beings more common on babewyn intrusions */
+		case SUMMON_NATURAL_BABEWYN:
+		{
+			okay = ((((strstr((r_name + r_ptr->name), "abewyn")) && one_in_(5)) || 
+				(strstr((r_name + r_ptr->name), "of Ignorance"))) &&
+				!(strstr((r_name + r_ptr->name), "rmed")) &&
+				!(r_ptr->flags1 & (RF1_UNIQUE)));
+			break;
+		}
+
+		case SUMMON_LESSER_GARDEN:
+		{
+			okay = ((strstr((r_name + r_ptr->name), "esser malevolent garden patch")) &&
+			       !(r_ptr->flags1 & (RF1_UNIQUE)));
+			break;
+		}
+
+		case SUMMON_GREATER_GARDEN:
+		{
+			okay = ((strstr((r_name + r_ptr->name), "reater malevolent garden patch")) &&
+			       !(r_ptr->flags1 & (RF1_UNIQUE)));
+			break;
+		}
+
+	}
+	/*monster_type *m_ptr = &m_list[summon_specific_who];
+	if (r_idx == (m_ptr->r_idx-400)) okay=TRUE;
+	                else okay=FALSE;*/
+			
 	/* Result */
 	return (okay);
 }
@@ -2318,22 +2591,31 @@ static bool summon_specific_okay(int r_idx)
  *
  * Note that this function may not succeed, though this is very rare.
  */
-bool summon_specific(int who, int y1, int x1, int lev, int type,
-                     bool group, bool friendly, bool pet)
+bool summon_specific(int who, int y1, int x1, int lev, int type, bool group, 
+		bool friendly, bool pet, byte nature, s16b master)
 {
 	int i, x, y, r_idx;
 	cave_type *c_ptr;
 	field_mon_test	mon_enter_test;
 
 	/* Look for a location */
-	for (i = 0; i < 20; ++i)
+	for (i = -1; i < 20; ++i)
 	{
-		/* Pick a distance */
-		int d = (i / 15) + 1;
+		if (i == -1)
+		{
+			/* Try the exact spot first */
+			y = y1;
+			x = x1;
+		}
+		else
+		{
+			/* Pick a distance */
+			int d = (i / 15) + 1;
 
-		/* Pick a location */
-		scatter(&y, &x, y1, x1, d);
-
+			/* Pick a location */
+			scatter(&y, &x, y1, x1, d);
+		}
+		
 		/* paranoia */
 		if (!in_bounds2(y, x)) continue;
 
@@ -2380,19 +2662,19 @@ bool summon_specific(int who, int y1, int x1, int lev, int type,
 	summon_specific_type = type;
 
 	/* Save the hostility */
-	summon_specific_hostile = (!friendly && !pet);
+	summon_specific_hostile = (!friendly && !pet && nature <= GP_MAX_HOSTILE);
 
 	/* Prepare allocation table */
 	get_mon_num_prep(summon_specific_okay, get_monster_hook2(y, x));
 
 	/* Pick a monster, using the level calculation */
-	r_idx = get_mon_num((p_ptr->depth + lev) / 2 + 5);
+	r_idx = get_mon_num(((type == SUMMON_CYBER ? p_ptr->depth : lev) + lev) / 2 + 5);
 
 	/* Handle failure */
 	if (!r_idx) return (FALSE);
 
 	/* Attempt to place the monster (awake, allow groups) */
-	if (!place_monster_aux(y, x, r_idx, FALSE, group, friendly, pet))
+	if (!place_monster_aux(y, x, r_idx, FALSE, group, friendly, pet, nature, master))
 		return (FALSE);
 
 	/* Success */
@@ -2403,8 +2685,8 @@ bool summon_specific(int who, int y1, int x1, int lev, int type,
 /*
  * A "dangerous" function, creates a pet of the specified type
  */
-bool summon_named_creature(int oy, int ox, int r_idx, bool slp,
-                           bool group_ok, bool pet)
+bool summon_named_creature(int oy, int ox, int r_idx, bool slp, bool group_ok, 
+		bool friendly, bool pet, byte nature, s16b master)
 {
 	int i, x, y;
 	bool success = FALSE;
@@ -2433,7 +2715,7 @@ bool summon_named_creature(int oy, int ox, int r_idx, bool slp,
 		if (!cave_empty_grid(c_ptr)) continue;
 
 		/* Place it (allow groups) */
-		if (place_monster_aux(y, x, r_idx, slp, group_ok, FALSE, pet))
+		if (place_monster_aux(y, x, r_idx, slp, group_ok, friendly, pet, nature, master))
 		{
 			success = TRUE;
 			break;
@@ -2449,7 +2731,7 @@ bool summon_named_creature(int oy, int ox, int r_idx, bool slp,
  *
  * Note that "reproduction" REQUIRES empty space.
  */
-bool multiply_monster(int m_idx, bool clone, bool friendly, bool pet)
+bool multiply_monster(int m_idx, bool clone, bool friendly, bool pet, byte nature, s16b master)
 {
 	monster_type	*m_ptr = &m_list[m_idx];
 
@@ -2475,7 +2757,7 @@ bool multiply_monster(int m_idx, bool clone, bool friendly, bool pet)
 		if (!cave_empty_grid(c_ptr)) continue;
 
 		/* Create a new monster (awake, no groups) */
-		result = place_monster_aux(y, x, m_ptr->r_idx, FALSE, FALSE, friendly, pet);
+		result = place_monster_aux(y, x, m_ptr->r_idx, FALSE, FALSE, friendly, pet, nature, master);
 
 		/* Done */
 		break;
@@ -2950,3 +3232,70 @@ void monster_drop_carried_objects(monster_type *m_ptr)
 	/* Forget objects */
 	m_ptr->hold_o_idx = 0;
 }
+
+/* 
+ * Summon some babewyns around the PC
+ * Returns TRUE if something was summoned
+ */
+bool babewyn_incursion(void)
+{
+	int i,j;
+	int depth = p_ptr->depth;
+	int px = p_ptr->px;
+	int py = p_ptr->py;
+	int count = 0;
+	
+	/* The deeper you are, the more you get */
+	for (i=0; i<=depth/10; ++i)
+	{
+		/* Try 100 times on the first go, and 20 times thereafter */
+		for (j=(count ? 80 : 0); j<100; ++j)
+			if (summon_specific(0, py, px, depth, SUMMON_NATURAL_BABEWYN, 
+						TRUE, FALSE, FALSE, GP_COPY, 0))
+			{
+				++count;
+				break;
+			}
+	}
+	
+	/* Did we get some */
+	if (count)
+	{
+		msg_print("You hear a screeching sound...");
+		return TRUE;
+	}
+	else return FALSE;
+}
+
+/* 
+ * Makes the level a babewyn level. Summons several of them
+ * around the level, and calls babewyn_incursion() if it is told
+ * to, to summon more around the player. Also flags the level
+ * as a babewyn level.
+ */
+void babewynify_level(bool attack_player)
+{
+	int i;
+	int x,y;
+	int depth = p_ptr->depth;
+	int count=0;
+	
+	/* Scatter babewyns around the level */
+	for (i=0; i<500; ++i)
+	{
+		x = rand_range(min_wid + 1, max_wid - 2);
+		y = rand_range(min_wid + 1, max_wid - 2);
+		count += summon_specific(0, y, x, depth, SUMMON_NATURAL_BABEWYN, 
+				TRUE, FALSE, FALSE, GP_COPY, 0);
+		if (count >= 15) break;
+	}
+
+	/* Set flag */
+	level_flags |= BABEWYN_LEVEL;
+	
+	if (cheat_room) msg_print("Babewyn level");
+	
+	/* Summon babewyns around the player if we're supposed to */
+	if (attack_player) babewyn_incursion();
+}
+

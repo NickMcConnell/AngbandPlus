@@ -23,7 +23,7 @@ RC         = brc32
 #
 # Name of the *.exe-file
 
-EXE_FILE = zangband.exe
+EXE_FILE = frazband.exe
 
 
 ###################################################################
@@ -76,6 +76,8 @@ OBJ = \
 	object2.obj \
 	object1.obj \
 	obj_kind.obj \
+	nmagic1.o \
+	nmagic2.o \
 	mutation.obj \
 	mspells2.obj \
 	mspells1.obj \

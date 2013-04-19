@@ -1,4 +1,3 @@
-# CVS: Last edit by $Author: sfuerst $ on $Date: 2001/08/03 06:33:12 $
 # File: f_info.txt
 
 
@@ -406,7 +405,7 @@ N:101:snow covered tree
 G:%:w
 
 N:102:obelisk
-G:;:b
+G:;:s
 
 N:103:pillar
 G:#:w

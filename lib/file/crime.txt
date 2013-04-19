@@ -4,7 +4,7 @@ N:55:Fang, Farmer Maggot's dog
 0
 
 N:*:Default
-38
+80
 murder.
 arson.
 rape.
@@ -43,3 +43,45 @@ lese-majesty.
 obstructing justice.
 conspiring to obstruct justice.
 assault with a deadly weapon.
+witchcraft.
+consorting with evil.
+regicide.
+sodomy.
+adultery.
+indecent exposure.
+genocide.
+possession of a vampiric weapon.
+heresy.
+manslaughter.
+promiscuity.
+fornication.
+philandering.
+spree killing.
+serial murder.
+abduction.
+forgery.
+cursing.
+endangering a species.
+hypocrisy.
+organ harvesting.
+defenestration.
+plagarism.
+vampirism.
+cannibalism.
+lycanthropy.
+racketeering.
+violating the laws of magic.
+arson.
+high treason.
+associating with Elder Gods.
+espionage.
+being a menace to society.
+attempted suicide.
+raising the dead.
+necrophilia.
+black marketeering.
+practicing the black arts.
+coming back from the dead.
+inciting to riot.
+bigamy.
+piracy.

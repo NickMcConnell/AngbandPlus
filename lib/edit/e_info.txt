@@ -1,4 +1,3 @@
-# CVS: Last edit by $Author: sfuerst $ on $Date: 2001/08/29 10:23:50 $
 # File: e_info.txt
 
 
@@ -332,7 +331,11 @@ W:20:4:0:1000
 C:5:5:0:5
 F:STR | SHOW_MODS | HIDE_TYPE
 
-# 52 (unused)
+#N:52:of Thievery
+#X:34:20
+#W:0:5:0:4500
+#C:0:0:0:5
+#F:DEX | STEALTH | SEARCH | HIDE_TYPE 
 
 # 53 (unused)
 
@@ -442,7 +445,7 @@ F:BLOWS
 
 N:70:of Slaying
 X:24:15
-W:75:3:0:2000
+W:65:3:0:2000
 
 
 # 71 (unused)
@@ -577,16 +580,23 @@ F:STR | SLAY_GIANT
 
 N:95:of *Slay* Dragon
 X:24:24
-W:70:15:0:1500
+W:65:15:0:1500
 C:0:0:0:1
 F:CON | SLAY_DRAGON | KILL_DRAGON
 
 N:96:(Vampiric)
 X:24:25
-W:70:3:0:2000
+W:65:3:0:2000
 F:VAMPIRIC | HOLD_LIFE
 
-# 97 (unused)
+#N:97:(*Defender*)
+#X:24:35
+#W:0:0:0:50000
+#C:6:6:10:4
+#F:STEALTH | RES_POIS | DEX | HOLD_LIFE |
+#F:FREE_ACT | SEE_INVIS | FEATHER | REGEN | 
+#F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD |
+#F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:98:(Trump Weapon)
 X:24:22
@@ -595,7 +605,7 @@ C:4:4:0:2
 F:SLAY_EVIL | TELEPORT | FREE_ACT | SEARCH |
 F:REGEN | SLOW_DIGEST | RES_NEXUS | ACTIVATE
 
-N:99:(Pattern Weapon)
+N:99:(Order Weapon)
 X:24:26
 W:50:6:0:2500
 C:6:6:0:2

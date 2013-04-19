@@ -1649,19 +1649,11 @@ bool activate_effect(object_type *o_ptr)
 
 			case ART_THRAIN:
 			{
-				msg_print("The Jewel flashes bright red!");
+				msg_print("The Arkenstone flashes bright red!");
 				wiz_lite();
-				msg_print("The Jewel drains your vitality...");
-				take_hit(damroll(3, 8), "the Jewel of Judgement");
 				(void)detect_traps();
 				(void)detect_doors();
 				(void)detect_stairs();
-
-				if (get_check("Activate recall? "))
-				{
-					word_of_recall();
-				}
-
 				o_ptr->timeout = (s16b)rand_range(20, 40);
 				break;
 			}
@@ -1783,15 +1775,16 @@ bool activate_effect(object_type *o_ptr)
 				msg_print("You breathe the elements.");
 				(void)fire_ball(GF_MISSILE, dir, 1000, 4);
 				msg_print("Your armor glows many colours...");
+				int dur = rand_range(50, 100);
 				(void)set_afraid(0);
-				(void)set_shero(p_ptr->shero + rand_range(50, 100));
+				(void)set_shero(p_ptr->shero + dur);
 				(void)hp_player(30);
-				(void)set_blessed(p_ptr->blessed + rand_range(50, 100));
-				(void)set_oppose_acid(p_ptr->oppose_acid + rand_range(50, 100));
-				(void)set_oppose_elec(p_ptr->oppose_elec + rand_range(50, 100));
-				(void)set_oppose_fire(p_ptr->oppose_fire + rand_range(50, 100));
-				(void)set_oppose_cold(p_ptr->oppose_cold + rand_range(50, 100));
-				(void)set_oppose_pois(p_ptr->oppose_pois + rand_range(50, 100));
+				(void)set_blessed(p_ptr->blessed + dur);
+				(void)set_oppose_acid(p_ptr->oppose_acid + dur);
+				(void)set_oppose_elec(p_ptr->oppose_elec + dur);
+				(void)set_oppose_fire(p_ptr->oppose_fire + dur);
+				(void)set_oppose_cold(p_ptr->oppose_cold + dur);
+				(void)set_oppose_pois(p_ptr->oppose_pois + dur);
 				o_ptr->timeout = 100;
 				break;
 			}
@@ -1866,11 +1859,12 @@ bool activate_effect(object_type *o_ptr)
 			case ART_COLLUIN:
 			{
 				msg_print("Your cloak glows many colours...");
-				(void)set_oppose_acid(p_ptr->oppose_acid + rand_range(20, 40));
-				(void)set_oppose_elec(p_ptr->oppose_elec + rand_range(20, 40));
-				(void)set_oppose_fire(p_ptr->oppose_fire + rand_range(20, 40));
-				(void)set_oppose_cold(p_ptr->oppose_cold + rand_range(20, 40));
-				(void)set_oppose_pois(p_ptr->oppose_pois + rand_range(20, 40));
+				int dur = rand_range(20, 40);
+				(void)set_oppose_acid(p_ptr->oppose_acid + dur);
+				(void)set_oppose_elec(p_ptr->oppose_elec + dur);
+				(void)set_oppose_fire(p_ptr->oppose_fire + dur);
+				(void)set_oppose_cold(p_ptr->oppose_cold + dur);
+				(void)set_oppose_pois(p_ptr->oppose_pois + dur);
 				o_ptr->timeout = 111;
 				break;
 			}
@@ -2068,7 +2062,8 @@ bool activate_effect(object_type *o_ptr)
 			case ART_DAWN:
 			{
 				msg_print("You summon the Legion of the Dawn.");
-				(void)summon_specific(-1, py, px, p_ptr->depth, SUMMON_DAWN, TRUE, TRUE, TRUE);
+				(void)summon_specific(-1, py, px, p_ptr->depth, SUMMON_DAWN, 
+						      TRUE, TRUE, TRUE, GP_ALLY, 0);
 				o_ptr->timeout = (s16b)rand_range(500, 1000);
 				break;
 			}
@@ -2578,7 +2573,8 @@ bool activate_effect(object_type *o_ptr)
 
 		case ACT_SUMMON_ANIMAL:
 		{
-			(void)summon_specific(-1, py, px, plev, SUMMON_ANIMAL_RANGER, TRUE, TRUE, TRUE);
+			(void)summon_specific(-1, py, px, plev, SUMMON_ANIMAL_RANGER, 
+					      TRUE, TRUE, TRUE, GP_ALLY, 0);
 			o_ptr->timeout = (s16b)rand_range(200, 500);
 			break;
 		}
@@ -2586,7 +2582,8 @@ bool activate_effect(object_type *o_ptr)
 		case ACT_SUMMON_PHANTOM:
 		{
 			msg_print("You summon a phantasmal servant.");
-			(void)summon_specific(-1, py, px, p_ptr->depth, SUMMON_PHANTOM, TRUE, TRUE, TRUE);
+			(void)summon_specific(-1, py, px, p_ptr->depth, SUMMON_PHANTOM, 
+					      TRUE, TRUE, TRUE, GP_ALLY, 0);
 			o_ptr->timeout = (s16b)rand_range(200, 400);
 			break;
 		}
@@ -2596,7 +2593,8 @@ bool activate_effect(object_type *o_ptr)
 			bool pet = one_in_(3);
 			bool group = !(pet && (plev < 50));
 
-			if (summon_specific((pet ? -1 : 0), py, px, ((plev * 3) / 2), SUMMON_ELEMENTAL, group, FALSE, pet))
+			if (summon_specific((pet ? -1 : 0), py, px, ((plev * 3) / 2), SUMMON_ELEMENTAL, 
+						group, pet, pet, (pet ? GP_ALLY : GP_FIXATED_ON_PLAYER), 0))
 			{
 				msg_print("An elemental materializes...");
 
@@ -2615,7 +2613,8 @@ bool activate_effect(object_type *o_ptr)
 			bool pet = one_in_(3);
 			bool group = !(pet && (plev < 50));
 
-			if (summon_specific((pet ? -1 : 0), py, px, ((plev * 3) / 2), SUMMON_DEMON, group, FALSE, pet))
+			if (summon_specific((pet ? -1 : 0), py, px, ((plev * 3) / 2), SUMMON_DEMON, 
+						group, pet, pet, (pet ? GP_ALLY : GP_FIXATED_ON_PLAYER), 0))
 			{
 				msg_print("The area fills with a stench of sulphur and brimstone.");
 				if (pet)
@@ -2646,7 +2645,7 @@ bool activate_effect(object_type *o_ptr)
 			}
 
 			if (summon_specific((pet ? -1 : 0), py, px, ((plev * 3) / 2), type,
-				                group, FALSE, pet))
+				                group, pet, pet, (pet ? GP_ALLY : GP_FIXATED_ON_PLAYER), 0))
 			{
 				msg_print("Cold winds begin to blow around you, carrying with them the stench of decay...");
 				if (pet)
@@ -2758,11 +2757,12 @@ bool activate_effect(object_type *o_ptr)
 		case ACT_RESIST_ALL:
 		{
 			msg_print("It glows many colours...");
-			(void)set_oppose_acid(p_ptr->oppose_acid + rand_range(40, 80));
-			(void)set_oppose_elec(p_ptr->oppose_elec + rand_range(40, 80));
-			(void)set_oppose_fire(p_ptr->oppose_fire + rand_range(40, 80));
-			(void)set_oppose_cold(p_ptr->oppose_cold + rand_range(40, 80));
-			(void)set_oppose_pois(p_ptr->oppose_pois + rand_range(40, 80));
+			int dur = rand_range(40, 80);
+			(void)set_oppose_acid(p_ptr->oppose_acid + dur);
+			(void)set_oppose_elec(p_ptr->oppose_elec + dur);
+			(void)set_oppose_fire(p_ptr->oppose_fire + dur);
+			(void)set_oppose_cold(p_ptr->oppose_cold + dur);
+			(void)set_oppose_pois(p_ptr->oppose_pois + dur);
 			o_ptr->timeout = 200;
 			break;
 		}
@@ -2799,7 +2799,7 @@ bool activate_effect(object_type *o_ptr)
 
 		case ACT_WRAITH:
 		{
-			(void)set_wraith_form(p_ptr->wraith_form + rand_range(plev / 2, plev));
+			(void)set_wraith_form(p_ptr->wraith_form + rand_range(8, 16));
 			o_ptr->timeout = 1000;
 			break;
 		}

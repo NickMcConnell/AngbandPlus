@@ -1003,7 +1003,7 @@ u16b fields_have_flags(s16b fld_idx, u16b info)
 		/* Get next field. */
 		fld_idx = f_ptr->next_f_idx;
 	}
-	
+
 	return (flags & info);
 }
 
@@ -1512,7 +1512,7 @@ bool field_action_corpse_decay(field_type *f_ptr, vptr nothing)
 	{
 		/* Make a monster nearby if possible */
 		if (summon_named_creature(f_ptr->fy, f_ptr->fx,
-				 r_idx, FALSE, FALSE, FALSE))
+				 r_idx, FALSE, FALSE, FALSE, FALSE, GP_COPY, 0))
 		{
 			if (area(f_ptr->fy, f_ptr->fx)->info & CAVE_VIEW)
 			{
@@ -1550,7 +1550,25 @@ bool field_action_corpse_decay(field_type *f_ptr, vptr nothing)
  */
 bool field_action_corpse_raise(field_type *f_ptr, vptr input)
 {
-	bool want_pet = *((bool *) input); 
+	u32b status = *((u32b *) input);
+	bool want_pet = FALSE;
+	bool want_friendly = FALSE;
+	byte nature;
+	u16b master;
+	
+	/* Decode input */
+	if (status & 0x02000000)
+	{
+		status &= ~(0x02000000);
+		want_friendly = TRUE;
+	}
+	if (status & 0x01000000)
+	{
+		status &= ~(0x01000000);
+		want_pet = TRUE;
+	}
+	nature = (status >> 16);
+	master = (status & 0x0000FFFF);
 	
 	/*
 	 * Data[1] * 256 + Data[2] = r_idx of monster.
@@ -1560,8 +1578,8 @@ bool field_action_corpse_raise(field_type *f_ptr, vptr input)
 	u16b r_idx = ((u16b) f_ptr->data[1]) * 256 + f_ptr->data[2];
 
 	/* Make a monster nearby if possible */
-	if (summon_named_creature(f_ptr->fy, f_ptr->fx,
-	                          r_idx, FALSE, FALSE, want_pet))
+	if (summon_named_creature(f_ptr->fy, f_ptr->fx, r_idx, FALSE, FALSE, 
+				want_friendly, want_pet, nature, (s16b) master))
 	{
 		/* Set the cloned flag, so no treasure is dropped */
 		m_list[hack_m_idx_ii].smart |= SM_CLONED;
@@ -2955,7 +2973,7 @@ bool field_action_hit_trap_raise_mon(field_type *f_ptr, vptr nothing)
 	
 	msg_print("You smell something musty.");
 	
-	(void)raise_dead(p_ptr->py, p_ptr->px, FALSE);
+	(void)raise_dead(p_ptr->py, p_ptr->px, FALSE, FALSE, GP_COPY, 0);
 	
 	/* Done */
 	return (FALSE);
@@ -3047,7 +3065,7 @@ bool field_action_hit_trap_summon(field_type *f_ptr, vptr nothing)
 	
 	/* Summon monsters */
 	(void)summon_specific(0, p_ptr->py, p_ptr->px, p_ptr->depth,
-		 0, TRUE, FALSE, FALSE);
+		 0, TRUE, FALSE, FALSE, GP_COPY, 0);
 	
 	/* Delete the field */
 	return (TRUE);

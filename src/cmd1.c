@@ -1174,7 +1174,7 @@ static void natural_attack(s16b m_idx, int attack, bool *fear, bool *mdeath)
 		if (k < 0) k = 0;
 
 		/* Modify the damage */
-		k = mon_damage_mod(m_ptr, k, 0);
+		k = mon_damage_mod(m_ptr, r_ptr, k, 0);
 
 		/* Complex message */
 		if (p_ptr->wizard)
@@ -1183,7 +1183,7 @@ static void natural_attack(s16b m_idx, int attack, bool *fear, bool *mdeath)
 		}
 
 		/* Anger the monster */
-		if (k > 0) anger_monster(m_ptr);
+		if (k > 0) anger_monster(m_idx);
 
 		/* Damage, check for fear and mdeath */
 		switch (attack)
@@ -1562,25 +1562,25 @@ void py_attack(int y, int x)
 		 && !p_ptr->image && !((p_ptr->muta2 & MUT2_BERS_RAGE) && p_ptr->shero)
 		  && m_ptr->ml)
 	{
-		if (!inventory[INVEN_WIELD].xtra_name)
-		{
-			msg_format("You stop to avoid hitting %s.", m_name);
-			return;
-		}
-
 		/* Mega-hack */
-		if (!(streq(quark_str(inventory[INVEN_WIELD].xtra_name), "'Stormbringer'")))
+		if (inventory[INVEN_WIELD].xtra_name &&
+				streq(quark_str(inventory[INVEN_WIELD].xtra_name), "'Stormbringer'"))
 		{
-			msg_format("You stop to avoid hitting %s.", m_name);
-			return;
+			msg_format("Your black blade greedily attacks %s!", m_name);
+
+			chg_virtue(V_INDIVIDUALISM, 1);
+			chg_virtue(V_HONOUR, -1);
+			chg_virtue(V_JUSTICE, -1);
+			chg_virtue(V_COMPASSION, -1);
 		}
-
-		msg_format("Your black blade greedily attacks %s!", m_name);
-
-		chg_virtue(V_INDIVIDUALISM, 1);
-		chg_virtue(V_HONOUR, -1);
-		chg_virtue(V_JUSTICE, -1);
-		chg_virtue(V_COMPASSION, -1);
+		else
+		{
+			if (!get_check(format("Really attack %s? ", m_name)))
+			{
+				msg_format("You stop to avoid hitting %s.", m_name);
+				return;
+			}
+		}
 	}
 
 
@@ -1829,7 +1829,7 @@ void py_attack(int y, int x)
 			if (k < 0) k = 0;
 
 			/* Modify the damage */
-			k = mon_damage_mod(m_ptr, k, 0);
+			k = mon_damage_mod(m_ptr, r_ptr, k, 0);
 
 			/* Complex message */
 			if (p_ptr->wizard)
@@ -1856,7 +1856,7 @@ void py_attack(int y, int x)
 			}
 
 			/* Anger the monster */
-			if (k > 0) anger_monster(m_ptr);
+			if (k > 0) anger_monster(c_ptr->m_idx);
 
 			touch_zap_player(m_ptr);
 
@@ -2075,7 +2075,7 @@ static void summon_pattern_vortex(int y, int x)
 		/* Summon it */
 		if (strstr(r_name + r_ptr->name, "Pattern") && (r_ptr->d_char == 'v'))
 		{
-			if (summon_named_creature(y, x, i, FALSE, FALSE, FALSE))
+			if (summon_named_creature(y, x, i, FALSE, FALSE, FALSE, FALSE, GP_COPY, 0))
 			{
 				msg_print("You hear a bell chime.");
 			}
@@ -2362,6 +2362,12 @@ void move_player(int dir, int do_pickup)
 				area(py, px)->m_idx = c_ptr->m_idx;
 				c_ptr->m_idx = 0;
 				update_mon(area(py, px)->m_idx, TRUE);
+
+				/* Touchy monsters don't like this */
+				if (m_ptr->group == GP_TOUCHY || m_ptr->group == GP_TOUCHY_BULLY)
+				{
+					anger_monster(c_ptr->m_idx);
+				}
 			}
 			else
 			{
@@ -2378,7 +2384,7 @@ void move_player(int dir, int do_pickup)
 			oktomove = FALSE;
 		}
 	}
-	
+
 	/* Fields can block movement */
 	else if (!(p_can_pass_walls || p_can_pass_fields))
 	{
@@ -2618,16 +2624,16 @@ void move_player(int dir, int do_pickup)
 		
 		/* 
 		 * Is the disturb_traps option set +
-		 * out of detection range +
-		 * we are running?
+		 * out of detection range?
 		 */
-		if (disturb_traps && p_ptr->detected && p_ptr->running && 
+		if (disturb_traps && p_ptr->detected && 
 			(distance(y, x, p_ptr->detecty, p_ptr->detectx) >= MAX_DETECT))
 		{
 			/* We are out of range */
+			msg_print("Out of trap detection range.");
 				
-			/* Disturb */
-			disturb(FALSE);
+			/* If running, disturb */
+			if (p_ptr->running) disturb(FALSE);
 				
 			/* Reset the detection flag */
 			p_ptr->detected = FALSE;

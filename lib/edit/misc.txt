@@ -1,4 +1,3 @@
-# CVS: Last edit by $Author: sfuerst $ on $Date: 2001/08/12 11:14:03 $
 # File: misc.txt
 
 
@@ -18,7 +17,7 @@ M:WT:300
 M:WP:20
 
 # Maximum number of monsters in r_info.txt
-M:R:885
+M:R:888
 
 # Maximum number of items in k_info.txt
 M:K:582
@@ -36,7 +35,7 @@ M:A:128
 M:E:128
 
 # Maximum number of field types in t_info.txt
-M:T:142
+M:T:257
 
 # Maximum size for "o_list[]"
 # Increase this if you get lots of 'Generation restarted (too many objects)' messages.

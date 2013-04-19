@@ -159,7 +159,7 @@ bool teleport_away(int m_idx, int dis)
 
 	/* Redraw the new grid */
 	lite_spot(ny, nx);
-	
+
 	/* Notice changes in view */
 	if (r_ptr->flags7 & (RF7_LITE_1 | RF7_LITE_2))
 	{
@@ -297,7 +297,7 @@ void teleport_to_player(int m_idx)
 	
 	/* Update the monster (new location) */
 	update_mon(m_idx, TRUE);
-	
+
 	/* Process fields under the monster. */
 	field_hook(&c_ptr->fld_idx,
 			 FIELD_ACT_MONSTER_ENTER, (vptr) m_ptr);
@@ -485,6 +485,31 @@ void teleport_player(int dis)
 						teleport_to_player(m_idx);
 					}
 				}
+			}
+		}
+	}
+
+	/* 
+	 * New - at deep levels, there is a small chance of a nexus crawler
+	 * being attracted by teleportation
+	 */
+	if (p_ptr->depth > NEXUS_APPEAR_DEPTH && one_in_(NEXUS_APPEAR_CHANCE))
+	{
+		int wy = py, wx = px;
+		int attempts = 100;
+		
+		do
+		{
+			scatter(&wy, &wx, py, px, 1);
+		}
+		while (!(in_bounds(wy, wx) && cave_floor_grid(area(wy, wx))) && --attempts);
+
+		if (attempts > 0)
+		{
+			if (summon_specific(0, wy, wx, 100, SUMMON_NEXUS_CRAWLER,
+				FALSE, FALSE, FALSE, GP_MINION, 0))
+			{
+				msg_print("A nexus crawler follows you out of the umbra!");
 			}
 		}
 	}
@@ -690,13 +715,13 @@ bool check_down_wild(void)
 		msg_print("Nothing happens.");
 		return (FALSE);
 	}
-	
+
 	/* Cannot recall in towns with no dungeon */
 	if ((!vanilla_town) && (!p_ptr->depth))
 	{
 		bool found = FALSE;
 		int i;
-		
+
 		/* Look for stairs */
 		for (i = 0; i < town[p_ptr->town_num].numstores; i++)
 		{
@@ -706,7 +731,7 @@ bool check_down_wild(void)
 				break;
 			}
 		}
-		
+
 		if (!found)
 		{
 			msg_print("Nothing happens.");
@@ -735,8 +760,8 @@ void recall_player(int turns)
 		return;
 	}
 
-	if (!check_down_wild()) return;	
-	
+	if (!check_down_wild()) return;
+
 	if (p_ptr->depth && (p_ptr->max_depth > p_ptr->depth) &&
 		 !p_ptr->inside_quest)
 	{
@@ -1295,7 +1320,7 @@ bool explosive_rune(void)
 
 /*
  * Identify everything being carried.
- * Done by a potion of "self knowledge".
+ * Done by a potion of *enlightenment*.
  */
 void identify_pack(void)
 {
@@ -1311,6 +1336,133 @@ void identify_pack(void)
 
 		/* Identify it */
 		identify_item(o_ptr);
+	}
+}
+
+/*
+ * Fully identify everything being carried.
+ */
+void fully_identify_pack(void)
+{
+	int i;
+
+	/* Simply identify and know every item */
+	for (i = 0; i < INVEN_TOTAL; i++)
+	{
+		object_type *o_ptr = &inventory[i];
+
+		/* Skip non-objects */
+		if (!o_ptr->k_idx) continue;
+
+		/* Identify it */
+		identify_item(o_ptr);
+
+		/* Mark the item as fully known */
+		o_ptr->ident |= (IDENT_MENTAL);
+
+		/* Save all the known flags */
+		o_ptr->kn_flags1 = o_ptr->flags1;
+		o_ptr->kn_flags2 = o_ptr->flags2;
+		o_ptr->kn_flags3 = o_ptr->flags3;
+
+		/* Handle stuff */
+		handle_stuff();
+	}
+}
+
+/*
+ * Identify everything within a certain distance.
+ * A distance of -1 identifies everything.
+ * -2 identifies things in LOS.
+ */
+void identify_everything(int dist)
+{
+	int i;
+
+	/* Simply identify and know every item */
+	for (i = 1; i < o_max; i++)
+	{
+		object_type *o_ptr = &o_list[i];
+
+		/* Skip non-objects */
+		if (!o_ptr->k_idx) continue;
+
+		/* Is it too far away? */
+		if (dist > -1 && distance(p_ptr->px, p_ptr->py, o_ptr->ix, o_ptr->iy) > dist) continue;
+
+		/* Can we not see it? */
+		if (dist == -2 && (!clean_shot(p_ptr->py, p_ptr->px, o_ptr->iy, o_ptr->ix, FALSE))
+				&& !(p_ptr->py == o_ptr->iy && p_ptr->px == o_ptr->ix)) continue;
+
+		/* Identify it */
+		identify_item(o_ptr);
+
+		/* Point out any artifacts */
+		if (o_ptr->flags3 & TR3_INSTA_ART)
+		{
+			char o_name[80];
+	
+			/* Description */
+			object_desc(o_name, o_ptr, TRUE, 3);
+
+			/* Describe */
+			msg_format("%s is nearby!", o_name);
+		}
+	}
+}
+
+/*
+ * Fully identify everything within a certain distance.
+ * A distance of -1 identifies everything.
+ * -2 identifies things in LOS.
+ */
+void fully_identify_everything(int dist)
+{
+	int i;
+
+	/* Simply identify and know every item */
+	for (i = 1; i < o_max; i++)
+	{
+		object_type *o_ptr = &o_list[i];
+
+		/* Skip non-objects */
+		if (!o_ptr->k_idx) continue;
+
+		/* Skip held objects */
+		if (o_ptr->held_m_idx) continue;
+
+		/* Is it too far away? */
+		if (dist > -1 && distance(p_ptr->px, p_ptr->py, o_ptr->ix, o_ptr->iy) > dist) continue;
+
+		/* Can we not see it? */
+		if (dist == -2 && (!clean_shot(p_ptr->py, p_ptr->px, o_ptr->iy, o_ptr->ix, FALSE))
+				&& !(p_ptr->py == o_ptr->iy && p_ptr->px == o_ptr->ix)) continue;
+
+		/* Identify it */
+		identify_item(o_ptr);
+
+		/* Mark the item as fully known */
+		o_ptr->ident |= (IDENT_MENTAL);
+
+		/* Save all the known flags */
+		o_ptr->kn_flags1 = o_ptr->flags1;
+		o_ptr->kn_flags2 = o_ptr->flags2;
+		o_ptr->kn_flags3 = o_ptr->flags3;
+
+		/* Point out any artifacts */
+		if (o_ptr->flags3 & TR3_INSTA_ART)
+		{
+			char o_name[80];
+	
+			/* Description */
+			object_desc(o_name, o_ptr, TRUE, 3);
+
+			/* Describe */
+			msg_format("%s is nearby!", o_name);
+		}
+		
+		/* Handle stuff */
+		handle_stuff();
 	}
 }
 
@@ -1854,7 +2006,7 @@ bool artifact_scroll(void)
 			msg_print("Not enough enough energy to enchant more than one object!");
 			msg_format("%d of your %s %s destroyed!", (o_ptr->number) - 1,
 			           o_name, ((o_ptr->number > 2) ? "were" : "was"));
-			
+
 			/* Change the weight */
 			p_ptr->total_weight -= ((o_ptr->number - 1) * o_ptr->weight);
 			
@@ -2015,7 +2167,7 @@ static bool item_tester_unknown(const object_type *o_ptr)
 	
 	/* Check to see if we don't know the flavor */
 	if (k_ptr->flavor && !k_ptr->aware) return (TRUE);
-	
+
 	/* Check to see if we have identified the item */
 	if (object_known_p(o_ptr)) return (FALSE);
 	
@@ -2199,7 +2351,6 @@ bool identify_fully(void)
 {
 	int             item;
 	object_type     *o_ptr;
-	char            o_name[80];
 	cptr            q, s;
 
 	/* Only un-*id*'ed items */
@@ -2235,26 +2386,6 @@ bool identify_fully(void)
 
 	/* Handle stuff */
 	handle_stuff();
-
-	/* Description */
-	object_desc(o_name, o_ptr, TRUE, 3);
-
-	/* Describe */
-	if (item >= INVEN_WIELD)
-	{
-		msg_format("%^s: %s (%c).",
-			   describe_use(item), o_name, index_to_label(item));
-	}
-	else if (item >= 0)
-	{
-		msg_format("In your pack: %s (%c).",
-			   o_name, index_to_label(item));
-	}
-	else
-	{
-		msg_format("On the ground: %s.",
-			   o_name);
-	}
 
 	/* Describe it fully */
 	(void)identify_fully_aux(o_ptr);
@@ -2406,7 +2537,7 @@ bool recharge(int power)
 			if (o_ptr->tval == TV_WAND)
 			{
 				o_ptr->ac -= recharge_amount;
-				
+
 				/* Never less than zero */
 				if (o_ptr->ac < 0) o_ptr->ac = 0;
 			}
@@ -3260,7 +3391,7 @@ static void spell_info(char *p, int spell, int realm)
 					case 19: strcpy (p, " dur 20+d20"); break;
 					case 24: strcpy (p, " rad 10"); break;
 					case 26: sprintf(p, " dam %d", 70 + plev); break;
-					case 27: sprintf(p, " dam %d", 90 + plev); break;
+					case 27: sprintf(p, " dam %d", 175 + (2 * plev)); break;
 					case 28: sprintf(p, " dam %d", 100 + plev); break;
 					case 29: strcpy (p, " dam 75"); break;
 					case 31: sprintf(p, " dam %d+%d", 4 * plev, 100 + plev); break;
@@ -3275,7 +3406,7 @@ static void spell_info(char *p, int spell, int realm)
 					case  4: sprintf(p, " dam 3d5+%d", plev + (plev /
 					     (((p_ptr->pclass == CLASS_MAGE) ||
 					     (p_ptr->pclass == CLASS_HIGH_MAGE)) ? 2 : 4))); break;
-					case  5: sprintf(p, " dam %dd8", (6 + ((plev - 5) / 4))); break;
+					case  5: sprintf(p, " dam %dd8", (8 + ((plev - 5) / 4))); break;
 					case  6: sprintf(p, " dam %dd8", (8 + ((plev - 5) / 4))); break;
 					case  7: sprintf(p, " range %d", plev * 5); break;
 					case  8: strcpy (p, " random"); break;
@@ -3283,14 +3414,14 @@ static void spell_info(char *p, int spell, int realm)
 					case 10: sprintf(p, " dam %d", 45 + plev); break;
 					case 11: sprintf(p, " dam %dd8", (11 + ((plev - 5) / 4))); break;
 					case 12: sprintf(p, " dam %d", 55 + plev); break;
-					case 15: sprintf(p, " dam %d", 66 + plev); break;
+					/*case 15: sprintf(p, " dam %d", 66 + plev); break;*/
 					case 17: sprintf(p, " dam %dd8", (5 + (plev / 10))); break;
 					case 19: sprintf(p, " dam %d", 80 + plev); break;
 					case 24: sprintf(p, " dam %dd8", (9 + (plev / 10))); break;
-					case 25: sprintf(p, " dam %d each", (3 * plev) / 2); break;
-					case 26: sprintf(p, " dam %d", 75 + plev); break;
-					case 27: strcpy (p, " dam 75 / 150"); break;
-					case 28: sprintf(p, " dam %d", 120 + plev); break;
+					case 25: sprintf(p, " dam 75+d%d", (350 + (plev * 3))); break;
+					case 26: sprintf(p, " dam %d each", (3 * plev) / 2); break;
+					case 27: sprintf(p, " dam %d", 75 + plev); break;
+					case 28: strcpy (p, " dam 75 / 150"); break;
 					case 29: sprintf(p, " dam %d", 300 + (plev * 2)); break;
 					case 30: sprintf(p, " dam %d", p_ptr->chp); break;
 					case 31: strcpy (p, " dam 3 * 175"); break;
@@ -3308,7 +3439,7 @@ static void spell_info(char *p, int spell, int realm)
 					    (p_ptr->pclass == CLASS_HIGH_MAGE)) ? 2 : 4))); break;
 					case  9: sprintf(p, " dam %dd8", (6 + ((plev - 5) / 4))); break;
 					case 11: sprintf(p, " dm %d* 5+d15", 2 + (plev / 15)); break;
-					case 13: sprintf(p, " dam %d", 4 * plev); break;
+					case 13: sprintf(p, " dam %d", 3 * plev); break;
 					case 16: strcpy (p, " dur 25+d25"); break;
 					case 17: strcpy (p, " random"); break;
 					case 18: sprintf(p, " dam %dd8", (4 + ((plev - 5) / 4))); break;
@@ -3322,10 +3453,34 @@ static void spell_info(char *p, int spell, int realm)
 				}
 				break;
 
-			case 5: /* Trump */
+			case 5: /* Morphic */
 				switch (spell)
 				{
-					case  0: strcpy (p, " range 10"); break;
+					case  0: sprintf(p, " dam %dd3", 3 + ((plev - 1) / 5)); break;
+					case  3: strcpy (p, " dur 25+d25"); break;
+					case  4:
+					case  5: strcpy (p, " dur 20+d20"); break;
+					case  7: sprintf(p, " dam %dd8", 5 + ((plev - 5) / 4)); break;
+					case  8: strcpy (p, " heal 6d10"); break;
+					case  9: sprintf(p, " dam %d", 15 + ((3 * plev) / 4)); break;
+					case 11: strcpy (p, " dur 24+d24"); break;
+					case 12: strcpy (p, " dur 25+d25"); break;
+					case 14: sprintf(p, " dam %d", 45 + ((3 * plev) / 4)); break;
+					case 15: sprintf(p, " dam %d", 150 + (3 * plev)); break;
+					case 16:
+					case 17: strcpy (p, " dur 20+d20"); break;
+					case 18: strcpy (p, " dur 20+d20"); break;
+					case 19: strcpy (p, " dur 20+d30"); break;
+					case 20: sprintf(p, " dur %d+d100", 3 * plev); break;
+					case 21: sprintf(p, " dam %d", 75 + plev); break;
+					case 22: sprintf(p, " dam %d", 60 + plev); break;
+					case 23: sprintf(p, " dam %d", 125 + (2 * plev)); break;
+					case 24: strcpy (p, " dur 20+d20"); break;
+					case 25: sprintf(p, " dam %dd8", 9 + ((plev - 5) / 4)); break;
+					case 26: strcpy (p, " random"); break;
+					case 27: strcpy (p, " heal 301-700"); break;
+					case 31: sprintf(p, " dam %d", 300 + (5 * plev)); break;
+					/*case  0: strcpy (p, " range 10"); break;
 					case  1: sprintf(p, " dam %dd3", 3 + ((plev - 1) / 5)); break;
 					case  2: strcpy (p, " random"); break;
 					case  4: sprintf(p, " range %d", plev * 4); break;
@@ -3333,7 +3488,7 @@ static void spell_info(char *p, int spell, int realm)
 					case  6: strcpy (p, " dur 25+d30"); break;
 					case  8: sprintf(p, " max wgt %d", plev * 15 / 10); break;
 					case 14: strcpy (p, " delay 15+d21"); break;
-					case 22: sprintf(p, " dam %d", plev * 3); break;
+					case 22: sprintf(p, " dam %d", plev * 3); break;*/
 				}
 				break;
 
@@ -3358,6 +3513,33 @@ static void spell_info(char *p, int spell, int realm)
 				}
 				break;
 
+			case 7: /* Wizardry */
+				switch (spell)
+				{
+					case  0: sprintf(p, " dam %dd4", 3 + ((plev - 1) / 5)); break;
+					case  3: strcpy (p, " heal 2d10"); break;
+					case  4: sprintf(p, " dam %d", 10 + (plev / 2)); break;
+					case  6: sprintf(p, " dam %dd8", (3 + ((plev - 5) / 4))); break;
+					case  7: sprintf(p, " dur 20+d20"); break;
+					case  8: strcpy (p, " dam 6d8"); break;
+					case  9: sprintf(p, " dam 3d6+%d", plev + (plev / 4)); break;
+					case 11: sprintf(p, " dam %dd8", (8 + ((plev - 5) / 4))); break;
+					case 13: sprintf(p, " dam %d", 45 + plev); break;
+					case 16: strcpy (p, " dur 20+d20"); break;
+					case 18: strcpy (p, " dur 25+d25"); break;
+					case 20: strcpy (p, " dur 25+d25"); break;
+					case 21: strcpy (p, " dur 20+d30"); break;
+					case 22: strcpy (p, " dur 20+d20"); break;
+					case 24: sprintf(p, " dam %dd8", (5 + ((plev - 5) / 4))); break;
+					case 27: sprintf(p, " dam %dd8", (11 + ((plev - 5) / 4))); break;
+					case 28: sprintf(p, " dam %d", 70 + plev); break;
+					case 29: sprintf(p, " dam %d", 100 + plev); break;
+					case 30: sprintf(p, " dam %d each", (3 * plev) / 2); break;
+					case 31: sprintf(p, " dam %d", 300 + (plev * 2)); break;
+				}
+				break;
+
+
 			default:
 				sprintf(p, "Unknown type: %d.", realm);
 		}
@@ -3365,10 +3547,78 @@ static void spell_info(char *p, int spell, int realm)
 }
 
 
+#ifdef USE_NEW_MAGIC
 /*
  * Print a list of spells (for browsing or casting or viewing)
  */
-void print_spells(byte *spells, int num, int y, int x, int realm)
+void print_spells_new(u16b *spells, int num, int y, int x)
+{
+	int             i, spell;
+	cptr            comment;
+	char            info[80];
+	char            out_val[160];
+	byte            line_attr;
+
+
+	/* Title the list */
+	prt("", y, x);
+	put_str("Name", y, x + 5);
+	put_str("Lv Mana Fail Info", y, x + 35);
+
+
+	/* Dump the spells */
+	for (i = 0; i < num; i++)
+	{
+		/* Access the spell */
+		spell = spells[i];
+
+		/* XXX XXX Could label spells above the players level */
+
+		/* Get extra info */
+		spell_info_new(info, spell);
+
+		/* Use that info */
+		comment = info;
+
+		/* Assume spell is known and tried */
+		line_attr = TERM_WHITE;
+
+		/* Analyze the spell */
+		if (p_ptr->spell_forgotten[spell/32] & (1L << (spell % 32)))
+		{
+			comment = " forgotten";
+			line_attr = TERM_YELLOW;
+		}
+		else if (!(p_ptr->spell_learned[spell/32] & (1L << (spell % 32))))
+		{
+			comment = " unknown";
+			line_attr = TERM_L_BLUE;
+		}
+		else if (!(p_ptr->spell_worked[spell/32] & (1L << (spell % 32))))
+		{
+			comment = " untried";
+			line_attr = TERM_L_GREEN;
+		}
+
+		/* Dump the spell --(-- */
+		sprintf(out_val, "  %c) %-30s%2d %4d %3d%%%s",
+		    I2A(i), new_spell_name[spell], /* realm, spell */
+		    (int)calculate_spell_level(spell), (int)calculate_mana(spell),
+			spell_chance_new(spell), comment);
+		c_prt(line_attr, out_val, y + i + 1, x);
+	}
+
+	/* Clear the bottom line */
+	prt("", y + i + 1, x);
+}
+#endif /* USE_NEW_MAGIC */
+
+
+#if !defined(USE_NEW_MAGIC) || defined(SUPPORT_OLD_MAGIC)
+/*
+ * Print a list of spells (for browsing or casting or viewing)
+ */
+void print_spells_old(byte *spells, int num, int y, int x, int realm)
 {
 	int             i, spell;
 	const magic_type *s_ptr;
@@ -3456,6 +3706,27 @@ void print_spells(byte *spells, int num, int y, int x, int realm)
 	/* Clear the bottom line */
 	prt("", y + i + 1, x);
 }
+#endif /* !defined(USE_NEW_MAGIC) || defined(SUPPORT_OLD_MAGIC) */
+
+/*
+ * Decide which print_spells function we want 
+ * This is complicated because of the pointer
+ */
+#ifdef TIUYTIUYT
+void print_spells(u16b *spells, int num, int y, int x, int realm)
+{
+#ifdef USE_NEW_MAGIC
+ #ifdef SUPPORT_OLD_MAGIC
+	if (old_magic_user) print_spells_old(spells, num, y, x, realm);
+	else print_spells_new(spells, num, y, x);
+ #else /* SUPPORT_OLD_MAGIC */
+	print_spells_new(spells, num, y, x);
+ #endif /* SUPPORT_OLD_MAGIC */
+#else /* USE_NEW_MAGIC */
+	print_spells_old(spells, num, y, x, realm);
+#endif /* USE_NEW_MAGIC */
+}
+#endif /* TIUYTIUYT */
 
 
 /*
@@ -3569,6 +3840,7 @@ bool hates_fire(const object_type *o_ptr)
 		case TV_DEATH_BOOK:
 		case TV_TRUMP_BOOK:
 		case TV_ARCANE_BOOK:
+		case TV_WIZARDRY_BOOK:
 		{
 			return (TRUE);
 		}
@@ -4213,6 +4485,8 @@ bool polymorph_monster(int y, int x)
 	cave_type *c_ptr = area(y, x);
 	monster_type *m_ptr = &m_list[c_ptr->m_idx];
 	bool friendly, pet;
+	byte nature;
+	s16b master;
 	bool polymorphed = FALSE;
 	int new_r_idx;
 	int old_r_idx = m_ptr->r_idx;
@@ -4221,6 +4495,8 @@ bool polymorph_monster(int y, int x)
 	/* Get the monsters attitude */
 	friendly = is_friendly(m_ptr);
 	pet = is_pet(m_ptr);
+	nature = m_ptr->group;
+	master = m_ptr->master_m_idx;
 
 	/* Pick a "new" monster race */
 	new_r_idx = poly_r_idx(old_r_idx);
@@ -4232,7 +4508,7 @@ bool polymorph_monster(int y, int x)
 		delete_monster_idx(c_ptr->m_idx);
 
 		/* Create a new monster (no groups) */
-		if (place_monster_aux(y, x, new_r_idx, FALSE, FALSE, friendly, pet))
+		if (place_monster_aux(y, x, new_r_idx, FALSE, FALSE, friendly, pet, nature, master))
 		{
 			/* Success */
 			polymorphed = TRUE;
@@ -4242,7 +4518,7 @@ bool polymorph_monster(int y, int x)
 			monster_terrain_sensitive = FALSE;
 
 			/* Placing the new monster failed */
-			(void)place_monster_aux(y, x, old_r_idx, FALSE, FALSE, friendly, pet);
+			(void)place_monster_aux(y, x, old_r_idx, FALSE, FALSE, friendly, pet, nature, master);
 
 			monster_terrain_sensitive = TRUE;
 		}
@@ -4284,6 +4560,32 @@ bool dimension_door(void)
 		teleport_player(10);
 	}
 	else teleport_player_to(y, x);
+
+	/* 
+	 * New - at deep levels, there is a small chance of a nexus crawler
+	 * being attracted by teleportation
+	 * This is more likely with dimension door
+	 */
+	if (p_ptr->depth > NEXUS_APPEAR_DEPTH-5 && one_in_(NEXUS_APPEAR_CHANCE / 10))
+	{
+		int wy = y, wx = x;
+		int attempts = 100;
+		
+		do
+		{
+			scatter(&wy, &wx, y, x, 1);
+		}
+		while (!(in_bounds(wy, wx) && cave_floor_grid(area(wy, wx))) && --attempts);
+
+		if (attempts > 0)
+		{
+			if (summon_specific(0, wy, wx, 100, SUMMON_NEXUS_CRAWLER,
+				FALSE, FALSE, FALSE, GP_MINION, 0))
+			{
+				msg_print("A nexus crawler follows you out of the umbra!");
+			}
+		}
+	}
 
 	return (TRUE);
 }

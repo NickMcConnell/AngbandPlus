@@ -162,13 +162,23 @@
 #endif
 
 
+/*
+ * Extract the "AMD64" flag from the compiler
+ */
+#if defined(__x86_64__) || defined(__amd64__)
+# ifndef AMD64
+#  define AMD64
+# endif
+#endif
 
 /*
  * OPTION: Define "L64" if a "long" is 64-bits.  See "h-types.h".
  * The only such platform that angband is ported to is currently
  * DEC Alpha AXP running OSF/1 (OpenVMS uses 32-bit longs).
+ *
+ * And AMD64. Ported status under investigation.
  */
-#if defined(__alpha) && defined(__osf__)
+#if defined(AMD64) || defined(__alpha) && defined(__osf__)
 # define L64
 #endif
 
@@ -316,7 +326,7 @@
  * Activate this if you have mkstemp().
  */
 #ifdef SET_UID
-/* #define HAVE_MKSTEMP */
+ /*#define HAVE_MKSTEMP*/
 #endif
 
 #endif

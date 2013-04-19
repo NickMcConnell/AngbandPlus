@@ -466,6 +466,7 @@ static void mass_produce(object_type *o_ptr)
 		case TV_DEATH_BOOK:
 		case TV_TRUMP_BOOK:
 		case TV_ARCANE_BOOK:
+		case TV_WIZARDRY_BOOK:
 		{
 			if (cost <= 50L) size += damroll(2, 3);
 			if (cost <= 500L) size += damroll(1, 3);
@@ -1297,7 +1298,7 @@ static void display_entry(int pos)
 #endif
 
 	/* Hack -- fake monochrome */
-	if (!use_color || ironman_moria) a = TERM_WHITE;
+	if (!use_color /*|| ironman_moria*/) a = TERM_WHITE;
 
 	Term_draw(3, i + 6, a, c);
 
@@ -1442,7 +1443,7 @@ static void store_prt_gold(void)
 static void display_store(int store_top)
 {
 	char buf[80];
-	
+
 	const owner_type *ot_ptr = &owners[f_ptr->data[0]][st_ptr->owner];
 
 	/* Clear screen */
@@ -1490,27 +1491,59 @@ static void display_store(int store_top)
 
 		/* Label the asking price (in stores) */
 		put_str("Price", 5, 72);
+	
+		/* Display the current gold */
+		store_prt_gold();
 	}
-
-	/* Display the current gold */
-	store_prt_gold();
 
 	/* Draw in the inventory */
 	display_inventory(store_top);
 }
 
+/* Get the amount of food in a store */
+
+int getfoodamount(void)
+{
+	int i,j;
+	object_type *o_ptr;
+	j=0;
+	for (i=0; i<st_ptr->stock_num; ++i)
+	{
+		o_ptr = &st_ptr->stock[i];
+		if (o_ptr->tval == TV_SCROLL && o_ptr->sval == SV_SCROLL_SATISFY_HUNGER)
+			j += (o_ptr->number * 9000);
+		else if (o_ptr->tval == TV_FOOD)
+			switch (o_ptr->sval)
+			{
+				case SV_FOOD_RATION:
+				case SV_FOOD_BISCUIT:
+				case SV_FOOD_JERKY:
+				case SV_FOOD_SLIME_MOLD:
+				case SV_FOOD_WAYBREAD:
+				case SV_FOOD_PINT_OF_ALE:
+				case SV_FOOD_PINT_OF_WINE:
+				{
+					j += (o_ptr->number * o_ptr->pval);
+					break;
+				}
+			}
+	}
+	return j;	
+}
 
 /*
  * Maintain the inventory at the stores.
+ * Returns false if the first supply store has very little food,
+ * true otherwise.
  */
-static void store_maint(void)
+int store_maint(void)
 {
 	int 		i = 0, j;
 
 	int 	old_rating = rating;
 
 	/* Ignore home + locker */
-	if (st_ptr->type == BUILD_STORE_HOME) return;
+	if (st_ptr->type == BUILD_STORE_HOME) return TRUE;
 
 	/* Store keeper forgives the player */
 	st_ptr->insult_cur = 0;
@@ -1520,7 +1553,7 @@ static void store_maint(void)
 
 	/* Sell a few items */
 	j = j - randint1(STORE_TURNOVER);
-	
+
 	if (st_ptr->max_stock == STORE_INVEN_MAX)
 	{
 		/* Never keep more than "STORE_MAX_KEEP" slots */
@@ -1588,6 +1621,15 @@ static void store_maint(void)
 
 	/* Hack -- Restore the rating */
 	rating = old_rating;
+
+	/* 
+	 * Check if the first supplies store has no food, or very little,
+	 * and reject if this is the case.
+	 */ 
+	if (st_ptr->type == BUILD_SUPPLIES0 && getfoodamount() < 15000) return FALSE;
+
+	/* Success */
+	return TRUE;
 }
 
 
@@ -2357,6 +2399,21 @@ static void store_purchase(int *store_top)
 	/* Get a copy of the object */
 	object_copy(j_ptr, o_ptr);
 
+	/* for spell scrolls, check usefulness */
+	if (o_ptr->tval == TV_SPELL_SCROLL)
+	{
+		if (calculate_spell_level(o_ptr->pval) > 50)
+		{
+			if (!get_check("This spell is incomprehensible. Buy anyway? "))
+				return;
+		}
+		else if (p_ptr->spell_found[o_ptr->pval / 32] & (1L << (o_ptr->pval % 32)))
+		{
+			if (!get_check("You already have this spell recorded. Buy anyway? "))
+				return;
+		}
+	}
+	
 	/* Recalculate charges for a single wand/rod */
 	reduce_charges(j_ptr, j_ptr->number - 1);
 
@@ -2970,7 +3027,7 @@ static bool leave_store = FALSE;
  * must disable some commands which are allowed in the dungeon
  * but not in the stores, to prevent chaos.
  */
-static void store_process_command(int *store_top)
+static void store_process_command(int *store_top, bool home)
 {
 	/* Handle repeating the last command */
 	repeat_check();
@@ -3030,6 +3087,7 @@ static void store_process_command(int *store_top)
 
 		/* Examine */
 		case 'x':
+		case 'X':
 		{
 			store_examine(*store_top);
 			break;
@@ -3250,6 +3308,52 @@ static void store_process_command(int *store_top)
 			break;
 		}
 
+		/* 
+		 * Extra home commands
+		 */
+
+		/* Rest */
+		case 'R':
+		{
+			if (home) do_cmd_rest_home();
+			else msg_print("That command does not work in stores.");
+			break;
+		}
+		
+#ifdef USE_NEW_MAGIC
+		/* Record spell scrolls */
+		case 'r':
+		{
+			if (home) (void) do_cmd_record_magic();
+			else msg_print("That command does not work in stores.");
+			break;
+		}
+
+		/* Write in books */
+		case 'W':
+		{
+			if (home) (void) do_cmd_write_magic();
+			else msg_print("That command does not work in stores.");
+			break;
+		}
+
+		/* Create a permanent spell list */
+		case 'S':
+		{
+			if (home) (void) do_cmd_create_spell_list();
+			else msg_print("That command does not work in stores.");
+			break;
+		}
+
+		/* Study new spells */
+		case 'G':
+		{
+			if (home) do_cmd_study_new();
+			else msg_print("That command does not work in stores.");
+			break;
+		}
+#endif /* USE_NEW_MAGIC */
+		
 		/* Hack -- Unknown command */
 		default:
 		{
@@ -3452,9 +3556,10 @@ void do_cmd_store(field_type *f1_ptr)
 	if (maintain_num)
 	{
 		/* Maintain the store */
-		for (i = 0; i < maintain_num; i++)
+		i=0;
+		while (i < maintain_num)
 		{
-			store_maint();
+			if (store_maint()) i++;
 		}
 		
 		/* Save the visit */
@@ -3502,7 +3607,7 @@ void do_cmd_store(field_type *f1_ptr)
 
 
 		/* Basic commands */
-		prt(" ESC) Exit from Building.", 22, 0);
+		prt(" ESC) Exit from Building.", st_ptr->type == BUILD_STORE_HOME ? 21 : 22, 0);
 
 		/* Browse if necessary */
 		if (st_ptr->stock_num > 12)
@@ -3513,8 +3618,22 @@ void do_cmd_store(field_type *f1_ptr)
 		/* Home commands */
 		if (st_ptr->type == BUILD_STORE_HOME)
 		{
-		   prt(" g) Get an item.", 22, 31);
-		   prt(" d) Drop an item.", 23, 31);
+		   prt(" R) Rest and relax.", 22, 0);
+		   prt(" g) Get an item.", 21, 31);
+		   prt(" d) Drop an item.", 22, 31);
+#ifdef USE_NEW_MAGIC
+		   if (!(p_ptr->pclass == CLASS_WARRIOR) && !(p_ptr->pclass == CLASS_MINDCRAFTER)
+ #ifdef SUPPORT_OLD_MAGIC
+				&& !old_magic_user
+ #endif /* SUPPORT_OLD_MAGIC */
+				)
+		   {
+			   prt(" S) Store a spell list.", 22, 56);
+			   prt(" r) Record a spell scroll.", 23, 0);
+			   prt(" G) Study a spell.", 23, 31);
+			   prt(" W) Write a spell.", 23, 56);
+		   }
+#endif /* USE_NEW_MAGIC */
 		}
 
 		/* Shop commands XXX XXX XXX */
@@ -3525,16 +3644,16 @@ void do_cmd_store(field_type *f1_ptr)
 		}
 
 		/* Add in the eXamine option */
-		prt(" x) eXamine an item.", 22, 56);
+		prt(" x) eXamine an item.", st_ptr->type == BUILD_STORE_HOME ? 21 : 22, 56);
 
 		/* Prompt */
-		prt("You may: ", 21, 0);
+		prt("You may: ", st_ptr->type == BUILD_STORE_HOME ? 20 : 21, 0);
 
 		/* Get a command */
 		request_command(TRUE);
 
 		/* Process the command */
-		store_process_command(&store_top);
+		store_process_command(&store_top, st_ptr->type == BUILD_STORE_HOME);
 
 		/* Hack -- Character is still in "icky" mode */
 		character_icky = TRUE;
