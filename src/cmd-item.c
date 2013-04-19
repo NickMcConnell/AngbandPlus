@@ -912,7 +912,7 @@ static void do_cmd_eat_food_aux(int item)
 	if (object_activation(o_ptr)) 
 	{
 		/* Actually use the power */
-		if (!do_power(k_info[o_ptr->k_idx].activation, 0, 0, 0, 0, 0, 0, FALSE, &ident)) 
+		if (!do_power(k_info[o_ptr->k_idx].activation, 0, 0, 0, 20, 20, 15+rand_int(10), FALSE, &ident)) 
 			return;
 	}
 	else

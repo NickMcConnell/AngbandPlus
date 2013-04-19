@@ -156,10 +156,18 @@ CC = gcc
 ## Allows the use of Angband in the console using ncurses,
 ## as well as under X11.
 ##
+#CFLAGS = -I/usr/X11R6/include -I/usr/include/ncurses -Wall \
+#         -O2 -fno-strength-reduce \
+#         -D"USE_X11" -D"USE_GCU" -D"USE_NCURSES"
+#LIBS = -L/usr/X11R6/lib -lXaw -lXext -lSM -lICE -lXmu -lXt -lX11 -lncurses
+
+##
+## This one works on Debian Squeeze.
+##
 CFLAGS = -I/usr/X11R6/include -I/usr/include/ncurses -Wall \
          -O2 -fno-strength-reduce \
          -D"USE_X11" -D"USE_GCU" -D"USE_NCURSES"
-LIBS = -L/usr/X11R6/lib -lXaw -lXext -lSM -lICE -lXmu -lXt -lX11 -lncurses
+LIBS = -L/usr/X11R6/lib -lXext -lSM -lICE -lXt -lX11 -lncurses
 
 
 ##

@@ -127,8 +127,8 @@
 /*
  * Dungeon treausre allocation values
  */
-#define DUN_AMT_ROOM	9	/* Amount of objects for rooms */
-#define DUN_AMT_ITEM	3	/* Amount of objects for rooms/corridors */
+#define DUN_AMT_ROOM	8	/* Amount of objects for rooms */
+#define DUN_AMT_ITEM	2	/* Amount of objects for rooms/corridors */
 #define DUN_AMT_GOLD	3	/* Amount of treasure for rooms/corridors */
 
 /*
@@ -3460,10 +3460,14 @@ static void cave_gen(void)
 	if (destroyed) destroy_level();
 
 	/* Place 3 or 4 down stairs near some walls */
-	alloc_stairs(FEAT_MORE, rand_range(3, 4), 3);
+	alloc_stairs(FEAT_MORE, rand_range(1, 2), 3);
 
-	/* Place 1 or 2 up stairs near some walls */
-	alloc_stairs(FEAT_LESS, rand_range(1, 2), 3);
+	/* Place up stairs near some walls
+	   Less up stairs in FayAngband */
+	if ((1 > rand_int(3)) || ((quest_check(p_ptr->depth) == QUEST_FIXED) || (quest_check(p_ptr->depth) == QUEST_FIXED_U)))
+	{
+		alloc_stairs(FEAT_LESS, rand_range(1, 1), 3);
+	}
 
 	/* Basic "amount" */
 	k = (p_ptr->depth / 3);
@@ -3481,6 +3485,10 @@ static void cave_gen(void)
 
 	/* To make small levels a bit more playable */
 	if (p_ptr->cur_map_hgt < MAX_DUNGEON_HGT || p_ptr->cur_map_wid < MAX_DUNGEON_WID)
+
+
+
+
 	{
 		int small_tester = mon_gen;
 
@@ -3676,7 +3684,7 @@ static void town_gen_hack(void)
 	Rand_value = seed_town;
 
 	/* Prepare an Array of "remaining stores", and count them */
-	for (n = 0; n < MAX_STORES; n++) rooms[n] = n;
+	for (n = 0; n < MAX_STORES; n++) rooms[n] = (n-1);
 
 	/* Place two rows of stores */
 	for (y = 0; y < 2; y++)
@@ -3905,9 +3913,6 @@ void generate_cave(void)
 		/* Hack -- Have a special feeling sometimes */
 		if (good_item_flag && !adult_preserve) p_ptr->feeling = 1;
 
-		/* It takes 1000 game turns for "feelings" to recharge */
-		if (p_ptr->feeling_cnt) p_ptr->feeling = 0;
-
 		/* Hack -- no feeling in the town */
 		if (!p_ptr->depth) p_ptr->feeling = 0;
 
@@ -3971,7 +3976,4 @@ void generate_cave(void)
 
 	/* The dungeon is ready */
 	character_dungeon = TRUE;
-
-	/* Reset feeling counter */
-	if (p_ptr->depth) p_ptr->feeling_cnt = FEELING_RATE;
 }

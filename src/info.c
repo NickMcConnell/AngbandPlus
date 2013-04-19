@@ -333,6 +333,7 @@ static void display_player_skill_info(void)
 	xskill[SK_PER] = p_ptr->skill[SK_PER];
 	xskill[SK_DIG] = p_ptr->skill[SK_DIG];
 	xskill[SK_ALC] = p_ptr->skill[SK_ALC];
+	xskill[SK_MAP] = p_ptr->skill[SK_MAP];
 
 	put_str("Saving Throw", 10, col);
 	desc = likert(xskill[SK_SAV] - 10, 5);  
@@ -388,6 +389,11 @@ static void display_player_skill_info(void)
 	desc = likert(xskill[SK_ALC], 7);
 	if (cheat_wizard) c_put_str(likert_color, format("%9d", xskill[SK_ALC]), 20, col+13);
 	else c_put_str(likert_color, format("%9s", desc), 20, col+13);
+
+	put_str("Mapping", 21, col);
+	desc = likert(xskill[SK_MAP], 5);
+	if (cheat_wizard) c_put_str(likert_color, format("%9d", xskill[SK_MAP]), 21, col+13);
+	else c_put_str(likert_color, format("%9s", desc), 21, col+13);
 }
 
 /*
@@ -815,7 +821,7 @@ static void display_player_misc_info(void)
 	Term_putstr(col + 14, 5, -1, TERM_L_BLUE, format("%4d", (int)p_ptr->sc));
 
    	/* Deepest recall level */
-   	Term_putstr(col, 7, -1, TERM_WHITE, "Max Depth");
+   	Term_putstr(col, 7, -1, TERM_WHITE, "Current Depth");
    	if (!depth_in_feet) 
 	{
 		Term_putstr(col+14, 7, -1, TERM_L_BLUE, format("%4d", (int)p_ptr->max_depth));
@@ -823,6 +829,17 @@ static void display_player_misc_info(void)
 	else 
 	{
 		Term_putstr(col+11, 7, -1, TERM_L_BLUE, format("%4d Ft", (int)p_ptr->max_depth * 50));
+	}
+
+   	/* Minimum depth */
+   	Term_putstr(col, 8, -1, TERM_WHITE, "Min Depth");
+   	if (!depth_in_feet) 
+	{
+		Term_putstr(col+14, 8, -1, TERM_L_BLUE, format("%4d", (int)p_ptr->min_depth));
+	}
+	else 
+	{
+		Term_putstr(col+11, 8, -1, TERM_L_BLUE, format("%4d Ft", (int)p_ptr->min_depth * 50));
 	}
 }
 
@@ -1989,6 +2006,7 @@ void list_object(const object_type *o_ptr, int mode)
 		*list_ptr = NULL;
 		
 		/* Weapon flags */
+
 		anything |= outlist("It provides protection from the effects of", list);
 	}
 

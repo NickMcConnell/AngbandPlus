@@ -1,178 +1,193 @@
 === Races ===
 
-There are thirteen different races that you can choose from in EyAngband.
+There are thirteen different races that you can choose from in FayAngband.
 Some races are restricted as to what profession they may be, and each race 
-has its own adjustments to a character's stats and abilities.  The race stat
+has its own adjustments to a character's stats and abilities. The race stat
 adjustment lasts throughout the game, raising the maximum levels the character
 can otherwise acheive in this stat. Most races also have intrinsic abilities.
- 
+
 ***** <Human>
 Human
-    The oldest race in the world of EyAngband, the human is the base character.
-    All other races are compared to them.  Humans can choose any class and are 
-    average at everything.  Humans tend to go up levels faster than any other 
-    race because of their shorter life spans.  No racial adjustments or 
-    intrinsics occur to characters choosing human.
+    The oldest race in the world of FayAngband, the human is the base
+    character. All other races are compared to them. Humans can choose any
+    class and are average at everything. Humans tend to go up levels faster
+    than any other race because of their shorter life spans. No racial
+    adjustments or intrinsics occur to characters choosing human. Human arcane
+    spellcasters specialise in either fire or frost, chosen randomly.
 
 ***** <Elf>
 Elf
     The distant offspring of the union of Faery and human gene pools, Elves 
-    carry the blood of Faery nobility.  Elves are intrinsically better 
-    magicians then humans, but not as good at fighting.  They tend to be 
+    carry the blood of Faery nobility. Elves are intrinsically better 
+    magicians then humans, but not as good at fighting. They tend to be 
     smarter and faster than humans and also have better wisdom and charisma.
     Elves are better at searching, disarming, perception, stealth, bows, and 
     magic, but they are not as good at hand weapons or digging. Elves may 
     choose any class. They are resistant to attacks involving bright light.
+    Elven arcane spellcasters specialise in either fire or frost, chosen
+    randomly.
 
 ***** <Dwarf>
 Dwarf
     Whereas elves carry the blood of Faery nobility, dwarves descend from those
     humans impregnated by underground dwelling Faeries, and they too prefer 
-    subterranean environs.  Dwarves are headstrong miners and fighters of 
-    legend.  Since dungeons are the natural home of a dwarf, they are excellent
-    choices for a warrior, paladin, priest or mystic.  Dwarves tend to be 
-    stronger and tougher but slower and less intelligent than humans.  Because 
+    subterranean environs. Dwarves are headstrong miners and fighters of 
+    legend. Since dungeons are the natural home of a dwarf, they are excellent
+    choices for a warrior, shaman, priest or mystic. Dwarves tend to be 
+    stronger and tougher but slower and less intelligent than humans. Because 
     they are so headstrong and are somewhat wise, they resist spells which are
-    cast on them.  Dwarves also have very good infra-vision because they live
+    cast on them. Dwarves also have very good infra-vision because they live
     underground, and are quite adept with a shovel. They do have one big 
-    drawback, though.  Dwarves are loudmouthed and proud, singing in loud 
+    drawback, though. Dwarves are loudmouthed and proud, singing in loud 
     voices, arguing with themselves for no good reason, screaming out 
-    challenges at imagined foes.  In other words, dwarves are miserable at
-    stealth.  Just as comfortable relying on their hearing as on their eyes, 
-    they can never be truly blinded. 
+    challenges at imagined foes. In other words, dwarves are miserable at
+    stealth. Just as comfortable relying on their hearing as on their eyes, 
+    they can never be truly blinded. Dwarven arcane spellcasters, "smith-mages",
+    specialise in fire.
 
 ***** <Gnome>
 Gnome
     The third race that boasts both human and Faery blood, gnomes originated 
-    from the union of human and household Faery.  Their studious natures make
-    them excellent mages, and they have very good saving throws.  They are 
+    from the union of human and household Faery. Their studious natures make
+    them excellent mages, and they have very good saving throws. They are 
     also good at searching, disarming, perception, alchemy, digging, and 
-    stealth.  They have lower strength than humans so they are not very good at
+    stealth. They have lower strength than humans so they are not very good at
     fighting with hand weapons, but are quite capable of using ranged attacks.
     As comfortable below ground as above it, gnomes have fair infra-vision, and
     are intrinsically protected against paralysis and some slowing effects.
+    Gnomish arcane spellcasters specialise in frost.
 
 ***** <Grippli>
 Grippli
     A young race with a simple tribal society, grippli are small amphibians, 
     resembling bipedal frogs. They are very good at bows, throwing, and have
-    good saving throws.  Due to the large amount of predators in their native 
-    swamps, they are quite skilled at stealth.  They're also skiiled in 
-    alchemy, disarming, and perception.  They are normally much weaker than 
-    humans, and no good at melee fighting.  Grippli resist water attacks and
-    have their dexterity sustained.  They tend not to be warriors, paladins or
+    good saving throws. Due to the large amount of predators in their native 
+    swamps, they are quite skilled at stealth. They're also skilled in 
+    alchemy, disarming, and perception. They are normally much weaker than 
+    humans, and no good at melee fighting. Grippli resist water attacks and
+    have their dexterity sustained. They tend not to be warriors or
     spellswords; but those of them that leave their native homelands for more
-    civilized places often find themselves as members of either thief guilds,
+    civilized places often find themselves as members of either rogue guilds,
     or mystical monasteries, depending on their demeanor. They are naturally 
-    protected against water-based attacks.
+    protected against water-based attacks. Grippli arcane spellcasters
+    specialise in frost.
  
 ***** <Lizardman>
 Lizardman
     Lizardmen are bipedal reptiles, standong about the same height as a human,
-    with long, versatile necks.  They tend to live in any place where the air
-    is warm, whether desert or jungle or swamp.  They are as bad as dwarves at
-    stealth, and horrible at searching, disarming, and perception.  Lizardmen 
-    are quite primitive, and don't make friends often.  Lizardmen do make good
+    with long, versatile necks. They tend to live in any place where the air
+    is warm, whether desert or jungle or swamp. They are as bad as dwarves at
+    stealth, and horrible at searching, disarming, and perception. Lizardmen 
+    are quite primitive, and don't make friends often. Lizardmen do make good
     warriors, for the simple reason that they tend to have great constitutions,
     good strength, and lots of hit points. Lizardmen naturally resist poison.
- 
+    Lizardman arcane spellcasters specialise in fire.
+
 ***** <Rattikin>
 Rattikin
     The rattikin are a race of humanoid rats who live in the outskirts of human
-    society.  Rattikin are very dexterous, and clever, but not very strong. 
+    society. Rattikin are very dexterous, and clever, but not very strong. 
     They are totally immune to the diseases that plague other races, and also 
     possess decent infra-vision. They make good warriors and rangers, and fine
-    mages and spellswords, but their true calling is that of a thief.
+    mages and spellswords, but their true calling is that of a rogue.
+    Rattikin arcane spellcasters specialise in frost.
 
 ***** <Felpurr>
 Felpurr
     The most civilized of the animalistic races, the felpurr are a noble race 
     of humanoid felines, who live in large cities situated where the climate is
-    warm.  They are dexterous and smart, but lack muscle strength.  They also 
+    warm. They are dexterous and smart, but lack muscle strength. They also 
     have limited infravision. They can play all classes well. Felpurr are 
     legendary for their luck - it somehow always seems that they manage to find
-    the best loot during their travels and adventures.
+    the best loot during their travels and adventures. Fellpurr arcane
+    spellcasters specialise in fire.
 
 ***** <Ursa>
 Ursa
     Large, lumbering, bear-people, they ursa are incredibly strong, and have 
-    more hit points than any other character race.  They are also quite stupid
-    and slow.  Living in cold, wooded regions, the ursa have a complex system 
-    of inter-related hunter-gathering tribes.  They make great warriors, and 
-    often are quite religious, making good priests and better paladins.  They
-    are quite bad at searching, disarming, perception, and stealth, but decent
-    at digging.  An ursa's idea of politeness is not beating everyone around 
-    him to a pulp.  An ursa's thick fur protects it from cold attacks.
+    more hit points than any other character race. They are also quite stupid
+    and slow. Living in cold, wooded regions, the ursa have a complex system 
+    of inter-related hunter-gathering tribes. They make great warriors, and 
+    often are quite religious, making good priests and shamans. They are quite
+    bad at searching, disarming, perception, and stealth, but decent at digging
+    An ursa's idea of politeness is not beating everyone around him to a pulp.
+    An ursa's thick fur protects it from cold attacks. The rare ursan arcane
+    spellcasters specialise in frost.
 
 ***** <Vargr>
 Vargr
     Vargr are a race of intelligent, bipedal wolves, living in both cold and 
-    temperate climes.  Their society resembles that of the ursa, but while the 
+    temperate climes. Their society resembles that of the ursa, but while the 
     former are somewhat brutish and primative, the vargr are guided by a deep-
     rooted code of honor. They have great stats, being strong, smart, and 
-    quick.  They can be good in any class, but their natural obstinance makes
-    them slow learners.   Vargr's constitution is inherently sustained.
+    quick. They can be good in any class, but their natural obstinance makes
+    them slow learners.  Vargr's constitution is inherently sustained. Vargr
+    arcane spellcasters specialise in frost.
 
 ***** <Kyrrus>
 Kyrrus
     A rare sight out of their native mountains, kyrri are a deeply spiritual
-    race of bipedal mountain goats.  Their society is arranged around secluded
-    monasteries where the holy and magical arts are studied.  Only very few of
+    race of bipedal mountain goats. Their society is arranged around secluded
+    monasteries where the holy and magical arts are studied. Only very few of
     the Kyrri choose a life away from these institutions, but those that do are
     known for their ability as mages, mystics and priests. While the Kyrri tend
     to prefer magical arts over physical prowess, there are those among them 
-    who choose to combine might with religous faith and become paladins. Well 
+    who choose to combine might with religous faith and become shamans. Well 
     educated and wise, their wisdom is naturally sustained against attacks.
+    Kyrrus arcane spellcasters, "sun-mages", specialise in fire.
 
 ***** <Angel>
 Angel
     Angels come from heaven to spread the causes of good, by any means 
-    necessary.  While they start out as being rather weak and fragile, as they
+    necessary. While they start out as being rather weak and fragile, as they
     gain experience they are awarded new abilities and they eventually become 
-    powerful in all regards. Angels possess special racial abilities.  Coming
+    powerful in all regards. Angels possess special racial abilities. Coming
     from a higher plane, the experiences of this world do not leave a strong 
     impression and them and they gain levels slowly. In addition, killing non-
     evil creatures may sometimes be necessary for their survival, but it goes
     against the basic fibre of their being and doing so provides them with only
     minimal experience rewards. During their time on this plane, they can 
-    choose to belong to any trade - except, of course, thievery.
+    choose to belong to any trade - except, of course, thievery. Angelic arcane
+    spellcasters specialise in fire.
 
 ***** <Demon>
 Demon
     Demons are the evil spawn of hell. Chaotic and unpredictable, some demons 
     realize that the quickest path to promotion is by destroying all their 
     rivals, and thus temporarily join the side of good to cleanse the dungeons
-    of EyAngband. They are the weakest of the races at their creation, but 
+    of FayAngband. They are the weakest of the races at their creation, but 
     their abilities grow with their levels and they eventually gain immense 
-    power.  From a certain level, Demons gain special racial abilities. Low 
+    power. From a certain level, Demons gain special racial abilities. Low 
     level demons are quite stealthy, but as they grow more powerful their 
     stealth rapidly decreases. Death and mayhem being commonplace to them, they
-    gain levels slowly. They can play warriors, thieves, spellswords, mages and 
-    rangers.
+    gain levels slowly. They can play warriors, rogues, spellswords, mages and 
+    rangers. Demons are masters of torture in all its forms, and therefore
+    demon arcane spellcasters can specialise in either fire or frost, chosen
+    randomly.
 
 === Recommended combinations of Race and Class ===
 
-         Warrior Thief Mage Spellsword Ranger Priest Paladin Mystic Bard
-Human      Yes    Yes  Yes     Yes      Yes    Yes    Yes     Yes   Yes
-Elf        Yes    Yes  Yes     Yes      Yes    Yes    Yes     Yes   Yes
-Dwarf      Yes    Yes  No      No       No     Yes    Yes     Yes   No
-Gnome      Yes    Yes  Yes     Yes      No     Yes    No      Yes   No
-Grippli    No     Yes  Yes     No       Yes    Yes    No      Yes   Yes
-Lizardman  Yes    No   No      Yes      Yes    No     No      No    No
-Rattikin   Yes    Yes  Yes     Yes      Yes    No     No      No    No
-Felpurr    Yes    Yes  Yes     Yes      Yes    Yes    Yes     Yes   Yes
-Ursa       Yes    No   No      No       No     Yes    Yes     No    No
-Vargr      Yes    Yes  Yes     Yes      Yes    Yes    Yes     Yes   Yes
-Kyrrus     No     No   Yes     No       No     Yes    Yes     Yes   No
-Angel      Yes    No   Yes     Yes      Yes    Yes    Yes     Yes   Yes
-Demon      Yes    Yes  Yes     Yes      Yes    No     No      No    No
+         Warrior Rogue Priest Shaman Mage Spellsword Ranger Mystic Bard
+Human      Yes    Yes  Yes     Yes   Yes      Yes    Yes     Yes   Yes
+Elf        Yes    Yes  Yes     Yes   Yes      Yes    Yes     Yes   Yes
+Dwarf      Yes    Yes  Yes     Yes   No       No     No      Yes   No
+Gnome      Yes    Yes  Yes     Yes   Yes      Yes    No      Yes   No
+Grippli    No     Yes  Yes     Yes   Yes      No     Yes     Yes   Yes
+Lizardman  Yes    No   No      Yes   No       Yes    Yes     No    No
+Rattikin   Yes    Yes  No      No    Yes      Yes    Yes     No    No
+Felpurr    Yes    Yes  Yes     Yes   Yes      Yes    Yes     Yes   Yes
+Ursa       Yes    No   Yes     Yes   No       No     No      No    No
+Vargr      Yes    Yes  Yes     Yes   Yes      Yes    Yes     Yes   Yes
+Kyrrus     No     No   Yes     Yes   Yes      No     No      Yes   No
+Angel      Yes    No   Yes     Yes   Yes      Yes    Yes     Yes   Yes
+Demon      Yes    Yes  No      No    Yes      Yes    Yes     No    No
 
 
 === Stat Bonus Tables ===
 
 Stat, hit dice, and experience points per level modifications due to race
 are listed in the following table.
- 
+
                        STR  INT  WIS  DEX  CON  CHR  Hit Dice  Rqd Exp/level
 
            Human        0    0    0    0    0    0      10          +0%
@@ -208,7 +223,7 @@ Ursa    10  10  25  50  10  15  15  10  10  5   10  10  5   10  10  -   -   -
 Vargr   15  15  15  15  15  25  25  15  15  15  5   15  15  15  10  -   -   -
 Kyruss  -   -   -   30  -   8   12  15  15  25  10   5  10  10  -   10  10  10
 Angel   40  40  40  30  35  35  35 100  20  35  35  35  20  35  -   7   7   7
-Demon   35  35 100  35  30  35  35  -   50  30  30  30  30  30  30  7   -   7
+Demon   35  35  66  35  30  35  35  -   50  30  30  30  30  30  30  7   -   7
 
 === Angel Progression chart ===
 
@@ -262,4 +277,4 @@ Pit Fiend  - None.
 Balrog     - Immune to Fire.
 
 
-======================= Last updated for EyAngband 0.5.2 ======================
+====================== Last updated for FayAngband 1.0.0 ======================

@@ -39,19 +39,19 @@
 /*
  * Name of the version/variant
  */
-#define VERSION_NAME "EyAngband"
+#define VERSION_NAME "FayAngband"
 
 /*
  * Current version string
  */
-#define VERSION_STRING	"0.5.2"
+#define VERSION_STRING	"1.0.0"
 
 /*
  * Current version numbers
  */
-#define VERSION_MAJOR	0
-#define VERSION_MINOR	5
-#define VERSION_PATCH	2
+#define VERSION_MAJOR	1
+#define VERSION_MINOR	0
+#define VERSION_PATCH	0
 #define VERSION_EXTRA	0
 
 /*
@@ -276,7 +276,6 @@
 #define TOWN_DAWN		10000	/* Number of turns from dawn to dawn XXX */
 #define MON_MULT_ADJ	8		/* High value slows multiplication */
 #define QUEST_TURNS		1200	/* Number of turns between quest failure checks */
-#define FEELING_RATE	100		/* Amount of turns needed to get a level feeling */
 #define INVIS_DELAY		3		/* Duration of invisiblity nullification (in 10*turns) */
 #define BASE_MON_REGEN	100		/* Base monster regeneration speed */
 #define INTEREST_OFFSET	10		/* Amount of levels OOD before a history is interesting */
@@ -346,9 +345,10 @@
 #define MAX_M_ALLOC_CHANCE (adult_nightmare_mode ? 16 : 160)
 
 /*
- * Normal levels get at least 14 monsters
+ * Normal levels get at least 14 monsters.
+ * Fay: increased to 17 to balance the removal of new monster allocation.
  */
-#define MIN_M_ALLOC_LEVEL	14
+#define MIN_M_ALLOC_LEVEL	17
 
 /*
  * The town starts out with 4 residents during the day
@@ -526,11 +526,12 @@
 #define SK_THT	8	/* To hit (throwing) */
 #define SK_DIG	9	/* Digging */
 #define SK_ALC	10	/* Alchemy */
+#define SK_MAP	11	/* Mapping */
 
 /*
  * Total number of skills.
  */
-#define SK_MAX	11
+#define SK_MAX	12
 
 /* 
  * Indexes of the various "resistances" (hard-coded by savefiles, etc)
@@ -1998,25 +1999,27 @@
 #define SV_BOOK_MAGE7			 6
 #define SV_BOOK_MAGE8			 7
 #define SV_BOOK_MAGE9			 8
-#define SV_BOOK_RANGER			 9
-#define SV_BOOK_PRIEST1			10
-#define SV_BOOK_PRIEST2			11
-#define SV_BOOK_PRIEST3			12
-#define SV_BOOK_PRIEST4			13
-#define SV_BOOK_PRIEST5			14
-#define SV_BOOK_PRIEST6			15
-#define SV_BOOK_PRIEST7			16
-#define SV_BOOK_PRIEST8			17
-#define SV_BOOK_PRIEST9			18
+#define SV_BOOK_MAGE10			9
+#define SV_BOOK_MAGE11			10
+#define SV_BOOK_RANGER			 11
+#define SV_BOOK_PRIEST1			12
+#define SV_BOOK_PRIEST2			13
+#define SV_BOOK_PRIEST3			14
+#define SV_BOOK_PRIEST4			15
+#define SV_BOOK_PRIEST5			16
+#define SV_BOOK_PRIEST6			17
+#define SV_BOOK_PRIEST7			18
+#define SV_BOOK_PRIEST8			19
+#define SV_BOOK_PRIEST9			20
 /* xxx */
-#define SV_BOOK_MYSTIC1			20
-#define SV_BOOK_MYSTIC2			21
-#define SV_BOOK_NECRONOMICON	22
-#define SV_BOOK_CODEX			23
-#define SV_BOOK_MATHEMAGIC		24
+#define SV_BOOK_MYSTIC1			21
+#define SV_BOOK_MYSTIC2			22
+#define SV_BOOK_NECRONOMICON	23
+#define SV_BOOK_CODEX			24
+#define SV_BOOK_MATHEMAGIC		25
 
 /* "Sval" limit - maximum amount of spellbooks */
-#define SV_BOOK_MAX				25
+#define SV_BOOK_MAX				27
 
 /* 
  * Special "k_info" hard coded values - 
@@ -2621,8 +2624,8 @@
 #define CF_WORSE_BLOWS		0x00800000L /* You get less blows in melee */
 #define CF_WEAPON_GOOD		0x01000000L /* Start with a "good" weapon */
 #define CF_WEAPON_NONE		0x02000000L /* Start with no weapon */
-#define CF_XXX1				0x04000000L 
-#define CF_XXX2				0x08000000L	
+#define CF_SHROOM_MAGIC		0x04000000L /* Get good effects out of bad mushrooms */
+#define CF_AMBUSH				0x08000000L	
 #define CF_PSEUDO_ID1		0x10000000L	/* Very Slow sensing */
 #define CF_PSEUDO_ID2		0x20000000L	/* Slow sensing */
 #define CF_PSEUDO_ID3		0x40000000L	/* Very Fast sensing */
@@ -4070,15 +4073,37 @@ extern int PlayerUID;
 #define POW_MUSIC_LUTE			282
 #define POW_MUSIC_DRUM			283
 #define POW_MUSIC_HARP			284
-#define POW_BRAWN				285
+#define POW_BRAWN			285
 #define POW_INTELLECT			286
 #define POW_CONTEMPLATION		287
 #define POW_NIMBLENESS			288
 #define POW_TOUGHNESS			289
 #define POW_PLEASING			290
+#define POW_SHRPOISON			291
+#define POW_SHRBLIND			292
+#define POW_SHRSCARE			293
+#define POW_SHRCONFUSE			294
+#define POW_SHRHALLUCINATE		295
+#define POW_SHRPARALYZE			296
+#define POW_SHRNAIVITY			297
+#define POW_SHRSTUPIDITY		298
+#define POW_SHRAMNESIA			299
+#define POW_SHRDISEASE			300
+#define POW_SHRCURE_POISON		301
+#define POW_SHRCURE_DISEASE		302
+#define POW_SHRCURE_CONFUSION		303
+#define POW_SHRHEAL_1			304
+#define POW_SHRHEAL_2			305
+#define POW_SHRSHIELD			306
+#define POW_SHRCLEAR_MIND		307
+#define POW_SHRRESTORE_STR		308
+#define POW_SHRRESTORE_CON		309
+#define POW_SHRRESTORE_DEX		310
+#define POW_SHRRESTORE_STATS		311
+#define POW_PHLOGISTON			312
 
 /* Total number of powers in the game + 1 */
-#define POW_MAX					291
+#define POW_MAX					313
 
 /* 
  * Hack - variables defined in order to be compatible with the general main*.c files.

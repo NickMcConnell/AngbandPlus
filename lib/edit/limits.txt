@@ -8,7 +8,7 @@
 
 # Version stamp (required)
 
-V:0.5.2
+V:1.0.0
 
 # Maximum number of feature types
 M:F:42
@@ -17,7 +17,7 @@ M:F:42
 M:D:231
 
 # Maximum number of object kinds
-M:K:546
+M:K:548
 
 # Maximum number of artifacts
 M:A:167
@@ -26,7 +26,7 @@ M:A:167
 S:A:31
 
 # Maximum number of classes
-M:C:9
+M:C:13
 
 # Maximum number of ego-item types
 M:E:151

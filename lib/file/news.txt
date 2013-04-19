@@ -1,9 +1,9 @@
 
 
-                            ***********************
-                            **  EyAngband 0.5.2  **
-                            ***********************
-                                 By Eytan Zweig
+                             ************************
+                             **  FayAngband 1.0.0  **
+                             ************************
+                                 By Mikko Lehtinen
 
             Based on Moria:  Copyright (c) 1985 Robert Alan Koeneke
                     Umoria:  Copyright (c) 1989 James E. Wilson
@@ -11,11 +11,11 @@
                              Geoff Hill, Charles Teague, Charles Swiger
      Angband 2.7.0 - 2.8.5:  Ben Harrison
      Angband 2.9.0 - 2.9.3:  Robert Ruehlmann
+     EyAngband   0 - 0.5.2:  Eytan Zweig
 
-	
-        Send comments, bug reports, and patches, to "eytanz@oook.cz"
+        Send comments and bug reports to "miihkali.lehtinen@gmail.com"
+
         EyAngband Home Page at "http://eyangband.sourceforge.net"
-
-        Angband Home Page at "http://thangorodrim.angband.org/"
-        Browse the Angband newsgroup at "news:rec.games.roguelike.angband"
+        Angband Home Page at "http://rephial.org/"
+        Browse the Angband forums at "http://angband.oook.cz/"
 

@@ -40,21 +40,24 @@ SP:           Each character has spell points, or mana, which represents how
 === Stats ===
 
 Strength:     Strength is critical to fighting effectively in melee and with 
-              missile weapons.  Increases in Strength allow you to use heavier
+              missile weapons. Increases in Strength allow you to use heavier
               weapons, and make you more likely to hit through armor.  Strength
               is also useful in tunneling and for carrying heavy items without
               being slowed down.
-Intelligence: Intelligence affects the spellcasting abilities of mages, as well
+Intelligence: Intelligence represents the character's ability in logic and
+              language. It affects the spellcasting abilities of mages, as well
               as spellswords, rangers and mystics. For these classes, this stat
-              will affect the number of spells they may learn each level, the 
+              will affect the number of spells they may learn each level, the
               number of spell points they receive, and the chance for spells to
-              fail. Intelligent characters also use magic devices, pick locks,
-              mix potions, and disarm traps more effectively.
-Wisdom:       Wisdom affects the spellcasting abilities of priests, paladins, 
-              and mystics. For these classes, this stat will affect the number
-              of spells they may learn each level, the number of spell points 
-              they receive, and the chance for or spells to fail.  Wise 
-              characters also have a better chance of resisting magical spells
+              fail. Intelligent characters are better mappers, and they also
+              mix potions, pick locks and disarm traps more effectively.
+Wisdom:       Wise character are at peace with the world, full of common sense,
+              and always aware of their surroundings. Wisdom affects the
+              spellcasting abilities of priests, paladins, and mystics. For
+              these classes, this stat will affect the number of spells they may
+              learn each level, the number of spell points  they receive, and
+              the chance for spells to fail. Wise characters also have a good
+              perception, and have a better chance of resisting magical spells
               cast upon them by monsters.
 Dexterity:    Dexterity is a combination of agility and quickness.  A high 
               dexterity may allow a character to get multiple blows with 
@@ -67,14 +70,15 @@ Constitution: Constitution is a character's ability to resist damage to his
               damage. Therefore a character with a high constitution will 
               receive more hit points and also recover them faster while 
               resting.
-Charisma:     Charisma represents a character's personality and physical 
-              appearance. It affects the spellcasting abilities of bards, 
-              affecting the number of spell points they receive and the chance
-              of their tunes failing. A charismatic character will also receive
-              better prices from store owners, whereas a character with a very 
-              low charisma may be robbed blind. Finally, a high charisma will
-              allow monsters that are magically calmed to remain non-agressive
-              longer. 
+Charisma:     Charisma is more than just appearances and personality. It also
+              represents the character's metaphysical presence, his "aura". It
+              affects the spellcasting abilities of bards, affecting the number
+              of spell points they receive and the chance of their tunes
+              failing. Charismatic characters are very good with magical
+              devices. They will also receive better prices from store owners,
+              whereas a character with a very low charisma may be robbed blind.
+              Finally, a high charisma will allow monsters that are magically
+              calmed to remain non-aggressive longer.
 
 
 === Skills ===
@@ -107,17 +111,24 @@ Bypass Trap:  If you are aware of a trap's location, there is a small chance
               without triggering it.  This skill represents this ability.
 Magic Device: The chance of succesfully using a magical device such as a wand,
               staff, or any activatable object depends on this skill.
-Searching:    Searching affects the chance of success when actively looking for
-              secret doors, floor traps, and traps on chests. 
-Search Freq.: This determines the chance to find something when not actively 
-              searching.
+Perception:   Perception affects your chances of finding traps and secret
+              doors. You will automatically keep watch for traps, and you get
+              only get one chance to detect them. In comparison, you usually have
+              to actively look for secret doors, and use the (s)earch command
+              many times. High perception also sometimes lets you "hear" nearby
+              monsters.
 Digging:      Digging is a tedious art, but characters with a higher skill
               may do it much faster than others. 
 Alchemy:      Mixing potions is a hazardous art, and without a high alchemy 
               skill it is likely to cause accidental explosions or no effect
               at all.  Characters who excel in alchemy may learn alchemical 
               formulae by simply quaffing potions.
-
+Mapping:      Mapping is a very useful skill in the depths of Angband. If you
+              succeed in mapping your path to the depths, you get to begin a new
+              dungeon level standing on a stairway leading back to surface.
+              In addition, characters with a high mapping skill carry a
+              collection of old dungeon maps with them. If you follow a map to
+              a dungeon level, you start with the level partially mapped.
 
 === Other abilities ===
 
@@ -131,4 +142,4 @@ Racial Ab.:   Angels and Demons, being more magical than the other races, may
               activated by the 'U' command, and need some time to recharge.
 
 
-======================= Last updated for EyAngband 0.5.0 ======================
+====================== Last updated for FayAngband 1.0.0 ======================

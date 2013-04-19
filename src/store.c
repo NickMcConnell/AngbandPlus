@@ -487,8 +487,8 @@ static bool store_will_buy(const object_type *o_ptr)
 	/* Hack -- The Home is simple */
 	if (store_num == STORE_HOME) return (TRUE);
 
-	/* Ignore "worthless" items */
-	if (object_value(o_ptr) < 10) return (FALSE);
+	/* Rogues can only sell items with evaluated price >= min_depth in feet */
+	if (object_value(o_ptr) < (500 * p_ptr->min_depth)) return (FALSE);
 
 	/* Switch on the store */
 	switch (store_num)
@@ -704,6 +704,7 @@ static int home_carry(const object_type *o_ptr)
 		/* Hack -- slide the objects */
 		object_copy(&st_ptr->stock[i], &st_ptr->stock[i-1]);
 	}
+
 
 	/* More stuff now */
 	st_ptr->stock_num++;
@@ -1036,6 +1037,12 @@ static void store_create(void)
 			/* No "worthless" items */
 			if (object_value(i_ptr) <= 0) continue;
 		}
+
+
+
+
+
+
 
 		/* Mass produce and/or Apply discount */
 		mass_produce(i_ptr);
@@ -1749,6 +1756,15 @@ static void store_sell(void)
 		item_tester_hook = store_will_buy;
 	}
 
+	/* Only rogues can sell items */
+
+
+	if (!(store_num == STORE_HOME) && (!(cp_ptr->flags & CF_APPRAISE)))
+	{
+		message_format(MSG_STORE, 0, "Only rogues can sell items.");
+		return;
+	}
+
 	/* Get an item */
 	s = "You have nothing that I want.";
 	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN))) return;
@@ -2179,6 +2195,7 @@ static void store_process_command(bool guild_cmd)
  *
  * Note that we use the standard "request_command()" function
  * to get a command, allowing us to use "p_ptr->command_arg" and all
+
  * command macros and other nifty stuff, but we use the special
  * "shopping" argument, to force certain commands to be converted
  * into other commands, normally, we convert "p" (pray) and "m"

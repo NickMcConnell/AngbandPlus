@@ -236,7 +236,7 @@ static void spell_info(char *p, int spell_index)
 	int	beam = ((cp_ptr->flags & CF_BEAM) ? ((p_ptr->lev - 10) * 2) : (p_ptr->lev - 10));
 	int damlev = ((cp_ptr->flags & CF_POWER) ? p_ptr->lev + (p_ptr->lev / 2) : p_ptr->lev);
 	int durlev = ((cp_ptr->flags & CF_POWER) ? p_ptr->lev + (p_ptr->lev / 2) : p_ptr->lev);
-	bool holy = ((cp_ptr->flags & CF_BLESS_WEAPON) ? TRUE : FALSE);
+	bool holy = (!(cp_ptr->flags & CF_CHOOSE_SPELLS) ? TRUE : FALSE);
 	int beam_low = (beam > 10 ? beam - 10 : 0);
 
 	int dur1 = 0;
@@ -1325,6 +1325,7 @@ void do_cmd_study(void)
 		}
 
 		if (always_show_lists)
+
 		{
 			/* Load screen */
 			screen_load();

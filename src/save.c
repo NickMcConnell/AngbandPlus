@@ -261,6 +261,7 @@ static void wr_trap(trap_type *t_ptr)
 	wr_byte(t_ptr->fy);
 	wr_byte(t_ptr->fx);
 	wr_byte(t_ptr->charges);
+	wr_byte(t_ptr->spot_factor);
 
 	if (t_ptr->visible) tmp8u |= 0x01;
 	wr_byte(tmp8u);
@@ -497,6 +498,7 @@ static void wr_extra(void)
 	/* Max Player and Dungeon Levels */
 	wr_s16b(p_ptr->max_lev);
 	wr_s16b(p_ptr->max_depth);
+	wr_s16b(p_ptr->min_depth);
 
 	/* More info */
 	wr_s16b(p_ptr->sc);
@@ -558,9 +560,6 @@ static void wr_extra(void)
 
 	/* Write feeling */
 	wr_byte(p_ptr->feeling);
-
-	/* Turn of last "feeling" */
-	wr_s32b(p_ptr->feeling_cnt);
 
 	/* Current turn */
 	wr_s32b(turn);

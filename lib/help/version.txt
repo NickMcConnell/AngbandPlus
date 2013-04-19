@@ -1,22 +1,23 @@
 === Version Information ===
 
-Make sure to read the newsgroup ("rec.games.roguelike.angband"), and to visit
-the EyAngband home page (http://eyangband.sourceforge.net) and the Official 
-Angband Home Page ("http://thangorodrim.angband.org") for the most up to date
-information about EyAngband and Angband in general.
-
-EyAngband has an incredibly complex history, and is the result of a lot of work
-by a lot of people, all of whom have contributed their time and energy for 
-free, being rewarded only by the pleasure they incur from it. 
+FayAngband has an incredibly complex history, and is the result of a lot of
+work by a lot of people, all of whom have contributed their time and energy
+for free, being rewarded only by the pleasure they incur from it.
 
 The version control files, if they existed, would span more than ten years
 time, and more than six different primary developers.  Without such files,
 we must rely on simpler methods, such as change logs, source file diffs, and
 word of mouth.  Some of this information is summarized in this file.
 
+If you want to know more about EyAngband, visit the EyAngband home page
+(http://eyangband.sourceforge.net).
+
+Angband home page can be found at (http://rephial.org/).
+
 Please be sure to read the copyright information at the end of this file.
 
-=== A Brief History of EyAngband ===
+
+=== A Brief History of EyAngband and FayAngband===
 
 First came "VMS Moria", by Robert Alan Koeneke (1985).
 
@@ -105,19 +106,24 @@ So in March 2000, Robert Ruehlmann offered to take over Angband and started to
 fix the remaining bugs in the Angband 2.8.5 beta.  The resulting version has 
 now been released as Angband 2.9.0, which was soon followed by Angband 2.9.1. 
 
-Around that time, I (Eytan Zweig), having just finished teaching myself some
+Around that time, Eytan Zweig, having just finished teaching himself some
 basic C skills, decided that the best way to improve them while doing something
-productive is to develop my own variant.  Since then, EyAngband has been slowly
+productive was to develop his own variant.  Since then, EyAngband has been slowly
 evolving, growing from a version of Angband with some slight differences to 
-having major re-thinking of some basic gameplay mechanics.  Through it, I tried
-to keep true to what I believed are the basic principles of Angband design, 
+having major re-thinking of some basic gameplay mechanics.  Through it, Eytan
+tried to keep true to what I believed are the basic principles of Angband design, 
 namely a single, totally random dungeon, where everyone you meet is an enemy. 
 
 As further Angband versions were released, EyAngband strove to keep up with the
 changes, incoporating most of the bug fixes and technology updates included in
 Angbands 2.9.2-3.0.1, with the major exception of Lua scripting.  During this
 period, it has also borrowed code and ideas, to various degrees, from other
-variants, especially Oangband, but also ToME (PernAngband) and DrAngband. 
+variants, especially Oangband, but also ToME (PernAngband) and DrAngband.
+
+In October 2010, Mikko Lehtinen decided to make a little fork of EyAngbang. His
+changes didn't require much coding, but they changed the gameplay significantly.
+Mikko decided to call the variant FayAngband. Mikko's design goals were to make
+FayAngband a more challenging game, while reducing unnecessary tedium.
 
 For a more detailed account of Angband's history, check the "version.txt" file
 that accompanies Angband.
@@ -141,5 +147,8 @@ the original Moria/Angband license.
 All changes made by Eytan Zweig are public domain, and may be used freely by 
 all users insofar as the above licenses are respected for accompanying code.
 
+All changes made by Mikko Lehtinen are public domain, and may be used freely by 
+all users insofar as the above licenses are respected for accompanying code.
 
-======================= Last updated for EyAngband 0.5.0 ======================
+
+====================== Last updated for FayAngband 1.0.0 ======================

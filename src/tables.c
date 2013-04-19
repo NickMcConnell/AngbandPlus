@@ -314,41 +314,42 @@ byte adj_str_unarmed[A_RANGE] =
 };
 
 /*
- * Stat Table (INT) -- Magic devices
+ * Stat Table (CHR) -- Magic devices
+ * (the gaps mirror the blows per turn table)
  */
-byte adj_int_dev[A_RANGE] =
+byte adj_chr_dev[A_RANGE] =
 {
 	0	/* 0 */,
-	0	/* 1 */,
-	0	/* 2 */,
-	0	/* 3 */,
-	0	/* 4 */,
-	1	/* 5 */,
-	1	/* 6 */,
-	1	/* 7 */,
-	1	/* 8 */,
-	1	/* 9 */,
-	1	/* 10 */,
-	1	/* 11 */,
-	2	/* 12 */,
-	2	/* 13 */,
-	2	/* 14 */,
-	3	/* 15 */,
-	4	/* 16 */,
-	5	/* 17 */,
-	6	/* 18 */,
-	7	/* 19 */,
-	8	/* 20 */,
-	10	/* 21 */,
-	12	/* 22 */,
-	13	/* 23 */,
-	14	/* 24 */,
-	15	/* 25 */,
-	16	/* 26 */,
-	17	/* 27 */,
-	18	/* 28 */,
-	19	/* 29 */,
-	20	/* 30 */
+	1	/* 1 */,
+	2	/* 2 */,
+	3	/* 3 */,
+	4	/* 4 */,
+	5	/* 5 */,
+	6	/* 6 */,
+	7	/* 7 */,
+	8	/* 8 */,
+	10	/* 9 */,
+	11	/* 10 */,
+	12	/* 11 */,
+	13	/* 12 */,
+	14	/* 13 */,
+	16	/* 14 */,
+	17	/* 15 */,
+	18	/* 16 */,
+	19	/* 17 */,
+	20	/* 18 */,
+	22	/* 19 */,
+	23	/* 20 */,
+	24	/* 21 */,
+	25	/* 22 */,
+	26	/* 23 */,
+	28	/* 24 */,
+	29	/* 25 */,
+	30	/* 26 */,
+	32	/* 27 */,
+	33	/* 28 */,
+	34	/* 29 */,
+	36	/* 30 */	
 };
 
 /*
@@ -358,35 +359,35 @@ byte adj_int_dis[A_RANGE] =
 {
 	0	/* 0 */,
 	0	/* 1 */,
-	0	/* 2 */,
-	0	/* 3 */,
-	0	/* 4 */,
-	1	/* 5 */,
-	1	/* 6 */,
-	1	/* 7 */,
-	1	/* 8 */,
-	1	/* 9 */,
-	1	/* 10 */,
-	1	/* 11 */,
-	2	/* 12 */,
-	2	/* 13 */,
-	2	/* 14 */,
-	3	/* 15 */,
-	3	/* 16 */,
-	4	/* 17 */,
-	6	/* 18 */,
-	8	/* 19 */,
+	1	/* 2 */,
+	1	/* 3 */,
+	1	/* 4 */,
+	2	/* 5 */,
+	2	/* 6 */,
+	2	/* 7 */,
+	3	/* 8 */,
+	3	/* 9 */,
+	3	/* 10 */,
+	3	/* 11 */,
+	4	/* 12 */,
+	4	/* 13 */,
+	5	/* 14 */,
+	5	/* 15 */,
+	6	/* 16 */,
+	7	/* 17 */,
+	8	/* 18 */,
+	9	/* 19 */,
 	10	/* 20 */,
 	11	/* 21 */,
-	13	/* 22 */,
+	12	/* 22 */,
 	14	/* 23 */,
 	15	/* 24 */,
 	16	/* 25 */,
 	17	/* 26 */,
 	18	/* 27 */,
-	19	/* 28 */,
-	19	/* 29 */,
-	19	/* 30 */
+	20	/* 28 */,
+	21	/* 29 */,
+	22	/* 30 */
 };
 
 /*
@@ -395,36 +396,74 @@ byte adj_int_dis[A_RANGE] =
 byte adj_int_alc[A_RANGE] =
 {
 	0	/* 0 */,
+	1	/* 1 */,
+	1	/* 2 */,
+	2	/* 3 */,
+	2	/* 4 */,
+	3	/* 5 */,
+	3	/* 6 */,
+	4	/* 7 */,
+	4	/* 8 */,
+	5	/* 9 */,
+	5	/* 10 */,
+	6	/* 11 */,
+	6	/* 12 */,
+	7	/* 13 */,
+	7	/* 14 */,
+	8	/* 15 */,
+	9	/* 16 */,
+	10	/* 17 */,
+	11	/* 18 */,
+	12	/* 19 */,
+	13	/* 20 */,
+	15	/* 21 */,
+	17	/* 22 */,
+	19	/* 23 */,
+	21	/* 24 */,
+	23	/* 25 */,
+	25	/* 26 */,
+	27	/* 27 */,
+	29	/* 28 */,
+	31	/* 29 */,
+	33	/* 30 */
+};
+
+/*
+ * Stat Table (INT) -- mapping
+ */
+byte adj_int_map[A_RANGE] =
+{
+	0	/* 0 */,
 	0	/* 1 */,
 	0	/* 2 */,
 	0	/* 3 */,
 	0	/* 4 */,
-	0	/* 5 */,
-	0	/* 6 */,
-	0	/* 7 */,
-	0	/* 8 */,
-	0	/* 9 */,
-	0	/* 10 */,
-	0	/* 11 */,
-	0	/* 12 */,
-	1	/* 13 */,
-	1	/* 14 */,
-	2	/* 15 */,
-	3	/* 16 */,
-	4	/* 17 */,
-	5	/* 18 */,
-	6	/* 19 */,
-	7	/* 20 */,
-	8	/* 21 */,
-	9	/* 22 */,
-	9	/* 23 */,
-	10	/* 24 */,
-	10	/* 25 */,
-	11	/* 26 */,
-	13	/* 27 */,
-	13	/* 28 */,
-	15	/* 29 */,
-	17	/* 30 */
+	1	/* 5 */,
+	1	/* 6 */,
+	2	/* 7 */,
+	3	/* 8 */,
+	4	/* 9 */,
+	6	/* 10 */,
+	8	/* 11 */,
+	10	/* 12 */,
+	12	/* 13 */,
+	14	/* 14 */,
+	16	/* 15 */,
+	18	/* 16 */,
+	20	/* 17 */,
+	22	/* 18 */,
+	24	/* 19 */,
+	26	/* 20 */,
+	27	/* 21 */,
+	28	/* 22 */,
+	28	/* 23 */,
+	29	/* 24 */,
+	30	/* 25 */,
+	31	/* 26 */,
+	32	/* 27 */,
+	32	/* 28 */,
+	33	/* 29 */,
+	34	/* 30 */
 };
 
 /*
@@ -436,33 +475,71 @@ byte adj_wis_sav[A_RANGE] =
 	0	/* 1 */,
 	0	/* 2 */,
 	0	/* 3 */,
-	0	/* 4 */,
+	1	/* 4 */,
 	1	/* 5 */,
 	1	/* 6 */,
 	1	/* 7 */,
-	1	/* 8 */,
-	1	/* 9 */,
-	1	/* 10 */,
-	1	/* 11 */,
-	2	/* 12 */,
-	2	/* 13 */,
-	2	/* 14 */,
-	3	/* 15 */,
-	3	/* 16 */,
-	3	/* 17 */,
-	4	/* 18 */,
-	5	/* 19 */,
-	7	/* 20 */,
-	9	/* 21 */,
-	11	/* 22 */,
-	12	/* 23 */,
-	13	/* 24 */,
-	14	/* 25 */,
+	2	/* 8 */,
+	2	/* 9 */,
+	3	/* 10 */,
+	3	/* 11 */,
+	4	/* 12 */,
+	4	/* 13 */,
+	5	/* 14 */,
+	5	/* 15 */,
+	6	/* 16 */,
+	7	/* 17 */,
+	7	/* 18 */,
+	8	/* 19 */,
+	9	/* 20 */,
+	10	/* 21 */,
+	12	/* 22 */,
+	13	/* 23 */,
+	14	/* 24 */,
+	16	/* 25 */,
+	17	/* 26 */,
+	18	/* 27 */,
+	20	/* 28 */,
+	21	/* 29 */,
+	22	/* 30 */
+};
+
+/*
+ * Stat Table (WIS) -- perception
+ */
+byte adj_wis_per[A_RANGE] =
+{
+	0	/* 0 */,
+	0	/* 1 */,
+	0	/* 2 */,
+	1	/* 3 */,
+	1	/* 4 */,
+	2	/* 5 */,
+	3	/* 6 */,
+	4	/* 7 */,
+	5	/* 8 */,
+	6	/* 9 */,
+	6	/* 10 */,
+	6	/* 11 */,
+	7	/* 12 */,
+	8	/* 13 */,
+	9	/* 14 */,
+	10	/* 15 */,
+	10	/* 16 */,
+	11	/* 17 */,
+	12	/* 18 */,
+	12	/* 19 */,
+	12	/* 20 */,
+	13	/* 21 */,
+	13	/* 22 */,
+	14	/* 23 */,
+	14	/* 24 */,
+	15	/* 25 */,
 	15	/* 26 */,
 	16	/* 27 */,
-	17	/* 28 */,
-	18	/* 29 */,
-	19	/* 30 */
+	16	/* 28 */,
+	17	/* 29 */,
+	17	/* 30 */
 };
 
 /*
@@ -822,27 +899,27 @@ byte adj_mag_study[A_RANGE] =
 	30		/* 7 */,
 	40		/* 8 */,
 	45		/* 9 */,
-	50		/* 10 */,
-	52		/* 11 */,
-	54		/* 12 */,
-	56		/* 13 */,
-	58		/* 14 */,
-	59		/* 15 */,
-	62		/* 16 */,
-	64		/* 17 */,
-	70		/* 18 */,
-	85		/* 19 */,
-	95		/* 20 */,
-	105		/* 21 */,
-	115		/* 22 */,
-	120		/* 23 */,
-	122		/* 24 */,
-	124		/* 25 */,
-	126		/* 26 */,
-	128		/* 27 */,
-	130		/* 28 */,
-	132		/* 29 */,
-	134		/* 30 */
+	48		/* 10 */,
+	50		/* 11 */,
+	52		/* 12 */,
+	54		/* 13 */,
+	56		/* 14 */,
+	57		/* 15 */,
+	60		/* 16 */,
+	62		/* 17 */,
+	68		/* 18 */,
+	83		/* 19 */,
+	93		/* 20 */,
+	103		/* 21 */,
+	113		/* 22 */,
+	118		/* 23 */,
+	120		/* 24 */,
+	122		/* 25 */,
+	124		/* 26 */,
+	126		/* 27 */,
+	128		/* 28 */,
+	130		/* 29 */,
+	132		/* 30 */
 };
 
 /*
@@ -1092,56 +1169,56 @@ byte invis_chance[31] =
  */
 s32b player_exp[PY_MAX_LEVEL] =
 {
-	10,
-	25,
-	45,
-	70,
-	100,
-	140,
-	200,
-	280,
-	380,
-	500,
-	650,
-	850,
-	1100,
-	1400,
-	1800,
-	2300,
-	2900,
-	3600,
-	4400,
-	5400,
-	6800,
-	8400,
-	10200,
-	12500,
-	17500,
-	25000,
-	35000L,
-	50000L,
-	75000L,
-	100000L,
-	150000L,
-	200000L,
-	275000L,
-	350000L,
-	450000L,
-	550000L,
-	700000L,
-	850000L,
-	1000000L,
-	1250000L,
-	1500000L,
-	1800000L,
-	2100000L,
-	2400000L,
-	2700000L,
-	3000000L,
-	3500000L,
-	4000000L,
+	11,
+	28,
+	50,
+	77,
+	110,
+	154,
+	220,
+	308,
+	418,
+	550,
+	715,
+	935,
+	1210,
+	1540,
+	1980,
+	2540,
+	3190,
+	3980,
+	4840,
+	5940,
+	7480,
+	9240,
+	11220,
+	13750,
+	19250,
+	27500,
+	38500L,
+	55000L,
+	82500L,
+	110000L,
+	165000L,
+	220000L,
+	302500L,
+	385000L,
+	495000L,
+	605000L,
+	770000L,
+	935000L,
+	1100000L,
+	1375000L,
+	1650000L,
+	1980000L,
+	2310000L,
+	2640000L,
+	2970000L,
+	3300000L,
+	3850000L,
 	4500000L,
-	5000000L
+	4950000L,
+	5500000L
 };
 
 /*
@@ -1253,6 +1330,7 @@ spell_book instruments[SV_MUSIC_MAX] =
 		0,
 		{
 			{ POW_HEAL_2,			"Lesser Healing Melody",		 4,  5, 20 },
+
 			{ POW_POLY_MONSTER,		"Changing Melody",				12, 10, 40 },
 			{ POW_HEAL_3,			"Greater Healing Melody",		15, 14, 40 },
 			{ POW_CURE_POIS_DISE,	"Curing Melody",				30, 50, 90 },
@@ -1378,23 +1456,37 @@ sub_spell_type sub_spell_list[MAX_SUB_SPELL] =
 spell_book books[SV_BOOK_MAX] = 
 {
 	{
-		/* Elementary Incantations (sval 0) */
+		/* Esoteric Energies (sval 0) */
 		SBF_MAGIC,
 		{
-			{ POW_BOLT_ACID_X,		"Acid Bolt",				 1, -1, 22 },
-			{ POW_BOLT_ELEC_X,		"Lightning Bolt",			 1, -1, 22 },
+			{ POW_BOLT_FIRE_X,		"Fire Bolt",				 1, -1, 22 },
 			{ POW_TELE_10,			"Phase Door",  				 1,  1, 24 },
 			{ POW_LIGHT_AREA_2,		"Light Area",				 1,  2, 26 },
-			{ POW_BOLT_FIRE_X,		"Fire Bolt",				 2, -1, 22 },
-			{ POW_BOLT_COLD_X,		"Frost Bolt",				 2, -1, 22 },
-			{ POW_DETECT_MONSTERS,	"Detect Monsters",			 2,  2, 23 },
+			{ POW_DETECT_MONSTERS,		"Detect Monsters",			 2,  2, 23 },
+			{ POW_BOLT_ELEC_X,		"Lightning Bolt",			 2, -1, 29 },
 			{ POW_BALL_POISON,		"Stinking Cloud",			 3,  3, 27 },
-			{ POW_DETECT_TRAP_DOOR,	"Find Traps, Doors & Stairs",3,  4, 25 },
-			{ 0, NULL, 99,  0, 0 }
+			{ POW_DETECT_DOOR_STAIR,	"Find Doors and Stairs",		 3,  4, 25 },
+			{ POW_BOLT_ACID_X,		"Acid Bolt",				 3, -1, 36 },
+			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }
 		}
 	},
 	{
-		/* Sorcerous Adjurations (sval 1) */
+		/* Winter Witchcraft (sval 1) */
+		SBF_MAGIC,
+		{
+			{ POW_BOLT_COLD_X,		"Frost Bolt",				 1, -1, 22 },
+			{ POW_TELE_10,			"Phase Door",  				 1,  1, 24 },
+			{ POW_LIGHT_AREA_2,		"Light Area",				 1,  2, 26 },
+			{ POW_DETECT_MONSTERS,		"Detect Monsters",			 2,  2, 23 },
+			{ POW_BOLT_ACID_X,		"Acid Bolt",				 2, -1, 29 },
+			{ POW_BALL_POISON,		"Stinking Cloud",			 3,  3, 27 },
+			{ POW_DETECT_DOOR_STAIR,	"Find Doors and Stairs",		 3,  4, 25 },
+			{ POW_BOLT_ELEC_X,		"Lightning Bolt",			 3, -1, 36 },
+			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }
+		}
+	},
+	{
+		/* Sorcerous Adjurations (sval 2) */
 		SBF_MAGIC,
 		{
 			{ POW_CONFUSE_MONSTER,	"Confuse Monster",			 4,  3, 26 },
@@ -1405,28 +1497,42 @@ spell_book books[SV_BOOK_MAX] =
 			{ POW_TELE_MAJOR,		"Teleport Self",			 7,  6, 35 },
 			{ POW_BEAM_WEAK_LITE,	"Spear of Light",			 7,  7, 35 },
 			{ POW_STONE_TO_MUD,		"Turn Stone to Mud",		 9,  7, 44 },
-			{ POW_SATISFY_HUNGER,	"Satisfy Hunger",			 9,  8, 45 },
+			{ POW_PHLOGISTON,	"Phlogiston",			 9,  8, 45 },
 			{ 0, NULL, 99,  0, 0 }
 		}
 	},
 	{
-		/* Thaumaturgic Conjurations (sval 2) */
+		/* Blaze of Thaumaturgy (sval 3) */
 		SBF_MAGIC,
 		{
 			{ POW_SLEEP_ALL,		"Sleep All",				11,  9, 45 },
 			{ POW_CREATE_DOOR,		"Create Doors",				11, 13, 35 },
 			{ POW_SLOW_MONSTER,		"Slow Monster",				11,  9, 50 },
 			{ POW_IDENTIFY,			"Identify Item",			11,  8, 75 },
-			{ POW_BALL_FIRE_X,		"Fire Ball",				13, -3, 33 },
-			{ POW_BALL_COLD_X,		"Frost Ball",				13, -3, 33 },
-			{ POW_BALL_ACID_X,		"Acid Ball",				14, -3, 33 },
-			{ POW_BALL_ELEC_X,		"Lightning Ball",			14, -3, 33 },
+			{ POW_BALL_FIRE_X,		"Fire Ball",				12, -3, 31 },
+			{ POW_BALL_ELEC_X,		"Lightning Ball",			13, -3, 36 },
+			{ POW_BALL_ACID_X,		"Acid Ball",				14, -3, 41 },
 			{ POW_DETECT_ENCHANT,	"Detect Enchantment",		15, 10, 40 },
-			{ 0, NULL, 99,  0, 0 }
+			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }
+		}
+	},
+	{
+		/* Magick of the Rimewind (sval 4) */
+		SBF_MAGIC,
+		{
+			{ POW_SLEEP_ALL,		"Sleep All",				11,  9, 45 },
+			{ POW_CREATE_DOOR,		"Create Doors",				11, 13, 35 },
+			{ POW_SLOW_MONSTER,		"Slow Monster",				11,  9, 50 },
+			{ POW_IDENTIFY,			"Identify Item",			11,  8, 75 },
+			{ POW_BALL_COLD_X,		"Frost Ball",				12, -3, 31 },
+			{ POW_BALL_ACID_X,		"Acid Ball",				13, -3, 36 },
+			{ POW_BALL_ELEC_X,		"Lightning Ball",			14, -3, 41 },
+			{ POW_DETECT_ENCHANT,	"Detect Enchantment",		15, 10, 40 },
+			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }
 		}
 	},
 	{		
-		/* Evocations of Power (sval 3) */
+		/* Evocations of Power (sval 5) */
 		SBF_MAGIC,
 		{
 			{ POW_GLYPH_LESSER,		"Barrier",					17, 35, 90 },
@@ -1442,7 +1548,7 @@ spell_book books[SV_BOOK_MAX] =
 		}
 	},
 	{
-		/* Resistance of Scarabtarices (sval 4) */
+		/* Resistance of Scarabtarices (sval 6) */
 		(SBF_MAGIC | SBF_GOOD),
 		{
 			{ POW_RES_FIRE,			"Resist Fire",				 5,  5, 50 },
@@ -1457,7 +1563,7 @@ spell_book books[SV_BOOK_MAX] =
 		}
 	},
 	{
-		/* Mordenkainen's Escapes (sval 5) */
+		/* Mordenkainen's Escapes (sval 7) */
 		(SBF_MAGIC | SBF_GOOD),
 		{
 			{ POW_ABSORB_HIT,		"Absorb Hit",				 5,  5, 25 },
@@ -1465,14 +1571,14 @@ spell_book books[SV_BOOK_MAX] =
 			{ POW_TELE_LEVEL,		"Teleport Level",			15, 17, 60 },
 			{ POW_TELE_CONTROL,		"Dimension Door",			20, 25, 70 },
 			{ POW_CREATE_WALL,		"Create Walls",				30, 40, 80 },
-			{ POW_WORD_RECALL,		"Word of Recall",			35, 25, 75 },
+/*			{ POW_WORD_RECALL,		"Word of Recall",			35, 25, 75 },		*/
 			{ POW_DESTRUCTION,		"Word of Destruction",		40, 21, 80 },
 			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 },
-			{ 0, NULL, 99,  0, 0 }
+			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }
 		}
 	},
 	{
-		/* Kelek's Grimoire of Power (sval 6) */
+		/* Kelek's Grimoire of Power (sval 8) */
 		(SBF_MAGIC | SBF_GOOD),
 		{
 			{ POW_DETECT_EVIL,		"Detect Evil",				 5,  5, 50 },
@@ -1487,7 +1593,7 @@ spell_book books[SV_BOOK_MAX] =
 		}
 	},
 	{
-		/* Raal's Tome of Destruction (sval 7) */
+		/* Raal's Tome of Destruction (sval 9) */
 		(SBF_MAGIC | SBF_GOOD),
 		{
 			{ POW_BOLT_POISON_X,	"Poison Bolt",				 5, -4, 50 },
@@ -1503,7 +1609,7 @@ spell_book books[SV_BOOK_MAX] =
 		}
 	},
 	{
-		/* Tenser's transformations (sval 8) */
+		/* Tenser's transformations (sval 10) */
 		(SBF_MAGIC | SBF_GOOD),
 		{
 			{ POW_HEROISM,			"Heroism",					 5,  5, 50 },
@@ -1517,7 +1623,7 @@ spell_book books[SV_BOOK_MAX] =
 		}
 	},
 	{
-		/* The Lore of the Hunter (sval 9) */
+		/* The Lore of the Hunter (sval 11) */
 		(SBF_MAGIC | SBF_GOOD),
 		{
 			{ POW_BRAND_AMMO_ANML,	"Hunter's Arrows",			18, 25, 60 },
@@ -1531,7 +1637,7 @@ spell_book books[SV_BOOK_MAX] =
 		}
 	},
 	{
-		/* Novice's Handbook (sval 10) */
+		/* Novice's Handbook (sval 12) */
 		SBF_PRAYER,
 		{
 			{ POW_DETECT_EVIL,		"Detect Evil",				 1,  1, 10 },
@@ -1546,7 +1652,7 @@ spell_book books[SV_BOOK_MAX] =
 		}
 	},
 	{
-		/* Words of Wisdom (sval 11) */
+		/* Words of Wisdom (sval 13) */
 		SBF_PRAYER,
 		{
 			{ POW_SCARE_MONSTER,	"Scare Monster",			 5,  4, 29 },
@@ -1554,14 +1660,14 @@ spell_book books[SV_BOOK_MAX] =
 			{ POW_HEAL_2,			"Cure Serious Wounds",		 5,  4, 32 },
 			{ POW_SLEEP_ADJACENT,	"Sanctuary",				 6,  5, 36 },
 			{ POW_BLESS_2,			"Chant",					 6,  5, 34 },
-			{ POW_SATISFY_HUNGER,	"Satisfy Hunger",			 7,  5, 38 },
+			{ POW_PHLOGISTON,	"Phlogiston",			 7,  5, 38 },
 			{ POW_REMOVE_CURSE_1,	"Remove Curse",				 7,  6, 38 },
 			{ POW_RES_FIRE_COLD,	"Resist Heat and Cold",		 7,  7, 38 },
 			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }
 		}
 	},
 	{
-		/* Chants and Blessings (sval 12) */
+		/* Chants and Blessings (sval 14) */
 		SBF_PRAYER,
 		{
 			{ POW_CURE_POISON,		"Neutralize Poison",		 9,  6, 38 },
@@ -1577,7 +1683,7 @@ spell_book books[SV_BOOK_MAX] =
 		}
 	},
 	{
- 		/* Exorcism and Dispelling (sval 13) */
+ 		/* Exorcism and Dispelling (sval 15) */
 		SBF_PRAYER,
 		{
 			{ POW_BLESS_3,			"Prayer",					15, 14, 50 },
@@ -1592,21 +1698,22 @@ spell_book books[SV_BOOK_MAX] =
 		}
 	},
 	{
-		/* Ethereal openings (sval 14) */
+		/* Ethereal openings (sval 16) */
 		(SBF_PRAYER | SBF_GOOD),
 		{ 
 			{ POW_TELE_10,			"Blink",					 3,  3, 50 },
 			{ POW_TELE_MAJOR,		"Teleport Self",			10, 10, 50 },
 			{ POW_TELE_OTHER,		"Teleport Other",			20, 15, 80 },
 			{ POW_TELE_LEVEL,		"Teleport Level",			30, 40, 75 },
-			{ POW_WORD_RECALL,		"Word of Recall",			35, 50, 75 },
+/*			{ POW_WORD_RECALL,		"Word of Recall",			35, 50, 75 },		*/
 			{ POW_ALTER_REALITY,	"Alter Reality",			40, 60, 75 },
 			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 },
-			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }
+			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 },
+			{ 0, NULL, 99,  0, 0 }
 		}
 	},
 	{
-		/* Godly Insights (sval 15) */
+		/* Godly Insights (sval 17) */
 		(SBF_PRAYER | SBF_GOOD),
 		{
 			{ POW_DETECT_MONSTERS,	"Detect Monsters",			 3,  3, 50 },
@@ -1620,7 +1727,7 @@ spell_book books[SV_BOOK_MAX] =
 		}
 	},
 	{
-		/* Purifications and Healing (sval 16) */
+		/* Purifications and Healing (sval 18) */
 		(SBF_PRAYER | SBF_GOOD),
 		{
 			{ POW_HEAL_4,			"Cure Mortal Wounds",		17,  7, 60 },
@@ -1634,7 +1741,7 @@ spell_book books[SV_BOOK_MAX] =
 		}
 	},
 	{
-		/* Holy Infusions (sval 17) */
+		/* Holy Infusions (sval 19) */
 		(SBF_PRAYER | SBF_GOOD),
 		{
 			{ POW_DEST_TRAP_DOOR_2,	"Unbarring Ways",			 5,  6, 50 },
@@ -1648,7 +1755,7 @@ spell_book books[SV_BOOK_MAX] =
 		}
 	},
 	{
-		/* Wrath of God (sval 18) */
+		/* Wrath of God (sval 20) */
 		(SBF_PRAYER | SBF_GOOD),
 		{  
 			{ POW_DISPEL_UNDEAD_2,	"Dispel Undead",			15,  7, 70 },
@@ -1662,17 +1769,7 @@ spell_book books[SV_BOOK_MAX] =
 		}
 	},
 	{
-		0,
-		{
-			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 },
-			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 },
-			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 },
-			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 },
-			{ 0, NULL, 99,  0, 0 }, { 0, NULL, 99,  0, 0 }
-		}
-	},
-	{
-		/* The Seven steps to transcendence (sval 20) */
+		/* The Seven steps to transcendence (sval 21) */
 		(SBF_MYSTIC | SBF_GOOD),
 		{
 			{ POW_CLEAR_MIND,		"Clarity of Mind",			 5,  5, 10 },
@@ -1687,7 +1784,7 @@ spell_book books[SV_BOOK_MAX] =
 		}
 	},
 	{
-		/* The Teachings of the Ninth Master (sval 21) */
+		/* The Teachings of the Ninth Master (sval 22) */
 		(SBF_MYSTIC | SBF_GOOD),
 		{
 			{ POW_ABSORB_HIT,		"Absorb Hit",				 5,  5, 30 },
@@ -1703,7 +1800,7 @@ spell_book books[SV_BOOK_MAX] =
 		}
 	},
 	{
-			/* The Necronomicon (sval 22) */
+			/* The Necronomicon (sval 23) */
 		(SBF_NECRONOM | SBF_GOOD | SBF_ARTIFACT),
 		{ 
 			{ POW_DARK_AREA,		"Unlight Area",				 1,  1, 15 },
@@ -1716,7 +1813,7 @@ spell_book books[SV_BOOK_MAX] =
 		}
 	},
 	{
-		/* The Codex of Ultimate Wisdom (sval 23) */
+		/* The Codex of Ultimate Wisdom (sval 24) */
 		(SBF_CODEX | SBF_GOOD | SBF_ARTIFACT),
 		{
 			{ POW_IDENTIFY,			"Perception",				 1, 15, 50 },
@@ -1729,7 +1826,7 @@ spell_book books[SV_BOOK_MAX] =
 		}
 	},
 	{
-		/* The Mathemagical Calculations (sval 24) */
+		/* The Mathemagical Calculations (sval 25) */
 		(SBF_MATHEMAGIC | SBF_GOOD | SBF_ARTIFACT),
 		{
 			{ POW_SPELL_INFLUENCE,	"Enchance Influence",		20, 35, 80 },
@@ -1903,8 +2000,8 @@ option_type options[OPT_NORMAL] =
 	{"show_weights",		"Show weights in all object listings",		TRUE },
 	{"ring_bell",			"Audible bell (on errors, etc)",			TRUE },
 	{"show_flavors",		"Show flavors in object descriptions",		TRUE },
-	{"run_ignore_stairs",	"When running, ignore stairs",				TRUE },
-	{"run_ignore_doors",	"When running, ignore doors",				TRUE },
+	{"run_ignore_stairs",	"When running, ignore stairs",				FALSE },
+	{"run_ignore_doors",	"When running, ignore doors",				FALSE },
 	{"run_cut_corners",		"When running, cut corners",				TRUE },
 	{"disturb_move",		"Disturb whenever any monster moves",		TRUE },
 	{"disturb_near",		"Disturb whenever viewable monster moves",	TRUE },
@@ -1916,7 +2013,7 @@ option_type options[OPT_NORMAL] =
 	{"expand_look",			"Expand the power of the look command",		TRUE },
 	{"expand_list",			"Expand the power of the list commands",	TRUE },
 	{"view_perma_grids",	"Map remembers all perma-lit grids",		TRUE },
-	{"view_torch_grids",	"Map remembers all torch-lit grids",		FALSE},
+	{"view_torch_grids",	"Map remembers all torch-lit grids",		TRUE},
 	{"dungeon_align",		"Generate dungeons with aligned rooms",		TRUE },
 	{"view_reduce_lite",	"Reduce lite-radius when running",			FALSE},
 	{"hidden_player",		"Hide player symbol when running",			FALSE},
@@ -1953,11 +2050,14 @@ option_type options[OPT_NORMAL] =
 	{"allow_prefix_colors",	"Allow prefixes to determine object color",	TRUE }
 };
 
+
+
+
 option_type options_birth[OPT_BIRTH] =
 {
 	{"birth_point_based",		"Allow purchase of stats using points",		FALSE},
 	{"birth_auto_roller",		"Allow specification of minimal stats",		FALSE},
-	{"birth_preserve",			"Preserve artifacts when leaving level",	TRUE },
+	{"birth_preserve",			"Preserve artifacts when leaving level",	TRUE},
 	{"birth_ironman",			"Restrict the use of stairs/recall",		FALSE},
 	{"birth_no_stores",			"Restrict the use of stores/home",			FALSE},
 	{"birth_no_artifacts",		"Restrict creation of artifacts",			FALSE},
@@ -1969,11 +2069,11 @@ option_type options_birth[OPT_BIRTH] =
 	{"birth_flow_by_sound",		"Monsters chase current location",			TRUE },
 	{"birth_flow_by_smell",		"Monsters chase recent locations",			TRUE },
 	{"birth_random_hp",			"Generate hitpoints randomly",				TRUE },
-	{"birth_force_small_lev",	"All levels will be generated as small",	FALSE},
+	{"birth_force_small_lev",	"All levels will be generated as small",	TRUE},
 	{"birth_easy_mode",			"Easy mode",								FALSE},
 	{"birth_nightmare_mode",	"Nightmare mode",							FALSE},
 	{"birth_retain_squelch",	"Retain squelch settings",					FALSE},
-	{"birth_weighted_roller",	"Allow specification of stat weighings",	FALSE},
+	{"birth_weighted_roller",	"Allow specification of stat weighings",	TRUE},
 };
 
 option_type options_cheat[OPT_CHEAT] =

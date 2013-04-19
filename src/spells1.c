@@ -371,34 +371,38 @@ void teleport_player_level(void)
 
 	if (!p_ptr->depth)
 	{
-		message(MSG_TPLEVEL, 0, "You sink through the floor.");
-
-		/* New depth */
-		p_ptr->depth++;
-
-		/* Leaving */
-		p_ptr->leaving = TRUE;
+		message(MSG_FAIL, 0, "Nothing happens.");
+		return;
 	}
 
 	else if ((quest_check(p_ptr->depth) == QUEST_FIXED) || 
-			 (quest_check(p_ptr->depth) == QUEST_FIXED_U) || 
-			 (p_ptr->depth >= MAX_DEPTH-1))
+			 (quest_check(p_ptr->depth) == QUEST_FIXED_U))
 	{
-		message(MSG_TPLEVEL, 0, "You rise up through the ceiling.");
+		if (p_ptr->depth > p_ptr->min_depth +1)
+		{
+			message(MSG_TPLEVEL, 0, "You rise up through the ceiling.");
 
-		/* New depth */
-		p_ptr->depth--;
+			/* New depth */
+			p_ptr->depth--;
+			p_ptr->min_depth++;
 
-		/* Leaving */
-		p_ptr->leaving = TRUE;
+			/* Leaving */
+			p_ptr->leaving = TRUE;
+		}
+		else
+		{
+			message(MSG_FAIL, 0, "Nothing happens.");
+			return;
+		}
 	}
 
-	else if (rand_int(100) < 50)
+	else if ((rand_int(100) < 50) && (p_ptr->depth > p_ptr->min_depth +1))
 	{
 		message(MSG_TPLEVEL, TRUE, "You rise up through the ceiling.");
 
 		/* New depth */
 		p_ptr->depth--;
+		p_ptr->min_depth++;
 
 		/* Leaving */
 		p_ptr->leaving = TRUE;
@@ -410,6 +414,7 @@ void teleport_player_level(void)
 
 		/* New depth */
 		p_ptr->depth++;
+		p_ptr->min_depth++;
 
 		/* Leaving */
 		p_ptr->leaving = TRUE;
@@ -3779,6 +3784,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 			
 			take_hit(dam, killer);
 			break;
+
 		}
 
 		/* Time -- powerful draining */
@@ -4324,6 +4330,8 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 			if (fresh_before) Term_fresh();
 		}
 	}
+
+
 
 	/* Check features */
 	if (flg & (PROJECT_GRID))

@@ -569,6 +569,9 @@ bool place_trap_chest(int y, int x)
 	/* HACK - Regular locks get random power, all other get full power */
 	t_ptr->charges = w_ptr->max_charges;
 
+	/* Spot difficulty */
+	t_ptr->spot_factor = w_ptr->spot_factor;
+
 	if (!trap_place(y, x, t_ptr)) return (FALSE);
 
 	/* Result */

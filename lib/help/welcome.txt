@@ -1,6 +1,6 @@
 === General Information ===
 
-EyAngband is basically a complex single player dungeon simulation.  A player
+FayAngband is basically a complex single player dungeon simulation.  A player
 creates a character, choosing from a variety of sexes, races and classes,
 and then "runs" that character over a period of days, weeks, even months.
 
@@ -13,7 +13,7 @@ occasionally to barter for new supplies.  Eventually, as the player grows more
 experienced, he may attempt to win the game by defeating Morgoth, the Lord of 
 Darkness, who resides far below the surface.
 
-Note that EyAngband is a very complex game, and it may be difficult to grasp
+Note that FayAngband is a very complex game, and it may be difficult to grasp
 everything at first, especially if you have never played a "roguelike" game
 before.  Even if you are an experienced hand at Angband or others of its many
 variants, however, you will discover that much is different.  You should 
@@ -21,16 +21,22 @@ probably browse through all of the "online help files" before beginning any
 serious adventuring.
 
 For the true newcomer, a simple tutorial is available in the "tutorial.txt"
-help file. 
+help file.
 
-=== A Note from the Maintainer ===
+
+=== FayAngband ===
+
+FayAngband is a variant of EyAngband, which is a variant of Angband.
+
+
+=== A Note from Eytan Zweig ===
 
 Welcome to EyAngband. My name is Eytan Zweig, and I have maintained EyAngband
 ever since it branched out of the main Angband development line in October 
 2000, and started a life of it's own.  However, it is far from correct to 
 attribute the entire project to me - for much of what you see when you play the
 game I am indebted to previous maintainers, patch writers, and many people who
-took the time to share their ideas and feedback with me.  
+took the time to share their ideas and feedback with me.
 
 EyAngband's official home page is http://eyangband.sourceforge.net where the 
 newest versions can be found, as well as information about the current state
@@ -64,4 +70,4 @@ you found that it isn't quite suited for your tastes, try one of the many other
 Angband variants out there.  You'll be amazed at the variety available.
 
 
-======================= Last updated for EyAngband 0.5.0 ======================
+====================== Last updated for FayAngband 1.0.0 ======================

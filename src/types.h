@@ -598,6 +598,7 @@ struct trap_widget
 	byte x_attr;			/* Default attribute */
 	char x_char;			/* Default character */
 
+	byte spot_factor;		/* Difficulty to spot the trap; only one try */
 	byte disarm_factor;		/* Difficulty to disarm at dlev 100 */
 	byte bypass_factor;		/* Difficulty to bypass at dlev 100 */
 
@@ -777,6 +778,7 @@ struct trap_type
 
 	bool visible;		/* Whether player can see trap */
 
+	byte spot_factor;	/* Difficulty of spotting the trap */
 	byte charges;		/* Number of charges */
 };
 
@@ -1104,6 +1106,7 @@ struct player_type
 
 	s16b max_depth;		/* Max depth */
 	s16b depth;			/* Cur depth */
+	s16b min_depth;		/*Min Depth */
 
 	s16b max_lev;		/* Max level */
 	s16b lev;			/* Cur level */
@@ -1351,8 +1354,6 @@ struct player_type
 	s16b wt_birth;			/* Birth Weight */
 
 	byte feeling;		/* Level feeling */
-	s32b feeling_cnt;	/* Hack - counter for level feeling */
-
 };
 
 /*

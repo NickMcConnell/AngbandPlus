@@ -423,6 +423,9 @@ static void player_wipe(void)
 	/* No current quest */
 	p_ptr->cur_quest = 0;
 
+	/* Reset Min Depth */
+	p_ptr->min_depth = 0;
+
 	/* Reset the "objects" */
 	for (i = 1; i < z_info->k_max; i++)
 	{
@@ -498,7 +501,7 @@ static void player_outfit(void)
 
 	/* Hack -- Give the player some food */
 	object_prep(i_ptr, lookup_kind(TV_FOOD, SV_FOOD_RATION));
-	i_ptr->number = (byte)rand_range(4, 7);
+	i_ptr->number = (byte)rand_range(3, 6);
 	object_aware(i_ptr);
 	object_known(i_ptr);
 	(void)inven_carry(i_ptr);
@@ -986,6 +989,9 @@ static bool get_player_class(void)
 	int  i;
 	birth_menu *classes;
 
+	/* Limit the races to not include frost-magic classes */
+	z_info->c_max = 9;
+
 	C_MAKE(classes, z_info->c_max, birth_menu);
 
 	/* Extra info */
@@ -1014,6 +1020,19 @@ static bool get_player_class(void)
 		p_ptr->pclass = 0;
 
 		return (FALSE);
+	}
+
+	/* HACK: Change class if the race prefers Frost-Magic (14 means 50%, 15 means 100%) */
+	z_info->c_max = 13;
+
+	if (((p_ptr->pclass > 3) && (p_ptr->pclass < 8)) || p_ptr->pclass == 7)
+	{
+		if ((rp_ptr->choice & (1L << 14)) && (50 > rand_int(100))) p_ptr->pclass = p_ptr->pclass +5;
+	}
+
+	if (((p_ptr->pclass > 3) && (p_ptr->pclass < 8)) || p_ptr->pclass == 7)
+	{
+		if (rp_ptr->choice & (1L << 15)) p_ptr->pclass = p_ptr->pclass +5;
 	}
 
 	/* Set class */

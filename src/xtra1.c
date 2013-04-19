@@ -1898,6 +1898,7 @@ byte calc_blows(const object_type *o_ptr, bool full)
 		p_ptr->skill[SK_DIG] += (object_weight(o_ptr) / 10);
 
 		/* Hack - Now modify the value according to class */
+		if ((cp_ptr->flags & CF_BETTER_BLOWS) && (wgt_val > 12)) wgt_val--;
 		if (cp_ptr->flags & CF_BETTER_BLOWS) wgt_val--;
 		if (cp_ptr->flags & CF_WORSE_BLOWS) wgt_val++;
 
@@ -2562,14 +2563,20 @@ static void calc_bonuses(void)
 	/* Affect Skill -- bypass (DEX) */
 	p_ptr->skill[SK_BYP] += adj_dex_dis[p_stat(A_DEX)];
 
-	/* Affect Skill -- magic devices (INT) */
-	p_ptr->skill[SK_DEV] += adj_int_dev[p_stat(A_INT)];
+	/* Affect Skill -- magic devices (CHR) */
+	p_ptr->skill[SK_DEV] += adj_chr_dev[p_stat(A_CHR)];
 
-	/* Affect Skill -- aclhemy (INT) */
+	/* Affect Skill -- alchemy (INT) */
 	p_ptr->skill[SK_ALC] += adj_int_alc[p_stat(A_INT)];
+
+	/* Affect Skill -- mapping (INT) */
+	p_ptr->skill[SK_MAP] += adj_int_map[p_stat(A_INT)];
 
 	/* Affect Skill -- saving throw (WIS) */
 	p_ptr->skill[SK_SAV] += adj_wis_sav[p_stat(A_WIS)];
+
+	/* Affect Skill -- perception (WIS) */
+	p_ptr->skill[SK_PER] += adj_wis_per[p_stat(A_WIS)];
 
 	/* Affect Skill -- digging (STR) */
 	p_ptr->skill[SK_DIG] += adj_str_dig[p_stat(A_STR)];

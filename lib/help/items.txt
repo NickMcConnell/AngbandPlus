@@ -1,6 +1,6 @@
 === Interacting with Objects ===
 
-EyAngband features many different item types, all of which are at least 
+FayAngband features many different item types, all of which are at least 
 potentially useful for players.  This help file summarizes the various item 
 types and the means of interaction with them.
 
@@ -17,7 +17,7 @@ noted as having possible "hidden powers", you'll need to *identify* it to get
 the full description.
 
 When 'I'nspecting objects, thieves get the additional ability to estimate its
-value.
+value. (Thieves are the only characters that can sell items to the shops.)
 
 
 === Object Identification ===
@@ -26,30 +26,29 @@ When you go down into the dungeon, most objects will be unfamiliar to you.  If
 you find a red potion, for instance, you can't tell what it's effect on you 
 will be - it could raise one of your stats, heal your wounds, or maybe kill 
 you.  Similarly, if you find a broad sword, you don't know if it's enchanted,
-cursed, or neither.  
+cursed, or neither.
 
-There are two ways to figure out what an item does.  You can try using it-
+There are two ways to figure out what an item does.  You can try using it,
 which may or may not give you the information you need (if you drink a healing
 potion when unhurt, you'll feel no different), and can carry a significant 
-risk.  The safer way is via an identify spell - available to most spellcasters
-(except bards) at some point in the game, and via scrolls of identify and 
-rods and staves of perception for all classes.  
+risk. If you wear an object for a long time, you will eventually identify it.
+The safer way to identify objects is via an identify spell - available to most
+spellcasters (except bards) at some point in the game, and via scrolls of
+identify for all classes.
 
-There are four types of item in the game - those whose use is immediately 
-obvious and require no identification (torches, food rations) are few and 
-usually very basic.  The second class, which consists of weapon and armor, 
-require identification of each individual item you find.  The third, and
-largest, class, consists of the items such as potions, and scrolls - where,
-once you know what one particular item does, you'll automatically recognize 
-identical items when you meet them again.  So if you identify one potion of
-cure light wounds, the next one will not require identification.  The final
-class falls somewhere between the second and third types - items such as 
-wands and staves where some information (their effect) is available once you
-identify one, but the rest (number of charges) must be determined for each
-item.  Other items in this catagory are rings, amulets, and lanterns which
-affect your statistics - once you identify one ring of strength you'll 
-recognize when another ring modifies strength, but you won't know if it 
-raises or lowers it without further identification.
+There are three types of item in the game. Those whose use is immediately 
+obvious and require no identification include weapons, armor, instruments,
+torches, and food rations. The second, and largest, class, consists of the
+items such as potions, and scrolls - where, once you know what one particular
+item does, you'll automatically recognize identical items when you meet them
+again.  So if you identify one potion of cure light wounds, the next one will
+not require identification.  The final class falls somewhere between the second
+and third types - items such as wands and staves where some information (their
+effect) is available once you identify one, but the rest (number of charges)
+must be determined for each item.  Other items in this catagory are rings,
+amulets, and lanterns which affect your statistics - once you identify one ring
+of strength you'll recognize when another ring modifies strength, but you won't
+know if it raises or lowers it without further identification.
 
 Finally, for some rare artifacts found deep in the dungeon, simply identifying
 them may not be sufficient.  For these items, you may need a scroll of 
@@ -88,16 +87,6 @@ with "cursed".  Broken objects may be inscribed with "broken".  Also, any
 item which was purchased at a discount, will be inscribed with the appropriate
 "discount", such as "25% off".  Note that these inscriptions are fake, and 
 cannot be removed.
-
-Also, occasionally you will notice that something in your inventory or 
-equipment list seems to be magical.  High level characters are much more likely
-to notice this than beginning characters.  When you do notice this, the item in
-question will be inscribed with "good" or "cursed" as is relevant.  
-
-Warriors, Bards, and Paladins have a special method of "sensing" their
-inventory/equipment items, which tells them not only if an item is "good" or
-"cursed", but also if it is "average", and if it is "special" or "excellent",
-or "terrible" or "worthless".
 
 
 === Unified Use ===
@@ -159,17 +148,6 @@ Scrolls
     aborted (by pressing ESCAPE), which will stop reading the scroll before it
     disintegrates.  You cannot read a scroll while blinded or in darkness.
 
-    One scroll in particular will be discussed here.  The scroll of "Word of
-    Recall" can be found within the dungeon, or bought at the temple in town.
-    It acts in two manners, depending upon  your current  location.  If read
-    within the dungeon, it will teleport you back to town.  If read in town, it
-    will teleport you back down to the deepest level of the dungeon which your
-    character has previously been on.  This makes the scroll very useful for
-    getting back to the deeper levels of the dungeon.  Once the scroll has been
-    read it takes a while for the spell to act, so don't expect it to save you
-    in a crisis.  Reading a second scroll before the first has had a chance to
-    take effect will cancel both scrolls.
-
     Scrolls may be destroyed by fire and acid attacks.
 
 Wands
@@ -209,4 +187,4 @@ Rods
     Rods are indestructible.
 
 
-======================= Last updated for EyAngband 0.5.0 ======================
+====================== Last updated for FayAngband 1.0.0 ======================

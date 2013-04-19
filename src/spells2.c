@@ -419,6 +419,72 @@ void set_recall(void)
 }
 
 /*
+ * Charge a lite (torch or latern)
+ */
+void phlogiston(void)
+{
+/*	int max_flog;
+	object_type *o_ptr = &p_ptr->equipment[EQUIP_LITE];
+	cptr lite_item = NULL;		*/
+
+	int max_flog;
+	object_type *o_ptr = &inventory[INVEN_LITE];
+	cptr lite_item = NULL;
+
+
+	/* It's a lamp */
+	if ((o_ptr->tval == TV_LITE) && (o_ptr->sval == SV_LANTERN))
+	{
+		max_flog = FUEL_LAMP;
+
+		/* Remember what the item is */
+		lite_item = "lantern";
+	}
+
+	/* It's a torch */
+	else if ((o_ptr->tval == TV_LITE) && (o_ptr->sval == SV_TORCH))
+	{
+		max_flog = FUEL_TORCH;
+
+		/* Remember what the item is */
+		lite_item = "torch";
+	}
+
+	/* No torch to refill */
+	else
+	{
+		message(MSG_EFFECT, 0, "You are not wielding anything which uses phlogiston.");
+		return;
+	}
+
+	if (o_ptr->timeout >= max_flog)
+	{
+		message(MSG_EFFECT, 0, "No more phlogiston can be put in this light.");
+		return;
+	}
+
+	/* Refuel */
+	o_ptr->timeout += (max_flog / 2);
+
+	/* Message */
+	message(MSG_EFFECT, 0, "You add phlogiston to your light.");
+
+	/* Comment */
+	if (o_ptr->timeout >= max_flog)
+	{
+		o_ptr->timeout = max_flog;
+		message(MSG_EFFECT, 0, "Your light is full.");
+	}
+
+	/* Recalculate torch */
+	p_ptr->update |= (PU_TORCH);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_EQUIP);
+}
+
+
+/*
  * Detect all traps on current panel
  */
 bool detect_traps(void)
@@ -998,7 +1064,7 @@ bool detect_all(void)
 	bool detect = FALSE;
 
 	/* Detect everything */
-	if (detect_traps()) detect = TRUE;
+/*	if (detect_traps()) detect = TRUE;	*/
 	if (detect_doors()) detect = TRUE;
 	if (detect_stairs()) detect = TRUE;
 	if (detect_treasure()) detect = TRUE;
@@ -1032,18 +1098,13 @@ void stair_creation(void)
 		cave_set_feat(p_ptr->py, p_ptr->px, FEAT_MORE);
 	}
 	else if ((quest_check(p_ptr->depth) == QUEST_FIXED) || 
-			 (quest_check(p_ptr->depth) == QUEST_FIXED_U) || 
-			 (p_ptr->depth >= MAX_DEPTH-1))
+			 (quest_check(p_ptr->depth) == QUEST_FIXED_U))
 	{
-		cave_set_feat(p_ptr->py, p_ptr->px, FEAT_LESS);
-	}
-	else if (rand_int(100) < 50)
-	{
-		cave_set_feat(p_ptr->py, p_ptr->px, FEAT_MORE);
+		message(MSG_FAIL, 0, "Hmm, it didn't work.");
 	}
 	else
 	{
-		cave_set_feat(p_ptr->py, p_ptr->px, FEAT_LESS);
+		cave_set_feat(p_ptr->py, p_ptr->px, FEAT_MORE);
 	}
 }
 

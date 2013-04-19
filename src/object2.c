@@ -3556,8 +3556,8 @@ bool make_gold(object_type *j_ptr, int coin_type)
 	/* Hack -- Base coin cost */
 	base = k_info[k_idx].cost;
 
-	/* Determine how much the treasure is "worth" */
-	j_ptr->pval = (s16b)(base + rand_int(4) + (4L * rand_int(base + 1)));
+	/* Determine how much the treasure is "worth". *2.3 the values for FayAngband. */
+	j_ptr->pval = (s16b)(base + rand_int(9) + (4L * rand_int(2.3*(base + 1))));
 
 	/* Success */
 	return (TRUE);
@@ -4144,6 +4144,7 @@ void alchemy_describe(char *buf, size_t max, int sval)
 	object_kind *k_ptr;
 	object_type *i_ptr;
 	object_type object_type_body;
+
 
 	/* Look for it */
 	for (k = 1; k < z_info->k_max; k++)

@@ -1,11 +1,11 @@
 === The Dungeon ===
 
 
-After you have created your character, you will begin your EyAngband adventure.
-Symbols appearing on your screen will represent the dungeon's walls, floor,
-objects, features, and creatures lurking about.  In order to direct your
-character through his adventure, you will enter single character commands
-(see "cmdlist.txt").
+After you have created your character, you will begin your FayAngband
+adventure. Symbols appearing on your screen will represent the dungeon's
+walls, floor, objects, features, and creatures lurking about.  In order to
+direct your character through his adventure, you will enter single character
+commands (see "cmdlist.txt").
 
 
 === Symbols On Your Map ===
@@ -26,7 +26,7 @@ It is not necessary to remember all of the symbols and their meanings.  The
 
 Note that you can use a "user pref file" to change any of these symbols to
 something you are more comfortable with.
-   
+
 
                 Features that do not block line of sight
  
@@ -34,7 +34,7 @@ something you are more comfortable with.
   ^  A trap (known)                            2  Entrance to Armoury
   ;  A magical glyph                           3  Entrance to Weapon Smith
   '  An open/broken door                       4  Entrance to Temple
-  <  A staircase up                            5  Entrance to Alchemy Shop
+  <  A staircase leading to surface            5  Entrance to Alchemy Shop
   >  A staircase down                          6  Entrance to Magic Shop
   &  A trap and an object in the same square   7  Entrance to the Black Market
      (if red) OR a stack of objects (if white) 8  Entrance to your Home
@@ -114,21 +114,19 @@ many of the commands which work in the dungeon work in the stores as well,
 but some do not, especially those which involve "using" objects.
 
 Stores do not always have everything in stock.  As the game progresses,
-they may get new items so check from time to time.  Also, if you sell them
-an item, it may get sold to a customer while you are adventuring, so don't
-always expect to be able to get back everything you have sold.  Note that
-the inventory of a store will not change while you are in town, even if you
-save the game and return.  You must spend time in the dungeon if you wish
-the store owner to clear out his stock and acquire new items.  If you have
-a lot of spare gold, you can purchase every item in a store, which will
-induce the store owner to bring out new stock, or perhaps even retire.
+they may get new items so check from time to time.  Note that the inventory
+of a store will not change while you are in town, even if you save the game
+and return.  You must spend time in the dungeon if you wish the store owner
+to clear out his stock and acquire new items.  If you have a lot of spare
+gold, you can purchase every item in a store, which will induce the store
+owner to bring out new stock, or perhaps even retire.
 
-Store owners will not buy harmful or useless items.  If an object is
-unidentified, they will pay you some base price for it.  Once they have
-bought it they will immediately identify the object.  If it is a good object,
-they will add it to their inventory.  If it was a bad bargain, they simply
-throw the item away.  In any case, you may receive some knowledge of the
-item if another is encountered.
+Only rogues can sell items to shops. Store owners will not buy harmful or
+useless items.  If an object is unidentified, they will pay you some base
+price for it.  Once they have bought it they will immediately identify the
+object.  If it is a good object, they will add it to their inventory.  If it
+was a bad bargain, they simply throw the item away.  In any case, you may
+receive some knowledge of the item if another is encountered.
 
 The General Store ("1")
      The General Store sells foods, drinks, some clothing, torches, lamps,
@@ -180,23 +178,30 @@ The Adventurer's Guild ("0")
 
 Once your character is adequately supplied with food, light, armor, and
 weapons, he is ready to enter the dungeon.  Move on top of the `>' symbol
-and use the "Down" command (">").
+and use the "Down" command (">"). You will be asked how deep you want to
+descend. Your character will navigate a maze of interconnecting staircases
+and tunnels, until finally arriving on the chosen dungeon level.
 
-Your character will enter a maze of interconnecting staircases and finally
-arrive somewhere on the first level of the dungeon.  Each level of the
-dungeon is fifty feet high (thus dungeon level "Lev 1" is often called
-"50 ft"), and is divided into (large) rectangular regions (several times
-larger than the screen) by titanium walls.  Once you leave a level by a
-staircase, you will never again find your way back to that region of that
-level, but there are an infinite number of other regions at that same "depth"
-that you can explore later.  So be careful that you have found all the
-treasure before you leave a level, or you may never find it again!  The
+Note that your minimum depth increases by one each time you take a stairway
+down. Morgoth is preparing for war, and monsters in the dungeon get tougher
+over time. It is recommended that you dive as fast as you think is reasonably
+safe. Diving fast gives you more options later on. If you dive faster than
+your minimum depth, you are able to take many trips to a particularly
+challenging depth. Winners get extra points for low minimum depth.
+
+Each level of the dungeon is fifty feet high (thus dungeon level "Lev 1" is
+often called "50 ft"), and is divided into (large) rectangular regions
+(several times larger than the screen) by titanium walls.  Once you leave a
+level by a staircase, you will never again find your way back to that region
+of that level, but there are an infinite number of other regions at that same
+"depth" that you can explore later.  So be careful that you have found all
+the treasure before you leave a level, or you may never find it again!  The
 monsters, of course, can use the stairs, and you may eventually encounter
 them again.
 
 In the dungeon, there are many things to find, but your character must
 survive many horrible and challenging encounters to find the treasure lying
-about and take it safely back to the town to sell.
+about.
 
 There are two sources for light once inside the dungeon.  Permanent light
 which has been magically placed within rooms, and a light source carried by
@@ -287,21 +292,24 @@ a digging implement or magical means to enter.  The same rumors imply that
 these rooms are guarded by incredibly powerful monsters, so beware!
 
 
-=== Staircases, Secret Doors, Passages, and Rooms ===
+=== Staircases, Traps, Secret Doors, Passages, and Rooms ===
 
 Staircases are the manner in which you get deeper or climb out of the
 dungeon.  The symbols for the up and down staircases are the same as the
-commands to use them.  A "<" represents an up staircase and a ">" represents
-a down staircase.  You must move your character over the staircase before
-you can use it.
+commands to use them.  A "<" represents a staircase leading back to surface,
+and a ">" represents a down staircase.  You must move your character over the
+staircase before you can use it.
 
-Each level has at least one up staircase and at least two down staircases.
-There are no exceptions to this rule, unless if you choose to play an ironman
-game, in which case there will be no staircases going up.  You may have 
-trouble finding some well hidden secret doors, or you may have to dig through
-obstructions to get to them, but you can always find the stairs if you look 
-hard enough.  Stairs, like permanent walls, and shop entrances, cannot be 
-destroyed by any means.
+Each level has at least one down staircase and a 44 % chance of an up
+staircase. In addition, depending on your Mapping skill, you are sometimes
+able to map your way back to surface, which lets you start the dungeon level
+standing on an up stair. Stairs, like permanent walls, and shop entrances,
+cannot be destroyed by any means.
+
+As you walk around the dungeon, you are always keeping watch for traps. Your
+Perception skill sometimes allows you to notice traps before you step on them.
+You only get one chance to notice a given trap, and repeated searching won't
+help.
 
 Many secret doors are used within the dungeon to confuse and demoralize
 adventurers foolish enough to enter.  But with some luck, and lots of
@@ -314,35 +322,6 @@ like normal floors.
 Creatures in the dungeon will generally know and use these secret doors, and
 can often be counted on to leave them open behind them when they pass
 through.
-
-
-=== Quests ===
-
-There are two types of quests in EyAngband - those needed to win the game, 
-which are covered in the next section, and random quests which can be assigned
-by the adventurer's guild.  These quests usually take the same form - kill a 
-number of creatures on an assigned dungeon level.  Depending on the difficulty
-you requested, the creatures may be much harder than you would normally expect
-to find on those levels - so beware!  On the other hand, once you complete the
-quest and return to the guild you will recieve a reward, which often can be
-very useful.  Ocasionally, you will be offered a special quest, where you will
-be expected to find a lost treasure and return it to the guild.  Unlike in 
-normal quests, you are not forewarned as to what creatures you will be facing!
-And remember to take a digging implement with you, as you never know what lies
-between you and the treasure you seek.
-
-The guild keeps track of your reputation.  The more quests you solve, and the
-more unique monsters you kill in the dungeon, your reputation increases.  With
-higher reputation, the quality of the quest rewards becomes ever higher.  If
-you prove yourself, the guild will give try to give you rewards that are suited
-for your personal needs.
-
-Once you visit the quest level, leaving - whether to get back to town, or to
-escape up or down stairs, or even falling through a trap door - may cause you
-to fail the quest.  The longer you spend off level, the more likely you are to
-do so.  Failure means that your reputation will be decreased, and that you will
-be less likely to receive the best rewards.  If you are on a special quest, you
-have no second chances - leave the level and the quest immediately fails.
 
 
 === Winning The Game ===
@@ -398,4 +377,4 @@ any of the "cheating options", will prevent your character from appearing
 on the high score list.
 
 
-======================= Last updated for EyAngband 0.5.0 ======================
+====================== Last updated for FayAngband 1.0.0 ======================

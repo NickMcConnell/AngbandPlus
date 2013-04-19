@@ -441,6 +441,7 @@ static void rd_trap(trap_type *t_ptr)
 	rd_byte(&t_ptr->fy);
 	rd_byte(&t_ptr->fx);
 	rd_byte(&t_ptr->charges);
+	rd_byte(&t_ptr->spot_factor);
 
 	rd_byte(&tmp8u);
 	t_ptr->visible = (tmp8u & 0x01) ? TRUE: FALSE;
@@ -743,6 +744,7 @@ static errr rd_extra(void)
 
 	rd_s16b(&p_ptr->max_lev);
 	rd_s16b(&p_ptr->max_depth);
+	rd_s16b(&p_ptr->min_depth);
 
 	/* Hack -- Repair maximum player level */
 	if (p_ptr->max_lev < p_ptr->lev) p_ptr->max_lev = p_ptr->lev;
@@ -812,9 +814,6 @@ static errr rd_extra(void)
 
 	/* Read "feeling" */
 	rd_byte(&p_ptr->feeling);
-
-	/* Turn of last "feeling" */
-	rd_s32b(&p_ptr->feeling_cnt);
 
 	/* Current turn */
 	rd_s32b(&turn);
@@ -1795,9 +1794,6 @@ bool load_player(void)
 
 			/* Forget turns */
 			turn = 0;
-			
-			/* Reset feeling counter */
-			p_ptr->feeling_cnt = 0;
 
 			/* A character once existed on this savefile */
 			character_existed = TRUE;

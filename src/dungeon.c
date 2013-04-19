@@ -529,9 +529,6 @@ static void process_world(void)
 	/* While in the dungeon */
 	else
 	{
-		/*** Feeling counter ***/
-		if (p_ptr->feeling_cnt) p_ptr->feeling_cnt--;
-
 		/*** Update the Stores ***/
 
 		/* Update the stores once a day (while in dungeon) */
@@ -583,12 +580,13 @@ static void process_world(void)
 	/*** Process the monsters ***/
 
 	/* Check for creature generation */
-	if (rand_int(MAX_M_ALLOC_CHANCE) == 0)
-	{
+	/* No creature generation in FayAngband! */
+/*	if (rand_int(MAX_M_ALLOC_CHANCE) == 0)					*/
+/*	{									*/
 		/* Make a new monster */
-		if (!cheat_no_respawn) (void)alloc_monster(MAX_SIGHT + 5);
-	}
-	
+/*		if (!cheat_no_respawn) (void)alloc_monster(MAX_SIGHT + 5);	*/
+/*	}									*/
+
 	/*** Damage over Time ***/
 
 	/* Take damage from poison */
@@ -1069,28 +1067,16 @@ static void process_world(void)
 			/* Sound */
 			sound(MSG_TPLEVEL);
 
-			/* Determine the level */
-			if (p_ptr->depth)
-			{
-				message(MSG_TPLEVEL, 0, "You feel yourself yanked upwards!");
+			/* Now WoR gets you always gets you back to town, never back to dungeon */
 
-				/* New depth */
-				p_ptr->depth = 0;
+			message(MSG_TPLEVEL, 0, "You feel yourself yanked upwards!");
 
-				/* Leaving */
-				p_ptr->leaving = TRUE;
-			}
-			else
-			{
-				message(MSG_TPLEVEL, 0, "You feel yourself yanked downwards!");
+			/* New depth */
+			p_ptr->depth = 0;
 
-				/* New depth */
-				p_ptr->depth = p_ptr->max_depth;
-				if (p_ptr->depth < 1) p_ptr->depth = 1;
+			/* Leaving */
+			p_ptr->leaving = TRUE;
 
-				/* Leaving */
-				p_ptr->leaving = TRUE;
-			}
 		}
 	}
 }
@@ -1843,7 +1829,7 @@ static void dungeon(void)
 		}
 
 		/* Cancel the stair request */
-		p_ptr->create_down_stair = p_ptr->create_up_stair = FALSE;
+		p_ptr->create_down_stair = FALSE;
 	}
 
 	/* Choose panel */
@@ -1937,6 +1923,51 @@ static void dungeon(void)
 				break;
 			}
 		}
+	}
+
+	/* Mapping effects? */
+	if (p_ptr->create_up_stair == TRUE)
+	{
+		if (rand_int(55+((p_ptr->max_depth)/2)) < p_ptr->skill[SK_MAP])
+		{
+			int random_map;
+			random_map = rand_int(4);
+
+			if (random_map == 0)
+			{
+				message(MSG_GENERIC, 0, "Some Gnomish adventurers gave you a map leading to this level.");
+				map_area();
+				detect_traps();
+				detect_treasure();
+			}
+
+			else if (random_map == 1)
+			{
+				message(MSG_GENERIC, 0, "You unfold an old Rattikin map of this area.");
+				map_area();
+				detect_traps();
+			}
+
+			else if (random_map == 2)
+			{
+				message(MSG_GENERIC, 0, "You have followed an ancient Dwarven map to this level.");
+				map_area();
+				detect_treasure();
+			}
+
+			else
+			{
+				message(MSG_GENERIC, 0, "You have a sketchy Orcish map of this place.");
+				detect_traps();
+				detect_doors();
+				detect_stairs();
+			}
+		}
+		else
+		{
+			message(MSG_GENERIC, 0, "You've mapped a safe path back to surface.");
+		}
+		p_ptr->create_up_stair = FALSE;
 	}
 
 	/* Announce (or repeat) the feeling */

@@ -2417,6 +2417,16 @@ static long total_points(void)
 	if (adult_easy_mode) p /= 4;
 	if (adult_nightmare_mode) p *= 3;
 
+	/* Winners get a bonus for low minimum depth. */
+	float multiplier;
+	if (p_ptr->total_winner)
+	{
+		multiplier = ((120-p_ptr->min_depth)*(120-p_ptr->min_depth));
+	}
+	else multiplier = 400;
+
+	/* A little hack to get around the integers. */
+	p = (p*multiplier)/400;
 	return p;
 }
 

@@ -1,0 +1,151 @@
+I've reanimated an old favorite, EyAngband! Since I'm not Eytan, I'm calling this attempt FayAngband.
+
+All the features I wanted are already in place, and I've been playtesting this for some months. So I'm brave enough to give version number 1.0.
+
+I've never before coded anything in C. Mostly I just copied and pasted stuff from other places. So I'm sure the code is ugly in some places. But hey, it works!
+
+Big thanks for all Angband coders for making the code so readable and easy to understand. Most of all, thanks to Eytan Zweig. EyAngband is a wonderful variant, and easy to build on.
+
+I've had three major design goals:
+
+1) FayAngband should not reward slow playing. Instead, it should reward good tactics, and taking calculated risks.
+
+2) Make the gameplay faster. Remove unnecessary tedium.
+
+3) Characters should be different from each other. All character classes should have their distinct personality, and all stats should be important for all classes.
+
+- Mikko Lehtinen, January 2011
+
+
+
+
+FayAngband: Major Features
+==========================
+
+Radically different stairs
+--------------------------
+
+Stairs up now take you straight back to the town. Stairs down take you somewhere near your maximum depth. There's no more need for Word of Recall.
+
+Morgoth isn't sleeping anymore, now he's preparing for war. The minimum difficulty level increases by one each time the player takes the stairs down.
+
+When you take the stairs in town, you are asked where you want to navigate. Do you want to descend to (e)asier depth than before, (s)ame depth, (l)ower depth, or perhaps (d)ive two levels deeper? So you can still control how fast you dive, as long as your current depth is at least as deep as the minimum depth.
+
+If you dive fast, you'll get some wiggle room on deeper levels. For example, you could dive fast early, and then return to level 15 several times.
+
+Winners who dove fast get a big score multiplier.
+
+How do these changes affect gameplay?
+
+- Slowly accumulating power on easy dungeon levels is no longer an option.
+
+- Diving fast has many benefits, but it is also more dangerous in this variant. I hope that the player will usually navigate to the "just right" difficulty level for his power level. In this variant, you have to live on the edge.
+
+- To keep up with the ever-strengthening monsters, it is recommended that you try to clean each level throughoutly. This is how many people like to play anyway, and in this variant it's the best strategy.
+
+
+
+More pressure to dive
+---------------------
+
+All the levels are now small. No new monsters get generated on a level.
+
+To add some time pressure, food now costs much more. (Apples, beef jerkys and slime molds are somewhat cheaper than food rations, but they weigh double per food unit.)
+
+Spellcasters lose Satisfy Hunger, and gain Phlogiston, which refuels your light source (from Zangband).
+
+
+
+Mapping skill
+-------------
+
+There's a new skill, Mapping. When you arrive at a new dungeon level, you make a Mapping skill check. If you succeed, you have mapped the route from the town to this level. So you get to start on stairs leading to surface. There's only a 1/3 chance of stairs up being generated elsewhere on the level.
+
+If you succeeded in Mapping, there's a chance that you have followed a map drawn by someone else -- say, an ancient Dwarven map -- to this place, and get a random map effect to help you. In the case of the Dwarven map, you get Magic Mapping plus Detect Treasure.
+
+
+
+Intelligence, Wisdom and Charisma rebalanced
+--------------------------------------------
+
+Intelligence, Wisdom and Charisma should now be important to all characters.
+
+I've invented some new skill bonuses, swapped some bonuses around, and modified bonus tables to make stat bonuses/penalties to skills much more important.
+
+Intelligence: Intelligence represents the character's ability in logic and language. Intelligent characters are better mappers, and they also mix potions, pick locks and disarm traps more effectively.
+
+Wisdom: Wise character are at peace with the world, full of common sense, and always aware of their surroundings. Wise characters have a good perception, and have a better chance of resisting magical spells cast upon them by monsters.
+
+Charisma: Charisma is more than just appearances and personality. It also represents the character's metaphysical presence, his "aura". Charismatic characters are very good with magical devices. They will also receive better prices from store owners, whereas a character with a very low charisma may be robbed blind. Finally, a high charisma will allow monsters that are magically calmed to remain non-aggressive longer.
+
+
+
+Perception governs trap detection
+---------------------------------
+
+I've removed all magical trap detection.
+
+Mapping skill sometimes detects nearby traps on a new level, but usually you have to depend on your Perception.
+
+As you walk around the dungeon, you are always keeping watch for traps. Your Perception skill sometimes allows you to notice traps before you step on them. You only get one chance to notice a given trap, and repeated searching won't help.
+
+
+
+Identify is less important
+--------------------------
+
+I got really bored with having to identify everything. It slowed down the game too much.
+
+Now, you find all weapons and armours already identified. Also, you automatically sense charges on wands and staves.
+
+You still have to identify scrolls, potions, mushrooms, rings, amulets, light sources, wands, staves, and rods. Note that all these can also be id'd by use. You still have to *identify* artifacts.
+
+There's no more Staff of Perception.
+
+
+
+Critical hits are more interesting
+----------------------------------
+
+You will usually only get criticals against sleeping, scared, confused, or blind monsters. If the monster is not distracted, divide critical chance by ten.
+
+Critical chance in percentages is 5 + character's to-hit bonus + weapon's to-hit bonus. Rogues get to add 5 + half their level. (Note that your bow's to-hit bonus has no effect here. Only the arrow's to-hit bonus matters.) You can't get criticals against unseen monsters.
+
+Rogues get double power thrown criticals, and one-and-half power melee and archery criticals. Warriors get double power melee criticals. Rangers get double power archery criticals.
+
+
+
+Rebalanced character classes
+----------------------------
+
+Classes are Warrior, Rogue, Priest, Shaman, Mage, Spellsword, Ranger, Mystic, and Bard. I've tried to make the classes more distinct from each other.
+
+All the classes have changed, but these two are *new*:
+
+Rogue is a professional criminal, attracted to the dungeon by the promise of hidden riches and great wealth. Rogue is is the only class that can sell loot to the shops. Even rogues can only sell *expensive* items - an item's evaluated price must be at least your minimum depth in feet. Rogue is the only character whose stealth improves with experience. She is the master at fighting dirty. She prefers to murder sleeping monsters, or to distract opponents with powder vials before assassinating them. When attacking sleeping, scared, confused or blind opponents, rogue gets criticals hits much more often than other classes. Her criticals are also more deadly, especially with thrown weapons. Rogue is the best thrower of all classes. She usually spots traps before stumbling on them, and knows more about traps than the other classes.
+
+Shaman is a "primitive" warrior/priest, with a belief system based on nature spirits. Shaman is a skilled fighter with blunt or blessed weapons, and can often get more blows with them than the other classes. She receives prayers at a slower pace then the priest, but can receive even the most powerful of prayers. Unlike priest, shaman can choose her prayers, but she can't cast her spells in as heavy armour. In addition to priestly prayers, shaman also practices her own special form of magic, based on eating magical mushrooms, and asking favours from their Mother Spirits. Shaman is a very perceptive character, and stealthier than a priest. Because a shaman is really a dual class character, it takes more experience to advance her. Wisdom determines shaman's spellcasting ability.
+
+
+
+Throwing fixed
+--------------
+
+You can now throw effectively any weapons that weigh less than 10 lbs. This should make throwing a bit more interesting.
+
+I also removed some effects from Wands to make Powder Vials more competitive. Confusion is now exclusive to Powder Vials.
+
+(EyAngband actually had a serious bug with throwing: thrown weapons never caused any damage.)
+
+
+
+Arcane spellcasters specialize in Fire or Frost
+-----------------------------------------------
+
+Eytan spent a lot of effort on making the mage attack spells more interesting. For example, he added lots of elemental resistances and vulnerabilities to monsters. I like this. But I disagree with Eytan's decision to make all four elemental attack spells just as efficient. The vulnerabilities are less interesting if you can always just pick the right spell for the job.
+
+In FayAngband, an arcane spellcaster's race determines whether she specializes in Fire or Frost.  (Arcane spellcasters are mage, spellsword, ranger and mystic.) For example, Fellpurs are fire wizards, Vargrs love frost, and Elves choose their specialty at random.
+
+The specialty affects some of the available spellbooks. Fire mages start the game with the spellbook "Esoteric Energies", frost mages with "Winter Witchcraft". Fire mages are most adept with fire spells, good with lightning, so-so with acid, and will never learn Frost Bolt.
+
+The specialty also affects basic resistances. This is most important for rangers, who have the best resistances of all classes.

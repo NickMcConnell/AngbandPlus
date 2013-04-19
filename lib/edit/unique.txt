@@ -12,7 +12,7 @@
 # index pointing to the entry in monster.txt that the unique is based on, and a colour that
 # superceeds the colour in monster.txt. 
 
-V:0.5.2
+V:1.0.0
 
 N:1:Farmer Maggot
 R:2:w

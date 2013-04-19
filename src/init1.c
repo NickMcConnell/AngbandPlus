@@ -421,8 +421,8 @@ static cptr c_info_flags[32] =
 	"WORSE_BLOWS",
 	"WEAPON_GOOD",
 	"WEAPON_NONE",
-	"XXX1",
-	"XXX2",
+	"SHROOM_MAGIC",
+	"AMBUSH",
 	"PSEUDO_ID1",
 	"PSEUDO_ID2",
 	"PSEUDO_ID3",
@@ -895,7 +895,28 @@ static cptr k_info_act[POW_MAX] =
 	"CONTEMPLATION",
 	"NIMBLENESS",
 	"TOUGHNESS",
-	"PLEASING"
+	"PLEASING",
+	"SHRPOISON",
+	"SHRBLIND",
+	"SHRSCARE",
+	"SHRCONFUSE",
+	"SHRHALLUCINATE",
+	"SHRPARALYZE",
+	"SHRNAIVITY",
+	"SHRSTUPIDITY",
+	"SHRAMNESIA",
+	"SHRDISEASE",
+	"SHRCURE_POISON",
+	"SHRCURE_DISEASE",
+	"SHRCURE_CONFUSION",
+	"SHRHEAL_1",
+	"SHRHEAL_2",
+	"SHRSHIELD",
+	"SHRCLEAR_MIND",
+	"SHRRESTORE_STR",
+	"SHRRESTORE_CON",
+	"SHRRESTORE_DEX",
+	"SHRRESTORE_STATS"
 };
 
 /*** Initialize from ascii template files ***/
@@ -3257,19 +3278,20 @@ errr parse_w_info(char *buf, header *head)
 		w_ptr->rarity = rar;
 	}
 
-	/* Process 'W' for "More Info" (one line only) */
+	/* Process 'X' for "More Info" (one line only) */
 	else if (buf[0] == 'X')
 	{
-		int dis, byp, chr;
+		int spot, dis, byp, chr;
 
 		/* There better be a current r_ptr */
 		if (!w_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (3 != sscanf(buf+2, "%d:%d:%d",
-			            &dis, &byp, &chr)) return (PARSE_ERROR_GENERIC);
+		if (4 != sscanf(buf+2, "%d:%d:%d:%d",
+			            &spot, &dis, &byp, &chr)) return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
+		w_ptr->spot_factor = spot;
 		w_ptr->disarm_factor = dis;
 		w_ptr->bypass_factor = byp;
 		w_ptr->max_charges = chr;
@@ -4203,15 +4225,15 @@ errr parse_p_info(char *buf, header *head)
 	/* Process 'R' for "Racial Skills" (one line only) */
 	else if (buf[0] == 'R')
 	{
-		int dis, byp, dev, sav, stl, per, thn, thb, tht, dig, alc;
+		int dis, byp, dev, sav, stl, per, thn, thb, tht, dig, alc, map;
 
 		/* There better be a current pr_ptr */
 		if (!pr_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (SK_MAX != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d",
+		if (SK_MAX != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d",
 		                &dis, &byp, &dev, &sav, &stl, &per,
-						&thn, &thb, &tht, &dig, &alc)) 
+						&thn, &thb, &tht, &dig, &alc, &map)) 
 						return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
@@ -4226,6 +4248,7 @@ errr parse_p_info(char *buf, header *head)
 		pr_ptr->r_skill[SK_THT] = tht;
 		pr_ptr->r_skill[SK_DIG] = dig;
 		pr_ptr->r_skill[SK_ALC] = alc;
+		pr_ptr->r_skill[SK_MAP] = map;
 	}
 
 	/* Process 'X' for "Extra Info" (one line only) */
@@ -4507,6 +4530,7 @@ errr parse_c_info(char *buf, header *head)
 		/* Start the string */
 		s = buf+1;
 
+
 		/* For each stat */
 		for (j = 0; j < A_MAX; j++)
 		{
@@ -4533,15 +4557,15 @@ errr parse_c_info(char *buf, header *head)
 	/* Process 'C' for "Class Skills" (one line only) */
 	else if (buf[0] == 'C')
 	{
-		int dis, byp, dev, sav, stl, per, thn, thb, tht, dig, alc;
+		int dis, byp, dev, sav, stl, per, thn, thb, tht, dig, alc, map;
 
 		/* There better be a current pc_ptr */
 		if (!pc_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 
 		/* Scan for the values */
-		if (SK_MAX != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d",
+		if (SK_MAX != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d",
 		                &dis, &byp, &dev, &sav, &stl, &per,
-						&thn, &thb, &tht, &dig, &alc)) 
+						&thn, &thb, &tht, &dig, &alc, &map)) 
 						return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
@@ -4556,20 +4580,21 @@ errr parse_c_info(char *buf, header *head)
 		pc_ptr->c_skill[SK_THT] = tht;
 		pc_ptr->c_skill[SK_DIG] = dig;
 		pc_ptr->c_skill[SK_ALC] = alc;
+		pc_ptr->c_skill[SK_MAP] = map;
 	}
 
 	/* Process 'X' for "Xtra Skills" (one line only) */
 	else if (buf[0] == 'X')
 	{
-		int dis, byp, dev, sav, stl, per, thn, thb, tht, dig, alc;
+		int dis, byp, dev, sav, stl, per, thn, thb, tht, dig, alc, map;
 
 		/* There better be a current pc_ptr */
 		if (!pc_ptr) return (PARSE_ERROR_MISSING_RECORD_HEADER);
 		
 		/* Scan for the values */
-		if (SK_MAX != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d",
+		if (SK_MAX != sscanf(buf+2, "%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d:%d",
 		                &dis, &byp, &dev, &sav, &stl, &per,
-						&thn, &thb, &tht, &dig, &alc)) 
+						&thn, &thb, &tht, &dig, &alc, &map)) 
 						return (PARSE_ERROR_GENERIC);
 
 		/* Save the values */
@@ -4584,6 +4609,7 @@ errr parse_c_info(char *buf, header *head)
 		pc_ptr->x_skill[SK_THT] = tht;
 		pc_ptr->x_skill[SK_DIG] = dig;
 		pc_ptr->x_skill[SK_ALC] = alc;
+		pc_ptr->x_skill[SK_MAP] = map;
 	}
 
 	/* Process 'O' for "Oppositions" (one line only) */
@@ -4842,6 +4868,7 @@ errr parse_b_info(char *buf, header *head)
 		i = atoi(buf+2);
 
 		/* Find the colon before the name */
+
 		t = strchr(s, ':');
 
 		/* Verify that colon */

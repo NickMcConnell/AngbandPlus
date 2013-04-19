@@ -71,18 +71,19 @@ static int critical_shot(const object_type *o_ptr, byte *special, int dam)
 	int i, k;
 
 	/* Extract "shot" power */
-	i = ((p_ptr->to_h + object_to_h(o_ptr)) * 4) + (p_ptr->lev * 2);
+	i = ((p_ptr->to_h + object_to_h(o_ptr)) * 2) +10;
 
 	/* Improved critical hits for some classes */
-	if (cp_ptr->flags & CF_BETTER_SHOT) i += 10 + (p_ptr->lev * 2);
+	if (cp_ptr->flags & CF_AMBUSH) i += p_ptr->lev +5;
 
 	/* Critical hit */
-	if (randint(5000) <= i)
+	if (randint(200) <= i)
 	{
 		k = p_ptr->lev + randint(500);
 
 		/* Improved critical hits for some classes */
 		if (cp_ptr->flags & CF_BETTER_SHOT) k *= 2;
+		else if (cp_ptr->flags & CF_AMBUSH) k = (k*3)/2;
 
 		if (k < 500)
 		{
@@ -115,18 +116,19 @@ static int critical_throw(const object_type *o_ptr, int dam)
 	int i, k;
 
 	/* Extract "shot" power */
-	i = ((p_ptr->to_h + object_to_h(o_ptr)) * 4) + (p_ptr->lev * 2);
+	i = ((p_ptr->to_h + object_to_h(o_ptr)) * 2) +10;
 
 	/* Improved critical hits for some classes */
-	if (cp_ptr->flags & CF_BETTER_THROW) i += 10 + (p_ptr->lev * 2);
+	if (cp_ptr->flags & CF_AMBUSH) i += p_ptr->lev +5;
 
 	/* Critical hit */
-	if (randint(5000) <= i)
+	if (randint(200) <= i)
 	{
 		k = p_ptr->lev + randint(500);
 		
 		/* Improved critical hits for some classes */
 		if (cp_ptr->flags & CF_BETTER_THROW) k *= 2;
+		else if (cp_ptr->flags & CF_AMBUSH) k = (k*3)/2;
 
 		if (k < 400)
 		{
@@ -161,21 +163,22 @@ static int critical_norm(const object_type *o_ptr, byte *special, int dam)
 	if ((cp_ptr->flags & CF_BLESS_WEAPON) && (p_ptr->icky_wield)) return (dam);
 	
 	/* Extract "blow" power */
-	i = ((p_ptr->to_h + object_to_h(o_ptr)) * 6) + (p_ptr->lev * 4);
+	i = ((p_ptr->to_h + object_to_h(o_ptr)) * 2) +10;
 
 	/* Improved critical hits for blessed blades */
-	if (p_ptr->bless_blade) i += 100;
+	if (p_ptr->bless_blade) i += 10;
 
 	/* Improved critical hits for some classes */
-	if (cp_ptr->flags & CF_BETTER_CRITICAL) i += 50 + (p_ptr->lev * 4);
+	if (cp_ptr->flags & CF_AMBUSH) i += p_ptr->lev +5;
 
 	/* Chance */
-	if (randint(5000) <= i)
+	if (randint(200) <= i)
 	{
 		k = ((p_ptr->to_h + object_to_h(o_ptr)) * 4) + (p_ptr->lev * 2) + randint(600);
 
 		/* Improved critical hits for some classes */
 		if (cp_ptr->flags & CF_BETTER_CRITICAL) k *= 2;
+		else if (cp_ptr->flags & CF_AMBUSH) k = (k*3)/2;
 
 		/* Improved critical hits for blessed blades */
 		if (p_ptr->bless_blade) k += 100;
@@ -645,45 +648,64 @@ static void search(void)
 	{
 		for (x = (p_ptr->px - 1); x <= (p_ptr->px + 1); x++)
 		{
-			/* Sometimes, notice things */
-			if (rand_int(100) < chance)
+			/* Sometimes, notice traps */
+			if (p_ptr->blind || !player_can_see_bold(p_ptr->py, p_ptr->px))
 			{
-				/* Secret door */
-				if (cave_feat[y][x] == FEAT_SECRET)
+				/* Don't search for traps if the player is blind. */
+			}
+			else if (p_ptr->confused || p_ptr->image)
+			{
+				/* Don't search for traps if the player is confused. */
+			}
+			else if (trap_detectable(y, x))
+			{
+				trap_type *t_ptr = &t_list[cave_t_idx[y][x]];
+				if ((!t_ptr->visible) && (t_ptr->spot_factor) && (trap_detectable(y, x)))
 				{
-					/* Message */
-					message(MSG_FIND, 0, "You have found a secret door.");
-
-					/* Create closed door */
-					cave_set_feat(y, x, FEAT_CLOSED);
-
-					if (trap_lock(y, x)) t_list[cave_t_idx[y][x]].visible = TRUE;
-
-					/* Disturb */
-					disturb(0);
-				}
-	
-				/* Discover invisible traps */
-				else if (trap_detectable(y, x))
-				{
-					trap_type *t_ptr = &t_list[cave_t_idx[y][x]];
-		
-					if (!t_ptr->visible)
+					if ((rand_int(t_ptr->spot_factor) < chance) || (rand_int(t_ptr->spot_factor) < chance))
 					{
+						/* Discover invisible traps */
+
 						/* Message */
 						message(MSG_FIND, 0, "You found a trap!");
-
 						t_ptr->visible = TRUE;
 
 						/* Show trap */
 						lite_spot(y, x);
 
+						/* Trap can be searched for only once */
+						t_ptr->spot_factor = 0;
+
 						/* Disturb */
 						disturb(0);
 					}
+					else
+					{
+						/* Trap can be searched for only once */
+						t_ptr->spot_factor = 0;
+					}
 				}
 			}
+
+
+			/* Sometimes, notice secret doors */
+			if ((cave_feat[y][x] == FEAT_SECRET) && (rand_int(107) < chance))
+			{
+
+				/* Message */
+				message(MSG_FIND, 0, "You have found a secret door.");
+
+				/* Create closed door */
+				cave_set_feat(y, x, FEAT_CLOSED);
+
+				if (trap_lock(y, x)) t_list[cave_t_idx[y][x]].visible = TRUE;
+
+				/* Disturb */
+				disturb(0);
+	
+			}
 		}
+
 	}
 }
 
@@ -941,6 +963,9 @@ static void py_pickup(int pickup)
 
 			if (!heavy) strnfmt(out_val, sizeof(out_val), "Pick up %s? [%s] ", o_name, keys);
 			else strnfmt (out_val, sizeof(out_val), "Pick up %s (heavy)? [%s] ", o_name, keys);
+
+
+
 			
 			/* Prompt for it */
 			prt(out_val, 0, 0);
@@ -1092,9 +1117,6 @@ void py_attack(int y, int x)
 
 	/* Disturb the player */
 	disturb(0);
-
-	/* Disturb the monster */
-	m_ptr->sleep = 0;
 	
 	/* Anger the monster */
 	m_ptr->calmed = 0;
@@ -1114,6 +1136,10 @@ void py_attack(int y, int x)
 	/* Handle player fear */
 	if (p_ptr->afraid > PY_FEAR_AFRAID)
 	{
+
+		/* Disturb the monster */
+		m_ptr->sleep = 0;
+
 		/* Message */
 		message_format(MSG_FAIL, 0, "You are too afraid to attack %s!", m_name);
 
@@ -1138,6 +1164,9 @@ void py_attack(int y, int x)
 			/* Anger it */
 			m_ptr->calmed = 0;
 
+			/* Disturb the monster */
+			m_ptr->sleep = 0;
+
 			teleport_away(cave_m_idx[y][x], 4);
 			lore_learn(m_ptr, LRN_FLAG2, RF2_EVASIVE, FALSE);
 			break;
@@ -1160,9 +1189,19 @@ void py_attack(int y, int x)
 				/* Extract the flags */
 				object_flags(o_ptr, &f1, &f2, &f3);
 
+				/* Apply special damage */
 				k = tot_dam_aux(o_ptr, k, m_ptr, &special);
 				if ((f2 & TR2_IMPACT) && (k > 50)) do_quake = TRUE;
-				k = critical_norm(o_ptr, &special, k);
+
+				/* Critical hits only against visible monsters */
+				if (m_ptr->ml)
+				{
+					/* You usually get critical hits only against distracted monsters */
+					if (m_ptr->blinded || m_ptr->confused || m_ptr->monfear || m_ptr->sleep || (1 > rand_int(10)))
+					{
+						k = critical_norm(o_ptr, &special, k);
+					}
+				}
 			}
 
 			/* No negative damage */
@@ -1195,6 +1234,9 @@ void py_attack(int y, int x)
 			message_format(MSG_MISS, m_ptr->r_idx, "You miss %s.", m_name);
 		}
 	}
+
+	/* Disturb the monster */
+	m_ptr->sleep = 0;
 
 	/* Hack -- delay fear messages */
 	if (fear && m_ptr->ml)
@@ -1288,6 +1330,7 @@ static void move_player(int dir, int jumping)
 			}
 		}
 
+
 		/* Mention known obstacles */
 		else
 		{
@@ -1321,8 +1364,8 @@ static void move_player(int dir, int jumping)
 		y = p_ptr->py;
 		x = p_ptr->px;
 
-		/* Spontaneous Searching */
-		if ((p_ptr->skill[SK_PER] >= 50) || (0 == rand_int(50 - p_ptr->skill[SK_PER])))	search();
+		/* Spontaneous Searching -- now automatic */
+		search();
 
 		/* Continuous Searching */
 		if (p_ptr->searching) search();
@@ -1560,6 +1603,7 @@ static int see_nothing(int dir, int y, int x)
  * the running should continue, turn, or stop.  If only one of the
  * newly adjacent grids appears to be open, then running continues
  * in that direction, turning if necessary.  If there are more than
+
  * two possible choices, then running stops.  If there are exactly
  * two possible choices, separated by a grid which does not seem
  * to be open, then running stops.  Otherwise, as shown below, the
@@ -2152,8 +2196,8 @@ void do_cmd_go_up(void)
 	/* Create a way back */
 	p_ptr->create_down_stair = TRUE;
 
-	/* New depth */
-	p_ptr->depth--;
+	/* In FayAngband, stairs up always take you to town. */
+	p_ptr->depth = 0;
 
 	/* Leaving */
 	p_ptr->leaving = TRUE;
@@ -2176,21 +2220,189 @@ void do_cmd_go_down(void)
 		quest == QUEST_UNIQUE || ((quest == QUEST_VAULT) && (quest_item_slot() == -1))))
 		{
 			sprintf(out_val, "Really risk failing your quest? ");
-
 			if (!get_check(out_val)) return;
+		}
+
+
+		/* Ask the player where she wants to navigate. Choose the right question depending on circumstances. */
+
+		/* First set of questions: Max Depth is quest depth */
+		if ((quest_check(p_ptr->max_depth) == QUEST_FIXED) || (quest_check(p_ptr->max_depth) == QUEST_FIXED_U))
+		{
+			if ((p_ptr->depth) && ((quest_check(p_ptr->depth +1) == QUEST_FIXED) || (quest_check(p_ptr->depth +1) == QUEST_FIXED_U)))
+			{
+				prt("Descend to next (l)evel?", 0, 0);
+			}
+			else if (p_ptr->depth)
+			{
+				prt("Descend to next (l)evel or (d)ive two levels?", 0, 0);
+			}
+			else if (p_ptr->max_depth > p_ptr->min_depth +1)
+			{
+				prt("Navigate to which depth: (s)ame as before or (e)asier?", 0, 0);
+			}
+			else
+			{
+				prt("Navigate to (s)ame depth as before?", 0, 0);
+			}
+
+			flush();
+			int ch;
+			ch = inkey();
+			prt("", 0, 0);
+
+			/* Analyze the answer, then adjust max_depth, min_depth, and current depth. */
+			if ((ch == 'e') && (p_ptr->max_depth > p_ptr->min_depth +1) && !(p_ptr->depth))
+			{
+				p_ptr->max_depth--;
+				p_ptr->depth = p_ptr->max_depth;
+				p_ptr->min_depth++;
+			}
+			else if ((ch == 's') && (p_ptr->max_depth > p_ptr->min_depth) && !(p_ptr->depth))
+			{
+				p_ptr->depth = p_ptr->max_depth;
+				if (p_ptr->min_depth < p_ptr->max_depth) p_ptr->min_depth++;
+			}
+			else if ((ch == 'l') && (p_ptr->depth))
+			{
+				p_ptr->max_depth++;
+				p_ptr->depth = p_ptr->max_depth;
+				p_ptr->min_depth++;
+			}
+			else if ((ch == 'd') && (p_ptr->depth)
+				&& !((quest_check(p_ptr->depth +1) == QUEST_FIXED) || (quest_check(p_ptr->depth +1) == QUEST_FIXED_U)))
+			{
+				p_ptr->max_depth = p_ptr->max_depth +2;
+				p_ptr->depth = p_ptr->max_depth;
+				p_ptr->min_depth++;
+			}
+			else
+			{
+				return;
+			}
+		}
+
+
+		/* Second set of questions: Max Depth +1 is quest level */
+		else if ((quest_check(p_ptr->max_depth +1) == QUEST_FIXED) || (quest_check(p_ptr->max_depth +1) == QUEST_FIXED_U))
+		{
+			if (p_ptr->depth)
+			{
+				prt("Descend one (l)evel?", 0, 0);
+			}
+			else if (p_ptr->max_depth <= p_ptr->min_depth)
+			{
+				prt("Descend to (l)ower depth than before?", 0, 0);
+			}
+			else if (p_ptr->max_depth == p_ptr->min_depth +1)
+			{
+				prt("Navigate to which depth: (s)ame as before or (l)ower?", 0, 0);
+			}	
+			else
+			{
+				prt("Navigate to which depth: (e)asier, (s)ame, or (l)ower?", 0, 0);
+			}
+			flush();
+			int ch;
+			ch = inkey();
+			prt("", 0, 0);
+
+			/* Analyze the answer, then adjust max_depth, min_depth, and current depth. */
+			if ((ch == 'e') && (p_ptr->max_depth > p_ptr->min_depth +1) && !(p_ptr->depth))
+			{
+				p_ptr->max_depth--;
+				p_ptr->depth = p_ptr->max_depth;
+				p_ptr->min_depth++;
+			}
+			else if ((ch == 's') && (p_ptr->max_depth > p_ptr->min_depth) && !(p_ptr->depth))
+
+			{
+				p_ptr->depth = p_ptr->max_depth;
+				p_ptr->min_depth++;
+			}
+			else if (ch == 'l')
+			{
+				p_ptr->max_depth++;
+				p_ptr->depth = p_ptr->max_depth;
+				p_ptr->min_depth++;
+			}
+			else
+			{
+				return;
+			}
+		}
+
+
+
+		/* Third set of questions: Not near the quest depth */
+		else
+		{
+			if ((p_ptr->depth) || (p_ptr->max_depth < 1))
+			{
+				prt("Descend one (l)evel or (d)ive two levels?", 0, 0);
+			}
+			else if (p_ptr->max_depth <= p_ptr->min_depth)
+			{
+				prt("Descend to (l)ower depth than before or (d)ive even deeper?", 0, 0);
+			}
+			else if (p_ptr->max_depth == p_ptr->min_depth +1)
+			{
+				prt("Navigate to which depth: (s)ame as before, (l)ower, or (d)ive?", 0, 0);
+			}	
+			else
+			{
+				prt("Navigate to which depth: (e)asier, (s)ame, (l)ower, (d)ive?", 0, 0);
+			}
+			flush();
+			int ch;
+			ch = inkey();
+			prt("", 0, 0);
+
+			/* Analyze the answer, then adjust max_depth, min_depth, and current depth. */
+			if ((ch == 'e') && (p_ptr->max_depth > p_ptr->min_depth +1) && !(p_ptr->depth))
+			{
+				p_ptr->max_depth--;
+				p_ptr->depth = p_ptr->max_depth;
+				p_ptr->min_depth++;
+			}
+			else if ((ch == 's') && (p_ptr->max_depth > p_ptr->min_depth) && !(p_ptr->depth))
+			{
+				p_ptr->depth = p_ptr->max_depth;
+				p_ptr->min_depth++;
+			}
+			else if (ch == 'l')
+			{
+				p_ptr->max_depth++;
+				p_ptr->depth = p_ptr->max_depth;
+				p_ptr->min_depth++;
+			}
+			else if (ch == 'd')
+			{
+				p_ptr->max_depth = p_ptr->max_depth +2;
+				p_ptr->depth = p_ptr->max_depth;
+				p_ptr->min_depth++;
+			}
+			else
+			{
+				return;
+			}
 		}
 
 		/* Hack -- take a turn */
 		p_ptr->energy_use = 100;
 
-		/* Success */
-		message(MSG_STAIRS, 0, "You enter a maze of down staircases.");
+		/* If you make a Mapping check, you start standing on a stair. You get two tries. */
+		if ((rand_int(55+((p_ptr->max_depth)/2)) < p_ptr->skill[SK_MAP]) ||
+			(rand_int(55+((p_ptr->max_depth)/2)) < p_ptr->skill[SK_MAP]))
+		{
+			p_ptr->create_up_stair = TRUE;
+		}
+		else
+		{
+			p_ptr->create_up_stair = FALSE;
+			message(MSG_GENERIC, 0, "You enter the confusing maze of down staircases.");
+		}
 
-		/* Create a way back */
-		p_ptr->create_up_stair = TRUE;
-
-		/* New level */
-		p_ptr->depth++;
 
 		/* Leaving */
 		p_ptr->leaving = TRUE;
@@ -2434,8 +2646,8 @@ static void do_cmd_hold_or_stay(int pickup)
 	/* Take a turn */
 	p_ptr->energy_use = 100;
 
-	/* Spontaneous Searching */
-	if ((p_ptr->skill[SK_PER] >= 50) || (0 == rand_int(50 - p_ptr->skill[SK_PER])))	search();
+	/* Spontaneous Searching -- now automatic */
+	search();
 
 	/* Continuous Searching */
 	if (p_ptr->searching) search();
@@ -2517,6 +2729,7 @@ void do_cmd_rest(void)
 		{
 			p_ptr->command_arg = (-4);
 		}
+
 
 		/* Rest some */
 		else
@@ -2842,7 +3055,16 @@ void do_cmd_fire(void)
 
 				/* Apply special damage XXX XXX XXX */
 				tdam = tot_dam_aux(i_ptr, tdam, m_ptr, &special);
-				tdam = critical_shot(i_ptr, &special, tdam);
+
+				/* Critical hits only against visible monsters */
+				if (m_ptr->ml)
+				{
+					/* You usually get criticals only against distracted monsters */
+					if (m_ptr->blinded || m_ptr->confused || m_ptr->monfear || m_ptr->sleep || (1 > rand_int(10)))
+					{
+					tdam = critical_shot(i_ptr, &special, tdam);
+					}
+				}
 
 				/* No negative damage */
 				if (tdam < 0) tdam = 0;
@@ -2995,11 +3217,14 @@ void do_cmd_throw(void)
 	if (tdis > 10) tdis = 10;
 
 	/* Hack -- Base damage from thrown object */
-	if (f2 & TR2_THROWING) tdam = damroll(object_dd(i_ptr), object_ds(i_ptr));
-	else tdam = damroll(1, 1 + (object_weight(i_ptr) / 50));
+	if (!(i_ptr->tval == TV_BOW) && (object_weight(i_ptr) < 100) && (object_weight(i_ptr) <= (10 * p_stat(A_STR))))
+		{
+			tdam = damroll(object_dd(i_ptr), object_ds(i_ptr));
+		}
+	else tdam = damroll(0, 0);
 
 	/* Chance of hitting */
-	chance = p_ptr->skill[SK_THT] + p_ptr->to_h;
+	chance = p_ptr->skill[SK_THT] + p_ptr->to_h + object_to_h(i_ptr);
 
 	/* Take a turn */
 	p_ptr->energy_use = 100;
@@ -3224,7 +3449,16 @@ void do_cmd_throw(void)
 				{
 					/* Apply special damage XXX XXX XXX */
 					tdam = tot_dam_aux(i_ptr, tdam, m_ptr, &special);
-					tdam = critical_throw(i_ptr, tdam);
+
+					/* Critical hits only against visible monsters */
+					if (m_ptr->ml)
+					{
+						/* You usually get criticals only against distracted monsters */
+						if (m_ptr->blinded || m_ptr->confused || m_ptr->monfear || m_ptr->sleep || (1 > rand_int(10)))
+						{
+							tdam = critical_throw(i_ptr, tdam);
+						}
+					}
 
 					/* No negative damage */
 					if (tdam < 0) tdam = 0;

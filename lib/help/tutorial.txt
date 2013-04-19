@@ -1,10 +1,10 @@
 === A Simple Tutorial ===
 
-EyAngband is a very complex game, so you may want to try the following quick 
+FayAngband is a very complex game, so you may want to try the following quick 
 tutorial.  The following instructions are for demonstration purposes only, 
 and so they are intentionally boring.
 
-For this demo, I will assume that you have never played EyAngband, or indeed 
+For this demo, I will assume that you have never played FayAngband, or indeed 
 Angband or any of its other variants, before, that you have not requested any
 special "sub-windows", that you have not requested any special "graphics" 
 modes, that you have a "numeric keypad" on your computer, and that you are 
@@ -146,16 +146,20 @@ must fulfill - usually, killing 10-12 of some monster type, on dungeon level
 again by pressing CTRL and Q). 
 
 Now, it's time to actually get into the dungeon.  Move to the staircase, 
-represented by the ">" symbol, and press ">", to go down the stairs.  At this 
-point, you are in the dungeon.  Use the "l" command to look around.  Note that
-you are standing on a staircase leading back to town.  Use the "<" command to
-take the stairs back to town - the game will probably warn you that you are 
-risking failing your quest, but you'll be back in a second, so confirm by
-pressing 'y'.  Now use the ">" command to go back down the stairs into the 
-dungeon.  You are now in a different part of the dungeon than you were in 
-before.  The dungeon is so huge, once you leave one part of the dungeon, you 
-will never find it again.  Remember this, as it is one of the features that 
-seperate EyAngband (and Angband in general) from similar games.
+represented by the ">" symbol, and press ">", to go down the stairs. You will be
+asked how deep you want to descend. Your character will navigate a maze of
+interconnecting staircases and tunnels, until finally arriving on the chosen
+dungeon level.
+
+At this point, you are in the dungeon.  Use the "l" command to look around.
+If you succeeded in a mapping skill test, you are standing on a staircase
+leading back to town.  You may use the "<" command to take the stairs back to
+town, but it is recommended that you try emptying each level, because the game
+gets harder after each trip to the dungeon.
+
+The dungeon is so huge, once you leave one part of the dungeon, you will never
+find it again. Remember this, as it is one of the features that seperate
+FayAngband (and Angband in general) from similar games.
 
 Now look the screen.  Your character may be in a lit room, represented as a
 large rectangle of illuminated floor grids ("."), surrounded by walls ("#").  
@@ -208,4 +212,4 @@ the symbols which you may encounter in the dungeon, and information about
 creating new characters.
 
 
-======================= Last updated for EyAngband 0.5.0 ======================
+====================== Last updated for FayAngband 1.0.0 ======================

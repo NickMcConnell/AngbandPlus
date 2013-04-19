@@ -3,7 +3,7 @@
 /*
  * Listing of "powers" that are available to items and spells. 
  *
- * Copyright (c) 1999 Leon Marrick, Ben Harrison, James E. Wilson, 
+ * Copyright (c) 1999 Leon Marrick, Ben Harrison, James E. Wilson, hi
  * Robert A. Koeneke
  *
  * This software may be copied and distributed for educational, research,
@@ -142,6 +142,7 @@ info_entry power_info[POW_MAX] =
 	{POW_HOLY_1,			"dispels all evil in line of sight and cures and heals you"},
 	{POW_HOLY_2,			"dispels all evil in line of sight and cures and heals you"},
 	{POW_GENOCIDE,			"removes all monsters of the symbol you choose from the level"},
+
 	{POW_MASS_GENOCIDE,		"removes nearby monsters except uniques"},
 	{POW_EARTHQUAKE,		"destroys the nearby dungeon"},
 	{POW_DESTRUCTION,		"destroys objects and monsters, and banishes uniques"},
@@ -187,7 +188,7 @@ info_entry power_info[POW_MAX] =
 	{POW_STONE_TO_MUD,		"melts a wall square to floor"},
 	{POW_CREATE_DOOR,		"creates a barrier of doors around you"},
 	{POW_CREATE_WALL,		"creates a barrier of walls around you"},
-	{POW_CREATE_STAIR,		"creates a randomly oriented staircase nearby"},
+	{POW_CREATE_STAIR,		"creates a staircase going down nearby"},
 	{POW_CREATE_TRAP,		"creates traps around you"},
 	{POW_MAGIC_LOCK,		"magically locks all nearby closed doors"},
 	{POW_ACQUIRE_1,			"creates a great item"},
@@ -308,7 +309,29 @@ info_entry power_info[POW_MAX] =
 	{POW_MUSIC_FLUTE,		"Emulate the gentle melodies of a flute"},
 	{POW_MUSIC_LUTE,		"Emulate the jolly dances of a lute"},
 	{POW_MUSIC_DRUM,		"Emulate the rousing tempos of a drum"},
-	{POW_MUSIC_HARP,		"Emulate the soothing songs of a harp"}
+	{POW_MUSIC_HARP,		"Emulate the soothing songs of a harp"},
+	{POW_SHRPOISON,			"poisons"},
+	{POW_SHRBLIND,			"blinds"},
+	{POW_SHRSCARE,			"scares"},
+	{POW_SHRCONFUSE,		"confuses"},
+	{POW_SHRHALLUCINATE,		"makes you see unseen things"},
+	{POW_SHRPARALYZE,		"causes paralysis"},
+	{POW_SHRNAIVITY,		"causes wondrous daydreams"},
+	{POW_SHRSTUPIDITY,		"clouds your intelligence with empty rage"},
+	{POW_SHRAMNESIA,		"clouds the consciousness"},
+	{POW_SHRDISEASE,		"fills your mouth with disease"},
+	{POW_SHRCURE_POISON,		"removes all poison from your body"},
+	{POW_SHRCURE_DISEASE,		"rids your body of all disease"},
+	{POW_SHRCURE_CONFUSION,		"removes any confusion you currently feel"},
+	{POW_SHRHEAL_1,			"reduces cuts and heals you a little"},
+	{POW_SHRHEAL_2,			"reduces cuts and heals you a moderate amount"},
+	{POW_SHRSHIELD,			"temporarily increases your armour class"},
+	{POW_SHRCLEAR_MIND,		"rids your mind of confusion and fear, cures blindness"},
+	{POW_SHRRESTORE_STR,		"restores your strength"},
+	{POW_SHRRESTORE_CON,		"restores your constitution"},
+	{POW_SHRRESTORE_DEX,		"restores your dexterity"},
+	{POW_SHRRESTORE_STATS,		"restores all stats"},
+	{POW_PHLOGISTON,		"refuels your light source"}
 };
 
 /*
@@ -811,10 +834,19 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 		}
 		case POW_ALTER_REALITY:
 		{
-			message(MSG_EFFECT, 0, "The world changes!");
+			if ((quest_check(p_ptr->max_depth) == QUEST_FIXED) || (quest_check(p_ptr->max_depth) == QUEST_FIXED_U))
+			{
+				message(MSG_FAIL, 0, "Nothing happens.");
+			}
+			else
+			{
+				message(MSG_EFFECT, 0, "The world changes!");
+				p_ptr->min_depth++;
+				if (p_ptr->min_depth >= p_ptr->depth) p_ptr->depth = p_ptr->min_depth;
 
-			/* Leaving */
-			p_ptr->leaving = TRUE;
+				/* Leaving */
+				p_ptr->leaving = TRUE;
+			}
 
 			*obvious = TRUE;
 			break;
@@ -905,6 +937,7 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 			(void)fire_ball(GF_ACID, dir, 
 				calc_damage(0, 0, sub_spell_list[sub].bonus), sub_spell_list[sub].radius);
 			*obvious = TRUE;
+
 			break;
 		}
 		case POW_BALL_ELEC_X:
@@ -2723,6 +2756,377 @@ bool do_power(int idx, int sub, int dir, int beam, int dlev, int llev, int ilev,
 		case POW_MUSIC_HARP:
 		{
 			do_play(SV_MUSIC_HARP, 5);
+			break;
+		}
+		case POW_SHRPOISON:
+		{
+			if (cp_ptr->flags & CF_SHROOM_MAGIC)
+			{
+				message(MSG_EFFECT, 0, "As you eat the mushroom, you call on its Mother Spirit to help you.");
+
+				cptr breath;
+				int typ, power, chance;
+
+				/* Get a direction for breathing (or abort) */
+				if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
+
+				breath = "poison gas";
+				typ = GF_POIS;
+				power = 150;
+
+				/* Modify power according to level */
+				power += rand_int((dlev * 2) + 1);
+
+				/* Message */
+				message_format(MSG_DSM, 0, "You invoke %s breath!", breath);
+
+				/* Actual attack */
+				fire_ball(typ, dir, power, 2);
+
+				*obvious = TRUE;
+			}
+			else
+			{
+				if (!p_ptr->no_poison && !resist_effect(RS_PSN))
+				{
+					if (set_poisoned(p_ptr->poisoned + rand_int(15) + 10))
+					{
+						*obvious = TRUE;
+					}
+				}
+			}
+			break;
+		}
+		case POW_SHRBLIND:
+		{
+			if (cp_ptr->flags & CF_SHROOM_MAGIC)
+			{
+				message(MSG_EFFECT, 0, "As you eat the mushroom, you call on its Mother Spirit to help you.");
+				if (project_los(GF_BLIND_ALL, ilev)) *obvious = TRUE;
+			}
+			else
+			{
+				if (!p_ptr->no_blind)
+				{
+					if (set_blind(p_ptr->blind + rand_int(150) + 200))
+					{
+						*obvious = TRUE;
+					}
+				}
+			}
+			break;
+		}
+		case POW_SHRSCARE:
+		{
+			if (cp_ptr->flags & CF_SHROOM_MAGIC)
+			{
+				message(MSG_EFFECT, 0, "As you eat the mushroom, you call on its Mother Spirit to help you.");
+				if (project_los(GF_SCARE_ALL, ilev)) *obvious = TRUE;
+			}
+			else
+			{
+				if (!p_ptr->bravery)
+				{
+					if (set_afraid(p_ptr->afraid + rand_int(10) + 20))
+					{
+						*obvious = TRUE;
+					}
+				}
+			}
+			break;
+		}
+		case POW_SHRCONFUSE:
+		{
+			if (cp_ptr->flags & CF_SHROOM_MAGIC)
+			{
+				message(MSG_EFFECT, 0, "As you eat the mushroom, you call on its Mother Spirit to help you.");
+				if (project_los(GF_CONF_ALL, ilev)) *obvious = TRUE;
+			}
+			else
+			{
+				if (!p_ptr->no_confuse)
+				{
+					if (set_confused(p_ptr->confused + rand_int(10) + 20))
+					{
+						*obvious = TRUE;
+					}
+				}
+			}
+			break;
+		}
+		case POW_SHRHALLUCINATE:
+		{
+			if (cp_ptr->flags & CF_SHROOM_MAGIC)
+			{
+				message(MSG_EFFECT, 0, "As you eat the mushroom, you call on its Mother Spirit to help you.");
+				durat = randint(apply_sp_mod(24, mdur)) + apply_sp_mod(24, mdur);
+				if (set_tim_see_invis(p_ptr->tim_see_invis + durat)) *obvious = TRUE;
+			}
+			else
+			{
+				if (!resist_effect(RS_CHS))
+				{
+					if (set_image(p_ptr->image + rand_int(250) + 250))
+					{
+						*obvious = TRUE;
+					}
+				}
+			}
+			break;
+		}
+		case POW_SHRPARALYZE:
+		{
+			if (cp_ptr->flags & CF_SHROOM_MAGIC)
+			{
+				message(MSG_EFFECT, 0, "As you eat the mushroom, you call on its Mother Spirit to help you.");
+				if (project_los(GF_SLEEP_ALL, ilev)) *obvious = TRUE;
+			}
+			else
+			{
+				if (!p_ptr->free_act)
+				{
+					if (set_paralyzed(p_ptr->paralyzed + rand_int(8) + 6))
+					{
+						*obvious = TRUE;
+					}
+				}
+			}
+			break;
+		}
+		case POW_SHRNAIVITY:
+		{
+			if (cp_ptr->flags & CF_SHROOM_MAGIC)
+			{
+				message(MSG_EFFECT, 0, "As you eat the mushroom, you call on its Mother Spirit to help you.");
+				if (p_ptr->csp < p_ptr->msp)
+				{
+					p_ptr->csp = p_ptr->msp;
+					p_ptr->csp_frac = 0;
+					message(MSG_EFFECT, 0, "Your feel your head clear.");
+					*obvious = TRUE;
+					p_ptr->redraw |= (PR_MANA);
+					p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+				}
+			}
+			else
+			{
+				if (do_dec_stat(A_WIS, 1, FALSE, TRUE)) *obvious = TRUE;
+			}
+			break;
+		}
+		case POW_SHRSTUPIDITY:
+		{
+			if (cp_ptr->flags & CF_SHROOM_MAGIC)
+			{
+				message(MSG_EFFECT, 0, "As you eat the mushroom, you call on its Mother Spirit to help you.");
+
+				durat = randint(apply_sp_mod(25, mdur)) + apply_sp_mod(25, mdur);
+
+				if (hp_player(20)) *obvious = TRUE;
+				if (set_afraid(0)) *obvious = TRUE;
+				if (set_rage(p_ptr->rage + durat)) *obvious = TRUE;
+				if (set_tim_bravery(p_ptr->tim_bravery + durat)) *obvious = TRUE;
+			}
+			else
+			{
+				if (do_dec_stat(A_INT, 1, FALSE, TRUE)) *obvious = TRUE;
+			}
+			break;
+		}
+		case POW_SHRAMNESIA:
+		{
+			if (cp_ptr->flags & CF_SHROOM_MAGIC)
+			{
+				message(MSG_EFFECT, 0, "As you eat the mushroom, you call on its Mother Spirit to help you.");
+
+				if (p_ptr->tim_invis <= 0)
+				{
+					durat = randint(apply_sp_mod(15, mdur)) + apply_sp_mod(llev, mdur);
+
+					if (set_tim_invis(durat)) *obvious = TRUE;
+				}
+				else
+				{
+					durat = randint(apply_sp_mod(10, mdur));
+
+					if (set_tim_invis(p_ptr->tim_invis + durat)) *obvious = TRUE;
+				}
+			}
+			else
+			{
+				if (lose_all_info())
+				{
+					message(MSG_EFFECT, 0, "Your memories fade away.");
+					*obvious = TRUE;
+				}
+			}
+			break;
+		}
+		case POW_SHRDISEASE:
+		{
+			if (cp_ptr->flags & CF_SHROOM_MAGIC)
+			{
+				message(MSG_EFFECT, 0, "As you eat the mushroom, you call on its Mother Spirit to help you.");
+
+				cptr breath;
+				int typ, power, chance;
+
+				/* Get a direction for breathing (or abort) */
+				if (!dir) if (!get_aim_dir(&dir)) return (FALSE);
+
+				breath = "nether";
+				typ = GF_NETHER;
+				power = 250;
+
+				/* Modify power according to level */
+				power += rand_int((dlev * 2) + 1);
+
+				/* Message */
+				message_format(MSG_DSM, 0, "You invoke %s breath!", breath);
+
+				/* Actual attack */
+				fire_ball(typ, dir, power, 2);
+
+				*obvious = TRUE;
+
+			}
+			else
+			{
+				if (!p_ptr->no_disease && !resist_effect(RS_DIS))
+				{
+					if(set_diseased(p_ptr->diseased + rand_int(30) + 80)) *obvious = TRUE;
+				}
+			}
+			break;
+		}
+		case POW_SHRCURE_POISON:
+		{
+			if (cp_ptr->flags & CF_SHROOM_MAGIC)
+			{
+				message(MSG_EFFECT, 0, "As you eat the mushroom, you call on its Mother Spirit to help you.");
+			}
+			if (set_poisoned(0)) *obvious = TRUE;
+			break;
+		}
+		case POW_SHRCURE_DISEASE:
+		{
+			if (cp_ptr->flags & CF_SHROOM_MAGIC)
+			{
+				message(MSG_EFFECT, 0, "As you eat the mushroom, you call on its Mother Spirit to help you.");
+			}
+			if (set_diseased(0)) *obvious = TRUE;
+			break;
+		}
+		case POW_SHRCURE_CONFUSION:
+		{
+			if (cp_ptr->flags & CF_SHROOM_MAGIC)
+			{
+				message(MSG_EFFECT, 0, "As you eat the mushroom, you call on its Mother Spirit to help you.");
+			}
+			if (set_confused(0)) *obvious = TRUE;
+			break;
+		}
+		case POW_SHRHEAL_1:
+		{
+			if (cp_ptr->flags & CF_SHROOM_MAGIC)
+			{
+				message(MSG_EFFECT, 0, "As you eat the mushroom, you call on its Mother Spirit to help you.");
+				if (heal_player(15, 20)) *obvious = TRUE;
+				if (set_cut((p_ptr->cut / 2) - 35)) *obvious = TRUE;
+			}
+			else
+			{
+				if (heal_player(5, 10)) *obvious = TRUE;
+				if (set_cut(p_ptr->cut - 10)) *obvious = TRUE;
+			}
+			break;
+		}
+		case POW_SHRHEAL_2:
+		{
+			if (cp_ptr->flags & CF_SHROOM_MAGIC)
+			{
+				message(MSG_EFFECT, 0, "As you eat the mushroom, you call on its Mother Spirit to help you.");
+				if (heal_player(30, 30)) *obvious = TRUE;
+				if (set_cut(0)) *obvious = TRUE;
+			}
+			else
+			{
+				if (heal_player(15, 20)) *obvious = TRUE;
+				if (set_cut((p_ptr->cut / 2) - 35)) *obvious = TRUE;
+			}
+			break;
+		}
+		case POW_SHRSHIELD:
+		{
+			if (cp_ptr->flags & CF_SHROOM_MAGIC)
+			{
+				message(MSG_EFFECT, 0, "As you eat the mushroom, you call on its Mother Spirit to help you.");
+				durat = randint(apply_sp_mod(40, mdur)) + apply_sp_mod(60, mdur);
+			}
+			else
+			{
+				durat = randint(apply_sp_mod(20, mdur)) + apply_sp_mod(30, mdur);
+			}
+			if (set_shield(p_ptr->shield + durat)) *obvious = TRUE;
+			break;
+		}
+		case POW_SHRCLEAR_MIND:
+		{
+			if (cp_ptr->flags & CF_SHROOM_MAGIC)
+			{
+				message(MSG_EFFECT, 0, "As you eat the mushroom, you call on its Mother Spirit to help you.");
+			}
+			if (set_stun(0)) *obvious = TRUE;
+			if (set_blind(0)) *obvious = TRUE;
+			if (set_afraid(0)) *obvious = TRUE;
+			if (set_confused(0)) *obvious = TRUE;
+			break;
+		}
+		case POW_SHRRESTORE_STR:
+		{
+			if (cp_ptr->flags & CF_SHROOM_MAGIC)
+			{
+				message(MSG_EFFECT, 0, "As you eat the mushroom, you call on its Mother Spirit to help you.");
+			}
+			if (do_res_stat(A_STR)) *obvious = TRUE;
+			break;
+		}
+		case POW_SHRRESTORE_CON:
+		{
+			if (cp_ptr->flags & CF_SHROOM_MAGIC)
+			{
+				message(MSG_EFFECT, 0, "As you eat the mushroom, you call on its Mother Spirit to help you.");
+			}
+			if (do_res_stat(A_CON)) *obvious = TRUE;
+			break;
+		}
+		case POW_SHRRESTORE_DEX:
+		{
+			if (cp_ptr->flags & CF_SHROOM_MAGIC)
+			{
+				message(MSG_EFFECT, 0, "As you eat the mushroom, you call on its Mother Spirit to help you.");
+			}
+			if (do_res_stat(A_DEX)) *obvious = TRUE;
+			break;
+		}
+		case POW_SHRRESTORE_STATS:
+		{
+			if (cp_ptr->flags & CF_SHROOM_MAGIC)
+			{
+				message(MSG_EFFECT, 0, "As you eat the mushroom, you call on its Mother Spirit to help you.");
+			}
+			if (do_res_stat(A_STR)) *obvious = TRUE;
+			if (do_res_stat(A_INT)) *obvious = TRUE;
+			if (do_res_stat(A_WIS)) *obvious = TRUE;
+			if (do_res_stat(A_DEX)) *obvious = TRUE;
+			if (do_res_stat(A_CON)) *obvious = TRUE;
+			if (do_res_stat(A_CHR)) *obvious = TRUE;
+			break;
+		}
+		case POW_PHLOGISTON:
+		{
+			phlogiston();
+			*obvious = TRUE;
 			break;
 		}
 	}

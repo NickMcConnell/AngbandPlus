@@ -1,6 +1,6 @@
 === Attacking and Being Attacked ===
  
-Attacking is simple in EyAngband.  If you move into a creature, you attack him.
+Attacking is simple in FayAngband.  If you move into a creature, you attack him.
 You can attack from a distance by firing a missile or by magical means (such
 as aiming a wand).  Creatures attack in the same way.  If they move into you,
 they attack you.  Some creatures can also cast spells from a distance, and
@@ -34,10 +34,6 @@ is a strike that does some damage; a miss may in fact reach a target, but
 fails to do any damage.  Higher armor classes make it harder to do damage,
 and so lead to more misses.
 
-Ocasionally, for all combat types, you will score a critical hit - a hit so
-effective that it does extra damage.  Dependingon the type of weapon involved,
-this can have additional effects.  
-
 === Your Melee Weapon ===
 
 Carrying a weapon in your backpack does you no good.  You must wield a weapon 
@@ -69,8 +65,8 @@ additional wounds over time.  Blunt weapons can cause concussions, stunning and
 occasionally confusing your opponents.  Axes and polearms will simply provide a 
 greater amount of bonus damage.  Warriors, due to their extensive martial
 training, have a higher chance of scoring critical hits with melee weapons than
-any other class.  Priests will never score a critical hit with a weapon that
-displeases their god.
+any other class.  Priests or Shamans will never score a critical hit with a
+weapon that displeases their god.
 
 === Missile Weapons - Bow and Arrows ===
 
@@ -90,20 +86,35 @@ others.
 If you are wielding a bow, all you need to do is 'I'nspect an arrow and you can
 see exactly how effective it is with your current bow.
 
-Like melee weapons, you will occasionally get critical hits with bows, 
-especially if you are playing a ranger.  These can cause additional damage, and
-sometimes can make an enemy bleed.
+Like melee weapons, you will occasionally get critical hits with bows.  These
+can cause additional damage, and sometimes can make an enemy bleed.
 
 === Missile Weapons - Thrown ===
 
-Throwning things at your opponents is both simple and, for most objects, 
-ineffective.  The range traversed depends on your strength and the weight of 
-the object, and the damage done depends on the weight of the object, though 
-certain items (such as daggers) can be more effective thrown than their weight
-would indicate.  Some items, such as flasks of lantern oil, can indeed be quite
-effective thrown - the largest class of these are the powders, which can create
-many special effects upon an enemy, and some more powerful types can injure a 
-group of enemies.  
+You can throw effectively any weapons that weigh less than 10 lbs.  Throwing
+heavier weapons doesn't cause any damage.  The range traversed depends on your
+strength and the weight of the object.  Some items, such as flasks of lantern oil,
+can indeed be quite effective thrown - the largest class of these are the powders,
+which can create many special effects upon an enemy, and some more powerful types
+can injure a group of enemies.
+
+=== Critical Hits ===
+
+Ocasionally, for all combat types, you will score a critical hit - a hit so
+effective that it does extra damage.  Depending on the type of weapon involved,
+this can have additional effects.
+
+You will usually only get criticals against sleeping, scared, confused, or blind
+monsters. If the monster is not distracted, divide critical chance by ten.
+
+Critical chance in percentages is 5 + character's to-hit bonus + weapon's to-hit
+bonus. Rogues get to add 5 + half their level. (Note that your bow's to-hit bonus
+has no effect here. Only the arrow's to-hit bonus matters.) You can't get
+criticals against unseen monsters.
+
+Rogues get double power thrown criticals, and one-and-half power melee and
+archery criticals. Warriors get double power melee criticals. Rangers get double
+power archery criticals.
 
 
-======================= Last updated for EyAngband 0.5.0 ======================
+====================== Last updated for FayAngband 1.0.0 ======================

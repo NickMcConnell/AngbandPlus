@@ -9,8 +9,8 @@
 # Format:
 # N:class number:class name
 # S:str:int:wis:dex:con:chr
-# C:dis:byp:dev:sav:stl:per:thn:thb:tht:dig:alc 
-# X:dis:byp:dev:sav:stl:per:thn:thb:tht:dig:alc
+# C:dis:byp:dev:sav:stl:per:thn:thb:tht:dig:alc:map
+# X:dis:byp:dev:sav:stl:per:thn:thb:tht:dig:alc:map
 # O:acd:elc:fir:cld:wtr:poi:dis:lit:drk:snd:shr:nex:nth:chs:dsn:tim:mna
 # I:hitdie:expbase:spellstat1:spellstat2:disturbweight
 # B:sval:handicap
@@ -55,8 +55,9 @@
 # BRAVERY_30 - The character shall gain resistance to fear at level 30.
 # NO_GLOVE - Spellcasting skills are reduced by wearing gloves.
 # BLESS_WEAPON - The character's spellcasting skill is reduced by using non-hafted, 
-# non-blessed weapons. Also, the character will get a more powerful orb of destruction.
-# CHOOSE_SPELLS - Allows the character to choose which spell to learn.
+# non-blessed weapons.
+# CHOOSE_SPELLS - Allows the character to choose which spell to learn. Also, holy
+# spellcasters will get a less powerful orb of destruction.
 # ZERO_FAIL - The character can reach a 0% fail rate for spells. Without this, fail rate
 # is determined by the relevant realm's handicap.
 # BEAM - The character's bolt spells have a higher chance of beaming.
@@ -68,9 +69,11 @@
 # while blinded or confused.
 # MUSIC - Allows the character to use musical instruments.
 # LORE - Identifying an artifact reveals all info about it (acts as *identify*)
-# BETTER_CRITICAL - Improved critical hits in melee.
-# BETTER_SHOT - Improved critical hits with fire weapons.
-# BETTER_THROW	- Improved critical hits with throwen weapons.
+# AMBUSH - The character gets to add half his level to ambush chance, and gets at least
+# one-and-half power criticals even without relevant critical flags.
+# BETTER_CRITICAL - More powerful critical hits in melee.
+# BETTER_SHOT - More powerful critical hits with fire weapons.
+# BETTER_THROW	- More powerful critical hits with thrown weapons.
 # TRAP_KNOW	- Allows accurate trap descriptions.
 # TRAP_PLACE - Allows placement of traps.
 # APPRAISE - Allows "sensing" item value.
@@ -83,12 +86,12 @@
 
 # Version stamp (required)
 
-V:0.5.2
+V:1.0.0
 
 N:0:Warrior
 S:3:-2:-1:2:1:-2
-C:25:5:18:21:1:15:10:7:8:0:26
-X:10:1:7:11:0:2:7:6:6:0:5
+C:23:5:7:17:1:8:10:7:8:0:20:10
+X:10:1:7:11:0:1:7:6:6:0:4:4
 O:18:18:18:18:5:12:12:5:5:5:5:3:3:3:5:0:0
 I:9:0:0:0:0
 # Leather Scale Mail, Small leather Shield, Potion of Berserk Strength
@@ -106,18 +109,18 @@ T:Baron
 T:Duke
 T:Lord
 F:BRAVERY_30 | PSEUDO_ID4 | BETTER_CRITICAL | PSEUDO_ID_HEAVY | BETTER_BLOWS |
-F:WEAPON_GOOD
+F:WEAPON_GOOD | BETTER_CRITICAL
 
-N:1:Thief
-S:0:0:-2:3:0:-1
-C:40:30:30:30:3:25:7:4:7:0:40
-X:10:10:7:10:1:3:4:3:4:0:8
+N:1:Rogue
+S:0:0:0:3:-1:0
+C:38:30:18:28:3:17:8:8:12:0:34:15
+X:10:10:7:10:1:2:4:4:6:0:7:9
 O:10:10:10:10:5:5:15:5:10:15:5:3:3:3:0:0:0
-I:3:0:0:0:0
-# Soft Leather Armor, 3 Potions of Stealth, 1 Potion of Invisibility
+I:5:0:0:0:0
+# Soft Leather Armor, 3 Powder Vials of Darkness, 2 Powder Vials of Poisoning
 E:36:3:1:1
-E:75:23:3:3
-E:75:63:1:1
+E:76:9:3:3
+E:76:10:2:2
 T:Cutpurse
 T:Robber
 T:Burgler
@@ -128,29 +131,95 @@ T:Knave
 T:Thief
 T:Master-Thief
 T:Shadow
-F:PSEUDO_ID4 | PSEUDO_ID_HEAVY | TRAP_KNOW | TRAP_PLACE | BETTER_THROW |
-F:APPRAISE
+F:PSEUDO_ID4 | PSEUDO_ID_HEAVY | TRAP_KNOW | APPRAISE |
+F:AMBUSH | BETTER_THROW
 
-N:2:Mage
+N:2:Priest
+S:0:-2:2:-2:0:2
+C:23:0:16:29:1:4:5:4:4:0:24:6
+X:7:0:10:12:0:1:3:2:2:0:6:4
+O:10:10:10:10:5:5:5:10:15:5:5:10:15:10:0:0:0
+I:2:15:2:2:350
+B:12:1
+B:13:1
+B:14:1
+B:15:1
+B:16:1
+B:17:1
+B:18:1
+B:19:1
+B:20:1
+B:23:1
+B:24:1
+B:25:1
+# Robes, Potion of Healing, [Beginner's Handbook]
+E:36:1:1:1
+E:75:34:1:1
+E:90:12:1:1
+T:Believer
+T:Acolyte
+T:Adept
+T:Curate
+T:Canon
+T:Lama
+T:Patriarch
+T:Priest
+T:High-Priest
+T:Archpriest
+F:BLESS_WEAPON | ZERO_FAIL | PSEUDO_ID4 | PSEUDO_ID_HEAVY 
+
+N:3:Shaman
+S:1:-2:1:1:0:-1
+C:18:5:10:22:2:7:8:8:6:0:20:6
+X:7:1:10:11:0:2:5:4:4:0:4:4
+O:15:15:15:15:15:15:15:5:5:5:5:5:10:5:0:0:0
+I:5:30:2:2:250
+B:12:5
+B:13:5
+B:14:5
+B:15:5
+B:16:5
+B:17:5
+B:18:5
+B:19:5
+B:20:5
+# Soft Leather Armor, 1 Mushroom of Stone Skin, 2 Mushrooms of Paranoia
+E:36:3:1:1
+E:80:15:1:1
+E:80:2:2:2
+T:Disciple
+T:Mender
+T:Spirit Hunter
+T:Ghost Warrior
+T:Soothsayer
+T:Medicine Man
+T:Witch Doctor
+T:Low-Druid
+T:High-Druid
+T:Shaman-King
+F:PSEUDO_ID4 | PSEUDO_ID_HEAVY | BLESS_WEAPON | BETTER_BLOWS
+F:SHROOM_MAGIC | WEAPON_GOOD | CHOOSE_SPELLS
+
+N:4:Mage
 S:-3:2:0:1:-1:1
-C:30:0:36:30:2:14:3:2:2:0:45
-X:7:1:13:9:0:1:2:2:2:0:10
-O:15:15:15:15:5:5:5:5:5:5:5:10:10:10:0:0:3
+C:27:0:24:28:2:7:3:1:2:0:36:5
+X:7:1:13:9:0:1:2:2:2:0:9:3
+O:12:18:24:6:5:5:5:5:5:5:5:10:10:10:0:0:3
 I:0:25:1:1:250
 B:0:1
-B:1:1
 B:2:1
 B:3:1
-B:4:1
 B:5:1
 B:6:1
 B:7:1
 B:8:1
-B:22:1
+B:9:1
+B:10:1
 B:23:1
 B:24:1
-# Robes, Scroll of WoR, [Elementary Incantations]
-E:70:12:1:1
+B:25:1
+# Robes, Scroll of Teleportation, [Esoteric Energies]
+E:70:10:1:1
 E:90:0:1:1
 E:36:1:1:1
 T:Novice
@@ -163,28 +232,28 @@ T:Conjurer
 T:Warlock
 T:Sorcerer
 T:Mage-Lord
-F:NO_GLOVE | ZERO_FAIL | BEAM | PSEUDO_ID1 | CHOOSE_SPELLS | 
+F:NO_GLOVE | ZERO_FAIL | BEAM | PSEUDO_ID4 | PSEUDO_ID_HEAVY | CHOOSE_SPELLS | 
 F:SUB_SPELLS | WORSE_BLOWS
 
-N:3:Spellsword
-S:2:1:-1:0:0:0
-C:25:3:30:25:1:12:8:4:4:0:30
-X:7:1:10:10:0:1:5:4:4:0:7
-O:13:13:13:13:5:10:10:5:5:5:5:3:3:5:0:0:0
-I:5:35:1:1:400
+N:5:Spellsword
+S:2:1:-3:0:0:1
+C:15:0:19:13:0:4:9:1:4:0:21:3
+X:5:1:10:8:0:1:5:4:4:0:6:2
+O:10:16:21:5:5:10:10:5:5:5:5:3:3:5:0:0:0
+I:6:35:1:1:400
 B:0:5
-B:1:5
 B:2:5
 B:3:5
-B:4:5
 B:5:5
 B:6:5
 B:7:5
 B:8:5
-# Hard Leather Armor, Wooden Shield, Scroll of Teleportation.
+B:9:5
+B:10:5
+# Hard Leather Armor, Wooden Shield, 2 Scrolls of Identify
 E:34:1:1:1
 E:36:4:1:1
-E:70:10:1:1 
+E:70:14:2:2
 T:Student
 T:Journeyman
 T:Spellslinger
@@ -195,20 +264,20 @@ T:Spellsword
 T:Battlemage
 T:Scourge
 T:Wizard-Lord
-F:PSEUDO_ID2 | CHOOSE_SPELLS | SUB_SPELLS | WEAPON_GOOD
+F:PSEUDO_ID4 | PSEUDO_ID_HEAVY | SUB_SPELLS | WEAPON_GOOD
 
-N:4:Ranger
-S:1:1:0:2:0:0
-C:30:10:32:28:3:24:7:12:10:0:35
-X:8:3:10:10:0:3:4:6:5:0:8
-O:20:20:20:20:15:15:15:3:3:3:3:3:3:3:0:0:0
-I:4:25:1:1:350
+N:6:Ranger
+S:1:1:0:1:1:-1
+C:27:10:15:26:3:13:7:12:10:0:26:25
+X:9:3:9:10:0:2:4:6:5:0:7:7
+O:17:25:34:8:15:15:15:3:3:3:3:3:3:3:0:0:0
+I:4:25:1:1:300
 B:0:3
-B:1:4
-B:2:7
-B:4:5
-B:5:11
-B:9:3
+B:2:4
+B:3:7
+B:6:5
+B:7:11
+B:11:3
 # Soft Leather Armor, Arrows, Hunting Bow
 E:36:3:1:1
 E:15:0:15:20
@@ -223,95 +292,31 @@ T:Pathfinder
 T:Low-Ranger
 T:High-Ranger
 T:Ranger-Lord
-F:EXTRA_SHOT | PSEUDO_ID2 | CHOOSE_SPELLS | BETTER_SHOT
-
-N:5:Priest
-S:-1:-2:2:-1:0:1
-C:25:0:30:32:2:15:5:4:4:0:30
-X:7:0:10:12:0:1:3:2:2:0:7
-O:10:10:10:10:5:5:5:10:15:5:5:10:15:10:0:0:0
-I:2:15:2:2:350
-B:10:1
-B:11:1
-B:12:1
-B:13:1
-B:14:1
-B:15:1
-B:16:1
-B:17:1
-B:18:1
-B:22:1
-B:23:1
-B:24:1
-# Robes, Potion of Healing, [Beginner's Handbook]
-E:36:1:1:1
-E:75:34:1:1
-E:90:10:1:1
-T:Believer
-T:Acolyte
-T:Adept
-T:Curate
-T:Canon
-T:Lama
-T:Patriarch
-T:Priest
-T:High-Priest
-T:Archpriest
-F:BLESS_WEAPON | ZERO_FAIL | PSEUDO_ID4 
-
-N:6:Paladin
-S:2:-2:1:0:1:1
-C:20:0:24:25:1:12:9:4:4:0:19
-X:7:0:10:11:0:1:5:4:4:0:5
-O:10:10:10:10:5:5:5:5:10:5:5:10:15:10:0:0:0
-I:6:30:2:2:400
-B:10:5
-B:11:5
-B:12:5
-B:13:5
-B:14:5
-B:15:5
-B:16:5
-B:17:5
-B:18:5
-# Hard Leather Armor, Small Metal Shield, Scroll of Protection from Evil
-E:34:3:1:1
-E:36:4:1:1
-E:70:37:1:1
-T:Gallant
-T:Keeper
-T:Protector
-T:Defender
-T:Warder
-T:Knight
-T:Guardian
-T:Low-Paladin
-T:High-Paladin
-T:Paladin-Lord
-F:PSEUDO_ID3 | PSEUDO_ID_HEAVY | WEAPON_GOOD
+F:EXTRA_SHOT | PSEUDO_ID4 | PSEUDO_ID_HEAVY | CHOOSE_SPELLS | BETTER_SHOT
+F:NO_GLOVE
 
 N:7:Mystic
 S:-4:3:3:0:0:0
-C:25:2:23:35:3:15:1:2:8:0:30
-X:6:1:4:10:0:2:1:1:4:0:5
-O:15:15:15:15:10:10:10:10:10:10:10:10:10:0:0:0:8
+C:22:2:10:32:3:6:1:2:8:0:21:4
+X:6:1:4:10:0:1:1:1:4:0:4:3
+O:12:18:24:6:10:10:10:10:10:10:10:10:10:0:0:0:8
 I:1:27:1:2:180
 B:0:1
-B:1:1
 B:2:1
 B:3:1
-B:10:1
-B:11:1
+B:5:1
 B:12:1
-B:20:1
+B:13:1
+B:14:1
 B:21:1
 B:22:1
 B:23:1
 B:24:1
-# [Elementary Incantations], [Beginner's Handbook], Powder of Incineration
+B:25:1
+# [Esoteric Energies], [Beginner's Handbook], Powder of Incineration
 E:76:13:1:1
 E:90:0:1:1
-E:90:10:1:1
+E:90:12:1:1
 T:Aspirant
 T:Initiate
 T:Mystic
@@ -322,13 +327,13 @@ T:Enlightened
 T:Master
 T:Grand-Master
 T:Transcendent
-F:NO_GLOVE | ZERO_FAIL | POWER | PSEUDO_ID1 | SUB_SPELLS | WORSE_BLOWS
+F:NO_GLOVE | ZERO_FAIL | POWER | PSEUDO_ID4 | PSEUDO_ID_HEAVY | SUB_SPELLS | WORSE_BLOWS
 F:EXTRA_MANA | EXTRA_SPELL | MYSTIC_CAST | CHOOSE_SPELLS | WEAPON_NONE
 
 N:8:Bard
 S:0:1:-1:1:0:2
-C:25:10:30:25:3:18:7:5:4:0:40
-X:10:2:10:10:0:2:4:5:2:0:8
+C:23:10:16:23:2:10:7:5:4:0:34:15
+X:10:2:9:10:0:2:4:5:2:0:7:5
 O:10:10:10:10:5:5:5:5:10:15:5:3:3:5:0:0:0
 I:3:15:5:5:350
 # Hard Leather Armor, Lyre, Horn
@@ -348,3 +353,132 @@ T:Maestro
 F:MUSIC | PSEUDO_ID4 | PSEUDO_ID_HEAVY | NO_GLOVE | LORE | INFLUENCE |
 F:ZERO_FAIL
 
+N:9:Mage
+S:-3:2:0:1:-1:1
+C:27:0:24:28:2:7:3:1:2:0:36:5
+X:7:1:13:9:0:1:2:2:2:0:9:3
+O:18:12:6:24:5:5:5:5:5:5:5:10:10:10:0:0:3
+I:0:25:1:1:250
+B:1:1
+B:2:1
+B:4:1
+B:5:1
+B:6:1
+B:7:1
+B:8:1
+B:9:1
+B:10:1
+B:23:1
+B:24:1
+B:25:1
+# Robes, Scroll of Teleportation, [Winter Witchcraft]
+E:70:10:1:1
+E:90:1:1:1
+E:36:1:1:1
+T:Novice
+T:Apprentice
+T:Trickster
+T:Illusionist
+T:Spellbinder
+T:Evoker
+T:Conjurer
+T:Warlock
+T:Sorcerer
+T:Mage-Lord
+F:NO_GLOVE | ZERO_FAIL | BEAM | PSEUDO_ID4 | PSEUDO_ID_HEAVY | CHOOSE_SPELLS | 
+F:SUB_SPELLS | WORSE_BLOWS
+
+N:10:Spellsword
+S:2:1:-3:0:0:1
+C:15:0:19:13:0:4:9:1:4:0:21:3
+X:5:1:10:8:0:1:5:4:4:0:6:2
+O:16:10:5:21:5:10:10:5:5:5:5:3:3:5:0:0:0
+I:6:35:1:1:400
+B:1:5
+B:2:5
+B:4:5
+B:5:5
+B:6:5
+B:7:5
+B:8:5
+B:9:5
+B:10:5
+# Hard Leather Armor, Wooden Shield, 2 Scrolls of Identify
+E:34:1:1:1
+E:36:4:1:1
+E:70:14:2:2
+T:Student
+T:Journeyman
+T:Spellslinger
+T:Wizard
+T:Warrior-Mage
+T:Knight-Mage
+T:Spellsword
+T:Battlemage
+T:Scourge
+T:Wizard-Lord
+F:PSEUDO_ID4 | PSEUDO_ID_HEAVY | SUB_SPELLS | WEAPON_GOOD
+
+N:11:Ranger
+S:1:1:0:1:1:-1
+C:27:10:15:26:3:13:7:12:10:0:26:25
+X:9:3:9:10:0:2:4:6:5:0:7:7
+O:25:17:8:34:15:15:15:3:3:3:3:3:3:3:0:0:0
+I:4:25:1:1:300
+B:1:3
+B:2:4
+B:4:7
+B:6:5
+B:7:11
+B:11:3
+# Soft Leather Armor, Arrows, Hunting Bow
+E:36:3:1:1
+E:15:0:15:20
+E:20:1:1:1
+T:Runner
+T:Strider
+T:Scout
+T:Courser
+T:Tracker
+T:Guide
+T:Pathfinder
+T:Low-Ranger
+T:High-Ranger
+T:Ranger-Lord
+F:EXTRA_SHOT | PSEUDO_ID4 | PSEUDO_ID_HEAVY | CHOOSE_SPELLS | BETTER_SHOT
+F:NO_GLOVE
+
+N:12:Mystic
+S:-4:3:3:0:0:0
+C:22:2:10:32:3:6:1:2:8:0:21:4
+X:6:1:4:10:0:1:1:1:4:0:4:3
+O:18:12:6:24:10:10:10:10:10:10:10:10:10:0:0:0:8
+I:1:27:1:2:180
+B:1:1
+B:2:1
+B:4:1
+B:5:1
+B:12:1
+B:13:1
+B:14:1
+B:21:1
+B:22:1
+B:23:1
+B:24:1
+B:25:1
+# [Winter Witchcraft], [Beginner's Handbook], Powder of Ice blast
+E:76:14:1:1
+E:90:1:1:1
+E:90:12:1:1
+T:Aspirant
+T:Initiate
+T:Mystic
+T:Grand-Mystic
+T:Seer
+T:Guru
+T:Enlightened
+T:Master
+T:Grand-Master
+T:Transcendent
+F:NO_GLOVE | ZERO_FAIL | POWER | PSEUDO_ID4 | PSEUDO_ID_HEAVY | SUB_SPELLS | WORSE_BLOWS
+F:EXTRA_MANA | EXTRA_SPELL | MYSTIC_CAST | CHOOSE_SPELLS | WEAPON_NONE
