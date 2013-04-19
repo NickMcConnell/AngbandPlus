@@ -378,7 +378,7 @@ extern alloc_entry *alloc_kind_table;
 extern bool alloc_kind_table_valid;
 extern s16b alloc_race_size;
 extern alloc_entry *alloc_race_table;
-extern byte misc_to_attr[256];
+extern byte misc_to_attr[254];
 extern char misc_to_char[256];
 extern byte tval_to_attr[128];
 extern char tval_to_char[128];

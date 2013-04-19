@@ -65,24 +65,24 @@ static cptr ring_adj[MAX_ROCKS] =
 	"Golden", "Ashen", "Gnarled", "Ivory", "Willow", "Oblong", "Wide"
 		
 };
-
+/* You can use the full 44 colors that FuryBand offers here.   */
 static byte ring_col[MAX_ROCKS] =
 {
 	TERM_GREEN,
 	TERM_VIOLET,
-	TERM_L_BLUE,
+	TERM_AQUAMARINE,
 	TERM_L_BLUE,
 	TERM_L_GREEN,
-	TERM_RED,
-	TERM_WHITE,
+	TERM_CRIMSON,
+	TERM_ANTIQUE_WHITE,
 	TERM_RED,
 	TERM_SLATE,
 	TERM_WHITE,
 	TERM_GREEN,
 	TERM_L_GREEN,
-	TERM_RED,
-	TERM_SLATE,
-	TERM_GREEN,
+	TERM_INDIAN_RED,
+	TERM_DARK_SLATE_GRAY,
+	TERM_KHAKI,
 	TERM_UMBER,
 	TERM_BLUE,
 	TERM_GREEN,
@@ -99,13 +99,13 @@ static byte ring_col[MAX_ROCKS] =
 	TERM_YELLOW,
 	TERM_YELLOW,
 	TERM_L_BLUE,
-	TERM_WHITE,
+	TERM_OLD_LACE,
 	TERM_WHITE,
 	TERM_L_UMBER,
 	TERM_YELLOW,
 	TERM_L_DARK,
 	TERM_L_WHITE,
-	TERM_GREEN,
+	TERM_DARK_KHAKI,
 	TERM_L_BLUE,
 	TERM_L_DARK,
 	TERM_YELLOW,
@@ -116,13 +116,13 @@ static byte ring_col[MAX_ROCKS] =
 	TERM_UMBER,
 	TERM_BLUE,
 	TERM_GREEN,
-	TERM_YELLOW,
+	TERM_GOLD,
 	TERM_ORANGE,
-	TERM_YELLOW,
+	TERM_GOLD,
 	TERM_ORANGE,
 	TERM_L_GREEN,
 	TERM_YELLOW,
-	TERM_RED,
+	TERM_FIREBRICK,
 	TERM_WHITE,
 	TERM_UMBER,
 	TERM_L_DARK,
@@ -137,8 +137,8 @@ static byte ring_col[MAX_ROCKS] =
 	TERM_L_UMBER,
 	TERM_L_UMBER,
 	TERM_L_UMBER,
-	TERM_UMBER,
-	TERM_UMBER,
+	TERM_MOCCASIN,
+	TERM_TAN,
 	TERM_L_UMBER,
 	TERM_L_UMBER,
 	TERM_L_UMBER,
@@ -148,8 +148,8 @@ static byte ring_col[MAX_ROCKS] =
 	TERM_L_UMBER,
 	TERM_L_UMBER,
 	TERM_L_UMBER,
-	TERM_YELLOW,
-	TERM_RED,
+	TERM_HONEYDEW,
+	TERM_FIREBRICK,
 	TERM_RED,
 	TERM_L_UMBER,
 	TERM_L_UMBER,
@@ -160,7 +160,7 @@ static byte ring_col[MAX_ROCKS] =
 	TERM_L_UMBER,
 	TERM_L_WHITE,
 	TERM_UMBER,
-	TERM_YELLOW,
+	TERM_GOLD,
 	TERM_SLATE,
 	TERM_UMBER,
 	TERM_L_WHITE,
@@ -228,10 +228,10 @@ static cptr amulet_adj[MAX_AMULETS] =
 	"Native",
 	"Damascened Steel"
 };
-
+/* You can use the full 44 colors that FuryBand offers here.   */
 static byte amulet_col[MAX_AMULETS] =
 {
-	TERM_YELLOW,
+TERM_YELLOW,
 	TERM_L_UMBER,
 	TERM_WHITE,
 	TERM_L_WHITE,
@@ -241,32 +241,12 @@ static byte amulet_col[MAX_AMULETS] =
 	TERM_ORANGE,
 	TERM_L_UMBER,
 	TERM_SLATE,
-	TERM_GREEN,
+	TERM_KHAKI,
 	TERM_GOLD,
 	TERM_L_BLUE,
 	TERM_L_BLUE,
 	TERM_L_WHITE,
 	TERM_L_UMBER,
-	TERM_VIOLET,
-	TERM_L_BLUE,
-	TERM_BLUE,
-	TERM_WHITE,
-	TERM_UMBER,
-	TERM_TEAL,
-	TERM_SLATE,
-	TERM_RED,
-	TERM_L_GREEN,
-	TERM_WHITE,
-	TERM_L_DARK,
-	TERM_L_WHITE,
-	TERM_WHITE,
-	TERM_L_GREEN,
-	TERM_GREEN,
-	TERM_VIOLET,
-	TERM_L_WHITE,
-	TERM_UMBER,
-	TERM_GREEN,
-	TERM_L_BLUE,
 	TERM_VIOLET,
 	TERM_L_BLUE,
 	TERM_BLUE,
@@ -281,6 +261,26 @@ static byte amulet_col[MAX_AMULETS] =
 	TERM_L_WHITE,
 	TERM_WHITE,
 	TERM_L_GREEN,
+	TERM_GREEN,
+	TERM_VIOLET,
+	TERM_L_WHITE,
+	TERM_UMBER,
+	TERM_GREEN,
+	TERM_TEAL,
+	TERM_ANTIQUE_WHITE,
+	TERM_FIREBRICK,
+	TERM_DARK_SLATE_GRAY,
+	TERM_MOCCASIN,
+	TERM_STEEL_BLUE,
+	TERM_CHOCOLATE,
+	TERM_ROYAL_BLUE,
+	TERM_DARK_SEA_GREEN,
+	TERM_SANDY_BROWN,
+	TERM_CRIMSON,
+	TERM_OLD_LACE,
+	TERM_DARK_KHAKI,
+	TERM_INDIAN_RED,
+	TERM_LIGHT_STEEL_BLUE
 };
 
 
@@ -298,7 +298,7 @@ static cptr staff_adj[MAX_WOODS] =
 	"Mistletoe", "Hawthorn", "Bamboo", "Silver", "Runed",
 	"Golden", "Ashen", "Gnarled", "Ivory", "Willow"
 };
-
+/* You can use the full 44 colors that FuryBand offers here.   */
 static byte staff_col[MAX_WOODS] =
 {
 	TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER,
@@ -326,7 +326,7 @@ static cptr wand_adj[MAX_METALS] =
 	"Platinum", "Lead", "Lead-Plated", "Ivory" , "Adamantite",
 	"Uridium", "Long", "Short", "Hexagonal"
 };
-
+/* You can use the full 44 colors that FuryBand offers here.   */
 static byte wand_col[MAX_METALS] =
 {
 	TERM_L_BLUE, TERM_L_DARK, TERM_WHITE, TERM_UMBER, TERM_YELLOW,
@@ -376,7 +376,7 @@ static byte food_col[MAX_SHROOM] =
  * Hack -- The first four entries are hard-coded.
  * (water, apple juice, slime mold juice, something)
  */
-
+/* You can use the first 34 colors that furyband offers here.   */
 static cptr potion_adj[MAX_COLORS] =
 {
 	"Clear", "Light Brown", "Icky Green", "Strangely Phosphorescent",
@@ -464,45 +464,45 @@ static bool object_flavor(int k_idx)
 	{
 	case TV_AMULET:
 		{
-			return (0x80 + amulet_col[k_ptr->sval]);
+			return (0x00 + amulet_col[k_ptr->sval]);
 		}
 
 	case TV_RING:
 		{
-			return (0x90 + ring_col[k_ptr->sval]);
+			return (0x2B + ring_col[k_ptr->sval]);
 		}
 
 	case TV_STAFF:
 		{
-			return (0xA0 + staff_col[k_ptr->sval]);
+			return (0x56 + staff_col[k_ptr->sval]);
 		}
 
 	case TV_WAND:
 		{
-			return (0xB0 + wand_col[k_ptr->sval]);
+			return (0x81 + wand_col[k_ptr->sval]);
 		}
 
 	case TV_ROD:
 		{
-			return (0xC0 + rod_col[k_ptr->sval]);
+			return (0xAC + rod_col[k_ptr->sval]);
 		}
 
 	case TV_SCROLL:
 		{
-			return (0xD0 + scroll_col[k_ptr->sval]);
+			return (0xBC + scroll_col[k_ptr->sval]);
 		}
 
 	case TV_POTION:
 	case TV_POTION2:
 		{
-			return (0xE0 + potion_col[k_ptr->sval]);
+			return (0xCC + potion_col[k_ptr->sval]);
 		}
 
 	case TV_FOOD:
 		{
 			if (k_ptr->sval < SV_FOOD_MIN_FOOD)
 			{
-				return (0xF0 + food_col[k_ptr->sval]);
+				return (0xEF + food_col[k_ptr->sval]);
 			}
 
 			break;

@@ -197,6 +197,8 @@ if get_class_name() == "Hunter" then
 	elseif one_town == TRUE then
 	player.wilderness_y = 64;
 	player.wilderness_x = 1;
+
+
 	
 -- so do Jedi	
 	elseif get_class_name() == "Jedi" then

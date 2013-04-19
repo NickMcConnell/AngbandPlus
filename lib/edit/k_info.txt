@@ -2799,7 +2799,7 @@ F:SHOW_MODS | SPECIAL_GENE | VAMPIRIC
 D:A temporary weapon that only a necromancer can use.
 
 # The Horn of the Thunderlords
-N:298:& Golden Horn~ of the Eagles
+N:298:& Golden Horn~ of the Thunderlords
 G:_:d
 I:55:23:-1:SPELL=Artifact Thunderlords
 W:50:0:10:12000

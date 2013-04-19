@@ -3812,7 +3812,7 @@ void calc_bonuses(bool silent)
 	{
 		int plev = get_skill(SKILL_HAND);
 
-		p_ptr->num_blow = 0;
+		p_ptr->num_blow = 2;
 
 		if (plev > 9) p_ptr->num_blow++;
 		if (plev > 19) p_ptr->num_blow++;
@@ -3839,7 +3839,7 @@ void calc_bonuses(bool silent)
 	{
 		int plev = get_skill(SKILL_DRAGON);
 
-		p_ptr->num_blow = 0;
+		p_ptr->num_blow = 2;
 
 		if (plev > 9) p_ptr->num_blow++;
 		if (plev > 19) p_ptr->num_blow++;
@@ -3862,7 +3862,7 @@ void calc_bonuses(bool silent)
 	{
 		int plev = get_skill(SKILL_SPIDER);
 
-		p_ptr->num_blow = 0;
+		p_ptr->num_blow = 2;
 
 		if (plev > 9) p_ptr->num_blow++;
 		if (plev > 19) p_ptr->num_blow++;
@@ -3878,14 +3878,14 @@ void calc_bonuses(bool silent)
 
 			p_ptr->dis_to_h += (plev / 3);
 			p_ptr->dis_to_d += (plev / 3);
-	//p_ptr->num_blow = 2;
+	// p_ptr->num_blow = 2;
 
 	}
 	else if ((p_ptr->melee_style == SKILL_BASILISK))
 	{
 		int plev = get_skill(SKILL_BASILISK);
 
-		p_ptr->num_blow = 0;
+		p_ptr->num_blow = 2;
 
 		if (plev > 9) p_ptr->num_blow++;
 		if (plev > 19) p_ptr->num_blow++;
@@ -3901,7 +3901,7 @@ void calc_bonuses(bool silent)
 
 			p_ptr->dis_to_h += (plev / 3);
 			p_ptr->dis_to_d += (plev / 3);
-//		p_ptr->num_blow = 2;
+	//	p_ptr->num_blow = 2;
 
 	}
 
@@ -3909,7 +3909,7 @@ void calc_bonuses(bool silent)
 	{
 		int plev = get_skill(SKILL_HYDRA);
 
-		p_ptr->num_blow = 0;
+		p_ptr->num_blow = 2;
 
 		if (plev > 9) p_ptr->num_blow++;
 		if (plev > 19) p_ptr->num_blow++;
@@ -3925,7 +3925,7 @@ void calc_bonuses(bool silent)
 
 			p_ptr->dis_to_h += (plev / 3);
 			p_ptr->dis_to_d += (plev / 3);
-//		p_ptr->num_blow = 2;
+	//	p_ptr->num_blow = 2;
 
 	}
 

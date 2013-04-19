@@ -787,9 +787,9 @@ struct object_type
 
 	byte tval;			/* Item type (from kind) */
 	byte sval;			/* Item sub-type (from kind) */
-
+// changed pval2 to a s32b to fix some VC++ errors FURYFURYFURY
 	s32b pval;                      /* Item extra-parameter */
-	s16b pval2;                     /* Item extra-parameter for some special
+	s32b pval2;                     /* Item extra-parameter for some special
 					   items*/
 	s32b pval3;                     /* Item extra-parameter for some special
 					   items*/
@@ -818,7 +818,7 @@ struct object_type
 
 	byte dd, ds;		/* Damage dice/sides */
 
-	s16b timeout;		/* Timeout Counter */
+	s32b timeout;		/* Timeout Counter */
 
 	byte ident;			/* Special flags  */
 

@@ -165,7 +165,7 @@ void hero_death(s32b m_idx, s32b r_idx)
 			}
 	case 4:
 			{
-				cmsg_print(TERM_YELLOW, "Neil grabs his sword from the monster:");
+				cmsg_print(TERM_YELLOW, "Elron grabs his sword from the monster:");
 				cmsg_print(TERM_YELLOW, "'Ah ! my sword ! my trusty sword ! Thanks.");
 				break;
 			}
@@ -329,7 +329,7 @@ bool quest_random_feeling_hook(char *fmt)
 			  }
 		  case 4:
 			  {
-				  cmsg_format(TERM_YELLOW, "Neil greets you at the bottom of the stairs:");
+				  cmsg_format(TERM_YELLOW, "Elron greets you at the bottom of the stairs:");
 				  cmsg_format(TERM_YELLOW, "'Ah please help me ! A group of %s stole my sword! I'm nothing without it'", r_info[random_quests[dun_level].r_idx].name + r_name);
 				  lost_sword_fury = 4;
 				  break;

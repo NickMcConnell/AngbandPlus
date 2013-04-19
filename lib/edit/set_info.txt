@@ -207,7 +207,7 @@ F:RES_FIRE | RES_POIS | SUST_CON
 P:97:3:0
 F:SLAY_DEMON | RES_NETHER
 # The Steel Helm of Gil-Galad
-P:240:3:0
+P:26:3:0
 #Why *shouldn't* warrior-types get a chance for AUTO_ID without penalties to luck before they kill Morgy?
 F:AUTO_ID
 

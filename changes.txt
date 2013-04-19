@@ -12,6 +12,15 @@ Core Changes
 	Monster and Object Lists print out to CSV files now
 	Fir Trees and Mallorn Trees should Burn now. And should be passable with TreeWalking
 	NEW F_INFO FLAG = TREE, anything with TREE flag can be passed with TREEWALKING and flying. Additionally, they will burn :)
+	New Flag ALWAYS_CORPSE. Makes monsters always drop a corpse if they can
+	Full support for 99 different predefined rings including artifacts. Up from 58
+	Full support for 50 different predefined rings including artifacts. Up from 34
+	Tweaked Sentient Weapons a bit
+	Fixed barehand combat, hydra combat, dragon combat, and basilisk combat from not giving more than 2 total blows...oops
+	REMOVED FURYBAND G and FURYBAND T
+	Added new birthoption one_town. That will emulate FuryBand T/Angband style of play
+	Updated the default windows pref files so you should be able to see the floor by default
+	Now can have 24 pre-configured towns
 
 
 Spell Changes
@@ -33,6 +42,7 @@ Monster Changes
 	Increased Health of Mature Red and Bronze Dragons to match level
 	Removed most monsters from being aligned based on your player race
 	More Monster Egos
+	Removed Mature Dragons
 
 
 Class/Race Changes
@@ -42,20 +52,27 @@ Class/Race Changes
 	Lowered the SkillOverLevel to 5 from 7
 	Major rebalance of the races and classes. 
 	More uniques have guaranteed artifacts
+	All "good" races get a choice of a starting town
+	JEDI have new jedi-specific (hard) starting quests and own starting town
 
 Store Changes
 	Added options for recharging at Furyband T
+	Major town changes for some of the minor towns
 
 Object Changes
 	Increased depth of some of the Maia weapons
 	More EGO items
 	More Artifacts (some by Zop, some by Me, and Some from Other Variants)
+	New ego and artifact for ALWAYS_CORPSE
+	2 New Rings: Ring of Knowledge (found deep in the dungeon and gives auto_id at the expense of stealth), and  Safety (protects you from getting stunned)
+	Fixed some Artifact Sets, thanks to JohnCW9
 
 Level Changes
 	
 	No more Maedhros at Deathwatch
 	Improved the Spiders Lair
 	Some NEW Princess Quest Levels
+	
 
 
 
