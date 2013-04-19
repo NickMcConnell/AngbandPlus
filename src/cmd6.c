@@ -10,8 +10,6 @@
 
 #include "angband.h"
 
-#include "script.h"
-
 
 /*
  * This file includes code for eating food, drinking potions,

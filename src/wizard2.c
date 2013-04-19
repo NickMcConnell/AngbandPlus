@@ -10,8 +10,6 @@
 
 #include "angband.h"
 
-#include "script.h"
-
 
 #ifdef ALLOW_DEBUG
 
@@ -33,9 +31,9 @@ static void do_cmd_wiz_hack_ben(void)
 	for (i = 0; i < MONSTER_FLOW_DEPTH; ++i)
 	{
 		/* Update map */
-		for (y = p_ptr->wy; y < p_ptr->wy + SCREEN_HGT; y++)
+		for (y = Term->offset_y; y < Term->offset_y + SCREEN_HGT; y++)
 		{
-			for (x = p_ptr->wx; x < p_ptr->wx + SCREEN_WID; x++)
+			for (x = Term->offset_x; x < Term->offset_x + SCREEN_WID; x++)
 			{
 				byte a = TERM_RED;
 
@@ -701,7 +699,7 @@ static void wiz_statistics(object_type *o_ptr)
 
 
 	/* Mega-Hack -- allow multiple artifacts XXX XXX XXX */
-	if (artifact_p(o_ptr)) a_info[o_ptr->name1].cur_num = 0;
+	if (artifact_p(o_ptr)) a_info[o_ptr->name1].status &= ~A_STATUS_CREATED;
 
 
 	/* Interact */
@@ -786,7 +784,7 @@ static void wiz_statistics(object_type *o_ptr)
 
 
 			/* Mega-Hack -- allow multiple artifacts XXX XXX XXX */
-			if (artifact_p(i_ptr)) a_info[i_ptr->name1].cur_num = 0;
+			if (artifact_p(i_ptr)) a_info[i_ptr->name1].status &= ~A_STATUS_CREATED;
 
 
 			/* Test for the same tval and sval. */
@@ -834,7 +832,7 @@ static void wiz_statistics(object_type *o_ptr)
 
 
 	/* Hack -- Normally only make a single artifact */
-	if (artifact_p(o_ptr)) a_info[o_ptr->name1].cur_num = 1;
+	if (artifact_p(o_ptr)) a_info[o_ptr->name1].status |= A_STATUS_CREATED;
 }
 
 
@@ -1422,9 +1420,9 @@ static void do_cmd_wiz_query(void)
 	}
 
 	/* Scan map */
-	for (y = p_ptr->wy; y < p_ptr->wy + SCREEN_HGT; y++)
+	for (y = Term->offset_y; y < Term->offset_y + SCREEN_HGT; y++)
 	{
-		for (x = p_ptr->wx; x < p_ptr->wx + SCREEN_WID; x++)
+		for (x = Term->offset_x; x < Term->offset_x + SCREEN_WID; x++)
 		{
 			byte a = TERM_RED;
 
@@ -1695,13 +1693,6 @@ void do_cmd_debug(void)
 		{
 			if (p_ptr->command_arg <= 0) p_ptr->command_arg = MAX_SIGHT;
 			do_cmd_wiz_zap(p_ptr->command_arg);
-			break;
-		}
-
-		/* Execute script */
-		case '@':
-		{
-			do_cmd_script();
 			break;
 		}
 

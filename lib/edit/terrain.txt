@@ -35,7 +35,7 @@
 
 # Version stamp (required)
 
-V:3.0.5
+V:0.1.0
 
 
 # 0x00 --> <darkness>
@@ -118,7 +118,7 @@ G:7:D
 # 0x0F --> shop -- home (perm)
 
 N:15:Home
-G:8:y
+G:+:U
 
 # 0x10 --> visible trap -- trap door
 

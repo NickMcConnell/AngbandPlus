@@ -317,7 +317,7 @@ void compact_objects(int size)
 		p_ptr->redraw |= (PR_MAP);
 
 		/* Window stuff */
-		p_ptr->window |= (PW_OVERHEAD);
+		p_ptr->window |= (PW_OVERHEAD | PW_MAP);
 	}
 
 
@@ -372,6 +372,9 @@ void compact_objects(int size)
 
 			/* Saving throw */
 			chance = 90;
+
+			/* Squelched items get compacted */
+			if ((k_ptr->aware) && (k_ptr->squelch)) chance = 0;
 
 			/* Hack -- only compact artifacts in emergencies */
 			if (artifact_p(o_ptr) && (cnt < 1000)) chance = 100;
@@ -437,9 +440,13 @@ void wipe_o_list(void)
 			if (artifact_p(o_ptr) && !object_known_p(o_ptr))
 			{
 				/* Mega-Hack -- Preserve the artifact */
-				a_info[o_ptr->name1].cur_num = 0;
+				a_info[o_ptr->name1].status &= ~(A_STATUS_CREATED);
 			}
 		}
+
+		/* If it wasn't perserved, we saw it */
+		if (artifact_p(o_ptr) && (a_info[o_ptr->name1].status & A_STATUS_CREATED))
+			artifact_aware(&a_info[o_ptr->name1]);
 
 		/* Monster */
 		if (o_ptr->held_m_idx)
@@ -733,12 +740,29 @@ s16b get_obj_num(int level)
 	return (table[i].index);
 }
 
-
-
-
-
-
-
+/*
+ * The player is now aware of the existance of a given artifact
+ */
+void artifact_aware(artifact_type *a_ptr)
+{
+	/* Aware the artifact is in the current game */
+	a_ptr->status |= A_STATUS_AWARE;
+ 
+	/* Aware the artifact exists for history's sake (unless a randart) */
+	if (!adult_rand_artifacts) a_ptr->status |= A_STATUS_HISTORY;
+}
+ 
+/*
+ * The player knows the full abilities of a given artifact
+ */
+void artifact_known(artifact_type *a_ptr)
+{
+	/* Know the effects */
+	a_ptr->status |= A_STATUS_KNOWN;
+ 
+	/* Know for history's sake (unless a randart) */
+	if (!adult_rand_artifacts) a_ptr->status |= A_STATUS_MEMORY;
+}
 
 /*
  * Known is true when the "attributes" of an object are "known".
@@ -780,8 +804,20 @@ void object_known(object_type *o_ptr)
  */
 void object_aware(object_type *o_ptr)
 {
-	/* Fully aware of the effects */
-	k_info[o_ptr->k_idx].aware = TRUE;
+	int x, y;
+	bool flag = k_info[o_ptr->k_idx].aware;
+
+ 	/* Fully aware of the effects */
+ 	k_info[o_ptr->k_idx].aware = TRUE;
+
+	/* If newly aware and squelched, must rearrange stacks */
+	if (!flag && (k_info[o_ptr->k_idx].squelch)) {
+		for (x = 0; x < DUNGEON_WID; x++) {
+			for (y = 0; y < DUNGEON_HGT; y++) {
+				rearrange_stack(y, x);
+			}
+		}
+	}
 }
 
 
@@ -1750,7 +1786,7 @@ static bool make_artifact_special(object_type *o_ptr)
 		if (!a_ptr->name) continue;
 
 		/* Cannot make an artifact twice */
-		if (a_ptr->cur_num) continue;
+		if (a_ptr->status & A_STATUS_CREATED) continue;
 
 		/* Enforce minimum "depth" (loosely) */
 		if (a_ptr->level > p_ptr->depth)
@@ -1823,7 +1859,7 @@ static bool make_artifact(object_type *o_ptr)
 		if (!a_ptr->name) continue;
 
 		/* Cannot make an artifact twice */
-		if (a_ptr->cur_num) continue;
+		if (a_ptr->status & A_STATUS_CREATED) continue;
 
 		/* Must have the correct fields */
 		if (a_ptr->tval != o_ptr->tval) continue;
@@ -2671,7 +2707,7 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 		artifact_type *a_ptr = &a_info[o_ptr->name1];
 
 		/* Hack -- Mark the artifact as "created" */
-		a_ptr->cur_num = 1;
+		a_ptr->status |= A_STATUS_CREATED;
 
 		/* Extract the other fields */
 		o_ptr->pval = a_ptr->pval;
@@ -3159,6 +3195,9 @@ s16b floor_carry(int y, int x, object_type *j_ptr)
 		/* Link the floor to the object */
 		cave_o_idx[y][x] = o_idx;
 
+		/* Rearrange to reflect squelching */
+		rearrange_stack(y, x);
+
 		/* Notice */
 		note_spot(y, x);
 
@@ -3369,7 +3408,7 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 		if (p_ptr->wizard) msg_print("Breakage (too many objects).");
 
 		/* Hack -- Preserve artifacts */
-		a_info[j_ptr->name1].cur_num = 0;
+		if (artifact_p(j_ptr)) a_info[j_ptr->name1].status &= ~A_STATUS_CREATED;
 
 		/* Failure */
 		return;
@@ -3441,7 +3480,7 @@ void place_object(int y, int x, bool good, bool great)
 		if (!floor_carry(y, x, i_ptr))
 		{
 			/* Hack -- Preserve artifacts */
-			a_info[i_ptr->name1].cur_num = 0;
+			a_info[i_ptr->name1].status &= ~A_STATUS_CREATED;
 		}
 	}
 }

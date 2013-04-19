@@ -11,10 +11,6 @@
 #include "angband.h"
 
 
-#ifndef USE_SCRIPT
-
-#include "script.h"
-
 static bool eat_food(object_type *o_ptr, bool *ident)
 {
 	/* Analyze the food */
@@ -256,6 +252,12 @@ static bool quaff_potion(object_type *o_ptr, bool *ident)
 			(void)set_poisoned(0);
 			(void)set_paralyzed(p_ptr->paralyzed + 4);
 			*ident = TRUE;
+			break;
+		}
+
+		case SV_POTION_SATISFY_HUNGER:
+		{
+			if (set_food(PY_FOOD_MAX - 1)) *ident = TRUE;
 			break;
 		}
 
@@ -918,12 +920,6 @@ static bool read_scroll(object_type *o_ptr, bool *ident)
 		case SV_SCROLL_DETECT_INVIS:
 		{
 			if (detect_monsters_invis()) *ident = TRUE;
-			break;
-		}
-
-		case SV_SCROLL_SATISFY_HUNGER:
-		{
-			if (set_food(PY_FOOD_MAX - 1)) *ident = TRUE;
 			break;
 		}
 
@@ -2753,11 +2749,3 @@ void describe_item_activation(const object_type *o_ptr)
 		}
 	}
 }
-
-#else
-
-#ifdef MACINTOSH
-static int i = 0;
-#endif
-
-#endif /* USE_SCRIPT */

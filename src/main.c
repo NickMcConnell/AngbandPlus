@@ -129,49 +129,6 @@ extern unsigned _ovrbuffer = 0x1500;
 #endif /* USE_286 */
 
 
-#ifdef PRIVATE_USER_PATH
-
-/*
- * Create an ".angband/" directory in the users home directory.
- *
- * ToDo: Add error handling.
- * ToDo: Only create the directories when actually writing files.
- */
-static void create_user_dir(void)
-{
-	char dirpath[1024];
-	char subdirpath[1024];
-
-
-	/* Get an absolute path from the filename */
-	path_parse(dirpath, sizeof(dirpath), PRIVATE_USER_PATH);
-
-	/* Create the ~/.angband/ directory */
-	mkdir(dirpath, 0700);
-
-	/* Build the path to the variant-specific sub-directory */
-	path_build(subdirpath, sizeof(subdirpath), dirpath, VERSION_NAME);
-
-	/* Create the directory */
-	mkdir(subdirpath, 0700);
-
-#ifdef USE_PRIVATE_SAVE_PATH
-	/* Build the path to the scores sub-directory */
-	path_build(dirpath, sizeof(dirpath), subdirpath, "scores");
-
-	/* Create the directory */
-	mkdir(dirpath, 0700);
-
-	/* Build the path to the savefile sub-directory */
-	path_build(dirpath, sizeof(dirpath), subdirpath, "save");
-
-	/* Create the directory */
-	mkdir(dirpath, 0700);
-#endif /* USE_PRIVATE_SAVE_PATH */
-}
-
-#endif /* PRIVATE_USER_PATH */
-
 
 /*
  * Initialize and verify the file paths, and the score file.
@@ -455,8 +412,8 @@ int main(int argc, char *argv[])
 
 #ifdef PRIVATE_USER_PATH
 
-	/* Create a directory for the users files. */
-	create_user_dir();
+	/* Create directories for the users files */
+	create_user_dirs();
 
 #endif /* PRIVATE_USER_PATH */
 

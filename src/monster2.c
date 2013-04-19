@@ -1078,6 +1078,10 @@ void update_mon(int m_idx, bool full)
 				}
 			}
 
+            /* Use "lite carriers" */
+            if (r_ptr->flags2 & (RF2_HAS_LITE)) easy=flag=TRUE;
+
+
 			/* Use "illumination" */
 			if (player_can_see_bold(fy, fx))
 			{
@@ -1131,6 +1135,9 @@ void update_mon(int m_idx, bool full)
 
 			/* Hack -- Count "fresh" sightings */
 			if (l_ptr->sights < MAX_SHORT) l_ptr->sights++;
+
+            /* Player knows if it has light */
+            if (r_ptr->flags2 & RF2_HAS_LITE) l_ptr->flags2 |= RF2_HAS_LITE;
 
 			/* Disturb on appearance */
 			if (disturb_move) disturb(1, 0);
@@ -1339,7 +1346,7 @@ void monster_swap(int y1, int x1, int y2, int x2)
 		p_ptr->update |= (PU_UPDATE_FLOW);
 
 		/* Window stuff */
-		p_ptr->window |= (PW_OVERHEAD);
+		p_ptr->window |= (PW_OVERHEAD | PW_MAP);
 	}
 
 	/* Monster 2 */
@@ -1372,7 +1379,7 @@ void monster_swap(int y1, int x1, int y2, int x2)
 		p_ptr->update |= (PU_UPDATE_FLOW);
 
 		/* Window stuff */
-		p_ptr->window |= (PW_OVERHEAD);
+		p_ptr->window |= (PW_OVERHEAD | PW_MAP);
 	}
 
 

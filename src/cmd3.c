@@ -1002,15 +1002,15 @@ void do_cmd_locate(void)
 
 
 	/* Start at current panel */
-	y1 = p_ptr->wy;
-	x1 = p_ptr->wx;
+	y1 = Term->offset_y;
+	x1 = Term->offset_x;
 
 	/* Show panels until done */
 	while (1)
 	{
 		/* Get the current panel */
-		y2 = p_ptr->wy;
-		x2 = p_ptr->wx;
+		y2 = Term->offset_y;
+		x2 = Term->offset_x;
 		
 		/* Describe the location */
 		if ((y2 == y1) && (x2 == x1))

@@ -10,8 +10,6 @@
 
 #include "angband.h"
 
-#include "script.h"
-
 
 /*
  * Note that Level generation is *not* an important bottleneck,
@@ -1659,6 +1657,8 @@ static void build_type5(int y0, int x0)
 
 	int tmp, i;
 
+	int rating_bonus;
+
 	s16b what[64];
 
 	cptr name;
@@ -1709,6 +1709,9 @@ static void build_type5(int y0, int x0)
 
 		/* Restrict to jelly */
 		get_mon_num_hook = vault_aux_jelly;
+
+		/* Appropriate rating bonus */
+		rating_bonus = 25 - p_ptr->depth;
 	}
 
 	/* Monster nest (animal) */
@@ -1719,6 +1722,9 @@ static void build_type5(int y0, int x0)
 
 		/* Restrict to animal */
 		get_mon_num_hook = vault_aux_animal;
+
+		/* Appropriate rating bonus */
+		rating_bonus = 45 - p_ptr->depth;
 	}
 
 	/* Monster nest (undead) */
@@ -1729,6 +1735,9 @@ static void build_type5(int y0, int x0)
 
 		/* Restrict to undead */
 		get_mon_num_hook = vault_aux_undead;
+
+		/* Appropriate rating bonus */
+		rating_bonus = 70 - p_ptr->depth;
 	}
 
 	/* Prepare allocation table */
@@ -1766,7 +1775,7 @@ static void build_type5(int y0, int x0)
 
 
 	/* Increase the level rating */
-	rating += 10;
+	if (rating_bonus > 0) rating += rating_bonus;
 
 	/* (Sometimes) Cause a "special feeling" (for "Monster Nests") */
 	if ((p_ptr->depth <= 40) &&
@@ -1840,6 +1849,8 @@ static void build_type6(int y0, int x0)
 
 	int i, j, y, x, y1, x1, y2, x2;
 
+	int rating_bonus;
+
 	bool empty = FALSE;
 
 	int light = FALSE;
@@ -1888,6 +1899,9 @@ static void build_type6(int y0, int x0)
 
 		/* Restrict monster selection */
 		get_mon_num_hook = vault_aux_orc;
+
+		/* Appropriate rating bonus */
+		rating_bonus = 25 - p_ptr->depth;
 	}
 
 	/* Troll pit */
@@ -1898,6 +1912,9 @@ static void build_type6(int y0, int x0)
 
 		/* Restrict monster selection */
 		get_mon_num_hook = vault_aux_troll;
+
+		/* Appropriate rating bonus */
+		rating_bonus = 35 - p_ptr->depth;
 	}
 
 	/* Giant pit */
@@ -1908,11 +1925,17 @@ static void build_type6(int y0, int x0)
 
 		/* Restrict monster selection */
 		get_mon_num_hook = vault_aux_giant;
+
+		/* Appropriate rating bonus */
+		rating_bonus = 55 - p_ptr->depth;
 	}
 
 	/* Dragon pit */
 	else if (tmp < 80)
 	{
+		/* Appropriate rating bonus */
+		rating_bonus = 75 - p_ptr->depth;
+
 		/* Pick dragon type */
 		switch (rand_int(6))
 		{
@@ -2010,6 +2033,9 @@ static void build_type6(int y0, int x0)
 
 		/* Restrict monster selection */
 		get_mon_num_hook = vault_aux_demon;
+
+		/* Appropriate rating bonus */
+		rating_bonus = 95 - p_ptr->depth;
 	}
 
 	/* Prepare allocation table */
@@ -2077,7 +2103,7 @@ static void build_type6(int y0, int x0)
 
 
 	/* Increase the level rating */
-	rating += 10;
+	if (rating_bonus > 0) rating += rating_bonus;
 
 	/* (Sometimes) Cause a "special feeling" (for "Monster Pits") */
 	if ((p_ptr->depth <= 40) &&
@@ -2145,18 +2171,30 @@ static void build_type6(int y0, int x0)
 static void build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 {
 	int dx, dy, x, y;
+	int ax, ay;
+	bool flip_v = FALSE;
+	bool flip_h = FALSE;
 
 	cptr t;
 
+	/* Flip the vault (sometimes) */
+	if (rand_int(2) == 0) flip_v = TRUE;
+	if (rand_int(2) == 0) flip_h = TRUE;
 
 	/* Place dungeon features and objects */
 	for (t = data, dy = 0; dy < ymax; dy++)
 	{
+		if (flip_v) ay = ymax - dy;
+		else ay = dy;
+
 		for (dx = 0; dx < xmax; dx++, t++)
 		{
+			if (flip_h) ax = xmax - dx;
+			else ax = dx;
+
 			/* Extract the location */
-			x = x0 - (xmax / 2) + dx;
-			y = y0 - (ymax / 2) + dy;
+			x = x0 - (xmax / 2) + ax;
+			y = y0 - (ymax / 2) + ay;
 
 			/* Hack -- skip "non-grids" */
 			if (*t == ' ') continue;
@@ -2226,11 +2264,17 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 	/* Place dungeon monsters and objects */
 	for (t = data, dy = 0; dy < ymax; dy++)
 	{
+		if (flip_v) ay = ymax - dy;
+		else ay = dy;
+
 		for (dx = 0; dx < xmax; dx++, t++)
 		{
+			if (flip_h) ax = xmax - dx;
+			else ax = dx;
+
 			/* Extract the grid */
-			x = x0 - (xmax/2) + dx;
-			y = y0 - (ymax/2) + dy;
+			x = x0 - (xmax/2) + ax;
+			y = y0 - (ymax/2) + ay;
 
 			/* Hack -- skip "non-grids" */
 			if (*t == ' ') continue;
@@ -3408,8 +3452,8 @@ void generate_cave(void)
 
 
 		/* Hack -- illegal panel */
-		p_ptr->wy = DUNGEON_HGT;
-		p_ptr->wx = DUNGEON_WID;
+		Term->offset_y = DUNGEON_HGT;
+		Term->offset_x = DUNGEON_WID;
 
 
 		/* Reset the monster generation level */
@@ -3424,23 +3468,18 @@ void generate_cave(void)
 		/* Nothing good here yet */
 		rating = 0;
 
-
-		/* Event -- generate level */
-		if (!generate_level_hook(p_ptr->depth))
+		/* Build the town */
+		if (!p_ptr->depth)
 		{
-			/* Build the town */
-			if (!p_ptr->depth)
-			{
-				/* Make a town */
-				town_gen();
-			}
+			/* Make a town */
+			town_gen();
+		}
 
-			/* Build a real level */
-			else
-			{
-				/* Make a dungeon */
-				cave_gen();
-			}
+		/* Build a real level */
+		else
+		{
+			/* Make a dungeon, or report the failure to make one*/
+			cave_gen();
 		}
 
 		/* Extract the feeling */
@@ -3453,17 +3492,16 @@ void generate_cave(void)
 		else if (rating > 10) feeling = 8;
 		else if (rating > 0) feeling = 9;
 		else feeling = 10;
-
+	
 		/* Hack -- Have a special feeling sometimes */
 		if (good_item_flag && !adult_preserve) feeling = 1;
-
+	
 		/* It takes 1000 game turns for "feelings" to recharge */
-		if (((turn - old_turn) < 1000) && (old_turn > 1)) feeling = 0;
-
+		if (feeling_counter) feeling = 0;
+	
 		/* Hack -- no feeling in the town */
 		if (!p_ptr->depth) feeling = 0;
-
-
+	
 		/* Prevent object over-flow */
 		if (o_max >= z_info->o_max)
 		{
@@ -3473,7 +3511,7 @@ void generate_cave(void)
 			/* Message */
 			okay = FALSE;
 		}
-
+	
 		/* Prevent monster over-flow */
 		if (mon_max >= z_info->m_max)
 		{
@@ -3483,7 +3521,7 @@ void generate_cave(void)
 			/* Message */
 			okay = FALSE;
 		}
-
+	
 		/* Mega-Hack -- "auto-scum" */
 		if (auto_scum && (num < 100))
 		{
@@ -3510,7 +3548,6 @@ void generate_cave(void)
 		/* Accept */
 		if (okay) break;
 
-
 		/* Message */
 		if (why) msg_format("Generation restarted (%s)", why);
 
@@ -3526,8 +3563,5 @@ void generate_cave(void)
 	character_dungeon = TRUE;
 
 	/* Remember when this level was "created" */
-	old_turn = turn;
+	if (p_ptr->depth) feeling_counter = FEELING_RATE;
 }
-
-
-

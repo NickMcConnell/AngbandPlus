@@ -1,0 +1,64 @@
+:base ANGBAND.HLP
+:title Angband
+1 General Information
+2 Introduction=a0_general>Main
+2 A Note from the Maintainer=a1_general>Main
+2 A Quick Demonstration=a2_general>Main
+1 Creating a Character
+2 Introduction=b0_birth>Main
+2 Character Characteristics=b1_birth>Main
+2 Races=b2_birth>Main
+2 Classes=b3_birth>Main
+2 Stats=b4_birth>Main
+2 Abilities=b5_birth>Main
+2 Combination, Stat Bonus, and Ability Tables=b6_birth>Main
+1 Exploring the Dungeon
+2 Introduction=c0_dungeon>Main
+2 Symbols on Your Map=c1_dungeon>Main
+2 The Town Level=c2_dungeon>Main
+2 Within the Dungeon=c3_dungeon>Main
+2 Winning the Game=c4_dungeon>Main
+2 Upon Death and Dying=c5_dungeon>Main
+1 Attacking Monsters
+2 Introduction=d0_attack>Main
+2 Monster Memories=d1_attack>Main
+2 Your Weapon=d2_attack>Main
+2 Your Armor Class=d3_attack>Main
+2 Non-Melee Attacks and Resistances=d4_attack>Main
+2 A Note on Speed=d5_attack>Main
+1 Playing the Game
+2 Introduction=e0_playing>Main
+2 Keyset Command Summaries=e1_playing>Main
+2 Special Keys=e2_playing>Main
+2 Command Counts=e3_playing>Main
+2 Selection of Objects=e4_playing>Main
+2 User Pref Files=e5_playing>Main
+1 Command Descriptions
+2 Introduction=f0_command>Main
+2 Inventory Commands=f1_command>Main
+2 Movement Commands=f2_commands>Main
+2 Resting & Searching Commands=f3_commands>Main
+2 Alter Commands=f4_commands>Main
+2 Spell & Prayer Commands=f5_commands>Main
+2 Object Manipulation Commands=f6_commands>Main
+2 Magical Object, Throwing, & Missile Commands=f7_command>Main
+2 Looking, Message, & Status Commands=f8_commands>Main
+2 Other Commands=f9_commands>Main
+1 Option Descriptions
+2 Introduction=g0_option>Main
+2 User Interface Options=g1_options>Main
+2 Disturbance Options=g2_options>Main
+2 Gameplay Options=g3_options>Main
+2 Efficiency Options=g4_options>Main
+2 Display Options=g5_options>Main
+2 Birth Options=g6_options>Main
+2 Cheating Options=g7_options>Main
+2 Window Flags=g8_options>Main
+2 Other Options=g9_options>Main
+1 Version Information
+2 Introduction=h0_version>Main
+2 Brief Version History=h1_version>Main
+2 Some of the Changes Between Angband 2.6.1 and Now=h2_version>Main
+2 A Posting from the Original Author=h3_version>Main
+2 Previous Versions (Outdated)=h4_version>Main
+2 Contributors (Incomplete)=h5_version>Main

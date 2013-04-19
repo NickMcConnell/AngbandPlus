@@ -66,7 +66,7 @@ bool set_blind(int v)
 	p_ptr->redraw |= (PR_BLIND);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_OVERHEAD);
+	p_ptr->window |= (PW_OVERHEAD | PW_MAP);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -322,7 +322,7 @@ bool set_image(int v)
 	p_ptr->redraw |= (PR_MAP);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_OVERHEAD);
+	p_ptr->window |= (PW_OVERHEAD | PW_MAP);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -881,6 +881,9 @@ bool set_oppose_acid(int v)
 	/* Disturb */
 	if (disturb_state) disturb(0, 0);
 
+	/* Redraw */
+	p_ptr->redraw |= PR_OPPOSE_ELEMENTS;
+
 	/* Handle stuff */
 	handle_stuff();
 
@@ -927,6 +930,9 @@ bool set_oppose_elec(int v)
 
 	/* Disturb */
 	if (disturb_state) disturb(0, 0);
+
+	/* Redraw */
+	p_ptr->redraw |= PR_OPPOSE_ELEMENTS;
 
 	/* Handle stuff */
 	handle_stuff();
@@ -975,6 +981,9 @@ bool set_oppose_fire(int v)
 	/* Disturb */
 	if (disturb_state) disturb(0, 0);
 
+	/* Redraw */
+	p_ptr->redraw |= PR_OPPOSE_ELEMENTS;
+
 	/* Handle stuff */
 	handle_stuff();
 
@@ -1022,6 +1031,9 @@ bool set_oppose_cold(int v)
 	/* Disturb */
 	if (disturb_state) disturb(0, 0);
 
+	/* Redraw */
+	p_ptr->redraw |= PR_OPPOSE_ELEMENTS;
+
 	/* Handle stuff */
 	handle_stuff();
 
@@ -1068,6 +1080,9 @@ bool set_oppose_pois(int v)
 
 	/* Disturb */
 	if (disturb_state) disturb(0, 0);
+
+	/* Redraw */
+	p_ptr->redraw |= PR_OPPOSE_ELEMENTS;
 
 	/* Handle stuff */
 	handle_stuff();
@@ -1715,6 +1730,7 @@ void check_experience(void)
 
 		/* Redraw some stuff */
 		p_ptr->redraw |= (PR_LEV | PR_TITLE);
+		prt_exp();
 
 		/* Window stuff */
 		p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
@@ -2266,47 +2282,39 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
  * Modify the current panel to the given coordinates, adjusting only to
  * ensure the coordinates are legal, and return TRUE if anything done.
  *
- * Hack -- The town should never be scrolled around.
+ * The town should never be scrolled around.
  *
  * Note that monsters are no longer affected in any way by panel changes.
  *
  * As a total hack, whenever the current panel changes, we assume that
  * the "overhead view" window should be updated.
  */
-bool modify_panel(int wy, int wx)
+bool modify_panel(term *t, int wy, int wx)
 {
-	/* Verify wy, adjust if needed */
-	if (p_ptr->depth == 0)
-	{
-		if (wy > TOWN_HGT - SCREEN_HGT) wy = TOWN_HGT - SCREEN_HGT;
-		else if (wy < 0) wy = 0;
-	}
-	else if (wy > DUNGEON_HGT - SCREEN_HGT) wy = DUNGEON_HGT - SCREEN_HGT;
+	int dungeon_hgt = (p_ptr->depth == 0) ? TOWN_HGT : DUNGEON_HGT;
+	int dungeon_wid = (p_ptr->depth == 0) ? TOWN_WID : DUNGEON_WID;
 
+	int screen_hgt = (t == Term) ? (t->hgt - ROW_MAP - 1) : t->hgt;
+	int screen_wid = (t == Term) ? ((t->wid - COL_MAP - 1) / (use_bigtile ? 2 : 1)) : t->wid;
+
+	/* Verify wy, adjust if needed */
+	if (wy > dungeon_hgt - screen_hgt) wy = dungeon_hgt - screen_hgt;
 	if (wy < 0) wy = 0;
 
 	/* Verify wx, adjust if needed */
-	if (p_ptr->depth == 0)
-	{
-		if (wx > TOWN_WID - SCREEN_WID) wx = TOWN_WID - SCREEN_WID;
-		else if (wx < 0) wx = 0;
-	}
-	else if (wx > DUNGEON_WID - SCREEN_WID) wx = DUNGEON_WID - SCREEN_WID;
-
+	if (wx > dungeon_wid - screen_wid) wx = dungeon_wid - screen_wid;
 	if (wx < 0) wx = 0;
 
 	/* React to changes */
-	if ((p_ptr->wy != wy) || (p_ptr->wx != wx))
+	if ((t->offset_y != wy) || (t->offset_x != wx))
 	{
 		/* Save wy, wx */
-		p_ptr->wy = wy;
-		p_ptr->wx = wx;
+		t->offset_y = wy;
+		t->offset_x = wx;
 
 		/* Redraw map */
 		p_ptr->redraw |= (PR_MAP);
-
-		/* Hack -- Window stuff */
-		p_ptr->window |= (PW_OVERHEAD);
+		p_ptr->window |= (PW_OVERHEAD | PW_MAP);
 
 		/* Changed */
 		return (TRUE);
@@ -2324,19 +2332,43 @@ bool modify_panel(int wy, int wx)
  */
 bool adjust_panel(int y, int x)
 {
-	int wy = p_ptr->wy;
-	int wx = p_ptr->wx;
+	bool changed = FALSE;
 
-	/* Adjust as needed */
-	while (y >= wy + SCREEN_HGT) wy += SCREEN_HGT;
-	while (y < wy) wy -= SCREEN_HGT;
+	int j;
 
-	/* Adjust as needed */
-	while (x >= wx + SCREEN_WID) wx += SCREEN_WID;
-	while (x < wx) wx -= SCREEN_WID;
+	/* Scan windows */
+	for (j = 0; j < ANGBAND_TERM_MAX; j++)
+	{
+		int wx, wy;
+		int screen_hgt, screen_wid;
 
-	/* Use "modify_panel" */
-	return (modify_panel(wy, wx));
+		term *t = angband_term[j];
+
+		/* No window */
+		if (!t) continue;
+
+		/* No relevant flags */
+		if ((j > 0) && !(op_ptr->window_flag[j] & PW_MAP)) continue;
+
+		wy = t->offset_y;
+		wx = t->offset_x;
+
+		screen_hgt = (j == 0) ? SCREEN_HGT : t->hgt;
+		screen_wid = (j == 0) ? SCREEN_WID : t->wid;
+
+		/* Adjust as needed */
+		while (y >= wy + screen_hgt) wy += screen_hgt / 2;
+		while (y < wy) wy -= screen_hgt / 2;
+
+		/* Adjust as needed */
+		while (x >= wx + screen_wid) wx += screen_wid / 2;
+		while (x < wx) wx -= screen_wid / 2;
+
+		/* Use "modify_panel" */
+		if (modify_panel(t, wy, wx)) changed = TRUE;
+	}
+
+	return (changed);
 }
 
 
@@ -2347,11 +2379,30 @@ bool adjust_panel(int y, int x)
  */
 bool change_panel(int dir)
 {
-	int wy = p_ptr->wy + ddy[dir] * PANEL_HGT;
-	int wx = p_ptr->wx + ddx[dir] * PANEL_WID;
+	bool changed = FALSE;
+	int j;
 
-	/* Use "modify_panel" */
-	return (modify_panel(wy, wx));
+	/* Scan windows */
+	for (j = 0; j < ANGBAND_TERM_MAX; j++)
+	{
+		int wx, wy;
+
+		term *t = angband_term[j];
+
+		/* No window */
+		if (!t) continue;
+
+		/* No relevant flags */
+		if ((j > 0) && !(op_ptr->window_flag[j] & PW_MAP)) continue;
+
+		wy = t->offset_y + ddy[dir] * t->hgt / 2;
+		wx = t->offset_x + ddx[dir] * t->wid / 2;
+
+		/* Use "modify_panel" */
+		if (modify_panel(t, wy, wx)) changed = TRUE;
+	}
+
+	return (changed);
 }
 
 
@@ -2368,46 +2419,65 @@ bool change_panel(int dir)
  */
 void verify_panel(void)
 {
+	int wy, wx;
+	int screen_hgt, screen_wid;
+
+	int panel_wid, panel_hgt;
+
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
-	int wy = p_ptr->wy;
-	int wx = p_ptr->wx;
+	int j;
 
-
-	/* Scroll screen vertically when off-center */
-	if (center_player && (!p_ptr->running || !run_avoid_center) &&
-	    (py != wy + SCREEN_HGT / 2))
+	/* Scan windows */
+	for (j = 0; j < ANGBAND_TERM_MAX; j++)
 	{
-		wy = py - SCREEN_HGT / 2;
-	}
+		term *t = angband_term[j];
 
-	/* Scroll screen vertically when 2 grids from top/bottom edge */
-	else if ((py < wy + 2) || (py >= wy + SCREEN_HGT - 2))
-	{
-		wy = ((py - PANEL_HGT / 2) / PANEL_HGT) * PANEL_HGT;
-	}
+		/* No window */
+		if (!t) continue;
+
+		/* No relevant flags */
+		if ((j > 0) && !(op_ptr->window_flag[j] & (PW_MAP))) continue;
+
+		wy = t->offset_y;
+		wx = t->offset_x;
+
+		screen_hgt = (j == 0) ? SCREEN_HGT : t->hgt;
+		screen_wid = (j == 0) ? SCREEN_WID : t->wid;
+
+		panel_wid = screen_wid / 2;
+		panel_hgt = screen_hgt / 2;
+
+		/* Scroll screen vertically when off-center */
+		if (center_player && (!p_ptr->running || !run_avoid_center) &&
+		    (py != wy + panel_hgt))
+		{
+			wy = py - panel_hgt;
+		}
+
+		/* Scroll screen vertically when 3 grids from top/bottom edge */
+		else if ((py < wy + 3) || (py >= wy + screen_hgt - 3))
+		{
+			wy = py - panel_hgt;
+		}
 
 
-	/* Scroll screen horizontally when off-center */
-	if (center_player && (!p_ptr->running || !run_avoid_center) &&
-	    (px != wx + SCREEN_WID / 2))
-	{
-		wx = px - SCREEN_WID / 2;
-	}
+		/* Scroll screen horizontally when off-center */
+		if (center_player && (!p_ptr->running || !run_avoid_center) &&
+		    (px != wx + panel_wid))
+		{
+			wx = px - panel_wid;
+		}
 
-	/* Scroll screen horizontally when 4 grids from left/right edge */
-	else if ((px < wx + 4) || (px >= wx + SCREEN_WID - 4))
-	{
-		wx = ((px - PANEL_WID / 2) / PANEL_WID) * PANEL_WID;
-	}
+		/* Scroll screen horizontally when 3 grids from left/right edge */
+		else if ((px < wx + 3) || (px >= wx + screen_wid - 3))
+		{
+			wx = px - panel_wid;
+		}
 
-
-	/* Scroll if needed */
-	if (modify_panel(wy, wx))
-	{
-		/* Optional disturb on "panel change" */
-		if (disturb_panel && !center_player) disturb(0, 0);
+		/* Scroll if needed */
+		modify_panel(t, wy, wx);
 	}
 }
 
@@ -2954,9 +3024,9 @@ static void target_set_interactive_prepare(int mode)
 	temp_n = 0;
 
 	/* Scan the current panel */
-	for (y = p_ptr->wy; y < p_ptr->wy + SCREEN_HGT; y++)
+	for (y = Term->offset_y; y < Term->offset_y + SCREEN_HGT; y++)
 	{
-		for (x = p_ptr->wx; x < p_ptr->wx + SCREEN_WID; x++)
+		for (x = Term->offset_x; x < Term->offset_x + SCREEN_WID; x++)
 		{
 			/* Check bounds */
 			if (!in_bounds_fully(y, x)) continue;
@@ -3451,9 +3521,7 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
  *
  * Note that this code can be called from "get_aim_dir()".
  *
- * All locations must be on the current panel, unless the "scroll_target"
- * option is used, which allows changing the current panel during "look"
- * and "target" commands.  Currently, when "flag" is true, that is, when
+ * Currently, when "flag" is true, that is, when
  * "interesting" grids are being used, and a directional key is used, we
  * only scroll by a single panel, in the direction requested, and check
  * for any interesting grids on that panel.  The "correct" solution would
@@ -3543,6 +3611,13 @@ bool target_set_interactive(int mode)
 				strcpy(info, "q,p,o,+,-,<dir>");
 			}
 
+			/* Adjust panel if needed */
+			if (adjust_panel(y, x))
+			{
+				/* Handle stuff */
+				handle_stuff();
+			}
+
 			/* Describe and Prompt */
 			query = target_set_interactive_aux(y, x, mode, info);
 
@@ -3586,14 +3661,11 @@ bool target_set_interactive(int mode)
 
 				case 'p':
 				{
-					if (scroll_target)
-					{
-						/* Recenter around player */
-						verify_panel();
+					/* Recenter around player */
+					verify_panel();
 
-						/* Handle stuff */
-						handle_stuff();
-					}
+					/* Handle stuff */
+					handle_stuff();
 
 					y = py;
 					x = px;
@@ -3652,10 +3724,10 @@ bool target_set_interactive(int mode)
 				i = target_pick(old_y, old_x, ddy[d], ddx[d]);
 
 				/* Scroll to find interesting grid */
-				if (scroll_target && (i < 0))
+				if (i < 0)
 				{
-					int old_wy = p_ptr->wy;
-					int old_wx = p_ptr->wx;
+					int old_wy = Term->offset_y;
+					int old_wx = Term->offset_x;
 
 					/* Change if legal */
 					if (change_panel(d))
@@ -3667,7 +3739,7 @@ bool target_set_interactive(int mode)
 						i = target_pick(old_y, old_x, ddy[d], ddx[d]);
 
 						/* Restore panel if needed */
-						if ((i < 0) && modify_panel(old_wy, old_wx))
+						if ((i < 0) && modify_panel(Term, old_wy, old_wx))
 						{
 							/* Recalculate interesting grids */
 							target_set_interactive_prepare(mode);
@@ -3718,14 +3790,11 @@ bool target_set_interactive(int mode)
 
 				case 'p':
 				{
-					if (scroll_target)
-					{
-						/* Recenter around player */
-						verify_panel();
+					/* Recenter around player */
+					verify_panel();
 
-						/* Handle stuff */
-						handle_stuff();
-					}
+					/* Handle stuff */
+					handle_stuff();
 
 					y = py;
 					x = px;
@@ -3787,40 +3856,29 @@ bool target_set_interactive(int mode)
 			/* Handle "direction" */
 			if (d)
 			{
+				int dungeon_hgt = (p_ptr->depth == 0) ? TOWN_HGT : DUNGEON_HGT;
+				int dungeon_wid = (p_ptr->depth == 0) ? TOWN_WID : DUNGEON_WID;
+
 				/* Move */
 				x += ddx[d];
 				y += ddy[d];
 
-				if (scroll_target)
+				/* Slide into legality */
+				if (x >= dungeon_wid - 1) x--;
+				else if (x <= 0) x++;
+
+				/* Slide into legality */
+				if (y >= dungeon_hgt - 1) y--;
+				else if (y <= 0) y++;
+
+				/* Adjust panel if needed */
+				if (adjust_panel(y, x))
 				{
-					/* Slide into legality */
-					if (x >= DUNGEON_WID - 1) x--;
-					else if (x <= 0) x++;
+					/* Handle stuff */
+					handle_stuff();
 
-					/* Slide into legality */
-					if (y >= DUNGEON_HGT - 1) y--;
-					else if (y <= 0) y++;
-
-					/* Adjust panel if needed */
-					if (adjust_panel(y, x))
-					{
-						/* Handle stuff */
-						handle_stuff();
-
-						/* Recalculate interesting grids */
-						target_set_interactive_prepare(mode);
-					}
-				}
-
-				else
-				{
-					/* Slide into legality */
-					if (x >= p_ptr->wx + SCREEN_WID) x--;
-					else if (x < p_ptr->wx) x++;
-
-					/* Slide into legality */
-					if (y >= p_ptr->wy + SCREEN_HGT) y--;
-					else if (y < p_ptr->wy) y++;
+					/* Recalculate interesting grids */
+					target_set_interactive_prepare(mode);
 				}
 			}
 		}
@@ -3832,14 +3890,11 @@ bool target_set_interactive(int mode)
 	/* Clear the top line */
 	prt("", 0, 0);
 
-	if (scroll_target)
-	{
-		/* Recenter around player */
-		verify_panel();
+	/* Recenter around player */
+	verify_panel();
 
-		/* Handle stuff */
-		handle_stuff();
-	}
+	/* Handle stuff */
+	handle_stuff();
 
 	/* Failure to set target */
 	if (!p_ptr->target_set) return (FALSE);

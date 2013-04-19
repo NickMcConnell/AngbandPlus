@@ -564,7 +564,15 @@ void py_pickup(int pickup)
 
 	int can_pickup = 0;
 	int not_pickup = 0;
+	
+	bool heavy = FALSE;
 
+
+	/* Automatically destroy squelched items in pile if necessary */
+	if (auto_destroy == 1)
+	{
+		do_squelch_pile(py, px);
+	}
 
 	/* Scan the pile of objects */
 	for (this_o_idx = cave_o_idx[py][px]; this_o_idx; this_o_idx = next_o_idx)
@@ -580,6 +588,13 @@ void py_pickup(int pickup)
 
 		/* Hack -- disturb */
 		disturb(0, 0);
+
+		/* End loop if squelched stuff reached */
+		if (k_info[o_ptr->k_idx].squelch & k_info[o_ptr->k_idx].aware)
+		{
+			next_o_idx = 0;
+			continue;
+		}
 
 		/* Pick up gold */
 		if (o_ptr->tval == TV_GOLD)
@@ -612,6 +627,35 @@ void py_pickup(int pickup)
 
 			/* Check the next object */
 			continue;
+		}
+
+		/* Query if object is heavy */
+		if (carry_query_flag)
+		{
+			int i, j;
+			int old_enc = 0;
+			int new_enc = 0;
+
+			/* Extract the "weight limit" (in tenth pounds) */
+			i = adj_str_wgt[p_ptr->stat_ind[A_STR]] * 100;
+
+			/* Calculate current encumbarance */
+			j = p_ptr->total_weight;
+
+			/* Apply encumbarance from weight */
+			if (j > i/2) old_enc = ((j - (i/2)) / (i / 10));
+
+			/* Increase the weight, recalculate encumbarance */
+			j += (o_ptr->number * o_ptr->weight);
+
+			/* Apply encumbarance from weight */
+			if (j > i/2) new_enc = ((j - (i/2)) / (i / 10));
+
+			/* Should we query? */
+			if (new_enc>old_enc)
+			{
+				heavy = TRUE;
+			}
 		}
 
 		/* Easy Floor */
@@ -670,11 +714,11 @@ void py_pickup(int pickup)
 			continue;
 		}
 
-		/* Query before picking up */
-		if (carry_query_flag)
+		/* Query before picking up that will slow you down*/
+		if (carry_query_flag && heavy)
 		{
 			char out_val[160];
-			strnfmt(out_val, sizeof(out_val), "Pick up %s? ", o_name);
+			strnfmt(out_val, sizeof(out_val), "Pick up %s? (this will slow you down)", o_name);
 			if (!get_check(out_val)) continue;
 		}
 

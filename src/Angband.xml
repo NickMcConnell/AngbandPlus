@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plist version="1.0">
+  <dict>
+    <key>CFBundleName</key><string>GilAngband</string>
+    <key>CFBundleDisplayName</key><string>GilAngband (OS X)</string>
+    <key>CFBundleExecutable</key><string>angband</string>
+    <key>CFBundlePackageType</key><string>APPL</string>
+    <key>CFBundleSignature</key><string>A271</string>
+    <key>CFBundleVersion</key><string>0.1.0</string>
+    <key>CFBundleShortVersionString</key><string>0.1.0</string>
+    <key>CFBundleIconFile</key><string>Angband</string>
+    <key>CFBundleIdentifier</key><string>net.thangorodrim.Angband</string>
+    <key>CFBundleInfoDictionaryVersion</key><string>6.0</string>
+    <key>CFBundleDocumentTypes</key>
+      <array>
+        <dict>
+          <key>CFBundleTypeExtentions</key><array><string>*</string></array>
+          <key>CFBundleTypeIconFile</key><string>Save</string>
+          <key>CFBundleTypeName</key><string>GilAngband saved game</string>
+          <key>CFBundleTypeOSTypes</key><array><string>SAVE</string></array>
+          <key>CFBundleTypeRole</key><string>Editor</string>
+        </dict>
+        <dict>
+          <key>CFBundleTypeExtentions</key><array><string>*</string></array>
+          <key>CFBundleTypeIconFile</key><string>Edit</string>
+          <key>CFBundleTypeName</key><string>GilAngband game data</string>
+          <key>CFBundleTypeOSTypes</key><array><string>TEXT</string></array>
+          <key>CFBundleTypeRole</key><string>Editor</string>
+        </dict>
+        <dict>
+          <key>CFBundleTypeExtentions</key><array><string>*</string></array>
+          <key>CFBundleTypeIconFile</key><string>Data</string>
+          <key>CFBundleTypeName</key><string>GilAngband game data</string>
+          <key>CFBundleTypeOSTypes</key><array><string>DATA</string></array>
+          <key>CFBundleTypeRole</key><string>Editor</string>
+        </dict>
+      </array>
+  </dict>
+</plist>

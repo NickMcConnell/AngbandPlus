@@ -396,7 +396,17 @@ void reset_visuals(bool unused)
  */
 static void object_flags_aux(int mode, const object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
 {
+	bool mental = (o_ptr->ident & IDENT_MENTAL);
+
 	object_kind *k_ptr;
+
+	/* Check artifact knowledge status */
+	if (artifact_p(o_ptr))
+	{
+		artifact_type *a_ptr = &a_info[o_ptr->name1];
+
+		if (artifact_known_p(a_ptr)) mental = TRUE;
+	}
 
 	if (mode != OBJECT_FLAGS_FULL)
 	{
@@ -466,10 +476,10 @@ static void object_flags_aux(int mode, const object_type *o_ptr, u32b *f1, u32b 
 #ifdef SPOIL_EGO_ITEMS
 		/* Full knowledge for some ego-items */
 		if (ego_item_p(o_ptr)) spoil = TRUE;
-#endif /* SPOIL_ARTIFACTS */
+#endif /* SPOIL_EGO_ITEMS */
 
 		/* Need full knowledge or spoilers */
-		if (!spoil && !(o_ptr->ident & IDENT_MENTAL)) return;
+		if (!spoil && !mental) return;
 
 		/* Artifact */
 		if (o_ptr->name1)
@@ -488,7 +498,7 @@ static void object_flags_aux(int mode, const object_type *o_ptr, u32b *f1, u32b 
 		}
 
 		/* Full knowledge for *identified* objects */
-		if (!(o_ptr->ident & IDENT_MENTAL)) return;
+		if (!mental) return;
 	}
 
 	/* Extra powers */

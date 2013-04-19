@@ -1,0 +1,21 @@
+mkdir ext-dos
+mkdir ext-dos/src
+mkdir ext-dos/lib
+mkdir ext-dos/lib/xtra
+mkdir ext-dos/lib/xtra/font
+mkdir ext-dos/lib/xtra/graf
+mkdir ext-dos/lib/xtra/sound
+
+cp lib/xtra/font/*.dat ext-dos/lib/xtra/font/
+
+cp lib/xtra/sound/sound.cfg ext-dos/lib/xtra/sound/
+cp lib/xtra/sound/*.wav ext-dos/lib/xtra/sound/
+
+cp angdos.cfg ext-dos/
+
+cd ext-dos
+zip -9 -r ../ext-dos-305.zip *
+
+cd ..
+rm -r ext-dos
+

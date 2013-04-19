@@ -37,7 +37,7 @@ something you are more comfortable with.
   '   An open door                    5   Entrance to Alchemy Shop
   '   A broken door                   6   Entrance to Magic Shop
   <   A staircase up                  7   Entrance to the Black Market
-  >   A staircase down                8   Entrance to your Home
+  >   A staircase down                +   Entrance to your Home
 
 
                    Features that block line of sight
@@ -59,7 +59,6 @@ something you are more comfortable with.
   "   An amulet                       [   Hard armour
   $   Gold or gems                    ]   Misc. armour
   ~   Lites, Tools, Chests, etc       )   A shield
-  ~   Junk, Sticks, Skeletons, etc    &   (unused)
  
  
                              Monsters
@@ -192,7 +191,7 @@ The Black Market ("7")
      However it occasionally has VERY good items in it. The shopkeepers are
      not known for their tolerance...
 
-Your Home ("8")
+Your Home ("+")
      This is your house where you can store objects that you 
      cannot carry on your travels, or will need at a later date.
 

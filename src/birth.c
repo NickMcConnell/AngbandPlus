@@ -10,8 +10,6 @@
 
 #include "angband.h"
 
-#include "script.h"
-
 
 /*
  * Forward declare
@@ -463,7 +461,7 @@ static void player_wipe(void)
 	for (i = 0; i < z_info->a_max; i++)
 	{
 		artifact_type *a_ptr = &a_info[i];
-		a_ptr->cur_num = 0;
+		a_ptr->status &= ~(A_STATUS_CREATED | A_STATUS_AWARE | A_STATUS_KNOWN);
 	}
 
 
@@ -1704,9 +1702,6 @@ void player_birth(void)
 
 	/* Hack -- outfit the player */
 	player_outfit();
-
-	/* Event -- player birth done */
-	player_birth_done_hook();
 
 	/* Shops */
 	for (n = 0; n < MAX_STORES; n++)

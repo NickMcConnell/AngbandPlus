@@ -35,9 +35,9 @@ Prompt for floor item selection    [floor_query_flag]
     this option, the uppermost appropriate object will always be selected.
 
 ***** <carry_query_flag>
-Prompt before picking things up    [carry_query_flag]
+Prompt before picking things up that will slow you down   [carry_query_flag]
     Forces the game to ask your permission before allowing you to pick up
-    any object.
+    any object that will slow you down due to heavy weight.
 
 ***** <use_old_target>
 Use old target by default    [use_old_target]
@@ -94,12 +94,6 @@ Display floor stacks in a list    [easy_floor]
      attempt to pick up items from the stack, from top to bottom, until the 
      stack is gone or the inventory is full. This option allows the player
      to interact with other items than the one at the top of the stack.
-
-***** <scroll_target>
-Scroll map while targetting    [scroll_target]
-     This allows the player to target monsters which are off-screen from the
-     player's point of view, as the view will scroll to show the whereabouts
-     of all monsters in line of sight so the player can target them.
 
 
 === Disturbance options ===
@@ -586,6 +580,11 @@ Display player flags
     of the contributions of each equipment item to various resistances
     and stats.
 
+Display map view
+    Display the area around the player or around the target while
+    targetting.  This allows using graphical tiles in their original
+    size.
+
 Display messages
     Display the most recently generated "messages".
 
@@ -602,15 +601,41 @@ Display object recall
     this only affects spellbooks and prayerbooks.  This window flag may be
     usefully combined with others, such as "monster recall".
 
-Display snap-shot
-    This window flag is currently unused.
-
 Display borg messages
     This window flag is currently used only by the Borg.
 
 Display borg status
     This window flag is currently used only by the Borg.
 
+
+=== Item squelch ===
+
+The item squelch menu allows you to define what you view as junk.  It makes
+the game more enjoyable by reducing the amount of time the you spend 
+sifting through large piles of mostly useless items.
+
+There are two ways in which items may be squelched. The first is called
+squelch-by-type. In order to use this option, first you must choose one
+of the object type menus available. Once the appropriate menu has been 
+reached, you may toggle a bit that tells whether the object type is to 
+be squelched or not. Note that, In order to prevent (as much as possible) 
+the squelch menus from giving away too much information about the game the 
+actual name of an object will not appear until the character (or a different 
+character on the same savefile) has seen and identified at least one example
+of the object.  
+
+The second way in which items may be squelched occurs after the item is 
+(pseudo)-identified.  Once you are aware of an item's quality, 
+the item may be squelched if the quality isn't good enough.  This type 
+of squelching is called squelch-by-quality. The squelch-by-quality menu
+is reached by pressing 'Q' from the main item squelch menu. 
+
+Once an item is squelched, it will be inscribed with "squelch".  Pressing 'k'
+and then '!' will destroy all squelched items you are carrying and that are
+on the floor below you.  If you want to automate this, turn on automatic 
+squelching by pressing 'A' in the main squelch menu - this will cause the 
+game to automatically destroy any squelched item.  This destruction is 
+irreversible, so take care.
 
 === Left Over Information ===
 

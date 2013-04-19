@@ -1158,7 +1158,8 @@ static void choose_item(int a_idx)
 		/* Create a "blunt" weapon. */
 		tval = TV_HAFTED;
 		r2 = Rand_normal(target_level * 2, target_level);
-		if (r2 < 6) sval = SV_WHIP;
+		if (r2 < 3) sval = SV_WOODEN_CLUB;
+		else if (r2 < 6) sval = SV_WHIP;
 		else if (r2 < 12) sval = SV_MACE;
 		else if (r2 < 20) sval = SV_WAR_HAMMER;
 		else if (r2 < 30) sval = SV_QUARTERSTAFF;
@@ -1250,8 +1251,9 @@ static void choose_item(int a_idx)
 		/* Make shoes. */
 		tval = TV_BOOTS;
 		r2 = Rand_normal(target_level * 2, target_level);
-		if (r2 < 9) sval = SV_PAIR_OF_SOFT_LEATHER_BOOTS;
-		else if (r2 < 15) sval = SV_PAIR_OF_HARD_LEATHER_BOOTS;
+		if (r2 < 9) sval = SV_PAIR_OF_LEATHER_SANDALS;
+		else if (r2 < 15) sval = SV_PAIR_OF_SOFT_LEATHER_BOOTS;
+		else if (r2 < 30) sval = SV_PAIR_OF_HARD_LEATHER_BOOTS;
 		else sval = SV_PAIR_OF_METAL_SHOD_BOOTS;
 	}
 	else if (r < 78)
@@ -1283,7 +1285,8 @@ static void choose_item(int a_idx)
 		/* Make a shield. */
 		tval = TV_SHIELD;
 		r2 = Rand_normal(target_level * 2, target_level);
-		if (r2 < 9) sval = SV_SMALL_LEATHER_SHIELD;
+		if (r2 < 5) sval = SV_WOODEN_SHIELD;
+		else if (r2 < 9) sval = SV_SMALL_LEATHER_SHIELD;
 		else if (r2 < 20) sval = SV_SMALL_METAL_SHIELD;
 		else if (r2 < 40) sval = SV_LARGE_LEATHER_SHIELD;
 		else if (r2 < 60) sval = SV_LARGE_METAL_SHIELD;
@@ -1294,7 +1297,8 @@ static void choose_item(int a_idx)
 		/* Make a cloak. */
 		tval = TV_CLOAK;
 		r2 = Rand_normal(target_level * 2, target_level);
-		if (r2 < 90) sval = SV_CLOAK;
+		if (r2 < 45) sval = SV_CLOAK;
+		else if (r2 < 90) sval = SV_ELVEN_CLOAK;
 		else sval = SV_SHADOW_CLOAK;
 	}
 

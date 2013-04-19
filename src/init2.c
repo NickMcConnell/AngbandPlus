@@ -12,8 +12,6 @@
 #include "angband.h"
 
 #include "init.h"
-#include "script.h"
-
 /*
  * This file is used to initialize various variables and arrays for the
  * Angband game.  Note the use of "fd_read()" and "fd_write()" to bypass
@@ -135,14 +133,6 @@ void init_file_paths(char *path)
 	/*** Build the sub-directory names ***/
 
 	/* Build a path name */
-	strcpy(tail, "bone");
-	ANGBAND_DIR_BONE = string_make(path);
-
-	/* Build a path name */
-	strcpy(tail, "data");
-	ANGBAND_DIR_DATA = string_make(path);
-
-	/* Build a path name */
 	strcpy(tail, "edit");
 	ANGBAND_DIR_EDIT = string_make(path);
 
@@ -178,7 +168,7 @@ void init_file_paths(char *path)
 
 #endif /* PRIVATE_USER_PATH */
 
-#ifdef USE_PRIVATE_SAVE_PATH
+#ifdef USE_PRIVATE_PATHS
 
 	/* Build the path to the user specific sub-directory */
 	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, "scores");
@@ -187,22 +177,42 @@ void init_file_paths(char *path)
 	ANGBAND_DIR_APEX = string_make(buf);
 
 	/* Build the path to the user specific sub-directory */
+	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, "bone");
+
+	/* Build a relative path name */
+	ANGBAND_DIR_BONE = string_make(buf);
+
+	/* Build the path to the user specific sub-directory */
+	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, "data");
+
+	/* Build a relative path name */
+	ANGBAND_DIR_DATA = string_make(buf);
+
+	/* Build the path to the user specific sub-directory */
 	path_build(buf, sizeof(buf), ANGBAND_DIR_USER, "save");
 
 	/* Build a relative path name */
 	ANGBAND_DIR_SAVE = string_make(buf);
 
-#else /* USE_PRIVATE_SAVE_PATH */
+#else /* USE_PRIVATE_PATHS */
 
 	/* Build a path name */
 	strcpy(tail, "apex");
 	ANGBAND_DIR_APEX = string_make(path);
 
 	/* Build a path name */
+	strcpy(tail, "bone");
+	ANGBAND_DIR_BONE = string_make(path);
+
+	/* Build a path name */
+	strcpy(tail, "data");
+	ANGBAND_DIR_DATA = string_make(path);
+
+	/* Build a path name */
 	strcpy(tail, "save");
 	ANGBAND_DIR_SAVE = string_make(path);
 
-#endif /* USE_PRIVATE_SAVE_PATH */
+#endif /* USE_PRIVATE_PATHS */
 
 	/* Build a path name */
 	strcpy(tail, "xtra");
@@ -253,6 +263,62 @@ void init_file_paths(char *path)
 #endif /* NeXT */
 
 }
+
+
+#ifdef PRIVATE_USER_PATH
+
+/*
+ * Create an ".angband/" directory in the users home directory.
+ *
+ * ToDo: Add error handling.
+ * ToDo: Only create the directories when actually writing files.
+ */
+void create_user_dirs(void)
+{
+	char dirpath[1024];
+	char subdirpath[1024];
+
+
+	/* Get an absolute path from the filename */
+	path_parse(dirpath, sizeof(dirpath), PRIVATE_USER_PATH);
+
+	/* Create the ~/.angband/ directory */
+	mkdir(dirpath, 0700);
+
+	/* Build the path to the variant-specific sub-directory */
+	path_build(subdirpath, sizeof(subdirpath), dirpath, VERSION_NAME);
+
+	/* Create the directory */
+	mkdir(subdirpath, 0700);
+
+#ifdef USE_PRIVATE_PATHS
+	/* Build the path to the scores sub-directory */
+	path_build(dirpath, sizeof(dirpath), subdirpath, "scores");
+
+	/* Create the directory */
+	mkdir(dirpath, 0700);
+
+	/* Build the path to the savefile sub-directory */
+	path_build(dirpath, sizeof(dirpath), subdirpath, "bone");
+
+	/* Create the directory */
+	mkdir(dirpath, 0700);
+
+	/* Build the path to the savefile sub-directory */
+	path_build(dirpath, sizeof(dirpath), subdirpath, "data");
+
+	/* Create the directory */
+	mkdir(dirpath, 0700);
+
+	/* Build the path to the savefile sub-directory */
+	path_build(dirpath, sizeof(dirpath), subdirpath, "save");
+
+	/* Create the directory */
+	mkdir(dirpath, 0700);
+#endif /* USE_PRIVATE_PATHS */
+}
+
+#endif /* PRIVATE_USER_PATH */
 
 
 
@@ -1066,15 +1132,16 @@ static const byte store_table[MAX_STORES-2][STORE_CHOICES][2] =
 	{
 		/* Armoury */
 
+		{ TV_BOOTS, SV_PAIR_OF_LEATHER_SANDALS },
+		{ TV_BOOTS, SV_PAIR_OF_LEATHER_SANDALS },
 		{ TV_BOOTS, SV_PAIR_OF_SOFT_LEATHER_BOOTS },
 		{ TV_BOOTS, SV_PAIR_OF_SOFT_LEATHER_BOOTS },
-		{ TV_BOOTS, SV_PAIR_OF_HARD_LEATHER_BOOTS },
 		{ TV_BOOTS, SV_PAIR_OF_HARD_LEATHER_BOOTS },
 		{ TV_HELM, SV_HARD_LEATHER_CAP },
 		{ TV_HELM, SV_HARD_LEATHER_CAP },
 		{ TV_HELM, SV_METAL_CAP },
+		
 		{ TV_HELM, SV_IRON_HELM },
-
 		{ TV_SOFT_ARMOR, SV_ROBE },
 		{ TV_SOFT_ARMOR, SV_ROBE },
 		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR },
@@ -1082,24 +1149,23 @@ static const byte store_table[MAX_STORES-2][STORE_CHOICES][2] =
 		{ TV_SOFT_ARMOR, SV_HARD_LEATHER_ARMOR },
 		{ TV_SOFT_ARMOR, SV_HARD_LEATHER_ARMOR },
 		{ TV_SOFT_ARMOR, SV_HARD_STUDDED_LEATHER },
+		
 		{ TV_SOFT_ARMOR, SV_HARD_STUDDED_LEATHER },
-
 		{ TV_SOFT_ARMOR, SV_LEATHER_SCALE_MAIL },
 		{ TV_SOFT_ARMOR, SV_LEATHER_SCALE_MAIL },
 		{ TV_HARD_ARMOR, SV_METAL_SCALE_MAIL },
 		{ TV_HARD_ARMOR, SV_CHAIN_MAIL },
-		{ TV_HARD_ARMOR, SV_CHAIN_MAIL },
 		{ TV_HARD_ARMOR, SV_AUGMENTED_CHAIN_MAIL },
 		{ TV_HARD_ARMOR, SV_BAR_CHAIN_MAIL },
+		
 		{ TV_HARD_ARMOR, SV_DOUBLE_CHAIN_MAIL },
-
 		{ TV_HARD_ARMOR, SV_METAL_BRIGANDINE_ARMOUR },
 		{ TV_GLOVES, SV_SET_OF_LEATHER_GLOVES },
 		{ TV_GLOVES, SV_SET_OF_LEATHER_GLOVES },
 		{ TV_GLOVES, SV_SET_OF_GAUNTLETS },
+		{ TV_SHIELD, SV_WOODEN_SHIELD },
+		{ TV_SHIELD, SV_WOODEN_SHIELD },
 		{ TV_SHIELD, SV_SMALL_LEATHER_SHIELD },
-		{ TV_SHIELD, SV_SMALL_LEATHER_SHIELD },
-		{ TV_SHIELD, SV_LARGE_LEATHER_SHIELD },
 		{ TV_SHIELD, SV_SMALL_METAL_SHIELD }
 	},
 
@@ -1146,16 +1212,16 @@ static const byte store_table[MAX_STORES-2][STORE_CHOICES][2] =
 	{
 		/* Temple */
 
+		{ TV_HAFTED, SV_WOODEN_CLUB },
+		{ TV_HAFTED, SV_WOODEN_CLUB },
 		{ TV_HAFTED, SV_WHIP },
 		{ TV_HAFTED, SV_QUARTERSTAFF },
-		{ TV_HAFTED, SV_MACE },
 		{ TV_HAFTED, SV_MACE },
 		{ TV_HAFTED, SV_BALL_AND_CHAIN },
 		{ TV_HAFTED, SV_WAR_HAMMER },
 		{ TV_HAFTED, SV_LUCERN_HAMMER },
+		
 		{ TV_HAFTED, SV_MORNING_STAR },
-
-		{ TV_HAFTED, SV_FLAIL },
 		{ TV_HAFTED, SV_FLAIL },
 		{ TV_HAFTED, SV_LEAD_FILLED_MACE },
 		{ TV_SCROLL, SV_SCROLL_REMOVE_CURSE },
@@ -1207,11 +1273,11 @@ static const byte store_table[MAX_STORES-2][STORE_CHOICES][2] =
 		{ TV_SCROLL, SV_SCROLL_DETECT_DOOR },
 		{ TV_SCROLL, SV_SCROLL_DETECT_INVIS },
 		{ TV_SCROLL, SV_SCROLL_RECHARGING },
-		{ TV_SCROLL, SV_SCROLL_SATISFY_HUNGER },
 		{ TV_SCROLL, SV_SCROLL_WORD_OF_RECALL },
 		{ TV_SCROLL, SV_SCROLL_WORD_OF_RECALL },
 		{ TV_SCROLL, SV_SCROLL_WORD_OF_RECALL },
 		{ TV_SCROLL, SV_SCROLL_WORD_OF_RECALL },
+		{ TV_SCROLL, SV_POTION_SATISFY_HUNGER },
 
 		{ TV_POTION, SV_POTION_RESIST_HEAT },
 		{ TV_POTION, SV_POTION_RESIST_COLD },
@@ -1293,9 +1359,10 @@ static errr init_other(void)
 	/* Array of grids */
 	C_MAKE(temp_g, TEMP_MAX, u16b);
 
-	/* Hack -- use some memory twice */
-	temp_y = ((byte*)(temp_g)) + 0;
-	temp_x = ((byte*)(temp_g)) + TEMP_MAX;
+    /* has_lite patch causes both temp_g and temp_x/y to be used
+    in targetting mode: can't use the same memory any more. */
+    C_MAKE(temp_y, TEMP_MAX, byte);
+    C_MAKE(temp_x, TEMP_MAX, byte);
 
 
 	/*** Prepare dungeon arrays ***/
@@ -1957,10 +2024,6 @@ void init_angband(void)
 	note("[Initializing arrays... (alloc)]");
 	if (init_alloc()) quit("Cannot initialize alloc stuff");
 
-	/* Initialize scripting */
-	note("[Initializing scripts... (scripts)]");
-	if (script_init()) quit("Cannot initialize scripts");
-
 	/*** Load default user pref files ***/
 
 	/* Initialize feature info */
@@ -1977,10 +2040,6 @@ void init_angband(void)
 void cleanup_angband(void)
 {
 	int i;
-
-
-	/* Free the scripting support */
-	script_free();
 
 	/* Free the macros */
 	macro_free();

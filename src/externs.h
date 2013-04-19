@@ -58,6 +58,8 @@ extern const byte blows_table[12][12];
 extern const byte extract_energy[200];
 extern const s32b player_exp[PY_MAX_LEVEL];
 extern const player_sex sex_info[MAX_SEXES];
+extern const s16b spell_list[2][BOOKS_PER_REALM][SPELLS_PER_BOOK];
+extern cptr spell_names[2][PY_MAX_SPELLS];
 extern const byte chest_traps[64];
 extern cptr color_names[16];
 extern cptr stat_names[A_MAX];
@@ -104,7 +106,7 @@ extern s16b object_level;
 extern s16b monster_level;
 extern char summon_kin_type;
 extern s32b turn;
-extern s32b old_turn;
+extern s32b feeling_counter;
 extern bool use_sound;
 extern int use_graphics;
 extern bool use_bigtile;
@@ -357,6 +359,7 @@ extern void do_cmd_browse(void);
 extern void do_cmd_study(void);
 extern void do_cmd_cast(void);
 extern void do_cmd_pray(void);
+extern cptr get_spell_name(int tval, int spell);
 
 /* cmd6.c */
 extern void do_cmd_eat_food(void);
@@ -404,6 +407,7 @@ extern void generate_cave(void);
 
 /* init2.c */
 extern void init_file_paths(char *path);
+extern void create_user_dirs(void);
 extern void init_angband(void);
 extern void cleanup_angband(void);
 
@@ -489,6 +493,8 @@ extern object_type* get_first_object(int y, int x);
 extern object_type* get_next_object(const object_type *o_ptr);
 extern errr get_obj_num_prep(void);
 extern s16b get_obj_num(int level);
+extern void artifact_aware(artifact_type *a_ptr);
+extern void artifact_known(artifact_type *a_ptr);
 extern void object_known(object_type *o_ptr);
 extern void object_aware(object_type *o_ptr);
 extern void object_tried(object_type *o_ptr);
@@ -641,6 +647,9 @@ extern void store_shuffle(int which);
 extern void store_maint(int which);
 extern void store_init(int which);
 
+/* use-obj.c */
+extern bool use_object(object_type *o_ptr, bool *ident);
+
 /* util.c */
 extern errr path_parse(char *buf, size_t max, cptr file);
 extern errr path_build(char *buf, size_t max, cptr path, cptr file);
@@ -722,6 +731,7 @@ extern byte gamma_table[256];
 
 /* xtra1.c */
 extern void cnv_stat(int val, char *out_val);
+extern void prt_exp(void);
 extern s16b modify_stat_value(int value, int amount);
 extern void notice_stuff(void);
 extern void update_stuff(void);
@@ -759,7 +769,7 @@ extern void gain_exp(s32b amount);
 extern void lose_exp(s32b amount);
 extern void monster_death(int m_idx);
 extern bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note);
-extern bool modify_panel(int wy, int wx);
+extern bool modify_panel(term *t, int wy, int wx);
 extern bool adjust_panel(int y, int x);
 extern bool change_panel(int dir);
 extern void verify_panel(void);
@@ -776,6 +786,14 @@ extern bool get_aim_dir(int *dp);
 extern bool get_rep_dir(int *dp);
 extern bool confuse_dir(int *dp);
 
+/* squelch.c */
+extern byte squelch_level[24];
+extern byte auto_destroy;
+extern void do_cmd_squelch(void);
+extern int squelch_itemp(object_type *, byte, int);
+extern int do_squelch_item(int, int, object_type *);
+extern void rearrange_stack(int, int);
+extern void do_squelch_pile(int, int);
 
 /*
  * Hack -- conditional (or "bizarre") externs

@@ -156,7 +156,7 @@
 /*
  * OPTION: Compile in scripting support
  */
-#define USE_SCRIPT
+/* #define USE_SCRIPT */
 
 /*
  * OPTION: Allow "do_cmd_colors" at run-time
@@ -378,11 +378,11 @@
 
 
 /*
- * OPTION: Create and use a hidden directory in the users home directory
- * for storing save files and high-scores
+ * OPTION: Create and use hidden directories in the users home directory
+ * for storing save files, data files, and high-scores
  */
 #ifdef PRIVATE_USER_PATH
-/* # define USE_PRIVATE_SAVE_PATH */
+/* # define USE_PRIVATE_PATHS */
 #endif /* PRIVATE_USER_PATH */
 
 
@@ -462,9 +462,6 @@
  * but has Mac OS/Windows-like user interface
  */
 #ifdef MACH_O_CARBON
-# ifdef PRIVATE_USER_PATH
-#  undef PRIVATE_USER_PATH
-# endif
 # ifdef SAVEFILE_USE_UID
 #  undef SAVEFILE_USE_UID
 # endif

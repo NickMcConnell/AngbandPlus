@@ -81,7 +81,7 @@ char summon_kin_type;		/* Hack -- See summon_specific() */
 
 s32b turn;				/* Current game turn */
 
-s32b old_turn;			/* Hack -- Level feeling counter */
+s32b feeling_counter;	/* Hack -- Level feeling counter */
 
 bool use_sound;			/* The "sound" mode is enabled */
 int use_graphics;		/* The "graphics" mode is enabled */

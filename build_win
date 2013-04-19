@@ -1,0 +1,61 @@
+mkdir angband
+mkdir angband/lib
+mkdir angband/lib/apex
+mkdir angband/lib/bone
+mkdir angband/lib/data
+mkdir angband/lib/edit
+mkdir angband/lib/file
+mkdir angband/lib/help
+mkdir angband/lib/info
+mkdir angband/lib/pref
+mkdir angband/lib/save
+mkdir angband/lib/user
+mkdir angband/lib/xtra
+mkdir angband/lib/xtra/font
+mkdir angband/lib/xtra/graf
+mkdir angband/lib/xtra/music
+mkdir angband/lib/xtra/sound
+mkdir angband/lib/xtra/help
+
+cp lib/apex/delete.me angband/lib/apex
+cp lib/bone/delete.me angband/lib/bone
+cp lib/data/delete.me angband/lib/data
+cp lib/info/delete.me angband/lib/info
+cp lib/save/delete.me angband/lib/save
+cp lib/user/delete.me angband/lib/user
+
+cp angband.exe angband
+cp readme.txt angband
+cp changes.txt angband
+cp Authors angband/Authors.txt
+cp Copying angband/Copying.txt
+cp Thanks angband/Thanks.txt
+
+cp lib/edit/*.txt angband/lib/edit
+
+cp lib/file/*.txt angband/lib/file
+
+cp lib/help/*.txt angband/lib/help
+cp lib/help/*.hlp angband/lib/help
+
+cp lib/pref/*.prf angband/lib/pref
+
+cp lib/xtra/font/*.fon angband/lib/xtra/font
+
+cp lib/xtra/graf/8x8.bmp angband/lib/xtra/graf
+cp lib/xtra/graf/16x16.bmp angband/lib/xtra/graf
+cp lib/xtra/graf/mask.bmp angband/lib/xtra/graf
+cp lib/xtra/graf/readme.txt angband/lib/xtra/graf
+
+cp lib/xtra/sound/sound.cfg angband/lib/xtra/sound
+cp lib/xtra/sound/*.wav angband/lib/xtra/sound
+
+cp lib/xtra/help/angband.hlp angband/lib/xtra/help
+cp lib/xtra/help/angband.cnt angband/lib/xtra/help
+
+upx -9 angband/angband.exe
+
+zip -9 -r angband-305-win.zip angband
+
+rm -r angband
+

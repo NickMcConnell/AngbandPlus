@@ -299,7 +299,7 @@ s16b tokenize(char *buf, s16b num, char **tokens)
  */
 errr process_pref_file_command(char *buf)
 {
-	long i, n1, n2;
+	long i, n1, n2, sq;
 
 	char *zz[16];
 
@@ -336,6 +336,46 @@ errr process_pref_file_command(char *buf)
 			if (n1) r_ptr->x_attr = (byte)n1;
 			if (n2) r_ptr->x_char = (char)n2;
 			return (0);
+		}
+	}
+
+
+	/* Process "Q:<idx>:<tval>:<sval>:<y|n>"  -- squelch bits   */
+	/* and     "Q:<idx>:<val>"                -- squelch levels */
+	/* and     "Q:<val>"                      -- auto_destroy   */
+
+	else if (buf[0] == 'Q')
+	{
+		i = tokenize(buf+2, 4, zz);
+		if (i == 1)
+		{
+			auto_destroy = strtol(zz[0], NULL, 0);
+			return(0);
+		}
+		else if (i == 2)
+		{
+			n1 = strtol(zz[0], NULL, 0);
+			n2 = strtol(zz[1], NULL, 0);
+			squelch_level[n1] = n2;
+			return(0);
+		}
+		else if (i == 4)
+		{
+			i = strtol(zz[0], NULL, 0);
+			n1 = strtol(zz[1], NULL, 0);
+			n2 = strtol(zz[2], NULL, 0);
+			sq = strtol(zz[3], NULL, 0);
+			if ((k_info[i].tval == n1) && (k_info[i].sval == n2)) {
+				k_info[i].squelch = (sq ? TRUE : FALSE);
+				return(0);
+			} else {
+				for (i = 1; i < z_info->k_max; i++) {
+					if ((k_info[i].tval == n1) && (k_info[i].sval == n2)) {
+						k_info[i].squelch = (sq ? TRUE : FALSE);
+						return(0);
+					}
+				}
+			}
 		}
 	}
 
@@ -4781,7 +4821,7 @@ static void get_default_tile(int row, int col, byte *a_def, char *c_def)
 	int screen_wid, screen_hgt;
 
 	int x;
-	int y = row - ROW_MAP + p_ptr->wy;
+	int y = row - ROW_MAP + Term->offset_y;
 
 	/* Retrieve current screen size */
 	Term_get_size(&wid, &hgt);
@@ -4808,9 +4848,9 @@ static void get_default_tile(int row, int col, byte *a_def, char *c_def)
 	{
 		/* Bigtile uses double-width tiles */
 		if (use_bigtile)
-			x = (col - COL_MAP) / 2 + p_ptr->wx;
+			x = (col - COL_MAP) / 2 + Term->offset_x;
 		else
-			x = col - COL_MAP + p_ptr->wx;
+			x = col - COL_MAP + Term->offset_x;
 
 		/* Convert dungeon map into default attr/chars */
 		if (in_bounds(y, x))

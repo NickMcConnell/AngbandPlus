@@ -10,8 +10,6 @@
 
 #include "angband.h"
 
-#include "script.h"
-
 
 /*
  * Helper function -- return a "nearby" race for polymorphing
@@ -3294,13 +3292,6 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 	/* Get the monster's real name */
 	monster_desc(killer, sizeof(killer), m_ptr, 0x88);
 
-	/* Event -- hit the player with beam/bolt/ball */
-	if (projection_hit_player(who, dam, typ))
-	{
-		/* HACK - event was handled, skip it */
-		typ = 0;
-	}
-
 	/* Analyze the damage */
 	switch (typ)
 	{
@@ -4012,7 +4003,7 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 		if (!blind && !(flg & (PROJECT_HIDE)))
 		{
 			/* Only do visuals if the player can "see" the bolt */
-			if (panel_contains(y, x) && player_has_los_bold(y, x))
+			if (player_has_los_bold(y, x))
 			{
 				u16b p;
 
@@ -4029,10 +4020,21 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 				/* Visual effects */
 				print_rel(c, a, y, x);
 				move_cursor_relative(y, x);
-				if (fresh_before) Term_fresh();
+				if (fresh_before)
+				{
+					Term_fresh();
+					if (p_ptr->window) window_stuff();
+				}
+
 				Term_xtra(TERM_XTRA_DELAY, msec);
+
 				lite_spot(y, x);
-				if (fresh_before) Term_fresh();
+
+				if (fresh_before)
+				{
+					Term_fresh();
+					if (p_ptr->window) window_stuff();
+				}
 
 				/* Display "beam" grids */
 				if (flg & (PROJECT_BEAM))
@@ -4126,7 +4128,7 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 				x = gx[i];
 
 				/* Only do visuals if the player can "see" the blast */
-				if (panel_contains(y, x) && player_has_los_bold(y, x))
+				if (player_has_los_bold(y, x))
 				{
 					u16b p;
 
@@ -4153,6 +4155,9 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 			/* Flush each "radius" separately */
 			if (fresh_before) Term_fresh();
 
+			/* Flush */
+			if (p_ptr->window) window_stuff();
+
 			/* Delay (efficiently) */
 			if (visual || drawn)
 			{
@@ -4171,7 +4176,7 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 				x = gx[i];
 
 				/* Hack -- Erase if needed */
-				if (panel_contains(y, x) && player_has_los_bold(y, x))
+				if (player_has_los_bold(y, x))
 				{
 					lite_spot(y, x);
 				}
@@ -4182,6 +4187,9 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 
 			/* Flush the explosion */
 			if (fresh_before) Term_fresh();
+
+			/* Flush */
+			if (p_ptr->window) window_stuff();
 		}
 	}
 

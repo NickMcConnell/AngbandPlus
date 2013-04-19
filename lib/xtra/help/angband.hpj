@@ -1,0 +1,91 @@
+; This file is maintained by HCW. Do not modify this file directly.
+
+[OPTIONS]
+COMPRESS=12 Hall Zeck
+ERRORLOG=angband.err
+LCID=0x409 0x0 0x0 ; Englisch (USA)
+REPORT=Yes
+TITLE=Angband
+CNT=angband.cnt
+COPYRIGHT=Angband 3.0.4 maintained by Robert Ruehlmann (rr9@thangorodrim.net)
+HLP=angband.hlp
+
+[FILES]
+angband.rtf
+
+[MAP]
+a0_general 1
+b0_birth 2
+c0_dungeon 3
+d0_attack 4
+e0_playing 5
+f0_command 6
+g0_option 7
+h0_version 8
+a1_general 9
+a2_general 10
+h1_version 11
+h2_version 12
+h3_version 13
+h4_version 14
+h5_version 15
+b1_birth 16
+b2_birth 17
+b3_birth 18
+b4_birth 19
+b5_birth 20
+b6_birth 21
+c1_dungeon 22
+c2_dungeon 23
+z24 24
+z25 25
+c3_dungeon 26
+z27 27
+z28 28
+z29 29
+c4_dungeon 30
+c5_dungeon 31
+d1_attack 32
+d2_attack 33
+d3_attack 34
+d4_attack 35
+d5_attack 36
+z37 37
+z38 38
+z39 39
+z40 40
+z41 41
+z42 42
+z43 43
+e1_playing 44
+e2_playing 45
+e3_playing 46
+e4_playing 47
+e5_playing 48
+f1_command 49
+f2_commands 50
+f3_commands 51
+f4_commands 52
+f5_commands 53
+f6_commands 54
+f7_command 55
+f8_commands 56
+f9_commands 57
+g1_options 58
+g2_options 59
+g3_options 60
+g4_options 61
+g5_options 62
+g6_options 63
+g7_options 64
+g8_options 65
+g9_options 66
+
+[WINDOWS]
+Main="",,0,(r16777215),(r12632256)
+
+[CONFIG]
+SetPopupColor(255,255,220)
+BrowseButtons()
+RegisterRoutine("WinMM.dll","sndPlaySoundA","Si")
+RegisterRoutine("Shell32.dll",ShellExecuteA,iSSSSi)

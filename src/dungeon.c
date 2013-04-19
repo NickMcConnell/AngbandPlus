@@ -10,8 +10,6 @@
 
 #include "angband.h"
 
-#include "script.h"
-
 
 /*
  * Return a "feeling" (or NULL) about an item.  Method 1 (Heavy).
@@ -125,6 +123,7 @@ static void sense_inventory(void)
 	for (i = 0; i < INVEN_TOTAL; i++)
 	{
 		bool okay = FALSE;
+		int squelch = 0;
 
 		o_ptr = &inventory[i];
 
@@ -183,6 +182,11 @@ static void sense_inventory(void)
 		/* Skip non-feelings */
 		if (!feel) continue;
 
+		/* Squelch it? */
+		if (i < INVEN_WIELD) {
+			squelch = squelch_itemp(o_ptr, feel, 0);
+		}
+
 		/* Stop everything */
 		if (disturb_minor) disturb(0, 0);
 
@@ -201,10 +205,12 @@ static void sense_inventory(void)
 		/* Message (inventory) */
 		else
 		{
-			msg_format("You feel the %s (%c) in your pack %s %s...",
+			msg_format("You feel the %s (%c) in your pack %s %s...  %s",
 			           o_name, index_to_label(i),
 			           ((o_ptr->number == 1) ? "is" : "are"),
-			           inscrip_text[feel - INSCRIP_NULL]);
+			           inscrip_text[feel - INSCRIP_NULL],
+				   	   ((squelch == 1) ? "(Squelched)" :
+				       ((squelch == -1) ? "(Squelch Failed)" : "")));
 		}
 
 		/* Sense the object */
@@ -213,6 +219,8 @@ static void sense_inventory(void)
 		/* The object has been "sensed" */
 		o_ptr->ident |= (IDENT_SENSE);
 
+		/* Squelch it if necessary */
+		do_squelch_item(squelch, i, o_ptr);
 
 		/* Combine / Reorder the pack (later) */
 		p_ptr->notice |= (PN_COMBINE | PN_REORDER);
@@ -619,6 +627,9 @@ static void process_world(void)
 	/* While in the dungeon */
 	else
 	{
+		/*** Feeling counter ***/
+		if (feeling_counter) feeling_counter--;
+
 		/*** Update the Stores ***/
 
 		/* Update the stores once a day (while in dungeon) */
@@ -1204,9 +1215,6 @@ static void process_command(void)
 	repeat_check();
 
 #endif /* ALLOW_REPEAT */
-
-	/* Event -- process command */
-	if (process_command_hook(p_ptr->command_cmd)) return;
 
 	/* Parse the command */
 	switch (p_ptr->command_cmd)
@@ -1908,9 +1916,6 @@ static void process_player(void)
 {
 	int i;
 
-	/* Event -- Player turn */
-	player_turn_hook();
-
 	/*** Check for interrupts ***/
 
 	/* Complete resting */
@@ -2131,8 +2136,11 @@ static void process_player(void)
 
 
 			/* Hack -- constant hallucination */
-			if (p_ptr->image) p_ptr->redraw |= (PR_MAP);
-
+			if (p_ptr->image)
+			{
+				p_ptr->redraw |= (PR_MAP);
+				p_ptr->window |= (PW_MAP);
+			}
 
 			/* Shimmer monsters if needed */
 			if (!avoid_other && shimmer_monsters)
@@ -2271,8 +2279,8 @@ static void dungeon(void)
 
 
 	/* Hack -- enforce illegal panel */
-	p_ptr->wy = DUNGEON_HGT;
-	p_ptr->wx = DUNGEON_WID;
+	Term->offset_y = DUNGEON_HGT;
+	Term->offset_x = DUNGEON_WID;
 
 
 	/* Not leaving */
@@ -2404,7 +2412,7 @@ static void dungeon(void)
 	p_ptr->window |= (PW_MONSTER | PW_MONLIST);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_OVERHEAD);
+	p_ptr->window |= (PW_OVERHEAD | PW_MAP);
 
 	/* Update stuff */
 	update_stuff();
@@ -2817,16 +2825,6 @@ void play_game(bool new_game)
 	/* Hack -- Enforce "delayed death" */
 	if (p_ptr->chp < 0) p_ptr->is_dead = TRUE;
 
-	/* Call "start game" event handler */
-	if (new_game)
-	{
-		/* Event -- start game */
-		start_game_hook();
-
-		/* Event -- enter level */
-		enter_level_hook();
-	}
-
 	/* Process */
 	while (TRUE)
 	{
@@ -2938,14 +2936,8 @@ void play_game(bool new_game)
 		/* Handle "death" */
 		if (p_ptr->is_dead) break;
 
-		/* "Leaving level" event */
-		leave_level_hook();
-
 		/* Make a new level */
 		generate_cave();
-
-		/* "Entering level" event */
-		enter_level_hook();
 	}
 
 	/* Close stuff */

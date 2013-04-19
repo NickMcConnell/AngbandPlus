@@ -10,8 +10,6 @@
 
 #include "angband.h"
 
-#include "script.h"
-
 
 #define MAX_COMMENT_ACCEPT	6
 
@@ -569,6 +567,153 @@ static bool store_check_num(const object_type *o_ptr)
 
 /*
  * Determine if the current store will purchase the given object
+ *
+ * Note that a shop-keeper must refuse to buy "worthless" objects
+ */
+static bool store_will_buy(int store_num, const object_type *o_ptr)
+{
+	/* Hack -- The Home is simple */
+	if (store_num == STORE_HOME) return (TRUE);
+
+	/* Switch on the store */
+	switch (store_num)
+	{
+		/* General Store */
+		case STORE_GENERAL:
+		{
+			/* Analyze the type */
+			switch (o_ptr->tval)
+			{
+				case TV_FOOD:
+				case TV_LITE:
+				case TV_FLASK:
+				case TV_SPIKE:
+				case TV_SHOT:
+				case TV_ARROW:
+				case TV_BOLT:
+				case TV_DIGGING:
+				case TV_CLOAK:
+				break;
+				default:
+				return (FALSE);
+			}
+			break;
+		}
+
+		/* Armoury */
+		case STORE_ARMOR:
+		{
+			/* Analyze the type */
+			switch (o_ptr->tval)
+			{
+				case TV_BOOTS:
+				case TV_GLOVES:
+				case TV_CROWN:
+				case TV_HELM:
+				case TV_SHIELD:
+				case TV_CLOAK:
+			case TV_SOFT_ARMOR:
+				case TV_HARD_ARMOR:
+				case TV_DRAG_ARMOR:
+				break;
+				default:
+				return (FALSE);
+			}
+			break;
+		}
+
+		/* Weapon Shop */
+		case STORE_WEAPON:
+		{
+			/* Analyze the type */
+			switch (o_ptr->tval)
+			{
+				case TV_SHOT:
+				case TV_BOLT:
+				case TV_ARROW:
+				case TV_BOW:
+				case TV_DIGGING:
+				case TV_HAFTED:
+				case TV_POLEARM:
+				case TV_SWORD:
+				break;
+				default:
+				return (FALSE);
+			}
+			break;
+		}
+
+		/* Temple */
+		case STORE_TEMPLE:
+		{
+			/* Analyze the type */
+			switch (o_ptr->tval)
+			{
+				case TV_PRAYER_BOOK:
+				case TV_SCROLL:
+				case TV_POTION:
+				case TV_HAFTED:
+			break;
+				case TV_POLEARM:
+				case TV_SWORD:
+				{
+					/* Known blessed blades are accepted too */
+					if (is_blessed(o_ptr) && object_known_p(o_ptr)) break;
+				}
+				default:
+				return (FALSE);
+			}
+			break;
+		}
+
+		/* Alchemist */
+		case STORE_ALCHEMY:
+		{
+			/* Analyze the type */
+			switch (o_ptr->tval)
+			{
+				case TV_SCROLL:
+				case TV_POTION:
+				break;
+				default:
+				return (FALSE);
+			}
+			break;
+		}
+
+		/* Magic Shop */
+		case STORE_MAGIC:
+		{
+			/* Analyze the type */
+			switch (o_ptr->tval)
+			{
+				case TV_MAGIC_BOOK:
+				case TV_AMULET:
+				case TV_RING:
+				case TV_STAFF:
+				case TV_WAND:
+				case TV_ROD:
+				case TV_SCROLL:
+				case TV_POTION:
+				break;
+				default:
+				return (FALSE);
+			}
+			break;
+		}
+	}
+
+	/* Ignore "worthless" items XXX XXX XXX */
+	if (object_value(o_ptr) <= 0) return (FALSE);
+
+	/* Assume okay */
+	return (TRUE);
+}
+
+
+
+/*
+ * Determine if the current store will purchase the given object
  */
 static bool store_will_buy_tester(const object_type *o_ptr)
 {
@@ -895,6 +1040,11 @@ static void store_delete(void)
 	store_item_optimize(what);
 }
 
+
+static int get_store_choice(int store_num)
+{
+	return store[store_num].table[rand_int(store[store_num].table_num)];
+}
 
 /*
  * Creates a random object and gives it to a store
@@ -2715,7 +2865,7 @@ void do_cmd_store(void)
 	p_ptr->redraw |= (PR_MAP);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_OVERHEAD);
+	p_ptr->window |= (PW_OVERHEAD | PW_MAP);
 }
 
 

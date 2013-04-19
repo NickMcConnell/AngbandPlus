@@ -11,14 +11,14 @@
 
 # Version stamp (required)
 
-V:3.0.5
+V:0.1.0
 
 
 # Maximum number of feature types
 M:F:64
 
 # Maximum number of object kinds
-M:K:515
+M:K:550
 
 # Maximum number of artifacts
 M:A:137
@@ -27,7 +27,7 @@ M:A:137
 M:E:128
 
 # Maximum number of monster races
-M:R:618
+M:R:630
 
 # Maximum number of vaults
 M:V:51
@@ -45,7 +45,7 @@ M:H:165
 M:B:4
 
 # Maximum number of flavors
-M:L:303
+M:L:305
 
 # Maximum number of objects on the level
 M:O:512

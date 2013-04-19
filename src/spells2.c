@@ -241,6 +241,9 @@ void identify_pack(void)
 		/* Aware and Known */
 		object_aware(o_ptr);
 		object_known(o_ptr);
+
+		/* Mark the artifact as "aware" */
+		if (artifact_p(o_ptr)) artifact_aware(&a_info[o_ptr->name1]);
 	}
 
 	/* Recalculate bonuses */
@@ -976,9 +979,9 @@ bool detect_traps(void)
 
 
 	/* Scan the current panel */
-	for (y = p_ptr->wy; y < p_ptr->wy+SCREEN_HGT; y++)
+	for (y = Term->offset_y; y < Term->offset_y + SCREEN_HGT; y++)
 	{
-		for (x = p_ptr->wx; x < p_ptr->wx+SCREEN_WID; x++)
+		for (x = Term->offset_x; x < Term->offset_x + SCREEN_WID; x++)
 		{
 			if (!in_bounds_fully(y, x)) continue;
 
@@ -1028,9 +1031,9 @@ bool detect_doors(void)
 
 
 	/* Scan the panel */
-	for (y = p_ptr->wy; y < p_ptr->wy+SCREEN_HGT; y++)
+	for (y = Term->offset_y; y < Term->offset_y + SCREEN_HGT; y++)
 	{
-		for (x = p_ptr->wx; x < p_ptr->wx+SCREEN_WID; x++)
+		for (x = Term->offset_x; x < Term->offset_x + SCREEN_WID; x++)
 		{
 			if (!in_bounds_fully(y, x)) continue;
 
@@ -1081,9 +1084,9 @@ bool detect_stairs(void)
 
 
 	/* Scan the panel */
-	for (y = p_ptr->wy; y < p_ptr->wy+SCREEN_HGT; y++)
+	for (y = Term->offset_y; y < Term->offset_y + SCREEN_HGT; y++)
 	{
-		for (x = p_ptr->wx; x < p_ptr->wx+SCREEN_WID; x++)
+		for (x = Term->offset_x; x < Term->offset_x + SCREEN_WID; x++)
 		{
 			if (!in_bounds_fully(y, x)) continue;
 
@@ -1125,9 +1128,9 @@ bool detect_treasure(void)
 
 
 	/* Scan the current panel */
-	for (y = p_ptr->wy; y < p_ptr->wy+SCREEN_HGT; y++)
+	for (y = Term->offset_y; y < Term->offset_y + SCREEN_HGT; y++)
 	{
-		for (x = p_ptr->wx; x < p_ptr->wx+SCREEN_WID; x++)
+		for (x = Term->offset_x; x < Term->offset_x + SCREEN_WID; x++)
 		{
 			if (!in_bounds_fully(y, x)) continue;
 
@@ -1885,6 +1888,7 @@ bool enchant_spell(int num_hit, int num_dam, int num_ac)
 bool ident_spell(void)
 {
 	int item;
+	int squelch = 0;
 
 	object_type *o_ptr;
 
@@ -1918,8 +1922,15 @@ bool ident_spell(void)
 	object_aware(o_ptr);
 	object_known(o_ptr);
 
+	/* Mark the artifact as "aware" */
+	if (artifact_p(o_ptr)) artifact_aware(&a_info[o_ptr->name1]);
+	
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
+
+	/* Squelch it? */
+	if (item < INVEN_WIELD)
+		squelch = squelch_itemp(o_ptr, 0, 1);
 
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
@@ -1938,13 +1949,29 @@ bool ident_spell(void)
 	}
 	else if (item >= 0)
 	{
-		msg_format("In your pack: %s (%c).",
-		           o_name, index_to_label(item));
+		msg_format("In your pack: %s (%c).  %s",
+		           o_name, index_to_label(item),
+			   ((squelch == 1) ? "(Squelched)" : 
+			    ((squelch == -1) ? "(Squelch Failed)" : "")));
 	}
 	else
 	{
-		msg_format("On the ground: %s.",
-		           o_name);
+		msg_format("On the ground: %s.  %s",
+		           o_name,
+			   ((squelch == 1) ? "(Squelched)" :
+			    ((squelch == -1) ? "(Squelch Failed)" : "")));
+	}
+
+	/* Now squelch it if needed */
+	do_squelch_item(squelch, item, o_ptr);
+
+	/* Check for artifact memory */
+	if (artifact_p(o_ptr))
+	{
+		artifact_type *a_ptr = &a_info[o_ptr->name1];
+
+		/* Describe it fully */
+		if artifact_known_p(a_ptr) object_info_screen(o_ptr);
 	}
 
 	/* Something happened */
@@ -1961,6 +1988,7 @@ bool ident_spell(void)
 bool identify_fully(void)
 {
 	int item;
+	int squelch = 0;
 
 	object_type *o_ptr;
 
@@ -1994,8 +2022,22 @@ bool identify_fully(void)
 	object_aware(o_ptr);
 	object_known(o_ptr);
 
+	/* Squelch it? */
+	if (item < INVEN_WIELD)
+		squelch = squelch_itemp(o_ptr, 0, 1);
+
 	/* Mark the item as fully known */
 	o_ptr->ident |= (IDENT_MENTAL);
+
+	/* Mark the artifact as "aware" */
+	if (artifact_p(o_ptr)) 
+	{
+		artifact_type *a_ptr = &a_info[o_ptr->name1];
+
+		/* Aware of the artifact and its abilities */
+		artifact_aware(a_ptr);
+		artifact_known(a_ptr);
+	}
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
@@ -2020,24 +2062,33 @@ bool identify_fully(void)
 	}
 	else if (item >= 0)
 	{
-		msg_format("In your pack: %s (%c).",
-		           o_name, index_to_label(item));
+		msg_format("In your pack: %s (%c).  %s",
+		           o_name, index_to_label(item),
+			   ((squelch == 1) ? "(Squelched)" :
+			    ((squelch == -1) ? "(Squelch Failed)" : "")));
 	}
 	else
 	{
-		msg_format("On the ground: %s.",
-		           o_name);
+		msg_format("On the ground: %s.  %s",
+		           o_name,
+			   ((squelch == 1) ? "(Squelched)" :
+			    ((squelch == -1) ? "(Squelch Failed)" : "")));
 	}
 
-	/* Describe it fully */
-	object_info_screen(o_ptr);
+	/* Now squelch it if needed */
+	if (squelch == 1)
+	{
+		do_squelch_item(squelch, item, o_ptr);
+    }
+    else
+    {
+    	/* Describe it fully */
+    	object_info_screen(o_ptr);
+    }
 
 	/* Success */
 	return (TRUE);
 }
-
-
-
 
 /*
  * Hook for "get_item()".  Determine if something is rechargable.
@@ -2058,29 +2109,7 @@ static bool item_tester_hook_recharge(const object_type *o_ptr)
 /*
  * Recharge a wand or staff from the pack or on the floor.
  *
- * Mage -- Recharge I --> recharge(5)
- * Mage -- Recharge II --> recharge(40)
- * Mage -- Recharge III --> recharge(100)
- *
- * Priest -- Recharge --> recharge(15)
- *
- * Scroll of recharging --> recharge(60)
- *
- * recharge(20) = 1/6 failure for empty 10th level wand
- * recharge(60) = 1/10 failure for empty 10th level wand
- *
- * It is harder to recharge high level, and highly charged wands.
- *
- * XXX XXX XXX Beware of "sliding index errors".
- *
- * Should probably not "destroy" over-charged items, unless we
- * "replace" them by, say, a broken stick or some such.  The only
- * reason this is okay is because "scrolls of recharging" appear
- * BEFORE all staves/wands in the inventory.  Note that the
- * new "auto_sort_pack" option would correctly handle replacing
- * the "broken" wand with any other item (i.e. a broken stick).
- *
- * XXX XXX XXX Perhaps we should auto-unstack recharging stacks.
+ * It is harder to recharge high level, and highly charged wands. 
  */
 bool recharge(int num)
 {
@@ -2118,27 +2147,23 @@ bool recharge(int num)
 	/* Recharge power */
 	i = (num + 100 - lev - (10 * o_ptr->pval)) / 15;
 
-	/* Back-fire XXX XXX XXX */
+	/* Back-fire */
 	if ((i <= 1) || (rand_int(i) == 0))
 	{
-		/* Dangerous Hack -- Destroy the item */
 		msg_print("There is a bright flash of light.");
 
-		/* Reduce and describe inventory */
-		if (item >= 0)
-		{
-			inven_item_increase(item, -999);
-			inven_item_describe(item);
-			inven_item_optimize(item);
-		}
-
-		/* Reduce and describe floor item */
-		else
-		{
-			floor_item_increase(0 - item, -999);
-			floor_item_describe(0 - item);
-			floor_item_optimize(0 - item);
-		}
+ 		/* Drain the power */
+ 		o_ptr->pval = 0;
+  
+ 		/* *Identified* items keep the knowledge about the charges */
+ 		if (!(o_ptr->ident & IDENT_MENTAL))
+  		{
+ 			/* We no longer "know" the item */
+ 			o_ptr->ident &= ~(IDENT_KNOWN);
+  		}
+ 
+ 		/* We know that the item is empty */
+ 		o_ptr->ident |= IDENT_EMPTY;
 	}
 
 	/* Recharge */
@@ -2602,7 +2627,7 @@ void destroy_area(int y1, int x1, int r, bool full)
 	p_ptr->redraw |= (PR_MAP);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_OVERHEAD);
+	p_ptr->window |= (PW_OVERHEAD | PW_MAP);
 }
 
 
@@ -2953,7 +2978,7 @@ void earthquake(int cy, int cx, int r)
 	p_ptr->redraw |= (PR_HEALTH);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_OVERHEAD);
+	p_ptr->window |= (PW_OVERHEAD | PW_MAP);
 }
 
 

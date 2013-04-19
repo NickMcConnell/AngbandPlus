@@ -339,15 +339,6 @@ static errr rd_item(object_type *o_ptr)
 		o_ptr->pval = k_ptr->pval * o_ptr->number;
 	}
 
-	if (older_than(3, 0, 4))
-	{
-		/* Recalculate charges of stacked wands and staves */
-		if ((o_ptr->tval == TV_WAND) || (o_ptr->tval == TV_STAFF))
-		{
-			o_ptr->pval = o_ptr->pval * o_ptr->number;
-		}
-	}
-
 	/* Repair non "wearable" items */
 	if (!wearable_p(o_ptr))
 	{
@@ -630,12 +621,6 @@ static errr rd_store(int n)
 			return (-1);
 		}
 
-		/* Pre-3.0.2 objects in store inventories need to be marked */
-		if (older_than(3, 0, 2))
-		{
-			if (n != STORE_HOME) i_ptr->ident |= IDENT_STORE;
-		}
-
 		/* Accept any valid items */
 		if (st_ptr->stock_num < STORE_INVEN_MAX)
 		{
@@ -831,85 +816,24 @@ static errr rd_player_spells(void)
 	int i;
 	u16b tmp16u;
 
-	if (older_than(2, 9, 8))
+	/* Read the number of spells */
+	rd_u16b(&tmp16u);
+	if (tmp16u > PY_MAX_SPELLS)
 	{
-		/* The magic spells were changed drastically in Angband 2.9.7 */
-		if (older_than(2, 9, 7) &&
-		    (c_info[p_ptr->pclass].spell_book == TV_MAGIC_BOOK))
-		{
-			/* Discard old spell info */
-			strip_bytes(24);
-
-			/* Discard old spell order */
-			strip_bytes(64);
-
-			/* None of the spells have been learned yet */
-			for (i = 0; i < 64; i++)
-				p_ptr->spell_order[i] = 99;
-		}
-		else
-		{
-			u32b spell_learned1, spell_learned2;
-			u32b spell_worked1, spell_worked2;
-			u32b spell_forgotten1, spell_forgotten2;
-
-			/* Read spell info */
-			rd_u32b(&spell_learned1);
-			rd_u32b(&spell_learned2);
-			rd_u32b(&spell_worked1);
-			rd_u32b(&spell_worked2);
-			rd_u32b(&spell_forgotten1);
-			rd_u32b(&spell_forgotten2);
-
-			for (i = 0; i < 64; i++)
-			{
-				if (i < 32)
-				{
-					if (spell_learned1 & (1L << i))
-						p_ptr->spell_flags[i] |= PY_SPELL_LEARNED;
-					if (spell_worked1 & (1L << i))
-						p_ptr->spell_flags[i] |= PY_SPELL_WORKED;
-					if (spell_forgotten1 & (1L << i))
-						p_ptr->spell_flags[i] |= PY_SPELL_FORGOTTEN;
-				}
-				else
-				{
-					if (spell_learned2 & (1L << (i - 32)))
-						p_ptr->spell_flags[i] |= PY_SPELL_LEARNED;
-					if (spell_worked2 & (1L << (i - 32)))
-						p_ptr->spell_flags[i] |= PY_SPELL_WORKED;
-					if (spell_forgotten2 & (1L << (i - 32)))
-						p_ptr->spell_flags[i] |= PY_SPELL_FORGOTTEN;
-				}
-			}
-
-			for (i = 0; i < 64; i++)
-			{
-				rd_byte(&p_ptr->spell_order[i]);
-			}
-		}
+		note(format("Too many player spells (%d).", tmp16u));
+		return (-1);
 	}
-	else
+
+	/* Read the spell flags */
+	for (i = 0; i < tmp16u; i++)
 	{
-		/* Read the number of spells */
-		rd_u16b(&tmp16u);
-		if (tmp16u > PY_MAX_SPELLS)
-		{
-			note(format("Too many player spells (%d).", tmp16u));
-			return (-1);
-		}
+		rd_byte(&p_ptr->spell_flags[i]);
+	}
 
-		/* Read the spell flags */
-		for (i = 0; i < tmp16u; i++)
-		{
-			rd_byte(&p_ptr->spell_flags[i]);
-		}
-
-		/* Read the spell order */
-		for (i = 0; i < tmp16u; i++)
-		{
-			rd_byte(&p_ptr->spell_order[i]);
-		}
+	/* Read the spell order */
+	for (i = 0; i < tmp16u; i++)
+	{
+		rd_byte(&p_ptr->spell_order[i]);
 	}
 
 	/* Success */
@@ -932,30 +856,7 @@ static errr rd_extra(void)
 
 	rd_string(p_ptr->died_from, 80);
 
-	if (older_than(3, 0, 1))
-	{
-		char *hist = p_ptr->history;
-
-		for (i = 0; i < 4; i++)
-		{
-			/* Read a part of the history */
-			rd_string(hist, 60);
-
-			/* Advance */
-			hist += strlen(hist);
-
-			/* Separate by spaces */
-			hist[0] = ' ';
-			hist++;
-		}
-
-		/* Make sure it is terminated */
-		hist[0] = '\0';
-	}
-	else
-	{
-		rd_string(p_ptr->history, 250);
-	}
+	rd_string(p_ptr->history, 250);
 
 	/* Player race */
 	rd_byte(&p_ptr->prace);
@@ -1074,8 +975,12 @@ static errr rd_extra(void)
 	rd_byte(&tmp8u);	/* oops */
 	rd_byte(&tmp8u);	/* oops */
 
+	/* Squelch bytes */
+	for (i = 0; i < 24; i++) rd_byte(&squelch_level[i]);
+	rd_byte(&auto_destroy);
+	
 	/* Future use */
-	strip_bytes(40);
+	strip_bytes(15);
 
 	/* Read the randart version */
 	rd_u32b(&randart_version);
@@ -1107,7 +1012,7 @@ static errr rd_extra(void)
 	feeling = tmp8u;
 
 	/* Turn of last "feeling" */
-	rd_s32b(&old_turn);
+	rd_s32b(&feeling_counter);
 
 	/* Current turn */
 	rd_s32b(&turn);
@@ -1153,122 +1058,97 @@ static errr rd_randarts(void)
 	u32b tmp32u;
 
 
-	if (older_than(2, 9, 3))
-	{
-		/*
-		 * XXX XXX XXX
-		 * Importing old savefiles with random artifacts is dangerous
-		 * since the randart-generators differ and produce different
-		 * artifacts from the same random seed.
-		 *
-		 * Switching off the check for incompatible randart versions
-		 * allows to import such a savefile - do it at your own risk.
-		 */
+	/* Read the number of artifacts */
+	rd_u16b(&artifact_count);
 
-		/* Check for incompatible randart version */
-		if (randart_version != RANDART_VERSION)
+	/* Alive or cheating death */
+	if (!p_ptr->is_dead || arg_wizard)
+	{
+		/* Incompatible save files */
+		if (artifact_count > z_info->a_max)
 		{
-			note(format("Incompatible random artifacts version!"));
+			note(format("Too many (%u) random artifacts!", artifact_count));
 			return (-1);
 		}
 
-		/* Initialize randarts */
-		do_randart(seed_randart, TRUE);
+		/* Mark the old artifacts as "empty" */
+		for (i = 0; i < z_info->a_max; i++)
+		{
+			artifact_type *a_ptr = &a_info[i];
+			a_ptr->name = 0;
+			a_ptr->tval = 0;
+			a_ptr->sval = 0;
+		}
+
+		/* Read the artifacts */
+		for (i = 0; i < artifact_count; i++)
+		{
+			artifact_type *a_ptr = &a_info[i];
+
+			rd_byte(&a_ptr->tval);
+			rd_byte(&a_ptr->sval);
+			rd_s16b(&a_ptr->pval);
+
+			rd_s16b(&a_ptr->to_h);
+			rd_s16b(&a_ptr->to_d);
+			rd_s16b(&a_ptr->to_a);
+			rd_s16b(&a_ptr->ac);
+
+			rd_byte(&a_ptr->dd);
+			rd_byte(&a_ptr->ds);
+
+			rd_s16b(&a_ptr->weight);
+
+			rd_s32b(&a_ptr->cost);
+
+			rd_u32b(&a_ptr->flags1);
+			rd_u32b(&a_ptr->flags2);
+			rd_u32b(&a_ptr->flags3);
+
+			rd_byte(&a_ptr->level);
+			rd_byte(&a_ptr->rarity);
+
+			rd_byte(&a_ptr->activation);
+			rd_u16b(&a_ptr->time);
+			rd_u16b(&a_ptr->randtime);
+		}
 	}
 	else
 	{
-		/* Read the number of artifacts */
-		rd_u16b(&artifact_count);
-
-		/* Alive or cheating death */
-		if (!p_ptr->is_dead || arg_wizard)
+		/* Read the artifacts */
+		for (i = 0; i < artifact_count; i++)
 		{
-			/* Incompatible save files */
-			if (artifact_count > z_info->a_max)
-			{
-				note(format("Too many (%u) random artifacts!", artifact_count));
-				return (-1);
-			}
+			rd_byte(&tmp8u); /* a_ptr->tval */
+			rd_byte(&tmp8u); /* a_ptr->sval */
+			rd_s16b(&tmp16s); /* a_ptr->pval */
 
-			/* Mark the old artifacts as "empty" */
-			for (i = 0; i < z_info->a_max; i++)
-			{
-				artifact_type *a_ptr = &a_info[i];
-				a_ptr->name = 0;
-				a_ptr->tval = 0;
-				a_ptr->sval = 0;
-			}
+			rd_s16b(&tmp16s); /* a_ptr->to_h */
+			rd_s16b(&tmp16s); /* a_ptr->to_d */
+			rd_s16b(&tmp16s); /* a_ptr->to_a */
+			rd_s16b(&tmp16s); /* a_ptr->ac */
 
-			/* Read the artifacts */
-			for (i = 0; i < artifact_count; i++)
-			{
-				artifact_type *a_ptr = &a_info[i];
+			rd_byte(&tmp8u); /* a_ptr->dd */
+			rd_byte(&tmp8u); /* a_ptr->ds */
 
-				rd_byte(&a_ptr->tval);
-				rd_byte(&a_ptr->sval);
-				rd_s16b(&a_ptr->pval);
+			rd_s16b(&tmp16s); /* a_ptr->weight */
 
-				rd_s16b(&a_ptr->to_h);
-				rd_s16b(&a_ptr->to_d);
-				rd_s16b(&a_ptr->to_a);
-				rd_s16b(&a_ptr->ac);
+			rd_s32b(&tmp32s); /* a_ptr->cost */
 
-				rd_byte(&a_ptr->dd);
-				rd_byte(&a_ptr->ds);
+			rd_u32b(&tmp32u); /* a_ptr->flags1 */
+			rd_u32b(&tmp32u); /* a_ptr->flags2 */
+			rd_u32b(&tmp32u); /* a_ptr->flags3 */
 
-				rd_s16b(&a_ptr->weight);
+			rd_byte(&tmp8u); /* a_ptr->level */
+			rd_byte(&tmp8u); /* a_ptr->rarity */
 
-				rd_s32b(&a_ptr->cost);
-
-				rd_u32b(&a_ptr->flags1);
-				rd_u32b(&a_ptr->flags2);
-				rd_u32b(&a_ptr->flags3);
-
-				rd_byte(&a_ptr->level);
-				rd_byte(&a_ptr->rarity);
-
-				rd_byte(&a_ptr->activation);
-				rd_u16b(&a_ptr->time);
-				rd_u16b(&a_ptr->randtime);
-			}
+			rd_byte(&tmp8u); /* a_ptr->activation */
+			rd_u16b(&tmp16u); /* a_ptr->time */
+			rd_u16b(&tmp16u); /* a_ptr->randtime */
 		}
-		else
-		{
-			/* Read the artifacts */
-			for (i = 0; i < artifact_count; i++)
-			{
-				rd_byte(&tmp8u); /* a_ptr->tval */
-				rd_byte(&tmp8u); /* a_ptr->sval */
-				rd_s16b(&tmp16s); /* a_ptr->pval */
-
-				rd_s16b(&tmp16s); /* a_ptr->to_h */
-				rd_s16b(&tmp16s); /* a_ptr->to_d */
-				rd_s16b(&tmp16s); /* a_ptr->to_a */
-				rd_s16b(&tmp16s); /* a_ptr->ac */
-
-				rd_byte(&tmp8u); /* a_ptr->dd */
-				rd_byte(&tmp8u); /* a_ptr->ds */
-
-				rd_s16b(&tmp16s); /* a_ptr->weight */
-
-				rd_s32b(&tmp32s); /* a_ptr->cost */
-
-				rd_u32b(&tmp32u); /* a_ptr->flags1 */
-				rd_u32b(&tmp32u); /* a_ptr->flags2 */
-				rd_u32b(&tmp32u); /* a_ptr->flags3 */
-
-				rd_byte(&tmp8u); /* a_ptr->level */
-				rd_byte(&tmp8u); /* a_ptr->rarity */
-
-				rd_byte(&tmp8u); /* a_ptr->activation */
-				rd_u16b(&tmp16u); /* a_ptr->time */
-				rd_u16b(&tmp16u); /* a_ptr->randtime */
-			}
-		}
-
-		/* Initialize only the randart names */
-		do_randart(seed_randart, FALSE);
 	}
+
+	/* Initialize only the randart names */
+	do_randart(seed_randart, FALSE);
 
 	return (0);
 
@@ -1393,10 +1273,7 @@ static void rd_messages(void)
 		rd_string(buf, sizeof(buf));
 
 		/* Read the message type */
-		if (!older_than(2, 9, 1))
-			rd_u16b(&tmp16u);
-		else
-			tmp16u = MSG_GENERIC;
+		rd_u16b(&tmp16u);
 
 		/* Save the message */
 		message_add(buf, tmp16u);
@@ -1608,6 +1485,9 @@ static errr rd_dungeon(void)
 
 			/* Link the floor to the object */
 			cave_o_idx[y][x] = o_idx;
+
+			/* Rearrange stack if needed */
+			rearrange_stack(y, x);
 		}
 	}
 
@@ -1687,10 +1567,6 @@ static errr rd_dungeon(void)
 
 	/* The dungeon is ready */
 	character_dungeon = TRUE;
-
-	/* Regenerate town in post 2.9.3 versions */
-	if (older_than(2, 9, 4) && (p_ptr->depth == 0))
-		character_dungeon = FALSE;
 
 	/* Success */
 	return (0);
@@ -1804,6 +1680,8 @@ static errr rd_savefile_new_aux(void)
 
 		k_ptr->aware = (tmp8u & 0x01) ? TRUE: FALSE;
 		k_ptr->tried = (tmp8u & 0x02) ? TRUE: FALSE;
+		k_ptr->squelch = (tmp8u & 0x04) ? TRUE: FALSE;
+		k_ptr->everseen = (tmp8u & 0x08) ? TRUE: FALSE;
 	}
 	if (arg_fiddle) note("Loaded Object Memory");
 
@@ -1844,7 +1722,7 @@ static errr rd_savefile_new_aux(void)
 	for (i = 0; i < tmp16u; i++)
 	{
 		rd_byte(&tmp8u);
-		a_info[i].cur_num = tmp8u;
+		a_info[i].status = tmp8u;
 		rd_byte(&tmp8u);
 		rd_byte(&tmp8u);
 		rd_byte(&tmp8u);
@@ -2235,7 +2113,7 @@ bool load_player(void)
 			sf_lives++;
 
 			/* Forget turns */
-			turn = old_turn = 0;
+			feeling_counter = 0;
 
 			/* Done */
 			return (TRUE);

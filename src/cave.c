@@ -708,9 +708,7 @@ static void special_lighting_wall(byte *a, char *c, int feat, int info)
  * Note that monsters can have some "special" flags, including "ATTR_MULTI",
  * which means their color changes, and "ATTR_CLEAR", which means they take
  * the color of whatever is under them, and "CHAR_CLEAR", which means that
- * they take the symbol of whatever is under them.  Technically, the flag
- * "CHAR_MULTI" is supposed to indicate that a monster looks strange when
- * examined, but this flag is currently ignored.  All of these flags are
+ * they take the symbol of whatever is under them.  All of these flags are
  * ignored if the "avoid_other" option is set, since checking for these
  * conditions is expensive (and annoying) on some systems.
  *
@@ -742,6 +740,8 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 	s16b image = p_ptr->image;
 
 	int floor_num = 0;
+
+	bool sq_flag = FALSE;
 
 	/* Monster/Player */
 	m_idx = cave_m_idx[y][x];
@@ -852,14 +852,29 @@ void map_info(int y, int x, byte *ap, char *cp, byte *tap, char *tcp)
 				break;
 			}
 
-			/* Normal attr */
-			a = object_attr(o_ptr);
+			sq_flag = ((k_info[o_ptr->k_idx].squelch) &
+			           (k_info[o_ptr->k_idx].aware));
 
-			/* Normal char */
-			c = object_char(o_ptr);
+			if (!sq_flag) 
+			{
+				/* Normal attr */
+				a = object_attr(o_ptr);
 
+				/* Normal char */
+				c = object_char(o_ptr);
+
+			}
+			else
+			{
+				/* Special squelch character HACK */
+				/* Colour of Blade of Chaos */
+				a = k_info[36].x_attr;
+				/* Symbol of floor */
+				c = f_info[1].x_char;
+			}
+			
 			/* First marked object */
-			if (!show_piles) break;
+			if (!show_piles || sq_flag) break;
 
 			/* Special stack symbol */
 			if (++floor_num > 1)
@@ -1366,6 +1381,49 @@ void map_info_default(int y, int x, byte *ap, char *cp)
 
 /*
  * Move the cursor to a given map location.
+ */
+static void move_cursor_relative_map(int y, int x)
+{
+	int ky, kx;
+
+	term *old;
+
+	int j;
+
+	/* Scan windows */
+	for (j = 0; j < ANGBAND_TERM_MAX; j++)
+	{
+		term *t = angband_term[j];
+
+		/* No window */
+		if (!t) continue;
+
+		/* No relevant flags */
+		if (!(op_ptr->window_flag[j] & (PW_MAP))) continue;
+
+		/* Location relative to panel */
+		ky = y - t->offset_y;
+	
+		/* Verify location */
+		if ((ky < 0) || (ky >= t->hgt)) continue;
+	
+		/* Location relative to panel */
+		kx = x - t->offset_x;
+	
+		/* Verify location */
+		if ((kx < 0) || (kx >= t->wid)) continue;
+	
+		/* Go there */
+		old = Term;
+		Term_activate(t);
+		(void)Term_gotoxy(kx, ky);
+		Term_activate(old);
+	}
+}
+
+
+/*
+ * Move the cursor to a given map location.
  *
  * The main screen will always be at least 24x80 in size.
  */
@@ -1374,14 +1432,17 @@ void move_cursor_relative(int y, int x)
 	int ky, kx;
 	int vy, vx;
 
+	/* Move the cursor on map sub-windows */
+	move_cursor_relative_map(y, x);
+
 	/* Location relative to panel */
-	ky = y - p_ptr->wy;
+	ky = y - Term->offset_y;
 
 	/* Verify location */
 	if ((ky < 0) || (ky >= SCREEN_HGT)) return;
 
 	/* Location relative to panel */
-	kx = x - p_ptr->wx;
+	kx = x - Term->offset_x;
 
 	/* Verify location */
 	if ((kx < 0) || (kx >= SCREEN_WID)) return;
@@ -1406,6 +1467,52 @@ void move_cursor_relative(int y, int x)
  * Note the inline use of "panel_contains()" for efficiency.
  *
  * Note the use of "Term_queue_char()" for efficiency.
+ */
+static void print_rel_map(char c, byte a, int y, int x)
+{
+	int ky, kx;
+
+	int j;
+
+	/* Scan windows */
+	for (j = 0; j < ANGBAND_TERM_MAX; j++)
+	{
+		term *t = angband_term[j];
+
+		/* No window */
+		if (!t) continue;
+
+		/* No relevant flags */
+		if (!(op_ptr->window_flag[j] & (PW_MAP))) continue;
+
+		/* Location relative to panel */
+		ky = y - t->offset_y;
+	
+		/* Verify location */
+		if ((ky < 0) || (ky >= t->hgt)) continue;
+	
+		/* Location relative to panel */
+		kx = x - t->offset_x;
+	
+		/* Verify location */
+		if ((kx < 0) || (kx >= t->wid)) continue;
+	
+		/* Hack -- Queue it */
+		Term_queue_char(t, kx, ky, a, c, 0, 0);
+	
+		/* Redraw map */
+		p_ptr->window |= (PW_MAP);
+	}
+}
+
+
+
+/*
+ * Display an attr/char pair at the given map location
+ *
+ * Note the inline use of "panel_contains()" for efficiency.
+ *
+ * Note the use of "Term_queue_char()" for efficiency.
  *
  * The main screen will always be at least 24x80 in size.
  */
@@ -1414,14 +1521,17 @@ void print_rel(char c, byte a, int y, int x)
 	int ky, kx;
 	int vy, vx;
 
+	/* Print on map sub-windows */
+	print_rel_map(c, a, y, x);
+
 	/* Location relative to panel */
-	ky = y - p_ptr->wy;
+	ky = y - Term->offset_y;
 
 	/* Verify location */
 	if ((ky < 0) || (ky >= SCREEN_HGT)) return;
 
 	/* Location relative to panel */
-	kx = x - p_ptr->wx;
+	kx = x - Term->offset_x;
 
 	/* Verify location */
 	if ((kx < 0) || (kx >= SCREEN_WID)) return;
@@ -1435,15 +1545,15 @@ void print_rel(char c, byte a, int y, int x)
 	if (use_bigtile) vx += kx;
 
 	/* Hack -- Queue it */
-	Term_queue_char(vx, vy, a, c, 0, 0);
+	Term_queue_char(Term, vx, vy, a, c, 0, 0);
 
 	if (use_bigtile)
 	{
 		/* Mega-Hack : Queue dummy char */
 		if (a & 0x80)
-			Term_queue_char(vx+1, vy, 255, -1, 0, 0);
+			Term_queue_char(Term, vx+1, vy, 255, -1, 0, 0);
 		else
-			Term_queue_char(vx+1, vy, TERM_WHITE, ' ', 0, 0);
+			Term_queue_char(Term, vx+1, vy, TERM_WHITE, ' ', 0, 0);
 	}
 }
 
@@ -1525,6 +1635,47 @@ void note_spot(int y, int x)
 }
 
 
+static void lite_spot_map(int y, int x)
+{
+	byte a, ta;
+	char c, tc;
+
+	int ky, kx;
+
+	int j;
+
+	/* Scan windows */
+	for (j = 0; j < ANGBAND_TERM_MAX; j++)
+	{
+		term *t = angband_term[j];
+
+		/* No window */
+		if (!t) continue;
+
+		/* No relevant flags */
+		if (!(op_ptr->window_flag[j] & (PW_MAP))) continue;
+
+		/* Location relative to panel */
+		ky = y - t->offset_y;
+		kx = x - t->offset_x;
+
+		/* Verify location */
+		if ((ky < 0) || (ky >= t->hgt)) continue;
+		if ((kx < 0) || (kx >= t->wid)) continue;
+
+		/* Hack -- redraw the grid */
+		map_info(y, x, &a, &c, &ta, &tc);
+
+		/* Hack -- Queue it */
+		Term_queue_char(t, kx, ky, a, c, ta, tc);
+
+		/* Redraw map */
+		p_ptr->window |= (PW_MAP);
+	}
+}
+
+
+
 /*
  * Redraw (on the screen) a given map location
  *
@@ -1544,14 +1695,17 @@ void lite_spot(int y, int x)
 	int ky, kx;
 	int vy, vx;
 
+	/* Update map sub-windows */
+	lite_spot_map(y, x);
+
 	/* Location relative to panel */
-	ky = y - p_ptr->wy;
+	ky = y - Term->offset_y;
 
 	/* Verify location */
 	if ((ky < 0) || (ky >= SCREEN_HGT)) return;
 
 	/* Location relative to panel */
-	kx = x - p_ptr->wx;
+	kx = x - Term->offset_x;
 
 	/* Verify location */
 	if ((kx < 0) || (kx >= SCREEN_WID)) return;
@@ -1568,7 +1722,7 @@ void lite_spot(int y, int x)
 	map_info(y, x, &a, &c, &ta, &tc);
 
 	/* Hack -- Queue it */
-	Term_queue_char(vx, vy, a, c, ta, tc);
+	Term_queue_char(Term, vx, vy, a, c, ta, tc);
 
 	if (use_bigtile)
 	{
@@ -1576,9 +1730,59 @@ void lite_spot(int y, int x)
 
 		/* Mega-Hack : Queue dummy char */
 		if (a & 0x80)
-			Term_queue_char(vx, vy, 255, -1, 0, 0);
+			Term_queue_char(Term, vx, vy, 255, -1, 0, 0);
 		else
-			Term_queue_char(vx, vy, TERM_WHITE, ' ', TERM_WHITE, ' ');
+			Term_queue_char(Term, vx, vy, TERM_WHITE, ' ', TERM_WHITE, ' ');
+	}
+}
+
+
+static void prt_map_aux(void)
+{
+	byte a;
+	char c;
+	byte ta;
+	char tc;
+
+	int y, x;
+	int vy, vx;
+	int ty, tx;
+
+	int j;
+
+	/* Scan windows */
+	for (j = 0; j < ANGBAND_TERM_MAX; j++)
+	{
+		term *t = angband_term[j];
+
+		/* No window */
+		if (!t) continue;
+
+		/* No relevant flags */
+		if (!(op_ptr->window_flag[j] & (PW_MAP))) continue;
+
+		/* Assume screen */
+		ty = t->offset_y + t->hgt;
+		tx = t->offset_x + t->wid;
+	
+		/* Dump the map */
+		for (y = t->offset_y, vy = 0; y < ty; vy++, y++)
+		{
+			for (x = t->offset_x, vx = 0; x < tx; vx++, x++)
+			{
+				/* Check bounds */
+				if (!in_bounds(y, x)) continue;
+	
+				/* Determine what is there */
+				map_info(y, x, &a, &c, &ta, &tc);
+	
+				/* Hack -- Queue it */
+				Term_queue_char(t, vx, vy, a, c, ta, tc);
+			}
+		}
+	
+		/* Redraw map */
+		p_ptr->window |= (PW_MAP);
 	}
 }
 
@@ -1602,14 +1806,17 @@ void prt_map(void)
 	int vy, vx;
 	int ty, tx;
 
+	/* Redraw map sub-windows */
+	prt_map_aux();
+
 	/* Assume screen */
-	ty = p_ptr->wy + SCREEN_HGT;
-	tx = p_ptr->wx + SCREEN_WID;
+	ty = Term->offset_y + SCREEN_HGT;
+	tx = Term->offset_x + SCREEN_WID;
 
 	/* Dump the map */
-	for (y = p_ptr->wy, vy = ROW_MAP; y < ty; vy++, y++)
+	for (y = Term->offset_y, vy = ROW_MAP; y < ty; vy++, y++)
 	{
-		for (x = p_ptr->wx, vx = COL_MAP; x < tx; vx++, x++)
+		for (x = Term->offset_x, vx = COL_MAP; x < tx; vx++, x++)
 		{
 			/* Check bounds */
 			if (!in_bounds(y, x)) continue;
@@ -1618,7 +1825,7 @@ void prt_map(void)
 			map_info(y, x, &a, &c, &ta, &tc);
 
 			/* Hack -- Queue it */
-			Term_queue_char(vx, vy, a, c, ta, tc);
+			Term_queue_char(Term, vx, vy, a, c, ta, tc);
 
 			if (use_bigtile)
 			{
@@ -1626,9 +1833,9 @@ void prt_map(void)
 
 				/* Mega-Hack : Queue dummy char */
 				if (a & 0x80)
-					Term_queue_char(vx, vy, 255, -1, 0, 0);
+					Term_queue_char(Term, vx, vy, 255, -1, 0, 0);
 				else
-					Term_queue_char(vx, vy, TERM_WHITE, ' ', TERM_WHITE, ' ');
+					Term_queue_char(Term, vx, vy, TERM_WHITE, ' ', TERM_WHITE, ' ');
 			}
 		}
 	}
@@ -2943,6 +3150,8 @@ void update_view(void)
 
 	int radius;
 
+    int fy,fx,k;
+
 	int fast_view_n = view_n;
 	u16b *fast_view_g = view_g;
 
@@ -2994,6 +3203,167 @@ void update_view(void)
 	/* Handle real light */
 	if (radius > 0) ++radius;
 
+
+    /*** Step 1A -- monster lites ***/
+
+    /* Scan monster list and add monster lites */
+    for ( k = 1; k < z_info->m_max; k++)
+   {
+
+        /* Check the k'th monster */
+        monster_type *m_ptr = &mon_list[k];
+        monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+       /* Skip dead monsters */
+       if (!m_ptr->r_idx) continue;
+
+
+       /* Access the location */
+       fx = m_ptr->fx;
+       fy = m_ptr->fy;
+
+        /* Carrying lite */
+        if (r_ptr->flags2 & (RF2_HAS_LITE))
+        {
+            /* monster grid */
+            if (los(py,px,fy,fx))
+            {
+                g = GRID(fy,fx);
+                info = fast_cave_info[g];
+
+                info |= (CAVE_VIEW);
+                info |= (CAVE_SEEN);
+
+                /* Save cave info */
+                fast_cave_info[g] = info;
+
+                /* Save in array */
+                fast_view_g[fast_view_n++] = g;
+            }
+
+            /* Radius 1 -- torch radius */
+
+            /* Adjacent grid */
+            if (los(py,px,fy+1,fx))
+            {
+                g = GRID(fy+1,fx);
+                info = fast_cave_info[g];
+
+                info |= (CAVE_VIEW);
+                info |= (CAVE_SEEN);
+
+                /* Save cave info */
+                fast_cave_info[g] = info;
+
+                /* Save in array */
+                fast_view_g[fast_view_n++] = g;
+            }
+
+
+            if (los(py,px,fy-1,fx))
+            {
+                g = GRID(fy-1,fx);
+                info = fast_cave_info[g];
+
+                info |= (CAVE_VIEW);
+                info |= (CAVE_SEEN);
+
+                /* Save cave info */
+                fast_cave_info[g] = info;
+
+                /* Save in array */
+                fast_view_g[fast_view_n++] = g;
+            }
+            if (los(py,px,fy,fx+1))
+            {
+                g = GRID(fy,fx+1);
+                info = fast_cave_info[g];
+
+                info |= (CAVE_VIEW);
+                info |= (CAVE_SEEN);
+
+                /* Save cave info */
+                fast_cave_info[g] = info;
+
+                /* Save in array */
+                fast_view_g[fast_view_n++] = g;
+            }
+              if (los(py,px,fy,fx-1))
+            {
+                g = GRID(fy,fx-1);
+                info = fast_cave_info[g];
+
+                info |= (CAVE_VIEW);
+                info |= (CAVE_SEEN);
+
+                /* Save cave info */
+                fast_cave_info[g] = info;
+
+                /* Save in array */
+                fast_view_g[fast_view_n++] = g;
+            }
+
+            /* Diagonal grids */
+            if (los(py,px,fy+1,fx+1))
+            {
+                g = GRID(fy+1,fx+1);
+               info = fast_cave_info[g];
+
+                info |= (CAVE_VIEW);
+                info |= (CAVE_SEEN);
+
+                /* Save cave info */
+                fast_cave_info[g] = info;
+
+                /* Save in array */
+                fast_view_g[fast_view_n++] = g;
+            }
+            if (los(py,px,fy+1,fx-1))
+            {
+                g = GRID(fy+1,fx-1);
+                info = fast_cave_info[g];
+
+                info |= (CAVE_VIEW);
+                info |= (CAVE_SEEN);
+
+                /* Save cave info */
+                fast_cave_info[g] = info;
+
+                /* Save in array */
+                fast_view_g[fast_view_n++] = g;
+            }
+            if (los(py,px,fy-1,fx+1))
+            {
+                g = GRID(fy-1,fx+1);
+                info = fast_cave_info[g];
+
+                info |= (CAVE_VIEW);
+                info |= (CAVE_SEEN);
+
+                /* Save cave info */
+                fast_cave_info[g] = info;
+
+                /* Save in array */
+                fast_view_g[fast_view_n++] = g;
+            }
+            if (los(py,px,fy-1,fx-1))
+            {
+                g = GRID(fy-1,fx-1);
+                info = fast_cave_info[g];
+
+                info |= (CAVE_VIEW);
+                info |= (CAVE_SEEN);
+
+                /* Save cave info */
+                fast_cave_info[g] = info;
+
+                /* Save in array */
+                fast_view_g[fast_view_n++] = g;
+            }
+
+        }
+
+    }
 
 	/*** Step 1 -- player grid ***/
 
@@ -3484,10 +3854,10 @@ void map_area(void)
 
 
 	/* Pick an area to map */
-	y1 = p_ptr->wy - randint(10);
-	y2 = p_ptr->wy+SCREEN_HGT + randint(10);
-	x1 = p_ptr->wx - randint(20);
-	x2 = p_ptr->wx+SCREEN_WID + randint(20);
+	y1 = Term->offset_y - randint(10);
+	y2 = Term->offset_y + SCREEN_HGT + randint(10);
+	x1 = Term->offset_x - randint(20);
+	x2 = Term->offset_x + SCREEN_WID + randint(20);
 
 	/* Efficiency -- shrink to fit legal bounds */
 	if (y1 < 1) y1 = 1;
@@ -3531,7 +3901,7 @@ void map_area(void)
 	p_ptr->redraw |= (PR_MAP);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_OVERHEAD);
+	p_ptr->window |= (PW_OVERHEAD | PW_MAP);
 }
 
 
@@ -3615,7 +3985,7 @@ void wiz_lite(void)
 	p_ptr->redraw |= (PR_MAP);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_OVERHEAD | PW_MONLIST);
+	p_ptr->window |= (PW_OVERHEAD | PW_MONLIST | PW_MAP);
 }
 
 
@@ -3659,7 +4029,7 @@ void wiz_dark(void)
 	p_ptr->redraw |= (PR_MAP);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_OVERHEAD | PW_MONLIST);
+	p_ptr->window |= (PW_OVERHEAD | PW_MONLIST | PW_MAP);
 }
 
 
@@ -3751,7 +4121,7 @@ void town_illuminate(bool daytime)
 	p_ptr->redraw |= (PR_MAP);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_OVERHEAD | PW_MONLIST);
+	p_ptr->window |= (PW_OVERHEAD | PW_MONLIST | PW_MAP);
 }
 
 

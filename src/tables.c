@@ -1215,7 +1215,6 @@ const player_sex sex_info[MAX_SEXES] =
 	}
 };
 
-
 /*
  * Each chest has a certain set of traps, determined by pval
  * Each chest has a "pval" from 1 to the chest level (max 55)
@@ -1360,14 +1359,14 @@ cptr window_flag_desc[32] =
 	"Display equip/inven",
 	"Display player (basic)",
 	"Display player (extra)",
-	NULL,
-	NULL,
+	"Display player (compact)",
+	"Display map view",
 	"Display messages",
 	"Display overhead view",
 	"Display monster recall",
 	"Display object recall",
 	"Display monster list",
-	"Display snap-shot",
+	"Display status",
 	"Display script variables",
 	"Display script source",
 	"Display borg messages",
@@ -1466,7 +1465,7 @@ cptr option_text[OPT_MAX] =
 	"show_piles",				/* OPT_show_piles */
 	"center_player",			/* OPT_center_player */
 	"run_avoid_center",			/* OPT_run_avoid_center */
-	"scroll_target",			/* OPT_scroll_target */
+	NULL,						/* xxx scroll_target */
 	"auto_more",				/* OPT_auto_more */
 	"smart_monsters",			/* OPT_smart_monsters */
 	"smart_packs",				/* OPT_smart_packs */
@@ -1663,7 +1662,7 @@ cptr option_desc[OPT_MAX] =
 	"Rogue-like commands",						/* OPT_rogue_like_commands */
 	"Activate quick messages",					/* OPT_quick_messages */
 	"Prompt for floor item selection",			/* OPT_floor_query_flag */
-	"Prompt before picking things up",			/* OPT_carry_query_flag */
+	"Ask before picking items up that will slow you",			/* OPT_carry_query_flag */
 	"Use old target by default",				/* OPT_use_old_target */
 	"Pick things up by default",				/* OPT_always_pickup */
 	"Repeat obvious commands",					/* OPT_always_repeat */
@@ -1730,7 +1729,7 @@ cptr option_desc[OPT_MAX] =
 	"Show stacks using special attr/char",		/* OPT_show_piles */
 	"Center map continuously (very slow)",		/* OPT_center_player */
 	"Avoid centering while running",			/* OPT_run_avoid_center */
-	"Scroll map while targetting",				/* OPT_scroll_target */
+	NULL,										/* xxx scroll_target */
 	"Automatically clear '-more-' prompts",		/* OPT_auto_more */
 	"Monsters behave more intelligently",		/* OPT_smart_monsters */
 	"Monsters act smarter in groups (v.slow)",	/* OPT_smart_packs */
@@ -1928,9 +1927,9 @@ const bool option_norm[OPT_MAX] =
 	TRUE,		/* OPT_quick_messages */
 	FALSE,		/* OPT_floor_query_flag */
 	TRUE,		/* OPT_carry_query_flag */
-	FALSE,		/* OPT_use_old_target */
+	TRUE,		/* OPT_use_old_target */
 	TRUE,		/* OPT_always_pickup */
-	FALSE,		/* OPT_always_repeat */
+	TRUE,		/* OPT_always_repeat */
 	FALSE,		/* OPT_depth_in_feet */
 	FALSE,		/* OPT_stack_force_notes */
 	FALSE,		/* OPT_stack_force_costs */
@@ -1940,7 +1939,7 @@ const bool option_norm[OPT_MAX] =
 	TRUE,		/* OPT_show_details */
 	TRUE,		/* OPT_ring_bell */
 	TRUE,		/* OPT_show_flavors */
-	TRUE,		/* OPT_run_ignore_stairs */
+	FALSE,		/* OPT_run_ignore_stairs */
 	TRUE,		/* OPT_run_ignore_doors */
 	TRUE,		/* OPT_run_cut_corners */
 	TRUE,		/* OPT_run_use_corners */
@@ -1963,7 +1962,7 @@ const bool option_norm[OPT_MAX] =
 	TRUE,		/* OPT_expand_look */
 	TRUE,		/* OPT_expand_list */
 	TRUE,		/* OPT_view_perma_grids */
-	FALSE,		/* OPT_view_torch_grids */
+	TRUE,		/* OPT_view_torch_grids */
 	TRUE,		/* OPT_dungeon_align */
 	TRUE,		/* OPT_dungeon_stair */
 	FALSE,		/* OPT_flow_by_sound */
@@ -1984,17 +1983,17 @@ const bool option_norm[OPT_MAX] =
 	FALSE,		/* xxx */
 	TRUE,		/* OPT_compress_savefile */
 	FALSE,		/* OPT_hilite_player */
-	FALSE,		/* OPT_view_yellow_lite */
-	FALSE,		/* OPT_view_bright_lite */
-	FALSE,		/* OPT_view_granite_lite */
-	FALSE,		/* OPT_view_special_lite */
+	TRUE,		/* OPT_view_yellow_lite */
+	TRUE,		/* OPT_view_bright_lite */
+	TRUE,		/* OPT_view_granite_lite */
+	TRUE,		/* OPT_view_special_lite */
 	FALSE,		/* OPT_easy_open */
-	FALSE,		/* OPT_easy_alter */
+	TRUE,		/* OPT_easy_alter */
 	FALSE,		/* OPT_easy_floor */
 	FALSE,		/* OPT_show_piles */
 	FALSE,		/* OPT_center_player */
 	FALSE,		/* OPT_run_avoid_center */
-	FALSE,		/* OPT_scroll_target */
+	FALSE,		/* xxx */
 	FALSE,		/* OPT_auto_more */
 	FALSE,		/* OPT_smart_monsters */
 	FALSE,		/* OPT_smart_packs */
@@ -2204,7 +2203,7 @@ const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER] =
 		OPT_easy_open,
 		OPT_easy_alter,
 		OPT_easy_floor,
-		OPT_scroll_target,
+		OPT_NONE,
 		OPT_NONE,
 		OPT_NONE,
 		OPT_NONE,

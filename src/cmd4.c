@@ -207,10 +207,9 @@ void do_cmd_redraw(void)
 	p_ptr->redraw |= (PR_BASIC | PR_EXTRA | PR_MAP | PR_EQUIPPY);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1);
-
-	/* Window stuff */
-	p_ptr->window |= (PW_MESSAGE | PW_OVERHEAD | PW_MONSTER | PW_OBJECT);
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER_0 | PW_PLAYER_1 |
+	                  PW_MESSAGE | PW_OVERHEAD | PW_MONSTER | PW_OBJECT |
+	                  PW_MAP);
 
 	/* Clear screen */
 	Term_clear();
@@ -1044,6 +1043,9 @@ void do_cmd_options(void)
 		/* Window flags */
 		prt("(W) Window flags", 12, 5);
 
+		/* Squelch menus */
+		prt("(I) Item Squelch Menus", 13, 5);
+
 		/* Load and Append */
 		prt("(L) Load a user pref file", 14, 5);
 		prt("(A) Append options to a file", 15, 5);
@@ -1108,6 +1110,12 @@ void do_cmd_options(void)
 		{
 			do_cmd_options_win();
 		}
+
+		/* Squelching menus */
+		else if ((ch == 'I') || (ch == 'i'))
+		{
+			do_cmd_squelch();
+ 		}
 
 		/* Load a user pref file */
 		else if ((ch == 'L') || (ch == 'l'))
@@ -2958,7 +2966,7 @@ static void do_cmd_knowledge_artifacts(void)
 		if (!a_ptr->name) continue;
 
 		/* Skip "uncreated" artifacts */
-		if (!a_ptr->cur_num) continue;
+		if (!(a_ptr->status & A_STATUS_AWARE)) continue;
 
 		/* Assume okay */
 		okay[k] = TRUE;

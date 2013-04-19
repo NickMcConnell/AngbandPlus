@@ -2472,6 +2472,8 @@ static errr Term_xtra_mac_react(void)
 		use_sound = arg_sound;
 	}
 
+	/* Don't actually switch graphics until the game is running */
+	if (!initialized || !game_in_progress) return (-1);
 
 	/* Handle graphics */
 	if (graf_mode_req != graf_mode)
@@ -2577,11 +2579,14 @@ static errr Term_xtra_mac_react(void)
 		term_data_resize(td);
 
 		/* Reset visuals */
+		if (initialized && game_in_progress)
+		{
 #ifndef ANG281_RESET_VISUALS
-		reset_visuals(TRUE);
+			reset_visuals(TRUE);
 #else
-		reset_visuals();
+			reset_visuals();
 #endif /* !ANG281_RESET_VISUALS */
+		}
 	}
 
 	/* Success */
@@ -3308,14 +3313,8 @@ static char *locate_lib(char *buf, size_t size)
 	/* Remove the trailing path */
 	*p = '\0';
 
-	/*
-	 * Paranoia - bounds check, with 5 being the length of "/lib/"
-	 * and 1 for terminating '\0'.
-	 */
-	if (strlen(buf) + 5 + 1 > size) goto ret;
-
 	/* Append "/lib/" */
-	strcat(buf, "/lib/");
+	my_strcat(buf, "/lib/", size);
 
 	/* Set result */
 	res = buf;
@@ -3482,7 +3481,6 @@ static void load_pref_short(const char *key, short *vptr)
 	short tmp;
 
 	if (query_load_pref_short(key, &tmp)) *vptr = tmp;
-	return;
 }
 
 
@@ -3530,8 +3528,7 @@ static void cf_save_prefs()
 	/*
 	 * Make sure preferences are persistent
 	 */
-	CFPreferencesAppSynchronize(
-		kCFPreferencesCurrentApplication);
+	CFPreferencesAppSynchronize(kCFPreferencesCurrentApplication);
 }
 
 
@@ -3792,18 +3789,31 @@ static bool select_savefile(bool all)
 
 #ifdef MACH_O_CARBON
 
-	/* Find the save folder */
-	err = path_to_spec(ANGBAND_DIR_SAVE, &theFolderSpec);
+	short foundVRefNum;
+	long foundDirID;
+
+	/* Find the preferences folder */
+	err = FindFolder(kOnSystemDisk, kPreferencesFolderType, kDontCreateFolder,
+	                 &foundVRefNum, &foundDirID);
+
+	if (err != noErr) quit("Couldn't find the preferences folder!");
+
+	/* Look for the "Angband/save/" sub-folder */
+	err = FSMakeFSSpec(foundVRefNum, foundDirID, "\p:Angband:save:", &theFolderSpec);
+
+	/* Oops */
+	if (err != noErr) quit_fmt("Unable to find the savefile folder! (Error %d)", err);
 
 #else
 
 	/* Find :lib:save: folder */
 	err = FSMakeFSSpec(app_vol, app_dir, "\p:lib:save:", &theFolderSpec);
 
-#endif
 
 	/* Oops */
 	if (err != noErr) quit("Unable to find the folder :lib:save:");
+
+#endif
 
 	/* Get default Navigator dialog options */
 	err = NavGetDefaultDialogOptions(&dialogOptions);
@@ -4645,19 +4655,19 @@ static void setup_menus(void)
 
 		/* Item "None" */
 		EnableMenuItem(submenu, ITEM_NONE);
-		CheckMenuItem(submenu, ITEM_NONE, (graf_mode == GRAF_MODE_NONE));
+		CheckMenuItem(submenu, ITEM_NONE, (graf_mode_req == GRAF_MODE_NONE));
 
 		/* Item "8x8" */
 		EnableMenuItem(submenu, ITEM_8X8);
-		CheckMenuItem(submenu, ITEM_8X8, (graf_mode == GRAF_MODE_8X8));
+		CheckMenuItem(submenu, ITEM_8X8, (graf_mode_req == GRAF_MODE_8X8));
 
 		/* Item "16x16" */
 		EnableMenuItem(submenu, ITEM_16X16);
-		CheckMenuItem(submenu, ITEM_16X16, (graf_mode == GRAF_MODE_16X16));
+		CheckMenuItem(submenu, ITEM_16X16, (graf_mode_req == GRAF_MODE_16X16));
 
 		/* Item "32x32" */
 		EnableMenuItem(submenu, ITEM_32X32);
-		CheckMenuItem(submenu, ITEM_32X32, (graf_mode == GRAF_MODE_32X32));
+		CheckMenuItem(submenu, ITEM_32X32, (graf_mode_req == GRAF_MODE_32X32));
 
 #ifdef USE_DOUBLE_TILES
 
@@ -5472,7 +5482,7 @@ static pascal OSErr AEH_Open(const AppleEvent *theAppleEvent, AppleEvent* reply,
 	err = FSpGetFInfo(&myFSS, &myFileInfo);
 	if (err)
 	{
-		strnfmt(msg, 128, "Argh!  FSpGetFInfo failed with code %d", err);
+		strnfmt(msg, sizeof(msg), "Argh!  FSpGetFInfo failed with code %d", err);
 		mac_warning(msg);
 		return err;
 	}
@@ -6265,6 +6275,9 @@ static void init_stuff(void)
 	/* Check until done */
 	while (1)
 	{
+		/* Create directories for the users files */
+		create_user_dirs();
+
 		/* Prepare the paths */
 		init_file_paths(path);
 

@@ -194,6 +194,9 @@ struct object_kind
 	bool aware;			/* The player is "aware" of the item's effects */
 
 	bool tried;			/* The player has "tried" one of the items */
+
+	bool squelch;		/* Squelch item if known            */
+	bool everseen;		/* Used to despoilify squelch menus */
 };
 
 
@@ -201,7 +204,7 @@ struct object_kind
 /*
  * Information about "artifacts".
  *
- * Note that the save-file only writes "cur_num" to the savefile.
+ * Note that the save-file only writes "status" to the savefile.
  *
  * Note that "max_num" is always "1" (if that artifact "exists")
  */
@@ -234,7 +237,7 @@ struct artifact_type
 	byte level;			/* Artifact level */
 	byte rarity;		/* Artifact rarity */
 
-	byte cur_num;		/* Number created (0 or 1) */
+	byte status;		/* Status of the artifact (created, etc.) */
 	byte max_num;		/* Unused (should be "1") */
 
 	byte activation;	/* Activation to use */
@@ -906,9 +909,6 @@ struct player_type
 
 	bool create_up_stair;	/* Create up stair on next level */
 	bool create_down_stair;	/* Create down stair on next level */
-
-	s16b wy;				/* Dungeon panel */
-	s16b wx;				/* Dungeon panel */
 
 	s32b total_weight;		/* Total weight being carried */
 

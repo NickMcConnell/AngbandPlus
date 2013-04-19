@@ -41,29 +41,29 @@
 /*
  * Name of the version/variant
  */
-#define VERSION_NAME "Angband"
+#define VERSION_NAME "GilAngband"
 
 
 /*
  * Current version string
  */
-#define VERSION_STRING	"3.0.5"
+#define VERSION_STRING	"0.1.0"
 
 
 /*
  * Current version numbers
  */
-#define VERSION_MAJOR	3
-#define VERSION_MINOR	0
-#define VERSION_PATCH	5
+#define VERSION_MAJOR	0
+#define VERSION_MINOR	1
+#define VERSION_PATCH	0
 #define VERSION_EXTRA	0
 
 
 /*
  * Oldest version number that can still be imported
  */
-#define OLD_VERSION_MAJOR	2
-#define OLD_VERSION_MINOR	9
+#define OLD_VERSION_MAJOR	0
+#define OLD_VERSION_MINOR	1
 #define OLD_VERSION_PATCH	0
 
 
@@ -166,7 +166,7 @@
 /*
  * Maximum amount of starting equipment
  */
-#define MAX_START_ITEMS	4
+#define MAX_START_ITEMS	6
 
 
 /*
@@ -272,6 +272,7 @@
 #define MON_SUMMON_ADJ	2		/* Adjust level of summoned creatures */
 #define MON_DRAIN_LIFE	2		/* Percent of player exp drained per hit */
 #define USE_DEVICE      3		/* x> Harder devices x< Easier devices */
+#define FEELING_RATE	100		/* Amount of turns needed to get a level feeling */
 
 /*
  * There is a 1/20 (5%) chance of inflating the requested object_level
@@ -374,11 +375,168 @@
 #define PY_MAX_SPELLS 64
 
 /*
- * Number of spells per book
+ * Maximum books per Realm
  */
-#define SPELLS_PER_BOOK 9
+#define BOOKS_PER_REALM 10
+
+#define SPELL_MAGIC_MISSILE             0
+#define SPELL_DETECT_MONSTERS           1
+#define SPELL_PHASE_DOOR                2
+#define SPELL_LIGHT_AREA                3
+#define SPELL_FIND_TRAPS_DOORS          4
+#define SPELL_CURE_LIGHT_WOUNDS         5
+#define SPELL_TREASURE_DETECTION        6
+#define SPELL_OBJECT_DETECTION          7
+#define SPELL_IDENTIFY                  8
+#define SPELL_DETECT_INVISIBLE          9
+#define SPELL_DETECT_ENCHANTMENT        10
+#define SPELL_STINKING_CLOUD            11
+#define SPELL_LIGHTNING_BOLT            12
+#define SPELL_CONFUSE_MONSTER           13
+#define SPELL_SLEEP_MONSTER             14
+#define SPELL_WONDER                    15
+#define SPELL_FROST_BOLT                16
+#define SPELL_ACID_BOLT                 17
+#define SPELL_FIRE_BOLT                 18
+#define SPELL_TRAP_DOOR_DESTRUCTION     19
+#define SPELL_SPEAR_OF_LIGHT            20
+#define SPELL_TURN_STONE_TO_MUD         21
+#define SPELL_DOOR_CREATION             22
+#define SPELL_EARTHQUAKE                23
+#define SPELL_STAIR_CREATION            24
+#define SPELL_CURE_POISON               25
+#define SPELL_SATISFY_HUNGER            26
+#define SPELL_HEROISM                   27
+#define SPELL_BERSERKER                 28
+#define SPELL_HASTE_SELF                29
+#define SPELL_TELEPORT_SELF             30
+#define SPELL_SLOW_MONSTER              31
+#define SPELL_TELEPORT_OTHER            32
+#define SPELL_TELEPORT_LEVEL            33
+#define SPELL_WORD_OF_RECALL            34
+#define SPELL_POLYMORPH_OTHER           35
+#define SPELL_SHOCK_WAVE                36
+#define SPELL_EXPLOSION                 37
+#define SPELL_CLOUD_KILL                38
+#define SPELL_MASS_SLEEP                39
+#define SPELL_BEDLAM                    40
+#define SPELL_REND_SOUL                 41
+#define SPELL_WORD_OF_DESTRUCTION       42
+#define SPELL_CHAOS_STRIKE              43
+#define SPELL_RESIST_COLD               44
+#define SPELL_RESIST_FIRE               45
+#define SPELL_RESIST_POISON             46
+#define SPELL_RESISTANCE                47
+#define SPELL_SHIELD                    48
+#define SPELL_RUNE_OF_PROTECTION        49
+#define SPELL_RECHARGE_ITEM_I           50
+#define SPELL_ENCHANT_ARMOR             51
+#define SPELL_ENCHANT_WEAPON            52
+#define SPELL_RECHARGE_ITEM_II          53
+#define SPELL_ELEMENTAL_BRAND           54
+#define SPELL_FROST_BALL                55
+#define SPELL_ACID_BALL                 56
+#define SPELL_FIRE_BALL                 57
+#define SPELL_ICE_STORM                 58
+#define SPELL_BANISHMENT                59
+#define SPELL_METEOR_SWARM              60
+#define SPELL_MASS_BANISHMENT           61
+#define SPELL_RIFT                      62
+#define SPELL_MANA_STORM                63
+
+/* Beginners Handbook */
+#define PRAYER_DETECT_EVIL              0
+#define PRAYER_CURE_LIGHT_WOUNDS        1
+#define PRAYER_BLESS                    2
+#define PRAYER_REMOVE_FEAR              3
+#define PRAYER_CALL_LIGHT               4
+#define PRAYER_FIND_TRAPS               5
+#define PRAYER_DETECT_DOORS_STAIRS      6
+#define PRAYER_SLOW_POISON              7
+
+/* Words of Wisdom */
+#define PRAYER_SCARE_MONSTER            8
+#define PRAYER_PORTAL                   9
+#define PRAYER_CURE_SERIOUS_WOUNDS     10
+#define PRAYER_CHANT                   11
+#define PRAYER_SANCTUARY               12
+#define PRAYER_SATISFY_HUNGER          13
+#define PRAYER_REMOVE_CURSE            14
+#define PRAYER_RESIST_HEAT_COLD        15
+
+/* Chants and Blessings */
+#define PRAYER_NEUTRALIZE_POISON       16
+#define PRAYER_ORB_OF_DRAINING         17
+#define PRAYER_CURE_CRITICAL_WOUNDS    18
+#define PRAYER_SENSE_INVISIBLE         19
+#define PRAYER_PROTECTION_FROM_EVIL    20
+#define PRAYER_EARTHQUAKE              21
+#define PRAYER_SENSE_SURROUNDINGS      22
+#define PRAYER_CURE_MORTAL_WOUNDS      23
+#define PRAYER_TURN_UNDEAD             24
+
+/* Exorcism and Dispelling */
+#define PRAYER_PRAYER                  25
+#define PRAYER_DISPEL_UNDEAD           26
+#define PRAYER_HEAL                    27
+#define PRAYER_DISPEL_EVIL             28
+#define PRAYER_GLYPH_OF_WARDING        29
+#define PRAYER_HOLY_WORD               30
+
+/* Godly Insights */
+#define PRAYER_DETECT_MONSTERS         31
+#define PRAYER_DETECTION               32
+#define PRAYER_PERCEPTION              33
+#define PRAYER_PROBING                 34
+#define PRAYER_CLAIRVOYANCE            35
+
+/* Purifications and Healing */
+#define PRAYER_CURE_SERIOUS_WOUNDS2    36
+#define PRAYER_CURE_MORTAL_WOUNDS2     37
+#define PRAYER_HEALING                 38
+#define PRAYER_RESTORATION             39
+#define PRAYER_REMEMBRANCE             40
+
+/* Wrath of God */
+#define PRAYER_DISPEL_UNDEAD2          41
+#define PRAYER_DISPEL_EVIL2            42
+#define PRAYER_BANISH_EVIL             43
+#define PRAYER_WORD_OF_DESTRUCTION     44
+#define PRAYER_ANNIHILATION            45
+
+/* Holy Infusions */
+#define PRAYER_UNBARRING_WAYS          46
+#define PRAYER_RECHARGING              47
+#define PRAYER_DISPEL_CURSE            48
+#define PRAYER_ENCHANT_WEAPON          49
+#define PRAYER_ENCHANT_ARMOUR          50
+#define PRAYER_ELEMENTAL_BRAND         51
+
+/* Ethereal openings */
+#define PRAYER_BLINK                   52
+#define PRAYER_TELEPORT_SELF           53
+#define PRAYER_TELEPORT_OTHER          54
+#define PRAYER_TELEPORT_LEVEL          55
+#define PRAYER_WORD_OF_RECALL          56
+#define PRAYER_ALTER_REALITY           57
 
 
+#define BOOK1(x) (((x) < 0) ? 0 : (x) < 32 ? (1L << (x)) : 0)
+#define BOOK2(x) (((x) < 0) ? 0 : (x) < 32 ? 0 : (1L << ((x) % 32)))
+
+#define BOOK(a, b, c, d, e, f, g, h, i) \
+{ \
+	(BOOK1(a) | BOOK1(b) | BOOK1(c) | BOOK1(d) | BOOK1(e) | \
+	 BOOK1(f) | BOOK1(g) | BOOK1(h) | BOOK1(i)), \
+	(BOOK2(a) | BOOK2(b) | BOOK2(c) | BOOK2(d) | BOOK2(e) | \
+	 BOOK2(f) | BOOK2(g) | BOOK2(h) | BOOK2(i)) \
+}
+
+/* 
+ * Maximum number of spells per book
+ */
+#define SPELLS_PER_BOOK					9
+ 
 /*
  * Flags for player_type.spell_flags[]
  */
@@ -492,17 +650,11 @@
 #define ROW_AC			15
 #define COL_AC			0	/* "Cur AC xxxxx" */
 
-#define ROW_MAXHP		16
-#define COL_MAXHP		0	/* "Max HP xxxxx" */
+#define ROW_HP			16
+#define COL_HP			0	/* "Cur/Max HP xxx/xxx" */
 
-#define ROW_CURHP		17
-#define COL_CURHP		0	/* "Cur HP xxxxx" */
-
-#define ROW_MAXSP		18
-#define COL_MAXSP		0	/* "Max SP xxxxx" */
-
-#define ROW_CURSP		19
-#define COL_CURSP		0	/* "Cur SP xxxxx" */
+#define ROW_SP			17
+#define COL_SP			0	/* "Cur/Max SP xxx/xxx" */
 
 #define ROW_INFO		20
 #define COL_INFO		0	/* "xxxxxxxxxxxx" */
@@ -535,10 +687,13 @@
 #define COL_SPEED		49	/* "Slow (-NN)" or "Fast (+NN)" */
 
 #define ROW_STUDY		(Term->hgt - 1)
-#define COL_STUDY		64	/* "Study" */
+#define COL_STUDY		59	/* "Study" */
 
 #define ROW_DEPTH		(Term->hgt - 1)
 #define COL_DEPTH		70	/* "Lev NNN" / "NNNN ft" */
+
+#define ROW_OPPOSE_ELEMENTS	(Term->hgt - 1)
+#define COL_OPPOSE_ELEMENTS	80	/* "Acid Elec Fire Cold Pois" */
 
 
 /*** General index values ***/
@@ -966,7 +1121,8 @@
 #define SV_MATTOCK			7
 
 /* The "sval" values for TV_HAFTED */
-#define SV_WHIP					2	/* 1d6 */
+#define SV_WOODEN_CLUB			0	/* 2d1 */
+#define SV_WHIP					2	/* 1d3 */
 #define SV_QUARTERSTAFF			3	/* 1d9 */
 #define SV_MACE					5	/* 2d4 */
 #define SV_BALL_AND_CHAIN		6	/* 2d4 */
@@ -1016,6 +1172,7 @@
 #define SV_BLADE_OF_CHAOS		30	/* 6d5 */
 
 /* The "sval" codes for TV_SHIELD */
+#define SV_WOODEN_SHIELD			1
 #define SV_SMALL_LEATHER_SHIELD		2
 #define SV_SMALL_METAL_SHIELD		3
 #define SV_LARGE_LEATHER_SHIELD		4
@@ -1033,12 +1190,14 @@
 #define SV_MORGOTH				50
 
 /* The "sval" codes for TV_BOOTS */
+#define SV_PAIR_OF_LEATHER_SANDALS		1
 #define SV_PAIR_OF_SOFT_LEATHER_BOOTS	2
 #define SV_PAIR_OF_HARD_LEATHER_BOOTS	3
 #define SV_PAIR_OF_METAL_SHOD_BOOTS		6
 
 /* The "sval" codes for TV_CLOAK */
 #define SV_CLOAK					1
+#define SV_ELVEN_CLOAK				3
 #define SV_SHADOW_CLOAK				6
 
 /* The "sval" codes for TV_GLOVES */
@@ -1118,6 +1277,7 @@
 #define SV_AMULET_TRICKERY		20
 #define SV_AMULET_INFRAVISION		21
 #define SV_AMULET_RESIST_LIGHTNING  22
+#define SV_AMULET_INTELLIGENCE  23
 
 
 /* The sval codes for TV_RING */
@@ -1291,7 +1451,7 @@
 #define SV_SCROLL_DETECT_DOOR			29
 #define SV_SCROLL_DETECT_INVIS			30
 /* xxx (detect evil?) */
-#define SV_SCROLL_SATISFY_HUNGER		32
+/* xxx (satisfy hunger) */
 #define SV_SCROLL_BLESSING				33
 #define SV_SCROLL_HOLY_CHANT			34
 #define SV_SCROLL_HOLY_PRAYER			35
@@ -1317,7 +1477,7 @@
 #define SV_POTION_SALT_WATER		5
 #define SV_POTION_POISON			6
 #define SV_POTION_BLINDNESS			7
-/* xxx */
+#define SV_POTION_SATISFY_HUNGER	8
 #define SV_POTION_CONFUSION			9
 /* xxx */
 #define SV_POTION_SLEEP				11
@@ -1391,7 +1551,7 @@
 #define SV_FOOD_RESTORE_STR		17
 #define SV_FOOD_RESTORE_CON		18
 #define SV_FOOD_RESTORING		19
-/* many missing mushrooms */
+#define SV_FOOD_RESTORE_DEX		20
 #define SV_FOOD_BISCUIT			32
 #define SV_FOOD_JERKY			33
 #define SV_FOOD_RATION			35
@@ -1623,12 +1783,22 @@
 #define PR_STATE		0x00100000L	/* Display Extra (State) */
 #define PR_SPEED		0x00200000L	/* Display Extra (Speed) */
 #define PR_STUDY		0x00400000L	/* Display Extra (Study) */
-/* xxx */
-#define PR_EXTRA		0x01000000L	/* Display Extra Info */
-#define PR_BASIC		0x02000000L	/* Display Basic Info */
-/* xxx */
-#define PR_MAP			0x08000000L	/* Display Map */
-/* xxx (many) */
+#define PR_MAP			0x00800000L	/* Display Map */
+#define PR_OPPOSE_ELEMENTS	0x01000000L	/* Display temp. resists */
+#define PR_TEMP_SPELLS		0x02000000L	/* Display temp. spell effects */
+
+/* Display Basic Info */
+#define PR_BASIC \
+	(PR_MISC | PR_TITLE | PR_STATS | PR_LEV |\
+	 PR_EXP | PR_GOLD | PR_ARMOR | PR_HP |\
+	 PR_MANA | PR_DEPTH | PR_HEALTH)
+
+/* Display Extra Info */
+#define PR_EXTRA \
+	(PR_CUT | PR_STUN | PR_HUNGER | PR_BLIND |\
+	 PR_CONFUSED | PR_AFRAID | PR_POISONED | PR_STATE |\
+	 PR_SPEED | PR_STUDY | PR_OPPOSE_ELEMENTS)
+
 
 /*
  * Bit flags for the "p_ptr->window" variable (etc)
@@ -1637,14 +1807,14 @@
 #define PW_EQUIP            0x00000002L /* Display equip/inven */
 #define PW_PLAYER_0         0x00000004L /* Display player (basic) */
 #define PW_PLAYER_1         0x00000008L /* Display player (extra) */
-/* xxx */
-/* xxx */
+#define PW_PLAYER_2         0x00000010L /* Display player (compact) */
+#define PW_MAP              0x00000020L /* Display dungeon map */
 #define PW_MESSAGE          0x00000040L /* Display messages */
 #define PW_OVERHEAD         0x00000080L /* Display overhead view */
 #define PW_MONSTER          0x00000100L /* Display monster recall */
 #define PW_OBJECT           0x00000200L /* Display object recall */
 #define PW_MONLIST          0x00000400L /* Display monster list */
-#define PW_SNAPSHOT         0x00000800L /* Display snap-shot */
+#define PW_STATUS           0x00000800L /* Display status */
 #define PW_SCRIPT_VARS      0x00001000L /* Display script variables */
 #define PW_SCRIPT_SOURCE    0x00002000L /* Display script source */
 #define PW_BORG_1           0x00004000L /* Display borg messages */
@@ -1680,6 +1850,16 @@
 #define CHEST_PARALYZE	0x08
 #define CHEST_EXPLODE	0x10
 #define CHEST_SUMMON	0x20
+
+
+/*
+ * Artifact awareness flags 
+ */
+#define A_STATUS_CREATED		0x01	/* Artifact was created */
+#define A_STATUS_AWARE			0x02	/* Artifact was seen in this game */
+#define A_STATUS_KNOWN			0x04	/* Artifact was *identified* this game */
+#define A_STATUS_HISTORY		0x08	/* Artifact was seen in an historical game */
+#define A_STATUS_MEMORY			0x10	/* Artifact was *identified* in a previous game */
 
 
 /*
@@ -1977,14 +2157,14 @@
 #define RF1_MALE			0x00000004	/* Male gender */
 #define RF1_FEMALE			0x00000008	/* Female gender */
 #define RF1_CHAR_CLEAR		0x00000010	/* Absorbs symbol */
-#define RF1_CHAR_MULTI		0x00000020	/* Changes symbol */
+#define RF1_XXX1			0x00000020	/* (Unused) */
 #define RF1_ATTR_CLEAR		0x00000040	/* Absorbs color */
 #define RF1_ATTR_MULTI		0x00000080	/* Changes color */
 #define RF1_FORCE_DEPTH		0x00000100	/* Start at "correct" depth */
 #define RF1_FORCE_MAXHP		0x00000200	/* Start with max hitpoints */
 #define RF1_FORCE_SLEEP		0x00000400	/* Start out sleeping */
 #define RF1_FORCE_EXTRA		0x00000800	/* Start out something */
-#define RF1_FRIEND			0x00001000	/* Arrive with a friend */
+#define RF1_XXX2			0x00001000	/* (Unused) */
 #define RF1_FRIENDS			0x00002000	/* Arrive with some friends */
 #define RF1_ESCORT			0x00004000	/* Arrive with an escort */
 #define RF1_ESCORTS			0x00008000	/* Arrive with some escorts */
@@ -2010,19 +2190,19 @@
  */
 #define RF2_STUPID			0x00000001	/* Monster is stupid */
 #define RF2_SMART			0x00000002	/* Monster is smart */
-#define RF2_XXX1			0x00000004	/* (?) */
-#define RF2_XXX2			0x00000008	/* (?) */
+#define RF2_HAS_LITE		0x00000004	/* Monster carries light-source */
+#define RF2_XXX1			0x00000008	/* (?) */
 #define RF2_INVISIBLE		0x00000010	/* Monster avoids vision */
 #define RF2_COLD_BLOOD		0x00000020	/* Monster avoids infra */
 #define RF2_EMPTY_MIND		0x00000040	/* Monster avoids telepathy */
 #define RF2_WEIRD_MIND		0x00000080	/* Monster avoids telepathy? */
 #define RF2_MULTIPLY		0x00000100	/* Monster reproduces */
 #define RF2_REGENERATE		0x00000200	/* Monster regenerates */
-#define RF2_XXX3			0x00000400	/* (?) */
-#define RF2_XXX4			0x00000800	/* (?) */
+#define RF2_XXX2			0x00000400	/* (?) */
+#define RF2_XXX3			0x00000800	/* (?) */
 #define RF2_POWERFUL		0x00001000	/* Monster has strong breath */
-#define RF2_XXX5			0x00002000	/* (?) */
-#define RF2_XXX7			0x00004000	/* (?) */
+#define RF2_XXX4			0x00002000	/* (?) */
+#define RF2_XXX5			0x00004000	/* (?) */
 #define RF2_XXX6			0x00008000	/* (?) */
 #define RF2_OPEN_DOOR		0x00010000	/* Monster can open doors */
 #define RF2_BASH_DOOR		0x00020000	/* Monster can bash doors */
@@ -2191,7 +2371,7 @@
  */
 #define RF1_OBVIOUS_MASK \
 	(RF1_UNIQUE | RF1_QUESTOR | RF1_MALE | RF1_FEMALE | \
-	 RF1_FRIEND | RF1_FRIENDS | RF1_ESCORT | RF1_ESCORTS)
+	 RF1_FRIENDS | RF1_ESCORT | RF1_ESCORTS)
 
 /*
  * "race" flags
@@ -2453,7 +2633,7 @@
 #define OPT_show_piles				67
 #define OPT_center_player			68
 #define OPT_run_avoid_center		69
-#define OPT_scroll_target			70
+/* xxx */
 #define OPT_auto_more				71
 #define OPT_smart_monsters			72
 #define OPT_smart_packs				73
@@ -2573,7 +2753,7 @@
 #define show_piles				op_ptr->opt[OPT_show_piles]
 #define center_player			op_ptr->opt[OPT_center_player]
 #define run_avoid_center		op_ptr->opt[OPT_run_avoid_center]
-#define scroll_target			op_ptr->opt[OPT_scroll_target]
+/* xxx */
 #define auto_more				op_ptr->opt[OPT_auto_more]
 #define smart_monsters			op_ptr->opt[OPT_smart_monsters]
 #define smart_packs				op_ptr->opt[OPT_smart_packs]
@@ -2659,6 +2839,16 @@
 	(((T)->ident & (IDENT_KNOWN)) || \
 	 ((k_info[(T)->k_idx].flags3 & (TR3_EASY_KNOW)) && \
 	  k_info[(T)->k_idx].aware))
+
+
+/*
+ * Determine if a given artifact's abilties are "known"
+ * Test One -- Check for A_STATUS_KNOWN
+ * Test Two -- Check for no random artifacts, and A_STATUS_MEMORY
+ */
+#define artifact_known_p(T) \
+	(((T)->status & (A_STATUS_KNOWN)) || \
+	 (!adult_rand_artifacts && ((T)->status & (A_STATUS_MEMORY))))
 
 
 /*
@@ -2790,8 +2980,8 @@
  * Pre-storing this into a cave_info flag would be nice.  XXX XXX
  */
 #define panel_contains(Y,X) \
-	(((unsigned)((Y) - p_ptr->wy) < (unsigned)(SCREEN_HGT)) && \
-	 ((unsigned)((X) - p_ptr->wx) < (unsigned)(SCREEN_WID)))
+	(((unsigned)((Y) - Term->offset_y) < (unsigned)(SCREEN_HGT)) && \
+	 ((unsigned)((X) - Term->offset_x) < (unsigned)(SCREEN_WID)))
 
 
 

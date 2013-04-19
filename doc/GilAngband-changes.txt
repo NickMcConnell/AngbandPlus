@@ -1,0 +1,73 @@
+v0.1.0 (Changes from Vanilla v3.0.5)
+-------------------------------------
+ + Applied all CVS-changes from Vanilla Angband (upto 08/09/2004)
+ + Added some monsters from EyAngband
+ 	- Innocent bystander
+ 	- Idle workman
+ 	- Town Bully
+ 	- Killer Bee
+ 	- Huge Cockroach
+ 	- Owlbear
+ 	- Giant Cockroach
+ 	- Knight Archers
+ 	- Creeping Gems
+ + Added some objects from EyAngband
+ 	- Leather Sandals
+ 	- Wooden Club
+ 	- Wooden Shield
+ 	- Elven Cloak
+ 	- Potion of Satisfy Hunger (in stead of a scroll)
+ 	- Mushroom of Restore Dexterity
+ 	- Amulet of Intelligence
+ + The "Study"-flag now tells you how many spells you can learn (taken from 
+	EyAngband by Eytan Zweig)
+ + Removed unused "flags"
+ 	- CHAR_MULTI
+ 	- FRIEND
+ 	- HURT_FIRE
+ 	- HURT_COLD
+ 	- BO_POIS
+ + Adds artifact memory. If you *identify* an artifact in one game, all 
+	subsequent games from the same savefile will know the artifact's abilities 
+	(unless randarts are used). ("Artifact Memory patch" by Eytan Zweig)
+ + Changed dungeon generation so that vaults may be flipped on the x and y 
+	axises, allowing  greater variation in dungeon appearance.  ("Vault Flipping 
+	patch" by Eytan Zweig)
+ + Changed the way the level feeling delay is calculated, so time in the town 
+	has no effect  on it. In other words, if you go down to the dungeon, spend 
+	some time in there, go back to the town, and return to the dungeon, the 
+	appearance of the level feeling will depend on the last level you were in in 
+	the dungeon, and not on the town. ("Levels Feeling patch" by Eytan Zweig)
+ + Changed the way level feelings are affected by pits to be dependant on the 
+	type of pit/nest and the depth. ("Monster Pit Feelings patch" by 
+	Eytan Zweig)
+ + The option "Prompt before picking up" altered so it only prompts when the 
+	player slows down after picking up an item (based upon "Heavy Prompt Patch" 
+	by Eytan Zweig)
+ + Allow the player to define what items should be automatically destroyed by 
+	the game. Known worthless items (like potions of weakness after you found 
+	out what they do) can be destroyed automatically at the time of creation. 
+	Items that require identification before you know if they are good or bad 
+	like weapons and armor can be destroyed automatically as soon as the player 
+	(pseudo-)identifies them. ("Auto-squelch patch" by David T. Blackston)
+ + Main screen shows # of experience points left to move to another level 
+	instead of current # of experience points (taken from EyAngband 
+	by Eytan Zweig)
+ + HP and SP both each take only one line (taken from EyAngband by Eytan Zweig)
+ + Altered the options to my own flavour
+ + Changed the door from "Home" to a door in stead of number 8
+ + Re-ordered the monsters and objects
+ 	- All monsters from the same depth are grouped together
+ 	- All different types of objects are grouped together with some unused slots 	
+		per group to add new objects without breaking savefile compatibility
+	- Removed unused object types
+ 	- Artifact lightsources are now marked as potions ("!" instead of "~"; makes 
+		more sense for both the Phial as the Arkenstone)
+ + The monsters who have the HAS_LITE flag set from r_info.txt will have a torch 
+	radius around them. Currently the monsters who you would expect to have 
+	light, do. They include innately lit monsters (light hounds, fire vortex, 
+	etc), and monsters who would carry light (human monsters like mages, 
+	paladins, priests, etc). Most towns people carry lite. ("Monster Lite patch" 
+	by Dr. Andrew White; slighlty modified so it isn't a compile-option any 
+	longer)
+ + Removed the lua-scripting support

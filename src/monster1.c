@@ -630,6 +630,7 @@ static void describe_monster_abilities(int r_idx, const monster_lore *l_ptr)
 
 	/* Collect special abilities. */
 	vn = 0;
+    if (l_ptr->flags2 & RF2_HAS_LITE)  vp[vn++] = "illuminate the dungeon";
 	if (l_ptr->flags2 & RF2_OPEN_DOOR) vp[vn++] = "open doors";
 	if (l_ptr->flags2 & RF2_BASH_DOOR) vp[vn++] = "bash down doors";
 	if (l_ptr->flags2 & RF2_PASS_WALL) vp[vn++] = "pass through walls";
@@ -875,7 +876,7 @@ static void describe_monster_abilities(int r_idx, const monster_lore *l_ptr)
 	}
 
 	/* Describe friends */
-	else if ((l_ptr->flags1 & RF1_FRIEND) || (l_ptr->flags1 & RF1_FRIENDS))
+	else if (l_ptr->flags1 & RF1_FRIENDS)
 	{
 		text_out(format("%^s usually appears in groups.  ",
 		            wd_he[msex]));
@@ -1266,7 +1267,6 @@ void describe_monster(int r_idx, bool spoilers)
 
 	/* Assume some "obvious" flags */
 	lore.flags1 |= (r_ptr->flags1 & RF1_OBVIOUS_MASK);
-
 
 	/* Killing a monster reveals some properties */
 	if (lore.tkills)

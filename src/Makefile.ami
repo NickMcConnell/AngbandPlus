@@ -23,14 +23,13 @@ OBJS = \
 
 OBJS2 = \
   store.o birth.o load.o \
-  wizard1.o wizard2.o obj-info.o \
+  wizard1.o wizard2.o squelch.o obj-info.o \
   generate.o dungeon.o init1.o init2.o randart.o \
-  script.o use-obj.o x-spell.o l-misc.o l-monst.o l-object.o \
-  l-player.o l-random.o l-spell.o l-ui.o \
+  use-obj.o  \
   sound-ami.o main-ami.o main.o
 
 LIBS = LIB sc:lib/reqtools.lib LIB sc:lib/scmnb.lib LIB sc:lib/sc.lib \
-  LIB sc:lib/amiga.lib LIB lua/lua.lib
+  LIB sc:lib/amiga.lib
 
 #
 
@@ -115,6 +114,7 @@ util.o: util.c $(INCS)
 variable.o: variable.c $(INCS)
 wizard1.o: wizard1.c $(INCS)
 wizard2.o: wizard2.c $(INCS)
+squelch.o: squelch.c $(INCS)
 xtra1.o: xtra1.c $(INCS)
 xtra2.o: xtra2.c $(INCS)
 z-form.o: z-form.c $(HDRS) z-form.h z-util.h z-virt.h

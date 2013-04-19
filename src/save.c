@@ -347,7 +347,7 @@ static errr wr_savefile(void)
 	for (i = 0; i < tmp16u; i++)
 	{
 		artifact_type *a_ptr = &a_info[i];
-		wr_byte(a_ptr->cur_num);
+		wr_byte(a_ptr->status);
 		wr_byte(0);
 		wr_byte(0);
 		wr_byte(0);
@@ -828,6 +828,8 @@ static void wr_xtra(int k_idx)
 
 	if (k_ptr->aware) tmp8u |= 0x01;
 	if (k_ptr->tried) tmp8u |= 0x02;
+	if (k_ptr->squelch) tmp8u |= 0x04;
+	if ((k_ptr->everseen) || (k_ptr->aware)) tmp8u |= 0x08;
 
 	wr_byte(tmp8u);
 }
@@ -1101,8 +1103,12 @@ static void wr_extra(void)
 	wr_byte(0);	/* oops */
 	wr_byte(0);
 
+	/* Squelch bytes */
+	for (i = 0; i < 24; i++) wr_byte(squelch_level[i]);
+	wr_byte(auto_destroy);
+	
 	/* Future use */
-	for (i = 0; i < 10; i++) wr_u32b(0L);
+	for (i = 0; i < 15; i++) wr_byte(0);
 
 
 	/* Random artifact version */
@@ -1136,7 +1142,7 @@ static void wr_extra(void)
 	wr_byte(feeling);
 
 	/* Turn of last "feeling" */
-	wr_s32b(old_turn);
+	wr_s32b(feeling_counter);
 
 	/* Current turn */
 	wr_s32b(turn);
@@ -1450,7 +1456,7 @@ static bool wr_savefile_new(void)
 	for (i = 0; i < tmp16u; i++)
 	{
 		artifact_type *a_ptr = &a_info[i];
-		wr_byte(a_ptr->cur_num);
+		wr_byte(a_ptr->status);
 		wr_byte(0);
 		wr_byte(0);
 		wr_byte(0);
