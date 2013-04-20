@@ -183,137 +183,74 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 	/* Some "weapons" and "ammo" do extra damage */
 	switch (o_ptr->tval)
 	{
-		case TV_SHOT:
-		case TV_ARROW:
-		case TV_BOLT:
-		case TV_HAFTED:
-		case TV_POLEARM:
-		case TV_AXE:
-		case TV_SWORD:
-		case TV_DIGGING:
+		case TV_SHOT: case TV_ARROW: case TV_BOLT: case TV_HAFTED:
+		case TV_POLEARM: case TV_AXE: case TV_SWORD: case TV_DIGGING:
 		{
-			/* Execute Dragon */
 			if ((f1 & (TR1_KILL_DRAGON)) &&
 			    (r_ptr->flags3 & (RF3_DRAGON)))
 			{
-				if (m_ptr->ml)
-				{
-					r_ptr->r_flags3 |= (RF3_DRAGON);
-				}
+				if (m_ptr->ml) r_ptr->r_flags3 |= (RF3_DRAGON);
+
+				/* set the damage multiplier */
+				if (mult < 5) mult = 5;
+				else mult += 2;
+			}
+
+			if ((f1 & (TR1_BRAND_FIRE)) &&
+			    (r_ptr->flags3 & (RF3_HURT_FIRE)) &&
+			    !(r_ptr->flags3 & (RF3_IM_FIRE)))
+			{
+				if (m_ptr->ml) r_ptr->r_flags3 |= (RF3_HURT_FIRE);
 
 				if (mult < 5) mult = 5;
 				else mult += 2;
 			}
 
-			/* Brand (Fire) */
-			if (f1 & (TR1_BRAND_FIRE))
+			if ((f1 & (TR1_BRAND_COLD)) &&
+			    (r_ptr->flags3 & (RF3_HURT_COLD)) &&
+			    !(r_ptr->flags3 & (RF3_IM_COLD)))
 			{
-				if (r_ptr->flags3 & (RF3_IM_FIRE))
-				{
-					mult -= 1;
-					if (m_ptr->ml)
-					{
-						r_ptr->r_flags3 |= (RF3_IM_FIRE);
-					}
-				}
-				/* notice the vulnerability */
-				else if (r_ptr->flags3 & (RF3_HURT_FIRE))
-				{
-					if (m_ptr->ml)
-					{
-						r_ptr->r_flags3 |= (RF3_HURT_FIRE);
-					}
-					if (mult < 5) mult = 5;
-					else mult += 2;
-				}
-				else
-				{
-					if (mult < 3) mult = 3;
-					else mult += 1;
-				}
+				if (m_ptr->ml) r_ptr->r_flags3 |= (RF3_HURT_COLD);
+
+				if (mult < 5) mult = 5;
+				else mult += 2;
 			}
 
-			/* Brand (Cold) */
-			if (f1 & (TR1_BRAND_COLD))
+			if ((f1 & (TR1_BRAND_FIRE)) &&
+			    !(r_ptr->flags3 & (RF3_HURT_FIRE)) &&
+			    !(r_ptr->flags3 & (RF3_IM_FIRE)))
 			{
-				if (r_ptr->flags3 & (RF3_IM_COLD))
-				{
-					mult -= 1;
-					if (m_ptr->ml)
-					{
-						r_ptr->r_flags3 |= (RF3_IM_COLD);
-					}
-				}
-				else if (r_ptr->flags3 & (RF3_HURT_COLD))
-				{
-					if (m_ptr->ml)
-					{
-						r_ptr->r_flags3 |= (RF3_HURT_COLD);
-					}
-					if (mult < 5) mult = 5;
-					else mult += 2;
-				}
-				else
-				{
-					if (mult < 3) mult = 3;
-					else mult += 1;
-				}
+				if (mult < 3) mult = 3;
+				else mult += 1;
 			}
 
-			/* Brand (Acid) */
-			if (f1 & (TR1_BRAND_ACID))
+			if ((f1 & (TR1_BRAND_COLD)) &&
+			    !(r_ptr->flags3 & (RF3_HURT_COLD)) &&
+			    !(r_ptr->flags3 & (RF3_IM_COLD)))
 			{
-				/* Notice immunity */
-				if (r_ptr->flags3 & (RF3_IM_ACID))
-				{
-					mult -= 1;
-					if (m_ptr->ml)
-					{
-						r_ptr->r_flags3 |= (RF3_IM_ACID);
-					}
-				}
-				/* Otherwise, take the damage */
-				else
-				{
-					if (mult < 3) mult = 3;
-					else mult += 1;
-				}
+				if (mult < 3) mult = 3;
+				else mult += 1;
 			}
 
-			/* Brand (Elec) */
-			if (f1 & (TR1_BRAND_ELEC))
+			if ((f1 & (TR1_BRAND_ACID)) &&
+			    !(r_ptr->flags3 & (RF3_IM_ACID)))
 			{
-				if (r_ptr->flags3 & (RF3_IM_ELEC))
-				{
-					mult -= 1;
-					if (m_ptr->ml)
-					{
-						r_ptr->r_flags3 |= (RF3_IM_ELEC);
-					}
-				}
-				else
-				{
-					if (mult < 3) mult = 3;
-					else mult += 1;
-				}
+				if (mult < 3) mult = 3;
+				else mult += 1;
 			}
 
-			/* Brand (Poison) - Zangband*/
-			if (f1 & (TR1_BRAND_POIS))
+			if ((f1 & (TR1_BRAND_ELEC)) &&
+			    !(r_ptr->flags3 & (RF3_IM_ELEC)))
 			{
-				if (r_ptr->flags3 & (RF3_IM_POIS))
-				{
-					mult -= 1;
-					if (m_ptr->ml)
-					{
-						r_ptr->r_flags3 |= (RF3_IM_POIS);
-					}
-				}
-				else
-				{
-					if (mult < 3) mult = 3;
-					else mult += 1;
-				}
+				if (mult < 3) mult = 3;
+				else mult += 1;
+			}
+
+			if ((f1 & (TR1_BRAND_POIS)) &&
+			    !(r_ptr->flags3 & (RF3_IM_POIS)))
+			{
+				if (mult < 3) mult = 3;
+				else mult += 1;
 			}
 
 			if ((f1 & (TR1_SLAY_HUMANOID)) && 
@@ -326,126 +263,131 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 			if ((f1 & (TR1_SLAY_ELEMENTAL)) &&
 			    (r_ptr->flags3 & (RF3_ELEMENTAL)))
 			{
-				if (m_ptr->ml)
-				{
-					r_ptr->r_flags3 |= (RF3_ELEMENTAL);
-				}
+				if (m_ptr->ml) r_ptr->r_flags3 |= (RF3_ELEMENTAL);
 
 				if (mult < 3) mult = 3;
 				else mult += 1;
 			}
 
-			/* Slay Undead */
 			if ((f1 & (TR1_SLAY_UNDEAD)) &&
 			    (r_ptr->flags3 & (RF3_UNDEAD)))
 			{
-				if (m_ptr->ml)
-				{
-					r_ptr->r_flags3 |= (RF3_UNDEAD);
-				}
+				if (m_ptr->ml) r_ptr->r_flags3 |= (RF3_UNDEAD);
 
 				if (mult < 3) mult = 3;
 				else mult += 1;
 			}
 
-			/* Slay Demon */
 			if ((f1 & (TR1_SLAY_DEMON)) &&
 			    (r_ptr->flags3 & (RF3_DEMON)))
 			{
-				if (m_ptr->ml)
-				{
-					r_ptr->r_flags3 |= (RF3_DEMON);
-				}
+				if (m_ptr->ml) r_ptr->r_flags3 |= (RF3_DEMON);
 
 				if (mult < 3) mult = 3;
 				else mult += 1;
 			}
 
-			/* Slay Orc */
 			if ((f1 & (TR1_SLAY_ORC)) &&
-			    (r_ptr->flags3 & (RF3_ORC)))
+                            (r_ptr->flags3 & (RF3_ORC)))
 			{
-				if (m_ptr->ml)
-				{
-					r_ptr->r_flags3 |= (RF3_ORC);
-				}
+				if (m_ptr->ml) r_ptr->r_flags3 |= (RF3_ORC);
 
 				if (mult < 3) mult = 3;
 				else mult += 1;
 			}
 
-			/* Slay Troll */
 			if ((f1 & (TR1_SLAY_TROLL)) &&
 			    (r_ptr->flags3 & (RF3_TROLL)))
 			{
-				if (m_ptr->ml)
-				{
-					r_ptr->r_flags3 |= (RF3_TROLL);
-				}
+				if (m_ptr->ml) r_ptr->r_flags3 |= (RF3_TROLL);
 
 				if (mult < 3) mult = 3;
 				else mult += 1;
 			}
 
-			/* Slay Giant */
 			if ((f1 & (TR1_SLAY_GIANT)) &&
 			    (r_ptr->flags3 & (RF3_GIANT)))
 			{
-				if (m_ptr->ml)
-				{
-					r_ptr->r_flags3 |= (RF3_GIANT);
-				}
+				if (m_ptr->ml) r_ptr->r_flags3 |= (RF3_GIANT);
 
 				if (mult < 3) mult = 3;
 				else mult += 1;
 			}
 
-			/* Slay Dragon  */
 			if ((f1 & (TR1_SLAY_DRAGON)) &&
 			    (r_ptr->flags3 & (RF3_DRAGON)))
 			{
-				if (m_ptr->ml)
-				{
-					r_ptr->r_flags3 |= (RF3_DRAGON);
-				}
+				if (m_ptr->ml) r_ptr->r_flags3 |= (RF3_DRAGON);
 
 				if (mult < 3) mult = 3;
 				else mult += 1;
 			}
 
-			/* Slay Animal */
 			if ((f1 & (TR1_SLAY_ANIMAL)) &&
 			    (r_ptr->flags3 & (RF3_ANIMAL)))
 			{
-				if (m_ptr->ml)
-				{
-					r_ptr->r_flags3 |= (RF3_ANIMAL);
-				}
+				if (m_ptr->ml) r_ptr->r_flags3 |= (RF3_ANIMAL);
 
 				if (mult < 2) mult = 2;
 				else mult += 1;
 			}
 
-			/* Slay Evil */
 			if ((f1 & (TR1_SLAY_EVIL)) &&
 			    (r_ptr->flags3 & (RF3_EVIL)))
 			{
-				if (m_ptr->ml)
-				{
-					r_ptr->r_flags3 |= (RF3_EVIL);
-				}
+				if (m_ptr->ml) r_ptr->r_flags3 |= (RF3_EVIL);
 
 				if (mult < 2) mult = 2;
 				else mult += 1;
 			}
 
 			/* Chaotic weapons hurt creatures of Chaos -- G */
-			if (f1 & (TR1_CHAOTIC) &&
-			  ((r_ptr->flags3 & (RF3_RES_CHAO)) ||
-			  (r_ptr->flags4 & (RF4_BR_CHAO))))
+			if ((f1 & (TR1_CHAOTIC)) &&
+			    ((r_ptr->flags3 & (RF3_RES_CHAO)) ||
+			     (r_ptr->flags4 & (RF4_BR_CHAO))))
 			{
-					if (mult < 2) mult = 2;
-					else mult += 1;
+				if (m_ptr->ml && (r_ptr->flags3 & (RF3_RES_CHAO)))
+					r_ptr->flags3 |= (RF3_RES_CHAO);
+
+				if (mult < 2) mult = 2;
+				else mult += 1;
+			}
+
+			if ((f1 & (TR1_BRAND_FIRE)) &&
+			    !(r_ptr->flags3 & (RF3_HURT_FIRE)) &&
+			    (r_ptr->flags3 & (RF3_IM_FIRE)))
+			{
+				if (m_ptr->ml) r_ptr->r_flags3 |= (RF3_IM_FIRE);
+				mult -= 1;
+			}
+
+			if ((f1 & (TR1_BRAND_COLD)) &&
+			    !(r_ptr->flags3 & (RF3_HURT_COLD)) &&
+			    (r_ptr->flags3 & (RF3_IM_COLD)))
+			{
+				if (m_ptr->ml) r_ptr->r_flags3 |= (RF3_IM_COLD);
+				mult -= 1;
+			}
+
+			if ((f1 & (TR1_BRAND_ACID)) &&
+			    (r_ptr->flags3 & (RF3_IM_ACID)))
+			{
+				if (m_ptr->ml) r_ptr->r_flags3 |= (RF3_IM_ACID);
+				mult -= 1;
+			}
+
+			if ((f1 & (TR1_BRAND_ELEC)) &&
+			    (r_ptr->flags3 & (RF3_IM_ELEC)))
+			{
+				if (m_ptr->ml) r_ptr->r_flags3 |= (RF3_IM_ELEC);
+				mult -= 1;
+			}
+
+			if ((f1 & (TR1_BRAND_POIS)) &&
+			    (r_ptr->flags3 & (RF3_IM_POIS)))
+			{
+				if (m_ptr->ml) r_ptr->r_flags3 |= (RF3_IM_POIS);
+				mult -= 1;
 			}
 			break;
 		}
@@ -1362,7 +1304,7 @@ void py_attack(int y, int x)
 					drain_result = 0;
 			}
 
-			if (f1 & TR1_VORPAL && (randint((o_ptr->name1 == ART_VORPAL_BLADE)?3:6) == 1))
+			if (f1 & TR1_VORPAL && (randint((o_ptr->name1 == ART_VORPAL_BLADE)?3:5) == 1))
 				vorpal_cut = TRUE;
 			else vorpal_cut = FALSE;
 
@@ -1641,6 +1583,7 @@ void py_attack(int y, int x)
 			    && (randint(90) > r_ptr->level))
 			{
 				if (!((r_ptr->flags1 & RF1_UNIQUE) ||
+				      (r_ptr->flags3 & RF3_RES_CHAO) ||
 				      (r_ptr->flags4 & RF4_BR_CHAO) ||
 				      (r_ptr->flags1 & RF1_QUESTOR)))
 				{

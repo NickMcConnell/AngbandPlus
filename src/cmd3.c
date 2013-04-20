@@ -454,7 +454,12 @@ void do_cmd_drop(void)
     p_ptr->redraw |= (PR_EQUIPPY);
 }
 
-
+#if 0
+/*
+ * Commented out, since I changed the XP-for-book-destruction to include
+ * books of any value, instead of deleted just in case I want to use it
+ * again someday. -- Gumby
+ */
 static bool high_level_book(object_type * o_ptr)
 {
     if ((o_ptr->tval == TV_LIFE_BOOK) || (o_ptr->tval == TV_SORCERY_BOOK) ||
@@ -466,7 +471,7 @@ static bool high_level_book(object_type * o_ptr)
         }
         return FALSE;
 }
-
+#endif
 
 /*
  * Destroy an item
@@ -574,15 +579,28 @@ void do_cmd_destroy(void)
 	/* Message */
 	msg_format("You destroy %s.", o_name);
 
-    if (high_level_book(o_ptr))
+    /*
+     * Warriors and Weaponmasters get XP for destroying spellbooks of any
+     * realm, while Priests and Paladins only gain XP for destroying books
+     * of the realm opposite of their realm1. This bonus is no longer
+     * limited to the dungeon-only books - but the books *cannot* have been
+     * bought in a store (or stacked with storebought books), to prevent a
+     * truly horrendous abuse. :) -- Gumby.
+     */
+    if ((o_ptr->tval >= TV_LIFE_BOOK) && (o_ptr->tval <= TV_ARCANE_BOOK) &&
+        !(o_ptr->ident & (IDENT_STOREB)))
     {
         bool gain_expr = FALSE;
-        if (p_ptr->pclass == CLASS_WARRIOR) gain_expr = TRUE;
+
+        if (p_ptr->pclass == CLASS_WARRIOR)
+	{
+		gain_expr = TRUE;
+	}
         else if (p_ptr->pclass == CLASS_PALADIN)
         {
             if (p_ptr->realm1 == REALM_LIFE)
             {
-                if (o_ptr->tval != TV_LIFE_BOOK) gain_expr = TRUE;
+                if (o_ptr->tval == TV_DEATH_BOOK) gain_expr = TRUE;
             }
             else
             {
@@ -591,7 +609,6 @@ void do_cmd_destroy(void)
         }
 
         if ((gain_expr) && (p_ptr->exp < PY_MAX_EXP))
-        
         {
 	/*
 	 * Wanted to make it actually worthwhile for Warriors and Paladins

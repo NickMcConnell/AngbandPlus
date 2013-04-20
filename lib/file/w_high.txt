@@ -1,4 +1,4 @@
-77
+76
 ******** BUFFER LINE *********************************** DO NOT REMOVE *******
 of Ultimate Might
 'Slayer'
@@ -18,7 +18,6 @@ of Destruction
 'Quietus'
 'Wraithverge'
 'Arc of Death'
-of Death
 'Devastator'
 'Excsymyr'
 'Vorax'

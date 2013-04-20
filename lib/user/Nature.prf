@@ -1,13 +1,13 @@
 # Nature.prf
 #
-# TAB - Whirlwind Attack    F1 - Lightning Bolt      SF1 - Cure Wound/Poison
+# TAB - Whirlwind Attack    F1 - Lightning Bolt      SF1 - Pesticide
 #   [ - Prot. fr. Corrosion F2 - Frost Bolt          SF2 - Summon Animal
 #   ] - Elemental Branding  F3 - Entangle            SF3 - Earthquake
 #   ' - Nature Awareness    F4 - Blizzard
 #   " - Stone Tell          F5 - Lightning Storm
 #   ; - Animal Detection    F6 - Whirlpool
 #   : - Detect Doors/Traps  F7 - Call Sunlight
-#   h - First Aid           F8 - Nature's Wrath
+#   h - Magical Poultice    F8 - Nature's Wrath
 #   H - Herbal Healing      F9 - Resist Environment
 #   J - Foraging           F10 - Resistance
 #   n - Door Building      F11 - Stone Skin
@@ -23,7 +23,7 @@ A:m4b
 P:\t
 
 # [ - Protection from Corrosion
-A:m3h
+A:m2h
 C:0:[
 
 # ] - Elemental Branding
@@ -46,12 +46,12 @@ C:0:;
 A:m1c
 C:0::
 
-# h - First Aid
-A:m1b
+# h - Magical Poultice
+A:m1h
 C:0:h
 
 # H - Herbal Healing
-A:m2h
+A:m3h
 C:0:H
 
 # J - Foraging
@@ -140,8 +140,8 @@ P:^_x86\r
 
 # Misc
 
-# SHIFT-F1 - Cure Wounds/Poison
-A:m1h
+# SHIFT-F1 - Pesticide
+A:m1b
 P:^_Sx54\r
 
 # SHIFT-F2 - Summon Animal

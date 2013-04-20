@@ -231,7 +231,6 @@ int get_rnd_q_monster(int q_idx)
 		 * from being selected for quests. Such monsters are almost
 		 * always too weak individually. -- Gumby
 		 */
-		if (r_info[r_idx].flags1 & (RF1_FRIEND))   return (0);
 		if (r_info[r_idx].flags1 & (RF1_FRIENDS))  return (0);
 		if (r_info[r_idx].flags1 & (RF1_ESCORT))   return (0);
 		if (r_info[r_idx].flags1 & (RF1_ESCORTS))  return (0);

@@ -245,42 +245,42 @@ byte adj_chr_gold[] =
 {
 	130     /* 3 */,
 	125     /* 4 */,
-	122     /* 5 */,
-	120     /* 6 */,
-	118     /* 7 */,
-	116     /* 8 */,
-	114     /* 9 */,
-	112     /* 10 */,
-	110     /* 11 */,
+	120     /* 5 */,
+	118     /* 6 */,
+	116     /* 7 */,
+	114     /* 8 */,
+	112     /* 9 */,
+	110     /* 10 */,
+	109     /* 11 */,
 	108     /* 12 */,
-	106     /* 13 */,
-	104     /* 14 */,
-	103     /* 15 */,
-	102     /* 16 */,
-	101     /* 17 */,
-	100     /* 18/00-18/09 */,
-	99      /* 18/10-18/19 */,
-	98      /* 18/20-18/29 */,
-	97      /* 18/30-18/39 */,
-	96      /* 18/40-18/49 */,
-	95      /* 18/50-18/59 */,
-	94      /* 18/60-18/69 */,
-	93      /* 18/70-18/79 */,
-	92      /* 18/80-18/89 */,
-	91      /* 18/90-18/99 */,
-	90      /* 18/100-18/109 */,
-	89      /* 18/110-18/119 */,
-	88      /* 18/120-18/129 */,
-	87      /* 18/130-18/139 */,
-	86      /* 18/140-18/149 */,
-	85      /* 18/150-18/159 */,
-	84      /* 18/160-18/169 */,
-	83      /* 18/170-18/179 */,
-	82      /* 18/180-18/189 */,
-	81      /* 18/190-18/199 */,
-	80      /* 18/200-18/209 */,
-	79      /* 18/210-18/219 */,
-	78      /* 18/220+ */
+	107     /* 13 */,
+	106     /* 14 */,
+	105     /* 15 */,
+	104     /* 16 */,
+	103     /* 17 */,
+	102     /* 18/00-18/09 */,
+	101     /* 18/10-18/19 */,
+	100     /* 18/20-18/29 */,
+	99      /* 18/30-18/39 */,
+	98      /* 18/40-18/49 */,
+	97      /* 18/50-18/59 */,
+	96      /* 18/60-18/69 */,
+	95      /* 18/70-18/79 */,
+	94      /* 18/80-18/89 */,
+	93      /* 18/90-18/99 */,
+	92      /* 18/100-18/109 */,
+	91      /* 18/110-18/119 */,
+	90      /* 18/120-18/129 */,
+	89      /* 18/130-18/139 */,
+	88      /* 18/140-18/149 */,
+	87      /* 18/150-18/159 */,
+	86      /* 18/160-18/169 */,
+	85      /* 18/170-18/179 */,
+	84      /* 18/180-18/189 */,
+	83      /* 18/190-18/199 */,
+	82      /* 18/200-18/209 */,
+	81      /* 18/210-18/219 */,
+	80      /* 18/220+ */
 };
 
 
@@ -1381,36 +1381,36 @@ player_race race_info[MAX_RACES] =
 	},
 	{
 		"Half-Elf",
-		{ -1,  1,  1,  1, -1,  1 },
-		2,  3,  3,  1, 6,  11, -1,  5,
+		{ 0,  1,  1,  2, -1,  1 },
+		2,  3,  3,  2, 6,  11, -1,  5,
 		9,  110,
 		24, 16,
 		66,  6, 130, 15,
 		62,  6, 100, 10,
-		2,
+		3,
                 0x7FF + CLASS_MASK(CLASS_WEAPONMASTER),
 	},
 	{
 		"Elf",
-		{ -1,  2,  2,  1, -2,  2 },
-		5,  6,  6,  2, 8,  12, -5, 15,
+		{ -1,  2,  1,  3, -2,  2 },
+		5,  6,  6,  4, 8,  12, -5, 15,
 		8,  120,
 		75, 75,
 		60,  4, 100,  6,
 		54,  4, 80,  6,
-		3,
+		4,
                 0x75F + CLASS_MASK(CLASS_WEAPONMASTER),
 
 	},
 	{
 		"Hobbit",
-		{ -2,  2,  1,  3,  2,  1 },
-		15, 18, 18, 5, 12,  15, -10, 20,
+		{ -2,  1,  1,  2,  2,  2 },
+		15, 18, 18, 4, 12,  15, -10, 20,
 		7,  110,
 		21, 12,
 		36,  3, 60,  3,
 		33,  3, 50,  3,
-		4,
+		3,
                 0x40B + CLASS_MASK(CLASS_WEAPONMASTER),
 	},
 	{
@@ -1450,7 +1450,7 @@ player_race race_info[MAX_RACES] =
 		"Half-Troll",
 		{ 4, -4, -2, -4,  3, -6 },
 		-5, -8, -8, -2,  -1, 5, 20, -10,
-		12,  137,
+		12,  135,
 		20, 10,
 		96, 10, 250, 50,
 		84,  8, 225, 40,
@@ -1461,7 +1461,7 @@ player_race race_info[MAX_RACES] =
 		"Gambolt",
 		{ -1, 0, 0, 5, -1, 5 },
 		0, 0, 20, 5, 15, 25, 10, 0,
-		8, 150,
+		8, 130,
 		14, 6,
 		90, 10, 170, 15,
 		82, 10, 160, 10,
@@ -1526,7 +1526,7 @@ player_race race_info[MAX_RACES] =
 	{
 		"Cyclops",
 		{ 4, -3, -3, -3, 4, -6 },
-		-4, -5, -5, -2, -2, 5, 20, 12,
+		-4, -5, -5, -2, -2, 5, 20, -10,
 		13, 130,
 		50, 24,
 		92, 10, 255, 60,
@@ -1816,16 +1816,7 @@ player_class class_info[MAX_CLASS] =
 /*
  * Hack -- the spell information table.
  *
- *   Class Name
- *
- *   Spell Book
- *   Spell Xtra
- *
- *   Spell Stat,
- *   Spell Type,
- *
- *   Spell Level,
- *   Spell Encumbrance,
+ * spell_book, spell_xtra, spell_stat, spell_type, spell_level, spell_weight
  *
  *   Array of { Lev, Mana, Fail, Exp/Lev }
  */
@@ -1833,15 +1824,7 @@ player_magic magic_info[MAX_CLASS] =
 {
 	{
 		/*** Warrior ***/
-
-		0,
-		0,
-
-		A_STR,
-		0,
-
-		99,
-		0,
+		0, 0, A_STR, 0, 99, 0,
 		{
 			{
 				{ 99,  0,  0,   0},
@@ -1880,7 +1863,6 @@ player_magic magic_info[MAX_CLASS] =
 				{ 99,  0,  0,   0},
 				{ 99,  0,  0,   0}
 			},
-
 			{
 
 				{ 99,  0,  0,   0},
@@ -2109,20 +2091,10 @@ player_magic magic_info[MAX_CLASS] =
 
 	{
 		/*** Mage ***/
-
-		TV_SORCERY_BOOK,
-		0,
-
-		A_INT,
-		0,
-
-		1,
-		300,
-
+		TV_SORCERY_BOOK, 0, A_INT, 0, 1, 300,
 		{
+			/* Mage: Life magic */
 			{
-				/* Mage: Life magic */
-
 				{ 1, 1, 30, 4 },
 				{ 3, 2, 35, 4 },
 				{ 4, 3, 35, 4 },
@@ -2161,7 +2133,6 @@ player_magic magic_info[MAX_CLASS] =
 			},
 
 			/* Mage: Sorcery */
-
 			{
 				{ 1, 1, 23, 4 },
 				{ 1, 2, 24, 4 },
@@ -2201,14 +2172,13 @@ player_magic magic_info[MAX_CLASS] =
 			},
 
 			/* Mage: Nature Magic */
-
 			{
 				{ 1, 1, 23, 4 },
 				{ 3, 3, 25, 3 },
 				{ 3, 3, 25, 1 },
 				{ 4, 4, 35, 4 },
 				{ 4, 4, 50, 5 },
-				{ 4, 5, 50, 5 },
+				{ 4, 4, 50, 5 },
 				{ 5, 5, 50, 5 },
 				{ 5, 5, 35, 4 },
 
@@ -2217,9 +2187,9 @@ player_magic magic_info[MAX_CLASS] =
 				{ 7, 6, 45, 6 },
 				{ 7, 6, 40, 6 },
 				{ 9, 6, 30, 5 },
-				{ 20, 30, 90, 25 },
+				{ 20, 25, 90, 25 },
 				{ 25, 25, 90, 50 },
-				{ 40, 100, 95, 50 },
+				{ 35, 90, 90, 50 },
 
 				{ 7, 7, 20, 28 },
 				{ 9, 12, 40, 44 },
@@ -2228,8 +2198,7 @@ player_magic magic_info[MAX_CLASS] =
 				{ 30, 30, 90, 100 },
 				{ 37, 40, 90, 200 },
 				{ 38, 45, 75, 200},
-				{ 40, 90, 90, 250 },
-
+				{ 40, 100, 95, 250 },
 
 				{ 15, 12, 55, 15 },
 				{ 20, 18, 60, 25 },
@@ -2241,8 +2210,7 @@ player_magic magic_info[MAX_CLASS] =
 				{ 40, 75, 65, 150 }
 			},
 
-				/* Mage: Chaos Magic */
-
+			/* Mage: Chaos Magic */
 			{
 				{ 1, 1, 20, 4 },
 				{ 1, 2, 22, 4 },
@@ -2281,8 +2249,7 @@ player_magic magic_info[MAX_CLASS] =
 				{ 49, 100, 85, 250 }
 			},
 
-				/* Mage: Death Magic */
-
+			/* Mage: Death Magic */
 			{
 				{ 1, 1, 25, 4 },
 				{ 2, 2, 25, 4 },
@@ -2317,12 +2284,11 @@ player_magic magic_info[MAX_CLASS] =
 				{ 33, 35, 70, 40 },
 				{ 37, 35, 80, 70 },
 				{ 42, 120, 95, 250 },
-				{ 45, 100, 90, 250 },
+				{ 45, 150, 90, 250 },
 				{ 47, 100, 90, 250 }
 			},
 
-				/* Mage: Trump Magic */
-
+			/* Mage: Trump Magic */
 			{
 				{ 1, 1, 50, 3 },
 				{ 3, 3, 50, 4 },
@@ -2404,15 +2370,7 @@ player_magic magic_info[MAX_CLASS] =
 
 	{
 		/*** Priest ***/
-                              
-		TV_LIFE_BOOK,
-		0,
-
-		A_WIS,
-		1,
-
-		1,
-		350,
+		TV_LIFE_BOOK, 0, A_WIS, 1, 1, 350,
 		{
 
         /* Priest: Life Magic */
@@ -2439,8 +2397,8 @@ player_magic magic_info[MAX_CLASS] =
 	  { 16, 14, 80, 60 },
 	  { 17, 14, 55, 70 },
           { 24, 20, 55, 70 },
-	  { 25, 20, 70, 120 },
-	  { 25, 25, 80, 250 },
+	  { 25, 20, 70, 150 },
+	  { 25, 25, 80, 200 },
 	  { 39, 32, 95, 200 },
 	  { 44, 44, 80, 250 },
 
@@ -2451,7 +2409,7 @@ player_magic magic_info[MAX_CLASS] =
 	  { 40, 50, 80, 130 },
 	  { 40, 40, 80, 200 },
           { 42, 90, 85, 200 },
-	  { 45, 90, 85, 250 },
+	  { 45, 70, 85, 250 },
 	},
 
         /* Priest: Sorcery */
@@ -2492,12 +2450,13 @@ player_magic magic_info[MAX_CLASS] =
 	  { 40, 50, 90, 175 },
 	  { 48, 70, 75, 250 },
 	},
+
         /* Priest: Nature Magic */
 	  {
 	  { 2, 1, 25, 4 },
-	  { 5, 3, 25, 4 },
-	  { 5, 4, 25, 1 },
-	  { 6, 5, 35, 4 },
+	  { 3, 3, 25, 4 },
+	  { 4, 4, 25, 1 },
+	  { 5, 5, 35, 4 },
 	  { 6, 5, 50, 5 },
 	  { 6, 6, 50, 5 },
 	  { 7, 7, 50, 5 },
@@ -2508,9 +2467,9 @@ player_magic magic_info[MAX_CLASS] =
           { 9, 10, 40, 6 },
 	  { 10, 10, 40, 6 },
 	  { 11, 11, 30, 5 },
-	  { 25, 35, 95, 25 },
+	  { 25, 30, 95, 25 },
           { 30, 30, 55, 30 },
-	  { 42, 100, 95, 50 },
+	  { 36, 90, 90, 50 },
 
 	  { 9, 9, 20, 28 },
 	  { 11, 12, 40, 44 },
@@ -2519,7 +2478,7 @@ player_magic magic_info[MAX_CLASS] =
           { 35, 35, 80, 50 },
 	  { 39, 40, 90, 200 },
           { 40, 50, 85, 250 },
-	  { 42, 90, 90, 250 },
+	  { 42, 100, 95,250 },
 
 	  { 18, 20, 65, 20 },
 	  { 22, 22, 60, 24 },
@@ -2605,10 +2564,9 @@ player_magic magic_info[MAX_CLASS] =
 	  { 40, 40, 70, 40 },
 	  { 42, 40, 80, 70 },
           { 48, 125, 95, 250 },
-          { 49, 100, 90, 250 },
+          { 49, 150, 90, 250 },
           { 50, 111, 90, 250 },
         },
-
 
     /* Priest: Trump Magic */
     {
@@ -2691,19 +2649,10 @@ player_magic magic_info[MAX_CLASS] =
 	},
 
 	{
-		/*** Rogue ***/
-
-	TV_SORCERY_BOOK,
-		0,
-
-		A_INT,
-		0,
-
-		5,
-		350,
-
-    {
-	  {
+	/*** Rogue ***/
+	TV_SORCERY_BOOK, 0, A_INT, 0, 5, 350,
+	{
+		{
 			{ 99, 0, 0, 0},
 			{ 99, 0, 0, 0},
 			{ 99, 0, 0, 0},                                
@@ -2739,11 +2688,9 @@ player_magic magic_info[MAX_CLASS] =
 			{ 99, 0, 0, 0},                                
 			{ 99, 0, 0, 0},                                
 			{ 99, 0, 0, 0},                        
-				
-				},
+		},
 
         /* Rogue (Burglar): Sorcery */
-
 	  {
 		{  5,   1, 50,   1 },
 		{  7,   2, 55,   1 },
@@ -2780,9 +2727,9 @@ player_magic magic_info[MAX_CLASS] =
 		{ 40,  90, 80, 100 },
 		{ 45,  50, 70, 100 },
 		{ 99,   0,  0,   0 },
-	},
+		},
 
-      {
+		{
 			{ 99, 0, 0, 0},
 			{ 99, 0, 0, 0},
 			{ 99, 0, 0, 0},                                
@@ -2861,8 +2808,6 @@ player_magic magic_info[MAX_CLASS] =
 				},
 
         /* Rogue (Assassin): Death Magic */
-		
-
 	  {
           { 5, 3, 40, 1 },
           { 7, 4, 40, 1 },
@@ -2941,7 +2886,6 @@ player_magic magic_info[MAX_CLASS] =
         { 99, 0, 0, 0 },
     },
 				
-
 	/* Rogue: Arcane Magic */
 	  {
 	  { 99, 0, 0, 0 },
@@ -2984,19 +2928,10 @@ player_magic magic_info[MAX_CLASS] =
 	},
 
 	{
-		/*** Ranger ***/
-
-	TV_SORCERY_BOOK,
-		0,
-
-		A_INT,
-		0,
-
-		3,
-		400,
-
-   {
-      {
+	/*** Ranger ***/
+	TV_SORCERY_BOOK, 0, A_INT, 0, 3, 350,
+	{
+		{
 			{ 99, 0, 0, 0},
 			{ 99, 0, 0, 0},
 			{ 99, 0, 0, 0},                                
@@ -3079,8 +3014,8 @@ player_magic magic_info[MAX_CLASS] =
 	  {  3,   1, 35,   2 },
 	  {  4,   3, 40,   2 },
 	  {  4,   4, 40,   3 },
-	  {  5,   7, 55,   2 },
-	  {  6,   7, 50,   3 },
+	  {  5,   5, 55,   2 },
+	  {  6,   6, 50,   3 },
 	  {  7,   7, 50,   3 },
           {  8,   7, 50,   3 },
 	  {  9,   7, 45,   3 },
@@ -3090,9 +3025,9 @@ player_magic magic_info[MAX_CLASS] =
           { 11,   9, 40,   4 },
 	  { 12,   9, 55,   4 },
 	  { 14,   9, 55,   4 },
-	  { 22,  40, 95,  20 },
+	  { 22,  30, 95,  20 },
           { 25,  23, 65,  30 },
-	  { 40, 100, 95,  50 },
+          { 35,  80, 90,  50 },
 
 	  { 10,  10, 50,  25 },
 	  { 12,  12, 50,  25 },
@@ -3100,8 +3035,8 @@ player_magic magic_info[MAX_CLASS] =
 	  { 20,  30, 85,  70 },
           { 35,  30, 80,  75 },
 	  { 38,  40, 90, 200 },
-          { 40,  55, 90, 250 },
-          { 42,  80, 90, 250 },
+          { 39,  55, 90, 250 },
+	  { 40, 100, 95, 250 },
 
 	  { 20,  20, 65,  20 },
 	  { 25,  28, 60,  30 },
@@ -3230,7 +3165,6 @@ player_magic magic_info[MAX_CLASS] =
 	  { 99, 0, 0, 0 },
     },
 
-
     /* Ranger: Arcane Magic */
     {
 	  { 99, 0, 0, 0 },
@@ -3272,25 +3206,12 @@ player_magic magic_info[MAX_CLASS] =
 	}
 	},
 
-
 	{
-		/*** Paladin ***/
-
-	TV_LIFE_BOOK,
-		0,
-
-		A_WIS,
-		1,
-
-		1,
-		400,
-
-{
+	/*** Paladin ***/
+	TV_LIFE_BOOK, 0, A_WIS, 1, 1, 400,
+	{
 	  {
-
-
     /* Paladin: Life Magic */
-
 	{ 1, 1, 30, 4 },
 	{ 2, 2, 35, 4 },
 	{ 3, 3, 35, 4 },
@@ -3442,7 +3363,6 @@ player_magic magic_info[MAX_CLASS] =
         },
 
         /* Paladin: Death Magic */
-
       {
       { 1, 1, 25, 4 },
       { 3, 2, 25, 4 },
@@ -3477,7 +3397,7 @@ player_magic magic_info[MAX_CLASS] =
       { 45, 45, 70, 40 },
       { 47, 45, 80, 70 },
       { 50, 150, 95, 250 },
-      { 50, 100, 95, 250 },
+      { 50, 150, 90, 250 },
       { 50, 111, 95, 250 }
       },
 
@@ -3563,17 +3483,8 @@ player_magic magic_info[MAX_CLASS] =
 
     {
         /*** Warrior-Mage ***/
-
-	TV_SORCERY_BOOK,
-		0,
-
-		A_INT,
-		0,
-
-		1,
-		400,
-
-		{
+	TV_SORCERY_BOOK, 0, A_INT, 0, 1, 400,
+	{
 	  {
 	  { 99, 0, 0, 0 },
 	  { 99, 0, 0, 0 },
@@ -3850,15 +3761,7 @@ player_magic magic_info[MAX_CLASS] =
 
 	{
         /*** Chaos Warrior ***/
-	TV_SORCERY_BOOK,
-		0,
-
-		A_INT,
-		0,
-
-        2,
-        400,
-
+	TV_LIFE_BOOK, 0, A_WIS, 0, 2, 400,
 	{
 	  {
 	  { 99, 0, 0, 0 },
@@ -4131,15 +4034,7 @@ player_magic magic_info[MAX_CLASS] =
 
 	{
         /*** Monk ***/
-
-        TV_LIFE_BOOK,
-		0,
-
-                A_WIS,
-		0,
-
-		1,
-		300,
+        TV_LIFE_BOOK, 0, A_WIS, 0, 1, 300,
 
 		{
       {
@@ -4224,8 +4119,8 @@ player_magic magic_info[MAX_CLASS] =
           {  1,   1, 35,   2 },
           {  3,   3, 40,   2 },
           {  4,   4, 40,   3 },      
-          {  7,   7, 55,   2 },
-          {  7,   7, 50,   3 },
+          {  5,   5, 55,   2 },
+          {  6,   6, 50,   3 },
 	  {  7,   7, 50,   3 },
           {  8,   8, 50,   3 },
           {  9,   9, 45,   3 },
@@ -4235,18 +4130,18 @@ player_magic magic_info[MAX_CLASS] =
           { 12,  10, 40,   4 },
           { 14,  12, 55,   4 },
           { 16,  12, 55,   4 },
-          { 25,  40, 95,  20 },
+          { 25,  30, 95,  20 },
           { 31,  31, 75,  10 },
-	  { 40, 100, 95,  50 },
+          { 36,  80, 90,  50 },
 
           { 12,  12, 50,  25 },
           { 14,  14, 50,  25 },
           { 16,  16, 70,  60 },
           { 22,  30, 85,  70 },
           { 35,  35, 80,  80 },
-          { 40,  40, 90, 200 },
-          { 45,  55, 90, 250 },
-          { 50,  80, 90, 250 },
+          { 38,  40, 90, 200 },
+          { 40,  55, 90, 250 },
+	  { 42, 100, 95, 250 },
 
           { 20,  22, 65,  20 },
           { 28,  28, 60,  25 },
@@ -4332,7 +4227,7 @@ player_magic magic_info[MAX_CLASS] =
           { 44,  44, 70,  40 },
           { 46,  50, 80,  70 },
           { 50, 140, 95, 250 },
-          { 50, 100, 95, 250 },
+          { 50, 150, 90, 250 },
           { 50, 115, 95, 250 }
           },
 
@@ -4418,15 +4313,7 @@ player_magic magic_info[MAX_CLASS] =
 
 	{
         /*** Mindcrafter ***/
-                              
-        TV_LIFE_BOOK,
-		0,
-
-		A_WIS,
-        0,
-
-        99,
-        300,
+        TV_LIFE_BOOK, 0, A_WIS, 0, 99, 300,
 
 	{
 	  {
@@ -4710,20 +4597,9 @@ player_magic magic_info[MAX_CLASS] =
 	},
     },
 
-
-
-
 	{
         /*** High Mage ***/
-
-	TV_SORCERY_BOOK,
-		0,
-
-		A_INT,
-		0,
-
-		1,
-		300,
+	TV_SORCERY_BOOK, 0, A_INT, 0, 1, 300,
 
         /* High Mage: Life Magic */
 		{
@@ -4806,6 +4682,7 @@ player_magic magic_info[MAX_CLASS] =
       { 35, 40, 80, 175 },
       { 42, 65, 65, 250 },
 	},
+
         /* High Mage: Nature Magic */
 	  {
       { 1, 1, 15, 4 },
@@ -4822,9 +4699,9 @@ player_magic magic_info[MAX_CLASS] =
       { 5, 5, 35, 6 },
       { 5, 5, 30, 6 },
       { 7, 5, 30, 5 },
-      { 15, 30, 85, 25 },
+      { 15, 20, 85, 25 },
       { 20, 20, 80, 50 },
-      { 35, 80, 85, 50 },
+      { 30, 65, 80, 50 },
 
       { 5, 5, 10, 28 },
       { 7, 7, 20, 44 },
@@ -4832,8 +4709,8 @@ player_magic magic_info[MAX_CLASS] =
       { 12, 15, 75, 60 },
       { 25, 25, 80, 100 },
       { 33, 35, 80, 200 },
-      { 35, 40, 65, 200},
-      { 37, 65, 80, 250 },
+      { 34, 40, 65, 200},
+      { 35, 80, 85, 250 },
 
       { 12, 10, 35, 20 },
       { 15, 15, 50, 25 },
@@ -4848,21 +4725,21 @@ player_magic magic_info[MAX_CLASS] =
         /* High Mage: Chaos Magic */
 	  {
       { 1, 1, 15, 4 },
-      { 1, 1, 15, 4 },
       { 2, 1, 15, 4 },
+      { 3, 1, 15, 4 },
       { 4, 2, 20, 1 },
-      { 6, 4, 40, 1 },
-      { 10, 5, 35, 6 },
-      { 12, 6, 35, 6 },
-      { 14, 7, 25, 5 },
+      { 5, 4, 40, 1 },
+      { 6, 5, 35, 6 },
+      { 8, 6, 35, 6 },
+      { 10, 7, 25, 5 },
 
-      { 15, 9, 20, 5 },
-      { 17, 10, 35, 9 },
-      { 19, 11, 35, 10 },
-      { 21, 12, 40, 11 },
-      { 22, 13, 40, 12 },
-      { 25, 30, 70, 20 },
-      { 27, 17, 70, 15 },
+      { 12, 9, 20, 5 },
+      { 14, 10, 35, 9 },
+      { 16, 11, 35, 10 },
+      { 18, 12, 40, 11 },
+      { 20, 13, 40, 12 },
+      { 22, 30, 70, 20 },
+      { 25, 17, 70, 15 },
       { 30, 35, 75, 40 },
 
       { 9, 5, 35, 9 },
@@ -4919,7 +4796,7 @@ player_magic magic_info[MAX_CLASS] =
       { 29, 30, 60, 40 },
       { 33, 30, 70, 70 },
       { 39, 100, 85, 250 },
-      { 41, 85, 80, 250 },
+      { 41, 100, 85, 250 },
       { 44, 75, 80, 250 }
             },
 
@@ -5006,15 +4883,7 @@ player_magic magic_info[MAX_CLASS] =
 
 	{
 		/*** Weaponmaster ***/
-
-		0,
-		0,
-
-		A_STR,
-		0,
-
-		99,
-		0,
+		0, 0, A_STR, 0, 99, 0,
 		{
 			{
 				{ 99,  0,  0,   0},
@@ -5365,7 +5234,6 @@ u32b spell_flags[2][9][2] =
 cptr spell_names[7][32] =
 {
 	/*** Life Spells ***/
-
 	{
 		/* Common Life Spellbooks */
 		"Detect Evil",
@@ -5384,17 +5252,17 @@ cptr spell_names[7][32] =
 		"Holy Orb",
 		"Protection from Evil",
 		"Healing",
-		"Glyph of Warding",
+		"Rune of Protection",
 
 		/* Rare Life Spellbooks */
-	        "Exorcism",
+	        "Exorcise Demons",
 		"Dispel Curse",
-	        "Dispel Undead/Demons",
+	        "Destroy Undead",
 	        "Day of the Dove",
 		"Dispel Evil",
-		"Banish",      
+		"Banish Evil",      
 		"Holy Word",
-		"Warding True",
+		"Sea of Runes",
 
 		"Heroism",
 		"Prayer",
@@ -5407,7 +5275,6 @@ cptr spell_names[7][32] =
 	},
 
 	/*** Sorcery Spells ***/
-
 	{
 		/* Common Sorcery Spellbooks */
 		"Detect Monsters",
@@ -5449,17 +5316,16 @@ cptr spell_names[7][32] =
 	},
 
 	/*** Nature Spellbooks ***/
-
 	{
 		/* Common Nature Spellbooks */
 		"Animal Detection",
-		"First Aid",
+		"Pesticide",
 		"Detect Doors/Traps",
 		"Foraging",
 		"Daylight",
 		"Animal Taming",
 		"Resist Environment",
-		"Cure Wounds/Poison",
+		"Magical Poultice",
 
 		"Stone to Mud",
 		"Lightning Bolt",
@@ -5468,7 +5334,7 @@ cptr spell_names[7][32] =
 		"Ray of Sunlight",
 		"Elemental Branding",
 		"Summon Animal",
-		"Herbal Healing",
+		"Protect from Corrosion",
 
 		/* Rare Nature Spellbooks */
 		"Door Building",
@@ -5478,7 +5344,7 @@ cptr spell_names[7][32] =
 		"Animal Friendship",
 		"Stone Tell",
 		"Wall of Stone",
-		"Protect from Corrosion",
+		"Herbal Healing",
 
 		"Entangle",
 		"Earthquake",
@@ -5491,7 +5357,6 @@ cptr spell_names[7][32] =
 	},
 
 	/*** Chaos Spells ***/
-
 	{
 		/* Common Chaos Spellbooks */
 		"Magic Missile",
@@ -5533,7 +5398,6 @@ cptr spell_names[7][32] =
 	},
 
 	/*** Death Spells ***/
-
 	{
 		/* Common Death Spellbooks */
 		"Detect Unlife",
@@ -5556,7 +5420,7 @@ cptr spell_names[7][32] =
 
 		/* Rare Death Spellbooks */
 		"Berserk",
-		"Invoke Spirits",
+		"Punish Undead",
 		"Dark Bolt",
 		"Battle Frenzy",
 		"Vampirism True",
@@ -5570,12 +5434,11 @@ cptr spell_names[7][32] =
 		"Word of Death",
 		"Evocation",
 		"Hellfire",
-		"Omnicide",
+		"Summon Death",
 		"Wraithform"
 	},
 
 	/* Trump Spellbooks */
-
 	{
 		/* Common Trump Spellbooks */
 		"Phase Door",
@@ -6518,21 +6381,4 @@ martial_arts ma_blows[MAX_MA] =
 	{ "You punch %s.",                          45, 35, 10, 10, 16 },
 	{ "You punch %s.",                          48, 35, 10, 12, 18 },
 #endif
-};
-
-
-mindcraft_power mindcraft_powers[MAX_MINDCRAFT_POWERS] = {
-	/* Level gained,  cost,  %fail,  name */
-        { 1,   1,  15, "Precognition" },          /* Det. monsters/traps */
-        { 2,   1,  20, "Neural Blast" },          /* ~MM */
-        { 3,   2,  25, "Minor Displacement" },    /* Phase/dimension door */
-        { 7,   6,  35, "Major Displacement" },    /* Tele. Self / All */
-        { 9,   7,  50, "Domination" },
-        { 11,  7,  30, "Pulverize" },             /* Telekinetic "bolt" */
-        { 13, 12,  50, "Character Armour" },      /* Psychic/physical defenses */
-        { 15, 12,  60, "Psychometry" },
-        { 18, 10,  45, "Mind Wave" },             /* Ball -> LOS */
-        { 23, 15,  50, "Adrenaline Channeling" },
-        { 25, 10,  40, "Psychic Drain" },         /* Convert enemy HP to mana */
-        { 28, 20,  45, "Telekinetic Wave" },      /* Ball -> LOS */
 };

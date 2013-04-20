@@ -1964,10 +1964,7 @@ bool alloc_horde(int y, int x)
 
 		r_ptr = &r_info[r_idx];
 
-		if (!(r_ptr->flags1 & (RF1_UNIQUE))
-		 && !(r_ptr->flags1 & (RF1_ESCORTS))
-		 && !(r_ptr->flags2 & (RF2_EXPLOSIVE)))
-			break;
+		if (!(r_ptr->flags1 & RF1_UNIQUE)) break;
 	}
 
 	if (attempts < 1) return FALSE;
@@ -2560,8 +2557,8 @@ void message_pain(int m_idx, int dam)
 	percentage = (int)(tmp);
 
 
-	/* Jelly's, Mold's, Vortex's, Quthl's */
-	if (strchr("jmvQ", r_ptr->d_char))
+	/* Eye's, Jelly's, Mold's, Vortex's, Quthl's */
+	if (strchr("ejmvQ", r_ptr->d_char))
 	{
 		if (percentage > 95)
 			msg_format("%^s barely notices.", m_name);

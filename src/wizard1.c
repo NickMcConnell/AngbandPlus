@@ -71,7 +71,7 @@ static grouper group_item[] =
 	{ TV_ARROW,               NULL },
 	{ TV_BOLT,                NULL },
 
-	{ TV_BOW,               "Bows" },
+	{ TV_BOW,               "Missile Launchers" },
 
 	{ TV_SWORD,             "Weapons" },
 	{ TV_AXE,		NULL },
@@ -387,7 +387,7 @@ static grouper group_artifact[] =
 	{ TV_AXE,		"Axes" },
 	{ TV_POLEARM,           "Polearms" },
 	{ TV_HAFTED,            "Hafted Weapons" },
-	{ TV_BOW,               "Bows" },
+	{ TV_BOW,               "Missile Launchers" },
 
 	{ TV_SOFT_ARMOR,        "Body Armor" },
 	{ TV_HARD_ARMOR,        NULL },
@@ -496,7 +496,7 @@ static flag_desc brand_flags_desc[] =
 	{ TR1_BRAND_COLD,         "Frost Brand" },
 	{ TR1_BRAND_POIS,         "Poisoned" },
 
-	{ TR1_CHAOTIC,            "Mark of Chaos" },
+	{ TR1_CHAOTIC,            "Chaotic" },
 	{ TR1_VAMPIRIC,           "Vampiric" },
 	{ TR1_IMPACT,             "Earthquake impact on hit" },
 	{ TR1_VORPAL,             "Very sharp" },
@@ -561,6 +561,9 @@ static const flag_desc misc_flags2_desc[] =
 	{ TR2_REFLECT,    "Reflection" },
 	{ TR2_FREE_ACT,   "Free Action" },
 	{ TR2_HOLD_LIFE,  "Hold Life" },
+	{ TR2_RAND_SUSTAIN, "Random Sustain" },
+	{ TR2_RAND_ABILITY, "Random Ability" },
+	{ TR2_RAND_RESIST, "Random Resistance" },
 };
 
 /*
@@ -1767,7 +1770,7 @@ static void spoil_mon_info(cptr fname)
 			else spoil_out("an escort.  ");
 		}
 
-		if ((flags1 & (RF1_FRIEND)) || (flags1 & (RF1_FRIENDS)))
+		if (flags1 & (RF1_FRIENDS))
 		{
 			sprintf(buf, "%s usually appears in groups.  ", wd_che[msex]);
 			spoil_out(buf);
@@ -1891,7 +1894,7 @@ static void spoil_mon_info(cptr fname)
 		if (flags6 & (RF6_S_MONSTER))         vp[vn++] = "summon a monster";
 		if (flags6 & (RF6_S_MONSTERS))        vp[vn++] = "summon monsters";
 		if (flags6 & (RF6_S_KIN))             vp[vn++] = "summon aid";
-		if (flags6 & (RF6_S_ANT))             vp[vn++] = "summon ants";
+		if (flags6 & (RF6_S_ANIMAL))          vp[vn++] = "summon an animal";
 		if (flags6 & (RF6_S_SPIDER))          vp[vn++] = "summon spiders";
 		if (flags6 & (RF6_S_HOUND))           vp[vn++] = "summon hounds";
 		if (flags6 & (RF6_S_HYDRA))           vp[vn++] = "summon hydras";

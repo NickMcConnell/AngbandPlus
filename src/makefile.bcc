@@ -66,6 +66,7 @@ xtra1.obj \
 xtra2.obj \
 spells1.obj \
 spells2.obj \
+spells3.obj \
 melee1.obj \
 melee2.obj \
 load1.obj \
@@ -87,6 +88,9 @@ dungeon.obj \
 init1.obj \
 init2.obj \
 quest.obj \
+mindcrft.obj \
+mutation.obj \
+artifact.obj \
 main-win.obj \
 main.obj
 

@@ -45,7 +45,9 @@ static void mon_take_hit_mon(int m_idx, int dam, bool *fear, cptr note)
 	/* It is dead now... or is it? */
 	if (m_ptr->hp < 0)
 	{
-		if ((r_ptr->flags1 & (RF1_UNIQUE)) || (r_ptr->flags1 & (RF1_QUESTOR)))
+		if ((r_ptr->flags1 & (RF1_UNIQUE)) ||
+		    (r_ptr->flags1 & (RF1_QUESTOR)) ||
+		    (r_ptr->flags2 & (RF2_EXPLOSIVE)))
 		{
 			m_ptr->hp = 1;
 		}
@@ -2334,20 +2336,20 @@ static bool monst_spell_monst(int m_idx)
            break;
        }
 
-       /* RF6_S_ANT */
+       /* RF6_S_ANIMAL (was S_ANT) */
        case 160+20:
        {
            disturb(1, 0);
            if (blind || !see_m) msg_format("%^s mumbles.", m_name);
-           else msg_format("%^s magically summons ants.", m_name);
-           for (k = 0; k < 6; k++)
+           else msg_format("%^s magically summons an animal.", m_name);
+           for (k = 0; k < 1; k++)
            {
                if (friendly)
-               count += summon_specific_friendly(y, x, rlev, SUMMON_ANT, TRUE);
+               count += summon_specific_friendly(y, x, rlev, SUMMON_ANIMAL, TRUE);
                else
-               count += summon_specific(y, x, rlev, SUMMON_ANT);
+               count += summon_specific(y, x, rlev, SUMMON_ANIMAL);
            }
-           if (blind && count) msg_print("You hear many things appear nearby.");
+           if (blind && count) msg_print("You hear something appear nearby.");
            break;
        }
 
@@ -4208,17 +4210,17 @@ bool make_attack_spell(int m_idx)
 			break;
 		}
 
-		/* RF6_S_ANT */
+		/* RF6_S_ANIMAL (was S_ANT) */
 		case 160+20:
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
-			else msg_format("%^s magically summons ants.", m_name);
-			for (k = 0; k < 6; k++)
+			else msg_format("%^s magically summons an animal.", m_name);
+			for (k = 0; k < 1; k++)
 			{
-				count += summon_specific(y, x, rlev, SUMMON_ANT);
+				count += summon_specific(y, x, rlev, SUMMON_ANIMAL);
 			}
-			if (blind && count) msg_print("You hear many things appear nearby.");
+			if (blind && count) msg_print("You hear something appear nearby.");
 			break;
 		}
 

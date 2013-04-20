@@ -21,6 +21,7 @@
  */
 #define AUTOROLLER_STEP 25L
 
+
 /*
  * Forward declare
  */
@@ -214,9 +215,9 @@ static hist_type bg[] =
 	{"Your fur is a solid steel-gray",                  90, 31, 32, 80},
 	{"Your fur is entirely black",                     100, 31, 32, 90},
 
-	{", with white paws.",                              30, 32, 0,  30},
-	{", with a white chest.",                           70, 32, 0,  50},
-	{", with a white chest and paws.",                  90, 32, 0,  75},
+	{", with a white chest and paws.",                  30, 32, 0,  30},
+	{", with white paws.",                              70, 32, 0,  50},
+	{", with a white chest.",                           90, 32, 0,  75},
 	{".",                                              100, 32, 0, 100},
 
 	{"You have dark brown eyes, ",  20, 50, 51, 50},
@@ -1373,11 +1374,9 @@ static void get_money(void)
 	}
 
 	/* Minimum 100 gold */
-	if (gold < 100) gold = 100;
-
-	/* She charmed the banker into it! -CJS- */
-	/* She slept with the banker.. :) -GDH-  */
-	/* if (p_ptr->psex == SEX_FEMALE) gold += 50; */
+/*	if (gold < 100) gold = 100; */
+	/* Minimum gold */
+	if (gold < 99 + p_ptr->sc) gold = 99 + p_ptr->sc;
 
 	/* Save the gold */
 	p_ptr->au = gold;
@@ -1440,7 +1439,6 @@ static void player_wipe(void)
 		strcpy(history[i], "");
 	}
 
-
 	/* No weight */
 	total_weight = 0;
 
@@ -1453,7 +1451,6 @@ static void player_wipe(void)
 	{
 		object_wipe(&inventory[i]);
 	}
-
 
 	/* Start with no artifacts made yet */
 	for (i = 0; i < MAX_A_IDX; i++)
@@ -1477,7 +1474,6 @@ static void player_wipe(void)
 		k_ptr->aware = FALSE;
 	}
 
-
 	/* Reset the "monsters" */
 	for (i = 1; i < MAX_R_IDX; i++)
 	{
@@ -1496,21 +1492,17 @@ static void player_wipe(void)
 		r_ptr->r_pkills = 0;
 	}
 
-
 	/* Hack -- no ghosts */
 	r_info[MAX_R_IDX-1].max_num = 0;
 
-
 	/* Hack -- Well fed player */
 	p_ptr->food = PY_FOOD_FULL - 1;
-
 
 	/* Wipe the spells */
 	spell_learned1 = spell_learned2 = 0L;
 	spell_worked1 = spell_worked2 = 0L;
 	spell_forgotten1 = spell_forgotten2 = 0L;
 	for (i = 0; i < 64; i++) spell_order[i] = 99;
-
 
 	/* Clear "cheat" options */
 	cheat_peek = FALSE;
@@ -1529,8 +1521,6 @@ static void player_wipe(void)
 	/* Assume no cheating */
 	noscore = 0;
 }
-
-
 
 
 /*
@@ -1557,7 +1547,7 @@ static byte player_init[MAX_CLASS][3][2] =
 	{
 		/* Priest */
 		{ TV_SORCERY_BOOK, 0 }, /* Hack: for Life / Death book */
-		{ TV_HAFTED, SV_BALL_AND_CHAIN },
+		{ TV_HAFTED, SV_MACE },
 		{ TV_DEATH_BOOK, 0 } /* Hack: for realm2 book */
 	},
 
@@ -1784,23 +1774,32 @@ static void player_outfit(void)
 				switch (p_ptr->realm1)
 				{
 					case REALM_LIFE:
-						q_ptr->name2 = EGO_SLAY_EVIL;
+						if (randint(4)==1)
+							q_ptr->name2 = EGO_SLAY_EVIL;
+						else
+							q_ptr->name2 = EGO_SLAY_UNDEAD;
 						break;
 					case REALM_NATURE:
-						if (randint(10)==1)
+						if (randint(4)==1)
 							q_ptr->name2 = EGO_SLAY_ANIMAL;
 						else
 							q_ptr->name2 = EGO_SLAY_ELEMENTAL;
 						break;
 					case REALM_CHAOS:
-						q_ptr->name2 = EGO_SLAY_DEMON;
+						if (randint(4)==1)
+							q_ptr->name2 = EGO_BRAND_FIRE;
+						else
+							q_ptr->name2 = EGO_SLAY_DEMON;
 						break;
 					case REALM_DEATH:
-						q_ptr->name2 = EGO_BRAND_POIS;
+						if (randint(6)==1)
+							q_ptr->name2 = EGO_BRAND_POIS;
+						else
+							q_ptr->name2 = EGO_SLAY_UNDEAD;
 						break;
 					case REALM_TRUMP:
 						q_ptr->name2 = EGO_TRUMP;
-						q_ptr->pval = 1;
+						q_ptr->pval = randint(2);
 						break;
 					/*
 					 * Those who have Arcane or Sorcery

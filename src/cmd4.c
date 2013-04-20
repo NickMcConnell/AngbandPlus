@@ -2826,13 +2826,9 @@ void do_cmd_save_screen(void)
 void do_cmd_knowledge_artifacts(void)
 {
 	int i, k, z, x, y;
-
 	FILE *fff;
-
 	char file_name[1024];
-
 	char base_name[80];
-
 	bool okay[MAX_A_IDX];
 
 
@@ -3339,37 +3335,6 @@ static void do_cmd_knowledge_objects(void)
 	/* Remove the file */
 	fd_kill(file_name);
 }
-
-/*
- * List mutations we have...
- *
- */
-void do_cmd_knowledge_mutations(void)
-{
-
-	FILE *fff;
-
-	char file_name[1024];
-
-
-	/* Temporary file */
-	if (path_temp(file_name, 1024)) return;
-
-	/* Open a new file */
-	fff = my_fopen(file_name, "w");
-
-	if (fff) dump_mutations(fff);
-
-	/* Close the file */
-	my_fclose(fff);
-
-	/* Display the file contents */
-	show_file(file_name, "Mutations");
-
-	/* Remove the file */
-	fd_kill(file_name);
-}
-
 
 
 /*

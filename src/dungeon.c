@@ -699,7 +699,6 @@ static void process_world(void)
 
 	object_type *o_ptr;
 	u32b f1 = 0 , f2 = 0 , f3 = 0;
-	s32b curse_turn;
 	char o_name[80];
 
 
@@ -991,12 +990,15 @@ static void process_world(void)
 				break;
 		}
 
-		/* Most of the player races are living humanoids :) */
-		if ((f1 & (TR1_SLAY_HUMANOID)) &&
-		    !((p_ptr->prace >= RACE_GOLEM) &&
-		      (p_ptr->prace <= RACE_SPECTRE))) burn = TRUE;
+		/*
+		 * Slay Humanoid exists only for Erekose's sword, Kanajana,
+		 * whose effects come from being radioactive, those with
+		 * resist poison don't get harmed.
+		 */
+		if ((f1 & (TR1_SLAY_HUMANOID)) && !(p_ptr->resist_pois))
+			burn = TRUE;
 
-		if (burn)
+		if ((burn) && (randint(2)==1) && !(p_ptr->invuln))
 		{
 			msg_format("The %s burns you!", o_name);
 			cave_no_regen = TRUE;
@@ -1005,7 +1007,7 @@ static void process_world(void)
 			object_desc(o_name, o_ptr, TRUE, 0);
 
 			sprintf(ouch, "wielding %s", o_name);
-			if (!(p_ptr->invuln)) take_hit(1, ouch);
+			take_hit(1, ouch);
 		}
 	}
 
@@ -1424,7 +1426,9 @@ static void process_world(void)
 	if (o_ptr->tval == TV_LITE)
 	{
 		/* Hack -- Use some fuel (except on artifacts) */
-		if (!artifact_p(o_ptr) && (o_ptr->pval > 0))
+		if (!artifact_p(o_ptr) &&
+		    !(o_ptr->sval == SV_LITE_FEANORAN_LAMP) &&
+		    (o_ptr->pval > 0))
 		{
 			/* Decrease life-span */
 			o_ptr->pval--;
@@ -1463,60 +1467,35 @@ static void process_world(void)
 	p_ptr->update |= (PU_TORCH);
 
 	/* Beastmen gain & lose mutations at random -- Gumby */
-	if ((p_ptr->prace == RACE_BEASTMAN) && (randint(5000) == 666))
+	if ((p_ptr->prace == RACE_BEASTMAN) && (randint(6666) == 666))
 	{
-		j = randint(30);
-
 		/*
 		 * Stop everything - if you stop for the little things.
-		 *
-		 * Hmmm. Wonder how to disturb *only* if one of these
-		 * *successfully* happend - ie, disturb if it clears muta1's
-		 * *AND* if you actually had one or more mutations of that
-		 * class to clear...
 		 */
 		if (disturb_minor) disturb(0,0);
 
-		switch(25)
+		switch(randint(14))
 		{
 			case 1:
-				if(p_ptr->muta1 || p_ptr->muta2 || p_ptr->muta3)
+				if (p_ptr->muta1 || p_ptr->muta2 || p_ptr->muta3)
 				{
 					msg_print("All of your lovely mutations go away!");
 					p_ptr->muta1 = p_ptr->muta2 = p_ptr->muta3 = 0;
 					p_ptr->update |= PU_BONUS;
 					handle_stuff();
+					bell();
+					break;
 				}
-				break;
-			case 2: case 5: case 8:
-				if(p_ptr->muta1)
+			case 2: case 3:	case 4: case 5: case 6: case 7:
+				if (p_ptr->muta1 || p_ptr->muta2 || p_ptr->muta3)
 				{
-					msg_print("Some of your lovely mutations go away!");
-					p_ptr->muta1 = 0;
-					p_ptr->update |= PU_BONUS;
-					handle_stuff();
+					lose_mutation(0);
+					bell();
+					break;
 				}
-				break;
-			case 3: case 6: case 9:
-				if(p_ptr->muta2)
-				{
-					msg_print("Some of your lovely mutations go away!");
-					p_ptr->muta2 = 0;
-					p_ptr->update |= PU_BONUS;
-					handle_stuff();
-				}
-				break;
-			case 4: case 7: case 10:
-				if(p_ptr->muta3)
-				{
-					msg_print("Some of your lovely mutations go away!");
-					p_ptr->muta3 = 0;
-					p_ptr->update |= PU_BONUS;
-					handle_stuff();
-				}
-				break;
 			default:
 				gain_random_mutation(0);
+				bell();
 				break;
 		}
 	}
@@ -1753,7 +1732,9 @@ static void process_world(void)
 			if (o_ptr->tval == TV_LITE)
 			{
 				/* Use some fuel (except on artifacts) */
-				if (!artifact_p(o_ptr) && (o_ptr->pval > 0))
+				if (!artifact_p(o_ptr) &&
+				    !(o_ptr->sval == SV_LITE_FEANORAN_LAMP) &&
+				    (o_ptr->pval > 0))
 				{
 					/* Heal the player a bit */
 					hp_player(o_ptr->pval / 20);
@@ -1897,47 +1878,15 @@ static void process_world(void)
 			new_level_flag = TRUE;
 		}
 
-/* MUT2_WARNING now detects monsters at random, but I've kept the old
- * code for those that might want it. It's also much slower than it was
- * originally [now !rand_int(5000) instead of !rand_int(1000)]. - Gumby
- */
-		if ((p_ptr->muta2 & MUT2_WARNING) && !rand_int(5000))
+		/*
+		 * MUT2_WARNING now detects monsters at random. It's also
+		 * slower than it was originally [now !rand_int(2500)
+		 * instead of !rand_int(1000)]. - Gumby
+		 */
+		if ((p_ptr->muta2 & MUT2_WARNING) && !rand_int(2500))
 		{
 			(void)detect_monsters_normal();
 		}
-/*		{
- *			int danger_amount = 0;
- *			int monster;
- *
- *			for (monster = 0; monster < m_max; monster++)
- *			{
- *				monster_type    *m_ptr = &m_list[monster];
- *				monster_race    *r_ptr = &r_info[m_ptr->r_idx];
- *
- *				if (!m_ptr->r_idx) continue;
- *
- *				if (r_ptr->level >= p_ptr->lev)
- *				{
- *					danger_amount += r_ptr->level - p_ptr->lev + 1;
- *				}
- *			}
- *
- *			disturb(0, 0);
- *
- *			if (danger_amount > 100)
- *				msg_print("You feel utterly terrified!");
- *			else if (danger_amount > 50)
- *				msg_print("You feel terrified!");
- *			else if (danger_amount > 20)
- *				msg_print("You feel very worried!");
- *			else if (danger_amount > 10)
- *				msg_print("You feel paranoid!");
- *			else if (danger_amount > 5)
- *				msg_print("You feel almost safe.");
- *			else
- *				msg_print("You feel lonely.");
- *		}
- */
 
 		if ((p_ptr->muta2 & MUT2_INVULN) && !p_ptr->anti_magic)
 		{
@@ -1949,8 +1898,6 @@ static void process_world(void)
 			if (i)
 			{
 				if (disturb_minor) disturb(0, 0);
-				msg_print("You feel invincible!");
-				msg_print(NULL);
 				(void)set_invuln(p_ptr->invuln + i);
 			}
 		}
@@ -2037,10 +1984,12 @@ static void process_world(void)
 	 	 * Auto-curse
 	 	 * Curse_turn is set in remove_curse_aux()).
 	 	 */
-	 	if (f3 & TR3_AUTO_CURSE && ~o_ptr->ident & IDENT_CURSED && turn > curse_turn)
+	 	if ((f3 & TR3_AUTO_CURSE) && (~o_ptr->ident & IDENT_CURSED) &&
+		    (turn > curse_turn))
 	 	{
 	 		o_ptr->ident |= IDENT_CURSED;
 	 		object_desc(o_name, o_ptr, FALSE, 0);
+			o_ptr->note = quark_add("cursed");
 	 		msg_format("The %s suddenly feels deathly cold!", o_name);
 	 	}
 

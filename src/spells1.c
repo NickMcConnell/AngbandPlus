@@ -67,496 +67,6 @@ s16b poly_r_idx(int r_idx)
 
 
 /*
- * Teleport a monster, normally up to "dis" grids away.
- *
- * Attempt to move the monster at least "dis/2" grids away.
- *
- * But allow variation to prevent infinite loops.
- */
-void teleport_away(int m_idx, int dis)
-{
-	int ny, nx, oy, ox, d, i, min;
-
-	bool look = TRUE;
-
-	monster_type *m_ptr = &m_list[m_idx];
-
-
-	/* Paranoia */
-	if (!m_ptr->r_idx) return;
-
-	/* Save the old location */
-	oy = m_ptr->fy;
-	ox = m_ptr->fx;
-
-	/* Minimum distance */
-	min = dis / 2;
-
-	/* Look until done */
-	while (look)
-	{
-		/* Verify max distance */
-		if (dis > 200) dis = 200;
-
-		/* Try several locations */
-		for (i = 0; i < 500; i++)
-		{
-			/* Pick a (possibly illegal) location */
-			while (1)
-			{
-				ny = rand_spread(oy, dis);
-				nx = rand_spread(ox, dis);
-				d = distance(oy, ox, ny, nx);
-				if ((d >= min) && (d <= dis)) break;
-			}
-
-			/* Ignore illegal locations */
-			if (!in_bounds(ny, nx)) continue;
-
-			/* Require "empty" floor space */
-			if (!cave_empty_bold(ny, nx)) continue;
-
-			/* Hack -- no teleport onto glyph of warding */
-			if (cave[ny][nx].feat == FEAT_GLYPH) continue;
-			if (cave[ny][nx].feat == FEAT_MINOR_GLYPH) continue;
-
-			/* ...nor onto the Pattern */
-			if ((cave[ny][nx].feat >= FEAT_PATTERN_START) &&
-			    (cave[ny][nx].feat <= FEAT_PATTERN_XTRA2)) continue;
-
-			/* No teleporting into vaults and such */
-			/* if (cave[ny][nx].info & (CAVE_ICKY)) continue; */
-
-			/* This grid looks good */
-			look = FALSE;
-
-			/* Stop looking */
-			break;
-		}
-
-		/* Increase the maximum distance */
-		dis = dis * 2;
-
-		/* Decrease the minimum distance */
-		min = min / 2;
-	}
-
-	/* Sound */
-	sound(SOUND_TPOTHER);
-
-	/* Update the new location */
-	cave[ny][nx].m_idx = m_idx;
-
-	/* Update the old location */
-	cave[oy][ox].m_idx = 0;
-
-	/* Move the monster */
-	m_ptr->fy = ny;
-	m_ptr->fx = nx;
-
-	/* Update the monster (new location) */
-	update_mon(m_idx, TRUE);
-
-	/* Redraw the old grid */
-	lite_spot(oy, ox);
-
-	/* Redraw the new grid */
-	lite_spot(ny, nx);
-}
-
-
-
-/*
- * Teleport monster next to the player
- */
-void teleport_to_player(int m_idx)
-{
-	int ny, nx, oy, ox, d, i, min;
-	int dis = 2;
-
-	bool look = TRUE;
-
-	monster_type *m_ptr = &m_list[m_idx];
-	int attempts = 500;
-
-
-	/* Paranoia */
-	if (!m_ptr->r_idx) return;
-
-	/* "Skill" test */
-	if (randint(100) > r_info[m_ptr->r_idx].level) return;
-
-	/* Save the old location */
-	oy = m_ptr->fy;
-	ox = m_ptr->fx;
-
-	/* Minimum distance */
-	min = dis / 2;
-
-	/* Look until done */
-	while ((look) && --attempts)
-	{
-		/* Verify max distance */
-		if (dis > 200) dis = 200;
-
-		/* Try several locations */
-		for (i = 0; i < 500; i++)
-		{
-			/* Pick a (possibly illegal) location */
-			while (1)
-			{
-				ny = rand_spread(py, dis);
-				nx = rand_spread(px, dis);
-				d = distance(py, px, ny, nx);
-				if ((d >= min) && (d <= dis)) break;
-			}
-
-			/* Ignore illegal locations */
-			if (!in_bounds(ny, nx)) continue;
-
-			/* Require "empty" floor space */
-			if (!cave_empty_bold(ny, nx)) continue;
-
-			/* Hack -- no teleport onto glyph of warding */
-			if (cave[ny][nx].feat == FEAT_GLYPH) continue;
-			if (cave[ny][nx].feat == FEAT_MINOR_GLYPH) continue;
-
-			/* ...nor onto the Pattern */
-			if ((cave[ny][nx].feat >= FEAT_PATTERN_START) &&
-			    (cave[ny][nx].feat <= FEAT_PATTERN_XTRA2)) continue;
-
-			/* No teleporting into vaults and such */
-			/* if (cave[ny][nx].info & (CAVE_ICKY)) continue; */
-
-			/* This grid looks good */
-			look = FALSE;
-
-			/* Stop looking */
-			break;
-		}
-
-		/* Increase the maximum distance */
-		dis = dis * 2;
-
-		/* Decrease the minimum distance */
-		min = min / 2;
-	}
-
-	if (attempts < 1) return;
-
-	/* Sound */
-	sound(SOUND_TPOTHER);
-
-	/* Update the new location */
-	cave[ny][nx].m_idx = m_idx;
-
-	/* Update the old location */
-	cave[oy][ox].m_idx = 0;
-
-	/* Move the monster */
-	m_ptr->fy = ny;
-	m_ptr->fx = nx;
-
-	/* Update the monster (new location) */
-	update_mon(m_idx, TRUE);
-
-	/* Redraw the old grid */
-	lite_spot(oy, ox);
-
-	/* Redraw the new grid */
-	lite_spot(ny, nx);
-}
-
-
-/*
- * Teleport the player to a location up to "dis" grids away.
- *
- * If no such spaces are readily available, the distance may increase.
- * Try very hard to move the player at least a quarter that distance.
- */
-void teleport_player(int dis)
-{
-	int d, i, min, ox, oy, x = py, y = px;
-
-	int xx = -1, yy = -1;
-
-	bool look = TRUE;
-
-	if (p_ptr->anti_tele)
-	{
-		msg_print("A mysterious force prevents you from teleporting!");
-		return;
-	}
-
-	if (dis > 200) dis = 200; /* To be on the safe side... */
-
-	/* Minimum distance */
-	min = dis / 2;
-
-	/* Look until done */
-	while (look)
-	{
-		/* Verify max distance */
-		if (dis > 200) dis = 200;
-
-		/* Try several locations */
-		for (i = 0; i < 500; i++)
-		{
-			/* Pick a (possibly illegal) location */
-			while (1)
-			{
-				y = rand_spread(py, dis);
-				x = rand_spread(px, dis);
-				d = distance(py, px, y, x);
-				if ((d >= min) && (d <= dis)) break;
-			}
-
-			/* Ignore illegal locations */
-			if (!in_bounds(y, x)) continue;
-
-			/* Require "naked" floor space */
-			if (!cave_naked_bold(y, x)) continue;
-
-			/* No teleporting into vaults and such */
-			if (cave[y][x].info & (CAVE_ICKY)) continue;
-
-			/* This grid looks good */
-			look = FALSE;
-
-			/* Stop looking */
-			break;
-		}
-
-		/* Increase the maximum distance */
-		dis = dis * 2;
-
-		/* Decrease the minimum distance */
-		min = min / 2;
-	}
-
-	/* Sound */
-	sound(SOUND_TELEPORT);
-
-	/* Save the old location */
-	oy = py;
-	ox = px;
-
-	/* Move the player */
-	py = y;
-	px = x;
-
-	/* Redraw the old spot */
-	lite_spot(oy, ox);
-
-	while (xx < 2)
-	{
-		yy = -1;
-
-		while (yy < 2)
-		{
-			if (xx == 0 && yy == 0)
-			{
-				/* Do nothing */
-			}
-			else
-			{
-				if (cave[oy+yy][ox+xx].m_idx)
-				{
-					if ((r_info[m_list[cave[oy+yy][ox+xx].m_idx].r_idx].flags6
-					    & RF6_TPORT) &&
-					    !(r_info[m_list[cave[oy+yy][ox+xx].m_idx].r_idx].flags3
-					    & RF3_RES_TELE))
-						/*
-						 * The latter limitation is to avoid
-						 * totally unkillable suckers...
-						 */
-					{
-						if (!(m_list[cave[oy+yy][ox+xx].m_idx].csleep))
-							teleport_to_player(cave[oy+yy][ox+xx].m_idx);
-					}
-				}
-			}
-			yy++;
-		}
-		xx++;
-	}
-
-	/* Redraw the new spot */
-	lite_spot(py, px);
-
-	/* Check for new panel (redraw map) */
-	verify_panel();
-
-	/* Update stuff */
-	p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW);
-
-	/* Update the monsters */
-	p_ptr->update |= (PU_DISTANCE);
-
-	/* Window stuff */
-	p_ptr->window |= (PW_OVERHEAD);
-
-	/* Handle stuff XXX XXX XXX */
-	handle_stuff();
-}
-
-
-
-/*
- * Teleport player to a grid near the given location
- *
- * This function is slightly obsessive about correctness.
- * This function allows teleporting into vaults (!)
- */
-void teleport_player_to(int ny, int nx)
-{
-	int y, x, oy, ox, dis = 0, ctr = 0;
-
-	if (p_ptr->anti_tele)
-	{
-		msg_print("A mysterious force prevents you from teleporting!");
-		return;
-	}
-
-	/* Find a usable location */
-	while (1)
-	{
-		/* Pick a nearby legal location */
-		while (1)
-		{
-			y = rand_spread(ny, dis);
-			x = rand_spread(nx, dis);
-			if (in_bounds(y, x)) break;
-		}
-
-		/* Accept "naked" floor grids */
-		if (cave_naked_bold(y, x)) break;
-
-		/* Occasionally advance the distance */
-		if (++ctr > (4 * dis * dis + 4 * dis + 1))
-		{
-			ctr = 0;
-			dis++;
-		}
-	}
-
-	/* Sound */
-	sound(SOUND_TELEPORT);
-
-	/* Save the old location */
-	oy = py;
-	ox = px;
-
-	/* Move the player */
-	py = y;
-	px = x;
-
-	/* Redraw the old spot */
-	lite_spot(oy, ox);
-
-	/* Redraw the new spot */
-	lite_spot(py, px);
-
-	/* Check for new panel (redraw map) */
-	verify_panel();
-
-	/* Update stuff */
-	p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW);
-
-	/* Update the monsters */
-	p_ptr->update |= (PU_DISTANCE);
-
-	/* Window stuff */
-	p_ptr->window |= (PW_OVERHEAD);
-
-	/* Handle stuff XXX XXX XXX */
-	handle_stuff();
-}
-
-
-
-/*
- * Teleport the player one level up or down (random when legal)
- */
-void teleport_player_level(void)
-{
-	if (p_ptr->anti_tele)
-	{
-		msg_print("A mysterious force prevents you from teleporting!");
-		return;
-	}
-
-	if (!dun_level)
-	{
-		msg_print("You sink through the floor.");
-
-		if (autosave_l)
-		{
-			is_autosave = TRUE;
-			msg_print("Autosaving the game...");
-			do_cmd_save_game();
-			is_autosave = FALSE;
-		}
-
-		dun_level++;
-		new_level_flag = TRUE;
-	}
-	else if (is_quest(dun_level, FALSE) || (dun_level >= MAX_DEPTH-1))
-	{
-		msg_print("You rise up through the ceiling.");
-
-		if (autosave_l)
-		{
-			is_autosave = TRUE;
-			msg_print("Autosaving the game...");
-			do_cmd_save_game();
-			is_autosave = FALSE;
-		}
-
-		dun_level--;
-		new_level_flag = TRUE;
-	}
-	else if (rand_int(100) < 50)
-	{
-		msg_print("You rise up through the ceiling.");
-
-		if (autosave_l)
-		{
-			is_autosave = TRUE;
-			msg_print("Autosaving the game...");
-			do_cmd_save_game();
-			is_autosave = FALSE;
-		}
-
-		dun_level--;
-		new_level_flag = TRUE;
-	}
-	else
-	{
-		msg_print("You sink through the floor.");
-
-		if (autosave_l)
-		{
-			is_autosave = TRUE;
-			msg_print("Autosaving the game...");
-			do_cmd_save_game();
-			is_autosave = FALSE;
-		}
-
-		dun_level++;
-		new_level_flag = TRUE;
-	}
-
-	/* Sound */
-	sound(SOUND_TPLEVEL);
-}
-
-
-
-
-
-
-/*
  * Get a legal "multi-hued" color for drawing "spells"
  */
 static byte mh_attr(int max)
@@ -833,15 +343,10 @@ void take_hit(int damage, cptr hit_from)
 }
 
 
-
-
-
 /*
  * Note that amulets, rods, and high-level spell books are immune
  * to "inventory damage" of any kind.  Also sling ammo and shovels.
  */
-
-
 /*
  * Does a given class of objects (usually) hate acid?
  * Note that acid can either melt or corrode something.
@@ -916,6 +421,12 @@ static bool hates_fire(object_type *o_ptr)
 		case TV_GLOVES:	case TV_CLOAK: case TV_SOFT_ARMOR:
 		{
 			return (TRUE);
+		}
+
+		/* Wooden shields burn nicely */
+		case TV_SHIELD:
+		{
+			if (o_ptr->sval == SV_WOODEN_SHIELD) return (TRUE);
 		}
 
 		/* Books */
@@ -1010,8 +521,6 @@ static int set_cold_destroy(object_type *o_ptr)
 }
 
 
-
-
 /*
  * This seems like a pretty standard "typedef"
  */
@@ -1089,8 +598,6 @@ static int inven_damage(inven_func typ, int perc)
 	/* Return the casualty count */
 	return (k);
 }
-
-
 
 
 /*
@@ -1493,8 +1000,6 @@ bool res_stat(int stat)
 }
 
 
-
-
 /*
  * Apply disenchantment to the player's stuff
  *
@@ -1547,15 +1052,14 @@ bool apply_disenchant(int mode)
 	object_desc(o_name, o_ptr, FALSE, 0);
 
 
-	/* Artifacts have 71% chance to resist */
-	if ((artifact_p(o_ptr) || o_ptr->art_name) && (rand_int(100) < 71))
+	/* Artifacts have 75% chance to resist, ego-items 50% */
+	if (((artifact_p(o_ptr) || o_ptr->art_name) && (randint(100) <= 75))
+	    || (ego_item_p(o_ptr) && (randint(100) <= 50)))
 	{
 		/* Message */
-		msg_format("Your %s (%c) resist%s disenchantment!",
-			   o_name, index_to_label(t),
-			   ((o_ptr->number != 1) ? "" : "s"));
+		msg_format("Your %s (%c) resist%s disenchantment!", o_name,
+			   index_to_label(t), ((o_ptr->number != 1) ? "" : "s"));
 
-		/* Notice */
 		return (TRUE);
 	}
 
@@ -1588,71 +1092,34 @@ bool apply_disenchant(int mode)
 }
 
 
-void mutate_player(void)
-{
-	int max1, cur1, max2, cur2, ii, jj;
-
-	/* Pick a pair of stats */
-	ii = rand_int(6);
-	for (jj = ii; jj == ii; jj = rand_int(6)) /* loop */;
-
-	max1 = p_ptr->stat_max[ii];
-	cur1 = p_ptr->stat_cur[ii];
-	max2 = p_ptr->stat_max[jj];
-	cur2 = p_ptr->stat_cur[jj];
-
-	p_ptr->stat_max[ii] = max2;
-	p_ptr->stat_cur[ii] = cur2;
-	p_ptr->stat_max[jj] = max1;
-	p_ptr->stat_cur[jj] = cur1;
-
-	p_ptr->update |= (PU_BONUS);
-}
-
-
 /*
  * Apply Nexus
  */
 static void apply_nexus(monster_type *m_ptr)
 {
-	switch (randint(7))
+	if (rand_int(100) < p_ptr->skill_sav)
 	{
-		case 1: case 2: case 3:
+		msg_print("You resist the effects!");
+	}
+	else
+	{
+		switch (randint(7))
 		{
-			teleport_player(200);
-			break;
-		}
-
-		case 4: case 5:
-		{
-			teleport_player_to(m_ptr->fy, m_ptr->fx);
-			break;
-		}
-
-		case 6:
-		{
-			if (rand_int(100) < p_ptr->skill_sav)
+			case 1: case 2: case 3:
+				teleport_player(200);
+				break;
+			case 4: case 5:
+				teleport_player_to(m_ptr->fy, m_ptr->fx);
+				break;
+			case 6:
+				teleport_player_level();
+				break;
+			case 7:
 			{
-				msg_print("You resist the effects!");
+				msg_print("Your body starts to scramble...");
+				mutate_player();
 				break;
 			}
-
-			/* Teleport Level */
-			teleport_player_level();
-			break;
-		}
-
-		case 7:
-		{
-			if (rand_int(100) < p_ptr->skill_sav)
-			{
-				msg_print("You resist the effects!");
-				break;
-			}
-
-			msg_print("Your body starts to scramble...");
-			mutate_player();
-			break;
 		}
 	}
 }
@@ -2819,6 +2286,10 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			case GF_LITE:
 			case GF_LITE_WEAK:
 				if (r_ptr->flags3 & RF3_HURT_LITE)
+					get_angry = TRUE;
+				break;
+			case GF_DISP_ANIMAL:
+				if (r_ptr->flags3 & RF3_ANIMAL)
 					get_angry = TRUE;
 				break;
 			default:
@@ -4448,6 +3919,34 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			break;
 		}
 
+		/* Dispel animals */
+		case GF_DISP_ANIMAL:
+		{
+			/* Only affect animals */
+			if (r_ptr->flags3 & (RF3_ANIMAL))
+			{
+				/* Learn about type */
+				if (seen) r_ptr->r_flags3 |= (RF3_ANIMAL);
+
+				/* Obvious */
+				if (seen) obvious = TRUE;
+
+				/* Message */
+				note = " shudders.";
+				note_dies = " dissolves!";
+			}
+			/* Others ignore */
+			else
+			{
+				/* Irrelevant */
+				skipped = TRUE;
+
+				/* No damage */
+				dam = 0;
+			}
+			break;
+		}
+
 		/* Default */
 		default:
 		{
@@ -4478,16 +3977,17 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 
 	/* "Unique" monsters can only be "killed" by the player */
 	if (r_ptr->flags1 & (RF1_UNIQUE))
-	{
-		/* Uniques may only be killed by the player */
 		if (who && (dam > m_ptr->hp)) dam = m_ptr->hp;
-	}
 
 	/*
 	 * "Quest" monsters can only be "killed" by the player
 	 * Heino Vander Sanden
 	 */
 	if (r_ptr->flags1 & (RF1_QUESTOR))
+		if ((who > 0) && (dam > m_ptr->hp)) dam = m_ptr->hp;
+
+	/* "Explosive" monsters can only be "killed" by the player -- G */
+	if (r_ptr->flags2 & (RF2_EXPLOSIVE))
 		if ((who > 0) && (dam > m_ptr->hp)) dam = m_ptr->hp;
 
 	/* Check for death */

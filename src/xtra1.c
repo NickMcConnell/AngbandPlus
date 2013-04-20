@@ -1754,6 +1754,13 @@ static void calc_torch(void)
 				continue;
 			}
 
+			/* Feanoran lamps provide permanent lite */
+			if (o_ptr->sval == SV_LITE_FEANORAN_LAMP)
+			{
+				p_ptr->cur_lite += 2;
+				continue;
+			}
+
 			/* Artifact Lites provide permanent, bright, lite */
 			if (artifact_p(o_ptr))
 			{
@@ -1992,11 +1999,11 @@ static void calc_bonuses(void)
 			if (p_ptr->lev > 29) p_ptr->resist_fear = TRUE;
 			break;
 		case CLASS_PALADIN:
-			if (p_ptr->lev > 39) p_ptr->resist_fear = TRUE;
+			if (p_ptr->lev > 34) p_ptr->resist_fear = TRUE;
 			break;
 		case CLASS_CHAOS_WARRIOR:
-			if (p_ptr->lev > 29) p_ptr->resist_chaos = TRUE;
-			if (p_ptr->lev > 39) p_ptr->resist_fear = TRUE;
+			if (p_ptr->lev > 39) p_ptr->resist_chaos = TRUE;
+			if (p_ptr->lev > 34) p_ptr->resist_fear = TRUE;
 			break;
 		case CLASS_MINDCRAFTER:
 			if (p_ptr->lev >  9) p_ptr->resist_fear = TRUE;
@@ -2018,7 +2025,7 @@ static void calc_bonuses(void)
 				p_ptr->free_act = TRUE;
 			break;
 		case CLASS_WEAPONMASTER:
-			if (p_ptr->lev > 34) p_ptr->resist_fear = TRUE;
+			if (p_ptr->lev > 29) p_ptr->resist_fear = TRUE;
 			break;
 	}
 
@@ -2278,6 +2285,7 @@ static void calc_bonuses(void)
                 if (p_ptr->muta3 & MUT3_MAGIC_RES)
                 {
                     p_ptr->skill_sav += (15 + (p_ptr->lev / 5));
+
                 }
 
                 if (p_ptr->muta3 & MUT3_XTRA_NOIS)
@@ -2551,18 +2559,35 @@ static void calc_bonuses(void)
 	if (p_ptr->sh_fire) p_ptr->lite = TRUE;
 	if (p_ptr->sh_elec) p_ptr->lite = TRUE;
 
-	/* Warriors can use their body armour better than others -- Gumby */
-	if ((p_ptr->pclass == CLASS_WARRIOR) && (inventory[INVEN_BODY].k_idx))
+	/*
+	 * Warriors *know* how to use and wear their armour - others just
+	 * throw it on any old way and know nothing about how to make sure
+	 * that blows are recieved so as to take best advantage of the
+	 * armour's protective value. -- Gumby
+	 */
+	if (p_ptr->pclass == CLASS_WARRIOR)
 	{
-		p_ptr->ac += (inventory[INVEN_BODY].ac / 2);
-		p_ptr->dis_ac += (inventory[INVEN_BODY].ac / 2);
+		for (i = INVEN_BODY; i < INVEN_TOTAL; i++)
+		{
+			o_ptr = &inventory[i];
+
+			/* Skip non-objects */
+			if (!o_ptr->k_idx) continue;
+
+			p_ptr->ac += (o_ptr->ac / 2);
+			p_ptr->dis_ac += (o_ptr->ac / 2);
+		}
 	}
 
-	/* Golems get an intrinsic AC bonus */
+	/*
+	 * Golems have an intrinsic AC which gets better as they age and
+	 * harden - Golems fresh out of the kiln or forge are rather soft
+	 * and malleable, after all. :) -- Gumby
+	 */
 	if (p_ptr->prace == RACE_GOLEM)
 	{
-		p_ptr->to_a += p_ptr->lev;
-		p_ptr->dis_to_a += p_ptr->lev;
+		p_ptr->ac += p_ptr->lev;
+		p_ptr->dis_ac += p_ptr->lev;
 	}
 
 	/* Calculate stats */
@@ -2945,7 +2970,7 @@ static void calc_bonuses(void)
 			case CLASS_CHAOS_WARRIOR:
 				num = 5; wgt = 30; mul = 4; break;
 			case CLASS_MONK:
-				num = (p_ptr->lev<40?3:4); wgt = 40; mul = 4; break;
+				num = 4; wgt = 40; mul = 4; break;
 		}
 
 		/* Enforce a minimum "weight" (tenth pounds) */
@@ -3032,11 +3057,11 @@ static void calc_bonuses(void)
 
 		if (!monk_heavy_armor())
 		{
-			p_ptr->to_h += (p_ptr->lev / 3);
-			p_ptr->to_d += (p_ptr->lev / 3);
+			p_ptr->to_h += (p_ptr->lev / 2);
+			p_ptr->to_d += (p_ptr->lev / 2);
 
-			p_ptr->dis_to_h += (p_ptr->lev / 3);
-			p_ptr->dis_to_d += (p_ptr->lev / 3);
+			p_ptr->dis_to_h += (p_ptr->lev / 2);
+			p_ptr->dis_to_d += (p_ptr->lev / 2);
 		}
 	}
  
@@ -3158,6 +3183,7 @@ static void calc_bonuses(void)
 	/* Limit Skill -- digging from 1 up */
 	if (p_ptr->skill_dig < 1) p_ptr->skill_dig = 1;
 
+	/* NO_MAGIC gives you a *very* nice saving throw */
 	if ((p_ptr->anti_magic) && (p_ptr->skill_sav < 95)) p_ptr->skill_sav = 95;
 
 	/* Hack -- handle "xtra" mode */

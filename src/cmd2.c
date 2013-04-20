@@ -311,12 +311,11 @@ static void chest_death(int y, int x, s16b o_idx)
 			/* Make some gold */
 			if (!make_gold(q_ptr)) continue;
 		}
-
 		/* Otherwise drop an item */
 		else
 		{
 			/* Make an object */
-			if (!make_object(q_ptr, FALSE, FALSE)) continue;
+			if (!make_object(q_ptr, TRUE, FALSE)) continue;
 		}
 
 		/* Drop it in the dungeon */
@@ -1940,6 +1939,11 @@ static int breakage_chance(object_type *o_ptr)
 
 		/* Often break */
 		case TV_LITE:
+		{
+			if (!(o_ptr->sval == SV_LITE_FEANORAN_LAMP))
+			return (50);
+		}
+
 		case TV_SCROLL:
 		case TV_ARROW:
 		case TV_SKELETON:
@@ -2163,10 +2167,8 @@ void do_cmd_fire(void)
 	/* Base range */
 	tdis = 10 + 5 * tmul;
 
-
 	/* Take a (partial) turn */
 	energy_use = (100 / thits);
-
 
 	/* Start at the player */
 	y = py;
@@ -2686,24 +2688,8 @@ bool racial_aux(s16b min_level, int cost, int use_stat, int difficulty)
 {
 	bool use_hp = FALSE;
 
-# if 0
-	if (p_ptr->csp < cost)
-	{
-		if ((p_ptr->pclass != (CLASS_WARRIOR || CLASS_WEAPONMASTER) &&
-		    (p_ptr->prace == RACE_VAMPIRE))
-		{
-			msg_print("Your powers are too depleted!");
-			return FALSE;
-		}
-		else
-		{
-			use_hp = TRUE;
-		}
-	}
-#else
-	if (p_ptr->csp < cost)
-        	use_hp = TRUE;
-#endif
+	/* Use hit points when you don't have enough spell points */
+	if (p_ptr->csp < cost) use_hp = TRUE;
 
 	if (p_ptr->lev < min_level)
 	{
@@ -2888,14 +2874,28 @@ static void cmd_racial_power_aux (void)
 		case RACE_HALF_GIANT:
 			if (racial_aux(20, 10, A_STR, 12))
 			{
-				if (!get_aim_dir(&dir)) break;
-				msg_print("You bash at a stone wall.");
-				(void)wall_to_mud(dir);
+				int x,y;
+				cave_type *c_ptr;
+
+				if (!get_rep_dir(&dir)) return;
+				y = py + ddy[dir];
+				x = px + ddx[dir];
+				c_ptr = &cave[y][x];
+
+				if (!((c_ptr->feat >= FEAT_DOOR_HEAD) &&
+				      (c_ptr->feat <= FEAT_WALL_SOLID)))
+
+				{
+					msg_print("You wave your fists in the air.");
+					break;
+				}
+				msg_print("You smash your fist into the wall!");
+				wall_to_mud(dir);
 			}
 			break;
 
 		case RACE_HALF_TITAN:
-			if (racial_aux(35, 20, A_INT, 12))
+			if (racial_aux(25, 20, A_INT, 12))
 			{
 				msg_print("You examine your foes...");
 				probing();
@@ -3084,7 +3084,7 @@ static void cmd_racial_power_aux (void)
 			break;
 
 		case RACE_IMP:
-			if (racial_aux(9, 15, A_WIS, 15))
+			if (racial_aux(9, 15, A_DEX, 15))
 			{
 				if (!get_aim_dir(&dir)) break;
 				if (p_ptr->lev >= 30)
@@ -3095,7 +3095,8 @@ static void cmd_racial_power_aux (void)
 				else
 				{
 					msg_print("You cast a bolt of fire.");
-					fire_bolt(GF_FIRE, dir, plev * 2);
+					fire_bolt_or_beam(plev * 2, GF_FIRE,
+							dir, plev * 2);
 				}
 			}
 			break;
@@ -3338,17 +3339,17 @@ void do_cmd_racial_power(void)
 
 		case RACE_HALF_GIANT:
 			if (lvl < 20)
-				racial_power = "stone to mud       (racial, lvl 20, cost 10)";
+				racial_power = "smash down a wall  (racial, lvl 20, cost 10)";
 			else
-				racial_power = "stone to mud       (racial, cost 10, STR 12@20)";
+				racial_power = "smash down a wall  (racial, cost 10, STR 12@20)";
 			has_racial = TRUE;
 			break;
 
 		case RACE_HALF_TITAN:
 			if (lvl < 35)
-				racial_power = "probing            (racial, lvl 35, cost 20)";
+				racial_power = "probing            (racial, lvl 25, cost 20)";
 			else
-				racial_power = "probing            (racial, cost 20, INT 12@35)";
+				racial_power = "probing            (racial, cost 20, INT 12@25)";
 			has_racial = TRUE;
 			break;
 
@@ -3417,7 +3418,7 @@ void do_cmd_racial_power(void)
 			if (lvl < 9)
 				racial_power = "fire bolt/ball     (racial, lvl 9/30, cost 15, dam lvl*2)";
 			else
-				racial_power = "fire bolt/ball(30) (racial, cost 15, dam lvl*2, WIS 15@9)";
+				racial_power = "fire bolt/ball(30) (racial, cost 15, dam lvl*2, DEX 15@9)";
 			has_racial = TRUE;
 			break;
 
@@ -4167,6 +4168,7 @@ void do_cmd_racial_power(void)
 			case MUT1_EARTHQUAKE:
 				if (racial_aux(12, 12, A_STR, 16))
 				{
+					msg_print("You put your foot down... Hard!");
 					earthquake(py, px, 10);
 				}
 				break;

@@ -183,7 +183,7 @@ int template_race;
 /*
 * Maximal number of room types
 */
-#define ROOM_MAX	11
+#define ROOM_MAX	10
 
 
 
@@ -259,12 +259,7 @@ struct dun_data
 static dun_data *dun;
 
 
-/*
- * Array of room types (assumes 11x11 blocks)
- *
- * I'm a bastard, so I decided to remove the minimum levels for the various
- * room types - Jelly nests at 50' are fun! :) -- Gumby
- */
+/* Array of room types (assumes 11x11 blocks) */
 static room_data room[ROOM_MAX] =
 {
 	{  0, 0,  0, 0,  0 },	/*  0 = Nothing */
@@ -276,8 +271,7 @@ static room_data room[ROOM_MAX] =
 	{  0, 0, -1, 1,  5 },	/*  6 = Monster pit (33x11) */
 	{  0, 1, -1, 1,  5 },	/*  7 = Lesser vault (33x22) */
 	{ -1, 2, -2, 3,  5 },	/*  8 = Greater vault (10) (66x44) */
-	{  0, 1, -1, 1,  1 },	/*  9 = Quest rooms (Heino Vander Sanden) */
-	{  0, 1,  0, 1,  1 },	/* 10 = Circular (22x22) (Dag Arneson) */
+	{  0, 1,  0, 1,  1 },	/*  9 = Circular (22x22) (Dag Arneson) */
 };
 
 
@@ -982,8 +976,6 @@ static void vault_monsters(int y1, int x1, int num)
 }
 
 
-
-
 /*
 * Room building routines.
 *
@@ -996,10 +988,8 @@ static void vault_monsters(int y1, int x1, int num)
 *   6 -- monster pits
 *   7 -- simple vaults
 *   8 -- greater vaults
-*   9 -- quest vaults
-*  10 -- circular rooms
+*   9 -- circular rooms
 */
-
 
 /*
 * Type 1 -- normal rectangular rooms
@@ -1008,23 +998,18 @@ static void build_type1(int yval, int xval)
 {
 	int y, x, y2, x2;
 	int y1, x1;
-	
 	bool light;
-	
 	cave_type *c_ptr;
-	
-	
+
 	/* Choose lite or dark */
 	light = (dun_level <= randint(25));
-	
-	
+
 	/* Pick a room size */
 	y1 = yval - randint(4);
 	y2 = yval + randint(3);
 	x1 = xval - randint(11);
 	x2 = xval + randint(11);
-	
-	
+
 	/* Place a full floor under the room */
 	for (y = y1 - 1; y <= y2 + 1; y++)
 	{
@@ -1372,10 +1357,10 @@ static void build_type3(int yval, int xval)
 			/* Place a secret door on the inner room */
 			switch (rand_int(4))
 			{
-			case 0: place_secret_door(y1b, xval); break;
-			case 1: place_secret_door(y2b, xval); break;
-			case 2: place_secret_door(yval, x1a); break;
-			case 3: place_secret_door(yval, x2a); break;
+				case 0: place_secret_door(y1b, xval); break;
+				case 1: place_secret_door(y2b, xval); break;
+				case 2: place_secret_door(yval, x1a); break;
+				case 3: place_secret_door(yval, x2a); break;
 			}
 			
 			/* Place a treasure in the vault */
@@ -1889,7 +1874,7 @@ static bool vault_aux_treasure(int r_idx)
 	/* Decline unique monsters */
 	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
 	
-	/* Require "priest" or Angel */
+	/* Require Treasure or Object */
 	if (!((r_ptr->d_char == '!') || (r_ptr->d_char == '|') ||
 		(r_ptr->d_char == '$') || (r_ptr->d_char == '?') ||
 		(r_ptr->d_char == '=')))
@@ -1915,9 +1900,8 @@ static bool vault_aux_clone(int r_idx)
 */
 static bool vault_aux_symbol(int r_idx)
 {
-	return ((r_info[r_idx].d_char == (r_info[template_race].d_char))
-		&& !((r_info[r_idx].flags1 & RF1_UNIQUE) ||
-		     (r_info[r_idx].flags2 & RF2_EXPLOSIVE)));
+	return ((r_info[r_idx].d_char == (r_info[template_race].d_char)) &&
+		!(r_info[r_idx].flags1 & RF1_UNIQUE));
 }
 
 
@@ -2047,16 +2031,11 @@ static bool vault_aux_demon(int r_idx)
 */
 static void build_type5(int yval, int xval)
 {
-	int			y, x, y1, x1, y2, x2;
-	
-	int			tmp, i;
-	
+	int		y, x, y1, x1, y2, x2;
+	int		tmp, i;
 	s16b		what[64];
-	
-	cave_type		*c_ptr;
-	
+	cave_type	*c_ptr;
 	cptr		name;
-	
 	bool		empty = FALSE;
 	
 	
@@ -2135,7 +2114,6 @@ static void build_type5(int yval, int xval)
 	{
 		do  { template_race = randint(MAX_R_IDX - 2); }
 		while ((r_info[template_race].flags1 & RF1_UNIQUE) ||
-		       (r_info[template_race].flags2 & RF2_EXPLOSIVE) ||
 		       (((r_info[template_race].level) + randint(5)) > (dun_level + randint(5))));
 
         if ((randint(2)!=1) && (dun_level >= (25 + randint(15))))
@@ -2235,18 +2213,16 @@ static void build_type5(int yval, int xval)
 	
 	/* Oops */
 	if (empty) return;
-	
-	
+
 	/* Describe */
 	if (cheat_room)
 	{
 		/* Room type */
 		msg_format("Monster nest (%s)", name);
 	}
-	
-	
+
 	/* Increase the level rating */
-	rating += 10;
+/*	rating += 10; */
 	
 	/* (Sometimes) Cause a "special feeling" (for "Monster Nests") */
     if ((dun_level <= 40) && (randint(dun_level*dun_level + 50) < 300))
@@ -2436,7 +2412,6 @@ static void build_type6(int yval, int xval)
 			
 			do  { template_race = randint(MAX_R_IDX - 2); }
 			while ((r_info[template_race].flags1 & RF1_UNIQUE) ||
-			       (r_info[template_race].flags2 & RF2_EXPLOSIVE) ||
 			       (((r_info[template_race].level) + randint(5)) > (dun_level + randint(5))));
 			
             /* Restrict selection */
@@ -2456,88 +2431,62 @@ static void build_type6(int yval, int xval)
 	else if (tmp < 80)
 	{
 		/* Pick dragon type */
-		switch (rand_int(6))
+		switch (rand_int(12))
 		{
-			/* Black */
-		case 0:
+			case 0: case 1: /* Black */
 			{
 				/* Message */
-				name = "acid dragon";
-				
+				name = "acidic dragon";
+
 				/* Restrict dragon breath type */
 				vault_aux_dragon_mask4 = RF4_BR_ACID;
-				
+
 				/* Done */
 				break;
 			}
-			
-			/* Blue */
-		case 1:
+			case 2: case 3: /* Blue */
 			{
-				/* Message */
-				name = "electric dragon";
-				
-				/* Restrict dragon breath type */
+				name = "shocking dragon";
 				vault_aux_dragon_mask4 = RF4_BR_ELEC;
-				
-				/* Done */
 				break;
 			}
-			
-			/* Red */
-		case 2:
+			case 4: case 5: /* Red */
 			{
-				/* Message */
-				name = "fire dragon";
-				
-				/* Restrict dragon breath type */
+				name = "hot dragon";
 				vault_aux_dragon_mask4 = RF4_BR_FIRE;
-				
-				/* Done */
 				break;
 			}
-			
-			/* White */
-		case 3:
+			case 6: case 7: /* White */
 			{
-				/* Message */
-				name = "cold dragon";
-				
-				/* Restrict dragon breath type */
+				name = "freezing dragon";
 				vault_aux_dragon_mask4 = RF4_BR_COLD;
-				
-				/* Done */
 				break;
 			}
-			
-			/* Green */
-		case 4:
+			case 8: /* Green */
 			{
-				/* Message */
-				name = "poison dragon";
-				
-				/* Restrict dragon breath type */
+				name = "poisonous dragon";
 				vault_aux_dragon_mask4 = RF4_BR_POIS;
-				
-				/* Done */
 				break;
 			}
-			
-			/* Multi-hued */
-		default:
+			case 9: /* Gold */
 			{
-				/* Message */
-				name = "multi-hued dragon";
-				
-				/* Restrict dragon breath type */
-				vault_aux_dragon_mask4 = (RF4_BR_ACID | RF4_BR_ELEC |
-					RF4_BR_FIRE | RF4_BR_COLD |
-					RF4_BR_POIS);
-				
-				/* Done */
+				name = "sonic dragon";
+				vault_aux_dragon_mask4 = RF4_BR_SOUN;
 				break;
 			}
-			
+			case 10: /* Bronze */
+			{
+				name = "confusing dragon";
+				vault_aux_dragon_mask4 = RF4_BR_CONF;
+				break;
+			}
+			default: /* Multi-Hued */
+			{
+				name = "multi-hued dragon";
+				vault_aux_dragon_mask4 = (RF4_BR_ACID | RF4_BR_ELEC |
+					RF4_BR_FIRE | RF4_BR_COLD | RF4_BR_POIS);
+				break;
+			}
 		}
 		
 		/* Restrict monster selection */
@@ -2630,7 +2579,7 @@ static void build_type6(int yval, int xval)
 	
 	
 	/* Increase the level rating */
-	rating += 10;
+/*	rating += 10; */
 	
 	/* (Sometimes) Cause a "special feeling" (for "Monster Pits") */
 	if ((dun_level <= 40) && (randint(dun_level*dun_level + 50) < 300))
@@ -2885,104 +2834,6 @@ static void build_vault(int yval, int xval, int ymax, int xmax, cptr data)
 
 
 /*
-* Hack -- fill in "quest" rooms
-* Heino Vander Sanden
-*/
-static void build_quest(int yval, int xval, int ymax, int xmax, cptr data)
-{
-	int dx, dy, x, y;
-	int r_idx = get_quest_monster();
-	
-	cptr t;
-	
-	/* Place dungeon features and objects */
-	for (t = data, dy = 0; dy < ymax; dy++)
-	{
-		for (dx = 0; dx < xmax; dx++, t++)
-		{
-			/* Extract the location */
-			x = xval - (xmax / 2) + dx;
-			y = yval - (ymax / 2) + dy;
-			
-			/* Hack -- skip "non-grids" */
-			if (*t == ' ') continue;
-			
-			/* Lay down a floor */
-			cave[y][x].feat = FEAT_FLOOR;
-			
-			/* Part of a vault */
-			cave[y][x].info |= (CAVE_ROOM | CAVE_ICKY);
-			
-			/* Analyze the grid */
-			switch (*t)
-			{
-				/* Granite wall (outer) */
-			case '%':
-				cave[y][x].feat = FEAT_WALL_OUTER;
-				break;
-				
-				/* Granite wall (inner) */
-			case '#':
-				cave[y][x].feat = FEAT_WALL_INNER;
-				break;
-				
-				/* Permanent wall (inner) */
-			case 'X':
-				cave[y][x].feat = FEAT_PERM_INNER;
-				break;
-				
-				/* Treasure/trap */
-			case '*':
-				if (rand_int(100) < 75)
-				{
-					place_object(y, x, FALSE, FALSE);
-				}
-				else
-				{
-					place_trap(y, x);
-				}
-				break;
-				
-				/* Secret doors */
-			case '+':
-				place_secret_door(y, x);
-				break;
-				
-				/* Trap */
-			case '^':
-				place_trap(y, x);
-				break;
-			}
-		}
-	}
-	
-	/* Place quest monsters */
-	for (t = data, dy = 0; dy < ymax; dy++)
-	{
-		for (dx = 0; dx < xmax; dx++, t++)
-		{
-			/* Extract the grid */
-			x = xval - (xmax/2) + dx;
-			y = yval - (ymax/2) + dy;
-			
-			/* Hack -- skip "non-grids" */
-			if (*t == ' ') continue;
-			
-			/* Analyze the symbol */
-			switch (*t)
-			{
-				/* Quest monster */
-				case '8':
-				{
-					place_monster_one(y, x, r_idx, TRUE, FALSE);
-				}
-			}
-		}
-	}
-}
-
-
-/*
 * Type 7 -- simple vaults (see "v_info.txt")
 */
 static void build_type7(int yval, int xval)
@@ -3017,7 +2868,7 @@ static void build_type7(int yval, int xval)
 #endif
 	
 	/* Message */
-	if (cheat_room) msg_print("Lesser Vault");
+	if (cheat_room) msg_format("%s", v_name + v_ptr->name);
 	
 	/* Boost the rating */
 	rating += v_ptr->rat;
@@ -3070,13 +2921,13 @@ static void build_type8(int yval, int xval)
 #endif
 	
 	/* Message */
-	if (cheat_room) msg_print("Greater Vault");
+	if (cheat_room) msg_format("%s", v_name + v_ptr->name);
 	
 	/* Boost the rating */
 	rating += v_ptr->rat;
 	
 	/* (Sometimes) Cause a special feeling */
-	if ((dun_level <= 50) ||
+	if ((dun_level <= 75) ||
         (randint((dun_level-40) * (dun_level-40) + 50) < 400))
 	{
 		good_item_flag = TRUE;
@@ -3088,32 +2939,6 @@ static void build_type8(int yval, int xval)
 
 
 /*
-* Type 9 -- quest room
-* Heino Vander Sanden
-*/
-static void build_type9(int yval, int xval)
-{
-	vault_type	*v_ptr;
-	
-	/* Pick a quest room */
-	while (TRUE)
-	{
-		/* Access a random vault record */
-		v_ptr = &v_info[rand_int(MAX_V_IDX)];
-		
-		/* Accept the first quest room */
-		if ((v_ptr->typ == 9) && (v_ptr->rat <= get_max_monster())) break;
-	}
-	
-	/* Message */
-	if (cheat_room) msg_print("Quest Room");
-	
-	/* Hack -- Build the vault */
-	build_quest(yval, xval, v_ptr->hgt, v_ptr->wid, v_text + v_ptr->text);
-}
-
-
-/*
 * DAG:
 * Build an vertical oval room.
 * For every grid in the possible square, check the distance.
@@ -3121,7 +2946,7 @@ static void build_type9(int yval, int xval)
 * If its less, make it a normal grid. If it's == make it an outer
 * wall.
 */
-static void build_type10(int y0, int x0)
+static void build_type9(int y0, int x0)
 {
 	int rad, x, y;
 	
@@ -3565,7 +3390,6 @@ static bool room_build(int y0, int x0, int typ)
 	switch (typ)
 	{
 		/* Build an appropriate room */
-		case 10: build_type10(y, x); break;
 		case  9: build_type9 (y, x); break;
 		case  8: build_type8 (y, x); break;
 		case  7: build_type7 (y, x); break;
@@ -3621,9 +3445,7 @@ static bool cave_gen(void)
 	
 	dun_data dun_body;
 	
-	int cur_mon;
-	
-	
+
 	/* Global data */
 	dun = &dun_body;
 	
@@ -3654,8 +3476,7 @@ static bool cave_gen(void)
 	}
 	
 	/* Possible "destroyed" level */
-	if ((dun_level > 10) && (rand_int(DUN_DEST) == 0) && (only_small || small_levels))
-		destroyed = TRUE;
+	if ((dun_level > 10) && (rand_int(DUN_DEST) == 0)) destroyed = TRUE;
 	
 	if (is_quest(dun_level, FALSE))
 	{
@@ -3685,41 +3506,7 @@ static bool cave_gen(void)
 	
 	/* No rooms yet */
 	dun->cent_n = 0;
-	
-	/* rr9: Disabled to prevent problems */
-#if 0
-	/*
-	* Quest level gives chance for a quest room
-	* Heino Vander Sanden
-	*/
-	if (is_quest(dun_level, FALSE) && (get_max_monster() >= 10))
-	{
-		int r_idx;
-		
-		r_idx = get_quest_monster();
-		cur_mon = get_max_monster();
-		
-		while ((cur_mon >= 10) && (rand_range(dun_level,100) >= 25))
-		{
-			/* Pick a block for the room */
-			y = rand_int(dun->row_rooms);
-			x = rand_int(dun->col_rooms);
-			
-			/* Align dungeon rooms */
-			if (dungeon_align)
-			{
-				/* Slide some rooms right */
-				if ((x % 3) == 0) x++;
-				
-				/* Slide some rooms left */
-				if ((x % 3) == 2) x--;
-			}
-			room_build(y, x, 9);
-			cur_mon = get_max_monster() - r_info[r_idx].cur_num;
-		}
-	}
-#endif
-	
+
 	/* Build some rooms */
 	for (i = 0; i < DUN_ROOMS; i++)
 	{
@@ -3804,8 +3591,8 @@ static bool cave_gen(void)
 			/* Type 2 -- Overlapping (50%) */
 			if ((k < 80) && room_build(y, x, 2)) continue;
 			
-			/* Type 10 -- Circular (25%) */
-			if ((k < 100) && room_build(y, x, 10)) continue;
+			/* Type 9 -- Circular (25%) */
+			if ((k < 100) && room_build(y, x, 9)) continue;
 		}
 		
 		/* Attempt a trivial room */
@@ -4385,9 +4172,10 @@ void generate_cave(void)
                 if (cheat_room)
                     msg_print ("A 'small' dungeon level.");
 
-		/* Thanks to Eytan Zweig for this loop that stops full-
-		 * sized levels from sometimes being created when a small
-		 * level was supposed to happen.  --  Gumby
+		/*
+		 * Thanks to Eytan Zweig for this loop that stops full-sized
+		 * levels from sometimes being created when a small level
+		 * was supposed to happen. -- Gumby
 		 */
 		while (TRUE)
 		{
@@ -4447,10 +4235,10 @@ void generate_cave(void)
 		else if (rating > 10) feeling = 8;
 		else if (rating >  0) feeling = 9;
 		else feeling = 10;
-		
+
 		/* Hack -- Have a special feeling sometimes */
 		if (good_item_flag && !p_ptr->preserve) feeling = 1;
-		
+
 		/* It takes 1000 game turns for "feelings" to recharge */
 		if ((turn - old_turn) < 1000) feeling = 0;
 		

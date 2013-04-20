@@ -6,9 +6,7 @@
 # See "lib/help/command.txt" and "src/files.c" for more information.
 #
 
-
 ##### Special attr/char values #####
-
 
 ## # Unused (@)
 ## S:0x00:0x00/0x40
@@ -299,9 +297,12 @@ S:0xFE:0x0E/0x2C
 S:0xFF:0x0F/0x2C
 
 
+##### Default inventory object colors by tval #####
 
-##### Default inventory object colors #####
-
+## 0x00 = Dark     0x04 = Red      0x08 = L.Dark   0x0C = L.Red
+## 0x01 = White    0x05 = Green    0x09 = L.White  0x0D = L.Green
+## 0x02 = Slate    0x06 = Blue     0x0A = Violet   0x0E = L.Blue
+## 0x03 = Orange   0x07 = Umber    0x0B = Yellow   0x0F = L.Umber
 
 # SKELETON
 E:1:0x01
@@ -331,7 +332,7 @@ E:18:0x0F
 E:19:0x07
 
 # DIGGING
-E:20:0x02
+E:20:0x09
 
 # HAFTED
 E:21:0x01
@@ -379,7 +380,7 @@ E:39:0x0B
 E:40:0x03
 
 # RING
-E:45:0x04
+E:45:0x03
 
 # STAFF
 E:55:0x0F
@@ -422,4 +423,3 @@ E:95:0x03
 
 # ARCANE_BOOK
 E:96:0x09
-

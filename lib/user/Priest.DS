@@ -2,7 +2,7 @@
 #
 # TAB - Teleport Away       F1 - Malediction         SF1 - Genocide
 #   [ - Dimension Door      F2 - Stinking Cloud      SF2 - Mass Genocide
-#   ] - Wraithform          F3 - Nether Bolt         SF3 - Omnicide
+#   ] - Wraithform          F3 - Nether Bolt         SF3 - Summon Death
 #   ' - Berserk             F4 - Vampiric Drain      SF4 - Confuse Monster
 #   " - Battle Frenzy       F5 - Cloud Kill          SF5 - Black Sleep
 #   ; - Haste Self          F6 - Dark Bolt           SF6 - Horrify
@@ -146,7 +146,7 @@ P:^_Sx54\r
 A:m3h
 P:^_Sx55\r
 
-# SHIFT-F3 - Omnicide
+# SHIFT-F3 - Summon Death
 A:m4g
 P:^_Sx56\r
 

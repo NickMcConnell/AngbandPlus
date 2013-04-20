@@ -1075,11 +1075,25 @@ static void display_player_middle(void)
 	prt_num("+ To Hit    ", show_tohit, 9, 1, TERM_L_BLUE);
 	prt_num("+ To Damage ", show_todam, 10, 1, TERM_L_BLUE);
 
+	/* Dump the total armor class */
+	prt_num("  Base AC   ", p_ptr->dis_ac, 12, 1, TERM_L_BLUE);
+
 	/* Dump the armor class bonus */
 	prt_num("+ To AC     ", p_ptr->dis_to_a, 11, 1, TERM_L_BLUE);
 
-	/* Dump the total armor class */
-	prt_num("  Base AC   ", p_ptr->dis_ac, 12, 1, TERM_L_BLUE);
+	/* Dump current speed -- Gumby */
+	if (p_ptr->pspeed > 110)
+	{
+		prt_num("  Speed     ", (p_ptr->pspeed - 110), 13, 1, TERM_L_GREEN);
+	}
+	else if (p_ptr->pspeed == 110)
+	{
+		prt_num("  Speed     ", (p_ptr->pspeed - 110), 13, 1, TERM_L_BLUE);
+	}
+	else if (p_ptr->pspeed < 110)
+	{
+		prt_num("  Speed     ", (p_ptr->pspeed - 110), 13, 1, TERM_RED);
+	}
 
 	prt_num("Level      ", (int)p_ptr->lev, 9, 28, TERM_L_GREEN);
 
@@ -1108,38 +1122,36 @@ static void display_player_middle(void)
 
 	prt_lnum("Gold       ", p_ptr->au, 13, 28, TERM_L_GREEN);
 
-	prt_num("Max Hit Points ", p_ptr->mhp, 9, 52, TERM_L_GREEN);
+	prt_num("Max HP ", p_ptr->mhp, 9, 52, TERM_L_GREEN);
 
 	if (p_ptr->chp >= p_ptr->mhp)
 	{
-		prt_num("Cur Hit Points ", p_ptr->chp, 10, 52, TERM_L_GREEN);
+		prt_num("Cur HP ", p_ptr->chp, 10, 52, TERM_L_GREEN);
 	}
 	else if (p_ptr->chp > (p_ptr->mhp * hitpoint_warn) / 10)
 	{
-		prt_num("Cur Hit Points ", p_ptr->chp, 10, 52, TERM_YELLOW);
+		prt_num("Cur HP ", p_ptr->chp, 10, 52, TERM_YELLOW);
 	}
 	else
 	{
-		prt_num("Cur Hit Points ", p_ptr->chp, 10, 52, TERM_RED);
+		prt_num("Cur HP ", p_ptr->chp, 10, 52, TERM_RED);
 	}
 
-	prt_num("Max SP (Mana)  ", p_ptr->msp, 11, 52, TERM_L_GREEN);
+	prt_num("Max SP ", p_ptr->msp, 11, 52, TERM_L_GREEN);
 
 	if (p_ptr->csp >= p_ptr->msp)
 	{
-		prt_num("Cur SP (Mana)  ", p_ptr->csp, 12, 52, TERM_L_GREEN);
+		prt_num("Cur SP ", p_ptr->csp, 12, 52, TERM_L_GREEN);
 	}
 	else if (p_ptr->csp > (p_ptr->msp * hitpoint_warn) / 10)
 	{
-		prt_num("Cur SP (Mana)  ", p_ptr->csp, 12, 52, TERM_YELLOW);
+		prt_num("Cur SP ", p_ptr->csp, 12, 52, TERM_YELLOW);
 	}
 	else
 	{
-		prt_num("Cur SP (Mana)  ", p_ptr->csp, 12, 52, TERM_RED);
+		prt_num("Cur SP ", p_ptr->csp, 12, 52, TERM_RED);
 	}
 }
-
-
 
 
 /*
@@ -1372,10 +1384,10 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3)
 		case CLASS_WARRIOR:
 			if (p_ptr->lev > 29) (*f2) |= (TR2_RES_FEAR); break;
 		case CLASS_PALADIN:
-			if (p_ptr->lev > 39) (*f2) |= (TR2_RES_FEAR); break;
+			if (p_ptr->lev > 34) (*f2) |= (TR2_RES_FEAR); break;
 		case CLASS_CHAOS_WARRIOR:
-			if (p_ptr->lev > 29) (*f2) |= (TR2_RES_CHAOS);
-			if (p_ptr->lev > 39) (*f2) |= (TR2_RES_FEAR);
+			if (p_ptr->lev > 39) (*f2) |= (TR2_RES_CHAOS);
+			if (p_ptr->lev > 34) (*f2) |= (TR2_RES_FEAR);
 			if (p_ptr->chaos_patron == PATRON_ARIOCH)
 				(*f2) |= (TR2_RES_FIRE);
 			break;
@@ -1392,7 +1404,7 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3)
 			if (p_ptr->lev > 39) (*f3) |= (TR3_TELEPATHY);
 			break;
 		case CLASS_WEAPONMASTER:
-			if (p_ptr->lev > 34) (*f2) |= (TR2_RES_FEAR); break;
+			if (p_ptr->lev > 29) (*f2) |= (TR2_RES_FEAR); break;
 		default: /* no abilities */
 			break;
 	}
@@ -2111,13 +2123,13 @@ static cptr object_flag_names[96] =
 	"Sust Dex",
 	"Sust Con",
 	"Sust Chr",
-	NULL,
-	NULL,
+	"RandSust",
+	"RandAbil",
 	"Imm Acid",
 	"Imm Elec",
 	"Imm Fire",
 	"Imm Cold",
-	NULL,
+	"RandResist",
 	"Reflect",
 	"Free Act",
 	"Hold Life",
@@ -2611,10 +2623,10 @@ errr file_character(cptr name, bool full)
 
 #ifndef FAKE_VERSION
 	/* Begin dump */
-	fprintf(fff, "  [Angband %d.%d.%d Character Dump]\n\n",
+	fprintf(fff, "[Angband %d.%d.%d Character Dump]\n\n",
 	        VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 #else
-   fprintf(fff, "  [Gumband %d.%d.%d Character Dump]\n\n",
+   fprintf(fff, "[Gumband %d.%d.%d Character Dump]\n\n",
             FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH);
 #endif
 
@@ -2662,11 +2674,11 @@ errr file_character(cptr name, bool full)
 		buf[x] = '\0';
 
 		/* End the row */
-		fprintf(fff, "%s\n\n", buf);
+		fprintf(fff, "%s\n", buf);
 	}
 
 
-        fprintf(fff, "  [Miscellaneous information]\n");
+        fprintf(fff, "\n[Miscellaneous information]\n");
         if (p_ptr->maximize)
             fprintf(fff, "\n Maximize Mode:      ON");
         else
@@ -2699,19 +2711,6 @@ errr file_character(cptr name, bool full)
 
             fprintf(fff, "\n Recall Depth:       Level %d (%d')\n", p_ptr->max_dlv,
                           50 * (p_ptr->max_dlv));
-
-	if (total_winner)
-	    fprintf(fff, "\n You defeated Mabelrode!  Congratulations, your Majesty.");
-
-	if (quick_start)
-	    fprintf(fff, "\n You got off to a quick start.");
-
-        if (noscore)
-            fprintf(fff, "\n You have done something illegal.");
-
-        if (stupid_monsters)
-            fprintf(fff, "\n Your opponents are behaving stupidly.");
-
 
     { /* Monsters slain */
         int k;
@@ -2748,37 +2747,51 @@ errr file_character(cptr name, bool full)
            fprintf(fff,"\n You have defeated %lu enemies.\n", Total);
     }
     
+        if (stupid_monsters)
+		fprintf(fff, "\n Your opponents are behaving stupidly.");
+
+	if (quick_start)
+		fprintf(fff, "\n You got off to a quick start.");
+
+        if (noscore)
+		fprintf(fff, "\n You have done something illegal.");
+
+	if (total_winner)
+		fprintf(fff, "\n You defeated Mabelrode! Congratulations, your Majesty.");
+
+	/* Skip a line */
+	fprintf(fff, "\n");
 
     if (p_ptr->muta1 || p_ptr->muta2 || p_ptr->muta3)
     {
-        fprintf(fff, "  [Mutations]\n\n");
+        fprintf(fff, "\n[Mutations]\n\n");
         dump_mutations(fff);
     }
 
 	/* Skip some lines */
-	fprintf(fff, "\n\n");
+	fprintf(fff, "\n");
 
 	/* If dead, dump last messages -- Prfnoff */
 	if (death)
 	{
 		i = message_num();
 		if (i > 10) i = 10;
-		fprintf(fff, "  [Last Messages]\n\n");
+		fprintf(fff, "[Last Messages]\n\n");
 		while (i-- > 0)
 		{
 			fprintf(fff, "> %s\n", message_str((s16b)i));
 		}
-		fprintf(fff, "\n\n");
+		fprintf(fff,"\n You were killed by %s.\n\n", died_from);
 	}
 
 	/* Dump the equipment */
 	if (equip_cnt)
 	{
-		fprintf(fff, "  [Character Equipment]\n\n");
+		fprintf(fff, "[Character Equipment]\n\n");
 		for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
 		{
 			/* Don't dump the empty slots */
-			if (!inventory[i].k_idx) break;
+			if (!inventory[i].k_idx) continue;
 
 			/* Dump the equipment slots */
 			object_desc(o_name, &inventory[i], TRUE, 3);
@@ -2789,11 +2802,11 @@ errr file_character(cptr name, bool full)
 	}
 
 	/* Dump the inventory */
-	fprintf(fff, "  [Character Inventory]\n\n");
+	fprintf(fff, "[Character Inventory]\n\n");
 	for (i = 0; i < INVEN_PACK; i++)
 	{
 		/* Don't dump the empty slots */
-		if (!inventory[i].k_idx) break;
+		if (!inventory[i].k_idx) continue;
 
 		/* Dump the inventory slots */
 		object_desc(o_name, &inventory[i], TRUE, 3);
@@ -2804,7 +2817,7 @@ errr file_character(cptr name, bool full)
 	if (st_ptr->stock_num)
 	{
 		/* Dump the Home */
-		fprintf(fff, "  [Home Inventory]\n\n");
+		fprintf(fff, "[Home Inventory]\n\n");
 		for (i = 0; i < st_ptr->stock_num; i++)
 		{
 			object_desc(o_name, &st_ptr->stock[i], TRUE, 3);
@@ -3189,7 +3202,7 @@ static bool do_cmd_help_aux(cptr name, cptr what, int line)
 
 							strcpy (xtmp, "");
 
-							if (get_string("File name: ", xtmp, 80))
+							if (get_string("Filename: ", xtmp, 80))
 							{
 								if (xtmp[0] && (xtmp[0] != ' '))
 								{

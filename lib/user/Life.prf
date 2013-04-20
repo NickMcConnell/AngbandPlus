@@ -1,17 +1,17 @@
 # Life Magic
 #
 # TAB - Holy Word           F1 - Cure Light Wounds   SF1 - Spiritual Hammer
-#   [ - Glyph of Warding    F2 - Cure Medium Wounds  SF2 - Sense Unseen
-#   ] - Warding True        F3 - Cure Critical Wnds. SF3 - Day of the Dove
+#   [ - Rune of Protection  F2 - Cure Medium Wounds  SF2 - Sense Unseen
+#   ] - Sea of Runes        F3 - Cure Critical Wnds. SF3 - Day of the Dove
 #   ' - Holy Vision         F4 - Healing
 #   " - Summon Angel        F5 - Healing True
 #   ; - Remove Curse        F6 - Cure Poison
 #   : - Dispel Curse        F7 - Restoration
 #   h - Heroism             F8 - Divine Intervention
-#   H - Holy Invunerability F9 - Exorcism
-#   J - Satisfy Hunger     F10 - Dispel Undead/Demons
-#   n - Detect Evil        F11 - Dispel Evil
-#   N - Detect Doors/Traps F12 - Banish
+#   H - Holy Invunerability F9 - Exorcise Demons
+#   J - Satisfy Hunger     F10 - Destroy Undead
+#   n - Detect Evil        F11 - Banish Evil
+#   N - Detect Doors/Traps F12 - Dispel Evil
 #   O - Holy Orb
 #   P - Protection from Evil
 #   y - Bless
@@ -22,11 +22,11 @@
 A:m3g
 P:\t
 
-# [ - Glyph of Warding
+# [ - Rune of Protection
 A:m2h
 C:0:[
 
-# ] - Warding True
+# ] - Sea of Runes
 A:m3h
 C:0:]
 
@@ -122,19 +122,19 @@ P:^_x42\r
 
 # Dispelling/Other
 
-# F9 - Exorcism
+# F9 - Exorcise Demons
 A:m3a
 P:^_x43\r
 
-# F10 - Dispel Undead/Demons
+# F10 - Destroy Undead
 A:m3c
 P:^_x44\r
 
-# F11 - Dispel Evil
+# F11 - Banish Evil
 A:m3e
 P:^_x85\r
 
-# F12 - Banish
+# F12 - Dispel Evil
 A:m3f
 P:^_x86\r
 

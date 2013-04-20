@@ -1,12 +1,12 @@
-# Mindcrafter
+# Mindcrafter [level gained-breakpoint/breakpoint]
 #
-# TAB - Domination            F1 - Neural Blast
-#   [ - Precognition          F2 - Pulverize
-#   ] - Psychometry           F3 - Mind Wave
-#   ' - Character Armour      F4 - Psychic Drain
-#   " - Adrenaline Channeling F5 - Telekinetic Wave
-#   ; - Minor Displacement
-#   : - Major Displacement
+# TAB - Domination [9-30]                     F1 - Neural Blast [2]
+#   [ - Precognition [1-5/10/15/20/25/35/45]  F2 - Pulverize [11-21]
+#   ] - Psychometry [15-30/40]                F3 - Mind Wave [18-30]
+#   ' - Character Armour [13-15/20/25/30/35]  F4 - Psychic Drain [25]
+#   " - Adrenaline Channeling [23-35]         F5 - Telekinetic Wave [28-40]
+#   ; - Minor Displacement [3-35]
+#   : - Major Displacement [7-50]
 
 # TAB - Domination [lev 9]
 A:me

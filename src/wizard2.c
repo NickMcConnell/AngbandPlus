@@ -450,18 +450,18 @@ static void wiz_display_item(object_type *o_ptr)
 
 	prt("+------------FLAGS1------------+", 10, j);
 	prt("AFFECT........SLAY........BRAND.", 11, j);
-	prt("       e      cvae      xsqpaefc", 12, j);
-	prt("siwdcc lssidsahanvudotgddhuoclio", 13, j);
-	prt("tnieoh etrnipttmiinmrrnrrraiierl", 14, j);
-	prt("rtsxna.mlcfgdkcpmldncltggpksdced", 15, j);
+	prt("      he      cvae      xsqpaefc", 12, j);
+	prt("siwdcculssidsahanvudotgddhuoclio", 13, j);
+	prt("tnieohmetrnipttmiinmrrnrrraiierl", 14, j);
+	prt("rtsxnanmlcfgdkcpmldncltggpksdced", 15, j);
 	prt_binary(f1, 16, j);
 
 	prt("+------------FLAGS2------------+", 17, j);
 	prt("SUST....IMMUN.RESIST............", 18, j);
-	prt("        aefcprpsaefcpfldbc sn   ", 19, j);
-	prt("siwdcc  cliooeatcliooeialoshtncd", 20, j);
-	prt("tnieoh  ierlifraierliatrnnnrhehi", 21, j);
-	prt("rtsxna..dcedslatdcedsrekdfddrxss", 22, j);
+	prt("      rraefcrrpsaefcpfldbc sn   ", 19, j);
+	prt("siwdccnnclioneatcliooeialoshtncd", 20, j);
+	prt("tnieohddierldfraierliatrnnnrhehi", 21, j);
+	prt("rtsxnasadcedrlatdcedsrekdfddrxss", 22, j);
 	prt_binary(f2, 23, j);
 
 	prt("+------------FLAGS3------------+", 10, j+32);

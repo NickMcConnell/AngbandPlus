@@ -285,17 +285,15 @@
 #define BMP_FIRST_PC_CLASS 164
 #define BMP_FIRST_PC_RACE 128
 
-
 /*
  * Maximum array bounds for template based arrays
  */
 #define MAX_F_IDX       85      /* Max size for "f_info[]" */
 #define MAX_K_IDX       576     /* Max size for "k_info[]" */
-#define MAX_A_IDX       256     /* Max size for "a_info[]" (was 128) */
+#define MAX_A_IDX       256     /* Max size for "a_info[]" */
 #define MAX_E_IDX       128     /* Max size for "e_info[]" */
-#define MAX_R_IDX       640     /* Max size for "r_info[]" (was 585) */
-#define MAX_V_IDX       96      /* Max size for "v_info[]" (was 16) */
-
+#define MAX_R_IDX       640     /* Max size for "r_info[]" */
+#define MAX_V_IDX       65      /* Max size for "v_info[]" */
 
 /*
  * Maximum array bounds for entity list arrays
@@ -303,28 +301,22 @@
 #define MAX_O_IDX       512     /* Max size for "o_list[]" (was 256) */
 #define MAX_M_IDX       512     /* Max size for "m_list[]" */
 
-
 /*
  * Hack -- Maximum number of quests (Heino Vander Sanden)
  */
-#define DEFAULT_QUESTS  3	/* Number of default quests
-                                 * (Arioch, Xiombarg and Mabelrode - Gumby)
-                                 */
+#define DEFAULT_QUESTS  3	/* Number of default quests */
 #define MAX_QUESTS     75	/* Max number of quests (was 40) */
-				 
 
 /* Maximum number of high scores in the high score file */
 #define MAX_HISCORES    100
 
-
 /*
- * Maximum dungeon level.  The player can never reach this level
- * in the dungeon, and this value is used for various calculations
- * involving object and monster creation.  It must be at least 100.
- * Setting it below 128 may prevent the creation of some objects.
+ * Maximum dungeon level.  The player can never reach this level in the
+ * dungeon, and this value is used for various calculations involving object
+ * and monster creation.  It must be at least 100.  Setting it below 128 may
+ * prevent the creation of some objects.
  */
 #define MAX_DEPTH       128
-
 
 /*
  * Maximum size of the "lite" array (see "cave.c")
@@ -806,7 +798,9 @@ and tables.c --TY */
 /* Dragon Scale */
 #define ART_RAZORBACK                   16
 #define ART_BLADETURNER                 17
-/* 18 unused */
+
+#define ART_THAUMATURGIST		18
+
 /* Hard Armour */
 #define ART_SOULKEEPER                  19
 #define ART_ISILDUR                     20
@@ -963,8 +957,15 @@ and tables.c --TY */
 #define ART_ENERGY			140
 #define ART_NATUREBANE			141
 #define ART_SOULSUCKER			142
+#define ART_CATAPULT			143
+#define ART_FUMA_LA_URSO		144
+#define ART_ICE				145
+#define ART_ENDURANCE			146
+#define ART_HERMES			147
+#define ART_GREAT_SPEED			148
+#define ART_DEATH			149
 
-/* 143-255 unused */
+/* 150-255 unused */
 
 
 /*** Ego-Item indexes (see "lib/edit/e_info.txt") ***/
@@ -1360,6 +1361,7 @@ and tables.c --TY */
 #define SV_CHAOS		50 /* was MORGOTH */
 
 /* The "sval" codes for TV_BOOTS */
+#define SV_SANDALS			1
 #define SV_PAIR_OF_SOFT_LEATHER_BOOTS   2
 #define SV_PAIR_OF_HARD_LEATHER_BOOTS   3
 #define SV_PAIR_OF_METAL_SHOD_BOOTS     6
@@ -1419,6 +1421,7 @@ and tables.c --TY */
 /* The sval codes for TV_LITE */
 #define SV_LITE_TORCH              0
 #define SV_LITE_LANTERN            1
+#define SV_LITE_FEANORAN_LAMP	   2
 #define SV_LITE_GALADRIEL          4
 #define SV_LITE_ELENDIL            5
 #define SV_LITE_THRAIN             6
@@ -1611,7 +1614,7 @@ and tables.c --TY */
 #define SV_SCROLL_ENCHANT_ARMOR          16
 #define SV_SCROLL_ENCHANT_WEAPON_TO_HIT  17
 #define SV_SCROLL_ENCHANT_WEAPON_TO_DAM  18
-/* xxx enchant missile? */
+#define SV_SCROLL_PROTECT_ARMOUR	 19
 #define SV_SCROLL_STAR_ENCHANT_ARMOR     20
 #define SV_SCROLL_STAR_ENCHANT_WEAPON    21
 #define SV_SCROLL_RECHARGING             22
@@ -1632,7 +1635,7 @@ and tables.c --TY */
 #define SV_SCROLL_PROTECTION_FROM_EVIL   37
 #define SV_SCROLL_RUNE_OF_PROTECTION     38
 #define SV_SCROLL_TRAP_DOOR_DESTRUCTION  39
-/* xxx */
+#define SV_SCROLL_DISPEL_ANIMALS	 40
 #define SV_SCROLL_STAR_DESTRUCTION       41
 #define SV_SCROLL_DISPEL_UNDEAD          42
 #define SV_SCROLL_BLESS_WEAPON		 43
@@ -1982,7 +1985,7 @@ and tables.c --TY */
 #define SUMMON_DAWN             41
 #define SUMMON_ANIMAL           42
 #define SUMMON_ANIMAL_RANGER    43
-#define SUMMON_HI_UNDEAD_NO_UNIQUES            44
+#define SUMMON_HI_UNDEAD_NO_UNIQUES	44
 #define SUMMON_HI_DRAGON_NO_UNIQUES            45
 #define SUMMON_NO_UNIQUES                      46
 #define SUMMON_PHANTOM          47
@@ -2045,7 +2048,7 @@ and tables.c --TY */
 #define GF_TURN_ALL     66
 #define GF_DISP_UNDEAD  67
 #define GF_DISP_EVIL    68
-#define GF_DISP_ALL 69    
+#define GF_DISP_ALL	69    
 #define GF_DISP_DEMON   70      /* New types for Zangband begin here... */
 #define GF_DISP_LIVING  71
 #define GF_ROCKET       72
@@ -2067,7 +2070,7 @@ and tables.c --TY */
 #define GF_JAM_DOOR     88
 #define GF_DOMINATION   89
 #define GF_DISP_GOOD    90
-
+#define GF_DISP_ANIMAL	91
 
 #define FOLLOW_DISTANCE 3
 
@@ -2219,13 +2222,13 @@ and tables.c --TY */
 #define TR2_SUST_DEX            0x00000008L
 #define TR2_SUST_CON            0x00000010L
 #define TR2_SUST_CHR            0x00000020L
-#define TR2_XXX1                0x00000040L     /* Later */
-#define TR2_XXX2                0x00000080L     /* Later */
+#define TR2_RAND_SUSTAIN        0x00000040L     /* Random Sustain (was XXX1) */
+#define TR2_RAND_ABILITY        0x00000080L     /* Random Ability (was XXX2) */
 #define TR2_IM_ACID             0x00000100L
 #define TR2_IM_ELEC             0x00000200L
 #define TR2_IM_FIRE             0x00000400L
 #define TR2_IM_COLD             0x00000800L
-#define TR2_XXX3                0x00001000L     /* Later */
+#define TR2_RAND_RESIST         0x00001000L     /* Random Resistance (was XXX3) */
 #define TR2_REFLECT             0x00002000L     /* Reflect 'bolts' */
 #define TR2_FREE_ACT            0x00004000L     /* Free Action */
 #define TR2_HOLD_LIFE           0x00008000L     /* Hold Life */
@@ -2378,7 +2381,7 @@ and tables.c --TY */
 #define RF1_FORCE_MAXHP         0x00000200      /* Start with max hitpoints */
 #define RF1_FORCE_SLEEP         0x00000400      /* Start out sleeping */
 #define RF1_FORCE_EXTRA         0x00000800      /* Start out something */
-#define RF1_FRIEND              0x00001000      /* Arrive in a small group */
+#define RF1_XXX1                0x00001000      /* was RF1_FRIEND */
 #define RF1_FRIENDS             0x00002000      /* Arrive in a large group */
 #define RF1_ESCORT              0x00004000      /* Arrive with a small escort */
 #define RF1_ESCORTS             0x00008000      /* Arrive with a large escorts */
@@ -2567,7 +2570,7 @@ and tables.c --TY */
 #define RF6_S_CYBER             0x00020000      /* Summon Cyberdemons! */
 #define RF6_S_MONSTER           0x00040000      /* Summon Monster */
 #define RF6_S_MONSTERS          0x00080000      /* Summon Monsters */
-#define RF6_S_ANT               0x00100000      /* Summon Ants */
+#define RF6_S_ANIMAL            0x00100000      /* Summon Animal (was Ants) */
 #define RF6_S_SPIDER            0x00200000      /* Summon Spiders */
 #define RF6_S_HOUND             0x00400000      /* Summon Hounds */
 #define RF6_S_HYDRA             0x00800000      /* Summon Hydras */
@@ -2596,7 +2599,7 @@ and tables.c --TY */
    (RF6_BLINK | RF6_S_DAWN | RF6_TPORT | RF6_S_HELLBLADES | RF6_S_ANIMALS | \
     RF6_TELE_LEVEL | RF6_TELE_AWAY | RF6_HEAL | RF6_HASTE | RF6_TRAPS | \
     RF6_S_ELEMENTAL | RF6_S_SCUMDOG | RF6_S_KIN | RF6_S_CYBER | \
-    RF6_S_MONSTER | RF6_S_MONSTERS | RF6_S_ANT | RF6_S_SPIDER | \
+    RF6_S_MONSTER | RF6_S_MONSTERS | RF6_S_ANIMAL | RF6_S_SPIDER | \
     RF6_S_HOUND | RF6_S_HYDRA | RF6_S_ANGEL | RF6_S_DRAGON | \
     RF6_S_UNDEAD | RF6_S_DEMON | RF6_S_HI_DRAGON | RF6_S_HI_UNDEAD | \
     RF6_S_WRAITH | RF6_S_UNIQUE)
@@ -2628,7 +2631,7 @@ and tables.c --TY */
 #define RF6_SUMMON_MASK \
     (RF6_S_DAWN | RF6_S_HELLBLADES | RF6_S_ANIMALS | RF6_S_ELEMENTAL | RF6_S_SCUMDOG | \
      RF6_S_KIN | RF6_S_CYBER | RF6_S_MONSTER | RF6_S_MONSTERS | \
-     RF6_S_ANT | RF6_S_SPIDER | RF6_S_HOUND | RF6_S_HYDRA | RF6_S_ANGEL | \
+     RF6_S_ANIMAL | RF6_S_SPIDER | RF6_S_HOUND | RF6_S_HYDRA | RF6_S_ANGEL | \
      RF6_S_DEMON | RF6_S_UNDEAD | RF6_S_DRAGON | RF6_S_HI_UNDEAD | \
      RF6_S_HI_DRAGON | RF6_S_WRAITH | RF6_S_UNIQUE)
 
@@ -2929,13 +2932,13 @@ extern int PlayerUID;
 #define TERM_BLUE               6       /* 'b' */       /* 0,0,4 */
 #define TERM_UMBER              7       /* 'u' */       /* 2,1,0 */
 #define TERM_L_DARK             8       /* 'D' */       /* 1,1,1 */
-#define TERM_L_WHITE    9       /* 'W' */       /* 3,3,3 */
+#define TERM_L_WHITE		9       /* 'W' */       /* 3,3,3 */
 #define TERM_VIOLET             10      /* 'v' */       /* 4,0,4 */
 #define TERM_YELLOW             11      /* 'y' */       /* 4,4,0 */
 #define TERM_L_RED              12      /* 'R' */       /* 4,0,0 */
-#define TERM_L_GREEN    13      /* 'G' */       /* 0,4,0 */
+#define TERM_L_GREEN		13      /* 'G' */       /* 0,4,0 */
 #define TERM_L_BLUE             14      /* 'B' */       /* 0,4,4 */
-#define TERM_L_UMBER    15      /* 'U' */       /* 3,2,1 */
+#define TERM_L_UMBER		15      /* 'U' */       /* 3,2,1 */
 
 
 /*** Sound constants ***/

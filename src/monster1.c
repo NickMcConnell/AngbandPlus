@@ -227,7 +227,6 @@ static void roff_aux(int r_idx)
 	if (r_ptr->flags1 & (RF1_FEMALE)) flags1 |= (RF1_FEMALE);
 
 	/* Assume some "creation" flags */
-	if (r_ptr->flags1 & (RF1_FRIEND)) flags1 |= (RF1_FRIEND);
 	if (r_ptr->flags1 & (RF1_FRIENDS)) flags1 |= (RF1_FRIENDS);
 	if (r_ptr->flags1 & (RF1_ESCORT)) flags1 |= (RF1_ESCORT);
 	if (r_ptr->flags1 & (RF1_ESCORTS)) flags1 |= (RF1_ESCORTS);
@@ -634,7 +633,7 @@ static void roff_aux(int r_idx)
 	}
 
 	/* Describe friends */
-	else if ((flags1 & (RF1_FRIEND)) || (flags1 & (RF1_FRIENDS)))
+	else if (flags1 & (RF1_FRIENDS))
 	{
 		roff(format("%^s usually appears in groups.  ",
 		            wd_he[msex]));
@@ -778,7 +777,7 @@ static void roff_aux(int r_idx)
 	if (flags6 & (RF6_S_MONSTER))		vp[vn++] = "summon a monster";
 	if (flags6 & (RF6_S_MONSTERS))		vp[vn++] = "summon monsters";
 	if (flags6 & (RF6_S_KIN))		vp[vn++] = "summon aid";
-	if (flags6 & (RF6_S_ANT))		vp[vn++] = "summon ants";
+	if (flags6 & (RF6_S_ANIMAL))		vp[vn++] = "summon an animal";
 	if (flags6 & (RF6_S_SPIDER))		vp[vn++] = "summon spiders";
 	if (flags6 & (RF6_S_HOUND))		vp[vn++] = "summon hounds";
 	if (flags6 & (RF6_S_HYDRA))		vp[vn++] = "summon hydras";

@@ -145,7 +145,7 @@ static cptr r_info_flags1[] =
 	"FORCE_MAXHP",
 	"FORCE_SLEEP",
 	"FORCE_EXTRA",
-	"FRIEND",
+	"XXX1", /* was FRIEND */
 	"FRIENDS",
 	"ESCORT",
 	"ESCORTS",
@@ -348,7 +348,7 @@ static cptr r_info_flags6[] =
 	"S_CYBER",
 	"S_MONSTER",
 	"S_MONSTERS",
-	"S_ANT",
+	"S_ANIMAL",	/* was S_ANT */
 	"S_SPIDER",
 	"S_HOUND",
 	"S_HYDRA",
@@ -413,13 +413,13 @@ static cptr k_info_flags2[] =
 	"SUST_DEX",
 	"SUST_CON",
 	"SUST_CHR",
-	"XXX1",
-	"XXX2",
+	"RAND_SUSTAIN",	/* was XXX1 */
+	"RAND_ABILITY",	/* was XXX2 */
 	"IM_ACID",
 	"IM_ELEC",
 	"IM_FIRE",
 	"IM_COLD",
-	"XXX3",
+	"RAND_RESIST",	/* was XXX3 */
 	"REFLECT",
 	"FREE_ACT",
 	"HOLD_LIFE",

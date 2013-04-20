@@ -2,7 +2,7 @@
 #
 # TAB - Wraithform          F1 - Malediction         SF1 - Genocide
 #   [ - Berserk             F2 - Stinking Cloud      SF2 - Mass Genocide
-#   ] - Battle Frenzy       F3 - Nether Bolt         SF3 - Omnicide
+#   ] - Battle Frenzy       F3 - Nether Bolt         SF3 - Summon Death
 #   ' - Horrify             F4 - Vampiric Drain
 #   " - Terror              F5 - Cloud Kill
 #   ; - Black Sleep         F6 - Dark Bolt
@@ -146,6 +146,6 @@ P:^_Sx54\r
 A:m3h
 P:^_Sx55\r
 
-# SHIFT-F3 - Omnicide
+# SHIFT-F3 - Summon Death
 A:m4g
 P:^_Sx56\r

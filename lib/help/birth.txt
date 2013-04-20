@@ -292,9 +292,8 @@ races also have intrinsic abilities.
                 With but one eye, a cyclops can see more than many
                 with two eyes. They are headstrong, and loud noises
                 bother them very little. They are not quite qualified
-                for the magic using professions, but as a certain Mr
-                Ulysses can testify, their accuracy with thrown rocks
-                can be deadly...
+                for the magic using professions, and due to a lack of depth
+                perception, they are rather bad marksmen.
 
           Yeek
                 Yeeks are among the most pathetic creatures. Fortunately,
@@ -889,14 +888,14 @@ are listed in the following table.
  
                        STR  INT  WIS  DEX  CON  CHR  Hit Dice  Rqd Exp/level
            Human        0    0    0    0    0    0      10          +0%
-           Half-Elf    -1   +1   +1   +1   -1   +1       9         +10%
-           Elf         -1   +2   +2   +1   -2   +2       8         +20%
-           Hobbit      -2   +2   +1   +3   +2   +1       7         +10%
+           Half-Elf     0   +1   +1   +2   -1   +1       9         +10%
+           Elf         -1   +2   +1   +3   -2   +2       8         +20%
+           Hobbit      -2   +1   +1   +2   +2   +2       7         +10%
            Gnome       -1   +2    0   +2   +1   -2       8         +35%
            Dwarf       +2   -2   +2   -2   +2   -3      11         +35%
            Half-Orc    +2   -1    0    0   +1   -4      10         +10%
-           Half-Troll  +4   -4   -2   -4   +3   -6      12         +37%
-           Gambolt     -1    0    0   +5   -1   +5       8         +50%
+           Half-Troll  +4   -4   -2   -4   +3   -6      12         +35%
+           Gambolt     -1    0    0   +5   -1   +5       8         +30%
            High-Elf    +1   +3   +2   +3   +1   +5      10         +100%
            Barbarian   +3   -2   -1   +1   +2   -2      11         +20%
            Half-Ogre   +3   -1   -1   -1   +3   -3      12         +30%
@@ -919,29 +918,30 @@ are listed in the following table.
            Sprite      -4   +3   +3   +3   -2   +2       7         +75%
            Beastman    +2   -2   -1   -1   +2   -4      11         +40%
 
+                                                             Spellcasting
+                         STR   INT   WIS   DEX   CON   CHR   Weight Limit
+           Warrior       +5    -2    -2    +2    +2    -1        N/A
+           Mage          -5    +3*    0    +1    -2    +1        300
+           Priest        -1    -3    +3*   -1     0    +2        350
+           Rogue         +2    +1*   -2    +3    +1    -1        350
+           Ranger        +2    +2*    0    +1    +1    +1        350
+           Paladin       +3    -3    +1*    0    +2    +2        400
+           Warrior-Mage  +2    +2*    0    +1     0    +1        400
+           Chaos Warrior +2    +1     0*   +1    +2    -2        400
+           Monk          +2    -1    +1*   +3    +2    +1        300
+           Mindcrafter   -1     0    +3*   -1    -1    +2        300
+           High Mage     -5    +4*    0     0    -2    +1        300
+           Weaponmaster  +4    -2    -2    +1    +1    -1        N/A
 
-                         STR     INT     WIS     DEX     CON     CHR
-           Warrior       +5      -2      -2      +2      +2      -1
-           Mage          -5      +3       0      +1      -2      +1
-           Priest        -1      -3      +3      -1       0      +2
-           Rogue         +2      +1      -2      +3      +1      -1
-           Ranger        +2      +2       0      +1      +1      +1
-           Paladin       +3      -3      +1       0      +2      +2
-           Warrior-Mage  +2      +2       0      +1       0      +1
-           Chaos Warrior +2      +1       0      +1      +2      -2
-           Monk          +2      -1      +1      +3      +2      +1
-           Mindcrafter   -1       0      +3      -1      -1      +2
-           High Mage     -5      +4       0       0      -2      +1
-           Weaponmaster  +4      -2      -2      +1      +1      -1
- 
+(a '*' next to a number indicates the spellcasting stat for that class)
  
 === Ability Tables (updated for Gumband 2.1.3) ===
 
                         Dsrm Dvce Save Stlh Srch Prcp HtH  Misl   Infra
            Human        +0   +0   +0   +0   +0   +10  +0   +0     None
-           Half-Elf     +2   +3   +3   +1   +6   +11  -1   +5     20 feet
-           Elf          +5   +6   +6   +2   +8   +12  -5   +5     30 feet
-           Hobbit       +15  +18  +18  +5   +12  +15  -10  +20    40 feet
+           Half-Elf     +2   +3   +3   +2   +6   +11  -1   +5     30 feet
+           Elf          +5   +6   +6   +4   +8   +12  -5   +5     40 feet
+           Hobbit       +15  +18  +18  +4   +12  +15  -10  +20    30 feet
            Gnome        +10  +12  +12  +3   +6   +13  -8   +12    40 feet
            Dwarf        +2   +9   +10  -1   +7   +10  +15  +0     50 feet
            Half-Orc     -3   -3   -3   -1   +0   +7   +12  -5     30 feet
@@ -952,7 +952,7 @@ are listed in the following table.
            Half-Ogre    -3   -5   -5   -2   -1   +5   +20  +0     30 feet
            Half-Giant   -6   -8   -6   -2   -1   +5   +25  +5     30 feet
            Half-Titan   -5   +5   +2   -2   +1   +8   +25  +0     None
-           Cyclops      -4   -5   -5   -2   -2   +5   +20  +12    10 feet
+           Cyclops      -4   -5   -5   -2   -2   +5   +20  -10    10 feet
            Yeek         +2   +4   +10  +3   +5   +15  -5   -5     20 feet
            Klackon      +10  +5   +5   +0   -1   +10  +5   +5     20 feet
            Kobold       -2   -3   -2   -1   +1   +8   +10  -8     30 feet
