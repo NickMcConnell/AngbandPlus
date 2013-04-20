@@ -1516,7 +1516,7 @@ void dump_mutations(FILE * OutFile)
 		}
                 if (p_ptr->muta3 & MUT3_XTRA_EYES)
                 {
-                        fprintf(OutFile, " You have an extra pair of eyes (+15 search).\n");
+                        fprintf(OutFile, " You have an extra pair of eyes (+15 Perception).\n");
                 }
                 if (p_ptr->muta3 & MUT3_MAGIC_RES)
                 {
@@ -1739,8 +1739,8 @@ static void cmd_racial_power_aux (void)
 				msg_print("You examine your surroundings.");
 				if (p_ptr->lev >= 35) (void)map_area();
 				(void)detect_traps();
-				(void)detect_doors();
 				(void)detect_stairs();
+				(void)detect_doors();
 			}
 			break;
 

@@ -1120,7 +1120,7 @@ static void display_player_middle(void)
 		         12, 28, TERM_L_GREEN);
 	}
 
-	prt_lnum("Gold       ", p_ptr->au, 13, 28, TERM_L_GREEN);
+	prt_lnum("Gold       ", p_ptr->au, 13, 28, TERM_YELLOW);
 
 	prt_num("Max HP ", p_ptr->mhp, 9, 52, TERM_L_GREEN);
 
@@ -1150,6 +1150,15 @@ static void display_player_middle(void)
 	else
 	{
 		prt_num("Cur SP ", p_ptr->csp, 12, 52, TERM_RED);
+	}
+
+	if (depth_in_feet)
+	{
+		prt_num("Max Dlv", (p_ptr->max_dlv * 50), 13, 52, TERM_L_GREEN);
+	}
+	else
+	{
+		prt_num("Max Dlv", p_ptr->max_dlv, 13, 52, TERM_L_BLUE);
 	}
 }
 
@@ -1282,24 +1291,23 @@ static void display_player_various(void)
 	xthb = p_ptr->skill_thb + (tmp * BTH_PLUS_ADJ);
 
 
-     /* Average damage per round */
-     o_ptr = &inventory[INVEN_WIELD];
-     dambonus = p_ptr->dis_to_d;
-     if (object_known_p(o_ptr)) dambonus += o_ptr->to_d;
-     damdice = o_ptr->dd;
-     damsides = o_ptr->ds;   /* dam += (o_ptr->dd * (o_ptr->ds + 1)) >> 1; */
-     blows = p_ptr->num_blow;
-     /* dam *= p_ptr->num_blow; */
+	/* Average damage per round */
+	o_ptr = &inventory[INVEN_WIELD];
+	dambonus = p_ptr->dis_to_d;
+	if (object_known_p(o_ptr)) dambonus += o_ptr->to_d;
+	damdice = o_ptr->dd;
+	damsides = o_ptr->ds; /* dam += (o_ptr->dd * (o_ptr->ds + 1)) >> 1; */
+	blows = p_ptr->num_blow;
+	/* dam *= p_ptr->num_blow; */
 
-     /* Basic abilities */
 
+	/* Basic abilities */
 	xdis = p_ptr->skill_dis;
 	xdev = p_ptr->skill_dev;
 	xsav = p_ptr->skill_sav;
 	xstl = p_ptr->skill_stl;
 	xsrh = p_ptr->skill_srh;
 	xfos = p_ptr->skill_fos;
-
 
 	put_str("Fighting    :", 16, 1);
 	desc = likert(xthn, 12);
@@ -1316,7 +1324,6 @@ static void display_player_various(void)
 	put_str("Stealth     :", 19, 1);
 	desc = likert(xstl, 1);
 	c_put_str(likert_color, desc, 19, 15);
-
 
 	put_str("Perception  :", 16, 28);
 	desc = likert(xfos, 6);
@@ -1336,28 +1343,31 @@ static void display_player_various(void)
 
 
 	put_str("Blows/Round:", 16, 55);
-    if (!muta_att)
-        put_str(format("%d", p_ptr->num_blow), 16, 69);
-    else
-        put_str(format("%d+%d", p_ptr->num_blow, muta_att), 16, 69);
+	if (!muta_att)
+		put_str(format("%d", p_ptr->num_blow), 16, 69);
+	else
+		put_str(format("%d+%d", p_ptr->num_blow, muta_att), 16, 69);
 
 	put_str("Shots/Round:", 17, 55);
 	put_str(format("%d", p_ptr->num_fire), 17, 69);
 
-   put_str("Wpn.dmg/Rnd:", 18, 55);    /* From PsiAngband */
-     if ((damdice == 0) || (damsides == 0)) {
-   if (dambonus <= 0)
-     desc = "nil!";
-   else
-     desc = format("%d", blows * dambonus);
-     } else {
-   if (dambonus == 0)
-     desc = format("%dd%d", blows * damdice, damsides);
-   else
-     desc = format("%dd%d%s%d", blows * damdice, damsides,
-           (dambonus < 0 ? "":"+"), blows * dambonus);
-     }
-   put_str(desc, 18, 69);
+	put_str("Wpn.dmg/Rnd:", 18, 55);    /* From PsiAngband */
+	if ((damdice == 0) || (damsides == 0))
+	{
+		if (dambonus <= 0)
+			desc = "nil!";
+		else
+			desc = format("%d", blows * dambonus);
+	}
+	else
+	{
+		if (dambonus == 0)
+			desc = format("%dd%d", blows * damdice, damsides);
+		else
+			desc = format("%dd%d%s%d", blows * damdice, damsides,
+				(dambonus < 0 ? "":"+"), blows * dambonus);
+	}
+	put_str(desc, 18, 69);
 
 
 	put_str("Infravision:", 19, 55);
@@ -1527,6 +1537,7 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3)
 		{
 			(*f2) |= (TR2_RES_ELEC);
 			(*f3) |= (TR3_SH_ELEC);
+			(*f3) |= (TR3_LITE);
 		}
 
 		if (p_ptr->muta3 & MUT3_FIRE_BODY)
@@ -1751,7 +1762,7 @@ static void display_player_flag_info(void)
     display_player_flag_aux(row+6, col, "Regeneration :", 3, TR3_REGEN);
     display_player_flag_aux(row+7, col, "Levitation   :", 3, TR3_FEATHER);
     display_player_flag_aux(row+8, col, "Perm Lite    :", 3, TR3_LITE);
-    display_player_flag_aux(row+9, col, "Wraith Form  :", 3, TR3_WRAITH);
+    display_player_flag_aux(row+9, col, "MasterDevices:", 3, TR3_DEVICES);
 }
 
 
@@ -2127,7 +2138,7 @@ static cptr object_flag_names[96] =
 	"NoTeleport",
 	"AntiMagic",
 	"WraithForm",
-	"EvilCurse",
+	"MastDevice",
 	"Easy Know",
 	"Hide Type",
 	"Show Mods",
@@ -2380,7 +2391,8 @@ void display_player(int mode)
 			put_str("Specialty   :", 6, 1);
 		else if (p_ptr->realm1 || p_ptr->realm2)
 			put_str("Magic       :", 6, 1);
-	        if (p_ptr->pclass == CLASS_CHAOS_WARRIOR)
+		if ((p_ptr->pclass == CLASS_CHAOS_WARRIOR) ||
+		    ((p_ptr->muta2 & (MUT2_CHAOS_GIFT)) && (!p_ptr->realm2)))
 			put_str("Patron      :", 7, 1);
 
 		c_put_str(TERM_L_BLUE, player_name, 2, 15);
@@ -2403,10 +2415,12 @@ void display_player(int mode)
 		{
 			c_put_str(TERM_L_BLUE, realm_names[p_ptr->realm1],6,15);
 		}
-        if (p_ptr->pclass == CLASS_CHAOS_WARRIOR)
-          c_put_str(TERM_L_BLUE, chaos_patrons[p_ptr->chaos_patron], 7, 15);
-        else if (p_ptr->realm2)
-          c_put_str(TERM_L_BLUE, realm_names[p_ptr->realm2],7,15);
+
+		if ((p_ptr->pclass == CLASS_CHAOS_WARRIOR) ||
+		    ((p_ptr->muta2 & (MUT2_CHAOS_GIFT)) && (!p_ptr->realm2)))
+			c_put_str(TERM_L_BLUE, chaos_patrons[p_ptr->chaos_patron], 7, 15);
+		else if (p_ptr->realm2)
+			c_put_str(TERM_L_BLUE, realm_names[p_ptr->realm2],7,15);
 
 		/* Age, Height, Weight, Social, and Score */
 		prt_num("Age          ", (int)p_ptr->age, 2, 32, TERM_L_BLUE);

@@ -1958,7 +1958,7 @@ void do_cmd_use_staff(void)
 			break;
 		}
 
-		case SV_STAFF_DETECT_EVIL: /* Now Detect Monsters - G */
+		case SV_STAFF_DETECT_MONS:
 		{
 			if (detect_monsters_normal()) ident = TRUE;
 			break;
@@ -2829,6 +2829,15 @@ void do_cmd_zap_rod(void)
 			break;
 		}
 
+		case SV_ROD_PESTICIDE:
+		{
+			msg_print("You spray some pesticide into the air...");
+			dispel_animals(5);
+			ident = TRUE;
+			o_ptr->pval = randint(2) + 2;
+			break;
+		}
+
 		case SV_ROD_TELEPORT_AWAY:
 		{
 			if (teleport_monster(dir)) ident = TRUE;
@@ -2916,7 +2925,7 @@ void do_cmd_zap_rod(void)
 		{
 			fire_ball(GF_ACID, dir, 65, 2);
 			ident = TRUE;
-			o_ptr->pval = 20;
+			o_ptr->pval = 25;
 			break;
 		}
 
@@ -2924,7 +2933,7 @@ void do_cmd_zap_rod(void)
 		{
 			fire_ball(GF_ELEC, dir, 75, 2);
 			ident = TRUE;
-			o_ptr->pval = 20;
+			o_ptr->pval = 25;
 			break;
 		}
 
@@ -2932,7 +2941,7 @@ void do_cmd_zap_rod(void)
 		{
 			fire_ball(GF_FIRE, dir, 100, 2);
 			ident = TRUE;
-			o_ptr->pval = 20;
+			o_ptr->pval = 25;
 			break;
 		}
 
@@ -2940,7 +2949,7 @@ void do_cmd_zap_rod(void)
 		{
 			fire_ball(GF_COLD, dir, 85, 2);
 			ident = TRUE;
-			o_ptr->pval = 20;
+			o_ptr->pval = 25;
 			break;
 		}
 
@@ -2949,6 +2958,14 @@ void do_cmd_zap_rod(void)
 			call_chaos();
 			ident = TRUE;
 			o_ptr->pval = 100;
+			break;
+		}
+
+		case SV_ROD_STINKING_CLOUD:
+		{
+			fire_ball(GF_POIS, dir, 20, 2);
+			ident = TRUE;
+			o_ptr->pval = 15;
 			break;
 		}
 	}

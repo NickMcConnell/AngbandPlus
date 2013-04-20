@@ -1291,7 +1291,7 @@ D:%XXXXXXXXXXXXXXXX%
 D:%%%%%%%%%%%%%%%%%%
 
 N:62:Lesser Vault (BT2-Corinth)
-X:7:15:18:18
+X:7:20:18:18
 D:%%%%%%%%%%%%%%%%%%
 D:%XXXXXXXXXXXXXXXX%
 D:%XX&X&XX999XX&X&X%
@@ -1300,13 +1300,13 @@ D:%X&X&X&X,,,X&X&XX%
 D:%X*,*,*XX#XX*,*,X%
 D:%X,*X*,*,*,*,*X*X%
 D:%X^^^^^^^^^^^^^^X%
-D:%X^X X X X X X ^X%
+D:%X^X,X,X'X'X'X,^X%
 D:%X^^^^^^^^^^^^^^X%
-D:%X^ X X X X X X^X%
+D:%X^,X,X,X,X,X,X^X%
 D:%X^^^^^^^^^^^^^^X%
-D:%X^X X X X X X ^X%
+D:%X^X,X,X,X,X,X,^X%
 D:%X^^^^^^^^^^^^^^X%
-D:%X^ X X X X X X X%
+D:%X^,X,X,X,X,X,X'X%
 D:%X^^^^^^^^^^^^^^X%
 D:%XXXXXX+XXXXXXXXX%
 D:%%%%%%%%%%%%%%%%%%

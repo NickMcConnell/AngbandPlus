@@ -1993,6 +1993,7 @@ static void calc_bonuses(void)
 	p_ptr->sh_spine = FALSE;
 	p_ptr->anti_magic = FALSE;
 	p_ptr->anti_tele = FALSE;
+	p_ptr->devices = FALSE;
 
 	p_ptr->immune_acid = FALSE;
 	p_ptr->immune_elec = FALSE;
@@ -2310,6 +2311,7 @@ static void calc_bonuses(void)
 		if (f3 & (TR3_SPINES)) p_ptr->sh_spine = TRUE;
 		if (f3 & (TR3_NO_MAGIC)) p_ptr->anti_magic = TRUE;
 		if (f3 & (TR3_NO_TELE)) p_ptr->anti_tele = TRUE;
+		if (f3 & (TR3_DEVICES)) p_ptr->devices = TRUE;
 
 		/* Sustain flags */
 		if (f2 & (TR2_SUST_STR)) p_ptr->sustain_str = TRUE;
@@ -2568,9 +2570,9 @@ static void calc_bonuses(void)
 	{
 		p_ptr->to_h += 25;
 		p_ptr->dis_to_h += 25;
-		/* You hit harder when Berserk */
-		p_ptr->to_d += 10;
-		p_ptr->dis_to_d += 10;
+		/* You hit harder when Berserk (was +10) */
+		p_ptr->to_d += (p_ptr->lev / 2);
+		p_ptr->dis_to_d += (p_ptr->lev / 2);
 		/* Magical armour can't save you when you're Berserk */
 		p_ptr->to_a = -10;
 		p_ptr->dis_to_a = -10;
@@ -3026,6 +3028,9 @@ static void calc_bonuses(void)
 
 	/* NO_MAGIC gives you a *very* nice saving throw */
 	if ((p_ptr->anti_magic) && (p_ptr->skill_sav < 95)) p_ptr->skill_sav = 95;
+
+	/* DEVICES gives you a *very* nice Magical Devices skill -- Gumby */
+	if ((p_ptr->devices) && (p_ptr->skill_dev < 95)) p_ptr->skill_dev = 95;
 
 	/* Hack -- handle "xtra" mode */
 	if (character_xtra) return;

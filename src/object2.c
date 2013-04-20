@@ -912,7 +912,7 @@ s32b flag_cost(object_type * o_ptr, int plusses)
 	if (f3 & TR3_NO_TELE) total += 2500;
 	if (f3 & TR3_NO_MAGIC) total += 2500;
 	if (f3 & TR3_WRAITH) total += 250000;
-	if (f3 & TR3_TY_CURSE) total -= 15000;
+	if (f3 & TR3_DEVICES) total += 2500;
 	if (f3 & TR3_EASY_KNOW) total += 0;
 	if (f3 & TR3_HIDE_TYPE) total += 0;
 	if (f3 & TR3_SHOW_MODS) total += 0;
@@ -1901,7 +1901,7 @@ static void charge_staff(object_type *o_ptr)
 		case SV_STAFF_DETECT_TRAP:              o_ptr->pval = randint(5)  + 6; break;
 		case SV_STAFF_DETECT_DOOR:              o_ptr->pval = randint(8)  + 6; break;
 		case SV_STAFF_DETECT_INVIS:             o_ptr->pval = randint(15) + 8; break;
-		case SV_STAFF_DETECT_EVIL:              o_ptr->pval = randint(15) + 8; break;
+		case SV_STAFF_DETECT_MONS:              o_ptr->pval = randint(15) + 8; break;
 		case SV_STAFF_CURE_LIGHT:               o_ptr->pval = randint(5)  + 6; break;
 		case SV_STAFF_CURING:                   o_ptr->pval = randint(3)  + 4; break;
 		case SV_STAFF_HEALING:                  o_ptr->pval = randint(2)  + 1; break;
@@ -2005,10 +2005,8 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 		}
 
 
-		case TV_HAFTED:
-		case TV_POLEARM:
-		case TV_AXE:
-		case TV_SWORD:
+		case TV_HAFTED: case TV_POLEARM:
+		case TV_AXE: case TV_SWORD:
 		{
 			/* Very Good */
 			if (power > 1)
@@ -2023,14 +2021,8 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 						if (randint((p_ptr->realm1 == REALM_LIFE) ? 2 : 4) == 1)
 						{
 							o_ptr->art_flags1 |= TR1_BLOWS;
-#if 0
-							if (o_ptr->pval > 2)
-								o_ptr->pval = o_ptr->pval - (randint(2));
-#endif
 						}
-
-						if (o_ptr->pval > 4)
-							o_ptr->pval = 4;
+						if (o_ptr->pval > 4) o_ptr->pval = 4;
 						break;
 					}
 
@@ -2041,8 +2033,7 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 							o_ptr->art_flags2 |= TR2_RES_POIS;
 						if (p_ptr->realm1 == REALM_LIFE)
 							o_ptr->to_a += 10;
-						if (o_ptr->pval > 4)
-							o_ptr->pval = 4;
+						if (o_ptr->pval > 4) o_ptr->pval = 4;
 						break;
 					}
 
@@ -2076,6 +2067,8 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 						if (rand_int(100) < 30)
 						{
 							o_ptr->name2 = EGO_KILL_ANIMAL;
+							if (o_ptr->pval > 2) o_ptr->pval = 2;
+
 						}
 						break;
 					}
@@ -2089,6 +2082,7 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 							if (randint(3)==1) o_ptr->art_flags2 |= TR2_RES_POIS;
 							random_resistance(o_ptr, FALSE, ((randint(14))+4));
 							o_ptr->name2 = EGO_KILL_DRAGON;
+							if (o_ptr->pval > 2) o_ptr->pval = 2;
 						}
 						break;
 					}
@@ -2101,6 +2095,7 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 							o_ptr->art_flags2 |= TR2_RES_FEAR;
 							o_ptr->art_flags3 |= TR3_BLESSED;
 							o_ptr->name2 = EGO_KILL_EVIL;
+							if (o_ptr->pval > 2) o_ptr->pval = 2;
 						}
 						break;
 					}
@@ -2114,6 +2109,7 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 							if (randint(150) < dun_level)
 								o_ptr->art_flags2 |= TR2_HOLD_LIFE;
 							o_ptr->name2 = EGO_KILL_UNDEAD;
+							if (o_ptr->pval > 2) o_ptr->pval = 2;
 						}
 						break;
 					}
@@ -2124,6 +2120,7 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 						if (rand_int(100) < 30)
 						{
 							o_ptr->name2 = EGO_KILL_ORC;
+							if (o_ptr->pval > 2) o_ptr->pval = 2;
 						}
 						break;
 					}
@@ -2134,6 +2131,7 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 						if (rand_int(100) < 30)
 						{
 							o_ptr->name2 = EGO_KILL_TROLL;
+							if (o_ptr->pval > 2) o_ptr->pval = 2;
 						}
 						break;
 					}
@@ -2144,6 +2142,7 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 						if (rand_int(100) < 30)
 						{
 							o_ptr->name2 = EGO_KILL_GIANT;
+							if (o_ptr->pval > 2) o_ptr->pval = 2;
 						}
 						break;
 					}
@@ -2154,6 +2153,7 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 						if (rand_int(100) < 30)
 						{
 							o_ptr->name2 = EGO_KILL_DEMON;
+							if (o_ptr->pval > 2) o_ptr->pval = 2;
 						}
 						break;
 					}
@@ -2162,6 +2162,7 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 					{
 						o_ptr->name2 = EGO_WEST;
 						if (randint(3)==1) o_ptr->art_flags2 |= TR2_RES_FEAR;
+						if (o_ptr->pval > 2) o_ptr->pval = 2;
 						break;
 					}
 
@@ -2169,14 +2170,14 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 					{
 						o_ptr->name2 = EGO_BLESS_BLADE;
 						if (randint(4)==1) o_ptr->art_flags1 |= TR1_SLAY_EVIL;
+						if (o_ptr->pval > 2) o_ptr->pval = 2;
 						break;
 					}
 
 					case 29: case 30:
 					{
 						o_ptr->name2 = EGO_ATTACKS;
-						if (o_ptr->pval > 3)
-							o_ptr->pval = 3;
+						if (o_ptr->pval > 3) o_ptr->pval = 3;
 						break;
 					}
 
@@ -2246,6 +2247,7 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 					{
 						o_ptr->name2 = EGO_TRUMP;
 						if (randint(5)==1) o_ptr->art_flags1 |= TR1_SLAY_DEMON;
+						if (o_ptr->pval > 2) o_ptr->pval = 2;
 						break;
 					}
 					case 40:
@@ -2254,6 +2256,7 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 						if (randint(5)==1) o_ptr->art_flags2 |= TR2_HOLD_LIFE;
 						if (randint(3)==1) o_ptr->art_flags1 |= TR1_DEX;
 						if (randint(3)==1) o_ptr->art_flags2 |= TR2_RES_FEAR;
+						if (o_ptr->pval > 2) o_ptr->pval = 2;
 						break;
 					}
 
@@ -2265,6 +2268,7 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 						{
 							random_resistance(o_ptr, FALSE, ((randint(12))+4));
 							o_ptr->name2 = EGO_KILL_ELEMENTAL;
+							if (o_ptr->pval > 2) o_ptr->pval = 2;
 						}
 						break;
 					}
@@ -2272,9 +2276,7 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 					case 43: /* taken from DrAngband */
 					{
 						o_ptr->name2 = EGO_HASTE;
-
-						if (o_ptr->pval > 5)
-							o_ptr->pval = 5;
+						if (o_ptr->pval > 5) o_ptr->pval = 5;
 						break;
 					}
 
@@ -2290,8 +2292,7 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 							o_ptr->name2 = EGO_EARTHQUAKES;
 							if (randint(3)==1) o_ptr->art_flags1 |= TR1_BLOWS;
 							o_ptr->pval = m_bonus(3, level);
-							if (o_ptr->pval > 6)
-								o_ptr->pval = 6;
+							if (o_ptr->pval > 6) o_ptr->pval = 6;
 						}
 						break;
 					}
@@ -2310,7 +2311,7 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 					}
 
 					/* Hack -- Lower the damage dice */
-					if (o_ptr->dd > 9) o_ptr->dd = 9;
+					if (o_ptr->dd > 10) o_ptr->dd = 10;
 				}
 			}
 
@@ -2321,7 +2322,8 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 				if (rand_int(MAX_DEPTH) < level)
 				{
 					o_ptr->name2 = EGO_MORGUL;
-					if (randint(6)==1) o_ptr->art_flags3 |= TR3_TY_CURSE;
+					if (randint(2)==1) o_ptr->art_flags3 |= TR3_DRAIN_EXP;
+					else o_ptr->art_flags2 |= TR2_HOLD_LIFE;
 				}
 			}
 
@@ -3483,7 +3485,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 	}
 
         /* Allow some Ring & Amulet artifact - stolen from PernAngband */
-        if((power > 1) && (randint(100) <= 5))
+        if((power > 1) && (randint(100) <= 3))
         {
                 create_artifact(o_ptr, FALSE);
         }
@@ -3589,7 +3591,6 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 	/* Maximum "level" for various things */
 	if (lev > MAX_DEPTH - 1) lev = MAX_DEPTH - 1;
 
-
 	/* Base chance of being "good" */
 	f1 = lev + 10;
 
@@ -3626,7 +3627,6 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 		if (magik(f2)) power = -2;
 	}
 
-
 	/* Assume no rolls */
 	rolls = 0;
 
@@ -3645,7 +3645,6 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 		/* Roll for an artifact */
 		if (make_artifact(o_ptr)) break;
 	}
-
 
 	/* Hack -- analyze artifacts */
 	if (o_ptr->name1)
@@ -5779,7 +5778,7 @@ static void spell_info(char *p, int spell, int realm)
 				{
 					case  0: sprintf(p, " dam %dd4", 3 + ((plev-1) / 3)); break;
 					case  2: sprintf(p, " dam %d", 10 + (plev / 2)); break;
-					case  3: sprintf(p, " %d%% det.", 50 + (plev / 2)); break;
+					case  3: sprintf(p, " %d%% detect", 50 + (plev / 2)); break;
 					case  4: sprintf(p, " dam %d", 25 + (plev + (plev / 2))); break; 
 					case  5: sprintf(p, " dam %dd8", 9 + ((plev-5) / 3)); break;
 					case  6: sprintf(p, " dam %dd8", 9 + ((plev-5) / 3)); break;
@@ -5792,7 +5791,7 @@ static void spell_info(char *p, int spell, int realm)
 					case 15: sprintf(p, " dam %d", 100 + plev); break;
 					case 17: sprintf(p, " dam %dd8", 10+(plev/5)); break;
 					case 19: sprintf(p, " dam %d", 100 + (plev*4)); break;
-					case 20: sprintf(p, " %d%% ident", 50 + p_ptr->lev); break;
+					case 20: sprintf(p, " %d%% ident", 50 + (p_ptr->lev - 5)); break;
 					case 24: sprintf(p, " dam %dd8", 15 + ((plev-5) / 3)); break;
 					case 25: sprintf(p, " dam %d each", plev * 4); break;
 					case 26: sprintf(p, " dam %d", 200 + (plev * 4)); break;

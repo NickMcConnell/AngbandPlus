@@ -1055,6 +1055,7 @@ struct player_type
 
 	bool anti_magic;	/* Anti-magic */
 	bool anti_tele;		/* Prevent teleportation */
+	bool devices;		/* Increase Magical Devices skill -- Gumby */
 
 	bool sustain_str;	/* Keep strength */
 	bool sustain_int;	/* Keep intelligence */

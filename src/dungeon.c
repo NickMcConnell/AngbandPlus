@@ -12,7 +12,6 @@
 
 #include "angband.h"
 
-#define TY_CURSE_CHANCE 100
 #define CHAINSWORD_NOISE 100
 
 
@@ -1425,12 +1424,6 @@ static void process_world(void)
 			o_ptr->note = quark_add("cursed");
 	 		msg_format("The %s suddenly feels deathly cold!", o_name);
 	 	}
-
-		/* TY Curse */
-		if ((f3 & TR3_TY_CURSE) && (randint(TY_CURSE_CHANCE)==1))
-		{
-			activate_ty_curse();
-		}
 
 		/* Make a chainsword noise */
 		if ((o_ptr->name1 == ART_CHAINSWORD) && randint(CHAINSWORD_NOISE) == 1)

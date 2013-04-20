@@ -51,7 +51,6 @@ void curse_artifact(object_type * o_ptr)
 		}
 	}
 
-	if (randint(6)==1) o_ptr->art_flags3 |= TR3_TY_CURSE;
 	if (randint(2)==1) o_ptr->art_flags3 |= TR3_AGGRAVATE;
 	if (randint(3)==1) o_ptr->art_flags3 |= TR3_DRAIN_EXP;
 
@@ -603,7 +602,7 @@ void random_misc(object_type * o_ptr, bool is_scroll)
 	}
     }
 
-    switch (randint(31))
+    switch (randint(32))
     {
     case 1:
 	o_ptr->art_flags2 |= TR2_SUST_STR;
@@ -678,6 +677,15 @@ void random_misc(object_type * o_ptr, bool is_scroll)
     case 31:
         o_ptr->art_flags3 |= TR3_NO_TELE;
         break;
+   case 32:
+	{
+		o_ptr->art_flags3 |= TR3_DEVICES;
+		if (!artifact_bias)
+		{
+			if (randint(2)==1) artifact_bias = BIAS_MAGE;
+			else artifact_bias = BIAS_INT;
+		}
+	}
     }
 }
 
@@ -3220,11 +3228,11 @@ void do_cmd_activate(void)
 		/* Choose effect */
 		switch (o_ptr->name2)
 		{
-			case EGO_TRUMP:
+			case EGO_SPINES:
 			{
-				msg_print("Your weapon glows as space warps around you...");
-				teleport_player(100);
-				o_ptr->timeout = 50 + randint(50);
+				msg_print("Your amour expels some spines...");
+				fire_ball(GF_SHARDS, 0, 80, 2);
+				o_ptr->timeout = 100 + randint(100);
 				break;
 			}
 			case EGO_WEST:
@@ -3234,11 +3242,11 @@ void do_cmd_activate(void)
 				o_ptr->timeout = 10;
 				break;
 			}
-			case EGO_SPINES:
+			case EGO_TRUMP:
 			{
-				msg_print("Your amour expels some spines...");
-				fire_ball(GF_SHARDS, 0, 80, 2);
-				o_ptr->timeout = 100 + randint(100);
+				msg_print("Your weapon glows as space warps around you...");
+				teleport_player(100);
+				o_ptr->timeout = 50 + randint(50);
 				break;
 			}
 		}
@@ -3431,7 +3439,7 @@ void do_cmd_activate(void)
 			{
 				msg_print("Your ring glows black...");
 				set_shadow(p_ptr->wraith_form + randint(25) + (p_ptr->lev / 2));
-				o_ptr->timeout = rand_int(300) + 300;
+				o_ptr->timeout = rand_int(200) + 200;
 				break;
 			}
 		}
@@ -4087,17 +4095,17 @@ cptr item_activation(object_type *o_ptr)
 
 	switch (o_ptr->name2)
 	{
-		case EGO_TRUMP:
+		case EGO_SPINES:
 		{
-			return "teleport every 50+d50 turns";
+			return "shoot spines (dam 80) every 100+d100 turns";
 		}
 		case EGO_WEST:
 		{
 			return "detect orcs every 10 turns";
 		}
-		case EGO_SPINES:
+		case EGO_TRUMP:
 		{
-			return "shoot spines (dam 80) every 100+d100 turns";
+			return "teleport every 50+d50 turns";
 		}
 	}
 
@@ -4116,7 +4124,7 @@ cptr item_activation(object_type *o_ptr)
 			case SV_RING_ICE:
 				return "frost ball and resist cold every 50 turns";
 			case SV_RING_SHADOWS:
-				return "wraithform every 300+d300 turns";
+				return "wraithform every 200+d200 turns";
 			default:
 				return NULL;
 		}
@@ -4202,7 +4210,7 @@ void random_artifact_resistance(object_type * o_ptr)
 		else
 		{
 			o_ptr->art_flags3 |= 
-			    (TR3_TY_CURSE | TR3_CURSED | TR3_HEAVY_CURSE | TR3_AUTO_CURSE | TR3_DRAIN_EXP);
+			    (TR3_CURSED | TR3_HEAVY_CURSE | TR3_AUTO_CURSE | TR3_DRAIN_EXP);
 			o_ptr->ident |= IDENT_CURSED;
 			return;
 		}
@@ -4213,11 +4221,11 @@ void random_artifact_resistance(object_type * o_ptr)
 		case ART_CELEBORN: case ART_ARVEDUI: case ART_CASPANION:
 		case ART_PAN_TANG: case ART_HITHLOMIR: case ART_ROHIRRIM:
 		case ART_CELEGORM: case ART_ANARION: case ART_THRANDUIL:
-		case ART_THENGEL: case ART_LUTHIEN: case ART_THROR:
-		case ART_THORIN: case ART_NIMTHANC: case ART_DETHANC:
-		case ART_NARTHANC: case ART_TURMIL: case ART_THALKETTOTH:
-		case ART_HACKMEAT: case ART_DRAGONBANE: case ART_SOULSUCKER:
-		case ART_HASTNEN: case ART_STING: case ART_ENDURANCE:
+		case ART_LUTHIEN: case ART_THROR: case ART_THORIN:
+		case ART_NIMTHANC: case ART_DETHANC: case ART_NARTHANC:
+		case ART_TURMIL: case ART_THALKETTOTH: case ART_HACKMEAT:
+		case ART_DRAGONBANE: case ART_SOULSUCKER: case ART_HASTNEN:
+		case ART_STING: case ART_ENDURANCE:
 		{
 			/* Give a resistance */
 			give_resistance = TRUE;
@@ -4249,7 +4257,7 @@ void random_artifact_resistance(object_type * o_ptr)
 		break;
 
 		case ART_POWER: case ART_GONDOR: case ART_AULE:
-		case ART_NATUREBANE:
+		case ART_NATUREBANE: case ART_THENGEL:
 		{
 			/* Give both */
 			give_power = TRUE;

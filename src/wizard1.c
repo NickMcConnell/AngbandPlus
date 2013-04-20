@@ -591,13 +591,13 @@ static const flag_desc misc_flags3_desc[] =
 	{ TR3_NO_TELE,            "Prevent Teleportation" },
 	{ TR3_NO_MAGIC,           "Anti-Magic" },
 	{ TR3_WRAITH,             "Wraith Form" },
-	{ TR3_TY_CURSE,		  "Fouly Cursed" },
+	{ TR3_DEVICES,		  "Device Mastery" },
 	{ TR3_FEATHER,            "Levitation" },
 	{ TR3_SEE_INVIS,          "See Invisible" },
 	{ TR3_TELEPATHY,          "ESP" },
 	{ TR3_SLOW_DIGEST,        "Slow Digestion" },
 	{ TR3_REGEN,              "Regeneration" },
-	{ TR3_XTRA_SHOTS,         "+1 Extra Shot" },        /* always +1? */
+	{ TR3_XTRA_SHOTS,         "Extra Shot" },
 	{ TR3_DRAIN_EXP,          "Drains Experience" },
 	{ TR3_AGGRAVATE,          "Aggravates" },
 	{ TR3_BLESSED,            "Blessed Blade" },
@@ -930,10 +930,6 @@ static void analyze_misc_magic (object_type *o_ptr, cptr *misc_list)
 
 	if (cursed_p(o_ptr))
 	{
-		if (f3 & (TR3_TY_CURSE))
-		{
-			*misc_list++ = "Ancient Curse";
-		}
  		if (f3 & (TR3_AUTO_CURSE))
  		{
  			*misc_list++ = "Self-cursing";

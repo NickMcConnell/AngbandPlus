@@ -192,9 +192,10 @@ races also have intrinsic abilities.
                do have one big drawback, though.  Dwarves are loudmouthed and
                proud, singing in loud voices, arguing with themselves for no
                good reason, screaming out challenges at imagined foes.  In
-               other words, dwarves have a miserable stealth.  They can never
-               be blinded.  Dwarves also learn to study the structure of a
-               dungeon, and can spot things that go unseen by the other races.
+               other words, dwarves have a miserable stealth.  They can
+               never be blinded.  Dwarves also learn to study the structure
+               of a dungeon, and can spot things that go unseen by the other
+               races.
  
           Half-Orc
                Half-Orcs make excellent warriors and decent priests, but

@@ -416,7 +416,7 @@ void do_cmd_mindcraft(void)
 				/* Mana storm */
 				msg_print("Your mind unleashes its power in an uncontrollable storm!");
 				project(1, FALSE, 2+plev/10, py, px, plev * 2,
-				    GF_MANA,PROJECT_JUMP|PROJECT_KILL|PROJECT_GRID|PROJECT_ITEM);
+				    GF_MANA,PROJECT_JUMP|PROJECT_KILL|PROJECT_GRID|PROJECT_ITEM, FALSE);
 				p_ptr->csp = MAX(0, p_ptr->csp - plev * MAX(1, plev/10));
 			}
 		}
@@ -528,7 +528,7 @@ void do_cmd_mindcraft(void)
 				if (plev < 30)
 					project(0, FALSE, 2 + (plev / 10), py, px,
 						plev * ((plev / 10) + 1),
-						GF_PSI, PROJECT_KILL);
+						GF_PSI, PROJECT_KILL, FALSE);
 				else
 					(void)mindblast_monsters(plev * ((plev / 10) + 1));
 				break;
@@ -560,7 +560,7 @@ void do_cmd_mindcraft(void)
 				msg_print("A wave of pure physical force radiates out from your body!");
 				project(0, FALSE, 3 + (plev / 10), py, px,
 				   plev * ((plev / 10) + 2), GF_TELEKINESIS,
-				   PROJECT_KILL|PROJECT_ITEM|PROJECT_GRID);
+				   PROJECT_KILL|PROJECT_ITEM|PROJECT_GRID, FALSE);
 				break;
 			default:
 				msg_print("Zap?");

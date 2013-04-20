@@ -790,7 +790,8 @@ void teleport_player_level(void)
 		dun_level++;
 		new_level_flag = TRUE;
 	}
-	else if (is_quest(dun_level, FALSE) || (dun_level >= MAX_DEPTH-1))
+	else if (is_quest(dun_level, FALSE) || (dun_level >= MAX_DEPTH-1) ||
+		 (p_ptr->astral && (dun_level == 97)))
 	{
 		msg_print("You rise up through the ceiling.");
 

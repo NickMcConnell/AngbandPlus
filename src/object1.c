@@ -27,8 +27,8 @@
 /*
  * Max sizes of the following arrays
  */
-#define MAX_ROCKS	55	/* Used with rings (min 38) */
-#define MAX_AMULETS	20	/* Used with amulets (min 13) */
+#define MAX_ROCKS	56	/* Used with rings (min 38) */
+#define MAX_AMULETS	22	/* Used with amulets (min 13) */
 #define MAX_WOODS	35	/* Used with staffs (min 30) */
 #define MAX_METALS	39	/* Used with wands/rods (min 29/28) */
 #define MAX_COLORS	66	/* Used with potions (min 60) */
@@ -52,7 +52,8 @@ static cptr ring_adj[MAX_ROCKS] =
 	"Obsidian", "Silver", "Tortoise Shell", "Mithril", "Jet",
 	"Engagement", "Adamantite", "Wire", "Dilithium", "Bone",
 	"Wooden", "Serpent", "Wedding", "Double", "Plain",
-	"Brass", "Scarab", "Shining", "Rusty", "Transparent"
+	"Brass", "Scarab", "Shining", "Rusty", "Transparent",
+	"White Gold"
 };
 
 static byte ring_col[MAX_ROCKS] =
@@ -67,7 +68,8 @@ static byte ring_col[MAX_ROCKS] =
 	TERM_L_DARK, TERM_L_WHITE, TERM_GREEN, TERM_L_BLUE, TERM_L_DARK,
 	TERM_YELLOW, TERM_VIOLET, TERM_UMBER, TERM_L_WHITE, TERM_WHITE,
 	TERM_UMBER, TERM_GREEN, TERM_YELLOW, TERM_ORANGE, TERM_YELLOW,
-	TERM_ORANGE, TERM_L_GREEN, TERM_YELLOW, TERM_RED, TERM_WHITE
+	TERM_ORANGE, TERM_L_GREEN, TERM_YELLOW, TERM_RED, TERM_WHITE,
+	TERM_WHITE
 };
 
 
@@ -79,7 +81,8 @@ static cptr amulet_adj[MAX_AMULETS] =
 	"Amber", "Driftwood", "Coral", "Agate", "Ivory",
 	"Obsidian", "Bone", "Brass", "Bronze", "Pewter",
 	"Tortoise Shell", "Golden", "Azure", "Crystal", "Silver",
-	"Copper", "Emerald", "Granite", "Ruby", "Sapphire"
+	"Copper", "Emerald", "Granite", "Ruby", "Sapphire",
+	"Quartz", "Magma"
 };
 
 static byte amulet_col[MAX_AMULETS] =
@@ -87,7 +90,8 @@ static byte amulet_col[MAX_AMULETS] =
 	TERM_YELLOW, TERM_L_UMBER, TERM_WHITE, TERM_L_WHITE, TERM_WHITE,
 	TERM_L_DARK, TERM_WHITE, TERM_L_UMBER, TERM_L_UMBER, TERM_SLATE,
 	TERM_GREEN, TERM_YELLOW, TERM_L_BLUE, TERM_L_BLUE, TERM_L_WHITE,
-	TERM_L_UMBER, TERM_GREEN, TERM_SLATE, TERM_RED, TERM_BLUE
+	TERM_L_UMBER, TERM_GREEN, TERM_SLATE, TERM_RED, TERM_BLUE,
+	TERM_L_BLUE, TERM_RED
 };
 
 
@@ -2345,6 +2349,10 @@ bool identify_fully_aux(object_type *o_ptr)
 	{
 		info[i++] = "It renders you incorporeal.";
 	}
+	if (f3 & (TR3_DEVICES))
+	{
+		info[i++] = "It makes you skilled with magical devices.";
+	}
 	if (f3 & (TR3_FEATHER))
 	{
 		info[i++] = "It allows you to levitate.";
@@ -2438,13 +2446,8 @@ bool identify_fully_aux(object_type *o_ptr)
 
  	if (f3 & (TR3_AUTO_CURSE))
  	{
- 		info[i++] = "It will curse itself.";
+		info[i++] = "It will curse itself.";
  	}
-
-	if (f3 & (TR3_TY_CURSE))
-	{
-		info[i++] = "It carries an ancient foul curse.";
-	}
 
 	if ((f3 & (TR3_IGNORE_ACID)) && (f3 & (TR3_IGNORE_ELEC)) &&
 	    (f3 & (TR3_IGNORE_FIRE)) && (f3 & (TR3_IGNORE_COLD)))

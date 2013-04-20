@@ -40,7 +40,7 @@
 
 # Speaking of which, if anyone has any ideas on what to put into these
 # slots, mail me at aa343@chebucto.ns.ca with your critter... :)
-# [Slot# (L)]: 601 (76), 622 (89), 633 (96)
+# [Slot# (L)]: 601 (76), 633 (96)
 
 # The "x" symbol is now used to represent shapechanging monsters, regardless
 # of whether their base type originally was humanoid/person, demon, hybrid,
@@ -789,7 +789,7 @@ B:HIT:HURT:1d5
 B:HIT:HURT:1d5
 F:MALE | FORCE_SLEEP | DROP_60 | OPEN_DOOR | BASH_DOOR | 
 S:1_IN_9 | 
-S:ARROW_2 | MISSILE
+S:ARROW_1 | MISSILE
 D:An agile hunter, ready and relaxed.
 
 N:71:Blue jelly
@@ -1073,12 +1073,12 @@ D:It screeches as it attacks.
 
 N:100:Novice archer
 G:p:G
-I:115:6d8:20:10:5
+I:110:6d8:20:10:5
 W:6:2:0:20
 B:HIT:HURT:1d4
 B:HIT:HURT:1d4
 F:MALE | FORCE_SLEEP | ONLY_GOLD | DROP_1D2 | OPEN_DOOR | BASH_DOOR
-S:1_IN_3 | 
+S:1_IN_2 | 
 S:ARROW_2
 D:A nasty little fellow with a bow and arrow.
 
@@ -1287,7 +1287,7 @@ B:HIT:HURT:1d5
 B:HIT:HURT:1d5
 F:MALE | FORCE_SLEEP | FRIENDS | DROP_60 | OPEN_DOOR | BASH_DOOR
 S:1_IN_9 | 
-S:ARROW_2 | MISSILE
+S:ARROW_1 | MISSILE
 D:An agile hunter, ready and relaxed.
 
 N:121:Giant salamander
@@ -4515,8 +4515,8 @@ W:34:2:0:390
 B:HIT:ELEC:1d10
 B:HIT:ELEC:1d10
 F:FORCE_SLEEP | RAND_25 | EMPTY_MIND | COLD_BLOOD | KILL_BODY | KILL_ITEM | 
-F:BASH_DOOR | POWERFUL | ELEMENTAL | IM_ACID | IM_FIRE | IM_COLD | 
-F:IM_ELEC | IM_POIS | NO_CONF | NO_SLEEP | NO_FEAR
+F:BASH_DOOR | POWERFUL | ELEMENTAL | IM_ELEC | IM_POIS | NO_CONF | 
+F:NO_SLEEP | NO_FEAR
 S:1_IN_8 | 
 S:BO_ELEC | BR_ELEC
 D:It is a towering tornado of winds.
@@ -8027,9 +8027,9 @@ D:One day an egg was found in the basement of GWAR's Slave Pit.  Slymenstra
 D:wanted to nurture and raise it, but Oderus and Beefcake decided to inject 
 D:the egg full of crack.  After Gor-Gor was hatched, he was raised on a 
 D:diet of drugs and dead babies and then set loose to destoy the world.  In 
-D:the fullness of time, GWAR had to destroy Gor-Gor, but not long after, 
-D:drums of toxic waste were accidentally dumped on his grave, so Gor-Gor 
-D:has returned, seeking to destroy GWAR...
+D:the fullness of time, GWAR had to destroy Gor-Gor, but soon after drums 
+D:of toxic waste were accidentally dumped on his grave, so Gor-Gor has 
+D:returned, seeking to destroy GWAR...
 
 # Kronos by Jonathan Ellis
 
@@ -8100,10 +8100,20 @@ S:BR_PLAS | BR_COLD | BR_DISE
 D:The Tarrasque is a massive reptile of legend, rumoured to be unkillable 
 D:and immune to magic.  Fear its anger, for its devastation is unmatched!
 
-#N:622:
-#G:
-#I:
-#W:89:
+N:622:Chaos Elemental
+G:E:v
+I:130:70d100:15:100:50
+W:89:2:0:45000
+B:ENGULF:HALLU:10d6
+B:ENGULF:HALLU:10d6
+B:ENGULF:CONFUSE:10d4
+B:ENGULF:EXP_80:10d4
+F:FORCE_SLEEP | RAND_50 | EMPTY_MIND | KILL_ITEM | KILL_BODY | BASH_DOOR | 
+F:POWERFUL | ELEMENTAL | IM_POIS | RES_CHAO | NO_CONF | NO_SLEEP | 
+F:NO_FEAR | ATTR_MULTI | ATTR_ANY
+S:1_IN_3 | 
+S:BR_CHAO | BA_CHAO
+D:A writhing cloud of 'pure' Chaos.
 
 ##### Monsters level 90 - 97: 623-635 #####
 
@@ -8174,11 +8184,10 @@ B:TENTACLE:LOSE_INT:20d5
 B:BITE:LOSE_STR:10d2
 B:BITE:LOSE_CON:10d2
 F:UNIQUE | CAN_SPEAK | FEMALE | ELDRITCH_HORROR | AURA_ELEC | RES_TELE | 
-F:ATTR_MULTI | FORCE_SLEEP | FORCE_MAXHP | PASS_WALL | ATTR_ANY | DEMON | 
-F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | DROP_90 | NONLIVING | SMART | EVIL | 
-F:OPEN_DOOR | BASH_DOOR | REGENERATE | IM_ACID | IM_COLD | IM_POIS | 
-F:RES_CHAO | NO_CONF | NO_SLEEP
-S:1_IN_3 |
+F:FORCE_SLEEP | FORCE_MAXHP | PASS_WALL | DEMON | ONLY_ITEM | DROP_4D2 | 
+F:DROP_GOOD | DROP_90 | NONLIVING | SMART | EVIL | OPEN_DOOR | BASH_DOOR | 
+F:REGENERATE | IM_ACID | IM_COLD | IM_POIS | RES_CHAO | NO_CONF | NO_SLEEP
+S:1_IN_3 | 
 S:BO_MANA | BRAIN_SMASH | BA_DARK | S_MONSTERS | CAUSE_4 | HEAL | BR_CHAO | 
 S:BR_CONF | BR_POIS | BR_NUKE | BA_CHAO | S_DEMON | S_HI_UNDEAD | S_UNIQUE
 D:This horrendous outer god looks like a writhing cloudy mass filled 

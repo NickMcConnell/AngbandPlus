@@ -2210,7 +2210,7 @@ void monster_death(int m_idx)
 		msg_print("BOOM!");
 
 		/* Perform the explosion... */
-		(void)project(m_idx, pet_attack, radius, y, x, damboom, boom, flg);
+		(void)project(m_idx, pet_attack, radius, y, x, damboom, boom, flg, FALSE);
 
 		/* Note it in monster memory */
 		if (m_ptr->ml)

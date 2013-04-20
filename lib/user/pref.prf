@@ -106,8 +106,11 @@ A:0
 C:0:#
 
 # Fire ammo #2 at nearest target
+# [remember to remove, or change, this one if you're running a Linux system
+#  and you need the ` key to act as ESC]
 A:\e\e\e*tf2
 P:`
+
 
 ##### Roguelike Keyset Mappings #####
 

@@ -773,7 +773,7 @@ void do_cmd_cast(void)
 		identify_fully();
 		break;
        case 30: /* Divine Intervention */
-		project(0, FALSE, 1, py, px, 777, GF_HOLY_FIRE,   PROJECT_KILL);
+		project(0, FALSE, 1, py, px, 777, GF_HOLY_FIRE, PROJECT_KILL, FALSE);
 		dispel_monsters(plev * 5);
 		slow_monsters();
 		stun_monsters(plev*4);
@@ -1125,7 +1125,7 @@ void do_cmd_cast(void)
 		msg_print("You call upon Mother Nature to smite your enemies...");
 		(void)dispel_monsters(plev * 5);
 		earthquake(py, px, 20 + (plev / 2) );
-		project(0, FALSE, 1+plev/12, py, px, 150 + plev, GF_DISINTEGRATE, PROJECT_KILL|PROJECT_ITEM);
+		project(0, FALSE, 1+plev/12, py, px, 150 + plev, GF_DISINTEGRATE, PROJECT_KILL|PROJECT_ITEM, FALSE);
 		break;
 	default:
 		msg_format("You cast an unknown Nature spell: %d.", spell);
@@ -1241,7 +1241,7 @@ void do_cmd_cast(void)
         case 11: /* Sonic Boom */
 		msg_print("BOOM! Shake the room!");
 		project(0, FALSE, 2+plev/10, py, px, 65 + plev, GF_SOUND,
-					PROJECT_KILL | PROJECT_ITEM);
+					PROJECT_KILL | PROJECT_ITEM, FALSE);
 		break;
         case 12: /* Mana Bolt */
 		if (!get_aim_dir(&dir)) return;
@@ -1277,12 +1277,11 @@ void do_cmd_cast(void)
 		fire_ball(GF_DISINTEGRATE, dir, 100 + (plev * 4), 3 + (plev/40));
 		break;
 	case 20: /* Demonic Consultation */
-		if (randint(100) >= 50 + p_ptr->lev)
+		if (randint(100) >= 50 + (p_ptr->lev - 5))
 		{
 			if (summon_specific(py, px, plev, SUMMON_DEMON))
 			{
-				msg_print("The area fills with a stench of sulphur and brimstone.");
-				msg_print("'You dare summon me for something so trivial?  DIE!'");
+				msg_format("%^s says, 'You shall pay for annoying me!'", chaos_patrons[p_ptr->chaos_patron]);
 			}
 			else
 			{
@@ -1359,7 +1358,7 @@ void do_cmd_cast(void)
 
 				if (count > 1000) break;
 				count = 0;
-				project(0, FALSE, 2, y, x, plev*4, GF_METEOR, PROJECT_KILL|PROJECT_JUMP|PROJECT_ITEM);
+				project(0, FALSE, 2, y, x, plev*4, GF_METEOR, PROJECT_KILL|PROJECT_JUMP|PROJECT_ITEM, FALSE);
 			}
 		}
 		break;

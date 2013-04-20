@@ -1086,7 +1086,7 @@ bool apply_disenchant(int mode)
  */
 static void apply_nexus(monster_type *m_ptr)
 {
-	if (rand_int(100) < p_ptr->skill_sav)
+	if (rand_int(150) < p_ptr->skill_sav)
 	{
 		msg_print("You resist the effects!");
 	}
@@ -4295,7 +4295,7 @@ static bool project_m(int who, bool pet_attack, int r, int y, int x, int dam, in
  * We return "TRUE" if any "obvious" effects were observed.  XXX XXX Actually,
  * we just assume that the effects were obvious, for historical reasons.
  */
-static bool project_p(int who, bool pet_attack, int r, int y, int x, int dam, int typ, int a_rad)
+static bool project_p(int who, bool pet_attack, int r, int y, int x, int dam, int typ, int a_rad, bool bolt)
 {
 	int k = 0;
 
@@ -4326,7 +4326,7 @@ static bool project_p(int who, bool pet_attack, int r, int y, int x, int dam, in
 	/* Player cannot hurt himself */
 	if (!who) return (FALSE);
 
-	if (p_ptr->reflect && !a_rad && !(randint(10)==1))
+	if (p_ptr->reflect && !a_rad && bolt && !(randint(10)==1))
 	{
 		byte t_y, t_x;
 		int max_attempts = 10;
@@ -4351,7 +4351,7 @@ static bool project_p(int who, bool pet_attack, int r, int y, int x, int dam, in
 			t_x = m_list[who].fx;
 		}
 
-		project(0, pet_attack, 0, t_y, t_x, dam, typ, (PROJECT_STOP|PROJECT_KILL));
+		project(0, pet_attack, 0, t_y, t_x, dam, typ, (PROJECT_STOP|PROJECT_KILL), bolt);
 
 		disturb(1, 0);
 		return TRUE;
@@ -5151,7 +5151,7 @@ static bool project_p(int who, bool pet_attack, int r, int y, int x, int dam, in
  * in the blast radius, in case the "illumination" of the grid was changed,
  * and "update_view()" and "update_monsters()" need to be called.
  */
-bool project(int who, bool pet_attack, int rad, int y, int x, int dam, int typ, int flg)
+bool project(int who, bool pet_attack, int rad, int y, int x, int dam, int typ, int flg, bool bolt)
 {
 	int i, t, dist;
 
@@ -5564,8 +5564,8 @@ bool project(int who, bool pet_attack, int rad, int y, int x, int dam, int typ, 
 			{
 				monster_race *ref_ptr = &r_info[m_list[cave[y][x].m_idx].r_idx];
 
-				if ((ref_ptr->flags2 & (RF2_REFLECTING)) && (randint(10)!=1)
-				    && (dist_hack > 1))
+				if ((ref_ptr->flags2 & (RF2_REFLECTING)) &&
+			            (randint(10)!=1) && bolt)
 				{
 					byte t_y, t_x;
 					int max_attempts = 10;
@@ -5594,7 +5594,7 @@ bool project(int who, bool pet_attack, int rad, int y, int x, int dam, int typ, 
 						ref_ptr->r_flags2 |= RF2_REFLECTING;
 					}
 
-					project(cave[y][x].m_idx, pet_attack, 0, t_y, t_x, dam, typ, flg);
+					project(cave[y][x].m_idx, pet_attack, 0, t_y, t_x, dam, typ, flg, bolt);
 				}
 				else
 				{
@@ -5642,7 +5642,7 @@ bool project(int who, bool pet_attack, int rad, int y, int x, int dam, int typ, 
 			x = gx[i];
 
 			/* Affect the player */
-			if (project_p(who, pet_attack, dist, y, x, dam, typ, rad)) notice = TRUE;
+			if (project_p(who, pet_attack, dist, y, x, dam, typ, rad, bolt)) notice = TRUE;
 		}
 	}
 
@@ -5815,7 +5815,7 @@ bool potion_smash_effect(int who, int y, int x, int o_sval)
 	}
 
 	(void) project(who, FALSE, radius, y, x, dam, dt,
-	    (PROJECT_JUMP | PROJECT_ITEM | PROJECT_KILL));
+	    (PROJECT_JUMP | PROJECT_ITEM | PROJECT_KILL), FALSE);
 
 	/* XXX  those potions that explode need to become "known" */
 	return angry;

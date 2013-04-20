@@ -3306,7 +3306,7 @@ void map_area(void)
 
 
 /*
- * Light up the dungeon using "claravoyance"
+ * Light up the dungeon using "clairvoyance"
  *
  * This function "illuminates" every grid in the dungeon, memorizes all
  * "objects", memorizes all grids as with magic mapping, and, under the

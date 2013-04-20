@@ -17,10 +17,10 @@ from your plane...
 ****************************************************************************
 
 =============================================
-= Gumband 2.1.7a = Last Update: 19-Jun-2001 =
+= Gumband 2.1.7b = Last Update: 29-Jul-2001 =
 ============================================================================
-Changes from Gumband 2.1.6 are marked with '##'. Only the most major changes
-are listed here, to keep things short...
+Changes from Gumband 2.1.7a are marked with '##'. Only the most major
+changes are listed here, to keep things short...
 ============================================================================
 Send any and all complaints (or praise ;) to aa343@chebucto.ns.ca. Patches,
 makefiles, etc., should be sent to gumby_jd@yahoo.com (due to a lack of
@@ -100,35 +100,31 @@ files and other notes pertaining to macros.
  happening on two creatures so far: the Mangy looking leper and the Battle-
  scarred veteran. Some games it'll wake them up, some games it won't. :(
 
-## Random artifact amulets and rings that are of a type that starts with the
+ Random artifact amulets and rings that are of a type that starts with the
  EASY_KNOW flag will be automatically identified if you've previously ident-
  ified the base type of ring or amulet. Not really worth fixing, IMHO.
 
-## It seems that, tho I thought I'd fixed it before, the old bug where area
- effect spells bounce off creatures with Reflection is back... :( I'll try
- to fix it again. :(
+## FIXED: I hope. Area effect spells should no longer bounce off of monsters
+ with Reflection. [added a specific 'bolt' argument to project()' instead of
+ relying on the radius of the spell]
 
-## FIXED: Activatable rings and Dragon Scale Mails retain their activation
- when made into random artifacts. [previously, it tried to activate as a
- random artifact instead of by its original type, causing an unknown
- activation error]
+## FIXED: The 4th Black Market shopkeeper, "Gumby the Godly" ;), is back to
+ having a 30000au purse - I'd forgotten that they used plain ints (instead
+ of long ints) to store that value, causing overflow and negative prices
+ when selling to them.
 
-## FIXED: Thrown potions that break are now considered to be damage done by
- the player. [for some reason, the potion_smash_effect() call in
- do_cmd_throw() had its 'who' argument set to 1, causing the damage to be
- considered to be coming from a monster]
+## FIXED: Astral characters can no longer teleport_level from level 97 to
+ level 98 (Arioch's level). As far as I can tell, there is now no way to
+ avoid having to go to the town to win the game. :)
 
-## FIXED: Having Arioch as a Patron no longer gives both the Albinism and
- dispelling/stunning mutations - I only just noticed this case of a missing
- 'break;' statement in a switch. :)
-
-## FIXED: Casting "Living Trump" now gives the proper mutation(s). [which I
- messed up when I renumbered the cases in the gain_random_mutation() switch]
+## FIXED: The intrinsic pval of Sledgehammers no longer pushes the pval of
+ ego-items beyond the maximum for that ego-type. [eg, no Sledgehammers of
+ Extra Attacks (2d5) (+X,+X) (+4 attacks), since EA's maximum pval is 3]
 
 
                     ####### Misc Changes #######
 
-## Updated main-gcu.c to the version from the Thangorodrim Linux section. If
+ Updated main-gcu.c to the version from the Thangorodrim Linux section. If
  that causes you any problems, the original main-gcu.c is still there as
  'main-gcu.old'. The other files you will need are in ./src/gcu_fix.zip
  (sorry - couldn't get tar to work today for some reason :(. If you need to
@@ -143,9 +139,10 @@ files and other notes pertaining to macros.
 
  Chaos Resistance no longer gives Confusion Resistance.
 
- Being Berserk now gives +25 to hit and +10 to damage. In return, you are
- reduced to just the base AC of worn armour and your Dexterity bonus, minus
- a further 10 points. Spellcasting failure rates go up by 25% as well.
+## Being Berserk now gives +25 to hit and +(plev/2) to damage (was +10). In
+ return, you are reduced to just the base AC of worn armour and your
+ Dexterity bonus, minus a further 10 points. Spellcasting failure rates go
+ up by 25% as well.
 
  I have implemented Kamband-style Ghosts, but as a birth choice instead of a
  race. The player starts out in the dungeon on level 96, on a random stair,
@@ -169,23 +166,29 @@ files and other notes pertaining to macros.
  skill_fos (the Perception skill), instead of kicking in automatically with
  a Perception of 50 or higher.
 
+## Reflection for monsters and players is no longer determined by the 'rad'
+ field (the 3rd field) of 'project()', but on the 'bolt' field, which is now
+ the last field in project()'s argument list.
+
+## Added the maximum dungeon level to the main (first) character display.
+
+## Altered the gcu_fix archive (now in the main Gumband directory as
+ gcu_fix.tar.gz) for Linux a bit. Now includes a Debian keymap, an updated
+ index file, and the Linux FAQ from thangorodrim.
+
+## If the player has the 'Chaos Gift' mutation and doesn't have a second
+ magical realm (ie, isn't a Mage or Priest), your patron will be displayed
+ as it does for Chaos Warriors.
+
+## The effects of Nexus (*not* the damage) can be resisted if a
+ "randint(150) < skill_sav" check is made (as opposed to the standard saves
+ of "randint(100) < skill_sav").
+
 
               ####### Altered Races and Classes #######
 
 (see ./lib/help/birth.txt and the source for full details on races and
  classes)
-
- REMOVED THE FOLLOWING RACES: Half Elf, Half Ogre, Cyclops, Yeek*, Nibelung,
- Dark Elf, Imp, Skeleton, Zombie, Sprite. Some were removed because, IMHO,
- they were boring. Some because I rarely ever hear of anyone using them
- (unless coughed up as a random choice). Some because I die far too easily
- with 'em. :) If your favorite race was removed, sorry, but they won't be
- back...
-## [* Yeeks are back in this version, but just about everything about them
-   has been taken from the DrAngband version of this race]
-
-## ADDED: Melniboneans and Vadhagh (note that these are rough first-drafts -
-   they'll be tweaked as time goes on :).
 
 Beastmen:
  Instead of gaining and losing mutations purely at random as they move
@@ -193,7 +196,7 @@ Beastmen:
  of losing a mutation, *if* they currently have any mutations, instead of
  gaining one. This happens on every level-up instead of only happening if
  randint(5)==1.
-## No longer has +1 effect when hit by a Polymorph Self effect.
+ No longer has +1 effect when hit by a Polymorph Self effect.
 
 Chaos Warriors:
  If you have Arioch, Xiombarg or Mabelrode as a patron, and you kill them,
@@ -202,7 +205,7 @@ Chaos Warriors:
    through their patron (god), like Priests and Paladins do).
  Swapped their +1 INT bonus with their +0 WIS bonus, to make the above a bit
    fairer.
-## No longer has +1 effect when hit by a Polymorph Self effect.
+ No longer has +1 effect when hit by a Polymorph Self effect.
 
 Draconians:
  Now gain the following resistances at the level in brackets: Fire (5),
@@ -215,7 +218,7 @@ Draconians:
    Chaos (45), Mana (50). [breath type was previously determined by class]
 
 Dwarves:
- Magic Mapping is added to their racial activation at level 35.
+ Racial activation modified to add Magic Mapping at level 35.
 
 Gambolts:
  Exceptional DEX & CHR (both sustained), Saving Throw and Stealth. Decent
@@ -241,14 +244,17 @@ Half-Trolls:
  All Half-Trolls, not just Warriors, get Slow Digestion with their level 15
    Regeneration.
 
+High Elves:
+## Required XP is now back up to +100% (was +75% for a while).
+
 Melniboneans:
-## Good Int and Wis, but low Chr. Other stats are slightly above average.
+ Good Int and Wis, but low Chr. Other stats are slightly above average.
    Skills are generally good. Tend to be treated like Elves in stores,
    except by Humans and Barbarians...
-## Their Chaos Patron is *always* Arioch, and are fairly likely to get the
+ Their Chaos Patron is *always* Arioch, and are fairly likely to get the
    CHAOS_GIFT mutation.
-## 10 hit dice, +25% XP requirement, 20' infravision.
-## Racial activation is demon summoning. There is a 1-in-3 chance that the
+ 10 hit dice, +25% XP requirement, 20' infravision.
+ Racial activation is demon summoning. There is a 1-in-3 chance that the
    demon will be hostile...
 
 Priests:
@@ -286,13 +292,13 @@ Spectres:
  No longer gains telepathy at level 35.
 
 Vadhagh:
-## Great Int and Wis, exceptional Dex and Chr. Str is a bit below average
-   and Con is rather bad. Skills are generally very good. Generally treated
-   like Elves in the stores...
-## 9 hit dice, +55% XP required, 40' infravision.
-## Resists Chaos.
-## As a racial activation, they can step into an adjacent plane of the
-   Earth, otherwise known as Alter Reality.
+ Great Int and Wis, exceptional Dex and Chr. Str is a bit below average and
+   Con is rather bad. Skills are generally very good. Generally treated like
+   Elves in the stores...
+ 9 hit dice, +55% XP required, 40' infravision.
+ Resists Chaos.
+ As a racial activation, they can step into an adjacent plane of the Earth,
+   otherwise known as Alter Reality.
 
 Vampires:
  Takes damage from wielding *any* light source (either in the Light slot or
@@ -327,11 +333,11 @@ Weaponmasters:
  XP penalty of 30%.
 
 Yeeks:
-## Now have -5 to all stats, horrible skills, decent hit dice (can't let
-   them be *all* bad :), etc., etc., taken from DrAngband.
-## Racial activation sets the 'Afraid' flag and gives them a speed boost -
+ Now have -5 to all stats, horrible skills, decent hit dice (can't let them
+   be *all* bad :), etc., etc., taken from DrAngband.
+ Racial activation sets the 'Afraid' flag and gives them a speed boost -
    Yeeks run away a lot. :)
-## Required XP is at -75%, making level gains *extremely* fast.
+ Required XP is at -75%, making level gains *extremely* fast.
 
 
               ####### Monster-Related Changes #######
@@ -385,7 +391,7 @@ Yeeks:
  DEMONs now resist Hell Fire attacks (damage /= 3), just like GOOD creatures
  resist Holy Fire.
 
-## RBE_CONFUSE and RBE_BLIND melee attacks can now be resisted by making a
+ RBE_CONFUSE and RBE_BLIND melee attacks can now be resisted by making a
  saving throw, like you can for RBE_FEAR. However, the save is at
  "rand_int(150) < skill_sav" instead of "rand_int(100) < skill_sav", which
  is the standard save.
@@ -436,22 +442,41 @@ Yeeks:
 
  Rings and amulets can become random artifacts. [stolen from Pern]
 
-## (Blessed) weapons now have a 1-in-4 chance of having Slay Evil (face it,
- unless the weapon has a Wis bonus that puts you past a breakpoint, or has
- Telepathy, Free Action or maybe even Hold Life, it gets sold immediately).
+ (Blessed) weapons now have a 1-in-4 chance of having Slay Evil.
 
-## Random artifacts can again be generated as cursed - tho heavy and
- permanent curses are less likely...
+ Random artifacts can again be generated as cursed - tho heavy and permanent
+ curses are less likely...
 
-## Scrolls of Artifact Creation can now affect amulets, rings, ammo and
+ Scrolls of Artifact Creation can now affect amulets, rings, ammo and
  diggers. [note that using it on ammo is more than likely to give many
  useless things like resistances and stat bonuses. :) Rings and amulets, due
  to their tvals being higher than those of armours, are treated like armour
  when it comes to enchantment]
 
-## Added scrolls of Set Recall. When read, it will prompt you for a number
+ Added scrolls of Set Recall. When read, it will prompt you for a number
  between 1 and 97. That will be your new word of recall depth. You can skip
  random quests in this manner...
+
+## Added Rods of Pesticide (dispels animals for 5 damage).
+
+## Added Amulets of Resist Electricity, to complete the set.
+
+## Added Rods of Stinking Cloud (same as the wand, with a 15-turn recharge).
+
+## Armours of Elvenkind no longer grant a random high resistance, but their
+ pval can go up to +4 now and also grants a Searching bonus, as Elven Cloaks
+ do. [this is in addition to their normal +Stealth and 4 basic resists, of
+ course]
+
+## The TY_CURSE object flag has been replaced with the DEVICES flag, which
+ gives you a Magical Devices skill of 95. Various objects have been changed
+ because of this, of course.
+
+## Added Rings of Knowledge, which provides the DEVICES skill.
+
+## Weapons of Morgul no longer have the TY_CURSE, of course, so now they
+ have an even chance for either Drain Experience or Hold Life.  Their
+ penalties to-hit and to-dam aren't nearly as bad now, either.
 
 
                    ####### Spellcasting #######
@@ -486,7 +511,7 @@ Yeeks:
  automatically have {!k} inscribed on it (or added to an existing
  inscription) to prevent accidental destruction when the auto_destroy
  option is turned on.
-## The 'default:' brand, which chooses between Frost and Fire brands, now
+ The 'default:' brand, which chooses between Frost and Fire brands, now
  also chooses between Acid and Lightning brands - both a logic thing and to
  give Nature users a potentially useful brand. :)
 
@@ -494,7 +519,6 @@ Yeeks:
  the actual numbers.
 
  No telekinesis/fetch effect requires line of sight anymore.
-
 
 Chaos:
  'Mana Burst' now has a straight 5% chance of producing a true ball of mana
@@ -507,17 +531,17 @@ Chaos:
  'Fist of Force' is now a GF_FORCE effect instead of a GF_DISINTEGRATE
    effect, and has been slightly reduced in damage (to the same level as
    'Fire Bolt').
-## Removed 'Teleport Other' and replaced it with 'Demonic Consultation'.
-   There is a 50% + plev chance for your consultation to identify an item,
+ Removed 'Teleport Other' and replaced it with 'Demonic Consultation'. There
+   is a 50% + (plev-5) chance for your consultation to identify an item,
    with a 50% chance that it will be an *Identify* effect. Otherwise, you
    will summon an angry demon (if, for some reason, no demon shows up,
    you'll get a message saying so and a bit of 'wild magic').
-## Replaced 'Demon Detection' with 'Chaotic Sensing', a detection spell
-   which scans the current panel and has only a 50% + (plev/2) (max 75%)
-   chance to display traps, doors, stairs, monsters, objects and treasures.
-   [secret doors, invisible traps, and buried treasure that isn't adjacent
-   to a corridor/room have to pass a separate 50% + (plev/2) check, making
-   these less likely to be detected]
+ Replaced 'Demon Detection' with 'Chaotic Sensing', a detection spell which
+   scans the current panel and has only a 50% + (plev/2) (max 75%) chance to
+   display traps, doors, stairs, monsters, objects and treasures. [secret
+   doors, invisible traps, and buried treasure that isn't adjacent to a
+   corridor/room have to pass a separate 50% + (plev/2) check, making these
+   less likely to be detected]
 
 Death:
  'Wraithform' now lasts (randint(plev) + (plev/2)), making it useful.
@@ -604,4 +628,4 @@ covered up in the main text)
 
  Added artifact descriptions from PernAngband...
 
-## Took the Yeek race from DrAngband v2.9.8 by A.P. White.
+ Took the Yeek race from DrAngband v2.9.8 by A.P. White.

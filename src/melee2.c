@@ -725,7 +725,7 @@ static void bolt(int m_idx, bool pet_attack, int typ, int dam_hp)
 	int flg = PROJECT_STOP | PROJECT_KILL;
 
 	/* Target the player with a bolt attack */
-	(void)project(m_idx, pet_attack, 0, py, px, dam_hp, typ, flg);
+	(void)project(m_idx, pet_attack, 0, py, px, dam_hp, typ, flg, TRUE);
 }
 
  
@@ -994,7 +994,7 @@ static void breath(int m_idx, bool pet_attack, int typ, int dam_hp, int rad)
 	if (rad < 1) rad = (r_ptr->flags2 & (RF2_POWERFUL)) ? 3 : 2;
 
 	/* Target the player with a ball attack */
-	(void)project(m_idx, pet_attack, rad, py, px, dam_hp, typ, flg);
+	(void)project(m_idx, pet_attack, rad, py, px, dam_hp, typ, flg, FALSE);
 }
 
 
@@ -1013,7 +1013,7 @@ static void monst_breath_monst(int m_idx, bool pet_attack, int y, int x, int typ
 	/* Determine the radius of the blast */
 	if (rad < 1) rad = (r_ptr->flags2 & (RF2_POWERFUL)) ? 3 : 2;
 
-	(void)project(m_idx, pet_attack, rad, y, x, dam_hp, typ, flg);
+	(void)project(m_idx, pet_attack, rad, y, x, dam_hp, typ, flg, FALSE);
 }
 
 
@@ -1026,7 +1026,7 @@ static void monst_bolt_monst(int m_idx, bool pet_attack, int y, int x, int typ, 
 {
 	int flg = PROJECT_STOP | PROJECT_KILL;
 
-	(void)project(m_idx, pet_attack, 0, y, x, dam_hp, typ, flg);
+	(void)project(m_idx, pet_attack, 0, y, x, dam_hp, typ, flg, TRUE);
 }
 
 
@@ -2367,7 +2367,7 @@ static bool monst_spell_monst(int m_idx)
            else msg_format("%^s gestures in shadow.", m_name);
            if (seen)
              msg_format("%^s is surrounded by darkness.", t_name);
-           (void)project(m_idx, pet_attack, 3, y, x, 0, GF_DARK_WEAK, PROJECT_GRID | PROJECT_KILL);
+           (void)project(m_idx, pet_attack, 3, y, x, 0, GF_DARK_WEAK, PROJECT_GRID | PROJECT_KILL, FALSE);
            /* Lite up the room */
            unlite_room(y, x);
            break;
@@ -5765,7 +5765,7 @@ static bool monst_attack_monst(int m_idx,int t_idx)
            {
 
              project(m_idx, pet_attack, 0, t_ptr->fy, t_ptr->fx,
-                (pt==GF_OLD_SLEEP?r_ptr->level:damage), pt, PROJECT_KILL | PROJECT_STOP);
+                (pt==GF_OLD_SLEEP?r_ptr->level:damage), pt, PROJECT_KILL | PROJECT_STOP, FALSE);
 
              if (touched)
              {
@@ -5781,7 +5781,7 @@ static bool monst_attack_monst(int m_idx,int t_idx)
 	              project(t_idx, FALSE, 0, m_ptr->fy, m_ptr->fx,
                       damroll (1 + ((tr_ptr->level) / 26),
                       1 + ((tr_ptr->level) / 17)),
-                      GF_FIRE, PROJECT_KILL | PROJECT_STOP);
+                      GF_FIRE, PROJECT_KILL | PROJECT_STOP, FALSE);
               }
 
               if ((tr_ptr->flags2 & (RF2_AURA_ELEC)) && !(r_ptr->flags3 & (RF3_IM_ELEC)))
@@ -5796,7 +5796,7 @@ static bool monst_attack_monst(int m_idx,int t_idx)
 	              project(t_idx, FALSE, 0, m_ptr->fy, m_ptr->fx,
                       damroll (1 + ((tr_ptr->level) / 26),
                       1 + ((tr_ptr->level) / 17)),
-                      GF_ELEC, PROJECT_KILL | PROJECT_STOP);
+                      GF_ELEC, PROJECT_KILL | PROJECT_STOP, FALSE);
               }
 
 		/*
@@ -5816,7 +5816,7 @@ static bool monst_attack_monst(int m_idx,int t_idx)
 	              project(t_idx, FALSE, 0, m_ptr->fy, m_ptr->fx,
                       damroll (1 + ((tr_ptr->level) / 26),
                       1 + ((tr_ptr->level) / 17)),
-                      GF_ARROW, PROJECT_KILL | PROJECT_STOP);
+                      GF_ARROW, PROJECT_KILL | PROJECT_STOP, FALSE);
               }
              }
             }

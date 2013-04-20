@@ -1429,6 +1429,7 @@ and tables.c --TY */
 #define SV_AMULET_RESISTANCE       15
 #define SV_AMULET_BURGLARY	   16
 #define SV_AMULET_REGENERATION	   17
+#define SV_AMULET_RESIST_ELEC	   18
 
 /* The sval codes for TV_RING */
 #define SV_RING_WOE                0
@@ -1482,6 +1483,7 @@ and tables.c --TY */
 #define SV_RING_LORDLY             48
 #define SV_RING_ATTACKS            49
 #define SV_RING_IMMUNITY	   50
+#define SV_RING_KNOWLEDGE	   51
 
 /* The "sval" codes for TV_STAFF */
 #define SV_STAFF_DARKNESS          0
@@ -1499,7 +1501,7 @@ and tables.c --TY */
 #define SV_STAFF_DETECT_TRAP       12
 #define SV_STAFF_DETECT_DOOR       13
 #define SV_STAFF_DETECT_INVIS      14
-#define SV_STAFF_DETECT_EVIL       15 /* Now Staff of Detect Monsters - G */
+#define SV_STAFF_DETECT_MONS       15
 #define SV_STAFF_CURE_LIGHT        16
 #define SV_STAFF_CURING            17
 #define SV_STAFF_HEALING           18
@@ -1564,7 +1566,7 @@ and tables.c --TY */
 #define SV_ROD_HEALING             9
 #define SV_ROD_RESTORATION         10
 #define SV_ROD_SPEED               11
-/* xxx (aimed) */
+#define SV_ROD_PESTICIDE	   12
 #define SV_ROD_TELEPORT_AWAY       13
 #define SV_ROD_DISARMING           14
 #define SV_ROD_LITE                15
@@ -1581,7 +1583,7 @@ and tables.c --TY */
 #define SV_ROD_FIRE_BALL           26
 #define SV_ROD_COLD_BALL           27
 #define SV_ROD_HAVOC               28
-
+#define SV_ROD_STINKING_CLOUD	   29
 
 /* The "sval" codes for TV_SCROLL */
 
@@ -1745,7 +1747,7 @@ and tables.c --TY */
 /*
  * Special "sval" limit -- first "aimed" rod
  */
-#define SV_ROD_MIN_DIRECTION    12
+#define SV_ROD_MIN_DIRECTION    13
 
 /*
  * Special "sval" limit -- first "large" chest
@@ -2248,7 +2250,7 @@ and tables.c --TY */
 #define TR3_NO_TELE             0x00000010L     /* Anti-teleportation */
 #define TR3_NO_MAGIC            0x00000020L     /* Anti-magic */
 #define TR3_WRAITH              0x00000040L     /* Wraithform */
-#define TR3_TY_CURSE            0x00000080L     /* The Ancient Curse */
+#define TR3_DEVICES             0x00000080L     /* was TY_CURSE, no +skill_dev */
 #define TR3_EASY_KNOW           0x00000100L     /* Aware -> Known */
 #define TR3_HIDE_TYPE           0x00000200L     /* Hide "pval" description */
 #define TR3_SHOW_MODS           0x00000400L     /* Always show Tohit/Todam */
