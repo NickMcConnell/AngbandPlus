@@ -260,21 +260,24 @@ static dun_data *dun;
 
 
 /*
-* Array of room types (assumes 11x11 blocks)
-*/
+ * Array of room types (assumes 11x11 blocks)
+ *
+ * I'm a bastard, so I decided to remove the minimum levels for the various
+ * room types - Jelly nests at 50' are fun! :) -- Gumby
+ */
 static room_data room[ROOM_MAX] =
 {
-	{  0, 0,  0, 0,  0 },		/*  0 = Nothing */
-	{  0, 0, -1, 1,  1 },		/*  1 = Simple (33x11) */
-	{  0, 0, -1, 1,  1 },		/*  2 = Overlapping (33x11) */
-	{  0, 0, -1, 1,  3 },		/*  3 = Crossed (33x11) */
-	{  0, 0, -1, 1,  3 },		/*  4 = Large (33x11) */
-	{  0, 0, -1, 1,  5 },		/*  5 = Monster nest (33x11) */
-	{  0, 0, -1, 1,  5 },		/*  6 = Monster pit (33x11) */
-	{  0, 1, -1, 1,  5 },		/*  7 = Lesser vault (33x22) */
-	{ -1, 2, -2, 3, 10 },		/*  8 = Greater vault (66x44) */
-	{  0, 1, -1, 1,  1 }, 		/*  9 = Quest rooms  (Heino Vander Sanden) */
-	{  0, 1,  0, 1,  1 }		/* 10 = Circular (22x22) (Dag Arneson) */
+	{  0, 0,  0, 0,  0 },	/*  0 = Nothing */
+	{  0, 0, -1, 1,  1 },	/*  1 = Simple (33x11) */
+	{  0, 0, -1, 1,  1 },	/*  2 = Overlapping (33x11) */
+	{  0, 0, -1, 1,  1 },	/*  3 = Crossed (3) (33x11) */
+	{  0, 0, -1, 1,  1 },	/*  4 = Large (3) (33x11) */
+	{  0, 0, -1, 1,  5 },	/*  5 = Monster nest (33x11) */
+	{  0, 0, -1, 1,  5 },	/*  6 = Monster pit (33x11) */
+	{  0, 1, -1, 1,  5 },	/*  7 = Lesser vault (33x22) */
+	{ -1, 2, -2, 3,  5 },	/*  8 = Greater vault (10) (66x44) */
+	{  0, 1, -1, 1,  1 },	/*  9 = Quest rooms (Heino Vander Sanden) */
+	{  0, 1,  0, 1,  1 },	/* 10 = Circular (22x22) (Dag Arneson) */
 };
 
 
@@ -3649,7 +3652,7 @@ static bool cave_gen(void)
 	}
 	
 	/* Possible "destroyed" level */
-	if ((dun_level > 10) && (rand_int(DUN_DEST) == 0) && (small_levels))
+	if ((dun_level > 10) && (rand_int(DUN_DEST) == 0) && (only_small || small_levels))
 		destroyed = TRUE;
 	
 	if (is_quest(dun_level, FALSE))
@@ -4375,21 +4378,32 @@ void generate_cave(void)
 		/* Build a real level */
 		else
 		{
-			if ((randint(SMALL_LEVEL)==1) && small_levels)
+			if (only_small || ((randint(SMALL_LEVEL)==1) && small_levels))
             {
                 if (cheat_room)
                     msg_print ("A 'small' dungeon level.");
 
-                tester_1 = randint(MAX_HGT/SCREEN_HGT);
-                tester_2 = randint(MAX_WID/SCREEN_WID);
-				
+		/* Thanks to Eytan Zweig for this loop that stops full-
+		 * sized levels from sometimes being created when a small
+		 * level was supposed to happen.  --  Gumby
+		 */
+		while (TRUE)
+		{
+	                tester_1 = randint(MAX_HGT/SCREEN_HGT);
+        	        tester_2 = randint(MAX_WID/SCREEN_WID);
+
+			/* Exit if less than normal dungeon */
+			if ((tester_1 < MAX_HGT/SCREEN_HGT) ||
+			    (tester_2 < MAX_WID/SCREEN_WID)) break;
+		}
+
                 cur_hgt = tester_1 * SCREEN_HGT;
                 cur_wid = tester_2 * SCREEN_WID;
-				
+
                 /* Determine number of panels */
                 max_panel_rows = (cur_hgt / SCREEN_HGT) * 2 - 2;
                 max_panel_cols = (cur_wid / SCREEN_WID) * 2 - 2;
-				
+
                 /* Assume illegal panel */
                 panel_row = max_panel_rows;
                 panel_col = max_panel_cols;

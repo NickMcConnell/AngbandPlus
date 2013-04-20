@@ -6,10 +6,10 @@
 #   ' - Nature Awareness    F4 - Blizzard
 #   " - Stone Tell          F5 - Lightning Storm
 #   ; - Animal Detection    F6 - Whirlpool
-#   : - Detect Door & Trap  F7 - Call Sunlight
+#   : - Detect Doors/Traps  F7 - Call Sunlight
 #   h - First Aid           F8 - Nature's Wrath
 #   H - Herbal Healing      F9 - Resist Environment
-#   J - Foraging           F10 - Resistance True
+#   J - Foraging           F10 - Resistance
 #   n - Door Building      F11 - Stone Skin
 #   N - Stair Building     F12 - Wall of Stone
 #   O - Ray of Sunlight
@@ -42,7 +42,7 @@ C:0:"
 A:m1a
 C:0:;
 
-# : - Detect Doors and Traps
+# : - Detect Doors/Traps
 A:m1c
 C:0::
 
@@ -126,7 +126,7 @@ P:^_x42\r
 A:m1g
 P:^_x43\r
 
-# F10 - Resistance True
+# F10 - Resistance
 A:m3d
 P:^_x44\r
 

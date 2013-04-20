@@ -6,21 +6,20 @@ Please choose one of the following online help files:
     (2) Creating a Character       (birth.txt)
     (3) Exploring the Dungeon      (dungeon.txt)
     (4) Attacking Monsters         (attack.txt)
-    (5) List of Commands           (command.txt)
-    (6) List of Options            (option.txt)
-    (7) Version Information        (version.txt)
-    (8) User menu (if any)         (user.hlp)
-    (9) Spoiler menu (if any)      (spoiler.hlp)
-
+    (5) Original Command List      (origcmd.txt)
+    (6) Roguelike Command List     (rlcmd.txt)
+    (7) Command Explanations       (command.txt)
+    (8) List of Options            (option.txt)
+    (9) Version Information        (version.txt)
     (0) Zangband Magic System      (magic.txt)
 
 ***** [1] general.txt
 ***** [2] birth.txt
 ***** [3] dungeon.txt
 ***** [4] attack.txt
-***** [5] command.txt
-***** [6] option.txt
-***** [7] version.txt
-***** [8] user.hlp
-***** [9] spoiler.hlp
+***** [5] origcmd.txt
+***** [6] rlcmd.txt
+***** [7] command.txt
+***** [8] option.txt
+***** [9] version.txt
 ***** [0] magic.txt

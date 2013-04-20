@@ -3,7 +3,7 @@
 # TAB - Teleport Other      F1 - Magic Missile       SF1 - Mana Burst
 #   [ - Arcane Binding      F2 - Fire Bolt           SF2 - Sonic Boom
 #   ] - Chaos Branding      F3 - Fist of Force       SF3 - Fire Ball
-#   ' - Teleport Self       F4 - Chaos Bolt          SF4 - Invoke Logrus
+#   ' - Teleport Self       F4 - Chaos Bolt          SF4 - Invoke Chaos
 #   " - Alter Reality       F5 - Doom Bolt           SF5 - Chain Lightning
 #   ; - Trap/Door Destruct. F6 - Polymorph Other     SF6 - Disintegrate
 #   : - Word of Destruction F7 - Beam of Gravity     SF7 - Meteor Swarm
@@ -11,7 +11,7 @@
 #                           F9 - Demon Detection     SF9 - Call Chaos
 #                          F10 - Wonder             SF10 - Magic Rocket
 #                          F11 - Polymorph Self     SF11 - Mana Storm
-#                          F12 - Summon Demon       SF12 - Breathe Logrus
+#                          F12 - Summon Demon       SF12 - Breathe Chaos
 
 # TAB - Teleport Other
 A:m2f
@@ -111,7 +111,7 @@ P:^_Sx55\r
 A:m2e
 P:^_Sx56\r
 
-# SHIFT-F4 - Invoke Logrus
+# SHIFT-F4 - Invoke Chaos
 A:m2h
 P:^_Sx57\r
 
@@ -143,6 +143,6 @@ P:^_Sx5D\r
 A:m4f
 P:^_Sx87\r
 
-# SHIFT-F12 - Breathe Logrus
+# SHIFT-F12 - Breathe Chaos
 A:m4g
 P:^_Sx88\r

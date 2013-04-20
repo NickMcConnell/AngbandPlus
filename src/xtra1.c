@@ -1938,6 +1938,7 @@ static void calc_bonuses(void)
 	p_ptr->reflect = FALSE;
 	p_ptr->sh_fire = FALSE;
 	p_ptr->sh_elec = FALSE;
+	p_ptr->sh_spine = FALSE;
 	p_ptr->anti_magic = FALSE;
 	p_ptr->anti_tele = FALSE;
 
@@ -2013,6 +2014,9 @@ static void calc_bonuses(void)
 			if  ((p_ptr->lev > 24) && !(monk_heavy_armor()))
 				p_ptr->free_act = TRUE;
 			break;
+		case CLASS_WEAPONMASTER:
+			if (p_ptr->lev > 34) p_ptr->resist_fear = TRUE;
+			break;
 	}
 
 	/***** Races ****/ 
@@ -2035,7 +2039,6 @@ static void calc_bonuses(void)
 			break;
 		case RACE_HALF_TROLL:
 			p_ptr->sustain_str = TRUE;
-
 			if (p_ptr->lev > 14)
 			{
 				/* High level trolls heal fast... */
@@ -2043,10 +2046,10 @@ static void calc_bonuses(void)
 				p_ptr->slow_digest = TRUE;
 			}
 			break;
-		case RACE_AMBERITE:
-			p_ptr->sustain_con = TRUE;
-			p_ptr->regenerate = TRUE;  /* Amberites heal fast... */
-			p_ptr->slow_digest = TRUE; /* So they need this - G */
+		case RACE_GAMBOLT:
+			p_ptr->pspeed += 2;
+			p_ptr->sustain_dex = TRUE;
+			p_ptr->sustain_chr = TRUE;
 			break;
 		case RACE_HIGH_ELF:
 			p_ptr->resist_lite = TRUE;
@@ -2137,15 +2140,17 @@ static void calc_bonuses(void)
 			p_ptr->resist_cold = TRUE;
 			p_ptr->resist_pois = TRUE;
 			p_ptr->lite = TRUE;
+			if (p_ptr->lev > 9) p_ptr->ffall = TRUE;
 			break;
 		case RACE_SPECTRE:
+			p_ptr->ffall = TRUE;
 			p_ptr->resist_neth = TRUE;
 			p_ptr->hold_life = TRUE;
 			p_ptr->see_inv = TRUE;
 			p_ptr->resist_pois = TRUE;
 			p_ptr->slow_digest = TRUE;
 			p_ptr->resist_cold = TRUE;
-			if (p_ptr->lev > 34) p_ptr->telepathy = TRUE;
+			p_ptr->lite = TRUE;
 			break;
 		case RACE_SPRITE:
 			p_ptr->ffall = TRUE;
@@ -2222,7 +2227,6 @@ static void calc_bonuses(void)
 		}
 	}
 
-	/* I'm adding the mutations here for the lack of a better place... */
         if (p_ptr->muta3)
         {
                 if (p_ptr->muta3 & MUT3_HYPER_STR)
@@ -2315,11 +2319,14 @@ static void calc_bonuses(void)
                 if (p_ptr->muta3 & MUT3_ELEC_TOUC)
                 {
                     p_ptr->sh_elec = TRUE;
+		    p_ptr->resist_elec = TRUE;
+		    p_ptr->lite = TRUE;
                 }
 
                 if (p_ptr->muta3 & MUT3_FIRE_BODY)
                 {
                     p_ptr->sh_fire = TRUE;
+		    p_ptr->resist_fire = TRUE;
                     p_ptr->lite = TRUE;
                 }
 
@@ -2382,6 +2389,13 @@ static void calc_bonuses(void)
 		if (p_ptr->muta3 & MUT3_ILL_NORM)
 		{
 			p_ptr->stat_add[A_CHR] = 0;
+		}
+
+		if (p_ptr->muta3 & MUT3_GLOW)
+		{
+			p_ptr->resist_dark = TRUE;
+			p_ptr->resist_lite = TRUE;
+			p_ptr->lite = TRUE;
 		}
         }
     
@@ -2475,6 +2489,7 @@ static void calc_bonuses(void)
 		if (f2 & (TR2_REFLECT)) p_ptr->reflect = TRUE;
 		if (f3 & (TR3_SH_FIRE)) p_ptr->sh_fire = TRUE;
 		if (f3 & (TR3_SH_ELEC)) p_ptr->sh_elec = TRUE;
+		if (f3 & (TR3_SPINES)) p_ptr->sh_spine = TRUE;
 		if (f3 & (TR3_NO_MAGIC)) p_ptr->anti_magic = TRUE;
 		if (f3 & (TR3_NO_TELE)) p_ptr->anti_tele = TRUE;
 
@@ -2548,13 +2563,22 @@ static void calc_bonuses(void)
         }
     }
 
-	/* Hack -- aura of fire also provides light */
+	/* Hack -- fire and electrical auras provide light */
 	if (p_ptr->sh_fire) p_ptr->lite = TRUE;
+	if (p_ptr->sh_elec) p_ptr->lite = TRUE;
 
-	if (p_ptr->prace == RACE_GOLEM) /* Golems also get an intrinsic AC bonus */
+	/* Warriors can use their body armour better than others */
+	if ((p_ptr->pclass == CLASS_WARRIOR) && (inventory[INVEN_BODY].k_idx))
 	{
-		p_ptr->to_a += 20 + (p_ptr->lev / 5);
-		p_ptr->dis_to_a += 20 + (p_ptr->lev / 5);
+		p_ptr->ac += (inventory[INVEN_BODY].ac / 2);
+		p_ptr->dis_ac += (inventory[INVEN_BODY].ac / 2);
+	}
+
+	/* Golems get an intrinsic AC bonus */
+	if (p_ptr->prace == RACE_GOLEM)
+	{
+		p_ptr->to_a += (p_ptr->lev / 2);
+		p_ptr->dis_to_a += (p_ptr->lev / 2);
 	}
 
 	/* Calculate stats */
@@ -2865,7 +2889,8 @@ static void calc_bonuses(void)
 		}
 
 		/* Hack -- Reward High Level Rangers using Bows */
-		if (((p_ptr->pclass == 4) && (p_ptr->tval_ammo == TV_ARROW)))
+		if ((p_ptr->pclass == CLASS_RANGER) &&
+		    (p_ptr->tval_ammo == TV_ARROW))
 		{
 			/* Extra shot at level 15 */
 			if (p_ptr->lev >= 15) p_ptr->num_fire++;
@@ -2881,7 +2906,7 @@ static void calc_bonuses(void)
 		 * Addendum -- also "Reward" high level warriors,
 		 * with _any_ missile weapon -- TY
 		 */
-		if (p_ptr->pclass == CLASS_WARRIOR &&
+		if ((p_ptr->pclass == CLASS_WARRIOR) &&
 		    (p_ptr->tval_ammo <= TV_BOLT) &&
 		    (p_ptr->tval_ammo >= TV_SHOT))
 		{
@@ -2892,8 +2917,8 @@ static void calc_bonuses(void)
 			if (p_ptr->lev >= 50) p_ptr->num_fire++;
 		}
 
-		/* And reward Chaos Warriors, Warrior Magi and Paladins */
-		if (p_ptr->pclass == CLASS_CHAOS_WARRIOR &&
+		/* And reward Chaos Warriors, Warrior Magi, and Paladins */
+		if ((p_ptr->pclass == CLASS_CHAOS_WARRIOR) &&
 		    (p_ptr->tval_ammo <= TV_BOLT) &&
 		    (p_ptr->tval_ammo >= TV_SHOT))
 		{
@@ -2901,7 +2926,7 @@ static void calc_bonuses(void)
 			if (p_ptr->lev >= 35) p_ptr->num_fire++;
 		}
 
-		if (p_ptr->pclass == CLASS_WARRIOR_MAGE &&
+		if ((p_ptr->pclass == CLASS_WARRIOR_MAGE) &&
 		    (p_ptr->tval_ammo <= TV_BOLT) &&
 		    (p_ptr->tval_ammo >= TV_SHOT))
 		{
@@ -2909,7 +2934,7 @@ static void calc_bonuses(void)
 			if (p_ptr->lev >= 35) p_ptr->num_fire++;
 		}
 
-		if (p_ptr->pclass == CLASS_PALADIN &&
+		if ((p_ptr->pclass == CLASS_PALADIN) &&
 		    (p_ptr->tval_ammo <= TV_BOLT) &&
 		    (p_ptr->tval_ammo >= TV_SHOT))
 		{
@@ -2955,6 +2980,8 @@ static void calc_bonuses(void)
 		{
 			/* Warrior */
 			case CLASS_WARRIOR:
+			case CLASS_WARRIOR_MAGE:
+			case CLASS_WEAPONMASTER:
 				num = 6; wgt = 30; mul = 5; break;
 
 			/* Mage */
@@ -2977,13 +3004,6 @@ static void calc_bonuses(void)
 
 			/* Paladin */
 			case CLASS_PALADIN:
-				num = 5; wgt = 30; mul = 4; break;
-
-			/* Warrior-Mage */
-			case CLASS_WARRIOR_MAGE:
-				num = 6; wgt = 30; mul = 5; break;
-
-			/* Chaos Warrior */
 			case CLASS_CHAOS_WARRIOR:
 				num = 5; wgt = 30; mul = 4; break;
 
@@ -3016,8 +3036,20 @@ static void calc_bonuses(void)
 		/* Add in the "bonus blows" */
 		p_ptr->num_blow += extra_blows;
 
-		/* Level bonus for warriors (1-3) */
+		/* Level bonus for Warriors (1-3) */
 		if (p_ptr->pclass == CLASS_WARRIOR) p_ptr->num_blow += (p_ptr->lev) / 15;
+
+		/*
+		 * Weaponmasters only get 1 blow with weapons that
+		 * don't match their specialty. Otherwise, they get a
+		 * bonus of 1-3 blows (as per Warriors). -- Gumby
+		 */
+		if ((p_ptr->pclass == CLASS_WEAPONMASTER) &&
+		    !(inventory[INVEN_WIELD].tval == p_ptr->wm_choice))
+			p_ptr->num_blow = 1;
+		else if ((p_ptr->pclass == CLASS_WEAPONMASTER) &&
+			 (inventory[INVEN_WIELD].tval == p_ptr->wm_choice))
+			p_ptr->num_blow += (p_ptr->lev) / 15;
 
 		/* Level bonus for Warrior-Magi (1-2) */
 		if (p_ptr->pclass == CLASS_WARRIOR_MAGE) p_ptr->num_blow += (p_ptr->lev) / 25;
@@ -3072,12 +3104,30 @@ static void calc_bonuses(void)
 	p_ptr->icky_wield = FALSE;
 	monk_armour_aux = FALSE;
 
-	/* Extra bonus for warriors... */
+	/*
+	 * Weaponmasters are fabulous with their preferred weapon type
+	 * and all other weapon types are 'icky'. -- Gumby
+	 */
+	if ((p_ptr->pclass == CLASS_WEAPONMASTER) &&
+	     !(o_ptr->tval == p_ptr->wm_choice))
+	{
+		/* Can't be comfortable with non-specialty weapons! */
+		p_ptr->icky_wield = TRUE;
+	}
+	else if ((p_ptr->pclass == CLASS_WEAPONMASTER) &&
+		 (o_ptr->tval == p_ptr->wm_choice))
+	{
+		p_ptr->to_h += p_ptr->lev;
+		p_ptr->to_d += p_ptr->lev;
+		p_ptr->dis_to_h += p_ptr->lev;
+		p_ptr->dis_to_d += p_ptr->lev;
+	}
+
+	/* Extra bonus for Warriors and Warrior-Magi... */
 	if (p_ptr->pclass == CLASS_WARRIOR || CLASS_WARRIOR_MAGE)
 	{
 		p_ptr->to_h += (p_ptr->lev/5);
 		p_ptr->to_d += (p_ptr->lev/5);
-
 		p_ptr->dis_to_h += (p_ptr->lev/5);
 		p_ptr->dis_to_d += (p_ptr->lev/5);
 	}
@@ -3087,22 +3137,25 @@ static void calc_bonuses(void)
 	{
 		p_ptr->to_h += (p_ptr->lev/10);
 		p_ptr->to_d += (p_ptr->lev/10);
-
 		p_ptr->dis_to_h += (p_ptr->lev/10);
 		p_ptr->dis_to_d += (p_ptr->lev/10);
 	}
 
-	/* Priest weapon penalty for non-blessed edged weapons */
-	if ((p_ptr->pclass == 2) && (!p_ptr->bless_blade) &&
-	    ((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_POLEARM)))
+	/*
+	 * Priest weapon penalty for non-blessed edged weapons.
+	 * It *was* only a pathetic (-2,-2), which most people never even
+	 * noticed. I think they'll notice now. :) -- Gumby
+	 */
+	if ((p_ptr->pclass == CLASS_PRIEST) && (!p_ptr->bless_blade) &&
+	    ((o_ptr->tval >= TV_POLEARM) && (o_ptr->tval <= TV_SWORD)))
 	{
 		/* Reduce the real bonuses */
-		p_ptr->to_h -= 2;
-		p_ptr->to_d -= 2;
+		p_ptr->to_h -= 15;
+		p_ptr->to_d -= 15;
 
 		/* Reduce the mental bonuses */
-		p_ptr->dis_to_h -= 2;
-		p_ptr->dis_to_d -= 2;
+		p_ptr->dis_to_h -= 15;
+		p_ptr->dis_to_d -= 15;
 
 		/* Icky weapon */
 		p_ptr->icky_wield = TRUE;
@@ -3156,7 +3209,6 @@ static void calc_bonuses(void)
 
 	/* Affect Skill -- combat (throwing) (Level, by Class) */
 	p_ptr->skill_tht += (cp_ptr->x_thb * p_ptr->lev / 10);
-
 
 	/* Limit Skill -- stealth from 0 to 30 */
 	if (p_ptr->skill_stl > 30) p_ptr->skill_stl = 30;
@@ -3689,5 +3741,3 @@ bool monk_heavy_armor()
 
 	return (monk_arm_wgt > ( 100 + (p_ptr->lev * 4))) ;
 }
-
-

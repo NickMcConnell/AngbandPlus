@@ -37,10 +37,10 @@ byte version_extra = VERSION_EXTRA;
 /*
  * Savefile version
  */
-byte sf_major;			/* Savefile's "version_major" */
-byte sf_minor;			/* Savefile's "version_minor" */
-byte sf_patch;			/* Savefile's "version_patch" */
-byte sf_extra;			/* Savefile's "version_extra" */
+byte sf_major;		/* Savefile's "version_major" */
+byte sf_minor;		/* Savefile's "version_minor" */
+byte sf_patch;		/* Savefile's "version_patch" */
+byte sf_extra;		/* Savefile's "version_extra" */
 
 byte z_major;           /* Savefile version for Zangband */
 byte z_minor;
@@ -57,10 +57,10 @@ u16b sf_saves;			/* Number of "saves" during this life */
 /*
  * Run-time arguments
  */
-bool arg_fiddle;			/* Command arg -- Request fiddle mode */
-bool arg_wizard;			/* Command arg -- Request wizard mode */
-bool arg_sound;				/* Command arg -- Request special sounds */
-bool arg_graphics;			/* Command arg -- Request graphics mode */
+bool arg_fiddle;		/* Command arg -- Request fiddle mode */
+bool arg_wizard;		/* Command arg -- Request wizard mode */
+bool arg_sound;			/* Command arg -- Request special sounds */
+bool arg_graphics;		/* Command arg -- Request graphics mode */
 bool arg_force_original;	/* Command arg -- Request original keyset */
 bool arg_force_roguelike;	/* Command arg -- Request roguelike keyset */
 
@@ -72,7 +72,6 @@ bool character_generated;	/* The character exists */
 bool character_dungeon;		/* The character has a dungeon */
 bool character_loaded;		/* The character was loaded from a savefile */
 bool character_saved;		/* The character was just saved to a savefile */
-
 bool character_icky;		/* The game is in an icky full screen mode */
 bool character_xtra;		/* The game is in an icky startup mode */
 
@@ -80,40 +79,30 @@ u32b seed_flavor;		/* Hack -- consistent object colors */
 u32b seed_town;			/* Hack -- consistent town layout */
 
 s16b command_cmd;		/* Current "Angband Command" */
-
 s16b command_arg;		/* Gives argument of current command */
 s16b command_rep;		/* Gives repetition of current command */
 s16b command_dir;		/* Gives direction of current command */
-
 s16b command_see;		/* See "cmd1.c" */
 s16b command_wrk;		/* See "cmd1.c" */
-
-s16b command_gap = 50;	/* See "cmd1.c" */
-
+s16b command_gap = 50;		/* See "cmd1.c" */
 s16b command_new;		/* Command chaining from inven/equip view */
-
 s16b energy_use;		/* Energy use this turn */
 
-bool create_up_stair;	/* Auto-create "up stairs" */
-bool create_down_stair;	/* Auto-create "down stairs" */
-
+bool create_up_stair;		/* Auto-create "up stairs" */
+bool create_down_stair;		/* Auto-create "down stairs" */
 bool msg_flag;			/* Used in msg_print() for "buffering" */
-
-bool alive;				/* True if game is running */
-
-bool death;				/* True if player has died */
+bool alive;			/* True if game is running */
+bool death;			/* True if player has died */
 
 s16b running;			/* Current counter for running, if any */
 s16b resting;			/* Current counter for resting, if any */
-
 s16b cur_hgt;			/* Current dungeon height */
 s16b cur_wid;			/* Current dungeon width */
 s16b dun_level;			/* Current dungeon level */
 s16b num_repro;			/* Current reproducer count */
 s16b object_level;		/* Current object creation level */
 s16b monster_level;		/* Current monster creation level */
-
-s32b turn;				/* Current game turn */
+s32b turn;			/* Current game turn */
 s32b old_turn;			/* Turn when level began (feelings) */
 s32b curse_turn;		/* Turn when TR3_AUTO_CURSE next takes effect */
 
@@ -217,6 +206,7 @@ bool alert_failure;		/* Alert user to various failures */
 bool last_words;		/* Get last words upon dying */
 bool speak_unique;		/* Speaking uniques + shopkeepers */
 bool small_levels;		/* Allow unusually small dungeon levels */
+bool only_small;		/* Only generate small dungeon levels - G */
 bool empty_levels;		/* Allow empty 'arena' levels */
 bool player_symbols;		/* Use varying symbols for the player char */
 bool equippy_chars;		/* Back by popular demand... */

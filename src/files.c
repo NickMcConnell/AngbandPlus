@@ -1244,11 +1244,12 @@ static void display_player_various(void)
 
 	object_type		*o_ptr;
 
-	if (p_ptr->muta2 & (MUT2_HORNS)) muta_att++;
 	if (p_ptr->muta2 & (MUT2_SCOR_TAIL)) muta_att++;
+	if (p_ptr->muta2 & (MUT2_HORNS)) muta_att++;
 	if (p_ptr->muta2 & (MUT2_BEAK)) muta_att++;
 	if (p_ptr->muta2 & (MUT2_TUSKS)) muta_att++;
 	if (p_ptr->muta2 & (MUT2_CLAWS)) muta_att++;
+	if (p_ptr->muta2 & (MUT2_TENTACLES)) muta_att++;
 
 	/* Fighting Skill (with current weapon) */
 	o_ptr = &inventory[INVEN_WIELD];
@@ -1257,7 +1258,14 @@ static void display_player_various(void)
 
 	/* Shooting Skill (with current bow and normal missile) */
 	o_ptr = &inventory[INVEN_BOW];
-	tmp = p_ptr->to_h + o_ptr->to_h;
+
+	/* Fix the display for Weaponmasters -- Gumby */
+	if ((p_ptr->pclass == CLASS_WEAPONMASTER) &&
+	    (inventory[INVEN_WIELD].tval == p_ptr->wm_choice))
+		tmp = (p_ptr->to_h - p_ptr->lev) + o_ptr->to_h;
+	else
+		tmp = p_ptr->to_h + o_ptr->to_h;
+
 	xthb = p_ptr->skill_thb + (tmp * BTH_PLUS_ADJ);
 
 
@@ -1353,294 +1361,266 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3)
 	/* Clear */
 	(*f1) = (*f2) = (*f3) = 0L;
 
-	/* Elf */
-	if (p_ptr->prace == RACE_ELF) (*f2) |= (TR2_RES_LITE);
+	/* The Classes */
+	if (p_ptr->pclass == CLASS_WARRIOR)
+	{
+		if (p_ptr->lev > 29) (*f2) |= (TR2_RES_FEAR);
+	}
+	else if (p_ptr->pclass == CLASS_PALADIN)
+	{
+		if (p_ptr->lev > 39) (*f2) |= (TR2_RES_FEAR);
+	}
+	else if (p_ptr->pclass == CLASS_CHAOS_WARRIOR)
+	{
+		if (p_ptr->lev > 29) (*f2) |= (TR2_RES_CHAOS);
+		if (p_ptr->lev > 39) (*f2) |= (TR2_RES_FEAR);
+		if (p_ptr->chaos_patron == PATRON_ARIOCH) (*f2) |= (TR2_RES_FIRE);
+	}
+	else if (p_ptr->pclass == CLASS_MONK)
+	{
+		if ((p_ptr->lev > 9) &&
+		    !(monk_heavy_armor())) (*f1) |= (TR1_SPEED);
+		if ((p_ptr->lev > 24) &&
+		    !(monk_heavy_armor())) (*f2) |= (TR2_FREE_ACT);
+	}
+	else if (p_ptr->pclass == CLASS_MINDCRAFTER)
+	{
+		if (p_ptr->lev > 9)  (*f2) |= (TR2_RES_FEAR);
+		if (p_ptr->lev > 19) (*f2) |= (TR2_SUST_WIS);
+		if (p_ptr->lev > 29) (*f2) |= (TR2_RES_CONF);
+		if (p_ptr->lev > 39) (*f3) |= (TR3_TELEPATHY);
+	}
+	else if (p_ptr->pclass == CLASS_WEAPONMASTER)
+	{
+		if (p_ptr->lev > 34) (*f2) |= (TR2_RES_FEAR);
+	}
 
-	/* Hobbit */
-	if (p_ptr->prace == RACE_HOBBIT) (*f2) |= (TR2_SUST_DEX);
-
-	/* Gnome */
-    if (p_ptr->prace == RACE_GNOME) (*f2) |= (TR2_FREE_ACT);
-
-	/* Dwarf */
-	if (p_ptr->prace == RACE_DWARF) (*f2) |= (TR2_RES_BLIND);
-
-	/* Half-Orc */
-	if (p_ptr->prace == RACE_HALF_ORC) (*f2) |= (TR2_RES_DARK);
-
-	/* Half-Troll */
-    if (p_ptr->prace == RACE_HALF_TROLL)
+	/* The Races */
+	if (p_ptr->prace == RACE_ELF)
+	{
+		(*f2) |= (TR2_RES_LITE);
+	}
+	else if (p_ptr->prace == RACE_HOBBIT)
+	{
+		(*f2) |= (TR2_SUST_DEX);
+	}
+	else if (p_ptr->prace == RACE_GNOME)
+	{
+		(*f2) |= (TR2_FREE_ACT);
+	}
+	else if (p_ptr->prace == RACE_DWARF)
+	{
+		(*f2) |= (TR2_RES_BLIND);
+	}
+	else if (p_ptr->prace == RACE_HALF_ORC)
+	{
+		(*f2) |= (TR2_RES_DARK);
+	}
+	else if (p_ptr->prace == RACE_HALF_TROLL)
+	{
+		(*f2) |= (TR2_SUST_STR);
+		if (p_ptr->lev > 14)
+		{
+			(*f3) |= (TR3_REGEN);
+			(*f3) |= (TR3_SLOW_DIGEST);
+		}
+	}
+	else if (p_ptr->prace == RACE_GAMBOLT)
         {
-            (*f2) |= (TR2_SUST_STR);
-            if (p_ptr->lev > 14)
-            {
-                (*f3) = (TR3_REGEN);
-		(*f3) = (TR3_SLOW_DIGEST);
-            }
+		(*f1) |= (TR1_SPEED);
+		(*f2) |= (TR2_SUST_DEX);
+		(*f2) |= (TR2_SUST_CHR);
         }
-
-    /* Warriors... */
-    if (((p_ptr->pclass == CLASS_WARRIOR) && (p_ptr->lev>29))||
-        ((p_ptr->pclass == CLASS_PALADIN) && (p_ptr->lev>39)))
-        {
-            (*f2) |= (TR2_RES_FEAR);
-        }
-
-    if (p_ptr->pclass == CLASS_CHAOS_WARRIOR)
-    {
-	if (p_ptr->lev > 29)
-        	(*f2) |= (TR2_RES_CHAOS);
-
-	if (p_ptr->lev > 39)
+	else if (p_ptr->prace == RACE_HIGH_ELF)
+	{
+		(*f2) |= (TR2_RES_LITE);
+		(*f3) |= (TR3_SEE_INVIS);
+	}
+	else if (p_ptr->prace == RACE_BARBARIAN)
+	{
 		(*f2) |= (TR2_RES_FEAR);
-
-	if (p_ptr->chaos_patron == PATRON_ARIOCH)
+	}
+	else if (p_ptr->prace == RACE_HALF_OGRE)
+	{
+		(*f2) |= (TR2_SUST_STR);
+		(*f2) |= (TR2_RES_DARK);
+	}
+	else if (p_ptr->prace == RACE_HALF_GIANT)
+	{
+		(*f2) |= (TR2_RES_SHARDS);
+		(*f2) |= (TR2_SUST_STR);
+	}
+	else if (p_ptr->prace == RACE_HALF_TITAN)
+	{
+		(*f2) |= (TR2_RES_CHAOS);
+	}
+	else if (p_ptr->prace == RACE_CYCLOPS)
+	{
+		(*f2) |= (TR2_RES_SOUND);
+	}
+	else if (p_ptr->prace == RACE_YEEK)
+	{
+		(*f2) |= (TR2_RES_ACID);
+		if (p_ptr->lev > 19) (*f2) |= (TR2_IM_ACID);
+	}
+	else if (p_ptr->prace == RACE_KLACKON)
+	{
+		(*f2) |= (TR2_RES_CONF);
+		(*f2) |= (TR2_RES_ACID);
+		if (p_ptr->lev > 9) (*f1) |= (TR1_SPEED);
+	}
+	else if (p_ptr->prace == RACE_KOBOLD)
+	{
+		(*f2) |= (TR2_RES_POIS);
+	}
+	else if (p_ptr->prace == RACE_NIBELUNG)
+	{
+		(*f2) |= (TR2_RES_DISEN);
+		(*f2) |= (TR2_RES_DARK);
+	}
+	else if (p_ptr->prace == RACE_DARK_ELF)
+	{
+		(*f2) |= (TR2_RES_DARK);
+		if (p_ptr->lev > 19) (*f3) |= (TR3_SEE_INVIS);
+	}
+	else if (p_ptr->prace == RACE_DRACONIAN)
+	{
+		(*f3) |= (TR3_FEATHER);
+		if (p_ptr->lev > 4)  (*f2) |= (TR2_RES_FIRE);
+		if (p_ptr->lev > 9)  (*f2) |= (TR2_RES_COLD);
+		if (p_ptr->lev > 14) (*f2) |= (TR2_RES_ACID);
+		if (p_ptr->lev > 19) (*f2) |= (TR2_RES_ELEC);
+		if (p_ptr->lev > 34) (*f2) |= (TR2_RES_POIS);
+	}
+	else if (p_ptr->prace == RACE_MIND_FLAYER)
+	{
+		(*f2) |= (TR2_SUST_INT);
+		(*f2) |= (TR2_SUST_WIS);
+		if (p_ptr->lev > 14) (*f3) |= (TR3_SEE_INVIS);
+		if (p_ptr->lev > 29) (*f3) |= (TR3_TELEPATHY);
+	}
+	else if (p_ptr->prace == RACE_IMP)
+	{
 		(*f2) |= (TR2_RES_FIRE);
-    }
+		if (p_ptr->lev > 9) (*f3) |= (TR3_SEE_INVIS);
+	}
+	else if (p_ptr->prace == RACE_GOLEM)
+	{
+		(*f2) |= (TR2_RES_POIS);
+		(*f2) |= (TR2_RES_SHARDS);
+		(*f2) |= (TR2_RES_NEXUS);
+		(*f3) |= (TR3_SLOW_DIGEST);
+	}
+	else if (p_ptr->prace == RACE_SKELETON)
+	{
+		(*f3) |= (TR3_SEE_INVIS);
+		(*f2) |= (TR2_RES_SHARDS);
+		(*f2) |= (TR2_HOLD_LIFE);
+		(*f2) |= (TR2_RES_POIS);
+		if (p_ptr->lev > 9) (*f2) |= (TR2_RES_COLD);
+	}
+	else if (p_ptr->prace == RACE_ZOMBIE)
+	{
+		(*f3) |= (TR3_SEE_INVIS);
+		(*f2) |= (TR2_HOLD_LIFE);
+		(*f2) |= (TR2_RES_NETHER);
+		(*f2) |= (TR2_RES_POIS);
+		(*f3) |= (TR3_SLOW_DIGEST);
+		if (p_ptr->lev > 4) (*f2) |= (TR2_RES_COLD);
+	}
+	else if (p_ptr->prace == RACE_VAMPIRE)
+	{
+		(*f2) |= (TR2_HOLD_LIFE);
+		(*f2) |= (TR2_RES_DARK);
+		(*f2) |= (TR2_RES_NETHER);
+		(*f3) |= (TR3_LITE);
+		(*f2) |= (TR2_RES_POIS);
+		(*f2) |= (TR2_RES_COLD);
+		if (p_ptr->lev > 9) (*f3) |= (TR3_FEATHER);
+	}
+	else if (p_ptr->prace == RACE_SPECTRE)
+	{
+		(*f2) |= (TR2_RES_COLD);
+		(*f3) |= (TR3_SEE_INVIS);
+		(*f2) |= (TR2_HOLD_LIFE);
+		(*f2) |= (TR2_RES_NETHER);
+		(*f3) |= (TR3_LITE);
+		(*f2) |= (TR2_RES_POIS);
+		(*f3) |= (TR3_SLOW_DIGEST);
+		(*f3) |= (TR3_FEATHER);
+	}
+	else if (p_ptr->prace == RACE_SPRITE)
+	{
+		(*f2) |= (TR2_RES_LITE);
+		(*f3) |= (TR3_FEATHER);
+		if (p_ptr->lev > 9) (*f1) |= (TR1_SPEED);
+	}
+	else if (p_ptr->prace == RACE_BEASTMAN)
+	{
+		(*f2) |= (TR2_RES_SOUND);
+		(*f2) |= (TR2_RES_CONF);
+	}
 
+	if (p_ptr->muta3)
+	{
+		if (p_ptr->muta3 & MUT3_FLESH_ROT)
+		{
+			(*f3) &= ~(TR3_REGEN);
+		}
 
-    if ((p_ptr->pclass == CLASS_MONK) && (p_ptr->lev > 9) &&
-        !(monk_heavy_armor()))
-    {
-        (*f1) |= TR1_SPEED;
-    }
+		if ((p_ptr->muta3 & MUT3_XTRA_FAT) ||
+		    (p_ptr->muta3 & MUT3_XTRA_LEGS) ||
+		    (p_ptr->muta3 & MUT3_SHORT_LEG))
+		{
+			(*f1) |= (TR1_SPEED);
+		}
 
-    if ((p_ptr->pclass == CLASS_MONK) && (p_ptr->lev>24) &&
-        !(monk_heavy_armor()))
-    {
-        (*f2) |= (TR2_FREE_ACT);
-    }
+		if (p_ptr->muta3  & MUT3_ELEC_TOUC)
+		{
+			(*f2) |= (TR2_RES_ELEC);
+			(*f3) |= (TR3_SH_ELEC);
+			(*f3) |= (TR3_LITE);
+		}
 
+		if (p_ptr->muta3 & MUT3_FIRE_BODY)
+		{
+			(*f2) |= (TR2_RES_FIRE);
+			(*f3) |= (TR3_SH_FIRE);
+			(*f3) |= (TR3_LITE);
+		}
 
-    if (p_ptr->pclass == CLASS_MINDCRAFTER) {
-	if (p_ptr->lev > 9)
-        (*f2) |= (TR2_RES_FEAR);
-    if (p_ptr->lev > 19)
-        (*f2) |= (TR2_SUST_WIS);
-    if (p_ptr->lev > 29)
-        (*f2) |= (TR2_RES_CONF);
-    if (p_ptr->lev > 39)
-        (*f3) |= (TR3_TELEPATHY);
-    }
+		if (p_ptr->muta3 & MUT3_SPINES)
+		{
+			(*f3) |= (TR3_SPINES);
+		}
 
-	/* Dunadan */
-    if (p_ptr->prace == RACE_AMBERITE)
+		if (p_ptr->muta3 & MUT3_WINGS)
+		{
+			(*f3) |= (TR3_FEATHER);
+		}
 
-        {
-            (*f2) |= (TR2_SUST_CON);
-            (*f3) |= (TR3_REGEN); /* Amberites heal fast */
-	    (*f3) |= (TR3_SLOW_DIGEST); /* So they need this :) - G */
-        }
+		if (p_ptr->muta3 & MUT3_FEARLESS)
+		{
+			(*f2) |= (TR2_RES_FEAR);
+		}
 
-	/* High Elf */
-	if (p_ptr->prace == RACE_HIGH_ELF) (*f2) |= (TR2_RES_LITE);
-    if (p_ptr->prace == RACE_HIGH_ELF) (*f3) |= (TR3_SEE_INVIS);
+		if (p_ptr->muta3 & MUT3_REGEN)
+		{
+			(*f3) |= (TR3_REGEN);
+		}
 
-    if (p_ptr->prace == RACE_BARBARIAN) (*f2) |= (TR2_RES_FEAR);
-    else if (p_ptr->prace == RACE_HALF_OGRE)
-    {
-            (*f2) |= (TR2_SUST_STR);
-            (*f2) |= (TR2_RES_DARK);
-        }
-    else if (p_ptr->prace == RACE_HALF_GIANT)
-    {
-        (*f2) |= (TR2_RES_SHARDS);
-        (*f2) |= (TR2_SUST_STR);
-    }
-    else if (p_ptr->prace == RACE_HALF_TITAN)
-    {
-        (*f2) |= (TR2_RES_CHAOS);
-    }
-    else if (p_ptr->prace == RACE_CYCLOPS)
-    {
-        (*f2) |= (TR2_RES_SOUND);
-    }
-    else if (p_ptr->prace == RACE_YEEK)
-    {
-        (*f2) |= (TR2_RES_ACID);
-        if (p_ptr->lev > 19)
-        {
-            (*f2) |= (TR2_IM_ACID);
-        }
-    }
-    else if (p_ptr->prace == RACE_KLACKON)
-    {
-        if (p_ptr->lev > 9) (*f1) |= TR1_SPEED;
-        (*f2) |= (TR2_RES_CONF);
-        (*f2) |= (TR2_RES_ACID);
-    }
-    else if (p_ptr->prace == RACE_KOBOLD)
-    {
-        (*f2) |= (TR2_RES_POIS);
-    }
-    else if (p_ptr->prace == RACE_NIBELUNG)
-    {
-        (*f2) |= (TR2_RES_DISEN);
-        (*f2) |= (TR2_RES_DARK);
-    }
-    else if (p_ptr->prace == RACE_DARK_ELF)
-    {
-        (*f2) |= (TR2_RES_DARK);
-        if (p_ptr->lev > 19)
-        {
-            (*f3) |= (TR3_SEE_INVIS);
-        }
-    }
-    else if (p_ptr->prace == RACE_DRACONIAN)
-    {
-            (*f3) |= TR3_FEATHER;
-        if (p_ptr->lev > 4)
-        {
-            (*f2) |= (TR2_RES_FIRE);
-        }
-        if (p_ptr->lev > 9)
-        {
-            (*f2) |= (TR2_RES_COLD);
-        }
-        if (p_ptr->lev > 14)
-        {
-            (*f2) |= (TR2_RES_ACID);
-        }
-        if (p_ptr->lev > 19)
-        {
-            (*f2) |= (TR2_RES_ELEC);
-        }
-        if (p_ptr->lev > 34)
-        {
-            (*f2) |= (TR2_RES_POIS);
-        }
+		if (p_ptr->muta3 & MUT3_ESP)
+		{
+			(*f3) |= (TR3_TELEPATHY);
+		}
 
-    }
-    else if (p_ptr->prace == RACE_MIND_FLAYER)
-    {
-        (*f2) |= (TR2_SUST_INT);
-        (*f2) |= (TR2_SUST_WIS);
-        if (p_ptr->lev > 14)
-        {
-            (*f3) |= (TR3_SEE_INVIS);
-        }
-        if (p_ptr->lev > 29)
-        {
-            (*f3) |= (TR3_TELEPATHY);
-        }
-    }
-    else if (p_ptr->prace == RACE_IMP)
-    {
-        (*f2) |= (TR2_RES_FIRE);
-        if (p_ptr->lev > 9)
-        {
-            (*f3) |= (TR3_SEE_INVIS);
-        }
-    }
-    else if (p_ptr->prace == RACE_GOLEM)
-    {
-        (*f2) |= (TR2_RES_POIS);
-	(*f2) |= (TR2_RES_SHARDS);
-	(*f2) |= (TR2_RES_NEXUS);
-        (*f3) |= (TR3_SLOW_DIGEST);
-    }
-    else if (p_ptr->prace == RACE_SKELETON)
-    {
-        (*f3) |= (TR3_SEE_INVIS);
-        (*f2) |= (TR2_RES_SHARDS);
-        (*f2) |= (TR2_HOLD_LIFE);
-        (*f2) |= (TR2_RES_POIS);
-        if (p_ptr->lev > 9)
-        {
-            (*f2) |= (TR2_RES_COLD);
-        }
-    }
-    else if (p_ptr->prace == RACE_ZOMBIE)
-    {
-        (*f3) |= (TR3_SEE_INVIS);
-        (*f2) |= (TR2_HOLD_LIFE);
-        (*f2) |= (TR2_RES_NETHER);
-        (*f2) |= (TR2_RES_POIS);
-        (*f3) |= (TR3_SLOW_DIGEST);
-        if (p_ptr->lev > 4)
-        {
-            (*f2) |= (TR2_RES_COLD);
-        }
-    }
-    else if (p_ptr->prace == RACE_VAMPIRE)
-    {
-       (*f2) |= (TR2_HOLD_LIFE);
-       (*f2) |= (TR2_RES_DARK);
-       (*f2) |= (TR2_RES_NETHER);
-       (*f3) |= (TR3_LITE);
-       (*f2) |= (TR2_RES_POIS);
-       (*f2) |= (TR2_RES_COLD);
-    }
-    else if (p_ptr->prace == RACE_SPECTRE)
-    {
-
-        (*f2) |= (TR2_RES_COLD);
-        (*f3) |= (TR3_SEE_INVIS);
-        (*f2) |= (TR2_HOLD_LIFE);
-        (*f2) |= (TR2_RES_NETHER);
-        (*f2) |= (TR2_RES_POIS);
-        (*f3) |= (TR3_SLOW_DIGEST);
-        if (p_ptr->lev > 34)
-        {
-            (*f3) |= TR3_TELEPATHY;
-        }
-    }
-    else if (p_ptr->prace == RACE_SPRITE)
-    {
-        (*f2) |= (TR2_RES_LITE);
-        (*f3) |= (TR3_FEATHER);
-        if (p_ptr->lev > 9)
-            (*f1) |= (TR1_SPEED);
-    }
-    else if (p_ptr->prace == RACE_BEASTMAN)
-    {
-        (*f2) |= (TR2_RES_SOUND);
-        (*f2) |= (TR2_RES_CONF);
-    }
-    if (p_ptr->muta3)
-    {
-        if (p_ptr->muta3 & MUT3_FLESH_ROT)
-        {
-            (*f3) &= ~(TR3_REGEN);
-        }
-
-        if ((p_ptr->muta3 & MUT3_XTRA_FAT) || (p_ptr->muta3 & MUT3_XTRA_LEGS) ||
-            (p_ptr->muta3 & MUT3_SHORT_LEG))
-        {
-            (*f1) |= TR1_SPEED;
-        }
-
-        if (p_ptr->muta3  & MUT3_ELEC_TOUC)
-        {
-            (*f3) |= TR3_SH_ELEC;
-        }
-
-        if (p_ptr->muta3 & MUT3_FIRE_BODY)
-        {
-            (*f3) |= TR3_SH_FIRE;
-            (*f3) |= TR3_LITE;
-        }
-
-        if (p_ptr->muta3 & MUT3_WINGS)
-        {
-            (*f3) |= TR3_FEATHER;
-        }
-
-        if (p_ptr->muta3 & MUT3_FEARLESS)
-        {
-            (*f2) |= (TR2_RES_FEAR);
-        }
-
-        if (p_ptr->muta3 & MUT3_REGEN)
-        {
-            (*f3) |= TR3_REGEN;
-        }
-
-        if (p_ptr->muta3 & MUT3_ESP)
-        {
-            (*f3) |= TR3_TELEPATHY;
-        }
-    }
+		if (p_ptr->muta3 & MUT3_GLOW)
+		{
+			(*f2) |= (TR2_RES_DARK);
+			(*f2) |= (TR2_RES_LITE);
+			(*f2) |= (TR3_LITE);
+		}
+	}
 }
 
 
@@ -1773,8 +1753,8 @@ static void display_player_flag_info(void)
 	display_player_flag_aux(row+5, col, "Light:", 2, TR2_RES_LITE);
 	display_player_flag_aux(row+6, col, "Dark :", 2, TR2_RES_DARK);
 	display_player_flag_aux(row+7, col, "Shard:", 2, TR2_RES_SHARDS);
-    display_player_flag_aux(row+8, col, "Blind:", 2, TR2_RES_BLIND);
-    display_player_flag_aux(row+9, col, "Conf :", 2, TR2_RES_CONF);
+	display_player_flag_aux(row+8, col, "Blind:", 2, TR2_RES_BLIND);
+	display_player_flag_aux(row+9, col, "Conf :", 2, TR2_RES_CONF);
 
 	/*** Set 2 ***/
 
@@ -1794,6 +1774,8 @@ static void display_player_flag_info(void)
     display_player_flag_aux(row+6, col, "Reflct:", 2, TR2_REFLECT);
     display_player_flag_aux(row+7, col, "AuFire:", 3, TR3_SH_FIRE);
     display_player_flag_aux(row+8, col, "AuElec:", 3, TR3_SH_ELEC);
+    display_player_flag_aux(row+9, col, "Spines:", 3, TR3_SPINES);
+
 
 	/*** Set 3 ***/
 
@@ -1842,8 +1824,8 @@ static void display_player_misc_info(void)
 	(void) sprintf(buf, "%d", (int) p_ptr->lev);
 	c_put_str(TERM_L_BLUE, buf, 6, 13);	
 	(void) sprintf(buf, "%d(%d)", (int) p_ptr->chp, (int) p_ptr->mhp);
-    c_put_str(TERM_L_BLUE, buf, 7, 13);
-    (void) sprintf(buf, "%d(%d)", (int) p_ptr->csp, (int) p_ptr->msp);
+	c_put_str(TERM_L_BLUE, buf, 7, 13);
+	(void) sprintf(buf, "%d(%d)", (int) p_ptr->csp, (int) p_ptr->msp);
 	c_put_str(TERM_L_BLUE, buf, 8, 13);	
 }
 
@@ -1884,7 +1866,7 @@ static void display_player_stat_info(void)
 	/* Print out the labels for the columns */
 	c_put_str(TERM_WHITE, "Stat", row-1, stat_col);
 	c_put_str(TERM_BLUE, "Intrnl", row-1, stat_col+5);
-    c_put_str(TERM_L_BLUE, "Rce Cls Mod", row-1, stat_col+12);
+	c_put_str(TERM_L_BLUE, "Rce Cls Mod", row-1, stat_col+12);
 	c_put_str(TERM_L_GREEN, "Actual", row-1, stat_col+24);
 	c_put_str(TERM_YELLOW, "Currnt", row-1, stat_col+31);
   
@@ -2023,6 +2005,7 @@ static void display_player_stat_info(void)
 		c = '.';
 
         /* Mutations ... */
+
         if (p_ptr->muta3)
         {
             int dummy = 0;
@@ -2166,7 +2149,7 @@ static cptr object_flag_names[96] =
 	"Res Fire",
 	"Res Cold",
 	"Res Pois",
-    "Res Fear",
+	"Res Fear",
 	"Res Lite",
 	"Res Dark",
 	"Res Blind",
@@ -2181,9 +2164,8 @@ static cptr object_flag_names[96] =
 
 
     "Aura Fire",
-
     "Aura Elec",
-    NULL,
+    "Spines", /* was NULL */
     "AutoCurse",
     "NoTeleport",
     "AntiMagic",
@@ -2437,17 +2419,33 @@ void display_player(int mode)
 		put_str("Sex         :", 3, 1);
 		put_str("Race        :", 4, 1);
 		put_str("Class       :", 5, 1);
-        if (p_ptr->realm1 || p_ptr->realm2)
-          put_str("Magic       :", 6, 1);
-        if (p_ptr->pclass == CLASS_CHAOS_WARRIOR)
-          put_str("Patron      :", 7, 1);
+		if (p_ptr->pclass == CLASS_WEAPONMASTER)
+			put_str("Specialty   :", 6, 1);
+		else if (p_ptr->realm1 || p_ptr->realm2)
+			put_str("Magic       :", 6, 1);
+	        if (p_ptr->pclass == CLASS_CHAOS_WARRIOR)
+	          put_str("Patron      :", 7, 1);
 
 		c_put_str(TERM_L_BLUE, player_name, 2, 15);
 		c_put_str(TERM_L_BLUE, sp_ptr->title, 3, 15);
 		c_put_str(TERM_L_BLUE, rp_ptr->title, 4, 15);
 		c_put_str(TERM_L_BLUE, cp_ptr->title, 5, 15);
-        if (p_ptr->realm1)
-          c_put_str(TERM_L_BLUE, realm_names[p_ptr->realm1],6,15);
+
+		if (p_ptr->pclass == CLASS_WEAPONMASTER)
+		{
+			if (p_ptr->wm_choice == TV_HAFTED)
+				c_put_str(TERM_L_BLUE, "Blunt", 6, 15);
+			else if (p_ptr->wm_choice == TV_POLEARM)
+				c_put_str(TERM_L_BLUE, "Polearms", 6, 15);
+			else if (p_ptr->wm_choice == TV_AXE)
+				c_put_str(TERM_L_BLUE, "Axes", 6, 15);
+			else if (p_ptr->wm_choice == TV_SWORD)
+				c_put_str(TERM_L_BLUE, "Swords", 6, 15);
+		}
+		else if (p_ptr->realm1)
+		{
+			c_put_str(TERM_L_BLUE, realm_names[p_ptr->realm1],6,15);
+		}
         if (p_ptr->pclass == CLASS_CHAOS_WARRIOR)
           c_put_str(TERM_L_BLUE, chaos_patrons[p_ptr->chaos_patron], 7, 15);
         else if (p_ptr->realm2)
@@ -2710,6 +2708,11 @@ errr file_character(cptr name, bool full)
             fprintf(fff, "\n Small Levels:       ON");
         else
             fprintf(fff, "\n Small Levels:       OFF");
+
+	if (only_small)
+	    fprintf(fff, "\n Only Small Levels:  ON");
+	else
+	    fprintf(fff, "\n Only Small Levels:  OFF");
 
         if (empty_levels)
             fprintf(fff, "\n Arena Levels:       ON");

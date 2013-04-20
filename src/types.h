@@ -87,19 +87,16 @@ struct header
 	byte	v_extra;		/* Version -- extra */
 
 
+/*
+ * The following *used* to be all u16b's.  It was Julian L.'s idea
+ * to change them, so  blame him if things get incompatable. :) -- Gumby
+ */
 	u16b	info_num;		/* Number of "info" records */
-
 	u16b	info_len;		/* Size of each "info" record */
-
-
 	u16b	head_size;		/* Size of the "header" in bytes */
-
 	u32b	info_size;		/* Size of the "info" array in bytes */
-/* info_size *WAS* u16b - I pray this doesn't kill everything! - Gumby */
 	u16b	name_size;		/* Size of the "name" array in bytes */
-
 	u32b	text_size;		/* Size of the "text" array in bytes */
-/* blame Julian L. if this screws things up :) - Gumby */
 };
 
 
@@ -909,17 +906,19 @@ typedef struct player_type player_type;
 
 struct player_type
 {
-	byte psex;			/* Sex index */
-	byte prace;			/* Race index */
+	byte psex;		/* Sex index */
+	byte prace;		/* Race index */
 	byte pclass;		/* Class index */
-    byte realm1;        /* First magic realm */
-    byte realm2;        /* Second magic realm */
-	byte oops;			/* Unused */
+	byte realm1;		/* First magic realm */
+	byte realm2;		/* Second magic realm */
+/*	byte oops; */		/* Unused */
+	byte wm_choice;		/* Hopefully Weapomaster's tval choice */
+
 
 	byte hitdie;		/* Hit dice (sides) */
-    u16b expfact;       /* Experience factor
-                            Note: was byte, causing overflow for Amberite
-                            characters (such as Amberite Paladins) */
+	u16b expfact;       /* Experience factor
+                               Note: was byte, causing overflow for Amberite
+                               characters (such as Amberite Paladins) */
 
 	byte maximize;		/* Maximize stats */
 	byte preserve;		/* Preserve artifacts */

@@ -463,7 +463,8 @@ static bool do_cmd_open_chest(int y, int x, s16b o_idx)
 		if (rand_int(100) < j)
 		{
 			msg_print("You have picked the lock.");
-			gain_exp(1);
+			/* Only Rogues gain XP -- Gumby */
+			if (p_ptr->pclass == CLASS_ROGUE) gain_exp(1);
 			flag = TRUE;
 		}
 
@@ -559,8 +560,8 @@ static bool do_cmd_open_aux(int y, int x, int dir)
 			/* Sound */
 			sound(SOUND_OPENDOOR);
 
-			/* Experience */
-			gain_exp(1);
+			/* Only Rogues gain XP */
+			if (p_ptr->pclass == CLASS_ROGUE) gain_exp(1);
 		}
 
 		/* Failure */
@@ -1133,7 +1134,10 @@ static bool do_cmd_disarm_chest(int y, int x, s16b o_idx)
 	else if (rand_int(100) < j)
 	{
 		msg_print("You have disarmed the chest.");
-		gain_exp(o_ptr->pval);
+
+		if(p_ptr->pclass == CLASS_ROGUE) gain_exp(o_ptr->pval);
+		else gain_exp(o_ptr->pval / 2);
+
 		o_ptr->pval = (0 - o_ptr->pval);
 	}
 
@@ -1212,7 +1216,8 @@ static bool do_cmd_disarm_aux(int y, int x, int dir)
 		msg_format("You have disarmed the %s.", name);
 
 		/* Reward */
-		gain_exp(power);
+		if(p_ptr->pclass == CLASS_ROGUE) gain_exp(power);
+		else gain_exp(power / 2);
 
 		/* Forget the trap */
 		c_ptr->info &= ~(CAVE_MARK);
@@ -2092,7 +2097,16 @@ void do_cmd_fire(void)
 	tdam = damroll(q_ptr->dd, q_ptr->ds) + q_ptr->to_d + j_ptr->to_d;
 
 	/* Actually "fire" the object */
-	bonus = (p_ptr->to_h + q_ptr->to_h + j_ptr->to_h);
+	/*
+	 * Must adjust so that Weaponmasters don't get their level bonus!
+	 *							-- Gumby
+	 */
+	if ((p_ptr->pclass == CLASS_WEAPONMASTER) &&
+	    (inventory[INVEN_WIELD].tval == p_ptr->wm_choice))
+		bonus = ((p_ptr->to_h - p_ptr->lev) + q_ptr->to_h + j_ptr->to_h);
+	else
+		bonus = (p_ptr->to_h + q_ptr->to_h + j_ptr->to_h);
+
 	chance = (p_ptr->skill_thb + (bonus * BTH_PLUS_ADJ));
 
 	/* Assume a base multiplier */
@@ -2439,9 +2453,12 @@ void do_cmd_throw(void)
 	/* Hack -- Base damage from thrown object */
 	tdam = damroll(q_ptr->dd, q_ptr->ds) + q_ptr->to_d;
 
-	/* Chance of hitting */
-	chance = (p_ptr->skill_tht + (p_ptr->to_h * BTH_PLUS_ADJ));
-
+	/* Chance of hitting - adjusted for Weaponmasters -- Gumby */
+	if ((p_ptr->pclass == CLASS_WEAPONMASTER) &&
+	    (inventory[INVEN_WIELD].tval == p_ptr->wm_choice))
+		chance = (p_ptr->skill_tht + ((p_ptr->to_h - p_ptr->lev) * BTH_PLUS_ADJ));
+	else
+		chance = (p_ptr->skill_tht + (p_ptr->to_h * BTH_PLUS_ADJ));
 
 	/* Take a turn */
 	energy_use = 100;
@@ -2669,7 +2686,8 @@ bool racial_aux(s16b min_level, int cost, int use_stat, int difficulty)
 # if 0
 	if (p_ptr->csp < cost)
 	{
-		if ((p_ptr->pclass != CLASS_WARRIOR) && (p_ptr->prace == RACE_VAMPIRE))
+		if ((p_ptr->pclass != (CLASS_WARRIOR || CLASS_WEAPONMASTER) &&
+		    (p_ptr->prace == RACE_VAMPIRE))
 		{
 			msg_print("Your powers are too depleted!");
 			return FALSE;
@@ -2747,8 +2765,6 @@ bool racial_aux(s16b min_level, int cost, int use_stat, int difficulty)
 static void cmd_racial_power_aux (void)
 {
 	s16b plev = p_ptr->lev;
-	char ch = 0;
-	int amber_power = 0;
 	int dir = 0;
 	int Type = (randint(3)==1?GF_COLD:GF_FIRE);
 	cptr Type_desc = (Type == GF_COLD?"cold":"fire");
@@ -2839,76 +2855,20 @@ static void cmd_racial_power_aux (void)
 			}
 			break;
 
-		case RACE_AMBERITE:
-			/* Select power to use */
-			while (TRUE)
+		case RACE_GAMBOLT:
+			if (racial_aux(20, (p_ptr->lev), A_CHR, 15))
 			{
-				if (!get_com("Use [S]hadow Shifting or [P]attern Mindwalking? ", &ch))
-				{
-					amber_power = 0;
-					break;
-				}
-
-				if (ch == 'P' || ch == 'p')
-				{
-					amber_power = 1;
-					break;
-				}
-
-				if (ch == 'S' || ch == 's')
-				{
-					amber_power = 2;
-					break;
-				}
-
-			}
-
-			if (amber_power == 1)
-			{
-				if (racial_aux(40, 75, A_WIS, 50))
-				{
-					msg_print("You picture the Pattern in your mind and walk it...");
-					(void)set_poisoned(0);
-					(void)set_image(0);
-					(void)set_stun(0);
-					(void)set_cut(0);
-					(void)set_blind(0);
-					(void)set_afraid(0);
-					(void)do_res_stat(A_STR);
-					(void)do_res_stat(A_INT);
-					(void)do_res_stat(A_WIS);
-					(void)do_res_stat(A_DEX);
-					(void)do_res_stat(A_CON);
-					(void)do_res_stat(A_CHR);
-					(void)restore_level();
-				}
-			}
-
-			else if(amber_power == 2)
-			{
-				if (racial_aux(30, 50, A_INT, 50))
-				{
-					msg_print("You start walking around. Your surroundings change.");
-
-					if (autosave_l)
-					{
-						is_autosave = TRUE;
-						msg_print("Autosaving the game...");
-						do_cmd_save_game();
-						is_autosave = FALSE;
-					}
-
-					new_level_flag = TRUE;
-				}
+				if (!get_aim_dir(&dir)) break;
+				msg_print("You act charming.");
+				(void)charm_monster(dir, plev);
 			}
 			break;
 
 		case RACE_BARBARIAN:
 			if (racial_aux(8, 10, A_WIS, (p_ptr->pclass == CLASS_WARRIOR?6:12)))
 			{
-				msg_print("Raaagh!");
+				msg_print("RAAARGH!");
 				(void)set_afraid(0);
-
 				(void)set_shero(p_ptr->shero + 10 + randint(plev));
 				(void)hp_player(30);
 			}
@@ -3005,6 +2965,7 @@ static void cmd_racial_power_aux (void)
 				{
 					case CLASS_WARRIOR:
 					case CLASS_RANGER:
+					case CLASS_WEAPONMASTER:
 						if (randint(3)==1)
 						{
 							Type = GF_MISSILE;
@@ -3134,6 +3095,7 @@ static void cmd_racial_power_aux (void)
 		case RACE_GOLEM:
 			if (racial_aux(20, 15, A_CON, 8))
 			{
+				msg_print("You feel hard.");
 				(void)set_shield(p_ptr->shield + randint(20) + 30);
 			}
 			break;
@@ -3350,8 +3312,11 @@ void do_cmd_racial_power(void)
 			has_racial = TRUE;
 			break;
 
-		case RACE_AMBERITE:
-			racial_power = "Amberite powers    (lvl 30/40, cost 50/75, INT/WIS 50)";
+		case RACE_GAMBOLT:
+			if (lvl < 20)
+				racial_power = "charm              (racial, lvl 20, cost lvl)";
+			else
+				racial_power = "charm              (racial, cost lvl, CHR, 15@20)";
 			has_racial = TRUE;
 			break;
 
@@ -4048,17 +4013,19 @@ void do_cmd_racial_power(void)
 						if ((c_ptr->feat >= FEAT_DOOR_HEAD) &&
 							(c_ptr->feat <= FEAT_RUBBLE))
 						{
-							(void)set_food(p_ptr->food + 3000);
+							msg_print("It could use some salt.");
+							(void)set_food(p_ptr->food + 500);
 						}
 						else if ((c_ptr->feat >= FEAT_MAGMA) &&
 							(c_ptr->feat <= FEAT_QUARTZ_K))
 						{
-							(void)set_food(p_ptr->food + 5000);
+							msg_print("This stuff's quite tasty.");
+							(void)set_food(p_ptr->food + 1500);
 						}
 						else
 						{
-							msg_print("This granite is very filling!");
-							(void)set_food(p_ptr->food + 10000);
+							msg_print("*MUNCH*  *MUNCH*  *MUNCH*  Yummy!");
+							(void)set_food(p_ptr->food + 3000);
 						}
 					}
 					(void)wall_to_mud(dir);
@@ -4336,6 +4303,7 @@ void do_cmd_racial_power(void)
 						fire_ball(GF_SHARDS, dir, lvl * 4, 2);
 				}
 				break;
+
 			default:
 				energy_use = 0;
 				msg_format("Power %s not implemented. Oops.", powers[i]);

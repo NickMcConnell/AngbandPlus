@@ -922,7 +922,7 @@ s32b flag_cost(object_type * o_ptr, int plusses)
 	if (f2 & TR2_RES_DISEN) total += 10000;
 	if (f3 & TR3_SH_FIRE) total += 5000;
 	if (f3 & TR3_SH_ELEC) total += 5000;
-	if (f3 & TR3_XXX3) total += 0;
+	if (f3 & TR3_SPINES) total += 5000; /* was XXX3 */
 	if (f3 & TR3_AUTO_CURSE) total -= 10000;
 	if (f3 & TR3_NO_TELE) total += 2500;
 	if (f3 & TR3_NO_MAGIC) total += 2500;
@@ -1123,6 +1123,7 @@ s32b object_value_real(object_type *o_ptr)
 		case TV_DIGGING:
 		case TV_HAFTED:
 		case TV_POLEARM:
+		case TV_AXE:
 		case TV_SWORD:
 		case TV_BOOTS:
 		case TV_GLOVES:
@@ -1225,6 +1226,7 @@ s32b object_value_real(object_type *o_ptr)
 		case TV_BOW:
 		case TV_DIGGING:
 		case TV_HAFTED:
+		case TV_AXE:
 		case TV_SWORD:
 		case TV_POLEARM:
 		{
@@ -1401,6 +1403,7 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 		case TV_DIGGING:
 		case TV_HAFTED:
 		case TV_POLEARM:
+		case TV_AXE:
 		case TV_SWORD:
 		case TV_BOOTS:
 		case TV_GLOVES:
@@ -1762,7 +1765,8 @@ void random_artifact_resistance(object_type * o_ptr)
 {
 	bool give_resistance = FALSE, give_power = FALSE;
 
-	if (o_ptr->name1 == ART_GORLIM) /* Terror Mask is for warriors... */
+	/* Terror Mask is for Warriors... */
+	if (o_ptr->name1 == ART_TERROR_MASK)
 	{
 		if (p_ptr->pclass == CLASS_WARRIOR)
 		{
@@ -1786,16 +1790,16 @@ void random_artifact_resistance(object_type * o_ptr)
 		case ART_THENGEL:  case ART_LUTHIEN:   case ART_THROR:
 		case ART_THORIN:   case ART_NIMTHANC:  case ART_DETHANC:
 		case ART_NARTHANC: case ART_STING:     case ART_TURMIL:
-		case ART_THALKETTOTH:
+		case ART_THALKETTOTH: case ART_HACKMEAT:
 			{
 				/* Give a resistance */
 				give_resistance = TRUE;
 			}
 			break;
 		case ART_MAEDHROS: case ART_GLAMDRING: case ART_ORCRIST:
-		case ART_ANDURIL: case ART_ZARCUTHRA: case ART_GURTHANG:
+		case ART_KANAJANA: case ART_ZARCUTHRA: case ART_GURTHANG:
 		case ART_HARADEKKET: case ART_CUBRAGOL: case ART_DAWN:
-		case ART_MORDAGA:
+		case ART_MORDAGA: case ART_COWARDICE: case ART_WHIRLWIND:
 			{
 				/* Give a resistance OR a power */
 				if (randint(2)==1) give_resistance = TRUE;
@@ -2137,6 +2141,7 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 
 		case TV_HAFTED:
 		case TV_POLEARM:
+		case TV_AXE:
 		case TV_SWORD:
 		{
 			/* Very Good */
@@ -2342,7 +2347,7 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 						{
 							o_ptr->art_flags1 |= TR1_BRAND_POIS;
 						}
-						if (o_ptr->tval == TV_SWORD && (randint(3)==1))
+						if ((o_ptr->tval == TV_SWORD) && (randint(3)==1))
 						{
 							o_ptr->art_flags1 |= TR1_VORPAL;
 						}
@@ -2358,9 +2363,9 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 					case 40:
 					{
 						o_ptr->name2 = EGO_PATTERN;
-						if (randint(3)==1) o_ptr->art_flags2 |= TR2_HOLD_LIFE;
+						if (randint(5)==1) o_ptr->art_flags2 |= TR2_HOLD_LIFE;
 						if (randint(3)==1) o_ptr->art_flags1 |= TR1_DEX;
-						if (randint(5)==1) o_ptr->art_flags2 |= TR2_RES_FEAR;
+						if (randint(3)==1) o_ptr->art_flags2 |= TR2_RES_FEAR;
 						random_resistance(o_ptr, FALSE, ((randint(22))+16));
 						break;
 					}
@@ -2373,9 +2378,29 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 						}
 						else /* Hafted */
 						{
-							o_ptr->name2 = EGO_EARTHQUAKES;
-							if (randint(3)==1) o_ptr->art_flags1 |= TR1_BLOWS;
-							o_ptr->pval = m_bonus(3, level);
+							if ((o_ptr->sval == SV_SLEDGEHAMMER) && (randint(3)==1))
+							{
+								if (power > 1) /* Very good */
+								{
+									o_ptr->name2 = EGO_DIGGING;
+								}
+								else if (power < -1) /* Very bad */
+								{
+									/* Hack -- Horrible digging bonus */
+									o_ptr->pval = 0 - (5 + randint(5));
+								}
+								else if (power < 0) /* Bad */
+								{
+									/* Hack -- Reverse digging bonus */
+									o_ptr->pval = 0 - (o_ptr->pval);
+								}
+							}
+							else
+							{
+								o_ptr->name2 = EGO_EARTHQUAKES;
+								if (randint(3)==1) o_ptr->art_flags1 |= TR1_BLOWS;
+								o_ptr->pval = m_bonus(3, level);
+							}
 						}
 					}
 				}
@@ -2621,7 +2646,7 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 				}
 
 				/* Roll for ego-item */
-				switch (randint(21))
+				switch (randint(23))
 				{
 					case 1: case 2: case 3: case 4:
 					{
@@ -2655,9 +2680,16 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 						break;
 					}
 
-					case 20: case 21:
+					case 19: case 20:
 					{
 						o_ptr->name2 = EGO_ELVENKIND;
+						break;
+					}
+
+					case 21: case 22: case 23:
+					{
+						o_ptr->name2 = EGO_SPINES;
+						random_resistance(o_ptr, FALSE, ((randint(22))+16));
 						break;
 					}
 					default:
@@ -2726,8 +2758,22 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 						}
 						case 21: case 22:
 						{
-							o_ptr->name2 = EGO_REFLECTION;
-							break;
+		/*
+		 * Can't let Shields of Deflection gain Reflection!
+		 * (see k_info.txt) -- Gumby
+		 */
+							if(o_ptr->sval == SV_SHIELD_OF_DEFLECTION)
+							{
+								random_resistance(o_ptr, FALSE, ((randint(34))+4));
+								if (randint(4)==1) o_ptr->art_flags2 |= TR2_RES_POIS;
+								o_ptr->name2 = EGO_ENDURANCE;
+								break;
+							}
+							else
+							{	
+								o_ptr->name2 = EGO_REFLECTION;
+								break;
+							}
 						}
 						default:
 						{
@@ -2766,6 +2812,8 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 						case 8: case 9:
 						{
 							o_ptr->name2 = EGO_AGILITY;
+							if (randint(3) == 1)
+								o_ptr->art_flags2 |= TR2_SUST_DEX;
 							break;
 						}
 
@@ -2773,6 +2821,8 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 						{
 							o_ptr->name2 = EGO_POWER;
 							random_resistance(o_ptr, FALSE, ((randint(22))+16));
+							if (randint(3) == 1)
+								o_ptr->art_flags2 |= TR2_SUST_STR;
 							break;
 						}
 					}
@@ -3178,7 +3228,6 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 				case SV_RING_STR:
 				case SV_RING_CON:
 				case SV_RING_DEX:
-				case SV_RING_INT:
 				{
 					/* Stat bonus */
 					o_ptr->pval = 1 + m_bonus(5, level);
@@ -3196,6 +3245,13 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 						o_ptr->pval = 0 - (o_ptr->pval);
 					}
 
+					break;
+				}
+
+				case SV_RING_SHADOWS:
+				{
+					/* Stealth bonus (1-3) */
+					o_ptr->pval = 1 + m_bonus(2, level);
 					break;
 				}
 
@@ -3471,7 +3527,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 				/* Amulet of Thieves (was Adornment - Gumby) */
 				case SV_AMULET_ADORNMENT:
 				{
-					o_ptr->pval = randint(2) + m_bonus(2, level);
+					o_ptr->pval = 1 + m_bonus(2, level);
 
 					/* Cursed */
 					if (power < 0)
@@ -3734,6 +3790,7 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 		case TV_DIGGING:
 		case TV_HAFTED:
 		case TV_POLEARM:
+		case TV_AXE:
 		case TV_SWORD:
 		case TV_BOW:
 		case TV_SHOT:
@@ -3935,9 +3992,10 @@ static bool kind_is_good(int k_idx)
 
 		/* Weapons -- Good unless damaged */
 		case TV_BOW:
-		case TV_SWORD:
 		case TV_HAFTED:
 		case TV_POLEARM:
+		case TV_AXE:
+		case TV_SWORD:
 		case TV_DIGGING:
 		{
 			if (k_ptr->to_h < 0) return (FALSE);
@@ -5473,7 +5531,7 @@ void display_spell_list(void)
 	/* Erase window */
 	clear_from(0);
 
-	/* Warriors are illiterate */
+	/* Warriors & Weaponmasters are illiterate */
 	if (!mp_ptr->spell_book) return;
 
 	/* Mindcrafter spell-list */
@@ -5508,9 +5566,11 @@ void display_spell_list(void)
 
 			/* Reduce failure rate by "effective" level adjustment */
 			chance -= 3 * (p_ptr->lev - spell.min_lev);
+			if (chance < 0) chance = 0;
 
 			/* Reduce failure rate by INT/WIS adjustment */
 			chance -= 3 * (adj_mag_stat[p_ptr->stat_ind[mp_ptr->spell_stat]] - 1);
+			if (chance < 0) chance = 0;
 
 			/* Not enough mana to cast */
 			if (spell.mana_cost > p_ptr->csp)
@@ -5524,6 +5584,7 @@ void display_spell_list(void)
 
 			/* Minimum failure rate */
 			if (chance < minfail) chance = minfail;
+			if (chance < 0) chance = 0;
 
 			/* Stunning makes spells harder */
 			if (p_ptr->stun > 50) chance += 25;
@@ -5649,9 +5710,11 @@ s16b spell_chance(int spell,int realm)
 
 	/* Reduce failure rate by "effective" level adjustment */
 	chance -= 3 * (p_ptr->lev - s_ptr->slevel);
+	if (chance < 0) chance = 0;
 
 	/* Reduce failure rate by INT/WIS adjustment */
 	chance -= 3 * (adj_mag_stat[p_ptr->stat_ind[mp_ptr->spell_stat]] - 1);
+	if (chance < 0) chance = 0;
 
 	/* Not enough mana to cast */
 	if (s_ptr->smana > p_ptr->csp)
@@ -5674,11 +5737,12 @@ s16b spell_chance(int spell,int realm)
 		if (minfail < 5) minfail = 5;
 	}
 
-	/* Hack -- Priest prayer penalty for "edged" weapons  -DGK */
-	if ((p_ptr->pclass == 2) && (p_ptr->icky_wield)) chance += 25;
-
 	/* Minimum failure rate */
 	if (chance < minfail) chance = minfail;
+	if (chance < 0) chance = 0;
+
+	/* Hack -- Priest prayer penalty for "edged" weapons  -DGK */
+	if ((p_ptr->pclass == 2) && (p_ptr->icky_wield)) chance += 25;
 
 	/* Stunning makes spells harder */
 	if (p_ptr->stun > 50) chance += 25;
@@ -5760,6 +5824,7 @@ static void spell_info(char *p, int spell, int realm)
 				{
 					case  1: strcpy (p, " heal 3d10"); break;
 					case  2: strcpy (p, " dur 12+d12 turns"); break;
+					case  3: sprintf(p, " dam %dd4", (3 + ((plev - 5) / 5))); break;
 					case  4: sprintf(p, " dam %d", 10 + (plev / 2)); break;
 					case  6: strcpy (p, " heal 6d10"); break;
 					case 10: strcpy (p, " heal 12d10"); break;
@@ -5783,12 +5848,12 @@ static void spell_info(char *p, int spell, int realm)
 				switch (spell)
 				{
 					case  1: strcpy (p, " range 10"); break;
-					case  3: sprintf(p, " dam %d", 10 + (plev / 2)); break;
-					case  5: sprintf(p, " range %d", plev * 5); break;
-					case 13: sprintf(p, " dur %d+d%d", plev, (plev+20)); break;
-					case 19: sprintf(p, " range %d", plev+2); break;
-					case 20: strcpy (p, " dur 25+d30"); break;
-					case 23: strcpy (p, " delay 15+d21"); break;
+					case  4: sprintf(p, " dam %d", 10 + (plev / 2)); break;
+					case  6: sprintf(p, " range %d", plev * 5); break;
+					case 15: sprintf(p, " dur %d+d%d", plev, (plev+20)); break;
+					case 17: sprintf(p, " range %d", plev+2); break;
+					case 18: strcpy (p, " dur 25+d30"); break;
+					case 21: strcpy (p, " delay 15+d21"); break;
 					case 25: sprintf(p, " max wgt %d", plev * 15 / 10); break;
 					case 26: sprintf(p, " dam 7d7+%d", (plev/2)); break;
 					case 27: strcpy (p, " dur 25+d30"); break;
@@ -6034,7 +6099,7 @@ void display_koff(int k_idx)
 	Term_putstr(0, 0, -1, TERM_WHITE, o_name);
 
 
-	/* Warriors are illiterate */
+	/* Warriors & Weaponmasters are illiterate */
 	if (!(p_ptr->realm1 || p_ptr->realm2)) return;
 
 	/* Display spells in readible books */

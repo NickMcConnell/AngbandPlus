@@ -458,14 +458,14 @@ static void wiz_display_item(object_type *o_ptr)
 	prt_binary(f2, 23, j);
 
 	prt("+------------FLAGS3------------+", 10, j+32);
-	prt("fe      ehsi  st    iiiiadta  hp", 11, j+32);
-	prt("il   n taihnf ee    ggggcregb vr", 12, j+32);
-	prt("re  nowysdose eld   nnnntalrl ym", 13, j+32);
-	prt("ec  omrcyewta ieirmsrrrriieaeccc", 14, j+32);
-	prt("aa  taauktmatlnpgeihaefcvnpvsuuu", 15, j+32);
-	prt("uu  egirnyoahivaeggoclioaeoasrrr", 16, j+32);
-	prt("rr  litsopdretitsehtierltxrtesss", 17, j+32);
-	prt("aa  echewestreshtntsdcedeptedeee", 18, j+32);
+	prt("fe s    ehsi  st    iiiiadta  hp", 11, j+32);
+	prt("il e n taihnf ee    ggggcregb vr", 12, j+32);
+	prt("reslnowysdose eld   nnnntalrl ym", 13, j+32);
+	prt("ecpfomrcyewta ieirmsrrrriieaeccc", 14, j+32);
+	prt("aaictaauktmatlnpgeihaefcvnpvsuuu", 15, j+32);
+	prt("uunuegirnyoahivaeggoclioaeoasrrr", 16, j+32);
+	prt("rrerlitsopdretitsehtierltxrtesss", 17, j+32);
+	prt("aassechewestreshtntsdcedeptedeee", 18, j+32);
 	prt_binary(f3, 19, j+32);
 }
 
@@ -485,6 +485,7 @@ typedef struct tval_desc
 static tval_desc tvals[] =
 {
 	{ TV_SWORD,             "Sword"                },
+	{ TV_AXE,		"Axe"                  },
 	{ TV_POLEARM,           "Polearm"              },
 	{ TV_HAFTED,            "Hafted Weapon"        },
 	{ TV_BOW,               "Bow"                  },

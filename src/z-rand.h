@@ -26,6 +26,7 @@
  * Generates a random long integer X where O<=X<M.
  * The integer X falls along a uniform distribution.
  * For example, if M is 100, you get "percentile dice"
+ * rand_int(100) = 0 to 99
  */
 #define rand_int(M) \
 	(Rand_div(M))
@@ -50,6 +51,7 @@
 /*
  * Generate a random long integer X where 1<=X<=M
  * Also, "correctly" handle the case of M<=1
+ * randint(100) = 1 to 100
  */
 #define randint(M) \
 	(rand_int(M) + 1)

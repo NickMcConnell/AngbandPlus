@@ -1,6 +1,6 @@
 # Life Magic
 #
-# TAB - Holy Word           F1 - Cure Light Wounds   SF1 - Remove Fear
+# TAB - Holy Word           F1 - Cure Light Wounds   SF1 - Spiritual Hammer
 #   [ - Glyph of Warding    F2 - Cure Medium Wounds  SF2 - Sense Unseen
 #   ] - Warding True        F3 - Cure Critical Wnds. SF3 - Day of the Dove
 #   ' - Holy Vision         F4 - Healing
@@ -9,9 +9,9 @@
 #   : - Dispel Curse        F7 - Restoration
 #   h - Heroism             F8 - Divine Intervention
 #   H - Holy Invunerability F9 - Exorcism
-#   J - Satisfy Hunger     F10 - Dispel Undead and Demons
+#   J - Satisfy Hunger     F10 - Dispel Undead/Demons
 #   n - Detect Evil        F11 - Dispel Evil
-#   N - Det.Traps & S.Door F12 - Banish
+#   N - Detect Doors/Traps F12 - Banish
 #   O - Holy Orb
 #   P - Protection from Evil
 #   y - Bless
@@ -62,7 +62,7 @@ C:0:J
 A:m1a
 C:0:n
 
-# N - Detect Traps and Secret Doors
+# N - Detect Doors/Traps
 A:m1f
 C:0:N
 
@@ -126,7 +126,7 @@ P:^_x42\r
 A:m3a
 P:^_x43\r
 
-# F10 - Dispel Undead and Demons
+# F10 - Dispel Undead/Demons
 A:m3c
 P:^_x44\r
 
@@ -140,8 +140,8 @@ P:^_x86\r
 
 # Misc
 
-# SHIFT-F1 - Remove Fear
-A:m1d
+# SHIFT-F1 - Spiritual Hammer
+A:\e\e\e*tm1d
 P:^_Sx54\r
 
 # SHIFT-F2 - Sense Unseen

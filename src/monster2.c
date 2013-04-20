@@ -1065,7 +1065,6 @@ void sanity_blast (monster_type * m_ptr, bool necro)
                     msg_print("You are no longer fearless.");
                     p_ptr->muta3 &= ~(MUT3_FEARLESS);
                 }
-
                 p_ptr->muta2 |= MUT2_COWARDICE;
                 happened = TRUE;
             }
@@ -1806,7 +1805,7 @@ bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp, bool charm)
 	if (r_ptr->flags1 & (RF1_FRIENDS))
 	{
 		/* Attempt to place a group */
-        (void)place_monster_group(y, x, r_idx, slp, charm);
+	        (void)place_monster_group(y, x, r_idx, slp, charm);
 	}
 
 
@@ -2238,7 +2237,7 @@ static bool summon_specific_okay(int r_idx)
 
 		case SUMMON_DAWN:
 		{
-			okay = ((strstr((r_name + r_ptr->name),"the Dawn")) &&
+			okay = ((strstr((r_name + r_ptr->name),"of the Dawn")) &&
 			       !(r_ptr->flags1 & (RF1_UNIQUE)));
 			break;
 		}

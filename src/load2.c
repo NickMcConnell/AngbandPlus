@@ -143,6 +143,7 @@ static bool wearable_p(object_type *o_ptr)
 		case TV_DIGGING:
 		case TV_HAFTED:
 		case TV_POLEARM:
+		case TV_AXE:
 		case TV_SWORD:
 		case TV_BOOTS:
 		case TV_GLOVES:
@@ -1303,7 +1304,7 @@ static void rd_extra(void)
 	rd_byte(&p_ptr->psex);
 	rd_byte(&p_ptr->realm1);
 	rd_byte(&p_ptr->realm2);
-	rd_byte(&tmp8u);        /* oops */
+	rd_byte(&p_ptr->wm_choice); /* was (&tmp8u); */
 
 	/* Special Race/Class info */
 	rd_byte(&p_ptr->hitdie);

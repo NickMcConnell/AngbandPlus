@@ -1893,7 +1893,7 @@ void check_experience(void)
 
 			if (p_ptr->prace == RACE_BEASTMAN)
 			{
-				if (randint(5)==1) level_mutation = TRUE;
+				if (randint(4)==1) level_mutation = TRUE;
 			}
 		}
 
@@ -2051,7 +2051,7 @@ static void drop_quest_stairs(int y, int x)
  */
 void monster_death(int m_idx)
 {
-	int j, y, x;
+	int j, k, y, x;
 
 	int dump_item = 0;
 	int dump_gold = 0;
@@ -2125,7 +2125,7 @@ void monster_death(int m_idx)
 	 * Mega^3-hack: killing a 'Warrior of the Dawn' is likely to
 	 * spawn another in the fallen one's place!
 	 */
-	if (strstr((r_name + r_ptr->name),"the Dawn"))
+	if (strstr((r_name + r_ptr->name),"of the Dawn"))
 	{
 		if (!(randint(20)==13))
 		{
@@ -2160,35 +2160,79 @@ void monster_death(int m_idx)
 		}
 	}
 
-	/* One more ultra-hack: An Unmaker goes out with a big bang! */
-	else if (strstr((r_name + r_ptr->name),"Unmaker"))
+	/* 
+	 * Simple, ugly hack for EXPLOSIVE monsters -- Gumby
+	 * Default explosion type is GF_MISSILE, pure damage without
+         * hurting objects. Default radius is 3. Default damage is 10, just
+	 * enough to wake everyone up. :) You can customize those 3, of
+	 * course.
+	 */
+	else if (r_ptr->flags2 & (RF2_EXPLOSIVE))
 	{
 		int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
-		(void)project(m_idx, 6, y, x, 100, GF_CHAOS, flg);
+		int boom = GF_MISSILE;
+		int damboom = 10;
+		int radius = 3;
+
+		/* Here's how we customize for specific monsters */
+		if (strstr((r_name + r_ptr->name),"Unmaker"))
+		{
+			boom = GF_CHAOS;
+			damboom = 100;
+			radius = 6;
+		}
+		else if (strstr((r_name + r_ptr->name),"Gas spore"))
+		{
+			boom = GF_POIS;
+		}
+
+		/* Just so you don't miss it... */
+		disturb(0,0);
+		msg_print("BOOM!");
+
+		/* Perform the explosion... */
+		(void)project(m_idx, radius, y, x, damboom, boom, flg);
+
+		/* Note it in monster memory */
+		if (m_ptr->ml)
+		{
+			r_ptr->r_flags2 |= (RF2_EXPLOSIVE);
+		}
 	}
 
+	/*
+	 * Hack for punishing Chaos Warriors who kill their patron! -- Gumby
+	 * I could probably nest it another level, with CLASS_CHAOS_WARRIOR
+	 * on the outside, making it a bit prettier, but I don't feel like
+	 * it. :)  Could also do the k = rand_int(5); on the upper level and
+	 * then do a k += 5; (or 4 or 3) under each patron as well...
+	 */
         else if (strstr((r_name + r_ptr->name),"Mabelrode the") &&
-		 ((p_ptr->pclass == CLASS_CHAOS_WARRIOR) && (p_ptr->chaos_patron == PATRON_MABELRODE)))
+		 ((p_ptr->pclass == CLASS_CHAOS_WARRIOR) &&
+		  (p_ptr->chaos_patron == PATRON_MABELRODE)))
 	{
-		for (j = 0; j <=5; j++)
+		k = rand_int(5) + 5;
+		for (j = 0; j <= k; j++)
 		{
 			activate_ty_curse();
 		}
 	}
-
         else if (strstr((r_name + r_ptr->name),"Queen Xiombarg") &&
-		 ((p_ptr->pclass == CLASS_CHAOS_WARRIOR) && (p_ptr->chaos_patron == PATRON_XIOMBARG)))
+		 ((p_ptr->pclass == CLASS_CHAOS_WARRIOR) &&
+		  (p_ptr->chaos_patron == PATRON_XIOMBARG)))
 	{
-		for (j = 0; j <=4; j++)
+		k = rand_int(5) + 4;
+		for (j = 0; j <= k; j++)
 		{
 			activate_ty_curse();
 		}
 	}
-
         else if (strstr((r_name + r_ptr->name),"Arioch, Duke") &&
-		 ((p_ptr->pclass == CLASS_CHAOS_WARRIOR) && (p_ptr->chaos_patron == PATRON_ARIOCH)))
+		 ((p_ptr->pclass == CLASS_CHAOS_WARRIOR) &&
+		  (p_ptr->chaos_patron == PATRON_ARIOCH)))
 	{
-		for (j = 0; j <=3; j++)
+		k = rand_int(5) + 3;
+		for (j = 0; j <= k; j++)
 		{
 			activate_ty_curse();
 		}
@@ -2197,30 +2241,46 @@ void monster_death(int m_idx)
 	/* Mega-Hack -- drop "winner" treasures */
 	else if (r_ptr->flags1 & (RF1_DROP_CHOSEN))
 	{
-		if (strstr((r_name + r_ptr->name),"Mabelrode the Faceless"))
+		if (strstr((r_name + r_ptr->name),"Mabelrode the"))
 		{
 			/* Get local object */
 			q_ptr = &forge;
 
-			/* Mega-Hack -- Prepare to make "Grond" */
-			object_prep(q_ptr, lookup_kind(TV_HAFTED, SV_GROND));
+			/* Mega-Hack -- Prepare to make his Sword */
+			object_prep(q_ptr, lookup_kind(TV_SWORD, SV_RULER_SWORD));
 
-			/* Mega-Hack -- Mark this item as "Grond" */
-			q_ptr->name1 = ART_GROND;
+			/* Mega-Hack -- Mark this item as "of Mabelrode" */
+			q_ptr->name1 = ART_MABELRODE;
 
-			/* Mega-Hack -- Actually create "Grond" */
+			/* Mega-Hack -- Actually create the Sword */
 			apply_magic(q_ptr, -1, TRUE, TRUE, TRUE);
 
 			/* Drop it in the dungeon */
 			drop_near(q_ptr, -1, y, x);
 
 			q_ptr = &forge;
-			object_prep(q_ptr, lookup_kind(TV_CROWN, SV_MORGOTH));
-			q_ptr->name1 = ART_MORGOTH;
+			object_prep(q_ptr, lookup_kind(TV_CROWN, SV_CHAOS));
+			q_ptr->name1 = ART_CHAOS;
 			apply_magic(q_ptr, -1, TRUE, TRUE, TRUE);
 			drop_near(q_ptr, -1, y, x);
 		}
-		else if (strstr((r_name + r_ptr->name),"Elric of Melnibone"))
+		else if (strstr((r_name + r_ptr->name),"Queen Xiombarg"))
+	  	{
+			q_ptr = &forge;
+			object_prep(q_ptr, lookup_kind(TV_SWORD, SV_RULER_SWORD));
+			q_ptr->name1 = ART_XIOMBARG;
+			apply_magic(q_ptr, -1, TRUE, TRUE, TRUE);
+			drop_near(q_ptr, -1, y, x);
+		}
+		else if (strstr((r_name + r_ptr->name),"Arioch, Duke"))
+	  	{
+			q_ptr = &forge;
+			object_prep(q_ptr, lookup_kind(TV_SWORD, SV_RULER_SWORD));
+			q_ptr->name1 = ART_ARIOCH;
+			apply_magic(q_ptr, -1, TRUE, TRUE, TRUE);
+			drop_near(q_ptr, -1, y, x);
+		}
+		else if (strstr((r_name + r_ptr->name),"Elric of "))
 	  	{
 			q_ptr = &forge;
 			object_prep(q_ptr, lookup_kind(TV_SWORD, SV_RUNESWORD));
@@ -2228,7 +2288,7 @@ void monster_death(int m_idx)
 			apply_magic(q_ptr, -1, TRUE, TRUE, TRUE);
 			drop_near(q_ptr, -1, y, x);
 		}
-		else if (strstr((r_name + r_ptr->name),"Corum Jhaelen Irsei"))
+		else if (strstr((r_name + r_ptr->name),"Corum Jhaelen"))
 	  	{
 			q_ptr = &forge;
 			object_prep(q_ptr, lookup_kind(TV_GLOVES, SV_JEWELED_HAND));
@@ -2236,7 +2296,15 @@ void monster_death(int m_idx)
 			apply_magic(q_ptr, -1, TRUE, TRUE, TRUE);
 			drop_near(q_ptr, -1, y, x);
 		}
-		else if (strstr((r_name + r_ptr->name),"Jagreen Lern, "))
+		else if (strstr((r_name + r_ptr->name),"Dorian Hawkmoon"))
+	  	{
+			q_ptr = &forge;
+			object_prep(q_ptr, lookup_kind(TV_SWORD, SV_LONG_SWORD));
+			q_ptr->name1 = ART_DAWN;
+			apply_magic(q_ptr, -1, TRUE, TRUE, TRUE);
+			drop_near(q_ptr, -1, y, x);
+		}
+		else if (strstr((r_name + r_ptr->name),"Jagreen Lern,"))
 	  	{
 			q_ptr = &forge;
 			object_prep(q_ptr, lookup_kind(TV_HARD_ARMOR, SV_SCARLET_PLATE_ARMOUR));
@@ -2244,7 +2312,7 @@ void monster_death(int m_idx)
 			apply_magic(q_ptr, -1, TRUE, TRUE, TRUE);
 			drop_near(q_ptr, -1, y, x);
 		}
-		else if (strstr((r_name + r_ptr->name),"Duke Nukem"))
+		else if (strstr((r_name + r_ptr->name),"Duke Nuke"))
 		{
 			q_ptr = &forge;
 			object_prep(q_ptr, lookup_kind(TV_WAND, SV_WAND_ROCKETS));
@@ -2268,58 +2336,48 @@ void monster_death(int m_idx)
 				else
 				{
 					a_idx = ART_GALADRIEL;
-					chance = 20;
+					chance = 10;
 				}
 			}
-			else if (strstr((r_name + r_ptr->name),"Arioch, Duke"))
+			else if (strstr((r_name + r_ptr->name),"Sauron, "))
 			{
-				a_idx = ART_ELVAGIL; /* Chainsword */
-				chance = 99;
+				a_idx = ART_POWER;
+				chance = 25;
 			}
-			else if (strstr((r_name + r_ptr->name),"Queen Xiombarg"))
-			{
-				a_idx = ART_VORPAL_BLADE;
-				chance = 99;
-			}
-			else if (strstr((r_name + r_ptr->name),"Mabelrode the"))
-			{
-				a_idx = ART_RINGIL;
-				chance = 99;
-			}
-			else if (strstr((r_name + r_ptr->name),"Saruman of"))
+			else if (strstr((r_name + r_ptr->name),"Saruman of "))
 			{
 				a_idx = ART_ELENDIL;
 				chance = 20;
 			}
-			else if (strstr((r_name + r_ptr->name),"Klings"))
+			else if (strstr((r_name + r_ptr->name),"Groo the"))
 			{
-				a_idx = ART_OROME;
-				chance = 40;
-			}
-			else if (strstr((r_name + r_ptr->name),"Groo"))
-			{
-				a_idx = ART_AGLARANG;
+				a_idx = ART_GROO;
 				chance = 80;
 			}
 			else if (strstr((r_name + r_ptr->name),"Hagen,"))
 			{
-				a_idx = ART_NIMLOTH;
+				a_idx = ART_HAGEN;
 				chance = 66;
-			}
-			else if (strstr((r_name + r_ptr->name),"Caine,"))
-			{
-				a_idx = ART_ANGRIST;
-				chance = 50;
 			}
 			else if (strstr((r_name + r_ptr->name),"Lo Wang,"))
 			{
 				a_idx = ART_HARADEKKET;
 				chance = 60;
 			}
-			else if (strstr((r_name + r_ptr->name),"Elric of Melnibone"))
+			else if (strstr((r_name + r_ptr->name),"Elric of "))
 			{
-				a_idx = ART_DOR;
+				a_idx = ART_MELNIBONE;
 				chance = 45;
+			}
+			else if (strstr((r_name + r_ptr->name),"Dorian Hawkmoon"))
+			{
+				a_idx = ART_RED_AMULET;
+				chance = 30;
+			}
+			else if (strstr((r_name + r_ptr->name),"Baron Meliadus"))
+			{
+				a_idx = ART_TERROR_MASK;
+				chance = 20;
 			}
 
 			if ((a_idx > 0) && ((randint(99)<chance) || (wizard)))
@@ -2556,17 +2614,33 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 			int reward=0;
 
 			/* Dump a message */
-			if (strstr((r_name + r_ptr->name),"Mabelrode the Faceless"))
+			if (strstr((r_name + r_ptr->name),"Mabelrode the"))
 			{
-				msg_format("%^s says: But I swore I would avenge both Arioch and Xiombarg...", m_name);
+				msg_format("%^s says: 'But I swore I would avenge both Arioch and Xiombarg...'", m_name);
 			}
-			else if (strstr((r_name + r_ptr->name),"Queen Xiombarg of Chaos"))
+			else if (strstr((r_name + r_ptr->name),"Queen Xiombarg"))
 			{
-				msg_format("%^s howls: Ah!  Dreadful assassin of all I love!", m_name);
+				msg_format("%^s howls: 'Ah!  Dreadful assassin of all I love!'", m_name);
 			}
-			else if (strstr((r_name + r_ptr->name),"Arioch, Duke of Hell"))
+			else if (strstr((r_name + r_ptr->name),"Arioch, Duke"))
 			{
-				msg_format("%^s whispers: Mortal, you have won the eternal bane of the Sword Rulers...", m_name);
+				msg_format("%^s whispers: 'Mortal, you have won the eternal bane of the Sword Rulers...'", m_name);
+			}
+			else if (strstr((r_name + r_ptr->name),"Baron Meliadus"))
+			{
+				msg_format("%^s cries: 'Curse the Runestaff!  It has brought ruin upon Granbretan!'", m_name);
+			}
+			else if (strstr((r_name + r_ptr->name),"Duke Nuke"))
+			{
+				msg_format("%^s grunts: 'Lucky son of a bitch...'", m_name);
+			}
+			else if (strstr((r_name + r_ptr->name),"Lo Wang,"))
+			{
+				msg_format("%^s screams: 'Hey!  Come back here and finish fight!'", m_name);
+			}
+			else if (strstr((r_name + r_ptr->name),"Groo the"))
+			{
+				msg_format("%^s says: 'I look alive...  But if everyone says I am dead, perhaps I should not argue.'", m_name);
 			}
 			else
 			{
@@ -4153,7 +4227,7 @@ void gain_level_reward(int chosen_reward)
                             dummy2 = SV_DAGGER;
                             break;
                             case 3: case 4:
-                            dummy2 = SV_MAIN_GAUCHE;
+                            dummy2 = SV_DIRK;
                             break;
                             case 5: case 6:
                             dummy2 = SV_RAPIER;
@@ -4479,7 +4553,7 @@ bool gain_random_mutation(int choose_mut)
 
 	while (attempts_left--)
 	{
-		switch(choose_mut?choose_mut:randint(178))
+		switch(choose_mut?choose_mut:randint(181))
 		{
             case 1: case 2: case 3: case 4:
                 muta_class = &(p_ptr->muta1);
@@ -4922,20 +4996,11 @@ bool gain_random_mutation(int choose_mut)
 		muta_desc = "A spiked lump rises from your arm.";
 		break;
 	    case 173: case 174: case 175:
-/*		muta_class = &(p_ptr->muta1);
-		muta_desc = "Your hands grow knobby protrusions.";
-		muta_which = MUT1_SHARD_BLAST;
-		break; */
 		muta_class = &(p_ptr->muta1);
 		muta_desc = "Your hands grow knobby protrusions.";
 		if(rand_int(2)) muta_which = MUT1_SHARD_BLAST;
 		else muta_which = MUT1_DSHARD_BLAST;
 		break;
-/*	    case 175:
-		muta_class = &(p_ptr->muta1);
-		muta_desc = "Your hands get really knobbly.";
-		muta_which = MUT1_DSHARD_BLAST;
-		break; */
 	    case 176:
 		muta_class = &(p_ptr->muta1);
 		muta_desc = "Your shoulders swell oddly!";
@@ -4946,6 +5011,16 @@ bool gain_random_mutation(int choose_mut)
 		muta_desc = "You feel like a Cyberdemon.";
 		muta_which = MUT1_ROCKET;
 		break;
+	    case 178:
+                muta_class = &(p_ptr->muta2);
+                muta_which = MUT2_TENTACLES;
+                muta_desc = "You sprout tentacles!";
+                break;
+	    case 179: case 180:
+                muta_class = &(p_ptr->muta3);
+                muta_which = MUT3_GLOW;
+                muta_desc = "Your body starts to shine!";
+                break;
 	    default:
                 muta_class = NULL;
                 muta_which = NULL;
@@ -5059,7 +5134,7 @@ bool gain_random_mutation(int choose_mut)
             {
                 if (p_ptr->muta2 & MUT2_COWARDICE)
                 {
-                    msg_print("You are no longer cowardly.");
+                    msg_print("You are no longer afraid of the dark.");
                     p_ptr->muta2 &= ~(MUT2_COWARDICE);
                 }
             }
@@ -5109,8 +5184,8 @@ bool gain_random_mutation(int choose_mut)
             {
                 if (p_ptr->muta3 & MUT3_FEARLESS)
                 {
-                    msg_print("You no longer feel fearless.");
-                    p_ptr->muta3 &= ~(MUT3_FEARLESS);
+			msg_print("You no longer feel fearless.");
+			p_ptr->muta3 &= ~(MUT3_FEARLESS);
                 }
             }
 	    if (muta_which == MUT2_WOUND)
@@ -5482,6 +5557,10 @@ void dump_mutations(FILE * OutFile)
 		{
 			fprintf(OutFile, " You occasionally stumble and drop things.\n");
 		}
+                if (p_ptr->muta2 & MUT2_TENTACLES)
+                {
+                        fprintf(OutFile, " You have tentacles (slow, 3d3).\n");
+                }
         }
 
         if (p_ptr->muta3)
@@ -5610,7 +5689,9 @@ void dump_mutations(FILE * OutFile)
 		{
 			fprintf(OutFile, " You are susceptible to damage from the elements.\n");
 		}
-        }
-
-
+		if (p_ptr->muta3 & MUT3_GLOW)
+		{
+			fprintf(OutFile, " Your body is glowing brightly.\n");
+		}
+         }
 }

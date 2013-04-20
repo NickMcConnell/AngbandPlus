@@ -133,6 +133,7 @@ static bool wearable_p(object_type *o_ptr)
 		case TV_DIGGING:
 		case TV_HAFTED:
 		case TV_POLEARM:
+		case TV_AXE:
 		case TV_SWORD:
 		case TV_BOOTS:
 		case TV_GLOVES:
@@ -317,14 +318,14 @@ static s16b convert_slot(int old)
  */
 static byte convert_old_names[180] =
 {
-	0,						/* 0 = SN_NULL */
+	0,				/* 0 = SN_NULL */
 	EGO_RESISTANCE,			/* 1 = SN_R (XXX) */
 	EGO_RESIST_ACID,		/* 2 = SN_RA (XXX) */
 	EGO_RESIST_FIRE,		/* 3 = SN_RF (XXX) */
 	EGO_RESIST_COLD,		/* 4 = SN_RC (XXX) */
 	EGO_RESIST_ELEC,		/* 5 = SN_RL (XXX) */
-	EGO_HA,					/* 6 = SN_HA */
-	EGO_DF,					/* 7 = SN_DF */
+	EGO_HA,				/* 6 = SN_HA */
+	EGO_DF,				/* 7 = SN_DF */
 	EGO_SLAY_ANIMAL,		/* 8 = SN_SA */
 	EGO_SLAY_DRAGON,		/* 9 = SN_SD */
 	EGO_SLAY_EVIL,			/* 10 = SN_SE */
@@ -336,25 +337,25 @@ static byte convert_old_names[180] =
 	EGO_CLUMSINESS,			/* 16 = SN_CLUMSINESS */
 	EGO_WEAKNESS,			/* 17 = SN_WEAKNESS */
 	EGO_SLOW_DESCENT,		/* 18 = SN_SLOW_DESCENT */
-	EGO_SPEED,				/* 19 = SN_SPEED */
+	EGO_SPEED,			/* 19 = SN_SPEED */
 	EGO_STEALTH,			/* 20 = SN_STEALTH (XXX) */
 	EGO_SLOWNESS,			/* 21 = SN_SLOWNESS */
-	EGO_NOISE,				/* 22 = SN_NOISE */
+	EGO_NOISE,			/* 22 = SN_NOISE */
 	EGO_ANNOYANCE,			/* 23 = SN_GREAT_MASS */
 	EGO_INTELLIGENCE,		/* 24 = SN_INTELLIGENCE */
-	EGO_WISDOM,				/* 25 = SN_WISDOM */
+	EGO_WISDOM,			/* 25 = SN_WISDOM */
 	EGO_INFRAVISION,		/* 26 = SN_INFRAVISION */
-	EGO_MIGHT,				/* 27 = SN_MIGHT (XXX) */
+	EGO_MIGHT,			/* 27 = SN_MIGHT (XXX) */
 	EGO_LORDLINESS,			/* 28 = SN_LORDLINESS */
-	EGO_MAGI,				/* 29 = SN_MAGI (XXX) */
-	EGO_BEAUTY,				/* 30 = SN_BEAUTY */
-	EGO_SEEING,				/* 31 = SN_SEEING */
+	EGO_MAGI,			/* 29 = SN_MAGI (XXX) */
+	EGO_BEAUTY,			/* 30 = SN_BEAUTY */
+	EGO_SEEING,			/* 31 = SN_SEEING */
 	EGO_REGENERATION,		/* 32 = SN_REGENERATION */
 	EGO_STUPIDITY,			/* 33 = SN_STUPIDITY */
 	EGO_NAIVETY,			/* 34 = SN_DULLNESS */
-	0,						/* 35 = SN_BLINDNESS */
-	0,						/* 36 = SN_TIMIDNESS */
-	0,						/* 37 = SN_TELEPORTATION */
+	0,				/* 35 = SN_BLINDNESS */
+	0,				/* 36 = SN_TIMIDNESS */
+	0,				/* 37 = SN_TELEPORTATION */
 	EGO_UGLINESS,			/* 38 = SN_UGLINESS */
 	EGO_PROTECTION,			/* 39 = SN_PROTECTION */
 	EGO_IRRITATION,			/* 40 = SN_IRRITATION */
@@ -363,76 +364,76 @@ static byte convert_old_names[180] =
 	EGO_BRAND_FIRE,			/* 43 = SN_FIRE (XXX) */
 	EGO_HURT_EVIL,			/* 44 = SN_SLAY_EVIL (XXX) */
 	EGO_HURT_DRAGON,		/* 45 = SN_DRAGON_SLAYING (XXX) */
-	0,						/* 46 = SN_EMPTY */
-	0,						/* 47 = SN_LOCKED */
-	0,						/* 48 = SN_POISON_NEEDLE */
-	0,						/* 49 = SN_GAS_TRAP */
-	0,						/* 50 = SN_EXPLOSION_DEVICE */
-	0,						/* 51 = SN_SUMMONING_RUNES */
-	0,						/* 52 = SN_MULTIPLE_TRAPS */
-	0,						/* 53 = SN_DISARMED */
-	0,						/* 54 = SN_UNLOCKED */
+	0,				/* 46 = SN_EMPTY */
+	0,				/* 47 = SN_LOCKED */
+	0,				/* 48 = SN_POISON_NEEDLE */
+	0,				/* 49 = SN_GAS_TRAP */
+	0,				/* 50 = SN_EXPLOSION_DEVICE */
+	0,				/* 51 = SN_SUMMONING_RUNES */
+	0,				/* 52 = SN_MULTIPLE_TRAPS */
+	0,				/* 53 = SN_DISARMED */
+	0,				/* 54 = SN_UNLOCKED */
 	EGO_HURT_ANIMAL,		/* 55 = SN_SLAY_ANIMAL (XXX) */
-	ART_GROND + 128,		/* 56 = SN_GROND */
+	ART_MABELRODE + 128,		/* 56 = SN_GROND */
 	ART_RINGIL + 128,		/* 57 = SN_RINGIL */
 	ART_AEGLOS + 128,		/* 58 = SN_AEGLOS */
 	ART_ARUNRUTH + 128,		/* 59 = SN_ARUNRUTH */
-	ART_MORMEGIL + 128,		/* 60 = SN_MORMEGIL */
-	EGO_MORGUL,				/* 61 = SN_MORGUL */
+	ART_TWILIGHT + 128,		/* 60 = SN_MORMEGIL */
+	EGO_MORGUL,			/* 61 = SN_MORGUL */
 	ART_ANGRIST + 128,		/* 62 = SN_ANGRIST */
 	ART_GURTHANG + 128,		/* 63 = SN_GURTHANG */
 	ART_CALRIS + 128,		/* 64 = SN_CALRIS */
 	EGO_ACCURACY,			/* 65 = SN_ACCURACY */
-	ART_ANDURIL + 128,		/* 66 = SN_ANDURIL */
+	ART_KANAJANA + 128,		/* 66 = SN_ANDURIL */
 	EGO_SLAY_ORC,			/* 67 = SN_SO */
-	EGO_POWER,				/* 68 = SN_POWER */
+	EGO_POWER,			/* 68 = SN_POWER */
 	ART_DURIN + 128,		/* 69 = SN_DURIN */
 	ART_AULE + 128,			/* 70 = SN_AULE */
-	EGO_WEST,				/* 71 = SN_WEST */
+	EGO_WEST,			/* 71 = SN_WEST */
 	EGO_BLESS_BLADE,		/* 72 = SN_BLESS_BLADE */
 	EGO_SLAY_DEMON,			/* 73 = SN_SDEM */
 	EGO_SLAY_TROLL,			/* 74 = SN_ST */
-	ART_BLOODSPIKE + 128,	/* 75 = SN_BLOODSPIKE */
-	ART_THUNDERFIST + 128,	/* 76 = SN_THUNDERFIST */
+	ART_BLOODSPIKE + 128,		/* 75 = SN_BLOODSPIKE */
+	ART_THUNDERFIST + 128,		/* 76 = SN_THUNDERFIST */
 	EGO_WOUNDING,			/* 77 = SN_WOUNDING */
 	ART_ORCRIST + 128,		/* 78 = SN_ORCRIST */
-	ART_GLAMDRING + 128,	/* 79 = SN_GLAMDRING */
+	ART_GLAMDRING + 128,		/* 79 = SN_GLAMDRING */
 	ART_STING + 128,		/* 80 = SN_STING */
-	EGO_LITE,				/* 81 = SN_LITE */
+	EGO_LITE,			/* 81 = SN_LITE */
 	EGO_AGILITY,			/* 82 = SN_AGILITY */
 	EGO_BACKBITING,			/* 83 = SN_BACKBITING */
-	ART_DOOMCALLER + 128,	/* 84 = SN_DOOMCALLER */
+	ART_DOOMCALLER + 128,		/* 84 = SN_DOOMCALLER */
 	EGO_SLAY_GIANT,			/* 85 = SN_SG */
 	EGO_TELEPATHY,			/* 86 = SN_TELEPATHY */
-	0,						/* 87 = SN_DRAGONKIND */
-	0,						/* 88 = SN_NENYA */
-	0,						/* 89 = SN_NARYA */
-	0,						/* 90 = SN_VILYA */
-	EGO_AMAN,				/* 91 = SN_AMAN */
-	ART_BELEGENNON + 128,	/* 92 = SN_BELEGENNON */
+	0,				/* 87 = SN_DRAGONKIND */
+	0,				/* 88 = SN_NENYA */
+	0,				/* 89 = SN_NARYA */
+	0,				/* 90 = SN_VILYA */
+	EGO_AMAN,			/* 91 = SN_AMAN */
+	ART_BELEGENNON + 128,		/* 92 = SN_BELEGENNON */
 	ART_FEANOR + 128,		/* 93 = SN_FEANOR */
 	ART_ANARION + 128,		/* 94 = SN_ANARION */
 	ART_ISILDUR + 128,		/* 95 = SN_ISILDUR */
-	ART_FINGOLFIN + 128,	/* 96 = SN_FINGOLFIN */
+	ART_FINGOLFIN + 128,		/* 96 = SN_FINGOLFIN */
 	EGO_ELVENKIND,			/* 97 = SN_ELVENKIND (XXX) */
-	ART_SOULKEEPER + 128,	/* 98 = SN_SOULKEEPER */
-	ART_DOR + 128,			/* 99 = SN_DOR_LOMIN */
-	ART_MORGOTH + 128,		/* 100 = SN_MORGOTH */
-	ART_BELTHRONDING + 128,	/* 101 = SN_BELTHRONDING */
+	ART_SOULKEEPER + 128,		/* 98 = SN_SOULKEEPER */
+	ART_MELNIBONE + 128,		/* 99 = SN_DOR_LOMIN */
+	ART_CHAOS + 128,		/* 100 = SN_MORGOTH */
+	ART_BELTHRONDING + 128,		/* 101 = SN_BELTHRONDING */
 	ART_DAL + 128,			/* 102 = SN_DAL */
 	ART_PAURHACH + 128,		/* 103 = SN_PAURHACH */
-	ART_PAURNIMMEN + 128,	/* 104 = SN_PAURNIMMEN */
-	ART_PAURAEGEN + 128,	/* 105 = SN_PAURAEGEN */
-	ART_CAMMITHRIM + 128,	/* 106 = SN_CAMMITHRIM */
+	ART_PAURNIMMEN + 128,		/* 104 = SN_PAURNIMMEN */
+	ART_PAURAEGEN + 128,		/* 105 = SN_PAURAEGEN */
+	ART_CAMMITHRIM + 128,		/* 106 = SN_CAMMITHRIM */
 	ART_CAMBELEG + 128,		/* 107 = SN_CAMBELEG */
-	ART_HOLHENNETH + 128,	/* 108 = SN_HOLHENNETH */
+	ART_HOLHENNETH + 128,		/* 108 = SN_HOLHENNETH */
 	ART_PAURNEN + 128,		/* 109 = SN_PAURNEN */
 	ART_AEGLIN + 128,		/* 110 = SN_AEGLIN */
 	ART_CAMLOST + 128,		/* 111 = SN_CAMLOST */
-	ART_NIMLOTH + 128,		/* 112 = SN_NIMLOTH */
+	ART_HAGEN + 128,		/* 112 = SN_NIMLOTH */
 	ART_NAR + 128,			/* 113 = SN_NAR */
-	ART_BERUTHIEL + 128,	/* 114 = SN_BERUTHIEL */
-	ART_GORLIM + 128,		/* 115 = SN_GORLIM */
+	ART_BERUTHIEL + 128,		/* 114 = SN_BERUTHIEL */
+	ART_TERROR_MASK + 128,		/* 115 = SN_GORLIM */
 	ART_NARTHANC + 128,		/* 116 = SN_NARTHANC */
 	ART_NIMTHANC + 128,		/* 117 = SN_NIMTHANC */
 	ART_DETHANC + 128,		/* 118 = SN_DETHANC */
@@ -440,35 +441,35 @@ static byte convert_old_names[180] =
 	ART_RILIA + 128,		/* 120 = SN_RILIA */
 	ART_BELANGIL + 128,		/* 121 = SN_BELANGIL */
 	ART_BALLI + 128,		/* 122 = SN_BALLI */
-	ART_LOTHARANG + 128,	/* 123 = SN_LOTHARANG */
+	ART_LOTHARANG + 128,		/* 123 = SN_LOTHARANG */
 	ART_FIRESTAR + 128,		/* 124 = SN_FIRESTAR */
 	ART_ERIRIL + 128,		/* 125 = SN_ERIRIL */
 	ART_CUBRAGOL + 128,		/* 126 = SN_CUBRAGOL */
 	ART_BARD + 128,			/* 127 = SN_BARD */
 	ART_COLLUIN + 128,		/* 128 = SN_COLLUIN */
-	ART_HOLCOLLETH + 128,	/* 129 = SN_HOLCOLLETH */
+	ART_HOLCOLLETH + 128,		/* 129 = SN_HOLCOLLETH */
 	ART_TOTILA + 128,		/* 130 = SN_TOTILA */
 	ART_PAIN + 128,			/* 131 = SN_PAIN */
-	ART_ELVAGIL + 128,		/* 132 = SN_ELVAGIL */
-	ART_AGLARANG + 128,		/* 133 = SN_AGLARANG */
+	ART_CHAINSWORD + 128,		/* 132 = SN_ELVAGIL */
+	ART_GROO + 128,			/* 133 = SN_AGLARANG */
 	ART_ROHIRRIM + 128,		/* 134 = SN_ROHIRRIM */
-	ART_EORLINGAS + 128,	/* 135 = SN_EORLINGAS */
-	ART_BARUKKHELED + 128,	/* 136 = SN_BARUKKHELED */
+	ART_EORLINGAS + 128,		/* 135 = SN_EORLINGAS */
+	ART_BARUKKHELED + 128,		/* 136 = SN_BARUKKHELED */
 	ART_WRATH + 128,		/* 137 = SN_WRATH */
-	ART_HARADEKKET + 128,	/* 138 = SN_HARADEKKET */
+	ART_HARADEKKET + 128,		/* 138 = SN_HARADEKKET */
 	ART_MUNDWINE + 128,		/* 139 = SN_MUNDWINE */
-	ART_GONDRICAM + 128,	/* 140 = SN_GONDRICAM */
-	ART_ZARCUTHRA + 128,	/* 141 = SN_ZARCUTHRA */
+	ART_GONDRICAM + 128,		/* 140 = SN_GONDRICAM */
+	ART_ZARCUTHRA + 128,		/* 141 = SN_ZARCUTHRA */
 	ART_CARETH + 128,		/* 142 = SN_CARETH */
 	ART_FORASGIL + 128,		/* 143 = SN_FORASGIL */
-	ART_CRISDURIAN + 128,	/* 144 = SN_CRISDURIAN */
+	ART_CRISDURIAN + 128,		/* 144 = SN_CRISDURIAN */
 	ART_COLANNON + 128,		/* 145 = SN_COLANNON */
-	ART_HITHLOMIR + 128,	/* 146 = SN_HITHLOMIR */
-	ART_THALKETTOTH + 128,	/* 147 = SN_THALKETTOTH */
+	ART_HITHLOMIR + 128,		/* 146 = SN_HITHLOMIR */
+	ART_THALKETTOTH + 128,		/* 147 = SN_THALKETTOTH */
 	ART_ARVEDUI + 128,		/* 148 = SN_ARVEDUI */
-	ART_THRANDUIL + 128,	/* 149 = SN_THRANDUIL */
+	ART_THRANDUIL + 128,		/* 149 = SN_THRANDUIL */
 	ART_THENGEL + 128,		/* 150 = SN_THENGEL */
-	ART_HAMMERHAND + 128,	/* 151 = SN_HAMMERHAND */
+	ART_HAMMERHAND + 128,		/* 151 = SN_HAMMERHAND */
 	ART_CELEGORM + 128,		/* 152 = SN_CELEGORM */
 	ART_THROR + 128,		/* 153 = SN_THROR */
 	ART_MAEDHROS + 128,		/* 154 = SN_MAEDHROS */
@@ -481,22 +482,22 @@ static byte convert_old_names[180] =
 	ART_GONDOR + 128,		/* 161 = SN_GONDOR */
 	ART_THEODEN + 128,		/* 162 = SN_THEODEN */
 	ART_THINGOL + 128,		/* 163 = SN_THINGOL */
-	ART_THORONGIL + 128,	/* 164 = SN_THORONGIL */
+	ART_THORONGIL + 128,		/* 164 = SN_THORONGIL */
 	ART_LUTHIEN + 128,		/* 165 = SN_LUTHIEN */
 	ART_TUOR + 128,			/* 166 = SN_TUOR */
 	ART_ULMO + 128,			/* 167 = SN_ULMO */
 	ART_OSONDIR + 128,		/* 168 = SN_OSONDIR */
 	ART_TURMIL + 128,		/* 169 = SN_TURMIL */
-	ART_CASPANION + 128,	/* 170 = SN_CASPANION */
+	ART_CASPANION + 128,		/* 170 = SN_CASPANION */
 	ART_TIL + 128,			/* 171 = SN_TIL */
-	ART_DEATHWREAKER + 128,	/* 172 = SN_DEATHWREAKER */
+	ART_DEATHWREAKER + 128,		/* 172 = SN_DEATHWREAKER */
 	ART_AVAVIR + 128,		/* 173 = SN_AVAVIR */
 	ART_TARATOL + 128,		/* 174 = SN_TARATOL */
-	ART_RAZORBACK + 128,	/* 175 = SN_RAZORBACK */
-	ART_BLADETURNER + 128,	/* 176 = SN_BLADETURNER */
-	0,						/* 177 = SN_SHATTERED */
-	0,						/* 178 = SN_BLASTED */
-	EGO_ATTACKS				/* 179 = SN_ATTACKS */
+	ART_RAZORBACK + 128,		/* 175 = SN_RAZORBACK */
+	ART_BLADETURNER + 128,		/* 176 = SN_BLADETURNER */
+	0,				/* 177 = SN_SHATTERED */
+	0,				/* 178 = SN_BLASTED */
+	EGO_ATTACKS			/* 179 = SN_ATTACKS */
 };
 
 
@@ -591,9 +592,9 @@ static s16b convert_old_kinds_normal[501] =
 	81,			/* a Seeker Bolt */
 	82,			/* a Rounded Pebble */
 	83,			/* an Iron Shot */
-	345,		/* Move: Spike */
-	347,		/* Move: Lantern */
-	346,		/* Move: Torch */
+	345,			/* Move: Spike */
+	347,			/* Move: Lantern */
+	346,			/* Move: Torch */
 	88,			/* Move: Orcish Pick */
 	89,			/* Move: Dwarven Pick */
 	85,			/* Move: Gnomish Shovel */
@@ -607,173 +608,173 @@ static s16b convert_old_kinds_normal[501] =
 	97,			/* a Steel Helm */
 	98,			/* an Iron Crown */
 	99,			/* a Golden Crown */
-	100,		/* a Jewel Encrusted Crown */
-	101,		/* a Robe */
-	101,		/* Move: Robe */
-	103,		/* Soft Leather Armour */
-	104,		/* Soft Studded Leather */
-	105,		/* Hard Leather Armour */
-	106,		/* Hard Studded Leather */
-	107,		/* Leather Scale Mail */
-	108,		/* Metal Scale Mail */
-	109,		/* Chain Mail */
-	110,		/* Rusty Chain Mail */
-	111,		/* Augmented Chain Mail */
-	112,		/* Bar Chain Mail */
-	113,		/* Metal Brigandine Armour */
-	114,		/* Partial Plate Armour */
-	115,		/* Metal Lamellar Armour */
-	116,		/* Full Plate Armour */
-	117,		/* Ribbed Plate Armour */
-	118,		/* Adamantite Plate Mail */
-	119,		/* Mithril Plate Mail */
-	120,		/* Mithril Chain Mail */
-	121,		/* Double Chain Mail */
-	122,		/* a Shield of Deflection */
-	123,		/* a Cloak */
-	124,		/* a Shadow Cloak */
-	125,		/* a Set of Leather Gloves */
-	126,		/* a Set of Gauntlets */
-	127,		/* a Set of Cesti */
-	128,		/* a Small Leather Shield */
-	129,		/* a Large Leather Shield */
-	130,		/* a Small Metal Shield */
-	131,		/* a Large Metal Shield */
-	132,		/* a Ring of Strength */
-	133,		/* a Ring of Dexterity */
-	134,		/* a Ring of Constitution */
-	135,		/* a Ring of Intelligence */
-	136,		/* a Ring of Speed */
-	137,		/* a Ring of Searching */
-	138,		/* a Ring of Teleportation */
-	139,		/* a Ring of Slow Digestion */
-	140,		/* a Ring of Resist Fire */
-	141,		/* a Ring of Resist Cold */
-	142,		/* a Ring of Feather Falling */
-	143,		/* a Ring of Poison Resistance */
+	100,			/* a Jewel Encrusted Crown */
+	101,			/* a Robe */
+	101,			/* Move: Robe */
+	103,			/* Soft Leather Armour */
+	104,			/* Soft Studded Leather */
+	105,			/* Hard Leather Armour */
+	106,			/* Hard Studded Leather */
+	107,			/* Leather Scale Mail */
+	108,			/* Metal Scale Mail */
+	109,			/* Chain Mail */
+	110,			/* Rusty Chain Mail */
+	111,			/* Augmented Chain Mail */
+	112,			/* Bar Chain Mail */
+	113,			/* Metal Brigandine Armour */
+	114,			/* Partial Plate Armour */
+	115,			/* Metal Lamellar Armour */
+	116,			/* Full Plate Armour */
+	117,			/* Ribbed Plate Armour */
+	118,			/* Adamantite Plate Mail */
+	119,			/* Mithril Plate Mail */
+	120,			/* Mithril Chain Mail */
+	121,			/* Double Chain Mail */
+	122,			/* a Shield of Deflection */
+	123,			/* a Cloak */
+	124,			/* a Shadow Cloak */
+	125,			/* a Set of Leather Gloves */
+	126,			/* a Set of Gauntlets */
+	127,			/* a Set of Cesti */
+	128,			/* a Small Leather Shield */
+	129,			/* a Large Leather Shield */
+	130,			/* a Small Metal Shield */
+	131,			/* a Large Metal Shield */
+	132,			/* a Ring of Strength */
+	133,			/* a Ring of Dexterity */
+	134,			/* a Ring of Constitution */
+	135,			/* a Ring of Intelligence */
+	136,			/* a Ring of Speed */
+	137,			/* a Ring of Searching */
+	138,			/* a Ring of Teleportation */
+	139,			/* a Ring of Slow Digestion */
+	140,			/* a Ring of Resist Fire */
+	141,			/* a Ring of Resist Cold */
+	142,			/* a Ring of Feather Falling */
+	143,			/* a Ring of Poison Resistance */
 	78,			/* Move: Arrow */
-	145,		/* a Ring of Weakness */
-	146,		/* a Ring of Flames */
-	147,		/* a Ring of Acid */
-	148,		/* a Ring of Ice */
-	149,		/* a Ring of Woe */
-	150,		/* a Ring of Stupidity */
-	151,		/* a Ring of Damage */
-	152,		/* a Ring of Accuracy */
-	153,		/* a Ring of Protection */
-	154,		/* a Ring of Aggravate Monster */
-	155,		/* a Ring of See Invisible */
-	156,		/* a Ring of Sustain Strength */
-	157,		/* a Ring of Sustain Intelligence */
-	158,		/* a Ring of Sustain Wisdom */
-	159,		/* a Ring of Sustain Constitution */
-	160,		/* a Ring of Sustain Dexterity */
-	161,		/* a Ring of Sustain Charisma */
-	162,		/* a Ring of Slaying */
-	163,		/* an Amulet of Wisdom */
-	164,		/* an Amulet of Charisma */
-	165,		/* an Amulet of Searching */
-	166,		/* an Amulet of Teleportation */
-	167,		/* an Amulet of Slow Digestion */
-	168,		/* an Amulet of Resist Acid */
-	169,		/* an Amulet of Adornment */
+	145,			/* a Ring of Weakness */
+	146,			/* a Ring of Flames */
+	147,			/* a Ring of Acid */
+	148,			/* a Ring of Ice */
+	149,			/* a Ring of Woe */
+	150,			/* a Ring of Stupidity */
+	151,			/* a Ring of Damage */
+	152,			/* a Ring of Accuracy */
+	153,			/* a Ring of Protection */
+	154,			/* a Ring of Aggravate Monster */
+	155,			/* a Ring of See Invisible */
+	156,			/* a Ring of Sustain Strength */
+	157,			/* a Ring of Sustain Intelligence */
+	158,			/* a Ring of Sustain Wisdom */
+	159,			/* a Ring of Sustain Constitution */
+	160,			/* a Ring of Sustain Dexterity */
+	161,			/* a Ring of Sustain Charisma */
+	162,			/* a Ring of Slaying */
+	163,			/* an Amulet of Wisdom */
+	164,			/* an Amulet of Charisma */
+	165,			/* an Amulet of Searching */
+	166,			/* an Amulet of Teleportation */
+	167,			/* an Amulet of Slow Digestion */
+	168,			/* an Amulet of Resist Acid */
+	169,			/* an Amulet of Adornment */
 	80,			/* Move: Bolt */
-	171,		/* an Amulet of the Magi */
-	172,		/* an Amulet of DOOM */
-	173,		/* a Scroll of Enchant Weapon To-Hit */
-	174,		/* a Scroll of Enchant Weapon To-Dam */
-	175,		/* a Scroll of Enchant Armor */
-	176,		/* a Scroll of Identify */
-	176,		/* Move: Scroll of Identify (extra) */
-	176,		/* Move: Scroll of Identify (extra) */
-	176,		/* Move: Scroll of Identify (extra) */
-	180,		/* a Scroll of Remove Curse */
-	181,		/* a Scroll of Light */
-	181,		/* Move: Scroll of Light (extra) */
-	181,		/* Move: Scroll of Light (extra) */
-	184,		/* a Scroll of Summon Monster */
-	185,		/* a Scroll of Phase Door */
-	186,		/* a Scroll of Teleportation */
-	187,		/* a Scroll of Teleport Level */
-	188,		/* a Scroll of Monster Confusion */
-	189,		/* a Scroll of Magic Mapping */
-	190,		/* a Scroll of Rune of Protection */
-	190,		/* Move: Scroll of Rune of Protection */
-	192,		/* a Scroll of Treasure Detection */
-	193,		/* a Scroll of Object Detection */
-	194,		/* a Scroll of Trap Detection */
-	194,		/* Move: Scroll of Trap Detection (extra) */
-	352,		/* Move: Rod of Trap Location (Hack!) */
-	197,		/* a Scroll of Door/Stair Location */
-	197,		/* Move: Scroll of Door/Stair Location (extra) */
-	197,		/* Move: Scroll of Door/Stair Location (extra) */
-	200,		/* a Scroll of Mass Genocide */
-	201,		/* a Scroll of Detect Invisible */
-	202,		/* a Scroll of Aggravate Monster */
-	203,		/* a Scroll of Trap Creation */
-	204,		/* a Scroll of Trap/Door Destruction */
-	214,		/* Move: Scroll of *Enchant Armor* */
-	206,		/* a Scroll of Recharging */
-	207,		/* a Scroll of Genocide */
-	208,		/* a Scroll of Darkness */
-	209,		/* a Scroll of Protection from Evil */
-	210,		/* a Scroll of Satisfy Hunger */
-	211,		/* a Scroll of Dispel Undead */
-	212,		/* a Scroll of *Enchant Weapon* */
-	213,		/* a Scroll of Curse Weapon */
-	214,		/* a Scroll of *Enchant Armor* */
-	215,		/* a Scroll of Curse Armor */
-	216,		/* a Scroll of Summon Undead */
-	217,		/* a Scroll of Blessing */
-	218,		/* a Scroll of Holy Chant */
-	219,		/* a Scroll of Holy Prayer */
-	220,		/* a Scroll of Word of Recall */
-	221,		/* a Scroll of *Destruction* */
-	222,		/* a Potion of Slime Mold Juice */
-	223,		/* a Potion of Apple Juice */
-	224,		/* a Potion of Water */
-	225,		/* a Potion of Strength */
-	226,		/* a Potion of Weakness */
-	227,		/* a Potion of Restore Strength */
-	228,		/* a Potion of Intelligence */
-	229,		/* a Potion of Stupidity */
-	230,		/* a Potion of Restore Intelligence */
-	231,		/* a Potion of Wisdom */
-	232,		/* a Potion of Naivety */
-	233,		/* a Potion of Restore Wisdom */
-	234,		/* a Potion of Charisma */
-	235,		/* a Potion of Ugliness */
-	236,		/* a Potion of Restore Charisma */
-	237,		/* a Potion of Cure Light Wounds */
-	237,		/* Move: Potion of Cure Light Wounds (extra) */
-	237,		/* Move: Potion of Cure Light Wounds (extra) */
-	240,		/* a Potion of Cure Serious Wounds */
-	241,		/* a Potion of Cure Critical Wounds */
-	242,		/* a Potion of Healing */
-	243,		/* a Potion of Constitution */
-	244,		/* a Potion of Experience */
-	245,		/* a Potion of Sleep */
-	246,		/* a Potion of Blindness */
-	247,		/* a Potion of Confusion */
-	248,		/* a Potion of Poison */
-	249,		/* a Potion of Speed */
-	250,		/* a Potion of Slowness */
-	251,		/* a Potion of Dexterity */
-	252,		/* a Potion of Restore Dexterity */
-	253,		/* a Potion of Restore Constitution */
-	254,		/* a Potion of Lose Memories */
-	255,		/* a Potion of Salt Water */
-	249,		/* Move: Potion of Speed (extra) */
-	257,		/* a Potion of Heroism */
-	258,		/* a Potion of Berserk Strength */
-	259,		/* a Potion of Boldness */
-	260,		/* a Potion of Restore Life Levels */
-	261,		/* a Potion of Resist Heat */
-	262,		/* a Potion of Resist Cold */
-	263,		/* a Potion of Detect Invisible */
-	264,		/* a Potion of Slow Poison */
-	265,		/* a Potion of Neutralize Poison */
-	266,		/* a Potion of Restore Mana */
+	171,			/* an Amulet of the Magi */
+	172,			/* an Amulet of DOOM */
+	173,			/* a Scroll of Enchant Weapon To-Hit */
+	174,			/* a Scroll of Enchant Weapon To-Dam */
+	175,			/* a Scroll of Enchant Armor */
+	176,			/* a Scroll of Identify */
+	176,			/* Move: Scroll of Identify (extra) */
+	176,			/* Move: Scroll of Identify (extra) */
+	176,			/* Move: Scroll of Identify (extra) */
+	180,			/* a Scroll of Remove Curse */
+	181,			/* a Scroll of Light */
+	181,			/* Move: Scroll of Light (extra) */
+	181,			/* Move: Scroll of Light (extra) */
+	184,			/* a Scroll of Summon Monster */
+	185,			/* a Scroll of Phase Door */
+	186,			/* a Scroll of Teleportation */
+	187,			/* a Scroll of Teleport Level */
+	188,			/* a Scroll of Monster Confusion */
+	189,			/* a Scroll of Magic Mapping */
+	190,			/* a Scroll of Rune of Protection */
+	190,			/* Move: Scroll of Rune of Protection */
+	192,			/* a Scroll of Treasure Detection */
+	193,			/* a Scroll of Object Detection */
+	194,			/* a Scroll of Trap Detection */
+	194,			/* Move: Scroll of Trap Detection (extra) */
+	352,			/* Move: Rod of Trap Location (Hack!) */
+	197,			/* a Scroll of Door/Stair Location */
+	197,			/* Move: Scroll of Door/Stair Location (extra) */
+	197,			/* Move: Scroll of Door/Stair Location (extra) */
+	200,			/* a Scroll of Mass Genocide */
+	201,			/* a Scroll of Detect Invisible */
+	202,			/* a Scroll of Aggravate Monster */
+	203,			/* a Scroll of Trap Creation */
+	204,			/* a Scroll of Trap/Door Destruction */
+	214,			/* Move: Scroll of *Enchant Armor* */
+	206,			/* a Scroll of Recharging */
+	207,			/* a Scroll of Genocide */
+	208,			/* a Scroll of Darkness */
+	209,			/* a Scroll of Protection from Evil */
+	210,			/* a Scroll of Satisfy Hunger */
+	211,			/* a Scroll of Dispel Undead */
+	212,			/* a Scroll of *Enchant Weapon* */
+	213,			/* a Scroll of Curse Weapon */
+	214,			/* a Scroll of *Enchant Armor* */
+	215,			/* a Scroll of Curse Armor */
+	216,			/* a Scroll of Summon Undead */
+	217,			/* a Scroll of Blessing */
+	218,			/* a Scroll of Holy Chant */
+	219,			/* a Scroll of Holy Prayer */
+	220,			/* a Scroll of Word of Recall */
+	221,			/* a Scroll of *Destruction* */
+	222,			/* a Potion of Slime Mold Juice */
+	223,			/* a Potion of Apple Juice */
+	224,			/* a Potion of Water */
+	225,			/* a Potion of Strength */
+	226,			/* a Potion of Weakness */
+	227,			/* a Potion of Restore Strength */
+	228,			/* a Potion of Intelligence */
+	229,			/* a Potion of Stupidity */
+	230,			/* a Potion of Restore Intelligence */
+	231,			/* a Potion of Wisdom */
+	232,			/* a Potion of Naivety */
+	233,			/* a Potion of Restore Wisdom */
+	234,			/* a Potion of Charisma */
+	235,			/* a Potion of Ugliness */
+	236,			/* a Potion of Restore Charisma */
+	237,			/* a Potion of Cure Light Wounds */
+	237,			/* Move: Potion of Cure Light Wounds (extra) */
+	237,			/* Move: Potion of Cure Light Wounds (extra) */
+	240,			/* a Potion of Cure Serious Wounds */
+	241,			/* a Potion of Cure Critical Wounds */
+	242,			/* a Potion of Healing */
+	243,			/* a Potion of Constitution */
+	244,			/* a Potion of Experience */
+	245,			/* a Potion of Sleep */
+	246,			/* a Potion of Blindness */
+	247,			/* a Potion of Confusion */
+	248,			/* a Potion of Poison */
+	249,			/* a Potion of Speed */
+	250,			/* a Potion of Slowness */
+	251,			/* a Potion of Dexterity */
+	252,			/* a Potion of Restore Dexterity */
+	253,			/* a Potion of Restore Constitution */
+	254,			/* a Potion of Lose Memories */
+	255,			/* a Potion of Salt Water */
+	249,			/* Move: Potion of Speed (extra) */
+	257,			/* a Potion of Heroism */
+	258,			/* a Potion of Berserk Strength */
+	259,			/* a Potion of Boldness */
+	260,			/* a Potion of Restore Life Levels */
+	261,			/* a Potion of Resist Heat */
+	262,			/* a Potion of Resist Cold */
+	263,			/* a Potion of Detect Invisible */
+	264,			/* a Potion of Slow Poison */
+	265,			/* a Potion of Neutralize Poison */
+	266,			/* a Potion of Restore Mana */
 	267,		/* a Potion of Infra-vision */
 	348,		/* Move: Flask of oil */
 	269,		/* a Wand of Light */
@@ -1020,9 +1021,9 @@ static s16b convert_old_kinds_special[12] =
 	ART_NENYA,		/* Old 502 */
 	ART_VILYA,		/* Old 503 */
 	ART_POWER,		/* Old 504 */
-	ART_GALADRIEL,	/* Old 505 */
+	ART_GALADRIEL,		/* Old 505 */
 	ART_INGWE,		/* Old 506 */
-	ART_CARLAMMAS,	/* Old 507 */
+	ART_RED_AMULET,		/* Old 507 */
 	ART_ELENDIL,	/* Old 508 */
 	ART_THRAIN,		/* Old 509 */
 	ART_TULKAS,		/* Old 510 */
@@ -1529,15 +1530,15 @@ static errr rd_store_old(int n)
  */
 static byte old_art_order[] =
 {
-	ART_GROND,
+	ART_MABELRODE,
 	ART_RINGIL,
 	ART_AEGLOS,
 	ART_ARUNRUTH,
-	ART_MORMEGIL,
+	ART_TWILIGHT,
 	ART_ANGRIST,
 	ART_GURTHANG,
 	ART_CALRIS,
-	ART_ANDURIL,
+	ART_KANAJANA,
 	ART_STING,
 	ART_ORCRIST,
 	ART_GLAMDRING,
@@ -1562,8 +1563,8 @@ static byte old_art_order[] =
 	ART_HOLCOLLETH,
 	ART_TOTILA,
 	ART_PAIN,
-	ART_ELVAGIL,
-	ART_AGLARANG,
+	ART_CHAINSWORD,
+	ART_GROO,
 	ART_EORLINGAS,
 	ART_BARUKKHELED,
 	ART_WRATH,
@@ -1597,7 +1598,7 @@ static byte old_art_order[] =
 	ART_DEATHWREAKER,
 	ART_AVAVIR,
 	ART_TARATOL,
-	ART_DOR,
+	ART_MELNIBONE,
 	ART_NENYA,
 	ART_NARYA,
 	ART_VILYA,
@@ -1618,14 +1619,14 @@ static byte old_art_order[] =
 	ART_CAMMITHRIM,
 	ART_CAMBELEG,
 	ART_INGWE,
-	ART_CARLAMMAS,
+	ART_RED_AMULET,
 	ART_HOLHENNETH,
 	ART_AEGLIN,
 	ART_CAMLOST,
-	ART_NIMLOTH,
+	ART_HAGEN,
 	ART_NAR,
 	ART_BERUTHIEL,
-	ART_GORLIM,
+	ART_TERROR_MASK,
 	ART_ELENDIL,
 	ART_THORIN,
 	ART_CELEBORN,

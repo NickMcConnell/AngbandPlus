@@ -68,23 +68,23 @@ static cptr r_info_blow_method[] =
 	"CLAW",
 	"BITE",
 	"STING",
-	"XXX1",
+	"TONGUE",   /* WAS: XXX1 */
 	"BUTT",
 	"CRUSH",
 	"ENGULF",
-	"CHARGE",  /* WAS: XXX2 */
+	"CHARGE",   /* WAS: XXX2 */
 	"CRAWL",
 	"DROOL",
 	"SPIT",
-	"XXX3",
+	"LIE",      /* WAS: XXX3 */
 	"GAZE",
 	"WAIL",
 	"SPORE",
-	"XXX4",
+	"TENTACLE", /* WAS: XXX4 */
 	"BEG",
 	"INSULT",
-	"MOAN",
-	"SHOW",  /* WAS: XXX5 */
+	"OFFER",    /* WAS: MOAN */
+	"SHOW",     /* WAS: XXX5 */
 	NULL
 };
 
@@ -123,6 +123,7 @@ static cptr r_info_blow_effect[] =
 	"EXP_20",
 	"EXP_40",
 	"EXP_80",
+	"VAMP",
 	NULL
 };
 
@@ -195,7 +196,7 @@ static cptr r_info_flags2[] =
 	"KILL_BODY",
 	"TAKE_ITEM",
 	"KILL_ITEM",
-	"BRAIN_1",
+	"EXPLOSIVE", /* was BRAIN_1 - G */
 	"BRAIN_2",
 	"BRAIN_3",
 	"BRAIN_4",
@@ -330,7 +331,7 @@ static cptr r_info_flags6[] =
 	"HASTE",
 	"HAND_DOOM",
 	"HEAL",
-	"XXX2X6",
+	"S_DAWN", /* was XXX26 */
 	"BLINK",
 	"TPORT",
 	"S_HELLBLADES", /* was XXX3X6 */
@@ -447,7 +448,7 @@ static cptr k_info_flags3[] =
 {
 	"SH_FIRE",
 	"SH_ELEC",
-	"XXX3",
+	"SPINES",	/* was XXX3 */
 	"AUTO_CURSE",
 	"NO_TELE",
 	"NO_MAGIC",

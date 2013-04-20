@@ -92,17 +92,17 @@ s16b critical_shot(int weight, int plus, int dam)
 		if (k < 500)
 		{
 			msg_print("It was a good hit!");
-			dam = 2 * dam + 5;
+			dam = 2 * dam;
 		}
 		else if (k < 1000)
 		{
 			msg_print("It was a great hit!");
-			dam = 2 * dam + 10;
+			dam = 3 * dam;
 		}
 		else
 		{
 			msg_print("It was a superb hit!");
-			dam = 3 * dam + 15;
+			dam = 4 * dam;
 		}
 	}
 
@@ -121,37 +121,37 @@ s16b critical_norm(int weight, int plus, int dam)
 	int i, k;
 
 	/* Extract "blow" power */
-	i = (weight + ((p_ptr->to_h + plus) * 5) + (p_ptr->lev * 3));
+	i = (((3 * weight) / 2) + ((p_ptr->to_h + plus) * 5) + (p_ptr->lev * 3));
 
 	/* Chance */
 	if (randint(5000) <= i)
 	{
-		k = weight + randint(650);
+		k = ((3 * weight) / 2) + randint(650);
 
 		if (k < 400)
 		{
 			msg_print("It was a good hit!");
-			dam = 2 * dam + 5;
+			dam = 2 * dam;
 		}
 		else if (k < 700)
 		{
 			msg_print("It was a great hit!");
-			dam = 2 * dam + 10;
+			dam = 3 * dam;
 		}
 		else if (k < 900)
 		{
 			msg_print("It was a superb hit!");
-			dam = 3 * dam + 15;
+			dam = 4 * dam;
 		}
 		else if (k < 1300)
 		{
 			msg_print("It was a *GREAT* hit!");
-			dam = 3 * dam + 20;
+			dam =  5 * dam;
 		}
 		else
 		{
 			msg_print("It was a *SUPERB* hit!");
-			dam = ((7 * dam) / 2) + 25;
+			dam = 6 * dam;
 		}
 	}
 
@@ -188,6 +188,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 		case TV_BOLT:
 		case TV_HAFTED:
 		case TV_POLEARM:
+		case TV_AXE:
 		case TV_SWORD:
 		case TV_DIGGING:
 		{
@@ -476,6 +477,14 @@ void search(void)
 
 					/* Disturb */
 					disturb(0, 0);
+
+					/*
+					 * Rogues gain 1 XP - as they should
+					 * for practicing what they're
+					 * trained to do! -- Gumby
+					 */
+					if (p_ptr->pclass == CLASS_ROGUE)
+						gain_exp(1);
 				}
 
 				/* Secret door */
@@ -489,6 +498,10 @@ void search(void)
 
 					/* Disturb */
 					disturb(0, 0);
+
+					/* Rogues gain 1 XP */
+					if (p_ptr->pclass == CLASS_ROGUE)
+						gain_exp(1);
 				}
 
 				/* Scan all objects in the grid */
@@ -519,6 +532,10 @@ void search(void)
 
 						/* Notice it */
 						disturb(0, 0);
+
+						/* Rogues gain 1 XP */
+						if (p_ptr->pclass == CLASS_ROGUE)
+							gain_exp(1);
 					}
 				}
 			}
@@ -864,7 +881,7 @@ static void hit_trap(void)
 			if ((!p_ptr->resist_chaos) && (randint(2) == 1))
 			{
 				if ((p_ptr->muta1 || p_ptr->muta2 || p_ptr->muta3) &&
-					(randint(100) <= 13))
+					(randint(20) == 13))
 				{
 					msg_print("All of your lovely mutations go away!");
 					p_ptr->muta1 = p_ptr->muta2 = p_ptr->muta3 = 0;
@@ -1069,6 +1086,12 @@ static void natural_attack(s16b m_idx, int attack, bool *fear, bool *mdeath)
 			n_weight = 5;
 			atk_desc = "claws";
 			break;
+		case MUT2_TENTACLES:
+			dss = 3;
+			ddd = 3;
+			n_weight = 20;
+			atk_desc = "tentacles";
+			break;
 		default:
 			dss = ddd = n_weight = 1;
 			atk_desc = "undefined body part";
@@ -1119,11 +1142,32 @@ static void natural_attack(s16b m_idx, int attack, bool *fear, bool *mdeath)
 		}
 
 		/* Damage, check for fear and mdeath */
-		if (!(attack == MUT2_SCOR_TAIL))
-			*mdeath = mon_take_hit(m_idx, k, fear, NULL);
-		else
-			project(0, 0, m_ptr->fy, m_ptr->fx, k, GF_POIS, PROJECT_KILL);
-
+		switch (attack)
+		{
+			case MUT2_SCOR_TAIL:
+				project(0, 0, m_ptr->fy, m_ptr->fx, k, GF_POIS, PROJECT_KILL);
+				*mdeath = (m_ptr->r_idx == 0);
+				break;
+			case MUT2_HORNS:
+				*mdeath = mon_take_hit(m_idx, k, fear, NULL);
+				break;
+			case MUT2_BEAK:
+				*mdeath = mon_take_hit(m_idx, k, fear, NULL);
+				break;
+			case MUT2_TUSKS:
+				*mdeath = mon_take_hit(m_idx, k, fear, NULL);
+				break;
+			case MUT2_CLAWS:
+				*mdeath = mon_take_hit(m_idx, k, fear, NULL);
+				break;
+			case MUT2_TENTACLES:
+				project(0, 0, m_ptr->fy, m_ptr->fx, k, GF_INERTIA, PROJECT_KILL);
+				*mdeath = (m_ptr->r_idx == 0);
+				break;
+			default:
+				*mdeath = mon_take_hit(m_idx, k, fear, NULL);
+				break;
+		}
 		touch_zap_player(m_ptr);
 	}
 	/* Player misses */
@@ -1281,7 +1325,8 @@ void py_attack(int y, int x)
 			/* Prepare for drain... */
 			{
 				chaos_effect = FALSE;
-				if (!((r_ptr->flags3 & RF3_UNDEAD) || (r_ptr->flags3 & RF3_NONLIVING)))
+				if (!((r_ptr->flags3 & RF3_UNDEAD) || (r_ptr->flags3 & RF3_NONLIVING) ||
+				      (r_ptr->d_char == 'g') || (r_ptr->d_char == 'v') || (r_ptr->d_char == 'E')))
 					drain_result = m_ptr->hp;
 				else
 					drain_result = 0;
@@ -1425,7 +1470,7 @@ void py_attack(int y, int x)
 				{
 					int step_k = k;
 
-					if ((o_ptr->name1 == ART_ELVAGIL) && randint(2)!=1)
+					if ((o_ptr->name1 == ART_CHAINSWORD) && randint(2)!=1)
 					{
 						char chainsword_noise[80];
 						get_rnd_line("chainswd.txt", chainsword_noise);
@@ -1622,16 +1667,18 @@ void py_attack(int y, int x)
 
 	if (!no_extra)
 	{
+		if (p_ptr->muta2 & MUT2_SCOR_TAIL && !mdeath)
+			natural_attack(c_ptr->m_idx, MUT2_SCOR_TAIL, &fear, &mdeath);
 		if (p_ptr->muta2 & MUT2_HORNS && !mdeath)
 			natural_attack(c_ptr->m_idx, MUT2_HORNS, &fear, &mdeath);
 		if (p_ptr->muta2 & MUT2_BEAK && !mdeath)
 			natural_attack(c_ptr->m_idx, MUT2_BEAK, &fear, &mdeath);
-		if (p_ptr->muta2 & MUT2_SCOR_TAIL && !mdeath)
-			natural_attack(c_ptr->m_idx, MUT2_SCOR_TAIL, &fear, &mdeath);
 		if (p_ptr->muta2 & MUT2_TUSKS && !mdeath)
 			natural_attack(c_ptr->m_idx, MUT2_TUSKS, &fear, &mdeath);
 		if (p_ptr->muta2 & MUT2_CLAWS && !mdeath)
 			natural_attack(c_ptr->m_idx, MUT2_CLAWS, &fear, &mdeath);
+		if (p_ptr->muta2 & MUT2_TENTACLES && !mdeath)
+			natural_attack(c_ptr->m_idx, MUT2_TENTACLES, &fear, &mdeath);
 	}
 
 	/* Hack -- delay fear messages */

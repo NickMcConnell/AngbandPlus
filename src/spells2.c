@@ -274,11 +274,12 @@ void identify_pack(void)
  * Used by the "enchant" function (chance of failure)
  * (modified for Zangband, we need better stuff there...) -- TY
  */
-static int enchant_table[16] =
+static int enchant_table[21] =
 {
-	0, 10,  50, 100, 200,
-	300, 400, 500, 650, 800,
-	950, 987, 993, 995, 998,
+	  0,  50, 100, 150, 200,
+	300, 400, 500, 600, 700,
+	900, 905, 910, 915, 920,
+	930, 950, 970, 980, 990,
 	1000
 };
 
@@ -595,19 +596,13 @@ void self_knowledge(void)
 			if (plev > 9)
 				info[i++] = "You can sense natural creatures (cost 5).";
 			break;
-		case RACE_NIBELUNG:
-			if (plev > 9)
-				info[i++] = "You can find traps, doors and stairs (cost 5).";
-			break;
 		case RACE_DWARF:
 			if (plev > 4)
 				info[i++] = "You can find traps, doors and stairs (cost 5).";
 			break;
 		case RACE_HOBBIT:
 			if (plev > 14)
-			{
 				info[i++] = "You can produce food (cost 10).";
-			}
 			break;
 		case RACE_GNOME:
 			if (plev > 4)
@@ -623,17 +618,15 @@ void self_knowledge(void)
 			break;
 		case RACE_HALF_TROLL:
 			if (plev > 9)
-				info[i++] = "You enter berserk fury (cost 12).";
+				info[i++] = "You can go berserk (cost 12).";
 			break;
-		case RACE_AMBERITE:
-			if (plev > 29)
-				info[i++] = "You can Shift Shadows (cost 50).";
-			if (plev > 39)
-				info[i++] = "You can mentally Walk the Pattern (cost 75).";
+		case RACE_GAMBOLT:
+			if (plev > 19)
+				info[i++] = "You can be charming (cost lvl).";
 			break;
 		case RACE_BARBARIAN:
 			if (plev > 7)
-				info[i++] = "You can enter berserk fury (cost 10).";
+				info[i++] = "You can go berserk (cost 10).";
 			break;
 		case RACE_HALF_OGRE:
 			if (plev > 24)
@@ -681,6 +674,10 @@ void self_knowledge(void)
 				    ( 3 + ((plev-1) / 3) ) );
 				info[i++] = Dummy;
 			}
+			break;
+		case RACE_NIBELUNG:
+			if (plev > 9)
+				info[i++] = "You can find traps, doors and stairs (cost 5).";
 			break;
 		case RACE_DRACONIAN:
 			sprintf(Dummy, "You can breathe, dam. %d (cost %d).", 3 * plev, plev);
@@ -984,6 +981,10 @@ void self_knowledge(void)
 		{
 			info[i++] = "You occasionally stumble and drop things.";
 		}
+		if (p_ptr->muta2 & MUT2_TENTACLES)
+		{
+			info[i++] = "You have tentacles (slow, 3d3).";
+		}
 	}
 
 	if (p_ptr->muta3)
@@ -1111,6 +1112,10 @@ void self_knowledge(void)
 		if (p_ptr->muta3 & MUT3_VULN_ELEM)
 		{
 			info[i++] = "You are susceptible to damage from the elements.";
+		}
+		if (p_ptr->muta3 & MUT3_GLOW)
+		{
+			info[i++] = "Your body is glowing brightly.";
 		}
 	}
 
@@ -1451,7 +1456,7 @@ void self_knowledge(void)
 
 		if (f1 & (TR1_CHAOTIC))
 		{
-			info[i++] = "Your weapon is branded with the Sign of Logrus.";
+			info[i++] = "Your weapon is branded with the Sign of Chaos.";
 		}
 
 		/* Hack */
@@ -1787,7 +1792,11 @@ bool detect_stairs(void)
 	}
 
 	/* Describe */
-	if (detect)
+	if (detect_monsters_string("<>"))
+	{
+		detect = TRUE;
+	}
+	else if (detect)
 	{
 		msg_print("You sense the presence of stairs!");
 	}
@@ -1841,12 +1850,14 @@ bool detect_treasure(void)
 	}
 
 	/* Describe */
-	if (detect)
+	if (detect_monsters_string("*"))
+	{
+		detect = TRUE;
+	}
+	else if (detect)
 	{
 		msg_print("You sense the presence of buried treasure!");
 	}
-
-
 
 	/* Result */
 	return (detect);
@@ -1897,14 +1908,13 @@ bool detect_objects_gold(void)
 	}
 
 	/* Describe */
-	if (detect)
-	{
-		msg_print("You sense the presence of treasure!");
-	}
-
-	if (detect_monsters_string("$*"))
+	if (detect_monsters_string("$"))
 	{
 		detect = TRUE;
+	}
+	else if (detect)
+	{
+		msg_print("You sense the presence of treasure!");
 	}
 
 	/* Result */
@@ -1955,14 +1965,13 @@ bool detect_objects_normal(void)
 	}
 
 	/* Describe */
-	if (detect)
-	{
-		msg_print("You sense the presence of objects!");
-	}
-
-	if (detect_monsters_string("!=?|"))
+	if (detect_monsters_string(",!=?|"))
 	{
 		detect = TRUE;
+	}
+	else if (detect)
+	{
+		msg_print("You sense the presence of objects!");
 	}
 
 	/* Result */
@@ -2030,7 +2039,11 @@ bool detect_objects_magic(void)
 	}
 
 	/* Describe */
-	if (detect)
+	if (detect_monsters_string(",!=?|"))
+	{
+		detect = TRUE;
+	}
+	else if (detect)
 	{
 		msg_print("You sense the presence of magic objects!");
 	}
@@ -2058,6 +2071,13 @@ bool detect_monsters_normal(void)
 
 		/* Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
+
+		/* Skip object mimics */
+		if ((r_ptr->d_char == '<') || (r_ptr->d_char == '>') ||
+		    (r_ptr->d_char == '$') || (r_ptr->d_char == '*') ||
+		    (r_ptr->d_char == ',') ||
+		    (r_ptr->d_char == '!') || (r_ptr->d_char == '=') ||
+		    (r_ptr->d_char == '?') || (r_ptr->d_char == '|')) continue;
 
 		/* Location */
 		y = m_ptr->fy;
@@ -2115,6 +2135,13 @@ bool detect_monsters_invis(void)
 
 		/* Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
+
+		/* Skip object mimics */
+		if ((r_ptr->d_char == '<') || (r_ptr->d_char == '>') ||
+		    (r_ptr->d_char == '$') || (r_ptr->d_char == '*') ||
+		    (r_ptr->d_char == ',') ||
+		    (r_ptr->d_char == '!') || (r_ptr->d_char == '=') ||
+		    (r_ptr->d_char == '?') || (r_ptr->d_char == '|')) continue;
 
 		/* Location */
 		y = m_ptr->fy;
@@ -2184,6 +2211,13 @@ bool detect_monsters_evil(void)
 		/* Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
 
+		/* Skip object mimics */
+		if ((r_ptr->d_char == '<') || (r_ptr->d_char == '>') ||
+		    (r_ptr->d_char == '$') || (r_ptr->d_char == '*') ||
+		    (r_ptr->d_char == ',') ||
+		    (r_ptr->d_char == '!') || (r_ptr->d_char == '=') ||
+		    (r_ptr->d_char == '?') || (r_ptr->d_char == '|')) continue;
+
 		/* Location */
 		y = m_ptr->fy;
 		x = m_ptr->fx;
@@ -2243,7 +2277,7 @@ bool detect_monsters_string(cptr Match)
 	int i, y, x;
 
 	bool flag = FALSE;
-
+	cptr desc_monsters = "weird monsters";
 
 	/* Scan monsters */
 	for (i = 1; i < m_max; i++)
@@ -2285,15 +2319,42 @@ bool detect_monsters_string(cptr Match)
 			lite_spot(y, x);
 
 			/* Detect */
-			flag = TRUE;
+			if ((r_ptr->d_char == '<') || (r_ptr->d_char == '>'))
+			{
+				desc_monsters = "stairs";
+				flag = TRUE;
+			}
+			else if (r_ptr->d_char == '$')
+			{
+				desc_monsters = "treasure";
+				flag = TRUE;
+			}
+			else if (r_ptr->d_char == '*')
+			{
+				desc_monsters = "buried treasure";
+				flag = TRUE;
+			}
+			else if ((r_ptr->d_char == ',') ||
+				 (r_ptr->d_char == '!') ||
+				 (r_ptr->d_char == '=') ||
+				 (r_ptr->d_char == '?') ||
+				 (r_ptr->d_char == '|'))
+			{
+				desc_monsters = "objects";
+				flag = TRUE;
+			}
+			else
+			{
+				desc_monsters = "monsters";
+				flag = TRUE;
+			}
 		}
 	}
 
 	/* Describe */
 	if (flag)
 	{
-		/* Describe result */
-		msg_print("You sense the presence of monsters!");
+		msg_format("You sense the presence of %s!", desc_monsters);
 	}
 
 	/* Result */
@@ -2319,6 +2380,13 @@ bool detect_monsters_xxx(u32b match_flag)
 
 		/* Skip dead monsters */
 		if (!m_ptr->r_idx) continue;
+
+		/* Skip object mimics */
+		if ((r_ptr->d_char == '<') || (r_ptr->d_char == '>') ||
+		    (r_ptr->d_char == '$') || (r_ptr->d_char == '*') ||
+		    (r_ptr->d_char == ',') ||
+		    (r_ptr->d_char == '!') || (r_ptr->d_char == '=') ||
+		    (r_ptr->d_char == '?') || (r_ptr->d_char == '|')) continue;
 
 		/* Location */
 		y = m_ptr->fy;
@@ -2362,14 +2430,32 @@ bool detect_monsters_xxx(u32b match_flag)
 	{
 		switch (match_flag)
 		{
-			case RF3_ANIMAL:
-				desc_monsters = "animals";
+			case RF3_ORC:
+				desc_monsters = "orcs";
+				break;
+			case RF3_TROLL:
+				desc_monsters = "trolls";
+				break;
+			case RF3_GIANT:
+				desc_monsters = "giants";
+				break;
+			case RF3_DRAGON:
+				desc_monsters = "dragons";
 				break;
 			case RF3_DEMON:
 				desc_monsters = "demons";
 				break;
 			case RF3_UNDEAD:
 				desc_monsters = "the undead";
+				break;
+			case RF3_ANIMAL:
+				desc_monsters = "animals";
+				break;
+			case RF3_ELEMENTAL:
+				desc_monsters = "elementals";
+				break;
+			case RF3_GOOD:
+				desc_monsters = "nice creatures";
 				break;
 		}
 
@@ -2450,9 +2536,10 @@ static bool item_tester_hook_weapon(object_type *o_ptr)
 {
 	switch (o_ptr->tval)
 	{
-		case TV_SWORD:
 		case TV_HAFTED:
 		case TV_POLEARM:
+		case TV_AXE:
+		case TV_SWORD:
 		case TV_DIGGING:
 		case TV_BOW:
 		case TV_BOLT:
@@ -2551,9 +2638,12 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 		/* Enchant to hit */
 		if (eflag & (ENCH_TOHIT))
 		{
-			if (o_ptr->to_h < 0) chance = 0;
-			else if (o_ptr->to_h > 15) chance = 1000;
-			else chance = enchant_table[o_ptr->to_h];
+			if (o_ptr->to_h < 0)
+				chance = 0;
+			else if (o_ptr->to_h > (20 - o_ptr->pval))
+				chance = 1000;
+			else
+				chance = enchant_table[o_ptr->to_h];
 
 			if ((randint(1000) > chance) && (!a || (rand_int(100) < 50)))
 			{
@@ -2582,9 +2672,12 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 		/* Enchant to damage */
 		if (eflag & (ENCH_TODAM))
 		{
-			if (o_ptr->to_d < 0) chance = 0;
-			else if (o_ptr->to_d > 15) chance = 1000;
-			else chance = enchant_table[o_ptr->to_d];
+			if (o_ptr->to_d < 0)
+				chance = 0;
+			else if (o_ptr->to_d > (20 - o_ptr->pval))
+				chance = 1000;
+			else
+				chance = enchant_table[o_ptr->to_d];
 
 			if ((randint(1000) > chance) && (!a || (rand_int(100) < 50)))
 			{
@@ -2613,9 +2706,12 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 		/* Enchant to armor class */
 		if (eflag & (ENCH_TOAC))
 		{
-			if (o_ptr->to_a < 0) chance = 0;
-			else if (o_ptr->to_a > 15) chance = 1000;
-			else chance = enchant_table[o_ptr->to_a];
+			if (o_ptr->to_a < 0)
+				chance = 0;
+			else if (o_ptr->to_a > (20 - o_ptr->pval))
+				chance = 1000;
+			else
+				chance = enchant_table[o_ptr->to_a];
 
 			if ((randint(1000) > chance) && (!a || (rand_int(100) < 50)))
 			{
@@ -2739,7 +2835,8 @@ void curse_artifact(object_type * o_ptr)
 	if (randint(3)==1) o_ptr-> art_flags3 |= TR3_DRAIN_EXP;
 	if (randint(2)==1) o_ptr-> art_flags3 |= TR3_TELEPORT;
 	else if (randint(3)==1) o_ptr->art_flags3 |= TR3_NO_TELE;
-	if (p_ptr->pclass != CLASS_WARRIOR && (randint(3)==1))
+	if (p_ptr->pclass != (CLASS_WARRIOR || CLASS_WEAPONMASTER) &&
+			     (randint(3)==1))
 		o_ptr->art_flags3 |= TR3_NO_MAGIC;
 	o_ptr->ident |= IDENT_CURSED;
 }
@@ -3433,8 +3530,8 @@ void random_slay (object_type * o_ptr, bool is_scroll)
 	}
     }
     else if (artifact_bias == BIAS_PRIESTLY &&
-	    (o_ptr->tval == TV_SWORD || o_ptr->tval == TV_POLEARM) &&
-	    !(o_ptr->art_flags3 & TR3_BLESSED))
+	    (o_ptr->tval == TV_SWORD || o_ptr->tval == TV_POLEARM ||
+	     o_ptr->tval == TV_AXE) && !(o_ptr->art_flags3 & TR3_BLESSED))
 
     {
 	o_ptr->art_flags3 |= TR3_BLESSED; /* A free power for "priestly"
@@ -3579,7 +3676,7 @@ void random_slay (object_type * o_ptr, bool is_scroll)
 /*  if (is_scroll) msg_print ("You feel an intense hatred of dragons.");*/
 	break;
     case 18:  case 19:
-	if (o_ptr->tval == TV_SWORD)
+	if (o_ptr->tval == TV_SWORD || o_ptr->tval == TV_AXE)
 	    {   o_ptr->art_flags1 |= TR1_VORPAL;
 /*      if (is_scroll) msg_print ("It looks extremely sharp!");*/
 		if (!artifact_bias && (randint(9)==1))
@@ -3963,6 +4060,7 @@ bool create_artifact(object_type *o_ptr, bool a_scroll)
 		switch (p_ptr->pclass)
 		{
 			case CLASS_WARRIOR:
+			case CLASS_WEAPONMASTER:
 				artifact_bias = BIAS_WARRIOR;
 				break;
 			case CLASS_MAGE:

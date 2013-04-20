@@ -3,6 +3,7 @@
 says: 'I am the Shadow Warrior.'
 says: 'Ha, ha! You no mess with Lo Wang!'
 screams: 'Bonzai!'
+intones: 'It is natural to die.'
 yells: 'Cowabunga!'
 says: 'There is much death in future.'
 looks for a mirror.
@@ -25,4 +26,3 @@ wonders where the hell Zilla is.
 wonders if you work for Zilla.
 says: 'I am the Shadow Warrior.'
 says: 'Sayonara, scumbag.'
-intones: 'It is natural to die.'

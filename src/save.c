@@ -1041,12 +1041,12 @@ static void wr_extra(void)
 	wr_byte(p_ptr->prace);
 	wr_byte(p_ptr->pclass);
 	wr_byte(p_ptr->psex);
-    wr_byte(p_ptr->realm1);
-    wr_byte(p_ptr->realm2);
-	wr_byte(0);     /* oops */
+	wr_byte(p_ptr->realm1);
+	wr_byte(p_ptr->realm2);
+	wr_byte(p_ptr->wm_choice); /* was (0); */
 
 	wr_byte(p_ptr->hitdie);
-    wr_u16b(p_ptr->expfact);
+	wr_u16b(p_ptr->expfact);
 
 	wr_s16b(p_ptr->age);
 	wr_s16b(p_ptr->ht);

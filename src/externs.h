@@ -239,6 +239,7 @@ extern bool cheat_live;
 extern bool last_words;              /* Zangband options */
 extern bool speak_unique;
 extern bool small_levels;
+extern bool only_small;
 extern bool empty_levels;
 extern bool player_symbols;
 extern bool equippy_chars;

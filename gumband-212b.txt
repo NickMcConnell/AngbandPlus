@@ -1,0 +1,463 @@
+****************************************************************************
+Our story so far...
+  It is the time of the Conjunction of a Million Spheres. Your Earth is
+composed almost entirely of cave-riddled mountains (which have their own
+dark inhabitants, known mostly by rumour), with villages in the few fertile
+valleys that exist. Except for high summer, movement and trade between the
+villages is almost impossible.
+  Fresh rumour begins infiltrating the villages.  Rumours about the strange,
+otherworldly beings that have begun to concentrate in the vast system of
+caves under the mountains.  Rumours that the forces of Chaos are gathering
+in unheard of numbers (led by three Chaos Lords referred to only as "The
+Sword Rulers"), somewhere deep within the Earth, preparing for a great
+battle with Law, upsetting the rule of the Cosmic Balance on your plane.
+  Something needs to be done.  The Balance must be restored.  Someone must
+journey to the bowels of the Earth and attempt to banish these Sword Rulers
+from your plane...
+****************************************************************************
+============================================================================
+= Gumband 2.1.2b: Changes from ZAngband 2.1.1c =  Last Update: 23-Jan-2001 =
+============================================================================
+Changes from Gumband 2.1.2a are marked with '##'. Only the most major
+changes are listed here, to keep things short...
+============================================================================
+Send any and all complaints (or praise ;) to aa343@chebucto.ns.ca or
+gumby@gwar.net. Do *NOT* send patches and suchlike to my Chebucto account -
+I've almost no disk quota there for storing mail, and the INBOX overflows
+easily. :(
+============================================================================
+PLEASE NOTE: Back to 2 files [DOS distribution and source code] for this
+version since they both will now fit again on a standard 1.44Mb MS-DOS disk.
+============================================================================
+PLEASE NOTE: Preserving savefile compatability is *NOT* important to me. I
+*highly* suggest you finish up your current character with your current
+version before moving to this one. At the very least, Monster Memory could
+be severely messed up between versions...
+============================================================================
+My plans for this variant? Well, I plan to remove the Amber elements and
+replace them with things that extend the already existing elements of
+Michael Moorcock's Eternal Champion cycle (represented in ZAngband by the
+Chaos Patrons, the Sword (and Legion) of the Dawn and Stormbringer).  Stuff
+other than the Amber elements will disappear, of course, if I find I need
+the room. :)
+============================================================================
+I've only ever compiled this under MS-DOS with DJGPP. Your milage may vary
+for other platforms and compilers... :) If you've had problems compiling
+ZAngband v2.1.1c, then you'll probably have problems compiling Gumband.
+  NOTE: I hear that there are major problems running the DOS version, and
+compiling a Windows version with LCC, under Windows ME. I'm sorry, but since
+I have no familiarity with either, there's nothing I can do. :( If someone
+manages to get things working for that platform and/or compiler, could they
+please mail me the makefile they used and any source files they needed to
+update? [with explanatory notes, of course, so that I can add them without
+breaking things for everyone else :]
+============================================================================
+Thanks to Bablos for compiling the Amiga version.
+============================================================================
+Deeming it no longer worth the bother, nor the time it adds to the upload
+and download of the game, I've removed the graphic and sound files from this
+distribution... I dislike graphics and sounds in Roguelike games, so I will
+not do anything to support them.
+============================================================================
+Thanks to all the folks in #angband and rec.games.roguelike.angband who've
+put up with me, and even helped me in many cases, while I was plundering
+their knowledge of C for this little project. :) So, if you've responded to
+any of my posts dealing with Gumband, or C programming in general, consider
+yourself thanked. :) [individual thanks will be down there in the entries
+that apply]
+============================================================================
+There have been other minor changes than those listed here that aren't worth
+individual mentions. Most changes to the monster, object and artifact lists
+won't be included here, and some items might drop off the list from time to
+time, tho that won't mean that the change has been reversed.
+============================================================================
+
+##01) Bumped Sauron to level 96 and replaced Oberon, and the Serpent of
+Chaos with the three Sword Rulers (Arioch, Xiombarg and Mabelrode), all
+three of which must be now be defeated to win.
+
+##02) If you're a Chaos Warrior and you kill your patron (one of those three
+above), then you've been a naughty boy (or girl) and deserve the thumping
+you'll get from multiple TY Curses. :)
+
+##03) Did a major reorganization of r_info.txt to spread things out to make
+adding new monsters (specifically at those dungeon levels that are under-
+populated as far as creatures of that depth go) easier. Also did a fair bit
+of re-colouring, and reorganizing of the letters used, so I suggest that you
+'l'ook often!
+
+##04) Monster flags added or enabled: HURT_FIRE & HURT_COLD (+50% damage
+from those sources), S_HELLBLADES, S_ANIMALS (as opposed to specific
+species), S_ELEMENTAL & ELEMENTAL, S_SCUMDOG & SCUMDOG (for GWAR), and
+EXPLOSIVE (monster blows up when killed - a formalization of the Unmaker's
+death effect).
+  Thanks to Eric Bock and Antimatter (of #angband) for helping me get the
+summonings working properly.
+
+##05) New monster blow method: TONGUE (like a frog) and TENTACLE. No special
+effects from the types, just added for flavor.
+
+##06) New monster blow effect: RBE_VAMP. A creature that hits (or bites, or
+whatever) to 'VAMP' drains the player's XP as if it were RBE_EXP_60, but
+also heals a number of hit points equal to the XP drained in that attack. If
+the player has hold life and makes the saving throw, then the VAMP creature
+only heals an amount equal to the damage dealt in the attack. VAMP grants
+nothing if the player is a Golem or one of the Undead races, though it will
+still drain the experience points.
+
+07) High resistances for players use the formula "dam = (dam * 2) / 3;", ie,
+67% (approx) of the unresisted damage. This is the average amount of damage
+from the old resistance formula of "dam *= 6; dam /= (randint(6) + 6);". I
+just didn't like resisting the attacks so randomly... Note that the damage
+caps for those 'high' types of monster breaths will be set at 600 in
+compensation - which means about 400 damage when resisted. :)
+
+08) Monsters use "dam /= 3;" for most of their resistances, mostly so that
+Nature spellcasters can have a chance if they don't happen to have a bow...
+
+09) The damage from most objects, spells and racial/mutation activations
+have been increased by 50% or so. IMHO, they're usually so weak that there's
+no incentive to use the offensive abilities of these objects, except for the
+occasional blast with a ball-spell against weak breeders or to wake group
+monsters to get them moving towards you...
+
+##10) Potions of Cure Critical Wounds now heals 8d8 damage (was 6d8) and
+Curing heals 16d8 damage (was 50), in addition to its other effects, making
+the latter actually worthwhile. Curing also increased in price. Cure Light
+and Serious Wounds have remained unchanged.
+
+11) Chaotic weapons now deal extra damage (x2 base) against creatures that
+have the RES_CHAO flag (weapons of Chaos, like Stormbringer, were created
+specifically to fight Chaos - the damage from Chaos Bolts and suchlike are
+reduced, tho) and/or breathe Chaos, plus a few others.
+
+##12) Most of the mutations from Eric Bock's ZAngband 2.1.1ce have been
+cheerfully stolen by me for use here. :) Hope ya don't mind, Eric. :) Oh, I
+made some alterations to them - the non-dangerous randomly activating ones,
+like Berserk Rage, won't disturb you while resting, unless you've got
+'disturb_minor' set, for example.
+
+##13) Altered the amount of XP gained by Warriors (and Paladins) for
+destroying the dungeon spellbooks. They now gain ((book_cost / 50) * plev)
+for their efforts, which makes destroying the books a valid option instead
+of selling them.
+
+##14) Due to popular demand, monsters can no longer steal wielded items.
+
+##15) The various object-mimics, monsters with a symbol of "<>$*,!=?|", are
+no longer detected as monsters, only as their object type. [eg, Creeping
+Coins will only show up with Detect Treasure, and won't trigger a "You sense
+the presence of monsters!" message]
+
+##16) Critical hit calculations have been evened out a bit (melee goes x2,
+x3, x4, x5, x6 to damage, with missiles doing x2, x3 and x4 damage, on a
+critical hit). Weapon weight is figured at +50% for both the chance for and
+the quality of a critical hit. Big weapons might be useful now even when you
+don't get extra blows with them. :)
+
+##17) Altered the Dexterity governing the chance of having something stolen
+from your backpack. There is no more immunity: the table tops out at 98% at
+DEX:18/220 or higher.
+
+##18) Evened out the table of Strength adjustments to digging a bit.
+
+##19) Implemented an 'only_small' levels option. Defaults to Off.
+
+##20) NEW RACE: The Gambolt. It directly replaces the Amberite race. See the
+race/class section below and also lib/help/birth.txt for details. [FYI, I
+took the race name and basic genotype (humanoid feline) from Robert Lynn
+Asprin's "Phule's Company" series. All other details are different, however,
+since I couldn't be bothered to go find the four PC books at the library
+again. :]
+
+##21) In removing Amberites, I found that there was no one left to wreck the
+Pattern, so I've set it so that *anyone* who is cut, regardless of race, has
+a chance to have things go boom. :)
+
+##22) NEW CLASS: The Weaponmaster. See the race/class section below and also
+/lib/help/birth.txt for details. Specialist in a single weapon type. Rather
+munchkinish, until you find that your Polearms specialist can't use Ringil
+at all well. :)
+
+##23) Removed the axes from TV_POLEARM. TV_AXE now includes all the old
+axes and adds Hatchets, Cleavers, Light War Axes, and Axes of Slaughtering.
+
+##24) Major changes to the shopkeepers, mainly so that most of the races
+will be represented, and also major changes to race relations (ie, price
+inflation in stores based on race).
+
+
+              -*-*-*- Altered Races and Classes -*-*-*-
+
+Beastmen:
+## In addition to the chance of gaining mutations as they increase in level,
+   Beastmen now randomly gain and lose a bunch of mutations (all of one of
+   the three mutation classes, since that was easiest) every once in a while
+   as they move around or rest... Beastmen weren't chaotic enough for my
+   tastes. :)
+
+Chaos Warriors:
+ Gain bonus abilities based on their patron.
+ Bonus melee attack at level 25.
+ Bonus missile shot at level 35.
+ +1 to hit and to damage every 10 levels.
+
+Elves:
+ Racial activation is Detect Animals at level 10.
+
+##Gambolts:
+## Exceptional DEX & CHR (both sustained), Saving Throw and Stealth, decent
+   Searching and great Perception, all other stats and skills are
+   unremarkable.
+## Permanent speed +2.
+## Hit Dice of 8, 60' infravision, and an XP penalty of +50% (which is open
+   to negotiation).
+## Racial activation is Charm Monster at level 20.
+## Cannot 'legally' choose to be Priests, Paladins, Chaos Warriors or Monks.
+   [ie, they're not very religious]
+
+Golems:
+ XP required is at +150% (up from +100%).
+ They have 13 hit dice (up from 12 HD).
+ Magic Devices skill at +5 (up from -5). [being magical devices themselves,
+   Golems have an instinctive understanding of these things]
+## They now resist Nexus and Shards.
+ They no longer get intrinsic See Invisible, Free Action or their level 35
+   Hold Life.
+## Intrinsic Armour Class has been reduced to (plev / 2), down from
+   (20 + (plev / 5)).
+
+Half-Elves:
+ Racial activation is Detect Animals at level 15.
+
+Half-Trolls:
+ All Half-Trolls, not just Warriors, get Slow Digestion with their level 15
+   Regeneration.
+
+Humans:
+ Racial activation is Self Knowledge at level 15.
+
+Mindcrafters:
+ XP required is at +30% (up from +25%).
+ Various changes to their powers, noted in the Altered Spells section.
+
+Monks:
+ The 'Monk Hack' has been enabled, allowing the intrinsic speed of Monks to
+   be cumulative with that of Klackons and Sprites. With the amount of speed
+   in ZAngband, I fail to see how this would be unbalancing.
+
+Nibelungs:
+ Their racial activation information has been corrected.
+
+Paladins:
+ Bonus melee attack at level 25.
+ Bonus missile shot at level 35.
+ +1 to hit and to damage every 10 levels.
+
+Priests:
+## The penalty for using edged weapons (ie, Polearms, Axes or Swords) is now
+   a *real* penalty of (-15,-15) instead of the (-2,-2) that no one ever
+   really noticed. No more wielding Ringil for the final battle. :)
+
+Rangers:
+ Bonus melee attack at level 25.
+ Bonus shots with Short and Long Bows at levels 15, 30 and 45, instead of
+   just at levels 20 and 40.
+ +1 to hit and to damage every 10 levels.
+ Nature magic only, no secondary realm.
+ Begins with Short Bow instead of second spellbook.
+
+Rogues:
+ All Rogues now start with a Dagger of Poisoning, not just those who choose
+   the Death magical realm.
+## Rogues gain 1 XP for successfully searching out a secret door or trap via
+   the 's'earch command. Others gain nothing. Yes, Rogues should be rewarded
+   for practicing what they're trained to do.
+## Only Rogues gain XP for picking the locks on doors and chests.
+## Other classes only get 1/2 of the normal XP gained for disarming traps.
+
+Skeletons:
+## Begins the game at nightfall.
+
+Spectres:
+## Begins the game at nightfall.
+## No longer gains telepathy at level 35.
+## Has permanent light. (ghostly creatures, as you know, tend to glow - I'll
+   be looking at ways to have monsters generate light as well)
+## Has Levitation.
+
+Sprites:
+ Sprites now gain their 'sleeping dust' activation at level 8, with no
+   change in cost.
+
+Vampires:
+## No longer start with scrolls of Light, and start with a higher number of
+   scrolls of Darkness.
+## Begins the game at nightfall.
+## Takes damage when wielding a torch or lantern, just like when wielding an
+   artifact light - remember, no matter how many torches a movie vampire
+   might have in their castle, they react rather negatively to having them
+   close to their bodies. :)
+## Gains Levitation at level 10.
+
+Warriors:
+## When wearing body armour, Warriors gain an AC bonus equal to %50 of the
+   armour's bace AC, rounded down. [think of it as being used to wearing
+   armour, knowing how to best fit it on your body (lotsa straps and such,
+   you know), and knowing the best ways to angle yourself when taking a blow
+   to get the most out of your armour's protection - the type of thing that
+   spellcasters never really had time to learn :] (took this idea from the
+   Tunnels & Trolls RPG)
+
+Warrior-Magi:
+ Bonus melee attacks at levels 25 and 50.
+ 6 blows with same weight and multiplier restrictions as Warriors.
+ Bonus missile shot at level 35.
+ +1 to hit and to damage every 5 levels.
+ Arcane magic only, no secondary realm.
+ Begins with Hard Leather Armour instead of second spellbook.
+
+##Weaponmasters:
+## Weaponmasters are equal to Warriors, except for Strength (one less), a
+     bit less in a couple of skills - except for Bows/Throw, wich is equal
+     to that of a Warrior-Mage, and don't get a bonus for killing the
+     dungeon-only spellbooks.
+## Weaponmasters have chosen for them, at birth, one of the four melee
+     weapon types (Hafted (blunt), Polearms, Axes, or Swords) and start out
+     with a weapon of the proper type.
+## Weaponmasters gain a bonus to-hit and to-dam equal to the player's level
+     only when using a weapon of the type they specialize in. (see xtra1.c -
+     if anyone can come up with a better system, mail me! :)
+ [thanks to GSN for the suggestion on how to keep this from affecting bows &
+   throwing - I probably never would've spotted something so simple on my
+   own :]
+## Weaponmasters gain extra blows when wielding a weapon in their specialty
+     class (extra blows at levels 15, 30 and 45), but never have more than
+     one blow when wielding other weapons.
+## Gains Fear Resistance at level 35.
+## No spellcasting.
+## XP penalty of 30%.
+
+Yeeks:
+ Their racial activation, Scare Monster, has been moved to level 5 and now
+   has a cost of 10.
+
+Zombies:
+## Begins the game at nightfall.
+
+
+                   -*-*-*- Altered Spells -*-*-*-
+
+ The biggest change of all to a spell effect: Invulnerability does *NOT*
+ prevent all damage, nor does it have a chance of being penetrated. Instead,
+ Invulnerability reduces *all* damage to 1/9th of normal (cumulative with
+ resistances and such, if I'm reading things right). Hate me yet? :)
+
+##Priests who use non-blessed edged weapons, and characters who are stunned,
+ can no longer get a 0% spell failure, no matter how high their spell-stat
+ or level is. IE, Priests can no longer get away with using Ringil (or other
+ kick-ass edged weapon) during the final battle - or any time before that,
+ actually. :)
+
+ The various branding spells can now be used on non-stacked items in the
+   inventory and on the floor.
+
+Arcane:
+ Has been fairly heavily re-written and is, I personally think, too good now
+   to be paired with another realm. The new spell list is:
+
+  Book 1                   Book 3
+  ------                   ------
+  Zap                      Teleport
+  Detect Invisibility      Stone to Mud
+  Detect Monsters          Ray of Light
+  Blink                    Satisfy Hunger
+  Light Area               Magic Mapping
+  Trap/Door Destruction    Recharging
+  Stinking Cloud           Remove Curse
+  Cure Light Wounds        Cure Critical Wounds
+
+  Book 2                   Book 4
+  ------                   ------
+  Detect Doors/Traps       Elemental Protection (resist Fire/Cold/Elec/Acid)
+  Phlogiston               Prismatic Bolt (fires a random elemental bolt)
+  Confuse Monster          Identify
+  Sleep Monster            Teleport Away
+  Detect Objects/Treasure  Elemental Ball
+  Cure Poison              Detection
+  See Invisible            Word of Recall
+  Cure Medium Wounds       Clairvoyance
+
+Chaos:
+ 'Mana Burst' now has a plev% chance of being a ball of *real* mana (GF_MANA
+   instead of the normal GF_MISSILE).
+ 'Touch of Confusion' becomes 'Demon Detection'. Level, cost and fail are
+   unchanged.
+
+Life:
+## 'Remove Fear' has been replaced by 'Spiritual Hammer', an early bolt of
+   Holy Fire, with the same level, cost and fail as 'Remove Fear'. It begins
+   at 3d4 damage and tops out at 12d4.
+
+Mindcraft:
+ 'Precognition' now detects doors and stairs at level 5, with detect traps
+   bumped to level 10, and full detection moves to level 35, up from 30.
+ 'Minor Displacement' has moved its dimension door (targeted, short-ranged
+   teleportation) effect to level 30 (from level 25).
+ 'Major Displacement' now gives Teleport Other at level 50, instead of its
+   original 'Banish' (teleport away all creatures in line of sight) effect.
+## 'Psychometry' now gives Identify at level 30 and *Identify* at level 40.
+## 'Mind Wave' now becomes a line-of-sight effect at level 40 (up from 25).
+
+Nature:
+ 'Detect Creatures' has become 'Animal Detection'.
+## 'Nature Awareness' also is reduced to detecting animals, but at player
+   level 20 Elementals are detected as well.
+
+Sorcery:
+## 'Detect Objects/Treasure' and 'Detect Enchantment' have been moved to the
+   first two books, with costs, levels and fail rates remaining about the
+   same.
+## 'Detection True' has been moved to book 3 and dropped the 'True'.
+## 'Identify True' has been renamed 'Insight' and also moved to book 3.
+
+Trump:
+ 'Reset Recall' becomes 'Minor Divination' which detects traps, doors,
+   stairs and normal monsters.
+
+
+                  -*-*-*- Other People's Work -*-*-*-
+
+(NOTE: I might have missed one or two, but no biggie. :)
+
+1) Kieron Dunbar's Stormbringer patch, to put Stormy in the a_info & k_info
+text files instead of creating it on the fly.
+
+2) Kieron's self-cursing items patch - items with the "AUTO_CURSE" flag will
+curse themselves when worn, and after a few turns, when uncursed. The type
+of curse [heavy or normal] depends on what other Cursed flags the item has -
+Stormbringer is now *very* expensive to swap out when you need to. :)
+
+3) Kieron's store-quantity patch - shopkeepers will tell you they're full
+*before* you get asked how many items you want to sell.
+
+
+                        -*-*-*- Bugs -*-*-*-
+
+01) There are too many potions in the game at the moment, so Potions of
+Clumsiness and Sickness cannot be generated via debug mode's item creation
+menus since the list runs out of symbols fairly quickly. :) It is not a
+priority to fix.
+
+02) I still can't figure out why "b) dismiss pets" is being displayed as
+"b)         ", ie, blanked out...
+
+03) If you look t the entire monster list ['/' then CTRL-a] while the 'know
+all monster info' cheat is active, you will see the occasional blank monster
+(ie, The ('')/(''): [(r)ecall, ESC]). This is because there are still empty
+slots in r_info.txt, which I will eventually fill.
+
+04) Like with Chaos Patrons, when you go to a 'p'revious character, the
+current Weaponmaster specialty remains, instead of restoring the older
+character's specialty. If you then continue rolling, a new specialty will be
+randomly chosen, of course. Not worth the effort to fix, IMHO.

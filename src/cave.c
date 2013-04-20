@@ -1187,6 +1187,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 								a = TERM_L_DARK;
 							break;
 						case CLASS_WARRIOR:
+						case CLASS_WEAPONMASTER:
 							if (p_ptr->lev < 20)
 								a = TERM_L_UMBER;
 							else
@@ -1332,8 +1333,8 @@ void print_rel(char c, byte a, int y, int x)
 		/* Hack -- fake monochrome */
 		if (!use_graphics || streq(ANGBAND_SYS, "ibm"))
 		{
-			if (p_ptr->invuln || !use_color) a = TERM_WHITE;
-			else if (p_ptr->wraith_form) a = TERM_L_DARK;
+			if (p_ptr->invuln || !use_color) a = TERM_L_WHITE;
+			else if (p_ptr->wraith_form) a = TERM_SLATE;
 		}
 
 		/* Draw the char using the attr */
@@ -1500,8 +1501,8 @@ void lite_spot(int y, int x)
 		/* Hack -- fake monochrome */
 		if (!use_graphics || streq(ANGBAND_SYS, "ibm"))
 		{
-			if (p_ptr->invuln || !use_color) a = TERM_WHITE;
-			else if (p_ptr->wraith_form) a = TERM_L_DARK;
+			if (p_ptr->invuln || !use_color) a = TERM_L_WHITE;
+			else if (p_ptr->wraith_form) a = TERM_SLATE;
 		}
 
 #ifdef USE_TRANSPARENCY
@@ -1555,8 +1556,8 @@ void prt_map(void)
 			/* Hack -- fake monochrome */
 			if (!use_graphics || streq(ANGBAND_SYS, "ibm"))
 			{
-				if (p_ptr->invuln || !use_color) a = TERM_WHITE;
-				else if (p_ptr->wraith_form) a = TERM_L_DARK;
+				if (p_ptr->invuln || !use_color) a = TERM_L_WHITE;
+				else if (p_ptr->wraith_form) a = TERM_SLATE;
 			}
 
 			/* Efficiency -- Redraw that grid of the map */
@@ -1568,8 +1569,8 @@ void prt_map(void)
 			/* Hack -- fake monochrome */
 			if (!use_graphics || streq(ANGBAND_SYS, "ibm"))
 			{
-				if (p_ptr->invuln || !use_color) a = TERM_WHITE;
-				else if (p_ptr->wraith_form) a = TERM_L_DARK;
+				if (p_ptr->invuln || !use_color) a = TERM_L_WHITE;
+				else if (p_ptr->wraith_form) a = TERM_SLATE;
 			}
 
 			/* Efficiency -- Redraw that grid of the map */
@@ -1796,8 +1797,8 @@ void display_map(int *cy, int *cx)
 			/* Hack -- fake monochrome */
 			if (!use_graphics || streq(ANGBAND_SYS, "ibm"))
 			{
-				if (p_ptr->invuln || !use_color) ta = TERM_WHITE;
-				else if (p_ptr->wraith_form) ta = TERM_L_DARK;
+				if (p_ptr->invuln || !use_color) ta = TERM_L_WHITE;
+				else if (p_ptr->wraith_form) ta = TERM_SLATE;
 			}
 
 			/* Add the character */

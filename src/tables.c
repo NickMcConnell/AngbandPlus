@@ -12,8 +12,10 @@
 
 #include "angband.h"
 
-
-
+/* So I don't have to recalculate each time.
+ * Thanks to Greg Wooledge. -- Gumby
+ */
+#define CLASS_MASK(x) (1 << (x))
 
 /*
  * Global array for looping through the "keypad directions"
@@ -748,42 +750,42 @@ byte adj_str_hold[] =
 byte adj_str_dig[] =
 {
 	0       /* 3 */,
-	0       /* 4 */,
-	1       /* 5 */,
-	2       /* 6 */,
-	3       /* 7 */,
-	4       /* 8 */,
-	4       /* 9 */,
-	5       /* 10 */,
-	5       /* 11 */,
-	6       /* 12 */,
-	6       /* 13 */,
-	7       /* 14 */,
-	7       /* 15 */,
-	8       /* 16 */,
-	8       /* 17 */,
-	9       /* 18/00-18/09 */,
+	1       /* 4 */,
+	2       /* 5 */,
+	3       /* 6 */,
+	4       /* 7 */,
+	5       /* 8 */,
+	5       /* 9 */,
+	6       /* 10 */,
+	6       /* 11 */,
+	7       /* 12 */,
+	7       /* 13 */,
+	8       /* 14 */,
+	8       /* 15 */,
+	9       /* 16 */,
+	9       /* 17 */,
+	10      /* 18/00-18/09 */,
 	10      /* 18/10-18/19 */,
 	12      /* 18/20-18/29 */,
-	15      /* 18/30-18/39 */,
-	20      /* 18/40-18/49 */,
-	25      /* 18/50-18/59 */,
-	30      /* 18/60-18/69 */,
-	35      /* 18/70-18/79 */,
-	40      /* 18/80-18/89 */,
-	45      /* 18/90-18/99 */,
-	50      /* 18/100-18/109 */,
-	55      /* 18/110-18/119 */,
-	60      /* 18/120-18/129 */,
-	65      /* 18/130-18/139 */,
-	70      /* 18/140-18/149 */,
-	75      /* 18/150-18/159 */,
-	80      /* 18/160-18/169 */,
-	85      /* 18/170-18/179 */,
-	90      /* 18/180-18/189 */,
-	95      /* 18/190-18/199 */,
-	100     /* 18/200-18/209 */,
-	100     /* 18/210-18/219 */,
+	14      /* 18/30-18/39 */,
+	16      /* 18/40-18/49 */,
+	18      /* 18/50-18/59 */,
+	20      /* 18/60-18/69 */,
+	25      /* 18/70-18/79 */,
+	30      /* 18/80-18/89 */,
+	35      /* 18/90-18/99 */,
+	40      /* 18/100-18/109 */,
+	45      /* 18/110-18/119 */,
+	50      /* 18/120-18/129 */,
+	55      /* 18/130-18/139 */,
+	60      /* 18/140-18/149 */,
+	65      /* 18/150-18/159 */,
+	70      /* 18/160-18/169 */,
+	75      /* 18/170-18/179 */,
+	80      /* 18/180-18/189 */,
+	85      /* 18/190-18/199 */,
+	90      /* 18/200-18/209 */,
+	95      /* 18/210-18/219 */,
 	100     /* 18/220+ */
 };
 
@@ -919,10 +921,10 @@ byte adj_dex_safe[] =
 	80      /* 18/160-18/169 */,
 	85      /* 18/170-18/179 */,
 	90      /* 18/180-18/189 */,
-	95      /* 18/190-18/199 */,
-	100     /* 18/200-18/209 */,
-	100     /* 18/210-18/219 */,
-	100     /* 18/220+ */
+	92      /* 18/190-18/199 */,
+	94      /* 18/200-18/209 */,
+	96      /* 18/210-18/219 */,
+	98      /* 18/220+ */
 };
 
 
@@ -1029,12 +1031,18 @@ byte adj_con_mhp[] =
  *
  * First, from the player class, we extract some values:
  *
- *    Warrior --> num = 6; mul = 5; div = MAX(30, weapon_weight);
- *    Mage    --> num = 4; mul = 2; div = MAX(40, weapon_weight);
- *    Priest  --> num = 5; mul = 3; div = MAX(35, weapon_weight);
- *    Rogue   --> num = 5; mul = 3; div = MAX(30, weapon_weight);
- *    Ranger  --> num = 5; mul = 4; div = MAX(35, weapon_weight);
- *    Paladin --> num = 5; mul = 4; div = MAX(30, weapon_weight);
+ * Warrior       --> num = 6; mul = 5; div = MAX(30, weapon_weight);
+ * Mage          --> num = 4; mul = 2; div = MAX(40, weapon_weight);
+ * Priest        --> num = 5; mul = 3; div = MAX(35, weapon_weight);
+ * Rogue         --> num = 5; mul = 3; div = MAX(30, weapon_weight);
+ * Ranger        --> num = 5; mul = 4; div = MAX(35, weapon_weight);
+ * Paladin       --> num = 5; mul = 4; div = MAX(30, weapon_weight);
+ * Warrior-Mage  --> num = 6; mul = 5; div = MAX(30, weapon_weight);
+ * Chaos Warrior --> num = 5; mul = 4; div = MAX(30, weapon_weight);
+ * Monk          --> num = 3; mul = 4; div = MAX(40, weapon_weight);
+ * Mindcrafter   --> num = 5; mul = 3; div = MAX(35, weapon_weight);
+ * High Mage     --> num = 4; mul = 2; div = MAX(40, weapon_weight);
+ * Weaponmaster  --> num = 6; mul = 5; div = MAX(30, weapon_weight);
  *
  * To get "P", we look up the relevant "adj_str_blow[]" (see above),
  * multiply it by "mul", and then divide it by "div", rounding down.
@@ -1143,56 +1151,59 @@ byte old_blows_table[11][12] =
  * Store owners (exactly four "possible" owners per store, chosen randomly)
  * { name, purse, max greed, min greed, haggle_per, tolerance, race, unused }
  */
+/* List drastically re-flavoured by Gumby.
+ * The names are every bit as bad, if not worse, than the originals. :)
+ */
 owner_type owners[MAX_STORES][MAX_OWNERS] =
 {
 	{
-		/* General store */
-		{ "Bilbo the Friendly",   200,    170, 108,  5, 15, RACE_HOBBIT},
-		{ "Raistlin the Chicken", 250,    175, 108,  4, 12, RACE_HUMAN},
-		{ "Sultan the Midget",    300,    170, 107,  5, 15, RACE_GNOME},
-		{ "Lyar-el the Comely",   350,    165, 107,  6, 18, RACE_ELF},
+		/* General Store */
+		{ "Gilnex the Icky",      200,    170, 108,  5, 15, RACE_YEEK},
+		{ "Tinkerbell",           250,    175, 108,  4, 12, RACE_SPRITE},
+		{ "Dorfl",                300,    170, 107,  5, 15, RACE_GOLEM},
+		{ "Bilbo the Friendly",   350,    165, 107,  6, 18, RACE_HOBBIT},
 	},
 	{
 		/* Armoury */
 		{ "Kon-Dar the Ugly",     5000,   210, 115,  5,  7, RACE_HALF_ORC},
 		{ "Darg-Low the Grim",    10000,  190, 111,  4,  9, RACE_HUMAN},
-		{ "Decado the Handsome",  25000,  200, 112,  4, 10, RACE_AMBERITE},
-		{ "Wieland the Smith",    30000,  200, 112,  4,  5, RACE_DWARF},
+		{ "Antenor the Skilled",  25000,  200, 112,  4, 10, RACE_CYCLOPS},
+		{ "Ironpants the Smith",  30000,  200, 112,  4,  5, RACE_DWARF},
 	},
 	{
 		/* Weapon Smith */
-		{ "Arnold the Beastly",   5000,   210, 115,  6,  6, RACE_BARBARIAN},
+		{ "Arnold the Beastly",   5000,   210, 115,  6,  6, RACE_HALF_TROLL},
 		{ "Arndal Beast-Slayer",  10000,  185, 110,  5,  9, RACE_HALF_ELF},
-		{ "Eddie Beast-Master",   25000,  190, 115,  5,  7, RACE_HALF_ORC},
-		{ "Oglign Dragon-Slayer", 30000,  195, 112,  4,  8, RACE_DWARF},
+		{ "Dexxinok",             25000,  190, 115,  5,  7, RACE_KLACKON},
+		{ "Oglign Wyrm-Slayer",   30000,  195, 112,  4,  8, RACE_NIBELUNG},
 	},
 	{
 		/* Temple */
-		{ "Ludwig the Humble",    5000,   175, 109,  6, 15, RACE_DWARF},
-		{ "Gunnar the Paladin",   10000,  185, 110,  5, 23, RACE_HALF_TROLL},
-		{ "Torin the Chosen",     25000,  180, 107,  6, 20, RACE_HIGH_ELF},
-		{ "Sarastro the Wise",    30000,  185, 109,  5, 15, RACE_HUMAN},
+		{ "Malfastinofnilberpan", 5000,   175, 109,  6, 15, RACE_DRACONIAN},
+		{ "Gunnar the Paladin",   10000,  185, 110,  5, 23, RACE_BARBARIAN},
+		{ "Torin the Chosen",     25000,  180, 107,  6, 20, RACE_HALF_TITAN},
+		{ "Sarastro the Wise",    30000,  185, 109,  5, 15, RACE_VAMPIRE},
 	},
 	{
 		/* Alchemist */
-		{ "Mauser the Chemist",   10000,  190, 111,  5,  8, RACE_HALF_ELF},
-		{ "Wizzle the Chaotic",   10000,  190, 110,  6,  8, RACE_HOBBIT},
+		{ "Garbo the Chemist",    10000,  190, 111,  5,  8, RACE_GAMBOLT},
+		{ "Wizzle the Chaotic",   10000,  190, 110,  6,  8, RACE_IMP},
 		{ "Midas the Greedy",     15000,  200, 116,  6,  9, RACE_GNOME},
 		{ "Ja-Far the Alchemist", 15000,  220, 111,  4,  9, RACE_ELF},
 	},
 	{
 		/* Magic Shop */
-		{ "Lo Pan the Sorcerer",  20000,  200, 110,  7,  8, RACE_HALF_ELF},
-		{ "Buggerby the Great",   20000,  215, 113,  6, 10, RACE_GNOME},
+		{ "Angol the Sorcerer",   20000,  200, 110,  7,  8, RACE_HIGH_ELF},
+		{ "Xomfanix the Great",   20000,  215, 113,  6, 10, RACE_MIND_FLAYER},
 		{ "The Wizard of Yendor", 30000,  200, 110,  7, 10, RACE_HUMAN},
 		{ "Rjak the Necromancer", 30000,  175, 110,  5, 11, RACE_DARK_ELF},
 	},
 	{
 		/* Black Market */
-		{ "Gary Gygaz",           20000,  250, 150, 10,  5, RACE_HALF_TROLL},
-		{ "Histor the Goblin",    25000,  250, 150, 10,  5, RACE_HALF_ORC},
-		{ "Quark the Ferengi",    30000,  250, 150, 10,  5, RACE_DWARF},
-		{ "Gumby the Godly",      30000,  250, 150, 10,  5, RACE_HUMAN},
+		{ "Yipper the Yapper",    20000,  250, 150, 10,  5, RACE_KOBOLD},
+		{ "Thag the Dim",         25000,  250, 150, 10,  5, RACE_HALF_OGRE},
+		{ "Dagor the Mighty",     30000,  250, 150, 10,  5, RACE_HALF_GIANT},
+		{ "Gumby the Godly",      30000,  250, 150, 10,  5, RACE_BEASTMAN},
 	},
 	{
 		/* Home */
@@ -1366,7 +1377,7 @@ player_race race_info[MAX_RACES] =
 		72,  6, 180, 25,
 		66,  4, 150, 20,
 		0,
-                0x7FF,
+                0x7FF + CLASS_MASK(CLASS_WEAPONMASTER),
 	},
 	{
 		"Half-Elf",
@@ -1377,7 +1388,7 @@ player_race race_info[MAX_RACES] =
 		66,  6, 130, 15,
 		62,  6, 100, 10,
 		2,
-                0x7FF,
+                0x7FF + CLASS_MASK(CLASS_WEAPONMASTER),
 	},
 	{
 		"Elf",
@@ -1388,7 +1399,7 @@ player_race race_info[MAX_RACES] =
 		60,  4, 100,  6,
 		54,  4, 80,  6,
 		3,
-                0x75F,
+                0x75F + CLASS_MASK(CLASS_WEAPONMASTER),
 
 	},
 	{
@@ -1400,7 +1411,7 @@ player_race race_info[MAX_RACES] =
 		36,  3, 60,  3,
 		33,  3, 50,  3,
 		4,
-                0x40B,
+                0x40B + CLASS_MASK(CLASS_WEAPONMASTER),
 	},
 	{
 		"Gnome",
@@ -1411,7 +1422,7 @@ player_race race_info[MAX_RACES] =
 		42,  3, 90,  6,
 		39,  3, 75,  3,
 		4,
-                0x60F,
+                0x60F + CLASS_MASK(CLASS_WEAPONMASTER),
 	},
 	{
 		"Dwarf",
@@ -1422,7 +1433,7 @@ player_race race_info[MAX_RACES] =
 		48,  3, 150, 10,
 		46,  3, 120, 10,
 		5,
-                0x005,        
+                0x005 + CLASS_MASK(CLASS_WEAPONMASTER),
 	},
 	{
 		"Half-Orc",
@@ -1433,7 +1444,7 @@ player_race race_info[MAX_RACES] =
 		66,  1, 150,  5,
 		62,  1, 120,  5,
 		3,
-                0x18D,
+                0x18D + CLASS_MASK(CLASS_WEAPONMASTER),
 	},
 	{
 		"Half-Troll",
@@ -1444,18 +1455,18 @@ player_race race_info[MAX_RACES] =
 		96, 10, 250, 50,
 		84,  8, 225, 40,
 		3,
-                0x005,
+                0x005 + CLASS_MASK(CLASS_WEAPONMASTER),
 	},
 	{
-		"Amberite",
-		{  1,  2,  2,  2,  3,  2 },
-		4,  5,  5,  2, 3, 13, 15, 10,
-		10,  225,
-		50, 50,
-		82, 5, 190, 20,
-		78,  6, 180, 15,
-		0,
-                0x7FF,
+		"Gambolt",
+		{ -1, 0, 0, 5, -1, 5 },
+		0, 0, 20, 5, 15, 25, 10, 0,
+		8, 150,
+		14, 6,
+		90, 10, 170, 15,
+		82, 10, 160, 10,
+		6,
+                0x65B + CLASS_MASK(CLASS_WEAPONMASTER),
 	},
 	{
 		"High-Elf",
@@ -1466,7 +1477,7 @@ player_race race_info[MAX_RACES] =
 		90, 10, 190, 20,
 		82, 10, 180, 15,
 		4,
-		0x75F,
+		0x75F + CLASS_MASK(CLASS_WEAPONMASTER),
 	},
 	{
 		"Barbarian",
@@ -1477,7 +1488,7 @@ player_race race_info[MAX_RACES] =
 		82, 5, 200, 20,
 		78,  6, 190, 15,
 		0,
-		0x09D,
+		0x09D + CLASS_MASK(CLASS_WEAPONMASTER),
 	},
 	{
 		"Half-Ogre",
@@ -1488,7 +1499,7 @@ player_race race_info[MAX_RACES] =
 		92, 10, 255, 60,
 		80,  8, 235, 60,
 		3,
-		0x407,
+		0x407 + CLASS_MASK(CLASS_WEAPONMASTER),
 	},
 	{
 		"Half-Giant",
@@ -1499,7 +1510,7 @@ player_race race_info[MAX_RACES] =
 		100,10, 255, 65,
 		80, 10, 240, 64,
 		3,
-		0x011,
+		0x011 + CLASS_MASK(CLASS_WEAPONMASTER),
 	},
 	{
 		"Half-Titan",
@@ -1510,7 +1521,7 @@ player_race race_info[MAX_RACES] =
 		111, 11, 255, 86,
 		99, 11, 250, 86,
 		0,
-		0x727,
+		0x727 + CLASS_MASK(CLASS_WEAPONMASTER),
 	},
 	{
 		"Cyclops",
@@ -1521,7 +1532,7 @@ player_race race_info[MAX_RACES] =
 		92, 10, 255, 60,
 		80,  8, 235, 60,
 		1,
-		0x005,
+		0x005 + CLASS_MASK(CLASS_WEAPONMASTER),
 	},
 	{
 		"Yeek",
@@ -1532,7 +1543,7 @@ player_race race_info[MAX_RACES] =
 		50,  3, 90,  6,
 		50,  3, 75,  3,
 		2,
-		0x60F,
+		0x60F + CLASS_MASK(CLASS_WEAPONMASTER),
 	},
 	{
 		"Klackon",
@@ -1543,7 +1554,7 @@ player_race race_info[MAX_RACES] =
 		60,  3, 80,  4,
 		54,  3, 70,  4,
 		2,
-		0x011,
+		0x011 + CLASS_MASK(CLASS_WEAPONMASTER),
 	},
 	{
 		"Kobold",
@@ -1554,7 +1565,7 @@ player_race race_info[MAX_RACES] =
 		60,  1, 130,  5,
 		55,  1, 100,  5,
 		3,
-		0x009,
+		0x009 + CLASS_MASK(CLASS_WEAPONMASTER),
 	},
 	{
 		"Nibelung",
@@ -1565,7 +1576,7 @@ player_race race_info[MAX_RACES] =
 		43,  3, 92,  6,
 		40,  3, 78,  3,
 		5,
-		0x40F,
+		0x40F + CLASS_MASK(CLASS_WEAPONMASTER),
 	},
 	{
 		"Dark Elf",
@@ -1576,7 +1587,7 @@ player_race race_info[MAX_RACES] =
 		60,  4, 100,  6,
 		54,  4, 80,  6,
 		5,
-		0x7DF,
+		0x7DF + CLASS_MASK(CLASS_WEAPONMASTER),
 	},
 	{
 		"Draconian",
@@ -1587,7 +1598,7 @@ player_race race_info[MAX_RACES] =
 		76,  1, 160,  5,
 		72,  1, 130,  5,
 		2,
-		0x757,
+		0x757 + CLASS_MASK(CLASS_WEAPONMASTER),
 	},
 	{
 		"Mindflayer",
@@ -1609,7 +1620,7 @@ player_race race_info[MAX_RACES] =
 		68,  1, 150,  5,
 		64,  1, 120,  5,
 		3,
-		0x7CB,
+		0x7CB + CLASS_MASK(CLASS_WEAPONMASTER),
 	},
 	{
 		"Golem",
@@ -1620,7 +1631,7 @@ player_race race_info[MAX_RACES] =
 		66,  1, 200,  6,
 		62,  1, 180,  6,
 		4,
-		0x001,
+		0x001 + CLASS_MASK(CLASS_WEAPONMASTER),
 	},
 	{
 		"Skeleton",
@@ -1631,7 +1642,7 @@ player_race race_info[MAX_RACES] =
 		72,  6, 50, 5,
 		66,  4, 50, 5,
 		2,
-		0x70F,
+		0x70F + CLASS_MASK(CLASS_WEAPONMASTER),
 	},
 	{
 		"Zombie",
@@ -1642,7 +1653,7 @@ player_race race_info[MAX_RACES] =
 		72, 6, 100, 25,
 		66, 4, 100, 20,
 		2,
-		0x001,
+		0x001 + CLASS_MASK(CLASS_WEAPONMASTER),
 	},
 	{
 		"Vampire",
@@ -1653,7 +1664,7 @@ player_race race_info[MAX_RACES] =
 		72,  6, 180, 25,
 		66,  4, 150, 20,
 		5,
-		0x7FF,
+		0x7FF + CLASS_MASK(CLASS_WEAPONMASTER),
 	},
 	{
 		"Spectre",
@@ -1664,7 +1675,7 @@ player_race race_info[MAX_RACES] =
 		72, 6, 100, 25,
 		66, 4, 100, 20,
 		5,
-		0x74E,    /* Mage, Priest, Rogue, Warrior-Mage, Monk */
+		0x74E,
 	},
 	{
 		"Sprite",
@@ -1686,7 +1697,7 @@ player_race race_info[MAX_RACES] =
 		65,  6, 150, 20,
 		61,  6, 120, 15,
 		0,
-		0x7CF,
+		0x7CF + CLASS_MASK(CLASS_WEAPONMASTER),
 	}
 };
 
@@ -1790,6 +1801,13 @@ player_class class_info[MAX_CLASS] =
 		0, 30
 	},
 
+	{
+		"Weaponmaster",
+		{ 4, -2, -2, 2, 2, -1},
+		20, 15, 15, 1, 14, 2, 70, 15,
+		10,  5,  8, 0,  0, 0, 45, 10,
+		9,  30
+	},
 };
 
 
@@ -2147,30 +2165,30 @@ player_magic magic_info[MAX_CLASS] =
 			{
 				{ 1, 1, 23, 4 },
 				{ 1, 2, 24, 4 },
-				{ 3, 3, 25, 1 },
-				{ 3, 3, 30, 1 },
-				{ 4, 4, 30, 1 },
+				{ 3, 3, 25, 4 },
+				{ 3, 3, 25, 4 },
+				{ 3, 3, 30, 4 },
+				{ 4, 4, 30, 4 },
 				{ 5, 5, 35, 5 },
 				{ 6, 5, 30, 4 },
-				{ 7, 7, 75, 9 },
 
-				{ 9, 7, 75, 8 },
-				{ 10, 7, 75, 8 },
-				{ 11, 7, 75, 7 },
-				{ 13, 7, 50, 6 },
+				{  7,  7, 75, 9 },
+				{  9,  7, 75, 8 },
+				{ 10,  7, 75, 8 },
+				{ 11,  7, 70, 8 },
+				{ 12,  7, 75, 7 },
+				{ 13,  7, 50, 6 },
 				{ 18, 12, 60, 8 },
 				{ 22, 12, 60, 8 },
-				{ 28, 20, 70, 15 },
-				{ 33, 30, 75, 20 },
 
-				{ 3, 3, 25, 15 },
-				{ 10, 10, 70, 40 },
 				{ 10, 10, 80, 40 },
 				{ 12, 12, 80, 40 },
 				{ 14, 10, 60, 25 },
 				{ 20, 18, 85, 50 },
 				{ 20, 18, 60, 25 },
 				{ 25, 25, 75, 19 },
+				{ 28, 20, 70, 20 },
+				{ 33, 30, 75, 20 },
 
 				{ 10, 10, 40, 20 },
 				{ 25, 25, 75, 70 },
@@ -2402,7 +2420,7 @@ player_magic magic_info[MAX_CLASS] =
 	  { 1, 1, 10, 4 },
 	  { 1, 2, 15, 4 },
 	  { 1, 2, 20, 4 },
-	  { 3, 2, 25, 1 },
+	  { 3, 2, 25, 2 },
 	  { 3, 3, 27, 2 },
 	  { 4, 4, 28, 2 },
 	  { 5, 4, 32, 4 },
@@ -2440,30 +2458,30 @@ player_magic magic_info[MAX_CLASS] =
 	  {
 	  { 2, 1, 23, 4 },
 	  { 3, 2, 24, 4 },
-	  { 4, 3, 25, 1 },
-	  { 5, 4, 30, 1 },
-	  { 6, 5, 30, 1 },
-	  { 7, 6, 35, 5 },
+	  { 4, 3, 25, 3 },
+	  { 5, 3, 25, 3 },
+	  { 6, 4, 30, 3 },
+	  { 7, 5, 30, 3 },
+	  { 8, 6, 35, 5 },
 	  { 9, 7, 30, 4 },
-	  { 11, 10, 75, 9 },
 
-	  { 13, 11, 75, 8 },
-	  { 14, 12, 75, 6 },
+	  { 11, 10, 75, 9 },
+	  { 12, 11, 75, 8 },
+	  { 13, 12, 75, 6 },
+	  { 14, 12, 70, 7 },
 	  { 15, 13, 75, 7 },
 	  { 16, 14, 50, 6 },
 	  { 22, 15, 60, 8 },
 	  { 27, 17, 65, 10 },
-      { 30, 22, 70, 15 },
-      { 36, 33, 75, 20 },
 
-	  { 7, 7, 25, 15 },
-	  { 12, 12, 70, 40 },
           { 14, 14, 80, 40 },
           { 15, 15, 80, 40 },
           { 18, 18, 60, 25 },
           { 20, 20, 85, 50 },
 	  { 22, 22, 60, 25 },
 	  { 27, 27, 75, 19 },
+	  { 30, 22, 70, 20 },
+	  { 36, 33, 75, 20 },
 
 	  { 13, 13, 40, 20 },
           { 24, 24, 75, 70 },
@@ -2728,41 +2746,41 @@ player_magic magic_info[MAX_CLASS] =
         /* Rogue (Burglar): Sorcery */
 
 	  {
-	  { 5, 1, 50, 1 },
-	  { 7, 2, 55, 1 },
-      { 8, 3, 65, 1 },
-	  { 9, 3, 65, 1 },
-      { 13, 6, 75, 1 },
-      { 15, 7, 75, 1 },
-      { 17, 9, 75, 1 },
-      { 21, 12, 80, 1 },
+		{  5,   1, 50,   1 },
+		{  7,   2, 55,   1 },
+		{  8,   3, 65,   1 },
+		{  9,   3, 65,   1 },
+		{ 10,   3, 65,   1 },
+		{ 13,   6, 75,   1 },
+		{ 15,   7, 75,   1 },
+		{ 17,   9, 75,   1 },
 
-      { 25, 14, 80, 1 },
-      { 27, 15, 80, 1 },
-	  { 29, 17, 75, 2 },
-	  { 30, 20, 80, 4 },
-      { 31, 23, 80, 5 },
-	  { 32, 25, 70, 6 },
-      { 35, 30, 80, 12 },
-      { 40, 35, 75, 20 },
+		{ 21,  12, 80,   1 },
+		{ 25,  14, 80,   1 },
+		{ 26,  15, 80,   1 },
+		{ 27,  16, 80,   2 },
+		{ 29,  17, 75,   2 },
+		{ 30,  20, 80,   4 },
+		{ 31,  23, 80,   5 },
+		{ 32,  25, 70,   6 },
 
-	  { 9, 3, 65, 5 },
-	  { 13, 10, 70, 5 },
-          { 14, 10, 80, 8 },
-          { 15, 10, 80, 8 },
-          { 16, 10, 60, 10 },
-          { 17, 20, 80, 20 },
-          { 18, 17, 60, 30 },
-	  { 30, 35, 75, 15 },
+		{ 14,  10, 80,   8 },
+		{ 15,  10, 80,   8 },
+		{ 16,  10, 60,  10 },
+		{ 17,  20, 80,  20 },
+		{ 18,  17, 60,  30 },
+		{ 30,  35, 75,  30 },
+		{ 35,  30, 80,  30 },
+		{ 40,  35, 75,  40 },
 
-	  { 15, 15, 40, 10 },
-	  { 20, 20, 70, 50 },
-	  { 35, 40, 95, 100 },
-	  { 37, 40, 80, 100 },
-	  { 43, 80, 80, 100 },
-	  { 44, 100, 80, 100 },
-	  { 45, 50, 70, 100 },
-	  { 99, 0, 0, 0 },
+		{ 15,  15, 40,  10 },
+		{ 20,  20, 70,  50 },
+		{ 35,  40, 95, 100 },
+		{ 37,  40, 80, 100 },
+		{ 43,  80, 80, 100 },
+		{ 44, 100, 80, 100 },
+		{ 45,  50, 70, 100 },
+		{ 99,   0,  0,   0 },
 	},
 
       {
@@ -3275,13 +3293,13 @@ player_magic magic_info[MAX_CLASS] =
     /* Paladin: Life Magic */
 
 	{ 1, 1, 30, 4 },
-	    { 2, 2, 35, 4 },
-	    { 3, 3, 35, 4 },
-	    { 4, 3, 35, 4 },
-	    { 5, 4, 35, 4 },
-	    { 8, 5, 40, 4 },
-	    { 11, 9, 40, 3 },
-	    { 13, 10, 45, 3 },
+	{ 2, 2, 35, 4 },
+	{ 3, 3, 35, 4 },
+	{ 4, 3, 35, 4 },
+	{ 5, 4, 35, 4 },
+	{ 8, 5, 40, 4 },
+	{ 11, 9, 40, 3 },
+	{ 13, 10, 45, 3 },
 
 	    { 14, 11, 45, 4},
 	    { 15, 15, 50, 4},
@@ -4746,7 +4764,6 @@ player_magic magic_info[MAX_CLASS] =
         { 45, 40, 60, 100 },
         { 47, 90, 70, 250 },
         { 49, 90, 70, 250 }
-
 	},
 
 
@@ -4756,30 +4773,30 @@ player_magic magic_info[MAX_CLASS] =
 	  {
       { 1, 1, 15, 4 },
       { 1, 1, 15, 4 },
-      { 2, 2, 15, 1 },
-      { 2, 2, 20, 1 },
-      { 3, 3, 20, 1 },
+      { 2, 2, 15, 3 },
+      { 2, 2, 15, 3 },
+      { 2, 2, 20, 3 },
+      { 3, 3, 20, 3 },
       { 4, 3, 25, 5 },
       { 5, 4, 20, 4 },
-      { 5, 5, 65, 9 },
 
+      { 5, 5, 65, 9 },
       { 7, 5, 65, 8 },
       { 7, 5, 65, 8 },
+      { 7, 7, 60, 7 },
       { 9, 5, 65, 7 },
       { 9, 5, 40, 6 },
       { 13, 8, 50, 8 },
       { 17, 10, 50, 8 },
-      { 24, 15, 60, 15 },
-      { 28, 20, 65, 20 },
 
-      { 2, 2, 20, 15 },
-      { 7, 7, 60, 40 },
       { 8, 8, 70, 40 },
       { 9, 9, 70, 40 },
       { 12, 9, 50, 25 },
       { 15, 12, 65, 50 },
       { 17, 12, 50, 25 },
       { 20, 20, 65, 19 },
+      { 24, 15, 60, 25 },
+      { 28, 20, 65, 25 },
 
       { 8, 8, 30, 20 },
       { 20, 20, 65, 70 },
@@ -4988,6 +5005,280 @@ player_magic magic_info[MAX_CLASS] =
 	}
 	}
 	},
+
+	{
+		/*** Weaponmaster ***/
+
+		0,
+		0,
+
+		A_STR,
+		0,
+
+		99,
+		0,
+		{
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+		},
+	},
 };
 
 
@@ -5017,6 +5308,7 @@ byte realm_choices[MAX_CLASS]=
 /* Monk */          (CH_LIFE | CH_NATURE | CH_DEATH),
 /* Mindcrafter */   (CH_NONE),
 /* High Mage */     (CH_LIFE | CH_SORCERY | CH_NATURE | CH_CHAOS | CH_DEATH | CH_TRUMP | CH_ARCANE),
+/* Weaponmaster */  (CH_NONE),
 };
 
 cptr realm_names [] =
@@ -5081,9 +5373,9 @@ cptr spell_names[7][32] =
 		"Detect Evil",
 		"Cure Light Wounds",
 		"Bless",
-		"Remove Fear",
+		"Spiritual Hammer",
 		"Call Light",
-		"Detect Traps and Secret Doors",
+		"Detect Doors/Traps",
 		"Cure Medium Wounds",
 		"Satisfy Hunger",
 
@@ -5099,7 +5391,7 @@ cptr spell_names[7][32] =
 		/* Rare Life Spellbooks */
 	        "Exorcism",
 		"Dispel Curse",
-	        "Dispel Undead & Demons",
+	        "Dispel Undead/Demons",
 	        "Day of the Dove",
 		"Dispel Evil",
 		"Banish",      
@@ -5122,31 +5414,31 @@ cptr spell_names[7][32] =
 		/* Common Sorcery Spellbooks */
 		"Detect Monsters",
 		"Phase Door",
-		"Detect Doors and Traps",
+	        "Detect Objects/Treasure",
+		"Detect Doors/Traps",
 	        "Light Area",
 		"Confuse Monster",
 		"Teleport",
 		"Sleep Monster",
-		"Recharging",
 
+		"Recharging",
 		"Magic Mapping",
 		"Identify",
+		"Detect Enchantment",
 		"Slow Monster",
 		"Mass Sleep",
 		"Teleport Away",
 		"Haste Self",
-		"Detection True",
-		"Identify True",
 
 		/* Rare Sorcery Spellbooks */
-	        "Detect Objects and Treasure",
-		"Detect Enchantment",
 	        "Charm Monster",
 	        "Dimension Door",
 	        "Sense Minds",
 	        "Self Knowledge",
 		"Teleport Level",
 		"Word of Recall",
+		"Detection",
+		"Insight",
 
 		"Stasis",
 	        "Telekinesis",
@@ -5164,12 +5456,12 @@ cptr spell_names[7][32] =
 		/* Common Nature Spellbooks */
 		"Animal Detection",
 		"First Aid",
-		"Detect Doors and Traps",
+		"Detect Doors/Traps",
 		"Foraging",
 		"Daylight",
 		"Animal Taming",
 		"Resist Environment",
-		"Cure Wounds & Poison",
+		"Cure Wounds/Poison",
 
 		"Stone to Mud",
 		"Lightning Bolt",
@@ -5184,7 +5476,7 @@ cptr spell_names[7][32] =
 		"Door Building",
 		"Stair Building",
 		"Stone Skin",
-		"Resistance True",
+		"Resistance",
 		"Animal Friendship",
 		"Stone Tell",
 		"Wall of Stone",
@@ -5205,7 +5497,7 @@ cptr spell_names[7][32] =
 	{
 		/* Common Chaos Spellbooks */
 		"Magic Missile",
-		"Trap / Door Destruction",
+		"Trap/Door Destruction",
 		"Flash of Light",
 		"Demon Detection",
 		"Mana Burst",
@@ -5220,7 +5512,7 @@ cptr spell_names[7][32] =
 		"Fire Ball",
 		"Teleport Other",
 		"Word of Destruction",
-		"Invoke Logrus",
+		"Invoke Chaos",
 
 		/* Rare Chaos Spellbooks */
 		"Polymorph Other",
@@ -5238,7 +5530,7 @@ cptr spell_names[7][32] =
 		"Call Chaos",
 		"Magic Rocket",
 		"Mana Storm",
-		"Breathe Logrus",
+		"Breathe Chaos",
 		"Call the Void"
 	},
 
@@ -5613,6 +5905,23 @@ cptr player_title[MAX_CLASS][PY_MAX_LEVEL/5] =
 		"Ipsissimus",
 		"Archimage",
 	},
+
+	/*
+	 * Weaponmaster - same as Warrior 'til I can come up with
+	 * something -- Gumby
+	 */
+	{
+		"Rookie",
+		"Soldier",
+		"Mercenary",
+		"Veteran",
+		"Swordsman",
+		"Champion",
+		"Hero",
+		"Baron",
+		"Duke",
+		"Lord",
+	},
 };
 
 
@@ -5822,7 +6131,10 @@ option_type option_info[] =
 	{ &small_levels,                TRUE,   5,      0, 30,
 	"small_levels",                 "Allow unusually small dungeon levels" },
 
-	{ &empty_levels,                FALSE,  5,      0, 31,
+	{ &only_small,                  FALSE,  5,      0, 31,
+	"only_small",                   "Only create small dungeon levels" },
+
+	{ &empty_levels,                FALSE,  5,      0, 32,
         "empty_levels",                 "Allow empty 'arena' levels" },
 
 	/*** Game-Play ***/
@@ -6217,7 +6529,7 @@ mindcraft_power mindcraft_powers[MAX_MINDCRAFT_POWERS] = {
         { 3,   2,  25, "Minor Displacement" },    /* Phase/dimension door */
         { 7,   6,  35, "Major Displacement" },    /* Tele. Self / All */
         { 9,   7,  50, "Domination" },
-        { 11,  7,  30, "Pulverise" },             /* Telekinetic "bolt" */
+        { 11,  7,  30, "Pulverize" },             /* Telekinetic "bolt" */
         { 13, 12,  50, "Character Armour" },      /* Psychic/physical defenses */
         { 15, 12,  60, "Psychometry" },
         { 18, 10,  45, "Mind Wave" },             /* Ball -> LOS */
@@ -6225,5 +6537,3 @@ mindcraft_power mindcraft_powers[MAX_MINDCRAFT_POWERS] = {
         { 25, 10,  40, "Psychic Drain" },         /* Convert enemy HP to mana */
         { 28, 20,  45, "Telekinetic Wave" },      /* Ball -> LOS */
 };
-
-

@@ -603,8 +603,7 @@ void do_poly_self(void)
 					while (new_race == p_ptr->prace);
 
 					msg_format("You turn into a%s %s!",
-					    ((new_race == RACE_AMBERITE ||
-					    new_race == RACE_ELF ||
+					    ((new_race == RACE_ELF ||
 					    new_race == RACE_IMP)?"n":""),
 					    race_info[new_race].title);
 
@@ -770,7 +769,7 @@ static void brand_weapon(int brand_type)
 				o_ptr->name2 = EGO_BRAND_POIS;
 				break;
 			case 1:
-				act = "is engulfed in raw Logrus!";
+				act = "is engulfed in raw Chaos!";
 				o_ptr->name2 = EGO_CHAOTIC;
 				break;
 			default:
@@ -1178,9 +1177,11 @@ void do_cmd_cast(void)
 	   case 2: /* Bless */
 			(void)set_blessed(p_ptr->blessed + randint(12) + 12);
 		       break; 
-	   case 3: /* Remove Fear */
-			(void)set_afraid(0);
-		       break;
+	   case 3: /* Spiritual Hammer (was Resist Fear) */
+		if (!get_aim_dir(&dir)) return;
+		fire_bolt_or_beam(beam - 10, GF_HOLY_FIRE, dir,
+		  damroll(3 + ((plev - 5) / 5), 4));
+		break;
 	   case 4: /* Call Light */
 			(void)lite_area(damroll(2, (plev / 2)), (plev / 10) + 1);
 		       break;
@@ -1333,46 +1334,54 @@ void do_cmd_cast(void)
 	   case 1: /* Phase Door */
 			teleport_player(10);
 		       break;
-	   case 2: /* Detect Doors and Traps */
+	   case 2: /* Detect Objects and Treasure*/
+			(void)detect_objects_normal();
+			(void)detect_treasure();
+			(void)detect_objects_gold();
+		       break;
+	   case 3: /* Detect Doors and Traps */
 			(void)detect_traps();
 			(void)detect_doors();
 			(void)detect_stairs();
 		       break; 
-       case 3: /* Light Area */
+       case 4: /* Light Area */
 			(void)lite_area(damroll(2, (plev / 2)), (plev / 10) + 1);
             break;
-	   case 4: /* Confuse Monster */
+	   case 5: /* Confuse Monster */
 			if (!get_aim_dir(&dir)) return;
             (void)confuse_monster(dir, ( plev * 3) / 2 );
 			break;
-	   case 5: /* Teleport Self */
+	   case 6: /* Teleport Self */
             teleport_player(plev * 5);
 		       break;
-	   case 6: /* Sleep Monster */
+	   case 7: /* Sleep Monster */
 			if (!get_aim_dir(&dir)) return;
 			(void)sleep_monster(dir);
 		       break;
-	   case 7: /* Recharging */
+	   case 8: /* Recharging */
                (void)recharge(plev * 2);
 		       break;
-	   case 8: /* Magic Mapping */
+	   case 9: /* Magic Mapping */
 			map_area();
 		       break;
-	   case 9: /* Identify */
+	   case 10: /* Identify */
 			(void)ident_spell();
 		       break;
-	   case 10: /* Slow Monster */
+	   case 11: /* Detect Enchantment */
+			(void)detect_objects_magic();
+		       break;
+	   case 12: /* Slow Monster */
 			if (!get_aim_dir(&dir)) return;
 			(void)slow_monster(dir);
 		       break;
-	   case 11: /* Mass Sleep */
+	   case 13: /* Mass Sleep */
 			(void)sleep_monsters();
 		       break;
-	   case 12: /* Teleport Away */
+	   case 14: /* Teleport Away */
 			if (!get_aim_dir(&dir)) return;
                (void)fire_beam(GF_AWAY_ALL, dir, plev);
 		       break;
-	   case 13: /* Haste Self */
+	   case 15: /* Haste Self */
 			if (!p_ptr->fast)
 			{
 				(void)set_fast(randint(20 + (plev) ) + plev);
@@ -1382,25 +1391,11 @@ void do_cmd_cast(void)
 				(void)set_fast(p_ptr->fast + randint(plev));
 			}
 		       break;
-	   case 14: /* Detection True */
-			(void)detect_all();
-		       break;
-	   case 15: /* Identify True */
-			identify_fully();
-		       break;
-       case 16: /* Detect Objects and Treasure*/
-			(void)detect_objects_normal();
-			(void)detect_treasure();
-			(void)detect_objects_gold();
-		       break;
-       case 17: /* Detect Enchantment */
-			(void)detect_objects_magic();
-		       break;
-       case 18: /* Charm Monster */
+       case 16: /* Charm Monster */
                  if (!get_aim_dir(&dir)) return;
                  (void) charm_monster(dir, plev);
                break;
-       case 19: /* Dimension Door */
+       case 17: /* Dimension Door */
        {
              msg_print("You open a dimensional gate. Choose a destination.");
              if (!tgt_pt(&ii,&ij)) return;
@@ -1416,17 +1411,16 @@ void do_cmd_cast(void)
              else teleport_player_to(ij,ii);
              break;
             }
-
-       case 20: /* Sense Minds */
+       case 18: /* Sense Minds */
             (void)set_tim_esp(p_ptr->tim_esp + randint(30) + 25);
 		       break;
-       case 21: /* Self knowledge */
+       case 19: /* Self knowledge */
            (void)self_knowledge();
                break;
-	   case 22: /* Teleport Level */
+	   case 20: /* Teleport Level */
 			(void)teleport_player_level();
 		       break;
-	   case 23: /* Word of Recall */
+	   case 21: /* Word of Recall */
 			{
                 if (dun_level && (p_ptr->max_dlv > dun_level))
                 {
@@ -1446,6 +1440,12 @@ void do_cmd_cast(void)
 				}
 				break;
 			}
+	   case 22: /* Detection True */
+			(void)detect_all();
+		       break;
+	   case 23: /* Identify True */
+			identify_fully();
+		       break;
        case 24: /* Stasis */
 			if (!get_aim_dir(&dir)) return;
 			(void)stasis_monster(dir);
@@ -1525,19 +1525,23 @@ void do_cmd_cast(void)
 			(void)wall_to_mud(dir);
 		       break;
 	   case 9: /* Lightning Bolt */
-				if (!get_aim_dir(&dir)) return;
-				fire_bolt_or_beam(beam-10, GF_ELEC, dir,
-						  damroll(5+((plev-5)/3), 8));
-		       break;
+		if (!get_aim_dir(&dir)) return;
+		fire_bolt_or_beam(beam-10, GF_ELEC, dir,
+		  damroll(5+((plev-5)/3), 8));
+	       break;
 	case 10:
 		/* Nature Awareness - *used* to detect monsters in general,
-                 * but now detects only animals. - Gumby
+                 * but now detects only animals and elementals - Gumby
                  */
 		map_area();
 		(void)detect_traps();
 		(void)detect_doors();
 		(void)detect_stairs();
 		(void)detect_monsters_xxx(RF3_ANIMAL);
+		if (plev > 19)
+		{
+			(void)detect_monsters_xxx(RF3_ELEMENTAL);
+		}
             break;
 	   case 11: /* Frost Bolt */
 			if (!get_aim_dir(&dir)) return;
@@ -1571,7 +1575,7 @@ void do_cmd_cast(void)
        case 18: /* Stone Skin */
 			(void)set_shield(p_ptr->shield + randint(20) + 30);
 		       break;
-       case 19: /* Resistance True */
+       case 19: /* Resistance */
 			(void)set_oppose_acid(p_ptr->oppose_acid + randint(20) + 20);
 			(void)set_oppose_elec(p_ptr->oppose_elec + randint(20) + 20);
 			(void)set_oppose_fire(p_ptr->oppose_fire + randint(20) + 20);
@@ -1779,7 +1783,7 @@ void do_cmd_cast(void)
 		case 14: /* Word of Destruction */
 			destroy_area(py, px, 15, TRUE);
 			break;
-		case 15: /* Invoke Logrus */
+		case 15: /* Invoke Chaos */
 			if (!get_aim_dir(&dir)) return;
 			fire_ball(GF_CHAOS, dir,
 					100 + (plev), (plev / 5));
@@ -1888,7 +1892,7 @@ void do_cmd_cast(void)
 			fire_ball(GF_MANA, dir,
 				400 + (plev * 2), 4);
             break;
-        case 30: /* Breathe Logrus */
+        case 30: /* Breathe Chaos */
                if (!get_aim_dir(&dir)) return;
                fire_ball(GF_CHAOS,dir,p_ptr->chp,
                      2);
@@ -4467,7 +4471,7 @@ void do_cmd_mindcraft(void)
 				break;
 			case 7:
 				/* Psychometry */
-				if (plev > 44)
+				if (plev > 39)
 					identify_fully();
 				else if (plev > 29)
 					ident_spell();
@@ -4477,7 +4481,7 @@ void do_cmd_mindcraft(void)
 			case 8:
 				/* Mindwave */
 				msg_print("Mind-warping forces emanate from your brain!");
-				if (plev < 25)
+				if (plev < 40)
 					project(0, 2+plev/10, py, px,
 					    (plev*4)/2, GF_PSI, PROJECT_KILL);
 				else

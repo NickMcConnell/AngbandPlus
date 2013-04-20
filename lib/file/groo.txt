@@ -1,0 +1,8 @@
+6
+******** BUFFER LINE *******************
+wonders: 'Where is the cheese dip?'
+smirks: 'Groo is smart as a duck!'
+says: 'A fray!  A fray!'
+says: 'Hold still!  How do you expect me to kill you if you keep running away?'
+asks: 'What is mulch?'
+says: 'Now Groo does what Groo does best!'

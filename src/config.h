@@ -201,7 +201,7 @@
 #define ALLOW_MACROS
 
 /*
- * OPTION: Allow characteres to be "auto-rolled"
+ * OPTION: Allow characters to be "auto-rolled"
  */
 #define ALLOW_AUTOROLLER
 
@@ -462,7 +462,6 @@
 /*
  * OPTION: Person to bother if something goes wrong.
  */
-/* #define MAINTAINER	"rr9@angband.org" */
 #define MAINTAINER	"gumby@gwar.net"
 
 /*

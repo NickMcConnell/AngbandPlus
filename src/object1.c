@@ -471,6 +471,7 @@ static byte default_tval_to_attr(int tval)
 
 		case TV_HAFTED:
 		case TV_POLEARM:
+		case TV_AXE:
 		case TV_SWORD:
 		{
 			return (TERM_L_WHITE);
@@ -1409,6 +1410,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		case TV_BOW:
 		case TV_HAFTED:
 		case TV_POLEARM:
+		case TV_AXE:
 		case TV_SWORD:
 		case TV_DIGGING:
 		{
@@ -1929,6 +1931,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		case TV_ARROW:
 		case TV_HAFTED:
 		case TV_POLEARM:
+		case TV_AXE:
 		case TV_SWORD:
 		case TV_DIGGING:
 
@@ -2270,6 +2273,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		case TV_BOW:
 		case TV_HAFTED:
 		case TV_POLEARM:
+		case TV_AXE:
 		case TV_SWORD:
 		case TV_DIGGING:
 		{
@@ -2791,6 +2795,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		case TV_ARROW:
 		case TV_HAFTED:
 		case TV_POLEARM:
+		case TV_AXE:
 		case TV_SWORD:
 		case TV_DIGGING:
 
@@ -3459,6 +3464,18 @@ cptr item_activation(object_type *o_ptr)
 		{
 			return "frost ball (72) every 5+d5 turns";
 		}
+		case ART_GLAMDRING:
+		{
+			return "detect orcs every 10 turns";
+		}
+		case ART_ORCRIST:
+		{
+			return "detect orcs every 10 turns";
+		}
+		case ART_STING:
+		{
+			return "detect orcs every 10 turns";
+		}
 		case ART_DAL:
 		{
 			return "remove fear and cure poison every 5 turns";
@@ -3471,7 +3488,7 @@ cptr item_activation(object_type *o_ptr)
 		{
 			return "summon the Legion of the Dawn every 500+d500 turns";
 		}
-		case ART_ANDURIL: /* 'Kanajana' */
+		case ART_KANAJANA:
 		{
 			return "radiation ball (300, radius 4) every 200 turns";
 		}
@@ -3490,6 +3507,10 @@ cptr item_activation(object_type *o_ptr)
 		case ART_TURMIL:
 		{
 			return "drain life (135) every 70 turns";
+		}
+		case ART_BRYIONAK:
+		{
+			return "summon the Bull of Crinanass every 200+d250 turns";
 		}
 		case ART_CASPANION:
 		{
@@ -3553,7 +3574,7 @@ cptr item_activation(object_type *o_ptr)
 		}
 		case ART_LUTHIEN:
 		{
-			return "restore life levels every 450 turns";
+			return "Sleep II every 35 turns";
 		}
 		case ART_ULMO:
 		{
@@ -3565,7 +3586,7 @@ cptr item_activation(object_type *o_ptr)
 		}
 		case ART_HOLCOLLETH:
 		{
-			return "Sleep II every 55 turns";
+			return "restore life levels every 450 turns";
 		}
 		case ART_THINGOL:
 		{
@@ -3635,9 +3656,9 @@ cptr item_activation(object_type *o_ptr)
 		{
 			return "dispel evil (x8) every 300+d300 turns";
 		}
-		case ART_CARLAMMAS:
+		case ART_RED_AMULET:
 		{
-			return "protection from evil every 225+d225 turns";
+			return "charm monsters (x8) every 200+d250 turns";
 		}
 		case ART_BARAHIR:
 		{
@@ -3663,13 +3684,34 @@ cptr item_activation(object_type *o_ptr)
 		{
 			return "bizarre things every 450+d450 turns";
 		}
-		case ART_DOR: case ART_GORLIM:
+		case ART_MELNIBONE:
+		case ART_TERROR_MASK:
 		{
 			return "rays of fear in every direction";
 		}
 		case ART_KWLL:
 		{
 			return "summon undead every 500 turns";
+		}
+		case ART_COWARDICE:
+		{
+			return "teleport level every 2 turns";
+		}
+		case ART_BASHER:
+		{
+			return "word of destruction every 200+d100 turns";
+		}
+		case ART_WHIRLWIND:
+		{
+			return "whirlwind attack every 250 turns";
+		}
+		case ART_ARIANROD:
+		{
+			return "alter reality every 100 turns";
+		}
+		case ART_RETALIATOR:
+		{
+			return "confuse monsters (lvl*6) ever 100+d50 turns";
 		}
 	}
 
@@ -3689,6 +3731,8 @@ cptr item_activation(object_type *o_ptr)
 				return "ball of cold and resist cold";
 			case SV_RING_ACID:
 				return "ball of acid and resist acid";
+			case SV_RING_SHADOWS:
+				return "wraithform every 250+d500 turns";
 			default:
 				return NULL;
 		}
@@ -4092,6 +4136,10 @@ bool identify_fully_aux(object_type *o_ptr)
 	{
 		info[i++] = "It produces an electric sheath.";
 	}
+	if (f3 & (TR3_SPINES))
+	{
+		info[i++] = "It is covered with spines.";
+	}
 	if (f3 & (TR3_NO_MAGIC))
 	{
 		info[i++] = "It produces an anti-magic shell.";
@@ -4282,6 +4330,7 @@ s16b wield_slot(object_type *o_ptr)
 		case TV_DIGGING:
 		case TV_HAFTED:
 		case TV_POLEARM:
+		case TV_AXE:
 		case TV_SWORD:
 		{
 			return (INVEN_WIELD);

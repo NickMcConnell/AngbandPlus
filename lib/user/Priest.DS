@@ -6,24 +6,24 @@
 #   ' - Berserk             F4 - Nether Bolt         SF4 - Confuse Monster
 #   " - Battle Frenzy       F5 - Vampiric Drain      SF5 - Black Sleep
 #   ; - Haste Self          F6 - Dark Bolt           SF6 - Horrify
-#   : - Globe of Invunerab. F7 - Vampirism True      SF7 - Invoke Spirits
+#   : - Globe of Invuln.    F7 - Vampirism True      SF7 - Invoke Spirits
 #   h - Magic Mapping       F8 - Darkness Storm      SF8 - Slow Monster
 #   H - Clairvoyance        F9 - Death Ray           SF9 - Mass Sleep
 #   J - Identify           F10 - Word of Death      SF10 - Terror
 #   n - Detect Monsters    F11 - Evocation          SF11 - Dispel Good
-#   N - Det. Doors & Traps F12 - Hellfire           SF12 - Stasis
-#   O - Detection True
+#   N - Detect Doors/Traps F12 - Hellfire           SF12 - Stasis
+#   O - Detection
 #   P - Recharging
 #   y - Phase Door
 #   Y - Teleport
 #   Z - Light Area
 
 # TAB - Teleport Away
-A:m6e
+A:m6g
 P:\t
 
 # [ - Dimension Door
-A:m7d
+A:m7b
 C:0:[
 
 # ] - Wraithform
@@ -39,15 +39,15 @@ A:m3d
 C:0:"
 
 # ; - Haste Self
-A:m6f
+A:m6h
 C:0:;
 
-# : - Globe of Invunerability
+# : - Globe of Invulnerability
 A:m8h
 C:0::
 
 # h - Magic Mapping
-A:m6a
+A:m6b
 C:0:h
 
 # H - Clairvoyance
@@ -55,23 +55,23 @@ A:m8d
 C:0:H
 
 # J - Identify
-A:m6b
+A:m6c
 C:0:J
 
 # n - Detect Monsters
 A:m5a
 C:0:n
 
-# N - Detect Doors and Traps
-A:m5c
+# N - Detect Doors/Traps
+A:m5d
 C:0:N
 
-# O - Detection True
-A:m6g
+# O - Detection
+A:m7g
 C:0:O
 
 # P - Recharging
-A:m5h
+A:m6a
 C:0:P
 
 # y - Phase Door
@@ -79,11 +79,11 @@ A:m5b
 C:0:y
 
 # Y - Teleport
-A:m5f
+A:m5g
 C:0:Y
 
 # Z - Light Area
-A:m5d
+A:m5e
 C:0:Z
 
 # Combat
@@ -153,7 +153,7 @@ P:^_Sx56\r
 # Misc Combat
 
 # SHIFT-F4 - Confuse Monster
-A:m5e
+A:m5f
 P:^_Sx57\r
 
 # SHIFT-F5 - Black Sleep
@@ -169,11 +169,11 @@ A:m3b
 P:^_Sx5A\r
 
 # SHIFT-F8 - Slow Monster
-A:m6c
+A:m6e
 P:^_Sx5B\r
 
 # SHIFT-F9 - Mass Sleep
-A:m6d
+A:m6f
 P:^_Sx5C\r
 
 # SHIFT-F10 - Terror

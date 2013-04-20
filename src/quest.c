@@ -166,17 +166,17 @@ void initialise_quests()
 
 	/* Add a special quest: Arioch */
 	q_list[0].level = 98;
-	q_list[0].r_idx = 581;
+	q_list[0].r_idx = 636;
 	q_list[0].max_num = 1;
 
 	/* Add a special quest: Xiombarg */
 	q_list[1].level = 99;
-	q_list[1].r_idx = 582;
+	q_list[1].r_idx = 637;
 	q_list[1].max_num = 1;
 
 	/* Add a second quest: Mabelrode */
 	q_list[2].level = 100;
-	q_list[2].r_idx = 583;
+	q_list[2].r_idx = 638;
 	q_list[2].max_num = 1;
 }
 
@@ -190,13 +190,23 @@ int get_number_monster(int i)
 	int num;
 
 	if (r_info[q_list[i].r_idx].flags1 & (RF1_UNIQUE))
+	{
 		return (1);
+	}
 	else
 	{
-		if (r_info[q_list[i].r_idx].flags1 & (RF1_FRIENDS))
+		if (r_info[q_list[i].r_idx].flags1 & (RF1_FRIEND || RF1_FRIENDS))
+		{
 			num = 10;
+		}
+		else if (r_info[q_list[i].r_idx].flags2 & (RF2_MULTIPLY))
+		{
+			num = 20;
+		}
 		else
+		{
 			num = 5;
+		}
 
 		num += rand_range(1, (q_list[i].level / 3) + 5);
 		return (num);
@@ -207,25 +217,26 @@ int get_number_monster(int i)
  * Get random monster
  * Heino Vander Sanden
  * Edited for ZAngband by Robert Ruehlmann
+ * Then edited for Gumband by Gumby :)
  */
 int get_rnd_q_monster(int q_idx)
 {
 	int r_idx,j,tmp;
 
 	tmp = rand_range(1,10);
-	/* first level 10 monster (141), last monster (581) */
+	/* first level 10 monster (146), last monster (635) */
 	switch (tmp)
 	{
-		case 1 : r_idx = rand_range(141,242); break;
-		case 2 : r_idx = rand_range(243,332); break;
-		case 3 : r_idx = rand_range(333,440); break;
-		case 4 : r_idx = rand_range(441,493); break;
-		case 5 : r_idx = rand_range(494,529); break;
-		case 6 : r_idx = rand_range(530,545); break;
-		case 7 : r_idx = rand_range(546,564); break;
-		case 8 : r_idx = rand_range(565,571); break;
-		case 9 : r_idx = rand_range(572,580); break;
-		default : r_idx = rand_range (141,580);
+		case 1 : r_idx = rand_range(146,251); break; /* 10-19 */
+		case 2 : r_idx = rand_range(252,346); break; /* 20-29 */
+		case 3 : r_idx = rand_range(347,458); break; /* 30-39 */
+		case 4 : r_idx = rand_range(459,518); break; /* 40-49 */
+		case 5 : r_idx = rand_range(519,559); break; /* 50-59 */
+		case 6 : r_idx = rand_range(560,584); break; /* 60-69 */
+		case 7 : r_idx = rand_range(585,609); break; /* 70-79 */
+		case 8 : r_idx = rand_range(610,622); break; /* 80-89 */
+		case 9 : r_idx = rand_range(623,635); break; /* 90-97 */
+		default : r_idx = rand_range (146,635);
 	}
 
 	for (j = 2; j < q_idx; j++)

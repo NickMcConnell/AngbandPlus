@@ -143,15 +143,6 @@ static void sense_inventory(void)
 			break;
 		}
 
-                case CLASS_HIGH_MAGE:
-                {
-                         /* Okay (light) sensing */
-                         if (0 != rand_int(50000L / (plev * plev + 40))) return;
-
-                         /* Done */
-                         break;
-                }
-
 		case CLASS_PRIEST:
 		{
 			/* Good (light) sensing */
@@ -162,6 +153,7 @@ static void sense_inventory(void)
 		}
 
 		case CLASS_ROGUE:
+		case CLASS_WEAPONMASTER:
 		{
 			/* Okay sensing */
 			if (0 != rand_int(20000L / (plev * plev + 40))) return;
@@ -174,20 +166,11 @@ static void sense_inventory(void)
 		}
 
 		case CLASS_RANGER:
-		{
-
-			/* Bad sensing */
-			if (0 != rand_int(60000L / (plev * plev + 40))) return;
-
-			/* Changed! */
-			heavy = TRUE;
-
-			/* Done */
-			break;
-		}
-
 		case CLASS_PALADIN:
+		case CLASS_WARRIOR_MAGE:
+		case CLASS_CHAOS_WARRIOR:
 		{
+
 			/* Bad sensing */
 			if (0 != rand_int(60000L / (plev * plev + 40))) return;
 
@@ -198,46 +181,21 @@ static void sense_inventory(void)
 			break;
 		}
 
-		case CLASS_WARRIOR_MAGE:
+		case CLASS_MONK:
 		{
-
-			/* Bad sensing */
-			if (0 != rand_int(60000L / (plev * plev + 40))) return;
-
-			/* Heavy Sensing */
-			heavy = TRUE;
+			/* Okay sensing */
+			if (0 != rand_int(20000L / (plev * plev + 40))) return;
 
 			/* Done */
 			break;
 		}
 
 		case CLASS_MINDCRAFTER:
+		case CLASS_HIGH_MAGE:
 		{
 
 			/* Bad sensing */
 			if (0 != rand_int(50000L / (plev * plev + 40))) return;
-
-			/* Done */
-			break;
-		}
-
-		case CLASS_CHAOS_WARRIOR:
-		{
-
-			/* Bad sensing */
-			if (0 != rand_int(60000L / (plev * plev + 40))) return;
-
-			/* Changed! */
-			heavy = TRUE;
-
-			/* Done */
-			break;
-		}
-
-		case CLASS_MONK:
-		{
-			/* Okay sensing */
-			if (0 != rand_int(20000L / (plev * plev + 40))) return;
 
 			/* Done */
 			break;
@@ -267,6 +225,7 @@ static void sense_inventory(void)
 			case TV_DIGGING:
 			case TV_HAFTED:
 			case TV_POLEARM:
+			case TV_AXE:
 			case TV_SWORD:
 			case TV_BOOTS:
 			case TV_GLOVES:
@@ -436,7 +395,7 @@ static bool pattern_effect(void)
 	    || (cave[py][px].feat > FEAT_PATTERN_XTRA2))
 	return FALSE;
 
-	if ((p_ptr->prace == RACE_AMBERITE) && (p_ptr->cut>0) && (randint(10)==1))
+	if ((p_ptr->cut>0) && (randint(10)==1))
 	{
 		wreck_the_pattern();
 	}
@@ -485,12 +444,9 @@ static bool pattern_effect(void)
 
 	else
 	{
-		if ((p_ptr->prace == RACE_AMBERITE) && (randint(2)!=1))
-			return TRUE;
-		else if (!(p_ptr->invuln))
+		if (!(p_ptr->invuln))
 			take_hit(damroll(1,3), "walking the Pattern");
 	}
-
 	return TRUE;
 }
 
@@ -947,8 +903,8 @@ static void process_world(void)
 		}
 
 		if ((inventory[INVEN_LITE].tval)
-		    && (inventory[INVEN_LITE].sval >= SV_LITE_GALADRIEL)
-		    && (inventory[INVEN_LITE].sval < SV_LITE_THRAIN)
+		    && (inventory[INVEN_LITE].sval >= SV_LITE_TORCH)
+		    && (inventory[INVEN_LITE].sval <= SV_LITE_THRAIN)
 		    && !(p_ptr->resist_lite))
 		{
 			object_type * o_ptr = &inventory[INVEN_LITE];
@@ -1423,13 +1379,71 @@ static void process_world(void)
 	/* Calculate torch radius */
 	p_ptr->update |= (PU_TORCH);
 
+	/* Beastmen gain & lose mutations at random */
+	if ((p_ptr->prace == RACE_BEASTMAN) && (randint(5000) == 666))
+	{
+		j = randint(20);
+
+		/*
+		 * Stop everything - if you stop for the little things.
+		 *
+		 * Hmmm. Wonder how to disturb *only* if one of these
+		 * *successfully* happend - ie, disturb if it clears muta1's
+		 * *AND* if you actually had one or more mutations of that
+		 * class to clear... -- Gumby
+		 */
+		if (disturb_minor) disturb(0,0);
+
+		switch(j)
+		{
+			case 1: case 4:
+				if(p_ptr->muta1)
+				{
+					msg_print("Some of your lovely mutations go away!");
+					p_ptr->muta1 = 0;
+					p_ptr->update |= PU_BONUS;
+					handle_stuff();
+				}
+				break;
+			case 2: case 5:
+				if(p_ptr->muta2)
+				{
+					msg_print("Some of your lovely mutations go away!");
+					p_ptr->muta2 = 0;
+					p_ptr->update |= PU_BONUS;
+					handle_stuff();
+				}
+				break;
+			case 3: case 6:
+				if(p_ptr->muta3)
+				{
+					msg_print("Some of your lovely mutations go away!");
+					p_ptr->muta3 = 0;
+					p_ptr->update |= PU_BONUS;
+					handle_stuff();
+				}
+				break;
+			case 7:
+				if(p_ptr->muta1 || p_ptr->muta2 || p_ptr->muta3)
+				{
+					msg_print("All of your lovely mutations go away!");
+					p_ptr->muta1 = p_ptr->muta2 = p_ptr->muta3 = 0;
+					p_ptr->update |= PU_BONUS;
+					handle_stuff();
+				}
+				break;
+			default:
+				gain_random_mutation(0);
+				break;
+		}
+	}
 
 	/*** Process mutation effects ***/
 	if (p_ptr->muta2)
 	{
 		if ((p_ptr->muta2 & MUT2_BERS_RAGE) && (randint(3000)==1))
 		{
-			disturb(0,0);
+			if (disturb_minor) disturb(0,0);
 			msg_print("RAAAAGHH!");
 			msg_print("You feel a fit of rage coming over you!");
 			(void) set_shero(p_ptr->shero + 10 + randint(p_ptr->lev));
@@ -1439,7 +1453,7 @@ static void process_world(void)
 		{
 			if (!(p_ptr->resist_fear || p_ptr->hero || p_ptr->shero))
 			{
-				disturb(0,0);
+				if (disturb_minor) disturb(0,0);
 				msg_print("It's so dark... so scary!");
 				p_ptr->redraw |= PR_AFRAID;
 				p_ptr->afraid = (p_ptr->afraid) + 13 + randint(26);
@@ -1506,7 +1520,7 @@ static void process_world(void)
 
 		if ((p_ptr->muta2 & MUT2_FLATULENT) && (randint(3000)==13))
 		{
-			disturb(0,0);
+			if (disturb_minor) disturb(0,0);
 
 			msg_print("BRRAAAP! Oops.");
 			msg_print(NULL);
@@ -1601,7 +1615,7 @@ static void process_world(void)
 
 			if (i)
 			{
-				disturb(0,0);
+				if (disturb_minor) disturb(0,0);
 				msg_print("Your skin rips open!  Ouch!");
 				set_cut(p_ptr->cut + i);
 			}
@@ -1693,7 +1707,7 @@ static void process_world(void)
 
 			if (i)
 			{
-				disturb(0, 0);
+				if (disturb_minor) disturb(0, 0);
 				msg_print("You feel the world warping around you!");
 				msg_print(NULL);
 				fire_ball(GF_CHAOS, 0, i, r);
@@ -1715,7 +1729,7 @@ static void process_world(void)
 
 			if (i)
 			{
-				disturb(0,0);
+				if (disturb_minor) disturb(0, 0);
 				msg_print("You feel insubstantial!");
 				msg_print(NULL);
 				set_shadow(p_ptr->wraith_form + i);
@@ -1724,6 +1738,7 @@ static void process_world(void)
 
 		if ((p_ptr->muta2 & MUT2_POLY_WOUND) && !rand_int(3000))
 		{
+			if (disturb_minor) disturb(0, 0);
 			do_poly_wounds();
 		}
 
@@ -1799,6 +1814,8 @@ static void process_world(void)
 		if ((p_ptr->muta2 & MUT2_WALK_SHAD) &&
 			!p_ptr->anti_magic && !rand_int(12000))
 		{
+			disturb(0,0);
+			msg_print("A shadowy gate appears.  You enter...");
 			new_level_flag = TRUE;
 		}
 
@@ -1853,7 +1870,7 @@ static void process_world(void)
 
 			if (i)
 			{
-				disturb(0, 0);
+				if (disturb_minor) disturb(0, 0);
 				msg_print("You feel invincible!");
 				msg_print(NULL);
 				(void)set_invuln(p_ptr->invuln + i);
@@ -1967,7 +1984,7 @@ static void process_world(void)
 		}
 
 		/* Make a chainsword noise */
-		if ((o_ptr->name1 == ART_ELVAGIL) && randint(CHAINSWORD_NOISE) == 1)
+		if ((o_ptr->name1 == ART_CHAINSWORD) && randint(CHAINSWORD_NOISE) == 1)
 		{
 			char noise[80];
 			get_rnd_line("chainswd.txt", noise);
@@ -2928,15 +2945,30 @@ static void process_command(void)
 		break;
 
 		/*
-		 * Show quest status
-		 * Heino Vander Sanden
+		 * Show quest status -- Heino Vander Sanden
+		 * Next quest level added -- Gumby
 		 */
 		case KTRL('Q'):
 		{
+			int k = 0;
+
+			k = next_quest_level();
+
 			if (is_quest(dun_level, FALSE))
+			{
 				print_quest_message();
+			}
 			else
-				msg_print("No current quest");
+			{
+				msg_print("No current quest.");
+				if (k != 127)
+				{
+					if (depth_in_feet)
+						msg_format(" Next quest at %d feet.", k * 50);
+					else
+						msg_format(" Next quest on level %d.", k);
+				}
+			}
 			break;
 		}
 
@@ -3822,8 +3854,19 @@ void play_game(bool new_game)
 		/* Roll up a new character */
 		player_birth();
 
-		/* Hack -- enter the world */
-		turn = 1;
+		/* Hack -- enter the world
+		 * Hack -- the undead don't start their unlife
+		 *        during the day. - Gumby
+		 */
+		if (p_ptr->prace == RACE_SKELETON || p_ptr->prace == RACE_ZOMBIE ||
+		    p_ptr->prace == RACE_VAMPIRE  || p_ptr->prace == RACE_SPECTRE)
+		{
+			turn = (10L * TOWN_DAWN) / 2;
+		}
+		else
+		{
+			turn = 1;
+		}
 	}
 
 

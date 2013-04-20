@@ -593,14 +593,13 @@ void do_cmd_destroy(void)
         if ((gain_expr) && (p_ptr->exp < PY_MAX_EXP))
         
         {
-            s32b tester_exp = p_ptr->max_exp / 20;
-            if (tester_exp > 10000) tester_exp = 10000;
-            if (o_ptr->sval < 3) tester_exp /= 4;
-            if (tester_exp<1) tester_exp = 1;
+	/* Wanted to make it actually worthwhile for Warriors and Paladins
+	 * to kill the dungeon books. -- Gumby
+	 */
+		s32b tester_exp = (object_value(o_ptr) / 50) * p_ptr->lev;
 
-            msg_print("You feel more experienced.");
-            gain_exp(tester_exp * amt);
-
+		msg_print("You feel more experienced.");
+		gain_exp(tester_exp * amt);
         }
     }
 
@@ -1211,13 +1210,13 @@ static cptr ident_info[] =
 	"E:Elemental",
 	"F:Dragon Fly",
 	"G:Ghost",
-	"H:Hybrid",
+	"H:Monster Hybrid/Harpy",
 	"I:Insect",
 	"J:Snake",
 	"K:Killer Beetle",
 	"L:Lich",
 	"M:Multi-Headed Reptile",
-	/* "N:unused", */
+	"N:Humanoid Hybrid/Beastman",
 	"O:Ogre",
 	"P:Giant Humanoid",
 	"Q:Quylthulg (Pulsing Flesh Mound)",
@@ -1228,7 +1227,7 @@ static cptr ident_info[] =
 	"V:Vampire",
 	"W:Wight/Wraith/etc",
 	"X:Xorn/Xaren/etc",
-	"Y:Yeti",
+	"Y:Yeti/ape-like creature",
 	"Z:Zephyr Hound",
 	"[:Hard armor",
 	"\\:A hafted weapon (mace/whip/etc)",
@@ -1247,7 +1246,7 @@ static cptr ident_info[] =
 	"i:Icky Thing",
 	"j:Jelly",
 	"k:Kobold",
-	"l:Louse",
+	/* "l:unused", */
 	"m:Mold",
 	"n:Naga",
 	"o:Orc",
@@ -1259,7 +1258,7 @@ static cptr ident_info[] =
 	"u:Minor Demon",
 	"v:Vortex",
 	"w:Worm/Worm-Mass",
-	/* "x:unused", */
+	"x:Shapechanger",
 	"y:Yeek",
 	"z:Zombie/Mummy",
 	"{:A missile (arrow/bolt/shot)",

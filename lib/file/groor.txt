@@ -1,0 +1,7 @@
+5
+******** BUFFER LINE *******************
+asks: 'Did I err?'
+says: 'Oops!'
+asks: 'Is this how they show their admiration around here?'
+says: 'Groo is cautious...  Groo is sly...  Groo is lunch!'
+sobs: 'I always knew people did not like me.  I did not know they hated me...'

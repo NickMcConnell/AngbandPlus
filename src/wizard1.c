@@ -74,9 +74,10 @@ static grouper group_item[] =
 	{ TV_BOW,               "Bows" },
 
 	{ TV_SWORD,             "Weapons" },
-	{ TV_POLEARM,     NULL },
-	{ TV_HAFTED,      NULL },
-	{ TV_DIGGING,     NULL },
+	{ TV_AXE,		NULL },
+	{ TV_POLEARM,		NULL },
+	{ TV_HAFTED,		NULL },
+	{ TV_DIGGING,		NULL },
 
 	{ TV_SOFT_ARMOR,        "Armour (Body)" },
 	{ TV_HARD_ARMOR,          NULL },
@@ -190,6 +191,7 @@ static void kind_info(char *buf, char *dam, char *wgt, int *lev, s32b *val, int 
 		/* Weapons */
 		case TV_HAFTED:
 		case TV_POLEARM:
+		case TV_AXE:
 		case TV_SWORD:
 		case TV_DIGGING:
 		{
@@ -382,6 +384,7 @@ static void spoil_obj_desc(cptr fname)
 static grouper group_artifact[] =
 {
 	{ TV_SWORD,             "Edged Weapons" },
+	{ TV_AXE,		"Axes" },
 	{ TV_POLEARM,           "Polearms" },
 	{ TV_HAFTED,            "Hafted Weapons" },
 	{ TV_BOW,               "Bows" },
@@ -569,6 +572,7 @@ static const flag_desc misc_flags3_desc[] =
 {
 	{ TR3_SH_FIRE,            "Fiery Aura" },
 	{ TR3_SH_ELEC,            "Electric Aura" },
+	{ TR3_SPINES,		  "Spiny Coating" },
 	{ TR3_NO_TELE,            "Prevent Teleportation" },
 	{ TR3_NO_MAGIC,           "Anti-Magic" },
 	{ TR3_WRAITH,             "Wraith Form" },
@@ -1741,6 +1745,12 @@ static void spoil_mon_info(cptr fname)
 			spoil_out(buf);
 		}
 
+		if (flags2 & (RF2_EXPLOSIVE))
+		{
+			sprintf(buf, "%s explodes when it dies.  ", wd_che[msex]);
+			spoil_out(buf);
+		}
+
 		if (flags1 & (RF1_ESCORT))
 		{
 			sprintf(buf, "%s usually appears with ", wd_che[msex]);
@@ -1830,7 +1840,7 @@ static void spoil_mon_info(cptr fname)
 		if (flags4 & (RF4_BA_NUKE))           vp[vn++] = "produce balls of radiation";
 		if (flags5 & (RF5_BA_MANA))           vp[vn++] = "produce mana storms";
 		if (flags5 & (RF5_BA_DARK))           vp[vn++] = "produce darkness storms";
-		if (flags4 & (RF4_BA_CHAO))           vp[vn++] = "invoke raw Logrus";
+		if (flags4 & (RF4_BA_CHAO))           vp[vn++] = "invoke raw Chaos";
 		if (flags6 & (RF6_HAND_DOOM))         vp[vn++] = "invoke the Hand of Doom";
 		if (flags5 & (RF5_DRAIN_MANA))        vp[vn++] = "drain mana";
 		if (flags5 & (RF5_MIND_BLAST))        vp[vn++] = "cause mind blasting";
@@ -1857,7 +1867,7 @@ static void spoil_mon_info(cptr fname)
 		if (flags5 & (RF5_HOLD))              vp[vn++] = "paralyze";
 		if (flags6 & (RF6_HASTE))             vp[vn++] = "haste-self";
 		if (flags6 & (RF6_HEAL))              vp[vn++] = "heal-self";
-		if (flags6 & (RF6_XXX2))              vp[vn++] = "do something";
+		if (flags6 & (RF6_S_DAWN))            vp[vn++] = "summon the Legion of the Dawn";
 		if (flags6 & (RF6_BLINK))             vp[vn++] = "blink-self";
 		if (flags6 & (RF6_TPORT))             vp[vn++] = "teleport-self";
 		if (flags6 & (RF6_S_HELLBLADES))      vp[vn++] = "summon Hellblades";
@@ -2167,23 +2177,34 @@ static void spoil_mon_info(cptr fname)
 				case RBM_CLAW:   p = "claw"; break;
 				case RBM_BITE:   p = "bite"; break;
 				case RBM_STING:  p = "sting"; break;
-				case RBM_XXX1:   break;
+				case RBM_TONGUE:
+				{
+					if (strstr((r_name + r_ptr->name),"The Thing With 1000 "))
+					{
+						p = "grab you with its tongues.";
+					}
+					else
+					{
+						p = "grab you with its tongue";
+					}
+					break;
+				}
 				case RBM_BUTT:   p = "butt"; break;
 				case RBM_CRUSH:  p = "crush"; break;
 				case RBM_ENGULF: p = "engulf"; break;
-				case RBM_CHARGE: p = "charge";  break;
+				case RBM_CHARGE: p = "charge"; break;
 				case RBM_CRAWL:  p = "crawl on you"; break;
 				case RBM_DROOL:  p = "drool on you"; break;
 				case RBM_SPIT:   p = "spit"; break;
-				case RBM_XXX3:   break;
+				case RBM_LIE:	 p = "spout lies"; break;
 				case RBM_GAZE:   p = "gaze"; break;
 				case RBM_WAIL:   p = "wail"; break;
 				case RBM_SPORE:  p = "release spores"; break;
-				case RBM_XXX4:   break;
+				case RBM_TENTACLE: p = "grab you with its tentacles"; break;
 				case RBM_BEG:    p = "beg"; break;
 				case RBM_INSULT: p = "insult"; break;
-				case RBM_MOAN:   p = "moan"; break;
-				case RBM_SHOW:   p = "spout lies"; break;
+				case RBM_OFFER:  p = "offer"; break;
+				case RBM_SHOW:   p = "sing"; break;
 			}
 
 
@@ -2221,6 +2242,7 @@ static void spoil_mon_info(cptr fname)
 				case RBE_EXP_20:        q = "lower experience (by 20d6+)"; break;
 				case RBE_EXP_40:        q = "lower experience (by 40d6+)"; break;
 				case RBE_EXP_80:        q = "lower experience (by 80d6+)"; break;
+				case RBE_VAMP:		q = "drain life"; break;
 			}
 
 

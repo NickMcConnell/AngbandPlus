@@ -855,9 +855,10 @@ static bool hates_acid(object_type *o_ptr)
 		case TV_ARROW:
 		case TV_BOLT:
 		case TV_BOW:
-		case TV_SWORD:
 		case TV_HAFTED:
 		case TV_POLEARM:
+		case TV_AXE:
+		case TV_SWORD:
 		case TV_HELM:
 		case TV_CROWN:
 		case TV_SHIELD:
@@ -931,6 +932,7 @@ static bool hates_fire(object_type *o_ptr)
 		case TV_BOW:
 		case TV_HAFTED:
 		case TV_POLEARM:
+		case TV_AXE:
 		case TV_BOOTS:
 		case TV_GLOVES:
 		case TV_CLOAK:
@@ -2558,7 +2560,7 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 				break;
 			}
 
-			/* Holy Fire and Hell Fire -- destroys cursed non-artifacts */
+			/* Holy Fire - destroys cursed items */
 			case GF_HOLY_FIRE:
 			{
 				if (cursed_p(o_ptr))
@@ -2568,17 +2570,6 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 				}
 				break;
 			}
-
-			case GF_HELL_FIRE:
-			{
-				if ((!cursed_p(o_ptr)) && (randint(10) == 7))
-				{
-					do_kill = TRUE;
-					note_kill = (plural ? " are destroyed!" : " is destroyed!");
-				}
-				break;
-			}
-
 
 			/* Unlock chests */
 			case GF_KILL_TRAP:
@@ -2989,7 +2980,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			break;
 		}
 
-		/* Hellfire hurts good and evil resists - Gumby */
+		/* Hellfire hurts good - Gumby */
 		case GF_HELL_FIRE:
 		{
 			if (seen) obvious = TRUE;
@@ -2999,23 +2990,17 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 				note = " is hit hard.";
 				if (seen) r_ptr->r_flags3 |= (RF3_GOOD);
 			}
-			else if (r_ptr->flags3 & (RF3_EVIL))
-			{
-				dam /=3;
-				note = " resists.";
-				if (seen) r_ptr->r_flags3 |= (RF3_EVIL);
-			}
 			break;
 		}
 
-		/* Holy Fire -- hurts Evil, Good are immune, others _resist_ */
+		/* Holy Fire -- hurts Evil, Good resists - Gumby */
 		case GF_HOLY_FIRE:
 		{
 			if (seen) obvious = TRUE;
 			if (r_ptr->flags3 & (RF3_GOOD))
 			{
-				dam = 0;
-				note = " is immune.";
+				dam /= 3;
+				note = " resists.";
 				if (seen) r_ptr->r_flags3 |= (RF3_GOOD);
 			}
 			else if (r_ptr->flags3 & (RF3_EVIL))
@@ -3023,11 +3008,6 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 				dam *= 2;
 				note = " is hit hard.";
 				if (seen) r_ptr->r_flags3 |= (RF3_EVIL);
-			}
-			else
-			{
-				note = " resists.";
-				dam /= 3;
 			}
 			break;
 		}

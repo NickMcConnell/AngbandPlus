@@ -80,11 +80,16 @@ static int check_hit(int power, int level)
 	return (FALSE);
 }
 
+/* Hack -- possible "lie" messages - Gumby */
+static cptr desc_lie[] =
+{
+	"promises, 'A national sales tax will help the economy!'",
+	"swears, 'Free trade with the USA is a good thing!'",
+	"cajoles, 'Come on, you know you want NAFTA!'",
+	"swears, 'I did not accept kickbacks from Airbus.'"
+};
 
-
-/*
- * Hack -- possible "insult" messages
- */
+/* Hack -- possible "insult" messages */
 static cptr desc_insult[] =
 {
 	"insults you!",
@@ -97,17 +102,13 @@ static cptr desc_insult[] =
 	"moons you!!!"
 };
 
-
-
-/*
- * Hack -- possible "insult" messages
- */
-static cptr desc_moan[] =
+/* Hack -- possible "offer" messages (Bill Ferny) - Gumby */
+static cptr desc_offer[] =
 {
-	"seems sad about something.",
-	"asks if you have seen his dogs.",
-	"tells you to get off his land.",
-	"mumbles something about mushrooms."
+	"has a horse to sell you.",
+	"consorts with darkness.",
+	"wants your money.",
+	"mumbles something about ungrateful hobbits."
 };
 
 
@@ -224,6 +225,7 @@ bool make_attack_normal(int m_idx)
 			case RBE_EXP_20:	power =  5; break;
 			case RBE_EXP_40:	power =  5; break;
 			case RBE_EXP_80:	power =  5; break;
+			case RBE_VAMP:		power =  5; break;
 		}
 
 
@@ -314,9 +316,18 @@ bool make_attack_normal(int m_idx)
 					break;
 				}
 
-				case RBM_XXX1:
+				case RBM_TONGUE: /* was XXX1 */
 				{
-					act = "XXX1's you.";
+					if (strstr((r_name + r_ptr->name),"The Thing With 1000 "))
+					{
+						act = "grabs you with its tongues.";
+						touched = TRUE;
+					}
+					else
+					{
+						act = "grabs you with its tongue.";
+						touched = TRUE;
+					}
 					break;
 				}
 
@@ -369,9 +380,9 @@ bool make_attack_normal(int m_idx)
 					break;
 				}
 
-				case RBM_XXX3:
+				case RBM_LIE: /* was XXX3 - Gumby */
 				{
-					act = "XXX3's on you.";
+					act = desc_lie[rand_int(4)];
 					break;
 				}
 
@@ -393,9 +404,10 @@ bool make_attack_normal(int m_idx)
 					break;
 				}
 
-				case RBM_XXX4:
+				case RBM_TENTACLE: /* was XXX4 */
 				{
-					act = "projects XXX4's at you.";
+					act = "grabs you with its tentacles.";
+					touched = TRUE;
 					break;
 				}
 
@@ -411,18 +423,19 @@ bool make_attack_normal(int m_idx)
 					break;
 				}
 
-				case RBM_MOAN:
+				case RBM_OFFER:
 				{
-					act = desc_moan[rand_int(4)];
+					act = desc_offer[rand_int(4)];
 					break;
 				}
+
 
 				case RBM_SHOW:
 				{
 					if (randint(3)==1)
-						act = "yells, 'Come on! You know you want NAFTA!'";
+						act = "sings, 'We are a happy family.'";
 					else
-						act = "says, 'Free trade with the USA is a good thing, I swear!'";
+						act = "sings, 'I love you, you love me.'";
 					break;
 				}
 			}
@@ -638,8 +651,8 @@ bool make_attack_normal(int m_idx)
 					/* Find an item */
 					for (k = 0; k < 10; k++)
 					{
-						/* Pick an item (was INVEN_PACK) */
-						i = rand_int(INVEN_TOTAL);
+						/* Pick an item */
+						i = rand_int(INVEN_PACK);
 
 						/* Obtain the item */
 						o_ptr = &inventory[i];
@@ -1203,6 +1216,83 @@ bool make_attack_normal(int m_idx)
 					}
 					break;
 				}
+
+				case RBE_VAMP: /* EXP_60 + Heal -- Gumby */
+				{
+					/* Obvious */
+					obvious = TRUE;
+
+					/* Hack -- Player armor reduces total damage */
+					damage -= (damage * ((ac < 150) ? ac : 150) / 250);
+
+					/* Take damage */
+					take_hit(damage, ddesc);
+
+					if (p_ptr->hold_life && (rand_int(100) < 75))
+					{
+						msg_print("You keep hold of your life force!");
+
+						/* Heal the monster */
+						if (!(p_ptr->prace >= RACE_GOLEM && p_ptr->prace <= RACE_SPECTRE))
+						{
+							m_ptr->hp += damage;
+
+							/* No supercharging! */
+							if (m_ptr->hp > m_ptr->maxhp) m_ptr->hp = m_ptr->maxhp;
+
+							/* Tell the player */
+							msg_format("%^s seems only slightly revitalized.", m_name);
+
+							/* Redraw (later) if needed */
+							if (health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
+						}
+					}
+					else
+					{
+						s32b d = damroll(60, 6) + (p_ptr->exp/100) * MON_DRAIN_LIFE;
+						if (p_ptr->hold_life)
+						{
+							msg_print("You feel your life slipping away!");
+							lose_exp(d/10);
+
+							/* Heal the monster */
+							if (!(p_ptr->prace >= RACE_GOLEM && p_ptr->prace <= RACE_SPECTRE))
+							{
+								m_ptr->hp += ((d / 10) + damage);
+
+								/* No supercharging! */
+								if (m_ptr->hp > m_ptr->maxhp) m_ptr->hp = m_ptr->maxhp;
+
+								/* Tell the player */
+								msg_format("%^s seems slightly revitalized!", m_name);
+
+								/* Redraw (later) if needed */
+								if (health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
+							}
+						}
+						else
+						{
+							msg_print("You feel your life draining away!");
+							lose_exp(d);
+
+							/* Heal the monster */
+							if (!(p_ptr->prace >= RACE_GOLEM && p_ptr->prace <= RACE_SPECTRE))
+							{
+								m_ptr->hp += (d + damage);
+
+								/* No supercharging! */
+								if (m_ptr->hp > m_ptr->maxhp) m_ptr->hp = m_ptr->maxhp;
+
+								/* Tell the player */
+								msg_format("%^s seems revitalized!", m_name);
+
+								/* Redraw (later) if needed */
+								if (health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
+							}
+						}
+					}
+					break;
+				}
 			}
 
 
@@ -1318,6 +1408,7 @@ bool make_attack_normal(int m_idx)
 					if (mon_take_hit(m_idx, damroll(2,6), &fear,
 						 " crumples lifelessly to the ground."))
 					{
+						blinked = FALSE;
 						alive = FALSE;
 					}
 				}
@@ -1339,11 +1430,12 @@ bool make_attack_normal(int m_idx)
 				case RBM_CLAW:
 				case RBM_BITE:
 				case RBM_STING:
-				case RBM_XXX1:
+				case RBM_TONGUE: /* was XXX1 */
 				case RBM_BUTT:
 				case RBM_CRUSH:
 				case RBM_ENGULF:
 				case RBM_CHARGE:
+				case RBM_TENTACLE: /* was XXX4 */
 
 				/* Visible monsters */
 				if (m_ptr->ml)

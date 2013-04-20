@@ -1374,7 +1374,7 @@ static bool monst_spell_monst(int m_idx)
 			disturb(1, 0);
 			if (!see_either) msg_print("You hear someone mumble frighteningly.");
 			else if (blind) msg_format("%^s mumbles frighteningly.", m_name);
-			else msg_format("%^s invokes a raw Logrus upon %s.", m_name, t_name);
+			else msg_format("%^s invokes raw Chaos upon %s.", m_name, t_name);
 			monst_breath_monst(m_idx, y, x, GF_CHAOS,
 			    (rlev * 2) + damroll(10, 10), 4);
 			break;
@@ -2074,9 +2074,20 @@ static bool monst_spell_monst(int m_idx)
            break;
        }
 
-       /* RF6_XXX2X6 */
+       /* RF6_S_DAWN (was RF6_XXX2X6) */
        case 160+3:
        {
+           disturb(1, 0);
+           if (blind || !see_m) msg_format("%^s mumbles.", m_name);
+           else msg_format("%^s magically summons the Legion of the Dawn!", m_name);
+           for (k = 0; k < 1; k++)
+           {
+               if (friendly)
+               count += summon_specific_friendly(y, x, rlev, SUMMON_DAWN, TRUE);
+               else
+               count += summon_specific(y, x, rlev, SUMMON_DAWN);
+           }
+           if (blind && count) msg_print("You hear many things appear nearby.");
            break;
        }
 
@@ -3064,7 +3075,7 @@ bool make_attack_spell(int m_idx)
 			if (blind) msg_format("%^s breathes.", m_name);
 			else msg_format("%^s breathes nether.", m_name);
 			breath(m_idx, GF_NETHER,
-			       ((m_ptr->hp / 6) > 550 ? 550 : (m_ptr->hp / 6)),0);
+			       ((m_ptr->hp / 6) > 600 ? 600 : (m_ptr->hp / 6)),0);
 			update_smart_learn(m_idx, DRS_NETH);
 			break;
 		}
@@ -3076,7 +3087,7 @@ bool make_attack_spell(int m_idx)
 			if (blind) msg_format("%^s breathes.", m_name);
 			else msg_format("%^s breathes light.", m_name);
 			breath(m_idx, GF_LITE,
-			       ((m_ptr->hp / 6) > 400 ? 400 : (m_ptr->hp / 6)),0);
+			       ((m_ptr->hp / 6) > 600 ? 600 : (m_ptr->hp / 6)),0);
 			update_smart_learn(m_idx, DRS_LITE);
 			break;
 		}
@@ -3088,7 +3099,7 @@ bool make_attack_spell(int m_idx)
 			if (blind) msg_format("%^s breathes.", m_name);
 			else msg_format("%^s breathes darkness.", m_name);
 			breath(m_idx, GF_DARK,
-			       ((m_ptr->hp / 6) > 400 ? 400 : (m_ptr->hp / 6)),0);
+			       ((m_ptr->hp / 6) > 600 ? 600 : (m_ptr->hp / 6)),0);
 			update_smart_learn(m_idx, DRS_DARK);
 			break;
 		}
@@ -3100,7 +3111,7 @@ bool make_attack_spell(int m_idx)
 			if (blind) msg_format("%^s breathes.", m_name);
 			else msg_format("%^s breathes confusion.", m_name);
 			breath(m_idx, GF_CONFUSION,
-			       ((m_ptr->hp / 6) > 400 ? 400 : (m_ptr->hp / 6)),0);
+			       ((m_ptr->hp / 6) > 600 ? 600 : (m_ptr->hp / 6)),0);
 			update_smart_learn(m_idx, DRS_CONF);
 			break;
 		}
@@ -3112,7 +3123,7 @@ bool make_attack_spell(int m_idx)
 			if (blind) msg_format("%^s breathes.", m_name);
 			else msg_format("%^s breathes sound.", m_name);
 			breath(m_idx, GF_SOUND,
-			       ((m_ptr->hp / 6) > 400 ? 400 : (m_ptr->hp / 6)),0);
+			       ((m_ptr->hp / 6) > 600 ? 600 : (m_ptr->hp / 6)),0);
 			update_smart_learn(m_idx, DRS_SOUND);
 			break;
 		}
@@ -3136,7 +3147,7 @@ bool make_attack_spell(int m_idx)
 			if (blind) msg_format("%^s breathes.", m_name);
 			else msg_format("%^s breathes disenchantment.", m_name);
 			breath(m_idx, GF_DISENCHANT,
-			       ((m_ptr->hp / 6) > 500 ? 500 : (m_ptr->hp / 6)),0);
+			       ((m_ptr->hp / 6) > 600 ? 600 : (m_ptr->hp / 6)),0);
 			update_smart_learn(m_idx, DRS_DISEN);
 			break;
 		}
@@ -3148,7 +3159,7 @@ bool make_attack_spell(int m_idx)
 			if (blind) msg_format("%^s breathes.", m_name);
 			else msg_format("%^s breathes nexus.", m_name);
 			breath(m_idx, GF_NEXUS,
-			       ((m_ptr->hp / 3) > 250 ? 250 : (m_ptr->hp / 3)),0);
+			       ((m_ptr->hp / 3) > 600 ? 600 : (m_ptr->hp / 3)),0);
 			update_smart_learn(m_idx, DRS_NEXUS);
 			break;
 		}
@@ -3160,7 +3171,7 @@ bool make_attack_spell(int m_idx)
 			if (blind) msg_format("%^s breathes.", m_name);
 			else msg_format("%^s breathes time.", m_name);
 			breath(m_idx, GF_TIME,
-			       ((m_ptr->hp / 3) > 150 ? 150 : (m_ptr->hp / 3)),0);
+			       ((m_ptr->hp / 3) > 200 ? 200 : (m_ptr->hp / 3)),0);
 			break;
 		}
 
@@ -3193,7 +3204,7 @@ bool make_attack_spell(int m_idx)
 			if (blind) msg_format("%^s breathes.", m_name);
 			else msg_format("%^s breathes shards.", m_name);
 			breath(m_idx, GF_SHARDS,
-			       ((m_ptr->hp / 6) > 400 ? 400 : (m_ptr->hp / 6)),0);
+			       ((m_ptr->hp / 6) > 600 ? 600 : (m_ptr->hp / 6)),0);
 			update_smart_learn(m_idx, DRS_SHARD);
 			break;
 		}
@@ -3205,7 +3216,7 @@ bool make_attack_spell(int m_idx)
 			if (blind) msg_format("%^s breathes.", m_name);
 			else msg_format("%^s breathes plasma.", m_name);
 			breath(m_idx, GF_PLASMA,
-			       ((m_ptr->hp / 6) > 150 ? 150 : (m_ptr->hp / 6)),0);
+			       ((m_ptr->hp / 6) > 200 ? 200 : (m_ptr->hp / 6)),0);
 			break;
 		}
 
@@ -3227,7 +3238,7 @@ bool make_attack_spell(int m_idx)
 			if (blind) msg_format("%^s breathes.", m_name);
 			else msg_format("%^s breathes magical energy.", m_name);
 			breath(m_idx, GF_MANA,
-			    ((m_ptr->hp / 3) > 250 ? 250 : (m_ptr->hp / 3)),0);
+			    ((m_ptr->hp / 3) > 300 ? 300 : (m_ptr->hp / 3)),0);
 			break;
 		}
 
@@ -3259,7 +3270,7 @@ bool make_attack_spell(int m_idx)
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles frighteningly.", m_name);
-			else msg_format("%^s invokes a raw Logrus.", m_name);
+			else msg_format("%^s invokes raw Chaos.", m_name);
 			breath(m_idx, GF_CHAOS, (rlev * 2) + damroll(10, 10), 4);
 			update_smart_learn(m_idx, DRS_CHAOS);
 			break;
@@ -3960,9 +3971,17 @@ bool make_attack_spell(int m_idx)
 			break;
 		}
 
-		/* RF6_XXX2X6 */
+		/* RF6_S_DAWN (was RF6_XXX2X6) */
 		case 160+3:
 		{
+			disturb(1, 0);
+			if (blind) msg_format("%^s mumbles.", m_name);
+			else msg_format("%^s magically summons the Legion of the Dawn!", m_name);
+			for (k = 0; k < 10; k++)
+			{
+				count += summon_specific(y, x, rlev, SUMMON_DAWN);
+			}
+			if (blind && count) msg_print("You hear many things appear nearby.");
 			break;
 		}
 
@@ -5266,6 +5285,7 @@ static bool monst_attack_monst(int m_idx,int t_idx)
 			case RBE_EXP_20:        power =  5; break;
 			case RBE_EXP_40:        power =  5; break;
 			case RBE_EXP_80:        power =  5; break;
+			case RBE_VAMP:		power =  5; break;
 		}
 
 
@@ -5327,9 +5347,18 @@ static bool monst_attack_monst(int m_idx,int t_idx)
                    break;
                }
 
-               case RBM_XXX1:
+               case RBM_TONGUE: /* was XXX1 */
                {
-                   act = "XXX1's %s.";
+		   if (strstr((r_name + r_ptr->name),"The Thing With 1000 "))
+		   {
+			act = "grabs %s with its tongues.";
+			touched = TRUE;
+		   }
+		   else
+		   {
+			act = "grabs %s with its tongue.";
+			touched = TRUE;
+		   }
                    break;
                }
 
@@ -5382,10 +5411,11 @@ static bool monst_attack_monst(int m_idx,int t_idx)
                    break;
                }
 
-               case RBM_XXX3:
+               case RBM_LIE:
                {
-                   act = "XXX3's on %s.";
+                   act = "spouts lies at %s.";
                    touched = FALSE;
+                   t_ptr->csleep = 0;
                    break;
                }
 
@@ -5410,10 +5440,10 @@ static bool monst_attack_monst(int m_idx,int t_idx)
                    break;
                }
 
-               case RBM_XXX4:
+               case RBM_TENTACLE: /* was XXX4 */
                {
-                   act = "projects XXX4's at %s.";
-                   touched = FALSE;
+                   act = "grabs %s with its tentacles.";
+                   touched = TRUE;
                    break;
                }
 
@@ -5433,9 +5463,9 @@ static bool monst_attack_monst(int m_idx,int t_idx)
                    break;
                }
 
-               case RBM_MOAN:
+               case RBM_OFFER:
                {
-                   act = "moans at %s.";
+                   act = "offers to %s.";
                    touched = FALSE;
                    t_ptr->csleep = 0;
                    break;
@@ -5443,7 +5473,7 @@ static bool monst_attack_monst(int m_idx,int t_idx)
 
                case RBM_SHOW:
                {
-                   act = "spouts lies at %s.";
+                   act = "sings to %s.";
                    touched = FALSE;
                    t_ptr->csleep = 0;
                    break;
@@ -5579,10 +5609,12 @@ static bool monst_attack_monst(int m_idx,int t_idx)
                case RBE_EXP_20:
                case RBE_EXP_40:
                case RBE_EXP_80:
-       {
-          pt = GF_NETHER;
-                   break;
+	       case RBE_VAMP:
+	       {
+	          pt = GF_NETHER;
+                  break;
                }
+
        default:
         pt = 0; break;
            }
@@ -5642,11 +5674,12 @@ static bool monst_attack_monst(int m_idx,int t_idx)
                case RBM_CLAW:
                case RBM_BITE:
                case RBM_STING:
-               case RBM_XXX1:
+               case RBM_TONGUE: /* was XXX1 */
                case RBM_BUTT:
                case RBM_CRUSH:
                case RBM_ENGULF:
                case RBM_CHARGE:
+	       case RBM_TENTACLE: /* was XXX4 */
 
                /* Visible monsters */
                if (m_ptr->ml)
@@ -6022,10 +6055,10 @@ static void process_monster(int m_idx, bool is_friend)
 				char m_name[80];
 				char bravado[80];
 
-				bool is_groo = !!(strstr(r_name + r_ptr->name, "Groo"));
+				bool is_groo = !!(strstr(r_name + r_ptr->name, "Groo the"));
 				bool is_smeagol = !!(strstr(r_name + r_ptr->name, "Smeagol"));
-				bool is_wang = !!(strstr(r_name + r_ptr->name, "Lo Wang"));
-				bool is_duke = !!(strstr(r_name + r_ptr->name, "Duke Nukem"));
+				bool is_wang = !!(strstr(r_name + r_ptr->name, "Lo Wang,"));
+				bool is_duke = !!(strstr(r_name + r_ptr->name, "Duke Nuke"));
 
 				/* Acquire the monster name/poss */
 				if (m_ptr->ml)
@@ -6036,11 +6069,11 @@ static void process_monster(int m_idx, bool is_friend)
 				/* Dump a message */
 				if (is_groo)
 				{
-					if (!(m_ptr->monfear))
-						msg_format("%^s says: 'A fray! A fray!'",m_name);
-
-					/* Why not just msg_print "Groo says fray" ?
-					Well, we could be hallucinating... */
+					if (m_ptr->monfear)
+						get_rnd_line("groor.txt", bravado);
+					else
+						get_rnd_line("groo.txt", bravado);
+					msg_format("%^s %s", m_name, bravado);
 				}
 				else if (is_smeagol)
 				{
