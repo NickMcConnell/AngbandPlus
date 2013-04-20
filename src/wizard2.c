@@ -1215,6 +1215,9 @@ static void do_cmd_wiz_summon(int num)
  */
 static void wiz_create_named_art(int a_idx)
 {
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+
 	object_type forge;
 	object_type *q_ptr;
 	int i;

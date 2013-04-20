@@ -1078,6 +1078,31 @@ bool set_oppose_pois(int v)
 
 
 /*
+ * P+: generic "word of recall" function
+ */
+void do_word_recall(int v, int w)
+{
+	/* Hack -- Force good values */
+	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
+	w = (w > 10000) ? 10000 : (w < 0) ? 0 : w;
+
+	if (!p_ptr->word_recall)
+	{
+		p_ptr->word_recall = v + rand_int(w);
+		if (p_ptr->word_recall)
+		{
+			msg_print("The air about you becomes charged...");
+		}
+	}
+	else
+	{
+		p_ptr->word_recall = 0;
+		msg_print("A tension leaves the air around you...");
+	}
+}
+
+
+/*
  * Set "p_ptr->stun", notice observable changes
  *
  * Note the special code to only notice "range" changes.
@@ -3513,13 +3538,14 @@ bool get_aim_dir(int *dp)
 
 #ifdef ALLOW_REPEAT /* TNB */
 
-    if (repeat_pull(dp)) {
-
-       /* Verify */
-       if (!(*dp == 5 && !target_okay())) {
-               return (TRUE);
-           }
-    }
+	if (repeat_pull(dp))
+	{
+		/* Verify */
+		if (!(*dp == 5 && !target_okay()))
+		{
+			return (TRUE);
+		}
+	}
 
 #endif /* ALLOW_REPEAT */
 
@@ -3604,7 +3630,7 @@ bool get_aim_dir(int *dp)
 
 #ifdef ALLOW_REPEAT /* TNB */
 
-    repeat_push(dir);
+	repeat_push(dir);
 
 #endif /* ALLOW_REPEAT */
 
@@ -3640,9 +3666,10 @@ bool get_rep_dir(int *dp)
 
 #ifdef ALLOW_REPEAT /* TNB */
 
-    if (repeat_pull(dp)) {
-        return (TRUE);
-    }
+	if (repeat_pull(dp))
+	{
+		return (TRUE);
+	}
 
 #endif /* ALLOW_REPEAT */
 
@@ -3679,7 +3706,7 @@ bool get_rep_dir(int *dp)
 
 #ifdef ALLOW_REPEAT /* TNB */
 
-    repeat_push(dir);
+	repeat_push(dir);
 
 #endif /* ALLOW_REPEAT */
 

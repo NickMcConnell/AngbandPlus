@@ -13,7 +13,7 @@ OBJS = \
   melee1.o melee2.o save.o files.o \
   cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o \
   store.o birth.o load1.o load2.o \
-  wizard1.o wizard2.o \
+  wizard1.o wizard2.o wor.o \
   generate.o dungeon.o init1.o init2.o \
   main-ami.o sound-ami.o main.o
 
@@ -81,6 +81,7 @@ util.o: util.c $(INCS)
 variable.o: variable.c $(INCS)
 wizard1.o: wizard1.c $(INCS)
 wizard2.o: wizard2.c $(INCS)
+wor.o: wor.c $(INCS)
 xtra1.o: xtra1.c $(INCS)
 xtra2.o: xtra2.c $(INCS)
 z-form.o: z-form.c $(HDRS) z-form.h z-util.h z-virt.h

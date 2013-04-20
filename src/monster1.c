@@ -741,7 +741,7 @@ static void roff_aux(int r_idx)
 	if (flags6 & (RF6_DARKNESS))		vp[vn++] = "create darkness";
 	if (flags6 & (RF6_TRAPS))		vp[vn++] = "create traps";
 	if (flags6 & (RF6_FORGET))		vp[vn++] = "cause amnesia";
-	if (flags6 & (RF6_XXX6))		vp[vn++] = "do something";
+	if (flags6 & (RF6_BA_ICEE))		vp[vn++] = "invoke ice storms";
 	if (flags6 & (RF6_XXX7))		vp[vn++] = "do something";
 	if (flags6 & (RF6_XXX8))		vp[vn++] = "do something";
 	if (flags6 & (RF6_S_MONSTER))		vp[vn++] = "summon a monster";

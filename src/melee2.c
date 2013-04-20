@@ -212,6 +212,7 @@ static void remove_bad_spells(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p)
 		if (int_outof(r_ptr, 100)) f5 &= ~(RF5_BA_COLD);
 		if (int_outof(r_ptr, 100)) f5 &= ~(RF5_BO_COLD);
 		if (int_outof(r_ptr, 100)) f5 &= ~(RF5_BO_ICEE);
+		if (int_outof(r_ptr, 100)) f6 &= ~(RF6_BA_ICEE);
 	}
 	else if ((smart & (SM_OPP_COLD)) && (smart & (SM_RES_COLD)))
 	{
@@ -219,6 +220,7 @@ static void remove_bad_spells(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p)
 		if (int_outof(r_ptr, 80)) f5 &= ~(RF5_BA_COLD);
 		if (int_outof(r_ptr, 80)) f5 &= ~(RF5_BO_COLD);
 		if (int_outof(r_ptr, 80)) f5 &= ~(RF5_BO_ICEE);
+		if (int_outof(r_ptr, 80)) f6 &= ~(RF6_BA_ICEE);
 	}
 	else if ((smart & (SM_OPP_COLD)) || (smart & (SM_RES_COLD)))
 	{
@@ -226,6 +228,7 @@ static void remove_bad_spells(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p)
 		if (int_outof(r_ptr, 30)) f5 &= ~(RF5_BA_COLD);
 		if (int_outof(r_ptr, 30)) f5 &= ~(RF5_BO_COLD);
 		if (int_outof(r_ptr, 30)) f5 &= ~(RF5_BO_ICEE);
+		if (int_outof(r_ptr, 30)) f6 &= ~(RF6_BA_ICEE);
 	}
 
 
@@ -281,6 +284,7 @@ static void remove_bad_spells(int m_idx, u32b *f4p, u32b *f5p, u32b *f6p)
 	if (smart & (SM_RES_NEXUS))
 	{
 		if (int_outof(r_ptr, 50)) f4 &= ~(RF4_BR_NEXU);
+		if (int_outof(r_ptr, 50)) f6 &= ~(RF6_TELE_AWAY);
 		if (int_outof(r_ptr, 50)) f6 &= ~(RF6_TELE_LEVEL);
 	}
 
@@ -377,6 +381,9 @@ static bool spell_attack(byte spell)
 
 	/* "Cause wounds" and "bolt" spells */
 	if (spell >= 128 + 12 && spell <= 128 + 27) return (TRUE);
+
+	/* P+ added: Ice storm */
+	if (spell == 160 + 15) return (TRUE);
 
 	/* Doesn't hurt */
 	return (FALSE);
@@ -2089,7 +2096,16 @@ bool make_attack_spell(int m_idx)
 			if (!direct) break;
 			disturb(1, 0);
 			msg_format("%^s teleports you away.", m_name);
-			teleport_player(100);
+			/* P+ added resistance */
+			if (p_ptr->resist_nexus)
+			{
+				msg_print("You are unaffected!");
+			}
+			else
+			{
+				teleport_player(100);
+			}
+			update_smart_learn(m_idx, DRS_RES_NEXUS);
 			break;
 		}
 
@@ -2162,9 +2178,15 @@ bool make_attack_spell(int m_idx)
 			break;
 		}
 
-		/* RF6_XXX6X6 */
+		/* RF6_BA_ICEE */
 		case 160+15:
 		{
+			disturb(1, 0);
+			if (blind) msg_format("%^s mumbles powerfully.", m_name);
+			else msg_format("%^s invokes an ice storm.", m_name);
+			breath(m_idx, GF_ICE,
+			       (rlev * 5) + damroll(10, 10));
+			update_smart_learn(m_idx, DRS_RES_COLD);
 			break;
 		}
 

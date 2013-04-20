@@ -49,7 +49,7 @@
 #define VERSION_MAJOR	2
 #define VERSION_MINOR	8
 #define VERSION_PATCH	3
-#define VERSION_EXTRA	1
+#define VERSION_EXTRA	2
 
 
 /*
@@ -2183,7 +2183,7 @@
 #define RF6_DARKNESS		0x00001000	/* Create Darkness */
 #define RF6_TRAPS			0x00002000	/* Create Traps */
 #define RF6_FORGET			0x00004000	/* Cause amnesia */
-#define RF6_XXX6			0x00008000	/* ??? */
+#define RF6_BA_ICEE			0x00008000	/* Hack -- Ice storm */
 #define RF6_XXX7			0x00010000	/* Summon (?) */
 #define RF6_XXX8			0x00020000	/* Summon (?) */
 #define RF6_S_MONSTER		0x00040000	/* Summon Monster */
@@ -2323,7 +2323,7 @@
 /* xxx */
 #endif /* ALLOW_EASY_DISARM */
 #ifdef ALLOW_REMEMBER_RECALL /* TNB */
-#define OPT_remember_recall		45
+#define OPT_remember_recall			45
 #else
 /* xxx */
 #endif /* ALLOW_REMEMBER_RECALL -- TNB */
@@ -2354,6 +2354,8 @@
 #define OPT_view_granite_lite		62
 #define OPT_view_special_lite		63
 #define OPT_extend_dump				64
+#define OPT_race_chars				65
+#define OPT_class_colors		66
 #define OPT_MAX						128
 
 
@@ -2445,6 +2447,8 @@
 #define view_granite_lite		op_ptr->opt[OPT_view_granite_lite]
 #define view_special_lite		op_ptr->opt[OPT_view_special_lite]
 #define extend_dump				op_ptr->opt[OPT_extend_dump]
+#define race_chars				op_ptr->opt[OPT_race_chars]
+#define class_colors				op_ptr->opt[OPT_class_colors]
 
 
 

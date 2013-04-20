@@ -348,7 +348,7 @@ static cptr r_info_flags6[] =
 	"DARKNESS",
 	"TRAPS",
 	"FORGET",
-	"XXX6X6",
+	"BA_ICEE",
 	"XXX7X6",
 	"XXX8X6",
 	"S_MONSTER",

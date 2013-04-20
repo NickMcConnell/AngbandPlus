@@ -45,16 +45,16 @@ static int get_spell(int *sn, cptr prompt, int sval, bool known)
 
 #ifdef ALLOW_REPEAT /* TNB */
 
-    /* Get the spell, if available */
-    if (repeat_pull(sn)) {
-
-        /* Verify the spell */
-        if (spell_okay(*sn, known)) {
-
-            /* Success */
-            return (TRUE);
-        }
-    }
+	/* Get the spell, if available */
+	if (repeat_pull(sn))
+	{
+		/* Verify the spell */
+		if (spell_okay(*sn, known))
+		{
+			/* Success */
+			return (TRUE);
+		}
+	}
 
 #endif
 
@@ -215,6 +215,12 @@ static int get_spell(int *sn, cptr prompt, int sval, bool known)
 
 	/* Save the choice */
 	(*sn) = spell;
+
+#ifdef ALLOW_REPEAT /* TNB */
+
+	repeat_push(*sn);
+
+#endif
 
 	/* Success */
 	return (TRUE);
@@ -885,16 +891,7 @@ void do_cmd_cast(void)
 
 			case 37:
 			{
-				if (!p_ptr->word_recall)
-				{
-					p_ptr->word_recall = rand_int(20) + 15;
-					msg_print("The air about you becomes charged...");
-				}
-				else
-				{
-					p_ptr->word_recall = 0;
-					msg_print("A tension leaves the air around you...");
-				}
+				do_word_recall(15, 20);
 				break;
 			}
 
@@ -1648,16 +1645,7 @@ void do_cmd_pray(void)
 
 			case 56:
 			{
-				if (p_ptr->word_recall == 0)
-				{
-					p_ptr->word_recall = rand_int(20) + 15;
-					msg_print("The air about you becomes charged...");
-				}
-				else
-				{
-					p_ptr->word_recall = 0;
-					msg_print("A tension leaves the air around you...");
-				}
+				do_word_recall(15, 20);
 				break;
 			}
 

@@ -66,7 +66,7 @@ extern cptr window_flag_desc[32];
 extern cptr option_text[OPT_MAX];
 extern cptr option_desc[OPT_MAX];
 extern bool option_norm[OPT_MAX];
-extern byte option_page[4][16];
+extern byte option_page[5][16];
 
 /* variable.c */
 extern cptr copyright[5];
@@ -688,6 +688,7 @@ extern bool set_oppose_elec(int v);
 extern bool set_oppose_fire(int v);
 extern bool set_oppose_cold(int v);
 extern bool set_oppose_pois(int v);
+extern void do_word_recall(int v, int w);
 extern bool set_stun(int v);
 extern bool set_cut(int v);
 extern bool set_food(int v);
@@ -745,6 +746,24 @@ extern void user_name(char *buf, int id);
 
 /* main.c */
 /* extern int main(int argc, char *argv[]); */
+
+
+#ifdef ALLOW_EASY_OPEN /* TNB */
+
+/* cmd2.c */
+bool easy_open_door(int y, int x);
+
+#endif /* ALLOW_EASY_OPEN -- TNB */
+
+
+#ifdef ALLOW_REPEAT /* TNB */
+
+/* util.c */
+extern void repeat_push(int what);
+extern bool repeat_pull(int *what);
+extern void repeat_check(void);
+
+#endif /* ALLOW_REPEAT -- TNB */
 
 
 #ifdef ALLOW_REMEMBER_RECALL /* TNB */

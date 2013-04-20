@@ -3549,54 +3549,53 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 
 #ifdef ALLOW_REPEAT /* TNB */
 
-    /* Get the item index */
-    if (repeat_pull(cp)) {
+	/* Get the item index */
+	if (repeat_pull(cp))
+	{
+		/* Floor item? */
+		if (*cp < 0)
+		{
+			/* Scan all objects in the grid */
+			for (this_o_idx = cave_o_idx[py][px]; this_o_idx; this_o_idx = next_o_idx)
+			{
+				object_type *o_ptr;
 
-        /* Floor item? */
-        if (*cp < 0) {
+				/* Acquire object */
+				o_ptr = &o_list[this_o_idx];
 
-                       /* Scan all objects in the grid */
-                       for (this_o_idx = cave_o_idx[py][px]; this_o_idx; this_o_idx 
-= next_o_idx)
-                       {
-                               object_type *o_ptr;
+				/* Acquire next object */
+				next_o_idx = o_ptr->next_o_idx;
 
-                               /* Acquire object */
-                               o_ptr = &o_list[this_o_idx];
+				/* Validate the item */
+				if (!item_tester_okay(o_ptr)) continue;
 
-                               /* Acquire next object */
-                               next_o_idx = o_ptr->next_o_idx;
+				/* Save the index */
+				(*cp) = 0 - this_o_idx;
 
-                               /* Validate the item */
-                               if (!item_tester_okay(o_ptr)) continue;
+				/* Forget the item_tester_tval restriction */
+				item_tester_tval = 0;
 
-                               /* Save the index */
-                               (*cp) = 0 - this_o_idx;
+				/* Forget the item_tester_hook restriction */
+				item_tester_hook = NULL;
 
-                               /* Forget the item_tester_tval restriction */
-                               item_tester_tval = 0;
+				/* Success */
+				return (TRUE);
+			}
+		}
 
-                               /* Forget the item_tester_hook restriction */
-                               item_tester_hook = NULL;
+		/* Verify the item */
+		else if (get_item_okay(*cp))
+		{
+			/* Forget the item_tester_tval restriction */
+			item_tester_tval = 0;
 
-                               /* Success */
-                               return (TRUE);
-               }
-        }
+			/* Forget the item_tester_hook restriction */
+			item_tester_hook = NULL;
 
-        /* Verify the item */
-        else if (get_item_okay(*cp)) {
-
-               /* Forget the item_tester_tval restriction */
-               item_tester_tval = 0;
-
-               /* Forget the item_tester_hook restriction */
-               item_tester_hook = NULL;
-
-               /* Success */
-               return (TRUE);
-        }
-    }
+			/* Success */
+			return (TRUE);
+		}
+	}
 
 #endif /* ALLOW_REPEAT */
 
@@ -4109,7 +4108,7 @@ bool get_item(int *cp, cptr pmt, cptr str, int mode)
 
 #ifdef ALLOW_REPEAT /* TNB */
 
-    if (item) repeat_push(*cp);
+	if (item) repeat_push(*cp);
 
 #endif /* ALLOW_REPEAT */
 

@@ -1956,6 +1956,10 @@ void run_step(int dir)
 	p_ptr->energy_use = 100;
 
 	/* Move the player, using the "pickup" flag */
+#ifdef ALLOW_EASY_DISARM /* TNB */
+	move_player(p_ptr->run_cur_dir, FALSE);
+#else
 	move_player(p_ptr->run_cur_dir, always_pickup);
+#endif /* ALLOW_EASY_DISARM */
 }
 

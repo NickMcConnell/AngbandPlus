@@ -747,6 +747,9 @@ struct player_race
 	byte infra;			/* Infra-vision	range */
 
 	byte choice;		/* Legal class choices */
+
+	byte r_attr;		/* P+ -- race attr for use with "race_chars" */
+	char r_char;		/* P+ -- race char for use with "race_chars" */
 };
 
 
@@ -780,7 +783,7 @@ struct player_class
 	s16b c_mhp;			/* Class hit-dice adjustment */
 	s16b c_exp;			/* Class experience factor */
 
-	byte c_attr;			/* P+ -- class attr */
+	byte c_attr;			/* P+ -- class attr for use with "class_colors" */
 };
 
 

@@ -1207,7 +1207,7 @@ bool apply_disenchant(int mode)
 
 	/* Artifacts have 60% chance to resist */
 	/* P+: some items ignore disenchantment... */
-	if (artifact_p(o_ptr) && (rand_int(100) < 60)
+	if ((artifact_p(o_ptr) && (rand_int(100) < 60))
 	    || (f3 & TR3_IGNORE_DISEN))
 	{
 		/* Message */
@@ -3507,7 +3507,10 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 		case GF_INERTIA:
 		{
 			if (fuzzy) msg_print("You are hit by something strange!");
-			(void)set_slow(p_ptr->slow + rand_int(4) + 4);
+			if (!p_ptr->ffall || !p_ptr->free_act)
+			{
+				(void)set_slow(p_ptr->slow + rand_int(4) + 4);
+			}
 			take_hit(dam, killer);
 			break;
 		}
@@ -3600,8 +3603,14 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 		{
 			if (fuzzy) msg_print("You are hit by something strange!");
 			msg_print("Gravity warps around you.");
-			teleport_player(5);
-			(void)set_slow(p_ptr->slow + rand_int(4) + 4);
+			if (!p_ptr->resist_nexus)
+			{
+				teleport_player(5);
+			}
+			if (!p_ptr->ffall || !p_ptr->free_act)
+			{
+				(void)set_slow(p_ptr->slow + rand_int(4) + 4);
+			}
 			if (!p_ptr->resist_sound)
 			{
 				int k = (randint((dam > 90) ? 35 : (dam / 3 + 5)));

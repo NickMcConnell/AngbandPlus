@@ -401,12 +401,12 @@ static bool do_cmd_open_chest(int y, int x, s16b o_idx)
 /*
  * easy_open_door --
  *
- *     If there is a jammed/closed/locked door at the given location,
- *     then attempt to unlock/open it. Return TRUE if an attempt was
- *     made (successful or not), otherwise return FALSE.
+ *	If there is a jammed/closed/locked door at the given location,
+ *	then attempt to unlock/open it. Return TRUE if an attempt was
+ *	made (successful or not), otherwise return FALSE.
  *
- *     The code here should be nearly identical to that in
- *     do_cmd_open_test() and do_cmd_open_aux().
+ *	The code here should be nearly identical to that in
+ *	do_cmd_open_test() and do_cmd_open_aux().
  */
 
 bool easy_open_door(int y, int x)
@@ -500,35 +500,35 @@ bool easy_open_door(int y, int x)
  */
 static int count_dt(int *y, int *x, byte f1, byte f2)
 {
-       int d, count;
+	int d, count;
 
-       /* Count how many matches */
-       count = 0;
+	/* Count how many matches */
+	count = 0;
 
-       /* Check around (and under) the character */
-       for (d = 0; d < 9; d++) {
+	/* Check around (and under) the character */
+	for (d = 0; d < 9; d++)
+	{
+		/* Extract adjacent (legal) location */
+		int yy = p_ptr->py + ddy_ddd[d];
+		int xx = p_ptr->px + ddx_ddd[d];
 
-               /* Extract adjacent (legal) location */
-               int yy = p_ptr->py + ddy_ddd[d];
-               int xx = p_ptr->px + ddx_ddd[d];
+		/* Must have knowledge */
+		if (!(cave_info[yy][xx] & (CAVE_MARK))) continue;
 
-               /* Must have knowledge */
-               if (!(cave_info[yy][xx] & (CAVE_MARK))) continue;
+		/* Not looking for this feature */
+		if (cave_feat[yy][xx] < f1) continue;
+		if (cave_feat[yy][xx] > f2) continue;
 
-               /* Not looking for this feature */
-               if (cave_feat[yy][xx] < f1) continue;
-               if (cave_feat[yy][xx] > f2) continue;
+		/* OK */
+		++count;
 
-               /* OK */
-               ++count;
+		/* Remember the location. Only useful if only one match */
+		*y = yy;
+		*x = xx;
+	}
 
-               /* Remember the location. Only useful if only one match */
-               *y = yy;
-               *x = xx;
-       }
-
-       /* All done */
-       return count;
+	/* All done */
+	return count;
 }
 
 /*
@@ -537,43 +537,43 @@ static int count_dt(int *y, int *x, byte f1, byte f2)
  */
 static int count_chests(int *y, int *x, bool trapped)
 {
-       int d, count, o_idx;
+	int d, count, o_idx;
 
-       object_type *o_ptr;
+	object_type *o_ptr;
 
-       /* Count how many matches */
-       count = 0;
+	/* Count how many matches */
+	count = 0;
 
-       /* Check around (and under) the character */
-       for (d = 0; d < 9; d++) {
+	/* Check around (and under) the character */
+	for (d = 0; d < 9; d++)
+	{
+		/* Extract adjacent (legal) location */
+		int yy = p_ptr->py + ddy_ddd[d];
+		int xx = p_ptr->px + ddx_ddd[d];
 
-               /* Extract adjacent (legal) location */
-               int yy = p_ptr->py + ddy_ddd[d];
-               int xx = p_ptr->px + ddx_ddd[d];
+		/* No (visible) chest is there */
+		if ((o_idx = chest_check(yy, xx)) == 0) continue;
 
-               /* No (visible) chest is there */
-               if ((o_idx = chest_check(yy, xx)) == 0) continue;
+		/* Grab the object */
+		o_ptr = &o_list[o_idx];
 
-               /* Grab the object */
-               o_ptr = &o_list[o_idx];
+		/* Already open */
+		if (o_ptr->pval == 0) continue;
 
-               /* Already open */
-               if (o_ptr->pval == 0) continue;
+		/* No (known) traps here */
+		if (trapped && (!object_known_p(o_ptr) ||
+				!chest_traps[o_ptr->pval])) continue;
 
-               /* No (known) traps here */
-               if (trapped && (!object_known_p(o_ptr) ||
-                       !chest_traps[o_ptr->pval])) continue;
+		/* OK */
+		++count;
 
-               /* OK */
-               ++count;
+		/* Remember the location. Only useful if only one match */
+		*y = yy;
+		*x = xx;
+	}
 
-               /* Remember the location. Only useful if only one match */
-               *y = yy;
-               *x = xx;
-       }
-
-       /* All done */
-       return count;
+	/* All done */
+	return count;
 }
 
 /*
@@ -581,16 +581,16 @@ static int count_chests(int *y, int *x, bool trapped)
  */
 static int coords_to_dir(int y, int x)
 {
-    int d[3][3] = { 7, 4, 1, 8, 5, 2, 9, 6, 3 };
-    int dy, dx;
+	int d[3][3] = { { 7, 4, 1 }, { 8, 5, 2 }, { 9, 6, 3 } };
+	int dy, dx;
 
-    dy = y - p_ptr->py;
-    dx = x - p_ptr->px;
+	dy = y - p_ptr->py;
+	dx = x - p_ptr->px;
 
-    /* Paranoia */
-    if (ABS(dx) > 1 || ABS(dy) > 1) return (0);
+	/* Paranoia */
+	if (ABS(dx) > 1 || ABS(dy) > 1) return (0);
 
-    return d[dx + 1][dy + 1];
+	return d[dx + 1][dy + 1];
 }
 
 #endif /* ALLOW_EASY_OPEN */
@@ -818,24 +818,25 @@ void do_cmd_open(void)
 
 #ifdef ALLOW_EASY_OPEN /* TNB */
 
-       /* Option: Pick a direction */
-       if (easy_open) {
+	/* Option: Pick a direction */
+	if (easy_open)
+	{
+		int num_doors, num_chests;
 
-           int num_doors, num_chests;
+		/* Count closed doors (locked or jammed) */
+		num_doors = count_dt(&y, &x, FEAT_DOOR_HEAD, FEAT_DOOR_TAIL);
 
-           /* Count closed doors (locked or jammed) */
-           num_doors = count_dt(&y, &x, FEAT_DOOR_HEAD, FEAT_DOOR_TAIL);
+		/* Count chests (locked) */
+		num_chests = count_chests(&y, &x, FALSE);
 
-           /* Count chests (locked) */
-           num_chests = count_chests(&y, &x, FALSE);
-
-           /* See if only one target */
-           if (num_doors || num_chests) {
-               bool too_many = (num_doors && num_chests) || (num_doors > 1) ||
-                               (num_chests > 1);
-               if (!too_many) p_ptr->command_dir = coords_to_dir(y, x);
-           }
-       }
+		/* See if only one target */
+		if (num_doors || num_chests)
+		{
+			bool too_many = (num_doors && num_chests) || (num_doors > 1) ||
+					(num_chests > 1);
+			if (!too_many) p_ptr->command_dir = coords_to_dir(y, x);
+		}
+	}
 
 #endif /* ALLOW_EASY_OPEN */
 
@@ -998,14 +999,15 @@ void do_cmd_close(void)
 
 #ifdef ALLOW_EASY_OPEN /* TNB */
 
-       /* Option: Pick a direction */
-       if (easy_open) {
-
-               /* Count open doors */
-               if (count_dt(&y, &x, FEAT_OPEN, FEAT_OPEN) == 1) {
-                       p_ptr->command_dir = coords_to_dir(y, x);
-               }
-       }
+	/* Option: Pick a direction */
+	if (easy_open)
+	{
+		/* Count open doors */
+		if (count_dt(&y, &x, FEAT_OPEN, FEAT_OPEN) == 1)
+		{
+			p_ptr->command_dir = coords_to_dir(y, x);
+		}
+	}
 
 #endif /* ALLOW_EASY_OPEN */
 
@@ -1535,24 +1537,25 @@ void do_cmd_disarm(void)
 
 #ifdef ALLOW_EASY_DISARM /* TNB */
 
-       /* Option: Pick a direction */
-       if (easy_disarm) {
+	/* Option: Pick a direction */
+	if (easy_disarm)
+	{
+		int num_traps, num_chests;
 
-           int num_traps, num_chests;
+		/* Count visible traps */
+		num_traps = count_dt(&y, &x, FEAT_TRAP_HEAD, FEAT_TRAP_TAIL);
 
-           /* Count visible traps */
-           num_traps = count_dt(&y, &x, FEAT_TRAP_HEAD, FEAT_TRAP_TAIL);
+		/* Count chests (trapped) */
+		num_chests = count_chests(&y, &x, TRUE);
 
-           /* Count chests (trapped) */
-           num_chests = count_chests(&y, &x, TRUE);
-
-           /* See if only one target */
-           if (num_traps || num_chests) {
-               bool too_many = (num_traps && num_chests) || (num_traps > 1) ||
-                               (num_chests > 1);
-               if (!too_many) p_ptr->command_dir = coords_to_dir(y, x);
-           }
-       }
+		/* See if only one target */
+		if (num_traps || num_chests)
+		{
+			bool too_many = (num_traps && num_chests) || (num_traps > 1) ||
+					(num_chests > 1);
+			if (!too_many) p_ptr->command_dir = coords_to_dir(y, x);
+		}
+	}
 
 #endif /* ALLOW_EASY_DISARM */
 
@@ -2215,7 +2218,11 @@ void do_cmd_walk(void)
 void do_cmd_jump(void)
 {
 	/* Move (usually do not pickup) */
+#ifdef ALLOW_EASY_DISARM /* TNB */
+	do_cmd_walk_or_jump(TRUE);
+#else
 	do_cmd_walk_or_jump(!always_pickup);
+#endif /* ALLOW_EASY_DISARM */
 }
 
 

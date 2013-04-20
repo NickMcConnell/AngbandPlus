@@ -4315,7 +4315,7 @@ S:TPORT | HOLD | SCARE | CAUSE_2 | TRAPS | BO_FIRE |
 S:S_MONSTER
 D:It is an ogre wrapped in furs and covered in grotesque body paints.
 
-# Nexus Q's have a new trick...
+# Nexus Q's have a new trick... (P+)
 
 N:329:Nexus quylthulg
 G:Q:R
@@ -5170,7 +5170,7 @@ S:BR_SOUN
 D:It has a form that legends are made of.  Its still-tender scales are a 
 D:tarnished gold hue, and light is reflected from its form.
 
-# Rogrog DROOLs instead of SPITs
+# Rogrog DROOLs instead of SPITs (P+)
 
 N:383:Rogrog the Black Troll
 G:T:D
@@ -5284,6 +5284,8 @@ S:BO_FIRE | BA_FIRE |
 S:S_DEMON
 D:It is a humanoid form composed of flames and hatred.
 
+# P+ added BA_ICEE
+
 N:390:Ice elemental
 G:E:w
 I:110:35d10:10:60:90
@@ -5298,7 +5300,7 @@ F:EVIL | IM_COLD | IM_ELEC |
 F:IM_POIS | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_5 | 
-S:BO_ICEE | BA_COLD
+S:BO_ICEE | BA_COLD | BA_ICEE
 D:It is a towering glacier of ice.
 
 N:391:Necromancer
@@ -5807,6 +5809,8 @@ F:OPEN_DOOR | BASH_DOOR |
 F:EVIL | TROLL | IM_POIS | NO_CONF | NO_SLEEP
 D:A massive troll of huge strength.  Ettins are stupid but violent.
 
+# P+ added BA_ICEE
+
 N:422:Waldern, King of Water
 G:E:s
 I:120:20d100:12:40:50
@@ -5822,7 +5826,7 @@ F:KILL_ITEM | KILL_BODY | BASH_DOOR | POWERFUL |
 F:EVIL | IM_POIS | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_4 | 
-S:BO_ICEE | BO_WATE | BA_COLD | BA_WATE
+S:BO_ICEE | BO_WATE | BA_COLD | BA_WATE | BA_ICEE
 D:A towering water elemental, Waldern is master of all things liquid. 
 D:Wave after wave drowns your frail body.
 
@@ -7497,7 +7501,7 @@ D:will crush you like the pitiful insignificant being he sees you to be.
 D:Your very soul will be taken into judgement by his supreme authority as he 
 D:cleanses the world of evil.
 
-# Added DROP_GREAT
+# P+ added DROP_GREAT, BA_ICEE
 
 N:514:Saruman of Many Colours
 G:p:v
@@ -7516,7 +7520,7 @@ F:IM_ELEC | IM_POIS | NO_CONF | NO_SLEEP
 S:1_IN_2 | 
 S:HEAL | HASTE | TPORT | TELE_AWAY | BLIND | CONF | SCARE | 
 S:CAUSE_4 | MIND_BLAST | FORGET | TRAPS | 
-S:BO_ICEE | BA_ACID | BA_FIRE | BA_COLD | BA_WATE | 
+S:BO_ICEE | BA_ACID | BA_FIRE | BA_COLD | BA_WATE | BA_ICEE | 
 S:S_UNDEAD | S_DEMON | S_DRAGON
 D:Originally known as the White, Saruman fell prey to Sauron's wiles.  He 
 D:seeks to emulate him and breeds orcs and trolls to fight for him.  He 
@@ -7545,7 +7549,7 @@ D:drinks in light, and space around it is twisted and torn by the weight of
 D:its evil.  It is unlife and it knows nothing but the stealing of souls and 
 D:the stench of death.  Flee its hunger!
 
-# This was changed from "The Cat Lord"
+# P+ changed name from "The Cat Lord"
 
 N:516:Tevildo, Prince of Cats
 G:f:r
@@ -7736,7 +7740,7 @@ S:S_UNDEAD
 D:A humanoid form,  black as night, advancing steadily and unstoppably.  
 D:Flee!
 
-# This replaces the Master Q
+# This replaces the Master Q (P+)
 
 N:525:Spiderman
 G:p:o
@@ -7989,6 +7993,8 @@ S:1_IN_5 |
 S:BR_FIRE
 D:It is a giant dog that glows with heat.  Flames pour from its nostrils.
 
+# P+ added BA_ICEE
+
 N:538:Cantoras, the Skeletal Lord
 G:s:w
 I:140:75d100:20:120:80
@@ -8005,7 +8011,7 @@ F:EVIL | UNDEAD | IM_FIRE | IM_COLD | IM_POIS |
 F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_1 | 
 S:TELE_TO | SLOW | SCARE | CAUSE_4 | BRAIN_SMASH | 
-S:BO_ICEE | BO_MANA | BA_WATE | BA_NETH | 
+S:BO_ICEE | BO_MANA | BA_WATE | BA_NETH | BA_ICEE | 
 S:S_HI_UNDEAD
 D:A legion of evil undead druj animating the skeleton of a once mighty 
 D:sorcerer.  His power is devastating and his speed unmatched in the 
@@ -8164,7 +8170,7 @@ D:saved his master from Ungoliant's rage.
 
 # Sauron is the basic "Quest" (thus the QUESTOR flag).
 # You must kill him to gain access to Morgoth's level.
-# P+ changed name
+# P+ changed name, added BA_ICEE
 
 N:546:Sauron, Lord of the Rings
 G:p:v
@@ -8184,7 +8190,7 @@ S:1_IN_2 |
 S:TPORT | TELE_LEVEL | BLIND | CONF | SCARE | CAUSE_4 | 
 S:BRAIN_SMASH | FORGET | 
 S:BO_ICEE | BO_MANA | BO_PLAS | 
-S:BA_MANA | BA_FIRE | BA_WATE | BA_NETH | BA_DARK | 
+S:BA_MANA | BA_FIRE | BA_WATE | BA_NETH | BA_DARK | BA_ICEE | 
 S:S_MONSTERS | S_DEMON | S_HI_UNDEAD | S_HI_DRAGON
 D:He is Morgoth's most powerful servant.  Mighty in spells and enchantments, 
 D:he created the One Ring.  His eyes glow with power and his gaze seeks to 

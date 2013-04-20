@@ -1469,6 +1469,12 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3)
 	/* High Elf */
 	if (p_ptr->prace == RACE_HIGH_ELF) (*f2) |= (TR2_RES_LITE);
 	if (p_ptr->prace == RACE_HIGH_ELF) (*f3) |= (TR3_SEE_INVIS);
+
+	/* Warrior -- P+ added from xtra1.c */
+	if (p_ptr->pclass == CLASS_WARRIOR)
+	{
+		if (p_ptr->lev >= 30) (*f2) |= (TR2_RES_FEAR);
+	}
 }
 
 
@@ -1676,7 +1682,7 @@ static void display_player_flag_info(void)
 	int row, col;
 
 	int set;
-	u32b head;
+	/* u32b head; */
 	u32b flag, flag2;
 	cptr name;
 

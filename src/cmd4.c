@@ -837,7 +837,7 @@ void do_cmd_options(void)
 		prt("(C) Cheating Options", 10, 5);
 
 		/* Window flags */
-		prt("(W) Window flags", 13, 5);
+		prt("(W) Window flags", 12, 5);
 
 		/* Special choices */
 		prt("(D) Base Delay Factor", 14, 5);

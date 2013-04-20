@@ -558,10 +558,11 @@ int fd_make(cptr file, int mode)
 	/* Hack -- Try to parse the path */
 	if (path_parse(buf, 1024, file)) return (-1);
 
-#if defined(MACINTOSH) || defined(WINDOWS)
+#if defined(MACINTOSH)
 
+	/* Notice that Windows likes the mode argument */
 	/* Create the file, fail if exists, write-only, binary */
-	return (open(buf, O_CREAT | O_EXCL | O_WRONLY | O_BINARY, mode /* TNB */));
+	return (open(buf, O_CREAT | O_EXCL | O_WRONLY | O_BINARY));
 
 #else
 
@@ -2745,9 +2746,11 @@ s16b get_quantity(cptr prompt, int max)
 
 #ifdef ALLOW_REPEAT /* TNB */
 
-    /* Get the item index */
-    else if ((max != 1) && allow_quantity && repeat_pull(&amt)) {
-       }
+	/* Get the item index */
+	else if ((max != 1) && allow_quantity && repeat_pull(&amt))
+	{
+		/* Nothing */
+	}
 
 #endif /* ALLOW_REPEAT */
 
@@ -2789,7 +2792,7 @@ s16b get_quantity(cptr prompt, int max)
 
 #ifdef ALLOW_REPEAT /* TNB */
 
-    if (amt) repeat_push(amt);
+	if (amt) repeat_push(amt);
 
 #endif /* ALLOW_REPEAT */
 
@@ -3306,7 +3309,7 @@ static bool insert_str(char *buf, cptr target, cptr insert)
 
 #ifdef ALLOW_REPEAT /* TNB */
 
-#define REPEAT_MAX             20
+#define REPEAT_MAX		20
 
 /* Number of chars saved */
 static int repeat__cnt = 0;
@@ -3319,64 +3322,64 @@ static int repeat__key[REPEAT_MAX];
 
 void repeat_push(int what)
 {
-       /* Too many keys */
-       if (repeat__cnt == REPEAT_MAX) return;
+	/* Too many keys */
+	if (repeat__cnt == REPEAT_MAX) return;
 
-       /* Push the "stuff" */
-       repeat__key[repeat__cnt++] = what;
+	/* Push the "stuff" */
+	repeat__key[repeat__cnt++] = what;
 
-       /* Prevents us from pulling keys */
-       ++repeat__idx;
+	/* Prevents us from pulling keys */
+	++repeat__idx;
 }
 
 bool repeat_pull(int *what)
 {
-       /* All out of keys */
-       if (repeat__idx == repeat__cnt) return (FALSE);
+	/* All out of keys */
+	if (repeat__idx == repeat__cnt) return (FALSE);
 
-       /* Grab the next key, advance */
-       *what = repeat__key[repeat__idx++];
+	/* Grab the next key, advance */
+	*what = repeat__key[repeat__idx++];
 
-       /* Success */
-       return (TRUE);
+	/* Success */
+	return (TRUE);
 }
 
 void repeat_check(void)
 {
-       int             what;
+	int		what;
 
-    /* Ignore some commands */
-    if (p_ptr->command_cmd == ESCAPE) return;
-    if (p_ptr->command_cmd == ' ') return;
-    if (p_ptr->command_cmd == '\r') return;
-    if (p_ptr->command_cmd == '\n') return;
+	/* Ignore some commands */
+	if (p_ptr->command_cmd == ESCAPE) return;
+	if (p_ptr->command_cmd == ' ') return;
+	if (p_ptr->command_cmd == '\r') return;
+	if (p_ptr->command_cmd == '\n') return;
 
-       /* Repeat Last Command */
-       if (p_ptr->command_cmd == 'n') {
+	/* Repeat Last Command */
+	if (p_ptr->command_cmd == 'n')
+	{
+		/* Reset */
+		repeat__idx = 0;
 
-               /* Reset */
-               repeat__idx = 0;
+		/* Get the command */
+		if (repeat_pull(&what))
+		{
+			/* Save the command */
+			p_ptr->command_cmd = what;
+		}
+	}
 
-               /* Get the command */
-               if (repeat_pull(&what)) {
+	/* Start saving new command */
+	else
+	{
+		/* Reset */
+		repeat__cnt = 0;
+		repeat__idx = 0;
 
-                       /* Save the command */
-                       p_ptr->command_cmd = what;
-               }
-       }
+		what = p_ptr->command_cmd;
 
-       /* Start saving new command */
-       else {
-
-               /* Reset */
-               repeat__cnt = 0;
-               repeat__idx = 0;
-
-               what = p_ptr->command_cmd;
-
-               /* Save this command */
-               repeat_push(what);
-       }
+		/* Save this command */
+		repeat_push(what);
+	}
 }
 
 #endif /* ALLOW_REPEAT */

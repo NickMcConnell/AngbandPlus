@@ -1182,8 +1182,8 @@ static void process_command(void)
 {
 #ifdef ALLOW_REPEAT /* TNB */
 
-    /* Handle repeating the last command */
-    repeat_check();
+	/* Handle repeating the last command */
+	repeat_check();
 
 #endif /* ALLOW_REPEAT */
 
@@ -2824,15 +2824,7 @@ void play_game(bool new_game)
 				(void)set_food(PY_FOOD_MAX - 1);
 
 				/* Hack -- cancel recall */
-				if (p_ptr->word_recall)
-				{
-					/* Message */
-					msg_print("A tension leaves the air around you...");
-					msg_print(NULL);
-
-					/* Hack -- Prevent recall */
-					p_ptr->word_recall = 0;
-				}
+				do_word_recall(0, 0);
 
 				/* Note cause of death XXX XXX XXX */
 				strcpy(p_ptr->died_from, "Cheating death");

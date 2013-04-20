@@ -13,7 +13,7 @@
 
                Angband 2.8.3:  Copyright (c) 1997 Ben Harrison
 
-         Send comments, bug reports, and patches, to "benh@phial.com"
+         Send comments, bug reports, and patches, to "prfnoff@aol.com"
         Visit the Angband Home Page at "http://www.phial.com/angband/"
       Browse the Angband newsgroup at "news:rec.games.roguelike.angband"
     Read the online help files, especially "general.txt" and "version.txt"

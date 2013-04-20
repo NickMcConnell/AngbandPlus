@@ -604,7 +604,10 @@ void map_info(int y, int x, byte *ap, char *cp)
 	if ((m_idx < 0) && !(p_ptr->running && hidden_player))
 	{
 		monster_race *r_ptr = &r_info[0];
+		/* P+ -- Apply race/class attr/chars */
 		byte c_att = class_info[p_ptr->pclass].c_attr;
+		byte r_att = race_info[p_ptr->prace].r_attr;
+		char r_chr = race_info[p_ptr->prace].r_char;
 
 		/* Get the "player" attr */
 		a = r_ptr->x_attr;
@@ -612,9 +615,19 @@ void map_info(int y, int x, byte *ap, char *cp)
 		/* Get the "player" char */
 		c = r_ptr->x_char;
 
+		/* P+ -- Apply "race" attr/char */
+		if (race_chars)
+		{
+			if (r_att) a = r_att;
+			if (r_chr) c = r_chr;
+		}
+
 		/* P+ -- Apply "class" attr */
-		/* Should use a new option for this */
-		a = c_att;
+		/* Should use a new option for this XXX XXX XXX */
+		if (class_colors)
+		{
+			if (c_att) a = c_att;
+		}
 
 		/* Result */
 		(*ap) = a;

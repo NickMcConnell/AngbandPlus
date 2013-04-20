@@ -1,8 +1,54 @@
---- Version 2.8.3v1, initial release ---
+(This file is included in the distribution.)
+
+--- Version 2.8.3v2, bug fixes ---
+
+When I say "bugs", I mean "bugs and warnings". Or do I?
+
+* Changed makefiles to include wor.c/wor.o/wor.obj/wor.o32
+* Fixed "extern" bugs with the Easy Patch, and other bugs with it
+* Fixed small bugs with IGNORE_DISEN, 'C h *'
+* Fixed bugs with store examine patch
+* Fixed bug with artifact creation patch
+* Included lib/user directory!
+* Fixed bugs with extend_dump (being the first option > OLD_OPT_MAX
+  didn't help)
+* Changed the Midget's name to Twerp, and made Ga-Nat more greedy
+  than Vella (maybe this was in v1?)
+* Added "class_colors" option, to control whether your "@" is colored
+* Added "race_chars" option, enabling races to have their own characters
+  and colors, like Kamband, except a little different. Note that
+  "class_colors" (partially) overrides "race_chars". "race_chars" is
+  off by default, to appease The Law of Roguelike Games (the one that
+  says, "You Are @.") (suggested by Mischa Gelman)
+* Somewhere, made some as-yet-nonexistent spell attacks (like Gravity
+  and Nexus) do more things to monsters
+* Just now, changed it so that Ithyl-Mak/Ludwig/Kon-Dar
+  aren't *that* cheap... :-)
+* Consolidated all word-of-recall code (for you programmers out there,
+  it's do_word_recall in xtra2.c)
+* Added a new spell: ice storm. A few monsters have it...
+* Resist nexus provides resistance to the "... teleports you away"
+  spell and "phase door" effect of gravity
+* If you have both feather fall and free action, you are immune to the
+  slowing effects of inertia and gravity
+* (Karl Peters) Warriors' Fear Resistance shows up on 'C h'
+* Options summary includes info for 'n' (Repeat last command) command
+
+The gruesome software bug ('l'/'l')
+It breeds explosively, moves invisibly and very fast. It can cast
+spells which paralyze the game, produce errors which slow the game
+down, and cause hallucination, 1 time in 2. It can leap at you 
+to crash the game, leap at you to crash the game, leap at you 
+to crash the game, leap at you to corrupt your savefile, and
+leap at you to crash the game.
+
+--- Version 2.8.3v1, initial release (Tuejun 7, 1998) ---
 
 * Applied Tim Baker's Easy Patch 1.1
 * Applied Tim Baker's Recall Patch 1.0
 * Applied dsb's rod-sorting patch
+* Applied Daniel Nash's '^aC' wizard artifact creation patch
+  (noticed at 1.2)
 * Applied James D. Lockwood's "store examine" patch
 * Applied David Blackston's damage rating patch
 * Applied Keldon Jones's widely-circulated monster AI patch,
@@ -23,6 +69,7 @@
 * The "Hack -- save/restore memory" in monster1.c is patched
 * The 4/6 keys no longer are legal keys in options screens
 * The "keymap_dump" bug was fixed in the more straightforward manner
+  (using Greg Harvey's patch)
 * Character dumps now include (part of) the 'C h' screen,
   which now displays immunities as '*' (idea and some
   code from GJW) if you use the "extend_dump" option
@@ -50,19 +97,46 @@
 TO DO:
 * Sleep brand for ammo (!!!)
 * Items which actually use IGNORE_DISEN
+* Taking an idea from Zangband: magicbane weapons! They will give you
+  an amount proportional to the number of RF5/RF6 spells the monster has.
+  Maybe also include charge-draining attacks?
 * Change the maximum number of monster blows to 8
-* Make a new monster spell: BA_ICEE (ice storm)
+* Make a new monster spell: BA_ICEE (ice storm) (done as of 2.8.3v2)
 * Also BR_PARA, but GF_OLD_SLEEP should be able to work on
   player before I do this
+* When you have feather fall and resist nexus, should you be
+  immune to the effects of gravity? (implemented somewhat in 2.8.3v2)
 * Add new town buildings (bookstore, castle, arena, gambling house,
   adventurer's guild, etc.)
-* Be able to customize town, spells, races, classes, (!!!) artifact activations
-* Add "auto_stair" option that will make stairs go up/down approximately 1d6 levels
+* Be able to customize town, spells, races, classes,
+  (!!!) artifact activations
+* Add "auto_stair" option that will make stairs go up/down
+  approximately 1d6 levels
+* Add Kamband's race characters (done as of 2.8.3v2)
 * Bug: Recall Patch 1.0 generates multiple artifacts with preserve mode
   (because of this, "remember_recall" is now off by default, but this is
   just a hack until a new version of the Recall Patch comes out)
+* Bug: monster_place (or whatever it's called) doesn't take into account
+  hold_o_idx, so monster inventories still don't get restored
 * Add highscore-summarising features, like "angscore"
+* Add "video recorder" mechanism
 * Add lots of things from GW-Angband, Kangband, Kamband (both have
   annoying bugs now), Cthangband, and Zangband
-* Add "video recorder" mechanism
-* Add Kamband's race characters
+* Add a spell to command a monster to return to where you are
+* Orc/yeek uniques should insult you without taking up precious
+  (no, not Smeagol's) melee attacks...
+* Have chests give items based on the level on which they were created
+* More detailed monster descriptions (weisiger is working on this)
+* Black Market: be able to order items, either
+  price = base price * turns to generate
+  price = level^2 * turns to generate, prepay 10 turns
+* Scrolls of Endurance that reduce chances of player items being destroyed
+  due to acid/fire/elec/cold damage; SHATTER attacks should try to destroy
+  player items
+* A new "spell", Energy Drain, will remove 1 hit die of a monster. When
+  done, will turn the monster into an undead (skeleton/zombie/mummy) under
+  your control. This does not work on EMPTY_MIND monsters.
+
+-- P+rfnoff
+Flip a coin. What is it? Heads? Tails? *Side*!??
+Ignore dialog "Really?" "No, I lied!"

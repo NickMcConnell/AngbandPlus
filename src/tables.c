@@ -1152,22 +1152,22 @@ owner_type owners[MAX_STORES][MAX_OWNERS] =
 	},
 	{
 		/* Armoury */
-		{ "Kon-Dar the Ugly",		5000,	210, 115,  5,  7, RACE_HALF_ORC},
-		{ "Darg-Low the Grim",		10000,	190, 111,  4,  9, RACE_HUMAN},
+		{ "Kon-Dar the Ugly",		10000,	210, 115,  5,  7, RACE_HALF_ORC},
+		{ "Darg-Low the Grim",		15000,	190, 111,  4,  9, RACE_HUMAN},
 		{ "Decado the Handsome",	25000,  200, 112,  4, 10, RACE_DUNADAN},
 		{ "Mauglin the Grumpy",		30000,	200, 112,  4,  5, RACE_DWARF},
 	},
 	{
 		/* Weapon Smith */
-		{ "Ithyl-Mak the Beastly",	5000,	210, 115,  6,  6, RACE_HALF_TROLL},
-		{ "Arndal Beast-Slayer",	10000,	185, 110,  5,  9, RACE_HALF_ELF},
+		{ "Ithyl-Mak the Beastly",	10000,	210, 115,  6,  6, RACE_HALF_TROLL},
+		{ "Arndal Beast-Slayer",	15000,	185, 110,  5,  9, RACE_HALF_ELF},
 		{ "Tarl Beast-Master",		25000,	190, 115,  5,  7, RACE_HOBBIT},
 		{ "Oglign Dragon-Slayer",	30000,	195, 112,  4,  8, RACE_DWARF},
 	},
 	{
 		/* Temple */
-		{ "Ludwig the Humble",		5000,	175, 109,  6, 15, RACE_HUMAN},
-		{ "Gunnar the Paladin",		10000,	185, 110,  5, 23, RACE_HUMAN},
+		{ "Ludwig the Humble",		10000,	175, 109,  6, 15, RACE_HUMAN},
+		{ "Gunnar the Paladin",		15000,	185, 110,  5, 23, RACE_HUMAN},
 		{ "Delilah the Pure",		25000,	180, 107,  6, 20, RACE_ELF},
 		{ "Bosk the Wise",			30000,	185, 109,  5, 15, RACE_DWARF},
 	},
@@ -1347,6 +1347,7 @@ player_sex sex_info[MAX_SEXES] =
  *	Female (Hgt, Wgt)
  *	infra,
  *	class-choices
+ *	attr, char		(P+)
  */
 player_race race_info[MAX_RACES] =
 {
@@ -1359,7 +1360,8 @@ player_race race_info[MAX_RACES] =
 		72,  6, 180, 25,
 		66,  4, 150, 20,
 		0,
-		0x3F
+		0x3F,
+		TERM_WHITE, 'p'
 	},
 
 	{
@@ -1371,7 +1373,8 @@ player_race race_info[MAX_RACES] =
 		66,  6, 130, 15,
 		62,  6, 100, 10,
 		2,
-		0x3F
+		0x3F,
+		TERM_GREEN, 'H'
 	},
 
 	{
@@ -1383,7 +1386,8 @@ player_race race_info[MAX_RACES] =
 		60,  4, 100,  6,
 		54,  4, 80,  6,
 		3,
-		0x1F
+		0x1F,
+		TERM_GREEN, 'h'
 	},
 
 	{
@@ -1395,7 +1399,8 @@ player_race race_info[MAX_RACES] =
 		36,  3, 60,  3,
 		33,  3, 50,  3,
 		4,
-		0x0B
+		0x0B,
+		TERM_UMBER, 'h'
 	},
 
 	{
@@ -1407,7 +1412,8 @@ player_race race_info[MAX_RACES] =
 		42,  3, 90,  6,
 		39,  3, 75,  3,
 		4,
-		0x0F
+		0x0F,
+		TERM_L_BLUE, 'h'
 	},
 
 	{
@@ -1419,7 +1425,8 @@ player_race race_info[MAX_RACES] =
 		48,  3, 150, 10,
 		46,  3, 120, 10,
 		5,
-		0x05
+		0x05,
+		TERM_SLATE, 'h'
 	},
 
 	{
@@ -1431,7 +1438,8 @@ player_race race_info[MAX_RACES] =
 		66,  1, 150,  5,
 		62,  1, 120,  5,
 		3,
-		0x0D
+		0x0D,
+		TERM_SLATE, 'o'
 	},
 
 	{
@@ -1443,7 +1451,8 @@ player_race race_info[MAX_RACES] =
 		96, 10, 250, 50,
 		84,  8, 225, 40,
 		3,
-		0x05
+		0x05,
+		TERM_L_UMBER, 'T'
 	},
 
 	{
@@ -1455,7 +1464,8 @@ player_race race_info[MAX_RACES] =
 		82, 5, 190, 20,
 		78,  6, 180, 15,
 		0,
-		0x3F
+		0x3F,
+		TERM_L_WHITE, 'p'
 	},
 
 	{
@@ -1467,7 +1477,8 @@ player_race race_info[MAX_RACES] =
 		90, 10, 190, 20,
 		82, 10, 180, 15,
 		4,
-		0x1F
+		0x1F,
+		TERM_L_GREEN, 'h'
 	}
 };
 
@@ -2612,7 +2623,7 @@ cptr option_text[OPT_MAX] =
 #ifdef ALLOW_EASY_OPEN /* TNB */
 	"easy_open",				/* OPT_easy_open */
 #else
-	NULL,                                           /* xxx */
+	NULL,						/* xxx */
 #endif /* ALLOW_EASY_OPEN */
 	"auto_haggle",				/* OPT_auto_haggle */
 	"auto_scum",				/* OPT_auto_scum */
@@ -2634,7 +2645,7 @@ cptr option_text[OPT_MAX] =
 #ifdef ALLOW_REMEMBER_RECALL /* TNB */
 	"remember_recall",			/* OPT_remember_recall */
 #else
-	NULL,                                           /* xxx track_target */
+	NULL,						/* xxx track_target */
 #endif /* ALLOW_REMEMBER_RECALL -- TNB */
 	"smart_learn",				/* OPT_smart_learn */
 	"smart_cheat",				/* OPT_smart_cheat */
@@ -2661,71 +2672,71 @@ cptr option_text[OPT_MAX] =
 	"view_yellow_lite",			/* OPT_view_yellow_lite */
 	"view_bright_lite",			/* OPT_view_bright_lite */
 	"view_granite_lite",		/* OPT_view_granite_lite */
-	"view_special_lite"			/* OPT_view_special_lite */
+	"view_special_lite",			/* OPT_view_special_lite */
 	"extend_dump",				/* OPT_extend_dump */
-	NULL,                                           /* xxx */
-	NULL,                                           /* xxx */
-	NULL,                                           /* xxx */
-	NULL,                                           /* xxx */
-	NULL,                                           /* xxx */
-	NULL,                                           /* xxx */
-	NULL,                                           /* xxx */
-	NULL,                                           /* xxx */
-	NULL,                                           /* xxx */
-	NULL,                                           /* xxx */
-	NULL,                                           /* xxx */
-	NULL,                                           /* xxx */
-	NULL,                                           /* xxx */
-	NULL,                                           /* xxx */
-	NULL,                                           /* xxx */
-	NULL,                                           /* xxx */
-	NULL,                                           /* xxx */
-	NULL,                                           /* xxx */
-	NULL,                                           /* xxx */
-	NULL,                                           /* xxx */
-	NULL,                                           /* xxx */
-	NULL,                                           /* xxx */
-	NULL,                                           /* xxx */
-	NULL,                                           /* xxx */
-	NULL,                                           /* xxx */
-	NULL,                                           /* xxx */
-	NULL,                                           /* xxx */
-	NULL,                                           /* xxx */
-	NULL,                                           /* xxx */
-	NULL,                                           /* xxx */
-	NULL,                                           /* xxx */
-	NULL,                                           /* xxx */
-	NULL,                                           /* xxx */
-	NULL,                                           /* xxx */
-	NULL,                                           /* xxx */
-	NULL,                                           /* xxx */
-	NULL,                                           /* xxx */
-	NULL,                                           /* xxx */
-	NULL,                                           /* xxx */
-	NULL,                                           /* xxx */
-	NULL,                                           /* xxx */
-	NULL,                                           /* xxx */
-	NULL,                                           /* xxx */
-	NULL,                                           /* xxx */
-	NULL,                                           /* xxx */
-	NULL,                                           /* xxx */
-	NULL,                                           /* xxx */
-	NULL,                                           /* xxx */
-	NULL,                                           /* xxx */
-	NULL,                                           /* xxx */
-	NULL,                                           /* xxx */
-	NULL,                                           /* xxx */
-	NULL,                                           /* xxx */
-	NULL,                                           /* xxx */
-	NULL,                                           /* xxx */
-	NULL,                                           /* xxx */
-	NULL,                                           /* xxx */
-	NULL,                                           /* xxx */
-	NULL,                                           /* xxx */
-	NULL,                                           /* xxx */
-	NULL,                                           /* xxx */
-	NULL,                                           /* xxx */
-	NULL                                            /* xxx */
+	"race_chars",				/* OPT_race_chars */
+	"class_colors",				/* OPT_class_colors */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL,						/* xxx */
+	NULL						/* xxx */
 };
 
 
@@ -2766,9 +2777,9 @@ cptr option_desc[OPT_MAX] =
 	"Verify use of special commands",			/* OPT_verify_special */
 	"Allow quantity specification",				/* OPT_allow_quantity */
 #ifdef ALLOW_EASY_OPEN /* TNB */
-	"Open and close automatically",   /* OPT_easy_open */
+	"Open and close automatically",				/* OPT_easy_open */
 #else
-	NULL,                                                           /* xxx */
+	NULL,										/* xxx */
 #endif /* ALLOW_EASY_OPEN */
 	"Auto-haggle in stores",					/* OPT_auto_haggle */
 	"Auto-scum for good levels",				/* OPT_auto_scum */
@@ -2785,12 +2796,12 @@ cptr option_desc[OPT_MAX] =
 #ifdef ALLOW_EASY_DISARM /* TNB */
 	"Disarm traps automatically",			/* OPT_easy_disarm */
 #else
-	NULL,                                                      /* xxx */
+	NULL,										/* xxx */
 #endif /* ALLOW_EASY_DISARM */
 #ifdef ALLOW_REMEMBER_RECALL /* TNB */
-	"Remember the recall level",			/* OPT_remember_recall */
+	"Remember the recall level (buggy)",		/* OPT_remember_recall */
 #else
-	NULL,                                                      /* xxx */
+	NULL,										/* xxx */
 #endif /* ALLOW_REMEMBER_RECALL -- TNB */
 	"Monsters learn from their mistakes",		/* OPT_smart_learn */
 	"Monsters exploit players weaknesses",		/* OPT_smart_cheat */
@@ -2819,8 +2830,8 @@ cptr option_desc[OPT_MAX] =
 	"Use special colors for wall grids",		/* OPT_view_granite_lite */
 	"Use special colors for floor grids",		/* OPT_view_special_lite */
 	"Show resistances in character dumps",		/* OPT_extend_dump */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
+	"Use special characters for races",		/* OPT_race_chars */
+	"Use special colors for classes",		/* OPT_class_colors */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
@@ -2973,10 +2984,10 @@ bool option_norm[OPT_MAX] =
 	FALSE,		/* OPT_view_yellow_lite */
 	FALSE,		/* OPT_view_bright_lite */
 	FALSE,		/* OPT_view_granite_lite */
-	FALSE		/* OPT_view_special_lite */
+	FALSE,		/* OPT_view_special_lite */
 	TRUE,		/* OPT_extend_dump */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
+	FALSE,		/* OPT_race_chars */
+	TRUE,		/* OPT_class_colors */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
@@ -3044,7 +3055,7 @@ bool option_norm[OPT_MAX] =
 /*
  * Option screen interface
  */
-byte option_page[4][16] =
+byte option_page[5][16] =
 {
 	/*** User-Interface ***/
 
@@ -3147,13 +3158,13 @@ byte option_page[4][16] =
 	{
 		OPT_spell_colors,
 		OPT_extend_dump,
+		OPT_race_chars,
+		OPT_class_colors,
 #ifdef MONSTER_AI
 		OPT_monster_ai,
 #else
 		255,
 #endif /* MONSTER_AI */
-		255,
-		255,
 		255,
 		255,
 		255,
