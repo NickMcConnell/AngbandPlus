@@ -316,7 +316,6 @@
  */
 #define DRS_SHOW_HEALTH_BAR
 
-
 /*
  * OPTION: Enable the "smart_learn" and "smart_cheat" options.
  * They let monsters make more "intelligent" choices about attacks
@@ -336,33 +335,13 @@
  */
 #define DRS_SMART_OPTIONS
 
-
-
-/*
- * OPTION: Enable the "track_follow" and "track_target" options.
- * They let monsters follow the player's foot-prints, or remember
- * the player's recent locations.  This code has been removed from
- * the current version because it is being rewritten by Billy, and
- * until it is ready, it will not work.  Do not define this option.
- */
-/* #define WDT_TRACK_OPTIONS */
-
-
-
-/*
- * OPTION: Allow the use of "sound" in various places.
- */
+/* OPTION: Allow the use of "sound" in various places. */
 #define USE_SOUND
 
-/*
- * OPTION: Allow the use of "graphics" in various places
- */
+/* OPTION: Allow the use of "graphics" in various places */
 #define USE_GRAPHICS
 
-
-/*
- * OPTION: Hack -- Macintosh stuff
- */
+/* OPTION: Hack -- Macintosh stuff */
 #ifdef MACINTOSH
 
 /* Do not handle signals */

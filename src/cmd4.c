@@ -668,11 +668,8 @@ static void do_cmd_options_autosave(cptr info)
 static void do_cmd_options_aux(int page, cptr info)
 {
 	char	ch;
-
 	int	i, k = 0, n = 0;
-
 	int	opt[24];
-
 	char	buf[80];
 
 
@@ -685,7 +682,6 @@ static void do_cmd_options_aux(int page, cptr info)
 		/* Notice options on this "page" */
 		if (option_info[i].o_page == page) opt[n++] = i;
 	}
-
 
 	/* Clear screen */
 	Term_clear();
@@ -970,31 +966,25 @@ void do_cmd_options(void)
 		Term_clear();
 
 		/* Why are we here */
-		prt("Gumband options", 2, 0);
+		prt("Gumband options",			2, 0);
 
 		/* Give some choices */
-		prt("(1) User Interface Options", 4, 5);
-		prt("(2) Disturbance Options", 5, 5);
-		prt("(3) Game-Play Options", 6, 5);
-		prt("(4) Efficiency Options", 7, 5);
+		prt("(1) User Interface Options",	4, 5);
+		prt("(2) Disturbance Options",		5, 5);
+		prt("(3) Game-Play Options",		6, 5);
+		prt("(4) Efficiency Options",		7, 5);
+		prt("(5) Gumband/misc. Options",	8, 5);
+		prt("(S) Stacking Options",		9, 5);
 
-		prt("(G/5) Gumband Options", 9, 5);
-		/* Testing */
-		prt("(S) Stacking Options", 10, 5);
-		/* Special choices */
-		prt("(D) Base Delay Factor", 11, 5);
-		prt("(H) Hitpoint Warning", 12, 5);
-		prt("(A) Autosave Options", 13, 5);
+		prt("(D) Base Delay Factor",		11, 5);
+		prt("(H) Hitpoint Warning",		12, 5);
+		prt("(A) Autosave Options",		13, 5);
+		prt("(W) Window Flags",			14, 5);
 
-
-		/* Window flags */
-		prt("(W) Window Flags", 14, 5);
-
-		/* Cheating */
-		prt("(C) Cheating Options", 16, 5);
+		prt("(C) Cheating Options",		16, 5);
 
 		/* Prompt */
-		prt("Command: ", 18, 0);
+		prt("Command: ",			18, 0);
 
 		/* Get command */
 		k = inkey();
@@ -1008,7 +998,6 @@ void do_cmd_options(void)
 			/* General Options */
 			case '1':
 			{
-				/* Process the general options */
 				do_cmd_options_aux(1, "User Interface Options");
 				break;
 			}
@@ -1016,7 +1005,6 @@ void do_cmd_options(void)
 			/* Disturbance Options */
 			case '2':
 			{
-				/* Spawn */
 				do_cmd_options_aux(2, "Disturbance Options");
 				break;
 			}
@@ -1024,7 +1012,6 @@ void do_cmd_options(void)
 			/* Inventory Options */
 			case '3':
 			{
-				/* Spawn */
 				do_cmd_options_aux(3, "Game-Play Options");
 				break;
 			}
@@ -1032,13 +1019,12 @@ void do_cmd_options(void)
 			/* Efficiency Options */
 			case '4':
 			{
-				/* Spawn */
 				do_cmd_options_aux(4, "Efficiency Options");
 				break;
 			}
 
 			/* Gumband Options */
-			case 'G': case 'g': case '5':
+			case '5':
 			{
 				do_cmd_options_aux(5, "Gumband Options");
 				break;
@@ -1046,10 +1032,8 @@ void do_cmd_options(void)
 
 			/* Testing Options */
 			case 'T': /* For people who do this by memory */
-			case 'S':
-			case 's':
+			case 'S': case 's':
 			{
-				/* Spawn */
 				do_cmd_options_aux(255, "Stacking Options");
 				break;
 			}
@@ -1057,32 +1041,26 @@ void do_cmd_options(void)
 			/* Cheating Options */
 			case 'C':
 			{
-				/* Spawn */
 				do_cmd_options_cheat("Cheaters never win");
 				break;
 			}
 
-			case 'a':
-			case 'A':
+			case 'a': case 'A':
 			{
 				do_cmd_options_autosave("Autosave");
 				break;
 			}
 
 			/* Window flags */
-			case 'W':
-			case 'w':
+			case 'W': case 'w':
 			{
-				/* Spawn */
 				do_cmd_options_win();
 				break;
 			}
 
 			/* Hack -- Delay Speed */
-			case 'D':
-			case 'd':
+			case 'D': case 'd':
 			{
-				/* Prompt */
 				prt("Command: Base Delay Factor", 18, 0);
 
 				/* Get a new value */
@@ -1097,15 +1075,12 @@ void do_cmd_options(void)
 					if (isdigit(k)) delay_factor = D2I(k);
 					else bell();
 				}
-
 				break;
 			}
 
 			/* Hack -- hitpoint warning factor */
-			case 'H':
-			case 'h':
+			case 'H': case 'h':
 			{
-				/* Prompt */
 				prt("Command: Hitpoint Warning", 18, 0);
 
 				/* Get a new value */
@@ -1119,7 +1094,6 @@ void do_cmd_options(void)
 					if (isdigit(k)) hitpoint_warn = D2I(k);
 					else bell();
 				}
-
 				break;
 			}
 
@@ -1135,7 +1109,6 @@ void do_cmd_options(void)
 		/* Flush messages */
 		msg_print(NULL);
 	}
-
 
 	/* Restore the screen */
 	Term_load();
@@ -2988,9 +2961,9 @@ static void do_cmd_knowledge_uniques(void)
 			if (dead || cheat_know || r_ptr->r_sights)
 			{
 				/* Print a message */
-				fprintf(fff, "     %s is %s\n",
+				fprintf(fff, "     %s is %s.\n",
 				        (r_name + r_ptr->name),
-				        (dead ? "dead" : "alive"));
+				        (dead ? "dead" : "still at large"));
 			}
 		}
 	}

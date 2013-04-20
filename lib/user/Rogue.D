@@ -1,111 +1,67 @@
 # Death Magic
 #
-# TAB - Wraithform          F1 - Malediction
-#   [ - Berserk             F2 - Stinking Cloud
-#   ] - Battle Frenzy       F3 - Nether Bolt
-#   ' - Horrify             F4 - Vampiric Drain
-#   " - Terror              F5 - Cloud Kill
-#   ; - Black Sleep         F6 - Dark Bolt
-#   : - Invoke Spirits      F7 - Vampirism True
-#   h - Poison Branding     F8 - Darkness Storm
-#   H - Vampiric Branding   F9 - Death Ray
-#   J - Esoteria
-#   n - Detect Unlife
-#   N - Detect Evil
-#   O - Infernal Orb
-#   P - Resist Poison
-#   y - Enslave Undead
-#   Y - Raise the Dead
-#   Z - Restore Life
+# TAB - Wraithform          F1 - Malediction         SF1 - Stinking Cloud
+#   [ - Poison Branding     F2 - Black Sleep         SF2 - Infernal Orb
+#   ] - Vampiric Branding   F3 - Horrify             SF3 - Terrror
+#   ' - Resist Poison       F4 - Nether Bolt         SF4 - Cloud Kill
+#   " - Restore Life        F5 - Vampiric Drain      SF5 - Punish Undead
+#   ; - Detect Unlife       F6 - Dark Bolt           SF6 - Darkness Storm
+#   : - Detect Evil         F7 - Vampirism True      SF7 - Enslave Undead
+#   Z - Esoteria            F8 - Death Ray           SF8 - Raise the Dead
+#                           F9 - Berserk             SF9 - Battle Frenzy
 
 # TAB - Wraithform
 A:m4h
 P:\t
 
-# [ - Berserk
-A:m3a
+# [ - Poison Branding
+A:m2e
 C:0:[
 
-# ] - Battle Frenzy
-A:m3d
+# ] - Vampiric Branding
+A:m3f
 C:0:]
 
-# ' - Horrify
-A:m1g
+# ' - Resist Poison
+A:m1f
 C:0:'
 
-# " - Terror
-A:m2c
+# " - Restore Life
+A:m2h
 C:0:"
 
-# ; - Black Sleep
-A:m1e
+# ; - Detect Unlife
+A:m1a
 C:0:;
 
-# : - Invoke Spirits
-A:m3b
+# : - Detect Evil
+A:m1c
 C:0::
 
-# h - Poison Branding
-A:m2e
-C:0:h
-
-# H - Vampiric Branding
-A:m3f
-C:0:H
-
-# J - Esoteria
+# Z - Esoteria
 A:m4c
-C:0:J
-
-# n - Detect Unlife
-A:m1a
-C:0:n
-
-# N - Detect Evil
-A:m1c
-C:0:N
-
-# O - Infernal Orb
-A:m2a
-C:0:O
-
-# P - Resist Poison
-A:m1f
-C:0:P
-
-# y - Enslave Undead
-A:m1h
-C:0:y
-
-# Y - Raise the Dead
-A:m4b
-C:0:Y
-
-# Z - Restore Life
-A:m2h
 C:0:Z
 
-# Combat
+# Bolts
 
 # F1 - Malediction
 A:\e\e\e*tm1b
 P:^_x3B\r
 
-# F2 - Stinking Cloud
-A:m1d
+# F2 - Black Sleep
+A:m1e
 P:^_x3C\r
 
-# F3 - Nether Bolt
-A:\e\e\e*tm2b
+# F3 - Horrify
+A:m1g
 P:^_x3D\r
 
-# F4 - Vampiric Drain
-A:m2d
+# F4 - Nether Bolt
+A:\e\e\e*tm2b
 P:^_x3E\r
 
-# F5 - Cloud Kill
-A:m2f
+# F5 - Vampiric Drain
+A:m2d
 P:^_x3F\r
 
 # F6 - Dark Bolt
@@ -116,34 +72,52 @@ P:^_x40\r
 A:m3e
 P:^_x41\r
 
-# F8 - Darkness Storm
-A:m3g
+# F8 - Death Ray
+A:m4a
 P:^_x42\r
 
-# F9 - Death Ray
-A:\e\e\e*tm4a
+# Misc.
+
+# F9 - Berserk
+A:m3a
 P:^_x43\r
 
-# F10 - 
-A:
-P:^_x44\r
+# Ball/Area
 
-# F11 - 
-A:
-P:^_x85\r
-
-# F12 - 
-A:
-P:^_x86\r
-
-# SHIFT-F1 - 
-A:
+# SHIFT-F1 - Stinking Cloud
+A:m1d
 P:^_Sx54\r
 
-# SHIFT-F2 - 
-A:
+# SHIFT-F2 - Infernal Orb
+A:m2a
 P:^_Sx55\r
 
-# SHIFT-F3 - 
-A:
+# SHIFT-F3 - Terror
+A:m2c
 P:^_Sx56\r
+
+# SHIFT-F4 - Cloud Kill
+A:m2f
+P:^_Sx57\r
+
+# SHIFT-F5 - Punish Undead
+A:m3b
+P:^_Sx58\r
+
+# SHIFT-F6 - Darkness Storm
+A:m3g
+P:^_Sx59\r
+
+# Misc.
+
+# SHIFT-F7 - Enslave Undead
+A:m1h
+P:^_Sx5A\r
+
+# SHIFT-F8 - Raise the Dead
+A:m4b
+P:^_Sx5B\r
+
+# SHIFT-F9 - Battle Frenzy
+A:m3d
+P:^_Sx5C\r

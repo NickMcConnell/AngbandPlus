@@ -340,10 +340,6 @@ static store_type *st_ptr = NULL;
 static owner_type *ot_ptr = NULL;
 
 
-
-
-
-
 /*
  * Buying and selling adjustments for race combinations.
  * Entry[owner][player] gives the basic "cost inflation".
@@ -2964,11 +2960,6 @@ static bool leave_store = FALSE;
  */
 static void store_process_command(void)
 {
-    if (rogue_like_commands && command_cmd == 'l')
-    {
-        command_cmd = 'x';  /* hack! */
-    }
-
 	/* Parse the command */
 	switch (command_cmd)
 	{
@@ -3018,7 +3009,7 @@ static void store_process_command(void)
 		}
 
            /* Examine */
-       case 'x':
+       case 'l': case 'x':
        {
            store_examine();
            break;
@@ -3381,7 +3372,7 @@ void do_cmd_store(void)
   		}
   
        /* Add in the eXamine option */
-       prt(" x) eXamine an item.", 22, 56);
+       prt(" l/x) Examine item.", 22, 56);
 
   		/* Prompt */
   		prt("You may: ", 21, 0);

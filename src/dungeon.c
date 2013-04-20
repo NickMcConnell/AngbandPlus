@@ -112,76 +112,47 @@ static void sense_inventory(void)
 	{
 		case CLASS_WARRIOR: case CLASS_WEAPONMASTER:
 		{
-			/* Good sensing */
 			if (0 != rand_int(10000L / (plev * plev + 40))) return;
-
-			/* Heavy sensing */
 			heavy = TRUE;
-
-			/* Done */
 			break;
 		}
 
 		case CLASS_MAGE:
 		{
-			/* Very bad (light) sensing */
 			if (0 != rand_int(150000L / (plev * plev + 40))) return;
-
-			/* Done */
 			break;
 		}
 
 		case CLASS_PRIEST:
 		{
-			/* Good (light) sensing */
 			if (0 != rand_int(10000L / (plev * plev + 40))) return;
-
-			/* Done */
 			break;
 		}
 
 		case CLASS_ROGUE:
 		{
-			/* Okay sensing */
 			if (0 != rand_int(20000L / (plev * plev + 40))) return;
-
-			/* Heavy sensing */
 			heavy = TRUE;
-
-			/* Done */
 			break;
 		}
 
 		case CLASS_RANGER: case CLASS_PALADIN:
 		case CLASS_WARRIOR_MAGE: case CLASS_CHAOS_WARRIOR:
 		{
-
-			/* Bad sensing */
 			if (0 != rand_int(50000L / (plev * plev + 40))) return;
-
-			/* Heavy sensing */
 			heavy = TRUE;
-
-			/* Done */
 			break;
 		}
 
 		case CLASS_MONK:
 		{
-			/* Okay sensing */
 			if (0 != rand_int(20000L / (plev * plev + 40))) return;
-
-			/* Done */
 			break;
 		}
 
 		case CLASS_MINDCRAFTER:
 		{
-
-			/* Bad sensing */
 			if (0 != rand_int(40000L / (plev * plev + 40))) return;
-
-			/* Done */
 			break;
 		}
 
@@ -189,8 +160,10 @@ static void sense_inventory(void)
 		{
 			switch (p_ptr->realm1)
 			{
-				case REALM_LIFE: case REALM_CHAOS:
-				case REALM_DEATH: case REALM_TRUMP:
+				case REALM_CHAOS:
+					k = 10000L; break;
+				case REALM_LIFE: case REALM_DEATH:
+				case REALM_TRUMP:
 					k = 20000L; break;
 				case REALM_NATURE:
 					k = 40000L; break;
@@ -198,14 +171,10 @@ static void sense_inventory(void)
 					k = 150000L; break;
 			}
 
-			/* Variable sensing */
 			if (0 != rand_int(k / (plev * plev + 40))) return;
-
-			/* Done */
 			break;
 		}
 	}
-
 
 	/*** Sense everything ***/
 
@@ -1022,8 +991,7 @@ static void process_world(void)
 	if (!cave_floor_bold(py, px))
 	{
 		cave_no_regen = TRUE;
-		if (!(p_ptr->invuln) &&
-		    !(p_ptr->wraith_form) &&
+		if (!(p_ptr->invuln) && !(p_ptr->wraith_form) &&
 		    ((p_ptr->chp > ((p_ptr->lev)/5)) || (p_ptr->prace != RACE_SPECTRE)))
 		{
 			cptr dam_desc;
@@ -1039,7 +1007,7 @@ static void process_world(void)
 				dam_desc = "solid rock";
 			}
 
-			take_hit(1 + ((p_ptr->lev)/5), dam_desc);
+			take_hit(1 + ((p_ptr->lev)/10), dam_desc);
 		}
 	}
 
@@ -1474,7 +1442,7 @@ static void process_world(void)
 		 */
 		if (disturb_minor) disturb(0,0);
 
-		switch(randint(14))
+		switch(randint(16))
 		{
 			case 1:
 				if (p_ptr->muta1 || p_ptr->muta2 || p_ptr->muta3)
@@ -2610,10 +2578,10 @@ static void process_command(void)
 			break;
 		}
 
-		/* Pray a prayer */
+		/* Issue a pet command */
 		case 'p':
 		{
-			do_cmd_pray();
+			do_cmd_pet();
 			break;
 		}
 
@@ -3833,11 +3801,9 @@ void play_game(bool new_game)
 		player_birth();
 
 		/* Hack -- enter the world
-		 * Hack -- the undead don't start their unlife
-		 *        during the day. - Gumby
+		 * Hack -- Vampires start at night. - Gumby
 		 */
-		if (p_ptr->prace == RACE_SKELETON || p_ptr->prace == RACE_ZOMBIE ||
-		    p_ptr->prace == RACE_VAMPIRE  || p_ptr->prace == RACE_SPECTRE)
+		if (p_ptr->prace == RACE_VAMPIRE)
 		{
 			turn = (10L * TOWN_DAWN) / 2;
 		}

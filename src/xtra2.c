@@ -2200,13 +2200,7 @@ void monster_death(int m_idx)
 		}
 	}
 
-	/*
-	 * Hack for punishing Chaos Warriors who kill their patron! -- Gumby
-	 * I could probably nest it another level, with CLASS_CHAOS_WARRIOR
-	 * on the outside, making it a bit prettier, but I don't feel like
-	 * it. :)  Could also do the k = rand_int(5); on the upper level and
-	 * then do a k += 5; (or 4 or 3) under each patron as well...
-	 */
+	/* Hack for punishing Chaos Warriors who kill their patron! - G */
         else if (strstr((r_name + r_ptr->name),"Mabelrode the") &&
 		 ((p_ptr->pclass == CLASS_CHAOS_WARRIOR) &&
 		  (p_ptr->chaos_patron == PATRON_MABELRODE)))
@@ -2454,7 +2448,7 @@ void monster_death(int m_idx)
 		}
 	}
 
-/*	if (cloned) number = 0; */ /* Clones drop no stuff */
+	if (cloned) number = 0; /* Clones don't have a drop */
 
 	/* Hack -- handle creeping coins */
 	coin_type = force_coin;

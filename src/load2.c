@@ -2874,6 +2874,12 @@ static errr rd_savefile_new_aux(void)
 		if (rd_store(i)) return (22);
 	}
 
+#if 1
+	rd_byte(&p_ptr->pet_follow_distance);
+	rd_byte(&p_ptr->pet_open_doors);
+	rd_byte(&p_ptr->pet_pickup_items);
+#endif
+
 #if 0
 	if (z_older_than(2,1,0))
 	{

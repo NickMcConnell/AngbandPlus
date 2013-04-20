@@ -411,6 +411,10 @@ static errr wr_savefile(void)
 	/* Dump the stores */
 	for (i = 0; i < tmp16u; i++) wr_store(&store[i]);
 
+	/* Write the pet command settings */
+	wr_byte(p_ptr->pet_follow_distance);
+	wr_byte(p_ptr->pet_open_doors);
+	wr_byte(p_ptr->pet_pickup_items);
 
 	/* Player is not dead, write the dungeon */
 	if (!death)
@@ -1519,6 +1523,10 @@ static bool wr_savefile_new(void)
 	/* Dump the stores */
 	for (i = 0; i < tmp16u; i++) wr_store(&store[i]);
 
+	/* Write the pet command settings */
+	wr_byte(p_ptr->pet_follow_distance);
+	wr_byte(p_ptr->pet_open_doors);
+	wr_byte(p_ptr->pet_pickup_items);
 
 	/* Player is not dead, write the dungeon */
 	if (!death)

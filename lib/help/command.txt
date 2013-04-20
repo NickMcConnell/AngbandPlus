@@ -404,6 +404,7 @@ Take off equipment (t) or Take off equipment (T)
         is no room in your inventory for the item, your pack will overflow
         and you will drop the item after taking it off.
 
+
 ---  Movement Commands ---
 
 Walk (with pickup) (;)
@@ -565,6 +566,12 @@ Alter (+)
         "alter the terrain feature of an adjacent grid" command.  Alter
         can take a count, requires a direction, and is affected by the
         "always_repeat" option.
+
+Order your pet around (p)
+	Use this command to give various orders to your pets.  You can
+	dismiss one or more pets, control how far they will wander, and
+	control whether or not pets can open doors and pick up items from
+	the ground.
 
 ---  Spell and Prayer Commands ---
 
@@ -968,4 +975,4 @@ Save screen dump (right-paren)
                 Original: Alexander Cutler and Andy Astrand
          Updated (2.7.6): Russ Allbery (rra@cs.stanford.edu)
          Updated (2.7.9): Ben Harrison (benh@phial.com)
-Updated (Gumband 2.1.2b): Joe Dixon (gumby_jd@yahoo.com)
+Updated (Gumband 2.1.4a): Joe Dixon (gumby_jd@yahoo.com)

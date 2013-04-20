@@ -2118,7 +2118,6 @@ static void spoil_mon_info(cptr fname)
 			else if (i == 2)
 			{
 				spoil_out(" one or two");
-				sin = TRUE;
 			}
 			else
 			{

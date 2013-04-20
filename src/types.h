@@ -647,7 +647,6 @@ struct option_type
 	bool	*o_var;
 
 	byte	o_norm;
-
 	byte	o_page;
 
 	byte	o_set;
@@ -1127,6 +1126,11 @@ struct player_type
 	byte tval_ammo;		/* Correct ammo tval */
 
 	s16b pspeed;		/* Current speed */
+
+	/* Pet commands - taken from Zceband 2.1.1. by Eric Bock */
+	byte pet_follow_distance; /* Length of the imaginary "leash" for pets */
+	byte pet_open_doors;      /* flag - allow pets to open doors */
+	byte pet_pickup_items;    /* flag - allow pets to pickup items */
 };
 
 

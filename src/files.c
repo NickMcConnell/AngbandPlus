@@ -1531,7 +1531,6 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3)
 			(*f3) |= (TR3_SEE_INVIS);
 			(*f2) |= (TR2_HOLD_LIFE);
 			(*f2) |= (TR2_RES_NETHER);
-			(*f3) |= (TR3_LITE);
 			(*f2) |= (TR2_RES_POIS);
 			(*f3) |= (TR3_SLOW_DIGEST);
 			(*f3) |= (TR3_FEATHER);
@@ -1606,7 +1605,7 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3)
 		{
 			(*f2) |= (TR2_RES_DARK);
 			(*f2) |= (TR2_RES_LITE);
-			(*f2) |= (TR3_LITE);
+			(*f3) |= (TR3_LITE);
 		}
 	}
 }

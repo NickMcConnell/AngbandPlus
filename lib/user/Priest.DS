@@ -1,18 +1,18 @@
 # Priest Death/Sorcery
 #
-# TAB - Teleport Away       F1 - Malediction         SF1 - Genocide
-#   [ - Dimension Door      F2 - Stinking Cloud      SF2 - Mass Genocide
-#   ] - Wraithform          F3 - Nether Bolt         SF3 - Summon Death
-#   ' - Berserk             F4 - Vampiric Drain      SF4 - Confuse Monster
-#   " - Battle Frenzy       F5 - Cloud Kill          SF5 - Black Sleep
-#   ; - Haste Self          F6 - Dark Bolt           SF6 - Horrify
-#   : - Globe of Invulner.  F7 - Vampirism True      SF7 - Invoke Spirits
-#   h - Magic Mapping       F8 - Darkness Storm      SF8 - Slow Monster
-#   H - Clairvoyance        F9 - Death Ray           SF9 - Mass Sleep
-#   J - Identify           F10 - Word of Death      SF10 - Terror
-#   n - Detect Monsters    F11 - Evocation          SF11 - Infernal Orb
-#   N - Detect Doors/Traps F12 - Hellfire           SF12 - Stasis
-#   O - Detection
+# TAB - Teleport Away       F1 - Malediction         SF1 - Stinking Cloud
+#   [ - Magic Mapping       F2 - Nether Bolt         SF2 - Infernal Orb
+#   ] - Clairvoyance        F3 - Vampiric Drain      SF3 - Cloud Kill
+#   ' - Detect Objs/Treas.  F4 - Dark Bolt           SF4 - Punish Undead
+#   " - Detect Doors/Traps  F5 - Vamprism True       SF5 - Darkness Storm
+#   ; - Detect Monsters     F6 - Death Ray           SF6 - Word of Death
+#   : - Detection           F7 - Berserk             SF7 - Evocation
+#   h - Haste Self          F8 - Battle Frenzy       SF8 - Hellfire
+#   H - Globe of Invulner.  F9 - Terror              SF9 - Genocide
+#   J - Dimension Door     F10 - Mass Sleep         SF10 - Mass Genocide
+#   n - Identify           F11 - Stasis             SF11 - Summon Death
+#   N - Insight            F12 - Explosive Rune     SF12 - Wraithform
+#   O - Word of Recall
 #   P - Recharging
 #   y - Phase Door
 #   Y - Teleport
@@ -22,52 +22,52 @@
 A:m6g
 P:\t
 
-# [ - Dimension Door
-A:m7b
+# [ - Magic Mapping
+A:m6b
 C:0:[
 
-# ] - Wraithform
-A:m4h
+# ] - Clairvoyance
+A:m8d
 C:0:]
 
-# ' - Berserk
-A:m3a
+# ' - Detect Objects/Treasure
+A:m5c
 C:0:'
 
-# " - Battle Frenzy
-A:m3d
+# " - Detect Doors/Traps
+A:m5d
 C:0:"
 
-# ; - Haste Self
-A:m6h
+# ; - Detect Monsters
+A:m5a
 C:0:;
 
-# : - Globe of Invulnerability
-A:m8h
+# : - Detection
+A:m7g
 C:0::
 
-# h - Magic Mapping
-A:m6b
+# h - Haste Self
+A:m6h
 C:0:h
 
-# H - Clairvoyance
-A:m8d
+# H - Globe of Invulnerability
+A:m8h
 C:0:H
 
-# J - Identify
-A:m6c
+# J - Dimension Door
+A:m7b
 C:0:J
 
-# n - Detect Monsters
-A:m5a
+# n - Identify
+A:m6c
 C:0:n
 
-# N - Detect Doors/Traps
-A:m5d
+# N - Insight
+A:m7h
 C:0:N
 
-# O - Detection
-A:m7g
+# O - Word of Recall
+A:m7f
 C:0:O
 
 # P - Recharging
@@ -86,104 +86,104 @@ C:0:Y
 A:m5e
 C:0:Z
 
-# Combat
+# Bolts
 
 # F1 - Malediction
 A:\e\e\e*tm1b
 P:^_x3B\r
 
-# F2 - Stinking Cloud
-A:m1d
+# F2 - Nether Bolt
+A:\e\e\e*tm2b
 P:^_x3C\r
 
-# F3 - Nether Bolt
-A:\e\e\e*tm2b
+# F3 - Vampiric Drain
+A:m2d
 P:^_x3D\r
 
-# F4 - Vampiric Drain
-A:m2d
+# F4 - Dark Bolt
+A:\e\e\e*tm3c
 P:^_x3E\r
 
-# F5 - Cloud Kill
-A:m2f
+# F5 - Vamprisim True
+A:m3e
 P:^_x3F\r
 
-# F6 - Dark Bolt
-A:\e\e\e*tm3c
+# F6 - Death Ray
+A:m4a
 P:^_x40\r
 
-# F7 - Vampirism True
-A:m3e
+# Miscellaneous
+
+# F7 - Berserk
+A:m3a
 P:^_x41\r
 
-# F8 - Darkness Storm
-A:m3g
+# F8 - Battle Frenzy
+A:m3d
 P:^_x42\r
 
-# F9 - Death Ray
-A:\e\e\e*tm4a
+# F9 - Terror
+A:m2c
 P:^_x43\r
 
-# F10 - Word of Death
-A:m4d
+# F10 - Mass Sleep
+A:m6f
 P:^_x44\r
 
-# F11 - Evocation
-A:m4e
+# F11 - Stasis
+A:m8a
 P:^_x85\r
 
-# F12 - Hellfire
-A:m4f
+# F12 - Explosive Rune
+A:m8c
 P:^_x86\r
 
-# Genocides
+# Ball/Area
 
-# SHIFT-F1 - Genocide
-A:m2g
+# SHIFT-F1 - Stinking Cloud
+A:m1d
 P:^_Sx54\r
 
-# SHIFT-F2 - Mass Genocide
-A:m3h
+# SHIFT-F2 - Infernal Orb
+A:m2a
 P:^_Sx55\r
 
-# SHIFT-F3 - Summon Death
-A:m4g
+# SHIFT-F3 - Cloud Kill
+A:m2f
 P:^_Sx56\r
 
-# Misc Combat
-
-# SHIFT-F4 - Confuse Monster
-A:m5f
+# SHIFT-F4 - Punish Undead
+A:m3b
 P:^_Sx57\r
 
-# SHIFT-F5 - Black Sleep
-A:m1e
+# SHIFT-F5 - Darkness Storm
+A:m3g
 P:^_Sx58\r
 
-# SHIFT-F6 - Horrify
-A:m1g
+# SHIFT-F6 - Word of Death
+A:m4d
 P:^_Sx59\r
 
-# SHIFT-F7 - Invoke Spirits
-A:m3b
+# SHIFT-F7 - Evocation
+A:m4e
 P:^_Sx5A\r
 
-# SHIFT-F8 - Slow Monster
-A:m6e
+# SHIFT-F8 - Hellfire
+A:m4f
 P:^_Sx5B\r
 
-# SHIFT-F9 - Mass Sleep
-A:m6f
+# SHIFT-F9 - Genocide
+A:m2g
 P:^_Sx5C\r
 
-# SHIFT-F10 - Terror
-A:m2c
+# SHIFT-F10 - Mass Genocide
+A:m3h
 P:^_Sx5D\r
 
-# SHIFT-F11 - Infernal Orb
-A:m2a
+# SHIFT-F11 - Summon Death
+A:m4g
 P:^_Sx87\r
 
-# SHIFT-F12 - Stasis
-A:m4a
+# SHIFT-F12 - Wraithform
+A:m4h
 P:^_Sx88\r

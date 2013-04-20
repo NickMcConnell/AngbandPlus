@@ -35,6 +35,14 @@ GLIBS= -lgrx20
 
 PROGRAM = Gumband.exe
 
+default: Gumband.exe
+	copy Gumband.exe ..
+	del Gumband.exe
+	del Gumband.bin
+
+install: Gumband.exe
+	copy Gumband.exe ..
+
 all: $(PROGRAM)
 
 # Generate binary file

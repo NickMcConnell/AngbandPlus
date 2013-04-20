@@ -1641,7 +1641,7 @@ static void player_outfit(void)
 	{
 		/* Hack -- Give the player scrolls of satisfy hunger */
 		object_prep(q_ptr, lookup_kind(TV_SCROLL, SV_SCROLL_SATISFY_HUNGER));
-		q_ptr->number = rand_range(2,5);
+		q_ptr->number = rand_range(5,8);
 		object_aware(q_ptr);
 		object_known(q_ptr);
 
@@ -1684,21 +1684,24 @@ static void player_outfit(void)
 		q_ptr->number = 1;
 
 		/*
-		 * Get a quick start by turning the starting weapon into a
-		 * minor ego-item. The first rand_range is for Slay
-		 * Elemental and the four basic elemental Brands, while the
-		 * second is for the other basic Slays. -- Gumby
+		 * Get a quick start with an Elemental Brand (the first one)
+		 * or a minor Slay. -- Gumby
 		 */
 		if (quick_start)
 		{
-			if (randint(2)==1)
-				q_ptr->name2 = rand_range(71,75);
+			if (randint(5)==1)
+				/* a basic Brand (no Poison) */
+				q_ptr->name2 = rand_range(72,75);
 			else
+				/* a basic Slay */
 				q_ptr->name2 = rand_range(80,87);				
 
 			/* Give it a few plusses */
-			q_ptr->to_h = randint(5);
-			q_ptr->to_d = randint(3);
+			q_ptr->to_h += 1 + randint(4);
+			q_ptr->to_d += 1 + randint(2);
+
+			/* You know its properties */
+			q_ptr->ident |= IDENT_MENTAL;
 		}
 
 		object_aware(q_ptr);
@@ -1774,52 +1777,52 @@ static void player_outfit(void)
 				switch (p_ptr->realm1)
 				{
 					case REALM_LIFE:
-						if (randint(4)==1)
-							q_ptr->name2 = EGO_SLAY_EVIL;
+						if (randint(5)==1)
+							q_ptr->name2 = EGO_BRAND_COLD;
 						else
-							q_ptr->name2 = EGO_SLAY_UNDEAD;
+							q_ptr->name2 = EGO_SLAY_EVIL;
 						break;
 					case REALM_NATURE:
-						if (randint(4)==1)
-							q_ptr->name2 = EGO_SLAY_ANIMAL;
+						if (randint(5)==1)
+							q_ptr->name2 = EGO_BRAND_ELEC;
 						else
-							q_ptr->name2 = EGO_SLAY_ELEMENTAL;
+							q_ptr->name2 = EGO_SLAY_ANIMAL;
 						break;
 					case REALM_CHAOS:
-						if (randint(4)==1)
+						if (randint(5)==1)
 							q_ptr->name2 = EGO_BRAND_FIRE;
 						else
 							q_ptr->name2 = EGO_SLAY_DEMON;
 						break;
 					case REALM_DEATH:
-						if (randint(6)==1)
+						if (randint(5)==1)
 							q_ptr->name2 = EGO_BRAND_POIS;
 						else
 							q_ptr->name2 = EGO_SLAY_UNDEAD;
 						break;
 					case REALM_TRUMP:
-						q_ptr->name2 = EGO_TRUMP;
-						q_ptr->pval = randint(2);
-						break;
-					/*
-					 * Those who have Arcane or Sorcery
-					 * as their primary realm, or who
-					 * are Warriors (Weaponmasters are
-					 * dealt with above), get a totally
-					 * random item from the minor Slays
-					 * and Brands, except for Poison.
-					 */
-					default:
-						if (randint(2)==1)
-							q_ptr->name2 = rand_range(71,75);
+						if (randint(5)==1)
+							/* a basic Brand */
+							q_ptr->name2 = rand_range(72,75);
 						else
+						{	/* a Trump weapon */
+							q_ptr->name2 = EGO_TRUMP;
+							q_ptr->pval = 1;
+						}
+						break;
+					default:
+						if (randint(5)==1)
+							/* a basic Brand */
+							q_ptr->name2 = rand_range(72,75);
+						else
+							/* a basic Slay */
 							q_ptr->name2 = rand_range(80,87);
 						break;
 				}
 
 				/* Give it some plusses */
-				q_ptr->to_h = randint(5);
-				q_ptr->to_d = randint(3);
+				q_ptr->to_h += 1 + randint(4);
+				q_ptr->to_d += 1 + randint(2);
 			}
 
 			if ((tv >= TV_SOFT_ARMOR) && (tv <= TV_HARD_ARMOR))
@@ -1828,15 +1831,18 @@ static void player_outfit(void)
 				q_ptr->name2 = rand_range(5,7);
 
 				/* A few plusses */
-				q_ptr->to_a = randint(5);
+				q_ptr->to_a += 2 + randint(3);
 			}
 
 			if (tv == TV_BOW)
 			{
 				/* Plusses only */
-				q_ptr->to_h = randint(3);
-				q_ptr->to_d = randint(3);
+				q_ptr->to_h += 1 + randint(5);
+				q_ptr->to_d += 1 + randint(2);
 			}
+
+			/* You know these items */
+			q_ptr->ident |= IDENT_MENTAL;
 		}
 
 		/* These objects are "storebought" */
@@ -2484,7 +2490,7 @@ static bool player_birth_aux()
 				Term_fresh();
 
 				/* Delay 1/10 (100) second */
-				if (flag) Term_xtra(TERM_XTRA_DELAY, 1);
+/*				if (flag) Term_xtra(TERM_XTRA_DELAY, 1); */
 
 				/* Do not wait for a key */
 				inkey_scan = TRUE;

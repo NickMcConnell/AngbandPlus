@@ -13,10 +13,6 @@
 #include "angband.h"
 
 
-
-
-
-
 /*
  * Display inventory
  */

@@ -1,111 +1,70 @@
 # Death Magic
 #
-# TAB - Wraithform          F1 - Malediction         SF1 - Genocide
-#   [ - Berserk             F2 - Stinking Cloud      SF2 - Mass Genocide
-#   ] - Battle Frenzy       F3 - Nether Bolt         SF3 - Summon Death
-#   ' - Horrify             F4 - Vampiric Drain
-#   " - Terror              F5 - Cloud Kill
-#   ; - Black Sleep         F6 - Dark Bolt
-#   : - Invoke Spirits      F7 - Vampirism True
-#   h - Poison Branding     F8 - Darkness Storm
-#   H - Vampiric Branding   F9 - Death Ray
-#   J - Esoteria           F10 - Word of Death
-#   n - Detect Unlife      F11 - Evocation
-#   N - Detect Evil        F12 - Hellfire
-#   O - Infernal Orb
-#   P - Resist Poison
-#   y - Enslave Undead
-#   Y - Raise the Dead
-#   Z - Restore Life
+# TAB - Wraithform          F1 - Malediction         SF1 - Stinking Cloud
+#   [ - Poison Branding     F2 - Black Sleep         SF2 - Infernal Orb
+#   ] - Vampiric Branding   F3 - Horrify             SF3 - Terrror
+#   ' - Resist Poison       F4 - Nether Bolt         SF4 - Cloud Kill
+#   " - Restore Life        F5 - Vampiric Drain      SF5 - Punish Undead
+#   ; - Detect Unlife       F6 - Dark Bolt           SF6 - Darkness Storm
+#   : - Detect Evil         F7 - Vampirism True      SF7 - Word of Death
+#   Z - Esoteria            F8 - Death Ray           SF8 - Evocation
+#                           F9 - Enslave Undead      SF9 - Hellfire
+#                          F10 - Raise the Dead     SF10 - Genocide
+#                          F11 - Berserk            SF11 - Mass Genocide
+#                          F12 - Battle Frenzy      SF12 - Summon Death
 
 # TAB - Wraithform
 A:m4h
 P:\t
 
-# [ - Berserk
-A:m3a
+# [ - Poison Branding
+A:m2e
 C:0:[
 
-# ] - Battle Frenzy
-A:m3d
+# ] - Vampiric Branding
+A:m3f
 C:0:]
 
-# ' - Horrify
-A:m1g
+# ' - Resist Poison
+A:m1f
 C:0:'
 
-# " - Terror
-A:m2c
+# " - Restore Life
+A:m2h
 C:0:"
 
-# ; - Black Sleep
-A:m1e
+# ; - Detect Unlife
+A:m1a
 C:0:;
 
-# : - Invoke Spirits
-A:m3b
+# : - Detect Evil
+A:m1c
 C:0::
 
-# h - Poison Branding
-A:m2e
-C:0:h
-
-# H - Vampiric Branding
-A:m3f
-C:0:H
-
-# J - Esoteria
+# Z - Esoteria
 A:m4c
-C:0:J
-
-# n - Detect Unlife
-A:m1a
-C:0:n
-
-# N - Detect Evil
-A:m1c
-C:0:N
-
-# O - Infernal Orb
-A:m2a
-C:0:O
-
-# P - Resist Poison
-A:m1f
-C:0:P
-
-# y - Enslave Undead
-A:m1h
-C:0:y
-
-# Y - Raise the Dead
-A:m4b
-C:0:Y
-
-# Z - Restore Life
-A:m2h
 C:0:Z
 
-# Combat
+# Bolts
 
 # F1 - Malediction
 A:\e\e\e*tm1b
 P:^_x3B\r
 
-# F2 - Stinking Cloud
-A:m1d
+# F2 - Black Sleep
+A:m1e
 P:^_x3C\r
 
-# F3 - Nether Bolt
-A:\e\e\e*tm2b
+# F3 - Horrify
+A:m1g
 P:^_x3D\r
 
-# F4 - Vampiric Drain
-A:m2d
+# F4 - Nether Bolt
+A:\e\e\e*tm2b
 P:^_x3E\r
 
-# F5 - Cloud Kill
-A:m2f
+# F5 - Vampiric Drain
+A:m2d
 P:^_x3F\r
 
 # F6 - Dark Bolt
@@ -116,36 +75,74 @@ P:^_x40\r
 A:m3e
 P:^_x41\r
 
-# F8 - Darkness Storm
-A:m3g
+# F8 - Death Ray
+A:m4a
 P:^_x42\r
 
-# F9 - Death Ray
-A:\e\e\e*tm4a
+# Miscellaneous
+
+# F9 - Enslave Undead
+A:m1h
 P:^_x43\r
 
-# F10 - Word of Death
-A:m4d
+# F10 - Raise the Dead
+A:m4b
 P:^_x44\r
 
-# F11 - Evocation
-A:m4e
+# F11 - Berserk
+A:m3a
 P:^_x85\r
 
-# F12 - Hellfire
-A:m4f
+# F12 - Battle Frenzy
+A:m3d
 P:^_x86\r
 
-# Genocides
+# Ball/Area
 
-# SHIFT-F1 - Genocide
-A:m2g
+# SHIFT-F1 - Stinking Cloud
+A:m1d
 P:^_Sx54\r
 
-# SHIFT-F2 - Mass Genocide
-A:m3h
+# SHIFT-F2 - Infernal Orb
+A:m2a
 P:^_Sx55\r
 
-# SHIFT-F3 - Summon Death
-A:m4g
+# SHIFT-F3 - Terror
+A:m2c
 P:^_Sx56\r
+
+# SHIFT-F4 - Cloud Kill
+A:m2f
+P:^_Sx57\r
+
+# SHIFT-F5 - Punish Undead
+A:m3b
+P:^_Sx58\r
+
+# SHIFT-F6 - Darkness Storm
+A:m3g
+P:^_Sx59\r
+
+# SHIFT-F7 - Word of Death
+A:m4d
+P:^_Sx5A\r
+
+# SHIFT-F8 - Evocation
+A:m4e
+P:^_Sx5B\r
+
+# SHIFT-F9 - Hellfire
+A:m4f
+P:^_Sx5C\r
+
+# SHIFT-F10 - Genocide
+A:m2g
+P:^_Sx5D\r
+
+# SHIFT-F11 - Mass Genocide
+A:m3h
+P:^_Sx87\r
+
+# SHIFT-F12 - Summon Death
+A:m4g
+P:^_Sx88\r

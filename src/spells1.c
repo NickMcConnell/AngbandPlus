@@ -1054,7 +1054,7 @@ bool apply_disenchant(int mode)
 
 	/* Artifacts have 75% chance to resist, ego-items 50% */
 	if (((artifact_p(o_ptr) || o_ptr->art_name) && (randint(100) <= 75))
-	    || (ego_item_p(o_ptr) && (randint(100) <= 50)))
+	    || (ego_item_p(o_ptr) && (randint(100) <= 25)))
 	{
 		/* Message */
 		msg_format("Your %s (%c) resist%s disenchantment!", o_name,
@@ -5205,6 +5205,7 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 	/* Initial grid */
 	y = y1;
 	x = x1;
+	dist = 0;
 
 	/* Collect beam grids */
 	if (flg & (PROJECT_BEAM))
@@ -5316,7 +5317,7 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 	if (TRUE)
 	{
 		/* Hack -- remove final beam grid */
-		if (flg & (PROJECT_BEAM))
+		if ((flg & (PROJECT_BEAM)) && rad)
 		{
 			grids--;
 		}

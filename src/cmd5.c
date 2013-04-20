@@ -227,7 +227,9 @@ void do_cmd_browse(void)
 	}
 
 	/* No lite */
-	if (p_ptr->blind || no_lite())
+	if (p_ptr->blind || (no_lite() && 
+	    !((cave[py][px].feat >= FEAT_SHOP_HEAD) &&
+	      (cave[py][px].feat <= FEAT_SHOP_TAIL))))
 	{
 		msg_print("You cannot see!");
 		return;
@@ -1458,27 +1460,27 @@ void do_cmd_cast(void)
 		(void)set_afraid(0);
 		break;
        case 17: /* Punish Undead (was Invoke Spirits) */
-		dispel_undead(plev * 5);
-		(void) turn_undead();
+		(void)dispel_undead(plev * 5);
+		(void)turn_undead();
 		break;
-	   case 18: /* Dark Bolt */
-			if (!get_aim_dir(&dir)) return;
-			fire_bolt_or_beam(beam, GF_DARK, dir,
-				damroll(6+((plev-5)/3), 8));
-		       break;
+	case 18: /* Dark Bolt */
+		if (!get_aim_dir(&dir)) return;
+		fire_bolt_or_beam(beam, GF_DARK, dir, damroll(10+(plev/5), 8));
+		break;
        case 19: /* Battle Frenzy */
-			(void)set_shero(p_ptr->shero + randint(25) + 25);
-            (void)hp_player(30);
-			(void)set_afraid(0);
-			if (!p_ptr->fast)
-			{
-				(void)set_fast(randint(20 + (plev / 2) ) + (plev / 2));
-			}
-			else
-			{
-				(void)set_fast(p_ptr->fast + randint(5));
-			}
-		       break;
+		(void)set_shero(p_ptr->shero + randint(25) + 25);
+		(void)hp_player(30);
+		(void)set_afraid(0);
+
+		if (!p_ptr->fast)
+		{
+			(void)set_fast(randint(20 + (plev / 2) ) + (plev / 2));
+		}
+		else
+		{
+			(void)set_fast(p_ptr->fast + randint(5));
+		}
+		break;
         case 20: /* Vampirism True */
 			if (!get_aim_dir(&dir)) return;
            for (dummy = 0; dummy < 3; dummy++)
@@ -1525,8 +1527,8 @@ void do_cmd_cast(void)
 		(void)dispel_living(plev * 6); break;
        case 28: /* Evocation */
 		(void)dispel_monsters(plev * 4);
-		turn_monsters(plev*4);
-		banish_monsters(plev*4);
+		(void)turn_monsters(plev*4);
+		(void)banish_monsters(plev*4);
 		break;
        case 29: /* Hellfire */
 		if (!get_aim_dir(&dir)) return;
@@ -2358,11 +2360,3 @@ void do_cmd_cast(void)
 	p_ptr->window |= (PW_SPELL);
 }
 
-
-/*
- * Pray a prayer -- Unused in Gumband
- */
-void do_cmd_pray(void)
-{
-	msg_print("Praying is not used in Gumband. Use magic spell casting instead.");
-}

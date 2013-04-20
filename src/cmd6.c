@@ -869,7 +869,7 @@ void do_cmd_quaff_potion(void)
 		case SV_POTION_MUTATION:
 		{
 			if ((p_ptr->muta1 || p_ptr->muta2 || p_ptr->muta3) &&
-				(randint(20) <= 5))
+				(randint(3) == 1))
 			{
 				lose_mutation(0);
 				ident = TRUE;
@@ -877,7 +877,22 @@ void do_cmd_quaff_potion(void)
 			}
 			else
 			{
-				gain_random_mutation(0);
+				if (wizard)
+				{
+					char	ppp[80];
+					char	tmp_val[160];
+					int	k = 181;
+
+					sprintf(ppp, "Gain which mutation? (1-%d, 0 for random): ", k);
+					sprintf(tmp_val, "%d", k);
+					if (!get_string(ppp, tmp_val, 10)) return;
+					k = atoi(tmp_val);
+					gain_random_mutation(k);
+				}
+				else
+				{
+					gain_random_mutation(0);
+				}
 				ident = TRUE;
 				break;
 			}
@@ -915,6 +930,7 @@ void do_cmd_quaff_potion(void)
 			(void)detect_treasure();
 			(void)detect_objects_gold();
 			(void)detect_objects_normal();
+			(void)detect_monsters_normal();
 			identify_pack();
 			self_knowledge();
 			ident = TRUE;
@@ -926,6 +942,7 @@ void do_cmd_quaff_potion(void)
 			msg_print("You begin to know yourself a little better...");
 			msg_print(NULL);
 			self_knowledge();
+			identify_pack();
 			ident = TRUE;
 			break;
 		}

@@ -2755,3 +2755,42 @@ void update_smart_learn(int m_idx, int what)
 }
 
 
+/*
+ * Drop all items carried by a monster
+ */
+void monster_drop_carried_objects(monster_type *m_ptr)
+{
+	s16b this_o_idx, next_o_idx = 0;
+	object_type forge;
+	object_type *o_ptr;
+	object_type *q_ptr;
+
+
+	/* Drop objects being carried */
+	for (this_o_idx = m_ptr->hold_o_idx; this_o_idx; this_o_idx = next_o_idx)
+	{
+		/* Acquire object */
+		o_ptr = &o_list[this_o_idx];
+
+		/* Acquire next object */
+		next_o_idx = o_ptr->next_o_idx;
+
+		/* Paranoia */
+		o_ptr->held_m_idx = 0;
+
+		/* Get local object */
+		q_ptr = &forge;
+
+		/* Copy the object */
+		object_copy(q_ptr, o_ptr);
+
+		/* Delete the object */
+		delete_object_idx(this_o_idx);
+
+		/* Drop it */
+		drop_near(q_ptr, -1, m_ptr->fy, m_ptr->fx);
+	}
+
+	/* Forget objects */
+	m_ptr->hold_o_idx = 0;
+}

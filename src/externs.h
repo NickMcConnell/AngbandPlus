@@ -159,43 +159,82 @@ extern bool hack_mind;
 extern bool hack_mutation;
 extern bool is_autosave;
 extern int artifact_bias;
+
+/* Options (1) */
 extern bool rogue_like_commands;
 extern bool quick_messages;
 extern bool other_query_flag;
 extern bool carry_query_flag;
+extern bool use_old_target;
 extern bool always_pickup;
 extern bool always_repeat;
-extern bool use_old_target;
 extern bool depth_in_feet;
-extern bool use_color;
-extern bool compress_savefile;
-extern bool hilite_player;
+extern bool stack_force_notes;
+extern bool stack_force_costs;
+extern bool show_labels;
+extern bool show_weights;
+extern bool show_choices;
+extern bool show_details;
 extern bool ring_bell;
+extern bool use_color;
+
+/* Options (2) */
 extern bool find_ignore_stairs;
 extern bool find_ignore_doors;
 extern bool find_cut;
 extern bool find_examine;
-extern bool disturb_near;
 extern bool disturb_move;
+extern bool disturb_near;
 extern bool disturb_panel;
 extern bool disturb_state;
 extern bool disturb_minor;
 extern bool disturb_other;
+extern bool alert_hitpoint;
+extern bool alert_failure;
+
+/* Options (3) */
+extern bool auto_haggle;
+extern bool auto_scum;
+extern bool stack_allow_items;
+extern bool stack_allow_wands;
+extern bool expand_look;
+extern bool expand_list;
+extern bool view_perma_grids;
+extern bool view_torch_grids;
+extern bool dungeon_align;
+extern bool dungeon_stair;
+extern bool flow_by_sound;
+extern bool flow_by_smell;
+extern bool smart_learn;
+extern bool smart_cheat;
+
+/* Options (4) */
+extern bool view_reduce_lite;
+extern bool view_reduce_view;
 extern bool avoid_abort;
 extern bool avoid_other;
-extern bool flush_disturb;
 extern bool flush_failure;
+extern bool flush_disturb;
 extern bool flush_command;
 extern bool fresh_before;
 extern bool fresh_after;
 extern bool fresh_message;
-extern bool alert_hitpoint;
-extern bool alert_failure;
+extern bool compress_savefile;
+extern bool hilite_player;
 extern bool view_yellow_lite;
 extern bool view_bright_lite;
 extern bool view_granite_lite;
 extern bool view_special_lite;
-extern bool skip_mutations;     /* Skip mutations screen in 'C'haracter display */
+
+/* Options (5) */
+extern bool last_words;
+extern bool speak_unique;
+extern bool small_levels;
+extern bool only_small;
+extern bool empty_levels;
+extern bool player_symbols;
+extern bool equippy_chars;
+extern bool skip_mutations;
 extern bool plain_descriptions;
 extern bool stupid_monsters;
 extern bool auto_destroy;
@@ -205,50 +244,26 @@ extern bool disturb_pets;
 extern bool shuffle_songs;
 extern bool mute_songs;
 extern bool mute_sounds;
-extern bool view_perma_grids;
-extern bool view_torch_grids;
-extern bool flow_by_sound;
-extern bool flow_by_smell;
-extern bool track_follow;
-extern bool track_target;
-extern bool stack_allow_items;
-extern bool stack_allow_wands;
-extern bool stack_force_notes;
-extern bool stack_force_costs;
-extern bool view_reduce_lite;
-extern bool view_reduce_view;
-extern bool auto_haggle;
-extern bool auto_scum;
-extern bool expand_look;
-extern bool expand_list;
-extern bool dungeon_align;
-extern bool dungeon_stair;
-extern bool smart_learn;
-extern bool smart_cheat;
-extern bool show_labels;
-extern bool show_weights;
-extern bool show_choices;
-extern bool show_details;
+
+/* Options (stack) */
 extern bool testing_stack;
 extern bool testing_carry;
+
+/* Options (cheat) */
 extern bool cheat_peek;
 extern bool cheat_hear;
 extern bool cheat_room;
 extern bool cheat_xtra;
 extern bool cheat_know;
 extern bool cheat_live;
-extern bool last_words;              /* Zangband options */
-extern bool speak_unique;
-extern bool small_levels;
-extern bool only_small;
-extern bool empty_levels;
-extern bool player_symbols;
-extern bool equippy_chars;
+
+/* Options (misc) */
 extern s16b hitpoint_warn;
 extern s16b delay_factor;
 extern s16b autosave_freq;
 extern bool autosave_t;
 extern bool autosave_l;
+
 extern s16b feeling;
 extern s16b rating;
 extern bool good_item_flag;
@@ -446,6 +461,7 @@ extern void do_cmd_search(void);
 extern void do_cmd_toggle_search(void);
 extern void do_cmd_open(void);
 extern void do_cmd_close(void);
+extern bool twall(int y, int x);
 extern void do_cmd_tunnel(void);
 extern void do_cmd_disarm(void);
 extern void do_cmd_bash(void);
@@ -457,6 +473,7 @@ extern void do_cmd_run(void);
 extern void do_cmd_rest(void);
 extern void do_cmd_fire(void);
 extern void do_cmd_throw(void);
+extern void do_cmd_pet(void);
 
 /* cmd3.c */
 extern void do_cmd_inven(void);
@@ -473,7 +490,6 @@ extern void do_cmd_target(void);
 extern void do_cmd_look(void);
 extern void do_cmd_locate(void);
 extern void do_cmd_query_symbol(void);
-extern void do_cmd_racial_power(void);
 
 /* cmd4.c */
 extern void do_cmd_redraw(void);
@@ -497,7 +513,6 @@ extern void plural_aux(char * Name);
 extern void do_cmd_browse(void);
 extern void do_cmd_study(void);
 extern void do_cmd_cast(void);
-extern void do_cmd_pray(void);
 extern void do_cmd_rerate(void);
 
 /* cmd6.c */
@@ -597,6 +612,7 @@ extern bool multiply_monster(int m_idx, bool charm, bool clone);
 extern void update_smart_learn(int m_idx, int what);
 extern bool summon_specific_friendly(int y1, int x1, int lev, int type, bool Group_ok);
 extern bool place_monster_one(int y, int x, int r_idx, bool slp, bool charm);
+extern void monster_drop_carried_objects(monster_type *m_ptr);
 
 /* object1.c */
 /* object2.c */
@@ -956,6 +972,7 @@ extern bool gain_random_mutation(int choose_mut);
 extern bool lose_mutation(int choose_mut);
 extern void dump_mutations(FILE *OutFile);
 extern void do_cmd_knowledge_mutations(void);
+extern void do_cmd_racial_power(void);
 
 /* quest.c */
 extern int get_quest_monster(void);

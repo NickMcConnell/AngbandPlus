@@ -4226,15 +4226,15 @@ void generate_cave(void)
 		
 		
 		/* Extract the feeling */
-		if (rating > 100) feeling = 2;
-		else if (rating > 80) feeling = 3;
-		else if (rating > 60) feeling = 4;
-		else if (rating > 40) feeling = 5;
-		else if (rating > 30) feeling = 6;
-		else if (rating > 20) feeling = 7;
-		else if (rating > 10) feeling = 8;
-		else if (rating >  0) feeling = 9;
-		else feeling = 10;
+		if (rating > 100) feeling = 2;     /* visions of death */
+		else if (rating > 80) feeling = 3; /* very dangerous */
+		else if (rating > 60) feeling = 4; /* very bad feeling */
+		else if (rating > 40) feeling = 5; /* bad feeling */
+		else if (rating > 30) feeling = 6; /* nervous */
+		else if (rating > 20) feeling = 7; /* luck is turning */
+		else if (rating > 10) feeling = 8; /* don't like the look */
+		else if (rating >  0) feeling = 9; /* reasonably safe */
+		else feeling = 10;                 /* boring */
 
 		/* Hack -- Have a special feeling sometimes */
 		if (good_item_flag && !p_ptr->preserve) feeling = 1;

@@ -789,7 +789,7 @@ races also have intrinsic abilities.
  
  
  
-=== Combinations of Race and Class (updated for Gumband 2.1.3) ===
+=== Combinations of Race and Class (updated for Gumband 2.1.4) ===
 
 These are the classes that are recommended for different races. You can
 still select a race that is not in the chart, but these combinations are
@@ -881,7 +881,7 @@ Beastman      Yes     Yes     Yes     Yes
                Human can gain infra-vision only if it is magically enhanced.
  
                                                                    
-=== Stat Bonus Tables (updated for Gumband 2.1.3) ===
+=== Stat Bonus Tables (updated for Gumband 2.1.4) ===
 
 Stat, hit dice, and experience points per level modifications due to race
 are listed in the following table.
@@ -896,18 +896,18 @@ are listed in the following table.
            Half-Orc    +2   -1    0    0   +1   -4      10         +10%
            Half-Troll  +4   -4   -2   -4   +3   -6      12         +35%
            Gambolt     -1    0    0   +5   -1   +5       8         +30%
-           High-Elf    +1   +3   +2   +3   +1   +5      10         +100%
+           High-Elf    +1   +3   +2   +3   +1   +5      10         +75%
            Barbarian   +3   -2   -1   +1   +2   -2      11         +20%
            Half-Ogre   +3   -1   -1   -1   +3   -3      12         +30%
-           Half-Giant  +4   -2   -2   -2   +3   -3      13         +50%
-           Half-Titan  +5   +1   +1   -2   +3   +1      14         +155%
+           Half-Giant  +4   -2   -2   -2   +3   -3      13         +25%
+           Half-Titan  +5   +1   +1   -2   +3   +1      14         +125%
            Cyclops     +4   -3   -3   -3   +4   -6      13         +30%
            Yeek        -2   +1   +1   +1   -2   -7       7          +0%
            Klackon     +2   -1   -1   +1   +2   -2      12         +35%
            Kobold      -1   -1    0   +2   +1   -4       9         +25%
            Nibelung    +1   -1   +2    0   +2   -4      11         +35%
            Dark Elf    -1   +3   +2   +2   -2   +1       9         +50%
-           Draconian   +2   +1   +1   +1   +2   -3      11         +150%
+           Draconian   +2   +1   +1   +1   +2   -3      11         +125%
            Mind Flayer -3   +4   +4    0   -2   -5       9         +40%
            Imp         -1   -1   -1   +1   +2   -3      10         +10%
            Golem       +4   -5   -5    0   +4   -4      13         +125%
@@ -935,7 +935,7 @@ are listed in the following table.
 
 (a '*' next to a number indicates the spellcasting stat for that class)
  
-=== Ability Tables (updated for Gumband 2.1.3) ===
+=== Ability Tables (updated for Gumband 2.1.4) ===
 
                         Dsrm Dvce Save Stlh Srch Prcp HtH  Misl   Infra
            Human        +0   +0   +0   +0   +0   +10  +0   +0     None
@@ -946,7 +946,7 @@ are listed in the following table.
            Dwarf        +2   +9   +10  -1   +7   +10  +15  +0     50 feet
            Half-Orc     -3   -3   -3   -1   +0   +7   +12  -5     30 feet
            Half-Troll   -5   -8   -8   -2   -1   +5   +20  -10    30 feet
-           Gambolt      +0   +0   +20  +5   +15  +25  +10  +0     60 feet
+           Gambolt      +0   +0   +20  +5   +20  +30  +10  +0     60 feet
            High-Elf     +4   +20  +20  +4   +3   +14  +10  +25    40 feet
            Barbarian    -2   -10  +2   -1   +1   +7   +12  +10    None
            Half-Ogre    -3   -5   -5   -2   -1   +5   +20  +0     30 feet
@@ -986,7 +986,7 @@ Weaponmaster    23+10   17+6    18+10   1       14/2    70+45   20+15   +30%
 
   
 
-=== Monks: Attack Types (Gumband 2.1.3)
+=== Monks: Attack Types (Gumband 2.1.4)
 
 Attack Name     Min.lvl Damage  Stun    Notes
 -----------------------------------------------------------------------------

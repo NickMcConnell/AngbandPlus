@@ -1168,7 +1168,10 @@ D:%.###############.%
 D:%.................%
 D:%%%%%%%%%%%%%%%%%%%
 
-N:57:Greater Vault (Skara Brae)
+# The next 7 vaults were taken from the layouts of the cities from the
+# first two Bard's Tale games.
+
+N:57:Greater Vault (BT1-Skara Brae)
 X:8:45:32:32
 D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 D:%XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX%
@@ -1202,3 +1205,248 @@ D:%X@X@,,XXXXXXXXXXX***&@99X^X@9X%
 D:%X@9@XXXXXXXXXXXXXXXXXX99X^XXXX%
 D:%XXXXXXXXXXXXXXXXXXXXXXXXX+XXXX%
 D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+N:58:Lesser Vault (BT2-Tangramayne)
+X:7:10:18:18
+D:%%%%%%%%%%%%%%%%%%
+D:%XXXXXXXXXXXXXXXX%
+D:%X^^^^^^^^^^^^^^X%
+D:%X^XXXXX#XXXXXX,X%
+D:%X^X^^^^^^^^^^X,X%
+D:%X^X,XXX#XX,X,X,X%
+D:%X^X,X9,,9X,X,X,X%
+D:%X^X,X,XX,X,X,X,X%
+D:%+^X,X,XX,X,X,X,X%
+D:%X^X,X,XX,X,X,X,X%
+D:%X^X,X,XX,X,X,X,X%
+D:%X^X,X9,,9X,X,X,X%
+D:%X^X,XXX#XX,X,X,X%
+D:%X^X^^^^^^^^^^X,X%
+D:%X^XXXXX#XXXXXX X%
+D:%X^^^^^^^^^^^^^^X%
+D:%XXXXXXXXXXXXXXXX%
+D:%%%%%%%%%%%%%%%%%%
+
+N:59:Lesser Vault (BT2-Ephesus)
+X:7:15:18:18
+D:%%%%%%%%%%%%%%%%%%
+D:%XXXX+XXXXXXXXXXX%
+D:%X*#^^^X&X&#^*^*X%
+D:%X^X^*^X,,,XXXX^X%
+D:%X*XX#XXX,,,X9^*X%
+D:%X^X&,,,,,XXXXXXX%
+D:%X*XXXX&X@#^*^*^X%
+D:%X^XXX&&XXX*XXX*X%
+D:%X*^*XXXXX@^X&&&X%
+D:%XXX^*^*XXX*X&XXX%
+D:%X@^*XX^*@X^X&&&X%
+D:%X#XXXX#XXX*^*XXX%
+D:%X,XX,X^^#***XX9X%
+D:%X,,,,,^XX^^XX@@X%
+D:%X,X#X,XX,,,,&@XX%
+D:%XXX8X,,XXX,,X@9X%
+D:%XXXXXXXXXXXXXXXX%
+D:%%%%%%%%%%%%%%%%%%
+
+N:60:Lesser Vault (BT2-Philippi)
+X:7:15:18:18
+D:%%%%%%%%%%%%%%%%%%
+D:%XXXXXXXXXXXXXXXX%
+D:%X,&,&,&,&,&X9X9X%
+D:%X&X&X&X&X&,X,,,X%
+D:%X,X,X,X,X,&XX#XX%
+D:%X&,&,&,&,&,#,,,X%
+D:%XXX#XXX@@XXX X X%
+D:%X8#,X9XXXX,#,,,X%
+D:%XXX,X,,,^X,X X X%
+D:%XX,,XXXX*X9X,,,X%
+D:%X,,XX&@X^XXX,X,X%
+D:%X,,^#&XX#X&#,,,X%
+D:%X#XXX&*&*&*XX#XX%
+D:%X^*^X&&X&X&X^^^X%
+D:%XXX*X^^^^^^X*X*X%
+D:%X9*^X^^^^^^X,,,X%
+D:%XXXXXXX#XXXXXXXX%
+D:%%%%%%%%%%%%%%%%%%
+
+N:61:Lesser Vault (BT2-Colosse)
+X:7:15:18:18
+D:%%%%%%%%%%%%%%%%%%
+D:%XXXXXXXXXXXXXXXX%
+D:%X,,,X,X^*^X,,X,X%
+D:%X,X,^*^*X*^*^*^X%
+D:%X,,,XX&XXX&XXX#X%
+D:%XX#XXXXXXXXXX,,X%
+D:%X@@@XX,^*,^*X*XX%
+D:%X*X*9X*,X*,^X^*X%
+D:%XXXXXX^*,^*,XX^X%
+D:%X^*^X*,^*X^*,#*X%
+D:%#^X*X#X,^*,XXX^X%
+D:%XXX^*^X*,^,X,,*X%
+D:%X8XXXXXXX#XX#XXX%
+D:%X,,X*^*X,,,X,,,X%
+D:%X,,#^X^#,X,#,X,X%
+D:%XX9XXX@X,,,X,,,X%
+D:%XXXXXXXXXXXXXXXX%
+D:%%%%%%%%%%%%%%%%%%
+
+N:62:Lesser Vault (BT2-Corinth)
+X:7:15:18:18
+D:%%%%%%%%%%%%%%%%%%
+D:%XXXXXXXXXXXXXXXX%
+D:%XX&X&XX999XX&X&X%
+D:%X&&&&&X@X@X&&&&X%
+D:%X&X&X&X,,,X&X&XX%
+D:%X*,*,*XX#XX*,*,X%
+D:%X,*X*,*,*,*,*X*X%
+D:%X^^^^^^^^^^^^^^X%
+D:%X^X X X X X X ^X%
+D:%X^^^^^^^^^^^^^^X%
+D:%X^ X X X X X X^X%
+D:%X^^^^^^^^^^^^^^X%
+D:%X^X X X X X X ^X%
+D:%X^^^^^^^^^^^^^^X%
+D:%X^ X X X X X X X%
+D:%X^^^^^^^^^^^^^^X%
+D:%XXXXXX#XXXXXXXXX%
+D:%%%%%%%%%%%%%%%%%%
+
+N:63:Lesser Vault (BT2-Thessalonica)
+X:7:15:18:18
+D:%%%%%%%%%%%%%%%%%%
+D:%XXXXXXXXXXXXXXXX%
+D:%XX9X9X9X9X9X9X9X%
+D:%X,,,,,,,,,,,,,,X%
+D:%XX#XXXX#XXXX#XXX%
+D:%X,,,*^*^*^,,,,@X%
+D:%X,XX^XXXX^XXXXXX%
+D:%X,,,*^*^*^#&,,^X%
+D:%X,XX^XXXX^XXXX^#%
+D:%X,,,*^*^*^#&,,^X%
+D:%X,XX^XXXX^XXXXXX%
+D:%X,,,*^*^*^,,,,@X%
+D:%XX#XXXXXXX#XXX#X%
+D:%X,,,XXXXXX,X8X^X%
+D:%XX,,,,,,,,,X#X^X%
+D:%X@@X9X9X9X@@@^^X%
+D:%XXXXXXXXXXXXXXXX%
+D:%%%%%%%%%%%%%%%%%%
+
+# 'Trilock' and 'Corridors' contributed by CWeisiger from #angband
+
+N:64:Lesser Vault (trilock)
+X:7:10:21:19
+D:%%%%%%%%%%%%%%%%%%%
+D:%.................%
+D:%.#######+#######.%
+D:%.#.,,,9#^#9,,,.#.%
+D:%.#.#####^#####.#.%
+D:%.#^#...^^^...#^#.%
+D:%.#^#,###,###,#^#.%
+D:%.#.#,#9#,#9#,#.#.%
+D:%.#^#9#,#,#,#9#^#.%
+D:%.#^###,#9#,###^#.%
+D:%.+.^^^.###.^^^.+.%
+D:%.#^###,#9#,###^#.%
+D:%.#^#9#,#,#,#9#^#.%
+D:%.#.#,#9#,#9#,#.#.%
+D:%.#^#,###,###,#^#.%
+D:%.#^#...^^^...#^#.%
+D:%.#.#####^#####.#.%
+D:%.#.,,,9#^#9,,,.#.%
+D:%.#######+#######.%
+D:%.................%
+D:%%%%%%%%%%%%%%%%%%%
+
+N:65:Greater Vault (corridors)
+X:8:10:22:35
+D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+D:%.................................%
+D:%.......XXXXXXXXX^XXXXXXXXX.......%
+D:%.XXXXX.X,,,....X^X....,,,X.XXXXX.%
+D:%.X,,,X.X,,,XXX^X^X^XXX,,,X.X,,,X.%
+D:%.X,,,X.X,,,X9X^X^X^X9X,,,X.X,,,X.%
+D:%.X,,,X.XXXXX,X^X^X^X,XXXXX.X,,,X.%
+D:%.X,,,X.......X^X^X^X.......X,,,X.%
+D:%.X,,,XXXXXXXXX^X+X^XXXXXXXXX,,,X.%
+D:%.X...^.^.^.^.^.^.^.^.^.^.^.^...X.%
+D:%.X.XXXXXXXXXXXXXXXXXXXXXXXXXXX.X.%
+D:%.X.X,.,.,.,.,.,.,.,.,.,.,.,.,X.X.%
+D:%.X.X.XXXXXXXXXXX^XXXXXXXXXXX.X.X.%
+D:%.X.X.X,,,*..X98X^X89X..*,,,X.X.X.%
+D:%.X.X.X,,,*X.X,,X^X,,X.X*,,,X.X.X.%
+D:%.X.X.X,,,*X.X,,X^X,,X.X*,,,X.X.X.%
+D:%.X.X.X,,,*X..,,X^X,,..X*,,,X.X.X.%
+D:%.X.X+X.XXXXXXXXX^XXXXXXXXX.X+X.X.%
+D:%.X.....X.................X.....X.%
+D:%.XXXXXXX.................XXXXXXX.%
+D:%.................................%
+D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+N:66:Lesser Vault (camouflaged)
+X:7:10:9:12
+D:%%%%%%%%%%%%
+D:%XXXXXXXXXX%
+D:%#,,,,,,,9X%
+D:%XXXXXXXXXX%
+D:%X9,,,,,,,#%
+D:%XXXXXXXXXX%
+D:%#,,,,,,,9X%
+D:%XXXXXXXXXX%
+D:%%%%%%%%%%%%
+
+N:67:Greater vault (pit)
+X:8:40:11:25
+D:%%%%%%%%%%%%%%%%%%%%%%%%%
+D:%^^^^^^^^^^^^^^^^^^^^^^^%
+D:%^##########+##########^%
+D:%^#@@@@99988888999@@@@#^%
+D:%^#@@@@99988888999@@@@#^%
+D:%^#@@@@99988888999@@@@#^%
+D:%^#@@@@99988888999@@@@#^%
+D:%^#@@@@99988888999@@@@#^%
+D:%^#####################^%
+D:%^^^^^^^^^^^^^^^^^^^^^^^%
+D:%%%%%%%%%%%%%%%%%%%%%%%%%
+
+N:68:Greater vault (EGCV)
+X:8:50:17:39
+D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+D:%XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX%
+D:%#8#8#8#8#8#8#8#8#8#8#8#8#8#8#8#8#8#8X%
+D:%XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX#X%
+D:%X8#8#8#8#8#8#8#8#8#8#8#8#8#8#8#8#8X8X%
+D:%X#XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX#X#X%
+D:%X8X8#8#8#8#8#8#8#8#8#8#8#8#8#8#8X8X8X%
+D:%X#X#XXXXXXXXXXXXXXXXXXXXXXXXXXX#X#X#X%
+D:%X8X8X8#8#8#8#8#8#8#8#8#8#8#8#8#8X8X8X%
+D:%X#X#X#XXXXXXXXXXXXXXXXXXXXXXXXXXX#X#X%
+D:%X8X8X8#8#8#8#8#8#8#8#8#8#8#8#8#8#8X8X%
+D:%X#X#XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX#X%
+D:%X8X8#8#8#8#8#8#8#8#8#8#8#8#8#8#8#8#8X%
+D:%X#XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX%
+D:%X8#8#8#8#8#8#8#8#8#8#8#8#8#8#8#8#8#8#%
+D:%XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX%
+D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+N:69:Greater vault (concentricity)
+X:8:20:19:25
+D:%%%%%%%%%%%%%%%%%%%%%%%%%
+D:%##XXXXXXXXXXXXXXXXXXX##%
+D:%X88XXX99XXXXXXX99XXX88X%
+D:%XXX#99XXX,,,,,XXX99#XXX%
+D:%XX99###,,XXXXX,,###99XX%
+D:%X9XXX,,XXX@@@XXX,,XXX9X%
+D:%XXX,,XXX@@XXX@@XXX,,XXX%
+D:%X9,XXX@@XX#8#XX@@XXX,9X%
+D:%X9XXX&&XXX888XXX&&XXX9X%
+D:%X&&&&&XXX99999XXX&&&&&X%
+D:%X9XXX&&XXX888XXX&&XXX9X%
+D:%X9,XXX@@XX#8#XX@@XXX,9X%
+D:%XXX,,XXX@@XXX@@XXX,,XXX%
+D:%X9XXX,,XXX@@@XXX,,XXX9X%
+D:%XX99###,,XXXXX,,###99XX%
+D:%XXX#99XXX,,,,,XXX99#XXX%
+D:%X88XXX99XXXXXXX99XXX88X%
+D:%##XXXXXXXXXXXXXXXXXXX##%
+D:%%%%%%%%%%%%%%%%%%%%%%%%%

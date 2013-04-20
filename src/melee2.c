@@ -23,6 +23,147 @@
 
 
 /*
+ * Calculate the direction to the next enemy
+ * (taken from Eric Bock's Zceband 2.1.1 for use with pet command menu - G)
+ */
+static bool get_enemy_dir(int m_idx, int *mm)
+{
+	int i;
+	int x, y;
+	int x2, y2;
+	int t_idx;
+
+	monster_type *m_ptr = &m_list[m_idx];
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+	monster_type *t_ptr;
+	monster_race *tr_ptr;
+
+	/* Scan thru all monsters */
+	for (i = 1; i < m_max; i++)
+	{
+		t_idx = i;
+		t_ptr = &m_list[t_idx];
+		tr_ptr = &r_info[t_ptr->r_idx];
+
+		/* The monster itself isn't a target */
+		if (t_ptr == m_ptr) continue;
+
+		/* Paranoia -- Skip dead monsters */
+		if (!t_ptr->r_idx) continue;
+
+		/* Hack -- no fighting away from player */
+		if ((m_ptr->cdis < t_ptr->cdis) && (t_ptr->cdis > p_ptr->pet_follow_distance)) continue;
+
+		/* Monster must be 'an enemy' */
+		if ((m_ptr->smart & SM_FRIEND) == (t_ptr->smart & SM_FRIEND)) continue;
+
+		/* Monster must be projectable if we can't pass through walls */
+		if (!(r_ptr->flags2 & (RF2_PASS_WALL | RF2_KILL_WALL)) &&
+			 !projectable(m_ptr->fy, m_ptr->fx, t_ptr->fy, t_ptr->fx))
+		{
+			continue;
+		}
+
+		/* OK -- we've got a target */
+		y = t_ptr->fy;
+		x = t_ptr->fx;
+
+		/* Find an empty square near the monster to fill */
+		for (i = 0; i < 8; i++)
+		{
+			/* Pick squares near monster (semi-randomly) */
+			y2 = y + ddy_ddd[(m_idx + i) & 7];
+			x2 = x + ddx_ddd[(m_idx + i) & 7];
+
+			/* Already there? */
+			if ((m_ptr->fy == y2) && (m_ptr->fx == x2))
+			{
+				/* Attack the monster */
+				y2 = y;
+				x2 = x;
+
+				break;
+			}
+
+			/* Ignore filled grids */
+			if (!cave_empty_bold(y2, x2)) continue;
+
+			/* Try to fill this hole */
+			break;
+		}
+
+		/* Extract the direction */
+		x = x2 - m_ptr->fx;
+		y = y2 - m_ptr->fy;
+
+		/* North */
+		if ((y < 0) && (x == 0))
+		{
+			mm[0] = 8;
+			mm[1] = 7;
+			mm[2] = 9;
+		}
+		/* South */
+		else if ((y > 0) && (x == 0))
+		{
+			mm[0] = 2;
+			mm[1] = 1;
+			mm[2] = 3;
+		}
+		/* East */
+		else if ((x > 0) && (y == 0))
+		{
+			mm[0] = 6;
+			mm[1] = 9;
+			mm[2] = 3;
+		}
+		/* West */
+		else if ((x < 0) && (y == 0))
+		{
+			mm[0] = 4;
+			mm[1] = 7;
+			mm[2] = 1;
+		}
+		/* North-West */
+		if ((y < 0) && (x < 0))
+		{
+			mm[0] = 7;
+			mm[1] = 4;
+			mm[2] = 8;
+		}
+		/* North-East */
+		else if ((y < 0) && (x > 0))
+		{
+			mm[0] = 9;
+			mm[1] = 6;
+			mm[2] = 8;
+		}
+		/* South-West */
+		else if ((y > 0) && (x < 0))
+		{
+			mm[0] = 1;
+			mm[1] = 4;
+			mm[2] = 2;
+		}
+		/* South-East */
+		else if ((y > 0) && (x > 0))
+		{
+			mm[0] = 3;
+			mm[1] = 6;
+			mm[2] = 2;
+		}
+
+		/* Found a monster */
+		return TRUE;
+	}
+
+	/* No monster found */
+	return FALSE;
+}
+
+
+/*
  * Hack, based on mon_take_hit... perhaps all monster attacks on
  * other monsters should use this?
  */
@@ -2776,10 +2917,6 @@ bool make_attack_spell(int m_idx)
 		if (rand_int(100) >= (chance * 2)) no_inate = TRUE;
 	}
  
-
-	/* XXX XXX XXX Handle "track_target" option (?) */
-
-
 	/* Hack -- require projectable player */
 	if (normal)
 	{
@@ -6178,30 +6315,24 @@ static void process_monster(int m_idx, bool is_friend)
 		mm[0] = mm[1] = mm[2] = mm[3] = 5;
 	}
 
+	/* Pets will follow the player */
 	else if (m_ptr->smart & SM_FRIEND)
 	{
-		if (m_ptr->cdis > FOLLOW_DISTANCE)
+		/* by default, move randomly */
+		mm[0] = mm[1] = mm[2] = mm[3] = 5;
+
+		/* Look for an enemy */
+		if (!get_enemy_dir(m_idx, mm) &&
+			 (((p_ptr->pet_follow_distance < 10) &&
+			 (m_ptr->cdis > p_ptr->pet_follow_distance)) ||
+			 (m_ptr->cdis > 10)))
 		{
+			int dis = p_ptr->pet_follow_distance;
+
+			/* No enemy found, find the player */
+			if (p_ptr->pet_follow_distance > 10) p_ptr->pet_follow_distance = 10;
 			get_moves(m_idx, mm);
-		}
-		else
-		{
-			int i = 0;
-
-			/* by default, move randomly */
-			mm[0] = mm[1] = mm[2] = mm[3] = 5;
-
-			/* scan for adjacent 'enemy' */
-			for (i = 1; i < 10; i++)
-			{
-				if ((cave[m_ptr->fy+ddy[i]][m_ptr->fx+ddx[i]].m_idx != 0) &&
-				    (!(m_list[cave[m_ptr->fy+ddy[i]][m_ptr->fx+ddx[i]].m_idx].smart & SM_FRIEND)))
-				{
-					/* set direction */
-					mm[0] = i;
-					break;
-				}
-			}
+			p_ptr->pet_follow_distance = dis;
 		}
 	}
 
@@ -6327,14 +6458,9 @@ static void process_monster(int m_idx, bool is_friend)
 			/* Take a turn */
 			do_turn = TRUE;
 
-#if 0
 			/* Creature can open doors. */
-			if ( (r_ptr->flags2 & (RF2_OPEN_DOOR)) &&
-			    !(m_ptr->smart & SM_FRIEND))
-#else
-			if (r_ptr->flags2 & (RF2_OPEN_DOOR))
-#endif
-
+			if ((r_ptr->flags2 & (RF2_OPEN_DOOR)) &&
+			    (!(m_ptr->smart & SM_FRIEND) || p_ptr->pet_open_doors))
 			{
 				/* Closed doors and secret doors */
 				if ((c_ptr->feat == FEAT_DOOR_HEAD) ||
@@ -6374,7 +6500,8 @@ static void process_monster(int m_idx, bool is_friend)
 			}
 
 			/* Stuck doors -- attempt to bash them down if allowed */
-			if (may_bash && (r_ptr->flags2 & (RF2_BASH_DOOR)))
+			if (may_bash && (r_ptr->flags2 & (RF2_BASH_DOOR)) &&
+				 (!(m_ptr->smart & SM_FRIEND) || p_ptr->pet_open_doors))
 			{
 				int k;
 
@@ -6664,8 +6791,8 @@ static void process_monster(int m_idx, bool is_friend)
 				/* Take or Kill objects on the floor */
 				/* rr9: Pets will no longer pick up/destroy items */
 				if (((r_ptr->flags2 & (RF2_TAKE_ITEM)) ||
-				    (r_ptr->flags2 & (RF2_KILL_ITEM))) &&
-				    !(m_ptr->smart & (SM_FRIEND)))
+				     (r_ptr->flags2 & (RF2_KILL_ITEM))) &&
+				    (!(m_ptr->smart & SM_FRIEND) || p_ptr->pet_pickup_items))
 				{
 					u32b f1, f2, f3;
 

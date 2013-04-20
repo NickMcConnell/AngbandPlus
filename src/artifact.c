@@ -1227,7 +1227,7 @@ bool create_artifact(object_type *o_ptr, bool a_scroll)
 
 	strcpy(new_name,"");
 
-	if ((!a_scroll) && (randint(A_CURSED)==1)) a_cursed = TRUE;
+/*	if ((!a_scroll) && (randint(A_CURSED)==1)) a_cursed = TRUE; */
 
 	while ((randint(powers) == 1) || (randint(7)==1) || randint(10)==1)
 	{
@@ -1291,6 +1291,16 @@ bool create_artifact(object_type *o_ptr, bool a_scroll)
 	{
 		o_ptr->to_h += randint(o_ptr->to_h>19?1:20-o_ptr->to_h);
 		o_ptr->to_d += randint(o_ptr->to_d>19?1:20-o_ptr->to_d);
+	}
+
+	/*
+	 * Give 'em nice dice sometimes, almost like ego-items...
+	 * (can't tell if this is over and above any extra dice ego-itmes
+	 * might get, but it can't hurt :) -- Gumby
+	 */
+	if (randint(20)==1)
+	{
+		o_ptr->dd++;
 	}
 
 	/* Just to be sure */
@@ -1568,7 +1578,7 @@ static bool brand_bolts(void)
 static bool activate_random_artifact(object_type * o_ptr)
 {
 	int plev = p_ptr->lev;
-	int ii = 0, ij = 0, k, dir, dummy = 0;
+	int ii = 0, ij = 0, dir, dummy = 0;
 
 	if (!(o_ptr->art_name)) return FALSE; /* oops? */
 

@@ -456,8 +456,7 @@ void self_knowledge(void)
 			if (plev > 19)
 				info[i++] = "You can turn your skin to stone, dur d20+30 (cost 15).";
 			break;
-		case RACE_ZOMBIE:
-		case RACE_SKELETON:
+		case RACE_ZOMBIE: case RACE_SKELETON:
 			if (plev > 29)
 				info[i++] = "You can restore lost life forces (cost 30).";
 			break;
@@ -604,6 +603,10 @@ void self_knowledge(void)
 		if (p_ptr->muta1 & MUT1_ROCKET)
 		{
 			info[i++] = "You can fire rockets (dam lvl*4).";
+		}
+		if (p_ptr->muta1 & MUT1_GRAV_BEAM)
+		{
+			info[i++] = "You can shoot a beam of gravity.";
 		}
 	}
 
@@ -2437,6 +2440,10 @@ void aggravate_monsters(int who)
 				if (randint(2)==1)
 				{
 					m_ptr->smart &= ~SM_FRIEND;
+				}
+				else
+				{
+					p_ptr->pet_follow_distance = 255;
 				}
 			}
 		}

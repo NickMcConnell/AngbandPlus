@@ -2160,7 +2160,6 @@ static void calc_bonuses(void)
 			p_ptr->resist_pois = TRUE;
 			p_ptr->slow_digest = TRUE;
 			p_ptr->resist_cold = TRUE;
-			p_ptr->lite = TRUE;
 			break;
 		case RACE_SPRITE:
 			p_ptr->ffall = TRUE;

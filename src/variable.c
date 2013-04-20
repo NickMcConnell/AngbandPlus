@@ -164,9 +164,7 @@ s32b total_friend_levels = 0;
  * Software options (set via the '=' command).  See "tables.c"
  */
 
-
 /* Option Set 1 -- User Interface */
-
 bool rogue_like_commands;	/* Rogue-like commands */
 bool quick_messages;		/* Activate quick messages */
 bool other_query_flag;		/* Prompt for various information */
@@ -185,7 +183,6 @@ bool ring_bell;			/* Ring the bell (on errors, etc) */
 bool use_color;			/* Use color if possible (slow) */
 
 /* Option Set 2 -- Disturbance */
-
 bool find_ignore_stairs;	/* Run past stairs */
 bool find_ignore_doors;		/* Run through open doors */
 bool find_cut;			/* Run past known corners */
@@ -198,6 +195,42 @@ bool disturb_minor;		/* Disturb whenever boring things happen */
 bool disturb_other;		/* Disturb whenever various things happen */
 bool alert_hitpoint;		/* Alert user to critical hitpoints */
 bool alert_failure;		/* Alert user to various failures */
+
+/* Option Set 3 -- Game-Play */
+bool auto_haggle;		/* Auto-haggle in stores */
+bool auto_scum;			/* Auto-scum for good levels */
+bool stack_allow_items;		/* Allow weapons and armor to stack */
+bool stack_allow_wands;		/* Allow wands/staffs/rods to stack */
+bool expand_look;		/* Expand the power of the look command */
+bool expand_list;		/* Expand the power of the list commands */
+bool view_perma_grids;		/* Map remembers all perma-lit grids */
+bool view_torch_grids;		/* Map remembers all torch-lit grids */
+bool dungeon_align;		/* Generate dungeons with aligned rooms */
+bool dungeon_stair;		/* Generate dungeons with connected stairs */
+bool flow_by_sound;		/* Monsters track new player location */
+bool flow_by_smell;		/* Monsters track old player location */
+bool smart_learn;		/* Monsters learn from their mistakes */
+bool smart_cheat;		/* Monsters exploit player weaknesses */
+
+/* Option Set 4 -- Efficiency */
+bool view_reduce_lite;		/* Reduce lite-radius when running */
+bool view_reduce_view;		/* Reduce view-radius in town */
+bool avoid_abort;		/* Avoid checking for user abort */
+bool avoid_other;		/* Avoid processing special colors */
+bool flush_failure;		/* Flush input on any failure */
+bool flush_disturb;		/* Flush input on disturbance */
+bool flush_command;		/* Flush input before every command */
+bool fresh_before;		/* Flush output before normal commands */
+bool fresh_after;		/* Flush output after normal commands */
+bool fresh_message;		/* Flush output after all messages */
+bool compress_savefile;		/* Compress messages in savefiles */
+bool hilite_player;		/* Hilite the player with the cursor */
+bool view_yellow_lite;		/* Use special colors for torch-lit grids */
+bool view_bright_lite;		/* Use special colors for 'viewable' grids */
+bool view_granite_lite;		/* Use special colors for wall grids (slow) */
+bool view_special_lite;		/* Use special colors for floor grids (slow) */
+
+/* Option set 5 - Gumband/misc */
 bool last_words;		/* Get last words upon dying */
 bool speak_unique;		/* Speaking uniques + shopkeepers */
 bool small_levels;		/* Allow unusually small dungeon levels */
@@ -216,55 +249,11 @@ bool shuffle_songs;		/* Randomize midi songs */
 bool mute_songs;		/* No music */
 bool mute_sounds;		/* No sound effects */
 
-
-
-/* Option Set 3 -- Game-Play */
-
-bool auto_haggle;		/* Auto-haggle in stores */
-bool auto_scum;			/* Auto-scum for good levels */
-bool stack_allow_items;		/* Allow weapons and armor to stack */
-bool stack_allow_wands;		/* Allow wands/staffs/rods to stack */
-bool expand_look;		/* Expand the power of the look command */
-bool expand_list;		/* Expand the power of the list commands */
-bool view_perma_grids;		/* Map remembers all perma-lit grids */
-bool view_torch_grids;		/* Map remembers all torch-lit grids */
-bool dungeon_align;		/* Generate dungeons with aligned rooms */
-bool dungeon_stair;		/* Generate dungeons with connected stairs */
-bool flow_by_sound;		/* Monsters track new player location */
-bool flow_by_smell;		/* Monsters track old player location */
-bool track_follow;		/* Monsters follow the player */
-bool track_target;		/* Monsters target the player */
-bool smart_learn;		/* Monsters learn from their mistakes */
-bool smart_cheat;		/* Monsters exploit player weaknesses */
-
-
-/* Option Set 4 -- Efficiency */
-
-bool view_reduce_lite;		/* Reduce lite-radius when running */
-bool view_reduce_view;		/* Reduce view-radius in town */
-bool avoid_abort;		/* Avoid checking for user abort */
-bool avoid_other;		/* Avoid processing special colors */
-bool flush_failure;		/* Flush input on any failure */
-bool flush_disturb;		/* Flush input on disturbance */
-bool flush_command;		/* Flush input before every command */
-bool fresh_before;		/* Flush output before normal commands */
-bool fresh_after;		/* Flush output after normal commands */
-bool fresh_message;		/* Flush output after all messages */
-bool compress_savefile;		/* Compress messages in savefiles */
-bool hilite_player;		/* Hilite the player with the cursor */
-bool view_yellow_lite;		/* Use special colors for torch-lit grids */
-bool view_bright_lite;		/* Use special colors for 'viewable' grids */
-bool view_granite_lite;		/* Use special colors for wall grids (slow) */
-bool view_special_lite;		/* Use special colors for floor grids (slow) */
-
-/* Option set 5 -- Testing */
-
+/* Option set 255 -- Stack Testing */
 bool testing_stack;		/* Test the stacking code */
 bool testing_carry;		/* Test the carrying code */
 
-
 /* Cheating options */
-
 bool cheat_peek;		/* Peek into object creation */
 bool cheat_hear;		/* Peek into monster creation */
 bool cheat_room;		/* Peek into dungeon creation */
@@ -273,7 +262,6 @@ bool cheat_know;		/* Know complete monster info */
 bool cheat_live;		/* Allow player to avoid death */
 
 /* Special options */
-
 s16b hitpoint_warn;		/* Hitpoint warning (0 to 9) */
 s16b delay_factor;		/* Delay factor (0 to 9) */
 bool autosave_l;		/* Autosave before entering new levels */

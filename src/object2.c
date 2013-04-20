@@ -2249,38 +2249,28 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 						}
 						else /* Hafted */
 						{
-							if ((o_ptr->sval == SV_SLEDGEHAMMER) && (randint(3)==1))
-							{
-								if (power > 1) /* Very good */
-								{
-									o_ptr->name2 = EGO_DIGGING;
-								}
-								else if (power < -1) /* Very bad */
-								{
-									/* Hack -- Horrible digging bonus */
-									o_ptr->pval = 0 - (5 + randint(5));
-								}
-								else if (power < 0) /* Bad */
-								{
-									/* Hack -- Reverse digging bonus */
-									o_ptr->pval = 0 - (o_ptr->pval);
-								}
-							}
-							else
-							{
-								o_ptr->name2 = EGO_EARTHQUAKES;
-								if (randint(3)==1) o_ptr->art_flags1 |= TR1_BLOWS;
-								o_ptr->pval = m_bonus(3, level);
-							}
+							o_ptr->name2 = EGO_EARTHQUAKES;
+							if (randint(3)==1) o_ptr->art_flags1 |= TR1_BLOWS;
+							o_ptr->pval = m_bonus(3, level);
 						}
 					}
 				}
 
 				/* Hack -- Super-charge the damage dice */
-				while (rand_int(10L * o_ptr->dd * o_ptr->ds) == 0) o_ptr->dd++;
+				if (randint(20)==1)
+				{
+					o_ptr->dd++;
+				}
+				else
+				{
+					while (rand_int(10L * o_ptr->dd * o_ptr->ds) == 0)
+					{
+						o_ptr->dd++;
+					}
 
-				/* Hack -- Lower the damage dice */
-				if (o_ptr->dd > 9) o_ptr->dd = 9;
+					/* Hack -- Lower the damage dice */
+					if (o_ptr->dd > 9) o_ptr->dd = 9;
+				}
 			}
 
 			/* Very cursed */
@@ -5752,7 +5742,7 @@ static void spell_info(char *p, int spell, int realm)
 					case 13: sprintf(p, " dam %d", 100 + plev); break;
 					case 16: strcpy (p, " dur 25+d25"); break;
 					case 17: sprintf(p, " dam %d", 5 * plev); break;
-					case 18: sprintf(p, " dam %dd8", (6+((plev-5)/3))); break;
+					case 18: sprintf(p, " dam %dd8", (10+(plev/5))); break;
 					case 19: strcpy (p, " max dur 50"); break;
 					case 20: strcpy (p, " dam 3*100"); break;
 					case 22: sprintf(p, " dam %d", 150 + (2 * plev)); break;

@@ -1,4 +1,4 @@
-===  Roguelike Keyset Command Summary (Gumband 2.1.3a) ===
+===  Roguelike Keyset Command Summary (Gumband 2.1.4a) ===
 
  Roguelike Keyset Directions
           y  k  u
@@ -20,7 +20,7 @@
  m  Spell casting / mental power         M  Full dungeon map
  n  (walk - south east)                  N  (run - south east)
  o  Open a door or chest                 O  Use bonus power (if any)
- p  (unused in Gumband)                  P  Browse a book
+ p  Issue a pet command                  P  Browse a book
  q  Quaff a potion                       Q  Quit (commit suicide)
  r  Read a scroll                        R  Rest for a period
  s  Search for traps/doors               S  Jam a door (Spike)
@@ -65,4 +65,4 @@
                 Original: Alexander Cutler and Andy Astrand
          Updated (2.7.6): Russ Allbery (rra@cs.stanford.edu)
          Updated (2.7.9): Ben Harrison (benh@phial.com)
-Updated (Gumband 2.1.2b): Joe Dixon (gumby_jd@yahoo.com)
+Updated (Gumband 2.1.4a): Joe Dixon (gumby_jd@yahoo.com)

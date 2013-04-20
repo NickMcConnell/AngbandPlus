@@ -25,18 +25,18 @@
 mindcraft_power mindcraft_powers[MAX_MINDCRAFT_POWERS] =
 {
 	/* Level,  cost,  %fail,  name */
-        { 1,   1,  15, "Precognition" },          /* Det. monsters/traps */
-        { 2,   1,  20, "Neural Blast" },          /* ~MM */
+        { 1,   1,  15, "Precognition" },          /* Detection */
+        { 2,   1,  20, "Neural Blast" },          /* Psi bolt */
         { 3,   2,  25, "Minor Displacement" },    /* Phase/dimension door */
-        { 7,   6,  35, "Major Displacement" },    /* Tele. Self / All */
-        { 9,   7,  50, "Domination" },
-        { 11,  7,  30, "Pulverize" },             /* Telekinetic "bolt" */
-        { 13, 12,  50, "Character Armour" },      /* Psychic/physical defenses */
-        { 15, 12,  60, "Psychometry" },
-        { 18, 10,  45, "Mind Wave" },             /* Ball -> LOS */
+        { 7,   6,  35, "Major Displacement" },    /* Teleport Self -> Away */
+        { 9,   7,  50, "Domination" },		  /* Confusion -> Charm */
+        { 11,  7,  30, "Pulverize" },             /* TK Bolt -> Ball */
+        { 13, 12,  50, "Character Armour" },      /* +AC & Resistances */
+        { 15, 12,  60, "Psychometry" },		  /* Identify -> *ID* */
+        { 18, 10,  45, "Mind Wave" },             /* Centered Ball -> LOS */
         { 23, 15,  50, "Adrenaline Channeling" }, /* Haste + Hero/Berserk */
         { 25, 10,  40, "Psychic Drain" },         /* Enemy HP to SP */
-        { 28, 20,  45, "Telekinetic Wave" },      /* Ball -> LOS */
+        { 28, 20,  45, "Telekinetic Wave" },      /* Centered Ball -> LOS */
 };
 
 

@@ -189,71 +189,100 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 			if ((f1 & (TR1_KILL_DRAGON)) &&
 			    (r_ptr->flags3 & (RF3_DRAGON)))
 			{
-				if (m_ptr->ml) r_ptr->r_flags3 |= (RF3_DRAGON);
-
-				/* set the damage multiplier */
-				if (mult < 5) mult = 5;
-				else mult += 2;
-			}
-
-			if ((f1 & (TR1_BRAND_FIRE)) &&
-			    (r_ptr->flags3 & (RF3_HURT_FIRE)) &&
-			    !(r_ptr->flags3 & (RF3_IM_FIRE)))
-			{
-				if (m_ptr->ml) r_ptr->r_flags3 |= (RF3_HURT_FIRE);
+				if (m_ptr->ml)
+					r_ptr->r_flags3 |= (RF3_DRAGON);
 
 				if (mult < 5) mult = 5;
 				else mult += 2;
 			}
 
-			if ((f1 & (TR1_BRAND_COLD)) &&
-			    (r_ptr->flags3 & (RF3_HURT_COLD)) &&
-			    !(r_ptr->flags3 & (RF3_IM_COLD)))
+			if (f1 & (TR1_BRAND_FIRE))
 			{
-				if (m_ptr->ml) r_ptr->r_flags3 |= (RF3_HURT_COLD);
+				if (r_ptr->flags3 & (RF3_IM_FIRE))
+				{
+					if (m_ptr->ml)
+						r_ptr->r_flags3 |= (RF3_IM_FIRE);
+				}
+				else if (r_ptr->flags3 & (RF3_HURT_FIRE))
+				{
+					if (m_ptr->ml)
+						r_ptr->r_flags3 |= (RF3_HURT_FIRE);
 
-				if (mult < 5) mult = 5;
-				else mult += 2;
+					if (mult < 5) mult = 5;
+					else mult += 2;
+				}
+				else
+				{
+					if (mult < 3) mult = 3;
+					else mult += 1;
+				}
 			}
 
-			if ((f1 & (TR1_BRAND_FIRE)) &&
-			    !(r_ptr->flags3 & (RF3_HURT_FIRE)) &&
-			    !(r_ptr->flags3 & (RF3_IM_FIRE)))
+			if (f1 & (TR1_BRAND_COLD))
 			{
-				if (mult < 3) mult = 3;
-				else mult += 1;
+				if (r_ptr->flags3 & (RF3_IM_COLD))
+				{
+					if (m_ptr->ml)
+						r_ptr->r_flags3 |= (RF3_IM_COLD);
+				}
+				else if (r_ptr->flags3 & (RF3_HURT_COLD))
+				{
+					if (m_ptr->ml)
+						r_ptr->r_flags3 |= (RF3_HURT_COLD);
+
+					if (mult < 5) mult = 5;
+					else mult += 2;
+				}
+				else
+				{
+					if (mult < 3) mult = 3;
+					else mult += 1;
+				}
 			}
 
-			if ((f1 & (TR1_BRAND_COLD)) &&
-			    !(r_ptr->flags3 & (RF3_HURT_COLD)) &&
-			    !(r_ptr->flags3 & (RF3_IM_COLD)))
+			if (f1 & (TR1_BRAND_ACID))
 			{
-				if (mult < 3) mult = 3;
-				else mult += 1;
+				if (r_ptr->flags3 & (RF3_IM_ACID))
+				{
+					if (m_ptr->ml)
+						r_ptr->r_flags3 |= (RF3_IM_ACID);
+				}
+				else
+				{
+					if (mult < 3) mult = 3;
+					else mult += 1;
+				}
 			}
 
-			if ((f1 & (TR1_BRAND_ACID)) &&
-			    !(r_ptr->flags3 & (RF3_IM_ACID)))
+			if (f1 & (TR1_BRAND_ELEC))
 			{
-				if (mult < 3) mult = 3;
-				else mult += 1;
+				if (r_ptr->flags3 & (RF3_IM_ELEC))
+				{
+					if (m_ptr->ml)
+						r_ptr->r_flags3 |= (RF3_IM_ELEC);
+				}
+				else
+				{
+					if (mult < 3) mult = 3;
+					else mult += 1;
+				}
 			}
 
-			if ((f1 & (TR1_BRAND_ELEC)) &&
-			    !(r_ptr->flags3 & (RF3_IM_ELEC)))
+			if (f1 & (TR1_BRAND_POIS))
 			{
-				if (mult < 3) mult = 3;
-				else mult += 1;
+				if (r_ptr->flags3 & (RF3_IM_POIS))
+				{
+					if (m_ptr->ml)
+						r_ptr->r_flags3 |= (RF3_IM_POIS);
+				}
+				else
+				{
+					if (mult < 3) mult = 3;
+					else mult += 1;
+				}
 			}
 
-			if ((f1 & (TR1_BRAND_POIS)) &&
-			    !(r_ptr->flags3 & (RF3_IM_POIS)))
-			{
-				if (mult < 3) mult = 3;
-				else mult += 1;
-			}
-
-			if ((f1 & (TR1_SLAY_HUMANOID)) && 
+			if ((f1 & (TR1_SLAY_HUMANOID)) &&
 			    (is_humanoid(r_ptr->d_char)))
 			{
 				if (mult < 3) mult = 3;
@@ -263,7 +292,8 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 			if ((f1 & (TR1_SLAY_ELEMENTAL)) &&
 			    (r_ptr->flags3 & (RF3_ELEMENTAL)))
 			{
-				if (m_ptr->ml) r_ptr->r_flags3 |= (RF3_ELEMENTAL);
+				if (m_ptr->ml)
+					r_ptr->r_flags3 |= (RF3_ELEMENTAL);
 
 				if (mult < 3) mult = 3;
 				else mult += 1;
@@ -272,7 +302,8 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 			if ((f1 & (TR1_SLAY_UNDEAD)) &&
 			    (r_ptr->flags3 & (RF3_UNDEAD)))
 			{
-				if (m_ptr->ml) r_ptr->r_flags3 |= (RF3_UNDEAD);
+				if (m_ptr->ml)
+					r_ptr->r_flags3 |= (RF3_UNDEAD);
 
 				if (mult < 3) mult = 3;
 				else mult += 1;
@@ -281,16 +312,18 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 			if ((f1 & (TR1_SLAY_DEMON)) &&
 			    (r_ptr->flags3 & (RF3_DEMON)))
 			{
-				if (m_ptr->ml) r_ptr->r_flags3 |= (RF3_DEMON);
+				if (m_ptr->ml)
+					r_ptr->r_flags3 |= (RF3_DEMON);
 
 				if (mult < 3) mult = 3;
 				else mult += 1;
 			}
 
 			if ((f1 & (TR1_SLAY_ORC)) &&
-                            (r_ptr->flags3 & (RF3_ORC)))
+			    (r_ptr->flags3 & (RF3_ORC)))
 			{
-				if (m_ptr->ml) r_ptr->r_flags3 |= (RF3_ORC);
+				if (m_ptr->ml)
+					r_ptr->r_flags3 |= (RF3_ORC);
 
 				if (mult < 3) mult = 3;
 				else mult += 1;
@@ -299,7 +332,8 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 			if ((f1 & (TR1_SLAY_TROLL)) &&
 			    (r_ptr->flags3 & (RF3_TROLL)))
 			{
-				if (m_ptr->ml) r_ptr->r_flags3 |= (RF3_TROLL);
+				if (m_ptr->ml)
+					r_ptr->r_flags3 |= (RF3_TROLL);
 
 				if (mult < 3) mult = 3;
 				else mult += 1;
@@ -308,7 +342,8 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 			if ((f1 & (TR1_SLAY_GIANT)) &&
 			    (r_ptr->flags3 & (RF3_GIANT)))
 			{
-				if (m_ptr->ml) r_ptr->r_flags3 |= (RF3_GIANT);
+				if (m_ptr->ml)
+					r_ptr->r_flags3 |= (RF3_GIANT);
 
 				if (mult < 3) mult = 3;
 				else mult += 1;
@@ -317,7 +352,8 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 			if ((f1 & (TR1_SLAY_DRAGON)) &&
 			    (r_ptr->flags3 & (RF3_DRAGON)))
 			{
-				if (m_ptr->ml) r_ptr->r_flags3 |= (RF3_DRAGON);
+				if (m_ptr->ml)
+					r_ptr->r_flags3 |= (RF3_DRAGON);
 
 				if (mult < 3) mult = 3;
 				else mult += 1;
@@ -326,16 +362,8 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 			if ((f1 & (TR1_SLAY_ANIMAL)) &&
 			    (r_ptr->flags3 & (RF3_ANIMAL)))
 			{
-				if (m_ptr->ml) r_ptr->r_flags3 |= (RF3_ANIMAL);
-
-				if (mult < 2) mult = 2;
-				else mult += 1;
-			}
-
-			if ((f1 & (TR1_SLAY_EVIL)) &&
-			    (r_ptr->flags3 & (RF3_EVIL)))
-			{
-				if (m_ptr->ml) r_ptr->r_flags3 |= (RF3_EVIL);
+				if (m_ptr->ml)
+					r_ptr->r_flags3 |= (RF3_ANIMAL);
 
 				if (mult < 2) mult = 2;
 				else mult += 1;
@@ -353,41 +381,14 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 				else mult += 1;
 			}
 
-			if ((f1 & (TR1_BRAND_FIRE)) &&
-			    !(r_ptr->flags3 & (RF3_HURT_FIRE)) &&
-			    (r_ptr->flags3 & (RF3_IM_FIRE)))
+			if ((f1 & (TR1_SLAY_EVIL)) &&
+			    (r_ptr->flags3 & (RF3_EVIL)))
 			{
-				if (m_ptr->ml) r_ptr->r_flags3 |= (RF3_IM_FIRE);
-				mult -= 1;
-			}
+				if (m_ptr->ml)
+					r_ptr->r_flags3 |= (RF3_EVIL);
 
-			if ((f1 & (TR1_BRAND_COLD)) &&
-			    !(r_ptr->flags3 & (RF3_HURT_COLD)) &&
-			    (r_ptr->flags3 & (RF3_IM_COLD)))
-			{
-				if (m_ptr->ml) r_ptr->r_flags3 |= (RF3_IM_COLD);
-				mult -= 1;
-			}
-
-			if ((f1 & (TR1_BRAND_ACID)) &&
-			    (r_ptr->flags3 & (RF3_IM_ACID)))
-			{
-				if (m_ptr->ml) r_ptr->r_flags3 |= (RF3_IM_ACID);
-				mult -= 1;
-			}
-
-			if ((f1 & (TR1_BRAND_ELEC)) &&
-			    (r_ptr->flags3 & (RF3_IM_ELEC)))
-			{
-				if (m_ptr->ml) r_ptr->r_flags3 |= (RF3_IM_ELEC);
-				mult -= 1;
-			}
-
-			if ((f1 & (TR1_BRAND_POIS)) &&
-			    (r_ptr->flags3 & (RF3_IM_POIS)))
-			{
-				if (m_ptr->ml) r_ptr->r_flags3 |= (RF3_IM_POIS);
-				mult -= 1;
+				if (mult < 2) mult = 2;
+				else mult += 1;
 			}
 			break;
 		}
@@ -801,16 +802,6 @@ static void hit_trap(void)
 			{
 				(void)summon_specific(py, px, dun_level, 0);
 			}
-
-			if (dun_level>randint(100)) /* No nasty effect for low levels */
-			{
-				do
-				{
-					activate_ty_curse();
-				}
-				while (randint(6)==1);
-			}
-			break;
 		}
 
 		case FEAT_TRAP_HEAD + 0x05:
@@ -841,20 +832,10 @@ static void hit_trap(void)
 			msg_print("A strange purple gas envelops you...");
 			c_ptr->info &= ~(CAVE_MARK);
 			cave_set_feat(py, px, FEAT_FLOOR);
-			if (!(p_ptr->resist_chaos) && !(randint(3) == 1))
+
+			if (!(p_ptr->resist_chaos) && (randint(2)==1))
 			{
-				if ((p_ptr->muta1 || p_ptr->muta2 || p_ptr->muta3) &&
-					(randint(20) == 13))
-				{
-					msg_print("All of your lovely mutations go away!");
-					p_ptr->muta1 = p_ptr->muta2 = p_ptr->muta3 = 0;
-					p_ptr->update |= PU_BONUS;
-					handle_stuff();
-				}
-				else
-				{
-					do_poly_self();
-				}
+				do_poly_self();
 			}
 			else
 			{

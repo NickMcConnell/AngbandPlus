@@ -17,18 +17,14 @@ from your plane...
 ****************************************************************************
 
 =============================================
-= Gumband 2.1.3b = Last Update: 30-Mar-2001 =
+= Gumband 2.1.4a = Last Update: 09-Apr-2001 =
 ============================================================================
-Changes from Gumband 2.1.3a are marked with '##'. Only the most major
+Changes from Gumband 2.1.3b are marked with '##'. Only the most major
 changes are listed here, to keep things short...
-ERROR: I first edited, saved and then placed this file into the archive for
-the *next* version (213c or 214) of Gumband before I realized that this
-would mean that the changes from 2.1.3a would no longer be marked. *sigh*
-You'll have to look at the upload announcement post for the changes specific
-to this version. Sorry. :)
 ============================================================================
 Send any and all complaints (or praise ;) to aa343@chebucto.ns.ca. Patches,
-makefiles, etc., should be sent to gumby_jd@yahoo.com.
+makefiles, etc., should be sent to gumby_jd@yahoo.com (due to a lack of
+INBOX space at the first address).
 ============================================================================
 PLEASE NOTE: Preserving savefile compatability is *NOT* important to me. I
 *highly* suggest you finish up your current character with your current
@@ -49,6 +45,8 @@ breaking things for everyone else :]
 Thanks to Bablos for compiling the Amiga version.
 Thanks to Franklin Bratcher for compiling the Windows version.
 Thanks to Gileba for compiling the Mac-PPC version.
+Thanks to Erick Bock for his help in fixing the problems I was having with
+   getting the final mutation activation working.
 ============================================================================
 Thanks to all the folks in #angband and rec.games.roguelike.angband who've
 put up with me, and even helped me in many cases, while I was plundering
@@ -86,6 +84,13 @@ further 10 points. Spellcasting failure rates go up by 25% as well.
 against the character's saving throw. [previously, only the scrambling and
 teleport level effects could be resisted this way]
 
+##06) Summoning rune traps no longer have a chance of TY Cursing you.
+
+##07) In stores, you can now use either the 'x' or the 'l' key if one of
+them doesn't work for you. [added mostly so that, with my default macros
+included in pref.prf, those using the original keyset don't have to prefix
+the 'x' with a '\'.]
+
 
               ####### Altered Races and Classes #######
 
@@ -105,7 +110,9 @@ Chaos Warriors:
    then you will be hit with multiple TY Curses.
  Now use WIS for their spell stat instead of INT (they get their magic
    through their patron (god), like Priests and Paladins do, so this is more
-   appropriate).
+   appropriate). [this also means that they get their prayers randomly
+   (chaotically! :) and can wear gloves without penalty - think of them as
+   Chaos Paladins now]
  Due to being a plaything of Chaos, Chaos Warriors get +1 to the number of
    effects during a do_poly_self(). Beastmen Chaos Warriors tend to get
    slammed pretty hard when polymorphed. :)
@@ -114,18 +121,25 @@ Draconians:
  Now gain the following resistances at the level in brackets: Fire (5),
    Cold (10), Acid (15), Electricity (20), Light (25), Dark (30),
    Poison (35).
+## Breath weapon type is randomly chosen from a list that is added to as
+   levels are gained. All Draconians have Fire breath. The breath types that
+   follow are added at the levels in brackets: Cold (10), Acid (15),
+   Electricity (20), Light (25), Dark (30), Poison (35), Shards (40),
+   Chaos (45), Mana (50). [breath type was previously determined by class]
+## XP required now at +125% (down from +150%).
 
 Gambolts:
  Exceptional DEX & CHR (both sustained), Saving Throw and Stealth. Decent
    Searching and great Perception. All other stats and skills are average.
  Permanent speed +2.
  Hit Dice of 8, 60' infravision, and an XP penalty of +30%
- Racial activation is Charm Monster at level 20.
+## Racial activation is Charm Monster at level 20, which becomes Charm
+   Monsters at level 50.
  Cannot 'legally' choose to be Priests, Paladins, Chaos Warriors or Monks.
 
 Golems:
- They now resist Fire (because of their 'birth' in a kiln or oven) and
-   Shards, in addition to their original Poison resistance.
+ They now resist Fire (because of their 'birth' in a kiln, forge, or quarry)
+   and Shards, in addition to their original Poison resistance.
  They no longer get intrinsic See Invisible, Free Action or their level 35
    Hold Life, but keep their Slow Digestion.
  Intrinsic Armour Class has been changed to equal the Golem's level.
@@ -134,10 +148,18 @@ Half-Giants:
  Racial activation ('Stone to Mud') has been altered to only work when the
    player is adjacent to a non-permanent wall (or a closed door). If not,
    the Half-Giant just waves his or her fists uselessly in the air. :)
+## XP required now at +25% (down from +50%).
+
+Half-Titans:
+## XP required now at +125% (down from +150%).
 
 Half-Trolls:
  All Half-Trolls, not just Warriors, get Slow Digestion with their level 15
    Regeneration.
+
+High-Elves:
+## XP required now at +75% (down from +100%). High Elves just aren't all
+   that impressive these days.
 
 High Magi:
  Now get a mana bonus of +50% instead of the normal +25%.
@@ -146,7 +168,8 @@ High Magi:
 
 Priests:
  The penalty for using edged weapons is now a *real* penalty of (-15,-15)
-   instead of the (-2,-2) that no one ever really noticed.
+   instead of the (-2,-2) that no one ever really noticed. See also the
+   Spellcasting section below.
 
 Rangers:
  Bonus shots with Short and Long Bows at levels 15, 30 and 45, instead of
@@ -157,6 +180,10 @@ Rogues:
  Rogues gain 1 XP for successfully searching out a secret door or trap with-
    out using a spell. Others gain nothing.
  Only Rogues gain XP for picking the locks on doors and chests.
+## Rogues can now lock doors when they close them. This sets the door to the
+   lowest level of locked door (FEAT_DOOR_HEAD + 0x01). To avoid scumming,
+   this level of locked door will *not* grant the XP bonus for unlocking
+   doors.
  Other classes only get 1/2 of the normal XP gained for disarming traps.
  Backstabbing a monster requires that the Rogue be wielding a weapon that is
    5 pounds or lighter, the Rogue pass a randint(monster_level+10) <=
@@ -168,8 +195,13 @@ Rogues:
    damage (ie, x5 to x10!) and stabbing a fleeing monster deals x3 normal
    damage (instead of the original x1.5).
 
+Skeletons:
+## No longer starts at night as they did in the previous version.
+
 Spectres:
  No longer gains telepathy at level 35.
+## No longer glows (permanent lite) as they did in the previous version.
+## No longer starts at night as they did in the previous version.
 
 Vampires:
  Takes damage from wielding *any* light source (either in the Light slot or
@@ -177,7 +209,7 @@ Vampires:
 
 Warriors:
  Warriors gain an AC bonus equal to %50 of worn armour's base AC, rounded
-   down. (was only a bonus for body armour)
+   down.
 
 Warrior-Magi:
  Bonus melee attacks at levels 25 and 50, bonus missile shot at level 35.
@@ -199,10 +231,14 @@ Weaponmasters:
  Weaponmasters gain extra blows when wielding a weapon in their specialty
    class (extra blows at levels 15, 30 and 45), but never have more than one
    blow, regardless of Str & Dex and any magical considerations, when
-   wielding other weapons.
+   wielding other weapons. [a Weaponmaster specializing in Axes wielding
+   Ringil is a laughable sight :]
  Gains Fear Resistance at level 30.
  No spellcasting.
  XP penalty of 30%.
+
+Zombies:
+## No longer starts at night as they did in the previous version.
 
 
               ####### Monster-Related Changes #######
@@ -225,22 +261,12 @@ Weaponmasters:
  New monster blow effect: RBE_VAMP (drains XP and heals the monster). See
  melee1.c for full details.
 
- The various object-mimics, monsters with a symbol of "<>$*,!=?|", are no
- longer detected as monsters with Detect Objects/Treasure, only as their
- object type.
-
- Monsters normally generated in groups, with escorts, or who are breeders
- are no longer selected for random quests.
-
  Undead monsters are no longer totally immune to Nether attacks. Instead,
  they resist at 1/9th normal damage (compared to 1/3rd for those who resist
  Nether and 1/2 for Evil creatures).
 
  Defined humanoid monsters as a monster with one of the following symbols:
- "hknNoOpPtTyY" - organs all in the right place [can't hamstring a naga, but
- otherwise fine], and not relying on magic for their existance, like Angels
- or the undead. 160 creatures total, as of this writing). Used for Slay
- Humanoid and the backstab attack of Rogues.
+ "AhkNoOpPtTyYVW" Used for Slay Humanoid and the backstab attack of Rogues.
 
  If you feel righteous [ie, Bless/Prayer spells and scrolls], then your
  equipment won't become cursed from a monster's CAUSE_# or Hand of Doom
@@ -270,7 +296,7 @@ Weaponmasters:
  dealt is greater than 50 *and* randint(2)==1. If damage is less than 50, an
  earthquake can happen if randint(10)==1 [instead of randint(7)==1].
 
- Amulets are now vunerable to electricity.
+ Amulets are now vulnerable to electricity.
 
  Wielding a weapon with a Slay that conflicts with your race has a 50%
  chance of burning you each turn. Wearing heavy gloves (gauntlets or better,
@@ -284,13 +310,15 @@ Weaponmasters:
  *only* on the Long Sword 'Kanajana' and will never appear on random
  artifacts.
 
- Brands and Slays are now cumulative, with resistances to a Brand reducing
- the multiplier. See cmd1.c for full details. (briefly, a monster affected
- by more than one Slay or Brand will take more damage if your weapon has
- them - an Evil Demon which doesn't resist Cold will have a multiplier of x5
- to the base damage when hit by Ringil, instead of the normal x3. If that
- Evil Demon resisted Cold, then there'd be a -1 to the multiplier, instead
- of the +1 for the brand, leaving the multiplier at x3...)
+ Brands and Slays are now cumulative See cmd1.c for full details. (briefly,
+ a monster affected by more than one Slay or Brand will take more damage if
+ your weapon has them - for example, an Evil Demon which doesn't resist Cold
+ will have a multiplier of x5 to the base damage when hit by Ringil, instead
+ of the normal x3. If that Evil Demon resisted Cold, then the multplier
+ would be at x4 (set to 3 for the Slay Demon, +1 for Slay Evil) instead.
+
+## Note that resistances no longer reduce the multiplier - it tended to make
+ weapons with multiple brands and slays useless against deeper creatures...
 
  Turned the code that adds random sustains, abilities and high resistances
  into the RAND_SUST, RAND_ABILITY and RAND_RESIST object flags. Note that
@@ -299,11 +327,6 @@ Weaponmasters:
  artifact or normal object - it might crash or it might just ignore the
  flags...
 
- Destroying spellbooks has been altered slightly. Warriors and Paladins now
- get ((book_cost / 50) * player_level) for destroying books - and not only
- the dungeon/BM-only books. No experience is gained, however, for destroying
- storebought books.
-
  Added Feanoran Lamps. Radius 2 permanent lite, level/rarity of 15/2, cost
  of 1500 gold. Not available in the General Store, but can show up in the
  Black Market. The Phial of Galadrial is now a level 20, rarity 5 item...
@@ -311,9 +334,16 @@ Weaponmasters:
  Large chests now produce only 'good' items (like a monster's DROP_GOOD),
  but are also rarer. [Wooden (rarity 2), Iron (rarity 4), Steel (rarity 6)]
 
- Artifacts now have a 75% chance to resist disenchantment (was 71%) and ego-
- items now have a 50% chance to resist disenchantment (formerly they had
- no resistance).
+## Small chests now produce only cash and are as common as they always were.
+
+## Artifacts now have a 75% chance to resist disenchantment (was 71%) and
+ ego-items now have a 25% chance to resist disenchantment (formerly they had
+ no resistance, and 50% resistance in the last version of Gumband).
+
+## Potions of Self Knowledge identify the contents of your pack, and are
+ also a bit cheaper and more common.
+
+## Cursed random artifacts will no longer be generated.
 
 
                    ####### Spellcasting #######
@@ -368,8 +398,7 @@ Life:
    regardless of the character's level. Duration of the effect has been
    reduced. It is also less likely to successfully repel a monster (maximum
    40% chance to repel at character level 50). These mods apply regardless
-   of the source of the PfE. (see melee1.c for full details) Scrolls of
-   Protection from Evil are also a bit easier to get.
+   of the source of the PfE. (see melee1.c for full details)
 
 Mindcraft:
  'Precognition' now detects doors and stairs at level 5, with detect traps
@@ -416,8 +445,15 @@ can all see what you died of. :)
 things a lot more logical when dealing with the gains and losses of
 Beastmen...
 
+##05) Added Eric Bock's Pet Command Menu [accessed via the 'p' key under
+both keysets].  You can now control if pets can pick up objects or open
+doors, or forbid those things, tell your pets to follow you closely or to
+wander at a distance and, of course, dismiss your pets.
+WARNING: THIS HAS BROKEN SAVEFILE COMPATABILITY!!! Therefore, if you like
+your current character, finish him or her off before moving to this version.
 
-                        ####### Bugs #######
+
+                ####### Bugs Pending and Fixed #######
 
 01) There are too many potions in the game at the moment, so a few potions
 cannot be generated via debug mode's item creation menus since the list runs
@@ -436,16 +472,10 @@ current Weaponmaster specialty remains, instead of restoring the older
 character's specialty. If you then continue rolling, a new specialty will be
 randomly chosen, of course. Not worth the effort to fix, IMHO.
 
-05) For some reason characters are *sometimes* being shown, only on the
-'C'haracter screen, not in Self Knowledge, to gain Reflection at or around
-level 30. Despite the display, the character does *not* actually have it. I
-can find no reason for the display error or why it's only happening
-sometimes.
-
-06) Sometimes, completely at random, the Roguelike option will set itself to
+05) Sometimes, completely at random, the Roguelike option will set itself to
 true upon startup. I have no idea why...
 
-07) Unfortunately, it seems that sometimes the game will freeze when you
+06) Unfortunately, it seems that sometimes the game will freeze when you
 enter a level. I have no idea why, as usual. :( All I can suggest, until I
 figure this out, is that if this happens right after a save, that you move
 your character around a bit before taking the stairs or WoR'ing into the
@@ -453,3 +483,8 @@ level that just froze you - that usually changes the RNG enough so that the
 freeze won't happen a second time. This seems to happen deeper in the
 dungeon when you've got a lot of monsters - maybe something to do with the
 random quests...
+
+##07) FIXED a major bug where line of sight spells were bouncing off of
+monsters with Reflection. Did so by comparing project() in Gumband and in
+ZAngband 2.2.3 and making the appropriate changes. :)  Thanks to Adam_H for
+spotting the bug and bringing it to my attention.

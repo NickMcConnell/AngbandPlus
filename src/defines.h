@@ -43,7 +43,7 @@
 #define FAKE_VERSION
 #define FAKE_VER_MAJOR 2
 #define FAKE_VER_MINOR 1
-#define FAKE_VER_PATCH 3
+#define FAKE_VER_PATCH 4
 
 #define ANGBAND_2_8_1
 
@@ -197,7 +197,7 @@
 #define MUT1_DSHARD_BLAST		0x10000000L
 #define MUT1_CHAIN_SHARDS		0x20000000L
 #define MUT1_ROCKET			0x40000000L
-
+#define MUT1_GRAV_BEAM			0x80000000L
 
 /* Randomly activating mutations must be MUT2_* */
 #define MUT2_BERS_RAGE		0x00000001L
@@ -293,7 +293,7 @@
 #define MAX_A_IDX       256     /* Max size for "a_info[]" */
 #define MAX_E_IDX       128     /* Max size for "e_info[]" */
 #define MAX_R_IDX       640     /* Max size for "r_info[]" */
-#define MAX_V_IDX       65      /* Max size for "v_info[]" */
+#define MAX_V_IDX       76      /* Max size for "v_info[]" */
 
 /*
  * Maximum array bounds for entity list arrays
@@ -1296,7 +1296,7 @@ and tables.c --TY */
 
 /* The "sval" values for TV_POLEARM */
 #define SV_SPEAR                2       /* 1d6 */
-#define SV_AWL_PIKE             4       /* 2d8 */
+#define SV_AWL_PIKE             4       /* 2d4 */
 #define SV_TRIDENT              5       /* 1d7 */
 #define SV_PIKE                 8       /* 2d5 */
 #define SV_GLAIVE               13      /* 3d5 */
@@ -2359,8 +2359,7 @@ and tables.c --TY */
 #define RBE_EXP_20      26
 #define RBE_EXP_40      27
 #define RBE_EXP_80      28
-#define RBE_VAMP	29 /* EXP_40 + Heals Monster = */
-
+#define RBE_VAMP	29 /* EXP_60 + Heals Monster */
 
 
 /*** Monster flag values (hard-coded) ***/
@@ -2644,7 +2643,7 @@ and tables.c --TY */
  * the argument on how this should be implemented. :)
  */
 #define is_humanoid(T) \
-	strchr("hknNoOpPtTyY", (T))
+	strchr("AhkNoOpPtTyYVW", (T))
 
 /*
  * Hack -- The main "screen"

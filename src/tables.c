@@ -729,17 +729,17 @@ byte adj_str_hold[] =
 	65      /* 18/80-18/89 */,
 	70      /* 18/90-18/99 */,
 	80      /* 18/100-18/109 */,
-	80      /* 18/110-18/119 */,
-	80      /* 18/120-18/129 */,
-	80      /* 18/130-18/139 */,
-	80      /* 18/140-18/149 */,
-	90      /* 18/150-18/159 */,
-	90      /* 18/160-18/169 */,
-	90      /* 18/170-18/179 */,
-	90      /* 18/180-18/189 */,
-	90      /* 18/190-18/199 */,
-	100     /* 18/200-18/209 */,
-	100     /* 18/210-18/219 */,
+	85      /* 18/110-18/119 */,
+	90      /* 18/120-18/129 */,
+	91      /* 18/130-18/139 */,
+	92      /* 18/140-18/149 */,
+	93      /* 18/150-18/159 */,
+	94      /* 18/160-18/169 */,
+	95      /* 18/170-18/179 */,
+	96      /* 18/180-18/189 */,
+	97      /* 18/190-18/199 */,
+	98      /* 18/200-18/209 */,
+	99      /* 18/210-18/219 */,
 	100     /* 18/220+ */
 };
 
@@ -1460,7 +1460,7 @@ player_race race_info[MAX_RACES] =
 	{
 		"Gambolt",
 		{ -1, 0, 0, 5, -1, 5 },
-		0, 0, 20, 5, 15, 25, 10, 0,
+		0, 0, 20, 5, 20, 30, 10, 0,
 		8, 130,
 		14, 6,
 		90, 10, 170, 15,
@@ -1472,7 +1472,7 @@ player_race race_info[MAX_RACES] =
 		"High-Elf",
 		{  1,  3,  2,  3,  1,  5 },
 		4,  20, 20,  4,  3, 14, 10, 25,
-		10,  200,
+		10,  175,
 		100, 30,
 		90, 10, 190, 20,
 		82, 10, 180, 15,
@@ -1505,7 +1505,7 @@ player_race race_info[MAX_RACES] =
 		"Half-Giant",
 		{ 4, -2, -2, -2, 3, -3 },
 		-6, -8, -6, -2, -1, 5, 25, 5,
-		13, 150,
+		13, 125,
 		40, 10,
 		100,10, 255, 65,
 		80, 10, 240, 64,
@@ -1516,7 +1516,7 @@ player_race race_info[MAX_RACES] =
 		"Half-Titan",
 		{ 5, 1, 1, -2, 3, 1 },
 		-5, 5, 2, -2, 1, 8, 25, 0,
-		14, 255,
+		14, 225,
 		100,30,
 		111, 11, 255, 86,
 		99, 11, 250, 86,
@@ -1593,7 +1593,7 @@ player_race race_info[MAX_RACES] =
 		"Draconian",
 		{ 2, 1, 1, 1, 2, -3 },
 		-2, 5, 3, 0, 1, 10, 5, 5,
-		11, 250,
+		11, 225,
 		75, 33,
 		76,  1, 160,  5,
 		72,  1, 130,  5,
@@ -2815,16 +2815,16 @@ player_magic magic_info[MAX_CLASS] =
 	  { 13, 7, 60, 1 },
 	  { 15, 7, 80, 1 },
 	  { 17, 15, 80, 1 },
-	  { 19, 17, 30, 1 },
+	  { 18, 17, 30, 1 },
 	  { 19, 19, 30, 1 },
 
-	  { 21, 21, 60, 3 },
-	  { 23, 23, 75, 4 },
-	  { 27, 25, 75, 4 },
-	  { 30, 30, 75, 4 },
-	  { 35, 35, 75, 5 },
+	  { 21, 21, 60,  3 },
+	  { 23, 23, 75,  4 },
+	  { 27, 25, 75,  4 },
+	  { 30, 30, 75,  4 },
+	  { 33, 35, 75,  5 },
 	  { 35, 40, 60, 10 },
-	  { 99, 0, 0, 0 },
+	  { 99,  0,  0,  0 },
 	  { 45, 55, 80, 50 },
 
 	  { 20, 25, 80, 100 },
@@ -2835,7 +2835,6 @@ player_magic magic_info[MAX_CLASS] =
           { 48, 100, 90, 100 },
 	  { 50, 50, 75, 50 },
           { 99, 0, 0, 0 },
-
 
 	  { 30, 30, 80, 50 },
           { 31, 80, 80, 250 },
@@ -3722,39 +3721,39 @@ player_magic magic_info[MAX_CLASS] =
     {
         {  1,  1, 20,   3 },
         {  2,  1, 23,   3 },
-        {  3,  2, 35,   4 },
+        {  3,  2, 35,   3 },
         {  4,  2, 24,   4 },
-        {  5,  3, 25,   5 },
-        {  5,  4, 30,   5 },
-        {  6,  5, 27,   6 },
-        {  7,  5, 30,   6 },
+        {  5,  3, 25,   4 },
+        {  5,  4, 30,   4 },
+        {  6,  5, 27,   5 },
+        {  7,  5, 30,   5 },
 
-        {  8,  7, 50,  10 },
-        {  9,  7, 30,  10 },
-        {  9,  7, 80,  12 },
-        { 10,  7, 40,  12 },
-        { 11, 10, 75,  14 },
-        { 12, 11, 75,  14 },
-        { 12, 12, 40,  16 },
-        { 13, 12, 75,  16 },
+        {  8,  7, 50,   5 },
+        {  9,  7, 30,   6 },
+        {  9,  7, 80,   6 },
+        { 10,  7, 40,   6 },
+        { 11, 10, 75,   7 },
+        { 12, 11, 75,   7 },
+        { 12, 12, 40,   7 },
+        { 13, 12, 75,   8 },
 
-        { 14, 10, 55,  20 },
-        { 15, 14, 45,  25 },
-        { 16, 15, 35,  30 },
-        { 17, 16, 45,  35 },
-        { 18, 18, 50,  40 },
-        { 25, 20, 60,  45 },
-        { 27, 25, 65,  50 },
-        { 28, 30, 60,  55 },
+        { 14, 10, 55,  10 },
+        { 15, 14, 45,  12 },
+        { 16, 15, 35,  14 },
+        { 17, 16, 45,  16 },
+        { 18, 18, 50,  18 },
+        { 25, 20, 60,  20 },
+        { 27, 25, 65,  25 },
+        { 28, 30, 60,  30 },
 
-        { 30, 30, 50,  60 },
-        { 32, 35, 55,  70 },
-        { 33, 45, 80,  80 },
-        { 35, 50, 70,  90 },
-        { 38, 55, 60, 100 },
-        { 42, 60, 70, 125 },
-        { 46, 70, 80, 150 },
-        { 50, 75, 95, 175 }
+        { 30, 30, 50,  40 },
+        { 32, 35, 55,  50 },
+        { 33, 45, 80,  60 },
+        { 35, 50, 70,  70 },
+        { 38, 55, 60,  80 },
+        { 42, 60, 70, 100 },
+        { 46, 70, 80, 125 },
+        { 50, 75, 95, 150 }
 	}
 	}
 	},
@@ -4844,39 +4843,39 @@ player_magic magic_info[MAX_CLASS] =
     {
         {  1,  1, 20,   3 },
         {  2,  1, 23,   3 },
-        {  2,  2, 35,   4 },
+        {  2,  2, 35,   3 },
         {  3,  2, 24,   4 },
-        {  3,  3, 25,   5 },
-        {  4,  4, 30,   5 },
-        {  5,  5, 27,   6 },
-        {  6,  5, 30,   6 },
+        {  3,  3, 25,   4 },
+        {  4,  4, 30,   4 },
+        {  5,  5, 27,   5 },
+        {  6,  5, 30,   5 },
 
-        {  7,  7, 50,  10 },
-        {  8,  7, 30,  10 },
-        {  9,  7, 80,  12 },
-        { 10,  7, 40,  12 },
-        { 11, 10, 75,  14 },
-        { 12, 11, 75,  14 },
-        { 12, 12, 40,  16 },
-        { 13, 12, 75,  16 },
+        {  7,  7, 50,   5 },
+        {  8,  7, 30,   6 },
+        {  9,  7, 80,   6 },
+        { 10,  7, 40,   6 },
+        { 11, 10, 75,   7 },
+        { 12, 11, 75,   7 },
+        { 12, 12, 40,   7 },
+        { 13, 12, 75,   8 },
 
-        { 14, 10, 55,  20 },
-        { 15, 12, 45,  25 },
-        { 16, 13, 35,  30 },
-        { 17, 14, 45,  35 },
-        { 18, 16, 50,  40 },
-        { 20, 18, 60,  45 },
-        { 25, 22, 65,  50 },
-        { 27, 25, 60,  55 },
+        { 14, 10, 55,  10 },
+        { 15, 12, 45,  12 },
+        { 16, 13, 35,  14 },
+        { 17, 14, 45,  16 },
+        { 18, 16, 50,  18 },
+        { 20, 18, 60,  20 },
+        { 25, 22, 65,  25 },
+        { 27, 25, 60,  30 },
 
-        { 30, 30, 50,  60 },
-        { 31, 30, 55,  70 },
-        { 33, 40, 80,  80 },
-        { 34, 45, 70,  90 },
-        { 36, 50, 60, 100 },
-        { 37, 55, 70, 125 },
-        { 40, 60, 80, 150 },
-        { 45, 70, 95, 175 }
+        { 30, 30, 50,  40 },
+        { 31, 30, 55,  50 },
+        { 33, 40, 80,  60 },
+        { 34, 45, 70,  70 },
+        { 36, 50, 60,  80 },
+        { 37, 55, 70,  90 },
+        { 40, 60, 80, 100 },
+        { 45, 70, 95, 150 }
 	}
 	}
 	},
@@ -5880,268 +5879,268 @@ cptr window_flag_desc[32] =
 	NULL
 };
 
-
 /*
  * Available Options
  *
  * Option Screen Sets:
  *
- *      Set 1: User Interface
- *      Set 2: Disturbance
- *      Set 3: Inventory
- *      Set 4: Game Play
+ * 1) User Interface Options
+ * 2) Disturbance Options
+ * 3) Game-Play Options
+ * 4) Efficiency Options
+ * 5) Gumband Options
+ * 255) Stacking Options
  *
- * Note that bits 28-31 of set 0 are currently unused.
+ * Available bits:
+ *
+ * 0 (28-31), 1 (12-13), 5 (14-28)
+ *
  */
 option_type option_info[] =
 {
 	/*** User-Interface ***/
 
-	{ &rogue_like_commands,         FALSE,  1,      0, 0,
+	{ &rogue_like_commands,         FALSE, 1,	0, 0,
 	"rogue_like_commands",          "Rogue-like commands" },
 
-	{ &quick_messages,              TRUE,  1,      0, 1,
+	{ &quick_messages,              TRUE,  1,	0, 1,
 	"quick_messages",               "Activate quick messages" },
 
-	{ &other_query_flag,            FALSE,  1,      0, 2,
+	{ &other_query_flag,            FALSE, 1,	0, 2,
 	"other_query_flag",             "Prompt for various information" },
 
-	{ &carry_query_flag,            FALSE,  1,      0, 3,
+	{ &carry_query_flag,            FALSE, 1,       0, 3,
 	"carry_query_flag",             "Prompt before picking things up" },
 
-	{ &use_old_target,              TRUE,   1,      0, 4,
+	{ &use_old_target,              TRUE,  1,       0, 4,
 	"use_old_target",               "Use old target by default" },
 
-	{ &always_pickup,               FALSE,   1,      0, 5,
+	{ &always_pickup,               FALSE, 1,       0, 5,
 	"always_pickup",                "Pick things up by default" },
 
-	{ &always_repeat,               TRUE,   1,      0, 6,
+	{ &always_repeat,               TRUE,  1,       0, 6,
 	"always_repeat",                "Repeat obvious commands" },
 
-	{ &depth_in_feet,               TRUE,  1,      0, 7,
+	{ &depth_in_feet,               TRUE,  1,       0, 7,
 	"depth_in_feet",                "Show dungeon level in feet" },
 
-	{ &stack_force_notes,           TRUE,  1,      0, 8,
+	{ &stack_force_notes,           TRUE,  1,       0, 8,
 	"stack_force_notes",            "Merge inscriptions when stacking" },
 
-	{ &stack_force_costs,           TRUE,  1,      0, 9,
+	{ &stack_force_costs,           TRUE,  1,       0, 9,
 	"stack_force_costs",            "Merge discounts when stacking" },
 
-	{ &show_labels,                 TRUE,   1,      0, 10,
+	{ &show_labels,                 TRUE,  1,       0, 10,
 	"show_labels",                  "Show labels in object listings" },
 
-	{ &show_weights,                TRUE,  1,      0, 11,
+	{ &show_weights,                TRUE,  1,       0, 11,
 	"show_weights",                 "Show weights in object listings" },
 
-	{ &show_choices,                TRUE,  1,      0, 12,
+	{ &show_choices,                TRUE,  1,       0, 12,
 	"show_choices",                 "Show choices in certain sub-windows" },
 
-	{ &show_details,                TRUE,  1,      0, 13,
+	{ &show_details,                TRUE,  1,       0, 13,
 	"show_details",                 "Show details in certain sub-windows" },
 
-	{ &ring_bell,                   TRUE,   1,      0, 14,
+	{ &ring_bell,                   TRUE,  1,       0, 14,
 	"ring_bell",                    "Audible bell (on errors, etc)" },
 
-	{ &use_color,                   TRUE,   1,      0, 15,
+	{ &use_color,                   TRUE,  1,       0, 15,
 	"use_color",                    "Use color if possible (slow)" },
 
 
 	/*** Disturbance ***/
 
-	{ &find_ignore_stairs,          FALSE,   2,      0, 16,
+	{ &find_ignore_stairs,          FALSE, 2,	0, 16,
 	"find_ignore_stairs",           "Run past stairs" },
 
-	{ &find_ignore_doors,           FALSE,  2,      0, 17,
+	{ &find_ignore_doors,           FALSE, 2,       0, 17,
 	"find_ignore_doors",            "Run through open doors" },
 
-	{ &find_cut,                    TRUE,   2,      0, 18,
+	{ &find_cut,                    TRUE,  2,       0, 18,
 	"find_cut",                     "Run past known corners" },
 
-	{ &find_examine,                TRUE,   2,      0, 19,
+	{ &find_examine,                TRUE,  2,       0, 19,
 	"find_examine",                 "Run into potential corners" },
 
-	{ &disturb_move,                FALSE,  2,      0, 20,
+	{ &disturb_move,                FALSE, 2,       0, 20,
 	"disturb_move",                 "Disturb whenever any monster moves" },
 
-	{ &disturb_near,                TRUE,   2,      0, 21,
+	{ &disturb_near,                TRUE,  2,       0, 21,
 	"disturb_near",                 "Disturb whenever viewable monster moves" },
 
-	{ &disturb_panel,               TRUE,   2,      0, 22,
+	{ &disturb_panel,               TRUE,  2,       0, 22,
 	"disturb_panel",                "Disturb whenever map panel changes" },
 
-	{ &disturb_state,               FALSE,  2,      0, 23,
+	{ &disturb_state,               FALSE, 2,       0, 23,
 	"disturb_state",                "Disturb whenever player state changes" },
 
-	{ &disturb_minor,               FALSE,  2,      0, 24,
+	{ &disturb_minor,               FALSE, 2,       0, 24,
 	"disturb_minor",                "Disturb whenever boring things happen" },
 
-	{ &disturb_other,               FALSE,   5,      0, 25,
+	{ &disturb_other,               FALSE, 2,       0, 25,
 	"disturb_other",                "Disturb whenever random things happen" },
 
-	{ &alert_hitpoint,              TRUE,   2,      0, 26,
+	{ &alert_hitpoint,              TRUE,  2,       0, 26,
 	"alert_hitpoint",               "Alert user to critical hitpoints" },
 
-	{ &alert_failure,               TRUE,  2,      0, 27,
+	{ &alert_failure,               TRUE,  2,       0, 27,
 	"alert_failure",                "Alert user to various failures" },
 
-	{ &last_words,                  FALSE,  5,      0, 28,
-	"last_words",                   "Get last words when the character dies" },
-
-	{ &speak_unique,                TRUE,   5,      0, 29,
-	"speak_unique",                 "Allow shopkeepers and uniques to speak" },
-
-	{ &small_levels,                TRUE,   5,      0, 30,
-	"small_levels",                 "Allow unusually small dungeon levels" },
-
-	{ &only_small,                  FALSE,  5,      0, 31,
-	"only_small",                   "Only create small dungeon levels" },
-
-	{ &empty_levels,                FALSE,  5,      0, 32,
-        "empty_levels",                 "Allow empty 'arena' levels" },
+	/* set 0, bits 28-31 unused */
 
 	/*** Game-Play ***/
 
-	{ &auto_haggle,                 TRUE,   3,      1, 0,
+	{ &auto_haggle,                 TRUE,  3,	1, 0,
 	"auto_haggle",                  "Auto-haggle in stores" },
 
-	{ &auto_scum,                   FALSE,  3,      1, 1,
+	{ &auto_scum,                   FALSE, 3,       1, 1,
 	"auto_scum",                    "Auto-scum for good levels" },
 
-	{ &stack_allow_items,           TRUE,   3,      1, 2,
+	{ &stack_allow_items,           TRUE,  3,       1, 2,
 	"stack_allow_items",            "Allow weapons and armor to stack" },
 
-	{ &stack_allow_wands,           TRUE,   3,      1, 3,
+	{ &stack_allow_wands,           TRUE,  3,       1, 3,
 	"stack_allow_wands",            "Allow wands/staffs/rods to stack" },
 
-	{ &expand_look,                 TRUE,  3,      1, 4,
+	{ &expand_look,                 TRUE,  3,       1, 4,
 	"expand_look",                  "Expand the power of the look command" },
 
-	{ &expand_list,                 TRUE,  3,      1, 5,
+	{ &expand_list,                 TRUE,  3,       1, 5,
 	"expand_list",                  "Expand the power of the list commands" },
 
-	{ &view_perma_grids,            TRUE,   3,      1, 6,
+	{ &view_perma_grids,            TRUE,  3,       1, 6,
 	"view_perma_grids",             "Map remembers all perma-lit grids" },
 
-	{ &view_torch_grids,            TRUE,  3,      1, 7,
+	{ &view_torch_grids,            TRUE,  3,       1, 7,
 	"view_torch_grids",             "Map remembers all torch-lit grids" },
 
-	{ &dungeon_align,               TRUE,   3,      1, 8,
+	{ &dungeon_align,               TRUE,  3,       1, 8,
 	"dungeon_align",                "Generate dungeons with aligned rooms" },
 
-	{ &dungeon_stair,               TRUE,   3,      1, 9,
+	{ &dungeon_stair,               TRUE,  3,       1, 9,
 	"dungeon_stair",                "Generate dungeons with connected stairs" },
 
-	{ &flow_by_sound,               FALSE,  3,      1, 10,
+	{ &flow_by_sound,               FALSE, 3,       1, 10,
 	"flow_by_sound",                "Monsters chase current location (v.slow)" },
 
-	{ &flow_by_smell,               FALSE,  3,      1, 11,
+	{ &flow_by_smell,               FALSE, 3,       1, 11,
 	"flow_by_smell",                "Monsters chase recent locations (v.slow)" },
 
+	/* set 1, bits 12 & 13 unused */
 
-
-#if 0
-
-	/* Removed (since it is unimplemented) to make room for a new option */
-	{ &track_follow,                FALSE,  3,      1, 12,
-	"track_follow",                 "Monsters follow the player (broken)" },
-
-    
-	{ &track_target,                FALSE,  3,      1, 13,
-	"track_target",                 "Monsters target the player (broken)" },
-#else
-	{ &player_symbols,              TRUE,   5,      1, 13,
-	"player_symbols",               "Use special symbols for the player char"},
-
-	{ &equippy_chars,               TRUE,  5,      1, 12,
-	"equippy_chars",                "Display 'equippy' chars" },
-#endif
-
-	{ &smart_learn,                 FALSE,  3,      1, 14,
+	{ &smart_learn,                 FALSE, 3,       1, 14,
 	"smart_learn",                  "Monsters learn from their mistakes" },
 
-	{ &smart_cheat,                 FALSE,  3,      1, 15,
+	{ &smart_cheat,                 FALSE, 3,       1, 15,
 	"smart_cheat",                  "Monsters exploit players weaknesses" },
 
 
-	/*** Efficiency ***/
+	/*** Efficiency Options (4) ***/
 
-	{ &view_reduce_lite,            FALSE,  4,      1, 16,
+	{ &view_reduce_lite,            FALSE, 4,	1, 16,
 	"view_reduce_lite",             "Reduce lite-radius when running" },
 
-	{ &view_reduce_view,            FALSE,  4,      1, 17,
+	{ &view_reduce_view,            FALSE, 4,       1, 17,
 	"view_reduce_view",             "Reduce view-radius in town" },
 
-	{ &avoid_abort,                 FALSE,  4,      1, 18,
+	{ &avoid_abort,                 FALSE, 4,       1, 18,
 	"avoid_abort",                  "Avoid checking for user abort" },
 
-	{ &avoid_other,                 FALSE,  4,      1, 19,
+	{ &avoid_other,                 FALSE, 4,       1, 19,
 	"avoid_other",                  "Avoid processing special colors" },
 
-	{ &flush_failure,               TRUE,   4,      1, 20,
+	{ &flush_failure,               TRUE,  4,       1, 20,
 	"flush_failure",                "Flush input on various failures" },
 
-	{ &flush_disturb,               FALSE,  4,      1, 21,
+	{ &flush_disturb,               FALSE, 4,       1, 21,
 	"flush_disturb",                "Flush input whenever disturbed" },
 
-	{ &flush_command,               FALSE,  4,      1, 22,
+	{ &flush_command,               FALSE, 4,       1, 22,
 	"flush_command",                "Flush input before every command" },
 
-	{ &fresh_before,                TRUE,   4,      1, 23,
+	{ &fresh_before,                TRUE,  4,       1, 23,
 	"fresh_before",                 "Flush output before every command" },
 
-	{ &fresh_after,                 FALSE,  4,      1, 24,
+	{ &fresh_after,                 FALSE, 4,       1, 24,
 	"fresh_after",                  "Flush output after every command" },
 
-	{ &fresh_message,               FALSE,  4,      1, 25,
+	{ &fresh_message,               FALSE, 4,       1, 25,
 	"fresh_message",                "Flush output after every message" },
 
-	{ &compress_savefile,           TRUE,   4,      1, 26,
+	{ &compress_savefile,           TRUE,  4,       1, 26,
 	"compress_savefile",            "Compress messages in savefiles" },
 
-	{ &hilite_player,               TRUE,  4,      1, 27,
+	{ &hilite_player,               TRUE,  4,       1, 27,
 	"hilite_player",                "Hilite the player with the cursor" },
 
-	{ &view_yellow_lite,            FALSE,  4,      1, 28,
+	{ &view_yellow_lite,            FALSE, 4,       1, 28,
 	"view_yellow_lite",             "Use special colors for torch-lit grids" },
 
-	{ &view_bright_lite,            FALSE,  4,      1, 29,
+	{ &view_bright_lite,            FALSE, 4,       1, 29,
 	"view_bright_lite",             "Use special colors for 'viewable' grids" },
 
-	{ &view_granite_lite,           FALSE,  4,      1, 30,
+	{ &view_granite_lite,           FALSE, 4,       1, 30,
 	"view_granite_lite",            "Use special colors for wall grids (slow)" },
 
-	{ &view_special_lite,           FALSE,  4,      1, 31,
+	{ &view_special_lite,           FALSE, 4,       1, 31,
 	"view_special_lite",            "Use special colors for floor grids (slow)" },
 
-	{ &skip_mutations,              FALSE, 5, 5, 0,
+
+	/*** Gumband Options (5) ***/
+
+	{ &last_words,                  FALSE, 5,       5, 0,
+	"last_words",                   "Get last words when the character dies" },
+
+	{ &speak_unique,                TRUE,  5,       5, 1,
+	"speak_unique",                 "Allow shopkeepers and uniques to speak" },
+
+	{ &small_levels,                TRUE,  5,       5, 2,
+	"small_levels",                 "Allow unusually small dungeon levels" },
+
+	{ &only_small,                  FALSE, 5,       5, 3,
+	"only_small",                   "Only create small dungeon levels" },
+
+	{ &empty_levels,                FALSE, 5,       5, 4,
+        "empty_levels",                 "Allow empty 'arena' levels" },
+
+	{ &player_symbols,              FALSE, 5,       5, 5,
+	"player_symbols",               "Use special symbols for the player char"},
+
+	{ &equippy_chars,               TRUE,  5,       5, 6,
+	"equippy_chars",                "Display 'equippy' chars" },
+
+	{ &skip_mutations,              FALSE, 5,	5, 7,
 	"skip_mutations",               "Skip mutations in 'C'haracter Display" },
 
-	{ &plain_descriptions,          TRUE,  5, 5, 1,
+	{ &plain_descriptions,          TRUE,  5,       5, 8,
 	"plain_descriptions",           "Plain object descriptions" },
 
-	{ &stupid_monsters,             TRUE,  5, 5, 2,
+	{ &stupid_monsters,             TRUE,  5,	5, 9,
 	"stupid_monsters",              "Monsters behave stupidly" },
 
-	{ &auto_destroy,                TRUE,  5, 5, 3,
+	{ &auto_destroy,                TRUE,  5,	5, 10,
 	"auto_destroy",                 "No query to destroy known worthless items" },
 
-	{ &wear_confirm,                TRUE,  5, 5, 4,
-	"confirm_wear",                 "Confirm to wear/wield known cursed items" },
+	{ &wear_confirm,                TRUE,  5,	5, 11,
+	"wear_confirm",                 "Confirm to wear/wield known cursed items" },
 
-	{ &confirm_stairs,              FALSE, 5, 5, 5,
+	{ &confirm_stairs,              FALSE, 5,	5, 12,
 	"confirm_stairs",               "Prompt before exiting a dungeon level" },
 
-	{ &disturb_pets,                FALSE, 5, 5, 6,
+	{ &disturb_pets,                FALSE, 5,	5, 13,
 	"disturb_pets",                 "Disturb when visible pets move" },
 
+	/* set 5, bits 14-28 unused */
+
 #ifdef USE_SOUND
-	{ &shuffle_songs,               FALSE, 5, 5, 7,
+	{ &shuffle_songs,               FALSE, 5,	5, 29,
 	"shuffle_songs",                "Randomize midi songs" },
 
-	{ &mute_songs,                  TRUE,  5, 5, 8,
+	{ &mute_songs,                  TRUE,  5,	5, 30,
 	"mute_songs",                   "No music" },
 
-	{ &mute_sounds,                 TRUE,  5, 5, 9,
+	{ &mute_sounds,                 TRUE,  5,	5, 31,
 	"mute_sounds",                  "No sound effects" },
 #endif /* USE_SOUND */
 
@@ -6156,8 +6155,7 @@ option_type option_info[] =
 
 	/*** End of Table ***/
 
-	{ NULL,                         0, 0, 0, 0,
-	NULL,                           NULL }
+	{ NULL, 0, 0, 0, 0, NULL, NULL }
 };
 
 
