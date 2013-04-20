@@ -1676,7 +1676,20 @@ static void rd_artifacts_old(void)
 }
 
 
+/*
+ * Read the "ghost" information (and discard it)
+ */
+static void rd_ghost_old()
+{
+    /* Strip stuff */
+    strip_bytes(131);
 
+    /* Strip more stuff */
+    if (!older_than(2,6,0))
+    {
+        strip_bytes(2);
+    }
+}
 
 
 /*
@@ -2153,7 +2166,6 @@ static errr rd_dungeon_old(void)
 		total_count += count;
 	}
 
-
 	/* Read the item count */
 	rd_u16b(&limit);
 
@@ -2388,10 +2400,8 @@ static errr rd_dungeon_old(void)
 	for (i = 2; i < limit; i++)
 	{
 		int m_idx;
-
 		monster_type forge;
 		monster_type *q_ptr;
-
 		monster_type *m_ptr;
 		monster_race *r_ptr;
 
@@ -2430,14 +2440,12 @@ static errr rd_dungeon_old(void)
 		/* Old "color" data */
 		if (arg_colour) strip_bytes(1);
 
-
 		/* Invalid cave location */
 		if ((q_ptr->fx >= cur_wid) || (q_ptr->fy >= cur_hgt))
 		{
 			note("Illegal monster location!!!");
 			return (71);
 		}
-
 
 		/* Access grid */
 		c_ptr = &cave[q_ptr->fy][q_ptr->fx];
@@ -2451,7 +2459,6 @@ static errr rd_dungeon_old(void)
 		/* Hack -- ignore "player ghosts" */
 		if (q_ptr->r_idx >= MAX_R_IDX-1) continue;
 
-
 		/* Access the race */
 		r_ptr = &r_info[q_ptr->r_idx];
 
@@ -2463,7 +2470,6 @@ static errr rd_dungeon_old(void)
 
 		/* Hack -- maximal hitpoints */
 		q_ptr->maxhp = r_ptr->hdice * r_ptr->hside;
-
 
 		/* Get a new record */
 		m_idx = m_pop();
@@ -2488,6 +2494,11 @@ static errr rd_dungeon_old(void)
 		r_ptr->cur_num++;
 	}
 
+	/* Read the ghost info
+	 *
+	 * Position of this extrapolated from load1.c in v2.7.9r5 -- Gumby
+	 */
+	rd_ghost_old();
 
 	/* Hack -- clean up terrain */
 	for (y = 0; y < cur_hgt; y++)
@@ -2763,9 +2774,6 @@ static errr rd_savefile_old_aux(void)
 		/* Only one unique monster */
 		if (r_ptr->flags1 & (RF1_UNIQUE)) r_ptr->max_num = 1;
 
-		/* Hack -- No ghosts */
-		if (i == MAX_R_IDX-1) r_ptr->max_num = 0;
-
 		/* Note death */
 		if (tmp32u) r_ptr->max_num = 0;
 	}
@@ -2916,24 +2924,17 @@ static errr rd_savefile_old_aux(void)
 		note("Loaded dungeon");
 	}
 
-
-	/* Hack -- no ghosts */
-	r_info[MAX_R_IDX-1].max_num = 0;
-
-
 	/* Hack -- reset morgoth XXX XXX XXX */
 	r_info[MAX_R_IDX-2].max_num = 1;
 
 	/* Hack -- reset sauron XXX XXX XXX */
 	r_info[MAX_R_IDX-3].max_num = 1;
 
-
 	/* Hack -- reset morgoth XXX XXX XXX */
 	r_info[MAX_R_IDX-2].r_pkills = 0;
 
 	/* Hack -- reset sauron XXX XXX XXX */
 	r_info[MAX_R_IDX-3].r_pkills = 0;
-
 
 	/* Add first quest - Hope this works! (Gumby!) XXX XXX XXX */
 	q_list[0].level = 98;
@@ -2950,10 +2951,8 @@ static errr rd_savefile_old_aux(void)
 	/* Reset fifth quest XXX XXX XXX */
 	q_list[4].level = 0;
 
-
 	/* Hack -- maximize mode */
 	if (arg_crappy) p_ptr->maximize = TRUE;
-
 
 	/* Assume success */
 	return (0);

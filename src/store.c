@@ -1520,7 +1520,7 @@ static void display_entry(int pos)
 			x = price_item(o_ptr, ot_ptr->min_inflate, FALSE);
 
 			/* Hack -- Apply Sales Tax if needed */
-/*			if (!noneedtobargain(x)) x += x / 10; */
+			if (!noneedtobargain(x)) x += x / 10;
 
 			/* Actually draw the price (with tax) */
 			(void)sprintf(out_val, "%9ld  ", (long)x);
@@ -1972,7 +1972,7 @@ static bool purchase_haggle(object_type *o_ptr, s32b *price)
 			msg_print(NULL);
 
 			/* Apply Sales Tax */
-/*			final_ask += final_ask / 10; */
+			final_ask += final_ask / 10;
 		}
 
 		/* Final price */
@@ -2163,7 +2163,7 @@ static bool sell_haggle(object_type *o_ptr, s32b *price)
 			msg_print(NULL);
 
 			/* Apply Sales Tax */
-/*			final_ask -= final_ask / 10; */
+			final_ask -= final_ask / 10;
 		}
 
 		/* Final price */

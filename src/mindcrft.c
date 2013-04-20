@@ -58,7 +58,7 @@ void mindcraft_info(char *p, int power)
 		case 6:  sprintf(p, " dur %d", plev); break;
 		case 7:  break;
 		case 8:  sprintf(p, " dam %d", plev * ((plev / 10) + 1)); break;
-		case 9:  strcpy (p, " wgt 250"); break;
+		case 9:  strcpy (p, " wgt 20lbs"); break;
 		case 10: sprintf(p, " dur 11-%d", plev + plev / 2); break;
 		case 11: sprintf(p, " dam %dd8", plev/2);  break;
 		case 12: sprintf(p, " dam %d", plev * ((plev / 10) + 2)); break;
@@ -541,7 +541,7 @@ void do_cmd_mindcraft(void)
 				break;
 			case 9: /* Apportation */
 				if (!get_aim_dir(&dir)) return;
-				fetch(dir, 250, FALSE);
+				fetch(dir, 200, FALSE);
 				break;
 			case 10: /* Adrenaline Channeling */
 				set_afraid(0);

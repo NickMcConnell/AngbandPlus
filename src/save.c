@@ -1774,6 +1774,7 @@ bool load_player(void)
 
 	/* Verify the existance of the savefile */
 	if (access(savefile, 0) < 0)
+	/* warning: implicit declaration of function 'access' */
 	{
 		/* Give a message */
 		msg_print("Savefile does not exist.");

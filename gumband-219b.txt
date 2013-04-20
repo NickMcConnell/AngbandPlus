@@ -17,9 +17,9 @@ from your plane...
 ****************************************************************************
 
 =============================================
-= Gumband 2.1.9a = Last Update: 04-Dec-2001 =
+= Gumband 2.1.9b = Last Update: 08-Jan-2002 =
 ============================================================================
-Changes from Gumband 2.1.8a are marked with '##'. Only the most major
+Changes from Gumband 2.1.9a are marked with '##'. Only the most major
 changes are listed here, to keep things short...
 ============================================================================
 Send any and all complaints (or praise ;) to aa343@chebucto.ns.ca. Patches,
@@ -70,7 +70,7 @@ want to remove it.
 
  Sometimes, completely at random, the Roguelike option will set itself to
  true upon startup. I have no idea why... [hasn't happened in quite a while
- as of 14-May-01]
+ as of 06-Dec-01]
 
  Unfortunately, it seems that sometimes the game will freeze when you enter
  a level. I have no idea why, as usual. :( All I can suggest, until I figure
@@ -106,33 +106,26 @@ want to remove it.
  EASY_KNOW flag will be automatically identified if you've previously ident-
  ified the base type of ring or amulet. Not really worth fixing, IMHO.
 
-## It seems to be a bad idea to polymorph a creature that is inside a wall.
- I assume that's what happened when I tried to Chaos Bolt a Shadowlord in a
- wall (astral mode) a few minutes ago. Unfortunately, I was on automatic, so
- I didn't get a chance to see any messages before a keypress closed the DOS
- box. :(
+ If an object has a random ability (resistance, power, or sustain), it will
+ sometimes reroll the ability and sometimes lose the ability. So don't Brand
+ a Defender if you need that confusion resistance it's giving you! :) I
+ can't think of any solution to preserve the xtra info...
 
-## If an object has a random ability (resistance, power, or sustain), it
- will sometimes reroll the ability and sometimes lose the ability. So don't
- Brand a Defender if you need that confusion resistance it's giving you! :)
- I can't think of any solution to preserve the xtra info...
-
-## Sometimes, when hit by GF_FORCE (wand of Striking, Fist of Force spell),
- a monster standing by a permanent wall on the outer edge of the map will
+ Sometimes, when hit by GF_FORCE (wand of Striking, Fist of Force spell), a
+ monster standing by a permanent wall on the outer edge of the map will
  disappear. This is *very* bad in the case of quest monsters... Also, if the
  monster is hit while standing directly in front of 1 grid of granite, or a
  door, or whatever, it will be pushed through to the other side. (see,
  starting at lines 2536 and 4000, spells1.c for details - I'm stumped as to
  how to fix it: any solutions gratefully accepted)
 
-## FIXED: I *think* I've got branding working properly now...
+## Finally got around to marking all the compiler warnings (that I get with
+ gcc v3.02) in the source. Just search for '/* warning:'. Anyone who can fix
+ them, mail me.
 
-## FIXED: Dorian Hawkmoon now drops the *Broad* Sword of the Dawn instead of
- the *Long* Sword of the Dawn - meaning that artifact will no longer be
- found twice.
-
-## FIXED: VAMPiric monsters should no longer be able to gain HP enough that
- their HP counter wraps around. Hopefully, I've got it right this time. :)
+## FIXED: Items that have their full information shown in character dumps
+ generated at death will no longer show "It has hidden powers." if the item
+ wasn't *Identified* in life.
 
 
                     ####### Misc Changes #######
@@ -163,6 +156,8 @@ want to remove it.
  abilities granted by this ghostly status (See Invisible, Telepathy, Slow
  Digestion, permanent Lite, Speed +10, wizard-lighting levels upon entry,
  and being able to pass through walls without damage).
+## Ghostly/astral characters can no longer use Scrolls of Set Recall, even
+ when they reach the town - they are going to have to walk all the way down.
  [Thanks to Ivan Tkatchev for the idea of ghostly characters, and to
   DarkGod, Antimatter, Timo Pietil and Parak for their help and advice]
 
@@ -198,23 +193,23 @@ want to remove it.
  in light blue (this is both the normal 's' and for any number that might be
  in that column as well).
 
-## Invulnerability now only acts as an extra level of resistance; reduces
+ Invulnerability now only acts as an extra level of resistance; reduces
  damage from any source by 1/3rd, on top of any other resistances. [was
  1/9th damage in previous versions] Wraithform no longer reduces damage at
  all and only increases AC by 50. [was 1/3rd damage and +75 AC]
 
-## You can now only use the Pattern to teleport to a maximum depth of 97
- [4850'] - easiest way to prevent astral characters from using it to avoid
- having to go to town. :) [thanks to Scott Meyer for spotting it]
-
-## Non-unique monsters are now less likely to resist Death Ray effects,
+ Non-unique monsters are now less likely to resist Death Ray effects,
  requiring a (mon_level + d20 > randint(damage)) to resist. [used to also
  require a randint(100) != 66 to resist, meaning they resisted most of the
  time]
 
-## Having Resist Chaos now prevents all the side effects of being hit by
+ Having Resist Chaos now prevents all the side effects of being hit by
  Chaos. If you don't have it, then Resist Confusion still stops the
  confusion portion and Resist Nether still stops the experience point loss.
+
+## Restored the auto_haggle 10% 'sales tax' - it's a bit unfair, but I
+ finally noticed that it also keeps you from buying and selling at 100% of
+ the price.
 
 
               ####### Altered Races and Classes #######
@@ -252,8 +247,6 @@ Chaos Warriors:
  Swapped their +1 INT bonus with their +0 WIS bonus, to make the above a bit
    fairer.
  Bonus shot now at level 30.
-## Having Hionhurn the Hunter as your patron now grants +10 to-hit instead
-   of +7 to-dam. [yeah, I know that sucks, but it's more appropriate, IMHO]
 
 Draconians:
  Now gain the following resistances at the level in brackets: Fire (5),
@@ -282,8 +275,7 @@ Golems:
  Intrinsic Armour Class has been changed to equal the Golem's level.
 
 High-Magi:
-## Pseudo-ID now equal in speed to that of a Rogue's, but light. [speed was
-   based on realm in previous versions]
+ Pseudo-ID now equal in speed to that of a Rogue's, but light.
 
 Melniboneans:
  Good Int and Wis, but low Chr. Other stats are slightly above average.
@@ -296,9 +288,8 @@ Melniboneans:
    demon will be hostile...
 
 Monks:
- Hit Dice bonus is now 5 (down from 6).
-## Disarming skill is now 35+13. [was, for some reason, 45+15 - equal to
-   Rogues]
+ Hit Dice bonus is now 5.
+ Disarming skill is now 35+13.
 
 Paladins:
  Bonus shot now at level 30.
@@ -432,30 +423,20 @@ Yeeks:
 
  Monsters can now breathe Water (unresistable, so capped at 200 damage).
 
- The known uniques display has been split so that the dead uniques are shown
- first, followed by a blank line, then the living uniques.
-
-## Robin Hood, the Outlaw, is now accompanied by his band of Merry Men. :)
- He also moves at normal speed, instead of at +10, to make up for this fact.
-
  Added 'detect_monsters_mental(): monster detection which skips EMPTY_MIND
  creatures, with a plev*2 chance of detecting those with WEIRD_MINDs or
  that are STUPID.
 
-## Monsters who breathe Force are no longer knocked back by GF_FORCE attacks
+ Monsters who breathe Force are no longer knocked back by GF_FORCE attacks
  by the player.
 
-## I've gotten sick of always being killed by Gothmog, so I've reduced his
- 'awareness' radius to 60 (from 100) and increased his 'sleep' value to 20
- (from 0). He's still more likely to notice you than Greater Balrogs, but
- now maybe astral characters will stand a decent chance of avoiding him. :)
-
-## Removed the currently unused CHAR_MULTI flag - despite appearing in
- r_info.txt, it didn't have any code associated with it, so didn't do
- anything...
-
-## RBE_VAMP attacks now only heal the monster by 1/2 the XP+damage they deal
+ RBE_VAMP attacks now only heal the monster by 1/2 the XP+damage they deal
  to the player.
+
+## To fix a bug that causes crashes, you can no longer polymorph monsters
+ that are in walls. [apparently the game didn't like it when a creature in a
+ wall was polymorphed to something without PASS_WALL (or, I think,
+ KILL_WALL)]
 
 
                ####### Object-Related Changes #######
@@ -493,8 +474,6 @@ Yeeks:
  is turned on. The default brand, which chooses between Frost and Fire
  brands, now also chooses between Acid and Lightning brands.
 
-## You can now brand picks and shovels.
-
  Turned the code that adds random sustains, abilities and high resistances
  into the RAND_SUST, RAND_ABILITY and RAND_RESIST object flags. Note that
  these are *only* meant for ego-items, so if you modify the *_info files, I
@@ -514,13 +493,6 @@ Yeeks:
  gives you a Magical Devices skill of 95. Various objects have been changed
  because of this, of course.
 
-## Scrolls of Artifact Creation have been restored, but they are back to the
- original form, so they can no longer be used on rings and amulets, only
- weapons and armour.
-
- Amulets of DOOM and Rings of Woe, as well as all of the negative ego-items
- (and, of course, the 'junk' objects) have been removed.
-
  The effects of drinking a Potion of Death are resisted by characters with
  Hold Life.
 
@@ -531,19 +503,10 @@ Yeeks:
 
  Missiles of Slaying can now gain more than just one extra damage die.
 
-## Wands of Apportation can now only fetch() objects that are 25lbs or less,
+## Wands of Apportation can now only fetch() objects that are 20lbs or less,
  and you cannot fetch() objects unless you are on an empty floor square
- [this also applies to the various apportation spells as well].
-
- By popular demand, Weaponmasters (and the new Archer class) now get the
- good version of the Terror Mask instead of the hideously cursed version.
-
- Full descriptions of *Identified* artifacts and ego-items are now shown in
- the character dump. (code by RMG) I have altered the code Riivo provided so
- that artifact D:escriptions aren't shown in the character dump in order to
- save a bit of space, and so that *only* those items with random abilities
- will show their info in the dumps. If the character is dead, then all such
- items will be shown, regardless of *Identify* status.
+ [this also applies to the various apportation spells as well]. [was 25lbs]
+## fetch() effects can no longer grab items that're in vaults.
 
  Identify and *Identify* now have filtered lists, showing only those items
  that need to be identified. Thanks to RMG for the suggestion and pointers.
@@ -554,30 +517,23 @@ Yeeks:
  Identify Pack effects, Potions of *Enlightenment* also identify *every*
  object on the level.
 
-## The list of sustains and stat modifications have been condensed in
- identify_fully() and self_knowledge() displays if all of your stats are
- sustained or modified by equipment.
-
-## Scrolls of Curse Weapon and Curse Armour have become Shatter Weapon and
+ Scrolls of Curse Weapon and Curse Armour have become Shatter Weapon and
  Blast Armour, and tho they still make your weapon/armour useless, they no
  longer curse them.
 
-## Potions of Invulnerability are now called Potions of Resilience.
+ Potions of Invulnerability are now called Potions of Resilience.
 
-## Wands of Dragon's Fire/Frost now do 200 damage (was 150) per shot at
- ground zero. Wands of Dragon's Breath now do 250 damage (was 200). Wands of
- Rockets now do 300 (was 150+d50) damage.
-
-## Wands of Annihilation are now Death Ray effects with a power level of 60.
+ Wands of Annihilation are now Death Ray effects with a power level of 60.
  [see the note on death ray power up in Misc.; was a Drain Life effect]
 
-## Polearms are now brown [wood - most of the structure of a pole weapon is
- a wooden shaft] so that they are visibly different from Axes.
+ Polearms are now brown [wood - most of the structure of a pole weapon is a
+ wooden shaft] so that they are visibly different from Axes.
 
-## Shields of Deflection and Dragon Shields now use the normal shield
- symbol {')'} instead of the hard armour symbol {'['}. Their colours are
- unchanged.
+ Shields of Deflection and Dragon Shields now use the normal shield symbol
+ {')'} instead of the hard armour symbol {'['}. Their colours are unchanged.
 
+## {average} items [weapons & armours] will now stack in the inventory once
+ they've been pseudo-ID'd... [thanks to Antimatter for the work this took]
 
                    ####### Spellcasting #######
 
@@ -599,10 +555,6 @@ Yeeks:
 
  No apportation/fetch effect requires line of sight anymore.
 
-## Reduced the failure rate of the various Identify spells a bit. -10% in
- most cases. Level has also gone done for most of the ID spells that appear
- in dungeon-only books.
-
 
 Chaos:
  'Mana Burst' now has a straight 5% chance of producing a true ball of mana
@@ -617,27 +569,27 @@ Chaos:
  Replaced 'Demon Detection' with 'Chaotic Sensing', a detection spell which
    scans the current panel and has only a 50% + (plev/2) (max 75%) chance to
    display traps, doors, stairs, monsters, objects and treasures.
-## 'Chaotic Sensing' will map the current panel at 1/2 the above chance.
-   Removed 'Wonder' and moved 'Polymorph Other' into its slot.
+ 'Chaotic Sensing' will map the current panel at 1/2 the above chance.
+ Removed 'Wonder' and moved 'Polymorph Other' into its slot.
  New spell, 'Mass Polymorph', added to book 3. It comes in between
    'Polymorph Self' and 'Summon Demon'.
-## 'Call the Void', 'Call Chaos', 'Magic Rocket' and 'Mana Storm' have gone
-    through a damage upgrade.
-## 'Chain Lightning' has been changed into 'Confusion Bolt'. Cost is
+ 'Call the Void', 'Call Chaos', 'Magic Rocket' and 'Mana Storm' have gone
+   through a damage upgrade.
+ 'Chain Lightning' has been changed into 'Confusion Bolt'. Cost is
    unchanged, but damage increased slightly.
 
 Death:
  'Wraithform' now lasts (randint(plev) + (plev/2)), making it useful.
    Wraithform, whatever the source, no longer grants reflection, and only
    reduces damage to 1/3rd instead of 1/10th.
-## 'Omnicide' has been replaced by 'Summon Death', a line-of-sight death
+ 'Omnicide' has been replaced by 'Summon Death', a line-of-sight death
    'ray'. There is a price for such power, however the caster will suffer
    1/2 of their current HP in damage, 1/6th if they are Resilient, from
    Death's cold touch... [was 200+d200 damage; won't outright kill you now,
    but it makes you more vulnerable]
  'Death Ray' is now more powerful, with a power level of plev * 2. [see the
    note on death ray power up in Misc.]
-## Evocation no longer Banishes monsters - it still Dispels and Turns them,
+ 'Evocation' no longer Banishes monsters - it still Dispels and Turns them,
   however.
 
 Life:
@@ -646,8 +598,8 @@ Life:
    reduced. It is also less likely to successfully repel a monster (maximum
    40% chance to repel at character level 50). These mods apply regardless
    of the source of the PfE. (see melee1.c for full details)
-## 'Holy Invulnerability' has been renamed 'Holy Resistance'.
-## Since 'Cure Critical Wounds' has cured poison for a while now, 'Cure
+ 'Holy Invulnerability' has been renamed 'Holy Resistance'.
+ Since 'Cure Critical Wounds' has cured poison for a while now, 'Cure
    Poison' itself is redundant and has been replaced by 'Turn Undead' (ie,
    attempt to scare all Undead in line of sight).
 
@@ -665,11 +617,17 @@ Mindcraft:
  'Domination' now Charms Monsters at level 35. (up from 30).
  Added 'Apportation'. Level 20, cost 12 to use.
 
+Nature:
+## 'Blizzard', 'Lightning Storm', 'Whirlpool' and 'Nature's Wrath' have had
+   their damage potentials increased.
+## 'Entangle' has been replaced by 'Venomous Thorns', a stinging spray of
+   Poison bolts (like the Shard Blast mutation).
+
 Sorcery:
  Removed 'Sense Minds' and restored 'Telekinesis' as 'Apport Arcane'.
  Like the potion of the same name, the 'Self Knowledge' spell now also
    identifies the contents of your backpack.
-## 'Globe of Invulnerability' has been renamed 'Globe of Resilience'.
+ 'Globe of Invulnerability' has been renamed 'Globe of Resilience'.
 
 Trump:
  'Trump Spying' (timed ESP) has been replaced with 'Minor Trump', which
@@ -680,11 +638,11 @@ Trump:
    'Detect Minds'.
  Swapped the places of 'Phantasmal Servant' and 'Trump Animal' in the second
    spellbook.
-## 'Shuffle' has been altered to remove the Hanged Man (TY Curse). That
-   entry now summons a friendly lesser monster, as per the spell 'Minor
-   Trump'. The Devil and Death have reduced chances to show up, with the
-   excess going to the the minor trump...
-## 'Living Trump' is now a 50/50 affair instead of having a 7/8 chance of
+ 'Shuffle' has been altered to remove the Hanged Man (TY Curse). That entry
+   now summons a friendly lesser monster, as per the spell 'Minor Trump'.
+   The Devil and Death have reduced chances to show up, with the excess
+   going to the minor trump...
+ 'Living Trump' is now a 50/50 affair instead of having a 7/8 chance of
    giving the random teleportation mutation.
 
 
@@ -737,15 +695,18 @@ covered up in the main text)
  for the character dump, and the suggestion on how to filter the items shown
  at identify prompts.
 
-## Thanks to arch for the map_area addition to detect_random().
+ Thanks to arch for suggesting the map_area addition to detect_random().
 
-## Thanks to arch (and, apparently, APW) for fixing the flavours of store-
+ Thanks to arch (and, apparently, APW) for fixing the flavours of store-
  bought items. [never saw it for myself, but apparently scrolls and such
  bought from stores wouldn't have their flavours in your inventory...]
 
-## Added some more of Kieron Dunbar's patches: weight.diff (shows object
+ Added some more of Kieron Dunbar's patches: weight.diff (shows object
  weights when 'l'ooking around) for all systems, mainchoice.diff (seems to
  automatically show a list when quaffing, zapping, etc., instead of giving
  a normal prompt with the '* to see' option), windows.diff (enhances
  windows a bit for X11 systems), and monlist.diff (lists monsters that are
  nearby in a separate window).
+
+## Added the stacking of pseudo-ID'd {average} objects from Antimatter's
+ code, with a lot of help from him to actually get it to work. :)

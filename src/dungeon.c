@@ -1420,7 +1420,7 @@ static void process_world(void)
 			char noise[80];
 			get_rnd_line("chainswd.txt", noise);
 			msg_print(noise);
-			disturb(FALSE, FALSE);
+			if (disturb_minor) disturb(FALSE, FALSE);
 		}
 
 		/*

@@ -2686,7 +2686,7 @@ void do_cmd_pet(void)
 	bool            all_pets = FALSE;
 	monster_type    *m_ptr;
 
-	int mode;
+	int mode; /* warning: might be used uninitialized */
 
 	for (num = 0; num < 36; num++)
 	{

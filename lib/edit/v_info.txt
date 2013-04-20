@@ -1430,3 +1430,15 @@ D:%XXX#99XXX,,,,,XXX99#XXX%
 D:%X88XXX99XXXXXXX99XXX88X%
 D:%##XXXXXXXXXXXXXXXXXXX##%
 D:%%%%%%%%%%%%%%%%%%%%%%%%%
+
+# (tiny-huge) by Antimatter of #angband
+
+N:69:Lesser vault (tiny-huge)
+X:7:25:7:9
+D:XXXXXXXXX
+D:#8#8#8#8X
+D:XXXXXXX#X
+D:X8#8#8#8X
+D:X#XXXXXXX
+D:X8#8#8#8#
+D:XXXXXXXXX

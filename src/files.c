@@ -4410,6 +4410,7 @@ static errr top_twenty(void)
 #else
 	/* Save the date in standard form (8 chars) */
 	strftime(the_score.day, 9, "%m/%d/%y", localtime(&ct));
+	/* warning: '%y' yields only last 2 digits of year */
 #endif
 
 	/* Save the player name (15 chars) */
@@ -4934,7 +4935,7 @@ static void handle_signal_abort(int sig)
 	}
 
 	/* Flush output */
-	Term_fresh();
+/*	Term_fresh(); */
 
 	/* Quit */
 	quit("software bug");

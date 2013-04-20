@@ -296,7 +296,7 @@ Magical Poultice                   Herbal Healing
 
 Nature Mastery                     Book of Storms
 --------------                     --------------
-Stone to Mud                       Entangle
+Stone to Mud                       Venomous Thorns
 Lightning Bolt                     Earthquake
 Nature Awareness                   Whirlwind Attack
 Frost Bolt                         Blizzard

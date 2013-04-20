@@ -902,7 +902,7 @@ void do_cmd_cast(void)
 	}
        case 18: /* Apport Arcane */
 		if (!get_aim_dir(&dir)) return;
-		fetch(dir, 250, FALSE);
+		fetch(dir, 200, FALSE);
 		break;
        case 19: /* Self knowledge */
 		(void)self_knowledge();
@@ -1083,8 +1083,13 @@ void do_cmd_cast(void)
 		(void)set_poisoned(0);
 		(void)set_image(0);
 		break;
-	case 24: /* Entangle */
-		slow_monsters(); break;
+	case 24: /* Venomous Thorns */
+		if (get_aim_dir(&dir))
+		{
+			msg_print("Thorns spray from your fingers...");
+			fire_blast(GF_POIS, dir, 5 + (plev/5), 4, 10, 3);
+		}
+		break;
 	case 25: /* Earthquake */
 		msg_print("The dungeon rumbles...");
 		earthquake(py, px, 10);
@@ -1114,15 +1119,15 @@ void do_cmd_cast(void)
 		break;
 	case 27: /* Blizzard */
 		if (!get_aim_dir(&dir)) return;
-		fire_ball(GF_COLD, dir, 150 + (2 * plev), (plev/12)+1);
+		fire_ball(GF_COLD, dir, 300 + (2 * plev), (plev/12)+1);
 		break;
 	case 28: /* Lightning Storm */
 		if (!get_aim_dir(&dir)) return;
-		fire_ball(GF_ELEC, dir, 125 + (2 * plev), (plev/12)+1);
+		fire_ball(GF_ELEC, dir, 250 + (2 * plev), (plev/12)+1);
 		break;
 	case 29: /* Whirlpool */
 		if (!get_aim_dir(&dir)) return;
-		fire_ball(GF_WATER, dir, 100 + (2 * plev), (plev/12)+1);
+		fire_ball(GF_WATER, dir, 200 + (2 * plev), (plev/12)+1);
 		break;
 	case 30: /* Call Sunlight */
 		fire_ball(GF_LITE, 0, 200, 8);
@@ -1135,9 +1140,9 @@ void do_cmd_cast(void)
 		break;
 	case 31: /* Nature's Wrath */
 		msg_print("You call upon Mother Nature to smite your enemies...");
-		(void)dispel_monsters(plev * 5);
+		(void)dispel_monsters(plev * 6);
 		earthquake(py, px, 20 + (plev / 2) );
-		project(0, FALSE, 1+plev/12, py, px, 150 + plev, GF_DISINTEGRATE, PROJECT_KILL|PROJECT_ITEM, FALSE);
+		project(0, FALSE, 1+plev/12, py, px, 200 + plev, GF_DISINTEGRATE, PROJECT_KILL|PROJECT_ITEM, FALSE);
 		break;
 	default:
 		msg_format("You cast an unknown Nature spell: %d.", spell);
@@ -1858,7 +1863,7 @@ void do_cmd_cast(void)
         break;
         case 16: /* Apportation */
 		if (!get_aim_dir(&dir)) return;
-		fetch(dir, 250, FALSE);
+		fetch(dir, 200, FALSE);
 		break;
         case 17: /* Trump Spiders */
         {

@@ -301,6 +301,12 @@ void fetch(int dir, int wgt, bool require_los)
 			msg_print("You have no direct line of sight to that location.");
 			return;
 		}
+
+		if (c_ptr->info & (CAVE_ICKY))
+		{
+			msg_print("The object refuses to budge!");
+			return;
+		}
 	}
 	else
 	{

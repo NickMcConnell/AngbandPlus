@@ -1853,8 +1853,8 @@ bool place_monster(int y, int x, bool slp, bool grp)
 
 bool alloc_horde(int y, int x)
 {
-	int r_idx;
-	monster_race * r_ptr;
+	int r_idx;		/* warning: might be used uninitialized */
+	monster_race * r_ptr;	/* warning: might be used uninitialized */
 	monster_type * m_ptr;
 	int attempts = 1000;
 

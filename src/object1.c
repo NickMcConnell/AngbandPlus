@@ -2408,8 +2408,8 @@ bool identify_fully_aux2(object_type *o_ptr, cptr *info, int len)
 
 	/* RMG probably useless code haven't had the time to debug it, */
 	/* Unknown extra powers (ego-item with random extras or artifact) */
-	if (object_known_p(o_ptr) && (!(o_ptr->ident & IDENT_MENTAL)) &&
-	    ((o_ptr->xtra1) || artifact_p(o_ptr)) && !(death))
+	if (object_known_p(o_ptr) && !(o_ptr->ident & IDENT_MENTAL) &&
+	    (o_ptr->xtra1 || artifact_p(o_ptr)) && !(death))
 	{
 		info[i++] = "It has hidden powers.";
 	}

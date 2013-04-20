@@ -102,21 +102,22 @@ ANGBAND MENU
   }
  }
 
- POPUP "&Options"
- {
-/*
- *POPUP "&Graphics"
- *{
- * MENUITEM "&Old tiles", 400
- * MENUITEM "&Adam Bolt's tiles", 401
- *}
+/* POPUP "&Options"
+ * {
  *
- *MENUITEM "&Sound", 402
- *MENUITEM SEPARATOR
- *MENUITEM "Unused menu option", 410
+ *  POPUP "&Graphics"
+ *  {
+ *   MENUITEM "&Old tiles", 400
+ *   MENUITEM "&Adam Bolt's tiles", 401
+ *  }
+ * 
+ *  MENUITEM "&Sound", 402
+ *  MENUITEM SEPARATOR
+ *  MENUITEM "Unused menu option", 410
+ *
+ *  MENUITEM "Activate Screensaver", 411
+ * }
  */
-  MENUITEM "Activate Screensaver", 411
- }
 
  POPUP "&Help"
  {

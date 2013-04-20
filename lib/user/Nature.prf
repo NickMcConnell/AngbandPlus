@@ -2,7 +2,7 @@
 #
 # TAB - Whirlwind Attack    F1 - Lightning Bolt      SF1 - Pesticide
 #   [ - Rustproof           F2 - Frost Bolt          SF2 - Summon Animal
-#   ] - Elemental Branding  F3 - Entangle            SF3 - Earthquake
+#   ] - Elemental Branding  F3 - Venomous Thorns     SF3 - Earthquake
 #   ' - Nature Awareness    F4 - Blizzard
 #   " - Stone Tell          F5 - Lightning Storm
 #   ; - Animal Detection    F6 - Whirlpool
@@ -96,7 +96,7 @@ P:^_x3B\r
 A:\e\e\e*tm2d
 P:^_x3C\r
 
-# F3 - Entangle
+# F3 - Venomous Thorns
 A:m4a
 P:^_x3D\r
 

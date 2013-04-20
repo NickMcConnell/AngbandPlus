@@ -1368,7 +1368,19 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 		case TV_RING: case TV_AMULET: case TV_LITE:
 		{
 			/* Require full knowledge of both items */
-			if (!object_known_p(o_ptr) || !object_known_p(j_ptr)) return (0);
+/*			if (!object_known_p(o_ptr) || !object_known_p(j_ptr)) return (0); */
+
+			/* Require knowledge or {average} pseudo-id for both items */
+			if (!object_known_p(o_ptr) && 
+				!((o_ptr->ident & (IDENT_SENSE)) && !strcmp(quark_str(o_ptr->note), "average")))
+			{
+				return (0);
+			}
+			if (!object_known_p(j_ptr) && 
+				!((j_ptr->ident & (IDENT_SENSE)) && !strcmp(quark_str(j_ptr->note), "average")))
+			{
+				return (0);
+			}
 
 			/* Fall through */
 		}
@@ -5468,7 +5480,7 @@ static void spell_info(char *p, int spell, int realm)
 					case 16: sprintf(p, " dam %d", 6 * plev); break;
 					case 18: sprintf(p, " dam %d", 6 * plev); break;
 					case 21: sprintf(p, " dam %d", 5 * plev); break;
-					case 22: sprintf(p, " d %d/h 1000", 5 * plev); break;
+					case 22: sprintf(p, " h1000 / d%d", 5 * plev); break;
 					case 24: strcpy (p, " dur 25+d25"); break;
 					case 25: sprintf(p, " dur %d turns", 50 + plev); break;
 					case 28: strcpy (p, " heal 2000"); break;
@@ -5485,7 +5497,7 @@ static void spell_info(char *p, int spell, int realm)
 					case  6: sprintf(p, " dist %d", plev * 5); break;
 					case 15: sprintf(p, " dur %d+d%d", plev, (plev+20)); break;
 					case 17: sprintf(p, " dist %d", plev+2); break;
-					case 18: strcpy (p, " wgt 250"); break;
+					case 18: strcpy (p, " wgt 20lbs"); break;
 					case 21: strcpy (p, " delay 15+d21"); break;
 					case 26: sprintf(p, " dam 7d7+%d", (plev/2)); break;
 					case 27: strcpy (p, " dur 25+d30"); break;
@@ -5506,12 +5518,13 @@ static void spell_info(char *p, int spell, int realm)
 					case 18: strcpy (p, " dur 20+d30"); break;
 					case 19: strcpy (p, " dur 20+d20"); break;
 					case 23: strcpy (p, " heal 1000"); break;
+					case 24: sprintf(p, " dam 10*%dd4", 5+(plev/5)); break;
 					case 25: strcpy (p, " rad 10"); break;
-					case 27: sprintf(p, " dam %d", 150+(2*plev)); break;
-					case 28: sprintf(p, " dam %d", 125+(2*plev)); break;
-					case 29: sprintf(p, " dam %d", 100+(2*plev)); break;
+					case 27: sprintf(p, " dam %d", 300+(2*plev)); break;
+					case 28: sprintf(p, " dam %d", 250+(2*plev)); break;
+					case 29: sprintf(p, " dam %d", 200+(2*plev)); break;
 					case 30: strcpy (p, " dam 200"); break;
-					case 31: sprintf(p, " dam %d+%d", 5*plev,150+plev); break;
+					case 31: sprintf(p, " dam %d+%d", 6*plev,200+plev); break;
 				}
 				break;
 
@@ -5577,7 +5590,7 @@ static void spell_info(char *p, int spell, int realm)
 					case  5: sprintf(p, " dist %d", plev+2); break;
 					case 10: sprintf(p, " dam %dd8", 9+((plev-5)/3)); break;
 					case 12: strcpy (p, " delay 15+d21"); break;
-					case 16: strcpy (p, " wgt 250"); break;
+					case 16: strcpy (p, " wgt 20lbs"); break;
 					case 22: sprintf(p, " dam %d", plev * 5); break;
 				}
 				break;

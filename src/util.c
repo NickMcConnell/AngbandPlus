@@ -701,6 +701,9 @@ errr fd_seek(int fd, huge n)
 
 	/* Seek to the given position */
 	p = lseek(fd, n, SEEK_SET);
+	/* warning: implicit declaration of function 'lseek'
+	 * it, and the other ones in this file, are up under #ifdef BEN_HACK
+	 */
 
 	/* Failure */
 	if (p < 0) return (1);
@@ -749,6 +752,7 @@ errr fd_read(int fd, char *buf, huge n)
 	{
 		/* Read a piece */
 		if (read(fd, buf, 16384) != 16384) return (1);
+		/* warning: implicit declaration of function 'read' */
 
 		/* Shorten the task */
 		buf += 16384;
@@ -782,6 +786,7 @@ errr fd_write(int fd, cptr buf, huge n)
 	{
 		/* Write a piece */
 		if (write(fd, buf, 16384) != 16384) return (1);
+		/* warning: implicit declaration of function 'write' */
 
 		/* Shorten the task */
 		buf += 16384;
@@ -809,7 +814,7 @@ errr fd_close(int fd)
 	if (fd < 0) return (-1);
 
 	/* Close */
-	(void)close(fd);
+	(void)close(fd); /* warning: implicit declaration of function 'close' */
 
 	/* XXX XXX XXX */
 	return (0);

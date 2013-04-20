@@ -179,6 +179,11 @@ static void rd_byte(byte *ip)
 	*ip = sf_get();
 }
 
+static void rd_char(char *ip)
+{
+    rd_byte((byte*)ip);
+}
+
 static void rd_u16b(u16b *ip)
 {
 	(*ip) = sf_get();
@@ -1217,37 +1222,84 @@ static void rd_options(void)
 }
 
 
-
-
-
 /*
- * Hack -- strip the "ghost" info
+ * Hack -- read the ghost info
  *
  * XXX XXX XXX This is such a nasty hack it hurts.
  */
-static void rd_ghost(void)
+static void rd_ghost()
 {
-	char buf[64];
+    int i;
+    monster_race *r_ptr = &r_info[MAX_R_IDX-1];
+    char *name = (r_name + r_ptr->name);
 
-	/* Strip name */
-	rd_string(buf, 64);
 
-	/* Older ghosts */
-	if (older_than(2, 7, 7))
-	{
-		/* Strip old data */
-		strip_bytes(52);
-	}
+    /* Pre-2.7.7 ghosts */
+    if (older_than(2,7,7)) {
 
-	/* Newer ghosts */
-	else
-	{
-		/* Strip old data */
-		strip_bytes(60);
-	}
+        char buf[64];
+        
+        /* Read the old name */
+        rd_string(buf, 64);
+
+        /* Strip old data */
+        strip_bytes(52);
+    }
+
+    /* Newer method */
+    else {
+
+        /* Read the old name */
+        rd_string(name, 64);
+
+        /* Visuals */
+        rd_char(&r_ptr->d_char);
+        rd_byte(&r_ptr->d_attr);
+
+        /* Level/Rarity */
+        rd_byte(&r_ptr->level);
+        rd_byte(&r_ptr->rarity);
+
+        /* Misc info */
+        rd_byte(&r_ptr->hdice);
+        rd_byte(&r_ptr->hside);
+        rd_s16b(&r_ptr->ac);
+        rd_s16b(&r_ptr->sleep);
+        rd_byte(&r_ptr->aaf);
+        rd_byte(&r_ptr->speed);
+
+        /* Experience */
+        rd_s32b(&r_ptr->mexp);
+
+        /* Extra */
+        rd_s16b(&r_ptr->extra);
+
+        /* Frequency */
+        rd_byte(&r_ptr->freq_inate);
+        rd_byte(&r_ptr->freq_spell);
+
+        /* Flags */
+        rd_u32b(&r_ptr->flags1);
+        rd_u32b(&r_ptr->flags2);
+        rd_u32b(&r_ptr->flags3);
+        rd_u32b(&r_ptr->flags4);
+        rd_u32b(&r_ptr->flags5);
+        rd_u32b(&r_ptr->flags6);
+
+        /* Attacks */
+        for (i = 0; i < 4; i++) {
+            rd_byte(&r_ptr->blow[i].method);
+            rd_byte(&r_ptr->blow[i].effect);
+            rd_byte(&r_ptr->blow[i].d_dice);
+            rd_byte(&r_ptr->blow[i].d_side);
+        }
+    }
+
+
+    /* Hack -- set the "graphic" info */
+    r_ptr->x_attr = r_ptr->d_attr;
+    r_ptr->x_char = r_ptr->d_char;
 }
-
-
 
 
 /*

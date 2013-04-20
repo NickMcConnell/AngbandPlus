@@ -3655,8 +3655,8 @@ bool projectable(int y1, int x1, int y2, int x2)
  */
 void scatter(int *yp, int *xp, int y, int x, int d, int m)
 {
-	int nx, ny;
-    int attempts_left = 5000;
+	int nx, ny; /* warning: might be used uninitialized */
+	int attempts_left = 5000;
 
 	/* Unused */
 	m = m;

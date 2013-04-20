@@ -518,19 +518,19 @@
 #endif
 
 /* Should the player know his / her starting life rate? */
-/* # define SHOW_LIFE_RATE */
+/* #define SHOW_LIFE_RATE */
 
 /* Do we want different characters for different races? */
-# define VARIABLE_PLAYER_GRAPH
+#define VARIABLE_PLAYER_GRAPH
 
 /* To turn on the "confirm staircases" check  -- obsolete in 2.1.0 and later */
 /* # define CONFIRM_STAIRCASES */
 
 /* For longer martial arts descriptions */
-# define VERBOSE_MARTIAL_ARTS
+#define VERBOSE_MARTIAL_ARTS
 
 /* Allow hordes of 'similar' monsters */
-# define MONSTER_HORDES
+#define MONSTER_HORDES
 
 /* Allow Klackon- and Sprite-Monks to get extra speed */
 /* Klackons and Sprites are not *supposed* to be
