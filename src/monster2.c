@@ -1965,7 +1965,8 @@ bool alloc_horde(int y, int x)
 		r_ptr = &r_info[r_idx];
 
 		if (!(r_ptr->flags1 & (RF1_UNIQUE))
-		 && !(r_ptr->flags1 & (RF1_ESCORTS)))
+		 && !(r_ptr->flags1 & (RF1_ESCORTS))
+		 && !(r_ptr->flags2 & (RF2_EXPLOSIVE)))
 			break;
 	}
 
@@ -2293,7 +2294,7 @@ static bool summon_specific_okay(int r_idx)
 
 		case SUMMON_ELEMENTAL:
 		{
-			okay = (((r_ptr->flags3 & (RF3_ELEMENTAL)) &&
+			okay = (((r_ptr->flags3 & (RF3_ELEMENTAL)) ||
 				(r_ptr->d_char == 'E')));
 			break;
 		}

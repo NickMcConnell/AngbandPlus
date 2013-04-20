@@ -580,7 +580,7 @@ void do_cmd_destroy(void)
         if (p_ptr->pclass == CLASS_WARRIOR) gain_expr = TRUE;
         else if (p_ptr->pclass == CLASS_PALADIN)
         {
-            if (p_ptr->realm1 == 1)
+            if (p_ptr->realm1 == REALM_LIFE)
             {
                 if (o_ptr->tval != TV_LIFE_BOOK) gain_expr = TRUE;
             }
@@ -593,7 +593,8 @@ void do_cmd_destroy(void)
         if ((gain_expr) && (p_ptr->exp < PY_MAX_EXP))
         
         {
-	/* Wanted to make it actually worthwhile for Warriors and Paladins
+	/*
+	 * Wanted to make it actually worthwhile for Warriors and Paladins
 	 * to kill the dungeon books. -- Gumby
 	 */
 		s32b tester_exp = (object_value(o_ptr) / 50) * p_ptr->lev;

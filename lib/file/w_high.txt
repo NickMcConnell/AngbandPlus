@@ -1,4 +1,4 @@
-87
+77
 ******** BUFFER LINE *********************************** DO NOT REMOVE *******
 of Ultimate Might
 'Slayer'
@@ -68,17 +68,7 @@ of the Fourth Horseman
 'Word of Death'
 'Weapon Omega'
 'Finalizer'
-of Fargoal
-of Bleys
-of Gerard
-of Benedict
-of Elric
-of Eric
-of Erlik
-'Aeglin'
-'Aeglos'
 of Beowulf
-of Orome
 'Fatal Destiny'
 'Jehovah's Wrath'
 'Undying Samurai'

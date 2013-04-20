@@ -462,7 +462,7 @@
 /*
  * OPTION: Person to bother if something goes wrong.
  */
-#define MAINTAINER	"gumby@gwar.net"
+#define MAINTAINER	"gumby_jd@yahoo.com"
 
 /*
  * OPTION: Default font (when using X11).
@@ -539,7 +539,7 @@
 #endif
 
 /* Should the player know his / her starting life rate? */
-# define SHOW_LIFE_RATE
+/* # define SHOW_LIFE_RATE */
 
 /* Do we want different characters for different races? */
 # define VARIABLE_PLAYER_GRAPH

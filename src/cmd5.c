@@ -788,6 +788,9 @@ static void brand_weapon(int brand_type)
 		msg_format("Your %s %s", o_name, act);
 
 		enchant(o_ptr, rand_int(3) + 4, ENCH_TOHIT | ENCH_TODAM);
+
+		/* Don't want the player to profit. -- Gumby */
+		o_ptr->ident |= IDENT_BROKEN;
 	}
 	else
 	{
@@ -1035,7 +1038,7 @@ void do_cmd_cast(void)
 /*        char	tmp_val[160]; */
 
 	/* Require spell ability */
-	if (p_ptr->realm1 == 0)
+	if (p_ptr->realm1 == REALM_NONE)
 	{
 		msg_print("You cannot cast spells!");
 		return;
@@ -1157,7 +1160,7 @@ void do_cmd_cast(void)
 	{
 
 		if (p_ptr->pclass == CLASS_MAGE) beam = plev;
-		else if (p_ptr->pclass == CLASS_HIGH_MAGE) beam = plev + 10;
+		else if (p_ptr->pclass == CLASS_HIGH_MAGE) beam = plev + 20;
 		else beam = plev / 2;
 
 
@@ -1171,16 +1174,16 @@ void do_cmd_cast(void)
 			(void)detect_monsters_evil();
 		       break;
 	   case 1: /* Cure Light Wounds */
-			(void)hp_player(damroll(3, 10));
+			(void)hp_player(damroll(2 + ((plev - 2) / 6), 5));
 			(void)set_cut(p_ptr->cut - 10);
 		       break;
 	   case 2: /* Bless */
-			(void)set_blessed(p_ptr->blessed + randint(12) + 12);
+			(void)set_blessed(p_ptr->blessed + 10 + plev);
 		       break; 
 	   case 3: /* Spiritual Hammer (was Resist Fear) */
 		if (!get_aim_dir(&dir)) return;
 		fire_bolt_or_beam(beam - 10, GF_HOLY_FIRE, dir,
-		  damroll(3 + ((plev - 5) / 5), 4));
+		  damroll(3 + ((plev - 1) / 7), 4));
 		break;
 	   case 4: /* Call Light */
 			(void)lite_area(damroll(2, (plev / 2)), (plev / 10) + 1);
@@ -1191,37 +1194,41 @@ void do_cmd_cast(void)
 			(void)detect_stairs();
 		       break;
 	   case 6: /* Cure Medium Wounds */
-			(void)hp_player(damroll(6, 10));
+			(void)hp_player(damroll(3 + ((plev - 2) / 6), 10));
 			(void)set_cut((p_ptr->cut / 2) - 20);
 		       break;
 	   case 7: /* Satisfy Hunger */
 			(void)set_food(PY_FOOD_MAX - 1);
 		       break;
 	   case 8: /* Remove Curse */
-			remove_curse();
-		       break;
+			if (remove_curse())
+				msg_print("A blue glow surrounds you.");
+			break;
 	   case 9: /* Cure Poison */
 			(void)set_poisoned(0);
 		       break;
 	   case 10: /* Cure Critical Wounds */
-			(void)hp_player(damroll(12, 10));
+			(void)hp_player(damroll(6 + ((plev - 5) / 3), 10));
+			(void)set_poisoned(0);
 			(void)set_stun(0);
 			(void)set_cut(0);
 		       break;
 	   case 11: /* Sense Unseen */
-			(void)set_tim_invis(p_ptr->tim_invis + randint(24) + 24);
+			(void)set_tim_invis(p_ptr->tim_invis + (25 + ((3 * plev) / 2)));
 		       break;
-	   case 12: /* Orb of Draining */
+	   case 12: /* Holy Orb */
 	   if (!get_aim_dir(&dir)) return;
             fire_ball(GF_HOLY_FIRE, dir, 25 + (plev + (plev / 2)), ((plev < 30) ? 2 : 3));
 		       break;
 	   case 13: /* Protection from Evil */
-			(void)set_protevil(p_ptr->protevil + randint(25) + 3 * p_ptr->lev);
+			(void)set_protevil(p_ptr->protevil + randint(25) + (2 * p_ptr->lev));
 		       break;
 	   case 14: /* Healing */
 			(void)hp_player(300);
+			(void)set_poisoned(0);
 			(void)set_stun(0);
 			(void)set_cut(0);
+			(void)set_image(0);
 		       break;
 	   case 15: /* Glyph of Warding */
 			warding_glyph();
@@ -1232,8 +1239,9 @@ void do_cmd_cast(void)
          (void) turn_evil(plev);
                break;
 	   case 17: /* Dispel Curse */
-			(void)remove_all_curse();
-		       break;
+		if (remove_all_curse())
+			msg_print("A bright blue glow surrounds you.");
+		break;
        case 18: /* Dispel Undead + Demons */
             (void)dispel_undead(plev * 4);
         (void)dispel_demons(plev * 4);
@@ -1251,13 +1259,14 @@ void do_cmd_cast(void)
 			}
 			break;
 	   case 22: /* Holy Word */
-	   (void)dispel_evil(plev * 5);
-			(void)hp_player(1000);
-			(void)set_afraid(0);
-			(void)set_poisoned(0);
-			(void)set_stun(0);
-			(void)set_cut(0);
-		       break;
+		(void)dispel_evil(plev * 5);
+		(void)hp_player(1000);
+		(void)set_afraid(0);
+		(void)set_poisoned(0);
+		(void)set_stun(0);
+		(void)set_cut(0);
+		(void)set_image(0);
+	       break;
 	   case 23: /* Warding True */
 		warding_glyph();
 		glyph_creation();
@@ -1268,19 +1277,21 @@ void do_cmd_cast(void)
 			(void)set_afraid(0);
 		       break;
 	   case 25: /* Prayer */
-			(void)set_blessed(p_ptr->blessed + randint(48) + 48);
-		       break;
-#if 0 /* Old version */
-	   case 26: /* Healing II */
-			(void)hp_player(800);
-			(void)set_stun(0);
-			(void)set_cut(0);
-		       break;
-#else
+		(void)set_blessed(p_ptr->blessed + 50 + plev);
+		break;
+	/* Summon Angel (was Bless Weapon) */
        case 26:
-            bless_weapon();
-            break;
-#endif
+		if (randint(5) == 1)
+		{
+			if (summon_specific(py, px, plev, SUMMON_ANGEL))
+				msg_print("You hear discord among the heavenly choir.");
+        	}
+		else
+		{
+			if (summon_specific_friendly(py, px, plev, SUMMON_ANGEL, TRUE))
+				msg_print("You hear heavenly choir singing joyously.");
+		}
+		break;
 	   case 27: /* Restoration */
 			(void)do_res_stat(A_STR);
 			(void)do_res_stat(A_INT);
@@ -1292,8 +1303,10 @@ void do_cmd_cast(void)
 		       break;
        case 28: /* Healing True */
 			(void)hp_player(2000);
+			(void)set_poisoned(0);
 			(void)set_stun(0);
 			(void)set_cut(0);
+			(void)set_image(0);
 		       break;
        case 29: /* Holy Vision */
 		identify_fully();
@@ -1306,7 +1319,7 @@ void do_cmd_cast(void)
          confuse_monsters(plev*4);
          turn_monsters(plev*4);
          stasis_monsters(plev*4);
-         summon_specific_friendly(py, px, plev, SUMMON_ANGEL, TRUE);
+         summon_specific_friendly(py, px, (plev * 2), SUMMON_ANGEL, TRUE);
          (void)set_shero(p_ptr->shero + randint(25) + 25);
          (void)hp_player(300);
          if (!p_ptr->fast) {   /* Haste */
@@ -1317,7 +1330,7 @@ void do_cmd_cast(void)
          (void)set_afraid(0);
          break;
 	   case 31: /* Holy Invulnerability */
-			(void)set_invuln(p_ptr->invuln + randint(8) + 8);
+			(void)set_invuln(p_ptr->invuln + randint(10) + 10);
 		       break;
 	       default:
 		 msg_format("You cast an unknown Life spell: %d.", spell);
@@ -1474,7 +1487,7 @@ void do_cmd_cast(void)
 		       (void) alchemy();
 		       break;
 	   case 31: /* Globe of Invulnerability */
-			(void)set_invuln(p_ptr->invuln + randint(8) + 8);
+			(void)set_invuln(p_ptr->invuln + randint(10) + 10);
 		       break;
 	       default:
 		 msg_format("You cast an unknown Sorcery spell: %d.", spell);
@@ -1517,9 +1530,10 @@ void do_cmd_cast(void)
 			(void)set_oppose_elec(p_ptr->oppose_elec + randint(20) + 20);
 		       break;
        case 7: /* Cure Wounds + Poison */
-            (void)set_cut(0);
-			(void)set_poisoned(0);
-		       break;
+		(void)hp_player(damroll(6 , 8));
+		(void)set_cut(0);
+		(void)set_poisoned(0);
+		break;
 	   case 8: /* Stone to Mud */
 			if (!get_aim_dir(&dir)) return;
 			(void)wall_to_mud(dir);
@@ -1553,9 +1567,8 @@ void do_cmd_cast(void)
 			msg_print("A line of sunlight appears.");
 			lite_line(dir);
 		       break;
-	   case 13: /* Entangle */
-			slow_monsters();
-		       break;
+	case 13: /* Elemental Brand */
+		brand_weapon(0); break;
        case 14: /* Summon Animals */
              if (!(summon_specific_friendly(py, px, plev, SUMMON_ANIMAL_RANGER, TRUE)))
                 no_trump = TRUE;
@@ -1565,6 +1578,7 @@ void do_cmd_cast(void)
 			(void)set_stun(0);
 			(void)set_cut(0);
 			(void)set_poisoned(0);
+			(void)set_image(0);
 		       break;
        case 16: /* Door Building */
 			(void)door_creation();
@@ -1594,10 +1608,12 @@ void do_cmd_cast(void)
        case 23: /* Protection from Corrosion */
                rustproof();
 		       break;
-       case 24: /* Earthquake */
+	case 24: /* Entangle */
+		slow_monsters(); break;
+       case 25: /* Earthquake */
 			earthquake(py, px, 10);
 		       break;
-       case 25: /* Whirlwind Attack */
+       case 26: /* Whirlwind Attack */
          {
          int y = 0, x = 0;
          cave_type       *c_ptr;
@@ -1617,22 +1633,22 @@ void do_cmd_cast(void)
          }
          }
          break;
-       case 26: /* Blizzard */
+       case 27: /* Blizzard */
 			if (!get_aim_dir(&dir)) return;
 			fire_ball(GF_COLD, dir,
 				105 + (plev), (plev/12)+1);
 		       break;
-	   case 27: /* Lightning Storm */
+	   case 28: /* Lightning Storm */
 			if (!get_aim_dir(&dir)) return;
 			fire_ball(GF_ELEC, dir,
 				135 + (plev), (plev/12)+1);
 		       break;
-	   case 28: /* Whirlpool */
+	   case 29: /* Whirlpool */
 			if (!get_aim_dir(&dir)) return;
 			fire_ball(GF_WATER, dir,
 				150 + (plev), (plev/12)+1);
 		       break;
-	   case 29: /* Call Sunlight */
+	   case 30: /* Call Sunlight */
 
 			fire_ball(GF_LITE, 0, 200, 8);
 			wiz_lite();
@@ -1641,9 +1657,6 @@ void do_cmd_cast(void)
                 msg_print("The sunlight scorches your flesh!");
                 take_hit(50, "sunlight");
             }
-		       break;
-	   case 30: /* Elemental Brand */
-            brand_weapon(0);
 		       break;
 	   case 31: /* Nature's Wrath */
             (void)dispel_monsters(plev * 5);
@@ -1771,23 +1784,18 @@ void do_cmd_cast(void)
 				if (!get_aim_dir(&dir)) return;
                 fire_beam(GF_MANA, dir, damroll(11+((plev-5)/3), 8));
 			break;
-		case 12: /* Fire Ball */
-			if (!get_aim_dir(&dir)) return;
-			fire_ball(GF_FIRE, dir,
-					80 + (plev), 2);
-			break;
-		case 13: /* Teleport Other */
-           if (!get_aim_dir(&dir)) return;
-               (void)fire_beam(GF_AWAY_ALL, dir, plev);
-			break;
-		case 14: /* Word of Destruction */
-			destroy_area(py, px, 15, TRUE);
-			break;
-		case 15: /* Invoke Chaos */
-			if (!get_aim_dir(&dir)) return;
-			fire_ball(GF_CHAOS, dir,
-					100 + (plev), (plev / 5));
-			break;
+	case 12: /* Fire Ball */
+		if (!get_aim_dir(&dir)) return;
+		fire_ball(GF_FIRE, dir, 80 + (plev), 2);
+		break;
+        case 13: /* Chaos Branding */
+		brand_weapon(1); break;
+	case 14: /* Word of Destruction */
+		destroy_area(py, px, 15, TRUE); break;
+	case 15: /* Invoke Chaos */
+		if (!get_aim_dir(&dir)) return;
+		fire_ball(GF_CHAOS, dir, 100 + (plev), (plev / 5));
+		break;
         case 16: /* Polymorph Other */
 			if (!get_aim_dir(&dir)) return;
 			(void)poly_monster(dir);
@@ -1805,7 +1813,11 @@ void do_cmd_cast(void)
                120 + (plev), 3 + (plev/40));
                break;
             break;
-        case 20: /* Alter Reality */
+	case 20: /* Teleport Other */
+		if (!get_aim_dir(&dir)) return;
+		(void)fire_beam(GF_AWAY_ALL, dir, plev);
+		break;
+        case 21: /* Alter Reality */
 			msg_print("The world changes!");
                 if (autosave_l)
                 {
@@ -1816,12 +1828,9 @@ void do_cmd_cast(void)
                 }
 			new_level_flag = TRUE;
 			break;
-        case 21: /* Polymorph Self */
+        case 22: /* Polymorph Self */
             do_poly_self();
 	    break;
-        case 22: /* Chaos Branding */
-		brand_weapon(1);
-		break;
         case 23: /* Summon monster, demon */
 		if (randint(3) == 1)
 		{
@@ -1842,69 +1851,62 @@ void do_cmd_cast(void)
 		}
 		break;
         case 24: /* Beam of Gravity */
-			if (!get_aim_dir(&dir)) return;
-                fire_beam(GF_GRAVITY, dir, damroll(14+((plev-5)/3), 8));
-            break;
+		if (!get_aim_dir(&dir)) return;
+		fire_beam(GF_GRAVITY, dir, damroll(14+((plev-5)/3), 8));
+		break;
         case 25: /* Meteor Swarm  */
-#if 1
-           {
-		       int x, y, dx, dy, d, count = 0;
-		       int b = 10 + randint(10); 
-		       for (i = 0; i < b; i++) {
-			   do {
-			       count++;
-			       if (count > 1000)  break;
-			       x = px - 5 + randint(10);
-			       y = py - 5 + randint(10);
-			       dx = (px > x) ? (px - x) : (x - px);
-			       dy = (py > y) ? (py - y) : (y - py);
-			       /* Approximate distance */
-                   d = (dy > dx) ? (dy + (dx>>1)) : (dx + (dy>>1));
-               } while ((d > 5) || (!(player_has_los_bold(y, x))));
-			   
-			   if (count > 1000)   break;
-			   count = 0;
-               project(0, 2, y, x, (plev*4)/2, GF_METEOR, PROJECT_KILL|PROJECT_JUMP|PROJECT_ITEM);
-		       }
-		   }
-	           break;
-#else
-			if (!get_aim_dir(&dir)) return;
-			fire_ball(GF_METEOR, dir,
-				95 + (plev), 3 + (plev/40));
-			break;
-#endif
-		case 26: /* Flame Strike */
-			fire_ball(GF_FIRE, 0,
-                200 + (2*plev), 8);
-			break;
+		{
+			int x, y, dx, dy, d, count = 0;
+			int b = 10 + randint(10); 
+
+			for (i = 0; i < b; i++)
+			{
+				do
+				{
+					count++;
+
+					if (count > 1000)  break;
+
+					x = px - 5 + randint(10);
+					y = py - 5 + randint(10);
+					dx = (px > x) ? (px - x) : (x - px);
+					dy = (py > y) ? (py - y) : (y - py);
+
+					/* Approximate distance */
+					d = (dy > dx) ? (dy + (dx>>1)) : (dx + (dy>>1));
+
+				} while ((d > 5) || (!(player_has_los_bold(y, x))));
+
+				if (count > 1000) break;
+				count = 0;
+				project(0, 2, y, x, (plev*4)/2, GF_METEOR, PROJECT_KILL|PROJECT_JUMP|PROJECT_ITEM);
+			}
+		}
+		break;
+	case 26: /* Flame Strike */
+		fire_ball(GF_FIRE, 0, 200 + (2*plev), 8); break;
         case 27: /* Call Chaos */
-            call_chaos();
-			break;
+		call_chaos(); break;
         case 28: /* Magic Rocket */
-			if (!get_aim_dir(&dir)) return;
-            msg_print("You launch a rocket!");
-			fire_ball(GF_ROCKET, dir,
-					180 + (plev), 2);
-			break;
+		if (!get_aim_dir(&dir)) return;
+		msg_print("You launch a rocket!");
+		fire_ball(GF_ROCKET, dir, 180 + (plev), 2);
+		break;
         case 29: /* Mana Storm */
-			if (!get_aim_dir(&dir)) return;
-			fire_ball(GF_MANA, dir,
-				400 + (plev * 2), 4);
-            break;
+		if (!get_aim_dir(&dir)) return;
+		fire_ball(GF_MANA, dir, 400 + (plev * 2), 4);
+		break;
         case 30: /* Breathe Chaos */
-               if (!get_aim_dir(&dir)) return;
-               fire_ball(GF_CHAOS,dir,p_ptr->chp,
-                     2);
-               break;
-		case 31: /* Call the Void */
-			call_the_();
-			break;
-		default:
-		  msg_format("You cast an unknown Chaos spell: %d.", spell);
-		  msg_print(NULL);
-	    }
-	   break;
+		if (!get_aim_dir(&dir)) return;
+		fire_ball(GF_CHAOS, dir, p_ptr->chp, 2);
+		break;
+	case 31: /* Call the Void */
+		call_the_(); break;
+	default:
+		msg_format("You cast an unknown Chaos spell: %d.", spell);
+		msg_print(NULL);
+	}
+	break;
 	
 	case 4: /* * DEATH * */
 	  switch (spell)
@@ -1957,9 +1959,9 @@ void do_cmd_cast(void)
          if (!get_aim_dir(&dir)) return;
            (void)control_one_undead(dir, plev);
                break;
-       case 8: /* Orb of Entropy */
+       case 8: /* Infernal Orb (was GF_OLD_DRAIN) */
          if (!get_aim_dir(&dir)) return;
-         fire_ball(GF_OLD_DRAIN, dir, 25 + (plev + (plev / 2)), ((plev < 30) ? 2 : 3));
+         fire_ball(GF_HELL_FIRE, dir, 25 + (plev + (plev / 2)), ((plev < 30) ? 2 : 3));
                break;
        case 9: /* Nether Bolt */
 			if (!get_aim_dir(&dir)) return;
@@ -1984,28 +1986,23 @@ void do_cmd_cast(void)
        }
          break;
        case 12: /* Poison Branding */
-            brand_weapon(2);
-		       break;
-       case 13: /* Cloud Kill -> Dispel Good */
-#if 0
-				if (!get_aim_dir(&dir)) return;
-				fire_ball(GF_POIS, dir,
-					  90 + plev, (plev/10)+1);
-		       break;
-#endif
-            (void)dispel_good(plev * 5);
-		       break;
+		brand_weapon(2);
+		break;
+       case 13: /* Cloud Kill (was Dispel Good) */
+		if (!get_aim_dir(&dir)) return;
+		fire_ball(GF_POIS, dir, 100 + plev, (plev/10)+1);
+		break;
 	   case 14: /* Genocide */
-			(void)genocide(TRUE);
-		       break;
+		(void)genocide(TRUE);
+		break;
 	   case 15: /* Restore Life */
-			(void)restore_level();
-		       break;
+		(void)restore_level();
+		break;
 	   case 16: /* Berserk */
-            (void)set_shero(p_ptr->shero + randint(25) + 25);
-			(void)hp_player(30);
-			(void)set_afraid(0);
-		       break;
+		(void)set_shero(p_ptr->shero + randint(25) + 25);
+		(void)hp_player(30);
+		(void)set_afraid(0);
+		break;
        case 17: /* Invoke Spirits */
            {
                int die = randint(100) + plev / 5;
@@ -2147,15 +2144,14 @@ void do_cmd_cast(void)
 		       break;
        case 28: /* Evocation       */
         (void)dispel_monsters(plev * 5);
-         turn_monsters(plev*5);
+         turn_monsters(plev*4);
          banish_monsters(plev*4);
 		       break;
        case 29: /* Hellfire */
-			if (!get_aim_dir(&dir)) return;
-            fire_ball(GF_HELL_FIRE, dir,
-                    666, 3);
-            take_hit(50+randint(50), "the strain of casting Hellfire");
-            break;
+		if (!get_aim_dir(&dir)) return;
+		fire_ball(GF_HELL_FIRE, dir, 666, 3);
+		take_hit(50+randint(50), "the strain of casting Hellfire");
+		break;
         case 30: /* Omnicide */
          p_ptr->csp -= 100;  /* Display doesn't show mana cost (100)
        * as deleted until the spell has finished. This gives a
@@ -2211,7 +2207,7 @@ void do_cmd_cast(void)
 
          break;
         case 31: /* Wraithform */
-        set_shadow(p_ptr->wraith_form + randint(plev/2) + (plev/2));
+        set_shadow(p_ptr->wraith_form + randint(plev) + plev);
         break;
 	       default:
 		 msg_format("You cast an unknown Death spell: %d.", spell);
@@ -2389,7 +2385,7 @@ void do_cmd_cast(void)
 
            }
         break;
-        case 3: /* Sense Region - replaces Reset Recall */
+        case 3: /* Minor Divination - replaces Reset Recall */
 			(void)detect_traps();
 			(void)detect_doors();
 			(void)detect_stairs();
@@ -2498,10 +2494,12 @@ void do_cmd_cast(void)
         }
 
         break;
-        case 13: /* Teleport Level */
+	case 13: /* Trump Branding */
+		brand_weapon(4); break;
+        case 14: /* Teleport Level */
 			(void)teleport_player_level();
         break;
-        case 14: /* Word of Recall */
+        case 15: /* Word of Recall */
 			{
                 if (dun_level && (p_ptr->max_dlv > dun_level))
                 {
@@ -2521,9 +2519,6 @@ void do_cmd_cast(void)
 				}
 				break;
 			}
-        case 15: /* Banish */
-             banish_monsters(plev*4);
-        break;
         case 16: /* Joker Card */
             msg_print("You concentrate on a joker card...");
             switch(randint(4))
@@ -2611,17 +2606,16 @@ void do_cmd_cast(void)
         }
 
         break;
-        case 20: /* Trump Branding */
-            brand_weapon(4);
-        break;
+        case 20: /* Banish */
+		banish_monsters(plev*4); break;
         case 21: /* Living Trump */
-        if (randint(8)==1) dummy = 16;
-        else dummy = 8;
-        if (gain_random_mutation(dummy))
-            msg_print("You have turned into a Living Trump.");
-        break;
+	        if (randint(8)==1) dummy = 16;
+	        else dummy = 8;
+	        if (gain_random_mutation(dummy))
+	            msg_print("You have turned into a Living Trump.");
+	        break;
         case 22: /* Death Dealing */
-            (void)dispel_living(plev * 4);
+            (void)dispel_living(plev * 5);
         break;
         case 23: /* Trump Cyberdemon */
         {
@@ -2788,601 +2782,178 @@ void do_cmd_cast(void)
         msg_print("Nobody answers to your Trump call.");
     }
     break;
-    case 6: /* ARCANE */
-    switch (spell)
-    {
-        case 0: /* Zap */
-		if (!get_aim_dir(&dir)) return;
-		fire_bolt_or_beam(beam-10, GF_ELEC, dir, damroll(3 + ((plev - 1) / 3), 4));
-        break;
-        case 1: /* Detect Invisibility */
-		(void)detect_monsters_invis();
-	break;
-        case 2: /* Detect Monsters */
-		(void)detect_monsters_normal();
-	break;
-        case 3: /* Blink */
-		teleport_player(10);
-	break;
-        case 4: /* Light Area */
-		(void)lite_area(damroll(2, (plev / 2)), (plev / 10) + 1);
-	break;
-        case 5: /* Trap/Door Destruction */
-		(void)destroy_doors_touch();
-	break;
-        case 6: /* Stinking Cloud */
-		if (!get_aim_dir(&dir)) return;
-		fire_ball(GF_POIS, dir, 15 + (plev / 2), 2);
-	break;
-        case 7: /* Cure Light Wounds */
-		(void) hp_player(damroll(3, 8));
-		(void) set_cut(p_ptr->cut - 10);
-	break;
-        case 8: /* Detect Doors/Traps */
-		(void)detect_traps();
-		(void)detect_doors();
-		(void)detect_stairs();
-	break;
-        case 9: /* Phlogiston */
-		phlogiston();
-        break;
-        case 10: /* Confuse Monster */
-		if (!get_aim_dir(&dir)) return;
-		(void)confuse_monster(dir, ( plev * 3) / 2 );
-	break;
-        case 11: /* Sleep Monster */
-		if (!get_aim_dir(&dir)) return;
-		(void)sleep_monster(dir);
-	break;
-        case 12: /* Detect Objects/Treasures */
-		(void)detect_objects_normal();
-		(void)detect_treasure();
-		(void)detect_objects_gold();
-        break;
-        case 13: /* Cure Poison */
-		(void)set_poisoned(0);
-        break;
-        case 14: /* See Invisible */
-		(void)set_tim_invis(p_ptr->tim_invis + randint(50) + 50);
-        break;
-        case 15: /* Cure Medium Wounds */
-		(void)hp_player(damroll(6, 10));
-		(void)set_cut((p_ptr->cut / 2) - 20);
-	break;
-        case 16: /* Teleport */
-		teleport_player(plev * 5);
-        break;
-        case 17: /* Stone to Mud */
-		if (!get_aim_dir(&dir)) return;
-		(void)wall_to_mud(dir);
-        break;
-        case 18: /* Ray of Light */
-		if (!get_aim_dir(&dir)) return;
-		msg_print("A line of light appears.");
-		lite_line(dir);
-        break;
-        case 19: /* Satisfy Hunger */
-		(void)set_food(PY_FOOD_MAX - 1);
-	break;
-        case 20: /* Magic Mapping */
-		map_area();
-	break;
-        case 21: /* Recharging */
-		(void)recharge(plev * 3);
-	break;
-        case 22: /* Remove Curse */
-		remove_curse();
-	break;
-        case 23: /* Cure Critical Wounds */
-		(void)hp_player(damroll(12, 10));
-		(void)set_stun(0);
-		(void)set_cut(0);
-	break;
-        case 24: /* Elemental Protection */
-		(void)set_oppose_acid(p_ptr->oppose_acid + randint(20) + 20);
-		(void)set_oppose_elec(p_ptr->oppose_elec + randint(20) + 20);
-		(void)set_oppose_fire(p_ptr->oppose_fire + randint(20) + 20);
-		(void)set_oppose_cold(p_ptr->oppose_cold + randint(20) + 20);
-	break;
-        case 25: /* Prismatic Bolt */
-		if (!get_aim_dir(&dir)) return;
-		switch (randint(5))
-		{
-			case 1: dummy = GF_FIRE;
-			case 2: dummy = GF_ELEC;
-			case 3: dummy = GF_MISSILE;
-			case 4: dummy = GF_COLD;
-			default: dummy = GF_ACID;
-		}			
-		fire_bolt_or_beam(beam, dummy, dir, damroll(6+((plev-5)/4), 8));
-	break;
-        case 26: /* Identify */
-		(void)ident_spell();
-        break;
-        case 27: /* Teleport Away */
-		if (!get_aim_dir(&dir)) return;
-		(void)fire_beam(GF_AWAY_ALL, dir, plev);
-        break;
-        case 28: /* Elemental Ball */
-		if (!get_aim_dir(&dir)) return;
-		switch (randint(4))
-		{
-			case 1: dummy = GF_FIRE;
-			case 2: dummy = GF_ELEC;
-			case 3: dummy = GF_COLD;
-			default: dummy = GF_ACID;
-		}
-		fire_ball(dummy, dir, 100 + (plev * 2), 2);
-        break;
-        case 29: /* Detection */
-		(void)detect_all();
-        break;
-        case 30: /* Word of Recall */
-			{
-                if (dun_level && (p_ptr->max_dlv > dun_level))
-                {
-                    if (get_check("Reset recall depth? "))
-                    p_ptr->max_dlv = dun_level;
 
-                }
-				if (!p_ptr->word_recall)
-				{
-					p_ptr->word_recall = rand_int(21) + 15;
-					msg_print("The air about you becomes charged...");
-				}
-				else
-				{
-					p_ptr->word_recall = 0;
-					msg_print("A tension leaves the air around you...");
-				}
-				break;
-            }
-        case 31: /* Clairvoyance */
-		wiz_lite();
-		if (!(p_ptr->telepathy))
+    /*
+     * ARCANE - Re-written by Gumby, making it an amalgamation of spells
+     *          appearing in the first two books of each of the other
+     *          realms.
+     */
+    case 6:
+	switch (spell)
+	{
+		/* Cantrips for Beginners */
+		case 0: /* Static Bolt */
+			if (!get_aim_dir(&dir)) return;
+			fire_bolt_or_beam(beam-10, GF_ELEC, dir, damroll(3+(plev/5), 4));
+			break;
+		case 1: /* Detect Monsters */
+			(void)detect_monsters_normal(); break;
+		case 2: /* Cure Light Wounds */
+			(void)hp_player(damroll(3, 8));
+			(void)set_cut(p_ptr->cut - 10);
+			break;
+		case 3: /* Phase Door */
+			teleport_player(10); break;
+		case 4: /* Detect Doors/Traps */
+			(void)detect_traps();
+			(void)detect_doors();
+			(void)detect_stairs();
+			break; 
+		case 5: /* Phlogiston*/
+			phlogiston(); break;
+		case 6: /* Stinking Cloud */
+			if (!get_aim_dir(&dir)) return;
+			fire_ball(GF_POIS, dir, 15 + (plev/2), 2);
+			break;
+		case 7: /* Confuse Monster */
+			if (!get_aim_dir(&dir)) return;
+			(void)confuse_monster(dir, (plev * 3) / 2);
+			break;
+
+		/* Minor Arcana */
+		case 8: /* Resist Environment */
+			(void)set_oppose_cold(p_ptr->oppose_cold + randint(20) + 20);
+			(void)set_oppose_fire(p_ptr->oppose_fire + randint(20) + 20);
+			(void)set_oppose_elec(p_ptr->oppose_elec + randint(20) + 20);
+			break;
+		case 9: /* Sleep Monster */
+			if (!get_aim_dir(&dir)) return;
+			(void)sleep_monster(dir);
+			break;
+		case 10: /* Stone to Mud */
+			if (!get_aim_dir(&dir)) return;
+			(void)wall_to_mud(dir);
+			break;
+		case 11: /* Lightning Bolt */
+			if (!get_aim_dir(&dir)) return;
+			fire_bolt_or_beam(beam-10, GF_ELEC, dir, damroll(5+((plev-5)/3), 8));
+			break;
+		case 12: /* Recharging */
+			(void)recharge(plev * 2); break;
+		case 13: /* Magic Mapping */
+			map_area(); break;
+		case 14: /* Cure Medium Wounds */
+			(void)hp_player(damroll(6, 8));
+			(void)set_cut((p_ptr->cut / 2) - 20);
+			break;
+		case 15: /* Identify */
+			(void)ident_spell(); break;
+
+		/* Major Arcana */
+		case 16: /* Ray of Light */
+			if (!get_aim_dir(&dir)) return;
+			msg_print("A ray of bright light appears.");
+			lite_line(dir);
+			break;
+		case 17: /* Satisfy Hunger */
+			(void)set_food(PY_FOOD_MAX - 1); break;
+		case 18: /* Teleport Self */
+			teleport_player(plev * 5); break;
+		case 19: /* Remove Curse */
+			if (remove_curse())
+				msg_print("A blue glow surrounds you.");
+			break;
+		case 20: /* Cure Critical Wounds */
+			(void)hp_player(damroll(12, 8));
+			(void)set_stun(0);
+			(void)set_cut(0);
+			break;
+		case 21: /* Teleport Other */
+			if (!get_aim_dir(&dir)) return;
+			(void)fire_beam(GF_AWAY_ALL, dir, plev);
+			break;
+		case 22: /* Haste Self */
+			if (!p_ptr->fast)
+				(void)set_fast(randint(plev) + plev);
+			else
+				(void)set_fast(p_ptr->fast + randint(plev));
+			break;
+ 		case 23: /* Vampiric Drain */
+			if (!get_aim_dir(&dir)) return;
+			dummy = plev + randint(plev) * MAX(1, plev/10);
+			if (drain_life(dir, dummy))
+			{
+				(void)hp_player(dummy);
+				dummy = p_ptr->food + MIN(5000, 100 * dummy);
+				if (p_ptr->food < PY_FOOD_MAX)
+					(void)set_food(dummy >= PY_FOOD_MAX ? PY_FOOD_MAX-1 : dummy);
+			}
+			break;
+
+		/* Manual of Mastery */
+		case 24: /* Ball Lightning */
+			if (!get_aim_dir(&dir)) return;
+			fire_ball(GF_ELEC, dir, 75 + (plev), 2);
+			break;
+		case 25: /* Healing */
+			(void)hp_player(250);
+			(void)set_stun(0);
+			(void)set_cut(0);
+			break;
+		case 26: /* Brand Weapon */
+			brand_weapon(rand_int(5)); break;
+		case 27: /* Summon Monster */
+			if (!(summon_specific_friendly(py, px, plev, SUMMON_NO_UNIQUES, FALSE)))
+				no_trump = TRUE;
+			break;
+		case 28: /* Poison Gas */
+			if (!get_aim_dir(&dir)) return;
+			fire_ball(GF_POIS, dir, 100 + plev, (plev/10)+1);
+			break;
+		case 29: /* Teleport Level */
+			(void)teleport_player_level(); break;
+		case 30: /* Word of Recall */
 		{
-			(void)set_tim_esp(p_ptr->tim_esp + randint(30) + 25);
+			if (dun_level && (p_ptr->max_dlv > dun_level))
+			{
+				if (get_check("Reset recall depth? "))
+				p_ptr->max_dlv = dun_level;
+			}
+
+			if (!p_ptr->word_recall)
+			{
+				p_ptr->word_recall = rand_int(21) + 15;
+				msg_print("The air about you becomes charged...");
+			}
+			else
+			{
+				p_ptr->word_recall = 0;
+				msg_print("A tension leaves the air around you...");
+			}
+			break;
 		}
+		case 31: /* Restoration */
+			(void)do_res_stat(A_STR);
+			(void)do_res_stat(A_INT);
+			(void)do_res_stat(A_WIS);
+			(void)do_res_stat(A_DEX);
+			(void)do_res_stat(A_CON);
+			(void)do_res_stat(A_CHR);
+			(void)restore_level();
+			break;
+
+		default:
+			msg_format("You cast an unknown Arcane spell: %d.", spell);
+			msg_print(NULL);
+	}
 	break;
-        default:
-        msg_format("You cast an unknown Arcane spell: %d.", spell);
-        msg_print(NULL);
-    }
-    break;
-	 default:
+
+	default:
 		  msg_format("You cast a spell from an unknown realm: realm %d, spell %d.", realm, spell);
 		  msg_print(NULL);
-	    }
+	}
 	
-#if 0 /* Old code */
-		switch (spell)
-		{
-			case 0:
-			{
-				if (!get_aim_dir(&dir)) return;
-				fire_bolt_or_beam(beam-10, GF_MISSILE, dir,
-						  damroll(3 + ((plev - 1) / 5), 4));
-				break;
-			}
-
-			case 1:
-			{
-				(void)detect_monsters_normal();
-				break;
-			}
-
-			case 2:
-			{
-				teleport_player(10);
-				break;
-			}
-
-			case 3:
-			{
-				(void)lite_area(damroll(2, (plev / 2)), (plev / 10) + 1);
-				break;
-			}
-
-			case 4:
-			{
-				(void)detect_treasure();
-				(void)detect_objects_gold();
-				break;
-			}
-
-			case 5:
-			{
-				(void)hp_player(damroll(2, 8));
-				(void)set_cut(p_ptr->cut - 15);
-				break;
-			}
-
-			case 6:
-			{
-				(void)detect_objects_normal();
-				break;
-			}
-
-			case 7:
-			{
-				(void)detect_traps();
-				(void)detect_doors();
-				(void)detect_stairs();
-				break;
-			}
-
-			case 8:
-			{
-				if (!get_aim_dir(&dir)) return;
-				fire_ball(GF_POIS, dir,
-					  10 + (plev / 2), 2);
-				break;
-			}
-
-			case 9:
-			{
-				if (!get_aim_dir(&dir)) return;
-				(void)confuse_monster(dir, plev);
-				break;
-			}
-
-			case 10:
-			{
-				if (!get_aim_dir(&dir)) return;
-				fire_bolt_or_beam(beam-10, GF_ELEC, dir,
-						  damroll(3+((plev-5)/4), 8));
-				break;
-			}
-
-			case 11:
-			{
-				(void)destroy_doors_touch();
-				break;
-			}
-
-			case 12:
-			{
-				if (!get_aim_dir(&dir)) return;
-				(void)sleep_monster(dir);
-				break;
-			}
-
-			case 13:
-			{
-				(void)set_poisoned(0);
-				break;
-			}
-
-			case 14:
-			{
-			 
-				break;
-			}
-
-			case 15:
-			{
-				if (!get_aim_dir(&dir)) return;
-				msg_print("A line of blue shimmering light appears.");
-				lite_line(dir);
-				break;
-			}
-
-			case 16:
-			{
-				if (!get_aim_dir(&dir)) return;
-				fire_bolt_or_beam(beam-10, GF_COLD, dir,
-						  damroll(5+((plev-5)/4), 8));
-				break;
-			}
-
-			case 17:
-			{
-				if (!get_aim_dir(&dir)) return;
-				(void)wall_to_mud(dir);
-				break;
-			}
-
-			case 18:
-			{
-				(void)set_food(PY_FOOD_MAX - 1);
-				break;
-			}
-
-			case 19:
-			{
-				(void)recharge(5);
-				break;
-			}
-
-			case 20:
-			{
-				(void)sleep_monsters_touch();
-				break;
-			}
-
-			case 21:
-			{
-				if (!get_aim_dir(&dir)) return;
-				(void)poly_monster(dir);
-				break;
-			}
-
-			case 22:
-			{
-				(void)ident_spell();
-				break;
-			}
-
-			case 23:
-			{
-				(void)sleep_monsters();
-				break;
-			}
-
-			case 24:
-			{
-				if (!get_aim_dir(&dir)) return;
-				fire_bolt_or_beam(beam, GF_FIRE, dir,
-						  damroll(8+((plev-5)/4), 8));
-				break;
-			}
-
-			case 25:
-			{
-				if (!get_aim_dir(&dir)) return;
-				(void)slow_monster(dir);
-				break;
-			}
-
-			case 26:
-			{
-				if (!get_aim_dir(&dir)) return;
-				fire_ball(GF_COLD, dir,
-					  30 + (plev), 2);
-				break;
-			}
-
-			case 27:
-			{
-				(void)recharge(40);
-				break;
-			}
-
-			case 28:
-			{
-				if (!get_aim_dir(&dir)) return;
-				(void)teleport_monster(dir);
-				break;
-			}
-
-			case 29:
-			{
-				if (!p_ptr->fast)
-				{
-					(void)set_fast(randint(20) + plev);
-				}
-				else
-				{
-					(void)set_fast(p_ptr->fast + randint(5));
-				}
-				break;
-			}
-
-			case 30:
-			{
-				if (!get_aim_dir(&dir)) return;
-				fire_ball(GF_FIRE, dir,
-					  55 + (plev), 2);
-				break;
-			}
-
-			case 31:
-			{
-				destroy_area(py, px, 15, TRUE);
-				break;
-			}
-
-			case 32:
-			{
-				(void)genocide(TRUE);
-				break;
-			}
-
-			case 33:
-			{
-				(void)door_creation();
-				break;
-			}
-
-			case 34:
-			{
-				(void)stair_creation();
-				break;
-			}
-
-			case 35:
-			{
-				(void)teleport_player_level();
-				break;
-			}
-
-			case 36:
-			{
-				earthquake(py, px, 10);
-				break;
-			}
-
-			case 37:
-			{
-				if (!p_ptr->word_recall)
-				{
-					p_ptr->word_recall = rand_int(20) + 15;
-					msg_print("The air about you becomes charged...");
-				}
-				else
-				{
-					p_ptr->word_recall = 0;
-					msg_print("A tension leaves the air around you...");
-				}
-				break;
-			}
-
-			case 38:
-			{
-				if (!get_aim_dir(&dir)) return;
-				fire_bolt_or_beam(beam, GF_ACID, dir,
-						  damroll(6+((plev-5)/4), 8));
-				break;
-			}
-
-			case 39:
-			{
-				if (!get_aim_dir(&dir)) return;
-				fire_ball(GF_POIS, dir,
-					  20 + (plev / 2), 3);
-				break;
-			}
-
-			case 40:
-			{
-				if (!get_aim_dir(&dir)) return;
-				fire_ball(GF_ACID, dir,
-					  40 + (plev), 2);
-				break;
-			}
-
-			case 41:
-			{
-				if (!get_aim_dir(&dir)) return;
-				fire_ball(GF_COLD, dir,
-					  70 + (plev), 3);
-				break;
-			}
-
-			case 42:
-			{
-				if (!get_aim_dir(&dir)) return;
-				fire_ball(GF_METEOR, dir,
-					  65 + (plev), 3);
-				break;
-			}
-
-			case 43:
-			{
-				if (!get_aim_dir(&dir)) return;
-				fire_ball(GF_MANA, dir,
-					  300 + (plev * 2), 3);
-				break;
-			}
-
-			case 44:
-			{
-				(void)detect_monsters_evil();
-				break;
-			}
-
-			case 45:
-			{
-				(void)detect_objects_magic();
-				break;
-			}
-
-			case 46:
-			{
-				recharge(100);
-				break;
-			}
-
-			case 47:
-			{
-				(void)genocide(TRUE);
-				break;
-			}
-
-			case 48:
-			{
-				(void)mass_genocide(TRUE);
-				break;
-			}
-
-			case 49:
-			{
-				(void)set_oppose_fire(p_ptr->oppose_fire + randint(20) + 20);
-				break;
-			}
-
-			case 50:
-			{
-				(void)set_oppose_cold(p_ptr->oppose_cold + randint(20) + 20);
-				break;
-			}
-
-			case 51:
-			{
-				(void)set_oppose_acid(p_ptr->oppose_acid + randint(20) + 20);
-				break;
-			}
-
-			case 52:
-			{
-				(void)set_oppose_pois(p_ptr->oppose_pois + randint(20) + 20);
-				break;
-			}
-
-			case 53:
-			{
-				(void)set_oppose_acid(p_ptr->oppose_acid + randint(20) + 20);
-				(void)set_oppose_elec(p_ptr->oppose_elec + randint(20) + 20);
-				(void)set_oppose_fire(p_ptr->oppose_fire + randint(20) + 20);
-				(void)set_oppose_cold(p_ptr->oppose_cold + randint(20) + 20);
-				(void)set_oppose_pois(p_ptr->oppose_pois + randint(20) + 20);
-				break;
-			}
-
-			case 54:
-			{
-				(void)hp_player(10);
-				(void)set_hero(p_ptr->hero + randint(25) + 25);
-				(void)set_afraid(0);
-				break;
-			}
-
-			case 55:
-			{
-				(void)set_shield(p_ptr->shield + randint(20) + 30);
-				break;
-			}
-
-			case 56:
-			{
-				(void)hp_player(30);
-				(void)set_shero(p_ptr->shero + randint(25) + 25);
-				(void)set_afraid(0);
-				break;
-			}
-
-			case 57:
-			{
-				if (!p_ptr->fast)
-				{
-					(void)set_fast(randint(30) + 30 + plev);
-				}
-				else
-				{
-					(void)set_fast(p_ptr->fast + randint(10));
-				}
-				break;
-			}
-
-			case 58:
-			{
-				(void)set_invuln(p_ptr->invuln + randint(8) + 8);
-				break;
-			}
-		}
-#endif
-
-		/* A spell was cast */
+	/* A spell was cast */
 	if (!((increment) ?
 	      (spell_worked2 & (1L << spell)) :
 	      (spell_worked1 & (1L << (spell)))))
@@ -3452,588 +3023,11 @@ void do_cmd_cast(void)
 
 
 /*
- * Brand the current weapon
- */
-
-/*
  * Pray a prayer -- Unused in Gumband
  */
 void do_cmd_pray(void)
 {
-#if 1
-    msg_print
-    ("Praying is not used in Gumband. Use magic spell casting instead.");
-#else
-	int item, sval, spell, dir, chance;
-	int plev = p_ptr->lev;
-
-	object_type     *o_ptr;
-
-	magic_type  *s_ptr;
-
-
-	/* Must use prayer books */
-    if (mp_ptr->spell_book != TV_LIFE_BOOK)
-	{
-		msg_print("Pray hard enough and your prayers may be answered.");
-		return;
-	}
-
-	/* Must have lite */
-	if (p_ptr->blind || no_lite())
-	{
-		msg_print("You cannot see!");
-		return;
-	}
-
-	/* Must not be confused */
-	if (p_ptr->confused)
-	{
-		msg_print("You are too confused!");
-		return;
-	}
-
-
-	/* Restrict choices */
-	item_tester_tval = mp_ptr->spell_book;
-
-	/* Get an item (from inven or floor) */
-	if (!get_item(&item, "Use which book? ", FALSE, TRUE, TRUE))
-	{
-		if (item == -2) msg_print("You have no prayer books!");
-		return;
-	}
-
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
-
-	/* Access the item's sval */
-	sval = o_ptr->sval;
-
-
-	/* Track the object kind */
-	object_kind_track(o_ptr->k_idx);
-
-	/* Hack -- Handle stuff */
-	handle_stuff();
-
-
-	/* Choose a spell */
-	if (!get_spell(&spell, "recite", sval, TRUE))
-	{
-		if (spell == -2) msg_print("You don't know any prayers in that book.");
-		return;
-	}
-
-
-	/* Access the spell */
-	s_ptr = &mp_ptr->info[spell];
-
-
-	/* Verify "dangerous" prayers */
-	if (s_ptr->smana > p_ptr->csp)
-	{
-		/* Warning */
-		msg_print("You do not have enough mana to recite this prayer.");
-
-		/* Verify */
-		if (!get_check("Attempt it anyway? ")) return;
-	}
-
-
-	/* Spell failure chance */
-	chance = spell_chance(spell);
-
-	/* Check for failure */
-	if (rand_int(100) < chance)
-	{
-		if (flush_failure) flush();
-		msg_print("You failed to concentrate hard enough!");
-	}
-
-	/* Success */
-	else
-	{
-		switch (spell)
-		{
-			case 0:
-			{
-				(void)detect_monsters_evil();
-				break;
-			}
-
-			case 1:
-			{
-				(void)hp_player(damroll(2, 10));
-				(void)set_cut(p_ptr->cut - 10);
-				break;
-			}
-
-			case 2:
-			{
-				(void)set_blessed(p_ptr->blessed + randint(12) + 12);
-				break;
-			}
-
-			case 3:
-			{
-				(void)set_afraid(0);
-				break;
-			}
-
-			case 4:
-			{
-				(void)lite_area(damroll(2, (plev / 2)), (plev / 10) + 1);
-				break;
-			}
-
-			case 5:
-			{
-				(void)detect_traps();
-				break;
-			}
-
-			case 6:
-			{
-				(void)detect_doors();
-				(void)detect_stairs();
-				break;
-			}
-
-			case 7:
-			{
-				(void)set_poisoned(p_ptr->poisoned / 2);
-				break;
-			}
-
-			case 8:
-			{
-				if (!get_aim_dir(&dir)) return;
-				(void)fear_monster(dir, plev);
-				break;
-			}
-
-			case 9:
-			{
-				teleport_player(plev * 3);
-				break;
-			}
-
-			case 10:
-			{
-				(void)hp_player(damroll(4, 10));
-				(void)set_cut((p_ptr->cut / 2) - 20);
-				break;
-			}
-
-			case 11:
-			{
-				(void)set_blessed(p_ptr->blessed + randint(24) + 24);
-				break;
-			}
-
-			case 12:
-			{
-				(void)sleep_monsters_touch();
-				break;
-			}
-
-			case 13:
-			{
-				(void)set_food(PY_FOOD_MAX - 1);
-				break;
-			}
-
-			case 14:
-			{
-				remove_curse();
-				break;
-			}
-
-			case 15:
-			{
-				(void)set_oppose_fire(p_ptr->oppose_fire + randint(10) + 10);
-				(void)set_oppose_cold(p_ptr->oppose_cold + randint(10) + 10);
-				break;
-			}
-
-			case 16:
-			{
-				(void)set_poisoned(0);
-				break;
-			}
-
-			case 17:
-			{
-				if (!get_aim_dir(&dir)) return;
-				fire_ball(GF_HOLY_ORB, dir,
-					  (damroll(3, 6) + plev +
-					   (plev / ((p_ptr->pclass == 2) ? 2 : 4))),
-					  ((plev < 30) ? 2 : 3));
-				break;
-			}
-
-			case 18:
-			{
-				(void)hp_player(damroll(6, 10));
-				(void)set_cut(0);
-				break;
-			}
-
-			case 19:
-			{
-				(void)set_tim_invis(p_ptr->tim_invis + randint(24) + 24);
-				break;
-			}
-
-			case 20:
-			{
-				(void)set_protevil(p_ptr->protevil + randint(25) + 3 * p_ptr->lev);
-				break;
-			}
-
-			case 21:
-			{
-				earthquake(py, px, 10);
-				break;
-			}
-
-			case 22:
-			{
-				map_area();
-				break;
-			}
-
-			case 23:
-			{
-				(void)hp_player(damroll(8, 10));
-				(void)set_stun(0);
-				(void)set_cut(0);
-				break;
-			}
-
-			case 24:
-			{
-				(void)turn_undead();
-				break;
-			}
-
-			case 25:
-			{
-				(void)set_blessed(p_ptr->blessed + randint(48) + 48);
-				break;
-			}
-
-			case 26:
-			{
-				(void)dispel_undead(plev * 3);
-				break;
-			}
-
-			case 27:
-			{
-				(void)hp_player(300);
-				(void)set_stun(0);
-				(void)set_cut(0);
-				break;
-			}
-
-			case 28:
-			{
-				(void)dispel_evil(plev * 3);
-				break;
-			}
-
-			case 29:
-			{
-				warding_glyph();
-				break;
-			}
-
-			case 30:
-			{
-				(void)dispel_evil(plev * 4);
-				(void)hp_player(1000);
-				(void)set_afraid(0);
-				(void)set_poisoned(0);
-				(void)set_stun(0);
-				(void)set_cut(0);
-				break;
-			}
-
-			case 31:
-			{
-				(void)detect_monsters_normal();
-				break;
-			}
-
-			case 32:
-			{
-				(void)detect_all();
-				break;
-			}
-
-			case 33:
-			{
-				(void)ident_spell();
-				break;
-			}
-
-			case 34:
-			{
-				(void)probing();
-				break;
-			}
-
-			case 35:
-			{
-				wiz_lite();
-				break;
-			}
-
-			case 36:
-			{
-				(void)hp_player(damroll(4, 10));
-				(void)set_cut(0);
-				break;
-			}
-
-			case 37:
-			{
-				(void)hp_player(damroll(8, 10));
-				(void)set_stun(0);
-				(void)set_cut(0);
-				break;
-			}
-
-			case 38:
-			{
-				(void)hp_player(2000);
-				(void)set_stun(0);
-				(void)set_cut(0);
-				break;
-			}
-
-			case 39:
-			{
-				(void)do_res_stat(A_STR);
-				(void)do_res_stat(A_INT);
-				(void)do_res_stat(A_WIS);
-				(void)do_res_stat(A_DEX);
-				(void)do_res_stat(A_CON);
-				(void)do_res_stat(A_CHR);
-				break;
-			}
-
-			case 40:
-			{
-				(void)restore_level();
-				break;
-			}
-
-			case 41:
-			{
-				(void)dispel_undead(plev * 4);
-				break;
-			}
-
-			case 42:
-			{
-				(void)dispel_evil(plev * 4);
-				break;
-			}
-
-			case 43:
-			{
-				if (banish_evil(100))
-				{
-					msg_print("The power of your god banishes evil!");
-				}
-				break;
-			}
-
-			case 44:
-			{
-				destroy_area(py, px, 15, TRUE);
-				break;
-			}
-
-			case 45:
-			{
-				if (!get_aim_dir(&dir)) return;
-				drain_life(dir, 200);
-				break;
-			}
-
-			case 46:
-			{
-				(void)destroy_doors_touch();
-				break;
-			}
-
-			case 47:
-			{
-				(void)recharge(15);
-				break;
-			}
-
-			case 48:
-			{
-				(void)remove_all_curse();
-				break;
-			}
-
-			case 49:
-			{
-				(void)enchant_spell(rand_int(4) + 1, rand_int(4) + 1, 0);
-				break;
-			}
-
-			case 50:
-			{
-				(void)enchant_spell(0, 0, rand_int(3) + 2);
-				break;
-			}
-
-			case 51:
-			{
-				brand_weapon();
-				break;
-			}
-
-			case 52:
-			{
-				teleport_player(10);
-				break;
-			}
-
-			case 53:
-			{
-				teleport_player(plev * 8);
-				break;
-			}
-
-			case 54:
-			{
-				if (!get_aim_dir(&dir)) return;
-				(void)teleport_monster(dir);
-				break;
-			}
-
-			case 55:
-			{
-				(void)teleport_player_level();
-				break;
-			}
-
-			case 56:
-			{
-				if (p_ptr->word_recall == 0)
-				{
-					p_ptr->word_recall = rand_int(20) + 15;
-					msg_print("The air about you becomes charged...");
-				}
-				else
-				{
-					p_ptr->word_recall = 0;
-					msg_print("A tension leaves the air around you...");
-				}
-				break;
-			}
-
-			case 57:
-			{
-				msg_print("The world changes!");
-
-				if (autosave_l)
-				{
-					is_autosave = TRUE;
-					msg_print("Autosaving the game...");
-					do_cmd_save_game();
-					is_autosave = FALSE;
-				}
-
-				new_level_flag = TRUE;
-				break;
-			}
-		}
-
-		/* A prayer was prayed */
-		if (!((spell < 32) ?
-		      (spell_worked1 & (1L << spell)) :
-		      (spell_worked2 & (1L << (spell - 32)))))
-		{
-			int e = s_ptr->sexp;
-
-			/* The spell worked */
-			if (spell < 32)
-			{
-				spell_worked1 |= (1L << spell);
-			}
-			else
-			{
-				spell_worked2 |= (1L << (spell - 32));
-			}
-
-			/* Gain experience */
-			gain_exp(e * s_ptr->slevel);
-		}
-	}
-
-	/* Take a turn */
-	energy_use = 100;
-
-	/* Sufficient mana */
-	if (s_ptr->smana <= p_ptr->csp)
-	{
-		/* Use some mana */
-		p_ptr->csp -= s_ptr->smana;
-	}
-
-	/* Over-exert the player */
-	else
-	{
-		int oops = s_ptr->smana - p_ptr->csp;
-
-		/* No mana left */
-		p_ptr->csp = 0;
-		p_ptr->csp_frac = 0;
-
-		/* Message */
-		msg_print("You faint from the effort!");
-
-		/* Hack -- Bypass free action */
-		(void)set_paralyzed(p_ptr->paralyzed + randint(5 * oops + 1));
-
-		/* Damage CON (possibly permanently) */
-		if (rand_int(100) < 50)
-		{
-			bool perm = (rand_int(100) < 25);
-
-			/* Message */
-			msg_print("You have damaged your health!");
-
-			/* Reduce constitution */
-			(void)dec_stat(A_CON, 15 + randint(10), perm);
-		}
-	}
-
-	/* Redraw mana */
-	p_ptr->redraw |= (PR_MANA);
-
-	/* Window stuff */
-	p_ptr->window |= (PW_PLAYER);
-	p_ptr->window |= (PW_SPELL);
-#endif
+	msg_print("Praying is not used in Gumband. Use magic spell casting instead.");
 }
 
 
@@ -4043,24 +3037,25 @@ void mindcraft_info(char *p, int power)
 
     strcpy(p, "");
 
-    switch (power) {
-     case 0:  break;
-     case 1:  sprintf(p, " dam %dd%d", 3 + ((plev - 1) / 4), 3 + plev/15); break;
-     case 2:  sprintf(p, " range %d", (plev < 30 ? 10 : plev + 2)); break;
-     case 3:  if (plev < 50)
-              	sprintf(p, " range %d", plev * 5);
-              else
-              	sprintf(p, " range %d", plev);
-              break;
-     case 4:  break;
-     case 5:  sprintf(p, " dam %dd8", 10+((plev-5)/3));  break;
-     case 6:  sprintf(p, " dur %d", plev);  break;
-     case 7:  break;
-     case 8:  sprintf(p, " dam %d", plev * ((plev-5) / 9 + 1)); break;
-     case 9:  sprintf(p, " dur 11-%d", plev + plev/2);  break;
-     case 10: sprintf(p, " dam %dd8", plev/2);  break;
-     case 11: sprintf(p, " dam %d", plev * (plev > 39 ? 5: 4)); break;
-    }
+	switch (power)
+	{
+		case 0:  break;
+		case 1:  sprintf(p, " dam %dd%d", 3 + ((plev - 1) / 4), 3 + plev/15); break;
+		case 2:  sprintf(p, " range %d", (plev < 30 ? 10 : plev + 2)); break;
+		case 3:  if (plev < 50)
+				sprintf(p, " range %d", plev * 5);
+			 else
+				sprintf(p, " range %d", plev);
+			 break;
+		case 4:  break;
+		case 5:  sprintf(p, " dam %dd8", 10+((plev-5)/3));  break;
+		case 6:  sprintf(p, " dur %d", plev);  break;
+		case 7:  break;
+		case 8:  sprintf(p, " dam %d", plev * ((plev-5) / 9 + 1)); break;
+		case 9:  sprintf(p, " dur 11-%d", plev + plev/2);  break;
+		case 10: sprintf(p, " dam %dd8", plev/2);  break;
+		case 11: sprintf(p, " dam %d", plev * (plev > 39 ? 5: 4)); break;
+	}
 }
 
 

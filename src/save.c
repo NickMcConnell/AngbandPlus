@@ -1161,6 +1161,8 @@ static void wr_extra(void)
 	wr_u16b(total_winner);
 	wr_u16b(noscore);
 
+	/* Remember if we had a quick start */
+	wr_byte(quick_start);
 
 	/* Write death */
 	wr_byte(death);

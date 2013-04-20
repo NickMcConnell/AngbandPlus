@@ -1,4 +1,4 @@
-50
+41
 ******** BUFFER LINE *********************************** DO NOT REMOVE *******
 of Misery
 of Horror
@@ -9,22 +9,18 @@ of Macbeth
 of Microsloth
 of Troubleseeking
 of the Kender
-'Camlost'
 'Wooden Box'
 of Glass
-of Freezing
 of Petrifying
 of Sinbad
 of Tristan
 'Freefall'
 of Disappointment
-of Shocking
 of Leper
 of Surrendering
 of Doom
 of Woe
 of Suffocation
-of Menstruation
 of Confusion
 of the Fool
 of Suicide
@@ -33,18 +29,13 @@ of Kamikaze
 of Wasted Years
 of Cursing
 of Damnation
-of Crushing
 of Mortality
-of Babality
+of Banality
 of Falsehood
-of Cowardice
 of Hatred
 of Sadness
-of Glass
-of Weakness
 of Humiliation
 of Teleporno
-'Camlost'
 of Gorlim
 'Man-Trap'
 'Moonmaster'

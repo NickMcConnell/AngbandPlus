@@ -761,6 +761,12 @@ static void health_redraw(void)
 		/* Afraid */
 		if (m_ptr->monfear) attr = TERM_VIOLET;
 
+		/* Confused */
+		if (m_ptr->confused) attr = TERM_UMBER;
+
+		/* Stunned */
+		if (m_ptr->stunned) attr = TERM_L_UMBER;
+
 		/* Asleep */
 		if (m_ptr->csleep) attr = TERM_BLUE;
 
@@ -1416,7 +1422,7 @@ static void calc_spells(void)
 	}
 
 
-    if (p_ptr->realm2 == 0)
+    if (p_ptr->realm2 == REALM_NONE)
     {
         if (k>32) k = 32;
     }
@@ -1477,7 +1483,6 @@ static void calc_mana(void)
 		levels = (p_ptr->lev - mp_ptr->spell_first) + 1;
 	}
 
-
 	/* Hack -- no negative mana */
 	if (levels < 0) levels = 0;
 
@@ -1487,11 +1492,16 @@ static void calc_mana(void)
 	/* Hack -- usually add one mana */
 	if (msp) msp++;
 
-	/* Hack: High mages have a 25% mana bonus */
-	if (msp && (p_ptr->pclass == CLASS_HIGH_MAGE)) msp += msp / 4;
+	/*
+	 * Hack: High mages have a 25% mana bonus
+	 * Changed to +50% by Gumby
+	 */
+	if (msp && (p_ptr->pclass == CLASS_HIGH_MAGE)) msp += msp / 2;
 
+	/* Hack: Warrior-Magi have a 25% mana penalty. -- Gumby */
+	if (msp && (p_ptr->pclass == CLASS_WARRIOR_MAGE)) msp -= msp / 4;
 
-	/* Only mages are affected */
+	/* Only mage-types are affected */
 	if (mp_ptr->spell_book == TV_SORCERY_BOOK)
 	{
 		u32b f1, f2, f3;
@@ -1506,15 +1516,11 @@ static void calc_mana(void)
 		object_flags(o_ptr, &f1, &f2, &f3);
 
 		/* Normal gloves hurt mage-type spells */
-		if (o_ptr->k_idx &&
-		    !(f2 & (TR2_FREE_ACT)) &&
+		if (o_ptr->k_idx && !(f2 & (TR2_FREE_ACT)) &&
 		    !((f1 & (TR1_DEX)) && (o_ptr->pval > 0)))
 		{
 			/* Encumbered */
 			p_ptr->cumber_glove = TRUE;
-
-			/* Reduce mana */
-			msp = (3 * msp) / 4;
 		}
 	}
 
@@ -1534,14 +1540,11 @@ static void calc_mana(void)
 	/* Determine the weight allowance */
 	max_wgt = mp_ptr->spell_weight;
 
-	/* Heavy armor penalizes mana */
+	/* Heavy armor encumbers */
 	if (((cur_wgt - max_wgt) / 10) > 0)
 	{
 		/* Encumbered */
 		p_ptr->cumber_armor = TRUE;
-
-		/* Reduce mana */
-		msp -= ((cur_wgt - max_wgt) / 10);
 	}
 
 
@@ -2074,13 +2077,11 @@ static void calc_bonuses(void)
 			break;
 		case RACE_YEEK:
 			p_ptr->resist_acid = TRUE;
-			if (p_ptr->lev > 19) p_ptr->immune_acid = TRUE;
+			if (p_ptr->lev > 29) p_ptr->immune_acid = TRUE;
 			break;
 		case RACE_KLACKON:
 			p_ptr->resist_conf = TRUE;
 			p_ptr->resist_acid = TRUE;
-
-			/* Klackons become faster */
 			p_ptr->pspeed += (p_ptr->lev) / 10;
 			break;
 		case RACE_KOBOLD:
@@ -2100,6 +2101,8 @@ static void calc_bonuses(void)
 			if (p_ptr->lev >  9) p_ptr->resist_cold = TRUE;
 			if (p_ptr->lev > 14) p_ptr->resist_acid = TRUE;
 			if (p_ptr->lev > 19) p_ptr->resist_elec = TRUE;
+			if (p_ptr->lev > 24) p_ptr->resist_lite = TRUE;
+			if (p_ptr->lev > 29) p_ptr->resist_dark = TRUE;
 			if (p_ptr->lev > 34) p_ptr->resist_pois = TRUE;
 			break;
 		case RACE_MIND_FLAYER:
@@ -2114,9 +2117,9 @@ static void calc_bonuses(void)
 			break;
 		case RACE_GOLEM:
 			p_ptr->slow_digest = TRUE;
+			p_ptr->resist_fire = TRUE;
 			p_ptr->resist_pois = TRUE;
 			p_ptr->resist_shard = TRUE;
-			p_ptr->resist_nexus = TRUE;
 			break;
 		case RACE_SKELETON:
 			p_ptr->resist_shard = TRUE;
@@ -2155,17 +2158,14 @@ static void calc_bonuses(void)
 		case RACE_SPRITE:
 			p_ptr->ffall = TRUE;
 			p_ptr->resist_lite = TRUE;
-
-			/* Sprites become faster */
 			p_ptr->pspeed += (p_ptr->lev) / 10;
 			break;
 		case RACE_BEASTMAN:
 			p_ptr->resist_conf  = TRUE;
 			p_ptr->resist_sound = TRUE;
 			break;
-		default:
-			/* Do nothing */
-			;
+		default: /* no abilities */
+			break;
 	}
 
 	/* Hack -- apply racial/class stat maxes */
@@ -2185,45 +2185,29 @@ static void calc_bonuses(void)
 		switch (p_ptr->chaos_patron)
 		{
 			case PATRON_CHARDROS:
-			{
 				p_ptr->to_d += 5;
 				p_ptr->dis_to_d += 5;
 				break;
-			}
 			case PATRON_HIONHURN:
-			{
 				p_ptr->to_d += 7;
 				p_ptr->dis_to_d += 7;
 				break;
-			}
 			case PATRON_XIOMBARG:
-			{
 				p_ptr->to_h += 5;
 				p_ptr->dis_to_h += 5;
 				break;
-			}
 			case PATRON_ARIOCH:
-			{
-				p_ptr->resist_fire = TRUE;
-				break;
-			}
+				p_ptr->resist_fire = TRUE; break;
 			case PATRON_NARJHAN:
-			{
 				p_ptr->skill_srh += 5;
 				p_ptr->skill_fos += 5;
 				break;
-			}
 			case PATRON_KHORNE:
-			{
 				p_ptr->to_d += 10;
 				p_ptr->dis_to_d += 10;
 				break;
-			}
 			case PATRON_SLAANESH:
-			{
-				p_ptr->skill_stl += 5;
-				break;
-			}
+				p_ptr->skill_stl += 5; break;
 		}
 	}
 
@@ -2567,7 +2551,7 @@ static void calc_bonuses(void)
 	if (p_ptr->sh_fire) p_ptr->lite = TRUE;
 	if (p_ptr->sh_elec) p_ptr->lite = TRUE;
 
-	/* Warriors can use their body armour better than others */
+	/* Warriors can use their body armour better than others -- Gumby */
 	if ((p_ptr->pclass == CLASS_WARRIOR) && (inventory[INVEN_BODY].k_idx))
 	{
 		p_ptr->ac += (inventory[INVEN_BODY].ac / 2);
@@ -2577,8 +2561,8 @@ static void calc_bonuses(void)
 	/* Golems get an intrinsic AC bonus */
 	if (p_ptr->prace == RACE_GOLEM)
 	{
-		p_ptr->to_a += (p_ptr->lev / 2);
-		p_ptr->dis_to_a += (p_ptr->lev / 2);
+		p_ptr->to_a += p_ptr->lev;
+		p_ptr->dis_to_a += p_ptr->lev;
 	}
 
 	/* Calculate stats */
@@ -2702,9 +2686,8 @@ static void calc_bonuses(void)
 	/* wraith_form */
 	if (p_ptr->wraith_form)
 	{
-		p_ptr->to_a += 100;
-		p_ptr->dis_to_a += 100;
-		p_ptr->reflect = TRUE;
+		p_ptr->to_a += 75;
+		p_ptr->dis_to_a += 75;
 	}
 
 	/* Temporary blessing */
@@ -2723,20 +2706,24 @@ static void calc_bonuses(void)
 		p_ptr->dis_to_a += 50;
 	}
 
-	/* Temporary "Hero" */
+	/* Temporary "Hero" (was +12 to hit -- G) */
 	if (p_ptr->hero)
 	{
-		p_ptr->to_h += 12;
-		p_ptr->dis_to_h += 12;
+		p_ptr->to_h += 15;
+		p_ptr->dis_to_h += 15;
 	}
 
-	/* Temporary "Beserk" */
+	/* Temporary "Beserk" (was +24 to hit -- Gumby) */
 	if (p_ptr->shero)
 	{
-		p_ptr->to_h += 24;
-		p_ptr->dis_to_h += 24;
-		p_ptr->to_a -= 10;
-		p_ptr->dis_to_a -= 10;
+		p_ptr->to_h += 25;
+		p_ptr->dis_to_h += 25;
+		/* You hit harder when Berserk */
+		p_ptr->to_d += 10;
+		p_ptr->dis_to_d += 10;
+		/* Magical armour can't save you when you're Berserk */
+		p_ptr->to_a = -10;
+		p_ptr->dis_to_a = -10;
 	}
 
 	/* Temporary "fast" */
@@ -2768,12 +2755,6 @@ static void calc_bonuses(void)
 		p_ptr->see_infra++;
 	}
 
-
-	/* Hack -- Res Chaos -> Res Conf */
-	if (p_ptr->resist_chaos)
-	{
-		p_ptr->resist_conf = TRUE;
-	}
 
 	/* Hack -- Hero/Shero -> Res fear */
 	if (p_ptr->hero || p_ptr->shero)
@@ -2888,58 +2869,31 @@ static void calc_bonuses(void)
 			}
 		}
 
-		/* Hack -- Reward High Level Rangers using Bows */
-		if ((p_ptr->pclass == CLASS_RANGER) &&
-		    (p_ptr->tval_ammo == TV_ARROW))
-		{
-			/* Extra shot at level 15 */
-			if (p_ptr->lev >= 15) p_ptr->num_fire++;
-
-			/* Extra shot at level 30 */
-			if (p_ptr->lev >= 30) p_ptr->num_fire++;
-
-			/* Extra shot at level 45 */
-			if (p_ptr->lev >= 45) p_ptr->num_fire++;
-		}
-
 		/*
-		 * Addendum -- also "Reward" high level warriors,
-		 * with _any_ missile weapon -- TY
+		 * Extra blows based on level. It was originally a bunch of
+		 * if() statements, but a switch is much prettier, wouldn't
+		 * you say? :) -- Gumby
 		 */
-		if ((p_ptr->pclass == CLASS_WARRIOR) &&
-		    (p_ptr->tval_ammo <= TV_BOLT) &&
-		    (p_ptr->tval_ammo >= TV_SHOT))
+		switch (p_ptr->pclass)
 		{
-			/* Extra shot at level 25 */
-			if (p_ptr->lev >= 25) p_ptr->num_fire++;
-
-			/* Extra shot at level 50 */
-			if (p_ptr->lev >= 50) p_ptr->num_fire++;
-		}
-
-		/* And reward Chaos Warriors, Warrior Magi, and Paladins */
-		if ((p_ptr->pclass == CLASS_CHAOS_WARRIOR) &&
-		    (p_ptr->tval_ammo <= TV_BOLT) &&
-		    (p_ptr->tval_ammo >= TV_SHOT))
-		{
-			/* Extra shot at level 35 */
-			if (p_ptr->lev >= 35) p_ptr->num_fire++;
-		}
-
-		if ((p_ptr->pclass == CLASS_WARRIOR_MAGE) &&
-		    (p_ptr->tval_ammo <= TV_BOLT) &&
-		    (p_ptr->tval_ammo >= TV_SHOT))
-		{
-			/* Extra shot at level 35 */
-			if (p_ptr->lev >= 35) p_ptr->num_fire++;
-		}
-
-		if ((p_ptr->pclass == CLASS_PALADIN) &&
-		    (p_ptr->tval_ammo <= TV_BOLT) &&
-		    (p_ptr->tval_ammo >= TV_SHOT))
-		{
-			/* Extra shot at level 35 */
-			if (p_ptr->lev >= 35) p_ptr->num_fire++;
+			case CLASS_WARRIOR: /* 2 extra shots */
+				if ((p_ptr->tval_ammo <= TV_BOLT) &&
+				    (p_ptr->tval_ammo >= TV_SHOT))
+					p_ptr->num_fire += (p_ptr->lev / 25);
+				break;
+			case CLASS_RANGER: /* 3 extra shots - with bows */
+				if (p_ptr->tval_ammo == TV_ARROW)
+					p_ptr->num_fire += (p_ptr->lev / 15);
+				break;
+			case CLASS_PALADIN: case CLASS_WARRIOR_MAGE:
+			case CLASS_CHAOS_WARRIOR: /* 1 extra shot */
+				if ((p_ptr->tval_ammo <= TV_BOLT) &&
+				    (p_ptr->tval_ammo >= TV_SHOT) &&
+				    (p_ptr->lev > 34))
+					p_ptr->num_fire += 1;
+				break;
+			default: /* no extra shots */
+				break;
 		}
 
 		/* Add in the "bonus shots" */
@@ -2978,36 +2932,18 @@ static void calc_bonuses(void)
 		/* Analyze the class */
 		switch (p_ptr->pclass)
 		{
-			/* Warrior */
-			case CLASS_WARRIOR:
-			case CLASS_WARRIOR_MAGE:
+			case CLASS_WARRIOR: case CLASS_WARRIOR_MAGE:
 			case CLASS_WEAPONMASTER:
 				num = 6; wgt = 30; mul = 5; break;
-
-			/* Mage */
-			case CLASS_MAGE:
-			case CLASS_HIGH_MAGE:
+			case CLASS_MAGE: case CLASS_HIGH_MAGE:
 				num = 4; wgt = 40; mul = 2; break;
-
-			/* Priest, Mindcrafter */
-			case CLASS_PRIEST:
-			case CLASS_MINDCRAFTER:
+			case CLASS_PRIEST: case CLASS_MINDCRAFTER:
 				num = 5; wgt = 35; mul = 3; break;
-
-			/* Rogue */
 			case CLASS_ROGUE:
 				num = 5; wgt = 30; mul = 3; break;
-
-			/* Ranger */
-			case CLASS_RANGER:
-				num = 5; wgt = 35; mul = 4; break;
-
-			/* Paladin */
-			case CLASS_PALADIN:
+			case CLASS_RANGER: case CLASS_PALADIN:
 			case CLASS_CHAOS_WARRIOR:
 				num = 5; wgt = 30; mul = 4; break;
-
-			/* Monk */
 			case CLASS_MONK:
 				num = (p_ptr->lev<40?3:4); wgt = 40; mul = 4; break;
 		}
@@ -3036,33 +2972,37 @@ static void calc_bonuses(void)
 		/* Add in the "bonus blows" */
 		p_ptr->num_blow += extra_blows;
 
-		/* Level bonus for Warriors (1-3) */
-		if (p_ptr->pclass == CLASS_WARRIOR) p_ptr->num_blow += (p_ptr->lev) / 15;
-
 		/*
-		 * Weaponmasters only get 1 blow with weapons that
-		 * don't match their specialty. Otherwise, they get a
-		 * bonus of 1-3 blows (as per Warriors). -- Gumby
+		 * Extra blows based on level. It was originally a bunch of
+		 * if() statements, but a switch is much prettier, wouldn't
+		 * you say? :) -- Gumby
 		 */
-		if ((p_ptr->pclass == CLASS_WEAPONMASTER) &&
-		    !(inventory[INVEN_WIELD].tval == p_ptr->wm_choice))
-			p_ptr->num_blow = 1;
-		else if ((p_ptr->pclass == CLASS_WEAPONMASTER) &&
-			 (inventory[INVEN_WIELD].tval == p_ptr->wm_choice))
-			p_ptr->num_blow += (p_ptr->lev) / 15;
-
-		/* Level bonus for Warrior-Magi (1-2) */
-		if (p_ptr->pclass == CLASS_WARRIOR_MAGE) p_ptr->num_blow += (p_ptr->lev) / 25;
-
-		/* Level bonus for the other spellcasting warrior-types */
-		if ((p_ptr->pclass == CLASS_CHAOS_WARRIOR) && (p_ptr->lev > 24))
-			p_ptr->num_blow += 1;
-
-		if ((p_ptr->pclass == CLASS_PALADIN) && (p_ptr->lev > 24))
-			p_ptr->num_blow += 1;
-
-		if ((p_ptr->pclass == CLASS_RANGER) && (p_ptr->lev > 24))
-			p_ptr->num_blow += 1;
+		switch (p_ptr->pclass)
+		{
+			case CLASS_WARRIOR: /* 3 extra blows */
+				p_ptr->num_blow += (p_ptr->lev / 15);
+				break;
+			case CLASS_WARRIOR_MAGE: /* 2 extra blows */
+				p_ptr->num_blow += (p_ptr->lev / 25);
+				break;
+			case CLASS_RANGER: case CLASS_PALADIN:
+			case CLASS_CHAOS_WARRIOR: /* 1 extra blow */
+				if (p_ptr->lev > 24) p_ptr->num_blow += 1;
+				break;
+			case CLASS_WEAPONMASTER:
+			/*
+			 * Weaponmasters only get 1 blow with weapons that
+			 * don't match their specialty. Otherwise, they get a
+			 * bonus of 1-3 blows (as per Warriors). -- Gumby
+			 */
+				if (!(inventory[INVEN_WIELD].tval == p_ptr->wm_choice))
+					p_ptr->num_blow = 1;
+				else if (inventory[INVEN_WIELD].tval == p_ptr->wm_choice)
+					p_ptr->num_blow += (p_ptr->lev / 15);
+				break;
+			default: /* no extra blows */
+				break;
+		}
 
 		/* Require at least one blow */
 		if (p_ptr->num_blow < 1) p_ptr->num_blow = 1;
@@ -3105,60 +3045,61 @@ static void calc_bonuses(void)
 	monk_armour_aux = FALSE;
 
 	/*
-	 * Weaponmasters are fabulous with their preferred weapon type
-	 * and all other weapon types are 'icky'. -- Gumby
+	 * Bonuses to-hit and to-dam based on class. Was a series of if()
+	 * statements, but switches are *much* better. -- Gumby
 	 */
-	if ((p_ptr->pclass == CLASS_WEAPONMASTER) &&
-	     !(o_ptr->tval == p_ptr->wm_choice))
+	switch (p_ptr->pclass)
 	{
-		/* Can't be comfortable with non-specialty weapons! */
-		p_ptr->icky_wield = TRUE;
-	}
-	else if ((p_ptr->pclass == CLASS_WEAPONMASTER) &&
-		 (o_ptr->tval == p_ptr->wm_choice))
-	{
-		p_ptr->to_h += p_ptr->lev;
-		p_ptr->to_d += p_ptr->lev;
-		p_ptr->dis_to_h += p_ptr->lev;
-		p_ptr->dis_to_d += p_ptr->lev;
-	}
-
-	/* Extra bonus for Warriors and Warrior-Magi... */
-	if (p_ptr->pclass == CLASS_WARRIOR || CLASS_WARRIOR_MAGE)
-	{
-		p_ptr->to_h += (p_ptr->lev/5);
-		p_ptr->to_d += (p_ptr->lev/5);
-		p_ptr->dis_to_h += (p_ptr->lev/5);
-		p_ptr->dis_to_d += (p_ptr->lev/5);
-	}
-
-	/* Extra bonus for spellcasting warrior-types... */
-	if (p_ptr->pclass == CLASS_CHAOS_WARRIOR || CLASS_PALADIN || CLASS_RANGER)
-	{
-		p_ptr->to_h += (p_ptr->lev/10);
-		p_ptr->to_d += (p_ptr->lev/10);
-		p_ptr->dis_to_h += (p_ptr->lev/10);
-		p_ptr->dis_to_d += (p_ptr->lev/10);
-	}
-
+		case CLASS_WARRIOR: case CLASS_WARRIOR_MAGE:
+			p_ptr->to_h += (p_ptr->lev/5);
+			p_ptr->to_d += (p_ptr->lev/5);
+			p_ptr->dis_to_h += (p_ptr->lev/5);
+			p_ptr->dis_to_d += (p_ptr->lev/5);
+			break;
 	/*
 	 * Priest weapon penalty for non-blessed edged weapons.
 	 * It *was* only a pathetic (-2,-2), which most people never even
 	 * noticed. I think they'll notice now. :) -- Gumby
 	 */
-	if ((p_ptr->pclass == CLASS_PRIEST) && (!p_ptr->bless_blade) &&
-	    ((o_ptr->tval >= TV_POLEARM) && (o_ptr->tval <= TV_SWORD)))
-	{
-		/* Reduce the real bonuses */
-		p_ptr->to_h -= 15;
-		p_ptr->to_d -= 15;
+		case CLASS_PRIEST:
+			if ((!p_ptr->bless_blade) &&
+			    ((o_ptr->tval >= TV_POLEARM) &&
+			     (o_ptr->tval <= TV_SWORD)))
+			{
+				p_ptr->to_h -= 15;
+				p_ptr->to_d -= 15;
+				p_ptr->dis_to_h -= 15;
+				p_ptr->dis_to_d -= 15;
 
-		/* Reduce the mental bonuses */
-		p_ptr->dis_to_h -= 15;
-		p_ptr->dis_to_d -= 15;
-
-		/* Icky weapon */
-		p_ptr->icky_wield = TRUE;
+				p_ptr->icky_wield = TRUE;
+			}
+			break;
+		case CLASS_RANGER: case CLASS_PALADIN:
+		case CLASS_CHAOS_WARRIOR:
+			p_ptr->to_h += (p_ptr->lev/10);
+			p_ptr->to_d += (p_ptr->lev/10);
+			p_ptr->dis_to_h += (p_ptr->lev/10);
+			p_ptr->dis_to_d += (p_ptr->lev/10);
+			break;
+		/*
+		 * Weaponmasters are fabulous with their preferred weapon
+		 * type and all other weapon types are 'icky'.
+		 */
+		case CLASS_WEAPONMASTER:
+			if (!(o_ptr->tval == p_ptr->wm_choice))
+			{
+				p_ptr->icky_wield = TRUE;
+			}
+			else if (o_ptr->tval == p_ptr->wm_choice)
+			{
+				p_ptr->to_h += p_ptr->lev;
+				p_ptr->to_d += p_ptr->lev;
+				p_ptr->dis_to_h += p_ptr->lev;
+				p_ptr->dis_to_d += p_ptr->lev;
+			}
+			break;
+		default: /* no bonuses */
+			break;
 	}
 
 	if (monk_heavy_armor())
@@ -3272,7 +3213,10 @@ static void calc_bonuses(void)
 		/* Message */
 		if (p_ptr->icky_wield)
 		{
-			msg_print("You do not feel comfortable with your weapon.");
+			if (p_ptr->pclass == CLASS_WEAPONMASTER)
+				msg_print("You feel uncomfortable without your preferred weapon.");
+			else
+				msg_print("You do not feel comfortable with your weapon.");
 		}
 		else if (inventory[INVEN_WIELD].k_idx)
 		{

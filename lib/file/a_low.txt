@@ -1,4 +1,4 @@
-85
+80
 ******** BUFFER LINE *********************************** DO NOT REMOVE *******
 'Ehr Rhee'
 of Eastwood
@@ -13,7 +13,6 @@ of Traveling
 of Balmoth
 of the Uncaring
 of Zod
-of Glenda
 'Wind Shield'
 'Van's Shield'
 of Lesser Shielding
@@ -37,7 +36,6 @@ of Misery
 of the Unseen
 of the Scarecrow
 of Sand
-'Sad Giant's Shield'
 'Weakstone'
 of Halloween
 'Blank'
@@ -81,7 +79,4 @@ of Gurnemanz
 of Tannhaeuser
 of Martin
 of Coral
-of Barahir
-'Dal-i-Thalion'
-'Paurnimmen'
 of Hide-and-Seek

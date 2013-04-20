@@ -1,6 +1,6 @@
 # Nature.prf
 #
-# TAB - Whirlwind Attack    F1 - Lightning Bolt      SF1 - Cure Wnds & Pois
+# TAB - Whirlwind Attack    F1 - Lightning Bolt      SF1 - Cure Wound/Poison
 #   [ - Prot. fr. Corrosion F2 - Frost Bolt          SF2 - Summon Animal
 #   ] - Elemental Branding  F3 - Entangle            SF3 - Earthquake
 #   ' - Nature Awareness    F4 - Blizzard
@@ -27,7 +27,7 @@ A:m3h
 C:0:[
 
 # ] - Elemental Branding
-A:m4g
+A:m2f
 C:0:]
 
 # ' - Nature Awareness
@@ -97,7 +97,7 @@ A:\e\e\e*tm2d
 P:^_x3C\r
 
 # F3 - Entangle
-A:m2f
+A:m4a
 P:^_x3D\r
 
 # F4 - Blizzard
@@ -140,7 +140,7 @@ P:^_x86\r
 
 # Misc
 
-# SHIFT-F1 - Cure Wounds & Poison
+# SHIFT-F1 - Cure Wounds/Poison
 A:m1h
 P:^_Sx54\r
 

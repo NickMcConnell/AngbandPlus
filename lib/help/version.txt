@@ -1,5 +1,5 @@
 So you're looking for version information on Gumband, eh?  Well, as the 'V'
-command says, this is v2.1.2.  Why the large number?  Well, that's the
+command says, this is v2.1.3.  Why the large number?  Well, that's the
 version number of ZAngband I used as the base for Gumband.
 
 First question on your lips, or at your fingers, is probably "Why call it

@@ -1,4 +1,4 @@
-86
+82
 ******** BUFFER LINE *********************************** DO NOT REMOVE *******
 'Resistor'
 'Warrior's Shield'
@@ -67,7 +67,6 @@ of Lifeforce
 of Gordion
 of Locutus
 'Trilogy'
-of Super Zaxxon
 of the Cross
 of the Cleric
 'Survivalist'
@@ -82,7 +81,4 @@ of Akebono
 of Takanohana
 of Sybok
 of the Valkyrie
-of Olorin
 of Llewella
-of Gondor
-of Belegennon

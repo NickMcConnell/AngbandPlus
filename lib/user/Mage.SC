@@ -12,7 +12,7 @@
 #   J - Dimension Door     F10 - Slow Monster       SF10 - Magic Rocket
 #   n - Detect Monsters    F11 - Mass Sleep         SF11 - Mana Storm
 #   N - Detect Doors/Traps F12 - Stasis             SF12 - Breathe Chaos
-#   O - Word of Recall
+#   O - Detect Objects/Treasure
 #   P - Detection
 #   y - Phase Door
 #   Y - Teleport
@@ -66,8 +66,8 @@ C:0:n
 A:m1d
 C:0:N
 
-# O - Word of Recall
-A:m3f
+# O - Detect Objects/Treasure
+A:m1c
 C:0:O
 
 # P - Detection

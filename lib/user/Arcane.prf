@@ -1,94 +1,94 @@
 # Arcane Magic
 #
-# TAB - Teleport Away       F1 - Zap                 SF1 - Confuse Monster
-#   [ - Detection           F2 - Stinking Cloud      SF2 - Sleep Monster
-#   ] - Elemental Protect.  F3 - Prismatic Bolt      SF3 - Trap/Door Destr.
-#   ' - Recharging          F4 - Elemental Ball
-#   " - Word of Recall      F5 - Detect Invisibility
-#   ; - Phlogiston          F6 - Detect Monsters
-#   : - See Invisible       F7 - Detect Doors/Traps
-#   h - Magic Mapping       F8 - Detect Objects/Treasure
-#   H - Clairvoyance        F9 - Cure Light Wounds
-#   J - Satisfy Hunger     F10 - Cure Medium Wounds
-#   n - Remove Curse       F11 - Cure Critical Wounds
-#   N - Identify           F12 - Cure Poison
+# TAB - Teleport Other      F1 - Static Bolt         SF1 - Teleport Level
+#   [ - Magic Mapping       F2 - Stinking Cloud      SF2 - Word of Recall
+#   ] - Satisfy Hunger      F3 - Confuse Monster     SF3 - Restoration
+#   ' - Remove Curse        F4 - Sleep Monster
+#   " - Summon Monster      F5 - Lightning Bolt
+#   ; - Recharging          F6 - Vampiric Drain
+#   : - Brand Weapon        F7 - Ball Lightning
+#   h - Resist Environment  F8 - Poison Gas
+#   H - Haste Self          F9 - Cure Light Wounds
+#   J - Identify           F10 - Cure Medium Wounds
+#   n - Detect Monsters    F11 - Cure Critical Wounds
+#   N - Detect Doors/Traps F12 - Healing
 #   O - Ray of Light
 #   P - Stone to Mud
-#   y - Blink
-#   Y - Teleport
-#   Z - Light Area
+#   y - Phase Door
+#   Y - Teleport Self
+#   Z - Phlogiston
 
-# TAB - Teleport Away
-A:m4d
+# TAB - Teleport Other
+A:m3f
 P:\t
 
-# [ - Detection
-A:m4f
+# [ - Magic Mapping
+A:m2f
 C:0:[
 
-# ] - Elemental Protection
-A:m4a
+# ] - Satisfy Hunger
+A:m3b
 C:0:]
 
-# ' - Recharging
-A:m3f
+# ' - Remove Curse
+A:m3d
 C:0:'
 
-# " - Word of Recall
-A:m4g
+# " - Summon Monster
+A:m4d
 C:0:"
 
-# ; - Phlogiston
-A:m2b
+# ; - Recharging
+A:m2e
 C:0:;
 
-# : - See Invisible
-A:m2g
+# : - Brand Weapon
+A:m4c
 C:0::
 
-# h - Magic Mapping
-A:m3e
+# h - Resist Environment
+A:m2a
 C:0:h
 
-# H - Clairvoyance
-A:m4h
+# H - Haste Self
+A:m3g
 C:0:H
 
-# J - Satisfy Hunger
-A:m3d
+# J - Identify
+A:m2h
 C:0:J
 
-# n - Remove Curse
-A:m3g
+# n - Detect Monsters
+A:m1b
 C:0:n
 
-# N - Identify
-A:m4c
+# N - Detect Doors/Traps
+A:m1e
 C:0:N
 
 # O - Ray of Light
-A:m3c
+A:m3a
 C:0:O
 
 # P - Stone to Mud
-A:m3b
+A:m2c
 C:0:P
 
-# y - Blink
+# y - Phase Door
 A:m1d
 C:0:y
 
-# Y - Teleport
-A:m3a
+# Y - Teleport Self
+A:m3c
 C:0:Y
 
-# Z - Light Area
-A:m1e
+# Z - Phlogiston
+A:m1f
 C:0:Z
 
-# Combat
+# Offensive Spells
 
-# F1 - Zap
+# F1 - Static Bolt
 A:\e\e\e*tm1a
 P:^_x3B\r
 
@@ -96,60 +96,58 @@ P:^_x3B\r
 A:m1g
 P:^_x3C\r
 
-# F3 - Prismatic Bolt
-A:\e\e\e*tm4b
+# F3 - Confuse Monster
+A:m1h
 P:^_x3D\r
 
-# F4 - Elemental Ball
-A:m4e
+# F4 - Sleep Monster
+A:m2b
 P:^_x3E\r
 
-# Basic Detection
-
-# F5 - Detect Invisibility
-A:m1b
+# F5 - Lightning Bolt
+A:\e\e\e*tm2d
 P:^_x3F\r
 
-# F6 - Detect Monsters
-A:m1c
+# F6 - Vampiric Drain
+A:m3h
 P:^_x40\r
 
-# F7 - Detect Doors/Traps
-A:m2a
+# F7 - Ball Lightning
+A:m4a
 P:^_x41\r
 
-# F8 - Detect Objects/Treasure
-A:m2e
+# F8 - Poison Gas
+A:m4e
 P:^_x42\r
 
 # Healing
 
-# F9 - Cure Light Wounds
-A:m1h
+# F9 - Cure Light Wounds (3d8)
+A:m1c
 P:^_x43\r
 
-# F10 - Cure Medium Wounds
-A:m2h
+# F10 - Cure Medium Wounds (6d8)
+A:m2g
 P:^_x44\r
 
-# F11 - Cure Critical Wounds
-A:m3h
+# F11 - Cure Critical Wounds (12d8)
+A:m3e
 P:^_x85\r
 
-# F12 - Cure Poison
-A:m2f
+# F12 - Healing (250)
+A:m4b
 P:^_x86\r
 
-# Combat 2
+# Miscellaneous
 
-# SHIFT-F1 - Confuse Monster
-A:m2c
+# SHIFT-F1 - Teleport Level
+A:m4f
 P:^_Sx54\r
 
-# SHIFT-F2 - Sleep Monster
-A:m2d
+# SHIFT-F2 - Word of Recall
+A:m4g
 P:^_Sx55\r
 
-# SHIFT-F3 - Trap/Door Destruction
-A:m1f
+# SHIFT-F3 - Restoration
+A:m4h
 P:^_Sx56\r

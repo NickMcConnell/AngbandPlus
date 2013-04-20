@@ -870,8 +870,8 @@ s32b flag_cost(object_type * o_ptr, int plusses)
 		total += (10000 + (2500 * plusses));
 	if ((f1 & TR1_BLOWS) && (plusses > 0))
 		total += (10000 + (2500 * plusses));
-	if (f1 & TR1_XXX1) total += 0;
-	if (f1 & TR1_XXX2) total += 0;
+	if (f1 & TR1_SLAY_HUMANOID) total += 6000;
+	if (f1 & TR1_SLAY_ELEMENTAL) total += 3500;
 	if (f1 & TR1_SLAY_ANIMAL) total += 3500;
 	if (f1 & TR1_SLAY_EVIL) total += 4500;
 	if (f1 & TR1_SLAY_UNDEAD) total += 3500;
@@ -922,8 +922,8 @@ s32b flag_cost(object_type * o_ptr, int plusses)
 	if (f2 & TR2_RES_DISEN) total += 10000;
 	if (f3 & TR3_SH_FIRE) total += 5000;
 	if (f3 & TR3_SH_ELEC) total += 5000;
-	if (f3 & TR3_SPINES) total += 5000; /* was XXX3 */
-	if (f3 & TR3_AUTO_CURSE) total -= 10000;
+	if (f3 & TR3_SPINES) total += 4000; /* was XXX3 */
+	if (f3 & TR3_AUTO_CURSE) total -= 5000;
 	if (f3 & TR3_NO_TELE) total += 2500;
 	if (f3 & TR3_NO_MAGIC) total += 2500;
 	if (f3 & TR3_WRAITH) total += 250000;
@@ -1776,7 +1776,7 @@ void random_artifact_resistance(object_type * o_ptr)
 		else
 		{
 			o_ptr->art_flags3 |= 
-			    (TR3_CURSED | TR3_HEAVY_CURSE | TR3_AGGRAVATE | TR3_TY_CURSE);
+			    (TR3_CURSED | TR3_HEAVY_CURSE | TR3_AUTO_CURSE | TR3_DRAIN_EXP);
 			o_ptr->ident |= IDENT_CURSED;
 			return;
 		}
@@ -1790,7 +1790,8 @@ void random_artifact_resistance(object_type * o_ptr)
 		case ART_THENGEL:  case ART_LUTHIEN:   case ART_THROR:
 		case ART_THORIN:   case ART_NIMTHANC:  case ART_DETHANC:
 		case ART_NARTHANC: case ART_STING:     case ART_TURMIL:
-		case ART_THALKETTOTH: case ART_HACKMEAT:
+		case ART_THALKETTOTH: case ART_HACKMEAT: case ART_DRAGONBANE:
+		case ART_SOULSUCKER:
 			{
 				/* Give a resistance */
 				give_resistance = TRUE;
@@ -1800,6 +1801,7 @@ void random_artifact_resistance(object_type * o_ptr)
 		case ART_KANAJANA: case ART_ZARCUTHRA: case ART_GURTHANG:
 		case ART_HARADEKKET: case ART_CUBRAGOL: case ART_DAWN:
 		case ART_MORDAGA: case ART_COWARDICE: case ART_WHIRLWIND:
+		case ART_HAMMERHAND:
 			{
 				/* Give a resistance OR a power */
 				if (randint(2)==1) give_resistance = TRUE;
@@ -1808,13 +1810,14 @@ void random_artifact_resistance(object_type * o_ptr)
 			break;
 		case ART_NENYA: case ART_VILYA: case ART_BERUTHIEL:
 		case ART_FINGOLFIN: case ART_THINGOL: case ART_ULMO:
-		case ART_OLORIN:
+		case ART_OLORIN: case ART_LIMBSLICER: case ART_ENERGY:
 			{
 				/* Give a power */
 				give_power = TRUE;
 			}
 			break;
 		case ART_POWER: case ART_GONDOR: case ART_AULE:
+		case ART_NATUREBANE:
 			{
 				/* Give both */
 				give_power = TRUE;
@@ -1850,17 +1853,24 @@ void random_artifact_resistance(object_type * o_ptr)
  */
 static bool make_artifact_special(object_type *o_ptr)
 {
-	int i;
+	int i, k;
 	int k_idx = 0;
 
-
-	/* No artifacts in the town */
-	if (!dun_level) return (FALSE);
-
-	/* Check the artifact list (just the "specials") */
-	for (i = 0; i < ART_MIN_NORMAL; i++)
+	/*
+	 * Check the artifact list (just the "specials")
+	 * Try 100 times to get a match. It's a bit wasteful, but it means
+	 * that the deeper and rarer 'specials' will show up in more games.
+	 * Thanks to Greg Wooledge for cleaning it up a bit. -- Gumby
+	 */
+	for (i = 0; i < ((dun_level * 2) + 100); i++)
 	{
-		artifact_type *a_ptr = &a_info[i];
+		artifact_type *a_ptr;
+
+		/* Pick one of the 'special' artifact slots */
+		k = randint(ART_MIN_NORMAL - 1);
+
+		/* Tell us what we're working with */
+		a_ptr = &a_info[k];
 
 		/* Skip "empty" artifacts */
 		if (!a_ptr->name) continue;
@@ -1879,7 +1889,7 @@ static bool make_artifact_special(object_type *o_ptr)
 		}
 
 		/* Artifact "rarity roll" */
-		if (rand_int(a_ptr->rarity) != 0) return (0);
+		if (rand_int(a_ptr->rarity) != 0) continue;
 
 		/* Find the base object */
 		k_idx = lookup_kind(a_ptr->tval, a_ptr->sval);
@@ -1898,9 +1908,7 @@ static bool make_artifact_special(object_type *o_ptr)
 		object_prep(o_ptr, k_idx);
 
 		/* Mega-Hack -- mark the item as an artifact */
-		o_ptr->name1 = i;
-
-
+		o_ptr->name1 = k;
 
 		/* Success */
 		return (TRUE);
@@ -1922,9 +1930,6 @@ static bool make_artifact(object_type *o_ptr)
 {
 	int i;
 
-
-	/* No artifacts in the town */
-	if (!dun_level) return (FALSE);
 
 	/* Paranoia -- no "plural" artifacts */
 	if (o_ptr->number != 1) return (FALSE);
@@ -2148,13 +2153,13 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 			if (power > 1)
 			{
 				/* Roll for an ego-item */
-				switch (randint((o_ptr->tval == TV_POLEARM)?40:42))
+				switch (randint(44))
 				{
 					case 1:
 					{
 						o_ptr->name2 = EGO_HA;
 
-						if (randint(4)==1)
+						if (randint((p_ptr->realm1 == REALM_LIFE) ? 2 : 4) == 1)
 						{
 							o_ptr->art_flags1 |= TR1_BLOWS;
 							if (o_ptr->pval > 2)
@@ -2168,6 +2173,8 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 						o_ptr->name2 = EGO_DF;
 						if (randint(3)==1)
 							o_ptr->art_flags2 |= TR2_RES_POIS;
+						if (p_ptr->realm1 == REALM_LIFE)
+							o_ptr->to_a += 10;
 						random_resistance(o_ptr, FALSE, ((randint(22))+16));
 						break;
 					}
@@ -2234,10 +2241,13 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 					case 13: case 14:
 					{
 						o_ptr->name2 = EGO_SLAY_UNDEAD;
-						o_ptr->art_flags2 |= TR2_HOLD_LIFE;
+						if (randint(75) < dun_level)
+							o_ptr->art_flags3 |= TR3_SEE_INVIS;
 						if (rand_int(100) < 20)
 						{
 							o_ptr->art_flags2 |= TR2_RES_NETHER;
+							if (randint(200) < dun_level)
+								o_ptr->art_flags2 |= TR2_HOLD_LIFE;
 							o_ptr->name2 = EGO_KILL_UNDEAD;
 						}
 						break;
@@ -2342,12 +2352,11 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 							}
 							while (randint(o_ptr->ds)==1);
 						}
-
 						if (randint(5)==1)
 						{
 							o_ptr->art_flags1 |= TR1_BRAND_POIS;
 						}
-						if ((o_ptr->tval == TV_SWORD) && (randint(3)==1))
+						if (!(o_ptr->tval == TV_HAFTED) && (randint(3)==1))
 						{
 							o_ptr->art_flags1 |= TR1_VORPAL;
 						}
@@ -2369,9 +2378,22 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 						random_resistance(o_ptr, FALSE, ((randint(22))+16));
 						break;
 					}
-					default: /* 2 slots for TV_SWORD and TV_HAFTED */
+
+					case 41: case 42:
 					{
-						if (o_ptr->tval == TV_SWORD)
+						o_ptr->name2 = EGO_SLAY_ELEMENTAL;
+						random_resistance(o_ptr, FALSE, ((randint(12))+4));
+						if (rand_int(100) < 20)
+						{
+							random_resistance(o_ptr, FALSE, ((randint(12))+4));
+							o_ptr->name2 = EGO_KILL_ELEMENTAL;
+						}
+						break;
+					}
+
+					default: /* 2 slots for Sharpness - Hafted get Earthquake instead */
+					{
+						if (!(o_ptr->tval == TV_HAFTED))
 						{
 							o_ptr->name2 = EGO_SHARPNESS;
 							o_ptr->pval = m_bonus(5, level) + 1;
@@ -2653,25 +2675,21 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 						o_ptr->name2 = EGO_RESIST_ACID;
 						break;
 					}
-
 					case 5: case 6: case 7: case 8:
 					{
 						o_ptr->name2 = EGO_RESIST_ELEC;
 						break;
 					}
-
 					case 9: case 10: case 11: case 12:
 					{
 						o_ptr->name2 = EGO_RESIST_FIRE;
 						break;
 					}
-
 					case 13: case 14: case 15: case 16:
 					{
 						o_ptr->name2 = EGO_RESIST_COLD;
 						break;
 					}
-
 					case 17: case 18:
 					{
 						o_ptr->name2 = EGO_RESISTANCE;
@@ -2679,17 +2697,16 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 						random_resistance(o_ptr, FALSE, ((randint(22))+16));
 						break;
 					}
-
 					case 19: case 20:
 					{
 						o_ptr->name2 = EGO_ELVENKIND;
 						break;
 					}
-
-					case 21: case 22: case 23:
+					case 21: case 22:
 					{
 						o_ptr->name2 = EGO_SPINES;
-						random_resistance(o_ptr, FALSE, ((randint(22))+16));
+						if (randint(100) < 10)
+							o_ptr->art_flags2 |= TR2_RES_POIS;
 						break;
 					}
 					default:
@@ -2698,7 +2715,6 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 					}
 				}
 			}
-
 			break;
 		}
 
@@ -2933,7 +2949,7 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 				else
 				{
 					/* Roll for ego-item */
-					switch (randint(8))
+					switch (randint(9))
 					{
 						case 1:
 						{
@@ -3031,7 +3047,7 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 					else
 					{
 						/* Roll for ego-item */
-						switch (randint(14))
+						switch (randint(15))
 						{
 							case 1: case 2:
 							{
@@ -3048,13 +3064,13 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 								o_ptr->name2 = EGO_BEAUTY;
 								break;
 							}
-							case 7: case 8:
+							case 7: case 8: case 9:
 							{
 								o_ptr->name2 = EGO_SEEING;
 								if (randint(7)==1) o_ptr->art_flags3 |= TR3_TELEPATHY;
 								break;
 							}
-							case 9: case 10:
+							case 10: case 11:
 							{
 								o_ptr->name2 = EGO_LITE;
 								break;
@@ -3503,31 +3519,16 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 				}
 				break;
 
+				case SV_AMULET_HOLDING:
+				{
+					if (randint(5)==1) o_ptr->art_flags2 |= TR2_HOLD_LIFE;
+				}
+				break;
+
 				/* Amulet of searching */
 				case SV_AMULET_SEARCHING:
 				{
 					o_ptr->pval = randint(5) + m_bonus(5, level);
-
-					/* Cursed */
-					if (power < 0)
-					{
-						/* Broken */
-						o_ptr->ident |= (IDENT_BROKEN);
-
-						/* Cursed */
-						o_ptr->ident |= (IDENT_CURSED);
-
-						/* Reverse bonuses */
-						o_ptr->pval = 0 - (o_ptr->pval);
-					}
-
-					break;
-				}
-
-				/* Amulet of Thieves (was Adornment - Gumby) */
-				case SV_AMULET_ADORNMENT:
-				{
-					o_ptr->pval = 1 + m_bonus(2, level);
 
 					/* Cursed */
 					if (power < 0)
@@ -3551,13 +3552,32 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 					o_ptr->pval = randint(5) + m_bonus(5, level);
 					o_ptr->to_a = randint(5) + m_bonus(5, level);
 
-					if (randint(3)==1) o_ptr->art_flags3 |= TR3_SLOW_DIGEST;
-
 					/* Boost the rating */
 					rating += 25;
 
 					/* Mention the item */
 					if (cheat_peek) object_mention(o_ptr);
+
+					break;
+				}
+
+				/* Amulet of Thieves (was Adornment - Gumby) */
+				case SV_AMULET_THIEVES:
+				{
+					o_ptr->pval = 1 + m_bonus(2, level);
+
+					/* Cursed */
+					if (power < 0)
+					{
+						/* Broken */
+						o_ptr->ident |= (IDENT_BROKEN);
+
+						/* Cursed */
+						o_ptr->ident |= (IDENT_CURSED);
+
+						/* Reverse bonuses */
+						o_ptr->pval = 0 - (o_ptr->pval);
+					}
 
 					break;
 				}
@@ -3976,27 +3996,17 @@ static bool kind_is_good(int k_idx)
 	switch (k_ptr->tval)
 	{
 		/* Armor -- Good unless damaged */
-		case TV_HARD_ARMOR:
-		case TV_SOFT_ARMOR:
-		case TV_DRAG_ARMOR:
-		case TV_SHIELD:
-		case TV_CLOAK:
-		case TV_BOOTS:
-		case TV_GLOVES:
-		case TV_HELM:
-		case TV_CROWN:
+		case TV_HARD_ARMOR: case TV_SOFT_ARMOR: case TV_DRAG_ARMOR:
+		case TV_CLOAK: case TV_BOOTS: case TV_GLOVES: case TV_CROWN:
+		case TV_HELM: case TV_SHIELD:
 		{
 			if (k_ptr->to_a < 0) return (FALSE);
 			return (TRUE);
 		}
 
 		/* Weapons -- Good unless damaged */
-		case TV_BOW:
-		case TV_HAFTED:
-		case TV_POLEARM:
-		case TV_AXE:
-		case TV_SWORD:
-		case TV_DIGGING:
+		case TV_HAFTED: case TV_POLEARM: case TV_AXE: case TV_SWORD:
+		case TV_BOW: case TV_DIGGING:
 		{
 			if (k_ptr->to_h < 0) return (FALSE);
 			if (k_ptr->to_d < 0) return (FALSE);
@@ -4004,40 +4014,40 @@ static bool kind_is_good(int k_idx)
 		}
 
 		/* Ammo -- Arrows/Bolts are good */
-		case TV_BOLT:
-		case TV_ARROW:
+		case TV_BOLT: case TV_ARROW:
 		{
 			return (TRUE);
 		}
 
 		/* Books -- High level books are good (except Arcane books) */
-		case TV_LIFE_BOOK:
-		case TV_SORCERY_BOOK:
-		case TV_NATURE_BOOK:
-		case TV_CHAOS_BOOK:
-		case TV_DEATH_BOOK:
-		case TV_TRUMP_BOOK:
+		case TV_LIFE_BOOK: case TV_SORCERY_BOOK: case TV_TRUMP_BOOK:
+		case TV_NATURE_BOOK: case TV_CHAOS_BOOK: case TV_DEATH_BOOK:
 		{
 			if (k_ptr->sval >= SV_BOOK_MIN_GOOD) return (TRUE);
 			return (FALSE);
 		}
 
-		/* Rings -- Rings of Speed are good */
+		/* Rings can be good */
 		case TV_RING:
 		{
+			if (k_ptr->sval == SV_RING_SHADOWS) return (TRUE);
 			if (k_ptr->sval == SV_RING_SPEED) return (TRUE);
+			if (k_ptr->sval == SV_RING_LORDLY) return (TRUE);
+			if (k_ptr->sval == SV_RING_ATTACKS) return (TRUE);
 			return (FALSE);
 		}
 
-		/* Amulets -- Amulets of the Magi and Resistance are good */
+		/* Amulets can be good */
 		case TV_AMULET:
 		{
+			if (k_ptr->sval == SV_AMULET_HOLDING) return (TRUE);
 			if (k_ptr->sval == SV_AMULET_THE_MAGI) return (TRUE);
+			if (k_ptr->sval == SV_AMULET_REFLECTION) return (TRUE);
 			if (k_ptr->sval == SV_AMULET_RESISTANCE) return (TRUE);
 			return (FALSE);
 		}
-	}
 
+	}
 	/* Assume not good */
 	return (FALSE);
 }
@@ -5583,12 +5593,21 @@ void display_spell_list(void)
 			minfail = adj_mag_fail[p_ptr->stat_ind[mp_ptr->spell_stat]];
 
 			/* Minimum failure rate */
-			if (chance < minfail) chance = minfail;
 			if (chance < 0) chance = 0;
+			if (chance < minfail) chance = minfail;
+
+			/*
+			 * Wearing too much armour hurts your spellcasting.
+			 *					 -- Gumby
+			 */
+			if (p_ptr->cumber_armor) chance += 15;
 
 			/* Stunning makes spells harder */
 			if (p_ptr->stun > 50) chance += 25;
 			else if (p_ptr->stun) chance += 15;
+
+			/* Being Berserk doesn't help, either. -- Gumby */
+			if (p_ptr->shero) chance += 25;
 
 			/* Always a 5 percent chance of working */
 			if (chance > 95) chance = 95;
@@ -5738,15 +5757,32 @@ s16b spell_chance(int spell,int realm)
 	}
 
 	/* Minimum failure rate */
-	if (chance < minfail) chance = minfail;
 	if (chance < 0) chance = 0;
+	if (chance < minfail) chance = minfail;
 
-	/* Hack -- Priest prayer penalty for "edged" weapons  -DGK */
-	if ((p_ptr->pclass == 2) && (p_ptr->icky_wield)) chance += 25;
+	/*
+	 * Hack -- Priest prayer penalty for "edged" weapons  - DGK
+	 */
+	if ((p_ptr->pclass == CLASS_PRIEST) &&
+	    (p_ptr->icky_wield)) chance += 25;
+
+	/*
+	 * Wearing gloves without Dex bonuses or Free Action makes
+	 * spellcasting hard for Mage-type spellcasters. Note that the
+	 * mana penalty has been removed. -- Gumby
+	 */
+	if (p_ptr->cumber_glove) chance += 25;
+
+	/* Wearing too much armour hurts your spellcasting -- Gumby */
+	if ((p_ptr->pclass == CLASS_MONK && monk_heavy_armor()) ||
+	    (p_ptr->cumber_armor))	chance += 15;
 
 	/* Stunning makes spells harder */
 	if (p_ptr->stun > 50) chance += 25;
 	else if (p_ptr->stun) chance += 15;
+
+	/* Being Berserk doesn't help, either. -- Gumby */
+	if (p_ptr->shero) chance += 25;
 
 	/* Always a 5 percent chance of working */
 	if (chance > 95) chance = 95;
@@ -5813,22 +5849,19 @@ static void spell_info(char *p, int spell, int realm)
 	{
 		int plev = p_ptr->lev;
 
-		/* See below */
-/*		int orb = (plev / ((p_ptr->pclass == 2 || p_ptr->pclass == CLASS_HIGH_MAGE) ? 2 : 4)); */
-
 		/* Analyze the spell */
 		switch (realm)
 		{
 			case 0: /* Life */
 				switch (spell)
 				{
-					case  1: strcpy (p, " heal 3d10"); break;
-					case  2: strcpy (p, " dur 12+d12 turns"); break;
-					case  3: sprintf(p, " dam %dd4", (3 + ((plev - 5) / 5))); break;
+					case  1: sprintf(p, " heal %dd5", (2 + ((plev - 2) / 6))); break;
+					case  2: sprintf(p, " dur %d turns", 10 + plev); break;
+					case  3: sprintf(p, " dam %dd4", (3 + ((plev - 1) / 7))); break;
 					case  4: sprintf(p, " dam %d", 10 + (plev / 2)); break;
-					case  6: strcpy (p, " heal 6d10"); break;
-					case 10: strcpy (p, " heal 12d10"); break;
-					case 11: strcpy (p, " dur 24+d24"); break;
+					case  6: sprintf(p, " heal %dd10", (3 + ((plev - 2) / 6))); break;
+					case 10: sprintf(p, " heal %dd10", (6 + ((plev - 5) / 3))); break;
+					case 11: sprintf(p, " dur %d turns", (25 + ((3 * plev) / 2))); break;
 					case 12: sprintf(p, " dam %d", 25 + (plev + (plev / 2))); break;
 					case 13: sprintf(p, " dur d25+%d", 3 * (plev)); break;
 					case 14: strcpy (p, " heal 300"); break;
@@ -5837,7 +5870,7 @@ static void spell_info(char *p, int spell, int realm)
 					case 20: sprintf(p, " dam %d", 5 * plev); break;
 					case 22: sprintf(p, " d %d/h 1000", 5 * plev); break;
 					case 24: strcpy (p, " dur 25+d25"); break;
-					case 25: strcpy (p, " dur 48+d48"); break;
+					case 25: sprintf(p, " dur %d turns", 50 + plev); break;
 					case 28: strcpy (p, " heal 2000"); break;
 					case 30: sprintf(p, " h300/d%d+388", plev * 5); break;
 					case 31: strcpy (p, " dur 8+d8"); break;
@@ -5867,17 +5900,18 @@ static void spell_info(char *p, int spell, int realm)
 					case  1: strcpy (p, " heal 3d8"); break;
 					case  4: sprintf(p, " dam %d", 10 + (plev / 2)); break;
 					case  6: strcpy (p, " dur 20+d20"); break;
+					case  7: strcpy (p, " heal 6d8"); break;
 					case  9: sprintf(p, " dam %dd8", (5+((plev-5)/3))); break;
 					case 11: sprintf(p, " dam %dd8", (8+((plev-5)/3))); break;
 					case 12: strcpy (p, " dam 6d8"); break;
 					case 15: strcpy (p, " heal 1000"); break;
 					case 18: strcpy (p, " dur 20+d30"); break;
 					case 19: strcpy (p, " dur 20+d20"); break;
-					case 24: strcpy (p, " rad 10"); break;
-					case 26: sprintf(p, " dam %d", 105+plev); break;
-					case 27: sprintf(p, " dam %d", 135+plev); break;
-					case 28: sprintf(p, " dam %d", 150+plev); break;
-					case 29: strcpy (p, " dam 100"); break;
+					case 25: strcpy (p, " rad 10"); break;
+					case 27: sprintf(p, " dam %d", 105+plev); break;
+					case 28: sprintf(p, " dam %d", 135+plev); break;
+					case 29: sprintf(p, " dam %d", 150+plev); break;
+					case 30: strcpy (p, " dam 100"); break;
 					case 31: sprintf(p, " dam %d+%d", 5*plev,150+plev); break;
 				}
 				break;
@@ -5919,14 +5953,14 @@ static void spell_info(char *p, int spell, int realm)
 					case  8: sprintf(p, " dam %d", 25 + (plev + (plev / 2))); break;
 					case  9: sprintf(p, " dam %dd8", (9+((plev-5)/3))); break;
 					case 11: sprintf(p, " dm %d* 5+d15", 2 + (plev/15)); break;
-					case 13: sprintf(p, " dam %d", 5 * plev); break;
+					case 13: sprintf(p, " dam %d", 100 + plev); break;
 					case 16: strcpy (p, " dur 25+d25"); break;
 					case 17: strcpy (p, " random"); break;
 					case 18: sprintf(p, " dam %dd8", (6+((plev-5)/3))); break;
 					case 19: strcpy (p, " max dur 50"); break;
 					case 20: strcpy (p, " dam 3*100"); break;
 					case 22: strcpy (p, " dam 180"); break;
-					case 27: sprintf(p, " dam %d", plev * 4); break;
+					case 27: sprintf(p, " dam %d", plev * 5); break;
 					case 28: sprintf(p, " dam %d", plev * 5); break;
 					case 29: strcpy (p, " dam 666"); break;
 					case 31: sprintf(p, " dur %d+d%d", (plev/2), (plev/2)); break;
@@ -5943,29 +5977,30 @@ static void spell_info(char *p, int spell, int realm)
 					case  5: sprintf(p, " range %d", plev+2); break;
 					case  6: strcpy (p, " dur 25+d30"); break;
 					case  8: sprintf(p, " max wgt %d", plev * 15 / 10); break;
-					case 14: strcpy (p, " delay 15+d21"); break;
-					case 22: sprintf(p, " dam %d", plev * 4); break;
+					case 15: strcpy (p, " delay 15+d21"); break;
+					case 22: sprintf(p, " dam %d", plev * 5); break;
 				}
 				break;
 
 			case 6: /* Arcane */
 				switch (spell)
 				{
-					case  0: sprintf(p, " dam %dd4", 3 + ((plev-1)/3)); break;
+					case  0: sprintf(p, " dam %dd4", 3 + (plev / 5)); break;
+					case  2: strcpy (p, " heal 3d8"); break;
 					case  3: strcpy (p, " range 10"); break;
-					case  4: sprintf(p, " dam 2d%d", plev / 2); break;
 					case  6: sprintf(p, " dam %d", 15 + (plev / 2)); break;
-					case  7: strcpy (p, " heal 3d8"); break;
-					case 14: strcpy (p, " dur 50+d50"); break;
-					case 15: strcpy (p, " heal 6d10"); break;
-					case 16: sprintf(p, " range %d", plev * 5); break;
-					case 18: strcpy (p, " dam 6d8"); break;
-					case 23: strcpy (p, " heal 12d10"); break;
-					case 24: strcpy (p, " dur 20+d20"); break; 
-					case 25: sprintf(p, " dam %dd8", (6+((plev-5)/4))); break;
-					case 28: sprintf(p, " dam %d", 100 + (plev * 2)); break;
+					case  8: strcpy (p, " dur 20+d20"); break; 
+					case 11: sprintf(p, " dam %dd8", (5+((plev-5)/3))); break;
+					case 14: strcpy (p, " heal 6d8"); break;
+					case 16: strcpy (p, " dam 6d8"); break;
+					case 18: sprintf(p, " range %d", plev * 5); break;
+					case 20: strcpy (p, " heal 12d8"); break;
+					case 22: sprintf(p, " dur %d+d%d", plev, plev); break;
+					case 23: sprintf(p, " dm %d* 5+d15", 2 + (plev/15)); break;
+					case 24: sprintf(p, " dam %d", 75 + plev); break;
+					case 25: strcpy (p, " heal 250"); break;
+					case 28: sprintf(p, " dam %d", 100 + plev); break;
 					case 30: strcpy (p, " delay 15+d21"); break;
-					case 31: strcpy (p, " dur 25+30"); break;
 				}
 				break;
 

@@ -374,8 +374,8 @@ static cptr k_info_flags1[] =
 	"DEX",
 	"CON",
 	"CHR",
-	"XXX1",
-	"XXX2",
+	"SLAY_HUMANOID",  /* was XXX1 */
+	"SLAY_ELEMENTAL", /* was XXX2 */
 	"STEALTH",
 	"SEARCH",
 	"INFRA",

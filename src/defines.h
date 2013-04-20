@@ -43,7 +43,7 @@
 #define FAKE_VERSION
 #define FAKE_VER_MAJOR 2
 #define FAKE_VER_MINOR 1
-#define FAKE_VER_PATCH 2
+#define FAKE_VER_PATCH 3
 
 #define ANGBAND_2_8_1
 
@@ -153,7 +153,7 @@
 #define REW_GENOCIDE    24
 #define REW_MASS_GEN    25
 #define REW_DISPEL_C    26
-#define REW_UNUSED_1    27
+#define REW_MEGA_REW    27
 #define REW_UNUSED_2    28
 #define REW_UNUSED_3    29
 #define REW_UNUSED_4    30
@@ -300,7 +300,7 @@
 /*
  * Maximum array bounds for entity list arrays
  */
-#define MAX_O_IDX       256     /* Max size for "o_list[]" */
+#define MAX_O_IDX       512     /* Max size for "o_list[]" (was 256) */
 #define MAX_M_IDX       512     /* Max size for "m_list[]" */
 
 
@@ -455,31 +455,25 @@
  * during the creation of an object (see "get_obj_num()" in "object.c").
  * Lower values yield better objects more often.
  */
-#define GREAT_OBJ       15
+#define GREAT_OBJ       12
 
 /*
  * There is a 1/50 (2%) chance of inflating the requested monster_level
  * during the creation of a monsters (see "get_mon_num()" in "monster.c").
  * Lower values yield harder monsters more often.
  */
-#define NASTY_MON       50              /* 1/chance of inflated monster level */
-
-
+#define NASTY_MON       35
 
 /* Refueling constants */
 #define FUEL_TORCH      5000    /* Maximum amount of fuel in a torch */
 #define FUEL_LAMP       15000   /* Maximum amount of fuel in a lantern */
 
-
 /* More maximum values */
 #define MAX_SIGHT       20      /* Maximum view distance */
 #define MAX_RANGE       18      /* Maximum range (spells, etc) */
 
-
-
 /* There is a 1/160 chance per round of creating a new monster */
 #define MAX_M_ALLOC_CHANCE      160
-
 
 /* Normal levels get at least 14 monsters */
 #define MIN_M_ALLOC_LEVEL       14
@@ -530,7 +524,17 @@ and tables.c --TY */
 #define CH_DEATH        0x10
 #define CH_TRUMP        0x20
 #define CH_ARCANE       0x40
-#define MAX_REALM       7
+
+#define REALM_NONE         0
+#define REALM_LIFE         1
+#define REALM_SORCERY      2
+#define REALM_NATURE       3
+#define REALM_CHAOS        4
+#define REALM_DEATH        5
+#define REALM_TRUMP        6
+#define REALM_ARCANE       7
+
+#define MAX_REALM	   7
 
 /*
  * Maximum number of "normal" pack slots, and the index of the "overflow"
@@ -949,8 +953,18 @@ and tables.c --TY */
 #define ART_WHIRLWIND			130
 #define ART_ARIANROD			131
 #define ART_RETALIATOR			132
+#define ART_MARKSMANSHIP		133
+#define ART_ENTANGLEMENT		134
+#define ART_CRUSHING			135
+#define ART_DRAGONBANE			136
+#define ART_LIMBSLICER			137
+#define ART_ORCHAST			138
+#define ART_NIGHT			139
+#define ART_ENERGY			140
+#define ART_NATUREBANE			141
+#define ART_SOULSUCKER			142
 
-/* 133-255 unused */
+/* 143-255 unused */
 
 
 /*** Ego-Item indexes (see "lib/edit/e_info.txt") ***/
@@ -1041,7 +1055,7 @@ and tables.c --TY */
 #define EGO_WEST                68
 #define EGO_ATTACKS             69
 #define EGO_SLAYING_WEAPON      70
-/* xxx */
+#define EGO_SLAY_ELEMENTAL	71
 #define EGO_BRAND_ACID          72
 #define EGO_BRAND_ELEC          73
 #define EGO_BRAND_FIRE          74
@@ -1067,8 +1081,7 @@ and tables.c --TY */
 #define EGO_KILL_GIANT          86
 #define EGO_KILL_DRAGON         95
 #define EGO_VAMPIRIC            96
-/* xxx */
-/* xxx */
+#define EGO_KILL_ELEMENTAL	97
 #define EGO_TRUMP               98
 #define EGO_PATTERN             99
 #define EGO_DIGGING             100
@@ -1248,9 +1261,9 @@ and tables.c --TY */
 
 
 /* The "sval" codes for TV_SHOT/TV_ARROW/TV_BOLT */
-#define SV_AMMO_LIGHT           0       /* pebbles */
+#define SV_AMMO_LIGHT           0       /* hunting ammo and pebbles */
 #define SV_AMMO_NORMAL          1       /* shots, arrows, bolts */
-#define SV_AMMO_HEAVY           2       /* seeker arrows and bolts */
+#define SV_AMMO_HEAVY           2       /* seeker ammo and sling bullets */
 
 /* The "sval" codes for TV_BOW (note information in "sval") */
 #define SV_SLING                2       /* (x2) */
@@ -1268,7 +1281,7 @@ and tables.c --TY */
 #define SV_DWARVEN_PICK         6
 
 /* The "sval" values for TV_HAFTED */
-#define SV_WHIP                 2       /* 1d6 */
+#define SV_WHIP                 2       /* 1d5 */
 #define SV_QUARTERSTAFF         3       /* 1d8 */
 #define SV_MACE                 5       /* 2d5 */
 #define SV_BALL_AND_CHAIN       6       /* 2d4 */
@@ -1278,7 +1291,7 @@ and tables.c --TY */
 #define SV_FLAIL                13      /* 2d6 */
 #define SV_LEAD_FILLED_MACE     15      /* 3d5 */
 #define SV_TWO_HANDED_FLAIL     18      /* 3d6 */
-#define SV_MACE_OF_DISRUPTION   20      /* 5d8 */
+#define SV_MACE_OF_DISRUPTION   30      /* 5d8 */
 
 /* The "sval" values for TV_POLEARM */
 #define SV_SPEAR                2       /* 1d6 */
@@ -1329,6 +1342,8 @@ and tables.c --TY */
 #define SV_WOODEN_SHIELD	 3
 #define SV_IRON_SHIELD		 4
 #define SV_STEEL_SHIELD		 5
+
+/* Shields with sval >= 6 are always 'good' */
 #define SV_DRAGON_SHIELD         6
 #define SV_CHAOS_SHIELD          8
 #define SV_SHIELD_OF_DEFLECTION  10
@@ -1410,15 +1425,15 @@ and tables.c --TY */
 
 /* The "sval" codes for TV_AMULET */
 #define SV_AMULET_DOOM             0
-#define SV_AMULET_TELEPORT         1
-#define SV_AMULET_ADORNMENT        2
+#define SV_AMULET_HOLDING          1 /* was Teleportation */
+#define SV_AMULET_THIEVES	   2 /* was Adornment */
 #define SV_AMULET_SLOW_DIGEST      3
 #define SV_AMULET_RESIST_ACID      4
 #define SV_AMULET_SEARCHING        5
 #define SV_AMULET_WISDOM           6
 #define SV_AMULET_CHARISMA         7
 #define SV_AMULET_THE_MAGI         8
-#define SV_AMLUET_REFLECTION       9
+#define SV_AMULET_REFLECTION       9
 #define SV_AMULET_RED              10 /* was Carlammas */
 #define SV_AMULET_INGWE            11
 #define SV_AMULET_DWARVES          12
@@ -1432,7 +1447,7 @@ and tables.c --TY */
 #define SV_RING_WEAKNESS           2
 #define SV_RING_STUPIDITY          3
 #define SV_RING_TELEPORTATION      4
-/* xxx */
+#define SV_RING_LIGHTNING	   5
 #define SV_RING_SLOW_DIGESTION     6
 #define SV_RING_FEATHER_FALL       7
 #define SV_RING_RESIST_FIRE        8
@@ -1452,7 +1467,7 @@ and tables.c --TY */
 #define SV_RING_SEE_INVIS          22
 #define SV_RING_SEARCHING          23
 #define SV_RING_STR                24
-#define SV_RING_SHADOWS            25 /* was ring of Intelligence */
+#define SV_RING_SHADOWS            25 /* was Intelligence */
 #define SV_RING_DEX                26
 #define SV_RING_CON                27
 #define SV_RING_ACCURACY           28
@@ -1620,7 +1635,7 @@ and tables.c --TY */
 /* xxx */
 #define SV_SCROLL_STAR_DESTRUCTION       41
 #define SV_SCROLL_DISPEL_UNDEAD          42
-/* xxx */
+#define SV_SCROLL_BLESS_WEAPON		 43
 #define SV_SCROLL_GENOCIDE               44
 #define SV_SCROLL_MASS_GENOCIDE          45
 #define SV_SCROLL_ACQUIREMENT            46
@@ -2171,8 +2186,8 @@ and tables.c --TY */
 #define TR1_DEX                 0x00000008L     /* DEX += "pval" */
 #define TR1_CON                 0x00000010L     /* CON += "pval" */
 #define TR1_CHR                 0x00000020L     /* CHR += "pval" */
-#define TR1_XXX1                0x00000040L     /* Later */
-#define TR1_XXX2                0x00000080L     /* Later */
+#define TR1_SLAY_HUMANOID       0x00000040L     /* (was XXX1) */
+#define TR1_SLAY_ELEMENTAL      0x00000080L     /* (was XXX2) */
 #define TR1_STEALTH             0x00000100L     /* Stealth += "pval" */
 #define TR1_SEARCH              0x00000200L     /* Search += "pval" */
 #define TR1_INFRA               0x00000400L     /* Infra += "pval" */
@@ -2516,7 +2531,7 @@ and tables.c --TY */
 #define RF5_BO_ELEC             0x00020000      /* Elec Bolt */
 #define RF5_BO_FIRE             0x00040000      /* Fire Bolt */
 #define RF5_BO_COLD             0x00080000      /* Cold Bolt */
-#define RF5_BO_POIS             0x00100000      /* Poison Bolt (unused) */
+#define RF5_BO_POIS             0x00100000      /* Poison Bolt */
 #define RF5_BO_NETH             0x00200000      /* Nether Bolt */
 #define RF5_BO_WATE             0x00400000      /* Water Bolt */
 #define RF5_BO_MANA             0x00800000      /* Mana Bolt */
@@ -2620,6 +2635,13 @@ and tables.c --TY */
 
 /*** Macro Definitions ***/
 
+/*
+ * Hack -- Check to see if a creature is humanoid. -- Gumby
+ * Thanks to everyone in rec.games.roguelike.angband who contributed to
+ * the argument on how this should be implemented. :)
+ */
+#define is_humanoid(T) \
+	strchr("hknNoOpPtTyY", (T))
 
 /*
  * Hack -- The main "screen"

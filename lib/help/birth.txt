@@ -10,6 +10,21 @@ as to constraints on the type of character you wish to play, followed by
 a series of random calculations to generate ("roll up") a random character
 matching the appropriate constraints.
 
+If you choose to play in "maximize" mode, the race and class stat bonuses
+are applied as "equipment" bonuses.  This usually makes the character harder
+at the beginning of the game, but easier later on, since the stats are no
+longer limited to a "natural" value of "18/100".
+
+If you choose to play in "preserve" mode, all level feelings (granted when
+you enter a new dungeon level) of the "special" variety are canceled, but
+artifacts that are generated on a level, but not identified by you, to be
+"found" by wandering monsters and dropped elsewhere in the dungeon.
+
+If you choose to have a "quick start" to your game, your character will
+begin with their armour (if any) enchanted to resist Electricity, Fire or
+Cold, and their weapon enchanted with a minor Slay or elemental Brand.  But
+if you choose to take this option, your final score will be cut in half.
+
 Once your character has been generated, you will be given the choice to
 generate a new character obeying the same constraints, and once you have
 generated more than one character, you can switch back and forth between
@@ -349,20 +364,19 @@ races also have intrinsic abilities.
 
           Golem
                 A golem is an artificial creature, built from a lifeless
-                raw material like clay, and awakened to life. They are
+                raw material like clay, and awakened to life.  They are
                 nearly mindless, making them useless for professions which
-                rely on magic, but as warriors they are very tough. They
-                are resistant to poison and shards. Golems tend to be so
-                massive that they're difficult to move against their will,
-                except by purely magical means, and so solidly built that
-		that they're somewhat resistant to bodily changes. They also
-                learn to temporarily turn their skin into a very hard,
-                stonelike substance. Golems gain very little nutrition from
-                ordinary food. They need to collect scrolls of satisfy
-                hunger, or perish of exhaustion when the life force
-                animating their body runs out. Golems also have a natural
-                armour class bonus, as befits a creature made of iron, clay
-                or other inorganic materials.
+                rely on magic, but as warriors they are very tough.  They
+                are resistant to poison and shards.  Because of their
+                'birth' in a kiln or forge, Golems take little notice of
+                fire.  Golems gain very little nutrition from ordinary food.
+                They need to collect scrolls of satisfy hunger, or perish of
+                exhaustion when the life force animating their body runs
+                out.  Golems also have a natural armour class bonus, which
+                gets better as they increase in level and finish hardening,
+                as befits a creature made of iron, clay or other inorganic
+                materials.  At level 20, and with extreme concentration, a
+                Golem may temporarily harden its outer surface even further.
 
           Skeleton
                 There are two types of skeletons: the ordinary, warrior-
@@ -458,11 +472,12 @@ races also have intrinsic abilities.
  
  
           Once a race has been chosen, you will need to pick a class.  Some
-          classes  will  not be available to certain races, for instance, a
-          Half-Troll cannot become a Paladin.  For the first few adventures
-          it  is  suggested that you run a warrior or rogue.  Spell casting
-          generally requires a more experienced  player  that  is  familiar
-          with survival techniques.
+          classes will be shown in ()'s for certain races.  These classes
+          are considered unthematic for that race.  For example, Half-Trolls
+          tend not to be accepted by the world at large as Paladins.  For
+          the first few adventures it is suggested that you run a warrior or
+          rogue.  Spellcasting generally requires a more experienced player
+          that is familiar with survival techniques.
  
           Warrior
                A Warrior is a hack-and-slash character, who solves most of
@@ -472,11 +487,11 @@ races also have intrinsic abilities.
                really help at times.  A Warrior will be good at Fighting and
                Throwing/Bows, but bad at most other skills.  Since a Warrior
                never spent any time learning magic, he or she had the time
-               to learn how to use body armour to its fullest potential (how
-               to wear it so that it fits properly, where to try and recieve
-               blows on it so that they are less likely to be hurt, etc.),
-               and so gain a bonus to their Armour Class equal to half of
-               the body armour's natural AC.
+               to learn how to use their body armour to its fullest
+               potential (how to wear it so that it fits properly, where to
+               try and turn to catch blows on it so that they are less
+               likely to be hurt, etc.), and so gain a bonus to their Armour
+               Class equal to half of their body armour's natural AC.
  
           Mage
                A Mage must live by his wits.  He cannot hope to simply hack
@@ -562,13 +577,15 @@ races also have intrinsic abilities.
                between the warrior and mage classes. While their brothers,
                the Rangers, specialize in Nature magic and survival skills,
                true Warrior-Mages attempt to reach the best of both worlds:
-               as magicians, they are trained in Arcane magic as warriors
+               as magicians, they are trained in Arcane magic, as warriors
                they are much superior to the usual Mage class. The Warrior-
                Mage is a fairly powerful class, which is recommended for the
                players who want to cast spells but whose mages tend to die
                too quickly.  However, the power does not come without a
-               price: Warrior-Mages require more experience to advance
-               levels than any other class.
+               price: in spending so much time honing their fighting
+               abilities, Warrior-Magi are unable to channel as much mana as
+               the other spellcasting classes, and suffer a 25% penalty to
+               their available SP.
 
           Chaos Warrior
                Chaos Warriors are the feared servants of the terrible Demon
@@ -627,7 +644,11 @@ races also have intrinsic abilities.
                spell stat is slightly higher. Instead of selecting two
                realms of magic, a High Mage selects only one realm of magic
                and studies it extremely well, gaining substantial benefits
-               in mana costs, minimum levels and failure rates.
+               in mana costs, minimum levels and failure rates. Since his or
+               her mind and body are not filled to capacity with spells due
+               to the lack of a second realm, they are able to store that
+               much more magical energy for casting spells and receive a 50%
+               bonus to their SP/mana.
 
         Weaponmaster
                The Weaponmaster is a Warrior who specializes in *ONE* class
@@ -639,11 +660,10 @@ races also have intrinsic abilities.
                weapon, bonuses that increase with level.  With any other
                weapon, however, they are quite inept and never get more than
                one extra blow (regardless of any other factors) with such
-               weapons.  They aren't much good with bows, either, since they
-               never have the time to practice with them.  In most other
-               respects they perform almost as well as a generalist Warrior,
-               though they don't have time to learn to use their armour
-               properly...
+               weapons.  They aren't much good with bows or magical items,
+               either, since their training focused so intently upon their
+               specialty weapon. In most other respects they perform about
+               as well as a generalist Warrior.
 
 
 === Stats ===
@@ -770,7 +790,7 @@ races also have intrinsic abilities.
  
  
  
-=== Combinations of Race and Class (updated for Gumband 2.1.2) ===
+=== Combinations of Race and Class (updated for Gumband 2.1.3) ===
 
 These are the classes that are recommended for different races. You can
 still select a race that is not in the chart, but these combinations are
@@ -862,7 +882,7 @@ Beastman      Yes     Yes     Yes     Yes
                Human can gain infra-vision only if it is magically enhanced.
  
                                                                    
-=== Stat Bonus Tables (updated for Gumband 2.1.2) ===
+=== Stat Bonus Tables (updated for Gumband 2.1.3) ===
 
 Stat, hit dice, and experience points per level modifications due to race
 are listed in the following table.
@@ -885,13 +905,13 @@ are listed in the following table.
            Cyclops     +4   -3   -3   -3   +4   -6      13         +30%
            Yeek        -2   +1   +1   +1   -2   -7       7          +0%
            Klackon     +2   -1   -1   +1   +2   -2      12         +35%
-           Kobold      +1   -1    0   +1    0   -4       9         +25%
+           Kobold      -1   -1    0   +2   +1   -4       9         +25%
            Nibelung    +1   -1   +2    0   +2   -4      11         +35%
            Dark Elf    -1   +3   +2   +2   -2   +1       9         +50%
            Draconian   +2   +1   +1   +1   +2   -3      11         +150%
            Mind Flayer -3   +4   +4    0   -2   -5       9         +40%
            Imp         -1   -1   -1   +1   +2   -3      10         +10%
-           Golem       +4   -5   -5    0   +4   -4      13         +150%
+           Golem       +4   -5   -5    0   +4   -4      13         +125%
            Skeleton     0   -2   -2    0   +1   -4      10         +45%
            Zombie      +2   -6   -6   +1   +4   -5      13         +35%
            Vampire     +3   +3   -1   -1   +1   +2      11         +100%
@@ -915,7 +935,7 @@ are listed in the following table.
            Weaponmaster  +4      -2      -2      +1      +1      -1
  
  
-=== Ability Tables (updated for Gumband 2.1.2) ===
+=== Ability Tables (updated for Gumband 2.1.3) ===
 
                         Dsrm Dvce Save Stlh Srch Prcp HtH  Misl   Infra
            Human        +0   +0   +0   +0   +0   +10  +0   +0     None
@@ -957,16 +977,16 @@ Priest          25+7    30+10   32+12   2       16/8    48+20   35+20   +20%
 Rogue           45+15   32+10   28+10   5       32/24   60+40   66+30   +25%
 Ranger          30+8    32+10   28+10   3       24/16   56+30   72+45   +30%
 Paladin         20+7    24+10   26+11   1       12/2    68+35   40+30   +35%
-Warrior-Mage    30+7    30+10   28+9    2       18/16   50+20   25+20   +50%
+Warrior-Mage    30+7    30+10   28+9    2       18/16   50+20   25+20   +35%
 Chaos Warrior   20+7    25+11   25+10   1       14/12   65+34   40+29   +35%
 Monk            45+15   32+11   28+10   5       32/24   64+40   60+30   +40%
 Mindcrafter     30+10   30+10   30+10   3       22/16   50+20   40+30   +30%
-High Mage       30+7    36+13   30+9    2       15/20   34+15   20+15   +30%
-Weaponmaster    20+10   15+5    15+8    1       14/2    70+45   15+10   +30%
+High Mage       30+7    36+13   30+9    2       15/20   34+15   20+15   +25%
+Weaponmaster    23+10   17+6    18+10   1       14/2    70+45   20+15   +30%
 
   
 
-=== Monks: Attack Types (Gumband 2.1.2)
+=== Monks: Attack Types (Gumband 2.1.3)
 
 Attack Name     Min.lvl Damage  Stun    Notes
 -----------------------------------------------------------------------------

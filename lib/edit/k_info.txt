@@ -10,7 +10,7 @@
 # After modifying this file, delete the "lib/raw/k_info.raw" file.
 
 # Available slots (?):
-#	440-479 (reserved???), 527-575
+#	440-479 (reserved???), 532-575
 
 # XXX XXX Add some "IGNORE_XXX" flags to Rings, Amulets, etc.
 
@@ -440,7 +440,7 @@ F:SHOW_MODS
 
 N:57:& Mace~ of Disruption
 G:\:v
-I:21:20:0
+I:21:30:0
 W:80:0:400:4500
 A:80/8
 P:0:8d5:0:0:0
@@ -612,8 +612,8 @@ F:SHOW_MODS
 N:78:& Arrow~
 G:{:U
 I:17:1:0
-W:3:0:2:1
-A:3/1:15/1
+W:5:0:2:3
+A:5/2:20/1
 P:0:1d4:0:0:0
 F:SHOW_MODS
 
@@ -628,8 +628,8 @@ F:SHOW_MODS
 N:80:& Bolt~
 G:{:s
 I:18:1:0
-W:3:0:3:2
-A:3/1:25/1
+W:10:0:3:4
+A:10/2:30/1
 P:0:1d5:0:0:0
 F:SHOW_MODS
 
@@ -653,7 +653,7 @@ N:83:& Iron Shot~
 G:{:s
 I:16:1:0
 W:3:0:5:2
-A:3/1
+A:3/2
 P:0:1d3:0:0:0
 F:SHOW_MODS
 
@@ -665,7 +665,7 @@ G:\:s
 I:20:1:1
 W:1:0:60:10
 A:5/16
-P:0:1d2:0:0:0
+P:0:1d4:0:0:0
 F:SHOW_MODS | TUNNEL
 
 N:85:& Gnomish Shovel~
@@ -673,7 +673,7 @@ G:\:G
 I:20:2:2
 W:20:0:60:100
 A:20/4
-P:0:1d2:0:0:0
+P:0:1d4:0:0:0
 F:SHOW_MODS | TUNNEL
 
 N:86:& Dwarven Shovel~
@@ -681,15 +681,15 @@ G:\:B
 I:20:3:3
 W:40:0:120:200
 A:40/1
-P:0:1d3:0:0:0
-F:SHOW_MODS | TUNNEL
+P:0:1d5:0:0:0
+F:SHOW_MODS | TUNNEL | IGNORE_ACID | IGNORE_FIRE
 
 N:87:& Pick~
 G:\:s
 I:20:4:1
 W:5:0:150:50
 A:10/16
-P:0:1d3:0:0:0
+P:0:1d6:0:0:0
 F:SHOW_MODS | TUNNEL
 
 N:88:& Orcish Pick~
@@ -697,7 +697,7 @@ G:\:g
 I:20:5:2
 W:30:0:150:300
 A:30/4
-P:0:1d3:0:0:0
+P:0:1d6:0:0:0
 F:SHOW_MODS | TUNNEL
 
 N:89:& Dwarven Pick~
@@ -705,10 +705,12 @@ G:\:b
 I:20:6:3
 W:50:0:200:600
 A:50/1
-P:0:1d4:0:0:0
-F:SHOW_MODS | TUNNEL
+P:0:1d7:0:0:0
+F:SHOW_MODS | TUNNEL | IGNORE_ACID | IGNORE_FIRE
+
 
 ##### Armor #####
+
 N:90:& Elven Cloak~
 G:(:G
 I:35:2:0
@@ -749,7 +751,7 @@ P:2:0d0:0:0:0
 N:95:& Metal Cap~
 G:]:s
 I:32:3:0
-W:10:0:20:30
+W:10:0:35:30
 A:10/1
 P:3:1d1:0:0:0
 
@@ -1072,9 +1074,9 @@ F:SEARCH | HIDE_TYPE
 N:138:Teleportation
 G:=:d
 I:45:4:0
-W:5:0:2:250
-A:5/1
-F:CURSED | AUTO_CURSE | TELEPORT | EASY_KNOW
+W:45:0:2:5000
+A:45/6
+F:ACTIVATE
 
 N:139:Slow Digestion
 G:=:d
@@ -1107,8 +1109,8 @@ F:FEATHER | EASY_KNOW
 N:143:Poison Resistance
 G:=:d
 I:45:20:0
-W:60:0:2:16000
-A:60/1
+W:45:0:2:15000
+A:45/2
 F:RES_POIS | EASY_KNOW
 
 N:144:Free Action
@@ -1136,8 +1138,8 @@ F:RES_FIRE | IGNORE_FIRE | ACTIVATE
 N:147:Acid
 G:=:d
 I:45:17:0
-W:50:0:2:3000
-A:50/1
+W:55:0:2:3500
+A:55/1
 P:0:0d0:0:0:15
 F:RES_ACID | IGNORE_ACID | ACTIVATE
 
@@ -1267,12 +1269,15 @@ W:15:0:3:300
 A:15/1
 F:SEARCH | HIDE_TYPE
 
-N:166:Teleportation
+# This used to be Amulet of Teleportation. -- Gumby
+
+N:166:Holding
 G:":d
 I:40:1:0
-W:15:0:3:250
-A:15/1
-F:CURSED | AUTO_CURSE | TELEPORT | EASY_KNOW
+W:80:0:3:65000
+A:80/8
+F:SUST_STR | SUST_INT | SUST_WIS | SUST_DEX | SUST_CON | SUST_CHR
+F:IGNORE_ELEC
 
 N:167:Slow Digestion
 G:":d
@@ -1288,6 +1293,8 @@ W:20:0:3:300
 A:20/1
 F:RES_ACID | IGNORE_ACID | EASY_KNOW
 
+# This used to be Amulet of Adornment. -- Gumby
+
 N:169:Thieves
 G:":d
 I:40:2:0
@@ -1300,11 +1307,10 @@ F:STEALTH | HIDE_TYPE
 N:171:the Magi
 G:":d
 I:40:8:0
-W:50:0:3:30000
-A:50/4:80/3
+W:40:0:3:40000
+A:40/6:60/4:80/2:100/1
 P:0:0d0:0:0:3
-F:FREE_ACT | SEE_INVIS | SEARCH |
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+F:FREE_ACT | SEE_INVIS | SEARCH | RES_BLIND | RES_CONF | IGNORE_ELEC
 
 N:172:DOOM
 G:":d
@@ -1432,7 +1438,7 @@ N:191:*Remove Curse*
 G:?:d
 I:70:15:0
 W:20:0:5:8000
-A:20/3:25/2:50/1:75/1
+A:20/4:25/3:50/2:75/1
 
 N:192:Treasure Detection
 G:?:d
@@ -1459,7 +1465,7 @@ G:):v
 I:34:8:0
 W:50:0:200:8000
 A:50/3:60/2:70/2
-P:8:1d5:0:0:0
+P:8:1d5:0:0:10
 F:IGNORE_ACID | IGNORE_FIRE | IGNORE_ELEC | IGNORE_COLD | RES_CHAOS
 
 # This axe should not be here...
@@ -1524,7 +1530,7 @@ N:205:Artifact Creation
 G:?:d
 I:70:52:0
 W:40:0:5:80000
-A:40/8
+A:40/8:60/4:80/2
 
 N:206:Recharging
 G:?:d
@@ -1547,8 +1553,8 @@ A:1/1
 N:209:Protection from Evil
 G:?:d
 I:70:37:0
-W:30:0:5:250
-A:30/1
+W:20:0:5:200
+A:20/6:40/4:60/2:80/1
 
 N:210:Satisfy Hunger
 G:?:d
@@ -1733,16 +1739,14 @@ N:237:Curing
 G:!:d
 I:75:61:100
 W:18:0:4:350
-A:18/1,40/1
+A:10/1:20/1:40/1:80/1
 P:0:1d1:0:0:0
-
-# Note! Invulnerability decreases your food...
 
 N:238:Invulnerability
 G:!:d
-I:75:62:-2500
-W:90:0:4:100000
-A:90/9
+I:75:62:0
+W:70:0:4:100000
+A:70/9:90/5:100/2
 P:0:1d1:0:0:0
 
 N:239:New Life
@@ -2348,8 +2352,8 @@ P:0:1d2:0:0:0
 N:321:Probing
 G:_:d
 I:55:23:0
-W:30:0:50:2000
-A:30/1
+W:25:0:50:1500
+A:25/1
 P:0:1d2:0:0:0
 
 N:322:Darkness
@@ -2527,9 +2531,9 @@ A:75/1
 N:345:& Iron Spike~
 G:~:W
 I:5:0:0
-W:1:0:10:1
+W:1:0:5:1
 A:1/1
-P:0:1d1:0:0:0
+P:0:1d3:0:0:0
 
 N:346:& Wooden Torch~
 G:~:u
@@ -2542,8 +2546,8 @@ F:EASY_KNOW
 N:347:& Brass Lantern~
 G:~:U
 I:39:1:7500
-W:3:0:50:35
-A:3/1
+W:5:0:50:50
+A:5/1
 P:0:1d1:0:0:0
 F:EASY_KNOW | IGNORE_FIRE
 
@@ -2568,14 +2572,14 @@ N:350:Havoc
 G:-:d
 I:66:28:0
 W:95:0:15:150000
-A:100/16
+A:95/10
 P:0:1d1:0:0:0
 
 N:351:Door/Stair Location
 G:-:d
 I:66:1:0
-W:15:0:15:1000
-A:15/1
+W:20:0:15:1000
+A:20/1
 P:0:1d1:0:0:0
 
 N:352:Trap Location
@@ -2588,8 +2592,8 @@ P:0:1d1:0:0:0
 N:353:Probing
 G:-:d
 I:66:7:0
-W:40:0:15:4000
-A:40/4
+W:40:0:15:2000
+A:40/2
 P:0:1d1:0:0:0
 
 N:354:Recall
@@ -2637,29 +2641,29 @@ P:0:1d1:0:0:0
 N:360:Polymorph
 G:-:d
 I:66:19:0
-W:35:0:15:1200
-A:35/1
+W:30:0:15:1000
+A:30/1
 P:0:1d1:0:0:0
 
 N:361:Slow Monster
 G:-:d
 I:66:17:0
-W:30:0:15:1500
-A:30/1
+W:20:0:15:1000
+A:20/1
 P:0:1d1:0:0:0
 
 N:362:Sleep Monster
 G:-:d
 I:66:16:0
-W:30:0:15:1500
-A:30/1
+W:25:0:15:1200
+A:25/1
 P:0:1d1:0:0:0
 
 N:363:Drain Life
 G:-:d
 I:66:18:0
-W:75:0:15:3600
-A:75/4
+W:75:0:15:3000
+A:75/3
 P:0:1d1:0:0:0
 
 N:364:Teleport Other
@@ -2722,14 +2726,14 @@ N:372:Perception
 G:-:d
 I:66:2:0
 W:50:0:15:13000
-A:50/8,100/8
+A:50/8:75/6:100/4
 P:0:1d1:0:0:0
 
 N:373:Curing
 G:-:d
 I:66:8:0
-W:65:0:15:15000
-A:65/8
+W:55:0:15:10000
+A:55/5
 P:0:1d1:0:0:0
 
 N:374:Healing
@@ -2743,14 +2747,14 @@ N:375:Detection
 G:-:d
 I:66:6:0
 W:30:0:15:5000
-A:30/8
+A:30/6
 P:0:1d1:0:0:0
 
 N:376:Restoration
 G:-:d
 I:66:10:0
-W:80:0:15:25000
-A:80/16
+W:80:0:15:20000
+A:80/10
 P:0:1d1:0:0:0
 
 N:377:Speed
@@ -3146,36 +3150,36 @@ F:RES_FEAR | EASY_KNOW
 N:426:Light and Darkness Resistance
 G:=:d
 I:45:39:0
-W:30:0:2:3000
-A:30/2
+W:25:0:2:3000
+A:25/2
 F:RES_LITE | RES_DARK | EASY_KNOW
 
 N:427:Nether Resistance
 G:=:d
 I:45:40:0
-W:34:0:2:14500
-A:34/2
+W:45:0:2:15000
+A:45/2
 F:RES_NETHER | HOLD_LIFE | EASY_KNOW
 
 N:428:Nexus Resistance
 G:=:d
 I:45:41:0
-W:24:0:2:3000
-A:24/2
+W:25:0:2:3000
+A:25/2
 F:RES_NEXUS | EASY_KNOW
 
 N:429:Sound Resistance
 G:=:d
 I:45:42:0
-W:26:0:2:3000
-A:26/2
+W:25:0:2:3000
+A:25/2
 F:RES_SOUND | EASY_KNOW
 
 N:430:Confusion Resistance
 G:=:d
 I:45:43:0
-W:22:0:2:3000
-A:22/2
+W:35:0:2:5000
+A:35/2
 F:RES_CONF | EASY_KNOW
 
 N:431:Shard Resistance
@@ -3188,22 +3192,22 @@ F:RES_SHARDS | EASY_KNOW
 N:432:Disenchantment Resistance
 G:=:d
 I:45:45:0
-W:90:0:2:15000
-A:90/10
+W:75:0:2:15000
+A:75/5
 F:RES_DISEN | EASY_KNOW
 
 N:433:Chaos Resistance
 G:=:d
 I:45:46:0
-W:50:0:2:13000
-A:50/2
-F:RES_CHAOS | RES_CONF | EASY_KNOW
+W:45:0:2:15000
+A:45/2
+F:RES_CHAOS | EASY_KNOW
 
 N:434:Blindness Resistance
 G:=:d
 I:45:47:0
-W:60:0:2:7500
-A:60/2
+W:35:0:2:5000
+A:35/2
 F:RES_BLIND | EASY_KNOW
 
 N:435:Lordly Protection
@@ -3404,7 +3408,7 @@ F:INSTA_ART
 N:500:& Phial~
 G:!:y
 I:39:4:0
-W:1:0:10:10000
+W:2:0:10:10000
 P:0:1d1:0:0:0
 F:INSTA_ART
 
@@ -3420,7 +3424,7 @@ F:INSTA_ART
 # The Arkenstone of Thrain -- see artifact list
 
 N:502:& Arkenstone~
-G:*:R
+G:*:w
 I:39:6:0
 W:60:0:5:60000
 P:0:1d1:0:0:0
@@ -3432,7 +3436,7 @@ F:INSTA_ART
 N:503:& Red~
 G:":d
 I:40:10:0
-W:50:0:3:80000
+W:50:0:3:50000
 F:INSTA_ART
 
 # The Amulet of Ingwe -- see artifact list
@@ -3448,7 +3452,7 @@ F:INSTA_ART
 N:505:& Necklace~
 G:":d
 I:40:12:0
-W:70:0:3:75000
+W:70:0:1:75000
 F:INSTA_ART
 
 
@@ -3494,7 +3498,7 @@ F:INSTA_ART
 
 # The Ring of Power (The One Ring) -- see artifact list
 
-N:511:& Ring~
+N:511:& One~
 G:=:y
 I:45:37:0
 W:110:0:2:5000000
@@ -3570,8 +3574,7 @@ G:":d
 I:40:9:0
 W:60:0:3:30000
 A:60/4
-F:REFLECT | EASY_KNOW
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+F:REFLECT | EASY_KNOW | IGNORE_ELEC
 
 #521 and 522 cannot have EASY_KNOW because they may be cursed
 
@@ -3581,15 +3584,14 @@ I:40:13:0
 W:40:0:3:30000
 A:40/4
 F:NO_MAGIC
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+F:IGNORE_ELEC
 
 N:522:Anti-Teleportation
 G:":d
 I:40:14:0
-W:30:0:3:15000
-A:30/4
+W:30:0:3:5000
+A:30/2
 F:NO_TELE
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 #523 cannot have EASY_KNOW because it can get random resistances
 
@@ -3598,8 +3600,12 @@ G:":d
 I:40:15:0
 W:50:0:3:25000
 A:50/4
-F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD
-F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | IGNORE_ELEC
+
+#
+# New objects for Gumband, in addition to those scattered thoughout
+# the list above, of course.
+#
 
 # Stormbringer -- see artifact list
 
@@ -3619,12 +3625,57 @@ W:1:0:20:3000
 P:4:1d1:0:0:0
 F:INSTA_ART | SHOW_MODS
 
-# Axe of Slaughtering
+# Slaughter Axe
 
-N:526:& Axe~ of Slaughtering
+N:526:& Slaughter Axe~
 G:/:G
 I:23:30:0
 W:70:0:350:6000
 A:70/8
 P:0:5d7:0:0:0
 F:SLAY_ANIMAL | SHOW_MODS
+
+# New Ammo Types
+
+N:527:& Sling Bullet~
+G:{:s
+I:16:2:0
+W:20:0:3:5
+A:20/3:40/1
+P:0:1d4:0:0:0
+F:SHOW_MODS
+
+N:528:& Hunting Arrow~
+G:{:U
+I:17:0:0
+W:2:0:1:2
+A:2/1:10/1
+P:0:1d3:0:0:0
+F:SHOW_MODS
+
+N:529:& Hunting Quarrel~
+G:{:s
+I:18:0:0
+W:5:0:2:3
+A:5/1:15/1
+P:0:1d4:0:0:0
+F:SHOW_MODS
+
+# To make up for removing the spell and making Priests suffer for using
+# non-Hafted (blunt) weapons. :) -- Gumby
+
+N:530:Bless Weapon
+G:?:d
+I:70:43:0
+W:75:0:5:50000
+A:75/4:100/2
+
+# Just to complete the set. -- Gumby
+
+N:532:Lightning
+G:=:d
+I:45:5:0
+W:55:0:2:3500
+A:55/1
+P:0:0d0:0:0:15
+F:RES_ELEC | IGNORE_ELEC | ACTIVATE

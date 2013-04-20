@@ -1,4 +1,4 @@
-98
+91
 ******** BUFFER LINE *********************************** DO NOT REMOVE *******
 'Idspispopd'
 'Purple Rain'
@@ -18,10 +18,8 @@ of Severe Pain
 of the Uncaring
 'Executioner's Friend'
 'Knight Chopper'
-of Eddie
 'Cannae'
 'Revenge of Orculs'
-'Whirlwind'
 'Ogresmasher'
 'Pod'
 'Elfrist'
@@ -62,7 +60,6 @@ of Agony
 of Morgue
 of Low Blow
 'Stunner'
-'Waffen-SS'
 of Misery
 'Virus'
 'Whiplash'
@@ -94,7 +91,3 @@ of Fal
 of Vandalism
 of Lesser Might
 of the Mind
-'Gilettar'
-'Anguirel'
-'Angrist'
-'Belangil'

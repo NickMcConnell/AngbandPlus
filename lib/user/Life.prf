@@ -4,7 +4,7 @@
 #   [ - Glyph of Warding    F2 - Cure Medium Wounds  SF2 - Sense Unseen
 #   ] - Warding True        F3 - Cure Critical Wnds. SF3 - Day of the Dove
 #   ' - Holy Vision         F4 - Healing
-#   " - Bless Weapon        F5 - Healing True
+#   " - Summon Angel        F5 - Healing True
 #   ; - Remove Curse        F6 - Cure Poison
 #   : - Dispel Curse        F7 - Restoration
 #   h - Heroism             F8 - Divine Intervention
@@ -34,7 +34,7 @@ C:0:]
 A:m4f
 C:0:'
 
-# " - Bless Weapon
+# " - Summon Angel
 A:m4c
 C:0:"
 
@@ -71,7 +71,7 @@ A:m2e
 C:0:O
 
 # P - Protection from Evil
-A:m1f
+A:m2f
 C:0:P
 
 # y - Bless

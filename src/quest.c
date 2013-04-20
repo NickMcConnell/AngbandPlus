@@ -195,20 +195,7 @@ int get_number_monster(int i)
 	}
 	else
 	{
-		if (r_info[q_list[i].r_idx].flags1 & (RF1_FRIEND || RF1_FRIENDS))
-		{
-			num = 10;
-		}
-		else if (r_info[q_list[i].r_idx].flags2 & (RF2_MULTIPLY))
-		{
-			num = 20;
-		}
-		else
-		{
-			num = 5;
-		}
-
-		num += rand_range(1, (q_list[i].level / 3) + 5);
+		num = 5 + rand_range(1, (q_list[i].level / 3) + 5);
 		return (num);
 	}
 }
@@ -238,6 +225,17 @@ int get_rnd_q_monster(int q_idx)
 		case 9 : r_idx = rand_range(623,635); break; /* 90-97 */
 		default : r_idx = rand_range (146,635);
 	}
+
+		/*
+		 * Prevent monsters with friends or escorts, and breeders,
+		 * from being selected for quests. Such monsters are almost
+		 * always too weak individually. -- Gumby
+		 */
+		if (r_info[r_idx].flags1 & (RF1_FRIEND))   return (0);
+		if (r_info[r_idx].flags1 & (RF1_FRIENDS))  return (0);
+		if (r_info[r_idx].flags1 & (RF1_ESCORT))   return (0);
+		if (r_info[r_idx].flags1 & (RF1_ESCORTS))  return (0);
+		if (r_info[r_idx].flags2 & (RF2_MULTIPLY)) return (0);
 
 	for (j = 2; j < q_idx; j++)
 		if ((q_list[j].r_idx == r_idx) && r_info[r_idx].flags1 & (RF1_UNIQUE))

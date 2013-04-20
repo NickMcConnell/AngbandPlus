@@ -75,7 +75,14 @@ void do_cmd_rerate(void)
 	handle_stuff();
 
 	/* Message */
-	msg_format("Current Life Rating is %d/100.", percent);
+	if (!wizard)
+	{
+		msg_print("Re-rating hit points...");
+	}
+	else
+	{
+		msg_format("Current Life Rating is %d/100.", percent);
+	}
 }
 
 
@@ -443,10 +450,10 @@ static void wiz_display_item(object_type *o_ptr)
 
 	prt("+------------FLAGS1------------+", 10, j);
 	prt("AFFECT........SLAY........BRAND.", 11, j);
-	prt("              cvae      xsqpaefc", 12, j);
-	prt("siwdcc  ssidsahanvudotgddhuoclio", 13, j);
-	prt("tnieoh  trnipttmiinmrrnrrraiierl", 14, j);
-	prt("rtsxna..lcfgdkcpmldncltggpksdced", 15, j);
+	prt("       e      cvae      xsqpaefc", 12, j);
+	prt("siwdcc lssidsahanvudotgddhuoclio", 13, j);
+	prt("tnieoh etrnipttmiinmrrnrrraiierl", 14, j);
+	prt("rtsxna.mlcfgdkcpmldncltggpksdced", 15, j);
 	prt_binary(f1, 16, j);
 
 	prt("+------------FLAGS2------------+", 17, j);
@@ -735,7 +742,7 @@ static void wiz_reroll_item(object_type *o_ptr)
 		wiz_display_item(q_ptr);
 
 		/* Ask wizard what to do. */
-		if (!get_com("[a]ccept, [n]ormal, [g]ood, [e]xcellent? ", &ch))
+		if (!get_com("[a]ccept, [n]ormal, [g]ood, [e]xcellent, [s]pecial? ", &ch))
 		{
 			changed = FALSE;
 			break;
@@ -767,6 +774,12 @@ static void wiz_reroll_item(object_type *o_ptr)
 		{
 			object_prep(q_ptr, o_ptr->k_idx);
 			apply_magic(q_ptr, dun_level, FALSE, TRUE, TRUE);
+		}
+		/* Roll a random artifact */
+		else if (ch == 's' || ch == 's')
+		{
+			object_prep(q_ptr, o_ptr->k_idx);
+			create_artifact(q_ptr, FALSE);
 		}
 	}
 

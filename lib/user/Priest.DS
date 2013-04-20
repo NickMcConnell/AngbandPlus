@@ -2,15 +2,15 @@
 #
 # TAB - Teleport Away       F1 - Malediction         SF1 - Genocide
 #   [ - Dimension Door      F2 - Stinking Cloud      SF2 - Mass Genocide
-#   ] - Wraithform          F3 - Orb of Entropy      SF3 - Omnicide
-#   ' - Berserk             F4 - Nether Bolt         SF4 - Confuse Monster
-#   " - Battle Frenzy       F5 - Vampiric Drain      SF5 - Black Sleep
+#   ] - Wraithform          F3 - Nether Bolt         SF3 - Omnicide
+#   ' - Berserk             F4 - Vampiric Drain      SF4 - Confuse Monster
+#   " - Battle Frenzy       F5 - Cloud Kill          SF5 - Black Sleep
 #   ; - Haste Self          F6 - Dark Bolt           SF6 - Horrify
-#   : - Globe of Invuln.    F7 - Vampirism True      SF7 - Invoke Spirits
+#   : - Globe of Invulner.  F7 - Vampirism True      SF7 - Invoke Spirits
 #   h - Magic Mapping       F8 - Darkness Storm      SF8 - Slow Monster
 #   H - Clairvoyance        F9 - Death Ray           SF9 - Mass Sleep
 #   J - Identify           F10 - Word of Death      SF10 - Terror
-#   n - Detect Monsters    F11 - Evocation          SF11 - Dispel Good
+#   n - Detect Monsters    F11 - Evocation          SF11 - Infernal Orb
 #   N - Detect Doors/Traps F12 - Hellfire           SF12 - Stasis
 #   O - Detection
 #   P - Recharging
@@ -96,16 +96,16 @@ P:^_x3B\r
 A:m1d
 P:^_x3C\r
 
-# F3 - Orb of Entropy
-A:m2a
+# F3 - Nether Bolt
+A:\e\e\e*tm2b
 P:^_x3D\r
 
-# F4 - Nether Bolt
-A:\e\e\e*tm2b
+# F4 - Vampiric Drain
+A:m2d
 P:^_x3E\r
 
-# F5 - Vampiric Drain
-A:m2d
+# F5 - Cloud Kill
+A:m2f
 P:^_x3F\r
 
 # F6 - Dark Bolt
@@ -180,8 +180,8 @@ P:^_Sx5C\r
 A:m2c
 P:^_Sx5D\r
 
-# SHIFT-F11 - Dispel Good
-A:m2f
+# SHIFT-F11 - Infernal Orb
+A:m2a
 P:^_Sx87\r
 
 # SHIFT-F12 - Stasis

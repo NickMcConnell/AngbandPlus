@@ -1452,6 +1452,9 @@ static void rd_extra(void)
 	rd_u16b(&total_winner);
 	rd_u16b(&noscore);
 
+	/* Remember a quick start */
+	rd_byte(&tmp8u);
+	quick_start = tmp8u;
 
 	/* Read "death" */
 	rd_byte(&tmp8u);

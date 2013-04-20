@@ -968,4 +968,4 @@ Save screen dump (right-paren)
                 Original: Alexander Cutler and Andy Astrand
          Updated (2.7.6): Russ Allbery (rra@cs.stanford.edu)
          Updated (2.7.9): Ben Harrison (benh@phial.com)
-Updated (Gumband 2.1.2b): Joe Dixon (gumby@gwar.net)
+Updated (Gumband 2.1.2b): Joe Dixon (gumby_jd@yahoo.com)

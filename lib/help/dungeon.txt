@@ -217,6 +217,7 @@ The Bookstore ("9")
     The Bookstore deals in all sorts of magical books. You can purchase
     and sell spellbooks for the spellcasters here.
 
+
 === Within The Dungeon ===
 
 Once your character is adequately supplied with food, light, armor, and
@@ -257,7 +258,7 @@ exceptional power which glow with their own never-ending light.
 
 === Objects Found In The Dungeon ===
 
-The mines are full of objects just waiting to be picked up and used.  How
+The caves are full of objects just waiting to be picked up and used.  How
 did they get there?  Well, the main source for useful items are all the
 foolish adventurers that proceeded into the dungeon before you.  They get
 killed, and the helpful creatures scatter the various treasure throughout
@@ -488,4 +489,4 @@ The newsgroup "rec.games.roguelike.angband" is a good place to ask various
 questions about both game play and game design, and you can email bug
 reports and such to (benh@phial.com).  Be sure to include the version
 number you are playing in any bug reports.  Gumband specific bug reports
-should be sent to (gumby@gwar.net).
+should be sent to (gumby_jd@yahoo.com).

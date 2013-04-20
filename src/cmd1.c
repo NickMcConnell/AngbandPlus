@@ -167,7 +167,7 @@ s16b critical_norm(int weight, int plus, int dam)
  * certainly could be made to do so.  XXX XXX
  *
  * Note that most brands and slays are x3, except Slay Animal (x2),
- * Slay Evil (x2), and Kill dragon (x5).
+ * Slay Evil (x2), Chaotic (x2), and Kill dragon (x5).
  */
 s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 {
@@ -192,28 +192,147 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 		case TV_SWORD:
 		case TV_DIGGING:
 		{
-			/* Slay Animal */
-			if ((f1 & (TR1_SLAY_ANIMAL)) &&
-			    (r_ptr->flags3 & (RF3_ANIMAL)))
+			/* Execute Dragon */
+			if ((f1 & (TR1_KILL_DRAGON)) &&
+			    (r_ptr->flags3 & (RF3_DRAGON)))
 			{
 				if (m_ptr->ml)
 				{
-					r_ptr->r_flags3 |= (RF3_ANIMAL);
+					r_ptr->r_flags3 |= (RF3_DRAGON);
 				}
 
-				if (mult < 2) mult = 2;
+				if (mult < 5) mult = 5;
+				else mult += 2;
 			}
 
-			/* Slay Evil */
-			if ((f1 & (TR1_SLAY_EVIL)) &&
-			    (r_ptr->flags3 & (RF3_EVIL)))
+			/* Brand (Fire) */
+			if (f1 & (TR1_BRAND_FIRE))
+			{
+				if (r_ptr->flags3 & (RF3_IM_FIRE))
+				{
+					mult -= 1;
+					if (m_ptr->ml)
+					{
+						r_ptr->r_flags3 |= (RF3_IM_FIRE);
+					}
+				}
+				/* notice the vulnerability */
+				else if (r_ptr->flags3 & (RF3_HURT_FIRE))
+				{
+					if (m_ptr->ml)
+					{
+						r_ptr->r_flags3 |= (RF3_HURT_FIRE);
+					}
+					if (mult < 5) mult = 5;
+					else mult += 2;
+				}
+				else
+				{
+					if (mult < 3) mult = 3;
+					else mult += 1;
+				}
+			}
+
+			/* Brand (Cold) */
+			if (f1 & (TR1_BRAND_COLD))
+			{
+				if (r_ptr->flags3 & (RF3_IM_COLD))
+				{
+					mult -= 1;
+					if (m_ptr->ml)
+					{
+						r_ptr->r_flags3 |= (RF3_IM_COLD);
+					}
+				}
+				else if (r_ptr->flags3 & (RF3_HURT_COLD))
+				{
+					if (m_ptr->ml)
+					{
+						r_ptr->r_flags3 |= (RF3_HURT_COLD);
+					}
+					if (mult < 5) mult = 5;
+					else mult += 2;
+				}
+				else
+				{
+					if (mult < 3) mult = 3;
+					else mult += 1;
+				}
+			}
+
+			/* Brand (Acid) */
+			if (f1 & (TR1_BRAND_ACID))
+			{
+				/* Notice immunity */
+				if (r_ptr->flags3 & (RF3_IM_ACID))
+				{
+					mult -= 1;
+					if (m_ptr->ml)
+					{
+						r_ptr->r_flags3 |= (RF3_IM_ACID);
+					}
+				}
+				/* Otherwise, take the damage */
+				else
+				{
+					if (mult < 3) mult = 3;
+					else mult += 1;
+				}
+			}
+
+			/* Brand (Elec) */
+			if (f1 & (TR1_BRAND_ELEC))
+			{
+				if (r_ptr->flags3 & (RF3_IM_ELEC))
+				{
+					mult -= 1;
+					if (m_ptr->ml)
+					{
+						r_ptr->r_flags3 |= (RF3_IM_ELEC);
+					}
+				}
+				else
+				{
+					if (mult < 3) mult = 3;
+					else mult += 1;
+				}
+			}
+
+			/* Brand (Poison) - Zangband*/
+			if (f1 & (TR1_BRAND_POIS))
+			{
+				if (r_ptr->flags3 & (RF3_IM_POIS))
+				{
+					mult -= 1;
+					if (m_ptr->ml)
+					{
+						r_ptr->r_flags3 |= (RF3_IM_POIS);
+					}
+				}
+				else
+				{
+					if (mult < 3) mult = 3;
+					else mult += 1;
+				}
+			}
+
+			if ((f1 & (TR1_SLAY_HUMANOID)) && 
+			    (is_humanoid(r_ptr->d_char)))
+			{
+				if (mult < 3) mult = 3;
+				else mult += 1;
+			}
+
+			if ((f1 & (TR1_SLAY_ELEMENTAL)) &&
+			    (r_ptr->flags3 & (RF3_ELEMENTAL)))
 			{
 				if (m_ptr->ml)
 				{
-					r_ptr->r_flags3 |= (RF3_EVIL);
+					r_ptr->r_flags3 |= (RF3_ELEMENTAL);
 				}
 
-				if (mult < 2) mult = 2;
+				if (mult < 3) mult = 3;
+				else mult += 1;
 			}
 
 			/* Slay Undead */
@@ -226,6 +345,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 				}
 
 				if (mult < 3) mult = 3;
+				else mult += 1;
 			}
 
 			/* Slay Demon */
@@ -238,6 +358,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 				}
 
 				if (mult < 3) mult = 3;
+				else mult += 1;
 			}
 
 			/* Slay Orc */
@@ -250,6 +371,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 				}
 
 				if (mult < 3) mult = 3;
+				else mult += 1;
 			}
 
 			/* Slay Troll */
@@ -261,9 +383,8 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 					r_ptr->r_flags3 |= (RF3_TROLL);
 				}
 
-
-
 				if (mult < 3) mult = 3;
+				else mult += 1;
 			}
 
 			/* Slay Giant */
@@ -276,6 +397,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 				}
 
 				if (mult < 3) mult = 3;
+				else mult += 1;
 			}
 
 			/* Slay Dragon  */
@@ -288,150 +410,49 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 				}
 
 				if (mult < 3) mult = 3;
+				else mult += 1;
 			}
 
-			/* Execute Dragon */
-			if ((f1 & (TR1_KILL_DRAGON)) &&
-			    (r_ptr->flags3 & (RF3_DRAGON)))
+			/* Slay Animal */
+			if ((f1 & (TR1_SLAY_ANIMAL)) &&
+			    (r_ptr->flags3 & (RF3_ANIMAL)))
 			{
 				if (m_ptr->ml)
 				{
-					r_ptr->r_flags3 |= (RF3_DRAGON);
+					r_ptr->r_flags3 |= (RF3_ANIMAL);
 				}
 
-				if (mult < 5) mult = 5;
-
-				if ((o_ptr->name1 == ART_AEGLIN) &&
-				    strstr(r_name + r_ptr->name, "Fafner"))
-					mult *= 3;
+				if (mult < 2) mult = 2;
+				else mult += 1;
 			}
 
-
-			/* Brand (Acid) */
-			if (f1 & (TR1_BRAND_ACID))
+			/* Slay Evil */
+			if ((f1 & (TR1_SLAY_EVIL)) &&
+			    (r_ptr->flags3 & (RF3_EVIL)))
 			{
-				/* Notice immunity */
-				if (r_ptr->flags3 & (RF3_IM_ACID))
+				if (m_ptr->ml)
 				{
-					if (m_ptr->ml)
-					{
-						r_ptr->r_flags3 |= (RF3_IM_ACID);
-					}
+					r_ptr->r_flags3 |= (RF3_EVIL);
 				}
 
-				/* Otherwise, take the damage */
-				else
-				{
-					if (mult < 3) mult = 3;
-				}
+				if (mult < 2) mult = 2;
+				else mult += 1;
 			}
 
-			/* Brand (Elec) */
-			if (f1 & (TR1_BRAND_ELEC))
-			{
-				/* Notice immunity */
-				if (r_ptr->flags3 & (RF3_IM_ELEC))
-				{
-					if (m_ptr->ml)
-					{
-						r_ptr->r_flags3 |= (RF3_IM_ELEC);
-					}
-				}
-
-				/* Otherwise, take the damage */
-				else
-				{
-					if (mult < 3) mult = 3;
-				}
-			}
-
-			/* Brand (Fire) */
-			if (f1 & (TR1_BRAND_FIRE))
-			{
-				/* Notice immunity */
-				if (r_ptr->flags3 & (RF3_IM_FIRE))
-				{
-					if (m_ptr->ml)
-					{
-						r_ptr->r_flags3 |= (RF3_IM_FIRE);
-					}
-				}
-
-				/* Notice vunerability */
-				else if (r_ptr->flags3 & (RF3_HURT_FIRE))
-				{
-					if (m_ptr->ml)
-					{
-						r_ptr->r_flags3 |= (RF3_HURT_FIRE);
-					}
-					if (mult < 5) mult = 5;
-				}
-				/* Otherwise, take the damage */
-				else
-				{
-					if (mult < 3) mult = 3;
-				}
-			}
-
-			/* Brand (Cold) */
-			if (f1 & (TR1_BRAND_COLD))
-			{
-				/* Notice immunity */
-				if (r_ptr->flags3 & (RF3_IM_COLD))
-				{
-					if (m_ptr->ml)
-					{
-						r_ptr->r_flags3 |= (RF3_IM_COLD);
-					}
-				}
-				/* Notice vunerability */
-				else if (r_ptr->flags3 & (RF3_HURT_COLD))
-				{
-					if (m_ptr->ml)
-					{
-						r_ptr->r_flags3 |= (RF3_HURT_COLD);
-					}
-					if (mult < 5) mult = 5;
-				}
-				/* Otherwise, take the damage */
-				else
-				{
-					if (mult < 3) mult = 3;
-				}
-			}
-
-			/* Brand (Poison) - Zangband*/
-			if (f1 & (TR1_BRAND_POIS))
-			{
-				/* Notice immunity */
-				if (r_ptr->flags3 & (RF3_IM_POIS))
-				{
-					if (m_ptr->ml)
-					{
-						r_ptr->r_flags3 |= (RF3_IM_POIS);
-					}
-				}
-
-				/* Otherwise, take the damage */
-				else
-				{
-					if (mult < 3) mult = 3;
-				}
-			}
-
-			/* Brand (Chaotic) - Gumband */
+			/* Chaotic weapons hurt creatures of Chaos -- G */
 			if (f1 & (TR1_CHAOTIC) &&
 			  ((r_ptr->flags3 & (RF3_RES_CHAO)) ||
 			  (r_ptr->flags4 & (RF4_BR_CHAO))))
 			{
 					if (mult < 2) mult = 2;
+					else mult += 1;
 			}
 			break;
 		}
 	}
 
-
 	/* Return the total damage */
+	if (mult < 1) mult = 1;
 	return (tdam * mult);
 }
 
@@ -878,7 +899,7 @@ static void hit_trap(void)
 			msg_print("A strange purple gas envelops you...");
 			c_ptr->info &= ~(CAVE_MARK);
 			cave_set_feat(py, px, FEAT_FLOOR);
-			if ((!p_ptr->resist_chaos) && (randint(2) == 1))
+			if (!(p_ptr->resist_chaos) && !(randint(3) == 1))
 			{
 				if ((p_ptr->muta1 || p_ptr->muta2 || p_ptr->muta3) &&
 					(randint(20) == 13))
@@ -1201,7 +1222,6 @@ void py_attack(int y, int x)
 
 	char            m_name[80];
 
-
 	bool            fear = FALSE;
 	bool            mdeath = FALSE;
 
@@ -1218,10 +1238,20 @@ void py_attack(int y, int x)
 	/* Disturb the player */
 	disturb(0, 0);
 
-
-	if (p_ptr->pclass == CLASS_ROGUE)
+	/*
+	 * Rogues can only backstab with light weapons. It's a hideous hack,
+	 * but they can now only backstab those creatures that are roughly
+	 * humanoid (demons are too varied in shape to qualify, ditto for
+	 * shapechangers :), and then only after a check against the Rogue's
+	 * Stealth skill and the monster's native depth. -- Gumby
+	 */
+	if ((p_ptr->pclass == CLASS_ROGUE) &&
+	    (inventory[INVEN_WIELD].weight <= 50) &&
+	    (randint(r_ptr->level + 10) <= p_ptr->skill_stl) &&
+	    (is_humanoid(r_ptr->d_char)))
 	{
-		if ((m_ptr->csleep) && (m_ptr->ml))
+		if ((m_ptr->csleep || m_ptr->confused || m_ptr->stunned) &&
+		    (m_ptr->ml))
 		{
 			/* Can't backstab creatures that we can't see, right? */
 			backstab = TRUE;
@@ -1305,7 +1335,7 @@ void py_attack(int y, int x)
 					msg_format("You hit %s.", m_name);
 			}
 			else if (backstab)
-				msg_format("You cruelly stab the helpless, sleeping %s!",
+				msg_format("You cruelly stab the helpless %s!",
 				    (r_name + r_info[m_ptr->r_idx].name));
 			else
 				msg_format("You backstab the fleeing %s!",
@@ -1450,15 +1480,15 @@ void py_attack(int y, int x)
 				if (backstab)
 				{
 					backstab = FALSE;
-					k *= (3 + (p_ptr->lev / 40));
+					k *= (5 + (p_ptr->lev / 10));
 				}
 				else if (stab_fleeing)
 				{
-					k = ((3 * k) / 2);
+					k *= 3;
 				}
 
-				if ((p_ptr->impact && ((k > 50) || randint(7)==1)) ||
-				    (chaos_effect && (randint(250)==1)))
+				if ((p_ptr->impact && (((k > 50) && randint(2)==1) || randint(10)==1)) ||
+				    (chaos_effect && (randint(300)==1))) /* was (250) -- Gumby */
 				{
 					do_quake = TRUE;
 					chaos_effect = FALSE;
@@ -1597,7 +1627,8 @@ void py_attack(int y, int x)
 				}
 			}
 
-			else if (chaos_effect && (randint(2)==1))
+			/* was randint(2), which was too much -- Gumby */
+			else if (chaos_effect && (randint(6)==1))
 			{
 				chaos_effect = FALSE;
 				msg_format("%^s disappears!", m_name);

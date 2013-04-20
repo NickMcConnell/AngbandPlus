@@ -463,7 +463,7 @@ static bool do_cmd_open_chest(int y, int x, s16b o_idx)
 		if (rand_int(100) < j)
 		{
 			msg_print("You have picked the lock.");
-			/* Only Rogues gain XP -- Gumby */
+			/* Only Rogues get XP -- Gumby */
 			if (p_ptr->pclass == CLASS_ROGUE) gain_exp(1);
 			flag = TRUE;
 		}
@@ -2098,12 +2098,15 @@ void do_cmd_fire(void)
 
 	/* Actually "fire" the object */
 	/*
-	 * Must adjust so that Weaponmasters don't get their level bonus!
+	 * Must adjust so that Weaponmasters don't get their level bonus and
+	 * Priests don't get penalized for icky_wield.
 	 *							-- Gumby
 	 */
 	if ((p_ptr->pclass == CLASS_WEAPONMASTER) &&
 	    (inventory[INVEN_WIELD].tval == p_ptr->wm_choice))
 		bonus = ((p_ptr->to_h - p_ptr->lev) + q_ptr->to_h + j_ptr->to_h);
+	else if ((p_ptr->pclass == CLASS_PRIEST) && (p_ptr->icky_wield))
+		bonus = (p_ptr->to_h + q_ptr->to_h + j_ptr->to_h + 15);
 	else
 		bonus = (p_ptr->to_h + q_ptr->to_h + j_ptr->to_h);
 
@@ -3029,32 +3032,37 @@ static void cmd_racial_power_aux (void)
 						break;
 					case CLASS_PRIEST:
 					case CLASS_PALADIN:
-						if (randint(3)==1)
+						if (p_ptr->realm1 == REALM_DEATH)
 						{
 							Type = GF_HELL_FIRE;
 							Type_desc = "hellfire";
 						}
-						else
+						else if (p_ptr->realm1 == REALM_LIFE)
 						{
 							Type = GF_HOLY_FIRE;
 							Type_desc = "holy fire";
 						}
 						break;
 					case CLASS_ROGUE:
-						if (randint(3)==1)
-						{
-							Type = GF_DARK;
-							Type_desc = "darkness";
-						}
-						else
+						if (p_ptr->realm1 == REALM_DEATH)
 						{
 							Type = GF_POIS;
 							Type_desc = "poison";
 						}
+						else if (p_ptr->realm1 == REALM_TRUMP)
+						{
+							Type = GF_NEXUS;
+							Type_desc = "nexus";
+						}
+						else if (p_ptr->realm1 == REALM_SORCERY)
+						{
+							Type = GF_CONFUSION;
+							Type_desc = "confusion";
+						}
 						break;
 				}
 			}
-			if (racial_aux(1, p_ptr->lev, A_CON, 20))
+			if (racial_aux(1, p_ptr->lev, A_CON, 16))
 			{
 				if (!get_aim_dir(&dir)) break;
 				msg_format("You breathe %s.", Type_desc);
@@ -3393,7 +3401,7 @@ void do_cmd_racial_power(void)
 			break;
 
 		case RACE_DRACONIAN:
-			racial_power = "breath weapon      (racial, cost lvl, dam 3*lvl, CON 20@1)";
+			racial_power = "breath weapon      (racial, cost lvl, dam 3*lvl, CON 16@1)";
 			has_racial = TRUE;
 			break;
 

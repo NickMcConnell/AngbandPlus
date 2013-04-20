@@ -25,13 +25,6 @@
 # This file includes, if appropriate, various "sub-files"
 #
 # See "lib/help/command.txt" and "src/files.c" for more information.
-#
-# Note that the "X" key is mapped in both keysets to the key sequence
-# "w0", which will "swap weapons" as long as both weapons contain the
-# inscription "@0".  For example, inscribe your main weapon as "@1@0"
-# and your digger (or secondary weapon) as "@2@0".
-#
-
 
 ##### Force certain options #####
 
@@ -286,5 +279,3 @@ C:1:'
 %:pref-acn.prf
 
 ?:1
-
-

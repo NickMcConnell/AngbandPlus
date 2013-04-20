@@ -11,7 +11,7 @@
 #   H - Word of Recall      F9 - Trump Undead
 #   J - Trump Lore         F10 - Trump Dragon
 #   n - Minor Divination   F11 - Trump Demon
-#   N - Trump Divination   F12 - 
+#   N - Trump Divination
 #   O - Trump Spying
 #   P - Trump Reach
 #   y - Phase Door
@@ -31,7 +31,7 @@ A:m3g
 C:0:]
 
 # ' - Trump Branding
-A:m3e
+A:m2f
 C:0:'
 
 # " - Living Trump
@@ -43,7 +43,7 @@ A:m1c
 C:0:;
 
 # : - Banish
-A:m2h
+A:m3e
 C:0::
 
 # h - Teleport Level

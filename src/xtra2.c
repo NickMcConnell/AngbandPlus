@@ -714,7 +714,7 @@ bool set_shadow(int v)
         if (!p_ptr->wraith_form)
 		{
 
-            msg_print("You leave the physical world and turn into a wraith-being!");
+            msg_print("You leave the physical world!");
 			notice = TRUE;
 
             {
@@ -1885,7 +1885,7 @@ void check_experience(void)
 		{
 			p_ptr->max_plv = p_ptr->lev;
 
-			if ((p_ptr->pclass == CLASS_CHAOS_WARRIOR) || (p_ptr->muta3 & MUT2_CHAOS_GIFT))
+			if ((p_ptr->pclass == CLASS_CHAOS_WARRIOR) || (p_ptr->muta2 & MUT2_CHAOS_GIFT))
 			{
 				level_reward = TRUE;
 			}
@@ -1979,8 +1979,8 @@ static int get_coin_type(monster_race *r_ptr)
 {
 	cptr name = (r_name + r_ptr->name);
 
-	/* Analyze "coin" monsters */
-	if (r_ptr->d_char == '$')
+	/* Analyze "coin" monsters - and golems */
+	if ((r_ptr->d_char == '$') || (r_ptr->d_char == 'g'))
 	{
 		/* Look for textual clues */
 		if (strstr(name, " copper ")) return (2);
@@ -2534,7 +2534,7 @@ void monster_death(int m_idx)
 	r_ptr->flags1 ^= (RF1_QUESTOR);
 
 	/* Killed Mabelrode the Faceless */
-	if ((q_list[1].level == 0) && !total_winner)
+	if ((q_list[2].level == 0) && !total_winner)
 	{
 		/* Total winner */
 		total_winner = TRUE;
@@ -4475,6 +4475,37 @@ void gain_level_reward(int chosen_reward)
             msg_format("%s rewards you with an undead servant!",chaos_patrons[p_ptr->chaos_patron]);
             if (!(summon_specific_friendly(py, px, dun_level, SUMMON_UNDEAD, FALSE)))
             msg_print("Nobody ever turns up...");
+            break;
+	case REW_MEGA_REW:
+            msg_format("The voice of %s whispers:", chaos_patrons[p_ptr->chaos_patron]);
+            msg_print("'Thou truly art the sweetest of my slaves...'");
+            (void) mass_genocide(FALSE);
+            restore_level();
+            (void)set_poisoned(0);
+            (void)set_blind(0);
+            (void)set_confused(0);
+            (void)set_image(0);
+            (void)set_stun(0);
+            (void)set_cut(0);
+            hp_player(5000);
+            for (dummy = 0; dummy < 6; dummy++)
+            {
+                (void) do_res_stat(dummy);
+            }
+            for (dummy = 0; dummy < 6; dummy++)
+            {
+                (void) do_inc_stat(dummy);
+            }
+	    if (p_ptr->exp < PY_MAX_EXP)
+	    {
+		if (p_ptr->exp <= 1000) gain_exp(200);
+		else if (p_ptr->exp <= 10000) gain_exp(1000);
+		else if (p_ptr->exp <= 25000) gain_exp(5000);
+		else if (p_ptr->exp <= 100000L) gain_exp(25000);
+		else if (p_ptr->exp <= 1000000L) gain_exp(100000L);
+		else if (p_ptr->exp >= 1000001L) gain_exp(250000L);
+	    }
+            acquirement(py, px, randint(4) + 1, TRUE);
             break;
         default:
             msg_format("The voice of %s stammers:",

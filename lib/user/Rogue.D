@@ -1,17 +1,17 @@
 # Death Magic
 #
-# TAB - Wraithform          F1 - Malediction         SF1 - Genocide
-#   [ - Berserk             F2 - Stinking Cloud      SF2 - Mass Genocide
-#   ] - Battle Frenzy       F3 - Nether Bolt         SF3 - Omnicide
+# TAB - Wraithform          F1 - Malediction
+#   [ - Berserk             F2 - Stinking Cloud
+#   ] - Battle Frenzy       F3 - Nether Bolt
 #   ' - Horrify             F4 - Vampiric Drain
 #   " - Terror              F5 - Cloud Kill
 #   ; - Black Sleep         F6 - Dark Bolt
 #   : - Invoke Spirits      F7 - Vampirism True
 #   h - Poison Branding     F8 - Darkness Storm
 #   H - Vampiric Branding   F9 - Death Ray
-#   J - Esoteria           F10 - Word of Death
-#   n - Detect Unlife      F11 - Evocation
-#   N - Detect Evil        F12 - Hellfire
+#   J - Esoteria
+#   n - Detect Unlife
+#   N - Detect Evil
 #   O - Infernal Orb
 #   P - Resist Poison
 #   y - Enslave Undead
@@ -124,28 +124,26 @@ P:^_x42\r
 A:\e\e\e*tm4a
 P:^_x43\r
 
-# F10 - Word of Death
-A:m4d
+# F10 - 
+A:
 P:^_x44\r
 
-# F11 - Evocation
-A:m4e
+# F11 - 
+A:
 P:^_x85\r
 
-# F12 - Hellfire
-A:m4f
+# F12 - 
+A:
 P:^_x86\r
 
-# Genocides
-
-# SHIFT-F1 - Genocide
-A:m2g
+# SHIFT-F1 - 
+A:
 P:^_Sx54\r
 
-# SHIFT-F2 - Mass Genocide
-A:m3h
+# SHIFT-F2 - 
+A:
 P:^_Sx55\r
 
-# SHIFT-F3 - Omnicide
-A:m4g
+# SHIFT-F3 - 
+A:
 P:^_Sx56\r

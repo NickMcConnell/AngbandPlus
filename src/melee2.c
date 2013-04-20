@@ -1713,8 +1713,7 @@ static bool monst_spell_monst(int m_idx)
            disturb(1, 0);
            if (blind || !see_m) msg_format("%^s mumbles.", m_name);
            else msg_format("%^s casts a acid bolt at %s.", m_name, t_name);
-           monst_bolt_monst(m_idx, y, x, GF_ACID,
-                damroll(7, 8) + (rlev / 3));
+           monst_bolt_monst(m_idx, y, x, GF_ACID, damroll(7, 8) + (rlev / 3));
            break;
        }
 
@@ -1724,8 +1723,7 @@ static bool monst_spell_monst(int m_idx)
            disturb(1, 0);
            if (blind || !see_m) msg_format("%^s mumbles.", m_name);
            else msg_format("%^s casts a lightning bolt at %s.", m_name, t_name);
-           monst_bolt_monst(m_idx, y, x, GF_ELEC,
-                damroll(4, 8) + (rlev / 3));
+           monst_bolt_monst(m_idx, y, x, GF_ELEC, damroll(4, 8) + (rlev / 3));
            break;
        }
 
@@ -1735,8 +1733,7 @@ static bool monst_spell_monst(int m_idx)
            disturb(1, 0);
            if (blind || !see_m) msg_format("%^s mumbles.", m_name);
            else msg_format("%^s casts a fire bolt at %s.", m_name, t_name);
-           monst_bolt_monst(m_idx, y, x, GF_FIRE,
-                damroll(9, 8) + (rlev / 3));
+           monst_bolt_monst(m_idx, y, x, GF_FIRE, damroll(9, 8) + (rlev / 3));
            break;
        }
 
@@ -1746,15 +1743,17 @@ static bool monst_spell_monst(int m_idx)
            disturb(1, 0);
            if (blind || !see_m) msg_format("%^s mumbles.", m_name);
            else msg_format("%^s casts a frost bolt at %s.", m_name, t_name);
-           monst_bolt_monst(m_idx, y, x, GF_COLD,
-                damroll(6, 8) + (rlev / 3));
+           monst_bolt_monst(m_idx, y, x, GF_COLD, damroll(6, 8) + (rlev / 3));
            break;
        }
 
        /* RF5_BO_POIS */
        case 128+20:
        {
-           /* XXX XXX XXX */
+           disturb(1, 0);
+           if (blind || !see_m) msg_format("%^s mumbles.", m_name);
+           else msg_format("%^s casts a poison bolt at %s.", m_name, t_name);
+           monst_bolt_monst(m_idx, y, x, GF_POIS, damroll(5, 8) + (rlev / 3));
            break;
        }
 
@@ -3331,8 +3330,7 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s casts a frost ball.", m_name);
-			breath(m_idx, GF_COLD,
-			       randint(rlev * 3 / 2) + 10, 2);
+			breath(m_idx, GF_COLD, randint(rlev * 3 / 2) + 10, 2);
 			update_smart_learn(m_idx, DRS_COLD);
 			break;
 		}
@@ -3343,8 +3341,7 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s casts a stinking cloud.", m_name);
-			breath(m_idx, GF_POIS,
-			       damroll(12, 2), 2);
+			breath(m_idx, GF_POIS, damroll(12, 2), 2);
 			update_smart_learn(m_idx, DRS_POIS);
 			break;
 		}
@@ -3548,13 +3545,14 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
 			else msg_format("%^s points at you and curses.", m_name);
-			if (rand_int(100) < p_ptr->skill_sav)
+			if ((rand_int(100) < p_ptr->skill_sav))
 			{
 				msg_print("You resist the effects!");
 			}
 			else
 			{
-				curse_equipment(33, 0);
+				if (!(p_ptr->blessed))
+					curse_equipment(25, 0);
 				take_hit(damroll(3, 8), ddesc);
 			}
 			break;
@@ -3573,7 +3571,8 @@ bool make_attack_spell(int m_idx)
 			}
 			else
 			{
-				curse_equipment(50, 5);
+				if (!(p_ptr->blessed))
+					curse_equipment(50, 5);
 				take_hit(damroll(8, 8), ddesc);
 			}
 			break;
@@ -3592,7 +3591,8 @@ bool make_attack_spell(int m_idx)
 			}
 			else
 			{
-				curse_equipment(80, 15);
+				if (!(p_ptr->blessed))
+					curse_equipment(65, 15);
 				take_hit(damroll(10, 15), ddesc);
 			}
 			break;
@@ -3611,6 +3611,8 @@ bool make_attack_spell(int m_idx)
 			}
 			else
 			{
+				if (!(p_ptr->blessed))
+					curse_equipment(80, 20);
 				take_hit(damroll(15, 15), ddesc);
 				(void)set_cut(p_ptr->cut + damroll(10, 10));
 			}
@@ -3668,7 +3670,12 @@ bool make_attack_spell(int m_idx)
 		/* RF5_BO_POIS */
 		case 128+20:
 		{
-			/* XXX XXX XXX */
+			disturb(1, 0);
+			if (blind) msg_format("%^s mumbles.", m_name);
+			else msg_format("%^s casts a poison bolt.", m_name);
+			bolt(m_idx, GF_POIS, damroll(5, 8) + (rlev / 3));
+			update_smart_learn(m_idx, DRS_POIS);
+			update_smart_learn(m_idx, DRS_REFLECT);
 			break;
 		}
 
@@ -3900,8 +3907,8 @@ bool make_attack_spell(int m_idx)
 				int dummy = (((s32b) ((65 + randint(25)) * (p_ptr->chp))) / 100);
 				msg_print("Your feel your life fade away!");
 				take_hit(dummy, m_name);
-				curse_equipment(100, 20);
-
+				if (!(p_ptr->blessed))
+					curse_equipment(90, 25);
 				if (p_ptr->chp < 1) p_ptr->chp = 1;
 			}
 			break;
@@ -6537,6 +6544,15 @@ static void process_monster(int m_idx, bool is_friend)
 
 				/* Hack -- get the empty monster */
 				y_ptr = &m_list[c_ptr->m_idx];
+
+				if (did_kill_body)
+				{
+				        if (strstr((r_name + r_ptr->name),"1000 Tongues"))
+					{
+						msg_print("The Thing With 1000 Tongues looks tougher!");
+						r_ptr->ac += 5;
+					}
+				}
 			}
 
 			/* Attack 'enemies' */
@@ -6675,6 +6691,7 @@ static void process_monster(int m_idx, bool is_friend)
 					if (f1 & (TR1_SLAY_UNDEAD)) flg3 |= (RF3_UNDEAD);
 					if (f1 & (TR1_SLAY_ANIMAL)) flg3 |= (RF3_ANIMAL);
 					if (f1 & (TR1_SLAY_EVIL)) flg3 |= (RF3_EVIL);
+					if (f1 & (TR1_SLAY_ELEMENTAL)) flg3 |= (RF3_ELEMENTAL);
 
 					/* The object cannot be picked up by the monster */
 					if (artifact_p(o_ptr) || (r_ptr->flags3 & flg3) ||

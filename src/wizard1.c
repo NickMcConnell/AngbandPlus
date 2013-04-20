@@ -237,7 +237,7 @@ static void spoil_obj_desc(cptr fname)
 
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_USER, fname);
+	path_build(buf, 1024, ANGBAND_DIR_INFO, fname);
 
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
@@ -467,6 +467,8 @@ static flag_desc pval_flags1_desc[] =
 
 static flag_desc slay_flags_desc[] =
 {
+	{ TR1_SLAY_HUMANOID,      "Humanoid" },
+	{ TR1_SLAY_ELEMENTAL,	  "Elemental" },
 	{ TR1_SLAY_ANIMAL,        "Animal" },
 	{ TR1_SLAY_EVIL,          "Evil" },
 	{ TR1_SLAY_UNDEAD,        "Undead" },
@@ -573,9 +575,11 @@ static const flag_desc misc_flags3_desc[] =
 	{ TR3_SH_FIRE,            "Fiery Aura" },
 	{ TR3_SH_ELEC,            "Electric Aura" },
 	{ TR3_SPINES,		  "Spiny Coating" },
+	{ TR3_AUTO_CURSE,	  "Self-Cursing" },
 	{ TR3_NO_TELE,            "Prevent Teleportation" },
 	{ TR3_NO_MAGIC,           "Anti-Magic" },
 	{ TR3_WRAITH,             "Wraith Form" },
+	{ TR3_TY_CURSE,		  "Fouly Cursed" },
 	{ TR3_FEATHER,            "Levitation" },
 	{ TR3_SEE_INVIS,          "See Invisible" },
 	{ TR3_TELEPATHY,          "ESP" },
@@ -585,6 +589,9 @@ static const flag_desc misc_flags3_desc[] =
 	{ TR3_DRAIN_EXP,          "Drains Experience" },
 	{ TR3_AGGRAVATE,          "Aggravates" },
 	{ TR3_BLESSED,            "Blessed Blade" },
+	{ TR3_CURSED,		  "Cursed" },
+	{ TR3_HEAVY_CURSE,	  "Heavily Cursed" },
+	{ TR3_PERMA_CURSE,	  "Permanently Cursed" },
 };
 
 
@@ -1229,7 +1236,7 @@ static void spoil_artifact(cptr fname)
 
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_USER, fname);
+	path_build(buf, 1024, ANGBAND_DIR_INFO, fname);
 
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
@@ -1319,7 +1326,7 @@ static void spoil_mon_desc(cptr fname)
 
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_USER, fname);
+	path_build(buf, 1024, ANGBAND_DIR_INFO, fname);
 
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
@@ -1542,7 +1549,7 @@ static void spoil_mon_info(cptr fname)
 
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_USER, fname);
+	path_build(buf, 1024, ANGBAND_DIR_INFO, fname);
 
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
@@ -1673,8 +1680,9 @@ static void spoil_mon_info(cptr fname)
 
 		spoil_out("This");
 
-		if (flags2 & (RF2_ELDRITCH_HORROR))	spoil_out (" sanity-blasting");
+		if (flags2 & (RF2_ELDRITCH_HORROR))	spoil_out(" sanity-blasting");
 		if (flags3 & (RF3_ANIMAL))		spoil_out(" natural");
+		if (flags3 & (RF3_NONLIVING))		spoil_out(" unliving");
 		if (flags3 & (RF3_EVIL))		spoil_out(" evil");
 		if (flags3 & (RF3_GOOD))		spoil_out(" good");
 		if (flags3 & (RF3_UNDEAD))		spoil_out(" undead");
@@ -1894,7 +1902,7 @@ static void spoil_mon_info(cptr fname)
 		if (flags6 & (RF6_S_HI_UNDEAD))       vp[vn++] = "summon greater undead";
 		if (flags6 & (RF6_S_HI_DRAGON))       vp[vn++] = "summon ancient dragons";
 		if (flags6 & (RF6_S_CYBER))           vp[vn++] = "summon Cyberdemons";
-		if (flags6 & (RF6_S_WRAITH))          vp[vn++] = "summon Lords of Amber";
+		if (flags6 & (RF6_S_WRAITH))          vp[vn++] = "summon a wraith";
 		if (flags6 & (RF6_S_UNIQUE))          vp[vn++] = "summon unique monsters";
 
 		if (vn)

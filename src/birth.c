@@ -411,20 +411,23 @@ static hist_type bg[] =
 
 	{"You were shaped from ",				100, 98, 99, 50 },
 
-	{"clay ",						 40, 99, 100, 50 },
-	{"stone ",						 80, 99, 100, 50 },
-	{"wood ",						 85, 99, 100, 40 },
-	{"iron ",						 99, 99, 100, 50 },
-	{"pure gold ",						100, 99, 100, 100},
+	{"clay ",						 40, 99, 100,  40 },
+	{"stone ",						 75, 99, 100,  45 },
+	{"copper ",						 85, 99, 100,  50 },
+	{"iron ",						 95, 99, 100,  70 },
+	{"silver ",						 99, 99, 100,  85 },
+	{"gold ",						100, 99, 100, 100 },
 
 	{"by a Kabbalist",					 40, 100, 101, 50 },
 	{"by a Wizard",						 65, 100, 101, 50 },
-	{"by an Alchemist",					 90, 100, 101, 50},
-	{"by a Priest",						100, 100, 101, 60},
+	{"by an Alchemist",					 90, 100, 101, 50 },
+	{"by a Priest",						100, 100, 101, 60 },
 
 	{" to fight evil.",					 10, 101, 0, 80 },
-	{" to do heavy labour.",				 50, 101, 0, 60 },
-	{".",							100, 101, 0, 50 },
+	{" to do heavy labour.",				 30, 101, 0, 60 },
+	{" to do household chores.",				 50, 101, 0, 40 },
+	{" to keep the crows out of the corn.",			 60, 101, 0, 30 },
+	{".",							100, 101, 0, 20 },
 
 	{"You were created by ",				100, 102, 103, 50 },
 
@@ -627,62 +630,59 @@ byte choose_realm(byte choices)
 
 /* Hack: Allow priests to specialize in Life or Death magic */
 
-	if ((choices & CH_LIFE) && p_ptr->realm1 != 1)
+	if ((choices & CH_LIFE) && p_ptr->realm1 != REALM_LIFE)
 	{
 		sprintf(buf, "%c%c %s", I2A(n), p2, "Life");
 		put_str(buf, 21 + (n/5), 2 + 15 * (n%5));
-		picks[n]=1;
+		picks[n] = REALM_LIFE;
 		n++;
 	}
 
-
-
-	if ((choices & CH_SORCERY) && p_ptr->realm1 != 2)
+	if ((choices & CH_SORCERY) && p_ptr->realm1 != REALM_SORCERY)
 	{
 		sprintf(buf, "%c%c %s", I2A(n), p2, "Sorcery");
 		put_str(buf, 21 + (n/5), 2 + 15 * (n%5));
-		picks[n]=2;
+		picks[n] = REALM_SORCERY;
 		n++;
 	}
 
-	if ((choices & CH_ARCANE) && p_ptr->realm1 != 7)
-	{
-		sprintf(buf, "%c%c %s", I2A(n), p2, "Arcane");
-		put_str(buf, 21 + (n/5), 2 + 15 * (n%5));
-		picks[n]=7;
-		n++;
-	}
-
-
-	if ((choices & CH_TRUMP) && p_ptr->realm1 != 6)
-	{
-		sprintf(buf, "%c%c %s", I2A(n), p2, "Trump");
-		put_str(buf, 21 + (n/5), 2 + 15 * (n%5));
-		picks[n]=6;
-		n++;
-	}
-
-	if ((choices & CH_NATURE) && p_ptr->realm1 != 3)
+	if ((choices & CH_NATURE) && p_ptr->realm1 != REALM_NATURE)
 	{
 		sprintf(buf, "%c%c %s", I2A(n), p2, "Nature");
 		put_str(buf, 21 + (n/5), 2 + 15 * (n%5));
-		picks[n]=3;
+		picks[n] = REALM_NATURE;
 		n++;
 	}
 
-	if ((choices & CH_CHAOS) && p_ptr->realm1 != 4)
+	if ((choices & CH_CHAOS) && p_ptr->realm1 != REALM_CHAOS)
 	{
 		sprintf(buf, "%c%c %s", I2A(n), p2, "Chaos");
 		put_str(buf, 21 + (n/5), 2 + 15 * (n%5));
-		picks[n]=4;
+		picks[n] = REALM_CHAOS;
 		n++;
 	}
 
-	if ((choices & CH_DEATH) && p_ptr->realm1 != 5)
+	if ((choices & CH_DEATH) && p_ptr->realm1 != REALM_DEATH)
 	{
 		sprintf(buf, "%c%c %s", I2A(n), p2, "Death");
 		put_str(buf, 21 + (n/5), 2 + 15 * (n%5));
-		picks[n]=5;
+		picks[n] = REALM_DEATH;
+		n++;
+	}
+
+	if ((choices & CH_TRUMP) && p_ptr->realm1 != REALM_TRUMP)
+	{
+		sprintf(buf, "%c%c %s", I2A(n), p2, "Trump");
+		put_str(buf, 21 + (n/5), 2 + 15 * (n%5));
+		picks[n] = REALM_TRUMP;
+		n++;
+	}
+
+	if ((choices & CH_ARCANE) && p_ptr->realm1 != REALM_ARCANE)
+	{
+		sprintf(buf, "%c%c %s", I2A(n), p2, "Arcane");
+		put_str(buf, 21 + (n/5), 2 + 15 * (n%5));
+		picks[n] = REALM_ARCANE;
 		n++;
 	}
 
@@ -712,7 +712,7 @@ void get_realms()
 	int pclas=p_ptr->pclass;
 
 	/* First we have null realms */
-	p_ptr->realm1=p_ptr->realm2=0;
+	p_ptr->realm1=p_ptr->realm2=REALM_NONE;
 
 	/* Warriors and certain others get no realms */
 
@@ -722,29 +722,31 @@ void get_realms()
 
 	switch (pclas)
 	{
-	case CLASS_WARRIOR_MAGE:
-		p_ptr->realm1 = 7;
-		break;
-	case CLASS_CHAOS_WARRIOR:
-		p_ptr->realm1 = 4;
-		break;
-	case 2:
+	case CLASS_PRIEST:
 		p_ptr->realm1 = choose_realm( CH_LIFE | CH_DEATH);
 		/*
-		 * Hack... priests can be 'dark' priests and choose death instead
-		 * of life, but not both
+		 * Hack... priests can be 'dark' priests and choose death
+		 * instead of life, but not both
 		 */
 		break;
-	case 4:
-		p_ptr->realm1 = 3;
+	case CLASS_RANGER:
+		p_ptr->realm1 = REALM_NATURE;
+		break;
+	case CLASS_WARRIOR_MAGE:
+		p_ptr->realm1 = REALM_ARCANE;
+		break;
+	case CLASS_CHAOS_WARRIOR:
+		p_ptr->realm1 = REALM_CHAOS;
 		break;
 	default:
 		p_ptr->realm1 = choose_realm(realm_choices[pclas]);
 	}
 
-	/* Rangers, Paladins, Chaos Warrriors, Warrior-Magi and Rogues get no second realm */
-	if (pclas == 4 || pclas == 5 || pclas == 3 || pclas == CLASS_CHAOS_WARRIOR
-		|| pclas == CLASS_WARRIOR_MAGE || pclas == CLASS_MONK || pclas == CLASS_HIGH_MAGE) return;
+	/* Some classes get no second realm */
+	if (pclas == CLASS_ROGUE || pclas == CLASS_RANGER ||
+	    pclas == CLASS_PALADIN || pclas == CLASS_WARRIOR_MAGE ||
+	    pclas == CLASS_CHAOS_WARRIOR || pclas == CLASS_MONK ||
+	    pclas == CLASS_HIGH_MAGE) return;
 	else
 		p_ptr->realm2 = choose_realm(realm_choices[pclas]);
 }
@@ -1548,7 +1550,7 @@ static byte player_init[MAX_CLASS][3][2] =
 	{
 		/* Mage */
 		{ TV_SORCERY_BOOK, 0 }, /* Hack: for realm1 book */
-		{ TV_HAFTED, SV_QUARTERSTAFF },
+		{ TV_SWORD, SV_DAGGER },
 		{ TV_DEATH_BOOK, 0 } /* Hack: for realm2 book */
 	},
 
@@ -1577,7 +1579,7 @@ static byte player_init[MAX_CLASS][3][2] =
 		/* Paladin */
 		{ TV_SORCERY_BOOK, 0 },
 		{ TV_SWORD, SV_BROAD_SWORD },
-		{ TV_SCROLL, SV_SCROLL_PROTECTION_FROM_EVIL }
+		{ TV_HARD_ARMOR, SV_METAL_SCALE_MAIL }
 	},
 
 	{
@@ -1598,7 +1600,7 @@ static byte player_init[MAX_CLASS][3][2] =
 		/* Monk */
 		{ TV_SORCERY_BOOK, 0 },
 		{ TV_POTION, SV_POTION_HEALING },
-		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR },
+		{ TV_SOFT_ARMOR, SV_ROBE },
 	},
 
 	{
@@ -1611,7 +1613,7 @@ static byte player_init[MAX_CLASS][3][2] =
 	{
 		/* High Mage */
 		{ TV_SORCERY_BOOK, 0 }, /* Hack: for realm1 book */
-		{ TV_HAFTED, SV_QUARTERSTAFF },
+		{ TV_SWORD, SV_DAGGER },
 		{ TV_RING, SV_RING_SUSTAIN_INT}
 	},
 
@@ -1622,7 +1624,7 @@ static byte player_init[MAX_CLASS][3][2] =
 		 */
 		{ TV_RING, SV_RING_RES_FEAR },
 		{ TV_POTION, SV_POTION_HEROISM },
-		{ TV_HARD_ARMOR, SV_METAL_SCALE_MAIL }
+		{ TV_HARD_ARMOR, SV_CHAIN_MAIL }
 	},
 };
 
@@ -1690,6 +1692,25 @@ static void player_outfit(void)
 				break;
 		}
 		q_ptr->number = 1;
+
+		/*
+		 * Get a quick start by turning the starting weapon into a
+		 * minor ego-item. The first rand_range is for Slay
+		 * Elemental and the four basic elemental Brands, while the
+		 * second is for the other basic Slays. -- Gumby
+		 */
+		if (quick_start)
+		{
+			if (randint(2)==1)
+				q_ptr->name2 = rand_range(71,75);
+			else
+				q_ptr->name2 = rand_range(80,87);				
+
+			/* Give it a few plusses */
+			q_ptr->to_h = randint(5);
+			q_ptr->to_d = randint(3);
+		}
+
 		object_aware(q_ptr);
 		object_known(q_ptr);
 
@@ -1751,10 +1772,72 @@ static void player_outfit(void)
 		/* Hack -- Give the player an object */
 		object_prep(q_ptr, lookup_kind(tv, sv));
 
-		/* Rogues begin the game with a poisoned dagger */
-		if (tv == TV_SWORD && p_ptr->pclass == CLASS_ROGUE)
+		/*
+		 * Give players minor ego-weapons and armour to start, with
+		 * the weapon (a minor Slaying or Branded weapon) being
+		 * based on magical realm, if any. -- Gumby
+		 */
+		if (quick_start)
 		{
-			q_ptr->name2 = EGO_BRAND_POIS;
+			if ((tv >= TV_HAFTED) && (tv <= TV_SWORD))
+			{
+				switch (p_ptr->realm1)
+				{
+					case REALM_LIFE:
+						q_ptr->name2 = EGO_SLAY_EVIL;
+						break;
+					case REALM_NATURE:
+						if (randint(10)==1)
+							q_ptr->name2 = EGO_SLAY_ANIMAL;
+						else
+							q_ptr->name2 = EGO_SLAY_ELEMENTAL;
+						break;
+					case REALM_CHAOS:
+						q_ptr->name2 = EGO_SLAY_DEMON;
+						break;
+					case REALM_DEATH:
+						q_ptr->name2 = EGO_BRAND_POIS;
+						break;
+					case REALM_TRUMP:
+						q_ptr->name2 = EGO_TRUMP;
+						q_ptr->pval = 1;
+						break;
+					/*
+					 * Those who have Arcane or Sorcery
+					 * as their primary realm, or who
+					 * are Warriors (Weaponmasters are
+					 * dealt with above), get a totally
+					 * random item from the minor Slays
+					 * and Brands, except for Poison.
+					 */
+					default:
+						if (randint(2)==1)
+							q_ptr->name2 = rand_range(71,75);
+						else
+							q_ptr->name2 = rand_range(80,87);
+						break;
+				}
+
+				/* Give it some plusses */
+				q_ptr->to_h = randint(5);
+				q_ptr->to_d = randint(3);
+			}
+
+			if ((tv >= TV_SOFT_ARMOR) && (tv <= TV_HARD_ARMOR))
+			{
+				/* Resist Lightning, Cold or Fire */
+				q_ptr->name2 = rand_range(5,7);
+
+				/* A few plusses */
+				q_ptr->to_a = randint(5);
+			}
+
+			if (tv == TV_BOW)
+			{
+				/* Plusses only */
+				q_ptr->to_h = randint(3);
+				q_ptr->to_d = randint(3);
+			}
 		}
 
 		/* These objects are "storebought" */
@@ -2269,6 +2352,45 @@ static bool player_birth_aux()
 	player_birth_quests();
 
 
+	/*** Quick Start -- Gumby ***/
+
+	/* Extra info */
+	Term_putstr(5, 13, -1, TERM_WHITE,
+		"A quick start gives the character starting equipment that");
+	Term_putstr(5, 14, -1, TERM_WHITE,
+		"is of better quality than they would otherwise get.  This");
+	Term_putstr(5, 15, -1, TERM_WHITE,
+		"will make the early part of the game much easier.");
+	Term_putstr(5, 17, -1, TERM_L_RED,
+		"Using this option will cut your final score in half.");
+
+	/* Ask about quick start */
+	while (1)
+	{
+		put_str("Quick Start? (y/n) ", 20, 2);
+		c = inkey();
+		if (c == 'Q') quit(NULL);
+		if (c == 'S') return (FALSE);
+		if (c == ESCAPE) break;
+		if ((c == 'y') || (c == 'n')) break;
+		if (c == '?') do_cmd_help("help.hlp");
+		else bell();
+	}
+
+	/* Set quick start */
+	if (c == 'y')
+	{
+		quick_start = TRUE;
+	}
+	else
+	{
+		quick_start = FALSE;
+	}
+
+	/* Clear */
+	clear_from(13);
+
+
 	/*** Generate ***/
 
 	/* Roll */
@@ -2326,7 +2448,7 @@ static bool player_birth_aux()
 			auto_round++;
 
 			/* Hack -- Prevent overflow */
-			if (auto_round >= 1000000L) break;
+			if (auto_round >= 500000L) break;
 
 			/* Check and count acceptable stats */
 			for (i = 0; i < 6; i++)
@@ -2663,6 +2785,3 @@ void player_birth(void)
 		for (i = 0; i < 10; i++) store_maint(n);
 	}
 }
-
-
-

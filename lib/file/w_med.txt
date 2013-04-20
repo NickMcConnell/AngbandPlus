@@ -1,4 +1,4 @@
-106
+102
 ******** BUFFER LINE *********************************** DO NOT REMOVE *******
 'Skull Smasher'
 'Mauler'
@@ -99,10 +99,6 @@ of Dara
 of Finndo
 of the Valkyrie
 'Aglarang'
-'Arunruth'
-'Haradekket'
-'Mundwine'
-'Cubragol'
 'Punisher'
 'Wolverine'
 'Hunter-killer'

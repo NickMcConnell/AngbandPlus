@@ -238,15 +238,12 @@ bool make_attack_normal(int m_idx)
 
 			/* Hack -- Apply "protection from evil" */
 			if ((p_ptr->protevil > 0) &&
-			    (r_ptr->flags3 & (RF3_EVIL)) &&
-			    (p_ptr->lev >= rlev) &&
-			    ((rand_int(100) + p_ptr->lev) > 50))
+			    (r_ptr->flags3 & (RF3_EVIL)) && (rlev <= 97) &&
+			    ((rand_int(100) + (p_ptr->lev / 2)) >= 75))
 			{
 				/* Remember the Evil-ness */
 				if (m_ptr->ml)
-				{
 					r_ptr->r_flags3 |= (RF3_EVIL);
-				}
 
 				/* Message */
 				msg_format("%^s is repelled.", m_name);
@@ -711,7 +708,7 @@ bool make_attack_normal(int m_idx)
 						}
 						else
 						{
-							if (strstr((r_name + r_ptr->name),"black market")
+							if (strstr((r_name + r_ptr->name),"Black Market")
 							    && randint(2)!=1)
 							{
 								s16b o_idx;
@@ -724,7 +721,7 @@ bool make_attack_normal(int m_idx)
 								{
 									object_type *j_ptr;
 									if (cheat_xtra || cheat_peek)
-									msg_print("Moving object to black market...");
+									msg_print("Moving object to Black Market...");
 
 									/* Get new object */
 									j_ptr = &o_list[o_idx];
@@ -1368,12 +1365,27 @@ bool make_attack_normal(int m_idx)
 				{
 					if (!(r_ptr->flags3 & RF3_IM_FIRE))
 					{
-						msg_format("%^s is suddenly very hot!", m_name);
-						if (mon_take_hit(m_idx, damroll(2,6), &fear,
-						    " turns into a pile of ash."))
+						if(r_ptr->flags3 & RF3_HURT_FIRE)
 						{
-							blinked = FALSE;
-							alive = FALSE;
+							msg_format("%^s is suddenly extremely hot!", m_name);
+							if (mon_take_hit(m_idx, damroll(6,5), &fear,
+							    " turns into a tiny pile of ash."))
+							{
+								blinked = FALSE;
+								alive = FALSE;
+							}
+								if (m_ptr->ml)
+									r_ptr->r_flags3 |= RF3_HURT_FIRE;
+						}
+						else
+						{
+							msg_format("%^s is suddenly very hot!", m_name);
+							if (mon_take_hit(m_idx, damroll(4,5), &fear,
+							    " turns into a pile of ash."))
+							{
+								blinked = FALSE;
+								alive = FALSE;
+							}
 						}
 					}
 					else
@@ -1388,7 +1400,7 @@ bool make_attack_normal(int m_idx)
 					if (!(r_ptr->flags3 & RF3_IM_ELEC))
 					{
 						msg_format("%^s gets zapped!", m_name);
-						if (mon_take_hit(m_idx, damroll(2,6), &fear,
+						if (mon_take_hit(m_idx, damroll(4,5), &fear,
 						    " turns into a pile of cinder."))
 						{
 							blinked = FALSE;
@@ -1405,7 +1417,7 @@ bool make_attack_normal(int m_idx)
 				if (p_ptr->sh_spine && alive)
 				{
 					msg_format("%^s is pierced!", m_name);
-					if (mon_take_hit(m_idx, damroll(2,6), &fear,
+					if (mon_take_hit(m_idx, damroll(4,5), &fear,
 						 " crumples lifelessly to the ground."))
 					{
 						blinked = FALSE;

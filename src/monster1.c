@@ -247,6 +247,7 @@ static void roff_aux(int r_idx)
 		if (r_ptr->flags3 & (RF3_SCUMDOG)) flags3 |= (RF3_SCUMDOG);
 		if (r_ptr->flags3 & (RF3_ANIMAL)) flags3 |= (RF3_ANIMAL);
 		if (r_ptr->flags3 & (RF3_ELEMENTAL)) flags3 |= (RF3_ELEMENTAL);
+		if (r_ptr->flags3 & (RF3_NONLIVING)) flags3 |= (RF3_NONLIVING);
 
 		/* Know "forced" flags */
 		if (r_ptr->flags1 & (RF1_FORCE_DEPTH)) flags1 |= (RF1_FORCE_DEPTH);
@@ -549,6 +550,7 @@ static void roff_aux(int r_idx)
 		/* Describe the "quality" */
 		if (flags2 & (RF2_ELDRITCH_HORROR))	roff(" sanity-blasting");
 		if (flags3 & (RF3_ANIMAL))		roff(" natural");
+		if (flags3 & (RF3_NONLIVING))		roff(" unliving");
 		if (flags3 & (RF3_EVIL))		roff(" evil");
 		if (flags3 & (RF3_GOOD))		roff(" good");
 		if (flags3 & (RF3_UNDEAD))		roff(" undead");
@@ -787,7 +789,7 @@ static void roff_aux(int r_idx)
 	if (flags6 & (RF6_S_HI_UNDEAD))		vp[vn++] = "summon Greater Undead";
 	if (flags6 & (RF6_S_HI_DRAGON))		vp[vn++] = "summon Ancient Dragons";
 	if (flags6 & (RF6_S_CYBER))		vp[vn++] = "summon Cyberdemons";
-	if (flags6 & (RF6_S_WRAITH))		vp[vn++] = "summon Lords of Amber";
+	if (flags6 & (RF6_S_WRAITH))		vp[vn++] = "summon a wraith";
 	if (flags6 & (RF6_S_UNIQUE))		vp[vn++] = "summon Unique Monsters";
 
 	/* Describe spells */

@@ -1916,7 +1916,8 @@ static bool vault_aux_clone(int r_idx)
 static bool vault_aux_symbol(int r_idx)
 {
 	return ((r_info[r_idx].d_char == (r_info[template_race].d_char))
-		&& !(r_info[r_idx].flags1 & RF1_UNIQUE));
+		&& !((r_info[r_idx].flags1 & RF1_UNIQUE) ||
+		     (r_info[r_idx].flags2 & RF2_EXPLOSIVE)));
 }
 
 
@@ -2133,9 +2134,10 @@ static void build_type5(int yval, int xval)
 	if ((tmp < 25) && (randint(2) != 1))
 	{
 		do  { template_race = randint(MAX_R_IDX - 2); }
-		while ((r_info[template_race].flags1 & RF1_UNIQUE)
-			|| (((r_info[template_race].level) + randint(5)) >
-			(dun_level + randint(5))));
+		while ((r_info[template_race].flags1 & RF1_UNIQUE) ||
+		       (r_info[template_race].flags2 & RF2_EXPLOSIVE) ||
+		       (((r_info[template_race].level) + randint(5)) > (dun_level + randint(5))));
+
         if ((randint(2)!=1) && (dun_level >= (25 + randint(15))))
         {
             name = "symbol clone";
@@ -2433,9 +2435,9 @@ static void build_type6(int yval, int xval)
             name = "ordered clones";
 			
 			do  { template_race = randint(MAX_R_IDX - 2); }
-			while ((r_info[template_race].flags1 & RF1_UNIQUE)
-				|| (((r_info[template_race].level) + randint(5)) >
-				(dun_level + randint(5))));
+			while ((r_info[template_race].flags1 & RF1_UNIQUE) ||
+			       (r_info[template_race].flags2 & RF2_EXPLOSIVE) ||
+			       (((r_info[template_race].level) + randint(5)) > (dun_level + randint(5))));
 			
             /* Restrict selection */
             get_mon_num_hook = vault_aux_symbol;

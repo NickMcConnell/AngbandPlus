@@ -1162,68 +1162,67 @@ static cptr likert(int x, int y)
 	/* Negative value */
 	if (x < 0)
 	{
-        likert_color = TERM_L_DARK;
-		return ("Very Bad");
+		likert_color = TERM_L_DARK;
+		sprintf(dummy, "Pathetic %d", x);
+		return dummy;
 	}
 
 	/* Analyze the value */
 	switch ((x / y))
 	{
-		case 0:
-		case 1:
+		case 0: case 1:
 		{
 			likert_color = TERM_RED;
-			return ("Bad");
+			sprintf(dummy, "Bad      %d", x);
+			return dummy;
 		}
 		case 2:
 		{
-            likert_color = TERM_L_RED;
-			return ("Poor");
+			likert_color = TERM_L_RED;
+			sprintf(dummy, "Poor     %d", x);
+			return dummy;
 		}
-		case 3:
-		case 4:
+		case 3:	case 4:
 		{
-            likert_color = TERM_ORANGE;
-			return ("Fair");
+			likert_color = TERM_ORANGE;
+			sprintf(dummy, "Fair     %d", x);
+			return dummy;
 		}
 		case 5:
 		{
-            likert_color = TERM_YELLOW;
-			return ("Good");
+			likert_color = TERM_YELLOW;
+			sprintf(dummy, "Good     %d", x);
+			return dummy;
 		}
 		case 6:
 		{
-			likert_color = TERM_YELLOW;
-            return ("Very Good");
-		}
-		case 7:
-		case 8:
-		{
 			likert_color = TERM_L_GREEN;
-			return ("Excellent");
+			sprintf(dummy, "Great    %d", x);
+			return dummy;
 		}
-		case 9:
-		case 10:
-		case 11:
-		case 12:
-		case 13:
+		case 7: case 8:
 		{
-            likert_color = TERM_GREEN;
-			return ("Superb");
+			likert_color = TERM_GREEN;
+			sprintf(dummy, "Superb   %d", x);
+			return dummy;
 		}
-		case 14:
-		case 15:
-		case 16:
-		case 17:
+		case 9: case 10: case 11: case 12: case 13:
 		{
-            likert_color = TERM_BLUE;
-            return ("Chaos Rank");
+			likert_color = TERM_L_BLUE;
+			sprintf(dummy, "Awesome  %d", x);
+			return dummy;
+		}
+		case 14: case 15: case 16: case 17:
+		{
+			likert_color = TERM_BLUE;
+			sprintf(dummy, "Heroic   %d", x);
+			return dummy;
 		}
 		default:
 		{
-            likert_color = TERM_VIOLET;
-            sprintf(dummy,"Amber [%d]", (int) ((((x/y)-17)*5)/2));
-            return dummy;
+			likert_color = TERM_VIOLET;
+			sprintf(dummy, "Godly    %d", x);
+			return dummy;
 		}
 	}
 }
@@ -1259,10 +1258,12 @@ static void display_player_various(void)
 	/* Shooting Skill (with current bow and normal missile) */
 	o_ptr = &inventory[INVEN_BOW];
 
-	/* Fix the display for Weaponmasters -- Gumby */
+	/* Fix the display for Weaponmasters & Priests -- Gumby */
 	if ((p_ptr->pclass == CLASS_WEAPONMASTER) &&
 	    (inventory[INVEN_WIELD].tval == p_ptr->wm_choice))
 		tmp = (p_ptr->to_h - p_ptr->lev) + o_ptr->to_h;
+	else if ((p_ptr->pclass == CLASS_PRIEST) && (p_ptr->icky_wield))
+		tmp = p_ptr->to_h + o_ptr->to_h + 15;
 	else
 		tmp = p_ptr->to_h + o_ptr->to_h;
 
@@ -1361,204 +1362,179 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3)
 	/* Clear */
 	(*f1) = (*f2) = (*f3) = 0L;
 
-	/* The Classes */
-	if (p_ptr->pclass == CLASS_WARRIOR)
+	/*
+	 * The class-based abilities. It was originally a bunch of if()
+	 * statements, but a switch is much prettier, wouldn't you say? :)
+	 *                                                        -- Gumby
+	 */
+	switch (p_ptr->pclass)
 	{
-		if (p_ptr->lev > 29) (*f2) |= (TR2_RES_FEAR);
-	}
-	else if (p_ptr->pclass == CLASS_PALADIN)
-	{
-		if (p_ptr->lev > 39) (*f2) |= (TR2_RES_FEAR);
-	}
-	else if (p_ptr->pclass == CLASS_CHAOS_WARRIOR)
-	{
-		if (p_ptr->lev > 29) (*f2) |= (TR2_RES_CHAOS);
-		if (p_ptr->lev > 39) (*f2) |= (TR2_RES_FEAR);
-		if (p_ptr->chaos_patron == PATRON_ARIOCH) (*f2) |= (TR2_RES_FIRE);
-	}
-	else if (p_ptr->pclass == CLASS_MONK)
-	{
-		if ((p_ptr->lev > 9) &&
-		    !(monk_heavy_armor())) (*f1) |= (TR1_SPEED);
-		if ((p_ptr->lev > 24) &&
-		    !(monk_heavy_armor())) (*f2) |= (TR2_FREE_ACT);
-	}
-	else if (p_ptr->pclass == CLASS_MINDCRAFTER)
-	{
-		if (p_ptr->lev > 9)  (*f2) |= (TR2_RES_FEAR);
-		if (p_ptr->lev > 19) (*f2) |= (TR2_SUST_WIS);
-		if (p_ptr->lev > 29) (*f2) |= (TR2_RES_CONF);
-		if (p_ptr->lev > 39) (*f3) |= (TR3_TELEPATHY);
-	}
-	else if (p_ptr->pclass == CLASS_WEAPONMASTER)
-	{
-		if (p_ptr->lev > 34) (*f2) |= (TR2_RES_FEAR);
+		case CLASS_WARRIOR:
+			if (p_ptr->lev > 29) (*f2) |= (TR2_RES_FEAR); break;
+		case CLASS_PALADIN:
+			if (p_ptr->lev > 39) (*f2) |= (TR2_RES_FEAR); break;
+		case CLASS_CHAOS_WARRIOR:
+			if (p_ptr->lev > 29) (*f2) |= (TR2_RES_CHAOS);
+			if (p_ptr->lev > 39) (*f2) |= (TR2_RES_FEAR);
+			if (p_ptr->chaos_patron == PATRON_ARIOCH)
+				(*f2) |= (TR2_RES_FIRE);
+			break;
+		case CLASS_MONK:
+			if ((p_ptr->lev > 9) && !(monk_heavy_armor()))
+				(*f1) |= (TR1_SPEED);
+			if ((p_ptr->lev > 24) && !(monk_heavy_armor()))
+				(*f2) |= (TR2_FREE_ACT);
+			break;
+		case CLASS_MINDCRAFTER:
+			if (p_ptr->lev > 9)  (*f2) |= (TR2_RES_FEAR);
+			if (p_ptr->lev > 19) (*f2) |= (TR2_SUST_WIS);
+			if (p_ptr->lev > 29) (*f2) |= (TR2_RES_CONF);
+			if (p_ptr->lev > 39) (*f3) |= (TR3_TELEPATHY);
+			break;
+		case CLASS_WEAPONMASTER:
+			if (p_ptr->lev > 34) (*f2) |= (TR2_RES_FEAR); break;
+		default: /* no abilities */
+			break;
 	}
 
-	/* The Races */
-	if (p_ptr->prace == RACE_ELF)
+	/*
+	 * The race-based abilities. It was originally a bunch of if()
+	 * statements, but a switch is much prettier, wouldn't you say? :)
+	 *                                                        -- Gumby
+	 */
+	switch (p_ptr->prace)
 	{
-		(*f2) |= (TR2_RES_LITE);
-	}
-	else if (p_ptr->prace == RACE_HOBBIT)
-	{
-		(*f2) |= (TR2_SUST_DEX);
-	}
-	else if (p_ptr->prace == RACE_GNOME)
-	{
-		(*f2) |= (TR2_FREE_ACT);
-	}
-	else if (p_ptr->prace == RACE_DWARF)
-	{
-		(*f2) |= (TR2_RES_BLIND);
-	}
-	else if (p_ptr->prace == RACE_HALF_ORC)
-	{
-		(*f2) |= (TR2_RES_DARK);
-	}
-	else if (p_ptr->prace == RACE_HALF_TROLL)
-	{
-		(*f2) |= (TR2_SUST_STR);
-		if (p_ptr->lev > 14)
-		{
-			(*f3) |= (TR3_REGEN);
+		case RACE_ELF:
+			(*f2) |= (TR2_RES_LITE); break;
+		case RACE_HOBBIT:
+			(*f2) |= (TR2_SUST_DEX); break;
+		case RACE_GNOME:
+			(*f2) |= (TR2_FREE_ACT); break;
+		case RACE_DWARF:
+			(*f2) |= (TR2_RES_BLIND); break;
+		case RACE_HALF_ORC:
+			(*f2) |= (TR2_RES_DARK); break;
+		case RACE_HALF_TROLL:
+			(*f2) |= (TR2_SUST_STR);
+			if (p_ptr->lev > 14)
+			{
+				(*f3) |= (TR3_REGEN);
+				(*f3) |= (TR3_SLOW_DIGEST);
+			}
+			break;
+		case RACE_GAMBOLT:
+			(*f1) |= (TR1_SPEED);
+			(*f2) |= (TR2_SUST_DEX);
+			(*f2) |= (TR2_SUST_CHR);
+			break;
+		case RACE_HIGH_ELF:
+			(*f2) |= (TR2_RES_LITE);
+			(*f3) |= (TR3_SEE_INVIS);
+			break;
+		case RACE_BARBARIAN:
+			(*f2) |= (TR2_RES_FEAR); break;
+		case RACE_HALF_OGRE:
+			(*f2) |= (TR2_SUST_STR);
+			(*f2) |= (TR2_RES_DARK);
+			break;
+		case RACE_HALF_GIANT:
+			(*f2) |= (TR2_RES_SHARDS);
+			(*f2) |= (TR2_SUST_STR);
+			break;
+		case RACE_HALF_TITAN:
+			(*f2) |= (TR2_RES_CHAOS); break;
+		case RACE_CYCLOPS:
+			(*f2) |= (TR2_RES_SOUND); break;
+		case RACE_YEEK:
+			(*f2) |= (TR2_RES_ACID);
+			if (p_ptr->lev > 29) (*f2) |= (TR2_IM_ACID);
+			break;
+		case RACE_KLACKON:
+			(*f2) |= (TR2_RES_CONF);
+			(*f2) |= (TR2_RES_ACID);
+			if (p_ptr->lev > 9) (*f1) |= (TR1_SPEED);
+			break;
+		case RACE_KOBOLD:
+			(*f2) |= (TR2_RES_POIS); break;
+		case RACE_NIBELUNG:
+			(*f2) |= (TR2_RES_DISEN);
+			(*f2) |= (TR2_RES_DARK);
+			break;
+		case RACE_DARK_ELF:
+			(*f2) |= (TR2_RES_DARK);
+			if (p_ptr->lev > 19) (*f3) |= (TR3_SEE_INVIS);
+			break;
+		case RACE_DRACONIAN:
+			(*f3) |= (TR3_FEATHER);
+			if (p_ptr->lev > 4)  (*f2) |= (TR2_RES_FIRE);
+			if (p_ptr->lev > 9)  (*f2) |= (TR2_RES_COLD);
+			if (p_ptr->lev > 14) (*f2) |= (TR2_RES_ACID);
+			if (p_ptr->lev > 19) (*f2) |= (TR2_RES_ELEC);
+			if (p_ptr->lev > 24) (*f2) |= (TR2_RES_LITE);
+			if (p_ptr->lev > 29) (*f2) |= (TR2_RES_DARK);
+			if (p_ptr->lev > 34) (*f2) |= (TR2_RES_POIS);
+			break;
+		case RACE_MIND_FLAYER:
+			(*f2) |= (TR2_SUST_INT);
+			(*f2) |= (TR2_SUST_WIS);
+			if (p_ptr->lev > 14) (*f3) |= (TR3_SEE_INVIS);
+			if (p_ptr->lev > 29) (*f3) |= (TR3_TELEPATHY);
+			break;
+		case RACE_IMP:
+			(*f2) |= (TR2_RES_FIRE);
+			if (p_ptr->lev > 9) (*f3) |= (TR3_SEE_INVIS);
+			break;
+		case RACE_GOLEM:
+			(*f2) |= (TR2_RES_FIRE);
+			(*f2) |= (TR2_RES_POIS);
+			(*f2) |= (TR2_RES_SHARDS);
 			(*f3) |= (TR3_SLOW_DIGEST);
-		}
-	}
-	else if (p_ptr->prace == RACE_GAMBOLT)
-        {
-		(*f1) |= (TR1_SPEED);
-		(*f2) |= (TR2_SUST_DEX);
-		(*f2) |= (TR2_SUST_CHR);
-        }
-	else if (p_ptr->prace == RACE_HIGH_ELF)
-	{
-		(*f2) |= (TR2_RES_LITE);
-		(*f3) |= (TR3_SEE_INVIS);
-	}
-	else if (p_ptr->prace == RACE_BARBARIAN)
-	{
-		(*f2) |= (TR2_RES_FEAR);
-	}
-	else if (p_ptr->prace == RACE_HALF_OGRE)
-	{
-		(*f2) |= (TR2_SUST_STR);
-		(*f2) |= (TR2_RES_DARK);
-	}
-	else if (p_ptr->prace == RACE_HALF_GIANT)
-	{
-		(*f2) |= (TR2_RES_SHARDS);
-		(*f2) |= (TR2_SUST_STR);
-	}
-	else if (p_ptr->prace == RACE_HALF_TITAN)
-	{
-		(*f2) |= (TR2_RES_CHAOS);
-	}
-	else if (p_ptr->prace == RACE_CYCLOPS)
-	{
-		(*f2) |= (TR2_RES_SOUND);
-	}
-	else if (p_ptr->prace == RACE_YEEK)
-	{
-		(*f2) |= (TR2_RES_ACID);
-		if (p_ptr->lev > 19) (*f2) |= (TR2_IM_ACID);
-	}
-	else if (p_ptr->prace == RACE_KLACKON)
-	{
-		(*f2) |= (TR2_RES_CONF);
-		(*f2) |= (TR2_RES_ACID);
-		if (p_ptr->lev > 9) (*f1) |= (TR1_SPEED);
-	}
-	else if (p_ptr->prace == RACE_KOBOLD)
-	{
-		(*f2) |= (TR2_RES_POIS);
-	}
-	else if (p_ptr->prace == RACE_NIBELUNG)
-	{
-		(*f2) |= (TR2_RES_DISEN);
-		(*f2) |= (TR2_RES_DARK);
-	}
-	else if (p_ptr->prace == RACE_DARK_ELF)
-	{
-		(*f2) |= (TR2_RES_DARK);
-		if (p_ptr->lev > 19) (*f3) |= (TR3_SEE_INVIS);
-	}
-	else if (p_ptr->prace == RACE_DRACONIAN)
-	{
-		(*f3) |= (TR3_FEATHER);
-		if (p_ptr->lev > 4)  (*f2) |= (TR2_RES_FIRE);
-		if (p_ptr->lev > 9)  (*f2) |= (TR2_RES_COLD);
-		if (p_ptr->lev > 14) (*f2) |= (TR2_RES_ACID);
-		if (p_ptr->lev > 19) (*f2) |= (TR2_RES_ELEC);
-		if (p_ptr->lev > 34) (*f2) |= (TR2_RES_POIS);
-	}
-	else if (p_ptr->prace == RACE_MIND_FLAYER)
-	{
-		(*f2) |= (TR2_SUST_INT);
-		(*f2) |= (TR2_SUST_WIS);
-		if (p_ptr->lev > 14) (*f3) |= (TR3_SEE_INVIS);
-		if (p_ptr->lev > 29) (*f3) |= (TR3_TELEPATHY);
-	}
-	else if (p_ptr->prace == RACE_IMP)
-	{
-		(*f2) |= (TR2_RES_FIRE);
-		if (p_ptr->lev > 9) (*f3) |= (TR3_SEE_INVIS);
-	}
-	else if (p_ptr->prace == RACE_GOLEM)
-	{
-		(*f2) |= (TR2_RES_POIS);
-		(*f2) |= (TR2_RES_SHARDS);
-		(*f2) |= (TR2_RES_NEXUS);
-		(*f3) |= (TR3_SLOW_DIGEST);
-	}
-	else if (p_ptr->prace == RACE_SKELETON)
-	{
-		(*f3) |= (TR3_SEE_INVIS);
-		(*f2) |= (TR2_RES_SHARDS);
-		(*f2) |= (TR2_HOLD_LIFE);
-		(*f2) |= (TR2_RES_POIS);
-		if (p_ptr->lev > 9) (*f2) |= (TR2_RES_COLD);
-	}
-	else if (p_ptr->prace == RACE_ZOMBIE)
-	{
-		(*f3) |= (TR3_SEE_INVIS);
-		(*f2) |= (TR2_HOLD_LIFE);
-		(*f2) |= (TR2_RES_NETHER);
-		(*f2) |= (TR2_RES_POIS);
-		(*f3) |= (TR3_SLOW_DIGEST);
-		if (p_ptr->lev > 4) (*f2) |= (TR2_RES_COLD);
-	}
-	else if (p_ptr->prace == RACE_VAMPIRE)
-	{
-		(*f2) |= (TR2_HOLD_LIFE);
-		(*f2) |= (TR2_RES_DARK);
-		(*f2) |= (TR2_RES_NETHER);
-		(*f3) |= (TR3_LITE);
-		(*f2) |= (TR2_RES_POIS);
-		(*f2) |= (TR2_RES_COLD);
-		if (p_ptr->lev > 9) (*f3) |= (TR3_FEATHER);
-	}
-	else if (p_ptr->prace == RACE_SPECTRE)
-	{
-		(*f2) |= (TR2_RES_COLD);
-		(*f3) |= (TR3_SEE_INVIS);
-		(*f2) |= (TR2_HOLD_LIFE);
-		(*f2) |= (TR2_RES_NETHER);
-		(*f3) |= (TR3_LITE);
-		(*f2) |= (TR2_RES_POIS);
-		(*f3) |= (TR3_SLOW_DIGEST);
-		(*f3) |= (TR3_FEATHER);
-	}
-	else if (p_ptr->prace == RACE_SPRITE)
-	{
-		(*f2) |= (TR2_RES_LITE);
-		(*f3) |= (TR3_FEATHER);
-		if (p_ptr->lev > 9) (*f1) |= (TR1_SPEED);
-	}
-	else if (p_ptr->prace == RACE_BEASTMAN)
-	{
-		(*f2) |= (TR2_RES_SOUND);
-		(*f2) |= (TR2_RES_CONF);
+			break;
+		case RACE_SKELETON:
+			(*f3) |= (TR3_SEE_INVIS);
+			(*f2) |= (TR2_RES_SHARDS);
+			(*f2) |= (TR2_HOLD_LIFE);
+			(*f2) |= (TR2_RES_POIS);
+			if (p_ptr->lev > 9) (*f2) |= (TR2_RES_COLD);
+			break;
+		case RACE_ZOMBIE:
+			(*f3) |= (TR3_SEE_INVIS);
+			(*f2) |= (TR2_HOLD_LIFE);
+			(*f2) |= (TR2_RES_NETHER);
+			(*f2) |= (TR2_RES_POIS);
+			(*f3) |= (TR3_SLOW_DIGEST);
+			if (p_ptr->lev > 4) (*f2) |= (TR2_RES_COLD);
+			break;
+		case RACE_VAMPIRE:
+			(*f2) |= (TR2_HOLD_LIFE);
+			(*f2) |= (TR2_RES_DARK);
+			(*f2) |= (TR2_RES_NETHER);
+			(*f3) |= (TR3_LITE);
+			(*f2) |= (TR2_RES_POIS);
+			(*f2) |= (TR2_RES_COLD);
+			if (p_ptr->lev > 9) (*f3) |= (TR3_FEATHER);
+			break;
+		case RACE_SPECTRE:
+			(*f2) |= (TR2_RES_COLD);
+			(*f3) |= (TR3_SEE_INVIS);
+			(*f2) |= (TR2_HOLD_LIFE);
+			(*f2) |= (TR2_RES_NETHER);
+			(*f3) |= (TR3_LITE);
+			(*f2) |= (TR2_RES_POIS);
+			(*f3) |= (TR3_SLOW_DIGEST);
+			(*f3) |= (TR3_FEATHER);
+			break;
+		case RACE_SPRITE:
+			(*f2) |= (TR2_RES_LITE);
+			(*f3) |= (TR3_FEATHER);
+			if (p_ptr->lev > 9) (*f1) |= (TR1_SPEED);
+			break;
+		case RACE_BEASTMAN:
+			(*f2) |= (TR2_RES_SOUND);
+			(*f2) |= (TR2_RES_CONF);
+			break;
+		default: /* no abilities */
+			break;
 	}
 
 	if (p_ptr->muta3)
@@ -1795,6 +1771,7 @@ static void display_player_flag_info(void)
     display_player_flag_aux(row+6, col, "Regeneration :", 3, TR3_REGEN);
     display_player_flag_aux(row+7, col, "Levitation   :", 3, TR3_FEATHER);
     display_player_flag_aux(row+8, col, "Perm Lite    :", 3, TR3_LITE);
+    display_player_flag_aux(row+9, col, "WraithForm   :", 3, TR3_WRAITH);
 }
 
 
@@ -2101,16 +2078,16 @@ static cptr object_flag_names[96] =
 	"Add Dex",
 	"Add Con",
 	"Add Chr",
-	NULL,
-	NULL,
+	"Slay Human",
+	"Slay Elem.",
 	"Add Stea.",
 	"Add Sear.",
 	"Add Infra",
-	"Add Tun..",
+	"Add Tunl.",
 	"Add Speed",
 	"Add Blows",
-    "Chaotic",
-    "Vampiric",
+	"Chaotic",
+	"Vampiric",
 	"Slay Anim.",
 	"Slay Evil",
 	"Slay Und.",
@@ -2120,9 +2097,9 @@ static cptr object_flag_names[96] =
 	"Slay Giant",
 	"Slay Drag.",
 	"Kill Drag.",
-    "Sharpness",
+	"Sharpness",
 	"Impact",
-    "Poison Brd",
+	"Poison Brd",
 	"Acid Brand",
 	"Elec Brand",
 	"Fire Brand",
@@ -2141,7 +2118,7 @@ static cptr object_flag_names[96] =
 	"Imm Fire",
 	"Imm Cold",
 	NULL,
-    "Reflect",
+	"Reflect",
 	"Free Act",
 	"Hold Life",
 	"Res Acid",
@@ -2163,25 +2140,25 @@ static cptr object_flag_names[96] =
 
 
 
-    "Aura Fire",
-    "Aura Elec",
-    "Spines", /* was NULL */
-    "AutoCurse",
-    "NoTeleport",
-    "AntiMagic",
-    "WraithForm",
-    "EvilCurse",
-    "Easy Know",
-    "Hide Type",
-    "Show Mods",
-    "Insta Art",
-    "Levitate",
-    "Lite",
-    "See Invis",
-    "Telepathy",
-    "Digestion",
-    "Regen",
-    "Xtra Might",
+	"Aura Fire",
+	"Aura Elec",
+	"Spines", /* was NULL */
+	"AutoCurse",
+	"NoTeleport",
+	"AntiMagic",
+	"WraithForm",
+	"EvilCurse",
+	"Easy Know",
+	"Hide Type",
+	"Show Mods",
+	"Insta Art",
+	"Levitate",
+	"Lite",
+	"See Invis",
+	"Telepathy",
+	"Digestion",
+	"Regen",
+	"Xtra Might",
 	"Xtra Shots",
 	"Ign Acid",
 	"Ign Elec",
@@ -2424,7 +2401,7 @@ void display_player(int mode)
 		else if (p_ptr->realm1 || p_ptr->realm2)
 			put_str("Magic       :", 6, 1);
 	        if (p_ptr->pclass == CLASS_CHAOS_WARRIOR)
-	          put_str("Patron      :", 7, 1);
+			put_str("Patron      :", 7, 1);
 
 		c_put_str(TERM_L_BLUE, player_name, 2, 15);
 		c_put_str(TERM_L_BLUE, sp_ptr->title, 3, 15);
@@ -2451,11 +2428,12 @@ void display_player(int mode)
         else if (p_ptr->realm2)
           c_put_str(TERM_L_BLUE, realm_names[p_ptr->realm2],7,15);
 
-		/* Age, Height, Weight, Social */
+		/* Age, Height, Weight, Social, and Score */
 		prt_num("Age          ", (int)p_ptr->age, 2, 32, TERM_L_BLUE);
 		prt_num("Height       ", (int)p_ptr->ht, 3, 32, TERM_L_BLUE);
 		prt_num("Weight       ", (int)p_ptr->wt, 4, 32, TERM_L_BLUE);
 		prt_num("Social Class ", (int)p_ptr->sc, 5, 32, TERM_L_BLUE);
+		prt_num("Score        ", (long)total_points(), 6, 32, TERM_L_BLUE);
 
 		/* Display the stats */
 		for (i = 0; i < 6; i++)
@@ -2684,11 +2662,11 @@ errr file_character(cptr name, bool full)
 		buf[x] = '\0';
 
 		/* End the row */
-		fprintf(fff, "%s\n", buf);
+		fprintf(fff, "%s\n\n", buf);
 	}
 
 
-        fprintf(fff, "\n\n  [Miscellaneous information]\n");
+        fprintf(fff, "  [Miscellaneous information]\n");
         if (p_ptr->maximize)
             fprintf(fff, "\n Maximize Mode:      ON");
         else
@@ -2722,6 +2700,11 @@ errr file_character(cptr name, bool full)
             fprintf(fff, "\n Recall Depth:       Level %d (%d')\n", p_ptr->max_dlv,
                           50 * (p_ptr->max_dlv));
 
+	if (total_winner)
+	    fprintf(fff, "\n You defeated Mabelrode!  Congratulations, your Majesty.");
+
+	if (quick_start)
+	    fprintf(fff, "\n You got off to a quick start.");
 
         if (noscore)
             fprintf(fff, "\n You have done something illegal.");
@@ -2768,14 +2751,25 @@ errr file_character(cptr name, bool full)
 
     if (p_ptr->muta1 || p_ptr->muta2 || p_ptr->muta3)
     {
-        fprintf(fff, "\n\n  [Mutations]\n\n");
+        fprintf(fff, "  [Mutations]\n\n");
         dump_mutations(fff);
     }
-
 
 	/* Skip some lines */
 	fprintf(fff, "\n\n");
 
+	/* If dead, dump last messages -- Prfnoff */
+	if (death)
+	{
+		i = message_num();
+		if (i > 10) i = 10;
+		fprintf(fff, "  [Last Messages]\n\n");
+		while (i-- > 0)
+		{
+			fprintf(fff, "> %s\n", message_str((s16b)i));
+		}
+		fprintf(fff, "\n\n");
+	}
 
 	/* Dump the equipment */
 	if (equip_cnt)
@@ -2783,9 +2777,13 @@ errr file_character(cptr name, bool full)
 		fprintf(fff, "  [Character Equipment]\n\n");
 		for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
 		{
+			/* Don't dump the empty slots */
+			if (!inventory[i].k_idx) break;
+
+			/* Dump the equipment slots */
 			object_desc(o_name, &inventory[i], TRUE, 3);
 			fprintf(fff, "%c%s %s\n",
-			        index_to_label(i), paren, o_name);
+					 index_to_label(i), paren, o_name);
 		}
 		fprintf(fff, "\n\n");
 	}
@@ -2794,35 +2792,29 @@ errr file_character(cptr name, bool full)
 	fprintf(fff, "  [Character Inventory]\n\n");
 	for (i = 0; i < INVEN_PACK; i++)
 	{
+		/* Don't dump the empty slots */
+		if (!inventory[i].k_idx) break;
+
+		/* Dump the inventory slots */
 		object_desc(o_name, &inventory[i], TRUE, 3);
-		fprintf(fff, "%c%s %s\n",
-		        index_to_label(i), paren, o_name);
+		fprintf(fff, "%c%s %s\n", index_to_label(i), paren, o_name);
 	}
 	fprintf(fff, "\n\n");
 
-
-	/* Dump the Home (page 1) */
-	fprintf(fff, "  [Home Inventory (page 1)]\n\n");
-	for (i = 0; i < 12; i++)
+	if (st_ptr->stock_num)
 	{
-		object_desc(o_name, &st_ptr->stock[i], TRUE, 3);
-		fprintf(fff, "%c%s %s\n", I2A(i%12), paren, o_name);
+		/* Dump the Home */
+		fprintf(fff, "  [Home Inventory]\n\n");
+		for (i = 0; i < st_ptr->stock_num; i++)
+		{
+			object_desc(o_name, &st_ptr->stock[i], TRUE, 3);
+			fprintf(fff, "%c%s %s\n", I2A(i%12), paren, o_name);
+		}
+		fprintf(fff, "\n");
 	}
-	fprintf(fff, "\n\n");
-
-	/* Dump the Home (page 2) */
-	fprintf(fff, "  [Home Inventory (page 2)]\n\n");
-	for (i = 12; i < 24; i++)
-	{
-		object_desc(o_name, &st_ptr->stock[i], TRUE, 3);
-		fprintf(fff, "%c%s %s\n", I2A(i%12), paren, o_name);
-	}
-	fprintf(fff, "\n\n");
-
 
 	/* Close it */
 	my_fclose(fff);
-
 
 	/* Message */
 	msg_print("Character dump successful.");
@@ -3571,16 +3563,18 @@ void do_cmd_save_game(void)
 	(void)strcpy(died_from, "(alive and well)");
 }
 
-
-
 /*
  * Hack -- Calculates the total number of points earned		-JWT-
  */
 long total_points(void)
 {
-	return (p_ptr->max_exp + (100 * p_ptr->max_dlv));
-}
+	int quickie = 1;
 
+	/* Punish those who get the random artifact to start. -- Gumby */
+	if (quick_start) quickie = 2;
+
+	return ((p_ptr->max_exp + (100 * p_ptr->max_dlv)) / quickie);
+}
 
 
 /*

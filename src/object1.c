@@ -85,7 +85,7 @@ static cptr amulet_adj[MAX_AMULETS] =
 	"Amber", "Driftwood", "Coral", "Agate", "Ivory",
 	"Obsidian", "Bone", "Brass", "Bronze", "Pewter",
 	"Tortoise Shell", "Golden", "Azure", "Crystal", "Silver",
-	"Copper", "Swastika"
+	"Copper", "Emerald"
 };
 
 static byte amulet_col[MAX_AMULETS] =
@@ -93,7 +93,7 @@ static byte amulet_col[MAX_AMULETS] =
 	TERM_YELLOW, TERM_L_UMBER, TERM_WHITE, TERM_L_WHITE, TERM_WHITE,
 	TERM_L_DARK, TERM_WHITE, TERM_L_UMBER, TERM_L_UMBER, TERM_SLATE,
 	TERM_GREEN, TERM_YELLOW, TERM_L_BLUE, TERM_L_BLUE, TERM_L_WHITE,
-	TERM_L_UMBER, TERM_VIOLET /* Hack */
+	TERM_L_UMBER, TERM_GREEN
 };
 
 
@@ -3206,6 +3206,10 @@ cptr item_activation(object_type *o_ptr)
 			{
 				return "ball of cold (300) every 325+d325 turns";
 			}
+			case ACT_BA_ELEC_3:
+			{
+				return "ball of lightning (375) every 425+d425 turns";
+			}
 			case ACT_WHIRLWIND:
 			{
 				return "whirlwind attack every 250 turns";
@@ -3464,15 +3468,8 @@ cptr item_activation(object_type *o_ptr)
 		{
 			return "frost ball (72) every 5+d5 turns";
 		}
-		case ART_GLAMDRING:
-		{
-			return "detect orcs every 10 turns";
-		}
-		case ART_ORCRIST:
-		{
-			return "detect orcs every 10 turns";
-		}
-		case ART_STING:
+		case ART_GLAMDRING: case ART_ORCRIST:
+		case ART_STING: case ART_ORCHAST:
 		{
 			return "detect orcs every 10 turns";
 		}
@@ -3482,7 +3479,7 @@ cptr item_activation(object_type *o_ptr)
 		}
 		case ART_RINGIL:
 		{
-			return "frost ball (150) every 300 turns";
+			return "frost ball (150) every 150 turns";
 		}
 		case ART_DAWN:
 		{
@@ -3494,7 +3491,7 @@ cptr item_activation(object_type *o_ptr)
 		}
 		case ART_FIRESTAR:
 		{
-			return "large fire ball (108) every 100 turns";
+			return "large fire ball (108) every 65 turns";
 		}
 		case ART_FEANOR:
 		{
@@ -3502,15 +3499,15 @@ cptr item_activation(object_type *o_ptr)
 		}
 		case ART_THEODEN:
 		{
-			return "drain life (180) every 400 turns";
+			return "drain life (180) every 75 turns";
 		}
 		case ART_TURMIL:
 		{
-			return "drain life (135) every 70 turns";
+			return "drain life (140) every 50 turns";
 		}
 		case ART_BRYIONAK:
 		{
-			return "summon the Bull of Crinanass every 200+d250 turns";
+			return "summon the Bull of Crinanass every 200+d200 turns";
 		}
 		case ART_CASPANION:
 		{
@@ -3534,7 +3531,7 @@ cptr item_activation(object_type *o_ptr)
 		}
 		case ART_OLORIN:
 		{
-			return "probing, detection and full id every 1000 turns";
+			return "detection and probing every 100 turns";
 		}
 		case ART_EONWE:
 		{
@@ -3543,6 +3540,10 @@ cptr item_activation(object_type *o_ptr)
 		case ART_LOTHARANG:
 		{
 			return "cure wounds (4d7) every 3+d3 turns";
+		}
+		case ART_WRATH:
+		{
+			return "word of destruction every 120 turns";
 		}
 		case ART_CUBRAGOL:
 		{
@@ -3554,7 +3555,7 @@ cptr item_activation(object_type *o_ptr)
 		}
 		case ART_AEGLOS:
 		{
-			return "lightning ball (150) every 500 turns";
+			return "lightning ball (150) every 250 turns";
 		}
 		case ART_OROME:
 		{
@@ -3562,7 +3563,7 @@ cptr item_activation(object_type *o_ptr)
 		}
 		case ART_SOULKEEPER:
 		{
-			return "heal (1000) every 888 turns";
+			return "heal (1000) every 500 turns";
 		}
 		case ART_BELEGENNON:
 		{
@@ -3582,7 +3583,7 @@ cptr item_activation(object_type *o_ptr)
 		}
 		case ART_COLLUIN:
 		{
-			return "resistance (20+d20 turns) every 111 turns";
+			return "resistance (25+d25 turns) every 100 turns";
 		}
 		case ART_HOLCOLLETH:
 		{
@@ -3626,7 +3627,7 @@ cptr item_activation(object_type *o_ptr)
 		}
 		case ART_HOLHENNETH:
 		{
-			return "detection every 55+d55 turns";
+			return "detection every 55 turns";
 		}
 		case ART_GONDOR:
 		{
@@ -3634,7 +3635,7 @@ cptr item_activation(object_type *o_ptr)
 		}
 		case ART_RAZORBACK:
 		{
-			return "star ball (225) every 1000 turns";
+			return "star ball (225) every 250 turns";
 		}
 		case ART_BLADETURNER:
 		{
@@ -3642,27 +3643,23 @@ cptr item_activation(object_type *o_ptr)
 		}
 		case ART_GALADRIEL:
 		{
-			return "illumination every 10+d10 turns";
+			return "illumination every 20 turns";
 		}
 		case ART_ELENDIL:
 		{
-			return "magic mapping and light every 50+d50 turns";
+			return "magic mapping and light every 30 turns";
 		}
 		case ART_THRAIN:
 		{
-			return "clairvoyance and recall, draining you";
+			return "clairvoyance every 150 turns.";
 		}
 		case ART_INGWE:
 		{
-			return "dispel evil (x8) every 300+d300 turns";
+			return "dispel evil (x8) every 200+d200 turns";
 		}
 		case ART_RED_AMULET:
 		{
-			return "charm monsters (x8) every 200+d250 turns";
-		}
-		case ART_BARAHIR:
-		{
-			return "a strangling attack (150) every 100+d100 turns";
+			return "charm monsters (x8) every 150+d150 turns";
 		}
 		case ART_TULKAS:
 		{
@@ -3670,24 +3667,23 @@ cptr item_activation(object_type *o_ptr)
 		}
 		case ART_NARYA:
 		{
-			return "large fire ball (180) every 225+d225 turns";
+			return "large fire ball (150) every 50+d50 turns";
 		}
 		case ART_NENYA:
 		{
-			return "large frost ball (300) every 325+d325 turns";
+			return "large frost ball (200) every 75+d75 turns";
 		}
 		case ART_VILYA:
 		{
-			return "large lightning ball (375) every 425+d425 turns";
+			return "large lightning ball (250) every 100+d100 turns";
 		}
 		case ART_POWER:
 		{
-			return "bizarre things every 450+d450 turns";
+			return "bizarre things every 200+d200 turns";
 		}
-		case ART_MELNIBONE:
-		case ART_TERROR_MASK:
+		case ART_MELNIBONE: case ART_TERROR_MASK:
 		{
-			return "rays of fear in every direction";
+			return "scare monsters every 75 turns";
 		}
 		case ART_KWLL:
 		{
@@ -3699,7 +3695,7 @@ cptr item_activation(object_type *o_ptr)
 		}
 		case ART_BASHER:
 		{
-			return "word of destruction every 200+d100 turns";
+			return "word of destruction every 100+d100 turns";
 		}
 		case ART_WHIRLWIND:
 		{
@@ -3711,28 +3707,54 @@ cptr item_activation(object_type *o_ptr)
 		}
 		case ART_RETALIATOR:
 		{
-			return "confuse monsters (lvl*6) ever 100+d50 turns";
+			return "confuse monsters (lvl*6) every 75+d75 turns";
+		}
+		case ART_ENTANGLEMENT:
+		{
+			return "slow monsters every 25+d25 turns";
+		}
+		case ART_NIGHT:
+		{
+				return "vampiric drain (3*100) every 250 turns";
+		}
+		case ART_ENERGY:
+		{
+			return "lightning bolt (18d8) every 10+d10 turns";
 		}
 	}
 
-
-	if (o_ptr->name2 == EGO_TRUMP)
+	switch (o_ptr->name2)
 	{
-		return "teleport every 50+d50 turns";
+		case EGO_TRUMP:
+		{
+			return "teleport every 50+d50 turns";
+		}
+		case EGO_WEST:
+		{
+			return "detect orcs every 10 turns";
+		}
+		case EGO_SPINES:
+		{
+			return "shoot spines (dam 80) every 100+d100 turns";
+		}
 	}
 
 	if (o_ptr->tval == TV_RING)
 	{
 		switch(o_ptr->sval)
 		{
-			case SV_RING_FLAMES:
-				return "ball of fire and resist fire";
-			case SV_RING_ICE:
-				return "ball of cold and resist cold";
+			case SV_RING_TELEPORTATION:
+				return "teleportation every 100 turns";
+			case SV_RING_LIGHTNING:
+				return "lightning ball and resist electricity every 50 turns";
 			case SV_RING_ACID:
-				return "ball of acid and resist acid";
+				return "acid ball and resist acid every 50 turns";
+			case SV_RING_FLAMES:
+				return "fire ball and resist fire every 50 turns";
+			case SV_RING_ICE:
+				return "frost ball and resist cold every 50 turns";
 			case SV_RING_SHADOWS:
-				return "wraithform every 250+d500 turns";
+				return "wraithform every 500+d500 turns";
 			default:
 				return NULL;
 		}
@@ -3872,7 +3894,14 @@ bool identify_fully_aux(object_type *o_ptr)
 	{
 		info[i++] = "It affects your charisma.";
 	}
-
+	if (f1 & (TR1_SLAY_HUMANOID))
+	{
+		info[i++] = "It is especially deadly against humanoids.";
+	}
+	if (f1 & (TR1_SLAY_ELEMENTAL))
+	{
+		info[i++] = "It is especially deadly against elementals.";
+	}
 	if (f1 & (TR1_STEALTH))
 	{
 		info[i++] = "It affects your stealth.";

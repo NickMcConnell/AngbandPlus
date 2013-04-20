@@ -90,28 +90,16 @@ static cptr value_check_aux2(object_type *o_ptr)
 
 
 /*
- * Sense the inventory
- *
- *   Class 0 = Warrior --> fast and heavy
- *   Class 1 = Mage    --> slow and light
- *   Class 2 = Priest  --> fast but light
- *   Class 3 = Rogue   --> okay and heavy
- *   Class 4 = Ranger  --> slow but heavy  (changed!)
- *   Class 5 = Paladin --> slow but heavy
+ * Sense the inventory (pseudo-ID)
  */
 static void sense_inventory(void)
 {
-	int		i;
-
+	int		i, k;
 	int		plev = p_ptr->lev;
-
-	bool	heavy = FALSE;
-
-	cptr	feel;
-
-	object_type *o_ptr;
-
-	char o_name[80];
+	bool		heavy = FALSE;
+	cptr		feel;
+	object_type	*o_ptr;
+	char		o_name[80];
 
 
 	/*** Check for "sensing" ***/
@@ -122,10 +110,10 @@ static void sense_inventory(void)
 	/* Analyze the class */
 	switch (p_ptr->pclass)
 	{
-		case CLASS_WARRIOR:
+		case CLASS_WARRIOR: case CLASS_WEAPONMASTER:
 		{
 			/* Good sensing */
-			if (0 != rand_int(9000L / (plev * plev + 40))) return;
+			if (0 != rand_int(10000L / (plev * plev + 40))) return;
 
 			/* Heavy sensing */
 			heavy = TRUE;
@@ -137,7 +125,7 @@ static void sense_inventory(void)
 		case CLASS_MAGE:
 		{
 			/* Very bad (light) sensing */
-			if (0 != rand_int(200000L / (plev * plev + 40))) return;
+			if (0 != rand_int(150000L / (plev * plev + 40))) return;
 
 			/* Done */
 			break;
@@ -153,7 +141,6 @@ static void sense_inventory(void)
 		}
 
 		case CLASS_ROGUE:
-		case CLASS_WEAPONMASTER:
 		{
 			/* Okay sensing */
 			if (0 != rand_int(20000L / (plev * plev + 40))) return;
@@ -165,14 +152,12 @@ static void sense_inventory(void)
 			break;
 		}
 
-		case CLASS_RANGER:
-		case CLASS_PALADIN:
-		case CLASS_WARRIOR_MAGE:
-		case CLASS_CHAOS_WARRIOR:
+		case CLASS_RANGER: case CLASS_PALADIN:
+		case CLASS_WARRIOR_MAGE: case CLASS_CHAOS_WARRIOR:
 		{
 
 			/* Bad sensing */
-			if (0 != rand_int(60000L / (plev * plev + 40))) return;
+			if (0 != rand_int(50000L / (plev * plev + 40))) return;
 
 			/* Heavy sensing */
 			heavy = TRUE;
@@ -191,11 +176,30 @@ static void sense_inventory(void)
 		}
 
 		case CLASS_MINDCRAFTER:
-		case CLASS_HIGH_MAGE:
 		{
 
 			/* Bad sensing */
-			if (0 != rand_int(50000L / (plev * plev + 40))) return;
+			if (0 != rand_int(40000L / (plev * plev + 40))) return;
+
+			/* Done */
+			break;
+		}
+
+		case CLASS_HIGH_MAGE: /* Speed based on realm. -- Gumby */
+		{
+			switch (p_ptr->realm1)
+			{
+				case REALM_LIFE: case REALM_CHAOS:
+				case REALM_DEATH: case REALM_TRUMP:
+					k = 20000L; break;
+				case REALM_NATURE:
+					k = 40000L; break;
+				default: /* Sorcery & Arcane */
+					k = 150000L; break;
+			}
+
+			/* Variable sensing */
+			if (0 != rand_int(k / (plev * plev + 40))) return;
 
 			/* Done */
 			break;
@@ -902,20 +906,99 @@ static void process_world(void)
 			}
 		}
 
-		if ((inventory[INVEN_LITE].tval)
-		    && (inventory[INVEN_LITE].sval >= SV_LITE_TORCH)
-		    && (inventory[INVEN_LITE].sval <= SV_LITE_THRAIN)
-		    && !(p_ptr->resist_lite))
+		for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
 		{
-			object_type * o_ptr = &inventory[INVEN_LITE];
+			object_type * o_ptr = &inventory[i];
+
 			char o_name [80];
 			char ouch [80];
+
+			/* Skip non-objects */
+			if (!o_ptr->k_idx) continue;
+
+			/* Get the flags */
+			object_flags(o_ptr, &f1, &f2, &f3);
 
 			/* Get an object description */
 			object_desc(o_name, o_ptr, FALSE, 0);
 
-			msg_format("The %s scorches your undead flesh!", o_name);
+			if (((f3 & (TR3_LITE)) || (o_ptr->tval == TV_LITE)) &&
+			    !(p_ptr->resist_lite))
+			{
+				msg_format("The %s scorches your undead flesh!", o_name);
 
+				cave_no_regen = TRUE;
+
+				/* Get an object description */
+				object_desc(o_name, o_ptr, TRUE, 0);
+
+				sprintf(ouch, "wielding %s", o_name);
+				if (!(p_ptr->invuln)) take_hit(1, ouch);
+			}
+		}
+	}
+
+	/*
+	 * Burn you for wielding something that can hurt your race. What can
+	 * hurt you is based on r_info.txt. Klackons and Gambolts are
+	 * considered Animals, despite no r_info.txt entry. Note that Evil
+	 * isn't included - that would be a nightmare to code - and I've
+	 * decided to let those wearing heavy gloves not take the damage. :)
+	 *							-- Gumby
+	 */
+	if (inventory[INVEN_WIELD].k_idx && !(inventory[INVEN_HANDS].tval &&
+	    (inventory[INVEN_HANDS].sval > SV_SET_OF_LEATHER_GLOVES)))
+	{
+		object_type * o_ptr = &inventory[INVEN_WIELD];
+
+		char o_name [80];
+		char ouch [80];
+		bool burn = FALSE;
+
+		/* Get the flags */
+		object_flags(o_ptr, &f1, &f2, &f3);
+
+		/* Get an object description */
+		object_desc(o_name, o_ptr, FALSE, 0);
+
+		switch (p_ptr->prace)
+		{
+			case RACE_HALF_ORC:
+				if (f1 & (TR1_SLAY_ORC)) burn = TRUE;
+				break;
+			case RACE_HALF_TROLL:
+				if (f1 & (TR1_SLAY_TROLL)) burn = TRUE;
+				break;
+			case RACE_HALF_OGRE: case RACE_HALF_GIANT:
+			case RACE_HALF_TITAN: case RACE_CYCLOPS:
+				if (f1 & (TR1_SLAY_GIANT)) burn = TRUE;
+				break;
+			case RACE_GAMBOLT: case RACE_YEEK: case RACE_KLACKON:
+				if (f1 & (TR1_SLAY_ANIMAL)) burn = TRUE;
+				break;
+			case RACE_DRACONIAN:
+				if ((f1 & (TR1_SLAY_DRAGON)) ||
+				    (f1 & (TR1_KILL_DRAGON))) burn = TRUE;
+				break;
+			case RACE_IMP:
+				if (f1 & (TR1_SLAY_DEMON)) burn = TRUE;
+				break;
+			case RACE_SKELETON: case RACE_ZOMBIE:
+			case RACE_VAMPIRE: case RACE_SPECTRE:
+				if (f1 & (TR1_SLAY_UNDEAD)) burn = TRUE;
+				break;
+			default: /* not hurt by a slay */
+				break;
+		}
+
+		/* Most of the player races are living humanoids :) */
+		if ((f1 & (TR1_SLAY_HUMANOID)) &&
+		    !((p_ptr->prace >= RACE_GOLEM) &&
+		      (p_ptr->prace <= RACE_SPECTRE))) burn = TRUE;
+
+		if (burn)
+		{
+			msg_format("The %s burns you!", o_name);
 			cave_no_regen = TRUE;
 
 			/* Get an object description */
@@ -996,8 +1079,8 @@ static void process_world(void)
 			/* Basic digestion rate based on speed */
 			i = extract_energy[p_ptr->pspeed] * 2;
 
-			/* Regeneration takes more food */
-			if (p_ptr->regenerate) i += 30;
+			/* Regeneration takes more food (was 30) */
+			if (p_ptr->regenerate) i += 20;
 
 			/* Slow digestion takes less food */
 			if (p_ptr->slow_digest) i -= 10;
@@ -1379,10 +1462,10 @@ static void process_world(void)
 	/* Calculate torch radius */
 	p_ptr->update |= (PU_TORCH);
 
-	/* Beastmen gain & lose mutations at random */
+	/* Beastmen gain & lose mutations at random -- Gumby */
 	if ((p_ptr->prace == RACE_BEASTMAN) && (randint(5000) == 666))
 	{
-		j = randint(20);
+		j = randint(30);
 
 		/*
 		 * Stop everything - if you stop for the little things.
@@ -1390,13 +1473,22 @@ static void process_world(void)
 		 * Hmmm. Wonder how to disturb *only* if one of these
 		 * *successfully* happend - ie, disturb if it clears muta1's
 		 * *AND* if you actually had one or more mutations of that
-		 * class to clear... -- Gumby
+		 * class to clear...
 		 */
 		if (disturb_minor) disturb(0,0);
 
-		switch(j)
+		switch(25)
 		{
-			case 1: case 4:
+			case 1:
+				if(p_ptr->muta1 || p_ptr->muta2 || p_ptr->muta3)
+				{
+					msg_print("All of your lovely mutations go away!");
+					p_ptr->muta1 = p_ptr->muta2 = p_ptr->muta3 = 0;
+					p_ptr->update |= PU_BONUS;
+					handle_stuff();
+				}
+				break;
+			case 2: case 5: case 8:
 				if(p_ptr->muta1)
 				{
 					msg_print("Some of your lovely mutations go away!");
@@ -1405,7 +1497,7 @@ static void process_world(void)
 					handle_stuff();
 				}
 				break;
-			case 2: case 5:
+			case 3: case 6: case 9:
 				if(p_ptr->muta2)
 				{
 					msg_print("Some of your lovely mutations go away!");
@@ -1414,20 +1506,11 @@ static void process_world(void)
 					handle_stuff();
 				}
 				break;
-			case 3: case 6:
+			case 4: case 7: case 10:
 				if(p_ptr->muta3)
 				{
 					msg_print("Some of your lovely mutations go away!");
 					p_ptr->muta3 = 0;
-					p_ptr->update |= PU_BONUS;
-					handle_stuff();
-				}
-				break;
-			case 7:
-				if(p_ptr->muta1 || p_ptr->muta2 || p_ptr->muta3)
-				{
-					msg_print("All of your lovely mutations go away!");
-					p_ptr->muta1 = p_ptr->muta2 = p_ptr->muta3 = 0;
 					p_ptr->update |= PU_BONUS;
 					handle_stuff();
 				}
@@ -1512,7 +1595,7 @@ static void process_world(void)
 		{
 			if (!(p_ptr->resist_chaos))
 			{
-				disturb(0,0);
+				if (disturb_minor) disturb(0,0);
 				p_ptr->redraw |= PR_EXTRA;
 				(void)set_image(p_ptr->image + rand_int(50) + 20);
 			}
@@ -1640,7 +1723,7 @@ static void process_world(void)
 
 			if (i)
 			{
-				disturb(0, 0);
+				if (disturb_minor) disturb(0, 0);
 				msg_print("You feel a dark power take hold of you.");
 				dispel_monsters(i);
 				set_stun(p_ptr->stun + j);
@@ -1720,18 +1803,16 @@ static void process_world(void)
 
 			if (!rand_int(3000))
 			{
-				i = rand_int(p_ptr->lev / 2) + (p_ptr->lev / 2);
+				i = rand_int(p_ptr->lev) + p_ptr->lev;
 			}
 			else if (!rand_int(1000))
 			{
-				i = rand_int(p_ptr->lev / 20) + (p_ptr->lev / 20);
+				i = rand_int(p_ptr->lev / 2) + (p_ptr->lev / 2);
 			}
 
 			if (i)
 			{
 				if (disturb_minor) disturb(0, 0);
-				msg_print("You feel insubstantial!");
-				msg_print(NULL);
 				set_shadow(p_ptr->wraith_form + i);
 			}
 		}
@@ -1784,19 +1865,16 @@ static void process_world(void)
 		{
 			int i = 0;
 
-			if (!rand_int(3000)) i = p_ptr->lev;
-			else if (!rand_int(1000)) i = p_ptr->lev / 10;
+			if (!rand_int(3000)) i = p_ptr->lev * 2;
 
 			if (i)
 			{
 				if (p_ptr->tim_esp > 0)
 				{
-					msg_print("Your mind feels cloudy!");
 					set_tim_esp(0);
 				}
 				else
 				{
-					msg_print("Your mind expands!");
 					set_tim_esp(i);
 				}
 			}
@@ -1914,7 +1992,8 @@ static void process_world(void)
 			}
 		}
 
-		if ((p_ptr->muta2 & MUT2_DISARM) && !rand_int(10000))
+		if ((p_ptr->muta2 & MUT2_DISARM) && (!rand_int(10000)) &&
+		    (inventory[INVEN_WIELD].k_idx))
 		{
 			object_type *o_ptr;
 
@@ -1945,18 +2024,6 @@ static void process_world(void)
 			check_experience();
 		}
 	}
-
-	/* Rarely, take damage from the Jewel of Judgement */
-	if ((randint(999)==1) && !(p_ptr->anti_magic))
-	{
-		if ((inventory[INVEN_LITE].tval) && !(p_ptr->invuln)
-		    && (inventory[INVEN_LITE].sval == SV_LITE_THRAIN))
-		{
-			msg_print("The Jewel of Judgement drains life from you!");
-			take_hit(MIN(p_ptr->lev, 50), "the Jewel of Judgement");
-		}
-	}
-
 
 	/* Process equipment */
 	for (j = 0, i = INVEN_WIELD; i < INVEN_TOTAL; i++)
@@ -3659,14 +3726,11 @@ static void dungeon(void)
 }
 
 
-
-
-#if 0
-
-/* Old routine to load pref files */
-
 /*
  * Load some "user pref files"
+ *
+ * Modified by Arcum Dagsson to support
+ * separate macro files for different realms.
  */
 static void load_all_pref_files(void)
 {
@@ -3689,60 +3753,25 @@ static void load_all_pref_files(void)
 
 	/* Process that file */
 	process_pref_file(buf);
-}
 
-#else
-
-/* Arcum Dagsson's code to support separate macro files for different realms */
-
-/*
- * Load some "user pref files"
- */
-static void load_all_pref_files(void)
-{
-	char buf[1024];
-
-	/* Access the "race" pref file */
-	sprintf(buf, "%s.prf", rp_ptr->title);
-
-	/* Process that file */
-	process_pref_file(buf);
-
-	/* Access the "class" pref file */
-	sprintf(buf, "%s.prf", cp_ptr->title);
-
-	/* Process that file */
-	process_pref_file(buf);
-
-	/* Access the "character" pref file */
-	sprintf(buf, "%s.prf", player_base);
-
-	/* Process that file */
-	process_pref_file(buf);
-	
 	/* Access the "realm 1" pref file */
-	if (realm_names[p_ptr->realm1]!="no magic")
-		if (realm_names[p_ptr->realm1]!="unknown")
-		{
-			sprintf(buf, "%s.prf",realm_names[p_ptr->realm1]);
+	if (p_ptr->realm1 != REALM_NONE)
+	{
+		sprintf(buf, "%s.prf", realm_names[p_ptr->realm1]);
 
-			/* Process that file */
-			process_pref_file(buf);
-		}
-	
-		/* Access the "realm 2" pref file */
-		if (realm_names[p_ptr->realm2]!="no magic")
-		if (realm_names[p_ptr->realm2]!="unknown")
-		{
-			sprintf(buf, "%s.prf",realm_names[p_ptr->realm2]);
+		/* Process that file */
+		process_pref_file(buf);
+	}
 
-			/* Process that file */
-			process_pref_file(buf);
-		}
+	/* Access the "realm 2" pref file */
+	if (p_ptr->realm2 != REALM_NONE)
+	{
+		sprintf(buf, "%s.prf", realm_names[p_ptr->realm2]);
+
+		/* Process that file */
+		process_pref_file(buf);
+	}
 }
-
-
-#endif
 
 /*
  * Actually play a game
@@ -3869,13 +3898,11 @@ void play_game(bool new_game)
 		}
 	}
 
-
 	/* Flash a message */
 	prt("Please wait...", 0, 0);
 
 	/* Flush the message */
 	Term_fresh();
-
 
 	/* Hack -- Enter wizard mode */
 	if (arg_wizard && enter_wizard_mode()) wizard = TRUE;

@@ -1,7 +1,6 @@
-39
+36
 ******** BUFFER LINE *********************************** DO NOT REMOVE *******
 of Misery
-of Backbiting
 of Horror
 of Agony
 of Severe Pain
@@ -12,7 +11,6 @@ of Gates
 of Microsloth
 of Troubleseeking
 of the Kender
-'Camlost'
 'Coffin Nail'
 of Fumbling
 of Tristan
@@ -26,7 +24,6 @@ of Castration
 of Kidney Punch
 'Rotten Egg'
 of Losing
-of Master Bates
 of the Bastard
 of Friendship
 of Sadness

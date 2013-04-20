@@ -1,4 +1,4 @@
-66
+58
 ******** BUFFER LINE *********************************** DO NOT REMOVE *******
 of Super Resistance
 of the Ultimate Defense
@@ -42,22 +42,14 @@ of the Empire
 'Bloodmail of Lucifer'
 of the Holy Grail
 'Sampo'
-of Merlin's Pattern
-of Corwin's Pattern
 of Infinity
 of Eternity
 'Lifegiver'
 of Heart's Desire
-'Day of the Dove'
 of the Force
 of the Makers
 of the Immortals
 of the Best
-of Thrain
-of Deirdre
-of Random
-of Rebma
-of Celeborn
 of Invincibility
 'Aegis'
 'Eternal Bastion'
