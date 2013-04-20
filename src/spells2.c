@@ -1315,6 +1315,10 @@ void self_knowledge(void)
 		{
 			info[i++] = "Your weapon is especially deadly against dragons.";
 		}
+		if (f1 & (TR1_CHAOTIC))
+		{
+			info[i++] = "Your weapon is especially deadly against creatures of chaos.";
+		}
 
 		/* Special "kill" flags */
 		if (f1 & (TR1_KILL_DRAGON))

@@ -35,6 +35,8 @@
 ## # Option -- Default to roguelike commands
 ## Y:rogue_like_commands
 
+# Load colors.prf
+%:colors.prf
 
 ##### Original Keyset Mappings #####
 

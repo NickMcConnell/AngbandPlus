@@ -1147,67 +1147,67 @@ owner_type owners[MAX_STORES][MAX_OWNERS] =
 {
 	{
 		/* General store */
-		{ "Bilbo the Friendly",         200,    170, 108,  5, 15, RACE_HOBBIT},
-		{ "Raistlin the Chicken",       250,    175, 108,  4, 12, RACE_HUMAN},
-		{ "Sultan the Midget",          300,    170, 107,  5, 15, RACE_GNOME},
-		{ "Lyar-el the Comely",         350,    165, 107,  6, 18, RACE_ELF},
+		{ "Bilbo the Friendly",   200,    170, 108,  5, 15, RACE_HOBBIT},
+		{ "Raistlin the Chicken", 250,    175, 108,  4, 12, RACE_HUMAN},
+		{ "Sultan the Midget",    300,    170, 107,  5, 15, RACE_GNOME},
+		{ "Lyar-el the Comely",   350,    165, 107,  6, 18, RACE_ELF},
 	},
 	{
 		/* Armoury */
-		{ "Kon-Dar the Ugly",           10000,  210, 115,  5,  7, RACE_HALF_ORC},
-		{ "Darg-Low the Grim",          15000,  190, 111,  4,  9, RACE_HUMAN},
-		{ "Decado the Handsome",        25000,  200, 112,  4, 10, RACE_AMBERITE},
-		{ "Wieland the Smith",          30000,  200, 112,  4,  5, RACE_DWARF},
+		{ "Kon-Dar the Ugly",     5000,   210, 115,  5,  7, RACE_HALF_ORC},
+		{ "Darg-Low the Grim",    10000,  190, 111,  4,  9, RACE_HUMAN},
+		{ "Decado the Handsome",  25000,  200, 112,  4, 10, RACE_AMBERITE},
+		{ "Wieland the Smith",    30000,  200, 112,  4,  5, RACE_DWARF},
 	},
 	{
 		/* Weapon Smith */
-		{ "Arnold the Beastly",         10000,  210, 115,  6,  6, RACE_BARBARIAN},
-		{ "Arndal Beast-Slayer",        15000,  185, 110,  5,  9, RACE_HALF_ELF},
-		{ "Eddie Beast-Master",         25000,  190, 115,  5,  7, RACE_HALF_ORC},
-		{ "Oglign Dragon-Slayer",       30000,  195, 112,  4,  8, RACE_DWARF},
+		{ "Arnold the Beastly",   5000,   210, 115,  6,  6, RACE_BARBARIAN},
+		{ "Arndal Beast-Slayer",  10000,  185, 110,  5,  9, RACE_HALF_ELF},
+		{ "Eddie Beast-Master",   25000,  190, 115,  5,  7, RACE_HALF_ORC},
+		{ "Oglign Dragon-Slayer", 30000,  195, 112,  4,  8, RACE_DWARF},
 	},
 	{
 		/* Temple */
-		{ "Ludwig the Humble",          10000,  175, 109,  6, 15, RACE_DWARF},
-		{ "Gunnar the Paladin",         15000,  185, 110,  5, 23, RACE_HALF_TROLL},
-		{ "Torin the Chosen",           25000,  180, 107,  6, 20, RACE_HIGH_ELF},
-		{ "Sarastro the Wise",          30000,  185, 109,  5, 15, RACE_HUMAN},
+		{ "Ludwig the Humble",    5000,   175, 109,  6, 15, RACE_DWARF},
+		{ "Gunnar the Paladin",   10000,  185, 110,  5, 23, RACE_HALF_TROLL},
+		{ "Torin the Chosen",     25000,  180, 107,  6, 20, RACE_HIGH_ELF},
+		{ "Sarastro the Wise",    30000,  185, 109,  5, 15, RACE_HUMAN},
 	},
 	{
 		/* Alchemist */
-		{ "Mauser the Chemist",         10000,  190, 111,  5,  8, RACE_HALF_ELF},
-		{ "Wizzle the Chaotic",         15000,  190, 110,  6,  8, RACE_HOBBIT},
-		{ "Midas the Greedy",           25000,  200, 116,  6,  9, RACE_GNOME},
-		{ "Ja-Far the Alchemist",       30000,  220, 111,  4,  9, RACE_ELF},
+		{ "Mauser the Chemist",   10000,  190, 111,  5,  8, RACE_HALF_ELF},
+		{ "Wizzle the Chaotic",   10000,  190, 110,  6,  8, RACE_HOBBIT},
+		{ "Midas the Greedy",     15000,  200, 116,  6,  9, RACE_GNOME},
+		{ "Ja-Far the Alchemist", 15000,  220, 111,  4,  9, RACE_ELF},
 	},
 	{
 		/* Magic Shop */
-		{ "Lo Pan the Sorcerer",        15000,  200, 110,  7,  8, RACE_HALF_ELF},
-		{ "Buggerby the Great",         20000,  215, 113,  6, 10, RACE_GNOME},
-		{ "The Wizard of Yendor",       25000,  200, 110,  7, 10, RACE_HUMAN},
-		{ "Rjak the Necromancer",       30000,  175, 110,  5, 11, RACE_DARK_ELF},
+		{ "Lo Pan the Sorcerer",  20000,  200, 110,  7,  8, RACE_HALF_ELF},
+		{ "Buggerby the Great",   20000,  215, 113,  6, 10, RACE_GNOME},
+		{ "The Wizard of Yendor", 30000,  200, 110,  7, 10, RACE_HUMAN},
+		{ "Rjak the Necromancer", 30000,  175, 110,  5, 11, RACE_DARK_ELF},
 	},
 	{
 		/* Black Market */
-		{ "Gary Gygaz",                 20000,  250, 150, 10,  5, RACE_HALF_TROLL},
-		{ "Histor the Goblin",          25000,  250, 150, 10,  5, RACE_HALF_ORC},
-		{ "Quark the Ferengi",          30000,  250, 150, 10,  5, RACE_DWARF},
-		{ "Gumby the Godly",            30000,  250, 150, 10,  5, RACE_HUMAN},
+		{ "Gary Gygaz",           20000,  250, 150, 10,  5, RACE_HALF_TROLL},
+		{ "Histor the Goblin",    25000,  250, 150, 10,  5, RACE_HALF_ORC},
+		{ "Quark the Ferengi",    30000,  250, 150, 10,  5, RACE_DWARF},
+		{ "Gumby the Godly",      30000,  250, 150, 10,  5, RACE_HUMAN},
 	},
 	{
 		/* Home */
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99},
-		{ "Your home",                          0,      100, 100,  0, 99, 99}
+		{ "Your home",            0,      100, 100,  0, 99, 99},
+		{ "Your home",            0,      100, 100,  0, 99, 99},
+		{ "Your home",            0,      100, 100,  0, 99, 99},
+		{ "Your home",            0,      100, 100,  0, 99, 99}
 	},
 
 	{
 		/* Bookstore */
-		{ "Dolaf the Greedy",           15000, 175, 108, 4, 12, RACE_HUMAN},
-		{ "Odnar the Sage",             20000, 120, 105, 6, 16, RACE_HIGH_ELF},
-		{ "Gandar the Neutral",         25000, 120, 110, 7, 19, RACE_DARK_ELF},
-		{ "Ro-sha the Patient",         30000, 140, 105, 6, 12, RACE_ELF},
+		{ "Dolaf the Greedy",     15000, 175, 108, 4, 12, RACE_HUMAN},
+		{ "Odnar the Sage",       20000, 120, 105, 6, 16, RACE_HIGH_ELF},
+		{ "Gandar the Neutral",   25000, 120, 110, 7, 19, RACE_DARK_ELF},
+		{ "Ro-sha the Patient",   30000, 140, 105, 6, 12, RACE_ELF},
 	}
 };
 
@@ -3792,41 +3792,41 @@ player_magic magic_info[MAX_CLASS] =
 
     /* Warrior-Mage: Arcane Magic */
     {
-        {  1,   1, 20,  4 },
-        {  2,   1, 33,  5 },
-        {  2,   2, 33,  4 },
-        {  3,   3, 33,  5 },
-        {  4,   4, 33,  5 },
-        {  5,   5, 40,  6 },
-        {  6,   6, 33,  7 },
-        {  7,   7, 44,  5 },
+        {  1,   1, 20,   2 },
+        {  1,   1, 22,   4 },
+        {  2,   2, 24,   6 },
+        {  3,   3, 26,   8 },
+        {  4,   4, 28,  10 },
+        {  4,   5, 30,  12 },
+        {  5,   6, 32,  14 },
+        {  5,   7, 34,  16 },
 
-        {  8,   8, 40,  7 },
-        {  9,   9, 60,  7 },
-        { 11,  10, 50,  6 },
-        { 12,  11, 50,  6 },
-        { 13,  12, 50,  6 },
-        { 14,  13, 50,  6 },
-        { 15,  14, 50,  5 },
-        { 16,  15, 50,  5 },
+        {  6,   8, 36,  18 },
+        {  7,   9, 38,  20 },
+        {  8,  10, 40,  22 },
+        { 10,  11, 42,  24 },
+        { 12,  12, 44,  26 },
+        { 14,  13, 46,  28 },
+        { 16,  14, 48,  30 },
+        { 18,  15, 50,  35 },
 
-        { 17,  16, 50,  5 },
-        { 18,  17, 50,  5 },
-        { 19,  18, 33,  6 },
-        { 20,  20, 50,  8 },
-        { 23,  22, 60,  9 },
-        { 25,  23, 60,  9 },
-        { 29,  25, 70,  12 },
-        { 30,  27, 60,  13 },
+        { 20,  16, 52,  40 },
+        { 22,  17, 54,  50 },
+        { 24,  18, 56,  60 },
+        { 26,  20, 58,  70 },
+        { 28,  22, 60,  80 },
+        { 30,  23, 62,  90 },
+        { 32,  25, 64, 100 },
+        { 34,  28, 66, 115 },
 
-        { 35,  30, 80,  50 },
-        { 39,  38, 80,  25 },
-        { 41,  40, 60,  25 },
-        { 43,  42, 70,  25 },
-        { 45,  44, 66,  30 },
-        { 47,  45, 80,  40 },
-        { 48,  65, 70,  50 },
-        { 50, 140, 80, 200 }
+        { 36,  30, 68, 130 },
+        { 38,  35, 70, 145 },
+        { 40,  40, 72, 160 },
+        { 42,  42, 74, 175 },
+        { 44,  45, 76, 190 },
+        { 46,  45, 78, 200 },
+        { 48,  60, 80, 225 },
+        { 50, 125, 82, 250 }
 	}
 	}
 	},
@@ -4949,43 +4949,43 @@ player_magic magic_info[MAX_CLASS] =
     },
 
     /* High Mage: Arcane Magic */
-	  {
-	  { 99, 0, 0, 0 },
-	  { 99, 0, 0, 0 },
-	  { 99, 0, 0, 0 },
-	  { 99, 0, 0, 0 },
-	  { 99, 0, 0, 0 },
-	  { 99, 0, 0, 0 },
-	  { 99, 0, 0, 0 },
-	  { 99, 0, 0, 0 },
+	{
+        {  1,  1, 16,   2 },
+        {  1,  1, 18,   4 },
+        {  2,  1, 20,   6 },
+        {  2,  1, 22,   8 },
+        {  3,  1, 24,  10 },
+        {  3,  2, 26,  12 },
+        {  4,  4, 28,  14 },
+        {  5,  4, 30,  16 },
 
-	  { 99, 0, 0, 0 },
-	  { 99, 0, 0, 0 },
-	  { 99, 0, 0, 0 },
-	  { 99, 0, 0, 0 },
-	  { 99, 0, 0, 0 },
-	  { 99, 0, 0, 0 },
-	  { 99, 0, 0, 0 },
-	  { 99, 0, 0, 0 },
+        {  6,  5, 32,  18 },
+        {  7,  7, 34,  20 },
+        {  8,  7, 36,  22 },
+        {  8,  8, 38,  24 },
+        {  9,  8, 40,  26 },
+        { 10,  9, 42,  28 },
+        { 10, 10, 44,  30 },
+        { 11, 10, 46,  35 },
 
-	  { 99, 0, 0, 0 },
-	  { 99, 0, 0, 0 },
-	  { 99, 0, 0, 0 },
-	  { 99, 0, 0, 0 },
-	  { 99, 0, 0, 0 },
-	  { 99, 0, 0, 0 },
-	  { 99, 0, 0, 0 },
-	  { 99, 0, 0, 0 },
+        { 12, 10, 48,  40 },
+        { 13, 10, 50,  50 },
+        { 14, 11, 52,  60 },
+        { 15, 12, 54,  70 },
+        { 17, 15, 56,  80 },
+        { 20, 15, 58,  90 },
+        { 20, 16, 60, 110 },
+        { 22, 18, 62, 115 },
 
-	  { 99, 0, 0, 0 },
-	  { 99, 0, 0, 0 },
-	  { 99, 0, 0, 0 },
-	  { 99, 0, 0, 0 },
-	  { 99, 0, 0, 0 },
-	  { 99, 0, 0, 0 },
-	  { 99, 0, 0, 0 },
-	  { 99, 0, 0, 0 },
-	},
+        { 24, 22, 64, 130 },
+        { 30, 30, 66, 145 },
+        { 33, 28, 68, 160 },
+        { 38, 28, 70, 175 },
+        { 40, 28, 72, 190 },
+        { 41, 28, 74, 200 },
+        { 43, 40, 76, 225 },
+        { 46, 80, 78, 250 }
+	}
 	}
 	},
 };
@@ -5007,18 +5007,16 @@ u32b fake_spell_flags[4]=
 byte realm_choices[MAX_CLASS]=
 {
 /* Warrior */       (CH_NONE),
-/* Mage */          (CH_LIFE | CH_SORCERY | CH_NATURE | CH_CHAOS |
-                     CH_DEATH | CH_TRUMP ),
-/* Priest */        (CH_SORCERY | CH_NATURE | CH_CHAOS | CH_TRUMP ),
-/* Rogue */         (CH_SORCERY | CH_DEATH | CH_TRUMP ),
+/* Mage */          (CH_LIFE | CH_SORCERY | CH_NATURE | CH_CHAOS | CH_DEATH | CH_TRUMP),
+/* Priest */        (CH_SORCERY | CH_NATURE | CH_CHAOS | CH_TRUMP),
+/* Rogue */         (CH_SORCERY | CH_DEATH | CH_TRUMP),
 /* Ranger */        (CH_NATURE),
 /* Paladin */       (CH_LIFE | CH_DEATH),
 /* Warrior-Mage */  (CH_ARCANE),
 /* Chaos Warrior */ (CH_CHAOS),
-/* Monk */          (CH_LIFE | CH_NATURE | CH_DEATH ),
+/* Monk */          (CH_LIFE | CH_NATURE | CH_DEATH),
 /* Mindcrafter */   (CH_NONE),
-/* High Mage */     (CH_LIFE | CH_SORCERY | CH_NATURE | CH_CHAOS |
-                     CH_DEATH | CH_TRUMP ),
+/* High Mage */     (CH_LIFE | CH_SORCERY | CH_NATURE | CH_CHAOS | CH_DEATH | CH_TRUMP | CH_ARCANE),
 };
 
 cptr realm_names [] =
@@ -5333,34 +5331,34 @@ cptr spell_names[7][32] =
 
 	{
 		"Zap",
-		"Wizard Lock",
 		"Detect Invisibility",
 		"Detect Monsters",
 		"Blink",
 		"Light Area",
-		"Trap & Door Destruction",
+		"Trap/Door Destruction",
+		"Stinking Cloud",
 		"Cure Light Wounds",
 
-		"Detect Doors & Traps",
+		"Detect Doors/Traps",
 		"Phlogiston",
-		"Detect Treasure",
-		"Detect Enchantment",
-		"Detect Objects",
+		"Confuse Monster",
+		"Sleep Monster",
+		"Detect Objects/Treasure",
 		"Cure Poison",
-		"Resist Cold",
-		"Resist Fire",
-
-		"Resist Lightning",
-		"Resist Acid",
+		"See Invisible",
 		"Cure Medium Wounds",
+
 		"Teleport",
 		"Stone to Mud",
 		"Ray of Light",
 		"Satisfy Hunger",
-		"See Invisible",
-
+		"Magic Mapping",
 		"Recharging",
-		"Teleport Level",
+		"Remove Curse",
+		"Cure Critical Wounds",
+
+		"Elemental Protection",
+		"Prismatic Bolt",
 		"Identify",
 		"Teleport Away",
 		"Elemental Ball",
@@ -5739,22 +5737,22 @@ option_type option_info[] =
 	{ &carry_query_flag,            FALSE,  1,      0, 3,
 	"carry_query_flag",             "Prompt before picking things up" },
 
-	{ &use_old_target,              FALSE,  1,      0, 4,
+	{ &use_old_target,              TRUE,   1,      0, 4,
 	"use_old_target",               "Use old target by default" },
 
-	{ &always_pickup,               TRUE,   1,      0, 5,
+	{ &always_pickup,               FALSE,   1,      0, 5,
 	"always_pickup",                "Pick things up by default" },
 
 	{ &always_repeat,               TRUE,   1,      0, 6,
 	"always_repeat",                "Repeat obvious commands" },
 
-	{ &depth_in_feet,               FALSE,  1,      0, 7,
+	{ &depth_in_feet,               TRUE,  1,      0, 7,
 	"depth_in_feet",                "Show dungeon level in feet" },
 
 	{ &stack_force_notes,           TRUE,  1,      0, 8,
 	"stack_force_notes",            "Merge inscriptions when stacking" },
 
-	{ &stack_force_costs,           FALSE,  1,      0, 9,
+	{ &stack_force_costs,           TRUE,  1,      0, 9,
 	"stack_force_costs",            "Merge discounts when stacking" },
 
 	{ &show_labels,                 TRUE,   1,      0, 10,
@@ -5769,7 +5767,7 @@ option_type option_info[] =
 	{ &show_details,                TRUE,  1,      0, 13,
 	"show_details",                 "Show details in certain sub-windows" },
 
-	{ &ring_bell,                   FALSE,   1,      0, 14,
+	{ &ring_bell,                   TRUE,   1,      0, 14,
 	"ring_bell",                    "Audible bell (on errors, etc)" },
 	/* Changed to default to FALSE -- it's so extremely annoying!!! -TY */
 
@@ -5782,16 +5780,16 @@ option_type option_info[] =
 	{ &find_ignore_stairs,          FALSE,   2,      0, 16,
 	"find_ignore_stairs",           "Run past stairs" },
 
-	{ &find_ignore_doors,           TRUE,   2,      0, 17,
+	{ &find_ignore_doors,           FALSE,  2,      0, 17,
 	"find_ignore_doors",            "Run through open doors" },
 
-	{ &find_cut,                    FALSE,   2,      0, 18,
+	{ &find_cut,                    TRUE,   2,      0, 18,
 	"find_cut",                     "Run past known corners" },
 
 	{ &find_examine,                TRUE,   2,      0, 19,
 	"find_examine",                 "Run into potential corners" },
 
-	{ &disturb_move,                TRUE,   2,      0, 20,
+	{ &disturb_move,                FALSE,  2,      0, 20,
 	"disturb_move",                 "Disturb whenever any monster moves" },
 
 	{ &disturb_near,                TRUE,   2,      0, 21,
@@ -5800,22 +5798,22 @@ option_type option_info[] =
 	{ &disturb_panel,               TRUE,   2,      0, 22,
 	"disturb_panel",                "Disturb whenever map panel changes" },
 
-	{ &disturb_state,               TRUE,   2,      0, 23,
+	{ &disturb_state,               FALSE,  2,      0, 23,
 	"disturb_state",                "Disturb whenever player state changes" },
 
-	{ &disturb_minor,               TRUE,   2,      0, 24,
+	{ &disturb_minor,               FALSE,  2,      0, 24,
 	"disturb_minor",                "Disturb whenever boring things happen" },
 
-	{ &disturb_other,               TRUE,   5,      0, 25,
+	{ &disturb_other,               FALSE,   5,      0, 25,
 	"disturb_other",                "Disturb whenever random things happen" },
 
-	{ &alert_hitpoint,              FALSE,  2,      0, 26,
+	{ &alert_hitpoint,              TRUE,   2,      0, 26,
 	"alert_hitpoint",               "Alert user to critical hitpoints" },
 
-	{ &alert_failure,               FALSE,  2,      0, 27,
+	{ &alert_failure,               TRUE,  2,      0, 27,
 	"alert_failure",                "Alert user to various failures" },
 
-	{ &last_words,                  TRUE,   5,      0, 28,
+	{ &last_words,                  FALSE,  5,      0, 28,
 	"last_words",                   "Get last words when the character dies" },
 
 	{ &speak_unique,                TRUE,   5,      0, 29,
@@ -5824,12 +5822,12 @@ option_type option_info[] =
 	{ &small_levels,                TRUE,   5,      0, 30,
 	"small_levels",                 "Allow unusually small dungeon levels" },
 
-	{ &empty_levels,                TRUE,   5,      0, 31,
+	{ &empty_levels,                FALSE,  5,      0, 31,
         "empty_levels",                 "Allow empty 'arena' levels" },
 
 	/*** Game-Play ***/
 
-	{ &auto_haggle,                 FALSE,  3,      1, 0,
+	{ &auto_haggle,                 TRUE,   3,      1, 0,
 	"auto_haggle",                  "Auto-haggle in stores" },
 
 	{ &auto_scum,                   FALSE,  3,      1, 1,
@@ -5841,16 +5839,16 @@ option_type option_info[] =
 	{ &stack_allow_wands,           TRUE,   3,      1, 3,
 	"stack_allow_wands",            "Allow wands/staffs/rods to stack" },
 
-	{ &expand_look,                 FALSE,  3,      1, 4,
+	{ &expand_look,                 TRUE,  3,      1, 4,
 	"expand_look",                  "Expand the power of the look command" },
 
-	{ &expand_list,                 FALSE,  3,      1, 5,
+	{ &expand_list,                 TRUE,  3,      1, 5,
 	"expand_list",                  "Expand the power of the list commands" },
 
 	{ &view_perma_grids,            TRUE,   3,      1, 6,
 	"view_perma_grids",             "Map remembers all perma-lit grids" },
 
-	{ &view_torch_grids,            FALSE,  3,      1, 7,
+	{ &view_torch_grids,            TRUE,  3,      1, 7,
 	"view_torch_grids",             "Map remembers all torch-lit grids" },
 
 	{ &dungeon_align,               TRUE,   3,      1, 8,
@@ -5877,7 +5875,7 @@ option_type option_info[] =
 	{ &track_target,                FALSE,  3,      1, 13,
 	"track_target",                 "Monsters target the player (broken)" },
 #else
-	{ &player_symbols,              FALSE,   5,      1, 13,
+	{ &player_symbols,              TRUE,   5,      1, 13,
 	"player_symbols",               "Use special symbols for the player char"},
 
 	{ &equippy_chars,               TRUE,  5,      1, 12,
@@ -5944,16 +5942,16 @@ option_type option_info[] =
 	{ &skip_mutations,              FALSE, 5, 5, 0,
 	"skip_mutations",               "Skip mutations in 'C'haracter Display" },
 
-	{ &plain_descriptions,          FALSE, 5, 5, 1,
+	{ &plain_descriptions,          TRUE,  5, 5, 1,
 	"plain_descriptions",           "Plain object descriptions" },
 
-	{ &stupid_monsters,             FALSE, 5, 5, 2,
+	{ &stupid_monsters,             TRUE,  5, 5, 2,
 	"stupid_monsters",              "Monsters behave stupidly" },
 
-	{ &auto_destroy,                FALSE, 5, 5, 3,
+	{ &auto_destroy,                TRUE,  5, 5, 3,
 	"auto_destroy",                 "No query to destroy known worthless items" },
 
-	{ &wear_confirm,                FALSE, 5,5, 4,
+	{ &wear_confirm,                TRUE,  5, 5, 4,
 	"confirm_wear",                 "Confirm to wear/wield known cursed items" },
 
 	{ &confirm_stairs,              FALSE, 5, 5, 5,
@@ -5963,13 +5961,13 @@ option_type option_info[] =
 	"disturb_pets",                 "Disturb when visible pets move" },
 
 #ifdef USE_SOUND
-	{ &shuffle_songs,               FALSE, 5,5,7,
+	{ &shuffle_songs,               FALSE, 5, 5, 7,
 	"shuffle_songs",                "Randomize midi songs" },
 
-	{ &mute_songs,                  FALSE, 5,5,8,
+	{ &mute_songs,                  TRUE,  5, 5, 8,
 	"mute_songs",                   "No music" },
 
-	{ &mute_sounds,                 FALSE, 5,5,9,
+	{ &mute_sounds,                 TRUE,  5, 5, 9,
 	"mute_sounds",                  "No sound effects" },
 #endif /* USE_SOUND */
 

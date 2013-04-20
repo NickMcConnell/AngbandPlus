@@ -107,12 +107,12 @@ int template_race;
 /*
 * Dungeon generation values
 */
-#define DUN_ROOMS	50	/* Number of rooms to attempt */
-#define DUN_UNUSUAL 194 /* Level/chance of unusual room (was 200) */
-#define DUN_DEST    18  /* 1/chance of having a destroyed level */
-#define SMALL_LEVEL 3   /* 1/chance of smaller size (3)*/
-#define EMPTY_LEVEL 15  /* 1/chance of being 'empty' (15)*/
-#define DARK_EMPTY  5   /* 1/chance of arena level NOT being lit (2)*/
+#define DUN_ROOMS    50     /* Number of rooms to attempt */
+#define DUN_UNUSUAL 194     /* Level/chance of unusual room (was 200) */
+#define DUN_DEST     30     /* 1/chance of having a destroyed level */
+#define SMALL_LEVEL   2     /* 1/chance of smaller size (3)*/
+#define EMPTY_LEVEL  15     /* 1/chance of being 'empty' (15)*/
+#define DARK_EMPTY   10     /* 1/chance of arena level NOT being lit (2)*/
 
 /*
 * Dungeon tunnel generation values

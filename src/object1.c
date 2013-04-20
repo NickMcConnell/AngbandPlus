@@ -3867,6 +3867,7 @@ bool identify_fully_aux(object_type *o_ptr)
 	if (f1 & (TR1_CHAOTIC))
 	{
 		info[i++] = "It produces chaotic effects.";
+		info[i++] = "It does extra damage from chaos.";
 	}
 
 	if (f1 & (TR1_VAMPIRIC))

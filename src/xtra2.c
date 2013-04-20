@@ -2133,13 +2133,11 @@ void monster_death(int m_idx)
 		q_ptr->art_name = quark_add("'Stormbringer'");
 		q_ptr->to_h = 16;
 		q_ptr->to_d = 16;
-/*		q_ptr->ds = 6; */
-/*		q_ptr->dd = 6; */
-		q_ptr->ds = 8;
-		q_ptr->dd = 8;
+		q_ptr->ds = 6;
+		q_ptr->dd = 6;
 		q_ptr->pval = 2;
 
-		q_ptr->art_flags1 |= ( TR1_VAMPIRIC | TR1_STR | TR1_CON | TR1_BLOWS );
+		q_ptr->art_flags1 |= ( TR1_VAMPIRIC | TR1_CHAOTIC | TR1_STR | TR1_CON | TR1_BLOWS );
 		q_ptr->art_flags2 |= ( TR2_FREE_ACT | TR2_HOLD_LIFE |
 		                       TR2_RES_NEXUS | TR2_RES_CHAOS | TR2_RES_NETHER |
 		                       TR2_RES_CONF ); /* No longer resist_disen */
@@ -2150,13 +2148,13 @@ void monster_death(int m_idx)
 /*		q_ptr->art_flags3 |= TR3_NO_TELE; */ /* How's that for a downside? */
 
 		/* For game balance... */
-		q_ptr->art_flags3 |= ( TR3_CURSED | TR3_HEAVY_CURSE | TR3_PERMA_CURSE );
+		q_ptr->art_flags3 |= ( TR3_CURSED | TR3_HEAVY_CURSE );
 		q_ptr->ident |= IDENT_CURSED;
 
-/*		if (randint(2)==1)
+/*		if (randint(2)==1) */
 			q_ptr->art_flags3 |= (TR3_DRAIN_EXP);
-		else
-			q_ptr->art_flags3 |= (TR3_AGGRAVATE); */
+/*		else */
+/*			q_ptr->art_flags3 |= (TR3_AGGRAVATE); */
 
 		/* Drop it in the dungeon */
 		drop_near(q_ptr, -1, y, x);

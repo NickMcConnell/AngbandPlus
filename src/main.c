@@ -446,7 +446,7 @@ int main(int argc, char *argv[])
 			usage:
 			{
 				/* Dump usage information */
-				puts("Usage: angband [options] [-- subopts]");
+				puts("Usage: gumband [options] [-- subopts]");
 				puts("  -n       Start a new character");
 				puts("  -f       Request fiddle mode");
 				puts("  -w       Request wizard mode");

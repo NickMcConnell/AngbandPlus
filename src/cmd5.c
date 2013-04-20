@@ -1653,9 +1653,14 @@ void do_cmd_cast(void)
 			break;
        case 4: /* Manaburst */
              if (!get_aim_dir(&dir)) return;
-             fire_ball(GF_MISSILE, dir, 25 + (plev + (plev / 2)), ((plev < 30) ? 2 : 3));
-          /* Shouldn't actually use GF_MANA, as it will destroy all
-       * items on the floor */
+		if (randint(10) == 7)
+		{
+			fire_ball(GF_MANA, dir, 25 + (plev + (plev / 2)), ((plev < 30) ? 2 : 3));
+		}
+		else
+		{
+			fire_ball(GF_MISSILE, dir, 25 + (plev + (plev / 2)), ((plev < 30) ? 2 : 3));
+		}
              break;
         case 5: /* Fire Bolt */
 			if (!get_aim_dir(&dir)) return;
@@ -2762,117 +2767,130 @@ void do_cmd_cast(void)
     switch (spell)
     {
         case 0: /* Zap */
-               if (!get_aim_dir(&dir)) return;
-                 fire_bolt_or_beam(beam-10, GF_ELEC, dir,
-                              damroll(3 + ((plev - 1) / 3), 4));
+		if (!get_aim_dir(&dir)) return;
+		fire_bolt_or_beam(beam-10, GF_ELEC, dir, damroll(3 + ((plev - 1) / 3), 4));
         break;
-        case 1: /* Wizard Lock */
-            if (!(get_aim_dir(&dir))) break;
-            (void) wizard_lock(dir);
-        break;
-        case 2: /* Detect Invisibility */
-            (void)detect_monsters_invis();
-        break;
-        case 3: /* Detect Monsters */
-			(void)detect_monsters_normal();
-        break;
-        case 4: /* Blink */
-            teleport_player(10);
-        break;
-        case 5: /* Light Area */
-			(void)lite_area(damroll(2, (plev / 2)), (plev / 10) + 1);
-        break;
-        case 6: /* Trap & Door Destruction */
-            if (!(get_aim_dir(&dir))) return;
-            (void) destroy_door(dir);
-        break;
+        case 1: /* Detect Invisibility */
+		(void)detect_monsters_invis();
+	break;
+        case 2: /* Detect Monsters */
+		(void)detect_monsters_normal();
+	break;
+        case 3: /* Blink */
+		teleport_player(10);
+	break;
+        case 4: /* Light Area */
+		(void)lite_area(damroll(2, (plev / 2)), (plev / 10) + 1);
+	break;
+        case 5: /* Trap/Door Destruction */
+		(void)destroy_doors_touch();
+	break;
+        case 6: /* Stinking Cloud */
+		if (!get_aim_dir(&dir)) return;
+		fire_ball(GF_POIS, dir, 15 + (plev / 2), 2);
+	break;
         case 7: /* Cure Light Wounds */
-            (void) hp_player(damroll(3, 8));
-            (void) set_cut(p_ptr->cut - 10);
-        break;
-        case 8: /* Detect Doors & Traps */
-			(void)detect_traps();
-			(void)detect_doors();
-			(void)detect_stairs();
-        break;
+		(void) hp_player(damroll(3, 8));
+		(void) set_cut(p_ptr->cut - 10);
+	break;
+        case 8: /* Detect Doors/Traps */
+		(void)detect_traps();
+		(void)detect_doors();
+		(void)detect_stairs();
+	break;
         case 9: /* Phlogiston */
-            phlogiston();
+		phlogiston();
         break;
-        case 10: /* Detect Treasure */
-			(void)detect_treasure();
-			(void)detect_objects_gold();
-
-        break;
-        case 11: /* Detect Enchantment */
-			(void)detect_objects_magic();
-        break;
-        case 12: /* Detect Object */
-			(void)detect_objects_normal();
+        case 10: /* Confuse Monster */
+		if (!get_aim_dir(&dir)) return;
+		(void)confuse_monster(dir, ( plev * 3) / 2 );
+	break;
+        case 11: /* Sleep Monster */
+		if (!get_aim_dir(&dir)) return;
+		(void)sleep_monster(dir);
+	break;
+        case 12: /* Detect Objects/Treasures */
+		(void)detect_objects_normal();
+		(void)detect_treasure();
+		(void)detect_objects_gold();
         break;
         case 13: /* Cure Poison */
-			(void)set_poisoned(0);
+		(void)set_poisoned(0);
         break;
-        case 14: /* Resist Cold */
-			(void)set_oppose_cold(p_ptr->oppose_cold + randint(20) + 20);
+        case 14: /* See Invisible */
+		(void)set_tim_invis(p_ptr->tim_invis + randint(50) + 50);
         break;
-        case 15: /* Resist Fire */
-			(void)set_oppose_fire(p_ptr->oppose_fire + randint(20) + 20);
+        case 15: /* Cure Medium Wounds */
+		(void)hp_player(damroll(6, 10));
+		(void)set_cut((p_ptr->cut / 2) - 20);
+	break;
+        case 16: /* Teleport */
+		teleport_player(plev * 5);
         break;
-        case 16: /* Resist Lightning */
-			(void)set_oppose_elec(p_ptr->oppose_elec + randint(20) + 20);
+        case 17: /* Stone to Mud */
+		if (!get_aim_dir(&dir)) return;
+		(void)wall_to_mud(dir);
         break;
-        case 17: /* Resist Acid */
-            (void)set_oppose_acid(p_ptr->oppose_acid + randint(20) + 20);
+        case 18: /* Ray of Light */
+		if (!get_aim_dir(&dir)) return;
+		msg_print("A line of light appears.");
+		lite_line(dir);
         break;
-        case 18: /* Cure Medium Wounds */
-            (void)hp_player(damroll(6, 8));
-            (void)set_cut((p_ptr->cut / 2) - 50);
-        break;
-        case 19: /* Teleport */
-            teleport_player(plev * 5);
-        break;
-        case 20: /* Stone to Mud */
-			if (!get_aim_dir(&dir)) return;
-			(void)wall_to_mud(dir);
-        break;
-        case 21: /* Ray of Light */
-			if (!get_aim_dir(&dir)) return;
-            msg_print("A line of light appears.");
-			lite_line(dir);
-        break;
-        case 22: /* Satisfy Hunger */
-			(void)set_food(PY_FOOD_MAX - 1);
-        break;
-        case 23: /* See Invisible */
-			(void)set_tim_invis(p_ptr->tim_invis + randint(24) + 24);
-        break;
-        case 24: /* Recharging */
-               (void)recharge(plev * 2);
-               break;
-        case 25: /* Teleport Level */
-			(void)teleport_player_level();
-        break;
+        case 19: /* Satisfy Hunger */
+		(void)set_food(PY_FOOD_MAX - 1);
+	break;
+        case 20: /* Magic Mapping */
+		map_area();
+	break;
+        case 21: /* Recharging */
+		(void)recharge(plev * 3);
+	break;
+        case 22: /* Remove Curse */
+		remove_curse();
+	break;
+        case 23: /* Cure Critical Wounds */
+		(void)hp_player(damroll(12, 10));
+		(void)set_stun(0);
+		(void)set_cut(0);
+	break;
+        case 24: /* Elemental Protection */
+		(void)set_oppose_acid(p_ptr->oppose_acid + randint(20) + 20);
+		(void)set_oppose_elec(p_ptr->oppose_elec + randint(20) + 20);
+		(void)set_oppose_fire(p_ptr->oppose_fire + randint(20) + 20);
+		(void)set_oppose_cold(p_ptr->oppose_cold + randint(20) + 20);
+	break;
+        case 25: /* Prismatic Bolt */
+		if (!get_aim_dir(&dir)) return;
+		switch (randint(5))
+		{
+			case 1: dummy = GF_FIRE;
+			case 2: dummy = GF_ELEC;
+			case 3: dummy = GF_MISSILE;
+			case 4: dummy = GF_COLD;
+			default: dummy = GF_ACID;
+		}			
+		fire_bolt_or_beam(beam, dummy, dir, damroll(6+((plev-5)/4), 8));
+	break;
         case 26: /* Identify */
-			(void)ident_spell();
+		(void)ident_spell();
         break;
         case 27: /* Teleport Away */
-			if (!get_aim_dir(&dir)) return;
-               (void)fire_beam(GF_AWAY_ALL, dir, plev);
+		if (!get_aim_dir(&dir)) return;
+		(void)fire_beam(GF_AWAY_ALL, dir, plev);
         break;
         case 28: /* Elemental Ball */
-			if (!get_aim_dir(&dir)) return;
-            switch (randint(4))
-            {
-                case 1: dummy = GF_FIRE;
-                case 2: dummy = GF_ELEC;
-                case 3: dummy = GF_COLD;
-                default: dummy = GF_ACID;
-            }
-            fire_ball(dummy, dir,
-                    115 + (plev), 2);
+		if (!get_aim_dir(&dir)) return;
+		switch (randint(4))
+		{
+			case 1: dummy = GF_FIRE;
+			case 2: dummy = GF_ELEC;
+			case 3: dummy = GF_COLD;
+			default: dummy = GF_ACID;
+		}
+		fire_ball(dummy, dir, 100 + (plev * 2), 2);
         break;
         case 29: /* Detection */
-			(void)detect_all();
+		(void)detect_all();
         break;
         case 30: /* Word of Recall */
 			{
@@ -2895,12 +2913,12 @@ void do_cmd_cast(void)
 				break;
             }
         case 31: /* Clairvoyance */
-			wiz_lite();
-            if (!(p_ptr->telepathy))
-            {
-                (void)set_tim_esp(p_ptr->tim_esp + randint(30) + 25);
-            }
-        break;
+		wiz_lite();
+		if (!(p_ptr->telepathy))
+		{
+			(void)set_tim_esp(p_ptr->tim_esp + randint(30) + 25);
+		}
+	break;
         default:
         msg_format("You cast an unknown Arcane spell: %d.", spell);
         msg_print(NULL);

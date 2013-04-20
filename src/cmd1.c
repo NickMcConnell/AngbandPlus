@@ -399,6 +399,14 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 					if (mult < 3) mult = 3;
 				}
 			}
+
+			/* Brand (Chaotic) - Gumband */
+			if (f1 & (TR1_CHAOTIC) &&
+			  ((r_ptr->flags3 & (RF3_RES_CHAO)) ||
+			  (r_ptr->flags4 & (RF4_BR_CHAO))))
+			{
+					if (mult < 2) mult = 2;
+			}
 			break;
 		}
 	}

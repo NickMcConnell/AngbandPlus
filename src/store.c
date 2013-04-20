@@ -3571,7 +3571,7 @@ void store_shuffle(int which)
 
 		/* Hack -- Sell all old items for "half price" */
         if (!(o_ptr->art_name))
-            o_ptr->discount = 50;
+            o_ptr->discount = 35;
 
 		/* Hack -- Items are no longer "fixed price" */
 		o_ptr->ident &= ~(IDENT_FIXED);

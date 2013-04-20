@@ -3379,8 +3379,8 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 				case SV_RING_SLAYING:
 				{
 					/* Bonus to damage and to hit */
-					o_ptr->to_d = randint(7) + m_bonus(10, level);
-					o_ptr->to_h = randint(7) + m_bonus(10, level);
+					o_ptr->to_d = 5 + randint(8) + m_bonus(10, level);
+					o_ptr->to_h = 5 + randint(8) + m_bonus(10, level);
 
 					/* Cursed */
 					if (power < 0)
@@ -5863,18 +5863,18 @@ static void spell_info(char *p, int spell, int realm)
 				switch (spell)
 				{
 					case  0: sprintf(p, " dam %dd4", 3 + ((plev-1)/3)); break;
-					case  4: strcpy (p, " range 10"); break;
-					case  5: sprintf(p, " dam 2d%d", plev / 2); break;
+					case  3: strcpy (p, " range 10"); break;
+					case  4: sprintf(p, " dam 2d%d", plev / 2); break;
+					case  6: sprintf(p, " dam %d", 15 + (plev / 2)); break;
 					case  7: strcpy (p, " heal 3d8"); break;
-					case 14:
-					case 15:
-					case 16:
-					case 17: strcpy (p, " dur 20+d20"); break;
-					case 18: strcpy (p, " heal 6d8"); break;
-					case 19: sprintf(p, " range %d", plev * 5); break;
-					case 21: strcpy (p, " dam 6d8"); break;
-					case 23: strcpy (p, " dur 24+d24"); break;
-					case 28: sprintf(p, " dam %d", 115 + (plev)); break;
+					case 14: strcpy (p, " dur 50+d50"); break;
+					case 15: strcpy (p, " heal 6d10"); break;
+					case 16: sprintf(p, " range %d", plev * 5); break;
+					case 18: strcpy (p, " dam 6d8"); break;
+					case 23: strcpy (p, " heal 12d10"); break;
+					case 24: strcpy (p, " dur 20+d20"); break; 
+					case 25: sprintf(p, " dam %dd8", (6+((plev-5)/4))); break;
+					case 28: sprintf(p, " dam %d", 100 + (plev * 2)); break;
 					case 30: strcpy (p, " delay 15+d21"); break;
 					case 31: strcpy (p, " dur 25+30"); break;
 				}

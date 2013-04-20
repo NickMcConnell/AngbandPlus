@@ -94,11 +94,12 @@ struct header
 
 	u16b	head_size;		/* Size of the "header" in bytes */
 
-	u16b	info_size;		/* Size of the "info" array in bytes */
-
+	u32b	info_size;		/* Size of the "info" array in bytes */
+/* info_size *WAS* u16b - I pray this doesn't kill everything! - Gumby */
 	u16b	name_size;		/* Size of the "name" array in bytes */
 
 	u16b	text_size;		/* Size of the "text" array in bytes */
+/* maybe change this to u32b? Julian's idea... - Gumby */
 };
 
 

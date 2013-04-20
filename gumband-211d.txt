@@ -1,0 +1,242 @@
+============================================================================
+= Gumband 2.1.1d: Changes from ZAngband 2.1.1c = Last Update: 24-Nov-2000  =
+============================================================================
+
+============================================================================
+I've compiled this source successfully under MS-DOS, using DJGPP. Don't know
+how well it'll compile under other platforms, tho I figure it should do just
+as well as ZAngband 2.1.1c does. I won't be compiling for platforms other
+than MS-DOS, but the whole purpose of source code is that you don't have to
+worry about me doing the compiling. :)
+============================================================================
+On that subject, I've compiled the DOS version without graphics or sound,
+using main-ibm.c. If you want the graphics, recompile using main-dos.c, I
+suppose...
+============================================================================
+Send any and all suggestions or complaints to gumby@gwar.net - but remember
+that my C skills are minimal, so the changes to the source will be as well.
+============================================================================
+Thanks to all the folks in #angband and rec.games.roguelike.angband who've
+put up with me, and even helped me in many cases, while I was plundering
+their knowledge of C for this little project. :) So, if you've responded to
+any of my posts dealing with Gumband, or C programming in general, consider
+yourself thanked. :)
+============================================================================
+There have been other minor changes than those listed here that aren't worth
+individual mentions.
+============================================================================
+Please note that the numbering is just for convenience and not any sort of
+chronology of the changes I've made since the list has been rewritten and
+reordered several times now. :)
+============================================================================
+
+01) Rings and Amulets can now be pseudo-ID'd, tho only as good, average and
+ cursed. [dungeon.c]
+
+02) Got rid of the autoroller delay during character creation. [birth.c]
+ Yes, it keeps players a bit more honest with their stats to keep the
+ autoroller relatively slow, but that does nothing useful except fill the
+ high-scores table with tons of low-level characters and force players to
+ hang around the 'stat-gain' levels until they're bored to tears. And once
+ past stat-gain, does it really matter what your starting statistics were?
+
+03) Many activated artifacts, wands, staves, rods, etc., now deal 50% more
+ damage. [cmd6.c, object1.c] IMHO, they're usually so weak that there's no
+ incentive to use the offensive abilities of these objects, except for the
+ occasional blast with a ball-spell item against *WEAK* breeders or group
+ monsters.
+
+04) Removed spellbooks from the Temple and Magic Shoppe - they were too much
+ competition for the Bookstore. :) [store.c, init2.c]
+
+05) Removed the aggravation and NO_TELE flags from Stormbringer. It, along
+ with regular Blades of Chaos, is now Chaotic (see #16), and Stormy *always*
+ has DRAIN_EXP. [xtra2.c, k_info.txt] (note that my first alteration was to
+ make it deal 8d8 damage and have a permanent curse, as well as getting rid
+ of DRAIN_EXP, AGGRAVATE and NO_TELE, but after numerous complaints... :]
+ Look for another change in Stormbringer the day I come up with an ADoMish
+ auto-cursing routine. :)
+
+06) Potions of New Life are cheaper and more common. [k_info.txt] Instead of
+ re-rating your hit points and then removing all mutations, it first removes
+ all of your mutations and then polymorphs you, for the same effect as the
+ Polymorph Self spell. [cmd6.c] Now you might end up again with the mutation
+ you were desperate to get rid of in the first place, or turn into a Yeek or
+ an Abomination. :)
+
+07) Stores now have a 1 in 15 chance of shuffling each day (originally a 1
+ in 21 chance). The {on sale} discount has been reduced to 35% since sales
+ are that much more common. [defines.h, store.c] The purses of the General
+ Store and Black Market owners have been altered slightly. [tables.c]
+
+08) Scrolls of *Remove Curse* are no longer available in the Temple, but
+ scrolls of Phase Door and potions of Restore Wisdom are. [init2.c] Scrolls
+ of *Remove Curse* are now a bit more common in the dungeon. [k_info.txt]
+
+09) Rings of Slaying now get the same range of bonuses as rings of Damage
+ and Accuracy do. [object2.c] Price has been increased 50% and it's a bit
+ rarer because of this.
+
+10) Spellbook rarities and depths have been standardized, with Arcane books
+ going at depths 10, 20, 30 and 40. [k_info.txt]
+
+11) The chance of 'inflating' an object's level during its creation has been
+ changed to a 1/15 (6.6%) chance, up from the normal 1/20 (5%). [defines.h]
+
+12) Changed the default starting options {=} to what *I* prefer to use - it
+ is only a convenience for me so that if I lose a savefile I don't have to
+ waste time resetting all the options again. :) [tables.c]
+
+13) Dungeon generation has been altered slightly: Small levels are now more
+ common (50% chance instead of 33%). Destroyed levels are less common (3.3%
+ chance instead of 5.5%). Empty 'Arena' levels are now less likely to be
+ darkened (10% chance instead of 20%). [generate.c]
+
+14) Equipped items are, hopefully, treated just like inventory for the
+ purpose of being destroyed by attacks. [spells1.c] Haven't actually seen
+ this happen yet, but I got the tip for the change from RR himself, so... :)
+
+15) Changed 'info_size' in 'struct header' to u32b from u16b - might break
+ things. If so, my apologies. :) [types.h] Did this so that I, hopefully,
+ can add monsters of my own without having to remove the ones native to
+ ZAngband 2.1.1c... And no, the new monsters will never be listed here. You
+ will have to actually play to meet them, or else read r.g.r.angband to see
+ me bragging about them. :)
+
+16) I seem to have got it working right: (Chaotic) weapons now deal extra
+ damage (x2 base) against creatures that resist and/or breathe chaos.
+ [normally, the extra damage would go against the creatures that *don't*
+ resist. Go read Moorcock's Elric series to see the logic in this. (briefly,
+ weapons of Chaos, such as Stormbringer and Mournblade, were created by Law
+ to fight Chaos, but it was a case of having to fight fire with fire, so to
+ speak)] Most creatures who either have 'chaos' as part of their name or
+ else breathe it, along with a few others, now explicitly resist chaos via
+ the new RES_CHAO flag. [these changes were to too many files for me to now
+ list :]
+
+17) Added GWAR. [r_info.txt] Go to http://www.gwar.net/ for details on this
+ great band. :) They're just big and tough (hopefully!) at the moment, but
+ someday I plan to give them the ability to summon each other and to summon
+ their Slaves. Their manager, Sleazy P. Martini, will also be created - he
+ will, of course, be able to summon GWAR. Other GWAR creatures and enemies,
+ such as Gor-Gor, the members of the Morality Squad, and Techno-Destructo,
+ once I can think of good stats for them. :)
+
+              -*-*-*- Altered Races and Classes -*-*-*-
+
+[birth.c  - magic, starting equipment
+ xtra1.c  - melee and missile attacks, intrinsics display(?)
+ tables.c - magic costs and race/class definitions
+ files.c  - intrinsics definitions(?)]
+
+ Tweaked the pseudo-ID of most classes. The various spellcasting Warriors
+ have all been speeded up a bit (to the 60000 mark), with Warrior-Magi
+ gaining heavy sensing. Magi have been changed to the (plev * plev + 40)
+ formula. High Magi now use the same formula as Mindcrafters - still rather
+ slow, but they needed it to be playable, IMHO. The rest have had their
+ pseudo-ID's speeded only slightly. [dungeon.c]
+
+Chaos Warriors:
+ Bonus melee attack at level 25.
+ Bonus missile shot at level 35.
+ +1 to hit and to damage every 10 levels.
+
+Golems:
+ XP required now at +150% (up from +100%).
+ They now have 13 hit dice (up from 12 HD).
+ Magic Devices skill now at +5 (up from -5). [being magical devices
+   themselves, Golems have an instinctive understanding of these things]
+ They no longer get intrinsic See Invisible, Free Action or their level 35
+   Hold Life.
+
+Mindcrafters:
+ XP required is now +30%, up from +25%.
+ Various changes to their powers, noted in the Altered Spells section.
+
+Monks:
+ The 'Monk Hack' has been enabled, allowing the intrinsic speed of Monks to
+   be cumulative with that of Klackons and Sprites. [config.h] With the
+   amount of speed in ZAngband, I fail to see how this would be unbalancing.
+
+Paladins:
+ Bonus melee attack at level 25.
+ Bonus missile shot at level 35.
+ +1 to hit and to damage every 10 levels.
+
+Rangers:
+ Bonus melee attack at level 25.
+ Bonus shots with Short and Long Bows at levels 15, 30 and 45, instead of
+   just at levels 20 and 40.
+ +1 to hit and to damage every 10 levels.
+ Nature magic only, no secondary realm.
+ Begins with Short Bow instead of second spellbook.
+
+Warrior-Magi:
+ Bonus melee attacks at levels 25 and 50.
+ 6 blows with same weight and multiplier restrictions as Warriors.
+ Bonus missile shot at level 35.
+ +1 to hit and to damage every 5 levels.
+ Arcane magic only, no secondary realm.
+ Begins with Hard Leather Armour instead of second spellbook.
+
+
+                   -*-*-*- Altered Spells -*-*-*-
+
+[cmd5.c    - spell definitions
+ object2.c - spell display information
+ tables.c  - spell costs and names]
+
+ Arcane magic is now limited to Warrior-Magi and High Magi, which is good
+ because...
+
+ Arcane magic has been fairly heavily re-written. The new spell list is:
+
+  Book 1                   Book 3
+  ------                   ------
+  Zap                      Teleport
+  Detect Invisibility      Stone to Mud
+  Detect Monsters          Ray of Light
+  Blink                    Satisfy Hunger
+  Light Area               Magic Mapping
+  Trap/Door Destruction    Recharging
+  Stinking Cloud           Remove Curse
+  Cure Light Wounds        Cure Critical Wounds
+
+  Book 2                   Book 4
+  ------                   ------
+  Detect Doors/Traps       Elemental Protection (resist Fire/Cold/Elec/Acid)
+  Phlogiston               Prismatic Bolt (fires a random element...)
+  Confuse Monster          Identify
+  Sleep Monster            Teleport Away
+  Detect Objects/Treasure  Elemental Ball
+  Cure Poison              Detection
+  See Invisible            Word of Recall
+  Cure Medium Wounds       Clairvoyance
+
+ Spell damages have been adjusted upwards a bit, up to 50% or so more
+ effective. Cure Light, Medium and Critical Wounds have had their die rolls
+ increased by 50% as well. Spellcasters are supposed to attack with magic,
+ but the normal damage rolls were rather pathetic, causing spellcasters to
+ melee as much, if not more, as they cast damage spells...
+
+ The Mindcrafter power 'Precognition' now detects doors and stairs at
+ character level 5, with detect traps moved to character level 10.
+
+ The Identify portion of 'Psychometry' has been moved up to level 30,
+ inserting an *Identify* effect at level 45. No justification for this other
+ than that I wanted to. :)
+
+ Again with the Mindcrafters, the Dimension Door portion of 'Minor
+ Displacement' has been moved to level 30.
+
+ Replaced the Trump Spell 'Reset Recall' with the spell 'Minor Divination,'
+ which detects traps, doors, stairs and normal monsters. Reset Recall is
+ almost completely useless since you couldn't Reset to a depth that you had
+ never visited. The cost and fail rate for Minor Divination are the same as
+ they were for Reset Recall, so there's no cheap and easy early detection
+ for Trump users. :)
+
+ Chaos' 'Mana Burst' now has a 1-in-10 chance of being a ball of *real* mana
+ (GF_MANA instead of the normal GF_MISSILE). It is compensation for the
+ increased damage it deals. (25 + (plev + (plev / 2))) = 100 damage at level
+ 50.

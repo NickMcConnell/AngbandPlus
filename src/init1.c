@@ -237,7 +237,7 @@ static cptr r_info_flags3[] =
 	"RES_PLAS",
 	"RES_NEXU",
 	"RES_DISE",
-	"XXX6X3",
+	"RES_CHAO",
 	"NO_FEAR",
 	"NO_STUN",
 	"NO_CONF",

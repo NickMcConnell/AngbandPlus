@@ -998,6 +998,7 @@ static void roff_aux(int r_idx)
 	if (flags3 & (RF3_RES_WATE)) vp[vn++] = "water";
 	if (flags3 & (RF3_RES_PLAS)) vp[vn++] = "plasma";
 	if (flags3 & (RF3_RES_NEXU)) vp[vn++] = "nexus";
+	if (flags3 & (RF3_RES_CHAO)) vp[vn++] = "chaos";
 	if (flags3 & (RF3_RES_DISE)) vp[vn++] = "disenchantment";
 	if (flags3 & (RF3_RES_TELE)) vp[vn++] = "teleportation";
 

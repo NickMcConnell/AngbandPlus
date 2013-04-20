@@ -1087,8 +1087,8 @@ static int inven_damage(inven_func typ, int perc)
 	/* Count the casualties */
 	k = 0;
 
-	/* Scan through the slots backwards */
-	for (i = 0; i < INVEN_PACK; i++)
+	/* Scan through the slots backwards - was INVEN_PACK */
+	for (i = 0; i < INVEN_TOTAL; i++)
 	{
 		o_ptr = &inventory[i];
 
@@ -3079,6 +3079,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			do_poly = TRUE;
 			do_conf = (5 + randint(11) + r) / (r + 1);
 			if ((r_ptr->flags4 & (RF4_BR_CHAO)) ||
+			   (r_ptr->flags3 & (RF3_RES_CHAO)) ||
 			   ((r_ptr->flags3 & (RF3_DEMON)) && (randint(3)==1)))
 			{
 				note = " resists.";
