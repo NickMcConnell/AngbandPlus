@@ -4,6 +4,9 @@
 #
 ###################################################################
 
+# Note that line 211 of main-win.c apparently needs to be commented
+# out for this makefile to work. [perhaps only under Win98se, I don't
+# know the full details]
 
 ###################################################################
 #

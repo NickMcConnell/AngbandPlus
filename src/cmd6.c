@@ -1367,6 +1367,14 @@ void do_cmd_read_scroll(void)
 
 		case SV_SCROLL_WORD_OF_RECALL:
 		{
+			/* Astral beings don't WoR! -- Gumby */
+			if (p_ptr->astral)
+			{
+				msg_print("You feel a terrible sense of loss.");
+				ident = TRUE;
+				break;
+			}
+
 			if (dun_level && (p_ptr->max_dlv > dun_level))
 			{
 				if (get_check("Reset recall depth? "))
@@ -2689,6 +2697,14 @@ void do_cmd_zap_rod(void)
 
 		case SV_ROD_RECALL:
 		{
+			/* Astral beings don't WoR! -- G */
+			if (p_ptr->astral)
+			{
+				msg_print("You feel a terrible sense of loss.");
+				ident = TRUE;
+				break;
+			}
+
 			if (dun_level && (p_ptr->max_dlv > dun_level))
 			{
 				if (get_check("Reset recall depth? "))

@@ -17,9 +17,9 @@ from your plane...
 ****************************************************************************
 
 =============================================
-= Gumband 2.1.5a = Last Update: 23-Apr-2001 =
+= Gumband 2.1.5b = Last Update: 29-Apr-2001 =
 ============================================================================
-Changes from Gumband 2.1.4a are marked with '##'. Only the most major
+Changes from Gumband 2.1.5a are marked with '##'. Only the most major
 changes are listed here, to keep things short...
 ============================================================================
 Send any and all complaints (or praise ;) to aa343@chebucto.ns.ca. Patches,
@@ -30,23 +30,6 @@ PLEASE NOTE: Preserving savefile compatability is *NOT* important to me. I
 *highly* suggest you finish up your current character with your current
 version before moving to this one. At the very least, monster memory could
 be severely messed up between versions...
-============================================================================
-I've only ever compiled this under MS-DOS with DJGPP. Your milage may vary
-for other platforms and compilers... :) If you've had problems compiling
-ZAngband v2.1.1c, then you'll probably have problems compiling Gumband.
-  NOTE: I hear that there are major problems running the DOS version, and
-compiling a Windows version with LCC, under Windows ME. I'm sorry, but since
-I have no familiarity with either, there's nothing I can do. :( If someone
-manages to get things working for that platform and/or compiler, could they
-please mail me the makefile they used and any source files they needed to
-update? [with explanatory notes, of course, so that I can add them without
-breaking things for everyone else :]
-============================================================================
-Thanks to Bablos for compiling the Amiga version.
-Thanks to Franklin Bratcher for compiling the Windows version.
-Thanks to Gileba for compiling the Mac-PPC version.
-Thanks to Erick Bock for his help in fixing the problems I was having with
-   getting the final mutation activation working.
 ============================================================================
 Thanks to all the folks in #angband and rec.games.roguelike.angband who've
 put up with me, and even helped me in many cases, while I was plundering
@@ -69,29 +52,13 @@ and one of the basic elemental resistances for armour. The Ranger's Short
 Bow only gets plusses. Using this option will cut your final score in half
 and character dumps will be marked.
 
-02) As Chaos Patrons, Mabelrode, Xiombarg and Arioch will now, not counting
-'wrath' and 'piss off' events, never TY Curse (unless, as a Chaos Warrior,
-you kill them) you or blast your armour or weapon. They also can give a
-*VERY* genereous reward. [see 'Chaos Warriors' below]
+02) Chaos Resistance no longer gives Confusion Resistance.
 
-03) Chaos Resistance no longer gives Confusion Resistance.
-
-04) Being Berserk now gives +25 to hit and +10 to damage. In return, you are
+03) Being Berserk now gives +25 to hit and +10 to damage. In return, you are
 reduced to just the base AC of worn armour and your Dexterity bonus, minus a
 further 10 points. Spellcasting failure rates go up by 25% as well.
 
-05) All effects (not the damage) from Nexus can now be resisted by a check
-against the character's saving throw. [previously, only the scrambling and
-teleport level effects could be resisted this way]
-
-06) Summoning rune traps no longer have a chance of TY Cursing you.
-
-07) In stores, you can now use either the 'x' or the 'l' key if one of them
-doesn't work for you. [added mostly so that, with my default macros included
-in pref.prf, those using the original keyset don't have to prefix the 'x'
-with a '\'.]
-
-##08) I have implemented Kamband-style Ghosts, but as a player state (ie,
+04) I have implemented Kamband-style Ghosts, but as a player state (ie,
 any race and class) instead of a race. The player starts out in the dungeon
 on level 96, on a random stairwell, with a load of Scrolls of Identify. The
 player cannot use Word of Recall effects until he or she reaches the town,
@@ -99,24 +66,19 @@ at which point the character loses the abilities granted by this ghostly
 status (See Invisible, Telepathy, Slow Digestion, permanent Lite, Speed +10,
 wizard-lighting levels upon entry, and being able to pass through walls with
 out damage).
-  Note that down stairs will be created on quest levels while you are in
-'astral' form - it was the easiest way to make sure the player could escape
-those levels if a nasty was generated next to him or her. :)
   Thanks to DarkGod for all of his help on this subject, and thanks to
 Ivan Tkatchev for creating Kamband and thus giving me the idea to put it in
 Gumband. :)
+## Thanks to Timo Pietil for pointing out that there's no penalty for *not*
+going to the town... Now down stairs ('>') will not be generated at 4850'...
+## Thanks to Antimatter for the suggestion on how to fix the starting-stair
+problem...
 
-##09) Turned the Spoiler Generation debug command into a standard command,
+05) Turned the Spoiler Generation debug command into a standard command,
 accessed via the '$' key in both command sets. Note that the *.spo files
 will be generated in ./lib/info. Spoilers can be viewed externally, of
 course, but can also be found through the in-game help system. [also altered
 the help menu organization a tiny bit. :]
-
-##10) Added a help file listing Wizard/Debug Mode commands, which is
-./lib/help/wizcmd.txt.
-
-##11) Temporary boosts to Infravision (ie, the potion) now increases your
- Infravision by 20' (was 10').
 
 
               ####### Altered Races and Classes #######
@@ -140,8 +102,8 @@ Chaos Warriors:
    appropriate). [this also means that they get their prayers randomly
    (chaotically! :) and can wear gloves without penalty - think of them as
    Chaos Paladins now]
-## Swapped their +1 INT bonus with their +0 WIS bonus, to make the above a
-   bit fairer.
+ Swapped their +1 INT bonus with their +0 WIS bonus, to make the above a bit
+   fairer.
  Due to being a plaything of Chaos, Chaos Warriors get +1 to the number of
    effects during a do_poly_self(). Beastmen Chaos Warriors tend to get
    slammed pretty hard when polymorphed. :)
@@ -157,6 +119,10 @@ Draconians:
    Chaos (45), Mana (50). [breath type was previously determined by class]
  XP required now at +125% (down from +150%).
 
+Dwarves:
+## Magic Mapping is added to their racial activation at level 35.
+## XP required now at +30% [was +25%, despite what birth.txt said :]
+
 Gambolts:
  Exceptional DEX & CHR (both sustained), Saving Throw and Stealth. Decent
    Searching and great Perception. All other stats and skills are average.
@@ -165,6 +131,9 @@ Gambolts:
  Racial activation is Charm Monster at level 20, which becomes Charm
    Monsters at level 50.
  Cannot 'legally' choose to be Priests, Paladins, Chaos Warriors or Monks.
+
+Gnomes:
+## XP required now at +30% (was +35%).
 
 Golems:
  They now resist Fire (because of their 'birth' in a kiln, forge, or quarry)
@@ -196,7 +165,7 @@ High Magi:
    realms that get Identify later, or not at all)
 
 Monks:
-## Stealth skill now 4 (was 5).
+ Stealth skill now 4 (was 5).
 
 Priests:
  The penalty for using edged weapons is now a *real* penalty of (-15,-15)
@@ -269,6 +238,9 @@ Weaponmasters:
  No spellcasting.
  XP penalty of 30%.
 
+Yeeks:
+ Acid Immunity comes in at level 30, instead of the original level 20.
+
 Zombies:
  No longer starts at night as they did in the previous version.
 
@@ -293,10 +265,10 @@ Zombies:
  New monster blow effect: RBE_VAMP (drains XP and heals the monster). See
  melee1.c for full details.
 
-## New monster blow effect: RBE_HALLU (causes hallucinations, preventable
- with Resist Chaos or a saving throw).
+ New monster blow effect: RBE_HALLU (causes hallucinations, preventable with
+ Resist Chaos or a saving throw).
 
-## New monster spell flags: BOULDER_1 (radius 0 ball, 3+(monlevel/10)d6
+ New monster spell flags: BOULDER_1 (radius 0 ball, 3+(monlevel/10)d6
  GF_ARROW damage, "The Foo throws a boulder.") and BOULDER_2 (radius 1 ball,
  6+(monlevel/5)d6 GF_ARROW damage, "The Foo throws a large boulder.").
  Basically, they are just slightly reworked ARROW_# spells, except that they
@@ -305,6 +277,9 @@ Zombies:
  Undead monsters are no longer totally immune to Nether attacks. Instead,
  they resist at 1/9th normal damage (compared to 1/3rd for those who resist
  Nether and 1/2 for Evil creatures).
+
+## Nexus attacks can now teleport monsters (who don't resist nexus or
+ teleportation, or who fail the saving throw) short distances.
 
  Defined humanoid monsters as a monster with one of the following symbols:
  "AhkNoOpPtTyYVW" Used for Slay Humanoid and the backstab attack of Rogues.
@@ -316,26 +291,20 @@ Zombies:
  The monster health bar has been updated to show if a monster is stunned
  (light brown) or confused (dark brown).
 
- Monster pits and nests no longer boost the level rating, though 'special'
- feelings are still generated when appropriate. Out of depth monsters in the
- pit/nest, of course, can still boost the rating. [vaults still boost as
- normal]
-
-## Monsters with escorts can again be selected for random quests - unlike
- those with friends and who multiply, escorted creatures aren't often too
- weak to be a challenge. I'm going to try and find a way to allow their
- escorts to actually accompany them...
-
-## The Hand of Doom also TY-Curses you if you don't save, and is also a bit
+ The Hand of Doom also TY-Curses you if you don't save, and is also a bit
  harder to resist.
 
-## Uniques no longer get automatic resistance to sleep, confusion, slowing,
+ Uniques no longer get automatic resistance to sleep, confusion, slowing,
  etc., and the saving throw for all creatures against such attacks is a bit
  weaker. [Uniques still can't be charmed, however]
 
-## New option: stupid_groups.  If 'stupid_monsters' is off, this option
+ New option: stupid_groups.  If 'stupid_monsters' is off, this option
  controls whether group monsters will hide out in rooms, away from and out
  of sight of the entrance, or if they will act like normal...
+
+## When a pet of yours kills a monster, you will get one half of the XP that
+ you would have gotten for killing the monster yourself. [of course, pets
+ don't do much killing since the AI sucks :]
 
 
                ####### Object-Related Changes #######
@@ -367,12 +336,7 @@ Zombies:
  *only* on the Long Sword 'Kanajana' and will never appear on random
  artifacts.
 
- Brands and Slays are now cumulative See cmd1.c for full details. (briefly,
- a monster affected by more than one Slay or Brand will take more damage if
- your weapon has them - for example, an Evil Demon which doesn't resist Cold
- will have a multiplier of x5 to the base damage when hit by Ringil, instead
- of the normal x3. If that Evil Demon resisted Cold, then the multplier
- would be at x4 (set to 3 for the Slay Demon, +1 for Slay Evil) instead.
+ Brands and Slays are now cumulative See cmd1.c for full details.
 
  Turned the code that adds random sustains, abilities and high resistances
  into the RAND_SUST, RAND_ABILITY and RAND_RESIST object flags. Note that
@@ -381,13 +345,8 @@ Zombies:
  artifact or normal object - it might crash or it might just ignore the
  flags...
 
- Added Feanoran Lamps. Radius 2 permanent lite, level/rarity of 15/2, cost
- of 1500 gold. Not available in the General Store, but can show up in the
- Black Market. The Phial of Galadrial is now a level 20, rarity 5 item...
-
  Large chests now produce only 'good' items (like a monster's DROP_GOOD),
  but are also rarer. [Wooden (rarity 2), Iron (rarity 4), Steel (rarity 6)]
-
  Small chests now produce only cash and are as common as they always were.
 
  Artifacts now have a 75% chance to resist disenchantment (was 71%) and
@@ -399,33 +358,31 @@ Zombies:
 
  Cursed random artifacts will no longer be generated.
 
-## Artifacts now have an 80% chance to avoid being "blasted" by a
- curse_weapon or curse_armor effect.
+ Artifacts now have an 80% chance to avoid being "blasted" by a curse_weapon
+ or curse_armor effect.
 
-## Scrolls of Blessing, Holy Chant, and Holy Prayer now last, in order,
- 10+d20, 20+d40 and 30+d60).
-
-## Cannot pseudo-ID items while blind (can't judge quality if you can't see
+ Cannot pseudo-ID items while blind (can't judge quality if you can't see
  the item), Berserk (not thinking of anything but smashing people :), cut,
  stunned, hallucinating, poisoned, scared or paralyzed, as well as while
  confused, of course. IE, you've got far too many other things on your mind
  to be thinking about or looking at that mysterious item in your pack and
  trying to figure out how valuable it might be. :)
 
-## 'Scrolls of Rune of Protection' have become 'Scrolls of Runes' and now
+ 'Scrolls of Rune of Protection' have become 'Scrolls of Runes' and now
  create a 'Sea of Runes' (as per the Life spell formerly known as 'Warding
  True'). Of course, the scroll is now a lot rarer and more expensive.
 
-## Added 'Scrolls of Summon Pet', which does just what it says. :)
+## Rods and artifacts now display how much time is left before they are
+ recharged.
 
-## Played with weapon and armour distribution a bit - altered depths, costs,
- how often each type is found in stores, etc... [most notable change is the
- removal of the extra types of chain mail (replacing Rusty Chain Mail with
- the 12 AC Ring Mail), the addition of the Light Spear (1d4), 3lbs, and
- making regular spears 6.5lbs. :]
+## Holy Avengers and weapons of Extra Attacks & Earthquakes could get more
+ than their maximum pval (4, 3 and 6, respectively) if their base weapon had
+ its own pval (ie, Sledgehammers). This has been fixed (after getting an HA
+ Sledgehammer with +5 attacks :).
 
-## Random artifacts are less likely to be permanently, or even heavily,
- cursed. TY-Cursed random artifacts are a bit rarer as well.
+## Oops! Slaughter Axes (the axe equivalent to Maces of Disruption, Blades
+ of Chaos and Scythes of Slicing) somehow lost a '0' in their weight, making
+ them 3lbs instead of the proper 30lbs! :) Fixed now, of course. :)
 
 
                    ####### Spellcasting #######
@@ -436,11 +393,11 @@ Zombies:
  resistances and such, if I'm reading things right). Hate me yet? :)
 
  Failure rates for spellcasting are adjusted as follows:
-## Wearing gloves (without Free Action or a Dexterity bonus) for mage-type
+   Wearing gloves (without Free Action or a Dexterity bonus) for mage-type
       spellcasters (+15%) [was +25%]
-## Being encumbered by heavy armour [penalty to fail equal to the amount of
+   Being encumbered by heavy armour [penalty to fail equal to the amount of
       mana you again lose for heavy armour; was +15% fail]
-## Priests wielding a non-blessed edged weapon (+15%) [was +25%]
+   Priests wielding a non-blessed edged weapon (+15%) [was +25%]
    Being Berserk (+25%)
    Being stunned (+15%/+25%)
    
@@ -452,7 +409,7 @@ Zombies:
  inventory and on the floor. Shopkeepers will only buy player-branded melee
  weapons at 35% off the normal price.
 
-## Decreased the armour weight limits before penalties to spellcasting kick
+ Decreased the armour weight limits before penalties to spellcasting kick
  in. See ./help/birth.txt for the actual numbers.
 
 Chaos:
@@ -465,19 +422,19 @@ Chaos:
    the randomness which normally makes it a useless spell.
 
 Death:
-## 'Wraithform' now lasts (randint(plev) + (plev/2)), making it useful.
+ 'Wraithform' now lasts (randint(plev) + (plev/2)), making it useful.
    Wraithform, whatever the source, no longer grants reflection, and only
    reduces damage to 1/3rd instead of 1/10th.
  'Invoke Spirits' has been replaced by 'Punish Undead' (dispels and turns
    undead creatures).
  'Omnicide' has been replaced by 'Summon Death', a line-of-sight death
    'ray'. There is a price for such power, however - if not invulnerable,
-   the caster will suffer 100+d100 damage from Death's cold touch...
+   the caster will suffer 200+d200 damage from Death's cold touch...
 
 Life:
  'Bless Weapon' has been changed to 'Summon Angel'. There is a 1-in-5 chance
    of a hostile summoning. Costs and failure rates are unchanged. Scrolls of
-   Bless Weapon (rarity of 75/4 & 100/2) has been added to compensate.
+   Bless Weapon have been added to compensate.
  'Protection from Evil' now affects creatures of any level <= level 97,
    regardless of the character's level. Duration of the effect has been
    reduced. It is also less likely to successfully repel a monster (maximum
@@ -486,34 +443,31 @@ Life:
 
 Mindcraft:
  'Precognition' now detects doors and stairs at level 5, with detect traps
-   bumped to level 10, and full detection moves to level 35, up from 30.
+   bumped to level 10, and full detection moves to level 35.
  'Minor Displacement' has moved its dimension door (targeted, short-ranged
-   teleportation) effect to level 35 (up from level 25 and the 30 it was in
-   the last version).
+   teleportation) effect to level 35.
  'Major Displacement' now gives Teleport Other at level 45 instead of its
    original 'Banish' (teleport away all creatures in line of sight) effect.
  'Psychometry' now gives Identify at level 30 and *Identify* at level 40.
- 'Mind Wave' now becomes a line-of-sight effect at level 30 (up from 25
-  and down from the 40 it was in the last version - it now comes in at the
-  point most of my Mindcrafters who get past 500' start to die. :)
+ 'Mind Wave' now becomes a line-of-sight effect at level 30.
 
 Sorcery:
  'Stasis' (and, of course, all GF_STASIS effects) now affects uniques, as
    well as those creatures with NO_SLEEP. They still get a saving throw,
    however.
-## 'Telekinesis' [which I consider useless since it can't go through walls,
+ 'Telekinesis' [which I consider useless since it can't go through walls,
    unlike the original SAngband version] has become 'Slow Monsters'.
 
 Trump:
  'Reset Recall' becomes 'Minor Divination' which detects traps, doors,
    stairs and normal monsters, with the same levels, costs and failure rates
    as 'Reset Recall'.
-## 'Trump Reach' [aka 'Telekinesis'] has become 'Nexus Bolt' [beam,
-   actually], with the same damage potential as Chaos' 'Fire Bolt'.
-## Altered levels, costs and fail rates of many spells to reasonable levels,
+ 'Trump Reach' [aka 'Telekinesis'] has become 'Nexus Bolt' [beam, actually],
+   with the same damage potential as Chaos' 'Fire Bolt'.
+ Altered levels, costs and fail rates of many spells to reasonable levels,
    including making 'Teleport', 'Teleport Level', and 'Word of Recall'
    competitive with the Sorcery versions. [after all, transport is supposed
-   to be Trump's secondary specialty]
+   to be Trump's secondary specialty - this mostly affects High Magi]
 
 
                   ####### Other People's Work #######

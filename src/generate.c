@@ -424,6 +424,10 @@ static void place_random_stairs(int y, int x)
 	{
 		place_down_stairs(y, x);
 	}
+	else if (p_ptr->astral && (dun_level == 97))
+	{
+		place_up_stairs(y, x);
+	}
 	else if ((is_quest(dun_level, FALSE) && !p_ptr->astral) ||
 		 (dun_level >= MAX_DEPTH-1))
 	{
@@ -559,20 +563,20 @@ static void alloc_stairs(int feat, int num, int walls)
 					/* Clear previous contents, add down stairs */
 					c_ptr->feat = FEAT_MORE;
 				}
-				
+				else if (p_ptr->astral && (dun_level == 97))
+				{
+					c_ptr->feat = FEAT_LESS;
+				}
 				/* Quest -- must go up */
 				else if ((is_quest(dun_level, FALSE) &&
 					 !p_ptr->astral) ||
 					 (dun_level >= MAX_DEPTH-1))
 				{
-					/* Clear previous contents, add up stairs */
 					c_ptr->feat = FEAT_LESS;
 				}
-				
 				/* Requested type */
 				else
 				{
-					/* Clear previous contents, add stairs */
 					c_ptr->feat = feat;
 				}
 				
@@ -3697,16 +3701,10 @@ static bool cave_gen(void)
 	if (!new_player_spot())
 		return FALSE;
 
-	if (p_ptr->astral && (dun_level == 96) && (turn == 1))
+	if (p_ptr->astral && (dun_level == 96) && p_ptr->astral_start)
 	{
-		if (is_quest(dun_level, FALSE))
-		{
-			place_up_stairs(py, px);
-		}
-		else
-		{
-			place_random_stairs(py, px);
-		}
+		place_random_stairs(py, px);
+		p_ptr->astral_start = FALSE;
 	}
 
 	/* Basic "amount" */

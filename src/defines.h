@@ -957,8 +957,9 @@ and tables.c --TY */
 #define ART_DEATH			149
 #define ART_PINPRICK			150
 #define ART_BEGGING			151
+#define ART_HASTNEN			152
 
-/* 152-255 unused */
+/* 153-255 unused */
 
 
 /*** Ego-Item indexes (see "lib/edit/e_info.txt") ***/

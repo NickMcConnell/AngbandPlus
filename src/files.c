@@ -1422,7 +1422,8 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3)
 		case RACE_GNOME:
 			(*f2) |= (TR2_FREE_ACT); break;
 		case RACE_DWARF:
-			(*f2) |= (TR2_RES_BLIND); break;
+			(*f2) |= (TR2_RES_BLIND);
+			break;
 		case RACE_HALF_ORC:
 			(*f2) |= (TR2_RES_DARK); break;
 		case RACE_HALF_TROLL:
@@ -4597,7 +4598,6 @@ void close_game(void)
 {
 	char buf[1024];
 
-
 	/* Handle stuff */
 	handle_stuff();
 
@@ -4607,21 +4607,17 @@ void close_game(void)
 	/* Flush the input */
 	flush();
 
-
 	/* No suspending now */
 	signals_ignore_tstp();
 
-
 	/* Hack -- Character is now "icky" */
 	character_icky = TRUE;
-
 
 	/* Build the filename */
 	path_build(buf, 1024, ANGBAND_DIR_APEX, "scores.raw");
 
 	/* Open the high score file, for reading/writing */
 	highscore_fd = fd_open(buf, O_RDWR);
-
 
 	/* Handle death */
 	if (death)
@@ -4660,13 +4656,11 @@ void close_game(void)
 		if (inkey() != ESCAPE) predict_score();
 	}
 
-
 	/* Shut the high score file */
 	(void)fd_close(highscore_fd);
 
 	/* Forget the high score fd */
 	highscore_fd = -1;
-
 
 	/* Allow suspending now */
 	signals_handle_tstp();

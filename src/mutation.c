@@ -1746,6 +1746,8 @@ static void cmd_racial_power_aux (void)
 			if (racial_aux(5, 5, A_WIS, 12))
 			{
 				msg_print("You examine your surroundings.");
+				if (p_ptr->lev >= 35)
+					(void)map_area();
 				(void)detect_traps();
 				(void)detect_doors();
 				(void)detect_stairs();
@@ -2138,9 +2140,9 @@ void do_cmd_racial_power(void)
 
 		case RACE_DWARF:
 			if (lvl < 5)
-				racial_power = "detect doors+traps (racial, lvl 5, cost 5)";
+				racial_power = "sense surroundings (racial, lvl 5, cost 5)";
 			else
-				racial_power = "detect doors+traps (racial, cost 5, WIS 12@5)";
+				racial_power = "sense surroundings (racial, cost 5, WIS 12@5)";
 			has_racial = TRUE;
 			break;
 
@@ -3013,11 +3015,19 @@ void do_cmd_racial_power(void)
 			case MUT1_RECALL:
 				if (racial_aux(17, 50, A_INT, 16))
 				{
+					/* Astral beings don't WoR! -- G */
+					if (p_ptr->astral)
+					{
+						msg_print("You feel a terrible sense of loss.");
+						break;
+					}
+
 					if (dun_level && (p_ptr->max_dlv > dun_level))
 					{
 						if (get_check("Reset recall depth? "))
 							p_ptr->max_dlv = dun_level;
 					}
+
 					if (!p_ptr->word_recall)
 					{
 						p_ptr->word_recall = rand_int(21) + 15;

@@ -2789,7 +2789,7 @@ void do_cmd_activate(void)
 			{
 				msg_print("Your dagger is covered in fire...");
 				if (!get_aim_dir(&dir)) return;
-				fire_bolt(GF_FIRE, dir, damroll(14, 8));
+				fire_bolt(GF_FIRE, dir, damroll(10, 8));
 				o_ptr->timeout = rand_int(8) + 8;
 				break;
 			}
@@ -2805,7 +2805,7 @@ void do_cmd_activate(void)
 			{
 				msg_print("Your dagger is covered in sparks...");
 				if (!get_aim_dir(&dir)) return;
-				fire_bolt(GF_ELEC, dir, damroll(6, 8));
+				fire_bolt(GF_ELEC, dir, damroll(8, 8));
 				o_ptr->timeout = rand_int(6) + 6;
 				break;
 			}
@@ -3172,6 +3172,14 @@ void do_cmd_activate(void)
 				msg_print("The rag looks even filthier than usual...");
 				(void) alchemy();
 				o_ptr->timeout = randint(100) + 100;
+				break;
+			}
+			case ART_HASTNEN:
+			{
+				msg_print("Your hatchet starts dripping acid...");
+				if (!get_aim_dir(&dir)) return;
+				fire_bolt(GF_ACID, dir, damroll(7, 8));
+				o_ptr->timeout = rand_int(5) + 5;
 				break;
 			}
 		}
@@ -3757,7 +3765,7 @@ cptr item_activation(object_type *o_ptr)
 		}
 		case ART_NARTHANC:
 		{
-			return "fire bolt (14d8) every 8+d8 turns";
+			return "fire bolt (10d8) every 8+d8 turns";
 		}
 		case ART_NIMTHANC:
 		{
@@ -3765,7 +3773,7 @@ cptr item_activation(object_type *o_ptr)
 		}
 		case ART_DETHANC:
 		{
-			return "lightning bolt (6d8) every 6+d6 turns";
+			return "lightning bolt (8d8) every 6+d6 turns";
 		}
 		case ART_RILIA:
 		{
@@ -4051,6 +4059,10 @@ cptr item_activation(object_type *o_ptr)
 		case ART_BEGGING:
 		{
 			return "turning dross into gold every 100+d100 turns";
+		}
+		case ART_HASTNEN:
+		{
+			return "acid bolt (7d8) every 5+d5 turns";
 		}
 	}
 

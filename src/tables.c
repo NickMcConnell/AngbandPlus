@@ -1417,7 +1417,7 @@ player_race race_info[MAX_RACES] =
 		"Gnome",
 		{ -1,  2,  0,  2,  1, -2 },
 		10, 12, 12,  3, 6,  13, -8, 12,
-		8,  135,
+		8,  130,
 		50, 40,
 		42,  3, 90,  6,
 		39,  3, 75,  3,
@@ -1428,7 +1428,7 @@ player_race race_info[MAX_RACES] =
 		"Dwarf",
 		{  2, -2,  2, -2,  2, -3 },
 		2,  9,  10,  -1,  7,  10, 15,  0,
-		11,  125,
+		11,  130,
 		35, 15,
 		48,  3, 150, 10,
 		46,  3, 120, 10,
@@ -3760,7 +3760,7 @@ player_magic magic_info[MAX_CLASS] =
 
 	{
         /*** Chaos Warrior ***/
-	TV_LIFE_BOOK, 0, A_WIS, 0, 2, 350,
+	TV_LIFE_BOOK, 0, A_WIS, 1, 2, 350,
 	{
 	  {
 	  { 99, 0, 0, 0 },

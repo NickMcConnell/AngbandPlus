@@ -2316,7 +2316,8 @@ static bool project_hack(int typ, int dam)
 		if (!player_has_los_bold(y, x)) continue;
 
 		/* Jump directly to the target monster */
-		if (project(0, 0, y, x, dam, typ, flg)) obvious = TRUE;
+		if (project(0, FALSE, 0, y, x, dam, typ, flg))
+			obvious = TRUE;
 	}
 
 	/* Result */
@@ -3236,7 +3237,7 @@ bool lite_area(int dam, int rad)
 	}
 
 	/* Hook into the "project()" function */
-	(void)project(0, rad, py, px, dam, GF_LITE_WEAK, flg);
+	(void)project(0, FALSE, rad, py, px, dam, GF_LITE_WEAK, flg);
 
 	/* Lite up the room */
 	lite_room(py, px);
@@ -3261,7 +3262,7 @@ bool unlite_area(int dam, int rad)
 	}
 
 	/* Hook into the "project()" function */
-	(void)project(0, rad, py, px, dam, GF_DARK_WEAK, flg);
+	(void)project(0, FALSE, rad, py, px, dam, GF_DARK_WEAK, flg);
 
 	/* Lite up the room */
 	unlite_room(py, px);
@@ -3297,7 +3298,7 @@ bool fire_ball(int typ, int dir, int dam, int rad)
 	}
 
 	/* Analyze the "dir" and the "target".  Hurt items on floor. */
-	return (project(0, rad, ty, tx, dam, typ, flg));
+	return (project(0, FALSE, rad, ty, tx, dam, typ, flg));
 }
 
 
@@ -3366,7 +3367,7 @@ bool fire_shower(int typ, int dir, int dam, int rad, int num)
 		 * Analyze the "dir" and the "target".  Hurt items on floor.
 		 * And don't stand too close ;)
 		 */
-		if (!project(0, rad, y, x, dam, typ, flg))
+		if (!project(0, FALSE, rad, y, x, dam, typ, flg))
 		{
 			result = FALSE;
 		}
@@ -3456,7 +3457,7 @@ bool fire_blast(int typ, int dir, int dd, int ds, int num, int dev)
 		}
 
 		/* Analyze the "dir" and the "target". */
-		if (!project(0, 0, y, x, damroll(dd, ds), typ, flg))
+		if (!project(0, FALSE, 0, y, x, damroll(dd, ds), typ, flg))
 		{
 			result = FALSE;
 		}
@@ -3488,7 +3489,7 @@ static bool project_hook(int typ, int dir, int dam, int flg)
 	}
 
 	/* Analyze the "dir" and the "target", do NOT explode */
-	return (project(0, 0, ty, tx, dam, typ, flg));
+	return (project(0, FALSE, 0, ty, tx, dam, typ, flg));
 }
 
 
@@ -3667,21 +3668,21 @@ bool teleport_monster(int dir)
 bool door_creation(void)
 {
 	int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE;
-	return (project(0, 1, py, px, 0, GF_MAKE_DOOR, flg));
+	return (project(0, FALSE, 1, py, px, 0, GF_MAKE_DOOR, flg));
 }
 
 
 bool trap_creation(void)
 {
 	int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE;
-	return (project(0, 1, py, px, 0, GF_MAKE_TRAP, flg));
+	return (project(0, FALSE, 1, py, px, 0, GF_MAKE_TRAP, flg));
 }
 
 
 bool glyph_creation(void)
 {
 	int flg = PROJECT_GRID | PROJECT_ITEM;
-	return (project(0, 2, py, px, 0, GF_MAKE_GLYPH, flg));
+	return (project(0, FALSE, 2, py, px, 0, GF_MAKE_GLYPH, flg));
 }
 
 
@@ -3689,7 +3690,7 @@ bool wall_stone(void)
 {
 	int flg = PROJECT_GRID | PROJECT_ITEM;
 
-	bool dummy = (project(0, 1, py, px, 0, GF_STONE_WALL, flg));
+	bool dummy = (project(0, FALSE, 1, py, px, 0, GF_STONE_WALL, flg));
 
 	/* Update stuff */
 	p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW);
@@ -3710,14 +3711,14 @@ bool wall_stone(void)
 bool destroy_doors_touch(void)
 {
 	int flg = PROJECT_GRID | PROJECT_ITEM | PROJECT_HIDE;
-	return (project(0, 1, py, px, 0, GF_KILL_DOOR, flg));
+	return (project(0, FALSE, 1, py, px, 0, GF_KILL_DOOR, flg));
 }
 
 /* Changed for the sake of the Shadow Cloak of Luthien. -- Gumby */
 bool sleep_monsters_touch(void)
 {
 	int flg = PROJECT_KILL | PROJECT_HIDE;
-	return (project(0, 1, py, px, p_ptr->lev, GF_STASIS, flg));
+	return (project(0, FALSE, 1, py, px, p_ptr->lev, GF_STASIS, flg));
 }
 
 

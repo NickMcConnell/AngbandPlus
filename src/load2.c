@@ -1431,8 +1431,8 @@ static void rd_extra(void)
 	/* Ghostly status -- Gumby */
 	rd_byte(&p_ptr->astral);
 	rd_byte(&p_ptr->was_astral);
+	rd_byte(&p_ptr->astral_start);
 
-	rd_byte(&tmp8u);        /* oops */
 	rd_byte(&p_ptr->searching);
 	rd_byte(&p_ptr->maximize);
 	rd_byte(&p_ptr->preserve);

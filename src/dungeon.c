@@ -1443,14 +1443,14 @@ static void process_world(void)
 	p_ptr->update |= (PU_TORCH);
 
 	/* Beastmen gain & lose mutations at random -- Gumby */
-	if ((p_ptr->prace == RACE_BEASTMAN) && (randint(6666) == 666))
+	if ((p_ptr->prace == RACE_BEASTMAN) && (randint(8000) == 1))
 	{
 		/* Stop everything - if you stop for the little things. */
 		if (disturb_minor) disturb(0,0);
 
 		/* Lose a mutation - but only if you have one or more. */
 		if ((p_ptr->muta1 || p_ptr->muta2 || p_ptr->muta3) &&
-		    (randint(3)==1))
+		    (randint(2)==1))
 		{
 			lose_mutation(0);
 			bell();
@@ -2111,13 +2111,6 @@ static void process_world(void)
 		{
 			/* Disturbing! */
 			disturb(0, 0);
-
-			/* Astral beings don't WoR! -- Gumby */
-			if (p_ptr->astral)
-			{
-				msg_print("You feel a terrible sense of loss.");
-				return;
-			}
 
 			/* Determine the level */
 			if (dun_level)
@@ -3417,6 +3410,10 @@ static void dungeon(void)
 	if (is_quest(dun_level, FALSE) && !p_ptr->astral)
 		create_down_stair = FALSE;
 
+	/* Paranoia -- No stairs down from level 97 if ghostly -- Gumby */
+	if (p_ptr->astral && (dun_level == 97))
+		create_down_stair = FALSE;
+
 	/* Paranoia -- no stairs from town */
 	if (!dun_level) create_down_stair = create_up_stair = FALSE;
 
@@ -3710,16 +3707,13 @@ static void load_all_pref_files(void)
 void play_game(bool new_game)
 {
 	int i;
-
 	hack_mutation = FALSE;
 
 	/* Hack -- Character is "icky" */
 	character_icky = TRUE;
 
-
 	/* Hack -- turn off the cursor */
 	(void)Term_set_cursor(0);
-
 
 	/* Attempt to load */
 	if (!load_player())

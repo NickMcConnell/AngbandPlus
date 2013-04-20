@@ -2015,9 +2015,14 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 						if (randint((p_ptr->realm1 == REALM_LIFE) ? 2 : 4) == 1)
 						{
 							o_ptr->art_flags1 |= TR1_BLOWS;
+#if 0
 							if (o_ptr->pval > 2)
 								o_ptr->pval = o_ptr->pval - (randint(2));
+#endif
 						}
+
+						if (o_ptr->pval > 4)
+							o_ptr->pval = 4;
 						break;
 					}
 
@@ -2161,6 +2166,8 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 					case 29: case 30:
 					{
 						o_ptr->name2 = EGO_ATTACKS;
+						if (o_ptr->pval > 3)
+							o_ptr->pval = 3;
 						break;
 					}
 
@@ -2252,7 +2259,10 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 							o_ptr->name2 = EGO_EARTHQUAKES;
 							if (randint(3)==1) o_ptr->art_flags1 |= TR1_BLOWS;
 							o_ptr->pval = m_bonus(3, level);
+							if (o_ptr->pval > 6)
+								o_ptr->pval = 6;
 						}
+						break;
 					}
 				}
 

@@ -776,7 +776,7 @@ void do_cmd_cast(void)
 		identify_fully();
 		break;
        case 30: /* Divine Intervention */
-		project(0, 1, py, px, 777, GF_HOLY_FIRE,   PROJECT_KILL);
+		project(0, FALSE, 1, py, px, 777, GF_HOLY_FIRE,   PROJECT_KILL);
 		dispel_monsters(plev * 5);
 		slow_monsters();
 		stun_monsters(plev*4);
@@ -902,6 +902,13 @@ void do_cmd_cast(void)
 		       break;
 	   case 21: /* Word of Recall */
 		{
+			/* Astral beings don't WoR! -- G */
+			if (p_ptr->astral)
+			{
+				msg_print("You feel a terrible sense of loss.");
+				break;
+			}
+
 	                if (dun_level && (p_ptr->max_dlv > dun_level))
         	        {
                 	    if (get_check("Reset recall depth? "))
@@ -1124,7 +1131,7 @@ void do_cmd_cast(void)
 		msg_print("You call upon Mother Nature to smite your enemies...");
 		(void)dispel_monsters(plev * 5);
 		earthquake(py, px, 20 + (plev / 2) );
-		project(0, 1+plev/12, py, px, 150 + plev, GF_DISINTEGRATE, PROJECT_KILL|PROJECT_ITEM);
+		project(0, FALSE, 1+plev/12, py, px, 150 + plev, GF_DISINTEGRATE, PROJECT_KILL|PROJECT_ITEM);
 		break;
 	default:
 		msg_format("You cast an unknown Nature spell: %d.", spell);
@@ -1237,7 +1244,7 @@ void do_cmd_cast(void)
 		break;
         case 10: /* Sonic Boom */
 		msg_print("BOOM! Shake the room!");
-		project(0, 2+plev/10, py, px, 65 + plev, GF_SOUND,
+		project(0, FALSE, 2+plev/10, py, px, 65 + plev, GF_SOUND,
 					PROJECT_KILL | PROJECT_ITEM);
 		break;
         case 11: /* Doom Bolt -- always beam in 2.0.7 or later */
@@ -1341,7 +1348,7 @@ void do_cmd_cast(void)
 
 				if (count > 1000) break;
 				count = 0;
-				project(0, 2, y, x, plev*4, GF_METEOR, PROJECT_KILL|PROJECT_JUMP|PROJECT_ITEM);
+				project(0, FALSE, 2, y, x, plev*4, GF_METEOR, PROJECT_KILL|PROJECT_JUMP|PROJECT_ITEM);
 			}
 		}
 		break;
@@ -1784,6 +1791,13 @@ void do_cmd_cast(void)
         break;
         case 11: /* Word of Recall */
 		{
+			/* Astral beings don't WoR! -- G */
+			if (p_ptr->astral)
+			{
+				msg_print("You feel a terrible sense of loss.");
+				break;
+			}
+
 			if (dun_level && (p_ptr->max_dlv > dun_level))
 			{
 				if (get_check("Reset recall depth? "))
@@ -2254,6 +2268,13 @@ void do_cmd_cast(void)
 			(void)teleport_player_level(); break;
 		case 30: /* Word of Recall */
 		{
+			/* Astral beings don't WoR! -- G */
+			if (p_ptr->astral)
+			{
+				msg_print("You feel a terrible sense of loss.");
+				break;
+			}
+
 			if (dun_level && (p_ptr->max_dlv > dun_level))
 			{
 				if (get_check("Reset recall depth? "))

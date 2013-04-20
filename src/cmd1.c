@@ -1101,7 +1101,7 @@ static void natural_attack(s16b m_idx, int attack, bool *fear, bool *mdeath)
 		switch (attack)
 		{
 			case MUT2_SCOR_TAIL:
-				project(0, 0, m_ptr->fy, m_ptr->fx, k, GF_POIS, PROJECT_KILL);
+				project(0, FALSE, 0, m_ptr->fy, m_ptr->fx, k, GF_POIS, PROJECT_KILL);
 				*mdeath = (m_ptr->r_idx == 0);
 				break;
 			case MUT2_HORNS:
@@ -1117,7 +1117,7 @@ static void natural_attack(s16b m_idx, int attack, bool *fear, bool *mdeath)
 				*mdeath = mon_take_hit(m_idx, k, fear, NULL);
 				break;
 			case MUT2_TENTACLES:
-				project(0, 0, m_ptr->fy, m_ptr->fx, k, GF_INERTIA, PROJECT_KILL);
+				project(0, FALSE, 0, m_ptr->fy, m_ptr->fx, k, GF_INERTIA, PROJECT_KILL);
 				*mdeath = (m_ptr->r_idx == 0);
 				break;
 			default:

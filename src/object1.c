@@ -1793,7 +1793,17 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	else if (known && (o_ptr->tval == TV_ROD))
 	{
 		/* Hack -- Dump " (charging)" if relevant */
+#if 0
 		if (o_ptr->pval) t = object_desc_str(t, " (charging)");
+#endif
+		if (o_ptr->pval)
+		{
+			t = object_desc_chr(t, ' ');
+			t = object_desc_chr(t, p1);
+			t = object_desc_num(t, o_ptr->pval);
+			t = object_desc_str(t, " turns");
+			t = object_desc_chr(t, p2);
+		}
 	}
 
 	/* Hack -- Process Lanterns/Torches */
@@ -1867,8 +1877,15 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	/* Indicate "charging" artifacts XXX XXX XXX */
 	if (known && o_ptr->timeout)
 	{
+#if 0
 		/* Hack -- Dump " (charging)" if relevant */
 		t = object_desc_str(t, " (charging)");
+#endif
+		t = object_desc_chr(t, ' ');
+		t = object_desc_chr(t, p1);
+		t = object_desc_num(t, o_ptr->timeout);
+		t = object_desc_str(t, " turns");
+		t = object_desc_chr(t, p2);
 	}
 
 	/* No more details wanted */

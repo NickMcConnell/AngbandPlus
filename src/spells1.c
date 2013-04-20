@@ -1019,7 +1019,6 @@ bool apply_disenchant(int mode)
 	/* Unused */
 	mode = mode;
 
-
 	/* Pick a random slot */
 	switch (randint(8))
 	{
@@ -1039,7 +1038,6 @@ bool apply_disenchant(int mode)
 	/* No item, nothing happens */
 	if (!o_ptr->k_idx) return (FALSE);
 
-
 	/* Nothing to disenchant */
 	if ((o_ptr->to_h <= 0) && (o_ptr->to_d <= 0) && (o_ptr->to_a <= 0))
 	{
@@ -1047,12 +1045,10 @@ bool apply_disenchant(int mode)
 		return (FALSE);
 	}
 
-
 	/* Describe the object */
 	object_desc(o_name, o_ptr, FALSE, 0);
 
-
-	/* Artifacts have 75% chance to resist, ego-items 50% */
+	/* Artifacts have 75% chance to resist, ego-items 25% */
 	if (((artifact_p(o_ptr) || o_ptr->art_name) && (randint(100) <= 75))
 	    || (ego_item_p(o_ptr) && (randint(100) <= 25)))
 	{
@@ -1062,7 +1058,6 @@ bool apply_disenchant(int mode)
 
 		return (TRUE);
 	}
-
 
 	/* Disenchant tohit */
 	if (o_ptr->to_h > 0) o_ptr->to_h--;
@@ -2107,7 +2102,7 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
  *
  * We attempt to return "TRUE" if the player saw anything "useful" happen.
  */
-static bool project_m(int who, int r, int y, int x, int dam, int typ)
+static bool project_m(int who, bool pet_attack, int r, int y, int x, int dam, int typ)
 {
 	int		tmp;
 	cave_type	*c_ptr = &cave[y][x];
@@ -2126,7 +2121,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 	char		m_name[80]; /* Hold the monster name */
 	cptr		note = NULL; /* Assume no note */
 	cptr		note_dies = " dies."; /* Assume a default death */
-
+	s32b		div, new_exp, new_exp_frac;
 
 	/* Walls protect monsters */
 	/* (No, they don't)  */
@@ -2526,6 +2521,22 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 				note = " resists.";
 				dam /= 3;
 				if (seen) r_ptr->r_flags3 |= (RF3_RES_NEXU);
+			}
+			else
+			{
+				/* Powerful monsters can resist */
+				if ((rand_int(r_ptr->level + 10) > dam) ||
+				    (r_ptr->flags3 & (RF3_RES_TELE)))
+				{
+					obvious = FALSE;
+					if ((seen) && (r_ptr->flags3 & (RF3_RES_TELE)))
+						r_ptr->r_flags3 |= (RF3_RES_TELE);
+				}
+				/* Normal monsters go bye-bye */
+				else
+				{
+					do_dist = rand_int(11) + 10;
+				}
 			}
 			break;
 		}
@@ -4020,6 +4031,36 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			if ((m_ptr->smart & (SM_FRIEND)) && !(m_ptr->ml))
 				sad = TRUE;
 
+			if (pet_attack)
+			{
+				/* Maximum player level */
+				div = p_ptr->max_plv;
+
+				/* Give some experience for the kill */
+				new_exp = ((long)r_ptr->mexp * r_ptr->level) / div;
+
+				/* Handle fractional experience */
+				new_exp_frac = ((((long)r_ptr->mexp * r_ptr->level) % div)
+			        	        * 0x10000L / div) + p_ptr->exp_frac;
+
+				/* Keep track of experience */
+				if (new_exp_frac >= 0x10000L)
+				{
+					new_exp++;
+					p_ptr->exp_frac = new_exp_frac - 0x10000L;
+				}
+				else
+				{
+					p_ptr->exp_frac = new_exp_frac;
+				}
+
+				/* 
+				 * Gain half of the experience you'd get
+				 * for killing the monster yourself -- Gumby
+				 */
+				gain_exp(new_exp / 2);
+			}
+
 			/* Generate treasure, etc */
 			monster_death(c_ptr->m_idx);
 
@@ -4130,7 +4171,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
  * We return "TRUE" if any "obvious" effects were observed.  XXX XXX Actually,
  * we just assume that the effects were obvious, for historical reasons.
  */
-static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
+static bool project_p(int who, bool pet_attack, int r, int y, int x, int dam, int typ, int a_rad)
 {
 	int k = 0;
 
@@ -4191,7 +4232,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
 			t_x = m_list[who].fx;
 		}
 
-		project(0, 0, t_y, t_x, dam, typ, (PROJECT_STOP|PROJECT_KILL));
+		project(0, pet_attack, 0, t_y, t_x, dam, typ, (PROJECT_STOP|PROJECT_KILL));
 
 		disturb(1, 0);
 		return TRUE;
@@ -4994,7 +5035,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ, int a_rad)
  * in the blast radius, in case the "illumination" of the grid was changed,
  * and "update_view()" and "update_monsters()" need to be called.
  */
-bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
+bool project(int who, bool pet_attack, int rad, int y, int x, int dam, int typ, int flg)
 {
 	int i, t, dist;
 
@@ -5401,7 +5442,7 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 			if (grids > 1)
 			{
 				/* Affect the monster in the grid */
-				if (project_m(who, dist, y, x, dam, typ)) notice = TRUE;
+				if (project_m(who, pet_attack, dist, y, x, dam, typ)) notice = TRUE;
 			}
 			else
 			{
@@ -5440,11 +5481,11 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 						ref_ptr->r_flags2 |= RF2_REFLECTING;
 					}
 
-					project(cave[y][x].m_idx, 0, t_y, t_x,  dam, typ, flg);
+					project(cave[y][x].m_idx, pet_attack, 0, t_y, t_x,  dam, typ, flg);
 				}
 				else
 				{
-					if (project_m(who, dist, y, x, dam, typ)) notice = TRUE;
+					if (project_m(who, pet_attack, dist, y, x, dam, typ)) notice = TRUE;
 				}
 			}
 		}
@@ -5488,7 +5529,7 @@ bool project(int who, int rad, int y, int x, int dam, int typ, int flg)
 			x = gx[i];
 
 			/* Affect the player */
-			if (project_p(who, dist, y, x, dam, typ, rad)) notice = TRUE;
+			if (project_p(who, pet_attack, dist, y, x, dam, typ, rad)) notice = TRUE;
 		}
 	}
 
@@ -5654,7 +5695,7 @@ bool potion_smash_effect(int who, int y, int x, int o_sval)
 			/* Do nothing */  ;
 	}
 
-	(void) project(who, radius, y, x, dam, dt,
+	(void) project(who, FALSE, radius, y, x, dam, dt,
 	    (PROJECT_JUMP | PROJECT_ITEM | PROJECT_KILL));
 
 	/* XXX  those potions that explode need to become "known" */

@@ -2774,6 +2774,8 @@ void do_cmd_pet(void)
 		else
 			strcpy(power_desc[num], "allow pickup items");
 		powers[num++] = 5;
+		strcpy(power_desc[num], "list pets");
+		powers[num++] = 7;
 	}
 
 	/* Nothing chosen yet */
@@ -3035,6 +3037,12 @@ void do_cmd_pet(void)
 		{
 			p_ptr->pet_follow_distance = 6;
 			msg_print("You tell your pets to follow you...");
+			break;
+		}
+		/* List Pets */
+		case 7:
+		{
+			do_cmd_knowledge_pets();
 			break;
 		}
 	}

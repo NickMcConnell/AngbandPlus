@@ -1665,7 +1665,7 @@ static void player_outfit(void)
 	if (p_ptr->astral)
 	{
 		object_prep(q_ptr, lookup_kind(TV_SCROLL, SV_SCROLL_IDENTIFY));
-		q_ptr->number = 60 + rand_int(26);
+		q_ptr->number = 75;
 		object_aware(q_ptr);
 		object_known(q_ptr);
 		(void)inven_carry(q_ptr, FALSE);
@@ -2455,11 +2455,13 @@ static bool player_birth_aux()
 	{
 		p_ptr->astral = TRUE;
 		p_ptr->was_astral = FALSE;
+		p_ptr->astral_start = TRUE;
 	}
 	else
 	{
 		p_ptr->astral = FALSE;
 		p_ptr->was_astral = FALSE;
+		p_ptr->astral_start = FALSE;
 	}
 
 	/* Clear */

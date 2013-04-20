@@ -1142,8 +1142,8 @@ static void wr_extra(void)
 	/* Ghostly status -- Gumby */
 	wr_byte(p_ptr->astral);
 	wr_byte(p_ptr->was_astral);
+	wr_byte(p_ptr->astral_start);
 
-	wr_byte(0);     /* oops */
 	wr_byte(p_ptr->searching);
 	wr_byte(p_ptr->maximize);
 	wr_byte(p_ptr->preserve);

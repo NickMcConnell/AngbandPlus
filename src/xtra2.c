@@ -2061,7 +2061,6 @@ void monster_death(int m_idx)
 	s16b this_o_idx, next_o_idx = 0;
 
 	monster_type *m_ptr = &m_list[m_idx];
-
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 	bool visible = (m_ptr->ml || (r_ptr->flags1 & (RF1_UNIQUE)));
@@ -2073,6 +2072,8 @@ void monster_death(int m_idx)
 	bool do_item = (!(r_ptr->flags1 & (RF1_ONLY_GOLD)));
 
 	bool cloned = FALSE;
+
+	bool pet_attack = (m_ptr->smart & (SM_FRIEND)) ? TRUE : FALSE;
 
 	int force_coin = get_coin_type(r_ptr);
 
@@ -2184,6 +2185,8 @@ void monster_death(int m_idx)
 		else if (strstr((r_name + r_ptr->name),"Gas spore"))
 		{
 			boom = GF_POIS;
+			damboom = 10;
+			radius = 3;
 		}
 
 		/* Just so you don't miss it... */
@@ -2191,7 +2194,7 @@ void monster_death(int m_idx)
 		msg_print("BOOM!");
 
 		/* Perform the explosion... */
-		(void)project(m_idx, radius, y, x, damboom, boom, flg);
+		(void)project(m_idx, pet_attack, radius, y, x, damboom, boom, flg);
 
 		/* Note it in monster memory */
 		if (m_ptr->ml)
@@ -2578,7 +2581,6 @@ void monster_death(int m_idx)
 bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 {
 	monster_type	*m_ptr = &m_list[m_idx];
-
 	monster_race	*r_ptr = &r_info[m_ptr->r_idx];
 
 	s32b		div, new_exp, new_exp_frac;

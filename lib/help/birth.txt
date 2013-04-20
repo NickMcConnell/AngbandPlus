@@ -893,7 +893,7 @@ Beastman      Yes     Yes     Yes     Yes
                Human can gain infra-vision only if it is magically enhanced.
  
                                                                    
-=== Stat Bonus Tables (updated for Gumband 2.1.4) ===
+=== Stat Bonus Tables (updated for Gumband 2.1.5) ===
 
 Stat, hit dice, and experience points per level modifications due to race
 are listed in the following table.
@@ -903,8 +903,8 @@ are listed in the following table.
            Half-Elf     0   +1   +1   +2   -1   +1       9         +10%
            Elf         -1   +2   +1   +3   -2   +2       8         +20%
            Hobbit      -2   +1   +1   +2   +2   +2       7         +10%
-           Gnome       -1   +2    0   +2   +1   -2       8         +35%
-           Dwarf       +2   -2   +2   -2   +2   -3      11         +35%
+           Gnome       -1   +2    0   +2   +1   -2       8         +30%
+           Dwarf       +2   -2   +2   -2   +2   -3      11         +30%
            Half-Orc    +2   -1    0    0   +1   -4      10         +10%
            Half-Troll  +4   -4   -2   -4   +3   -6      12         +35%
            Gambolt     -1    0    0   +5   -1   +5       8         +30%

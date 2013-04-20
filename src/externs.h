@@ -507,6 +507,7 @@ extern void do_cmd_version(void);
 extern void do_cmd_feeling(void);
 extern void do_cmd_load_screen(void);
 extern void do_cmd_save_screen(void);
+extern void do_cmd_knowledge_pets(void);
 extern void do_cmd_knowledge(void);
 extern void plural_aux(char * Name);
 
@@ -700,7 +701,7 @@ extern bool inc_stat(int stat);
 extern bool dec_stat(int stat, int amount, int permanent);
 extern bool res_stat(int stat);
 extern bool apply_disenchant(int mode);
-extern bool project(int who, int rad, int y, int x, int dam, int typ, int flg);
+extern bool project(int who, bool pet_attack, int rad, int y, int x, int dam, int typ, int flg);
 extern bool potion_smash_effect(int who, int y, int x, int o_sval);
 
 /* spells2.c */

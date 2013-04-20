@@ -3058,7 +3058,7 @@ void plural_aux(char * Name)
  * Display current pets
  *
  */
-static void do_cmd_knowledge_pets(void)
+void do_cmd_knowledge_pets(void)
 {
 	int i;
 

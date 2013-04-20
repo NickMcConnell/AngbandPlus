@@ -103,9 +103,10 @@
 #  include <string.h>
 # else
 #  include <strings.h>
-extern char *strstr();
-extern char *strchr();
-extern char *strrchr();
+/* extern char *strstr();
+ * extern char *strchr();
+ * extern char *strrchr();
+ */
 # endif
 
 #else
