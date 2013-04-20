@@ -2494,16 +2494,14 @@ void do_cmd_note(void)
  */
 void do_cmd_version(void)
 {
-
-   /* Silly message */
+	/* Silly message */
 #ifndef FAKE_VERSION
-    msg_format("You are playing Angband %d.%d.%d.",
-	           VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
+	msg_format("You are playing Angband %d.%d.%d.", VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
+	msg_format("(Compiled %s %s)", __TIME__, __DATE__);
 #else
-    msg_format("You are playing Gumband %d.%d.%d.",
-                FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH);
+	msg_format("You are playing Gumband %d.%d.%d.", FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH);
+	msg_format("(Compiled %s %s)", __TIME__, __DATE__);
 #endif
-               
 }
 
 
@@ -2511,14 +2509,17 @@ void do_cmd_version(void)
 /*
  * Array of feeling strings
  */
-static cptr do_cmd_feeling_text[11] =
+static cptr do_cmd_feeling_text[14] =
 {
 	"Looks like any other level.",
 	"You feel there is something special about this level.",
 	"You nearly faint as horrible visions of death fill your mind!",
+	"This level looks extremely dangerous.",
 	"This level looks very dangerous.",
+	"This level looks dangerous.",
 	"You have a very bad feeling...",
 	"You have a bad feeling...",
+	"You feel very nervous.",
 	"You feel nervous.",
 	"You feel your luck is turning...",
 	"You don't like the look of this place.",
@@ -2535,7 +2536,7 @@ void do_cmd_feeling(void)
 {
 	/* Verify the feeling */
 	if (feeling < 0) feeling = 0;
-	if (feeling > 10) feeling = 10;
+	if (feeling > 13) feeling = 13;
 
 	/* No useful feeling in town */
 	if (!dun_level)

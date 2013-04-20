@@ -226,7 +226,7 @@ static void mon_take_hit_mon(int m_idx, bool pet_attack, int dam, bool *fear, cp
 				msg_format("%^s is killed.", m_name);
 			}
 
-			if (pet_attack)
+			if (pet_attack && (m_ptr->smart & (SM_FRIEND)))
 			{
 				/* Maximum player level */
 				div = p_ptr->max_plv;
@@ -251,9 +251,17 @@ static void mon_take_hit_mon(int m_idx, bool pet_attack, int dam, bool *fear, cp
 
 				/* 
 				 * Gain half of the experience you'd get
-				 * for killing the monster yourself -- Gumby
+				 * for killing the monster yourself, unless
+				 * you are a Beastmaster. -- Gumby
 				 */
-				gain_exp(new_exp / 2);
+				if (p_ptr->pclass == CLASS_BEASTMASTER)
+				{
+					gain_exp(new_exp);
+				}
+				else
+				{
+					gain_exp(new_exp / 2);
+				}
 			}
 
 			/* Generate treasure */

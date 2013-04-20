@@ -59,7 +59,7 @@ void curse_artifact(object_type * o_ptr)
 	else if (randint(3)==1)
 		o_ptr->art_flags3 |= TR3_NO_TELE;
 
-	if (p_ptr->pclass != (CLASS_WARRIOR || CLASS_WEAPONMASTER || CLASS_ARCHER) &&
+	if (p_ptr->pclass != (CLASS_WARRIOR || CLASS_WEAPONMASTER || CLASS_ARCHER || CLASS_BEASTMASTER) &&
 			     (randint(3)==1))
 		o_ptr->art_flags3 |= TR3_NO_MAGIC;
 
@@ -1220,7 +1220,7 @@ bool create_artifact(object_type *o_ptr, bool a_scroll)
 				artifact_bias = BIAS_ROGUE;
 				warrior_artifact_bias = 25;
 				break;
-			case CLASS_RANGER:
+			case CLASS_RANGER: case CLASS_BEASTMASTER:
 				artifact_bias = BIAS_RANGER;
 				warrior_artifact_bias = 30;
 				break;
@@ -3272,35 +3272,35 @@ void do_cmd_activate(void)
 			case SV_DRAGON_BLUE:
 			{
 				msg_print("You breathe lightning.");
-				fire_ball(GF_ELEC, dir, 200, 2);
+				fire_ball(GF_ELEC, dir, 400, 2);
 				o_ptr->timeout = randint(75) + 75;
 				break;
 			}
 			case SV_DRAGON_WHITE:
 			{
 				msg_print("You breathe frost.");
-				fire_ball(GF_COLD, dir, 250, 2);
+				fire_ball(GF_COLD, dir, 400, 2);
 				o_ptr->timeout = randint(75) + 75;
 				break;
 			}
 			case SV_DRAGON_BLACK:
 			{
 				msg_print("You breathe acid.");
-				fire_ball(GF_ACID, dir, 200, 2);
+				fire_ball(GF_ACID, dir, 400, 2);
 				o_ptr->timeout = randint(75) + 75;
 				break;
 			}
 			case SV_DRAGON_GREEN:
 			{
 				msg_print("You breathe poison gas.");
-				fire_ball(GF_POIS, dir, 275, 2);
+				fire_ball(GF_POIS, dir, 400, 2);
 				o_ptr->timeout = randint(75) + 75;
 				break;
 			}
 			case SV_DRAGON_RED:
 			{
 				msg_print("You breathe fire.");
-				fire_ball(GF_FIRE, dir, 250, 2);
+				fire_ball(GF_FIRE, dir, 400, 2);
 				o_ptr->timeout = randint(75) + 75;
 				break;
 			}
@@ -3316,21 +3316,21 @@ void do_cmd_activate(void)
 				           ((chance == 2) ? GF_COLD :
 				            ((chance == 3) ? GF_ACID :
 				             ((chance == 4) ? GF_POIS : GF_FIRE)))),
-				          dir, 300, 2);
+				          dir, 400, 2);
 				o_ptr->timeout = randint(75) + 75;
 				break;
 			}
 			case SV_DRAGON_BRONZE:
 			{
 				msg_print("You breathe confusion.");
-				fire_ball(GF_CONFUSION, dir, 300, 2);
+				fire_ball(GF_CONFUSION, dir, 600, 2);
 				o_ptr->timeout = randint(75) + 75;
 				break;
 			}
 			case SV_DRAGON_GOLD:
 			{
 				msg_print("You breathe sound.");
-				fire_ball(GF_SOUND, dir, 300, 2);
+				fire_ball(GF_SOUND, dir, 600, 2);
 				o_ptr->timeout = randint(75) + 75;
 				break;
 			}
@@ -3340,7 +3340,7 @@ void do_cmd_activate(void)
 				msg_format("You breathe %s.",
 				           ((chance == 1 ? "chaos" : "disenchantment")));
 				fire_ball((chance == 1 ? GF_CHAOS : GF_DISENCHANT),
-				          dir, 350, 2);
+				          dir, 600, 2);
 				o_ptr->timeout = randint(75) + 75;
 				break;
 			}
@@ -3350,7 +3350,7 @@ void do_cmd_activate(void)
 				msg_format("You breathe %s.",
 				           ((chance == 1 ? "sound" : "shards")));
 				fire_ball((chance == 1 ? GF_SOUND : GF_SHARDS),
-				          dir, 350, 2);
+				          dir, 600, 2);
 				o_ptr->timeout = randint(75) + 75;
 				break;
 			}
@@ -3364,7 +3364,7 @@ void do_cmd_activate(void)
 				fire_ball(((chance == 1) ? GF_CHAOS :
 				           ((chance == 2) ? GF_DISENCHANT :
 				            ((chance == 3) ? GF_SOUND : GF_SHARDS))),
-				          dir, 400, 2);
+				          dir, 600, 2);
 				o_ptr->timeout = randint(75) + 75;
 				break;
 			}
@@ -3373,14 +3373,14 @@ void do_cmd_activate(void)
 				chance = rand_int(2);
 				msg_format("You breathe %s.",
 				           ((chance == 0 ? "light" : "darkness")));
-				fire_ball((chance == 0 ? GF_LITE : GF_DARK), dir, 300, 2);
+				fire_ball((chance == 0 ? GF_LITE : GF_DARK), dir, 600, 2);
 				o_ptr->timeout = randint(75) + 75;
 				break;
 			}
 			case SV_DRAGON_POWER:
 			{
 				msg_print("You breathe the elements.");
-				fire_ball(GF_MISSILE, dir, 450, 3);
+				fire_ball(GF_MISSILE, dir, 800, 3);
 				o_ptr->timeout = rand_int(100) + 100;
 				break;
 			}
@@ -4143,55 +4143,55 @@ cptr item_activation(object_type *o_ptr)
 	{
 		case SV_DRAGON_BLUE:
 		{
-			return "breathe lightning (200) every 75+d75 turns";
+			return "breathe lightning (400) every 75+d75 turns";
 		}
 		case SV_DRAGON_WHITE:
 		{
-			return "breathe frost (250) every 75+d75 turns";
+			return "breathe frost (400) every 75+d75 turns";
 		}
 		case SV_DRAGON_BLACK:
 		{
-			return "breathe acid (200) every 75+d75 turns";
+			return "breathe acid (400) every 75+d75 turns";
 		}
 		case SV_DRAGON_GREEN:
 		{
-			return "breathe poison gas (275) every 75+d75 turns";
+			return "breathe poison gas (400) every 75+d75 turns";
 		}
 		case SV_DRAGON_RED:
 		{
-			return "breathe fire (250) every 75+d75 turns";
+			return "breathe fire (400) every 75+d75 turns";
 		}
 		case SV_DRAGON_MULTIHUED:
 		{
-			return "breathe multi-hued (300) every 75+d75 turns";
+			return "breathe multi-hued (400) every 75+d75 turns";
 		}
 		case SV_DRAGON_BRONZE:
 		{
-			return "breathe confusion (300) every 75+d75 turns";
+			return "breathe confusion (600) every 75+d75 turns";
 		}
 		case SV_DRAGON_GOLD:
 		{
-			return "breathe sound (300) every 75+d75 turns";
+			return "breathe sound (600) every 75+d75 turns";
 		}
 		case SV_DRAGON_CHAOS:
 		{
-			return "breathe chaos/disenchant (350) every 75+d75 turns";
+			return "breathe chaos/disenchant (600) every 75+d75 turns";
 		}
 		case SV_DRAGON_LAW:
 		{
-			return "breathe sound/shards (350) every 75+d75 turns";
+			return "breathe sound/shards (600) every 75+d75 turns";
 		}
 		case SV_DRAGON_BALANCE:
 		{
-			return "You breathe balance (400) every 75+d75 turns";
+			return "You breathe balance (600) every 75+d75 turns";
 		}
 		case SV_DRAGON_SHINING:
 		{
-			return "breathe light/darkness (300) every 75+d75 turns";
+			return "breathe light/darkness (600) every 75+d75 turns";
 		}
 		case SV_DRAGON_POWER:
 		{
-			return "breathe the elements (450) every 100+d100 turns";
+			return "breathe the elements (800) every 100+d100 turns";
 		}
 	}
 

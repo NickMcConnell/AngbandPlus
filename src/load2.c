@@ -1369,7 +1369,9 @@ static void rd_extra(void)
 	if (p_ptr->max_dlv < 0) p_ptr->max_dlv = 1;
 
 	/* More info */
-	strip_bytes(8);
+	if (z_older_than(2,2,0)) strip_bytes(2);
+	else rd_byte(&p_ptr->number_pets);
+	strip_bytes(6);
 	rd_s16b(&p_ptr->sc);
 	strip_bytes(2);
 

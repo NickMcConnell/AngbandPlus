@@ -66,12 +66,13 @@ which will be mentioned as they come up.  Please note that there are no
 restrictions on which classes you can choose with which races.
 
 Each character has a few secondary attributes, height, weight, social class,
-and background history, which are randomly determined, but which are affected
-by the sex and race of the character.  In general, these attributes are only
-used to provide "flavor" to the character, to assist in the roll playing, but
-they do have a few minor effects on the game.  For example, background history
-affects social class, which affects the amount of money the character will
-start with.  And weight affects carrying capacity and bashing ability.
+and background history, which are randomly determined, but which are
+affected by the sex and race of the character.  In general, these attributes
+are only used to provide "flavor" to the character, to assist in the roll
+playing, but they do have a few minor effects on the game.  For example,
+background history affects social class, which affects the amount of money
+the character will start with.  And weight affects carrying capacity and
+bashing ability.
 
 Each character also has six primary "stats", strength, intelligence, wisdom,
 dexterity, constitution, and charisma, which modify the abilities of the
@@ -656,6 +657,19 @@ races also have intrinsic abilities.
                that respect.  Their other skills tend to be comparable to
                that of Warriors.
 
+        Beastmaster
+               Beastmasters are master summoners, and not just of animals,
+               despite their name.  Summoning and binding other creatures
+               to do their fighting for them may be a Beastmaster's
+               specialty, but they aren't too bad at it if the time comes
+               that they must fight on their own behalf.  A Beastmaster's
+               prime attribute is his or her Charisma.  The higher their
+               Charisma is, the more creatures they may summon and control
+               through their innate abilities.  Creatures that a
+               Beastmaster might control through magical means do not count
+               against this limit.  Any race may become a Beastmaster,
+               though the lack of Charisma many races have will hurt.
+
 
 === Stats ===
 
@@ -781,7 +795,7 @@ races also have intrinsic abilities.
  
  
  
-=== Combinations of Race and Class (updated for Gumband 2.1.9) ===
+=== Combinations of Race and Class (updated for Gumband 2.2.0) ===
 
 These are the classes that are recommended for different races. You can
 still select a race that is not in the chart, but these combinations are
@@ -819,32 +833,32 @@ Vadhagh       Yes     Yes     No      No      Yes     No      Yes     No
                                                              -Mage  Warrior
 
                      Mind-   High  Weapon-
-             Monk   crafter  Mage  master  Archer
-Human         Yes     Yes     Yes     Yes     Yes
-Elf           No      Yes     Yes     Yes     Yes
-Hobbit        No      No      Yes     Yes     Yes
-Gnome         No      Yes     Yes     Yes     No
-Dwarf         No      No      No      Yes     No
-Half-Orc      Yes     No      No      Yes     Yes
-Half-Troll    No      No      No      Yes     No
-Gambolt       No      Yes     Yes     Yes     Yes
-High-Elf      No      Yes     Yes     Yes     Yes
-Barbarian     No      No      No      Yes     Yes
-Half-Giant    No      No      No      Yes     No
-Half-Titan    Yes     Yes     Yes     Yes     Yes
-Klackon       No      No      No      Yes     Yes
-Kobold        No      No      No      Yes     Yes
-Draconian     Yes     Yes     Yes     Yes     Yes
-Mind Flayer   Yes     Yes     Yes     No      No
-Golem         No      No      No      Yes     No
-Vampire       No      Yes     Yes     Yes     Yes
-Spectre       No      Yes     Yes     No      No
-Beastman      Yes     Yes     Yes     Yes     Yes
-Yeek          Yes     Yes     Yes     Yes     Yes
-Melnibonean   No      No      Yes     Yes     Yes
-Vadhagh       No      Yes     Yes     Yes     Yes
+             Monk   crafter  Mage  master  Archer  Beastmaster
+Human         Yes     Yes     Yes     Yes     Yes     Yes
+Elf           No      Yes     Yes     Yes     Yes     Yes
+Hobbit        No      No      Yes     Yes     Yes     Yes
+Gnome         No      Yes     Yes     Yes     No      Yes
+Dwarf         No      No      No      Yes     No      Yes
+Half-Orc      Yes     No      No      Yes     Yes     Yes
+Half-Troll    No      No      No      Yes     No      Yes
+Gambolt       No      Yes     Yes     Yes     Yes     Yes
+High-Elf      No      Yes     Yes     Yes     Yes     Yes
+Barbarian     No      No      No      Yes     Yes     Yes
+Half-Giant    No      No      No      Yes     No      Yes
+Half-Titan    Yes     Yes     Yes     Yes     Yes     Yes
+Klackon       No      No      No      Yes     Yes     Yes
+Kobold        No      No      No      Yes     Yes     Yes
+Draconian     Yes     Yes     Yes     Yes     Yes     Yes
+Mind Flayer   Yes     Yes     Yes     No      No      Yes
+Golem         No      No      No      Yes     No      Yes
+Vampire       No      Yes     Yes     Yes     Yes     Yes
+Spectre       No      Yes     Yes     No      No      Yes
+Beastman      Yes     Yes     Yes     Yes     Yes     Yes
+Yeek          Yes     Yes     Yes     Yes     Yes     Yes
+Melnibonean   No      No      Yes     Yes     Yes     Yes
+Vadhagh       No      Yes     Yes     Yes     Yes     Yes
                      Mind-   High  Weapon-
-             Monk   crafter  Mage  master  Archer
+             Monk   crafter  Mage  master  Archer  Beastmaster
 
 
 === Miscellaneous ===
@@ -861,7 +875,7 @@ Vadhagh       No      Yes     Yes     Yes     Yes
                Human can gain infra-vision only if it is magically enhanced.
  
                                                                    
-=== Stat Bonus Tables (updated for Gumband 2.1.9) ===
+=== Stat Bonus Tables (updated for Gumband 2.2.0) ===
 
 Stat, hit dice, and experience points per level modifications due to race
 are listed in the following table.
@@ -907,11 +921,12 @@ are listed in the following table.
            High Mage     -5   +4*   0    0   -2   +1    0        30.0
            Weaponmaster  +4   -2   -2   +1   +1   -1    9        N/A
            Archer         0   -2   -2   +3    0    0    9        N/A
+           Beastmaster   +1   -2    0   +2   +1   +3    9        N/A
 
 (a '*' next to a number indicates the spellcasting stat for that class)
  
 
-=== Ability Tables (updated for Gumband 2.1.9) ===
+=== Ability Tables (updated for Gumband 2.2.0) ===
 
                         Dsrm Dvce Save Stlh Srch Prcp HtH  Misl   Infra
            Human        +0   +0   +0   +0   +0   +10  +0   +0     None
@@ -938,23 +953,24 @@ are listed in the following table.
            Melnibonean  +8   +15  +10  +1   +5   +5   +10  +10    20 feet
            Vadhagh      +10  +20  +15  +3   +10  +20  +5   +10    40 feet
 
-                Disarm  Device  Save    Stealth Search  Melee   Missile XP
-Warrior         25+12   18+7    18+10   1       14/2    70+45   55+45  + 0%
-Mage            30+7    36+13   30+9    2       15/20   34+15   20+15  +30%
-Priest          25+7    30+10   32+12   2       16/8    48+20   35+20  +20%
-Rogue           45+15   32+10   28+10   5       32/24   60+40   66+30  +25%
-Ranger          30+8    32+10   28+10   3       24/16   56+30   72+45  +30%
-Paladin         20+7    24+10   26+11   1       12/2    68+35   40+30  +35%
-Warrior-Mage    30+7    30+10   28+9    2       18/16   50+20   25+20  +35%
-Chaos Warrior   20+7    25+11   25+10   1       14/12   65+34   40+29  +35%
-Monk            35+13   32+11   28+10   4       32/24   64+40   60+30  +40%
-Mindcrafter     30+10   30+10   30+10   3       22/16   50+20   40+30  +30%
-High Mage       30+7    36+13   30+9    2       15/20   34+15   20+15  +25%
-Weaponmaster    23+10   17+6    18+10   1       14/2    70+45   20+15  +30%
-Archer          25+12   22+10   20+10   1       14/10   45+20   80+55  +30%
+                Disarm  Device  Save  Stealth Search  Melee   Missile XP
+Warrior         25+12   18+7    18+10   1     14/2    70+45   55+45  + 0%
+Mage            30+7    36+13   30+9    2     15/20   34+15   20+15  +30%
+Priest          25+7    30+10   32+12   2     16/8    48+20   35+20  +20%
+Rogue           45+15   32+10   28+10   5     32/24   60+40   66+30  +25%
+Ranger          30+8    32+10   28+10   3     24/16   56+30   72+45  +30%
+Paladin         20+7    24+10   26+11   1     12/2    68+35   40+30  +35%
+Warrior-Mage    30+7    30+10   28+9    2     18/16   50+20   25+20  +35%
+Chaos Warrior   20+7    25+11   25+10   1     14/12   65+34   40+29  +35%
+Monk            35+13   32+11   28+10   4     32/24   64+40   60+30  +40%
+Mindcrafter     30+10   30+10   30+10   3     22/16   50+20   40+30  +30%
+High Mage       30+7    36+13   30+9    2     15/20   34+15   20+15  +25%
+Weaponmaster    23+10   20+8    18+10   1     14/2    70+45   20+15  +30%
+Archer          25+12   22+10   20+10   1     14/10   45+20   80+55  +30%
+Beastmaster     25+12   25+10   25+10   2     20/25   55+30   55+45  +25%
   
 
-=== Monks: Attack Types (Gumband 2.1.4)
+=== Monks: Attack Types (Gumband 2.2.0)
 
 Attack Name     Min.lvl Damage  Stun    Notes
 -----------------------------------------------------------------------------

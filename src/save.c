@@ -1085,13 +1085,12 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->max_dlv);
 
 	/* More info */
-	wr_s16b(0);     /* oops */
+	wr_byte(p_ptr->number_pets);
 	wr_s16b(0);     /* oops */
 	wr_s16b(0);     /* oops */
 	wr_s16b(0);     /* oops */
 	wr_s16b(p_ptr->sc);
 	wr_s16b(0);     /* oops */
-
 	wr_s16b(0);             /* old "rest" */
 	wr_s16b(p_ptr->blind);
 	wr_s16b(p_ptr->paralyzed);

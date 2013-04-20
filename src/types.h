@@ -885,55 +885,55 @@ struct player_type
 	byte wm_choice;		/* Hopefully Weapomaster's tval choice */
 
 	byte hitdie;		/* Hit dice (sides) */
-	u16b expfact;       /* Experience factor
-                               Note: was byte, causing overflow for Amberite
-                               characters (such as Amberite Paladins) */
+	u16b expfact;		/* Experience factor */
 
 	byte maximize;		/* Maximize stats */
 	byte preserve;		/* Preserve artifacts */
 
-	s16b age;			/* Characters age */
-	s16b ht;			/* Height */
-	s16b wt;			/* Weight */
-	s16b sc;			/* Social Class */
+	s16b age;		/* Characters age */
+	s16b ht;		/* Height */
+	s16b wt;		/* Weight */
+	s16b sc;		/* Social Class */
 
-	s32b au;			/* Current Gold */
+	s32b au;		/* Current Gold */
 
 	s32b max_exp;		/* Max experience */
-	s32b exp;			/* Cur experience */
+	s32b exp;		/* Cur experience */
 	u16b exp_frac;		/* Cur exp frac (times 2^16) */
 
-	s16b lev;			/* Level */
+	s16b lev;		/* Level */
 
-	s16b mhp;			/* Max hit pts */
-	s16b chp;			/* Cur hit pts */
+	s16b mhp;		/* Max hit pts */
+	s16b chp;		/* Cur hit pts */
 	u16b chp_frac;		/* Cur hit frac (times 2^16) */
 
-	s16b msp;			/* Max mana pts */
-	s16b csp;			/* Cur mana pts */
+	s16b msp;		/* Max mana pts */
+	s16b csp;		/* Cur mana pts */
 	u16b csp_frac;		/* Cur mana frac (times 2^16) */
 
 	s16b max_plv;		/* Max Player Level */
 	s16b max_dlv;		/* Max level explored */
 
+	byte number_pets;	/* How many pets */
+
 	s16b stat_max[6];	/* Current "maximal" stat values */
 	s16b stat_cur[6];	/* Current "natural" stat values */
 
-	s16b fast;			/* Timed -- Fast */
-	s16b slow;			/* Timed -- Slow */
-	s16b blind;			/* Timed -- Blindness */
+	s16b fast;		/* Timed -- Fast */
+	s16b slow;		/* Timed -- Slow */
+	s16b blind;		/* Timed -- Blindness */
 	s16b paralyzed;		/* Timed -- Paralysis */
 	s16b confused;		/* Timed -- Confusion */
 	s16b afraid;		/* Timed -- Fear */
-	s16b image;			/* Timed -- Hallucination */
+	s16b image;		/* Timed -- Hallucination */
 	s16b poisoned;		/* Timed -- Poisoned */
-	s16b cut;			/* Timed -- Cut */
-	s16b stun;			/* Timed -- Stun */
+	s16b cut;		/* Timed -- Cut */
+	s16b stun;		/* Timed -- Stun */
 
 	s16b protevil;		/* Timed -- Protection */
 	s16b invuln;		/* Timed -- Invulnerable */
-	s16b hero;			/* Timed -- Heroism */
-	s16b shero;			/* Timed -- Super Heroism */
+	s16b hero;		/* Timed -- Heroism */
+	s16b shero;		/* Timed -- Super Heroism */
 	s16b shield;		/* Timed -- Shield Spell */
 	s16b blessed;		/* Timed -- Blessed */
 	s16b tim_invis;		/* Timed -- See Invisible */
@@ -945,36 +945,29 @@ struct player_type
 	s16b oppose_cold;	/* Timed -- oppose cold */
 	s16b oppose_pois;	/* Timed -- oppose poison */
 
+	s16b tim_esp;		/* Timed ESP */
+	s16b wraith_form;	/* Timed wraithform */
+	s16b resist_magic;	/* Timed Resist Magic (later) */
+	s16b tim_xtra1;		/* Later */
+	s16b tim_xtra2;		/* Later */
+	s16b tim_xtra3;		/* Later */
+	s16b tim_xtra4;		/* Later */
+	s16b tim_xtra5;		/* Later */
+	s16b tim_xtra6;		/* Later */
+	s16b tim_xtra7;		/* Later */
+	s16b tim_xtra8;		/* Later */
 
-    s16b tim_esp;       /* Timed ESP */
-    s16b wraith_form;   /* Timed wraithform */
-
-    s16b resist_magic;  /* Timed Resist Magic (later) */
-    s16b tim_xtra1;     /* Later */
-    s16b tim_xtra2;     /* Later */
-    s16b tim_xtra3;     /* Later */
-    s16b tim_xtra4;     /* Later */
-    s16b tim_xtra5;     /* Later */
-    s16b tim_xtra6;     /* Later */
-    s16b tim_xtra7;     /* Later */
-    s16b tim_xtra8;     /* Later */
-
-    s16b chaos_patron;
-    u32b muta1;
-    u32b muta2;
-    u32b muta3;
+	s16b chaos_patron;
+	u32b muta1;
+	u32b muta2;
+	u32b muta3;
 
 	s16b word_recall;	/* Word of recall counter */
-
 	s16b energy;		/* Current energy */
-
 	s16b food;			/* Current nutrition */
-
 	byte confusing;		/* Glowing hands */
 	byte searching;		/* Currently searching */
-
 	s16b new_spells;	/* Number of spells available */
-
 	s16b old_spells;
 
 	bool old_cumber_armor;
@@ -985,7 +978,6 @@ struct player_type
 
 	s16b old_lite;		/* Old radius of lite (if any) */
 	s16b old_view;		/* Old radius of view (if any) */
-
 	s16b old_food_aux;	/* Old value of food */
 
 	bool cumber_armor;	/* Mana draining armor */

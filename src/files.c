@@ -4356,8 +4356,7 @@ static errr top_twenty(void)
 
 #ifndef SCORE_CHEATERS
 	/* Cheaters are not scored */
-	if ((noscore & 0xFF00) &&
-	    !(strstr(player_name, "Gumby")))
+	if (noscore & 0xFF00)
 	{
 		msg_print("Score not registered for cheaters.");
 		msg_print(NULL);
@@ -4383,7 +4382,6 @@ static errr top_twenty(void)
 		display_scores_aux(0, 10, -1, NULL);
 		return (0);
 	}
-
 
 	/* Clear the record */
 	WIPE(&the_score, high_score);

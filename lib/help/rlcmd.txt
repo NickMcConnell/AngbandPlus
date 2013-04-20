@@ -1,4 +1,4 @@
-===  Roguelike Keyset Command Summary (Gumband 2.1.9) ===
+===  Roguelike Keyset Command Summary (Gumband 2.2.0) ===
 
  Roguelike Keyset Directions
           y  k  u

@@ -1491,17 +1491,7 @@ void do_cmd_read_scroll(void)
 		{
 			command_arg = p_ptr->max_dlv;
 
-			/*
-			 * Astral characters can't set recall - they *have*
-			 * to walk down. :) -- Gumby
-			 */
-			if (p_ptr->astral || p_ptr->was_astral)
-			{
-				msg_print("As you unfurl the scroll, the writing quickly fades away...");
-				break;
-			}
-			/* Ask for level */
-			else if (get_check("Change recall level? "))
+			if (get_check("Change recall level? "))
 			{
 				char	ppp[80];
 				char	tmp_val[160];

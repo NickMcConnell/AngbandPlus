@@ -4147,7 +4147,7 @@ static bool project_m(int who, bool pet_attack, int r, int y, int x, int dam, in
 			if ((m_ptr->smart & (SM_FRIEND)) && !(m_ptr->ml))
 				sad = TRUE;
 
-			if (pet_attack)
+			if (pet_attack && !(m_ptr->smart & (SM_FRIEND)))
 			{
 				/* Maximum player level */
 				div = p_ptr->max_plv;
@@ -4172,9 +4172,17 @@ static bool project_m(int who, bool pet_attack, int r, int y, int x, int dam, in
 
 				/* 
 				 * Gain half of the experience you'd get
-				 * for killing the monster yourself -- Gumby
+				 * for killing the monster yourself, unless
+				 * you are a Beastmaster. -- Gumby
 				 */
-				gain_exp(new_exp / 2);
+				if (p_ptr->pclass == CLASS_BEASTMASTER)
+				{
+					gain_exp(new_exp);
+				}
+				else
+				{
+					gain_exp(new_exp / 2);
+				}
 			}
 
 			/* Generate treasure, etc */
@@ -4744,7 +4752,7 @@ static bool project_p(int who, bool pet_attack, int r, int y, int x, int dam, in
 			}
 			if (p_ptr->resist_shard)
 			{
-				dam /= 2;
+				dam -= (dam/4);
 			}
 			else
 			{
@@ -4887,7 +4895,7 @@ static bool project_p(int who, bool pet_attack, int r, int y, int x, int dam, in
 			}
 			if (p_ptr->ffall)
 			{
-				dam = (dam * 2) / 3;
+				dam -= (dam/4);
 			}
 
 			if ((!p_ptr->ffall) || (randint(13)==1))

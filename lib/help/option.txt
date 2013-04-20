@@ -1,6 +1,4 @@
---- This file might be out of date for Gumband. You have been warned. :)
-
-=== Options and Effects (Gumband 2.1.9) ===
+=== Options and Effects (Gumband 2.2.0) ===
 
 Most of the "options" are accessible through the '=' command, which provides
 an interface to the various "sets" of options available to the player.
@@ -573,4 +571,4 @@ Allow player to avoid death    [cheat_live]
     Cheaters never win.  But they can cheat death.
 
 +++ Ben +++ (Updated by Topi Ylinen for Zangband 2.1.*)
-            (Updated slightly by Gumby for Gumband)
+            (Updated as needed by Gumby for Gumband)

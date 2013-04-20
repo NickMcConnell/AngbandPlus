@@ -17,9 +17,9 @@ from your plane...
 ****************************************************************************
 
 =============================================
-= Gumband 2.1.9b = Last Update: 08-Jan-2002 =
+= Gumband 2.2.0a = Last Update: 30-Jan-2002 =
 ============================================================================
-Changes from Gumband 2.1.9a are marked with '##'. Only the most major
+Changes from Gumband 2.1.9b are marked with '##'. Only the most major
 changes are listed here, to keep things short...
 ============================================================================
 Send any and all complaints (or praise ;) to aa343@chebucto.ns.ca. Patches,
@@ -72,23 +72,22 @@ want to remove it.
  true upon startup. I have no idea why... [hasn't happened in quite a while
  as of 06-Dec-01]
 
- Unfortunately, it seems that sometimes the game will freeze when you enter
- a level. I have no idea why, as usual. :( All I can suggest, until I figure
- this out, is that if this happens right after a save, that you move your
- character around a bit before taking the stairs or WoR'ing into the level
- that just froze you - that usually changes the RNG enough so that the
- freeze won't happen a second time. This seems to happen deeper in the
- dungeon when you've got a lot of monsters - maybe something to do with the
- random quests... Save often, and if this happens don't consider yourself a
- cheater for restoring from a backup.
- [A test today [01-May-01] found a freeze after a 'Refusing a lesser vault'
-  message during level generation. I'll continue investigating.]
- [Should've said this ages ago, but the above behavior is for the main-ibm
-  version. The main-win version gets a general protection fault when this
-  bug kicks in. Still have no idea what to do to fix it as of 15-Aug-01.]
- [10-Nov-01: Just set SAFE_MAX_ATTEMPTS (for object allocation when a level
-  is generated) to 1000, down from 5000 - similar bug in EyAngband and
-  vanilla, apparently, so maybe this'll fix it]
+FIXED (maybe :): Unfortunately, it seems that sometimes the game will
+ freeze when you enter a level. I have no idea why, as usual. :( All I can
+ suggest, until I figure this out, is that if this happens right after a
+ save, that you move your character around a bit before taking the stairs
+ or WoR'ing into the level that just froze you - that usually changes the
+ RNG enough so that the freeze won't happen a second time. This seems to
+ happen deeper in the dungeon when you've got a lot of monsters - maybe
+ something to do with the random quests... Save often, and if this happens
+ don't consider yourself a cheater for restoring from a backup.
+##  [30-Jan-02: Qlzqqlzup of #angband suggests moving the 'attempts_left--'
+   in the while() loop at the start of alloc_monster() to the while() line.
+   I've done that, but there's really no way to tell if it's actually worked
+   unless another crash happens... :) After generating a few hundred small
+   levels, where the problem seems to be, it *seems* to be gone (in the DOS
+   version, at least), but I won't believe it 'til I get independent
+   confirmation...]
 
  I've been noticing that sometimes there won't be as many quest-monsters on
  a level as there are supposed to be, meaning that a quest can't be finished
@@ -119,13 +118,12 @@ want to remove it.
  starting at lines 2536 and 4000, spells1.c for details - I'm stumped as to
  how to fix it: any solutions gratefully accepted)
 
-## Finally got around to marking all the compiler warnings (that I get with
+ Finally got around to marking all the compiler warnings (that I get with
  gcc v3.02) in the source. Just search for '/* warning:'. Anyone who can fix
  them, mail me.
 
-## FIXED: Items that have their full information shown in character dumps
- generated at death will no longer show "It has hidden powers." if the item
- wasn't *Identified* in life.
+## Fixed Trump's 'Nexus Bolt' - silly me didn't notice that fire_beam()
+ only looked for total damage...
 
 
                     ####### Misc Changes #######
@@ -155,11 +153,9 @@ want to remove it.
  until he or she reaches the town, at which point the character loses the
  abilities granted by this ghostly status (See Invisible, Telepathy, Slow
  Digestion, permanent Lite, Speed +10, wizard-lighting levels upon entry,
- and being able to pass through walls without damage).
-## Ghostly/astral characters can no longer use Scrolls of Set Recall, even
- when they reach the town - they are going to have to walk all the way down.
- [Thanks to Ivan Tkatchev for the idea of ghostly characters, and to
-  DarkGod, Antimatter, Timo Pietil and Parak for their help and advice]
+ and being able to pass through walls without damage). [Thanks to Ivan
+ Tkatchev for the idea of ghostly characters, and to DarkGod, Antimatter,
+ Timo Pietil and Parak for their help and advice]
 
  Turned the Spoiler Generation debug command into a standard command,
  accessed via the '$' key in both command sets. Note that the *.spo files
@@ -207,9 +203,32 @@ want to remove it.
  Chaos. If you don't have it, then Resist Confusion still stops the
  confusion portion and Resist Nether still stops the experience point loss.
 
-## Restored the auto_haggle 10% 'sales tax' - it's a bit unfair, but I
- finally noticed that it also keeps you from buying and selling at 100% of
- the price.
+## Damage from Rocket attacks is now reduced to 75% of the total (instead of
+ 50%) if you resist Shards. Damage from Gravity attacks is reduced to 75%
+ (instead of to 2/3rd) of the total if you have Levitation.
+
+## Added random player names from CthAngband. [someday I'll hack up new
+ tables for Vadhagh and Melnibonean characters, but until then they'll just
+ use the Elf tables]
+
+## Added point-based character generation. [taken from CthAngband]
+
+## The level feelings are now as follows:
+
+ "Looks like any other level.",
+ "You feel there is something special about this level.",
+ "You nearly faint as horrible visions of death fill your mind!",
+ "This level looks extremely dangerous.",
+ "This level looks very dangerous.",
+ "This level looks dangerous.",
+ "You have a very bad feeling...",
+ "You have a bad feeling...",
+ "You feel very nervous.",
+ "You feel nervous.",
+ "You feel your luck is turning...",
+ "You don't like the look of this place.",
+ "This level looks reasonably safe.",
+ "What a boring place..."
 
 
               ####### Altered Races and Classes #######
@@ -233,6 +252,20 @@ Archers:
  Gains Resist Fear at level 35.
  Pseudo-ID is as good as a Warrior's.
  Requires +30% XP per level.
+
+### NEW CLASS ###
+Beastmasters:
+ May summon pets appropriate to the current dungeon level ['m' to use].
+ The number of summoned pets possible on a dungeon level is based on
+   Charisma - pets summoned or created by means other than the innate
+   ability don't count towards this maximum.
+ Fairly average stats, except for +3 Charisma, and skills. 9 hit dice.
+ Requires +25% XP per level.
+ Unlike other classes, Beastmasters gain *full* XP for their pets' kills.
+ Pseudo-ID is the same as a Rogue's.
+ Bonus melee attack at level 25, bonus shot at level 30.
+ Gains +1 to-hit and to-dam every 10 levels, like a Paladin.
+ Calculations for the number of melee attacks are the same as for a Warrior.
 
 Beastmen:
  Each time a Beastman gains a level, a there is a 1-in-4 chance of losing an
@@ -433,11 +466,6 @@ Yeeks:
  RBE_VAMP attacks now only heal the monster by 1/2 the XP+damage they deal
  to the player.
 
-## To fix a bug that causes crashes, you can no longer polymorph monsters
- that are in walls. [apparently the game didn't like it when a creature in a
- wall was polymorphed to something without PASS_WALL (or, I think,
- KILL_WALL)]
-
 
                ####### Object-Related Changes #######
 
@@ -503,10 +531,10 @@ Yeeks:
 
  Missiles of Slaying can now gain more than just one extra damage die.
 
-## Wands of Apportation can now only fetch() objects that are 20lbs or less,
- and you cannot fetch() objects unless you are on an empty floor square
- [this also applies to the various apportation spells as well]. [was 25lbs]
-## fetch() effects can no longer grab items that're in vaults.
+ Wands of Apportation can only fetch() objects that are 20lbs or less, and
+ you cannot fetch() objects unless you are on an empty floor square [this
+ also applies to the various apportation spells as well]. Also, fetch()
+ effects can no longer grab items that're in vaults.
 
  Identify and *Identify* now have filtered lists, showing only those items
  that need to be identified. Thanks to RMG for the suggestion and pointers.
@@ -532,8 +560,16 @@ Yeeks:
  Shields of Deflection and Dragon Shields now use the normal shield symbol
  {')'} instead of the hard armour symbol {'['}. Their colours are unchanged.
 
-## {average} items [weapons & armours] will now stack in the inventory once
- they've been pseudo-ID'd... [thanks to Antimatter for the work this took]
+## The chance of an object being 'good' is now capped at 95%. The chance of
+ a good object becoming 'great' is now 25%. [was 75% and 20%, respectively]
+
+## Astral characters can again use Scrolls of Set Recall, due to popular
+ demand.
+
+## Dragon Scale Mails have undergone a damage upgrade, in some cases
+ doubling what they did in 2.1.9b. With the 75+d75 turn [and higher]
+ recharge times, this shouldn't be unbalancing.
+
 
                    ####### Spellcasting #######
 
@@ -618,9 +654,7 @@ Mindcraft:
  Added 'Apportation'. Level 20, cost 12 to use.
 
 Nature:
-## 'Blizzard', 'Lightning Storm', 'Whirlpool' and 'Nature's Wrath' have had
-   their damage potentials increased.
-## 'Entangle' has been replaced by 'Venomous Thorns', a stinging spray of
+ 'Entangle' has been replaced by 'Venomous Thorns', a stinging spray of
    Poison bolts (like the Shard Blast mutation).
 
 Sorcery:
@@ -708,5 +742,11 @@ covered up in the main text)
  windows a bit for X11 systems), and monlist.diff (lists monsters that are
  nearby in a separate window).
 
-## Added the stacking of pseudo-ID'd {average} objects from Antimatter's
- code, with a lot of help from him to actually get it to work. :)
+ Added the stacking of pseudo-ID'd {average} objects from Antimatter's code,
+ with a lot of help from him to actually get it to work. :)
+
+## Added a modified versions of Ivan Tkatchev's 'Ghost' class (astral mode)
+ and the Beastmaster class from Kamband.
+
+ Added random player names and point-based character generation from David
+ Thornely's CthAngband 4.1.0b.

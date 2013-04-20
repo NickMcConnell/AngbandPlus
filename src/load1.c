@@ -1720,7 +1720,7 @@ static void rd_extra_old(void)
 	strip_bytes(8);
 	rd_s16b(&p_ptr->msp);
 	rd_s16b(&p_ptr->mhp);
-	strip_bytes(20);
+	strip_bytes(10);
 	rd_s16b(&p_ptr->sc);
 	strip_bytes(2);
 	rd_byte(&p_ptr->pclass);

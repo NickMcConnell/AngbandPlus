@@ -1850,7 +1850,6 @@ bool place_monster(int y, int x, bool slp, bool grp)
 
 
 #ifdef MONSTER_HORDES
-
 bool alloc_horde(int y, int x)
 {
 	int r_idx;		/* warning: might be used uninitialized */
@@ -1883,7 +1882,6 @@ bool alloc_horde(int y, int x)
 
 	if (attempts < 1) return FALSE;
 
-
 	m_ptr = &m_list[hack_m_idx_ii];
 
 	summon_kin_type = r_ptr->d_char;
@@ -1895,25 +1893,22 @@ bool alloc_horde(int y, int x)
 
 	return TRUE;
 }
-
 #endif /* MONSTER_HORDES */
+
 
 /*
  * Attempt to allocate a random monster in the dungeon.
- *
  * Place the monster at least "dis" distance from the player.
- *
  * Use "slp" to choose the initial "sleep" status
- *
  * Use "monster_level" for the monster level
  */
 bool alloc_monster(int dis, int slp)
 {
-	int			y, x;
-	int         attempts_left = 10000;
+	int	y, x;	/* warning: might be used uninitialized */
+	int	attempts_left = 5000;
 
 	/* Find a legal, distant, unoccupied, space */
-	while (attempts_left)
+	while (attempts_left--)
 	{
 		/* Pick a location */
 		y = rand_int(cur_hgt);
@@ -1925,7 +1920,10 @@ bool alloc_monster(int dis, int slp)
 		/* Accept far away grids */
 		if (distance(y, x, py, px) > dis) break;
 
-		attempts_left--;
+/* Qlzqqlzup of #angband says that the -- should be up in the while() and
+ * this line removed:
+ *		attempts_left--;
+ */
 	}
 
 	if (!(attempts_left))

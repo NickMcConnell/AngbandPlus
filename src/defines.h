@@ -41,8 +41,8 @@
 /* Added for Zangband/Gumband */
 #define FAKE_VERSION
 #define FAKE_VER_MAJOR 2
-#define FAKE_VER_MINOR 1
-#define FAKE_VER_PATCH 9
+#define FAKE_VER_MINOR 2
+#define FAKE_VER_PATCH 0
 
 #define ANGBAND_2_8_1
 
@@ -98,7 +98,7 @@
 /*
  * Maximum number of player "class" types (see "table.c", etc)
  */
-#define MAX_CLASS            13
+#define MAX_CLASS            14
 
 /* The number of "patrons" available (for Chaos Warriors) */
 #define MAX_PATRON          16
@@ -606,6 +606,7 @@ and tables.c --TY */
 #define CLASS_HIGH_MAGE		10
 #define CLASS_WEAPONMASTER	11
 #define CLASS_ARCHER		12
+#define CLASS_BEASTMASTER	13
 
 /*** Screen Locations ***/
 

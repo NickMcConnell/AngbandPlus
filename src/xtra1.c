@@ -2784,7 +2784,8 @@ static void calc_bonuses(void)
 					p_ptr->num_fire += (p_ptr->lev / 20);
 				break;
 			case CLASS_PALADIN: case CLASS_WARRIOR_MAGE:
-			case CLASS_CHAOS_WARRIOR: /* 1 extra shot */
+			case CLASS_CHAOS_WARRIOR: case CLASS_BEASTMASTER:
+				/* 1 extra shot */
 				if ((p_ptr->tval_ammo <= TV_BOLT) &&
 				    (p_ptr->tval_ammo >= TV_SHOT) &&
 				    (p_ptr->lev > 29))
@@ -2836,7 +2837,7 @@ static void calc_bonuses(void)
 		switch (p_ptr->pclass)
 		{
 			case CLASS_WARRIOR: case CLASS_WARRIOR_MAGE:
-			case CLASS_WEAPONMASTER:
+			case CLASS_WEAPONMASTER: case CLASS_BEASTMASTER:
 				num = 6; wgt = 30; mul = 5; break;
 			case CLASS_MAGE: case CLASS_HIGH_MAGE:
 				num = 4; wgt = 40; mul = 2; break;
@@ -2890,11 +2891,11 @@ static void calc_bonuses(void)
 				p_ptr->num_blow += (p_ptr->lev / 20);
 				break;
 			case CLASS_RANGER: case CLASS_PALADIN:
-			case CLASS_CHAOS_WARRIOR: /* 1 extra blow */
+			case CLASS_CHAOS_WARRIOR: case CLASS_BEASTMASTER:
+				/* 1 extra blow */
 				if (p_ptr->lev > 24) p_ptr->num_blow += 1;
 				break;
-			/* Rogues get 1 extra blow with light weapons */
-			case CLASS_ROGUE:
+			case CLASS_ROGUE: /* 1 extra blow with light weapons */
 				if ((o_ptr->weight <= 50) && (p_ptr->lev > 24))
 					p_ptr->num_blow += 1;
 				break;
@@ -2982,7 +2983,8 @@ static void calc_bonuses(void)
 				p_ptr->icky_wield = TRUE;
 			}
 			break;
-		case CLASS_RANGER: case CLASS_PALADIN: case CLASS_CHAOS_WARRIOR:
+		case CLASS_RANGER: case CLASS_PALADIN:
+		case CLASS_CHAOS_WARRIOR: case CLASS_BEASTMASTER:
 			p_ptr->to_h += (p_ptr->lev/10);
 			p_ptr->to_d += (p_ptr->lev/10);
 			p_ptr->dis_to_h += (p_ptr->lev/10);

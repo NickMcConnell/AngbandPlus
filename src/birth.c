@@ -667,6 +667,422 @@ void get_realms()
 		p_ptr->realm2 = choose_realm(realm_choices[pclas]);
 }
 
+
+/*
+ * Name segments for random player names
+ * Transplanted and modified from CthAngband -- Gumby
+ */
+
+/* Dwarves */
+static char *dwarf_syllable1[] =
+{
+	"B", "D", "F", "G", "Gl", "H", "K", "L", "M", "N", "R", "S", "T",
+	"Th", "V",
+};
+
+static char *dwarf_syllable2[] =
+{
+	"a", "e", "i", "o", "oi", "u",
+};
+
+static char *dwarf_syllable3[] =
+{
+	"bur", "fur", "gan", "gnus", "gnar", "li", "lin", "lir", "mli",
+	"nar", "nus", "rin", "ran", "sin", "sil", "sur",
+};
+
+/* Elves */
+static char *elf_syllable1[] =
+{
+	"Al", "An", "Bal", "Bel", "Cal", "Cel", "El", "Elr", "Elv", "Eow",
+	"Ear", "F", "Fal", "Fel", "Fin", "G", "Gal", "Gel", "Gl", "Is",
+	"Lan", "Leg", "Lom", "N", "Nal", "Nel",  "S", "Sal", "Sel", "T",
+	"Tal", "Tel", "Thr", "Tin",
+};
+
+static char *elf_syllable2[] =
+{
+	"a", "adrie", "ara", "e", "ebri", "ele", "ere", "i", "io", "ithra",
+	"ilma", "il-Ga", "ili", "o", "orfi", "u", "y",
+};
+
+static char *elf_syllable3[] =
+{
+	"l", "las", "lad", "ldor", "ldur", "linde", "lith", "mir", "n",
+	"nd", "ndel", "ndil", "ndir", "nduil", "ng", "mbor", "r", "rith",
+	"ril", "riand", "rion", "s", "thien", "viel", "wen", "wyn",
+};
+
+/* Gnomes */
+static char *gnome_syllable1[] =
+{
+	"Aar", "An", "Ar", "As", "C", "H", "Han", "Har", "Hel", "Iir", "J",
+	"Jan", "Jar", "K", "L", "M", "Mar", "N", "Nik", "Os", "Ol", "P",
+	"R", "S", "Sam", "San", "T", "Ter", "Tom", "Ul", "V", "W", "Y",
+};
+
+static char *gnome_syllable2[] =
+{
+	"a", "aa",  "ai", "e", "ei", "i", "o", "uo", "u", "uu",
+};
+
+static char *gnome_syllable3[] =
+{
+	"ron", "re", "la", "ki", "kseli", "ksi", "ku", "ja", "ta", "na",
+	"namari", "neli", "nika", "nikki", "nu", "nukka", "ka", "ko", "li",
+	"kki", "rik", "po", "to", "pekka", "rjaana", "rjatta", "rjukka",
+	"la", "lla", "lli", "mo", "nni",
+};
+
+/* Hobbit */
+static char *hobbit_syllable1[] =
+{
+	"B", "Ber", "Br", "D", "Der", "Dr", "F", "Fr", "G", "H", "L", "Ler",
+	"M", "Mer", "N", "P", "Pr", "Per", "R", "S", "T", "W",
+};
+
+static char *hobbit_syllable2[] =
+{
+	"a", "e", "i", "ia", "o", "oi", "u",
+};
+
+static char *hobbit_syllable3[] =
+{
+	"bo", "ck", "decan", "degar", "do", "doc", "go", "grin", "lba",
+	"lbo", "lda", "ldo", "lla", "ll", "lo", "m", "mwise", "nac", "noc",
+	"nwise", "p", "ppin", "pper", "tho", "to",
+};
+
+/* Human */
+static char *human_syllable1[] =
+{
+	"Ab", "Ac", "Ad", "Af", "Agr", "Ast", "As", "Al", "Adw", "Adr",
+	"Ar", "B", "Br", "C", "Cr", "Ch", "Cad", "D", "Dr", "Dw", "Ed",
+	"Eth", "Et", "Er", "El", "Eow", "F", "Fr", "G", "Gr", "Gw", "Gal",
+	"Gl", "H", "Ha", "Ib", "Jer", "K", "Ka", "Ked", "L", "Loth", "Lar",
+	"Leg", "M", "Mir", "N", "Nyd", "Ol", "Oc", "On", "P", "Pr", "R",
+	"Rh", "S", "Sev", "T", "Tr", "Th", "V", "Y", "Z", "W", "Wic",
+};
+
+static char *human_syllable2[] =
+{
+	"a", "ae", "au", "ao", "are", "ale", "ali", "ay", "ardo", "e", "ei",
+	"ea", "eri", "era", "ela", "eli", "enda", "erra", "i", "ia", "ie",
+	"ire", "ira", "ila", "ili", "ira", "igo", "o", "oa", "oi", "oe",
+	"ore", "u", "y",
+};
+
+static char *human_syllable3[] =
+{
+	"a", "and", "b", "bwyn", "baen", "bard", "c", "ctred", "cred", "ch",
+	"can", "d", "dan", "don", "der", "dric", "dfrid", "dus", "f", "g",
+	"gord", "gan", "l", "li", "lgrin", "lin", "lith", "lath", "loth",
+	"ld", "ldric", "ldan", "m", "mas", "mos", "mar", "mond", "n",
+	"nydd", "nidd", "nnon", "nwan", "nyth", "nad", "nn", "nnor", "nd",
+	"p", "r", "ron", "rd", "s", "sh", "seth", "sean", "t", "th", "tha",
+	"tlan", "trem", "tram", "v", "vudd", "w", "wan", "win", "wyn",
+	"wyr", "wyr", "wyth",
+};
+
+/* Orc */
+static char *orc_syllable1[] =
+{
+	"B", "Er", "G", "Gr", "H", "P", "Pr", "R", "V", "Vr", "T", "Tr",
+	"M", "Dr",
+};
+
+static char *orc_syllable2[] =
+{
+	"a", "i", "o", "oo", "u", "ui",
+};
+
+static char *orc_syllable3[] =
+{
+	"dash", "dish", "dush", "gar", "gor", "gdush", "lo", "gdish", "k",
+	"lg", "nak", "rag", "rbag", "rg", "rk", "ng", "nk", "rt", "ol",
+	"urk", "shnak", "mog", "mak", "rak",
+};
+
+/* Klackon */
+static char *klackon_syllable1[] =
+{
+	"K'", "K", "Kri", "Kir", "Kiri", "Iriki", "Irik", "Karik", "Iri",
+	"Akri",
+};
+
+static char *klackon_syllable2[] =
+{
+	"arak", "i", "iri", "ikki", "ki", "kiri", "ikir", "irak", "arik",
+	"k'", "r",
+};
+
+static char *klackon_syllable3[] =
+{
+	"akkak", "ak", "ik", "ikkik", "irik", "arik", "kidik", "kii", "k",
+	"ki","riki","irk",
+};
+
+static char *cthuloid_syllable1[] =
+{
+	"Cth", "Az", "Fth", "Ts", "Xo", "Q'N", "R'L", "Ghata", "L", "Zz",
+	"Fl", "Cl", "S", "Y",
+};
+
+static char *cthuloid_syllable2[] =
+{
+	"nar", "loi", "ul", "lu", "noth", "thon", "ath", "'N", "rhy", "oth",
+	"aza", "agn", "oa", "og",
+};
+
+static char *cthuloid_syllable3[] =
+{
+	"l", "a", "u", "oa", "oggua", "oth", "ath", "aggua", "lu", "lo",
+	"loth", "lotha", "agn", "axl",
+};
+
+
+/*
+ * Random Name Generator
+ * based on a Javascript by Michael Hensley
+ * "http://geocities.com/timessquare/castle/6274/"
+ *
+ * Transplanted and modified from CthAngband -- Gumby
+ */
+static void create_random_name(int race, char *name)
+{
+	/* Paranoia */
+	if (!name) return;
+
+	/* Select the monster type */
+	switch (race)
+	{
+	/* Create the monster name */
+	case RACE_DWARF:	case RACE_HALF_GIANT:	case RACE_GOLEM:
+		strcpy(name, dwarf_syllable1[rand_int(sizeof(dwarf_syllable1) / sizeof(char*))]);
+		strcat(name, dwarf_syllable2[rand_int(sizeof(dwarf_syllable2) / sizeof(char*))]);
+		strcat(name, dwarf_syllable3[rand_int(sizeof(dwarf_syllable3) / sizeof(char*))]);
+		break;
+	case RACE_ELF:		case RACE_HIGH_ELF:
+	case RACE_MELNIBONEAN:	case RACE_VADHAGH:
+		strcpy(name, elf_syllable1[rand_int(sizeof(elf_syllable1) / sizeof(char*))]);
+		strcat(name, elf_syllable2[rand_int(sizeof(elf_syllable2) / sizeof(char*))]);
+		strcat(name, elf_syllable3[rand_int(sizeof(elf_syllable3) / sizeof(char*))]);
+		break;
+	case RACE_DRACONIAN:	case RACE_GNOME:
+		strcpy(name, gnome_syllable1[rand_int(sizeof(gnome_syllable1) / sizeof(char*))]);
+		strcat(name, gnome_syllable2[rand_int(sizeof(gnome_syllable2) / sizeof(char*))]);
+		strcat(name, gnome_syllable3[rand_int(sizeof(gnome_syllable3) / sizeof(char*))]);
+		break;
+	case RACE_HOBBIT:	case RACE_YEEK:
+		strcpy(name, hobbit_syllable1[rand_int(sizeof(hobbit_syllable1) / sizeof(char*))]);
+		strcat(name, hobbit_syllable2[rand_int(sizeof(hobbit_syllable2) / sizeof(char*))]);
+		strcat(name, hobbit_syllable3[rand_int(sizeof(hobbit_syllable3) / sizeof(char*))]);
+		break;
+	case RACE_BARBARIAN:	case RACE_HALF_TITAN:	case RACE_HUMAN:
+	case RACE_SPECTRE:	case RACE_VAMPIRE:	case RACE_GAMBOLT:
+		strcpy(name, human_syllable1[rand_int(sizeof(human_syllable1) / sizeof(char*))]);
+		strcat(name, human_syllable2[rand_int(sizeof(human_syllable2) / sizeof(char*))]);
+		strcat(name, human_syllable3[rand_int(sizeof(human_syllable3) / sizeof(char*))]);
+		break;
+	case RACE_HALF_ORC:	case RACE_HALF_TROLL:	case RACE_KOBOLD:
+	case RACE_BEASTMAN:
+		strcpy(name, orc_syllable1[rand_int(sizeof(orc_syllable1) / sizeof(char*))]);
+		strcat(name, orc_syllable2[rand_int(sizeof(orc_syllable2) / sizeof(char*))]);
+		strcat(name, orc_syllable3[rand_int(sizeof(orc_syllable3) / sizeof(char*))]);
+		break;
+	case RACE_KLACKON:
+		strcpy(name, klackon_syllable1[rand_int(sizeof(klackon_syllable1) / sizeof(char*))]);
+		strcat(name, klackon_syllable2[rand_int(sizeof(klackon_syllable2) / sizeof(char*))]);
+		strcat(name, klackon_syllable3[rand_int(sizeof(klackon_syllable3) / sizeof(char*))]);
+		break;
+	case RACE_MIND_FLAYER:
+		strcpy(name, cthuloid_syllable1[rand_int(sizeof(cthuloid_syllable1) / sizeof(char*))]);
+		strcat(name, cthuloid_syllable2[rand_int(sizeof(cthuloid_syllable2) / sizeof(char*))]);
+		strcat(name, cthuloid_syllable3[rand_int(sizeof(cthuloid_syllable3) / sizeof(char*))]);
+		break;
+		/* Create an empty name */
+	default:
+		name[0] = '\0';
+		break;
+	}
+}
+
+
+/*
+ * Allow player to modify the character by spending points
+ * Transplanted from CthAngband -- Gumby
+ */
+static bool point_mod_player(void)
+{
+	char b1 = '[';
+	char b2 = ']';
+	char stat;
+	char modpts[4] = "none";
+	int x = 0;
+	int i, points;
+ 
+ 
+	points = 34; /* was 34 */
+
+	sprintf(modpts,"%d",points);
+
+	clear_from(23);
+
+	while(1)
+	{ 
+		/* reset variable */
+		i = 0; 
+
+		/* Calculate the bonuses and hitpoints */
+		p_ptr->update |= (PU_BONUS | PU_HP);
+
+		/* Update stuff */
+		update_stuff();
+
+		/* Fully healed */
+		p_ptr->chp = p_ptr->mhp;
+
+		/* Fully rested */
+		p_ptr->csp = p_ptr->msp;
+
+		/* Display the player */
+		display_player(0);
+
+		/* Display Stat Menu */
+		clear_from(23);
+
+		sprintf(modpts,"%d",points);
+		
+		Term_putstr(73,2,-1,TERM_WHITE,"<-S/s->");
+		Term_putstr(73,3,-1,TERM_WHITE,"<-I/i->");
+		Term_putstr(73,4,-1,TERM_WHITE,"<-W/w->");
+		Term_putstr(73,5,-1,TERM_WHITE,"<-D/d->");
+		Term_putstr(73,6,-1,TERM_WHITE,"<-C/c->");
+		Term_putstr(73,7,-1,TERM_WHITE,"<-H/h->");
+
+		Term_gotoxy(2, 23);
+		Term_addch(TERM_WHITE, b1);
+
+		if (points == 0)	Term_addstr(-1, TERM_GREEN, modpts);
+		else if (points > 0)	Term_addstr(-1, TERM_YELLOW, modpts);
+		else			Term_addstr(-1, TERM_RED, modpts);
+
+		Term_addstr(-1, TERM_WHITE, " points left. Press 'ESC' whilst on 0 points to finish.");
+		Term_addch(TERM_WHITE, b2);
+
+		/* Get an entry */
+		stat = inkey();
+
+		/* ESC goes back to previous menu */
+		if ((stat == ESCAPE) && (points == 0)) break;
+
+		/* Assign values to entries, stats 0 to 5 */
+		switch (stat)
+		{
+			/* The index to a specific stat is retrieved */
+			case 's':	i = 1;	break;
+			case 'S':	i = 1;	break;
+			case 'i':	i = 2;	break;
+			case 'I':	i = 2;	break;
+			case 'w':	i = 3;	break;
+			case 'W':	i = 3;	break;
+			case 'd':	i = 4;	break;
+			case 'D':	i = 4;	break;
+			case 'c':	i = 5;	break;
+			case 'C':	i = 5;	break;
+			case 'h':	i = 6;	break;
+			case 'H':	i = 6;	break;
+			default:	i = 0;
+		}  
+
+		/* Test for invalid key */
+		if (!i) continue;
+		i--;
+
+		/* Test for lower case (add to stat) or 
+		upper case (subtract stat) */
+
+		if (islower(stat)) /* ('a' < stat) */
+		{
+			/* different conditions for maximize on */
+			if (p_ptr->maximize)
+			{
+				/* Max stat increase */
+				if (p_ptr->stat_max[i] < 17)
+				{
+					p_ptr->stat_cur[i] = ++p_ptr->stat_max[i];
+				}
+				else
+				{
+					continue;
+				}
+			}
+			else
+			{
+				/* Max stat increase, maximize off */
+				x = rp_ptr->r_adj[i] + cp_ptr->c_adj[i];
+
+				if (x > 8) x = 8;
+				if (x > 0) x *= 13;
+
+				if (p_ptr->stat_max[i] < 18 + x)    
+				{
+					if (p_ptr->stat_max[i]> 17)
+					{
+						p_ptr->stat_max[i] += 10;
+						p_ptr->stat_cur[i] += 10;
+					}
+					else
+					{
+						p_ptr->stat_cur[i] = ++p_ptr->stat_max[i];
+					}
+				}
+				else
+				{
+					continue;
+				}
+			}
+
+			/* Higher stats linearly cost more */
+			if (p_ptr->stat_max[i] > 97)	points--; 
+			if (p_ptr->stat_max[i] > 67)	points--;
+			if (p_ptr->stat_max[i] > 18)	points--;
+			if (p_ptr->stat_max[i] > 14)	points--;
+			if (p_ptr->stat_max[i] > 3)	points--;
+			continue;
+		}
+		else    /* Reduce stat case */
+		{ 
+			if (p_ptr->stat_use[i] > 3)
+			{
+				if (p_ptr->stat_max[i] > 27)
+				{ 
+					p_ptr->stat_max[i] -= 10;
+					p_ptr->stat_cur[i] -= 10;
+				}
+				else
+				{
+					p_ptr->stat_cur[i] = --p_ptr->stat_max[i];
+				}
+			}
+			else
+			{
+				continue;
+			}
+
+			/* Higher stats yield more mod points */
+			if (p_ptr->stat_max[i] > 87)	points++; 
+			if (p_ptr->stat_max[i] > 57)	points++;
+			if (p_ptr->stat_max[i] > 17)	points++;
+			if (p_ptr->stat_max[i] > 13)	points++;
+			if (p_ptr->stat_max[i] > 2)	points++;
+			continue;
+		}
+	}
+	return TRUE;
+}
+
+
 /*
  * Save the current data for later
  */
@@ -938,6 +1354,9 @@ static void get_extra(void)
 
 	/* Experience factor */
 	p_ptr->expfact = rp_ptr->r_exp + cp_ptr->c_exp;
+
+	/* Set number of Beastmaster pets to 0 */
+	p_ptr->number_pets = 0;
 
 	/* Hitdice */
 	p_ptr->hitdie = rp_ptr->r_mhp + cp_ptr->c_mhp;
@@ -1429,6 +1848,13 @@ static byte player_init[MAX_CLASS][3][2] =
 		{ TV_BOW, SV_SLING },
 		{ TV_SOFT_ARMOR, SV_HARD_LEATHER_ARMOR }
 	},
+
+	{
+		/* Beastmaster */
+		{TV_POTION, SV_POTION_BESERK_STRENGTH},
+		{TV_SWORD, SV_BROAD_SWORD},
+		{TV_HARD_ARMOR, SV_CHAIN_MAIL}
+	},
 };
 
 
@@ -1742,7 +2168,9 @@ static bool player_birth_aux()
 	char b2 = ']';
 	char buf[80];
 	char inp[80];
+
 	bool autoroll = FALSE;
+	bool point_mod = FALSE;
 
 
 	/*** Intro ***/
@@ -1755,9 +2183,6 @@ static bool player_birth_aux()
 	put_str("Sex         :", 3, 1);
 	put_str("Race        :", 4, 1);
 	put_str("Class       :", 5, 1);
-
-	/* Dump the default name */
-	c_put_str(TERM_L_BLUE, player_name, 2, 15);
 
 
 	/*** Instructions ***/
@@ -1882,6 +2307,12 @@ static bool player_birth_aux()
 	/* Display */
 	c_put_str(TERM_L_BLUE, str, 4, 15);
 
+	/* Get a random name now we have a race*/
+	create_random_name(p_ptr->prace, player_name);
+
+	/* Display */
+	c_put_str(TERM_L_BLUE, player_name, 2, 15);
+
 	/* Clean up */
 	clear_from(15);
 
@@ -1953,7 +2384,7 @@ static bool player_birth_aux()
 
 	clear_from(15);
 
-    get_realms();
+	get_realms();
 
         if (p_ptr->realm1 || p_ptr->realm2)
           put_str("Magic       :", 6, 1);
@@ -2029,22 +2460,27 @@ static bool player_birth_aux()
 		"The 'autoroller' allows you to specify certain 'minimal' stats,");
 	Term_putstr(5, 16, -1, TERM_WHITE,
 		"but be warned that your various stats may not be independant!");
+	Term_putstr(5, 17, -1, TERM_WHITE,
+		"Point-based generation lets you spend points to modify your");
+	Term_putstr(5, 18, -1, TERM_WHITE,
+		"statistics instead of determining them randomly.");
 
 	/* Ask about "auto-roller" mode */
 	while (1)
 	{
-		put_str("Use the Auto-Roller? (y/n) ", 20, 2);
+		put_str("Generate with (a)utoroller, (p)oint-based, or (n)either? (a/p/n) ", 20, 2);
 		c = inkey();
 		if (c == 'Q') quit(NULL);
 		if (c == 'S') return (FALSE);
 		if (c == ESCAPE) break;
-		if ((c == 'y') || (c == 'n')) break;
+		if ((c == 'a') || (c == 'p') || (c == 'n')) break;
 		if (c == '?') do_cmd_help("help.hlp");
 		else bell();
 	}
 
 	/* Set "autoroll" */
-	autoroll = (c == 'y');
+	autoroll = (c == 'a');
+	point_mod = (c == 'p');
 
 	/* Clear */
 	clear_from(15);
@@ -2316,7 +2752,18 @@ static bool player_birth_aux()
 		else
 		{
 			/* Get a new character */
-			get_stats();
+			if (point_mod)
+			{
+				for (i = 0; i < 6; i++)
+				{
+					p_ptr->stat_cur[i] = p_ptr->stat_max[i] = 8;
+				}
+				point_mod_player();  
+			}
+			else
+			{
+				get_stats();
+			}
 		}
 
 		/* Auto-roll */
@@ -2398,6 +2845,11 @@ static bool player_birth_aux()
 
 		/* Roll for gold */
 		get_money();
+
+		/* Prevent quick-starting, point-based characters from
+		 * having 10000+ gold :) -- Gumby
+		 */
+		if (point_mod && quick_start) p_ptr->au /= 10;
 
 		/* Choose specialty for Weaponmasters -- Gumby
 		 * Considered putting probabilities in here, but I think

@@ -1760,7 +1760,7 @@ void do_cmd_cast(void)
 		(void)teleport_player_level(); break;
 	case 10: /* Nexus Bolt */
 		if (!get_aim_dir(&dir)) return;
-		(void)fire_beam(GF_NEXUS, dir, 9+((plev-5)/3));
+		(void)fire_bolt_or_beam(beam + 20, GF_NEXUS, dir, damroll(9+((plev-5)/3), 8));
 		break;
 	case 11: /* Phantasmal Servant */
 		if (summon_specific_friendly(py, px, (plev*3)/2, SUMMON_PHANTOM, FALSE))

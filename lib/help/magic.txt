@@ -1,4 +1,4 @@
-=== Introduction to the Gumband (2.1.9) Magic System ===
+=== Introduction to the Gumband (2.2.0) Magic System ===
 
 [note: this document was originally for ZAngband 2.1.0 and later, but has
  been updated to account for Gumband differences. -- Gumby]

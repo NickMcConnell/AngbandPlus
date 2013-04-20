@@ -110,12 +110,12 @@ int template_race;
 /*
 * Dungeon generation values
 */
-#define DUN_ROOMS    50     /* Number of rooms to attempt */
-#define DUN_UNUSUAL 175     /* Level/chance of unusual room (was 194) */
-#define DUN_DEST     30     /* 1/chance of having a destroyed level */
-#define SMALL_LEVEL   2     /* 1/chance of smaller size (3)*/
-#define EMPTY_LEVEL  15     /* 1/chance of being 'empty' (15)*/
-#define DARK_EMPTY   10     /* 1/chance of arena level NOT being lit (2)*/
+#define DUN_ROOMS    50     /* Number of rooms to attempt (50) */
+#define DUN_UNUSUAL 180     /* Level/chance of unusual room (194) */
+#define DUN_DEST     30     /* 1/chance of having a destroyed level (30) */
+#define SMALL_LEVEL   2     /* 1/chance of smaller size (3) */
+#define EMPTY_LEVEL  15     /* 1/chance of being 'empty' (15) */
+#define DARK_EMPTY   10     /* 1/chance of arena level NOT being lit (2) */
 
 /*
 * Dungeon tunnel generation values
@@ -4179,7 +4179,7 @@ void generate_cave(void)
 				while (TRUE)
 				{
 	        		        tester_1 = randint(MAX_HGT / SCREEN_HGT);
-        	        		tester_2 = randint(MAX_WID / SCREEN_WID);
+	       	        		tester_2 = randint(MAX_WID / SCREEN_WID);
 
 					/* Exit if less than normal dungeon */
 					if ((tester_1 < MAX_HGT / SCREEN_HGT) ||
@@ -4224,15 +4224,18 @@ void generate_cave(void)
 		}
 
 		/* Extract the feeling */
-		if (rating > 100) feeling = 2;     /* visions of death */
-		else if (rating > 80) feeling = 3; /* very dangerous */
-		else if (rating > 60) feeling = 4; /* very bad feeling */
-		else if (rating > 40) feeling = 5; /* bad feeling */
-		else if (rating > 30) feeling = 6; /* nervous */
-		else if (rating > 20) feeling = 7; /* luck is turning */
-		else if (rating > 10) feeling = 8; /* don't like the look */
-		else if (rating >  0) feeling = 9; /* reasonably safe */
-		else feeling = 10;                 /* boring */
+		if (rating > 100)     feeling =  2; /* visions of death */
+		else if (rating > 90) feeling =  3; /* extremely dangerous */
+		else if (rating > 80) feeling =  4; /* very dangerous */
+		else if (rating > 70) feeling =  5; /* dangerous */
+		else if (rating > 60) feeling =  6; /* very bad feeling */
+		else if (rating > 50) feeling =  7; /* bad feeling */
+		else if (rating > 40) feeling =  8; /* very nervous */
+		else if (rating > 30) feeling =  9; /* nervous */
+		else if (rating > 20) feeling = 10; /* luck is turning */
+		else if (rating > 10) feeling = 11; /* don't like the look */
+		else if (rating >  0) feeling = 12; /* reasonably safe */
+		else                  feeling = 13; /* boring */
 
 		/* Hack -- Have a special feeling sometimes */
 		if (good_item_flag && !p_ptr->preserve) feeling = 1;
@@ -4267,11 +4270,11 @@ void generate_cave(void)
 		if (auto_scum && (num < 100))
 		{
 			/* Require "goodness" */
-			if ((feeling > 9) ||
-				((dun_level >=  5) && (feeling > 8)) ||
-				((dun_level >= 10) && (feeling > 7)) ||
-				((dun_level >= 20) && (feeling > 6)) ||
-				((dun_level >= 40) && (feeling > 5)))
+			if ((feeling > 12) ||
+				((dun_level >=  5) && (feeling > 11)) ||
+				((dun_level >= 10) && (feeling > 10)) ||
+				((dun_level >= 20) && (feeling > 9)) ||
+				((dun_level >= 40) && (feeling > 8)))
 			{
 				/* Give message to cheaters */
 				if (cheat_room || cheat_hear ||
@@ -4307,6 +4310,9 @@ void generate_cave(void)
 
 	/* Reset the number of thefts on the level. -LM- */
 	number_of_thefts_on_level = 0;
+
+	/* OK to summon more monsters. */
+	p_ptr->number_pets = 0;
 
 	/* 'Ghosts' automatically know the level -- Gumby */
 	if (p_ptr->astral)

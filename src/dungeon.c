@@ -139,7 +139,7 @@ static void sense_inventory(void)
 			break;
 		}
 
-		case CLASS_ROGUE:
+		case CLASS_ROGUE: case CLASS_BEASTMASTER:
 		{
 			if (0 != rand_int(20000L / (plev * plev + 40))) return;
 			heavy = TRUE;
@@ -2005,7 +2005,21 @@ static void process_command(void)
 		/* Cast a spell */
 		case 'm':
 		{
-			if (p_ptr->anti_magic)
+			if (p_ptr->pclass == CLASS_BEASTMASTER)
+			{
+				energy_use = 100;
+				if ((p_ptr->number_pets <= adj_chr_pet_summon[p_ptr->stat_ind[A_CHR]]) &&
+					summon_specific_friendly(py, px, dun_level, SUMMON_NO_UNIQUES, FALSE))
+				{
+					msg_print("You summon some help.");
+					p_ptr->number_pets++;
+				}
+				else
+				{
+					msg_print("You called, but no help came.");
+				}
+			}
+			else if (p_ptr->anti_magic)
 			{
 				cptr which_power = "magic";
 				if (p_ptr->pclass == CLASS_MINDCRAFTER)
@@ -2020,9 +2034,13 @@ static void process_command(void)
 			else
 			{
 				if (p_ptr->pclass == CLASS_MINDCRAFTER)
+				{
 					do_cmd_mindcraft();
+				}
 				else
+				{
 					do_cmd_cast();
+				}
 			}
 			break;
 		}

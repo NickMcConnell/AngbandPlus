@@ -285,6 +285,51 @@ byte adj_chr_gold[] =
 
 
 /*
+ * Stat Table (CHR) -- pet summoning table
+ */
+byte adj_chr_pet_summon[] =
+{
+	0              /* 3 */,
+	0              /* 4 */,
+	0              /* 5 */,
+	1              /* 6 */,
+	1              /* 7 */,
+	1              /* 8 */,
+	2              /* 9 */,
+	2             /* 10 */,
+	2             /* 11 */,
+	3             /* 12 */,
+	3             /* 13 */,
+	3             /* 14 */,
+	4             /* 15 */,
+	4             /* 16 */,
+	4             /* 17 */,
+	5    /* 18/00-18/09 */,
+	6    /* 18/10-18/19 */,
+	7    /* 18/20-18/29 */,
+	8    /* 18/30-18/39 */,
+	9    /* 18/40-18/49 */,
+	10   /* 18/50-18/59 */,
+	11   /* 18/60-18/69 */,
+	12   /* 18/70-18/79 */,
+	13   /* 18/80-18/89 */,
+	14   /* 18/90-18/99 */,
+	14 /* 18/100-18/109 */,
+	14 /* 18/110-18/119 */,
+	15 /* 18/120-18/129 */,
+	15 /* 18/130-18/139 */,
+	15 /* 18/140-18/149 */,
+	16 /* 18/150-18/159 */,
+	16 /* 18/160-18/169 */,
+	16 /* 18/170-18/179 */,
+	17 /* 18/180-18/189 */,
+	17 /* 18/190-18/199 */,
+	17 /* 18/200-18/209 */,
+	18 /* 18/210-18/219 */,
+	19       /* 18/220+ */
+};
+
+/*
  * Stat Table (INT) -- Magic devices
  */
 byte adj_int_dev[] =
@@ -1024,8 +1069,8 @@ byte adj_con_mhp[] =
  * This table is used to help calculate the number of blows the player can
  * make in a single round of attacks (one player turn) with a normal weapon.
  *
- * This number ranges from a single blow/round for weak players to up to six
- * blows/round for powerful warriors.
+ * This number ranges from a single blow/round for weak players to up to
+ * six blows/round for powerful warriors.
  *
  * Note that certain artifacts and ego-items give "bonus" blows/round.
  *
@@ -1044,6 +1089,7 @@ byte adj_con_mhp[] =
  * High Mage     --> num = 4; mul = 2; div = MAX(40, weapon_weight);
  * Weaponmaster  --> num = 6; mul = 5; div = MAX(30, weapon_weight);
  * Archer        --> num = 5; mul = 3; div = MAX(35, weapon_weight);
+ * Beastmaster   --> num = 6; mul = 5; div = MAX(30, weapon_weight);
  *
  * To get "Strength" (horizontal, we look up the relevant "adj_str_blow[]"
  * (see above), multiply it by "mul", and then divide it by "div", rounding
@@ -1306,7 +1352,7 @@ player_race race_info[MAX_RACES] =
 		72,  6, 180, 25,
 		66,  4, 150, 20,
 		0,
-                0x1FFF,
+                0x1FFF + CLASS_MASK(CLASS_BEASTMASTER),
 	},
 	{
 		"Elf",
@@ -1317,7 +1363,7 @@ player_race race_info[MAX_RACES] =
 		60,  4, 100,  6,
 		54,  4, 80,  6,
 		4,
-                0x1E5B,
+                0x1E5B + CLASS_MASK(CLASS_BEASTMASTER),
 
 	},
 	{
@@ -1329,7 +1375,7 @@ player_race race_info[MAX_RACES] =
 		36,  3, 60,  3,
 		33,  3, 50,  3,
 		3,
-                0x1C0B,
+                0x1C0B + CLASS_MASK(CLASS_BEASTMASTER),
 	},
 	{
 		"Gnome",
@@ -1340,7 +1386,7 @@ player_race race_info[MAX_RACES] =
 		42,  3, 90,  6,
 		39,  3, 75,  3,
 		4,
-                0xE0F,
+                0xE0F + CLASS_MASK(CLASS_BEASTMASTER),
 	},
 	{
 		"Dwarf",
@@ -1351,7 +1397,7 @@ player_race race_info[MAX_RACES] =
 		48,  3, 150, 10,
 		46,  3, 120, 10,
 		5,
-                0x805,
+                0x805 + CLASS_MASK(CLASS_BEASTMASTER),
 	},
 	{
 		"Half-Orc",
@@ -1362,7 +1408,7 @@ player_race race_info[MAX_RACES] =
 		66,  1, 150,  5,
 		62,  1, 120,  5,
 		3,
-                0x198D,
+                0x198D + CLASS_MASK(CLASS_BEASTMASTER),
 	},
 	{
 		"Half-Troll",
@@ -1373,7 +1419,7 @@ player_race race_info[MAX_RACES] =
 		96, 10, 250, 50,
 		84,  8, 225, 40,
 		3,
-                0x885,
+                0x885 + CLASS_MASK(CLASS_BEASTMASTER),
 	},
 	{
 		"Gambolt",
@@ -1384,7 +1430,7 @@ player_race race_info[MAX_RACES] =
 		90, 10, 170, 15,
 		82, 10, 160, 10,
 		6,
-                0x1E5B,
+                0x1E5B + CLASS_MASK(CLASS_BEASTMASTER),
 	},
 	{
 		"High-Elf",
@@ -1395,7 +1441,7 @@ player_race race_info[MAX_RACES] =
 		90, 10, 190, 20,
 		82, 10, 180, 15,
 		4,
-		0x1E5B,
+		0x1E5B + CLASS_MASK(CLASS_BEASTMASTER),
 	},
 	{
 		"Barbarian",
@@ -1406,7 +1452,7 @@ player_race race_info[MAX_RACES] =
 		82, 5, 200, 20,
 		78,  6, 190, 15,
 		0,
-		0x189D,
+		0x189D + CLASS_MASK(CLASS_BEASTMASTER),
 	},
 	{
 		"Half-Giant",
@@ -1417,7 +1463,7 @@ player_race race_info[MAX_RACES] =
 		100,10, 255, 65,
 		80, 10, 240, 64,
 		3,
-		0x811,
+		0x811 + CLASS_MASK(CLASS_BEASTMASTER),
 	},
 	{
 		"Half-Titan",
@@ -1428,7 +1474,7 @@ player_race race_info[MAX_RACES] =
 		111, 11, 255, 86,
 		99, 11, 250, 86,
 		0,
-		0x1F27,
+		0x1F27 + CLASS_MASK(CLASS_BEASTMASTER),
 	},
 	{
 		"Klackon",
@@ -1439,7 +1485,7 @@ player_race race_info[MAX_RACES] =
 		60,  3, 80,  4,
 		54,  3, 70,  4,
 		2,
-		0x1811,
+		0x1811 + CLASS_MASK(CLASS_BEASTMASTER),
 	},
 	{
 		"Kobold",
@@ -1450,7 +1496,7 @@ player_race race_info[MAX_RACES] =
 		55,  1, 110,  5,
 		50,  1,  90,  5,
 		3,
-		0x1809,
+		0x1809 + CLASS_MASK(CLASS_BEASTMASTER),
 	},
 	{
 		"Draconian",
@@ -1461,7 +1507,7 @@ player_race race_info[MAX_RACES] =
 		76,  1, 160,  5,
 		72,  1, 130,  5,
 		2,
-		0x1F47,
+		0x1F47 + CLASS_MASK(CLASS_BEASTMASTER),
 	},
 	{
 		"Mindflayer",
@@ -1472,7 +1518,7 @@ player_race race_info[MAX_RACES] =
 		68,  6, 142, 15,
 		63,  6, 112, 10,
 		4,
-		0x7C6,
+		0x7C6 + CLASS_MASK(CLASS_BEASTMASTER),
 	},
 	{
 		"Golem",
@@ -1483,7 +1529,7 @@ player_race race_info[MAX_RACES] =
 		68,  1, 255,  6,
 		68,  1, 255,  6,
 		4,
-		0x1801,
+		0x1801 + CLASS_MASK(CLASS_BEASTMASTER),
 	},
 	{
 		"Vampire",
@@ -1494,7 +1540,7 @@ player_race race_info[MAX_RACES] =
 		72,  6, 180, 25,
 		66,  4, 150, 20,
 		5,
-		0x1EDB,
+		0x1EDB + CLASS_MASK(CLASS_BEASTMASTER),
 	},
 	{
 		"Spectre",
@@ -1505,7 +1551,7 @@ player_race race_info[MAX_RACES] =
 		72, 6, 100, 25,
 		66, 4, 100, 20,
 		5,
-		0x64A,
+		0x64A + CLASS_MASK(CLASS_BEASTMASTER),
 	},
 	{
 		"Beastman",
@@ -1516,7 +1562,7 @@ player_race race_info[MAX_RACES] =
 		65,  6, 150, 20,
 		61,  6, 120, 15,
 		0,
-		0x1FDF,
+		0x1FDF + CLASS_MASK(CLASS_BEASTMASTER),
 	},
 	{
 		"Yeek",
@@ -1527,7 +1573,7 @@ player_race race_info[MAX_RACES] =
 		40, 5, 50, 10,
 		35, 4, 45, 10,
 		2,
-		0x1FFF,
+		0x1FFF + CLASS_MASK(CLASS_BEASTMASTER),
 	},
 	{
 		"Melnibonean",
@@ -1538,7 +1584,7 @@ player_race race_info[MAX_RACES] =
 		72,  6, 180, 25,
 		66,  4, 150, 20,
 		2,
-		0x1CCB,
+		0x1CCB + CLASS_MASK(CLASS_BEASTMASTER),
 	},
 	{
 		"Vadhagh",
@@ -1549,7 +1595,7 @@ player_race race_info[MAX_RACES] =
 		90, 10, 190, 20,
 		82, 10, 180, 15,
 		4,
-		0x1E53,
+		0x1E53 + CLASS_MASK(CLASS_BEASTMASTER),
 	},
 };
 
@@ -1656,9 +1702,9 @@ player_class class_info[MAX_CLASS] =
 	{
 		"Weaponmaster",
 		{ 4, -2, -2, 2, 2, -1},
-		23,  17, 16,  1, 14,  2, 70, 20,
-		10,   6,  8,  0,  0,  0, 45, 15,
-		 9,  30
+		23,  20, 16,  1, 14,  2, 70, 20,
+		10,   8,  8,  0,  0,  0, 45, 15,
+		9,  30
 	},
 	{
 		"Archer",
@@ -1667,6 +1713,13 @@ player_class class_info[MAX_CLASS] =
 		12, 10, 10, 0,  0,  0, 20, 55,
 		9,  30
 	},
+	{
+		"Beastmaster",
+		{ 1, -2, 0, 2, 1, 3 },
+		 25, 25, 25, 2, 20, 25, 55, 55,
+		 12, 10, 10, 0,  0,  0, 30, 45,
+		 9, 25
+	}
 };
 
 
@@ -5265,6 +5318,272 @@ player_magic magic_info[MAX_CLASS] =
 			},
 		},
 	},
+
+	{
+		/*** Beastmaster ***/
+		0, 0, A_CHR, 0, 99, 0,
+		{
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+			{
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0},
+				{ 99,  0,  0,   0}
+			},
+		},
+	},
 };
 
 
@@ -5296,6 +5615,7 @@ byte realm_choices[MAX_CLASS]=
 /* High Mage */     (CH_LIFE | CH_SORCERY | CH_NATURE | CH_CHAOS | CH_DEATH | CH_TRUMP | CH_ARCANE),
 /* Weaponmaster */  (CH_NONE),
 /* Archer */        (CH_NONE),
+/* Beastmaster */   (CH_NONE),
 };
 
 cptr realm_names [] =
@@ -5917,6 +6237,20 @@ cptr player_title[MAX_CLASS][PY_MAX_LEVEL/5] =
 		"Archer",
 		"Archer",
 		"Master Archer",
+	},
+
+	/* Beastmaster */
+	{
+		"Rabblerouser",
+		"Rabblerouser",
+		"Leader",
+		"Leader",
+		"Commander",
+		"Commander",
+		"Hordemaster",
+		"Hordemaster",
+		"Beastmaster",
+		"Beastmaster",
 	},
 };
 

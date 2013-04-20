@@ -3341,14 +3341,14 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 	/* Base chance of being "good" */
 	f1 = lev + 10;
 
-	/* Maximal chance of being "good" */
-	if (f1 > 75) f1 = 75;
+	/* Maximal chance of being "good" (was 75 - G) */
+	if (f1 > 95) f1 = 95;
 
 	/* Base chance of being "great" */
 	f2 = f1 / 2;
 
-	/* Maximal chance of being "great" */
-	if (f2 > 20) f2 = 20;
+	/* Maximal chance of being "great" (was 20 - G) */
+	if (f2 > 25) f2 = 25;
 
 	/* Assume normal */
 	power = 0;
@@ -3849,9 +3849,7 @@ bool make_gold(object_type *j_ptr)
 void place_gold(int y, int x)
 {
 	s16b o_idx;
-
 	cave_type *c_ptr;
-
 	object_type forge;
 	object_type *q_ptr;
 
@@ -3862,7 +3860,6 @@ void place_gold(int y, int x)
 	/* Require clean floor space */
 	if (!cave_clean_bold(y, x)) return;
 
-
 	/* Get local object */
 	q_ptr = &forge;
 
@@ -3871,7 +3868,6 @@ void place_gold(int y, int x)
 
 	/* Make some gold */
 	if (!make_gold(q_ptr)) return;
-
 
 	/* Make an object */
 	o_idx = o_pop();
