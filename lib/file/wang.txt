@@ -1,0 +1,28 @@
+26
+******** BUFFER LINE *******************
+says: 'I am the Shadow Warrior.'
+says: 'Ha, ha! You no mess with Lo Wang!'
+screams: 'Bonzai!'
+yells: 'Cowabunga!'
+says: 'There is much death in future.'
+looks for a mirror.
+yells: 'I kill you!'
+says: 'You have no honor!'
+says: 'Dying time's here.'
+says: 'You should not scratch yourself there.'
+exclaims: 'Oh! Better zip fly.'
+yells: 'How's that for kung-fu fighting, you chickenshit?!'
+says: 'Snatch pebble from hand.'
+taunts: 'You blocking with your head again!'
+giggles: 'Oooh! I think my dinghy hanging out.'
+taunts: 'Oh, you little tiny dick.'
+comments: 'I like sword. That's a personal weapon.'
+taunts: 'Someone beat you with ugly-stick!'
+hollers: 'KNOCK, KNOCK, YOU FREAK! Lo Wang in the house!'
+taunts: 'You move like pregnant yak.'
+taunts: 'You look like you need ass kicked!'
+wonders where the hell Zilla is.
+wonders if you work for Zilla.
+says: 'I am the Shadow Warrior.'
+says: 'Sayonara, scumbag.'
+intones: 'It is natural to die.'

@@ -1700,9 +1700,9 @@ static void player_outfit(void)
 		/* Hack -- Give the player an object */
 		object_prep(q_ptr, lookup_kind(tv, sv));
 
-		/* Assassins begin the game with a poisoned dagger */
-		if (tv == TV_SWORD && p_ptr->pclass == CLASS_ROGUE &&
-			p_ptr->realm1 == 5) /* Only assassins get a poisoned weapon */
+		/* Rogues begin the game with a poisoned dagger */
+		if (tv == TV_SWORD && p_ptr->pclass == CLASS_ROGUE)
+			/* && p_ptr->realm1 == 5) */
 		{
 			q_ptr->name2 = EGO_BRAND_POIS;
 		}

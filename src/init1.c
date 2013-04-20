@@ -220,7 +220,7 @@ static cptr r_info_flags3[] =
 	"ANIMAL",
 	"AMBERITE",	/* WAS: XXX1X3 */
 	"GOOD",
-	"XXX3X3",
+	"SCUMDOG",	/* WAS: XXX3X3 */
 	"NONLIVING",	/* WAS: XXX4X3 */
 	"HURT_LITE",
 	"HURT_ROCK",
@@ -342,7 +342,7 @@ static cptr r_info_flags6[] =
 	"DARKNESS",
 	"TRAPS",
 	"FORGET",
-	"XXX6X6",
+	"S_SCUMDOG",
 	"S_KIN",
 	"S_CYBER",
 	"S_MONSTER",
@@ -448,7 +448,7 @@ static cptr k_info_flags3[] =
 	"SH_FIRE",
 	"SH_ELEC",
 	"XXX3",
-	"XXX4",
+	"AUTO_CURSE",
 	"NO_TELE",
 	"NO_MAGIC",
 	"WRAITH",

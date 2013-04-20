@@ -1,0 +1,7 @@
+5
+******** BUFFER LINE *******************
+groans: 'Oh, Lo Wang wish somewhere else now!'
+cries: 'Maybe if I close eyes, it go away!'
+screams: 'Lo Wang get angry now!'
+scolds: 'You very bad man!'
+says: 'Pain is for the weak.'

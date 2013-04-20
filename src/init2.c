@@ -1809,7 +1809,7 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		{ TV_DIGGING, SV_SHOVEL },
 
 		{ TV_DIGGING, SV_PICK },
-		{ TV_CLOAK, SV_CLOAK },
+		{ TV_HAFTED, SV_LUCERN_HAMMER },
 		{ TV_CLOAK, SV_CLOAK },
 		{ TV_CLOAK, SV_CLOAK },
 

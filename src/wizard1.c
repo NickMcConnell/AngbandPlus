@@ -911,6 +911,10 @@ static void analyze_misc_magic (object_type *o_ptr, cptr *misc_list)
 		{
 			*misc_list++ = "Ancient Curse";
 		}
+ 		if (f3 & (TR3_AUTO_CURSE))
+ 		{
+ 			*misc_list++ = "Self-cursing";
+ 		}
 		if (f3 & (TR3_PERMA_CURSE))
 		{
 			*misc_list++ = "Permanently Cursed";
@@ -1672,6 +1676,8 @@ static void spoil_mon_info(cptr fname)
 		if (flags3 & (RF3_UNDEAD)) spoil_out(" undead");
 
 		if (flags3 & (RF3_DRAGON)) spoil_out(" dragon");
+		else if ((flags3 & (RF3_DEMON)) &&
+			 (flags3 & (RF3_SCUMDOG))) spoil_out(" demonic Scumdog");
 		else if (flags3 & (RF3_DEMON)) spoil_out(" demon");
 		else if (flags3 & (RF3_GIANT)) spoil_out(" giant");
 		else if (flags3 & (RF3_TROLL)) spoil_out(" troll");
@@ -1863,7 +1869,7 @@ static void spoil_mon_info(cptr fname)
 		if (flags6 & (RF6_DARKNESS))          vp[vn++] = "create darkness";
 		if (flags6 & (RF6_TRAPS))             vp[vn++] = "create traps";
 		if (flags6 & (RF6_FORGET))            vp[vn++] = "cause amnesia";
-		if (flags6 & (RF6_XXX6))              vp[vn++] = "do something";
+		if (flags6 & (RF6_S_SCUMDOG))         vp[vn++] = "summon one of the Scumdogs of the Universe";
 		if (flags6 & (RF6_S_MONSTER))         vp[vn++] = "summon a monster";
 		if (flags6 & (RF6_S_MONSTERS))        vp[vn++] = "summon monsters";
 		if (flags6 & (RF6_S_KIN))             vp[vn++] = "summon aid";

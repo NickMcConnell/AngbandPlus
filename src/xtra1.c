@@ -2119,10 +2119,9 @@ static void calc_bonuses(void)
 			break;
 		case RACE_GOLEM:
 			p_ptr->slow_digest = TRUE;
-/*			p_ptr->free_act = TRUE;                       */
-/*			p_ptr->see_inv = TRUE;                        */
 			p_ptr->resist_pois = TRUE;
-/*			if (p_ptr->lev > 34) p_ptr->hold_life = TRUE; */
+			p_ptr->resist_shard = TRUE;
+			p_ptr->resist_nexus = TRUE;
 			break;
 		case RACE_SKELETON:
 			p_ptr->resist_shard = TRUE;

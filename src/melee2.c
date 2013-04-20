@@ -2202,13 +2202,24 @@ static bool monst_spell_monst(int m_idx)
            break;
        }
 
-       /* RF6_XXX6X6 */
+       /* RF6_S_SCUMDOG */
        case 160+15:
        {
+           disturb(1, 0);
+           if (blind || !see_m) msg_format("%^s mumbles.", m_name);
+             else msg_format("%^s summons GWAR!", m_name);
+           for (k = 0; k < 1; k++)
+           {
+               if (friendly)
+               count += summon_specific_friendly(y, x, rlev, SUMMON_SCUMDOG, TRUE);
+               else
+               count += summon_specific(y, x, rlev, SUMMON_SCUMDOG);
+           }
+           if (blind && count) msg_print("You hear the sounds of heavy metal.");
            break;
        }
 
-         /* RF6_SUMMON_KIN */
+       /* RF6_SUMMON_KIN */
        case 160+16:
        {
              disturb(1, 0);
@@ -4048,9 +4059,17 @@ bool make_attack_spell(int m_idx)
 			break;
 		}
 
-		/* RF6_XXX6X6 */
+		/* RF6_S_SCUMDOG */
 		case 160+15:
 		{
+			disturb(1, 0);
+			if (blind) msg_format("%^s mumbles.", m_name);
+			else msg_format("%^s summons GWAR!", m_name);
+			for (k = 0; k < 1; k++)
+			{
+				count += summon_specific(y, x, rlev, SUMMON_SCUMDOG);
+			}
+			if (blind && count) msg_print("You hear the sounds of heavy metal.");
 			break;
 		}
 
@@ -5966,6 +5985,8 @@ static void process_monster(int m_idx, bool is_friend)
 
 				bool is_groo = !!(strstr(r_name + r_ptr->name, "Groo"));
 				bool is_smeagol = !!(strstr(r_name + r_ptr->name, "Smeagol"));
+				bool is_wang = !!(strstr(r_name + r_ptr->name, "Lo Wang"));
+				bool is_duke = !!(strstr(r_name + r_ptr->name, "Duke Nukem"));
 
 				/* Acquire the monster name/poss */
 				if (m_ptr->ml)
@@ -5988,6 +6009,22 @@ static void process_monster(int m_idx, bool is_friend)
 						get_rnd_line("smeagolr.txt", bravado);
 					else
 						get_rnd_line("smeagol.txt", bravado);
+					msg_format("%^s %s", m_name, bravado);
+				}
+				else if (is_wang)
+				{
+					if (m_ptr->monfear)
+						get_rnd_line("wangr.txt", bravado);
+					else
+						get_rnd_line("wang.txt", bravado);
+					msg_format("%^s %s", m_name, bravado);
+				}
+				else if (is_duke)
+				{
+					if (m_ptr->monfear)
+						get_rnd_line("duker.txt", bravado);
+					else
+						get_rnd_line("duke.txt", bravado);
 					msg_format("%^s %s", m_name, bravado);
 				}
 				else

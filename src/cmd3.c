@@ -179,6 +179,7 @@ void do_cmd_wield(void)
 
 	char o_name[80];
 
+ 	u32b f1, f2, f3;
 
 	/* Restrict the choices */
 	item_tester_hook = item_tester_hook_wear;
@@ -302,6 +303,13 @@ void do_cmd_wield(void)
 
 	/* Message */
 	msg_format("%s %s (%c).", act, o_name, index_to_label(slot));
+
+ 	/* Auto-curse */
+ 	object_flags(o_ptr, &f1, &f2, &f3);
+ 	if (f3 & TR3_AUTO_CURSE)
+ 	{
+		o_ptr->ident |= (IDENT_CURSED);
+ 	}
 
 	/* Cursed! */
 	if (cursed_p(o_ptr))

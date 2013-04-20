@@ -1,4 +1,4 @@
-248
+249
 ******** BUFFER LINE *********************************** DO NOT REMOVE *******
 They say that you can't trust rumors.
 You have no more Black Potions of Death.
@@ -11,6 +11,7 @@ Throw a Potion of Blindness at a monster and it cannot cast any spells!
 Oberon is afraid that you will upset the balance even more!
 Oberon won't let you near the Serpent of Chaos.
 MAKE MONEY FAST! Find a Treasure Pit!
+Hobbits can drop some pretty good stuff, no matter how scruffy they look.
 Not satisfied with the artifacts you find? Then create your own!
 Beware of Lobo, the mad killer!
 They say that Alberich has forged an all-powerful Ring.

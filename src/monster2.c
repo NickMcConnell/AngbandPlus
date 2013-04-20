@@ -2157,6 +2157,12 @@ static bool summon_specific_okay(int r_idx)
 			break;
 		}
 
+		case SUMMON_SCUMDOG:
+		{
+			okay = (r_ptr->flags3 & (RF3_SCUMDOG)) ? 1 : 0;
+			break;
+		}
+
 		case SUMMON_WRAITH:
 		{
 			okay = (r_ptr->flags3 & (RF3_AMBERITE));

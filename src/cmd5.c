@@ -1294,7 +1294,7 @@ void do_cmd_cast(void)
          (void)set_afraid(0);
          break;
 	   case 31: /* Holy Invulnerability */
-			(void)set_invuln(p_ptr->invuln + randint(7) + 7);
+			(void)set_invuln(p_ptr->invuln + randint(8) + 8);
 		       break;
 	       default:
 		 msg_format("You cast an unknown Life spell: %d.", spell);
@@ -1512,7 +1512,6 @@ void do_cmd_cast(void)
 			(void)detect_traps();
 			(void)detect_doors();
 			(void)detect_stairs();
-			(void)detect_monsters_normal();
             break;
 	   case 11: /* Frost Bolt */
 			if (!get_aim_dir(&dir)) return;

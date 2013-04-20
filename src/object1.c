@@ -4131,6 +4131,11 @@ bool identify_fully_aux(object_type *o_ptr)
 		}
 	}
 
+ 	if (f3 & (TR3_AUTO_CURSE))
+ 	{
+ 		info[i++] = "It will curse itself.";
+ 	}
+
 	if (f3 & (TR3_TY_CURSE))
 	{
 		info[i++] = "It carries an ancient foul curse.";

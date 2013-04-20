@@ -923,7 +923,7 @@ s32b flag_cost(object_type * o_ptr, int plusses)
 	if (f3 & TR3_SH_FIRE) total += 5000;
 	if (f3 & TR3_SH_ELEC) total += 5000;
 	if (f3 & TR3_XXX3) total += 0;
-	if (f3 & TR3_XXX4) total += 0;
+	if (f3 & TR3_AUTO_CURSE) total -= 10000;
 	if (f3 & TR3_NO_TELE) total += 2500;
 	if (f3 & TR3_NO_MAGIC) total += 2500;
 	if (f3 & TR3_WRAITH) total += 250000;
@@ -5750,7 +5750,7 @@ static void spell_info(char *p, int spell, int realm)
 					case 25: strcpy (p, " dur 48+d48"); break;
 					case 28: strcpy (p, " heal 2000"); break;
 					case 30: sprintf(p, " h300/d%d+388", plev * 5); break;
-					case 31: strcpy (p, " dur 7+d7"); break;
+					case 31: strcpy (p, " dur 8+d8"); break;
 				}
 				break;
 

@@ -867,6 +867,12 @@ static bool store_will_buy(object_type *o_ptr)
 			/* Analyze the type */
 			switch (o_ptr->tval)
 			{
+				case TV_HAFTED:
+				{
+					if (o_ptr->sval != SV_LUCERN_HAMMER)
+						return(FALSE);
+					break;
+				}
 				case TV_FOOD:
 				case TV_LITE:
 				case TV_FLASK:
@@ -876,7 +882,7 @@ static bool store_will_buy(object_type *o_ptr)
 				case TV_BOLT:
 				case TV_DIGGING:
 				case TV_CLOAK:
-                case TV_BOTTLE: /* 'Green', recycling Angband */
+				case TV_BOTTLE: /* 'Green', recycling Angband */
 				break;
 				default:
 				return (FALSE);

@@ -115,6 +115,7 @@ s16b monster_level;		/* Current monster creation level */
 
 s32b turn;				/* Current game turn */
 s32b old_turn;			/* Turn when level began (feelings) */
+s32b curse_turn;		/* Turn when TR3_AUTO_CURSE next takes effect */
 
 bool wizard;			/* Is the player currently in Wizard mode? */
 

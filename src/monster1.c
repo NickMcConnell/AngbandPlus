@@ -244,6 +244,7 @@ static void roff_aux(int r_idx)
 		if (r_ptr->flags3 & (RF3_UNDEAD)) flags3 |= (RF3_UNDEAD);
 		if (r_ptr->flags3 & (RF3_EVIL)) flags3 |= (RF3_EVIL);
 		if (r_ptr->flags3 & (RF3_GOOD)) flags3 |= (RF3_GOOD);
+		if (r_ptr->flags3 & (RF3_SCUMDOG)) flags3 |= (RF3_SCUMDOG);
 		if (r_ptr->flags3 & (RF3_ANIMAL)) flags3 |= (RF3_ANIMAL);
 		if (r_ptr->flags3 & (RF3_AMBERITE)) flags3 |= (RF3_AMBERITE);
 
@@ -554,6 +555,8 @@ static void roff_aux(int r_idx)
 
 		/* Describe the "race" */
 		if (flags3 & (RF3_DRAGON))          roff(" dragon");
+		else if ((flags3 & (RF3_DEMON)) &&
+			 (flags3 & (RF3_SCUMDOG)))  roff(" demonic Scumdog");
 		else if (flags3 & (RF3_DEMON))      roff(" demon");
 		else if (flags3 & (RF3_GIANT))      roff(" giant");
 		else if (flags3 & (RF3_TROLL))      roff(" troll");
@@ -765,7 +768,7 @@ static void roff_aux(int r_idx)
 	if (flags6 & (RF6_DARKNESS))		vp[vn++] = "create darkness";
 	if (flags6 & (RF6_TRAPS))		vp[vn++] = "create traps";
 	if (flags6 & (RF6_FORGET))		vp[vn++] = "cause amnesia";
-	if (flags6 & (RF6_XXX6))		vp[vn++] = "do something";
+	if (flags6 & (RF6_S_SCUMDOG))		vp[vn++] = "summon one of the Scumdogs of the Universe";
 	if (flags6 & (RF6_S_MONSTER))		vp[vn++] = "summon a monster";
 	if (flags6 & (RF6_S_MONSTERS))		vp[vn++] = "summon monsters";
 	if (flags6 & (RF6_S_KIN))		vp[vn++] = "summon aid";

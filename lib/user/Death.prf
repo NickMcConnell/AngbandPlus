@@ -1,0 +1,151 @@
+# Death Magic
+#
+# TAB - Wraithform          F1 - Malediction         SF1 - Genocide
+#   [ - Berserk             F2 - Stinking Cloud      SF2 - Mass Genocide
+#   ] - Battle Frenzy       F3 - Orb of Entropy      SF3 - Omnicide
+#   ' - Horrify             F4 - Nether Bolt
+#   " - Terror              F5 - Vampiric Drain
+#   ; - Black Sleep         F6 - Dark Bolt
+#   : - Invoke Spirits      F7 - Vampirism True
+#   h - Poison Branding     F8 - Darkness Storm
+#   H - Vampiric Branding   F9 - Death Ray
+#   J - Esoteria           F10 - Word of Death
+#   n - Detect Unlife      F11 - Evocation
+#   N - Detect Evil        F12 - Hellfire
+#   O - Dispel Good
+#   P - Resist Poison
+#   y - Enslave Undead
+#   Y - Raise the Dead
+#   Z - Restore Life
+
+# TAB - Wraithform
+A:m4h
+P:\t
+
+# [ - Berserk
+A:m3a
+C:0:[
+
+# ] - Battle Frenzy
+A:m3d
+C:0:]
+
+# ' - Horrify
+A:m1g
+C:0:'
+
+# " - Terror
+A:m2c
+C:0:"
+
+# ; - Black Sleep
+A:m1e
+C:0:;
+
+# : - Invoke Spirits
+A:m3b
+C:0::
+
+# h - Poison Branding
+A:m2e
+C:0:h
+
+# H - Vampiric Branding
+A:m3f
+C:0:H
+
+# J - Esoteria
+A:m4c
+C:0:J
+
+# n - Detect Unlife
+A:m1a
+C:0:n
+
+# N - Detect Evil
+A:m1c
+C:0:N
+
+# O - Dispel Good
+A:m2f
+C:0:O
+
+# P - Resist Poison
+A:m1f
+C:0:P
+
+# y - Enslave Undead
+A:m1h
+C:0:y
+
+# Y - Raise the Dead
+A:m4b
+C:0:Y
+
+# Z - Restore Life
+A:m2g
+C:0:Z
+
+# Combat
+
+# F1 - Malediction
+A:\e\e\e*tm1b
+P:^_x3B\r
+
+# F2 - Stinking Cloud
+A:m1d
+P:^_x3C\r
+
+# F3 - Orb of Entropy
+A:m2a
+P:^_x3D\r
+
+# F4 - Nether Bolt
+A:\e\e\e*tm2b
+P:^_x3E\r
+
+# F5 - Vampiric Drain
+A:m2d
+P:^_x3F\r
+
+# F6 - Dark Bolt
+A:\e\e\e*tm3c
+P:^_x40\r
+
+# F7 - Vampirism True
+A:m3e
+P:^_x41\r
+
+# F8 - Darkness Storm
+A:m3g
+P:^_x42\r
+
+# F9 - Death Ray
+A:\e\e\e*tm4a
+P:^_x43\r
+
+# F10 - Word of Death
+A:m4d
+P:^_x44\r
+
+# F11 - Evocation
+A:m4e
+P:^_x85\r
+
+# F12 - Hellfire
+A:m4f
+P:^_x86\r
+
+# Genocides
+
+# SHIFT-F1 - Genocide
+A:m2g
+P:^_Sx54\r
+
+# SHIFT-F2 - Mass Genocide
+A:m3h
+P:^_Sx55\r
+
+# SHIFT-F3 - Omnicide
+A:m4g
+P:^_Sx56\r

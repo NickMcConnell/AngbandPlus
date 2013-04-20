@@ -739,6 +739,8 @@ static void process_world(void)
 
 	object_type *o_ptr;
 	u32b f1 = 0 , f2 = 0 , f3 = 0;
+	s32b curse_turn;
+	char o_name[80];
 
 
 	/* Every 10 game turns */
@@ -1579,6 +1581,17 @@ static void process_world(void)
 		o_ptr = &inventory[i];
 
 		object_flags(o_ptr, &f1, &f2, &f3);
+
+	 	/*
+	 	 * Auto-curse
+	 	 * Curse_turn is set in remove_curse_aux()).
+	 	 */
+	 	if (f3 & TR3_AUTO_CURSE && ~o_ptr->ident & IDENT_CURSED && turn > curse_turn)
+	 	{
+	 		o_ptr->ident |= IDENT_CURSED;
+	 		object_desc(o_name, o_ptr, FALSE, 0);
+	 		msg_format("The %s suddenly feels deathly cold!", o_name);
+	 	}
 
 		/* TY Curse */
 		if ((f3 & TR3_TY_CURSE) && (randint(TY_CURSE_CHANCE)==1))

@@ -356,6 +356,15 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 					}
 				}
 
+				/* Notice vunerability */
+				else if (r_ptr->flags3 & (RF3_HURT_FIRE))
+				{
+					if (m_ptr->ml)
+					{
+						r_ptr->r_flags3 |= (RF3_HURT_FIRE);
+					}
+					if (mult < 5) mult = 5;
+				}
 				/* Otherwise, take the damage */
 				else
 				{
@@ -373,6 +382,15 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 					{
 						r_ptr->r_flags3 |= (RF3_IM_COLD);
 					}
+				}
+				/* Notice vunerability */
+				else if (r_ptr->flags3 & (RF3_HURT_COLD))
+				{
+					if (m_ptr->ml)
+					{
+						r_ptr->r_flags3 |= (RF3_HURT_COLD);
+					}
+					if (mult < 5) mult = 5;
 				}
 				/* Otherwise, take the damage */
 				else

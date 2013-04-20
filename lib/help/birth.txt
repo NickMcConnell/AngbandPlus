@@ -116,15 +116,17 @@ have intrinsic abilities.
                The human is the base character.  All other races are com-
                pared to them.  Humans can choose any class and are average
                at everything.  Humans tend to go up levels faster than any
-               other race because of their shorter life spans.  No racial
-               adjustments or intrinsics occur to characters choosing human.
+               other race because of their shorter life spans.  At level 15,
+               Humans are able to understand their own capabilities and
+               limits.
  
           Half-Elf
                Half-elves tend to be smarter and faster than a  human,  but
                not as strong.  Half-elves are slightly better at searching,
                disarming, saving throws, stealth, bows, and magic, but they
                are not as good at hand weapons.  Half-elves may choose any
-               class and do not receive any intrinsic abilities.
+               class.  Starting at level 10, Half-elves are able to spot any
+               animals that may be nearby.
  
           Elf
                Elves are better magicians then humans, but not as good at
@@ -133,7 +135,8 @@ have intrinsic abilities.
                are better at searching, disarming, perception, stealth, bows,
                and magic, but they are not as good at hand weapons.  Elves
                may choose any class except Paladin.  They resist light
-               effects intrinsically.
+               effects intrinsically and, like Half-elves, are able to spot
+               nearby animals after they reach level 10.
  
           Hobbits
                Hobbits, or Halflings, are very good at bows, throwing,  and
@@ -342,16 +345,17 @@ have intrinsic abilities.
                 raw material like clay, and awakened to life. They are
                 nearly mindless, making them useless for professions which
                 rely on magic, but as warriors they are very tough. They
-                are resistant to poison, they can see invisible things,
-                and move freely. At higher levels, they also become resistant
-                to attacks which threaten to drain away their life force.
-                They also learn to temporarily turn their skin into a very
-                hard, stonelike substance. In the most recent version, golems
-                gain very little nutrition from ordinary food. They need to
-                collect scrolls of satisfy hunger, or perish of exhaustion
-                when the life force animating their body runs out. In the
-                most recent version golems also gain natural armor class
-                bonus from their tough body.
+                are resistant to poison and shards. Golems tend to be so
+                massive that they're difficult to move against their will,
+                except by purely magical means, and so solidly built that
+		that they're somewhat resistant to bodily changes. They also
+                learn to temporarily turn their skin into a very hard,
+                stonelike substance. Golems gain very little nutrition from
+                ordinary food. They need to collect scrolls of satisfy
+                hunger, or perish of exhaustion when the life force
+                animating their body runs out. Golems also have a natural
+                armour class bonus, as befits a creature made of iron, clay
+                or other inorganic materials.
 
         Skeleton
                 There are two types of skeletons: the ordinary, warrior-
@@ -491,8 +495,7 @@ have intrinsic abilities.
                trained in Life magic, and the 'evil' dark Priests who  have
                chosen to study  Death magic instead.  In addition to  their
                primary  realm  of  magic (Life or Death  magic),  they  can
-               select a secondary realm from  Arcane , Trump,  Nature,  and
-               Chaos.
+               select a secondary realm from Trump, Nature, and Chaos.
 
           Rogue
                A Rogue is a character that prefers to live by his  cunning,
@@ -510,9 +513,8 @@ have intrinsic abilities.
                Dexterity.
                Rogues  who  wish  to  specialize  as burglars can choose to
                study Sorcery while Death magic is  available to rogues  who
-               wish to become Assassins.  In  the  latest  versions, Arcane
-               magic is available for 'common' thieves, and Trump magic for
-               card sharks.
+               wish to become Assassins. Rogues who study Trump magic are
+               known as card sharps.
  
           Ranger
                A Ranger is a warrior/mage.  He is a good fighter,  and  the
@@ -524,10 +526,7 @@ have intrinsic abilities.
                good stealth, good perception, good searching, a good saving
                throw,  and is good with magical devices.  His primary stats
                are Intelligence and Dexterity.
-               All  rangers  are  trained  in  Nature  magic. They can also
-               select  a secondary realm of magic  (from  Sorcery,  Arcane,
-               Trump, Chaos and Death) but their skills are more limited in
-               the second realm than in their native Nature magic.
+               All rangers are trained in Nature magic.
  
           Paladin
                A Paladin is a warrior/priest.  He is a very  good  fighter,
@@ -546,19 +545,17 @@ have intrinsic abilities.
                magic.
 
           Warrior-Mage
-               A Warrior-Mage is precisely what the name suggests: a  cross
-               between the warrior  and mage classes. While their brothers,
+               A Warrior-Mage is precisely what the name suggests: a cross
+               between the warrior and mage classes. While their brothers,
                the Rangers, specialize in Nature magic and survival skills,
                true Warrior-Mages attempt to reach the best of both worlds:
-               as magicians,  they are  trained  in  Arcane magic  and  can
-               select  another realm,  eventually  learning every spell  in
-               both of them  (although  slower  than  true  magicians);  as
-               warriors they are much superior to the usual Mage class. The
-               Warrior-Mage  is   a   truly  powerful  class,    which   is
-               recommended  for  the  players   who want to cast spells but
-               whose mages tend to  die too quickly.   However,  the  power
-               does not  come  without  a  price:   Warrior-Mages   require
-               more experience  to  advance levels than any other class.
+               as magicians, they are trained in Arcane magic as warriors
+               they are much superior to the usual Mage class. The Warrior-
+               Mage is a fairly powerful class, which is recommended for the
+               players who want to cast spells but whose mages tend to die
+               too quickly.  However, the power does not come without a
+               price: Warrior-Mages require more experience to advance
+               levels than any other class.
 
           Chaos Warrior
                Chaos Warriors are the feared servants of the terrible Demon
@@ -612,12 +609,12 @@ have intrinsic abilities.
                penalized for wielding an edged weapon (unlike a priest).
 
         High Mage
-               High  Mages  are  specialist Mages  of the highest order. In
-               most respects they are exactly like ordinary Mages, although
-               their  spell stat is slightly higher.   Instead of selecting
-               two realms of magic,  a High Mage selects  only one realm of
-               magic  and  studies it extremely well,   gaining substantial
-               benefits in mana costs, minimum levels and failure rates.
+               High Mages are specialist Mages of the highest order. In most
+               respects they are exactly like ordinary Mages, although their
+               spell stat is slightly higher. Instead of selecting two
+               realms of magic, a High Mage selects only one realm of magic
+               and studies it extremely well, gaining substantial benefits
+               in mana costs, minimum levels and failure rates.
  
 
 === Stats ===
@@ -840,7 +837,7 @@ Beastman      Yes     Yes     Yes
                enhanced.
  
                                                                    
-=== Stat Bonus Tables (updated for 2.0.6) ===
+=== Stat Bonus Tables (updated for Gumband 2.1.1) ===
 
 Stat, hit dice, and experience points per level modifications due to race
 are listed in the following table.
@@ -858,27 +855,24 @@ are listed in the following table.
            High-Elf    +1   +3   +2   +3   +1   +5      10         +100%
            Barbarian   +3   -2   -1   +1   +2   -2      11         +20%
            Half-Ogre   +3   -1   -1   -1   +3   -3      12         +30%
-           Half-Giant  +4   -2   -2   -2   +3   -3      13         +50% (*)
-           Half-Titan  +5   +1   +1   -2   +3   +1      14         +155% (*)
+           Half-Giant  +4   -2   -2   -2   +3   -3      13         +50%
+           Half-Titan  +5   +1   +1   -2   +3   +1      14         +155%
            Cyclops     +4   -3   -3   -3   +4   -6      13         +30%
            Yeek        -2   +1   +1   +1   -2   -7       7          +0%
-           Klackon     +2   -1   -1   +1   +2   -2      12         +35% (**)
+           Klackon     +2   -1   -1   +1   +2   -2      12         +35%
            Kobold      +1   -1    0   +1    0   -4       9         +25%
            Nibelung    +1   -1   +2    0   +2   -4      11         +35%
            Dark Elf    -1   +3   +2   +2   -2   +1       9         +50%
            Draconian   +2   +1   +1   +1   +2   -3      11         +150%
            Mind Flayer -3   +4   +4    0   -2   -5       9         +40%
            Imp         -1   -1   -1   +1   +2   -3      10         +10%
-           Golem       +4   -5   -5    0   +4   -4      12         +100% (**)
-           Skeleton     0   -2   -2    0   +1   -4      10         +45% (*)
-           Zombie      +2   -6   -6   +1   +4   -5      13         +35% (*)
-           Vampire     +3   +3   -1   -1   +1   +2      11         +100% (**)
-           Spectre     -5   +4   +4   +2   -3   -6       7         +80% (**)
-           Sprite      -4   +3   +3   +3   -2   +2       7         +75% (**)
-           Beastman    +2   -2   -1   -1   +2   -4      11         +40% (**)
-
-                (*) = Changed in 2.0.6.
-                (**) = Changed or new in 2.1.0.
+           Golem       +4   -5   -5    0   +4   -4      13         +150%
+           Skeleton     0   -2   -2    0   +1   -4      10         +45%
+           Zombie      +2   -6   -6   +1   +4   -5      13         +35%
+           Vampire     +3   +3   -1   -1   +1   +2      11         +100%
+           Spectre     -5   +4   +4   +2   -3   -6       7         +80%
+           Sprite      -4   +3   +3   +3   -2   +2       7         +75%
+           Beastman    +2   -2   -1   -1   +2   -4      11         +40%
 
 
                          STR     INT     WIS     DEX     CON     CHR
@@ -895,9 +889,7 @@ are listed in the following table.
            High Mage     -5      +4       0       0      -2      +1
  
  
-=== Ability Tables (updated for 2.0.6) ===
-
- 
+=== Ability Tables (updated for Gumband 2.1.1) ===
 
                         Dsrm Dvce Save Stlh Srch Prcp HtH  Misl
            Human        +0   +0   +0   +0   +0   +10  +0   +0     None
@@ -923,7 +915,7 @@ are listed in the following table.
            Draconian    -2   +5   +3   +0   +1   +10  +5   +5     20 feet
            Mind Flayer  +10  +25  +15  +2   +5   +12  -10  -5     40 feet
            Imp          -3   +2   -1   +1   -1   +10  +5   -5     30 feet
-           Golem        -5   -5   +10  -1   -1   +8   +20  +0     40 feet
+           Golem        -5   +5   +10  -1   -1   +8   +20  +0     40 feet
            Skeleton     -5   -5   +5   -1   -1   +8   +10  +0     20 feet
            Zombie       -5   -5   +8   -1   -1   +5   +15  +0     20 feet
            Vampire      +4   +10  +10  +4   +1   +8   +5   +0     50 feet
@@ -942,13 +934,12 @@ Paladin         20+7    24+10   26+11   1       12/2    68+35   40+30   +35%
 Warrior-Mage    30+7    30+10   28+9    2       18/16   50+20   25+20   +50%
 Chaos Warrior   20+7    25+11   25+10   1       14/12   65+34   40+29   +35%
 Monk            45+15   32+11   28+10   5       32/24   64+40   60+30   +40%
-Mindcrafter     30+10   30+10   30+10   3       22/16   50+20   40+30   +25%
+Mindcrafter     30+10   30+10   30+10   3       22/16   50+20   40+30   +30%
 High Mage       30+7    36+13   30+9    2       15/20   34+15   20+15   +30%
 
   
 
-=== Monks: Attack Types (2.0.6b)
-
+=== Monks: Attack Types (Gumband 2.1.1)
 
 Attack Name     Min.lvl Damage  Stun    Notes
 -----------------------------------------------------------------------------

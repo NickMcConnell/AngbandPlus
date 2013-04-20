@@ -2761,6 +2761,22 @@ static void cmd_racial_power_aux (void)
     
 	switch(p_ptr->prace)
 	{
+		case RACE_HUMAN:
+			if (racial_aux(15, 10, A_WIS, 10))
+			{
+				msg_print("You take stock of your abilities.");
+				(void)self_knowledge();
+			}
+			break;
+
+		case RACE_HALF_ELF: case RACE_ELF:
+			if (racial_aux(10, 5, A_WIS, 10))
+			{
+				msg_print("You look for your animal friends.");
+				(void)detect_monsters_xxx(RF3_ANIMAL);
+			}
+			break;
+
 		case RACE_DWARF:
 			if (racial_aux(5, 5, A_WIS, 12))
 			{
@@ -3240,6 +3256,22 @@ void do_cmd_racial_power(void)
 
 	switch (p_ptr->prace)
 	{
+		case RACE_HUMAN:
+			if (lvl < 15)
+				racial_power = "self knowledge (racial, lvl 15, cost 10)";
+			else
+				racial_power = "self knowledge (racial, cost 10, WIS 10@15)";
+			has_racial = TRUE;
+			break;
+
+		case RACE_HALF_ELF: case RACE_ELF:
+			if (lvl < 10)
+				racial_power = "detect animals (racial, lvl 10, cost 5)";
+			else
+				racial_power = "detect animals (racial, cost 10, WIS 10@10)";
+			has_racial = TRUE;
+			break;
+
 		case RACE_DWARF:
 			if (lvl < 5)
 				racial_power = "detect doors+traps (racial, lvl 5, cost 5)";

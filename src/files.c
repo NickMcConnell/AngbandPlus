@@ -1531,14 +1531,10 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3)
     }
     else if (p_ptr->prace == RACE_GOLEM)
     {
-/*      (*f3) |= (TR3_SEE_INVIS);     */
-/*      (*f2) |= (TR2_FREE_ACT);      */
         (*f2) |= (TR2_RES_POIS);
+	(*f2) |= (TR2_RES_SHARDS);
+	(*f2) |= (TR2_RES_NEXUS);
         (*f3) |= (TR3_SLOW_DIGEST);
-/*      if (p_ptr->lev > 34)          */
-/*      {                             */
-/*          (*f2) |= (TR2_HOLD_LIFE); */
-/*      }                             */
     }
     else if (p_ptr->prace == RACE_SKELETON)
     {
@@ -2182,23 +2178,23 @@ static cptr object_flag_names[96] =
     "Aura Fire",
 
     "Aura Elec",
- 	NULL,
- 	NULL,
+    NULL,
+    "AutoCurse",
     "NoTeleport",
     "AntiMagic",
     "WraithForm",
     "EvilCurse",
- 	"Easy Know",
- 	"Hide Type",
-	"Show Mods",
-	"Insta Art",
+    "Easy Know",
+    "Hide Type",
+    "Show Mods",
+    "Insta Art",
     "Levitate",
-	"Lite",
-	"See Invis",
-	"Telepathy",
-	"Digestion",
-	"Regen",
-	"Xtra Might",
+    "Lite",
+    "See Invis",
+    "Telepathy",
+    "Digestion",
+    "Regen",
+    "Xtra Might",
 	"Xtra Shots",
 	"Ign Acid",
 	"Ign Elec",

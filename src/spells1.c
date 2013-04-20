@@ -1087,8 +1087,8 @@ static int inven_damage(inven_func typ, int perc)
 	/* Count the casualties */
 	k = 0;
 
-	/* Scan through the slots backwards - was INVEN_PACK */
-	for (i = 0; i < INVEN_TOTAL; i++)
+	/* Scan through the slots backwards */
+	for (i = 0; i < INVEN_PACK; i++)
 	{
 		o_ptr = &inventory[i];
 
@@ -2924,6 +2924,13 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 				dam /= 9;
 				if (seen) r_ptr->r_flags3 |= (RF3_IM_FIRE);
 			}
+			if (r_ptr->flags3 & (RF3_HURT_FIRE))
+			{
+				note = " screams in agony!";
+				note_dies = " collapses into a pile of ashes.";
+				dam += (dam / 2);
+				if (seen) r_ptr->r_flags3 |= (RF3_HURT_FIRE);
+			}
 			break;
 		}
 
@@ -2936,6 +2943,13 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 				note = " resists a lot.";
 				dam /= 9;
 				if (seen) r_ptr->r_flags3 |= (RF3_IM_COLD);
+			}
+			if (r_ptr->flags3 & (RF3_HURT_COLD))
+			{
+				note = " screams in agony!";
+				note_dies = " freezes solid, then shatters!";
+				dam += (dam / 2);
+				if (seen) r_ptr->r_flags3 |= (RF3_HURT_COLD);
 			}
 			break;
 		}

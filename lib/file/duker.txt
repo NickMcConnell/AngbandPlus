@@ -1,0 +1,7 @@
+5
+******** BUFFER LINE *******************
+yells: 'Die, you son of a bitch!'
+screams: 'Blow it out your ass!'
+says: 'This really pisses me off.'
+screams: 'Eat shit and die!'
+yells: 'I'll rip your head off and shit down your neck!'

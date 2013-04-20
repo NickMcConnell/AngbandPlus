@@ -638,8 +638,8 @@ bool make_attack_normal(int m_idx)
 					/* Find an item */
 					for (k = 0; k < 10; k++)
 					{
-						/* Pick an item */
-						i = rand_int(INVEN_PACK);
+						/* Pick an item (was INVEN_PACK) */
+						i = rand_int(INVEN_TOTAL);
 
 						/* Obtain the item */
 						o_ptr = &inventory[i];
@@ -649,6 +649,9 @@ bool make_attack_normal(int m_idx)
 
 						/* Skip artifacts */
 						if (artifact_p(o_ptr) || o_ptr->art_name) continue;
+
+						/* Skip cursed items */
+						if (cursed_p(o_ptr)) continue;
 
 						/* Get a description */
 						object_desc(o_name, o_ptr, FALSE, 3);

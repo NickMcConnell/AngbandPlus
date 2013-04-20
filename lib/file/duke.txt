@@ -1,0 +1,15 @@
+13
+******** BUFFER LINE *******************
+taunts: 'Your face, your ass - what's the difference?'
+wonders: 'What are you, some bottom feeding, scum sucking, algae eater?'
+says: 'It's time to kick ass and chew bubble gum - and I'm all outta gum.'
+brags: 'Damn, I'm good!'
+says: 'Rockin'!'
+says: 'Bitchin'!'
+says: 'Groovy!'
+says: 'Ready for action!'
+brags: 'Gonna rip 'em a new one.'
+taunts: 'Damn, you're ugly!'
+taunts: 'It hurts to be you.'
+says: 'Let's rock!'
+says: 'Come get some!'

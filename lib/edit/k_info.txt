@@ -434,13 +434,13 @@ A:80/8
 P:0:5d8:0:0:0
 F:SLAY_UNDEAD | SHOW_MODS
 
-N:58:& Lucerne Hammer~
+N:58:& Sledgehammer~
 G:\:B
-I:21:10:0
-W:10:0:120:376
+I:21:10:1
+W:10:0:150:376
 A:10/1
 P:0:2d5:0:0:0
-F:SHOW_MODS
+F:TUNNEL | SHOW_MODS
 
 ##### Polearms #####
 
@@ -1062,7 +1062,7 @@ G:=:d
 I:45:4:0
 W:5:0:2:250
 A:5/1
-F:CURSED | TELEPORT | EASY_KNOW
+F:CURSED | AUTO_CURSE | TELEPORT | EASY_KNOW
 
 N:139:Slow Digestion
 G:=:d
@@ -1142,7 +1142,7 @@ G:=:d
 I:45:0:-5
 W:50:0:2:0
 A:50/1
-F:CURSED | TELEPORT | WIS | CHR | HIDE_TYPE
+F:CURSED | HEAVY_CURSE | AUTO_CURSE | TELEPORT | WIS | CHR | HIDE_TYPE
 
 N:150:Stupidity
 G:=:d
@@ -1174,7 +1174,7 @@ G:=:d
 I:45:1:0
 W:5:0:2:0
 A:5/1
-F:CURSED | AGGRAVATE | EASY_KNOW
+F:CURSED | AUTO_CURSE | AGGRAVATE | EASY_KNOW
 
 N:155:See Invisible
 G:=:d
@@ -1260,7 +1260,7 @@ G:":d
 I:40:1:0
 W:15:0:3:250
 A:15/1
-F:CURSED | TELEPORT | EASY_KNOW
+F:CURSED | AUTO_CURSE | TELEPORT | EASY_KNOW
 
 N:167:Slow Digestion
 G:":d
@@ -1299,7 +1299,8 @@ G:":d
 I:40:0:-5
 W:50:0:3:0
 A:50/1
-F:CURSED | STR | INT | WIS | DEX | CON | CHR | HIDE_TYPE
+F:CURSED | HEAVY_CURSE | AUTO_CURSE | 
+F:STR | INT | WIS | DEX | CON | CHR | HIDE_TYPE
 
 
 ##### Scrolls #####
@@ -1419,7 +1420,7 @@ N:191:*Remove Curse*
 G:?:d
 I:70:15:0
 W:20:0:5:8000
-A:20/5:25/3:50/1:75/1
+A:20/3:25/2:50/1:75/1
 
 N:192:Treasure Detection
 G:?:d
@@ -3555,3 +3556,12 @@ W:50:0:3:25000
 A:50/4
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+# Stormbringer -- see artifact list
+
+N:524:& Runesword~
+G:|:D
+I:23:31:0
+W:1:0:180:4000
+P:0:6d5:0:0:0
+F:INSTA_ART | SHOW_MODS

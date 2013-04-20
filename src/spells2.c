@@ -296,6 +296,8 @@ static int enchant_table[16] =
 static int remove_curse_aux(int all)
 {
 	int i, cnt = 0;
+	s32b curse_turn;
+
 
 	/* Attempt to uncurse items being worn */
 	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
@@ -339,6 +341,9 @@ static int remove_curse_aux(int all)
 
 		/* Window stuff */
 		p_ptr->window |= (PW_EQUIP);
+
+ 		/* Set auto_curse timeout */
+ 		curse_turn = turn + 5;
 
 		/* Count the uncursings */
 		cnt++;
@@ -578,6 +583,14 @@ void self_knowledge(void)
 	/* Racial powers... */
 	switch (p_ptr->prace)
 	{
+		case RACE_HUMAN:
+			if (plev > 14)
+				info[i++] = "You have an understanding of your abilities (cost 10).";
+			break;
+		case RACE_HALF_ELF: case RACE_ELF:
+			if (plev > 9)
+				info[i++] = "You can sense natural creatures (cost 5).";
+			break;
 		case RACE_NIBELUNG: case RACE_DWARF:
 			if (plev > 4)
 				info[i++] = "You can find traps, doors and stairs (cost 5).";
@@ -2152,6 +2165,9 @@ bool detect_monsters_xxx(u32b match_flag)
 	{
 		switch (match_flag)
 		{
+			case RF3_ANIMAL:
+				desc_monsters = "animals";
+				break;
 			case RF3_DEMON:
 				desc_monsters = "demons";
 				break;
@@ -4764,7 +4780,7 @@ void destroy_area(int y1, int x1, int r, bool full)
 			/* Hack -- Notice player affect */
 			if ((x == px) && (y == py))
 			{
-				/* Hurt the player later */
+				/* Hurt the player later - was TRUE */
 				flag = TRUE;
 
 				/* Do not hurt this grid */
