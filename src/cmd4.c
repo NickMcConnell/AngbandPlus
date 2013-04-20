@@ -94,9 +94,7 @@ void do_cmd_redraw(void)
 void do_cmd_change_name(void)
 {
 	char	c;
-
 	int		mode = 0;
-
 	char	tmp[160];
 
 
@@ -2804,7 +2802,6 @@ void do_cmd_knowledge_artifacts(void)
 	char base_name[80];
 	bool okay[MAX_A_IDX];
 
-
 	/* Temporary file */
 	if (path_temp(file_name, 1024)) return;
 
@@ -2935,9 +2932,8 @@ void do_cmd_knowledge_artifacts(void)
 static void do_cmd_knowledge_uniques(void)
 {
 	int k;
-
+	bool at_least_one_dead = FALSE;
 	FILE *fff;
-
 	char file_name[1024];
 
 
@@ -2953,17 +2949,35 @@ static void do_cmd_knowledge_uniques(void)
 		monster_race *r_ptr = &r_info[k];
 
 		/* Only print Uniques */
+		if (r_ptr->flags1 & (RF1_UNIQUE) && (r_ptr->max_num == 0))
+		{
+			at_least_one_dead = TRUE;
+
+			/* Print a message */
+			fprintf(fff, "     %s is dead.\n",
+						(r_name + r_ptr->name));
+		}
+	}
+
+	/* Blank line */
+	if (at_least_one_dead) fprintf(fff, "\n");
+
+	/* Scan the monster races */
+	for (k = 1; k < MAX_R_IDX-1; k++)
+	{
+		monster_race *r_ptr = &r_info[k];
+
+		/* Only print Uniques */
 		if (r_ptr->flags1 & (RF1_UNIQUE))
 		{
 			bool dead = (r_ptr->max_num == 0);
 
 			/* Only display "known" uniques */
-			if (dead || cheat_know || r_ptr->r_sights)
+			if (!dead && (cheat_know || r_ptr->r_sights))
 			{
 				/* Print a message */
-				fprintf(fff, "     %s is %s.\n",
-				        (r_name + r_ptr->name),
-				        (dead ? "dead" : "still at large"));
+				fprintf(fff, "     %s is still at large.\n",
+						(r_name + r_ptr->name));
 			}
 		}
 	}

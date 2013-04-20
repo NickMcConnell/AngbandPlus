@@ -1,4 +1,4 @@
-=== Original Keyset Command Summary (Gumband 2.1.4a) ===
+=== Original Keyset Command Summary (Gumband 2.1.7) ===
 
  Original Keyset Directions
          7  8  9
@@ -62,7 +62,8 @@
  /  Identify symbol                      ?  Help
 
 [note that most of the (unused) keys are covered by macros in the lib/user/
- directory's *.prf files]
+ directory's *.prf files, which should be discarded or altered for non-DOS
+ platforms]
 
 -- 
                 Original: Alexander Cutler and Andy Astrand

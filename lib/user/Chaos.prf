@@ -5,20 +5,20 @@
 #   ] - Chaos Branding      F3 - Fist of Force       SF3 - Fire Ball
 #   ' - Teleport Self       F4 - Chaos Bolt          SF4 - Invoke Chaos
 #   " - Alter Reality       F5 - Mana Bolt           SF5 - Chain Lightning
-#   ; - Trap/Door Destruct. F6 - Polymorph Other     SF6 - Disintegrate
-#   : - Word of Destruction F7 - Beam of Gravity     SF7 - Meteor Swarm
-#   Z - Flash of Light      F8 - Call the Void       SF8 - Flame Strike
-#                           F9 - Chaotic Sensing     SF9 - Call Chaos
-#                          F10 - Wonder             SF10 - Magic Rocket
+#   ; - Trap/Door Destruct. F6 - Beam of Gravity     SF6 - Disintegrate
+#   : - Word of Destruction F7 - Call the Void       SF7 - Meteor Swarm
+#   Z - Flash of Light      F8 - Polymorph Other     SF8 - Flame Strike
+#                           F9 - Mass Polymorph      SF9 - Call Chaos
+#                          F10 - Chaotic Sensing    SF10 - Magic Rocket
 #                          F11 - Polymorph Self     SF11 - Mana Storm
 #                          F12 - Summon Demon       SF12 - Breathe Chaos
 
 # TAB - Demonic Consultation
-A:m3e
+A:m3d
 P:\t
 
 # [ - Arcane Binding
-A:m3c
+A:m3b
 C:0:[
 
 # ] - Chaos Branding
@@ -30,7 +30,7 @@ A:m1h
 C:0:'
 
 # " - Alter Reality
-A:m3f
+A:m3e
 C:0:"
 
 # ; - Trap/Door Destruction
@@ -67,30 +67,28 @@ P:^_x3E\r
 A:\e\e\e*tm2e
 P:^_x3F\r
 
-# F6 - Polymorph Other
-A:m3a
+# F6 - Beam of Gravity
+A:\e\e\e*tm4a
 P:^_x40\r
 
-# F7 - Beam of Gravity
-A:\e\e\e*tm4a
+# F7 - Call the Void
+A:m4h
 P:^_x41\r
 
-# F8 - Call the Void
-A:m4h
+# F8 - Polymorph Self
+A:m2b
 P:^_x42\r
 
-# Misc Crap
-
-# F9 - Chaotic Sensing
-A:m1d
+# F9 - Mass Polymorph
+A:m3g
 P:^_x43\r
 
-# F10 - Wonder
-A:m2b
+# F10 - Chaotic Sensing
+A:m1d
 P:^_x44\r
 
 # F11 - Polymorph Self
-A:m3g
+A:m3f
 P:^_x85\r
 
 # F12 - Summon Demon
@@ -116,11 +114,11 @@ A:m2h
 P:^_Sx57\r
 
 # SHIFT-F5 - Chain Lightning
-A:m3b
+A:m3a
 P:^_Sx58\r
 
 # SHIFT-F6 - Disintegrate
-A:m3d
+A:m3c
 P:^_Sx59\r
 
 # SHIFT-F7 - Meteor Swarm

@@ -753,7 +753,7 @@ void object_flags(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
 		(*f3) |= e_ptr->flags3;
 	}
 
-	/* Random artifact ! */
+	/* Random artifact and random abilities of ego-items and artifacts */
 	if (o_ptr->art_flags1 || o_ptr->art_flags2 || o_ptr->art_flags3)
 	{
 		(*f1) |= o_ptr->art_flags1;
@@ -1137,28 +1137,21 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 {
 	cptr            basenm, modstr;
 	int             power, indexx;
-
 	bool            aware = FALSE;
 	bool            known = FALSE;
-
 	bool            append_name = FALSE;
-
 	bool            show_weapon = FALSE;
 	bool            show_armour = FALSE;
-
 	cptr            s, u;
 	char            *t;
-
 	char            p1 = '(', p2 = ')';
 	char            b1 = '[', b2 = ']';
 	char            c1 = '{', c2 = '}';
-
 	char            tmp_val[160];
 	char            tmp_val2[90];
-
 	u32b            f1, f2, f3;
-
 	object_kind	*k_ptr = &k_info[o_ptr->k_idx];
+
 
 	/* Extract some flags */
 	object_flags(o_ptr, &f1, &f2, &f3);
@@ -1993,66 +1986,29 @@ void object_desc_store(char *buf, object_type *o_ptr, int pref, int mode)
 
 
 /*
- * Describe a "fully identified" item
+ * RMG
+ * function header and idea taken from ey_angband and is very similar to
+ * vanilla 291 source, so i dont know who to credit for it. Function body
+ * itself is mostly earlier gumband identify_fully_aux() function
+ * [note from Gumby: 'RMG' in comments in the next 3 functions refer to
+ *  'Riivo Magi' (missing an umulat on that 'a' :)]
  */
-bool identify_fully_aux(object_type *o_ptr)
+
+/* Fill an array with a description of the item flags.
+ * "info" must point to a cptr array that is big enough to store all
+ *    descriptions.
+ * Returns the number of lines.
+ * ToDo: Check the len of the array to prevent buffer overflows
+ *    (yes, this is paranoid).
+ * ToDo: Allow dynamic generation of strings.
+ */
+bool identify_fully_aux2(object_type *o_ptr, cptr *info, int len)
 {
-	int	i = 0, j, k;
+	int	i = 0;
 	u32b	f1, f2, f3;
-	cptr	info[128];
 
 	/* Extract the flags */
 	object_flags(o_ptr, &f1, &f2, &f3);
-
-	/*
-	 * Mega-Hack -- Parse the 'D:' line for arts. -- Gumby
-	 * [stolen from PernAngband]
-	 */
-	if (o_ptr->name1)
-	{
-                char buff2[400], *s, *t;
-		int n;
-                artifact_type *a_ptr = &a_info[o_ptr->name1];
-			   
-	        a_ptr = &a_info[o_ptr->name1];
-		strcpy (buff2, a_text + a_ptr->text);
-
-		s = buff2;
-		
-                /* Collect the history */
-                while (TRUE)
-                {
-                        /* Extract remaining length */
-                        n = strlen(s);
-
-                        /* All done */
-                        if (n < 60)
-                        {
-                                /* Save one line of history */
-                                info[i++] = s;
-
-                                /* All done */
-                                break;
-                        }
-
-                        /* Find a reasonable break-point */
-                        for (n = 60; ((n > 0) && (s[n-1] != ' ')); n--) /* loop */;
-
-                        /* Save next location */
-                        t = s + n;
-
-                        /* Wipe trailing spaces */
-                        while ((n > 0) && (s[n-1] == ' ')) s[--n] = '\0';
-
-                        /* Save one line of history */
-                        info[i++] = s;
-
-                        s = t;
-                }
-
-                /* Add a blank line */
-                info[i++] = "";
-	}
 
 	/* Mega-Hack -- describe activation */
 	if (f3 & (TR3_ACTIVATE))
@@ -2061,7 +2017,6 @@ bool identify_fully_aux(object_type *o_ptr)
 		info[i++] = item_activation(o_ptr);
 		info[i++] = "...if it is being worn.";
 	}
-
 
 	/* Hack -- describe lite's */
 	if (o_ptr->tval == TV_LITE)
@@ -2072,7 +2027,7 @@ bool identify_fully_aux(object_type *o_ptr)
 		}
 		else if (o_ptr->sval == SV_LITE_FEANORAN_LAMP)
 		{
-			info[i++] = "It provides lite (radius 2) forever.";
+			info[i++] = "It provides light (radius 2) forever.";
 		}
 		else if (o_ptr->sval == SV_LITE_LANTERN)
 		{
@@ -2084,9 +2039,7 @@ bool identify_fully_aux(object_type *o_ptr)
 		}
 	}
 
-
 	/* And then describe it fully */
-
 	if (object_value(o_ptr) <= 0)
 	{
 		info[i++] = "It is worthless in the eyes of shopkeepers.";
@@ -2147,7 +2100,6 @@ bool identify_fully_aux(object_type *o_ptr)
 	{
 		info[i++] = "It affects your attack speed.";
 	}
-
 	if (f1 & (TR1_BRAND_ACID))
 	{
 		info[i++] = "It does extra damage from acid.";
@@ -2164,32 +2116,26 @@ bool identify_fully_aux(object_type *o_ptr)
 	{
 		info[i++] = "It does extra damage from frost.";
 	}
-
 	if (f1 & (TR1_BRAND_POIS))
 	{
 		info[i++] = "It poisons your foes.";
 	}
-
 	if (f1 & (TR1_CHAOTIC))
 	{
 		info[i++] = "It is marked with the Arms of Chaos.";
 	}
-
 	if (f1 & (TR1_VAMPIRIC))
 	{
 		info[i++] = "It drains life from your foes.";
 	}
-
 	if (f1 & (TR1_IMPACT))
 	{
 		info[i++] = "It can cause earthquakes.";
 	}
-
 	if (f1 & (TR1_VORPAL))
 	{
 		info[i++] = "It is very sharp and can cut your foes.";
 	}
-
 	if (f1 & (TR1_KILL_DRAGON))
 	{
 		info[i++] = "It is a great bane of dragons.";
@@ -2226,7 +2172,6 @@ bool identify_fully_aux(object_type *o_ptr)
 	{
 		info[i++] = "It is especially deadly against natural creatures.";
 	}
-
 	if (f2 & (TR2_SUST_STR))
 	{
 		info[i++] = "It sustains your strength.";
@@ -2251,7 +2196,6 @@ bool identify_fully_aux(object_type *o_ptr)
 	{
 		info[i++] = "It sustains your charisma.";
 	}
-
 	if (f2 & (TR2_IM_ACID))
 	{
 		info[i++] = "It provides immunity to acid.";
@@ -2268,7 +2212,6 @@ bool identify_fully_aux(object_type *o_ptr)
 	{
 		info[i++] = "It provides immunity to cold.";
 	}
-
 	if (f2 & (TR2_FREE_ACT))
 	{
 		info[i++] = "It provides immunity to paralysis.";
@@ -2301,7 +2244,6 @@ bool identify_fully_aux(object_type *o_ptr)
 	{
 		info[i++] = "It provides resistance to poison.";
 	}
-
 	if (f2 & (TR2_RES_LITE))
 	{
 		info[i++] = "It provides resistance to light.";
@@ -2310,7 +2252,6 @@ bool identify_fully_aux(object_type *o_ptr)
 	{
 		info[i++] = "It provides resistance to dark.";
 	}
-
 	if (f2 & (TR2_RES_BLIND))
 	{
 		info[i++] = "It provides resistance to blindness.";
@@ -2327,7 +2268,6 @@ bool identify_fully_aux(object_type *o_ptr)
 	{
 		info[i++] = "It provides resistance to shards.";
 	}
-
 	if (f2 & (TR2_RES_NETHER))
 	{
 		info[i++] = "It provides resistance to nether.";
@@ -2344,7 +2284,6 @@ bool identify_fully_aux(object_type *o_ptr)
 	{
 		info[i++] = "It provides resistance to disenchantment.";
 	}
-
 	if (f3 & (TR3_WRAITH))
 	{
 		info[i++] = "It renders you incorporeal.";
@@ -2409,7 +2348,6 @@ bool identify_fully_aux(object_type *o_ptr)
 	{
 		info[i++] = "It fires missiles excessively fast.";
 	}
-
 	if (f3 & (TR3_DRAIN_EXP))
 	{
 		info[i++] = "It drains experience.";
@@ -2422,12 +2360,10 @@ bool identify_fully_aux(object_type *o_ptr)
 	{
 		info[i++] = "It aggravates nearby creatures.";
 	}
-
 	if (f3 & (TR3_BLESSED))
 	{
 		info[i++] = "It has been blessed by the gods.";
 	}
-
 	if (cursed_p(o_ptr))
 	{
 		if (f3 & (TR3_PERMA_CURSE))
@@ -2443,12 +2379,10 @@ bool identify_fully_aux(object_type *o_ptr)
 			info[i++] = "It is cursed.";
 		}
 	}
-
  	if (f3 & (TR3_AUTO_CURSE))
  	{
 		info[i++] = "It will curse itself.";
  	}
-
 	if ((f3 & (TR3_IGNORE_ACID)) && (f3 & (TR3_IGNORE_ELEC)) &&
 	    (f3 & (TR3_IGNORE_FIRE)) && (f3 & (TR3_IGNORE_COLD)))
 	{
@@ -2462,6 +2396,86 @@ bool identify_fully_aux(object_type *o_ptr)
 		if (f3 & (TR3_IGNORE_COLD)) info[i++] = "It cannot be harmed by cold.";
 	}
 
+	/* RMG probably useless code haven't had the time to debug it, */
+	/* Unknown extra powers (ego-item with random extras or artifact) */
+	if (object_known_p(o_ptr) && (!(o_ptr->ident & IDENT_MENTAL)) &&
+	    ((o_ptr->xtra1) || artifact_p(o_ptr)))
+	{
+		info[i++] = "It has hidden powers.";
+	}
+
+	/* Return the number of lines */
+	return (i);
+}
+
+/*
+ * Describe an item's random attributes for "character dumps"
+ */
+int identify_random_gen(object_type *o_ptr, cptr *info, int len)
+{
+	/* RMG
+	 * function to filter out items which could have resistances but
+	 * haven't been idented fully. And return their info to
+	 * file_character() function in files.c. Function name and usage
+	 * taken from ey_angband (don't know from where Eytan got that,
+	 * probably from somewhere in vanilla)
+	 */
+	
+	/* Item must be *ID*-d to show any info */
+	if (!(o_ptr->ident & IDENT_MENTAL) && !(death))
+	{
+		/* RMG
+		 * check if we are dealing with artifact/randart/ego item
+                 */
+		if (o_ptr->art_flags1 || o_ptr->art_flags2 || o_ptr->art_flags3 ||
+		    o_ptr->art_name || o_ptr->xtra1)
+			/* RMG
+			 * this selection should probably be widened for
+			 * now its just ego items, artifacts and random
+			 * artifacts
+			 */
+		{
+			info[0] = "It has hidden powers.";
+			return(1);
+		}
+		else 
+		{
+			return(0);
+		};
+	}
+
+	/* Fill the list of descriptions and return the count */
+	if (o_ptr->art_flags1 || o_ptr->art_flags2 || o_ptr->art_flags3 ||
+	    o_ptr->art_name || o_ptr->xtra1)
+	{
+		return identify_fully_aux2(o_ptr, info, len);
+	}
+	else
+	{
+		return(0);
+	}
+}
+
+/* Fully Identify an item - RMG */
+bool identify_fully_aux(object_type *o_ptr)
+{
+	/* RMG 
+	 * Structures to fill *ID* info 
+	 * there can be a problem if object full description is longer than
+	 * 128 rows. Maybe this structure should be made more dynamic. Size
+	 * 128 itself is from ey_angband 0.2.7 source
+	 */
+	
+	cptr	info[128];
+	int	i, k, j;
+
+	/* RMG paranoia to clear the holding structure correctly */
+	C_WIPE(info,128,cptr);
+
+	/* RMG Fill the list of descriptions and return the count */
+	i = identify_fully_aux2(o_ptr, info, 128);
+	
+	/* RMG from earlier version of the same function*/
 	/* No special effects */
 	if (!i) return (FALSE);
 

@@ -59,7 +59,7 @@ A:m5d
 C:0:J
 
 # n - Chain Lightning
-A:m7b
+A:m7a
 C:0:n
 
 # N - Meteor Swarm
@@ -163,7 +163,7 @@ A:m6h
 P:^_Sx59\r
 
 # SHIFT-F7 - Disintegrate
-A:m7d
+A:m7c
 P:^_Sx5A\r
 
 # SHIFT-F8 - Darkness Storm

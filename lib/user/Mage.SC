@@ -157,11 +157,11 @@ A:m6h
 P:^_Sx57\r
 
 # SHIFT-F5 - Chain Lightning
-A:m7b
+A:m7a
 P:^_Sx58\r
 
 # SHIFT-F6 - Disintegrate
-A:m7d
+A:m7c
 P:^_Sx59\r
 
 # SHIFT-F7 - Meteor Swarm

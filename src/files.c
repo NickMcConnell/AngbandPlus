@@ -1263,6 +1263,8 @@ static void display_player_various(void)
     int         muta_att = 0;
 
 	object_type		*o_ptr;
+	int i;
+	martial_arts *ma_ptr = &ma_blows[0];
 
 	if (p_ptr->muta2 & (MUT2_SCOR_TAIL)) muta_att++;
 	if (p_ptr->muta2 & (MUT2_HORNS)) muta_att++;
@@ -1283,13 +1285,14 @@ static void display_player_various(void)
 	if ((p_ptr->pclass == CLASS_WEAPONMASTER) &&
 	    (inventory[INVEN_WIELD].tval == p_ptr->wm_choice))
 		tmp = (p_ptr->to_h - p_ptr->lev) + o_ptr->to_h;
+	else if (p_ptr->pclass == CLASS_ARCHER)
+		tmp = p_ptr->to_h + o_ptr->to_h + p_ptr->lev;
 	else if ((p_ptr->pclass == CLASS_PRIEST) && (p_ptr->icky_wield))
 		tmp = p_ptr->to_h + o_ptr->to_h + 15;
 	else
 		tmp = p_ptr->to_h + o_ptr->to_h;
 
 	xthb = p_ptr->skill_thb + (tmp * BTH_PLUS_ADJ);
-
 
 	/* Average damage per round */
 	o_ptr = &inventory[INVEN_WIELD];
@@ -1299,7 +1302,6 @@ static void display_player_various(void)
 	damsides = o_ptr->ds; /* dam += (o_ptr->dd * (o_ptr->ds + 1)) >> 1; */
 	blows = p_ptr->num_blow;
 	/* dam *= p_ptr->num_blow; */
-
 
 	/* Basic abilities */
 	xdis = p_ptr->skill_dis;
@@ -1341,7 +1343,6 @@ static void display_player_various(void)
 	desc = likert(xdev, 6);
 	c_put_str(likert_color, desc, 19, 42);
 
-
 	put_str("Blows/Round:", 16, 55);
 	if (!muta_att)
 		put_str(format("%d", p_ptr->num_blow), 16, 69);
@@ -1351,8 +1352,33 @@ static void display_player_various(void)
 	put_str("Shots/Round:", 17, 55);
 	put_str(format("%d", p_ptr->num_fire), 17, 69);
 
-	put_str("Wpn.dmg/Rnd:", 18, 55);    /* From PsiAngband */
-	if ((damdice == 0) || (damsides == 0))
+	if (p_ptr->pclass == CLASS_MONK && monk_empty_hands())
+		put_str("Max.dmg/Rnd:", 18, 55);
+	else
+		put_str("Wpn.dmg/Rnd:", 18, 55);    /* From PsiAngband */
+
+	/*
+	 * I'm only responsible for the damage display for Monks. The rest
+	 * of the display is other people's work. -- Gumby
+	 */
+	if (p_ptr->pclass == CLASS_MONK && monk_empty_hands())
+	{
+		i = MAX_MA;
+
+		do
+		{
+			i--;
+			ma_ptr = &ma_blows[i];
+		}
+		while (ma_ptr->min_level > p_ptr->lev);
+
+		if (dambonus == 0)
+			desc = format("%d%d", blows * ma_ptr->dd, ma_ptr->ds);
+		else
+			desc = format("%dd%d%s%d", blows * ma_ptr->dd, ma_ptr->ds,
+				(dambonus < 0 ? "":"+"), blows * dambonus);
+	}
+	else if ((damdice == 0) || (damsides == 0))
 	{
 		if (dambonus <= 0)
 			desc = "nil!";
@@ -1368,7 +1394,6 @@ static void display_player_various(void)
 				(dambonus < 0 ? "":"+"), blows * dambonus);
 	}
 	put_str(desc, 18, 69);
-
 
 	put_str("Infravision:", 19, 55);
 	put_str(format("%d'", p_ptr->see_infra * 10), 19, 69);
@@ -1392,7 +1417,7 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3)
 	{
 		case CLASS_WARRIOR:
 			if (p_ptr->lev > 29) (*f2) |= (TR2_RES_FEAR); break;
-		case CLASS_PALADIN:
+		case CLASS_PALADIN: case CLASS_ARCHER:
 			if (p_ptr->lev > 34) (*f2) |= (TR2_RES_FEAR); break;
 		case CLASS_CHAOS_WARRIOR:
 			if (p_ptr->lev > 39) (*f2) |= (TR2_RES_CHAOS);
@@ -1537,7 +1562,6 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3)
 		{
 			(*f2) |= (TR2_RES_ELEC);
 			(*f3) |= (TR3_SH_ELEC);
-			(*f3) |= (TR3_LITE);
 		}
 
 		if (p_ptr->muta3 & MUT3_FIRE_BODY)
@@ -1651,7 +1675,6 @@ static void display_player_flag_aux(int row, int col,
 			char *header, int n, u32b flag)
 {
 	int i;
-
 	u32b f[3];
 
 
@@ -1916,6 +1939,14 @@ static void display_player_stat_info(void)
 			a = TERM_SLATE;
 			c = '.';
 
+			/* Sustain */
+			if (f2 & 1<<stat)
+			{
+				/* Light Blue "s" */
+				a = TERM_L_BLUE;
+				c = 's';
+			}
+
 			/* Boost */
 			if (f1 & 1<<stat)
 			{
@@ -1926,7 +1957,8 @@ static void display_player_stat_info(void)
 				if (o_ptr->pval > 0)
 				{
 					/* Good */
-					a = TERM_L_GREEN;
+					if (f2 & 1<<stat) a = TERM_L_BLUE;
+					else a = TERM_L_GREEN;
 
 					/* Label boost */
 					if (o_ptr->pval < 10) c = '0' + o_ptr->pval;
@@ -1936,19 +1968,12 @@ static void display_player_stat_info(void)
 				if (o_ptr->pval < 0)
 				{
 					/* Bad */
-					a = TERM_RED;
+					if (f2 & 1<<stat) a = TERM_L_BLUE;
+					else a = TERM_RED;
 
 					/* Label boost */
 					if (o_ptr->pval < 10) c = '0' - o_ptr->pval;
 				}
-			}
-
-			/* Sustain */
-			if (f2 & 1<<stat)
-			{
-				/* Dark green "s" */
-				a = TERM_GREEN;
-				c = 's';
 			}
 
 			/* Handle monochrome */
@@ -1972,89 +1997,87 @@ static void display_player_stat_info(void)
 		a = TERM_SLATE;
 		c = '.';
 
-        /* Mutations ... */
+		/* Mutations ... */
+		/* Sustain */
+		if (f2 & 1<<stat)
+		{
+			/* Light Blue "s" */
+			a = TERM_L_BLUE;
+			c = 's';
+		}
 
-        if (p_ptr->muta3)
-        {
-            int dummy = 0;
+		if (p_ptr->muta3)
+		{
+			int dummy = 0;
 
-            if (stat == A_STR)
-            {
-                if (p_ptr->muta3 & MUT3_HYPER_STR) dummy += 4;
-                if (p_ptr->muta3 & MUT3_PUNY)   dummy -= 4;
-            }
-            else if (stat == A_WIS || stat == A_INT)
-            {
-                if (p_ptr->muta3 & MUT3_HYPER_INT) dummy += 4;
-                if (p_ptr->muta3 & MUT3_MORONIC) dummy -= 4;
-            }
-            else if (stat == A_DEX)
-            {
-                if (p_ptr->muta3 & MUT3_IRON_SKIN) dummy -= 1;
-		if (p_ptr->muta3 & MUT3_LIMBER) dummy += 3;
-		if (p_ptr->muta3 & MUT3_ARTHRITIS) dummy -= 3;
-            }
-            else if (stat == A_CON)
-            {
-                if (p_ptr->muta3 & MUT3_RESILIENT) dummy += 4;
-                if (p_ptr->muta3 & MUT3_XTRA_FAT) dummy += 2;
-                if (p_ptr->muta3 & MUT3_ALBINO) dummy -= 4;
-                if (p_ptr->muta3 & MUT3_FLESH_ROT) dummy -= 2;
-            }
-            else if (stat == A_CHR)
-            {
-                if (p_ptr->muta3 & MUT3_SILLY_VOI) dummy -= 4;
-                if (p_ptr->muta3 & MUT3_BLANK_FAC) dummy -= 1;
-                if (p_ptr->muta3 & MUT3_FLESH_ROT) dummy -= 1;
-                if (p_ptr->muta3 & MUT3_SCALES) dummy -= 1;
-                if (p_ptr->muta3 & MUT3_WART_SKIN) dummy -= 2;
-            }
-
+			if (stat == A_STR)
+			{
+				if (p_ptr->muta3 & MUT3_HYPER_STR) dummy += 4;
+				if (p_ptr->muta3 & MUT3_PUNY)   dummy -= 4;
+			}
+			else if (stat == A_WIS || stat == A_INT)
+			{
+				if (p_ptr->muta3 & MUT3_HYPER_INT) dummy += 4;
+				if (p_ptr->muta3 & MUT3_MORONIC) dummy -= 4;
+			}
+			else if (stat == A_DEX)
+			{
+				if (p_ptr->muta3 & MUT3_IRON_SKIN) dummy -= 1;
+				if (p_ptr->muta3 & MUT3_LIMBER) dummy += 3;
+				if (p_ptr->muta3 & MUT3_ARTHRITIS) dummy -= 3;
+			}
+			else if (stat == A_CON)
+			{
+				if (p_ptr->muta3 & MUT3_RESILIENT) dummy += 4;
+				if (p_ptr->muta3 & MUT3_XTRA_FAT) dummy += 2;
+				if (p_ptr->muta3 & MUT3_ALBINO) dummy -= 4;
+				if (p_ptr->muta3 & MUT3_FLESH_ROT) dummy -= 2;
+			}
+			else if (stat == A_CHR)
+			{
+				if (p_ptr->muta3 & MUT3_SILLY_VOI) dummy -= 4;
+				if (p_ptr->muta3 & MUT3_BLANK_FAC) dummy -= 1;
+				if (p_ptr->muta3 & MUT3_FLESH_ROT) dummy -= 1;
+				if (p_ptr->muta3 & MUT3_SCALES) dummy -= 1;
+				if (p_ptr->muta3 & MUT3_WART_SKIN) dummy -= 2;
+			}
 
 			/* Boost */
-            if (dummy)
+			if (dummy)
 			{
 				/* Default */
 				c = '*';
 
 				/* Good */
-                if (dummy > 0)
+				if (dummy > 0)
 				{
 					/* Good */
-					a = TERM_L_GREEN;
+					if (f2 & 1<<stat) a = TERM_L_BLUE;
+					else a = TERM_L_GREEN;
 
 					/* Label boost */
-                    if (dummy < 10) c = '0' + dummy;
+					if (dummy < 10) c = '0' + dummy;
 				}
-				
+
 				/* Bad */
-                if (dummy < 0)
+        	        	if (dummy < 0)
 				{
 					/* Bad */
-					a = TERM_RED;
+					if (f2 & 1<<stat) a = TERM_L_BLUE;
+					else a = TERM_RED;
 
 					/* Label boost */
-                    if (dummy < 10) c = '0' - dummy;
+					if (dummy < 10) c = '0' - dummy;
 				}
 			}
-        }
-
-
-		/* Sustain */
-		if (f2 & 1<<stat)
-		{
-			/* Dark green "s" */
-			a = TERM_GREEN;
-			c = 's';
-		}
-
+        	}
 
 		/* No color */
 		if (!use_color) a = TERM_WHITE;
 
 		/* Dump */
 		Term_putch(col, row+stat, a, c);
-    }
+	}
 }
 
 
@@ -2258,11 +2281,8 @@ static void display_player_ben(void)
 static void display_player_ben_one(int mode)
 {
 	int i, n, x, y;
-	
 	object_type *o_ptr;
-
 	u32b f1, f2, f3;
-
 	u16b b[13][6];
 
 
@@ -2535,27 +2555,23 @@ void display_player(int mode)
  */
 errr file_character(cptr name, bool full)
 {
-	int			i, x, y;
-
+	int		i, x, y;
 	byte		a;
 	char		c;
-
 #if 0
 	cptr		other = "(";
 #endif
-
 	cptr		paren = ")";
-
-	int			fd = -1;
-
+	int		fd = -1;
 	FILE		*fff = NULL;
-
-	store_type		*st_ptr = &store[7];
-
+	store_type	*st_ptr = &store[7];
 	char		o_name[80];
-
 	char		buf[1024];
 
+	/* Stuff needed to dump artifact info provided by Riivo Magi. - G */
+	int k, info_length;
+	cptr info[128];
+	cptr blanks = "     ";
 
 	/* Drop priv's */
 	safe_setuid_drop();
@@ -2590,7 +2606,6 @@ errr file_character(cptr name, bool full)
 	/* Grab priv's */
 	safe_setuid_grab();
 
-
 	/* Invalid file */
 	if (!fff)
 	{
@@ -2602,7 +2617,6 @@ errr file_character(cptr name, bool full)
 		return (-1);
 	}
 
-
 #ifndef FAKE_VERSION
 	/* Begin dump */
 	fprintf(fff, "[Angband %d.%d.%d Character Dump]\n\n",
@@ -2611,7 +2625,6 @@ errr file_character(cptr name, bool full)
    fprintf(fff, "[Gumband %d.%d.%d Character Dump]\n\n",
             FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH);
 #endif
-
 
 	/* Display player */
 	display_player(0);
@@ -2780,6 +2793,15 @@ errr file_character(cptr name, bool full)
 			object_desc(o_name, &inventory[i], TRUE, 3);
 			fprintf(fff, "%c%s %s\n",
 					 index_to_label(i), paren, o_name);
+
+			/* Describe random object attributes - Riivo Magi */
+			info_length = identify_random_gen(&inventory[i], info, 128);
+
+			/* Write it */
+			for (k = 0; k < info_length; k++)
+			{
+				fprintf(fff, "%s%s\n", blanks, info[k]);
+			}
 		}
 		fprintf(fff, "\n\n");
 	}
@@ -2794,6 +2816,15 @@ errr file_character(cptr name, bool full)
 		/* Dump the inventory slots */
 		object_desc(o_name, &inventory[i], TRUE, 3);
 		fprintf(fff, "%c%s %s\n", index_to_label(i), paren, o_name);
+
+		/* Describe random object attributes - Riivo Magi */
+		info_length = identify_random_gen(&inventory[i], info, 128);
+
+		/* Write it */
+		for (k = 0; k < info_length; k++)
+		{
+			fprintf(fff, "%s%s\n", blanks, info[k]);
+		}
 	}
 	fprintf(fff, "\n\n");
 
@@ -2805,6 +2836,15 @@ errr file_character(cptr name, bool full)
 		{
 			object_desc(o_name, &st_ptr->stock[i], TRUE, 3);
 			fprintf(fff, "%c%s %s\n", I2A(i%12), paren, o_name);
+
+			/* Describe random object attributes */
+			info_length = identify_random_gen(&st_ptr->stock[i], info, 128);
+
+			/* Write it */
+			for (k = 0; k < info_length; k++)
+			{
+				fprintf(fff, "%s%s\n", blanks, info[k]);
+			}
 		}
 		fprintf(fff, "\n");
 	}

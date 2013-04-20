@@ -120,6 +120,7 @@ static void sense_inventory(void)
 	switch (p_ptr->pclass)
 	{
 		case CLASS_WARRIOR: case CLASS_WEAPONMASTER:
+		case CLASS_ARCHER:
 		{
 			if (0 != rand_int(10000L / (plev * plev + 40))) return;
 			heavy = TRUE;
@@ -134,7 +135,7 @@ static void sense_inventory(void)
 
 		case CLASS_PRIEST:
 		{
-			if (0 != rand_int(10000L / (plev * plev + 40))) return;
+			if (0 != rand_int(15000L / (plev * plev + 40))) return;
 			break;
 		}
 
@@ -169,13 +170,11 @@ static void sense_inventory(void)
 		{
 			switch (p_ptr->realm1)
 			{
-				case REALM_CHAOS:
-					k = 10000L; break;
 				case REALM_LIFE: case REALM_DEATH:
 				case REALM_TRUMP:
 					k = 20000L; break;
-				case REALM_NATURE:
-					k = 40000L; break;
+				case REALM_NATURE: case REALM_CHAOS:
+					k = 30000L; break;
 				default: /* Sorcery & Arcane */
 					k = 150000L; break;
 			}
@@ -2818,7 +2817,6 @@ static void process_player(void)
 }
 
 
-
 /*
  * Interact with the current dungeon level.
  *
@@ -2838,13 +2836,11 @@ static void dungeon(void)
 	command_arg = 0;
 	command_dir = 0;
 
-
 	/* Cancel the target */
 	target_who = 0;
 
 	/* Cancel the health bar */
 	health_track(0);
-
 
 	/* Check visual effects */
 	shimmer_monsters = TRUE;
@@ -2852,17 +2848,14 @@ static void dungeon(void)
 	repair_monsters = TRUE;
 	repair_objects = TRUE;
 
-
 	/* Disturb */
 	disturb(1, 0);
-
 
 	/* Track maximum player level */
 	if (p_ptr->max_plv < p_ptr->lev)
 	{
 		p_ptr->max_plv = p_ptr->lev;
 	}
-
 
 	/* Track maximum dungeon level */
 	if (p_ptr->max_dlv < dun_level)
@@ -3271,6 +3264,8 @@ void play_game(bool new_game)
 
 		/* Roll up a new character */
 		player_birth();
+
+		if (quick_start) p_ptr->max_dlv = 5;
 
 		/* Astral beings start in the dungeon -- Gumby */
 		if (p_ptr->astral) dun_level = 96;

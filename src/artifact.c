@@ -7,9 +7,9 @@
  *
  * curse_artifact() random_plus() random_resistance() random_misc()
  * random_slay() give_activation_power() get_random_name() create_artifact()
- * artifact_scroll() item_tester_hook_activate() ring_of_power()
- * brand_bolts() activate_random_artifact() do_cmd_activate()
- * item_activation() random_artifact_resistance()
+ * item_tester_hook_activate() ring_of_power() brand_bolts()
+ * activate_random_artifact() do_cmd_activate() item_activation()
+ * random_artifact_resistance()
  *
  * wiz_create_named_art() remains in wizard2.c.
  *
@@ -59,7 +59,7 @@ void curse_artifact(object_type * o_ptr)
 	else if (randint(3)==1)
 		o_ptr->art_flags3 |= TR3_NO_TELE;
 
-	if (p_ptr->pclass != (CLASS_WARRIOR || CLASS_WEAPONMASTER) &&
+	if (p_ptr->pclass != (CLASS_WARRIOR || CLASS_WEAPONMASTER || CLASS_ARCHER) &&
 			     (randint(3)==1))
 		o_ptr->art_flags3 |= TR3_NO_MAGIC;
 
@@ -1121,6 +1121,7 @@ void give_activation_power(object_type * o_ptr)
 				break;
 			case ACT_SUMMON_UNDEAD: case ACT_SUMMON_DEMON:
 			case ACT_WRAITH: case ACT_INVULN: case ACT_ALCHEMY:
+			case ACT_MANA_STORM:
 				chance = 5;
 				break;
 			default:
@@ -1195,6 +1196,8 @@ bool create_artifact(object_type *o_ptr, bool a_scroll)
 	s32b total_flags;
 	bool a_cursed = FALSE;
 
+	object_kind *k_ptr = &k_info[o_ptr->k_idx];
+
 	int warrior_artifact_bias = 0;
 
 	artifact_bias = 0;
@@ -1204,6 +1207,7 @@ bool create_artifact(object_type *o_ptr, bool a_scroll)
 		switch (p_ptr->pclass)
 		{
 			case CLASS_WARRIOR: case CLASS_WEAPONMASTER:
+			case CLASS_ARCHER:
 				artifact_bias = BIAS_WARRIOR;
 				break;
 			case CLASS_MAGE: case CLASS_HIGH_MAGE:
@@ -1245,7 +1249,10 @@ bool create_artifact(object_type *o_ptr, bool a_scroll)
 
 	strcpy(new_name,"");
 
-	if ((!a_scroll) && (randint(A_CURSED)==1)) a_cursed = TRUE;
+	if (((k_ptr->flags3 & (TR3_CURSED)) ||
+	     (k_ptr->flags3 & (TR3_HEAVY_CURSE)) ||
+	     (k_ptr->flags3 & (TR3_PERMA_CURSE))) ||
+	    ((!a_scroll) && (randint(A_CURSED)==1))) a_cursed = TRUE;
 
 	while ((randint(powers) == 1) || (randint(7)==1) || randint(10)==1)
 	{
@@ -1404,82 +1411,6 @@ bool create_artifact(object_type *o_ptr, bool a_scroll)
 	p_ptr->window |= (PW_INVEN | PW_EQUIP);
 
 	return TRUE;
-}
-
-
-bool artifact_scroll()
-{
-	int             item;
-	bool            okay = FALSE;
-	object_type     *o_ptr;
-	char            o_name[80];
-
-	item_tester_hook = item_tester_hook_we_ar_ri_am;
-
-	/* Get an item (from equip or inven or floor) */
-	if (!get_item(&item, "Enchant which item? ", TRUE, TRUE, TRUE))
-	{
-		if (item == -2) msg_print("You have nothing to enchant.");
-		return (FALSE);
-	}
-
-	/* Get the item (in the pack) */
-	if (item >= 0)
-	{
-		o_ptr = &inventory[item];
-	}
-
-	/* Get the item (on the floor) */
-	else
-	{
-		o_ptr = &o_list[0 - item];
-	}
-
-	/* Description */
-	object_desc(o_name, o_ptr, FALSE, 0);
-
-	/* Describe */
-	msg_format("%s %s radiate%s a blinding light!",
-	          ((item >= 0) ? "Your" : "The"), o_name,
-	          ((o_ptr->number > 1) ? "" : "s"));
-
-	if (o_ptr->name1 || o_ptr->art_name)
-	{
-		msg_format("The %s %s already %s!",
-		    o_name, ((o_ptr->number > 1) ? "are" : "is"),
-		    ((o_ptr->number > 1) ? "artifacts" : "an artifact"));
-		okay = FALSE;
-	}
-	else if (o_ptr->name2)
-	{
-		msg_format("The %s %s already %s!",
-		    o_name, ((o_ptr->number > 1) ? "are" : "is"),
-		    ((o_ptr->number > 1) ? "ego items" : "an ego item"));
-		okay = FALSE;
-	}
-	else
-	{
-		if (o_ptr->number > 1)
-		{
-			msg_print("Not enough enough energy to enchant more than one object!");
-			msg_format("%d of your %s %s destroyed!",(o_ptr->number)-1, o_name, (o_ptr->number>2?"were":"was"));
-			o_ptr->number = 1;
-		}
-		okay = create_artifact(o_ptr, TRUE);
-	}
-
-	/* Failure */
-	if (!okay)
-	{
-		/* Flush */
-		if (flush_failure) flush();
-
-		/* Message */
-		msg_print("The enchantment failed.");
-	}
-
-	/* Something happened */
-	return (TRUE);
 }
 
 
@@ -1845,12 +1776,20 @@ static bool activate_random_artifact(object_type * o_ptr)
 			break;
 		}
 
+		case ACT_MANA_STORM:
+		{
+			if (!get_aim_dir(&dir)) return FALSE;
+			msg_print("It glows bright white...");
+			fire_ball(GF_MANA, dir, 1000, 3);
+			o_ptr->timeout = 500;
+			break;
+		}
 		case ACT_BA_MISS_3:
 		{
 			if (!get_aim_dir(&dir)) return FALSE;
 			msg_print("You breathe the elements.");
 			fire_ball(GF_MISSILE, dir, 450, 4);
-			o_ptr->timeout = 500;
+			o_ptr->timeout = 400;
 			break;
 		}
 
@@ -1926,7 +1865,7 @@ static bool activate_random_artifact(object_type * o_ptr)
 		case ACT_CHARM_ANIMAL:
 		{
 			if (!get_aim_dir(&dir)) return FALSE;
-			(void) charm_animal(dir, plev);
+			(void)charm_animal(dir, plev);
 			o_ptr->timeout = 300;
 			break;
 		}
@@ -2397,7 +2336,6 @@ static bool activate_random_artifact(object_type * o_ptr)
 void do_cmd_activate(void)
 {
 	int             item, i, dir, lev, chance, dummy = 0;
-
 	object_type     *o_ptr;
 
 
@@ -2523,7 +2461,7 @@ void do_cmd_activate(void)
 				}
 				else
 				{
-					charm_monsters(p_ptr->lev * 8);
+					charm_monsters(p_ptr->lev * 4);
 					(void)set_shero(p_ptr->shero + randint(50) + 50);
 					(void)hp_player(30);
 					(void)set_afraid(0);
@@ -3158,30 +3096,20 @@ void do_cmd_activate(void)
 			}
 			case ART_HERMES:
 			{
-				if (p_ptr->astral)
+				int ii = 0, ij = 0;
+				msg_print("Choose your destination...");
+				if (!tgt_pt(&ii,&ij)) return;
+				p_ptr->energy -= 60 - p_ptr->lev;
+				if (!cave_empty_bold(ij,ii) || (cave[ij][ii].info & CAVE_ICKY) ||
+				    (distance(ij,ii,py,px) > p_ptr->lev + 2) ||
+				    (!rand_int(p_ptr->lev * p_ptr->lev / 2)))
 				{
-					msg_print("You feel a terrible sense of loss.");
-					break;
+					msg_print("You fail to exit the astral plane correctly!");
+					p_ptr->energy -= 100;
+					teleport_player(10);
 				}
-
-				if (dun_level && (p_ptr->max_dlv > dun_level))
-				{
-					if (get_check("Reset recall depth? "))
-					p_ptr->max_dlv = dun_level;
-				}
-
-				msg_print("Your sandals glow...");
-				if (p_ptr->word_recall == 0)
-				{
-					p_ptr->word_recall = randint(20) + 15;
-					msg_print("The air about you becomes charged...");
-				}
-				else
-				{
-					p_ptr->word_recall = 0;
-					msg_print("A tension leaves the air around you...");
-				}
-				o_ptr->timeout = randint(50) + 50;
+				else teleport_player_to(ij,ii);
+				o_ptr->timeout = 20 + randint(20);
 				break;
 			}
 			case ART_DEATH:
@@ -4005,7 +3933,7 @@ cptr item_activation(object_type *o_ptr)
 		}
 		case ART_RED_AMULET:
 		{
-			return "charm monsters (x8) every 150+d150 turns";
+			return "charm monsters (x4) every 150+d150 turns";
 		}
 		case ART_TULKAS:
 		{
@@ -4073,7 +4001,7 @@ cptr item_activation(object_type *o_ptr)
 		}
 		case ART_HERMES:
 		{
-			return "word of recall every 50+d50 turns";
+			return "dimension door every 20+d20 turns";
 		}
 		case ART_DEATH:
 		{
@@ -4200,17 +4128,19 @@ void random_artifact_resistance(object_type * o_ptr)
 	bool give_resistance = FALSE, give_power = FALSE;
 
 	/* Terror Mask is for Warriors... */
+	/* And, by popular demand, for Weaponmasters and Archers -- Gumby */
 	if (o_ptr->name1 == ART_TERROR_MASK)
 	{
-		if (p_ptr->pclass == CLASS_WARRIOR)
+		if ((p_ptr->pclass == CLASS_WARRIOR) ||
+		    (p_ptr->pclass == CLASS_WEAPONMASTER) ||
+		    (p_ptr->pclass == CLASS_ARCHER))
 		{
 			give_power = TRUE;
 			give_resistance = TRUE;
 		}
 		else
 		{
-			o_ptr->art_flags3 |= 
-			    (TR3_CURSED | TR3_HEAVY_CURSE | TR3_AUTO_CURSE | TR3_DRAIN_EXP);
+			o_ptr->art_flags3 |= (TR3_CURSED | TR3_HEAVY_CURSE | TR3_AUTO_CURSE | TR3_DRAIN_EXP);
 			o_ptr->ident |= IDENT_CURSED;
 			return;
 		}

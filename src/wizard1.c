@@ -1691,14 +1691,14 @@ static void spoil_mon_info(cptr fname)
 		if (flags2 & (RF2_ELDRITCH_HORROR))	spoil_out(" sanity-blasting");
 		if (flags3 & (RF3_ANIMAL))		spoil_out(" natural");
 		if (flags3 & (RF3_NONLIVING))		spoil_out(" unliving");
+		if (flags2 & (RF2_CHAOTIC))		spoil_out(" chaotic");
 		if (flags3 & (RF3_EVIL))		spoil_out(" evil");
 		if (flags3 & (RF3_GOOD))		spoil_out(" good");
 		if (flags3 & (RF3_UNDEAD))		spoil_out(" undead");
 		if (flags3 & (RF3_ELEMENTAL))		spoil_out(" elemental");
-		if (flags3 & (RF3_DRAGON))		spoil_out(" dragon");
 
-		else if ((flags3 & (RF3_DEMON)) &&
-			 (flags3 & (RF3_SCUMDOG)))	spoil_out(" demonic Scumdog");
+		if (flags3 & (RF3_DRAGON))		spoil_out(" dragon");
+		else if (flags3 & (RF3_SCUMDOG))	spoil_out(" Scumdog of the Universe");
 		else if (flags3 & (RF3_DEMON))		spoil_out(" demon");
 		else if (flags3 & (RF3_GIANT))		spoil_out(" giant");
 		else if (flags3 & (RF3_TROLL))		spoil_out(" troll");
@@ -1795,7 +1795,6 @@ static void spoil_mon_info(cptr fname)
 		vn = 0;
 		if (flags4 & (RF4_SHRIEK))	vp[vn++] = "shriek for help";
 		if (flags4 & (RF4_XXX2))	vp[vn++] = "do something";
-		if (flags4 & (RF4_XXX3))	vp[vn++] = "do something";
 		if (flags4 & (RF4_ROCKET))	vp[vn++] = "shoot a rocket";
 		if (flags4 & (RF4_ARROW_1))	vp[vn++] = "shoot an arrow";
 		if (flags4 & (RF4_ARROW_2))	vp[vn++] = "fire an arrow";
@@ -1817,6 +1816,7 @@ static void spoil_mon_info(cptr fname)
 
 		/* Collect breaths */
 		vn = 0;
+		if (flags4 & (RF4_BR_WATE)) vp[vn++] = "water";
 		if (flags4 & (RF4_BR_ACID)) vp[vn++] = "acid";
 		if (flags4 & (RF4_BR_ELEC)) vp[vn++] = "lightning";
 		if (flags4 & (RF4_BR_FIRE)) vp[vn++] = "fire";

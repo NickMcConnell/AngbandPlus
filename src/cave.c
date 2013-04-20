@@ -1177,6 +1177,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 							c = 248;
 							break;
 						case CLASS_RANGER:
+						case CLASS_ARCHER:
 							if (p_ptr->lev < 20)
 								a = TERM_L_GREEN;
 							else

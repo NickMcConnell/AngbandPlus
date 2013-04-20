@@ -1,8 +1,17 @@
-6
+15
 ******** BUFFER LINE *******************
-wonders: 'Where is the cheese dip?'
+wonders if you have any cheese dip.
 smirks: 'Groo is smart as a duck!'
-says: 'A fray!  A fray!'
-says: 'Hold still!  How do you expect me to kill you if you keep running away?'
-asks: 'What is mulch?'
-says: 'Now Groo does what Groo does best!'
+says: 'A fray! A fray!'
+says: 'Hold still! How do you expect me to kill you if you keep running away?'
+yells: 'A fray! And, now Groo does what Groo does best!'
+says: 'You have mocked the good name of Groo! From now on, you sing soprano!'
+growls: 'Nothing stops Groo!'
+says: 'He who laughs at Groo shall never laugh again!'
+boasts: 'Groo is HERE! Groo is THERE! Groo is almost EVERYWHERE!'
+yells: 'Groo is here to enter the fray!'
+says: 'Remember! When Groo deals with you, you have been dealt with!'
+says: 'When in doubt... head for the signs of the fray!'
+says: 'I have seen your clumsy, mindless killing! Now, it is my turn!'
+shouts: 'DIE, whoever you may be!'
+invites: 'Come taste the blade of Groo!'

@@ -1,6 +1,6 @@
 --- This file might be out of date for Gumband. You have been warned. :)
 
-=== Options and Effects (Gumband 2.1.5) ===
+=== Options and Effects (Gumband 2.1.7) ===
 
 Most of the "options" are accessible through the '=' command, which provides
 an interface to the various "sets" of options available to the player.
@@ -393,10 +393,6 @@ Allow unusually small dungeon levels    [small_levels]
     yet they can be dangerous, especially for a low level character.
     Note that this option has the side effect of enabling / disabling
     'destroyed' levels (they are enabled if small levels are).
-
-Always create small dungeon levels [only_small]
-    This option will force the small_levels option to always create smaller
-    than normal dungeon levels.
 
 Allow empty 'arena' levels      [empty_levels]
     Normal dungeon levels consist mostly of rock. If this option is in

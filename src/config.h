@@ -248,7 +248,7 @@
  * OPTION: Delay the loading of the "a_text" array until it is actually
  * needed, saving ~1K, since "artifact" descriptions are unused.
  */
-/* #define DELAY_LOAD_A_TEXT */
+#define DELAY_LOAD_A_TEXT
 
 /*
  * OPTION: Delay the loading of the "e_text" array until it is actually

@@ -1,4 +1,4 @@
-=== Introduction to the Gumband (2.1.6a) Magic System ===
+=== Introduction to the Gumband (2.1.8) Magic System ===
 
 [note: this document was originally for ZAngband 2.1.0 and later, but has
  been updated to account for Gumband differences. -- Gumby]
@@ -148,8 +148,8 @@ Detect Evil                        Exorcise Demons
 Cure Light Wounds                  Dispel Curse
 Bless                              Destroy Undead
 Spiritual Hammer                   Day of the Dove
-Call Light                         Dispel Evil
-Detect Doors/Traps                 Banish Evil
+Call Light                         Banish Evil
+Detect Doors/Traps                 Dispel Evil
 Cure Medium Wounds                 Holy Word
 Satisfy Hunger                     Sea of Runes
 
@@ -179,7 +179,7 @@ Beginner's Handbook                High Sorcery
 -------------------                ------------
 Detect Monsters                    Charm Monster
 Phase Door                         Dimension Door
-Detect Objects/Treasure            Sense Minds
+Detect Objects/Treasure            Apport Arcane
 Detect Doors/Traps                 Self Knowledge
 Light Area                         Teleport Level
 Confuse Monster                    Word of Recall
@@ -204,8 +204,8 @@ almost succeeds. There are downsides to Arcane magic: while Arcane does
 have all the necessary 'tool' spells for a dungeon delver, it has no ultra-
 powerful high level spells and can never be combined with another realm.  As
 a consequence, all Arcane spellbooks can be bought in town.  It should also
-be noted that the realms usually offer the same, or similar, spells at a
-lower level and cost.
+be noted that the other realms usually offer the same, or similar, spells at
+lower levels, failure rates, and costs.
 
 Arcane Spell List
 =================
@@ -253,7 +253,7 @@ Trump Spell List
 ================
 Conjurings & Tricks                Trumps of Doom
 -------------------                --------------
-Phase Door                         Joker Card
+Phase Door                         Apportation
 Mind Blast                         Trump Spiders
 Shuffle                            Trump Reptiles
 Minor Divination                   Trump Hounds
@@ -267,9 +267,9 @@ Deck of Many Things                Five Aces
 Trump Branding                     Trump Divination
 Teleport Level                     Trump Lore
 Nexus Bolt                         Trump Undead
-Trump Animal                       Trump Dragon
+Phantasmal Servant                 Trump Dragon
 Word of Recall                     Mass Trump
-Phantasmal Servant                 Trump Demon
+Trump Animal                       Trump Demon
 Trump Monster                      Trump Ancient Dragon
 Conjure Elemental                  Trump Greater Undead
 
@@ -317,19 +317,19 @@ Chaos Spell List
 ================
 Sign of Chaos                      Chaos Channels
 -------------                      --------------
-Magic Missile                      Polymorph Other
-Trap/Door Destruction              Chain Lightning
-Flash of Light                     Arcane Binding
-Demon Detection                    Disintegrate
-Mana Burst                         Teleport Other
-Fire Bolt                          Alter Reality
-Fist of Force                      Polymorph Self
+Magic Missile                      Chain Lightning
+Trap/Door Destruction              Arcane Binding
+Flash of Light                     Disintegrate
+Chaotic Sensing                    Demonic Consultation
+Mana Burst                         Alter Reality
+Fire Bolt                          Polymorph Self
+Fist of Force                      Mass Polymorph
 Teleport Self                      Summon Demon
 
 Chaos Mastery                      Armageddon Tome
 -------------                      ---------------
 Chaos Branding                     Beam of Gravity
-Wonder                             Meteor Swarm
+Polymorph Other                    Meteor Swarm
 Chaos Bolt                         Flame Strike
 Sonic Boom                         Call Chaos
 Mana Bolt                          Magic Rocket

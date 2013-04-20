@@ -197,9 +197,9 @@ static cptr r_info_flags2[] =
 	"KILL_BODY",
 	"TAKE_ITEM",
 	"KILL_ITEM",
-	"EXPLOSIVE", /* was BRAIN_1 - G */
-	"SPINES",    /* was BRAIN_2 - G */
-	"BRAIN_3",
+	"EXPLOSIVE",	/* was BRAIN_1 - G */
+	"SPINES",	/* was BRAIN_2 - G */
+	"CHAOTIC",	/* was BRAIN_3 - G */
 	"BRAIN_4",
 	"BRAIN_5",
 	"BRAIN_6",
@@ -253,7 +253,7 @@ static cptr r_info_flags4[] =
 {
 	"SHRIEK",
 	"XXX2X4",
-	"XXX3X4",
+	"BR_WATE",	/* WAS: XXX3X4 */
 	"ROCKET",	/* WAS: XXX4X4 */
 	"ARROW_1",
 	"ARROW_2",

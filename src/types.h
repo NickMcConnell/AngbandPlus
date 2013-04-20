@@ -670,7 +670,6 @@ struct quest
 {
 	int level;		/* Dungeon level */
 	int r_idx;		/* Monster race */
-
 	int cur_num;	/* Number killed (unused) */
 	int max_num;	/* Number required (unused) */
 };
@@ -687,21 +686,14 @@ typedef struct owner_type owner_type;
 struct owner_type
 {
 	cptr owner_name;	/* Name */
-
 	s16b max_cost;		/* Purse limit */
-
 	byte max_inflate;	/* Inflation (max) */
 	byte min_inflate;	/* Inflation (min) */
-
 	byte haggle_per;	/* Haggle unit */
-
 	byte insult_max;	/* Insult limit */
-
 	byte owner_race;	/* Owner race */
-
 	byte unused;		/* Unused */
 };
-
 
 
 
@@ -716,26 +708,18 @@ struct store_type
 {
 	byte owner;				/* Owner index */
 	byte extra;				/* Unused for now */
-
 	s16b insult_cur;		/* Insult counter */
-
 	s16b good_buy;			/* Number of "good" buys */
 	s16b bad_buy;			/* Number of "bad" buys */
-
 	s32b store_open;		/* Closed until this turn */
-
 	s32b store_wrap;		/* Unused for now */
-
 	s16b table_num;			/* Table -- Number of entries */
 	s16b table_size;		/* Table -- Total Size of Array */
 	s16b *table;			/* Table -- Legal item kinds */
-
 	s16b stock_num;			/* Stock -- Number of entries */
 	s16b stock_size;		/* Stock -- Total Size of Array */
 	object_type *stock;		/* Stock -- Actual stock items */
 };
-
-
 
 
 
@@ -900,7 +884,6 @@ struct player_type
 	byte realm2;		/* Second magic realm */
 	byte wm_choice;		/* Hopefully Weapomaster's tval choice */
 
-
 	byte hitdie;		/* Hit dice (sides) */
 	u16b expfact;       /* Experience factor
                                Note: was byte, causing overflow for Amberite
@@ -913,7 +896,6 @@ struct player_type
 	s16b ht;			/* Height */
 	s16b wt;			/* Weight */
 	s16b sc;			/* Social Class */
-
 
 	s32b au;			/* Current Gold */
 

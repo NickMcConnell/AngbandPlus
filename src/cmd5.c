@@ -873,24 +873,24 @@ void do_cmd_cast(void)
                  (void) charm_monster(dir, plev);
                break;
        case 17: /* Dimension Door */
-       {
-             msg_print("You open a dimensional gate. Choose a destination.");
-             if (!tgt_pt(&ii,&ij)) return;
-             p_ptr->energy -= 60 - plev;
-             if (!cave_empty_bold(ij,ii) || (cave[ij][ii].info & CAVE_ICKY) ||
-             (distance(ij,ii,py,px) > plev + 2) ||
-             (!rand_int(plev * plev / 2)))
-             {
-                 msg_print("You fail to exit the astral plane correctly!");
-                 p_ptr->energy -= 100;
-                 teleport_player(10);
-             }
-             else teleport_player_to(ij,ii);
-             break;
-            }
-       case 18: /* Telekinesis */
+	{
+		msg_print("You open a dimensional gate. Choose a destination.");
+		if (!tgt_pt(&ii,&ij)) return;
+		p_ptr->energy -= 60 - plev;
+		if (!cave_empty_bold(ij,ii) || (cave[ij][ii].info & CAVE_ICKY) ||
+		    (distance(ij,ii,py,px) > plev + 2) ||
+		    (!rand_int(plev * plev / 2)))
+		{
+			msg_print("You fail to exit the astral plane correctly!");
+			p_ptr->energy -= 100;
+			teleport_player(10);
+		}
+		else teleport_player_to(ij,ii);
+		break;
+	}
+       case 18: /* Apport Arcane */
 		if (!get_aim_dir(&dir)) return;
-		fetch(dir, plev*15, FALSE);
+		fetch(dir, 250, FALSE);
 		break;
        case 19: /* Self knowledge */
 		(void)self_knowledge();
@@ -1177,62 +1177,10 @@ void do_cmd_cast(void)
 		break;
         case 8: /* Chaos Branding */
 		brand_weapon(1); break;
-        case 9: /* Wonder */
-	{
-		/*
-		 * This spell should become more useful (more controlled) as
-		 * the player gains experience levels.  Thus, add 1/5 of the
-		 * player's level to the die roll.  This eliminates the
-		 * worst effects later on, while keeping the results quite
-		 * random. It also allows some potent effects only at high
-		 * level.
-		 */
-		int die = randint(100) + plev / 5;
-
+        case 9: /* Polymorph Other */
 		if (!get_aim_dir(&dir)) return;
-		if (die > 100) msg_print ("You feel a surge of power!");
-		if (die < 8) clone_monster(dir);
-		else if (die < 14) speed_monster(dir);
-		else if (die < 26) heal_monster(dir);
-		else if (die < 31) poly_monster(dir);
-		else if (die < 36)
-			fire_bolt_or_beam(beam - 10, GF_MISSILE, dir,
-					damroll(5 + ((plev - 2) / 2), 4));
-		else if (die < 41) confuse_monster(dir, plev);
-		else if (die < 46) fire_ball(GF_POIS, dir, 30 + plev, 3);
-		else if (die < 51) lite_line(dir);
-		else if (die < 56)
-			fire_bolt_or_beam(beam - 10, GF_ELEC, dir,
-					damroll(5 + ((plev - 2) / 2), 8));
-		else if (die < 61)
-			fire_bolt_or_beam(beam - 10, GF_COLD, dir,
-					damroll(8 + ((plev - 2) / 2), 8));
-		else if (die < 66)
-			fire_bolt_or_beam(beam, GF_ACID, dir,
-					damroll(9 + ((plev - 2) / 3), 8));
-		else if (die < 71)
-			fire_bolt_or_beam (beam, GF_FIRE, dir,
-					damroll(12 + ((plev - 2) / 2), 8));
-		else if (die < 76) drain_life(dir, 150);
-		else if (die < 81) fire_ball(GF_ELEC, dir, 45 + plev, 2);
-		else if (die < 86) fire_ball(GF_ACID, dir, 60 + plev, 2);
-		else if (die < 91) fire_ball(GF_ICE, dir, 105 + plev, 3);
-		else if (die < 96) fire_ball(GF_FIRE, dir, 120 + plev, 3);
-		else if (die < 101) drain_life(dir, 200 + plev);
-		else if (die < 104) earthquake (py, px, 12);
-		else if (die < 106) destroy_area (py, px, 15, TRUE);
-		else if (die < 108) genocide(TRUE);
-		else if (die < 110) dispel_monsters(250 + plev);
-		else /* RARE */
-		{
-			dispel_monsters(300 + plev);
-			slow_monsters();
-			sleep_monsters();
-			hp_player (300);
-		}
+		(void)poly_monster(dir);
 		break;
-	}
-	break;
 	case 10: /* Chaos Bolt */
 		if (!get_aim_dir(&dir)) return;
 		fire_bolt_or_beam(beam, GF_CHAOS, dir,
@@ -1259,24 +1207,20 @@ void do_cmd_cast(void)
 		if (!get_aim_dir(&dir)) return;
 		fire_ball(GF_CHAOS, dir, 100 + (plev), (plev / 5));
 		break;
-        case 16: /* Polymorph Other */
-		if (!get_aim_dir(&dir)) return;
-		(void)poly_monster(dir);
-		break;
-        case 17: /* Chain Lightning */
+        case 16: /* Chain Lightning */
 		for (dir = 0; dir <= 9; dir++)
 		{
 			fire_beam(GF_ELEC, dir, damroll(10 + (plev / 5), 8));
 		}
 		break;
-        case 18: /* Arcane Binding == Charging */
+        case 17: /* Arcane Binding == Charging */
 		(void)recharge(50 + plev);
 		break;
-        case 19: /* Disintegration */
+        case 18: /* Disintegration */
 		if (!get_aim_dir(&dir)) return;
 		fire_ball(GF_DISINTEGRATE, dir, 100 + (plev * 4), 3 + (plev/40));
 		break;
-	case 20: /* Demonic Consultation */
+	case 19: /* Demonic Consultation */
 		if (randint(100) >= 50 + (p_ptr->lev - 5))
 		{
 			if (summon_specific(py, px, plev, SUMMON_DEMON))
@@ -1295,8 +1239,7 @@ void do_cmd_cast(void)
 			else			(void)ident_spell();
 		}
 		break;
-
-        case 21: /* Alter Reality */
+        case 20: /* Alter Reality */
 		msg_print("The world changes!");
                 if (autosave_l)
                 {
@@ -1307,9 +1250,12 @@ void do_cmd_cast(void)
                 }
 		new_level_flag = TRUE;
 		break;
-        case 22: /* Polymorph Self */
-            do_poly_self();
-	    break;
+        case 21: /* Polymorph Self */
+		do_poly_self();
+		break;
+	case 22: /* Mass Polymorph */
+		poly_all();
+		break;
         case 23: /* Summon monster, demon */
 		if (randint(3) == 1)
 		{
@@ -1447,24 +1393,27 @@ void do_cmd_cast(void)
        case 10: /* Poison Branding */
 		brand_weapon(2); break;
        case 11: /* Terror */
-             turn_monsters(30+plev); break;
-	   case 12: /* Vampiric Drain */
-       if (!get_aim_dir(&dir)) return;
-       dummy = plev + randint(plev) * MAX(1, plev/10);   /* Dmg */
-                 if (drain_life(dir, dummy)) {
-           (void)hp_player(dummy);
-           /* Gain nutritional sustenance: 150/hp drained */
-           /* A Food ration gives 5000 food points (by contrast) */
-           /* Don't ever get more than "Full" this way */
-           /* But if we ARE Gorged,  it won't cure us */
-           dummy = p_ptr->food + MIN(5000, 100 * dummy);
-           if (p_ptr->food < PY_FOOD_MAX)   /* Not gorged already */
-             (void)set_food(dummy >= PY_FOOD_MAX ? PY_FOOD_MAX-1 : dummy);
-       }
-         break;
+		turn_monsters(30+plev); break;
+	case 12: /* Vampiric Drain */
+		if (!get_aim_dir(&dir)) return;
+		dummy = plev + randint(plev) * MAX(1, plev/10);   /* Dmg */
+		if (drain_life(dir, dummy))
+		{
+			(void)hp_player(dummy);
+			/* Gain nutritional sustenance: 150/hp drained */
+			/* A Food ration gives 5000 food points (by contrast) */
+			/* Don't ever get more than "Full" this way */
+			/* But if we ARE Gorged,  it won't cure us */
+			dummy = p_ptr->food + MIN(5000, 100 * dummy);
+			if (p_ptr->food < PY_FOOD_MAX) /* Not gorged already */
+			{
+				(void)set_food(dummy >= PY_FOOD_MAX ? PY_FOOD_MAX-1 : dummy);
+			}
+		}
+		break;
        case 13: /* Cloud Kill */
 		if (!get_aim_dir(&dir)) return;
-		fire_ball(GF_POIS, dir, 100 + plev, (plev/10)+1);
+		fire_ball(GF_POIS, dir, 200 + (plev * 2), (plev/10)+1);
 		break;
 	   case 14: /* Genocide */
 		(void)genocide(TRUE);
@@ -1499,18 +1448,18 @@ void do_cmd_cast(void)
 			(void)set_fast(p_ptr->fast + randint(5));
 		}
 		break;
-        case 20: /* Vampirism True */
-			if (!get_aim_dir(&dir)) return;
-           for (dummy = 0; dummy < 3; dummy++)
-           {
-               if (drain_life(dir, 100))
-                   hp_player(100);
-                }
-                   break;
-        case 21: /* Vampiric Branding */
-            brand_weapon(3);
-		       break;
-       case 22: /* Darkness Storm */
+	case 20: /* Vampirism True */
+		if (!get_aim_dir(&dir)) return;
+		for (dummy = 0; dummy < 3; dummy++)
+		{
+			if (drain_life(dir, 100))
+			hp_player(100);
+		}
+		break;
+	case 21: /* Vampiric Branding */
+		brand_weapon(3);
+		break;
+	case 22: /* Darkness Storm */
 		if (!get_aim_dir(&dir)) return;
 		fire_ball(GF_DARK, dir,	150 + (2 * plev), 4);
 		break;
@@ -1735,11 +1684,8 @@ void do_cmd_cast(void)
             }
            }
 		break;
-        case 3: /* Minor Divination - replaces Reset Recall */
-		(void)detect_traps();
-		(void)detect_doors();
-		(void)detect_stairs();
-		(void)detect_monsters_normal();
+        case 3: /* Detect Minds */
+		(void)detect_monsters_mental();
 		break;
         case 4: /* Teleport Self */
 		teleport_player(100 + (plev * 2));
@@ -1793,27 +1739,16 @@ void do_cmd_cast(void)
 		if (!get_aim_dir(&dir)) return;
 		(void)fire_beam(GF_NEXUS, dir, 9+((plev-5)/3));
 		break;
-        case 11: /* Trump Animal */
-        {
-            msg_print ("You concentrate on the trump of an animal...");
-            if (randint(5)>2)
-            {
-              if (!(summon_specific_friendly(py, px, plev, SUMMON_ANIMAL_RANGER, FALSE)))
-                no_trump = TRUE;
-            }
-            else
-            {
-                if (summon_specific(py, px, plev, SUMMON_ANIMAL))
-                {
-                    msg_print("The summoned animal gets angry!");
-                }
-                else
-                {
-                    no_trump = TRUE;
-                }
-            }
-        }
-        break;
+	case 11: /* Phantasmal Servant */
+		if (summon_specific_friendly(py, px, (plev*3)/2, SUMMON_PHANTOM, FALSE))
+		{
+			msg_print ("'Your wish, master?'");
+		}
+		else
+		{
+			no_trump = TRUE;
+		}
+		break;
         case 12: /* Word of Recall */
 		{
 			/* Astral beings don't WoR! -- G */
@@ -1841,16 +1776,27 @@ void do_cmd_cast(void)
 			}
 			break;
 		}
-        case 13: /* Phantasmal Servant */
-               if (summon_specific_friendly(py, px, (plev*3)/2, SUMMON_PHANTOM, FALSE))
-               {
-                    msg_print ("'Your wish, master?'");
-                }
-                else
-                {
-                    no_trump = TRUE;
-                }
-        break;
+        case 13: /* Trump Animal */
+		{
+			msg_print ("You concentrate on the trump of an animal...");
+			if (randint(5) > 2)
+			{
+				if (!(summon_specific_friendly(py, px, plev, SUMMON_ANIMAL_RANGER, FALSE)))
+				no_trump = TRUE;
+			}
+			else
+			{
+				if (summon_specific(py, px, plev, SUMMON_ANIMAL))
+				{
+					msg_print("The summoned animal gets angry!");
+				}
+				else
+				{
+					no_trump = TRUE;
+				}
+			}
+		}
+		break;
         case 14: /* Trump Monster */
         {
             msg_print ("You concentrate on the trump of a monster...");
@@ -1892,9 +1838,9 @@ void do_cmd_cast(void)
             }
         }
         break;
-        case 16: /* Trump Reach */
+        case 16: /* Apportation */
 		if (!get_aim_dir(&dir)) return;
-		fetch(dir, plev*15, FALSE);
+		fetch(dir, 250, FALSE);
 		break;
         case 17: /* Trump Spiders */
         {
@@ -2246,7 +2192,9 @@ void do_cmd_cast(void)
 				(void)hp_player(dummy);
 				dummy = p_ptr->food + MIN(5000, 100 * dummy);
 				if (p_ptr->food < PY_FOOD_MAX)
+				{
 					(void)set_food(dummy >= PY_FOOD_MAX ? PY_FOOD_MAX-1 : dummy);
+				}
 			}
 			break;
 		case 25: /* Ball Lightning */

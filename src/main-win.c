@@ -8,6 +8,11 @@
  * are included in all such copies.
  */
 
+/*
+ * GUMBAND NOTE: I was advised to add an "#ifdef USE_TRANSPARENCY / #endif"
+ * pair enclosing a single '}' at line 2181.  Remove if it causes problems
+ * during compilation.
+ */
 
 /*
  * This file helps Angband work with Windows computers.
@@ -2049,13 +2054,13 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp)
 	int x1, y1, w1, h1;
 	int x2, y2, w2, h2;
 
-# ifdef USE_TRANSPARENCY
+#ifdef USE_TRANSPARENCY
 
 	int x3, y3;
 
 	HDC hdcMask;
 
-# endif /* USE_TRANSPARENCY */
+#endif /* USE_TRANSPARENCY */
 
 	HDC hdc;
 	HDC hdcSrc;
@@ -2087,7 +2092,7 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp)
 	hdcSrc = CreateCompatibleDC(hdc);
 	hbmSrcOld = SelectObject(hdcSrc, infGraph.hBitmap);
 
-# ifdef USE_TRANSPARENCY
+#ifdef USE_TRANSPARENCY
 
 	if (arg_graphics  == 2)
 	{
@@ -2095,7 +2100,7 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp)
 		SelectObject(hdcMask, infMask.hBitmap);
 	}
 
-# endif /* USE_TRANSPARENCY */
+#endif /* USE_TRANSPARENCY */
 
 	/* Draw attr/char pairs */
 	for (i = 0; i < n; i++, x2 += w2)
@@ -2111,7 +2116,7 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp)
 		x1 = col * w1;
 		y1 = row * h1;
 
-# ifdef USE_TRANSPARENCY
+#ifdef USE_TRANSPARENCY
 
 		if (arg_graphics == 2)
 		{
@@ -2154,7 +2159,7 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp)
 		else
 		{
 
-# endif /* USE_TRANSPARENCY */
+#endif /* USE_TRANSPARENCY */
 
 			/* Perfect size */
 			if ((w1 == w2) && (h1 == h2))
@@ -2172,14 +2177,16 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp)
 				/* Copy the picture from the bitmap to the window */
 				StretchBlt(hdc, x2, y2, w2, h2, hdcSrc, x1, y1, w1, h1, SRCCOPY);
 			}
+#ifdef USE_TRANSPARENCY
 		}
+#endif /* USE_TRANSPARENCY */
 	}
 
 	/* Release */
 	SelectObject(hdcSrc, hbmSrcOld);
 	DeleteDC(hdcSrc);
 
-# ifdef USE_TRANSPARENCY
+#ifdef USE_TRANSPARENCY
 
 	if (arg_graphics  == 2)
 	{
@@ -2188,7 +2195,7 @@ static errr Term_pict_win(int x, int y, int n, const byte *ap, const char *cp)
 		DeleteDC(hdcMask);
 	}
 
-# endif /* USE_TRANSPARENCY */
+#endif /* USE_TRANSPARENCY */
 
 	/* Release */
 	ReleaseDC(td->w, hdc);

@@ -1086,24 +1086,27 @@ bool apply_disenchant(int mode)
  */
 static void apply_nexus(monster_type *m_ptr)
 {
-	if (rand_int(150) < p_ptr->skill_sav)
+	if (rand_int(200) < p_ptr->skill_sav)
 	{
 		msg_print("You resist the effects!");
 	}
 	else
 	{
-		switch (randint(7))
+		switch (randint(10))
 		{
 			case 1: case 2: case 3:
 				teleport_player(200);
 				break;
-			case 4: case 5:
+			case 4: case 5: case 6:
+				teleport_player(10);
+				break;
+			case 7: case 8:
 				teleport_player_to(m_ptr->fy, m_ptr->fx);
 				break;
-			case 6:
+			case 9:
 				teleport_player_level();
 				break;
-			case 7:
+			case 10:
 			{
 				msg_print("Your body starts to scramble...");
 				mutate_player();
@@ -2529,7 +2532,7 @@ static bool project_m(int who, bool pet_attack, int r, int y, int x, int dam, in
 						r_ptr->r_flags3 |= (RF3_RES_TELE);
 				}
 				/* Normal monsters go bye-bye */
-				else
+				else if (randint(3)==1)
 				{
 					do_dist = rand_int(11) + 10;
 				}
@@ -3028,14 +3031,10 @@ static bool project_m(int who, bool pet_attack, int r, int y, int x, int dam, in
 			if (seen) obvious = TRUE;
 
 			if ((r_ptr->flags3 & (RF3_UNDEAD)) ||
-			    (r_ptr->flags3 & (RF3_DEMON)) ||
-			    (r_ptr->flags3 & (RF3_NONLIVING)) ||
-			    (strchr("Egv", r_ptr->d_char)))
+			    (r_ptr->flags3 & (RF3_NONLIVING)))
 			{
 				if (r_ptr->flags3 & (RF3_UNDEAD))
 					if (seen) r_ptr->r_flags3 |= (RF3_UNDEAD);
-				if (r_ptr->flags3 & (RF3_DEMON))
-					if (seen) r_ptr->r_flags3 |= (RF3_DEMON);
 				if (r_ptr->flags3 & (RF3_NONLIVING))
 					if (seen) r_ptr->r_flags3 |= (RF3_NONLIVING);
 
@@ -4519,7 +4518,6 @@ static bool project_p(int who, bool pet_attack, int r, int y, int x, int dam, in
 			{
 				inven_damage(set_acid_destroy, 3);
 			}
-
 			break;
 		}
 
@@ -4624,8 +4622,8 @@ static bool project_p(int who, bool pet_attack, int r, int y, int x, int dam, in
 			}
 			if ((!p_ptr->resist_chaos) || (randint(9)==1))
 			{
-			inven_damage(set_elec_destroy, 2);
-			inven_damage(set_fire_destroy, 2);
+				inven_damage(set_elec_destroy, 2);
+				inven_damage(set_fire_destroy, 2);
 			}
 			take_hit(dam, killer);
 			break;

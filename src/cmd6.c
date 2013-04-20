@@ -583,8 +583,11 @@ void do_cmd_quaff_potion(void)
 
 		case SV_POTION_DEATH:
 		{
-			msg_print("A feeling of Death flows through your body.");
-			take_hit(5000, "a potion of Death");
+			msg_print("A feeling of Death flows through your body...");
+			if (p_ptr->hold_life)
+				msg_print("but you feel fine.");
+			else
+				take_hit(5000, "a potion of Death");
 			ident = TRUE;
 			break;
 		}
@@ -904,6 +907,7 @@ void do_cmd_quaff_potion(void)
 			(void)detect_objects_normal();
 			(void)detect_monsters_normal();
 			identify_pack();
+			ident_level();
 			self_knowledge();
 			ident = TRUE;
 			break;
@@ -1024,10 +1028,8 @@ void do_cmd_quaff_potion(void)
 	/* Window stuff */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
 
-
 	/* Potions can feed the player */
 	(void)set_food(p_ptr->food + o_ptr->pval);
-
 
 	/* Destroy a potion in the pack */
 	if (item >= 0)
@@ -1115,7 +1117,6 @@ bool curse_weapon(void)
 {
 	object_type *o_ptr;
 	char o_name[80];
-
 
 	/* Curse the weapon */
 	o_ptr = &inventory[INVEN_WIELD];
@@ -1684,13 +1685,6 @@ void do_cmd_read_scroll(void)
 			break;
 		}
 
-		case SV_SCROLL_ARTIFACT:
-		{
-			ident = TRUE;
-			if (!artifact_scroll()) used_up = FALSE;
-			break;
-		}
-
 		case SV_SCROLL_BRAND_WEAPON:
 		{
 			if (!brand_weapon(rand_int(5))) used_up = FALSE;
@@ -1716,10 +1710,8 @@ void do_cmd_read_scroll(void)
 	/* Window stuff */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
 
-
 	/* Hack -- allow certain scrolls to be "preserved" */
 	if (!used_up) return;
-
 
 	/* Destroy a scroll in the pack */
 	if (item >= 0)
@@ -1753,12 +1745,10 @@ void do_cmd_read_scroll(void)
  */
 void do_cmd_use_staff(void)
 {
-	int			item, ident, chance, k, lev;
-
-	object_type		*o_ptr;
-
+	int		item, ident, chance, k, lev;
+	object_type	*o_ptr;
 	/* Hack -- let staffs of identify get aborted */
-	bool use_charge = TRUE;
+	bool		use_charge = TRUE;
 
 
 	/* Restrict choices to wands */
@@ -1783,14 +1773,12 @@ void do_cmd_use_staff(void)
 		o_ptr = &o_list[0 - item];
 	}
 
-
 	/* Mega-Hack -- refuse to use a pile from the ground */
 	if ((item < 0) && (o_ptr->number > 1))
 	{
 		msg_print("You must first pick up the staffs.");
 		return;
 	}
-
 
 	/* Take a turn */
 	energy_use = 100;
@@ -1833,10 +1821,8 @@ void do_cmd_use_staff(void)
 		return;
 	}
 
-
 	/* Sound */
 	sound(SOUND_ZAP);
-
 
 	/* Analyze the staff */
 	switch (o_ptr->sval)
@@ -2099,7 +2085,6 @@ void do_cmd_use_staff(void)
 			break;
 		}
 	}
-
 
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
@@ -2461,32 +2446,27 @@ void do_cmd_aim_wand(void)
 					fire_ball(GF_ACID, dir, 150, 3);
 					break;
 				}
-
 				case 2:
 				{
 					fire_ball(GF_ELEC, dir, 150, 3);
 					break;
 				}
-
 				case 3:
 				{
 					fire_ball(GF_FIRE, dir, 150, 3);
 					break;
 				}
-
 				case 4:
 				{
 					fire_ball(GF_COLD, dir, 150, 3);
 					break;
 				}
-
 				default:
 				{
 					fire_ball(GF_POIS, dir, 150, 3);
 					break;
 				}
 			}
-
 			ident = TRUE;
 			break;
 		}
@@ -2514,7 +2494,7 @@ void do_cmd_aim_wand(void)
 
 		case SV_WAND_APPORTATION:
 		{
-			fetch(dir, p_ptr->lev * 10, FALSE);
+			fetch(dir, 250, FALSE);
 			ident = TRUE;
 			break;
 		}
@@ -2595,13 +2575,12 @@ void do_cmd_aim_wand(void)
  */
 void do_cmd_zap_rod(void)
 {
-	int                 item, ident, chance, dir, lev;
+	int		item, ident, chance, dir, lev;
+	object_type	*o_ptr;
 
-	object_type		*o_ptr;
 
 	/* Hack -- let perception get aborted */
 	bool use_charge = TRUE;
-
 
 	/* Restrict choices to rods */
 	item_tester_tval = TV_ROD;
@@ -2625,14 +2604,12 @@ void do_cmd_zap_rod(void)
 		o_ptr = &o_list[0 - item];
 	}
 
-
 	/* Mega-Hack -- refuse to zap a pile from the ground */
 	if ((item < 0) && (o_ptr->number > 1))
 	{
 		msg_print("You must first pick up the rods.");
 		return;
 	}
-
 
 	/* Get a direction (unless KNOWN not to need it) */
 	if (((o_ptr->sval >= SV_ROD_MIN_DIRECTION) && !(o_ptr->sval == SV_ROD_HAVOC)) ||
@@ -2641,7 +2618,6 @@ void do_cmd_zap_rod(void)
 		/* Get a direction, allow cancel */
 		if (!get_aim_dir(&dir)) return;
 	}
-
 
 	/* Take a turn */
 	energy_use = 100;
@@ -2683,10 +2659,8 @@ void do_cmd_zap_rod(void)
 		return;
 	}
 
-
 	/* Sound */
 	sound(SOUND_ZAP);
-
 
 	/* Analyze the rod */
 	switch (o_ptr->sval)
@@ -2970,7 +2944,6 @@ void do_cmd_zap_rod(void)
 		}
 	}
 
-
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
@@ -2993,7 +2966,6 @@ void do_cmd_zap_rod(void)
 		o_ptr->pval = 0;
 		return;
 	}
-
 
 	/* XXX Hack -- unstack if necessary */
 	if ((item >= 0) && (o_ptr->number > 1))

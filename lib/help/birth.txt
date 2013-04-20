@@ -22,9 +22,12 @@ artifacts that are generated on a level, but not identified by you, to be
 
 If you choose to have a "quick start" to your game, your character will
 begin with their armour (if any) enchanted to resist Electricity, Fire or
-Cold, and their weapon enchanted with a minor Slay or elemental Brand. The
-only penalty for taking this option is that your final score will be cut in
-half.
+Cold, and their weapon enchanted with a minor Slay or elemental Brand. This
+is in addition to starting the game with 1000 gold pieces in your purse,
+having a (Word of) recall depth of 250' (level 5), and enough experience
+points to begin the game as a level 5 character.  The only penalties for
+taking this option is that your final score will be cut in half and having a
+note in your character dumps mentioning your use of this option.
 
 If you choose to start your life as an astral being, your character will be
 deposited at level 97 in the dungeon with a pile of Scrolls of Identify.  He
@@ -641,6 +644,17 @@ races also have intrinsic abilities.
                specialty weapon. In most other respects they perform about
                as well as a generalist Warrior.
 
+        Archer
+               The master of missile combat, bar none.  The Archer has so
+               concentrated on his marksmanship that his skill with slings,
+               bows, and crossbows is far better than that of any other
+               class, gaining more shots than even Rangers and experiencing
+               more frequent and more powerful critical hits.  Unfortunately
+               this focus has robbed the Archer of any real affinity for
+               hand-to-hand combat, making them only as good as Priests in
+               that respect.  Their other skills tend to be comparable to
+               that of Warriors.
+
 
 === Stats ===
 
@@ -766,7 +780,7 @@ races also have intrinsic abilities.
  
  
  
-=== Combinations of Race and Class (updated for Gumband 2.1.7) ===
+=== Combinations of Race and Class (updated for Gumband 2.1.8) ===
 
 These are the classes that are recommended for different races. You can
 still select a race that is not in the chart, but these combinations are
@@ -778,54 +792,58 @@ don't complain if things don't turn out as you expected them to.
             Warrior  Mage    Priest  Rogue   Ranger  Paladin Warrior Chaos
                                                              -Mage  Warrior
 Human         Yes     Yes     Yes     Yes     Yes     Yes     Yes     Yes
-Elf           Yes     Yes     Yes     Yes     Yes     No      Yes     No
+Elf           Yes     Yes     No      Yes     Yes     No      Yes     No
 Hobbit        Yes     Yes     No      Yes     No      No      No      No
 Gnome         Yes     Yes     Yes     Yes     No      No      No      No
 Dwarf         Yes     No      Yes     No      No      No      No      No
 Half-Orc      Yes     No      Yes     Yes     No      No      No      Yes
-Half-Troll    Yes     No      Yes     No      No      No      No      No
+Half-Troll    Yes     No      Yes     No      No      No      No      Yes
 Gambolt       Yes     Yes     No      Yes     Yes     No      Yes     No
-High-Elf      Yes     Yes     Yes     Yes     Yes     No      Yes     No
+High-Elf      Yes     Yes     No      Yes     Yes     No      Yes     No
 Barbarian     Yes     No      Yes     Yes     Yes     No      No      Yes
 Half-Giant    Yes     No      No      No      Yes     No      No      No
 Half-Titan    Yes     Yes     Yes     No      No      Yes     No      No
 Klackon       Yes     No      No      No      Yes     No      No      No
 Kobold        Yes     No      No      Yes     No      No      No      No
 Draconian     Yes     Yes     Yes     No      No      No      Yes     No
-Mind Flayer   No      Yes     Yes     No      No      No      Yes     No
+Mind Flayer   No      Yes     Yes     No      No      No      Yes     Yes
 Golem         Yes     No      No      No      No      No      No      No
-Vampire       Yes     Yes     Yes     Yes     Yes     Yes     Yes     Yes
-Spectre       No      Yes     Yes     Yes     No      No      Yes     No
-Beastman      Yes     Yes     Yes     Yes     No      No      Yes     Yes
+Vampire       Yes     Yes     No      Yes     Yes     No      Yes     Yes
+Spectre       No      Yes     No      Yes     No      No      Yes     No
+Beastman      Yes     Yes     Yes     Yes     Yes     No      Yes     Yes
 Yeek          Yes     Yes     Yes     Yes     Yes     Yes     Yes     Yes
-Melnibonean   Yes     Yes     Yes     Yes     No      No      Yes     Yes
-Vadhagh       Yes     Yes     Yes     No      Yes     Yes     Yes     No
+Melnibonean   Yes     Yes     No      Yes     No      No      Yes     Yes
+Vadhagh       Yes     Yes     No      No      Yes     No      Yes     No
+            Warrior  Mage    Priest  Rogue   Ranger  Paladin Warrior Chaos
+                                                             -Mage  Warrior
 
-                     Mind-   High
-            Monk    crafter  Mage Weaponmaster
-Human         Yes     Yes     Yes     Yes
-Elf           Yes     Yes     Yes     Yes
-Hobbit        No      No      Yes     Yes
-Gnome         No      Yes     Yes     Yes
-Dwarf         No      No      No      Yes
-Half-Orc      Yes     No      No      Yes
-Half-Troll    No      No      No      Yes
-Gambolt       No      Yes     Yes     Yes
-High-Elf      Yes     Yes     Yes     Yes
-Barbarian     No      No      No      Yes
-Half-Giant    No      No      No      Yes
-Half-Titan    Yes     Yes     Yes     Yes
-Klackon       No      No      No      Yes
-Kobold        No      No      No      Yes
-Draconian     Yes     Yes     Yes     Yes
-Mind Flayer   Yes     Yes     Yes     No
-Golem         No      No      No      Yes
-Vampire       Yes     Yes     Yes     Yes
-Spectre       Yes     Yes     Yes     No
-Beastman      Yes     Yes     Yes     Yes
-Yeek          Yes     Yes     Yes     Yes
-Melnibonean   No      No      Yes     Yes
-Vadhagh       Yes     Yes     Yes     Yes
+                     Mind-   High  Weapon-
+             Monk   crafter  Mage  master  Archer
+Human         Yes     Yes     Yes     Yes     Yes
+Elf           No      Yes     Yes     Yes     Yes
+Hobbit        No      No      Yes     Yes     Yes
+Gnome         No      Yes     Yes     Yes     No
+Dwarf         No      No      No      Yes     No
+Half-Orc      Yes     No      No      Yes     Yes
+Half-Troll    No      No      No      Yes     No
+Gambolt       No      Yes     Yes     Yes     Yes
+High-Elf      No      Yes     Yes     Yes     Yes
+Barbarian     No      No      No      Yes     Yes
+Half-Giant    No      No      No      Yes     No
+Half-Titan    Yes     Yes     Yes     Yes     Yes
+Klackon       No      No      No      Yes     Yes
+Kobold        No      No      No      Yes     Yes
+Draconian     Yes     Yes     Yes     Yes     Yes
+Mind Flayer   Yes     Yes     Yes     No      No
+Golem         No      No      No      Yes     No
+Vampire       No      Yes     Yes     Yes     Yes
+Spectre       No      Yes     Yes     No      No
+Beastman      Yes     Yes     Yes     Yes     Yes
+Yeek          Yes     Yes     Yes     Yes     Yes
+Melnibonean   No      No      Yes     Yes     Yes
+Vadhagh       No      Yes     Yes     Yes     Yes
+                     Mind-   High  Weapon-
+             Monk   crafter  Mage  master  Archer
 
 
 === Miscellaneous ===
@@ -842,21 +860,21 @@ Vadhagh       Yes     Yes     Yes     Yes
                Human can gain infra-vision only if it is magically enhanced.
  
                                                                    
-=== Stat Bonus Tables (updated for Gumband 2.1.7) ===
+=== Stat Bonus Tables (updated for Gumband 2.1.8) ===
 
 Stat, hit dice, and experience points per level modifications due to race
 are listed in the following table.
  
                        STR  INT  WIS  DEX  CON  CHR  Hit Dice  Rqd Exp/level
            Human        0    0    0    0    0    0      10          +0%
-           Elf         -1   +2   +1   +3   -2   +2       8         +20%
+           Elf         -1   +2   +1   +3   -2   +2       8         +25%
            Hobbit      -2   +1   +1   +2   +2   +2       7         +10%
            Gnome       -1   +2    0   +2   +1   -2       8         +30%
            Dwarf       +2   -2   +2   -2   +2   -3      11         +30%
            Half-Orc    +2   -1    0    0   +1   -4      10         +10%
            Half-Troll  +4   -4   -2   -4   +3   -6      12         +35%
            Gambolt     -1    0    0   +5   -1   +5       8         +30%
-           High-Elf    +1   +3   +2   +3   +1   +5      10         +75%
+           High-Elf    +1   +3   +2   +3   +1   +5      10         +100%
            Barbarian   +3   -2   -1   +1   +2   -2      11         +20%
            Half-Giant  +4   -2   -2   -2   +3   -3      13         +25%
            Half-Titan  +5   +1   +1   -2   +3   +1      14         +125%
@@ -869,40 +887,41 @@ are listed in the following table.
            Spectre     -5   +4   +4   +2   -3   -6       7         +80%
            Beastman    +2   -2   -1   -1   +2   -4      11         +40%
            Yeek        -5   -5   -5   -5   -5   -5      10         -75%
-           Melnibonean +1   +2   +2   +1   +1   -3      10         +35%
-           Vadhagh     -1   +3   +3   +4   -2   +5       9         +55%
+           Melnibonean +1   +2   +2   +1   +1   -3      10         +40%
+           Vadhagh     -1   +3   +3   +4   -2   +5       9         +40%
 
                                                              Spellcasting
                                                              Armour Weight
-                         STR   INT   WIS   DEX   CON   CHR  Limit (pounds)
-           Warrior       +5    -2    -2    +2    +2    -1        N/A
-           Mage          -5    +3*    0    +1    -2    +1        30.0
-           Priest        -1    -3    +3*   -1     0    +2        30.0
-           Rogue         +2    +1*   -2    +3    +1    -1        30.0
-           Ranger        +2    +2*    0    +1    +1    +1        30.0
-           Paladin       +3    -3    +1*    0    +2    +2        35.0
-           Warrior-Mage  +2    +2*    0    +1     0    +1        35.0
-           Chaos Warrior +2     0    +1*   +1    +2    -2        35.0
-           Monk          +2    -1    +1*   +3    +2    +1        30.0
-           Mindcrafter   -1     0    +3*   -1    -1    +2        30.0
-           High Mage     -5    +4*    0     0    -2    +1        30.0
-           Weaponmaster  +4    -2    -2    +1    +1    -1        N/A
+                         STR  INT  WIS  DEX  CON  CHR  +HD  Limit (pounds)
+           Warrior       +5   -2   -2   +2   +2   -1    9        N/A
+           Mage          -5   +3*   0   +1   -2   +1    0        30.0
+           Priest        -1   -3   +3*  -1    0   +2    2        30.0
+           Rogue         +2   +1*  -2   +3   +1   -1    6        30.0
+           Ranger        +2   +2*   0   +1   +1   +1    4        30.0
+           Paladin       +3   -3   +1*   0   +2   +2    6        35.0
+           Warrior-Mage  +2   +2*   0   +1    0   +1    6        35.0
+           Chaos Warrior +2    0   +1*  +1   +2   -2    6        35.0
+           Monk          +2   -1   +1*  +3   +2   +1    5        30.0
+           Mindcrafter   -1    0   +3*  -1   -1   +2    2        30.0
+           High Mage     -5   +4*   0    0   -2   +1    0        30.0
+           Weaponmaster  +4   -2   -2   +1   +1   -1    9        N/A
+           Archer         0   -2   -2   +3    0    0    9        N/A
 
 (a '*' next to a number indicates the spellcasting stat for that class)
  
 
-=== Ability Tables (updated for Gumband 2.1.7) ===
+=== Ability Tables (updated for Gumband 2.1.8) ===
 
                         Dsrm Dvce Save Stlh Srch Prcp HtH  Misl   Infra
            Human        +0   +0   +0   +0   +0   +10  +0   +0     None
-           Elf          +5   +6   +6   +4   +8   +12  -5   +5     40 feet
+           Elf          +5   +10  +10  +4   +10  +15  +0   +20    40 feet
            Hobbit       +15  +18  +18  +4   +12  +15  -10  +20    30 feet
            Gnome        +10  +12  +12  +3   +6   +13  -8   +12    40 feet
            Dwarf        +2   +9   +10  -1   +7   +10  +15  +0     50 feet
            Half-Orc     -3   -3   -3   -1   +0   +7   +12  -5     30 feet
            Half-Troll   -5   -8   -8   -2   -1   +5   +20  -10    30 feet
            Gambolt      +0   +0   +20  +5   +20  +30  +10  +0     60 feet
-           High-Elf     +4   +20  +20  +4   +3   +14  +10  +25    40 feet
+           High-Elf     +5   +20  +20  +4   +10  +15  +10  +25    40 feet
            Barbarian    -2   -10  +2   -1   +1   +7   +12  +10    None
            Half-Giant   -6   -8   -6   -2   -1   +5   +25  +5     30 feet
            Half-Titan   -5   +5   +2   -2   +1   +8   +25  +0     None
@@ -915,8 +934,8 @@ are listed in the following table.
            Spectre      +10  +25  +20  +5   +5   +14  -15  -5     50 feet
            Beastman     -5   -2   -1   -1   -1   +5   +12  +5     None
            Yeek         -5   -5   -10  +0   -5   +0   -10  -10    20 feet
-           Melnibonean  +8   +15  +10  +1   +5   +5   +15  +10    20 feet
-           Vadhagh      +10  +20  +15  +3   +10  +15  +5   +10    40 feet
+           Melnibonean  +8   +15  +10  +1   +5   +5   +10  +10    20 feet
+           Vadhagh      +10  +20  +15  +3   +10  +20  +5   +10    40 feet
 
                 Disarm  Device  Save    Stealth Search  Melee   Missile XP
 Warrior         25+12   18+7    18+10   1       14/2    70+45   55+45  + 0%
@@ -931,7 +950,7 @@ Monk            45+15   32+11   28+10   4       32/24   64+40   60+30  +40%
 Mindcrafter     30+10   30+10   30+10   3       22/16   50+20   40+30  +30%
 High Mage       30+7    36+13   30+9    2       15/20   34+15   20+15  +25%
 Weaponmaster    23+10   17+6    18+10   1       14/2    70+45   20+15  +30%
-
+Archer          25+12   22+10   20+10   1       14/10   45+20   80+55  +30%
   
 
 === Monks: Attack Types (Gumband 2.1.4)

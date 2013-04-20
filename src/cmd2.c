@@ -2005,20 +2005,14 @@ void do_cmd_fire(void)
 	int tdam, tdis, thits, tmul;
 	int bonus, chance;
 	int cur_dis, visible;
-
 	object_type forge;
 	object_type *q_ptr;
-
 	object_type *o_ptr;
 	object_type *j_ptr;
-
 	bool hit_body = FALSE;
-
 	byte missile_attr;
 	char missile_char;
-
 	char o_name[80];
-
 	int msec = delay_factor * delay_factor * delay_factor;
 
 
@@ -2031,7 +2025,6 @@ void do_cmd_fire(void)
 		msg_print("You have nothing to fire with.");
 		return;
 	}
-
 
 	/* Require proper missile */
 	item_tester_tval = p_ptr->tval_ammo;
@@ -2053,10 +2046,8 @@ void do_cmd_fire(void)
 		o_ptr = &o_list[0 - item];
 	}
 
-
 	/* Get a direction (or cancel) */
 	if (!get_aim_dir(&dir)) return;
-
 
 	/* Get local object */
 	q_ptr = &forge;
@@ -2082,10 +2073,8 @@ void do_cmd_fire(void)
 		floor_item_optimize(0 - item);
 	}
 
-
 	/* Sound */
 	sound(SOUND_SHOOT);
-
 
 	/* Describe the object */
 	object_desc(o_name, q_ptr, FALSE, 3);
@@ -2093,7 +2082,6 @@ void do_cmd_fire(void)
 	/* Find the color and symbol for the object for throwing */
 	missile_attr = object_attr(q_ptr);
 	missile_char = object_char(q_ptr);
-
 
 	/* Use the proper number of shots */
 	thits = p_ptr->num_fire;
@@ -2104,17 +2092,22 @@ void do_cmd_fire(void)
 	/* Base damage from thrown object plus launcher bonus */
 	tdam = damroll(q_ptr->dd, q_ptr->ds) + q_ptr->to_d + j_ptr->to_d;
 
+	/* Archers get a bonus -- Gumby */
+	if (p_ptr->pclass == CLASS_ARCHER) tdam += (p_ptr->lev / 5);
+
 	/* Actually "fire" the object */
 	/*
 	 * Must adjust so that Weaponmasters don't get their level bonus and
-	 * Priests don't get penalized for icky_wield.
-	 *							-- Gumby
+	 * Priests don't get penalized for icky_wield. Archers get +1 to-hit
+	 * every level. -- Gumby
 	 */
 	if ((p_ptr->pclass == CLASS_WEAPONMASTER) &&
 	    (inventory[INVEN_WIELD].tval == p_ptr->wm_choice))
 		bonus = ((p_ptr->to_h - p_ptr->lev) + q_ptr->to_h + j_ptr->to_h);
 	else if ((p_ptr->pclass == CLASS_PRIEST) && (p_ptr->icky_wield))
 		bonus = (p_ptr->to_h + q_ptr->to_h + j_ptr->to_h + 15);
+	else if (p_ptr->pclass == CLASS_ARCHER)
+		bonus = (p_ptr->to_h + q_ptr->to_h + j_ptr->to_h + p_ptr->lev);
 	else
 		bonus = (p_ptr->to_h + q_ptr->to_h + j_ptr->to_h);
 
@@ -2165,6 +2158,8 @@ void do_cmd_fire(void)
 	/* Get extra "power" from "extra might" */
 	if (p_ptr->xtra_might) tmul++;
 
+	if ((p_ptr->pclass == CLASS_ARCHER) && (p_ptr->lev == 50)) tmul++;
+
 	/* Boost the damage */
 	tdam *= tmul;
 
@@ -2189,10 +2184,8 @@ void do_cmd_fire(void)
 		ty = target_row;
 	}
 
-
 	/* Hack -- Handle stuff */
 	handle_stuff();
-
 
 	/* Travel until stopped */
 	for (cur_dis = 0; cur_dis <= tdis; )
@@ -2215,7 +2208,6 @@ void do_cmd_fire(void)
 		x = nx;
 		y = ny;
 
-
 		/* The player can see the (on screen) missile */
 		if (panel_contains(y, x) && player_can_see_bold(y, x))
 		{
@@ -2234,7 +2226,6 @@ void do_cmd_fire(void)
 			/* Pause anyway, for consistancy */
 			Term_xtra(TERM_XTRA_DELAY, msec);
 		}
-
 
 		/* Monster here, Try to hit it */
 		if (cave[y][x].m_idx)
@@ -2267,7 +2258,6 @@ void do_cmd_fire(void)
 					/* Special note at death */
 					note_dies = " is destroyed.";
 				}
-
 
 				/* Handle unseen monster */
 				if (!visible)
@@ -2315,6 +2305,10 @@ void do_cmd_fire(void)
 				{
 					msg_format("You do %d (out of %d) damage.",
 					           tdam, m_ptr->hp);
+				}
+				else if (show_damage && m_ptr->ml)
+				{
+					msg_format("(%d dam)", tdam);
 				}
 
 				/* Hit the monster, check for death */
@@ -2376,19 +2370,13 @@ void do_cmd_throw(void)
 	int chance, tdam, tdis;
 	int mul, div;
 	int cur_dis, visible;
-
 	object_type forge;
 	object_type *q_ptr;
-
 	object_type *o_ptr;
-
 	bool hit_body = FALSE;
-
 	byte missile_attr;
 	char missile_char;
-
 	char o_name[80];
-
 	int msec = delay_factor * delay_factor * delay_factor;
 
 
@@ -2409,10 +2397,8 @@ void do_cmd_throw(void)
 		o_ptr = &o_list[0 - item];
 	}
 
-
 	/* Get a direction (or cancel) */
 	if (!get_aim_dir(&dir)) return;
-
 
 	/* Get local object */
 	q_ptr = &forge;
@@ -2438,14 +2424,12 @@ void do_cmd_throw(void)
 		floor_item_optimize(0 - item);
 	}
 
-
 	/* Description */
 	object_desc(o_name, q_ptr, FALSE, 3);
 
 	/* Find the color and symbol for the object for throwing */
 	missile_attr = object_attr(q_ptr);
 	missile_char = object_char(q_ptr);
-
 
 	/* Extract a "distance multiplier" */
 	mul = 10;
@@ -2462,16 +2446,20 @@ void do_cmd_throw(void)
 	/* Hack -- Base damage from thrown object */
 	tdam = damroll(q_ptr->dd, q_ptr->ds) + q_ptr->to_d;
 
-	/* Chance of hitting - adjusted for Weaponmasters -- Gumby */
+	/* Archers get a bonus -- Gumby */
+	if (p_ptr->pclass == CLASS_ARCHER) tdam += (p_ptr->lev / 5);
+
+	/* Chance of hitting - adjusted for Weaponmasters and Archers - G */
 	if ((p_ptr->pclass == CLASS_WEAPONMASTER) &&
 	    (inventory[INVEN_WIELD].tval == p_ptr->wm_choice))
 		chance = (p_ptr->skill_tht + ((p_ptr->to_h - p_ptr->lev) * BTH_PLUS_ADJ));
+	else if (p_ptr->pclass == CLASS_ARCHER)
+		chance = (p_ptr->skill_tht + (p_ptr->to_h * BTH_PLUS_ADJ) + p_ptr->lev);
 	else
 		chance = (p_ptr->skill_tht + (p_ptr->to_h * BTH_PLUS_ADJ));
 
 	/* Take a turn */
 	energy_use = 100;
-
 
 	/* Start at the player */
 	y = py;
@@ -2488,10 +2476,8 @@ void do_cmd_throw(void)
 		ty = target_row;
 	}
 
-
 	/* Hack -- Handle stuff */
 	handle_stuff();
-
 
 	/* Travel until stopped */
 	for (cur_dis = 0; cur_dis <= tdis; )
@@ -2514,7 +2500,6 @@ void do_cmd_throw(void)
 		x = nx;
 		y = ny;
 
-
 		/* The player can see the (on screen) missile */
 		if (panel_contains(y, x) && player_can_see_bold(y, x))
 		{
@@ -2534,12 +2519,10 @@ void do_cmd_throw(void)
 			Term_xtra(TERM_XTRA_DELAY, msec);
 		}
 
-
 		/* Monster here, Try to hit it */
 		if (cave[y][x].m_idx)
 		{
 			cave_type *c_ptr = &cave[y][x];
-
 			monster_type *m_ptr = &m_list[c_ptr->m_idx];
 			monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
@@ -2566,7 +2549,6 @@ void do_cmd_throw(void)
 					/* Special note at death */
 					note_dies = " is destroyed.";
 				}
-
 
 				/* Handle unseen monster */
 				if (!visible)
@@ -2605,6 +2587,10 @@ void do_cmd_throw(void)
 				{
 					msg_format("You do %d (out of %d) damage.",
 					           tdam, m_ptr->hp);
+				}
+				else if (show_damage && m_ptr->ml)
+				{
+					msg_format("(%d dam)", tdam);
 				}
 
 				/* Hit the monster, check for death */
@@ -2673,7 +2659,6 @@ void do_cmd_throw(void)
 					m_list[cave[y][x].m_idx].smart &= ~SM_FRIEND;
 				}
 			}
-
 			return;
 		}
 		else

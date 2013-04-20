@@ -1,4 +1,4 @@
-Mutation Spoilers for Gumband Version 2.1.6
+Mutation Spoilers for Gumband Version 2.1.7
 ===========================================
 
   There are several ways to gain and lose mutations in Gumband:
@@ -254,7 +254,7 @@ MUT2_ATT_DEMON		(2)			(6666)
 	"You stop attracting demons."
   Summons a demon, possibly friendly.  Prevented by Anti-Magic.
 
-MUT2_PROD_MANA		(1)			(9999)
+MUT2_PROD_MANA		(1)			(9000)
 	"You start producing magical energy uncontrollably."
 	"You stop producing magical energy uncontrollably."
   Produces a ball of mana which deals lev*2 damage.  Prevented by Anti-
@@ -422,7 +422,7 @@ MUT3_ILL_NORM		(1)
 	"You stop projecting a reassuring image."
   Your Charisma score is based on your level.
 
-MUT3_XTRA_EYES		(3)			(Searching/Perception +15)
+MUT3_XTRA_EYES		(3)			(Perception x2)
 	"You grow an extra pair of eyes!"
 	"Your extra eyes fall out!"
 

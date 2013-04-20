@@ -1191,9 +1191,15 @@ static bool monst_spell_monst(int m_idx)
 			break;
 		}
 
-		/* RF4_XXX3X4 */
+		/* RF4_BR_WATE (was: RF4_XXX3X4) */
 		case 96+2:
 		{
+			if (disturb_minor) disturb(1, 0);
+			if (!see_either) msg_print("You hear breathing noise.");
+			else if (blind) msg_format("%^s breathes.", m_name);
+			else msg_format("%^s breathes water at %s.", m_name, t_name);
+			monst_breath_monst(m_idx, pet_attack, y, x, GF_WATER,
+			    ((m_ptr->hp / 6) > 200 ? 200 : (m_ptr->hp / 6)),0);
 			break;
 		}
 
@@ -3079,9 +3085,14 @@ bool make_attack_spell(int m_idx)
 			break;
 		}
 
-		/* RF4__XXX3X4 */
+		/* RF4_BR_WATE (was: RF4__XXX3X4) */
 		case 96+2:
 		{
+			disturb(1, 0);
+			if (blind) msg_format("%^s breathes.", m_name);
+			else msg_format("%^s breathes water.", m_name);
+			breath(m_idx, pet_attack, GF_WATER,
+			       ((m_ptr->hp / 6) > 200 ? 200 : (m_ptr->hp / 6)),0);
 			break;
 		}
 
@@ -3684,8 +3695,7 @@ bool make_attack_spell(int m_idx)
 			}
 			else
 			{
-				if (!(p_ptr->blessed))
-					curse_equipment(25, 0);
+				if (!(p_ptr->blessed)) curse_equipment(25, 0);
 				take_hit(damroll(3, 8), ddesc);
 			}
 			break;
@@ -3704,8 +3714,7 @@ bool make_attack_spell(int m_idx)
 			}
 			else
 			{
-				if (!(p_ptr->blessed))
-					curse_equipment(50, 5);
+				if (!(p_ptr->blessed)) curse_equipment(50, 5);
 				take_hit(damroll(8, 8), ddesc);
 			}
 			break;
@@ -3724,8 +3733,7 @@ bool make_attack_spell(int m_idx)
 			}
 			else
 			{
-				if (!(p_ptr->blessed))
-					curse_equipment(65, 15);
+				if (!(p_ptr->blessed)) curse_equipment(65, 15);
 				take_hit(damroll(10, 15), ddesc);
 			}
 			break;
@@ -3744,8 +3752,7 @@ bool make_attack_spell(int m_idx)
 			}
 			else
 			{
-				if (!(p_ptr->blessed))
-					curse_equipment(80, 20);
+				if (!(p_ptr->blessed)) curse_equipment(80, 20);
 				take_hit(damroll(15, 15), ddesc);
 				(void)set_cut(p_ptr->cut + damroll(10, 10));
 			}
@@ -4040,8 +4047,7 @@ bool make_attack_spell(int m_idx)
 				int dummy = (((s32b) ((65 + randint(25)) * (p_ptr->chp))) / 100);
 				msg_print("Your feel your life fade away!");
 				take_hit(dummy, m_name);
-				if (!(p_ptr->blessed))
-					curse_equipment(90, 25);
+				if (!(p_ptr->blessed)) curse_equipment(90, 25);
 				if (p_ptr->chp < 1) p_ptr->chp = 1;
 				activate_ty_curse();
 			}
@@ -6200,7 +6206,7 @@ static void process_monster(int m_idx, bool is_friend)
 		{
 			if (!(m_ptr->ml))
 			{
-				disturb(FALSE, FALSE);
+				if (disturb_minor) disturb(FALSE, FALSE);
 				msg_print("You hear heavy steps.");
 			}
 		}
@@ -6671,6 +6677,9 @@ static void process_monster(int m_idx, bool is_friend)
 
 				/* XXX XXX XXX Message */
 
+				/* Drop the killed monster's stuff -- Gumby */
+				monster_drop_carried_objects(m2_ptr);
+
 				/* Kill the monster */
 				delete_monster(ny, nx);
 
@@ -6798,9 +6807,7 @@ static void process_monster(int m_idx, bool is_friend)
 				    (!(m_ptr->smart & SM_FRIEND) || p_ptr->pet_pickup_items))
 				{
 					u32b f1, f2, f3;
-
 					u32b flg3 = 0L;
-
 					char m_name[80];
 					char o_name[80];
 

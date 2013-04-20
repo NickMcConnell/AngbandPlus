@@ -84,10 +84,14 @@ s16b critical_shot(int weight, int plus, int dam)
 	/* Extract "shot" power */
 	i = (weight + ((p_ptr->to_h + plus) * 4) + (p_ptr->lev * 2));
 
+	if (p_ptr->pclass == CLASS_ARCHER) i *= 2;
+
 	/* Critical hit */
 	if (randint(5000) <= i)
 	{
 		k = weight + randint(500);
+
+		if (p_ptr->pclass == CLASS_ARCHER) k *= 2;
 
 		if (k < 500)
 		{
@@ -359,23 +363,21 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 				else mult += 1;
 			}
 
+			/* Chaotic weapons hurt creatures of Chaos -- G */
+			if ((f1 & (TR1_CHAOTIC)) && (r_ptr->flags2 & (RF2_CHAOTIC)))
+			{
+				if (m_ptr->ml && (r_ptr->flags2 & (RF2_CHAOTIC)))
+					r_ptr->flags2 |= (RF2_CHAOTIC);
+
+				if (mult < 3) mult = 3;
+				else mult += 1;
+			}
+
 			if ((f1 & (TR1_SLAY_ANIMAL)) &&
 			    (r_ptr->flags3 & (RF3_ANIMAL)))
 			{
 				if (m_ptr->ml)
 					r_ptr->r_flags3 |= (RF3_ANIMAL);
-
-				if (mult < 2) mult = 2;
-				else mult += 1;
-			}
-
-			/* Chaotic weapons hurt creatures of Chaos -- G */
-			if ((f1 & (TR1_CHAOTIC)) &&
-			    ((r_ptr->flags3 & (RF3_RES_CHAO)) ||
-			     (r_ptr->flags4 & (RF4_BR_CHAO))))
-			{
-				if (m_ptr->ml && (r_ptr->flags3 & (RF3_RES_CHAO)))
-					r_ptr->flags3 |= (RF3_RES_CHAO);
 
 				if (mult < 2) mult = 2;
 				else mult += 1;
@@ -1022,9 +1024,7 @@ static void natural_attack(s16b m_idx, int attack, bool *fear, bool *mdeath)
 	monster_type    *m_ptr = &m_list[m_idx];
 	monster_race    *r_ptr = &r_info[m_ptr->r_idx];
 	char            m_name[80];
-
 	int             dss, ddd;
-
 	char            *atk_desc;
 
 	switch (attack)
@@ -1105,6 +1105,10 @@ static void natural_attack(s16b m_idx, int attack, bool *fear, bool *mdeath)
 		if (wizard)
 		{
 			msg_format("You do %d (out of %d) damage.", k, m_ptr->hp);
+		}
+		else if (show_damage && m_ptr->ml)
+		{
+			msg_format("(%d dam)", k);
 		}
 
 		if (m_ptr->smart & SM_FRIEND)
@@ -1198,13 +1202,13 @@ void py_attack(int y, int x)
 	    (inventory[INVEN_WIELD].weight <= 50) &&
 	    (randint(r_ptr->level + 10) <= p_ptr->skill_stl))
 	{
-		if ((m_ptr->csleep || m_ptr->confused || m_ptr->stunned) &&
-		    (m_ptr->ml))
+		if (m_ptr->csleep && m_ptr->ml)
 		{
 			/* Can't backstab creatures that we can't see, right? */
 			backstab = TRUE;
 		}
-		else if ((m_ptr->monfear) && (m_ptr->ml))
+		else if ((m_ptr->monfear || m_ptr->confused || 
+			  m_ptr->stunned) && (m_ptr->ml))
 		{
 			stab_fleeing = TRUE;
 		}
@@ -1303,8 +1307,8 @@ void py_attack(int y, int x)
 			/* Prepare for drain... */
 			{
 				chaos_effect = FALSE;
-				if (!((r_ptr->flags3 & RF3_UNDEAD) || (r_ptr->flags3 & RF3_NONLIVING) ||
-				      (r_ptr->d_char == 'g') || (r_ptr->d_char == 'v') || (r_ptr->d_char == 'E')))
+				if (!(r_ptr->flags3 & RF3_UNDEAD) &&
+				    !(r_ptr->flags3 & RF3_NONLIVING))
 					drain_result = m_ptr->hp;
 				else
 					drain_result = 0;
@@ -1432,6 +1436,7 @@ void py_attack(int y, int x)
 				}
 				else if (stab_fleeing)
 				{
+					stab_fleeing = FALSE;
 					k *= 3;
 				}
 
@@ -1486,6 +1491,10 @@ void py_attack(int y, int x)
 			if (wizard)
 			{
 				msg_format("You do %d (out of %d) damage.", k, m_ptr->hp);
+			}
+			else if (show_damage && m_ptr->ml)
+			{
+				msg_format("(%d dam)", k);
 			}
 
 			/* Damage, check for fear and death */

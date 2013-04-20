@@ -55,8 +55,8 @@ bool gain_random_mutation(int choose_mut)
 			break;
 		case 10: case 11:
 			muta_class = &(p_ptr->muta1);
-			muta_which = MUT1_TELEKINES;
-			muta_desc = "You gain the ability to move objects telekinetically.";
+			muta_which = MUT1_APPORTATION;
+			muta_desc = "You gain the ability to teleport objects.";
 			break;
 		case 12: case 13: case 14:
 			muta_class = &(p_ptr->muta1);
@@ -717,8 +717,8 @@ bool lose_mutation(int choose_mut)
 			break;
 		case 10: case 11:
 			muta_class = &(p_ptr->muta1);
-			muta_which = MUT1_TELEKINES;
-			muta_desc = "You lose the ability to move objects telekinetically.";
+			muta_which = MUT1_APPORTATION;
+			muta_desc = "You lose the ability to teleport objects.";
 			break;
 		case 12: case 13: case 14:
 			muta_class = &(p_ptr->muta1);
@@ -1222,9 +1222,9 @@ void dump_mutations(FILE * OutFile)
                 {
                         fprintf(OutFile, " Your gaze is hypnotic.\n");
                 }
-                if (p_ptr->muta1 & MUT1_TELEKINES)
+                if (p_ptr->muta1 & MUT1_APPORTATION)
                 {
-                        fprintf(OutFile, " You are telekinetic.\n");
+                        fprintf(OutFile, " You can teleport objects.\n");
                 }
                 if (p_ptr->muta1 & MUT1_VTELEPORT)
                 {
@@ -1516,7 +1516,7 @@ void dump_mutations(FILE * OutFile)
 		}
                 if (p_ptr->muta3 & MUT3_XTRA_EYES)
                 {
-                        fprintf(OutFile, " You have an extra pair of eyes (+15 Perception).\n");
+                        fprintf(OutFile, " You have an extra pair of eyes (x2 Perception).\n");
                 }
                 if (p_ptr->muta3 & MUT3_MAGIC_RES)
                 {
@@ -1607,11 +1607,8 @@ void dump_mutations(FILE * OutFile)
  */
 void do_cmd_knowledge_mutations(void)
 {
-
 	FILE *fff;
-
 	char file_name[1024];
-
 
 	/* Temporary file */
 	if (path_temp(file_name, 1024)) return;
@@ -2282,13 +2279,13 @@ void do_cmd_racial_power(void)
 			powers[num++] = MUT1_HYPN_GAZE;
 		}
 
-		if (p_ptr->muta1 & MUT1_TELEKINES)
+		if (p_ptr->muta1 & MUT1_APPORTATION)
 		{
 			if (lvl < 9)
-				strcpy(power_desc[num],"telekinesis        (mutation, lvl 9, cost 9)");
+				strcpy(power_desc[num],"apportation        (mutation, lvl 9, cost 9)");
 			else
-				strcpy(power_desc[num],"telekinesis        (mutation, cost 9, WIS 14@9)");
-			powers[num++] = MUT1_TELEKINES;
+				strcpy(power_desc[num],"apportation        (mutation, cost 9, WIS 14@9)");
+			powers[num++] = MUT1_APPORTATION;
 		}
 
 		if (p_ptr->muta1 & MUT1_VTELEPORT)
@@ -2674,7 +2671,7 @@ void do_cmd_racial_power(void)
 				}
 				break;
 
-			case MUT1_TELEKINES:
+			case MUT1_APPORTATION:
 				if (racial_aux(9, 9, A_WIS, 14))
 				{
 					msg_print("You concentrate...");
@@ -3464,7 +3461,7 @@ void calc_mutations(void)
 	if (p_ptr->muta3 & MUT3_SILLY_VOI)	p_ptr->stat_add[A_CHR] -= 4;
 	if (p_ptr->muta3 & MUT3_BLANK_FAC)	p_ptr->stat_add[A_CHR] -= 1;
 	if (p_ptr->muta3 & MUT3_ILL_NORM)	p_ptr->stat_add[A_CHR] = 0;
-	if (p_ptr->muta3 & MUT3_XTRA_EYES)	p_ptr->skill_fos += 15;
+	if (p_ptr->muta3 & MUT3_XTRA_EYES)	p_ptr->skill_fos *= 2;
 	if (p_ptr->muta3 & MUT3_MAGIC_RES)	p_ptr->skill_sav += (15+(p_ptr->lev/5));
 	if (p_ptr->muta3 & MUT3_XTRA_NOIS)	p_ptr->skill_stl -= 3;
 	if (p_ptr->muta3 & MUT3_INFRAVIS)	p_ptr->see_infra += 3;

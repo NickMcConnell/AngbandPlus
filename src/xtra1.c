@@ -13,8 +13,6 @@
 #include "angband.h"
 
 
-
-
 /*
  * Converts stat num into a six-char (right justified) string
  */
@@ -462,7 +460,7 @@ static void prt_poisoned(void)
 
 
 /*
- * Prints Searching, Resting, Paralysis, or 'count' status
+ * Prints Searching, Resting, Paralysis, or 'count' status, among other things
  * Display is always exactly 10 characters wide (see below)
  *
  * This function was a major bottleneck when resting, so a lot of
@@ -492,6 +490,13 @@ static void prt_state(void)
 		strcpy(text, "Wraithform");
 	}
 
+	/* Berserk */
+	else if (p_ptr->shero)
+	{
+		attr = TERM_L_RED;
+		strcpy(text, "Berserking");
+	}
+
 	/* Protection from Evil */
 	else if (p_ptr->protevil)
 	{
@@ -499,11 +504,11 @@ static void prt_state(void)
 		strcpy(text, "Prot. Evil");
 	}
 
-	/* Berserk */
-	else if (p_ptr->shero)
+	/* Hallucination */
+	else if (p_ptr->image)
 	{
-		attr = TERM_L_RED;
-		strcpy(text, "Berserking");
+		attr = TERM_VIOLET;
+		strcpy(text, "Hallucin. ");
 	}
 
 	/* Heroism */
@@ -2036,10 +2041,10 @@ static void calc_bonuses(void)
 
 	switch (p_ptr->pclass)
 	{
-		case CLASS_WARRIOR:
+		case CLASS_WARRIOR: case CLASS_WEAPONMASTER:
 			if (p_ptr->lev > 29) p_ptr->resist_fear = TRUE;
 			break;
-		case CLASS_PALADIN:
+		case CLASS_PALADIN: case CLASS_ARCHER:
 			if (p_ptr->lev > 34) p_ptr->resist_fear = TRUE;
 			break;
 		case CLASS_CHAOS_WARRIOR:
@@ -2063,9 +2068,6 @@ static void calc_bonuses(void)
 			/* Free action if unencumbered at level 25 */
 			if  ((p_ptr->lev > 24) && !(monk_heavy_armor()))
 				p_ptr->free_act = TRUE;
-			break;
-		case CLASS_WEAPONMASTER:
-			if (p_ptr->lev > 29) p_ptr->resist_fear = TRUE;
 			break;
 	}
 
@@ -2383,9 +2385,8 @@ static void calc_bonuses(void)
         }
     }
 
-	/* Hack -- fire and electrical auras provide light */
+	/* Hack -- fire aura provide light */
 	if (p_ptr->sh_fire) p_ptr->lite = TRUE;
-	if (p_ptr->sh_elec) p_ptr->lite = TRUE;
 
 	/*
 	 * Warriors *know* how to use and wear their armour - others just
@@ -2574,8 +2575,8 @@ static void calc_bonuses(void)
 		p_ptr->to_d += (p_ptr->lev / 2);
 		p_ptr->dis_to_d += (p_ptr->lev / 2);
 		/* Magical armour can't save you when you're Berserk */
-		p_ptr->to_a = -10;
-		p_ptr->dis_to_a = -10;
+		p_ptr->to_a = 0;
+		p_ptr->dis_to_a = 0;
 	}
 
 	/* Temporary "fast" */
@@ -2734,7 +2735,7 @@ static void calc_bonuses(void)
 		}
 
 		/*
-		 * Extra blows based on level. It was originally a bunch of
+		 * Extra shots based on level. It was originally a bunch of
 		 * if() statements, but a switch is much prettier, wouldn't
 		 * you say? :) -- Gumby
 		 */
@@ -2745,16 +2746,21 @@ static void calc_bonuses(void)
 				    (p_ptr->tval_ammo >= TV_SHOT))
 					p_ptr->num_fire += (p_ptr->lev / 25);
 				break;
-			case CLASS_RANGER: /* 3 extra shots - with bows */
+			case CLASS_RANGER: /* 2 extra shots - with bows */
 				if (p_ptr->tval_ammo == TV_ARROW)
-					p_ptr->num_fire += (p_ptr->lev / 15);
+					p_ptr->num_fire += (p_ptr->lev / 20);
 				break;
 			case CLASS_PALADIN: case CLASS_WARRIOR_MAGE:
 			case CLASS_CHAOS_WARRIOR: /* 1 extra shot */
 				if ((p_ptr->tval_ammo <= TV_BOLT) &&
 				    (p_ptr->tval_ammo >= TV_SHOT) &&
-				    (p_ptr->lev > 34))
+				    (p_ptr->lev > 29))
 					p_ptr->num_fire += 1;
+				break;
+			case CLASS_ARCHER: /* 3 extra shots */
+				if ((p_ptr->tval_ammo <= TV_BOLT) &&
+				    (p_ptr->tval_ammo >= TV_SHOT))
+					p_ptr->num_fire += (p_ptr->lev / 15);
 				break;
 			default: /* no extra shots */
 				break;
@@ -2802,6 +2808,7 @@ static void calc_bonuses(void)
 			case CLASS_MAGE: case CLASS_HIGH_MAGE:
 				num = 4; wgt = 40; mul = 2; break;
 			case CLASS_PRIEST: case CLASS_MINDCRAFTER:
+			case CLASS_ARCHER:
 				num = 5; wgt = 35; mul = 3; break;
 			case CLASS_ROGUE:
 				num = 5; wgt = 30; mul = 3; break;
@@ -2847,7 +2854,7 @@ static void calc_bonuses(void)
 				p_ptr->num_blow += (p_ptr->lev / 15);
 				break;
 			case CLASS_WARRIOR_MAGE: /* 2 extra blows */
-				p_ptr->num_blow += (p_ptr->lev / 25);
+				p_ptr->num_blow += (p_ptr->lev / 20);
 				break;
 			case CLASS_RANGER: case CLASS_PALADIN:
 			case CLASS_CHAOS_WARRIOR: /* 1 extra blow */
@@ -2942,8 +2949,7 @@ static void calc_bonuses(void)
 				p_ptr->icky_wield = TRUE;
 			}
 			break;
-		case CLASS_RANGER: case CLASS_PALADIN:
-		case CLASS_CHAOS_WARRIOR:
+		case CLASS_RANGER: case CLASS_PALADIN: case CLASS_CHAOS_WARRIOR:
 			p_ptr->to_h += (p_ptr->lev/10);
 			p_ptr->to_d += (p_ptr->lev/10);
 			p_ptr->dis_to_h += (p_ptr->lev/10);

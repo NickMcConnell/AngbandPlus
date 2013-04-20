@@ -42,7 +42,7 @@
 #define FAKE_VERSION
 #define FAKE_VER_MAJOR 2
 #define FAKE_VER_MINOR 1
-#define FAKE_VER_PATCH 7
+#define FAKE_VER_PATCH 8
 
 #define ANGBAND_2_8_1
 
@@ -98,7 +98,7 @@
 /*
  * Maximum number of player "class" types (see "table.c", etc)
  */
-#define MAX_CLASS            12
+#define MAX_CLASS            13
 
 /* The number of "patrons" available (for Chaos Warriors) */
 #define MAX_PATRON          16
@@ -166,7 +166,7 @@
 #define MUT1_SPIT_ACID                  0x00000001L
 #define MUT1_BR_FIRE                    0x00000002L
 #define MUT1_HYPN_GAZE                  0x00000004L
-#define MUT1_TELEKINES                  0x00000008L
+#define MUT1_APPORTATION                0x00000008L /* Telekinesis - G */
 #define MUT1_VTELEPORT                  0x00000010L /* Voluntary teleport */
 #define MUT1_MIND_BLST                  0x00000020L
 #define MUT1_RADIATION                  0x00000040L
@@ -605,7 +605,7 @@ and tables.c --TY */
 #define CLASS_MINDCRAFTER	 9
 #define CLASS_HIGH_MAGE		10
 #define CLASS_WEAPONMASTER	11
-
+#define CLASS_ARCHER		12
 
 /*** Screen Locations ***/
 
@@ -779,7 +779,7 @@ and tables.c --TY */
 #define ART_POWER                       13
 #define ART_IMMUNITY			14
 
-/* 15 unused, must be INSTA_ARTS */
+/* 15 unused, must be INSTA_ART */
 
 /* Dragon Scale */
 #define ART_RAZORBACK                   16
@@ -948,7 +948,7 @@ and tables.c --TY */
 #define ART_ICE				145
 #define ART_ENDURANCE			146
 #define ART_HERMES			147
-#define ART_GREAT_SPEED			148
+/* 148 unused */
 #define ART_DEATH			149
 #define ART_PINPRICK			150
 #define ART_BEGGING			151
@@ -957,17 +957,16 @@ and tables.c --TY */
 #define ART_PASTRO_FORTA		154
 #define ART_FENDILO			155
 #define ART_PENIG_LEDA_KIRASO		156
+#define ART_GUARDIAN			157
 
-/* 157-255 unused */
+/* 158-255 unused */
 
 
 /*** Ego-Item indexes (see "lib/edit/e_info.txt") ***/
 
 
 /* Nothing */
-/* xxx */
-/* xxx */
-/* xxx */
+/* 1 - 3 unused */
 
 /* Body Armor */
 #define EGO_RESIST_ACID         4
@@ -979,9 +978,7 @@ and tables.c --TY */
 #define EGO_SPINES		10
 #define EGO_PERMANENCE          11
 #define EGO_TOUGHNESS		12
-/* xxx */
-/* xxx */
-/* xxx */
+/* 13 - 15 unused */
 
 /* Shields */
 #define EGO_ENDURE_ACID         16
@@ -990,8 +987,7 @@ and tables.c --TY */
 #define EGO_ENDURE_COLD         19
 #define EGO_ENDURANCE           20
 #define EGO_REFLECTION          21
-/* xxx */
-/* xxx */
+/* 22 - 23 unused */
 
 /* Crowns and Helms */
 #define EGO_INTELLIGENCE        24
@@ -1005,20 +1001,14 @@ and tables.c --TY */
 #define EGO_LITE                32
 #define EGO_TELEPATHY           33
 #define EGO_REGENERATION        34
-#define EGO_TELEPORTATION       35
-#define EGO_STUPIDITY           36
-#define EGO_NAIVETY             37
-#define EGO_UGLINESS            38
-#define EGO_SICKLINESS          39
+/* 35 - 39 unused */
 
 /* Cloaks */
 #define EGO_PROTECTION          40
 #define EGO_STEALTH             41
 #define EGO_AMAN                42
 #define EGO_AURA_FIRE           43
-#define EGO_ENVELOPING          44
-#define EGO_VULNERABILITY       45
-#define EGO_IRRITATION          46
+/* 44 - 46 unused */
 #define EGO_AURA_ELEC           47
 
 /* Gloves */
@@ -1026,20 +1016,14 @@ and tables.c --TY */
 #define EGO_SLAYING             49
 #define EGO_AGILITY             50
 #define EGO_POWER               51
-/* xxx */
-/* xxx */
-#define EGO_WEAKNESS            54
-#define EGO_CLUMSINESS          55
+/* 52 - 55 unused */
 
 /* Boots */
 #define EGO_SLOW_DESCENT        56
 #define EGO_QUIET               57
 #define EGO_MOTION              58
 #define EGO_SPEED               59
-/* xxx */
-#define EGO_NOISE               61
-#define EGO_SLOWNESS            62
-#define EGO_ANNOYANCE           63
+/* 60 - 63 unused */
 
 /* Weapons */
 #define EGO_HA                  64
@@ -1079,19 +1063,15 @@ and tables.c --TY */
 #define EGO_TRUMP               98
 #define EGO_PATTERN             99
 #define EGO_DIGGING             100
-/* xxx */
-#define EGO_MORGUL              102
-/* xxx */
+/* 101 - 103 unused */
 
 /* Bows */
 #define EGO_ACCURACY            104
 #define EGO_VELOCITY            105
-/* xxx */
-/* xxx */
+/* 106 - 107 unused */
 #define EGO_EXTRA_MIGHT         108
 #define EGO_EXTRA_SHOTS         109
-/* xxx */
-/* xxx */
+/* 110 - 111 unused */
 
 /* Ammo */
 #define EGO_HURT_ANIMAL         112
@@ -1107,7 +1087,7 @@ and tables.c --TY */
 #define EGO_FLAME               122
 #define EGO_FROST               123
 #define EGO_WOUNDING            124
-#define EGO_BACKBITING          125
+/* 125 unused */
 #define EGO_SHATTERED           126
 #define EGO_BLASTED             127
 
@@ -1137,7 +1117,8 @@ and tables.c --TY */
 #define ACT_DISP_EVIL           23
 #define ACT_BA_MISS_3           24
 #define ACT_DISP_GOOD           25
-/* 26 - 50 unused */
+#define ACT_MANA_STORM		26
+/* 27 - 50 unused */
 #define ACT_CONFUSE             51
 #define ACT_SLEEP               52
 #define ACT_QUAKE               53
@@ -1411,7 +1392,6 @@ and tables.c --TY */
 #define SV_LITE_THRAIN             6
 
 /* The "sval" codes for TV_AMULET */
-#define SV_AMULET_DOOM             0
 #define SV_AMULET_HOLDING          1 /* was Teleportation */
 #define SV_AMULET_THIEVES	   2 /* was Adornment */
 #define SV_AMULET_SLOW_DIGEST      3
@@ -1432,7 +1412,6 @@ and tables.c --TY */
 #define SV_AMULET_RESIST_ELEC	   18
 
 /* The sval codes for TV_RING */
-#define SV_RING_WOE                0
 #define SV_RING_AGGRAVATION        1
 #define SV_RING_WEAKNESS           2
 #define SV_RING_STUPIDITY          3
@@ -1639,7 +1618,7 @@ and tables.c --TY */
 #define SV_SCROLL_ICE                    49
 #define SV_SCROLL_CHAOS                  50
 #define SV_SCROLL_RUMOR                  51
-#define SV_SCROLL_ARTIFACT               52
+/* 52 unused */
 #define SV_SCROLL_BRAND_WEAPON		 53
 
 /* The "sval" codes for TV_POTION */
@@ -2424,7 +2403,7 @@ and tables.c --TY */
 #define RF2_EXPLOSIVE           0x01000000	/* was RF2_BRAIN_1 - G */
 /* Explosive monsters go boom when they die. See xtra2.c for details */
 #define RF2_SPINES              0x02000000	/* was RF2_BRAIN_2 - G */
-#define RF2_BRAIN_3             0x04000000
+#define RF2_CHAOTIC             0x04000000	/* Creature of Chaos - G [was RF2_BRAIN_3] */
 #define RF2_BRAIN_4             0x08000000
 #define RF2_BRAIN_5             0x10000000
 #define RF2_BRAIN_6             0x20000000
@@ -2445,7 +2424,7 @@ and tables.c --TY */
 #define RF3_ELEMENTAL           0x00000100      /* Elemental (was Amberite) */
 #define RF3_GOOD                0x00000200      /* Good */
 #define RF3_SCUMDOG             0x00000400      /* Scumdog/GWAR was XXX3 */
-#define RF3_NONLIVING           0x00000800      /* TY: Non-Living (?) */
+#define RF3_NONLIVING           0x00000800      /* TY: Non-Living */
 #define RF3_HURT_LITE           0x00001000      /* Hurt by lite */
 #define RF3_HURT_ROCK           0x00002000      /* Hurt by rock remover */
 #define RF3_HURT_FIRE           0x00004000      /* Hurt badly by fire */
@@ -2472,7 +2451,7 @@ and tables.c --TY */
  */
 #define RF4_SHRIEK	0x00000001      /* Shriek for help */
 #define RF4_XXX2	0x00000002
-#define RF4_XXX3	0x00000004
+#define RF4_BR_WATE	0x00000004	/* Breathe Water (was XXX3) */
 #define RF4_ROCKET	0x00000008      /* TY: Rocket */
 #define RF4_ARROW_1	0x00000010      /* Shoot an arrow (light) */
 #define RF4_ARROW_2	0x00000020      /* Fire an arrow (heavy) */

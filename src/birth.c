@@ -463,7 +463,7 @@ static hist_type bg[] =
 	{"You were produced by a magical experiment.  ",	 30, 129, 130, 40},
 	{"As a child, you were stupid enough to stick your head in raw Chaos.  ",
 								 50, 129, 130, 50},
-	{"A Lord of Chaos wanted spome fun, so he created you.  ",
+	{"A Lord of Chaos wanted some fun, so he created you.  ",
 								 60, 129, 130, 60},
 	{"You are the magical crossbreed of an animal and a man.  ",
 								 75, 129, 130, 50},
@@ -928,8 +928,7 @@ static void get_stats(void)
  */
 static void get_extra(void)
 {
-	int		i, j, min_value, max_value;
-
+	int i, j, min_value, max_value;
 #ifdef SHOW_LIFE_RATE
 	int percent;
 #endif
@@ -985,6 +984,11 @@ static void get_extra(void)
 	msg_print(NULL);
 #endif /* SHOW_LIFE_RATE */
 
+	if (quick_start)
+	{
+		p_ptr->max_plv = p_ptr->lev = 5;
+		p_ptr->max_exp = p_ptr->exp = 1 + (player_exp[p_ptr->lev - 2] * p_ptr->expfact / 100L);
+	}
 }
 
 
@@ -994,9 +998,7 @@ static void get_extra(void)
 static void get_history(void)
 {
 	int i, n, chart, roll, social_class;
-
 	char *s, *t;
-
 	char buf[240];
 
 	/* Clear the previous history strings */
@@ -1158,8 +1160,6 @@ static void get_ahw(void)
 }
 
 
-
-
 /*
  * Get the player's starting money
  */
@@ -1180,10 +1180,10 @@ static void get_money(void)
 		else gold -= (stat_use[i] - 8) * 10;
 	}
 
-	/* Minimum 100 gold */
-/*	if (gold < 100) gold = 100; */
 	/* Minimum gold */
 	if (gold < 99 + p_ptr->sc) gold = 99 + p_ptr->sc;
+
+	if (quick_start) gold = 1000;
 
 	/* Save the gold */
 	p_ptr->au = gold;
@@ -1198,9 +1198,8 @@ static void get_money(void)
  */
 static void birth_put_stats(void)
 {
-	int		i, p;
+	int	i, p;
 	byte	attr;
-
 	char	buf[80];
 
 
@@ -1423,6 +1422,13 @@ static byte player_init[MAX_CLASS][3][2] =
 		{ TV_POTION, SV_POTION_HEROISM },
 		{ TV_HARD_ARMOR, SV_CHAIN_MAIL }
 	},
+
+	{
+		/* Archer - they also get some pebbles. -- Gumby */
+		{ TV_RING, SV_RING_RES_FEAR },
+		{ TV_BOW, SV_SLING },
+		{ TV_SOFT_ARMOR, SV_HARD_LEATHER_ARMOR }
+	},
 };
 
 
@@ -1437,7 +1443,6 @@ static void player_outfit(void)
 	object_type	forge;
 	object_type	*q_ptr;
 	
-
 	/* Get local object */
 	q_ptr = &forge;
 
@@ -1464,13 +1469,12 @@ static void player_outfit(void)
 		(void)inven_carry(q_ptr, FALSE);
 	}
 
-
-	/* Get local object */
-	q_ptr = &forge;
-
 	/* Start off with lots of ID scrolls if a ghost... -- Gumby */
 	if (p_ptr->astral)
 	{
+		/* Get local object */
+		q_ptr = &forge;
+
 		object_prep(q_ptr, lookup_kind(TV_SCROLL, SV_SCROLL_IDENTIFY));
 		q_ptr->number = 75;
 		object_aware(q_ptr);
@@ -1478,13 +1482,12 @@ static void player_outfit(void)
 		(void)inven_carry(q_ptr, FALSE);
 	}
 
-
-	/* Get local object */
-	q_ptr = &forge;
-
 	/* Gotta give Weaponmasters a weapon they can use! -- Gumby */
 	if (p_ptr->pclass == CLASS_WEAPONMASTER)
 	{
+		/* Get local object */
+		q_ptr = &forge;
+
 		switch (p_ptr->wm_choice)
 		{
 			case TV_HAFTED:
@@ -1503,18 +1506,15 @@ static void player_outfit(void)
 
 		q_ptr->number = 1;
 
-		/*
-		 * Get a quick start with an Elemental Brand (the first one)
-		 * or a minor Slay. -- Gumby
-		 */
+		/* Get a quick start with an Elemental Brand or Slay. - G */
 		if (quick_start)
 		{
-			if (randint(5)==1)
-				/* a basic Brand (no Poison) */
-				q_ptr->name2 = rand_range(72,75);
+			if (randint(2)==1)
+				/* a basic Brand or Slay Elemental */
+				q_ptr->name2 = rand_range(71,75);
 			else
 				/* a basic Slay */
-				q_ptr->name2 = rand_range(80,87);				
+				q_ptr->name2 = rand_range(80,87);
 
 			/* Give it a few plusses */
 			q_ptr->to_h += 1 + randint(4);
@@ -1528,6 +1528,34 @@ static void player_outfit(void)
 		object_known(q_ptr);
 
 		/* These objects are "storebought" */
+		q_ptr->ident |= IDENT_STOREB;
+
+		(void)inven_carry(q_ptr, FALSE);
+	}
+
+
+	/* Get local object */
+	q_ptr = &forge;
+
+	/* Start off with a bunch of rounded pebbles if an Archer -- Gumby */
+	if (p_ptr->pclass == CLASS_ARCHER)
+	{
+		object_prep(q_ptr, lookup_kind(TV_SHOT, SV_AMMO_LIGHT));
+		q_ptr->number = 20;
+		object_aware(q_ptr);
+		object_known(q_ptr);
+
+		if (quick_start)
+		{
+			/* Plusses only */
+			q_ptr->to_h += 2 + randint(3);
+			q_ptr->to_d += 2 + randint(3);
+
+			/* You know its properties */
+			q_ptr->ident |= IDENT_MENTAL;
+		}
+
+		/* They are "storebought" */
 		q_ptr->ident |= IDENT_STOREB;
 
 		(void)inven_carry(q_ptr, FALSE);
@@ -1646,9 +1674,9 @@ static void player_outfit(void)
 						}
 						break;
 					default:
-						if (randint(5)==1)
+						if (randint(2)==1)
 							/* a basic Brand */
-							q_ptr->name2 = rand_range(72,75);
+							q_ptr->name2 = rand_range(71,75);
 						else
 							/* a basic Slay */
 							q_ptr->name2 = rand_range(80,87);
@@ -1700,29 +1728,20 @@ static void player_outfit(void)
 static bool player_birth_aux()
 {
 	int i, j, k, m, n, v;
-
 	int mode = 0;
-
 	bool flag = FALSE;
 	bool prev = FALSE;
-
 	cptr str;
-
 	char c;
-
 #if 0
 	char p1 = '(';
 #endif
-
 	char p2 = ')';
 	char b1 = '[';
 	char b2 = ']';
-
 	char buf[80];
 	char inp[80];
-
 	bool autoroll = FALSE;
-
 
 
 	/*** Intro ***/

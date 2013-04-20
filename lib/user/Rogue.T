@@ -1,16 +1,16 @@
 # Rogue Trump Spells
 #
 # TAB - Teleport Away       F1 - Minor Trump
-#   [ - Mind Blast          F2 - Trump Animal
-#   ] - Nexus Bolt          F3 - Phantasmal Servant
+#   [ - Mind Blast          F2 - Phantasmal Servant
+#   ] - Nexus Bolt          F3 - Trump Animal
 #   ' - Trump Branding      F4 - Trump Monster
 #   " - Living Trump        F5 - Conjure Elemental
 #   ; - Shuffle             F6 - Trump Spiders
-#   : - Trump Reach         F7 - Trump Reptiles
+#   : - Apportation         F7 - Trump Reptiles
 #   h - Teleport Level      F8 - Trump Hounds
 #   H - Word of Recall      F9 - Trump Undead
 #   J - Trump Lore         F10 - Trump Dragon
-#   n - Minor Divination   F11 - Trump Demon
+#   n - Detect Minds       F11 - Trump Demon
 #   N - Trump Divination
 #   O - Banish
 #   P - Death Dealing
@@ -42,7 +42,7 @@ C:0:"
 A:m1c
 C:0:;
 
-# : - Trump Reach
+# : - Apportation
 A:m3a
 C:0::
 
@@ -58,7 +58,7 @@ C:0:H
 A:m4b
 C:0:J
 
-# n - Minor Divination
+# n - Detect Minds
 A:m1d
 C:0:n
 
@@ -92,11 +92,11 @@ C:0:Z
 A:m1g
 P:^_x3B\r
 
-# F2 - Trump Animal
+# F2 - Phantasmal Servant
 A:m2d
 P:^_x3C\r
 
-# F3 - Phantasmal Servant
+# F3 - Trump Animal
 A:m2f
 P:^_x3D\r
 

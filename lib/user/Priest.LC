@@ -1,0 +1,189 @@
+# Priest Life/Chaos
+#
+# TAB - Healing             F1 - Magic Missile       SF1 - Holy Orb
+#   [ - Detect Evil         F2 - Spiritual Hammer    SF2 - Mana Burst
+#   ] - Detect Doors/Traps  F3 - Fire Bolt           SF3 - Sonic Boom
+#   ' - Cure Crit. Wounds   F4 - Fist of Force       SF4 - Fire Ball
+#   " - Greater Healing     F5 - Chaos Bolt          SF5 - Invoke Chaos
+#   ; - Cure Light Wounds   F6 - Mana Bolt           SF6 - Chain Lightning
+#   : - Cure Medium Wounds  F7 - Beam of Gravity     SF7 - Disintegrate
+#   h - Protect. from Evil  F8 - Call Chaos          SF8 - Meteor Swarm
+#   H - Holy Invulnerabil.  F9 - Exorcise Demons     SF9 - Flame Strike
+#   J - Satisfy Hunger     F10 - Destroy Undead     SF10 - Magic Rocket
+#   n - Demonic Consultat. F11 - Dispel Evil        SF11 - Mana Storm
+#   N - Holy Vision        F12 - Holy Word          SF12 - Breathe Chaos
+#   O - Teleport Self
+#   P - Arcane Binding
+#   y - Bless
+#   Y - Prayer
+#   Z - Call Light
+
+# TAB - Healing
+A:m2g
+P:\t
+
+# [ - Detect Evil
+A:m1a
+C:0:[
+
+# ] - Detect Doors/Traps
+A:m1f
+C:0:]
+
+# ' - Cure Critical Wounds
+A:m2c
+C:0:'
+
+# " - Greater Healing
+A:m4e
+C:0:"
+
+# ; - Cure Light Wounds
+A:m1b
+C:0:;
+
+# : - Cure Medium Wounds
+A:m1g
+C:0::
+
+# h - Protection from Evil
+A:m2f
+C:0:h
+
+# H - Holy Invulnerability
+A:m4h
+C:0:H
+
+# J - Satisfy Hunger
+A:m1h
+C:0:J
+
+# n - Demonic Consultation
+A:m7d
+C:0:n
+
+# N - Holy Vision
+A:m4f
+C:0:N
+
+# O - Teleport Self
+A:m5h
+C:0:O
+
+# P - Arcane Binding
+A:m7b
+C:0:P
+
+# y - Bless
+A:m1c
+C:0:y
+
+# Y - Prayer
+A:m4b
+C:0:Y
+
+# Z - Call Light
+A:m1e
+C:0:Z
+
+# Bolts
+
+# F1 - Magic Missile
+A:\e\e\e*tm5a
+P:^_x3B\r
+
+# F2 - Spiritual Hammer
+A:\e\e\e*tm1d
+P:^_x3C\r
+
+# F3 - Fire Bolt
+A:\e\e\e*tm5f
+P:^_x3D\r
+
+# F4 - Fist of Force
+A:\e\e\e*tm5g
+P:^_x3E\r
+
+# F5 - Chaos Bolt
+A:\e\e\e*tm6c
+P:^_x3F\r
+
+# F6 - Mana Bolt
+A:\e\e\e*tm6e
+P:^_x40\r
+
+# F7 - Beam of Gravity
+A:\e\e\e*tm8a
+P:^_x41\r
+
+# F8 - Call Chaos
+A:m8d
+P:^_x42\r
+
+# Dispellings
+
+# F9 - Exorcise Demons
+A:m3a
+P:^_x43\r
+
+# F10 - Destroy Undead
+A:m3c
+P:^_x44\r
+
+# F11 - Dispel Evil
+A:m3f
+P:^_x85\r
+
+# F12 - Holy Word
+A:m3g
+P:^_x86\r
+
+# Balls
+
+# SHIFT-F1 - Holy Orb
+A:m2e
+P:^_Sx54\r
+
+# SHIFT-F2 - Mana Burst
+A:m5e
+P:^_Sx55\r
+
+# SHIFT-F3 - Sonic Boom
+A:m6d
+P:^_Sx56\r
+
+# SHIFT-F4 - Fire Ball
+A:m6f
+P:^_Sx57\r
+
+# SHIFT-F5 - Invoke Chaos
+A:m6h
+P:^_Sx58\r
+
+# SHIFT-F6 - Chain Lightning
+A:m7a
+P:^_Sx59\r
+
+# SHIFT-F7 - Disintegrate
+A:m7c
+P:^_Sx5A\r
+
+# SHIFT-F8 - Meteor Swarm
+A:m8b
+P:^_Sx5B\r
+
+# SHIFT-F9 - Flame Strike
+A:m8c
+P:^_Sx5C\r
+
+# SHIFT-F10 - Magic Rocket
+A:m8e
+P:^_Sx5D\r
+
+# SHIFT-F11 - Mana Storm
+A:m8f
+P:^_Sx87\r
+
+# SHIFT-F12 - Breathe Chaos
+A:m8g
+P:^_Sx88\r

@@ -907,7 +907,7 @@ bool make_attack_normal(int m_idx)
 					{
 						obvious = TRUE;
 					}
-					else if (rand_int(150) < p_ptr->skill_sav)
+					else if (rand_int(200) < p_ptr->skill_sav)
 					{
 						msg_print("Your eyes water for a moment!");
 						obvious = TRUE;
@@ -936,9 +936,9 @@ bool make_attack_normal(int m_idx)
 					{
 						obvious = TRUE;
 					}
-					else if (rand_int(150) < p_ptr->skill_sav)
+					else if (rand_int(200) < p_ptr->skill_sav)
 					{
-						msg_print("You keep your balance!");
+						msg_print("You feel dazed for a moment!");
 						obvious = TRUE;
 					}
 					else
@@ -1464,12 +1464,20 @@ bool make_attack_normal(int m_idx)
 
 				if (p_ptr->sh_spine && alive)
 				{
-					msg_format("%^s is pierced!", m_name);
-					if (mon_take_hit(m_idx, damroll(4,5), &fear,
-						 " crumples lifelessly to the ground."))
+					if (!(r_ptr->flags2 & RF2_REFLECTING))
 					{
-						blinked = FALSE;
-						alive = FALSE;
+						msg_format("%^s is pierced!", m_name);
+						if (mon_take_hit(m_idx, damroll(4,5), &fear,
+							 " crumples lifelessly to the ground."))
+						{
+							blinked = FALSE;
+							alive = FALSE;
+						}
+					}
+					else
+					{
+						if (m_ptr->ml)
+							r_ptr->r_flags2 |= RF2_REFLECTING;
 					}
 				}
 

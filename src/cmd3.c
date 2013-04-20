@@ -612,10 +612,8 @@ void do_cmd_destroy(void)
  */
 void do_cmd_observe(void)
 {
-	int			item;
-
-	object_type		*o_ptr;
-
+	int		item;
+	object_type	*o_ptr;
 	char		o_name[80];
 
 
@@ -638,14 +636,12 @@ void do_cmd_observe(void)
 		o_ptr = &o_list[0 - item];
 	}
 
-
 	/* Require full knowledge */
 	if (!(o_ptr->ident & (IDENT_MENTAL)))
 	{
 		msg_print("You have no special knowledge about that item.");
 		return;
 	}
-
 
 	/* Description */
 	object_desc(o_name, o_ptr, TRUE, 3);
@@ -1753,7 +1749,7 @@ void py_steal(int y, int x)
 		if (m_ptr->mspeed < r_ptr->speed + 3) m_ptr->mspeed += 10;
 
 		/* Occasionally, amuse the player with a message. */
-		if ((randint(5) == 1) && (purse) &&
+		if ((randint(2) == 1) && (purse) &&
 		    (r_ptr->flags2 & (RF2_SMART)))
 		{
 			monster_desc(m_name, m_ptr, 0);

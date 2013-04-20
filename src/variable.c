@@ -231,7 +231,7 @@ bool view_special_lite;		/* Use special colors for floor grids (slow) */
 bool last_words;		/* Get last words upon dying */
 bool speak_unique;		/* Speaking uniques + shopkeepers */
 bool small_levels;		/* Allow unusually small dungeon levels */
-				/* set 5, bit 3 option */
+bool show_damage;		/* Show damage dealt by player -- Gumby */
 bool empty_levels;		/* Allow empty 'arena' levels */
 bool player_symbols;		/* Use varying symbols for the player char */
 bool equippy_chars;		/* Back by popular demand... */
@@ -244,6 +244,7 @@ bool confirm_stairs;		/* Prompt before staircases... */
 bool wear_confirm;		/* Confirm before putting on known cursed items */
 bool disturb_pets;		/* Pets moving nearby disturb us */
 bool name_slimes;		/* Slime Molds have names */
+bool filter_identify;		/* Show only appropriate items for Identify */
 bool shuffle_songs;		/* Randomize midi songs */
 bool mute_songs;		/* No music */
 bool mute_sounds;		/* No sound effects */

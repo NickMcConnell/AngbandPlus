@@ -454,9 +454,9 @@ void self_knowledge(void)
 		{
 			info[i++] = "Your gaze is hypnotic.";
 		}
-		if (p_ptr->muta1 & MUT1_TELEKINES)
+		if (p_ptr->muta1 & MUT1_APPORTATION)
 		{
-			info[i++] = "You are telekinetic.";
+			info[i++] = "You can teleport objects.";
 		}
 		if (p_ptr->muta1 & MUT1_VTELEPORT)
 		{
@@ -1979,6 +1979,65 @@ bool detect_monsters_normal(void)
 
 
 /*
+ * Detect all monsters with minds on current panel -- Gumby
+ */
+bool detect_monsters_mental(void)
+{
+	int i, y, x;
+	bool flag = FALSE;
+
+	/* Scan monsters */
+	for (i = 1; i < m_max; i++)
+	{
+		monster_type *m_ptr = &m_list[i];
+		monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+		/*
+		 * Skip dead, stupid and mindless monsters
+		 * Only sometimes skip those with erratic minds
+		 */
+		if (!m_ptr->r_idx) continue;
+		if (r_ptr->flags2 & (RF2_STUPID)) continue;
+		if (r_ptr->flags2 & (RF2_EMPTY_MIND)) continue;
+		if ((r_ptr->flags2 & (RF2_WEIRD_MIND)) &&
+		    (randint(100) > (p_ptr->lev * 2))) continue;
+
+		/* Location */
+		y = m_ptr->fy;
+		x = m_ptr->fx;
+
+		/* Only detect nearby monsters */
+		if (!panel_contains(y, x)) continue;
+
+		/* Repair visibility later */
+		repair_monsters = TRUE;
+
+		/* Hack -- Detect monster */
+		m_ptr->mflag |= (MFLAG_MARK | MFLAG_SHOW);
+
+		/* Hack -- See monster */
+		m_ptr->ml = TRUE;
+			
+		/* Redraw */
+		lite_spot(y, x);
+
+		/* Detect */
+		flag = TRUE;
+	}
+
+	/* Describe */
+	if (flag)
+	{
+		/* Describe result */
+		msg_print("You sense the presence of mental energy!");
+	}
+
+	/* Result */
+	return (flag);
+}
+
+
+/*
  * Detect all "invisible" monsters on current panel
  */
 bool detect_monsters_invis(void)
@@ -2049,7 +2108,6 @@ bool detect_monsters_invis(void)
 	/* Result */
 	return (flag);
 }
-
 
 
 /*
@@ -2396,7 +2454,6 @@ static bool project_hack(int typ, int dam)
 	int     flg = PROJECT_JUMP | PROJECT_KILL | PROJECT_HIDE;
 	bool    obvious = FALSE;
 
-
 	/* Affect all (nearby) monsters */
 	for (i = 1; i < m_max; i++)
 	{
@@ -2492,6 +2549,12 @@ bool dispel_demons(int dam)
 bool dispel_animals(int dam)
 {
 	return (project_hack(GF_DISP_ANIMAL, dam));
+}
+
+/* Polymorph All */
+bool poly_all(void)
+{
+	return (project_hack(GF_OLD_POLY, p_ptr->lev));
 }
 
 /* Wake up all monsters, and speed up "los" monsters. */
@@ -4232,8 +4295,7 @@ bool detect_monsters_nonliving(void)
 
 		/* Detect evil monsters */
 		if ((r_ptr->flags3 & (RF3_NONLIVING)) ||
-		    (r_ptr->flags3 & (RF3_UNDEAD)) ||
-		    (r_ptr->flags3 & (RF3_DEMON)))
+		    (r_ptr->flags3 & (RF3_UNDEAD)))
 		{
 			/* Update monster recall window */
 			if (monster_race_idx == m_ptr->r_idx)

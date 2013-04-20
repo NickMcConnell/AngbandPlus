@@ -324,97 +324,97 @@ static s16b convert_slot(int old)
 static byte convert_ego_item[128] =
 {
 	0,                                      /* 0 */
-	EGO_RESISTANCE,         /* 1 = EGO_RESIST (XXX) */
-	EGO_RESIST_ACID,        /* 2 = EGO_RESIST_A (XXX) */
-	EGO_RESIST_FIRE,        /* 3 = EGO_RESIST_F (XXX) */
-	EGO_RESIST_COLD,        /* 4 = EGO_RESIST_C (XXX) */
-	EGO_RESIST_ELEC,        /* 5 = EGO_RESIST_E (XXX) */
-	EGO_HA,                         /* 6 = EGO_HA */
-	EGO_DF,                         /* 7 = EGO_DF */
-	EGO_SLAY_ANIMAL,        /* 8 = EGO_SLAY_ANIMAL */
-	EGO_SLAY_DRAGON,        /* 9 = EGO_SLAY_DRAGON */
-	EGO_SLAY_EVIL,          /* 10 = EGO_SLAY_EVIL (XXX) */
-	EGO_SLAY_UNDEAD,        /* 11 = EGO_SLAY_UNDEAD (XXX) */
-	EGO_BRAND_FIRE,         /* 12 = EGO_FT */
-	EGO_BRAND_COLD,         /* 13 = EGO_FB */
-	EGO_FREE_ACTION,        /* 14 = EGO_FREE_ACTION (XXX) */
-	EGO_SLAYING,            /* 15 = EGO_SLAYING */
+	EGO_RESISTANCE,				/* 1 = EGO_RESIST (XXX) */
+	EGO_RESIST_ACID,			/* 2 = EGO_RESIST_A (XXX) */
+	EGO_RESIST_FIRE,			/* 3 = EGO_RESIST_F (XXX) */
+	EGO_RESIST_COLD,			/* 4 = EGO_RESIST_C (XXX) */
+	EGO_RESIST_ELEC,			/* 5 = EGO_RESIST_E (XXX) */
+	EGO_HA,					/* 6 = EGO_HA */
+	EGO_DF,					/* 7 = EGO_DF */
+	EGO_SLAY_ANIMAL,			/* 8 = EGO_SLAY_ANIMAL */
+	EGO_SLAY_DRAGON,			/* 9 = EGO_SLAY_DRAGON */
+	EGO_SLAY_EVIL,				/* 10 = EGO_SLAY_EVIL (XXX) */
+	EGO_SLAY_UNDEAD,			/* 11 = EGO_SLAY_UNDEAD (XXX) */
+	EGO_BRAND_FIRE,				/* 12 = EGO_FT */
+	EGO_BRAND_COLD,				/* 13 = EGO_FB */
+	EGO_FREE_ACTION,			/* 14 = EGO_FREE_ACTION (XXX) */
+	EGO_SLAYING,				/* 15 = EGO_SLAYING */
 	0,                                      /* 16 */
 	0,                                      /* 17 */
-	EGO_SLOW_DESCENT,       /* 18 = EGO_SLOW_DESCENT */
-	EGO_SPEED,                      /* 19 = EGO_SPEED */
-	EGO_STEALTH,            /* 20 = EGO_STEALTH (XXX) */
+	EGO_SLOW_DESCENT,			/* 18 = EGO_SLOW_DESCENT */
+	EGO_SPEED,				/* 19 = EGO_SPEED */
+	EGO_STEALTH,				/* 20 = EGO_STEALTH (XXX) */
 	0,                                      /* 21 */
 	0,                                      /* 22 */
 	0,                                      /* 23 */
-	EGO_INTELLIGENCE,       /* 24 = EGO_INTELLIGENCE */
-	EGO_WISDOM,                     /* 25 = EGO_WISDOM */
-	EGO_INFRAVISION,        /* 26 = EGO_INFRAVISION */
-	EGO_MIGHT,                      /* 27 = EGO_MIGHT */
-	EGO_LORDLINESS,         /* 28 = EGO_LORDLINESS */
-	EGO_MAGI,                       /* 29 = EGO_MAGI (XXX) */
-	EGO_BEAUTY,                     /* 30 = EGO_BEAUTY */
-	EGO_SEEING,                     /* 31 = EGO_SEEING (XXX) */
-	EGO_REGENERATION,       /* 32 = EGO_REGENERATION */
+	EGO_INTELLIGENCE,			/* 24 = EGO_INTELLIGENCE */
+	EGO_WISDOM,				/* 25 = EGO_WISDOM */
+	EGO_INFRAVISION,			/* 26 = EGO_INFRAVISION */
+	EGO_MIGHT,				/* 27 = EGO_MIGHT */
+	EGO_LORDLINESS,				/* 28 = EGO_LORDLINESS */
+	EGO_MAGI,				/* 29 = EGO_MAGI (XXX) */
+	EGO_BEAUTY,				/* 30 = EGO_BEAUTY */
+	EGO_SEEING,				/* 31 = EGO_SEEING (XXX) */
+	EGO_REGENERATION,			/* 32 = EGO_REGENERATION */
 	0,                                      /* 33 */
 	0,                                      /* 34 */
 	0,                                      /* 35 */
 	0,                                      /* 36 */
 	0,                                      /* 37 */
-	EGO_PERMANENCE,         /* 38 = EGO_ROBE_MAGI */
-	EGO_PROTECTION,         /* 39 = EGO_PROTECTION */
+	EGO_PERMANENCE,				/* 38 = EGO_ROBE_MAGI */
+	EGO_PROTECTION,				/* 39 = EGO_PROTECTION */
 	0,                                      /* 40 */
 	0,                                      /* 41 */
 	0,                                      /* 42 */
-	EGO_BRAND_FIRE,         /* 43 = EGO_FIRE (XXX) */
-	EGO_HURT_EVIL,          /* 44 = EGO_AMMO_EVIL */
-	EGO_HURT_DRAGON,        /* 45 = EGO_AMMO_DRAGON */
+	EGO_BRAND_FIRE,				/* 43 = EGO_FIRE (XXX) */
+	EGO_HURT_EVIL,				/* 44 = EGO_AMMO_EVIL */
+	EGO_HURT_DRAGON,			/* 45 = EGO_AMMO_DRAGON */
 	0,                                      /* 46 */
 	0,                                      /* 47 */
 	0,                                      /* 48 */
 	0,                                      /* 49 */
-	EGO_FLAME,                      /* 50 = EGO_AMMO_FIRE */
-	0,                                      /* 51 */        /* oops */
-	EGO_FROST,                      /* 52 = EGO_AMMO_SLAYING */
+	EGO_FLAME,				/* 50 = EGO_AMMO_FIRE */
+	0,                                      /* 51 */
+	EGO_FROST,				/* 52 = EGO_AMMO_SLAYING */
 	0,                                      /* 53 */
 	0,                                      /* 54 */
-	EGO_HURT_ANIMAL,        /* 55 = EGO_AMMO_ANIMAL */
+	EGO_HURT_ANIMAL,			/* 55 = EGO_AMMO_ANIMAL */
 	0,                                      /* 56 */
 	0,                                      /* 57 */
 	0,                                      /* 58 */
 	0,                                      /* 59 */
-	EGO_EXTRA_MIGHT,        /* 60 = EGO_EXTRA_MIGHT */
-	EGO_EXTRA_SHOTS,        /* 61 = EGO_EXTRA_SHOTS */
+	EGO_EXTRA_MIGHT,			/* 60 = EGO_EXTRA_MIGHT */
+	EGO_EXTRA_SHOTS,			/* 61 = EGO_EXTRA_SHOTS */
 	0,                                      /* 62 */
 	0,                                      /* 63 */
-	EGO_VELOCITY,           /* 64 = EGO_VELOCITY */
-	EGO_ACCURACY,           /* 65 = EGO_ACCURACY */
+	EGO_VELOCITY,				/* 64 = EGO_VELOCITY */
+	EGO_ACCURACY,				/* 65 = EGO_ACCURACY */
 	0,                                      /* 66 */
-	EGO_SLAY_ORC,           /* 67 = EGO_SLAY_ORC */
-	EGO_POWER,                      /* 68 = EGO_POWER */
+	EGO_SLAY_ORC,				/* 67 = EGO_SLAY_ORC */
+	EGO_POWER,				/* 68 = EGO_POWER */
 	0,                                      /* 69 */
 	0,                                      /* 70 */
-	EGO_WEST,                       /* 71 = EGO_WEST */
-	EGO_BLESS_BLADE,        /* 72 = EGO_BLESS_BLADE */
-	EGO_SLAY_DEMON,         /* 73 = EGO_SLAY_DEMON */
-	EGO_SLAY_TROLL,         /* 74 = EGO_SLAY_TROLL */
+	EGO_WEST,				/* 71 = EGO_WEST */
+	EGO_BLESS_BLADE,			/* 72 = EGO_BLESS_BLADE */
+	EGO_SLAY_DEMON,				/* 73 = EGO_SLAY_DEMON */
+	EGO_SLAY_TROLL,				/* 74 = EGO_SLAY_TROLL */
 	0,                                      /* 75 */
 	0,                                      /* 76 */
-	EGO_WOUNDING,           /* 77 = EGO_AMMO_WOUNDING */
+	EGO_WOUNDING,				/* 77 = EGO_AMMO_WOUNDING */
 	0,                                      /* 78 */
 	0,                                      /* 79 */
 	0,                                      /* 80 */
-	EGO_LITE,                       /* 81 = EGO_LITE */
-	EGO_AGILITY,            /* 82 = EGO_AGILITY */
+	EGO_LITE,				/* 81 = EGO_LITE */
+	EGO_AGILITY,				/* 82 = EGO_AGILITY */
 	0,                                      /* 83 */
 	0,                                      /* 84 */
-	EGO_SLAY_GIANT,         /* 85 = EGO_SLAY_GIANT */
-	EGO_TELEPATHY,          /* 86 = EGO_TELEPATHY */
-	EGO_ELVENKIND,          /* 87 = EGO_ELVENKIND (XXX) */
+	EGO_SLAY_GIANT,				/* 85 = EGO_SLAY_GIANT */
+	EGO_TELEPATHY,				/* 86 = EGO_TELEPATHY */
+	EGO_ELVENKIND,				/* 87 = EGO_ELVENKIND (XXX) */
 	0,                                      /* 88 */
 	0,                                      /* 89 */
-	EGO_ATTACKS,            /* 90 = EGO_ATTACKS */
-	EGO_AMAN,                       /* 91 = EGO_AMAN */
+	EGO_ATTACKS,				/* 90 = EGO_ATTACKS */
+	EGO_AMAN,				/* 91 = EGO_AMAN */
 	0,                                      /* 92 */
 	0,                                      /* 93 */
 	0,                                      /* 94 */
@@ -427,30 +427,30 @@ static byte convert_ego_item[128] =
 	0,                                      /* 101 */
 	0,                                      /* 102 */
 	0,                                      /* 103 */
-	EGO_WEAKNESS,           /* 104 = EGO_WEAKNESS */
-	EGO_STUPIDITY,          /* 105 = EGO_STUPIDITY */
-	EGO_NAIVETY,            /* 106 = EGO_DULLNESS */
-	EGO_SICKLINESS,         /* 107 = EGO_SICKLINESS */
-	EGO_CLUMSINESS,         /* 108 = EGO_CLUMSINESS */
-	EGO_UGLINESS,           /* 109 = EGO_UGLINESS */
-	EGO_TELEPORTATION,      /* 110 = EGO_TELEPORTATION */
+	0,					/* 104 = EGO_WEAKNESS */
+	0,					/* 105 = EGO_STUPIDITY */
+	0,					/* 106 = EGO_DULLNESS */
+	0,					/* 107 = EGO_SICKLINESS */
+	0,					/* 108 = EGO_CLUMSINESS */
+	0,					/* 109 = EGO_UGLINESS */
+	0,					/* 110 = EGO_TELEPORTATION */
 	0,                                      /* 111 */
-	EGO_IRRITATION,         /* 112 = EGO_IRRITATION */
-	EGO_VULNERABILITY,      /* 113 = EGO_VULNERABILITY */
-	EGO_ENVELOPING,         /* 114 = EGO_ENVELOPING */
+	0,					/* 112 = EGO_IRRITATION */
+	0,					/* 113 = EGO_VULNERABILITY */
+	0,					/* 114 = EGO_ENVELOPING */
 	0,                                      /* 115 */
-	EGO_SLOWNESS,           /* 116 = EGO_SLOWNESS */
-	EGO_NOISE,                      /* 117 = EGO_NOISE */
-	EGO_ANNOYANCE,          /* 118 = EGO_GREAT_MASS */
+	0,					/* 116 = EGO_SLOWNESS */
+	0,					/* 117 = EGO_NOISE */
+	0,					/* 118 = EGO_GREAT_MASS */
 	0,                                      /* 119 */
-	EGO_BACKBITING,         /* 120 = EGO_BACKBITING */
+	0,					/* 120 = EGO_BACKBITING */
 	0,                                      /* 121 */
 	0,                                      /* 122 */
 	0,                                      /* 123 */
-	EGO_MORGUL,                     /* 124 = EGO_MORGUL */
+	0,					/* 124 = EGO_MORGUL */
 	0,                                      /* 125 */
-	EGO_SHATTERED,          /* 126 = EGO_SHATTERED */
-	EGO_BLASTED                     /* 127 = EGO_BLASTED (XXX) */
+	EGO_SHATTERED,				/* 126 = EGO_SHATTERED */
+	EGO_BLASTED				/* 127 = EGO_BLASTED (XXX) */
 };
 
 
@@ -1055,7 +1055,11 @@ static errr rd_store(int n)
 		rd_item(q_ptr);
 
 		/* Acquire valid items */
-		if (st_ptr->stock_num < STORE_INVEN_MAX)
+		/*
+		 * Home now has 4 pages - change back to
+		 * "if (st_ptr->stock_num < STORE_INVEN_MAX)" to revert
+		 */
+		if (st_ptr->stock_num < (n == 7 ? STORE_INVEN_MAX * 2 : STORE_INVEN_MAX))
 		{
 			int k = st_ptr->stock_num++;
 

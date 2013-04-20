@@ -34,8 +34,8 @@ mindcraft_power mindcraft_powers[MAX_MINDCRAFT_POWERS] =
         { 13, 12,  50, "Character Armour" },      /* +AC & Resistances */
         { 15, 12,  60, "Psychometry" },		  /* Identify -> *ID* */
         { 18, 10,  45, "Mind Wave" },             /* Centered Ball -> LOS */
-	{ 20, 12,  40, "Telekinesis" },		  /* Fetch an item */
-        { 23, 15,  50, "Adrenaline Channeling" }, /* Haste + Hero/Berserk */
+	{ 20, 12,  40, "Apportation" },		  /* Fetch an item */
+        { 23, 15,  50, "Adrenaline Channeling" }, /* Haste + Heroism */
         { 25, 10,  40, "Psychic Drain" },         /* Enemy HP to SP */
         { 28, 20,  45, "Telekinetic Wave" },      /* Centered Ball -> LOS */
 };
@@ -58,7 +58,7 @@ void mindcraft_info(char *p, int power)
 		case 6:  sprintf(p, " dur %d", plev); break;
 		case 7:  break;
 		case 8:  sprintf(p, " dam %d", plev * ((plev / 10) + 1)); break;
-		case 9:  sprintf(p, " wgt %d", plev*20); break;
+		case 9:  strcpy (p, " wgt 250"); break;
 		case 10: sprintf(p, " dur 11-%d", plev + plev / 2); break;
 		case 11: sprintf(p, " dam %dd8", plev/2);  break;
 		case 12: sprintf(p, " dam %d", plev * ((plev / 10) + 2)); break;
@@ -432,7 +432,14 @@ void do_cmd_mindcraft(void)
 
 				if (plev < 35)
 				{
-					b = detect_monsters_normal();
+					if (plev > 14)
+					{
+						b = detect_monsters_normal();
+					}
+					else
+					{
+						b = detect_monsters_mental();
+					}
 
 					if (plev > 14) b |= detect_monsters_invis();
                                         if (plev > 9)  b |= detect_traps();
@@ -447,7 +454,7 @@ void do_cmd_mindcraft(void)
 				if ((plev > 24) && (plev < 40))
 					set_tim_esp(p_ptr->tim_esp + plev);
 
-				if (!b) msg_print("You feel safe.");
+				if (!b) msg_print("You sense nothing.");
 				break;
 			case 1: /* Neural Blast */
 				if (!get_aim_dir(&dir)) return;
@@ -532,9 +539,9 @@ void do_cmd_mindcraft(void)
 				else
 					(void)mindblast_monsters(plev * ((plev / 10) + 1));
 				break;
-			case 9: /* Telekinesis */
+			case 9: /* Apportation */
 				if (!get_aim_dir(&dir)) return;
-				fetch(dir, plev*20, FALSE);
+				fetch(dir, 250, FALSE);
 				break;
 			case 10: /* Adrenaline Channeling */
 				set_afraid(0);
@@ -543,8 +550,7 @@ void do_cmd_mindcraft(void)
 
 				b = 10 + randint((plev * 3) / 2);
 
-				if (plev < 35) set_hero(p_ptr->hero + b);
-				else set_shero(p_ptr->shero + b);
+				set_hero(p_ptr->hero + b);
 
 				if (!p_ptr->fast) (void)set_fast(b);
 				else (void)set_fast(p_ptr->fast + b);

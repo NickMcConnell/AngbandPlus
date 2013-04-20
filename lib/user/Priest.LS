@@ -7,10 +7,10 @@
 #   " - Detect Obj./Treas.  F5 - Slow Monster         SF5 - Holy Word
 #   ; - Detect Monsters     F6 - Mass Sleep           SF6 - Slow Monsters
 #   : - Detect Evil         F7 - Bless                SF7 - Prayer
-#   h - Haste Self          F8 - Protect. from Evil   SF8 - Divine Inter.
+#   h - Haste Self          F8 - Protection from Evil SF8 - Divine Inter.
 #   H - Holy Invulnerabil.  F9 - Cure Light Wounds    SF9 - Cure Med. Wounds
-#   J - Dimension Door     F10 - Cure Crit. Wounds   SF10 - Healing
-#   n - Rune of Protection F11 - Restoration         SF11 - Greater Healing
+#   J - Dimension Door     F10 - Cure Crit. Wounds   SF10 - Restoration
+#   n - Rune of Protection F11 - Healing             SF11 - Greater Healing
 #   N - Sea of Runes       F12 - Identify            SF12 - Insight
 #   O - Detection
 #   P - Recharging
@@ -159,11 +159,11 @@ A:m8b
 P:^_Sx59\r
 
 # SHIFT-F7 - Prayer
-A:
+A:m4b
 P:^_Sx5A\r
 
 # SHIFT-F8 - Divine Intervention
-A:
+A:m4g
 P:^_Sx5B\r
 
 # SHIFT-F9 - Cure Medium Wounds

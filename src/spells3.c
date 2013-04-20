@@ -7,13 +7,15 @@
  * item_tester_hook_weapon(); item_tester_hook_armour();
  * item_tester_hook_weapon_armour(); item_tester_hook_ring(); 
  * item_tester_hook_amulet(); item_tester_hook_ring_amulet();
- * item_tester_hook_we_ar_ri_am(); rustproof(); do_poly_wounds();
+ * item_tester_hook_we_ar_ri_am(); item_tester_hook_unknown();
+ * item_tester_hook_unknown_star(); rustproof(); do_poly_wounds();
  * do_poly_self(); fetch(); teleport_away(); teleport_to_player();
  * teleport_player(); teleport_player_to(); teleport_player_level();
  * mutate_player(); warding_glyph(); explosive_rune(); identify_pack();
  * restore_level(); alchemy(); genocide(); mass_genocide(); probing();
- * enchant_table[]; enchant(); enchant_spell(); item_tester_hook_recharge();
- * recharge(); phlogiston(); brand_weapon(); call_the_(void); wild_magic();
+ * enchant_table[]; enchant(); enchant_spell(); ident_level();
+ * ident_spell(); identify_fully(); item_tester_hook_recharge(); recharge();
+ * phlogiston(); brand_weapon(); call_the_(void); wild_magic();
  *
  */
 
@@ -104,6 +106,24 @@ bool item_tester_hook_we_ar_ri_am(object_type *o_ptr)
 	       item_tester_hook_armour(o_ptr) ||
 	       item_tester_hook_ring(o_ptr) ||
 	       item_tester_hook_amulet(o_ptr));
+}
+
+
+bool item_tester_hook_unknown(object_type *o_ptr)
+{
+	if (object_known_p(o_ptr))
+		return FALSE;
+	else
+		return TRUE;
+}
+
+
+bool item_tester_hook_unknown_star(object_type *o_ptr)
+{
+	if (o_ptr->ident & IDENT_MENTAL)
+		return FALSE;
+	else
+		return TRUE;
 }
 
 
@@ -214,7 +234,7 @@ void do_poly_self(void)
 			case 6: case 7: case 8:
 				(void) gain_random_mutation(0);
 				break;
-			case 9: case 10: /* Racial polymorph! Uh oh... */
+			case 9: /* Racial polymorph! Uh oh... */
 				{
 					do
 					{
@@ -232,13 +252,15 @@ void do_poly_self(void)
 					/* Experience factor */
 					p_ptr->expfact = rp_ptr->r_exp + cp_ptr->c_exp;
 
-					/* Calculate the height/weight for males */
+					/* Change gender sometimes - G */
+					p_ptr->psex = rand_int(1);
+
+					/* Calculate new height/weight */
 					if (p_ptr->psex == SEX_MALE)
 					{
 						p_ptr->ht = randnor(rp_ptr->m_b_ht, rp_ptr->m_m_ht);
 						p_ptr->wt = randnor(rp_ptr->m_b_wt, rp_ptr->m_m_wt);
 					}
-					/* Calculate the height/weight for females */
 					else if (p_ptr->psex == SEX_FEMALE)
 					{
 						p_ptr->ht = randnor(rp_ptr->f_b_ht, rp_ptr->f_m_ht);
@@ -254,10 +276,10 @@ void do_poly_self(void)
 				lite_spot(py, px);
 				more_effects = FALSE; /* Stop here! */
 				break;
-			case 11: case 12:
+			case 10: case 11:
 				lose_mutation(0);
 				break;
-			case 13: /* Purposedly "leaks" into default */
+			case 12: /* Purposedly "leaks" into default */
 				msg_print("You polymorph into an abomination!");
 				while (tmp < 6)
 				{
@@ -309,6 +331,12 @@ void fetch(int dir, int wgt, bool require_los)
 		}
 
 		c_ptr = &cave[ty][tx];
+
+		if (!c_ptr->o_idx)
+		{
+			msg_print("There's nothing there to fetch!");
+			return;
+		}
 
 		if (require_los && (!player_has_los_bold(ty,tx)))
 		{
@@ -1279,16 +1307,12 @@ static int enchant_table[21] =
 bool enchant(object_type *o_ptr, int n, int eflag)
 {
 	int i, chance, prob;
-
 	bool res = FALSE;
-
 	bool a = (artifact_p(o_ptr) || o_ptr->art_name);
-
 	u32b f1, f2, f3;
 
 	/* Extract the flags */
 	object_flags(o_ptr, &f1, &f2, &f3);
-
 
 	/* Large piles resist enchantment */
 	prob = o_ptr->number * 100;
@@ -1463,7 +1487,6 @@ bool enchant_spell(int num_hit, int num_dam, int num_ac)
 		o_ptr = &o_list[0 - item];
 	}
 
-
 	/* Description */
 	object_desc(o_name, o_ptr, FALSE, 0);
 
@@ -1492,6 +1515,35 @@ bool enchant_spell(int num_hit, int num_dam, int num_ac)
 }
 
 
+/* Identifies *all* items on the level -- Gumby */
+bool ident_level(void)
+{
+	int i;
+	bool success = FALSE;
+
+	/* Memorize objects */
+	for (i = 1; i < o_max; i++)
+	{
+		object_type *o_ptr = &o_list[i];
+
+		/* Skip dead objects */
+		if (!o_ptr->k_idx) continue;
+
+		/* Skip held objects */
+		if (o_ptr->held_m_idx) continue;
+
+		/* Aware and Known */
+		object_aware(o_ptr);
+		object_known(o_ptr);
+
+		success = TRUE;
+	}
+
+	/* At least one item was identified */
+	return (success);
+}
+
+
 /*
  * Identify an object in the inventory (or on the floor)
  * This routine does *not* automatically combine objects.
@@ -1500,11 +1552,14 @@ bool enchant_spell(int num_hit, int num_dam, int num_ac)
 bool ident_spell(void)
 {
 	int             item;
-
 	object_type     *o_ptr;
-
 	char            o_name[80];
 
+	/* Only un-id'ed items, and only when requested */
+	if (filter_identify)
+	{
+		item_tester_hook = item_tester_hook_unknown;
+	}
 
 	/* Get an item (from equip or inven or floor) */
 	if (!get_item(&item, "Identify which item? ", TRUE, TRUE, TRUE))
@@ -1524,7 +1579,6 @@ bool ident_spell(void)
 	{
 		o_ptr = &o_list[0 - item];
 	}
-
 
 	/* Identify it fully */
 	object_aware(o_ptr);
@@ -1555,8 +1609,7 @@ bool ident_spell(void)
 	}
 	else
 	{
-		msg_format("On the ground: %s.",
-			   o_name);
+		msg_format("On the ground: %s.", o_name);
 	}
 
 	/* Something happened */
@@ -1574,6 +1627,11 @@ bool identify_fully(void)
 	object_type     *o_ptr;
 	char            o_name[80];
 
+	/* Only un-*id*'ed items, and only when requested */
+	if (filter_identify)
+	{
+		item_tester_hook = item_tester_hook_unknown_star;
+	}
 
 	/* Get an item (from equip or inven or floor) */
 	if (!get_item(&item, "Identify which item? ", TRUE, TRUE, TRUE))

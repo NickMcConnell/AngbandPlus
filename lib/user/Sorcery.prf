@@ -7,7 +7,7 @@
 #   " - Detect Enchantment  F5 - Charm Monster
 #   ; - Detect Monsters     F6 - Stasis
 #   : - Detect Doors/Traps  F7 - Slow Monsters
-#   h - Haste Self          F8 - Telekinesis
+#   h - Haste Self          F8 - Apport Arcane
 #   H - Globe of Invulner.  F9 - Explosive Rune
 #   J - Dimension Door     F10 - Identify
 #   n - Teleport Level     F11 - Self Knowledge
@@ -118,7 +118,7 @@ P:^_x41\r
 
 # Miscellaneous
 
-# F8 - Telekinesis
+# F8 - Apport Arcane
 A:m3c
 P:^_x42\r
 

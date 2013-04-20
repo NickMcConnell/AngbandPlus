@@ -550,6 +550,7 @@ static void roff_aux(int r_idx)
 		if (flags2 & (RF2_ELDRITCH_HORROR))	roff(" sanity-blasting");
 		if (flags3 & (RF3_ANIMAL))		roff(" natural");
 		if (flags3 & (RF3_NONLIVING))		roff(" unliving");
+		if (flags2 & (RF2_CHAOTIC))		roff(" chaotic");
 		if (flags3 & (RF3_EVIL))		roff(" evil");
 		if (flags3 & (RF3_GOOD))		roff(" good");
 		if (flags3 & (RF3_UNDEAD))		roff(" undead");
@@ -557,8 +558,7 @@ static void roff_aux(int r_idx)
 
 		/* Describe the "race" */
 		if (flags3 & (RF3_DRAGON))		roff(" dragon");
-		else if ((flags3 & (RF3_DEMON)) &&
-			 (flags3 & (RF3_SCUMDOG)))	roff(" demonic Scumdog");
+		else if (flags3 & (RF3_SCUMDOG))	roff(" Scumdog of the Universe");
 		else if (flags3 & (RF3_DEMON))		roff(" demon");
 		else if (flags3 & (RF3_GIANT))		roff(" giant");
 		else if (flags3 & (RF3_TROLL))		roff(" troll");
@@ -649,7 +649,6 @@ static void roff_aux(int r_idx)
 	vn = 0;
 	if (flags4 & (RF4_SHRIEK))	vp[vn++] = "shriek for help";
 	if (flags4 & (RF4_XXX2))	vp[vn++] = "do something";
-	if (flags4 & (RF4_XXX3))	vp[vn++] = "do something";
 	if (flags4 & (RF4_ROCKET))	vp[vn++] = "shoot a rocket";
 	if (flags4 & (RF4_ARROW_1))	vp[vn++] = "shoot an arrow";
 	if (flags4 & (RF4_ARROW_2))	vp[vn++] = "fire an arrow";
@@ -681,6 +680,7 @@ static void roff_aux(int r_idx)
 
 	/* Collect breaths */
 	vn = 0;
+	if (flags4 & (RF4_BR_WATE))		vp[vn++] = "water";
 	if (flags4 & (RF4_BR_ACID))		vp[vn++] = "acid";
 	if (flags4 & (RF4_BR_ELEC))		vp[vn++] = "lightning";
 	if (flags4 & (RF4_BR_FIRE))		vp[vn++] = "fire";

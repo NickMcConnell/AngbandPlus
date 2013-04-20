@@ -1932,7 +1932,7 @@ void check_experience(void)
 			 * more to begin with. -- Gumby
 			 */
 			if ((p_ptr->muta1 || p_ptr->muta2 || p_ptr->muta3) &&
-			    (randint(3)==1))
+			    (randint(4)==1))
 			{
 				lose_mutation(0);
 			}
@@ -2362,7 +2362,7 @@ void monster_death(int m_idx)
 			else if (strstr((r_name + r_ptr->name),"Groo the"))
 			{
 				a_idx = ART_GROO;
-				chance = 80;
+				chance = 75;
 			}
 			else if (strstr((r_name + r_ptr->name),"Hagen,"))
 			{

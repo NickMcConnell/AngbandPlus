@@ -1,4 +1,4 @@
-102
+101
 ******** BUFFER LINE *********************************** DO NOT REMOVE *******
 'Skull Smasher'
 'Mauler'
@@ -61,7 +61,6 @@ of Ra
 'Photon Storm'
 of Damocles
 'Vendetta'
-'Retaliator'
 'Deathtrack'
 of the Shogun
 of Peenemuende
