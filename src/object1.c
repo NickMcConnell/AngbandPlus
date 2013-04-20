@@ -1671,6 +1671,9 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 
 			/* Apply the "Extra Might" flag */
 			if (f3 & (TR3_XTRA_MIGHT)) power++;
+			if (p_ptr->prace == RACE_HALF_GIANT) power++;
+			if ((p_ptr->pclass == CLASS_ARCHER) && (p_ptr->lev == 50)) power++;
+
 
 			/* Append a special "damage" string */
 			t = object_desc_chr(t, ' ');

@@ -941,7 +941,7 @@ void sanity_blast (monster_type * m_ptr, bool necro)
         r_ptr->r_flags2 |= RF2_ELDRITCH_HORROR;
 
         /* Undead characters are 50% likely to be unaffected */
-        if ((p_ptr->prace == RACE_VAMPIRE) || (p_ptr->prace == RACE_SPECTRE))
+		  if (p_ptr->prace == RACE_VAMPIRE)
         {
             if (randint(100) < (25 + (p_ptr->lev))) return;
         }
@@ -1045,19 +1045,13 @@ void sanity_blast (monster_type * m_ptr, bool necro)
             {
                 msg_print("You become paranoid!");
 
-                /* Duh, the following should never happen, but anyway... */
-                if (p_ptr->muta3 & MUT3_FEARLESS)
-                {
-                    msg_print("You are no longer fearless.");
-                    p_ptr->muta3 &= ~(MUT3_FEARLESS);
-                }
-                p_ptr->muta2 |= MUT2_COWARDICE;
-                happened = TRUE;
-            }
-            break;
-            case 3:
-            if (!(p_ptr->muta2 & MUT2_HALLU) && !(p_ptr->resist_chaos))
-            {
+					 p_ptr->muta2 |= MUT2_COWARDICE;
+					 happened = TRUE;
+				}
+				break;
+				case 3:
+				if (!(p_ptr->muta2 & MUT2_HALLU) && !(p_ptr->resist_chaos))
+				{
 					 msg_print("You are afflicted by delusional visions!");
 					 p_ptr->muta2 |= MUT2_HALLU;
 					 happened = TRUE;

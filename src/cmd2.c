@@ -274,8 +274,13 @@ insta-death. */
 				is_autosave = FALSE;
 			}
 
-			/* Go up the stairs */
-			dun_level--;
+			/* Go up the stairs - unless distorting space -- RDH */
+			if ((p_ptr->muta4 & MUT4_DISTORT_SPACE) && ((dun_level > 0) && (dun_level < 97)) && (rand_int(2) == 1))
+			{
+				msg_print("You distort space!");
+				dun_level++;
+			}
+			else dun_level--;
 			new_level_flag = TRUE;
 
 			/* Create a way back */
@@ -349,8 +354,13 @@ void do_cmd_go_down(void)
 				is_autosave = FALSE;
 			}
 
-			/* Go down */
-			dun_level++;
+			/* Go down - unless distorting space -- RDH */
+			if ((p_ptr->muta4 & MUT4_DISTORT_SPACE) && ((dun_level > 0) && (dun_level < 97)) && (rand_int(2) == 1))
+			{
+				msg_print("You distort space!");
+				dun_level--;
+			}
+			else dun_level++;
 			new_level_flag = TRUE;
 
 			if (!fall_trap)
@@ -1072,6 +1082,11 @@ static bool do_cmd_tunnel_aux(int y, int x)
 		if ((p_ptr->skill_dig > 40 + rand_int(1600)) && twall(y, x))
 		{
 			msg_print("You have finished the tunnel.");
+			if ((p_ptr->muta4 & MUT4_EAT_ROCK) && (p_ptr->food < PY_FOOD_FULL))
+			{
+				msg_print("Mmmm... tasty!");
+				(void)set_food(p_ptr->food + 2500);
+			}
 		}
 
 		/* Keep trying */
@@ -1126,6 +1141,11 @@ static bool do_cmd_tunnel_aux(int y, int x)
 			{
 				/* Message */
 				msg_print("You have finished the tunnel.");
+				if ((p_ptr->muta4 & MUT4_EAT_ROCK) && (p_ptr->food < PY_FOOD_FULL))
+				{
+					msg_print("Mmmm... tasty!");
+					(void)set_food(p_ptr->food + 1500);
+				}
 			}
 		}
 
@@ -1154,6 +1174,11 @@ static bool do_cmd_tunnel_aux(int y, int x)
 		{
 			/* Message */
 			msg_print("You have removed the rubble.");
+			if ((p_ptr->muta4 & MUT4_EAT_ROCK) && (p_ptr->food < PY_FOOD_FULL))
+			{
+				msg_print("Crunchy!");
+				(void)set_food(p_ptr->food + 500);
+			}
 
 			/* Hack -- place an object */
 			if (rand_int(100) < 10)
@@ -1627,8 +1652,8 @@ static bool do_cmd_bash_aux(int y, int x, int dir)
 	}
 
 	/* Saving throw against stun */
-	else if (rand_int(100) < adj_dex_safe[p_ptr->stat_ind[A_DEX]] +
-	         p_ptr->lev)
+	else if ((rand_int(100) < adj_dex_safe[p_ptr->stat_ind[A_DEX]] +
+				p_ptr->lev) || (p_ptr->muta4 & MUT4_BONY_HEAD))
 	{
 		/* Message */
 		msg_print("The door holds firm.");
@@ -1700,7 +1725,7 @@ void do_cmd_bash(void)
 
 		/* Nothing useful */
 		if (!((c_ptr->feat >= FEAT_DOOR_HEAD) &&
-		      (c_ptr->feat <= FEAT_DOOR_TAIL)))
+				(c_ptr->feat <= FEAT_DOOR_TAIL)))
 		{
 			/* Message */
 			msg_print("You see nothing there to bash.");
@@ -2312,7 +2337,7 @@ void do_cmd_fire(void)
 	 * every level. -- Gumby
 	 */
 	if ((p_ptr->pclass == CLASS_WEAPONMASTER) &&
-	    (inventory[INVEN_WIELD].tval == p_ptr->wm_choice))
+		 (inventory[INVEN_WIELD].tval == p_ptr->wm_choice))
 		bonus = ((p_ptr->to_h - p_ptr->lev) + q_ptr->to_h + j_ptr->to_h);
 	else if ((p_ptr->pclass == CLASS_PRIEST) && (p_ptr->icky_wield))
 		bonus = (p_ptr->to_h + q_ptr->to_h + j_ptr->to_h + 15);
@@ -2369,6 +2394,8 @@ void do_cmd_fire(void)
 	if (p_ptr->xtra_might) tmul++;
 
 	if ((p_ptr->pclass == CLASS_ARCHER) && (p_ptr->lev == 50)) tmul++;
+
+	if (p_ptr->prace == RACE_HALF_GIANT) tmul++;
 
 	/* Boost the damage */
 	tdam *= tmul;
@@ -2510,17 +2537,6 @@ void do_cmd_fire(void)
 				/* No negative damage */
 				if (tdam < 0) tdam = 0;
 
-				/* Complex message */
-				if (wizard)
-				{
-					msg_format("You do %d (out of %d) damage.",
-					           tdam, m_ptr->hp);
-				}
-				else if (show_damage && m_ptr->ml)
-				{
-					msg_format("(%d dam)", tdam);
-				}
-
 				/* Hit the monster, check for death */
 				if (mon_take_hit(c_ptr->m_idx, tdam, &fear, note_dies))
 				{
@@ -2661,7 +2677,7 @@ void do_cmd_throw(void)
 
 	/* Chance of hitting - adjusted for Weaponmasters and Archers - G */
 	if ((p_ptr->pclass == CLASS_WEAPONMASTER) &&
-	    (inventory[INVEN_WIELD].tval == p_ptr->wm_choice))
+		 (inventory[INVEN_WIELD].tval == p_ptr->wm_choice))
 		chance = (p_ptr->skill_tht + ((p_ptr->to_h - p_ptr->lev) * BTH_PLUS_ADJ));
 	else if (p_ptr->pclass == CLASS_ARCHER)
 		chance = (p_ptr->skill_tht + (p_ptr->to_h * BTH_PLUS_ADJ) + p_ptr->lev);
@@ -2752,9 +2768,9 @@ void do_cmd_throw(void)
 
 				/* Some monsters get "destroyed" */
 				if ((r_ptr->flags3 & (RF3_DEMON)) ||
-				    (r_ptr->flags3 & (RF3_UNDEAD)) ||
-				    (r_ptr->flags2 & (RF2_STUPID)) ||
-				    (strchr("Evg", r_ptr->d_char)))
+					 (r_ptr->flags3 & (RF3_UNDEAD)) ||
+					 (r_ptr->flags2 & (RF2_STUPID)) ||
+					 (strchr("Evg", r_ptr->d_char)))
 				{
 					/* Special note at death */
 					note_dies = " is destroyed.";
@@ -2787,21 +2803,11 @@ void do_cmd_throw(void)
 
 				/* Apply special damage XXX XXX XXX */
 				tdam = tot_dam_aux(q_ptr, tdam, m_ptr);
+				if (p_ptr->muta4 & MUT4_HUGE_ARMS) tdam = tdam * (3 + (p_ptr->lev)/20);
 				tdam = critical_shot(q_ptr->weight, q_ptr->to_h, tdam);
 
 				/* No negative damage */
 				if (tdam < 0) tdam = 0;
-
-				/* Complex message */
-				if (wizard)
-				{
-					msg_format("You do %d (out of %d) damage.",
-					           tdam, m_ptr->hp);
-				}
-				else if (show_damage && m_ptr->ml)
-				{
-					msg_format("(%d dam)", tdam);
-				}
 
 				/* Hit the monster, check for death */
 				if (mon_take_hit(c_ptr->m_idx, tdam, &fear, note_dies))
@@ -2817,7 +2823,7 @@ void do_cmd_throw(void)
 
 					/* Anger friends */
 					if ((m_ptr->smart & SM_FRIEND) &&
-					    (!(k_info[q_ptr->k_idx].tval == TV_POTION)))
+						 (!(k_info[q_ptr->k_idx].tval == TV_POTION)))
 					{
 						char m_name[80];
 						monster_desc(m_name, m_ptr, 0);

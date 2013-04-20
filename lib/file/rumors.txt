@@ -33,7 +33,7 @@ There *is* a good use for Potions of Detonations, Ruination and Death...
 It's a bad idea to throw away a Longsword (4d5).
 It's a bad idea to wield a Longsword (4d5).
 It's useless to bash monsters with bows - but there's one notable exception...
-Actually, Slime Mold Juice is not completely useless.
+The sword "Traitor" is better than it sounds.
 Yes, Slime Mold Juice is completely useless.
 Ever tried inscribing your armor {erodeproof}?
 Using a Morningstar in the evening has no effect.
@@ -44,7 +44,7 @@ Thieves are more likely to appear if you are carrying a lot of money.
 They say that Duke Nukem never goes anywhere without his RPG.
 They say that Scrolls of *Curse Weapon* can create powerful cursed artifacts.
 They say that the Chainsword makes monsters mad with its awful noise!
-They say that Ringil shines so brightly that it makes monsters angry.
+They say that Ornithopters will explode when they crash.
 They say that Chaos is best fought with Chaos.
 They say that all Pattern weapons are deadly against Demons of Chaos.
 Orcs are mortally afraid of weapons that can slay them.
@@ -78,8 +78,8 @@ Wands may recharge themselves if you leave them on the floor long enough.
 There is more than one way to deal with a locked door.
 Afraid of your valuables getting stolen? Carry more junk!
 If you hear something smash into splinters, you had better watch out.
-They say that you had better leave Greater hell-beasts alone.
-They say that Greater hell-beasts aren't all that bad.
+THE HILT OF THE SWORD AND THE HAND ARE AS ONE
+THE RUNES ON THE SWORD ARE THE WORMS THAT ARE WISE
 Kharis' tomb is somewhere in the dungeon and you won't want to desecrate it!
 Selling unidentified potions to shopkeepers might be safer than quaffing them.
 Always look out for trapdoors when you're feeling special.
@@ -89,7 +89,7 @@ If your name is Zilla, then Lo Wang wants to speak to you.
 A Potion of Detonations is also known as nitroglycerin...
 A weapon of Undead Slaying has all you need to kill a ghost.
 A weapon of Dragon Slaying may give you resistance to a dragon's breath attack.
-They say that only a Warrior will want to wear the Terror Mask.
+They say that Garko is a wimp.
 The One Ring is powerful, but will eventually destroy its owner.
 Having troubles with summoners? Door Creation is your friend!
 Stairway Creation may be slower than Teleport Level, but safer...
@@ -98,11 +98,11 @@ Guaranteed heal self - scenario: o'@, type c4c4c4c4
 If it can't see you, it can't hurt you!
 If it can't see you, you might still be able to hurt it...
 The Jedi Holocron is the best artifact light source there is.
-Even *you* can become a Living Trump with the right treatment.
+THE BLADE OF THE SWORD HAS THE BLOOD OF THE SUN
 No animal is interested in sex if it is mortally scared.
-There is a plenty of Longswords around 1000'.
-Groo is your worst nightmare.
-Groo is an idiot! Groo is a dolt! He is a fool! He has no mind!
+THE NAME OF THE SWORD IS THE SAME AS THE SCYTHE
+THE DEATH OF THE SWORD IS THE DEATH OF ALL LIFE
+IF THE BLACK BLADE IS WAKENED IT MUST TAKE ITS BLACK FIEF
 There are often stairways in graveyards: bad people are carried to hell...
 Be wary of the bearer of the Eye of Rhynn and the Hand of Kwll.
 Only a person totally unharmed by cold can live in Siberia!
@@ -136,11 +136,11 @@ Violence is the only solution.
 Boots of Speed (+50) are no myth!
 Drain you of your sanity: Face the Thing That Should Not Be!
 Wearing an Amulet of Doom will make the interface graphical 3D.
-Whence come you then, that you have never heard of the Rhinegold?
+They say you should avoid the basilisk if you don't resist poison.
 The Nibelung, Night-Alberich, in revenge, stole the Rhinegold.
 Since by curse it came to me, accursed be this Ring!
 Each shall itch to possess the Ring, but none in it shall find pleasure!
-Barney MUST die!!!
+THE WORD OF THE SWORD IS THE CHAMPION'S LAW
 Pudpadnoy Tooboothokoot is possessed by a demon known only as "It".
 Merlin wore the Terror Mask and the last thing he ever saw was a big w...
 They say that the One Ring has a very special curse.
@@ -148,7 +148,7 @@ They say that alcohol is bad for your health.
 What if you DON'T give a name to the artifact you create..?
 They say that ancient battlefields are often haunted.
 Beware of pits that fill the whole level!
-Never mind the Phial of Galadriel - the Phial of the Gods kicks its butt!
+THE BLACK SWORD IS THE CHAMPION'S SWORD
 A Ring of Speed? Phooey! Try looking for a Ring of *Speed*!
 If you hear heavy steps - watch out!
 A visit to the Zoo is educational: you meet many strange animals.
@@ -157,7 +157,7 @@ Hellfire will burn your soul...
 Never attempt to Call the Void in an enclosed space!
 Call the Void needs a lot of room to cast...
 Why doesn't Detect Monsters show invisible monsters? 'Cos you can't see 'em!
-Not satisfied with being human? Then polymorph into an Amberite!
+Law and Chaos must exist in balance or all the world is lost.
 There is a rare spellbook called [M$ PowerFools] {cursed}
 They say that Herakles killed the Lernean Hydra.
 They say that Herakles failed to kill the Lernean Hydra.

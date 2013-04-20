@@ -670,7 +670,7 @@ void acid_dam(int dam, cptr kb_str)
 	if (p_ptr->immune_acid || (dam <= 0)) return;
 
 	/* Ouch */
-	if (p_ptr->muta3 & MUT3_VULN_ELEM) dam *= 2;
+	if (p_ptr->muta4 & MUT4_VULN_ELEM) dam *= 2;
 
 	/* Resist the damage */
 	if (p_ptr->resist_acid) dam = (dam + 2) / 3;
@@ -703,7 +703,7 @@ void elec_dam(int dam, cptr kb_str)
 	if (p_ptr->immune_elec || (dam <= 0)) return;
 
 	/* Ouch */
-	if (p_ptr->muta3 & MUT3_VULN_ELEM) dam *= 2;
+	if (p_ptr->muta4 & MUT4_VULN_ELEM) dam *= 2;
 
 	/* Resist the damage */
 	if (p_ptr->oppose_elec) dam = (dam + 2) / 3;
@@ -733,7 +733,7 @@ void fire_dam(int dam, cptr kb_str)
 	if (p_ptr->immune_fire || (dam <= 0)) return;
 
 	/* Ouch */
-	if (p_ptr->muta3 & MUT3_VULN_ELEM) dam *= 2;
+	if (p_ptr->muta4 & MUT4_VULN_ELEM) dam *= 2;
 
 	/* Resist the damage */
 	if (p_ptr->resist_fire) dam = (dam + 2) / 3;
@@ -766,7 +766,7 @@ void cold_dam(int dam, cptr kb_str)
 	if (p_ptr->immune_cold || (dam <= 0)) return;
 
 	/* Ouch */
-	if (p_ptr->muta3 & MUT3_VULN_ELEM) dam *= 2;
+	if (p_ptr->muta4 & MUT4_VULN_ELEM) dam *= 2;
 
 	/* Resist the damage */
 	if (p_ptr->resist_cold) dam = (dam + 2) / 3;
@@ -2384,8 +2384,8 @@ static bool project_m(int who, bool pet_attack, int r, int y, int x, int dam, in
 			if (seen) obvious = TRUE;
 			if (r_ptr->flags3 & (RF3_UNDEAD))
 			{
-				note = " is barely affected.";
-				dam /= 9;
+				note = " is immune.";
+				dam = 0;
 				if (seen) r_ptr->r_flags3 |= (RF3_UNDEAD);
 			}
 			else if (r_ptr->flags3 & (RF3_RES_NETH))
@@ -4542,7 +4542,6 @@ static bool project_p(int who, bool pet_attack, int r, int y, int x, int dam, in
 			if (fuzzy) msg_print("You are hit by nether forces!");
 			if (p_ptr->resist_neth)
 			{
-				if (!(p_ptr->prace == RACE_SPECTRE))
 					dam = (dam * 2) / 3;
 			}
 			else
@@ -4563,15 +4562,7 @@ static bool project_p(int who, bool pet_attack, int r, int y, int x, int dam, in
 				}
 			}
 
-			if (p_ptr->prace == RACE_SPECTRE)
-			{
-				msg_print("You feel invigorated!");
-				hp_player(dam / 4);
-			}
-			else
-			{
 				take_hit(dam, killer);
-			}
 			break;
 		}
 
@@ -4579,18 +4570,25 @@ static bool project_p(int who, bool pet_attack, int r, int y, int x, int dam, in
 		case GF_WATER:
 		{
 			if (fuzzy) msg_print("You are hit by something wet!");
-			if (!p_ptr->resist_sound)
+			if (p_ptr->muta4 & MUT4_GILLS)
 			{
-				set_stun(p_ptr->stun + randint(40));
+				dam = (dam * 2) / 3;
 			}
-			if (!p_ptr->resist_conf)
+			else
 			{
-				set_confused(p_ptr->confused + randint(5) + 5);
-			}
+				if (!p_ptr->resist_sound)
+				{
+					set_stun(p_ptr->stun + randint(40));
+				}
+				if (!p_ptr->resist_conf)
+				{
+					set_confused(p_ptr->confused + randint(5) + 5);
+				}
 
-			if (randint(5)==1)
-			{
-				inven_damage(set_cold_destroy, 3);
+				if (randint(5)==1)
+				{
+					inven_damage(set_cold_destroy, 3);
+				}
 			}
 
 			take_hit(dam, killer);
@@ -4848,7 +4846,12 @@ static bool project_p(int who, bool pet_attack, int r, int y, int x, int dam, in
 		{
 			if (fuzzy) msg_print("You are hit by a blast from the past!");
 
-			switch (randint(10))
+			if (p_ptr->prace == RACE_ELDREN)
+			{
+				msg_print("Time means little to your race.");
+				dam /= 3;
+			}
+			else switch (randint(10))
 			{
 				case 1: case 2: case 3: case 4: case 5:
 				{

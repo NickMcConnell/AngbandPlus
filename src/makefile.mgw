@@ -1,0 +1,88 @@
+#
+# MinGW makefile
+#
+
+
+SRC=\
+  artifact.c \
+  birth.c \
+  cave.c \
+  cmd1.c \
+  cmd2.c \
+  cmd3.c \
+  cmd4.c \
+  cmd5.c \
+  cmd6.c \
+  dungeon.c \
+  files.c \
+  generate.c \
+  init1.c \
+  init2.c \
+  load1.c \
+  load2.c \
+  main.c \
+  main-win.c \
+  melee1.c \
+  melee2.c \
+  mindcrft.c \
+  monster1.c \
+  monster2.c \
+  mutation.c \
+  object1.c \
+  object2.c \
+  quest.c \
+  readdib.c \
+  save.c \
+  spells1.c \
+  spells2.c \
+  spells3.c \
+  store.c \
+  tables.c \
+  util.c \
+  variable.c \
+  wizard1.c \
+  wizard2.c \
+  xtra1.c \
+  xtra2.c \
+  z-form.c \
+  z-rand.c \
+  z-term.c \
+  z-util.c \
+  z-virt.c
+
+OBJ=$(SRC:.c=.o)
+EXE=gumband.exe
+RES=angband.res
+
+CC=gcc
+CFLAGS=-O2 -fno-strength-reduce -DWINDOWS
+LDFLAGS=-lmingw32 -lwinmm -mwindows
+WINDRES=windres
+RM=del
+
+%.o: %.c
+	$(CC) $(CFLAGS) -o $@ -c $<
+
+$(RES) : angband.rc
+	$(WINDRES) $< -O coff -o $@
+
+$(EXE): $(OBJ) $(RES)
+	$(CC) $(OBJ) $(RES) $(LDFLAGS) -o $@
+
+.PHONY : all	
+all: $(EXE)
+	strip $(EXE)
+			
+.PHONY : install
+install: all
+	copy $(EXE) ..
+
+.PHONY : clean
+clean:
+	-$(RM) *.o
+	
+.PHONY : cleanall
+cleanall: clean
+	-$(RM) *.res
+	-$(RM) *.exe
+

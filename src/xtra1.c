@@ -1384,7 +1384,7 @@ static void calc_spells(void)
 			else
 			{
 				spell_forgotten2 |= (1L << (j - 32));
-                which = use_realm2;
+					 which = use_realm2;
 			}
 
 			/* No longer known */
@@ -1501,7 +1501,7 @@ static void calc_spells(void)
 
 
     if (p_ptr->realm2 == REALM_NONE)
-    {
+	 {
         if (k>32) k = 32;
     }
     else
@@ -1578,6 +1578,9 @@ static void calc_mana(void)
 
 	/* Hack: Warrior-Magi have a 25% mana penalty. -- Gumby */
 	if (msp && (p_ptr->pclass == CLASS_WARRIOR_MAGE)) msp -= msp / 4;
+
+	/* Hack: Cool new mutation give 20% mana bonus. -- RDH */
+	if (p_ptr->muta3 & MUT3_MANA_RUNES) msp = msp * 6/5;
 
 	/* Only mage-types are affected */
 	if (mp_ptr->spell_book == TV_SORCERY_BOOK)
@@ -1748,6 +1751,9 @@ static void calc_hitpoints(void)
 
 	/* Calculate hitpoints */
 	mhp = player_hp[p_ptr->lev-1] + (bonus * p_ptr->lev / 2);
+
+   /* Hack: New mutation gives direct 10% hit point bonus. -- RDH */
+	if (p_ptr->muta3 & MUT3_METAL_BONES) mhp = mhp * 11/10;
 
 	/* Always have at least one hitpoint per level */
 	if (mhp < p_ptr->lev + 1) mhp = p_ptr->lev + 1;
@@ -2107,11 +2113,12 @@ static void calc_bonuses(void)
 	/***** Races ****/ 
 	switch (p_ptr->prace)
 	{
-		case RACE_ELF:
-			p_ptr->resist_lite = TRUE;
+		case RACE_ELDREN:
+			p_ptr->sustain_chr = TRUE;
 			break;
-		case RACE_HOBBIT:
-			p_ptr->sustain_dex = TRUE;
+		case RACE_OAGER_UV:
+			p_ptr->sustain_con = TRUE;
+         p_ptr->regenerate = TRUE;
 			break;
 		case RACE_GNOME:
 			p_ptr->free_act = TRUE;
@@ -2145,7 +2152,6 @@ static void calc_bonuses(void)
 			break;
 		case RACE_HALF_GIANT:
 			p_ptr->sustain_str = TRUE;
-			p_ptr->xtra_might = TRUE;
 			break;
 		case RACE_KLACKON:
 			p_ptr->resist_conf = TRUE;
@@ -2186,14 +2192,9 @@ static void calc_bonuses(void)
 			p_ptr->lite = TRUE;
 			if (p_ptr->lev > 9) p_ptr->ffall = TRUE;
 			break;
-		case RACE_SPECTRE:
-			p_ptr->ffall = TRUE;
-			p_ptr->resist_neth = TRUE;
-			p_ptr->hold_life = TRUE;
+		case RACE_HALFLING:
+			p_ptr->resist_nexus = TRUE;
 			p_ptr->see_inv = TRUE;
-			p_ptr->resist_pois = TRUE;
-			p_ptr->slow_digest = TRUE;
-			p_ptr->resist_cold = TRUE;
 			break;
 		case RACE_BEASTMAN:
 			p_ptr->resist_conf  = TRUE;
@@ -2249,9 +2250,9 @@ static void calc_bonuses(void)
 	}
 
 	/* Calculate effects of mutations on stats (see mutation.c) - G */
-		  if (p_ptr->muta3)
-		  {
-		calc_mutations();
+	if (p_ptr->muta2 || p_ptr->muta3 || p_ptr->muta4)
+	{
+		  calc_mutations();
 	}
 
 	/* Scan the usable inventory */

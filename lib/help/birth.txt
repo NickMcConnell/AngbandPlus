@@ -147,31 +147,29 @@ races also have intrinsic abilities.
                Humans, or Mabden as they are known in some areas, are not
                particularly good or bad at anything, although they show some
                talent for destructive behavior. They learn fairly quickly,
-               being highly adaptable.  Bad for property values.  At level 15,
-               Humans are able to understand their own capabilities and
-               limits.
+               being highly adaptable.  Bad for property values.  Their
+               warlike nature allows them to mentally prepare themselves
+               for battle, having an effect like a Potion of Heroism.
  
-          Elf
-               Elves are better magicians then humans, but not as good at
-               fighting.  They tend to be smarter and faster than either
-               humans or half-elves and also have better wisdom.  Elves
-               are better at searching, disarming, perception, stealth, bows,
-               and magic, but they are not as good at hand weapons.  Elves
-               may choose any class except Paladin.  They resist light
-               effects intrinsically and, like Half-elves, are able to spot
-               nearby animals after they reach level 10.
+          Eldren
+               The Eldren are a beautiful and mentally healthy race. They
+               are often in conflict with the Mabden, although in some
+               worlds, friendships between the two races do form. Their
+               knowledge of methods of immortality allows them to resist
+               attacks based on Time. Their charisma is sustained and their
+               long years of contemplation allow them great self-knowledge.
+               They are slender, with pointed features and golden skin.
  
-          Hobbits
-               Hobbits, or Halflings, are very good at bows, throwing,  and
-               have good saving throws.  They also are very good at search-
-               ing, disarming, perception, and stealth; so they make excel-
-               lent rogues, but prefer to be called burglars.  They will be
-               much weaker than humans, and no good at melee fighting.
-               Halflings have fair infravision, so they can detect warm
-               creatures at a distance.  Hobbits can choose between being a
-               warrior, mage, or rogue.  They have their dexterity sustained.
-               They are very fond of food, and learn, in due time, to cook
-               a delicious meal from available ingredients.
+          Oager Uv
+               The Oager Uv are more widely known as the Ursine Princes,
+               due to their superficial similarity to bears that walk
+               erect. In truth, they pre-date bears, having survived four
+               cycles of the Multiverse, a very impressive feat when few
+               races even see the whole of one cycle. They have always been
+               river people and they are traders and explorers, so they can
+               detect magic items in their proximity. Their constitution is
+               sustained and they regenerate, due to their sturdy bodies.
+               A peaceful people, they are unskilled in combat.
  
           Gnome
                Gnomes are smaller than dwarves but larger than halflings.
@@ -345,8 +343,8 @@ races also have intrinsic abilities.
                 also resists cold and poison based attacks. It is, however,
                 susceptible to its perpetual hunger for fresh blood, which
                 can only be satiated by sucking the blood from a nearby
-                monster, which is the Vampire's special power. It should be
-                noted that the vampires are so sensitive to daylight that
+                monster. The hunger increases if the Vampire himself bleeds.
+                Vampires are so sensitive to light that
                 wielding any sort of light item, even a lowly torch or
                 lantern, burns them terribly. Fortunately, the vampires do
                 not really need these items, since they radiate an aura of
@@ -354,21 +352,13 @@ races also have intrinsic abilities.
                 case, protect the vampire from the adverse effects of bright
                 light.
 
-          Spectre
-                Another powerful undead creature: the spectre is a ghastly
-                apparition, surrounded by an unearthly green glow. They exist
-                only partially on our plane of existence: half-corporeal,
-                they can pass through walls, although the density of the
-                wall will hurt them in the process of doing this. The spectre
-                can scream an eldritch howl, which is enough to scare lesser
-                monsters witless. As undead, they have a firm hold on their
-                life force, see invisible, and resist poison and cold. They
-                also resist nether; in fact, their half-corporeal form
-                actually grows stronger from the effects of nether. At
-                higher levels they develop telepathic abilities. Spectres
-                make superb spellcasters, but their physical form is very
-                weak. Like Golems and Zombies, Spectres gain almost no
-                nutrition from ordinary food.
+          Halfling
+                The Halflings are native to the Ghost Worlds, other planes of
+                being little understood. They exist only partially on our
+                plane of existence: half-corporeal, they can pass through walls,
+                and disassemble their material form and recompose it elsewhere
+                (effectively a teleport). They can see the invisible and
+                resist nexus forces.
 
           Beastman
                 This race is a blasphemous abomination produced by Chaos.
@@ -376,7 +366,7 @@ races also have intrinsic abilities.
                 most often a human, twisted by the Chaos, or a nightmarsh
                 crossbreed of a human and a beast. All Beastmen are accustomed
                 to Chaos so much that they are untroubled by confusion and
-                sound, although raw Logrus can still have effects on them.
+                sound, although raw Chaos can still have effects on them.
                 Beastmen revel in Chaos, as it twists them more and more.
                 Beastmen are subject to mutations: when they have been
                 created, they receive a random mutation. After that, every
@@ -409,8 +399,6 @@ races also have intrinsic abilities.
                 is very dangerous... Melniboneans differ little from humans
                 in appearance, except for their triangular jaws, almond-
                 shaped eyes and almost-lobeless ears that taper to a point.
-                Often mistaken for Elves by most people, and are usually
-                treated as such.
 
           Vadhagh
                 Peaceful by nature, these slender beings stayed isolated in
@@ -431,8 +419,7 @@ races also have intrinsic abilities.
                 flecked rose-pink. They are slim and tall and well
                 proportioned, and they move with a leisurely grace that
                 makes the human gait seem like the shambling of a crippled
-                ape. Like Melniboneans, the Vadhagh are usually mistaken for
-                Elves by other races... Wise and knowledgable in science,
+                ape. Wise and knowledgable in science,
                 which those less sophisticated usually mistakes for magic,
                 but by nature skeptical of the existance of gods, the
                 Vadhagh own the ability to see into adjacent planes of the
@@ -792,6 +779,9 @@ races also have intrinsic abilities.
  
 === Combinations of Race and Class (updated for Gumband 2.2.0) ===
 
+Ignore this section. It is out of date and not that useful to begin with.
+At some point, I will rewrite this to have some value.
+
 These are the classes that are recommended for different races. You can
 still select a race that is not in the chart, but these combinations are
 either rather poor (like a zombie mage) or as a concept so silly that they
@@ -802,8 +792,8 @@ don't complain if things don't turn out as you expected them to.
             Warrior  Mage    Priest  Rogue   Ranger  Paladin Warrior Chaos
                                                              -Mage  Warrior
 Human         Yes     Yes     Yes     Yes     Yes     Yes     Yes     Yes
-Elf           Yes     Yes     No      Yes     Yes     No      Yes     No
-Hobbit        Yes     Yes     No      Yes     No      No      No      No
+Eldren           Yes     Yes     No      Yes     Yes     No      Yes     No
+Oager Uv      Yes     Yes     No      Yes     No      No      No      No
 Gnome         Yes     Yes     Yes     Yes     No      No      No      No
 Dwarf         Yes     No      Yes     No      No      No      No      No
 Nhadragh      Yes     Yes     No      No      Yes     No      Yes     No
@@ -819,7 +809,7 @@ Draconian     Yes     Yes     Yes     No      No      No      Yes     No
 Mind Flayer   No      Yes     Yes     No      No      No      Yes     Yes
 Golem         Yes     No      No      No      No      No      No      No
 Vampire       Yes     Yes     No      Yes     Yes     No      Yes     Yes
-Spectre       No      Yes     No      Yes     No      No      Yes     No
+Halfling      No      Yes     No      Yes     No      No      Yes     No
 Beastman      Yes     Yes     Yes     Yes     Yes     No      Yes     Yes
 Yeek          Yes     Yes     Yes     Yes     Yes     Yes     Yes     Yes
 Melnibonean   Yes     Yes     No      Yes     No      No      Yes     Yes
@@ -830,8 +820,8 @@ Vadhagh       Yes     Yes     No      No      Yes     No      Yes     No
                      Mind-   High  Weapon-
              Monk   crafter  Mage  master  Archer  Beastmaster
 Human         Yes     Yes     Yes     Yes     Yes     Yes
-Elf           No      Yes     Yes     Yes     Yes     Yes
-Hobbit        No      No      Yes     Yes     Yes     Yes
+Eldren           No      Yes     Yes     Yes     Yes     Yes
+Oager Uv        No      No      Yes     Yes     Yes     Yes
 Gnome         No      Yes     Yes     Yes     No      Yes
 Dwarf         No      No      No      Yes     No      Yes
 Nhadragh      No      Yes     Yes     Yes     Yes     Yes
@@ -847,7 +837,7 @@ Draconian     Yes     Yes     Yes     Yes     Yes     Yes
 Mind Flayer   Yes     Yes     Yes     No      No      Yes
 Golem         No      No      No      Yes     No      Yes
 Vampire       No      Yes     Yes     Yes     Yes     Yes
-Spectre       No      Yes     Yes     No      No      Yes
+Halfling      No      Yes     Yes     No      No      Yes
 Beastman      Yes     Yes     Yes     Yes     Yes     Yes
 Yeek          Yes     Yes     Yes     Yes     Yes     Yes
 Melnibonean   No      No      Yes     Yes     Yes     Yes
@@ -877,8 +867,8 @@ are listed in the following table.
  
                        STR  INT  WIS  DEX  CON  CHR  Hit Dice  Rqd Exp/level
            Human        0    0    0    0    0    0      10          +0%
-           Elf         -1   +2   +1   +3   -2   +2       8         +25%
-           Hobbit      -2   +1   +1   +2   +2   +2       7         +10%
+           Eldren       0   +1   +2   +1   -1    0       8         +10%
+           Oager Uv     3    0    0   -2   +4   +1      12         +25%
            Gnome       -1   +2    0   +2   +1   -2       8         +30%
            Dwarf       +2   -2   +2   -2   +2   -3      11         +30%
            Nhadragh    +3   +1   -1   -1   +3   -2      10         +20%
@@ -894,7 +884,7 @@ are listed in the following table.
            Mind Flayer -3   +4   +4    0   -2   -5       9         +40%
            Golem       +4   -5   -5    0   +4   -4      13         +125%
            Vampire     +3   +3   -1   -1   +1   +2      11         +100%
-           Spectre     -5   +4   +4   +2   -3   -6       7         +80%
+           Halfling     0   +2   +2   +2   -2    0       8         +80%
            Beastman    +2   -2   -1   -1   +2   -4      11         +40%
            Yeek        -5   -5   -5   -5   -5   -5      10         -75%
            Melnibonean +1   +2   +2   +1   +1   -3      10         +40%
@@ -929,8 +919,8 @@ are listed in the following table.
 
                         Dsrm Dvce Save Stlh Srch Prcp HtH  Misl   Infra
            Human        +0   +0   +0   +0   +0   +10  +5   +5     None
-           Elf          +5   +10  +10  +4   +10  +15  +0   +20    40 feet
-           Hobbit       +15  +18  +18  +4   +12  +15  -10  +20    30 feet
+           Eldren       +5   +5   +0   +1   +0   +5   +0   +0     None
+           Oager Uv     +10  +0   +0   -1   +20  +25  -10  -10    40 feet
            Gnome        +10  +12  +12  +3   +6   +13  -8   +12    40 feet
            Dwarf        +2   +9   +10  -1   +7   +10  +15  +0     50 feet
            Nhadragh     +10  +10  +0   +1   +20  +10  +10  -5     None
@@ -946,7 +936,7 @@ are listed in the following table.
            Mind Flayer  +10  +25  +15  +2   +5   +12  -10  -5     40 feet
            Golem        -5   +5   +10  -1   -1   +8   +20  +0     40 feet
            Vampire      +4   +10  +10  +4   +1   +8   +5   +0     50 feet
-           Spectre      +10  +25  +20  +5   +5   +14  -15  -5     50 feet
+           Halfling     +10  +15  +20  +6   +5   +14  0    -10    50 feet
            Beastman     -5   -2   -1   -1   -1   +5   +12  +5     None
            Yeek         -5   -5   -10  +0   -5   +0   -10  -10    20 feet
            Melnibonean  +8   +15  +10  +1   +5   +5   +10  +10    20 feet

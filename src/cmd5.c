@@ -1677,10 +1677,10 @@ void do_cmd_cast(void)
             {
                 msg_print("It's the Judgement.");
                 do_cmd_rerate();
-                if (p_ptr->muta1 || p_ptr->muta2 || p_ptr->muta3)
-                {
-                    msg_print("You are cured of all mutations.");
-                    p_ptr->muta1 = p_ptr->muta2 = p_ptr->muta3 = 0;
+					 if (p_ptr->muta1 || p_ptr->muta2 || p_ptr->muta3 || p_ptr->muta4)
+					 {
+						  msg_print("You are cured of all mutations.");
+                    p_ptr->muta1 = p_ptr->muta2 = p_ptr->muta3 = p_ptr->muta4 = 0;
                     p_ptr->update |= PU_BONUS;
                     handle_stuff();
                 }

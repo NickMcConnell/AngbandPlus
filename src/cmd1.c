@@ -1018,6 +1018,27 @@ void touch_zap_player(monster_type *m_ptr)
 		}
 	}
 
+	if (r_ptr->flags2 & (RF2_AURA_POIS))
+	{
+			char aura_dam[80];
+
+			aura_damage = damroll(1 + (r_ptr->level / 26), 1 + (r_ptr->level / 17));
+
+			/* Hack -- Get the "died from" name */
+			monster_desc(aura_dam, m_ptr, 0x88);
+
+			msg_print("You feel deathly ill!");
+
+			if (p_ptr->oppose_fire) aura_damage = (aura_damage+2) / 3;
+			if (p_ptr->resist_fire) aura_damage = (aura_damage+2) / 3;
+
+			p_ptr->poisoned += (2 * aura_damage);
+
+			take_hit(aura_damage, aura_dam);
+			r_ptr->r_flags2 |= RF2_AURA_POIS;
+			handle_stuff();
+	}
+
 	if (r_ptr->flags2 & (RF2_SPINES))
 	{
 		if (!(p_ptr->reflect))
@@ -1050,41 +1071,119 @@ static void natural_attack(s16b m_idx, int attack, bool *fear, bool *mdeath)
 
 	switch (attack)
 	{
-		case MUT2_SCOR_TAIL:
+		case MUT4_SCOR_TAIL:
 			dss = 3;
 			ddd = 7;
 			n_weight = 5;
 			atk_desc = "tail";
 			break;
-		case MUT2_HORNS:
+		case MUT4_HORNS:
 			dss = 2;
 			ddd = 6;
 			n_weight = 15;
 			atk_desc = "horns";
 			break;
-		case MUT2_BEAK:
+		case MUT4_BEAK:
 			dss = 2;
 			ddd = 4;
 			n_weight = 5;
 			atk_desc = "beak";
 			break;
-		case MUT2_TUSKS:
+		case MUT4_TUSKS:
 			dss = 2;
 			ddd = 6;
 			n_weight = 30;
 			atk_desc = "tusks";
 			break;
-		case MUT2_CLAWS:
+		case MUT4_CLAWS:
 			dss = 2;
 			ddd = 3;
 			n_weight = 5;
 			atk_desc = "claws";
 			break;
-		case MUT2_TENTACLES:
+		case MUT4_TENTACLES:
 			dss = 3;
 			ddd = 3;
 			n_weight = 20;
 			atk_desc = "tentacles";
+			break;
+		case MUT4_SPURS:
+			dss = 3;
+			ddd = 2;
+			n_weight = 3;
+			atk_desc = "spurs";
+			break;
+		case MUT4_ANTLERS:
+			dss = 2;
+			ddd = 6;
+			n_weight = 20;
+			atk_desc = "antlers";
+			break;
+		case MUT4_HOOVES:
+			dss = 2;
+			ddd = 5;
+			n_weight = 12;
+			atk_desc = "hooves";
+			break;
+		case MUT4_IRON_HOOVES:
+			dss = 3;
+			ddd = 5;
+			n_weight = 40;
+			atk_desc = "iron hooves";
+			break;
+		case MUT4_V_FANGS:
+			dss = 1 + randint(p_ptr->lev/6);
+			ddd = 1 + randint(p_ptr->lev/6);
+			n_weight = 8;
+			atk_desc = "fangs";
+			break;
+		case MUT4_POIS_TONGUE:
+			dss = 2;
+			ddd = 4;
+			n_weight = 10;
+			atk_desc = "tongue";
+			break;
+		case MUT4_STICKY:
+			dss = 1;
+			ddd = 1;
+			n_weight = 1;
+			atk_desc = "mucous";
+			break;
+		case MUT4_HAND_MOUTH:
+			dss = 3;
+			ddd = 3;
+			n_weight = 10;
+			atk_desc = "hand-mouths";
+			break;
+		case MUT4_WINGS:
+			dss = 2;
+			ddd = 3;
+			n_weight = 30;
+			atk_desc = "wings";
+			break;
+		case MUT4_TRUNK:
+			dss = 2;
+			ddd = 5;
+			n_weight = 15;
+			atk_desc = "trunk";
+			break;
+		case MUT4_ICE_TALONS:
+			dss = 4;
+			ddd = 6;
+			n_weight = 14;
+			atk_desc = "ice talons";
+			break;
+		case MUT4_WEEP_BLOOD:
+			dss = 3;
+			ddd = 2;
+			n_weight = 1;
+			atk_desc = "bloody tears";
+			break;
+		case MUT4_RAZORS:
+			dss = 6;
+			ddd = 2;
+			n_weight = 7;
+			atk_desc = "razors";
 			break;
 		default:
 			dss = ddd = n_weight = 1;
@@ -1110,27 +1209,29 @@ static void natural_attack(s16b m_idx, int attack, bool *fear, bool *mdeath)
 		k = critical_norm(n_weight, p_ptr->to_h, k);
 
 		/* Apply the player damage bonuses */
-		k += p_ptr->to_d;   
+		/*
+		* No. Use multiplier based on level. Among other problems old method was
+		* granting the Weaponmaster damage bonus to mutation attacks. -- RDH
+		* k += p_ptr->to_d;
+		*/
+
+		k *= 1 + (p_ptr->lev)/12;
 
 		/* No negative damage */
 		if (k < 0) k = 0;
 
 		/* Unusual damage */
-		if (p_ptr->muta3 & MUT3_TWISTED)
+		if (p_ptr->muta4 & MUT4_TWISTED)
 		{
 			if (turn % 2) k *= 2;
 			else k /= 2;
 		}
 
-		/* Complex message */
-		if (wizard)
-		{
-			msg_format("You do %d (out of %d) damage.", k, m_ptr->hp);
-		}
-		else if (show_damage && m_ptr->ml)
-		{
-			msg_format("(%d dam)", k);
-		}
+		/* Ice Talons are cold branded */
+		if ((attack == MUT4_ICE_TALONS) && !(r_ptr->flags3 & (RF3_IM_COLD))) k *= 3;
+
+		/* Martial artists are good with weapons that are parts of their own bodies. -- RDH */
+		if (monk_empty_hands() == TRUE) k = k * 3/2;
 
 		if (m_ptr->smart & SM_FRIEND)
 		{
@@ -1141,25 +1242,89 @@ static void natural_attack(s16b m_idx, int attack, bool *fear, bool *mdeath)
 		/* Damage, check for fear and mdeath */
 		switch (attack)
 		{
-			case MUT2_SCOR_TAIL:
+			case MUT4_SCOR_TAIL:
 				project(0, FALSE, 0, m_ptr->fy, m_ptr->fx, k, GF_POIS, PROJECT_KILL, FALSE);
 				*mdeath = (m_ptr->r_idx == 0);
 				break;
-			case MUT2_HORNS:
+			case MUT4_HORNS:
 				*mdeath = mon_take_hit(m_idx, k, fear, NULL);
 				break;
-			case MUT2_BEAK:
+			case MUT4_BEAK:
 				*mdeath = mon_take_hit(m_idx, k, fear, NULL);
 				break;
-			case MUT2_TUSKS:
+			case MUT4_TUSKS:
 				*mdeath = mon_take_hit(m_idx, k, fear, NULL);
 				break;
-			case MUT2_CLAWS:
+			case MUT4_CLAWS:
 				*mdeath = mon_take_hit(m_idx, k, fear, NULL);
 				break;
-			case MUT2_TENTACLES:
+			case MUT4_TENTACLES:
 				project(0, FALSE, 0, m_ptr->fy, m_ptr->fx, k, GF_INERTIA, PROJECT_KILL, FALSE);
 				*mdeath = (m_ptr->r_idx == 0);
+				break;
+			case MUT4_SPURS:
+				*mdeath = mon_take_hit(m_idx, k, fear, NULL);
+				break;
+			case MUT4_ANTLERS:
+				*mdeath = mon_take_hit(m_idx, k, fear, NULL);
+				break;
+			case MUT4_HOOVES:
+				*mdeath = mon_take_hit(m_idx, k, fear, NULL);
+				break;
+			case MUT4_IRON_HOOVES:
+				if (rand_int(8) == 1) earthquake(py, px, 10);
+				*mdeath = mon_take_hit(m_idx, k, fear, NULL);
+				break;
+			case MUT4_V_FANGS:
+				project(0, FALSE, 0, m_ptr->fy, m_ptr->fx, k, GF_OLD_DRAIN, PROJECT_KILL, FALSE);
+				if (!(r_ptr->flags3 & (RF3_UNDEAD)) && !(r_ptr->flags3 & (RF3_NONLIVING)))
+				{
+					if (p_ptr->food < PY_FOOD_FULL)
+						/* No heal if we are "full" */
+						(void)hp_player(k);
+					else
+						msg_print("You were not hungry.");
+
+					/* Gain nutritional sustenance: 10/hp drained */
+					/* A Food ration gives 5000 food points (by contrast) */
+					/* Don't ever get more than "Full" this way */
+					/* But if we ARE Gorged,  it won't cure us */
+					k = p_ptr->food + MIN(500, 10 * k);
+					if (p_ptr->food < PY_FOOD_MAX)   /* Not gorged already */
+						(void)set_food(k >= PY_FOOD_MAX ? PY_FOOD_MAX-1 : k);
+				}
+				else
+				{
+					msg_print("Yechh. That tastes foul.");
+				}
+				*mdeath = (m_ptr->r_idx == 0);
+				break;
+			case MUT4_POIS_TONGUE:
+				project(0, FALSE, 0, m_ptr->fy, m_ptr->fx, k, GF_POIS, PROJECT_KILL, FALSE);
+				*mdeath = (m_ptr->r_idx == 0);
+				break;
+			case MUT4_STICKY:
+				project(0, FALSE, 0, m_ptr->fy, m_ptr->fx, k, GF_INERTIA, PROJECT_KILL, FALSE);
+				*mdeath = (m_ptr->r_idx == 0);
+				break;
+			case MUT4_HAND_MOUTH:
+				*mdeath = mon_take_hit(m_idx, k, fear, NULL);
+				break;
+			case MUT4_WINGS:
+				*mdeath = mon_take_hit(m_idx, k, fear, NULL);
+				break;
+			case MUT4_TRUNK:
+				*mdeath = mon_take_hit(m_idx, k, fear, NULL);
+				break;
+			case MUT4_ICE_TALONS:
+				*mdeath = mon_take_hit(m_idx, k, fear, NULL);
+				break;
+			case MUT4_WEEP_BLOOD:
+				project(0, FALSE, 0, m_ptr->fy, m_ptr->fx, k, GF_TURN_ALL, PROJECT_KILL, FALSE);
+				*mdeath = (m_ptr->r_idx == 0);
+				break;
+			case MUT4_RAZORS:
+				*mdeath = mon_take_hit(m_idx, k, fear, NULL);
 				break;
 			default:
 				*mdeath = mon_take_hit(m_idx, k, fear, NULL);
@@ -1245,8 +1410,8 @@ void py_attack(int y, int x)
 	/* Stop if friendly */
 	if (m_ptr->smart & SM_FRIEND &&
 	    ! (p_ptr->stun || p_ptr->confused || p_ptr->image ||
-	    ((p_ptr->muta2 & MUT2_BERS_RAGE) && p_ptr->shero) ||
-	    !(m_ptr->ml)))
+		 ((p_ptr->muta2 & MUT2_BERS_RAGE) && p_ptr->shero) ||
+		 !(m_ptr->ml)))
 	{
 		if (!(inventory[INVEN_WIELD].art_name))
 		{
@@ -1410,7 +1575,7 @@ void py_attack(int y, int x)
 				else if (ma_ptr->effect == MA_SLOW)
 				{
 					if (!((r_ptr->flags1 & RF1_NEVER_MOVE)
-					    || strchr("UjmeEv$,DdsbBFIJQSXclnw!=?", r_ptr->d_char)))
+						 || strchr("UjmeEv$,DdsbBFIJQSXclnw!=?", r_ptr->d_char)))
 					{
 						msg_format("You kick %s in the ankle.", m_name);
 						special_effect = MA_SLOW;
@@ -1439,8 +1604,8 @@ void py_attack(int y, int x)
 				else if ((special_effect == MA_SLOW) && ((k + p_ptr->to_d) < m_ptr->hp))
 				{
 					if (!(r_ptr->flags1 & RF1_UNIQUE) &&
-					    (randint(p_ptr->lev) > r_ptr->level) &&
-					    m_ptr->mspeed > 60)
+						 (randint(p_ptr->lev) > r_ptr->level) &&
+						 m_ptr->mspeed > 60)
 					{
 						msg_format("%^s starts limping slower.", m_name);
 						m_ptr->mspeed -= 10;
@@ -1503,7 +1668,7 @@ void py_attack(int y, int x)
 				}
 
 				if ((p_ptr->impact && (((k > 50) && randint(2)==1) || randint(10)==1)) ||
-				    (chaos_effect && (randint(300)==1))) /* was (250) -- Gumby */
+					 (chaos_effect && (randint(300)==1))) /* was (250) -- Gumby */
 				{
 					do_quake = TRUE;
 					chaos_effect = FALSE;
@@ -1513,26 +1678,16 @@ void py_attack(int y, int x)
 			}
 
 			/* Apply the player damage bonuses */
-			k += p_ptr->to_d;   
+			k += p_ptr->to_d;
 
 			/* No negative damage */
 			if (k < 0) k = 0;
 
 			/* Unusual damage */
-			if (p_ptr->muta3 & MUT3_TWISTED)
+			if (p_ptr->muta4 & MUT4_TWISTED)
 			{
 				if (turn % 2) k *= 2;
 				else k /= 2;
-			}
-
-			/* Complex message */
-			if (wizard)
-			{
-				msg_format("You do %d (out of %d) damage.", k, m_ptr->hp);
-			}
-			else if (show_damage && m_ptr->ml)
-			{
-				msg_format("(%d dam)", k);
 			}
 
 			/* Damage, check for fear and death */
@@ -1694,18 +1849,44 @@ void py_attack(int y, int x)
 
 	if (!no_extra)
 	{
-		if (p_ptr->muta2 & MUT2_SCOR_TAIL && !mdeath)
-			natural_attack(c_ptr->m_idx, MUT2_SCOR_TAIL, &fear, &mdeath);
-		if (p_ptr->muta2 & MUT2_HORNS && !mdeath)
-			natural_attack(c_ptr->m_idx, MUT2_HORNS, &fear, &mdeath);
-		if (p_ptr->muta2 & MUT2_BEAK && !mdeath)
-			natural_attack(c_ptr->m_idx, MUT2_BEAK, &fear, &mdeath);
-		if (p_ptr->muta2 & MUT2_TUSKS && !mdeath)
-			natural_attack(c_ptr->m_idx, MUT2_TUSKS, &fear, &mdeath);
-		if (p_ptr->muta2 & MUT2_CLAWS && !mdeath)
-			natural_attack(c_ptr->m_idx, MUT2_CLAWS, &fear, &mdeath);
-		if (p_ptr->muta2 & MUT2_TENTACLES && !mdeath)
-			natural_attack(c_ptr->m_idx, MUT2_TENTACLES, &fear, &mdeath);
+		if (p_ptr->muta4 & MUT4_SCOR_TAIL && !mdeath)
+			natural_attack(c_ptr->m_idx, MUT4_SCOR_TAIL, &fear, &mdeath);
+		if (p_ptr->muta4 & MUT4_HORNS && !mdeath)
+			natural_attack(c_ptr->m_idx, MUT4_HORNS, &fear, &mdeath);
+		if (p_ptr->muta4 & MUT4_BEAK && !mdeath)
+			natural_attack(c_ptr->m_idx, MUT4_BEAK, &fear, &mdeath);
+		if (p_ptr->muta4 & MUT4_TUSKS && !mdeath)
+			natural_attack(c_ptr->m_idx, MUT4_TUSKS, &fear, &mdeath);
+		if (p_ptr->muta4 & MUT4_CLAWS && !mdeath)
+			natural_attack(c_ptr->m_idx, MUT4_CLAWS, &fear, &mdeath);
+		if (p_ptr->muta4 & MUT4_TENTACLES && !mdeath)
+			natural_attack(c_ptr->m_idx, MUT4_TENTACLES, &fear, &mdeath);
+		if (p_ptr->muta4 & MUT4_SPURS && !mdeath)
+			natural_attack(c_ptr->m_idx, MUT4_SPURS, &fear, &mdeath);
+		if (p_ptr->muta4 & MUT4_ANTLERS && !mdeath)
+			natural_attack(c_ptr->m_idx, MUT4_ANTLERS, &fear, &mdeath);
+		if (p_ptr->muta4 & MUT4_HOOVES && !mdeath)
+			natural_attack(c_ptr->m_idx, MUT4_HOOVES, &fear, &mdeath);
+		if (p_ptr->muta4 & MUT4_IRON_HOOVES && !mdeath)
+			natural_attack(c_ptr->m_idx, MUT4_IRON_HOOVES, &fear, &mdeath);
+		if ((p_ptr->muta4 & MUT4_V_FANGS && !mdeath) || (p_ptr->prace == RACE_VAMPIRE))
+			natural_attack(c_ptr->m_idx, MUT4_V_FANGS, &fear, &mdeath);
+		if (p_ptr->muta4 & MUT4_POIS_TONGUE && !mdeath)
+			natural_attack(c_ptr->m_idx, MUT4_POIS_TONGUE, &fear, &mdeath);
+		if (p_ptr->muta4 & MUT4_STICKY && !mdeath)
+			natural_attack(c_ptr->m_idx, MUT4_STICKY, &fear, &mdeath);
+		if (p_ptr->muta4 & MUT4_HAND_MOUTH && !mdeath)
+			natural_attack(c_ptr->m_idx, MUT4_HAND_MOUTH, &fear, &mdeath);
+		if (p_ptr->muta4 & MUT4_WINGS && !mdeath)
+			natural_attack(c_ptr->m_idx, MUT4_WINGS, &fear, &mdeath);
+		if (p_ptr->muta4 & MUT4_TRUNK && !mdeath)
+			natural_attack(c_ptr->m_idx, MUT4_TRUNK, &fear, &mdeath);
+		if (p_ptr->muta4 & MUT4_ICE_TALONS && !mdeath)
+			natural_attack(c_ptr->m_idx, MUT4_ICE_TALONS, &fear, &mdeath);
+		if (p_ptr->muta4 & MUT4_WEEP_BLOOD && !mdeath)
+			natural_attack(c_ptr->m_idx, MUT4_WEEP_BLOOD, &fear, &mdeath);
+		if (p_ptr->muta4 & MUT4_RAZORS && !mdeath)
+			natural_attack(c_ptr->m_idx, MUT4_RAZORS, &fear, &mdeath);
 	}
 
 	/* Hack -- delay fear messages */
@@ -1765,7 +1946,7 @@ void move_player(int dir, int do_pickup)
 
 	/* Player can not walk through "walls"... */
 	/* unless in Shadow Form */
-	if ((p_ptr->wraith_form) || (p_ptr->prace == RACE_SPECTRE) ||
+	if ((p_ptr->wraith_form) || (p_ptr->prace == RACE_HALFLING) ||
 	    (p_ptr->astral))
 		p_can_pass_walls = TRUE;
 

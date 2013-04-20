@@ -313,7 +313,7 @@ of Resistance.
      A character wearing armor with this ability will have resistance to
      Acid, Cold, Fire, and Lightning as explained in each part above.
  
-of Elvenkind.
+of Tanelorn.
      This is the same as Resistance armour, only generally better enchanted.
      It will make you more stealthy.  This armor can also possess extra 
      resistances beyond the four basic elemental ones.

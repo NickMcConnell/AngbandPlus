@@ -1382,7 +1382,7 @@ static errr init_r_info(void)
 
 	/* Assume the size of "r_name" and "r_text" */
 	fake_name_size = 20 * 1024L;
-	fake_text_size = 64 * 1024L;
+	fake_text_size = 68 * 1024L;
 
 	/* Allocate the "r_info" array */
 	C_MAKE(r_info, r_head->info_num, monster_race);
@@ -1918,12 +1918,12 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		{ TV_POLEARM, SV_LIGHT_SPEAR },
 		{ TV_POLEARM, SV_SPEAR },
 		{ TV_POLEARM, SV_SPEAR },
-		{ TV_POLEARM, SV_AWL_PIKE },
+		{ TV_POLEARM, SV_HARPOON },
 		{ TV_POLEARM, SV_AWL_PIKE },
 		{ TV_POLEARM, SV_TRIDENT },
 		{ TV_POLEARM, SV_TRIDENT },
 		{ TV_POLEARM, SV_PIKE },
-		{ TV_POLEARM, SV_LANCE },
+		{ TV_POLEARM, SV_HALBERD },
 
 		{ TV_AXE, SV_HATCHET },
 		{ TV_AXE, SV_HATCHET },
@@ -2418,7 +2418,7 @@ static errr init_other(void)
 		{
 			/* Accept */
 			option_mask[os] |= (1L << ob);
-			
+
 			/* Set */
 			if (option_info[i].o_norm)
 			{
@@ -2454,7 +2454,7 @@ static errr init_other(void)
 	/*** Pre-allocate space for the "format()" buffer ***/
 
 	/* Hack -- Just call the "format()" function */
-	(void)format("%s (%s).", "Ben Harrison", MAINTAINER);
+	(void)format("%s (%s).", "R. Dan Henry", MAINTAINER);
 
 
 	/* Success */

@@ -5373,6 +5373,9 @@ s16b spell_chance(int spell,int realm)
 	/* Being Berserk doesn't help, either. -- Gumby */
 	if (p_ptr->shero) chance += 25;
 
+	/* Albinos have natural... well, mutant... talent. -- RDH */
+   if (p_ptr->muta4 & MUT4_ALBINO) chance -= 15;
+
 	/* Always a 5 percent chance of working */
 	if (chance > 95) chance = 95;
 

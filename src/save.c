@@ -1080,6 +1080,9 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->csp);
 	wr_u16b(p_ptr->csp_frac);
 
+	wr_s16b(p_ptr->mpsyche);
+	wr_s16b(p_ptr->cpsyche);
+
 	/* Max Player and Dungeon Levels */
 	wr_s16b(p_ptr->max_plv);
 	wr_s16b(p_ptr->max_dlv);
@@ -1124,7 +1127,7 @@ static void wr_extra(void)
     wr_s16b(p_ptr->tim_esp);
     wr_s16b(p_ptr->wraith_form);
     wr_s16b(p_ptr->resist_magic);
-    wr_s16b(p_ptr->tim_xtra1);
+    wr_s16b(p_ptr->tim_sterile);
     wr_s16b(p_ptr->tim_xtra2);
     wr_s16b(p_ptr->tim_xtra3);
     wr_s16b(p_ptr->tim_xtra4);
@@ -1137,6 +1140,7 @@ static void wr_extra(void)
     wr_u32b(p_ptr->muta1);
     wr_u32b(p_ptr->muta2);
     wr_u32b(p_ptr->muta3);
+	 wr_u32b(p_ptr->muta4);
 
 	wr_byte(p_ptr->confusing);
 

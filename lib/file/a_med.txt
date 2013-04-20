@@ -40,7 +40,7 @@ of Lead
 'Mana Web'
 'Mightstone'
 of Runes
-'Skull of Vecna'
+'The Frowning Shield'
 of Icarus
 'Jewel Symal'
 'Worfskin'

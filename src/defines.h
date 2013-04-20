@@ -41,8 +41,8 @@
 /* Added for Zangband/Gumband */
 #define FAKE_VERSION
 #define FAKE_VER_MAJOR 2
-#define FAKE_VER_MINOR 2
-#define FAKE_VER_PATCH 4
+#define FAKE_VER_MINOR 3
+#define FAKE_VER_PATCH 0
 
 #define ANGBAND_2_8_1
 
@@ -163,106 +163,146 @@
 /* Mutations */
 
 /* "Activatable" mutations must be in MUT1_* */
-#define MUT1_SPIT_ACID                  0x00000001L
-#define MUT1_BR_FIRE                    0x00000002L
-#define MUT1_HYPN_GAZE                  0x00000004L
-#define MUT1_APPORTATION                0x00000008L /* Telekinesis - G */
-#define MUT1_VTELEPORT                  0x00000010L /* Voluntary teleport */
-#define MUT1_MIND_BLST                  0x00000020L
-#define MUT1_RADIATION                  0x00000040L
-#define MUT1_VAMPIRISM                  0x00000080L
-#define MUT1_SUMMON_M			0x00000100L
-#define MUT1_BLINK      	        0x00000200L
-#define MUT1_EAT_ROCK  		        0x00000400L
-#define MUT1_SHRIEK             	0x00001000L
-#define MUT1_ILLUMINE           	0x00002000L
-#define MUT1_DET_CURSE          	0x00004000L
-#define MUT1_BERSERK            	0x00008000L
-#define MUT1_POLYMORPH          	0x00010000L
-#define MUT1_MIDAS_TCH          	0x00020000L
-#define MUT1_GROW_MOLD          	0x00040000L
-#define MUT1_RESIST             	0x00080000L
-#define MUT1_EARTHQUAKE         	0x00100000L
-#define MUT1_DAZZLE             	0x00200000L
-#define MUT1_RECALL             	0x00400000L
-#define MUT1_BANISH             	0x00800000L
-#define MUT1_COLD_TOUCH         	0x01000000L
-#define MUT1_MISSILE			0x02000000L
+#define MUT1_SPIT_ACID        0x00000001L
+#define MUT1_BR_FIRE          0x00000002L
+#define MUT1_HYPN_GAZE        0x00000004L
+#define MUT1_APPORTATION      0x00000008L /* Telekinesis - G */
+#define MUT1_VTELEPORT        0x00000010L /* Voluntary teleport */
+#define MUT1_MIND_BLST        0x00000020L
+#define MUT1_RADIATION        0x00000040L
+#define MUT1_MUSHROOMS        0x00000080L /* was VAMPIRISM - RDH */
+#define MUT1_SUMMON_M         0x00000100L
+#define MUT1_SUMMON_EL        0x00000200L /* was BLINK - RDH */
+#define MUT1_BR_COLD          0x00000400L /* was EAT_ROCK - RDH */
+#define MUT1_NETHER_BALL      0x00000800L /* was simply missing before - RDH */
+#define MUT1_SHRIEK          	0x00001000L
+#define MUT1_ILLUMINE        	0x00002000L
+#define MUT1_DET_CURSE       	0x00004000L
+#define MUT1_BERSERK          0x00008000L
+#define MUT1_ICE_SHOWER       0x00010000L /* was POLYMORPH - RDH */
+#define MUT1_MIDAS_TCH        0x00020000L
+#define MUT1_SUMMON_ANT       0x00040000L /* was GROW_MOLD - RDH */
+#define MUT1_RESIST           0x00080000L
+#define MUT1_EARTHQUAKE       0x00100000L
+#define MUT1_DAZZLE           0x00200000L
+#define MUT1_RECALL           0x00400000L
+#define MUT1_BANISH           0x00800000L
+#define MUT1_LIONS_ROAR       0x01000000L /* was COLD_TOUCH - RDH */
+#define MUT1_MISSILE	         0x02000000L
 #define MUT1_SHARD_BOLT			0x04000000L
-#define MUT1_SHARD_BLAST		0x08000000L
-#define MUT1_DSHARD_BLAST		0x10000000L
+#define MUT1_INERTIA_BALL		0x08000000L /* was SHARD_BLAST - RDH */
+#define MUT1_BR_WATER         0x10000000L /* was DSHARD_BLAST - RDH */
 #define MUT1_CHAIN_SHARDS		0x20000000L
-#define MUT1_ROCKET			0x40000000L
+#define MUT1_LIGHTNING	      0x40000000L /* was ROCKET - RDH */
 #define MUT1_GRAV_BEAM			0x80000000L
 
 /* Randomly activating mutations must be MUT2_* */
 #define MUT2_BERS_RAGE		0x00000001L
 #define MUT2_COWARDICE		0x00000002L
 #define MUT2_RTELEPORT		0x00000004L /* Random teleport, instability */
-#define MUT2_ALCOHOL		0x00000008L
-#define MUT2_HALLU		0x00000010L
-#define MUT2_FLATULENT		0x00000020L
-#define MUT2_SCOR_TAIL		0x00000040L
-#define MUT2_HORNS		0x00000080L
-#define MUT2_BEAK		0x00000100L
-#define MUT2_TUSKS		0x00000200L
-#define MUT2_CLAWS		0x00000400L
+#define MUT2_ALCOHOL		   0x00000008L
+#define MUT2_HALLU		   0x00000010L
+#define MUT2_FLATULENT		0x00000020L /* now reduces charisma and stealth - RDH */
+#define MUT2_MUSK          0x00000040L /* was SCOR_TAIL - RDH */
+#define MUT2_ABSENT_MIND	0x00000080L /* was HORNS - RDH */
+#define MUT2_BORING  	   0x00000100L /* was BEAK - RDH */
+#define MUT2_GREEN_RAD		0x00000200L /* was TUSKS - RDH */
+#define MUT2_ATT_UNDEAD		0x00000400L /* was CLAWS - RDH */
 #define MUT2_ATT_DEMON		0x00000800L
 #define MUT2_PROD_MANA		0x00001000L
-#define MUT2_WOUND		0x00002000L
-#define MUT2_DISPEL_ALL         0x00004000L
-#define MUT2_EAT_LIGHT          0x00008000L
-#define MUT2_ATT_ANIMAL         0x00010000L
-#define MUT2_RAW_CHAOS          0x00020000L
-#define MUT2_WRAITH             0x00040000L
-#define MUT2_POLY_WOUND         0x00080000L
-#define MUT2_WASTING            0x00100000L
-#define MUT2_ATT_DRAGON         0x00200000L
-#define MUT2_WEIRD_MIND         0x00400000L
-#define MUT2_NAUSEA             0x00800000L
-#define MUT2_CHAOS_GIFT         0x01000000L
-#define MUT2_WALK_SHAD          0x02000000L
+#define MUT2_WOUND	   	0x00002000L
+#define MUT2_DISPEL_ALL    0x00004000L
+#define MUT2_EAT_LIGHT     0x00008000L
+#define MUT2_ATT_ANIMAL    0x00010000L
+#define MUT2_RAW_CHAOS     0x00020000L
+#define MUT2_UNSTABLE      0x00040000L /* was WRAITH - RDH */
+#define MUT2_POLY_WOUND    0x00080000L
+#define MUT2_WASTING       0x00100000L
+#define MUT2_ATT_DRAGON    0x00200000L
+#define MUT2_WEIRD_MIND    0x00400000L
+#define MUT2_NAUSEA        0x00800000L
+#define MUT2_INSIGHT       0x01000000L /* was CHAOS_GIFT - RDH */
+#define MUT2_PLANE_SHIFT   0x02000000L /* was WALK_SHAD (only chrome changed) - RDH */
 /* Warning is now random monster detection */
-#define MUT2_WARNING            0x04000000L
-#define MUT2_INVULN             0x08000000L
-#define MUT2_SP_TO_HP           0x10000000L
-#define MUT2_HP_TO_SP           0x20000000L
-#define MUT2_DISARM             0x40000000L
-#define MUT2_TENTACLES		0x80000000L
+#define MUT2_WARNING       0x04000000L
+#define MUT2_INVULN        0x08000000L
+#define MUT2_SP_TO_HP      0x10000000L
+#define MUT2_HP_TO_SP      0x20000000L
+#define MUT2_SLOW_MON      0x40000000L /* was DISARM - RDH */
+#define MUT2_POLY_MON		0x80000000L /* was TENTACLES - RDH */
 
-/* Other mutations will be mainly in MUT3_* */
-#define MUT3_HYPER_STR                  0x00000001L
-#define MUT3_PUNY                       0x00000002L
-#define MUT3_HYPER_INT                  0x00000004L
-#define MUT3_MORONIC                    0x00000008L
-#define MUT3_RESILIENT                  0x00000010L
-#define MUT3_XTRA_FAT                   0x00000020L
-#define MUT3_ALBINO                     0x00000040L
-#define MUT3_FLESH_ROT                  0x00000080L
-#define MUT3_SILLY_VOI                  0x00000100L
-#define MUT3_BLANK_FAC                  0x00000200L
-#define MUT3_ILL_NORM                   0x00000400L
-#define MUT3_XTRA_EYES                  0x00000800L
-#define MUT3_MAGIC_RES                  0x00001000L
-#define MUT3_XTRA_NOIS                  0x00002000L
-#define MUT3_INFRAVIS                   0x00004000L
-#define MUT3_XTRA_LEGS                  0x00008000L
-#define MUT3_SHORT_LEG                  0x00010000L
-#define MUT3_ELEC_TOUC                  0x00020000L
-#define MUT3_FIRE_BODY                  0x00040000L
-#define MUT3_WART_SKIN                  0x00080000L
-#define MUT3_SCALES                     0x00100000L
-#define MUT3_IRON_SKIN                  0x00200000L
-#define MUT3_WINGS                      0x00400000L
-#define MUT3_FEARLESS                   0x00800000L
-#define MUT3_REGEN                      0x01000000L
-#define MUT3_ESP                        0x02000000L
-#define MUT3_TWISTED			0x04000000L
+/* Mutations that just adjust the player structure will be mainly in MUT3_* */
+#define MUT3_HYPER_STR     0x00000001L
+#define MUT3_PUNY          0x00000002L
+#define MUT3_HYPER_INT     0x00000004L
+#define MUT3_MORONIC       0x00000008L
+#define MUT3_XTRA_HEART    0x00000010L /* was RESILIENT - RDH */
+#define MUT3_XTRA_FAT      0x00000020L
+#define MUT3_XTRA_THIN     0x00000040L /* was ALBINO - RDH */
+#define MUT3_FLESH_ROT     0x00000080L
+#define MUT3_METAL_BONES   0x00000100L /* was SILLY_VOI - RDH */
+#define MUT3_BLANK_FAC     0x00000200L
+#define MUT3_ILL_NORM      0x00000400L
+#define MUT3_XTRA_EYES     0x00000800L
+#define MUT3_CAMO          0x00001000L /* was MAGIC_RES - RDH */
+#define MUT3_XTRA_NOIS     0x00002000L
+#define MUT3_INFRAVIS      0x00004000L
+#define MUT3_EYES_GLOW     0x00008000L /* was XTRA_LEGS */
+#define MUT3_MANA_RUNES    0x00010000L /* was SHORT_LEG */
+#define MUT3_ELEC_TOUC     0x00020000L
+#define MUT3_FIRE_BODY     0x00040000L
+#define MUT3_LEATHER_SKIN  0x00080000L /* was WART_SKIN */
+#define MUT3_SCALES        0x00100000L
+#define MUT3_PLATES        0x00200000L /* was IRON_SKIN */
+#define MUT3_FURRY         0x00400000L /* was WINGS */
+#define MUT3_EYE_STALK     0x00800000L /* was FEARLESS */
+#define MUT3_REGEN         0x01000000L
+#define MUT3_ESP           0x02000000L
+#define MUT3_XTRA_EYELID	0x04000000L /* was TWISTED */
 #define MUT3_SPINES			0x08000000L
-#define MUT3_LIMBER     	        0x10000000L
-#define MUT3_ARTHRITIS  	        0x20000000L
-#define MUT3_VULN_ELEM  	        0x40000000L
-#define MUT3_GLOW			0x80000000L
+#define MUT3_LIMBER     	0x10000000L
+#define MUT3_ARTHRITIS  	0x20000000L
+#define MUT3_SLUGGISH   	0x40000000L /* was VULN_ELEM */
+#define MUT3_GLOW			   0x80000000L
+
+/*
+ * Mutations that require code outside of mutation.c to operate belong in MUT4_*
+ * However, METAL_BONES, MANA_RUNES, ILL_NORM are not, so things are still
+ * quite imperfect in mutation land. -- RDH
+*/
+
+#define MUT4_SCOR_TAIL     0x00000001L
+#define MUT4_HORNS         0x00000002L
+#define MUT4_BEAK          0x00000004L
+#define MUT4_TUSKS         0x00000008L
+#define MUT4_CLAWS         0x00000010L
+#define MUT4_TENTACLES     0x00000020L
+#define MUT4_HUGE_ARMS     0x00000040L
+#define MUT4_SPURS         0x00000080L
+#define MUT4_ANTLERS       0x00000100L
+#define MUT4_HOOVES        0x00000200L
+#define MUT4_IRON_HOOVES   0x00000400L
+#define MUT4_V_FANGS       0x00000800L
+#define MUT4_POIS_TONGUE   0x00001000L
+#define MUT4_STICKY        0x00002000L
+#define MUT4_HAND_MOUTH    0x00004000L
+#define MUT4_WINGS         0x00008000L
+#define MUT4_TRUNK         0x00010000L
+#define MUT4_ICE_TALONS    0x00020000L
+#define MUT4_ACID_BLOOD    0x00040000L
+#define MUT4_THIN_BLOOD    0x00080000L
+#define MUT4_DISTORT_SPACE 0x00100000L
+#define MUT4_EAT_ROCK      0x00200000L
+#define MUT4_BONY_HEAD     0x00400000L
+#define MUT4_FEEL_NUMB     0x00800000L
+#define MUT4_WEEP_BLOOD    0x01000000L
+#define MUT4_ALBINO        0x02000000L
+#define MUT4_RAZORS			0x04000000L
+#define MUT4_TWISTED			0x08000000L
+#define MUT4_GILLS         0x10000000L
+#define MUT4_WARTS         0x20000000L
+#define MUT4_VULN_ELEM     0x40000000L
+#define MUT4_HUGE_EYEBROW	0x80000000L
 
 /* Monk martial arts... */
 # define MAX_MA 17
@@ -566,29 +606,29 @@ and tables.c --TY */
 #define SEX_MALE                1
 
 /* Player race constants (hard-coded by save-files, arrays, etc) */
-#define RACE_HUMAN		 0
-#define RACE_ELF		 1
-#define RACE_HOBBIT		 2
-#define RACE_GNOME		 3
-#define RACE_DWARF		 4
+#define RACE_HUMAN          0
+#define RACE_ELDREN		    1
+#define RACE_OAGER_UV		 2
+#define RACE_GNOME		    3
+#define RACE_DWARF		    4
 #define RACE_NHADRAGH		 5
 #define RACE_HALF_TROLL		 6
-#define RACE_GAMBOLT		 7
+#define RACE_GAMBOLT		    7
 #define RACE_HIGH_ELF		 8
 #define RACE_BARBARIAN		 9
 #define RACE_HALF_GIANT		10
-#define RACE_SIDHI		11
-#define RACE_KLACKON		12
-#define RACE_KOBOLD		13
+#define RACE_SIDHI		   11
+#define RACE_KLACKON		   12
+#define RACE_KOBOLD		   13
 #define RACE_DRACONIAN		14
 #define RACE_MIND_FLAYER	15
-#define RACE_GOLEM		16
-#define RACE_VAMPIRE		17
-#define RACE_SPECTRE		18
+#define RACE_GOLEM		   16
+#define RACE_VAMPIRE		   17
+#define RACE_HALFLING		18
 #define RACE_BEASTMAN		19
-#define RACE_YEEK		20
+#define RACE_YEEK		      20
 #define RACE_MELNIBONEAN	21
-#define RACE_VADHAGH		22
+#define RACE_VADHAGH		   22
 
 /*
  * Player class constants (hard-coded by save-files, arrays, etc)
@@ -752,7 +792,7 @@ and tables.c --TY */
 /* Lites */
 #define ART_GALADRIEL                   1
 #define ART_ELENDIL                     2
-#define ART_THRAIN                      3
+#define ART_RUNESTAFF                   3
 
 /* Amulets */
 #define ART_RED_AMULET                  4 /* was Carlammas */
@@ -781,9 +821,9 @@ and tables.c --TY */
 #define ART_SOULKEEPER                  19
 #define ART_ISILDUR                     20
 #define ART_ROHIRRIM                    21
-#define ART_BELEGENNON                  22
-#define ART_CELEBORN                    23
-#define ART_ARVEDUI                     24
+#define ART_ALISAARD                    22
+#define ART_YISSELDA                    23
+#define ART_EREKOSE                     24
 #define ART_CASPANION                   25
 #define ART_PAN_TANG                    26
 
@@ -827,7 +867,7 @@ and tables.c --TY */
 #define ART_KWLL			51
 #define ART_CAMBELEG                    52
 #define ART_CAMMITHRIM                  53
-#define ART_PAURHACH                    54
+#define ART_VICTORY                     54 /* robe - was Paurhach */
 #define ART_PAURNIMMEN                  55
 #define ART_PAURAEGEN                   56
 #define ART_PAURNEN                     57
@@ -852,7 +892,7 @@ and tables.c --TY */
 #define ART_ARUNRUTH                    72
 #define ART_TRAITOR                     73
 #define ART_AEGLIN                      74
-#define ART_ORCRIST                     75
+#define ART_ARJAVH                      75 /* no longer a sword */
 #define ART_GURTHANG                    76
 #define ART_ZARCUTHRA                   77
 #define ART_TWILIGHT                    78 /* was Mormegil */
@@ -878,7 +918,7 @@ and tables.c --TY */
 #define ART_TIL                         96
 #define ART_AEGLOS                      97
 #define ART_OROME                       98
-#define ART_MAG_AN_MAG                       99  /* was Hagen, before that was Nimloth */
+#define ART_MAG_AN_MAG                  99  /* was Hagen, before that was Nimloth */
 #define ART_EORLINGAS                   100
 #define ART_DURIN                       101
 #define ART_EONWE                       102
@@ -1254,9 +1294,9 @@ and tables.c --TY */
 #define SV_TRIDENT              5       /* 1d7 */
 #define SV_PIKE                 8       /* 2d5 */
 #define SV_GLAIVE               13      /* 3d5 */
-#define SV_HALBERD              15      /* 3d4 */
+#define SV_HARPOON              15      /* 3d4 */
 #define SV_SCYTHE               17      /* 5d3 */
-#define SV_LANCE                20      /* 4d5 */
+#define SV_HALBERD              20      /* 4d5 */
 #define SV_SCYTHE_OF_SLICING    30      /* 10d3 */
 
 /* The "sval" codes for TV_AXE */
@@ -1350,7 +1390,7 @@ and tables.c --TY */
 #define SV_FULL_PLATE_ARMOUR       15      /* 25 */
 #define SV_SHELL_ARMOUR            20      /* 28+ */
 #define SV_SCARLET_PLATE_ARMOUR    23      /* 30 - INSTA_ART */
-#define SV_MITHRIL_PLATE_MAIL      25      /* 35+ */
+#define SV_IVORY_ARMOUR            25      /* 35+ */
 #define SV_ADAMANTITE_PLATE_MAIL   30      /* 40+ */
 
 /* The "sval" codes for TV_DRAG_ARMOR */
@@ -1371,10 +1411,10 @@ and tables.c --TY */
 /* The sval codes for TV_LITE */
 #define SV_LITE_TORCH              0
 #define SV_LITE_LANTERN            1
-#define SV_LITE_FEANORAN_LAMP	   2
+#define SV_LITE_FEANORAN_LAMP	     2
 #define SV_LITE_GALADRIEL          4
 #define SV_LITE_ELENDIL            5
-#define SV_LITE_THRAIN             6
+#define SV_LITE_RUNESTAFF          6
 
 /* The "sval" codes for TV_AMULET */
 #define SV_AMULET_HOLDING          1 /* was Teleportation */
@@ -1697,7 +1737,7 @@ and tables.c --TY */
 #define SV_FOOD_BISCUIT                  32
 #define SV_FOOD_JERKY                    33
 #define SV_FOOD_RATION                   35
-#define SV_FOOD_SLIME_MOLD               36
+#define SV_FOOD_ECREX                    36
 #define SV_FOOD_WAYBREAD                 37
 #define SV_FOOD_PINT_OF_ALE              38
 #define SV_FOOD_PINT_OF_WINE             39
@@ -1797,12 +1837,12 @@ and tables.c --TY */
 #define SM_RES_DARK     0x00000080
 #define SM_RES_FEAR     0x00000100
 #define SM_RES_CONF     0x00000200
-#define SM_RES_CHAOS	0x00000400
-#define SM_RES_DISEN	0x00000800
-#define SM_RES_BLIND	0x00001000
-#define SM_RES_NEXUS	0x00002000
-#define SM_RES_SOUND	0x00004000
-#define SM_RES_SHARD	0x00008000
+#define SM_RES_CHAOS	   0x00000400
+#define SM_RES_DISEN	   0x00000800
+#define SM_RES_BLIND	   0x00001000
+#define SM_RES_NEXUS	   0x00002000
+#define SM_RES_SOUND	   0x00004000
+#define SM_RES_SHARD	   0x00008000
 #define SM_OPP_ACID     0x00010000
 #define SM_OPP_ELEC     0x00020000
 #define SM_OPP_FIRE     0x00040000
@@ -1897,7 +1937,7 @@ and tables.c --TY */
 #define PW_EQUIP        0x00000002L     /* Display equip/inven */
 #define PW_SPELL        0x00000004L     /* Display spell list */
 #define PW_PLAYER       0x00000008L     /* Display character */
-#define PW_VISIBLE	0x00000010L	/* Show visible monster list */
+#define PW_VISIBLE	   0x00000010L	/* Show visible monster list */
 /* xxx */
 #define PW_MESSAGE      0x00000040L     /* Display messages */
 #define PW_OVERHEAD     0x00000080L     /* Display overhead view */
@@ -2005,7 +2045,7 @@ and tables.c --TY */
 #define GF_TURN_ALL     66
 #define GF_DISP_UNDEAD  67
 #define GF_DISP_EVIL    68
-#define GF_DISP_ALL	69    
+#define GF_DISP_ALL	69
 #define GF_DISP_DEMON   70      /* New types for Zangband begin here... */
 #define GF_DISP_LIVING  71
 #define GF_ROCKET       72
@@ -2320,6 +2360,7 @@ and tables.c --TY */
 #define RBE_HALLU	30
 #define RBE_VORPAL	31
 #define RBE_CHAOTIC	32 /* Hits for a random effect -- Gumby */
+#define RBE_STUN        33 /* More sensible method of meleeing stun specials -- RDH */
 
 
 /*** Monster flag values (hard-coded) ***/
@@ -2393,7 +2434,7 @@ and tables.c --TY */
 #define RF2_SPINES              0x02000000	/* was RF2_BRAIN_2 - G */
 #define RF2_CHAOTIC             0x04000000	/* Creature of Chaos - G [was RF2_BRAIN_3] */
 #define RF2_AURA_COLD           0x08000000	/* Freezes in melee - RDH [was RF2_BRAIN_4] */
-#define RF2_BRAIN_5             0x10000000
+#define RF2_AURA_POIS           0x10000000   /* Poisons in melee - RDH [was RF2_BRAIN_5] */
 #define RF2_BRAIN_6             0x20000000
 #define RF2_BRAIN_7             0x40000000
 #define RF2_BRAIN_8             0x80000000
@@ -2806,7 +2847,7 @@ and tables.c --TY */
     ((cave[Y][X].feat == FEAT_FLOOR) && \
      !(cave[Y][X].o_idx) && \
      !(cave[Y][X].m_idx) && \
-     !(((Y) == py) && ((X) == px)))
+	  !(((Y) == py) && ((X) == px)))
 
 
 /*

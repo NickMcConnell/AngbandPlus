@@ -175,10 +175,10 @@ void do_poly_self(void)
 				do_cmd_rerate();
 				break;
 			case 3: /* Lose all mutations -- Gumby */
-				if (p_ptr->muta1 || p_ptr->muta2 || p_ptr->muta3)
+				if (p_ptr->muta1 || p_ptr->muta2 || p_ptr->muta3 || p_ptr->muta4)
 				{
 					msg_print("All of your lovely mutations go away!");
-					p_ptr->muta1 = p_ptr->muta2 = p_ptr->muta3 = 0;
+					p_ptr->muta1 = p_ptr->muta2 = p_ptr->muta3 = p_ptr->muta4 = 0;
 					p_ptr->update |= PU_BONUS;
 					handle_stuff();
 				}
@@ -202,8 +202,8 @@ void do_poly_self(void)
 					while (new_race == p_ptr->prace);
 
 					msg_format("You turn into a%s %s!",
-					    ((new_race == RACE_ELF)?"n":""),
-					    race_info[new_race].title);
+						 ((new_race == RACE_ELDREN)?"n":""),
+						 race_info[new_race].title);
 
 					p_ptr->prace = new_race;
 					rp_ptr = &race_info[p_ptr->prace];

@@ -1139,7 +1139,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 				if (use_graphics && player_symbols)
 				{
 					if (p_ptr->psex == SEX_FEMALE) c = 242;
-	                		switch(p_ptr->pclass)
+								switch(p_ptr->pclass)
 					{
 						case CLASS_PALADIN:
 							if (p_ptr->lev < 20)
@@ -1147,7 +1147,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 							else
 								a = TERM_WHITE;
 							c = 253;
-	                        	   		break;
+													break;
 						case CLASS_WARRIOR_MAGE:
 							if (p_ptr->lev < 20)
 								a = TERM_L_RED;
@@ -1211,7 +1211,6 @@ void map_info(int y, int x, byte *ap, char *cp)
 					switch (p_ptr->prace)
 					{
 						case RACE_GNOME:
-						case RACE_HOBBIT:
 							c = 144;
 							break;
 						case RACE_DWARF:
@@ -1220,7 +1219,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 						case RACE_HALF_TROLL:
 							c = 184;
 							break;
-						case RACE_ELF:
+						case RACE_ELDREN:
 						case RACE_HIGH_ELF:
 						case RACE_NHADRAGH:
 						case RACE_MELNIBONEAN:
@@ -1232,6 +1231,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 							c = 145;
 							break;
 						case RACE_KLACKON:
+						case RACE_OAGER_UV:
 							c = 229;
 							break;
 						case RACE_KOBOLD:
@@ -1255,7 +1255,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 						case RACE_VAMPIRE:
 							c = 217;
 							break;
-						case RACE_SPECTRE:
+						case RACE_HALFLING:
 							c = 241;
 							break;
 						case RACE_BEASTMAN:

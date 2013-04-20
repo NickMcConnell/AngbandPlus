@@ -133,6 +133,9 @@ WEAPONMASTERS: Weaponmasters spend so much time honing their skills with
 their chosen weapon that they have no time to learn any magic, nor do they
 learn to hate it as normal warriors do.
 
+ARCHERS: Like Weaponsmasters, they have no use for spellbooks save selling
+them in town.
+
 
 === The Realms of Magic ===
 

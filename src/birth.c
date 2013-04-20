@@ -79,8 +79,8 @@ struct hist_type
  *
  * Chart progression by race:
  * Human      -->   1 -->   2 -->   3 -->  50 -->  51 -->  52 -->  53
- * Elf        -->   7 -->   8 -->   9 -->  54 -->  55 -->  56
- * Hobbit     -->  10 -->  11 -->   3 -->  50 -->  51 -->  52 -->  53
+ * Eldren     -->   7 -->   8 -->   9 -->  54 -->  55 -->  56
+ * Oager Uv   -->  10 -->  11
  * Gnome      -->  13 -->  14 -->   3 -->  50 -->  51 -->  52 -->  53
  * Dwarf      -->  16 -->  17 -->  18 -->  57 -->  58 -->  59 -->  60 --> 61
  * Nhadragh   -->  19 -->  21 -->  12
@@ -96,7 +96,8 @@ struct hist_type
  * Mindflayer -->  92 -->  93
  * Golem      -->  98 -->  99 --> 100 --> 101
  * Vampire    --> 113 --> 114 --> 115 --> 116 --> 117
- * Spectre    --> 118 --> 119 --> 134 --> 120 --> 121 --> 122 --> 123
+ * Halfling   --> 118 --> 119
+ *           ( removed  --> 134 --> 120 --> 121 --> 122 --> 123 )
  * Beastman   --> 129 --> 130 --> 131 --> 132 --> 133
  * Yeek       -->  77 -->  78 -->  80 -->  81 -->  65 -->  66
  * Melnibonean-->  24 -->  25 -->   3 -->  50 -->  51 -->  52 --> 53
@@ -136,30 +137,20 @@ static hist_type bg[] =
 	{"You are one of several children ",                  60, 7, 8, 50},
 	{"You are the only child ",                          100, 7, 8, 55},
 
-	{"of a Teleri ",                                      75, 8, 9, 50},
-	{"of a Noldor ",                                      95, 8, 9, 55},
-	{"of a Vanyar ",                                     100, 8, 9, 60},
+	{"of an Eldren ",                                     75, 8, 9, 66},
+	{"of a Noble Eldren ",                                95, 8, 9, 80},
+	{"of a Royal Eldren ",                               100, 8, 9, 90},
 
-	{"Ranger.  ",                                       40, 9, 54,  80},
-	{"Archer.  ",                                       70, 9, 54,  90},
-	{"Warrior.  ",                                      87, 9, 54, 110},
-	{"Mage.  ",                                         95, 9, 54, 125},
-	{"Prince.  ",                                       99, 9, 54, 140},
-	{"King.  ",                                        100, 9, 54, 145},
+	{"in exile.  ",                                       30, 9, 54, 40},
+	{"from a hidden enclave.  ",                          50, 9, 54, 50},
+	{"from an Eldren nation.  ",                         100, 9, 54, 80},
 
-	{"You are one of several children of a Hobbit ",    85, 10, 11, 45},
-	{"You are the only child of a Hobbit ",            100, 10, 11, 55},
+	{"You are a minor noble.  ",                          85, 10, 11, 75},
+	{"You are a true River Prince.  ",                   100, 10, 11, 95},
 
-	{"Bum.  ",                                          20, 11, 3,  55},
-	{"Tavern Owner.  ",                                 30, 11, 3,  80},
-	{"Miller.  ",                                       40, 11, 3,  90},
-	{"Home Owner.  ",                                   50, 11, 3, 100},
-	{"Burglar.  ",                                      80, 11, 3, 110},
-	{"Warrior.  ",                                      95, 11, 3, 115},
-	{"Mage.  ",                                         99, 11, 3, 125},
-	{"Clan Elder.  ",                                  100, 11, 3, 140},
+	{"You look a bit like an anthropomorphized grizzly.  ", 100, 11, 0, 50},
 
-	{"and hair meeting bushy eyebrows above sunken eyes. ", 100, 12, 0, 50},
+	{"and hair meeting bushy eyebrows above sunken eyes. ", 100, 12, 0, 55},
 
 	{"You are one of several children of a Gnome ",     85, 13, 14, 45},
 	{"You are the only child of a Gnome ",             100, 13, 14, 55},
@@ -186,12 +177,12 @@ static hist_type bg[] =
 	{"You are a credit to the family.  ",         85, 18, 57, 50},
 	{"You are a well liked child.  ",            100, 18, 57, 55},
 
-	{"Your parents were scholars and nobles.  ",  25, 19, 21, 45},
-	{"Your parents were ordinary Nhadragh.  ", 100, 19, 21, 55},
+	{"Your parents were scholars and nobles.  ",  25, 19, 21, 85},
+	{"Your parents were ordinary Nhadragh.  ", 100, 19, 21, 65},
 
 	{"You are the adopted child ", 100, 20, 2, 50},
 
-	{"You are thick-set, with dark, flat features ", 100, 21, 12, 50},
+	{"You are thick-set, with dark, flat features ", 100, 21, 12, 55},
 
 	{"Your mother was a Cave-Troll ",   30, 22, 23, 20},
 	{"Your father was a Cave-Troll ",   60, 22, 23, 25},
@@ -220,7 +211,7 @@ static hist_type bg[] =
 
 	{"You were the smallest kitten in the litter.  ",   25, 30, 31, 40},
 	{"You were just one of a large number of kittens in the litter.  ",
-                                                            95, 30, 31, 50},
+																				95, 30, 31, 50},
 	{"You were the largest kitten in the litter.  ",   100, 30, 31, 60},
 
 	{"Your fur is entirely white.",                     40, 31,  0, 30},
@@ -255,23 +246,23 @@ static hist_type bg[] =
 	{"red hair, ",     90, 52, 53, 50},
 	{"blond hair, ",  100, 52, 53, 50},
 
-	{"and a very dark complexion.",  10, 53, 0, 50},
-	{"and a dark complexion.",       30, 53, 0, 50},
-	{"and an average complexion.",   80, 53, 0, 50},
-	{"and a fair complexion.",       90, 53, 0, 50},
-	{"and a very fair complexion.", 100, 53, 0, 50},
+	{"and a very dark complexion.",  10, 53, 0, 60},
+	{"and a dark complexion.",       30, 53, 0, 60},
+	{"and an average complexion.",   80, 53, 0, 60},
+	{"and a fair complexion.",       90, 53, 0, 60},
+	{"and a very fair complexion.", 100, 53, 0, 60},
 
-	{"You have light grey eyes, ",   85, 54, 55, 50},
-	{"You have light blue eyes, ",   95, 54, 55, 50},
-	{"You have light green eyes, ", 100, 54, 55, 50},
+	{"Your slanted, orbless eyes are milky ", 100, 54, 55, 70},
 
-	{"straight ",  75, 55, 56, 50},
-	{"wavy ",     100, 55, 56, 50},
+	{"and blue-flecked; ",  65, 55, 56, 50},
+	{"and flecked with blue and gold ",     80, 55, 56, 50},
+	{"and gold-flecked ",     97, 55, 56, 50},
+	{"and flecked with green and gold ",     100, 55, 56, 50},
 
-	{"black hair, and a fair complexion.",   75, 56, 0, 50},
-	{"brown hair, and a fair complexion.",   85, 56, 0, 50},
-	{"blond hair, and a fair complexion.",   95, 56, 0, 50},
-	{"silver hair, and a fair complexion.", 100, 56, 0, 50},
+	{"your hair is black.",   65, 56, 0, 50},
+	{"your hair is golden.",   85, 56, 0, 50},
+	{"your hair is silver.",   95, 56, 0, 50},
+	{"your hair is reddish-gold.", 100, 56, 0, 50},
 
 	{"You have dark brown eyes, ",   99, 57, 58, 50},
 	{"You have glowing red eyes, ", 100, 57, 58, 60},
@@ -326,7 +317,7 @@ static hist_type bg[] =
 	{"Your father was a Cloud Giant.  ",			 90, 75, 20, 65},
 	{"Your father was a Storm Giant.  ",			100, 75, 20, 70},
 
-	{"Your parents were normal Sidhi.  ",			 75, 76, 79,  50},
+	{"Your parents were normal Sidhi.  ",			 75, 76, 79,  60},
 	{"Your parents were heroic Sidhi.  ",			 90, 76, 79, 80},
 	{"Your mother was Arianrod.  ",				 95, 76, 79, 100},
 	{"Your mother was Oak Woman.  ",				 98, 76, 79, 125},
@@ -339,7 +330,7 @@ static hist_type bg[] =
 	{"a Master Yeek.  ",					 95, 78, 80,  85 },
 	{"Boldor, King of the Yeeks.  ",			100, 78, 80, 120 },
 
-	{"You are large and strong with ",			100, 79, 55,  50 },
+	{"You are large and strong with ",			100, 79, 55,  60 },
 
 	{"You have pale eyes, ",				 25, 80, 81, 50},
 	{"You have glowing eyes, ",				 50, 80, 81, 50},
@@ -434,15 +425,15 @@ static hist_type bg[] =
 
 	{"and a deathly pale complexion.",			100, 117, 0, 50},
 
-	{"You were created by ",				100, 118, 119, 50},
+	{"You came from the Ghost Worlds ",				100, 118, 119, 50},
 
-	{"a Necromancer.  ",					 30, 119, 134, 50},
-	{"a magical experiment.  ",				 50, 119, 134, 50},
-	{"an Evil Priest.  ",					 70, 119, 134, 50},
-	{"a pact with the demons.  ",				 75, 119, 134, 50},
-	{"a restless spirit.  ",				 85, 119, 134, 50},
-	{"a curse.  ",						 95, 119, 134, 30},
-	{"an oath.  ",						100, 119, 134, 50},
+	{"to get some peace and quiet.  ",					 30, 119, 0, 50},
+	{"because of a magical experiment.  ",				 50, 119, 0, 50},
+	{"when you got lost.  ",					   70, 119, 0, 40},
+	{"out of boredom.  ",				         75, 119, 0, 50},
+	{"to visit some friends.  ",				   85, 119, 0, 50},
+	{"on a whim.  ",						         95, 119, 0, 50},
+	{"on a glorious quest.  ",						100, 119, 0, 70},
 
 	{"jet-black hair, ",					 25, 120, 121, 50},
 	{"matted brown hair, ",					 50, 120, 121, 50},
@@ -460,7 +451,7 @@ static hist_type bg[] =
 
 	/* Lines 124-128 unused */
 
-	{"You were produced by a magical experiment.  ",	 30, 129, 130, 40},
+	{"You were human before you served Chaos.  ",	 30, 129, 130, 40},
 	{"As a child, you were stupid enough to stick your head in raw Chaos.  ",
 								 50, 129, 130, 50},
 	{"A Lord of Chaos wanted some fun, so he created you.  ",
@@ -660,8 +651,8 @@ void get_realms()
 
 	/* Some classes get no second realm */
 	if (pclas == CLASS_ROGUE || pclas == CLASS_RANGER ||
-	    pclas == CLASS_PALADIN || pclas == CLASS_WARRIOR_MAGE ||
-	    pclas == CLASS_CHAOS_WARRIOR || pclas == CLASS_MONK ||
+		 pclas == CLASS_PALADIN || pclas == CLASS_WARRIOR_MAGE ||
+		 pclas == CLASS_CHAOS_WARRIOR || pclas == CLASS_MONK ||
 	    pclas == CLASS_HIGH_MAGE) return;
 	else
 		p_ptr->realm2 = choose_realm(realm_choices[pclas]);
@@ -755,23 +746,20 @@ static char *gnome_syllable3[] =
 	"la", "lla", "lli", "mo", "nni",
 };
 
-/* Hobbit */
-static char *hobbit_syllable1[] =
+/* Oager Uv */
+static char *oager_syllable1[] =
 {
-	"B", "Ber", "Br", "D", "Der", "Dr", "F", "Fr", "G", "H", "L", "Ler",
-	"M", "Mer", "N", "P", "Pr", "Per", "R", "S", "T", "W",
+	"Gro ", "Sno", "Whi", "Gla", "Hald", "Fal", "Mor",
 };
 
-static char *hobbit_syllable2[] =
+static char *oager_syllable2[] =
 {
-	"a", "e", "i", "ia", "o", "oi", "u",
+	"aff", "the", "li", "nal", "lof", "a", "an",
 };
 
-static char *hobbit_syllable3[] =
+static char *oager_syllable3[] =
 {
-	"bo", "ck", "decan", "degar", "do", "doc", "go", "grin", "lba",
-	"lbo", "lda", "ldo", "lla", "ll", "lo", "m", "mwise", "nac", "noc",
-	"nwise", "p", "ppin", "pper", "tho", "to",
+	"er", "fard", "clar", "nat", "derj", "oro", "di",
 };
 
 /* Human */
@@ -883,12 +871,12 @@ static void create_random_name(int race, char *name)
 		strcat(name, dwarf_syllable2[rand_int(sizeof(dwarf_syllable2) / sizeof(char*))]);
 		strcat(name, dwarf_syllable3[rand_int(sizeof(dwarf_syllable3) / sizeof(char*))]);
 		break;
-	case RACE_ELF:		case RACE_HIGH_ELF:
+	case RACE_ELDREN:		case RACE_HIGH_ELF:
 		strcpy(name, elf_syllable1[rand_int(sizeof(elf_syllable1) / sizeof(char*))]);
 		strcat(name, elf_syllable2[rand_int(sizeof(elf_syllable2) / sizeof(char*))]);
 		strcat(name, elf_syllable3[rand_int(sizeof(elf_syllable3) / sizeof(char*))]);
 		break;
-	case RACE_NHADRAGH:	case RACE_MELNIBONEAN:	case RACE_VADHAGH:  case RACE_SIDHI:
+	case RACE_NHADRAGH:	case RACE_MELNIBONEAN:	case RACE_VADHAGH:  case RACE_SIDHI: case RACE_HALFLING:
 		strcpy(name, vadhagh_syllable1[rand_int(sizeof(vadhagh_syllable1) / sizeof(char*))]);
 		strcat(name, vadhagh_syllable2[rand_int(sizeof(vadhagh_syllable2) / sizeof(char*))]);
 		strcat(name, vadhagh_syllable3[rand_int(sizeof(vadhagh_syllable3) / sizeof(char*))]);
@@ -898,13 +886,13 @@ static void create_random_name(int race, char *name)
 		strcat(name, gnome_syllable2[rand_int(sizeof(gnome_syllable2) / sizeof(char*))]);
 		strcat(name, gnome_syllable3[rand_int(sizeof(gnome_syllable3) / sizeof(char*))]);
 		break;
-	case RACE_HOBBIT:	case RACE_YEEK:
-		strcpy(name, hobbit_syllable1[rand_int(sizeof(hobbit_syllable1) / sizeof(char*))]);
-		strcat(name, hobbit_syllable2[rand_int(sizeof(hobbit_syllable2) / sizeof(char*))]);
-		strcat(name, hobbit_syllable3[rand_int(sizeof(hobbit_syllable3) / sizeof(char*))]);
+	case RACE_OAGER_UV:	case RACE_YEEK:
+		strcpy(name, oager_syllable1[rand_int(sizeof(oager_syllable1) / sizeof(char*))]);
+		strcat(name, oager_syllable2[rand_int(sizeof(oager_syllable2) / sizeof(char*))]);
+		strcat(name, oager_syllable3[rand_int(sizeof(oager_syllable3) / sizeof(char*))]);
 		break;
 	case RACE_BARBARIAN:	case RACE_HUMAN:
-	case RACE_SPECTRE:	case RACE_VAMPIRE:	case RACE_GAMBOLT:
+	case RACE_VAMPIRE:	case RACE_GAMBOLT:
 		strcpy(name, human_syllable1[rand_int(sizeof(human_syllable1) / sizeof(char*))]);
 		strcat(name, human_syllable2[rand_int(sizeof(human_syllable2) / sizeof(char*))]);
 		strcat(name, human_syllable3[rand_int(sizeof(human_syllable3) / sizeof(char*))]);
@@ -931,7 +919,6 @@ static void create_random_name(int race, char *name)
 		break;
 	}
 }
-
 
 /*
  * Allow player to modify the character by spending points
@@ -1462,10 +1449,10 @@ static void get_history(void)
 		case RACE_HUMAN:
 		case RACE_BARBARIAN:
 			chart = 1;	break;
-		case RACE_ELF:
+		case RACE_ELDREN:
 		case RACE_HIGH_ELF:
 			chart = 7;	break;
-		case RACE_HOBBIT:
+		case RACE_OAGER_UV:
 			chart = 10;	break;
 		case RACE_GNOME:
 			chart = 13;	break;
@@ -1493,7 +1480,7 @@ static void get_history(void)
 			chart = 98;	break;
 		case RACE_VAMPIRE:
 			chart = 113;	break;
-		case RACE_SPECTRE:
+		case RACE_HALFLING:
 			chart = 118;	break;
 		case RACE_BEASTMAN:
 			chart = 129;	break;
@@ -1900,7 +1887,7 @@ static void player_outfit(void)
 	/* Get local object */
 	q_ptr = &forge;
 
-	if ((p_ptr->prace >= RACE_GOLEM) && (p_ptr->prace <= RACE_SPECTRE))
+	if ((p_ptr->prace == RACE_GOLEM) || (p_ptr->prace == RACE_VAMPIRE))
 	{
 		/* Hack -- Give the player scrolls of satisfy hunger */
 		object_prep(q_ptr, lookup_kind(TV_SCROLL, SV_SCROLL_SATISFY_HUNGER));
@@ -2416,7 +2403,7 @@ static bool player_birth_aux()
 		  if (!(rp_ptr->choice & (1L << n))) mod = " (*)";
 #endif
 
-    if (!(rp_ptr->choice & (1L << n )))
+	 if (!(rp_ptr->choice & (1L << n )))
         sprintf(buf, "%c%c (%s)%s", I2A(n), p2, str, mod);
     else
 		/* Display */
@@ -2954,6 +2941,7 @@ static bool player_birth_aux()
 		p_ptr->muta1 = 0;
 		p_ptr->muta2 = 0;
 		p_ptr->muta3 = 0;
+		p_ptr->muta4 = 0;
 
 		/* Input loop */
 		while (TRUE)
@@ -3061,10 +3049,10 @@ static bool player_birth_aux()
 	{
 		switch(p_ptr->chaos_patron)
 		{
-			/* Resist magic */
+			/* Resist magic has been removed from mutations. Slortar the Old grants... */
 			case PATRON_SLORTAR:
 			{
-				p_ptr->muta3 |= MUT3_MAGIC_RES;
+				p_ptr->muta3 |= MUT3_ARTHRITIS;
 				break;
 			}
 			/* Mabelrode the Faceless */
@@ -3079,13 +3067,14 @@ static bool player_birth_aux()
 			/* Random telepathy and warning, or extra legs:
 			 * Pyaray's earthly form is that of a giant
 			 * octopus, after all. :) - Gumby
+			 * So give them *tentacles*, esp. since I removed XTRA_LEGS -- RDH
 			 */
 			case PATRON_PYARAY:
 			{
 				if (randint(1000) == 7)
 					p_ptr->muta3 |= MUT3_ESP;
 				else if (randint(100) == 7)
-					p_ptr->muta3 |= MUT3_XTRA_LEGS;
+					p_ptr->muta4 |= MUT4_TENTACLES;
 				else
 					p_ptr->muta2 |= MUT2_WEIRD_MIND | MUT2_WARNING;
 				break;
@@ -3102,7 +3091,7 @@ static bool player_birth_aux()
 			/* Arioch misses Elric's loyalty :) */
 			case PATRON_ARIOCH:
 			{
-				p_ptr->muta3 |= MUT3_ALBINO;
+				p_ptr->muta4 |= MUT4_ALBINO;
 				break;
 			}
 			/* Random dispel all */
@@ -3180,6 +3169,9 @@ void player_birth(void)
 
 	/* Hack -- outfit the player */
 	player_outfit();
+
+	/* Initialize psyche */
+	player_psyche(TRUE);
 
 	/* Shops */
 	for (n = 0; n < MAX_STORES; n++)

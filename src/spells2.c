@@ -332,55 +332,55 @@ void self_knowledge(void)
 	{
 		case RACE_HUMAN:
 			if (plev > 14)
-				info[i++] = "You have an understanding of your abilities (cost 10).";
+				info[i++] = "You can prepare to fight.";
 			break;
-		case RACE_ELF:
+		case RACE_ELDREN:
 			if (plev > 9)
-				info[i++] = "You can sense natural creatures (cost 5).";
+				info[i++] = "You have an understanding of your abilities.";
 			break;
 		case RACE_DWARF:
 			if (plev > 4)
-				info[i++] = "You can find traps, doors and stairs (cost 5).";
+				info[i++] = "You can find traps, doors and stairs.";
 			break;
-		case RACE_HOBBIT:
+		case RACE_OAGER_UV:
 			if (plev > 14)
-				info[i++] = "You can produce food (cost 10).";
+				info[i++] = "You can detect enchanted items.";
 			break;
 		case RACE_GNOME:
 			if (plev > 4)
 			{
-				sprintf(Dummy, "You can teleport, range %d (cost %d).",
-					 (1+plev), (5 + (plev/5)));
+				sprintf(Dummy, "You can teleport, range %d.",
+					 (1+plev));
 				info[i++] = Dummy;
 			}
 			break;
 		case RACE_NHADRAGH:
-			info[i++] = "You can detect monsters (cost 1).";
+			info[i++] = "You can detect monsters.";
 			break;
 		case RACE_HALF_TROLL:
 			if (plev > 9)
-				info[i++] = "You can go berserk (cost 12).";
+				info[i++] = "You can go berserk.";
 			break;
 		case RACE_GAMBOLT:
 			if (plev > 19)
-				info[i++] = "You can be charming (cost lvl).";
+				info[i++] = "You can be charming.";
 			break;
 		case RACE_BARBARIAN:
 			if (plev > 7)
-				info[i++] = "You can go berserk (cost 10).";
+				info[i++] = "You can go berserk.";
 			break;
 		case RACE_HALF_GIANT:
 			if (plev > 19)
-				info[i++] = "You can break stone walls (cost 10).";
+				info[i++] = "You can break stone walls.";
 			break;
 		case RACE_SIDHI:
 			if (plev > 24)
-				info[i++] = "You can probe monsters (cost 20).";
+				info[i++] = "You can probe monsters.";
 			break;
 		case RACE_KLACKON:
 			if (plev > 8)
 			{
-				sprintf(Dummy, "You can spit acid, dam. %d (cost 9).", plev * 2);
+				sprintf(Dummy, "You can spit acid, dam. %d.", plev * 2);
 				info[i++] = Dummy;
 			}
 			break;
@@ -388,50 +388,48 @@ void self_knowledge(void)
 			if (plev > 11)
 			{
 				sprintf(Dummy,
-				    "You can throw a dart of poison, dam. %d (cost 8).", plev * 2);
+					 "You can throw a dart of poison, dam. %d.", plev * 2);
 				info[i++] = Dummy;
 			}
 			break;
 		case RACE_DRACONIAN:
-			sprintf(Dummy, "You can breathe, dam. %d (cost %d).", (plev * 3), plev);
+			sprintf(Dummy, "You can breathe, dam. %d.", (plev * 3));
 			info[i++] = Dummy;
 			break;
 		case RACE_MIND_FLAYER:
 			if (plev > 14)
-				sprintf(Dummy, "You can mind blast your enemies, dam %d (cost 12).", plev * 2);
+				sprintf(Dummy, "You can mind blast your enemies, dam %d.", plev * 2);
 			info[i++] = Dummy;
 			break;
 		case RACE_GOLEM:
 			if (plev > 19)
-				info[i++] = "You can turn your skin to stone, dur d20+30 (cost 15).";
+				info[i++] = "You can turn your skin to stone, dur d20+30.";
 			break;
 		case RACE_VAMPIRE:
 			if (plev > 1)
 			{
-				sprintf(Dummy, "You can steal life from a foe, dam. %d-%d (cost %d).",
-				    plev+MAX(1, plev/10), plev+plev*MAX(1, plev/10), 1+(plev/3));
-				info[i++] = Dummy;
+				info[i++] = "You can summon bats.";
 			}
 			break;
-		case RACE_SPECTRE:
-			if (plev > 3)
+		case RACE_HALFLING:
+			if (plev > 1)
 			{
-				info[i++] = "You can wail to terrify your enemies (cost 3).";
+				info[i++] = "You can be somewhere else.";
 			}
 			break;
 		case RACE_YEEK:
-			info[i++] = "You can flee in terror (cost 2).";
+			info[i++] = "You can flee in terror.";
 			break;
 		case RACE_MELNIBONEAN:
 			if (plev > 29)
 			{
-				info[i++] = "You can summon demons (cost 40).";
+				info[i++] = "You can summon demons.";
 			}
 			break;
 		case RACE_VADHAGH:
 			if (plev > 29)
 			{
-				info[i++] = "You can travel the planes of the Earth (cost 25).";
+				info[i++] = "You can travel the planes of the Earth.";
 			}
 			break;
 		default:
@@ -469,17 +467,25 @@ void self_knowledge(void)
 		{
 			info[i++] = "You can emit hard radiation at will (dam lvl*3).";
 		}
-		if (p_ptr->muta1 & MUT1_VAMPIRISM)
+		if (p_ptr->muta1 & MUT1_MUSHROOMS)
 		{
-			info[i++] = "You can drain life from a foe like a vampire.";
+			info[i++] = "You are covered in edible mushrooms.";
 		}
-		if (p_ptr->muta1 & MUT1_BLINK)
+		if (p_ptr->muta1 & MUT1_SUMMON_M)
 		{
-			info[i++] = "You can teleport yourself short distances.";
+			info[i++] = "You can summon monsters to aid you.";
 		}
-		if (p_ptr->muta1 & MUT1_EAT_ROCK)
+		if (p_ptr->muta1 & MUT1_SUMMON_EL)
 		{
-			info[i++] = "You can consume solid rock.";
+			info[i++] = "You can summon elementals to your aid.";
+		}
+		if (p_ptr->muta1 & MUT1_BR_COLD)
+		{
+			info[i++] = "You can breathe cold (dam lvl*3).";
+		}
+		if (p_ptr->muta1 & MUT1_NETHER_BALL)
+		{
+			info[i++] = "You can cast a nether ball (dam lvl*8).";
 		}
 		if (p_ptr->muta1 & MUT1_SHRIEK)
 		{
@@ -497,17 +503,17 @@ void self_knowledge(void)
 		{
 			info[i++] = "You can drive yourself into a berserk frenzy.";
 		}
-		if (p_ptr->muta1 & MUT1_POLYMORPH)
+		if (p_ptr->muta1 & MUT1_ICE_SHOWER)
 		{
-			info[i++] = "You can polymorph yourself at will.";
+			info[i++] = "You can call down ice storms.";
 		}
 		if (p_ptr->muta1 & MUT1_MIDAS_TCH)
 		{
 			info[i++] = "You can turn ordinary items to gold.";
 		}
-		if (p_ptr->muta1 & MUT1_GROW_MOLD)
+		if (p_ptr->muta1 & MUT1_SUMMON_ANT)
 		{
-			info[i++] = "You can cause mold to grow near you.";
+			info[i++] = "You can summon ants.";
 		}
 		if (p_ptr->muta1 & MUT1_RESIST)
 		{
@@ -529,9 +535,9 @@ void self_knowledge(void)
 		{
 			info[i++] = "You can send evil creatures directly to Hell.";
 		}
-		if (p_ptr->muta1 & MUT1_COLD_TOUCH)
+		if (p_ptr->muta1 & MUT1_LIONS_ROAR)
 		{
-			info[i++] = "You can freeze things with a touch (dam lvl*3).";
+			info[i++] = "You can roar like a mighty lion. (fear)";
 		}
 		if (p_ptr->muta1 & MUT1_MISSILE)
 		{
@@ -541,21 +547,21 @@ void self_knowledge(void)
 		{
 			info[i++] = "You can cast shards (dam ((3 + lvl)/5)d5).";
 		}
-		if (p_ptr->muta1 & MUT1_SHARD_BLAST)
+		if (p_ptr->muta1 & MUT1_INERTIA_BALL)
 		{
-			info[i++] = "You can cast volleys of shards (dam ((2 + lvl)/5)d4).";
+			info[i++] = "You can create inertial fields (dam lvl*3).";
 		}
-		if (p_ptr->muta1 & MUT1_DSHARD_BLAST)
+		if (p_ptr->muta1 & MUT1_BR_WATER)
 		{
-			info[i++] = "You can cast large volleys of shards (dam ((2 + lvl)/5)d4).";
+			info[i++] = "You can exhale water (dam lvl*3).";
 		}
 		if (p_ptr->muta1 & MUT1_CHAIN_SHARDS)
 		{
 			info[i++] = "You can cast shards rapidly (dam ((3 + lvl)/5)d5).";
 		}
-		if (p_ptr->muta1 & MUT1_ROCKET)
+		if (p_ptr->muta1 & MUT1_LIGHTNING)
 		{
-			info[i++] = "You can fire rockets (dam lvl*4).";
+			info[i++] = "You can fire lightning bolts (dam lvl*3).";
 		}
 		if (p_ptr->muta1 & MUT1_GRAV_BEAM)
 		{
@@ -609,25 +615,25 @@ void self_knowledge(void)
 		{
 			info[i++] = "Your flesh is very delicate.";
 		}
-		if (p_ptr->muta2 & MUT2_SCOR_TAIL)
+		if (p_ptr->muta2 & MUT2_MUSK)
 		{
-			info[i++] = "You have a scorpion tail (poison, 3d7).";
+			info[i++] = "You give off a strange musk.";
 		}
-		if (p_ptr->muta2 & MUT2_HORNS)
+		if (p_ptr->muta2 & MUT2_ABSENT_MIND)
 		{
-			info[i++] = "You have horns (dam. 2d6).";
+			info[i++] = "You are forgetful.";
 		}
-		if (p_ptr->muta2 & MUT2_BEAK)
+		if (p_ptr->muta2 & MUT2_BORING)
 		{
-			info[i++] = "You have a beak (dam. 2d4).";
+			info[i++] = "You are an enormous bore.";
 		}
-		if (p_ptr->muta2 & MUT2_TUSKS)
+		if (p_ptr->muta2 & MUT2_GREEN_RAD)
 		{
-			info[i++] = "You have tusks (dam. 2d6).";
+			info[i++] = "You sometimes give off a green radiation.";
 		}
-		if (p_ptr->muta2 & MUT2_CLAWS)
+		if (p_ptr->muta2 & MUT2_ATT_UNDEAD)
 		{
-			info[i++] = "You have claws (dam. 2d3).";
+			info[i++] = "You attract the undead.";
 		}
 		if (p_ptr->muta2 & MUT2_DISPEL_ALL)
 		{
@@ -641,9 +647,9 @@ void self_knowledge(void)
 		{
 			info[i++] = "You occasionally are surrounded with raw chaos.";
 		}
-		if (p_ptr->muta2 & MUT2_WRAITH)
+		if (p_ptr->muta2 & MUT2_UNSTABLE)
 		{
-			info[i++] = "You fade in and out of physical reality.";
+			info[i++] = "Your form has become unstable.";
 		}
 		if (p_ptr->muta2 & MUT2_POLY_WOUND)
 		{
@@ -661,17 +667,17 @@ void self_knowledge(void)
 		{
 			info[i++] = "You have a seriously upset stomach.";
 		}
-		if (p_ptr->muta2 & MUT2_CHAOS_GIFT)
+		if (p_ptr->muta2 & MUT2_INSIGHT)
 		{
-			info[i++] = "A Chaos Lord has taken notice of you.";
+			info[i++] = "You have flashes of insight.";
 		}
-		if (p_ptr->muta2 & MUT2_WALK_SHAD)
+		if (p_ptr->muta2 & MUT2_PLANE_SHIFT)
 		{
-			info[i++] = "You occasionally stumble into other shadows.";
+			info[i++] = "You occasionally slip into another plane.";
 		}
 		if (p_ptr->muta2 & MUT2_WARNING)
 		{
-			info[i++] = "You receive warnings about your foes.";
+			info[i++] = "Your sensitive antennae detect monsters.";
 		}
 		if (p_ptr->muta2 & MUT2_INVULN)
 		{
@@ -685,13 +691,13 @@ void self_knowledge(void)
 		{
 			info[i++] = "Your blood sometimes rushes to your head.";
 		}
-		if (p_ptr->muta2 & MUT2_DISARM)
+		if (p_ptr->muta2 & MUT2_SLOW_MON)
 		{
-			info[i++] = "You occasionally stumble and drop things.";
+			info[i++] = "You sometimes slow monsters.";
 		}
-		if (p_ptr->muta2 & MUT2_TENTACLES)
+		if (p_ptr->muta2 & MUT2_POLY_MON)
 		{
-			info[i++] = "You have tentacles (slow, 3d3).";
+			info[i++] = "You sometimes polymorph monsters.";
 		}
 	}
 
@@ -713,25 +719,25 @@ void self_knowledge(void)
 		{
 			info[i++] = "You are moronic (-4 INT/WIS).";
 		}
-		if (p_ptr->muta3 & MUT3_RESILIENT)
+		if (p_ptr->muta3 & MUT3_XTRA_HEART)
 		{
-			info[i++] = "You are very tough (+4 CON).";
+			info[i++] = "You have an extra heart (+4 CON, +2 Speed).";
 		}
 		if (p_ptr->muta3 & MUT3_XTRA_FAT)
 		{
-			info[i++] = "You are extremely fat (+2 CON, -2 speed).";
+			info[i++] = "You are extremely fat (+2 CON, -2 Speed).";
 		}
-		if (p_ptr->muta3 & MUT3_ALBINO)
+		if (p_ptr->muta3 & MUT3_XTRA_THIN)
 		{
-			info[i++] = "You are albino (-4 CON).";
+			info[i++] = "You are extremely thin (-2 CON, +2 Speed).";
 		}
 		if (p_ptr->muta3 & MUT3_FLESH_ROT)
 		{
 			info[i++] = "Your flesh is rotting (-2 CON, -1 CHR).";
 		}
-		if (p_ptr->muta3 & MUT3_SILLY_VOI)
+		if (p_ptr->muta3 & MUT3_METAL_BONES)
 		{
-			info[i++] = "Your voice is a silly squeak (-4 CHR).";
+			info[i++] = "You have metal bones (+10% hit points).";
 		}
 		if (p_ptr->muta3 & MUT3_BLANK_FAC)
 		{
@@ -743,11 +749,11 @@ void self_knowledge(void)
 		}
 		if (p_ptr->muta3 & MUT3_XTRA_EYES)
 		{
-			info[i++] = "You have an extra pair of eyes (+15 search).";
+			info[i++] = "You have extra eyes (x2 Perc +20 Search -2 Chr).";
 		}
-		if (p_ptr->muta3 & MUT3_MAGIC_RES)
+		if (p_ptr->muta3 & MUT3_CAMO)
 		{
-			info[i++] = "You are resistant to magic.";
+			info[i++] = "You blend into the background (+3 Stealth).";
 		}
 		if (p_ptr->muta3 & MUT3_XTRA_NOIS)
 		{
@@ -757,13 +763,13 @@ void self_knowledge(void)
 		{
 			info[i++] = "You have remarkable infravision (+3).";
 		}
-		if (p_ptr->muta3 & MUT3_XTRA_LEGS)
+		if (p_ptr->muta3 & MUT3_EYES_GLOW)
 		{
-			info[i++] = "You have an extra pair of legs (+3 speed).";
+			info[i++] = "You have glowing eyes (see invisible).";
 		}
-		if (p_ptr->muta3 & MUT3_SHORT_LEG)
+		if (p_ptr->muta3 & MUT3_MANA_RUNES)
 		{
-			info[i++] = "Your legs are short stubs (-3 speed).";
+			info[i++] = "Your body is covered in runes (+20% mana).";
 		}
 		if (p_ptr->muta3 & MUT3_ELEC_TOUC)
 		{
@@ -777,25 +783,25 @@ void self_knowledge(void)
 		{
 			info[i++] = "Your body is covered with sharp spines.";
 		}
-		if (p_ptr->muta3 & MUT3_WART_SKIN)
+		if (p_ptr->muta3 & MUT3_LEATHER_SKIN)
 		{
-			info[i++] = "Your skin is covered with warts (-2 CHR, +5 AC).";
+			info[i++] = "Your skin is leathery (-1 DEX, +8 AC).";
 		}
 		if (p_ptr->muta3 & MUT3_SCALES)
 		{
-			info[i++] = "Your skin has turned into scales (-1 CHR, +10 AC).";
+			info[i++] = "Your skin is covered in scales (+12 AC).";
 		}
-		if (p_ptr->muta3 & MUT3_IRON_SKIN)
+		if (p_ptr->muta3 & MUT3_PLATES)
 		{
-			info[i++] = "Your skin is made of iron (-1 DEX, +25 AC).";
+			info[i++] = "You have a covering of armor plates (-2 DEX, +30 AC).";
 		}
-		if (p_ptr->muta3 & MUT3_WINGS)
+		if (p_ptr->muta3 & MUT3_FURRY)
 		{
-			info[i++] = "You have wings.";
+			info[i++] = "You are covered in fur (resist cold).";
 		}
-		if (p_ptr->muta3 & MUT3_FEARLESS)
+		if (p_ptr->muta3 & MUT3_EYE_STALK)
 		{
-			/* Unnecessary */
+			info[i++] = "Your eyes are on stalks (+10 +lvl/5 to hit).";
 		}
 		if (p_ptr->muta3 & MUT3_REGEN)
 		{
@@ -805,9 +811,9 @@ void self_knowledge(void)
 		{
 			/* Unnecessary */
 		}
-		if (p_ptr->muta3 & MUT3_TWISTED)
+		if (p_ptr->muta3 & MUT3_XTRA_EYELID)
 		{
-			info[i++] = "Your frame is unnaturally twisted.";
+			info[i++] = "You have an extra eyelid (resist blind).";
 		}
 		if (p_ptr->muta3 & MUT3_LIMBER)
 		{
@@ -817,15 +823,148 @@ void self_knowledge(void)
 		{
 			info[i++] = "Your joints ache constantly (-3 DEX).";
 		}
-		if (p_ptr->muta3 & MUT3_VULN_ELEM)
+		if (p_ptr->muta3 & MUT3_SLUGGISH)
 		{
-			info[i++] = "You are susceptible to damage from the elements.";
+			info[i++] = "You react slowly (-3 speed, -10 AC).";
 		}
 		if (p_ptr->muta3 & MUT3_GLOW)
 		{
 			info[i++] = "Your body is glowing brightly.";
 		}
 	}
+
+	if (p_ptr->muta4)
+	{
+		if (p_ptr->muta4 & MUT4_SCOR_TAIL)
+		{
+			info[i++] = "You have a scorpion tail.";
+		}
+		if (p_ptr->muta4 & MUT4_HORNS)
+		{
+			info[i++] = "You have horns.";
+		}
+		if (p_ptr->muta4 & MUT4_BEAK)
+		{
+			info[i++] = "You have a beak.";
+		}
+		if (p_ptr->muta4 & MUT4_TUSKS)
+		{
+			info[i++] = "You have sharp tusks.";
+		}
+		if (p_ptr->muta4 & MUT4_CLAWS)
+		{
+			info[i++] = "You have wicked claws.";
+		}
+		if (p_ptr->muta4 & MUT4_TENTACLES)
+		{
+			info[i++] = "You have groping tentacles.";
+		}
+		if (p_ptr->muta4 & MUT4_HUGE_ARMS)
+		{
+			info[i++] = "You have huge arms (increase throwing damage).";
+		}
+		if (p_ptr->muta4 & MUT4_SPURS)
+		{
+			info[i++] = "You have deadly spurs.";
+		}
+		if (p_ptr->muta4 & MUT4_ANTLERS)
+		{
+			info[i++] = "You have antlers.";
+		}
+		if (p_ptr->muta4 & MUT4_HOOVES)
+		{
+			info[i++] = "You have hooves.";
+		}
+		if (p_ptr->muta4 & MUT4_IRON_HOOVES)
+		{
+			info[i++] = "You have hooves of iron.";
+		}
+		if (p_ptr->muta4 & MUT4_V_FANGS)
+		{
+			info[i++] = "You have vampiric fangs.";
+		}
+		if (p_ptr->muta4 & MUT4_POIS_TONGUE)
+		{
+			info[i++] = "You have a long, venomous tongue.";
+		}
+		if (p_ptr->muta4 & MUT4_STICKY)
+		{
+			info[i++] = "You exude a sticky mucous.";
+		}
+		if (p_ptr->muta4 & MUT4_HAND_MOUTH)
+		{
+			info[i++] = "You have round mouths in the palms of your hands.";
+		}
+		if (p_ptr->muta4 & MUT4_WINGS)
+		{
+			info[i++] = "You have a pair of wings.";
+		}
+		if (p_ptr->muta4 & MUT4_TRUNK)
+		{
+			info[i++] = "You have an elephant-like trunk.";
+		}
+		if (p_ptr->muta4 & MUT4_ICE_TALONS)
+		{
+			info[i++] = "Your hands sport large talons of ice.";
+		}
+		if (p_ptr->muta4 & MUT4_ACID_BLOOD)
+		{
+			info[i++] = "Your blood is highly acidic.";
+		}
+		if (p_ptr->muta4 & MUT4_THIN_BLOOD)
+		{
+			info[i++] = "Your thin blood clots slowly.";
+		}
+		if (p_ptr->muta4 & MUT4_DISTORT_SPACE)
+		{
+			info[i++] = "You distort space.";
+		}
+		if (p_ptr->muta4 & MUT4_EAT_ROCK)
+		{
+			info[i++] = "You can eat rock.";
+		}
+		if (p_ptr->muta4 & MUT4_BONY_HEAD)
+		{
+			info[i++] = "Your skull is unusually thick and hard.";
+		}
+		if (p_ptr->muta4 & MUT4_FEEL_NUMB)
+		{
+			info[i++] = "You feel a strange numbness (no pseudo-ID).";
+		}
+		if (p_ptr->muta4 & MUT4_WEEP_BLOOD)
+		{
+			info[i++] = "You constantly weep blood. (scary, -15 Search)";
+		}
+		if (p_ptr->muta4 & MUT4_ALBINO)
+		{
+			info[i++] = "You are an albino. (-5 Con, +15% spell-casting)";
+		}
+		if (p_ptr->muta4 & MUT4_RAZORS)
+		{
+			info[i++] = "Deadly razors stick out of your body.";
+		}
+		if (p_ptr->muta4 & MUT4_TWISTED)
+		{
+			info[i++] = "Your body is twisted into an unnatural shape.";
+		}
+		if (p_ptr->muta4 & MUT4_GILLS)
+		{
+			info[i++] = "You have gills. (resist water, -1 Chr)";
+		}
+		if (p_ptr->muta4 & MUT4_WARTS)
+		{
+			info[i++] = "You have many ugly warts (-3 Chr).";
+		}
+		if (p_ptr->muta4 & MUT4_VULN_ELEM)
+		{
+			info[i++] = "You are vulnerable to elemental damage.";
+		}
+		if (p_ptr->muta4 & MUT4_HUGE_EYEBROW)
+		{
+			info[i++] = "You have huge eyebrows.";
+		}
+	}
+
 
 	if (p_ptr->astral)
 	{
@@ -1116,7 +1255,7 @@ void self_knowledge(void)
 	}
 
 	if ((f1 & (TR1_STR)) && (f1 & (TR1_INT)) && (f1 & (TR1_WIS)) &&
-	    (f1 & (TR1_DEX)) && (f1 & (TR1_CON)) && (f1 & (TR1_STR)))
+		 (f1 & (TR1_DEX)) && (f1 & (TR1_CON)) && (f1 & (TR1_STR)))
 	{
 		info[i++] = "All of your stats are affected by equipment.";
 	}
@@ -1492,7 +1631,7 @@ bool detect_random(void)
 			if (((c_ptr->feat == FEAT_MAGMA_K) ||
 			    (c_ptr->feat == FEAT_QUARTZ_K) ||
 			    ((c_ptr->feat >= FEAT_DOOR_HEAD) &&
-			     (c_ptr->feat <= FEAT_DOOR_TAIL)) ||
+				  (c_ptr->feat <= FEAT_DOOR_TAIL)) ||
 			    (c_ptr->feat == FEAT_OPEN) ||
 			    (c_ptr->feat == FEAT_BROKEN) ||
 			    (c_ptr->feat == FEAT_LESS) ||
@@ -1904,7 +2043,7 @@ bool detect_objects_magic(void)
 		    (tv == TV_STAFF) || (tv == TV_WAND) || (tv == TV_ROD) ||
 		    (tv == TV_SCROLL) || (tv == TV_POTION) ||
 		    (tv == TV_LIFE_BOOK) || (tv == TV_SORCERY_BOOK) ||
-		    (tv == TV_NATURE_BOOK) || (tv == TV_CHAOS_BOOK) ||
+			 (tv == TV_NATURE_BOOK) || (tv == TV_CHAOS_BOOK) ||
 		    (tv == TV_DEATH_BOOK) ||
 		    (tv == TV_TRUMP_BOOK) || (tv == TV_ARCANE_BOOK) ||
 		    ((o_ptr->to_a > 0) || (o_ptr->to_h + o_ptr->to_d > 0)))
@@ -2021,7 +2160,7 @@ bool detect_monsters_mental(void)
 		if (!m_ptr->r_idx)			continue;
 		if (r_ptr->flags2 & (RF2_EMPTY_MIND))	continue;
 		if ((r_ptr->flags2 & (RF2_STUPID)) &&
-		    (randint(100) > (p_ptr->lev * 2)))	continue;
+			 (randint(100) > (p_ptr->lev * 2)))	continue;
 		if ((r_ptr->flags2 & (RF2_WEIRD_MIND)) &&
 		    (randint(100) > (p_ptr->lev * 2)))	continue;
 
@@ -2155,7 +2294,7 @@ bool detect_monsters_evil(void)
 		if ((r_ptr->d_char == '<') || (r_ptr->d_char == '>') ||
 		    (r_ptr->d_char == '$') || (r_ptr->d_char == '*') ||
 		    (r_ptr->d_char == ',') ||
-		    (r_ptr->d_char == '!') || (r_ptr->d_char == '=') ||
+			 (r_ptr->d_char == '!') || (r_ptr->d_char == '=') ||
 		    (r_ptr->d_char == '?') || (r_ptr->d_char == '|')) continue;
 
 		/* Location */
@@ -2323,10 +2462,10 @@ bool detect_monsters_xxx(u32b match_flag)
 
 		/* Skip object mimics */
 		if ((r_ptr->d_char == '<') || (r_ptr->d_char == '>') ||
-		    (r_ptr->d_char == '$') || (r_ptr->d_char == '*') ||
-		    (r_ptr->d_char == ',') ||
-		    (r_ptr->d_char == '!') || (r_ptr->d_char == '=') ||
-		    (r_ptr->d_char == '?') || (r_ptr->d_char == '|')) continue;
+			 (r_ptr->d_char == '$') || (r_ptr->d_char == '*') ||
+			 (r_ptr->d_char == ',') ||
+			 (r_ptr->d_char == '!') || (r_ptr->d_char == '=') ||
+			 (r_ptr->d_char == '?') || (r_ptr->d_char == '|')) continue;
 
 		/* Location */
 		y = m_ptr->fy;
@@ -2334,7 +2473,7 @@ bool detect_monsters_xxx(u32b match_flag)
 
 		/* Only detect nearby monsters */
 		if (!panel_contains(y, x)) continue;
-		
+
 		/* Detect evil monsters */
 		if (r_ptr->flags3 & (match_flag))
 		{
@@ -2356,7 +2495,7 @@ bool detect_monsters_xxx(u32b match_flag)
 
 			/* Hack -- See monster */
 			m_ptr->ml = TRUE;
-			
+
 			/* Redraw */
 			lite_spot(y, x);
 
@@ -2524,6 +2663,12 @@ bool sleep_monsters(void)
 	return (project_hack(GF_OLD_SLEEP, p_ptr->lev));
 }
 
+/* Scare monsters */
+bool scare_monsters(void)
+{
+	return (project_hack(GF_TURN_ALL, p_ptr->lev));
+}
+
 /* Teleport away all evil monsters */
 bool banish_evil(int dist)
 {
@@ -2551,7 +2696,7 @@ bool dispel_evil(int dam)
 /* Dispel good monsters */
 bool dispel_good(int dam)
 {
-    return (project_hack(GF_DISP_GOOD, dam));
+	 return (project_hack(GF_DISP_GOOD, dam));
 }
 
 /* Dispel all monsters */
@@ -3007,7 +3152,7 @@ void earthquake(int cy, int cx, int r)
 
 				/* Most monsters cannot co-exist with rock */
 				if (!(r_ptr->flags2 & (RF2_KILL_WALL)) &&
-				    !(r_ptr->flags2 & (RF2_PASS_WALL)))
+					 !(r_ptr->flags2 & (RF2_PASS_WALL)))
 				{
 					char m_name[80];
 
@@ -4216,7 +4361,7 @@ Ego weapons and normal weapons can be blessed automatically. */
 	if (f3 & TR3_BLESSED)
 	{
 		msg_format("%s %s %s blessed already.",
-		    ((item >= 0) ? "Your" : "The"), o_name,
+			 ((item >= 0) ? "Your" : "The"), o_name,
 		    ((o_ptr->number > 1) ? "were" : "was"));
 		return (TRUE);
 	}
@@ -4268,7 +4413,7 @@ Ego weapons and normal weapons can be blessed automatically. */
 			msg_print("There is a static feeling in the air...");
 			msg_format("%s %s %s disenchanted!",
 			    ((item >= 0) ? "Your" : "The"), o_name,
-			    ((o_ptr->number > 1) ? "were" : "was"));
+				 ((o_ptr->number > 1) ? "were" : "was"));
 		}
 	}
 

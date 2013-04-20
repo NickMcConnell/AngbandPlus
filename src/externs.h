@@ -742,6 +742,7 @@ extern bool wall_stone(void);
 extern bool speed_monsters(void);
 extern bool slow_monsters(void);
 extern bool sleep_monsters(void);
+extern bool scare_monsters(void);
 extern void aggravate_monsters(int who, bool the_entire_level);
 extern bool banish_evil(int dist);
 extern bool dispel_evil(int dam);
@@ -984,6 +985,7 @@ extern void mindcraft_info(char *p, int power);
 extern void do_cmd_mindcraft(void);
 
 /* mutation.c */
+extern void player_psyche(bool birth);
 extern bool gain_random_mutation(int choose_mut);
 extern bool lose_mutation(int choose_mut);
 extern void dump_mutations(FILE *OutFile);

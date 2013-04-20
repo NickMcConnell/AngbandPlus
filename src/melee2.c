@@ -1181,8 +1181,16 @@ static bool monst_spell_monst(int m_idx)
 		{
 			if (!direct) break;
 			if (disturb_minor) disturb(1,0);
-			if (!see_m) msg_print("You hear a shriek.");
+			if (!see_m)
+			{
+				if (strstr((r_name + r_ptr->name),"Cockatrice")) msg_print("You hear crowing.");
+				else msg_print("You hear a shriek.");
+			}
+			else
+			{
+			if (strstr((r_name + r_ptr->name),"Cockatrice")) msg_format("%^s crows at %s.", m_name, t_name);
 			else msg_format("%^s shrieks at %s.", m_name, t_name);
+			}
 			aggravate_monsters(m_idx, FALSE);
 			wake_up = TRUE;
 			break;
@@ -3077,7 +3085,8 @@ bool make_attack_spell(int m_idx)
 		{
 			if (!direct) break;
 			disturb(1, 0);
-			msg_format("%^s makes a high pitched shriek.", m_name);
+			if (strstr((r_name + r_ptr->name),"Cockatrice")) msg_format("%^s crows an alarm!", m_name);
+			else msg_format("%^s makes a high pitched shriek.", m_name);
 			aggravate_monsters(m_idx, FALSE);
 			break;
 		}
@@ -5441,6 +5450,7 @@ static bool monst_attack_monst(int m_idx,int t_idx)
 			case RBE_VAMP:		power = 18; break;
 			case RBE_HALLU:		power = 10; break;
 			case RBE_VORPAL:	power = 30; break;
+			case RBE_STUN:          power = 30; break;
 		}
 
 
@@ -5647,26 +5657,26 @@ static bool monst_attack_monst(int m_idx,int t_idx)
                case RBM_SHOW:
                {
                    act = "sings to %s.";
-                   touched = FALSE;
-                   t_ptr->csleep = 0;
-                   break;
-               }
-           }
+						 touched = FALSE;
+						 t_ptr->csleep = 0;
+						 break;
+					}
+			  }
 
-           /* Message */
-           if (act)
-    {
-      strfmt(temp,act,t_name);
-      if (m_ptr->ml || t_ptr->ml)
-          msg_format("%^s %s", m_name, temp);
+			  /* Message */
+			  if (act)
+	 {
+		strfmt(temp,act,t_name);
+		if (m_ptr->ml || t_ptr->ml)
+			 msg_format("%^s %s", m_name, temp);
 
-     }
+	  }
 
-            /* Hack -- assume all attacks are obvious */
-            obvious = TRUE;
+				/* Hack -- assume all attacks are obvious */
+				obvious = TRUE;
 
-            /* Roll out the damage */
-           damage = damroll(d_dice, d_side);
+				/* Roll out the damage */
+			  damage = damroll(d_dice, d_side);
 
 		/* Damage is balanced for against players and not nearly
 		 * enough for monster vs. monster battles. Even this is
@@ -5676,149 +5686,149 @@ static bool monst_attack_monst(int m_idx,int t_idx)
 
 		pt = GF_MISSILE;
 
-           /* Apply appropriate damage */
-           switch (effect)
-           {
-               case 0:
-               {
-                   damage = 0;
-          pt  = 0;
-                   break;
-               }
+			  /* Apply appropriate damage */
+			  switch (effect)
+			  {
+					case 0:
+					{
+						 damage = 0;
+			 pt  = 0;
+						 break;
+					}
 
-               case RBE_HURT:
-               {
-                   damage -= (damage * ((ac < 150) ? ac : 150) / 250);
-                   break;
-               }
+					case RBE_HURT: case RBE_STUN:
+					{
+						 damage -= (damage * ((ac < 150) ? ac : 150) / 250);
+						 break;
+					}
 
-              case RBE_POISON:
-               {
-          pt = GF_POIS;
-                   break;
-               }
+				  case RBE_POISON:
+					{
+			 pt = GF_POIS;
+						 break;
+					}
 
-               case RBE_UN_BONUS:
-               case RBE_UN_POWER:
-               {
-          pt = GF_DISENCHANT;
-                   break;
-               }
+					case RBE_UN_BONUS:
+					case RBE_UN_POWER:
+					{
+			 pt = GF_DISENCHANT;
+						 break;
+					}
 
-               case RBE_EAT_FOOD:
-               case RBE_EAT_LITE:
+					case RBE_EAT_FOOD:
+					case RBE_EAT_LITE:
 
-               {
-          pt = damage = 0;
-                   break;
-               }
-               case RBE_EAT_ITEM:
-               case RBE_EAT_GOLD:
-               {
-          pt = damage = 0;
-          if (randint(2)==1) blinked = TRUE;
-                   break;
-               }
+					{
+			 pt = damage = 0;
+						 break;
+					}
+					case RBE_EAT_ITEM:
+					case RBE_EAT_GOLD:
+					{
+			 pt = damage = 0;
+			 if (randint(2)==1) blinked = TRUE;
+						 break;
+					}
 
-               case RBE_ACID:
-               {
-          pt = GF_ACID;
-                   break;
-               }
+					case RBE_ACID:
+					{
+			 pt = GF_ACID;
+						 break;
+					}
 
-               case RBE_ELEC:
-               {
-          pt = GF_ELEC;
-                   break;
-               }
+					case RBE_ELEC:
+					{
+			 pt = GF_ELEC;
+						 break;
+					}
 
-               case RBE_FIRE:
-               {
-          pt = GF_FIRE;
-          break;
-       }
+					case RBE_FIRE:
+					{
+			 pt = GF_FIRE;
+			 break;
+		 }
 
-               case RBE_COLD:
-               {
-          pt = GF_COLD;
-                   break;
-               }
+					case RBE_COLD:
+					{
+			 pt = GF_COLD;
+						 break;
+					}
 
-               case RBE_BLIND:
-               {
-                   break;
-               }
+					case RBE_BLIND:
+					{
+						 break;
+					}
 
-               case RBE_CONFUSE: case RBE_HALLU:
-               {
+					case RBE_CONFUSE: case RBE_HALLU:
+					{
 			pt = GF_CONFUSION;
 			break;
-               }
+					}
 
-               case RBE_TERRIFY:
-               {
+					case RBE_TERRIFY:
+					{
 			pt = GF_TURN_ALL;
 			break;
-               }
+					}
 
-               case RBE_PARALYZE:
-               {
+					case RBE_PARALYZE:
+					{
 			pt = GF_OLD_SLEEP; /* sort of close... */
 			break;
-               }
+					}
 
-               case RBE_LOSE_STR:
-               case RBE_LOSE_INT:
-               case RBE_LOSE_WIS:
-               case RBE_LOSE_DEX:
-               case RBE_LOSE_CON:
-               case RBE_LOSE_CHR:
-               case RBE_LOSE_ALL:
-               {
-                   break;
-               }
+					case RBE_LOSE_STR:
+					case RBE_LOSE_INT:
+					case RBE_LOSE_WIS:
+					case RBE_LOSE_DEX:
+					case RBE_LOSE_CON:
+					case RBE_LOSE_CHR:
+					case RBE_LOSE_ALL:
+					{
+						 break;
+					}
 
-               case RBE_SHATTER:
-               {
-                   if (damage > 23) earthquake(m_ptr->fy, m_ptr->fx, 8);
-                   break;
-               }
+					case RBE_SHATTER:
+					{
+						 if (damage > 23) earthquake(m_ptr->fy, m_ptr->fx, 8);
+						 break;
+					}
 
-               case RBE_EXP_10:
-               case RBE_EXP_20:
-               case RBE_EXP_40:
-               case RBE_EXP_80:
-	       case RBE_VAMP:
-	       {
-	          pt = GF_NETHER;
-                  break;
-               }
+					case RBE_EXP_10:
+					case RBE_EXP_20:
+					case RBE_EXP_40:
+					case RBE_EXP_80:
+			 case RBE_VAMP:
+			 {
+				 pt = GF_NETHER;
+						break;
+					}
 
-       default:
-        pt = 0; break;
-           }
-           if (pt)
-           {
+		 default:
+		  pt = 0; break;
+			  }
+			  if (pt)
+			  {
 
-             project(m_idx, pet_attack, 0, t_ptr->fy, t_ptr->fx,
-                (pt==GF_OLD_SLEEP?r_ptr->level:damage), pt, PROJECT_KILL | PROJECT_STOP, FALSE);
+				 project(m_idx, pet_attack, 0, t_ptr->fy, t_ptr->fx,
+					 (pt==GF_OLD_SLEEP?r_ptr->level:damage), pt, PROJECT_KILL | PROJECT_STOP, FALSE);
 
-             if (touched)
-             {
-              if ((tr_ptr->flags2 & (RF2_AURA_FIRE)) && !(r_ptr->flags3 & (RF3_IM_FIRE)))
-              {
-                 if (m_ptr->ml || t_ptr->ml)
-                     {
-                        blinked = FALSE;
-                        msg_format("%^s is suddenly very hot!", m_name);
-                         if(t_ptr->ml)
-                             tr_ptr->r_flags2 |= RF2_AURA_FIRE;
-                     }
-	              project(t_idx, FALSE, 0, m_ptr->fy, m_ptr->fx,
-                      damroll (1 + ((tr_ptr->level) / 26),
-                      1 + ((tr_ptr->level) / 17)),
-                      GF_FIRE, PROJECT_KILL | PROJECT_STOP, FALSE);
-              }
+				 if (touched)
+				 {
+				  if ((tr_ptr->flags2 & (RF2_AURA_FIRE)) && !(r_ptr->flags3 & (RF3_IM_FIRE)))
+				  {
+					  if (m_ptr->ml || t_ptr->ml)
+							{
+								blinked = FALSE;
+								msg_format("%^s is suddenly very hot!", m_name);
+								 if(t_ptr->ml)
+									  tr_ptr->r_flags2 |= RF2_AURA_FIRE;
+							}
+					  project(t_idx, FALSE, 0, m_ptr->fy, m_ptr->fx,
+							 damroll (1 + ((tr_ptr->level) / 26),
+							 1 + ((tr_ptr->level) / 17)),
+							 GF_FIRE, PROJECT_KILL | PROJECT_STOP, FALSE);
+				  }
 
 				  if ((tr_ptr->flags2 & (RF2_AURA_COLD)) && !(r_ptr->flags3 & (RF3_IM_COLD)))
 				  {
@@ -5828,6 +5838,21 @@ static bool monst_attack_monst(int m_idx,int t_idx)
 								msg_format("%^s is suddenly very cold!", m_name);
 								 if(t_ptr->ml)
 									  tr_ptr->r_flags2 |= RF2_AURA_COLD;
+							}
+					  project(t_idx, FALSE, 0, m_ptr->fy, m_ptr->fx,
+							 damroll (1 + ((tr_ptr->level) / 26),
+							 1 + ((tr_ptr->level) / 17)),
+							 GF_COLD, PROJECT_KILL | PROJECT_STOP, FALSE);
+				  }
+
+				  if ((tr_ptr->flags2 & (RF2_AURA_POIS)) && !(r_ptr->flags3 & (RF3_IM_POIS)))
+				  {
+					  if (m_ptr->ml || t_ptr->ml)
+							{
+								blinked = FALSE;
+								msg_format("%^s is suddenly very sick!", m_name);
+								 if(t_ptr->ml)
+									  tr_ptr->r_flags2 |= RF2_AURA_POIS;
 							}
 					  project(t_idx, FALSE, 0, m_ptr->fy, m_ptr->fx,
 							 damroll (1 + ((tr_ptr->level) / 26),
@@ -5854,43 +5879,43 @@ static bool monst_attack_monst(int m_idx,int t_idx)
 		 * Covered in spines: those that reflect aren't affected.
 		 *						-- Gumby
 		 */
-              if ((tr_ptr->flags2 & (RF2_SPINES)) &&
+				  if ((tr_ptr->flags2 & (RF2_SPINES)) &&
 		  !(r_ptr->flags2 & (RF2_REFLECTING)))
-              {
-                 if (m_ptr->ml || t_ptr->ml)
-                     {
-                        blinked = FALSE;
-                        msg_format("%^s gets pierced!", m_name);
-                         if(t_ptr->ml)
-                             tr_ptr->r_flags2 |= RF2_SPINES;
-                     }
-	              project(t_idx, FALSE, 0, m_ptr->fy, m_ptr->fx,
-                      damroll (1 + ((tr_ptr->level) / 26),
-                      1 + ((tr_ptr->level) / 17)),
-                      GF_ARROW, PROJECT_KILL | PROJECT_STOP, FALSE);
-              }
-             }
-            }
-   }
+				  {
+					  if (m_ptr->ml || t_ptr->ml)
+							{
+								blinked = FALSE;
+								msg_format("%^s gets pierced!", m_name);
+								 if(t_ptr->ml)
+									  tr_ptr->r_flags2 |= RF2_SPINES;
+							}
+					  project(t_idx, FALSE, 0, m_ptr->fy, m_ptr->fx,
+							 damroll (1 + ((tr_ptr->level) / 26),
+							 1 + ((tr_ptr->level) / 17)),
+							 GF_ARROW, PROJECT_KILL | PROJECT_STOP, FALSE);
+				  }
+				 }
+				}
+	}
 
-       /* Monster missed player */
-       else
-       {
-           /* Analyze failed attacks */
-           switch (method)
-           {
-               case RBM_HIT:
-               case RBM_TOUCH:
-               case RBM_PUNCH:
-               case RBM_KICK:
-               case RBM_CLAW:
-               case RBM_BITE:
-               case RBM_STING:
-               case RBM_TONGUE: /* was XXX1 */
-               case RBM_BUTT:
+		 /* Monster missed player */
+		 else
+		 {
+			  /* Analyze failed attacks */
+			  switch (method)
+			  {
+					case RBM_HIT:
+					case RBM_TOUCH:
+					case RBM_PUNCH:
+					case RBM_KICK:
+					case RBM_CLAW:
+					case RBM_BITE:
+					case RBM_STING:
+					case RBM_TONGUE: /* was XXX1 */
+					case RBM_BUTT:
 					case RBM_CRUSH:
-               case RBM_ENGULF:
-               case RBM_CHARGE:
+					case RBM_ENGULF:
+					case RBM_CHARGE:
 	       case RBM_TENTACLE: /* was XXX4 */
 
                /* Visible monsters */
@@ -5928,7 +5953,7 @@ static bool monst_attack_monst(int m_idx,int t_idx)
    if (blinked)
    {
 		 if (m_ptr->ml)
-           msg_print("The thief flees laughing!");
+			  msg_print("The thief flees laughing!");
         else
             msg_print("You hear laughter!");
        teleport_away(m_idx, MAX_SIGHT * 2 + 5);
@@ -6196,7 +6221,8 @@ static void process_monster(int m_idx, bool is_friend)
 
 
 	/* Attempt to "multiply" if able and allowed */
-	if ((r_ptr->flags2 & (RF2_MULTIPLY)) && (num_repro < MAX_REPRO))
+   /* Added check of tim_sterile to allow mutant radiation to stop breeding. -- RDH */
+	if ((r_ptr->flags2 & (RF2_MULTIPLY)) && (num_repro < MAX_REPRO) && !(p_ptr->tim_sterile))
 	{
 		int k, y, x;
 
@@ -6263,7 +6289,6 @@ static void process_monster(int m_idx, bool is_friend)
 				char m_name[80];
 				char bravado[80];
 
-				bool is_groo = !!(strstr(r_name + r_ptr->name, "Groo the"));
 				bool is_smeagol = !!(strstr(r_name + r_ptr->name, "Smeagol"));
 				bool is_wang = !!(strstr(r_name + r_ptr->name, "Lo Wang,"));
 				bool is_duke = !!(strstr(r_name + r_ptr->name, "Duke Nuke"));
@@ -6275,15 +6300,7 @@ static void process_monster(int m_idx, bool is_friend)
 					strcpy(m_name, "It");
 
 				/* Dump a message */
-				if (is_groo)
-				{
-					if (m_ptr->monfear)
-						get_rnd_line("groor.txt", bravado);
-					else
-						get_rnd_line("groo.txt", bravado);
-					msg_format("%^s %s", m_name, bravado);
-				}
-				else if (is_smeagol)
+				if (is_smeagol)
 				{
 					if (m_ptr->monfear)
 						get_rnd_line("smeagolr.txt", bravado);

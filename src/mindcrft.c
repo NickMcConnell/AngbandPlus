@@ -36,7 +36,7 @@ mindcraft_power mindcraft_powers[MAX_MINDCRAFT_POWERS] =
 		  { 13, 12,  50, "Character Armour" },      /* +AC & Resistances */
 		  { 15, 12,  60, "Psychometry" },		  /* Identify -> *ID* */
 		  { 18, 10,  45, "Mind Wave" },             /* Centered Ball -> LOS */
-	{ 20, 12,  40, "Apportation" },		  /* Fetch an item */
+		  { 20, 12,  40, "Apportation" },		  /* Fetch an item */
 		  { 23, 15,  50, "Adrenaline Channeling" }, /* Haste + Heroism */
 		  { 25, 10,  40, "Psychic Drain" },         /* Enemy HP to SP */
 		  { 28, 20,  45, "Telekinetic Wave" },      /* Centered Ball -> LOS */
@@ -111,24 +111,27 @@ static int get_mindcraft_power(int *sn)
 		if (mindcraft_powers[i].min_lev <= plev)
 			num++;
 
-	/* Build a prompt (accept all spells) */
-	strnfmt(out_val, 78, "(%^ss %c-%c, *=List, ESC=exit) Use which %s? ",
-						p, I2A(0), I2A(num - 1), p);
-
 #ifdef ALLOW_REPEAT
 
 	/* Get the power, if available */
-	if (repeat_pull(&choice))
+	if (repeat_pull(sn))
 	{
 		/* Verify the power */
-		if (choice < num)
+		if ((*sn < num) && !(*sn < 0))
+
 		{
 			/* Success */
 			return (TRUE);
 		}
 	}
+	else
 
 #endif /* ALLOW_REPEAT */
+
+
+	/* Build a prompt (accept all spells) */
+	strnfmt(out_val, 78, "(%^ss %c-%c, *=List, ESC=exit) Use which %s? ",
+						p, I2A(0), I2A(num - 1), p);
 
 	/* Get a spell from the user */
 	while (!flag && get_com(out_val, &choice))
@@ -285,11 +288,8 @@ static int get_mindcraft_power(int *sn)
 		flag = TRUE;
 	}
 
-#ifdef ALLOW_REPEAT
-
-	repeat_push(choice);
-
-#endif /* ALLOW_REPEAT */
+	/* Save the choice */
+	(*sn) = choice;
 
 	/* Restore the screen */
 	if (redraw) Term_load();
@@ -310,6 +310,12 @@ static int get_mindcraft_power(int *sn)
 
 	/* Save the choice */
 	(*sn) = i;
+
+#ifdef ALLOW_REPEAT
+
+	repeat_push(*sn);
+
+#endif /* ALLOW_REPEAT */
 
 	/* Success */
 	return (TRUE);

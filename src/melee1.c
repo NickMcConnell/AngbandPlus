@@ -24,8 +24,9 @@ static int monster_critical(int dice, int sides, int dam)
 	int max = 0;
 	int total = dice * sides;
 
-	/* Must do at least 95% of perfect */
-	if (dam < total * 19 / 20) return (0);
+	/* Requirement was at least 95% of maximum damage, but this
+	 * is flawed. Pass a straight 1 in 20 check instead -- RDH */
+	if (rand_int(20) != 1) return (0);
 
 	/* Weak blows rarely work */
 	if ((dam < 20) && (rand_int(100) >= dam)) return (0);
@@ -127,7 +128,7 @@ bool make_attack_normal(int m_idx)
 	char o_name[80];
 	char m_name[80];
 	char ddesc[80];
-	bool blinked;
+	bool blinked = FALSE;
 	bool touched = FALSE, fear = FALSE, alive = TRUE;
 
 	/* Not allowed to attack */
@@ -147,9 +148,6 @@ bool make_attack_normal(int m_idx)
 
 	/* Get the "died from" information (i.e. "a kobold") */
 	monster_desc(ddesc, m_ptr, 0x88);
-
-	/* Assume no blink */
-	blinked = FALSE;
 
 	/* Scan through all four blows */
 	for (ap_cnt = 0; ap_cnt < 4; ap_cnt++)
@@ -213,6 +211,7 @@ bool make_attack_normal(int m_idx)
 			case RBE_VAMP:		power = 18; break;
 			case RBE_HALLU:		power = 10; break;
 			case RBE_VORPAL:	power = 30; break;
+			case RBE_STUN:		power = 30; break;
 		}
 
 		/* Monster hits player */
@@ -223,8 +222,8 @@ bool make_attack_normal(int m_idx)
 
 			/* Hack -- Apply "protection from evil" */
 			if ((p_ptr->protevil > 0) &&
-			    (r_ptr->flags3 & (RF3_EVIL)) && (rlev <= 97) &&
-			    ((rand_int(100) + (p_ptr->lev / 2)) >= 75))
+				 (r_ptr->flags3 & (RF3_EVIL)) && (rlev <= 97) &&
+				 ((rand_int(100) + (p_ptr->lev / 2)) >= 75))
 			{
 				/* Remember the Evil-ness */
 				if (m_ptr->ml)
@@ -711,7 +710,7 @@ bool make_attack_normal(int m_idx)
 						else
 						{
 							if (strstr((r_name + r_ptr->name),"Black Market")
-							    && randint(2)!=1)
+								 && randint(2)!=1)
 							{
 								s16b o_idx;
 
@@ -784,8 +783,8 @@ bool make_attack_normal(int m_idx)
 
 						/* Message */
 						msg_format("%sour %s (%c) was eaten!",
-						           ((o_ptr->number > 1) ? "One of y" : "Y"),
-						           o_name, index_to_label(i));
+									  ((o_ptr->number > 1) ? "One of y" : "Y"),
+									  o_name, index_to_label(i));
 
 						/* Steal the items */
 						inven_item_increase(i, -1);
@@ -1250,7 +1249,7 @@ bool make_attack_normal(int m_idx)
 						msg_print("You keep hold of your life force!");
 
 						/* Heal the monster */
-						if (!(p_ptr->prace >= RACE_GOLEM && p_ptr->prace <= RACE_SPECTRE))
+						if (!(p_ptr->prace >= RACE_GOLEM && p_ptr->prace <= RACE_HALFLING))
 						{
 							if (((m_ptr->maxhp)-(m_ptr->hp)) > damage/20)
 							{
@@ -1276,7 +1275,7 @@ bool make_attack_normal(int m_idx)
 							lose_exp(d/10);
 
 							/* Heal the monster */
-							if (!(p_ptr->prace >= RACE_GOLEM && p_ptr->prace <= RACE_SPECTRE))
+							if (!(p_ptr->prace >= RACE_GOLEM && p_ptr->prace <= RACE_HALFLING))
 							{
 								if (((m_ptr->maxhp)-(m_ptr->hp)) > ((d / 10) + damage) / 20)
 								{
@@ -1298,7 +1297,7 @@ bool make_attack_normal(int m_idx)
 							lose_exp(d);
 
 							/* Heal the monster */
-							if (!(p_ptr->prace >= RACE_GOLEM && p_ptr->prace <= RACE_SPECTRE))
+							if (!(p_ptr->prace >= RACE_GOLEM && p_ptr->prace <= RACE_HALFLING))
 							{
 								if (((m_ptr->maxhp)-(m_ptr->hp)) > ((d + damage) / 20))
 								{
@@ -1364,8 +1363,40 @@ bool make_attack_normal(int m_idx)
 					if (!p_ptr->resist_shard && !p_ptr->reflect)
 					{
 						(void)set_cut(p_ptr->cut += r_ptr->level);
+						/* If player is a bleeder, do it again. -- RDH */
+						if (p_ptr->muta4 & MUT4_THIN_BLOOD) (void)set_cut(p_ptr->cut += r_ptr->level);
 						p_ptr->redraw |= (PR_CUT);
+
+						/* If player is cut and has acidic blood, the attacker gets splashed. */
+						if ((p_ptr->muta4 & MUT4_ACID_BLOOD) && alive)
+						{
+							if (!(r_ptr->flags3 & RF3_IM_ACID))
+							{
+								msg_format("%^s gets splashed with acidic blood!", m_name);
+								if (mon_take_hit(m_idx, damroll(4,(3 + p_ptr->lev/10)), &fear,
+									 " is dissolved in acidic blood."))
+								{
+									blinked = FALSE;
+									alive = FALSE;
+								}
+							}
+							else
+							{
+								if (m_ptr->ml)
+									r_ptr->r_flags3 |= RF3_IM_ACID;
+							}
+						}
 					}
+					break;
+				}
+				case RBE_STUN:
+				{
+					take_hit(damage, ddesc);
+					do_cut = do_stun = 0;
+
+					if (!(p_ptr->muta4 & MUT4_BONY_HEAD)) (void)set_stun(p_ptr->stun += r_ptr->level);
+					p_ptr->redraw |= (PR_STUN);
+
 					break;
 				}
 			}
@@ -1407,8 +1438,31 @@ bool make_attack_normal(int m_idx)
 					default: k = 500; break;
 				}
 
+				/* Bleeders get double cuts. -- RDH */
+				if (p_ptr->muta4 & MUT4_THIN_BLOOD) k *=2;
+
 				/* Apply the cut */
 				if (k) (void)set_cut(p_ptr->cut + k);
+
+				/* If player is cut and has acidic blood, the attacker gets splashed. */
+				if ((p_ptr->muta4 & MUT4_ACID_BLOOD) && alive)
+					{
+						if (!(r_ptr->flags3 & RF3_IM_ACID))
+						{
+							msg_format("%^s gets splashed with acidic blood!", m_name);
+							if (mon_take_hit(m_idx, damroll(4,(3 + p_ptr->lev/10)), &fear,
+								 " is dissolved in acidic blood."))
+							{
+								blinked = FALSE;
+								alive = FALSE;
+							}
+						}
+						else
+						{
+							if (m_ptr->ml)
+								r_ptr->r_flags3 |= RF3_IM_ACID;
+						}
+					}
 			}
 
 			/* Handle stun */
@@ -1431,7 +1485,8 @@ bool make_attack_normal(int m_idx)
 					case 6: k = 100; break;
 					default: k = 200; break;
 				}
-
+				/* Mutant skull protects you. -- RDH */
+				if (p_ptr->muta4 & MUT4_BONY_HEAD) k = 0;
 				/* Apply the stun */
 				if (k) (void)set_stun(p_ptr->stun + k);
 			}
@@ -1446,7 +1501,7 @@ bool make_attack_normal(int m_idx)
 						{
 							msg_format("%^s is suddenly extremely hot!", m_name);
 							if (mon_take_hit(m_idx, damroll(6,5), &fear,
-							    " turns into a tiny pile of ash."))
+								 " turns into a tiny pile of ash."))
 							{
 								blinked = FALSE;
 								alive = FALSE;
@@ -1458,7 +1513,7 @@ bool make_attack_normal(int m_idx)
 						{
 							msg_format("%^s is suddenly very hot!", m_name);
 							if (mon_take_hit(m_idx, damroll(4,5), &fear,
-							    " turns into a pile of ash."))
+								 " turns into a pile of ash."))
 							{
 								blinked = FALSE;
 								alive = FALSE;
@@ -1478,7 +1533,7 @@ bool make_attack_normal(int m_idx)
 					{
 						msg_format("%^s gets zapped!", m_name);
 						if (mon_take_hit(m_idx, damroll(4,5), &fear,
-						    " turns into a pile of cinder."))
+							 " turns into a pile of cinder."))
 						{
 							blinked = FALSE;
 							alive = FALSE;

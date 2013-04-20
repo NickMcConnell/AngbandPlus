@@ -58,7 +58,7 @@ of Ra
 'Chaser'
 'Predator'
 'Rampage'
-'Photon Storm'
+'Longclaw'
 of Damocles
 'Vendetta'
 'Deathtrack'
@@ -80,7 +80,7 @@ of Midnight
 'Damage, Inc.'
 'Bloodrain'
 'Satan's Fist'
-'Weapon-X'
+'The New Argument'
 'Weapon Alpha'
 of the Borg
 of Hatred

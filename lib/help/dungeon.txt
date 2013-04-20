@@ -105,7 +105,7 @@ something you are more comfortable with.
 The town level is where you will begin your adventure.  The town consists of
 eight buildings (each with an entrance), some townspeople, and a wall which
 surrounds the town.  The first time you are in town it will be daytime, but
-note that the sun rises and falls (rather instantly) as time passes.
+note that the sun goes out and reignites (rather instantly) as time passes.
 
 
 === Townspeople ===
@@ -220,7 +220,9 @@ The Bookstore ("9")
 
 The Antiques Store ("A")
     The Antiques Store will only stock items of great historical
-    significance, those objects known commonly as 'artifacts'.
+    significance, those objects known commonly as 'artifacts'. They are
+    somewhat mysterious, so you won't know their powers until after you
+    buy them.
 
 
 === Within The Dungeon ===

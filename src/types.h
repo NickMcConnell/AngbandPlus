@@ -816,7 +816,7 @@ struct player_race
 
 	byte infra;			/* Infra-vision	range */
 
-    u16b choice;        /* Legal class choices */
+	 u16b choice;        /* Legal class choices */
 /*    byte choice_xtra;   */
 };
 
@@ -911,6 +911,9 @@ struct player_type
 	s16b csp;		/* Cur mana pts */
 	u16b csp_frac;		/* Cur mana frac (times 2^16) */
 
+	s16b mpsyche;	/* Max psyche */
+	s16b cpsyche;  /* Current psyche */
+
 	s16b max_plv;		/* Max Player Level */
 	s16b max_dlv;		/* Max level explored */
 
@@ -932,8 +935,8 @@ struct player_type
 
 	s16b protevil;		/* Timed -- Protection */
 	s16b invuln;		/* Timed -- Invulnerable */
-	s16b hero;		/* Timed -- Heroism */
-	s16b shero;		/* Timed -- Super Heroism */
+	s16b hero;		   /* Timed -- Heroism */
+	s16b shero;		   /* Timed -- Super Heroism */
 	s16b shield;		/* Timed -- Shield Spell */
 	s16b blessed;		/* Timed -- Blessed */
 	s16b tim_invis;		/* Timed -- See Invisible */
@@ -948,7 +951,7 @@ struct player_type
 	s16b tim_esp;		/* Timed ESP */
 	s16b wraith_form;	/* Timed wraithform */
 	s16b resist_magic;	/* Timed Resist Magic (later) */
-	s16b tim_xtra1;		/* Later */
+	s16b tim_sterile;		/* Monster breeding is blocked -- RDH */
 	s16b tim_xtra2;		/* Later */
 	s16b tim_xtra3;		/* Later */
 	s16b tim_xtra4;		/* Later */
@@ -961,6 +964,7 @@ struct player_type
 	u32b muta1;
 	u32b muta2;
 	u32b muta3;
+  	u32b muta4;
 
 	s16b word_recall;	/* Word of recall counter */
 	s16b energy;		/* Current energy */

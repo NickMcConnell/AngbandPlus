@@ -1218,31 +1218,31 @@ static cptr likert(int x, int y)
 		case 6:
 		{
 			likert_color = TERM_L_GREEN;
-			sprintf(dummy, "Great    %d", x);
+			sprintf(dummy, "Better   %d", x);
 			return dummy;
 		}
 		case 7: case 8:
 		{
 			likert_color = TERM_GREEN;
-			sprintf(dummy, "Superb   %d", x);
+			sprintf(dummy, "Great    %d", x);
 			return dummy;
 		}
 		case 9: case 10: case 11: case 12: case 13:
 		{
 			likert_color = TERM_L_BLUE;
-			sprintf(dummy, "Awesome  %d", x);
+			sprintf(dummy, "Heroic   %d", x);
 			return dummy;
 		}
 		case 14: case 15: case 16: case 17:
 		{
 			likert_color = TERM_BLUE;
-			sprintf(dummy, "Heroic   %d", x);
+			sprintf(dummy, "Champion %d", x);
 			return dummy;
 		}
 		default:
 		{
 			likert_color = TERM_VIOLET;
-			sprintf(dummy, "Godly    %d", x);
+			sprintf(dummy, "Divine   %d", x);
 			return dummy;
 		}
 	}
@@ -1261,17 +1261,30 @@ static void display_player_various(void)
 	int		xdis, xdev, xsav, xstl;
 	int		xdig;
 	cptr		desc;
-        int		muta_att = 0;
+	int		muta_att = 0;
 	object_type	*o_ptr;
 	int		i;
 	martial_arts	*ma_ptr = &ma_blows[0];
 
-	if (p_ptr->muta2 & (MUT2_SCOR_TAIL)) muta_att++;
-	if (p_ptr->muta2 & (MUT2_HORNS)) muta_att++;
-	if (p_ptr->muta2 & (MUT2_BEAK)) muta_att++;
-	if (p_ptr->muta2 & (MUT2_TUSKS)) muta_att++;
-	if (p_ptr->muta2 & (MUT2_CLAWS)) muta_att++;
-	if (p_ptr->muta2 & (MUT2_TENTACLES)) muta_att++;
+	if (p_ptr->muta4 & (MUT4_SCOR_TAIL)) muta_att++;
+	if (p_ptr->muta4 & (MUT4_HORNS)) muta_att++;
+	if (p_ptr->muta4 & (MUT4_BEAK)) muta_att++;
+	if (p_ptr->muta4 & (MUT4_TUSKS)) muta_att++;
+	if (p_ptr->muta4 & (MUT4_CLAWS)) muta_att++;
+	if (p_ptr->muta4 & (MUT4_TENTACLES)) muta_att++;
+	if (p_ptr->muta4 & (MUT4_SPURS)) muta_att++;
+	if (p_ptr->muta4 & (MUT4_ANTLERS)) muta_att++;
+	if (p_ptr->muta4 & (MUT4_HOOVES)) muta_att++;
+	if (p_ptr->muta4 & (MUT4_IRON_HOOVES)) muta_att++;
+	if (p_ptr->muta4 & (MUT4_V_FANGS) || (p_ptr->prace == RACE_VAMPIRE))  muta_att++;
+	if (p_ptr->muta4 & (MUT4_POIS_TONGUE)) muta_att++;
+	if (p_ptr->muta4 & (MUT4_STICKY)) muta_att++;
+	if (p_ptr->muta4 & (MUT4_HAND_MOUTH)) muta_att++;
+	if (p_ptr->muta4 & (MUT4_WINGS)) muta_att++;
+	if (p_ptr->muta4 & (MUT4_TRUNK)) muta_att++;
+	if (p_ptr->muta4 & (MUT4_ICE_TALONS)) muta_att++;
+	if (p_ptr->muta4 & (MUT4_WEEP_BLOOD)) muta_att++;
+	if (p_ptr->muta4 & (MUT4_RAZORS)) muta_att++;
 
 	/* Fighting Skill (with current weapon) */
 	o_ptr = &inventory[INVEN_WIELD];
@@ -1283,7 +1296,7 @@ static void display_player_various(void)
 
 	/* Fix the display for Weaponmasters & Priests -- Gumby */
 	if ((p_ptr->pclass == CLASS_WEAPONMASTER) &&
-	    (inventory[INVEN_WIELD].tval == p_ptr->wm_choice))
+		 (inventory[INVEN_WIELD].tval == p_ptr->wm_choice))
 		tmp = (p_ptr->to_h - p_ptr->lev) + o_ptr->to_h;
 	else if (p_ptr->pclass == CLASS_ARCHER)
 		tmp = p_ptr->to_h + o_ptr->to_h + p_ptr->lev;
@@ -1385,6 +1398,7 @@ static void display_player_various(void)
 	}
 	else if ((damdice == 0) || (damsides == 0))
 	{
+		if (!(inventory[INVEN_WIELD].k_idx)) dambonus++; /* Account for one point from bare hands. -- RDH */
 		if (dambonus <= 0)
 			desc = "nil!";
 		else
@@ -1455,10 +1469,11 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3)
 	 */
 	switch (p_ptr->prace)
 	{
-		case RACE_ELF:
-			(*f2) |= (TR2_RES_LITE); break;
-		case RACE_HOBBIT:
-			(*f2) |= (TR2_SUST_DEX); break;
+		case RACE_ELDREN:
+			(*f2) |= (TR2_SUST_CHR); break;
+		case RACE_OAGER_UV:
+			(*f2) |= (TR2_SUST_CON);
+			(*f3) |= (TR3_REGEN); break;
 		case RACE_GNOME:
 			(*f2) |= (TR2_FREE_ACT); break;
 		case RACE_DWARF:
@@ -1527,14 +1542,10 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3)
 			(*f2) |= (TR2_RES_COLD);
 			if (p_ptr->lev > 9) (*f3) |= (TR3_FEATHER);
 			break;
-		case RACE_SPECTRE:
-			(*f2) |= (TR2_RES_COLD);
+		case RACE_HALFLING:
 			(*f3) |= (TR3_SEE_INVIS);
-			(*f2) |= (TR2_HOLD_LIFE);
-			(*f2) |= (TR2_RES_NETHER);
-			(*f2) |= (TR2_RES_POIS);
-			(*f3) |= (TR3_SLOW_DIGEST);
-			(*f3) |= (TR3_FEATHER);
+			(*f2) |= (TR2_RES_NEXUS);
+         (*f3) |= (TR3_WRAITH);
 			break;
 		case RACE_BEASTMAN:
 			(*f2) |= (TR2_RES_SOUND);
@@ -1547,18 +1558,39 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3)
 			break;
 	}
 
+	if (p_ptr->muta2)
+	{
+		if (p_ptr->muta2 & MUT2_FLATULENT)
+		{
+			(*f1) |= (TR1_STEALTH);
+		}
+	}
+
+
 	if (p_ptr->muta3)
 	{
+		if ((p_ptr->muta3 & MUT3_CAMO) ||
+			 (p_ptr->muta3 & MUT3_XTRA_NOIS))
+		{
+			(*f1) |= (TR1_STEALTH);
+		}
+
 		if (p_ptr->muta3 & MUT3_FLESH_ROT)
 		{
 			(*f3) &= ~(TR3_REGEN);
 		}
 
 		if ((p_ptr->muta3 & MUT3_XTRA_FAT) ||
-		    (p_ptr->muta3 & MUT3_XTRA_LEGS) ||
-		    (p_ptr->muta3 & MUT3_SHORT_LEG))
+			 (p_ptr->muta3 & MUT3_XTRA_HEART) ||
+			 (p_ptr->muta3 & MUT3_XTRA_THIN) ||
+			 (p_ptr->muta3 & MUT3_SLUGGISH))
 		{
 			(*f1) |= (TR1_SPEED);
+		}
+
+		if (p_ptr->muta3 & MUT3_EYES_GLOW)
+		{
+			(*f3) |= (TR3_SEE_INVIS);
 		}
 
 		if (p_ptr->muta3  & MUT3_ELEC_TOUC)
@@ -1574,19 +1606,14 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3)
 			(*f3) |= (TR3_LITE);
 		}
 
+		if (p_ptr->muta3 & MUT3_FURRY)
+		{
+			(*f2) |= (TR2_RES_COLD);
+		}
+
 		if (p_ptr->muta3 & MUT3_SPINES)
 		{
 			(*f3) |= (TR3_SPINES);
-		}
-
-		if (p_ptr->muta3 & MUT3_WINGS)
-		{
-			(*f3) |= (TR3_FEATHER);
-		}
-
-		if (p_ptr->muta3 & MUT3_FEARLESS)
-		{
-			(*f2) |= (TR2_RES_FEAR);
 		}
 
 		if (p_ptr->muta3 & MUT3_REGEN)
@@ -1599,11 +1626,29 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3)
 			(*f3) |= (TR3_TELEPATHY);
 		}
 
+		if (p_ptr->muta3 & MUT3_XTRA_EYELID)
+		{
+			(*f2) |= (TR2_RES_BLIND);
+		}
+
 		if (p_ptr->muta3 & MUT3_GLOW)
 		{
 			(*f2) |= (TR2_RES_DARK);
 			(*f2) |= (TR2_RES_LITE);
 			(*f3) |= (TR3_LITE);
+		}
+	}
+
+	if (p_ptr->muta4)
+	{
+		if (p_ptr->muta4 & MUT4_WINGS)
+		{
+			(*f3) |= (TR3_FEATHER);
+		}
+
+		if (p_ptr->muta4 & MUT4_EAT_ROCK)
+		{
+			(*f1) |= (TR1_TUNNEL);
 		}
 	}
 
@@ -1980,7 +2025,7 @@ static void display_player_stat_info(void)
 
 		/* Advance */
 		col++;
-    }
+	 }
 
 	/* Player flags */
 	player_flags(&f1, &f2, &f3);
@@ -2001,40 +2046,68 @@ static void display_player_stat_info(void)
 			c = 's';
 		}
 
-		if (p_ptr->muta3)
+		if ((p_ptr->muta2) || (p_ptr->muta3) || (p_ptr->muta4))
 		{
 			int dummy = 0;
 
-			if (stat == A_STR)
+			if (p_ptr->muta2)
 			{
-				if (p_ptr->muta3 & MUT3_HYPER_STR) dummy += 4;
-				if (p_ptr->muta3 & MUT3_PUNY)   dummy -= 4;
+				if (stat == A_CHR)
+				{
+					if (p_ptr->muta2 & MUT2_FLATULENT) dummy -=3;
+					if (p_ptr->muta2 & MUT2_BORING) dummy -=4;
+				}
 			}
-			else if (stat == A_WIS || stat == A_INT)
+
+			if (p_ptr->muta3)
 			{
-				if (p_ptr->muta3 & MUT3_HYPER_INT) dummy += 4;
-				if (p_ptr->muta3 & MUT3_MORONIC) dummy -= 4;
+				if (stat == A_STR)
+				{
+					if (p_ptr->muta3 & MUT3_HYPER_STR) dummy += 4;
+					if (p_ptr->muta3 & MUT3_PUNY)      dummy -= 4;
+				}
+				else if (stat == A_WIS || stat == A_INT)
+				{
+					if (p_ptr->muta3 & MUT3_HYPER_INT) dummy += 4;
+					if (p_ptr->muta3 & MUT3_MORONIC)   dummy -= 4;
+				}
+				else if (stat == A_DEX)
+				{
+					if (p_ptr->muta3 & MUT3_LEATHER_SKIN) dummy -= 1;
+					if (p_ptr->muta3 & MUT3_PLATES)       dummy -= 2;
+					if (p_ptr->muta3 & MUT3_LIMBER)       dummy += 3;
+					if (p_ptr->muta3 & MUT3_ARTHRITIS)    dummy -= 3;
+				}
+				else if (stat == A_CON)
+				{
+					if (p_ptr->muta3 & MUT3_XTRA_HEART) dummy += 4;
+					if (p_ptr->muta3 & MUT3_XTRA_FAT)   dummy += 2;
+					if (p_ptr->muta3 & MUT3_XTRA_THIN)  dummy -= 2;
+					if (p_ptr->muta3 & MUT3_FLESH_ROT)  dummy -= 2;
+				}
+				else if (stat == A_CHR)
+				{
+					if (p_ptr->muta3 & MUT3_BLANK_FAC) dummy -= 1;
+					if (p_ptr->muta3 & MUT3_FLESH_ROT) dummy -= 1;
+					if (p_ptr->muta3 & MUT3_XTRA_EYES) dummy -= 2;
+				}
 			}
-			else if (stat == A_DEX)
+
+			if (p_ptr->muta4)
 			{
-				if (p_ptr->muta3 & MUT3_IRON_SKIN) dummy -= 1;
-				if (p_ptr->muta3 & MUT3_LIMBER) dummy += 3;
-				if (p_ptr->muta3 & MUT3_ARTHRITIS) dummy -= 3;
-			}
-			else if (stat == A_CON)
-			{
-				if (p_ptr->muta3 & MUT3_RESILIENT) dummy += 4;
-				if (p_ptr->muta3 & MUT3_XTRA_FAT) dummy += 2;
-				if (p_ptr->muta3 & MUT3_ALBINO) dummy -= 4;
-				if (p_ptr->muta3 & MUT3_FLESH_ROT) dummy -= 2;
-			}
-			else if (stat == A_CHR)
-			{
-				if (p_ptr->muta3 & MUT3_SILLY_VOI) dummy -= 4;
-				if (p_ptr->muta3 & MUT3_BLANK_FAC) dummy -= 1;
-				if (p_ptr->muta3 & MUT3_FLESH_ROT) dummy -= 1;
-				if (p_ptr->muta3 & MUT3_SCALES) dummy -= 1;
-				if (p_ptr->muta3 & MUT3_WART_SKIN) dummy -= 2;
+				if (stat == A_DEX)
+				{
+					if (p_ptr->muta4 & MUT4_HAND_MOUTH) dummy += 3;
+				}
+				else if (stat == A_CON)
+				{
+					if (p_ptr->muta4 & MUT4_ALBINO) dummy -=5;
+				}
+				else if (stat == A_CHR)
+				{
+					if (p_ptr->muta4 & MUT4_GILLS) dummy -= 1;
+					if (p_ptr->muta4 & MUT4_WARTS) dummy -= 3;
+				}
 			}
 
 			/* Boost */
@@ -2055,7 +2128,7 @@ static void display_player_stat_info(void)
 				}
 
 				/* Bad */
-        	        	if (dummy < 0)
+						if (dummy < 0)
 				{
 					/* Bad */
 					if (f2 & 1<<stat) a = TERM_L_BLUE;
@@ -2065,7 +2138,7 @@ static void display_player_stat_info(void)
 					if (dummy < 10) c = '0' - dummy;
 				}
 			}
-        	}
+		}
 
 		/* No color */
 		if (!use_color) a = TERM_WHITE;
@@ -2380,10 +2453,10 @@ void display_player(int mode)
 
 
 	/* XXX XXX XXX */
-    if ((p_ptr->muta1 || p_ptr->muta2 || p_ptr->muta3) && !(skip_mutations))
-        mode = (mode % 7);
-    else
-        mode = (mode % 6);
+	 if ((p_ptr->muta1 || p_ptr->muta2 || p_ptr->muta3 || p_ptr->muta4) && !(skip_mutations))
+		  mode = (mode % 7);
+	 else
+		  mode = (mode % 6);
 
 	/* Erase screen */
 	clear_from(0);
@@ -2400,8 +2473,7 @@ void display_player(int mode)
 			put_str("Specialty   :", 6, 1);
 		else if (p_ptr->realm1 || p_ptr->realm2)
 			put_str("Magic       :", 6, 1);
-		if ((p_ptr->pclass == CLASS_CHAOS_WARRIOR) ||
-		    ((p_ptr->muta2 & (MUT2_CHAOS_GIFT)) && (!p_ptr->realm2)))
+		if (p_ptr->pclass == CLASS_CHAOS_WARRIOR)
 			put_str("Patron      :", 7, 1);
 
 		c_put_str(TERM_L_BLUE, player_name, 2, 15);
@@ -2425,8 +2497,7 @@ void display_player(int mode)
 			c_put_str(TERM_L_BLUE, realm_names[p_ptr->realm1],6,15);
 		}
 
-		if ((p_ptr->pclass == CLASS_CHAOS_WARRIOR) ||
-		    ((p_ptr->muta2 & (MUT2_CHAOS_GIFT)) && (!p_ptr->realm2)))
+		if (p_ptr->pclass == CLASS_CHAOS_WARRIOR)
 			c_put_str(TERM_L_BLUE, chaos_patrons[p_ptr->chaos_patron], 7, 15);
 		else if (p_ptr->realm2)
 			c_put_str(TERM_L_BLUE, realm_names[p_ptr->realm2],7,15);
@@ -2524,9 +2595,9 @@ void display_player(int mode)
 
     else if (mode == 6)
     {
-        do_cmd_knowledge_mutations();
-    }
-	
+		  do_cmd_knowledge_mutations();
+	 }
+
 	/* Special */
 	else
 	{
@@ -2748,11 +2819,11 @@ errr file_character(cptr name)
 	/* Skip a line */
 	fprintf(fff, "\n");
 
-    if (p_ptr->muta1 || p_ptr->muta2 || p_ptr->muta3)
-    {
-        fprintf(fff, "\n\n[Mutations]\n\n");
-        dump_mutations(fff);
-    }
+	 if (p_ptr->muta1 || p_ptr->muta2 || p_ptr->muta3 || p_ptr->muta4)
+	 {
+		  fprintf(fff, "\n\n[Mutations]\n\n");
+		  dump_mutations(fff);
+	 }
 
 	/* Skip some lines */
 	fprintf(fff, "\n");

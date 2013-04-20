@@ -349,6 +349,20 @@ void do_cmd_takeoff(void)
 		return;
 	}
 
+	/* Character is sticky */
+	if (p_ptr->muta4 & MUT4_STICKY)
+	{
+		/* Player's strength must overcome stickiness or fail to remove item. */
+		msg_print("It is coated with your sticky mucous...");
+		if (rand_int(50) > p_ptr->stat_cur[A_STR])
+		{
+			/* Take a partial turn */
+			energy_use = 50;
+			return;
+		}
+		else msg_print("...but your strength prevails.");
+	}
+
 
 	/* Take a partial turn */
 	energy_use = 50;
@@ -356,7 +370,7 @@ void do_cmd_takeoff(void)
 	/* Take off the item */
 	(void)inven_takeoff(item, 255);
 
-    p_ptr->redraw |= (PR_EQUIPPY);
+	 p_ptr->redraw |= (PR_EQUIPPY);
 }
 
 

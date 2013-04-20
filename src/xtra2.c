@@ -805,7 +805,7 @@ bool set_invuln(int v)
 			notice = TRUE;
 
             {
-                /* Redraw map */
+					 /* Redraw map */
                 p_ptr->redraw |= (PR_MAP);
 
                 /* Update monsters */
@@ -829,7 +829,7 @@ bool set_invuln(int v)
                 p_ptr->redraw |= (PR_MAP);
 
                 /* Update monsters */
-                p_ptr->update |= (PU_MONSTERS);
+					 p_ptr->update |= (PU_MONSTERS);
 
                 /* Window stuff */
                 p_ptr->window |= (PW_OVERHEAD);
@@ -1351,7 +1351,7 @@ bool set_stun(int v)
         if (randint(1000)<v || randint(16)==1)
         {
 
-            msg_print("A vicious blow hits your head.");
+				msg_print("A vicious blow hits your head.");
             if(randint(3)==1)
             {
                 if (!p_ptr->sustain_int) { (void) do_dec_stat(A_INT); }
@@ -1424,7 +1424,7 @@ bool set_cut(int v)
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
-	if ((p_ptr->prace == RACE_GOLEM) || (p_ptr->prace == RACE_SPECTRE))
+	if ((p_ptr->prace == RACE_GOLEM) || (p_ptr->prace == RACE_HALFLING))
 		v = 0;
 
 	/* Mortal wound */
@@ -1570,7 +1570,7 @@ bool set_cut(int v)
 
     if (randint(1000)<v || randint(16)==1)
         { 
-            if(!p_ptr->sustain_chr)
+				if(!p_ptr->sustain_chr)
             {
             msg_print("You have been horribly scarred.");
 
@@ -1856,7 +1856,7 @@ void check_experience(void)
 
 	/* Lose levels while possible */
 	while ((p_ptr->lev > 1) &&
-	       (p_ptr->exp < (player_exp[p_ptr->lev-2] * p_ptr->expfact / 100L)))
+			 (p_ptr->exp < (player_exp[p_ptr->lev-2] * p_ptr->expfact / 100L)))
 	{
 		/* Lose a level */
 		p_ptr->lev--;
@@ -1877,7 +1877,7 @@ void check_experience(void)
 
 	/* Gain levels while possible */
 	while ((p_ptr->lev < PY_MAX_LEVEL) &&
-	       (p_ptr->exp >= (player_exp[p_ptr->lev-1] * p_ptr->expfact / 100L)))
+			 (p_ptr->exp >= (player_exp[p_ptr->lev-1] * p_ptr->expfact / 100L)))
 	{
 		/* Gain a level */
 		p_ptr->lev++;
@@ -1888,7 +1888,7 @@ void check_experience(void)
 		{
 			p_ptr->max_plv = p_ptr->lev;
 
-			if ((p_ptr->pclass == CLASS_CHAOS_WARRIOR) || (p_ptr->muta2 & MUT2_CHAOS_GIFT))
+			if (p_ptr->pclass == CLASS_CHAOS_WARRIOR)
 			{
 				level_reward = TRUE;
 			}
@@ -1931,8 +1931,8 @@ void check_experience(void)
 			 * Lose a mutation - but only if you have one or
 			 * more to begin with. -- Gumby
 			 */
-			if ((p_ptr->muta1 || p_ptr->muta2 || p_ptr->muta3) &&
-			    (randint(4)==1))
+			if ((p_ptr->muta1 || p_ptr->muta2 || p_ptr->muta3 || p_ptr->muta4) &&
+				 (randint(4)==1))
 			{
 				lose_mutation(0);
 			}
@@ -2003,14 +2003,14 @@ static int get_coin_type(monster_race *r_ptr)
 		if (strstr(name, " silver ")) return (5);
 		if (strstr(name, " gold ")) return (10);
 		if (strstr(name, " mithril ")) return (16);
-		if (strstr(name, " adamantite ")) return (17);
+		if (strstr(name, " ruby ")) return (17);
 
 		/* Look for textual clues */
 		if (strstr(name, "Copper ")) return (2);
 		if (strstr(name, "Silver ")) return (5);
 		if (strstr(name, "Gold ")) return (10);
 		if (strstr(name, "Mithril ")) return (16);
-		if (strstr(name, "Adamantite ")) return (17);
+		if (strstr(name, "Ruby ")) return (17);
 	}
 
 	/* Assume nothing */
@@ -2195,6 +2195,13 @@ void monster_death(int m_idx)
 			radius = 3;
 		}
 
+		else if (strstr((r_name + r_ptr->name),"Ornithopter"))
+		{
+			boom = GF_FIRE;
+			damboom = 24;
+			radius = 2;
+		}
+
 		/* Just so you don't miss it... */
 		disturb(0,0);
 		msg_print("BOOM!");
@@ -2288,11 +2295,11 @@ void monster_death(int m_idx)
 			apply_magic(q_ptr, -1, TRUE, TRUE, TRUE);
 			drop_near(q_ptr, -1, y, x);
 		}
-		else if (strstr((r_name + r_ptr->name),"Corum Jhaelen"))
+		else if (strstr((r_name + r_ptr->name),"The Karach"))
 		{
 			q_ptr = &forge;
-			object_prep(q_ptr, lookup_kind(TV_GLOVES, SV_JEWELED_HAND));
-			q_ptr->name1 = ART_KWLL;
+			object_prep(q_ptr, lookup_kind(TV_CLOAK, SV_NAME_ROBE));
+			q_ptr->name1 = ART_CORUM;
 			apply_magic(q_ptr, -1, TRUE, TRUE, TRUE);
 			drop_near(q_ptr, -1, y, x);
 		}
@@ -2543,15 +2550,12 @@ void monster_death(int m_idx)
  *
  * Genericized name, sex, and capitilization -BEN-
  *
+ * Added display of damage done to centralize a bit. -- RDH
+ *
  * As always, the "ghost" processing is a total hack.
  *
  * Hack -- we "delay" fear messages by passing around a "fear" flag.
  *
- * XXX XXX XXX Consider decreasing monster experience over time, say,
- * by using "(m_exp * m_lev * (m_lev)) / (p_lev * (m_lev + n_killed))"
- * instead of simply "(m_exp * m_lev) / (p_lev)", to make the first
- * monster worth more than subsequent monsters.  This would also need
- * to induce changes in the monster recall code.
  */
 bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 {
@@ -2569,6 +2573,16 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 	/* Hurt it */
 	m_ptr->hp -= dam;
 
+	/* Damage report */
+	if (wizard)
+	{
+		msg_format("You do %d (out of %d) damage.", dam, m_ptr->hp);
+	}
+	else if (show_damage && m_ptr->ml)
+	{
+		msg_format("(%d dam)", dam);
+	}
+
 	/* It is dead now */
 	if (m_ptr->hp < 0)
 	{
@@ -2585,7 +2599,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 			/* Dump a message */
 			if (strstr((r_name + r_ptr->name),"Mabelrode the"))
 			{
-				msg_format("%^s says: 'But I swore I would avenge both Arioch and Xiombarg...'", m_name);
+				msg_format("%^s says: 'Slain by mortal hand! What a terrible loss of face!'", m_name);
 			}
 			else if (strstr((r_name + r_ptr->name),"Queen Xiombarg"))
 			{
@@ -2602,10 +2616,6 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 			else if (strstr((r_name + r_ptr->name),"Duke Nuke"))
 			{
 				msg_format("%^s grunts: 'Lucky son of a bitch...'", m_name);
-			}
-			else if (strstr((r_name + r_ptr->name),"Lo Wang,"))
-			{
-				msg_format("%^s screams: 'Hey!  Come back here and finish fight!'", m_name);
 			}
 			else
 			{
@@ -4172,8 +4182,8 @@ void gain_level_reward(int chosen_reward)
 
     switch (chosen_reward?chosen_reward:effect)
 	 {
-        case REW_POLY_SLF:
-            msg_format("The voice of %s booms out:",
+		  case REW_POLY_SLF:
+				msg_format("The voice of %s booms out:",
                 chaos_patrons[p_ptr->chaos_patron]);
 				msg_print("'A change will do you good!'");
 				do_poly_self();
@@ -4211,8 +4221,8 @@ void gain_level_reward(int chosen_reward)
         case REW_CHAOS_WP:
             msg_format("The voice of %s booms out:",
                 chaos_patrons[p_ptr->chaos_patron]);
-            msg_print("'Thy deed hath earned thee a worthy blade.'");
-                /* Get local object */
+				msg_print("'Thy deed hath earned thee a worthy blade.'");
+					 /* Get local object */
                 q_ptr = &forge;
                         dummy = TV_SWORD;
                         switch(randint(p_ptr->lev))
@@ -4250,8 +4260,8 @@ void gain_level_reward(int chosen_reward)
                         }
 
                 object_prep(q_ptr, lookup_kind(dummy, dummy2));
-                q_ptr->to_h = 3 + (randint(dun_level))%10;
-                q_ptr->to_d = 3 + (randint(dun_level))%10;
+					 q_ptr->to_h = 3 + (randint(dun_level))%10;
+					 q_ptr->to_d = 3 + (randint(dun_level))%10;
                 random_resistance(q_ptr, FALSE, ((randint(34))+4));
                 q_ptr->name2 = EGO_CHAOTIC;
                 /* Drop it in the dungeon */
@@ -4289,8 +4299,8 @@ void gain_level_reward(int chosen_reward)
                 chaos_patrons[p_ptr->chaos_patron]);
             msg_print("'Thou needst worthier opponents!'");
             activate_hi_summon();
-            break;
-        case REW_DO_HAVOC:
+				break;
+		  case REW_DO_HAVOC:
 				msg_format("The voice of %s booms out:",
                 chaos_patrons[p_ptr->chaos_patron]);
             msg_print("'Death and destruction! This pleaseth me!'");
@@ -4328,8 +4338,8 @@ void gain_level_reward(int chosen_reward)
             msg_format("You feel the power of %s touch you.",
                 chaos_patrons[p_ptr->chaos_patron]);
             do_poly_wounds();
-            break;
-        case REW_AUGM_ABL:
+				break;
+		  case REW_AUGM_ABL:
             msg_format("The voice of %s booms out:",
                 chaos_patrons[p_ptr->chaos_patron]);
             msg_print("'Receive this modest gift from me!'");

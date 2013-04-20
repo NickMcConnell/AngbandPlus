@@ -1758,6 +1758,12 @@ static void spoil_mon_info(cptr fname)
 			spoil_out(buf);
 		}
 
+		if (flags2 & (RF2_AURA_POIS))
+		{
+			sprintf(buf, "%s is deadly to the touch.  ", wd_che[msex]);
+			spoil_out(buf);
+		}
+
 		if (flags2 & (RF2_SPINES))
 		{
 			sprintf(buf, "%s is covered in spines.  ", wd_che[msex]);
@@ -1792,7 +1798,11 @@ static void spoil_mon_info(cptr fname)
 
 		/* Collect inate attacks */
 		vn = 0;
-		if (flags4 & (RF4_SHRIEK))	vp[vn++] = "shriek for help";
+		if (flags4 & (RF4_SHRIEK))
+		{
+			if (strstr((r_name + r_ptr->name),"Cockatrice")) vp[vn++] = "crows for help";
+			else vp[vn++] = "shriek for help";
+		}
 		if (flags4 & (RF4_XXX2))	vp[vn++] = "do something";
 		if (flags4 & (RF4_ROCKET))	vp[vn++] = "shoot a rocket";
 		if (flags4 & (RF4_ARROW_1))	vp[vn++] = "shoot an arrow";
@@ -2299,6 +2309,7 @@ static void spoil_mon_info(cptr fname)
 				case RBE_HALLU:		q = "cause hallucinations"; break;
 				case RBE_VORPAL:	q = "cut"; break;
 				case RBE_CHAOTIC:	q = "cause a chaotic effect"; break;
+            case RBE_STUN:          q = "stun"; break;
 			}
 
 

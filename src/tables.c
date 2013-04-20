@@ -1135,19 +1135,19 @@ owner_type owners[MAX_STORES][MAX_OWNERS] =
 		/* General Store */
 		{ "Golnix the Stupid",    200,    170, 108,  5, 15, RACE_YEEK, 0},
 		{ "Pyahr of Narleen",     250,    175, 108,  4, 12, RACE_HUMAN, 0},
-		{ "Bilbo the Friendly",   300,    170, 107,  5, 15, RACE_HOBBIT, 0},
+		{ "Karl Glogauer",        300,    170, 107,  5, 15, RACE_HUMAN, 0},
 		{ "Shmata",               350,    165, 107,  6, 18, RACE_GOLEM, 0},
 	},
 	{
 		/* Armoury */
-		{ "Ladhil Swordmaker",     5000,   210, 115,  5,  7, RACE_NHADRAGH, 0},
+		{ "Ladhil Swordmaker",     5000,  210, 115,  5,  7, RACE_NHADRAGH, 0},
 		{ "Goffanon the Smith",   10000,  190, 111,  4,  9, RACE_SIDHI, 0},
-		{ "Celebran the Skilled", 25000,  200, 112,  4, 10, RACE_ELF, 0},
+		{ "Prince Losent Garhan", 25000,  200, 112,  4, 10, RACE_OAGER_UV, 0},
 		{ "Lars Skulldrinker",    30000,  200, 112,  4,  5, RACE_DWARF, 0},
 	},
 	{
 		/* Weapon Smith */
-		{ "Ithly-mak the Beastly", 5000,   210, 115,  6,  6, RACE_HALF_TROLL, 0},
+		{ "Ithly-mak the Beastly", 5000,  210, 115,  6,  6, RACE_HALF_TROLL, 0},
 		{ "Milgish Dogbreath",    10000,  185, 110,  5,  9, RACE_KOBOLD, 0},
 		{ "Dexxinok",             25000,  190, 115,  5,  7, RACE_KLACKON, 0},
 		{ "Hisak Sunthief",       30000,  195, 112,  4,  8, RACE_HUMAN, 0},
@@ -1164,11 +1164,11 @@ owner_type owners[MAX_STORES][MAX_OWNERS] =
 		{ "Garbo the Chemist",    10000,  190, 111,  5,  8, RACE_GAMBOLT, 0},
 		{ "Ximzinix the Mixer",   10000,  190, 110,  6,  8, RACE_MIND_FLAYER, 0},
 		{ "Midas the Greedy",     15000,  200, 116,  6,  9, RACE_GNOME, 0},
-		{ "Ja-Far the Alchemist", 15000,  220, 111,  4,  9, RACE_ELF, 0},
+		{ "Helmswoman Danifel",   15000,  220, 111,  4,  9, RACE_ELDREN, 0},
 	},
 	{
 		/* Magic Shop */
-		{ "Celebran of Eregion",  20000,  205, 112,  7,  8, RACE_ELF, 0},
+		{ "Lassifel Charmseller", 20000,  205, 112,  7,  8, RACE_ELDREN, 0},
 		{ "Xomfanox the Great",   20000,  215, 114,  6, 10, RACE_MIND_FLAYER, 0},
 		{ "Mygan of Llandar",	  30000,  210, 115,  7, 10, RACE_HUMAN, 0},
 		{ "Nolwe the Shining",    30000,  200, 113,  5, 11, RACE_HIGH_ELF, 0},
@@ -1192,11 +1192,11 @@ owner_type owners[MAX_STORES][MAX_OWNERS] =
 		{ "Dolaf the Greedy",     15000, 200, 114, 4, 12, RACE_HUMAN, 0},
 		{ "Aziraphale",           20000, 180, 111, 6, 16, RACE_HIGH_ELF, 0},
 		{ "Dragon King of Arms",  25000, 195, 115, 7, 19, RACE_VAMPIRE, 0},
-		{ "Ro-sha the Patient",   30000, 185, 112, 6, 12, RACE_ELF, 0},
+		{ "Prince Roffholm",      30000, 185, 112, 6, 12, RACE_OAGER_UV, 0},
 	},
 	{
 		/* Antiques Store */
-		{ "Dilon Brandybuck",       30000, 170, 107, 5, 15, RACE_HOBBIT, 0},
+		{ "The Old Bear",           30000, 170, 107, 5, 15, RACE_OAGER_UV, 0},
 		{ "Mr. Jeffries",           30000, 210, 115, 7, 10, RACE_HUMAN, 0},
 		{ "Alwe the Historian",     30000, 200, 113, 5, 11, RACE_HIGH_ELF, 0},
 		{ "Glod Glodsunclesnephew", 30000, 200, 112, 4,  5, RACE_DWARF, 0}
@@ -1361,27 +1361,27 @@ player_race race_info[MAX_RACES] =
 					 0x1FFF + CLASS_MASK(CLASS_BEASTMASTER),
 	},
 	{
-		"Elf",
-		{ -1, 2, 1, 3, -2, 2 },
-		5, 10, 10, 4, 10, 15, 0, 20,
-		8,  125,
-		75, 75,
+		"Eldren",
+		{ 0, 1, 2, 1, -1, 0 },
+		5, 5, 0, 1, 0, 5, 0, 0,
+		8,   110,
+		100, 100,
 		60,  4, 100,  6,
 		54,  4, 80,  6,
-		4,
-					 0x1E5B + CLASS_MASK(CLASS_BEASTMASTER),
+		0,
+					 0x1FFF + CLASS_MASK(CLASS_BEASTMASTER),
 
 	},
 	{
-		"Hobbit",
-		{ -2,  1,  1,  2,  2,  2 },
-		15, 18, 18, 4, 12,  15, -10, 20,
-		7,  110,
+		"Oager Uv",
+		{ 3,  0,  0,  -2,  4,  1 },
+		10, 0, 0, -1, 20,  25, -10, -10,
+		12, 125,
 		21, 12,
-		36,  3, 60,  3,
-		33,  3, 50,  3,
-		3,
-					 0x1C0B + CLASS_MASK(CLASS_BEASTMASTER),
+		77,  7, 250,  50,
+		75,  5, 240,  45,
+		4,
+					 0x1FFF + CLASS_MASK(CLASS_BEASTMASTER),
 	},
 	{
 		"Gnome",
@@ -1392,7 +1392,7 @@ player_race race_info[MAX_RACES] =
 		42,  3, 90,  6,
 		39,  3, 75,  3,
 		4,
-					 0xE0F + CLASS_MASK(CLASS_BEASTMASTER),
+					 0x1FFF + CLASS_MASK(CLASS_BEASTMASTER),
 	},
 	{
 		"Dwarf",
@@ -1403,7 +1403,7 @@ player_race race_info[MAX_RACES] =
 		48,  3, 150, 10,
 		46,  3, 120, 10,
 		5,
-					 0x805 + CLASS_MASK(CLASS_BEASTMASTER),
+					 0x1FFF + CLASS_MASK(CLASS_BEASTMASTER),
 	},
 	{
 		"Nhadragh",
@@ -1414,7 +1414,7 @@ player_race race_info[MAX_RACES] =
 		66,  1, 180,  10,
 		62,  1, 150,  10,
 		0,
-					 0x1E53 + CLASS_MASK(CLASS_BEASTMASTER),
+					 0x1FFF + CLASS_MASK(CLASS_BEASTMASTER),
 	},
 	{
 		"Half-Troll",
@@ -1425,7 +1425,7 @@ player_race race_info[MAX_RACES] =
 		96, 10, 250, 50,
 		84,  8, 225, 40,
 		3,
-					 0x885 + CLASS_MASK(CLASS_BEASTMASTER),
+					 0x1FFF + CLASS_MASK(CLASS_BEASTMASTER),
 	},
 	{
 		"Gambolt",
@@ -1436,7 +1436,7 @@ player_race race_info[MAX_RACES] =
 		90, 10, 170, 15,
 		82, 10, 160, 10,
 		6,
-					 0x1E5B + CLASS_MASK(CLASS_BEASTMASTER),
+					 0x1FFF + CLASS_MASK(CLASS_BEASTMASTER),
 	},
 	{
 		"High-Elf",
@@ -1447,7 +1447,7 @@ player_race race_info[MAX_RACES] =
 		90, 10, 190, 20,
 		82, 10, 180, 15,
 		4,
-		0x1E5B + CLASS_MASK(CLASS_BEASTMASTER),
+		0x1FFF + CLASS_MASK(CLASS_BEASTMASTER),
 	},
 	{
 		"Barbarian",
@@ -1458,7 +1458,7 @@ player_race race_info[MAX_RACES] =
 		82, 5, 200, 20,
 		78,  6, 190, 15,
 		0,
-		0x189D + CLASS_MASK(CLASS_BEASTMASTER),
+		0x1FFF + CLASS_MASK(CLASS_BEASTMASTER),
 	},
 	{
 		"Half-Giant",
@@ -1469,7 +1469,7 @@ player_race race_info[MAX_RACES] =
 		80, 25, 200, 85,
 		75, 25, 150, 72,
 		3,
-		0x811 + CLASS_MASK(CLASS_BEASTMASTER),
+		0x1FFF + CLASS_MASK(CLASS_BEASTMASTER),
 	},
 	{
 		"Sidhi",
@@ -1480,7 +1480,7 @@ player_race race_info[MAX_RACES] =
 		111, 11, 255, 86,
 		99, 11, 250, 86,
 		0,
-		0x1F27 + CLASS_MASK(CLASS_BEASTMASTER),
+		0x1FFF + CLASS_MASK(CLASS_BEASTMASTER),
 	},
 	{
 		"Klackon",
@@ -1491,7 +1491,7 @@ player_race race_info[MAX_RACES] =
 		60,  3, 80,  4,
 		54,  3, 70,  4,
 		2,
-		0x1811 + CLASS_MASK(CLASS_BEASTMASTER),
+		0x1FFF + CLASS_MASK(CLASS_BEASTMASTER),
 	},
 	{
 		"Kobold",
@@ -1502,7 +1502,7 @@ player_race race_info[MAX_RACES] =
 		55,  1, 110,  5,
 		50,  1,  90,  5,
 		3,
-		0x1809 + CLASS_MASK(CLASS_BEASTMASTER),
+		0x1FFF + CLASS_MASK(CLASS_BEASTMASTER),
 	},
 	{
 		"Draconian",
@@ -1513,7 +1513,7 @@ player_race race_info[MAX_RACES] =
 		76,  1, 160,  5,
 		72,  1, 130,  5,
 		2,
-		0x1F47 + CLASS_MASK(CLASS_BEASTMASTER),
+		0x1FFF + CLASS_MASK(CLASS_BEASTMASTER),
 	},
 	{
 		"Mindflayer",
@@ -1524,18 +1524,18 @@ player_race race_info[MAX_RACES] =
 		68,  6, 142, 15,
 		63,  6, 112, 10,
 		4,
-		0x7C6 + CLASS_MASK(CLASS_BEASTMASTER),
+		0x1FFF + CLASS_MASK(CLASS_BEASTMASTER),
 	},
 	{
 		"Golem",
 		{ 4, -5, -5, 0, 4, -4 },
-                -5, 5, 10, -1, -1, 8, 20, 0,
-                13, 225,
+					 -5, 5, 10, -1, -1, 8, 20, 0,
+					 13, 225,
 		1, 100,
 		68,  1, 255,  6,
 		68,  1, 255,  6,
 		4,
-		0x1801 + CLASS_MASK(CLASS_BEASTMASTER),
+		0x1FFF + CLASS_MASK(CLASS_BEASTMASTER),
 	},
 	{
 		"Vampire",
@@ -1546,18 +1546,18 @@ player_race race_info[MAX_RACES] =
 		72,  6, 180, 25,
 		66,  4, 150, 20,
 		5,
-		0x1EDB + CLASS_MASK(CLASS_BEASTMASTER),
+		0x1FFF + CLASS_MASK(CLASS_BEASTMASTER),
 	},
 	{
-		"Spectre",
-		{ -5, 4, 4, 2, -3, -6 },
-		10, 25, 20, 5, 5, 14, -15, -5,
-		7, 180,
+		"Halfling",
+		{ 0, 2, 2, 2, -2, 0 },
+		10, 15, 20, 6, 5, 14, 0, -10,
+		8, 180,
 		100, 30,
 		72, 6, 100, 25,
 		66, 4, 100, 20,
 		5,
-		0x64A + CLASS_MASK(CLASS_BEASTMASTER),
+		0x1FFF + CLASS_MASK(CLASS_BEASTMASTER),
 	},
 	{
 		"Beastman",
@@ -1568,7 +1568,7 @@ player_race race_info[MAX_RACES] =
 		65,  6, 150, 20,
 		61,  6, 120, 15,
 		0,
-		0x1FDF + CLASS_MASK(CLASS_BEASTMASTER),
+		0x1FFF + CLASS_MASK(CLASS_BEASTMASTER),
 	},
 	{
 		"Yeek",
@@ -1590,7 +1590,7 @@ player_race race_info[MAX_RACES] =
 		72,  6, 180, 25,
 		66,  4, 150, 20,
 		2,
-		0x1CCB + CLASS_MASK(CLASS_BEASTMASTER),
+		0x1FFF + CLASS_MASK(CLASS_BEASTMASTER),
 	},
 	{
 		"Vadhagh",
@@ -1601,7 +1601,7 @@ player_race race_info[MAX_RACES] =
 		90, 10, 190, 20,
 		82, 10, 180, 15,
 		4,
-		0x1E53 + CLASS_MASK(CLASS_BEASTMASTER),
+		0x1FFF + CLASS_MASK(CLASS_BEASTMASTER),
 	},
 };
 
@@ -1692,7 +1692,7 @@ player_class class_info[MAX_CLASS] =
         {
                 "Mindcrafter",
                 {-1, 0, 3, -1, -1, 2},   /* note: spell stat is Wis */
-                30, 30, 30, 3,  22, 16, 50, 40,
+					 30, 30, 30, 3,  22, 16, 50, 40,
                 10, 10, 10, 0,   0,  0, 20, 30,
                 2, 30
         },
@@ -6457,7 +6457,7 @@ option_type option_info[] =
 	{ &alert_failure,               TRUE,  2,       0, 27,
 	"alert_failure",                "Alert user to various failures" },
 
-	{ &easy_open,					     FALSE, 2, 		0, 28,
+	{ &easy_open,					     TRUE, 2, 		0, 28,
 	"easy_open",					     "Open/Disarm/Close without direction" },
 
 
@@ -6572,11 +6572,11 @@ option_type option_info[] =
 	{ &small_levels,                TRUE,  5,       5, 2,
 	"small_levels",                 "Always create small (3x3) dungeon levels" },
 
-	{ &show_damage,			FALSE, 5,       5, 3,
+	{ &show_damage,			TRUE, 5,       5, 3,
 	"show_damage",			"Show damage dealt by player" },
 
 	{ &empty_levels,                FALSE, 5,       5, 4,
-        "empty_levels",                 "Allow empty 'arena' levels" },
+	"empty_levels",                 "Allow empty 'arena' levels" },
 
 	{ &player_symbols,              FALSE, 5,       5, 5,
 	"player_symbols",               "Use special symbols for the player char"},
@@ -6610,7 +6610,7 @@ option_type option_info[] =
 
 	/* Bit 15 unused */
 
-	{ &filter_identify,		FALSE, 5,	5, 16,
+	{ &filter_identify,		TRUE, 5,	5, 16,
 	"filter_identify",		"Show only appropriate items for Identify" },
 
 	{ &heavy_pseudo,		TRUE, 5,	5, 17,

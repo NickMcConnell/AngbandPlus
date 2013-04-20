@@ -1359,6 +1359,9 @@ static void rd_extra(void)
 	rd_s16b(&p_ptr->csp);
 	rd_u16b(&p_ptr->csp_frac);
 
+	rd_s16b(&p_ptr->mpsyche);
+	rd_s16b(&p_ptr->cpsyche);
+
 	rd_s16b(&p_ptr->max_plv);
 	rd_s16b(&p_ptr->max_dlv);
 
@@ -1415,7 +1418,7 @@ static void rd_extra(void)
 		p_ptr->tim_esp = 0;
 		p_ptr->wraith_form = 0;
 		p_ptr->resist_magic = 0;
-		p_ptr->tim_xtra1 = 0;
+		p_ptr->tim_sterile = 0;
 		p_ptr->tim_xtra2 = 0;
 		p_ptr->tim_xtra3 = 0;
 		p_ptr->tim_xtra4 = 0;
@@ -1427,13 +1430,14 @@ static void rd_extra(void)
 		p_ptr->muta1 = 0;
 		p_ptr->muta2 = 0;
 		p_ptr->muta3 = 0;
+		p_ptr->muta4 = 0;
 	}
 	else
 	{
 		rd_s16b(&p_ptr->tim_esp);
 		rd_s16b(&p_ptr->wraith_form);
 		rd_s16b(&p_ptr->resist_magic);
-		rd_s16b(&p_ptr->tim_xtra1);
+		rd_s16b(&p_ptr->tim_sterile);
 		rd_s16b(&p_ptr->tim_xtra2);
 		rd_s16b(&p_ptr->tim_xtra3);
 		rd_s16b(&p_ptr->tim_xtra4);
@@ -1445,6 +1449,7 @@ static void rd_extra(void)
 		rd_u32b(&p_ptr->muta1);
 		rd_u32b(&p_ptr->muta2);
 		rd_u32b(&p_ptr->muta3);
+      rd_u32b(&p_ptr->muta4);
 	}
 
 	/* Old redundant flags */

@@ -128,6 +128,7 @@ static cptr r_info_blow_effect[] =
 	"HALLU",
 	"VORPAL",
 	"CHAOTIC",
+   "STUN",
 	NULL
 };
 
@@ -204,7 +205,7 @@ static cptr r_info_flags2[] =
 	"SPINES",	/* was BRAIN_2 - G */
 	"CHAOTIC",	/* was BRAIN_3 - G */
 	"AURA_COLD", /* was BRAIN_4 - RDH */
-	"BRAIN_5",
+	"AURA_POIS", /* was BRAIN_5 - RDH */
 	"BRAIN_6",
 	"BRAIN_7",
 	"BRAIN_8"

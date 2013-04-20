@@ -2490,7 +2490,7 @@ void do_cmd_activate(void)
 	    !((o_ptr->tval == TV_RING) && (o_ptr->sval == SV_RING_LIGHTNING)) &&
 	    !((o_ptr->tval == TV_RING) && (o_ptr->sval == SV_RING_ACID)) &&
 	    !((o_ptr->tval == TV_RING) && (o_ptr->sval == SV_RING_FLAMES)) &&
-	    !((o_ptr->tval == TV_RING) && (o_ptr->sval == SV_RING_ICE)) &&
+		 !((o_ptr->tval == TV_RING) && (o_ptr->sval == SV_RING_ICE)) &&
 	    !((o_ptr->tval == TV_RING) && (o_ptr->sval == SV_RING_SHADOWS)))
 	{
 		(void) activate_random_artifact(o_ptr);
@@ -2523,7 +2523,7 @@ void do_cmd_activate(void)
 				o_ptr->timeout = 30;
 				break;
 			}
-			case ART_THRAIN:
+			case ART_RUNESTAFF:
 			{
 				msg_print("The Runestaff projects symbols of light!");
 				wiz_lite();
@@ -2644,21 +2644,23 @@ void do_cmd_activate(void)
 				o_ptr->timeout = 500;
 				break;
 			}
-			case ART_BELEGENNON:
+			case ART_ALISAARD:
 			{
-				msg_print("A heavenly choir sings...");
+				msg_print("Your armor glows dimly...");
 				(void)set_poisoned(0);
 				(void)set_cut(0);
 				(void)set_stun(0);
 				(void)set_confused(0);
 				(void)set_blind(0);
-				(void)set_image(0);
+				(void)set_slow(0);
 				(void)set_hero(p_ptr->hero + randint(25) + 25);
-				(void)hp_player(777);
+				(void)set_shield(p_ptr->shield + randint(25) + 25);
+				(void)set_blessed(p_ptr->blessed + randint(25) + 25);
+				(void)hp_player(500);
 				o_ptr->timeout = 300;
 				break;
 			}
-			case ART_CELEBORN:
+			case ART_YISSELDA:
 			{
 				msg_print("Your armor sings of madness and blood...");
 				if (!p_ptr->fast)
@@ -2778,12 +2780,12 @@ void do_cmd_activate(void)
 				o_ptr->timeout = 2;
 				break;
 			}
-			case ART_PAURHACH:
+			case ART_VICTORY: /* Should be replaced with something to aid pets or something leaderlike -- RDH */
 			{
-				msg_print("Your gauntlets are covered in fire...");
+				msg_print("Your robe smells like napalm in the morning...");
 				if (!get_aim_dir(&dir)) return;
-				fire_bolt(GF_FIRE, dir, damroll(14, 8));
-				o_ptr->timeout = rand_int(8) + 8;
+				fire_ball(GF_FIRE, dir, 3*(p_ptr->lev), 3);
+				o_ptr->timeout = rand_int(80) + 80;
 				break;
 			}
 			case ART_PAURNIMMEN:
@@ -2890,7 +2892,6 @@ void do_cmd_activate(void)
 				o_ptr->timeout = rand_int(5) + 5;
 				break;
 			}
-			case ART_ORCRIST:
 			case ART_STING: case ART_ORCHAST:
 			{
 				msg_print("Your weapon glows brightly...");
@@ -2943,7 +2944,7 @@ void do_cmd_activate(void)
 				o_ptr->timeout = 500 + randint(400);
 				break;
 			}
-			case ART_KANAJANA:
+			case ART_KANAJANA: /* Totally unjustified but I'm at a loss for a replacement. -- RDH */
 			{
 				msg_print("The sword emits hard radiation...");
 				fire_ball(GF_NUKE, 0, 300, 4);
@@ -3027,6 +3028,7 @@ void do_cmd_activate(void)
 				o_ptr->timeout = 65;
 				break;
 			}
+			case ART_ARJAVH:
 			case ART_TARATOL:
 			{
 				msg_print("Your mace glows bright green...");
@@ -3174,6 +3176,7 @@ void do_cmd_activate(void)
 				if (!get_aim_dir(&dir)) return;
 				fire_ball(GF_FORCE, dir, 50 + p_ptr->skill_thb, 0);
 				o_ptr->timeout = 100 + randint(125);
+							break;
 			}
 /*			case ART_HERMES:
   *			{
@@ -3343,9 +3346,9 @@ void do_cmd_activate(void)
 			{
 				chance = rand_int(2);
 				msg_format("You breathe %s.",
-				           ((chance == 1 ? "chaos" : "disenchantment")));
+							  ((chance == 1 ? "chaos" : "disenchantment")));
 				fire_ball((chance == 1 ? GF_CHAOS : GF_DISENCHANT),
-				          dir, 600, 2);
+							 dir, 600, 2);
 				o_ptr->timeout = randint(75) + 75;
 				break;
 			}
@@ -3367,7 +3370,7 @@ void do_cmd_activate(void)
 				            ((chance == 2) ? "disenchantment" :
 				             ((chance == 3) ? "sound" : "shards"))));
 				fire_ball(((chance == 1) ? GF_CHAOS :
-				           ((chance == 2) ? GF_DISENCHANT :
+							  ((chance == 2) ? GF_DISENCHANT :
 				            ((chance == 3) ? GF_SOUND : GF_SHARDS))),
 				          dir, 600, 2);
 				o_ptr->timeout = randint(75) + 75;
@@ -3824,7 +3827,6 @@ cptr item_activation(object_type *o_ptr)
 		{
 			return "frost ball (72) every 5+d5 turns";
 		}
-		case ART_ORCRIST:
 		case ART_STING: case ART_ORCHAST:
 		{
 			return "detect orcs every 10 turns";
@@ -3877,7 +3879,7 @@ cptr item_activation(object_type *o_ptr)
 		{
 			return "word of recall every 100 turns";
 		}
-		case ART_TARATOL:
+		case ART_TARATOL: case ART_ARJAVH:
 		{
 			return "haste self (20+d20 turns) every 100+d100 turns";
 		}
@@ -3921,11 +3923,11 @@ cptr item_activation(object_type *o_ptr)
 		{
 			return "heal (1000) every 500 turns";
 		}
-		case ART_BELEGENNON:
+		case ART_ALISAARD:
 		{
-			return ("heal (777), curing and heroism every 300 turns");
+			return ("heal (500), curing and buffing every 300 turns");
 		}
-		case ART_CELEBORN:
+		case ART_YISSELDA:
 		{
 			return "berserk and haste every 400 turns";
 		}
@@ -3961,9 +3963,9 @@ cptr item_activation(object_type *o_ptr)
 		{
 			return "magic missile (3d6) every 2 turns";
 		}
-		case ART_PAURHACH:
+		case ART_VICTORY:
 		{
-			return "fire bolt (14d8) every 8+d8 turns";
+			return "fire ball (3*level) every 80+d80 turns";
 		}
 		case ART_PAURNIMMEN:
 		{
@@ -4005,7 +4007,7 @@ cptr item_activation(object_type *o_ptr)
 		{
 			return "magic mapping and light every 30 turns";
 		}
-		case ART_THRAIN:
+		case ART_RUNESTAFF:
 		{
 			return "clairvoyance every 150 turns.";
 		}
@@ -4232,7 +4234,7 @@ void random_artifact_resistance(object_type * o_ptr)
 
 	switch(o_ptr->name1)
 	{
-		case ART_CELEBORN: case ART_ARVEDUI: case ART_CASPANION:
+		case ART_YISSELDA: case ART_CASPANION:
 		case ART_PAN_TANG: case ART_HITHLOMIR: case ART_ROHIRRIM:
 		case ART_CELEGORM: case ART_ANARION: case ART_THRANDUIL:
 		case ART_LUTHIEN: case ART_THROR: case ART_THORIN:
@@ -4246,11 +4248,11 @@ void random_artifact_resistance(object_type * o_ptr)
 		}
 		break;
 
-		case ART_MAEDHROS: case ART_ORCRIST:
+		case ART_MAEDHROS:
 		case ART_KANAJANA: case ART_ZARCUTHRA: case ART_GURTHANG:
 		case ART_HARADEKKET: case ART_CUBRAGOL: case ART_DAWN:
 		case ART_MORDAGA: case ART_COWARDICE: case ART_WHIRLWIND:
-		case ART_HAMMERHAND: case ART_PAURHACH: case ART_PAURNIMMEN:
+		case ART_HAMMERHAND: case ART_PAURNIMMEN:
 		case ART_PAURAEGEN: case ART_PAURNEN: case ART_NEMOVEBLA:
 		case ART_MAG_AN_MAG:
 		{
@@ -4264,7 +4266,7 @@ void random_artifact_resistance(object_type * o_ptr)
 		case ART_FINGOLFIN: case ART_CORUM: case ART_ULMO:
 		case ART_OLORIN: case ART_LIMBSLICER: case ART_ENERGY:
 		case ART_CATAPULT: case ART_THAUMATURGIST:
-		case ART_BURGLARY:
+		case ART_BURGLARY: case ART_VICTORY:
 		{
 			/* Give a power */
 			give_power = TRUE;
@@ -4272,7 +4274,7 @@ void random_artifact_resistance(object_type * o_ptr)
 		break;
 
 		case ART_POWER: case ART_GONDOR: case ART_AULE:
-		case ART_THENGEL: case ART_TRAITOR:
+		case ART_THENGEL: case ART_TRAITOR: case ART_EREKOSE:
 		{
 			/* Give both */
 			give_power = TRUE;

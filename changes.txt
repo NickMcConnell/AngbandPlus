@@ -55,6 +55,110 @@ files there so you can undo or change the macros I've set...
 ============================================================================
 
 ================================================================
+= Gumband 2.3.0 = Last Update: 27-Sept-2007 = Erekose's update =
+================================================================
+I figure this one is big enough for minor version number change,
+especially since the savefile format definitely changes with the
+new mutation flags. Seriously, don't try to load an old savefile.
+00) Updated version number in news.txt, defines.h
+01) Various errors in monster.txt fixed.
+02) Undead monsters have their nether immunity restored. Nether is
+the very force of undeadness. Be happy it doesn't heal them. Player
+Vampires not immune because I'm cruel and unfair that way.
+03) Fixed Fhoi Moire uniques being 'G' instead of 'P'.
+04) POTIONS OF DEATH TONED WAY DOWN! You won't actually die. At
+least, as long as you're perfectly safe. If you drink it standing
+next to yeek, don't complain about the embarassing tombstone.
+05) The Karach now has the Vadhagh Robe of Corum as its chosen drop.
+(Removed Corum --> Hand of Kwll chosen.) Empress Sharadim gets the
+Robe of Victory as a chosen drop.
+06) Base item changes: Replaced slime mold with the ecrex, a fruit in
+_The Eternal Champion_. No more eating slime molds. Lead-Filled Mace
+renamed to Huge Mace (several characters wield huge maces in various
+books, with no mentions of lead). Halberd renamed to Harpoon, Lance
+renamed to Halberd, Scythe renamed to Lance. Feanorean Lamp
+becomes Light-Rod. Mithril Plate Mail replaced by Ivory Armour.
+Treasures revised to eliminate mithril, adamantite.
+07) Monsters removed: Orc shaman, Orc captain, Hardened warrior, Balrog,
+Father Dagon, Seraph, Hill orc, Grima the Wormtongue, Angel, Black orc,
+Moon beast, Wereworm, Silent watcher, Archangel, Gorbag the Orc Captain,
+Cave orc, Dhole, Quiver slot, Azog (King of the Uruk-Hai),
+Formless spawn of Tsathoggua, Great Cthulhu, Grid bug, Grape jelly,
+Greater hell-beast (level 22), Ungoliant, The Emperor Quylthulg, Vecna
+08) Monsters added: Knight, Captain, Marshal, Many-coiled Serpent, Melusine,
+Snowbear, Seal-beast, Scaly Heron, Silver Warrior, Musimon, Enfield,
+Ice Wyvern, Sea-stag, Opinicus, Bagwyn, Cockfish, Amphisbaena, Satyr,
+Man-lion, Cockatrice, Archduke Balarizaaf, Degenerate Mabden,
+Dragon Lizard, Smoke Snake, Firedrake, Empress Sharadim, Dead Flamadin
+09) Monsters modified: Basilisk, Ornithopter (death explosion now damage
+24 FIRE, radius reduced to 2), Chimaera, Wyvern, Griffon (including
+changing the spelling to "Griffin" to match the mention in _The Silver
+Warriors_), Mantacore (which also gets renamed to "Manticora"), Grand
+Master of Chaos (PUNCH attacks changed from CHAOTIC to STUN),
+Cerberus (BA_DARK changed to BR_DARK), "Creeping adamantite coins" became
+"Ruby Mimics" and "Adamantite golem" became "Ruby Golem" to match new
+treasure drops.
+10) Artifact changes: Arvedui replaced with Full Plate Armour of Erekose.
+Orcrist replaced by the Huge Mace of Arjavh. Kanajana slightly tweaked.
+The Mithril Chain Mail 'Belegennon' replaced with Ivory Armour of Alisaard.
+The Set of Gauntlets 'Paurhach' replaced with the Robe of Victory.
+The Vadhagh Robe of Corum was lacking see invisible because I had
+assumed it would carry over from the base object, but it didn't - fixed.
+Missing break was causing Scythe of Death activation to
+accompany Sling of Medhbh activation - fixed.
+11) AURA_POIS monster flag added so basilisk can poison those who dare to
+make contact, as legend has it.
+12) New player races: Spectres are replaced by Halflings, living humanoids
+from the Ghost Worlds, who can walk through wall (without the damage a
+Spectre took) but lack some of the bonuses of a Spectre. Elves are replaced
+by the Eldren (who resist Time) and Hobbits are replaced with Oager Uv.
+13) Half-Giant Extra Might ability now stacks with Extra Might on a bow. A
+50th level Half-Giant Archer with a shooter of Extra Might will get three
+boosts to the multiplier (e.g. a sling would become x5 up from x2). Race
+and class bonus should both now change the displayed multiplier.
+14) Added two new values to the player structure, mpsyche and cpsyche, to
+create a new player attribute, psyche, which powers racial powers and
+player-activated mutations. Psyche gets some increases with leveling and
+Beastmen get double psyche. Psyche recharges over time. It works a bit like
+an artifact "time out", but covers multiple abilities. Restructed racial
+and mutant activations.
+15) Vampires now increase hunger faster if they are bleeding (this effect
+is double the effect on hunger of regenerating). Vampiric draining changed
+from activation to extra melee attack and unified with the vampiric
+mutation. New Vampire power is summon bats. Vampires get a slight bonus
+over mutants with vampiric fangs in that true Vampires can drain a monster
+even if it is already dead. This was a bug, but I like it as a feature, so
+it stays.
+16) Various minor textual tweaks.
+17) Monster criticals now pass a 1 in 20 check instead of old check for
+95%+ of possible damage and STUN added to monster blow types for the
+melee stunners. This is not a possible effect of a CHAOTIC attack at the
+moment; after some experience with it in play, it may be added to the
+possible CHAOTIC effects.
+18) Eldren now have self-knowledge as a racial power (far more appropriate
+for them than for humans). Humans now can invoke Heroism effect. Also, the
+Melnibonean demon summoning is improved to have only 1 in 8 summoned demons
+be hostile (down from 1 in 3).
+19) Easy_open, filter_identify, and show_damage options are now on by default.
+20) New set of mutation flags added. Major revision of mutations with many
+new mutations, modified mutations, deleted mutations.
+21) Changed extra melee attacks from mutations to not include damage bonus.
+Instead, there is a damage multiplier based on level. (Also, one new
+mutation has a built-in elemental brand that applies to the full damage,
+since it is all base damage.) Monks, being skilled in fighting with their
+own bodies as their weapons, gain a 50% damage bonus with extra attacks
+when fighting bare-handed.
+22) Revision of racial bias among shopkeepers. This was mostly to account
+for the new races, but there are numerous other changes.
+23) Moved display of damage done to monster by player to mon_take_hit(),
+which is the logically place to do it anyway. This causes damage done by
+magic to display now, although it has a side effect of displaying (0 dam)
+for attacks that do only effects and no real damage.
+24) Set all races to have no classes marked as inappropriate in character
+creation screen.
+25) Fixed repeat command for mindcrafting.
+
+================================================================
 = Gumband 2.2.4  = Last Update: 10-Jun-2006 = The Corum update =
 ================================================================
 01) Updated birth.txt entry for Half-Giants (forgot to do for 2.2.3)
@@ -121,6 +225,8 @@ electric auras.
 14) Replaced Half-Orc player race with Nhadragh. Sidhi replace Half-Titans. Humans
 get a +5 to melee and missiles, just to make them a little less pathetic.
 15) Hisak Sunthief is now the best Weapon Smith shopkeeper.
+
+
 ==================================================================
 = Gumband 2.2.3  = Last Update: Jan-18-2004 = The Hawkmoon update=
 ==================================================================
@@ -506,9 +612,16 @@ Beastmaster class from Kamband.
 11) David Thornley: Random player names and point-based character generation
 from CthAngband.
 12) Julian Lighton/Michael Gorse: (Holy Defender) weapons.
+13) Thanks to many participants on rec.games.roguelike.angband for various
+suggestions, bug reports, and other feedback, as well as ideas not directed
+at Gumband that nevertheless ended up here.
 
 
                     ####### Known Bugs #######
+
+ The display of damage done needs some cleanup. Currently it reports
+ (0 dam) when running at least some effects that do not do actual damage
+ and really in these cases it should just display nothing.
 
  There are too many potions in the game at the moment, so a few potions
  cannot be generated via debug mode's item creation menus since the list

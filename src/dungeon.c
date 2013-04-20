@@ -116,6 +116,9 @@ static void sense_inventory(void)
 	if (p_ptr->image) return;
 	if (p_ptr->poisoned) return;
 
+	/* No sensing if you have the mutation that interferes with pseudo-ID -- RDH */
+   if (p_ptr->muta4 & MUT4_FEEL_NUMB) return;
+
 	/* Analyze the class */
 	switch (p_ptr->pclass)
 	{
@@ -732,9 +735,10 @@ static void process_world(void)
 	 * isn't included - that would be a nightmare to code - and I've
 	 * decided to let those wearing heavy gloves not take the damage. :)
 	 *							-- Gumby
+    * Oager Uv also considered Animals for this purpose. -- RDH
 	 */
 	if (inventory[INVEN_WIELD].k_idx && !(inventory[INVEN_HANDS].tval &&
-	    (inventory[INVEN_HANDS].sval > SV_SET_OF_LEATHER_GLOVES)))
+		 (inventory[INVEN_HANDS].sval > SV_SET_OF_LEATHER_GLOVES)))
 	{
 		object_type * o_ptr = &inventory[INVEN_WIELD];
 
@@ -757,14 +761,14 @@ static void process_world(void)
 				if (f1 & (TR1_SLAY_GIANT)) burn = TRUE;
 				break;
 			case RACE_GAMBOLT: case RACE_KLACKON:
-			case RACE_YEEK:
+			case RACE_YEEK: case RACE_OAGER_UV:
 				if (f1 & (TR1_SLAY_ANIMAL)) burn = TRUE;
 				break;
 			case RACE_DRACONIAN:
 				if ((f1 & (TR1_SLAY_DRAGON)) ||
-				    (f1 & (TR1_KILL_DRAGON))) burn = TRUE;
+					 (f1 & (TR1_KILL_DRAGON))) burn = TRUE;
 				break;
-			case RACE_VAMPIRE: case RACE_SPECTRE:
+			case RACE_VAMPIRE:
 				if (f1 & (TR1_SLAY_UNDEAD)) burn = TRUE;
 				break;
 			default: /* not hurt by a slay */
@@ -792,34 +796,24 @@ static void process_world(void)
 		}
 	}
 
-	/* Spectres -- take damage when moving through walls */
+	/* Halflings -- take no damage when moving through walls */
 	/*
 	 * Added: Any non-astral character takes damage if inside through
-	 * walls without wraith form -- NOTE: Spectres will never be
-	 * reduced below 0 hp by being inside a stone wall; others
-	 * WILL BE!
+	 * walls without wraith form, except the Halflings. Didn't seem to
+	 * fit what is known of them and I took away a few of the Spectre
+	 * bonuses, so this is compensation -- RDH
 	 */
 
 	if (!cave_floor_bold(py, px))
 	{
 		if (!(p_ptr->astral)) cave_no_regen = TRUE;
 
-		if (!(p_ptr->invuln) && !(p_ptr->wraith_form) && !(p_ptr->astral) &&
-		    ((p_ptr->chp > ((p_ptr->lev)/5)) || (p_ptr->prace != RACE_SPECTRE)))
+		if (!(p_ptr->invuln) && !(p_ptr->wraith_form) && !(p_ptr->astral) && (p_ptr->prace != RACE_HALFLING))
 		{
 			cptr dam_desc;
 
-			if ((p_ptr->prace == RACE_SPECTRE) &&
-			    !(p_ptr->astral))
-			{
-				msg_print("Your molecules feel disrupted!");
-				dam_desc = "density";
-			}
-			else
-			{
 				msg_print("You are being crushed!");
 				dam_desc = "solid rock";
-			}
 
 			take_hit(1 + ((p_ptr->lev)/10), dam_desc);
 		}
@@ -868,6 +862,9 @@ static void process_world(void)
 
 			/* Slow digestion takes less food */
 			if (p_ptr->slow_digest) i -= 10;
+
+			/* Bleeding Vampires get hungry */
+			if ((p_ptr->prace == RACE_VAMPIRE) && (p_ptr->cut)) i += 40;
 
 			/* Minimal digestion */
 			if (i < 1) i = 1;
@@ -956,6 +953,13 @@ static void process_world(void)
 	if (p_ptr->chp < p_ptr->mhp)
 	{
 		regenhp(regen_amount);
+	}
+
+	/* Recharge psyche if needed */
+	player_psyche(FALSE);
+	if (p_ptr->cpsyche < p_ptr->mpsyche)
+	{
+		p_ptr->cpsyche++;
 	}
 
 

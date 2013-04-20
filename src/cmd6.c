@@ -287,9 +287,15 @@ void do_cmd_eat_food(void)
 		case SV_FOOD_RATION:
 		case SV_FOOD_BISCUIT:
 		case SV_FOOD_JERKY:
-		case SV_FOOD_SLIME_MOLD:
 		{
 			msg_print("That tastes good.");
+			ident = TRUE;
+			break;
+		}
+
+		case SV_FOOD_ECREX:
+		{
+			msg_print("It has a sharp, sweet taste.");
 			ident = TRUE;
 			break;
 		}
@@ -337,8 +343,7 @@ void do_cmd_eat_food(void)
 		if (p_ptr->food < PY_FOOD_ALERT)   /* Hungry */
 			msg_print("Your hunger can only be satisfied with fresh blood!");
 	}
-	else if ((p_ptr->prace == RACE_GOLEM) ||
-		 (p_ptr->prace == RACE_SPECTRE))
+	else if (p_ptr->prace == RACE_GOLEM)
 	{
 		msg_print("The food of mortals is poor sustenance for you.");
 		set_food(p_ptr->food + ((o_ptr->pval) / 20));
@@ -583,11 +588,19 @@ void do_cmd_quaff_potion(void)
 
 		case SV_POTION_DEATH:
 		{
-			msg_print("A feeling of Death flows through your body...");
+			msg_print("A feel Death close by...");
 			if (p_ptr->hold_life)
 				msg_print("but you feel fine.");
 			else
-				take_hit(5000, "a potion of Death");
+				{
+					p_ptr->chp = 0;
+					p_ptr->csp = 0;
+					/* Display the hitpoints and mana */
+					p_ptr->redraw |= (PR_HP);
+					p_ptr->redraw |= (PR_MANA);
+					/* Window stuff */
+					p_ptr->window |= (PW_PLAYER);
+				}
 			ident = TRUE;
 			break;
 		}
@@ -843,7 +856,7 @@ void do_cmd_quaff_potion(void)
 
 		case SV_POTION_MUTATION:
 		{
-			if ((p_ptr->muta1 || p_ptr->muta2 || p_ptr->muta3) &&
+			if ((p_ptr->muta1 || p_ptr->muta2 || p_ptr->muta3 || p_ptr->muta4) &&
 			    (randint(2) == 1))
 			{
 				lose_mutation(0);
@@ -999,10 +1012,10 @@ void do_cmd_quaff_potion(void)
 
 		case SV_POTION_NEW_LIFE:
 		{
-			if (p_ptr->muta1 || p_ptr->muta2 || p_ptr->muta3)
+			if (p_ptr->muta1 || p_ptr->muta2 || p_ptr->muta3 || p_ptr->muta4)
 			{
 				msg_print("You are cured of all mutations.");
-				p_ptr->muta1 = p_ptr->muta2 = p_ptr->muta3 = 0;
+				p_ptr->muta1 = p_ptr->muta2 = p_ptr->muta3 = p_ptr->muta4 = 0;
 				p_ptr->update |= PU_BONUS;
 				handle_stuff();
 			}

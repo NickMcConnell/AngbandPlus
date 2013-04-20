@@ -624,6 +624,11 @@ static void roff_aux(int r_idx)
 		roff(format("%^s is surrounded by electricity.  ", wd_he[msex]));
 	}
 
+	if (flags2 & (RF2_AURA_POIS))
+	{
+		roff(format("%^s is deadly to the touch.  ", wd_he[msex]));
+	}
+
 	if (flags2 & (RF2_SPINES))
 	{
 		roff(format("%^s is covered in spines.  ", wd_he[msex]));
@@ -650,13 +655,17 @@ static void roff_aux(int r_idx)
 	else if (flags1 & (RF1_FRIENDS))
 	{
 		roff(format("%^s usually appears in groups.  ",
-		            wd_he[msex]));
+						wd_he[msex]));
 	}
 
 
 	/* Collect inate attacks */
 	vn = 0;
-	if (flags4 & (RF4_SHRIEK))	vp[vn++] = "shriek for help";
+	if (flags4 & (RF4_SHRIEK))
+	{
+		if (strstr((r_name + r_ptr->name),"Cockatrice")) vp[vn++] = "crows for help";
+		else vp[vn++] = "shrieks for help";
+	}
 	if (flags4 & (RF4_XXX2))	vp[vn++] = "do something";
 	if (flags4 & (RF4_ROCKET))	vp[vn++] = "shoot a rocket";
 	if (flags4 & (RF4_ARROW_1))	vp[vn++] = "shoot an arrow";
@@ -1362,6 +1371,7 @@ static void roff_aux(int r_idx)
 			case RBE_HALLU:		q = "cause hallucinations"; break;
 			case RBE_VORPAL:	q = "cut"; break;
 			case RBE_CHAOTIC:	q = "cause a chaotic effect"; break;
+         case RBE_STUN:    q = "stun"; break;
 		}
 
 
