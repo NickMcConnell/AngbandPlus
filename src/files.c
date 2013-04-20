@@ -2775,7 +2775,7 @@ errr file_character(cptr name, bool full)
 		fprintf(fff,"\n You were killed by %s.\n\n", died_from);
 	}
 
-        fprintf(fff, "\n[Resistances and Abilities]\n\n");
+        fprintf(fff, "\n[Known Resistances and Abilities]\n\n");
 
 	/* Clear Screen */
 	clear_from(0);
@@ -3847,9 +3847,7 @@ static void print_tomb(void)
 static void show_info(void)
 {
 	int			i, j, k;
-
 	object_type		*o_ptr;
-
 	store_type		*st_ptr = &store[7];
 
 
@@ -3890,7 +3888,6 @@ static void show_info(void)
 
 	/* Flush messages */
 	msg_print(NULL);
-
 
 	/* Describe options */
 	prt("You may now dump a character record to one or more files.", 21, 0);
@@ -4633,6 +4630,7 @@ static void kingly(void)
  */
 void close_game(void)
 {
+	int x;
 	char buf[1024];
 
 	/* Handle stuff */
@@ -4659,6 +4657,18 @@ void close_game(void)
 	/* Handle death */
 	if (death)
 	{
+		object_type *o_ptr;
+
+		/* *ID* everything at death -- Gumby */
+		for (x = 0; x <= INVEN_FEET; x++)
+		{
+			o_ptr = &inventory[x];
+
+			object_aware(o_ptr);
+			object_known(o_ptr);
+			o_ptr->ident |= IDENT_MENTAL;
+		}
+	
 		/* Handle retirement */
 		if (total_winner) kingly();
 

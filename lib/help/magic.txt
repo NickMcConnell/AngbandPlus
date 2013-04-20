@@ -256,7 +256,7 @@ Conjurings & Tricks                Trumps of Doom
 Phase Door                         Apportation
 Mind Blast                         Trump Spiders
 Shuffle                            Trump Reptiles
-Minor Divination                   Trump Hounds
+Detect Minds                       Trump Hounds
 Teleport                           Banish
 Dimension Door                     Living Trump
 Minor Trump                        Death Dealing

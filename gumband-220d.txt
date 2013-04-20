@@ -43,13 +43,31 @@ Note to Windows users: Remember to change Gumband.ini to reflect the path to
 ============================================================================
 Note to Linux users: There may be problems with the ` macro I have defined
 in .\lib\user\pref.prf (everyone should read that file, BTW), so you might
-want to remove it.
+want to remove it. Also, best to check the files in linux_fix.tar.gz as they
+should help Gumband work better on your system.
 ============================================================================
 Note to all users: I can't say this enough - read this file and
 .\lib\help\birth.txt! These files are kept updated and contain important
 information. Plus, it'll reduce the number of questions I have to answer
-over and over and over... :)
+over and over and over... :) Also, read ./lib/user/pref.prf and the other
+files there so you can undo or change the macros I've set...
 ============================================================================
+
+======================================================================
+= Gumband 2.2.0d = Last Update: 18-May-2002 = Bugfix release, mainly =
+======================================================================
+01) Changed how extra dice on ego-items and artifacts are calculated again.
+See object2.c and artifact.c for details. In short, the number of extra dice
+is again as rare as it was in v2.2.0a. Extra dice for random artifacts is
+also that rare. Ego-items and randarts can also have extra dice sides, which
+are slightly more common than extra dice. Ammunition can only have the
+number of dice increased, at the same rarity as above. [thanks to Antimatter
+and Qlzqqlzup of #angband for their help squashing the bug this caused :]
+02) Upon death, all items in your equipment and inventory will be
+*Identified* so that all of your resistances will be shown in a dump made
+upon character death.
+03) Steel Shields are now a bit lighter than their iron counterparts, just
+as Steel Helms are lighter than Iron Helms.
 
 =============================================
 = Gumband 2.2.0c = Last Update: 17-Apr-2002 =
@@ -379,10 +397,20 @@ from CthAngband.
  gcc v3.02) in the source. Just search for '/* warning:'. Anyone who can fix
  them, mail me.
 
-## NEW BUG: When generating a point-based character in non-Maximize mode,
-some combinations (like Gambolt Beastmaster) can reach a maximum of 18/110
-for a stat. This is not good. :(
+ When generating a point-based character in non-Maximize mode, some
+ combinations (like Gambolt Beastmaster) can reach a maximum of 18/110 for a
+ stat. This is not good. :(
 
-## Sometimes when a friendly/pet monster summons a Unique, that Unique will
-be friendly despite code in process_monster() to prevent that from
-happening.
+ Sometimes when a friendly/pet monster summons a Unique, that Unique will be
+ friendly despite code in process_monster() to prevent that from happening.
+
+## FIXED: The game should no longer crash, or at least not nearly as often,
+ upon entering a level. At least one of the causes was the game attempting
+ to boost the non-existant damage dice of random artifact rings and amulets,
+ which caused an infinite loop...
+
+## FIXED: The Broad Sword of the Dawn should no longer appear twice. This
+ means, unfortunately, that Dorian Hawkmoon will no longer always drop it.
+ He now has a chance of dropping either the Sword *or* the Red Amulet,
+ instead of always dropping the Sword and having a chance to drop the
+ Amulet...

@@ -1,7 +1,7 @@
 
 
              ************************************************
-             ** Gumband 2.2.0c ** Based on ZAngband 2.1.1c **
+             ** Gumband 2.2.0d ** Based on ZAngband 2.1.1c **
              ************************************************
 
          Based on Moria:    Copyright (c) 1985 Robert Alan Koeneke

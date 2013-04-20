@@ -1242,7 +1242,7 @@ void do_cmd_cast(void)
                 if (autosave_l)
                 {
                     is_autosave = TRUE;
-                    msg_print("Autosaving the game...");
+		    msg_print("Autosaving the game...");
                     do_cmd_save_game();
                     is_autosave = FALSE;
                 }
@@ -1266,7 +1266,7 @@ void do_cmd_cast(void)
 		else
 		{
 			if (summon_specific_friendly(py, px, (plev*3)/2,
-				SUMMON_DEMON, (plev == 50 ? TRUE : FALSE)))
+				SUMMON_DEMON, TRUE))
 			{
 				msg_print("The area fills with a stench of sulphur and brimstone.");
 				msg_print("'What is thy bidding... Master?'");
@@ -1479,7 +1479,7 @@ void do_cmd_cast(void)
 		}
 		else
 		{
-			if (summon_specific_friendly(py, px, (plev*3)/2, (plev > 47 ? SUMMON_HI_UNDEAD_NO_UNIQUES : SUMMON_UNDEAD), (((plev > 24) && (randint(3) == 1)) ? TRUE : FALSE)))
+			if (summon_specific_friendly(py, px, (plev*3)/2, (plev > 47 ? SUMMON_HI_UNDEAD_NO_UNIQUES : SUMMON_UNDEAD), TRUE))
 			{
 				msg_print("Cold winds begin to blow around you, carrying with them the stench of decay...");
 				msg_print("Ancient, long-dead forms arise from the ground to serve you!");
@@ -1552,7 +1552,7 @@ void do_cmd_cast(void)
             else if (die < 18)
             {
 		msg_print("It's the picture of a friendly monster.");
-		if (!(summon_specific_friendly(py, px, plev, SUMMON_MINOR, TRUE)))
+		if (!(summon_specific_friendly(py, px, plev, SUMMON_MINOR, FALSE)))
 			no_trump = TRUE;
             }
             else if (die < 22)
@@ -1620,13 +1620,13 @@ void do_cmd_cast(void)
             else if (die<82)
             {
                 msg_print("It's the picture of a friendly monster.");
-                if (!(summon_specific_friendly(py, px, (dun_level * 3) / 2, SUMMON_MOLD, FALSE)))
+                if (!(summon_specific_friendly(py, px, (dun_level * 3) / 2, SUMMON_MOLD, TRUE)))
                     no_trump = TRUE;
             }
             else if (die<84)
             {
                 msg_print("It's the picture of a friendly monster.");
-                if (!(summon_specific_friendly(py, px, (dun_level * 3) / 2, SUMMON_BAT, FALSE)))
+                if (!(summon_specific_friendly(py, px, (dun_level * 3) / 2, SUMMON_BAT, TRUE)))
                     no_trump = TRUE;
             }
             else if (die<86)
@@ -1638,7 +1638,7 @@ void do_cmd_cast(void)
             else if (die<88)
             {
                 msg_print("It's the picture of a friendly monster.");
-                if (!(summon_specific_friendly(py, px, (dun_level * 3) / 2, SUMMON_COIN, FALSE)))
+                if (!(summon_specific_friendly(py, px, (dun_level * 3) / 2, SUMMON_COIN, TRUE)))
                     no_trump = TRUE;
             }
             else if (die<96)
@@ -1720,7 +1720,7 @@ void do_cmd_cast(void)
 		}
 		else
 		{
-			if (!(summon_specific_friendly(py, px, plev, SUMMON_MINOR, TRUE)))
+			if (!(summon_specific_friendly(py, px, plev, SUMMON_MINOR, FALSE)))
 				no_trump = TRUE;
 		}
 		break;
@@ -1923,7 +1923,7 @@ void do_cmd_cast(void)
             msg_print ("You concentrate on the trump of an undead creature...");
             if (randint(10)>3)
             {
-             if (!(summon_specific_friendly(py, px, plev, SUMMON_UNDEAD, FALSE)))
+             if (!(summon_specific_friendly(py, px, plev, SUMMON_UNDEAD, TRUE)))
                 no_trump = TRUE;
             }
             else
@@ -1944,7 +1944,7 @@ void do_cmd_cast(void)
             msg_print ("You concentrate on the trump of a dragon...");
             if (randint(10)>3)
             {
-             if (!(summon_specific_friendly(py, px, plev, SUMMON_DRAGON, FALSE)))
+             if (!(summon_specific_friendly(py, px, plev, SUMMON_DRAGON, TRUE)))
                 no_trump = TRUE;
             }
             else
@@ -1969,7 +1969,7 @@ void do_cmd_cast(void)
             {
                 if (randint(10)>3)
                 {
-                 if (summon_specific_friendly(py, px, plev, SUMMON_NO_UNIQUES, FALSE))
+                 if (summon_specific_friendly(py, px, plev, SUMMON_NO_UNIQUES, TRUE))
                     no_trump = FALSE;
                 }
                 else
@@ -1988,7 +1988,7 @@ void do_cmd_cast(void)
             msg_print ("You concentrate on the trump of a demon...");
             if (randint(10)>3)
             {
-             if (!(summon_specific_friendly(py, px, plev, SUMMON_DEMON, FALSE)))
+             if (!(summon_specific_friendly(py, px, plev, SUMMON_DEMON, TRUE)))
                 no_trump = TRUE;
             }
             else
@@ -2009,7 +2009,7 @@ void do_cmd_cast(void)
             msg_print ("You concentrate on the trump of an ancient dragon...");
             if (randint(10)>3)
             {
-             if (!(summon_specific_friendly(py, px, plev, SUMMON_HI_DRAGON_NO_UNIQUES, FALSE)))
+             if (!(summon_specific_friendly(py, px, plev, SUMMON_HI_DRAGON_NO_UNIQUES, TRUE)))
                 no_trump = TRUE;
             }
             else
@@ -2031,7 +2031,7 @@ void do_cmd_cast(void)
             msg_print ("You concentrate on the trump of a greater undead being...");
             if (randint(10)>3)
             {
-             if (!(summon_specific_friendly(py, px, plev, SUMMON_HI_UNDEAD_NO_UNIQUES, FALSE)))
+             if (!(summon_specific_friendly(py, px, plev, SUMMON_HI_UNDEAD_NO_UNIQUES, TRUE)))
                 no_trump = TRUE;
             }
             else

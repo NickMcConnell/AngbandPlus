@@ -30,7 +30,7 @@
 #define MAX_ROCKS	56	/* Used with rings (min 38) */
 #define MAX_AMULETS	22	/* Used with amulets (min 13) */
 #define MAX_WOODS	35	/* Used with staffs (min 30) */
-#define MAX_METALS	39	/* Used with wands/rods (min 29/28) */
+#define MAX_METALS	40	/* Used with wands/rods (min 29/28) */
 #define MAX_COLORS	66	/* Used with potions (min 60) */
 #define MAX_SHROOM	20	/* Used with mushrooms (min 20) */
 #define MAX_TITLES	54	/* Used with scrolls (min 48) */
@@ -133,7 +133,7 @@ static cptr wand_adj[MAX_METALS] =
 	"Nickel-Plated", "Silver-Plated", "Steel-Plated", "Tin-Plated", "Zinc-Plated",
 	"Mithril-Plated", "Mithril", "Runed", "Bronze", "Brass",
 	"Platinum", "Lead", "Lead-Plated", "Ivory" , "Adamantite",
-	"Uridium", "Long", "Short", "Hexagonal"
+	"Uridium", "Long", "Short", "Hexagonal", "Inanimate Carbon"
 };
 
 static byte wand_col[MAX_METALS] =
@@ -145,7 +145,7 @@ static byte wand_col[MAX_METALS] =
 	TERM_L_UMBER, TERM_L_WHITE, TERM_L_WHITE, TERM_L_WHITE, TERM_L_WHITE,
 	TERM_L_BLUE, TERM_L_BLUE, TERM_UMBER, TERM_L_UMBER, TERM_L_UMBER,
 	TERM_WHITE, TERM_SLATE, TERM_SLATE, TERM_WHITE, TERM_VIOLET,
-	TERM_L_RED, TERM_L_BLUE, TERM_BLUE, TERM_RED
+	TERM_L_RED, TERM_L_BLUE, TERM_BLUE, TERM_RED, TERM_L_DARK
 };
 
 

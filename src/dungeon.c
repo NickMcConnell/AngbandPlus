@@ -965,8 +965,8 @@ static void process_world(void)
 
 	/* Spectres -- take damage when moving through walls */
 	/*
-	 * Added: ANYBODY takes damage if inside through walls
-	 * without wraith form -- NOTE: Spectres will never be
+	 * Added: Any non-astral character takes damage if inside through
+	 * walls without wraith form -- NOTE: Spectres will never be
 	 * reduced below 0 hp by being inside a stone wall; others
 	 * WILL BE!
 	 */

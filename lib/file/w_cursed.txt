@@ -1,4 +1,4 @@
-36
+35
 ******** BUFFER LINE *********************************** DO NOT REMOVE *******
 of Misery
 of Horror
@@ -29,7 +29,6 @@ of Friendship
 of Sadness
 of Humiliation
 of King Nothing
-of Cowardice
 of Falsehood
 of Ilitresi
 'Funeral March'

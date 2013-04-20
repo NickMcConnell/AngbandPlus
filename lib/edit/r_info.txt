@@ -6235,10 +6235,10 @@ N:511:Elder tree
 G:&:G
 I:140:100d20:200:60:0
 W:47:1:0:1500
-B:HIT:EXP_10:8d8
-B:HIT:EXP_20:7d7
-B:HIT:EXP_40:6d6
-B:HIT:EXP_80:5d5
+B:HIT:VAMP:7d7
+B:HIT:VAMP:7d7
+B:HIT:VAMP:7d7
+B:HIT:VAMP:7d7
 F:NEVER_MOVE | EVIL | IM_ACID | IM_COLD | IM_ELEC | IM_POIS | HURT_FIRE | 
 F:NO_CONF | NO_SLEEP | NO_FEAR | CHAOTIC
 D:It looks like an ordinary tree, but not for long as its green, throbbing 
@@ -7251,7 +7251,7 @@ S:TELE_TO | HEAL | S_KIN
 D:The Protector of the Feline Kind is, for all intents and purposes, a 
 D:humanoid cat.  Just remember not to rub his fur the wrong way.
 
-N:572:Jabberwock
+N:572:The Jabberwock
 G:H:R
 I:130:32d100:35:125:255
 W:65:4:0:19000
@@ -7493,8 +7493,8 @@ I:115:20d100:10:80:0
 W:70:4:0:15000
 B:TENTACLE:EXP_40:7d6
 B:TENTACLE:EXP_40:7d6
-B:TENTACLE:UN_POWER:6d6
-B:TENTACLE:COLD:8d10
+B:TENTACLE:UN_BONUS:6d10
+B:TENTACLE:UN_POWER:8d10
 F:FRIENDS | DROP_90 | DROP_GOOD | STUPID | COLD_BLOOD | EVIL | EMPTY_MIND | 
 F:BASH_DOOR | KILL_WALL | HURT_ROCK | IM_ACID | IM_ELEC | IM_FIRE | 
 F:IM_COLD | IM_POIS | NO_FEAR | NO_CONF | NO_SLEEP | FORCE_MAXHP | CHAOTIC

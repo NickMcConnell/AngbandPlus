@@ -1318,19 +1318,44 @@ bool create_artifact(object_type *o_ptr, bool a_scroll)
 		o_ptr->to_d += randint(o_ptr->to_d>19?1:20-o_ptr->to_d);
 	}
 
-	/*
-	 * Give 'em nice dice sometimes, almost like ego-items...
-	 * (can't tell if this is over and above any extra dice ego-itmes
-	 * might get, but it can't hurt :) -- Gumby
-	 */
-	if (randint(25)==1)
+	/* Hack -- super-charge the number of dice sides -- Gumby */
+	if ((o_ptr->dd * o_ptr->ds) != 0)
 	{
-		o_ptr->dd++;
+		if (randint(25)==1)
+		{
+			o_ptr->ds++;
+		}
+		else
+		{
+			while (rand_int(10L * o_ptr->dd * o_ptr->ds) == 0)
+			{
+				o_ptr->ds++;
+			}
+
+			/* Hack -- Lower the damage dice */
+			if (o_ptr->ds > 15) o_ptr->ds = 15;
+		}
+
+		/* Hack -- super-charge the damage dice */
+		if (randint(50)==1)
+		{
+			o_ptr->dd++;
+		}
+		else
+		{
+			while (rand_int(10L * o_ptr->dd * o_ptr->ds) == 0)
+			{
+				o_ptr->dd++;
+			}
+
+			/* Hack -- Lower the damage dice */
+			if (o_ptr->dd > 15) o_ptr->dd = 15;
+		}
 	}
 
 	/* Just to be sure */
-	o_ptr->art_flags3 |= ( TR3_IGNORE_ACID | TR3_IGNORE_ELEC |
-	                       TR3_IGNORE_FIRE | TR3_IGNORE_COLD);
+	o_ptr->art_flags3 |= (TR3_IGNORE_ACID | TR3_IGNORE_ELEC |
+	                      TR3_IGNORE_FIRE | TR3_IGNORE_COLD);
 
 	total_flags = flag_cost(o_ptr, o_ptr->pval);
 	if (cheat_peek) msg_format("%ld", total_flags);

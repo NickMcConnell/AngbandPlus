@@ -34,22 +34,22 @@ GLIBS= -lgrx20
 
 # Name of Program
 
-PROGRAM = Gumband.exe
+PROGRAM = gumband.exe
 
-default: Gumband.exe
-	copy Gumband.exe ..
-	del Gumband.exe
-	del Gumband.bin
+default: gumband.exe
+	copy gumband.exe ..
+	del gumband.exe
+	del gumband.bin
 
-install: Gumband.exe
-	copy Gumband.exe ..
+install: gumband.exe
+	copy gumband.exe ..
 
 all: $(PROGRAM)
 
 # Generate binary file
 
-Gumband.exe: $(OBJS)
-	$(CC) $(CFLAGS) -o Gumband.bin $(OBJS) $(LIBS)
+gumband.exe: $(OBJS)
+	$(CC) $(CFLAGS) -o gumband.bin $(OBJS) $(LIBS)
 
 # Compile source files
 

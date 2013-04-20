@@ -2217,14 +2217,37 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 					}
 				}
 
-				/* Hack -- Super-charge the damage dice */
-				while (rand_int(10L * o_ptr->dd * o_ptr->ds) == 0)
+				/* Hack -- super-charge the number of dice sides -- Gumby */
+				if (randint(25)==1)
+				{
+					o_ptr->ds++;
+				}
+				else
+				{
+					while (rand_int(10L * o_ptr->dd * o_ptr->ds) == 0)
+					{
+						o_ptr->ds++;
+					}
+
+					/* Hack -- Lower the dice sides */
+					if (o_ptr->ds > 15) o_ptr->ds = 15;
+				}
+
+				/* Hack -- super-charge the damage dice */
+				if (randint(50)==1)
 				{
 					o_ptr->dd++;
 				}
+				else
+				{
+					while (rand_int(10L * o_ptr->dd * o_ptr->ds) == 0)
+					{
+						o_ptr->dd++;
+					}
 
-				/* Hack -- Lower the damage dice */
-				if (o_ptr->dd > 15) o_ptr->dd = 15;
+					/* Hack -- Lower the damage dice */
+					if (o_ptr->dd > 15) o_ptr->dd = 15;
+				}
 			}
 			break;
 		}

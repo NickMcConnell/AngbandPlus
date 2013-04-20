@@ -358,6 +358,14 @@ static bool hates_acid(object_type *o_ptr)
 			return (TRUE);
 		}
 
+		/* Books burn */
+		case TV_LIFE_BOOK: case TV_SORCERY_BOOK: case TV_NATURE_BOOK:
+		case TV_CHAOS_BOOK: case TV_DEATH_BOOK: case TV_TRUMP_BOOK:
+		case TV_ARCANE_BOOK:
+		{
+			return (TRUE);
+		}
+
 		/* Staffs/Scrolls are wood/paper */
 		case TV_STAFF: case TV_SCROLL:
 		{
@@ -415,7 +423,7 @@ static bool hates_fire(object_type *o_ptr)
 			if (o_ptr->sval == SV_WOODEN_SHIELD) return (TRUE);
 		}
 
-		/* Books */
+		/* Books burn */
 		case TV_LIFE_BOOK: case TV_SORCERY_BOOK: case TV_NATURE_BOOK:
 		case TV_CHAOS_BOOK: case TV_DEATH_BOOK: case TV_TRUMP_BOOK:
 		case TV_ARCANE_BOOK:

@@ -2296,14 +2296,6 @@ void monster_death(int m_idx)
 			apply_magic(q_ptr, -1, TRUE, TRUE, TRUE);
 			drop_near(q_ptr, -1, y, x);
 		}
-		else if (strstr((r_name + r_ptr->name),"Dorian Hawkmoon"))
-	  	{
-			q_ptr = &forge;
-			object_prep(q_ptr, lookup_kind(TV_SWORD, SV_BROAD_SWORD));
-			q_ptr->name1 = ART_DAWN;
-			apply_magic(q_ptr, -1, TRUE, TRUE, TRUE);
-			drop_near(q_ptr, -1, y, x);
-		}
 		else if (strstr((r_name + r_ptr->name),"Jagreen Lern,"))
 	  	{
 			q_ptr = &forge;
@@ -2328,7 +2320,7 @@ void monster_death(int m_idx)
 
 			if (!strcmp((r_name + r_ptr->name),"Scruffy looking hobbit"))
 			{
-				if (randint(3)!=1)
+				if (randint(3)==1)
 				{
 					a_idx = ART_STING;
 					chance = 2;
@@ -2366,8 +2358,16 @@ void monster_death(int m_idx)
 			}
 			else if (strstr((r_name + r_ptr->name),"Dorian Hawkmoon"))
 			{
-				a_idx = ART_RED_AMULET;
-				chance = 30;
+				if (randint(3)==1)
+				{
+					a_idx = ART_DAWN;
+					chance = 30;
+				}
+				else
+				{
+					a_idx = ART_RED_AMULET;
+					chance = 75;
+				}
 			}
 			else if (strstr((r_name + r_ptr->name),"Baron Meliadus"))
 			{

@@ -904,6 +904,7 @@ are listed in the following table.
            Yeek        -5   -5   -5   -5   -5   -5      10         -75%
            Melnibonean +1   +2   +2   +1   +1   -3      10         +40%
            Vadhagh     -1   +3   +3   +4   -2   +5       9         +40%
+                       STR  INT  WIS  DEX  CON  CHR  Hit Dice  Rqd Exp/level
 
                                                              Spellcasting
                                                              Armour Weight
@@ -922,6 +923,9 @@ are listed in the following table.
            Weaponmaster  +4   -2   -2   +1   +1   -1    9        N/A
            Archer         0   -2   -2   +3    0    0    9        N/A
            Beastmaster   +1   -2    0   +2   +1   +3    9        N/A
+                         STR  INT  WIS  DEX  CON  CHR  +HD   Spellcasting
+                                                             Armour Weight
+                                                            Limit (pounds)
 
 (a '*' next to a number indicates the spellcasting stat for that class)
  
@@ -952,6 +956,7 @@ are listed in the following table.
            Yeek         -5   -5   -10  +0   -5   +0   -10  -10    20 feet
            Melnibonean  +8   +15  +10  +1   +5   +5   +10  +10    20 feet
            Vadhagh      +10  +20  +15  +3   +10  +20  +5   +10    40 feet
+                        Dsrm Dvce Save Stlh Srch Prcp HtH  Misl   Infra
 
                 Disarm  Device  Save  Stealth Search  Melee   Missile XP
 Warrior         25+12   18+7    18+10   1     14/2    70+45   55+45  + 0%
@@ -968,6 +973,7 @@ High Mage       30+7    36+13   30+9    2     15/20   34+15   20+15  +25%
 Weaponmaster    23+10   20+8    18+10   1     14/2    70+45   20+15  +30%
 Archer          25+12   22+10   20+10   1     14/10   45+20   80+55  +30%
 Beastmaster     25+12   25+10   25+10   2     20/25   55+30   55+45  +25%
+                Disarm  Device  Save  Stealth Search  Melee   Missile XP
   
 
 === Monks: Attack Types (Gumband 2.2.0)
