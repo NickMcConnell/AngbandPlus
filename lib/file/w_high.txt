@@ -1,4 +1,4 @@
-76
+77
 ******** BUFFER LINE *********************************** DO NOT REMOVE *******
 of Ultimate Might
 'Slayer'
@@ -45,7 +45,7 @@ of Muramasa
 'Bloodwych'
 'Inferno'
 'Warhead'
-'Red Storm'
+'Roaring Death'
 'Dominator'
 'Conqueror'
 'Secret Weapon'
@@ -61,7 +61,7 @@ of Muramasa
 of the Fourth Horseman
 'Apocalyptica'
 'Doomsday'
-'Judgement of Heaven'
+'Judgment of Heaven'
 'Creeping Death'
 'Eternity's End'
 'Word of Death'
@@ -76,3 +76,4 @@ of Beowulf
 'Joyeuse'
 of the Eagle Lord
 'Azriel's Own'
+of the Yaksha

@@ -2436,8 +2436,9 @@ int identify_random_gen(object_type *o_ptr, cptr *info)
 	}
 
 	/* Fill the list of descriptions and return the count */
+   /* Added check for "o_ptr->name1" to get all artifact info listed in dumps. -- RDH */
 	if (o_ptr->art_flags1 || o_ptr->art_flags2 || o_ptr->art_flags3 ||
-		 o_ptr->art_name || o_ptr->xtra1)
+		 o_ptr->art_name || o_ptr->xtra1 || o_ptr->name1)
 	{
 		return identify_fully_aux2(o_ptr, info);
 	}

@@ -1,4 +1,4 @@
-35
+36
 ******** BUFFER LINE *********************************** DO NOT REMOVE *******
 of Misery
 of Horror
@@ -35,3 +35,4 @@ of Ilitresi
 'Unholy Avenger'
 of Woe
 'P-Shooter'
+of the Yaksha

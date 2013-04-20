@@ -361,7 +361,7 @@ void self_knowledge(void)
 			if (plev > 9)
 				info[i++] = "You can go berserk.";
 			break;
-		case RACE_GAMBOLT:
+		case RACE_CATFOLK:
 			if (plev > 19)
 				info[i++] = "You can be charming.";
 			break;
@@ -4209,7 +4209,10 @@ void activate_hi_summon(void)
 			case 7: case 8:
 				(void) summon_specific(py, px, dun_level, SUMMON_HYDRA);
 				break;
-			case 9: case 10:
+			case 9:
+				(void) summon_specific(py, px, dun_level, SUMMON_GIANT);
+				break;
+			case 10:
 				(void) summon_specific(py, px, dun_level, SUMMON_ANGEL);
 				break;
 			case 11: case 12:

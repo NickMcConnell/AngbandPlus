@@ -2487,7 +2487,7 @@ void do_cmd_activate(void)
 
 	if (o_ptr->art_name && !(o_ptr->tval == TV_DRAG_ARMOR) &&
 	    !((o_ptr->tval == TV_RING) && (o_ptr->sval == SV_RING_TELEPORTATION)) &&
-	    !((o_ptr->tval == TV_RING) && (o_ptr->sval == SV_RING_LIGHTNING)) &&
+		 !((o_ptr->tval == TV_RING) && (o_ptr->sval == SV_RING_LIGHTNING)) &&
 	    !((o_ptr->tval == TV_RING) && (o_ptr->sval == SV_RING_ACID)) &&
 	    !((o_ptr->tval == TV_RING) && (o_ptr->sval == SV_RING_FLAMES)) &&
 		 !((o_ptr->tval == TV_RING) && (o_ptr->sval == SV_RING_ICE)) &&
@@ -2693,6 +2693,13 @@ void do_cmd_activate(void)
 					(void)summon_specific_friendly(py, px, dun_level, SUMMON_DEMON, TRUE);
 				}
 				o_ptr->timeout = 400;
+				break;
+			}
+			case ART_MIRROR_TRUTH:
+			{
+				msg_print("It reflects strange light...");
+				if (sleep_monster(dir)) probing();
+				o_ptr->timeout = 0;
 				break;
 			}
 			case ART_MELNIBONE: case ART_TERROR_MASK:
@@ -4116,6 +4123,10 @@ cptr item_activation(object_type *o_ptr)
 		{
 			return "acid bolt (7d8) every 5+d5 turns";
 		}
+		case ART_MIRROR_TRUTH:
+		{
+			return "sleep/probe every turn";
+		}
 	}
 
 	switch (o_ptr->name2)
@@ -4247,7 +4258,7 @@ void random_artifact_resistance(object_type * o_ptr)
 	{
 		case ART_YISSELDA: case ART_CASPANION:
 		case ART_PAN_TANG: case ART_HITHLOMIR: case ART_ROHIRRIM:
-		case ART_CELEGORM: case ART_ANARION: case ART_THRANDUIL:
+		case ART_MIRROR_TRUTH: case ART_ANARION: case ART_THRANDUIL:
 		case ART_LUTHIEN: case ART_THROR: case ART_THORIN:
 		case ART_NIMTHANC: case ART_DETHANC: case ART_NARTHANC:
 		case ART_TURMIL: case ART_THALKETTOTH: case ART_HACKMEAT:

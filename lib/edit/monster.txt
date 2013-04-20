@@ -690,15 +690,15 @@ S:DRAIN_MANA
 D:It is a large pile of silver flesh that sucks all light from its 
 D:surroundings.
 
-N:62:Scruffy looking hobbit
-G:h:s
-I:110:3d5:16:8:10
-W:3:2:0:4
-B:HIT:HURT:1d4
-B:TOUCH:EAT_GOLD
-F:MALE | DROP_60 | DROP_CHOSEN | TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
-D:A short little guy, in bedraggled clothes.  He appears to be looking 
-D:for a good tavern.
+N:62:Martian ghoul
+G:h:w
+I:110:2d5:16:6:10
+W:3:3:0:5
+B:HIT:HURT:1d5
+B:CLAW:HURT:1d2
+F:FRIENDS | OPEN_DOOR | EVIL | HURT_LITE
+D:Revolting, squishy, corpse-white degenerates of some once-intelligent
+D: species, these beings are consumed with hateful malice.
 
 N:63:Horned horse
 G:q:b
@@ -804,14 +804,17 @@ F:RAND_50 | MULTIPLY | ANIMAL
 D:It is about three feet long with large teeth. As the light of your lamp 
 D:falls on it, it seems to grow stronger.
 
-N:74:Blue worm mass
-G:w:b
-I:100:5d8:7:12:10
-W:4:1:0:5
-B:CRAWL:COLD:1d4
-F:RAND_50 | RAND_25 | STUPID | WEIRD_MIND | COLD_BLOOD | MULTIPLY | 
-F:ANIMAL | IM_COLD | HURT_FIRE | HURT_LITE | NO_FEAR
-D:It is a large slimy mass of worms.
+N:74:Dog-man
+G:N:u
+I:110:2d8:18:12:2
+W:4:1:0:11
+B:HIT:HURT:1d2
+B:HIT:HURT:1d2
+B:BITE:LOSE_INT:1d2
+F:FRIENDS | DROP_60 | OPEN_DOOR | BASH_DOOR | TAKE_ITEM | CHAOTIC | ANIMAL
+D:"Though they walked upright, they had the half-human faces of dogs --
+D: bloodhounds were the nearest species I could think of." -- _Masters
+D: of the Pit_
 
 N:75:Large grey snake
 G:J:s
@@ -1406,19 +1409,16 @@ B:HIT:HURT:2d6
 F:MALE | DROP_90 | ONLY_GOLD | ESCORT | OPEN_DOOR | BASH_DOOR
 D:A minor leader of Mabden soldiers.
 
-N:136:Baby blue dragon
-G:d:B
-I:110:10d10:20:30:70
-W:9:2:0:35
-B:CLAW:HURT:1d3
-B:CLAW:HURT:1d3
-B:BITE:HURT:1d5
-F:FORCE_MAXHP | FORCE_SLEEP | ONLY_GOLD | DROP_60 | DROP_1D2 | BASH_DOOR | 
-F:DRAGON | IM_ELEC
-S:1_IN_11 | 
-S:BR_ELEC
-D:This hatchling dragon is still soft, its eyes unaccustomed to light and 
-D:its scales a pale blue.
+N:136:Rheti
+G:r:y
+I:110:10d20:15:20:25
+W:9:2:0:40
+B:BITE:HURT:1d4
+B:CLAW:HURT:2d2
+B:BITE:LOSE_DEX:1d5
+F:STUPID | BASH_DOOR | ANIMAL | KILL_BODY
+D:This Martian animal resembles the Earthly vole, except for its much
+D: greater size.
 
 N:137:Baby white dragon
 G:d:W
@@ -1891,18 +1891,17 @@ S:1_IN_3 |
 S:HEAL | SCARE | CAUSE_2 | S_MONSTER
 D:A robed humanoid dedicated to his god.
 
-N:179:Dark elven priestess
-G:h:B
-I:120:7d10:20:30:30
+N:179:Jihadoo
+G:N:B
+I:120:7d10:25:35:10
 W:12:1:0:50
-B:HIT:HURT:1d9
-B:HIT:HURT:1d10
-F:FEMALE | FORCE_SLEEP | ONLY_ITEM | DROP_1D2 | SMART | OPEN_DOOR | EVIL | 
-F:BASH_DOOR | HURT_LITE
-S:1_IN_5 | 
-S:HEAL | BLIND | CONF | CAUSE_2 | DARKNESS | MISSILE | S_SPIDER
-D:A dark elven figure, dressed all in black, chanting curses and waiting to 
-D:deliver your soul to hell.
+B:CLAW:HURT:1d8
+B:CLAW:HURT:1d8
+B:BITE:HURT:4d3
+F:MALE | FRIENDS | WEIRD_MIND | OPEN_DOOR | MOVE_BODY | KILL_ITEM | 
+F:CHAOTIC | GIANT | EVIL | ANIMAL | IM_ELEC | IM_POIS
+D:Pale blue flying man-beasts with claws and tusks, the Jihadoo are
+D: degenerate victims of their ancestors' experiments on themselves.
 
 N:180:Air spirit
 G:E:B
@@ -1977,17 +1976,14 @@ F:NEVER_MOVE | STUPID | EMPTY_MIND | COLD_BLOOD | IM_ACID | IM_POIS |
 F:HURT_LITE | NO_CONF | NO_SLEEP | NO_FEAR
 D:A spotty mound of jelly that doesn't look at all good to eat.
 
-N:187:Drider
+N:187:Martian Spider
 G:S:v
-I:110:10d13:8:30:80
-W:13:2:0:55
-B:HIT:HURT:1d12
-B:HIT:HURT:1d12
-B:BITE:POISON:1d6
-F:FORCE_SLEEP | OPEN_DOOR | BASH_DOOR | EVIL | IM_POIS | MALE
-S:1_IN_6 | 
-S:CONF | CAUSE_1 | DARKNESS | MISSILE | ARROW_2 | S_SPIDER
-D:A dark elven torso merged with the bloated form of a giant spider.
+I:115:4d4:12:20:20
+W:13:3:0:30
+B:BITE:POISON:3d5
+F:FRIENDS | RAND_25 | COLD_BLOOD | ANIMAL | HURT_LITE | 
+F:IM_POIS | NO_STUN | NO_CONF | NO_SLEEP
+D:'The spiders were as big as footballs!' -- _Lord of the Spiders_
 
 N:188:Great Black Bird
 G:B:D
@@ -2185,14 +2181,17 @@ F:RAND_50 | RAND_25 | STUPID | WEIRD_MIND | MULTIPLY | BASH_DOOR | ANIMAL |
 F:HURT_LITE | NO_FEAR | IM_ACID
 D:It is a huge slimy mass of green worms.
 
-N:206:Giant flea
-G:I:s
-I:120:1d2:6:7:10
-W:14:1:0:3
-B:BITE:HURT:1d2
-B:CRAWL:LOSE_CHR
-F:RAND_50 | WEIRD_MIND | MULTIPLY | ANIMAL
-D:It makes you itch just to look at it. 
+N:206:Spider-man
+G:N:G
+I:110:10d5:24:25:15
+W:14:1:0:38
+B:HIT:HURT:1d6
+B:STING:PARALYZE:1d1
+B:BITE:LOSE_CON:1d2
+F:FRIENDS | ONLY_GOLD | DROP_60 | OPEN_DOOR | BASH_DOOR | TAKE_ITEM | ANIMAL
+S:1_IN_8 | 
+S:SLOW | HOLD
+D:"The bodies of men and the legs of spiders!" -- _Lord of the Spiders_
 
 N:207:Black ogre
 G:O:D
@@ -2260,17 +2259,18 @@ F:UNDEAD | EVIL | IM_POIS | IM_COLD | WEIRD_MIND | NO_FEAR | NO_CONF |
 F:NO_SLEEP | DROP_60 | BASH_DOOR | FRIENDS | COLD_BLOOD
 D:A skullpack animated by necromantic spells.
 
-N:213:Mi-Go
-G:I:R
-I:120:13d8:20:30:20
-W:15:2:0:80
-B:STING:POISON:1d4
-B:BITE:LOSE_STR:1d2
-F:IM_POIS | IM_COLD | COLD_BLOOD | ANIMAL | EVIL | NO_SLEEP | NO_CONF
-S:1_IN_8
-S:CONF | S_MONSTER | S_DEMON
-D:Five-foot long, pinkish insectoids with a multitude of antennae, 
-D:screeching incessantly.
+N:213:Heela
+G:M:o
+I:110:13d6:20:20:2
+W:15:3:0:90
+B:CLAW:HURT:6d2
+B:CLAW:HURT:6d2
+B:BITE:HURT:2d4
+B:BITE:HURT:2d4
+F:BASH_DOOR | KILL_BODY | ANIMAL | IM_COLD | NO_SLEEP
+D:"It had eight legs and each leg terminated in six curved talons. It had
+D: two heads and each head had a broad, gaping mouth full of long, razorlike
+D: teeth, glaring yellow eyes, flaring nostrils." -- _City of the Beast_
 
 N:214:Giant tarantula
 G:S:G
@@ -2366,18 +2366,16 @@ B:BITE:HURT:1d6
 F:ATTR_CLEAR | FRIENDS | INVISIBLE | BASH_DOOR | ANIMAL
 D:A completely translucent hound.
 
-N:222:Umber hulk
-G:X:s
-I:110:20d10:20:50:10
+N:222:Argzoon
+G:P:b
+I:110:20d16:20:45:12
 W:16:1:0:75
-B:GAZE:CONFUSE:1d4
-B:HIT:HURT:1d6
-B:HIT:HURT:1d6
-B:BITE:VORPAL:2d6
-F:COLD_BLOOD | BASH_DOOR | KILL_WALL | ANIMAL | EVIL | IM_POIS | 
-F:HURT_ROCK | NO_CONF | NO_SLEEP
-D:This bizarre creature has glaring eyes and large mandibles capable of 
-D:slicing through rock.
+B:HIT:HURT:3d6
+B:HIT:HURT:2d8
+F:MALE | DROP_1D2 | OPEN_DOOR | BASH_DOOR | MOVE_BODY | 
+F:TAKE_ITEM | GIANT | RES_WATE
+D:Black-toothed, blue-skinned, and pointed-earred, Argzoon stand eight feet
+D: tall or more. They wear light armor, fighting with a variety of weapons.
 
 N:223:Captain
 G:p:g
@@ -2425,17 +2423,18 @@ F:DROP_60 | OPEN_DOOR | BASH_DOOR | EVIL | GIANT | MALE | IM_FIRE |
 F:HURT_COLD
 D:A glowing fourteen foot tall giant.  Flames drip from its red skin.
 
-N:227:Ulfast, Son of Ulfang
-G:p:o
-I:110:34d10:20:40:40
+N:227:Great Mishassa
+G:S:o
+I:120:30d10:22:20:10
 W:16:3:0:200
-B:HIT:HURT:3d5
-B:HIT:HURT:3d5
-B:HIT:HURT:3d5
-B:HIT:HURT:3d5
-F:UNIQUE | CAN_SPEAK | MALE | FORCE_MAXHP | ONLY_ITEM | DROP_90 | 
-F:DROP_GOOD | TAKE_ITEM | OPEN_DOOR | BASH_DOOR | EVIL
-D:A short and swarthy Easterling.
+B:BITE:VORPAL:3d4
+B:BITE:POISON:3d4
+F:UNIQUE | CAN_SPEAK | MALE | FORCE_MAXHP | DROP_90 | SMART | 
+F:DROP_GOOD | COLD_BLOOD | EMPTY_MIND | BASH_DOOR | MOVE_BODY | 
+F:TAKE_ITEM | ANIMAL | IM_ELEC | IM_POIS | NO_FEAR | NO_SLEEP
+S:1_IN_9 | 
+S:HASTE | S_SPIDER
+D:This giant spider is the last of his atomic radiation spawned race.
 
 N:228:Quasit
 G:u:W
@@ -2462,16 +2461,19 @@ S:1_IN_10 |
 S:BLINK | TPORT | TELE_TO | TELE_LEVEL | BLIND | CONF | SCARE | BO_FIRE
 D:The lawful evil master's favourite pet.
 
-N:230:Forest troll
-G:T:g
-I:110:20d10:20:50:40
-W:17:1:0:70
-B:HIT:HURT:1d4
-B:HIT:HURT:1d4
-B:BITE:HURT:1d6
-F:MALE | FRIENDS | DROP_60 | OPEN_DOOR | BASH_DOOR | EVIL | TROLL | 
-F:REGENERATE | HURT_LITE | HURT_FIRE
-D:He is green skinned and ugly.
+N:230:Rhadari
+G:q:v
+I:110:20d10:50:42:25
+W:17:2:0:90
+B:CLAW:HURT:2d4
+B:CLAW:HURT:2d4
+B:BITE:VORPAL:3d6
+F:ATTR_MULTI | BASH_DOOR | ANIMAL | IM_ACID | IM_FIRE | IM_POIS | 
+F:NO_STUN
+D:"It was a powerful beast with a huge, wide mouth full of teeth that
+D: gleamed like crystal too. It had a single, many-faceted eye -- an
+D: attribute of several Martian animals -- and four short, heavily
+D: muscled legs ending in big, clawed paws." -- _Lord of the Spiders_
 
 N:231:2-headed hydra
 G:M:u
@@ -2573,16 +2575,18 @@ B:HIT:HURT:3d7
 F:DROP_60 | OPEN_DOOR | BASH_DOOR | EVIL | GIANT | MALE
 D:A mighty giant of the mountains.
 
-N:240:Blink dog
-G:C:B
-I:120:8d8:20:20:10
-W:18:2:0:50
-B:BITE:HURT:1d8
-F:RAND_25 | FRIENDS | BASH_DOOR | ANIMAL | RES_TELE | RES_NEXU | GOOD 
-S:1_IN_4 | 
-S:BLINK | TELE_TO
-D:A strange magical member of the canine race, its form seems to shimmer and 
-D:fade in front of your very eyes.
+N:240:Horguhl
+G:p:v
+I:115:25d12:25:48:3
+W:18:2:0:400
+B:HIT:HURT:1d8
+B:HIT:HURT:1d8
+F:UNIQUE | FEMALE | FORCE_MAXHP | ESCORT | DROP_4D2 | DROP_GOOD | 
+F:CAN_SPEAK | OPEN_DOOR | NO_SLEEP | NO_CONF
+S:1_IN_5 | 
+S:SHRIEK | CONF | FORGET | S_GIANT | S_KIN | S_ANIMAL
+D:"She was exotically beautiful in her wild, dark way, and her eyes
+D: smouldered mockingly." -- _City of the Beast_
 
 N:241:Water beast
 G:R:D
@@ -2996,18 +3000,20 @@ S:1_IN_7 |
 S:SLOW
 D:It is a massive metal statue that moves steadily towards you.
 
-N:276:Auto-roller
-G:g:D
-I:120:70d12:10:80:12
-W:22:2:0:230
-B:CRUSH:HURT:1d8
-B:CRUSH:HURT:1d8
-B:CRUSH:HURT:1d8
-B:CRUSH:HURT:1d8
-F:FORCE_SLEEP | RES_TELE | EMPTY_MIND | COLD_BLOOD | BASH_DOOR | IM_FIRE | 
-F:IM_COLD | IM_ELEC | IM_POIS | RES_NEXU | NO_FEAR | NO_CONF | NO_SLEEP | 
-F:NO_STUN | NONLIVING
-D:It looks like a huge spiked roller, moving on its own towards you.
+N:276:N'aal Beast
+G:J:y
+I:120:80d12:20:50:25
+W:22:6:0:300
+B:BITE:HURT:2d12
+B:BITE:POISON:3d10
+B:GAZE:TERRIFY
+F:FORCE_MAXHP | STUPID | REFLECTING | COLD_BLOOD | BASH_DOOR | MOVE_BODY | 
+F:KILL_ITEM | ANIMAL | RES_TELE | NO_FEAR
+D:"It was of a sickly yellowish colour, with long fangs curving out of its
+D: mouth from the upper jaw. There was a stale, unwholesome smell about it,
+D: and once it opened its great jaws and gave forth a horrid hissing,
+D: revealing a gaping red maw and a huge forked tongue." -- _City of the
+D: Beast_
 
 N:277:Giant yellow scorpion
 G:S:y
@@ -6716,7 +6722,8 @@ B:HIT:HURT:7d4
 B:HIT:HURT:7d4
 F:UNIQUE | MALE | FORCE_MAXHP | FORCE_SLEEP | STUPID | COLD_BLOOD | 
 F:EMPTY_MIND | BASH_DOOR | MOVE_BODY | KILL_ITEM | AURA_COLD | 
-F:GIANT | EVIL | IM_COLD | IM_POIS | NO_SLEEP | IM_FIRE | IM_ELEC
+F:GIANT | EVIL | IM_COLD | IM_POIS | NO_SLEEP | IM_FIRE | IM_ELEC | 
+F:DROP_CHOSEN
 S:1_IN_7 | 
 S:BA_COLD | BA_POIS | SLOW
 D:'And from the cart now stepped a vast being with a white body all

@@ -336,7 +336,7 @@ static cptr r_info_flags6[] =
 	"HASTE",
 	"HAND_DOOM",
 	"HEAL",
-	"S_DAWN", /* was XXX26 */
+	"S_GIANT", /* was XXX26 then S_DAWN */
 	"BLINK",
 	"TPORT",
 	"S_HELLBLADES", /* was XXX3X6 */

@@ -2237,20 +2237,20 @@ static bool monst_spell_monst(int m_idx)
            break;
        }
 
-       /* RF6_S_DAWN (was RF6_XXX2X6) */
+		 /* RF6_S_GIANT (was RF6_S_DAWN) -- RDH */
        case 160+3:
        {
            disturb(1, 0);
            if (blind || !see_m) msg_format("%^s mumbles.", m_name);
-           else msg_format("%^s magically summons the Legion of the Dawn!", m_name);
-           for (k = 0; k < 1; k++)
+			  else msg_format("%^s calls on allied giants!", m_name);
+			  for (k = 0; k < 1; k++)
            {
                if (friendly)
-               count += summon_specific_friendly(y, x, rlev, SUMMON_DAWN, TRUE);
-               else
-               count += summon_specific(y, x, rlev, SUMMON_DAWN);
-           }
-           if (blind && count) msg_print("You hear many things appear nearby.");
+					count += summon_specific_friendly(y, x, rlev, SUMMON_GIANT, TRUE);
+					else
+					count += summon_specific(y, x, rlev, SUMMON_GIANT);
+			  }
+			  if (blind && count) msg_print("You hear big things appear nearby.");
            break;
        }
 
@@ -4141,17 +4141,17 @@ bool make_attack_spell(int m_idx)
 			break;
 		}
 
-		/* RF6_S_DAWN (was RF6_XXX2X6) */
+		/* RF6_S_GIANT (was RF6_S_DAWN) -- RDH */
 		case 160+3:
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
-			else msg_format("%^s magically summons the Legion of the Dawn!", m_name);
+			else msg_format("%^s calls on allied giants!", m_name);
 			for (k = 0; k < 10; k++)
 			{
-				count += summon_specific(y, x, rlev, SUMMON_DAWN);
+				count += summon_specific(y, x, rlev, SUMMON_GIANT);
 			}
-			if (blind && count) msg_print("You hear many things appear nearby.");
+			if (blind && count) msg_print("You hear big things appear nearby.");
 			break;
 		}
 

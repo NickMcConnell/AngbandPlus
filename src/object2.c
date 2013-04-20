@@ -1365,16 +1365,18 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 		}
 
 		/* Rings, Amulets, Lites */
+		/* Added check "note" actually exists before comparing it, in response
+      * to crash bug report. -- RDH */
 		case TV_RING: case TV_AMULET: case TV_LITE:
 		{
 			/* Require knowledge or {average} pseudo-id for both items */
 			if (!object_known_p(o_ptr) && 
-				!((o_ptr->ident & (IDENT_SENSE)) && !strcmp(quark_str(o_ptr->note), "average")))
+				!((o_ptr->ident & (IDENT_SENSE)) && quark_str(o_ptr->note) && !strcmp(quark_str(o_ptr->note), "average")))
 			{
 				return (0);
 			}
 			if (!object_known_p(j_ptr) && 
-				!((j_ptr->ident & (IDENT_SENSE)) && !strcmp(quark_str(j_ptr->note), "average")))
+				!((j_ptr->ident & (IDENT_SENSE)) && quark_str(j_ptr->note) && !strcmp(quark_str(j_ptr->note), "average")))
 			{
 				return (0);
 			}

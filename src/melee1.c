@@ -1256,7 +1256,7 @@ bool make_attack_normal(int m_idx)
 						msg_print("You keep hold of your life force!");
 
 						/* Heal the monster */
-						if (!(p_ptr->prace >= RACE_GOLEM && p_ptr->prace <= RACE_HALFLING))
+						if (!(p_ptr->prace >= RACE_GOLEM && p_ptr->prace < RACE_HALFLING))
 						{
 							if (((m_ptr->maxhp)-(m_ptr->hp)) > damage/20)
 							{
@@ -1282,7 +1282,7 @@ bool make_attack_normal(int m_idx)
 							lose_exp(d/10);
 
 							/* Heal the monster */
-							if (!(p_ptr->prace >= RACE_GOLEM && p_ptr->prace <= RACE_HALFLING))
+							if (!(p_ptr->prace >= RACE_GOLEM && p_ptr->prace < RACE_HALFLING))
 							{
 								if (((m_ptr->maxhp)-(m_ptr->hp)) > ((d / 10) + damage) / 20)
 								{
@@ -1304,7 +1304,7 @@ bool make_attack_normal(int m_idx)
 							lose_exp(d);
 
 							/* Heal the monster */
-							if (!(p_ptr->prace >= RACE_GOLEM && p_ptr->prace <= RACE_HALFLING))
+							if (!(p_ptr->prace >= RACE_GOLEM && p_ptr->prace < RACE_HALFLING))
 							{
 								if (((m_ptr->maxhp)-(m_ptr->hp)) > ((d + damage) / 20))
 								{

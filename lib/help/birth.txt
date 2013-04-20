@@ -220,23 +220,16 @@ races also have intrinsic abilities.
                their strength sustained.  At higher levels, Half-Trolls learn
                to enter a berserk fury, and regenerate wounds automatically.
 
-          Gambolts
-               Gambolts are humanoids descended from felines, but I'd resist
-               the urge to rub its tummy or scratch it behind the ears, if I
-               were you.  That doesn't amuse them.  And wiggling a line of
-               string in front of their face or saying things like "Here,
-               pussy, pussy, pussy!" to one will really get a Gambolt angry
-               at you.  Even though Gambolts as a species are rather stand-
-               offish, even among themselves, you just can't help but like
-               them.  They are quite fast compared to most other races, are
-               very stealthy, and are easily the most agile and dexterous of
+          Catfolk
+               The people of Purha were created from cats long ago through
+               strange experiments. They have developed a love of freedom
+               after escaping the tyranny of their creators and dislike the
+               Sword Rulers. They are quite fast compared to most other races,
+               very stealthy, and easily the most agile and dexterous of
                the known sentient races.  They are competent at almost any
                task they put a paw to.  With their high Saving Throw, they
-               sometimes seem to have nine lives...  Gambolts tend to be
-               extremely self-assured, some say excessively, and never had
-               much need for gods or those professions that cater to them,
-               such as Priests, Paladins, Chaos Warriors or Monks.  At
-               higher levels Gambolts learn to actively charm other beings,
+               sometimes seem to have nine lives. They have keen senses. At
+               higher levels Catfolk learn to actively charm other beings,
                instead of just relying on their natural charisma.
 
           High-Elf
@@ -798,7 +791,7 @@ Gnome         Yes     Yes     Yes     Yes     No      No      No      No
 Dwarf         Yes     No      Yes     No      No      No      No      No
 Nhadragh      Yes     Yes     No      No      Yes     No      Yes     No
 Half-Troll    Yes     No      Yes     No      No      No      No      Yes
-Gambolt       Yes     Yes     No      Yes     Yes     No      Yes     No
+Catfolk       Yes     Yes     No      Yes     Yes     No      Yes     No
 High-Elf      Yes     Yes     No      Yes     Yes     No      Yes     No
 Barbarian     Yes     No      Yes     Yes     Yes     No      No      Yes
 Half-Giant    Yes     No      No      No      Yes     No      No      No
@@ -826,7 +819,7 @@ Gnome         No      Yes     Yes     Yes     No      Yes
 Dwarf         No      No      No      Yes     No      Yes
 Nhadragh      No      Yes     Yes     Yes     Yes     Yes
 Half-Troll    No      No      No      Yes     No      Yes
-Gambolt       No      Yes     Yes     Yes     Yes     Yes
+Catfolk       No      Yes     Yes     Yes     Yes     Yes
 High-Elf      No      Yes     Yes     Yes     Yes     Yes
 Barbarian     No      No      No      Yes     Yes     Yes
 Half-Giant    No      No      No      Yes     Yes     Yes
@@ -868,12 +861,12 @@ are listed in the following table.
                        STR  INT  WIS  DEX  CON  CHR  Hit Dice  Rqd Exp/level
            Human        0    0    0    0    0    0      10          +0%
            Eldren       0   +1   +2   +1   -1    0       8         +10%
-           Oager Uv     3    0    0   -2   +4   +1      12         +25%
+           Oager Uv    +3    0    0   -2   +4   +1      12         +25%
            Gnome       -1   +2    0   +2   +1   -2       8         +30%
            Dwarf       +2   -2   +2   -2   +2   -3      11         +30%
            Nhadragh    +3   +1   -1   -1   +3   -2      10         +20%
            Half-Troll  +4   -4   -2   -4   +3   -6      12         +35%
-           Gambolt     -1    0    0   +5   -1   +5       8         +30%
+           Catfolk     -1    0   -1   +6   -1   +5       8         +30%
            High-Elf    +1   +3   +2   +3   +1   +5      10         +100%
            Barbarian   +3   -2   -1   +1   +2   -2      11         +20%
            Half-Giant  +4   -2   -2   -2   +3   -3      13         +25%
@@ -925,7 +918,7 @@ are listed in the following table.
            Dwarf        +2   +9   +10  -1   +7   +10  +15  +0     50 feet
            Nhadragh     +10  +10  +0   +1   +20  +10  +10  -5     None
            Half-Troll   -5   -8   -8   -2   -1   +5   +20  -10    30 feet
-           Gambolt      +0   +0   +20  +5   +20  +30  +10  +0     60 feet
+           Catfolk      -5   +0   +20  +5   +20  +30  +5   +0     60 feet
            High-Elf     +5   +20  +20  +4   +10  +15  +10  +25    40 feet
            Barbarian    -2   -10  +2   -1   +1   +7   +12  +10    None
            Half-Giant   -6   -8   -6   -2   -1   +5   +25  +5     30 feet

@@ -42,7 +42,7 @@
 #define FAKE_VERSION
 #define FAKE_VER_MAJOR 2
 #define FAKE_VER_MINOR 3
-#define FAKE_VER_PATCH 1
+#define FAKE_VER_PATCH 2
 
 #define ANGBAND_2_8_1
 
@@ -613,7 +613,7 @@ and tables.c --TY */
 #define RACE_DWARF		    4
 #define RACE_NHADRAGH		 5
 #define RACE_HALF_TROLL		 6
-#define RACE_GAMBOLT		    7
+#define RACE_CATFOLK		    7
 #define RACE_HIGH_ELF		 8
 #define RACE_BARBARIAN		 9
 #define RACE_HALF_GIANT		10
@@ -836,7 +836,7 @@ and tables.c --TY */
 
 /* Shields */
 #define ART_THORIN                      30
-#define ART_CELEGORM                    31
+#define ART_MIRROR_TRUTH                31    /* was Celegorm */
 #define ART_ANARION                     32
 #define ART_MORDAGA                     33
 
@@ -1219,11 +1219,11 @@ and tables.c --TY */
 #define TV_SHOT         16      /* Ammo for slings */
 #define TV_ARROW        17      /* Ammo for bows */
 #define TV_BOLT         18      /* Ammo for x-bows */
-#define TV_BOW          19      /* Slings/Bows/Xbows */
+#define TV_BOW          19      /* Blowguns/Bows/Xbows */
 #define TV_DIGGING      20      /* Shovels/Picks */
 #define TV_HAFTED       21      /* Priest Weapons */
 #define TV_POLEARM      22      /* Pikes/Glaives/Spears/etc. */
-#define TV_AXE		23	/* Axes/Cleavers */
+#define TV_AXE		      23	     /* Axes/Cleavers */
 #define TV_SWORD        24      /* Edged Weapons */
 #define TV_BOOTS        30      /* Boots */
 #define TV_GLOVES       31      /* Gloves */
@@ -1256,8 +1256,8 @@ and tables.c --TY */
 
 /* The "sval" codes for TV_SHOT/TV_ARROW/TV_BOLT */
 #define SV_AMMO_LIGHT           0       /* hunting ammo and pebbles */
-#define SV_AMMO_NORMAL          1       /* shots, arrows, bolts */
-#define SV_AMMO_HEAVY           2       /* seeker ammo and sling bullets */
+#define SV_AMMO_NORMAL          1       /* bullets, arrows, bolts */
+#define SV_AMMO_HEAVY           2       /* seeker ammo */
 
 /* The "sval" codes for TV_BOW (note information in "sval") */
 #define SV_SLING                2       /* (x2) */
@@ -1984,11 +1984,12 @@ and tables.c --TY */
 #define SUMMON_ANIMAL_RANGER    43
 #define SUMMON_HI_UNDEAD_NO_UNIQUES	44
 #define SUMMON_HI_DRAGON_NO_UNIQUES	45
-#define SUMMON_NO_UNIQUES	46
+#define SUMMON_NO_UNIQUES       46
 #define SUMMON_PHANTOM          47
 #define SUMMON_ELEMENTAL        48
 #define SUMMON_HELLBLADES       49
-#define SUMMON_MINOR		50	/* Summons creatures < plev. - G */
+#define SUMMON_MINOR		        50	/* Summons creatures < plev. - G */
+#define SUMMON_GIANT            51
 
 
 /*
@@ -2323,7 +2324,7 @@ and tables.c --TY */
 #define RBM_INSULT      22
 #define RBM_OFFER       23 /* was MOAN - Gumby */
 #define RBM_SHOW        24 /* TY */
-#define RBM_CHAOTIC	25 /* hits for a random effect -- Gumby */
+#define RBM_CHAOTIC	   25 /* hits for a random effect -- Gumby */
 
 /*
  * New monster blow effects
@@ -2356,11 +2357,11 @@ and tables.c --TY */
 #define RBE_EXP_20      26
 #define RBE_EXP_40      27
 #define RBE_EXP_80      28
-#define RBE_VAMP	29 /* EXP_60 + Heals Monster */
-#define RBE_HALLU	30
-#define RBE_VORPAL	31
-#define RBE_CHAOTIC	32 /* Hits for a random effect -- Gumby */
-#define RBE_STUN        33 /* More sensible method of meleeing stun specials -- RDH */
+#define RBE_VAMP	      29 /* EXP_60 + Heals Monster */
+#define RBE_HALLU	      30
+#define RBE_VORPAL	   31
+#define RBE_CHAOTIC	   32 /* Hits for a random effect -- Gumby */
+#define RBE_STUN        33 /* More sensible method of melee stun specials -- RDH */
 
 
 /*** Monster flag values (hard-coded) ***/
@@ -2480,7 +2481,7 @@ and tables.c --TY */
  */
 #define RF4_SHRIEK	0x00000001      /* Shriek for help */
 #define RF4_ARROW_FIRE	0x00000002   /* RDH: flaming arrow */
-#define RF4_BR_WATE	0x00000004	/* Breathe Water (was XXX3) */
+#define RF4_BR_WATE	0x00000004	    /* Breathe Water (was XXX3) */
 #define RF4_ROCKET	0x00000008      /* TY: Rocket */
 #define RF4_ARROW_1	0x00000010      /* Shoot an arrow (light) */
 #define RF4_ARROW_2	0x00000020      /* Fire an arrow (heavy) */
@@ -2553,7 +2554,7 @@ and tables.c --TY */
 #define RF6_HASTE               0x00000001      /* Speed self */
 #define RF6_HAND_DOOM           0x00000002      /* Hand of Doom */
 #define RF6_HEAL                0x00000004      /* Heal self */
-#define RF6_S_DAWN              0x00000008      /* was: RF6_XXX2 */
+#define RF6_S_GIANT             0x00000008      /* Summon Giants -- RDH */
 #define RF6_BLINK               0x00000010      /* Teleport Short */
 #define RF6_TPORT               0x00000020      /* Teleport Long */
 #define RF6_S_HELLBLADES        0x00000040      /* Summon Hellblades (was XXX3) */
@@ -2598,7 +2599,7 @@ and tables.c --TY */
    RF5_SCARE | RF5_BLIND | RF5_CONF | RF5_SLOW | RF5_HOLD)
 
 #define RF6_INT_MASK \
-	(RF6_BLINK | RF6_S_DAWN | RF6_TPORT | RF6_S_HELLBLADES | RF6_S_ANIMALS | \
+	(RF6_BLINK | RF6_S_GIANT | RF6_TPORT | RF6_S_HELLBLADES | RF6_S_ANIMALS | \
 	 RF6_TELE_LEVEL | RF6_TELE_AWAY | RF6_HEAL | RF6_HASTE | RF6_TRAPS | \
 	 RF6_S_ELEMENTAL | RF6_S_SCUMDOG | RF6_S_KIN | RF6_S_CYBER | \
 	 RF6_S_MONSTER | RF6_S_MONSTERS | RF6_S_ANIMAL | RF6_S_SPIDER | \
@@ -2630,7 +2631,7 @@ and tables.c --TY */
 	 0L
 
 #define RF6_SUMMON_MASK \
-	 (RF6_S_DAWN | RF6_S_HELLBLADES | RF6_S_ANIMALS | RF6_S_ELEMENTAL | \
+	 (RF6_S_GIANT | RF6_S_HELLBLADES | RF6_S_ANIMALS | RF6_S_ELEMENTAL | \
 	  RF6_S_SCUMDOG | RF6_S_KIN | RF6_S_CYBER | RF6_S_MONSTER | \
 	  RF6_S_MONSTERS | RF6_S_ANIMAL | RF6_S_SPIDER | RF6_S_HOUND | \
 	  RF6_S_HYDRA | RF6_S_ANGEL | RF6_S_DEMON | RF6_S_UNDEAD | \

@@ -784,7 +784,7 @@ static void roff_aux(int r_idx)
 	if (flags5 & (RF5_HOLD))		vp[vn++] = "paralyze";
 	if (flags6 & (RF6_HASTE))		vp[vn++] = "haste-self";
 	if (flags6 & (RF6_HEAL))		vp[vn++] = "heal-self";
-	if (flags6 & (RF6_S_DAWN))		vp[vn++] = "summon the Legion of the Dawn";
+	if (flags6 & (RF6_S_GIANT))	vp[vn++] = "summon giants";
 	if (flags6 & (RF6_BLINK))		vp[vn++] = "blink-self";
 	if (flags6 & (RF6_TPORT))		vp[vn++] = "teleport-self";
 	if (flags6 & (RF6_S_HELLBLADES))	vp[vn++] = "summon Hellblades";

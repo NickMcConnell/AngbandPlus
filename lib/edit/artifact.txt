@@ -326,14 +326,13 @@ P:3:1d2:0:0:25
 F:STR | CON | HIDE_TYPE | IM_ACID | RES_SOUND | RES_CHAOS
 
 
-# The Iron Shield of Celegorm
+# The Mirror of Truth
 
-N:31:of Celegorm
-I:34:4:0
-W:25:5:72:12000
-P:4:1d2:0:0:20
-F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_LITE | RES_DARK
-
+N:31:(Mirror of Truth)
+I:34:4:2
+W:20:3:120:20000
+P:4:1d2:0:0:18
+F:INT | WIS | CHR | SEARCH | HIDE_TYPE | SEE_INVIS | ACTIVATE
 
 # The Steel Shield of Anarion
 

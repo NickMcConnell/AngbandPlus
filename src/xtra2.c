@@ -2303,6 +2303,16 @@ void monster_death(int m_idx)
 			apply_magic(q_ptr, -1, TRUE, TRUE, TRUE);
 			drop_near(q_ptr, -1, y, x);
 		}
+		else if (strstr((r_name + r_ptr->name),"Sreng, of the Seven Swords"))
+		{
+			for(j = 1; j <= 7; j++)
+			{
+				q_ptr = &forge;
+				object_prep(q_ptr, lookup_kind(TV_SWORD, SV_TWO_HANDED_SWORD));
+				apply_magic(q_ptr, -1, TRUE, TRUE, TRUE);
+				drop_near(q_ptr, -1, y, x);
+			}
+		}
 		else if (strstr((r_name + r_ptr->name),"Jagreen Lern,"))
 		{
 			q_ptr = &forge;
@@ -2325,11 +2335,11 @@ void monster_death(int m_idx)
 			int chance = 0;
 			int I_kind = 0;
 
-			if (!strcmp((r_name + r_ptr->name),"Scruffy looking hobbit"))
+			if (!strcmp((r_name + r_ptr->name),"Empress Sharadim"))
 			{
 				{
-					a_idx = ART_GALADRIEL;
-					chance = 10;
+					a_idx = ART_VICTORY;
+					chance = 50;
 				}
 			}
 			else if (strstr((r_name + r_ptr->name),"Sauron, "))
@@ -2610,6 +2620,10 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 			else if (strstr((r_name + r_ptr->name),"Duke Nuke"))
 			{
 				msg_format("%^s grunts: 'Lucky son of a bitch...'", m_name);
+			}
+			else if (strstr((r_name + r_ptr->name),"Great Mishassa"))
+			{
+         	msg_format("%^s cries: 'Gone!'", m_name);
 			}
 			else
 			{

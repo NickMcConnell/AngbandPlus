@@ -115,8 +115,8 @@ CC = gcc
 # including "USE_GETCH" and "USE_CURS_SET".  Note that "config.h" will
 # attempt to "guess" at many of these flags based on your system.
 #
-#CFLAGS = -Wall -O1 -pipe -g -D"USE_X11" -D"USE_GCU"
-#LIBS = -L/usr/X11R6/lib -lX11 -lcurses -ltermcap
+CFLAGS = -Wall -O1 -pipe -g -D"USE_X11" -D"USE_GCU"
+LIBS = -L/usr/X11R6/lib -lX11 -lcurses -ltermcap
 
 
 ##

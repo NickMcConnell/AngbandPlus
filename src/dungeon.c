@@ -730,7 +730,7 @@ static void process_world(void)
 
 	/*
 	 * Burn you for wielding something that can hurt your race. What can
-	 * hurt you is based on monster.txt. Klackons and Gambolts are
+	 * hurt you is based on monster.txt. Klackons and Catfolk are
 	 * considered Animals, despite no monster.txt entry. Note that Evil
 	 * isn't included - that would be a nightmare to code - and I've
 	 * decided to let those wearing heavy gloves not take the damage. :)
@@ -760,7 +760,7 @@ static void process_world(void)
 			case RACE_HALF_GIANT:
 				if (f1 & (TR1_SLAY_GIANT)) burn = TRUE;
 				break;
-			case RACE_GAMBOLT: case RACE_KLACKON:
+			case RACE_CATFOLK: case RACE_KLACKON:
 			case RACE_YEEK: case RACE_OAGER_UV:
 				if (f1 & (TR1_SLAY_ANIMAL)) burn = TRUE;
 				break;

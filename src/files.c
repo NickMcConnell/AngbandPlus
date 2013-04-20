@@ -1489,7 +1489,7 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3)
 				(*f3) |= (TR3_SLOW_DIGEST);
 			}
 			break;
-		case RACE_GAMBOLT:
+		case RACE_CATFOLK:
 			(*f1) |= (TR1_SPEED);
 			(*f2) |= (TR2_SUST_DEX);
 			(*f2) |= (TR2_SUST_CHR);
@@ -2759,6 +2759,7 @@ errr file_character(cptr name)
             fprintf(fff, "\n Arena Levels:       OFF");
 
 	fprintf(fff, "\n Recall Depth:       Level %d (%d')\n", p_ptr->max_dlv, 50 * (p_ptr->max_dlv));
+	fprintf(fff, "\n Game Duration:      %d Turns\n", turn);
 
     { /* Monsters slain */
         int k;

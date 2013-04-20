@@ -85,7 +85,7 @@ struct hist_type
  * Dwarf      -->  16 -->  17 -->  18 -->  57 -->  58 -->  59 -->  60 --> 61
  * Nhadragh   -->  19 -->  21 -->  12
  * Half-Troll -->  22 -->  23 -->  62 -->  63 -->  64 -->  65 -->  66
- * Gambolt    -->  30 -->  31 -->  32
+ * Catfolk    -->  30 -->  31 -->  32
  * High-Elf   -->   7 -->   8 -->   9 -->  54 -->  55 -->  56
  * Barbarian  -->   1 -->   2 -->   3 -->  50 -->  51 -->  52 -->  53
  * Half-Giant -->  75 -->  20 -->   2 -->   3 -->  50 -->  51 -->  52 --> 53
@@ -896,7 +896,7 @@ static void create_random_name(int race, char *name)
 		strcat(name, oager_syllable3[rand_int(sizeof(oager_syllable3) / sizeof(char*))]);
 		break;
 	case RACE_BARBARIAN:	case RACE_HUMAN:
-	case RACE_VAMPIRE:	case RACE_GAMBOLT:
+	case RACE_VAMPIRE:	case RACE_CATFOLK:
 		strcpy(name, human_syllable1[rand_int(sizeof(human_syllable1) / sizeof(char*))]);
 		strcat(name, human_syllable2[rand_int(sizeof(human_syllable2) / sizeof(char*))]);
 		strcat(name, human_syllable3[rand_int(sizeof(human_syllable3) / sizeof(char*))]);
@@ -1466,7 +1466,7 @@ static void get_history(void)
 			chart = 19;	break;
 		case RACE_HALF_TROLL:
 			chart = 22;	break;
-		case RACE_GAMBOLT:
+		case RACE_CATFOLK:
 			chart = 30;	break;
 		case RACE_HALF_GIANT:
 			chart = 75;	break;

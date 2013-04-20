@@ -54,6 +54,46 @@ over and over and over... :) Also, read ./lib/user/pref.prf and the other
 files there so you can undo or change the macros I've set...
 ============================================================================
 
+=====================================================================
+= Gumband 2.3.2 = Last Update: 20-Jan-2010 = The Old Martian update =
+=====================================================================
+00) Updated version number in news.txt, defines.h
+01) On the suggestion of Nick the FAngband maintainer, makefile.std
+has been edited to default to the "Standard version" which supports
+both X11 and curses. Anyone who compiles their own Gumband and needs
+to adjust the makefile for your system, please send me the changes
+needed, so you won't have to make them again for the next version.
+02) Halflings would not heal a monster making a vampiric attack. This
+made sense for Spectres, but not really for Halfling, so this has
+been changed.
+03) Mutation allowing the creation of powerful nether balls at the
+cost of experience was not redrawing experience. Fixed, I hope.
+04) Three new crimes, one new rumor, three new monster speech messages,
+some new Warrior and Rogue level titles, some new randart names.
+05) "Light Rod" as permanent light source changed to "Sheev Light", a
+Moorcockian nigh-eternal light source without a name conflict with
+an existing item type.
+06) One new artifact: The Mirror of Truth (replaces Iron Shield of
+Celegorm).
+07) Monsters added: Martian ghoul, N'aal Beast, Martian Spider,
+Spider-man, Great Mishassa, Argzoon, Dog-man, Rheti, Jihadoo,
+Heela, Horguhl, Rhadari
+08) Monsters removed: Scruffy looking hobbit, Auto-roller, Drider,
+Giant flea, Ulfast, Umber hulk, Blue worm mass, Baby blue dragon,
+Dark elven priestess, Mi-Go, Blink dog, Forest troll
+09) Bugfix: Empress Sharadim did not have Robe of Victory chosen
+drop.
+10) Sreng gets a chosen drop.
+11) New monster spell, replaces now unused S_DAWN. Giant summoning.
+12) Gambolt player race modified slightly to make it Moorcockian
+Martian cat-folk, the people of Purha. Largely a case of rewriting
+description, but some minor tweaks were made.
+13) Added turn count to character dump. Also, all artifacts should have
+their abilities listed in dumps.
+14) Added bug-fix thanks to Robert Au. Should put a band-aid on a
+rare crash situation. Probably not correct solution after I get a
+better grip on the object-handling code.
+
 ====================================================================
 = Gumband 2.3.1 = Last Update: 08-April-2009 = Ice Mother's update =
 ====================================================================
@@ -84,8 +124,8 @@ Sting replaced with the Harpoon of Urquart; removed as chosen drop
 for Scruffy looking hobbits. Gondricam replaced by Cutlass of
 Konrad Arflane.
 11) Old "Ice phantom" replaced with "Ice Spirit". Scatha the Worm
-replaced by Heurfrast. Fang, Farmer Maggot's dog replaced by wild
-dog. Dreadmaster replaced by Ice Ghost. Smeagol replaced by Green
+replaced by Heurfrast. Fang, Farmer Maggot's dog replaced by Wild
+Dog. Dreadmaster replaced by Ice Ghost. Smeagol replaced by Green
 Scavenger. Novice ranger (group version) replaced by Ice Barbarian.
 Elder thing replaced by Northern Whale. Byakhee replaced by Sperm
 Whale. Strygalldwir replaced by Shipsmasher.

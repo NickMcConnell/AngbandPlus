@@ -2462,7 +2462,7 @@ static void cmd_racial_power_aux (void)
 			}
 			break;
 
-		case RACE_GAMBOLT:
+		case RACE_CATFOLK:
 			if (racial_aux(50, 50, (40 - (p_ptr->stat_cur[A_CHR]))))
 			{
 				if (plev < 50)
@@ -2772,7 +2772,7 @@ void do_cmd_racial_power(void)
 			racial_min = 20;
 			break;
 
-		case RACE_GAMBOLT:
+		case RACE_CATFOLK:
 			racial_power = "charm              (racial)";
 			has_racial = TRUE;
 			racial_cost = 50;
@@ -3396,6 +3396,8 @@ void do_cmd_racial_power(void)
 						fire_ball(GF_NETHER, dir, p_ptr->lev * 8, 1 + (p_ptr->lev/10));
 					msg_print("...and pay the price.");
 					p_ptr->exp = (p_ptr->exp)*39/40;
+					/* Need to redraw experience after draining it. - RDH */
+					p_ptr->redraw |= (PR_EXP);
 				}
 				break;
 

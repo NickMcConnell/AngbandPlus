@@ -2138,7 +2138,7 @@ static void calc_bonuses(void)
 				p_ptr->slow_digest = TRUE;
 			}
 			break;
-		case RACE_GAMBOLT:
+		case RACE_CATFOLK:
 			p_ptr->pspeed += 2;
 			p_ptr->sustain_dex = TRUE;
 			p_ptr->sustain_chr = TRUE;
