@@ -520,9 +520,7 @@ void search(void)
 void carry(int pickup)
 {
 	cave_type *c_ptr = &cave[py][px];
-
 	s16b this_o_idx, next_o_idx = 0;
-
 	char o_name[80];
 
 

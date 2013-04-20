@@ -1,10 +1,11 @@
 === Attacking and Being Attacked ===
  
-Attacking is simple in Gumband.  If you move into a creature, you attack him.
-You can attack from a distance by firing a missile or by magical means such
-as aiming a wand.  Creatures attack in the same way.  If they move into you,
-they attack you.  Some creatures can also cast spells from a distance, and
-others can use various breath weapons such as fire on you from a distance.
+Attacking is simple in Gumband.  If you move into a creature, you attack
+him.  You can attack from a distance by firing a missile or by magical
+means such as aiming a wand.  Creatures attack in the same way.  If they
+move into you, they attack you.  Some creatures can also cast spells from a
+distance, and others can use various breath weapons such as fire on you from
+a distance.
 
 Creatures in walls can not be attacked by wands and other magic attacks
 normally stopped by walls.  You can attack a creature in a wall normally
@@ -37,15 +38,16 @@ actually occurs.
 === Monster Memories ===
 
 There are hundreds of different creatures in the pits of Gumband, many of
-which have the same letter symbol and color on the screen.  The exact species
-of a creature can be discovered by looking at it.  It is also very difficult
-to keep track of the capabilities of various creatures.  Luckily, Gumband
-automatically keeps track of your experiences with a particular creature.
-This feature is called the monster memory.  You monster memory recalls the
-particular attacks of each creature (whether or not technically a monster)
-which you have suffered, as well as recalling if you have observed them to
-multiply or move erratically, or drop treasure, etc.  Otherwise you would
-simply have to take notes, which is an unnecessary bother.
+which have the same letter symbol and color on the screen.  The exact
+species of a creature can be discovered by looking at it.  It is also very
+difficult to keep track of the capabilities of various creatures.  Luckily,
+Gumband automatically keeps track of your experiences with a particular
+creature.  This feature is called the monster memory.  You monster memory
+recalls the particular attacks of each creature (whether or not technically
+a monster) which you have suffered, as well as recalling if you have
+observed them to multiply or move erratically, or drop treasure, etc.
+Otherwise you would simply have to take notes, which is an unnecessary
+bother.
 
 If you have killed enough of a particular creature, or suffered enough
 attacks, recalling the monster memory may also provide you with information
@@ -57,15 +59,16 @@ of a reduced save file.
 
 === Your Weapon ===
 
-Carrying a weapon in your backpack does you no good.  You must wield a weapon 
-before it can be used in a fight.  A secondary weapon can be kept by keeping
-it in the backpack, and switching it with the primary weapon when needed.
+Carrying a weapon in your backpack does you no good.  You must wield a
+weapon before it can be used in a fight.  A secondary weapon can be kept by
+keeping it in the backpack, and switching it with the primary weapon when
+needed.
 
-Weapons have two main magical characteristics, their enchanted ability to hit
-and their enchanted ability to do damage, expressed as `(+#,+#)'.  A normal
-weapon would be `(+0,+0)'.  Many weapons in Gumband have bonuses to hit
-and/or do damage.  Some weapons are cursed, and have penalties that hurt the
-player.  Cursed weapons cannot be unwielded until the curse is lifted.
+Weapons have two main magical characteristics, their enchanted ability to
+hit and their enchanted ability to do damage, expressed as `(+#,+#)'.  A
+normal weapon would be `(+0,+0)'.  Many weapons in Gumband have bonuses to
+hit and/or do damage.  Some weapons are cursed, and have penalties that hurt
+the player.  Cursed weapons cannot be unwielded until the curse is lifted.
 Identifying a weapon will inform you of the magical bonuses and penalties
 and whether or not it is cursed.
 
@@ -108,6 +111,14 @@ Defenders
      points and mana faster.  As a result of the regeneration ability, you
      will use up food somewhat faster than normal while wielding such a
      weapon.
+
+Holy Defenders
+     These awesome defensive weapons will protect you from everything that
+     a regular Defender weapon will, but also from many of the more exotic
+     elements, as well as increasing your Wisdom.  Unlike normal Defenders,
+     Holy Defenders are somewhat sentient and have an abiding hatred of
+     evil.  They will therefore strike with extra force against evil
+     creatures.
 
 Holy Avengers
      A Holy Avenger is one of the more powerful of weapons.  A Holy Avenger
@@ -161,14 +172,15 @@ Weapon of Burning
 
 Weapon of Poisoning
      A magical weapon, coated with poison that delivers a poison critical to
-     creatures not resistant to poison. It also defends you against toxic and
-     poisonous attacks.
+     creatures not resistant to poison. It also defends you against toxic
+     and poisonous attacks.
 
 Weapon of Westernesse
      A Weapon of Westernesse is one of the more powerful weapons.  It slays
      orcs while increasing your strength, dexterity, and constitution.  It
-     also lets you see invisible creatures and protects from paralyzation and
-     some slowing attacks.  These blades were made by the Dunedain.
+     also lets you see invisible creatures and protects from paralyzation
+     and some slowing attacks.  These blades were made by the Dunedain of
+     Middle-earth.
 
 Pattern Weapons
      A Pattern Weapon has been embedded with a fragment of the Pattern. As
@@ -202,11 +214,9 @@ Weapon of Slay Undead
      A Slay Undead weapon is a special purpose weapon whose sole intent is
      to destroy all forms of undead.  These weapons are hated and feared by
      the intelligent undead, for a single blow from this weapon will inflict
-     three times the normal amount of damage.  This weapon also gives you the
-     ability to see invisible creatures, which is especially useful against
-     undead, since many of them are normally invisible.  Some of these
-     weapons have the additional ability to protect against the life-draining 
-     attacks that many undead creatures possess.
+     three times the normal amount of damage.  This weapon also gives you
+     the ability to see invisible creatures, which is especially useful
+     against undead, since many of them are normally invisible.
 
 Weapon of Slay Orc
      A Slay Orc weapon does treble damage against anything of orcish-kind.
@@ -237,8 +247,6 @@ dungeon with not necessarily any special abilities. These include Blades
 of Chaos, Maces of Disruption, and Scythes of Slicing.  They can also be
 ego weapons like the ones above.  For example, a Blade of Chaos (Holy
 Avenger) is much more powerful than many artifact weapons!
-
-For artifact weapons, see "rumors.hlp".
 
 
 === Body and Shield Bashes ===
@@ -282,7 +290,7 @@ decreases your chances of hitting monsters.  This can range from nonexistent
 for very light armor to (-8) for the very heaviest armor!
 
 Some pieces of armor will possess special abilities denoted by the following
-names: (these are very out of date!)
+names:
 
 of Resist Acid.
      A character using such an object will take only one third normal damage

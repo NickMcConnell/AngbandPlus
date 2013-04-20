@@ -1736,7 +1736,6 @@ void do_cmd_spike(void)
 void do_cmd_walk(int pickup)
 {
 	int dir;
-
 	bool more = FALSE;
 
 

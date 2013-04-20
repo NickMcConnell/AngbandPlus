@@ -1949,6 +1949,8 @@ bool brand_weapon(int brand_type)
 		case 1:
 		{
 			if ((eo_ptr->flags1 & TR1_CHAOTIC) ||
+			    ((o_ptr->tval == TV_SWORD) &&
+			     (o_ptr->sval == SV_BLADE_OF_CHAOS)) ||
 			    (o_ptr->art_flags1 & TR1_CHAOTIC))
 				brand_exists = TRUE;
 				break;

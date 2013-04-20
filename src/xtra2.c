@@ -2185,7 +2185,7 @@ void monster_death(int m_idx)
 		if (strstr((r_name + r_ptr->name),"Unmaker"))
 		{
 			boom = GF_CHAOS;
-			damboom = 100;
+			damboom = 200;
 			radius = 6;
 		}
 		else if (strstr((r_name + r_ptr->name),"Gas spore"))
@@ -2358,11 +2358,6 @@ void monster_death(int m_idx)
 			{
 				a_idx = ART_HAGEN;
 				chance = 66;
-			}
-			else if (strstr((r_name + r_ptr->name),"Lo Wang,"))
-			{
-				a_idx = ART_HARADEKKET;
-				chance = 60;
 			}
 			else if (strstr((r_name + r_ptr->name),"Elric of "))
 			{

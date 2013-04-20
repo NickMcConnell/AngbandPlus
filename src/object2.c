@@ -1367,9 +1367,6 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 		/* Rings, Amulets, Lites */
 		case TV_RING: case TV_AMULET: case TV_LITE:
 		{
-			/* Require full knowledge of both items */
-/*			if (!object_known_p(o_ptr) || !object_known_p(j_ptr)) return (0); */
-
 			/* Require knowledge or {average} pseudo-id for both items */
 			if (!object_known_p(o_ptr) && 
 				!((o_ptr->ident & (IDENT_SENSE)) && !strcmp(quark_str(o_ptr->note), "average")))
@@ -2009,7 +2006,7 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 			if (power > 1)
 			{
 				/* Roll for an ego-item */
-				switch (randint(45))
+				switch (randint(46))
 				{
 					case 1:
 					{
@@ -2053,82 +2050,44 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 					case 7: case 8:
 					{
 						o_ptr->name2 = EGO_SLAY_ANIMAL;
-						if (rand_int(100) < 30)
-						{
-							o_ptr->name2 = EGO_KILL_ANIMAL;
-
-						}
 						break;
 					}
 					case 9: case 10:
 					{
 						o_ptr->name2 = EGO_SLAY_DRAGON;
 						random_resistance(o_ptr, FALSE, ((randint(12))+4));
-						if (rand_int(100) < 30)
-						{
-							if (randint(3)==1) o_ptr->art_flags2 |= TR2_RES_POIS;
-							random_resistance(o_ptr, FALSE, ((randint(14))+4));
-							o_ptr->name2 = EGO_KILL_DRAGON;
-						}
+						random_resistance(o_ptr, FALSE, ((randint(12))+4));
+						if (randint(10)==1) o_ptr->art_flags2 |= TR2_RES_POIS;
 						break;
 					}
 					case 11: case 12:
 					{
 						o_ptr->name2 = EGO_SLAY_EVIL;
-						if (rand_int(100) < 30)
-						{
-							o_ptr->art_flags2 |= TR2_RES_FEAR;
-							o_ptr->art_flags3 |= TR3_BLESSED;
-							o_ptr->name2 = EGO_KILL_EVIL;
-						}
 						break;
 					}
 					case 13: case 14:
 					{
 						o_ptr->name2 = EGO_SLAY_UNDEAD;
-						if (rand_int(100) < 30)
-						{
-							o_ptr->art_flags2 |= TR2_RES_NETHER;
-							if (randint(150) < dun_level)
-								o_ptr->art_flags2 |= TR2_HOLD_LIFE;
-							o_ptr->name2 = EGO_KILL_UNDEAD;
-						}
 						break;
 					}
 					case 15: case 16: case 17:
 					{
 						o_ptr->name2 = EGO_SLAY_ORC;
-						if (rand_int(100) < 30)
-						{
-							o_ptr->name2 = EGO_KILL_ORC;
-						}
 						break;
 					}
 					case 18: case 19: case 20:
 					{
 						o_ptr->name2 = EGO_SLAY_TROLL;
-						if (rand_int(100) < 30)
-						{
-							o_ptr->name2 = EGO_KILL_TROLL;
-						}
 						break;
 					}
 					case 21: case 22: case 23:
 					{
 						o_ptr->name2 = EGO_SLAY_GIANT;
-						if (rand_int(100) < 30)
-						{
-							o_ptr->name2 = EGO_KILL_GIANT;
-						}
 						break;
 					}
 					case 24: case 25: case 26:
 					{
 						o_ptr->name2 = EGO_SLAY_DEMON;
-						if (rand_int(100) < 30)
-						{
-							o_ptr->name2 = EGO_KILL_DEMON;
-						}
 						break;
 					}
 					case 27:
@@ -2225,15 +2184,17 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 					{
 						o_ptr->name2 = EGO_SLAY_ELEMENTAL;
 						random_resistance(o_ptr, FALSE, ((randint(12))+4));
-						if (rand_int(100) < 10)
-						{
-							o_ptr->name2 = EGO_KILL_ELEMENTAL;
-						}
+						random_resistance(o_ptr, FALSE, ((randint(12))+4));
 						break;
 					}
 					case 43: /* taken from DrAngband */
 					{
 						o_ptr->name2 = EGO_HASTE;
+						break;
+					}
+					case 44:
+					{
+						o_ptr->name2 = EGO_HOLY_DF;
 						break;
 					}
 					default: /* 2 slots for Sharpness - Hafted get Earthquake instead */
@@ -2254,19 +2215,13 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 				}
 
 				/* Hack -- Super-charge the damage dice */
-				if (randint(50)==1)
+				while (rand_int(10L * o_ptr->dd * o_ptr->ds) == 0)
 				{
 					o_ptr->dd++;
 				}
-				else
-				{
-					while (rand_int(10L * o_ptr->dd * o_ptr->ds) == 0)
-					{
-						o_ptr->dd++;
-					}
-					/* Hack -- Lower the damage dice */
-					if (o_ptr->dd > 15) o_ptr->dd = 15;
-				}
+
+				/* Hack -- Lower the damage dice */
+				if (o_ptr->dd > 15) o_ptr->dd = 15;
 			}
 			break;
 		}

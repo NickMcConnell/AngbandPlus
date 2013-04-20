@@ -171,7 +171,6 @@ static void mon_take_hit_mon(int m_idx, bool pet_attack, int dam, bool *fear, cp
 {
 	monster_type	*m_ptr = &m_list[m_idx];
 	monster_race	*r_ptr = &r_info[m_ptr->r_idx];
-
 	s32b		div, new_exp, new_exp_frac;
 
 	/* Redraw (later) if needed */
@@ -5652,7 +5651,13 @@ static bool monst_attack_monst(int m_idx,int t_idx)
             /* Roll out the damage */
            damage = damroll(d_dice, d_side);
 
-    pt = GF_MISSILE;
+		/* Damage is balanced for against players and not nearly
+		 * enough for monster vs. monster battles. Even this is
+		 * probably too little. -- Gumby
+		 */
+		damage *= 3;
+
+		pt = GF_MISSILE;
 
            /* Apply appropriate damage */
            switch (effect)
@@ -5937,19 +5942,13 @@ static void process_monster(int m_idx, bool is_friend)
 {
 	monster_type    *m_ptr = &m_list[m_idx];
 	monster_race    *r_ptr = &r_info[m_ptr->r_idx];
-
 	int             i, d, oy, ox, ny, nx;
-
 	int             mm[8];
-
 	cave_type       *c_ptr;
-
 	monster_type    *y_ptr;
-
 	bool            do_turn;
 	bool            do_move;
 	bool            do_view;
-
 	bool            did_open_door;
 	bool            did_bash_door;
 	bool            did_take_item;

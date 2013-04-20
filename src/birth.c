@@ -922,7 +922,7 @@ static bool point_mod_player(void)
 	int i, points;
  
  
-	points = 34; /* was 34 */
+	points = 34;
 
 	sprintf(modpts,"%d",points);
 
@@ -967,14 +967,16 @@ static bool point_mod_player(void)
 		else if (points > 0)	Term_addstr(-1, TERM_YELLOW, modpts);
 		else			Term_addstr(-1, TERM_RED, modpts);
 
-		Term_addstr(-1, TERM_WHITE, " points left. Press 'ESC' whilst on 0 points to finish.");
+/*		Term_addstr(-1, TERM_WHITE, " points left. Press 'ESC' whilst on 0 points to finish."); */
+		Term_addstr(-1, TERM_WHITE, " points left. Press 'ESC' with 0 or more points left to finish.");
 		Term_addch(TERM_WHITE, b2);
 
 		/* Get an entry */
 		stat = inkey();
 
 		/* ESC goes back to previous menu */
-		if ((stat == ESCAPE) && (points == 0)) break;
+/*		if ((stat == ESCAPE) && (points == 0)) break; */
+		if ((stat == ESCAPE) && (points >= 0)) break;
 
 		/* Assign values to entries, stats 0 to 5 */
 		switch (stat)
@@ -1868,6 +1870,7 @@ static void player_outfit(void)
 	int		i, tv, sv;
 	object_type	forge;
 	object_type	*q_ptr;
+	ego_item_type	*e_ptr;
 	
 	/* Get local object */
 	q_ptr = &forge;
@@ -1946,6 +1949,11 @@ static void player_outfit(void)
 			/* Give it a few plusses */
 			q_ptr->to_h += 1 + randint(4);
 			q_ptr->to_d += 1 + randint(2);
+
+			/* Determine its pval, if any */
+			e_ptr = &e_info[q_ptr->name2];
+
+			if (e_ptr->max_pval) q_ptr->pval = randint(e_ptr->max_pval);
 
 			/* You know its properties */
 			q_ptr->ident |= IDENT_MENTAL;
@@ -2073,13 +2081,13 @@ static void player_outfit(void)
 							q_ptr->name2 = EGO_SLAY_EVIL;
 						break;
 					case REALM_NATURE:
-						if (randint(5)==1)
+						if (randint(4)==1)
 							q_ptr->name2 = EGO_BRAND_ELEC;
 						else
 							q_ptr->name2 = EGO_SLAY_ANIMAL;
 						break;
 					case REALM_CHAOS:
-						if (randint(5)==1)
+						if (randint(4)==1)
 							q_ptr->name2 = EGO_BRAND_FIRE;
 						else
 							q_ptr->name2 = EGO_SLAY_DEMON;
@@ -2091,13 +2099,12 @@ static void player_outfit(void)
 							q_ptr->name2 = EGO_SLAY_UNDEAD;
 						break;
 					case REALM_TRUMP:
-						if (randint(5)==1)
+						if (randint(4)==1)
 							/* a basic Brand */
 							q_ptr->name2 = rand_range(72,75);
 						else
 						{	/* a Trump weapon */
 							q_ptr->name2 = EGO_TRUMP;
-							q_ptr->pval = 1;
 						}
 						break;
 					default:
@@ -2113,6 +2120,11 @@ static void player_outfit(void)
 				/* Give it some plusses */
 				q_ptr->to_h += 1 + randint(4);
 				q_ptr->to_d += 1 + randint(2);
+
+				/* Determine its pval, if any */
+				e_ptr = &e_info[q_ptr->name2];
+
+				if (e_ptr->max_pval) q_ptr->pval = randint(e_ptr->max_pval);
 			}
 
 			if ((tv >= TV_SOFT_ARMOR) && (tv <= TV_HARD_ARMOR))
@@ -2813,10 +2825,10 @@ static bool player_birth_aux()
 
 				/* Make sure they see everything */
 				Term_fresh();
-
-				/* Delay 1/10 (100) second */
-/*				if (flag) Term_xtra(TERM_XTRA_DELAY, 1); */
-
+#ifndef FAST_AUTOROLLER
+				/* Delay 1/10 second */
+				if (flag) Term_xtra(TERM_XTRA_DELAY, 100);
+#endif
 				/* Do not wait for a key */
 				inkey_scan = TRUE;
 

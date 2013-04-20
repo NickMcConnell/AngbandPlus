@@ -1051,20 +1051,14 @@ and tables.c --TY */
 #define EGO_SLAY_TROLL          85
 #define EGO_SLAY_GIANT          86
 #define EGO_SLAY_DRAGON         87
-#define EGO_KILL_ANIMAL         88
-#define EGO_KILL_EVIL           89
-#define EGO_KILL_UNDEAD         90
-#define EGO_KILL_DEMON          83
-#define EGO_KILL_ORC            84
-#define EGO_KILL_TROLL          85
-#define EGO_KILL_GIANT          86
-#define EGO_KILL_DRAGON         95
+/* 88 to 95 unused */
 #define EGO_VAMPIRIC            96
-#define EGO_KILL_ELEMENTAL	97
+/* 97 unused */
 #define EGO_TRUMP               98
 #define EGO_PATTERN             99
 #define EGO_DIGGING             100
-/* 101 - 103 unused */
+#define EGO_HOLY_DF		101
+/* 102 - 103 unused */
 
 /* Bows */
 #define EGO_ACCURACY            104

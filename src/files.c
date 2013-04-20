@@ -1724,7 +1724,7 @@ static void display_player_flag_info(void)
 	/*** Set 1 ***/
 
 	row = 13;
-	col = 1;
+	col = 0;
 
 	display_player_equippy(row-2, col+7);
 
@@ -1744,7 +1744,7 @@ static void display_player_flag_info(void)
 	/*** Set 2 ***/
 
 	row = 13;
-	col = 24;
+	col = 22;
 
 	display_player_equippy(row-2, col+8);
 
@@ -1765,7 +1765,7 @@ static void display_player_flag_info(void)
 	/*** Set 3 ***/
 
 	row = 13;
-	col = 48;
+	col = 45;
 
 	display_player_equippy(row-2, col+15);
 
@@ -2187,17 +2187,13 @@ static cptr object_flag_names[96] =
 static void display_player_ben(void)
 {
 	int i, x, y;
-	
 	object_type *o_ptr;
-
 	u32b f1, f2, f3;
-
 	u16b b[6];
 
 
 	/* Reset */
 	for (i = 0; i < 6; i++) b[i] = 0;
-	
 
 	/* Scan equipment */
 	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
@@ -2217,7 +2213,6 @@ static void display_player_ben(void)
 		b[5] |= (f3 >> 16);
 	}
 
-
 	/* Player flags */
 	player_flags(&f1, &f2, &f3);
 	
@@ -2228,7 +2223,6 @@ static void display_player_ben(void)
 	b[3] |= (f2 >> 16);
 	b[4] |= (f3 & 0xFFFF);
 	b[5] |= (f3 >> 16);
-
 
 	/* Scan cols */
 	for (x = 0; x < 6; x++)
@@ -2664,7 +2658,6 @@ errr file_character(cptr name, bool full)
 		fprintf(fff, "%s\n", buf);
 	}
 
-
         fprintf(fff, "\n[Miscellaneous information]\n");
         if (p_ptr->maximize)
             fprintf(fff, "\n Maximize Mode:      ON");
@@ -2752,7 +2745,7 @@ errr file_character(cptr name, bool full)
 
     if (p_ptr->muta1 || p_ptr->muta2 || p_ptr->muta3)
     {
-        fprintf(fff, "\n[Mutations]\n\n");
+        fprintf(fff, "\n\n[Mutations]\n\n");
         dump_mutations(fff);
     }
 
@@ -2764,13 +2757,44 @@ errr file_character(cptr name, bool full)
 	{
 		i = message_num();
 		if (i > 10) i = 10;
-		fprintf(fff, "[Last Messages]\n\n");
+		fprintf(fff, "\n[Last Messages]\n\n");
 		while (i-- > 0)
 		{
 			fprintf(fff, "> %s\n", message_str((s16b)i));
 		}
 		fprintf(fff,"\n You were killed by %s.\n\n", died_from);
 	}
+
+        fprintf(fff, "\n[Resistances and Abilities]\n\n");
+
+	/* Clear Screen */
+	clear_from(0);
+
+	/* Display resistances and abilities -- Gumby */
+	display_player_flag_info();
+
+	/* Dump part of the screen -- Gumby */
+	for (y = 11; y < 23; y++)
+	{
+		/* Dump each row */
+		for (x = 0; x < 79; x++)
+		{
+			/* Get the attr/char */
+			(void)(Term_what(x, y, &a, &c));
+
+			/* Dump it */
+			buf[x] = c;
+		}
+
+		/* Terminate */
+		buf[x] = '\0';
+
+		/* End the row */
+		fprintf(fff, "%s\n", buf);
+	}
+
+	/* Skip some lines */
+	fprintf(fff, "\n\n");
 
 	/* Dump the equipment */
 	if (equip_cnt)

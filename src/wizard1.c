@@ -504,7 +504,6 @@ static flag_desc brand_flags_desc[] =
 	{ TR1_BRAND_FIRE,         "Flame Tongue" },
 	{ TR1_BRAND_COLD,         "Frost Brand" },
 	{ TR1_BRAND_POIS,         "Poisoned" },
-
 	{ TR1_CHAOTIC,            "Chaotic" },
 	{ TR1_VAMPIRIC,           "Vampiric" },
 	{ TR1_IMPACT,             "Earthquake impact on hit" },
@@ -538,7 +537,6 @@ static const flag_desc resist_flags_desc[] =
 /*
  * Elemental immunities (along with poison)
  */
-
 static const flag_desc immune_flags_desc[] =
 {
 	{ TR2_IM_ACID,    "Acid" },
@@ -1148,8 +1146,8 @@ static void spoiler_outlist(cptr header, cptr *list, char separator)
 static void spoiler_print_art(obj_desc_list *art_ptr)
 {
 	pval_info_type *pval_ptr = &art_ptr->pval_info;
-
 	char buf[80];
+
 
 	/* Don't indent the first line */
 	fprintf(fff, "%s\n", art_ptr->description);
@@ -1163,19 +1161,12 @@ static void spoiler_print_art(obj_desc_list *art_ptr)
 	}
 
 	/* Now deal with the description lists */
-
 	spoiler_outlist("Slay", art_ptr->slays, ITEM_SEP);
-
 	spoiler_outlist("", art_ptr->brands, LIST_SEP);
-
 	spoiler_outlist("Immunity to", art_ptr->immunities, ITEM_SEP);
-
 	spoiler_outlist("Resist", art_ptr->resistances, ITEM_SEP);
-
 	spoiler_outlist("Sustain", art_ptr->sustains, ITEM_SEP);
-
 	spoiler_outlist("", art_ptr->misc_magic, LIST_SEP);
-
 
 	/* Write out the possible activation at the primary indention level */
 	if (art_ptr->activation)
@@ -1234,12 +1225,9 @@ static bool make_fake_artifact(object_type *o_ptr, int name1)
 static void spoil_artifact(cptr fname)
 {
 	int i, j;
-
 	object_type forge;
 	object_type *q_ptr;
-
 	obj_desc_list artifact;
-
 	char buf[1024];
 
 
@@ -2374,10 +2362,10 @@ void do_cmd_spoilers(void)
 		prt("Create a spoiler file.", 2, 0);
 
 		/* Prompt for a file */
-		prt("(1) Object List (obj-list.spo)", 5, 5);
+		prt("(1) Object List                (obj-list.spo)", 5, 5);
 		prt("(2) Full Artifact Descriptions (artifact.spo)", 6, 5);
-		prt("(3) Monster List (mon-list.spo)", 7, 5);
-		prt("(4) Full Monster Descriptions (monsters.spo)", 8, 5);
+		prt("(3) Monster List               (mon-list.spo)", 7, 5);
+		prt("(4) Full Monster Descriptions  (monsters.spo)", 8, 5);
 
 		/* Prompt */
 		prt("Command: ", 12, 0);

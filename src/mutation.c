@@ -1940,7 +1940,9 @@ static void cmd_racial_power_aux (void)
 				}
 
 				msg_print("You grin and bare your fangs...");
+
 				dummy = plev + randint(plev) * MAX(1, plev/10);   /* Dmg */
+
 				if (drain_life(dir, dummy))
 				{
 					if (p_ptr->food < PY_FOOD_FULL)
@@ -1948,16 +1950,19 @@ static void cmd_racial_power_aux (void)
 						(void)hp_player(dummy);
 					else
 						msg_print("You were not hungry.");
-						/* Gain nutritional sustenance: 150/hp drained */
-						/* A Food ration gives 5000 food points (by contrast) */
-						/* Don't ever get more than "Full" this way */
-						/* But if we ARE Gorged,  it won't cure us */
-						dummy = p_ptr->food + MIN(5000, 100 * dummy);
+
+					/* Gain nutritional sustenance: 150/hp drained */
+					/* A Food ration gives 5000 food points (by contrast) */
+					/* Don't ever get more than "Full" this way */
+					/* But if we ARE Gorged,  it won't cure us */
+					dummy = p_ptr->food + MIN(5000, 100 * dummy);
 					if (p_ptr->food < PY_FOOD_MAX)   /* Not gorged already */
 						(void)set_food(dummy >= PY_FOOD_MAX ? PY_FOOD_MAX-1 : dummy);
 				}
 				else
+				{
 					msg_print("Yechh. That tastes foul.");
+				}
 			}
 			break;
 

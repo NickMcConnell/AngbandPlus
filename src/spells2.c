@@ -1189,7 +1189,7 @@ void self_knowledge(void)
 
 		if (f1 & (TR1_CHAOTIC))
 		{
-			info[i++] = "Your weapon is branded with the Sign of Chaos.";
+			info[i++] = "Your weapon is marked with the Arms of Chaos.";
 		}
 
 		/* Hack */

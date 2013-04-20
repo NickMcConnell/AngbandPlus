@@ -1,0 +1,691 @@
+****************************************************************************
+Our story so far...
+  It is the time of the Conjunction of a Million Spheres. Your Earth is
+composed almost entirely of cave-riddled mountains (which have their own
+dark inhabitants, known mostly by rumour), with villages in the few fertile
+valleys that exist. Except for high summer, movement and trade between the
+villages is almost impossible.
+  Fresh rumour begins infiltrating the villages.  Rumours about the strange,
+otherworldly beings that have begun to concentrate in the vast system of
+caves under the mountains.  Rumours that the forces of Chaos are gathering
+in unheard of numbers (led by three Chaos Lords referred to only as "The
+Sword Rulers"), somewhere deep within the Earth, preparing for a great
+battle with Law, upsetting the rule of the Cosmic Balance on your plane.
+  Something needs to be done.  The Balance must be restored.  Someone must
+journey to the bowels of the Earth and attempt to banish these Sword Rulers
+from your plane...
+****************************************************************************
+
+=============================================
+= Gumband 2.2.0b = Last Update: 26-Jan-2002 =
+============================================================================
+Changes from Gumband 2.2.0a are marked with '##'. Only the most major
+changes are listed here, to keep things short...
+============================================================================
+Send any and all complaints (or praise ;) to aa343@chebucto.ns.ca. Patches,
+makefiles, etc., should be sent to gumby_jd@yahoo.com (due to a lack of
+INBOX space at the first address).
+============================================================================
+PLEASE NOTE: Preserving savefile compatability is *NOT* important to me. I
+highly suggest you finish up your current character in your current version
+before moving to this one. At the very least, monster memory could be
+severely messed up between versions...
+============================================================================
+Thanks to all the folks in #angband and rec.games.roguelike.angband who've
+put up with me, and even helped me in many cases, while I was plundering
+their knowledge of C for this little project. :) So, if you've responded to
+any of my posts dealing with Gumband, or C programming in general, consider
+yourself thanked. :) [individual thanks will be down there in the entries
+that apply]
+============================================================================
+Thanks also to those who've been compiling Gumband for other platforms. You
+know who you are, and since it sometimes changes, I won't lay the blame in
+here. ;) Just make sure to give yourself credit for the compile in the text
+file you upload with your archive, 'kay?
+============================================================================
+There have been other minor changes than those listed here that are no
+longer worth individual mentions. Most changes to the monster, object and
+artifact lists won't be included here, and some items might drop off the
+list from time to time (to save space), tho that won't mean that the change
+has been reversed.
+============================================================================
+Note to Windows users: Remember to change Gumband.ini to reflect the path to
+\lib on your own system....
+============================================================================
+Note to Linux users: There may be problems with the ` macro I have defined
+in .\lib\user\pref.prf (everyone should read that file, BTW), so you might
+want to remove it.
+============================================================================
+
+                    ####### Known Bugs #######
+
+ There are too many potions in the game at the moment, so a few potions
+ cannot be generated via debug mode's item creation menus since the list
+ runs out of symbols fairly quickly. It is not a priority to fix.
+
+ If you look through the entire monster list ['/' then CTRL-a] while the
+ 'know all monster info' cheat is active, you will see the occasional blank
+ monster (ie, The ('')/(''): [(r)ecall, ESC]). This is because there are
+ still empty slots in r_info.txt, which I will eventually fill.
+
+ Sometimes, completely at random, the Roguelike option will set itself to
+ true upon startup. I have no idea why... [hasn't happened in quite a while
+ as of 06-Dec-01]
+
+ I've been noticing that sometimes there won't be as many quest-monsters on
+ a level as there are supposed to be, meaning that a quest can't be finished
+ that trip. :( I think KILL_BODY got rid of them? There's no check for
+ QUESTOR (or UNIQUE) status for KILL_BODY's effect in the original code, so
+ it might very well be the problem... I've added a check, so it might be
+ fixed - if this bug crops up in this version, someone please mail me, 'kay?
+
+ Sometimes aggravate_monsters (via scrolls, Rogue thefts, etc., but not the
+ permanent attribute) doesn't wake up sleeping monsters. Noticed it
+ happening on two creatures so far: the Mangy looking leper and the Battle-
+ scarred veteran. Some games it'll wake them up, some games it won't. :(
+
+ Random artifact amulets and rings that are of a type that starts with the
+ EASY_KNOW flag will be automatically identified if you've previously ident-
+ ified the base type of ring or amulet. Not really worth fixing, IMHO.
+
+ If an object has a random ability (resistance, power, or sustain), it will
+ reroll the ability and sometimes lose the ability. So don't Brand a
+ Defender if you need that confusion resistance it's giving you! :) I can't
+ think of any solution to preserve the xtra info...
+
+ Sometimes, when hit by GF_FORCE (wand of Striking, Fist of Force spell), a
+ monster standing by a permanent wall on the outer edge of the map will
+ disappear. This is *very* bad in the case of quest monsters... Also, if the
+ monster is hit while standing directly in front of 1 grid of granite, or a
+ door, or whatever, it will be pushed through to the other side. (see,
+ starting at lines 2536 and 4000, spells1.c for details - I'm stumped as to
+ how to fix it: any solutions gratefully accepted)
+
+ Finally got around to marking all the compiler warnings (that I get with
+ gcc v3.02) in the source. Just search for '/* warning:'. Anyone who can fix
+ them, mail me.
+
+
+                    ####### Misc Changes #######
+
+ Updated main-gcu.c to the version from the Thangorodrim Linux section. If
+ that causes you any problems, the original main-gcu.c is still there as
+ 'main-gcu.old'. The other files you will need are in ./src/gcu_fix.tar.gz.
+ If you need to know anything else, go to:
+		http://thangorodrim.angband.org/linux/faq.html
+
+ Implemented a quick start option. If you select it, your character will
+ start the game with mildly enchanted equipment (usually an ego-item or two)
+ in their inventory, at least 1000 gold in their purse, a recall depth of
+ 250', and enough XP to start the game as a level 5 character. The only
+ penalties for using this option is that your score will be halved and the
+ fact that you quick-started will be noted in any character dumps you make.
+
+ Chaos Resistance no longer gives Confusion Resistance.
+
+ Being Berserk now gives +25 to hit and +(plev/2) to damage (was +10). In
+ return, you are reduced to just the base AC of worn armour and your
+ Dexterity bonus. Spellcasting failure rates go up by 25% as well.
+
+ I have implemented Kamband-style Ghosts, but as a birth choice instead of a
+ race. The player starts out in the dungeon on level 96, on a random stair,
+ with 75 Scrolls of Identify. The player cannot use Word of Recall effects
+ until he or she reaches the town, at which point the character loses the
+ abilities granted by this ghostly status (See Invisible, Telepathy, Slow
+ Digestion, permanent Lite, Speed +10, wizard-lighting levels upon entry,
+ and being able to pass through walls without damage). [Thanks to Ivan
+ Tkatchev for the idea of ghostly characters, and to DarkGod, Antimatter,
+ Timo Pietil and Parak for their help and advice]
+
+ Turned the Spoiler Generation debug command into a standard command,
+ accessed via the '$' key in both command sets. Note that the *.spo files
+ will be generated in ./lib/info.
+
+ Added a poly_all() function - (attempts to) polymorph all monsters in line
+ of sight. One small snag: the game considers monsters that are polymorphed
+ to be new monsters, therefore it takes a while to finish the effect as it
+ polymorphs monsters several times. Still fun, tho. :) I will, of course, be
+ attempting to fix this little problem someday.
+
+ The Home now has *4* pages (48 stacks of items) to store stuff in.
+
+ On the 3rd page of the character 'sheet' display, sustained stats are shown
+ in light blue (this is both the normal 's' and for any number that might be
+ in that column as well).
+
+ Invulnerability now only acts as an extra level of resistance; reduces
+ damage from any source by 1/3rd, on top of any other resistances. [was
+ 1/9th damage in previous versions] Wraithform no longer reduces damage at
+ all and only increases AC by 50. [was 1/3rd damage and +75 AC]
+
+ Having Resist Chaos now prevents all the side effects of being hit by
+ Chaos. If you don't have it, then Resist Confusion still stops the
+ confusion portion and Resist Nether still stops the experience point loss.
+
+ Damage from Rocket attacks is now reduced to 75% of the total (instead of
+ 50%) if you resist Shards. Damage from Gravity attacks is reduced to 75%
+ (instead of to 2/3rd) of the total if you have Levitation.
+
+ The level feelings are now as follows:
+
+	"Looks like any other level."
+	"You feel there is something special about this level."
+	"You nearly faint as horrible visions of death fill your mind!"
+	"This level looks extremely dangerous."
+	"This level looks very dangerous."
+	"This level looks dangerous."
+	"You have a very bad feeling..."
+	"You have a bad feeling..."
+	"You feel very nervous."
+	"You feel nervous."
+	"You feel your luck is turning..."
+	"You don't like the look of this place."
+	"This level looks reasonably safe."
+	"What a boring place..."
+
+## Added the display of resistance and ability flags (the lower half of the
+ 'Chh' screen) to the character dump.
+
+## Poisonous hits from monsters and traps (floor and chest) now last as
+ long as the poison from the mushroom/potion of Poison and GF_POIS effects.
+ (I forgot to upgrade these effects when I upgraded the mushroom/potion/GF
+ effects) [specifically, their original durations are now increased by
+ plev*2. Poison from Spiked Pit traps has *not* been increased, BTW]
+
+## During point-based generation of a character, you can now stop assigning
+ points even when you have points left over.
+
+
+              ####### Altered Races and Classes #######
+
+(see ./lib/help/birth.txt and the source for full details on races and
+ classes)
+
+Archers:
+ Bonus shots with any missile weapon at levels 15, 30 and 45.
+ Gets more frequent (double the chance) and more powerful critical hits
+   (double the roll for the level of crit) with missile weapons.
+ Gets a bonus to-hit with missile and thrown weapons equal to char. level.
+ Gets +1 to-dam with missile and thrown weapons every 5 levels.
+ Gets +1 added to their sling/bow/crossbow's multiplier at level 50. [not
+   displayed onscreen, tho]
+ Has 5 blows as their natural maxmimum and with no bonus blows due to level.
+ Average Str, Con & Chr, great Dex, bad Int & Wis.
+ Skills mostly at Warrior levels, except for Fighting (which is as bad as
+   a Priest's) and Bows/Throw (which is a fair bit better than a Ranger's).
+ Cannot cast spells.
+ Gains Resist Fear at level 35.
+ Pseudo-ID is as good as a Warrior's.
+ Requires +30% XP per level.
+
+Beastmasters:
+ May summon pets appropriate to the current dungeon level ['m' to use].
+ The number of summoned pets possible on a dungeon level is based on
+   Charisma - pets summoned or created by means other than the innate
+   ability don't count towards this maximum.
+ Fairly average stats, except for +3 Charisma, and skills. 9 hit dice.
+ Requires +25% XP per level.
+ Unlike other classes, Beastmasters gain *full* XP for their pets' kills.
+ Pseudo-ID is the same as a Rogue's.
+ Bonus melee attack at level 25, bonus shot at level 30.
+ Gains +1 to-hit and to-dam every 10 levels, like a Paladin.
+ Calculations for the number of melee attacks are the same as for a Warrior.
+
+Beastmen:
+ Each time a Beastman gains a level, a there is a 1-in-4 chance of losing an
+   existing mutation. If they fail that check, or have no mutations to lose,
+   they instead gain one.
+
+Chaos Warriors:
+ If you have Arioch, Xiombarg or Mabelrode as a patron, and you kill them,
+   then you will be hit with multiple TY Curses.
+ Now use WIS for their spell stat instead of INT (they now get their magic
+   through their patron (god), like Priests and Paladins do).
+ Swapped their +1 INT bonus with their +0 WIS bonus, to make the above a bit
+   fairer.
+ Bonus shot now at level 30.
+
+Draconians:
+ Now gain the following resistances at the level in brackets: Fire (5),
+   Cold (10), Acid (15), Electricity (20), Light (25), Dark (30),
+   Poison (35).
+ Breath weapon type is randomly chosen from a list that is added to as
+   levels are gained. All Draconians have Fire breath. The breath types that
+   follow are added at the levels in brackets: Cold (10), Acid (15),
+   Electricity (20), Light (25), Dark (30), Poison (35), Shards (40),
+   Chaos (45), Mana (50). [breath type was previously determined by class]
+
+Gambolts:
+ Exceptional DEX & CHR (both sustained), Saving Throw and Stealth. Decent
+   Searching and great Perception. All other stats and skills are average.
+ Permanent speed +2.
+ Hit Dice of 8, 60' infravision, and an XP penalty of +30%
+ Racial activation is Charm Monster at level 20, which becomes Charm
+   Monsters at level 50.
+ Cannot 'legally' choose to be Priests, Paladins, Chaos Warriors or Monks.
+
+Golems:
+ Intrinsic Armour Class equals the Golem's level.
+
+High-Magi:
+ Pseudo-ID now equal in speed to that of a Rogue's, but light.
+
+Melniboneans:
+ Good Int and Wis, but low Chr. Other stats are slightly above average.
+   Skills are generally good. Tend to be treated like Elves in stores,
+   except by Humans and Barbarians...
+ Their Chaos Patron is *always* Arioch, and are fairly likely to get the
+   CHAOS_GIFT mutation.
+ 10 hit dice, +40% XP requirement, 20' infravision.
+ Racial activation is demon summoning. There is a 1-in-3 chance that the
+   demon will be hostile...
+
+Paladins:
+ Bonus shot now at level 30.
+ Gains XP for destroying non-storebought spellbooks: If their magic realm is
+   Life, they get XP for destroying Death books. If their magic realm is
+   Death, they get XP for destroying Life books.
+
+Priests:
+ The penalty for using edged weapons is now a *real* penalty of (-15,-15)
+   instead of the (-2,-2) that no one ever really noticed. See also the
+   Spellcasting section below.
+
+Rangers:
+ Bonus shots with Short and Long Bows reduced back to 2 (levels 20 & 40).
+ Nature magic only, no secondary realm.
+
+Rogues:
+ Rogues gain 1 XP for successfully searching out a secret door or trap with-
+   out using a spell. Others gain nothing.
+ Other classes only get 1/2 of the normal XP gained for disarming traps on
+   chests or on the floor.
+ Rogues can now lock doors when they close them, but because of this no one
+   (Rogues or otherwise) gains XP for picking to locks on doors.
+ Backstabbing a monster requires that the Rogue be wielding a weapon that
+   is 5 pounds or lighter, the Rogue pass a randint(monster_level+10) <=
+   stealth check, and that the monster be somewhat humanoid and is stunned,
+   confused, sleeping or afraid.
+ Rogues gain an extra blow per round at level 25, but only when wielding a
+   weapon that is 5 pounds or lighter.
+ Rogues can now steal gold from monsters, as in OAngband. Just alter the
+   grid the monster is on... [CTRL-dir or a '+' and the direction] It's a
+   bit tougher to steal than in O, however, and there's a chance that you
+   will flee laughing (teleport a short distance) after a successful theft.
+
+Vadhagh:
+ Great Int and Wis, exceptional Dex and Chr. Str is a bit below average and
+   Con is rather bad. Skills are generally very good. Generally treated like
+   Elves in the stores...
+ 9 hit dice, +40% XP required, 40' infravision.
+ Resists Chaos.
+ As a racial activation, they can step into an adjacent plane of the Earth,
+   otherwise known as Alter Reality.
+
+Warriors:
+ Warriors gain an AC bonus equal to 50% of worn armour's base AC, rounded
+   down.
+ Gains XP for destroying any non-storebought spellbook.
+
+Warrior-Magi:
+ Bonus melee attacks at levels 20 and 40, bonus missile shot at level 30.
+ 6 blows per round with same weight and multiplier restrictions as Warriors.
+ Arcane magic only, no secondary realm.
+ Available mana is at 75% what everyone else gets.
+ Hit Dice bonus is now 6 (up from 4), equal to Chaos Warriors, Rangers and
+   Paladins.
+
+Weaponmasters:
+ Weaponmasters are roughly equal to Warriors in stats and skills.
+ Weaponmasters have chosen for them, at birth, one of the four melee weapon
+   types (Hafted (blunt), Polearms, Axes, or Swords) and start out with a
+   weapon of the proper type.
+ Weaponmasters gain a bonus to-hit and to-dam equal to the player's level
+   only when using a weapon of the type they specialize in.
+ [thanks to GSN for the suggestion on how to keep this from affecting the
+  Bows/Throw skill]
+ Weaponmasters gain extra blows when wielding a weapon in their specialty
+   class (at levels 15, 30 and 45), and have the same weight and multiplier
+   restrictions as Warriors, but never have more than one blow, regardless
+   of Str/Dex and any magical considerations, when wielding other weapons.
+ Gains Fear Resistance at level 30.
+ No spellcasting.
+ XP penalty of 30%.
+
+Yeeks:
+ Now have -5 to all stats, horrible skills, decent hit dice (can't let them
+   be *all* bad :), etc., etc., taken from DrAngband.
+ Racial activation sets the 'Afraid' flag and gives them a speed boost -
+   Yeeks run away a lot. :)
+ Required XP is at -75%, making level gains *extremely* fast.
+
+
+              ####### Monster-Related Changes #######
+
+ Bumped Sauron to level 97 and replaced Oberon and the Serpent of Chaos with
+ the three Sword Rulers (Arioch, Xiombarg and Mabelrode), all three of which
+ must be now be defeated to win.
+
+ Added new monster flag: CHAOTIC. Only effect, at the moment, is that
+ CHAOTIC creatures take extra damage from Weapons of Chaos (see the entry
+ for Chaotic weapons below).
+
+ Defined humanoid monsters as a monster with one of the following symbols:
+ "AhkLNoOpPstTyYVWz". Used for Slay Humanoid and the backstab attack of
+ Rogues.
+
+ The monster health bar has been updated to show if a monster is stunned
+ (light brown) or confused (dark brown).
+
+ Uniques no longer get automatic resistance to sleep, confusion, slowing,
+ etc., and the saving throw for all creatures against such attacks is a bit
+ weaker. [Uniques still can't be charmed, however]
+
+ New option: stupid_groups. If stupid_monsters is off, group monsters will
+ still use the old AI.
+
+ When a pet of yours kills a monster, you will get one half of the XP that
+ you would have gotten for killing the monster yourself, and having pets no
+ longer reduces your mana regeneration rate.
+
+ RBE_CONFUSE and RBE_BLIND melee attacks can now be resisted by making a
+ saving throw, like you can for RBE_FEAR. However, the save is at
+ "rand_int(200) < skill_sav" instead of "rand_int(100) < skill_sav", which
+ is the standard save.
+
+ The effects of Nexus (*not* the damage) can be resisted if a
+ "randint(200) < skill_sav" check is made.
+
+ Monsters can now breathe Water (unresistable, so capped at 200 damage).
+
+ Added 'detect_monsters_mental(): monster detection which skips EMPTY_MIND
+ creatures, with a plev*2 chance of detecting those with WEIRD_MINDs or
+ that are STUPID.
+
+ Non-unique monsters are now less likely to resist Death Ray effects,
+ requiring a (mon_level + d20 > randint(damage)) to resist. [used to also
+ require a randint(100) != 66 to resist, meaning they resisted most of the
+ time]
+
+## Damage dealt in melee by one monster against another has been tripled -
+ normal values are balanced for use against the player and are way too
+ little for the amount of HP monsters have compared to the player. [spell
+ and breath damage left unchanged since these can affect the player]
+
+
+               ####### Object-Related Changes #######
+
+ Altered the Dexterity table governing the chance of having something stolen
+ from your backpack. There is no more immunity: the table tops out at 98% at
+ DEX:18/220 or higher.
+
+ Chaotic weapons deal x3 damage to CHAOTIC creatures (usually those who
+ breathe chaos or launch chaos balls, or who have thematically been warped
+ by or totally controlled by Chaos). [briefly, weapons of Chaos, in the
+ earlier Moorcock stories, were created from Chaos by Law specifically to
+ fight Chaos]. Chaotic weapons have a reduced chance of causing earthquakes
+ or causing your foe to vanish.
+
+ Added a SLAY_HUMANOID flag. x3 base damage to humanoid creatures. Used
+ *only* on the Long Sword 'Kanajana' and will never appear on random
+ artifacts.
+
+ Wielding a weapon with a Slay that conflicts with your race has a 50%
+ chance of burning you each turn. Wearing heavy gloves (gauntlets or better,
+ regardless of artifact or ego status) will prevent the burning. Since Slay
+ Humanoid was created only for Erekose's sword, Kanajana, which emitted a
+ poisonous radiation deadly to humanoids, those with Poison resistance won't
+ be scorched by it. [see dungeon.c for details]
+
+ Brands and Slays are now cumulative See cmd1.c for full details.
+
+ Branding can now be applied to existing ego-items, though supplementary
+ abilities (such as the Hold Life of Vampiric weapons) won't be added. Any
+ item, except for bolts branded by Cubragol, branded by the player becomes
+ unsellable. You cannot add more than one brand to a weapon. Player-branded
+ items will automatically have {!k} inscribed on it (or added to an existing
+ inscription) to prevent accidental destruction when the auto_destroy option
+ is turned on. The default brand, which chooses between Frost and Fire
+ brands, now also chooses between Acid and Lightning brands.
+
+ Turned the code that adds random sustains, abilities and high resistances
+ into the RAND_SUST, RAND_ABILITY and RAND_RESIST object flags. Note that
+ these are *only* meant for ego-items, so if you modify the *_info files, I
+ make no guarantees about what will happen if you try and add these to an
+ artifact or normal object - it might crash or it might just ignore the
+ flags...
+
+ Potions of Self Knowledge identify the contents of your pack, and are also
+ a bit cheaper and more common.
+
+ (Blessed) weapons now have a 1-in-4 chance of having Slay Evil and can now
+ have a pval of up to 4.
+
+ The TY_CURSE object flag has been replaced with the DEVICES flag, which
+ gives you a Magical Devices skill of 95. Various objects have been changed
+ because of this, of course.
+
+ The effects of drinking a Potion of Death are resisted by characters with
+ Hold Life.
+
+ Weapons of Slaying no longer gain Poison Brand or Vorpal/Earthquakes.
+ Instead, they get a bunch of Slay Foos. Some Slays are more likely than
+ others. Depending on luck, you could get all the Slays or you could get no
+ Slays at all. Weapons of Slaying are a bit rarer now as well.
+
+ Missiles of Slaying can now gain more than just one extra damage die.
+
+ Wands of Apportation can only fetch() objects that are 20lbs or less, and
+ you cannot fetch() objects unless you are on an empty floor square [this
+ also applies to the various apportation spells as well]. Also, fetch()
+ effects can no longer grab items that're in vaults.
+
+ Identify and *Identify* now have filtered lists, showing only those items
+ that need to be identified. Thanks to RMG for the suggestion and pointers.
+ Further, this behavior is controlled by the "filter_identify" option, which
+ defaults to off.
+
+ In addition to their normal Clairvoyance, Detection, Self Knowledge and
+ Identify Pack effects, Potions of *Enlightenment* also identify *every*
+ object on the level.
+
+ Potions of Invulnerability are now called Potions of Resilience.
+
+ Polearms are now brown [wood - most of the structure of a pole weapon is a
+ wooden shaft] so that they are visibly different from Axes.
+
+ Shields of Deflection and Dragon Shields now use the normal shield symbol
+ {')'} instead of the hard armour symbol {'['}. Their colours are unchanged.
+
+ The chance of an object being 'good' is now capped at 95%. The chance of a
+ good object becoming 'great' is now 25%. [was 75% and 20%, respectively]
+
+## Extra dice on ego-items (but not random artifacts or missiles) are now as
+ common as they are in SAngband 0.9.4 (ie, you'll see them regularly).
+
+## Added Holy Defender weapons from SAngband.
+
+## *MAJOR* change to the ego-items lists. The *Slay* Foo items have been
+ removed and the regular Slay Foo items gain the powers from the equivalent
+ *Slay* item. Slay/*Slay* Elemental weapons no longer give all four basic
+ resistances, but instead gain up to two of the basic resistances in the
+ same manner as *Slay* Dragons did. Slay/*Slay* Undead no longer grant
+ Nether resistance or Hold Life, and are not Blessed, just See Invisible.
+ Finally, Weapons of Slay/*Slay* Dragon do *not* give KILL_DRAGON. Note that
+ I was unable to find a way to make it so that characters who quick-start
+ get the extras generated in a_m_aux_1(), such as the extra resists for
+ Slay/*Slay* Dragon weapons. Sorry.
+
+
+                   ####### Spellcasting #######
+
+ Failure rates for spellcasting are adjusted as follows:
+   Wearing gloves (without Free Action or a Dexterity bonus) for mage-type
+      spellcasters (+15%)
+   Being encumbered by heavy armour [penalty to fail equal to half of the
+      amount of mana you lose for heavy armour]
+   Priests wielding a non-blessed edged weapon (+15%)
+   Being Berserk (+25%)
+   Being stunned (+15%/+25%)
+   
+ Characters suffering any of the conditions above can no longer get a 0%
+ spell failure rate, no matter how high their spell-stat or level is.
+ [penalties are assessed after bonuses]
+
+ Altered the armour weight limits for spellcasting. See ./help/birth.txt for
+ the actual numbers.
+
+ No apportation/fetch effect requires line of sight anymore.
+
+
+Chaos:
+ 'Mana Burst' now has a straight 5% chance of producing a true ball of mana
+   (GF_MANA) instead of the normal missile ball (GF_MISSILE). The mana ball
+   does an extra 25 points of damage compared to the missile ball.
+ Replaced 'Teleport Other' with 'Demonic Consultation'. There is a 50% +
+   (plev-5) chance for your consultation to identify an item, with a 50%
+   chance that it will *Identify* instead. Otherwise, you will summon an
+   angry demon.
+ Replaced 'Demon Detection' with 'Chaotic Sensing', a detection spell which
+   scans the current panel and has only a 50% + (plev/2) (max 75%) chance to
+   display traps, doors, stairs, monsters, objects and treasures, and half
+   that chance to map the current panel. [thanks to arch of #angband for
+   the latter change]
+
+Death:
+ 'Wraithform' now lasts (randint(plev) + (plev/2)), making it useful.
+   Wraithform, whatever the source, no longer grants reflection, and only
+   reduces damage to 1/3rd instead of 1/10th.
+ 'Omnicide' has been replaced by 'Summon Death', a line-of-sight death
+   'ray'. There is a price for such power, however the caster will suffer
+   1/2 of their current HP in damage, 1/6th if they are Resilient, from
+   Death's cold touch... [was 200+d200 damage; won't outright kill you now,
+   but it makes you more vulnerable]
+
+Life:
+ 'Protection from Evil' now affects creatures of any level <= level 97,
+   regardless of the character's level. Duration of the effect has been
+   reduced. It is also less likely to successfully repel a monster (maximum
+   40% chance to repel at character level 50). These mods apply regardless
+   of the source of the PfE. (see melee1.c for full details)
+ 'Holy Invulnerability' has been renamed 'Holy Resistance'.
+ Since 'Cure Critical Wounds' has cured poison for a while now, 'Cure
+   Poison' itself is redundant and has been replaced by 'Turn Undead' (ie,
+   attempt to scare all Undead in line of sight).
+
+Mindcraft:
+ 'Precognition' now detects as follows [level in ()s]: Detect Minds (1),
+   Detect Doors/Stairs (5), Detct Traps (10), Detect Monsters & Detect
+   Invisible (15), Magic Mapping (20), timed Telepathy (25), Detection (35),
+   Clairvoyance (45).
+ 'Minor Displacement' has moved its dimension door (targeted, short-ranged
+   teleportation) effect to level 30. (down from 35 in previous versions)
+ 'Major Displacement' now gives Teleport Other at level 45 instead of its
+   original 'Banish' (teleport away all creatures in line of sight) effect.
+ 'Psychometry' now gives Identify at level 30 and *Identify* at level 40.
+ 'Mind Wave' now becomes a line-of-sight effect at level 30.
+ 'Domination' now Charms Monsters at level 35. (up from 30).
+ Added 'Apportation'. Level 20, cost 12 to use.
+
+Nature:
+ 'Entangle' has been replaced by 'Venomous Thorns', a stinging spray of
+   Poison bolts (like the Shard Blast mutation).
+
+Sorcery:
+ Removed 'Sense Minds' and restored 'Telekinesis' as 'Apport Arcane'.
+ Like the potion of the same name, the 'Self Knowledge' spell now also
+   identifies the contents of your backpack.
+ 'Globe of Invulnerability' has been renamed 'Globe of Resilience'.
+
+Trump:
+ 'Trump Spying' (timed ESP) has been replaced with 'Minor Trump', which
+   summons a creature that has a maximum level equal to 1/2 of the player's.
+   There is a 1-in-10 chance that the summoned creature will be hostile.
+ Removed 'Joker Card' and restored 'Trump Reach' as 'Apportation'.
+ Replaced 'Minor Divination' (which itself replaced 'Reset Recall') with
+   'Detect Minds'.
+ Swapped the places of 'Phantasmal Servant' and 'Trump Animal' in the second
+   spellbook.
+ 'Shuffle' has been altered to remove the Hanged Man (TY Curse). That entry
+   now summons a friendly lesser monster, as per the spell 'Minor Trump'.
+   The Devil and Death have reduced chances to show up, with the excess
+   going to the minor trump...
+ 'Living Trump' is now a 50/50 affair instead of having a 7/8 chance of
+   giving the random teleportation mutation.
+
+
+                  ####### Other People's Work #######
+
+(NOTE: I might have missed one or two, but no biggie. :] Mail me if you spot
+your own work so I can credit you properly...  And some, of course, is
+covered up in the main text)
+
+ Kieron Dunbar's Stormbringer patch, to put Stormy in the a_info & k_info
+ text files instead of creating it on the fly.
+
+ Kieron's self-cursing items patch - items with the "AUTO_CURSE" flag will
+ curse themselves when worn, and the turn after being uncursed (at normal
+ speed) while worn, when uncursed (giving you one chance to remove the
+ item). The type of curse [heavy or normal] depends on what other Cursed
+ flags the item has.
+
+ Added Prfnoff's '[Last Messages]' routine to the character dump so we can
+ all see what you died of. :)
+
+ Stole the lose_mutation() function from ZAngband 2.5.3, which makes things
+ a lot more logical when dealing with the gains and losses of Beastmen...
+
+ Added Eric Bock's Pet Command Menu [accessed via the 'p' key under both
+ keysets].  You can now control if pets can pick up objects or open doors,
+ or forbid those things, tell your pets to follow you closely or to wander
+ at a distance and, of course, dismiss your pets.
+
+ Added A.P. White's 'push-back' effect for GF_FORCE from DrAngband. Many
+ thanks to APW and DarkGod for their help in trying to get it working right.
+ [if the monster so hit doesn't seem to get knocked back, it's because they
+  have taken their move, and the first thing they'll do most times is move
+  right towards you]
+
+ Added the Slime Mold names patch by Fufie of #angband. This can be disabled
+ via the name_slimes option.
+ [Note that every transfer of a Slime Mold from the store to you will rename
+ that Mold - and Molds sold to stores will merge inscriptions...]
+
+ Added the Rogue theft code from OAngband by Leon Marrick. Required some
+ minor alterations, of course, to get it to work. Also included his mods to
+ wake up & aggravate the entire level for too many thefts. One major change
+ to the code: there's a chance that the character will blink away, like any
+ other thief...
+
+ Took the Yeek race from DrAngband v2.9.8 by A.P. White.
+
+ Riivo Magi ('RMG' in the source) contributed the artifact abilities code
+ for the character dump, and the suggestion on how to filter the items shown
+ at identify prompts.
+
+ Thanks to arch for suggesting the map_area addition to detect_random().
+
+ Thanks to arch (and, apparently, APW) for fixing the flavours of store-
+ bought items. [never saw it for myself, but apparently scrolls and such
+ bought from stores wouldn't have their flavours in your inventory...]
+
+ Added some more of Kieron Dunbar's patches: weight.diff (shows object
+ weights when 'l'ooking around) for all systems, mainchoice.diff (seems to
+ automatically show a list when quaffing, zapping, etc., instead of giving
+ a normal prompt with the '* to see' option), windows.diff (enhances
+ windows a bit for X11 systems), and monlist.diff (lists monsters that are
+ nearby in a separate window).
+
+ Added the stacking of pseudo-ID'd {average} objects from Antimatter's code,
+ with a lot of help from him to actually get it to work. :)
+
+ Added a modified versions of Ivan Tkatchev's 'Ghost' class (astral mode)
+ and the Beastmaster class from Kamband.
+
+ Added random player names and point-based character generation from David
+ Thornely's CthAngband 4.1.0b.
+
+ Added Holy Defender weapons (slightly modified) from Julian Lighton's
+ SAngband v0.9.4b. Don't know whether it was him or Michael Gorse (SAngband
+ 0.8.5-0.9.3), or maybe even someone else, who created them in the first
+ place...

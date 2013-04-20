@@ -1786,10 +1786,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	/* Hack -- Rods have a "charging" indicator */
 	else if (known && (o_ptr->tval == TV_ROD))
 	{
-		/* Hack -- Dump " (charging)" if relevant */
-#if 0
-		if (o_ptr->pval) t = object_desc_str(t, " (charging)");
-#endif
+		/* Hack -- Dump the recharge time, if appropriate -- Gumby */
 		if (o_ptr->pval)
 		{
 			t = object_desc_chr(t, ' ');
@@ -1830,7 +1827,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		else if (f1 & (TR1_SPEED))
 		{
 			/* Dump " to speed" */
-			t = object_desc_str(t, " to speed");
+			t = object_desc_str(t, " speed");
 		}
 
 		/* Attack speed */
@@ -1847,21 +1844,21 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		else if (f1 & (TR1_STEALTH))
 		{
 			/* Dump " to stealth" */
-			t = object_desc_str(t, " to stealth");
+			t = object_desc_str(t, " stealth");
 		}
 
 		/* Infravision */
 		else if (f1 & (TR1_INFRA))
 		{
 			/* Dump " to infravision" */
-			t = object_desc_str(t, " to infra");
+			t = object_desc_str(t, " infra");
 		}
 
 		/* Search */
 		else if (f1 & (TR1_SEARCH))
 		{
 			/* Dump " to searching" */
-			t = object_desc_str(t, " to searching");
+			t = object_desc_str(t, " search");
 		}
 
 		/* Finish the display */
@@ -1871,10 +1868,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	/* Indicate "charging" artifacts XXX XXX XXX */
 	if (known && o_ptr->timeout)
 	{
-#if 0
-		/* Hack -- Dump " (charging)" if relevant */
-		t = object_desc_str(t, " (charging)");
-#endif
+		/* Hack -- Dump the recharge time, if appropriate -- Gumby */
 		t = object_desc_chr(t, ' ');
 		t = object_desc_chr(t, p1);
 		t = object_desc_num(t, o_ptr->timeout);

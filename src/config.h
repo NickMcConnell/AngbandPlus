@@ -547,3 +547,6 @@
 
 /* Testing upkeep */
 /* # define TRACK_FRIENDS */
+
+/* Use the fast autoroller - comment out for multi-user systems -- Gumby */
+#define FAST_AUTOROLLER

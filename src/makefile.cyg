@@ -143,8 +143,8 @@ clean: cleanobjs cleanbin
 # Dependency rules
 #
 
-Gumband: $(EXOBJS) $(CC) -o Gumband $(EXOBJS)
-	$(INCDIRS) $(LIBDIRS) $(LIBS)
+Gumband: $(EXOBJS)
+	$(CC) -o Gumband $(EXOBJS) $(INCDIRS) $(LIBDIRS) $(LIBS)
 
 #
 # Compiling angband.rc

@@ -3207,7 +3207,7 @@ void do_cmd_activate(void)
 			{
 				msg_print("The rag looks even filthier than usual...");
 				(void) alchemy();
-				o_ptr->timeout = randint(100) + 100;
+				o_ptr->timeout = 100;
 				break;
 			}
 			case ART_HASTNEN:
@@ -3858,7 +3858,7 @@ cptr item_activation(object_type *o_ptr)
 		}
 		case ART_BRYIONAK:
 		{
-			return "summon the Bull of Crinanass every 200+d200 turns";
+			return "summon the Bull of Crinanass every 250+d250 turns";
 		}
 		case ART_CASPANION:
 		{
@@ -4090,7 +4090,7 @@ cptr item_activation(object_type *o_ptr)
 		}
 		case ART_BEGGING:
 		{
-			return "turning dross into gold every 100+d100 turns";
+			return "turning dross into gold every 100 turns";
 		}
 		case ART_HASTNEN:
 		{

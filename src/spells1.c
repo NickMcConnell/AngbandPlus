@@ -4443,7 +4443,7 @@ static bool project_p(int who, bool pet_attack, int r, int y, int x, int dam, in
 			take_hit(dam, killer);
 			if (!(p_ptr->resist_pois || p_ptr->oppose_pois))
 			{
-				set_poisoned(p_ptr->poisoned + rand_int(dam) + 10);
+				set_poisoned(p_ptr->poisoned + rand_int(dam) + 10 + (p_ptr->lev * 2));
 
 				if (randint(5)==1) /* 6 */
 				{

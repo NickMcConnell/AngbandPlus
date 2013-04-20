@@ -484,7 +484,7 @@ bool make_attack_normal(int m_idx)
 					/* Take "poison" effect */
 					if (!(p_ptr->resist_pois || p_ptr->oppose_pois))
 					{
-						if (set_poisoned(p_ptr->poisoned + randint(rlev) + 5))
+						if (set_poisoned(p_ptr->poisoned + randint(rlev) + 10 + (p_ptr->lev * 2)))
 						{
 							obvious = TRUE;
 						}
