@@ -12,7 +12,7 @@ SRCS = \
   store.c birth.c load1.c load2.c wizard1.c wizard2.c \
   generate.c dungeon.c init1.c init2.c \
   quest.c mindcrft.c mutation.c artifact.c \
-  main-ami.c main.c
+  main-lsl.c main.c
 
 OBJS = \
   z-util.o z-virt.o z-form.o z-rand.o z-term.o \
@@ -35,4 +35,3 @@ LIBS = -lvgagl -lvga
 
 gumband: $(SRCS) $(OBJS)
 	$(CC) $(CFLAGS)  -o gumband $(OBJS) $(LDFLAGS) $(LIBS)
-

@@ -574,8 +574,8 @@ static int inven_damage(inven_func typ, int perc)
 
 				/* Potions smash open */
 				if (k_info[o_ptr->k_idx].tval == TV_POTION)
-				{
-					(void)potion_smash_effect(0, py, px, o_ptr->sval);
+				{ /* 'who' was 0 -- Gumby */
+					(void)potion_smash_effect(1, py, px, o_ptr->sval);
 				}
                 
 
@@ -2664,7 +2664,6 @@ static bool project_m(int who, bool pet_attack, int r, int y, int x, int dam, in
 				if (r_ptr->level > randint(100))
 				{
 					if (seen) r_ptr->r_flags3 |= RF3_RES_TELE;
-					note = " resists!";
 					resist_tele = TRUE;
 				}
 			}

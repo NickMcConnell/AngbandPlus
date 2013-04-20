@@ -1237,7 +1237,7 @@ bool create_artifact(object_type *o_ptr, bool a_scroll)
 
 	strcpy(new_name,"");
 
-/*	if ((!a_scroll) && (randint(A_CURSED)==1)) a_cursed = TRUE; */
+	if ((!a_scroll) && (randint(A_CURSED)==1)) a_cursed = TRUE;
 
 	while ((randint(powers) == 1) || (randint(7)==1) || randint(10)==1)
 	{
@@ -1290,7 +1290,7 @@ bool create_artifact(object_type *o_ptr, bool a_scroll)
 			while (o_ptr->pval<randint(5) || randint(o_ptr->pval)==1);
 		}
 
-		if (o_ptr->pval > 4 && (randint(WEIRD_LUCK)!=1))
+		if ((o_ptr->pval > 4) && (randint(WEIRD_LUCK)!=1))
 			o_ptr->pval = 4;
 	}
 
@@ -1322,23 +1322,28 @@ bool create_artifact(object_type *o_ptr, bool a_scroll)
 
 	if (a_cursed) curse_artifact(o_ptr);
 
-	if ((!a_cursed) &&
-	    (randint((o_ptr->tval>=TV_BOOTS)
-	    ?ACTIVATION_CHANCE * 2 : ACTIVATION_CHANCE)==1))
+	/* Don't give power to some Rings or Dragon Scale Mails -- Gumby */
+	if ((!a_cursed) && !(o_ptr->tval == TV_DRAG_ARMOR) &&
+	    !((o_ptr->tval == TV_RING) && (o_ptr->sval == SV_RING_TELEPORTATION)) &&
+	    !((o_ptr->tval == TV_RING) && (o_ptr->sval == SV_RING_LIGHTNING)) &&
+	    !((o_ptr->tval == TV_RING) && (o_ptr->sval == SV_RING_ACID)) &&
+	    !((o_ptr->tval == TV_RING) && (o_ptr->sval == SV_RING_FLAMES)) &&
+	    !((o_ptr->tval == TV_RING) && (o_ptr->sval == SV_RING_ICE)) &&
+	    !((o_ptr->tval == TV_RING) && (o_ptr->sval == SV_RING_SHADOWS)) &&
+	    (randint((o_ptr->tval>=TV_BOOTS) ? ACTIVATION_CHANCE * 2 : ACTIVATION_CHANCE)==1))
 	{
 		o_ptr->xtra2 = 0;
 		give_activation_power(o_ptr);
 	}
 
 
-	if(o_ptr->tval>=TV_BOOTS)
+	if (o_ptr->tval>=TV_BOOTS)
 	{
 		if (a_cursed) power_level = 0;
 		else if (total_flags<10000) power_level = 1;
 		else if (total_flags<20000) power_level = 2;
 		else power_level = 3;
 	}
-
 	else
 	{
 		if (a_cursed) power_level = 0;
@@ -1401,7 +1406,7 @@ bool artifact_scroll()
 	object_type     *o_ptr;
 	char            o_name[80];
 
-	item_tester_hook = item_tester_hook_weapon_armour;
+	item_tester_hook = item_tester_hook_we_ar_ri_am;
 
 	/* Get an item (from equip or inven or floor) */
 	if (!get_item(&item, "Enchant which item? ", TRUE, TRUE, TRUE))
@@ -1422,7 +1427,6 @@ bool artifact_scroll()
 		o_ptr = &o_list[0 - item];
 	}
 
-
 	/* Description */
 	object_desc(o_name, o_ptr, FALSE, 0);
 
@@ -1438,7 +1442,6 @@ bool artifact_scroll()
 		    ((o_ptr->number > 1) ? "artifacts" : "an artifact"));
 		okay = FALSE;
 	}
-
 	else if (o_ptr->name2)
 	{
 		msg_format("The %s %s already %s!",
@@ -1446,7 +1449,6 @@ bool artifact_scroll()
 		    ((o_ptr->number > 1) ? "ego items" : "an ego item"));
 		okay = FALSE;
 	}
-
 	else
 	{
 		if (o_ptr->number > 1)
@@ -2337,6 +2339,12 @@ static bool activate_random_artifact(object_type * o_ptr)
 
 		case ACT_RECALL:
 		{
+			if (p_ptr->astral)
+			{
+				msg_print("You feel a terrible sense of loss.");
+				break;
+			}
+
 			if (dun_level && (p_ptr->max_dlv > dun_level))
 			{
 				if (get_check("Reset recall depth? "))
@@ -2452,7 +2460,13 @@ void do_cmd_activate(void)
 	/* Sound */
 	sound(SOUND_ZAP);
 
-	if (o_ptr->art_name)
+	if (o_ptr->art_name && !(o_ptr->tval == TV_DRAG_ARMOR) &&
+	    !((o_ptr->tval == TV_RING) && (o_ptr->sval == SV_RING_TELEPORTATION)) &&
+	    !((o_ptr->tval == TV_RING) && (o_ptr->sval == SV_RING_LIGHTNING)) &&
+	    !((o_ptr->tval == TV_RING) && (o_ptr->sval == SV_RING_ACID)) &&
+	    !((o_ptr->tval == TV_RING) && (o_ptr->sval == SV_RING_FLAMES)) &&
+	    !((o_ptr->tval == TV_RING) && (o_ptr->sval == SV_RING_ICE)) &&
+	    !((o_ptr->tval == TV_RING) && (o_ptr->sval == SV_RING_SHADOWS)))
 	{
 		(void) activate_random_artifact(o_ptr);
 
@@ -2486,7 +2500,7 @@ void do_cmd_activate(void)
 			}
 			case ART_THRAIN:
 			{
-				msg_print("The Jewel flashes bright white!");
+				msg_print("The stone flashes bright white!");
 				wiz_lite();
 				o_ptr->timeout = 150;
 				break;
@@ -2952,6 +2966,12 @@ void do_cmd_activate(void)
 			}
 			case ART_AVAVIR:
 			{
+				if (p_ptr->astral)
+				{
+					msg_print("You feel a terrible sense of loss.");
+					break;
+				}
+
 				if (dun_level && (p_ptr->max_dlv > dun_level))
 				{
 					if (get_check("Reset recall depth? "))
@@ -3130,6 +3150,12 @@ void do_cmd_activate(void)
 			}
 			case ART_HERMES:
 			{
+				if (p_ptr->astral)
+				{
+					msg_print("You feel a terrible sense of loss.");
+					break;
+				}
+
 				if (dun_level && (p_ptr->max_dlv > dun_level))
 				{
 					if (get_check("Reset recall depth? "))
@@ -3405,7 +3431,7 @@ void do_cmd_activate(void)
 			{
 				msg_print("Your ring glows black...");
 				set_shadow(p_ptr->wraith_form + randint(25) + (p_ptr->lev / 2));
-				o_ptr->timeout = rand_int(500) + 500;
+				o_ptr->timeout = rand_int(300) + 300;
 				break;
 			}
 		}
@@ -3795,7 +3821,7 @@ cptr item_activation(object_type *o_ptr)
 		}
 		case ART_DAWN:
 		{
-			return "summon the Legion of the Dawn every 500+d500 turns";
+			return "summoning the Legion of the Dawn every 500+d500 turns";
 		}
 		case ART_KANAJANA:
 		{
@@ -4090,7 +4116,7 @@ cptr item_activation(object_type *o_ptr)
 			case SV_RING_ICE:
 				return "frost ball and resist cold every 50 turns";
 			case SV_RING_SHADOWS:
-				return "wraithform every 500+d500 turns";
+				return "wraithform every 300+d300 turns";
 			default:
 				return NULL;
 		}

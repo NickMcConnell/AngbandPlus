@@ -420,6 +420,21 @@ void self_knowledge(void)
 				info[i++] = "You can wail to terrify your enemies (cost 3).";
 			}
 			break;
+		case RACE_YEEK:
+			info[i++] = "You can flee in terror (cost 2).";
+			break;
+		case RACE_MELNIBONEAN:
+			if (plev > 29)
+			{
+				info[i++] = "You can summon demons (cost 40).";
+			}
+			break;
+		case RACE_VADHAGH:
+			if (plev > 29)
+			{
+				info[i++] = "You can travel the planes of the Earth (cost 25).";
+			}
+			break;
 		default:
 			break;
 	}
@@ -1347,6 +1362,148 @@ bool lose_all_info(void)
 }
 
 
+/*
+ * Detect random things on the current panel, the Chaos detect spell -- Gumby
+ */
+bool detect_random(void)
+{
+	int		i, y, x;
+	bool		flag = FALSE;
+	cave_type	*c_ptr;
+	int		chance = 50 + (p_ptr->lev / 2);
+
+	/* Scan monsters */
+	for (i = 1; i < m_max; i++)
+	{
+		monster_type *m_ptr = &m_list[i];
+
+		/* Skip random monsters */
+		if (randint(100) >= chance) continue;
+
+		/* Skip dead monsters */
+		if (!m_ptr->r_idx) continue;
+
+		/* Location */
+		y = m_ptr->fy;
+		x = m_ptr->fx;
+
+		/* Only detect nearby monsters */
+		if (!panel_contains(y, x)) continue;
+		
+		/* Repair visibility later */
+		repair_monsters = TRUE;
+
+		/* Hack -- Detect monster */
+		m_ptr->mflag |= (MFLAG_MARK | MFLAG_SHOW);
+
+		/* Hack -- See monster */
+		m_ptr->ml = TRUE;
+			
+		/* Redraw */
+		lite_spot(y, x);
+
+		/* Detect */
+		flag = TRUE;
+	}
+
+	/* Scan objects */
+	for (i = 1; i < o_max; i++)
+	{
+		object_type *o_ptr = &o_list[i];
+
+		/* Skip random objects */
+		if (randint(100) >= chance) continue;
+
+		/* Skip dead objects */
+		if (!o_ptr->k_idx) continue;
+
+		/* Skip held objects */
+		if (o_ptr->held_m_idx) continue;
+
+		/* Location */
+		y = o_ptr->iy;
+		x = o_ptr->ix;
+
+		/* Only detect nearby objects */
+		if (!panel_contains(y, x)) continue;
+		
+		/* Hack -- memorize it */
+		o_ptr->marked = TRUE;
+
+		/* Redraw */
+		lite_spot(y, x);
+
+		/* Detect */
+		flag = TRUE;
+	}
+
+	/* Scan the panel for buried treasure, traps, doors, stairs */
+	for (y = panel_row_min; y <= panel_row_max; y++)
+	{
+		for (x = panel_col_min; x <= panel_col_max; x++)
+		{
+			c_ptr = &cave[y][x];
+
+			/* Notice embedded gold */
+			if (((c_ptr->feat == FEAT_MAGMA_H) ||
+			    (c_ptr->feat == FEAT_QUARTZ_H)) &&
+			    (randint(100) <= chance))
+			{
+				/* Expose the gold */
+				c_ptr->feat += 0x02;
+			}
+
+			/* Detect secret doors */
+			if ((c_ptr->feat == FEAT_SECRET) &&
+			    (randint(100) <= chance))
+			{
+				/* Pick a door */
+				cave_set_feat(y, x, FEAT_DOOR_HEAD + 0x00);
+			}
+
+			/* Detect invisible traps */
+			if ((c_ptr->feat == FEAT_INVIS) &&
+			    (randint(100) <= chance))
+			{
+				/* Pick a trap */
+				pick_trap(y, x);
+			}
+
+			/* Detect the stuff... */
+			if (((c_ptr->feat == FEAT_MAGMA_K) ||
+			    (c_ptr->feat == FEAT_QUARTZ_K) ||
+			    ((c_ptr->feat >= FEAT_DOOR_HEAD) &&
+			     (c_ptr->feat <= FEAT_DOOR_TAIL)) ||
+			    (c_ptr->feat == FEAT_OPEN) ||
+			    (c_ptr->feat == FEAT_BROKEN) ||
+			    (c_ptr->feat == FEAT_LESS) ||
+			    (c_ptr->feat == FEAT_MORE) ||
+			    ((c_ptr->feat >= FEAT_TRAP_HEAD) &&
+			     (c_ptr->feat <= FEAT_TRAP_TAIL))) &&
+			    (randint(100) <= chance))
+			{
+				/* Hack -- Memorize */
+				c_ptr->info |= (CAVE_MARK);
+
+				/* Redraw */
+				lite_spot(y, x);
+
+				/* Detect */
+				flag = TRUE;
+			}
+		}
+	}
+
+	/* Describe */
+	if (flag)
+	{
+		/* Describe result */
+		msg_print("You sense the presense of random things!");
+	}
+
+	/* Result */
+	return (flag);
+}
 
 
 /*
@@ -1692,9 +1849,7 @@ bool detect_objects_normal(void)
 bool detect_objects_magic(void)
 {
 	int i, y, x, tv;
-
 	bool detect = FALSE;
-
 
 	/* Scan all objects */
 	for (i = 1; i < o_max; i++)
@@ -1760,7 +1915,6 @@ bool detect_objects_magic(void)
 bool detect_monsters_normal(void)
 {
 	int i, y, x;
-
 	bool flag = FALSE;
 
 

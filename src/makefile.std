@@ -210,21 +210,20 @@ CC = gcc
 #LIBS = -lcurses -ltermcap
 
 
-
 #
 # Hack -- "install" as the base target
 #
 
-install: testing
-	cp testing ..
+install: gumband
+	cp gumband ..
 
 
 #
 # Build the "Angband" program
 #
 
-testing: $(OBJS)
-	$(CC) $(CFLAGS) -o testing $(OBJS) $(LDFLAGS) $(LIBS)
+gumband: $(OBJS)
+	$(CC) $(CFLAGS) -o gumband $(OBJS) $(LDFLAGS) $(LIBS)
 
 
 #

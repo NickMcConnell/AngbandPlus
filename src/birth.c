@@ -98,6 +98,9 @@ struct hist_type
  * Vampire    --> 113 --> 114 --> 115 --> 116 --> 117
  * Spectre    --> 118 --> 119 --> 134 --> 120 --> 121 --> 122 --> 123
  * Beastman   --> 129 --> 130 --> 131 --> 132 --> 133
+ * Yeek       -->  77 -->  78 -->  80 -->  81 -->  65 -->  66
+ * Melnibonean-->  24 -->  25 -->   3 -->  50 -->  51 -->  52 --> 53
+ * Vadhagh    -->   4 -->   5 -->  55 -->  56
  *
  * XXX XXX XXX This table *must* be correct or drastic errors may occur!
  */
@@ -114,14 +117,21 @@ static hist_type bg[] =
 	{"of a Townsman.  ",                                 80, 2, 3,  90},
 	{"of a Guildsman.  ",                                90, 2, 3, 105},
 	{"of a Landed Knight.  ",                            96, 2, 3, 120},
-	{"of a Noble Family in the Courts of Chaos.  ",      99, 2, 3, 130},
-	{"of the Royal Blood Line of Amber.  ",             100, 2, 3, 140},
+	{"of a Duke.  ",                                     99, 2, 3, 130},
+	{"of a King.  ",                                    100, 2, 3, 140},
 
 	{"You are the black sheep of the family.  ",         20, 3, 50, 20},
 	{"You are a credit to the family.  ",                80, 3, 50, 55},
 	{"You are a well liked child.  ",                   100, 3, 50, 60},
 
-	/* Lines 4-6 unused */
+	{"You are one of several children of a Vadhagh ",    50, 4, 5, 50},
+	{"You are the eldest of several children of a Vadhagh ", 75, 4, 5, 75},
+	{"You are the only child of a Vadhagh ",             100, 4, 5, 95},
+
+	{"commoner.  You have ",                             50, 5, 55,  75},
+	{"Prince.  You have ",                              100, 5, 55, 100},
+
+	/* Line 6 unused */
 
 	{"You are one of several children ",                  60, 7, 8, 50},
 	{"You are the only child ",                          100, 7, 8, 55},
@@ -195,7 +205,18 @@ static hist_type bg[] =
 	{"Shaman.  ",      99, 23, 62, 65},
 	{"Clan Chief.  ", 100, 23, 62, 80},
 
-	/* Lines 24-29 unused */
+	{"You are the illegitimate and unacknowledged child ", 10, 24, 25, 25},
+	{"You are the illegitimate but acknowledged child ",   20, 24, 25, 35},
+	{"You are one of several children ",                   95, 24, 25, 45},
+	{"You are the first child ",                          100, 24, 25, 50},
+
+	{"Melnibonean commoner.  ",			       25, 25, 3, 30},
+	{"Melnibonean soldier.  ",			       50, 25, 3, 50},
+	{"Melnibonean priest.  ",			       65, 25, 3, 65},
+	{"Melnibonean Dragonmaster.  ",			       85, 25, 3, 70},
+	{"Melnibonean noble.  ",			      100, 25, 3, 100},
+
+	/* Lines 26-29 unused */
 
 	{"You were the smallest kitten in the litter.  ",   25, 30, 31, 40},
 	{"You were just one of a large number of kittens in the litter.  ",
@@ -303,7 +324,7 @@ static hist_type bg[] =
 	{"Your father was a Cloud Giant.  ",			 90, 75, 20, 65},
 	{"Your father was a Storm Giant.  ",			100, 75, 20, 70},
 
-	{"Your father was an unknown Titan.  ",			 75, 76, 20, 50},
+	{"Your father was an unknown Titan.  ",			 75, 76, 20,  50},
 	{"Your mother was Themis.  ",				 80, 76, 20, 100},
 	{"Your mother was Mnemosyne.  ",			 85, 76, 20, 100},
 	{"Your father was Okeanoas.  ",				 90, 76, 20, 100},
@@ -311,7 +332,14 @@ static hist_type bg[] =
 	{"Your father was Hyperion.  ",				 98, 76, 20, 125},
 	{"Your father was Kronos.  ",				100, 76, 20, 150},
 
-	/* Lines 77-79 unused */
+	{"You are one of several children of ",			100, 77, 78,  50 },
+
+	{"a Brown Yeek. ",					 50, 78, 80,  50 },
+	{"a Blue Yeek.  ",					 75, 78, 80,  50 },
+	{"a Master Yeek.  ",					 95, 78, 80,  85 },
+	{"Boldor, King of the Yeeks.  ",			100, 78, 80, 120 },
+
+	/* Line 79 unused */
 
 	{"You have pale eyes, ",				 25, 80, 81, 50},
 	{"You have glowing eyes, ",				 50, 80, 81, 50},
@@ -983,101 +1011,52 @@ static void get_history(void)
 	/* Starting place */
 	switch (p_ptr->prace)
 	{
-		case RACE_HUMAN: case RACE_BARBARIAN:
-		{
-			chart = 1;
-			break;
-		}
-		case RACE_ELF: case RACE_HIGH_ELF:
-		{
-			chart = 7;
-			break;
-		}
+		case RACE_HUMAN:
+		case RACE_BARBARIAN:
+			chart = 1;	break;
+		case RACE_ELF:
+		case RACE_HIGH_ELF:
+			chart = 7;	break;
 		case RACE_HOBBIT:
-		{
-			chart = 10;
-			break;
-		}
+			chart = 10;	break;
 		case RACE_GNOME:
-		{
-			chart = 13;
-			break;
-		}
+			chart = 13;	break;
 		case RACE_DWARF:
-		{
-			chart = 16;
-			break;
-		}
+			chart = 16;	break;
 		case RACE_HALF_ORC:
-		{
-			chart = 19;
-			break;
-		}
+			chart = 19;	break;
 		case RACE_HALF_TROLL:
-		{
-			chart = 22;
-			break;
-		}
+			chart = 22;	break;
 		case RACE_GAMBOLT:
-		{
-			chart = 30;
-			break;
-		}
+			chart = 30;	break;
 		case RACE_HALF_GIANT:
-		{
-			chart = 75;
-			break;
-		}
+			chart = 75;	break;
 		case RACE_HALF_TITAN:
-		{
-			chart = 76;
-			break;
-		}
+			chart = 76;	break;
 		case RACE_KOBOLD:
-		{
-			chart = 82;
-			break;
-		}
+			chart = 82;	break;
 		case RACE_KLACKON:
-		{
-			chart = 84;
-			break;
-		}
+			chart = 84;	break;
 		case RACE_DRACONIAN:
-		{
-			chart = 89;
-			break;
-		}
+			chart = 89;	break;
 		case RACE_MIND_FLAYER:
-		{
-			chart = 92;
-			break;
-		}
+			chart = 92;	break;
 		case RACE_GOLEM:
-		{
-			chart = 98;
-			break;
-		}
+			chart = 98;	break;
 		case RACE_VAMPIRE:
-		{
-			chart = 113;
-			break;
-		}
+			chart = 113;	break;
 		case RACE_SPECTRE:
-		{
-			chart = 118;
-			break;
-		}
+			chart = 118;	break;
 		case RACE_BEASTMAN:
-		{
-			chart = 129;
-			break;
-		}
+			chart = 129;	break;
+		case RACE_YEEK:
+			chart = 77;	break;
+		case RACE_MELNIBONEAN:
+			chart = 24;	break;
+		case RACE_VADHAGH:
+			chart = 4;	break;
 		default:
-		{
-			chart = 0;
-			break;
-		}
+			chart = 0;	break;
 	}
 
 	/* Process the history */
@@ -2410,26 +2389,24 @@ static bool player_birth_aux()
 			p_ptr->wm_choice = rand_range(TV_HAFTED, TV_SWORD);
 		}
 
-/* Hack -- get a chaos patron even if you are not a chaos warrior */
-#if 0
-        /* Get a chaos Patron */
-        if (p_ptr->pclass == CLASS_CHAOS_WARRIOR)
-        {
-#endif
-            p_ptr->chaos_patron = (randint(MAX_PATRON)) - 1;
+		/* Hack -- get a chaos patron even if you are not a chaos
+		 * warrior.
+		 *
+		 * Melniboneans have been pledged *ONLY* to Arioch
+		 * throughout their history. -- Gumby
+		 */
+		if (p_ptr->prace == RACE_MELNIBONEAN)
+		{
+			p_ptr->chaos_patron = PATRON_ARIOCH;
+		}
+		else
+		{
+			p_ptr->chaos_patron = (randint(MAX_PATRON)) - 1;
+		}
 
-#if 0
-        }
-
-        else
-        {
-            p_ptr->chaos_patron = 0;
-        }
-#endif
-
-        p_ptr->muta1 = 0;
-        p_ptr->muta2 = 0;
-        p_ptr->muta3 = 0;
+		p_ptr->muta1 = 0;
+		p_ptr->muta2 = 0;
+		p_ptr->muta3 = 0;
 
 		/* Input loop */
 		while (TRUE)
@@ -2579,6 +2556,7 @@ static bool player_birth_aux()
 			case PATRON_ARIOCH:
 			{
 				p_ptr->muta3 |= MUT3_ALBINO;
+				break;
 			}
 			/* Random dispel all */
 			case PATRON_EEQUOR:

@@ -4,15 +4,16 @@
  *
  * Included functions, taken from cmd5.c, spells1.c, and spells2.c:
  *
- * rustproof(); do_poly_wounds(); do_poly_self(); fetch(); teleport_away();
- * teleport_to_player(); teleport_player(); teleport_player_to();
- * teleport_player_level(); mutate_player(); warding_glyph();
- * explosive_rune(); identify_pack(); restore_level(); alchemy();
- * genocide(); mass_genocide(); probing(); item_tester_hook_weapon();
- * item_tester_hook_armour(); item_tester_hook_weapon_armour();
+ * item_tester_hook_weapon(); item_tester_hook_armour();
+ * item_tester_hook_weapon_armour(); item_tester_hook_ring(); 
+ * item_tester_hook_amulet(); item_tester_hook_ring_amulet();
+ * item_tester_hook_we_ar_ri_am(); rustproof(); do_poly_wounds();
+ * do_poly_self(); fetch(); teleport_away(); teleport_to_player();
+ * teleport_player(); teleport_player_to(); teleport_player_level();
+ * mutate_player(); warding_glyph(); explosive_rune(); identify_pack();
+ * restore_level(); alchemy(); genocide(); mass_genocide(); probing();
  * enchant_table[]; enchant(); enchant_spell(); item_tester_hook_recharge();
- * recharge(); phlogiston(); brand_weapon(); call_the_(void);
- * wild_magic(int spell);
+ * recharge(); phlogiston(); brand_weapon(); call_the_(void); wild_magic();
  *
  */
 
@@ -26,9 +27,7 @@
 
 #include "angband.h"
 
-/*
- * Hook to specify "weapon"
- */
+/* Hook to specify "weapon" */
 bool item_tester_hook_weapon(object_type *o_ptr)
 {
 	switch (o_ptr->tval)
@@ -40,14 +39,11 @@ bool item_tester_hook_weapon(object_type *o_ptr)
 			return (TRUE);
 		}
 	}
-
 	return (FALSE);
 }
 
 
-/*
- * Hook to specify "armour"
- */
+/* Hook to specify "armour" */
 bool item_tester_hook_armour(object_type *o_ptr)
 {
 	switch (o_ptr->tval)
@@ -59,18 +55,55 @@ bool item_tester_hook_armour(object_type *o_ptr)
 			return (TRUE);
 		}
 	}
-
 	return (FALSE);
 }
 
 
-/*
- * Check if an object is weapon or armour (but not arrow, bolt, or shot)
- */
+/* Check if an object is weapon or armour (but not arrow, bolt, or shot) */
 bool item_tester_hook_weapon_armour(object_type *o_ptr)
 {
 	return(item_tester_hook_weapon(o_ptr) ||
 	       item_tester_hook_armour(o_ptr));
+}
+
+
+/* Hook to specify "ring" -- Gumby */
+bool item_tester_hook_ring(object_type *o_ptr)
+{
+	switch (o_ptr->tval)
+	{
+		case TV_RING: return (TRUE);
+	}
+	return (FALSE);
+}
+
+
+/* Hook to specify "amulet" -- Gumby */
+bool item_tester_hook_amulet(object_type *o_ptr)
+{
+	switch (o_ptr->tval)
+	{
+		case TV_AMULET: return (TRUE);
+	}
+	return (FALSE);
+}
+
+
+/* Check to see if the item is a ring or amulet -- Gumby */
+bool item_tester_hook_ring_amulet(object_type *o_ptr)
+{
+	return(item_tester_hook_ring(o_ptr) ||
+	       item_tester_hook_amulet(o_ptr));
+}
+
+
+/* Check to see if the item is a weapon, armour, ring or amulet -- Gumby */
+bool item_tester_hook_we_ar_ri_am(object_type *o_ptr)
+{
+	return(item_tester_hook_weapon(o_ptr) ||
+	       item_tester_hook_armour(o_ptr) ||
+	       item_tester_hook_ring(o_ptr) ||
+	       item_tester_hook_amulet(o_ptr));
 }
 
 
@@ -152,14 +185,6 @@ void do_poly_self(void)
 	int tmp = 0;
 	int new_race;
 	int more_effects = TRUE;
-
-	/*
-	 * Beastmen and Chaos Warriors are especially vulnerable to the
-	 * whims of Chaos - it's even worse for Beastmen who *are* Chaos
-	 * Warriors! -- Gumby
-	 */
-	if (p_ptr->prace == RACE_BEASTMAN) effects += 1;
-	if (p_ptr->pclass == CLASS_CHAOS_WARRIOR) effects += 1;
 
 	msg_print("You feel a change coming over you...");
 
@@ -1862,7 +1887,7 @@ bool brand_weapon(int brand_type)
 		o_ptr = &o_list[0 - item];
 	}
 
-	k = randint(2);
+	k = randint(4);
 
 	/*
 	 * Check to make sure the brand or ego-item type doesn't already
@@ -1917,6 +1942,22 @@ bool brand_weapon(int brand_type)
 			{
 				if ((o_ptr->name2 == EGO_BRAND_COLD) ||
 				    (o_ptr->art_flags1 & TR1_BRAND_COLD))
+				{
+					brand_exists = TRUE;
+				}
+			}
+			else if (k==3)
+			{
+				if ((o_ptr->name2 == EGO_BRAND_ELEC) ||
+				    (o_ptr->art_flags1 & TR1_BRAND_ELEC))
+				{
+					brand_exists = TRUE;
+				}
+			}
+			else if (k==4)
+			{
+				if ((o_ptr->name2 == EGO_BRAND_ACID) ||
+				    (o_ptr->art_flags1 & TR1_BRAND_ACID))
 				{
 					brand_exists = TRUE;
 				}
@@ -2013,7 +2054,7 @@ bool brand_weapon(int brand_type)
 				break;
 			}
 
-			default: /* Fire or Frost */
+			default: /* Fire, Frost, Acid, or Lightning */
 			{
 				if (k==1)
 				{
@@ -2028,7 +2069,7 @@ bool brand_weapon(int brand_type)
 						o_ptr->name2 = EGO_BRAND_FIRE;
 					}
 				}
-				else
+				else if (k==2)
 				{
 					act = "is engulfed in ice!";
 
@@ -2039,6 +2080,32 @@ bool brand_weapon(int brand_type)
 					else
 					{
 						o_ptr->name2 = EGO_BRAND_COLD;
+					}
+				}
+				else if (k==3)
+				{
+					act = "starts throwing off sparks!";
+
+					if (ego_item_p(o_ptr))
+					{
+						o_ptr->art_flags1 |= TR1_BRAND_ELEC;
+					}
+					else
+					{
+						o_ptr->name2 = EGO_BRAND_ELEC;
+					}
+				}
+				else if (k==4)
+				{
+					act = "starts dripping acid!";
+
+					if (ego_item_p(o_ptr))
+					{
+						o_ptr->art_flags1 |= TR1_BRAND_ACID;
+					}
+					else
+					{
+						o_ptr->name2 = EGO_BRAND_ACID;
 					}
 				}
 				break;

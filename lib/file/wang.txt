@@ -1,4 +1,4 @@
-27
+28
 ******** BUFFER LINE *******************
 says: 'I am the Shadow Warrior.'
 says: 'Ha, ha!  You no mess with Lo Wang!'
@@ -27,3 +27,4 @@ says: 'Sayonara, scumbag.'
 claims: 'I am everybody's worst nightmare.'
 says: 'Mass destruction is my thing.'
 yells: 'Black your teeth out!'
+taunts: 'Chicken! BAWK! BAWK! BAWK! BAWK!'

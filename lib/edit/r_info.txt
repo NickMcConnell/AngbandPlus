@@ -40,7 +40,7 @@
 
 # Speaking of which, if anyone has any ideas on what to put into these
 # slots, mail me at aa343@chebucto.ns.ca with your critter... :)
-# [Slot# (L)]: 599 (75), 601 (76), 622 (89), 633 (96)
+# [Slot# (L)]: 601 (76), 622 (89), 633 (96)
 
 # The "x" symbol is now used to represent shapechanging monsters, regardless
 # of whether their base type originally was humanoid/person, demon, hybrid,
@@ -313,7 +313,7 @@ D:A small, harmless lizard.
 
 N:19:Porcupine
 G:q:U
-I:100:3d5:3:15:40
+I:105:3d5:3:15:20
 W:1:1:0:5
 B:BITE:HURT:2d2
 F:RAND_25 | WEIRD_MIND | BASH_DOOR | ANIMAL | SPINES
@@ -2984,8 +2984,8 @@ B:HIT:HURT:4d8
 B:HIT:HURT:4d8
 F:DROP_90 | DROP_GOOD | TAKE_ITEM | OPEN_DOOR | BASH_DOOR | MOVE_BODY | 
 F:GIANT | MALE
-S:1_IN_3 | 
-S:ARROW_3 | S_ANIMAL
+S:1_IN_4 | 
+S:ARROW_3 | S_ANIMALS
 D:He's as tall as the trees.
 
 N:274:Killer stag beetle
@@ -5961,15 +5961,15 @@ N:493:Dark young of Shub-Niggurath
 G:&:g
 I:120:12d100:20:75:80
 W:43:2:0:5000
-B:CRUSH:HURT:5d6
-B:CRUSH:HURT:5d6
-B:BITE:LOSE_STR:1d6
-B:BITE:LOSE_STR:1d6
+B:CRUSH:HURT:4d6
+B:CRUSH:HURT:4d6
+B:CRUSH:HURT:4d6
+B:BITE:LOSE_STR:5d6
 F:FORCE_SLEEP | FORCE_MAXHP | ELDRITCH_HORROR | ONLY_ITEM | DROP_1D2 | 
 F:NONLIVING | BASH_DOOR | POWERFUL | HURT_LITE | EVIL | DEMON | IM_FIRE | 
 F:NO_CONF | NO_SLEEP | RES_TELE
 S:1_IN_9 | 
-S:BLIND | CAUSE_2 | S_DEMON | HEAL 
+S:BLIND | CAUSE_3 | S_DEMON | HEAL 
 D:A "black, ropy, slimy jelly tree-thing", an enormous writhing mass.
 
 N:494:Grome, King of Earth
@@ -6451,7 +6451,7 @@ B:HIT:SHATTER:5d6
 F:ONLY_ITEM | DROP_90 | DROP_GOOD | RES_TELE | BASH_DOOR | STUPID | EVIL | 
 F:IM_FIRE | FORCE_SLEEP | FORCE_MAXHP
 S:1_IN_5 | 
-S:BO_FIRE | BO_PLAS | BA_FIRE
+S:BO_PLAS | BA_FIRE
 D:It is a belligrent minotaur with a destructive magical arsenal, armed 
 D:with a huge hammer.
 
@@ -6623,8 +6623,8 @@ F:DROP_3D2 | DROP_4D2 | DROP_GOOD | SMART | COLD_BLOOD | OPEN_DOOR | EVIL |
 F:BASH_DOOR | MOVE_BODY | UNDEAD | IM_ACID | IM_FIRE | IM_COLD | IM_POIS | 
 F:HURT_LITE | NO_CONF | NO_SLEEP | RES_TELE
 S:1_IN_2 | 
-S:TELE_LEVEL | BLIND | HOLD | SCARE | CAUSE_3 | CAUSE_4 | BO_MANA | 
-S:BA_FIRE | BA_COLD | BA_NETH | S_UNDEAD | S_KIN
+S:TELE_LEVEL | BLIND | CAUSE_4 | BO_MANA | BO_NETH | BA_NETH | S_KIN | 
+S:S_HI_UNDEAD
 D:A warrior-king of the East.  Khamul is a powerful opponent, his skill in 
 D:combat awesome and his form twisted by evil cunning.
 
@@ -6682,7 +6682,7 @@ F:UNIQUE | CAN_SPEAK | RES_PLAS | AURA_FIRE | FORCE_SLEEP | FORCE_MAXHP |
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | BASH_DOOR | ANIMAL | GOOD | IM_ACID | 
 F:IM_FIRE | IM_ELEC | IM_POIS | HURT_COLD | NO_CONF | NO_SLEEP
 S:1_IN_3 | 
-S:BO_FIRE | BO_PLAS | BA_FIRE | BR_FIRE | BR_LITE | BR_PLAS
+S:BO_PLAS | BA_FIRE | BR_LITE | BR_PLAS
 D:A massive glowing eagle bathed in flames.  The searing heat chars your 
 D:skin and melts your armour.
 
@@ -6772,9 +6772,8 @@ F:BASH_DOOR | RES_NETH | RES_NEXU | IM_ACID | IM_FIRE | IM_COLD | IM_ELEC |
 F:IM_POIS | AURA_FIRE | AURA_ELEC | NO_CONF | NO_FEAR | NO_SLEEP | 
 F:NONLIVING | RES_PLAS | RES_CHAO | POWERFUL | KILL_BODY
 S:1_IN_6 | 
-S:BR_ACID | BR_FIRE | BR_COLD | BR_ELEC | BR_POIS | BR_LITE | BR_DARK | 
-S:BR_SOUN | BR_CONF | BR_CHAO | BR_SHAR | BR_NETH | BR_WALL | BR_INER | 
-S:BR_TIME | BR_GRAV | BR_PLAS | BR_NEXU
+S:BR_POIS | BR_LITE | BR_DARK | BR_SOUN | BR_CONF | BR_CHAO | BR_SHAR | 
+S:BR_NETH | BR_WALL | BR_INER | BR_TIME | BR_GRAV | BR_PLAS | BR_NEXU
 D:An awesome vortex of pure magic, power radiates from its frame.
 
 N:545:The Lernean Hydra
@@ -6827,7 +6826,7 @@ F:FORCE_SLEEP | FORCE_MAXHP | ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_4D2 |
 F:DROP_GOOD | BASH_DOOR | POWERFUL | MOVE_BODY | AURA_FIRE | IM_FIRE | 
 F:HURT_COLD | NO_CONF | NO_SLEEP | EVIL | DRAGON
 S:1_IN_6 | 
-S:BLIND | CONF | SCARE | BR_FIRE
+S:BLIND | CONF | SCARE | BR_FIRE | BR_PLAS
 D:A vast dragon of immense power.  Fire leaps continuously from its huge 
 D:form.  The air around it scalds you.  Its slightest glance burns you, and 
 D:you truly realize how insignificant you are.
@@ -7076,7 +7075,7 @@ F:UNIQUE | MALE | FORCE_MAXHP | ONLY_ITEM | DROP_60 | DROP_2D2 | SMART |
 F:DROP_GOOD | CAN_SPEAK | OPEN_DOOR | MOVE_BODY | TAKE_ITEM | EVIL | 
 F:IM_FIRE | IM_COLD | IM_POIS | RES_TELE | RES_CHAO | NO_CONF | NO_SLEEP
 S:1_IN_2 | 
-S:DRAIN_MANA | BO_FIRE | BO_NETH | BLINK | TPORT | S_ELEMENTAL | S_DEMON
+S:DRAIN_MANA | BO_PLAS | BO_NETH | BLINK | TPORT | S_ELEMENTAL | S_DEMON
 D:His mind was warped when Queen Yishana of Jharkor, whom he loved, 
 D:gave her favours to Elric.  He'll do anything to remove his competition.
 
@@ -7401,7 +7400,7 @@ F:RES_TELE | IM_FIRE | IM_ACID | IM_POIS | IM_COLD | IM_ELEC | ONLY_ITEM |
 F:DROP_2D2 | DROP_3D2 | DROP_4D2 | DROP_GOOD | BASH_DOOR | POWERFUL | 
 F:MOVE_BODY | NO_CONF | NO_SLEEP | EVIL
 S:1_IN_3 | 
-S:BR_POIS | BR_ELEC | BR_ACID | BR_FIRE | BR_COLD | CONF | SCARE | BLIND
+S:BR_POIS | BR_ELEC | BR_ACID | BR_PLAS | BR_COLD | CONF | SCARE | BLIND
 D:A huge dragon whose scales shimmer in myriad hues.
 
 N:581:Elric of Melnibone
@@ -7437,9 +7436,9 @@ F:DROP_3D2 | DROP_4D2 | DROP_GOOD | INVISIBLE | COLD_BLOOD | PASS_WALL |
 F:EVIL | UNDEAD | IM_COLD | IM_POIS | NO_CONF | NO_SLEEP | ESCORT
 S:1_IN_3 | 
 S:BLIND | HOLD | CONF | BA_DARK | BA_NETH | S_WRAITH | S_HI_UNDEAD | S_KIN
-D:This huge affront to existence twists and tears at the fabric of space.
-D:Darkness itself recoils from the touch of Tselakus as he leaves a trail
-D:of death and destruction. Mighty claws rend reality as he
+D:This huge affront to existence twists and tears at the fabric of space.  
+D:Darkness itself recoils from the touch of Tselakus as he leaves a trail 
+D:of death and destruction. Mighty claws rend reality as he 
 D:annihilates all in his path to your soul!
 
 N:583:Sky Drake
@@ -7469,8 +7468,8 @@ F:DROP_60 | DROP_1D2 | DROP_2D2 | DROP_GOOD | DROP_CHOSEN | SMART |
 F:REFLECTING | OPEN_DOOR | MOVE_BODY | TAKE_ITEM | EVIL | IM_FIRE | 
 F:IM_COLD | RES_TELE | RES_CHAO | NO_CONF | NO_SLEEP
 S:1_IN_3 | 
-S:DRAIN_MANA | CAUSE_4 | BO_FIRE | BO_NETH | 
-S:BLINK | TPORT | TELE_TO | TRAPS | S_DEMON
+S:DRAIN_MANA | CAUSE_4 | BO_PLAS | BO_NETH | BLINK | TPORT | TELE_TO | 
+S:TRAPS | S_DEMON
 D:His goal is to bring the entire world under his banner, with the help 
 D:of the Lords of Chaos, whom he thinks he controls.
 
@@ -7610,14 +7609,11 @@ B:GAZE:EXP_40:2d6
 B:GAZE:PARALYZE:2d6
 B:GAZE:UN_POWER:2d6
 B:GAZE:LOSE_INT:2d6
-F:UNIQUE | MALE | CAN_SPEAK | RES_TELE
-F:FORCE_SLEEP | FORCE_MAXHP | 
-F:SMART | BASH_DOOR | 
-F:EVIL | IM_POIS | 
-F:NO_CONF | NO_SLEEP
+F:UNIQUE | MALE | RES_TELE | FORCE_SLEEP | FORCE_MAXHP | SMART | EVIL | 
+F:BASH_DOOR | IM_POIS | NO_CONF | NO_SLEEP
 S:1_IN_2 | 
 S:BLIND | SLOW | CONF | SCARE | DRAIN_MANA | MIND_BLAST | FORGET | 
-S:DARKNESS | BA_DARK | BO_ACID | BO_FIRE | BO_COLD | S_KIN
+S:DARKNESS | BA_DARK | BO_WATE | BO_PLAS | BO_ICEE | S_KIN
 D:A disembodied eye, floating in the air.  His gaze seems to shred your 
 D:soul and his spells crush your will.  He is ancient, his history steeped 
 D:in forgotten evils, his atrocities numerous and sickening.
@@ -7705,17 +7701,31 @@ F:RES_NEXU | RES_DISE | RES_CHAO | BASH_DOOR | AURA_FIRE | AURA_ELEC |
 F:ANIMAL | IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | NO_CONF | 
 F:NO_SLEEP
 S:1_IN_5 | 
-S:BR_ACID | BR_FIRE | BR_COLD | BR_ELEC | BR_POIS | BR_LITE | BR_DARK | 
-S:BR_SOUN | BR_CONF | BR_CHAO | BR_SHAR | BR_NETH | BR_DISE | BR_WALL | 
-S:BR_INER | BR_TIME | BR_GRAV | BR_PLAS | BR_NEXU
+S:BR_POIS | BR_LITE | BR_DARK | BR_SOUN | BR_CONF | BR_CHAO | BR_SHAR | 
+S:BR_NETH | BR_DISE | BR_WALL | BR_INER | BR_TIME | BR_GRAV | BR_PLAS | 
+S:BR_NEXU
 D:A shifting, swirling form.  It seems to be all colours and sizes and 
 D:shapes, though the dominant form is that of a huge dog.  You feel very 
 D:uncertain all of a sudden.
 
-#N:599:
-#G:
-#I:
-#W:75:
+# Barbazu by Jonathan Ellis
+
+N:599:Barbazu
+G:U:W
+I:120:80d35:25:60:80
+W:75:2:0:5000
+B:HIT:HURT:5d10
+B:HIT:HURT:5d10
+B:HIT:LOSE_CON:12d2
+B:STING:POISON:5d7
+F:FORCE_SLEEP | FORCE_MAXHP | FRIENDS | ONLY_ITEM | DROP_1D2 | OPEN_DOOR | 
+F:BASH_DOOR | POWERFUL | EVIL | DEMON | IM_POIS | NO_CONF | NO_SLEEP | 
+F:SPINES
+S:1_IN_7 | 
+S:SCARE | S_DEMON
+D:A foul, humanoid creature with a long tail, clawed hands and feet, 
+D:and a disgusting, wiry, snaky beard.  They are the elite shock troops 
+D:of the hells, capable of a terrifying berserk fury.
 
 # Atlas by Jonathan Ellis
 
@@ -7786,7 +7796,7 @@ F:FORCE_SLEEP | FORCE_MAXHP | REGENERATE | ONLY_ITEM | DROP_GOOD | EVIL |
 F:DROP_4D2 | DROP_2D2 | OPEN_DOOR | BASH_DOOR | MOVE_BODY | POWERFUL | 
 F:DEMON | IM_FIRE | IM_POIS | NO_CONF | NO_SLEEP
 S:1_IN_5 | 
-S:S_DEMON | S_HI_DRAGON | BR_FIRE | BR_POIS | SCARE | BA_FIRE | CAUSE_4 
+S:S_DEMON | S_HI_DRAGON | BR_PLAS | BR_POIS | SCARE | BA_FIRE | CAUSE_4 
 D:Appearing as a giant, clawed and winged humanoid with a scaly red body 
 D:and massive fangs dripping a foul green liquid, the Pit Fiend is a 
 D:dreadful enemy from the lowest depths of the hells. They are often the 
@@ -7926,8 +7936,7 @@ F:FORCE_SLEEP | FORCE_MAXHP | ONLY_ITEM | DROP_3D2 | DROP_4D2 | DROP_GOOD |
 F:OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY | EVIL | DEMON | IM_FIRE | 
 F:IM_ELEC | NO_CONF | NO_SLEEP | KILL_WALL
 S:1_IN_3 | 
-S:CONF | SCARE | BR_FIRE | BR_PLAS | BO_PLAS | BA_FIRE | S_UNDEAD | 
-S:S_DEMON
+S:CONF | SCARE | BR_PLAS | BO_PLAS | BA_FIRE | S_UNDEAD | S_DEMON
 D:Originally of the semi-divine Maiar, this evil spirit swore allegiance 
 D:to Morgoth at the beginning of time and is now one of his most terrible 
 D:demonic servants. With its flaming whip and sword it seeks to destroy 
@@ -7998,7 +8007,7 @@ F:NO_CONF | NO_SLEEP | NONLIVING | EVIL | DEMON | ESCORTS | IM_COLD |
 F:IM_POIS
 S:1_IN_3 | 
 S:TELE_TO | SCARE | HOLD | BRAIN_SMASH | S_DEMON | S_HI_UNDEAD | S_UNDEAD | 
-S:BR_FIRE | BR_NETH | S_CYBER | HAND_DOOM
+S:BR_PLAS | BR_NETH | S_CYBER | HAND_DOOM
 D:A duke of hell, in the flesh.
 
 N:617:Gor-Gor
@@ -8087,7 +8096,7 @@ F:UNIQUE | FORCE_SLEEP | FORCE_MAXHP | ONLY_ITEM | DROP_2D2 | DROP_4D2 |
 F:DROP_GOOD | BASH_DOOR | POWERFUL | MOVE_BODY | IM_FIRE | IM_COLD | 
 F:NO_CONF | NO_SLEEP | NO_FEAR | ANIMAL | ATTR_MULTI | ATTR_ANY
 S:1_IN_2 | 
-S:BR_FIRE | BR_COLD | BR_DISE
+S:BR_PLAS | BR_COLD | BR_DISE
 D:The Tarrasque is a massive reptile of legend, rumoured to be unkillable 
 D:and immune to magic.  Fear its anger, for its devastation is unmatched!
 
@@ -8149,11 +8158,11 @@ F:BASH_DOOR | POWERFUL | MOVE_BODY | RES_NETH | RES_DISE | GOOD | IM_POIS |
 F:RES_TELE | IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | NO_CONF | NO_SLEEP | 
 F:RES_NETH | RES_NEXU | RES_PLAS | RES_CHAO | UNIQUE | EVIL
 S:1_IN_3 |
-S:S_HI_DRAGON | S_DRAGON | S_KIN | BR_NUKE | BR_ACID | BR_ELEC | BR_FIRE | 
-S:BR_COLD | BR_POIS | BR_NETH | BR_LITE | BR_DARK | BR_CONF | BR_SOUN | 
-S:BR_CHAO | BR_DISE | BR_NEXU | BR_TIME | BR_INER | BR_GRAV | BR_SHAR | 
-S:BR_PLAS | BR_WALL | BR_MANA | BR_DISI
-D:The mightiest of all dragonkind, a great wyrm of power is seldom 
+S:S_HI_DRAGON | S_DRAGON | S_KIN | BR_NUKE | BR_COLD | BR_POIS | BR_NETH | 
+S:BR_LITE | BR_DARK | BR_CONF | BR_SOUN | BR_CHAO | BR_DISE | BR_NEXU | 
+S:BR_TIME | BR_INER | BR_GRAV | BR_SHAR | BR_PLAS | BR_WALL | BR_MANA | 
+S:BR_DISI
+D:The mightiest of all dragonkind, the Great Wyrm of Power is seldom 
 D:encountered in our world. It can crush stars with its might.
 
 N:626:Shub-Niggurath, Black Goat of the Woods
@@ -8242,7 +8251,7 @@ B:BITE:FIRE:10d12
 F:UNIQUE | FORCE_SLEEP | FORCE_MAXHP | ONLY_ITEM | DROP_4D2 | DROP_GOOD | 
 F:BASH_DOOR | MOVE_BODY | ANIMAL | EVIL | IM_FIRE | NO_CONF | NO_SLEEP
 S:1_IN_3 | 
-S:BA_DARK | BR_FIRE | BR_NETH | S_HOUND
+S:BA_DARK | BR_PLAS | BR_NETH | S_HOUND
 D:A two-headed hell hound of fearsome aspect.  Flame burns merrily from his 
 D:hide as he snarls and roars his defiance.
 
@@ -8279,7 +8288,7 @@ F:DROP_3D2 | DROP_4D2 | DROP_GOOD | DROP_GREAT | OPEN_DOOR | BASH_DOOR |
 F:POWERFUL | MOVE_BODY | EVIL | DEMON | IM_FIRE | IM_ELEC | HURT_COLD | 
 F:NO_CONF | NO_SLEEP
 S:1_IN_3 | 
-S:BLIND | CONF | SCARE | BR_FIRE | S_KIN | S_DEMON | S_HI_UNDEAD | 
+S:BLIND | CONF | SCARE | BR_PLAS | S_KIN | S_DEMON | S_HI_UNDEAD | 
 S:S_CYBER | BR_DISI
 D:Gothmog is the Chief Balrog in Morgoth's personal guard.  He is renowned 
 D:for slaying Ecthelion the Warder of the Gates and he has never been 
@@ -8327,9 +8336,9 @@ F:RES_DISE | RES_TELE | RES_CHAO | EVIL | DEMON | IM_FIRE | IM_POIS |
 F:IM_ELEC | IM_ACID | NO_CONF | NO_SLEEP
 S:1_IN_3 | 
 S:TPORT | SCARE | BLIND | MIND_BLAST | BRAIN_SMASH | DRAIN_MANA | BR_POIS | 
-S:BR_ACID | BR_FIRE | CONF | DARKNESS | FORGET | S_HI_UNDEAD | BR_NUKE | 
-S:BR_NETH | BR_CHAO | BR_DISE | BR_DARK | BR_PLAS | BR_CONF | BR_NEXU | 
-S:S_DEMON | S_CYBER | S_KIN | BR_DISI | HAND_DOOM
+S:CONF | DARKNESS | FORGET | S_HI_UNDEAD | BR_NUKE | BR_NETH | BR_CHAO | 
+S:BR_DISE | BR_DARK | BR_PLAS | BR_CONF | BR_NEXU | S_DEMON | S_CYBER | 
+S:S_KIN | BR_DISI | HAND_DOOM
 D:This creature is death incarnate. "A monster of vaguely anthropoid 
 D:outline, but with an octopus-like head... and long narrow wings behind... 
 D:A mountain walked or stumbled."

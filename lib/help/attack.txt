@@ -176,6 +176,10 @@ Pattern Weapons
      it that they are at least as powerful as Weapons of Westernesse, or
      even the weaker artifacts...
 
+Weapon of Haste
+     A weapon of Haste makes you fleet of foot and able to outrun many
+     dangers...
+
 Weapon of Slay Dragon
      A Slay Dragon weapon is a special purpose weapon whose sole intent is
      to destroy dragon-kind.  Therefore, when used against a dragon, the
@@ -306,6 +310,11 @@ of Elvenkind.
      It will make you more stealthy.  This armor can also possess extra 
      resistances beyond the four basic elemental ones.
 
+of Toughness.
+     These armours are extremely tough for their kind and increase their
+     wearer's Constitution, allowing them to sustain more damage in combat.
+     These armours also generally have hidden powers...
+
 of Spines.
      These armours are covered with spines, somewhat like the quills on a
      porcupine, damaging any monster that might come into contact with them.
@@ -313,7 +322,7 @@ of Spines.
      spines in a stinging ball around him or her.  These spines will grow
      back after a couple of hundred turns, ready for another volley.
 
-Robes of the Permanence.
+Robes of Permanence.
      These robes are designed especially for wizards.  Just like Elvenkind
      armor, they provide resistance to fire, cold, acid, and electricity and
      cannot be damaged by acid.  They sustain all of your stats and protect

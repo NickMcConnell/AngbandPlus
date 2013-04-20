@@ -903,7 +903,16 @@ bool make_attack_normal(int m_idx)
 					take_hit(damage, ddesc);
 
 					/* Increase "blind" */
-					if (!p_ptr->resist_blind)
+					if (p_ptr->resist_blind)
+					{
+						obvious = TRUE;
+					}
+					else if (rand_int(150) < p_ptr->skill_sav)
+					{
+						msg_print("Your eyes water for a moment!");
+						obvious = TRUE;
+					}
+					else
 					{
 						if (set_blind(p_ptr->blind + 10 + randint(rlev)))
 						{
@@ -923,7 +932,16 @@ bool make_attack_normal(int m_idx)
 					take_hit(damage, ddesc);
 
 					/* Increase "confused" */
-					if (!p_ptr->resist_conf)
+					if (p_ptr->resist_conf)
+					{
+						obvious = TRUE;
+					}
+					else if (rand_int(150) < p_ptr->skill_sav)
+					{
+						msg_print("You keep your balance!");
+						obvious = TRUE;
+					}
+					else
 					{
 						if (set_confused(p_ptr->confused + 3 + randint(rlev)))
 						{

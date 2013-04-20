@@ -1158,7 +1158,7 @@ owner_type owners[MAX_STORES][MAX_OWNERS] =
 {
 	{
 		/* General Store */
-		{ "Grabpot Thundergust",  200,    170, 108,  5, 15, RACE_DWARF},
+		{ "Golnix the Stupid",    200,    170, 108,  5, 15, RACE_YEEK},
 		{ "C.M.O.T. Dibbler",     250,    175, 108,  4, 12, RACE_HUMAN},
 		{ "Bilbo the Friendly",   300,    170, 107,  5, 15, RACE_HOBBIT},
 		{ "Shmata",               350,    165, 107,  6, 18, RACE_GOLEM},
@@ -1172,7 +1172,7 @@ owner_type owners[MAX_STORES][MAX_OWNERS] =
 	},
 	{
 		/* Weapon Smith */
-		{ "Arnold the Beastly",   5000,   210, 115,  6,  6, RACE_HALF_TROLL},
+		{ "Ithly-mak the Beastly", 5000,   210, 115,  6,  6, RACE_HALF_TROLL},
 		{ "Milgish Dogbreath",    10000,  185, 110,  5,  9, RACE_KOBOLD},
 		{ "Dexxinok",             25000,  190, 115,  5,  7, RACE_KLACKON},
 		{ "Curufin the Traitor",  30000,  195, 112,  4,  8, RACE_HIGH_ELF},
@@ -1200,10 +1200,10 @@ owner_type owners[MAX_STORES][MAX_OWNERS] =
 	},
 	{
 		/* Black Market */
-		{ "Dagor the Tight",      20000,  250, 150, 10,  5, RACE_HALF_GIANT},
-		{ "Graaagh the Mighty",   25000,  250, 150, 10,  5, RACE_HALF_TROLL},
+		{ "Graaagh the Mighty",   20000,  250, 150, 10,  5, RACE_HALF_TROLL},
+		{ "Dagor the Tight",      25000,  250, 150, 10,  5, RACE_HALF_GIANT},
 		{ "Kranik the Smelly",    30000,  250, 150, 10,  5, RACE_HALF_ORC},
-		{ "Gumby the Godly",      30000,  250, 150, 10,  5, RACE_BEASTMAN},
+		{ "Gumby the Godly",      35000,  250, 150, 10,  5, RACE_BEASTMAN},
 	},
 	{
 		/* Home */
@@ -1588,7 +1588,40 @@ player_race race_info[MAX_RACES] =
 		61,  6, 120, 15,
 		0,
 		0x7CF + CLASS_MASK(CLASS_WEAPONMASTER),
-	}
+	},
+	{
+		"Yeek",
+		{ -5, -5, -5, -5, -5, -5},
+		-5, -5, -10, 0, -5, 0, -10, -10,
+		6, 25,
+		10, 4,
+		40, 5, 50, 10,
+		35, 4, 45, 10,
+		2,
+		0x7FF + CLASS_MASK(CLASS_WEAPONMASTER),
+	},
+	{
+		"Melnibonean",
+		{ 1, 2, 2, 1, 1, -3 },
+		8, 15, 10, 1, 5, 5, 15, 10,
+		10, 125,
+		14,  6,
+		72,  6, 180, 25,
+		66,  4, 150, 20,
+		2,
+		0xCCF,
+	},
+	{
+		"Vadhagh",
+		{ -1, 3, 3, 4, -2, 5 },
+		10, 20, 15, 3, 10, 15, 5, 10,
+		9, 155,
+		100, 30,
+		90, 10, 190, 20,
+		82, 10, 180, 15,
+		2,
+		0xE53,
+	},
 };
 
 
@@ -1630,7 +1663,7 @@ player_class class_info[MAX_CLASS] =
 	{
 		"Rogue",
 		{ 2, 1, -2, 3, 1, -1},
-		45, 32, 28, 5, 32, 24, 60, 66,
+		45, 32, 28, 5, 32, 30, 60, 66,
 		15, 10, 10, 1,  1,  0, 40, 30,
 		6, 25
 	},
@@ -2102,14 +2135,14 @@ player_magic magic_info[MAX_CLASS] =
 
 			/* Mage: Chaos Magic */
 			{
-				{ 1, 1, 20, 4 },
-				{ 1, 2, 22, 4 },
-				{ 2, 2, 25, 4 },
-				{ 5, 5, 30, 1 },
-				{ 9, 6, 50, 1 },
-				{ 13, 9, 45, 6 },
+				{ 1, 1, 20, 3 },
+				{ 1, 2, 22, 3 },
+				{ 2, 2, 25, 3 },
+				{ 5, 4, 30, 4 },
+				{ 9, 6, 50, 4 },
+				{ 13, 9, 45, 5 },
 				{ 14, 9, 45, 6 },
-				{ 15, 9, 35, 5 },
+				{ 15, 9, 35, 6 },
 
 				{ 16, 15, 80, 5 },
 				{ 17, 10, 25, 5 },
@@ -2385,7 +2418,7 @@ player_magic magic_info[MAX_CLASS] =
 	  { 2, 1, 22, 4 },
 	  { 3, 2, 24, 4 },
 	  { 4, 3, 26, 4 },
-	  { 5, 4, 30, 6 },
+	  { 5, 5, 30, 6 },
           { 10, 6, 30, 5 },
 	  { 11, 6, 50, 5 },
           { 16, 11, 50, 6 },
@@ -3769,8 +3802,8 @@ player_magic magic_info[MAX_CLASS] =
       {  2,   1, 20,   4 },
       {  3,   2, 22,   4 },
       {  4,   3, 25,   4 },
-      {  5,   4, 30,   6 },
-      {  7,   7, 30,   1 },
+      {  5,   5, 40,   5 },
+      {  7,   7, 30,   5 },
       {  8,   7, 45,   5 },
       { 15,   9, 45,   6 },
       { 16,  10, 35,   5 },
@@ -4616,7 +4649,7 @@ player_magic magic_info[MAX_CLASS] =
       { 1, 1, 15, 4 },
       { 2, 1, 15, 4 },
       { 3, 2, 15, 4 },
-      { 4, 2, 20, 1 },
+      { 4, 3, 25, 1 },
       { 6, 5, 40, 1 },
       { 7, 6, 35, 6 },
       { 9, 7, 35, 6 },
@@ -5251,7 +5284,7 @@ cptr spell_names[7][32] =
 		"Magic Missile",
 		"Trap/Door Destruction",
 		"Flash of Light",
-		"Demon Detection",
+		"Chaotic Sensing",
 		"Mana Burst",
 		"Fire Bolt",
 		"Fist of Force",
@@ -5271,7 +5304,7 @@ cptr spell_names[7][32] =
 		"Chain Lightning",
 		"Arcane Binding",
 		"Disintegrate",
-		"Teleport Other",
+		"Demonic Consultation",
 		"Alter Reality",
 		"Polymorph Self",
 		"Summon Demon",

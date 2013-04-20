@@ -2067,7 +2067,7 @@ static void drop_quest_stairs(int y, int x)
  */
 void monster_death(int m_idx)
 {
-	int j, k, y, x;
+	int j, y, x;
 
 	int dump_item = 0;
 	int dump_gold = 0;
@@ -2224,8 +2224,7 @@ void monster_death(int m_idx)
 		 ((p_ptr->pclass == CLASS_CHAOS_WARRIOR) &&
 		  (p_ptr->chaos_patron == PATRON_MABELRODE)))
 	{
-		k = rand_int(5) + 5;
-		for (j = 0; j <= k; j++)
+		for (j = 0; j < 6; j++)
 		{
 			activate_ty_curse();
 		}
@@ -2234,8 +2233,7 @@ void monster_death(int m_idx)
 		 ((p_ptr->pclass == CLASS_CHAOS_WARRIOR) &&
 		  (p_ptr->chaos_patron == PATRON_XIOMBARG)))
 	{
-		k = rand_int(5) + 4;
-		for (j = 0; j <= k; j++)
+		for (j = 0; j < 5; j++)
 		{
 			activate_ty_curse();
 		}
@@ -2244,8 +2242,7 @@ void monster_death(int m_idx)
 		 ((p_ptr->pclass == CLASS_CHAOS_WARRIOR) &&
 		  (p_ptr->chaos_patron == PATRON_ARIOCH)))
 	{
-		k = rand_int(5) + 3;
-		for (j = 0; j <= k; j++)
+		for (j = 0; j < 4; j++)
 		{
 			activate_ty_curse();
 		}

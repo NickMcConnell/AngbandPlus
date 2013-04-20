@@ -1,4 +1,4 @@
-91
+93
 ******** BUFFER LINE *********************************** DO NOT REMOVE *******
 'Idspispopd'
 'Purple Rain'
@@ -82,6 +82,8 @@ of Close Combat
 'Bungee'
 of Worst Fear
 'Pig's Eye'
+'Snap'
+'Crackle'
 'Pop'
 'Peashooter'
 of Fender

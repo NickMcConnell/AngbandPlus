@@ -135,7 +135,7 @@ D:The treasure of Tulkas, most fleet and wrathful of the Valar.
 N:10:'Narya'
 I:45:34:1
 W:70:30:2:100000
-P:0:1d1:10:10:0
+P:0:1d1:15:15:5
 F:STR | INT | WIS | DEX | CON | CHR | SPEED | HIDE_TYPE | ACTIVATE | 
 F:FREE_ACT | SEE_INVIS | SLOW_DIGEST | REGEN | SUST_STR | SUST_DEX | 
 F:IM_FIRE | INSTA_ART
@@ -149,7 +149,7 @@ D:Sauron.
 N:11:'Nenya'
 I:45:35:2
 W:80:40:2:200000
-P:0:1d1:11:11:0
+P:0:1d1:10:10:5
 F:STR | INT | WIS | DEX | CON | CHR | SPEED | HIDE_TYPE | ACTIVATE | 
 F:HOLD_LIFE | FREE_ACT | SEE_INVIS | FEATHER | REGEN | SHOW_MODS | 
 F:SUST_INT | SUST_WIS | IM_COLD | INSTA_ART
@@ -163,7 +163,7 @@ D:from Sauron.
 N:12:'Vilya'
 I:45:36:3
 W:90:50:2:300000
-P:0:1d1:12:12:0
+P:0:1d1:5:5:5
 F:STR | INT | WIS | DEX | CON | CHR | SPEED | HIDE_TYPE | ACTIVATE | 
 F:HOLD_LIFE | FREE_ACT | SEE_INVIS | FEATHER | SLOW_DIGEST | REGEN | 
 F:SUST_INT | SUST_WIS | SUST_STR | SUST_DEX | IM_ELEC | INSTA_ART
@@ -178,7 +178,7 @@ D:from Sauron.
 N:13:Ring
 I:45:37:5
 W:100:100:2:5000000
-P:0:1d1:15:15:0
+P:0:1d1:20:20:20
 F:STR | INT | WIS | DEX | CON | CHR | SPEED | HIDE_TYPE | ACTIVATE | 
 F:CURSED | HEAVY_CURSE | PERMA_CURSE | AGGRAVATE | DRAIN_EXP | SEE_INVIS | 
 F:REGEN | TY_CURSE | IM_FIRE | IM_COLD | IM_ELEC | IM_ACID | SUST_STR | 
@@ -384,7 +384,7 @@ D:he was known as the Knight of the Swords.
 N:30:of Thorin
 I:34:3:4
 W:30:6:65:60000
-P:4:1d2:0:0:25
+P:3:1d2:0:0:25
 F:STR | CON | HIDE_TYPE | IM_ACID | RES_SOUND | RES_CHAOS
 D:Evoking the strength and endurance of Thorin Oakenshield, this small 
 D:shield is what gave him his surname.
@@ -395,7 +395,7 @@ D:shield is what gave him his surname.
 N:31:of Celegorm
 I:34:4:0
 W:30:2:72:12000
-P:3:1d2:0:0:20
+P:4:1d2:0:0:20
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_LITE | RES_DARK
 D:This shield emblazoned with a multitude of creatures not seen for ages 
 D:once protected Celegorm, lord of Himlad; around it lies a mystic balance  
@@ -557,11 +557,12 @@ D:that she was known as the Queen of the Swords.
 # The Cloak 'Colluin'
 
 N:44:'Colluin'
-I:35:1:0
-W:5:45:10:10000
+I:35:1:3
+W:5:45:15:10000
 P:1:0d0:0:0:15
-F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_POIS | ACTIVATE
-D:
+F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_POIS | ACTIVATE | STEALTH
+D:A mottled green cloak, perfect for wearing in all kinds of weather.
+
 
 # The Cloak 'Holcolleth'
 
@@ -1062,7 +1063,7 @@ D:to life...
 
 N:86:'Forasgil'
 I:24:7:0
-W:15:5:40:15000
+W:10:6:40:15000
 P:0:1d6:12:19:0
 F:SLAY_ANIMAL | BRAND_COLD | RES_COLD | RES_LITE | LITE | SHOW_MODS
 D:A slender, tapered blade whose wielder strikes icy blows with deadly 
@@ -1073,7 +1074,7 @@ D:accuracy.
 
 N:87:'Careth Asdriag'
 I:24:11:1
-W:15:8:50:25000
+W:15:6:50:25000
 P:0:1d7:6:8:0
 F:BLOWS | SLAY_DRAGON | SLAY_ANIMAL | SLAY_TROLL | SLAY_GIANT | SLAY_ORC | 
 F:SHOW_MODS
@@ -1373,7 +1374,7 @@ D:returning.
 
 N:110:of the Dawn
 I:24:16:0
-W:40:100:150:150000
+W:40:10:150:150000
 P:0:3d5:20:20:0
 F:ACTIVATE | LITE | BRAND_FIRE | FREE_ACT | RES_FIRE | VORPAL | SLAY_EVIL | 
 F:SLAY_DRAGON | SLAY_UNDEAD | SLAY_DEMON | SUST_CHR | RES_FEAR | RES_LITE | 

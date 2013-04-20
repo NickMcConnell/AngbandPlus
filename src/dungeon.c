@@ -940,6 +940,7 @@ static void process_world(void)
 				if (f1 & (TR1_SLAY_GIANT)) burn = TRUE;
 				break;
 			case RACE_GAMBOLT: case RACE_KLACKON:
+			case RACE_YEEK:
 				if (f1 & (TR1_SLAY_ANIMAL)) burn = TRUE;
 				break;
 			case RACE_DRACONIAN:
@@ -3309,7 +3310,6 @@ void play_game(bool new_game)
 	/* Reset the visual mappings */
 	reset_visuals();
 
-
 	/* Window stuff */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
 
@@ -3318,7 +3318,6 @@ void play_game(bool new_game)
 
 	/* Window stuff */
 	window_stuff();
-
 
 	/* Load the "pref" files */
 	load_all_pref_files();
@@ -3330,18 +3329,14 @@ void play_game(bool new_game)
 	/* React to changes */
 	Term_xtra(TERM_XTRA_REACT, 0);
 
-
 	/* Generate a dungeon level if needed */
 	if (!character_dungeon) generate_cave();
-
 
 	/* Character is now "complete" */
 	character_generated = TRUE;
 
-
 	/* Hack -- Character is no longer "icky" */
 	character_icky = FALSE;
-
 
 	/* Start game */
 	alive = TRUE;
@@ -3355,7 +3350,6 @@ void play_game(bool new_game)
 		/* Process the level */
 		dungeon();
 
-
 		/* Notice stuff */
 		if (p_ptr->notice) notice_stuff();
 
@@ -3368,13 +3362,11 @@ void play_game(bool new_game)
 		/* Window stuff */
 		if (p_ptr->window) window_stuff();
 
-
 		/* Cancel the target */
 		target_who = 0;
 
 		/* Cancel the health bar */
 		health_track(0);
-
 
 		/* Forget the lite */
 		forget_lite();
@@ -3382,17 +3374,13 @@ void play_game(bool new_game)
 		/* Forget the view */
 		forget_view();
 
-
 		/* Handle "quit and save" */
 		if (!alive && !death) break;
-
 
 		/* Erase the old cave */
 		wipe_o_list();
 		wipe_m_list();
 
-
-		/* XXX XXX XXX */
 		msg_print(NULL);
 
 		/* Accidental Death */

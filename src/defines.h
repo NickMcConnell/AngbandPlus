@@ -42,7 +42,7 @@
 #define FAKE_VERSION
 #define FAKE_VER_MAJOR 2
 #define FAKE_VER_MINOR 1
-#define FAKE_VER_PATCH 6
+#define FAKE_VER_PATCH 7
 
 #define ANGBAND_2_8_1
 
@@ -93,7 +93,7 @@
 /*
  * Maximum number of player "race" types (see "table.c", etc)
  */
-#define MAX_RACES           20 /* Fingers crossed, hope this works... */
+#define MAX_RACES           23 /* Fingers crossed, hope this works... */
 
 /*
  * Maximum number of player "class" types (see "table.c", etc)
@@ -566,43 +566,45 @@ and tables.c --TY */
 #define SEX_MALE                1
 
 /* Player race constants (hard-coded by save-files, arrays, etc) */
-#define RACE_HUMAN              0
-#define RACE_ELF                1
-#define RACE_HOBBIT             2
-#define RACE_GNOME              3
-#define RACE_DWARF              4
-#define RACE_HALF_ORC           5
-#define RACE_HALF_TROLL         6
-#define RACE_GAMBOLT            7
-#define RACE_HIGH_ELF           8
-#define RACE_BARBARIAN          9
-#define RACE_HALF_GIANT        10
-#define RACE_HALF_TITAN        11
-#define RACE_KLACKON           12
-#define RACE_KOBOLD            13
-#define RACE_DRACONIAN         14
-#define RACE_MIND_FLAYER       15
-#define RACE_GOLEM             16
-#define RACE_VAMPIRE           17
-#define RACE_SPECTRE           18
-#define RACE_BEASTMAN          19
-
+#define RACE_HUMAN		 0
+#define RACE_ELF		 1
+#define RACE_HOBBIT		 2
+#define RACE_GNOME		 3
+#define RACE_DWARF		 4
+#define RACE_HALF_ORC		 5
+#define RACE_HALF_TROLL		 6
+#define RACE_GAMBOLT		 7
+#define RACE_HIGH_ELF		 8
+#define RACE_BARBARIAN		 9
+#define RACE_HALF_GIANT		10
+#define RACE_HALF_TITAN		11
+#define RACE_KLACKON		12
+#define RACE_KOBOLD		13
+#define RACE_DRACONIAN		14
+#define RACE_MIND_FLAYER	15
+#define RACE_GOLEM		16
+#define RACE_VAMPIRE		17
+#define RACE_SPECTRE		18
+#define RACE_BEASTMAN		19
+#define RACE_YEEK		20
+#define RACE_MELNIBONEAN	21
+#define RACE_VADHAGH		22
 
 /*
  * Player class constants (hard-coded by save-files, arrays, etc)
  */
-#define CLASS_WARRIOR           0
-#define CLASS_MAGE              1
-#define CLASS_PRIEST            2
-#define CLASS_ROGUE             3
-#define CLASS_RANGER            4
-#define CLASS_PALADIN           5
-#define CLASS_WARRIOR_MAGE      6
-#define CLASS_CHAOS_WARRIOR     7
-#define CLASS_MONK              8
-#define CLASS_MINDCRAFTER       9
-#define CLASS_HIGH_MAGE        10
-#define CLASS_WEAPONMASTER     11
+#define CLASS_WARRIOR		 0
+#define CLASS_MAGE		 1
+#define CLASS_PRIEST		 2
+#define CLASS_ROGUE		 3
+#define CLASS_RANGER		 4
+#define CLASS_PALADIN		 5
+#define CLASS_WARRIOR_MAGE	 6
+#define CLASS_CHAOS_WARRIOR	 7
+#define CLASS_MONK		 8
+#define CLASS_MINDCRAFTER	 9
+#define CLASS_HIGH_MAGE		10
+#define CLASS_WEAPONMASTER	11
 
 
 /*** Screen Locations ***/
@@ -1614,7 +1616,7 @@ and tables.c --TY */
 #define SV_SCROLL_DETECT_TRAP            28
 #define SV_SCROLL_DETECT_DOOR            29
 #define SV_SCROLL_DETECT_INVIS           30
-/* xxx (detect evil?) */
+#define SV_SCROLL_SET_RECALL		 31
 #define SV_SCROLL_SATISFY_HUNGER         32
 #define SV_SCROLL_BLESSING               33
 #define SV_SCROLL_HOLY_CHANT             34

@@ -1043,10 +1043,8 @@ void do_cmd_look(void)
  */
 void do_cmd_locate(void)
 {
-	int		dir, y1, x1, y2, x2;
-
+	int	dir, y1, x1, y2, x2;
 	char	tmp_val[80];
-
 	char	out_val[160];
 
 

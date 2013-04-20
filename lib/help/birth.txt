@@ -383,6 +383,60 @@ races also have intrinsic abilities.
                 the Lords of Chaos, they have a chance to gain a new mutat-
                 ion - or lose the ones they already have.
 
+          Yeek
+                Weak, stupid, clumsy, frail and ugly is how best to describe
+                your typical Yeek. About the only thing they know how to do
+                well is run away. The only reason they get accepted as
+                apprentices in the various classes and guilds is out of a
+                sense of pity - and for the amusement their ineptitudes
+                create. Yeeks tend to live very short, but usually exciting,
+                lives.
+
+          Melnibonean
+                Lords of the Dragon-Isle of Melnibone, the Bright Empire,
+                the Melniboneans ruled most of their world for over ten
+                thousand years, thanks to a pact with Duke Arioch of Chaos,
+                who gave the Melniboneans power in exchange for their
+                worship of him. But this came to an end when Elric Woman-
+                slayer, last Sorcerer-Emperor of Melnibone destroyed his
+                island and most of his people for their arrogance and
+                decadence. Now the remaining Melniboneans wander the world,
+                and the multiverse, usually serving in the armies of others
+                as mercenaries. But even after their fall from dominance,
+                many Melniboneans can still command great powers of sorcery,
+                and most find it fairly easy to summon demons, though this
+                is very dangerous... Melniboneans differ little from humans
+                in appearance, except for their triangular jaws, almond-
+                shaped eyes and almost-lobeless ears that taper to a point.
+                Often mistaken for Elves by most people, and are usually
+                treated as such.
+
+          Vadhagh
+                Peaceful by nature, these slender beings stayed isolated in
+                their castles, in small family groups and with servants,
+                spending their time with art and music, rarely taking notice
+                of the outside world.  So self-involved they became after
+                their last war with the Nahdragh (who isolated themselves in
+                their cities on the island chain just off the coast of Bro-
+                an-Vadhagh), that they took no notice of the rise of Man
+                (who called himself 'Mabden' in that time and place) on
+                their continent, considering them little more than
+                intelligent beasts, until it was far too late and Man had
+                destroyed most of their race out of brutish fear and
+                superstition... Vadhagh have narrow, long skulls, ears that
+                are almost without lobes and tapered flat alongside the
+                head, fine hair, large almond-shaped eyes with yellow pupils
+                and purple surrounds, and skin that is a strange, gold-
+                flecked rose-pink. They are slim and tall and well
+                proportioned, and they move with a leisurely grace that
+                makes the human gait seem like the shambling of a crippled
+                ape. Like Melniboneans, the Vadhagh are usually mistaken for
+                Elves by other races... Wise and knowledgable in science,
+                which those less sophisticated usually mistakes for magic,
+                but by nature skeptical of the existance of gods, the
+                Vadhagh own the ability to see into adjacent planes of the
+                Earth, and even step between the barrier at times.
+
 
 === Classes ===
  
@@ -711,7 +765,7 @@ races also have intrinsic abilities.
  
  
  
-=== Combinations of Race and Class (updated for Gumband 2.1.6) ===
+=== Combinations of Race and Class (updated for Gumband 2.1.7) ===
 
 These are the classes that are recommended for different races. You can
 still select a race that is not in the chart, but these combinations are
@@ -742,7 +796,9 @@ Golem         Yes     No      No      No      No      No      No      No
 Vampire       Yes     Yes     Yes     Yes     Yes     Yes     Yes     Yes
 Spectre       No      Yes     Yes     Yes     No      No      Yes     No
 Beastman      Yes     Yes     Yes     Yes     No      No      Yes     Yes
-
+Yeek          Yes     Yes     Yes     Yes     Yes     Yes     Yes     Yes
+Melnibonean   Yes     Yes     Yes     Yes     No      No      Yes     Yes
+Vadhagh       Yes     Yes     Yes     No      Yes     Yes     Yes     No
 
                      Mind-   High
             Monk    crafter  Mage Weaponmaster
@@ -766,6 +822,9 @@ Golem         No      No      No      Yes
 Vampire       Yes     Yes     Yes     Yes
 Spectre       Yes     Yes     Yes     No
 Beastman      Yes     Yes     Yes     Yes
+Yeek          Yes     Yes     Yes     Yes
+Melnibonean   No      No      Yes     Yes
+Vadhagh       Yes     Yes     Yes     Yes
 
 
 === Miscellaneous ===
@@ -782,7 +841,7 @@ Beastman      Yes     Yes     Yes     Yes
                Human can gain infra-vision only if it is magically enhanced.
  
                                                                    
-=== Stat Bonus Tables (updated for Gumband 2.1.6) ===
+=== Stat Bonus Tables (updated for Gumband 2.1.7) ===
 
 Stat, hit dice, and experience points per level modifications due to race
 are listed in the following table.
@@ -808,6 +867,9 @@ are listed in the following table.
            Vampire     +3   +3   -1   -1   +1   +2      11         +100%
            Spectre     -5   +4   +4   +2   -3   -6       7         +80%
            Beastman    +2   -2   -1   -1   +2   -4      11         +40%
+           Yeek        -5   -5   -5   -5   -5   -5      10         -75%
+           Melnibonean +1   +2   +2   +1   +1   -3      10         +35%
+           Vadhagh     -1   +3   +3   +4   -2   +5       9         +55%
 
                                                              Spellcasting
                                                              Armour Weight
@@ -828,7 +890,7 @@ are listed in the following table.
 (a '*' next to a number indicates the spellcasting stat for that class)
  
 
-=== Ability Tables (updated for Gumband 2.1.6) ===
+=== Ability Tables (updated for Gumband 2.1.7) ===
 
                         Dsrm Dvce Save Stlh Srch Prcp HtH  Misl   Infra
            Human        +0   +0   +0   +0   +0   +10  +0   +0     None
@@ -851,7 +913,9 @@ are listed in the following table.
            Vampire      +4   +10  +10  +4   +1   +8   +5   +0     50 feet
            Spectre      +10  +25  +20  +5   +5   +14  -15  -5     50 feet
            Beastman     -5   -2   -1   -1   -1   +5   +12  +5     None
-
+           Yeek         -5   -5   -10  +0   -5   +0   -10  -10    20 feet
+           Melnibonean  +8   +15  +10  +1   +5   +5   +15  +10    20 feet
+           Vadhagh      +10  +20  +15  +3   +10  +15  +5   +10    40 feet
 
                 Disarm  Device  Save    Stealth Search  Melee   Missile XP
 Warrior         25+12   18+7    18+10   1       14/2    70+45   55+45  + 0%

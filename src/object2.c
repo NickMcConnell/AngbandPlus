@@ -2168,6 +2168,7 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 					case 28:
 					{
 						o_ptr->name2 = EGO_BLESS_BLADE;
+						if (randint(4)==1) o_ptr->art_flags1 |= TR1_SLAY_EVIL;
 						break;
 					}
 
@@ -5778,6 +5779,7 @@ static void spell_info(char *p, int spell, int realm)
 				{
 					case  0: sprintf(p, " dam %dd4", 3 + ((plev-1) / 3)); break;
 					case  2: sprintf(p, " dam %d", 10 + (plev / 2)); break;
+					case  3: sprintf(p, " %d%% det.", 50 + (plev / 2)); break;
 					case  4: sprintf(p, " dam %d", 25 + (plev + (plev / 2))); break; 
 					case  5: sprintf(p, " dam %dd8", 9 + ((plev-5) / 3)); break;
 					case  6: sprintf(p, " dam %dd8", 9 + ((plev-5) / 3)); break;
@@ -5790,6 +5792,7 @@ static void spell_info(char *p, int spell, int realm)
 					case 15: sprintf(p, " dam %d", 100 + plev); break;
 					case 17: sprintf(p, " dam %dd8", 10+(plev/5)); break;
 					case 19: sprintf(p, " dam %d", 100 + (plev*4)); break;
+					case 20: sprintf(p, " %d%% ident", 50 + p_ptr->lev); break;
 					case 24: sprintf(p, " dam %dd8", 15 + ((plev-5) / 3)); break;
 					case 25: sprintf(p, " dam %d each", plev * 4); break;
 					case 26: sprintf(p, " dam %d", 200 + (plev * 4)); break;

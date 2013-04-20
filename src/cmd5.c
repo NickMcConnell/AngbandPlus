@@ -494,12 +494,9 @@ void do_cmd_cast(void)
 	int	increment = 0, dummy = 0;
 	int	use_realm, i;
 	int	ii = 0, ij = 0;
-
 	bool	no_trump = FALSE;
 	const cptr prayer = ((mp_ptr->spell_book == TV_LIFE_BOOK) ? "prayer" : "spell");
-
 	object_type	*o_ptr;
-
 	magic_type	*s_ptr;
 
 /*        char	ppp[80];      */
@@ -929,10 +926,10 @@ void do_cmd_cast(void)
 			}
 			break;
 		}
-	   case 22: /* Detection True */
+	   case 22: /* Detection */
 		(void)detect_all();
 		break;
-	   case 23: /* Identify True */
+	   case 23: /* Insight */
 		identify_fully();
 		break;
 	case 24: /* Stasis */
@@ -944,31 +941,32 @@ void do_cmd_cast(void)
 		break;
        case 26: /* Recharging True -- replaced by Explosive Rune */
                explosive_rune();
-		       break;
+		break;
 	   case 27: /* Clairvoyance */
-			wiz_lite();
-            if (!(p_ptr->telepathy))
-            {
-                (void)set_tim_esp(p_ptr->tim_esp + randint(30) + 25);
-            }
-		       break;
+		wiz_lite();
+		if (!(p_ptr->telepathy))
+		{
+			(void)set_tim_esp(p_ptr->tim_esp + randint(30) + 25);
+		}
+		break;
 	   case 28: /* Enchant Weapon */
-			(void)enchant_spell(rand_int(4) + 1, rand_int(4) + 1, 0);
-		       break;
+		(void)enchant_spell(rand_int(4) + 1, rand_int(4) + 1, 0);
+		break;
 	   case 29: /* Enchant Armour */
-			(void)enchant_spell(0, 0, rand_int(3) + 2);
-		       break;
+		(void)enchant_spell(0, 0, rand_int(3) + 2);
+		break;
 	   case 30: /* Alchemy */
-		       (void) alchemy();
-		       break;
+		(void)alchemy();
+		break;
 	   case 31: /* Globe of Invulnerability */
-			(void)set_invuln(p_ptr->invuln + randint(10) + 10);
-		       break;
-	       default:
-		 msg_format("You cast an unknown Sorcery spell: %d.", spell);
-		 msg_print(NULL);
-	   }
-      break;
+		(void)set_invuln(p_ptr->invuln + randint(10) + 10);
+		break;
+	   default:
+		msg_format("You cast an unknown Sorcery spell: %d.", spell);
+		msg_print(NULL);
+	}
+	break;
+
 	case 2: /* * NATURE * */
 	  switch (spell)
 	  {
@@ -1146,14 +1144,14 @@ void do_cmd_cast(void)
 				fire_bolt_or_beam(beam-10, GF_MISSILE, dir,
 						  damroll(3 + ((plev - 1) / 3), 4));
                 break;
-        case 1: /* Trap / Door destruction, was: Blink */
+        case 1: /* Trap/Door destruction */
 			(void)destroy_doors_touch();
 			break;
-        case 2: /* Flash of Light == Light Area */
+        case 2: /* Flash of Light */
 			(void)lite_area(damroll(2, (plev / 2)), (plev / 10) + 1);
 			break;
-        case 3: /* Demon Detection */
-		(void)detect_monsters_xxx(RF3_DEMON);
+        case 3: /* Chaotic Sensing */
+		(void)detect_random();
 		break;
 	case 4: /* Mana Burst */
 		if (!get_aim_dir(&dir)) return;
@@ -1278,10 +1276,27 @@ void do_cmd_cast(void)
 		if (!get_aim_dir(&dir)) return;
 		fire_ball(GF_DISINTEGRATE, dir, 100 + (plev * 4), 3 + (plev/40));
 		break;
-	case 20: /* Teleport Other */
-		if (!get_aim_dir(&dir)) return;
-		(void)fire_beam(GF_AWAY_ALL, dir, plev);
+	case 20: /* Demonic Consultation */
+		if (randint(100) >= 50 + p_ptr->lev)
+		{
+			if (summon_specific(py, px, plev, SUMMON_DEMON))
+			{
+				msg_print("The area fills with a stench of sulphur and brimstone.");
+				msg_print("'You dare summon me for something so trivial?  DIE!'");
+			}
+			else
+			{
+				msg_print("You were unable to contact Hell...");
+				wild_magic(randint(20));
+			}
+		}
+		else
+		{
+			if (randint(2)==1)	(void)identify_fully();
+			else			(void)ident_spell();
+		}
 		break;
+
         case 21: /* Alter Reality */
 		msg_print("The world changes!");
                 if (autosave_l)
@@ -1763,7 +1778,7 @@ void do_cmd_cast(void)
 		else
 		{
 			if (!(summon_specific_friendly(py, px, plev, SUMMON_MINOR, TRUE)))
-			no_trump = TRUE;
+				no_trump = TRUE;
 		}
 		break;
 	}
@@ -1949,8 +1964,8 @@ void do_cmd_cast(void)
         case 20: /* Banish */
 		banish_monsters(plev*4); break;
         case 21: /* Living Trump */
-	        if (randint(8)==1) dummy = 16;
-	        else dummy = 8;
+	        if (randint(8)==1) dummy = 12;
+	        else dummy = 17;
 	        if (gain_random_mutation(dummy))
 	            msg_print("You have turned into a Living Trump.");
 	        break;

@@ -1224,6 +1224,8 @@ void map_info(int y, int x, byte *ap, char *cp)
 							break;
 						case RACE_ELF:
 						case RACE_HIGH_ELF:
+						case RACE_MELNIBONEAN:
+						case RACE_VADHAGH:
 							c = 223;
 							break;
 						case RACE_HALF_GIANT:
@@ -1234,6 +1236,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 							c = 229;
 							break;
 						case RACE_KOBOLD:
+						case RACE_YEEK:
 							c = 204;
 							break;
 						case RACE_DRACONIAN:

@@ -727,6 +727,12 @@ void do_cmd_quaff_potion(void)
 		case SV_POTION_LIFE:
 		{
 			msg_print("You feel life flow through your body!");
+			(void)do_res_stat(A_STR);
+			(void)do_res_stat(A_CON);
+			(void)do_res_stat(A_DEX);
+			(void)do_res_stat(A_WIS);
+			(void)do_res_stat(A_INT);
+			(void)do_res_stat(A_CHR);
 			restore_level();
 			hp_player(5000);
 			(void)set_poisoned(0);
@@ -735,12 +741,6 @@ void do_cmd_quaff_potion(void)
 			(void)set_image(0);
 			(void)set_stun(0);
 			(void)set_cut(0);
-			(void)do_res_stat(A_STR);
-			(void)do_res_stat(A_CON);
-			(void)do_res_stat(A_DEX);
-			(void)do_res_stat(A_WIS);
-			(void)do_res_stat(A_INT);
-			(void)do_res_stat(A_CHR);
 			ident = TRUE;
 			break;
 		}
@@ -841,7 +841,7 @@ void do_cmd_quaff_potion(void)
 		case SV_POTION_MUTATION:
 		{
 			if ((p_ptr->muta1 || p_ptr->muta2 || p_ptr->muta3) &&
-				(randint(3) == 1))
+			    (randint(2) == 1))
 			{
 				lose_mutation(0);
 				ident = TRUE;
@@ -1484,6 +1484,45 @@ void do_cmd_read_scroll(void)
 		case SV_SCROLL_DETECT_INVIS:
 		{
 			if (detect_monsters_invis()) ident = TRUE;
+			break;
+		}
+
+		case SV_SCROLL_SET_RECALL:
+		{
+			command_arg = p_ptr->max_dlv;
+
+			/* Ask for level */
+			if (get_check("Change recall level? "))
+			{
+				char	ppp[80];
+				char	tmp_val[160];
+
+				/* Prompt */
+				sprintf(ppp, "Set recall (cur. %d) to level (1-%d): ", p_ptr->max_dlv, 97);
+
+				/* Default */
+				sprintf(tmp_val, "%d", dun_level);
+
+				/* Ask for a level */
+				if (!get_string(ppp, tmp_val, 10)) return;
+
+				/* Extract request */
+				command_arg = atoi(tmp_val);
+			}
+
+			/* Paranoia */
+			if (command_arg < 1) command_arg = 1;
+
+			/* Paranoia */
+			if (command_arg > 97) command_arg = 97;
+
+			/* Accept request */
+			msg_format("Your next recall will be to dungeon level %d.", command_arg);
+
+			/* Change recall depth */
+			p_ptr->max_dlv = command_arg;
+
+			ident = TRUE;
 			break;
 		}
 

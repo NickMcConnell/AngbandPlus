@@ -2166,6 +2166,9 @@ static void calc_bonuses(void)
 			p_ptr->resist_conf  = TRUE;
 			p_ptr->resist_sound = TRUE;
 			break;
+		case RACE_VADHAGH:
+			p_ptr->resist_chaos = TRUE;
+			break;
 		default: /* no abilities */
 			break;
 	}
@@ -2636,7 +2639,6 @@ static void calc_bonuses(void)
 		p_ptr->update |= (PU_MONSTERS);
 	}
 
-
 	/* Extract the current weight (in tenth pounds) */
 	j = total_weight;
 
@@ -2654,7 +2656,6 @@ static void calc_bonuses(void)
 
 	/* Display the speed (if needed) */
 	if (p_ptr->pspeed != old_speed) p_ptr->redraw |= (PR_SPEED);
-
 
 	/* Actual Modifier Bonuses (Un-inflate stat bonuses) */
 	p_ptr->to_a += ((int)(adj_dex_ta[p_ptr->stat_ind[A_DEX]]) - 128);

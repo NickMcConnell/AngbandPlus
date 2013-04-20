@@ -1502,6 +1502,9 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3)
 			(*f2) |= (TR2_RES_SOUND);
 			(*f2) |= (TR2_RES_CONF);
 			break;
+		case RACE_VADHAGH:
+			(*f2) |= (TR2_RES_CHAOS);
+			break;
 		default: /* no abilities */
 			break;
 	}
@@ -1748,7 +1751,7 @@ static void display_player_flag_info(void)
     display_player_flag_aux(row+6, col, "Regeneration :", 3, TR3_REGEN);
     display_player_flag_aux(row+7, col, "Levitation   :", 3, TR3_FEATHER);
     display_player_flag_aux(row+8, col, "Perm Lite    :", 3, TR3_LITE);
-/*  display_player_flag_aux(row+9, col, "Wraith Form  :", 3, TR3_WRAITH); */
+    display_player_flag_aux(row+9, col, "Wraith Form  :", 3, TR3_WRAITH);
 }
 
 
@@ -2717,7 +2720,7 @@ errr file_character(cptr name, bool full)
 	if (name_slimes)
 		fprintf(fff, "\n You're an amateur mycologist.");
 	else if (!name_slimes)
-		fprintf(fff, "\n You hated Slime Molds.");
+		fprintf(fff, "\n You have an irrational hatred of Slime Molds.");
 
         if (noscore)
 		fprintf(fff, "\n You have done something illegal.");

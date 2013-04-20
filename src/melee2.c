@@ -6487,7 +6487,6 @@ static void process_monster(int m_idx, bool is_friend)
 					/* Do not bash the door */
 					may_bash = FALSE;
 				}
-
 				/* Locked doors (not jammed) */
 				else if (c_ptr->feat < FEAT_DOOR_HEAD + 0x08)
 				{
@@ -6495,12 +6494,6 @@ static void process_monster(int m_idx, bool is_friend)
 
 					/* Door power */
 					k = ((c_ptr->feat - FEAT_DOOR_HEAD) & 0x07);
-
-#if 0
-					/* XXX XXX XXX Old test (pval 10 to 20) */
-					if (randint((m_ptr->hp + 1) * (50 + o_ptr->pval)) <
-					    40 * (m_ptr->hp - 10 - o_ptr->pval));
-#endif
 
 					/* Try to unlock it XXX XXX XXX */
 					if (rand_int(m_ptr->hp / 10) > k)
@@ -6522,12 +6515,6 @@ static void process_monster(int m_idx, bool is_friend)
 
 				/* Door power */
 				k = ((c_ptr->feat - FEAT_DOOR_HEAD) & 0x07);
-
-#if 0
-				/* XXX XXX XXX Old test (pval 10 to 20) */
-				if (randint((m_ptr->hp + 1) * (50 + o_ptr->pval)) <
-				    40 * (m_ptr->hp - 10 - o_ptr->pval));
-#endif
 
 				/* Attempt to Bash XXX XXX XXX */
 				if (rand_int(m_ptr->hp / 10) > k)

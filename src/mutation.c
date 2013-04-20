@@ -511,7 +511,7 @@ bool gain_random_mutation(int choose_mut)
 			break;
 		default:
                 	muta_class = NULL;
-                	muta_which = NULL;
+                	muta_which = 0;
 		}
 
 		if (muta_class && muta_which)
@@ -532,7 +532,6 @@ bool gain_random_mutation(int choose_mut)
     }
     else
     {
-
         if (p_ptr->prace == RACE_VAMPIRE && !(p_ptr->muta1 & MUT1_HYPN_GAZE)
 	    && (randint(10) < 7))
 	{
@@ -540,6 +539,13 @@ bool gain_random_mutation(int choose_mut)
 		muta_which = MUT1_HYPN_GAZE;
 		muta_desc = "Your eyes look mesmerizing...";
         }
+	else if (p_ptr->prace == RACE_MELNIBONEAN && (p_ptr->muta2 & MUT2_CHAOS_GIFT)
+		 && (randint(10) < 5))
+	{
+		muta_class = &(p_ptr->muta2);
+		muta_which = MUT1_HYPN_GAZE;
+		muta_desc = "You have attracted the notice of Arioch!";
+	}
 
         msg_print("You mutate!");
         msg_print(muta_desc);
@@ -1967,9 +1973,56 @@ static void cmd_racial_power_aux (void)
 			}
 			break;
 
+		case RACE_YEEK:
+			if (racial_aux(1, 2, A_CON, 5))
+			{
+				msg_print("You flee in terror!");
+				set_afraid(randint(10)+5);
+				set_fast(randint(10)+5);
+			}
+			break;
+
+		case RACE_MELNIBONEAN:
+			if (racial_aux(30, 40, A_INT, 20))
+			{
+				if (randint(3)==1)
+				{
+					if (summon_specific(py, px, (plev*3)/2, SUMMON_DEMON))
+					{
+						msg_print("The area fills with a stench of sulphur and brimstone.");
+						msg_print("'Thou darest to summon me?!  Die, then!'");
+					}
+		        	}
+				else
+				{
+					if (summon_specific_friendly(py, px, (plev*3)/2, SUMMON_DEMON, (plev >= 40 ? TRUE : FALSE)))
+					{
+						msg_print("The area fills with a stench of sulphur and brimstone.");
+						msg_print("'What is thy bidding, Master?'");
+					}
+				}
+			}
+			break;
+
+		case RACE_VADHAGH:
+			if (racial_aux(30, 25, A_WIS, 15))
+			{
+				msg_print("You step into an adjacent plane...");
+		                if (autosave_l)
+        		        {
+					is_autosave = TRUE;
+					msg_print("Autosaving the game...");
+					do_cmd_save_game();
+					is_autosave = FALSE;
+				}
+				new_level_flag = TRUE;
+			}
+			break;
+
 		default:
 			msg_print("This race has no bonus power.");
 			energy_use = 0;
+			break;
 	}
 
 	p_ptr->redraw |= (PR_HP | PR_MANA);
@@ -2156,12 +2209,32 @@ void do_cmd_racial_power(void)
 
 		case RACE_VAMPIRE:
 			if (lvl < 2)
-				racial_power = "drain life         (racial, lvl 2, cost 1 + lvl/3) ";
+				racial_power = "drain life         (racial, lvl 2, cost 1 + lvl/3)";
 			else
 				racial_power = "drain life         (racial, cost 1 + lvl/3, CON 9@2)";
 			has_racial = TRUE;
 			break;
 
+		case RACE_YEEK:
+			racial_power = "flee in terror!    (racial, cost 2, CON 5@1)";
+			has_racial = TRUE;
+			break;
+
+		case RACE_MELNIBONEAN:
+			if (lvl < 30)
+				racial_power = "summon a demon     (racial, lvl 30, cost 40)";
+			else
+				racial_power = "summon a demon     (racial, cost 40, INT 20@30)";
+			has_racial = TRUE;
+			break;
+
+		case RACE_VADHAGH:
+			if (lvl < 30)
+				racial_power = "walk the planes    (racial, lvl 30, cost 25)";
+			else
+				racial_power = "walk the planes    (racial, cost 25, WIS 15@30)";
+			has_racial = TRUE;
+			break;
 	}
 
 	if (!(has_racial) && !(p_ptr->muta1))
