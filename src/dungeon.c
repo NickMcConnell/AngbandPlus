@@ -379,7 +379,11 @@ static void regenmana(int percent)
  *
  * XXX XXX XXX Should probably be done during monster turns.
  */
+#ifdef ALLOW_REMEMBER_RECALL /* TNB */
+void regen_monsters(void)
+#else
 static void regen_monsters(void)
+#endif /* ALLOW_REMEMBER_RECALL -- TNB */
 {
 	int i, frac;
 
@@ -1024,6 +1028,10 @@ static void process_world(void)
 
 				/* Leaving */
 				p_ptr->leaving = TRUE;
+
+#ifdef ALLOW_REMEMBER_RECALL /* TNB */
+				wor_delay_save(TRUE);
+#endif /* ALLOW_REMEMBER_RECALL -- TNB */
 			}
 			else
 			{
@@ -1035,6 +1043,10 @@ static void process_world(void)
 
 				/* Leaving */
 				p_ptr->leaving = TRUE;
+
+#ifdef ALLOW_REMEMBER_RECALL /* TNB */
+				wor_delay_load(TRUE);
+#endif /* ALLOW_REMEMBER_RECALL -- TNB */
 			}
 
 			/* Sound */
@@ -1168,6 +1180,13 @@ extern void do_cmd_borg(void);
  */
 static void process_command(void)
 {
+#ifdef ALLOW_REPEAT /* TNB */
+
+    /* Handle repeating the last command */
+    repeat_check();
+
+#endif /* ALLOW_REPEAT */
+
 	/* Parse the command */
 	switch (p_ptr->command_cmd)
 	{
@@ -2250,6 +2269,12 @@ static void dungeon(void)
 	/* Cancel the health bar */
 	health_track(0);
 
+#ifdef ALLOW_REMEMBER_RECALL /* TNB */
+	/* Cancel word-of-recall delayed stuff */
+	wor_delay_save(FALSE);
+	wor_delay_load(FALSE);
+#endif /* ALLOW_REMEMBER_RECALL -- TNB */
+
 
 	/* Reset shimmer flags */
 	shimmer_monsters = TRUE;
@@ -2508,6 +2533,10 @@ static void dungeon(void)
 		/* Count game turns */
 		turn++;
 	}
+
+#ifdef ALLOW_REMEMBER_RECALL /* TNB */
+	wor_save();
+#endif /* ALLOW_REMEMBER_RECALL -- TNB */
 }
 
 

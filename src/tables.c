@@ -1147,7 +1147,7 @@ owner_type owners[MAX_STORES][MAX_OWNERS] =
 		/* General store */
 		{ "Bilbo the Friendly",		200,	170, 108,  5, 15, RACE_HOBBIT},
 		{ "Rincewind the Chicken",	200,	175, 108,  4, 12, RACE_HUMAN},
-		{ "Snafu the Midget",		300,	170, 107,  5, 15, RACE_GNOME},
+		{ "Twerp the Midget",		300,	170, 107,  5, 15, RACE_GNOME},
 		{ "Lyar-el the Comely",		300,	165, 107,  6, 18, RACE_ELF},
 	},
 	{
@@ -1172,10 +1172,11 @@ owner_type owners[MAX_STORES][MAX_OWNERS] =
 		{ "Bosk the Wise",			30000,	185, 109,  5, 15, RACE_DWARF},
 	},
 	{
+		/* Alchemist */
 		{ "Mauser the Chemist",		10000,	190, 111,  5,  8, RACE_HALF_ELF},
 		{ "Wizzle the Chaotic",		10000,	190, 110,  6,  8, RACE_HOBBIT},
-		{ "Ga-nat the Greedy",		15000,	200, 116,  6,  9, RACE_GNOME},
-		{ "Vella the Slender",		15000,	220, 111,  4,  9, RACE_HUMAN},
+		{ "Ga-nat the Greedy",		15000,	220, 116,  6,  9, RACE_GNOME},
+		{ "Vella the Slender",		15000,	200, 111,  4,  9, RACE_HUMAN},
 	},
 	{
 		/* Magic Shop */
@@ -1478,7 +1479,8 @@ player_race race_info[MAX_RACES] =
  *	{STR,INT,WIS,DEX,CON,CHR},
  *	c_dis, c_dev, c_sav, c_stl, c_srh, c_fos, c_thn, c_thb,
  *	x_dis, x_dev, x_sav, x_stl, x_srh, x_fos, x_thn, x_thb,
- *	HD, Exp
+ *	HD, Exp,
+ *	attr		(P+)
  */
 player_class class_info[MAX_CLASS] =
 {
@@ -1487,7 +1489,8 @@ player_class class_info[MAX_CLASS] =
 		{ 5, -2, -2, 2, 2, -1},
 		25, 18, 18, 1,  14, 2, 70, 55,
 		10, 7,  10, 0,  0,  0,  45, 45,
-		9,  0
+		9,  0,
+		TERM_UMBER
 	},
 
 	{
@@ -1495,7 +1498,8 @@ player_class class_info[MAX_CLASS] =
 		{-5, 3, 0, 1, -2, 1},
 		30, 36, 30, 2,  16, 20, 34, 20,
 		7,  13, 9,  0,  0,  0,  15, 15,
-		0, 30
+		0, 30,
+		TERM_RED
 	},
 
 	{
@@ -1503,7 +1507,8 @@ player_class class_info[MAX_CLASS] =
 		{-1, -3, 3, -1, 0, 2},
 		25, 30, 32, 2,  16, 8, 48, 35,
 		7,  10, 12, 0,  0,  0, 20, 20,
-		2, 20
+		2, 20,
+		TERM_GREEN
 	},
 
 	{
@@ -1511,7 +1516,8 @@ player_class class_info[MAX_CLASS] =
 		{ 2, 1, -2, 3, 1, -1},
 		45, 32, 28, 5, 32, 24, 60, 66,
 		15, 10, 10, 0,  0,  0, 40, 30,
-		6, 25
+		6, 25,
+		TERM_BLUE
 	},
 
 	{
@@ -1519,7 +1525,8 @@ player_class class_info[MAX_CLASS] =
 		{ 2, 2, 0, 1, 1, 1},
 		30, 32, 28, 3,  24, 16, 56, 72,
 		8,  10, 10, 0,  0,  0,  30, 45,
-		4, 30
+		4, 30,
+		TERM_L_WHITE
 	},
 
 	{
@@ -1527,7 +1534,8 @@ player_class class_info[MAX_CLASS] =
 		{ 3, -3, 1, 0, 2, 2},
 		20, 24, 25, 1,  12, 2, 68, 40,
 		7,  10, 11, 0,  0,  0,  35, 30,
-		6, 35
+		6, 35,
+		TERM_WHITE
 	}
 };
 
@@ -2601,7 +2609,11 @@ cptr option_text[OPT_MAX] =
 	"verify_destroy",			/* OPT_verify_destroy */
 	"verify_special",			/* OPT_verify_special */
 	"allow_quantity",			/* OPT_allow_quantity */
-	NULL,						/* xxx */
+#ifdef ALLOW_EASY_OPEN /* TNB */
+	"easy_open",				/* OPT_easy_open */
+#else
+	NULL,                                           /* xxx */
+#endif /* ALLOW_EASY_OPEN */
 	"auto_haggle",				/* OPT_auto_haggle */
 	"auto_scum",				/* OPT_auto_scum */
 	"testing_stack",			/* OPT_testing_stack */
@@ -2614,8 +2626,16 @@ cptr option_text[OPT_MAX] =
 	"dungeon_stair",			/* OPT_dungeon_stair */
 	"flow_by_sound",			/* OPT_flow_by_sound */
 	"flow_by_smell",			/* OPT_flow_by_smell */
+#ifdef ALLOW_EASY_DISARM /* TNB */
+	"easy_disarm",				/* OPT_easy_disarm */
+#else
 	NULL,						/* xxx track_follow */
-	NULL,						/* xxx track_target */
+#endif /* ALLOW_EASY_DISARM */
+#ifdef ALLOW_REMEMBER_RECALL /* TNB */
+	"remember_recall",			/* OPT_remember_recall */
+#else
+	NULL,                                           /* xxx track_target */
+#endif /* ALLOW_REMEMBER_RECALL -- TNB */
 	"smart_learn",				/* OPT_smart_learn */
 	"smart_cheat",				/* OPT_smart_cheat */
 	"view_reduce_lite",			/* OPT_view_reduce_lite */
@@ -2624,16 +2644,88 @@ cptr option_text[OPT_MAX] =
 	"avoid_other",				/* OPT_avoid_other */
 	"flush_failure",			/* OPT_flush_failure */
 	"flush_disturb",			/* OPT_flush_disturb */
+#ifdef MONSTER_AI
+	"monster_ai",				/* OPT_monster_ai */
+#else
 	NULL,						/* xxx flush_command */
+#endif /* MONSTER_AI */
 	"fresh_before",				/* OPT_fresh_before */
 	"fresh_after",				/* OPT_fresh_after */
+#if 1
+	"spell_colors",				/* OPT_spell_colors */
+#else
 	NULL,						/* xxx fresh_message */
+#endif
 	"compress_savefile",		/* OPT_compress_savefile */
 	"hilite_player",			/* OPT_hilite_player */
 	"view_yellow_lite",			/* OPT_view_yellow_lite */
 	"view_bright_lite",			/* OPT_view_bright_lite */
 	"view_granite_lite",		/* OPT_view_granite_lite */
 	"view_special_lite"			/* OPT_view_special_lite */
+	"extend_dump",				/* OPT_extend_dump */
+	NULL,                                           /* xxx */
+	NULL,                                           /* xxx */
+	NULL,                                           /* xxx */
+	NULL,                                           /* xxx */
+	NULL,                                           /* xxx */
+	NULL,                                           /* xxx */
+	NULL,                                           /* xxx */
+	NULL,                                           /* xxx */
+	NULL,                                           /* xxx */
+	NULL,                                           /* xxx */
+	NULL,                                           /* xxx */
+	NULL,                                           /* xxx */
+	NULL,                                           /* xxx */
+	NULL,                                           /* xxx */
+	NULL,                                           /* xxx */
+	NULL,                                           /* xxx */
+	NULL,                                           /* xxx */
+	NULL,                                           /* xxx */
+	NULL,                                           /* xxx */
+	NULL,                                           /* xxx */
+	NULL,                                           /* xxx */
+	NULL,                                           /* xxx */
+	NULL,                                           /* xxx */
+	NULL,                                           /* xxx */
+	NULL,                                           /* xxx */
+	NULL,                                           /* xxx */
+	NULL,                                           /* xxx */
+	NULL,                                           /* xxx */
+	NULL,                                           /* xxx */
+	NULL,                                           /* xxx */
+	NULL,                                           /* xxx */
+	NULL,                                           /* xxx */
+	NULL,                                           /* xxx */
+	NULL,                                           /* xxx */
+	NULL,                                           /* xxx */
+	NULL,                                           /* xxx */
+	NULL,                                           /* xxx */
+	NULL,                                           /* xxx */
+	NULL,                                           /* xxx */
+	NULL,                                           /* xxx */
+	NULL,                                           /* xxx */
+	NULL,                                           /* xxx */
+	NULL,                                           /* xxx */
+	NULL,                                           /* xxx */
+	NULL,                                           /* xxx */
+	NULL,                                           /* xxx */
+	NULL,                                           /* xxx */
+	NULL,                                           /* xxx */
+	NULL,                                           /* xxx */
+	NULL,                                           /* xxx */
+	NULL,                                           /* xxx */
+	NULL,                                           /* xxx */
+	NULL,                                           /* xxx */
+	NULL,                                           /* xxx */
+	NULL,                                           /* xxx */
+	NULL,                                           /* xxx */
+	NULL,                                           /* xxx */
+	NULL,                                           /* xxx */
+	NULL,                                           /* xxx */
+	NULL,                                           /* xxx */
+	NULL,                                           /* xxx */
+	NULL,                                           /* xxx */
+	NULL                                            /* xxx */
 };
 
 
@@ -2673,7 +2765,11 @@ cptr option_desc[OPT_MAX] =
 	"Verify destruction of objects",			/* OPT_verify_destroy */
 	"Verify use of special commands",			/* OPT_verify_special */
 	"Allow quantity specification",				/* OPT_allow_quantity */
-	NULL,										/* xxx */
+#ifdef ALLOW_EASY_OPEN /* TNB */
+	"Open and close automatically",   /* OPT_easy_open */
+#else
+	NULL,                                                           /* xxx */
+#endif /* ALLOW_EASY_OPEN */
 	"Auto-haggle in stores",					/* OPT_auto_haggle */
 	"Auto-scum for good levels",				/* OPT_auto_scum */
 	"Allow objects to stack on floor",			/* OPT_testing_stack */
@@ -2686,8 +2782,16 @@ cptr option_desc[OPT_MAX] =
 	"Generate dungeons with connected stairs",	/* OPT_dungeon_stair */
 	"Monsters chase current location (v.slow)",	/* OPT_flow_by_sound */
 	"Monsters chase recent locations (v.slow)",	/* OPT_flow_by_smell */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
+#ifdef ALLOW_EASY_DISARM /* TNB */
+	"Disarm traps automatically",			/* OPT_easy_disarm */
+#else
+	NULL,                                                      /* xxx */
+#endif /* ALLOW_EASY_DISARM */
+#ifdef ALLOW_REMEMBER_RECALL /* TNB */
+	"Remember the recall level",			/* OPT_remember_recall */
+#else
+	NULL,                                                      /* xxx */
+#endif /* ALLOW_REMEMBER_RECALL -- TNB */
 	"Monsters learn from their mistakes",		/* OPT_smart_learn */
 	"Monsters exploit players weaknesses",		/* OPT_smart_cheat */
 	"Reduce lite-radius when running",			/* OPT_view_reduce_lite */
@@ -2696,16 +2800,88 @@ cptr option_desc[OPT_MAX] =
 	"Avoid processing special colors",			/* OPT_avoid_other */
 	"Flush input on various failures",			/* OPT_flush_failure */
 	"Flush input whenever disturbed",			/* OPT_flush_disturb */
+#ifdef MONSTER_AI
+	"Allow improved monster AI",				/* OPT_monster_ai */
+#else
 	NULL,										/* xxx */
+#endif /* MONSTER_AI */
 	"Flush output before every command",		/* OPT_fresh_before */
 	"Flush output after various things",		/* OPT_fresh_after */
+#if 1
+	"Show colors in spell info",				/* OPT_spell_colors */
+#else
 	NULL,										/* xxx */
+#endif
 	"Compress messages in savefiles",			/* OPT_compress_savefile */
 	"Hilite the player with the cursor",		/* OPT_hilite_player */
 	"Use special colors for torch lite",		/* OPT_view_yellow_lite */
 	"Use special colors for field of view",		/* OPT_view_bright_lite */
 	"Use special colors for wall grids",		/* OPT_view_granite_lite */
-	"Use special colors for floor grids"		/* OPT_view_special_lite */
+	"Use special colors for floor grids",		/* OPT_view_special_lite */
+	"Show resistances in character dumps",		/* OPT_extend_dump */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL,										/* xxx */
+	NULL										/* xxx */
 };
 
 
@@ -2745,21 +2921,33 @@ bool option_norm[OPT_MAX] =
 	TRUE,		/* OPT_verify_destroy */
 	TRUE,		/* OPT_verify_special */
 	TRUE,		/* OPT_allow_quantity */
-	FALSE,		/* xxx */
-	TRUE,		/* OPT_auto_haggle */
+#ifdef ALLOW_EASY_OPEN /* TNB */
+	TRUE,		/* OPT_easy_open */
+#else
+	FALSE,          /* xxx */
+#endif /* ALLOW_EASY_OPEN */
+	FALSE,		/* OPT_auto_haggle */
 	FALSE,		/* OPT_auto_scum */
-	FALSE,		/* OPT_testing_stack */
-	FALSE,		/* OPT_testing_carry */
-	FALSE,		/* OPT_expand_look */
-	FALSE,		/* OPT_expand_list */
+	TRUE,		/* OPT_testing_stack */
+	TRUE,		/* OPT_testing_carry */
+	TRUE,		/* OPT_expand_look */
+	TRUE,		/* OPT_expand_list */
 	TRUE,		/* OPT_view_perma_grids */
 	FALSE,		/* OPT_view_torch_grids */
 	TRUE,		/* OPT_dungeon_align */
 	TRUE,		/* OPT_dungeon_stair */
 	FALSE,		/* OPT_flow_by_sound */
 	FALSE,		/* OPT_flow_by_smell */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
+#ifdef ALLOW_EASY_DISARM /* TNB */
+	TRUE,		/* OPT_easy_disarm */
+#else
+	FALSE,          /* xxx */
+#endif /* ALLOW_EASY_DISARM */
+#ifdef ALLOW_REMEMBER_RECALL /* TNB */
+	FALSE,		/* OPT_remember_recall */
+#else
+	FALSE,          /* xxx */
+#endif /* ALLOW_REMEMBER_RECALL -- TNB */
 	FALSE,		/* OPT_smart_learn */
 	FALSE,		/* OPT_smart_cheat */
 	FALSE,		/* OPT_view_reduce_lite */
@@ -2768,16 +2956,88 @@ bool option_norm[OPT_MAX] =
 	FALSE,		/* OPT_avoid_other */
 	TRUE,		/* OPT_flush_failure */
 	FALSE,		/* OPT_flush_disturb */
+#ifdef MONSTER_AI
+	FALSE,		/* OPT_monster_ai */
+#else
 	FALSE,		/* xxx */
+#endif /* MONSTER_AI */
 	TRUE,		/* OPT_fresh_before */
 	FALSE,		/* OPT_fresh_after */
+#if 1
+	TRUE,		/* OPT_spell_colors */
+#else
 	FALSE,		/* xxx */
+#endif
 	TRUE,		/* OPT_compress_savefile */
 	FALSE,		/* OPT_hilite_player */
 	FALSE,		/* OPT_view_yellow_lite */
 	FALSE,		/* OPT_view_bright_lite */
 	FALSE,		/* OPT_view_granite_lite */
 	FALSE		/* OPT_view_special_lite */
+	TRUE,		/* OPT_extend_dump */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE,		/* xxx */
+	FALSE		/* xxx */
 };
 
 
@@ -2845,7 +3105,11 @@ byte option_page[4][16] =
 		OPT_flow_by_smell,
 		OPT_smart_learn,
 		OPT_smart_cheat,
+#ifdef ALLOW_REMEMBER_RECALL /* TNB */
+		OPT_remember_recall,
+#else
 		255,
+#endif /* ALLOW_REMEMBER_RECALL -- TNB */
 		255
 	},
 
@@ -2866,6 +3130,39 @@ byte option_page[4][16] =
 		OPT_view_bright_lite,
 		OPT_view_granite_lite,
 		OPT_view_special_lite,
+#ifdef ALLOW_EASY_OPEN /* TNB */
+		OPT_easy_open,
+#else
+		255,
+#endif /* ALLOW_EASY_OPEN */
+#ifdef ALLOW_EASY_DISARM /* TNB */
+		OPT_easy_disarm,
+#else
+		255
+#endif /* ALLOW_EASY_DISARM */
+	},
+
+	/*** Goingband ***/
+
+	{
+		OPT_spell_colors,
+		OPT_extend_dump,
+#ifdef MONSTER_AI
+		OPT_monster_ai,
+#else
+		255,
+#endif /* MONSTER_AI */
+		255,
+		255,
+		255,
+		255,
+		255,
+		255,
+		255,
+		255,
+		255,
+		255,
+		255,
 		255,
 		255
 	}

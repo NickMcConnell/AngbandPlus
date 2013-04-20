@@ -10,6 +10,8 @@
 
 #include "angband.h"
 
+extern bool do_cmd_disarm_aux(int y, int x);
+
 
 
 /*
@@ -1070,11 +1072,22 @@ void move_player(int dir, int do_pickup)
 
 
 	/* Hack -- attack monsters */
-	if (cave_m_idx[y][x] > 0)
+	/* P+ -- do not attack if invulnerable */
+	if (cave_m_idx[y][x] > 0 && !p_ptr->invuln)
 	{
 		/* Attack */
 		py_attack(y, x);
 	}
+
+#ifdef ALLOW_EASY_DISARM /* TNB */
+	/* Disarm a visible trap */
+	else if ((do_pickup != easy_disarm) &&
+		 (cave_feat[y][x] >= FEAT_TRAP_HEAD) &&
+		 (cave_feat[y][x] <= FEAT_TRAP_TAIL))
+	{
+		(void) do_cmd_disarm_aux(y, x);
+	}
+#endif /* ALLOW_EASY_DISARM */
 
 	/* Player can not walk through "walls" */
 	else if (!cave_floor_bold(y, x))
@@ -1096,6 +1109,9 @@ void move_player(int dir, int do_pickup)
 			/* Closed door */
 			else if (cave_feat[y][x] < FEAT_SECRET)
 			{
+#ifdef ALLOW_EASY_OPEN /* TNB */
+				if (easy_open_door(y, x)) return;
+#endif
 				msg_print("You feel a door blocking your way.");
 				cave_info[y][x] |= (CAVE_MARK);
 				lite_spot(y, x);
@@ -1143,6 +1159,7 @@ void move_player(int dir, int do_pickup)
 		/* sound(SOUND_WALK); */
 
 		/* Move player */
+		/* P+ -- Should do invulnerability attacking right (?) */
 		monster_swap(py, px, y, x);
 
 		/* New location */
@@ -1164,7 +1181,11 @@ void move_player(int dir, int do_pickup)
 		}
 
 		/* Handle "objects" */
+#ifdef ALLOW_EASY_DISARM /* TNB */
+		py_pickup(do_pickup != always_pickup);
+#else
 		py_pickup(do_pickup);
+#endif /* ALLOW_EASY_DISARM */
 
 		/* Handle "store doors" */
 		if ((cave_feat[y][x] >= FEAT_SHOP_HEAD) &&

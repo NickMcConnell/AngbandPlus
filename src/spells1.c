@@ -1158,6 +1158,8 @@ bool apply_disenchant(int mode)
 {
 	int t = 0;
 
+	u32b f1, f2, f3;
+
 	object_type *o_ptr;
 
 	char o_name[80];
@@ -1199,8 +1201,14 @@ bool apply_disenchant(int mode)
 	object_desc(o_name, o_ptr, FALSE, 0);
 
 
+	/* Extract the flags */
+	object_flags(o_ptr, &f1, &f2, &f3);
+
+
 	/* Artifacts have 60% chance to resist */
-	if (artifact_p(o_ptr) && (rand_int(100) < 60))
+	/* P+: some items ignore disenchantment... */
+	if (artifact_p(o_ptr) && (rand_int(100) < 60)
+	    || (f3 & TR3_IGNORE_DISEN))
 	{
 		/* Message */
 		msg_format("Your %s (%c) resist%s disenchantment!",
@@ -2260,11 +2268,13 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		case GF_NEXUS:
 		{
 			if (seen) obvious = TRUE;
+			do_dist = randint(200);
 			if ((r_ptr->flags4 & (RF4_BR_NEXU)) ||
 			    prefix(name, "Nexus"))
 			{
 				note = " resists.";
 				dam *= 3; dam /= (randint(6)+6);
+				do_dist = 0;
 			}
 			break;
 		}
@@ -2291,6 +2301,11 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 				note = " resists.";
 				dam *= 3; dam /= (randint(6)+6);
 			}
+			else
+			{
+				if (m_ptr->mspeed > 60) m_ptr->mspeed -= 10;
+				note = " starts moving slower.";
+			}
 			break;
 		}
 
@@ -2310,12 +2325,19 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		case GF_GRAVITY:
 		{
 			if (seen) obvious = TRUE;
+			do_stun = (10 + randint(15) + r) / (r + 1);
 			do_dist = 10;
 			if (r_ptr->flags4 & (RF4_BR_GRAV))
 			{
 				note = " resists.";
 				dam *= 3; dam /= (randint(6)+6);
+				do_stun = 0;
 				do_dist = 0;
+			}
+			else
+			{
+				if (m_ptr->mspeed > 60) m_ptr->mspeed -= 10;
+				note = " starts moving slower.";
 			}
 			break;
 		}

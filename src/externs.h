@@ -747,3 +747,17 @@ extern void user_name(char *buf, int id);
 /* extern int main(int argc, char *argv[]); */
 
 
+#ifdef ALLOW_REMEMBER_RECALL /* TNB */
+
+/* wor.c */
+extern void wor_init(void);
+extern void wor_save(void);
+extern bool wor_load(void);
+extern void wor_forget(void);
+extern void wor_delay_save(bool save);
+extern void wor_delay_load(bool load);
+
+/* dungeon.c */
+extern void regen_monsters(void);
+
+#endif /* ALLOW_REMEMBER_RECALL -- TNB */

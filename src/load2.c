@@ -870,6 +870,7 @@ static void rd_monster(monster_type *m_ptr)
 	rd_byte(&m_ptr->stunned);
 	rd_byte(&m_ptr->confused);
 	rd_byte(&m_ptr->monfear);
+	rd_s16b(&m_ptr->hold_o_idx);
 	rd_byte(&tmp8u);
 }
 

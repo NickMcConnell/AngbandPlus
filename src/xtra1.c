@@ -725,6 +725,14 @@ static void health_redraw(void)
 	{
 		int pct, len;
 
+		/* Customized health bar: letters for fear/sleep status -GJW */
+		const char hb_normal[] = "**********";
+		const char hb_fearful[] = "FFFFFFFFFF";
+		const char hb_sleeping[] = "SSSSSSSSSS";
+		const char hb_stunned[] = "ssssssssss";
+		const char hb_confused[] = "cccccccccc";
+		const char *hb_ptr = hb_normal;
+
 		monster_type *m_ptr = &m_list[p_ptr->health_who];
 
 		/* Default to almost dead */
@@ -746,10 +754,16 @@ static void health_redraw(void)
 		if (pct >= 100) attr = TERM_L_GREEN;
 
 		/* Afraid */
-		if (m_ptr->monfear) attr = TERM_VIOLET;
+		if (m_ptr->monfear) { attr = TERM_VIOLET; hb_ptr = hb_fearful; }
 
 		/* Asleep */
-		if (m_ptr->csleep) attr = TERM_BLUE;
+		if (m_ptr->csleep) { attr = TERM_BLUE; hb_ptr = hb_sleeping; }
+
+		/* Confused */
+		if (m_ptr->confused) { attr = TERM_UMBER; hb_ptr = hb_confused; }
+
+		/* Stunned */
+		if (m_ptr->stunned) { attr = TERM_L_UMBER; hb_ptr = hb_stunned; }
 
 		/* Convert percent into "health" */
 		len = (pct < 10) ? 1 : (pct < 90) ? (pct / 10 + 1) : 10;
@@ -758,7 +772,7 @@ static void health_redraw(void)
 		Term_putstr(COL_INFO, ROW_INFO, 12, TERM_WHITE, "[----------]");
 
 		/* Dump the current "health" (use '*' symbols) */
-		Term_putstr(COL_INFO + 1, ROW_INFO, len, attr, "**********");
+		Term_putstr(COL_INFO + 1, ROW_INFO, len, attr, hb_ptr);
 	}
 }
 

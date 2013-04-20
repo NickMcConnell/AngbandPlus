@@ -251,7 +251,7 @@ static cptr comment_7c[MAX_COMMENT_7C] =
 
 static cptr comment_7d[MAX_COMMENT_7D] =
 {
-	"Yipee!",
+	"Yippee!",
 	"I think I'll retire!",
 	"The shopkeeper jumps for joy.",
 	"The shopkeeper smiles gleefully."
@@ -929,6 +929,13 @@ static int home_carry(object_type *o_ptr)
 		if (!object_known_p(o_ptr)) continue;
 		if (!object_known_p(j_ptr)) break;
 
+               /* Hack:  otherwise identical rods sort by
+                  increasing recharge time --dsb */
+               if (o_ptr->tval == TV_ROD) {
+                       if (o_ptr->pval < j_ptr->pval) break;
+                       if (o_ptr->pval > j_ptr->pval) continue;
+               }
+ 
 		/* Objects sort by decreasing value */
 		j_value = object_value(j_ptr);
 		if (value > j_value) break;
@@ -978,6 +985,8 @@ static int store_carry(object_type *o_ptr)
 	/* Cursed/Worthless items "disappear" when sold */
 	if (value <= 0) return (-1);
 
+	/* All store items are fully *identified* */
+	o_ptr->ident |= IDENT_MENTAL;
 
 	/* Erase the inscription */
 	o_ptr->note = 0;
@@ -1017,6 +1026,13 @@ static int store_carry(object_type *o_ptr)
 		if (o_ptr->sval < j_ptr->sval) break;
 		if (o_ptr->sval > j_ptr->sval) continue;
 
+               /* Hack:  otherwise identical rods sort by
+                  increasing recharge time --dsb */
+               if (o_ptr->tval == TV_ROD) {
+                       if (o_ptr->pval < j_ptr->pval) break;
+                       if (o_ptr->pval > j_ptr->pval) continue;
+               }
+ 
 		/* Evaluate that slot */
 		j_value = object_value(j_ptr);
 
@@ -1587,6 +1603,21 @@ static bool get_stock(int *com_val, cptr pmt)
 	object_type *o_ptr;
 
 
+#ifdef ALLOW_REPEAT /* TNB */
+
+    /* Get the item index */
+    if (repeat_pull(com_val)) {
+
+        /* Verify the item */
+        if ((*com_val >= 0) && (*com_val <= (st_ptr->stock_num - 1))) {
+
+               /* Success */
+               return (TRUE);
+        }
+    }
+
+#endif /* TNB */
+
 	/* Assume failure */
 	*com_val = (-1);
 
@@ -1651,6 +1682,12 @@ static bool get_stock(int *com_val, cptr pmt)
 
 	/* Save item */
 	(*com_val) = item;
+
+#ifdef ALLOW_REPEAT /* TNB */
+
+       repeat_push(*com_val);
+
+#endif /* ALLOW_REPEAT */
 
 	/* Success */
 	return (TRUE);
@@ -2787,6 +2824,68 @@ static void store_sell(void)
 }
 
 
+/*
+ * Examine an item in a store                         -JDL-
+ */
+static void store_examine(void)
+{
+      int i;
+      int item;
+  
+      object_type *o_ptr;
+
+      char o_name[80];
+
+      char out_val[160];
+
+
+      /* Empty? */
+      if (st_ptr->stock_num <= 0)
+      {
+              if (store_num == 7) msg_print("Your home is empty.");
+              else msg_print("I am currently out of stock.");
+              return;
+      }
+
+
+      /* Find the number of objects on this and following pages */
+      i = (st_ptr->stock_num - store_top);
+
+      /* And then restrict it to the current page */
+      if (i > 12) i = 12;
+
+      /* Prompt */
+      sprintf(out_val, "Which item do you want to examine? ");
+
+      /* Get the item number to be examined */
+      if (!get_stock(&item, out_val, 0, i-1)) return;
+
+      /* Get the actual index */
+      item = item + store_top;
+
+      /* Get the actual item */
+      o_ptr = &st_ptr->stock[item];
+
+      /* Require full knowledge */
+      if (!(o_ptr->ident & (IDENT_MENTAL)))
+      {
+              /* This can normally only happen in the home */
+              msg_print("You have no special knowledge about that item.");
+              return;
+      }
+
+      /* Description */
+      object_desc(o_name, o_ptr, TRUE, 3);
+
+      /* Describe */
+      msg_format("Examining %s...", o_name);
+
+      /* Describe it fully */
+      if (!identify_fully_aux(o_ptr)) msg_print("You see nothing special.");
+
+      return;
+}
+
 
 /*
  * Hack -- set this to leave the store
@@ -2808,6 +2907,13 @@ static bool leave_store = FALSE;
  */
 static void store_process_command(void)
 {
+#ifdef ALLOW_REPEAT /* TNB */
+
+    /* Handle repeating the last command */
+    repeat_check();
+
+#endif /* ALLOW_REPEAT */
+
 	/* Parse the command */
 	switch (p_ptr->command_cmd)
 	{
@@ -2870,6 +2976,13 @@ static void store_process_command(void)
 			break;
 		}
 
+			/* Examine */
+		case 'x':
+		{
+			store_examine();
+			break;
+		}
+ 
 			/* Ignore return */
 		case '\r':
 		{
@@ -3207,9 +3320,12 @@ void do_cmd_store(void)
 		}
 
 		/* Commands */
-		prt(" g) Get/Purchase an item.", 22, 40);
-		prt(" d) Drop/Sell an item.", 23, 40);
+		prt(" g) Get/Purchase an item.", 22, 31);
+		prt(" d) Drop/Sell an item.", 23, 31);
 
+		/* Add in the eXamine option */
+		prt(" x) eXamine an item.", 22, 56);
+ 
 		/* Prompt */
 		prt("You may: ", 21, 0);
 

@@ -2621,6 +2621,10 @@ void init_angband(void)
 	/* Process that file */
 	(void)process_pref_file("pref.prf");
 
+#ifdef ALLOW_REMEMBER_RECALL /* TNB */
+	wor_init();
+#endif /* ALLOW_REMEMBER_RECALL -- TNB */
+
 	/* Done */
 	note("[Initialization complete]");
 }

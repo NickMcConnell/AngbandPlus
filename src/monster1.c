@@ -158,7 +158,8 @@ static void roff_aux(int r_idx)
 		/* XXX XXX XXX */
 
 		/* Hack -- save memory */
-		COPY(&save_mem, r_ptr, monster_type);
+		/* P+ patched on Tim Baker's notice */
+		COPY(&save_mem, r_ptr, monster_race);
 
 		/* Hack -- Maximal kills */
 		r_ptr->r_tkills = MAX_SHORT;
@@ -1350,7 +1351,8 @@ static void roff_aux(int r_idx)
 	if (cheat_know)
 	{
 		/* Hack -- restore memory */
-		COPY(r_ptr, &save_mem, monster_type);
+		/* P+ patched on Tim Baker's notice */
+		COPY(r_ptr, &save_mem, monster_race);
 	}
 }
 

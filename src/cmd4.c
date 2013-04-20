@@ -140,7 +140,7 @@ void do_cmd_change_name(void)
 			{
 				if (tmp[0] && (tmp[0] != ' '))
 				{
-					file_character(tmp, FALSE);
+					file_character(tmp, extend_dump);
 				}
 			}
 		}
@@ -501,7 +501,7 @@ static void do_cmd_options_cheat(cptr info)
 			}
 
 			case 'y':
-			case '6':
+			/* case '6': */
 			{
 				/* Mark player as a cheater */
 				p_ptr->noscore |= (0x0100 << k);
@@ -512,7 +512,7 @@ static void do_cmd_options_cheat(cptr info)
 			}
 
 			case 'n':
-			case '4':
+			/* case '4': */
 			{
 				p_ptr->cheat[k] = FALSE;
 				k = (k + 1) % n;
@@ -618,7 +618,7 @@ static void do_cmd_options_aux(int page, cptr info)
 			}
 
 			case 'y':
-			case '6':
+			/* case '6': */
 			{
 				op_ptr->opt[opt[k]] = TRUE;
 				k = (k + 1) % n;
@@ -626,7 +626,7 @@ static void do_cmd_options_aux(int page, cptr info)
 			}
 
 			case 'n':
-			case '4':
+			/* case '4': */
 			{
 				op_ptr->opt[opt[k]] = FALSE;
 				k = (k + 1) % n;
@@ -824,23 +824,24 @@ void do_cmd_options(void)
 		Term_clear();
 
 		/* Why are we here */
-		prt("Angband options", 2, 0);
+		prt("Goingband options", 2, 0);
 
 		/* Give some choices */
 		prt("(1) User Interface Options", 4, 5);
 		prt("(2) Disturbance Options", 5, 5);
 		prt("(3) Game-Play Options", 6, 5);
 		prt("(4) Efficiency Options", 7, 5);
+		prt("(5) Goingband Options", 8, 5);
 
 		/* Cheating */
-		prt("(C) Cheating Options", 9, 5);
+		prt("(C) Cheating Options", 10, 5);
 
 		/* Window flags */
-		prt("(W) Window flags", 11, 5);
+		prt("(W) Window flags", 13, 5);
 
 		/* Special choices */
-		prt("(D) Base Delay Factor", 13, 5);
-		prt("(H) Hitpoint Warning", 14, 5);
+		prt("(D) Base Delay Factor", 14, 5);
+		prt("(H) Hitpoint Warning", 15, 5);
 
 		/* Prompt */
 		prt("Command: ", 18, 0);
@@ -883,6 +884,14 @@ void do_cmd_options(void)
 			{
 				/* Spawn */
 				do_cmd_options_aux(3, "Efficiency Options");
+				break;
+			}
+
+			/* Goingband Options */
+			case '5':
+			{
+				/* Spawn */
+				do_cmd_options_aux(4, "Goingband Options");
 				break;
 			}
 
@@ -1208,8 +1217,9 @@ static errr keymap_dump(cptr fname)
 		/* Encode the action */
 		ascii_to_text(buf, act);
 
-		/* Dump the macro */
-		fprintf(fff, "M:%d  %2s  %s\n", mode, key, buf);
+		/* Dump the macro (fixed) */
+		fprintf(fff, "A:%s\n", buf);
+		fprintf(fff, "C:%d:%s\n", mode, key);
 	}
 
 	/* Start dumping */
@@ -2331,8 +2341,8 @@ void do_cmd_note(void)
 void do_cmd_version(void)
 {
 	/* Silly message */
-	msg_format("You are playing Angband %d.%d.%d.  Type '?' for more info.",
-	           VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
+	msg_format("You are playing Goingband %d.%d.%dv%d.  Type '?' for more info.",
+	           VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH, VERSION_EXTRA);
 }
 
 

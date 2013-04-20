@@ -1971,7 +1971,7 @@ static void build_type6(int y0, int x0)
 	else if (tmp < 80)
 	{
 		/* Pick dragon type */
-		switch (rand_int(6))
+		switch (rand_int(8))
 		{
 			/* Black */
 			case 0:
@@ -2033,6 +2033,45 @@ static void build_type6(int y0, int x0)
 
 				/* Restrict dragon breath type */
 				vault_aux_dragon_mask4 = RF4_BR_POIS;
+
+				/* Done */
+				break;
+			}
+
+			/* Bronze */
+			case 5:
+			{
+				/* Message */
+				name = "confusion dragon";
+
+				/* Restrict dragon breath type */
+				vault_aux_dragon_mask4 = RF4_BR_CONF;
+
+				/* Done */
+				break;
+			}
+
+			/* Gold */
+			case 6:
+			{
+				/* Message */
+				name = "sound dragon";
+
+				/* Restrict dragon breath type */
+				vault_aux_dragon_mask4 = RF4_BR_SOUN;
+
+				/* Done */
+				break;
+			}
+
+			/* Pseudo/Ethereal */
+			case 7:
+			{
+				/* Message */
+				name = "light/dark dragon";
+
+				/* Restrict dragon breath type */
+				vault_aux_dragon_mask4 = (RF4_BR_LITE | RF4_BR_DARK);
 
 				/* Done */
 				break;
@@ -2273,6 +2312,32 @@ static void build_vault(int y0, int x0, int ymax, int xmax, cptr data)
 				case '^':
 				{
 					place_trap(y, x);
+					break;
+				}
+
+				/* Glyph of warding (from K*band) */
+				case ';':
+				{
+					cave_set_feat(y, x, FEAT_GLYPH);
+					break;
+				}
+
+				/* Treasure (from K*band) */
+				case 'T':
+				{
+					if (rand_int(100) < 75)
+						place_object(y, x, FALSE, FALSE);
+					else if (rand_int(100) < 80)
+						place_object(y, x, TRUE, FALSE);
+					else
+						place_object(y, x, TRUE, TRUE);
+					break;
+				}
+
+				/* Regular doors (from K*band) */
+				case 'D':
+				{
+					cave_set_feat(y, x, FEAT_DOOR_HEAD + randint(7));
 					break;
 				}
 			}
@@ -3476,6 +3541,14 @@ void generate_cave(void)
 			/* Make a town */
 			town_gen();
 		}
+
+#ifdef ALLOW_REMEMBER_RECALL /* TNB */
+		/* Recall level */
+		else if (wor_load())
+		{
+			return;
+		}
+#endif /* ALLOW_REMEMBER_RECALL -- TNB */
 
 		/* Build a real level */
 		else

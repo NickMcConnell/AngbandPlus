@@ -779,6 +779,8 @@ struct player_class
 
 	s16b c_mhp;			/* Class hit-dice adjustment */
 	s16b c_exp;			/* Class experience factor */
+
+	byte c_attr;			/* P+ -- class attr */
 };
 
 

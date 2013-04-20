@@ -1211,6 +1211,57 @@ static void do_cmd_wiz_summon(int num)
 
 
 /*
+ * Create the artifact of the specified number -- DAN
+ */
+static void wiz_create_named_art(int a_idx)
+{
+	object_type forge;
+	object_type *q_ptr;
+	int i;
+
+	artifact_type *a_ptr = &a_info[a_idx];
+
+	/* Get local object */
+	q_ptr = &forge;
+
+	/* Wipe the object */
+	object_wipe(q_ptr);
+
+	/* Ignore "empty" artifacts */
+	if (!a_ptr->name) return;
+
+	/* Acquire the "kind" index */
+	i = lookup_kind(a_ptr->tval, a_ptr->sval);
+
+	/* Oops */
+	if (!i) return;
+
+	/* Create the artifact */
+	object_prep(q_ptr, i);
+
+	/* Save the name */
+	q_ptr->name1 = a_idx;
+
+	/* Extract the fields */
+	q_ptr->pval = a_ptr->pval;
+	q_ptr->ac = a_ptr->ac;
+	q_ptr->dd = a_ptr->dd;
+	q_ptr->ds = a_ptr->ds;
+	q_ptr->to_a = a_ptr->to_a;
+	q_ptr->to_h = a_ptr->to_h;
+	q_ptr->to_d = a_ptr->to_d;
+	q_ptr->weight = a_ptr->weight;
+
+	/* Drop the artifact from heaven */
+	drop_near(q_ptr, -1, py, px);
+
+	/* All done */
+	msg_print("Allocated.");
+}
+
+
+
+/*
  * Summon a creature of the specified type
  *
  * This function is rather dangerous XXX XXX XXX
@@ -1463,6 +1514,13 @@ void do_cmd_debug(void)
 		case 'c':
 		{
 			wiz_create_item();
+			break;
+		}
+
+		/* Create a named artifact */
+		case 'C':
+		{
+			wiz_create_named_art(p_ptr->command_arg);
 			break;
 		}
 

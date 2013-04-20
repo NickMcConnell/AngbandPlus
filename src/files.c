@@ -1166,6 +1166,7 @@ static void display_player_xtra_info(void)
 	int i, tmp;
 	int xthn, xthb, xfos, xsrh;
 	int xdis, xdev, xsav, xstl;
+	int dam_rating;
 
 	object_type *o_ptr;
 
@@ -1263,6 +1264,12 @@ static void display_player_xtra_info(void)
 	            format("%10ld", p_ptr->au));
 
 
+	/* Turns */
+	Term_putstr(col, 16, -1, TERM_WHITE, "Turns");
+	Term_putstr(col+8, 16, -1, TERM_L_GREEN,
+	            format("%10ld", (long)turn));
+
+
 	/* Burden */
 	sprintf(buf, "%d.%d lbs",
 	        p_ptr->total_weight / 10,
@@ -1340,6 +1347,20 @@ static void display_player_xtra_info(void)
 	sprintf(buf, "%d/turn", p_ptr->num_fire);
 	Term_putstr(col, 15, -1, TERM_WHITE, "Shots");
 	Term_putstr(col+5, 15, -1, TERM_L_BLUE, format("%13s", buf));
+
+
+	/* Rating */
+	o_ptr = &inventory[INVEN_WIELD];
+	dam = p_ptr->dis_to_d;
+	if (object_known_p(o_ptr)) dam += o_ptr->to_d;
+
+	dam_rating = 5*(o_ptr->dd)*(1+o_ptr->ds) + 10*dam;
+	dam_rating *= p_ptr->num_blow;
+	dam_rating *= extract_energy[p_ptr->pspeed];
+
+	sprintf(buf, "%d.%.2d", dam_rating/100, dam_rating%100);
+	Term_putstr(col, 16, -1, TERM_WHITE, "Ratng");
+	Term_putstr(col+5, 16, -1, TERM_L_BLUE, format("%13s", buf));
 
 
 	/* Infra */
@@ -1495,14 +1516,103 @@ static byte display_player_flag_set[4] =
 };
 
 /*
- * Hack -- see below
+ * P+ hack -- see below
  */
-static u32b display_player_flag_head[4] =
+static u32b display_player_flag_normal[4][8] =
 {
-	TR2_RES_ACID,
-	TR2_RES_BLIND,
-	TR3_SLOW_DIGEST,
-	TR1_STEALTH
+	{
+		TR2_RES_ACID,
+		TR2_RES_ELEC,
+		TR2_RES_FIRE,
+		TR2_RES_COLD,
+		TR2_RES_POIS,
+		TR2_RES_FEAR,
+		TR2_RES_LITE,
+		TR2_RES_DARK
+	},
+
+	{
+		TR2_RES_BLIND,
+		TR2_RES_CONFU,
+		TR2_RES_SOUND,
+		TR2_RES_SHARD,
+		TR2_RES_NEXUS,
+		TR2_RES_NETHR,
+		TR2_RES_CHAOS,
+		TR2_RES_DISEN
+	},
+
+	{
+		TR3_SLOW_DIGEST,
+		TR3_FEATHER,
+		TR3_LITE,
+		TR3_REGEN,
+		TR3_TELEPATHY,
+		TR3_SEE_INVIS,
+		TR3_FREE_ACT,
+		TR3_HOLD_LIFE
+	},
+
+	{
+		TR1_STEALTH,
+		TR1_SEARCH,
+		TR1_INFRA,
+		TR1_TUNNEL,
+		TR1_SPEED,
+		TR1_BLOWS,
+		TR1_SHOTS,
+		TR1_MIGHT
+	}
+};
+
+/*
+ * P+ hack -- see below
+ */
+static u32b display_player_flag_special[4][8] =
+{
+	{
+		TR2_IM_ACID,
+		TR2_IM_ELEC,
+		TR2_IM_FIRE,
+		TR2_IM_COLD,
+		0,
+		0,
+		0,
+		0
+	},
+
+	{
+		0,
+		TR2_RES_CHAOS,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0
+	},
+
+	{
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0
+	},
+
+	{
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0,
+		0
+	}
 };
 
 /*
@@ -1533,7 +1643,7 @@ static cptr display_player_flag_names[4][8] =
 	},
 
 	{
-		"S.Dig:",	/* TR3_SLOW_DIGEST */
+		"SlowD:",	/* TR3_SLOW_DIGEST */
 		"Feath:",	/* TR3_FEATHER */
 		"PLite:",	/* TR3_LITE */
 		"Regen:",	/* TR3_REGEN */
@@ -1567,7 +1677,7 @@ static void display_player_flag_info(void)
 
 	int set;
 	u32b head;
-	u32b flag;
+	u32b flag, flag2;
 	cptr name;
 
 	u32b f[4];
@@ -1583,9 +1693,6 @@ static void display_player_flag_info(void)
 		/* Extract set */
 		set = display_player_flag_set[x];
 
-		/* Extract head */
-		head = display_player_flag_head[x];
-
 		/* Header */
 		c_put_str(TERM_WHITE, "abcdefghijkl@", row++, col+6);
 
@@ -1593,7 +1700,10 @@ static void display_player_flag_info(void)
 		for (y = 0; y < 8; y++)
 		{
 			/* Extract flag */
-			flag = (head << y);
+			flag = display_player_flag_normal[x][y];
+
+			/* P+ hack: Extract flag */
+			flag2 = display_player_flag_special[x][y];
 
 			/* Extract name */
 			name = display_player_flag_names[x][y];
@@ -1624,7 +1734,10 @@ static void display_player_flag_info(void)
 				c_put_str(attr, ".", row, col+n);
 
 				/* Check flags */
-				if (f[set] & flag) c_put_str(TERM_WHITE, "+", row, col+n);
+				if (f[set] & flag2)
+					c_put_str(TERM_WHITE, "*", row, col+n);
+				else if (f[set] & flag)
+					c_put_str(TERM_WHITE, "+", row, col+n);
 			}
 
 			/* Player flags */
@@ -1634,7 +1747,10 @@ static void display_player_flag_info(void)
 			c_put_str(TERM_SLATE, ".", row, col+n);
 
 			/* Check flags */
-			if (f[set] & flag) c_put_str(TERM_WHITE, "+", row, col+n);
+			if (f[set] & flag2)
+				c_put_str(TERM_WHITE, "*", row, col+n);
+			else if (f[set] & flag)
+				c_put_str(TERM_WHITE, "+", row, col+n);
 
 			/* Advance */
 			row++;
@@ -1860,6 +1976,9 @@ static void display_player_sust_info(void)
 					/* Good */
 					a = TERM_L_GREEN;
 
+					/* Good and sustained */
+					if (f2 & 1<<stat) a = TERM_GREEN;
+
 					/* Label boost */
 					if (o_ptr->pval < 10) c = I2D(o_ptr->pval);
 				}
@@ -1870,13 +1989,16 @@ static void display_player_sust_info(void)
 					/* Bad */
 					a = TERM_RED;
 
+					/* Bad, but sustained */
+					if (f2 & 1<<stat) a = TERM_UMBER;
+
 					/* Label boost */
 					if (o_ptr->pval > -10) c = I2D(-(o_ptr->pval));
 				}
 			}
 
 			/* Sustain */
-			if (f2 & 1<<stat)
+			else if (f2 & 1<<stat)
 			{
 				/* Dark green "s" */
 				a = TERM_GREEN;
@@ -2044,8 +2166,8 @@ errr file_character(cptr name, bool full)
 
 
 	/* Begin dump */
-	fprintf(fff, "  [Angband %d.%d.%d Character Dump]\n\n",
-	        VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
+	fprintf(fff, "  [Goingband %d.%d.%dv%d Character Dump]\n\n",
+	        VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH, VERSION_EXTRA);
 
 
 	/* Display player */
@@ -2072,6 +2194,39 @@ errr file_character(cptr name, bool full)
 
 		/* End the row */
 		fprintf(fff, "%s\n", buf);
+	}
+
+	/* Show (known) flags grid.  Why wasn't this included?  It looks
+	   like someone started to do this, then changed his/her mind. -GJW */
+	if (full)
+	{
+		/* Skip some lines */
+		fprintf(fff, "\n\n");
+
+		/* Display player */
+		display_player(1);
+
+		/* Dump part of the screen */
+		for (y = 11; y < 23; y++)
+		{
+			for (x = 0; x < 79; x++)
+			{
+				/* Get the attr/char */
+				(void)(Term_what(x, y, &a, &c));
+
+				/* Dump it */
+				buf[x] = c;
+			}
+
+			/* Back up over spaces */
+			while ((x > 0) && (buf[x-1] == ' ')) --x;
+
+			/* Terminate */
+			buf[x] = '\0';
+
+			/* End the row */
+			fprintf(fff, "%s\n", buf);
+		}
 	}
 
 	/* Skip some lines */
@@ -2382,8 +2537,8 @@ bool show_file(cptr name, cptr what, int line, int mode)
 
 
 		/* Show a general "title" */
-		prt(format("[Angband %d.%d.%d, %s, Line %d/%d]",
-		           VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH,
+		prt(format("[Goingband %d.%d.%dv%d, %s, Line %d/%d]",
+		           VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH, VERSION_EXTRA,
 		           caption, line, size), 0, 0);
 
 
@@ -2651,10 +2806,10 @@ void do_cmd_suicide(void)
 	else
 	{
 		/* Verify */
-		if (!get_check("Do you really want to quit? ")) return;
+		if (!get_check("Do you really want to commit suicide? ")) return;
 
 		/* Special Verification for suicide */
-		prt("Please verify QUITTING by typing the '@' sign: ", 0, 0);
+		prt("Please verify SUICIDE by typing the '@' sign: ", 0, 0);
 		flush();
 		i = inkey();
 		prt("", 0, 0);
@@ -2990,7 +3145,7 @@ static void show_info(void)
 		screen_save();
 
 		/* Dump a character file */
-		(void)file_character(tmp, FALSE);
+		(void)file_character(tmp, extend_dump);
 
 		/* Load screen */
 		screen_load();
@@ -3282,7 +3437,7 @@ static void display_scores_aux(int from, int to, int note, high_score *score)
 		Term_clear();
 
 		/* Title */
-		put_str("                Angband Hall of Fame", 0, 0);
+		put_str("                Goingband Hall of Fame", 0, 0);
 
 		/* Indicate non-top scores */
 		if (k > 0)
@@ -3496,6 +3651,7 @@ static errr top_twenty(void)
 	}
 
 	/* Quitter */
+	/* P+ commented this out
 	if (!p_ptr->total_winner && streq(p_ptr->died_from, "Quitting"))
 	{
 		msg_print("Score not registered due to quitting.");
@@ -3503,6 +3659,7 @@ static errr top_twenty(void)
 		display_scores_aux(0, 10, -1, NULL);
 		return (0);
 	}
+	*/
 
 
 	/* Clear the record */

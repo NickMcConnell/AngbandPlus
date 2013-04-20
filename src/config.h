@@ -176,12 +176,12 @@
 /*
  * OPTION: Hack -- Compile in support for "Debug Commands"
  */
-/* #define ALLOW_DEBUG */
+#define ALLOW_DEBUG
 
 /*
  * OPTION: Hack -- Compile in support for "Spoiler Generation"
  */
-/* #define ALLOW_SPOILERS */
+#define ALLOW_SPOILERS
 
 
 /*
@@ -335,6 +335,15 @@
  * This adds about 3K to the memory and about 5K to the executable.
  */
 #define DRS_SMART_OPTIONS
+
+
+
+/*
+ * OPTION: Enable Keldon Jones's improved monster AI, and
+ * accompanying "monster_ai" option
+ */
+#define MONSTER_AI
+
 
 
 
@@ -516,4 +525,24 @@
 # define VERIFY_TIMESTAMP
 #endif
 
+
+/*
+ * OPTION: Repeat last command -- TNB
+ */
+#define ALLOW_REPEAT
+
+/*
+ * OPTION: Make opening and closing things easy -- TNB
+ */
+#define ALLOW_EASY_OPEN
+
+/*
+ * OPTION: Make disarming traps easy -- TNB
+ */
+#define ALLOW_EASY_DISARM
+
+/*
+ * Option: Remember the recall level. -- TNB
+ */
+#define ALLOW_REMEMBER_RECALL
 

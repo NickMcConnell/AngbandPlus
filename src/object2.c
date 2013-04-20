@@ -3612,7 +3612,9 @@ void drop_near(object_type *j_ptr, int chance, int y, int x)
 
 
 	/* Handle normal "breakage" */
-	if (!artifact_p(j_ptr) && (rand_int(100) < chance))
+	if ((artifact_p(j_ptr))
+	    ? (rand_int(100) * 20 < chance)
+	    : (rand_int(100) < chance))
 	{
 		/* Message */
 		msg_format("The %s disappear%s.",
@@ -4319,6 +4321,13 @@ s16b inven_carry(object_type *o_ptr)
 			if (!object_known_p(o_ptr)) continue;
 			if (!object_known_p(j_ptr)) break;
 
+                       /* Hack:  otherwise identical rods sort by
+                          increasing recharge time --dsb */
+                       if (o_ptr->tval == TV_ROD) {
+                               if (o_ptr->pval < j_ptr->pval) break;
+                               if (o_ptr->pval > j_ptr->pval) continue;
+                       }
+ 
 			/* Determine the "value" of the pack item */
 			j_value = object_value(j_ptr);
 
@@ -4668,6 +4677,13 @@ void reorder_pack(void)
 			if (!object_known_p(o_ptr)) continue;
 			if (!object_known_p(j_ptr)) break;
 
+                       /* Hack:  otherwise identical rods sort by
+                          increasing recharge time --dsb */
+                       if (o_ptr->tval == TV_ROD) {
+                               if (o_ptr->pval < j_ptr->pval) break;
+                               if (o_ptr->pval > j_ptr->pval) continue;
+                       }
+ 
 			/* Determine the "value" of the pack item */
 			j_value = object_value(j_ptr);
 
@@ -4916,6 +4932,8 @@ void print_spells(byte *spells, int num, int y, int x)
 
 	char out_val[160];
 
+	int attr;
+
 
 	/* Title the list */
 	prt("", y, x);
@@ -4935,7 +4953,14 @@ void print_spells(byte *spells, int num, int y, int x)
 		if (s_ptr->slevel >= 99)
 		{
 			sprintf(out_val, "  %c) %-30s", I2A(i), "(illegible)");
-			prt(out_val, y + i + 1, x);
+			if (spell_colors)
+			{
+				c_prt(TERM_SLATE, out_val, y + i + 1, x);
+			}
+			else
+			{
+				prt(out_val, y + i + 1, x);
+			}
 			continue;
 		}
 
@@ -4947,31 +4972,54 @@ void print_spells(byte *spells, int num, int y, int x)
 		/* Use that info */
 		comment = info;
 
+		/* Default color */
+		attr = TERM_WHITE;
+
 		/* Analyze the spell */
 		if ((spell < 32) ?
 		    ((p_ptr->spell_forgotten1 & (1L << spell))) :
 		    ((p_ptr->spell_forgotten2 & (1L << (spell - 32)))))
 		{
 			comment = " forgotten";
+			attr = TERM_YELLOW;
 		}
 		else if (!((spell < 32) ?
 		           (p_ptr->spell_learned1 & (1L << spell)) :
 		           (p_ptr->spell_learned2 & (1L << (spell - 32)))))
 		{
 			comment = " unknown";
+			if (s_ptr->slevel > p_ptr->lev)
+				attr = TERM_SLATE;
+			else
+				attr = TERM_L_WHITE;
 		}
 		else if (!((spell < 32) ?
 		           (p_ptr->spell_worked1 & (1L << spell)) :
 		           (p_ptr->spell_worked2 & (1L << (spell - 32)))))
 		{
 			comment = " untried";
+			if (s_ptr->smana > p_ptr->csp)
+				attr = TERM_VIOLET;
+			else
+				attr = TERM_BLUE;
+		}
+		else if (s_ptr->smana > p_ptr->csp)
+		{
+			attr = TERM_RED;
 		}
 
 		/* Dump the spell --(-- */
 		sprintf(out_val, "  %c) %-30s%2d %4d %3d%%%s",
 		        I2A(i), spell_names[mp_ptr->spell_type][spell],
 		        s_ptr->slevel, s_ptr->smana, spell_chance(spell), comment);
-		prt(out_val, y + i + 1, x);
+		if (spell_colors)
+		{
+			c_prt(attr, out_val, y + i + 1, x);
+		}
+		else
+		{
+			prt(out_val, y + i + 1, x);
+		}
 	}
 
 	/* Clear the bottom line */

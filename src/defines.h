@@ -49,11 +49,7 @@
 #define VERSION_MAJOR	2
 #define VERSION_MINOR	8
 #define VERSION_PATCH	3
-
-/*
- * This value is not currently used
- */
-#define VERSION_EXTRA	0
+#define VERSION_EXTRA	1
 
 
 /*
@@ -143,8 +139,8 @@
 #define MAX_K_IDX	512	/* Max size for "k_info[]" */
 #define MAX_A_IDX	128	/* Max size for "a_info[]" */
 #define MAX_E_IDX	128	/* Max size for "e_info[]" */
-#define MAX_R_IDX	549	/* Max size for "r_info[]" */
-#define MAX_V_IDX	16	/* Max size for "v_info[]" */
+#define MAX_R_IDX	579	/* Max size for "r_info[]" */
+#define MAX_V_IDX	512	/* Max size for "v_info[]" */
 
 
 /*
@@ -1920,7 +1916,7 @@
 #define TR3_IGNORE_ELEC		0x00020000L	/* Item ignores Elec Damage */
 #define TR3_IGNORE_FIRE		0x00040000L	/* Item ignores Fire Damage */
 #define TR3_IGNORE_COLD		0x00080000L	/* Item ignores Cold Damage */
-#define TR3_XXX5			0x00100000L	/* (reserved) */
+#define TR3_IGNORE_DISEN	0x00100000L	/* P+: item ignores Disenchantment */
 #define TR3_XXX6			0x00200000L	/* (reserved) */
 #define TR3_BLESSED			0x00400000L	/* Item has been blessed */
 #define TR3_ACTIVATE		0x00800000L	/* Item can be activated */
@@ -2225,6 +2221,21 @@
     RF6_S_ANGEL | RF6_S_DRAGON | RF6_S_UNDEAD | RF6_S_DEMON | \
     RF6_S_HI_DRAGON | RF6_S_HI_UNDEAD | RF6_S_WRAITH | RF6_S_UNIQUE)
 
+/*
+ * Hack -- "bolt" spells that may hurt fellow monsters
+ */
+
+#define RF4_BOLT_MASK \
+   (RF4_ARROW_1 | RF4_ARROW_2 | RF4_ARROW_3 | RF4_ARROW_4)
+
+#define RF5_BOLT_MASK \
+   (RF5_BO_ACID | RF5_BO_ELEC | RF5_BO_FIRE | RF5_BO_COLD | \
+    RF5_BO_POIS | RF5_BO_NETH | RF5_BO_WATE | RF5_BO_MANA | \
+    RF5_BO_PLAS | RF5_BO_ICEE | RF5_MISSILE)
+
+#define RF6_BOLT_MASK \
+   0L
+
 
 
 /*** Cheating option Definitions ***/
@@ -2289,7 +2300,11 @@
 #define OPT_verify_destroy			28
 #define OPT_verify_special			29
 #define OPT_allow_quantity			30
+#ifdef ALLOW_EASY_OPEN /* TNB */
+#define OPT_easy_open				31
+#else
 /* xxx */
+#endif /* ALLOW_EASY_OPEN */
 #define OPT_auto_haggle				32
 #define OPT_auto_scum				33
 #define OPT_testing_stack			34
@@ -2302,8 +2317,16 @@
 #define OPT_dungeon_stair			41
 #define OPT_flow_by_sound			42
 #define OPT_flow_by_smell			43
+#ifdef ALLOW_EASY_DISARM /* TNB */
+#define OPT_easy_disarm				44
+#else
 /* xxx */
+#endif /* ALLOW_EASY_DISARM */
+#ifdef ALLOW_REMEMBER_RECALL /* TNB */
+#define OPT_remember_recall		45
+#else
 /* xxx */
+#endif /* ALLOW_REMEMBER_RECALL -- TNB */
 #define OPT_smart_learn				46
 #define OPT_smart_cheat				47
 #define OPT_view_reduce_lite		48
@@ -2312,17 +2335,26 @@
 #define OPT_avoid_other				51
 #define OPT_flush_failure			52
 #define OPT_flush_disturb			53
+#ifdef MONSTER_AI
+#define OPT_monster_ai				54
+#else
 /* xxx */
+#endif /* MONSTER_AI */
 #define OPT_fresh_before			55
 #define OPT_fresh_after				56
+#if 1
+#define OPT_spell_colors			57
+#else
 /* xxx */
+#endif
 #define OPT_compress_savefile		58
 #define OPT_hilite_player			59
 #define OPT_view_yellow_lite		60
 #define OPT_view_bright_lite		61
 #define OPT_view_granite_lite		62
 #define OPT_view_special_lite		63
-#define OPT_MAX						64
+#define OPT_extend_dump				64
+#define OPT_MAX						128
 
 
 /*
@@ -2359,7 +2391,11 @@
 #define verify_destroy			op_ptr->opt[OPT_verify_destroy]
 #define verify_special			op_ptr->opt[OPT_verify_special]
 #define allow_quantity			op_ptr->opt[OPT_allow_quantity]
+#ifdef ALLOW_EASY_OPEN /* TNB */
+#define easy_open				op_ptr->opt[OPT_easy_open]
+#else
 /* xxx */
+#endif /* ALLOW_EASY_OPEN */
 #define auto_haggle				op_ptr->opt[OPT_auto_haggle]
 #define auto_scum				op_ptr->opt[OPT_auto_scum]
 #define testing_stack			op_ptr->opt[OPT_testing_stack]
@@ -2372,8 +2408,16 @@
 #define dungeon_stair			op_ptr->opt[OPT_dungeon_stair]
 #define flow_by_sound			op_ptr->opt[OPT_flow_by_sound]
 #define flow_by_smell			op_ptr->opt[OPT_flow_by_smell]
+#ifdef ALLOW_EASY_DISARM /* TNB */
+#define easy_disarm				op_ptr->opt[OPT_easy_disarm]
+#else
 /* xxx */
+#endif /* ALLOW_EASY_DISARM */
+#ifdef ALLOW_REMEMBER_RECALL /* TNB */
+#define remember_recall			op_ptr->opt[OPT_remember_recall]
+#else
 /* xxx */
+#endif /* ALLOW_REMEMBER_RECALL -- TNB */
 #define smart_learn				op_ptr->opt[OPT_smart_learn]
 #define smart_cheat				op_ptr->opt[OPT_smart_cheat]
 #define view_reduce_lite		op_ptr->opt[OPT_view_reduce_lite]
@@ -2382,16 +2426,25 @@
 #define avoid_other				op_ptr->opt[OPT_avoid_other]
 #define flush_failure			op_ptr->opt[OPT_flush_failure]
 #define flush_disturb			op_ptr->opt[OPT_flush_disturb]
+#ifdef MONSTER_AI
+#define monster_ai				op_ptr->opt[OPT_monster_ai]
+#else
 /* xxx */
+#endif /* MONSTER_AI */
 #define fresh_before			op_ptr->opt[OPT_fresh_before]
 #define fresh_after				op_ptr->opt[OPT_fresh_after]
+#if 1
+#define spell_colors			op_ptr->opt[OPT_spell_colors]
+#else
 /* xxx */
+#endif
 #define compress_savefile		op_ptr->opt[OPT_compress_savefile]
 #define hilite_player			op_ptr->opt[OPT_hilite_player]
 #define view_yellow_lite		op_ptr->opt[OPT_view_yellow_lite]
 #define view_bright_lite		op_ptr->opt[OPT_view_bright_lite]
 #define view_granite_lite		op_ptr->opt[OPT_view_granite_lite]
 #define view_special_lite		op_ptr->opt[OPT_view_special_lite]
+#define extend_dump				op_ptr->opt[OPT_extend_dump]
 
 
 

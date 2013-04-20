@@ -4315,6 +4315,8 @@ S:TPORT | HOLD | SCARE | CAUSE_2 | TRAPS | BO_FIRE |
 S:S_MONSTER
 D:It is an ogre wrapped in furs and covered in grotesque body paints.
 
+# Nexus Q's have a new trick...
+
 N:329:Nexus quylthulg
 G:Q:R
 I:110:10d12:10:1:0
@@ -4323,7 +4325,7 @@ F:FORCE_SLEEP | NEVER_MOVE | NEVER_BLOW |
 F:INVISIBLE | EMPTY_MIND | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_1 | 
-S:BLINK | TELE_AWAY
+S:BLINK | TELE_AWAY | BR_NEXU
 D:It is a very unstable, strange pulsing mound of flesh.
 
 N:330:Shelob, Spider of Darkness
@@ -5168,6 +5170,8 @@ S:BR_SOUN
 D:It has a form that legends are made of.  Its still-tender scales are a 
 D:tarnished gold hue, and light is reflected from its form.
 
+# Rogrog DROOLs instead of SPITs
+
 N:383:Rogrog the Black Troll
 G:T:D
 I:120:15d100:20:70:50
@@ -5175,7 +5179,7 @@ W:36:5:0:5000
 B:HIT:HURT:6d6
 B:BITE:HURT:2d10
 B:BITE:HURT:2d3
-B:SPIT:ACID:3d8
+B:DROOL:ACID:3d8
 F:UNIQUE | MALE | 
 F:FORCE_MAXHP | 
 F:ESCORT | 
@@ -6848,6 +6852,8 @@ S:BR_FIRE
 D:A mighty ancient dragon, Itangast's form scorches your flesh.  Wisps of 
 D:smoke curl up from his nostrils as he regards you with disdain.
 
+# P+ added DROP_GREAT
+
 N:481:Glaurung, Father of the Dragons
 G:D:r
 I:120:28d100:20:120:70
@@ -6858,7 +6864,7 @@ B:BITE:HURT:6d14
 B:BITE:HURT:6d14
 F:UNIQUE | MALE | 
 F:FORCE_SLEEP | FORCE_MAXHP | 
-F:ONLY_ITEM | DROP_3D2 | DROP_4D2 | DROP_GOOD | 
+F:ONLY_ITEM | DROP_3D2 | DROP_4D2 | DROP_GOOD | DROP_GREAT | 
 F:BASH_DOOR | POWERFUL | MOVE_BODY | 
 F:EVIL | DRAGON | IM_FIRE | NO_CONF | NO_SLEEP
 S:1_IN_5 | 
@@ -7423,6 +7429,8 @@ D:soul.  You shriek with disbelief as his mastery of death draws you to your
 D:grave.  It is truly beyond all but the mightiest of warriors to stand 
 D:against him and live.
 
+# P+ added DROP_GREAT
+
 N:511:Ancalagon the Black
 G:D:D
 I:120:75d100:20:125:70
@@ -7433,7 +7441,7 @@ B:CLAW:HURT:8d12
 B:BITE:HURT:10d14
 F:UNIQUE | MALE | 
 F:FORCE_SLEEP | FORCE_MAXHP | 
-F:ONLY_ITEM | DROP_3D2 | DROP_4D2 | DROP_GOOD | 
+F:ONLY_ITEM | DROP_3D2 | DROP_4D2 | DROP_GOOD | DROP_GREAT | 
 F:OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY | 
 F:EVIL | DRAGON | IM_ACID | IM_FIRE | 
 F:NO_CONF | NO_SLEEP
@@ -7489,6 +7497,8 @@ D:will crush you like the pitiful insignificant being he sees you to be.
 D:Your very soul will be taken into judgement by his supreme authority as he 
 D:cleanses the world of evil.
 
+# Added DROP_GREAT
+
 N:514:Saruman of Many Colours
 G:p:v
 I:120:50d100:100:100:0
@@ -7499,7 +7509,7 @@ B:HIT:HURT:5d5
 B:HIT:HURT:5d5
 F:UNIQUE | MALE | ATTR_MULTI | 
 F:FORCE_SLEEP | FORCE_MAXHP | 
-F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_4D2 | DROP_GOOD | 
+F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_4D2 | DROP_GOOD | DROP_GREAT | 
 F:SMART | OPEN_DOOR | BASH_DOOR | 
 F:EVIL | IM_FIRE | IM_COLD | 
 F:IM_ELEC | IM_POIS | NO_CONF | NO_SLEEP
@@ -7535,7 +7545,9 @@ D:drinks in light, and space around it is twisted and torn by the weight of
 D:its evil.  It is unlife and it knows nothing but the stealing of souls and 
 D:the stench of death.  Flee its hunger!
 
-N:516:The Cat Lord
+# This was changed from "The Cat Lord"
+
+N:516:Tevildo, Prince of Cats
 G:f:r
 I:130:48d100:100:200:0
 W:64:3:0:30000
@@ -7548,10 +7560,12 @@ F:FORCE_SLEEP | FORCE_MAXHP |
 F:ESCORT | ESCORTS | 
 F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | 
 F:INVISIBLE | OPEN_DOOR | BASH_DOOR | 
-F:IM_FIRE | IM_COLD | IM_POIS | NO_CONF | NO_SLEEP
+F:EVIL | IM_FIRE | IM_COLD | 
+F:IM_POIS | NO_CONF | NO_SLEEP
 S:1_IN_3 | 
 S:TELE_TO
-D:Master of all things feline, the Cat Lord moves with catlike stealth.
+D:Master of all things feline, Tevildo moves with catlike stealth. 
+D:It has been long said that Tevildo is a evil spirit in feline shape.
 
 N:517:Chaos beetle
 G:K:v
@@ -7722,17 +7736,25 @@ S:S_UNDEAD
 D:A humanoid form,  black as night, advancing steadily and unstoppably.  
 D:Flee!
 
-N:525:Master quylthulg
-G:Q:B
-I:120:20d100:20:1:0
-W:71:3:0:12000
-F:FORCE_SLEEP | FORCE_MAXHP | NEVER_MOVE | NEVER_BLOW | 
-F:INVISIBLE | EMPTY_MIND | 
-F:ANIMAL | EVIL | 
-F:NO_CONF | NO_SLEEP | NO_FEAR
-S:1_IN_2 | 
-S:S_MONSTER | S_MONSTERS | S_UNDEAD | S_DRAGON | S_HI_UNDEAD | S_HI_DRAGON
-D:A pulsating mound of flesh, shining with silver pulses of throbbing light.
+# This replaces the Master Q
+
+N:525:Spiderman
+G:p:o
+I:130:60d100:30:80:5
+W:71:3:0:40000
+B:KICK:HURT:20d5
+B:KICK:HURT:10d5
+B:HIT:POISON:20d3
+B:HIT:PARALYZE:15d3
+F:UNIQUE | MALE | 
+F:FORCE_SLEEP | FORCE_MAXHP | 
+F:ONLY_ITEM | DROP_2D2 | DROP_4D2 | 
+F:SMART | INVISIBLE | OPEN_DOOR | BASH_DOOR | 
+F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | NO_CONF | NO_SLEEP
+S:1_IN_1 | 
+S:HEAL | HASTE | S_SPIDER
+D:He is the ruler of the Mystics, and as such is an unarmed but 
+D:extremely deadly fighter.
 
 N:526:Greater draconic quylthulg
 G:Q:G
@@ -7762,6 +7784,8 @@ S:S_HI_UNDEAD
 D:A massive pile of rotting flesh.  A disgusting stench fills the air as it 
 D:throbs and writhes.
 
+# P+ added DROP_GREAT
+
 N:528:Vecna, the Emperor Lich
 G:L:R
 I:130:50d100:20:85:50
@@ -7773,7 +7797,7 @@ B:TOUCH:LOSE_DEX:2d12
 F:UNIQUE | MALE | 
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:ESCORT | 
-F:ONLY_ITEM | DROP_2D2 | DROP_4D2 | DROP_GOOD | 
+F:ONLY_ITEM | DROP_2D2 | DROP_4D2 | DROP_GOOD | DROP_GREAT | 
 F:SMART | COLD_BLOOD | OPEN_DOOR | BASH_DOOR | 
 F:EVIL | UNDEAD | IM_COLD | 
 F:IM_POIS | NO_CONF | NO_SLEEP
@@ -8140,8 +8164,9 @@ D:saved his master from Ungoliant's rage.
 
 # Sauron is the basic "Quest" (thus the QUESTOR flag).
 # You must kill him to gain access to Morgoth's level.
+# P+ changed name
 
-N:546:Sauron, the Sorcerer
+N:546:Sauron, Lord of the Rings
 G:p:v
 I:130:105d100:100:160:0
 W:99:1:0:50000

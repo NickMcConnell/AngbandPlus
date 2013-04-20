@@ -11,6 +11,41 @@
 # Note that the "spacing" in the "description" lines is very important!
 
 
+# Here is an explanation of the entries:
+
+# N:vault number:kind of vault
+# X:type:rating:height:width
+# D:the vault and things in it (see below)
+
+# type = 7 for a lesser vault
+# type = 8 for a greater vault
+
+# '%' - granite wall (outer)
+# '#' - granite wall (inner)
+# 'X' - permanent titanium wall (inner)
+# '*' - treasure (75%) or trap (25%)
+# '+' - a secret door
+# '^' - a trap
+# '&' - a monster up to 5 levels/250' out of depth
+# '@' - a meaner monster: up to 11 levels/550' out of depth
+# '9' - a meaner monster plus treasure:
+#   monster up to 9 levels/450' out of depth
+#   {good} treasure up to 7 levels/350' out of depth
+# '8' - a *nasty* monster plus treasure:
+#   monster up to 40 levels/2000' out of depth
+#   {excellent} treasure up to 20 levels/1000' out of depth
+# ',' - a monster and/or an object
+#   50% chance there is a monster (up to 3 levels/150' out of depth),
+#     50% chance no monster
+#   50% chance there is an object (up to 7 levels/350' out of depth),
+#     50% chance no object
+# From Kangband/Kamband:
+# ';' - a glyph of warding
+# 'T' - treasure
+#   25% chance that the object is {good}
+#   20% chance that a good object is {excellent}
+# 'D' - a regular door (may be locked)
+
 # Version stamp (required)
 
 V:2.8.3
@@ -133,6 +168,40 @@ D:%,################,%
 D:%%%%%%%%%%%%%%%%%%%%
 
 
+N:8:Lesser vault (checkerboard)
+X:7:5:13:21
+D:%%%%%%%%%%%%%%%%%%%%%
+D:%XXXXXXXXXXXXXXXXXXX%
+D:%X&#,#&#,#&#,#&#,#&+%
+D:%X#XXXXXXXXXXXXXXXXX%
+D:%X,#&#,#&#,#&#,#&#,X%
+D:%XXXXXXXXXXXXXXXXX#X%
+D:%X&#,#&#99999#&#,#&X%
+D:%X#XXXXXXXXXXXXXXXXX%
+D:%X,#&#,#&#,#&#,#&#,X%
+D:%XXXXXXXXXXXXXXXXX#X%
+D:%+&#,#&#,#&#,#&#,#&X%
+D:%XXXXXXXXXXXXXXXXXXX%
+D:%%%%%%%%%%%%%%%%%%%%%
+
+
+N:9:Lesser vault (spiral checkers)
+X:7:5:14:17
+D:%%%%%%%%%%%%%%%%%
+D:%XXXXXXXXXXXXXXX%
+D:%X&#,#&#,#&#,#&X%
+D:%+XXXXXXXXXXXX#X%
+D:%XXX@#,#@#,#@X,X%
+D:%X,#XXXXXXXX#X#X%
+D:%X#XXX99X99#,X&X%
+D:%X&X,#99X99XXX#X%
+D:%X#X#XXXXXXXX#,X%
+D:%X,X@#,#@#,#@XXX%
+D:%X#XXXXXXXXXXXX+%
+D:%X&#,#&#,#&#,#&X%
+D:%XXXXXXXXXXXXXXX%
+D:%%%%%%%%%%%%%%%%%
+
 
 ### Greater vaults (type 8) -- maximum size 66x44 ###
 
@@ -219,4 +288,25 @@ D:%.X^*X.,..,X,*&^*^X*.^*.,..&&&^X,..,.X.%
 D:%+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX+%
 D:%&+..^..^..^..^..^..^..^..^..^..^..^.+&%
 D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+N:14:Greater vault (monstrosity)
+X:8:25:17:28
+D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+D:%XXXXXXXXXXXXXXXXXXXXXXXXXX%
+D:%X^@^@^@^@^@#X9X9X9X9X9X9XX%
+D:%X#XXXXXXXXXX9X9X9X9X9X9X9X%
+D:%XX9X9X9X9XXXXXXXXXXXXXXX#X%
+D:%X9X9X9X9X9X##############X%  
+D:%XXXXXXXXX#X#XXXXXXXXXXXXXX%
+D:%X&,&X&,&X&X8888X&,&X&,&X&+%
+D:%X,X,X,X,X,XXXXXX,X,X,X,X,X%
+D:%+&X&,&X&,&X8888X&X&,&X&,&X%
+D:%XXXXXXXXXXXXXX#X#XXXXXXXXX%
+D:%X##############X9X9X9X9X9X%
+D:%X#XXXXXXXXXXXXXXX9X9X9X9XX%
+D:%X9X9X9X9X9X9X9XXXXXXXXXX#X%
+D:%XX9X9X9X9X9X9X#@^@^@^@^@^X#
+D:%XXXXXXXXXXXXXXXXXXXXXXXXXX%
+D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

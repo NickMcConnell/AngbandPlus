@@ -1,0 +1,68 @@
+--- Version 2.8.3v1, initial release ---
+
+* Applied Tim Baker's Easy Patch 1.1
+* Applied Tim Baker's Recall Patch 1.0
+* Applied dsb's rod-sorting patch
+* Applied James D. Lockwood's "store examine" patch
+* Applied David Blackston's damage rating patch
+* Applied Keldon Jones's widely-circulated monster AI patch,
+  and added a new option to toggle it (which is off by default)
+* Greg Wooledge's fear/sleep health bars, plus my own
+  for confusion/stun
+* Classes now color that '@' that we know and either love or hate
+  (this should be made into a "class_chars" option in the future)
+* A new item flag, "IGNORE_DISEN" (but nothing uses this yet)
+* GoI tweaked a little:
+  * monster distance attacks bypass invulnerability
+  * attempting to engage in hand-to-hand combat while
+    invulnerable just has you switch places with that monster
+  * Thus the name Goingband.
+* Bronze, Gold, and Shining dragon pits now available
+* "Detect doors" detects locked doors now
+* Monster inventories are now part of savefiles
+* The "Hack -- save/restore memory" in monster1.c is patched
+* The 4/6 keys no longer are legal keys in options screens
+* The "keymap_dump" bug was fixed in the more straightforward manner
+* Character dumps now include (part of) the 'C h' screen,
+  which now displays immunities as '*' (idea and some
+  code from GJW) if you use the "extend_dump" option
+* Stat bonuses with sustains are now displayed correctly in 'C h'
+* Resist chaos displays a '*' in resist confusion in 'C h', and "S.Dig"
+  was changed to "SlowD"
+* No more flavored "Amulet s" (note the space, that's what I got rid of!)
+* (from COLORS.DIF) New "spell_colors" option
+* The quitting prompts now prompt for SUICIDE (like
+  GW-Angband), and, if you quit, your score is registered.
+* Auto-haggle is off by default (I like haggling!), and the testing
+  options are on by default
+* r_info now has a limit of around 575, v_info of 511, options of 128
+* Some more monsters in r_info.txt have exceptional drops
+* Several other changes in r_info.txt
+* Vault changes: three new vaults, info on making vaults, three
+  new vault specifiers from Kangband/Kamband (';', 'T', 'D')
+* Minor spelling change
+* Debug mode and spoilers generation are compiled in
+  by default
+* Number of turns included in character dump
+* Artifacts *can* break (but not as easily as regular objects),
+  to allow for the future Seeker Arrow of Bard
+
+TO DO:
+* Sleep brand for ammo (!!!)
+* Items which actually use IGNORE_DISEN
+* Change the maximum number of monster blows to 8
+* Make a new monster spell: BA_ICEE (ice storm)
+* Also BR_PARA, but GF_OLD_SLEEP should be able to work on
+  player before I do this
+* Add new town buildings (bookstore, castle, arena, gambling house,
+  adventurer's guild, etc.)
+* Be able to customize town, spells, races, classes, (!!!) artifact activations
+* Add "auto_stair" option that will make stairs go up/down approximately 1d6 levels
+* Bug: Recall Patch 1.0 generates multiple artifacts with preserve mode
+  (because of this, "remember_recall" is now off by default, but this is
+  just a hack until a new version of the Recall Patch comes out)
+* Add highscore-summarising features, like "angscore"
+* Add lots of things from GW-Angband, Kangband, Kamband (both have
+  annoying bugs now), Cthangband, and Zangband
+* Add "video recorder" mechanism
+* Add Kamband's race characters

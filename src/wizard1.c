@@ -953,8 +953,8 @@ static void print_header(void)
 {
 	char buf[80];
 
-	sprintf(buf, "Artifact Spoilers for Angband Version %d.%d.%d",
-	        VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
+	sprintf(buf, "Artifact Spoilers for Goingband Version %d.%d.%dv%d",
+	        VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH, VERSION_EXTRA);
 	spoiler_underline(buf);
 }
 
@@ -1296,8 +1296,8 @@ static void spoil_mon_desc(cptr fname)
 	}
 
 	/* Dump the header */
-	fprintf(fff, "Monster Spoilers for Angband Version %d.%d.%d\n",
-	        VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
+	fprintf(fff, "Monster Spoilers for Goingband Version %d.%d.%dv%d\n",
+	        VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH, VERSION_EXTRA);
 	fprintf(fff, "------------------------------------------\n\n");
 
 	/* Dump the header */
@@ -1513,8 +1513,8 @@ static void spoil_mon_info(cptr fname)
 
 
 	/* Dump the header */
-	sprintf(buf, "Monster Spoilers for Angband Version %d.%d.%d\n",
-	        VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
+	sprintf(buf, "Monster Spoilers for Goingband Version %d.%d.%dv%d\n",
+	        VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH, VERSION_EXTRA);
 	spoil_out(buf);
 	spoil_out("------------------------------------------\n\n");
 
