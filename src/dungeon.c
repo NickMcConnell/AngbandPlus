@@ -86,9 +86,6 @@ static cptr value_check_aux2(object_type *o_ptr)
 }
 
 
-
-
-
 /*
  * Sense the inventory (pseudo-ID)
  */
@@ -106,6 +103,20 @@ static void sense_inventory(void)
 
 	/* No sensing when confused */
 	if (p_ptr->confused) return;
+
+	/*
+	 * Also no sensing when you can't see (can't judge its quality if
+	 * you can't take a look at it now and again :), are Berserk, or are
+	 * distracted by other conditions... -- Gumby
+	 */
+	if (p_ptr->shero) return;
+	if (p_ptr->blind) return;
+	if (p_ptr->stun) return;
+	if (p_ptr->paralyzed) return;
+	if (p_ptr->afraid) return;
+	if (p_ptr->cut) return;
+	if (p_ptr->image) return;
+	if (p_ptr->poisoned) return;
 
 	/* Analyze the class */
 	switch (p_ptr->pclass)
@@ -191,26 +202,13 @@ static void sense_inventory(void)
 		/* Valid "tval" codes */
 		switch (o_ptr->tval)
 		{
-			case TV_SHOT:
-			case TV_ARROW:
-			case TV_BOLT:
-			case TV_BOW:
-			case TV_DIGGING:
-			case TV_HAFTED:
-			case TV_POLEARM:
-			case TV_AXE:
-			case TV_SWORD:
-			case TV_BOOTS:
-			case TV_GLOVES:
-			case TV_HELM:
-			case TV_CROWN:
-			case TV_SHIELD:
-			case TV_CLOAK:
-			case TV_SOFT_ARMOR:
-			case TV_HARD_ARMOR:
-			case TV_DRAG_ARMOR:
-			case TV_RING:
-			case TV_AMULET:
+			case TV_SHOT: case TV_ARROW: case TV_BOLT:
+			case TV_BOW: case TV_DIGGING: case TV_HAFTED:
+			case TV_POLEARM: case TV_AXE: case TV_SWORD:
+			case TV_BOOTS: case TV_GLOVES: case TV_HELM:
+			case TV_CROWN: case TV_SHIELD: case TV_CLOAK:
+			case TV_SOFT_ARMOR: case TV_HARD_ARMOR:
+			case TV_DRAG_ARMOR: case TV_RING: case TV_AMULET:
 			{
 				okay = TRUE;
 				break;
@@ -271,17 +269,16 @@ static void sense_inventory(void)
 	}
 }
 
+
 /*
  * Go to any level (ripped off from wiz_jump)
  */
-
 static void pattern_teleport(void)
 {
 	/* Ask for level */
 	if (get_check("Teleport level? "))
 	{
 		char	ppp[80];
-
 		char	tmp_val[160];
 
 		/* Prompt */
@@ -587,12 +584,10 @@ static void regen_monsters(void)
  */
 bool psychometry(void)
 {
-	int                     item;
-
-	object_type             *o_ptr;
-
-	char            o_name[80];
-        cptr            feel;
+	int		item;
+	object_type	*o_ptr;
+	char		o_name[80];
+        cptr		feel;
 
 	/* Get an item (from equip or inven or floor) */
 	if (!get_item(&item, "Meditate on which item? ", TRUE, TRUE, TRUE))
@@ -674,6 +669,17 @@ static void process_world(void)
 	/* Every 10 game turns */
 	if (turn % 10) return;
 
+	/* Stop being astral once in the town! -- Gumby */
+	if (p_ptr->astral && !dun_level)
+	{
+		msg_print("Ahhhh! You finally have a body again!");
+
+		p_ptr->astral = FALSE;
+		p_ptr->was_astral = TRUE;
+		p_ptr->max_dlv = dun_level;
+
+		msg_print("Unfortunately, that means you'll have to walk back down again...");
+	}
 
 	/*** Check the Time and Load ***/
 
@@ -990,13 +996,15 @@ static void process_world(void)
 
 	if (!cave_floor_bold(py, px))
 	{
-		cave_no_regen = TRUE;
-		if (!(p_ptr->invuln) && !(p_ptr->wraith_form) &&
+		if (!(p_ptr->astral)) cave_no_regen = TRUE;
+
+		if (!(p_ptr->invuln) && !(p_ptr->wraith_form) && !(p_ptr->astral) &&
 		    ((p_ptr->chp > ((p_ptr->lev)/5)) || (p_ptr->prace != RACE_SPECTRE)))
 		{
 			cptr dam_desc;
 
-			if (p_ptr->prace == RACE_SPECTRE)
+			if ((p_ptr->prace == RACE_SPECTRE) &&
+			    !(p_ptr->astral))
 			{
 				msg_print("Your molecules feel disrupted!");
 				dam_desc = "density";
@@ -1437,34 +1445,20 @@ static void process_world(void)
 	/* Beastmen gain & lose mutations at random -- Gumby */
 	if ((p_ptr->prace == RACE_BEASTMAN) && (randint(6666) == 666))
 	{
-		/*
-		 * Stop everything - if you stop for the little things.
-		 */
+		/* Stop everything - if you stop for the little things. */
 		if (disturb_minor) disturb(0,0);
 
-		switch(randint(16))
+		/* Lose a mutation - but only if you have one or more. */
+		if ((p_ptr->muta1 || p_ptr->muta2 || p_ptr->muta3) &&
+		    (randint(3)==1))
 		{
-			case 1:
-				if (p_ptr->muta1 || p_ptr->muta2 || p_ptr->muta3)
-				{
-					msg_print("All of your lovely mutations go away!");
-					p_ptr->muta1 = p_ptr->muta2 = p_ptr->muta3 = 0;
-					p_ptr->update |= PU_BONUS;
-					handle_stuff();
-					bell();
-					break;
-				}
-			case 2: case 3:	case 4: case 5: case 6: case 7:
-				if (p_ptr->muta1 || p_ptr->muta2 || p_ptr->muta3)
-				{
-					lose_mutation(0);
-					bell();
-					break;
-				}
-			default:
-				gain_random_mutation(0);
-				bell();
-				break;
+			lose_mutation(0);
+			bell();
+		}
+		else /* Gain one... */
+		{
+			gain_random_mutation(0);
+			bell();
 		}
 	}
 
@@ -2117,6 +2111,13 @@ static void process_world(void)
 		{
 			/* Disturbing! */
 			disturb(0, 0);
+
+			/* Astral beings don't WoR! -- Gumby */
+			if (p_ptr->astral)
+			{
+				msg_print("You feel a terrible sense of loss.");
+				return;
+			}
 
 			/* Determine the level */
 			if (dun_level)
@@ -2784,6 +2785,15 @@ static void process_command(void)
 
 		/*** Misc Commands ***/
 
+#ifdef ALLOW_SPOILERS
+		/* Generate spoilers (moved from wiz-mode by Gumby) */
+		case '$':
+		{
+			do_cmd_spoilers();
+			break;
+		}
+#endif /* ALLOW_SPOILERS */
+
 		/* Take notes */
 		case ':':
 		{
@@ -3403,9 +3413,9 @@ static void dungeon(void)
 		p_ptr->max_dlv = dun_level;
 	}
 
-
-	/* Paranoia -- No stairs down from Quest */
-	if (is_quest(dun_level, FALSE)) create_down_stair = FALSE;
+	/* Paranoia -- No stairs down from Quest (unless ghostly - G) */
+	if (is_quest(dun_level, FALSE) && !p_ptr->astral)
+		create_down_stair = FALSE;
 
 	/* Paranoia -- no stairs from town */
 	if (!dun_level) create_down_stair = create_up_stair = FALSE;
@@ -3800,6 +3810,9 @@ void play_game(bool new_game)
 		/* Roll up a new character */
 		player_birth();
 
+		/* Astral beings start in the dungeon -- Gumby */
+		if (p_ptr->astral) dun_level = 96;
+
 		/* Hack -- enter the world
 		 * Hack -- Vampires start at night. - Gumby
 		 */
@@ -3972,7 +3985,10 @@ void play_game(bool new_game)
 				new_level_flag = TRUE;
 
 				/* Go to town */
-				dun_level = 0;
+				if (p_ptr->astral)
+					dun_level = 96;
+				else
+					dun_level = 0;
 
 				/* Do not die */
 				death = FALSE;
@@ -3992,5 +4008,3 @@ void play_game(bool new_game)
 	/* Quit */
 	quit(NULL);
 }
-
-

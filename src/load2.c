@@ -1427,8 +1427,11 @@ static void rd_extra(void)
 	if (older_than(2, 7, 7)) strip_bytes(34);
 
 	rd_byte(&p_ptr->confusing);
-	rd_byte(&tmp8u);        /* oops */
-	rd_byte(&tmp8u);        /* oops */
+
+	/* Ghostly status -- Gumby */
+	rd_byte(&p_ptr->astral);
+	rd_byte(&p_ptr->was_astral);
+
 	rd_byte(&tmp8u);        /* oops */
 	rd_byte(&p_ptr->searching);
 	rd_byte(&p_ptr->maximize);

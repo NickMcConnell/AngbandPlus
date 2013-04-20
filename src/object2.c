@@ -2257,7 +2257,7 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 				}
 
 				/* Hack -- Super-charge the damage dice */
-				if (randint(20)==1)
+				if (randint(50)==1)
 				{
 					o_ptr->dd++;
 				}
@@ -2575,7 +2575,8 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 				if (cheat_peek) object_mention(o_ptr);
 				dragon_resist(o_ptr);
 			}
-			else
+			else if (!(o_ptr->sval == SV_SHIELD_OF_DEFLECTION) &&
+				 !(o_ptr->sval == SV_DRAGON_SHIELD))
 			{
 				/* Very good */
 				if (power > 1)
@@ -2619,22 +2620,8 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 						}
 						case 21: case 22:
 						{
-		/*
-		 * Can't let Shields of Deflection gain Reflection!
-		 * (see k_info.txt) -- Gumby
-		 */
-							if(o_ptr->sval == SV_SHIELD_OF_DEFLECTION)
-							{
-								o_ptr->name2 = EGO_ENDURANCE;
-								if (randint(4)==1)
-									o_ptr->art_flags2 |= TR2_RES_POIS;
-								break;
-							}
-							else
-							{	
-								o_ptr->name2 = EGO_REFLECTION;
-								break;
-							}
+							o_ptr->name2 = EGO_REFLECTION;
+							break;
 						}
 						default:
 						{
@@ -3082,8 +3069,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 					break;
 				}
 
-				case SV_RING_STR:
-				case SV_RING_CON:
+				case SV_RING_STR: case SV_RING_CON:
 				case SV_RING_DEX:
 				{
 					/* Stat bonus */
@@ -3182,9 +3168,8 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 				}
 
 				/* Flames, Acid, Ice */
-				case SV_RING_FLAMES:
-				case SV_RING_ACID:
-				case SV_RING_ICE:
+				case SV_RING_FLAMES: case SV_RING_ACID:
+				case SV_RING_ICE: case SV_RING_LIGHTNING:
 				{
 					/* Bonus to armor class */
 					o_ptr->to_a = 5 + randint(5) + m_bonus(10, level);
@@ -3344,7 +3329,8 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 					break;
 				}
 
-				case SV_AMULET_NO_MAGIC: case SV_AMULET_NO_TELE:
+				case SV_AMULET_NO_MAGIC:
+				case SV_AMULET_NO_TELE:
 				{
 					if (power < 0)
 					{
@@ -5345,6 +5331,7 @@ void display_spell_list(void)
 		mindcraft_power spell;
 		char            comment[80];
 		char            psi_desc[80];
+		int		cur_wgt, max_wgt;
 
 		/* Display a list of spells */
 		prt("", y, x);
@@ -5388,7 +5375,26 @@ void display_spell_list(void)
 			 * Wearing too much armour hurts your spellcasting.
 			 *					 -- Gumby
 			 */
-			if (p_ptr->cumber_armor) chance += 15;
+			if (p_ptr->cumber_armor)
+			{
+				/* Weigh the armor */
+				cur_wgt = 0;
+				cur_wgt += inventory[INVEN_BODY].weight;
+				cur_wgt += inventory[INVEN_HEAD].weight;
+				cur_wgt += inventory[INVEN_ARM].weight;
+				cur_wgt += inventory[INVEN_OUTER].weight;
+				cur_wgt += inventory[INVEN_HANDS].weight;
+				cur_wgt += inventory[INVEN_FEET].weight;
+
+				/* Determine the weight allowance */
+				max_wgt = mp_ptr->spell_weight;
+
+				/* Heavy armor increases fail rate */
+				if (((cur_wgt - max_wgt) / 10) > 0)
+				{
+					chance += ((cur_wgt - max_wgt) / 10);
+				}
+			}
 
 			/* Stunning makes spells harder */
 			if (p_ptr->stun > 50) chance += 25;
@@ -5502,7 +5508,7 @@ void display_spell_list(void)
  */
 s16b spell_chance(int spell,int realm)
 {
-	int             chance, minfail;
+	int             chance, minfail, cur_wgt, max_wgt;
 	magic_type      *s_ptr;
 
 
@@ -5550,18 +5556,37 @@ s16b spell_chance(int spell,int realm)
 	 * Hack -- Priest prayer penalty for "edged" weapons  - DGK
 	 */
 	if ((p_ptr->pclass == CLASS_PRIEST) &&
-	    (p_ptr->icky_wield)) chance += 25;
+	    (p_ptr->icky_wield)) chance += 15;
 
 	/*
 	 * Wearing gloves without Dex bonuses or Free Action makes
 	 * spellcasting hard for Mage-type spellcasters. Note that the
 	 * mana penalty has been removed. -- Gumby
 	 */
-	if (p_ptr->cumber_glove) chance += 25;
+	if (p_ptr->cumber_glove) chance += 15;
 
 	/* Wearing too much armour hurts your spellcasting -- Gumby */
 	if ((p_ptr->pclass == CLASS_MONK && monk_heavy_armor()) ||
-	    (p_ptr->cumber_armor))	chance += 15;
+	    (p_ptr->cumber_armor))
+	{
+		/* Weigh the armor */
+		cur_wgt = 0;
+		cur_wgt += inventory[INVEN_BODY].weight;
+		cur_wgt += inventory[INVEN_HEAD].weight;
+		cur_wgt += inventory[INVEN_ARM].weight;
+		cur_wgt += inventory[INVEN_OUTER].weight;
+		cur_wgt += inventory[INVEN_HANDS].weight;
+		cur_wgt += inventory[INVEN_FEET].weight;
+
+		/* Determine the weight allowance */
+		max_wgt = mp_ptr->spell_weight;
+
+		/* Heavy armor increases fail rate */
+		if (((cur_wgt - max_wgt) / 10) > 0)
+		{
+			chance += ((cur_wgt - max_wgt) / 10);
+		}
+	}
 
 	/* Stunning makes spells harder */
 	if (p_ptr->stun > 50) chance += 25;
@@ -5666,14 +5691,16 @@ static void spell_info(char *p, int spell, int realm)
 			case 1: /* Sorcery */
 				switch (spell)
 				{
-					case  1: strcpy (p, " range 10"); break;
+					case  1: strcpy (p, " dist 10"); break;
 					case  4: sprintf(p, " dam %d", 10 + (plev / 2)); break;
-					case  6: sprintf(p, " range %d", plev * 5); break;
+					case  6: sprintf(p, " dist %d", plev * 5); break;
 					case 15: sprintf(p, " dur %d+d%d", plev, (plev+20)); break;
-					case 17: sprintf(p, " range %d", plev+2); break;
+					case 17: sprintf(p, " dist %d", plev+2); break;
 					case 18: strcpy (p, " dur 25+d30"); break;
 					case 21: strcpy (p, " delay 15+d21"); break;
+#if 0
 					case 25: sprintf(p, " max wgt %d", plev * 15 / 10); break;
+#endif
 					case 26: sprintf(p, " dam 7d7+%d", (plev/2)); break;
 					case 27: strcpy (p, " dur 25+d30"); break;
 					case 31: strcpy (p, " dur 8+d8"); break;
@@ -5710,14 +5737,14 @@ static void spell_info(char *p, int spell, int realm)
 					case  4: sprintf(p, " dam %d", 25 + (plev + (plev / 2))); break; 
 					case  5: sprintf(p, " dam %dd8", 9 + ((plev-5) / 3)); break;
 					case  6: sprintf(p, " dam %dd8", 12 + ((plev-5) / 3)); break;
-					case  7: sprintf(p, " range %d", plev * 5); break;
+					case  7: strcpy (p, " dist 50+d150"); break;
 					case  8: strcpy (p, " random"); break;
 					case  9: sprintf(p, " dam %dd8", 15 + ((plev-5) / 3)); break;
 					case 10: sprintf(p, " dam %d", 65 + plev); break;
 					case 11: sprintf(p, " dam %dd8", 11 + ((plev-5) / 3)); break;
 					case 12: sprintf(p, " dam %d", 80 + plev); break;
 					case 15: sprintf(p, " dam %d", 100 + plev); break;
-					case 17: sprintf(p, " dam %dd8", 8 + (plev / 5)); break;
+					case 17: sprintf(p, " dam %dd8", 10+(plev/5)); break;
 					case 19: sprintf(p, " dam %d", 125 + plev); break;
 					case 24: sprintf(p, " dam %dd8", 14 + ((plev-5) / 3)); break;
 					case 25: sprintf(p, " dam %d each", plev * 4); break;
@@ -5749,21 +5776,21 @@ static void spell_info(char *p, int spell, int realm)
 					case 27: sprintf(p, " dam %d", plev * 6); break;
 					case 28: sprintf(p, " dam %d", plev * 4); break;
 					case 29: strcpy (p, " dam 666"); break;
-					case 31: sprintf(p, " dur %d+d%d", (plev/2), (plev/2)); break;
+					case 31: sprintf(p, " dur %d+d%d", (plev/2), plev); break;
 				}
 				break;
 
 			case 5: /* Trump */
 				switch(spell)
 				{
-					case  0: strcpy (p, " range 10"); break;
+					case  0: strcpy (p, " dist 10"); break;
 					case  1: sprintf(p, " dam %dd4", 3 + ((plev-1)/3)); break;
 					case  2: strcpy (p, " random"); break;
-					case  4: sprintf(p, " range %d", plev * 4); break;
-					case  5: sprintf(p, " range %d", plev+2); break;
+					case  4: sprintf(p, " dist %d", 100 + (plev * 2)); break;
+					case  5: sprintf(p, " dist %d", plev+2); break;
 					case  6: strcpy (p, " dur 25+d30"); break;
-					case  8: sprintf(p, " max wgt %d", plev * 15 / 10); break;
-					case 15: strcpy (p, " delay 15+d21"); break;
+					case  9: sprintf(p, " dam %dd8", 9+((plev-5)/3)); break;
+					case 11: strcpy (p, " delay 15+d21"); break;
 					case 22: sprintf(p, " dam %d", plev * 5); break;
 				}
 				break;
@@ -5771,18 +5798,18 @@ static void spell_info(char *p, int spell, int realm)
 			case 6: /* Arcane */
 				switch (spell)
 				{
-					case  0: sprintf(p, " dam %dd4", 3+((plev-1)/3)); break;
+					case  0: sprintf(p, " dam %dd4", 3+((plev-2)/3)); break;
 					case  2: strcpy (p, " heal 3d8"); break;
-					case  3: strcpy (p, " range 10"); break;
+					case  3: strcpy (p, " dist 10"); break;
 					case  6: sprintf(p, " dam %d", 15 + (plev / 2)); break;
 					case  8: strcpy (p, " dur 20+d20"); break; 
 					case 11: sprintf(p, " dam %dd8", (5+((plev-5)/3))); break;
 					case 14: strcpy (p, " heal 6d8"); break;
 					case 16: strcpy (p, " dam 6d8"); break;
-					case 18: sprintf(p, " range %d", plev * 5); break;
+					case 18: sprintf(p, " dist %d", plev * 5); break;
 					case 20: strcpy (p, " heal 12d8"); break;
 					case 22: sprintf(p, " dur %d+d%d", plev, plev); break;
-					case 23: sprintf(p, " dm %d* 5+d15", 2 + (plev/15)); break;
+					case 23: sprintf(p, " dm %d * 5+d15", 2 + (plev/15)); break;
 					case 24: sprintf(p, " dam %d", 80 + plev); break;
 					case 25: strcpy (p, " heal 250"); break;
 					case 28: sprintf(p, " dam %d", 100 + plev); break;

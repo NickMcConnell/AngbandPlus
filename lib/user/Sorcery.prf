@@ -10,7 +10,7 @@
 #   h - Charm Monster       F8 - Clairvoyance
 #   H - Stasis              F9 - Self Knowledge
 #   J - Word of Recall     F10 - Teleport Level
-#   n - Identify           F11 - Telekinesis
+#   n - Identify           F11 - Slow Monsters
 #   N - Insight            F12 - Explosive Rune
 #   O - Dimension Door
 #   P - Recharging
@@ -130,7 +130,7 @@ P:^_x43\r
 A:m3e
 P:^_x44\r
 
-# F11 - Telekinesis
+# F11 - Slow Monsters
 A:m4b
 P:^_x85\r
 

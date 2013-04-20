@@ -3,23 +3,19 @@ Welcome to the Gumband Online Help System.
 Please choose one of the following online help files:
 
     (1) General Information        (general.txt)
-    (2) Creating a Character       (birth.txt)
-    (3) Exploring the Dungeon      (dungeon.txt)
-    (4) Attacking Monsters         (attack.txt)
-    (5) Original Command List      (origcmd.txt)
-    (6) Roguelike Command List     (rlcmd.txt)
-    (7) Command Explanations       (command.txt)
-    (8) List of Options            (option.txt)
-    (9) Version Information        (version.txt)
-    (0) Zangband Magic System      (magic.txt)
+    (2) Command Help Menu          (command.hlp)
+    (3) Creating a Character       (birth.txt)
+    (4) Exploring the Dungeon      (dungeon.txt)
+    (5) Attacking Monsters         (attack.txt)
+    (6) Zangband Magic System      (magic.txt)
+    (7) Version Information        (version.txt)
+    (8) Spoiler Information        (spoiler.hlp)
 
 ***** [1] general.txt
-***** [2] birth.txt
-***** [3] dungeon.txt
-***** [4] attack.txt
-***** [5] origcmd.txt
-***** [6] rlcmd.txt
-***** [7] command.txt
-***** [8] option.txt
-***** [9] version.txt
-***** [0] magic.txt
+***** [2] command.hlp
+***** [3] birth.txt
+***** [4] dungeon.txt
+***** [5] attack.txt
+***** [6] magic.txt
+***** [7] version.txt
+***** [8] spoiler.hlp

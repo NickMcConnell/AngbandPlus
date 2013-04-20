@@ -29,7 +29,7 @@
  */
 #define MAX_ROCKS      56       /* Used with rings (min 38) */
 #define MAX_AMULETS    17       /* Used with amulets (min 13) */
-#define MAX_WOODS      32       /* Used with staffs (min 30) */
+#define MAX_WOODS      35       /* Used with staffs (min 30) */
 #define MAX_METALS     39       /* Used with wands/rods (min 29/28) */
 #define MAX_COLORS     66       /* Used with potions (min 60) */
 #define MAX_SHROOM     20       /* Used with mushrooms (min 20) */
@@ -40,7 +40,6 @@
 /*
  * Rings (adjectives and colors)
  */
-
 static cptr ring_adj[MAX_ROCKS] =
 {
 	"Alexandrite", "Amethyst", "Aquamarine", "Azurite", "Beryl",
@@ -51,11 +50,10 @@ static cptr ring_adj[MAX_ROCKS] =
 	"Rhodonite", "Ruby", "Sapphire", "Tiger Eye", "Topaz",
 	"Turquoise", "Zircon", "Platinum", "Bronze", "Gold",
 	"Obsidian", "Silver", "Tortoise Shell", "Mithril", "Jet",
-	"Engagement", "Adamantite",
-	"Wire", "Dilithium", "Bone", "Wooden",
-	"Spikard", "Serpent",   "Wedding", "Double",
-	"Plain", "Brass",  "Scarab","Shining",
-	"Rusty","Transparent"
+	"Engagement", "Adamantite", "Wire", "Dilithium", "Bone",
+	"Wooden", "Spikard", "Serpent", "Wedding", "Double",
+	"Plain", "Brass",  "Scarab","Shining", "Rusty",
+	"Transparent"
 };
 
 static byte ring_col[MAX_ROCKS] =
@@ -68,18 +66,16 @@ static byte ring_col[MAX_ROCKS] =
 	TERM_L_RED, TERM_RED, TERM_BLUE, TERM_YELLOW, TERM_YELLOW,
 	TERM_L_BLUE, TERM_L_UMBER, TERM_WHITE, TERM_L_UMBER, TERM_YELLOW,
 	TERM_L_DARK, TERM_L_WHITE, TERM_GREEN, TERM_L_BLUE, TERM_L_DARK,
-	TERM_YELLOW, TERM_VIOLET,
-	TERM_UMBER, TERM_L_WHITE, TERM_WHITE, TERM_UMBER,
-	TERM_BLUE, TERM_GREEN, TERM_YELLOW, TERM_ORANGE,
-	TERM_YELLOW, TERM_ORANGE, TERM_L_GREEN, TERM_YELLOW,
-	TERM_RED, TERM_WHITE
+	TERM_YELLOW, TERM_VIOLET, TERM_UMBER, TERM_L_WHITE, TERM_WHITE,
+	TERM_UMBER, TERM_BLUE, TERM_GREEN, TERM_YELLOW, TERM_ORANGE,
+	TERM_YELLOW, TERM_ORANGE, TERM_L_GREEN, TERM_YELLOW, TERM_RED,
+	TERM_WHITE
 };
 
 
 /*
  * Amulets (adjectives and colors)
  */
-
 static cptr amulet_adj[MAX_AMULETS] =
 {
 	"Amber", "Driftwood", "Coral", "Agate", "Ivory",
@@ -100,7 +96,6 @@ static byte amulet_col[MAX_AMULETS] =
 /*
  * Staffs (adjectives and colors)
  */
-
 static cptr staff_adj[MAX_WOODS] =
 {
 	"Aspen", "Balsa", "Banyan", "Birch", "Cedar",
@@ -109,7 +104,7 @@ static cptr staff_adj[MAX_WOODS] =
 	"Maple", "Mulberry", "Oak", "Pine", "Redwood",
 	"Rosewood", "Spruce", "Sycamore", "Teak", "Walnut",
 	"Mistletoe", "Hawthorn", "Bamboo", "Silver", "Runed",
-	"Golden", "Ashen"/*,"Gnarled","Ivory","Willow"*/
+	"Golden", "Ashen", "Gnarled", "Ivory", "Willow"
 };
 
 static byte staff_col[MAX_WOODS] =
@@ -120,14 +115,13 @@ static byte staff_col[MAX_WOODS] =
 	TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER, TERM_RED,
 	TERM_RED, TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER, TERM_UMBER,
 	TERM_GREEN, TERM_L_UMBER, TERM_L_UMBER, TERM_L_WHITE, TERM_UMBER,
-	TERM_YELLOW, TERM_SLATE, /*???,???,???*/
+	TERM_YELLOW, TERM_SLATE, TERM_UMBER, TERM_L_WHITE, TERM_L_UMBER
 };
 
 
 /*
  * Wands (adjectives and colors)
  */
-
 static cptr wand_adj[MAX_METALS] =
 {
 	"Aluminum", "Cast Iron", "Chromium", "Copper", "Gold",
@@ -136,7 +130,7 @@ static cptr wand_adj[MAX_METALS] =
 	"Zirconium", "Zinc", "Aluminum-Plated", "Copper-Plated", "Gold-Plated",
 	"Nickel-Plated", "Silver-Plated", "Steel-Plated", "Tin-Plated", "Zinc-Plated",
 	"Mithril-Plated", "Mithril", "Runed", "Bronze", "Brass",
-	"Platinum", "Lead","Lead-Plated", "Ivory" , "Adamantite",
+	"Platinum", "Lead", "Lead-Plated", "Ivory" , "Adamantite",
 	"Uridium", "Long", "Short", "Hexagonal"
 };
 
@@ -157,16 +151,13 @@ static byte wand_col[MAX_METALS] =
  * Rods (adjectives and colors).
  * Efficiency -- copied from wand arrays
  */
-
 static cptr rod_adj[MAX_METALS];
-
 static byte rod_col[MAX_METALS];
 
 
 /*
  * Mushrooms (adjectives and colors)
  */
-
 static cptr food_adj[MAX_SHROOM] =
 {
 	"Blue", "Black", "Black Spotted", "Brown", "Dark Blue",
@@ -189,10 +180,9 @@ static byte food_col[MAX_SHROOM] =
  * Hack -- The first four entries are hard-coded.
  * (water, apple juice, slime mold juice, something)
  */
-
 static cptr potion_adj[MAX_COLORS] =
 {
-	"Clear", "Light Brown", "Icky Green", "xxx",
+	"Clear", "Light Brown", "Icky Orange", "xxx",
 	"Azure", "Blue", "Blue Speckled", "Black", "Brown", "Brown Speckled",
 	"Bubbling", "Chartreuse", "Cloudy", "Copper Speckled", "Crimson", "Cyan",
 	"Dark Blue", "Dark Green", "Dark Red", "Gold Speckled", "Green",
@@ -209,7 +199,7 @@ static cptr potion_adj[MAX_COLORS] =
 
 static byte potion_col[MAX_COLORS] =
 {
-	TERM_WHITE, TERM_L_UMBER, TERM_GREEN, 0,
+	TERM_WHITE, TERM_L_UMBER, TERM_ORANGE, 0,
 	TERM_L_BLUE, TERM_BLUE, TERM_BLUE, TERM_L_DARK, TERM_UMBER, TERM_UMBER,
 	TERM_L_WHITE, TERM_L_GREEN, TERM_WHITE, TERM_L_UMBER, TERM_RED, TERM_L_BLUE,
 	TERM_BLUE, TERM_GREEN, TERM_RED, TERM_YELLOW, TERM_GREEN,
@@ -228,7 +218,6 @@ static byte potion_col[MAX_COLORS] =
 /*
  * Syllables for scrolls (must be 1-4 letters each)
  */
-
 static cptr syllables[MAX_SYLLABLES] =
 {
 	"a", "ab", "ag", "aks", "ala", "an", "ankh", "app",
@@ -259,9 +248,7 @@ static cptr syllables[MAX_SYLLABLES] =
  * Hold the titles of scrolls, 6 to 14 characters each
  * Also keep an array of scroll colors (always WHITE for now)
  */
-
 static char scroll_adj[MAX_TITLES][16];
-
 static byte scroll_col[MAX_TITLES];
 
 
@@ -1863,7 +1850,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		else if (f1 & (TR1_INFRA))
 		{
 			/* Dump " to infravision" */
-			t = object_desc_str(t, " to infravision");
+			t = object_desc_str(t, " to infra");
 		}
 
 		/* Search */
@@ -1871,13 +1858,6 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		{
 			/* Dump " to searching" */
 			t = object_desc_str(t, " to searching");
-		}
-
-		/* Tunneling */
-		else if (f1 & (TR1_TUNNEL))
-		{
-			/* Dump " to digging" */
-			t = object_desc_str(t, " to digging");
 		}
 
 		/* Finish the display */
@@ -1969,17 +1949,14 @@ void object_desc_store(char *buf, object_type *o_ptr, int pref, int mode)
 	/* Save the "known" flag */
 	bool hack_known = (o_ptr->ident & (IDENT_KNOWN)) ? TRUE : FALSE;
 
-
 	/* Set the "known" flag */
 	o_ptr->ident |= (IDENT_KNOWN);
 
 	/* Force "aware" for description */
 	k_info[o_ptr->k_idx].aware = TRUE;
 
-
 	/* Describe the object */
 	object_desc(buf, o_ptr, pref, mode);
-
 
 	/* Restore "aware" flag */
 	k_info[o_ptr->k_idx].aware = hack_aware;

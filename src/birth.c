@@ -1569,7 +1569,7 @@ static byte player_init[MAX_CLASS][3][2] =
 		/* Paladin */
 		{ TV_SORCERY_BOOK, 0 },
 		{ TV_SWORD, SV_BROAD_SWORD },
-		{ TV_HARD_ARMOR, SV_METAL_SCALE_MAIL }
+		{ TV_HARD_ARMOR, SV_SCALE_MAIL }
 	},
 
 	{
@@ -1583,7 +1583,7 @@ static byte player_init[MAX_CLASS][3][2] =
 		/* Chaos Warrior */
 		{ TV_SORCERY_BOOK, 0 }, /* Hack: For realm1 book */
 		{ TV_SWORD, SV_BROAD_SWORD },
-		{ TV_HARD_ARMOR, SV_METAL_SCALE_MAIL }
+		{ TV_HARD_ARMOR, SV_SCALE_MAIL }
 	},
 
 	{
@@ -1595,7 +1595,7 @@ static byte player_init[MAX_CLASS][3][2] =
 
 	{
 		/* Mindcrafter */
-		{ TV_SWORD, SV_SMALL_SWORD },
+		{ TV_SWORD, SV_SHORT_SWORD },
 		{ TV_POTION, SV_POTION_RESTORE_MANA },
 		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR },
 	},
@@ -1626,8 +1626,7 @@ static byte player_init[MAX_CLASS][3][2] =
  */
 static void player_outfit(void)
 {
-	int i, tv, sv;
-
+	int		i, tv, sv;
 	object_type	forge;
 	object_type	*q_ptr;
 	
@@ -1635,9 +1634,7 @@ static void player_outfit(void)
 	/* Get local object */
 	q_ptr = &forge;
 
-	if (p_ptr->prace == RACE_GOLEM || p_ptr->prace == RACE_SKELETON ||
-		p_ptr->prace == RACE_ZOMBIE || p_ptr->prace == RACE_VAMPIRE ||
-		p_ptr->prace == RACE_SPECTRE)
+	if ((p_ptr->prace >= RACE_GOLEM) && (p_ptr->prace <= RACE_SPECTRE))
 	{
 		/* Hack -- Give the player scrolls of satisfy hunger */
 		object_prep(q_ptr, lookup_kind(TV_SCROLL, SV_SCROLL_SATISFY_HUNGER));
@@ -1654,11 +1651,26 @@ static void player_outfit(void)
 	{
 		/* Hack -- Give the player some food */
 		object_prep(q_ptr, lookup_kind(TV_FOOD, SV_FOOD_RATION));
-		q_ptr->number = rand_range(3, 7);
+		q_ptr->number = rand_range(4, 7);
 		object_aware(q_ptr);
 		object_known(q_ptr);
 		(void)inven_carry(q_ptr, FALSE);
 	}
+
+
+	/* Get local object */
+	q_ptr = &forge;
+
+	/* Start off with lots of ID scrolls if a ghost... -- Gumby */
+	if (p_ptr->astral)
+	{
+		object_prep(q_ptr, lookup_kind(TV_SCROLL, SV_SCROLL_IDENTIFY));
+		q_ptr->number = 60 + rand_int(26);
+		object_aware(q_ptr);
+		object_known(q_ptr);
+		(void)inven_carry(q_ptr, FALSE);
+	}
+
 
 	/* Get local object */
 	q_ptr = &forge;
@@ -1681,6 +1693,7 @@ static void player_outfit(void)
 				object_prep(q_ptr, lookup_kind(TV_SWORD, SV_BROAD_SWORD));
 				break;
 		}
+
 		q_ptr->number = 1;
 
 		/*
@@ -1713,6 +1726,7 @@ static void player_outfit(void)
 		(void)inven_carry(q_ptr, FALSE);
 	}
 
+
 	/* Get local object */
 	q_ptr = &forge;
 
@@ -1723,7 +1737,7 @@ static void player_outfit(void)
 		 * that that was just plain wrong. - Gumby
 		 */
 		object_prep(q_ptr, lookup_kind(TV_SCROLL, SV_SCROLL_DARKNESS));
-		q_ptr->number = rand_range(4,8);
+		q_ptr->number = rand_range(5,8);
 		object_aware(q_ptr);
 		object_known(q_ptr);
 
@@ -1732,16 +1746,17 @@ static void player_outfit(void)
 
 		(void)inven_carry(q_ptr, FALSE);
 	}
-	else
+	else if (!p_ptr->astral)
 	{
 		/* Hack -- Give the player some torches */
 		object_prep(q_ptr, lookup_kind(TV_LITE, SV_LITE_TORCH));
-		q_ptr->number = rand_range(3, 7);
-		q_ptr->pval = rand_range(3, 7) * 500;
+		q_ptr->number = rand_range(4, 8);
+		q_ptr->pval = 2000;
 		object_aware(q_ptr);
 		object_known(q_ptr);
 		(void)inven_carry(q_ptr, FALSE);
 	}
+
 
 	/* Hack -- Give the player three useful objects */
 	for (i = 0; i < 3; i++)
@@ -1751,13 +1766,26 @@ static void player_outfit(void)
 		sv = player_init[p_ptr->pclass][i][1];
 
 		/* Hack to initialize spellbooks */
-		if (tv  == TV_SORCERY_BOOK) tv = TV_LIFE_BOOK + p_ptr->realm1 - 1;
-		else if (tv == TV_DEATH_BOOK) tv = TV_LIFE_BOOK + p_ptr->realm2 - 1;
-
-		else if (tv == TV_RING && sv == SV_RING_RES_FEAR &&
-		    p_ptr->prace == RACE_BARBARIAN)
-			/* Barbarians do not need a ring of resist fear */
+		if (tv  == TV_SORCERY_BOOK)
+		{
+			tv = TV_LIFE_BOOK + p_ptr->realm1 - 1;
+		}
+		else if (tv == TV_DEATH_BOOK)
+		{
+			tv = TV_LIFE_BOOK + p_ptr->realm2 - 1;
+		}
+		/* Barbarians have no need for a Ring of Resist Fear */
+		else if ((tv == TV_RING) && (sv == SV_RING_RES_FEAR) &&
+			 (p_ptr->prace == RACE_BARBARIAN))
+		{
 			sv = SV_RING_SUSTAIN_STR;
+		}
+		/* Mind Flayers have no need for rings of Sustain Int - G */
+		else if ((tv == TV_RING) && (sv == SV_RING_SUSTAIN_INT) &&
+			 (p_ptr->prace == RACE_MIND_FLAYER))
+		{
+			sv = SV_RING_FEATHER_FALL;
+		}
 
 		/* Get local object */
 		q_ptr = &forge;
@@ -2390,6 +2418,48 @@ static bool player_birth_aux()
 	else
 	{
 		quick_start = FALSE;
+	}
+
+	/* Clear */
+	clear_from(13);
+
+
+	/*** Ghostly Status -- Gumby ***/
+
+	/* Extra info */
+	Term_putstr(5, 13, -1, TERM_WHITE,
+		"Starting as an astral being makes you begin the game on");
+	Term_putstr(5, 14, -1, TERM_WHITE,
+		"dungeon level 96.  You must make your way from there to the");
+	Term_putstr(5, 15, -1, TERM_WHITE,
+		"town on foot, where you will finally regain your corporeal");
+	Term_putstr(5, 16, -1, TERM_WHITE,
+		"form.  You will then have to make your way back down to confront");
+	Term_putstr(5, 17, -1, TERM_WHITE,
+		"the Swords Rulers to win the game.");
+
+	while (1)
+	{
+		put_str("Start as an astral being? (y/n) ", 20, 2);
+		c = inkey();
+		if (c == 'Q') quit(NULL);
+		if (c == 'S') return (FALSE);
+		if (c == ESCAPE) break;
+		if ((c == 'y') || (c == 'n')) break;
+		if (c == '?') do_cmd_help("help.hlp");
+		else bell();
+	}
+
+	/* Set "ghost" mode */
+	if (c == 'y')
+	{
+		p_ptr->astral = TRUE;
+		p_ptr->was_astral = FALSE;
+	}
+	else
+	{
+		p_ptr->astral = FALSE;
+		p_ptr->was_astral = FALSE;
 	}
 
 	/* Clear */

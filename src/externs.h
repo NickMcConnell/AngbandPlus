@@ -237,6 +237,7 @@ extern bool equippy_chars;
 extern bool skip_mutations;
 extern bool plain_descriptions;
 extern bool stupid_monsters;
+extern bool stupid_groups;
 extern bool auto_destroy;
 extern bool wear_confirm;
 extern bool confirm_stairs;
@@ -988,6 +989,8 @@ extern void player_birth_quests(void);
 extern void put_quest_monster(int r_idx);
 extern bool is_quest(int level, bool kill);
 
+/* wizard1.c */
+extern void do_cmd_spoilers(void);
 
 /*
  * Hack -- conditional (or "bizarre") externs

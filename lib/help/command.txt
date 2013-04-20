@@ -947,6 +947,11 @@ Game Version (V)
         This command will tell you what version of Angband you are using.
         For more information, see the "version.txt" help file.
 
+Generate Spoilers ($)
+	This command will allow you to create spoiler files about monsters,
+	objects and artifacts.  These *.spo files will reside in ./lib/info
+	and can be accessed from the Spoiler help menu.
+
 
 --- Extra Commands ---
 
@@ -975,4 +980,4 @@ Save screen dump (right-paren)
                 Original: Alexander Cutler and Andy Astrand
          Updated (2.7.6): Russ Allbery (rra@cs.stanford.edu)
          Updated (2.7.9): Ben Harrison (benh@phial.com)
-Updated (Gumband 2.1.4a): Joe Dixon (gumby_jd@yahoo.com)
+Updated (Gumband 2.1.5a): Joe Dixon (gumby_jd@yahoo.com)

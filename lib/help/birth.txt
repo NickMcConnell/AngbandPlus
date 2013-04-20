@@ -22,8 +22,20 @@ artifacts that are generated on a level, but not identified by you, to be
 
 If you choose to have a "quick start" to your game, your character will
 begin with their armour (if any) enchanted to resist Electricity, Fire or
-Cold, and their weapon enchanted with a minor Slay or elemental Brand.  But
-if you choose to take this option, your final score will be cut in half.
+Cold, and their weapon enchanted with a minor Slay or elemental Brand. The
+only penalty for taking this option is that your final score will be cut in
+half.
+
+If you choose to start your life as an astral being, your character will be
+deposited at level 97 in the dungeon with a pile of Scrolls of Identify.  He
+or she will then have to make their way up, on foot, to the town in order to
+become solid again - then they'll have to walk all the way back down in
+order to fight the Sword Rulers.  This may seem impossible, but until you
+enter the town for the first time, your character will have telepathy, they
+will be able to see invisible creatures, their digestion is slowed to a
+managable rate, will be able to see in the dungeon as if it were as light as
+day, and move at +10 speed and can pass through walls as if they were the
+lightest of fogs, so all is not lost.
 
 Once your character has been generated, you will be given the choice to
 generate a new character obeying the same constraints, and once you have
@@ -919,18 +931,19 @@ are listed in the following table.
            Beastman    +2   -2   -1   -1   +2   -4      11         +40%
 
                                                              Spellcasting
-                         STR   INT   WIS   DEX   CON   CHR   Weight Limit
+                                                             Armour Weight
+                         STR   INT   WIS   DEX   CON   CHR  Limit (pounds)
            Warrior       +5    -2    -2    +2    +2    -1        N/A
-           Mage          -5    +3*    0    +1    -2    +1        300
-           Priest        -1    -3    +3*   -1     0    +2        350
-           Rogue         +2    +1*   -2    +3    +1    -1        350
-           Ranger        +2    +2*    0    +1    +1    +1        350
-           Paladin       +3    -3    +1*    0    +2    +2        400
-           Warrior-Mage  +2    +2*    0    +1     0    +1        400
-           Chaos Warrior +2    +1     0*   +1    +2    -2        400
-           Monk          +2    -1    +1*   +3    +2    +1        300
-           Mindcrafter   -1     0    +3*   -1    -1    +2        300
-           High Mage     -5    +4*    0     0    -2    +1        300
+           Mage          -5    +3*    0    +1    -2    +1        25.0
+           Priest        -1    -3    +3*   -1     0    +2        30.0
+           Rogue         +2    +1*   -2    +3    +1    -1        30.0
+           Ranger        +2    +2*    0    +1    +1    +1        35.0
+           Paladin       +3    -3    +1*    0    +2    +2        35.0
+           Warrior-Mage  +2    +2*    0    +1     0    +1        35.0
+           Chaos Warrior +2     0    +1*   +1    +2    -2        35.0
+           Monk          +2    -1    +1*   +3    +2    +1        25.0
+           Mindcrafter   -1     0    +3*   -1    -1    +2        30.0
+           High Mage     -5    +4*    0     0    -2    +1        25.0
            Weaponmaster  +4    -2    -2    +1    +1    -1        N/A
 
 (a '*' next to a number indicates the spellcasting stat for that class)
@@ -971,18 +984,18 @@ are listed in the following table.
  
 
                 Disarm  Device  Save    Stealth Search  Melee   Missile XP
-Warrior         25+12   18+7    18+10   1       14/2    70+45   55+45   +0%
-Mage            30+7    36+13   30+9    2       15/20   34+15   20+15   +30%
-Priest          25+7    30+10   32+12   2       16/8    48+20   35+20   +20%
-Rogue           45+15   32+10   28+10   5       32/24   60+40   66+30   +25%
-Ranger          30+8    32+10   28+10   3       24/16   56+30   72+45   +30%
-Paladin         20+7    24+10   26+11   1       12/2    68+35   40+30   +35%
-Warrior-Mage    30+7    30+10   28+9    2       18/16   50+20   25+20   +35%
-Chaos Warrior   20+7    25+11   25+10   1       14/12   65+34   40+29   +35%
-Monk            45+15   32+11   28+10   5       32/24   64+40   60+30   +40%
-Mindcrafter     30+10   30+10   30+10   3       22/16   50+20   40+30   +30%
-High Mage       30+7    36+13   30+9    2       15/20   34+15   20+15   +25%
-Weaponmaster    23+10   17+6    18+10   1       14/2    70+45   20+15   +30%
+Warrior         25+12   18+7    18+10   1       14/2    70+45   55+45  + 0%
+Mage            30+7    36+13   30+9    2       15/20   34+15   20+15  +30%
+Priest          25+7    30+10   32+12   2       16/8    48+20   35+20  +20%
+Rogue           45+15   32+10   28+10   5       32/24   60+40   66+30  +25%
+Ranger          30+8    32+10   28+10   3       24/16   56+30   72+45  +30%
+Paladin         20+7    24+10   26+11   1       12/2    68+35   40+30  +35%
+Warrior-Mage    30+7    30+10   28+9    2       18/16   50+20   25+20  +35%
+Chaos Warrior   20+7    25+11   25+10   1       14/12   65+34   40+29  +35%
+Monk            45+15   32+11   28+10   4       32/24   64+40   60+30  +40%
+Mindcrafter     30+10   30+10   30+10   3       22/16   50+20   40+30  +30%
+High Mage       30+7    36+13   30+9    2       15/20   34+15   20+15  +25%
+Weaponmaster    23+10   17+6    18+10   1       14/2    70+45   20+15  +30%
 
   
 

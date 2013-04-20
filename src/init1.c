@@ -124,6 +124,7 @@ static cptr r_info_blow_effect[] =
 	"EXP_40",
 	"EXP_80",
 	"VAMP",
+	"HALLU",
 	NULL
 };
 
@@ -251,8 +252,8 @@ static cptr r_info_flags3[] =
 static cptr r_info_flags4[] =
 {
 	"SHRIEK",
-	"XXX2X4",
-	"XXX3X4",
+	"BOULDER_1",	/* WAS: XXX2X4 */
+	"BOULDER_2",	/* WAS: XXX3X4 */
 	"ROCKET",	/* WAS: XXX4X4 */
 	"ARROW_1",
 	"ARROW_2",

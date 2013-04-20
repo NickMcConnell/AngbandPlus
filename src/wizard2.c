@@ -200,10 +200,10 @@ static void do_cmd_wiz_hack_ben(void)
 		}
 	}
 
-#endif
-
 	/* Oops */
 	msg_print("Oops.");
+#endif
+
 	(void) probing();
 }
 
@@ -1421,7 +1421,7 @@ static void do_cmd_wiz_zap(void)
 /*
  * External function
  */
-extern void do_cmd_spoilers(void);
+/* extern void do_cmd_spoilers(void); */
 
 #endif /* ALLOW_SPOILERS */
 
@@ -1450,133 +1450,83 @@ void do_cmd_debug(void)
 	switch (cmd)
 	{
 		/* Nothing */
-		case ESCAPE:
-		case ' ':
-		case '\n':
-		case '\r':
+		case ESCAPE: case ' ': case '\n': case '\r':
 		break;
-
-
-#ifdef ALLOW_SPOILERS
-
-		/* Hack -- Generate Spoilers */
-		case '"':
-		do_cmd_spoilers();
-		break;
-
-#endif /* ALLOW_SPOILERS */
-
 
 		/* Hack -- Help */
-		case '?':
-		do_cmd_help("help.hlp");
-		break;
-
+		case '?': do_cmd_help("wizcmd.txt"); break;
 
 		/* Cure all maladies */
-		case 'a':
-		do_cmd_wiz_cure_all();
-		break;
+		case 'a': do_cmd_wiz_cure_all(); break;
 
 		/* Teleport to target */
-		case 'b':
-		do_cmd_wiz_bamf();
-		break;
+		case 'b': do_cmd_wiz_bamf(); break;
 
 		/* Create any object */
-		case 'c':
-		wiz_create_item();
-		break;
+		case 'c': wiz_create_item(); break;
 
 		/* Create a named artifact */
-		case 'C':
-		wiz_create_named_art(command_arg);
-		break;
+		case 'C': wiz_create_named_art(command_arg); break;
 
 		/* Detect everything */
-		case 'd':
-		detect_all();
-		break;
+		case 'd': detect_all(); break;
 
 		/* Edit character */
-		case 'e':
-		do_cmd_wiz_change();
-		break;
+		case 'e': do_cmd_wiz_change();break;
 
 		/* View item info */
-		case 'f':
-		(void)identify_fully();
-		break;
+		case 'f': (void)identify_fully(); break;
 
 		/* Good Objects */
 		case 'g':
-		if (command_arg <= 0) command_arg = 1;
-		acquirement(py, px, command_arg, FALSE);
-		break;
+			if (command_arg <= 0)
+				command_arg = 1;
+			acquirement(py, px, command_arg, FALSE);
+			break;
 
 		/* Hitpoint rerating */
-		case 'h':
-		do_cmd_rerate(); break;
+		case 'h': do_cmd_rerate(); break;
 
 #ifdef MONSTER_HORDES
 		case 'H':
-		do_cmd_summon_horde(); break;
+			do_cmd_summon_horde(); break;
 #endif /* MONSTER_HORDES */
 
 		/* Identify */
-		case 'i':
-		(void)ident_spell();
-		break;
+		case 'i': (void)ident_spell(); break;
 
 		/* Go up or down in the dungeon */
-		case 'j':
-		do_cmd_wiz_jump();
-		break;
+		case 'j': do_cmd_wiz_jump(); break;
 
 		/* Self-Knowledge */
-		case 'k':
-		self_knowledge();
-		break;
+		case 'k': self_knowledge(); break;
 
 		/* Learn about objects */
-		case 'l':
-		do_cmd_wiz_learn();
-		break;
+		case 'l': do_cmd_wiz_learn(); break;
+
+		/* Lose Mutation */
+		case 'L': (void)lose_mutation(command_arg); break;
 
 		/* Magic Mapping */
-		case 'm':
-			map_area();
-			break;
+		case 'm': map_area(); break;
 
 		/* Mutation */
-		case 'M':
-			(void) gain_random_mutation(command_arg);
-			break;
+		case 'M': (void)gain_random_mutation(command_arg); break;
 
 		/* Specific reward */
-		case 'r':
-			(void) gain_level_reward(command_arg);
-			break;
+		case 'r': (void)gain_level_reward(command_arg); break;
 
 		/* Summon _friendly_ named monster */
-		case 'N':
-			do_cmd_wiz_named_friendly(command_arg, TRUE);
-			break;
+		case 'N': do_cmd_wiz_named_friendly(command_arg, TRUE); break;
 
 		/* Summon Named Monster */
-		case 'n':
-			do_cmd_wiz_named(command_arg, TRUE);
-			break;
+		case 'n': do_cmd_wiz_named(command_arg, TRUE); break;
 
 		/* Object playing routines */
-		case 'o':
-			do_cmd_wiz_play();
-			break;
+		case 'o': do_cmd_wiz_play(); break;
 
 		/* Phase Door */
-		case 'p':
-			teleport_player(10);
-			break;
+		case 'p': teleport_player(10); break;
 
 		/* Summon Random Monster(s) */
 		case 's':
@@ -1585,9 +1535,7 @@ void do_cmd_debug(void)
 			break;
 
 		/* Teleport */
-		case 't':
-			teleport_player(100);
-			break;
+		case 't': teleport_player(100); break;
 
 		/* Very Good Objects */
 		case 'v':
@@ -1596,36 +1544,30 @@ void do_cmd_debug(void)
 			break;
 
 		/* Wizard Light the Level */
-		case 'w':
-		wiz_lite();
-		break;
+		case 'w': wiz_lite(); break;
 
 		/* Increase Experience */
 		case 'x':
-		if (command_arg)
-		{
-			gain_exp(command_arg);
-		}
-		else
-		{
-			gain_exp(p_ptr->exp + 1);
-		}
-		break;
+			if (command_arg)
+			{
+				gain_exp(command_arg);
+			}
+			else
+			{
+				gain_exp(p_ptr->exp + 1);
+			}
+			break;
 
 		/* Zap Monsters (Genocide) */
-		case 'z':
-		do_cmd_wiz_zap();
-		break;
+		case 'z': do_cmd_wiz_zap(); break;
 
-		/* Hack -- whatever I desire */
-		case '_':
-		do_cmd_wiz_hack_ben();
-		break;
+		/* Hack -- whatever I desire (probing) */
+		case '_': do_cmd_wiz_hack_ben(); break;
 
 		/* Not a Wizard Command */
 		default:
-		msg_print("That is not a valid debug command.");
-		break;
+			msg_print("That is not a valid debug command.");
+			break;
 	}
 }
 

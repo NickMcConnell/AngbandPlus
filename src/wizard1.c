@@ -1776,16 +1776,16 @@ static void spoil_mon_info(cptr fname)
 			spoil_out(buf);
 		}
 
-		/* Collect inate attacks */
+		/* Collect inate attacks (boulders were XXX2 & XXX3) */
 		vn = 0;
-		if (flags4 & (RF4_SHRIEK)) vp[vn++] = "shriek for help";
-		if (flags4 & (RF4_XXX2)) vp[vn++] = "do something";
-		if (flags4 & (RF4_XXX3)) vp[vn++] = "do something";
-		if (flags4 & (RF4_ROCKET)) vp[vn++] = "shoot a rocket";
-		if (flags4 & (RF4_ARROW_1)) vp[vn++] = "fire arrows";
-		if (flags4 & (RF4_ARROW_2)) vp[vn++] = "fire arrows";
-		if (flags4 & (RF4_ARROW_3)) vp[vn++] = "fire missiles";
-		if (flags4 & (RF4_ARROW_4)) vp[vn++] = "fire missiles";
+		if (flags4 & (RF4_SHRIEK))	vp[vn++] = "shriek for help";
+		if (flags4 & (RF4_BOULDER_1))	vp[vn++] = "throw a boulder";
+		if (flags4 & (RF4_BOULDER_2))	vp[vn++] = "throw a large boulder";
+		if (flags4 & (RF4_ROCKET))	vp[vn++] = "shoot a rocket";
+		if (flags4 & (RF4_ARROW_1))	vp[vn++] = "shoot an arrow";
+		if (flags4 & (RF4_ARROW_2))	vp[vn++] = "fire an arrow";
+		if (flags4 & (RF4_ARROW_3))	vp[vn++] = "shoot a missile";
+		if (flags4 & (RF4_ARROW_4))	vp[vn++] = "fire a missile";
 
 		if (vn)
 		{
@@ -2253,6 +2253,7 @@ static void spoil_mon_info(cptr fname)
 				case RBE_EXP_40:        q = "lower experience (by 40d6+)"; break;
 				case RBE_EXP_80:        q = "lower experience (by 80d6+)"; break;
 				case RBE_VAMP:		q = "drain life"; break;
+				case RBE_HALLU:		q = "cause hallucinations"; break;
 			}
 
 
@@ -2324,7 +2325,7 @@ static void spoil_mon_info(cptr fname)
 /*
  * Forward declare
  */
-extern void do_cmd_spoilers(void);
+/*extern void do_cmd_spoilers(void);*/
 
 /*
  * Create Spoiler files -BEN-
@@ -2340,10 +2341,8 @@ void do_cmd_spoilers(void)
 	/* Save the screen */
 	Term_save();
 
-
 	/* Drop priv's */
 	safe_setuid_drop();
-
 
 	/* Interact */
 	while (1)
@@ -2355,10 +2354,10 @@ void do_cmd_spoilers(void)
 		prt("Create a spoiler file.", 2, 0);
 
 		/* Prompt for a file */
-		prt("(1) Brief Object Info (obj-desc.spo)", 5, 5);
-		prt("(2) Brief Artifact Info (artifact.spo)", 6, 5);
-		prt("(3) Brief Monster Info (mon-desc.spo)", 7, 5);
-		prt("(4) Full Monster Info (mon-info.spo)", 8, 5);
+		prt("(1) Object List (obj-list.spo)", 5, 5);
+		prt("(2) Full Artifact Descriptions (artifact.spo)", 6, 5);
+		prt("(3) Monster List (mon-list.spo)", 7, 5);
+		prt("(4) Full Monster Descriptions (monsters.spo)", 8, 5);
 
 		/* Prompt */
 		prt("Command: ", 12, 0);
@@ -2375,7 +2374,7 @@ void do_cmd_spoilers(void)
 		/* Option (1) */
 		else if (i == '1')
 		{
-			spoil_obj_desc("obj-desc.spo");
+			spoil_obj_desc("obj-list.spo");
 		}
 
 		/* Option (2) */
@@ -2387,13 +2386,13 @@ void do_cmd_spoilers(void)
 		/* Option (3) */
 		else if (i == '3')
 		{
-			spoil_mon_desc("mon-desc.spo");
+			spoil_mon_desc("mon-list.spo");
 		}
 
 		/* Option (4) */
 		else if (i == '4')
 		{
-			spoil_mon_info("mon-info.spo");
+			spoil_mon_info("monsters.spo");
 		}
 
 		/* Oops */
@@ -2406,10 +2405,8 @@ void do_cmd_spoilers(void)
 		msg_print(NULL);
 	}
 
-
 	/* Grab priv's */
 	safe_setuid_grab();
-
 
 	/* Restore the screen */
 	Term_load();

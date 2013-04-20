@@ -1114,9 +1114,7 @@ bool genocide(bool player_cast)
 bool mass_genocide(bool player_cast)
 {
 	int     i;
-
 	bool    result = FALSE;
-
 	int     msec = delay_factor * delay_factor * delay_factor;
 
 
@@ -1660,9 +1658,8 @@ static bool item_tester_hook_recharge(object_type *o_ptr)
  */
 bool recharge(int num)
 {
-	int                 i, t, item, lev;
-
-	object_type             *o_ptr;
+	int		i, t, item, lev;
+	object_type	*o_ptr;
 
 
 	/* Only accept legal items */

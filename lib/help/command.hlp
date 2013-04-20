@@ -1,0 +1,18 @@
+Welcome to the Gumband Online Help System.
+
+Please choose one of the following online help files:
+
+    (1) Original Command Listing   (origcmd.txt)
+    (2) Roguelike Command Listing  (rlcmd.txt)
+    (3) Command Explanations       (command.txt)
+    (4) Explanations of Options    (option.txt)
+    (5) Wizard/Debug Mode Commands (wizcmd.txt)
+
+    (0) Return to Main Help Menu
+
+***** [1] origcmd.txt
+***** [2] rlcmd.txt
+***** [3] command.txt
+***** [4] option.txt
+***** [5] wizcmd.txt
+***** [0] help.hlp

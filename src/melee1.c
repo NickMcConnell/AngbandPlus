@@ -222,10 +222,11 @@ bool make_attack_normal(int m_idx)
 			case RBE_LOSE_ALL:	power =  2; break;
 			case RBE_SHATTER:	power = 60; break;
 			case RBE_EXP_10:	power =  5; break;
-			case RBE_EXP_20:	power =  5; break;
-			case RBE_EXP_40:	power =  5; break;
-			case RBE_EXP_80:	power =  5; break;
-			case RBE_VAMP:		power =  5; break;
+			case RBE_EXP_20:	power = 10; break;
+			case RBE_EXP_40:	power = 15; break;
+			case RBE_EXP_80:	power = 20; break;
+			case RBE_VAMP:		power = 18; break;
+			case RBE_HALLU:		power = 10; break;
 		}
 
 
@@ -1290,8 +1291,35 @@ bool make_attack_normal(int m_idx)
 					}
 					break;
 				}
-			}
 
+				case RBE_HALLU: /* I'm feeling mean :) - G */
+				{
+					take_hit(damage, ddesc);
+
+					if (p_ptr->resist_chaos)
+					{
+						msg_print("Your eyes water a bit.");
+						obvious = TRUE;
+
+						/* Learn about the player */
+						update_smart_learn(m_idx, DRS_CHAOS);
+					}
+					else if (rand_int(100) < p_ptr->skill_sav)
+					{
+						msg_print("Your vision blurs for a second");
+						obvious = TRUE;
+					}
+					else
+					{
+						/* Hallucinate for a while */
+						if (set_image(p_ptr->image + 25 + randint(rlev)))
+						{
+							obvious = TRUE;
+						}
+					}
+					break;
+				}
+			}
 
 			/* Hack -- only one of cut or stun */
 			if (do_cut && do_stun)

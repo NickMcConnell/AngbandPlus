@@ -576,12 +576,9 @@ void do_cmd_destroy(void)
 	msg_format("You destroy %s.", o_name);
 
     /*
-     * Warriors and Weaponmasters get XP for destroying spellbooks of any
-     * realm, while Priests and Paladins only gain XP for destroying books
-     * of the realm opposite of their realm1. This bonus is no longer
-     * limited to the dungeon-only books - but the books *cannot* have been
-     * bought in a store (or stacked with storebought books), to prevent a
-     * truly horrendous abuse. :) -- Gumby.
+     * Warriors get XP for destroying any type of spellbook, as long as the
+     * book wasn't bought in a store.  Paladins gain XP for destroying the
+     * non-storebought books of the realm opposite of their realm1. -- Gumby
      */
     if ((o_ptr->tval >= TV_LIFE_BOOK) && (o_ptr->tval <= TV_ARCANE_BOOK) &&
         !(o_ptr->ident & (IDENT_STOREB)))

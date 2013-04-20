@@ -858,7 +858,8 @@ static bool store_will_buy(object_type *o_ptr)
 			{
 				case TV_HAFTED:
 				{
-					if (o_ptr->sval != SV_SLEDGEHAMMER) return(FALSE);
+					if (o_ptr->sval != SV_SLEDGEHAMMER)
+						return(FALSE);
 					break;
 				}
 				case TV_AXE:
@@ -877,10 +878,9 @@ static bool store_will_buy(object_type *o_ptr)
 				case TV_BOLT:
 				case TV_DIGGING:
 				case TV_CLOAK:
-				case TV_BOTTLE: /* 'Green', recycling Angband */
-				break;
+					break;
 				default:
-				return (FALSE);
+					return (FALSE);
 			}
 			break;
 		}

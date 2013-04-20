@@ -227,13 +227,11 @@ int get_rnd_q_monster(int q_idx)
 	}
 
 		/*
-		 * Prevent monsters with friends or escorts, and breeders,
-		 * from being selected for quests. Such monsters are almost
-		 * always too weak individually. -- Gumby
+		 * Prevent monsters with friends and breeders from being
+		 * selected for quests. Such monsters are almost always too
+		 * weak individually. -- Gumby
 		 */
 		if (r_info[r_idx].flags1 & (RF1_FRIENDS))  return (0);
-		if (r_info[r_idx].flags1 & (RF1_ESCORT))   return (0);
-		if (r_info[r_idx].flags1 & (RF1_ESCORTS))  return (0);
 		if (r_info[r_idx].flags2 & (RF2_MULTIPLY)) return (0);
 
 	for (j = 2; j < q_idx; j++)

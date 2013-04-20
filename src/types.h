@@ -1131,6 +1131,9 @@ struct player_type
 	byte pet_follow_distance; /* Length of the imaginary "leash" for pets */
 	byte pet_open_doors;      /* flag - allow pets to open doors */
 	byte pet_pickup_items;    /* flag - allow pets to pickup items */
+
+	byte astral;		/* you're a ghost if true -- Gumby */
+	byte was_astral;	/* You used to be a ghost -- Gumby */
 };
 
 

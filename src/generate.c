@@ -342,8 +342,7 @@ static bool new_player_spot(void)
 	
 	if (max_attempts < 1) /* Should be -1, actually if we failed... */
 		return FALSE;
-	
-	
+
 	/* Save the new player grid */
 	py = y;
 	px = x;
@@ -425,7 +424,8 @@ static void place_random_stairs(int y, int x)
 	{
 		place_down_stairs(y, x);
 	}
-	else if (is_quest(dun_level, FALSE) || (dun_level >= MAX_DEPTH-1))
+	else if ((is_quest(dun_level, FALSE) && !p_ptr->astral) ||
+		 (dun_level >= MAX_DEPTH-1))
 	{
 		place_up_stairs(y, x);
 	}
@@ -561,7 +561,9 @@ static void alloc_stairs(int feat, int num, int walls)
 				}
 				
 				/* Quest -- must go up */
-				else if (is_quest(dun_level, FALSE) || (dun_level >= MAX_DEPTH-1))
+				else if ((is_quest(dun_level, FALSE) &&
+					 !p_ptr->astral) ||
+					 (dun_level >= MAX_DEPTH-1))
 				{
 					/* Clear previous contents, add up stairs */
 					c_ptr->feat = FEAT_LESS;
@@ -1204,16 +1206,12 @@ static void build_type3(int yval, int xval)
 	int			y, x, dy, dx, wy, wx;
 	int			y1a, x1a, y2a, x2a;
 	int			y1b, x1b, y2b, x2b;
+	bool			light;
+	cave_type		*c_ptr;
 	
-	bool		light;
-	
-	cave_type *c_ptr;
-	
-	
-	
+
 	/* Choose lite or dark */
 	light = (dun_level <= randint(25));
-	
 	
 	/* For now, always 3x3 */
 	wx = wy = 1;
@@ -1223,7 +1221,6 @@ static void build_type3(int yval, int xval)
 	
 	/* Pick max horizontal size (at most 15) */
 	dx = rand_range(3, 11);
-	
 	
 	/* Determine extents of the north/south room */
 	y1a = yval - dy;
@@ -1236,7 +1233,6 @@ static void build_type3(int yval, int xval)
 	y2b = yval + wy;
 	x1b = xval - dx;
 	x2b = xval + dx;
-	
 	
 	/* Place a full floor for room "a" */
 	for (y = y1a - 1; y <= y2a + 1; y++)
@@ -1261,7 +1257,6 @@ static void build_type3(int yval, int xval)
 			if (light) c_ptr->info |= (CAVE_GLOW);
 		}
 	}
-	
 	
 	/* Place the walls around room "a" */
 	for (y = y1a - 1; y <= y2a + 1; y++)
@@ -1295,7 +1290,6 @@ static void build_type3(int yval, int xval)
 		c_ptr->feat = FEAT_WALL_OUTER;
 	}
 	
-	
 	/* Replace the floor for room "a" */
 	for (y = y1a; y <= y2a; y++)
 	{
@@ -1317,11 +1311,10 @@ static void build_type3(int yval, int xval)
 	}
 	
 	
-	
 	/* Special features (3/4) */
 	switch (rand_int(4))
 	{
-		/* Large solid middle pillar */
+	/* Large solid middle pillar */
 	case 1:
 		{
 			for (y = y1b; y <= y2b; y++)
@@ -3502,8 +3495,7 @@ static bool cave_gen(void)
 	
 	/* No "crowded" rooms yet */
 	dun->crowded = FALSE;
-	
-	
+
 	/* No rooms yet */
 	dun->cent_n = 0;
 
@@ -3598,8 +3590,7 @@ static bool cave_gen(void)
 		/* Attempt a trivial room */
 		if (room_build(y, x, 1)) continue;
 	}
-	
-	
+
 	/* Special boundary walls -- Top */
 	for (x = 0; x < cur_wid; x++)
 	{
@@ -3635,8 +3626,7 @@ static bool cave_gen(void)
 		/* Clear previous contents, add "solid" perma-wall */
 		c_ptr->feat = FEAT_PERM_SOLID;
 	}
-	
-	
+
 	/* Hack -- Scramble the room order */
 	for (i = 0; i < dun->cent_n; i++)
 	{
@@ -3681,8 +3671,7 @@ static bool cave_gen(void)
 		try_door(y - 1, x);
 		try_door(y + 1, x);
 	}
-	
-	
+
 	/* Hack -- Add some magma streamers */
 	for (i = 0; i < DUN_STR_MAG; i++)
 	{
@@ -3694,24 +3683,32 @@ static bool cave_gen(void)
 	{
 		build_streamer(FEAT_QUARTZ, DUN_STR_QC);
 	}
-	
-	
+
 	/* Destroy the level if necessary */
 	if (destroyed) destroy_level();
-	
-	
+
 	/* Place 3 or 4 down stairs near some walls */
 	alloc_stairs(FEAT_MORE, rand_range(3, 4), 3);
 	
-	/* Place 1 or 2 up stairs near some walls */
-	alloc_stairs(FEAT_LESS, rand_range(1, 2), 3);
-	
-	
+	/* Place 2 or 3 up stairs near some walls */
+	alloc_stairs(FEAT_LESS, rand_range(2, 3), 3);
+
 	/* Determine the character location */
 	if (!new_player_spot())
 		return FALSE;
-	
-	
+
+	if (p_ptr->astral && (dun_level == 96) && (turn == 1))
+	{
+		if (is_quest(dun_level, FALSE))
+		{
+			place_up_stairs(py, px);
+		}
+		else
+		{
+			place_random_stairs(py, px);
+		}
+	}
+
 	/* Basic "amount" */
 	k = (dun_level / 3);
 	if (k > 10) k = 10;
@@ -3903,7 +3900,6 @@ static void town_gen_hack(void)
 	/* Hack -- Induce consistant town layout */
 	Rand_value = seed_town;
 	
-	
 	/* Prepare an Array of "remaining stores", and count them */
 	for (n = 0; n < MAX_STORES; n++) rooms[n] = n;
 	
@@ -3961,8 +3957,7 @@ static void town_gen_hack(void)
 	/* Hack -- the player starts on the stairs */
 	py = y;
 	px = x;
-	
-	
+
 	/* Hack -- use the "complex" RNG */
 	Rand_quick = FALSE;
 }
@@ -4124,7 +4119,6 @@ void generate_cave(void)
 		/* Mega-Hack -- no player yet */
 		px = py = 0;
 		
-		
 		/* Mega-Hack -- no panel yet */
 		panel_row_min = 0;
 		panel_row_max = 0;
@@ -4245,7 +4239,6 @@ void generate_cave(void)
 		/* Hack -- no feeling in the town */
 		if (!dun_level) feeling = 0;
 		
-		
 		/* Prevent object over-flow */
 		if (o_max >= MAX_O_IDX)
 		{
@@ -4292,7 +4285,6 @@ void generate_cave(void)
 		/* Accept */
 		if (okay) break;
 		
-		
 		/* Message */
 		if (why) msg_format("Generation restarted (%s)", why);
 		
@@ -4309,4 +4301,14 @@ void generate_cave(void)
 	
 	/* Remember when this level was "created" */
 	old_turn = turn;
+
+	/* 'Ghosts' automatically know the level -- Gumby */
+	if (p_ptr->astral)
+	{
+		msg_print("You sense the living rock beneath your feet.");
+		wiz_lite();
+	}
+
+	/* Player should go first when entering a level -- Gumby */
+	p_ptr->energy = 100;
 }

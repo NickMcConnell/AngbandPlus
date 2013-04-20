@@ -31,7 +31,6 @@
  * You have been warned.
  */
 
-
 /*
  * Current version number of Angband: 2.8.1
  */
@@ -43,7 +42,7 @@
 #define FAKE_VERSION
 #define FAKE_VER_MAJOR 2
 #define FAKE_VER_MINOR 1
-#define FAKE_VER_PATCH 4
+#define FAKE_VER_PATCH 5
 
 #define ANGBAND_2_8_1
 
@@ -51,7 +50,6 @@
  * This value is not currently used
  */
 #define VERSION_EXTRA   0
-
 
 /*
  * Number of grids used to display the dungeon (vertically).
@@ -65,7 +63,6 @@
  */
 #define SCREEN_WID      66
 
-
 /*
  * Maximum dungeon height in grids, must be a multiple of SCREEN_HGT,
  * probably hard-coded to SCREEN_HGT * 3.
@@ -77,7 +74,6 @@
  * probably hard-coded to SCREEN_WID * 3.
  */
 #define MAX_WID         198
-
 
 /*
  * Total number of stores (see "store.c", etc)
@@ -166,7 +162,6 @@
 /* Chaos mutations */
 
 /* "Activatable" mutations must be in MUT1_* */
-
 #define MUT1_SPIT_ACID                  0x00000001L
 #define MUT1_BR_FIRE                    0x00000002L
 #define MUT1_HYPN_GAZE                  0x00000004L
@@ -234,10 +229,7 @@
 #define MUT2_DISARM             0x40000000L
 #define MUT2_TENTACLES		0x80000000L
 
-
-
 /* Other mutations will be mainly in MUT3_* */
-
 #define MUT3_HYPER_STR                  0x00000001L
 #define MUT3_PUNY                       0x00000002L
 #define MUT3_HYPER_INT                  0x00000004L
@@ -271,7 +263,6 @@
 #define MUT3_VULN_ELEM  	        0x40000000L
 #define MUT3_GLOW			0x80000000L
 
-
 /* Monk martial arts... */
 # define MAX_MA 17
 # define MA_KNEE 1
@@ -281,7 +272,6 @@
 #define MAX_MINDCRAFT_POWERS  12
 
 /* A hack for cave.c */
-
 #define BMP_FIRST_PC_CLASS 164
 #define BMP_FIRST_PC_RACE 128
 
@@ -299,7 +289,7 @@
  * Maximum array bounds for entity list arrays
  */
 #define MAX_O_IDX       512     /* Max size for "o_list[]" (was 256) */
-#define MAX_M_IDX       512     /* Max size for "m_list[]" */
+#define MAX_M_IDX       768     /* Max size for "m_list[]" (was 512) */
 
 /*
  * Hack -- Maximum number of quests (Heino Vander Sanden)
@@ -724,6 +714,8 @@ and tables.c --TY */
 #define FEAT_LESS               0x06
 #define FEAT_MORE               0x07
 
+/* feats 0x08 & 0x09 */
+
 /* Traps */
 #define FEAT_TRAP_HEAD          0x10
 #define FEAT_TRAP_TAIL          0x1F
@@ -753,7 +745,11 @@ and tables.c --TY */
 #define FEAT_PERM_INNER         0x3D
 #define FEAT_PERM_OUTER         0x3E
 #define FEAT_PERM_SOLID         0x3F
+
+/* Explosive Rune */
 #define FEAT_MINOR_GLYPH        0x40
+
+/* The Pattern */
 #define FEAT_PATTERN_START      0x41
 #define FEAT_PATTERN_1          0x42
 #define FEAT_PATTERN_2          0x43
@@ -763,11 +759,6 @@ and tables.c --TY */
 #define FEAT_PATTERN_OLD        0x47
 #define FEAT_PATTERN_XTRA1      0x48
 #define FEAT_PATTERN_XTRA2      0x49
-
-/*
- * ZAngband shops are moved to 0x4A to 0x52
- * to make room for the extra bookstore
- */
 
 /* Shops */
 #define FEAT_SHOP_HEAD          0x4A
@@ -964,8 +955,10 @@ and tables.c --TY */
 #define ART_HERMES			147
 #define ART_GREAT_SPEED			148
 #define ART_DEATH			149
+#define ART_PINPRICK			150
+#define ART_BEGGING			151
 
-/* 150-255 unused */
+/* 152-255 unused */
 
 
 /*** Ego-Item indexes (see "lib/edit/e_info.txt") ***/
@@ -1260,7 +1253,6 @@ and tables.c --TY */
 #define TV_GOLD         100     /* Gold can only be picked up by players */
 
 
-
 /* The "sval" codes for TV_SHOT/TV_ARROW/TV_BOLT */
 #define SV_AMMO_LIGHT           0       /* hunting ammo and pebbles */
 #define SV_AMMO_NORMAL          1       /* shots, arrows, bolts */
@@ -1295,6 +1287,7 @@ and tables.c --TY */
 #define SV_MACE_OF_DISRUPTION   30      /* 5d8 */
 
 /* The "sval" values for TV_POLEARM */
+#define SV_LIGHT_SPEAR		1	/* 1d4 */
 #define SV_SPEAR                2       /* 1d6 */
 #define SV_AWL_PIKE             4       /* 2d4 */
 #define SV_TRIDENT              5       /* 1d7 */
@@ -1306,7 +1299,7 @@ and tables.c --TY */
 #define SV_SCYTHE_OF_SLICING    30      /* 10d3 */
 
 /* The "sval" codes for TV_AXE */
-#define SV_HATCHET		2	/* 1d6 */
+#define SV_HATCHET		2	/* 1d5 */
 #define SV_CLEAVER		6	/* 2d4 */
 #define SV_LIGHT_WAR_AXE	8	/* 2d5 */
 #define SV_BEAKED_AXE           10      /* 2d6 */
@@ -1317,13 +1310,10 @@ and tables.c --TY */
 #define SV_AXE_OF_SLAUGHTERING	30	/* 5d7 */
 
 /* The "sval" codes for TV_SWORD */
-#define SV_BROKEN_DAGGER        1       /* 1d1 */
-#define SV_BROKEN_SWORD         2       /* 1d2 */
 #define SV_DAGGER               4       /* 1d4 */
 #define SV_DIRK                 5       /* 1d5 */
 #define SV_RAPIER               7       /* 1d6 */
-#define SV_SMALL_SWORD          8       /* 1d6 */
-#define SV_SHORT_SWORD          10      /* 1d7 */
+#define SV_SHORT_SWORD          10      /* 2d3 */
 #define SV_SABRE                11      /* 1d7 */
 #define SV_CUTLASS              12      /* 1d8 */
 #define SV_TULWAR               15      /* 2d4 */
@@ -1355,6 +1345,8 @@ and tables.c --TY */
 #define SV_IRON_HELM            5
 #define SV_STEEL_HELM           6
 #define SV_DRAGON_HELM          7
+
+/* The "sval" codes for TV_CROWN */
 #define SV_IRON_CROWN           10
 #define SV_GOLDEN_CROWN         11
 #define SV_JEWELED_CROWN        12
@@ -1387,17 +1379,13 @@ and tables.c --TY */
 #define SV_LEATHER_SCALE_MAIL      11
 
 /* The "sval" codes for TV_HARD_ARMOR */
-#define SV_RUSTY_CHAIN_MAIL        1       /* 14- */
-#define SV_METAL_SCALE_MAIL        3       /* 13 */
-#define SV_CHAIN_MAIL              4       /* 14 */
-#define SV_AUGMENTED_CHAIN_MAIL    6       /* 16 */
-#define SV_DOUBLE_CHAIN_MAIL       7       /* 16 */
-#define SV_BAR_CHAIN_MAIL          8       /* 18 */
-#define SV_METAL_BRIGANDINE_ARMOUR 9       /* 19 */
-#define SV_PARTIAL_PLATE_ARMOUR    12      /* 22 */
-#define SV_METAL_LAMELLAR_ARMOUR   13      /* 23 */
+#define SV_RING_MAIL               1       /* 12 */
+#define SV_SCALE_MAIL              3       /* 13 */
+#define SV_CHAIN_MAIL              4       /* 15 */
+#define SV_METAL_BRIGANDINE        9       /* 18 */
+#define SV_PARTIAL_PLATE_ARMOUR    12      /* 20 */
+#define SV_METAL_LAMELLAR_ARMOUR   13      /* 22 */
 #define SV_FULL_PLATE_ARMOUR       15      /* 25 */
-#define SV_RIBBED_PLATE_ARMOUR     18      /* 28 */
 #define SV_MITHRIL_CHAIN_MAIL      20      /* 28+ */
 #define SV_SCARLET_PLATE_ARMOUR    23      /* 30 - INSTA_ART */
 #define SV_MITHRIL_PLATE_MAIL      25      /* 35+ */
@@ -1601,7 +1589,7 @@ and tables.c --TY */
 #define SV_SCROLL_CURSE_WEAPON           3
 #define SV_SCROLL_SUMMON_MONSTER         4
 #define SV_SCROLL_SUMMON_UNDEAD          5
-/* xxx (summon?) */
+#define SV_SCROLL_SUMMON_PET		 6
 #define SV_SCROLL_TRAP_CREATION          7
 #define SV_SCROLL_PHASE_DOOR             8
 #define SV_SCROLL_TELEPORT               9
@@ -1830,38 +1818,38 @@ and tables.c --TY */
 /*
  * Some bit-flags for the "smart" field
  */
-#define SM_RES_ACID             0x00000001
-#define SM_RES_ELEC             0x00000002
-#define SM_RES_FIRE             0x00000004
-#define SM_RES_COLD             0x00000008
-#define SM_RES_POIS             0x00000010
-#define SM_RES_NETH             0x00000020
-#define SM_RES_LITE             0x00000040
-#define SM_RES_DARK             0x00000080
-#define SM_RES_FEAR             0x00000100
-#define SM_RES_CONF             0x00000200
-#define SM_RES_CHAOS    0x00000400
-#define SM_RES_DISEN    0x00000800
-#define SM_RES_BLIND    0x00001000
-#define SM_RES_NEXUS    0x00002000
-#define SM_RES_SOUND    0x00004000
-#define SM_RES_SHARD    0x00008000
-#define SM_OPP_ACID             0x00010000
-#define SM_OPP_ELEC             0x00020000
-#define SM_OPP_FIRE             0x00040000
-#define SM_OPP_COLD             0x00080000
-#define SM_OPP_POIS             0x00100000
-#define SM_OPP_XXX1             0x00200000
-#define SM_CLONED               0x00400000
-#define SM_FRIEND           0x00800000
-#define SM_IMM_ACID             0x01000000
-#define SM_IMM_ELEC             0x02000000
-#define SM_IMM_FIRE             0x04000000
-#define SM_IMM_COLD             0x08000000
-#define SM_IMM_XXX5             0x10000000
-#define SM_IMM_REFLECT          0x20000000
-#define SM_IMM_FREE             0x40000000
-#define SM_IMM_MANA             0x80000000
+#define SM_RES_ACID     0x00000001
+#define SM_RES_ELEC     0x00000002
+#define SM_RES_FIRE     0x00000004
+#define SM_RES_COLD     0x00000008
+#define SM_RES_POIS     0x00000010
+#define SM_RES_NETH     0x00000020
+#define SM_RES_LITE     0x00000040
+#define SM_RES_DARK     0x00000080
+#define SM_RES_FEAR     0x00000100
+#define SM_RES_CONF     0x00000200
+#define SM_RES_CHAOS	0x00000400
+#define SM_RES_DISEN	0x00000800
+#define SM_RES_BLIND	0x00001000
+#define SM_RES_NEXUS	0x00002000
+#define SM_RES_SOUND	0x00004000
+#define SM_RES_SHARD	0x00008000
+#define SM_OPP_ACID     0x00010000
+#define SM_OPP_ELEC     0x00020000
+#define SM_OPP_FIRE     0x00040000
+#define SM_OPP_COLD     0x00080000
+#define SM_OPP_POIS     0x00100000
+#define SM_OPP_XXX1     0x00200000
+#define SM_CLONED       0x00400000
+#define SM_FRIEND       0x00800000
+#define SM_IMM_ACID     0x01000000
+#define SM_IMM_ELEC     0x02000000
+#define SM_IMM_FIRE     0x04000000
+#define SM_IMM_COLD     0x08000000
+#define SM_IMM_XXX5     0x10000000
+#define SM_IMM_REFLECT  0x20000000
+#define SM_IMM_FREE     0x40000000
+#define SM_IMM_MANA     0x80000000
 
 
 
@@ -2360,7 +2348,7 @@ and tables.c --TY */
 #define RBE_EXP_40      27
 #define RBE_EXP_80      28
 #define RBE_VAMP	29 /* EXP_60 + Heals Monster */
-
+#define RBE_HALLU	30
 
 /*** Monster flag values (hard-coded) ***/
 
@@ -2477,38 +2465,38 @@ and tables.c --TY */
 /*
  * New monster race bit flags
  */
-#define RF4_SHRIEK              0x00000001      /* Shriek for help */
-#define RF4_XXX2                0x00000002      /* (?) */
-#define RF4_XXX3                0x00000004      /* (?) */
-#define RF4_ROCKET              0x00000008      /* TY: Rocket */
-#define RF4_ARROW_1             0x00000010      /* Fire an arrow (light) */
-#define RF4_ARROW_2             0x00000020      /* Fire an arrow (heavy) */
-#define RF4_ARROW_3             0x00000040      /* Fire missiles (light) */
-#define RF4_ARROW_4             0x00000080      /* Fire missiles (heavy) */
-#define RF4_BR_ACID             0x00000100      /* Breathe Acid */
-#define RF4_BR_ELEC             0x00000200      /* Breathe Elec */
-#define RF4_BR_FIRE             0x00000400      /* Breathe Fire */
-#define RF4_BR_COLD             0x00000800      /* Breathe Cold */
-#define RF4_BR_POIS             0x00001000      /* Breathe Poison */
-#define RF4_BR_NETH             0x00002000      /* Breathe Nether */
-#define RF4_BR_LITE             0x00004000      /* Breathe Lite */
-#define RF4_BR_DARK             0x00008000      /* Breathe Dark */
-#define RF4_BR_CONF             0x00010000      /* Breathe Confusion */
-#define RF4_BR_SOUN             0x00020000      /* Breathe Sound */
-#define RF4_BR_CHAO             0x00040000      /* Breathe Chaos */
-#define RF4_BR_DISE             0x00080000      /* Breathe Disenchant */
-#define RF4_BR_NEXU             0x00100000      /* Breathe Nexus */
-#define RF4_BR_TIME             0x00200000      /* Breathe Time */
-#define RF4_BR_INER             0x00400000      /* Breathe Inertia */
-#define RF4_BR_GRAV             0x00800000      /* Breathe Gravity */
-#define RF4_BR_SHAR             0x01000000      /* Breathe Shards */
-#define RF4_BR_PLAS             0x02000000      /* Breathe Plasma */
-#define RF4_BR_WALL             0x04000000      /* Breathe Force */
-#define RF4_BR_MANA             0x08000000      /* Breathe Mana */
-#define RF4_BA_NUKE             0x10000000      /* Nuke Ball */
-#define RF4_BR_NUKE             0x20000000      /* Toxic Breath */
-#define RF4_BA_CHAO             0x40000000      /* Chaos Ball */
-#define RF4_BR_DISI             0x80000000      /* Breathe Disintegration */
+#define RF4_SHRIEK	0x00000001      /* Shriek for help */
+#define RF4_BOULDER_1	0x00000002      /* Throw a boulder (XXX2) */
+#define RF4_BOULDER_2	0x00000004      /* Throw a large boulder (XXX3) */
+#define RF4_ROCKET	0x00000008      /* TY: Rocket */
+#define RF4_ARROW_1	0x00000010      /* Shoot an arrow (light) */
+#define RF4_ARROW_2	0x00000020      /* Fire an arrow (heavy) */
+#define RF4_ARROW_3	0x00000040      /* Shoot a missile (light) */
+#define RF4_ARROW_4	0x00000080      /* Fire a missile (heavy) */
+#define RF4_BR_ACID	0x00000100      /* Breathe Acid */
+#define RF4_BR_ELEC	0x00000200      /* Breathe Elec */
+#define RF4_BR_FIRE	0x00000400      /* Breathe Fire */
+#define RF4_BR_COLD	0x00000800      /* Breathe Cold */
+#define RF4_BR_POIS	0x00001000      /* Breathe Poison */
+#define RF4_BR_NETH	0x00002000      /* Breathe Nether */
+#define RF4_BR_LITE	0x00004000      /* Breathe Lite */
+#define RF4_BR_DARK	0x00008000      /* Breathe Dark */
+#define RF4_BR_CONF	0x00010000      /* Breathe Confusion */
+#define RF4_BR_SOUN	0x00020000      /* Breathe Sound */
+#define RF4_BR_CHAO	0x00040000      /* Breathe Chaos */
+#define RF4_BR_DISE	0x00080000      /* Breathe Disenchant */
+#define RF4_BR_NEXU	0x00100000      /* Breathe Nexus */
+#define RF4_BR_TIME	0x00200000      /* Breathe Time */
+#define RF4_BR_INER	0x00400000      /* Breathe Inertia */
+#define RF4_BR_GRAV	0x00800000      /* Breathe Gravity */
+#define RF4_BR_SHAR	0x01000000      /* Breathe Shards */
+#define RF4_BR_PLAS	0x02000000      /* Breathe Plasma */
+#define RF4_BR_WALL	0x04000000      /* Breathe Force */
+#define RF4_BR_MANA	0x08000000      /* Breathe Mana */
+#define RF4_BA_NUKE	0x10000000      /* Nuke Ball */
+#define RF4_BR_NUKE	0x20000000      /* Toxic Breath */
+#define RF4_BA_CHAO	0x40000000      /* Chaos Ball */
+#define RF4_BR_DISI	0x80000000      /* Breathe Disintegration */
 
 /*
  * New monster race bit flags
@@ -2592,7 +2580,9 @@ and tables.c --TY */
    0L
 
 #define RF5_INT_MASK \
-  (RF5_HOLD | RF5_SLOW | RF5_CONF | RF5_BLIND | RF5_SCARE)
+  (RF5_MIND_BLAST | RF5_BRAIN_SMASH | \
+   RF5_CAUSE_1 | RF5_CAUSE_2 | RF5_CAUSE_3 | RF5_CAUSE_4 | \
+   RF5_SCARE | RF5_BLIND | RF5_CONF | RF5_SLOW | RF5_HOLD)
 
 #define RF6_INT_MASK \
    (RF6_BLINK | RF6_S_DAWN | RF6_TPORT | RF6_S_HELLBLADES | RF6_S_ANIMALS | \
@@ -2618,7 +2608,6 @@ and tables.c --TY */
 #define RF6_BOLT_MASK \
    0L
 
-
 /* Hack -- summon spells */
 
 #define RF4_SUMMON_MASK \
@@ -2628,17 +2617,18 @@ and tables.c --TY */
     0L
 
 #define RF6_SUMMON_MASK \
-    (RF6_S_DAWN | RF6_S_HELLBLADES | RF6_S_ANIMALS | RF6_S_ELEMENTAL | RF6_S_SCUMDOG | \
-     RF6_S_KIN | RF6_S_CYBER | RF6_S_MONSTER | RF6_S_MONSTERS | \
-     RF6_S_ANIMAL | RF6_S_SPIDER | RF6_S_HOUND | RF6_S_HYDRA | RF6_S_ANGEL | \
-     RF6_S_DEMON | RF6_S_UNDEAD | RF6_S_DRAGON | RF6_S_HI_UNDEAD | \
-     RF6_S_HI_DRAGON | RF6_S_WRAITH | RF6_S_UNIQUE)
+    (RF6_S_DAWN | RF6_S_HELLBLADES | RF6_S_ANIMALS | RF6_S_ELEMENTAL | \
+     RF6_S_SCUMDOG | RF6_S_KIN | RF6_S_CYBER | RF6_S_MONSTER | \
+     RF6_S_MONSTERS | RF6_S_ANIMAL | RF6_S_SPIDER | RF6_S_HOUND | \
+     RF6_S_HYDRA | RF6_S_ANGEL | RF6_S_DEMON | RF6_S_UNDEAD | \
+     RF6_S_DRAGON | RF6_S_HI_UNDEAD | RF6_S_HI_DRAGON | RF6_S_WRAITH | \
+     RF6_S_UNIQUE)
 
 
 /*** Macro Definitions ***/
 
 /*
- * Hack -- Check to see if a creature is humanoid. -- Gumby
+ * Hack -- Check, by symbol, to see if a creature is humanoid. -- Gumby
  * Thanks to everyone in rec.games.roguelike.angband who contributed to
  * the argument on how this should be implemented. :)
  */

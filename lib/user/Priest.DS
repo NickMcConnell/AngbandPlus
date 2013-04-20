@@ -11,7 +11,7 @@
 #   H - Globe of Invulner.  F9 - Terror              SF9 - Genocide
 #   J - Dimension Door     F10 - Mass Sleep         SF10 - Mass Genocide
 #   n - Identify           F11 - Stasis             SF11 - Summon Death
-#   N - Insight            F12 - Explosive Rune     SF12 - Wraithform
+#   N - Insight            F12 - Slow Monsters      SF12 - Wraithform
 #   O - Word of Recall
 #   P - Recharging
 #   y - Phase Door
@@ -134,8 +134,8 @@ P:^_x44\r
 A:m8a
 P:^_x85\r
 
-# F12 - Explosive Rune
-A:m8c
+# F12 - Slow Monsters
+A:m8b
 P:^_x86\r
 
 # Ball/Area

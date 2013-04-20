@@ -802,12 +802,24 @@ static void hit_trap(void)
 			{
 				(void)summon_specific(py, px, dun_level, 0);
 			}
+			break;
 		}
 
 		case FEAT_TRAP_HEAD + 0x05:
 		{
 			msg_print("You hit a teleport trap!");
-			teleport_player(100);
+
+			switch (randint(25))
+			{
+				case 1:
+					teleport_player_level(); break;
+				case 2: case 3: case 4: case 5: case 6:
+					teleport_player(randint(200)); break;
+				case 7: case 8: case 9: case 10: case 11:
+					teleport_player(10); break;
+				default:
+					teleport_player(100); break;
+			}
 			break;
 		}
 
@@ -1808,8 +1820,10 @@ void move_player(int dir, int do_pickup)
 
 	/* Player can not walk through "walls"... */
 	/* unless in Shadow Form */
-	if ((p_ptr->wraith_form) || (p_ptr->prace == RACE_SPECTRE))
+	if ((p_ptr->wraith_form) || (p_ptr->prace == RACE_SPECTRE) ||
+	    (p_ptr->astral))
 		p_can_pass_walls = TRUE;
+
 	if ((cave[y][x].feat >= FEAT_PERM_EXTRA) &&
 	    (cave[y][x].feat <= FEAT_PERM_SOLID))
 	{

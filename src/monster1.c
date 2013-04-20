@@ -640,16 +640,16 @@ static void roff_aux(int r_idx)
 	}
 
 
-	/* Collect inate attacks */
+	/* Collect inate attacks (boulders were XXX2 & XXX3) */
 	vn = 0;
-	if (flags4 & (RF4_SHRIEK))		vp[vn++] = "shriek for help";
-	if (flags4 & (RF4_XXX2))		vp[vn++] = "do something";
-	if (flags4 & (RF4_XXX3))		vp[vn++] = "do something";
-	if (flags4 & (RF4_ROCKET))		vp[vn++] = "shoot a rocket";
-	if (flags4 & (RF4_ARROW_1))		vp[vn++] = "fire an arrow";
-	if (flags4 & (RF4_ARROW_2))		vp[vn++] = "fire arrows";
-	if (flags4 & (RF4_ARROW_3))		vp[vn++] = "fire a missile";
-	if (flags4 & (RF4_ARROW_4))		vp[vn++] = "fire missiles";
+	if (flags4 & (RF4_SHRIEK))	vp[vn++] = "shriek for help";
+	if (flags4 & (RF4_BOULDER_1))	vp[vn++] = "throw a boulder";
+	if (flags4 & (RF4_BOULDER_2))	vp[vn++] = "throw a large boulder";
+	if (flags4 & (RF4_ROCKET))	vp[vn++] = "shoot a rocket";
+	if (flags4 & (RF4_ARROW_1))	vp[vn++] = "shoot an arrow";
+	if (flags4 & (RF4_ARROW_2))	vp[vn++] = "fire an arrow";
+	if (flags4 & (RF4_ARROW_3))	vp[vn++] = "shoot a missile";
+	if (flags4 & (RF4_ARROW_4))	vp[vn++] = "fire a missile";
 
 	/* Describe inate attacks */
 	if (vn)
@@ -1317,6 +1317,7 @@ static void roff_aux(int r_idx)
 			case RBE_EXP_40:	q = "lower experience (by 40d6+)"; break;
 			case RBE_EXP_80:	q = "lower experience (by 80d6+)"; break;
 			case RBE_VAMP:		q = "drain life"; break;
+			case RBE_HALLU:		q = "cause hallucinations"; break;
 		}
 
 

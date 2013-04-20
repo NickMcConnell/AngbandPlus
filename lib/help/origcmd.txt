@@ -34,7 +34,7 @@
  !  Interact with system                ^A  (special - wizard command)
  @  Interact with macros                ^B  (unused)
  #  (unused)                            ^C  (special - break)
- $  User interface                      ^D  (unused)
+ $  Generate Spoilers                   ^D  (unused)
  %  Interact with visuals               ^E  Toggle choice window
  ^  (special - control key)             ^F  Repeat level feeling
  &  Interact with colors                ^G  (unused)

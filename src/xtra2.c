@@ -1893,7 +1893,7 @@ void check_experience(void)
 
 			if (p_ptr->prace == RACE_BEASTMAN)
 			{
-				if (randint(4)==1) level_mutation = TRUE;
+				if (randint(3)==1) level_mutation = TRUE;
 			}
 		}
 
@@ -4217,53 +4217,36 @@ void gain_level_reward(int chosen_reward)
                         dummy = TV_SWORD;
                         switch(randint(p_ptr->lev))
                         {
-                            case 1: case 2: case 0:
-                            dummy2 = SV_DAGGER;
-                            break;
-                            case 3: case 4:
-                            dummy2 = SV_DIRK;
-                            break;
-                            case 5: case 6:
-                            dummy2 = SV_RAPIER;
-                            break;
-                            case 7: case 8:
-                            dummy2 = SV_SMALL_SWORD;
-                            break;
+                            case 0: case 1: case 2:
+                            	dummy2 = SV_DAGGER; break;
+                            case 3: case 4: case 5:
+                            	dummy2 = SV_DIRK; break;
+                            case 6: case 7: case 8:
+                            	dummy2 = SV_RAPIER; break;
                             case 9: case 10:
-                            dummy2 = SV_SHORT_SWORD;
-                            break;
+                            	dummy2 = SV_SHORT_SWORD; break;
                             case 11: case 12: case 13:
-                            dummy2 = SV_SABRE;
-                            break;
+				dummy2 = SV_SABRE; break;
                             case 14: case 15: case 16:
-                            dummy2 = SV_CUTLASS;
-                            break;
+                            	dummy2 = SV_CUTLASS; break;
                             case 17:
-                            dummy2 = SV_TULWAR;
-                            break;
+                            	dummy2 = SV_TULWAR; break;
                             case 18: case 19: case 20:
-                            dummy2 = SV_BROAD_SWORD;
-                            break;
+                            	dummy2 = SV_BROAD_SWORD; break;
                             case 21: case 22: case 23:
-                            dummy2 = SV_LONG_SWORD;
-                            break;
+                            	dummy2 = SV_LONG_SWORD; break;
                             case 24: case 25: case 26:
-                            dummy2 = dummy2 = SV_SCIMITAR;
-                            break;
+                            	dummy2 = SV_SCIMITAR; break;
                             case 27:
-                            dummy2 = SV_KATANA;
-                            break;
+                            	dummy2 = SV_KATANA; break;
                             case 28: case 29:
-                            dummy2 = SV_BASTARD_SWORD;
-                            break;
+                            	dummy2 = SV_BASTARD_SWORD; break;
                             case 30: case 31:
-                            dummy2 = SV_TWO_HANDED_SWORD;
-                            break;
+                            	dummy2 = SV_TWO_HANDED_SWORD; break;
                             case 32:
-                            dummy2 = SV_EXECUTIONERS_SWORD;
-                            break;
+                            	dummy2 = SV_EXECUTIONERS_SWORD; break;
                             default:
-                            dummy2 = SV_BLADE_OF_CHAOS;
+                            	dummy2 = SV_BLADE_OF_CHAOS; break;
                         }
 
                 object_prep(q_ptr, lookup_kind(dummy, dummy2));
@@ -4492,12 +4475,10 @@ void gain_level_reward(int chosen_reward)
             }
 	    if (p_ptr->exp < PY_MAX_EXP)
 	    {
-		if (p_ptr->exp <= 1000) gain_exp(200);
-		else if (p_ptr->exp <= 10000) gain_exp(1000);
-		else if (p_ptr->exp <= 25000) gain_exp(5000);
-		else if (p_ptr->exp <= 100000L) gain_exp(25000);
-		else if (p_ptr->exp <= 1000000L) gain_exp(100000L);
-		else if (p_ptr->exp >= 1000001L) gain_exp(250000L);
+		s32b ee = (p_ptr->exp / 2) + 10;
+		if (ee > 100000L) ee = 100000L;
+		msg_print("You feel more experienced.");
+		gain_exp(ee);
 	    }
             acquirement(py, px, randint(4) + 1, TRUE);
             break;

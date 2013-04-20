@@ -874,6 +874,10 @@ void self_knowledge(void)
 		}
 	}
 
+	if (p_ptr->astral)
+	{
+		info[i++] = "You are currently an astral being.";
+	}
 	if (p_ptr->blind)
 	{
 		info[i++] = "You cannot see.";
@@ -912,7 +916,7 @@ void self_knowledge(void)
 	}
 	if (p_ptr->blessed)
 	{
-		info[i++] = "You feel rightous.";
+		info[i++] = "You feel righteous.";
 	}
 	if (p_ptr->hero)
 	{
@@ -2329,13 +2333,13 @@ bool speed_monsters(void)
 /* Slow monsters */
 bool slow_monsters(void)
 {
-	return (project_hack(GF_OLD_SLOW, (p_ptr->lev * 3) / 2));
+	return (project_hack(GF_OLD_SLOW, p_ptr->lev));
 }
 
 /* Sleep monsters */
 bool sleep_monsters(void)
 {
-	return (project_hack(GF_OLD_SLEEP, (p_ptr->lev * 3) / 2));
+	return (project_hack(GF_OLD_SLEEP, p_ptr->lev));
 }
 
 /* Teleport away all evil monsters */
@@ -2347,7 +2351,7 @@ bool banish_evil(int dist)
 /* Turn (scare) undead */
 bool turn_undead(void)
 {
-	return (project_hack(GF_TURN_UNDEAD, (p_ptr->lev * 3) / 2));
+	return (project_hack(GF_TURN_UNDEAD, p_ptr->lev));
 }
 
 /* Dispel undead monsters */
@@ -3590,42 +3594,42 @@ bool speed_monster(int dir)
 bool slow_monster(int dir)
 {
 	int flg = PROJECT_STOP | PROJECT_KILL;
-	return (project_hook(GF_OLD_SLOW, dir, (p_ptr->lev * 3) / 2, flg));
+	return (project_hook(GF_OLD_SLOW, dir, p_ptr->lev, flg));
 }
 
 
 bool sleep_monster(int dir)
 {
 	int flg = PROJECT_STOP | PROJECT_KILL;
-	return (project_hook(GF_OLD_SLEEP, dir, (p_ptr->lev * 3) / 2, flg));
+	return (project_hook(GF_OLD_SLEEP, dir, p_ptr->lev, flg));
 }
 
 
 bool stasis_monster(int dir)
 {
 	int flg = PROJECT_STOP | PROJECT_KILL;
-	return (project_hook(GF_STASIS, dir, (p_ptr->lev * 3) / 2, flg));
+	return (project_hook(GF_STASIS, dir, p_ptr->lev, flg));
 }
 
 
 bool confuse_monster(int dir, int plev)
 {
 	int flg = PROJECT_STOP | PROJECT_KILL;
-	return (project_hook(GF_OLD_CONF, dir, (plev * 3) / 2, flg));
+	return (project_hook(GF_OLD_CONF, dir, p_ptr->lev, flg));
 }
 
 
 bool stun_monster(int dir, int plev)
 {
 	int flg = PROJECT_STOP | PROJECT_KILL;
-	return (project_hook(GF_STUN, dir, (plev * 3) / 2, flg));
+	return (project_hook(GF_STUN, dir, p_ptr->lev, flg));
 }
 
 
 bool poly_monster(int dir)
 {
 	int flg = PROJECT_STOP | PROJECT_KILL;
-	return (project_hook(GF_OLD_POLY, dir, (p_ptr->lev * 3) / 2, flg));
+	return (project_hook(GF_OLD_POLY, dir, p_ptr->lev, flg));
 }
 
 
@@ -3639,7 +3643,7 @@ bool clone_monster(int dir)
 bool fear_monster(int dir, int plev)
 {
 	int flg = PROJECT_STOP | PROJECT_KILL;
-	return (project_hook(GF_TURN_ALL, dir, (plev * 3) / 2, flg));
+	return (project_hook(GF_TURN_ALL, dir, p_ptr->lev, flg));
 }
 
 
@@ -3677,7 +3681,7 @@ bool trap_creation(void)
 bool glyph_creation(void)
 {
 	int flg = PROJECT_GRID | PROJECT_ITEM;
-	return (project(0, 1, py, px, 0, GF_MAKE_GLYPH, flg));
+	return (project(0, 2, py, px, 0, GF_MAKE_GLYPH, flg));
 }
 
 
@@ -3713,7 +3717,7 @@ bool destroy_doors_touch(void)
 bool sleep_monsters_touch(void)
 {
 	int flg = PROJECT_KILL | PROJECT_HIDE;
-	return (project(0, 1, py, px, (p_ptr->lev * 3) / 2, GF_STASIS, flg));
+	return (project(0, 1, py, px, p_ptr->lev, GF_STASIS, flg));
 }
 
 
@@ -3795,9 +3799,20 @@ void activate_ty_curse()
 			(void) summon_specific(py, px, dun_level, 0);
 			if (randint(6)!=1) break;
 		case 10: case 11: case 12:
+		{
 			msg_print("You feel your life draining away...");
-			lose_exp(p_ptr->exp / 16);
+
+			if (!p_ptr->hold_life)
+			{
+				lose_exp(p_ptr->exp / 16);
+			}
+			else
+			{
+				lose_exp(p_ptr->exp / 160);
+			}
+
 			if (randint(6)!=1) break;
+		}
 		case 13: case 14: case 15: case 19: case 20:
 			if (p_ptr->free_act && (randint(100) < p_ptr->skill_sav))
 			{

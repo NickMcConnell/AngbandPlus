@@ -3257,13 +3257,9 @@ static void do_cmd_knowledge_kill_count(void)
 static void do_cmd_knowledge_objects(void)
 {
 	int k;
-
 	FILE *fff;
-
 	char o_name[80];
-
 	char file_name[1024];
-
 
 	/* Temporary file */
 	if (path_temp(file_name, 1024)) return;

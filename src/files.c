@@ -1360,10 +1360,9 @@ static void display_player_various(void)
    put_str(desc, 18, 69);
 
 
-	put_str("Infra-Vision:", 19, 55);
-	put_str(format("%d feet", p_ptr->see_infra * 10), 19, 69);
+	put_str("Infravision:", 19, 55);
+	put_str(format("%d'", p_ptr->see_infra * 10), 19, 69);
 }
-
 
 
 /*
@@ -1607,6 +1606,15 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3)
 			(*f2) |= (TR2_RES_LITE);
 			(*f3) |= (TR3_LITE);
 		}
+	}
+
+	if (p_ptr->astral)
+	{
+		(*f1) |= (TR1_SPEED);
+		(*f3) |= (TR3_LITE);
+		(*f3) |= (TR3_SEE_INVIS);
+		(*f3) |= (TR3_TELEPATHY);
+		(*f3) |= (TR3_SLOW_DIGEST);
 	}
 }
 
@@ -2751,6 +2759,9 @@ errr file_character(cptr name, bool full)
 
 	if (quick_start)
 		fprintf(fff, "\n You got off to a quick start.");
+
+	if (p_ptr->astral || p_ptr->was_astral)
+		fprintf(fff, "\n You began the game as an astral being.");
 
         if (noscore)
 		fprintf(fff, "\n You have done something illegal.");
@@ -4301,11 +4312,9 @@ void display_scores(int from, int to)
  */
 static errr top_twenty(void)
 {
-	int          j;
-
-	high_score   the_score;
-
-	time_t ct = time((time_t*)0);
+	int		j;
+	high_score	the_score;
+	time_t		ct = time((time_t*)0);
 
 
 	/* Clear screen */

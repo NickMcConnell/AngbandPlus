@@ -839,7 +839,7 @@ void do_cmd_cast(void)
 			(void)sleep_monster(dir);
 		       break;
 	   case 8: /* Recharging */
-               (void)recharge(plev * 2);
+               (void)recharge(50 + plev);
 		       break;
 	   case 9: /* Magic Mapping */
 			map_area();
@@ -901,39 +901,44 @@ void do_cmd_cast(void)
 			(void)teleport_player_level();
 		       break;
 	   case 21: /* Word of Recall */
-			{
-                if (dun_level && (p_ptr->max_dlv > dun_level))
-                {
-                    if (get_check("Reset recall depth? "))
-                    p_ptr->max_dlv = dun_level;
+		{
+	                if (dun_level && (p_ptr->max_dlv > dun_level))
+        	        {
+                	    if (get_check("Reset recall depth? "))
+	                    p_ptr->max_dlv = dun_level;
+	                }
 
-                }
-				if (!p_ptr->word_recall)
-				{
-					p_ptr->word_recall = rand_int(21) + 15;
-					msg_print("The air about you becomes charged...");
-				}
-				else
-				{
-					p_ptr->word_recall = 0;
-					msg_print("A tension leaves the air around you...");
-				}
-				break;
+			if (!p_ptr->word_recall)
+			{
+				p_ptr->word_recall = rand_int(21) + 15;
+				msg_print("The air about you becomes charged...");
 			}
+			else
+			{
+				p_ptr->word_recall = 0;
+				msg_print("A tension leaves the air around you...");
+			}
+			break;
+		}
 	   case 22: /* Detection True */
-			(void)detect_all();
-		       break;
+		(void)detect_all();
+		break;
 	   case 23: /* Identify True */
-			identify_fully();
-		       break;
-       case 24: /* Stasis */
-			if (!get_aim_dir(&dir)) return;
-			(void)stasis_monster(dir);
-		       break;
-       case 25: /* Telekinesis */
-         if (!get_aim_dir(&dir)) return;
-         fetch(dir, plev*15, FALSE);
-         break;
+		identify_fully();
+		break;
+	case 24: /* Stasis */
+		if (!get_aim_dir(&dir)) return;
+		(void)stasis_monster(dir);
+		break;
+#if 0
+	case 25: /* Telekinesis */
+		if (!get_aim_dir(&dir)) return;
+		fetch(dir, plev*15, FALSE);
+		break;
+#endif
+	case 25: /* Slow Monsters */
+		(void)slow_monsters();
+		break;
        case 26: /* Recharging True -- replaced by Explosive Rune */
                explosive_rune();
 		       break;
@@ -1167,7 +1172,7 @@ void do_cmd_cast(void)
 		fire_ball(GF_DISINTEGRATE, dir, damroll(12+((plev-5)/3), 8), 0);
 		break;
 	case 7: /* Teleport Self */
-		teleport_player(plev * 5);
+		teleport_player(randint(150)+50);
 		break;
         case 8: /* Wonder */
 	{
@@ -1259,10 +1264,10 @@ void do_cmd_cast(void)
 			break;
         case 17: /* Chain Lightning */
           for (dir = 0; dir <= 9; dir++)
-            fire_beam(GF_ELEC, dir, damroll(8+(plev/5), 8));
+            fire_beam(GF_ELEC, dir, damroll(10+(plev/5), 8));
            break;
         case 18: /* Arcane Binding == Charging */
-			(void)recharge(40);
+			(void)recharge(50 + plev);
 			break;
         case 19: /* Disintegration */
 			if (!get_aim_dir(&dir)) return;
@@ -1544,7 +1549,7 @@ void do_cmd_cast(void)
 			take_hit(200 + randint(200), "Death's cold touch");
 		break;
         case 31: /* Wraithform */
-		set_shadow(p_ptr->wraith_form + randint(plev) + plev);
+		set_shadow(p_ptr->wraith_form + randint(plev) + (plev/2));
 		break;
 	default:
 		msg_format("You cast an unknown Death spell: %d.", spell);
@@ -1556,18 +1561,15 @@ void do_cmd_cast(void)
     switch (spell)
     {
         case 0: /* Phase Door */
-			teleport_player(10);
-        break;
+		teleport_player(10);
+		break;
         case 1: /* Mind Blast */
-               if (!get_aim_dir(&dir)) return;
-                 fire_bolt_or_beam(beam-10, GF_PSI, dir,
-                              damroll(3 + ((plev - 1) / 3), 4));
-        break;
+		if (!get_aim_dir(&dir)) return;
+		fire_bolt_or_beam(beam-10, GF_PSI, dir,
+					damroll(3 + ((plev - 1) / 3), 4));
+		break;
         case 2: /* Shuffle */
-
            {
-                /* A limited power 'wonder' spell */
-
                int die = randint(120);
 
                if ((p_ptr->pclass == CLASS_ROGUE) ||
@@ -1701,7 +1703,6 @@ void do_cmd_cast(void)
                     p_ptr->update |= PU_BONUS;
                     handle_stuff();
                 }
-                
             }
             else if (die < 120)
             {
@@ -1719,18 +1720,17 @@ void do_cmd_cast(void)
                     gain_exp(ee);
                 }
             }
-
            }
-        break;
+		break;
         case 3: /* Minor Divination - replaces Reset Recall */
-			(void)detect_traps();
-			(void)detect_doors();
-			(void)detect_stairs();
-			(void)detect_monsters_normal();
-        break;
+		(void)detect_traps();
+		(void)detect_doors();
+		(void)detect_stairs();
+		(void)detect_monsters_normal();
+		break;
         case 4: /* Teleport Self */
-            teleport_player(plev * 4);
-        break;
+		teleport_player(100 + (plev * 2));
+		break;
         case 5: /* Dimension Door */
        {
              msg_print("You open a dimensional gate. Choose a destination.");
@@ -1748,17 +1748,20 @@ void do_cmd_cast(void)
              break;
             }
         case 6: /* Trump Spying */
-            (void)set_tim_esp(p_ptr->tim_esp + randint(30) + 25);
-        break;
+		(void)set_tim_esp(p_ptr->tim_esp + randint(30) + 25);
+		break;
         case 7: /* Teleport Away */
-			if (!get_aim_dir(&dir)) return;
-               (void)fire_beam(GF_AWAY_ALL, dir, plev);
-        break;
-        case 8: /* Trump Object */
-             if (!get_aim_dir(&dir)) return;
-                 fetch(dir, plev*15, TRUE);
-        break;
-        case 9: /* Trump Animal */
+		if (!get_aim_dir(&dir)) return;
+		(void)fire_beam(GF_AWAY_ALL, dir, plev);
+		break;
+        case 8: /* Teleport Level */
+		(void)teleport_player_level();
+		break;
+	case 9: /* Nexus Bolt */
+		if (!get_aim_dir(&dir)) return;
+		(void)fire_beam(GF_NEXUS, dir, 9+((plev-5)/3));
+		break;
+        case 10: /* Trump Animal */
         {
             msg_print ("You concentrate on the trump of an animal...");
             if (randint(5)>2)
@@ -1779,7 +1782,27 @@ void do_cmd_cast(void)
             }
         }
         break;
-        case 10: /* Phantasmal Servant */
+        case 11: /* Word of Recall */
+		{
+			if (dun_level && (p_ptr->max_dlv > dun_level))
+			{
+				if (get_check("Reset recall depth? "))
+				p_ptr->max_dlv = dun_level;
+			}
+
+			if (!p_ptr->word_recall)
+			{
+				p_ptr->word_recall = rand_int(21) + 15;
+				msg_print("The air about you becomes charged...");
+			}
+			else
+			{
+				p_ptr->word_recall = 0;
+				msg_print("A tension leaves the air around you...");
+			}
+			break;
+		}
+        case 12: /* Phantasmal Servant */
                if (summon_specific_friendly(py, px, (plev*3)/2, SUMMON_PHANTOM, FALSE))
                {
                     msg_print ("'Your wish, master?'");
@@ -1789,7 +1812,7 @@ void do_cmd_cast(void)
                     no_trump = TRUE;
                 }
         break;
-        case 11: /* Trump Monster */
+        case 13: /* Trump Monster */
         {
             msg_print ("You concentrate on the trump of a monster...");
             if (randint(5)>2)
@@ -1810,7 +1833,7 @@ void do_cmd_cast(void)
             }
         }
         break;
-        case 12: /* Conjure Elemental */
+        case 14: /* Conjure Elemental */
         {
             if (randint(6)>3)
             {
@@ -1831,31 +1854,9 @@ void do_cmd_cast(void)
         }
 
         break;
-	case 13: /* Trump Branding */
-		brand_weapon(4); break;
-        case 14: /* Teleport Level */
-			(void)teleport_player_level();
-        break;
-        case 15: /* Word of Recall */
-			{
-                if (dun_level && (p_ptr->max_dlv > dun_level))
-                {
-                    if (get_check("Reset recall depth? "))
-                    p_ptr->max_dlv = dun_level;
-
-                }
-				if (!p_ptr->word_recall)
-				{
-					p_ptr->word_recall = rand_int(21) + 15;
-					msg_print("The air about you becomes charged...");
-				}
-				else
-				{
-					p_ptr->word_recall = 0;
-					msg_print("A tension leaves the air around you...");
-				}
-				break;
-			}
+	case 15: /* Trump Branding */
+		brand_weapon(4);
+		break;
         case 16: /* Joker Card */
             msg_print("You concentrate on a joker card...");
             switch(randint(4))
@@ -2132,7 +2133,7 @@ void do_cmd_cast(void)
 		case 0: /* Static Bolt */
 			if (!get_aim_dir(&dir)) return;
 			fire_bolt_or_beam(beam-10, GF_ELEC, dir,
-					damroll(3 + ((plev - 1) / 3), 4));
+					damroll(3 + ((plev - 2) / 3), 4));
 			break;
 		case 1: /* Detect Monsters */
 			(void)detect_monsters_normal(); break;
@@ -2178,7 +2179,7 @@ void do_cmd_cast(void)
 					damroll(5 + ((plev - 5) / 3), 8));
 			break;
 		case 12: /* Recharging */
-			(void)recharge(plev * 2); break;
+			(void)recharge(50 + plev); break;
 		case 13: /* Magic Mapping */
 			map_area(); break;
 		case 14: /* Cure Medium Wounds */

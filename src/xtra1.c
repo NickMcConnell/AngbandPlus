@@ -1545,8 +1545,10 @@ static void calc_mana(void)
 	{
 		/* Encumbered */
 		p_ptr->cumber_armor = TRUE;
-	}
 
+		/* Reduce mana */
+		msp -= ((cur_wgt - max_wgt) / 10);
+	}
 
 	/* Mana can never be negative */
 	if (msp < 0) msp = 0;
@@ -1958,10 +1960,8 @@ static void calc_bonuses(void)
 	p_ptr->immune_cold = FALSE;
 
 
-
 	/* Base infravision (purely racial) */
 	p_ptr->see_infra = rp_ptr->infra;
-
 
 	/* Base skill -- disarming */
 	p_ptr->skill_dis = rp_ptr->r_dis + cp_ptr->c_dis;
@@ -2699,7 +2699,6 @@ static void calc_bonuses(void)
 		p_ptr->dis_to_d -= 5;
 	}
 
-
 	/* Invulnerability */
 	if (p_ptr->invuln)
 	{
@@ -2776,9 +2775,8 @@ static void calc_bonuses(void)
 	/* Temporary infravision boost */
 	if (p_ptr->tim_infra)
 	{
-		p_ptr->see_infra++;
+		p_ptr->see_infra += 2;
 	}
-
 
 	/* Hack -- Hero/Shero -> Res fear */
 	if (p_ptr->hero || p_ptr->shero)
@@ -2786,6 +2784,15 @@ static void calc_bonuses(void)
 		p_ptr->resist_fear = TRUE;
 	}
 
+	/* Hack -- Ghost stuff -- Gumby */
+	if (p_ptr->astral)
+	{
+		p_ptr->telepathy = TRUE;
+		p_ptr->see_inv = TRUE;
+		p_ptr->lite = TRUE;
+		p_ptr->slow_digest = TRUE;
+		p_ptr->pspeed += 10;
+	}
 
 	/* Hack -- Telepathy Change */
 	if (p_ptr->telepathy != old_telepathy)

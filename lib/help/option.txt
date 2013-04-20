@@ -444,6 +444,11 @@ Monsters behave stupidly    [stupid_monsters]
     try turning stupid_monsters on. Or buying that Pentium II so you can
     run Zangband. :-)
 
+Group monsters behave stupidly     [stupid_groups]
+    With this option set to 'Off', monsters that normally appear in groups
+    will do their best to hide in rooms, forcing you to expose yourself so
+    that they can surround and trap you.
+
 No query to destroy known worthless items    [auto_destroy]
     It can sometimes be annoying that the Destroy command asks for confirmation
     when you are attempting to destroy a Broken sword {cursed}. If this option

@@ -1138,8 +1138,11 @@ static void wr_extra(void)
     wr_u32b(p_ptr->muta3);
 
 	wr_byte(p_ptr->confusing);
-	wr_byte(0);     /* oops */
-	wr_byte(0);     /* oops */
+
+	/* Ghostly status -- Gumby */
+	wr_byte(p_ptr->astral);
+	wr_byte(p_ptr->was_astral);
+
 	wr_byte(0);     /* oops */
 	wr_byte(p_ptr->searching);
 	wr_byte(p_ptr->maximize);

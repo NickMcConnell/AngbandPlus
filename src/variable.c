@@ -241,6 +241,7 @@ bool equippy_chars;		/* Back by popular demand... */
 bool skip_mutations;		/* Skip mutations screen even if we have it */
 bool plain_descriptions;	/* Plain object descriptions */
 bool stupid_monsters;		/* Monsters use old AI */
+bool stupid_groups;		/* Pack monsters are stupid, despite 'stupid_monsters' */
 bool auto_destroy;		/* Known worthless items are destroyed without confirmation */
 bool confirm_stairs;		/* Prompt before staircases... */
 bool wear_confirm;		/* Confirm before putting on known cursed items */

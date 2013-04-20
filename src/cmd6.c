@@ -159,7 +159,7 @@ void do_cmd_eat_food(void)
 		{
 			if (!p_ptr->resist_chaos)
 			{
-				if (set_image(p_ptr->image + rand_int(250) + 250))
+				if (set_image(p_ptr->image + rand_int(150) + 150))
 				{
 					ident = TRUE;
 				}
@@ -695,7 +695,7 @@ void do_cmd_quaff_potion(void)
 		case SV_POTION_BESERK_STRENGTH:
 		{
 			if (set_afraid(0)) ident = TRUE;
-			if (set_shero(p_ptr->shero + randint(50) + 25)) ident = TRUE;
+			if (set_shero(p_ptr->shero + randint(25) + 25)) ident = TRUE;
 			if (hp_player(30)) ident = TRUE;
 			break;
 		}
@@ -1087,9 +1087,7 @@ void do_cmd_quaff_potion(void)
 bool curse_armor(void)
 {
 	object_type *o_ptr;
-
 	char o_name[80];
-
 
 	/* Curse the body armor */
 	o_ptr = &inventory[INVEN_BODY];
@@ -1097,20 +1095,17 @@ bool curse_armor(void)
 	/* Nothing to curse */
 	if (!o_ptr->k_idx) return (FALSE);
 
-
 	/* Describe */
 	object_desc(o_name, o_ptr, FALSE, 3);
 
 	/* Attempt a saving throw for artifacts */
-	if (((o_ptr->art_name) || artifact_p(o_ptr)) && (rand_int(100) < 50))
+	if (((o_ptr->art_name) || artifact_p(o_ptr)) && (rand_int(100) < 80))
 	{
 		/* Cool */
 		msg_format("A %s tries to %s, but your %s resists the effects!",
 		           "terrible black aura", "surround your armor", o_name);
 	}
-
-	/* not artifact or failed save... */
-	else
+	else /* not artifact or failed save... */
 	{
 		/* Oops */
 		msg_format("A terrible black aura blasts your %s!", o_name);
@@ -1143,7 +1138,6 @@ bool curse_armor(void)
 		/* Window stuff */
 		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
 	}
-
 	return (TRUE);
 }
 
@@ -1154,7 +1148,6 @@ bool curse_armor(void)
 bool curse_weapon(void)
 {
 	object_type *o_ptr;
-
 	char o_name[80];
 
 
@@ -1164,20 +1157,17 @@ bool curse_weapon(void)
 	/* Nothing to curse */
 	if (!o_ptr->k_idx) return (FALSE);
 
-
 	/* Describe */
 	object_desc(o_name, o_ptr, FALSE, 3);
 
 	/* Attempt a saving throw */
-	if ((artifact_p(o_ptr) || o_ptr->art_name) && (rand_int(100) < 50))
+	if (((o_ptr->art_name) || artifact_p(o_ptr)) && (rand_int(100) < 80))
 	{
 		/* Cool */
 		msg_format("A %s tries to %s, but your %s resists the effects!",
 		           "terrible black aura", "surround your weapon", o_name);
 	}
-
-	/* not artifact or failed save... */
-	else
+	else /* not artifact or failed save... */
 	{
 		/* Oops */
 		msg_format("A terrible black aura blasts your %s!", o_name);
@@ -1195,7 +1185,6 @@ bool curse_weapon(void)
 		o_ptr->art_flags2 = 0;
 		o_ptr->art_flags3 = 0;
 
-
 		/* Curse it */
 		o_ptr->ident |= (IDENT_CURSED);
 
@@ -1211,8 +1200,6 @@ bool curse_weapon(void)
 		/* Window stuff */
 		p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
 	}
-
-	/* Notice */
 	return (TRUE);
 }
 
@@ -1342,6 +1329,15 @@ void do_cmd_read_scroll(void)
 			break;
 		}
 
+		case SV_SCROLL_SUMMON_PET:
+		{
+			if (summon_specific_friendly(py, px, dun_level, SUMMON_NO_UNIQUES, TRUE))
+			{
+				ident = TRUE;
+			}
+			break;
+		}
+
 		case SV_SCROLL_TRAP_CREATION:
 		{
 			if (trap_creation()) ident = TRUE;
@@ -1467,7 +1463,7 @@ void do_cmd_read_scroll(void)
 
 		case SV_SCROLL_RECHARGING:
 		{
-			if (!recharge(60)) used_up = FALSE;
+			if (!recharge(75)) used_up = FALSE;
 			ident = TRUE;
 			break;
 		}
@@ -1525,19 +1521,19 @@ void do_cmd_read_scroll(void)
 
 		case SV_SCROLL_BLESSING:
 		{
-			if (set_blessed(p_ptr->blessed + randint(12) + 6)) ident = TRUE;
+			if (set_blessed(p_ptr->blessed + randint(20) + 10)) ident = TRUE;
 			break;
 		}
 
 		case SV_SCROLL_HOLY_CHANT:
 		{
-			if (set_blessed(p_ptr->blessed + randint(24) + 12)) ident = TRUE;
+			if (set_blessed(p_ptr->blessed + randint(40) + 20)) ident = TRUE;
 			break;
 		}
 
 		case SV_SCROLL_HOLY_PRAYER:
 		{
-			if (set_blessed(p_ptr->blessed + randint(48) + 24)) ident = TRUE;
+			if (set_blessed(p_ptr->blessed + randint(60) + 30)) ident = TRUE;
 			break;
 		}
 
@@ -1561,6 +1557,7 @@ void do_cmd_read_scroll(void)
 		case SV_SCROLL_RUNE_OF_PROTECTION:
 		{
 			warding_glyph();
+			glyph_creation();
 			ident = TRUE;
 			break;
 		}
@@ -2342,7 +2339,7 @@ void do_cmd_aim_wand(void)
 
 		case SV_WAND_DRAIN_LIFE:
 		{
-			if (drain_life(dir, 113)) ident = TRUE;
+			if (drain_life(dir, 125)) ident = TRUE;
 			break;
 		}
 
@@ -2354,7 +2351,7 @@ void do_cmd_aim_wand(void)
 
 		case SV_WAND_STINKING_CLOUD:
 		{
-			fire_ball(GF_POIS, dir, 18, 2);
+			fire_ball(GF_POIS, dir, 20, 2);
 			ident = TRUE;
 			break;
 		}
@@ -2368,7 +2365,7 @@ void do_cmd_aim_wand(void)
 
 		case SV_WAND_ACID_BOLT:
 		{
-			fire_bolt_or_beam(20, GF_ACID, dir, damroll(5, 8));
+			fire_bolt_or_beam(20, GF_ACID, dir, damroll(8, 8));
 			ident = TRUE;
 			break;
 		}
@@ -2382,42 +2379,42 @@ void do_cmd_aim_wand(void)
 
 		case SV_WAND_FIRE_BOLT:
 		{
-			fire_bolt_or_beam(20, GF_FIRE, dir, damroll(9, 8));
+			fire_bolt_or_beam(20, GF_FIRE, dir, damroll(11, 8));
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_COLD_BOLT:
 		{
-			fire_bolt_or_beam(20, GF_COLD, dir, damroll(5, 8));
+			fire_bolt_or_beam(20, GF_COLD, dir, damroll(10, 8));
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_ACID_BALL:
 		{
-			fire_ball(GF_ACID, dir, 90, 2);
+			fire_ball(GF_ACID, dir, 75, 2);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_ELEC_BALL:
 		{
-			fire_ball(GF_ELEC, dir, 48, 2);
+			fire_ball(GF_ELEC, dir, 85, 2);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_FIRE_BALL:
 		{
-			fire_ball(GF_FIRE, dir, 108, 2);
+			fire_ball(GF_FIRE, dir, 110, 2);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_COLD_BALL:
 		{
-			fire_ball(GF_COLD, dir, 72, 2);
+			fire_ball(GF_COLD, dir, 100, 2);
 			ident = TRUE;
 			break;
 		}
@@ -2437,7 +2434,7 @@ void do_cmd_aim_wand(void)
 
 		case SV_WAND_DRAGON_COLD:
 		{
-			fire_ball(GF_COLD, dir, 120, 3);
+			fire_ball(GF_COLD, dir, 150, 3);
 			ident = TRUE;
 			break;
 		}
@@ -2454,7 +2451,7 @@ void do_cmd_aim_wand(void)
 
 				case 2:
 				{
-					fire_ball(GF_ELEC, dir, 120, 3);
+					fire_ball(GF_ELEC, dir, 150, 3);
 					break;
 				}
 
@@ -2466,13 +2463,13 @@ void do_cmd_aim_wand(void)
 
 				case 4:
 				{
-					fire_ball(GF_COLD, dir, 120, 3);
+					fire_ball(GF_COLD, dir, 150, 3);
 					break;
 				}
 
 				default:
 				{
-					fire_ball(GF_POIS, dir, 90, 3);
+					fire_ball(GF_POIS, dir, 150, 3);
 					break;
 				}
 			}
@@ -2483,14 +2480,14 @@ void do_cmd_aim_wand(void)
 
 		case SV_WAND_ANNIHILATION:
 		{
-			if (drain_life(dir, 188)) ident = TRUE;
+			if (drain_life(dir, 200)) ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_ROCKETS:
 		{
 			msg_print("You launch a rocket!");
-			fire_ball(GF_ROCKET, dir, 113 + (randint(75)), 2);
+			fire_ball(GF_ROCKET, dir, 125 + (randint(75)), 2);
 			ident = TRUE;
 			break;
 		}
@@ -2740,7 +2737,7 @@ void do_cmd_zap_rod(void)
 		{
 			probing();
 			ident = TRUE;
-			o_ptr->pval = 20;
+			o_ptr->pval = 10;
 			break;
 		}
 
@@ -2753,7 +2750,7 @@ void do_cmd_zap_rod(void)
 			if (set_stun(0)) ident = TRUE;
 			if (set_cut(0)) ident = TRUE;
 			if (set_image(0)) ident = TRUE;
-			o_ptr->pval = 60;
+			o_ptr->pval = 50;
 			break;
 		}
 
@@ -2766,7 +2763,7 @@ void do_cmd_zap_rod(void)
 			if (set_stun(0)) ident = TRUE;
 			if (set_cut(0)) ident = TRUE;
 			if (set_image(0)) ident = TRUE;
-			o_ptr->pval = 200;
+			o_ptr->pval = 150;
 			break;
 		}
 
@@ -2800,14 +2797,14 @@ void do_cmd_zap_rod(void)
 		case SV_ROD_TELEPORT_AWAY:
 		{
 			if (teleport_monster(dir)) ident = TRUE;
-			o_ptr->pval = (15 + randint(10));
+			o_ptr->pval = 15;
 			break;
 		}
 
 		case SV_ROD_DISARMING:
 		{
 			if (disarm_trap(dir)) ident = TRUE;
-			o_ptr->pval = (15 + randint(15));
+			o_ptr->pval = 15;
 			break;
 		}
 
@@ -2816,27 +2813,27 @@ void do_cmd_zap_rod(void)
 			msg_print("A line of blue shimmering light appears.");
 			lite_line(dir);
 			ident = TRUE;
-			o_ptr->pval = (5 + randint(5));
+			o_ptr->pval = 10;
 			break;
 		}
 
 		case SV_ROD_SLEEP_MONSTER:
 		{
 			if (sleep_monster(dir)) ident = TRUE;
-			o_ptr->pval = 15;
+			o_ptr->pval = 10;
 			break;
 		}
 
 		case SV_ROD_SLOW_MONSTER:
 		{
 			if (slow_monster(dir)) ident = TRUE;
-			o_ptr->pval = 15;
+			o_ptr->pval = 10;
 			break;
 		}
 
 		case SV_ROD_DRAIN_LIFE:
 		{
-			if (drain_life(dir, 113)) ident = TRUE;
+			if (drain_life(dir, 100)) ident = TRUE;
 			o_ptr->pval = 20;
 			break;
 		}
@@ -2850,7 +2847,7 @@ void do_cmd_zap_rod(void)
 
 		case SV_ROD_ACID_BOLT:
 		{
-			fire_bolt_or_beam(10, GF_ACID, dir, damroll(9, 8));
+			fire_bolt_or_beam(10, GF_ACID, dir, damroll(7, 8));
 			ident = TRUE;
 			o_ptr->pval = 10;
 			break;
@@ -2858,7 +2855,7 @@ void do_cmd_zap_rod(void)
 
 		case SV_ROD_ELEC_BOLT:
 		{
-			fire_bolt_or_beam(10, GF_ELEC, dir, damroll(5, 8));
+			fire_bolt_or_beam(10, GF_ELEC, dir, damroll(8, 8));
 			ident = TRUE;
 			o_ptr->pval = 10;
 			break;
@@ -2866,7 +2863,7 @@ void do_cmd_zap_rod(void)
 
 		case SV_ROD_FIRE_BOLT:
 		{
-			fire_bolt_or_beam(10, GF_FIRE, dir, damroll(12, 8));
+			fire_bolt_or_beam(10, GF_FIRE, dir, damroll(10, 8));
 			ident = TRUE;
 			o_ptr->pval = 10;
 			break;
@@ -2874,7 +2871,7 @@ void do_cmd_zap_rod(void)
 
 		case SV_ROD_COLD_BOLT:
 		{
-			fire_bolt_or_beam(10, GF_COLD, dir, damroll(8, 8));
+			fire_bolt_or_beam(10, GF_COLD, dir, damroll(9, 8));
 			ident = TRUE;
 			o_ptr->pval = 10;
 			break;
@@ -2882,7 +2879,7 @@ void do_cmd_zap_rod(void)
 
 		case SV_ROD_ACID_BALL:
 		{
-			fire_ball(GF_ACID, dir, 90, 2);
+			fire_ball(GF_ACID, dir, 65, 2);
 			ident = TRUE;
 			o_ptr->pval = 20;
 			break;
@@ -2890,7 +2887,7 @@ void do_cmd_zap_rod(void)
 
 		case SV_ROD_ELEC_BALL:
 		{
-			fire_ball(GF_ELEC, dir, 48, 2);
+			fire_ball(GF_ELEC, dir, 75, 2);
 			ident = TRUE;
 			o_ptr->pval = 20;
 			break;
@@ -2898,7 +2895,7 @@ void do_cmd_zap_rod(void)
 
 		case SV_ROD_FIRE_BALL:
 		{
-			fire_ball(GF_FIRE, dir, 108, 2);
+			fire_ball(GF_FIRE, dir, 100, 2);
 			ident = TRUE;
 			o_ptr->pval = 20;
 			break;
@@ -2906,7 +2903,7 @@ void do_cmd_zap_rod(void)
 
 		case SV_ROD_COLD_BALL:
 		{
-			fire_ball(GF_COLD, dir, 72, 2);
+			fire_ball(GF_COLD, dir, 85, 2);
 			ident = TRUE;
 			o_ptr->pval = 20;
 			break;
@@ -2916,7 +2913,7 @@ void do_cmd_zap_rod(void)
 		{
 			call_chaos();
 			ident = TRUE;
-			o_ptr->pval = 200;
+			o_ptr->pval = 100;
 			break;
 		}
 	}

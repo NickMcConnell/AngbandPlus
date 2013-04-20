@@ -6,12 +6,12 @@
 #   ' - Identify            F4 - Chaos Bolt          SF4 - Invoke Chaos
 #   " - Insight             F5 - Doom Bolt           SF5 - Chain Lightning
 #   ; - Trap/Door Destruct. F6 - Beam of Gravity     SF6 - Disintegrate
-#   : - Recharging          F7 - Call the Void       SF7 - Meteor Swarm
-#   h - Haste Self          F8 - Confuse Monster     SF8 - Flame Strike
-#   H - Globe of Invulner.  F9 - Sleep Monster       SF9 - Call Chaos
-#   J - Dimension Door     F10 - Slow Monster       SF10 - Magic Rocket
-#   n - Detect Monsters    F11 - Mass Sleep         SF11 - Mana Storm
-#   N - Detect Doors/Traps F12 - Stasis             SF12 - Breathe Chaos
+#   : - Recharging          F7 - Confuse Monster     SF7 - Meteor Swarm
+#   h - Haste Self          F8 - Sleep Monster       SF8 - Flame Strike
+#   H - Globe of Invulner.  F9 - Slow Monster        SF9 - Call Chaos
+#   J - Dimension Door     F10 - Mass Sleep         SF10 - Magic Rocket
+#   n - Detect Monsters    F11 - Stasis             SF11 - Mana Storm
+#   N - Detect Doors/Traps F12 - Slow Monsters      SF12 - Breathe Chaos
 #   O - Detect Objects/Treasure
 #   P - Detection
 #   y - Phase Door
@@ -112,30 +112,30 @@ P:^_x3F\r
 A:\e\e\e*tm8a
 P:^_x40\r
 
-# F7 - Call the Void
-A:m8h
-P:^_x41\r
-
 # Sorcerous Combat
 
-# F8 - Confuse Monster
+# F7 - Confuse Monster
 A:m1f
+P:^_x41\r
+
+# F8 - Sleep Monster
+A:m1h
 P:^_x42\r
 
-# F9 - Sleep Monster
-A:m1h
+# F9 - Slow Monster
+A:m2e
 P:^_x43\r
 
-# F10 - Slow Monster
-A:m2e
+# F10 - Mass Sleep
+A:m2f
 P:^_x44\r
 
-# F11 - Mass Sleep
-A:m2f
+# F11 - Stasis
+A:\e\e\e*tm4a
 P:^_x85\r
 
-# F12 - Stasis
-A:\e\e\e*tm4a
+# F12 - Slow Monsters
+A:m4b
 P:^_x86\r
 
 # Ball Spells

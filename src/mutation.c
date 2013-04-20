@@ -5,7 +5,7 @@
 /*
  * Functions included here:
  *
- * gain_random_mutation(); lose_random_mutation(); dump_mutations();
+ * gain_random_mutation(); lose_mutation(); dump_mutations();
  * do_cmd_knowledge_mutations(); racial_aux(); cmd_racial_power_aux();
  * do_cmd_racial_power();
  */
@@ -1237,7 +1237,7 @@ void dump_mutations(FILE * OutFile)
                 }
                 if (p_ptr->muta1 & MUT1_RADIATION)
                 {
-                    fprintf(OutFile, " You can emit hard radiation at will (dam lvl*2).\n");
+                    fprintf(OutFile, " You can emit hard radiation at will (dam lvl*3).\n");
                 }
                 if (p_ptr->muta1 & MUT1_VAMPIRISM)
                 {
@@ -2114,25 +2114,25 @@ void do_cmd_racial_power(void)
 	{
 		case RACE_HUMAN:
 			if (lvl < 15)
-				racial_power = "self knowledge (racial, lvl 15, cost 10)";
+				racial_power = "self knowledge     (racial, lvl 15, cost 10)";
 			else
-				racial_power = "self knowledge (racial, cost 10, WIS 10@15)";
+				racial_power = "self knowledge     (racial, cost 10, WIS 10@15)";
 			has_racial = TRUE;
 			break;
 
 		case RACE_HALF_ELF:
 			if (lvl < 15)
-				racial_power = "detect animals (racial, lvl 15, cost 5)";
+				racial_power = "detect animals     (racial, lvl 15, cost 5)";
 			else
-				racial_power = "detect animals (racial, cost 5, WIS 10@15)";
+				racial_power = "detect animals     (racial, cost 5, WIS 10@15)";
 			has_racial = TRUE;
 			break;
 
 		case RACE_ELF:
 			if (lvl < 10)
-				racial_power = "detect animals (racial, lvl 10, cost 5)";
+				racial_power = "detect animals     (racial, lvl 10, cost 5)";
 			else
-				racial_power = "detect animals (racial, cost 5, WIS 10@10)";
+				racial_power = "detect animals     (racial, cost 5, WIS 10@10)";
 			has_racial = TRUE;
 			break;
 
@@ -2279,7 +2279,7 @@ void do_cmd_racial_power(void)
 			break;
 
 		case RACE_DRACONIAN:
-			racial_power = "breath weapon      (racial, cost lvl, dam lvl*3, CON 16@1)";
+			racial_power = "breath weapon              (racial, cost lvl, dam lvl*3, CON 16@1)";
 			has_racial = TRUE;
 			break;
 

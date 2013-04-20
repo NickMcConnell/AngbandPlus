@@ -5,7 +5,7 @@
 #   ] - Clairvoyance        F3 - Confuse Monster      SF3 - Banish Evil
 #   ' - Detect Doors/Traps  F4 - Sleep Monster        SF4 - Dispel Evil
 #   " - Detect Obj./Treas.  F5 - Slow Monster         SF5 - Holy Word
-#   ; - Detect Monsters     F6 - Mass Sleep           SF6 - Stasis
+#   ; - Detect Monsters     F6 - Mass Sleep           SF6 - Slow Monsters
 #   : - Detect Evil         F7 - Bless                SF7 - Prayer
 #   h - Haste Self          F8 - Protect. from Evil   SF8 - Divine Inter.
 #   H - Holy Invulnerabil.  F9 - Cure Light Wounds    SF9 - Cure Med. Wounds
@@ -154,8 +154,8 @@ P:^_Sx57\r
 A:m3g
 P:^_Sx58\r
 
-# SHIFT-F6 - Stasis
-A:m8a
+# SHIFT-F6 - Slow Monsters
+A:m8b
 P:^_Sx59\r
 
 # SHIFT-F7 - Prayer

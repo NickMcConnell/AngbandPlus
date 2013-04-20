@@ -1,0 +1,40 @@
+=== Wizard/Debug Mode Command Summary (Gumband 2.1.5a) ===
+
+### Note that using these commands will constitute cheating: your game will
+### not be scored and your character dump will be marked...
+
+ To access these commands, simply hit CTRL-a and then one of the commands
+listed below. Some commands use arguments, as follows:
+  '*' requires you to have previously targetted a location or monster
+  '#' requires a command count of some sort, usually an index number of
+      an object or creature
+  '@' accepts an optional command count
+
+  ? This file                           _ Probing
+  a Cure all maladies                   A (unused)
+ *b Teleport to target                  B (unused)
+  c Create any object                  #C Create a named artifact
+  d Detection                           D (unused)
+  e Edit your character                 E (unused)
+  f Fully identify and item             F (unused)
+ @g Create one or more 'good' objects   G (unused)
+  h Re-rate your hit points             H Summon a monster horde
+  i Identify an object                  I (unused)
+ @j Jump to a specific dungeon level    J (unused)
+  k Self Knowledge                      k (unused)
+ #l Identify all objects to level #    @L Lose a random/specific mutation
+  m Magic Mapping                      @M Gain a random/specific mutation
+ #n Summon named monster               #N Summon named pet
+  o Edit an object                      O (unused)
+  p Phase Door                          P (unused)
+ @r Gain a random/specific Chaos gift   R (unused)
+ @s Summon random monsters              S (unused)
+  t Teleport                            T (unused)
+ @v Create one or more excellent objs.  V (unused)
+  w Wizard Light the level              W (unused)
+ @x Gain experience                     X (unused)
+  y (unused)                            Y (unused)
+  z Zap monsters near player            Z (unused)
+
+-- 
+Original (Gumband 2.1.5a): Joe Dixon (gumby_jd@yahoo.com)

@@ -36,15 +36,24 @@ int artifact_bias;
 
 void curse_artifact(object_type * o_ptr)
 {
-	if (o_ptr->pval) o_ptr->pval = 0 - ((o_ptr->pval) + randint(4));
-	if (o_ptr->to_a) o_ptr->to_a = 0 - ((o_ptr->to_a) + randint(4));
-	if (o_ptr->to_h) o_ptr->to_h = 0 - ((o_ptr->to_h) + randint(4));
-	if (o_ptr->to_d) o_ptr->to_d = 0 - ((o_ptr->to_d) + randint(4));
+	if (o_ptr->pval) o_ptr->pval = 0 - ((o_ptr->pval) + randint(2));
+	if (o_ptr->to_a) o_ptr->to_a = 0 - ((o_ptr->to_a) + randint(2));
+	if (o_ptr->to_h) o_ptr->to_h = 0 - ((o_ptr->to_h) + randint(2));
+	if (o_ptr->to_d) o_ptr->to_d = 0 - ((o_ptr->to_d) + randint(2));
 
-	o_ptr->art_flags3 |= (TR3_HEAVY_CURSE | TR3_CURSED);
+	o_ptr->art_flags3 |= TR3_CURSED;
 
-	if (randint(4)==1) o_ptr->art_flags3 |= TR3_PERMA_CURSE;
-	if (randint(3)==1) o_ptr->art_flags3 |= TR3_TY_CURSE;
+	if (randint(4)==1)
+	{
+		o_ptr->art_flags3 |= TR3_HEAVY_CURSE;
+
+		if (randint(10)==1)
+		{
+			o_ptr->art_flags3 |= TR3_PERMA_CURSE;
+		}
+	}
+
+	if (randint(6)==1) o_ptr->art_flags3 |= TR3_TY_CURSE;
 	if (randint(2)==1) o_ptr->art_flags3 |= TR3_AGGRAVATE;
 	if (randint(3)==1) o_ptr->art_flags3 |= TR3_DRAIN_EXP;
 
@@ -1298,7 +1307,7 @@ bool create_artifact(object_type *o_ptr, bool a_scroll)
 	 * (can't tell if this is over and above any extra dice ego-itmes
 	 * might get, but it can't hurt :) -- Gumby
 	 */
-	if (randint(20)==1)
+	if (randint(25)==1)
 	{
 		o_ptr->dd++;
 	}
@@ -3149,6 +3158,21 @@ void do_cmd_activate(void)
 				msg_print("The Scythe of Death glows black...");
 				(void) deathray_monsters();
 				o_ptr->timeout = randint(500) + 500;
+				break;
+			}
+			case ART_PINPRICK:
+			{
+				msg_print("Your Short Spear glows green...");
+				(void) set_oppose_pois(p_ptr->oppose_pois + randint(20) + 20);
+				o_ptr->timeout = randint(50) + 50;
+				break;
+			}
+			case ART_BEGGING:
+			{
+				msg_print("The rag looks even filthier than usual...");
+				(void) alchemy();
+				o_ptr->timeout = randint(100) + 100;
+				break;
 			}
 		}
 
@@ -4019,6 +4043,14 @@ cptr item_activation(object_type *o_ptr)
 		case ART_DEATH:
 		{
 			return "death to life every 500+d500 turns";
+		}
+		case ART_PINPRICK:
+		{
+			return "resist poison every 50+d50 turns";
+		}
+		case ART_BEGGING:
+		{
+			return "turning dross into gold every 100+d100 turns";
 		}
 	}
 
