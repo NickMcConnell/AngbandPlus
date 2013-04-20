@@ -67,39 +67,39 @@ typedef struct
  */
 static grouper group_item[] =
 {
+	{ TV_SWORD,             "Swords" },
+	{ TV_AXE,		"Axes" },
+	{ TV_POLEARM,		"Polearms" },
+	{ TV_HAFTED,		"Hafted/Blunt Weapons" },
+	{ TV_DIGGING,		"Digging Tools" },
+
+	{ TV_BOW,               "Missile Launchers" },
+
 	{ TV_SHOT,              "Ammo" },
 	{ TV_ARROW,               NULL },
 	{ TV_BOLT,                NULL },
 
-	{ TV_BOW,               "Missile Launchers" },
+	{ TV_SOFT_ARMOR,        "Armour (Soft)" },
+	{ TV_HARD_ARMOR,        "Armour (Hard)" },
+	{ TV_DRAG_ARMOR,        "Dragon Scale Mail" },
 
-	{ TV_SWORD,             "Weapons" },
-	{ TV_AXE,		NULL },
-	{ TV_POLEARM,		NULL },
-	{ TV_HAFTED,		NULL },
-	{ TV_DIGGING,		NULL },
+	{ TV_CLOAK,             "Cloaks" },
+	{ TV_SHIELD,		"Shields" },
+	{ TV_HELM,              "Helms" },
+	{ TV_CROWN,             "Crowns" },
+	{ TV_GLOVES,            "Gloves" },
+	{ TV_BOOTS,             "Boots" },
 
-	{ TV_SOFT_ARMOR,        "Armour (Body)" },
-	{ TV_HARD_ARMOR,          NULL },
-	{ TV_DRAG_ARMOR,          NULL },
-
-	{ TV_CLOAK,             "Armour (Misc)" },
-	{ TV_SHIELD,      NULL },
-	{ TV_HELM,                NULL },
-	{ TV_CROWN,               NULL },
-	{ TV_GLOVES,      NULL },
-	{ TV_BOOTS,               NULL },
-
-	{ TV_AMULET,    "Amulets" },
+	{ TV_AMULET,		"Amulets" },
 	{ TV_RING,              "Rings" },
 
-	{ TV_SCROLL,    "Scrolls" },
-	{ TV_POTION,    "Potions" },
+	{ TV_SCROLL,		"Scrolls" },
+	{ TV_POTION,		"Potions" },
 	{ TV_FOOD,              "Food" },
 
 	{ TV_ROD,               "Rods" },
 	{ TV_WAND,              "Wands" },
-	{ TV_STAFF,             "Staffs" },
+	{ TV_STAFF,             "Staves" },
 
 	{ TV_LIFE_BOOK,       "Books (Life)" },
 	{ TV_SORCERY_BOOK,    "Books (Sorcery)" },
@@ -111,7 +111,7 @@ static grouper group_item[] =
 
 	{ TV_CHEST,             "Chests" },
 
-	{ TV_SPIKE,             "Various" },
+	{ TV_SPIKE,             "Tools/Misc" },
 	{ TV_LITE,                NULL },
 	{ TV_FLASK,               NULL },
 	{ TV_JUNK,                NULL },
@@ -254,7 +254,15 @@ static void spoil_obj_desc(cptr fname)
 
 
 	/* Header */
-	fprintf(fff, "Spoiler File -- Basic Items (2.?.?)\n\n\n");
+#ifndef FAKE_VERSION
+	fprintf(fff, "Object List for Angband Version %d.%d.%d\n",
+		VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
+	fprintf(fff, "-------------------------------------\n\n");
+#else /* FAKE_VERSION */
+	fprintf(fff, "Object List for Gumband Version %d.%d.%d\n",
+            FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH);
+	fprintf(fff, "-------------------------------------\n\n");
+#endif /* FAKE_VERSION */
 
 	/* More Header */
 	fprintf(fff, "%-45s     %8s%7s%5s%9s\n",
@@ -388,6 +396,10 @@ static grouper group_artifact[] =
 	{ TV_POLEARM,           "Polearms" },
 	{ TV_HAFTED,            "Hafted Weapons" },
 	{ TV_BOW,               "Missile Launchers" },
+
+	{ TV_SHOT,		"Ammo" },
+	{ TV_ARROW,		NULL },
+	{ TV_BOLT,		NULL },
 
 	{ TV_SOFT_ARMOR,        "Body Armor" },
 	{ TV_HARD_ARMOR,        NULL },

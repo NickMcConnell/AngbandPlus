@@ -27,11 +27,11 @@ A:\e\e\e*tm1b
 C:0:[
 
 # ] - Nexus Bolt
-A:\e\e\e*tm2b
+A:\e\e\e*tm2c
 C:0:]
 
 # ' - Trump Branding
-A:m2h
+A:m2a
 C:0:'
 
 # " - Living Trump
@@ -47,11 +47,11 @@ A:m3e
 C:0::
 
 # h - Teleport Level
-A:m2a
+A:m2b
 C:0:h
 
 # H - Word of Recall
-A:m2d
+A:m2e
 C:0:H
 
 # J - Trump Lore
@@ -89,19 +89,19 @@ C:0:Z
 # Trumps
 
 # F1 - Trump Animals
-A:m2c
+A:m2d
 P:^_x3B\r
 
 # F2 - Phantasmal Servant
-A:m2e
+A:m2f
 P:^_x3C\r
 
 # F3 - Trump Monster
-A:m2f
+A:m2g
 P:^_x3D\r
 
 # F4 - Conjure Elemental
-A:m2g
+A:m2h
 P:^_x3E\r
 
 # F5 - Joker Card

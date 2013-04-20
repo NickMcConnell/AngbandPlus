@@ -2717,8 +2717,7 @@ errr file_character(cptr name, bool full)
         else
             fprintf(fff, "\n Arena Levels:       OFF");
 
-            fprintf(fff, "\n Recall Depth:       Level %d (%d')\n", p_ptr->max_dlv,
-                          50 * (p_ptr->max_dlv));
+	fprintf(fff, "\n Recall Depth:       Level %d (%d')\n", p_ptr->max_dlv, 50 * (p_ptr->max_dlv));
 
     { /* Monsters slain */
         int k;
@@ -2749,7 +2748,6 @@ errr file_character(cptr name, bool full)
         if (Total < 1)
             fprintf(fff,"\n You have defeated no enemies yet.\n");
         else if (Total == 1)
-
             fprintf(fff,"\n You have defeated one enemy.\n");
         else
            fprintf(fff,"\n You have defeated %lu enemies.\n", Total);
@@ -2763,6 +2761,11 @@ errr file_character(cptr name, bool full)
 
 	if (p_ptr->astral || p_ptr->was_astral)
 		fprintf(fff, "\n You began the game as an astral being.");
+
+	if (name_slimes)
+		fprintf(fff, "\n You're an amateur mycologist.");
+	else if (!name_slimes)
+		fprintf(fff, "\n You hated Slime Molds.");
 
         if (noscore)
 		fprintf(fff, "\n You have done something illegal.");
@@ -4353,7 +4356,8 @@ static errr top_twenty(void)
 
 #ifndef SCORE_CHEATERS
 	/* Cheaters are not scored */
-	if (noscore & 0xFF00)
+	if ((noscore & 0xFF00) &&
+	    !(strstr(player_name, "Gumby")))
 	{
 		msg_print("Score not registered for cheaters.");
 		msg_print(NULL);

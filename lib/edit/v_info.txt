@@ -1266,7 +1266,7 @@ D:%X#XXX&*&*&*XX#XX%
 D:%X^*^X&&X&X&X^^^X%
 D:%XXX*X^^^^^^X*X*X%
 D:%X9*^X^^^^^^X,,,X%
-D:%XXXXXXX#XXXXXXXX%
+D:%XXXXXXX+XXXXXXXX%
 D:%%%%%%%%%%%%%%%%%%
 
 N:61:Lesser Vault (BT2-Colosse)
@@ -1281,7 +1281,7 @@ D:%X@@@XX,^*,^*X*XX%
 D:%X*X*9X*,X*,^X^*X%
 D:%XXXXXX^*,^*,XX^X%
 D:%X^*^X*,^*X^*,#*X%
-D:%#^X*X#X,^*,XXX^X%
+D:%+^X*X#X,^*,XXX^X%
 D:%XXX^*^X*,^,X,,*X%
 D:%X8XXXXXXX#XX#XXX%
 D:%X,,X*^*X,,,X,,,X%
@@ -1308,7 +1308,7 @@ D:%X^X X X X X X ^X%
 D:%X^^^^^^^^^^^^^^X%
 D:%X^ X X X X X X X%
 D:%X^^^^^^^^^^^^^^X%
-D:%XXXXXX#XXXXXXXXX%
+D:%XXXXXX+XXXXXXXXX%
 D:%%%%%%%%%%%%%%%%%%
 
 N:63:Lesser Vault (BT2-Thessalonica)
@@ -1321,7 +1321,7 @@ D:%XX#XXXX#XXXX#XXX%
 D:%X,,,*^*^*^,,,,@X%
 D:%X,XX^XXXX^XXXXXX%
 D:%X,,,*^*^*^#&,,^X%
-D:%X,XX^XXXX^XXXX^#%
+D:%X,XX^XXXX^XXXX^+%
 D:%X,,,*^*^*^#&,,^X%
 D:%X,XX^XXXX^XXXXXX%
 D:%X,,,*^*^*^,,,,@X%
@@ -1409,27 +1409,7 @@ D:%^#####################^%
 D:%^^^^^^^^^^^^^^^^^^^^^^^%
 D:%%%%%%%%%%%%%%%%%%%%%%%%%
 
-N:68:Greater vault (EGCV)
-X:8:50:17:39
-D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-D:%XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX%
-D:%#8#8#8#8#8#8#8#8#8#8#8#8#8#8#8#8#8#8X%
-D:%XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX#X%
-D:%X8#8#8#8#8#8#8#8#8#8#8#8#8#8#8#8#8X8X%
-D:%X#XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX#X#X%
-D:%X8X8#8#8#8#8#8#8#8#8#8#8#8#8#8#8X8X8X%
-D:%X#X#XXXXXXXXXXXXXXXXXXXXXXXXXXX#X#X#X%
-D:%X8X8X8#8#8#8#8#8#8#8#8#8#8#8#8#8X8X8X%
-D:%X#X#X#XXXXXXXXXXXXXXXXXXXXXXXXXXX#X#X%
-D:%X8X8X8#8#8#8#8#8#8#8#8#8#8#8#8#8#8X8X%
-D:%X#X#XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX#X%
-D:%X8X8#8#8#8#8#8#8#8#8#8#8#8#8#8#8#8#8X%
-D:%X#XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX%
-D:%X8#8#8#8#8#8#8#8#8#8#8#8#8#8#8#8#8#8#%
-D:%XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX%
-D:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-N:69:Greater vault (concentricity)
+N:68:Greater vault (concentricity)
 X:8:20:19:25
 D:%%%%%%%%%%%%%%%%%%%%%%%%%
 D:%##XXXXXXXXXXXXXXXXXXX##%

@@ -17,7 +17,7 @@ from your plane...
 ****************************************************************************
 
 =============================================
-= Gumband 2.1.5b = Last Update: 29-Apr-2001 =
+= Gumband 2.1.5c = Last Update: 02-May-2001 =
 ============================================================================
 Changes from Gumband 2.1.5a are marked with '##'. Only the most major
 changes are listed here, to keep things short...
@@ -27,9 +27,9 @@ makefiles, etc., should be sent to gumby_jd@yahoo.com (due to a lack of
 INBOX space at the first address).
 ============================================================================
 PLEASE NOTE: Preserving savefile compatability is *NOT* important to me. I
-*highly* suggest you finish up your current character with your current
-version before moving to this one. At the very least, monster memory could
-be severely messed up between versions...
+highly suggest you finish up your current character in your current version
+before moving to this one. At the very least, monster memory could be
+severely messed up between versions...
 ============================================================================
 Thanks to all the folks in #angband and rec.games.roguelike.angband who've
 put up with me, and even helped me in many cases, while I was plundering
@@ -38,12 +38,54 @@ any of my posts dealing with Gumband, or C programming in general, consider
 yourself thanked. :) [individual thanks will be down there in the entries
 that apply]
 ============================================================================
+Thanks also to those who've been compiling Gumband for other platforms. You
+know who you are, and since it sometimes changes, I won't lay the blame in
+here. ;) Just make sure to give yourself credit for the compile in the text
+file you upload with your archive, 'kay?
+============================================================================
 There have been other minor changes than those listed here that are no
 longer worth individual mentions. Most changes to the monster, object and
 artifact lists won't be included here, and some items might drop off the
 list from time to time (to save space), tho that won't mean that the change
 has been reversed.
 ============================================================================
+Note to Windows users: Remember to change Gumband.ini to reflect the path to
+\lib on your own system....
+============================================================================
+
+                    ####### Known Bugs #######
+
+01) There are too many potions in the game at the moment, so a few potions
+cannot be generated via debug mode's item creation menus since the list runs
+out of symbols fairly quickly. It is not a priority to fix.
+
+02) If you look through the entire monster list ['/' then CTRL-a] while the
+'know all monster info' cheat is active, you will see the occasional blank
+monster (ie, The ('')/(''): [(r)ecall, ESC]). This is because there are
+still empty slots in r_info.txt, which I will eventually fill.
+
+03) Like with Chaos Patrons, when you go to a 'p'revious character, the
+current Weaponmaster specialty remains, instead of restoring the older
+character's specialty. If you then continue rolling, a new specialty will be
+randomly chosen, of course. Not worth the effort to fix, IMHO.
+
+04) Sometimes, completely at random, the Roguelike option will set itself to
+true upon startup. I have no idea why...
+
+05) Unfortunately, it seems that sometimes the game will freeze when you
+enter a level. I have no idea why, as usual. :( All I can suggest, until I
+figure this out, is that if this happens right after a save, that you move
+your character around a bit before taking the stairs or WoR'ing into the
+level that just froze you - that usually changes the RNG enough so that the
+freeze won't happen a second time. This seems to happen deeper in the
+dungeon when you've got a lot of monsters - maybe something to do with the
+random quests... Save often and if this happens, don't consider yourself a
+cheater for restoring from a backup.
+## A test today [01-May-01] found a freeze after a 'Refusing a lesser vault'
+message during level generation. I'll continue investigating.
+
+
+                    ####### Misc Changes #######
 
 01) Implemented a quick start option. If you select it, your character will
 start the game with mildly enchanted equipment in their inventory. The
@@ -69,9 +111,9 @@ out damage).
   Thanks to DarkGod for all of his help on this subject, and thanks to
 Ivan Tkatchev for creating Kamband and thus giving me the idea to put it in
 Gumband. :)
-## Thanks to Timo Pietil for pointing out that there's no penalty for *not*
+ Thanks to Timo Pietil for pointing out that there's no penalty for *not*
 going to the town... Now down stairs ('>') will not be generated at 4850'...
-## Thanks to Antimatter for the suggestion on how to fix the starting-stair
+ Thanks to Antimatter for the suggestion on how to fix the starting-stair
 problem...
 
 05) Turned the Spoiler Generation debug command into a standard command,
@@ -90,23 +132,14 @@ Beastmen:
  In addition to the chance of gaining mutations as they increase in level,
    Beastmen now randomly gain and lose mutations every once in a while as
    they move around or rest...
- Due to being a plaything of Chaos, Beastmen get +1 to the number of effects
-   during a do_poly_self(). Beastmen Chaos Warriors tend to get slammed
-   pretty hard when polymorphed. :)
 
 Chaos Warriors:
  If you have Arioch, Xiombarg or Mabelrode as a patron, and you kill them,
    then you will be hit with multiple TY Curses.
- Now use WIS for their spell stat instead of INT (they get their magic
-   through their patron (god), like Priests and Paladins do, so this is more
-   appropriate). [this also means that they get their prayers randomly
-   (chaotically! :) and can wear gloves without penalty - think of them as
-   Chaos Paladins now]
+ Now use WIS for their spell stat instead of INT (they now get their magic
+   through their patron (god), like Priests and Paladins do).
  Swapped their +1 INT bonus with their +0 WIS bonus, to make the above a bit
    fairer.
- Due to being a plaything of Chaos, Chaos Warriors get +1 to the number of
-   effects during a do_poly_self(). Beastmen Chaos Warriors tend to get
-   slammed pretty hard when polymorphed. :)
 
 Draconians:
  Now gain the following resistances at the level in brackets: Fire (5),
@@ -120,8 +153,8 @@ Draconians:
  XP required now at +125% (down from +150%).
 
 Dwarves:
-## Magic Mapping is added to their racial activation at level 35.
-## XP required now at +30% [was +25%, despite what birth.txt said :]
+ Magic Mapping is added to their racial activation at level 35.
+ XP required now at +30% [was +25%, despite what birth.txt said :]
 
 Gambolts:
  Exceptional DEX & CHR (both sustained), Saving Throw and Stealth. Decent
@@ -133,19 +166,18 @@ Gambolts:
  Cannot 'legally' choose to be Priests, Paladins, Chaos Warriors or Monks.
 
 Gnomes:
-## XP required now at +30% (was +35%).
+ XP required now at +30% (was +35%).
 
 Golems:
- They now resist Fire (because of their 'birth' in a kiln, forge, or quarry)
-   and Shards, in addition to their original Poison resistance.
+ They now resist Fire (because of their 'birth' in a kiln, forge, or for
+   being stone) and Shards, in addition to their original Poison resistance.
  They no longer get intrinsic See Invisible, Free Action or their level 35
    Hold Life, but keep their Slow Digestion.
  Intrinsic Armour Class has been changed to equal the Golem's level.
 
 Half-Giants:
  Racial activation ('Stone to Mud') has been altered to only work when the
-   player is adjacent to a non-permanent wall (or a closed door). If not,
-   the Half-Giant just waves his or her fists uselessly in the air. :)
+   player is adjacent to a non-permanent wall (or a closed door).
  XP required now at +25% (down from +50%).
 
 Half-Titans:
@@ -162,10 +194,14 @@ High-Elves:
 High Magi:
  Now get a mana bonus of +50% instead of the normal +25%.
  Pseudo-ID speed is based on magical realm (faster pseudo-ID for those
-   realms that get Identify later, or not at all)
+   realms that get Identify later, or not at all).
 
 Monks:
  Stealth skill now 4 (was 5).
+
+Nibelungs:
+## Magic Mapping is added to their racial activation at level 35.
+## Racial activation now costs 10 (was 5).
 
 Priests:
  The penalty for using edged weapons is now a *real* penalty of (-15,-15)
@@ -196,13 +232,9 @@ Rogues:
    damage (ie, x5 to x10!) and stabbing a fleeing monster deals x3 normal
    damage (instead of the original x1.5).
 
-Skeletons:
- No longer starts at night as they did in the previous version.
-
 Spectres:
  No longer gains telepathy at level 35.
  No longer glows (permanent lite) as they did in the previous version.
- No longer starts at night as they did in the previous version.
 
 Vampires:
  Takes damage from wielding *any* light source (either in the Light slot or
@@ -232,8 +264,7 @@ Weaponmasters:
  Weaponmasters gain extra blows when wielding a weapon in their specialty
    class (extra blows at levels 15, 30 and 45), but never have more than one
    blow, regardless of Str & Dex and any magical considerations, when
-   wielding other weapons. [a Weaponmaster specializing in Axes wielding
-   Ringil is a laughable sight :]
+   wielding other weapons.
  Gains Fear Resistance at level 30.
  No spellcasting.
  XP penalty of 30%.
@@ -241,15 +272,17 @@ Weaponmasters:
 Yeeks:
  Acid Immunity comes in at level 30, instead of the original level 20.
 
-Zombies:
- No longer starts at night as they did in the previous version.
-
 
               ####### Monster-Related Changes #######
 
  Bumped Sauron to level 97 and replaced Oberon, and the Serpent of Chaos
  with the three Sword Rulers (Arioch, Xiombarg and Mabelrode), all three of
  which must be now be defeated to win.
+
+## Mabelrode had too many hit points (35000), causing him to die in one blow
+ since I forgot to take into account the fact that monster HPs are stored in
+ a signed 16-bit int variable, with a limit of 32k or so. :) He has been
+ reduced to 32000 hit points, which is the main point of this update.
 
  Monsters with HURT_FIRE or HURT_COLD take +50% damage from those sources.
 
@@ -268,43 +301,43 @@ Zombies:
  New monster blow effect: RBE_HALLU (causes hallucinations, preventable with
  Resist Chaos or a saving throw).
 
- New monster spell flags: BOULDER_1 (radius 0 ball, 3+(monlevel/10)d6
- GF_ARROW damage, "The Foo throws a boulder.") and BOULDER_2 (radius 1 ball,
+## New monster spell flags: BOULDER_1 (radius 1 ball, 3+(monlevel/10)d6
+ GF_ARROW damage, "The Foo throws a boulder.") and BOULDER_2 (radius 2 ball,
  6+(monlevel/5)d6 GF_ARROW damage, "The Foo throws a large boulder.").
  Basically, they are just slightly reworked ARROW_# spells, except that they
- cannot be reflected as arrows can.
+ cannot be reflected as arrows can. [previously, BOULDER_1 *could* be
+ reflected since the reflection code reflects anything with a 0 radius]
 
  Undead monsters are no longer totally immune to Nether attacks. Instead,
  they resist at 1/9th normal damage (compared to 1/3rd for those who resist
  Nether and 1/2 for Evil creatures).
 
-## Nexus attacks can now teleport monsters (who don't resist nexus or
+ Nexus attacks can now teleport monsters (who don't resist nexus or
  teleportation, or who fail the saving throw) short distances.
 
  Defined humanoid monsters as a monster with one of the following symbols:
- "AhkNoOpPtTyYVW" Used for Slay Humanoid and the backstab attack of Rogues.
+ "AhkNoOpPtTyYVW". Used for Slay Humanoid and the backstab attack of Rogues.
 
  If you feel righteous [ie, Bless/Prayer spells and scrolls], then your
  equipment won't become cursed from a monster's CAUSE_# or Hand of Doom
  spell attacks.
 
- The monster health bar has been updated to show if a monster is stunned
- (light brown) or confused (dark brown).
-
  The Hand of Doom also TY-Curses you if you don't save, and is also a bit
  harder to resist.
+
+ The monster health bar has been updated to show if a monster is stunned
+ (light brown) or confused (dark brown).
 
  Uniques no longer get automatic resistance to sleep, confusion, slowing,
  etc., and the saving throw for all creatures against such attacks is a bit
  weaker. [Uniques still can't be charmed, however]
 
- New option: stupid_groups.  If 'stupid_monsters' is off, this option
+ New option: stupid_groups. If 'stupid_monsters' is off, this option
  controls whether group monsters will hide out in rooms, away from and out
  of sight of the entrance, or if they will act like normal...
 
-## When a pet of yours kills a monster, you will get one half of the XP that
- you would have gotten for killing the monster yourself. [of course, pets
- don't do much killing since the AI sucks :]
+ When a pet of yours kills a monster, you will get one half of the XP that
+ you would have gotten for killing the monster yourself.
 
 
                ####### Object-Related Changes #######
@@ -364,25 +397,32 @@ Zombies:
  Cannot pseudo-ID items while blind (can't judge quality if you can't see
  the item), Berserk (not thinking of anything but smashing people :), cut,
  stunned, hallucinating, poisoned, scared or paralyzed, as well as while
- confused, of course. IE, you've got far too many other things on your mind
- to be thinking about or looking at that mysterious item in your pack and
- trying to figure out how valuable it might be. :)
+ confused, of course.
 
  'Scrolls of Rune of Protection' have become 'Scrolls of Runes' and now
  create a 'Sea of Runes' (as per the Life spell formerly known as 'Warding
  True'). Of course, the scroll is now a lot rarer and more expensive.
 
-## Rods and artifacts now display how much time is left before they are
- recharged.
+ Rods and other activated items now display how much time is left before
+ they are recharged.
 
-## Holy Avengers and weapons of Extra Attacks & Earthquakes could get more
- than their maximum pval (4, 3 and 6, respectively) if their base weapon had
- its own pval (ie, Sledgehammers). This has been fixed (after getting an HA
- Sledgehammer with +5 attacks :).
+## Added weapons of Haste (weapons with a 1-5 point speed bonus) from
+ DrAngband.
 
-## Oops! Slaughter Axes (the axe equivalent to Maces of Disruption, Blades
- of Chaos and Scythes of Slicing) somehow lost a '0' in their weight, making
- them 3lbs instead of the proper 30lbs! :) Fixed now, of course. :)
+## Added Wands of Striking, also from DrAngband. Deals 8d8 GF_FORCE (which,
+ as explained below, knocks the target creature backwards) damage, has a
+ base price of 800au, and is a level 20, rarity 2 item.
+
+## Added more ego ammos: Slay Undead, Slay Demon, Slay Giant, Slay Elemental
+ and ammo of Poison. [the first four because I saw the extra HURT_FOO ammos
+ in DrAng's defines.h, the last one 'cause I thought it appropriate]
+
+## The dice on ego-ammunition can be supercharged just as it can on regular
+ ego-items and random artifacts.
+
+
+## Slime Molds are now auto-inscribed with names. :) Thanks to Fufie of
+ #angband for this patch. This can be disabled via the name_slimes option.
 
 
                    ####### Spellcasting #######
@@ -395,8 +435,8 @@ Zombies:
  Failure rates for spellcasting are adjusted as follows:
    Wearing gloves (without Free Action or a Dexterity bonus) for mage-type
       spellcasters (+15%) [was +25%]
-   Being encumbered by heavy armour [penalty to fail equal to the amount of
-      mana you again lose for heavy armour; was +15% fail]
+## Being encumbered by heavy armour [penalty to fail equal to half of the
+      amount of mana you again lose for heavy armour; was +15% fail]
    Priests wielding a non-blessed edged weapon (+15%) [was +25%]
    Being Berserk (+25%)
    Being stunned (+15%/+25%)
@@ -405,12 +445,20 @@ Zombies:
  spell failure rate, no matter how high their spell-stat or level is.
  [penalties are assessed after bonuses]
 
- The various branding spells can now be used on non-stacked items in the
- inventory and on the floor. Shopkeepers will only buy player-branded melee
- weapons at 35% off the normal price.
+## The various branding spells have been drastically reduced in level and
+ casting cost, except for Vampiric Branding (which is fine right where it's
+ always been :), and now appear at points in the game that the player might
+ actually get some use out of the weapons so created. Stores will *NOT* buy
+ player-branded weapons, however, under any circumstances. [Sorcery's
+ 'Enchant Foo' spells have also remained where they've always been.]
 
- Decreased the armour weight limits before penalties to spellcasting kick
- in. See ./help/birth.txt for the actual numbers.
+## The various branding spells can now add their brand to normal ego-items.
+ *Only* the brand will be added, not any supplementary abilities (except in
+ the case of Trump Branding, which adds Slay Evil and Teleport). As above,
+ these items will become completely unsellable.
+
+## Altered the armour weight limits for spellcasting again. See
+ ./help/birth.txt for the actual numbers.
 
 Chaos:
  'Mana Burst' now has a straight 5% chance of producing a true ball of mana
@@ -420,6 +468,13 @@ Chaos:
    the missile ball.
  'Wonder' now deals a *lot* more damage than standard spells, to make up for
    the randomness which normally makes it a useless spell.
+## 'Fist of Force' is now a GF_FORCE effect instead of a GF_DISINTEGRATE
+   effect, and has been slightly reduced in damage (to the same level as
+   'Fire Bolt').
+## 'Trap/Door Destruction' now destroys unrevealed secret doors. (This also
+   applies to the non-spell versions of this effect)
+## 'Doom Bolt' renamed 'Mana Bolt' and no longer has a 100% chance of
+   beaming.
 
 Death:
  'Wraithform' now lasts (randint(plev) + (plev/2)), making it useful.
@@ -464,16 +519,13 @@ Trump:
    as 'Reset Recall'.
  'Trump Reach' [aka 'Telekinesis'] has become 'Nexus Bolt' [beam, actually],
    with the same damage potential as Chaos' 'Fire Bolt'.
- Altered levels, costs and fail rates of many spells to reasonable levels,
-   including making 'Teleport', 'Teleport Level', and 'Word of Recall'
-   competitive with the Sorcery versions. [after all, transport is supposed
-   to be Trump's secondary specialty - this mostly affects High Magi]
 
 
                   ####### Other People's Work #######
 
 (NOTE: I might have missed one or two, but no biggie. :] Mail me if you spot
-your own work so I can credit you properly...)
+your own work so I can credit you properly...  And some, of course, is
+covered up in the main text)
 
 01) Kieron Dunbar's Stormbringer patch, to put Stormy in the a_info & k_info
 text files instead of creating it on the fly.
@@ -496,31 +548,8 @@ keysets].  You can now control if pets can pick up objects or open doors, or
 forbid those things, tell your pets to follow you closely or to wander at a
 distance and, of course, dismiss your pets.
 
-
-                ####### Bugs Pending and Fixed #######
-
-01) There are too many potions in the game at the moment, so a few potions
-cannot be generated via debug mode's item creation menus since the list runs
-out of symbols fairly quickly. It is not a priority to fix.
-
-02) If you look through the entire monster list ['/' then CTRL-a] while the
-'know all monster info' cheat is active, you will see the occasional blank
-monster (ie, The ('')/(''): [(r)ecall, ESC]). This is because there are
-still empty slots in r_info.txt, which I will eventually fill.
-
-03) Like with Chaos Patrons, when you go to a 'p'revious character, the
-current Weaponmaster specialty remains, instead of restoring the older
-character's specialty. If you then continue rolling, a new specialty will be
-randomly chosen, of course. Not worth the effort to fix, IMHO.
-
-04) Sometimes, completely at random, the Roguelike option will set itself to
-true upon startup. I have no idea why...
-
-05) Unfortunately, it seems that sometimes the game will freeze when you
-enter a level. I have no idea why, as usual. :( All I can suggest, until I
-figure this out, is that if this happens right after a save, that you move
-your character around a bit before taking the stairs or WoR'ing into the
-level that just froze you - that usually changes the RNG enough so that the
-freeze won't happen a second time. This seems to happen deeper in the
-dungeon when you've got a lot of monsters - maybe something to do with the
-random quests...
+##06) Added APW's 'push-back' effect for GF_FORCE from DrAngband. Many
+thanks to APW and DarkGod for their help in trying to get it working right.
+[if the monster so hit doesn't seem to get knocked back, it's because they
+have taken their move, and the first thing they'll do most times is move
+right towards you]

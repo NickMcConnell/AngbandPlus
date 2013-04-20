@@ -97,7 +97,7 @@ A:\e\e\e*tm2b
 P:^_x3C\r
 
 # F3 - Vampiric Drain
-A:m2d
+A:m2e
 P:^_x3D\r
 
 # F4 - Dark Bolt
@@ -123,7 +123,7 @@ A:m3d
 P:^_x42\r
 
 # F9 - Terror
-A:m2c
+A:m2d
 P:^_x43\r
 
 # F10 - Mass Sleep

@@ -3718,15 +3718,23 @@ static bool cave_gen(void)
 	*/
 	if (is_quest(dun_level, FALSE))
 	{
-		int q_idx,r_idx;
+		int q_idx, r_idx;
+
+		if (cheat_xtra)
+			msg_print("Start placing quest monsters.");
 		
 		r_idx = get_quest_monster();
 		q_idx = get_quest_number();
+
 		if (q_list[q_idx].cur_num != 0) q_list[q_idx].cur_num = 0;
+
 		while (r_info[r_idx].cur_num < q_list[q_idx].max_num)
 		{
 			put_quest_monster(q_list[q_idx].r_idx);
 		}
+
+		if (cheat_xtra)
+			msg_print("Done placing quest monsters.");
 	}
 	
 	/* Pick a base number of monsters */

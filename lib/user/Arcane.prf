@@ -19,7 +19,7 @@
 #   Z - Phlogiston
 
 # TAB - Teleport Other
-A:m3f
+A:m3g
 P:\t
 
 # [ - Magic Mapping
@@ -43,7 +43,7 @@ A:m2e
 C:0:;
 
 # : - Brand Weapon
-A:m4c
+A:m3f
 C:0::
 
 # h - Resist Environment
@@ -51,7 +51,7 @@ A:m2a
 C:0:h
 
 # H - Haste Self
-A:m3g
+A:m3h
 C:0:H
 
 # J - Identify
@@ -109,11 +109,11 @@ A:\e\e\e*tm2d
 P:^_x3F\r
 
 # F6 - Vampiric Drain
-A:m3h
+A:m4a
 P:^_x40\r
 
 # F7 - Ball Lightning
-A:m4a
+A:m4b
 P:^_x41\r
 
 # F8 - Poison Gas
@@ -135,7 +135,7 @@ A:m3e
 P:^_x85\r
 
 # F12 - Healing (250)
-A:m4b
+A:m4c
 P:^_x86\r
 
 # Miscellaneous

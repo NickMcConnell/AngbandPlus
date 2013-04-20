@@ -1174,14 +1174,16 @@ void do_cmd_cast(void)
 		if (!get_aim_dir(&dir)) return;
 		fire_bolt_or_beam(beam, GF_FIRE, dir, damroll(9+((plev-5)/3), 8));
 		break;
-	case 6: /* Fist of Force ("Fist of Fun") */
+	case 6: /* Fist of Force (was GF_DISINTEGRATE) */
 		if (!get_aim_dir(&dir)) return;
-		fire_ball(GF_DISINTEGRATE, dir, damroll(12+((plev-5)/3), 8), 0);
+		fire_bolt(GF_FORCE, dir, damroll(9+((plev-5)/3), 8));
 		break;
 	case 7: /* Teleport Self */
 		teleport_player(randint(150)+50);
 		break;
-        case 8: /* Wonder */
+        case 8: /* Chaos Branding */
+		brand_weapon(1); break;
+        case 9: /* Wonder */
 	{
 		/*
 		 * This spell should become more useful (more controlled) as
@@ -1237,26 +1239,24 @@ void do_cmd_cast(void)
 		break;
 	}
 	break;
-	case 9: /* Chaos Bolt */
+	case 10: /* Chaos Bolt */
 		if (!get_aim_dir(&dir)) return;
 		fire_bolt_or_beam(beam, GF_CHAOS, dir,
 					damroll(15 + ((plev - 5) / 3), 8));
 		break;
-        case 10: /* Sonic Boom */
+        case 11: /* Sonic Boom */
 		msg_print("BOOM! Shake the room!");
 		project(0, FALSE, 2+plev/10, py, px, 65 + plev, GF_SOUND,
 					PROJECT_KILL | PROJECT_ITEM);
 		break;
-        case 11: /* Doom Bolt -- always beam in 2.0.7 or later */
+        case 12: /* Mana Bolt (was Doom Bolt) */
 		if (!get_aim_dir(&dir)) return;
-		fire_beam(GF_MANA, dir, damroll(11+ ((plev - 5) / 3), 8));
+		fire_bolt_or_beam(beam + 20, GF_MANA, dir, damroll(11 + ((plev - 5) / 3), 8));
 		break;
-	case 12: /* Fire Ball */
+	case 13: /* Fire Ball */
 		if (!get_aim_dir(&dir)) return;
 		fire_ball(GF_FIRE, dir, 80 + (plev), 2);
 		break;
-        case 13: /* Chaos Branding */
-		brand_weapon(1); break;
 	case 14: /* Word of Destruction */
 		msg_print("The dungeon rumbles...");
 		destroy_area(py, px, 15, TRUE);
@@ -1266,28 +1266,28 @@ void do_cmd_cast(void)
 		fire_ball(GF_CHAOS, dir, 100 + (plev), (plev / 5));
 		break;
         case 16: /* Polymorph Other */
-			if (!get_aim_dir(&dir)) return;
-			(void)poly_monster(dir);
-			break;
+		if (!get_aim_dir(&dir)) return;
+		(void)poly_monster(dir);
+		break;
         case 17: /* Chain Lightning */
-          for (dir = 0; dir <= 9; dir++)
-            fire_beam(GF_ELEC, dir, damroll(10+(plev/5), 8));
-           break;
+		for (dir = 0; dir <= 9; dir++)
+		{
+			fire_beam(GF_ELEC, dir, damroll(10 + (plev / 5), 8));
+		}
+		break;
         case 18: /* Arcane Binding == Charging */
-			(void)recharge(50 + plev);
-			break;
+		(void)recharge(50 + plev);
+		break;
         case 19: /* Disintegration */
-			if (!get_aim_dir(&dir)) return;
-           fire_ball(GF_DISINTEGRATE, dir,
-               125 + (plev), 3 + (plev/40));
-               break;
-            break;
+		if (!get_aim_dir(&dir)) return;
+		fire_ball(GF_DISINTEGRATE, dir, 100 + (plev * 4), 3 + (plev/40));
+		break;
 	case 20: /* Teleport Other */
 		if (!get_aim_dir(&dir)) return;
 		(void)fire_beam(GF_AWAY_ALL, dir, plev);
 		break;
         case 21: /* Alter Reality */
-			msg_print("The world changes!");
+		msg_print("The world changes!");
                 if (autosave_l)
                 {
                     is_autosave = TRUE;
@@ -1295,8 +1295,8 @@ void do_cmd_cast(void)
                     do_cmd_save_game();
                     is_autosave = FALSE;
                 }
-			new_level_flag = TRUE;
-			break;
+		new_level_flag = TRUE;
+		break;
         case 22: /* Polymorph Self */
             do_poly_self();
 	    break;
@@ -1353,7 +1353,7 @@ void do_cmd_cast(void)
 		}
 		break;
 	case 26: /* Flame Strike */
-		fire_ball(GF_FIRE, 0, 200 + (2*plev), 8); break;
+		fire_ball(GF_FIRE, 0, 200 + (4*plev), 8); break;
         case 27: /* Call Chaos */
 		call_chaos(); break;
         case 28: /* Magic Rocket */
@@ -1381,41 +1381,39 @@ void do_cmd_cast(void)
 	  switch (spell)
 	  {
        case 0: /* Detect Undead & Demons -> Unlife*/
-       (void) detect_monsters_nonliving();
-		       break;
+		(void) detect_monsters_nonliving();
+		break;
        case 1: /* Malediction */
-         if (!get_aim_dir(&dir)) return;
-         /* A radius-0 ball may (1) be aimed at objects etc.,
-          * and will affect them; (2) may be aimed at ANY
-          * visible monster, unlike a 'bolt' which must travel
-          * to the monster. */
+	if (!get_aim_dir(&dir)) return;
 
-         fire_ball(GF_HELL_FIRE, dir,
-           damroll(3 + ((plev - 1) / 3), 4), 0);
-         if (randint(5)==1) {   /* Special effect first */
-         dummy = randint(1000);
-         if (dummy == 666)
-           fire_bolt(GF_DEATH_RAY, dir, plev);
-         else if (dummy < 500)
-           fire_bolt(GF_TURN_ALL, dir, plev);
-         else if (dummy < 800)
-           fire_bolt(GF_OLD_CONF, dir, plev);
-         else
-           fire_bolt(GF_STUN, dir, plev);
-         }
-         break;
+	/*
+	 * A radius-0 ball may (1) be aimed at objects etc., and will
+	 * affect them; (2) may be aimed at ANY visible monster, unlike a
+	 * 'bolt' which must travel to the monster.
+	 */
+	fire_ball(GF_HELL_FIRE, dir, damroll(3 + ((plev - 1) / 3), 4), 0);
+
+	if (randint(5)==1)	/* Special effect first */
+	{
+		dummy = randint(1000);
+
+		if (dummy == 666)     fire_bolt(GF_DEATH_RAY, dir, plev);
+		else if (dummy < 500) fire_bolt(GF_TURN_ALL, dir, plev);
+		else if (dummy < 800) fire_bolt(GF_OLD_CONF, dir, plev);
+		else                  fire_bolt(GF_STUN, dir, plev);
+	}
+	break;
        case 2: /* Detect Evil */
-			(void)detect_monsters_evil();
-		       break; 
+		(void)detect_monsters_evil();
+		break; 
 	   case 3: /* Stinking Cloud */
-			if (!get_aim_dir(&dir)) return;
-			fire_ball(GF_POIS, dir,
-				15 + (plev / 2), 2);
-		       break;
+		if (!get_aim_dir(&dir)) return;
+		fire_ball(GF_POIS, dir, 15 + (plev / 2), 2);
+		break;
 	   case 4: /* Black Sleep */
-			if (!get_aim_dir(&dir)) return;
-			(void)sleep_monster(dir);
-		       break;
+		if (!get_aim_dir(&dir)) return;
+		(void)sleep_monster(dir);
+		break;
 	case 5: /* Resist Poison */
 		(void)set_oppose_pois(p_ptr->oppose_pois + randint(20) + 20);
 		break;
@@ -1436,10 +1434,11 @@ void do_cmd_cast(void)
 		if (!get_aim_dir(&dir)) return;
 		fire_bolt_or_beam(beam, GF_NETHER, dir, damroll(9+((plev-5)/3), 8));
 		break;
-       case 10: /* Terror */
-             turn_monsters(30+plev);
-             break;
-	   case 11: /* Vampiric Drain */
+       case 10: /* Poison Branding */
+		brand_weapon(2); break;
+       case 11: /* Terror */
+             turn_monsters(30+plev); break;
+	   case 12: /* Vampiric Drain */
        if (!get_aim_dir(&dir)) return;
        dummy = plev + randint(plev) * MAX(1, plev/10);   /* Dmg */
                  if (drain_life(dir, dummy)) {
@@ -1453,9 +1452,6 @@ void do_cmd_cast(void)
              (void)set_food(dummy >= PY_FOOD_MAX ? PY_FOOD_MAX-1 : dummy);
        }
          break;
-       case 12: /* Poison Branding */
-		brand_weapon(2);
-		break;
        case 13: /* Cloud Kill (was Dispel Good) */
 		if (!get_aim_dir(&dir)) return;
 		fire_ball(GF_POIS, dir, 100 + plev, (plev/10)+1);
@@ -1761,14 +1757,15 @@ void do_cmd_cast(void)
 		if (!get_aim_dir(&dir)) return;
 		(void)fire_beam(GF_AWAY_ALL, dir, plev);
 		break;
-        case 8: /* Teleport Level */
-		(void)teleport_player_level();
-		break;
-	case 9: /* Nexus Bolt */
+	case 8: /* Trump Branding */
+		brand_weapon(4); break;
+        case 9: /* Teleport Level */
+		(void)teleport_player_level(); break;
+	case 10: /* Nexus Bolt */
 		if (!get_aim_dir(&dir)) return;
 		(void)fire_beam(GF_NEXUS, dir, 9+((plev-5)/3));
 		break;
-        case 10: /* Trump Animal */
+        case 11: /* Trump Animal */
         {
             msg_print ("You concentrate on the trump of an animal...");
             if (randint(5)>2)
@@ -1789,7 +1786,7 @@ void do_cmd_cast(void)
             }
         }
         break;
-        case 11: /* Word of Recall */
+        case 12: /* Word of Recall */
 		{
 			/* Astral beings don't WoR! -- G */
 			if (p_ptr->astral)
@@ -1816,7 +1813,7 @@ void do_cmd_cast(void)
 			}
 			break;
 		}
-        case 12: /* Phantasmal Servant */
+        case 13: /* Phantasmal Servant */
                if (summon_specific_friendly(py, px, (plev*3)/2, SUMMON_PHANTOM, FALSE))
                {
                     msg_print ("'Your wish, master?'");
@@ -1826,7 +1823,7 @@ void do_cmd_cast(void)
                     no_trump = TRUE;
                 }
         break;
-        case 13: /* Trump Monster */
+        case 14: /* Trump Monster */
         {
             msg_print ("You concentrate on the trump of a monster...");
             if (randint(5)>2)
@@ -1847,7 +1844,7 @@ void do_cmd_cast(void)
             }
         }
         break;
-        case 14: /* Conjure Elemental */
+        case 15: /* Conjure Elemental */
         {
             if (randint(6)>3)
             {
@@ -1866,11 +1863,7 @@ void do_cmd_cast(void)
                 }
             }
         }
-
         break;
-	case 15: /* Trump Branding */
-		brand_weapon(4);
-		break;
         case 16: /* Joker Card */
             msg_print("You concentrate on a joker card...");
             switch(randint(4))
@@ -2222,17 +2215,21 @@ void do_cmd_cast(void)
 			(void)set_stun(0);
 			(void)set_cut(0);
 			break;
-		case 21: /* Teleport Other */
+		case 21: /* Brand Weapon */
+			brand_weapon(rand_int(6)); break;
+		case 22: /* Teleport Other */
 			if (!get_aim_dir(&dir)) return;
 			(void)fire_beam(GF_AWAY_ALL, dir, plev);
 			break;
-		case 22: /* Haste Self */
+		case 23: /* Haste Self */
 			if (!p_ptr->fast)
 				(void)set_fast(randint(plev) + plev);
 			else
 				(void)set_fast(p_ptr->fast + randint(plev));
 			break;
- 		case 23: /* Vampiric Drain */
+
+		/* Manual of Mastery */
+ 		case 24: /* Vampiric Drain */
 			if (!get_aim_dir(&dir)) return;
 			dummy = plev + randint(plev) * MAX(1, plev/10);
 			if (drain_life(dir, dummy))
@@ -2243,19 +2240,15 @@ void do_cmd_cast(void)
 					(void)set_food(dummy >= PY_FOOD_MAX ? PY_FOOD_MAX-1 : dummy);
 			}
 			break;
-
-		/* Manual of Mastery */
-		case 24: /* Ball Lightning */
+		case 25: /* Ball Lightning */
 			if (!get_aim_dir(&dir)) return;
 			fire_ball(GF_ELEC, dir, 80 + (plev), 2);
 			break;
-		case 25: /* Healing */
+		case 26: /* Healing */
 			(void)hp_player(250);
 			(void)set_stun(0);
 			(void)set_cut(0);
 			break;
-		case 26: /* Brand Weapon */
-			brand_weapon(rand_int(6)); break;
 		case 27: /* Summon Monster */
 			if (!(summon_specific_friendly(py, px, plev, SUMMON_NO_UNIQUES, FALSE)))
 				no_trump = TRUE;

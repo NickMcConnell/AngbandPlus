@@ -387,7 +387,14 @@ W:0:0:0:5000
 C:0:0:0:3
 F:WIS | BLESSED | RAND_ABILITY
 
-# 67 (unused)
+# Weapons of Haste taken from DrAngband (v2.9.8), except for the random
+# ability...
+
+N:67:of Haste
+X:24:20
+W:0:0:0:10000
+C:0:0:0:5
+F:SPEED | RAND_ABILITY
 
 N:68:of Westernesse
 X:24:20
@@ -624,47 +631,62 @@ F:XTRA_SHOTS
 
 ### Ammo ###
 
-N:112:of Hurt Animal
+N:112:of Slay Animal
 X:23:10
-W:0:0:0:25
+W:0:0:0:30
 F:SLAY_ANIMAL
 
-N:113:of Hurt Evil
+N:113:of Slay Evil
 X:23:10
-W:0:0:0:25
+W:0:0:0:30
 F:SLAY_EVIL
 
-# 114 (unused)
+N:114:of Slay Undead
+X:23:10
+F:SLAY_UNDEAD
+W:0:0:0:30
 
-# 115 (unused)
+N:115:of Slay Demon
+X:23:10
+F:SLAY_DEMON
+W:0:0:0:30
 
-# 116 (unused)
+N:116:of Slay Giant
+X:23:10
+F:SLAY_GIANT
+W:0:0:0:25
 
-# 117 (unused)
+N:117:of Slay Elemental
+X:23:10
+F:SLAY_ELEMENTAL
+W:0:0:0:25
 
-# 118 (unused)
+N:118:of Poison
+X:23:10
+F:BRAND_POIS
+W:0:0:0:30
 
-N:119:of Hurt Dragon
+N:119:of Slay Dragon
 X:23:10
 F:SLAY_DRAGON
-W:0:0:0:35
+W:0:0:0:30
 
 N:120:of Slaying
 X:23:15
 W:0:0:0:20
 C:12:12:0:0
 
-N:121:of Shocking
+N:121:of Lightning
 X:23:10
 F:BRAND_ELEC | IGNORE_ELEC
 W:0:0:0:30
 
-N:122:of Flame
+N:122:of Fire
 X:23:10
 F:BRAND_FIRE | IGNORE_FIRE
 W:0:0:0:30
 
-N:123:of Frost
+N:123:of Ice
 X:23:10
 F:BRAND_COLD | IGNORE_COLD
 W:0:0:0:25

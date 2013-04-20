@@ -4,7 +4,7 @@
 #   [ - Arcane Binding      F2 - Fire Bolt           SF2 - Sonic Boom
 #   ] - Chaos Branding      F3 - Fist of Force       SF3 - Fire Ball
 #   ' - Teleport Self       F4 - Chaos Bolt          SF4 - Invoke Chaos
-#   " - Alter Reality       F5 - Doom Bolt           SF5 - Chain Lightning
+#   " - Alter Reality       F5 - Mana Bolt           SF5 - Chain Lightning
 #   ; - Trap/Door Destruct. F6 - Polymorph Other     SF6 - Disintegrate
 #   : - Word of Destruction F7 - Beam of Gravity     SF7 - Meteor Swarm
 #   Z - Flash of Light      F8 - Call the Void       SF8 - Flame Strike
@@ -22,7 +22,7 @@ A:m3c
 C:0:[
 
 # ] - Chaos Branding
-A:m2f
+A:m2a
 C:0:]
 
 # ' - Teleport Self
@@ -56,15 +56,15 @@ A:\e\e\e*tm1f
 P:^_x3C\r
 
 # F3 - Fist of Force
-A:m1g
+A:\e\e\e*tm1g
 P:^_x3D\r
 
 # F4 - Chaos Bolt
-A:\e\e\e*tm2b
+A:\e\e\e*tm2c
 P:^_x3E\r
 
-# F5 - Doom Bolt
-A:\e\e\e*tm2d
+# F5 - Mana Bolt
+A:\e\e\e*tm2e
 P:^_x3F\r
 
 # F6 - Polymorph Other
@@ -86,7 +86,7 @@ A:m1d
 P:^_x43\r
 
 # F10 - Wonder
-A:m2a
+A:m2b
 P:^_x44\r
 
 # F11 - Polymorph Self
@@ -104,11 +104,11 @@ A:m1e
 P:^_Sx54\r
 
 # SHIFT-F2 - Sonic Boom
-A:m2c
+A:m2d
 P:^_Sx55\r
 
 # SHIFT-F3 - Fire Ball
-A:m2e
+A:m2f
 P:^_Sx56\r
 
 # SHIFT-F4 - Invoke Chaos

@@ -59,11 +59,11 @@ A:m5f
 C:0:J
 
 # n - Teleport Level
-A:m6a
+A:m6b
 C:0:n
 
 # N - Word of Recall
-A:m6d
+A:m6e
 C:0:N
 
 # O - Charm Monster
@@ -139,11 +139,11 @@ P:^_x86\r
 # Trump Summoning
 
 # SHIFT-F1 - Phantasmal Servant
-A:m6e
+A:m6f
 P:^_Sx54\r
 
 # SHIFT-F2 - Trump Monster
-A:m6f
+A:m6g
 P:^_Sx55\r
 
 # SHIFT-F3 - Trump Spiders

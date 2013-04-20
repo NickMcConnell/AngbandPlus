@@ -242,6 +242,7 @@ extern bool auto_destroy;
 extern bool wear_confirm;
 extern bool confirm_stairs;
 extern bool disturb_pets;
+extern bool name_slimes;
 extern bool shuffle_songs;
 extern bool mute_songs;
 extern bool mute_sounds;
@@ -615,6 +616,7 @@ extern void update_smart_learn(int m_idx, int what);
 extern bool summon_specific_friendly(int y1, int x1, int lev, int type, bool Group_ok);
 extern bool place_monster_one(int y, int x, int r_idx, bool slp, bool charm);
 extern void monster_drop_carried_objects(monster_type *m_ptr);
+extern void monster_swap(int y1, int x1, int y2, int x2);
 
 /* object1.c */
 /* object2.c */

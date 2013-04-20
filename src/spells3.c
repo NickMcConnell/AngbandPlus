@@ -1838,6 +1838,7 @@ bool brand_weapon(int brand_type)
 {
 	int		item;
 	object_type	*o_ptr;
+	ego_item_type	*e_ptr;
 
 	/* Taken from bless_weapon() to allow the branding of inven items */
 	/* Get an item (from equip or inven or floor) */
@@ -1856,13 +1857,19 @@ bool brand_weapon(int brand_type)
 		o_ptr = &o_list[0 - item];
 	}
 
-	/* you can never modify artifacts / ego-items */
+	/* you can never modify artifacts */
 	/* you can never modify cursed items */
 	/* TY: You _can_ modify broken items (if you're silly enough) */
-	/* Gum: You can only modify melee weapons */
-	/* Gum: You cannot modify stacks */
-	if ((o_ptr->k_idx) &&
-	    (!artifact_p(o_ptr)) && (!ego_item_p(o_ptr)) &&
+	/*
+	 * Gum: You can only modify melee weapons.
+	 *      You cannot modify stacks.
+	 *      Using on an ego-item will add the brand, tho not any
+	 *         supplementary abilities, to the weapon.
+	 *      Using this on an ego-item *WILL* make that item unsellable,
+	 *         just as the ego-items made from plain weapons cannot be
+	 *         sold...
+	 */
+	if ((o_ptr->k_idx) && (!artifact_p(o_ptr)) &&
 	    (!(o_ptr->art_name)) && (!cursed_p(o_ptr)) &&
 	    ((o_ptr->tval > TV_DIGGING) && (o_ptr->tval < TV_BOOTS)) &&
 	    (o_ptr->number == 1))
@@ -1879,54 +1886,134 @@ bool brand_weapon(int brand_type)
 				if (o_ptr->tval == TV_HAFTED)
 				{
 					act = "makes the ground rumble in fear.";
-					o_ptr->name2 = EGO_EARTHQUAKES;
-					o_ptr->pval = randint(3);
+
+					if (ego_item_p(o_ptr))
+					{
+						o_ptr->art_flags1 |= TR1_IMPACT;
+					}
+					else
+					{
+						o_ptr->name2 = EGO_EARTHQUAKES;
+						o_ptr->pval = randint(3);
+					}
 				}
 				else
 				{
 					act = "sharpens itself on the air.";
-					o_ptr->name2 = EGO_SHARPNESS;
-					o_ptr->pval = randint(3);
+
+					if (ego_item_p(o_ptr))
+					{
+						o_ptr->art_flags1 |= TR1_VORPAL;
+					}
+					else
+					{
+						o_ptr->name2 = EGO_SHARPNESS;
+						o_ptr->pval = randint(3);
+					}
 				}
 				break;
 			case 4:
 				act = "seems very unstable now.";
-				o_ptr->name2 = EGO_TRUMP;
-				o_ptr->pval = randint(3);
+
+				if (ego_item_p(o_ptr))
+				{
+					o_ptr->art_flags1 |= TR1_SLAY_EVIL;
+					o_ptr->art_flags3 |= TR3_TELEPORT;
+				}
+				else
+				{
+					o_ptr->name2 = EGO_TRUMP;
+					o_ptr->pval = randint(3);
+				}
 				break;
 			case 3:
 				act = "thirsts for blood!";
-				o_ptr->name2 = EGO_VAMPIRIC;
+
+				if (ego_item_p(o_ptr))
+				{
+					o_ptr->art_flags1 |= TR1_VAMPIRIC;
+				}
+				else
+				{
+					o_ptr->name2 = EGO_VAMPIRIC;
+				}
 				break;
 			case 2:
 				act = "begins to drip poison.";
-				o_ptr->name2 = EGO_BRAND_POIS;
+				if (ego_item_p(o_ptr))
+				{
+					o_ptr->art_flags1 |= TR1_BRAND_POIS;
+				}
+				else
+				{
+					o_ptr->name2 = EGO_BRAND_POIS;
+				}
 				break;
 			case 1:
 				act = "is engulfed in raw Chaos!";
-				o_ptr->name2 = EGO_CHAOTIC;
+
+				if (ego_item_p(o_ptr))
+				{
+					o_ptr->art_flags1 |= TR1_CHAOTIC;
+				}
+				else
+				{
+					o_ptr->name2 = EGO_CHAOTIC;
+				}
 				break;
 			default:
-				if (rand_int(100) < 25)
+				if (randint(2)==1)
 				{
 					act = "is engulfed in flames!";
-					o_ptr->name2 = EGO_BRAND_FIRE;
+
+					if (ego_item_p(o_ptr))
+					{
+						o_ptr->art_flags1 |= TR1_BRAND_FIRE;
+					}
+					else
+					{
+						o_ptr->name2 = EGO_BRAND_FIRE;
+					}
 				}
 				else
 				{
 					act = "is engulfed in ice!";
-					o_ptr->name2 = EGO_BRAND_COLD;
+
+					if (ego_item_p(o_ptr))
+					{
+						o_ptr->art_flags1 |= TR1_BRAND_COLD;
+					}
+					else
+					{
+						o_ptr->name2 = EGO_BRAND_COLD;
+					}
 				}
+				break;
 		}
 
 		msg_format("Your %s %s", o_name, act);
 
-		enchant(o_ptr, rand_int(3) + 4, ENCH_TOHIT | ENCH_TODAM);
+		enchant(o_ptr, randint(3)+(p_ptr->lev/10), ENCH_TOHIT | ENCH_TODAM);
 
-		/* Don't want the player to profit too much. -- Gumby */
-		if (o_ptr->discount < 35) o_ptr->discount = 35;
+		/* Add any random extras to newly created ego-items - G */
+		e_ptr = &e_info[o_ptr->name2];
 
-		/* You made it, you know it. */
+		if (e_ptr->flags2 & (TR2_RAND_SUSTAIN))
+			o_ptr->xtra1 = EGO_XTRA_SUSTAIN;
+
+		if (e_ptr->flags2 & (TR2_RAND_ABILITY))
+			o_ptr->xtra1 = EGO_XTRA_ABILITY;
+
+		if (e_ptr->flags2 & (TR2_RAND_RESIST))
+			o_ptr->xtra1 = EGO_XTRA_POWER;
+
+		/* Randomize the "xtra" power */
+		if (o_ptr->xtra1) o_ptr->xtra2 = randint(256);
+
+		/* Don't want the player to profit at all. -- Gumby */
+		o_ptr->ident |= IDENT_BROKEN;
+
+		/* You made it, you know it. -- Gumby */
 		o_ptr->ident |= IDENT_MENTAL;
 	}
 	else

@@ -1867,6 +1867,7 @@ static void charge_wand(object_type *o_ptr)
 		case SV_WAND_DRAGON_COLD:               o_ptr->pval = randint(3)  + 1; break;
 		case SV_WAND_DRAGON_BREATH:             o_ptr->pval = randint(3)  + 1; break;
 		case SV_WAND_ROCKETS:                   o_ptr->pval = randint(2)  + 1; break;
+		case SV_WAND_STRIKING:			o_ptr->pval = randint(8)  + 6; break;
 	}
 }
 
@@ -2006,7 +2007,7 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 			if (power > 1)
 			{
 				/* Roll for an ego-item */
-				switch (randint(44))
+				switch (randint(45))
 				{
 					case 1:
 					{
@@ -2247,6 +2248,15 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 						break;
 					}
 
+					case 43: /* taken from DrAngband */
+					{
+						o_ptr->name2 = EGO_HASTE;
+
+						if (o_ptr->pval > 5)
+							o_ptr->pval = 5;
+						break;
+					}
+
 					default: /* 2 slots for Sharpness - Hafted get Earthquake instead */
 					{
 						if (!(o_ptr->tval == TV_HAFTED))
@@ -2337,52 +2347,49 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 					}
 				}
 			}
-
 			break;
 		}
 
 
-		case TV_BOLT:
-		case TV_ARROW:
-		case TV_SHOT:
+		case TV_BOLT: case TV_ARROW: case TV_SHOT:
 		{
 			/* Very good */
 			if (power > 1)
 			{
 				/* Roll for ego-item */
-				switch (randint(12))
+				switch (randint(21))
 				{
-					case 1: case 2: case 3:
+					case 1: case 2:
 					{
 						o_ptr->name2 = EGO_WOUNDING;
 						break;
 					}
 
-					case 4:
+					case 3:
 					{
 						o_ptr->name2 = EGO_FLAME;
 						break;
 					}
 
-					case 5:
+					case 4:
 					{
 						o_ptr->name2 = EGO_FROST;
 						break;
 					}
 
-					case 6: case 7:
+					case 5: case 6:
 					{
 						o_ptr->name2 = EGO_HURT_ANIMAL;
 						break;
 					}
 
-					case 8: case 9:
+					case 7: case 8:
 					{
 						o_ptr->name2 = EGO_HURT_EVIL;
 						break;
 					}
 
-					case 10:
+					case 9: case 10:
 					{
 						o_ptr->name2 = EGO_HURT_DRAGON;
 						break;
@@ -2400,13 +2407,48 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 						o_ptr->dd++;
 						break;
 					}
+					case 13:
+					{
+						o_ptr->name2 = EGO_POISON_BOLT;
+						break;
+					}
+					case 14: case 15:
+					{
+						o_ptr->name2 = EGO_HURT_UNDEAD;
+						break;
+					}
+					case 16: case 17:
+					{
+						o_ptr->name2 = EGO_HURT_DEMON;
+						break;
+					}
+					case 18: case 19:
+					{
+						o_ptr->name2 = EGO_HURT_GIANT;
+						break;
+					}
+					case 20: case 21:
+					{
+						o_ptr->name2 = EGO_HURT_ELEMENTAL;
+						break;
+					}
 				}
 
 				/* Hack -- super-charge the damage dice */
-				while (rand_int(10L * o_ptr->dd * o_ptr->ds) == 0) o_ptr->dd++;
+				if (randint(50)==1)
+				{
+					o_ptr->dd++;
+				}
+				else
+				{
+					while (rand_int(10L * o_ptr->dd * o_ptr->ds) == 0)
+					{
+						o_ptr->dd++;
+					}
 
-				/* Hack -- restrict the damage dice */
-				if (o_ptr->dd > 9) o_ptr->dd = 9;
+					/* Hack -- Lower the damage dice */
+					if (o_ptr->dd > 9) o_ptr->dd = 9;
+				}
 			}
 
 			/* Very cursed */
@@ -3647,29 +3689,17 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 	/* Apply magic */
 	switch (o_ptr->tval)
 	{
-		case TV_DIGGING:
-		case TV_HAFTED:
-		case TV_POLEARM:
-		case TV_AXE:
-		case TV_SWORD:
-		case TV_BOW:
-		case TV_SHOT:
-		case TV_ARROW:
-		case TV_BOLT:
+		case TV_DIGGING: case TV_HAFTED: case TV_POLEARM:
+		case TV_AXE: case TV_SWORD: case TV_BOW: case TV_SHOT:
+		case TV_ARROW: case TV_BOLT:
 		{
 			if (power) a_m_aux_1(o_ptr, lev, power);
 			break;
 		}
 
-		case TV_DRAG_ARMOR:
-		case TV_HARD_ARMOR:
-		case TV_SOFT_ARMOR:
-		case TV_SHIELD:
-		case TV_HELM:
-		case TV_CROWN:
-		case TV_CLOAK:
-		case TV_GLOVES:
-		case TV_BOOTS:
+		case TV_DRAG_ARMOR: case TV_HARD_ARMOR: case TV_SOFT_ARMOR:
+		case TV_SHIELD: case TV_HELM: case TV_CROWN: case TV_CLOAK:
+		case TV_GLOVES: case TV_BOOTS:
 		{
 #if 1
 			if (power ||
@@ -3683,8 +3713,7 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 			break;
 		}
 
-		case TV_RING:
-		case TV_AMULET:
+		case TV_RING: case TV_AMULET:
 		{
 			if (!power && (rand_int(100) < 50)) power = -1;
 			a_m_aux_3(o_ptr, lev, power);
@@ -5402,7 +5431,7 @@ void display_spell_list(void)
 				/* Heavy armor increases fail rate */
 				if (((cur_wgt - max_wgt) / 10) > 0)
 				{
-					chance += ((cur_wgt - max_wgt) / 10);
+					chance += ((cur_wgt - max_wgt) / 20);
 				}
 			}
 
@@ -5594,7 +5623,7 @@ s16b spell_chance(int spell,int realm)
 		/* Heavy armor increases fail rate */
 		if (((cur_wgt - max_wgt) / 10) > 0)
 		{
-			chance += ((cur_wgt - max_wgt) / 10);
+			chance += ((cur_wgt - max_wgt) / 20);
 		}
 	}
 
@@ -5746,19 +5775,19 @@ static void spell_info(char *p, int spell, int realm)
 					case  2: sprintf(p, " dam %d", 10 + (plev / 2)); break;
 					case  4: sprintf(p, " dam %d", 25 + (plev + (plev / 2))); break; 
 					case  5: sprintf(p, " dam %dd8", 9 + ((plev-5) / 3)); break;
-					case  6: sprintf(p, " dam %dd8", 12 + ((plev-5) / 3)); break;
+					case  6: sprintf(p, " dam %dd8", 9 + ((plev-5) / 3)); break;
 					case  7: strcpy (p, " dist 50+d150"); break;
-					case  8: strcpy (p, " random"); break;
-					case  9: sprintf(p, " dam %dd8", 15 + ((plev-5) / 3)); break;
-					case 10: sprintf(p, " dam %d", 65 + plev); break;
-					case 11: sprintf(p, " dam %dd8", 11 + ((plev-5) / 3)); break;
-					case 12: sprintf(p, " dam %d", 80 + plev); break;
+					case  9: strcpy (p, " random"); break;
+					case 10: sprintf(p, " dam %dd8", 15 + ((plev-5) / 3)); break;
+					case 11: sprintf(p, " dam %d", 65 + plev); break;
+					case 12: sprintf(p, " dam %dd8", 11 + ((plev-5) / 3)); break;
+					case 13: sprintf(p, " dam %d", 80 + plev); break;
 					case 15: sprintf(p, " dam %d", 100 + plev); break;
 					case 17: sprintf(p, " dam %dd8", 10+(plev/5)); break;
-					case 19: sprintf(p, " dam %d", 125 + plev); break;
+					case 19: sprintf(p, " dam %d", 100 + (plev*4)); break;
 					case 24: sprintf(p, " dam %dd8", 14 + ((plev-5) / 3)); break;
 					case 25: sprintf(p, " dam %d each", plev * 4); break;
-					case 26: sprintf(p, " dam %d", 200 + (plev * 2)); break;
+					case 26: sprintf(p, " dam %d", 200 + (plev * 4)); break;
 					case 27: strcpy (p, " dam 75 / 150"); break;
 					case 28: sprintf(p, " dam %d", 200 + (plev * 2)); break;
 					case 29: sprintf(p, " dam %d", 400 + (plev * 2)); break;
@@ -5775,7 +5804,7 @@ static void spell_info(char *p, int spell, int realm)
 					case  5: sprintf(p, " dur 20+d20"); break;
 					case  8: sprintf(p, " dam %d", 25 + (plev + (plev / 2))); break;
 					case  9: sprintf(p, " dam %dd8", (9+((plev-5)/3))); break;
-					case 11: sprintf(p, " dm %d* 5+d15", 2 + (plev/15)); break;
+					case 12: sprintf(p, " dm %d* 5+d15", 2 + (plev/15)); break;
 					case 13: sprintf(p, " dam %d", 100 + plev); break;
 					case 16: strcpy (p, " dur 25+d25"); break;
 					case 17: sprintf(p, " dam %d", 5 * plev); break;
@@ -5799,8 +5828,8 @@ static void spell_info(char *p, int spell, int realm)
 					case  4: sprintf(p, " dist %d", 100 + (plev * 2)); break;
 					case  5: sprintf(p, " dist %d", plev+2); break;
 					case  6: strcpy (p, " dur 25+d30"); break;
-					case  9: sprintf(p, " dam %dd8", 9+((plev-5)/3)); break;
-					case 11: strcpy (p, " delay 15+d21"); break;
+					case 10: sprintf(p, " dam %dd8", 9+((plev-5)/3)); break;
+					case 12: strcpy (p, " delay 15+d21"); break;
 					case 22: sprintf(p, " dam %d", plev * 5); break;
 				}
 				break;
@@ -5818,10 +5847,10 @@ static void spell_info(char *p, int spell, int realm)
 					case 16: strcpy (p, " dam 6d8"); break;
 					case 18: sprintf(p, " dist %d", plev * 5); break;
 					case 20: strcpy (p, " heal 12d8"); break;
-					case 22: sprintf(p, " dur %d+d%d", plev, plev); break;
-					case 23: sprintf(p, " dm %d * 5+d15", 2 + (plev/15)); break;
-					case 24: sprintf(p, " dam %d", 80 + plev); break;
-					case 25: strcpy (p, " heal 250"); break;
+					case 23: sprintf(p, " dur %d+d%d", plev, plev); break;
+					case 24: sprintf(p, " dm %d * 5+d15", 2 + (plev/15)); break;
+					case 25: sprintf(p, " dam %d", 80 + plev); break;
+					case 26: strcpy (p, " heal 250"); break;
 					case 28: sprintf(p, " dam %d", 100 + plev); break;
 					case 30: strcpy (p, " delay 15+d21"); break;
 				}

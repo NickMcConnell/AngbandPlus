@@ -4,7 +4,7 @@
 #   [ - Magic Mapping       F2 - Fire Bolt           SF2 - Sonic Boom
 #   ] - Clairvoyance        F3 - Fist of Force       SF3 - Fire Ball
 #   ' - Identify            F4 - Chaos Bolt          SF4 - Invoke Chaos
-#   " - Insight             F5 - Doom Bolt           SF5 - Chain Lightning
+#   " - Insight             F5 - Mana Bolt           SF5 - Chain Lightning
 #   ; - Trap/Door Destruct. F6 - Beam of Gravity     SF6 - Disintegrate
 #   : - Recharging          F7 - Confuse Monster     SF7 - Meteor Swarm
 #   h - Haste Self          F8 - Sleep Monster       SF8 - Flame Strike
@@ -97,15 +97,15 @@ A:\e\e\e*tm5f
 P:^_x3C\r
 
 # F3 - Fist of Force
-A:m5g
+A:\e\e\e*tm5g
 P:^_x3D\r
 
 # F4 - Chaos Bolt
-A:\e\e\e*tm6b
+A:\e\e\e*tm6c
 P:^_x3E\r
 
-# F5 - Doom Bolt
-A:\e\e\e*tm6d
+# F5 - Mana Bolt
+A:\e\e\e*tm6e
 P:^_x3F\r
 
 # F6 - Beam of Gravity
@@ -145,11 +145,11 @@ A:m5e
 P:^_Sx54\r
 
 # SHIFT-F2 - Sonic Boom
-A:m6c
+A:m6d
 P:^_Sx55\r
 
 # SHIFT-F3 - Fire Ball
-A:m6e
+A:m6f
 P:^_Sx56\r
 
 # SHIFT-F4 - Invoke Chaos

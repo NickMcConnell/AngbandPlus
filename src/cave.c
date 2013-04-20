@@ -700,7 +700,9 @@ void map_info(int y, int x, byte *ap, char *cp)
 			a = f_ptr->x_attr;
 
 			/* Special lighting effects */
-			if (view_special_lite && ((a == TERM_WHITE) || graf_new))
+			if (view_special_lite && ((a == TERM_WHITE) || 
+						  (a == TERM_L_WHITE) ||
+						  graf_new))
 			{
 				/* Handle "blind" */
 				if (p_ptr->blind)

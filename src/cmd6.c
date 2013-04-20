@@ -2499,6 +2499,13 @@ void do_cmd_aim_wand(void)
 			ident = TRUE;
 			break;
 		}
+
+		case SV_WAND_STRIKING:
+		{
+			fire_bolt(GF_FORCE, dir, damroll(8, 8));
+			ident = TRUE;
+			break;
+		}
 	}
 
 

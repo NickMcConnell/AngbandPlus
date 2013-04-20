@@ -308,10 +308,13 @@ void put_quest_monster(int r_idx)
 			/* Require "naked" floor grid */
 			if (!cave_naked_bold(y, x)) continue;
 			{
-				/* At least 15 grids away */
-				if (distance(y, x, py, px) > 15) break;
+				/* At least 10 grids away */
+				if (distance(y, x, py, px) > 10) break;
 			}
 		}
+
+		if (cheat_xtra)
+			msg_format("Monster at %d/%d.", x, y);
 	}
 	while (!place_monster_one(y, x, r_idx, 0,0));
 }

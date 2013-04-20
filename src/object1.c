@@ -27,14 +27,15 @@
 /*
  * Max sizes of the following arrays
  */
-#define MAX_ROCKS      56       /* Used with rings (min 38) */
-#define MAX_AMULETS    17       /* Used with amulets (min 13) */
-#define MAX_WOODS      35       /* Used with staffs (min 30) */
-#define MAX_METALS     39       /* Used with wands/rods (min 29/28) */
-#define MAX_COLORS     66       /* Used with potions (min 60) */
-#define MAX_SHROOM     20       /* Used with mushrooms (min 20) */
-#define MAX_TITLES     54       /* Used with scrolls (min 48) */
-#define MAX_SYLLABLES 164       /* Used with scrolls (see below) */
+#define MAX_ROCKS	56	/* Used with rings (min 38) */
+#define MAX_AMULETS	17	/* Used with amulets (min 13) */
+#define MAX_WOODS	35	/* Used with staffs (min 30) */
+#define MAX_METALS	39	/* Used with wands/rods (min 29/28) */
+#define MAX_COLORS	66	/* Used with potions (min 60) */
+#define MAX_SHROOM	20	/* Used with mushrooms (min 20) */
+#define MAX_TITLES	54	/* Used with scrolls (min 48) */
+#define MAX_SYLLABLES	164	/* Used with scrolls (see below) */
+#define MAX_SLIMES	40	/* Used with slime molds */
 
 
 /*
@@ -250,6 +251,28 @@ static cptr syllables[MAX_SYLLABLES] =
  */
 static char scroll_adj[MAX_TITLES][16];
 static byte scroll_col[MAX_TITLES];
+
+
+/* Name your slime molds!  Thanks to Fufie for this patch */
+static cptr slime_names[MAX_SLIMES] =
+{
+	"Jean Chretien", "Brian Mulroney", "Bill Clinton", "Hillary Clinton", "Dubya",
+	"George Bush", "Tony Blair", "Margaret Thatcher", "Fufie", "Gumby",
+	"Buster Bunny", "Babs Bunny", "Plucky Duck", "Fifi LaFume", "Yakko",
+	"Wakko", "Dot", "Slappy Squirrel", "Skippy Squirrel", "Bugs Bunny",
+	"Daffy Duck", "Porky Pig", "Sylvester", "Tweety", "Elmer Fudd",
+	"Elmyra Duff", "Montana Max", "Freakazoid", "Pinky", "The Brain",
+	"Optimus Prime", "Megatron", "Judge Dredd", "Judge Anderson", "Judge Death",
+	"Homer", "Bart", "Lisa", "Marge", "Maggie"
+};
+
+
+/* Name your slime molds!  Thanks to Fufie for this patch */
+static void name_slime_mold(object_type *o_ptr)
+{
+	int value = rand_int(MAX_SLIMES);
+	o_ptr->note = quark_add(slime_names[value]);
+}
 
 
 /*
@@ -709,13 +732,6 @@ void reset_visuals(void)
 		process_pref_file("font.prf");
 	}
 }
-
-
-
-
-
-
-
 
 
 /*
@@ -1297,6 +1313,13 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 
 		case TV_FOOD:
 		{
+			/* Name molds - thanks to Fufie of #angband */
+			if ((o_ptr->sval == SV_FOOD_SLIME_MOLD) &&
+			    !(o_ptr->note) && (name_slimes))
+			{
+				name_slime_mold((object_type *) o_ptr);
+			}
+
 			/* Ordinary food is "boring" */
 			if (o_ptr->sval >= SV_FOOD_MIN_FOOD) break;
 

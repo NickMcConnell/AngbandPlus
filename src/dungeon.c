@@ -1931,6 +1931,7 @@ static void process_world(void)
 			p_ptr->exp--;
 			p_ptr->max_exp--;
 			check_experience();
+			msg_print("You feel your life slowly drain away...");
 		}
 	}
 

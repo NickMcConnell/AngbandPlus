@@ -1490,6 +1490,7 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 			if ((c_ptr->feat == FEAT_OPEN) ||
 			    (c_ptr->feat == FEAT_BROKEN) ||
 			    (c_ptr->feat == FEAT_INVIS) ||
+			    (c_ptr->feat == FEAT_SECRET) ||
 			   ((c_ptr->feat >= FEAT_TRAP_HEAD) &&
 			    (c_ptr->feat <= FEAT_TRAP_TAIL)) ||
 			   ((c_ptr->feat >= FEAT_DOOR_HEAD) &&
@@ -1503,8 +1504,9 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
 					obvious = TRUE;
 
 					/* Visibility change */
-					if ((c_ptr->feat >= FEAT_DOOR_HEAD) &&
-					    (c_ptr->feat <= FEAT_DOOR_TAIL))
+					if (((c_ptr->feat >= FEAT_DOOR_HEAD) &&
+					     (c_ptr->feat <= FEAT_DOOR_TAIL)) ||
+					    (c_ptr->feat == FEAT_SECRET))
 					{
 						/* Update some things */
 						p_ptr->update |= (PU_VIEW | PU_LITE | PU_MONSTERS);
@@ -2123,6 +2125,16 @@ static bool project_m(int who, bool pet_attack, int r, int y, int x, int dam, in
 	cptr		note_dies = " dies."; /* Assume a default death */
 	s32b		div, new_exp, new_exp_frac;
 
+	/*
+	 * Variables for the push-back effect of GF_FORCE, imported from
+	 * DrAngband -- Gumby
+	 */
+	int x1 = 0;
+	int y1 = 0;
+	int a = 0;
+	int b = 0;
+	int do_move = 0;
+
 	/* Walls protect monsters */
 	/* (No, they don't)  */
 #if 0
@@ -2545,7 +2557,70 @@ static bool project_m(int who, bool pet_attack, int r, int y, int x, int dam, in
 		case GF_FORCE:
 		{
 			if (seen) obvious = TRUE;
-			do_stun = (randint(15) + r) / (r + 1);
+
+			/*
+			 * If fired by player, try pushing monster.
+			 * First get vector from player to monster.
+			 * x10 so we can use pseudo-fixed point maths.
+			 *
+			 * Really should use get_angle_to_grid (util.c)
+			 *
+			 * Taken from DrAngband 2.9.8, with help from
+			 * DarkGod to get it working. -- Gumby
+			 */
+			if (!who) /* was 'who < 0' */
+			{
+				a = 0;
+				b = 0;
+
+				/* Get vector from firer to target */
+				x1 = (m_ptr->fx - px) * 10;
+				y1 = (m_ptr->fy - py) * 10;
+
+				/* Make sure no zero divides */
+				if (x1==0) x1 = 1;
+				if (y1==0) y1 = 1;
+
+				/* Select direction monster is being pushed */
+
+				/* Roughly horizontally */
+				if ((2*y1) / x1 == 0)
+				{
+					if (x1 > 0) { a =  1, b = 0; }
+					else        { a = -1, b = 0; }
+				}
+
+				/* Roughly vertically */
+				else if ((2*x1) / y1 == 0)
+				{
+					if (y1 > 0) { a = 0, b =  1; }
+					else        { a = 0, b = -1; }
+				}
+
+				/* Take diagonals */
+				else
+				{
+					if (y1 > 0) { b =  1; }
+					else        { b = -1; }
+
+					if (x1 > 0) { a =  1; }
+					else        { a = -1; }
+				}
+
+				/* Move monster 2 offsets back */
+				do_move = 2;
+
+				/* Old monster coords in x,y */
+				y1 = m_ptr->fy;
+				x1 = m_ptr->fx;
+
+				/* Monster move offsets in a,b */
+				note = " is blasted back.";
+			}
+
+			/* --hack-- Only stun if a monster fired it */
+			else do_stun = (randint(15) + r) / (r + 1);
+
 			if (r_ptr->flags4 & (RF4_BR_WALL))
 			{
 				note = " resists.";
@@ -3949,6 +4024,82 @@ static bool project_m(int who, bool pet_attack, int r, int y, int x, int dam, in
 		c_ptr = &cave[y][x];
 	}
 
+	/* Handle moving the monster.
+	 *
+	 * Note: This is a effect of force, but only when used
+	 * by the player. (For the moment). The usual stun effect
+	 * is not applied.
+	 *
+	 * Taken from DrAngband 2.9.8, with thanks to DarkGod for helping
+	 * me get it working. -- Gumby
+	 */
+	else if (do_move)
+	{
+		int back = 0;
+
+		/* Obvious */
+		if (seen) obvious = TRUE;
+
+		/* How far can we push the monster? */
+		for (do_move = 0; do_move < 3; do_move++)
+		{
+			/* Get monster coords */
+			/* And offset position */
+			y1 = m_ptr->fy + (b * do_move);
+			x1 = m_ptr->fx + (a * do_move);
+
+			/* Require "empty" floor space */
+			if (do_move >= 1 && !cave_empty_bold(y1, x1)) continue;
+
+			/* Hack -- no teleport onto glyph of warding */
+			if (cave[y1][x1].feat == FEAT_GLYPH) continue;
+			if (cave[y1][x1].feat == FEAT_MINOR_GLYPH) continue;
+
+			/* Don't move monsters into the wall! */
+			if (cave[y1][x1].feat >= FEAT_DOOR_HEAD) continue;
+
+			/* amount moved */
+			back = do_move;
+		}
+
+		/* Move the monster */
+		if (back)
+		{
+			y1 = m_ptr->fy + (b * back);
+			x1 = m_ptr->fx + (a * back);
+
+			if (back == 2)
+			{
+				note = " is knocked back!";
+			}
+			if (back == 1)
+			{
+				note = " is knocked back and crushed!";
+
+				/* was kept from being pushed all the way,
+				 * do extra dam
+				 */
+				dam = dam * 13/10;
+			}
+
+			monster_swap(m_ptr->fy, m_ptr->fx, y1, x1);
+
+			/* Get new position */
+			y = y1;
+			x = x1;
+
+			/* Hack -- get new grid */
+			c_ptr = &cave[y][x];
+		}
+		else /* could not move the monster */
+		{
+			note = " is severely crushed!";
+
+			/* Do extra damage (1/3) */
+			dam = dam * 15/10;
+		}
+	}
+
 	/* Sound and Impact breathers never stun */
 	else if (do_stun &&
 		 !(r_ptr->flags4 & (RF4_BR_SOUN)) &&
@@ -4223,7 +4374,7 @@ static bool project_p(int who, bool pet_attack, int r, int y, int x, int dam, in
  * "Warning: comparison is always true due to limited range of data type"
  * in DJGPP - problem with 'in_bounds2' #define? -- Gumby
  */
-		while (max_attempts && in_bounds2(t_y, t_x) &&
+		while (max_attempts && in_bounds2u(t_y, t_x) &&
 		     !(player_has_los_bold(t_y, t_x)));
 
 		if (max_attempts < 1)
@@ -5466,7 +5617,7 @@ bool project(int who, bool pet_attack, int rad, int y, int x, int dam, int typ, 
  * "Warning: comparison is always true due to limited range of data type"
  * in DJGPP - problem with 'in_bounds2' #define? -- Gumby
  */
-					while (max_attempts && in_bounds2(t_y, t_x) &&
+					while (max_attempts && in_bounds2u(t_y, t_x) &&
 					    !(los(y, x, t_y, t_x)));
 
 					if (max_attempts < 1)

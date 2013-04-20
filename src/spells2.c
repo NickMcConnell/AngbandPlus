@@ -1491,7 +1491,7 @@ bool detect_doors(void)
 
 			/* Detect doors */
 			if (((c_ptr->feat >= FEAT_DOOR_HEAD) &&
-			     (c_ptr->feat <= FEAT_DOOR_HEAD)) ||
+			     (c_ptr->feat <= FEAT_DOOR_TAIL)) ||
 			    ((c_ptr->feat == FEAT_OPEN) ||
 			     (c_ptr->feat == FEAT_BROKEN)))
 			{

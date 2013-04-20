@@ -2777,7 +2777,13 @@ static void calc_bonuses(void)
 	{
 		p_ptr->see_infra += 2;
 	}
-
+#if 0
+	/* Hack -- Res Chaos -> Res Conf */
+	if (p_ptr->resist_chaos)
+	{
+		p_ptr->resist_conf = TRUE;
+	}
+#endif
 	/* Hack -- Hero/Shero -> Res fear */
 	if (p_ptr->hero || p_ptr->shero)
 	{

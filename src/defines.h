@@ -767,7 +767,6 @@ and tables.c --TY */
 
 /*** Artifact indexes (see "lib/edit/a_info.txt") ***/
 
-
 /* Lites */
 #define ART_GALADRIEL                   1
 #define ART_ELENDIL                     2
@@ -778,6 +777,7 @@ and tables.c --TY */
 #define ART_INGWE                       5
 #define ART_DWARVES                     6
 /* 7 unused */
+
 /* Rings */
 #define ART_BARAHIR                     8
 #define ART_TULKAS                      9
@@ -785,7 +785,9 @@ and tables.c --TY */
 #define ART_NENYA                       11
 #define ART_VILYA                       12
 #define ART_POWER                       13
-/* 14-15 unused. Must be INSTA_ARTs? */
+
+/* 14 & 15 unused, must be INSTA_ARTS */
+
 /* Dragon Scale */
 #define ART_RAZORBACK                   16
 #define ART_BLADETURNER                 17
@@ -1046,7 +1048,7 @@ and tables.c --TY */
 #define EGO_HA                  64
 #define EGO_DF                  65
 #define EGO_BLESS_BLADE         66
-/* xxx */
+#define EGO_HASTE		67
 #define EGO_WEST                68
 #define EGO_ATTACKS             69
 #define EGO_SLAYING_WEAPON      70
@@ -1097,11 +1099,11 @@ and tables.c --TY */
 /* Ammo */
 #define EGO_HURT_ANIMAL         112
 #define EGO_HURT_EVIL           113
-/* xxx */
-/* xxx */
-/* xxx */
-/* xxx */
-/* xxx */
+#define EGO_HURT_UNDEAD		114
+#define EGO_HURT_DEMON		115
+#define EGO_HURT_GIANT		116
+#define EGO_HURT_ELEMENTAL	117
+#define EGO_POISON_BOLT		118
 #define EGO_HURT_DRAGON         119
 #define EGO_SLAYING_BOLT        120
 #define EGO_LIGHTNING_BOLT      121
@@ -1549,6 +1551,7 @@ and tables.c --TY */
 #define SV_WAND_DRAGON_COLD        27
 #define SV_WAND_DRAGON_BREATH      28
 #define SV_WAND_ROCKETS            29
+#define SV_WAND_STRIKING	   30
 
 /* The "sval" codes for TV_ROD */
 #define SV_ROD_DETECT_TRAP         0
@@ -2763,6 +2766,12 @@ and tables.c --TY */
 #define in_bounds2(Y,X) \
    (((Y) >= 0) && ((X) >= 0) && ((Y) < cur_hgt) && ((X) < cur_wid))
 
+/*
+ * Determines if a map location is on or inside the outer walls
+ * (unsigned version) -- taken from ZAngband v2.2.8
+ */
+#define in_bounds2u(Y,X) \
+   (((Y) < cur_hgt) && ((X) < cur_wid))
 
 /*
  * Determines if a map location is currently "on screen" -RAK-

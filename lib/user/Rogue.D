@@ -15,7 +15,7 @@ A:m4h
 P:\t
 
 # [ - Poison Branding
-A:m2e
+A:m2c
 C:0:[
 
 # ] - Vampiric Branding
@@ -61,7 +61,7 @@ A:\e\e\e*tm2b
 P:^_x3E\r
 
 # F5 - Vampiric Drain
-A:m2d
+A:m2e
 P:^_x3F\r
 
 # F6 - Dark Bolt
@@ -93,7 +93,7 @@ A:m2a
 P:^_Sx55\r
 
 # SHIFT-F3 - Terror
-A:m2c
+A:m2d
 P:^_Sx56\r
 
 # SHIFT-F4 - Cloud Kill

@@ -31,8 +31,6 @@
 #define BIAS_LUCK		20
 #define ACTIVATION_CHANCE	3
 
-int artifact_bias;
-
 
 void curse_artifact(object_type * o_ptr)
 {
@@ -4198,7 +4196,7 @@ void random_artifact_resistance(object_type * o_ptr)
 		case ART_THORIN: case ART_NIMTHANC: case ART_DETHANC:
 		case ART_NARTHANC: case ART_TURMIL: case ART_THALKETTOTH:
 		case ART_HACKMEAT: case ART_DRAGONBANE: case ART_SOULSUCKER:
-		case ART_FUMA_LA_URSO: case ART_STING: case ART_ENDURANCE:
+		case ART_HASTNEN: case ART_STING: case ART_ENDURANCE:
 			{
 				/* Give a resistance */
 				give_resistance = TRUE;

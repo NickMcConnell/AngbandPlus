@@ -991,8 +991,7 @@ static void breath(int m_idx, bool pet_attack, int typ, int dam_hp, int rad)
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 	/* Determine the radius of the blast */
-	if ((rad < 1) && (typ != GF_ARROW))
-		rad = (r_ptr->flags2 & (RF2_POWERFUL)) ? 3 : 2;
+	if (rad < 1) rad = (r_ptr->flags2 & (RF2_POWERFUL)) ? 3 : 2;
 
 	/* Target the player with a ball attack */
 	(void)project(m_idx, pet_attack, rad, py, px, dam_hp, typ, flg);
@@ -1012,8 +1011,7 @@ static void monst_breath_monst(int m_idx, bool pet_attack, int y, int x, int typ
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 	/* Determine the radius of the blast */
-	if ((rad < 1) && (typ != GF_ARROW))
-		rad = (r_ptr->flags2 & (RF2_POWERFUL)) ? 3 : 2;
+	if (rad < 1) rad = (r_ptr->flags2 & (RF2_POWERFUL)) ? 3 : 2;
 
 	(void)project(m_idx, pet_attack, rad, y, x, dam_hp, typ, flg);
 }
@@ -1196,7 +1194,7 @@ static bool monst_spell_monst(int m_idx)
 			if (!see_either) msg_print("You hear a strange noise.");
 			else if (blind) msg_format("%^s makes a strange noise.", m_name);
 			else msg_format("%^s throws a boulder at %s.", m_name, t_name);
-			monst_breath_monst(m_idx, pet_attack, y, x, GF_ARROW, damroll(3 + (r_ptr->level / 10), 6), 0);
+			monst_breath_monst(m_idx, pet_attack, y, x, GF_MISSILE, damroll(3 + (r_ptr->level / 10), 6), 1);
 			break;
 		}
 
@@ -1207,7 +1205,7 @@ static bool monst_spell_monst(int m_idx)
 			if (!see_either) msg_print("You hear a strange noise.");
 			else if (blind) msg_format("%^s makes a strange noise.", m_name);
 			else msg_format("%^s throws a large boulder at %s.", m_name, t_name);
-			monst_breath_monst(m_idx, pet_attack, y, x, GF_ARROW, damroll(6 + (r_ptr->level / 5), 6), 1);
+			monst_breath_monst(m_idx, pet_attack, y, x, GF_MISSILE, damroll(6 + (r_ptr->level / 5), 6), 2);
 			break;
 		}
 
@@ -3102,7 +3100,7 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			if (blind) msg_format("%^s makes a strange noise.", m_name);
 			else msg_format("%^s throws a boulder.", m_name);
-			breath(m_idx, pet_attack, GF_ARROW, damroll(3 + (r_ptr->level / 10), 6), 0);
+			breath(m_idx, pet_attack, GF_MISSILE, damroll(3 + (r_ptr->level / 10), 6), 1);
 			break;
 		}
 
@@ -3112,7 +3110,7 @@ bool make_attack_spell(int m_idx)
 			disturb(1, 0);
 			if (blind) msg_format("%^s makes a strange noise.", m_name);
 			else msg_format("%^s throws a large boulder.", m_name);
-			breath(m_idx, pet_attack, GF_ARROW, damroll(6 + (r_ptr->level / 5), 6), 1);
+			breath(m_idx, pet_attack, GF_MISSILE, damroll(6 + (r_ptr->level / 5), 6), 2);
 			break;
 		}
 

@@ -1746,8 +1746,7 @@ static void cmd_racial_power_aux (void)
 			if (racial_aux(5, 5, A_WIS, 12))
 			{
 				msg_print("You examine your surroundings.");
-				if (p_ptr->lev >= 35)
-					(void)map_area();
+				if (p_ptr->lev >= 35) (void)map_area();
 				(void)detect_traps();
 				(void)detect_doors();
 				(void)detect_stairs();
@@ -1805,12 +1804,12 @@ static void cmd_racial_power_aux (void)
 				{
 					if (!get_aim_dir(&dir)) break;
 					msg_print("You act cute.");
-					(void)charm_monster(dir, plev * 2);
+					(void)charm_monster(dir, plev);
 				}
 				else
 				{
 					msg_print("You act cute.");
-					(void)charm_monsters(plev * 2);
+					(void)charm_monsters(plev);
 				}
 			}
 			break;
@@ -1904,9 +1903,10 @@ static void cmd_racial_power_aux (void)
 			break;
 
 		case RACE_NIBELUNG:
-			if (racial_aux(10, 5, A_WIS, 10))
+			if (racial_aux(10, 10, A_WIS, 10))
 			{
 				msg_print("You examine your surroundings.");
+				if (p_ptr->lev >= 35) (void)map_area();
 				(void)detect_traps();
 				(void)detect_doors();
 				(void)detect_stairs();
@@ -2148,9 +2148,9 @@ void do_cmd_racial_power(void)
 
 		case RACE_NIBELUNG:
 			if (lvl < 10)
-				racial_power = "detect doors+traps (racial, lvl 10, cost 5)";
+				racial_power = "sense surroundings (racial, lvl 10, cost 10)";
 			else
-				racial_power = "detect doors+traps (racial, cost 5, WIS 10@10)";
+				racial_power = "sense surroundings (racial, cost 10, WIS 12@10)";
 			has_racial = TRUE;
 			break;
 

@@ -1,6 +1,6 @@
 --- This file might be out of date for Gumband. You have been warned. :)
 
-=== Options and Effects (Zangband 2.1.*) ===
+=== Options and Effects (Gumband 2.1.5) ===
 
 Most of the "options" are accessible through the '=' command, which provides
 an interface to the various "sets" of options available to the player.
@@ -362,11 +362,10 @@ Use special colors for floor grids (slow)    [view_special_lite]
     the speed of the game.
 
 
-=== Zangband Options ===
+=== Gumband Options ===
 
-All features which are typical to Zangband (i.e. which are not in
-vanilla Angband) are collected in this menu (except for the Autosave
-options).
+All features which are typical to Gumband (i.e. which are not in vanilla
+Angband) are collected in this menu (except for the Autosave options).
 
 Disturb whenever random things happen    [disturb_other]
     In Zangband, uncursed teleporting items may teleport you around
@@ -475,6 +474,14 @@ Disturb when visible pets move    [disturb_pets]
     disturb you even if full monster disturbance options are set. If you
     want your pets to disturb you like normal monsters, set this option.
 
+Slime Molds have names		[name_slimes]
+    Inspired by the behavior of A.P. White's 'borg' automatic-player, this
+    is joke option with no real effect on game-play (with the exception of
+    stacking Slime Molds), having this option on will automatically inscribe
+    Slime Molds with names like {Bill Clinton} and {Bugs Bunny}. Turn it off
+    if you find such things to be annoying. Thanks go out to 'Fufie' of
+    #angband for this patch...
+
 Randomize midi songs    [shuffle_songs]
     This option is usable only if your version is capable of playing MIDI
     music. When this option is set, the program will -- instead of advancing
@@ -570,3 +577,4 @@ Allow player to avoid death    [cheat_live]
     Cheaters never win.  But they can cheat death.
 
 +++ Ben +++ (Updated by Topi Ylinen for Zangband 2.1.*)
+            (Updated slightly by Gumby for Gumband)

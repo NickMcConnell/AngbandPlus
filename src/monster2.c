@@ -2786,3 +2786,98 @@ void monster_drop_carried_objects(monster_type *m_ptr)
 	/* Forget objects */
 	m_ptr->hold_o_idx = 0;
 }
+
+
+/*
+ * Swap the players/monsters (if any) at two locations XXX XXX XXX
+ *
+ * Taken from PernAngband to implement a push-back effect for GF_FORCE. - G
+ */
+void monster_swap(int y1, int x1, int y2, int x2)
+{
+	int m1, m2;
+
+	monster_type *m_ptr;
+        cave_type *c_ptr1,*c_ptr2;
+
+        c_ptr1 = &cave[y1][x1];
+        c_ptr2 = &cave[y2][x2];
+
+	/* Monsters */
+        m1 = c_ptr1->m_idx;
+        m2 = c_ptr2->m_idx;
+
+	/* Update grids */
+        c_ptr1->m_idx = m2;
+        c_ptr2->m_idx = m1;
+
+	/* Monster 1 */
+	if (m1 > 0)
+	{
+		m_ptr = &m_list[m1];
+
+		/* Move monster */
+		m_ptr->fy = y2;
+		m_ptr->fx = x2;
+
+		/* Update monster */
+		update_mon(m1, TRUE);
+	}
+
+	/* Player 1 */
+	else if (m1 < 0)
+	{
+		/* Move player */
+                py = y2;
+                px = x2;
+
+		/* Check for new panel (redraw map) */
+		verify_panel();
+
+		/* Update stuff */
+		p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW);
+
+		/* Update the monsters */
+		p_ptr->update |= (PU_DISTANCE);
+
+		/* Window stuff */
+		 p_ptr->window |= (PW_OVERHEAD);
+	}
+
+	/* Monster 2 */
+	if (m2 > 0)
+	{
+		m_ptr = &m_list[m2];
+
+		/* Move monster */
+		m_ptr->fy = y1;
+		m_ptr->fx = x1;
+
+		/* Update monster */
+		update_mon(m2, TRUE);
+	}
+
+	/* Player 2 */
+	else if (m2 > 0)
+	{
+		/* Move player */
+                py = y1;
+                px = x1;
+
+		/* Check for new panel (redraw map) */
+		verify_panel();
+
+		/* Update stuff */
+		p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW);
+
+		/* Update the monsters */
+		p_ptr->update |= (PU_DISTANCE);
+
+		/* Window stuff */
+		p_ptr->window |= (PW_OVERHEAD);
+	}
+
+	/* Redraw */
+	lite_spot(y1, x1);
+	lite_spot(y2, x2);
+}

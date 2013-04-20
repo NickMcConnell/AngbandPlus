@@ -14,7 +14,7 @@
 
 # Artifacts 1-15 are "special", 16-63 are "armor", and 64-127 are "weapons".
 
-# Slots 7, 14-15 and 153-255 are currently unused.
+# Slots 7 and 153-255 are currently unused.
 
 # Hack -- The various ruler's Swords and "Morgoth" MUST have rarities of
 # one, or they might not be dropped when a Sword Ruler is killed.  Note that
@@ -147,12 +147,7 @@ F:CURSED | HEAVY_CURSE | PERMA_CURSE | AGGRAVATE | DRAIN_EXP | SEE_INVIS |
 F:REGEN | TY_CURSE | IM_FIRE | IM_COLD | IM_ELEC | IM_ACID | SUST_STR | 
 F:SUST_DEX | SUST_CON | SUST_INT | SUST_WIS | SUST_CHR | INSTA_ART
 
-
-# Artifact 14 is unused
-
-
-# Artifact 15 is unused
-
+# 14 & 15 are unused
 
 # The Multi-Hued Dragon Scale Mail 'Razorback'
 
@@ -1441,10 +1436,11 @@ F:CON | BRAND_ELEC | IM_ELEC | HIDE_TYPE | SHOW_MODS | ACTIVATE
 
 N:141:'Naturebane'
 I:23:30:3
-W:70:20:300:28400
+W:70:20:300:58000
 P:0:5d7:31:27:0
-F:STR | SLAY_ANIMAL | SUST_STR | RES_SHARDS | RES_NEXUS | FEATHER | 
-F:HIDE_TYPE | SHOW_MODS | ACTIVATE
+F:STR | DEX | SLAY_ANIMAL | SUST_STR | RES_SHARDS | RES_NEXUS | FEATHER | 
+F:RES_ACID | RES_ELEC | RES_COLD | RES_FIRE | RES_POIS | HIDE_TYPE | 
+F:SHOW_MODS | ACTIVATE
 
 
 # The Spear 'Soulsucker'
