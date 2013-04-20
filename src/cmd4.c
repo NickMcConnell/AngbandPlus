@@ -2346,6 +2346,85 @@ void do_cmd_version(void)
 }
 
 
+/*
+ * Mention the "virtual" time of day -- from Zangband
+ */
+void do_cmd_time_of_day(void)
+{
+	/* dummy is % thru day/night */
+	int dummy = ((turn % ((10L * TOWN_DAWN)/2) * 100) / ((10L * TOWN_DAWN)/2));
+	int minute = ((turn % ((10L * TOWN_DAWN)/2) * 720) / ((10L * TOWN_DAWN)/2)) % 60;
+	int hour = ((12 * dummy) / 100) - 6;    /* -6 to +6 */
+	int hour12 = 0;
+	bool morning = FALSE;
+	int day = 0;
+
+	if (turn <= (10L * TOWN_DAWN)/4)
+		day = 1;
+	else
+		day = (turn - (10L * TOWN_DAWN / 4)) / (10L * TOWN_DAWN) + 1;
+
+	if ((turn / ((10L * TOWN_DAWN)/2)) % 2)
+	{
+		/* night: 6pm -- 6am */
+		if (hour <= 0)
+			hour12 = 12 - (hour * -1);
+		else
+			hour12 = hour;
+		if (hour >= 0)
+			morning = TRUE;
+		else
+			morning = FALSE;
+		msg_format("%d:%02d %s, day %d.", hour12, minute, (morning ? "AM" : "PM"),
+			   turn / (10L * TOWN_DAWN) + 1);
+
+		if (dummy < 5)
+			msg_print("The sun has set.");
+		else if (dummy == 50)
+			msg_print("It is midnight.");
+		else if ((dummy > 94) && (dummy < 101))
+			msg_print("The sun is near to rising.");
+		else if ((dummy > 75) && (dummy < 95))
+			msg_print("It is early morning, but still dark.");
+		else if (dummy > 100)
+			msg_format("What a funny night-time! (%d)", dummy);
+		else
+			msg_format("It is night.");
+	}
+	else
+	{
+		/* Day */
+		if (hour <= 0)
+			hour12 = 12 - (hour * -1);
+		else
+			hour12 = hour;
+		if (hour >= 0)
+			morning = FALSE;
+		else
+			morning = TRUE;
+		msg_format("%d:%02d %s, day %d.", hour12, minute, (morning ? "AM" : "PM"),
+			   turn / (10L * TOWN_DAWN) + 1);
+		if (dummy < 5)
+			msg_print("Morning has broken...");
+		else if (dummy < 25)
+		   	msg_print("It is early morning.");
+		else if (dummy < 50)
+			msg_print("It is late morning.");
+		else if (dummy == 50)
+			msg_print("It is noon.");
+		else if (dummy < 65)
+			msg_print("It is early afternoon.");
+		else if (dummy < 85)
+			msg_print("It is late afternoon.");
+		else if (dummy < 95)
+			msg_print("It is early evening.");
+		else if (dummy < 101)
+			msg_print("The sun is setting.");
+		else
+			msg_format("What a strange daytime! (%d)", dummy);
+	}
+}
+
 
 /*
  * Array of feeling strings

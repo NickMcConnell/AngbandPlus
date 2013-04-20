@@ -49,7 +49,7 @@
 #define VERSION_MAJOR	2
 #define VERSION_MINOR	8
 #define VERSION_PATCH	3
-#define VERSION_EXTRA	2
+#define VERSION_EXTRA	3
 
 
 /*
@@ -124,12 +124,14 @@
 /*
  * Maximum number of player "race" types (see "table.c", etc)
  */
-#define MAX_RACES           10
+/* GJW change */
+#define MAX_RACES           11
 
 /*
  * Maximum number of player "class" types (see "table.c", etc)
  */
-#define MAX_CLASS            6
+/* P+ changed to incorporate GJW-based classes */
+#define MAX_CLASS            9
 
 
 /*
@@ -139,7 +141,7 @@
 #define MAX_K_IDX	512	/* Max size for "k_info[]" */
 #define MAX_A_IDX	128	/* Max size for "a_info[]" */
 #define MAX_E_IDX	128	/* Max size for "e_info[]" */
-#define MAX_R_IDX	579	/* Max size for "r_info[]" */
+#define MAX_R_IDX	585	/* Max size for "r_info[]" */
 #define MAX_V_IDX	512	/* Max size for "v_info[]" */
 
 
@@ -229,7 +231,7 @@
  * Store constants
  */
 #define STORE_INVEN_MAX	24		/* Max number of discrete objs in inven */
-#define STORE_CHOICES	32		/* Number of items to choose stock from */
+#define STORE_CHOICES	40		/* Number of items to choose stock from */
 #define STORE_OBJ_LEVEL	5		/* Magic Level for normal stores */
 #define STORE_TURNOVER	9		/* Normal shop turnover, per day */
 #define STORE_MIN_KEEP	6		/* Min slots to "always" keep full */
@@ -406,6 +408,7 @@
 #define RACE_HALF_TROLL	7
 #define RACE_DUNADAN	8
 #define RACE_HIGH_ELF	9
+#define RACE_KOBOLD		10 /* GJW */
 
 /*
  * Player class constants (hard-coded by save-files, arrays, etc)
@@ -416,6 +419,9 @@
 #define CLASS_ROGUE		3
 #define CLASS_RANGER	4
 #define CLASS_PALADIN	5
+#define CLASS_GW_MAGE	6
+#define CLASS_GW_ROGUE		7
+#define CLASS_GW_RANGER		8
 
 
 
@@ -927,7 +933,7 @@
 #define EGO_BRAND_ELEC		73
 #define EGO_BRAND_FIRE		74
 #define EGO_BRAND_COLD		75
-/* xxx */
+#define EGO_BRAND_POIS		76 /* GJW */
 /* xxx */
 /* xxx */
 /* xxx */
@@ -976,7 +982,7 @@
 #define EGO_HURT_GIANT		118
 #define EGO_HURT_DRAGON		119
 /* xxx */
-/* xxx */
+#define EGO_VENOM			121 /* GJW */
 #define EGO_FLAME			122
 #define EGO_FROST			123
 #define EGO_WOUNDING		124
@@ -1037,6 +1043,7 @@
 #define TV_FOOD         80
 #define TV_MAGIC_BOOK   90
 #define TV_PRAYER_BOOK  91
+#define TV_GW_MAGIC_BOOK 92
 #define TV_GOLD         100	/* Gold can only be picked up by players */
 
 
@@ -1503,6 +1510,7 @@
  * Special "sval" limit -- first "good" magic/prayer book
  */
 #define SV_BOOK_MIN_GOOD	4
+#define SV_GW_BOOK_MIN_GOOD	5
 
 
 
@@ -1857,7 +1865,7 @@
 #define TR1_KILL_DRAGON		0x01000000L	/* Weapon kills dragon */
 #define TR1_XXX5			0x02000000L
 #define TR1_XXX6			0x04000000L
-#define TR1_XXX7			0x08000000L
+#define TR1_BRAND_POIS		0x08000000L	/* Weapon has poison brand GJW */
 #define TR1_BRAND_ACID		0x10000000L	/* Weapon has acid brand */
 #define TR1_BRAND_ELEC		0x20000000L	/* Weapon has elec brand */
 #define TR1_BRAND_FIRE		0x40000000L	/* Weapon has fire brand */

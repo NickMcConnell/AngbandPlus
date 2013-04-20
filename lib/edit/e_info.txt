@@ -478,53 +478,69 @@ F:SLAY_DRAGON
 
 # The "Kill" brands (8)
 
+# P+ added STEALTH
+
 N:88:of *Slay* Animal
 X:24:20
 W:0:0:0:6000
 C:0:0:0:2
-F:INT | SLAY_ANIMAL | REGEN
+F:INT | SLAY_ANIMAL | REGEN | STEALTH
+
+# P+ added SEE_INVIS
 
 N:89:of *Slay* Evil
 X:24:20
 W:0:0:0:5000
 C:0:0:0:2
-F:WIS | SLAY_EVIL | BLESSED
+F:WIS | SLAY_EVIL | BLESSED | SEE_INVIS
+
+# P+ added HOLD_LIFE
 
 N:90:of *Slay* Undead
 X:24:24
 W:0:0:0:8000
 C:0:0:0:2
-F:WIS | SLAY_UNDEAD | SEE_INVIS
+F:WIS | SLAY_UNDEAD | SEE_INVIS | HOLD_LIFE
+
+# P+ added RES_FIRE
 
 N:91:of *Slay* Demon
 X:24:16
 W:0:0:0:4000
 C:0:0:0:2
-F:INT | SLAY_DEMON
+F:INT | SLAY_DEMON | RES_FIRE
+
+# P+ added LITE
 
 N:92:of *Slay* Orc
 X:24:14
 W:0:0:0:4000
 C:0:0:0:2
-F:DEX | SLAY_ORC
+F:DEX | SLAY_ORC | LITE
+
+# P+ added REGEN
 
 N:93:of *Slay* Troll
 X:24:14
 W:0:0:0:4000
 C:0:0:0:2
-F:STR | SLAY_TROLL
+F:STR | SLAY_TROLL | REGEN
+
+# P+ added CON
 
 N:94:of *Slay* Giant
 X:24:16
 W:0:0:0:4000
 C:0:0:0:2
-F:STR | SLAY_GIANT
+F:STR | CON | SLAY_GIANT
+
+# P+ added STR, DEX
 
 N:95:of *Slay* Dragon
 X:24:24
 W:0:0:0:6000
 C:0:0:0:2
-F:CON | SLAY_DRAGON | KILL_DRAGON
+F:STR | DEX | CON | SLAY_DRAGON | KILL_DRAGON
 
 # 96 (unused)
 

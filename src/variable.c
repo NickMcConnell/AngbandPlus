@@ -186,6 +186,11 @@ u16b message__head;
 u16b message__tail;
 
 /*
+ * P+: should we skip waiting for messages?
+ */
+bool message__skip;
+
+/*
  * The array[MESSAGE_MAX] of offsets, by index
  */
 u16b *message__ptr;

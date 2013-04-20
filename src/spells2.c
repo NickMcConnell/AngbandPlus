@@ -260,13 +260,27 @@ void identify_pack(void)
 
 /*
  * Used by the "enchant" function (chance of failure)
+ *
+ * P+ added extra entries to avoid potential bugs when bows get enchanted
+ * to more than +15 with GJW's code...
  */
-static int enchant_table[16] =
+
+static int enchant_table[20] =
 {
 	0, 10,  50, 100, 200,
 	300, 400, 500, 700, 950,
 	990, 992, 995, 997, 999,
-	1000
+	1000, 1000, 1000, 1000, 1000
+};
+
+
+/* GJW */
+static int enchant_table_dam[20] =
+{
+	0, 10, 50, 100, 100,
+	100, 200, 300, 400, 500,
+	600, 700, 700, 700, 800,
+	800, 850, 900, 950, 975
 };
 
 
@@ -748,6 +762,10 @@ void self_knowledge(void)
 		{
 			info[i++] = "Your weapon freezes your foes.";
 		}
+		if (f1 & (TR1_BRAND_POIS)) /* GJW */
+		{
+			info[i++] = "Your weapon poisons your foes.";
+		}
 
 		/* Special "slay" flags */
 		if (f1 & (TR1_SLAY_ANIMAL))
@@ -869,6 +887,7 @@ bool lose_all_info(void)
 		/* Allow "protection" by the MENTAL flag */
 		if (o_ptr->ident & (IDENT_MENTAL)) continue;
 
+#if 0
 		/* Remove "default inscriptions" */
 		if (o_ptr->note && (o_ptr->ident & (IDENT_SENSE)))
 		{
@@ -889,6 +908,10 @@ bool lose_all_info(void)
 				o_ptr->note = 0;
 			}
 		}
+#else
+		/* Forget the inscription */
+		o_ptr->note = 0;
+#endif
 
 		/* Hack -- Clear the "empty" flag */
 		o_ptr->ident &= ~(IDENT_EMPTY);
@@ -928,6 +951,8 @@ bool detect_traps(void)
 
 	bool detect = FALSE;
 
+	s16b this_o_idx, next_o_idx = 0;
+
 
 	/* Scan the current panel */
 	for (y = p_ptr->wy; y < p_ptr->wy+SCREEN_HGT; y++)
@@ -953,6 +978,41 @@ bool detect_traps(void)
 
 				/* Obvious */
 				detect = TRUE;
+			}
+
+			/* P+ -- detect trapped chests */
+			/* Scan all objects in the grid */
+			for (this_o_idx = cave_o_idx[y][x]; this_o_idx; this_o_idx = next_o_idx)
+			{
+				object_type *o_ptr;
+
+				/* Acquire object */
+				o_ptr = &o_list[this_o_idx];
+
+				/* Acquire next object */
+				next_o_idx = o_ptr->next_o_idx;
+
+				/* Skip non-chests */
+				if (o_ptr->tval != TV_CHEST) continue;
+
+				/* Skip non-trapped chests */
+				if (!chest_traps[o_ptr->pval]) continue;
+
+				/* Hack -- Memorize */
+				cave_info[y][x] |= (CAVE_MARK);
+
+				/* Hack -- Redraw */
+				lite_spot(y, x);
+
+				/* Identify once */
+				if (!object_known_p(o_ptr))
+				{
+					/* Know the trap */
+					object_known(o_ptr);
+
+					/* Notice it */
+					detect = TRUE;
+				}
 			}
 		}
 	}
@@ -1262,6 +1322,7 @@ bool detect_objects_magic(void)
 		    (tv == TV_STAFF) || (tv == TV_WAND) || (tv == TV_ROD) ||
 		    (tv == TV_SCROLL) || (tv == TV_POTION) ||
 		    (tv == TV_MAGIC_BOOK) || (tv == TV_PRAYER_BOOK) ||
+		    (tv == TV_GW_MAGIC_BOOK) ||
 		    ((o_ptr->to_a > 0) || (o_ptr->to_h + o_ptr->to_d > 0)))
 		{
 			/* Memorize the item */
@@ -1661,8 +1722,22 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 		if (eflag & (ENCH_TODAM))
 		{
 			if (o_ptr->to_d < 0) chance = 0;
-			else if (o_ptr->to_d > 15) chance = 1000;
-			else chance = enchant_table[o_ptr->to_d];
+			/* Generally limit +to-dam to weapon's natural damage
+			   limitation.  E.g., a tulwar (2d4) can go to +8.
+			   Note the effect upon missiles....  -GJW */
+			else if (o_ptr->to_d > 19) chance = 1000;
+			else
+			{
+				if (o_ptr->tval == TV_BOW)
+					chance = enchant_table[o_ptr->to_d];
+				else
+				{
+					chance = enchant_table_dam[o_ptr->to_d];
+					if ((o_ptr->dd * o_ptr->ds <= o_ptr->to_d) &&
+						(chance < 995))
+							chance = 995;
+				}
+			}
 
 			if ((randint(1000) > chance) && (!a || (rand_int(100) < 50)))
 			{

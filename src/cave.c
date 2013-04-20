@@ -605,9 +605,9 @@ void map_info(int y, int x, byte *ap, char *cp)
 	{
 		monster_race *r_ptr = &r_info[0];
 		/* P+ -- Apply race/class attr/chars */
-		byte c_att = class_info[p_ptr->pclass].c_attr;
-		byte r_att = race_info[p_ptr->prace].r_attr;
-		char r_chr = race_info[p_ptr->prace].r_char;
+		byte c_att = cp_ptr->c_attr;
+		byte r_att = rp_ptr->r_attr;
+		char r_chr = rp_ptr->r_char;
 
 		/* Get the "player" attr */
 		a = r_ptr->x_attr;

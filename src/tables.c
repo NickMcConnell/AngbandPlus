@@ -467,46 +467,47 @@ byte adj_int_dis[] =
 /*
  * Stat Table (DEX) -- bonus to ac (plus 128)
  */
+/* GJW hacked */
 byte adj_dex_ta[] =
 {
-	128 + -4	/* 3 */,
-	128 + -3	/* 4 */,
-	128 + -2	/* 5 */,
-	128 + -1	/* 6 */,
-	128 + 0	/* 7 */,
-	128 + 0	/* 8 */,
+	128 + -10	/* 3 */,
+	128 + -7	/* 4 */,
+	128 + -5	/* 5 */,
+	128 + -3	/* 6 */,
+	128 + -2	/* 7 */,
+	128 + -1	/* 8 */,
 	128 + 0	/* 9 */,
 	128 + 0	/* 10 */,
 	128 + 0	/* 11 */,
 	128 + 0	/* 12 */,
-	128 + 0	/* 13 */,
-	128 + 0	/* 14 */,
-	128 + 1	/* 15 */,
-	128 + 1	/* 16 */,
-	128 + 1	/* 17 */,
-	128 + 2	/* 18/00-18/09 */,
-	128 + 2	/* 18/10-18/19 */,
-	128 + 2	/* 18/20-18/29 */,
-	128 + 2	/* 18/30-18/39 */,
-	128 + 2	/* 18/40-18/49 */,
-	128 + 3	/* 18/50-18/59 */,
-	128 + 3	/* 18/60-18/69 */,
-	128 + 3	/* 18/70-18/79 */,
-	128 + 4	/* 18/80-18/89 */,
-	128 + 5	/* 18/90-18/99 */,
-	128 + 6	/* 18/100-18/109 */,
-	128 + 7	/* 18/110-18/119 */,
-	128 + 8	/* 18/120-18/129 */,
-	128 + 9	/* 18/130-18/139 */,
-	128 + 9	/* 18/140-18/149 */,
-	128 + 10	/* 18/150-18/159 */,
-	128 + 11	/* 18/160-18/169 */,
-	128 + 12	/* 18/170-18/179 */,
-	128 + 13	/* 18/180-18/189 */,
-	128 + 14	/* 18/190-18/199 */,
-	128 + 15	/* 18/200-18/209 */,
-	128 + 15	/* 18/210-18/219 */,
-	128 + 15	/* 18/220+ */
+	128 + 1	/* 13 */,
+	128 + 1	/* 14 */,
+	128 + 2	/* 15 */,
+	128 + 2	/* 16 */,
+	128 + 3	/* 17 */,
+	128 + 4	/* 18/00-18/09 */,
+	128 + 5	/* 18/10-18/19 */,
+	128 + 6	/* 18/20-18/29 */,
+	128 + 6	/* 18/30-18/39 */,
+	128 + 7	/* 18/40-18/49 */,
+	128 + 8	/* 18/50-18/59 */,
+	128 + 9	/* 18/60-18/69 */,
+	128 + 10	/* 18/70-18/79 */,
+	128 + 11	/* 18/80-18/89 */,
+	128 + 12	/* 18/90-18/99 */,
+	128 + 13	/* 18/100-18/109 */,
+	128 + 15	/* 18/110-18/119 */,
+	128 + 17	/* 18/120-18/129 */,
+	128 + 19	/* 18/130-18/139 */,
+	128 + 21	/* 18/140-18/149 */,
+	128 + 22	/* 18/150-18/159 */,
+	128 + 23	/* 18/160-18/169 */,
+	128 + 24	/* 18/170-18/179 */,
+	128 + 25	/* 18/180-18/189 */,
+	128 + 26	/* 18/190-18/199 */,
+	128 + 28	/* 18/200-18/209 */,
+	128 + 30	/* 18/210-18/219 */,
+	128 + 32	/* 18/220+ */
 };
 
 
@@ -559,12 +560,13 @@ byte adj_str_td[] =
 /*
  * Stat Table (DEX) -- bonus to hit (plus 128)
  */
+/* GJW hacked */
 byte adj_dex_th[] =
 {
-	128 + -3	/* 3 */,
-	128 + -2	/* 4 */,
-	128 + -2	/* 5 */,
-	128 + -1	/* 6 */,
+	128 + -6	/* 3 */,
+	128 + -4	/* 4 */,
+	128 + -3	/* 5 */,
+	128 + -2	/* 6 */,
 	128 + -1	/* 7 */,
 	128 + 0	/* 8 */,
 	128 + 0	/* 9 */,
@@ -573,32 +575,32 @@ byte adj_dex_th[] =
 	128 + 0	/* 12 */,
 	128 + 0	/* 13 */,
 	128 + 0	/* 14 */,
-	128 + 0	/* 15 */,
-	128 + 1	/* 16 */,
-	128 + 2	/* 17 */,
-	128 + 3	/* 18/00-18/09 */,
-	128 + 3	/* 18/10-18/19 */,
-	128 + 3	/* 18/20-18/29 */,
-	128 + 3	/* 18/30-18/39 */,
-	128 + 3	/* 18/40-18/49 */,
-	128 + 4	/* 18/50-18/59 */,
-	128 + 4	/* 18/60-18/69 */,
-	128 + 4	/* 18/70-18/79 */,
-	128 + 4	/* 18/80-18/89 */,
-	128 + 5	/* 18/90-18/99 */,
-	128 + 6	/* 18/100-18/109 */,
-	128 + 7	/* 18/110-18/119 */,
-	128 + 8	/* 18/120-18/129 */,
-	128 + 9	/* 18/130-18/139 */,
-	128 + 9	/* 18/140-18/149 */,
-	128 + 10	/* 18/150-18/159 */,
-	128 + 11	/* 18/160-18/169 */,
-	128 + 12	/* 18/170-18/179 */,
-	128 + 13	/* 18/180-18/189 */,
-	128 + 14	/* 18/190-18/199 */,
-	128 + 15	/* 18/200-18/209 */,
-	128 + 15	/* 18/210-18/219 */,
-	128 + 15	/* 18/220+ */
+	128 + 1	/* 15 */,
+	128 + 2	/* 16 */,
+	128 + 3	/* 17 */,
+	128 + 4	/* 18/00-18/09 */,
+	128 + 4	/* 18/10-18/19 */,
+	128 + 5	/* 18/20-18/29 */,
+	128 + 5	/* 18/30-18/39 */,
+	128 + 6	/* 18/40-18/49 */,
+	128 + 6	/* 18/50-18/59 */,
+	128 + 7	/* 18/60-18/69 */,
+	128 + 7	/* 18/70-18/79 */,
+	128 + 8	/* 18/80-18/89 */,
+	128 + 8	/* 18/90-18/99 */,
+	128 + 9	/* 18/100-18/109 */,
+	128 + 10	/* 18/110-18/119 */,
+	128 + 11	/* 18/120-18/129 */,
+	128 + 12	/* 18/130-18/139 */,
+	128 + 13	/* 18/140-18/149 */,
+	128 + 14	/* 18/150-18/159 */,
+	128 + 15	/* 18/160-18/169 */,
+	128 + 16	/* 18/170-18/179 */,
+	128 + 17	/* 18/180-18/189 */,
+	128 + 18	/* 18/190-18/199 */,
+	128 + 19	/* 18/200-18/209 */,
+	128 + 20	/* 18/210-18/219 */,
+	128 + 20	/* 18/220+ */
 };
 
 
@@ -651,6 +653,7 @@ byte adj_str_th[] =
 /*
  * Stat Table (STR) -- weight limit in deca-pounds
  */
+/* GJW hacked */
 byte adj_str_wgt[] =
 {
 	5	/* 3 */,
@@ -669,15 +672,15 @@ byte adj_str_wgt[] =
 	18	/* 16 */,
 	19	/* 17 */,
 	20	/* 18/00-18/09 */,
-	22	/* 18/10-18/19 */,
-	24	/* 18/20-18/29 */,
-	26	/* 18/30-18/39 */,
-	28	/* 18/40-18/49 */,
-	30	/* 18/50-18/59 */,
-	30	/* 18/60-18/69 */,
-	30	/* 18/70-18/79 */,
-	30	/* 18/80-18/89 */,
-	30	/* 18/90-18/99 */,
+	21	/* 18/10-18/19 */,
+	22	/* 18/20-18/29 */,
+	23	/* 18/30-18/39 */,
+	24	/* 18/40-18/49 */,
+	25	/* 18/50-18/59 */,
+	26	/* 18/60-18/69 */,
+	27	/* 18/70-18/79 */,
+	28	/* 18/80-18/89 */,
+	29	/* 18/90-18/99 */,
 	30	/* 18/100-18/109 */,
 	30	/* 18/110-18/119 */,
 	30	/* 18/120-18/129 */,
@@ -1033,6 +1036,8 @@ byte adj_con_mhp[] =
  *    Rogue   --> num = 5; mul = 3; div = MAX(30, weapon_weight);
  *    Ranger  --> num = 5; mul = 4; div = MAX(35, weapon_weight);
  *    Paladin --> num = 5; mul = 4; div = MAX(30, weapon_weight);
+ *    GW-Mage --> num = 4; mul = 3; div = 2 * MAX(35, weapon_weight);
+ *    (GJW also altered this table -- P+)
  *
  * To get "P", we look up the relevant "adj_str_blow[]" (see above),
  * multiply it by "mul", and then divide it by "div", rounding down.
@@ -1049,16 +1054,16 @@ byte blows_table[12][12] =
 	/* 0,   1,   2,   3,   4,   5,   6,   7,   8,   9,  10,  11+ */
 
 	/* 0  */
-	{  1,   1,   1,   1,   1,   1,   2,   2,   2,   2,   2,   3 },
+	{  1,   1,   1,   1,   1,   1,   2,   2,   2,   2,   2,   2 },
 
 	/* 1  */
-	{  1,   1,   1,   1,   2,   2,   3,   3,   3,   4,   4,   4 },
+	{  1,   1,   1,   1,   2,   2,   3,   3,   3,   3,   3,   3 },
 
 	/* 2  */
-	{  1,   1,   2,   2,   3,   3,   4,   4,   4,   5,   5,   5 },
+	{  1,   1,   2,   2,   3,   3,   4,   4,   4,   4,   4,   4 },
 
 	/* 3  */
-	{  1,   2,   2,   3,   3,   4,   4,   4,   5,   5,   5,   5 },
+	{  1,   2,   2,   3,   3,   4,   4,   4,   4,   5,   5,   5 },
 
 	/* 4  */
 	{  1,   2,   2,   3,   3,   4,   4,   5,   5,   5,   5,   5 },
@@ -1189,7 +1194,7 @@ owner_type owners[MAX_STORES][MAX_OWNERS] =
 		/* Black Market */
 		{ "Lo-Hak the Awful",		20000,	250, 150, 10,  5, RACE_HALF_TROLL},
 		{ "Histor the Goblin",		20000,	250, 150, 10,  5, RACE_HALF_ORC},
-		{ "Durwin the Shifty",		30000,	250, 150, 10,  5, RACE_HUMAN},
+		{ "Durwin the Blue",		30000,	250, 150, 10,  5, RACE_KOBOLD}, /* GJW */
 		{ "Drago the Fair",			30000,	250, 150, 10,  5, RACE_ELF},
 	},
 	{
@@ -1360,7 +1365,7 @@ player_race race_info[MAX_RACES] =
 		72,  6, 180, 25,
 		66,  4, 150, 20,
 		0,
-		0x3F,
+		0x000001FF,
 		TERM_WHITE, 'p'
 	},
 
@@ -1373,7 +1378,7 @@ player_race race_info[MAX_RACES] =
 		66,  6, 130, 15,
 		62,  6, 100, 10,
 		2,
-		0x3F,
+		0x000001FF,
 		TERM_GREEN, 'H'
 	},
 
@@ -1386,7 +1391,7 @@ player_race race_info[MAX_RACES] =
 		60,  4, 100,  6,
 		54,  4, 80,  6,
 		3,
-		0x1F,
+		0x000001DF,
 		TERM_GREEN, 'h'
 	},
 
@@ -1399,7 +1404,7 @@ player_race race_info[MAX_RACES] =
 		36,  3, 60,  3,
 		33,  3, 50,  3,
 		4,
-		0x0B,
+		0x000000CB,
 		TERM_UMBER, 'h'
 	},
 
@@ -1412,7 +1417,7 @@ player_race race_info[MAX_RACES] =
 		42,  3, 90,  6,
 		39,  3, 75,  3,
 		4,
-		0x0F,
+		0x000000CF,
 		TERM_L_BLUE, 'h'
 	},
 
@@ -1425,7 +1430,7 @@ player_race race_info[MAX_RACES] =
 		48,  3, 150, 10,
 		46,  3, 120, 10,
 		5,
-		0x05,
+		0x00000005,
 		TERM_SLATE, 'h'
 	},
 
@@ -1438,7 +1443,7 @@ player_race race_info[MAX_RACES] =
 		66,  1, 150,  5,
 		62,  1, 120,  5,
 		3,
-		0x0D,
+		0x0000008D,
 		TERM_SLATE, 'o'
 	},
 
@@ -1451,7 +1456,7 @@ player_race race_info[MAX_RACES] =
 		96, 10, 250, 50,
 		84,  8, 225, 40,
 		3,
-		0x05,
+		0x00000005,
 		TERM_L_UMBER, 'T'
 	},
 
@@ -1464,7 +1469,7 @@ player_race race_info[MAX_RACES] =
 		82, 5, 190, 20,
 		78,  6, 180, 15,
 		0,
-		0x3F,
+		0x000001FF,
 		TERM_L_WHITE, 'p'
 	},
 
@@ -1477,8 +1482,21 @@ player_race race_info[MAX_RACES] =
 		90, 10, 190, 20,
 		82, 10, 180, 15,
 		4,
-		0x1F,
+		0x000001DF,
 		TERM_L_GREEN, 'h'
+	},
+
+	{
+		"Kobold", /* GJW */
+		{ -2, -1, 0, +2, +2, -1 },
+		10, 5, 10, 4, 15, 15, -5, 15,
+		9, 115,
+		15, 10,
+		38, 4, 70, 5,
+		36, 3, 60, 4,
+		5,
+		0x0000008D,
+		TERM_L_GREEN, 'k'
 	}
 };
 
@@ -1547,7 +1565,35 @@ player_class class_info[MAX_CLASS] =
 		7,  10, 11, 0,  0,  0,  35, 30,
 		6, 35,
 		TERM_WHITE
+	},
+
+	{
+		"GW-Mage",
+		{-5, 3, 0, 1, -2, 1},
+		30, 36, 30, 2,  16, 20, 34, 20,
+		7,  13, 9,  0,  0,  0,  15, 15,
+		0, 30,
+		TERM_RED
+	},
+
+	{
+		"GW-Rogue",
+		{ 2, 1, -2, 3, 1, -1},
+		45, 32, 28, 5, 32, 24, 60, 66,
+		15, 10, 10, 0,  0,  0, 40, 30,
+		6, 25,
+		TERM_BLUE
+	},
+
+	{
+		"GW-Ranger",
+		{ 2, 2, 0, 1, 1, 1},
+		30, 32, 28, 3,  24, 16, 56, 72,
+		8,  10, 10, 0,  0,  0,  30, 45,
+		4, 30,
+		TERM_L_WHITE
 	}
+
 };
 
 
@@ -2102,6 +2148,273 @@ player_magic magic_info[MAX_CLASS] =
 			{ 99,  0,  0,   0},
 			{ 99,  0,  0,   0}
 		}
+	},
+
+	{
+		/*** GW-Mage ***/
+
+		TV_GW_MAGIC_BOOK,
+		0,
+
+		A_INT,
+		2,
+
+		1,
+		300,
+
+		{
+			{  1,  1, 22,   4}, /* magic missile 0 */
+			{  1,  1, 23,   4}, /* detect monster */
+			{  1,  2, 24,   4}, /* phase door */
+			{  1,  2, 26,   4}, /* light area */
+
+			{  3,  3, 27,   3}, /* stinking cloud */
+			{  5,  4, 30,   4}, /* lightning bolt 5 */
+			{  7,  6, 40,   6}, /* frost bolt */
+			{ 10,  7, 50,   7}, /* acid bolt */
+			{ 15,  9, 50,   8}, /* fire bolt */
+			{ 16, 10, 40,   6}, /* shock wave */
+			{ 20, 20, 50,  10}, /* explosion 10 */
+
+			{ 17,  9, 50,   8}, /* cloudkill */
+			{ 19, 12, 55,   8}, /* frost ball */
+			{ 20, 15, 70,  20}, /* acid ball */
+			{ 26, 18, 65,  12}, /* fire ball */
+			{ 27, 24, 75,  24}, /* ice storm 15 */
+			{ 15,  8, 30,  12}, /* wonder */
+			{ 30, 30, 85,  34}, /* meteor storm */
+			{ 42, 45, 95, 200}, /* mana storm */
+
+			{  3,  3, 25,   3}, /* cure light wounds */
+			{  3,  3, 25,   2}, /* find traps 20 */
+			{ 99,  0,  0,   0}, /* detect treasure */
+			{ 99,  0,  0,   0}, /* detect objects */
+			{ 11,  7, 75,   6}, /* identify */
+			{ 15,  5, 40,   6}, /* detect invisible */
+			{ 25,  5, 50,   8}, /* detect evil 25 */
+			{  5,  5, 30,   6}, /* trap destruction */
+
+			{  5,  5, 35,   4}, /* cure poison */
+			{  7,  6, 35,   5}, /* teleport self */
+			{ 17,  9, 50,   7}, /* slow monster */
+			{ 23, 12, 60,   8}, /* teleport other 30 */
+			{ 25, 12, 65,  10}, /* haste */
+			{ 28, 17, 65,  20}, /* teleport level */
+
+			{  7,  7, 20,  28}, /* door creation */
+			{  9,  7, 45,   8}, /* satisfy hunger */
+			{  7,  6, 30,   5}, /* spear of light 35 */
+			{  9,  7, 44,   8}, /* stone to mud */
+			{  9, 12, 40,  44}, /* stair creation */
+			{  9,  7, 75,   9}, /* recharge 1 */
+			{ 25, 30, 95, 160}, /* recharge 3 */
+			{ 32, 60, 95, 180}, /* elemental brand 40 */
+
+			{  3,  4, 30,   1}, /* confusion */
+			{  5,  5, 30,   4}, /* sleep 1 */
+			{ 13,  7, 50,   6}, /* sleep 3 */
+			{ 20, 15, 60,  24}, /* bedlam */
+			{ 33, 25, 95,  25}, /* genocide 45 */
+			{ 40, 75, 80, 100}, /* mass genocide */
+			{ 45, 40, 80,  80}, /* rend soul */
+
+			{ 10,  5, 50,  10}, /* resist cold */
+			{ 10,  5, 50,  10}, /* resist fire */
+			{ 99,  0,  0,   0}, /* heroism 50 */
+			{ 99,  0,  0,   0}, /* berserker */
+			{ 25, 10, 45,  20}, /* resist poison */
+			{ 28, 20, 65,  30}, /* resistance */
+			{ 32, 24, 75,  30}, /* shield */
+			{ 45, 70, 75, 250}, /* GoI -- P+ */
+
+			{ 30, 10, 70,  10}, /* detect enchantment */
+			{ 30, 25, 75,  15}, /* WoR */
+			{ 11,  7, 45,   9}, /* polymorph other */
+			{ 20, 18, 60,  24}, /* earthquake */
+			{ 33, 21, 80,  15}, /* destruction 60 */
+			{ 35, 30, 60,  25}, /* rift */
+			{ 38, 40, 90,  40}, /* chaos strike */
+
+			{ 99,  0,  0,   0} /* (blank) */
+		}
+	},
+
+	{
+		/*** GW-Rogue ***/
+
+		TV_GW_MAGIC_BOOK,
+		0,
+
+		A_INT,
+		2,
+
+		5,
+		350,
+
+		{
+			{ 99,  0,  0,   0}, /* mm 0 */
+			{  5,  1, 50,   1}, /* det m */
+			{  7,  2, 55,   1}, /* phase */
+			{  9,  3, 60,   1}, /* light */
+
+			{ 99,  0,  0,   0}, /* stinky */
+			{ 99,  0,  0,   0}, /* lightning 5 */
+			{ 99,  0,  0,   0}, /* frost */
+			{ 99,  0,  0,   0}, /* acid */
+			{ 99,  0,  0,   0}, /* fire */
+			{ 35, 25, 80,  50}, /* shock wave */
+			{ 99,  0,  0,   0}, /* explosion 10 */
+
+			{ 25, 20, 60,  15}, /* cloudkill */
+			{ 99,  0,  0,   0}, /* frost ball */
+			{ 99,  0,  0,   0}, /* acid ball */
+			{ 99,  0,  0,   0}, /* fire ball */
+			{ 99,  0,  0,   0}, /* ice storm 15 */
+			{ 10, 10, 70,  10}, /* wonder */
+			{ 99,  0,  0,   0}, /* meteor */
+			{ 99,  0,  0,   0}, /* mana */
+
+			{ 11,  4, 65,   1}, /* cure light */
+			{ 13,  5, 50,   1}, /* traps 20 */
+			{ 10,  3, 60,   1}, /* treasure */
+			{ 12,  4, 65,   1}, /* objects */
+			{ 28, 18, 60,   2}, /* identify */
+			{ 20, 10, 50,   4}, /* invisible */
+			{ 30, 15, 70,   6}, /* evil 25 */
+			{ 14,  7, 60,   2}, /* trap destruct */
+
+			{ 21,  9, 90,   1}, /* cure poison */
+			{ 22,  9, 50,   1}, /* teleport */
+			{ 99,  0,  0,   0}, /* slow mon */
+			{ 31, 25, 70,   3}, /* tele other 30 */
+			{ 32, 25, 70,   6}, /* haste */
+			{ 25, 20, 60,  20}, /* tele level */
+
+			{ 17,  7, 30,  15}, /* doors */
+			{ 25, 12, 95,   1}, /* hunger */
+			{ 23, 10, 95,   1}, /* spear light 35 */
+			{ 24, 11, 70,   1}, /* stone/mud */
+			{ 25, 12, 40,  25}, /* stairs */
+			{ 27, 15, 99,   1}, /* recharge 1 */
+			{ 35, 40, 95, 100}, /* recharge 3 */
+			{ 30, 60, 80, 120}, /* elemental brand 40 */
+
+			{ 15,  6, 75,   1}, /* confusion */
+			{ 19,  8, 85,   1}, /* sleep 1 */
+			{ 24, 15, 80,  10}, /* sleep 3 */
+			{ 29, 20, 70,  20}, /* bedlam */
+			{ 99,  0,  0,   0}, /* genocide 45 */
+			{ 99,  0,  0,   0}, /* mass genocide */
+			{ 99,  0,  0,   0}, /* rend soul */
+
+			{ 16, 12, 50,  40}, /* RC */
+			{ 19, 12, 50,  40}, /* RF */
+			{ 22, 11, 50,  40}, /* hero 50  */
+			{ 25, 25, 60, 160}, /* berserker */
+			{ 26, 20, 75,  60}, /* RP */
+			{ 31, 30, 85,  80}, /* R */
+			{ 34, 20, 75,  80}, /* shield */
+			{ 99,  0,  0,   0}, /* was GoI 55 */
+
+			{ 27, 10, 50,  10}, /* detect enchantment */
+			{ 36, 40, 80,  18}, /* WoR */
+			{ 99,  0,  0,   0}, /* poly */
+			{ 99,  0,  0,   0}, /* quake */
+			{ 99,  0,  0,   0}, /* destruct 60 */
+			{ 99,  0,  0,   0}, /* rift */
+			{ 99,  0,  0,   0}, /* chaos */
+
+			{ 99,  0,  0,   0} /* (blank) */
+		}
+	},
+
+	{
+		/*** GW-Ranger ***/
+
+		TV_GW_MAGIC_BOOK,
+		0,
+
+		A_INT,
+		2,
+
+		3,
+		400,
+
+		{
+			{  3,  1, 30,   1}, /* mm 0 */
+			{  3,  2, 35,   2}, /* detect mon */
+			{  3,  2, 35,   2}, /* phase */
+			{  5,  3, 35,   1}, /* light */
+
+			{  7,  5, 40,   3}, /* stinky */
+			{  9,  7, 40,   3}, /* lightning 5 */
+			{ 15, 12, 50,   4}, /* frost */
+			{ 20, 16, 50,   6}, /* acid */
+			{ 25, 20, 60,   3}, /* fire */
+			{ 99,  0,  0,   0}, /* shock */
+			{ 99,  0,  0,   0}, /* explosion 10 */
+
+			{ 22, 19, 60,   6}, /* cloudkill */
+			{ 27, 21, 65,   6}, /* frost ball */
+			{ 30, 24, 70,   6}, /* acid ball */
+			{ 34, 28, 80,   9}, /* fire ball */
+			{ 35, 35, 70,  10}, /* ice storm 15 */
+			{ 20, 15, 80,  10}, /* wonder */
+			{ 36, 45, 80,  35}, /* meteor */
+			{ 99,  0,  0,   0}, /* mana */
+
+			{  5,  3, 40,   1}, /* cure light */
+			{  5,  4, 45,   2}, /* traps 20 */
+			{ 99,  0,  0,   0}, /* treasure */
+			{ 99,  0,  0,   0}, /* objects */
+			{ 23, 25, 90,   3}, /* identify */
+			{ 25, 15, 50,   4}, /* invisible */
+			{ 30, 15, 50,   6}, /* evil 25 */
+			{  9,  8, 45,   3}, /* trap destruct */
+
+			{ 11,  9, 45,   3}, /* cure poison */
+			{ 13, 10, 45,   3}, /* teleport */
+			{ 25, 21, 65,   3}, /* slow mon */
+			{ 31, 25, 70,   3}, /* tele other 30 */
+			{ 33, 25, 75,   4}, /* haste */
+			{ 34, 27, 60,  15}, /* tele level */
+
+			{  8, 17, 20,  25}, /* door create */
+			{ 17, 17, 55,   3}, /* satisfy hunger */
+			{ 13, 11, 55,   4}, /* spear light 35 */
+			{ 15, 13, 50,   4}, /* stone/mud */
+			{ 18, 22, 40,  21}, /* stairs */
+			{ 29, 17, 90,   4}, /* recharge 1 */
+			{ 35, 50, 95, 115}, /* recharge 3 */
+			{ 31, 60, 95, 180}, /* elemental brand 40 */
+
+			{  7,  6, 40,   2}, /* confusion */
+			{ 11,  8, 40,   3}, /* sleep 1 */
+			{ 23, 20, 60,   4}, /* sleep 3 */
+			{ 32, 30, 70,  12}, /* bedlam */
+			{ 99,  0,  0,   0}, /* geno 45 */
+			{ 99,  0,  0,   0}, /* mass geno */
+			{ 99,  0,  0,   0}, /* rend soul */
+
+			{  8, 15, 50,  30}, /* RC */
+			{  8, 15, 50,  30}, /* RF */
+			{ 18, 15, 50,  40}, /* heroism 50 */
+			{ 23, 30, 80,  35}, /* berserk */
+			{ 26, 25, 75,  50}, /* RP */
+			{ 31, 40, 85,  70}, /* R */
+			{ 15, 20, 75,  80}, /* shield */
+			{ 99,  0,  0,   0}, /* was GoI 55 */
+
+			{ 35, 20, 70,  10}, /* enchantment */
+			{ 35, 35, 75,  16}, /* WoR */
+			{ 21, 19, 60,   3}, /* poly */
+			{ 30, 28, 60,  16}, /* quake */
+			{ 37, 30, 95,  10}, /* destruct 60 */
+			{ 99,  0,  0,   0}, /* rift */
+			{ 99,  0,  0,   0}, /* chaos */
+
+			{ 99,  0,  0,   0} /* (blank) */
+		}
 	}
 };
 
@@ -2109,7 +2422,7 @@ player_magic magic_info[MAX_CLASS] =
 /*
  * Spells in each book (mage spells then priest spells)
  */
-u32b spell_flags[2][9][2] =
+u32b spell_flags[3][12][2] =
 {
 	{
 		/*** Mage spell books ***/
@@ -2121,7 +2434,10 @@ u32b spell_flags[2][9][2] =
 		{ 0x00000000, 0x0000003e },
 		{ 0x00000000, 0x0001f000 },
 		{ 0x00000000, 0x07c00000 },
-		{ 0x00000000, 0x00000fc0 }
+		{ 0x00000000, 0x00000fc0 },
+		{ 0x00000000, 0x00000000 },
+		{ 0x00000000, 0x00000000 },
+		{ 0x00000000, 0x00000000 }
 	},
 
 	{
@@ -2134,7 +2450,26 @@ u32b spell_flags[2][9][2] =
 		{ 0x80000000, 0x0000000f },
 		{ 0x00000000, 0x000001f0 },
 		{ 0x00000000, 0x000fc000 },
-		{ 0x00000000, 0x00003e00 }
+		{ 0x00000000, 0x00003e00 },
+		{ 0x00000000, 0x00000000 },
+		{ 0x00000000, 0x00000000 },
+		{ 0x00000000, 0x00000000 }
+	},
+
+	{
+		/*** Mage spell books GJW ***/
+		{ 0x0018000f, 0x00000000 },
+		{ 0x03f00002, 0x01000000 },
+		{ 0x000007f1, 0x00000000 },
+		{ 0xf0000004, 0x02000001 },
+		{ 0x08080000, 0x001c0004 },
+		{ 0x04000008, 0x000001fa },
+		{ 0x00000000, 0x0000fe00 },
+		{ 0x0006f800, 0x00000000 },
+		{ 0x00000000, 0x00730000 },
+		{ 0x00010000, 0x7c000000 },
+		{ 0x00000000, 0x00000000 },
+		{ 0x00000000, 0x00000000 }
 	}
 };
 
@@ -2142,7 +2477,7 @@ u32b spell_flags[2][9][2] =
 /*
  * Names of the spells (mage spells then priest spells)
  */
-cptr spell_names[2][64] =
+cptr spell_names[3][64] =
 {
 	/*** Mage Spells ***/
 
@@ -2316,6 +2651,112 @@ cptr spell_names[2][64] =
 		"(blank)",
 		"(blank)",
 		"(blank)"
+	},
+
+ 	/*** Mage Spells GJW ***/
+
+ 	{
+		/* I apologize for the order of these spells.  They were
+		   shuffled around more than once as I experimented with
+		   various combinations of books/levels/classes/etc. -GJW */
+		/* This first group is isolated so that the beginner's book is
+		   in the "right" order, or as close as it'll get. */
+		"Magic Missile",
+		"Detect Monsters",
+		"Phase Door",
+		"Light Area",
+
+		/* Evocations -- offensive spells (includes magic missile)
+			"Kill, kill, hate, hate,
+			 Murder, murder, mutilate!"
+			 -- CWRU Marching Spartans, traditional cheer */
+		"Stinking Cloud",
+		"Lightning Bolt",
+		"Frost Bolt",
+		"Acid Bolt",
+		"Fire Bolt",
+		"Shock Wave",
+		"Explosion",
+
+		/* Advanced Evocations -- some more of the offensive spells
+		   have been scattered....  (Wonder is actually in Chaos.) */
+		"Cloudkill",
+		"Frost Ball",
+		"Acid Ball",
+		"Fire Ball",
+		"Ice Storm",
+		"Wonder",
+		"Meteor Swarm",
+		"Mana Storm",
+
+		/* Here for obscure reasons.... */
+		"Cure Light Wounds",
+
+		/* Divinations -- informative spells (includes detect monster
+		   and detect enchantment) */
+		"Find Hidden Traps/Doors",
+		"Treasure Detection",
+		"Object Detection",
+		"Identify",
+		"Detect Invisible",
+		"Detect Evil",
+
+		/* Here for obscure reasons.... */
+		"Trap/Door Destruction",
+		"Cure Poison",
+
+		/* Manipluations of Time and Space; we need more of these
+		   (Rift??).  Includes phase door. */
+		"Teleport Self",
+		"Slow Monster",
+		"Teleport Other",
+		"Haste Self",
+		"Teleport Level",
+
+		/* Spells of Creation and Alteration; sort of a "utility" book
+		   (incl. light area & stone to mud, but not satisfy hunger) */
+		"Door Creation",
+		"Satisfy Hunger",
+		"Spear of Light",
+		"Turn Stone to Mud",
+		"Stair Creation",
+		"Lesser Recharging",
+		"Greater Recharging",
+		"Elemental Brand",
+
+		/* Black Magic (mua-ha-ha) */
+		"Confuse Monster",
+		"Sleep Monster",
+		"Mass Sleep",
+		"Bedlam",
+		"Genocide",
+		"Mass Genocide",
+		"Rend Soul",
+
+		/* Resistances and Defenses; "White Magic".  Some work is
+		   needed here. */
+		"Resist Cold",
+		"Resist Fire",
+		"Heroism",
+		"Berserker",
+		"Resist Poison",
+		"Resistance",
+		"Shield",
+		"Globe of Invulnerability",	/* P+ added! */
+
+		/* Here for obscure reasons.... */
+		"Detect Enchantment",
+		"Word of Recall",
+
+		/* Chaos; Wild Magic; Assorted Mayhem and Destruction.  More of
+		   these are needed.  Includes Wonder. */
+		"Polymorph Other",
+		"Earthquake",
+		"Word of Destruction",
+		"Rift",
+		"Chaos Strike",
+
+		"(blank)"	/* reserved for future expansion */
 	}
 };
 
@@ -2493,6 +2934,48 @@ cptr player_title[MAX_CLASS][PY_MAX_LEVEL/5] =
 		"Low Paladin",
 		"High Paladin",
 		"Paladin Lord",
+	},
+
+	/* GW-Mage */
+	{
+		"Novice",
+		"Apprentice",
+		"Trickster",
+		"Illusionist",
+		"Spellbinder",
+		"Evoker",
+		"Conjurer",
+		"Warlock",
+		"Sorcerer",
+		"Mage Lord",
+	},
+
+	/* GW-Rogues */
+	{
+		"Vagabond",
+		"Cutpurse",
+		"Robber",
+		"Burglar",
+		"Filcher",
+		"Sharper",
+		"Low Thief",
+		"High Thief",
+		"Master Thief",
+		"Assassin",
+	},
+
+	/* GW-Rangers */
+	{
+		"Runner",
+		"Strider",
+		"Scout",
+		"Courser",
+		"Tracker",
+		"Guide",
+		"Pathfinder",
+		"Low Ranger",
+		"High Ranger",
+		"Ranger Lord",
 	}
 };
 

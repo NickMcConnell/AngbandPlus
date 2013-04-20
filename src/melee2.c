@@ -3270,8 +3270,8 @@ static void process_monster(int m_idx)
 			}
 		}
 
-		/* Still stunned */
-		if (m_ptr->stunned) return;
+		/* Still stunned  -- but not helpless!! -GJW */
+		if (m_ptr->stunned && (rand_int(100) < 40)) return;
 	}
 
 

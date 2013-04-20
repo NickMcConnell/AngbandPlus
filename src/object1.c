@@ -333,6 +333,7 @@ static bool object_easy_know(int i)
 		/* Spellbooks */
 		case TV_MAGIC_BOOK:
 		case TV_PRAYER_BOOK:
+		case TV_GW_MAGIC_BOOK:
 		{
 			return (TRUE);
 		}
@@ -1207,6 +1208,14 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		{
 			modstr = basenm;
 			basenm = "& Holy Book~ of Prayers #";
+			break;
+		}
+
+		/* Magic Books */
+		case TV_GW_MAGIC_BOOK:
+		{
+			modstr = basenm;
+			basenm = "& Magic Spellbook~ #";
 			break;
 		}
 
@@ -2306,6 +2315,10 @@ bool identify_fully_aux(object_type *o_ptr)
 	{
 		info[i++] = "It does extra damage from frost.";
 	}
+	if (f1 & (TR1_BRAND_POIS))
+	{
+		info[i++] = "It does extra damage from poison.";
+	}
 
 	if (f2 & (TR2_SUST_STR))
 	{
@@ -2562,6 +2575,9 @@ bool identify_fully_aux(object_type *o_ptr)
 
 			/* Label the information */
 			prt("     Item Attributes:", 1, 0);
+
+			/* P+: fix bug in which only one screen shows */
+			k = 2;
 		}
 	}
 

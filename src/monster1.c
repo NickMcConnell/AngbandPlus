@@ -158,7 +158,7 @@ static void roff_aux(int r_idx)
 		/* XXX XXX XXX */
 
 		/* Hack -- save memory */
-		/* P+ patched on Tim Baker's notice */
+		/* GJW, Tim Baker patched bug */
 		COPY(&save_mem, r_ptr, monster_race);
 
 		/* Hack -- Maximal kills */
@@ -944,6 +944,8 @@ static void roff_aux(int r_idx)
 	if (flags3 & (RF3_IM_FIRE)) vp[vn++] = "fire";
 	if (flags3 & (RF3_IM_COLD)) vp[vn++] = "cold";
 	if (flags3 & (RF3_IM_POIS)) vp[vn++] = "poison";
+	if (flags3 & (RF3_NO_CONF)) vp[vn++] = "confusion";
+	if (flags3 & (RF3_NO_SLEEP)) vp[vn++] = "sleep";
 
 	/* Describe immunities */
 	if (vn)
@@ -1003,8 +1005,6 @@ static void roff_aux(int r_idx)
 	vn = 0;
 	if (flags3 & (RF3_NO_STUN)) vp[vn++] = "stunned";
 	if (flags3 & (RF3_NO_FEAR)) vp[vn++] = "frightened";
-	if (flags3 & (RF3_NO_CONF)) vp[vn++] = "confused";
-	if (flags3 & (RF3_NO_SLEEP)) vp[vn++] = "slept";
 
 	/* Describe non-effects */
 	if (vn)
@@ -1351,7 +1351,7 @@ static void roff_aux(int r_idx)
 	if (cheat_know)
 	{
 		/* Hack -- restore memory */
-		/* P+ patched on Tim Baker's notice */
+		/* GJW, Tim Baker patched bug */
 		COPY(r_ptr, &save_mem, monster_race);
 	}
 }

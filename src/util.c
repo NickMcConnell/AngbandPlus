@@ -1493,6 +1493,9 @@ char inkey(void)
 	term *old = Term;
 
 
+	/* Hack -- stop skipping messages */
+	message__skip = FALSE;
+
 	/* Hack -- Use the "inkey_next" pointer */
 	if (inkey_next && *inkey_next && !inkey_xtra)
 	{
@@ -2106,6 +2109,9 @@ errr message_init(void)
 	/* Hack -- No messages yet */
 	message__tail = MESSAGE_BUF;
 
+	/* Don't skip messages -- P+ */
+	message__skip = FALSE;
+
 	/* Success */
 	return (0);
 }
@@ -2176,18 +2182,32 @@ static void msg_flush(int x)
 {
 	byte a = TERM_L_BLUE;
 
-	/* Pause for response */
-	Term_putstr(x, 0, -1, a, "-more-");
-
-	/* Get an acceptable keypress */
-	while (1)
+	if (!message__skip)
 	{
-		int cmd = inkey();
-		if (quick_messages) break;
-		if ((cmd == ESCAPE) || (cmd == ' ')) break;
-		if ((cmd == '\n') || (cmd == '\r')) break;
-		bell("Illegal response to a 'more' prompt!");
+		/* Pause for response */
+		Term_putstr(x, 0, -1, a, "-more-");
+
+		/* Get an acceptable keypress */
+		while (1)
+		{
+			int cmd = inkey();
+			if (quick_messages) break;
+#if 0
+			if ((cmd == ESCAPE) || (cmd == ' ')) break;
+#else
+			if (cmd == ESCAPE)
+			{
+				/* Skip further messages */
+				message__skip = TRUE;
+				break;
+			}
+			if (cmd == ' ') break;
+#endif
+			if ((cmd == '\n') || (cmd == '\r')) break;
+			bell("Illegal response to a 'more' prompt!");
+		}
 	}
+
 
 	/* Clear the line */
 	Term_erase(0, 0, 255);

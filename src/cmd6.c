@@ -2735,47 +2735,12 @@ static void ring_of_power(int dir)
 
 
 /*
- * Enchant some bolts
+ * Enchant some bolts -- merged with the mage spell -GJW
  */
 static bool brand_bolts(void)
 {
-	int i;
-
-	/* Use the first acceptable bolts */
-	for (i = 0; i < INVEN_PACK; i++)
-	{
-		object_type *o_ptr = &inventory[i];
-
-		/* Skip non-bolts */
-		if (o_ptr->tval != TV_BOLT) continue;
-
-		/* Skip artifacts and ego-items */
-		if (artifact_p(o_ptr) || ego_item_p(o_ptr)) continue;
-
-		/* Skip cursed/broken items */
-		if (cursed_p(o_ptr) || broken_p(o_ptr)) continue;
-
-		/* Randomize */
-		if (rand_int(100) < 75) continue;
-
-		/* Message */
-		msg_print("Your bolts are covered in a fiery aura!");
-
-		/* Ego-item */
-		o_ptr->name2 = EGO_FLAME;
-
-		/* Enchant */
-		enchant(o_ptr, rand_int(3) + 4, ENCH_TOHIT | ENCH_TODAM);
-
-		/* Notice */
-		return (TRUE);
-	}
-
-	/* Flush */
-	if (flush_failure) flush();
-
-	/* Fail */
-	msg_print("The fiery enchantment failed.");
+	/* Do the branding */
+	brand_ammo(1, TRUE);
 
 	/* Notice */
 	return (TRUE);

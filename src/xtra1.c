@@ -1158,7 +1158,8 @@ static void calc_spells(void)
 
 	magic_type *s_ptr;
 
-	cptr p = ((mp_ptr->spell_book == TV_MAGIC_BOOK) ? "spell" : "prayer");
+	cptr p = ((mp_ptr->spell_book == TV_MAGIC_BOOK) ||
+		  (mp_ptr->spell_book == TV_GW_MAGIC_BOOK) ? "spell" : "prayer");
 
 
 	/* Hack -- must be literate */
@@ -1439,7 +1440,8 @@ static void calc_mana(void)
 
 
 	/* Only mages are affected */
-	if (mp_ptr->spell_book == TV_MAGIC_BOOK)
+	if ((mp_ptr->spell_book == TV_MAGIC_BOOK) ||
+	    (mp_ptr->spell_book == TV_GW_MAGIC_BOOK))
 	{
 		u32b f1, f2, f3;
 
@@ -1861,6 +1863,9 @@ static void calc_bonuses(void)
 	/* High Elf */
 	if (p_ptr->prace == RACE_HIGH_ELF) p_ptr->resist_lite = TRUE;
 	if (p_ptr->prace == RACE_HIGH_ELF) p_ptr->see_inv = TRUE;
+
+	/* Kobold */
+	if (p_ptr->prace == RACE_KOBOLD) p_ptr->resist_pois = TRUE;
 
 	/* Warrior */
 	if (p_ptr->pclass == CLASS_WARRIOR)
@@ -2307,7 +2312,8 @@ static void calc_bonuses(void)
 			p_ptr->ammo_mult += extra_might;
 
 			/* Hack -- Rangers love Bows */
-			if ((p_ptr->pclass == CLASS_RANGER) &&
+			if (((p_ptr->pclass == CLASS_RANGER) ||
+			     (p_ptr->pclass == CLASS_GW_RANGER)) &&
 			    (p_ptr->ammo_tval == TV_ARROW))
 			{
 				/* Extra shot at level 20 */
@@ -2347,32 +2353,49 @@ static void calc_bonuses(void)
 	{
 		int str_index, dex_index;
 
-		int num = 0, wgt = 0, mul = 0, div = 0;
+		int num = 0, wgt = 0, mul = 0, div = 1;
 
 		/* Analyze the class */
 		switch (p_ptr->pclass)
 		{
 			/* Warrior */
-			case CLASS_WARRIOR: num = 6; wgt = 30; mul = 5; break;
+			case CLASS_WARRIOR:   num = 6; wgt = 30; mul = 5; break;
 
 			/* Mage */
-			case CLASS_MAGE:    num = 4; wgt = 40; mul = 2; break;
+			case CLASS_MAGE:      num = 4; wgt = 40; mul = 2; break;
 
-			/* Priest */
-			case CLASS_PRIEST:  num = 5; wgt = 35; mul = 3; break;
+			/* Priest -- GJW changed */
+#if 1
+			case CLASS_PRIEST:    num = 5; wgt = 40; mul = 2; break;
+#else
+			case CLASS_PRIEST:    num = 5; wgt = 35; mul = 3; break;
+#endif
 
 			/* Rogue */
-			case CLASS_ROGUE:   num = 5; wgt = 30; mul = 3; break;
+			case CLASS_ROGUE:     num = 5; wgt = 30; mul = 3; break;
 
 			/* Ranger */
-			case CLASS_RANGER:  num = 5; wgt = 35; mul = 4; break;
+			case CLASS_RANGER:    num = 5; wgt = 35; mul = 4; break;
 
-			/* Paladin */
-			case CLASS_PALADIN: num = 5; wgt = 30; mul = 4; break;
+			/* Paladin -- GJW changed */
+#if 1
+			case CLASS_PALADIN:   num = 5; wgt = 35; mul = 4; break;
+#else
+			case CLASS_PALADIN:   num = 5; wgt = 30; mul = 4; break;
+#endif
+
+			/* Mage -- GJW */
+			case CLASS_GW_MAGE:   num = 4; wgt = 35; mul = 3; div = 2; break;
+
+			/* Rogue */
+			case CLASS_GW_ROGUE:  num = 5; wgt = 30; mul = 3; break;
+
+			/* Ranger */
+			case CLASS_GW_RANGER: num = 5; wgt = 35; mul = 4; break;
 		}
 
 		/* Enforce a minimum "weight" (tenth pounds) */
-		div = ((o_ptr->weight < wgt) ? wgt : o_ptr->weight);
+		div *= ((o_ptr->weight < wgt) ? wgt : o_ptr->weight);
 
 		/* Access the strength vs weight */
 		str_index = (adj_str_blow[p_ptr->stat_ind[A_STR]] * mul / div);
@@ -2406,7 +2429,7 @@ static void calc_bonuses(void)
 	p_ptr->icky_wield = FALSE;
 
 	/* Priest weapon penalty for non-blessed edged weapons */
-	if ((p_ptr->pclass == 2) && (!p_ptr->bless_blade) &&
+	if ((p_ptr->pclass == CLASS_PRIEST) && (!p_ptr->bless_blade) &&
 	    ((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_POLEARM)))
 	{
 		/* Reduce the real bonuses */

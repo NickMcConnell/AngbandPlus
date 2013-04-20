@@ -400,7 +400,7 @@ static cptr k_info_flags1[] =
 	"KILL_DRAGON",
 	"XXX5",
 	"XXX6",
-	"XXX7",
+	"BRAND_POIS", /* GJW */
 	"BRAND_ACID",
 	"BRAND_ELEC",
 	"BRAND_FIRE",

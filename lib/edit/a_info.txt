@@ -294,7 +294,21 @@ F:DEX | HIDE_TYPE |
 F:RES_ACID | RES_SHARD
 
 
-# Artifact 29 is unused
+# The Robe of Icanus [aka Gandalf's name in either the South or the far
+# East of Middle Earth, I can't remember which, but that doesn't matter
+# 'cause I think "Icanus" sounds cool :]
+# Frankly, I think this one's rather weak, tho it's nice for Magi who need
+# to keep their loads down, especially since Robes of Permanence are
+# relatively rare...
+# P+ added, changed name, added FEATHER
+
+N:29:of Icarus
+I:36:2:3
+W:50:2:20:60000
+P:2:0d0:0:0:20
+F:INT | WIS | SEARCH | HIDE_TYPE | FEATHER | 
+F:SUST_INT | SUST_WIS | FREE_ACT | SEE_INVIS | 
+F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD
 
 
 # The Small Metal Shield of Thorin
@@ -339,7 +353,7 @@ F:STR | INT | WIS | DEX | CON | CHR | INFRA | HIDE_TYPE |
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | RES_POIS | 
 F:RES_LITE | RES_DARK | RES_CONFU | RES_NEXUS | 
 F:LITE | SEE_INVIS | TELEPATHY | 
-F:LIGHT_CURSE | HEAVY_CURSE | PERMA_CURSE
+F:LIGHT_CURSE | HEAVY_CURSE | AGGRAVATE
 F:INSTA_ART
 
 
@@ -603,7 +617,21 @@ P:6:1d1:0:0:20
 F:STR | CON | HIDE_TYPE
 
 
-# Artifact 63 is unused
+# The Pair of Soft Leather Boots of Thieves
+# Just a little something to complement a Rogue's abilities and
+# specialties...  They have to move quietly and without being slowed down
+# [thus the stealth, FA, levitation/feather fall and minor speed bonus]
+# Finding traps and secret doors is quite in character [searching],
+# whatever the realm of magic.  And while they feel quite at home in the
+# shadows (resist darkness), they've also got to operate when someone
+# comes along with a spotlight. (resist light) :]
+
+N:63:of Thieves
+I:30:2:4
+W:40:3:20:50000
+P:2:1d1:0:0:10
+F:DEX | CHR | STEALTH | SEARCH | SPEED | HIDE_TYPE | 
+F:FREE_ACT | FEATHER | RES_DARK | RES_LITE
 
 
 # The Main Gauche of Maedhros
@@ -655,12 +683,13 @@ F:BRAND_ELEC | RES_ELEC | ACTIVATE | SHOW_MODS
 
 
 # The Dagger of Rilia
+# GJW added poison brand
 
 N:69:of Rilia
 I:23:4:0
 W:5:40:12:15000
 P:0:2d4:4:3:0
-F:SLAY_ORC | RES_POIS | RES_DISEN | ACTIVATE | SHOW_MODS
+F:SLAY_ORC | BRAND_POIS | RES_POIS | RES_DISEN | ACTIVATE | SHOW_MODS
 
 
 # The Dagger 'Belangil'
@@ -686,13 +715,14 @@ F:AGGRAVATE | LIGHT_CURSE | HEAVY_CURSE | SHOW_MODS
 
 
 # The Broad Sword 'Arunruth'
+# GJW added frost brand
 
 N:72:'Arunruth'
 I:23:16:4
 W:20:45:150:50000
 P:0:3d5:20:12:0
 F:DEX | HIDE_TYPE | 
-F:SLAY_DEMON | SLAY_ORC | FREE_ACT | RES_COLD | FEATHER | 
+F:SLAY_DEMON | SLAY_ORC | BRAND_COLD | FREE_ACT | RES_COLD | FEATHER | 
 F:SLOW_DIGEST | ACTIVATE | SHOW_MODS
 
 
@@ -1100,7 +1130,8 @@ W:100:1:1000:500000
 P:0:9d9:5:25:10
 F:KILL_DRAGON | SLAY_ANIMAL | SLAY_EVIL | IMPACT | SLAY_UNDEAD | 
 F:SLAY_DEMON | SLAY_TROLL | SLAY_ORC | RES_ACID | RES_ELEC | RES_FIRE | 
-F:RES_COLD | SEE_INVIS | TELEPATHY | AGGRAVATE | SHOW_MODS | INSTA_ART
+F:RES_COLD | SEE_INVIS | TELEPATHY | AGGRAVATE | SHOW_MODS | INSTA_ART | 
+F:LIGHT_CURSE | HEAVY_CURSE
 
 
 # The Flail 'Totila'
@@ -1221,7 +1252,25 @@ F:BRAND_COLD | SLAY_ORC | RES_COLD | RES_LITE | LITE | REGEN |
 F:ACTIVATE | SHOW_MODS
 
 
-# Artifact 123 is unused
+# The Whip 'Lasher'
+# This is here mostly to give priests a light artifact weapon they can use
+# without penalty - after all, there are more daggers than you can shake a
+# stick at...  Free action is just a giveaway, the vorpal blade and poison
+# brand are there to give the sting you'd expect from a magical whip.
+# The dexterity and attack bonuses are there 'cause a whip is naturally a
+# very fast weapon to use and requires good hand-eye coordination to use.
+# Since whips are traditionally used for goading/herding animals and the
+# slave races, I've included slay animal and slay orc. [the only real
+# slave race in multiple fantasy realms that has its own set of flags]
+# P+ removed VORPAL, added pval of 2
+
+N:123:'Lasher'
+I:21:2:3
+W:20:5:30:50000
+P:0:1d6:12:15:2
+F:DEX | BLOWS | HIDE_TYPE | 
+F:SLAY_ANIMAL | SLAY_ORC | BRAND_POIS | 
+F:RES_POIS | FREE_ACT
 
 
 # The Long Bow 'Belthronding'
@@ -1254,7 +1303,21 @@ F:SPEED |
 F:RES_FIRE | ACTIVATE | SHOW_MODS
 
 
-# Artifact 127 is unused
+# The Seeker Arrow 'Bullseye'
+# This is, of course, from my 'Artifact Ammo' thread and doesn't need much
+# explanation.  It's rather nasty and deals 1000 or more damage on a
+# normal hit to a dragon. :)  Doesn't put a dent in Sky Drakes and Power
+# Dragons, tho it's still good for helping to take down Smaug, Tiamat and
+# the other dragon uniques.
+# P+ changed name, rarity to 30
+
+N:127:of Bard
+I:17:2:0
+W:55:30:2:50000
+P:0:7d4:20:15:0
+F:SLAY_ANIMAL | SLAY_EVIL | SLAY_UNDEAD | SLAY_DEMON | 
+F:SLAY_ORC | SLAY_TROLL | SLAY_GIANT | SLAY_DRAGON | KILL_DRAGON | 
+F:BRAND_ACID | BRAND_ELEC | BRAND_FIRE | BRAND_COLD | BRAND_POIS
 
 
 

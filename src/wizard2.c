@@ -311,10 +311,10 @@ static void wiz_display_item(object_type *o_ptr)
 
 	prt("+------------FLAGS1------------+", 10, j);
 	prt("AFFECT..........SLAY......BRAND.", 11, j);
-	prt("                ae      x q aefc", 12, j);
-	prt("siwdcc  ssidsa  nvudotgdd u clio", 13, j);
-	prt("tnieoh  trnipt  iinmrrnrr a ierl", 14, j);
-	prt("rtsxna..lcfgdk..mldncltgg.k.dced", 15, j);
+	prt("                ae      x qpaefc", 12, j);
+	prt("siwdcc  ssidsa  nvudotgdd uoclio", 13, j);
+	prt("tnieoh  trnipt  iinmrrnrr aiierl", 14, j);
+	prt("rtsxna..lcfgdk..mldncltgg.ksdced", 15, j);
 	prt_binary(f1, 16, j);
 
 	prt("+------------FLAGS2------------+", 17, j);
@@ -378,6 +378,7 @@ static tval_desc tvals[] =
 	{ TV_ROD,               "Rod"                  },
 	{ TV_PRAYER_BOOK,       "Priest Book"          },
 	{ TV_MAGIC_BOOK,        "Magic Book"           },
+	{ TV_GW_MAGIC_BOOK,     "GW-Magic Book"        },
 	{ TV_SPIKE,             "Spikes"               },
 	{ TV_DIGGING,           "Digger"               },
 	{ TV_CHEST,             "Chest"                },
@@ -418,8 +419,9 @@ static void strip_name(char *buf, int k_idx)
  *
  * This will not work with "EBCDIC", I would think.  XXX XXX XXX
  */
+/* P+ changed '0' to '-' */
 static char head[3] =
-{ 'a', 'A', '0' };
+{ 'a', 'A', '-' };
 
 
 /*
@@ -463,7 +465,7 @@ static int wiz_create_itemtype(void)
 	num = -1;
 	if ((ch >= head[0]) && (ch < head[0] + 20)) num = ch - head[0];
 	if ((ch >= head[1]) && (ch < head[1] + 20)) num = ch - head[1] + 20;
-	if ((ch >= head[2]) && (ch < head[2] + 10)) num = ch - head[2] + 40;
+	if ((ch >= head[2]) && (ch < head[2] + 20)) num = ch - head[2] + 40;
 
 	/* Bail out if choice is illegal */
 	if ((num < 0) || (num >= max_num)) return (0);
@@ -515,7 +517,7 @@ static int wiz_create_itemtype(void)
 	num = -1;
 	if ((ch >= head[0]) && (ch < head[0] + 20)) num = ch - head[0];
 	if ((ch >= head[1]) && (ch < head[1] + 20)) num = ch - head[1] + 20;
-	if ((ch >= head[2]) && (ch < head[2] + 10)) num = ch - head[2] + 40;
+	if ((ch >= head[2]) && (ch < head[2] + 20)) num = ch - head[2] + 40;
 
 	/* Bail out if choice is "illegal" */
 	if ((num < 0) || (num >= max_num)) return (0);

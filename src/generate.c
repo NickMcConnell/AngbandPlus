@@ -1596,8 +1596,8 @@ static bool vault_aux_orc(int r_idx)
 	/* Decline unique monsters */
 	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
 
-	/* Hack -- Require "o" monsters */
-	if (!strchr("o", r_ptr->d_char)) return (FALSE);
+	/* Require "orc" flag */
+	if (!(r_ptr->flags3 & (RF3_ORC))) return (FALSE);
 
 	/* Okay */
 	return (TRUE);
@@ -1614,8 +1614,8 @@ static bool vault_aux_troll(int r_idx)
 	/* Decline unique monsters */
 	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
 
-	/* Hack -- Require "T" monsters */
-	if (!strchr("T", r_ptr->d_char)) return (FALSE);
+	/* Require "troll" flag */
+	if (!(r_ptr->flags3 & (RF3_TROLL))) return (FALSE);
 
 	/* Okay */
 	return (TRUE);
@@ -1632,8 +1632,8 @@ static bool vault_aux_giant(int r_idx)
 	/* Decline unique monsters */
 	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
 
-	/* Hack -- Require "P" monsters */
-	if (!strchr("P", r_ptr->d_char)) return (FALSE);
+	/* Require "giant" flag */
+	if (!(r_ptr->flags3 & (RF3_GIANT))) return (FALSE);
 
 	/* Okay */
 	return (TRUE);
@@ -1656,8 +1656,8 @@ static bool vault_aux_dragon(int r_idx)
 	/* Decline unique monsters */
 	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
 
-	/* Hack -- Require "d" or "D" monsters */
-	if (!strchr("Dd", r_ptr->d_char)) return (FALSE);
+	/* Require "dragon" flag */
+	if (!(r_ptr->flags3 & (RF3_DRAGON))) return (FALSE);
 
 	/* Hack -- Require correct "breath attack" */
 	if (r_ptr->flags4 != vault_aux_dragon_mask4) return (FALSE);
@@ -1677,8 +1677,8 @@ static bool vault_aux_demon(int r_idx)
 	/* Decline unique monsters */
 	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
 
-	/* Hack -- Require "U" monsters */
-	if (!strchr("U", r_ptr->d_char)) return (FALSE);
+	/* Require "demon" flag */
+	if (!(r_ptr->flags3 & (RF3_DEMON))) return (FALSE);
 
 	/* Okay */
 	return (TRUE);
@@ -1857,9 +1857,9 @@ static void build_type5(int y0, int x0)
  * Monster types in the pit
  *   orc pit	(Dungeon Level 5 and deeper)
  *   troll pit	(Dungeon Level 20 and deeper)
- *   giant pit	(Dungeon Level 40 and deeper)
+ *   demon pit	(Dungeon Level 40 and deeper)
+ *   giant pit	(Dungeon Level 50 and deeper)
  *   dragon pit	(Dungeon Level 60 and deeper)
- *   demon pit	(Dungeon Level 80 and deeper)
  *
  * The inside room in a monster pit appears as shown below, where the
  * actual monsters in each location depend on the type of the pit
@@ -1957,6 +1957,16 @@ static void build_type6(int y0, int x0)
 		get_mon_num_hook = vault_aux_troll;
 	}
 
+	/* Demon pit */
+	else if (tmp < 50)
+	{
+		/* Message */
+		name = "demon";
+
+		/* Restrict monster selection */
+		get_mon_num_hook = vault_aux_demon;
+	}
+
 	/* Giant pit */
 	else if (tmp < 60)
 	{
@@ -1968,7 +1978,7 @@ static void build_type6(int y0, int x0)
 	}
 
 	/* Dragon pit */
-	else if (tmp < 80)
+	else /* if (tmp < 80) */
 	{
 		/* Pick dragon type */
 		switch (rand_int(8))
@@ -2096,16 +2106,6 @@ static void build_type6(int y0, int x0)
 
 		/* Restrict monster selection */
 		get_mon_num_hook = vault_aux_dragon;
-	}
-
-	/* Demon pit */
-	else
-	{
-		/* Message */
-		name = "demon";
-
-		/* Restrict monster selection */
-		get_mon_num_hook = vault_aux_demon;
 	}
 
 	/* Prepare allocation table */

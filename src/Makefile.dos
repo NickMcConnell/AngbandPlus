@@ -7,6 +7,13 @@
 #
 
 
+# This file requires the (free) DJGPP compiler (based on "gcc").
+# See "http://www.delorie.com/djgpp/".
+#
+# This file uses the (free) "Allegro" library (SVGA graphics library).
+# See "http://www.talula.demon.co.uk/allegro/".
+
+
 #
 # Basic definitions
 #

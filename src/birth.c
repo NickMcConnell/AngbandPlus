@@ -73,6 +73,7 @@ struct hist_type
  *   Dwarf         --> 16 --> 17 --> 18 --> 57 --> 58 --> 59 --> 60 --> 61
  *   Half-Orc      --> 19 --> 20 -->  2 -->  3 --> 50 --> 51 --> 52 --> 53
  *   Half-Troll    --> 22 --> 23 --> 62 --> 63 --> 64 --> 65 --> 66
+ *   Kobold (GJW)  --> 24 --> 25 --> 26 --> 27 --> 28 --> 29 --> 30
  *
  * XXX XXX XXX This table *must* be correct or drastic errors may occur!
  */
@@ -167,6 +168,43 @@ static hist_type bg[] =
 	{"Warrior.  ", 95, 23, 62, 55},
 	{"Shaman.  ", 99, 23, 62, 65},
 	{"Clan Chief.  ", 100, 23, 62, 80},
+
+	{"You are the runt of ",			20, 24, 25, 40},
+	{"You come from ",				80, 24, 25, 50},
+	{"You are the largest of ",		   	100, 24, 25, 55},
+
+	{"a litter of 3 pups.  ",			15, 25, 26, 45},
+	{"a litter of 4 pups.  ",			40, 25, 26, 45},
+	{"a litter of 5 pups.  ",			70, 25, 26, 50},
+	{"a litter of 6 pups.  ",			85, 25, 26, 50},
+	{"a litter of 7 pups.  ",			95, 25, 26, 55},
+	{"a litter of 8 pups.  ",			100, 25, 26, 55},
+
+	{"Your father was a fungus farmer, ",		10, 26, 27, 40},
+	{"Your father was a hunter, ",			45, 26, 27, 45},
+	{"Your father was a warrior, ",			70, 26, 27, 50},
+	{"Your father was a shaman, ",			90, 26, 27, 55},
+	{"Your father was the Chief of his tribe, ",	100, 26, 27, 60},
+
+	{"and your mother was a prisoner of war.  ",	20, 27, 28, 45},
+	{"and your mother was a prostitute.  ",		30, 27, 28, 45},
+	{"and your mother was a cook.  ",		95, 27, 28, 50},
+	{"and your mother was a member of the Chief's harem.  ",	100, 27, 28, 55},
+
+	{"You have black eyes, ",			10, 28, 29, 50},
+	{"You have dark brown eyes, ",			40, 28, 29, 50},
+	{"You have brown eyes, ",			80, 28, 29, 50},
+	{"You have light brown eyes, ",			99, 28, 29, 50},
+	{"You have glowing red eyes, ",			100, 28, 29, 55},
+
+	{"dark brown skin, ",				40, 29, 30, 50},
+	{"dark grey skin, ",				60, 29, 30, 50},
+	{"olive green skin, ",				95, 29, 30, 50},
+	{"deep blue skin, ",				100, 29, 30, 55},
+
+	{"and large, flat teeth.",			10, 30, 0, 45},
+	{"and small, sharp teeth.",			90, 30, 0, 50},
+	{"and large, sharp teeth.",			100, 30, 0, 55},
 
 	{"You have dark brown eyes, ", 20, 50, 51, 50},
 	{"You have brown eyes, ", 60, 50, 51, 50},
@@ -646,6 +684,12 @@ static void get_history(void)
 			break;
 		}
 
+		case RACE_KOBOLD: /* GJW */
+		{
+			chart = 24;
+			break;
+		}
+
 		default:
 		{
 			chart = 0;
@@ -968,6 +1012,27 @@ static byte player_init[MAX_CLASS][3][2] =
 		{ TV_PRAYER_BOOK, 0 },
 		{ TV_SWORD, SV_BROAD_SWORD },
 		{ TV_SCROLL, SV_SCROLL_PROTECTION_FROM_EVIL }
+	},
+
+	{
+		/* GW-Mage */
+		{ TV_GW_MAGIC_BOOK, 0 },
+		{ TV_SWORD, SV_DAGGER },
+		{ TV_SCROLL, SV_SCROLL_WORD_OF_RECALL }
+	},
+
+	{
+		/* GW-Rogue */
+		{ TV_GW_MAGIC_BOOK, 0 },
+		{ TV_SWORD, SV_SMALL_SWORD },
+		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR }
+	},
+
+	{
+		/* GW-Ranger */
+		{ TV_GW_MAGIC_BOOK, 0 },
+		{ TV_SWORD, SV_BROAD_SWORD },
+		{ TV_BOW, SV_LONG_BOW }
 	}
 };
 

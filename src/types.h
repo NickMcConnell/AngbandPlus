@@ -746,7 +746,7 @@ struct player_race
 
 	byte infra;			/* Infra-vision	range */
 
-	byte choice;		/* Legal class choices */
+	s16b choice;		/* Legal class choices */
 
 	byte r_attr;		/* P+ -- race attr for use with "race_chars" */
 	char r_char;		/* P+ -- race char for use with "race_chars" */

@@ -131,6 +131,7 @@ static void sense_inventory(void)
 		}
 
 		case CLASS_MAGE:
+		case CLASS_GW_MAGE:
 		{
 			/* Very bad (light) sensing */
 			if (0 != rand_int(240000L / (plev + 5))) return;
@@ -149,6 +150,7 @@ static void sense_inventory(void)
 		}
 
 		case CLASS_ROGUE:
+		case CLASS_GW_ROGUE:
 		{
 			/* Okay sensing */
 			if (0 != rand_int(20000L / (plev * plev + 40))) return;
@@ -161,6 +163,7 @@ static void sense_inventory(void)
 		}
 
 		case CLASS_RANGER:
+		case CLASS_GW_RANGER:
 		{
 			/* Very bad (light) sensing */
 			if (0 != rand_int(120000L / (plev + 5))) return;
@@ -1723,6 +1726,13 @@ static void process_command(void)
 		}
 
 #endif
+
+		/* Time of day -- added from Zangband */
+		case KTRL('T'):
+		{
+			do_cmd_time_of_day();
+			break;
+		}
 
 		/* Save and quit */
 		case KTRL('X'):

@@ -1470,6 +1470,9 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3)
 	if (p_ptr->prace == RACE_HIGH_ELF) (*f2) |= (TR2_RES_LITE);
 	if (p_ptr->prace == RACE_HIGH_ELF) (*f3) |= (TR3_SEE_INVIS);
 
+	/* Kobold -- GJW */
+	if (p_ptr->prace == RACE_KOBOLD) (*f2) |= (TR2_RES_POIS);
+
 	/* Warrior -- P+ added from xtra1.c */
 	if (p_ptr->pclass == CLASS_WARRIOR)
 	{
@@ -2229,6 +2232,48 @@ errr file_character(cptr name, bool full)
 
 			/* Terminate */
 			buf[x] = '\0';
+
+			/* End the row */
+			fprintf(fff, "%s\n", buf);
+		}
+
+
+		/* P+: dump stat modifications/sustains */
+
+		/* Skip some lines */
+		fprintf(fff, "\n\n");
+
+		/* Dump part of the screen */
+		for (y = 2; y < 11; y++)
+		{
+			/* Initialize position in buffer */
+			i = 0;
+
+			/* Dump stat names */
+			for (x = 42; x < 49; i++, x++)
+			{
+				/* Get the attr/char */
+				(void)(Term_what(x, y, &a, &c));
+
+				/* Dump it */
+				buf[i] = c;
+			}
+
+			/* Dump modifications/sustains */
+			for (x = 26; x < 38; i++, x++)
+			{
+				/* Get the attr/char */
+				(void)(Term_what(x, y, &a, &c));
+
+				/* Dump it */
+				buf[i] = c;
+			}
+
+			/* Back up over spaces */
+			while ((i > 0) && (buf[i-1] == ' ')) --x;
+
+			/* Terminate */
+			buf[i] = '\0';
 
 			/* End the row */
 			fprintf(fff, "%s\n", buf);
@@ -3566,7 +3611,7 @@ void display_scores(int from, int to)
 	Term_clear();
 
 	/* Title */
-	put_str("                Angband Hall of Fame", 0, 0);
+	put_str("                Goingband Hall of Fame", 0, 0);
 
 	/* Display the scores */
 	display_scores_aux(from, to, -1, NULL);
@@ -3657,15 +3702,14 @@ static errr top_twenty(void)
 	}
 
 	/* Quitter */
-	/* P+ commented this out
-	if (!p_ptr->total_winner && streq(p_ptr->died_from, "Quitting"))
+	/* P+ changed slightly */
+	if (!p_ptr->max_exp && streq(p_ptr->died_from, "Quitting"))
 	{
 		msg_print("Score not registered due to quitting.");
 		msg_print(NULL);
 		display_scores_aux(0, 10, -1, NULL);
 		return (0);
 	}
-	*/
 
 
 	/* Clear the record */

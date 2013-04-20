@@ -40,7 +40,8 @@ static int get_spell(int *sn, cptr prompt, int sval, bool known)
 
 	char out_val[160];
 
-	cptr p = ((mp_ptr->spell_book == TV_MAGIC_BOOK) ? "spell" : "prayer");
+	cptr p = ((mp_ptr->spell_book == TV_MAGIC_BOOK) ||
+		  (mp_ptr->spell_book == TV_GW_MAGIC_BOOK) ? "spell" : "prayer");
 
 
 #ifdef ALLOW_REPEAT /* TNB */
@@ -357,7 +358,8 @@ void do_cmd_study(void)
 
 	int spell = -1;
 
-	cptr p = ((mp_ptr->spell_book == TV_MAGIC_BOOK) ? "spell" : "prayer");
+	cptr p = ((mp_ptr->spell_book == TV_MAGIC_BOOK) ||
+		  (mp_ptr->spell_book == TV_GW_MAGIC_BOOK) ? "spell" : "prayer");
 
 	cptr q, s;
 
@@ -421,7 +423,7 @@ void do_cmd_study(void)
 
 
 	/* Mage -- Learn a selected spell */
-	if (mp_ptr->spell_book == TV_MAGIC_BOOK)
+	if (mp_ptr->spell_book == TV_MAGIC_BOOK || mp_ptr->spell_book == TV_GW_MAGIC_BOOK)
 	{
 		/* Ask for a spell, allow cancel */
 		if (!get_spell(&spell, "study", sval, FALSE) && (spell == -1)) return;
@@ -520,6 +522,124 @@ void do_cmd_study(void)
 
 
 /*
+ * Brand some ammunition.  Used by Cubragol and a mage spell.  The spell was
+ * moved here from cmd6.c where it used to be for Cubragol only.  I've also
+ * expanded it to do either frost, fire or venom, at random. -GJW
+ */
+void brand_ammo (int brand_type, int bolts_only)
+{
+	int a;
+	int allowable;
+
+	if (bolts_only)
+		allowable = TV_BOLT;
+	else
+		allowable = TV_BOLT | TV_ARROW | TV_SHOT;
+
+	for (a = 0; a < INVEN_PACK; a++)
+	{
+		object_type *o_ptr = &inventory[a];
+
+		if ((bolts_only) && (o_ptr->tval != TV_BOLT)) continue;
+		if ((!bolts_only) && (o_ptr->tval != TV_BOLT) &&
+		    (o_ptr->tval != TV_ARROW) && (o_ptr->tval != TV_SHOT))
+			continue;
+		if ((!artifact_p(o_ptr)) && (!ego_item_p(o_ptr)) &&
+		    (!cursed_p(o_ptr) && !broken_p(o_ptr)))
+			break;
+	}
+
+	/* Enchant the ammo (or fail) */
+	if ((a < INVEN_PACK) && (rand_int(100) < 50))
+	{
+		object_type *o_ptr = &inventory[a];
+		char *ammo_name, *aura_name, msg[48];
+		int aura_type, r;
+
+		if (brand_type == 1) r = 0;		/* fire only */
+		else if (brand_type == 2) r = 99;	/* poison only */
+		else r = rand_int(100);
+
+		if (r < 33)
+		{
+			aura_name = "fiery";
+			aura_type = EGO_FLAME;
+		}
+		else if (r < 67)
+		{
+			aura_name = "frosty";
+			aura_type = EGO_FROST;
+		}
+		else
+		{
+			aura_name = "sickly";
+			aura_type = EGO_VENOM;
+		}
+
+		if (o_ptr->tval == TV_BOLT)
+			ammo_name = (o_ptr->number > 1 ? "bolts" : "bolt");
+		else if (o_ptr->tval == TV_ARROW)
+			ammo_name = (o_ptr->number > 1 ? "arrows" : "arrow");
+		else
+			ammo_name = (o_ptr->number > 1 ? "shots" : "shot");
+
+		sprintf(msg, "A %s aura surrounds your %s!",
+			aura_name, ammo_name);
+		msg_print(msg);
+		o_ptr->name2 = aura_type;
+		enchant(o_ptr, rand_int(3) + 4, ENCH_TOHIT | ENCH_TODAM);
+	}
+	else
+	{
+		if (flush_failure) flush();
+		msg_print("The enchantment failed.");
+	}
+}
+
+/*
+ * Brand the current weapon
+ */
+static void brand_weapon(void)
+{
+	object_type *o_ptr;
+
+	o_ptr = &inventory[INVEN_WIELD];
+
+	/* you can never modify artifacts / ego-items */
+	/* you can never modify broken / cursed items */
+	if ((o_ptr->k_idx) &&
+	    (!artifact_p(o_ptr)) && (!ego_item_p(o_ptr)) &&
+	    (!broken_p(o_ptr)) && (!cursed_p(o_ptr)))
+	{
+		char *act = NULL;
+		char o_name[80];
+
+		if (rand_int(100) < 25)
+		{
+			act = "is covered in a fiery shield!";
+			o_ptr->name2 = EGO_BRAND_FIRE;
+		}
+		else
+		{
+			act = "glows deep, icy blue!";
+			o_ptr->name2 = EGO_BRAND_COLD;
+		}
+
+		object_desc(o_name, o_ptr, FALSE, 0);
+		msg_format("Your %s %s", o_name, act);
+		enchant(o_ptr, rand_int(3) + 4, ENCH_TOHIT | ENCH_TODAM);
+	}
+
+	else
+	{
+		if (flush_failure) flush();
+		msg_print("The Branding failed.");
+	}
+}
+
+
+
+/*
  * Cast a spell
  */
 void do_cmd_cast(void)
@@ -540,7 +660,8 @@ void do_cmd_cast(void)
 
 
 	/* Require spell ability */
-	if (mp_ptr->spell_book != TV_MAGIC_BOOK)
+	if ((mp_ptr->spell_book != TV_MAGIC_BOOK) &&
+	    (mp_ptr->spell_book != TV_GW_MAGIC_BOOK))
 	{
 		msg_print("You cannot cast spells!");
 		return;
@@ -625,11 +746,553 @@ void do_cmd_cast(void)
 		msg_print("You failed to get the spell off!");
 	}
 
+	else if (mp_ptr->spell_book == TV_GW_MAGIC_BOOK)
+	{
+		/* Hack -- chance of "beam" instead of "bolt" */
+		beam = ((p_ptr->pclass == CLASS_GW_MAGE) ? plev : (plev / 2));
+
+		/* Spells.  */
+		switch (spell)
+		{
+			case 0:
+			{
+				if (!get_aim_dir(&dir)) return;
+				fire_bolt_or_beam(beam-10, GF_MISSILE, dir,
+				                  damroll(3 + ((plev - 1) / 5), 4));
+				break;
+			}
+
+			case 1:
+			{
+				(void)detect_monsters_normal();
+				break;
+			}
+
+			case 2:
+			{
+				teleport_player(10);
+				break;
+			}
+
+			case 3:
+			{
+				(void)lite_area(damroll(2, (plev / 2)), (plev / 10) + 1);
+				break;
+			}
+
+			case 4:
+			{
+				if (!get_aim_dir(&dir)) return;
+				fire_ball(GF_POIS, dir,
+				          10 + (plev / 2), 2);
+				break;
+			}
+
+			case 5:
+			{
+				if (!get_aim_dir(&dir)) return;
+				fire_bolt_or_beam(beam-10, GF_ELEC, dir,
+				                  damroll(3+((plev-5)/4), 8));
+				break;
+			}
+
+			case 6:
+			{
+				if (!get_aim_dir(&dir)) return;
+				fire_bolt_or_beam(beam-10, GF_COLD, dir,
+				                  damroll(5+((plev-5)/4), 8));
+				break;
+			}
+
+			case 7:
+			{
+				if (!get_aim_dir(&dir)) return;
+				fire_bolt_or_beam(beam, GF_ACID, dir,
+				                  damroll(6+((plev-5)/4), 8));
+				break;
+			}
+
+			case 8:
+			{
+				if (!get_aim_dir(&dir)) return;
+				fire_bolt_or_beam(beam, GF_FIRE, dir,
+				                  damroll(8+((plev-5)/4), 8));
+				break;
+			}
+
+			case 9:
+			{
+				if (!get_aim_dir(&dir)) return;
+		    		fire_ball(GF_SOUND, dir, 10 + plev, 2);
+				break;
+			}
+
+			case 10:
+			{
+				if (!get_aim_dir(&dir)) return;
+				fire_ball(GF_SHARD, dir, 20 + (plev * 2), 2);
+				break;
+			}
+
+			case 11:
+			{
+				if (!get_aim_dir(&dir)) return;
+				fire_ball(GF_POIS, dir,
+				          40 + (plev / 2), 3);
+				break;
+			}
+
+			case 12:
+			{
+				if (!get_aim_dir(&dir)) return;
+				fire_ball(GF_COLD, dir,
+				          30 + (plev), 2);
+				break;
+			}
+
+			case 13:
+			{
+				if (!get_aim_dir(&dir)) return;
+				fire_ball(GF_ACID, dir,
+				          40 + (plev), 2);
+				break;
+			}
+
+			case 14:
+			{
+				if (!get_aim_dir(&dir)) return;
+				fire_ball(GF_FIRE, dir,
+				          55 + (plev), 2);
+				break;
+			}
+
+			case 15:
+			{
+				if (!get_aim_dir(&dir)) return;
+				fire_ball(GF_ICE, dir,
+				          70 + (plev), 3);
+				break;
+			}
+
+			case 16: /* Wonder */
+			{
+			/* This spell should become more useful (more
+			   controlled) as the player gains experience levels.
+			   Thus, add 1/5 of the player's level to the die roll.
+			   This eliminates the worst effects later on, while
+			   keeping the results quite random.  It also allows
+			   some potent effects only at high level. */
+
+				int die = randint(100) + plev / 5;
+
+				if (!get_aim_dir(&dir)) return;
+				if (die > 100)
+					msg_print("You feel a surge of power!");
+				if (die < 8) clone_monster(dir);
+				else if (die < 14) speed_monster(dir);
+				else if (die < 26) heal_monster(dir);
+				else if (die < 31) poly_monster(dir);
+				else if (die < 36)
+					fire_bolt_or_beam(beam - 10,
+							  GF_MISSILE, dir,
+							  damroll(3+((plev-1)/5), 4));
+				else if (die < 41) confuse_monster(dir, plev);
+				else if (die < 46) fire_ball(GF_POIS, dir, 20 + (plev / 2), 3);
+				else if (die < 51) lite_line(dir);
+				else if (die < 56)
+					fire_bolt_or_beam(beam - 10, GF_ELEC, dir,
+							  damroll(3+((plev-5)/4), 8));
+				else if (die < 61)
+					fire_bolt_or_beam(beam-10, GF_COLD, dir,
+					                  damroll(5+((plev-5)/4), 8));
+				else if (die < 66)
+					fire_bolt_or_beam(beam, GF_ACID, dir,
+							  damroll(6+((plev-5)/4), 8));
+				else if (die < 71)
+					fire_bolt_or_beam(beam, GF_FIRE, dir,
+							  damroll(8+((plev-5)/4), 8));
+				else if (die < 76) drain_life(dir, 75);
+				else if (die < 81) fire_ball(GF_ELEC, dir, 30 + plev / 2, 2);
+				else if (die < 86) fire_ball(GF_ACID, dir, 40 + plev, 2);
+				else if (die < 91) fire_ball(GF_ICE, dir, 70 + plev, 3);
+				else if (die < 96) fire_ball(GF_FIRE, dir, 80 + plev, 3);
+				else if (die < 101) drain_life(dir, 100 + plev);
+				else if (die < 104) earthquake(py, px, 12);
+				else if (die < 106) destroy_area(py, px, 15, TRUE);
+				else if (die < 108) genocide();
+				else if (die < 110) dispel_monsters(120);
+				else /* RARE */
+				{
+					dispel_monsters(150);
+					slow_monsters();
+					sleep_monsters();
+					hp_player(300);
+				}
+				break;
+			}
+
+			/* Hacked by GJW */
+			case 17:
+			{
+				int i;
+				bool save_use_old_target = use_old_target;
+
+				do
+				{
+					use_old_target = FALSE;
+					if (!get_aim_dir(&dir))
+					{
+						use_old_target = save_use_old_target;
+						return;
+					}
+					if (!dir || (dir == 5))
+					{
+						msg_print ("This spell requires a compass direction.");
+						dir = p_ptr->command_dir = 0;
+					}
+				} while (!dir || (dir == 5));
+				use_old_target = save_use_old_target;
+				for (i = 0; i < 2 + plev / 20; i++)
+				{
+					fire_ball(GF_METEOR, dir, 30 + plev / 2, 1);
+				}
+				break;
+			}
+
+			case 18:
+			{
+				if (!get_aim_dir(&dir)) return;
+				fire_ball(GF_MANA, dir,
+				          300 + (plev * 2), 3);
+				break;
+			}
+
+			case 19:
+			{
+				(void)hp_player(damroll(2, 8));
+				(void)set_cut(p_ptr->cut - 15);
+				break;
+			}
+
+			case 20:
+			{
+				(void)detect_traps();
+				(void)detect_doors();
+				(void)detect_stairs();
+				break;
+			}
+
+			case 21:
+			{
+				(void)detect_treasure();
+				(void)detect_objects_gold();
+				break;
+			}
+
+			case 22:
+			{
+				(void)detect_objects_normal();
+				break;
+			}
+
+			case 23:
+			{
+				(void)ident_spell();
+				break;
+			}
+
+			case 24:
+			{
+				(void)detect_monsters_invis();
+				break;
+			}
+
+			case 25:
+			{
+				(void)detect_monsters_evil();
+				break;
+			}
+
+			case 26:
+			{
+				(void)destroy_doors_touch();
+				break;
+			}
+
+			case 27:
+			{
+				(void)set_poisoned(0);
+				break;
+			}
+
+			case 28:
+			{
+				teleport_player(plev * 5);
+				break;
+			}
+
+			case 29:
+			{
+				if (!get_aim_dir(&dir)) return;
+				(void)slow_monster(dir);
+				break;
+			}
+
+			case 30:
+			{
+				if (!get_aim_dir(&dir)) return;
+				(void)teleport_monster(dir);
+				break;
+			}
+
+			case 31:
+			{
+				if (!p_ptr->fast)
+				{
+					(void)set_fast(randint(20) + plev);
+				}
+				else
+				{
+					(void)set_fast(p_ptr->fast + randint(5));
+				}
+				break;
+			}
+
+			case 32:
+			{
+				(void)teleport_player_level();
+				break;
+			}
+
+			case 33:
+			{
+				(void)door_creation();
+				break;
+			}
+
+			case 34:
+			{
+				(void)set_food(PY_FOOD_MAX - 1);
+				break;
+			}
+
+			case 35:
+			{
+				if (!get_aim_dir(&dir)) return;
+				msg_print("A line of blue shimmering light appears.");
+				lite_line(dir);
+				break;
+			}
+
+			case 36:
+			{
+				if (!get_aim_dir(&dir)) return;
+				(void)wall_to_mud(dir);
+				break;
+			}
+
+			case 37:
+			{
+				(void)stair_creation();
+				break;
+			}
+
+			case 38:
+			{
+				(void)recharge(5);
+				break;
+			}
+
+			case 39:
+			{
+				recharge(100);
+				break;
+			}
+
+			case 40:
+			{
+				brand_ammo(p_ptr->pclass == CLASS_ROGUE ? 2 : 0, FALSE);
+				break;
+			}
+
+			case 41:
+			{
+				if (!get_aim_dir(&dir)) return;
+				(void)confuse_monster(dir, plev);
+				break;
+			}
+
+			case 42:
+			{
+				if (!get_aim_dir(&dir)) return;
+				(void)sleep_monster(dir);
+				break;
+			}
+
+			case 43:
+			{
+				(void)sleep_monsters();
+				break;
+			}
+
+			case 44: /* Bedlam */
+			{
+				if (!get_aim_dir(&dir)) return;
+				fire_ball(GF_OLD_CONF, dir, plev, 4);
+				break;
+			}
+
+			case 45:
+			{
+				(void)genocide();
+				break;
+			}
+
+			case 46:
+			{
+				(void)mass_genocide();
+				break;
+			}
+
+			case 47:
+			{
+				if (!get_aim_dir(&dir)) return;
+				fire_bolt_or_beam(beam / 4, GF_NETHER, dir,
+					damroll(17, plev));
+				break;
+			}
+
+			case 48:
+			{
+				(void)set_oppose_cold(p_ptr->oppose_cold + randint(20) + 20);
+				break;
+			}
+
+			case 49:
+			{
+				(void)set_oppose_fire(p_ptr->oppose_fire + randint(20) + 20);
+				break;
+			}
+
+			case 50:
+			{
+				(void)hp_player(10);
+				(void)set_hero(p_ptr->hero + randint(25) + 25);
+				(void)set_afraid(0);
+				break;
+			}
+
+			case 51:
+			{
+				(void)hp_player(30);
+				(void)set_shero(p_ptr->shero + randint(25) + 25);
+				(void)set_afraid(0);
+				break;
+			}
+
+			case 52:
+			{
+				(void)set_oppose_pois(p_ptr->oppose_pois + randint(20) + 20);
+				break;
+			}
+
+			case 53:
+			{
+				(void)set_oppose_acid(p_ptr->oppose_acid + randint(20) + 20);
+				(void)set_oppose_elec(p_ptr->oppose_elec + randint(20) + 20);
+				(void)set_oppose_fire(p_ptr->oppose_fire + randint(20) + 20);
+				(void)set_oppose_cold(p_ptr->oppose_cold + randint(20) + 20);
+				(void)set_oppose_pois(p_ptr->oppose_pois + randint(20) + 20);
+				break;
+			}
+
+			case 54:
+			{
+				(void)set_shield(p_ptr->shield + randint(20) + 30);
+				break;
+			}
+
+			case 55:
+			{
+				(void)set_invuln(p_ptr->invuln + randint(8) + 8);
+				break;
+			}
+
+			case 56:
+			{
+				(void)detect_objects_magic();
+				break;
+			}
+
+			case 57:
+			{
+				do_word_recall(15, 20);
+				break;
+			}
+
+			case 58:
+			{
+				if (!get_aim_dir(&dir)) return;
+				(void)poly_monster(dir);
+				break;
+			}
+
+			case 59:
+			{
+				earthquake(py, px, 10);
+				break;
+			}
+
+			case 60:
+			{
+				destroy_area(py, px, 15, TRUE);
+				break;
+			}
+
+			case 61:
+			{
+				if (!get_aim_dir(&dir)) return;
+				fire_bolt_or_beam(2 * beam, GF_GRAVITY, dir,
+						  40 + damroll(plev, 7));
+				break;
+			}
+
+			case 62:
+			{
+				if (!get_aim_dir(&dir)) return;
+				fire_bolt_or_beam(beam, GF_CHAOS, dir,
+						  damroll(13, plev));
+				break;
+			}
+		}
+
+		/* A spell was cast */
+		if (!((spell < 32) ?
+		      (p_ptr->spell_worked1 & (1L << spell)) :
+		      (p_ptr->spell_worked2 & (1L << (spell - 32)))))
+		{
+			int e = s_ptr->sexp;
+
+			/* The spell worked */
+			if (spell < 32)
+			{
+				p_ptr->spell_worked1 |= (1L << spell);
+			}
+			else
+			{
+				p_ptr->spell_worked2 |= (1L << (spell - 32));
+			}
+
+			/* Gain experience */
+			gain_exp(e * s_ptr->slevel);
+		}
+	}
+
 	/* Process spell */
 	else
 	{
 		/* Hack -- chance of "beam" instead of "bolt" */
-		beam = ((p_ptr->pclass == 1) ? plev : (plev / 2));
+		beam = ((p_ptr->pclass == CLASS_MAGE) ? plev : (plev / 2));
 
 		/* Spells.  */
 		switch (spell)
@@ -1118,52 +1781,6 @@ void do_cmd_cast(void)
 
 
 /*
- * Brand the current weapon
- */
-static void brand_weapon(void)
-{
-	object_type *o_ptr;
-
-	o_ptr = &inventory[INVEN_WIELD];
-
-	/* you can never modify artifacts / ego-items */
-	/* you can never modify broken / cursed items */
-	if ((o_ptr->k_idx) &&
-	    (!artifact_p(o_ptr)) && (!ego_item_p(o_ptr)) &&
-	    (!broken_p(o_ptr)) && (!cursed_p(o_ptr)))
-	{
-		cptr act = NULL;
-
-		char o_name[80];
-
-		if (rand_int(100) < 25)
-		{
-			act = "is covered in a fiery shield!";
-			o_ptr->name2 = EGO_BRAND_FIRE;
-		}
-
-		else
-		{
-			act = "glows deep, icy blue!";
-			o_ptr->name2 = EGO_BRAND_COLD;
-		}
-
-		object_desc(o_name, o_ptr, FALSE, 0);
-
-		msg_format("Your %s %s", o_name, act);
-
-		enchant(o_ptr, rand_int(3) + 4, ENCH_TOHIT | ENCH_TODAM);
-	}
-
-	else
-	{
-		if (flush_failure) flush();
-		msg_print("The Branding failed.");
-	}
-}
-
-
-/*
  * Pray a prayer
  */
 void do_cmd_pray(void)
@@ -1385,7 +2002,7 @@ void do_cmd_pray(void)
 				if (!get_aim_dir(&dir)) return;
 				fire_ball(GF_HOLY_ORB, dir,
 				          (damroll(3, 6) + plev +
-				           (plev / ((p_ptr->pclass == 2) ? 2 : 4))),
+				           (plev / ((p_ptr->pclass == CLASS_PRIEST) ? 2 : 4))),
 				          ((plev < 30) ? 2 : 3));
 				break;
 			}

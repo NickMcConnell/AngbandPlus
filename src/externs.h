@@ -55,8 +55,8 @@ extern player_sex sex_info[MAX_SEXES];
 extern player_race race_info[MAX_RACES];
 extern player_class class_info[MAX_CLASS];
 extern player_magic magic_info[MAX_CLASS];
-extern u32b spell_flags[2][9][2];
-extern cptr spell_names[2][64];
+extern u32b spell_flags[3][12][2];
+extern cptr spell_names[3][64];
 extern byte chest_traps[64];
 extern cptr player_title[MAX_CLASS][PY_MAX_LEVEL/5];
 extern cptr color_names[16];
@@ -138,6 +138,7 @@ extern u16b message__next;
 extern u16b message__last;
 extern u16b message__head;
 extern u16b message__tail;
+extern bool message__skip;
 extern u16b *message__ptr;
 extern char *message__buf;
 extern term *angband_term[8];
@@ -265,7 +266,7 @@ extern bool is_quest(int level);
 extern bool test_hit_fire(int chance, int ac, int vis);
 extern bool test_hit_norm(int chance, int ac, int vis);
 extern sint critical_shot(int weight, int plus, int dam);
-extern sint critical_norm(int weight, int plus, int dam);
+extern sint critical_norm(int weight, int plus, int dam, monster_type *m_ptr); /* GJW */
 extern sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr);
 extern void search(void);
 extern void py_pickup(int pickup);
@@ -323,6 +324,7 @@ extern void do_cmd_visuals(void);
 extern void do_cmd_colors(void);
 extern void do_cmd_note(void);
 extern void do_cmd_version(void);
+extern void do_cmd_time_of_day(void);
 extern void do_cmd_feeling(void);
 extern void do_cmd_load_screen(void);
 extern void do_cmd_save_screen(void);
@@ -333,6 +335,7 @@ extern void do_cmd_browse(void);
 extern void do_cmd_study(void);
 extern void do_cmd_cast(void);
 extern void do_cmd_pray(void);
+extern void brand_ammo(int brand_type, int bolts_only); /* GJW */
 
 /* cmd6.c */
 extern void do_cmd_eat_food(void);
@@ -428,6 +431,7 @@ extern bool summon_specific(int y1, int x1, int lev, int type);
 extern bool multiply_monster(int m_idx);
 extern void message_pain(int m_idx, int dam);
 extern void update_smart_learn(int m_idx, int what);
+extern bool monster_saves(int mlev, int plev);
 
 /* object1.c */
 extern void flavor_init(void);

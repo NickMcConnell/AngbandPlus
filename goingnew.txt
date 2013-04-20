@@ -1,6 +1,53 @@
 (This file is included in the distribution.)
 
---- Version 2.8.3v2, bug fixes ---
+--- Version 2.8.3v3, merge with GW-Angband ---
+
+* Added lots of things from GW-Angband, including three
+  inappropriately named classes (GW-Mage, GW-Ranger, GW-Rogue),
+  *not* including random artifacts (oh well... :-)
+* Added Zangband's time-of-day command (CTRL-T)
+* Quitting is no longer scored if you have no experience
+* Activated the HURT_FIRE and HURT_COLD flags: branded weapons and
+  distance attacks do double damage on such creatures, added these
+  susceptibilities to many monsters
+* Gabriel gets Mana Storm...
+* Added the Seeker Arrow of Bard
+* Activated RES_WATE, RES_PLAS, RES_NEXU, RES_NETH, RES_DISE for monsters
+* Changed normal walls' color to 'slate'; if you 'l'ook at traps, they
+  give more descriptive names; changed colors of veins
+* If your memory is blanked, *all* inscriptions are removed, unless the
+  item would not be otherwise affected by memory loss
+* Demon pits occur at much lower levels; however, they now include
+  minor demons; monster pits now use the monster flags instead of the
+  race characters (this means that troll pits can now include skeleton
+  trolls)
+* Modifimplemented Andrew Berman's suggestions for *slay* items
+* Fixed bug from Angband 2.8.3 with examining items with more than one
+  screenful of powers (pointed out by Robin Smith)
+* Added stat modifications/sustains to extended character dump
+* If you press 'escape' at the 'more' prompt, you will stop receiving
+  messages until a non-message-related keypress is asked for.
+* Changed MICoM and Grond: both are (only) heavily cursed and aggravate
+* The wizard create object command now can handle up to 60 different "kinds"
+* Modifimplemented Joseph W. Dixon's "My Custom Artifacts"
+* Added some more new monsters, mostly from r.g.r.a posts
+* (weisiger) Detect Traps detects trapped chests
+
+The Angband Variant ('v'/'v')
+This creature breeds explosively and can be found at town level.  It
+can summon the RNG, and is magical, castint spells to take over your
+hard drive or cause you to become addicted to the game; 1 time in 4.
+It can hit to lose sleep, hit to make you late to work, hit to lose
+sleep and hit to drain intelligence and thereby cause stupid character
+deaths and other stupid player tricks.
+
+Humbreto has ported Goingband 2.8.3v2 for DOS:
+  http://www.geocities.com/TimesSquare/Arcade/7832/Goingbnd.zip
+
+Darin Takemoto has ported Goingband 2.8.3v2 for the Macintosh (68K):
+  ftp://export.andrew.cmu.edu/angband/Incoming/goingband-2832.cpt.bin
+
+--- Version 2.8.3v2, bug fixes (Satjul 11, 1998) ---
 
 When I say "bugs", I mean "bugs and warnings". Or do I?
 
@@ -101,30 +148,30 @@ TO DO:
   an amount proportional to the number of RF5/RF6 spells the monster has.
   Maybe also include charge-draining attacks?
 * Change the maximum number of monster blows to 8
-* Make a new monster spell: BA_ICEE (ice storm) (done as of 2.8.3v2)
+. Make a new monster spell: BA_ICEE (ice storm) (done as of 2.8.3v2)
 * Also BR_PARA, but GF_OLD_SLEEP should be able to work on
   player before I do this
-* When you have feather fall and resist nexus, should you be
+. When you have feather fall and resist nexus, should you be
   immune to the effects of gravity? (implemented somewhat in 2.8.3v2)
 * Add new town buildings (bookstore, castle, arena, gambling house,
   adventurer's guild, etc.)
 * Be able to customize town, spells, races, classes,
   (!!!) artifact activations
 * Add "auto_stair" option that will make stairs go up/down
-  approximately 1d6 levels
-* Add Kamband's race characters (done as of 2.8.3v2)
+  approximately 1d6 levels (somewhat like Cthangband)
+. Add Kamband's race characters (done as of 2.8.3v2)
 * Bug: Recall Patch 1.0 generates multiple artifacts with preserve mode
   (because of this, "remember_recall" is now off by default, but this is
   just a hack until a new version of the Recall Patch comes out)
 * Bug: monster_place (or whatever it's called) doesn't take into account
-  hold_o_idx, so monster inventories still don't get restored
+  hold_o_idx, so monster inventories still don't get restored XXX XXX XXX
 * Add highscore-summarising features, like "angscore"
 * Add "video recorder" mechanism
-* Add lots of things from GW-Angband, Kangband, Kamband (both have
-  annoying bugs now), Cthangband, and Zangband
+* Add lots of things from GW-Angband (2.8.3v3), Kangband, Kamband
+  (both have annoying bugs now), Cthangband, and Zangband
 * Add a spell to command a monster to return to where you are
-* Orc/yeek uniques should insult you without taking up precious
-  (no, not Smeagol's) melee attacks...
+, Orc/yeek uniques should insult you without taking up precious
+  (no, not Smeagol's) melee attacks... (see below for similar idea)
 * Have chests give items based on the level on which they were created
 * More detailed monster descriptions (weisiger is working on this)
 * Black Market: be able to order items, either
@@ -136,6 +183,11 @@ TO DO:
 * A new "spell", Energy Drain, will remove 1 hit die of a monster. When
   done, will turn the monster into an undead (skeleton/zombie/mummy) under
   your control. This does not work on EMPTY_MIND monsters.
+. Monster elemental susceptibilities! (done for fire/cold in 2.8.3v3)
+* (like Zangband) Have a specialized form of talking uniques, where you
+  can give messages to each unique monster. Make a generic set of speech
+  lines for non-specific uniques. Differentiate bravado and fear.
+* "spell_colors" modifiable by font pref files
 
 -- P+rfnoff
 Flip a coin. What is it? Heads? Tails? *Side*!??

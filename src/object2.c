@@ -1818,7 +1818,7 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 			if (power > 1)
 			{
 				/* Roll for an ego-item */
-				switch (randint(29))
+				switch (randint(30))
 				{
 					case 1:
 					{
@@ -1953,11 +1953,17 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 						o_ptr->name2 = EGO_ATTACKS;
 						break;
 					}
+
+					case 30:
+					{
+						o_ptr->name2 = EGO_BRAND_POIS;
+						break;
+					}
 				}
 
 				/* Hack -- Super-charge the damage dice */
 				while ((o_ptr->dd * o_ptr->ds > 0) &&
-				       (rand_int(10L * o_ptr->dd * o_ptr->ds) == 0))
+				       (rand_int(4L * o_ptr->dd * o_ptr->ds) == 0))
 				{
 					o_ptr->dd++;
 				}
@@ -2088,7 +2094,13 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 						break;
 					}
 
-					default: /* case 15-20 */
+					case 15: case 16:
+					{
+						o_ptr->name2 = EGO_VENOM;
+						break;
+					}
+
+					default: /* case 17-20 */
 					{
 						o_ptr->name2 = EGO_WOUNDING;
 						break;
@@ -2097,7 +2109,7 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 
 				/* Hack -- super-charge the damage dice */
 				while ((o_ptr->dd * o_ptr->ds > 0) &&
-				       (rand_int(10L * o_ptr->dd * o_ptr->ds) == 0))
+				       (rand_int(4L * o_ptr->dd * o_ptr->ds) == 0))
 				{
 					o_ptr->dd++;
 				}
@@ -2769,7 +2781,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 				case SV_RING_DAMAGE:
 				{
 					/* Bonus to damage */
-					o_ptr->to_d = 5 + randint(5) + m_bonus(10, level);
+					o_ptr->to_d = 1 + randint(5) + m_bonus(6, level);
 
 					/* Cursed */
 					if (power < 0)
@@ -2791,7 +2803,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 				case SV_RING_ACCURACY:
 				{
 					/* Bonus to hit */
-					o_ptr->to_h = 5 + randint(5) + m_bonus(10, level);
+					o_ptr->to_h = 1 + randint(5) + m_bonus(6, level);
 
 					/* Cursed */
 					if (power < 0)
@@ -2835,8 +2847,8 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 				case SV_RING_SLAYING:
 				{
 					/* Bonus to damage and to hit */
-					o_ptr->to_d = randint(5) + m_bonus(10, level);
-					o_ptr->to_h = randint(5) + m_bonus(10, level);
+					o_ptr->to_d = 1 + randint(5) + m_bonus(6, level);
+					o_ptr->to_h = 1 + randint(5) + m_bonus(6, level);
 
 					/* Cursed */
 					if (power < 0)
@@ -3317,10 +3329,12 @@ static bool kind_is_good(int k_idx)
 			return (TRUE);
 		}
 
-		/* Ammo -- Arrows/Bolts are good */
+		/* Ammo -- Arrows/Bolts are good unless damaged -GJW */
 		case TV_BOLT:
 		case TV_ARROW:
 		{
+			if (k_ptr->to_h < 0) return (FALSE);
+			if (k_ptr->to_d < 0) return (FALSE);
 			return (TRUE);
 		}
 
@@ -3329,6 +3343,12 @@ static bool kind_is_good(int k_idx)
 		case TV_PRAYER_BOOK:
 		{
 			if (k_ptr->sval >= SV_BOOK_MIN_GOOD) return (TRUE);
+			return (FALSE);
+		}
+
+		case TV_GW_MAGIC_BOOK:
+		{
+			if (k_ptr->sval >= SV_GW_BOOK_MIN_GOOD) return (TRUE);
 			return (FALSE);
 		}
 
@@ -4321,12 +4341,13 @@ s16b inven_carry(object_type *o_ptr)
 			if (!object_known_p(o_ptr)) continue;
 			if (!object_known_p(j_ptr)) break;
 
-                       /* Hack:  otherwise identical rods sort by
-                          increasing recharge time --dsb */
-                       if (o_ptr->tval == TV_ROD) {
-                               if (o_ptr->pval < j_ptr->pval) break;
-                               if (o_ptr->pval > j_ptr->pval) continue;
-                       }
+			/* Hack:  otherwise identical rods sort by
+			   increasing recharge time --dsb */
+			if (o_ptr->tval == TV_ROD)
+			{
+				if (o_ptr->pval < j_ptr->pval) break;
+				if (o_ptr->pval > j_ptr->pval) continue;
+			}
  
 			/* Determine the "value" of the pack item */
 			j_value = object_value(j_ptr);
@@ -4677,12 +4698,12 @@ void reorder_pack(void)
 			if (!object_known_p(o_ptr)) continue;
 			if (!object_known_p(j_ptr)) break;
 
-                       /* Hack:  otherwise identical rods sort by
-                          increasing recharge time --dsb */
-                       if (o_ptr->tval == TV_ROD) {
-                               if (o_ptr->pval < j_ptr->pval) break;
-                               if (o_ptr->pval > j_ptr->pval) continue;
-                       }
+			/* Hack:  otherwise identical rods sort by
+			   increasing recharge time --dsb */
+			if (o_ptr->tval == TV_ROD) {
+				if (o_ptr->pval < j_ptr->pval) break;
+				if (o_ptr->pval > j_ptr->pval) continue;
+			}
  
 			/* Determine the "value" of the pack item */
 			j_value = object_value(j_ptr);
@@ -4759,7 +4780,8 @@ s16b spell_chance(int spell)
 	minfail = adj_mag_fail[p_ptr->stat_ind[mp_ptr->spell_stat]];
 
 	/* Non mage/priest characters never get better than 5 percent */
-	if ((p_ptr->pclass != CLASS_MAGE) && (p_ptr->pclass != CLASS_PRIEST))
+	if ((p_ptr->pclass != CLASS_MAGE) && (p_ptr->pclass != CLASS_PRIEST) &&
+	    (p_ptr->pclass != CLASS_GW_MAGE))
 	{
 		if (minfail < 5) minfail = 5;
 	}
@@ -4878,7 +4900,7 @@ void spell_info(char *p, int spell)
 	}
 
 	/* Priest spells */
-	if (mp_ptr->spell_book == TV_PRAYER_BOOK)
+	else if (mp_ptr->spell_book == TV_PRAYER_BOOK)
 	{
 		int plev = p_ptr->lev;
 
@@ -4913,6 +4935,47 @@ void spell_info(char *p, int spell)
 			case 52: strcpy(p, " range 10"); break;
 			case 53: sprintf(p, " range %d", 8*plev); break;
 		}
+	}
+
+	else if (mp_ptr->spell_book == TV_GW_MAGIC_BOOK)
+	{
+		int plev = p_ptr->lev;
+
+		/* Analyze the spell */
+		switch (spell)
+ 		{
+ 			case 0: sprintf(p, " dam %dd4", 3+((plev-1)/5)); break;
+ 			case 2: strcpy(p, " range 10"); break;
+			case 4: sprintf(p, " dam %d", 10 + (plev / 2)); break;
+			case 5: sprintf(p, " dam %dd8", (3+((plev-5)/4))); break;
+			case 6: sprintf(p, " dam %dd8", (5+((plev-5)/4))); break;
+			case 7: sprintf(p, " dam %dd8", (6+((plev-5)/4))); break;
+			case 8: sprintf(p, " dam %dd8", (8+((plev-5)/4))); break;
+		    	case 9: sprintf(p, " dam %d", 10 + plev); break;
+		    	case 10: sprintf(p, " dam %d", 20 + plev * 2); break;
+			case 11: sprintf(p, " dam %d", 40 + plev/2); break;
+			case 12: sprintf(p, " dam %d", 30 + plev); break;
+			case 13: sprintf(p, " dam %d", 40 + plev); break;
+			case 14: sprintf(p, " dam %d", 55 + plev); break;
+			case 15: sprintf(p, " dam %d", 70 + plev); break;
+			case 17: sprintf(p, " dam %dx%d", 30+plev/2, 2+plev/20); break;
+			case 18: sprintf(p, " dam %d", 300 + plev*2); break;
+			case 19: strcpy(p, " heal 2d8"); break;
+			case 28: sprintf(p, " range %d", plev * 5); break;
+			case 31: sprintf(p, " dur %d+d20", plev); break;
+			case 35: strcpy(p, " dam 6d8"); break;
+			case 47: sprintf(p, " dam 17d%d", plev); break;
+			case 48: strcpy(p, " dur 20+d20"); break;
+ 			case 49: strcpy(p, " dur 20+d20"); break;
+			case 50: strcpy(p, " dur 25+d25"); break;
+			case 51: strcpy(p, " dur 25+d25"); break;
+ 			case 52: strcpy(p, " dur 20+d20"); break;
+ 			case 53: strcpy(p, " dur 20+d20"); break;
+			case 54: strcpy(p, " dur 30+d20"); break;
+			case 55: strcpy(p, " dur 6+d8"); break;
+			case 61: sprintf(p, " dam 40+%dd7", plev); break;
+			case 62: sprintf(p, " dam 13d%d", plev); break;
+ 		}
 	}
 }
 

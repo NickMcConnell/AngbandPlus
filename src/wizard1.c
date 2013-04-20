@@ -108,6 +108,7 @@ static grouper group_item[] =
 
 	{ TV_MAGIC_BOOK,	"Books (Mage)" },
 	{ TV_PRAYER_BOOK,	"Books (Priest)" },
+	{ TV_GW_MAGIC_BOOK,	"Books (GW-Mage)" },
 
 	{ TV_CHEST,		"Chests" },
 
@@ -490,6 +491,7 @@ static flag_desc brand_flags_desc[] =
 	{ TR1_BRAND_ELEC,         "Lightning Brand" },
 	{ TR1_BRAND_FIRE,         "Flame Tongue" },
 	{ TR1_BRAND_COLD,         "Frost Brand" },
+	{ TR1_BRAND_POIS,         "Venom Brand" }, /* GJW */
 };
 
 /*
