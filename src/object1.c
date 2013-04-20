@@ -3435,6 +3435,10 @@ cptr item_activation(object_type *o_ptr)
 	/* Some artifacts can be activated */
 	switch (o_ptr->name1)
 	{
+		case ART_STORMBRINGER:
+		{
+			return "summon its brothers every 1000 turns";
+		}
 		case ART_NARTHANC:
 		{
 			return "fire bolt (14d8) every 8+d8 turns";
@@ -3467,9 +3471,9 @@ cptr item_activation(object_type *o_ptr)
 		{
 			return "summon the Legion of the Dawn every 500+d500 turns";
 		}
-		case ART_ANDURIL:
+		case ART_ANDURIL: /* 'Kanajana' */
 		{
-			return "fire ball (108) every 400 turns";
+			return "radiation ball (300, radius 4) every 200 turns";
 		}
 		case ART_FIRESTAR:
 		{
@@ -3490,6 +3494,10 @@ cptr item_activation(object_type *o_ptr)
 		case ART_CASPANION:
 		{
 			return "door and trap destruction every 10 turns";
+		}
+		case ART_PAN_TANG:
+		{
+			return "demon summoning every 400 turns";
 		}
 		case ART_AVAVIR:
 		{
@@ -3658,6 +3666,10 @@ cptr item_activation(object_type *o_ptr)
 		case ART_DOR: case ART_GORLIM:
 		{
 			return "rays of fear in every direction";
+		}
+		case ART_KWLL:
+		{
+			return "summon undead every 500 turns";
 		}
 	}
 

@@ -1780,12 +1780,12 @@ void random_artifact_resistance(object_type * o_ptr)
 
 	switch(o_ptr->name1)
 	{
-		case ART_CELEBORN: case ART_ARVEDUI: case ART_CASPANION:
-		case ART_HITHLOMIR: case ART_ROHIRRIM:
-		case ART_CELEGORM: case ART_ANARION: case ART_THRANDUIL:
-		case ART_LUTHIEN: case ART_THROR: case ART_THORIN:
-		case ART_NIMTHANC: case ART_DETHANC: case ART_NARTHANC:
-		case ART_STING: case ART_TURMIL:
+		case ART_CELEBORN: case ART_ARVEDUI:   case ART_CASPANION:
+		case ART_PAN_TANG: case ART_HITHLOMIR: case ART_ROHIRRIM:
+		case ART_CELEGORM: case ART_ANARION:   case ART_THRANDUIL:
+		case ART_THENGEL:  case ART_LUTHIEN:   case ART_THROR:
+		case ART_THORIN:   case ART_NIMTHANC:  case ART_DETHANC:
+		case ART_NARTHANC: case ART_STING:     case ART_TURMIL:
 		case ART_THALKETTOTH:
 			{
 				/* Give a resistance */
@@ -1795,6 +1795,7 @@ void random_artifact_resistance(object_type * o_ptr)
 		case ART_MAEDHROS: case ART_GLAMDRING: case ART_ORCRIST:
 		case ART_ANDURIL: case ART_ZARCUTHRA: case ART_GURTHANG:
 		case ART_HARADEKKET: case ART_CUBRAGOL: case ART_DAWN:
+		case ART_MORDAGA:
 			{
 				/* Give a resistance OR a power */
 				if (randint(2)==1) give_resistance = TRUE;
@@ -4632,6 +4633,9 @@ void pick_trap(int y, int x)
 		/* Hack -- no trap doors on the deepest level */
 		if ((feat == FEAT_TRAP_HEAD + 0x00) && (dun_level >= MAX_DEPTH-1)) continue;
 
+		/* Hack -- no polymorph traps before level 5 - Gumby */
+		if ((feat == FEAT_TRAP_HEAD + 0x08) && (dun_level <= 4)) continue;
+
 		/* Done */
 		break;
 	}
@@ -5818,7 +5822,7 @@ static void spell_info(char *p, int spell, int realm)
 				{
 					case  0: sprintf(p, " dam %dd4", 3+((plev-1)/3)); break;
 					case  2: sprintf(p, " dam %d", 10 + (plev / 2)); break;
-					case  4: sprintf(p, " dam %d", 25 + (plev + (plev / 2))); break; 
+					case  4: sprintf(p, " dam %d", 25 + (plev + (plev / 3))); break; 
 					case  5: sprintf(p, " dam %dd8", (9+((plev-5)/3))); break;
 					case  6: sprintf(p, " dam %dd8", (12+((plev-5)/3))); break;
 					case  7: sprintf(p, " range %d", plev * 5); break;
@@ -5830,7 +5834,6 @@ static void spell_info(char *p, int spell, int realm)
 					case 15: sprintf(p, " dam %d", 100 + plev); break;
 					case 17: sprintf(p, " dam %dd8", (8+((plev)/5))); break;
 					case 19: sprintf(p, " dam %d", 120 + plev); break;
-/*					case 24: sprintf(p, " dam %dd8", (9 + ((plev/10)))); break; */
 					case 24: sprintf(p, " dam %dd8", (14+((plev-5)/3))); break;
 					case 25: sprintf(p, " dam %d each", (4*plev)/2); break;
 					case 26: sprintf(p, " dam %d", 100 + plev); break;

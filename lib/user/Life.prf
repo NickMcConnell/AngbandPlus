@@ -1,8 +1,8 @@
 # Life Magic
 #
-# TAB - Holy Word           F1 - Cure Light Wounds
-#   [ - Glyph of Warding    F2 - Cure Medium Wounds
-#   ] - Warding True        F3 - Cure Critical Wounds
+# TAB - Holy Word           F1 - Cure Light Wounds   SF1 - Remove Fear
+#   [ - Glyph of Warding    F2 - Cure Medium Wounds  SF2 - Sense Unseen
+#   ] - Warding True        F3 - Cure Critical Wnds. SF3 - Day of the Dove
 #   ' - Holy Vision         F4 - Healing
 #   " - Bless Weapon        F5 - Healing True
 #   ; - Remove Curse        F6 - Cure Poison
@@ -137,3 +137,17 @@ P:^_x85\r
 # F12 - Banish
 A:m3f
 P:^_x86\r
+
+# Misc
+
+# SHIFT-F1 - Remove Fear
+A:m1d
+P:^_Sx54\r
+
+# SHIFT-F2 - Sense Unseen
+A:m2d
+P:^_Sx55\r
+
+# SHIFT-F3 - Day of the Dove
+A:m3d
+P:^_Sx56\r

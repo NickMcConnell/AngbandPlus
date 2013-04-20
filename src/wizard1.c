@@ -1669,21 +1669,21 @@ static void spoil_mon_info(cptr fname)
 
 		spoil_out("This");
 
-		if (flags2 & (RF2_ELDRITCH_HORROR)) spoil_out (" sanity-blasting");
-		if (flags3 & (RF3_ANIMAL)) spoil_out(" natural");
-		if (flags3 & (RF3_EVIL)) spoil_out(" evil");
-		if (flags3 & (RF3_GOOD)) spoil_out(" good");
-		if (flags3 & (RF3_UNDEAD)) spoil_out(" undead");
+		if (flags2 & (RF2_ELDRITCH_HORROR))	spoil_out (" sanity-blasting");
+		if (flags3 & (RF3_ANIMAL))		spoil_out(" natural");
+		if (flags3 & (RF3_EVIL))		spoil_out(" evil");
+		if (flags3 & (RF3_GOOD))		spoil_out(" good");
+		if (flags3 & (RF3_UNDEAD))		spoil_out(" undead");
+		if (flags3 & (RF3_ELEMENTAL))		spoil_out(" elemental");
+		if (flags3 & (RF3_DRAGON))		spoil_out(" dragon");
 
-		if (flags3 & (RF3_DRAGON)) spoil_out(" dragon");
 		else if ((flags3 & (RF3_DEMON)) &&
-			 (flags3 & (RF3_SCUMDOG))) spoil_out(" demonic Scumdog");
-		else if (flags3 & (RF3_DEMON)) spoil_out(" demon");
-		else if (flags3 & (RF3_GIANT)) spoil_out(" giant");
-		else if (flags3 & (RF3_TROLL)) spoil_out(" troll");
-		else if (flags3 & (RF3_ORC)) spoil_out(" orc");
-		else if (flags3 & (RF3_AMBERITE)) spoil_out (" Amberite");
-		else spoil_out(" creature");
+			 (flags3 & (RF3_SCUMDOG)))	spoil_out(" demonic Scumdog");
+		else if (flags3 & (RF3_DEMON))		spoil_out(" demon");
+		else if (flags3 & (RF3_GIANT))		spoil_out(" giant");
+		else if (flags3 & (RF3_TROLL))		spoil_out(" troll");
+		else if (flags3 & (RF3_ORC))		spoil_out(" orc");
+		else					spoil_out(" creature");
 
 		spoil_out(" moves");
 
@@ -1860,12 +1860,12 @@ static void spoil_mon_info(cptr fname)
 		if (flags6 & (RF6_XXX2))              vp[vn++] = "do something";
 		if (flags6 & (RF6_BLINK))             vp[vn++] = "blink-self";
 		if (flags6 & (RF6_TPORT))             vp[vn++] = "teleport-self";
-		if (flags6 & (RF6_XXX3))              vp[vn++] = "do something";
-		if (flags6 & (RF6_XXX4))              vp[vn++] = "do something";
+		if (flags6 & (RF6_S_HELLBLADES))      vp[vn++] = "summon Hellblades";
+		if (flags6 & (RF6_S_ANIMALS))         vp[vn++] = "summon animals";
 		if (flags6 & (RF6_TELE_TO))           vp[vn++] = "teleport to";
 		if (flags6 & (RF6_TELE_AWAY))         vp[vn++] = "teleport away";
 		if (flags6 & (RF6_TELE_LEVEL))        vp[vn++] = "teleport level";
-		if (flags6 & (RF6_S_ELEMENTAL))       vp[vn++] = "summon an elemental";
+		if (flags6 & (RF6_S_ELEMENTAL))       vp[vn++] = "summon elementals";
 		if (flags6 & (RF6_DARKNESS))          vp[vn++] = "create darkness";
 		if (flags6 & (RF6_TRAPS))             vp[vn++] = "create traps";
 		if (flags6 & (RF6_FORGET))            vp[vn++] = "cause amnesia";

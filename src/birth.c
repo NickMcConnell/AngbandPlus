@@ -1974,7 +1974,7 @@ static bool player_birth_aux()
 	Term_putstr(5, 15, -1, TERM_WHITE,
 		"Using 'maximize' mode makes the game harder at the start,");
 	Term_putstr(5, 16, -1, TERM_WHITE,
-        "but often makes it easier to win. In Zangband, 'maximize'");
+        "but often makes it easier to win. In Gumband, 'maximize'");
     Term_putstr(5, 17, -1, TERM_WHITE,
         "mode is recommended for spellcasters.");
 
@@ -2159,7 +2159,7 @@ static bool player_birth_aux()
 	Term_putstr(5, 15, -1, TERM_WHITE,
 		"You can input yourself the number of quest you'd like to");
 	Term_putstr(5, 16, -1, TERM_WHITE,
-		"perform next to two obligatory ones ( Oberon and the Serpent of Chaos )");
+		"perform next to three obligatory ones (Arioch, Xiombarg and Mabelrode)");
 	Term_putstr(5, 17, -1, TERM_WHITE,
 		"In case you do not want any additional quest, just enter 0");
 
@@ -2175,7 +2175,7 @@ static bool player_birth_aux()
 			put_str("", 20, 37);
 
 			/* Default */
-			strcpy(inp, "20");
+			strcpy(inp, "40");
 
 			/* Get a response (or escape) */
 			if (!askfor_aux(inp, 2)) inp[0] = '\0';
@@ -2443,6 +2443,93 @@ static bool player_birth_aux()
 
 	/* Start over */
 	if (c == 'S') return (FALSE);
+
+	/* Check for patron-granted powers */
+	if (p_ptr->pclass == CLASS_CHAOS_WARRIOR)
+	{
+		switch(p_ptr->chaos_patron)
+		{
+			/* Resist magic */
+			case PATRON_SLORTAR:
+			{
+				p_ptr->muta3 |= MUT3_MAGIC_RES;
+				break;
+			}
+			/* Mabelrode the Faceless */
+			case PATRON_MABELRODE:
+			{
+				if (randint(2) == 1)
+					p_ptr->muta3 |= MUT3_BLANK_FAC;
+				else
+					p_ptr->muta3 |= MUT3_ILL_NORM;
+				break;
+			}
+			/* Random telepathy and warning, or extra legs:
+			 * Pyaray's earthly form is that of a giant
+			 * octopus, after all. :) - Gumby
+			 */
+			case PATRON_PYARAY:
+			{
+				if (randint(1000) == 7)
+					p_ptr->muta3 |= MUT3_ESP;
+				else if (randint(100) == 7)
+					p_ptr->muta3 |= MUT3_XTRA_LEGS;
+				else
+					p_ptr->muta2 |= MUT2_WEIRD_MIND | MUT2_WARNING;
+				break;
+			}
+			/* Detect curse */
+			case PATRON_BALAAN:
+			{
+				if (randint(10) == 7)
+					p_ptr->muta1 |= MUT1_DET_CURSE;
+				else
+					p_ptr->muta3 |= MUT3_XTRA_EYES;
+				break;
+			}
+			/* Arioch misses Elric's loyalty :) */
+			case PATRON_ARIOCH:
+			{
+				p_ptr->muta3 |= MUT3_ALBINO;
+			}
+			/* Random dispel all */
+			case PATRON_EEQUOR:
+			{
+				p_ptr->muta2 |= MUT2_DISPEL_ALL;
+				break;
+			}
+			/* Random mutation */
+			case PATRON_BALO:
+			{
+				gain_random_mutation(0);
+				break;
+			}
+			/* Random berserk */
+			case PATRON_KHORNE:
+			{
+				p_ptr->muta2 |= MUT2_BERS_RAGE;
+				break;
+			}
+			/* Random polymorph wounds */
+			case PATRON_NURGLE:
+			{
+				p_ptr->muta2 |= MUT2_POLY_WOUND;
+				break;
+			}
+			/* Augmented intelligence */
+			case PATRON_TZEENTCH:
+			{
+				p_ptr->muta3 |= MUT3_HYPER_INT;
+				break;
+			}
+			/* Random chaos */
+			case PATRON_KHAINE:
+			{
+				p_ptr->muta2 |= MUT2_RAW_CHAOS;
+				break;
+			}
+		}
+	}
 
 	/* Accept */
 	return (TRUE);

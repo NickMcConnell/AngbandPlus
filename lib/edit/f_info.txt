@@ -142,10 +142,10 @@ G:^:u
 N:23:discolored spot
 G:^:u
 
-# 0x18 --> visible trap -- dart -- slow
+# 0x18 --> visible trap -- gas -- polymorph (was speed trap)
 
-N:24:dart trap
-G:^:r
+N:24:gas trap
+G:^:v
 
 # 0x19 --> visible trap -- dart -- lose str
 

@@ -1,3 +1,5 @@
+--- Note that this is severely out of date, and much might not apply
+--- to Gumband.
 
 === Introduction to the Zangband (2.1.0) Magic System ===
 

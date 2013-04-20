@@ -39,11 +39,11 @@
 #define VERSION_MINOR   8
 #define VERSION_PATCH   1
 
-/* Added for Zangband */
+/* Added for Zangband/Gumband */
 #define FAKE_VERSION
 #define FAKE_VER_MAJOR 2
 #define FAKE_VER_MINOR 1
-#define FAKE_VER_PATCH 1
+#define FAKE_VER_PATCH 2
 
 #define ANGBAND_2_8_1
 
@@ -107,6 +107,24 @@
 /* The number of "patrons" available (for Chaos Warriors) */
 #define MAX_PATRON          16
 
+/* Chaos patrons */
+#define PATRON_SLORTAR		0
+#define PATRON_MABELRODE	1
+#define PATRON_CHARDROS		2
+#define PATRON_HIONHURN		3
+#define PATRON_XIOMBARG		4
+#define PATRON_PYARAY		5
+#define PATRON_BALAAN		6
+#define PATRON_ARIOCH		7
+#define PATRON_EEQUOR		8
+#define PATRON_NARJHAN		9
+#define PATRON_BALO		10
+#define PATRON_KHORNE		11
+#define PATRON_SLAANESH		12
+#define PATRON_NURGLE		13
+#define PATRON_TZEENTCH		14
+#define PATRON_KHAINE		15
+
 /* Chaos Warrior: Reward types: */
 #define REW_POLY_SLF    0
 #define REW_GAIN_EXP    1
@@ -157,20 +175,64 @@
 #define MUT1_MIND_BLST                  0x00000020L
 #define MUT1_RADIATION                  0x00000040L
 #define MUT1_VAMPIRISM                  0x00000080L
+#define MUT1_SUMMON_M			0x00000100L
+#define MUT1_BLINK      	        0x00000200L
+#define MUT1_EAT_ROCK  		        0x00000400L
+#define MUT1_SHRIEK             	0x00001000L
+#define MUT1_ILLUMINE           	0x00002000L
+#define MUT1_DET_CURSE          	0x00004000L
+#define MUT1_BERSERK            	0x00008000L
+#define MUT1_POLYMORPH          	0x00010000L
+#define MUT1_MIDAS_TCH          	0x00020000L
+#define MUT1_GROW_MOLD          	0x00040000L
+#define MUT1_RESIST             	0x00080000L
+#define MUT1_EARTHQUAKE         	0x00100000L
+#define MUT1_DAZZLE             	0x00200000L
+#define MUT1_RECALL             	0x00400000L
+#define MUT1_BANISH             	0x00800000L
+#define MUT1_COLD_TOUCH         	0x01000000L
+#define MUT1_MISSILE			0x02000000L
+#define MUT1_SHARD_BOLT			0x04000000L
+#define MUT1_SHARD_BLAST		0x08000000L
+#define MUT1_DSHARD_BLAST		0x10000000L
+#define MUT1_CHAIN_SHARDS		0x20000000L
+#define MUT1_ROCKET			0x40000000L
+
 
 
 /* Randomly activating mutations must be MUT2_* */
-#define MUT2_BERS_RAGE                  0x00000001L
-#define MUT2_COWARDICE                  0x00000002L
-#define MUT2_RTELEPORT                  0x00000004L /* Random teleport, instability */
-#define MUT2_ALCOHOL                    0x00000008L
-#define MUT2_HALLU                      0x00000010L
-#define MUT2_FLATULENT                  0x00000020L
-#define MUT2_SCOR_TAIL                  0x00000040L
-#define MUT2_HORNS                      0x00000080L
-#define MUT2_BEAK                       0x00000100L
-#define MUT2_ATT_DEMON                  0x00000200L
-#define MUT2_PROD_MANA                  0x00000400L
+#define MUT2_BERS_RAGE		0x00000001L
+#define MUT2_COWARDICE		0x00000002L
+#define MUT2_RTELEPORT		0x00000004L /* Random teleport, instability */
+#define MUT2_ALCOHOL		0x00000008L
+#define MUT2_HALLU		0x00000010L
+#define MUT2_FLATULENT		0x00000020L
+#define MUT2_SCOR_TAIL		0x00000040L
+#define MUT2_HORNS		0x00000080L
+#define MUT2_BEAK		0x00000100L
+#define MUT2_TUSKS		0x00000200L
+#define MUT2_CLAWS		0x00000400L
+#define MUT2_ATT_DEMON		0x00000800L
+#define MUT2_PROD_MANA		0x00001000L
+#define MUT2_WOUND		0x00002000L
+#define MUT2_DISPEL_ALL         0x00004000L
+#define MUT2_EAT_LIGHT          0x00008000L
+#define MUT2_ATT_ANIMAL         0x00010000L
+#define MUT2_RAW_CHAOS          0x00020000L
+#define MUT2_WRAITH             0x00040000L
+#define MUT2_POLY_WOUND         0x00080000L
+#define MUT2_WASTING            0x00100000L
+#define MUT2_ATT_DRAGON         0x00200000L
+#define MUT2_WEIRD_MIND         0x00400000L
+#define MUT2_NAUSEA             0x00800000L
+#define MUT2_CHAOS_GIFT         0x01000000L
+#define MUT2_WALK_SHAD          0x02000000L
+/* Warning now randomly detects monsters */
+#define MUT2_WARNING            0x04000000L
+#define MUT2_INVULN             0x08000000L
+#define MUT2_SP_TO_HP           0x10000000L
+#define MUT2_HP_TO_SP           0x20000000L
+#define MUT2_DISARM             0x40000000L
 
 
 
@@ -186,7 +248,7 @@
 #define MUT3_FLESH_ROT                  0x00000080L
 #define MUT3_SILLY_VOI                  0x00000100L
 #define MUT3_BLANK_FAC                  0x00000200L
-#define MUT3_XXX1                       0x00000400L
+#define MUT3_ILL_NORM                   0x00000400L
 #define MUT3_XTRA_EYES                  0x00000800L
 #define MUT3_MAGIC_RES                  0x00001000L
 #define MUT3_XTRA_NOIS                  0x00002000L
@@ -202,6 +264,11 @@
 #define MUT3_FEARLESS                   0x00800000L
 #define MUT3_REGEN                      0x01000000L
 #define MUT3_ESP                        0x02000000L
+#define MUT3_TWISTED			0x04000000L
+#define MUT3_SPINES			0x08000000L
+#define MUT3_LIMBER     	        0x10000000L
+#define MUT3_ARTHRITIS  	        0x20000000L
+#define MUT3_VULN_ELEM  	        0x40000000L
 
 
 /* Monk martial arts... */
@@ -239,8 +306,10 @@
 /*
  * Hack -- Maximum number of quests (Heino Vander Sanden)
  */
-#define DEFAULT_QUESTS  2	/* Number of default quests (Morgoth and Sauron) */
-#define MAX_QUESTS     40	/* Max number of quests */
+#define DEFAULT_QUESTS  3	/* Number of default quests
+                                 * (Arioch, Xiombarg and Mabelrode - Gumby)
+                                 */
+#define MAX_QUESTS     75	/* Max number of quests (was 40) */
 
 /*
  * Maximum number of high scores in the high score file
@@ -452,21 +521,21 @@
 /*
  * Player "food" crucial values
  */
-#define PY_FOOD_MAX             15000   /* Food value (Bloated) */
+#define PY_FOOD_MAX	15000   /* Food value (Bloated) */
 #define PY_FOOD_FULL    10000   /* Food value (Normal) */
 #define PY_FOOD_ALERT   2000    /* Food value (Hungry) */
 #define PY_FOOD_WEAK    1000    /* Food value (Weak) */
-#define PY_FOOD_FAINT   500             /* Food value (Fainting) */
-#define PY_FOOD_STARVE  100             /* Food value (Starving) */
+#define PY_FOOD_FAINT   500 	/* Food value (Fainting) */
+#define PY_FOOD_STARVE  100	/* Food value (Starving) */
 
 /*
  * Player regeneration constants
  */
-#define PY_REGEN_NORMAL         197             /* Regen factor*2^16 when full */
-#define PY_REGEN_WEAK           98              /* Regen factor*2^16 when weak */
-#define PY_REGEN_FAINT          33              /* Regen factor*2^16 when fainting */
+#define PY_REGEN_NORMAL         197     /* Regen factor*2^16 when full */
+#define PY_REGEN_WEAK           98      /* Regen factor*2^16 when weak */
+#define PY_REGEN_FAINT          33      /* Regen factor*2^16 when fainting */
 #define PY_REGEN_HPBASE         1442    /* Min amount hp regen*2^16 */
-#define PY_REGEN_MNBASE         524             /* Min amount mana regen*2^16 */
+#define PY_REGEN_MNBASE         524     /* Min amount mana regen*2^16 */
 
 /* Possible realms that can be chosen; currently used only by birth.c
 and tables.c --TY */
@@ -767,6 +836,7 @@ and tables.c --TY */
 #define ART_CELEBORN                    23
 #define ART_ARVEDUI                     24
 #define ART_CASPANION                   25
+#define ART_PAN_TANG                    26
 
 /* Soft Armour */
 #define ART_HITHLOMIR                   27
@@ -776,6 +846,7 @@ and tables.c --TY */
 #define ART_THORIN                      30
 #define ART_CELEGORM                    31
 #define ART_ANARION                     32
+#define ART_MORDAGA                     33
 
 /* Helms and Crowns */
 #define ART_MORGOTH                     34
@@ -798,6 +869,7 @@ and tables.c --TY */
 #define ART_TUOR                        50
 
 /* Gloves */
+#define ART_KWLL			51
 #define ART_CAMBELEG                    52
 #define ART_CAMMITHRIM                  53
 #define ART_PAURHACH                    54
@@ -833,9 +905,9 @@ and tables.c --TY */
 #define ART_CRISDURIAN                  80
 #define ART_AGLARANG                    81
 #define ART_RINGIL                      82
-#define ART_ANDURIL                     83
+#define ART_ANDURIL                     83 /* Now 'Kanajana' */
 #define ART_ANGUIREL                    84
-#define ART_ELVAGIL                     85
+#define ART_ELVAGIL                     85 /* Now 'Chainsword' */
 #define ART_FORASGIL                    86
 #define ART_CARETH                      87
 #define ART_STING                       88
@@ -1257,6 +1329,7 @@ and tables.c --TY */
 #define SV_LARGE_LEATHER_SHIELD  4
 #define SV_LARGE_METAL_SHIELD    5
 #define SV_DRAGON_SHIELD         6
+#define SV_CHAOS_SHIELD          8
 #define SV_SHIELD_OF_DEFLECTION  10
 
 /* The "sval" codes for TV_HELM */
@@ -1283,6 +1356,7 @@ and tables.c --TY */
 /* The "sval" codes for TV_GLOVES */
 #define SV_SET_OF_LEATHER_GLOVES   1
 #define SV_SET_OF_GAUNTLETS        2
+#define SV_JEWELED_HAND		   4
 #define SV_SET_OF_CESTI            5
 
 /* The "sval" codes for TV_SOFT_ARMOR */
@@ -1307,6 +1381,7 @@ and tables.c --TY */
 #define SV_FULL_PLATE_ARMOUR       15      /* 25 */
 #define SV_RIBBED_PLATE_ARMOUR     18      /* 28 */
 #define SV_MITHRIL_CHAIN_MAIL      20      /* 28+ */
+#define SV_SCARLET_PLATE_ARMOUR    23      /* 30 - INSTA_ART */
 #define SV_MITHRIL_PLATE_MAIL      25      /* 35+ */
 #define SV_ADAMANTITE_PLATE_MAIL   30      /* 40+ */
 
@@ -1610,7 +1685,7 @@ and tables.c --TY */
 #define SV_POTION_INC_DEX                51
 #define SV_POTION_INC_CON                52
 #define SV_POTION_INC_CHR                53
-/* xxx */
+#define SV_POTION_MUTATION               54
 #define SV_POTION_AUGMENTATION           55
 #define SV_POTION_ENLIGHTENMENT          56
 #define SV_POTION_STAR_ENLIGHTENMENT     57
@@ -1896,7 +1971,7 @@ and tables.c --TY */
 #define SUMMON_NO_UNIQUES                      46
 #define SUMMON_PHANTOM          47
 #define SUMMON_ELEMENTAL        48
-
+#define SUMMON_HELLBLADES       49
 
 
 
@@ -2354,7 +2429,7 @@ and tables.c --TY */
 #define RF3_UNDEAD              0x00000020      /* Undead */
 #define RF3_EVIL                0x00000040      /* Evil */
 #define RF3_ANIMAL              0x00000080      /* Animal */
-#define RF3_AMBERITE            0x00000100      /* TY: Amberite */
+#define RF3_ELEMENTAL           0x00000100      /* Elemental (was Amberite) */
 #define RF3_GOOD                0x00000200      /* Good */
 #define RF3_SCUMDOG             0x00000400      /* Scumdog/GWAR was XXX3 */
 #define RF3_NONLIVING           0x00000800      /* TY: Non-Living (?) */
@@ -2460,8 +2535,8 @@ and tables.c --TY */
 #define RF6_XXX2                0x00000008      /* Heal a lot (?) */
 #define RF6_BLINK               0x00000010      /* Teleport Short */
 #define RF6_TPORT               0x00000020      /* Teleport Long */
-#define RF6_XXX3                0x00000040      /* Move to Player (?) */
-#define RF6_XXX4                0x00000080      /* Move to Monster (?) */
+#define RF6_S_HELLBLADES        0x00000040      /* Summon Hellblades (was XXX3) */
+#define RF6_S_ANIMALS           0x00000080      /* Summon Animals (was XXX4) */
 #define RF6_TELE_TO             0x00000100      /* Move player to monster */
 #define RF6_TELE_AWAY           0x00000200      /* Move player far away */
 #define RF6_TELE_LEVEL          0x00000400      /* Move player vertically */
@@ -2484,7 +2559,7 @@ and tables.c --TY */
 #define RF6_S_DRAGON            0x08000000      /* Summon Dragon */
 #define RF6_S_HI_UNDEAD         0x10000000      /* Summon Greater Undead */
 #define RF6_S_HI_DRAGON         0x20000000      /* Summon Ancient Dragon */
-#define RF6_S_WRAITH            0x40000000      /* Summon Unique Wraith */
+#define RF6_S_WRAITH            0x40000000      /* Summon Wraiths */
 #define RF6_S_UNIQUE            0x80000000      /* Summon Unique Monster */
 
 
@@ -2500,12 +2575,13 @@ and tables.c --TY */
   (RF5_HOLD | RF5_SLOW | RF5_CONF | RF5_BLIND | RF5_SCARE)
 
 #define RF6_INT_MASK \
-   (RF6_BLINK |  RF6_TPORT | RF6_TELE_LEVEL | RF6_TELE_AWAY | \
-    RF6_HEAL | RF6_HASTE | RF6_TRAPS | RF6_S_ELEMENTAL | RF6_S_SCUMDOG | \
-    RF6_S_KIN | RF6_S_CYBER | RF6_S_MONSTER | RF6_S_MONSTERS | \
-    RF6_S_ANT | RF6_S_SPIDER | RF6_S_HOUND | RF6_S_HYDRA | \
-    RF6_S_ANGEL | RF6_S_DRAGON | RF6_S_UNDEAD | RF6_S_DEMON | \
-    RF6_S_HI_DRAGON | RF6_S_HI_UNDEAD | RF6_S_WRAITH | RF6_S_UNIQUE)
+   (RF6_BLINK |  RF6_TPORT | RF6_S_HELLBLADES | RF6_S_ANIMALS | \
+    RF6_TELE_LEVEL | RF6_TELE_AWAY | RF6_HEAL | RF6_HASTE | RF6_TRAPS | \
+    RF6_S_ELEMENTAL | RF6_S_SCUMDOG | RF6_S_KIN | RF6_S_CYBER | \
+    RF6_S_MONSTER | RF6_S_MONSTERS | RF6_S_ANT | RF6_S_SPIDER | \
+    RF6_S_HOUND | RF6_S_HYDRA | RF6_S_ANGEL | RF6_S_DRAGON | \
+    RF6_S_UNDEAD | RF6_S_DEMON | RF6_S_HI_DRAGON | RF6_S_HI_UNDEAD | \
+    RF6_S_WRAITH | RF6_S_UNIQUE)
 
  
 /*
@@ -2532,11 +2608,11 @@ and tables.c --TY */
     0L
 
 #define RF6_SUMMON_MASK \
-    (RF6_S_ELEMENTAL | RF6_S_SCUMDOG | RF6_S_KIN | RF6_S_CYBER | \
-     RF6_S_MONSTER | RF6_S_MONSTERS | RF6_S_ANT | RF6_S_SPIDER | \
-     RF6_S_HOUND | RF6_S_HYDRA | RF6_S_ANGEL | RF6_S_DEMON | \
-     RF6_S_UNDEAD | RF6_S_DRAGON | RF6_S_HI_UNDEAD | RF6_S_HI_DRAGON | \
-     RF6_S_WRAITH | RF6_S_UNIQUE)
+    (RF6_S_HELLBLADES | RF6_S_ANIMALS | RF6_S_ELEMENTAL | RF6_S_SCUMDOG | \
+     RF6_S_KIN | RF6_S_CYBER | RF6_S_MONSTER | RF6_S_MONSTERS | \
+     RF6_S_ANT | RF6_S_SPIDER | RF6_S_HOUND | RF6_S_HYDRA | RF6_S_ANGEL | \
+     RF6_S_DEMON | RF6_S_UNDEAD | RF6_S_DRAGON | RF6_S_HI_UNDEAD | \
+     RF6_S_HI_DRAGON | RF6_S_WRAITH | RF6_S_UNIQUE)
 
 
 /*** Macro Definitions ***/

@@ -2940,17 +2940,20 @@ static errr rd_savefile_old_aux(void)
 	r_info[MAX_R_IDX-3].r_pkills = 0;
 
 
-	/* Add first quest XXX XXX XXX */
-	q_list[0].level = 99;
+	/* Add first quest - Hope this works! (Gumby!) XXX XXX XXX */
+	q_list[0].level = 98;
 
 	/* Add second quest XXX XXX XXX */
-	q_list[1].level = 100;
+	q_list[1].level = 99;
 
-	/* Reset third quest XXX XXX XXX */
-	q_list[2].level = 0;
+	/* Add third quest XXX XXX XXX */
+	q_list[2].level = 100;
 
 	/* Reset fourth quest XXX XXX XXX */
 	q_list[3].level = 0;
+
+	/* Reset fifth quest XXX XXX XXX */
+	q_list[4].level = 0;
 
 
 	/* Hack -- maximize mode */

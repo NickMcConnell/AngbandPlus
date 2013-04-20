@@ -303,7 +303,7 @@ take effect will cancel both scrolls.
 Since an accidental dive to a new depth (via a trapdoor, for example), may
 result in the Word of Recall dungeon depth being 'broken', so to speak
 (meaning that the next Word of Recall in town will take you back deeper
-than you would like to), there is a new feature in Zangband which allows
+than you would like to), there is a new feature in Gumband which allows
 you to read a scroll of Word of Recall on a different level and 'reset'
 the recall depth to that level (instead of the deepest level).
 
@@ -433,23 +433,26 @@ For historical reasons, secret doors are never locked.
 
 === Winning The Game ===
 
-Once your character has killed Oberon, who lives on level 99 (4950') in the
-dungeon, a magical staircase will appear that will finally allow you to reach
-level 100.  The Serpent of Chaos lurks on this level of his dungeon, and you
-will not be able to go below his level until you have killed him.  Try to avoid
-wandering around on level 100 unless you are ready for him, since it has a
-habit of coming at you across the dungeon, to slay you for your impudence.
+Once your character has killed Arioch, Duke of Hell (destroy his body,
+actually - you can't kill a Chaos Lord, only banish him from the current
+plane of existence), who lives on level 98 (4950') in the dungeon, a magical
+staircase will appear that will allow you to reach level 99, where you must
+defeat Queen Xiombarg of Chaos.  That will let you reach level 100.
+Mabelrode the Faceless rules here, and you will not be able to go below his
+level until you have defeated him.  Try to avoid wandering around on these
+three levels unless you are ready for them, since they have a habit of
+coming at you across the dungeon, to slay you for your impudence.
 
-The Serpent of Chaos cannot be killed by some of the easier methods used on
-normal creatures.  The Serpent of Chaos, like all other "Unique" monsters,
-will simply teleport away to another region of the level if you attempt to
-use a spell such as destruction is upon it.   The Serpent of Chaos, like some
-other monsters, cannot be polymorphed, slept, charmed, or genocided.
-Magical spells like Mana Storm and Orb of Draining are effective against it,
-as are some of the more powerful weapons, but it is difficult to kill and if
-allowed to escape for a time it will heal itself rapidly.
+The three Sword Rulers cannot be killed by some of the easier methods used
+on normal creatures.  They, like all other "Unique" monsters, will simply
+teleport away to another region of the level if you attempt to use a spell
+such as Word of Destruction on them.  The Sword Rulers, like some other
+monsters, cannot be polymorphed, slept, charmed, or genocided.  Magical
+spells like Mana Storm and Holy Orb are effective against them, as are some
+of the more powerful weapons, but they are difficult to kill and, if allowed
+to escape for a time, they will heal itself rapidly.
 
-If you should actually survive the attempt of killing the Serpent of Chaos,
+If you should actually survive the attempt of destroying Mabelrode's body,
 you will receive the status of WINNER.  You may continue to explore, and may
 even save the game and play more later, but since you have defeated the
 toughest creature alive, there is really not much point.  Unless you wish to
@@ -480,5 +483,5 @@ of past incarnations.
 The newsgroup "rec.games.roguelike.angband" is a good place to ask various
 questions about both game play and game design, and you can email bug
 reports and such to (benh@phial.com).  Be sure to include the version
-number you are playing in any bug reports.  Zangband specific bug reports
-should be sent to (rr9@angband.org).
+number you are playing in any bug reports.  Gumband specific bug reports
+should be sent to (gumby@gwar.net).

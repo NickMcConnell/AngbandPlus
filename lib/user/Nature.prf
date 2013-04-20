@@ -1,11 +1,11 @@
 # Nature.prf
 #
-# TAB - Whirlwind Attack    F1 - Lightning Bolt
-#   [ - Prot. fr. Corrosion F2 - Frost Bolt
-#   ] - Elemental Branding  F3 - Entangle
+# TAB - Whirlwind Attack    F1 - Lightning Bolt      SF1 - Cure Wnds & Pois
+#   [ - Prot. fr. Corrosion F2 - Frost Bolt          SF2 - Summon Animal
+#   ] - Elemental Branding  F3 - Entangle            SF3 - Earthquake
 #   ' - Nature Awareness    F4 - Blizzard
 #   " - Stone Tell          F5 - Lightning Storm
-#   ; - Detect Creatures    F6 - Whirlpool
+#   ; - Animal Detection    F6 - Whirlpool
 #   : - Detect Door & Trap  F7 - Call Sunlight
 #   h - First Aid           F8 - Nature's Wrath
 #   H - Herbal Healing      F9 - Resist Environment
@@ -38,7 +38,7 @@ C:0:'
 A:m3f
 C:0:"
 
-# ; - Detect Creatures
+# ; - Animal Detection
 A:m1a
 C:0:;
 
@@ -137,3 +137,17 @@ P:^_x85\r
 # F12 - Wall of Stone
 A:m3g
 P:^_x86\r
+
+# Misc
+
+# SHIFT-F1 - Cure Wounds & Poison
+A:m1h
+P:^_Sx54\r
+
+# SHIFT-F2 - Summon Animal
+A:m2g
+P:^_Sx55\r
+
+# SHIFT-F3 - Earthquake
+A:m4a
+P:^_Sx56\r

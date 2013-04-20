@@ -22,11 +22,11 @@ a search.  Use Pound + Zero + Return + Slash + Return to restart a search.
 
 === General Information ===
 
-The game of Zangband is a single player dungeon simulation.  A player
-may choose from a number of races and classes when creating a character,
-and then "run" that character over a period of days, weeks, even months,
-attempting to win the game by defeating the Great Serpent of Chaos, who
-lurks somewhere in the depths of the dungeon.
+The game of Gumband is a single player dungeon simulation.  A player may
+choose from a number of races and classes when creating a character, and
+then "run" that character over a period of days, weeks, even months,
+attempting to win the game by defeating Mabelrode the Faceless, who lurks
+somewhere in the depths of the dungeon.
 
 The player will begin his adventure on the town level where he may acquire
 supplies, weapons, armor, and magical devices by bartering with various shop

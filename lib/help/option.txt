@@ -1,3 +1,5 @@
+--- This file might be out of date for Gumband. You have been warned. :)
+
 === Options and Effects (Zangband 2.1.*) ===
 
 Most of the "options" are accessible through the '=' command, which provides

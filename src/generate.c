@@ -108,7 +108,7 @@ int template_race;
 * Dungeon generation values
 */
 #define DUN_ROOMS    50     /* Number of rooms to attempt */
-#define DUN_UNUSUAL 194     /* Level/chance of unusual room (was 200) */
+#define DUN_UNUSUAL 175     /* Level/chance of unusual room (was 194) */
 #define DUN_DEST     30     /* 1/chance of having a destroyed level */
 #define SMALL_LEVEL   2     /* 1/chance of smaller size (3)*/
 #define EMPTY_LEVEL  15     /* 1/chance of being 'empty' (15)*/
@@ -129,9 +129,9 @@ int template_race;
 #define DUN_STR_DEN	5	/* Density of streamers */
 #define DUN_STR_RNG	2	/* Width of streamers */
 #define DUN_STR_MAG	3	/* Number of magma streamers */
-#define DUN_STR_MC	90	/* 1/chance of treasure per magma */
+#define DUN_STR_MC	90	/* 1/chance of treasure per magma (was 90) */
 #define DUN_STR_QUA	2	/* Number of quartz streamers */
-#define DUN_STR_QC	40	/* 1/chance of treasure per quartz */
+#define DUN_STR_QC	40	/* 1/chance of treasure per quartz (was 40) */
 
 /*
 * Dungeon treausre allocation values

@@ -2743,8 +2743,8 @@ static errr rd_savefile_new_aux(void)
 	/* Quests from a pre 2.1.1 version  */
 	if (q_list[1].r_idx == 0)
 	{
-		/* For the quest initialization */
-		MAX_Q_IDX = 40;
+		/* For the quest initialization (was 40) */
+		MAX_Q_IDX = 75;
 		
 		/* Initialize quest array */
 		initialise_quests();
@@ -2761,7 +2761,7 @@ static errr rd_savefile_new_aux(void)
 				put_str("", 20, 37);
 
 				/* Default */
-				strcpy(inp, "20");
+				strcpy(inp, "40");
 
 				/* Get a response (or escape) */
 				if (!askfor_aux(inp, 2)) inp[0] = '\0';

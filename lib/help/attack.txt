@@ -1,6 +1,6 @@
 === Attacking and Being Attacked ===
  
-Attacking is simple in Angband.  If you move into a creature, you attack him.
+Attacking is simple in Gumband.  If you move into a creature, you attack him.
 You can attack from a distance by firing a missile or by magical means such
 as aiming a wand.  Creatures attack in the same way.  If they move into you,
 they attack you.  Some creatures can also cast spells from a distance, and
@@ -36,10 +36,10 @@ actually occurs.
 
 === Monster Memories ===
 
-There are hundreds of different creatures in the pits of Angband, many of
+There are hundreds of different creatures in the pits of Gumband, many of
 which have the same letter symbol and color on the screen.  The exact species
 of a creature can be discovered by looking at it.  It is also very difficult
-to keep track of the capabilities of various creatures.  Luckily, Angband
+to keep track of the capabilities of various creatures.  Luckily, Gumband
 automatically keeps track of your experiences with a particular creature.
 This feature is called the monster memory.  You monster memory recalls the
 particular attacks of each creature (whether or not technically a monster)
@@ -63,13 +63,13 @@ it in the backpack, and switching it with the primary weapon when needed.
 
 Weapons have two main magical characteristics, their enchanted ability to hit
 and their enchanted ability to do damage, expressed as `(+#,+#)'.  A normal
-weapon would be `(+0,+0)'.  Many weapons in Angband have bonuses to hit
+weapon would be `(+0,+0)'.  Many weapons in Gumband have bonuses to hit
 and/or do damage.  Some weapons are cursed, and have penalties that hurt the
 player.  Cursed weapons cannot be unwielded until the curse is lifted.
 Identifying a weapon will inform you of the magical bonuses and penalties
 and whether or not it is cursed.
 
-Angband assumes that your youth in the rough environment near the dungeons
+Gumband assumes that your youth in the rough environment near the dungeons
 has taught you the relative merits of different weapons, and displays as
 part of their description the damage dice which define their capabilities.
 Any damage enchantment is added to the dice roll for that weapon.  The dice
@@ -264,7 +264,7 @@ same as a miss.  Two, good armor will absorb some of the damage that your
 character would have taken from normal attacks.  Three, acid damage is
 reduced by wearing body armor (but the armor will be damaged instead).  It
 is obvious that a high armor class is a must for surviving the deeper levels
-of Angband.
+of Gumband.
 
 Each piece of armour has a base armor value, which, like the damage from
 weapons, is assumed known by the player, and a magic bonus, which will not

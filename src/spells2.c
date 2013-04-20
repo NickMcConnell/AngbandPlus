@@ -595,7 +595,11 @@ void self_knowledge(void)
 			if (plev > 9)
 				info[i++] = "You can sense natural creatures (cost 5).";
 			break;
-		case RACE_NIBELUNG: case RACE_DWARF:
+		case RACE_NIBELUNG:
+			if (plev > 9)
+				info[i++] = "You can find traps, doors and stairs (cost 5).";
+			break;
+		case RACE_DWARF:
 			if (plev > 4)
 				info[i++] = "You can find traps, doors and stairs (cost 5).";
 			break;
@@ -647,7 +651,7 @@ void self_knowledge(void)
 			if (plev > 19)
 			{
 				sprintf(Dummy, "You can throw a boulder, dam. %d (cost 15).",
-				    3 * plev);
+				    4 * plev);
 				info[i++] = Dummy;
 			}
 			break;
@@ -658,7 +662,7 @@ void self_knowledge(void)
 		case RACE_KLACKON:
 			if (plev > 8)
 			{
-				sprintf(Dummy, "You can spit acid, dam. %d (cost 9).", plev);
+				sprintf(Dummy, "You can spit acid, dam. %d (cost 9).", plev * 2);
 				info[i++] = Dummy;
 			}
 			break;
@@ -666,36 +670,36 @@ void self_knowledge(void)
 			if (plev > 11)
 			{
 				sprintf(Dummy,
-				    "You can throw a dart of poison, dam. %d (cost 8).", plev);
+				    "You can throw a dart of poison, dam. %d (cost 8).", plev * 2);
 				info[i++] = Dummy;
 			}
 			break;
 		case RACE_DARK_ELF:
 			if (plev > 1)
 			{
-				sprintf(Dummy, "You can cast a Magic Missile, dam %d (cost 2).",
-				    ( 3 + ((plev-1) / 5) ) );
+				sprintf(Dummy, "You can cast a Magic Missile, dam %dd4 (cost 2).",
+				    ( 3 + ((plev-1) / 3) ) );
 				info[i++] = Dummy;
 			}
 			break;
 		case RACE_DRACONIAN:
-			sprintf(Dummy, "You can breathe, dam. %d (cost %d).", 2 * plev, plev);
+			sprintf(Dummy, "You can breathe, dam. %d (cost %d).", 3 * plev, plev);
 			info[i++] = Dummy;
 			break;
 		case RACE_MIND_FLAYER:
 			if (plev > 14)
-				sprintf(Dummy, "You can mind blast your enemies, dam %d (cost 12).", plev);
+				sprintf(Dummy, "You can mind blast your enemies, dam %d (cost 12).", plev * 2);
 			info[i++] = Dummy;
 			break;
 		case RACE_IMP:
 			if (plev > 29)
 			{
-				sprintf(Dummy, "You can cast a Fire Ball, dam. %d (cost 15).", plev);
+				sprintf(Dummy, "You can cast a Fire Ball, dam. %d (cost 15).", plev * 2);
 				info[i++] = Dummy;
 			}
 			else if (plev > 8)
 			{
-				sprintf(Dummy, "You can cast a Fire Bolt, dam. %d (cost 15).", plev);
+				sprintf(Dummy, "You can cast a Fire Bolt, dam. %d (cost 15).", plev * 2);
 				info[i++] = Dummy;
 			}
 			break;
@@ -723,7 +727,7 @@ void self_knowledge(void)
 			}
 			break;
 		case RACE_SPRITE:
-			if (plev > 11)
+			if (plev > 7)
 			{
 				info[i++] = "You can throw magic dust which induces sleep (cost 12).";
 			}
@@ -738,11 +742,11 @@ void self_knowledge(void)
 	{
 		if (p_ptr->muta1 & MUT1_SPIT_ACID)
 		{
-			info[i++] = "You can spit acid (dam lvl).";
+			info[i++] = "You can spit acid (dam lvl*2).";
 		}
 		if (p_ptr->muta1 & MUT1_BR_FIRE)
 		{
-			info[i++] = "You can breathe fire (dam lvl * 2).";
+			info[i++] = "You can breathe fire (dam lvl*3).";
 		}
 		if (p_ptr->muta1 & MUT1_HYPN_GAZE)
 		{
@@ -762,11 +766,95 @@ void self_knowledge(void)
 		}
 		if (p_ptr->muta1 & MUT1_RADIATION)
 		{
-			info[i++] = "You can emit hard radiation at will.";
+			info[i++] = "You can emit hard radiation at will (dam lvl*3).";
 		}
 		if (p_ptr->muta1 & MUT1_VAMPIRISM)
 		{
 			info[i++] = "You can drain life from a foe like a vampire.";
+		}
+		if (p_ptr->muta1 & MUT1_BLINK)
+		{
+			info[i++] = "You can teleport yourself short distances.";
+		}
+		if (p_ptr->muta1 & MUT1_EAT_ROCK)
+		{
+			info[i++] = "You can consume solid rock.";
+		}
+		if (p_ptr->muta1 & MUT1_SHRIEK)
+		{
+			info[i++] = "You can emit a horrible shriek (dam lvl*3).";
+		}
+		if (p_ptr->muta1 & MUT1_ILLUMINE)
+		{
+			info[i++] = "You can emit bright light.";
+		}
+		if (p_ptr->muta1 & MUT1_DET_CURSE)
+		{
+			info[i++] = "You can feel the danger of evil magic.";
+		}
+		if (p_ptr->muta1 & MUT1_BERSERK)
+		{
+			info[i++] = "You can drive yourself into a berserk frenzy.";
+		}
+		if (p_ptr->muta1 & MUT1_POLYMORPH)
+		{
+			info[i++] = "You can polymorph yourself at will.";
+		}
+		if (p_ptr->muta1 & MUT1_MIDAS_TCH)
+		{
+			info[i++] = "You can turn ordinary items to gold.";
+		}
+		if (p_ptr->muta1 & MUT1_GROW_MOLD)
+		{
+			info[i++] = "You can cause mold to grow near you.";
+		}
+		if (p_ptr->muta1 & MUT1_RESIST)
+		{
+			info[i++] = "You can harden yourself to the ravages of the elements.";
+		}
+		if (p_ptr->muta1 & MUT1_EARTHQUAKE)
+		{
+			info[i++] = "You can bring down the dungeon around your ears.";
+		}
+		if (p_ptr->muta1 & MUT1_DAZZLE)
+		{
+			info[i++] = "You can emit confusing, blinding radiation.";
+		}
+		if (p_ptr->muta1 & MUT1_RECALL)
+		{
+			info[i++] = "You can travel between town and the depths.";
+		}
+		if (p_ptr->muta1 & MUT1_BANISH)
+		{
+			info[i++] = "You can send evil creatures directly to Hell.";
+		}
+		if (p_ptr->muta1 & MUT1_COLD_TOUCH)
+		{
+			info[i++] = "You can freeze things with a touch (dam lvl*3).";
+		}
+		if (p_ptr->muta1 & MUT1_MISSILE)
+		{
+			info[i++] = "You can cast magic bolts (dam ((3 + lvl - 1)/3)d4).";
+		}
+		if (p_ptr->muta1 & MUT1_SHARD_BOLT)
+		{
+			info[i++] = "You can cast shards (dam ((3 + lvl)/5)d5).";
+		}
+		if (p_ptr->muta1 & MUT1_SHARD_BLAST)
+		{
+			info[i++] = "You can cast volleys of shards (dam ((2 + lvl)/5)d4).";
+		}
+		if (p_ptr->muta1 & MUT1_DSHARD_BLAST)
+		{
+			info[i++] = "You can cast large volleys of shards (dam ((2 + lvl)/5)d4).";
+		}
+		if (p_ptr->muta1 & MUT1_CHAIN_SHARDS)
+		{
+			info[i++] = "You can cast shards rapidly (dam ((3 + lvl)/5)d5).";
+		}
+		if (p_ptr->muta1 & MUT1_ROCKET)
+		{
+			info[i++] = "You can fire rockets (dam lvl*4).";
 		}
 	}
 
@@ -800,9 +888,21 @@ void self_knowledge(void)
 		{
 			info[i++] = "You are producing magical energy uncontrollably.";
 		}
+		if (p_ptr->muta2 & MUT2_ATT_ANIMAL)
+		{
+			info[i++] = "You attract animals.";
+		}
 		if (p_ptr->muta2 & MUT2_ATT_DEMON)
 		{
 			info[i++] = "You attract demons.";
+		}
+		if (p_ptr->muta2 & MUT2_ATT_DRAGON)
+		{
+			info[i++] = "You attract dragons.";
+		}
+		if (p_ptr->muta2 & MUT2_WOUND)
+		{
+			info[i++] = "Your flesh is very delicate.";
 		}
 		if (p_ptr->muta2 & MUT2_SCOR_TAIL)
 		{
@@ -815,6 +915,74 @@ void self_knowledge(void)
 		if (p_ptr->muta2 & MUT2_BEAK)
 		{
 			info[i++] = "You have a beak (dam. 2d4).";
+		}
+		if (p_ptr->muta2 & MUT2_TUSKS)
+		{
+			info[i++] = "You have tusks (dam. 2d6).";
+		}
+		if (p_ptr->muta2 & MUT2_CLAWS)
+		{
+			info[i++] = "You have claws (dam. 2d3).";
+		}
+		if (p_ptr->muta2 & MUT2_DISPEL_ALL)
+		{
+			info[i++] = "You are shrouded in evil.";
+		}
+		if (p_ptr->muta2 & MUT2_EAT_LIGHT)
+		{
+			info[i++] = "You sometimes feed off of the light around you.";
+		}
+		if (p_ptr->muta2 & MUT2_RAW_CHAOS)
+		{
+			info[i++] = "You occasionally are surrounded with raw chaos.";
+		}
+		if (p_ptr->muta2 & MUT2_WRAITH)
+		{
+			info[i++] = "You fade in and out of physical reality.";
+		}
+		if (p_ptr->muta2 & MUT2_POLY_WOUND)
+		{
+			info[i++] = "Your health is subject to chaotic forces.";
+		}
+		if (p_ptr->muta2 & MUT2_WASTING)
+		{
+			info[i++] = "You have a horrible wasting disease.";
+		}
+		if (p_ptr->muta2 & MUT2_WEIRD_MIND)
+		{
+			info[i++] = "Your mind randomly expands and contracts.";
+		}
+		if (p_ptr->muta2 & MUT2_NAUSEA)
+		{
+			info[i++] = "You have a seriously upset stomach.";
+		}
+		if (p_ptr->muta2 & MUT2_CHAOS_GIFT)
+		{
+			info[i++] = "Chaos deities give you gifts.";
+		}
+		if (p_ptr->muta2 & MUT2_WALK_SHAD)
+		{
+			info[i++] = "You occasionally stumble into other shadows.";
+		}
+		if (p_ptr->muta2 & MUT2_WARNING)
+		{
+			info[i++] = "You receive warnings about your foes.";
+		}
+		if (p_ptr->muta2 & MUT2_INVULN)
+		{
+			info[i++] = "You occasionally feel invincible.";
+		}
+		if (p_ptr->muta2 & MUT2_SP_TO_HP)
+		{
+			info[i++] = "Your blood sometimes rushes to your muscles.";
+		}
+		if (p_ptr->muta2 & MUT2_HP_TO_SP)
+		{
+			info[i++] = "Your blood sometimes rushes to your head.";
+		}
+		if (p_ptr->muta2 & MUT2_DISARM)
+		{
+			info[i++] = "You occasionally stumble and drop things.";
 		}
 	}
 
@@ -860,6 +1028,10 @@ void self_knowledge(void)
 		{
 			info[i++] = "Your face is featureless (-1 CHR).";
 		}
+		if (p_ptr->muta3 & MUT3_ILL_NORM)
+		{
+			info[i++] = "Your appearance is masked with illusion.";
+		}
 		if (p_ptr->muta3 & MUT3_XTRA_EYES)
 		{
 			info[i++] = "You have an extra pair of eyes (+15 search).";
@@ -890,10 +1062,11 @@ void self_knowledge(void)
 		}
 		if (p_ptr->muta3 & MUT3_FIRE_BODY)
 		{
-#if 0
-			/* Unnecessary, actually... */
 			info[i++] = "Your body is enveloped in flames.";
-#endif
+		}
+		if (p_ptr->muta3 & MUT3_SPINES)
+		{
+			info[i++] = "Your body is covered with sharp spines.";
 		}
 		if (p_ptr->muta3 & MUT3_WART_SKIN)
 		{
@@ -922,6 +1095,22 @@ void self_knowledge(void)
 		if (p_ptr->muta3 & MUT3_ESP)
 		{
 			/* Unnecessary */
+		}
+		if (p_ptr->muta3 & MUT3_TWISTED)
+		{
+			info[i++] = "Your frame is unnaturally twisted.";
+		}
+		if (p_ptr->muta3 & MUT3_LIMBER)
+		{
+			info[i++] = "Your body is very limber (+3 DEX).";
+		}
+		if (p_ptr->muta3 & MUT3_ARTHRITIS)
+		{
+			info[i++] = "Your joints ache constantly (-3 DEX).";
+		}
+		if (p_ptr->muta3 & MUT3_VULN_ELEM)
+		{
+			info[i++] = "You are susceptible to damage from the elements.";
 		}
 	}
 
@@ -1048,6 +1237,10 @@ void self_knowledge(void)
 	if (p_ptr->sh_elec)
 	{
 		info[i++] = "You are surrounded with electricity.";
+	}
+	if (p_ptr->sh_spine)
+	{
+		info[i++] = "You are covered with sharp spines.";
 	}
 	if (p_ptr->anti_magic)
 	{
@@ -5584,6 +5777,171 @@ bool fire_ball(int typ, int dir, int dam, int rad)
 
 	/* Analyze the "dir" and the "target".  Hurt items on floor. */
 	return (project(0, rad, ty, tx, dam, typ, flg));
+}
+
+
+/*
+ * Cast a shower of ball spells
+ * Scatter "balls" around the target or first obstacle reached.
+ * Affect grids, objects, and monsters
+ */
+bool fire_shower(int typ, int dir, int dam, int rad, int num)
+{
+	int ty, tx, y, x, dist;
+	int i;
+
+	int flg = PROJECT_JUMP | PROJECT_GRID | PROJECT_ITEM | PROJECT_KILL;
+
+	/* Assume okay */
+	bool result = TRUE;
+
+	/* Use the given direction */
+	ty = py + 20 * ddy[dir];
+	tx = px + 20 * ddx[dir];
+
+	y = py;
+	x = px;
+
+	/* Hack -- Use an actual "target" */
+	if ((dir == 5) && target_okay())
+	{
+		tx = target_col;
+		ty = target_row;
+	}
+	else
+	{
+		cave_type *c_ptr;
+
+		/* Find the REAL target :) */
+		for (dist = 0; dist <= MAX_RANGE; dist++)
+		{
+			c_ptr = &cave[y][x];
+
+			/* Never pass through walls */
+			if (dist && !cave_floor_bold(y, x)) break;
+
+			/* Never pass through monsters */
+			if (dist && c_ptr->m_idx > 0) break;
+
+			/* Check for arrival at "final target" */
+			if ((x == tx) && (y == ty)) break;
+
+			/* Calculate the new location */
+			mmove2(&y, &x, py, px, ty, tx);
+		}
+
+		/* Update the target */
+		ty = y;
+		tx = x;
+	}
+
+	/* Meteor shower */
+	for (i = 0; i < num; i++)
+	{
+		/* Get targets for some meteors */
+		scatter(&y, &x, ty, tx, 3, 0);
+
+		/*
+		 * Analyze the "dir" and the "target".  Hurt items on floor.
+		 * And don't stand too close ;)
+		 */
+		if (!project(0, rad, y, x, dam, typ, flg))
+		{
+			result = FALSE;
+		}
+	}
+
+	return (result);
+}
+
+
+/*
+ * Cast a volley of bolt spells
+ * Scatter "bolts" around the target or first obstacle reached.
+ * Affect grids, objects, and monsters
+ *
+ * dd - bolt damage dice
+ * ds - bolt damage sides
+ * num - number of bolts in volley
+ * dev - maximum distance to spread
+ */
+bool fire_blast(int typ, int dir, int dd, int ds, int num, int dev)
+{
+	int ly, lx, ld;
+	int ty, tx, y, x, dist;
+	int i;
+
+	int flg = PROJECT_THRU | PROJECT_STOP | PROJECT_KILL;
+
+	/* Assume okay */
+	bool result = TRUE;
+
+	/* Use the given direction */
+	ly = ty = py + 20 * ddy[dir];
+	lx = tx = px + 20 * ddx[dir];
+	ld = 20;
+
+	y = py;
+	x = px;
+
+	/* Hack -- Use an actual "target" */
+	if ((dir == 5) && target_okay())
+	{
+		tx = target_col;
+		ty = target_row;
+
+		lx = 20 * (tx - px) + px;
+		ly = 20 * (ty - py) + py;
+		ld = distance(py, px, ly, lx);
+	}
+	else
+	{
+		cave_type *c_ptr;
+
+		/* Find the REAL target :) */
+		for (dist = 0; dist <= MAX_RANGE; dist++)
+		{
+			c_ptr = &cave[y][x];
+
+			/* Never pass through walls */
+			if (dist && !cave_floor_bold(y, x)) break;
+
+			/* Never pass through monsters */
+			if (dist && c_ptr->m_idx > 0) break;
+
+
+			/* Check for arrival at "final target" */
+			if ((x == tx) && (y == ty)) break;
+
+			/* Calculate the new location */
+			mmove2(&y, &x, py, px, ty, tx);
+		}
+
+		/* Update the target */
+		ty = y;
+		tx = x;
+	}
+
+	/* Blast */
+	for (i = 0; i < num; i++)
+	{
+		while (1)
+		{
+			/* Get targets for some bolts */
+			y = rand_spread(ly, ld * dev / 20);
+			x = rand_spread(lx, ld * dev / 20);
+
+			if (distance(ly, lx, y, x) <= ld * dev / 20) break;
+		}
+
+		/* Analyze the "dir" and the "target". */
+		if (!project(0, 0, y, x, damroll(dd, ds), typ, flg))
+		{
+			result = FALSE;
+		}
+	}
+
+	return (result);
 }
 
 

@@ -858,6 +858,24 @@ void do_cmd_quaff_potion(void)
 			break;
 		}
 
+		case SV_POTION_MUTATION:
+		{
+			if ((p_ptr->muta1 || p_ptr->muta2 || p_ptr->muta3) &&
+				(randint(100) <= 13))
+			{
+				msg_print("All of your lovely mutations go away!");
+				p_ptr->muta1 = p_ptr->muta2 = p_ptr->muta3 = 0;
+				p_ptr->update |= PU_BONUS;
+				handle_stuff();
+				break;
+			}
+			else
+			{
+				gain_random_mutation(0);
+				break;
+			}
+		}
+
 		case SV_POTION_AUGMENTATION:
 		{
 			if (do_inc_stat(A_STR)) ident = TRUE;
@@ -909,11 +927,42 @@ void do_cmd_quaff_potion(void)
 		{
 			if (p_ptr->exp < PY_MAX_EXP)
 			{
-				s32b ee = (p_ptr->exp / 2) + 10;
-				if (ee > 100000L) ee = 100000L;
-				msg_print("You feel more experienced.");
-				gain_exp(ee);
-				ident = TRUE;
+				if (p_ptr->exp <= 1000)
+				{
+					msg_print("You feel more experienced.");
+					gain_exp(200);
+					ident = TRUE;
+				}
+				else if (p_ptr->exp <= 10000)
+				{
+					msg_print("You feel more experienced.");
+					gain_exp(1000);
+					ident = TRUE;
+				}
+				else if (p_ptr->exp <= 25000)
+				{
+					msg_print("You feel more experienced.");
+					gain_exp(5000);
+					ident = TRUE;
+				}
+				else if (p_ptr->exp <= 100000L)
+				{
+					msg_print("You feel more experienced.");
+					gain_exp(25000);
+					ident = TRUE;
+				}
+				else if (p_ptr->exp <= 1000000L)
+				{
+					msg_print("You feel more experienced.");
+					gain_exp(100000L);
+					ident = TRUE;
+				}
+				else if (p_ptr->exp >= 1000001L)
+				{
+					msg_print("You feel more experienced.");
+					gain_exp(250000L);
+					ident = TRUE;
+				}
 			}
 			break;
 		}
@@ -950,7 +999,6 @@ void do_cmd_quaff_potion(void)
 
 		case SV_POTION_NEW_LIFE:
 		{
-/*			do_cmd_rerate(); */
 			if (p_ptr->muta1 || p_ptr->muta2 || p_ptr->muta3)
 			{
 				msg_print("You are cured of all mutations.");
@@ -3312,6 +3360,14 @@ void do_cmd_activate(void)
 				break;
 			}
 
+			case ART_PAN_TANG:
+			{
+				msg_print("Your scarlet armour glows even brighter...");
+				for (i = 0; i < 6; i++) (void)summon_specific_friendly(py, px, dun_level, SUMMON_DEMON, TRUE);
+				o_ptr->timeout = 400;
+				break;
+			}
+
 			case ART_DOR:
 			case ART_GORLIM:
 			{
@@ -3388,7 +3444,13 @@ void do_cmd_activate(void)
 				break;
 			}
 
-
+			case ART_KWLL:
+			{
+				msg_print("The Hand draws forth undead from Limbo.");
+				for (i = 0; i < 5; i++) (void)summon_specific_friendly(py, px, dun_level, SUMMON_UNDEAD, TRUE);
+				o_ptr->timeout = 500;
+				break;
+			}
 			case ART_CAMMITHRIM:
 			{
 				msg_print("Your gloves glow extremely brightly...");
@@ -3468,6 +3530,13 @@ void do_cmd_activate(void)
 				break;
 			}
 
+			case ART_STORMBRINGER:
+			{
+				msg_print("Stormbringer summons its brothers!");
+				for (i = 0; i < 10; i++) (void)summon_specific_friendly(py, px, dun_level, SUMMON_HELLBLADES, TRUE);
+				o_ptr->timeout = 1000;
+				break;
+			}
 
 			case ART_NARTHANC:
 			{
@@ -3562,12 +3631,11 @@ void do_cmd_activate(void)
 				break;
 			}
 
-			case ART_ANDURIL:
+			case ART_ANDURIL: /* 'Kanajana' */
 			{
-				msg_print("Your sword glows an intense red...");
-				if (!get_aim_dir(&dir)) return;
-				fire_ball(GF_FIRE, dir, 108, 2);
-				o_ptr->timeout = 400;
+				msg_print("Kanajana emits hard radiation...");
+				fire_ball(GF_NUKE, 0, 300, 4);
+				o_ptr->timeout = 200;
 				break;
 			}
 

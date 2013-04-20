@@ -1065,12 +1065,13 @@ struct player_type
 	bool resist_neth;	/* Resist nether */
 	bool resist_fear;	/* Resist fear */
 
-    bool reflect;       /* Reflect 'bolt' attacks */
-    bool sh_fire;       /* Fiery 'immolation' effect */
-    bool sh_elec;       /* Electric 'immolation' effect */
+	bool reflect;		/* Reflect 'bolt' attacks */
+	bool sh_fire;		/* Fiery 'immolation' effect */
+	bool sh_elec;		/* Electric 'immolation' effect */
+	bool sh_spine;		/* Spiny skin */
 
-    bool anti_magic;    /* Anti-magic */
-    bool anti_tele;     /* Prevent teleportation */
+	bool anti_magic;	/* Anti-magic */
+	bool anti_tele;		/* Prevent teleportation */
 
 	bool sustain_str;	/* Keep strength */
 	bool sustain_int;	/* Keep intelligence */

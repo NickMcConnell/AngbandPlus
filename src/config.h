@@ -557,6 +557,9 @@
 /* Allow Klackon- and Sprite-Monks to get extra speed */
 /* Klackons and Sprites are not *supposed* to be
    playing monks in the first place */
+/* ...therefore there should be no problem with letting them get
+ * the extra speed they're entitled to. [Gumby]
+ */
 #define MONK_HACK
 
 /* Wizard mode testing options: */

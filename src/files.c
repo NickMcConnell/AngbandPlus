@@ -1244,9 +1244,11 @@ static void display_player_various(void)
 
 	object_type		*o_ptr;
 
-    if (p_ptr->muta2 & (MUT2_HORNS)) muta_att++;
-    if (p_ptr->muta2 & (MUT2_SCOR_TAIL)) muta_att++;
-    if (p_ptr->muta2 & (MUT2_BEAK)) muta_att++;
+	if (p_ptr->muta2 & (MUT2_HORNS)) muta_att++;
+	if (p_ptr->muta2 & (MUT2_SCOR_TAIL)) muta_att++;
+	if (p_ptr->muta2 & (MUT2_BEAK)) muta_att++;
+	if (p_ptr->muta2 & (MUT2_TUSKS)) muta_att++;
+	if (p_ptr->muta2 & (MUT2_CLAWS)) muta_att++;
 
 	/* Fighting Skill (with current weapon) */
 	o_ptr = &inventory[INVEN_WIELD];
@@ -1373,29 +1375,29 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3)
             if (p_ptr->lev > 14)
             {
                 (*f3) = (TR3_REGEN);
-                if (p_ptr->pclass == CLASS_WARRIOR)
-                {
-                    (*f3) = (TR3_SLOW_DIGEST); /* Let's not make Regeneration
-                            a disadvantage for the poor warriors who can
-                            never learn a spell that satisfies hunger (actually
-                            neither can rogues, but half-trolls are not
-                            supposed to play rogues) */
-                }
+		(*f3) = (TR3_SLOW_DIGEST);
             }
         }
 
     /* Warriors... */
     if (((p_ptr->pclass == CLASS_WARRIOR) && (p_ptr->lev>29))||
-        ((p_ptr->pclass == CLASS_PALADIN) && (p_ptr->lev>39))||
-        ((p_ptr->pclass == CLASS_CHAOS_WARRIOR) && (p_ptr->lev>39)))
+        ((p_ptr->pclass == CLASS_PALADIN) && (p_ptr->lev>39)))
         {
             (*f2) |= (TR2_RES_FEAR);
         }
 
-    if ((p_ptr->pclass == CLASS_CHAOS_WARRIOR) && (p_ptr->lev>29))
+    if (p_ptr->pclass == CLASS_CHAOS_WARRIOR)
     {
-        (*f2) |= (TR2_RES_CHAOS);
+	if (p_ptr->lev > 29)
+        	(*f2) |= (TR2_RES_CHAOS);
+
+	if (p_ptr->lev > 39)
+		(*f2) |= (TR2_RES_FEAR);
+
+	if (p_ptr->chaos_patron == PATRON_ARIOCH)
+		(*f2) |= (TR2_RES_FIRE);
     }
+
 
     if ((p_ptr->pclass == CLASS_MONK) && (p_ptr->lev > 9) &&
         !(monk_heavy_armor()))
@@ -1427,6 +1429,7 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3)
         {
             (*f2) |= (TR2_SUST_CON);
             (*f3) |= (TR3_REGEN); /* Amberites heal fast */
+	    (*f3) |= (TR3_SLOW_DIGEST); /* So they need this :) - G */
         }
 
 	/* High Elf */
@@ -2037,6 +2040,8 @@ static void display_player_stat_info(void)
             else if (stat == A_DEX)
             {
                 if (p_ptr->muta3 & MUT3_IRON_SKIN) dummy -= 1;
+		if (p_ptr->muta3 & MUT3_LIMBER) dummy += 3;
+		if (p_ptr->muta3 & MUT3_ARTHRITIS) dummy -= 3;
             }
             else if (stat == A_CON)
             {

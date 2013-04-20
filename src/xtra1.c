@@ -2040,21 +2040,13 @@ static void calc_bonuses(void)
 			{
 				/* High level trolls heal fast... */
 				p_ptr->regenerate = TRUE;
-
-				if (p_ptr->pclass == CLASS_WARRIOR)
-				{
-					p_ptr->slow_digest = TRUE;
-					/* Let's not make Regeneration
-					 * a disadvantage for the poor warriors who can
-					 * never learn a spell that satisfies hunger (actually
-					 * neither can rogues, but half-trolls are not
-					 * supposed to play rogues) */
-				}
+				p_ptr->slow_digest = TRUE;
 			}
 			break;
 		case RACE_AMBERITE:
 			p_ptr->sustain_con = TRUE;
 			p_ptr->regenerate = TRUE;  /* Amberites heal fast... */
+			p_ptr->slow_digest = TRUE; /* So they need this - G */
 			break;
 		case RACE_HIGH_ELF:
 			p_ptr->resist_lite = TRUE;
@@ -2182,6 +2174,53 @@ static void calc_bonuses(void)
 		}
 	}
 
+	/* Chaos patron gifts */
+	if (p_ptr->pclass == CLASS_CHAOS_WARRIOR)
+	{
+		switch (p_ptr->chaos_patron)
+		{
+			case PATRON_CHARDROS:
+			{
+				p_ptr->to_d += 5;
+				p_ptr->dis_to_d += 5;
+				break;
+			}
+			case PATRON_HIONHURN:
+			{
+				p_ptr->to_d += 7;
+				p_ptr->dis_to_d += 7;
+				break;
+			}
+			case PATRON_XIOMBARG:
+			{
+				p_ptr->to_h += 5;
+				p_ptr->dis_to_h += 5;
+				break;
+			}
+			case PATRON_ARIOCH:
+			{
+				p_ptr->resist_fire = TRUE;
+				break;
+			}
+			case PATRON_NARJHAN:
+			{
+				p_ptr->skill_srh += 5;
+				p_ptr->skill_fos += 5;
+				break;
+			}
+			case PATRON_KHORNE:
+			{
+				p_ptr->to_d += 10;
+				p_ptr->dis_to_d += 10;
+				break;
+			}
+			case PATRON_SLAANESH:
+			{
+				p_ptr->skill_stl += 5;
+				break;
+			}
+		}
+	}
 
 	/* I'm adding the mutations here for the lack of a better place... */
         if (p_ptr->muta3)
@@ -2284,6 +2323,11 @@ static void calc_bonuses(void)
                     p_ptr->lite = TRUE;
                 }
 
+		if (p_ptr->muta3 & MUT3_SPINES)
+		{
+			p_ptr->sh_spine = TRUE;
+		}
+
                 if (p_ptr->muta3 & MUT3_WART_SKIN)
                 {
                     p_ptr->stat_add[A_CHR] -= 2;
@@ -2324,6 +2368,21 @@ static void calc_bonuses(void)
                 {
                     p_ptr->telepathy =TRUE;
                 }
+
+		if (p_ptr->muta3 & MUT3_LIMBER)
+		{
+			p_ptr->stat_add[A_DEX] += 3;
+		}
+
+		if (p_ptr->muta3 & MUT3_ARTHRITIS)
+		{
+			p_ptr->stat_add[A_DEX] -= 3;
+		}
+
+		if (p_ptr->muta3 & MUT3_ILL_NORM)
+		{
+			p_ptr->stat_add[A_CHR] = 0;
+		}
         }
     
 
@@ -2523,6 +2582,15 @@ static void calc_bonuses(void)
 
 		/* Extract the new "stat_use" value for the stat */
 		use = modify_stat_value(p_ptr->stat_cur[i], p_ptr->stat_add[i]);
+
+		if ((i == A_CHR) && (p_ptr->muta3 & MUT3_ILL_NORM))
+		{
+			/* 10 to 18/90 charisma, guaranteed, based on level */
+			if (use < 8 + 2 * p_ptr->lev)
+			{
+				use = 8 + 2 * p_ptr->lev;
+			}
+		}
 
 		/* Notice changes */
 		if (p_ptr->stat_use[i] != use)
@@ -2825,7 +2893,23 @@ static void calc_bonuses(void)
 		}
 
 		/* And reward Chaos Warriors, Warrior Magi and Paladins */
-		if (p_ptr->pclass == (CLASS_CHAOS_WARRIOR || CLASS_WARRIOR_MAGE || CLASS_PALADIN) &&
+		if (p_ptr->pclass == CLASS_CHAOS_WARRIOR &&
+		    (p_ptr->tval_ammo <= TV_BOLT) &&
+		    (p_ptr->tval_ammo >= TV_SHOT))
+		{
+			/* Extra shot at level 35 */
+			if (p_ptr->lev >= 35) p_ptr->num_fire++;
+		}
+
+		if (p_ptr->pclass == CLASS_WARRIOR_MAGE &&
+		    (p_ptr->tval_ammo <= TV_BOLT) &&
+		    (p_ptr->tval_ammo >= TV_SHOT))
+		{
+			/* Extra shot at level 35 */
+			if (p_ptr->lev >= 35) p_ptr->num_fire++;
+		}
+
+		if (p_ptr->pclass == CLASS_PALADIN &&
 		    (p_ptr->tval_ammo <= TV_BOLT) &&
 		    (p_ptr->tval_ammo >= TV_SHOT))
 		{
@@ -2939,8 +3023,14 @@ static void calc_bonuses(void)
 		if (p_ptr->pclass == CLASS_WARRIOR_MAGE) p_ptr->num_blow += (p_ptr->lev) / 25;
 
 		/* Level bonus for the other spellcasting warrior-types */
-		if ((p_ptr->pclass == (CLASS_CHAOS_WARRIOR || CLASS_PALADIN || CLASS_RANGER)) &&
-			(p_ptr->lev >= 25)) p_ptr->num_blow++;
+		if ((p_ptr->pclass == CLASS_CHAOS_WARRIOR) && (p_ptr->lev > 24))
+			p_ptr->num_blow += 1;
+
+		if ((p_ptr->pclass == CLASS_PALADIN) && (p_ptr->lev > 24))
+			p_ptr->num_blow += 1;
+
+		if ((p_ptr->pclass == CLASS_RANGER) && (p_ptr->lev > 24))
+			p_ptr->num_blow += 1;
 
 		/* Require at least one blow */
 		if (p_ptr->num_blow < 1) p_ptr->num_blow = 1;

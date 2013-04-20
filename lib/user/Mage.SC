@@ -1,8 +1,8 @@
 # Mage Sorcery/Chaos
 #
 # TAB - Teleport Away       F1 - Magic Missile       SF1 - Mana Burst
-#   [ - Clairvoyance        F2 - Fire Bolt           SF2 - Sonic Boom
-#   ] - Word of Recall      F3 - Fist of Force       SF3 - Fire Ball
+#   [ - Magic Mapping       F2 - Fire Bolt           SF2 - Sonic Boom
+#   ] - Clairvoyance        F3 - Fist of Force       SF3 - Fire Ball
 #   ' - Identify            F4 - Chaos Bolt          SF4 - Invoke Logrus
 #   " - True Identify       F5 - Doom Bolt           SF5 - Chain Lightning
 #   ; - Trap/Door Destruct. F6 - Beam of Gravity     SF6 - Disintegrate
@@ -12,7 +12,7 @@
 #   J - Dimension Door     F10 - Slow Monster       SF10 - Magic Rocket
 #   n - Detect Monsters    F11 - Mass Sleep         SF11 - Mana Storm
 #   N - Detect Dr. & Trp.  F12 - Stasis             SF12 - Breathe Logrus
-#   O - Magic Mapping
+#   O - Word of Recall
 #   P - Detection True
 #   y - Phase Door
 #   Y - Teleport
@@ -22,12 +22,12 @@
 A:m2e
 P:\t
 
-# [ - Clairvoyance
-A:m4d
+# [ - Magic Mapping
+A:m2a
 C:0:[
 
-# ] - Word of Recall
-A:m3h
+# ] - Clairvoyance
+A:m4d
 C:0:]
 
 # ' - Identify
@@ -66,8 +66,8 @@ C:0:n
 A:m1c
 C:0:N
 
-# O - Magic Mapping
-A:m2a
+# O - Word of Recall
+A:m3h
 C:0:O
 
 # P - Detection True

@@ -44,7 +44,7 @@ a numeric digit '#' selects the first item (if any) whose inscription contains
 specify items which are "legal" for the command.  Whenever an item inscription
 contains "!*" or "!x" (with "x" as above) you must verify its selection.
 
-    In Zangband, there are items which occasionally teleport you away, asking
+    In Gumband, there are items which occasionally teleport you away, asking
 for permission first. The recurring "Teleport (y/n)?" can be annoying, and
 this behavior can be eliminated by inscribing the object which causes the
 teleportation with "." (or any inscription containing the character ".").
@@ -99,7 +99,7 @@ that you can always, for example, use "\" + "." + "6", to specify "run east".
  m  Cast a spell / use mental power      M  Full dungeon map
  n  (unused)                             N  (unused)
  o  Open a door or chest                 O  (unused)
- p  (unused in Zangband)                 P  (unused)
+ p  (unused in Gumband)                  P  (unused)
  q  Quaff a potion                       Q  Quit (commit suicide)
  r  Read a scroll                        R  Rest for a period
  s  Search for traps/doors               S  Toggle search mode
@@ -159,7 +159,7 @@ that you can always, for example, use "\" + "." + "6", to specify "run east".
  m  Spell casting / mental power         M  Full dungeon map
  n  (walk - south east)                  N  (run - south east)
  o  Open a door or chest                 O  Use bonus power (if any)
- p  (unused in Zangband)                 P  Browse a book
+ p  (unused in Gumband)                  P  Browse a book
  q  Quaff a potion                       Q  Quit (commit suicide)
  r  Read a scroll                        R  Rest for a period
  s  Search for traps/doors               S  Jam a door (Spike)

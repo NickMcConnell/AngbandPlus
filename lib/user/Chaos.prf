@@ -8,7 +8,7 @@
 #   ; - Trap/Door Destruct. F6 - Polymorph Other     SF6 - Disintegrate
 #   : - Word of Destruction F7 - Beam of Gravity     SF7 - Meteor Swarm
 #   Z - Flash of Light      F8 - Call the Void       SF8 - Flame Strike
-#                           F9 - Touch of Confusion  SF9 - Call Chaos
+#                           F9 - Demon Detection     SF9 - Call Chaos
 #                          F10 - Wonder             SF10 - Magic Rocket
 #                          F11 - Polymorph Self     SF11 - Mana Storm
 #                          F12 - Summon Demon       SF12 - Breathe Logrus
@@ -81,7 +81,7 @@ P:^_x42\r
 
 # Misc Crap
 
-# F9 - Touch of Confusion
+# F9 - Demon Detection
 A:m1d
 P:^_x43\r
 

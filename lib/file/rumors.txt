@@ -1,4 +1,4 @@
-249
+250
 ******** BUFFER LINE *********************************** DO NOT REMOVE *******
 They say that you can't trust rumors.
 You have no more Black Potions of Death.
@@ -8,8 +8,8 @@ They say that handsome guys hang around at 1200'.
 They say that a visit to 3250' can be quite an experience.
 They say that a visit to 3250' will only get you killed.
 Throw a Potion of Blindness at a monster and it cannot cast any spells!
-Oberon is afraid that you will upset the balance even more!
-Oberon won't let you near the Serpent of Chaos.
+Be careful that you don't wake the World Maggot at the Earth's core.
+As the old song goes, the Master has a butt - and it's a big butt!
 MAKE MONEY FAST! Find a Treasure Pit!
 Hobbits can drop some pretty good stuff, no matter how scruffy they look.
 Not satisfied with the artifacts you find? Then create your own!
@@ -24,7 +24,7 @@ There are Black Market stores hidden deep in the dungeon, with COOL stuff!
 Have you ever seen a Rod of Havoc inscribed {BFG9000}?
 What a pity, you cannot read it!
 You will encounter a dark, tall stranger...
-Brand has caused the disaster: kill him and it will go away.
+They say that Jagreen Lern killed Elric's wife...
 A Mithril mail will not rust.
 An Adamantite mail will not rust.
 A Rusty Chain Mail cannot rust any further.
@@ -49,6 +49,7 @@ It's a bad idea to throw away a Longsword (4d5).
 It's a bad idea to wield a Longsword (4d5).
 It's useless to bash monsters with bows - but there's one notable exception...
 Actually, Slime Mold Juice is not completely useless.
+Yes, Slime Mold Juice is completely useless.
 Help me! I'm being held captive in a Vault at 2850'!
 Ever tried inscribing your armor {erodeproof}?
 Using a Morningstar in the evening has no effect.
@@ -60,20 +61,20 @@ It's true name is 249.
 You feel like someone's pulling your leg!
 AAAAAAAAAAARRRRRRRRGGGGHHHHHHH!
 Imperial assassin looking for a job. Contact: Pak, Master of Sinanju, 2600'.
-Try inscribing the name of the first monster killed by it in the weapon!
+Try inscribing the name of the first monster killed by it on the weapon!
 The richer the victim the happier the thief.
 Wanted: Smurfs. Good reward. Contact: Gargamel, 400'.
 Beware the Jabberwock, my son! The jaws that bite, the claws that catch...
 There's something bad about what you are carrying in your backpack...
 Thieves are more likely to appear if you are carrying a lot of money.
-Brand's sword, Werewindle, probably knows more than just one trick.
+They say that Duke Nukem never goes anywhere without his RPG.
 They say that Scrolls of *Curse Weapon* can create powerful cursed artifacts.
 They say that Mjollnir will return to your hand if you throw it.
 They say that the Chainsword makes monsters mad with its awful noise!
 They say that Ringil shines so brightly that it makes monsters angry.
-They say that you cannot defeat the Serpent of Chaos without its missing eye.
+They say that Chaos is best fought with Chaos.
 They say that all Pattern weapons are deadly against Demons of Chaos.
-Klingsor's Castle was destroyed by the the holy might of the Spear of Destiny.
+'Cause we are GWAR, and we'll go far...
 Orcs are mortally afraid of weapons that can slay them.
 There is a way to turn a Ring of Speed (-20) into a Ring of Speed (+20).
 There is no way to turn a Ring of Speed (-20) into a Ring of Speed (+20).
@@ -84,7 +85,7 @@ You feel the Longsword (t) you are carrying in your backpack is special...
 If you start seeing red monsters, you have probably gained infravision.
 They say that the dungeon is deeper than the Abyss.
 When all else fails, read the instructions.
-I've seen Paavo Vaaranen drop a Power Dragon Scale Mail!
+I've seen Brian Mulroney drop a Power Dragon Scale Mail!
 They say that the dungeon has no bottom.
 They say that the dungeon has a bottom.
 No poison is immediately deadly.
@@ -119,7 +120,7 @@ Selling unidentified potions to shopkeepers might be safer than quaffing them.
 Always look out for trapdoors on "special" feeling levels!
 There is a way to max out your stats with Potions of Charisma & Nexus.
 Unique opponents will recover their health faster than other creatures.
-They say that only one sword, Nothung, can slay Fafner the Dragon.
+If your name is Zilla, then Lo Wang wants to speak to you.
 "So when I die, the first thing I will see in heaven is a score list?"
 You're going into the morgue at midnight?
 How dare you! I will not buy that!
@@ -132,7 +133,7 @@ A weapon of Dragon Slaying may give you resistance to a dragon's breath attack.
 They say that only a Warrior will want to wear the Terror Mask.
 All that is shall come to an end - a dark day dawns for the gods.
 The One Ring is powerful, but will eventually destroy its owner.
-The Jewel of Judgement is actually the other eye of the Serpent of Chaos.
+Gor-Gor comes and you must die. Swats F-16s from the sky. Admit you crave the death he brings you. Fall and worship Tyrant King, you!
 Having troubles with summoners? Door Creation is your friend!
 Stairway Creation may be slower than Teleport Level, but safer...
 I hid the Jewel in a vault at 4700'. To find it, you need to:
@@ -153,20 +154,20 @@ Groo is your worst nightmare.
 Freddy Krueger is your worst nightmare.
 Groo is an idiot! Groo is a dolt! He is a fool! He has no mind!
 There are often stairways in graveyards: bad people are carried to hell...
-An urgent message from Dworkin: Pattern not found.
+Be careful of Corum - he's got the Eye of Rhynn and the Hand of Kwll!
 Only a person totally unharmed by cold can live in Siberia!
 Only a god of Thunder could ride a lightning bolt!
 When the day of Ragnarok comes, Surtur will set the world afire...
 Surtur's accursed sword, Twilight, burns with everlasting fire.
-Wotan (Odin) carved his Runespear from a branch of the World-Tree Ash.
+I've heard that the Theocrat of Pan Tang's armour has been sorcerously treated against weapons...
 Groo may be as dumb as an amoeba, but he knows a good sword when he sees one.
 Hagen slew Siegfried with his spear, stealthily sneaking behind him.
-Powerful spells are bound in the Runes of Wotan's Spear.
-Flora's sexy boots will make you more attractive.
-Flora's sexy boots will cause the monsters to drool on you.
-They say that Caine is an expert assassin - and so is Fiona.
-They say that Corwin is extraordinarily tough.
-The wearer of Lohengrin's Chainmail is protected by the Holy Grail.
+Glandyth-a-Krae is the one who amputated Corum's hand and put out his eye.
+You'll never want to look into a mirror again after meeting a Mutilator.
+Theleb K'aarna thinks he's in love - which could be bad news for Elric!
+They say that Erekose's sword is radioactive.
+GWAR are nothing if not loud.
+If you've got Mordaga's Shield, then Chaos won't touch you.
 Gurnemanz' Helmet will let you see holy mysteries hidden from men's eyes.
 Weapons of Flame will light your way.
 Want to invest some money? Contact $crooge McDuck, 1300'.
@@ -178,7 +179,7 @@ Didn't you forget to pay?
 Death is just life's way of telling you you've been fired.
 They say that nobody can defeat his own ghost.
 A greedy genocide can be a fatal mistake, especially if you are low on hits.
-PLEASE ignore the previous rumor.
+Please ignore the previous rumor.
 There are scrolls that can be read only by mages.
 Some undead opponents will come back if defeated, more powerful than before!
 The answer is 42.
@@ -189,7 +190,7 @@ Bashing a creature may sometimes stun it.
 And now, Groo does what Groo does best!
 One Ring to rule them all, One Ring to find them.
 One Ring to bring them all and in the darkness bind them.
-A person attuned to the Jewel could use it to erase the Pattern.
+They say that Elric is a mighty summoner.
 Three Rings for the Elven-kings under the sky...
 Never carry a Potion of Detonations if there is a fire trap nearby!
 Laugh to scorn the power of man, for none of woman born shall harm thee!
@@ -209,10 +210,10 @@ The Nibelung, Night-Alberich, in revenge, stole the Rhinegold.
 Since by curse it came to me, accursed be this Ring!
 Each shall itch to possess the Ring, but none in it shall find pleasure!
 I know whatever was; whatever is, whatever shall be.
-Solemn treaties, with symbols of trust, carved by Wotan in his Spear.
+Elric's sword, Stormbringer, lusts for the souls of friends even more than the souls of enemies...
 Barney MUST die!!!
 Pudpadnoy Tooboothokoot is possessed by a demon known only as "It".
-Merlin wore the Terror Mask and the last thing he ever saw was a big J...
+Merlin wore the Terror Mask and the last thing he ever saw was a big w...
 They say that the One Ring has a very special curse.
 They say that alcohol is bad for your health.
 What if you DON'T give a name to the artifact you create..?

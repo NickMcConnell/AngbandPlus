@@ -856,18 +856,29 @@ static void hit_trap(void)
 			break;
 		}
 
-		case FEAT_TRAP_HEAD + 0x08:
+		case FEAT_TRAP_HEAD + 0x08: /* was speed trap */
 		{
-			if (check_hit(125))
+			msg_print("A strange purple gas envelops you...");
+			c_ptr->info &= ~(CAVE_MARK);
+			cave_set_feat(py, px, FEAT_FLOOR);
+			if ((!p_ptr->resist_chaos) && (randint(2) == 1))
 			{
-				msg_print("A small dart hits you!");
-				dam = damroll(1, 4);
-				take_hit(dam, name);
-				(void)set_slow(p_ptr->slow + rand_int(20) + 20);
+				if ((p_ptr->muta1 || p_ptr->muta2 || p_ptr->muta3) &&
+					(randint(100) <= 13))
+				{
+					msg_print("All of your lovely mutations go away!");
+					p_ptr->muta1 = p_ptr->muta2 = p_ptr->muta3 = 0;
+					p_ptr->update |= PU_BONUS;
+					handle_stuff();
+				}
+				else
+				{
+					do_poly_self();
+				}
 			}
 			else
 			{
-				msg_print("A small dart barely misses you.");
+				msg_print("But you feel normal.");
 			}
 			break;
 		}
@@ -1046,6 +1057,18 @@ static void natural_attack(s16b m_idx, int attack, bool *fear, bool *mdeath)
 			n_weight = 5;
 			atk_desc = "beak";
 			break;
+		case MUT2_TUSKS:
+			dss = 2;
+			ddd = 6;
+			n_weight = 30;
+			atk_desc = "tusks";
+			break;
+		case MUT2_CLAWS:
+			dss = 2;
+			ddd = 3;
+			n_weight = 5;
+			atk_desc = "claws";
+			break;
 		default:
 			dss = ddd = n_weight = 1;
 			atk_desc = "undefined body part";
@@ -1075,6 +1098,13 @@ static void natural_attack(s16b m_idx, int attack, bool *fear, bool *mdeath)
 
 		/* No negative damage */
 		if (k < 0) k = 0;
+
+		/* Unusual damage */
+		if (p_ptr->muta3 & MUT3_TWISTED)
+		{
+			if (turn % 2) k *= 2;
+			else k /= 2;
+		}
 
 		/* Complex message */
 		if (wizard)
@@ -1422,6 +1452,13 @@ void py_attack(int y, int x)
 			/* No negative damage */
 			if (k < 0) k = 0;
 
+			/* Unusual damage */
+			if (p_ptr->muta3 & MUT3_TWISTED)
+			{
+				if (turn % 2) k *= 2;
+				else k /= 2;
+			}
+
 			/* Complex message */
 			if (wizard)
 			{
@@ -1591,6 +1628,10 @@ void py_attack(int y, int x)
 			natural_attack(c_ptr->m_idx, MUT2_BEAK, &fear, &mdeath);
 		if (p_ptr->muta2 & MUT2_SCOR_TAIL && !mdeath)
 			natural_attack(c_ptr->m_idx, MUT2_SCOR_TAIL, &fear, &mdeath);
+		if (p_ptr->muta2 & MUT2_TUSKS && !mdeath)
+			natural_attack(c_ptr->m_idx, MUT2_TUSKS, &fear, &mdeath);
+		if (p_ptr->muta2 & MUT2_CLAWS && !mdeath)
+			natural_attack(c_ptr->m_idx, MUT2_CLAWS, &fear, &mdeath);
 	}
 
 	/* Hack -- delay fear messages */

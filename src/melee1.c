@@ -1311,6 +1311,17 @@ bool make_attack_normal(int m_idx)
 							r_ptr->r_flags3 |= RF3_IM_ELEC;
 					}
 				}
+
+				if (p_ptr->sh_spine && alive)
+				{
+					msg_format("%^s is pierced!", m_name);
+					if (mon_take_hit(m_idx, damroll(2,6), &fear,
+						 " crumples lifelessly to the ground."))
+					{
+						alive = FALSE;
+					}
+				}
+
 				touched = FALSE;
 			}
 		}

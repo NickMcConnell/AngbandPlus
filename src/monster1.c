@@ -246,7 +246,7 @@ static void roff_aux(int r_idx)
 		if (r_ptr->flags3 & (RF3_GOOD)) flags3 |= (RF3_GOOD);
 		if (r_ptr->flags3 & (RF3_SCUMDOG)) flags3 |= (RF3_SCUMDOG);
 		if (r_ptr->flags3 & (RF3_ANIMAL)) flags3 |= (RF3_ANIMAL);
-		if (r_ptr->flags3 & (RF3_AMBERITE)) flags3 |= (RF3_AMBERITE);
+		if (r_ptr->flags3 & (RF3_ELEMENTAL)) flags3 |= (RF3_ELEMENTAL);
 
 		/* Know "forced" flags */
 		if (r_ptr->flags1 & (RF1_FORCE_DEPTH)) flags1 |= (RF1_FORCE_DEPTH);
@@ -547,22 +547,22 @@ static void roff_aux(int r_idx)
 		}
 
 		/* Describe the "quality" */
-		if (flags2 & (RF2_ELDRITCH_HORROR)) roff(" sanity-blasting");
-		if (flags3 & (RF3_ANIMAL))          roff(" natural");
-		if (flags3 & (RF3_EVIL))            roff(" evil");
-		if (flags3 & (RF3_GOOD))            roff(" good");
-		if (flags3 & (RF3_UNDEAD))          roff(" undead");
+		if (flags2 & (RF2_ELDRITCH_HORROR))	roff(" sanity-blasting");
+		if (flags3 & (RF3_ANIMAL))		roff(" natural");
+		if (flags3 & (RF3_EVIL))		roff(" evil");
+		if (flags3 & (RF3_GOOD))		roff(" good");
+		if (flags3 & (RF3_UNDEAD))		roff(" undead");
+		if (flags3 & (RF3_ELEMENTAL))		roff(" elemental");
 
 		/* Describe the "race" */
-		if (flags3 & (RF3_DRAGON))          roff(" dragon");
+		if (flags3 & (RF3_DRAGON))		roff(" dragon");
 		else if ((flags3 & (RF3_DEMON)) &&
-			 (flags3 & (RF3_SCUMDOG)))  roff(" demonic Scumdog");
-		else if (flags3 & (RF3_DEMON))      roff(" demon");
-		else if (flags3 & (RF3_GIANT))      roff(" giant");
-		else if (flags3 & (RF3_TROLL))      roff(" troll");
-		else if (flags3 & (RF3_ORC))        roff(" orc");
-		else if (flags3 & (RF3_AMBERITE))   roff(" Amberite");
-		else                                roff(" creature");
+			 (flags3 & (RF3_SCUMDOG)))	roff(" demonic Scumdog");
+		else if (flags3 & (RF3_DEMON))		roff(" demon");
+		else if (flags3 & (RF3_GIANT))		roff(" giant");
+		else if (flags3 & (RF3_TROLL))		roff(" troll");
+		else if (flags3 & (RF3_ORC))		roff(" orc");
+		else					roff(" creature");
 
 		/* Group some variables */
 		if (TRUE)
@@ -759,12 +759,12 @@ static void roff_aux(int r_idx)
 	if (flags6 & (RF6_XXX2))		vp[vn++] = "do something";
 	if (flags6 & (RF6_BLINK))		vp[vn++] = "blink-self";
 	if (flags6 & (RF6_TPORT))		vp[vn++] = "teleport-self";
-	if (flags6 & (RF6_XXX3))		vp[vn++] = "do something";
-	if (flags6 & (RF6_XXX4))		vp[vn++] = "do something";
+	if (flags6 & (RF6_S_HELLBLADES))	vp[vn++] = "summon Hellblades";
+	if (flags6 & (RF6_S_ANIMALS))		vp[vn++] = "summon animals";
 	if (flags6 & (RF6_TELE_TO))		vp[vn++] = "teleport to";
 	if (flags6 & (RF6_TELE_AWAY))		vp[vn++] = "teleport away";
 	if (flags6 & (RF6_TELE_LEVEL))		vp[vn++] = "teleport level";
-	if (flags6 & (RF6_S_ELEMENTAL))		vp[vn++] = "summon an elemental";
+	if (flags6 & (RF6_S_ELEMENTAL))		vp[vn++] = "summon elementals";
 	if (flags6 & (RF6_DARKNESS))		vp[vn++] = "create darkness";
 	if (flags6 & (RF6_TRAPS))		vp[vn++] = "create traps";
 	if (flags6 & (RF6_FORGET))		vp[vn++] = "cause amnesia";

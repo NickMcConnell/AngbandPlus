@@ -763,6 +763,8 @@ extern void unlite_room(int y1, int x1);
 extern bool lite_area(int dam, int rad);
 extern bool unlite_area(int dam, int rad);
 extern bool fire_ball(int typ, int dir, int dam, int rad);
+extern bool fire_shower(int typ, int dir, int dam, int rad, int num);
+extern bool fire_blast(int typ, int dir, int dd, int ds, int num, int dev);
 extern bool fire_bolt(int typ, int dir, int dam);
 extern void call_chaos(void);
 extern bool fire_beam(int typ, int dir, int dam);

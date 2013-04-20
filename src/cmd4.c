@@ -970,7 +970,7 @@ void do_cmd_options(void)
 		Term_clear();
 
 		/* Why are we here */
-		prt("Angband options", 2, 0);
+		prt("Gumband options", 2, 0);
 
 		/* Give some choices */
 		prt("(1) User Interface Options", 4, 5);
@@ -978,7 +978,7 @@ void do_cmd_options(void)
 		prt("(3) Game-Play Options", 6, 5);
 		prt("(4) Efficiency Options", 7, 5);
 
-		prt("(Z/5) Zangband Options", 9, 5);
+		prt("(G/5) Gumband Options", 9, 5);
 		/* Testing */
 		prt("(S) Stacking Options", 10, 5);
 		/* Special choices */
@@ -1037,10 +1037,10 @@ void do_cmd_options(void)
 				break;
 			}
 
-			/* Zangband Options */
-			case 'Z': case 'z': case '5':
+			/* Gumband Options */
+			case 'G': case 'g': case '5':
 			{
-				do_cmd_options_aux(5, "Zangband Options");
+				do_cmd_options_aux(5, "Gumband Options");
 				break;
 			}
 

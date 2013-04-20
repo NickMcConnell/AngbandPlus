@@ -146,9 +146,10 @@ int next_quest_level(void)
 
 /*
  * Initialise the matrix of quests
- * and add the 2 obligatory ones ( Oberon and the Serpent of Chaos )
+ * and add the 3 obligatory ones (Arioch, Xiombarg and Mabelrode)
  * Heino Vander Sanden, Jimmy De Laet
  * Edited for ZAngband by Robert Ruehlmann
+ * Edited for Gumband by Gumby
  */
 void initialise_quests()
 {
@@ -163,15 +164,20 @@ void initialise_quests()
 		q_list[i].max_num = 0;
 	}
 
-	/* Add a special quest: Oberon */
-	q_list[0].level = 99;
-	q_list[0].r_idx = 582;
+	/* Add a special quest: Arioch */
+	q_list[0].level = 98;
+	q_list[0].r_idx = 581;
 	q_list[0].max_num = 1;
 
-	/* Add a second quest: Serpent of Chaos */
-	q_list[1].level = 100;
-	q_list[1].r_idx = 583;
+	/* Add a special quest: Xiombarg */
+	q_list[1].level = 99;
+	q_list[1].r_idx = 582;
 	q_list[1].max_num = 1;
+
+	/* Add a second quest: Mabelrode */
+	q_list[2].level = 100;
+	q_list[2].r_idx = 583;
+	q_list[2].max_num = 1;
 }
 
 
@@ -211,15 +217,15 @@ int get_rnd_q_monster(int q_idx)
 	switch (tmp)
 	{
 		case 1 : r_idx = rand_range(141,242); break;
-		case 2 : r_idx = rand_range(243,333); break;
-		case 3 : r_idx = rand_range(334,440); break;
+		case 2 : r_idx = rand_range(243,332); break;
+		case 3 : r_idx = rand_range(333,440); break;
 		case 4 : r_idx = rand_range(441,493); break;
 		case 5 : r_idx = rand_range(494,529); break;
 		case 6 : r_idx = rand_range(530,545); break;
 		case 7 : r_idx = rand_range(546,564); break;
 		case 8 : r_idx = rand_range(565,571); break;
-		case 9 : r_idx = rand_range(572,581); break;
-		default : r_idx = rand_range (141,581);
+		case 9 : r_idx = rand_range(572,580); break;
+		default : r_idx = rand_range (141,580);
 	}
 
 	for (j = 2; j < q_idx; j++)

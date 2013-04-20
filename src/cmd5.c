@@ -1484,9 +1484,9 @@ void do_cmd_cast(void)
 	case 2: /* * NATURE * */
 	  switch (spell)
 	  {
-	   case 0: /* Detect Creatures */
-			(void)detect_monsters_normal();
-		       break;
+	   case 0: /* Animal Detection */
+		(void)detect_monsters_xxx(RF3_ANIMAL);
+		break;
 	   case 1: /* First Aid */
 			(void)hp_player(damroll(3, 8));
 			(void)set_cut(p_ptr->cut - 15);
@@ -1529,11 +1529,15 @@ void do_cmd_cast(void)
 				fire_bolt_or_beam(beam-10, GF_ELEC, dir,
 						  damroll(5+((plev-5)/3), 8));
 		       break;
-       case 10: /* Nature Awareness -- downgraded */
-			map_area();
-			(void)detect_traps();
-			(void)detect_doors();
-			(void)detect_stairs();
+	case 10:
+		/* Nature Awareness - *used* to detect monsters in general,
+                 * but now detects only animals. - Gumby
+                 */
+		map_area();
+		(void)detect_traps();
+		(void)detect_doors();
+		(void)detect_stairs();
+		(void)detect_monsters_xxx(RF3_ANIMAL);
             break;
 	   case 11: /* Frost Bolt */
 			if (!get_aim_dir(&dir)) return;
@@ -1664,23 +1668,19 @@ void do_cmd_cast(void)
 			break;
         case 2: /* Flash of Light == Light Area */
 			(void)lite_area(damroll(2, (plev / 2)), (plev / 10) + 1);
-			break; 
-        case 3: /* Touch of Confusion */
-            if (!(p_ptr->confusing))
-            {
-                msg_print("Your hands start glowing.");
-                p_ptr->confusing = TRUE;
-            }
 			break;
+        case 3: /* Demon Detection */
+		(void)detect_monsters_xxx(RF3_DEMON);
+		break;
        case 4: /* Manaburst */
              if (!get_aim_dir(&dir)) return;
-		if (randint(10) == 7)
+		if (randint(100) <= plev)
 		{
-			fire_ball(GF_MANA, dir, 25 + (plev + (plev / 2)), ((plev < 30) ? 2 : 3));
+			fire_ball(GF_MANA, dir, 25 + (plev + (plev / 3)), ((plev < 30) ? 2 : 3));
 		}
 		else
 		{
-			fire_ball(GF_MISSILE, dir, 25 + (plev + (plev / 2)), ((plev < 30) ? 2 : 3));
+			fire_ball(GF_MISSILE, dir, 25 + (plev + (plev / 3)), ((plev < 30) ? 2 : 3));
 		}
              break;
         case 5: /* Fire Bolt */
@@ -3452,13 +3452,13 @@ void do_cmd_cast(void)
  */
 
 /*
- * Pray a prayer -- Unused in Zangband
+ * Pray a prayer -- Unused in Gumband
  */
 void do_cmd_pray(void)
 {
 #if 1
     msg_print
-    ("Praying is not used in Zangband. Use magic spell casting instead.");
+    ("Praying is not used in Gumband. Use magic spell casting instead.");
 #else
 	int item, sval, spell, dir, chance;
 	int plev = p_ptr->lev;

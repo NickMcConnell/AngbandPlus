@@ -1884,10 +1884,12 @@ void check_experience(void)
 		if (p_ptr->lev > p_ptr->max_plv)
 		{
 			p_ptr->max_plv = p_ptr->lev;
-			if (p_ptr->pclass == CLASS_CHAOS_WARRIOR)
+
+			if ((p_ptr->pclass == CLASS_CHAOS_WARRIOR) || (p_ptr->muta3 & MUT2_CHAOS_GIFT))
 			{
 				level_reward = TRUE;
 			}
+
 
 			if (p_ptr->prace == RACE_BEASTMAN)
 			{
@@ -2119,30 +2121,11 @@ void monster_death(int m_idx)
 	/* Forget objects */
 	m_ptr->hold_o_idx = 0;
 
-	/* Mega^1.8-hack -- destroying Elric of Melnibone gives us Stormbringer! */
-	if (strstr((r_name + r_ptr->name),"Elric of Melnibone"))
-  	{
-		/* Get local object */
-		q_ptr = &forge;
-
-		/* Mega-Hack -- Prepare to make "Stormbringer" */
-		object_prep(q_ptr, lookup_kind(TV_SWORD, SV_RUNESWORD));
-
-		/* Mega-Hack -- Mark this item as "Stormbringer" */
-		q_ptr->name1 = ART_STORMBRINGER;
-
-		/* Mega-Hack -- Actually create "Stormbringer" */
-		apply_magic(q_ptr, -1, TRUE, TRUE, TRUE);
-  
-		/* Drop it in the dungeon */
-		drop_near(q_ptr, -1, y, x);
-	}
-
 	/*
 	 * Mega^3-hack: killing a 'Warrior of the Dawn' is likely to
 	 * spawn another in the fallen one's place!
 	 */
-	else if (strstr((r_name + r_ptr->name),"the Dawn"))
+	if (strstr((r_name + r_ptr->name),"the Dawn"))
 	{
 		if (!(randint(20)==13))
 		{
@@ -2184,10 +2167,37 @@ void monster_death(int m_idx)
 		(void)project(m_idx, 6, y, x, 100, GF_CHAOS, flg);
 	}
 
+        else if (strstr((r_name + r_ptr->name),"Mabelrode the") &&
+		 ((p_ptr->pclass == CLASS_CHAOS_WARRIOR) && (p_ptr->chaos_patron == PATRON_MABELRODE)))
+	{
+		for (j = 0; j <=5; j++)
+		{
+			activate_ty_curse();
+		}
+	}
+
+        else if (strstr((r_name + r_ptr->name),"Queen Xiombarg") &&
+		 ((p_ptr->pclass == CLASS_CHAOS_WARRIOR) && (p_ptr->chaos_patron == PATRON_XIOMBARG)))
+	{
+		for (j = 0; j <=4; j++)
+		{
+			activate_ty_curse();
+		}
+	}
+
+        else if (strstr((r_name + r_ptr->name),"Arioch, Duke") &&
+		 ((p_ptr->pclass == CLASS_CHAOS_WARRIOR) && (p_ptr->chaos_patron == PATRON_ARIOCH)))
+	{
+		for (j = 0; j <=3; j++)
+		{
+			activate_ty_curse();
+		}
+	}
+
 	/* Mega-Hack -- drop "winner" treasures */
 	else if (r_ptr->flags1 & (RF1_DROP_CHOSEN))
 	{
-		if (strstr((r_name + r_ptr->name),"Serpent of Chaos"))
+		if (strstr((r_name + r_ptr->name),"Mabelrode the Faceless"))
 		{
 			/* Get local object */
 			q_ptr = &forge;
@@ -2204,31 +2214,42 @@ void monster_death(int m_idx)
 			/* Drop it in the dungeon */
 			drop_near(q_ptr, -1, y, x);
 
-			/* Get local object */
 			q_ptr = &forge;
-
-			/* Mega-Hack -- Prepare to make "Morgoth" */
 			object_prep(q_ptr, lookup_kind(TV_CROWN, SV_MORGOTH));
-
-			/* Mega-Hack -- Mark this item as "Morgoth" */
 			q_ptr->name1 = ART_MORGOTH;
-
-			/* Mega-Hack -- Actually create "Morgoth" */
 			apply_magic(q_ptr, -1, TRUE, TRUE, TRUE);
-
-			/* Drop it in the dungeon */
+			drop_near(q_ptr, -1, y, x);
+		}
+		else if (strstr((r_name + r_ptr->name),"Elric of Melnibone"))
+	  	{
+			q_ptr = &forge;
+			object_prep(q_ptr, lookup_kind(TV_SWORD, SV_RUNESWORD));
+			q_ptr->name1 = ART_STORMBRINGER;
+			apply_magic(q_ptr, -1, TRUE, TRUE, TRUE);
+			drop_near(q_ptr, -1, y, x);
+		}
+		else if (strstr((r_name + r_ptr->name),"Corum Jhaelen Irsei"))
+	  	{
+			q_ptr = &forge;
+			object_prep(q_ptr, lookup_kind(TV_GLOVES, SV_JEWELED_HAND));
+			q_ptr->name1 = ART_KWLL;
+			apply_magic(q_ptr, -1, TRUE, TRUE, TRUE);
+			drop_near(q_ptr, -1, y, x);
+		}
+		else if (strstr((r_name + r_ptr->name),"Jagreen Lern, "))
+	  	{
+			q_ptr = &forge;
+			object_prep(q_ptr, lookup_kind(TV_HARD_ARMOR, SV_SCARLET_PLATE_ARMOUR));
+			q_ptr->name1 = ART_PAN_TANG;
+			apply_magic(q_ptr, -1, TRUE, TRUE, TRUE);
 			drop_near(q_ptr, -1, y, x);
 		}
 		else if (strstr((r_name + r_ptr->name),"Duke Nukem"))
 		{
 			q_ptr = &forge;
-
 			object_prep(q_ptr, lookup_kind(TV_WAND, SV_WAND_ROCKETS));
-
 			q_ptr->pval = 4;
-
 			apply_magic(q_ptr, -1, TRUE, TRUE, TRUE);
-
 			drop_near(q_ptr, -1, y, x);
 		}			
 		else
@@ -2237,43 +2258,7 @@ void monster_death(int m_idx)
 			int chance = 0;
 			int I_kind = 0;
 
-			if (strstr((r_name + r_ptr->name),"Oberon,"))
-			{
-				if (randint(3)==1)
-				{
-					a_idx = ART_THRAIN;
-					chance = 33;
-				}
-				else
-				{
-					a_idx = ART_GONDOR;
-					chance = 50;
-				}
-			}
-			else if (strstr((r_name + r_ptr->name),"Barimen"))
-			{
-				a_idx = ART_THRAIN;
-				chance = 20;
-			}
-			else if (strstr((r_name + r_ptr->name),"Sauron,"))
-			{
-				a_idx = ART_POWER;
-				chance = 25;
-			}
-			else if (strstr((r_name + r_ptr->name),"Brand, "))
-			{
-				if (randint(3)!=1)
-				{
-					a_idx = ART_CUBRAGOL;
-					chance = 25;
-				}
-				else
-				{
-					a_idx = ART_ANGUIREL;
-					chance = 33;
-				}
-			}
-			else if (!strcmp((r_name + r_ptr->name),"Scruffy looking hobbit"))
+			if (!strcmp((r_name + r_ptr->name),"Scruffy looking hobbit"))
 			{
 				if (randint(3)!=1)
 				{
@@ -2283,36 +2268,28 @@ void monster_death(int m_idx)
 				else
 				{
 					a_idx = ART_GALADRIEL;
-					chance = 10;
+					chance = 20;
 				}
 			}
-			else if (strstr((r_name + r_ptr->name),"Corwin,"))
+			else if (strstr((r_name + r_ptr->name),"Arioch, Duke"))
 			{
-				if (randint(3)!=1)
-				{
-					a_idx = ART_ARUNRUTH;
-					chance = 33;
-				}
-				else
-				{
-					a_idx = ART_PAURNIMMEN;
-					chance = 33;
-				}
+				a_idx = ART_ELVAGIL; /* Chainsword */
+				chance = 99;
+			}
+			else if (strstr((r_name + r_ptr->name),"Queen Xiombarg"))
+			{
+				a_idx = ART_VORPAL_BLADE;
+				chance = 99;
+			}
+			else if (strstr((r_name + r_ptr->name),"Mabelrode the"))
+			{
+				a_idx = ART_RINGIL;
+				chance = 99;
 			}
 			else if (strstr((r_name + r_ptr->name),"Saruman of"))
 			{
 				a_idx = ART_ELENDIL;
 				chance = 20;
-			}
-			else if (strstr((r_name + r_ptr->name),"Fiona the"))
-			{
-				a_idx = ART_BELANGIL;
-				chance = 50;
-			}
-			else if (strstr((r_name + r_ptr->name),"Julian, "))
-			{
-				a_idx = ART_CELEBORN;
-				chance = 45;
 			}
 			else if (strstr((r_name + r_ptr->name),"Klings"))
 			{
@@ -2322,7 +2299,7 @@ void monster_death(int m_idx)
 			else if (strstr((r_name + r_ptr->name),"Groo"))
 			{
 				a_idx = ART_AGLARANG;
-				chance = 75;
+				chance = 80;
 			}
 			else if (strstr((r_name + r_ptr->name),"Hagen,"))
 			{
@@ -2336,13 +2313,13 @@ void monster_death(int m_idx)
 			}
 			else if (strstr((r_name + r_ptr->name),"Lo Wang,"))
 			{
-				a_idx = ART_VORPAL_BLADE;
-				chance = 10;
+				a_idx = ART_HARADEKKET;
+				chance = 60;
 			}
 			else if (strstr((r_name + r_ptr->name),"Elric of Melnibone"))
 			{
 				a_idx = ART_DOR;
-				chance = 35;
+				chance = 45;
 			}
 
 			if ((a_idx > 0) && ((randint(99)<chance) || (wizard)))
@@ -2498,7 +2475,7 @@ void monster_death(int m_idx)
 	/* No longer quest monster (Heino Vander Sanden) */
 	r_ptr->flags1 ^= (RF1_QUESTOR);
 
-	/* Killed the Serpent of Chaos */
+	/* Killed Mabelrode the Faceless */
 	if ((q_list[1].level == 0) && !total_winner)
 	{
 		/* Total winner */
@@ -2573,29 +2550,29 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		/* Extract monster name */
 		monster_desc(m_name, m_ptr, 0);
 
-		if ((r_ptr->flags3 & (RF3_AMBERITE)) && (randint(2)==1))
-		{
-			int curses = 1 + randint(3);
-
-			msg_format("%^s puts a terrible blood curse on you!", m_name);
-			curse_equipment(100, 50);
-
-			do
-			{
-				activate_ty_curse();
-			}
-			while (--curses);
-		}
-
 		if (speak_unique && (r_ptr->flags2 & (RF2_CAN_SPEAK)))
 		{
 			char line_got[80];
 			int reward=0;
 
 			/* Dump a message */
-
-			get_rnd_line("mondeath.txt", line_got);
-			msg_format("%^s says: %s", m_name, line_got);
+			if (strstr((r_name + r_ptr->name),"Mabelrode the Faceless"))
+			{
+				msg_format("%^s says: But I swore I would avenge both Arioch and Xiombarg...", m_name);
+			}
+			else if (strstr((r_name + r_ptr->name),"Queen Xiombarg of Chaos"))
+			{
+				msg_format("%^s howls: Ah!  Dreadful assassin of all I love!", m_name);
+			}
+			else if (strstr((r_name + r_ptr->name),"Arioch, Duke of Hell"))
+			{
+				msg_format("%^s whispers: Mortal, you have won the eternal bane of the Sword Rulers...", m_name);
+			}
+			else
+			{
+				get_rnd_line("mondeath.txt", line_got);
+				msg_format("%^s says: %s", m_name, line_got);
+			}
 
 			if (randint(REWARD_CHANCE)==1)
 			{
@@ -4502,7 +4479,7 @@ bool gain_random_mutation(int choose_mut)
 
 	while (attempts_left--)
 	{
-		switch(choose_mut?choose_mut:randint(97))
+		switch(choose_mut?choose_mut:randint(178))
 		{
             case 1: case 2: case 3: case 4:
                 muta_class = &(p_ptr->muta1);
@@ -4724,7 +4701,252 @@ bool gain_random_mutation(int choose_mut)
                 muta_which = MUT2_PROD_MANA;
                 muta_desc = "You start producing magical energy uncontrollably.";
                 break;
-                default:
+	    case 98:
+		muta_class = &(p_ptr->muta3);
+		muta_which = MUT3_ILL_NORM;
+		muta_desc = "You start projecting a reassuring image.";
+		break;
+	    case 99: case 100:
+		muta_class = &(p_ptr->muta3);
+		muta_which = MUT3_SPINES;
+		muta_desc = "You grow a fearsome covering of sharp spines!";
+		break;
+	    case 101:
+		muta_class = &(p_ptr->muta3);
+		muta_which = MUT3_TWISTED;
+		muta_desc = "Your frame twists into an unnatural shape!";
+		break;
+	    case 102: case 103: case 104:
+		muta_class = &(p_ptr->muta3);
+		muta_which = MUT3_LIMBER;
+		muta_desc = "Your muscles become limber.";
+		break;
+	    case 105: case 106: case 107:
+		muta_class = &(p_ptr->muta3);
+		muta_which = MUT3_ARTHRITIS;
+		muta_desc = "Your joints suddenly hurt.";
+		break;
+	    case 108:
+		muta_class = &(p_ptr->muta3);
+		muta_which = MUT3_VULN_ELEM;
+		muta_desc = "You feel strangely exposed.";
+		break;
+	    case 109:
+		muta_class = &(p_ptr->muta2);
+		muta_which = MUT2_ATT_ANIMAL;
+		muta_desc = "You start attracting animals.";
+		break;
+	    case 110:
+		muta_class = &(p_ptr->muta2);
+		muta_which = MUT2_ATT_DRAGON;
+		muta_desc = "You start attracting dragons.";
+		break;
+	    case 111:
+		muta_class = &(p_ptr->muta2);
+		muta_which = MUT2_WOUND;
+		muta_desc = "Your flesh feels weak.";
+		break;
+	    case 112: case 113:
+		muta_class = &(p_ptr->muta2);
+		muta_which = MUT2_TUSKS;
+		muta_desc = "You grow a pair of tusks!";
+		break;
+	    case 114: case 115:
+		muta_class = &(p_ptr->muta2);
+		muta_which = MUT2_CLAWS;
+		muta_desc = "Your fingers sprout claws!";
+		break;
+	    case 116: case 117:
+		muta_class = &(p_ptr->muta2);
+		muta_which = MUT2_DISPEL_ALL;
+		muta_desc = "You feel a terrifying power lurking behind you.";
+		break;
+	    case 118:
+		muta_class = &(p_ptr->muta2);
+		muta_which = MUT2_EAT_LIGHT;
+		muta_desc = "You feel a strange kinship with Ungoliant.";
+		break;
+	    case 119:
+		muta_class = &(p_ptr->muta2);
+		muta_which = MUT2_RAW_CHAOS;
+		muta_desc = "You feel the universe is less stable around you.";
+		break;
+	    case 120:
+		muta_class = &(p_ptr->muta2);
+		muta_which = MUT2_WRAITH;
+		muta_desc = "You start to fade in and out of the physical world.";
+		break;
+	    case 121:
+		muta_class = &(p_ptr->muta2);
+		muta_which = MUT2_POLY_WOUND;
+		muta_desc = "You feel forces of chaos entering your old scars.";
+		break;
+	    case 122:
+		muta_class = &(p_ptr->muta2);
+		muta_which = MUT2_WASTING;
+		muta_desc = "You suddenly contract a horrible wasting disease.";
+		break;
+	    case 123: case 124:
+		muta_class = &(p_ptr->muta2);
+		muta_which = MUT2_WEIRD_MIND;
+		muta_desc = "Your thoughts suddenly take off in strange directions.";
+		break;
+	    case 125:
+		muta_class = &(p_ptr->muta2);
+		muta_which = MUT2_NAUSEA;
+		muta_desc = "Your stomach starts to roil nauseously.";
+		break;
+	    case 126: case 127:
+		muta_class = &(p_ptr->muta2);
+		muta_which = MUT2_CHAOS_GIFT;
+		muta_desc = "You attract the notice of a chaos deity!";
+		break;
+	    case 128:
+		muta_class = &(p_ptr->muta2);
+		muta_which = MUT2_WALK_SHAD;
+		muta_desc = "You feel like reality is as thin as paper.";
+		break;
+	    case 129: case 130:
+		muta_class = &(p_ptr->muta2);
+		muta_which = MUT2_WARNING;
+		muta_desc = "You suddenly feel paranoid.";
+		break;
+	    case 131:
+		muta_class = &(p_ptr->muta2);
+		muta_which = MUT2_INVULN;
+		muta_desc = "You are blessed with fits of invulnerability.";
+		break;
+	    case 132: case 133:
+		muta_class = &(p_ptr->muta2);
+		muta_which = MUT2_SP_TO_HP;
+		muta_desc = "You are subject to fits of magical healing.";
+		break;
+	    case 134:
+		muta_class = &(p_ptr->muta2);
+		muta_which = MUT2_HP_TO_SP;
+		muta_desc = "You are subject to fits of painful clarity.";
+		break;
+	    case 135:
+		muta_class = &(p_ptr->muta2);
+		muta_which = MUT2_DISARM;
+		muta_desc = "Your feet grow to four times their former size.";
+		break;
+	    case 136:
+		muta_class = &(p_ptr->muta1);
+		muta_which = MUT1_SUMMON_M;
+		muta_desc = "You feel a sudden affinity for life.";
+		break;
+	    case 137:
+		muta_class = &(p_ptr->muta1);
+		muta_which = MUT1_GROW_MOLD;
+		muta_desc = "You feel a sudden affinity for mold.";
+		break;
+	    case 138: case 139: case 140:
+		muta_class = &(p_ptr->muta1);
+		muta_which = MUT1_BLINK;
+		muta_desc = "You gain the power of minor teleportation.";
+		break;
+	    case 141: case 142:
+		muta_class = &(p_ptr->muta1);
+		muta_which = MUT1_EAT_ROCK;
+		muta_desc = "The walls look delicious.";
+		break;
+	    case 143: case 144: case 145:
+		muta_class = &(p_ptr->muta1);
+		muta_which = MUT1_SHRIEK;
+		muta_desc = "Your vocal cords get much tougher.";
+		break;
+	    case 146: case 147: case 148:
+		muta_class = &(p_ptr->muta1);
+		muta_which = MUT1_ILLUMINE;
+		muta_desc = "You can light up rooms with your presence.";
+		break;
+	    case 149: case 150:
+		muta_class = &(p_ptr->muta1);
+		muta_which = MUT1_DET_CURSE;
+		muta_desc = "You can feel evil magics.";
+		break;
+	    case 151: case 152: case 153:
+		muta_class = &(p_ptr->muta1);
+		muta_which = MUT1_BERSERK;
+		muta_desc = "You feel a controlled rage.";
+		break;
+	    case 154:
+		muta_class = &(p_ptr->muta1);
+		muta_which = MUT1_POLYMORPH;
+		muta_desc = "Your body seems mutable.";
+		break;
+	    case 155: case 156:
+		muta_class = &(p_ptr->muta1);
+		muta_which = MUT1_MIDAS_TCH;
+		muta_desc = "You gain the Midas touch.";
+		break;
+	    case 157: case 158: case 159:
+		muta_class = &(p_ptr->muta1);
+		muta_which = MUT1_RESIST;
+		muta_desc = "You feel like you can protect yourself.";
+		break;
+	    case 160:
+		muta_class = &(p_ptr->muta1);
+		muta_which = MUT1_EARTHQUAKE;
+		muta_desc = "You gain the ability to wreck the dungeon.";
+		break;
+	    case 161: case 162: case 163:
+		muta_class = &(p_ptr->muta1);
+		muta_which = MUT1_DAZZLE;
+		muta_desc = "You gain the ability to emit dazzling lights.";
+		break;
+	    case 164: case 165:
+		muta_class = &(p_ptr->muta1);
+		muta_which = MUT1_RECALL;
+		muta_desc = "You feel briefly homesick, but it passes.";
+		break;
+	    case 166:
+		muta_class = &(p_ptr->muta1);
+		muta_which = MUT1_BANISH;
+		muta_desc = "You feel a holy wrath fill you.";
+		break;
+	    case 167: case 168:
+		muta_class = &(p_ptr->muta1);
+		muta_which = MUT1_COLD_TOUCH;
+		muta_desc = "Your hands get very cold.";
+		break;
+	    case 169: case 170: case 171:
+		muta_class = &(p_ptr->muta1);
+		muta_which = MUT1_MISSILE;
+		muta_desc = "Your hands throb with energy.";
+		break;
+	    case 172:
+		muta_class = &(p_ptr->muta1);
+		muta_which = MUT1_SHARD_BOLT;
+		muta_desc = "A spiked lump rises from your arm.";
+		break;
+	    case 173: case 174: case 175:
+/*		muta_class = &(p_ptr->muta1);
+		muta_desc = "Your hands grow knobby protrusions.";
+		muta_which = MUT1_SHARD_BLAST;
+		break; */
+		muta_class = &(p_ptr->muta1);
+		muta_desc = "Your hands grow knobby protrusions.";
+		if(rand_int(2)) muta_which = MUT1_SHARD_BLAST;
+		else muta_which = MUT1_DSHARD_BLAST;
+		break;
+/*	    case 175:
+		muta_class = &(p_ptr->muta1);
+		muta_desc = "Your hands get really knobbly.";
+		muta_which = MUT1_DSHARD_BLAST;
+		break; */
+	    case 176:
+		muta_class = &(p_ptr->muta1);
+		muta_desc = "Your shoulders swell oddly!";
+		muta_which = MUT1_CHAIN_SHARDS;
+		break;
+	    case 177:
+		muta_class = &(p_ptr->muta1);
+		muta_desc = "You feel like a Cyberdemon.";
+		muta_which = MUT1_ROCKET;
+		break;
+	    default:
                 muta_class = NULL;
                 muta_which = NULL;
             }
@@ -4857,8 +5079,31 @@ bool gain_random_mutation(int choose_mut)
                     p_ptr->muta3 &= ~(MUT3_FLESH_ROT);
                 }
             }
+		else if (muta_which == MUT3_LIMBER)
+		{
+			if (p_ptr->muta3 & MUT3_ARTHRITIS)
+			{
+				msg_print("Your joints stop hurting.");
+				p_ptr->muta3 &= ~(MUT3_ARTHRITIS);
+			}
+		}
+		else if (muta_which == MUT3_ARTHRITIS)
+		{
+			if (p_ptr->muta3 & MUT3_LIMBER)
+			{
+				msg_print("You no longer feel limber.");
+				p_ptr->muta3 &= ~(MUT3_LIMBER);
+			}
+		}
+		else if (muta_which == MUT3_RESILIENT)
+		{
+			if (p_ptr->muta2 & MUT2_WOUND)
+			{
+				p_ptr->muta2 &= ~(MUT2_WOUND);
+			}
+		}
         }
-        else if (muta_class == &(p_ptr->muta2))
+	else if (muta_class == &(p_ptr->muta2))
         {
             if (muta_which == MUT2_COWARDICE)
             {
@@ -4868,6 +5113,13 @@ bool gain_random_mutation(int choose_mut)
                     p_ptr->muta3 &= ~(MUT3_FEARLESS);
                 }
             }
+	    if (muta_which == MUT2_WOUND)
+	    {
+		if (p_ptr->muta3 & MUT3_RESILIENT)
+		{
+			p_ptr->muta3 &= ~(MUT3_RESILIENT);
+		}
+	    }
         }
         p_ptr->update |= PU_BONUS;
         handle_stuff();
@@ -4982,11 +5234,11 @@ void dump_mutations(FILE * OutFile)
         {
                 if (p_ptr->muta1 & MUT1_SPIT_ACID)
                 {
-                        fprintf(OutFile, " You can spit acid (dam lvl).\n");
+                        fprintf(OutFile, " You can spit acid (dam lvl*2).\n");
                 }
                 if (p_ptr->muta1 & MUT1_BR_FIRE)
                 {
-                        fprintf(OutFile, " You can breathe fire (dam lvl * 2).\n");
+                        fprintf(OutFile, " You can breathe fire (dam lvl*3).\n");
                 }
                 if (p_ptr->muta1 & MUT1_HYPN_GAZE)
                 {
@@ -5006,12 +5258,100 @@ void dump_mutations(FILE * OutFile)
                 }
                 if (p_ptr->muta1 & MUT1_RADIATION)
                 {
-                    fprintf(OutFile, " You can emit hard radiation at will.\n");
+                    fprintf(OutFile, " You can emit hard radiation at will (dam lvl*2).\n");
                 }
                 if (p_ptr->muta1 & MUT1_VAMPIRISM)
                 {
                     fprintf(OutFile, " You can drain life from a foe like a vampire.\n");
                 }
+		if (p_ptr->muta1 & MUT1_SUMMON_M)
+		{
+			fprintf(OutFile, " You can summon monsters to aid you.\n");
+		}
+		if (p_ptr->muta1 & MUT1_BLINK)
+		{
+			fprintf(OutFile, " You can teleport yourself short distances.\n");
+		}
+		if (p_ptr->muta1 & MUT1_EAT_ROCK)
+		{
+			fprintf(OutFile, " You can consume solid rock.\n");
+		}
+		if (p_ptr->muta1 & MUT1_SHRIEK)
+		{
+			fprintf(OutFile, " You can emit a horrible shriek (dam lvl*3).\n");
+		}
+		if (p_ptr->muta1 & MUT1_ILLUMINE)
+		{
+			fprintf(OutFile, " You can emit bright light.\n");
+		}
+		if (p_ptr->muta1 & MUT1_DET_CURSE)
+		{
+			fprintf(OutFile, " You can feel the danger of evil magic.\n");
+		}
+		if (p_ptr->muta1 & MUT1_BERSERK)
+		{
+			fprintf(OutFile, " You can drive yourself into a berserk frenzy.\n");
+		}
+		if (p_ptr->muta1 & MUT1_POLYMORPH)
+		{
+			fprintf(OutFile, " You can polymorph yourself at will.\n");
+		}
+		if (p_ptr->muta1 & MUT1_MIDAS_TCH)
+		{
+			fprintf(OutFile, " You can turn ordinary items to gold.\n");
+		}
+		if (p_ptr->muta1 & MUT1_GROW_MOLD)
+		{
+			fprintf(OutFile, " You can cause mold to grow near you.\n");
+		}
+		if (p_ptr->muta1 & MUT1_RESIST)
+		{
+			fprintf(OutFile, " You can harden yourself to the ravages of the elements.\n");
+		}
+		if (p_ptr->muta1 & MUT1_EARTHQUAKE)
+		{
+			fprintf(OutFile, " You can bring down the dungeon around your ears.\n");
+		}
+		if (p_ptr->muta1 & MUT1_DAZZLE)
+		{
+			fprintf(OutFile, " You can emit confusing, blinding radiation.\n");
+		}
+		if (p_ptr->muta1 & MUT1_RECALL)
+		{
+			fprintf(OutFile, " You can travel between town and the depths.\n");
+		}
+		if (p_ptr->muta1 & MUT1_BANISH)
+		{
+			fprintf(OutFile, " You can send evil creatures directly to Hell.\n");
+		}
+		if (p_ptr->muta1 & MUT1_COLD_TOUCH)
+		{
+			fprintf(OutFile, " You can freeze things with a touch (dam lvl*3).\n");
+		}
+		if (p_ptr->muta1 & MUT1_MISSILE)
+		{
+			fprintf(OutFile, " You can cast magical bolts.\n");
+		}
+		if (p_ptr->muta1 & MUT1_SHARD_BOLT)
+		{
+			fprintf(OutFile, " You can cast shards.\n");
+		}
+		if (p_ptr->muta1 & MUT1_SHARD_BLAST)
+		{
+			fprintf(OutFile, " You can cast volleys of shards.\n");
+		}
+		if (p_ptr->muta1 & MUT1_DSHARD_BLAST)
+		{
+			fprintf(OutFile, " You can cast large volleys of shards.\n");
+		}
+		if (p_ptr->muta1 & MUT1_CHAIN_SHARDS)
+		{
+			fprintf(OutFile, " You can cast shards rapidly.\n");
+		}
+		if (p_ptr->muta1 & MUT1_ROCKET)
+		{
+			fprintf(OutFile, " You can fire rockets (dam lvl*4).\n");
+		}
             }
 
 
@@ -5046,10 +5386,22 @@ void dump_mutations(FILE * OutFile)
                 {
                         fprintf(OutFile, " You are producing magical energy uncontrollably.\n");
                 }
+		if (p_ptr->muta2 & MUT2_WOUND)
+		{
+			fprintf(OutFile, " Your flesh is very delicate.\n");
+		}
+		if (p_ptr->muta2 & MUT2_ATT_ANIMAL)
+		{
+			fprintf(OutFile, " You attract animals.\n");
+		}
                 if (p_ptr->muta2 & MUT2_ATT_DEMON)
                 {
                         fprintf(OutFile, " You attract demons.\n");
                 }
+		if (p_ptr->muta2 & MUT2_ATT_DRAGON)
+		{
+			fprintf(OutFile, " You attract dragons.\n");
+		}
                 if (p_ptr->muta2 & MUT2_SCOR_TAIL)
                 {
                         fprintf(OutFile, " You have a scorpion tail (poison, 3d7).\n");
@@ -5062,6 +5414,74 @@ void dump_mutations(FILE * OutFile)
                 {
                         fprintf(OutFile, " You have a beak (dam. 2d4).\n");
                 }
+		if (p_ptr->muta2 & MUT2_TUSKS)
+		{
+			fprintf(OutFile, " You have tusks (dam. 2d6).\n");
+		}
+		if (p_ptr->muta2 & MUT2_CLAWS)
+		{
+			fprintf(OutFile, " You have claws (dam. 2d3).\n");
+		}
+		if (p_ptr->muta2 & MUT2_DISPEL_ALL)
+		{
+			fprintf(OutFile, " You are shrouded in evil.\n");
+		}
+		if (p_ptr->muta2 & MUT2_EAT_LIGHT)
+		{
+			fprintf(OutFile, " You sometimes feed off of the light around you.\n");
+		}
+		if (p_ptr->muta2 & MUT2_RAW_CHAOS)
+		{
+			fprintf(OutFile, " You occasionally are surrounded with raw chaos.\n");
+		}
+		if (p_ptr->muta2 & MUT2_WRAITH)
+		{
+			fprintf(OutFile, " You fade in and out of physical reality.\n");
+		}
+		if (p_ptr->muta2 & MUT2_POLY_WOUND)
+		{
+			fprintf(OutFile, " Your health is subject to chaotic forces.\n");
+		}
+		if (p_ptr->muta2 & MUT2_WASTING)
+		{
+			fprintf(OutFile, " You have a horrible wasting disease.\n");
+		}
+		if (p_ptr->muta2 & MUT2_WEIRD_MIND)
+		{
+			fprintf(OutFile, " Your mind randomly expands and contracts.\n");
+		}
+		if (p_ptr->muta2 & MUT2_NAUSEA)
+		{
+			fprintf(OutFile, " You have a seriously upset stomach.\n");
+		}
+		if (p_ptr->muta2 & MUT2_CHAOS_GIFT)
+		{
+			fprintf(OutFile, " Chaos deities give you gifts.\n");
+		}
+		if (p_ptr->muta2 & MUT2_WALK_SHAD)
+		{
+			fprintf(OutFile, " You occasionally stumble into other shadows.\n");
+		}
+		if (p_ptr->muta2 & MUT2_WARNING)
+		{
+			fprintf(OutFile, " You receive warnings about your foes.\n");
+		}
+		if (p_ptr->muta2 & MUT2_INVULN)
+		{
+			fprintf(OutFile, " You occasionally feel invincible.\n");
+		}
+		if (p_ptr->muta2 & MUT2_SP_TO_HP)
+		{
+			fprintf(OutFile, " Your blood sometimes rushes to your muscles.\n");
+		}
+		if (p_ptr->muta2 & MUT2_HP_TO_SP)
+		{
+			fprintf(OutFile, " Your blood sometimes rushes to your head.\n");
+		}
+		if (p_ptr->muta2 & MUT2_DISARM)
+		{
+			fprintf(OutFile, " You occasionally stumble and drop things.\n");
+		}
         }
 
         if (p_ptr->muta3)
@@ -5106,6 +5526,10 @@ void dump_mutations(FILE * OutFile)
                 {
                         fprintf(OutFile, " Your face is featureless (-1 CHR).\n");
                 }
+		if (p_ptr->muta3 & MUT3_ILL_NORM)
+		{
+			fprintf(OutFile, " Your appearance is masked with illusion.\n");
+		}
                 if (p_ptr->muta3 & MUT3_XTRA_EYES)
                 {
                         fprintf(OutFile, " You have an extra pair of eyes (+15 search).\n");
@@ -5136,9 +5560,12 @@ void dump_mutations(FILE * OutFile)
                 }
                 if (p_ptr->muta3 & MUT3_FIRE_BODY)
                 {
-
                         fprintf(OutFile, " Your body is enveloped in flames.\n");
                 }
+		if (p_ptr->muta3 & MUT3_SPINES)
+		{
+			fprintf(OutFile, " Your body is covered with sharp spines.\n");
+		}
                 if (p_ptr->muta3 & MUT3_WART_SKIN)
                 {
                         fprintf(OutFile, " Your skin is covered with warts (-2 CHR, +5 AC).\n");
@@ -5162,12 +5589,27 @@ void dump_mutations(FILE * OutFile)
                 if (p_ptr->muta3 & MUT3_REGEN)
                 {
                         fprintf(OutFile, " You are regenerating.\n");
-
                 }
                 if (p_ptr->muta3 & MUT3_ESP)
                 {
                         fprintf(OutFile, " You are telepathic.\n");
                 }
+		if (p_ptr->muta3 & MUT3_TWISTED)
+		{
+			fprintf(OutFile, " Your frame is unnaturally twisted.\n");
+		}
+		if (p_ptr->muta3 & MUT3_LIMBER)
+		{
+			fprintf(OutFile, " Your body is very limber (+3 DEX).\n");
+		}
+		if (p_ptr->muta3 & MUT3_ARTHRITIS)
+		{
+			fprintf(OutFile, " Your joints ache constantly (-3 DEX).\n");
+		}
+		if (p_ptr->muta3 & MUT3_VULN_ELEM)
+		{
+			fprintf(OutFile, " You are susceptible to damage from the elements.\n");
+		}
         }
 
 

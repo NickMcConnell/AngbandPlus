@@ -764,7 +764,7 @@ static void process_world(void)
 				closing_flag++;
 
 				/* Message */
-				msg_print("The gates to ANGBAND are closing...");
+				msg_print("The gates to GUMBAND are closing...");
 				msg_print("Please finish up and/or save your game.");
 			}
 
@@ -772,7 +772,7 @@ static void process_world(void)
 			else
 			{
 				/* Message */
-				msg_print("The gates to ANGBAND are now closed.");
+				msg_print("The gates to GUMBAND are now closed.");
 
 				/* Stop playing */
 				alive = FALSE;
@@ -1525,6 +1525,28 @@ static void process_world(void)
 			fire_ball(GF_MANA, dire, p_ptr->lev * 2, 3);
 		}
 
+		if ((p_ptr->muta2 & MUT2_ATT_ANIMAL) &&
+			!p_ptr->anti_magic && !rand_int(7000))
+		{
+			bool d_summon = FALSE;
+			if (!rand_int(3))
+			{
+				d_summon = summon_specific_friendly(py, px,
+					 dun_level, SUMMON_ANIMAL, TRUE);
+			}
+			else
+			{
+				d_summon = summon_specific(py, px,
+					 dun_level, SUMMON_ANIMAL);
+			}
+
+			if (d_summon)
+			{
+				msg_print("You have attracted an animal!");
+				disturb(0, 0);
+			}
+		}
+
 		if ((p_ptr->muta2 & MUT2_ATT_DEMON) &&
 		    (!(p_ptr->anti_magic)) && (randint(6666)==666))
 		{
@@ -1544,6 +1566,351 @@ static void process_world(void)
 			{
 				msg_print("You have attracted a demon!");
 				disturb(0,0);
+			}
+		}
+
+		if ((p_ptr->muta2 & MUT2_ATT_DRAGON) &&
+			!p_ptr->anti_magic && !rand_int(3000))
+		{
+			bool d_summon = FALSE;
+
+			if (!rand_int(5))
+			{
+				d_summon = summon_specific_friendly(py, px,
+					 dun_level, SUMMON_DRAGON, TRUE);
+			}
+			else
+			{
+				d_summon = summon_specific(py, px,
+					 dun_level, SUMMON_DRAGON);
+			}
+
+			if (d_summon)
+			{
+				msg_print("You have attracted a dragon!");
+				disturb(0,0);
+			}
+		}
+
+		if (p_ptr->muta2 & MUT2_WOUND)
+		{
+			int i = 0;
+
+			if (!rand_int(3000)) i = rand_int(20) + 10;
+			else if (!rand_int(1000)) i = randint(3);
+
+			if (i)
+			{
+				disturb(0,0);
+				msg_print("Your skin rips open!  Ouch!");
+				set_cut(p_ptr->cut + i);
+			}
+
+		}
+
+		if (p_ptr->muta2 & MUT2_DISPEL_ALL)
+		{
+			int i = 0;
+			int j = 0;
+
+			if (!rand_int(9000))
+			{
+				i = 150;
+				j = rand_int(10) + 10;
+			}
+			else if (!rand_int(4000))
+			{
+				i = 15;
+				j = randint(2);
+			}
+
+			if (i)
+			{
+				disturb(0, 0);
+				msg_print("You feel a dark power take hold of you.");
+				dispel_monsters(i);
+				set_stun(p_ptr->stun + j);
+				if (!dun_level)
+				{
+					msg_print("You see one of the shopkeepers running for the hills!");
+					store_shuffle(rand_int(MAX_STORES));
+				}
+			}
+		}
+
+		if ((p_ptr->muta2 & MUT2_EAT_LIGHT) && !rand_int(3000))
+		{
+			object_type *o_ptr;
+
+			msg_print("A shadow passes over you.");
+
+			/* Absorb light from the current possition */
+			if (cave[py][px].info & CAVE_GLOW)
+			{
+				hp_player(10);
+			}
+
+			o_ptr = &inventory[INVEN_LITE];
+
+			/* Absorb some fuel in the current lite */
+			if (o_ptr->tval == TV_LITE)
+			{
+				/* Use some fuel (except on artifacts) */
+				if (!artifact_p(o_ptr) && (o_ptr->pval > 0))
+				{
+					/* Heal the player a bit */
+					hp_player(o_ptr->pval / 20);
+
+					/* Decrease life-span of lite */
+					o_ptr->pval /= 2;
+
+					msg_print("You absorb energy from your light!");
+				}
+			}
+
+			/*
+			 * Unlite the area (radius 10) around player and
+			 * do 50 points damage to every affected monster
+			 */
+			unlite_area(50, 10);
+		}
+
+		if ((p_ptr->muta2 & MUT2_RAW_CHAOS) && !p_ptr->anti_magic)
+		{
+			int i = 0;
+			int r = 0;
+
+			if (!rand_int(8000))
+			{
+				i = p_ptr->lev;
+				r = 8;
+			}
+			else if (!rand_int(4000))
+			{
+				i = p_ptr->lev / 10;
+				r = 2;
+			}
+
+			if (i)
+			{
+				disturb(0, 0);
+				msg_print("You feel the world warping around you!");
+				msg_print(NULL);
+				fire_ball(GF_CHAOS, 0, i, r);
+			}
+		}
+
+		if ((p_ptr->muta2 & MUT2_WRAITH) && !p_ptr->anti_magic)
+		{
+			int i = 0;
+
+			if (!rand_int(3000))
+			{
+				i = rand_int(p_ptr->lev / 2) + (p_ptr->lev / 2);
+			}
+			else if (!rand_int(1000))
+			{
+				i = rand_int(p_ptr->lev / 20) + (p_ptr->lev / 20);
+			}
+
+			if (i)
+			{
+				disturb(0,0);
+				msg_print("You feel insubstantial!");
+				msg_print(NULL);
+				set_shadow(p_ptr->wraith_form + i);
+			}
+		}
+
+		if ((p_ptr->muta2 & MUT2_POLY_WOUND) && !rand_int(3000))
+		{
+			do_poly_wounds();
+		}
+
+		if ((p_ptr->muta2 & MUT2_WASTING) && !rand_int(3000))
+		{
+			int which_stat = rand_int(6);
+			int sustained = FALSE;
+
+			switch (which_stat)
+			{
+			case A_STR:
+				if (p_ptr->sustain_str) sustained = TRUE;
+				break;
+			case A_INT:
+				if (p_ptr->sustain_int) sustained = TRUE;
+				break;
+			case A_WIS:
+				if (p_ptr->sustain_wis) sustained = TRUE;
+				break;
+			case A_DEX:
+				if (p_ptr->sustain_dex) sustained = TRUE;
+				break;
+			case A_CON:
+				if (p_ptr->sustain_con) sustained = TRUE;
+				break;
+			case A_CHR:
+				if (p_ptr->sustain_chr) sustained = TRUE;
+				break;
+			default:
+				msg_print("Invalid stat chosen!");
+				sustained = TRUE;
+			}
+			if (!sustained)
+			{
+				disturb(0, 0);
+				msg_print("You can feel yourself wasting away!");
+				msg_print(NULL);
+				(void)dec_stat(which_stat, randint(6) + 6, randint(3) == 1);
+			}
+		}
+
+		if ((p_ptr->muta2 & MUT2_WEIRD_MIND) && !p_ptr->anti_magic)
+		{
+			int i = 0;
+
+			if (!rand_int(3000)) i = p_ptr->lev;
+			else if (!rand_int(1000)) i = p_ptr->lev / 10;
+
+			if (i)
+			{
+				if (p_ptr->tim_esp > 0)
+				{
+					msg_print("Your mind feels cloudy!");
+					set_tim_esp(0);
+				}
+				else
+				{
+					msg_print("Your mind expands!");
+					set_tim_esp(i);
+				}
+			}
+		}
+
+		if ((p_ptr->muta2 & MUT2_NAUSEA) && !p_ptr->slow_digest &&
+			!rand_int(9000))
+		{
+			disturb(0,0);
+			msg_print("Your stomach roils, and you lose your lunch!");
+			msg_print(NULL);
+			set_food(PY_FOOD_WEAK);
+		}
+
+		if ((p_ptr->muta2 & MUT2_WALK_SHAD) &&
+			!p_ptr->anti_magic && !rand_int(12000))
+		{
+			new_level_flag = TRUE;
+		}
+
+/* MUT2_WARNING now detects monsters at random, but I've kept the old
+ * code for those that might want it. It's also much slower than it was
+ * originally [now !rand_int(5000) instead of !rand_int(1000)]. - Gumby
+ */
+		if ((p_ptr->muta2 & MUT2_WARNING) && !rand_int(5000))
+		{
+			(void)detect_monsters_normal();
+		}
+/*		{
+ *			int danger_amount = 0;
+ *			int monster;
+ *
+ *			for (monster = 0; monster < m_max; monster++)
+ *			{
+ *				monster_type    *m_ptr = &m_list[monster];
+ *				monster_race    *r_ptr = &r_info[m_ptr->r_idx];
+ *
+ *				if (!m_ptr->r_idx) continue;
+ *
+ *				if (r_ptr->level >= p_ptr->lev)
+ *				{
+ *					danger_amount += r_ptr->level - p_ptr->lev + 1;
+ *				}
+ *			}
+ *
+ *			disturb(0, 0);
+ *
+ *			if (danger_amount > 100)
+ *				msg_print("You feel utterly terrified!");
+ *			else if (danger_amount > 50)
+ *				msg_print("You feel terrified!");
+ *			else if (danger_amount > 20)
+ *				msg_print("You feel very worried!");
+ *			else if (danger_amount > 10)
+ *				msg_print("You feel paranoid!");
+ *			else if (danger_amount > 5)
+ *				msg_print("You feel almost safe.");
+ *			else
+ *				msg_print("You feel lonely.");
+ *		}
+ */
+
+		if ((p_ptr->muta2 & MUT2_INVULN) && !p_ptr->anti_magic)
+		{
+			int i = 0;
+
+			if (!rand_int(5000)) i = rand_int(10) + 10;
+			else if (!rand_int(2000)) i = randint(2);
+
+			if (i)
+			{
+				disturb(0, 0);
+				msg_print("You feel invincible!");
+				msg_print(NULL);
+				(void)set_invuln(p_ptr->invuln + i);
+			}
+		}
+
+		if ((p_ptr->muta2 & MUT2_SP_TO_HP) && !rand_int(2000))
+		{
+			int wounds = p_ptr->mhp - p_ptr->chp;
+
+			if (wounds > 0)
+			{
+				int healing = p_ptr->csp;
+
+				if (healing > wounds)
+				{
+					healing = wounds;
+				}
+
+				hp_player(healing);
+				p_ptr->csp -= healing;
+			}
+		}
+
+		if ((p_ptr->muta2 & MUT2_HP_TO_SP) && !p_ptr->anti_magic &&
+			!rand_int(4000))
+		{
+			int wounds = p_ptr->msp - p_ptr->csp;
+
+			if (wounds > 0)
+			{
+				int healing = p_ptr->chp;
+
+				if (healing > wounds)
+				{
+					healing = wounds;
+				}
+
+				p_ptr->csp += healing;
+				take_hit(healing, "blood rushing to the head");
+			}
+		}
+
+		if ((p_ptr->muta2 & MUT2_DISARM) && !rand_int(10000))
+		{
+			object_type *o_ptr;
+
+			disturb(0, 0);
+			msg_print("You trip over your own feet!");
+			take_hit(randint(p_ptr->wt / 6), "tripping");
+
+			msg_print(NULL);
+			o_ptr = &inventory[INVEN_WIELD];
+			if (o_ptr->k_idx)
+			{
+				msg_print("You drop your weapon!");
+				inven_drop(INVEN_WIELD,1);
 			}
 		}
 	}

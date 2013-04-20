@@ -1,9 +1,9 @@
 === Creating a Character ===
 
-Angband is a roleplaying game, in which you, the player, control a character
-in the world of Angband.  Perhaps the most important thing you control is the
-birth of your character, in which you choose or allow to be chosen various
-attributes that will affect the future life of your character.
+Gumband is a roleplaying game, in which you, the player, control a character
+in the world of Gumband.  Perhaps the most important thing you control is
+the birth of your character, in which you choose or allow to be chosen
+various attributes that will affect the future life of your character.
 
 Character creation, or birth, is controlled through a variety of choices
 as to constraints on the type of character you wish to play, followed by
@@ -31,8 +31,8 @@ special "pref" files.  And the character name is used on the high score list.
 Each character has three primary attributes, sex, race, and class, that
 are chosen before the character is generated, and which will stay fixed
 for the entire life of that character.  These attributes have many effects,
-which will be mentioned as they come up.  Keep in mind that in the current
-version of Angband, your choice of race may restrict your choice of class.
+which will be mentioned as they come up.  Please note that there are no
+restrictions on which classes you can choose with which races.
 
 Each character has a few secondary attributes, height, weight, social class,
 and background history, which are randomly determined, but which are affected
@@ -107,10 +107,9 @@ Spell points may be regained by resting, or by a few magical means.
 
 === Races ===
 
-There are ten different races that you can choose from in Angband.  Some
-races are restricted as to what profession they may be, and each race has
-its own adjustments to a character's stats and abilities. Most races also
-have intrinsic abilities.
+There are thirty different races that you can choose from in Gumband. Each
+race has its own adjustments to a character's stats and abilities. Most
+races also have intrinsic abilities.
  
           Human
                The human is the base character.  All other races are com-
@@ -830,7 +829,7 @@ Beastman      Yes     Yes     Yes
                the player to see walls and objects.  Infra-vision will allow
                a  character  to see any warm-blooded creatures up to a cer-
                tain distance.  This ability works equally well with or with
-               out  a  light source.  The majority of Angband's creatures are
+               out  a  light source.  The majority of Gumband's creatures are
                cold-blooded, and will not be detected unless lit  up  by  a
                light  source.  Most non human races have innate  infra-vision
                ability.  Human can gain infra-vision only if it is magically

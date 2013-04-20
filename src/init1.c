@@ -218,7 +218,7 @@ static cptr r_info_flags3[] =
 	"UNDEAD",
 	"EVIL",
 	"ANIMAL",
-	"AMBERITE",	/* WAS: XXX1X3 */
+	"ELEMENTAL",	/* WAS: XXX1X3, which was AMBERITE */
 	"GOOD",
 	"SCUMDOG",	/* WAS: XXX3X3 */
 	"NONLIVING",	/* WAS: XXX4X3 */
@@ -333,8 +333,8 @@ static cptr r_info_flags6[] =
 	"XXX2X6",
 	"BLINK",
 	"TPORT",
-	"XXX3X6",
-	"XXX4X6",
+	"S_HELLBLADES", /* was XXX3X6 */
+	"S_ANIMALS", /* was XXX4X6 */
 	"TELE_TO",
 	"TELE_AWAY",
 	"TELE_LEVEL",
