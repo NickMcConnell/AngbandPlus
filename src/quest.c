@@ -317,7 +317,8 @@ void put_quest_monster(int r_idx)
 		if (cheat_xtra)
 			msg_format("Monster at %d/%d.", x, y);
 	}
-	while (!place_monster_one(y, x, r_idx, 0,0));
+/*	while (!place_monster_one(y, x, r_idx, 0,0)); */
+	while (!place_monster_aux(y, x, r_idx, FALSE, TRUE, FALSE));
 }
 
 

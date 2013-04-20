@@ -24,8 +24,8 @@ CC = gcc
 
 # Compiler flags
 
-CFLAGS = -W -Wall -pedantic -O2 -DUSE_IBM
-#CFLAGS = -W -Wall -pedantic -g -DUSE_IBM
+#CFLAGS = -W -Wall -pedantic -O2 -DUSE_IBM
+CFLAGS = -W -Wall -pedantic -g -DUSE_IBM
 
 # Libraries
 

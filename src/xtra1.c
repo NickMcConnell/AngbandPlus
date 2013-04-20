@@ -2716,14 +2716,11 @@ static void calc_bonuses(void)
 		p_ptr->window |= (PW_PLAYER);
 	}
 
-
 	/* Obtain the "hold" value */
 	hold = adj_str_hold[p_ptr->stat_ind[A_STR]];
 
-
 	/* Examine the "current bow" */
 	o_ptr = &inventory[INVEN_BOW];
-
 
 	/* Assume not heavy */
 	p_ptr->heavy_shoot = FALSE;
@@ -2738,7 +2735,6 @@ static void calc_bonuses(void)
 		/* Heavy Bow */
 		p_ptr->heavy_shoot = TRUE;
 	}
-
 
 	/* Compute "extra shots" if needed */
 	if (o_ptr->k_idx && !p_ptr->heavy_shoot)
@@ -2825,12 +2821,10 @@ static void calc_bonuses(void)
 		p_ptr->heavy_wield = TRUE;
 	}
 
-
 	/* Normal weapons */
 	if (o_ptr->k_idx && !p_ptr->heavy_wield)
 	{
 		int str_index, dex_index;
-
 		int num = 0, wgt = 0, mul = 0, div = 0;
 
 		/* Analyze the class */
@@ -2920,7 +2914,6 @@ static void calc_bonuses(void)
 		/* Boost digging skill by weapon weight */
 		p_ptr->skill_dig += (o_ptr->weight / 10);
 	}
-
 
 	/* Different calculation for monks with empty hands */
 	else if (p_ptr->pclass == CLASS_MONK && monk_empty_hands())
@@ -3097,7 +3090,6 @@ static void calc_bonuses(void)
 		p_ptr->old_heavy_shoot = p_ptr->heavy_shoot;
 	}
 
-
 	/* Take note when "heavy weapon" changes */
 	if (p_ptr->old_heavy_wield != p_ptr->heavy_wield)
 	{
@@ -3118,7 +3110,6 @@ static void calc_bonuses(void)
 		/* Save it */
 		p_ptr->old_heavy_wield = p_ptr->heavy_wield;
 	}
-
 
 	/* Take note when "illegal weapon" changes */
 	if (p_ptr->old_icky_wield != p_ptr->icky_wield)

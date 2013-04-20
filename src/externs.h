@@ -242,7 +242,6 @@ extern bool auto_destroy;
 extern bool wear_confirm;
 extern bool confirm_stairs;
 extern bool disturb_pets;
-extern bool name_slimes;
 extern bool filter_identify;
 extern bool heavy_pseudo;
 extern bool shuffle_songs;

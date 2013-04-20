@@ -244,7 +244,6 @@ bool auto_destroy;		/* Known worthless items are destroyed without confirmation 
 bool confirm_stairs;		/* Prompt before staircases... */
 bool wear_confirm;		/* Confirm before putting on known cursed items */
 bool disturb_pets;		/* Pets moving nearby disturb us */
-bool name_slimes;		/* Slime Molds have names */
 bool filter_identify;		/* Show only appropriate items for Identify */
 bool heavy_pseudo;		/* Allow 'heavy' psuedo-ID for all classes */
 bool shuffle_songs;		/* Randomize midi songs */

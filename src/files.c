@@ -2741,9 +2741,6 @@ errr file_character(cptr name, bool full)
         if (stupid_monsters)
 		fprintf(fff, "\n Your opponents are behaving stupidly.");
 
-	if (name_slimes)
-		fprintf(fff, "\n You're an amateur mycologist.");
-
         if (noscore)
 		fprintf(fff, "\n You have done something illegal.");
 

@@ -1252,7 +1252,9 @@ static bool black_market_crap(object_type *o_ptr)
 static bool antique_crap(object_type *o_ptr)
 {
 	/* Accept only weapons and armor */
-	if ((o_ptr->tval >= TV_BOW) && (o_ptr->tval <= TV_HARD_ARMOR)) return (FALSE);
+	if ((o_ptr->tval == TV_BOW) ||
+	    ((o_ptr->tval >= TV_HAFTED) && (o_ptr->tval <= TV_HARD_ARMOR)))
+		return (FALSE);
 
 	/* Assume crap */
 	return (TRUE);

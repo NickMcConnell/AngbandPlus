@@ -54,6 +54,17 @@ files there so you can undo or change the macros I've set...
 ============================================================================
 
 =============================================
+= Gumband 2.2.1b = Last Update: 28-Aug-2002 =
+=============================================
+01) Removed the named Slime Molds, a joke that was boring about 2 versions
+after it entered Gumband. :)
+02) Pick-axes and shovels will no longer be generated in the Antiques Store.
+03) Extra blows and extra speed no longer boost object prices to the
+stratosphere...
+04) Quest monsters with the ESCORT flag will no longer have their escorts
+suppressed.
+
+=============================================
 = Gumband 2.2.1a = Last Update: 22-Jul-2002 =
 =============================================
 01) Added Elemental pits. [thanks to Antimatter for the idea, and to Kieron
@@ -357,10 +368,11 @@ k_info text files instead of creating it on the fly. Self-cursing items
 patch. Object weight patch when 'l'ooking. Patch to automatically show an
 inventory choices list for some actions. Patch to enhance windows a bit for
 X11 systems. Patch to list nearby visible monsters in their own window.
+Advice on how to allow quest monsters to keep their escorts.
 02) Prfnoff: '[Last Messages]' routine to the character dump.
 03) Qlzqqlzup: Pet Command menu from Zceband.
 04) A.P. White: The 'push-back' effect for GF_FORCE from DrAngband.  Yeeks.
-05) Fufie: Slime Mold names patch.
+05) Fufie: Slime Mold names patch. [removed as of v2.2.1b]
 06) Leon Marrick: Rogue theft routines from OAngband.
 07) Riivo Magi (RMG): code for *ID*ing artifacts for character dumps.
 08) arch: Suggestion for adding map_area() to detect_random(). Patch
@@ -410,13 +422,11 @@ from CthAngband.
  Defender if you need that confusion resistance it's giving you! :) I can't
  think of any solution to preserve the xtra info...
 
- Sometimes, when hit by GF_FORCE (wand of Striking, Fist of Force spell), a
- monster standing by a permanent wall on the outer edge of the map will
- disappear. This is *very* bad in the case of quest monsters... Also, if the
- monster is hit while standing directly in front of 1 grid of granite, or a
- door, or whatever, it will be pushed through to the other side. (see,
- starting around lines 2536 and 4000, spells1.c for details - I'm stumped
- as how to fix it: any solutions gratefully accepted)
+ Also, if monster is hit by a GF_FORCE effect while standing directly in
+ front of a 1-grid thick wall, or a door, or whatever, it will be pushed
+ through to the other side. (see, starting around lines 2536 and 4000,
+ spells1.c for details - I'm stumped as how to fix it: any solutions
+ gratefully accepted)
 
  Finally got around to marking all the compiler warnings (that I get with
  gcc v3.02) in the source. Just search for '/* warning:'. Anyone who can fix
@@ -429,3 +439,10 @@ from CthAngband.
 
  Sometimes when a friendly/pet monster summons a Unique, that Unique will be
  friendly despite code in process_monster() to prevent that from happening.
+
+## Sometimes, due to the huge number of randarts created by the Antiques
+ Store, there are times that artifacts without names will be generated.
+
+## FIXED: Monsters standing beside an outer dungeon wall when hit into the
+ wall by a GF_FORCE should now only be severely crushed as normal instead of
+ disappearing off of the level.

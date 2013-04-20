@@ -1215,7 +1215,7 @@ F:UNIQUE | MALE | CAN_SPEAK | FORCE_MAXHP | ESCORT | ESCORTS | ONLY_ITEM |
 F:DROP_1D2 | DROP_GOOD | OPEN_DOOR | BASH_DOOR | EVIL | IM_POIS
 D:Strong and powerful, for a kobold.
 
-N:116:Wormtongue, Agent of Saruman
+N:116:Grima the Wormtongue
 G:p:D
 I:110:25d10:20:30:20
 W:8:2:0:150
@@ -1355,10 +1355,10 @@ D:Trained to hunt and kill without fear.
 
 N:129:Phantom warrior
 G:G:B
-I:110:5d5:20:10:40
+I:110:5d4:20:10:40
 W:8:1:0:15
-B:HIT:HURT:1d11
-B:HIT:HURT:1d11
+B:HIT:HURT:1d8
+B:HIT:HURT:1d8
 F:PASS_WALL | NO_SLEEP | FRIENDS | COLD_BLOOD | NONLIVING | NO_FEAR | 
 F:EMPTY_MIND
 D:Creatures that are half real, half illusion.

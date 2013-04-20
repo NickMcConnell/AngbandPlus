@@ -254,15 +254,6 @@ static char scroll_adj[MAX_TITLES][16];
 static byte scroll_col[MAX_TITLES];
 
 
-/* Name your slime molds!  Thanks to Fufie for this patch */
-static void name_slime_mold(object_type *o_ptr)
-{
-	char slime_name[80];
-	get_rnd_line("slimes.txt", slime_name);	
-	o_ptr->note = quark_add(slime_name);
-}
-
-
 /*
  * Certain items have a flavor
  * This function is used only by "flavor_init()"
@@ -1285,13 +1276,6 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 
 		case TV_FOOD:
 		{
-			/* Name molds - thanks to Fufie of #angband */
-			if ((o_ptr->sval == SV_FOOD_SLIME_MOLD) &&
-			    !(o_ptr->note) && (name_slimes))
-			{
-				name_slime_mold((object_type *) o_ptr);
-			}
-
 			/* Ordinary food is "boring" */
 			if (o_ptr->sval >= SV_FOOD_MIN_FOOD) break;
 

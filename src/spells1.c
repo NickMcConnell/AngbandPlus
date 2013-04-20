@@ -4024,6 +4024,9 @@ static bool project_m(int who, bool pet_attack, int r, int y, int x, int dam, in
 			y1 = m_ptr->fy + (b * do_move);
 			x1 = m_ptr->fx + (a * do_move);
 
+			/* Require the destination to be in the dungeon */
+			if (!in_bounds(y1,x1)) continue;
+
 			/* Require "empty" floor space */
 			if (do_move >= 1 && !cave_empty_bold(y1, x1)) continue;
 

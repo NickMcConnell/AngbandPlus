@@ -6606,8 +6606,7 @@ option_type option_info[] =
 	{ &disturb_pets,                FALSE, 5,	5, 14,
 	"disturb_pets",                 "Disturb when visible pets move" },
 
-	{ &name_slimes,			TRUE, 5,	5, 15,
-	"name_slimes",			"Slime Molds have names" },
+	/* Bit 15 unused */
 
 	{ &filter_identify,		FALSE, 5,	5, 16,
 	"filter_identify",		"Show only appropriate items for Identify" },

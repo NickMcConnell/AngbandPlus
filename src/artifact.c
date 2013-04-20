@@ -1138,11 +1138,9 @@ void give_activation_power(object_type * o_ptr)
 
 void get_random_name(char * return_name, bool armour, int power)
 {
+	get_table_name(return_name);
+
 	if (randint(100) <= TABLE_NAME)
-	{
-		get_table_name(return_name);
-	}
-	else
 	{
 		char NameFile[16];
 

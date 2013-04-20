@@ -845,17 +845,17 @@ s32b flag_cost(object_type * o_ptr, int plusses)
 	if (f1 & TR1_DEX) total += (1000 * plusses);
 	if (f1 & TR1_CON) total += (1000 * plusses);
 	if (f1 & TR1_CHR) total += (250 * plusses);
-	if (f1 & TR1_CHAOTIC) total += 10000;
-	if (f1 & TR1_VAMPIRIC) total += 13000;
+	if (f1 & TR1_CHAOTIC) total += 5000;
+	if (f1 & TR1_VAMPIRIC) total += 10000;
 	if (f1 & TR1_STEALTH) total += (250 * plusses);
 	if (f1 & TR1_SEARCH) total += (100 * plusses);
 	if (f1 & TR1_INFRA) total += (150 * plusses);
 	if (f1 & TR1_TUNNEL) total += (175 * plusses);
 	if ((f1 & TR1_SPEED) && (plusses > 0))
-		total += (10000 + (2500 * plusses));
+		total += (3000 * plusses);
 	if ((f1 & TR1_BLOWS) && (plusses > 0))
-		total += (10000 + (2500 * plusses));
-	if (f1 & TR1_SLAY_HUMANOID) total += 6000;
+		total += (3000 * plusses);
+	if (f1 & TR1_SLAY_HUMANOID) total += 5000;
 	if (f1 & TR1_SLAY_ELEMENTAL) total += 3500;
 	if (f1 & TR1_SLAY_ANIMAL) total += 3500;
 	if (f1 & TR1_SLAY_EVIL) total += 4500;
@@ -867,7 +867,7 @@ s32b flag_cost(object_type * o_ptr, int plusses)
 	if (f1 & TR1_SLAY_DRAGON) total += 3500;
 	if (f1 & TR1_KILL_DRAGON) total += 5500;
 	if (f1 & TR1_VORPAL) total += 5000;
-	if (f1 & TR1_IMPACT) total += 5000;
+	if (f1 & TR1_IMPACT) total += 1000;
 	if (f1 & TR1_BRAND_POIS) total += 7500;
 	if (f1 & TR1_BRAND_ACID) total += 7500;
 	if (f1 & TR1_BRAND_ELEC) total += 7500;
@@ -888,7 +888,7 @@ s32b flag_cost(object_type * o_ptr, int plusses)
 	if (f2 & TR2_RAND_RESIST) total += 0;
 	if (f2 & TR2_REFLECT) total += 10000;
 	if (f2 & TR2_FREE_ACT) total += 4500;
-	if (f2 & TR2_HOLD_LIFE) total += 8500;
+	if (f2 & TR2_HOLD_LIFE) total += 8000;
 	if (f2 & TR2_RES_ACID) total += 1250;
 	if (f2 & TR2_RES_ELEC) total += 1250;
 	if (f2 & TR2_RES_FIRE) total += 1250;
@@ -920,7 +920,7 @@ s32b flag_cost(object_type * o_ptr, int plusses)
 	if (f3 & TR3_FEATHER) total += 1250;
 	if (f3 & TR3_LITE) total += 1250;
 	if (f3 & TR3_SEE_INVIS) total += 2000;
-	if (f3 & TR3_TELEPATHY) total += 12500;
+	if (f3 & TR3_TELEPATHY) total += 10000;
 	if (f3 & TR3_SLOW_DIGEST) total += 750;
 	if (f3 & TR3_REGEN) total += 2500;
 	if (f3 & TR3_XTRA_MIGHT) total += 2250;
@@ -930,7 +930,7 @@ s32b flag_cost(object_type * o_ptr, int plusses)
 	if (f3 & TR3_IGNORE_FIRE) total += 100;
 	if (f3 & TR3_IGNORE_COLD) total += 100;
 	if (f3 & TR3_ACTIVATE) total += 100;
-	if (f3 & TR3_DRAIN_EXP) total -= 12500;
+	if (f3 & TR3_DRAIN_EXP) total -= 10000;
 	if (f3 & TR3_TELEPORT)
 	{
 		if (o_ptr->ident & IDENT_CURSED)
@@ -941,7 +941,7 @@ s32b flag_cost(object_type * o_ptr, int plusses)
 	if (f3 & TR3_AGGRAVATE) total -= 10000;
 	if (f3 & TR3_BLESSED) total += 750;
 	if (f3 & TR3_CURSED) total -= 5000;
-	if (f3 & TR3_HEAVY_CURSE) total -= 12500;
+	if (f3 & TR3_HEAVY_CURSE) total -= 10000;
 	if (f3 & TR3_PERMA_CURSE) total -= 15000;
 
 	/* Also, give some extra for activatable powers... */
@@ -1129,10 +1129,10 @@ s32b object_value_real(object_type *o_ptr)
 			if (f1 & (TR1_TUNNEL)) value += (o_ptr->pval * 50L);
 
 			/* Give credit for extra attacks */
-			if (f1 & (TR1_BLOWS)) value += (o_ptr->pval * 2000L);
+			if (f1 & (TR1_BLOWS)) value += (o_ptr->pval * 3000L);
 
 			/* Give credit for speed bonus */
-			if (f1 & (TR1_SPEED)) value += (o_ptr->pval * 30000L);
+			if (f1 & (TR1_SPEED)) value += (o_ptr->pval * 3000L);
 
 			break;
 		}
