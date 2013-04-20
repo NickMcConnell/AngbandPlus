@@ -550,15 +550,14 @@ F:CHAOTIC | NO_CONF | NO_SLEEP | NO_FEAR
 D:A scuttling creature with four short legs, a round torso into 
 D:which a face is set, and long spindly arms with large hands.
 
-N:48:Fang, Farmer Maggot's dog
+N:48:Wild Dog
 G:C:W
-I:120:5d5:30:30:0
-W:2:1:0:30
+I:120:3d5:15:15:5
+W:2:1:0:8
 B:BITE:HURT:1d4
-F:UNIQUE | FORCE_MAXHP | RAND_25 | BASH_DOOR | ANIMAL | NO_CONF | 
-F:NO_SLEEP | NO_FEAR
-D:A rather vicious dog belonging to Farmer Maggot.  It thinks you are 
-D:stealing mushrooms.
+F:BASH_DOOR | ANIMAL | FRIENDS
+D:When human civilizations collapse, most domesticated animals die.
+D: Some dogs, however, survive to go feral.
 
 N:49:Greebo
 G:f:s
@@ -613,15 +612,16 @@ F:BASH_DOOR | ANIMAL
 D:A larger than normal feline, hissing loudly.  Its velvet claws conceal a 
 D:fistful of needles.
 
-N:54:Smeagol
-G:h:u
-I:130:20d20:20:12:5
-W:3:2:0:16
-B:TOUCH:EAT_GOLD
-F:UNIQUE | MALE | FORCE_MAXHP | CAN_SPEAK | RAND_50 | RAND_25 | ONLY_ITEM | 
-F:DROP_90 | DROP_GOOD | TAKE_ITEM | OPEN_DOOR | BASH_DOOR | INVISIBLE | 
-F:EVIL | HURT_LITE | DROP_GREAT
-D:He's been sneaking, and he wants his 'precious.'
+N:54:Green Scavenger
+G:B:g
+I:115:2d7:12:25:3
+W:3:2:0:5
+B:BITE:HURT:1d4
+F:FRIENDS | RAND_25 | MOVE_BODY | ANIMAL | IM_COLD
+D:"They were like albatrosses in appearance, with large, curved beaks and long
+D: wings; they came circling in to land on the bones of the whales, their
+D: beady eyes searching the bloody ice before they hopped down to gobble the
+D: offal and scraps of meat and blubber." - _The Ice Schooner_
 
 N:55:Green ooze
 G:j:g
@@ -1247,16 +1247,17 @@ B:HIT:HURT:1d6
 F:DROP_60 | OPEN_DOOR | BASH_DOOR | ANIMAL | IM_ACID
 D:It is a strange small humanoid.
 
-N:120:Novice ranger
-G:p:g
-I:110:6d8:20:6:5
+N:120:Ice Barbarian
+G:h:w
+I:110:6d6:13:12:8
 W:8:1:0:18
 B:HIT:HURT:1d5
-B:HIT:HURT:1d5
-F:MALE | FORCE_SLEEP | FRIENDS | DROP_60 | OPEN_DOOR | BASH_DOOR | GOOD
-S:1_IN_9 | 
-S:ARROW_1 | MISSILE
-D:An agile hunter, ready and relaxed.
+B:HIT:FIRE:1d5
+F:MALE | FORCE_SLEEP | FRIENDS | DROP_60 | OPEN_DOOR | BASH_DOOR | IM_COLD
+S:1_IN_8 | 
+S:ARROW_1 | ARROW_FIRE
+D:"In shape they were human, but were completely covered in silvery white
+D: hair; otherwise they seemed to be naked." - _The Ice Schooner_
 
 N:121:Giant salamander
 G:R:r
@@ -4428,7 +4429,7 @@ S:1_IN_3 |
 S:BLINK | TELE_TO | TELE_AWAY | BLIND | CONF | SLOW | SCARE | CAUSE_3 | 
 S:DRAIN_MANA | BRAIN_SMASH | S_MONSTERS
 D:Tall, slim, brownish-yellow, and hideous, this body is a long-preserved
-D: corpses inhabited by the spirit of its sorcerous original owner. It
+D: corpse inhabited by the spirit of its sorcerous original owner. It
 D: wears a big sword on a belt as nearly its only clothing.
 
 N:388:Master vampire
@@ -4591,17 +4592,17 @@ D:Unfettered by the usual constraints of gravity, these unnatural creatures
 D:are walking on the walls and even the ceiling!  The earth suddenly feels 
 D:rather less solid as you see gravity warp all round the monsters.
 
-N:399:Ice phantom
+N:399:Ice Spirit
 G:G:w
 I:110:20d10:12:18:1
 W:35:2:0:350
 B:TOUCH:COLD:2d5
 B:TOUCH:COLD:2d5
 B:ENGULF:EXP_20:3d5
-F:FORCE_SLEEP | RAND_25 | DROP_60 | DROP_90 | COLD_BLOOD | TAKE_ITEM | 
+F:FORCE_SLEEP | RAND_25 | DROP_60 | COLD_BLOOD | TAKE_ITEM | 
 F:PASS_WALL | EVIL | IM_COLD | IM_POIS | HURT_FIRE | NO_CONF | NO_SLEEP | 
 F:NONLIVING | FRIENDS
-D:A shimmering, ghostly figure that radiates cold.
+D:Out on the great ice fields, it is said that the cold itself comes alive.
 
 N:400:Inertia hound
 G:Z:g
@@ -4861,20 +4862,18 @@ S:1_IN_4 |
 S:BO_FIRE | BA_FIRE | S_DEMON
 D:It is a humanoid form composed of flames and hatred.
 
-N:419:Elder thing
-G:u:G
-I:110:35d10:10:70:50
-W:36:3:0:800
+N:419:Northern Whale
+G:q:U
+I:120:80d12:20:45:50
+W:36:4:0:800
 B:CRUSH:HURT:4d6
 B:CRUSH:HURT:4d6
-B:CRUSH:HURT:4d6
-B:TOUCH:LOSE_WIS
-F:FORCE_SLEEP | OPEN_DOOR | BASH_DOOR | ELDRITCH_HORROR | EVIL | IM_POIS | 
-F:IM_ACID | NO_CONF | NO_SLEEP | RES_TELE
-S:1_IN_4 |
-S:SCARE | TELE_AWAY | BA_NUKE | CAUSE_4 | BA_POIS | CONF | S_DEMON | 
-S:S_UNDEAD
-D:It is barrel-shaped, with horizontal arms and a starfish head.
+B:BITE:HURT:6d6
+F:FRIENDS | BASH_DOOR | MOVE_BODY | ANIMAL | IM_COLD | NO_STUN
+D:"They were of a much smaller variety  than any Arflane knew, with shorter
+D: heads in relation to their bodies, and their color was a yellow-brown.
+D: Many were leaping across the ice, propelling themselves by unusually
+D: large back flippers." - _The Ice Schooner_
 
 N:420:Ice elemental
 G:E:w
@@ -5693,22 +5692,16 @@ S:BLIND | CONF | SCARE | CAUSE_3 | FORGET | S_DEMON
 D:It is a demon of small stature, but its armoured frame moves with 
 D:lightning speed and its powers make it a tornado of death and destruction.
 
-N:477:Strygalldwir
-G:U:W
-I:120:12d100:90:60:10
-W:41:3:0:8000
-B:CLAW:HALLU:5d5
-B:CLAW:HALLU:5d5
-B:HIT:LOSE_STR:4d4
-B:TOUCH:EXP_80:8d1
-F:UNIQUE | CAN_SPEAK | FORCE_SLEEP | FORCE_MAXHP | ONLY_ITEM | DROP_4D2 | 
-F:DROP_GOOD | INVISIBLE | COLD_BLOOD | PASS_WALL | MOVE_BODY | OPEN_DOOR | 
-F:BASH_DOOR | IM_POIS | IM_COLD | DEMON | EVIL | RES_CHAO | CHAOTIC
-S:1_IN_3 | 
-S:CAUSE_3 | HOLD | SCARE | BLIND | BO_ACID | S_DEMON | FORGET | BO_NETH | 
-S:MIND_BLAST | DARKNESS
-D:A humanoid demon from the Courts of Chaos, with great antlers growing out 
-D:of its forehead.  It flies with large leathery wings.
+N:477:Shipsmasher
+G:q:u
+I:120:100d36:50:45:30
+W:41:4:0:8500
+B:CRUSH:HURT:16d6
+B:CRUSH:HURT:16d6
+F:ESCORT | BASH_DOOR | MOVE_BODY | ANIMAL | IM_COLD | NO_STUN | 
+F:UNIQUE | MALE | FORCE_MAXHP
+D:This great bull whale is marked with scars from those who failed
+D: to bring him down in earlier hunts.
 
 N:478:Dark elven sorceress
 G:h:v
@@ -5742,19 +5735,15 @@ S:DRAIN_MANA | BRAIN_SMASH | S_UNDEAD
 D:A skeletal form wrapped in robes.  Powerful magic crackles along its bony 
 D:fingers.
 
-N:480:Byakhee
-G:U:D
-I:110:40d10:20:40:80
-W:41:3:0:1500
-B:CLAW:LOSE_STR:6d4
-B:BITE:EXP_20:6d4
-F:FORCE_SLEEP | FORCE_MAXHP | FRIENDS | ONLY_ITEM | DROP_2D2 | POWERFUL | 
-F:ELDRITCH_HORROR | OPEN_DOOR | BASH_DOOR | EVIL | DEMON | IM_FIRE | 
-F:NO_CONF | NO_SLEEP | RES_CHAO
-S:1_IN_9 | 
-S:BO_FIRE | S_DEMON | CONF
-D:Hybrid demon birds: 'not altogether crows, nor moles, nor buzzards, 
-D:nor ants, nor decomposed human beings...'
+N:480:Sperm Whale
+G:q:W
+I:120:100d30:25:30:50
+W:41:4:0:1500
+B:CRUSH:HURT:10d6
+B:CRUSH:HURT:10d6
+F:FRIENDS | BASH_DOOR | MOVE_BODY | ANIMAL | IM_COLD | NO_STUN
+D:This beast's ancestors were creatures once of the land who had adapted
+D: to the sea. When the seas froze, they adapted to the land again.
 
 N:481:Ghoolegh
 G:z:w
@@ -6017,23 +6006,22 @@ S:HEAL | BLIND | HOLD | CAUSE_4 | BRAIN_SMASH | S_MONSTERS | S_UNDEAD
 D:A dark priest of the highest order.  Powerful and evil, beware his many 
 D:spells.
 
-N:498:Dreadmaster
-G:G:R
-I:120:12d100:20:100:10
-W:44:2:0:8000
-B:HIT:HURT:6d6
-B:HIT:HURT:6d6
-B:HIT:LOSE_STR:3d4
-B:HIT:LOSE_STR:3d4
-F:FORCE_SLEEP | FORCE_MAXHP | RAND_25 | ONLY_ITEM | DROP_1D2 | DROP_4D2 | 
-F:SMART | TAKE_ITEM | INVISIBLE | COLD_BLOOD | PASS_WALL | EVIL | UNDEAD | 
-F:IM_COLD | IM_POIS | NO_CONF | NO_SLEEP
-S:1_IN_9 | 
-S:TELE_LEVEL | BLIND | HOLD | CONF | CAUSE_4 | DRAIN_MANA | BO_NETH | 
-S:S_UNDEAD
-D:It is an unlife of power almost unequaled.  An affront to existence, its 
-D:very touch abuses and disrupts the flow of life, and its unearthly limbs, 
-D:of purest black, crush rock and flesh with ease.
+N:498:Ice Ghost
+G:G:w
+I:120:13d111:25:120:25
+W:44:2:0:6200
+B:TOUCH:COLD:7d8
+B:HIT:HURT:6d5
+B:HIT:HURT:6d5
+B:ENGULF:VAMP:8d4
+F:INVISIBLE | COLD_BLOOD | PASS_WALL | MOVE_BODY | AURA_COLD | 
+F:UNDEAD | ELEMENTAL | HURT_FIRE | IM_ACID | IM_COLD | IM_POIS | 
+F:RES_NETH | RES_WATE | RES_DISE | RES_CHAO | NO_FEAR | NO_STUN | 
+F:NO_SLEEP
+S:1_IN_6 | 
+S:BA_COLD | CAUSE_2 | BO_COLD | BO_ICEE | BLIND | TELE_AWAY
+D:In the mythical city of New York, the Ice Ghosts hold court. You don't
+D: know what one is doing here, but it probably is not a good omen.
 
 N:499:Drolem
 G:g:g
@@ -6052,22 +6040,23 @@ D:A constructed dragon, the drolem has massive strength.  Powerful spells
 D:weaved during its creation make it a fearsome adversary.  Its eyes show 
 D:little intelligence, but it has been instructed to destroy all it meets.
 
-N:500:Scatha the Worm
-G:D:w
-I:120:20d100:20:130:70
-W:44:2:0:17000
-B:CLAW:HURT:4d10
-B:CLAW:HURT:4d10
-B:CLAW:HURT:4d10
-B:BITE:HURT:6d14
-F:UNIQUE | MALE | FORCE_SLEEP | FORCE_MAXHP | ONLY_ITEM | DROP_3D2 | 
-F:DROP_4D2 | DROP_GOOD | BASH_DOOR | POWERFUL | MOVE_BODY | EVIL | DRAGON | 
-F:IM_COLD | HURT_FIRE | NO_CONF | NO_SLEEP
-S:1_IN_3 | 
-S:CONF | CAUSE_3 | BR_COLD
-D:An ancient and wise Dragon.  Scatha has grown clever over the long years.  
-D:His scales are covered with frost, and his breath sends a shower of ice 
-D:into the air.
+N:500:Heurfrast
+G:E:w
+I:120:27d100:40:110:10
+W:44:2:0:20000
+B:HIT:HURT:5d8
+B:HIT:HURT:5d8
+B:HIT:HURT:5d8
+B:GAZE:COLD:8d10
+F:UNIQUE | MALE | FORCE_MAXHP | DROP_3D2 | DROP_4D2 | DROP_GOOD | SMART | 
+F:CAN_SPEAK | COLD_BLOOD | OPEN_DOOR | BASH_DOOR | KILL_BODY | KILL_ITEM | 
+F:SPINES | AURA_COLD | IM_COLD | HURT_FIRE | IM_ELEC | IM_POIS | NO_FEAR | 
+F:RES_WATE | RES_CHAO
+S:1_IN_5 | 
+S:ARROW_3 | CAUSE_3 | BA_COLD | BO_ICEE | BLINK
+D:Heurfrast is the Ice Mother's son. He wanders the Earth, quenching all
+D: heat in his mother's service. All turns cold where he walks and his long
+D: spear is made of green ice.
 
 N:501:Warrior of the Dawn
 G:p:R

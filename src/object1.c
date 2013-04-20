@@ -105,7 +105,7 @@ static cptr staff_adj[MAX_WOODS] =
 	"Hemlock", "Hickory", "Ironwood", "Locust", "Mahogany",
 	"Maple", "Mulberry", "Oak", "Pine", "Redwood",
 	"Rosewood", "Spruce", "Sycamore", "Teak", "Walnut",
-	"Mistletoe", "Hawthorn", "Bamboo", "Silver", "Runed",
+	"Fibreglass", "Hawthorn", "Bamboo", "Silver", "Runed",
 	"Golden", "Ashen", "Gnarled", "Ivory", "Willow"
 };
 
@@ -133,7 +133,7 @@ static cptr wand_adj[MAX_METALS] =
 	"Nickel-Plated", "Silver-Plated", "Steel-Plated", "Tin-Plated", "Zinc-Plated",
 	"Mithril-Plated", "Mithril", "Runed", "Bronze", "Brass",
 	"Platinum", "Lead", "Lead-Plated", "Ivory" , "Adamantite",
-	"Uridium", "Long", "Short", "Hexagonal", "Inanimate Carbon"
+	"Uridium", "Long", "Short", "Hexagonal", "Plastic"
 };
 
 static byte wand_col[MAX_METALS] =

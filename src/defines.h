@@ -42,7 +42,7 @@
 #define FAKE_VERSION
 #define FAKE_VER_MAJOR 2
 #define FAKE_VER_MINOR 3
-#define FAKE_VER_PATCH 0
+#define FAKE_VER_PATCH 1
 
 #define ANGBAND_2_8_1
 
@@ -905,7 +905,7 @@ and tables.c --TY */
 #define ART_CHAINSWORD                  85 /* was Elvagil */
 #define ART_FORASGIL                    86
 #define ART_CARETH                      87
-#define ART_STING                       88
+#define ART_URQUART                     88 /* was Sting */
 #define ART_HARADEKKET                  89
 #define ART_GILETTAR                    90
 #define ART_DOOMCALLER                  91
@@ -2479,7 +2479,7 @@ and tables.c --TY */
  * New monster race bit flags
  */
 #define RF4_SHRIEK	0x00000001      /* Shriek for help */
-#define RF4_XXX2	0x00000002
+#define RF4_ARROW_FIRE	0x00000002   /* RDH: flaming arrow */
 #define RF4_BR_WATE	0x00000004	/* Breathe Water (was XXX3) */
 #define RF4_ROCKET	0x00000008      /* TY: Rocket */
 #define RF4_ARROW_1	0x00000010      /* Shoot an arrow (light) */
@@ -2598,44 +2598,44 @@ and tables.c --TY */
    RF5_SCARE | RF5_BLIND | RF5_CONF | RF5_SLOW | RF5_HOLD)
 
 #define RF6_INT_MASK \
-   (RF6_BLINK | RF6_S_DAWN | RF6_TPORT | RF6_S_HELLBLADES | RF6_S_ANIMALS | \
-    RF6_TELE_LEVEL | RF6_TELE_AWAY | RF6_HEAL | RF6_HASTE | RF6_TRAPS | \
-    RF6_S_ELEMENTAL | RF6_S_SCUMDOG | RF6_S_KIN | RF6_S_CYBER | \
-    RF6_S_MONSTER | RF6_S_MONSTERS | RF6_S_ANIMAL | RF6_S_SPIDER | \
-    RF6_S_HOUND | RF6_S_HYDRA | RF6_S_ANGEL | RF6_S_DRAGON | \
-    RF6_S_UNDEAD | RF6_S_DEMON | RF6_S_HI_DRAGON | RF6_S_HI_UNDEAD | \
-    RF6_S_WRAITH | RF6_S_UNIQUE)
+	(RF6_BLINK | RF6_S_DAWN | RF6_TPORT | RF6_S_HELLBLADES | RF6_S_ANIMALS | \
+	 RF6_TELE_LEVEL | RF6_TELE_AWAY | RF6_HEAL | RF6_HASTE | RF6_TRAPS | \
+	 RF6_S_ELEMENTAL | RF6_S_SCUMDOG | RF6_S_KIN | RF6_S_CYBER | \
+	 RF6_S_MONSTER | RF6_S_MONSTERS | RF6_S_ANIMAL | RF6_S_SPIDER | \
+	 RF6_S_HOUND | RF6_S_HYDRA | RF6_S_ANGEL | RF6_S_DRAGON | \
+	 RF6_S_UNDEAD | RF6_S_DEMON | RF6_S_HI_DRAGON | RF6_S_HI_UNDEAD | \
+	 RF6_S_WRAITH | RF6_S_UNIQUE)
 
- 
+
 /*
  * Hack -- "bolt" spells that may hurt fellow monsters
  */
 #define RF4_BOLT_MASK \
-  (RF4_ARROW_1 | RF4_ARROW_2 | RF4_ARROW_3 | RF4_ARROW_4)
+  (RF4_ARROW_FIRE | RF4_ARROW_1 | RF4_ARROW_2 | RF4_ARROW_3 | RF4_ARROW_4)
 
 #define RF5_BOLT_MASK \
-   (RF5_BO_ACID | RF5_BO_ELEC | RF5_BO_FIRE | RF5_BO_COLD | \
-    RF5_BO_POIS | RF5_BO_NETH | RF5_BO_WATE | RF5_BO_MANA | \
-    RF5_BO_PLAS | RF5_BO_ICEE | RF5_MISSILE)
+	(RF5_BO_ACID | RF5_BO_ELEC | RF5_BO_FIRE | RF5_BO_COLD | \
+	 RF5_BO_POIS | RF5_BO_NETH | RF5_BO_WATE | RF5_BO_MANA | \
+	 RF5_BO_PLAS | RF5_BO_ICEE | RF5_MISSILE)
 
 #define RF6_BOLT_MASK \
-   0L
+	0L
 
 /* Hack -- summon spells */
 
 #define RF4_SUMMON_MASK \
-    0L
+	 0L
 
 #define RF5_SUMMON_MASK \
-    0L
+	 0L
 
 #define RF6_SUMMON_MASK \
-    (RF6_S_DAWN | RF6_S_HELLBLADES | RF6_S_ANIMALS | RF6_S_ELEMENTAL | \
-     RF6_S_SCUMDOG | RF6_S_KIN | RF6_S_CYBER | RF6_S_MONSTER | \
-     RF6_S_MONSTERS | RF6_S_ANIMAL | RF6_S_SPIDER | RF6_S_HOUND | \
-     RF6_S_HYDRA | RF6_S_ANGEL | RF6_S_DEMON | RF6_S_UNDEAD | \
-     RF6_S_DRAGON | RF6_S_HI_UNDEAD | RF6_S_HI_DRAGON | RF6_S_WRAITH | \
-     RF6_S_UNIQUE)
+	 (RF6_S_DAWN | RF6_S_HELLBLADES | RF6_S_ANIMALS | RF6_S_ELEMENTAL | \
+	  RF6_S_SCUMDOG | RF6_S_KIN | RF6_S_CYBER | RF6_S_MONSTER | \
+	  RF6_S_MONSTERS | RF6_S_ANIMAL | RF6_S_SPIDER | RF6_S_HOUND | \
+	  RF6_S_HYDRA | RF6_S_ANGEL | RF6_S_DEMON | RF6_S_UNDEAD | \
+	  RF6_S_DRAGON | RF6_S_HI_UNDEAD | RF6_S_HI_DRAGON | RF6_S_WRAITH | \
+	  RF6_S_UNIQUE)
 
 
 /*** Macro Definitions ***/

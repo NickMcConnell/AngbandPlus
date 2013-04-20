@@ -2404,7 +2404,7 @@ static void cmd_racial_power_aux (void)
 			{
 				msg_print("You steel yourself for war.");
 				(void)set_afraid(0);
-				(void)set_shero(p_ptr->hero + 10 + randint(plev));
+				(void)set_hero(p_ptr->hero + 10 + randint(plev));
 			}
 			break;
 

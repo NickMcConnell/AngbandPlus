@@ -246,7 +246,7 @@ void do_poly_self(void)
 					tmp++;
 				}
 
-				if (randint(6)==1)
+				if (randint(12)==1)
 				{
 					msg_print("You find living difficult in your present form!");
 					take_hit(damroll(randint(p_ptr->lev),p_ptr->lev), "a lethal mutation");

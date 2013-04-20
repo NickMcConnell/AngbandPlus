@@ -1,7 +1,7 @@
 
 
              ************************************************
-             ** Gumband 2.3.0  ** Based on ZAngband 2.1.1c **
+             ** Gumband 2.3.1  ** Based on ZAngband 2.1.1c **
              ************************************************
 
          Based on Moria:    Copyright (c) 1985 Robert Alan Koeneke
@@ -15,6 +15,6 @@
      Current Gumband maintainer: R. Dan Henry < danhenry@inreach.com >
 
         Much Gumband content based on the works of Michael Moorcock
-                        Used without permission
+                Used without permission. Please read them.
 
    Send all comments, bug reports, etc, to "mailto: danhenry@inreach.com".

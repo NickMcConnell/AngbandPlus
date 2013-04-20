@@ -5,7 +5,7 @@ of Ultimate Might
 'World Ender'
 'Destructor'
 of Destruction
-'Impulse 255'
+'Gentle Touch'
 'Disintegrator'
 'Vanquisher'
 of Soryandum

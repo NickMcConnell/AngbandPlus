@@ -2327,12 +2327,6 @@ void monster_death(int m_idx)
 
 			if (!strcmp((r_name + r_ptr->name),"Scruffy looking hobbit"))
 			{
-				if (randint(3)==1)
-				{
-					a_idx = ART_STING;
-					chance = 2;
-				}
-				else
 				{
 					a_idx = ART_GALADRIEL;
 					chance = 10;

@@ -2892,7 +2892,14 @@ void do_cmd_activate(void)
 				o_ptr->timeout = rand_int(5) + 5;
 				break;
 			}
-			case ART_STING: case ART_ORCHAST:
+			case ART_URQUART:
+			{
+				msg_print("Your weapon twitches in your hand...");
+				(void)detect_monsters_xxx(RF3_ANIMAL);
+				o_ptr->timeout = 10;
+				break;
+			}
+			case ART_ORCHAST:
 			{
 				msg_print("Your weapon glows brightly...");
 				(void)detect_monsters_xxx(RF3_ORC);
@@ -3827,7 +3834,11 @@ cptr item_activation(object_type *o_ptr)
 		{
 			return "frost ball (72) every 5+d5 turns";
 		}
-		case ART_STING: case ART_ORCHAST:
+		case ART_URQUART:
+		{
+			return "detect animals every 10 turns";
+		}
+		case ART_ORCHAST:
 		{
 			return "detect orcs every 10 turns";
 		}
@@ -4241,14 +4252,14 @@ void random_artifact_resistance(object_type * o_ptr)
 		case ART_NIMTHANC: case ART_DETHANC: case ART_NARTHANC:
 		case ART_TURMIL: case ART_THALKETTOTH: case ART_HACKMEAT:
 		case ART_DRAGONBANE: case ART_SOULSUCKER: case ART_HASTNEN:
-		case ART_STING: case ART_ENDURANCE:
+		case ART_ENDURANCE:
 		{
 			/* Give a resistance */
 			give_resistance = TRUE;
 		}
 		break;
 
-		case ART_MAEDHROS:
+		case ART_MAEDHROS: case ART_URQUART:
 		case ART_KANAJANA: case ART_ZARCUTHRA: case ART_GURTHANG:
 		case ART_HARADEKKET: case ART_CUBRAGOL: case ART_DAWN:
 		case ART_MORDAGA: case ART_COWARDICE: case ART_WHIRLWIND:

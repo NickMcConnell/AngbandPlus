@@ -1006,7 +1006,14 @@ bool make_attack_normal(int m_idx)
 					}
 					else
 					{
-						if (set_paralyzed(p_ptr->paralyzed + 3 + randint(rlev)))
+						if (p_ptr->paralyzed)
+						{
+							if (set_paralyzed(p_ptr->paralyzed + 1))
+							{
+								obvious = TRUE;
+							}
+						}
+						else if (set_paralyzed(p_ptr->paralyzed + 3 + randint(rlev)))
 						{
 							obvious = TRUE;
 						}

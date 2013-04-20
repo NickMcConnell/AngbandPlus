@@ -2542,7 +2542,7 @@ void do_cmd_feeling(void)
 	/* No useful feeling in town */
 	if (!dun_level)
 	{
-		msg_print("Looks like a typical town.");
+		msg_print("Looks like a doomed town.");
 		return;
 	}
 

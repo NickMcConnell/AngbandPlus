@@ -1,5 +1,7 @@
 This is the README file for Angband 2.8.1 (03/04/97)
 [Meaning it might not apply for Zangband in all respects, of course... (TY)]
+[So it is even more likely to be out of date for Gumband... Yes, I should
+do something about that, someday. (RDH)]
 
 Angband 2.8.1 is a semi-stable official release incorporating all of the
 improvements added since Angband 2.7.8.  Any bugs found in Angband 2.8.1

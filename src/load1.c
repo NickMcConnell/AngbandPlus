@@ -398,7 +398,7 @@ static byte convert_old_names[180] =
 	EGO_WOUNDING,			/* 77 = SN_WOUNDING */
 	ART_ARJAVH + 128,		/* 78 = SN_ORCRIST */
 	ART_TRAITOR + 128,		/* 79 = SN_GLAMDRING */
-	ART_STING + 128,		/* 80 = SN_STING */
+	ART_URQUART + 128,		/* 80 = SN_STING */
 	EGO_LITE,			/* 81 = SN_LITE */
 	EGO_AGILITY,			/* 82 = SN_AGILITY */
 	0,				/* 83 = SN_BACKBITING */
@@ -1533,7 +1533,7 @@ static byte old_art_order[] =
 	ART_GURTHANG,
 	ART_CALRIS,
 	ART_KANAJANA,
-	ART_STING,
+	ART_URQUART,
 	ART_ARJAVH,
 	ART_TRAITOR,
 	ART_DURIN,

@@ -793,56 +793,56 @@ W:0:0:20:1
 A:0/1
 P:1:0d0:0:0:-1
 
-N:103:Soft Leather Armour~
+N:103:& Soft Leather Armour~
 G:(:U
 I:36:4:0
 W:3:0:80:25
 A:3/1
 P:4:0d0:0:0:0
 
-N:104:Soft Studded Leather~
+N:104:& Soft Studded Leather~
 G:(:U
 I:36:5:0
 W:5:0:90:50
 A:5/1
 P:5:1d1:0:0:0
 
-N:105:Hard Leather Armour~
+N:105:& Hard Leather Armour~
 G:(:U
 I:36:6:0
 W:7:0:100:75
 A:7/1
 P:6:1d1:-1:0:0
 
-N:106:Hard Studded Leather~
+N:106:& Hard Studded Leather~
 G:(:U
 I:36:7:0
 W:10:0:110:100
 A:10/1
 P:7:1d2:-1:0:0
 
-N:107:Leather Scale Mail~
+N:107:& Leather Scale Mail~
 G:(:U
 I:36:11:0
 W:15:0:140:400
 A:15/1
 P:11:1d1:-1:0:0
 
-N:108:Double Byrnie~
+N:108:& Double Byrnie~
 G:[:s
 I:37:3:0
 W:20:0:175:600
 A:20/1
 P:13:1d4:-2:0:0
 
-N:109:Full Mail~
+N:109:& Full Mail~
 G:[:s
 I:37:4:0
 W:25:0:200:750
 A:25/1
 P:15:1d4:-2:0:0
 
-N:110:Byrnie~
+N:110:& Byrnie~
 G:[:s
 I:37:1:0
 W:15:0:150:500
@@ -850,7 +850,7 @@ A:15/1
 P:12:1d4:0:0:0
 
 # Should be with Helmets
-N:111:Murex Shell Helm~
+N:111:& Murex Shell Helm~
 G:]:W
 I:32:8:0
 W:45:0:30:500
@@ -859,28 +859,28 @@ P:7:1d6:0:0:0
 
 #N:112:
 
-N:113:Metal Brigandine~
+N:113:& Metal Brigandine~
 G:[:s
 I:37:9:0
 W:30:0:200:1000
 A:30/1
 P:18:1d4:-3:0:0
 
-N:114:Partial Plate Armour~
+N:114:& Partial Plate Armour~
 G:[:W
 I:37:12:0
 W:35:0:240:1200
 A:35/1
 P:20:1d6:-3:0:0
 
-N:115:Metal Lamellar Armour~
+N:115:& Metal Lamellar Armour~
 G:[:W
 I:37:13:0
 W:40:0:250:1300
 A:40/1
 P:22:1d6:-3:0:0
 
-N:116:Full Plate Armour~
+N:116:& Full Plate Armour~
 G:[:W
 I:37:15:0
 W:45:0:300:1400
@@ -889,7 +889,7 @@ P:25:2d4:-3:0:0
 
 #N:117:
 
-N:118:Adamantite Plate Mail~
+N:118:& Adamantite Plate Mail~
 G:[:G
 I:37:30:0
 W:75:0:350:20000
@@ -897,7 +897,7 @@ A:75/8
 P:40:2d4:-4:0:0
 F:IGNORE_ACID
 
-N:119:Ivory Armour~
+N:119:& Ivory Armour~
 G:[:w
 I:37:25:0
 W:60:0:255:15000
@@ -905,7 +905,7 @@ A:60/4
 P:35:2d4:-2:0:0
 F:IGNORE_ACID
 
-N:120:Anufec Shell Armour~
+N:120:& Anufec Shell Armour~
 G:[:B
 I:37:20:0
 W:50:0:170:7500

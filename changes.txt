@@ -54,6 +54,48 @@ over and over and over... :) Also, read ./lib/user/pref.prf and the other
 files there so you can undo or change the macros I've set...
 ============================================================================
 
+====================================================================
+= Gumband 2.3.1 = Last Update: 08-April-2009 = Ice Mother's update =
+====================================================================
+Big delay because of "real life". I do expect more regular progress
+through the near future. If nothing goes unexpectedly, terribly
+wrong, of course, which is more likely than I would wish.
+00) Updated version number in news.txt, defines.h
+01) Bug fix: Human activation was producing berserking instead
+of heroism.
+02) Fixed typo in Malibann description
+03) Missing &s in object.txt added to armors to correct description
+errors.
+04) A Staff of Light will now cure blindness. Effects changed in
+response to a bug report by Michal Bielinski.
+05) Halved the chance of a race-change polymorph effect trying to
+kill the player.
+06) Monster melee paralysis attacks now only add one round to
+paralysis if you are already paralyzed.
+07) Added a crime to crime.txt. Changed some random artifact names
+and other messages in the 'file' folder. Changed a couple of item
+flavors.
+08) Bug fix: Character description text problems fixed.
+09) Added comment to "readme.txt" noting need for updating. Did not
+update it.
+10) Artifacts: Halberd of Guardian changed back to a Halberd (see
+renaming in 06 of 2.3.0 changes). Damage upgraded to base 5d5.
+Sting replaced with the Harpoon of Urquart; removed as chosen drop
+for Scruffy looking hobbits. Gondricam replaced by Cutlass of
+Konrad Arflane.
+11) Old "Ice phantom" replaced with "Ice Spirit". Scatha the Worm
+replaced by Heurfrast. Fang, Farmer Maggot's dog replaced by wild
+dog. Dreadmaster replaced by Ice Ghost. Smeagol replaced by Green
+Scavenger. Novice ranger (group version) replaced by Ice Barbarian.
+Elder thing replaced by Northern Whale. Byakhee replaced by Sperm
+Whale. Strygalldwir replaced by Shipsmasher.
+12) Added ARROW_FIRE, a flaming arrow attack. This was done in a
+quick and easy way as a 2d6 fire attack. Ideally at some future time
+it will be possible to have monsters make properly "branded" attacks
+like the player can do.
+13) Actually added with 2.3.0, there is a mingw32 makefile in the
+source release, thanks to copx.
+
 ================================================================
 = Gumband 2.3.0 = Last Update: 27-Sept-2007 = Erekose's update =
 ================================================================
@@ -68,7 +110,7 @@ Vampires not immune because I'm cruel and unfair that way.
 03) Fixed Fhoi Moire uniques being 'G' instead of 'P'.
 04) POTIONS OF DEATH TONED WAY DOWN! You won't actually die. At
 least, as long as you're perfectly safe. If you drink it standing
-next to yeek, don't complain about the embarassing tombstone.
+next to a yeek, don't complain about the embarassing tombstone.
 05) The Karach now has the Vadhagh Robe of Corum as its chosen drop.
 (Removed Corum --> Hand of Kwll chosen.) Empress Sharadim gets the
 Robe of Victory as a chosen drop.
@@ -136,9 +178,10 @@ melee stunners. This is not a possible effect of a CHAOTIC attack at the
 moment; after some experience with it in play, it may be added to the
 possible CHAOTIC effects.
 18) Eldren now have self-knowledge as a racial power (far more appropriate
-for them than for humans). Humans now can invoke Heroism effect. Also, the
+for them than for humans). Humans now can invoke Heroism effect.* Also, the
 Melnibonean demon summoning is improved to have only 1 in 8 summoned demons
 be hostile (down from 1 in 3).
+* - Due to a stupid bug, humans actually invoking Berserk in this version.
 19) Easy_open, filter_identify, and show_damage options are now on by default.
 20) New set of mutation flags added. Major revision of mutations with many
 new mutations, modified mutations, deleted mutations.
@@ -151,7 +194,7 @@ when fighting bare-handed.
 22) Revision of racial bias among shopkeepers. This was mostly to account
 for the new races, but there are numerous other changes.
 23) Moved display of damage done to monster by player to mon_take_hit(),
-which is the logically place to do it anyway. This causes damage done by
+which is the logical place to do it anyway. This causes damage done by
 magic to display now, although it has a side effect of displaying (0 dam)
 for attacks that do only effects and no real damage.
 24) Set all races to have no classes marked as inappropriate in character

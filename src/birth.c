@@ -89,7 +89,7 @@ struct hist_type
  * High-Elf   -->   7 -->   8 -->   9 -->  54 -->  55 -->  56
  * Barbarian  -->   1 -->   2 -->   3 -->  50 -->  51 -->  52 -->  53
  * Half-Giant -->  75 -->  20 -->   2 -->   3 -->  50 -->  51 -->  52 --> 53
- * Sidhi      -->  76 -->  79 -->  55 -->  56
+ * Sidhi      -->  76 -->  79 -->  122 -->  123
  * Klackon    -->  84 -->  85 -->  86
  * Kobold     -->  82 -->  83 -->  80 -->  81 -->  65 -->  66
  * Draconian  -->  89 -->  90 -->  91
@@ -101,7 +101,7 @@ struct hist_type
  * Beastman   --> 129 --> 130 --> 131 --> 132 --> 133
  * Yeek       -->  77 -->  78 -->  80 -->  81 -->  65 -->  66
  * Melnibonean-->  24 -->  25 -->   3 -->  50 -->  51 -->  52 --> 53
- * Vadhagh    -->   4 -->   5 -->  55 -->  56
+ * Vadhagh    -->   4 -->   5 -->  122 --> 123
  *
  * XXX XXX XXX This table *must* be correct or drastic errors may occur!
  */
@@ -252,17 +252,15 @@ static hist_type bg[] =
 	{"and a fair complexion.",       90, 53, 0, 60},
 	{"and a very fair complexion.", 100, 53, 0, 60},
 
-	{"Your slanted, orbless eyes are milky ", 100, 54, 55, 70},
+	{"Your slanted, orbless eyes are milky ", 100, 54, 122, 70},
 
-	{"and blue-flecked; ",  65, 55, 56, 50},
-	{"and flecked with blue and gold ",     80, 55, 56, 50},
-	{"and gold-flecked ",     97, 55, 56, 50},
-	{"and flecked with green and gold ",     100, 55, 56, 50},
+	{"straight ",  75, 55, 56, 50},
+	{"wavy ",     100, 55, 56, 50},
 
-	{"your hair is black.",   65, 56, 0, 50},
-	{"your hair is golden.",   85, 56, 0, 50},
-	{"your hair is silver.",   95, 56, 0, 50},
-	{"your hair is reddish-gold.", 100, 56, 0, 50},
+	{"black hair, and a fair complexion.",   75, 56, 0, 50},
+	{"brown hair, and a fair complexion.",   85, 56, 0, 50},
+	{"blond hair, and a fair complexion.",   95, 56, 0, 50},
+	{"silver hair, and a fair complexion.", 100, 56, 0, 50},
 
 	{"You have dark brown eyes, ",   99, 57, 58, 50},
 	{"You have glowing red eyes, ", 100, 57, 58, 60},
@@ -445,9 +443,15 @@ static hist_type bg[] =
 	{"feral yellow eyes, ",					 75, 121, 122, 50},
 	{"bloodshot red eyes, ",				100, 121, 122, 50},
 
-	{" and a deathly gray complexion. ",			100, 122, 123, 50},
+	{"and blue-flecked; ",  65, 122, 123, 50},
+	{"and flecked with blue and gold; ",     80, 122, 123, 50},
+	{"and gold-flecked; ",     97, 122, 123, 50},
+	{"and flecked with green and gold; ",     100, 122, 123, 50},
 
-	{"An eerie green aura surrounds you.",			100, 123, 0, 50},
+	{"your hair is black.",   65, 123, 0, 50},
+	{"your hair is golden.",   85, 123, 0, 50},
+	{"your hair is silver.",   95, 123, 0, 50},
+	{"your hair is reddish-gold.", 100, 123, 0, 50},
 
 	/* Lines 124-128 unused */
 

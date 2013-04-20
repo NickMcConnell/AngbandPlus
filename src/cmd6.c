@@ -1896,6 +1896,7 @@ void do_cmd_use_staff(void)
 
 		case SV_STAFF_LITE:
 		{
+         if (set_blind(0)) ident = TRUE;
 			if (lite_area(damroll(3, 8), 2)) ident = TRUE;
 			break;
 		}

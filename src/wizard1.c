@@ -1803,7 +1803,7 @@ static void spoil_mon_info(cptr fname)
 			if (strstr((r_name + r_ptr->name),"Cockatrice")) vp[vn++] = "crows for help";
 			else vp[vn++] = "shriek for help";
 		}
-		if (flags4 & (RF4_XXX2))	vp[vn++] = "do something";
+		if (flags4 & (RF4_ARROW_FIRE))	vp[vn++] = "shoot a fire arrow";
 		if (flags4 & (RF4_ROCKET))	vp[vn++] = "shoot a rocket";
 		if (flags4 & (RF4_ARROW_1))	vp[vn++] = "shoot an arrow";
 		if (flags4 & (RF4_ARROW_2))	vp[vn++] = "fire an arrow";

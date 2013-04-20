@@ -523,7 +523,7 @@ F:INT | WIS | CHR | HIDE_TYPE | SPEED | STEALTH | RES_ACID | RES_FIRE |
 F:RES_COLD | RES_DARK | ACTIVATE
 
 
-# The Elven Cloak of Tuor
+# The Vadhagh-Robe (was Elven Cloak) of Tuor
 
 N:50:of Tuor
 I:35:2:4
@@ -666,7 +666,7 @@ F:DRAIN_EXP | AGGRAVATE | INSTA_ART | SHOW_MODS | SLAY_ANIMAL | SLAY_ORC |
 F:SLAY_TROLL | SLAY_GIANT | VORPAL
 
 
-# The Dirk of Maedhros
+# The Poniard (was Dirk) of Maedhros
 
 N:64:of Maedhros
 I:24:5:3
@@ -722,7 +722,7 @@ P:0:2d4:4:3:0
 F:SLAY_ORC | BRAND_POIS | RES_POIS | RES_DISEN | ACTIVATE | SHOW_MODS
 
 
-# The Dirk 'Belangil'
+# The Poniard (was Dirk) 'Belangil'
 
 N:70:'Belangil'
 I:24:5:2
@@ -821,14 +821,15 @@ F:SPEED | RES_FIRE | BRAND_FIRE | RES_DISEN | RES_FEAR | LITE | SHOW_MODS |
 F:AGGRAVATE | CURSED | HEAVY_CURSE | AUTO_CURSE
 
 
-# The Cutlass 'Gondricam'
+# The Cutlass of Konrad Arflane, was 'Gondricam'
+# A three foot, broadbladed cutlass meant mainly for carving up the meat
+# of whales.
 
-N:79:'Gondricam'
-I:24:12:3
-W:20:5:90:28000
-P:0:1d8:10:11:0
-F:DEX | STEALTH | HIDE_TYPE | RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | 
-F:FEATHER | SEE_INVIS | REGEN | SHOW_MODS
+N:79:of Konrad Arflane
+I:24:12:5
+W:20:4:90:25000
+P:0:1d9:15:10:10
+F:CON | SEARCH | SUST_CON | RES_COLD | RES_SHARDS | SLOW_DIGEST | SHOW_MODS
 
 
 # The Executioner's Sword 'Crisdurian'
@@ -919,14 +920,16 @@ F:BLOWS | SLAY_DRAGON | SLAY_ANIMAL | SLAY_TROLL | SLAY_GIANT | SLAY_ORC |
 F:SHOW_MODS | DEX | CON | SPEED
 
 
-# The Dagger 'Sting'
+# "The harpoon was ten feet long, and its many barbs were six inches or
+# more across, curving down for nearly two feet of its length, with a
+# big metal ring fixed beneath them where tackle was tied."
+# -- _The Ice Schooner_
 
-N:88:'Sting'
-I:24:4:2
-W:20:30:12:10000
-P:0:1d4:7:8:0
-F:STR | DEX | CON | BLOWS | ACTIVATE | SLAY_EVIL | SLAY_GIANT | SLAY_ORC | 
-F:SLAY_TROLL | FREE_ACT | LITE | SEE_INVIS | SHOW_MODS | RES_LITE
+N:88:of Urquart
+I:22:15:0
+W:24:18:170:12000
+P:0:6d4:20:25:0
+F:SLAY_ANIMAL | RAND_SUSTAIN | HOLD_LIFE | REGEN | ACTIVATE | SHOW_MODS
 
 
 # The Scimitar 'Haradekket'
@@ -990,7 +993,7 @@ P:0:11d5:0:30:0
 F:SHOW_MODS
 
 
-# The Halberd 'Osondir'
+# The Harpoon 'Osondir'
 
 N:95:'Osondir'
 I:22:15:3
@@ -1046,7 +1049,7 @@ F:STEALTH | RES_DARK | INFRA | BLOWS | VORPAL |
 F:RES_COLD | RES_FEAR | RES_DISEN | SHOW_MODS
 
 
-# The Lance of Eorlingas
+# The Halberd of Eorlingas
 
 N:100:of Eorlingas
 I:22:20:2
@@ -1639,8 +1642,8 @@ F:CON | INFRA | RES_ACID | RES_ELEC | RES_BLIND | RES_CONF | HIDE_TYPE
 # The Halberd of the Guardian
 
 N:157:of the Guardian
-I:22:15:3
-W:75:25:170:47075
-P:0:4d4:14:16:10
+I:22:20:3
+W:75:25:300:47075
+P:0:5d5:14:16:10
 F:STR | BLOWS | VORPAL | SLAY_EVIL | SUST_STR | DEVICES | HIDE_TYPE | 
 F:SHOW_MODS | BLESSED | RES_CHAOS

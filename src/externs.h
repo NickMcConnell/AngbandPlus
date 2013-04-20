@@ -518,7 +518,6 @@ extern void plural_aux(char * Name);
 extern void do_cmd_browse(void);
 extern void do_cmd_study(void);
 extern void do_cmd_cast(void);
-extern void do_cmd_rerate(void);
 
 /* cmd6.c */
 extern void do_cmd_eat_food(void);
@@ -527,7 +526,6 @@ extern void do_cmd_read_scroll(void);
 extern void do_cmd_aim_wand(void);
 extern void do_cmd_use_staff(void);
 extern void do_cmd_zap_rod(void);
-extern void do_cmd_rerate(void);
 
 /* dungeon.c */
 extern void play_game(bool new_game);
@@ -1010,6 +1008,9 @@ extern bool is_quest(int level, bool kill);
 
 /* wizard1.c */
 extern void do_cmd_spoilers(void);
+
+/* wizard2.c */
+extern void do_cmd_rerate(void);
 
 /*
  * Hack -- conditional (or "bizarre") externs
