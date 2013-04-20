@@ -444,7 +444,7 @@
 /*
  * OPTION: Person to bother if something goes wrong.
  */
-#define MAINTAINER	"rdanhenry@earthlink.net"
+#define MAINTAINER	"danhenry@inreach.com"
 
 /*
  * OPTION: Default font (when using X11).

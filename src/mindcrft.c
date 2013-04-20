@@ -3,8 +3,10 @@
 /* Purpose: Mindcrafter code */
 
 /*
- * There is still some Mincrafter-related code in object2.c that I consider
+ * There is still some Mindcrafter-related code in object2.c that I consider
  * to be too much trouble to extract in order to use here. -- Gumby
+ *
+ * Lazy bastard! Now I'll have to it! -- RDH
  *
  * Functions included here:
  *
@@ -25,27 +27,27 @@
 mindcraft_power mindcraft_powers[MAX_MINDCRAFT_POWERS] =
 {
 	/* Level,  cost,  %fail,  name */
-        { 1,   1,  15, "Precognition" },          /* Detection */
-        { 2,   1,  20, "Neural Blast" },          /* Psi bolt */
-        { 3,   2,  25, "Minor Displacement" },    /* Phase/dimension door */
-        { 7,   6,  35, "Major Displacement" },    /* Teleport Self -> Away */
-        { 9,   7,  50, "Domination" },		  /* Confusion -> Charm */
-        { 11,  7,  30, "Pulverize" },             /* TK Bolt -> Ball */
-        { 13, 12,  50, "Character Armour" },      /* +AC & Resistances */
-        { 15, 12,  60, "Psychometry" },		  /* Identify -> *ID* */
-        { 18, 10,  45, "Mind Wave" },             /* Centered Ball -> LOS */
+		  { 1,   1,  15, "Precognition" },          /* Detection */
+		  { 2,   1,  20, "Neural Blast" },          /* Psi bolt */
+		  { 3,   2,  25, "Minor Displacement" },    /* Phase/dimension door */
+		  { 7,   6,  35, "Major Displacement" },    /* Teleport Self -> Away */
+		  { 9,   7,  50, "Domination" },		  /* Confusion -> Charm */
+		  { 11,  7,  30, "Pulverize" },             /* TK Bolt -> Ball */
+		  { 13, 12,  50, "Character Armour" },      /* +AC & Resistances */
+		  { 15, 12,  60, "Psychometry" },		  /* Identify -> *ID* */
+		  { 18, 10,  45, "Mind Wave" },             /* Centered Ball -> LOS */
 	{ 20, 12,  40, "Apportation" },		  /* Fetch an item */
-        { 23, 15,  50, "Adrenaline Channeling" }, /* Haste + Heroism */
-        { 25, 10,  40, "Psychic Drain" },         /* Enemy HP to SP */
-        { 28, 20,  45, "Telekinetic Wave" },      /* Centered Ball -> LOS */
+		  { 23, 15,  50, "Adrenaline Channeling" }, /* Haste + Heroism */
+		  { 25, 10,  40, "Psychic Drain" },         /* Enemy HP to SP */
+		  { 28, 20,  45, "Telekinetic Wave" },      /* Centered Ball -> LOS */
 };
 
 
 void mindcraft_info(char *p, int power)
 {
-    int plev = p_ptr->lev;
+	 int plev = p_ptr->lev;
 
-    strcpy(p, "");
+	 strcpy(p, "");
 
 	switch (power)
 	{
@@ -160,7 +162,7 @@ static int get_mindcraft_power(int *sn)
 
 					/* Extract the minimum failure rate */
 					minfail = adj_mag_fail[p_ptr->stat_ind[mp_ptr->spell_stat]];
-				    
+
 					/* Minimum failure rate */
 					if (chance < minfail) chance = minfail;
 
@@ -204,10 +206,10 @@ static int get_mindcraft_power(int *sn)
 
 					/* Always a 5 percent chance of working */
 					if (chance > 95) chance = 95;
-				    
+
 					/* Get info */
 					mindcraft_info(comment, i);
-				    
+
 					/* Dump the spell */
 					sprintf(psi_desc, "  %c) %-30s%2d %4d %3d%%%s",
 					I2A(i), spell.name, spell.min_lev,
@@ -252,7 +254,7 @@ static int get_mindcraft_power(int *sn)
 		/* Save the spell index */
 		spell = mindcraft_powers[i];
 
-	        /* Verify it */
+			  /* Verify it */
 		if (ask)
 		{
 			char tmp_val[160];
@@ -304,19 +306,19 @@ void do_cmd_mindcraft(void)
 	int		minfail = 0;
 	int		plev = p_ptr->lev;
 	mindcraft_power	spell;
-    
+
 	/* not if confused */
 	if (p_ptr->confused)
 	{
 		msg_print("You are too confused!");
 		return;
 	}
-    
+
 	/* get power */
 	if (!get_mindcraft_power(&n))  return;
-	
+
 	spell = mindcraft_powers[n];
-    
+
 	/* Verify "dangerous" spells */
 	if (spell.mana_cost > p_ptr->csp)
 	{
@@ -326,7 +328,7 @@ void do_cmd_mindcraft(void)
 		/* Verify */
 		if (!get_check("Attempt it anyway? ")) return;
 	}
-    
+
 	/* Spell failure chance */
 	chance = spell.fail;
 
@@ -340,7 +342,7 @@ void do_cmd_mindcraft(void)
 
 	/* Extract the minimum failure rate */
 	minfail = adj_mag_fail[p_ptr->stat_ind[mp_ptr->spell_stat]];
-				    
+
 	/* Minimum failure rate */
 	if (chance < minfail) chance = minfail;
 
@@ -416,7 +418,7 @@ void do_cmd_mindcraft(void)
 				/* Mana storm */
 				msg_print("Your mind unleashes its power in an uncontrollable storm!");
 				project(1, FALSE, 2+plev/10, py, px, plev * 2,
-				    GF_MANA,PROJECT_JUMP|PROJECT_KILL|PROJECT_GRID|PROJECT_ITEM, FALSE);
+					 GF_MANA,PROJECT_JUMP|PROJECT_KILL|PROJECT_GRID|PROJECT_ITEM, FALSE);
 				p_ptr->csp = MAX(0, p_ptr->csp - plev * MAX(1, plev/10));
 			}
 		}
@@ -442,9 +444,9 @@ void do_cmd_mindcraft(void)
 					}
 
 					if (plev > 14) b |= detect_monsters_invis();
-                                        if (plev > 9)  b |= detect_traps();
+													 if (plev > 9)  b |= detect_traps();
 					if (plev > 4)  b |= detect_doors();
-                                        if (plev > 4)  b |= detect_stairs();
+													 if (plev > 4)  b |= detect_stairs();
 				}
 				else
 				{
@@ -476,8 +478,8 @@ void do_cmd_mindcraft(void)
 					p_ptr->energy -= 60 - plev;
 
 					if (!cave_empty_bold(j,i) || (cave[j][i].info & CAVE_ICKY) ||
-					    (distance(j,i,py,px) > plev + 2) ||
-					    (!rand_int(plev * plev / 2)))
+						 (distance(j,i,py,px) > plev + 2) ||
+						 (!rand_int(plev * plev / 2)))
 					{
 						msg_print("Something disrupts your concentration!");
 						p_ptr->energy -= 100;

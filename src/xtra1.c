@@ -2145,7 +2145,7 @@ static void calc_bonuses(void)
 			break;
 		case RACE_HALF_GIANT:
 			p_ptr->sustain_str = TRUE;
-			p_ptr->resist_shard = TRUE;
+			p_ptr->xtra_might = TRUE;
 			break;
 		case RACE_HALF_TITAN:
 			p_ptr->resist_chaos = TRUE;

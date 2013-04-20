@@ -1,5 +1,6 @@
-38
+41
 ******** BUFFER LINE *********************************** DO NOT REMOVE *******
+prostitution.
 murder.
 arson.
 rape.
@@ -14,6 +15,7 @@ kidnapping.
 stealing.
 fraud.
 fraud and embezzlement.
+piracy.
 counterfeiting.
 smuggling.
 horse theft.
@@ -38,3 +40,4 @@ lese-majesty.
 obstructing justice.
 conspiring to obstruct justice.
 assault with a deadly weapon.
+switching sides too often.

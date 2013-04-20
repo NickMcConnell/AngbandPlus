@@ -1280,11 +1280,23 @@ void py_attack(int y, int x)
 					msg_format("You hit %s.", m_name);
 			}
 			else if (backstab)
-				msg_format("You cruelly stab the helpless %s!",
-				    (r_name + r_info[m_ptr->r_idx].name));
+				msg_format("You cruelly stab the sleeping %s!",
+				 (r_name + r_info[m_ptr->r_idx].name));
+			else if (stab_fleeing) /* New messages. -- RDH */
+			{
+				if (m_ptr->confused)
+					msg_format("You cruelly stab the confused %s!",
+					 (r_name + r_info[m_ptr->r_idx].name));
+				else if (m_ptr->stunned)
+					msg_format("You cruelly stab the stunned %s!",
+					 (r_name + r_info[m_ptr->r_idx].name));
+				else msg_format("You backstab the fleeing %s!",
+					 (r_name + r_info[m_ptr->r_idx].name));
+			}
+			/* This message should never appear. Here out of paranoia. -- RDH */
 			else
-				msg_format("You backstab the fleeing %s!",
-				    (r_name + r_info[m_ptr->r_idx].name));
+				msg_format("You strangely smite %s!",
+					 (r_name + r_info[m_ptr->r_idx].name));
 
 			/* Hack -- bare hands do one damage */
 			k = 1;

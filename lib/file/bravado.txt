@@ -3,7 +3,7 @@
 cackles evilly.
 cackles diabolically.
 says: 'Surrender, miserable flea!'
-says: 'Come get some!'
+says: 'May Kaldereen eat your eyes!'
 says: 'Let's rock!'
 laughs devilishly.
 says: 'Flee while you can, gnat!'
@@ -13,7 +13,7 @@ hisses: 'Die!'
 says: 'You don't have a chance, moron!'
 says: 'Fear my wrath, fool!'
 says: 'Feel my fury, dolt!'
-says: 'Groo is a genius, compared to you!'
+cries: 'By the Eyes of Berezenath! Have at thee!'
 gives you a contemptuous glance.
 says: 'Prepare to meet your Maker, fool!'
 says: 'Perish, mortal!'

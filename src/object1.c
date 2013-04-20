@@ -46,7 +46,7 @@ static cptr ring_adj[MAX_ROCKS] =
 	"Bloodstone", "Calcite", "Carnelian", "Corundum", "Diamond",
 	"Emerald", "Fluorite", "Garnet", "Granite", "Jade",
 	"Jasper", "Lapis Lazuli", "Malachite", "Marble", "Moonstone",
-	"Onyx", "Opal", "Pearl", "Quartz", "Quartzite",
+	"Onyx", "Opal", "Pearl", "Quartz", "Crystal",
 	"Rhodonite", "Ruby", "Sapphire", "Tiger Eye", "Topaz",
 	"Turquoise", "Zircon", "Platinum", "Bronze", "Gold",
 	"Obsidian", "Silver", "Tortoise Shell", "Mithril", "Jet",
@@ -1972,7 +1972,7 @@ void object_desc_store(char *buf, object_type *o_ptr, int pref, int mode)
  *    (yes, this is paranoid).
  * ToDo: Allow dynamic generation of strings.
  */
-bool identify_fully_aux2(object_type *o_ptr, cptr *info, int len)
+bool identify_fully_aux2(object_type *o_ptr, cptr *info)
 {
 	int	i = 0;
 	u32b	f1, f2, f3;
@@ -2387,7 +2387,7 @@ bool identify_fully_aux2(object_type *o_ptr, cptr *info, int len)
 	/* RMG probably useless code haven't had the time to debug it, */
 	/* Unknown extra powers (ego-item with random extras or artifact) */
 	if (object_known_p(o_ptr) && !(o_ptr->ident & IDENT_MENTAL) &&
-	    (o_ptr->xtra1 || artifact_p(o_ptr)) && !(death))
+		 (o_ptr->xtra1 || artifact_p(o_ptr)) && !(death))
 	{
 		info[i++] = "It has hidden powers.";
 	}
@@ -2399,7 +2399,7 @@ bool identify_fully_aux2(object_type *o_ptr, cptr *info, int len)
 /*
  * Describe an item's random attributes for "character dumps"
  */
-int identify_random_gen(object_type *o_ptr, cptr *info, int len)
+int identify_random_gen(object_type *o_ptr, cptr *info)
 {
 	/* RMG
 	 * function to filter out items which could have resistances but
@@ -2408,15 +2408,15 @@ int identify_random_gen(object_type *o_ptr, cptr *info, int len)
 	 * taken from ey_angband (don't know from where Eytan got that,
 	 * probably from somewhere in vanilla)
 	 */
-	
+
 	/* Item must be *ID*-d to show any info */
 	if (!(o_ptr->ident & IDENT_MENTAL) && !(death))
 	{
 		/* RMG
 		 * check if we are dealing with artifact/randart/ego item
-                 */
+					  */
 		if (o_ptr->art_flags1 || o_ptr->art_flags2 || o_ptr->art_flags3 ||
-		    o_ptr->art_name || o_ptr->xtra1)
+			 o_ptr->art_name || o_ptr->xtra1)
 			/* RMG
 			 * this selection should probably be widened for
 			 * now its just ego items, artifacts and random
@@ -2426,7 +2426,7 @@ int identify_random_gen(object_type *o_ptr, cptr *info, int len)
 			info[0] = "It has hidden powers.";
 			return(1);
 		}
-		else 
+		else
 		{
 			return(0);
 		};
@@ -2434,9 +2434,9 @@ int identify_random_gen(object_type *o_ptr, cptr *info, int len)
 
 	/* Fill the list of descriptions and return the count */
 	if (o_ptr->art_flags1 || o_ptr->art_flags2 || o_ptr->art_flags3 ||
-	    o_ptr->art_name || o_ptr->xtra1)
+		 o_ptr->art_name || o_ptr->xtra1)
 	{
-		return identify_fully_aux2(o_ptr, info, len);
+		return identify_fully_aux2(o_ptr, info);
 	}
 	else
 	{
@@ -2447,13 +2447,13 @@ int identify_random_gen(object_type *o_ptr, cptr *info, int len)
 /* Fully Identify an item - RMG */
 bool identify_fully_aux(object_type *o_ptr)
 {
-	/* RMG 
-	 * Structures to fill *ID* info 
+	/* RMG
+	 * Structures to fill *ID* info
 	 * there can be a problem if object full description is longer than
 	 * 128 rows. Maybe this structure should be made more dynamic. Size
 	 * 128 itself is from ey_angband 0.2.7 source
 	 */
-	
+
 	cptr	info[128];
 	int	i, k, j;
 
@@ -2461,8 +2461,8 @@ bool identify_fully_aux(object_type *o_ptr)
 	C_WIPE(info,128,cptr);
 
 	/* RMG Fill the list of descriptions and return the count */
-	i = identify_fully_aux2(o_ptr, info, 128);
-	
+	i = identify_fully_aux2(o_ptr, info);
+
 	/* RMG from earlier version of the same function*/
 	/* No special effects */
 	if (!i) return (FALSE);

@@ -669,7 +669,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 	int feat;
 
 	byte a;
-	char c;
+	unsigned char c;
 
 	bool graf_new = (use_graphics && (strcmp(ANGBAND_GRAF, "new") == 0));
 
@@ -1457,7 +1457,7 @@ void lite_spot(int y, int x)
 	if (panel_contains(y, x))
 	{
 		byte a;
-		byte c;
+		char c;
 
 #ifdef USE_TRANSPARENCY
 		byte ta;

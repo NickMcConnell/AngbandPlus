@@ -598,7 +598,7 @@ static void roff_aux(int r_idx)
 
 			/* Mention the dependance on the player's level */
 			roff(format(" for a%s %lu%s level character.  ",
-			            q, (long)i, p));
+							q, (long)i, p));
 		}
 	}
 
@@ -634,7 +634,7 @@ static void roff_aux(int r_idx)
 	if ((flags1 & (RF1_ESCORT)) || (flags1 & (RF1_ESCORTS)))
 	{
 		roff(format("%^s usually appears with escorts.  ",
-		            wd_he[msex]));
+						wd_he[msex]));
 	}
 
 	/* Describe friends */
@@ -1717,7 +1717,7 @@ void display_visible(void)
 		int w, h, num = 0;
 		u16b why = 1;
 
-		/* First, sort the monsters by expereince*/
+		/* First, sort the monsters by experience*/
 		ang_sort_comp = ang_mon_sort_comp_hook;
 		ang_sort_swap = ang_mon_sort_swap_hook;
 
@@ -1763,7 +1763,7 @@ void display_visible(void)
 			{
 				if (!who[i].u_idx) attr = TERM_SLATE;
 			}			
-			
+
 			/* 
 			 * Dump the monster symbol
 			 * Gives the standard symbol as keeping track of shapechangers

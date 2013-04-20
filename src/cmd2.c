@@ -665,7 +665,7 @@ static bool do_cmd_open_chest(int y, int x, s16b o_idx)
  *
  * Returns TRUE if repeated commands may continue
  */
-static bool do_cmd_open_aux(int y, int x, int dir)
+static bool do_cmd_open_aux(int y, int x)
 {
 	int i, j;
 
@@ -851,7 +851,7 @@ void do_cmd_open(void)
 		else
 		{
 			/* Open the door */
-			more = do_cmd_open_aux(y, x, dir);
+			more = do_cmd_open_aux(y, x);
 		}
 	}
 
@@ -870,7 +870,7 @@ void do_cmd_open(void)
  *
  * Returns TRUE if repeated commands may continue
  */
-static bool do_cmd_close_aux(int y, int x, int dir)
+static bool do_cmd_close_aux(int y, int x)
 {
 	cave_type	*c_ptr;
 	bool		more = FALSE;
@@ -992,7 +992,7 @@ void do_cmd_close(void)
 		else
 		{
 			/* Close the door */
-			more = do_cmd_close_aux(y, x, dir);
+			more = do_cmd_close_aux(y, x);
 		}
 	}
 
@@ -1043,7 +1043,7 @@ bool twall(int y, int x)
  *
  * Returns TRUE if repeated commands may continue
  */
-static bool do_cmd_tunnel_aux(int y, int x, int dir)
+static bool do_cmd_tunnel_aux(int y, int x)
 {
 	cave_type *c_ptr;
 
@@ -1272,7 +1272,7 @@ void do_cmd_tunnel(void)
 		else
 		{
 			/* Tunnel through walls */
-			more = do_cmd_tunnel_aux(y, x, dir);
+			more = do_cmd_tunnel_aux(y, x);
 		}
 	}
 
@@ -1450,7 +1450,7 @@ static bool do_cmd_disarm_aux(int y, int x, int dir)
 		/* Move the player onto the trap */
 		move_player(dir, FALSE);
 	}
-	
+
 	/* Result */
 	return (more);
 }
@@ -1796,7 +1796,7 @@ void do_cmd_alter(void)
 		    (c_ptr->feat < FEAT_MINOR_GLYPH))
 		{
 			/* Tunnel */
-			more = do_cmd_tunnel_aux(y, x, dir);
+			more = do_cmd_tunnel_aux(y, x);
 		}
 
 		/* Bash jammed doors */
@@ -1812,7 +1812,7 @@ void do_cmd_alter(void)
 		    (c_ptr->feat < FEAT_MINOR_GLYPH))
 		{
 			/* Tunnel */
-			more = do_cmd_open_aux(y, x, dir);
+			more = do_cmd_open_aux(y, x);
 		}
 
 		/* Disarm traps */

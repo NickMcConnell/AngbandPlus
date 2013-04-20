@@ -372,50 +372,7 @@ M:60
 N:64:explosive rune
 G:*:R
 
-# 0x41 --> pattern start
-
-N:65:Pattern startpoint
-G:*:w
-
-# 0x42 --> pattern 1
-
-N:66:section of the Pattern
-G:*:B
-
-# 0x43 --> pattern 2
-
-N:67:section of the Pattern
-G:*:b
-
-# 0x44 --> pattern 3
-
-N:68:section of the Pattern
-G:*:B
-
-# 0x45 --> pattern 4
-
-N:69:section of the Pattern
-G:*:b
-
-# 0x46 --> pattern end
-
-N:70:section of the Pattern
-G:*:W
-
-# 0x47 --> pattern old
-
-N:71:section of the Pattern (discharged)
-G:*:W
-
-# 0x48 --> pattern xtra1
-
-N:72:Pattern exit
-G:*:w
-
-# 0x49 --> pattern xtra2
-
-N:73:corrupted section of the Pattern
-G:*:D
+# N:65-73 were "Pattern" features, can now make new terrains
 
 # 0x4A --> shop -- general store (perm)
 
@@ -462,7 +419,7 @@ G:8:y
 N:82:Bookstore
 G:9:o
 
-# 0x53 --> shop -- bookstore (perm)
+# 0x53 --> shop -- artifacts 4 sale (perm)
 
 N:83:Antiques Store
 G:0:v

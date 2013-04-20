@@ -1486,7 +1486,7 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3)
 		case RACE_BARBARIAN:
 			(*f2) |= (TR2_RES_FEAR); break;
 		case RACE_HALF_GIANT:
-			(*f2) |= (TR2_RES_SHARDS);
+			(*f2) |= (TR3_XTRA_MIGHT);
 			(*f2) |= (TR2_SUST_STR);
 			break;
 		case RACE_HALF_TITAN:
@@ -2544,7 +2544,7 @@ void display_player(int mode)
  * XXX XXX XXX Allow the "full" flag to dump additional info,
  * and trigger its usage from various places in the code.
  */
-errr file_character(cptr name, bool full)
+errr file_character(cptr name)
 {
 	int		i, x, y;
 	byte		a;
@@ -2611,10 +2611,10 @@ errr file_character(cptr name, bool full)
 #ifndef FAKE_VERSION
 	/* Begin dump */
 	fprintf(fff, "[Angband %d.%d.%d Character Dump]\n\n",
-	        VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
+			  VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 #else
-   fprintf(fff, "[Gumband %d.%d.%d Character Dump]\n\n",
-            FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH);
+	fprintf(fff, "[Gumband %d.%d.%d Character Dump]\n\n",
+				FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH);
 #endif
 
 	/* Display player */
@@ -2818,7 +2818,7 @@ errr file_character(cptr name, bool full)
 					 index_to_label(i), paren, o_name);
 
 			/* Describe random object attributes - Riivo Magi */
-			info_length = identify_random_gen(&inventory[i], info, 128);
+			info_length = identify_random_gen(&inventory[i], info);
 
 			/* Write it */
 			for (k = 0; k < info_length; k++)
@@ -2841,7 +2841,7 @@ errr file_character(cptr name, bool full)
 		fprintf(fff, "%c%s %s\n", index_to_label(i), paren, o_name);
 
 		/* Describe random object attributes - Riivo Magi */
-		info_length = identify_random_gen(&inventory[i], info, 128);
+		info_length = identify_random_gen(&inventory[i], info);
 
 		/* Write it */
 		for (k = 0; k < info_length; k++)
@@ -2861,7 +2861,7 @@ errr file_character(cptr name, bool full)
 			fprintf(fff, "%c%s %s\n", I2A(i%12), paren, o_name);
 
 			/* Describe random object attributes */
-			info_length = identify_random_gen(&st_ptr->stock[i], info, 128);
+			info_length = identify_random_gen(&st_ptr->stock[i], info);
 
 			/* Write it */
 			for (k = 0; k < info_length; k++)
@@ -3911,7 +3911,7 @@ static void show_info(void)
 		Term_save();
 
 		/* Dump a character file */
-		(void)file_character(out_val, FALSE);
+		(void)file_character(out_val);
 
 		/* Load screen */
 		Term_load();
@@ -4434,9 +4434,8 @@ static errr top_twenty(void)
 	/* Save the date in a hacked up form (9 chars) */
 	sprintf(the_score.day, "%-.6s %-.2s", ctime(&ct) + 4, ctime(&ct) + 22);
 #else
-	/* Save the date in standard form (8 chars) */
-	strftime(the_score.day, 9, "%m/%d/%y", localtime(&ct));
-	/* warning: '%y' yields only last 2 digits of year */
+	/* Save the date in standard form (9 chars) */
+	strftime(the_score.day, 10, "%Y%m%d", localtime(&ct));
 #endif
 
 	/* Save the player name (15 chars) */

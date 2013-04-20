@@ -49,7 +49,7 @@ static cptr comment_2b[MAX_COMMENT_2B] =
 	"My arse!  How about %s gold pieces?",
 	"May the fleas of 1000 orcs molest you!  Try %s gold pieces.",
 	"May your most favourite parts go moldy!  Try %s gold pieces.",
-	"May Morgoth find you tasty!  Perhaps %s gold pieces?",
+	"May Arioch bugger you!  Perhaps %s gold pieces?",
 	"Your mother was an Ogre!  Perhaps %s gold pieces?"
 };
 
@@ -532,8 +532,8 @@ static s32b price_item(object_type *o_ptr, int greed, bool flip)
 		/* Mega-Hack -- Black market sucks */
 		if (store_num == 6) price = price * 2;
 
-		/* Mega-Hack -- So does the Antiques Store -- Gumby */
-		if (store_num == 9) price = price * 2;
+		/* Mega-Hack -- Antiques store is for bargains -- RDH */
+		if (store_num == 9) price = price / 2;
 	}
 
 	/* Compute the final price (with rounding) */
@@ -2869,42 +2869,47 @@ static void store_sell(void)
    }
 
 
-   /* Find the number of objects on this and following pages */
-   i = (st_ptr->stock_num - store_top);
+	/* Find the number of objects on this and following pages */
+	i = (st_ptr->stock_num - store_top);
 
-   /* And then restrict it to the current page */
-   if (i > 12) i = 12;
+	/* And then restrict it to the current page */
+	if (i > 12) i = 12;
 
-   /* Prompt */
-   sprintf(out_val, "Which item do you want to examine? ");
+	/* Prompt */
+	sprintf(out_val, "Which item do you want to examine? ");
 
-   /* Get the item number to be examined */
-   if (!get_stock(&item, out_val, 0, i-1)) return;
+	/* Get the item number to be examined */
+	if (!get_stock(&item, out_val, 0, i-1)) return;
 
-   /* Get the actual index */
-   item = item + store_top;
+	/* Get the actual index */
+	item = item + store_top;
 
-   /* Get the actual item */
-   o_ptr = &st_ptr->stock[item];
+	/* Get the actual item */
+	o_ptr = &st_ptr->stock[item];
 
-   /* Require full knowledge */
-   if (!(o_ptr->ident & (IDENT_MENTAL)))
-   {
-       /* This can only happen in the home */
-           msg_print("You have no special knowledge about that item.");
-           return;
-   }
+	/* Require full knowledge */
+	if (!(o_ptr->ident & (IDENT_MENTAL)))
+	{
+		 /* This can only happen in the home */
+			  msg_print("You have no special knowledge about that item.");
+			  return;
+	}
 
-   /* Description */
-   object_desc(o_name, o_ptr, TRUE, 3);
+	if (store_num == 9) /* Antiques Store should be a gamble -- RDH */
+	{
+		msg_print("It appears to be a wonderous ancient treasure.");
+      return;
+	}
+	/* Description */
+	object_desc(o_name, o_ptr, TRUE, 3);
 
-   /* Describe */
-   msg_format("Examining %s...", o_name);
+	/* Describe */
+	msg_format("Examining %s...", o_name);
 
-   /* Describe it fully */
-   if (!identify_fully_aux(o_ptr)) msg_print("You see nothing special.");
+	/* Describe it fully */
+	if (!identify_fully_aux(o_ptr)) msg_print("You see nothing special.");
 
-   return;
+	return;
  }
 
 

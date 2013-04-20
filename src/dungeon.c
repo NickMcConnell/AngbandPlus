@@ -558,7 +558,7 @@ static void process_world(void)
 			if (dawn)
 			{
 				/* Message */
-				msg_print("The sun has risen.");
+				msg_print("The fiery green sun ignites.");
 
 				/* Hack -- Scan the town */
 				for (y = 0; y < cur_hgt; y++)
@@ -584,7 +584,7 @@ static void process_world(void)
 			else
 			{
 				/* Message */
-				msg_print("The sun has fallen.");
+				msg_print("The sun has dimmed to a pale glow.");
 
 				/* Hack -- Scan the town */
 				for (y = 0; y < cur_hgt; y++)
@@ -2164,16 +2164,16 @@ static void process_command(void)
 				else morning = FALSE;
 
 				msg_format("%d:%02d %s, day %d.", hour12, minute, (morning? "AM" : "PM"),
-				    turn / (10L * TOWN_DAWN) + 1);
+					 turn / (10L * TOWN_DAWN) + 1);
 
 				if (dummy < 5)
-					msg_print("The sun has set.");
+					msg_print("The sun has grown dark.");
 				else if (dummy == 50)
 					msg_print("It is midnight.");
 				else if ((dummy > 94) && (dummy < 101))
-					msg_print("The sun is near to rising.");
+					msg_print("The sun is flickering hopefully.");
 				else if ((dummy > 75) && (dummy < 95))
-					msg_print("It is early morning, but still dark.");
+					msg_print("The sun is close to waking.");
 				else if (dummy > 100)
 					msg_format("What a funny night-time! (%d)", dummy);
 				else
@@ -2195,10 +2195,10 @@ static void process_command(void)
 				else morning = TRUE;
 
 				msg_format("%d:%02d %s, day %d.", hour12, minute, (morning? "AM" : "PM"),
-				    turn / (10L * TOWN_DAWN) + 1);
+					 turn / (10L * TOWN_DAWN) + 1);
 
 				if (dummy < 5)
-					msg_print("Morning has broken...");
+					msg_print("The sun has reignited.");
 				else if (dummy < 25)
 					msg_print("It is early morning.");
 				else if (dummy < 50)
@@ -2212,7 +2212,7 @@ static void process_command(void)
 				else if (dummy < 95)
 					msg_print("It is early evening.");
 				else if (dummy < 101)
-					msg_print("The sun is setting.");
+					msg_print("The sun is dimming.");
 				else
 					msg_format("What a strange daytime! (%d)", dummy);
 			}

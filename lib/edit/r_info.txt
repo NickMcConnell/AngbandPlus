@@ -295,14 +295,13 @@ B:BITE:HURT:1d3
 F:WEIRD_MIND | ANIMAL
 D:A small, harmless lizard.
 
-N:19:Porcupine
+N:19:Hedgehog
 G:q:U
-I:105:3d6:3:15:20
-W:1:1:0:5
-B:BITE:HURT:3d2
+I:105:2d6:3:15:20
+W:1:1:0:3
+B:BITE:HURT:1d2
 F:RAND_25 | WEIRD_MIND | BASH_DOOR | ANIMAL | SPINES
-D:It may be large, slow and relatively weak, but its covering of long, 
-D:sharp quills make it a tricky beast to take on.
+D:A cute little hedgehog.
 
 N:20:White icky thing
 G:i:w
@@ -543,15 +542,17 @@ B:HIT:HURT:1d5
 F:DROP_60 | OPEN_DOOR | BASH_DOOR | ANIMAL | IM_ACID
 D:A small humanoid figure.
 
-N:47:Grip, Farmer Maggot's dog
-G:C:w
-I:120:5d5:30:30:0
-W:2:1:0:30
-B:BITE:HURT:1d4
-F:UNIQUE | FORCE_MAXHP | RAND_25 | BASH_DOOR | ANIMAL | NO_CONF | 
-F:NO_SLEEP | NO_FEAR
-D:A rather vicious dog belonging to Farmer Maggot.  It thinks you are 
-D:stealing mushrooms.
+N:47:Garko
+G:N:D
+I:110:5d5:30:20:0
+W:2:1:0:20
+B:PUNCH:HURT:1d3
+B:PUNCH:HURT:1d3
+B:BITE:EAT_FOOD:1d2
+F:UNIQUE | MALE | FORCE_MAXHP | OPEN_DOOR | BASH_DOOR | TAKE_ITEM | 
+F:CHAOTIC | NO_CONF | NO_SLEEP | NO_FEAR
+D:A scuttling creature with four short legs, a round torso into 
+D:which a face is set, and long spindly arms with large hands.
 
 N:48:Fang, Farmer Maggot's dog
 G:C:W
@@ -703,16 +704,15 @@ F:MALE | DROP_60 | DROP_CHOSEN | TAKE_ITEM | OPEN_DOOR | BASH_DOOR |
 D:A short little guy, in bedraggled clothes.  He appears to be looking 
 D:for a good tavern.
 
-N:63:Neekerbreeker
-G:I:u
-I:120:1d2:10:10:50
-W:3:3:0:2
+N:63:Horned horse
+G:q:b
+I:115:6d8:10:5:25
+W:3:2:0:16
 B:BITE:HURT:1d1
-F:WEIRD_MIND | ANIMAL | FRIENDS | FORCE_SLEEP
-S:1_IN_2 | 
-S:SHRIEK
-D:An annoying, cricket-like insect.  The noise from even one Neekerbreeker 
-D:makes you wish you had brought some earplugs.
+B:HIT:HURT:1d3
+B:HIT:HURT:1d3
+F:RAND_25 | ANIMAL | FRIENDS
+D:A horse with two spiral horns.
 
 N:64:Yellow mold
 G:m:y
@@ -848,16 +848,14 @@ D:It is eight inches long and makes you want to wash your hair.
 
 N:78:Warrior of the Mad God
 G:p:W
-I:115:3d5:10:10:0
-W:4:2:0:5
-B:HIT:HURT:1d4
-F:RAND_50 | FRIENDS | WEIRD_MIND | EVIL | DROP_60 | OPEN_DOOR | MALE | 
-F:CHAOTIC
+I:115:3d5:10:0:3
+W:4:2:0:6
+B:HIT:HURT:1d7
+F:FRIENDS | WEIRD_MIND | DROP_60 | OPEN_DOOR | MALE | TAKE_ITEM | 
+F:CHAOTIC | NO_FEAR | NO_CONF | NO_SLEEP
 D:A naked man wearing nothing but a sword belt and a metal-studded collar.  
-D:Not too dangerous on his own, but he's only one of a seemingly ceaseless 
-D:wave of giggling madmen whose swords seek to slash the life from you.  He 
-D:and the others were driven utterly insane by an agent of the Mad God and 
-D:then sent out to kill and collect loot.
+D:He rolls his eyes, foams at the mouth, and laughs madly as he comes at 
+D:you, his sword wielded without skill but without self-preservation.
 
 N:79:Giant bullfrog
 G:R:g
@@ -868,16 +866,13 @@ B:BITE:HURT:1d3
 F:ANIMAL | RAND_25
 D:It's a big frog with a big tongue.
 
-N:80:Ewok
-G:h:G
-I:110:3d5:10:10:10
-W:5:2:0:20
-B:HIT:HURT:1d6
-B:HIT:HURT:1d6
-F:DROP_60 | OPEN_DOOR | BASH_DOOR | FRIENDS | GOOD
-S:1_IN_8
-S:ARROW_1
-D:A cute little bear, full of merchandising potential.  It must die.
+N:80:Scarlet flamingo
+G:B:R
+I:115:8d6:20:30:30
+W:5:2:0:25
+B:BITE:HURT:3d6
+F:RAND_25 | BASH_DOOR | MOVE_BODY | ANIMAL | IM_COLD
+D:A scarlet flamingo large enough to bear a man.
 
 N:81:Novice mage
 G:p:R
@@ -978,18 +973,15 @@ F:RAND_25 | WEIRD_MIND | ANIMAL
 D:If it's anything like its normal-sized cousins, this foot-long hosefly's 
 D:bite will be worse than its buzz.
 
-N:92:Short Sword (2d3)
-G:|:W
-I:130:6d6:20:40:0
-W:6:5:0:30
-B:HIT:VORPAL:6d3
-B:HIT:VORPAL:6d3
-B:HIT:VORPAL:6d3
-B:HIT:VORPAL:6d3
-F:NEVER_MOVE | NONLIVING | NO_FEAR | STUPID | EMPTY_MIND | COLD_BLOOD | 
-F:NO_CONF | NO_SLEEP | DROP_90 | EVIL | IM_COLD | IM_FIRE | FORCE_MAXHP | 
-F:IM_ELEC | IM_POIS
-D:A bloodthirsty blade lurking for prey.  Beware!
+N:92:Brand, the Horned Horse
+G:q:b
+I:120:17d10:20:30:10
+W:6:5:0:50
+B:HIT:HURT:1d8
+B:HIT:HURT:1d8
+B:BITE:HURT:1d2
+F:UNIQUE | MALE | FORCE_MAXHP | BASH_DOOR | ANIMAL
+D:A tall, horned stallion with eyes that flash like fire.
 
 N:93:Purple mushroom patch
 G:,:v
@@ -1078,13 +1070,16 @@ F:ONLY_GOLD | DROP_60 | DROP_1D2 | COLD_BLOOD | BASH_DOOR | ANIMAL |
 F:IM_POIS | NO_CONF | NO_SLEEP | REFLECTING
 D:It is a pile of coins, crawling forward on thousands of tiny legs.
 
-N:102:Snaga
-G:o:G
-I:110:8d8:20:32:30
-W:6:1:0:15
+N:102:Warmaiden of the Mad God
+G:p:u
+I:110:5d6:20:20:30
+W:6:1:0:18
 B:HIT:HURT:1d8
-F:MALE | FRIENDS | DROP_60 | OPEN_DOOR | BASH_DOOR | EVIL | ORC | HURT_LITE
-D:He is one of the many weaker 'slave' orcs, often known as a goblin.
+B:HIT:HURT:1d6
+F:FEMALE | FRIENDS | DROP_60 | STUPID | BASH_DOOR | CHAOTIC | WEIRD_MIND | 
+F:KILL_BODY | NO_FEAR | NO_CONF | NO_SLEEP
+D:Dressed in a breastplate and kilt of leather, this woman is beautiful but 
+D:mad. She shrieks maniacally as she attacks with sword and axe.
 
 N:103:Rattlesnake
 G:J:r
@@ -1229,35 +1224,28 @@ S:1_IN_5 |
 S:HEAL | SLOW | TRAPS | BO_COLD | BA_POIS
 D:He's been spying for Saruman.  He is a snivelling wretch with no morals.
 
-N:117:Robin Hood, the Outlaw
+N:117:Rekner
 G:p:G
 I:110:14d12:20:30:20
 W:8:2:0:150
-B:HIT:HURT:1d5
-B:HIT:HURT:1d5
+B:HIT:HURT:3d5
+B:HIT:HURT:3d5
 B:TOUCH:EAT_GOLD:1d3
 B:HIT:EAT_ITEM:1d3
 F:UNIQUE | MALE | FORCE_SLEEP | FORCE_MAXHP | CAN_SPEAK | ONLY_ITEM | 
 F:DROP_1D2 | DROP_GOOD | DROP_GREAT | TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
-F:ESCORT
-S:1_IN_5 | 
-S:ARROW_2 | HEAL | TRAPS
-D:The legendary archer steals from the rich (you qualify).  Some claim he 
-D:then gives to the poor, but that's just because he's hired a good public 
-D:relations firm.
+F:ESCORT | NO_FEAR | 
+D:A brigand leader dressed in furs and iron.
 
-N:118:Lagduf, the Snaga
-G:o:u
-I:110:19d10:20:32:30
-W:8:2:0:80
-B:HIT:HURT:1d10
-B:HIT:HURT:1d10
-B:HIT:HURT:1d9
-B:HIT:HURT:1d9
-F:UNIQUE | MALE | FORCE_MAXHP | ESCORT | ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
-F:OPEN_DOOR | BASH_DOOR | CAN_SPEAK | EVIL | ORC
-D:A captain of a regiment of weaker orcs, Lagduf keeps his troop in order 
-D:with displays of excessive violence.
+N:118:White bull
+G:q:w
+I:110:38d12:16:40:50
+W:8:3:0:36
+B:HIT:HURT:2d12
+B:HIT:HURT:2d12
+B:CRUSH:HURT:3d10
+F:MALE | BASH_DOOR | ANIMAL | NO_FEAR
+D:A fierce white bull of the Kamarg, with red eyes and sharp horns.
 
 N:119:Brown yeek
 G:y:u
@@ -1975,15 +1963,15 @@ S:1_IN_15 |
 S:TPORT | SCARE
 D:A ghostly apparition that shrieks horribly.
 
-N:185:Frumious bandersnatch
-G:c:b
-I:120:13d8:12:30:30
+N:185:Marsh bear
+G:q:b
+I:110:50d6:30:25:10
 W:12:2:0:40
-B:BITE:HURT:2d4
-B:BITE:HURT:2d4
-B:STING:HURT:2d4
-F:WEIRD_MIND | BASH_DOOR | ANIMAL
-D:It is a vast armoured centipede with massive mandibles and a spiked tail.
+B:CLAW:HURT:2d5
+B:CLAW:HURT:2d5
+B:BITE:HURT:3d8
+F:KILL_BODY | BASH_DOOR | ANIMAL | IM_COLD | RES_WATE | IM_POIS
+D:The marsh bear of the Kamarg is a semi-aquatic bear.
 
 N:186:Spotted jelly
 G:j:U
@@ -2104,13 +2092,18 @@ F:IM_POIS | NO_CONF | NO_SLEEP | NO_FEAR
 D:A fast moving highly acidic jelly thing, that is eating away the floor it 
 D:rests on.
 
-N:197:Software bug
-G:I:r
-I:120:2d2:8:25:10
+N:197:Ornithopter
+G:g:v
+I:120:100d2:40:60:3
 W:14:1:0:4
-B:BITE:HURT:1d2
-F:RAND_50 | RAND_25 | MULTIPLY | WEIRD_MIND | BASH_DOOR | ANIMAL
-D:Oh no!  They are everywhere!
+B:CLAW:HURT:2d13
+F:BASH_DOOR | MOVE_BODY | EXPLOSIVE | NONLIVING | IM_POIS | IM_COLD | 
+F:NO_STUN | NO_SLEEP | ATTR_MULTI
+S:1_IN_3
+S:BO_FIRE
+D:A splendid flying machine in the shape of a fantastic beast, the pilot 
+D:wears a crow mask. Flame-lances provide its main armament, but flying 
+D:low, it's fancifully clawed landing gear is also deadly.
 
 N:198:Giant white dragon fly
 G:F:w
@@ -2349,15 +2342,18 @@ S:1_IN_5 |
 S:HOLD
 D:It is a small demonic spirit full of malevolence.
 
-N:220:Gnome mage
-G:h:R
-I:110:7d8:20:20:20
-W:15:2:0:40
-B:HIT:HURT:1d5
-F:MALE | FORCE_SLEEP | FRIENDS | DROP_60 | OPEN_DOOR | BASH_DOOR | EVIL
-S:1_IN_4 | 
-S:BLINK | DARKNESS | BO_COLD | S_MONSTER
-D:A mage of short stature.
+N:220:Pool beast
+G:H:D
+I:110:6d10:10:40:5
+W:15:3:0:300
+B:TONGUE:PARALYZE:2d5
+B:BITE:HURT:4d4
+B:TENTACLE:HURT:1d10
+B:TENTACLE:HURT:1d10
+F:FRIENDS | STUPID | COLD_BLOOD | BASH_DOOR | MOVE_BODY | TAKE_ITEM | 
+F:ANIMAL | EVIL | IM_ELEC | RES_WATE
+D:A large, tentacled reptile, all black except for gleaming white teeth.  
+D:It drips blood from the pools in which it dwells.
 
 N:221:Clear hound
 G:Z:B
@@ -2569,19 +2565,14 @@ S:BR_ELEC
 D:Saint Elmo's Fire forms a ghostly halo around this hound, and sparks sting 
 D:your fingers as energy builds up in the air around you.
 
-N:239:Potion mimic
-G:!:w
-I:110:10d10:25:30:0
-W:18:3:0:60
-B:HIT:POISON:3d4
-B:HIT:HURT:2d3
-B:HIT:HURT:2d3
-F:FORCE_SLEEP | NEVER_MOVE | EMPTY_MIND | COLD_BLOOD | NO_CONF | NO_SLEEP | 
-F:NO_FEAR
-S:1_IN_6 | 
-S:BLIND | CONF | SCARE | CAUSE_2 | BO_COLD | BO_POIS
-D:A strange creature that disguises itself as discarded objects to lure 
-D:unsuspecting adventurers within reach of its venomous claws.
+N:239:Mountain giant
+G:P:u
+I:110:22d10:20:65:40
+W:18:1:0:90
+B:HIT:HURT:3d7
+B:HIT:HURT:3d7
+F:DROP_60 | OPEN_DOOR | BASH_DOOR | EVIL | GIANT | MALE
+D:A mighty giant of the mountains.
 
 N:240:Blink dog
 G:C:B
@@ -2594,18 +2585,16 @@ S:BLINK | TELE_TO
 D:A strange magical member of the canine race, its form seems to shimmer and 
 D:fade in front of your very eyes.
 
-N:241:Uruk-hai
-G:o:w
-I:110:8d10:20:50:20
-W:18:1:0:68
-B:HIT:HURT:3d5
-B:HIT:HURT:3d5
-F:MALE | FORCE_MAXHP | FRIENDS | DROP_60 | OPEN_DOOR | BASH_DOOR | EVIL | 
-F:ORC | IM_POIS
-S:1_IN_12
-S:ARROW_1
-D:He is a cunning orc of power, as tall as a man, and stronger.  It fears 
-D:little.
+N:241:Water beast
+G:R:D
+I:110:99d4:18:70:25
+W:18:3:0:200
+B:TONGUE:PARALYZE:6d5
+B:BITE:HURT:12d4
+F:STUPID | COLD_BLOOD | REGENERATE | BASH_DOOR | KILL_BODY | KILL_ITEM | 
+F:ANIMAL | RES_WATE
+D:A huge amphibious reptile, all black except for gleaming white teeth.  
+D:Loathesome breath sighs past a long, soft tongue like a living whip.
 
 N:242:Shagrat, the Orc Captain
 G:o:o
@@ -2722,18 +2711,18 @@ D:flame.
 
 ##### Monsters level 20 - 29: 252-346 #####
 
-N:252:Bolg, Son of Azog
-G:o:R
-I:120:50d10:20:50:20
+N:252:Barkyos, the Giant
+G:P:W
+I:115:75d10:20:60:20
 W:20:4:0:800
-B:HIT:HURT:3d6
-B:HIT:HURT:3d6
-B:HIT:HURT:3d6
-B:HIT:HURT:3d6
+B:HIT:HURT:3d9
+B:HIT:HURT:3d9
+B:KICK:HURT:4d8
+B:KICK:HURT:4d8
 F:UNIQUE | MALE | CAN_SPEAK | STUPID | FORCE_MAXHP | ESCORT | ONLY_ITEM | 
-F:DROP_2D2 | DROP_GOOD | OPEN_DOOR | BASH_DOOR | EVIL | ORC | IM_POIS
-D:A large and powerful orc.  He looks just like his daddy.  He is tall and 
-D:fast, but fortunately blessed with orcish brains.
+F:DROP_2D2 | DROP_GOOD | OPEN_DOOR | BASH_DOOR | EVIL | GIANT | IM_COLD | 
+F:TAKE_ITEM | IM_ELEC | NO_FEAR | NO_SLEEP
+D:The largest and fiercest of the mountain giants.
 
 N:253:Phase spider
 G:S:B
@@ -2868,17 +2857,21 @@ B:BITE:HURT:1d6
 F:RAND_25 | TAKE_ITEM | OPEN_DOOR | BASH_DOOR | ANIMAL | EVIL | FRIENDS
 D:It is a tracker; half human, half beast.
 
-N:264:Dark elven lord
-G:h:D
-I:120:18d15:20:40:30
-W:20:2:0:500
-B:HIT:HURT:3d8
-B:HIT:HURT:3d5
-F:MALE | FORCE_SLEEP | ONLY_ITEM | DROP_2D2 | OPEN_DOOR | BASH_DOOR | 
-F:EVIL | HURT_LITE
-S:1_IN_5 | 
-S:HASTE | BLIND | CONF | DARKNESS | BO_FIRE | BO_COLD | MISSILE | S_SPIDER
-D:A dark elven figure in armour and radiating evil power.
+N:264:Mountain beast
+G:H:y
+I:110:12d8:20:30:15
+W:20:4:0:350
+B:CRUSH:TERRIFY:3d3
+B:CLAW:HURT:1d6
+B:CLAW:HURT:1d6
+B:BITE:HURT:3d5
+F:FORCE_SLEEP | FRIENDS | RAND_25 | STUPID | WEIRD_MIND | BASH_DOOR | 
+F:CHAOTIC | ANIMAL | HURT_FIRE | IM_COLD
+S:1_IN_11 | 
+S:BR_POIS | SCARE
+D:The Mountain Beasts of Yel are oily-furred pack hunters with cat's claws 
+D:and toothy beaks.  Their horrible hissing noises and nauseating stench 
+D:threaten to overcome you even before they grasp you in deadly bear hugs.
 
 N:265:Cloud giant
 G:P:B
@@ -2890,18 +2883,18 @@ F:DROP_90 | TAKE_ITEM | OPEN_DOOR | BASH_DOOR | EVIL | GIANT | IM_ELEC |
 F:MALE
 D:It is a twenty foot tall giant wreathed in clouds.
 
-N:266:Ugluk, the Uruk
-G:o:W
-I:110:64d10:20:90:20
+N:266:Arnald of Grovent
+G:H:y
+I:110:64d10:20:90:10
 W:20:4:0:550
-B:HIT:HURT:3d5
-B:HIT:HURT:3d5
-B:HIT:HURT:3d5
-B:HIT:HURT:3d5
-F:UNIQUE | MALE | CAN_SPEAK | FORCE_MAXHP | ESCORT | ONLY_ITEM | DROP_1D2 | 
-F:DROP_GOOD | OPEN_DOOR | BASH_DOOR | EVIL | ORC | IM_POIS
-D:Another of Morgoth's servants, this orc is strong and cunning.  He is ugly 
-D:and scarred from many power struggles.
+B:CLAW:HURT:3d7
+B:CLAW:HURT:3d7
+B:BITE:HURT:3d4
+F:UNIQUE | MALE | CAN_SPEAK | FORCE_MAXHP | ESCORT | ESCORTS | DROP_2D2 | 
+F:DROP_GOOD | OPEN_DOOR | BASH_DOOR | TAKE_ITEM | CHAOTIC | IM_COLD | 
+F:NO_CONF
+D:Arnald of Grovent has the face of an ape and the body of a lion 
+D:that walks on two legs.
 
 N:267:Blue dragon bat
 G:b:b
@@ -3449,19 +3442,19 @@ S:BLIND | CONF | SCARE | FORGET
 D:A lesser angel wearing little more than a loincloth - its steely skin 
 D:provides all the protection it needs.
 
-N:313:Ghoul
-G:z:D
-I:110:15d10:30:30:20
+N:313:Ocean Ghoul
+G:z:B
+I:110:16d10:30:30:20
 W:26:1:0:95
-B:CLAW:PARALYZE:1d6
-B:CLAW:PARALYZE:1d6
-B:BITE:POISON:2d4
-B:TOUCH:LOSE_CHR:1d2
+B:CLAW:POISON:1d9
+B:CLAW:POISON:1d9
+B:BITE:POISON:2d6
 F:DROP_60 | OPEN_DOOR | BASH_DOOR | EVIL | UNDEAD | IM_POIS | IM_COLD | 
-F:NO_CONF | NO_SLEEP | COLD_BLOOD | HURT_LITE
+F:IM_ACID | RES_WATE | NO_FEAR | NO_SLEEP | COLD_BLOOD | HURT_LITE
 S:1_IN_9 | 
-S:SCARE | HOLD
-D:Flesh is falling off in chunks from this decaying abomination.
+S:SCARE | BR_WATE
+D:Smelling of salt water, the ocean ghoul feeds on the corpses of the 
+D:drowned when possible, but it will find other food if need be.
 
 N:314:Alberich the Nibelung King
 G:h:D
@@ -3778,21 +3771,23 @@ F:MALE | FRIENDS | DROP_60 | OPEN_DOOR | BASH_DOOR | EVIL | TROLL |
 F:REGENERATE | IM_COLD | HURT_LITE | HURT_FIRE
 D:He is a white troll with powerfully clawed hands.
 
-N:338:Barney the Dinosaur
-G:R:v
-I:120:110d9:10:90:20
+N:338:Agonosvos
+G:L:w
+I:120:110d9:12:90:20
 W:29:2:0:500
-B:SHOW:LOSE_INT:2d5
-B:SHOW:LOSE_WIS:2d5
-B:CHARGE:EAT_GOLD:2d5
-B:CHARGE:EAT_GOLD:2d5
-F:DROP_1D2 | DROP_90 | DROP_GOOD | DROP_GREAT | ONLY_ITEM | EVIL | MALE | 
-F:CAN_SPEAK | SMART | RES_TELE | ANIMAL | IM_POIS | RES_CHAO | NO_CONF | 
-F:NO_SLEEP | FORCE_MAXHP | UNIQUE | FORCE_SLEEP | CHAOTIC
+B:HIT:HURT:2d6
+B:HIT:HURT:2d6
+B:TOUCH:UN_POWER:2d5
+F:DROP_1D2 | DROP_90 | DROP_GOOD | ONLY_ITEM | EVIL | MALE | UNDEAD | 
+F:CAN_SPEAK | SMART | RES_DISE | IM_COLD | IM_POIS | RES_CHAO | NO_CONF | 
+F:COLD_BLOOD | WEIRD_MIND | OPEN_DOOR | TAKE_ITEM | NO_FEAR | 
+F:NO_SLEEP | FORCE_MAXHP | UNIQUE | FORCE_SLEEP
 S:1_IN_3 | 
-S:SHRIEK | CONF | S_HYDRA | SLOW | BLIND | DRAIN_MANA | BA_POIS | BR_CHAO | 
-S:FORGET | DARKNESS | BR_NUKE
-D:The lovable purple reptile is making a guest appearance here.
+S:DRAIN_MANA | MISSILE | SCARE | BLIND | HOLD | HASTE | HEAL | BLINK | 
+S:S_ANIMALS | DARKNESS | S_MONSTER
+D:Lord Agonosvos is a pale, nigh-immortal exile of the Germanic city-state 
+D:of Koln.  He wears a bear skin cloak and a featureless black helm which 
+D:hides the head of an ancient, worm-chewed corpse.
 
 N:339:Dhole
 G:w:s
@@ -4004,18 +3999,18 @@ D:It is a giant beetle that produces a chilling sound.
 N:355:Baragoon
 G:n:G
 I:110:30d10:20:80:20
-W:31:4:0:200
-B:CLAW:HURT:4d5
-B:CLAW:HURT:4d5
-B:BITE:HURT:5d6
+W:31:4:0:220
+B:CLAW:HURT:5d5
+B:CLAW:HURT:5d5
+B:BITE:HURT:4d6
+B:GAZE:TERRIFY
 F:RAND_25 | STUPID | WEIRD_MIND | BASH_DOOR | MOVE_BODY | EVIL | IM_ACID | 
 F:IM_POIS | RES_WATE | NO_FEAR | CHAOTIC
 S:1_IN_5 | 
 S:SCARE | SHRIEK
-D:A hideous combination of snake and man, the marsh gibberers were created 
-D:from slaves by a mad sorcerer to guard his territory.  Normally dwelling 
-D:in swamps and marshes, the Conjunction of a Million Spheres has drawn 
-D:them, like many other Chaos creatures, into this world.
+D:Eight foot tall and very wide, the slithering, slobbering noise of the 
+D:"marsh gibberer" is nearly as bad as its appearance.  Huge black eyes seek 
+D:a victim to leap upon and rend with talons hard as steel.
 
 N:356:Ice fiend
 G:u:w
@@ -4564,16 +4559,18 @@ D:It is a massive deep brown statue, striding towards you with an
 D:all-too-familiar purpose.  Your magic surprisingly feels much less 
 D:powerful now.
 
-N:396:Olog-hai
-G:T:U
-I:110:42d10:20:60:50
+N:396:Battle beast
+G:b:s
+I:110:42d10:20:60:30
 W:35:1:0:400
-B:HIT:HURT:1d12
-B:HIT:HURT:1d12
-B:BITE:HURT:2d7
-F:FORCE_MAXHP | OPEN_DOOR | FRIENDS | DROP_60 | SMART | BASH_DOOR | EVIL | 
-F:TROLL | MALE | REGENERATE | IM_POIS | HURT_FIRE
-D:It is a massive intelligent troll with needle sharp fangs.
+B:CLAW:HURT:1d13
+B:CLAW:HURT:1d13
+B:BITE:HURT:2d8
+F:FORCE_MAXHP | BASH_DOOR | FRIENDS | STUPID | BASH_DOOR | 
+F:ANIMAL | REGENERATE
+D:A gigantic winged beast, like a great black bat, but with long arms 
+D:and curved claws.  Its whistling noises are almost as disgusting as 
+D:the stench.
 
 N:397:Dread
 G:G:o
@@ -5154,12 +5151,12 @@ F:ONLY_ITEM | DROP_90 | DROP_2D2 | DROP_GOOD | CAN_SPEAK | OPEN_DOOR |
 F:BASH_DOOR | MOVE_BODY | TAKE_ITEM | EVIL | NO_FEAR | NO_CONF | NO_SLEEP | 
 F:CHAOTIC
 S:1_IN_3 | 
-S:S_MONSTERS | S_DEMON | S_UNIQUE
-D:The conqueror of Garathorm is an imposing figure, standing 7' tall and 
-D:very muscular.  His horn can be heard for miles, if he needs to summon 
-D:his men.  And it is said that the notes of that horn can be heard 
-D:elsewhere, too.  It is said that they can be heard in Hell, where Ymryl 
-D:has comrades.
+S:S_MONSTERS | S_DEMON | S_UNIQUE | ARROW_3
+D:Seven feet of muscle, Ymryl has reddish brown body hair but bright yellow 
+D:hair on his head.  His conquests have come from the strength given by the 
+D:silver-dressed amber horn worn about his neck.  Its sound carries for 
+D:miles and across the planes, summoning aid.  He is said to have received it 
+D:from Arioch himself.
 
 N:439:Time vortex
 G:v:G
@@ -5910,15 +5907,20 @@ F:MALE | ONLY_ITEM | ONLY_ITEM | DROP_1D2 | OPEN_DOOR | BASH_DOOR | EVIL |
 F:GIANT | IM_POIS | NO_SLEEP | NO_FEAR | NO_STUN
 D:He helps keep the peace among the Ogre tribes.
 
-N:490:Mumak
-G:q:s
-I:110:90d10:20:55:100
-W:43:2:0:2100
-B:BUTT:HURT:4d6
-B:BUTT:HURT:4d6
-B:CRUSH:HURT:4d4
-F:FRIENDS | BASH_DOOR | ANIMAL
-D:A massive elephantine form with eyes twisted by madness.
+N:490:Atlantic horror
+G:H:W
+I:110:50d80:20:100:30
+W:43:4:0:9000
+B:BITE:VORPAL:8d12
+B:CRUSH:HURT:8d4
+F:DROP_60 | DROP_2D2 | FRIENDS | COLD_BLOOD | EMPTY_MIND | BASH_DOOR | 
+F:MOVE_BODY | IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | RES_WATE | NO_STUN
+S:1_IN_9 | 
+S:BR_INER
+D:At home in both air and water, this great reptilian monster can use its 
+D:leathery wings to create a great wind as well as to move.  There is madness 
+D:in its blazing eyes, madness and malice.  Its gaping red jaws swing wide 
+D:and triple rows of teeth await you.
 
 N:491:Ancient multi-hued dragon
 G:D:v
@@ -5951,20 +5953,18 @@ D:A huge dragon emanating from the elemental plains, the ethereal dragon is
 D:a master of light and dark.  Its form disappears from sight as it cloaks 
 D:itself in unearthly shadows.
 
-N:493:Dark young of Shub-Niggurath
-G:&:g
-I:120:12d100:20:75:80
-W:43:2:0:5000
-B:CRUSH:HURT:4d6
-B:CRUSH:HURT:4d6
-B:CRUSH:HURT:4d6
-B:BITE:LOSE_STR:5d6
-F:FORCE_SLEEP | FORCE_MAXHP | ELDRITCH_HORROR | ONLY_ITEM | DROP_1D2 | 
-F:BASH_DOOR | POWERFUL | HURT_LITE | EVIL | IM_FIRE | NO_CONF | NO_SLEEP | 
-F:RES_TELE
-S:1_IN_9 | 
-S:BLIND | CAUSE_3 | S_DEMON | HEAL 
-D:A "black, ropy, slimy jelly tree-thing", an enormous writhing mass.
+N:493:Mutant war jaguar
+G:f:y
+I:125:24d42:20:100:10
+W:43:3:0:4000
+B:CLAW:HURT:5d6
+B:CLAW:HURT:5d6
+B:BITE:HURT:6d6
+B:HIT:HURT:3d6
+F:FRIENDS | REGENERATE | BASH_DOOR | MOVE_BODY | ANIMAL | IM_POIS | IM_COLD | 
+F:NO_FEAR | SPINES
+D:A huge, fierce yellow cat with a spined back and barbed tail.  The product 
+D:of biological experiments, it is sterile but nigh-immortal.
 
 N:494:Grome, King of Earth
 G:E:u
@@ -6083,14 +6083,15 @@ D:into the air.
 N:501:Warrior of the Dawn
 G:p:R
 I:120:25d25:20:70:20
-W:45:2:0:500
+W:45:9:0:500
 B:HIT:HURT:5d5
 B:HIT:HURT:5d5
 F:IM_POIS | IM_FIRE | IM_ELEC | IM_ACID | IM_COLD | NO_SLEEP | NO_FEAR | 
-F:FRIENDS | MALE | OPEN_DOOR | BASH_DOOR | RES_CHAO
-D:Fierce, barbaric warriors, armed with great spiked clubs, and surrounded 
-D:in an aura of scarlet. Whenever one of them is slain, another appears 
-D:out of nowhere to take his place.
+F:FRIENDS | MALE | OPEN_DOOR | BASH_DOOR | RES_CHAO | MOVE_BODY
+D:Fierce, barbaric warriors, armed with ornate clubs and tufted spears.  
+D:Ornamental armor and painted faces highlight brown skin and dark eyes.  
+D:The Legion of the Dawn howls, shouts, and sings a strange dirge as it 
+D:goes into battle, bathed in a blazing rosy light.
 
 N:502:Master wraith
 G:W:v
@@ -6300,51 +6301,51 @@ B:HIT:HURT:10d5
 B:HIT:HURT:10d6
 B:HIT:HURT:10d6
 F:UNIQUE | MALE | FORCE_MAXHP | ESCORT | ESCORTS | DROP_90 | DROP_2D2 | 
-F:DROP_GOOD | CAN_SPEAK | OPEN_DOOR | BASH_DOOR | MOVE_BODY | TAKE_ITEM | 
-F:EVIL | IM_FIRE | IM_COLD | NO_FEAR | NO_CONF | NO_SLEEP | CHAOTIC
-D:One of Granbretan's most powerful and influential warlords, the Grand 
-D:Constable of the Order of the Wolf is an imposing sight in his black 
-D:armour, black robes, and jeweled, black wolf-mask.
+F:DROP_GOOD | DROP_CHOSEN | CAN_SPEAK | OPEN_DOOR | BASH_DOOR | MOVE_BODY | 
+F:TAKE_ITEM | EVIL | IM_FIRE | IM_COLD | NO_STUN | NO_SLEEP | 
+S:1_IN_12 | 
+S:S_KIN | BO_FIRE
+D:The Baron is tall and dressed all in gleaming black and dark blue.  
+D:His head is concealed by a great jeweled mask in the shape of a snarling 
+D:wolf's head.  He wields a large sword and a flame-lance.
 
-N:516:Dorian Hawkmoon
-G:p:W
-I:120:30d100:100:100:0
-W:48:2:0:20000
-B:HIT:HURT:12d6
-B:HIT:HURT:12d6
-B:HIT:HURT:12d6
-B:HIT:HURT:12d6
+# Taragorm's breath attacks should be balls, but no such ball attacks exist.
+
+N:516:Taragorm, Master of the Palace of Time
+G:p:u
+I:120:20d100:100:40:1
+W:48:2:0:21000
+B:HIT:HURT:6d6
+B:HIT:HURT:6d6
 F:UNIQUE | MALE | FORCE_MAXHP | ONLY_ITEM | DROP_60 | DROP_90 | DROP_2D2 | 
-F:DROP_GOOD | DROP_CHOSEN | SMART | CAN_SPEAK | REGENERATE | OPEN_DOOR | 
-F:BASH_DOOR | MOVE_BODY | TAKE_ITEM | GOOD | IM_ELEC | IM_FIRE | IM_COLD | 
-F:NO_FEAR | NO_CONF | NO_SLEEP | RES_CHAO
+F:DROP_GOOD | SMART | CAN_SPEAK | REGENERATE | OPEN_DOOR | ESCORT | 
+F:BASH_DOOR | TAKE_ITEM | EVIL | IM_ELEC | IM_FIRE | IM_COLD | RES_TELE | 
+F:RES_NEXU | NO_CONF | NO_SLEEP | RES_CHAO
 S:1_IN_4 | 
-S:HASTE | HEAL | S_DAWN
-D:The Black Jewel's life is eating the brain of this aspect of the 
-D:Champion Eternal.
+S:SLOW | HOLD | HASTE | BLINK | TPORT | TELE_AWAY | BR_SOUN | BR_TIME
+D:A man in a gigantic, elaborately ornamented bronze mask which is also a 
+D:working clock, Taragorm's investigations into science and sorcery have 
+D:focused on time itself.  A pendulum from the mask drops to his chest, 
+D:providing balance as well as serving as part of the clock.
 
 N:517:The Guardian of Soryandum
 G:g:v
-I:120:35d100:5:150:0
+I:120:35d100:5:150:20
 W:49:2:0:25000
 B:CLAW:VORPAL:20d2
 B:CLAW:VORPAL:20d2
 B:BITE:HURT:15d8
-F:UNIQUE | FORCE_MAXHP | ATTR_MULTI | RAND_25 | RAND_50 | ONLY_ITEM | 
+F:UNIQUE | FORCE_MAXHP | ATTR_MULTI | RAND_50 | ONLY_ITEM | 
 F:DROP_90 | DROP_1D2 | DROP_GOOD | REFLECTING | COLD_BLOOD | EMPTY_MIND | 
 F:ATTR_ANY | BASH_DOOR | KILL_BODY | KILL_ITEM | NONLIVING | IM_ACID | 
 F:IM_ELEC | IM_FIRE | IM_COLD | IM_POIS | RES_TELE | NO_FEAR | NO_SLEEP | 
-F:RES_CHAO
-S:1_IN_5 | 
-S:SHRIEK | SCARE
+F:RES_CHAO | KILL_WALL
 D:It crouches on metal feet, towering over you, its multicoloured scales 
 D:half-blinding you.  The length of its back, save for its neck, is a mass 
 D:of knife-sharp horns.  Its body is fashioned somewhat like an ape's, with 
 D:short forelegs ending in hands of taloned metal.  Its snout is filled 
-D:with razor-sharp teeth.  Its eyes were multifaceted jewels, like a fly's, 
-D:until they were destroyed by Dorian Hawkmoon, blinding the creature.  It 
-D:may be screaming its rage at being blind, but that doesn't stop it from 
-D:trying to kill you...
+D:with razor-sharp teeth.  Its eyes were multifaceted jewels, but they have 
+D:been ruined.  It may be screaming its rage at being blind, but that doesn't D:stop it from trying to kill you...
 
 N:518:Glaurung, Father of Dragons
 G:D:r
@@ -6566,23 +6567,23 @@ S:TELE_AWAY
 D:As the old song goes, "You'd better watch out..."
 
 N:532:Baron Kalan of Vitall
-G:p:v
+G:p:g
 I:120:30d100:50:75:5
 W:52:2:0:30000
 B:TOUCH:UN_BONUS:6d5
 B:TOUCH:UN_POWER:6d5
 B:TOUCH:LOSE_INT:4d5
 B:TOUCH:LOSE_WIS:4d5
-F:UNIQUE | MALE | FORCE_MAXHP | FORCE_SLEEP | DROP_60 | DROP_90 | EVIL | 
+F:UNIQUE | MALE | FORCE_MAXHP | ESCORT | FORCE_SLEEP | DROP_60 | DROP_90 | 
 F:DROP_1D2 | DROP_2D2 | DROP_GOOD | SMART | CAN_SPEAK | OPEN_DOOR | 
-F:TAKE_ITEM | IM_ACID | IM_COLD | RES_NETH | RES_PLAS | RES_DISE | 
-F:NO_CONF | NO_SLEEP | CHAOTIC
+F:TAKE_ITEM | IM_ACID | IM_COLD | RES_NETH | RES_PLAS | RES_DISE | IM_ELEC | 
+F:NO_CONF | NO_SLEEP | EVIL | RES_TELE
 S:1_IN_2 | 
-S:BA_ACID | BRAIN_SMASH | BO_NETH | BO_MANA | BO_PLAS | HEAL | BLINK | 
-S:TPORT | TELE_AWAY | S_KIN
+S:BA_ACID | BRAIN_SMASH | TELE_LEVEL | BO_MANA | BO_PLAS | HEAL | BLINK | 
+S:TPORT | TELE_AWAY | S_KIN | BA_POIS
 D:In his jeweled snake-mask and robes, the Grand Constable of the Order of 
-D:the Snake is one of Granbretan's greatest sorcerer-scientists.  He was 
-D:thought to have suicided after the Battle of Londra.
+D:the Snake is commander of Granbretan's sorcerer-scientists.  His genius is 
+D:recognized even by his enemies.
 
 N:533:Grand master of Chaos
 G:x:v
@@ -7489,8 +7490,8 @@ D:destructive blasts of elements.
 
 N:586:Charki
 G:H:s
-I:115:20d100:10:80:0
-W:70:4:0:15000
+I:115:20d100:20:80:0
+W:70:6:0:15000
 B:TENTACLE:EXP_40:7d6
 B:TENTACLE:EXP_40:7d6
 B:TENTACLE:UN_BONUS:6d10
@@ -7500,10 +7501,9 @@ F:BASH_DOOR | KILL_WALL | HURT_ROCK | IM_ACID | IM_ELEC | IM_FIRE |
 F:IM_COLD | IM_POIS | NO_FEAR | NO_CONF | NO_SLEEP | FORCE_MAXHP | CHAOTIC
 S:1_IN_4 | 
 S:DRAIN_MANA | CONF | HOLD
-D:A grey, stonelike creature that is a mass of waving, suckered, tentacles, 
-D:a pulsing head and a face that is a parody of human features, grinning 
-D:an idiot's grin.  It only exists to kill and feed off of its prey's 
-D:life-energy.
+D:A grey, stonelike creature that is a mass of waving, suckered tentacles, 
+D:a multitude of legs, a pulsing head and a face that is a parody of human D:features, grinning an idiot's grin.  It only exists to kill and feed off 
+D:of its prey's life-energy.
 
 N:587:Black reaver
 G:L:D

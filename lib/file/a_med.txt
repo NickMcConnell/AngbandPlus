@@ -2,10 +2,10 @@
 ******** BUFFER LINE *********************************** DO NOT REMOVE *******
 'Resistor'
 'Warrior's Shield'
-of Polonium
+of Queen Frawbra
 'Guardian'
 'Protector'
-of Thiron
+'Globe of Huon'
 of Quatis
 of Holiness
 'Bloodshield'

@@ -3225,7 +3225,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
  *
  * Hack -- note the special code for various items
  */
-static void a_m_aux_4(object_type *o_ptr, int level, int power)
+static void a_m_aux_4(object_type *o_ptr)
 {
 	/* Apply magic (good or bad) according to type */
 	switch (o_ptr->tval)
@@ -3433,9 +3433,9 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 		{
 #if 1
 			if (power ||
-			     ((o_ptr->tval == TV_HELM) && (o_ptr->sval == SV_DRAGON_HELM)) ||
-			     ((o_ptr->tval == TV_SHIELD) && (o_ptr->sval == SV_DRAGON_SHIELD)) ||
-			     ((o_ptr->tval == TV_CLOAK) && (o_ptr->sval == SV_ELVEN_CLOAK)))
+				  ((o_ptr->tval == TV_HELM) && (o_ptr->sval == SV_DRAGON_HELM)) ||
+				  ((o_ptr->tval == TV_SHIELD) && (o_ptr->sval == SV_DRAGON_SHIELD)) ||
+				  ((o_ptr->tval == TV_CLOAK) && (o_ptr->sval == SV_ELVEN_CLOAK)))
 				a_m_aux_2(o_ptr, lev, power);
 #else
 			if (power) a_m_aux_2(o_ptr, lev, power);
@@ -3452,7 +3452,7 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 
 		default:
 		{
-			a_m_aux_4(o_ptr, lev, power);
+			a_m_aux_4(o_ptr);
 			break;
 		}
 	}

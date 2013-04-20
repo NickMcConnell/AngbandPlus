@@ -3310,10 +3310,10 @@ W:30:0:5:25000
 P:0:1d1:0:0:0
 F:INSTA_ART
 
-# The Arkenstone of Thrain -- see artifact list
+# The Runestaff -- see artifact list
 
-N:502:& Arkenstone~
-G:*:w
+N:502:& Runestaff~
+G:*:D
 I:39:6:0
 W:60:0:5:60000
 P:0:1d1:0:0:0

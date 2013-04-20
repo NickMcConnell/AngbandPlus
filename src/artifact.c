@@ -2525,7 +2525,7 @@ void do_cmd_activate(void)
 			}
 			case ART_THRAIN:
 			{
-				msg_print("The stone flashes bright white!");
+				msg_print("The Runestaff projects symbols of light!");
 				wiz_lite();
 				o_ptr->timeout = 150;
 				break;
@@ -2542,10 +2542,14 @@ void do_cmd_activate(void)
 				{
 					charm_monsters(p_ptr->lev * 4);
 					(void)set_shero(p_ptr->shero + randint(50) + 50);
-					(void)hp_player(30);
+					(void)hp_player(300);
 					(void)set_afraid(0);
+					(void)set_confused(0);
+					(void)set_stun(0);
+					(void)set_image(0);
+					(void)set_fast(randint(20) + 20);
 				}
-				o_ptr->timeout = rand_int(150) + 150;
+				o_ptr->timeout = rand_int(250) + 150;
 				break;
 			}
 			case ART_INGWE:
@@ -2656,9 +2660,20 @@ void do_cmd_activate(void)
 			}
 			case ART_CELEBORN:
 			{
-				msg_print("Your armor glows deep blue...");
-				(void)genocide(TRUE);
-				o_ptr->timeout = 500;
+				msg_print("Your armor sings of madness and blood...");
+				if (!p_ptr->fast)
+				{
+					(void)set_fast(randint(20) + 20);
+				}
+				else
+				{
+					(void)set_fast(p_ptr->fast + 5);
+				}
+				(void)set_afraid(0);
+				(void)set_shero(p_ptr->shero + randint(50) + 50);
+				(void)hp_player(30);
+				(void)set_blessed(p_ptr->blessed + randint(50) + 50);
+				o_ptr->timeout = 400;
 				break;
 			}
 			case ART_CASPANION:
@@ -2797,9 +2812,9 @@ void do_cmd_activate(void)
 			}
 			case ART_FINGOLFIN:
 			{
-				msg_print("Your cesti grows magical spikes...");
-				if (!get_aim_dir(&dir)) return;
-				fire_bolt(GF_ARROW, dir, 225);
+				msg_print("Your cesti gleams and you sense your foes...");
+				detect_monsters_normal();
+				probing();
 				o_ptr->timeout = rand_int(90) + 90;
 				break;
 			}
@@ -2923,9 +2938,9 @@ void do_cmd_activate(void)
 			}
 			case ART_DAWN:
 			{
-				msg_print("You summon the Legion of the Dawn.");
+				msg_print("You call forth the Legion of the Dawn.");
 				(void)summon_specific_friendly(py, px, dun_level, SUMMON_DAWN, TRUE);
-				o_ptr->timeout = 500 + randint(500);
+				o_ptr->timeout = 500 + randint(400);
 				break;
 			}
 			case ART_KANAJANA:
@@ -3815,7 +3830,7 @@ cptr item_activation(object_type *o_ptr)
 		}
 		case ART_DAWN:
 		{
-			return "summoning the Legion of the Dawn every 500+d500 turns";
+			return "summoning the Legion of the Dawn every 500+d400 turns";
 		}
 		case ART_KANAJANA:
 		{
@@ -3903,7 +3918,7 @@ cptr item_activation(object_type *o_ptr)
 		}
 		case ART_CELEBORN:
 		{
-			return "genocide every 500 turns";
+			return "berserk and haste every 400 turns";
 		}
 		case ART_LUTHIEN:
 		{
@@ -3955,7 +3970,7 @@ cptr item_activation(object_type *o_ptr)
 		}
 		case ART_FINGOLFIN:
 		{
-			return "a magical arrow (225) every 90+d90 turns";
+			return "detect monsters and probing every 90+d90 turns";
 		}
 		case ART_HOLHENNETH:
 		{
@@ -3991,7 +4006,7 @@ cptr item_activation(object_type *o_ptr)
 		}
 		case ART_RED_AMULET:
 		{
-			return "charm monsters (x4) every 150+d150 turns";
+			return "charm and battle readiness every 250+d150 turns";
 		}
 		case ART_TULKAS:
 		{

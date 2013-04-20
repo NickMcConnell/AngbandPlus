@@ -1,3 +1,5 @@
+Welcome to Gods Upsetting the Multiverse Angband (Gumband):
+
 ****************************************************************************
 Our story so far...
   It is the time of the Conjunction of a Million Spheres. Your Earth is
@@ -5,7 +7,7 @@ composed almost entirely of cave-riddled mountains (which have their own
 dark inhabitants, known mostly by rumour), with villages in the few fertile
 valleys that exist. Except for high summer, movement and trade between the
 villages is almost impossible.
-  Fresh rumour begins infiltrating the villages.  Rumours about the strange,
+  Fresh rumours begin infiltrating the villages.  Rumours about the strange,
 otherworldly beings that have begun to concentrate in the vast system of
 caves under the mountains.  Rumours that the forces of Chaos are gathering
 in unheard of numbers (led by three Chaos Lords referred to only as "The
@@ -17,9 +19,8 @@ from your plane...
 ****************************************************************************
 
 ============================================================================
-Send any and all complaints (or praise ;) to aa343@chebucto.ns.ca. Patches,
-makefiles, etc., should be sent to gumby_jd@yahoo.com (due to a lack of
-INBOX space at the first address).
+Send any and all complaints (or praise ;), patches,
+makefiles, etc., to danhenry@inreach.com.
 ============================================================================
 PLEASE NOTE: Preserving savefile compatability is *NOT* important to me. I
 highly suggest you finish up your current character in your current version
@@ -52,6 +53,46 @@ information. Plus, it'll reduce the number of questions I have to answer
 over and over and over... :) Also, read ./lib/user/pref.prf and the other
 files there so you can undo or change the macros I've set...
 ============================================================================
+
+=============================================
+= Gumband 2.2.3  = Last Update: Jan-18-2003 =
+=============================================
+01) Replaced "porcupines" with "hedgehogs". (More Euromythic.)
+02) Changed three rumors, added three new crimes, gave Weaponmasters their
+own level titles, and other bits of text tweaking.
+03) Various compiler warning messages heeded and code tidied.
+04) Old Pattern Vault slots filled with some Chris Weisiger vault designs.
+05) Antiques Store no longer gives *ID* info while window shopping. However,
+prices are now halved instead of doubled, so every sale is a steal!
+06) Messages for backstabbing stunned or confused monsters no longer
+the same as message for backstabbing fleeing monsters.
+07) Player should now start with full mana.
+08) Updated to reflect my new email address.
+09) Revised monsters: Baragoon, Guardian of Soryandum, Warrior of the Mad
+God, Charki, Warrior of the Dawn, Ymryl, Baron Kalan of Vitall,
+Meliadus of Kroiden (revisions are generally fairly small, with descriptions
+being modified to be more of what one would see and less plot point recaps)
+10) Replaced monsters: Robin Hood --> Rekner, Snaga --> Warmaiden of the Mad God,
+Barney --> Agonosvos, Olog-Hai --> Battle beast, Dark Young of Shub-Niggurath
+--> Mutant war jaguar, Dark Elven Lord --> Mountain beast, Uruk-Hai --> Water
+beast, Gnome mage --> Pool beast, Mumak --> Atlantic horror, Neekerbreeker -->
+Horned horse, Short Sword (2d3) --> Brand, the Horned Horse, Dorian Hawkmoon
+--> Taragorm, Master of the Palace of Time, Grip --> Garko, Ugluk -->Arnald of
+Grovent, Ghoul --> Ocean ghoul, Ewok --> Scarlet flamingo, Lagduf --> White
+bull, Frumious bandersnatch --> Marsh bear, Software bug --> Ornithopter,
+Potion Mimic --> Mountain giant, Bolg, Son of Azog --> Barkyos, the Giant
+11) Changes to items: "Mundwine" has become the axe "of Mikosevaar" and
+slays animals rather than evil; Isildur's armor is now that of Jet and Gold;
+"Celeborn" replaced with all new "Mad Yisselda's Armour"; upgraded activation
+of Red Amulet and somewhat lengthened recharge time, while lowering PVAL to 3;
+minor tweaking of the Sword of the Dawn; Great Axe of Durin is now "of Orkney",
+but name change only; Arkenstone replaced by Runestaff; Cesti of Fingolfin
+replaced with Cesti of Brass; "Terror Mask" renamed "of Meliadus" (it's already
+his chosen drop) and tweaked
+12) Half-Giants given additional background entries for mountain giants. Instead
+of resisting shards, they now have intrinsic Extra Might. Height and weight have
+been lowered and made more variable. Changes based on Oladahn, Dorian Hawkmoon's
+half-giant companion.
 
 =============================================
 = Gumband 2.2.2  = Last Update: 17-Jun-2003 =

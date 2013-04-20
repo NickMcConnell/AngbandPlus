@@ -140,7 +140,7 @@ void do_cmd_change_name(void)
 			{
 				if (tmp[0] && (tmp[0] != ' '))
 				{
-					file_character(tmp, FALSE);
+					file_character(tmp);
 				}
 			}
 		}
@@ -202,7 +202,8 @@ void do_cmd_message_one(void)
  */
 void do_cmd_messages(void)
 {
-	int i, j, k, n, q;
+	int i, j, k, n;
+   unsigned int q;
 
 	char shower[80];
 	char finder[80];

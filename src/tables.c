@@ -1104,8 +1104,9 @@ byte adj_con_mhp[] =
 byte blows_table[12][12] =
 {
 			/* Strength */
-			/*  0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11 */
-/* Dexterity */	/*  0 */ {  1,  1,  1,  1,  1,  1,  2,  2,  2,  2,  2,  3 },
+					/*  0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11 */
+		/* Dexterity */
+		/*  0 */ {  1,  1,  1,  1,  1,  1,  2,  2,  2,  2,  2,  3 },
 		/*  1 */ {  1,  1,  1,  1,  2,  2,  3,  3,  3,  4,  4,  4 },
 		/*  2 */ {  1,  1,  2,  2,  3,  3,  4,  4,  4,  5,  5,  5 },
 		/*  3 */ {  1,  2,  2,  3,  3,  4,  4,  4,  5,  5,  5,  5 },
@@ -1132,73 +1133,73 @@ owner_type owners[MAX_STORES][MAX_OWNERS] =
 {
 	{
 		/* General Store */
-		{ "Golnix the Stupid",    200,    170, 108,  5, 15, RACE_YEEK},
-		{ "C.M.O.T. Dibbler",     250,    175, 108,  4, 12, RACE_HUMAN},
-		{ "Bilbo the Friendly",   300,    170, 107,  5, 15, RACE_HOBBIT},
-		{ "Shmata",               350,    165, 107,  6, 18, RACE_GOLEM},
+		{ "Golnix the Stupid",    200,    170, 108,  5, 15, RACE_YEEK, 0},
+		{ "Pyahr of Narleen",     250,    175, 108,  4, 12, RACE_HUMAN, 0},
+		{ "Bilbo the Friendly",   300,    170, 107,  5, 15, RACE_HOBBIT, 0},
+		{ "Shmata",               350,    165, 107,  6, 18, RACE_GOLEM, 0},
 	},
 	{
 		/* Armoury */
-		{ "Kon-Dar the Ugly",     5000,   210, 115,  5,  7, RACE_HALF_ORC},
-		{ "Goffanon the Smith",   10000,  190, 111,  4,  9, RACE_HALF_TITAN},
-		{ "Celebran the Skilled", 25000,  200, 112,  4, 10, RACE_ELF},
-		{ "Lars Skulldrinker",    30000,  200, 112,  4,  5, RACE_DWARF},
+		{ "Kon-Dar the Ugly",     5000,   210, 115,  5,  7, RACE_HALF_ORC, 0},
+		{ "Goffanon the Smith",   10000,  190, 111,  4,  9, RACE_HALF_TITAN, 0},
+		{ "Celebran the Skilled", 25000,  200, 112,  4, 10, RACE_ELF, 0},
+		{ "Lars Skulldrinker",    30000,  200, 112,  4,  5, RACE_DWARF, 0},
 	},
 	{
 		/* Weapon Smith */
-		{ "Ithly-mak the Beastly", 5000,   210, 115,  6,  6, RACE_HALF_TROLL},
-		{ "Milgish Dogbreath",    10000,  185, 110,  5,  9, RACE_KOBOLD},
-		{ "Dexxinok",             25000,  190, 115,  5,  7, RACE_KLACKON},
-		{ "Curufin the Traitor",  30000,  195, 112,  4,  8, RACE_HIGH_ELF},
+		{ "Ithly-mak the Beastly", 5000,   210, 115,  6,  6, RACE_HALF_TROLL, 0},
+		{ "Milgish Dogbreath",    10000,  185, 110,  5,  9, RACE_KOBOLD, 0},
+		{ "Dexxinok",             25000,  190, 115,  5,  7, RACE_KLACKON, 0},
+		{ "Curufin the Traitor",  30000,  195, 112,  4,  8, RACE_HIGH_ELF, 0},
 	},
 	{
 		/* Temple */
-		{ "Malfastinofnilberpan", 5000,   175, 109,  6, 15, RACE_DRACONIAN},
-		{ "Gunnar the Paladin",   10000,  185, 110,  5, 23, RACE_BARBARIAN},
-		{ "Torin the Chosen",     25000,  180, 107,  6, 20, RACE_HALF_TITAN},
-		{ "Sarastro the Wise",    30000,  185, 109,  5, 15, RACE_VAMPIRE},
+		{ "Malfastinofnilberpan", 5000,   175, 109,  6, 15, RACE_DRACONIAN, 0},
+		{ "Gunnar the Paladin",   10000,  185, 110,  5, 23, RACE_BARBARIAN, 0},
+		{ "Torin the Chosen",     25000,  180, 107,  6, 20, RACE_HALF_TITAN, 0},
+		{ "Sarastro the Wise",    30000,  185, 109,  5, 15, RACE_VAMPIRE, 0},
 	},
 	{
 		/* Alchemist */
-		{ "Garbo the Chemist",    10000,  190, 111,  5,  8, RACE_GAMBOLT},
-		{ "Ximzinix the Mixer",   10000,  190, 110,  6,  8, RACE_MIND_FLAYER},
-		{ "Midas the Greedy",     15000,  200, 116,  6,  9, RACE_GNOME},
-		{ "Ja-Far the Alchemist", 15000,  220, 111,  4,  9, RACE_ELF},
+		{ "Garbo the Chemist",    10000,  190, 111,  5,  8, RACE_GAMBOLT, 0},
+		{ "Ximzinix the Mixer",   10000,  190, 110,  6,  8, RACE_MIND_FLAYER, 0},
+		{ "Midas the Greedy",     15000,  200, 116,  6,  9, RACE_GNOME, 0},
+		{ "Ja-Far the Alchemist", 15000,  220, 111,  4,  9, RACE_ELF, 0},
 	},
 	{
 		/* Magic Shop */
-		{ "Celebran of Eregion",  20000,  205, 112,  7,  8, RACE_ELF},
-		{ "Xomfanox the Great",   20000,  215, 114,  6, 10, RACE_MIND_FLAYER},
-		{ "The Wizard of Yendor", 30000,  210, 115,  7, 10, RACE_HUMAN},
-		{ "Nolwe the Shining",    30000,  200, 113,  5, 11, RACE_HIGH_ELF},
+		{ "Celebran of Eregion",  20000,  205, 112,  7,  8, RACE_ELF, 0},
+		{ "Xomfanox the Great",   20000,  215, 114,  6, 10, RACE_MIND_FLAYER, 0},
+		{ "Mygan of Llandar",	  30000,  210, 115,  7, 10, RACE_HUMAN, 0},
+		{ "Nolwe the Shining",    30000,  200, 113,  5, 11, RACE_HIGH_ELF, 0},
 	},
 	{
 		/* Black Market */
-		{ "Graaagh the Mighty",   20000,  250, 150, 10,  5, RACE_HALF_TROLL},
-		{ "Dagor the Tight",      25000,  250, 150, 10,  5, RACE_HALF_GIANT},
-		{ "Kranik the Smelly",    30000,  250, 150, 10,  5, RACE_HALF_ORC},
-		{ "Gumby the Godly",      30000,  250, 150, 10,  5, RACE_BEASTMAN},
+		{ "Graaagh the Mighty",   20000,  250, 150, 10,  5, RACE_HALF_TROLL, 0},
+		{ "Dagor the Tight",      25000,  250, 150, 10,  5, RACE_HALF_GIANT, 0},
+		{ "Kranik the Smelly",    30000,  250, 150, 10,  5, RACE_HALF_ORC, 0},
+		{ "Gumby the Godly",      30000,  250, 150, 10,  5, RACE_BEASTMAN, 0},
 	},
 	{
 		/* Home */
-		{ "Your home",            0,      100, 100,  0, 99, 99},
-		{ "Your home",            0,      100, 100,  0, 99, 99},
-		{ "Your home",            0,      100, 100,  0, 99, 99},
-		{ "Your home",            0,      100, 100,  0, 99, 99}
+		{ "Your home",            0,      100, 100,  0, 99, 99, 0},
+		{ "Your home",            0,      100, 100,  0, 99, 99, 0},
+		{ "Your home",            0,      100, 100,  0, 99, 99, 0},
+		{ "Your home",            0,      100, 100,  0, 99, 99, 0},
 	},
 	{
 		/* Bookstore */
-		{ "Dolaf the Greedy",     15000, 200, 114, 4, 12, RACE_HUMAN},
-		{ "Aziraphale",           20000, 180, 111, 6, 16, RACE_HIGH_ELF},
-		{ "Dragon King of Arms",  25000, 195, 115, 7, 19, RACE_VAMPIRE},
-		{ "Ro-sha the Patient",   30000, 185, 112, 6, 12, RACE_ELF},
+		{ "Dolaf the Greedy",     15000, 200, 114, 4, 12, RACE_HUMAN, 0},
+		{ "Aziraphale",           20000, 180, 111, 6, 16, RACE_HIGH_ELF, 0},
+		{ "Dragon King of Arms",  25000, 195, 115, 7, 19, RACE_VAMPIRE, 0},
+		{ "Ro-sha the Patient",   30000, 185, 112, 6, 12, RACE_ELF, 0},
 	},
 	{
 		/* Antiques Store */
-		{ "Dilon Brandybuck",       30000, 170, 107, 5, 15, RACE_HOBBIT},
-		{ "Mr. Jeffries",           30000, 210, 115, 7, 10, RACE_HUMAN},
-		{ "Alwe the Historian",     30000, 200, 113, 5, 11, RACE_HIGH_ELF},
-		{ "Glod Glodsunclesnephew", 30000, 200, 112, 4,  5, RACE_DWARF},
+		{ "Dilon Brandybuck",       30000, 170, 107, 5, 15, RACE_HOBBIT, 0},
+		{ "Mr. Jeffries",           30000, 210, 115, 7, 10, RACE_HUMAN, 0},
+		{ "Alwe the Historian",     30000, 200, 113, 5, 11, RACE_HIGH_ELF, 0},
+		{ "Glod Glodsunclesnephew", 30000, 200, 112, 4,  5, RACE_DWARF, 0}
 	}
 };
 
@@ -1465,8 +1466,8 @@ player_race race_info[MAX_RACES] =
 		-6, -8, -6, -2, -1, 5, 25, 5,
 		13, 125,
 		40, 10,
-		100,10, 255, 65,
-		80, 10, 240, 64,
+		80, 25, 200, 85,
+		75, 25, 150, 72,
 		3,
 		0x811 + CLASS_MASK(CLASS_BEASTMASTER),
 	},
@@ -2416,7 +2417,7 @@ player_magic magic_info[MAX_CLASS] =
           { 16, 11, 50, 6 },
 	  { 17, 11, 35, 5 },
 	  
-          { 18, 16, 80, 6 },
+			 { 18, 16, 80, 6 },
           { 19, 15, 50,  7 }, 
 	  { 21, 16, 50,  9 },
           { 23, 18, 80, 20 },
@@ -2656,7 +2657,7 @@ player_magic magic_info[MAX_CLASS] =
 
 			{ 99, 0, 0, 0},
 			{ 99, 0, 0, 0},
-			{ 99, 0, 0, 0},                                
+			{ 99, 0, 0, 0},
 			{ 99, 0, 0, 0},                                
 			{ 99, 0, 0, 0},                                
 			{ 99, 0, 0, 0},                                
@@ -2686,7 +2687,7 @@ player_magic magic_info[MAX_CLASS] =
       {
 			{ 99, 0, 0, 0},
 			{ 99, 0, 0, 0},
-			{ 99, 0, 0, 0},                                
+			{ 99, 0, 0, 0},
 			{ 99, 0, 0, 0},                                
 			{ 99, 0, 0, 0},                                
 			{ 99, 0, 0, 0},                                
@@ -2716,7 +2717,7 @@ player_magic magic_info[MAX_CLASS] =
 			{ 99, 0, 0, 0},                                
 			{ 99, 0, 0, 0},                                
 			{ 99, 0, 0, 0},                                
-			{ 99, 0, 0, 0},                                
+			{ 99, 0, 0, 0},
 			{ 99, 0, 0, 0},                                
 			{ 99, 0, 0, 0},                        
 				
@@ -2776,7 +2777,7 @@ player_magic magic_info[MAX_CLASS] =
         { 23, 21, 70, 8 },
         { 25, 22, 70, 8 },
         { 28, 25, 60, 8 },
-        { 30, 26, 80, 10 },
+		  { 30, 26, 80, 10 },
         { 33, 27, 60, 8 },
         { 35, 32, 70, 9 },
         { 40, 35, 80, 12 },
@@ -2866,7 +2867,7 @@ player_magic magic_info[MAX_CLASS] =
 
 			{ 99, 0, 0, 0},
 			{ 99, 0, 0, 0},
-			{ 99, 0, 0, 0},                                
+			{ 99, 0, 0, 0},
 			{ 99, 0, 0, 0},                                
 			{ 99, 0, 0, 0},                                
 			{ 99, 0, 0, 0},                                
@@ -3136,7 +3137,7 @@ player_magic magic_info[MAX_CLASS] =
 	{ 13, 10, 45, 3 },
 
 	    { 14, 11, 45, 4},
-	    { 15, 15, 50, 4},
+		 { 15, 15, 50, 4},
 	    { 17, 15, 50, 4},
 	    { 18, 15, 50, 4},
 	    { 18, 15, 50, 4},
@@ -3286,7 +3287,7 @@ player_magic magic_info[MAX_CLASS] =
       { 10, 11, 75, 6 },
       { 12, 12, 30, 4 },
       { 15, 15, 40, 5 },
-	  
+
       { 17, 17, 40, 5 },
       { 19, 19, 30, 4 },
       { 21, 21, 85, 6 },
@@ -4703,7 +4704,7 @@ player_magic magic_info[MAX_CLASS] =
 
       { 15, 16, 65, 50 },
       { 20, 60, 85 , 250 },
-      { 25, 35, 65, 250 },
+		{ 25, 35, 65, 250 },
       { 28, 30, 60, 40 },
       { 32, 30, 70, 70 },
       { 35, 100, 85, 250 },
@@ -4733,7 +4734,7 @@ player_magic magic_info[MAX_CLASS] =
 
         { 10, 11, 70, 20 },
         { 15, 21, 60, 25 },
-        { 20, 23, 60, 30 },
+		  { 20, 23, 60, 30 },
         { 25, 25, 60, 35 },
         { 30, 30, 60, 40 },
         { 35, 90, 80, 250 },
@@ -4763,7 +4764,7 @@ player_magic magic_info[MAX_CLASS] =
         {  6,  5, 30,   5 },
 
         {  7,  7, 50,   5 },
-        {  8,  7, 30,   6 },
+		  {  8,  7, 30,   6 },
         {  9,  7, 80,   6 },
         { 10,  7, 40,   6 },
         { 11, 10, 75,   7 },
@@ -6124,7 +6125,7 @@ cptr player_title[MAX_CLASS][PY_MAX_LEVEL/5] =
 		"Tracker",
 		"Guide",
 		"Pathfinder",
-		"Low Ranger",
+		"Ranger",
 		"High Ranger",
 		"Ranger Lord",
 	},
@@ -6150,7 +6151,7 @@ cptr player_title[MAX_CLASS][PY_MAX_LEVEL/5] =
 		"Journeyman",
 		"Veteran",
 		"Enchanter",
-		"Champion",
+		"Mageblade",
 		"Mage-Hero",
 		"Baron Mage",
 		"Battlemage",
@@ -6213,21 +6214,18 @@ cptr player_title[MAX_CLASS][PY_MAX_LEVEL/5] =
 		"Archimage",
 	},
 
-	/*
-	 * Weaponmaster - same as Warrior 'til I can come up with
-	 * something -- Gumby
-	 */
+	/* Weaponmaster */
 	{
-		"Rookie",
-		"Soldier",
-		"Mercenary",
-		"Veteran",
+		"Recruit",
+		"Fighter",
+		"Armsman",
+		"Smiter",
 		"Specialist",
-		"Lord",
-		"Hero",
-		"Baron",
-		"Duke",
-		"Champion",
+		"Expert",
+		"Ace",
+		"War Artist",
+		"Master",
+		"True Master",
 	},
 
 	/* Archer */

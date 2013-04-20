@@ -1182,7 +1182,7 @@ static cptr ident_info[] =
 	"=:A ring",
 	">:A down staircase",
 	"?:A scroll",
-	"@:A butt-ugly adventurer",
+	"@:The Eternal Champion?",
 	"A:Angel",
 	"B:Bird",
 	"C:Canine",
@@ -1639,11 +1639,11 @@ static cptr desc_victim_outcry[] =
 
 
 /*
- * Rogues may steal gold from monsters.  The monster needs to have 
- * something to steal (it must drop some form of loot), and should 
+ * Rogues may steal gold from monsters.  The monster needs to have
+ * something to steal (it must drop some form of loot), and should
  * preferably be asleep.  Humanoids and dragons are a rogue's favorite
- * targets.  Steal too often on a level, and monsters will be more wary, 
- * and the hue and cry will be eventually be raised.  Having every 
+ * targets.  Steal too often on a level, and monsters will be more wary,
+ * and the hue and cry will be eventually be raised.  Having every
  * monster on the level awake and aggravated is not pleasant. -LM-
  */
 void py_steal(int y, int x)
@@ -1708,22 +1708,22 @@ void py_steal(int y, int x)
 		if (r_ptr->flags1 & (RF1_UNIQUE)) purse *= 3;
 
 		/* But some monsters are dirt poor. */
-		if (!((r_ptr->flags1 & (RF1_DROP_60)) || 
-			(r_ptr->flags1 & (RF1_DROP_90)) || 
-			(r_ptr->flags1 & (RF1_DROP_1D2)) || 
-			(r_ptr->flags1 & (RF1_DROP_2D2)) || 
-			(r_ptr->flags1 & (RF1_DROP_3D2)) || 
+		if (!((r_ptr->flags1 & (RF1_DROP_60)) ||
+			(r_ptr->flags1 & (RF1_DROP_90)) ||
+			(r_ptr->flags1 & (RF1_DROP_1D2)) ||
+			(r_ptr->flags1 & (RF1_DROP_2D2)) ||
+			(r_ptr->flags1 & (RF1_DROP_3D2)) ||
 			(r_ptr->flags1 & (RF1_DROP_4D2)))) purse = 0;
 
 		/* Some monster races are far better to steal from than others. */
-		if ((r_ptr->d_char == 'D') || (r_ptr->d_char == 'd') || 
-			(r_ptr->d_char == 'p') || (r_ptr->d_char == 'h')) 
+		if ((r_ptr->d_char == 'D') || (r_ptr->d_char == 'd') ||
+			(r_ptr->d_char == 'p') || (r_ptr->d_char == 'h'))
 			purse *= 2 + randint(3) + randint(r_ptr->level / 20);
-		else if ((r_ptr->d_char == 'P') || (r_ptr->d_char == 'o') || 
+		else if ((r_ptr->d_char == 'P') || (r_ptr->d_char == 'o') ||
 			(r_ptr->d_char == 'O') || (r_ptr->d_char == 'T') ||
 			(r_ptr->d_char == 'n') || (r_ptr->d_char == 'W') ||
 			(r_ptr->d_char == 'k') || (r_ptr->d_char == 'L') ||
-			(r_ptr->d_char == 'V') || (r_ptr->d_char == 'y')) 
+			(r_ptr->d_char == 'V') || (r_ptr->d_char == 'y'))
 			purse *= 1 + randint(3) + randint(r_ptr->level / 30);
 
 		/* Pickings are scarce in a land of many thieves. */
@@ -1750,14 +1750,14 @@ void py_steal(int y, int x)
 
 		/* Occasionally, amuse the player with a message. */
 		if ((randint(2) == 1) && (purse) &&
-		    (r_ptr->flags2 & (RF2_SMART)))
+			 (r_ptr->flags2 & (RF2_SMART)))
 		{
 			monster_desc(m_name, m_ptr, 0);
 			act = desc_victim_outcry[rand_int(20)];
 			msg_format("%^s cries out %s", m_name, act);
 		}
 		/* Otherwise, simply explain what happened. */
-		else 
+		else
 		{
 			monster_desc(m_name, m_ptr, 0);
 			msg_format("You have aroused %s.", m_name);
@@ -1787,7 +1787,7 @@ void py_steal(int y, int x)
 	else if ((number_of_thefts_on_level > 2) || (randint(8) == 1))
 	{
 		msg_print("You hear hunting parties scouring the area for a notorious burgler.");
-		
+
 		/* Aggravate monsters nearby. */
 		aggravate_monsters(1, FALSE);
 	}

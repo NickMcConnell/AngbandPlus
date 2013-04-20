@@ -47,21 +47,21 @@ P:0:1d1:0:0:0
 F:ACTIVATE | SEE_INVIS | HOLD_LIFE | INSTA_ART | SPEED
 
 
-# The Arkenstone of Thrain
+# The Runestaff
 
-N:3:of Thrain
-I:39:6:3
+N:3: 
+I:39:6:5
 W:60:50:5:150000
-P:0:1d1:0:0:0
-F:ACTIVATE | SEE_INVIS | HOLD_LIFE | RES_CHAOS | INSTA_ART | SPEED | WIS | 
-F:INT
+P:0:1d1:3:3:3
+F:ACTIVATE | SUST_CHR | HOLD_LIFE | RES_CHAOS | INSTA_ART | RES_FEAR | 
+F:BLESSED | CHR | RES_NEXUS
 
 
 # The Red Amulet
 # (Hawkmoon's amulet from his first series)
 
 N:4:Amulet
-I:40:10:4
+I:40:10:3
 W:50:15:3:84000
 F:STR | DEX | CON | SUST_STR | ACTIVATE | REGEN | LITE | INSTA_ART
 
@@ -208,9 +208,9 @@ F:CON | HOLD_LIFE | SUST_CON | RES_ACID | RES_COLD | RES_DARK | RES_NEXUS |
 F:RES_NETHER | RES_CHAOS | ACTIVATE
 
 
-# The Full Plate Armour of Isildur
+# The Full Plate Armour of Jet and Gold
 
-N:20:of Isildur
+N:20:of Jet and Gold
 I:37:15:1
 W:30:3:300:50000
 P:25:2d4:0:0:25
@@ -239,14 +239,15 @@ F:RES_POIS | HOLD_LIFE | RES_NETHER | RES_DARK | RES_FEAR | SEE_INVIS |
 F:ACTIVATE |  HIDE_TYPE
 
 
-# The Mithril Plate Mail of Celeborn
+# The Partial Plate Mail 'Mad Yisselda's Armour'
+# Yisselda wore this armor while under the influence of the Mad God.
 
-N:23:of Celeborn
-I:37:25:4
-W:60:3:255:150000
-P:35:2d4:-3:0:25
-F:STR | CHR | HIDE_TYPE | RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | 
-F:RES_DARK | RES_DISEN | ACTIVATE
+N:23:'Mad Yisselda's Armour'
+I:37:12:3
+W:30:3:220:40000
+P:20:3d4:0:10:25
+F:STR | DEX | HIDE_TYPE | FREE_ACT | RES_FEAR | RES_BLIND | SPINES | 
+F:REGEN | ACTIVATE
 
 
 # The Chain Mail of Arvedui
@@ -420,14 +421,17 @@ P:5:1d3:0:0:10
 F:INT | WIS | SEARCH | HIDE_TYPE | RES_BLIND | SEE_INVIS | ACTIVATE
 
 
-# The Iron Helm 'Terror Mask'
+# The Iron Helm of Meliadus
+# Was Terror Mask, but since it's Meliadus' chosen drop, I changed the
+# name and replaced Resist Fear with Resist Electricity, since ol'
+# Meliadus wasn't quite fearless.
 
-N:41:'Terror Mask'
+N:41:of Meliadus
 I:32:5:-3
-W:40:50:75:0
+W:40:50:75:25000
 P:5:1d3:15:15:15
 F:INT | WIS | CHR | HIDE_TYPE | SHOW_MODS | NO_MAGIC | RES_DISEN | 
-F:RES_FEAR | FREE_ACT | RES_ACID | RES_POIS | IM_COLD | ACTIVATE | 
+F:RES_ELEC | FREE_ACT | RES_ACID | RES_POIS | IM_COLD | ACTIVATE | 
 F:TELEPATHY | AGGRAVATE | NO_TELE
 
 
@@ -598,13 +602,14 @@ F:RES_CHAOS | RES_POIS | IM_COLD | IM_FIRE | AGGRAVATE | TELEPORT |
 F:SHOW_MODS | CURSED | HEAVY_CURSE | AUTO_CURSE | DRAIN_EXP
 
 
-# The Set of Cesti of Fingolfin
+# The Set of Cesti of Brass
+# Hand armour of Count Brass himself.
 
-N:59:of Fingolfin
-I:31:5:4
+N:59:of Brass
+I:31:5:5
 W:40:25:40:110000
 P:5:1d1:10:10:20
-F:DEX | HIDE_TYPE | FREE_ACT | RES_ACID | ACTIVATE | SHOW_MODS
+F:STR | HIDE_TYPE | SUST_STR | SUST_DEX | RES_FEAR | ACTIVATE | SHOW_MODS
 
 
 # The Pair of Hard Leather Boots of Feanor
@@ -1027,9 +1032,12 @@ F:STR | DEX | HIDE_TYPE | SLAY_TROLL | SLAY_ORC | SLAY_GIANT | SEE_INVIS |
 F:BLOWS | SHOW_MODS
 
 
-# The Great Axe of Durin
+# The Great Axe of Orkney
+# Carried by Orland Fank, a gigantic axe battered by long use and streaked
+# with dirt. No evidence for any powers in the books, but none against,
+# either.
 
-N:101:of Durin
+N:101:of Orkney
 I:23:25:3
 W:30:50:230:150000
 P:0:3d6:10:20:15
@@ -1070,13 +1078,17 @@ F:STR | DEX | HIDE_TYPE | SLAY_TROLL | SLAY_ORC | SLAY_GIANT |
 F:ACTIVATE | SHOW_MODS
 
 
-# The Lochaber Axe 'Mundwine'
+# The Lochaber Axe of Mikosevaar
+# This was the war axe of Asrovak Mikosevaar, Warlord of the Vulture
+# Legion, a fearsome Muskovian mercenary in the service of the Dark
+# Empire until Hawkmoon killed him in the Battle of the Kamarg. The axe
+# itself is metal-shod and stained with the blood of hundreds.
 
-N:105:'Mundwine'
+N:105:of Mikosevaar
 I:23:28:10
 W:25:15:260:85000
 P:0:3d8:12:17:0
-F:SLAY_EVIL | TUNNEL | INFRA | SEARCH | SLAY_GIANT | RES_ACID | RES_ELEC | 
+F:SLAY_ANIMAL | TUNNEL | INFRA | SEARCH | SLAY_GIANT | RES_ACID | RES_ELEC | 
 F:RES_FIRE | RES_COLD | RES_FEAR | SHOW_MODS | HIDE_TYPE | VORPAL
 
 
@@ -1126,10 +1138,10 @@ F:RES_COLD | RES_LITE | LITE | SEE_INVIS | ACTIVATE | SHOW_MODS | VORPAL
 
 N:110:of the Dawn
 I:24:16:0
-W:40:10:150:150000
-P:0:3d5:20:20:0
+W:40:10:250:150000
+P:0:3d5:20:20:10
 F:ACTIVATE | LITE | BRAND_FIRE | FREE_ACT | RES_FIRE | VORPAL | SLAY_EVIL | 
-F:SLAY_DRAGON | SLAY_UNDEAD | SLAY_DEMON | SUST_CHR | RES_FEAR | RES_LITE | 
+F:HOLD_LIFE | SLAY_UNDEAD | SLAY_DEMON | SUST_CHR | RES_FEAR | RES_LITE | 
 F:RES_BLIND | SHOW_MODS
 
 

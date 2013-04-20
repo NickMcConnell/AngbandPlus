@@ -318,6 +318,8 @@ static hist_type bg[] =
 	{"Your mother was a Frost Giant.  ",			 20, 75, 20, 60},
 	{"Your mother was a Cloud Giant.  ",			 23, 75, 20, 65},
 	{"Your mother was a Storm Giant.  ",			 25, 75, 20, 70},
+	{"Your mother was a Mountain Giant.  ",		30, 75, 20, 60},
+	{"Your father was a Mountain Giant.  ",		35, 75, 20, 60},
 	{"Your father was a Hill Giant.  ",			 60, 75, 20, 50},
 	{"Your father was a Fire Giant.  ",			 70, 75, 20, 55},
 	{"Your father was a Frost Giant.  ",			 80, 75, 20, 60},
@@ -933,8 +935,8 @@ static bool point_mod_player(void)
 		/* reset variable */
 		i = 0; 
 
-		/* Calculate the bonuses and hitpoints */
-		p_ptr->update |= (PU_BONUS | PU_HP);
+		/* Calculate the bonuses and hitpoints and mana */
+		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA);
 
 		/* Update stuff */
 		update_stuff();
@@ -2933,8 +2935,8 @@ static bool player_birth_aux()
 		/* Input loop */
 		while (TRUE)
 		{
-			/* Calculate the bonuses and hitpoints */
-			p_ptr->update |= (PU_BONUS | PU_HP);
+			/* Calculate the bonuses and hitpoints and mana */
+			p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA);
 
 			/* Update stuff */
 			update_stuff();

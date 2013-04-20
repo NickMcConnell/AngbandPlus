@@ -8,7 +8,7 @@ of Destruction
 'Impulse 255'
 'Disintegrator'
 'Vanquisher'
-'BGF-9000'
+of Soryandum
 'Mjollner'
 'Hand of God'
 'Deathstorm'
