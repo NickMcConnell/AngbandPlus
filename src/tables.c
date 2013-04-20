@@ -1140,8 +1140,8 @@ owner_type owners[MAX_STORES][MAX_OWNERS] =
 	},
 	{
 		/* Armoury */
-		{ "Kon-Dar the Ugly",     5000,   210, 115,  5,  7, RACE_HALF_ORC, 0},
-		{ "Goffanon the Smith",   10000,  190, 111,  4,  9, RACE_HALF_TITAN, 0},
+		{ "Ladhil Swordmaker",     5000,   210, 115,  5,  7, RACE_NHADRAGH, 0},
+		{ "Goffanon the Smith",   10000,  190, 111,  4,  9, RACE_SIDHI, 0},
 		{ "Celebran the Skilled", 25000,  200, 112,  4, 10, RACE_ELF, 0},
 		{ "Lars Skulldrinker",    30000,  200, 112,  4,  5, RACE_DWARF, 0},
 	},
@@ -1150,13 +1150,13 @@ owner_type owners[MAX_STORES][MAX_OWNERS] =
 		{ "Ithly-mak the Beastly", 5000,   210, 115,  6,  6, RACE_HALF_TROLL, 0},
 		{ "Milgish Dogbreath",    10000,  185, 110,  5,  9, RACE_KOBOLD, 0},
 		{ "Dexxinok",             25000,  190, 115,  5,  7, RACE_KLACKON, 0},
-		{ "Curufin the Traitor",  30000,  195, 112,  4,  8, RACE_HIGH_ELF, 0},
+		{ "Hisak Sunthief",       30000,  195, 112,  4,  8, RACE_HUMAN, 0},
 	},
 	{
 		/* Temple */
 		{ "Malfastinofnilberpan", 5000,   175, 109,  6, 15, RACE_DRACONIAN, 0},
 		{ "Gunnar the Paladin",   10000,  185, 110,  5, 23, RACE_BARBARIAN, 0},
-		{ "Torin the Chosen",     25000,  180, 107,  6, 20, RACE_HALF_TITAN, 0},
+		{ "Torin the Chosen",     25000,  180, 107,  6, 20, RACE_SIDHI, 0},
 		{ "Sarastro the Wise",    30000,  185, 109,  5, 15, RACE_VAMPIRE, 0},
 	},
 	{
@@ -1177,7 +1177,7 @@ owner_type owners[MAX_STORES][MAX_OWNERS] =
 		/* Black Market */
 		{ "Graaagh the Mighty",   20000,  250, 150, 10,  5, RACE_HALF_TROLL, 0},
 		{ "Dagor the Tight",      25000,  250, 150, 10,  5, RACE_HALF_GIANT, 0},
-		{ "Kranik the Smelly",    30000,  250, 150, 10,  5, RACE_HALF_ORC, 0},
+		{ "Gharihil the Short",   30000,  250, 150, 10,  5, RACE_NHADRAGH, 0},
 		{ "Gumby the Godly",      30000,  250, 150, 10,  5, RACE_BEASTMAN, 0},
 	},
 	{
@@ -1326,7 +1326,7 @@ player_sex sex_info[MAX_SEXES] =
 		"Female",
 		"Queen"
 	},
-	
+
 	{
 		"Male",
 		"King"
@@ -1352,13 +1352,13 @@ player_race race_info[MAX_RACES] =
 	{
 		"Human",
 		{  0,  0,  0,  0,  0,  0 },
-		0,  0,  0,  0,  0,  10,  0,  0,
+		0,  0,  0,  0,  0,  10,  5,  5,
 		10,  100,
 		14,  6,
 		72,  6, 180, 25,
 		66,  4, 150, 20,
 		0,
-                0x1FFF + CLASS_MASK(CLASS_BEASTMASTER),
+					 0x1FFF + CLASS_MASK(CLASS_BEASTMASTER),
 	},
 	{
 		"Elf",
@@ -1369,7 +1369,7 @@ player_race race_info[MAX_RACES] =
 		60,  4, 100,  6,
 		54,  4, 80,  6,
 		4,
-                0x1E5B + CLASS_MASK(CLASS_BEASTMASTER),
+					 0x1E5B + CLASS_MASK(CLASS_BEASTMASTER),
 
 	},
 	{
@@ -1381,7 +1381,7 @@ player_race race_info[MAX_RACES] =
 		36,  3, 60,  3,
 		33,  3, 50,  3,
 		3,
-                0x1C0B + CLASS_MASK(CLASS_BEASTMASTER),
+					 0x1C0B + CLASS_MASK(CLASS_BEASTMASTER),
 	},
 	{
 		"Gnome",
@@ -1392,7 +1392,7 @@ player_race race_info[MAX_RACES] =
 		42,  3, 90,  6,
 		39,  3, 75,  3,
 		4,
-                0xE0F + CLASS_MASK(CLASS_BEASTMASTER),
+					 0xE0F + CLASS_MASK(CLASS_BEASTMASTER),
 	},
 	{
 		"Dwarf",
@@ -1403,18 +1403,18 @@ player_race race_info[MAX_RACES] =
 		48,  3, 150, 10,
 		46,  3, 120, 10,
 		5,
-                0x805 + CLASS_MASK(CLASS_BEASTMASTER),
+					 0x805 + CLASS_MASK(CLASS_BEASTMASTER),
 	},
 	{
-		"Half-Orc",
-		{  2, -1,  0,  0,  1, -4 },
-		-3, -3, -3,  -1,  0, 7, 12, -5,
-		10,  110,
-		11,  4,
-		66,  1, 150,  5,
-		62,  1, 120,  5,
-		3,
-                0x198D + CLASS_MASK(CLASS_BEASTMASTER),
+		"Nhadragh",
+		{  3, 1,  -1,  -1,  3, -2 },
+		10, 10, 0,  1,  20, 10, 10, -5,
+		10,  120,
+		100,  30,
+		66,  1, 180,  10,
+		62,  1, 150,  10,
+		0,
+					 0x1E53 + CLASS_MASK(CLASS_BEASTMASTER),
 	},
 	{
 		"Half-Troll",
@@ -1425,7 +1425,7 @@ player_race race_info[MAX_RACES] =
 		96, 10, 250, 50,
 		84,  8, 225, 40,
 		3,
-                0x885 + CLASS_MASK(CLASS_BEASTMASTER),
+					 0x885 + CLASS_MASK(CLASS_BEASTMASTER),
 	},
 	{
 		"Gambolt",
@@ -1436,7 +1436,7 @@ player_race race_info[MAX_RACES] =
 		90, 10, 170, 15,
 		82, 10, 160, 10,
 		6,
-                0x1E5B + CLASS_MASK(CLASS_BEASTMASTER),
+					 0x1E5B + CLASS_MASK(CLASS_BEASTMASTER),
 	},
 	{
 		"High-Elf",
@@ -1472,9 +1472,9 @@ player_race race_info[MAX_RACES] =
 		0x811 + CLASS_MASK(CLASS_BEASTMASTER),
 	},
 	{
-		"Half-Titan",
-		{ 5, 1, 1, -2, 3, 1 },
-		-5, 5, 2, -2, 1, 8, 25, 0,
+		"Sidhi",
+		{ 5, 1, 1, 3, 3, 1 },
+		-5, 5, 5, 0, 0, 0, 25, 0,
 		14, 225,
 		100,30,
 		111, 11, 255, 86,
@@ -2379,7 +2379,7 @@ player_magic magic_info[MAX_CLASS] =
 	  { 7, 7, 35, 4 },
 
 	  { 7, 7, 40, 6 },
-          { 8, 7, 30, 6 },
+			 { 8, 7, 30, 6 },
           { 9, 10, 40, 6 },
 	  { 10, 10, 40, 6 },
 	  { 11, 11, 30, 5 },
@@ -2418,7 +2418,7 @@ player_magic magic_info[MAX_CLASS] =
 	  { 17, 11, 35, 5 },
 	  
 			 { 18, 16, 80, 6 },
-          { 19, 15, 50,  7 }, 
+			 { 19, 15, 50,  7 },
 	  { 21, 16, 50,  9 },
           { 23, 18, 80, 20 },
 	  { 25, 18, 50, 11 },
@@ -2457,7 +2457,7 @@ player_magic magic_info[MAX_CLASS] =
           { 12, 12, 40, 5 },
 	  
           { 14, 14, 40, 5 },
-          { 16, 16, 30, 4 },
+			 { 16, 16, 30, 4 },
 	  { 18, 18, 85, 8 },
           { 21, 20, 50, 10 },
           { 25, 24, 60, 16 },
@@ -2574,7 +2574,7 @@ player_magic magic_info[MAX_CLASS] =
 			{ 99, 0, 0, 0},                                
 			{ 99, 0, 0, 0},                                
 			{ 99, 0, 0, 0},                                
-			{ 99, 0, 0, 0},                                
+			{ 99, 0, 0, 0},
 			{ 99, 0, 0, 0},                                
 			{ 99, 0, 0, 0},                        
 
@@ -2603,7 +2603,7 @@ player_magic magic_info[MAX_CLASS] =
 			{ 99, 0, 0, 0},                                
 			{ 99, 0, 0, 0},                                
 			{ 99, 0, 0, 0},                                
-			{ 99, 0, 0, 0},                        
+			{ 99, 0, 0, 0},
 		},
 
         /* Rogue (Burglar): Sorcery */
@@ -2652,7 +2652,7 @@ player_magic magic_info[MAX_CLASS] =
 			{ 99, 0, 0, 0},                                
 			{ 99, 0, 0, 0},                                
 			{ 99, 0, 0, 0},                                
-			{ 99, 0, 0, 0},                                
+			{ 99, 0, 0, 0},
 			{ 99, 0, 0, 0},                        
 
 			{ 99, 0, 0, 0},
@@ -2681,7 +2681,7 @@ player_magic magic_info[MAX_CLASS] =
 			{ 99, 0, 0, 0},                                
 			{ 99, 0, 0, 0},                                
 			{ 99, 0, 0, 0},                        
-				
+
 				},
 
       {
@@ -2691,7 +2691,7 @@ player_magic magic_info[MAX_CLASS] =
 			{ 99, 0, 0, 0},                                
 			{ 99, 0, 0, 0},                                
 			{ 99, 0, 0, 0},                                
-			{ 99, 0, 0, 0},                                
+			{ 99, 0, 0, 0},
 			{ 99, 0, 0, 0},                        
 
 			{ 99, 0, 0, 0},
@@ -2720,7 +2720,7 @@ player_magic magic_info[MAX_CLASS] =
 			{ 99, 0, 0, 0},
 			{ 99, 0, 0, 0},                                
 			{ 99, 0, 0, 0},                        
-				
+
 				},
 
         /* Rogue (Assassin): Death Magic */
@@ -2759,7 +2759,7 @@ player_magic magic_info[MAX_CLASS] =
 	  { 99, 0, 0, 0 },
 	  { 99, 0, 0, 0 },
           { 99, 0, 0, 0 },
-          { 50, 125, 90, 250 },
+			 { 50, 125, 90, 250 },
         },
 
     /* Rogue (Card Shark): Trump Magic */
@@ -2769,7 +2769,7 @@ player_magic magic_info[MAX_CLASS] =
         { 9, 7, 40, 8 },
         { 11, 9, 40, 8 },
         { 13, 11, 40, 4 },
-        { 15, 13, 45, 5 },
+		  { 15, 13, 45, 5 },
         { 19, 15, 60, 6 },
         { 21, 20, 60, 6 },
 
@@ -2798,7 +2798,7 @@ player_magic magic_info[MAX_CLASS] =
         { 99, 0, 0, 0 },
         { 49, 125, 80, 150 },
         { 99, 0, 0, 0 },
-        { 99, 0, 0, 0 },
+		  { 99, 0, 0, 0 },
 	},
 				
 	/* Rogue: Arcane Magic */
@@ -2876,7 +2876,7 @@ player_magic magic_info[MAX_CLASS] =
 
 			{ 99, 0, 0, 0},
 			{ 99, 0, 0, 0},
-			{ 99, 0, 0, 0},                                
+			{ 99, 0, 0, 0},
 			{ 99, 0, 0, 0},                                
 			{ 99, 0, 0, 0},                                
 			{ 99, 0, 0, 0},                                
@@ -3042,7 +3042,7 @@ player_magic magic_info[MAX_CLASS] =
         },
 
     /* Ranger: Trump Magic */
-    {
+	 {
 	  { 99, 0, 0, 0 },
 	  { 99, 0, 0, 0 },
 	  { 99, 0, 0, 0 },
@@ -3081,7 +3081,7 @@ player_magic magic_info[MAX_CLASS] =
     },
 
     /* Ranger: Arcane Magic */
-    {
+	 {
 	  { 99, 0, 0, 0 },
 	  { 99, 0, 0, 0 },
 	  { 99, 0, 0, 0 },
@@ -3149,7 +3149,7 @@ player_magic magic_info[MAX_CLASS] =
         { 28, 24, 70, 150 },
             { 30, 25, 60, 75 },
             { 33, 30, 60, 75 },
-	    { 35, 32, 70, 75 },
+		 { 35, 32, 70, 75 },
 	    { 35, 35, 80, 115 },
         { 39, 38, 80, 125 },
         { 46, 60, 80, 150 },
@@ -3159,7 +3159,7 @@ player_magic magic_info[MAX_CLASS] =
         { 35, 65, 80, 115 },
         { 40, 80, 80, 225 },
 	    { 43, 80, 80, 115 },
-	    { 45, 45, 70, 100 },
+		 { 45, 45, 70, 100 },
           {48, 100, 90, 250 },
         { 50, 100, 80, 250 }
 
@@ -3393,7 +3393,7 @@ player_magic magic_info[MAX_CLASS] =
 	  { 99, 0, 0, 0 },
 	  { 99, 0, 0, 0 },
         },
-        }
+		  }
     },
 
     {
@@ -3656,7 +3656,7 @@ player_magic magic_info[MAX_CLASS] =
         { 14, 10, 55,  10 },
         { 15, 14, 45,  12 },
         { 16, 15, 35,  14 },
-        { 17, 16, 45,  16 },
+		  { 17, 16, 45,  16 },
         { 18, 18, 50,  18 },
         { 20, 19, 80,  19 },
         { 25, 20, 60,  20 },
@@ -3666,7 +3666,7 @@ player_magic magic_info[MAX_CLASS] =
         { 30, 30, 50,  40 },
         { 32, 35, 55,  50 },
         { 35, 50, 70,  70 },
-        { 38, 55, 60,  80 },
+		  { 38, 55, 60,  80 },
         { 42, 60, 70, 100 },
         { 46, 70, 80, 125 },
         { 50, 75, 95, 150 }
@@ -3812,7 +3812,7 @@ player_magic magic_info[MAX_CLASS] =
 
       { 14,  14, 60,  20 },
       { 16,  15, 80,  35 },
-      { 23,  23, 60,  35 },
+		{ 23,  23, 60,  35 },
       { 27,  40, 70,  50 },
       { 30,  30, 85, 150 },
       { 35,  35, 85, 175 },
@@ -3822,7 +3822,7 @@ player_magic magic_info[MAX_CLASS] =
       { 23,  23, 66,  10},
       { 35,  35, 85,  35 },
       { 37,  37, 75,  40 },
-      { 41,  42, 85, 100 },
+		{ 41,  42, 85, 100 },
       { 43,  44, 80, 150 },
       { 45,  48, 85, 200 },
       { 48, 100, 80, 220 },
@@ -3968,7 +3968,7 @@ player_magic magic_info[MAX_CLASS] =
             { 18,  16, 50,   4 },
             { 19,  16, 50,   4 },
             { 20,  18, 50,   4 },
-            { 30,  25, 55,   5 },
+				{ 30,  25, 55,   5 },
             { 35,  70, 75,   5 },
 	    
             { 26,  26, 50,  75 },
@@ -3978,7 +3978,7 @@ player_magic magic_info[MAX_CLASS] =
             { 38,  35, 70,  75 },
             { 40,  40, 80, 115 },
             { 45,  45, 80, 125 },
-            { 48,  64, 80, 150 },
+				{ 48,  64, 80, 150 },
 
             { 10,  10, 50,  40 },
             { 25,  25, 50,  50 },
@@ -4046,7 +4046,7 @@ player_magic magic_info[MAX_CLASS] =
           { 13,  12, 55,   4 },
           { 14,  12, 55,   4 },
           { 15,  15, 85,  20 },
-          { 31,  31, 75,  10 },
+			 { 31,  31, 75,  10 },
           { 36,  80, 90,  50 },
 
           { 12,  12, 50,  25 },
@@ -4124,7 +4124,7 @@ player_magic magic_info[MAX_CLASS] =
           { 22,  22, 50,  10 },
           { 25,  25, 60,  16 },
           { 33,  40, 60,  16 },
-          { 40,  45, 95, 100 },
+			 { 40,  45, 95, 100 },
           { 45,  60, 95, 150 },
 
           { 15,  20, 80, 180 },
@@ -4134,7 +4134,7 @@ player_magic magic_info[MAX_CLASS] =
           { 40,  40, 60, 125 },
           { 42,  95, 70,  90 },
           { 48,  50, 80, 200 },
-          { 49,  80, 80, 125 },
+			 { 49,  80, 80, 125 },
 
           { 30,  30, 75,  50 },
           { 37,  85, 85, 220 },
@@ -4251,7 +4251,7 @@ player_magic magic_info[MAX_CLASS] =
 			{ 99,  0,  0,   0},
 	    { 99,  0,  0,   0},
 
-	    { 99,  0,  0,   0},
+		 { 99,  0,  0,   0},
 			{ 99,  0,  0,   0},
 			{ 99,  0,  0,   0},
 			{ 99,  0,  0,   0},
@@ -4280,7 +4280,7 @@ player_magic magic_info[MAX_CLASS] =
 			{ 99,  0,  0,   0},
 			{ 99,  0,  0,   0},
 			{ 99,  0,  0,   0},
-	    { 99,  0,  0,   0},
+		 { 99,  0,  0,   0},
 
 	    { 99,  0,  0,   0},
 			{ 99,  0,  0,   0},
@@ -4319,7 +4319,7 @@ player_magic magic_info[MAX_CLASS] =
 			{ 99,  0,  0,   0},
 			{ 99,  0,  0,   0},
 			{ 99,  0,  0,   0},
-	    { 99,  0,  0,   0},
+		 { 99,  0,  0,   0},
 
 	    { 99,  0,  0,   0},
 			{ 99,  0,  0,   0},
@@ -4368,7 +4368,7 @@ player_magic magic_info[MAX_CLASS] =
 			{ 99,  0,  0,   0},
 			{ 99,  0,  0,   0},
 			{ 99,  0,  0,   0},
-	    { 99,  0,  0,   0},
+		 { 99,  0,  0,   0},
 
 	    { 99,  0,  0,   0},
 			{ 99,  0,  0,   0},
@@ -4563,7 +4563,7 @@ player_magic magic_info[MAX_CLASS] =
       { 2, 2, 15, 3 },
       { 2, 2, 15, 3 },
       { 2, 2, 20, 3 },
-      { 3, 3, 20, 3 },
+		{ 3, 3, 20, 3 },
       { 4, 3, 25, 5 },
       { 5, 4, 20, 4 },
 
@@ -4592,7 +4592,7 @@ player_magic magic_info[MAX_CLASS] =
       { 30, 70, 85, 200 },
       { 30, 70, 85, 200 },
       { 35, 40, 80, 175 },
-      { 42, 65, 65, 250 },
+		{ 42, 65, 65, 250 },
 	},
 
         /* High Mage: Nature Magic */
@@ -4602,7 +4602,7 @@ player_magic magic_info[MAX_CLASS] =
       { 2, 2, 15, 1 },
       { 3, 2, 25, 4 },
       { 3, 3, 40, 5 },
-      { 4, 3, 40, 5 },
+		{ 4, 3, 40, 5 },
       { 4, 4, 40, 5 },
       { 5, 4, 25, 4 },
 
@@ -4631,7 +4631,7 @@ player_magic magic_info[MAX_CLASS] =
       { 25, 25, 65, 35 },
       { 30, 28, 75, 65 },
       { 35, 30, 80, 100 },
-      { 39, 65, 55, 150 }
+		{ 39, 65, 55, 150 }
 	},
 
         /* High Mage: Chaos Magic */
@@ -4641,7 +4641,7 @@ player_magic magic_info[MAX_CLASS] =
       { 3, 2, 15, 4 },
       { 4, 3, 25, 1 },
       { 6, 5, 40, 1 },
-      { 7, 6, 35, 6 },
+		{ 7, 6, 35, 6 },
       { 9, 7, 35, 6 },
       { 10, 8, 25, 5 },
 
@@ -4670,7 +4670,7 @@ player_magic magic_info[MAX_CLASS] =
       { 35, 38, 70, 150 },
       { 40, 45, 75, 200 },
       { 43, 55, 70, 200 },
-      { 46, 90, 75, 250 }
+		{ 46, 90, 75, 250 }
 	},
 
         /* High Mage: Death Magic */
@@ -4680,7 +4680,7 @@ player_magic magic_info[MAX_CLASS] =
       { 2, 1, 20, 4 },
       { 2, 2, 20, 3 },
       { 3, 3, 20, 4 },
-      { 5, 9, 55, 6 },
+		{ 5, 9, 55, 6 },
       { 7, 7, 20, 4 },
       { 8, 8, 20, 4 },
 
@@ -4709,7 +4709,7 @@ player_magic magic_info[MAX_CLASS] =
       { 32, 30, 70, 70 },
       { 35, 100, 85, 250 },
       { 40, 100, 85, 250 },
-      { 45, 75, 80, 250 }
+		{ 45, 75, 80, 250 }
             },
 
     /* High Mage: Trump Magic */
@@ -4719,7 +4719,7 @@ player_magic magic_info[MAX_CLASS] =
         {  2,  3, 30, 8 },
         {  3,  3, 30, 8 },
         {  4,  4, 30, 4 },
-        {  6,  6, 35, 6 },
+		  {  6,  6, 35, 6 },
         {  9,  9, 50, 6 },
         { 13, 12, 50, 5 },
 
@@ -4748,7 +4748,7 @@ player_magic magic_info[MAX_CLASS] =
         { 38, 90, 70, 200 },
         { 40, 90, 70, 150 },
         { 43, 90, 70, 200 },
-        { 46, 90, 70, 220 }
+		  { 46, 90, 70, 220 }
 
     },
 
@@ -4758,7 +4758,7 @@ player_magic magic_info[MAX_CLASS] =
         {  2,  1, 23,   3 },
         {  2,  2, 35,   3 },
         {  3,  2, 24,   4 },
-        {  3,  3, 25,   4 },
+		  {  3,  3, 25,   4 },
         {  4,  4, 30,   4 },
         {  5,  5, 27,   5 },
         {  6,  5, 30,   5 },
@@ -4787,7 +4787,7 @@ player_magic magic_info[MAX_CLASS] =
         { 34, 45, 70,  70 },
         { 35, 50, 60,  80 },
         { 37, 55, 70,  90 },
-        { 39, 60, 80, 100 },
+		  { 39, 60, 80, 100 },
         { 40, 70, 95, 150 }
 	}
 	}

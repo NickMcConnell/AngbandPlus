@@ -1033,6 +1033,13 @@ extern int stricmp(cptr a, cptr b);
 extern int usleep(huge usecs);
 #endif
 
+#ifdef ALLOW_REPEAT
+/* util.c */
+extern void repeat_push(int what);
+extern bool repeat_pull(int *what);
+extern void repeat_check(void);
+#endif /* ALLOW_REPEAT */
+
 #ifdef MACINTOSH
 /* main-mac.c */
 /* extern void main(void); */

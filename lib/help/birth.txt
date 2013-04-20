@@ -144,10 +144,10 @@ race has its own adjustments to a character's stats and abilities. Most
 races also have intrinsic abilities.
  
           Human
-               The human is the base character.  All other races are com-
-               pared to them.  Humans can choose any class and are average
-               at everything.  Humans tend to go up levels faster than any
-               other race because of their shorter life spans.  At level 15,
+               Humans, or Mabden as they are known in some areas, are not
+               particularly good or bad at anything, although they show some
+               talent for destructive behavior. They learn fairly quickly,
+               being highly adaptable.  Bad for property values.  At level 15,
                Humans are able to understand their own capabilities and
                limits.
  
@@ -202,17 +202,15 @@ races also have intrinsic abilities.
                of a dungeon, and can spot things that go unseen by the other
                races.
  
-          Half-Orc
-               Half-Orcs make excellent warriors and decent priests, but
-               are terrible at magic.  They are as bad as dwarves at stealth,
-               and horrible at searching, disarming, and perception.
-               Half-Orcs are, let's face it, ugly.  They tend to pay more for
-               goods in town.  Half-Orcs do make good warriors and rogues,
-               for the simple reason that Half-Orcs tend to have great
-               constitutions and lots of hit points.  Because of their
-               preference to living underground to on the surface, half-orcs
-               resist darkness attacks.  Upon reaching experience level 3, a
-               half-orc learns to dispel any fear that may be upon him or her.
+          Nhadragh
+               Nhadragh are an old race, currently in slow, complacent decline.
+               Sometimes, however, a Nhadragh is still stirred to go out and
+               do something, like trying to destroy the Lords of Chaos. They are
+               thick-set and strong. They also have their constitution
+               sustained. They also have the ability to detect other creatures,
+               making them natural trackers. Traditional enemies of the Vadhagh,
+               the two races haven't warred in many centuries, but they still
+               overcharge each other in shops.
  
           Half-Troll
                Half-Trolls are incredibly strong, and have more hit points
@@ -269,24 +267,21 @@ races also have intrinsic abilities.
                 tradition according to which it is a noble and brave thing
                 to do to consort a giant (especially a giant-maid). Never-
                 theless, the poor offspring of such a union is seldom very
-                popular in the world of men. Their limited intelligence
-                makes it impossible for them to become full spellcasters,
-                but with their huge strength they make excellent warriors.
-                They also love to wander in the wilderness, and can become
-                rangers. No ordinary wall can withstand the fury of a giant,
+                popular in the world of men. Their strength makes them great
+                warriors, but their ability to apply that strength to ranged
+                attacks gives them intrinsic Extra Might with missile
+                weapons, making them ideal for playing archers or rangers.
+                No ordinary wall can withstand the fury of a giant,
                 or a half-giant, and at higher levels they can learn the
-                power of magical digging. Their thick skin makes them
-                resistant to shards, and like Half-Ogres and Half-Trolls,
+                power of magical digging. Like Half-Ogres and Half-Trolls,
                 they have their strength sustained.
 
-          Half-Titan
-                Half-mortal descendants of the mighty titans, these
-                immensely powerful creatures put almost any other race
-                to shame. They may lack the fascinating special powers
+          Sidhi
+                The Sidhi race is related to the Vadhagh, but they are
+                giants. They may lack the fascinating special powers
                 of certain other races, but their enhanced attributes
                 more than make up for that. They learn to estimate the
-                strengths of their foes, and their love for law and
-                order makes them resistant to the effects of Chaos.
+                strengths of their foes.
 
           Klackon
                 Klackons are bizarre semi-intelligent ant-like insectoid
@@ -811,13 +806,13 @@ Elf           Yes     Yes     No      Yes     Yes     No      Yes     No
 Hobbit        Yes     Yes     No      Yes     No      No      No      No
 Gnome         Yes     Yes     Yes     Yes     No      No      No      No
 Dwarf         Yes     No      Yes     No      No      No      No      No
-Half-Orc      Yes     No      Yes     Yes     No      No      No      Yes
+Nhadragh      Yes     Yes     No      No      Yes     No      Yes     No
 Half-Troll    Yes     No      Yes     No      No      No      No      Yes
 Gambolt       Yes     Yes     No      Yes     Yes     No      Yes     No
 High-Elf      Yes     Yes     No      Yes     Yes     No      Yes     No
 Barbarian     Yes     No      Yes     Yes     Yes     No      No      Yes
 Half-Giant    Yes     No      No      No      Yes     No      No      No
-Half-Titan    Yes     Yes     Yes     No      No      Yes     No      No
+Sidhi         Yes     Yes     Yes     No      No      Yes     No      No
 Klackon       Yes     No      No      No      Yes     No      No      No
 Kobold        Yes     No      No      Yes     No      No      No      No
 Draconian     Yes     Yes     Yes     No      No      No      Yes     No
@@ -839,13 +834,13 @@ Elf           No      Yes     Yes     Yes     Yes     Yes
 Hobbit        No      No      Yes     Yes     Yes     Yes
 Gnome         No      Yes     Yes     Yes     No      Yes
 Dwarf         No      No      No      Yes     No      Yes
-Half-Orc      Yes     No      No      Yes     Yes     Yes
+Nhadragh      No      Yes     Yes     Yes     Yes     Yes
 Half-Troll    No      No      No      Yes     No      Yes
 Gambolt       No      Yes     Yes     Yes     Yes     Yes
 High-Elf      No      Yes     Yes     Yes     Yes     Yes
 Barbarian     No      No      No      Yes     Yes     Yes
-Half-Giant    No      No      No      Yes     No      Yes
-Half-Titan    Yes     Yes     Yes     Yes     Yes     Yes
+Half-Giant    No      No      No      Yes     Yes     Yes
+Sidhi         Yes     Yes     Yes     Yes     Yes     Yes
 Klackon       No      No      No      Yes     Yes     Yes
 Kobold        No      No      No      Yes     Yes     Yes
 Draconian     Yes     Yes     Yes     Yes     Yes     Yes
@@ -886,13 +881,13 @@ are listed in the following table.
            Hobbit      -2   +1   +1   +2   +2   +2       7         +10%
            Gnome       -1   +2    0   +2   +1   -2       8         +30%
            Dwarf       +2   -2   +2   -2   +2   -3      11         +30%
-           Half-Orc    +2   -1    0    0   +1   -4      10         +10%
+           Nhadragh    +3   +1   -1   -1   +3   -2      10         +20%
            Half-Troll  +4   -4   -2   -4   +3   -6      12         +35%
            Gambolt     -1    0    0   +5   -1   +5       8         +30%
            High-Elf    +1   +3   +2   +3   +1   +5      10         +100%
            Barbarian   +3   -2   -1   +1   +2   -2      11         +20%
            Half-Giant  +4   -2   -2   -2   +3   -3      13         +25%
-           Half-Titan  +5   +1   +1   -2   +3   +1      14         +125%
+           Sidhi       +5   +1   +1   +3   +3   +1      14         +125%
            Klackon     +2   -1   -1   +1   +2   -2      12         +35%
            Kobold      -1   -1    0   +2   +1   -4       9         +25%
            Draconian   +2   +1   +1   +1   +2   -3      11         +125%
@@ -933,18 +928,18 @@ are listed in the following table.
 === Ability Tables (updated for Gumband 2.2.0) ===
 
                         Dsrm Dvce Save Stlh Srch Prcp HtH  Misl   Infra
-           Human        +0   +0   +0   +0   +0   +10  +0   +0     None
+           Human        +0   +0   +0   +0   +0   +10  +5   +5     None
            Elf          +5   +10  +10  +4   +10  +15  +0   +20    40 feet
            Hobbit       +15  +18  +18  +4   +12  +15  -10  +20    30 feet
            Gnome        +10  +12  +12  +3   +6   +13  -8   +12    40 feet
            Dwarf        +2   +9   +10  -1   +7   +10  +15  +0     50 feet
-           Half-Orc     -3   -3   -3   -1   +0   +7   +12  -5     30 feet
+           Nhadragh     +10  +10  +0   +1   +20  +10  +10  -5     None
            Half-Troll   -5   -8   -8   -2   -1   +5   +20  -10    30 feet
            Gambolt      +0   +0   +20  +5   +20  +30  +10  +0     60 feet
            High-Elf     +5   +20  +20  +4   +10  +15  +10  +25    40 feet
            Barbarian    -2   -10  +2   -1   +1   +7   +12  +10    None
            Half-Giant   -6   -8   -6   -2   -1   +5   +25  +5     30 feet
-           Half-Titan   -5   +5   +2   -2   +1   +8   +25  +0     None
+           Sidhi        -5   +5   +5   0    0    0    +25  +0     None
            Klackon      +10  +5   +5   +0   -1   +10  +5   +5     20 feet
            Kobold       -2   -3   -2   -1   +1   +8   +10  -8     30 feet
            Draconian    -2   +5   +3   +0   +1   +10  +5   +5     20 feet

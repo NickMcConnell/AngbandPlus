@@ -6,7 +6,7 @@
  * There is still some Mindcrafter-related code in object2.c that I consider
  * to be too much trouble to extract in order to use here. -- Gumby
  *
- * Lazy bastard! Now I'll have to it! -- RDH
+ * Lazy bastard! Now I'll have to do it! -- RDH
  *
  * Functions included here:
  *
@@ -114,6 +114,21 @@ static int get_mindcraft_power(int *sn)
 	/* Build a prompt (accept all spells) */
 	strnfmt(out_val, 78, "(%^ss %c-%c, *=List, ESC=exit) Use which %s? ",
 						p, I2A(0), I2A(num - 1), p);
+
+#ifdef ALLOW_REPEAT
+
+	/* Get the power, if available */
+	if (repeat_pull(&choice))
+	{
+		/* Verify the power */
+		if (choice < num)
+		{
+			/* Success */
+			return (TRUE);
+		}
+	}
+
+#endif /* ALLOW_REPEAT */
 
 	/* Get a spell from the user */
 	while (!flag && get_com(out_val, &choice))
@@ -269,6 +284,12 @@ static int get_mindcraft_power(int *sn)
 		/* Stop the loop */
 		flag = TRUE;
 	}
+
+#ifdef ALLOW_REPEAT
+
+	repeat_push(choice);
+
+#endif /* ALLOW_REPEAT */
 
 	/* Restore the screen */
 	if (redraw) Term_load();
@@ -564,7 +585,7 @@ void do_cmd_mindcraft(void)
 			case 12: /* Telekinetic Wave */
 				msg_print("A wave of pure physical force radiates out from your body!");
 				project(0, FALSE, 3 + (plev / 10), py, px,
-				   plev * ((plev / 10) + 2), GF_TELEKINESIS,
+					plev * ((plev / 10) + 2), GF_TELEKINESIS,
 				   PROJECT_KILL|PROJECT_ITEM|PROJECT_GRID, FALSE);
 				break;
 			default:

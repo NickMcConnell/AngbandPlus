@@ -400,11 +400,11 @@ static byte convert_ego_item[128] =
 	0,                                      /* 84 */
 	EGO_SLAY_GIANT,				/* 85 = EGO_SLAY_GIANT */
 	EGO_TELEPATHY,				/* 86 = EGO_TELEPATHY */
-	EGO_ELVENKIND,				/* 87 = EGO_ELVENKIND (XXX) */
+	EGO_TANELORN,				/* 87 = EGO_ELVENKIND (XXX) */
 	0,                                      /* 88 */
 	0,                                      /* 89 */
 	EGO_ATTACKS,				/* 90 = EGO_ATTACKS */
-	EGO_AMAN,				/* 91 = EGO_AMAN */
+	EGO_SHALAFEN,				/* 91 = EGO_SHALAFEN */
 	0,                                      /* 92 */
 	0,                                      /* 93 */
 	0,                                      /* 94 */
@@ -704,7 +704,7 @@ static void rd_item(object_type *o_ptr)
 			{
 				o_ptr->name2 = EGO_ENDURANCE;
 			}
-			else if (o_ptr->name2 == EGO_ELVENKIND)
+			else if (o_ptr->name2 == EGO_TANELORN)
 			{
 				o_ptr->name2 = EGO_ENDURANCE;
 			}

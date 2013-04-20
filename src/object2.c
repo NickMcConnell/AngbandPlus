@@ -2484,8 +2484,8 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 			{
 				/* Hack -- Try for "Robes of Permanence" */
 				if ((o_ptr->tval == TV_SOFT_ARMOR) &&
-				    (o_ptr->sval == SV_ROBE) &&
-				    (rand_int(100) < 10))
+					 (o_ptr->sval == SV_ROBE) &&
+					 (rand_int(100) < 10))
 				{
 					o_ptr->name2 = EGO_PERMANENCE;
 					break;
@@ -2523,7 +2523,7 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 					}
 					case 19: case 20:
 					{
-						o_ptr->name2 = EGO_ELVENKIND;
+						o_ptr->name2 = EGO_TANELORN;
 						break;
 					}
 					case 21: case 22:
@@ -2819,8 +2819,8 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 
 		case TV_CLOAK:
 		{
-			if (o_ptr->sval == SV_ELVEN_CLOAK)
-				o_ptr->pval = randint(4); /* No cursed elven cloaks...? */
+			if (o_ptr->sval == SV_NAME_ROBE)
+				o_ptr->pval = randint(4); /* No cursed Vadhagh robes...? */
 
 			/* Very good */
 			if (power > 1)
@@ -2846,7 +2846,7 @@ static void a_m_aux_2(object_type *o_ptr, int level, int power)
 						}
 						case 17:
 						{
-							o_ptr->name2 = EGO_AMAN;
+							o_ptr->name2 = EGO_SHALAFEN;
 							break;
 						}
 						case 18:
@@ -3435,7 +3435,7 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 			if (power ||
 				  ((o_ptr->tval == TV_HELM) && (o_ptr->sval == SV_DRAGON_HELM)) ||
 				  ((o_ptr->tval == TV_SHIELD) && (o_ptr->sval == SV_DRAGON_SHIELD)) ||
-				  ((o_ptr->tval == TV_CLOAK) && (o_ptr->sval == SV_ELVEN_CLOAK)))
+				  ((o_ptr->tval == TV_CLOAK) && (o_ptr->sval == SV_NAME_ROBE)))
 				a_m_aux_2(o_ptr, lev, power);
 #else
 			if (power) a_m_aux_2(o_ptr, lev, power);

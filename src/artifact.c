@@ -60,7 +60,7 @@ void curse_artifact(object_type * o_ptr)
 		o_ptr->art_flags3 |= TR3_NO_TELE;
 
 	if (p_ptr->pclass != (CLASS_WARRIOR || CLASS_WEAPONMASTER || CLASS_ARCHER || CLASS_BEASTMASTER) &&
-			     (randint(3)==1))
+				  (randint(3)==1))
 		o_ptr->art_flags3 |= TR3_NO_MAGIC;
 
 	o_ptr->ident |= IDENT_CURSED;
@@ -2738,9 +2738,9 @@ void do_cmd_activate(void)
 				o_ptr->timeout = 450;
 				break;
 			}
-			case ART_THINGOL:
+			case ART_CORUM:
 			{
-				msg_print("Your cloak glows bright yellow...");
+				msg_print("Your robe glows bright scarlet...");
 				recharge(60);
 				o_ptr->timeout = 70;
 				break;
@@ -2890,7 +2890,7 @@ void do_cmd_activate(void)
 				o_ptr->timeout = rand_int(5) + 5;
 				break;
 			}
-			case ART_GLAMDRING: case ART_ORCRIST:
+			case ART_ORCRIST:
 			case ART_STING: case ART_ORCHAST:
 			{
 				msg_print("Your weapon glows brightly...");
@@ -3066,10 +3066,9 @@ void do_cmd_activate(void)
 			}
 			case ART_BRYIONAK:
 			{
-				msg_print("You summon the Black Bull of Crinanass!");
-				msg_print("It roars around the battlefield...");
-				dispel_monsters(250);
-				msg_print("The Bull disappears...");
+				msg_print("You display the spear Bryionak!");
+				if (!get_aim_dir(&dir)) return;
+				charm_animal(dir, 100);
 				o_ptr->timeout = rand_int(250) + 250;
 				break;
 			}
@@ -3120,8 +3119,9 @@ void do_cmd_activate(void)
 			}
 			case ART_RETALIATOR:
 			{
-				msg_print("Retaliator glows brightly...");
+				msg_print("You draw a circle of Sidhi fire...");
 				confuse_monsters(p_ptr->lev * 6);
+				warding_glyph();
 				o_ptr->timeout = 75 + randint(75);
 				break;
 			}
@@ -3152,13 +3152,14 @@ void do_cmd_activate(void)
 				o_ptr->timeout = rand_int(10) + 10;
 				break;
 			}
-			case ART_NATUREBANE:
-			{
-				msg_print("Your axe glows blood red...");
-				dispel_animals(300);
-				o_ptr->timeout = 200 + randint(200);
-				break;
-			}
+/*			case ART_NATUREBANE:
+ *			{
+ *				msg_print("Your axe glows blood red...");
+ *				dispel_animals(300);
+ *				o_ptr->timeout = 200 + randint(200);
+ *				break;
+ *			}
+ */
 			case ART_CATAPULT:
 			{
 				msg_print("You ready a ball of pitch...");
@@ -3167,24 +3168,32 @@ void do_cmd_activate(void)
 				o_ptr->timeout = 25 + randint(25);
 				break;
 			}
-			case ART_HERMES:
+			case ART_MEDHBH:
 			{
-				int ii = 0, ij = 0;
-				msg_print("Choose your destination...");
-				if (!tgt_pt(&ii,&ij)) return;
-				p_ptr->energy -= 60 - p_ptr->lev;
-				if (!cave_empty_bold(ij,ii) || (cave[ij][ii].info & CAVE_ICKY) ||
-				    (distance(ij,ii,py,px) > p_ptr->lev + 2) ||
-				    (!rand_int(p_ptr->lev * p_ptr->lev / 2)))
-				{
-					msg_print("You fail to exit the astral plane correctly!");
-					p_ptr->energy -= 100;
-					teleport_player(10);
-				}
-				else teleport_player_to(ij,ii);
-				o_ptr->timeout = 20 + randint(20);
-				break;
+				msg_print("You cast the dreaded tathlum...");
+				if (!get_aim_dir(&dir)) return;
+				fire_ball(GF_FORCE, dir, 50 + p_ptr->skill_thb, 0);
+				o_ptr->timeout = 100 + randint(125);
 			}
+/*			case ART_HERMES:
+  *			{
+  *				int ii = 0, ij = 0;
+  *				msg_print("Choose your destination...");
+  *				if (!tgt_pt(&ii,&ij)) return;
+  *				p_ptr->energy -= 60 - p_ptr->lev;
+  *				if (!cave_empty_bold(ij,ii) || (cave[ij][ii].info & CAVE_ICKY) ||
+  *				    (distance(ij,ii,py,px) > p_ptr->lev + 2) ||
+  *				    (!rand_int(p_ptr->lev * p_ptr->lev / 2)))
+  *				{
+  *					msg_print("You fail to exit the astral plane correctly!");
+  *					p_ptr->energy -= 100;
+  *					teleport_player(10);
+  *				}
+  *				else teleport_player_to(ij,ii);
+  *				o_ptr->timeout = 20 + randint(20);
+  *				break;
+  *			}
+  */
 			case ART_DEATH:
 			{
 				msg_print("The Scythe of Death glows black...");
@@ -3815,7 +3824,7 @@ cptr item_activation(object_type *o_ptr)
 		{
 			return "frost ball (72) every 5+d5 turns";
 		}
-		case ART_GLAMDRING: case ART_ORCRIST:
+		case ART_ORCRIST:
 		case ART_STING: case ART_ORCHAST:
 		{
 			return "detect orcs every 10 turns";
@@ -3854,7 +3863,7 @@ cptr item_activation(object_type *o_ptr)
 		}
 		case ART_BRYIONAK:
 		{
-			return "summon the Bull of Crinanass every 250+d250 turns";
+			return "charm an animal every 250+d250 turns";
 		}
 		case ART_CASPANION:
 		{
@@ -3936,7 +3945,7 @@ cptr item_activation(object_type *o_ptr)
 		{
 			return "restore life levels every 450 turns";
 		}
-		case ART_THINGOL:
+		case ART_CORUM:
 		{
 			return "recharge item I every 70 turns";
 		}
@@ -4064,17 +4073,19 @@ cptr item_activation(object_type *o_ptr)
 		{
 			return "lightning bolt (18d8) every 10+d10 turns";
 		}
-		case ART_NATUREBANE:
-		{
-			return "dispel animals (300) every 200+d200 turns";
-		}
+/*
+ *		case ART_NATUREBANE:
+ *		{
+ *			return "dispel animals (300) every 200+d200 turns";
+ *		}
+ */
 		case ART_CATAPULT:
 		{
 			return "a ball of pitch (50) every 25+d25 turns";
 		}
-		case ART_HERMES:
+		case ART_MEDHBH:
 		{
-			return "dimension door every 20+d20 turns";
+			return "a deadly tathlum every 100+d125 turns";
 		}
 		case ART_DEATH:
 		{
@@ -4235,12 +4246,13 @@ void random_artifact_resistance(object_type * o_ptr)
 		}
 		break;
 
-		case ART_MAEDHROS: case ART_GLAMDRING: case ART_ORCRIST:
+		case ART_MAEDHROS: case ART_ORCRIST:
 		case ART_KANAJANA: case ART_ZARCUTHRA: case ART_GURTHANG:
 		case ART_HARADEKKET: case ART_CUBRAGOL: case ART_DAWN:
 		case ART_MORDAGA: case ART_COWARDICE: case ART_WHIRLWIND:
 		case ART_HAMMERHAND: case ART_PAURHACH: case ART_PAURNIMMEN:
 		case ART_PAURAEGEN: case ART_PAURNEN: case ART_NEMOVEBLA:
+		case ART_MAG_AN_MAG:
 		{
 			/* Give a resistance OR a power */
 			if (randint(2)==1) give_resistance = TRUE;
@@ -4249,7 +4261,7 @@ void random_artifact_resistance(object_type * o_ptr)
 		break;
 
 		case ART_NENYA: case ART_VILYA: case ART_BERUTHIEL:
-		case ART_FINGOLFIN: case ART_THINGOL: case ART_ULMO:
+		case ART_FINGOLFIN: case ART_CORUM: case ART_ULMO:
 		case ART_OLORIN: case ART_LIMBSLICER: case ART_ENERGY:
 		case ART_CATAPULT: case ART_THAUMATURGIST:
 		case ART_BURGLARY:
@@ -4260,7 +4272,7 @@ void random_artifact_resistance(object_type * o_ptr)
 		break;
 
 		case ART_POWER: case ART_GONDOR: case ART_AULE:
-		case ART_NATUREBANE: case ART_THENGEL:
+		case ART_THENGEL: case ART_TRAITOR:
 		{
 			/* Give both */
 			give_power = TRUE;

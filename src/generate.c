@@ -26,7 +26,7 @@ int template_race;
 * This entire file is only needed for generating levels.
 * This may allow smart compilers to only load it when needed.
 *
-* Consider the "v_info.txt" file for vault generation.
+* Consider the "vault.txt" file for vault generation.
 *
 * In this file, we use the "special" granite and perma-wall sub-types,
 * where "basic" is normal, "inner" is inside a room, "outer" is the
@@ -189,7 +189,6 @@ int template_race;
 #define ROOM_MAX	10
 
 
-
 /*
 * Simple structure to hold a map location
 */
@@ -257,7 +256,7 @@ struct dun_data
 
 
 /*
-* Dungeon generation data -- see "cave_gen()"
+* Dungeon generation data -- see "normal_cave_gen()"
 */
 static dun_data *dun;
 
@@ -479,7 +478,7 @@ static void place_random_door(int y, int x)
 	int tmp;
 	
 	cave_type *c_ptr = &cave[y][x];
-	
+
 	/* Choose an object */
 	tmp = rand_int(1000);
 	
@@ -534,7 +533,7 @@ static void place_random_door(int y, int x)
 static void alloc_stairs(int feat, int num, int walls)
 {
 	int		y, x, i, j, flag;
-	
+
 	cave_type	*c_ptr;
 	
 	
@@ -629,7 +628,7 @@ static void alloc_object(int set, int typ, int num)
 			
 			/* Require room? */
 			if ((set == ALLOC_SET_ROOM) && !room) continue;
-			
+
 			/* Accept it */
 			break;
 		}
@@ -689,7 +688,7 @@ static void build_streamer(int feat, int chance)
 	int		i, tx, ty;
 	int		y, x, dir;
 	int dummy = 0;
-	
+
 	cave_type *c_ptr;
 	
 	/* Hack -- Choose starting point */
@@ -885,7 +884,7 @@ static void vault_objects(int y, int x, int num)
 			{
 				place_object(j, k, FALSE, FALSE);
 			}
-			
+
 			/* Place gold */
 			else
 			{
@@ -1353,7 +1352,7 @@ static void build_type3(int yval, int xval)
 				c_ptr = &cave[y2b][x];
 				c_ptr->feat = FEAT_WALL_INNER;
 			}
-			
+
 			/* Place a secret door on the inner room */
 			switch (rand_int(4))
 			{
@@ -2172,7 +2171,7 @@ static void build_type5(int yval, int xval)
 		name = "treasure";
 		get_mon_num_hook = vault_aux_treasure;
     }
-	
+
 	/* Monster nest (animal) */
     else if (tmp < 65)
 	{
@@ -2211,7 +2210,7 @@ static void build_type5(int yval, int xval)
             get_mon_num_hook = vault_aux_undead;
         }
 		
-        
+
     }
 	
 	
@@ -2328,7 +2327,7 @@ static void build_type6(int yval, int xval)
 	bool		empty = FALSE;
 	
 	cave_type		*c_ptr;
-	
+
 	cptr		name;
 	
 	
@@ -2484,7 +2483,7 @@ static void build_type6(int yval, int xval)
 			
             /* Restrict selection */
             get_mon_num_hook = vault_aux_symbol;
-        }
+		  }
         else
         {
 			
@@ -2640,7 +2639,7 @@ static void build_type6(int yval, int xval)
 		
         if (cheat_hear)
         {
-            /* Contents */
+				/* Contents */
             for (i = 0; i < 8; i++)
             {
                 /* Message */
@@ -2718,7 +2717,7 @@ static void build_type6(int yval, int xval)
 static void build_vault(int yval, int xval, int ymax, int xmax, cptr data)
 {
 	int dx, dy, x, y;
-	
+
 	cptr t;
 	
 	cave_type *c_ptr;
@@ -2757,7 +2756,7 @@ static void build_vault(int yval, int xval, int ymax, int xmax, cptr data)
 			case '#':
 				c_ptr->feat = FEAT_WALL_INNER;
 				break;
-				
+
 				/* Permanent wall (inner) */
 			case 'X':
 				c_ptr->feat = FEAT_PERM_INNER;
@@ -2878,7 +2877,7 @@ static void build_vault(int yval, int xval, int ymax, int xmax, cptr data)
 
 
 /*
-* Type 7 -- simple vaults (see "v_info.txt")
+* Type 7 -- simple vaults (see "vault.txt")
 */
 static void build_type7(int yval, int xval)
 {
@@ -2931,25 +2930,25 @@ static void build_type7(int yval, int xval)
 
 
 /*
-* Type 8 -- greater vaults (see "v_info.txt")
+* Type 8 -- greater vaults (see "vault.txt")
 */
 static void build_type8(int yval, int xval)
 {
 	vault_type	*v_ptr;
 	int dummy = 0;
-	
+
 	/* Pick a lesser vault */
 	while (dummy < SAFE_MAX_ATTEMPTS)
 	{
 		dummy++;
-		
+
 		/* Access a random vault record */
 		v_ptr = &v_info[rand_int(MAX_V_IDX)];
-		
+
 		/* Accept the first greater vault */
 		if (v_ptr->typ == 8) break;
 	}
-	
+
 	if (dummy >= SAFE_MAX_ATTEMPTS)
 	{
 		if (cheat_room)
@@ -2995,7 +2994,7 @@ static void build_type9(int y0, int x0)
 	int rad, x, y;
 	
 	int light = FALSE;
-	
+
 	/* Occasional light */
 	if (randint(dun_level) <= 5) light = TRUE;
 	
@@ -3478,7 +3477,7 @@ static bool room_build(int y0, int x0, int typ)
 *
 * Note that "dun_body" adds about 4000 bytes of memory to the stack.
 */
-static bool cave_gen(void)
+static bool normal_cave_gen(void)
 {
 	int i, k, y, x, y1, x1;
 	
@@ -4280,7 +4279,7 @@ void generate_cave(void)
 			}
 
 			/* Make a dungeon */
-			if (!cave_gen())
+			if (!normal_cave_gen())
 			{
 				why = "could not place player";
 				okay = FALSE;

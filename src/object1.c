@@ -353,7 +353,7 @@ void get_table_name(char * out_string)
  * Certain items, if aware, are known instantly
  * This function is used only by "flavor_init()"
  *
- * XXX XXX XXX Add "EASY_KNOW" flag to "k_info.txt" file
+ * XXX XXX XXX Add "EASY_KNOW" flag to "object.txt" file
  */
 static bool object_easy_know(int i)
 {
@@ -3465,6 +3465,27 @@ bool get_item(int *cp, cptr pmt, bool equip, bool inven, bool floor)
 	char out_val[160];
 
 
+#ifdef ALLOW_REPEAT
+
+	/* Get the item index */
+	if (repeat_pull(cp))
+	{
+		/* Verify the item */
+		if (get_item_okay(*cp))
+		{
+			/* Forget the item_tester_tval restriction */
+			item_tester_tval = 0;
+
+			/* Forget the item_tester_hook restriction */
+			item_tester_hook = NULL;
+
+			/* Success */
+			return (TRUE);
+		}
+	}
+
+#endif /* ALLOW_REPEAT */
+
 	/* Paranoia XXX XXX XXX */
 	msg_print(NULL);
 
@@ -3917,6 +3938,13 @@ bool get_item(int *cp, cptr pmt, bool equip, bool inven, bool floor)
 
 	/* Clear the prompt line */
 	prt("", 0, 0);
+
+#ifdef ALLOW_REPEAT
+
+	/* Save item if available */
+	if (item) repeat_push(*cp);
+
+#endif /* ALLOW_REPEAT */
 
 	/* Return TRUE if something was picked */
 	return (item);

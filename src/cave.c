@@ -1217,20 +1217,18 @@ void map_info(int y, int x, byte *ap, char *cp)
 						case RACE_DWARF:
 							c = 236;
 							break;
-						case RACE_HALF_ORC:
-							c = 243;
-							break;
 						case RACE_HALF_TROLL:
 							c = 184;
 							break;
 						case RACE_ELF:
 						case RACE_HIGH_ELF:
+						case RACE_NHADRAGH:
 						case RACE_MELNIBONEAN:
 						case RACE_VADHAGH:
 							c = 223;
 							break;
 						case RACE_HALF_GIANT:
-						case RACE_HALF_TITAN:
+						case RACE_SIDHI:
 							c = 145;
 							break;
 						case RACE_KLACKON:

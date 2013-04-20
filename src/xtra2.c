@@ -2341,33 +2341,10 @@ void monster_death(int m_idx)
 				a_idx = ART_ELENDIL;
 				chance = 20;
 			}
-			else if (strstr((r_name + r_ptr->name),"Groo the"))
-			{
-				a_idx = ART_GROO;
-				chance = 75;
-			}
-			else if (strstr((r_name + r_ptr->name),"Hagen,"))
-			{
-				a_idx = ART_HAGEN;
-				chance = 66;
-			}
 			else if (strstr((r_name + r_ptr->name),"Elric of "))
 			{
 				a_idx = ART_MELNIBONE;
 				chance = 45;
-			}
-			else if (strstr((r_name + r_ptr->name),"Dorian Hawkmoon"))
-			{
-				if (randint(3)==1)
-				{
-					a_idx = ART_DAWN;
-					chance = 30;
-				}
-				else
-				{
-					a_idx = ART_RED_AMULET;
-					chance = 75;
-				}
 			}
 			else if (strstr((r_name + r_ptr->name),"Baron Meliadus"))
 			{
@@ -2629,10 +2606,6 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 			else if (strstr((r_name + r_ptr->name),"Lo Wang,"))
 			{
 				msg_format("%^s screams: 'Hey!  Come back here and finish fight!'", m_name);
-			}
-			else if (strstr((r_name + r_ptr->name),"Groo the"))
-			{
-				msg_format("%^s says: 'I look alive...  But if everyone says I am dead, perhaps I should not argue.'", m_name);
 			}
 			else
 			{
@@ -3943,6 +3916,19 @@ bool get_aim_dir(int *dp)
 
 	cptr	p;
 
+#ifdef ALLOW_REPEAT
+
+	if (repeat_pull(dp))
+	{
+		/* Verify */
+		if (!(*dp == 5 && !target_okay()))
+		{
+			return (TRUE);
+		}
+	}
+
+#endif /* ALLOW_REPEAT */
+
 
 	/* Initialize */
 	(*dp) = 0;
@@ -4030,6 +4016,12 @@ bool get_aim_dir(int *dp)
 	/* Save direction */
 	(*dp) = dir;
 
+#ifdef ALLOW_REPEAT
+
+	repeat_push(dir);
+
+#endif /* ALLOW_REPEAT */
+
 	/* A "valid" direction was entered */
 	return (TRUE);
 }
@@ -4055,6 +4047,15 @@ bool get_aim_dir(int *dp)
 bool get_rep_dir(int *dp)
 {
 	int dir;
+
+#ifdef ALLOW_REPEAT
+
+	if (repeat_pull(dp))
+	{
+		return (TRUE);
+	}
+
+#endif /* ALLOW_REPEAT */
 
 
 	/* Initialize */
@@ -4107,6 +4108,12 @@ bool get_rep_dir(int *dp)
 
 	/* Save direction */
 	(*dp) = dir;
+
+#ifdef ALLOW_REPEAT
+
+	repeat_push(dir);
+
+#endif /* ALLOW_REPEAT */
 
 	/* Success */
 	return (TRUE);
@@ -4213,12 +4220,12 @@ void gain_level_reward(int chosen_reward)
                             case 0: case 1: case 2:
                             	dummy2 = SV_DAGGER; break;
                             case 3: case 4: case 5:
-                            	dummy2 = SV_DIRK; break;
-                            case 6: case 7: case 8:
-                            	dummy2 = SV_RAPIER; break;
-                            case 9: case 10:
-                            	dummy2 = SV_SHORT_SWORD; break;
-                            case 11: case 12: case 13:
+										dummy2 = SV_PONIARD; break;
+									 case 6: case 7: case 8:
+										dummy2 = SV_RAPIER; break;
+									 case 9: case 10:
+										dummy2 = SV_SHORT_SWORD; break;
+									 case 11: case 12: case 13:
 				dummy2 = SV_SABRE; break;
                             case 14: case 15: case 16:
                             	dummy2 = SV_CUTLASS; break;

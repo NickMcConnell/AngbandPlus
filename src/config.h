@@ -228,6 +228,12 @@
 #define ALLOW_TEMPLATES
 
 /*
+ * OPTION: Allow repeating of last command.
+ */
+
+#define ALLOW_REPEAT
+
+/*
  * OPTION: Allow loading of pre-2.7.0 savefiles.  Note that it takes
  * about 15K of code in "save-old.c" to parse the old savefile format.
  * Angband 2.8.0 will ignore a lot of info from pre-2.7.0 savefiles.

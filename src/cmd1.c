@@ -996,6 +996,28 @@ void touch_zap_player(monster_type *m_ptr)
 		}
 	}
 
+	if (r_ptr->flags2 & (RF2_AURA_COLD))
+	{
+		if (!(p_ptr->immune_cold))
+		{
+			char aura_dam[80];
+
+			aura_damage = damroll(1 + (r_ptr->level / 26), 1 + (r_ptr->level / 17));
+
+			/* Hack -- Get the "died from" name */
+			monster_desc(aura_dam, m_ptr, 0x88);
+
+			msg_print("You are suddenly very cold!");
+
+			if (p_ptr->oppose_cold) aura_damage = (aura_damage+2) / 3;
+			if (p_ptr->resist_cold) aura_damage = (aura_damage+2) / 3;
+
+			take_hit(aura_damage, aura_dam);
+			r_ptr->r_flags2 |= RF2_AURA_COLD;
+			handle_stuff();
+		}
+	}
+
 	if (r_ptr->flags2 & (RF2_SPINES))
 	{
 		if (!(p_ptr->reflect))

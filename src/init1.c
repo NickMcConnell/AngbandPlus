@@ -49,7 +49,7 @@ extern s16b error_line;
  * Hack -- size of the "fake" arrays
  */
 extern u16b fake_name_size;
-extern u16b fake_text_size;
+extern u32b fake_text_size;
 
 
 
@@ -203,7 +203,7 @@ static cptr r_info_flags2[] =
 	"EXPLOSIVE",	/* was BRAIN_1 - G */
 	"SPINES",	/* was BRAIN_2 - G */
 	"CHAOTIC",	/* was BRAIN_3 - G */
-	"BRAIN_4",
+	"AURA_COLD", /* was BRAIN_4 - RDH */
 	"BRAIN_5",
 	"BRAIN_6",
 	"BRAIN_7",

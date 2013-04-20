@@ -2574,7 +2574,7 @@ static bool monst_spell_monst(int m_idx)
        {
            disturb(1, 0);
            if (blind || !see_m) msg_format("%^s mumbles.", m_name);
-             else msg_format("%^s magically summons a demon from the Courts of Chaos!", m_name);
+             else msg_format("%^s magically summons a demon!", m_name);
            for (k = 0; k < 1; k++)
            {
                if (friendly)
@@ -4426,7 +4426,7 @@ bool make_attack_spell(int m_idx)
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
-			else msg_format("%^s magically summons a demon from the Courts of Chaos!", m_name);
+			else msg_format("%^s magically summons a demon!", m_name);
 			for (k = 0; k < 1; k++)
 			{
 				count += summon_specific(y, x, rlev, SUMMON_DEMON);
@@ -5820,20 +5820,35 @@ static bool monst_attack_monst(int m_idx,int t_idx)
                       GF_FIRE, PROJECT_KILL | PROJECT_STOP, FALSE);
               }
 
-              if ((tr_ptr->flags2 & (RF2_AURA_ELEC)) && !(r_ptr->flags3 & (RF3_IM_ELEC)))
-              {
-                 if (m_ptr->ml || t_ptr->ml)
-                     {
-                        blinked = FALSE;
-                        msg_format("%^s gets zapped!", m_name);
-                         if(t_ptr->ml)
-                             tr_ptr->r_flags2 |= RF2_AURA_ELEC;
-                     }
-	              project(t_idx, FALSE, 0, m_ptr->fy, m_ptr->fx,
-                      damroll (1 + ((tr_ptr->level) / 26),
-                      1 + ((tr_ptr->level) / 17)),
-                      GF_ELEC, PROJECT_KILL | PROJECT_STOP, FALSE);
-              }
+				  if ((tr_ptr->flags2 & (RF2_AURA_COLD)) && !(r_ptr->flags3 & (RF3_IM_COLD)))
+				  {
+					  if (m_ptr->ml || t_ptr->ml)
+							{
+								blinked = FALSE;
+								msg_format("%^s is suddenly very cold!", m_name);
+								 if(t_ptr->ml)
+									  tr_ptr->r_flags2 |= RF2_AURA_COLD;
+							}
+					  project(t_idx, FALSE, 0, m_ptr->fy, m_ptr->fx,
+							 damroll (1 + ((tr_ptr->level) / 26),
+							 1 + ((tr_ptr->level) / 17)),
+							 GF_COLD, PROJECT_KILL | PROJECT_STOP, FALSE);
+				  }
+
+				  if ((tr_ptr->flags2 & (RF2_AURA_ELEC)) && !(r_ptr->flags3 & (RF3_IM_ELEC)))
+				  {
+					  if (m_ptr->ml || t_ptr->ml)
+							{
+								blinked = FALSE;
+								msg_format("%^s gets zapped!", m_name);
+								 if(t_ptr->ml)
+									  tr_ptr->r_flags2 |= RF2_AURA_ELEC;
+							}
+					  project(t_idx, FALSE, 0, m_ptr->fy, m_ptr->fx,
+							 damroll (1 + ((tr_ptr->level) / 26),
+							 1 + ((tr_ptr->level) / 17)),
+							 GF_ELEC, PROJECT_KILL | PROJECT_STOP, FALSE);
+				  }
 
 		/*
 		 * Covered in spines: those that reflect aren't affected.
@@ -5873,7 +5888,7 @@ static bool monst_attack_monst(int m_idx,int t_idx)
                case RBM_STING:
                case RBM_TONGUE: /* was XXX1 */
                case RBM_BUTT:
-               case RBM_CRUSH:
+					case RBM_CRUSH:
                case RBM_ENGULF:
                case RBM_CHARGE:
 	       case RBM_TENTACLE: /* was XXX4 */
@@ -5912,7 +5927,7 @@ static bool monst_attack_monst(int m_idx,int t_idx)
    /* Blink away */
    if (blinked)
    {
-       if (m_ptr->ml)
+		 if (m_ptr->ml)
            msg_print("The thief flees laughing!");
         else
             msg_print("You hear laughter!");
@@ -6122,12 +6137,14 @@ static void process_monster(int m_idx, bool is_friend)
 	}
 
 	/* No one wants to be your friend if you're aggravating */
-	if ((m_ptr->smart & (SM_FRIEND)) && (p_ptr->aggravate))
-		gets_angry = TRUE;
+	/* Cute idea, but really screws Stormbringer activation and makes aggravation
+	* too bad in general. -- RDH */
+/*	if ((m_ptr->smart & (SM_FRIEND)) && (p_ptr->aggravate))
+		gets_angry = TRUE; */
 
 	/* Paranoia... no friendly uniques outside wizard mode -- TY*/
 	if ((m_ptr->smart & (SM_FRIEND)) && !(wizard) &&
-	    (r_ptr->flags1 & (RF1_UNIQUE)))
+		 (r_ptr->flags1 & (RF1_UNIQUE)))
 		gets_angry = TRUE;
 
 	if (gets_angry)

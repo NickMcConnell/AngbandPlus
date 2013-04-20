@@ -345,16 +345,18 @@ static owner_type *ot_ptr = NULL;
  * Entry[owner][player] gives the basic "cost inflation".
  *
  * Severely changed values by Gumby. :)
+ *
+ * Adjusted for addition of Nhadragh -- RDH
  */
 static byte rgold_adj[MAX_RACES][MAX_RACES] =
 {
-       /*
-	* Hum, Elf, Hal, Gno, Dwa, HOr, HTr, Gam, HiE, Bar,
+		 /*
+	* Hum, Elf, Hal, Gno, Dwa, Nha, HTr, Gam, HiE, Bar,
 	* HGi, HTi, Kla, Kob, Dra, MFl, Gol, Vam, Spe, Bea,
 	* Yek, Mel, Vad
 	*/
 			/* Human */
-	{ 100, 105, 110, 113, 115, 120, 125, 100, 105, 100,
+	{ 100, 105, 110, 113, 115, 115, 125, 100, 105, 100,
 	  120, 110, 120, 120, 115, 120, 105, 125, 125, 120,
 	  150, 130, 105 },
 
@@ -364,7 +366,7 @@ static byte rgold_adj[MAX_RACES][MAX_RACES] =
 	  150, 110, 100 },
 
 			/* Halfling */
-	{ 110, 105, 100, 105, 110, 120, 130, 115, 105, 115,
+	{ 110, 105, 100, 105, 110, 110, 130, 115, 105, 115,
 	  120, 120, 110, 120, 115, 115, 110, 130, 120, 130,
 	  150, 105, 105 },
 
@@ -374,17 +376,17 @@ static byte rgold_adj[MAX_RACES][MAX_RACES] =
 	  150, 110, 110 },
 
 			/* Dwarf */
-	{ 115, 120, 110, 110, 100, 125, 135, 115, 120, 115,
+	{ 115, 120, 110, 110, 100, 115, 135, 115, 120, 115,
 	  140, 130, 115, 115, 125, 120, 105, 115, 115, 130,
 	  150, 120, 120 },
 
-			/* Half-Orc */
-	{ 120, 125, 120, 115, 125, 100, 115, 115, 125, 115,
-	  110, 120, 125, 115, 120, 110, 125, 115, 120, 115,
-	  150, 125, 125 },
+			/* Nhadragh */
+	{ 130, 135, 100, 115, 110, 100, 135, 115, 135, 145,
+	  110, 140, 120, 115, 120, 130, 110, 125, 130, 135,
+	  110, 125, 165 },
 
 			/* Half-Troll */
-	{ 125, 130, 130, 130, 135, 115, 100, 110, 130, 110,
+	{ 125, 130, 130, 130, 135, 135, 100, 110, 130, 110,
 	  115, 120, 120, 110, 115, 110, 115, 115, 112, 110,
 	  150, 130, 130 },
 
@@ -394,12 +396,12 @@ static byte rgold_adj[MAX_RACES][MAX_RACES] =
 	  150, 110, 110 },
 
 			/* High_Elf */
-	{ 105, 100, 105, 110, 120, 125, 130, 110, 100, 110,
+	{ 105, 100, 105, 110, 120, 120, 130, 110, 100, 110,
 	  125, 101, 110, 115, 110, 110, 115, 125, 120, 125,
 	  150, 110, 100 },
 
 			/* Barbarian */
-	{ 100, 110, 115, 115, 115, 115, 110, 115, 110, 100,
+	{ 100, 110, 115, 115, 115, 135, 110, 115, 110, 100,
 	  120, 110, 120, 120, 115, 120, 105, 130, 125, 120,
 	  150, 130, 110 },
 
@@ -409,17 +411,17 @@ static byte rgold_adj[MAX_RACES][MAX_RACES] =
 	  150, 120, 125 },
 
 			/* Half-Titan */
-	{ 110, 105, 120, 110, 130, 120, 120, 120, 101, 110,
+	{ 110, 105, 120, 110, 130, 115, 120, 120, 101, 110,
 	  120, 100, 110, 115, 110, 110, 115, 120, 120, 130,
 	  150, 105, 101 },
 
 			/* Klackon */
-	{ 120, 105, 110, 105, 115, 125, 120, 110, 110, 120,
+	{ 120, 105, 110, 105, 115, 115, 120, 110, 110, 120,
 	  120, 110, 100, 120, 105, 110, 101, 120, 120, 130,
 	  150, 105, 110 },
 
 			/* Kobold */
-	{ 120, 125, 120, 120, 115, 115, 110, 120, 115, 120,
+	{ 120, 125, 120, 120, 115, 110, 110, 120, 115, 120,
 	  110, 115, 120, 100, 120, 110, 125, 120, 120, 130,
 	  150, 125, 115 },
 
@@ -429,17 +431,17 @@ static byte rgold_adj[MAX_RACES][MAX_RACES] =
 	  150, 115, 110 },
 
 			/* Mind Flayer */
-	{ 120, 108, 115, 110, 120, 110, 110, 115, 110, 120,
+	{ 120, 108, 115, 110, 120, 120, 110, 115, 110, 120,
 	  110, 110, 110, 110, 110, 100, 115, 120, 120, 130,
 	  150, 108, 110 },
 
 			/* Golem */
-	{ 105, 115, 110, 105, 105, 125, 115, 110, 115, 105,
+	{ 105, 115, 110, 105, 105, 115, 115, 110, 115, 105,
 	  115, 115, 101, 125, 115, 115, 100, 125, 125, 125,
 	  150, 115, 115 },
 
 			/* Vampire */
-	{ 125, 120, 130, 120, 115, 115, 115, 130, 125, 130,
+	{ 125, 120, 130, 120, 115, 125, 115, 130, 125, 130,
 	  115, 120, 120, 120, 120, 120, 125, 100, 120, 130,
 	  150, 120, 125 },
 
@@ -449,14 +451,14 @@ static byte rgold_adj[MAX_RACES][MAX_RACES] =
 	  150, 110, 120 },
 
 			/* Beastman */
-	{ 120, 125, 130, 130, 130, 115, 110, 130, 125, 120,
+	{ 120, 125, 130, 130, 130, 125, 110, 130, 125, 120,
 	  120, 130, 130, 130, 130, 130, 125, 130, 130, 100,
 	  150, 125, 125 },
 
 			/* Yeek */
 	{ 150, 150, 150, 150, 150, 150, 150, 150, 150, 150,
 	  150, 150, 150, 150, 150, 150, 150, 150, 150, 150,
-	   50, 150, 150 },
+		50, 150, 150 },
 
 			/* Melnibonean */
 	{ 130, 110, 105, 110, 120, 125, 130, 110, 110, 130,
@@ -464,7 +466,7 @@ static byte rgold_adj[MAX_RACES][MAX_RACES] =
 	  150, 100, 100 },
 
 			/* Vadhagh */
-	{ 105, 100, 105, 110, 120, 125, 115, 110, 100, 110,
+	{ 105, 100, 105, 110, 120, 155, 115, 110, 100, 110,
 	  125, 101, 110, 115, 110, 110, 115, 125, 120, 125,
 	  150, 100, 100 },
 };
@@ -531,9 +533,6 @@ static s32b price_item(object_type *o_ptr, int greed, bool flip)
 
 		/* Mega-Hack -- Black market sucks */
 		if (store_num == 6) price = price * 2;
-
-		/* Mega-Hack -- Antiques store is for bargains -- RDH */
-		if (store_num == 9) price = price / 2;
 	}
 
 	/* Compute the final price (with rounding) */
@@ -707,7 +706,7 @@ static bool store_object_similar(object_type *o_ptr, object_type *j_ptr)
     /* Hack -- Identical art_flags! */
     if ((o_ptr->art_flags1 != j_ptr->art_flags1) ||
         (o_ptr->art_flags2 != j_ptr->art_flags2) ||
-        (o_ptr->art_flags3 != j_ptr->art_flags3))
+		  (o_ptr->art_flags3 != j_ptr->art_flags3))
             return (0);
 
 	/* Hack -- Never stack "powerful" items */
@@ -1253,7 +1252,7 @@ static bool antique_crap(object_type *o_ptr)
 {
 	/* Accept only weapons and armor */
 	if ((o_ptr->tval == TV_BOW) ||
-	    ((o_ptr->tval >= TV_HAFTED) && (o_ptr->tval <= TV_HARD_ARMOR)))
+		 ((o_ptr->tval >= TV_HAFTED) && (o_ptr->tval <= TV_HARD_ARMOR)))
 		return (FALSE);
 
 	/* Assume crap */
@@ -1714,13 +1713,27 @@ static int get_stock(int *com_val, cptr pmt, int i, int j)
 	/* Paranoia XXX XXX XXX */
 	msg_print(NULL);
 
+#ifdef ALLOW_REPEAT
+
+	/* Get the item index */
+	if (repeat_pull(com_val))
+	{
+		/* Verify the item */
+		if ((*com_val >= 0) && (*com_val <= (st_ptr->stock_num - 1)))
+		{
+			/* Success */
+			return (TRUE);
+		}
+	}
+
+#endif /* ALLOW_REPEAT */
 
 	/* Assume failure */
 	*com_val = (-1);
 
 	/* Build the prompt */
 	(void)sprintf(out_val, "(Items %c-%c, ESC to exit) %s",
-	              I2A(i), I2A(j), pmt);
+					  I2A(i), I2A(j), pmt);
 
 	/* Ask until done */
 	while (TRUE)
@@ -1737,6 +1750,11 @@ static int get_stock(int *com_val, cptr pmt, int i, int j)
 		if ((k >= i) && (k <= j))
 		{
 			*com_val = k;
+#ifdef ALLOW_REPEAT
+
+	repeat_push(*com_val);
+
+#endif /* ALLOW_REPEAT */
 			break;
 		}
 
@@ -1946,7 +1964,7 @@ static int get_haggle(cptr pmt, s32b *poffer, s32b price, int final)
  */
 static bool receive_offer(cptr pmt, s32b *poffer,
                           s32b last_offer, int factor,
-                          s32b price, int final)
+								  s32b price, int final)
 {
 	/* Haggle till done */
 	while (TRUE)
@@ -2932,6 +2950,14 @@ static bool leave_store = FALSE;
  */
 static void store_process_command(void)
 {
+
+#ifdef ALLOW_REPEAT
+
+	/* Handle repeating the last command */
+	repeat_check();
+
+#endif /* ALLOW_REPEAT */
+
 	/* Parse the command */
 	switch (command_cmd)
 	{
@@ -2943,7 +2969,7 @@ static void store_process_command(void)
 		}
 
 			/* Browse */
-        case ' ':
+		  case ' ':
 		{
 			if (st_ptr->stock_num <= 12)
 			{

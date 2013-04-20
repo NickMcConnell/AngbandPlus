@@ -1731,6 +1731,7 @@ static void spoil_mon_info(cptr fname)
 			spoil_out(buf);
 		}
 
+	/* The following assumes no creature has both fiery and icy auras. -- RDH */
 		if ((flags2 & (RF2_AURA_FIRE)) && (flags2 & (RF2_AURA_ELEC)))
 		{
 			sprintf(buf, "%s is surrounded by flames and electricity.  ", wd_che[msex]);
@@ -1738,12 +1739,22 @@ static void spoil_mon_info(cptr fname)
 		}
 		else if (flags2 & (RF2_AURA_FIRE))
 		{
-			sprintf(buf, "%s is surrounded in flames.  ", wd_che[msex]);
+			sprintf(buf, "%s is surrounded by flames.  ", wd_che[msex]);
+			spoil_out(buf);
+		}
+		else if ((flags2 & (RF2_AURA_COLD)) && (flags2 & (RF2_AURA_ELEC)))
+		{
+			sprintf(buf, "%s is surrounded by frost and electricity.  ", wd_che[msex]);
+			spoil_out(buf);
+		}
+		else if (flags2 & (RF2_AURA_COLD))
+		{
+			sprintf(buf, "%s is surrounded by frost.  ", wd_che[msex]);
 			spoil_out(buf);
 		}
 		else if (flags2 & (RF2_AURA_ELEC))
 		{
-			sprintf(buf, "%s is surrounded in electricity.  ", wd_che[msex]);
+			sprintf(buf, "%s is surrounded by electricity.  ", wd_che[msex]);
 			spoil_out(buf);
 		}
 

@@ -217,7 +217,7 @@ s16b error_line;
  * parsing an "ascii" template file.
  */
 u16b fake_name_size;
-u16b fake_text_size;
+u32b fake_text_size;
 
 
 /*
@@ -387,13 +387,13 @@ static errr init_f_info(void)
 	/*** Load the ascii template file ***/
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_EDIT, "f_info.txt");
+	path_build(buf, 1024, ANGBAND_DIR_EDIT, "terrain.txt");
 
 	/* Open the file */
 	fp = my_fopen(buf, "r");
 
 	/* Parse it */
-	if (!fp) quit("Cannot open 'f_info.txt' file.");
+	if (!fp) quit("Cannot open 'terrain.txt' file.");
 
 	/* Parse the file */
 	err = init_f_info_txt(fp, buf);
@@ -410,13 +410,13 @@ static errr init_f_info(void)
 		oops = (((err > 0) && (err < 8)) ? err_str[err] : "unknown");
 
 		/* Oops */
-		msg_format("Error %d at line %d of 'f_info.txt'.", err, error_line);
+		msg_format("Error %d at line %d of 'terrain.txt'.", err, error_line);
 		msg_format("Record %d contains a '%s' error.", error_idx, oops);
 		msg_format("Parsing '%s'.", buf);
 		msg_print(NULL);
 
 		/* Quit */
-		quit("Error in 'f_info.txt' file.");
+		quit("Error in 'terrain.txt' file.");
 	}
 
 
@@ -640,13 +640,13 @@ static errr init_k_info(void)
 	/*** Load the ascii template file ***/
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_EDIT, "k_info.txt");
+	path_build(buf, 1024, ANGBAND_DIR_EDIT, "object.txt");
 
 	/* Open the file */
 	fp = my_fopen(buf, "r");
 
 	/* Parse it */
-	if (!fp) quit("Cannot open 'k_info.txt' file.");
+	if (!fp) quit("Cannot open 'object.txt' file.");
 
 	/* Parse the file */
 	err = init_k_info_txt(fp, buf);
@@ -663,13 +663,13 @@ static errr init_k_info(void)
 		oops = (((err > 0) && (err < 8)) ? err_str[err] : "unknown");
 
 		/* Oops */
-		msg_format("Error %d at line %d of 'k_info.txt'.", err, error_line);
+		msg_format("Error %d at line %d of 'object.txt'.", err, error_line);
 		msg_format("Record %d contains a '%s' error.", error_idx, oops);
 		msg_format("Parsing '%s'.", buf);
 		msg_print(NULL);
 
 		/* Quit */
-		quit("Error in 'k_info.txt' file.");
+		quit("Error in 'object.txt' file.");
 	}
 
 
@@ -889,13 +889,13 @@ static errr init_a_info(void)
 	/*** Load the ascii template file ***/
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_EDIT, "a_info.txt");
+	path_build(buf, 1024, ANGBAND_DIR_EDIT, "artifact.txt");
 
 	/* Open the file */
 	fp = my_fopen(buf, "r");
 
 	/* Parse it */
-	if (!fp) quit("Cannot open 'a_info.txt' file.");
+	if (!fp) quit("Cannot open 'artifact.txt' file.");
 
 	/* Parse the file */
 	err = init_a_info_txt(fp, buf);
@@ -912,13 +912,13 @@ static errr init_a_info(void)
 		oops = (((err > 0) && (err < 8)) ? err_str[err] : "unknown");
 
 		/* Oops */
-		msg_format("Error %d at line %d of 'a_info.txt'.", err, error_line);
+		msg_format("Error %d at line %d of 'artifact.txt'.", err, error_line);
 		msg_format("Record %d contains a '%s' error.", error_idx, oops);
 		msg_format("Parsing '%s'.", buf);
 		msg_print(NULL);
 
 		/* Quit */
-		quit("Error in 'a_info.txt' file.");
+		quit("Error in 'artifact.txt' file.");
 	}
 
 
@@ -1142,13 +1142,13 @@ static errr init_e_info(void)
 	/*** Load the ascii template file ***/
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_EDIT, "e_info.txt");
+	path_build(buf, 1024, ANGBAND_DIR_EDIT, "ego_item.txt");
 
 	/* Open the file */
 	fp = my_fopen(buf, "r");
 
 	/* Parse it */
-	if (!fp) quit("Cannot open 'e_info.txt' file.");
+	if (!fp) quit("Cannot open 'ego_item.txt' file.");
 
 	/* Parse the file */
 	err = init_e_info_txt(fp, buf);
@@ -1165,13 +1165,13 @@ static errr init_e_info(void)
 		oops = (((err > 0) && (err < 8)) ? err_str[err] : "unknown");
 
 		/* Oops */
-		msg_format("Error %d at line %d of 'e_info.txt'.", err, error_line);
+		msg_format("Error %d at line %d of 'ego_item.txt'.", err, error_line);
 		msg_format("Record %d contains a '%s' error.", error_idx, oops);
 		msg_format("Parsing '%s'.", buf);
 		msg_print(NULL);
 
 		/* Quit */
-		quit("Error in 'e_info.txt' file.");
+		quit("Error in 'ego_item.txt' file.");
 	}
 
 
@@ -1382,7 +1382,7 @@ static errr init_r_info(void)
 
 	/* Assume the size of "r_name" and "r_text" */
 	fake_name_size = 20 * 1024L;
-	fake_text_size = 60 * 1024L;
+	fake_text_size = 64 * 1024L;
 
 	/* Allocate the "r_info" array */
 	C_MAKE(r_info, r_head->info_num, monster_race);
@@ -1395,13 +1395,13 @@ static errr init_r_info(void)
 	/*** Load the ascii template file ***/
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_EDIT, "r_info.txt");
+	path_build(buf, 1024, ANGBAND_DIR_EDIT, "monster.txt");
 
 	/* Open the file */
 	fp = my_fopen(buf, "r");
 
 	/* Parse it */
-	if (!fp) quit("Cannot open 'r_info.txt' file.");
+	if (!fp) quit("Cannot open 'monster.txt' file.");
 
 	/* Parse the file */
 	err = init_r_info_txt(fp, buf);
@@ -1418,13 +1418,13 @@ static errr init_r_info(void)
 		oops = (((err > 0) && (err < 8)) ? err_str[err] : "unknown");
 
 		/* Oops */
-		msg_format("Error %d at line %d of 'r_info.txt'.", err, error_line);
+		msg_format("Error %d at line %d of 'monster.txt'.", err, error_line);
 		msg_format("Record %d contains a '%s' error.", error_idx, oops);
 		msg_format("Parsing '%s'.", buf);
 		msg_print(NULL);
 
 		/* Quit */
-		quit("Error in 'r_info.txt' file.");
+		quit("Error in 'monster.txt' file.");
 	}
 
 
@@ -1647,13 +1647,13 @@ static errr init_v_info(void)
 	/*** Load the ascii template file ***/
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_EDIT, "v_info.txt");
+	path_build(buf, 1024, ANGBAND_DIR_EDIT, "vault.txt");
 
 	/* Open the file */
 	fp = my_fopen(buf, "r");
 
 	/* Parse it */
-	if (!fp) quit("Cannot open 'v_info.txt' file.");
+	if (!fp) quit("Cannot open 'vault.txt' file.");
 
 	/* Parse the file */
 	err = init_v_info_txt(fp, buf);
@@ -1670,13 +1670,13 @@ static errr init_v_info(void)
 		oops = (((err > 0) && (err < 8)) ? err_str[err] : "unknown");
 
 		/* Oops */
-		msg_format("Error %d at line %d of 'v_info.txt'.", err, error_line);
+		msg_format("Error %d at line %d of 'vault.txt'.", err, error_line);
 		msg_format("Record %d contains a '%s' error.", error_idx, oops);
 		msg_format("Parsing '%s'.", buf);
 		msg_print(NULL);
 
 		/* Quit */
-		quit("Error in 'v_info.txt' file.");
+		quit("Error in 'vault.txt' file.");
 	}
 
 
@@ -1903,8 +1903,8 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		{ TV_SWORD, SV_DAGGER },
 		{ TV_SWORD, SV_DAGGER },
 		{ TV_SWORD, SV_DAGGER },
-		{ TV_SWORD, SV_DIRK },
-		{ TV_SWORD, SV_DIRK },
+		{ TV_SWORD, SV_PONIARD },
+		{ TV_SWORD, SV_PONIARD },
 		{ TV_SWORD, SV_RAPIER },
 		{ TV_SWORD, SV_CUTLASS },
 		{ TV_SWORD, SV_CUTLASS },

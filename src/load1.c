@@ -397,7 +397,7 @@ static byte convert_old_names[180] =
 	ART_THUNDERFIST + 128,		/* 76 = SN_THUNDERFIST */
 	EGO_WOUNDING,			/* 77 = SN_WOUNDING */
 	ART_ORCRIST + 128,		/* 78 = SN_ORCRIST */
-	ART_GLAMDRING + 128,		/* 79 = SN_GLAMDRING */
+	ART_TRAITOR + 128,		/* 79 = SN_GLAMDRING */
 	ART_STING + 128,		/* 80 = SN_STING */
 	EGO_LITE,			/* 81 = SN_LITE */
 	EGO_AGILITY,			/* 82 = SN_AGILITY */
@@ -409,13 +409,13 @@ static byte convert_old_names[180] =
 	0,				/* 88 = SN_NENYA */
 	0,				/* 89 = SN_NARYA */
 	0,				/* 90 = SN_VILYA */
-	EGO_AMAN,			/* 91 = SN_AMAN */
+	EGO_SHALAFEN,			/* 91 = SN_AMAN */
 	ART_BELEGENNON + 128,		/* 92 = SN_BELEGENNON */
 	ART_FEANOR + 128,		/* 93 = SN_FEANOR */
 	ART_ANARION + 128,		/* 94 = SN_ANARION */
 	ART_ISILDUR + 128,		/* 95 = SN_ISILDUR */
 	ART_FINGOLFIN + 128,		/* 96 = SN_FINGOLFIN */
-	EGO_ELVENKIND,			/* 97 = SN_ELVENKIND (XXX) */
+	EGO_TANELORN,			/* 97 = SN_ELVENKIND (XXX) */
 	ART_SOULKEEPER + 128,		/* 98 = SN_SOULKEEPER */
 	ART_MELNIBONE + 128,		/* 99 = SN_DOR_LOMIN */
 	ART_CHAOS + 128,		/* 100 = SN_MORGOTH */
@@ -430,7 +430,7 @@ static byte convert_old_names[180] =
 	ART_PAURNEN + 128,		/* 109 = SN_PAURNEN */
 	ART_AEGLIN + 128,		/* 110 = SN_AEGLIN */
 	ART_CAMLOST + 128,		/* 111 = SN_CAMLOST */
-	ART_HAGEN + 128,		/* 112 = SN_NIMLOTH */
+	ART_MAG_AN_MAG + 128,		/* 112 = SN_NIMLOTH */
 	ART_NAR + 128,			/* 113 = SN_NAR */
 	ART_BERUTHIEL + 128,		/* 114 = SN_BERUTHIEL */
 	ART_TERROR_MASK + 128,		/* 115 = SN_GORLIM */
@@ -481,7 +481,7 @@ static byte convert_old_names[180] =
 	ART_EONWE + 128,		/* 160 = SN_EONWE */
 	ART_GONDOR + 128,		/* 161 = SN_GONDOR */
 	ART_THEODEN + 128,		/* 162 = SN_THEODEN */
-	ART_THINGOL + 128,		/* 163 = SN_THINGOL */
+	ART_CORUM + 128,		/* 163 = SN_THINGOL */
 	ART_THORONGIL + 128,		/* 164 = SN_THORONGIL */
 	ART_LUTHIEN + 128,		/* 165 = SN_LUTHIEN */
 	ART_TUOR + 128,			/* 166 = SN_TUOR */
@@ -1135,7 +1135,7 @@ static errr rd_item_old(object_type *o_ptr)
 
 		/* Lookup the real "kind" */
 		o_ptr->k_idx = lookup_kind(a_ptr->tval, a_ptr->sval);
-		
+
 		/* Ignore old_names */
 		old_names = 0;
 	}
@@ -1182,7 +1182,7 @@ static errr rd_item_old(object_type *o_ptr)
 	{
 		/* Hack -- fix some "ego-missiles" */
 		if ((o_ptr->tval == TV_BOLT) ||
-		    (o_ptr->tval == TV_ARROW) ||
+			 (o_ptr->tval == TV_ARROW) ||
 		    (o_ptr->tval == TV_SHOT))
 		{
 			/* Special ego-item indexes */
@@ -1260,7 +1260,7 @@ static errr rd_item_old(object_type *o_ptr)
 			{
 				o_ptr->name2 = EGO_ENDURANCE;
 			}
-			else if (o_ptr->name2 == EGO_ELVENKIND)
+			else if (o_ptr->name2 == EGO_TANELORN)
 			{
 				o_ptr->name2 = EGO_ENDURANCE;
 			}
@@ -1535,7 +1535,7 @@ static byte old_art_order[] =
 	ART_KANAJANA,
 	ART_STING,
 	ART_ORCRIST,
-	ART_GLAMDRING,
+	ART_TRAITOR,
 	ART_DURIN,
 	ART_AULE,
 	ART_THUNDERFIST,
@@ -1617,7 +1617,7 @@ static byte old_art_order[] =
 	ART_HOLHENNETH,
 	ART_AEGLIN,
 	ART_CAMLOST,
-	ART_HAGEN,
+	ART_MAG_AN_MAG,
 	ART_NAR,
 	ART_BERUTHIEL,
 	ART_TERROR_MASK,
@@ -1626,7 +1626,7 @@ static byte old_art_order[] =
 	ART_CELEBORN,
 	ART_THRAIN,
 	ART_GONDOR,
-	ART_THINGOL,
+	ART_CORUM,
 	ART_THORONGIL,
 	ART_LUTHIEN,
 	ART_TUOR,
@@ -1681,7 +1681,7 @@ static void rd_artifacts_old(void)
  */
 static void rd_ghost_old()
 {
-    /* Strip stuff */
+	 /* Strip stuff */
     strip_bytes(131);
 
     /* Strip more stuff */

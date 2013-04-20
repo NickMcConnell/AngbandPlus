@@ -727,8 +727,8 @@ static void process_world(void)
 
 	/*
 	 * Burn you for wielding something that can hurt your race. What can
-	 * hurt you is based on r_info.txt. Klackons and Gambolts are
-	 * considered Animals, despite no r_info.txt entry. Note that Evil
+	 * hurt you is based on monster.txt. Klackons and Gambolts are
+	 * considered Animals, despite no monster.txt entry. Note that Evil
 	 * isn't included - that would be a nightmare to code - and I've
 	 * decided to let those wearing heavy gloves not take the damage. :)
 	 *							-- Gumby
@@ -750,13 +750,10 @@ static void process_world(void)
 
 		switch (p_ptr->prace)
 		{
-			case RACE_HALF_ORC:
-				if (f1 & (TR1_SLAY_ORC)) burn = TRUE;
-				break;
 			case RACE_HALF_TROLL:
 				if (f1 & (TR1_SLAY_TROLL)) burn = TRUE;
 				break;
-			case RACE_HALF_GIANT: case RACE_HALF_TITAN:
+			case RACE_HALF_GIANT:
 				if (f1 & (TR1_SLAY_GIANT)) burn = TRUE;
 				break;
 			case RACE_GAMBOLT: case RACE_KLACKON:
@@ -1527,6 +1524,13 @@ extern void do_cmd_borg(void);
 static void process_command(void)
 {
 	char error_m[80];
+
+#ifdef ALLOW_REPEAT
+
+	/* Handle repeating the last command */
+	repeat_check();
+
+#endif /* ALLOW_REPEAT */
 
 	/* Parse the command */
 	switch (command_cmd)

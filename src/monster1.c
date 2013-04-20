@@ -602,6 +602,7 @@ static void roff_aux(int r_idx)
 		}
 	}
 
+	/* The following assumes no creature has both fiery and icy auras. -- RDH */
 	if ((flags2 & (RF2_AURA_FIRE)) && (flags2 & (RF2_AURA_ELEC)))
 	{
 		roff(format("%^s is surrounded by flames and electricity.  ", wd_he[msex]));
@@ -609,6 +610,14 @@ static void roff_aux(int r_idx)
 	else if (flags2 & (RF2_AURA_FIRE))
 	{
 		roff(format("%^s is surrounded by flames.  ", wd_he[msex]));
+	}
+	else if ((flags2 & (RF2_AURA_COLD)) && (flags2 & (RF2_AURA_ELEC)))
+	{
+		roff(format("%^s is surrounded by frost and electricity.  ", wd_he[msex]));
+	}
+	else if (flags2 & (RF2_AURA_COLD))
+	{
+		roff(format("%^s is surrounded by frost.  ", wd_he[msex]));
 	}
 	else if (flags2 & (RF2_AURA_ELEC))
 	{
@@ -1637,10 +1646,12 @@ static bool ang_mon_sort_comp_hook(vptr u, vptr v, int a, int b)
  * We use "u" to point to array of monster indexes,
  * and "v" to select the type of sorting to perform.
  */
-static void ang_mon_sort_swap_hook(vptr u, vptr unused, int a, int b)
+static void ang_mon_sort_swap_hook(vptr u, vptr v, int a, int b)
 {
 	monster_list_entry *who = (monster_list_entry*)(u);
 	monster_list_entry holder;
+
+	if (v) {}; /* v not used -- required for compatibility */
 
 	/* Swap */
 	holder = who[a];
@@ -1664,7 +1675,7 @@ void display_visible(void)
 
 	/* XXX Hallucination - no monster list */
 	if (p_ptr->image)
-	{		
+	{
 		c_prt(TERM_WHITE,"You see a lot of pretty colours.",0,0);
 		return;
 	}

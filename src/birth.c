@@ -83,13 +83,13 @@ struct hist_type
  * Hobbit     -->  10 -->  11 -->   3 -->  50 -->  51 -->  52 -->  53
  * Gnome      -->  13 -->  14 -->   3 -->  50 -->  51 -->  52 -->  53
  * Dwarf      -->  16 -->  17 -->  18 -->  57 -->  58 -->  59 -->  60 --> 61
- * Half-Orc   -->  19 -->  20 -->   2 -->   3 -->  50 -->  51 -->  52 --> 53
+ * Nhadragh   -->  19 -->  21 -->  12
  * Half-Troll -->  22 -->  23 -->  62 -->  63 -->  64 -->  65 -->  66
  * Gambolt    -->  30 -->  31 -->  32
  * High-Elf   -->   7 -->   8 -->   9 -->  54 -->  55 -->  56
  * Barbarian  -->   1 -->   2 -->   3 -->  50 -->  51 -->  52 -->  53
  * Half-Giant -->  75 -->  20 -->   2 -->   3 -->  50 -->  51 -->  52 --> 53
- * Half-Titan -->  76 -->  20 -->   2 -->   3 -->  50 -->  51 -->  52 --> 53
+ * Sidhi      -->  76 -->  79 -->  55 -->  56
  * Klackon    -->  84 -->  85 -->  86
  * Kobold     -->  82 -->  83 -->  80 -->  81 -->  65 -->  66
  * Draconian  -->  89 -->  90 -->  91
@@ -159,7 +159,7 @@ static hist_type bg[] =
 	{"Mage.  ",                                         99, 11, 3, 125},
 	{"Clan Elder.  ",                                  100, 11, 3, 140},
 
-	/* Line 12 unused */
+	{"and hair meeting bushy eyebrows above sunken eyes. ", 100, 12, 0, 50},
 
 	{"You are one of several children of a Gnome ",     85, 13, 14, 45},
 	{"You are the only child of a Gnome ",             100, 13, 14, 55},
@@ -186,12 +186,12 @@ static hist_type bg[] =
 	{"You are a credit to the family.  ",         85, 18, 57, 50},
 	{"You are a well liked child.  ",            100, 18, 57, 55},
 
-	{"Your mother was an Orc, but it is unacknowledged.  ",  25, 19, 20, 25},
-	{"Your father was an Orc, but it is unacknowledged.  ", 100, 19, 20, 25},
+	{"Your parents were scholars and nobles.  ",  25, 19, 21, 45},
+	{"Your parents were ordinary Nhadragh.  ", 100, 19, 21, 55},
 
 	{"You are the adopted child ", 100, 20, 2, 50},
 
-	/* Line 21 unused */
+	{"You are thick-set, with dark, flat features ", 100, 21, 12, 50},
 
 	{"Your mother was a Cave-Troll ",   30, 22, 23, 20},
 	{"Your father was a Cave-Troll ",   60, 22, 23, 25},
@@ -326,13 +326,11 @@ static hist_type bg[] =
 	{"Your father was a Cloud Giant.  ",			 90, 75, 20, 65},
 	{"Your father was a Storm Giant.  ",			100, 75, 20, 70},
 
-	{"Your father was an unknown Titan.  ",			 75, 76, 20,  50},
-	{"Your mother was Themis.  ",				 80, 76, 20, 100},
-	{"Your mother was Mnemosyne.  ",			 85, 76, 20, 100},
-	{"Your father was Okeanoas.  ",				 90, 76, 20, 100},
-	{"Your father was Crius.  ",				 95, 76, 20, 100},
-	{"Your father was Hyperion.  ",				 98, 76, 20, 125},
-	{"Your father was Kronos.  ",				100, 76, 20, 150},
+	{"Your parents were normal Sidhi.  ",			 75, 76, 79,  50},
+	{"Your parents were heroic Sidhi.  ",			 90, 76, 79, 80},
+	{"Your mother was Arianrod.  ",				 95, 76, 79, 100},
+	{"Your mother was Oak Woman.  ",				 98, 76, 79, 125},
+	{"Your father was Manannan.  ",				100, 76, 79, 150},
 
 	{"You are one of several children of ",			100, 77, 78,  50 },
 
@@ -341,7 +339,7 @@ static hist_type bg[] =
 	{"a Master Yeek.  ",					 95, 78, 80,  85 },
 	{"Boldor, King of the Yeeks.  ",			100, 78, 80, 120 },
 
-	/* Line 79 unused */
+	{"You are large and strong with ",			100, 79, 55,  50 },
 
 	{"You have pale eyes, ",				 25, 80, 81, 50},
 	{"You have glowing eyes, ",				 50, 80, 81, 50},
@@ -715,6 +713,27 @@ static char *elf_syllable3[] =
 	"ril", "riand", "rion", "s", "thien", "viel", "wen", "wyn",
 };
 
+/* Vadhagh */
+static char *vadhagh_syllable1[] =
+{
+	"Bed", "Bwy", "Cola", "Cor", "Crach", "Er", "Fa", "Gal", "Gwlas",
+	"Hal", "Has", "Khlon", "Il", "Ir", "Jhae", "Op",
+	"Lor", "Nu", "Oor", "Phol", "Rhan", "Sarn", "Sef", "Sert", "Yur",
+};
+
+static char *vadhagh_syllable2[] =
+{
+	"", "a", "ash", "astr", "ata", "dun", "es", "et", "gu", "hin", "led",
+	"orn", "os", "re", "skey", "wil", "wyg",
+};
+
+static char *vadhagh_syllable3[] =
+{
+	"", "ah", "arna", "da", "dith", "dun", "e", "im", "in", "len", "na", "nan", "no",
+	"ra", "ral", "ry", "rys", "sei", "si", "te", "til", "um",
+};
+
+
 /* Gnomes */
 static char *gnome_syllable1[] =
 {
@@ -865,10 +884,14 @@ static void create_random_name(int race, char *name)
 		strcat(name, dwarf_syllable3[rand_int(sizeof(dwarf_syllable3) / sizeof(char*))]);
 		break;
 	case RACE_ELF:		case RACE_HIGH_ELF:
-	case RACE_MELNIBONEAN:	case RACE_VADHAGH:
 		strcpy(name, elf_syllable1[rand_int(sizeof(elf_syllable1) / sizeof(char*))]);
 		strcat(name, elf_syllable2[rand_int(sizeof(elf_syllable2) / sizeof(char*))]);
 		strcat(name, elf_syllable3[rand_int(sizeof(elf_syllable3) / sizeof(char*))]);
+		break;
+	case RACE_NHADRAGH:	case RACE_MELNIBONEAN:	case RACE_VADHAGH:  case RACE_SIDHI:
+		strcpy(name, vadhagh_syllable1[rand_int(sizeof(vadhagh_syllable1) / sizeof(char*))]);
+		strcat(name, vadhagh_syllable2[rand_int(sizeof(vadhagh_syllable2) / sizeof(char*))]);
+		strcat(name, vadhagh_syllable3[rand_int(sizeof(vadhagh_syllable3) / sizeof(char*))]);
 		break;
 	case RACE_DRACONIAN:	case RACE_GNOME:
 		strcpy(name, gnome_syllable1[rand_int(sizeof(gnome_syllable1) / sizeof(char*))]);
@@ -880,13 +903,13 @@ static void create_random_name(int race, char *name)
 		strcat(name, hobbit_syllable2[rand_int(sizeof(hobbit_syllable2) / sizeof(char*))]);
 		strcat(name, hobbit_syllable3[rand_int(sizeof(hobbit_syllable3) / sizeof(char*))]);
 		break;
-	case RACE_BARBARIAN:	case RACE_HALF_TITAN:	case RACE_HUMAN:
+	case RACE_BARBARIAN:	case RACE_HUMAN:
 	case RACE_SPECTRE:	case RACE_VAMPIRE:	case RACE_GAMBOLT:
 		strcpy(name, human_syllable1[rand_int(sizeof(human_syllable1) / sizeof(char*))]);
 		strcat(name, human_syllable2[rand_int(sizeof(human_syllable2) / sizeof(char*))]);
 		strcat(name, human_syllable3[rand_int(sizeof(human_syllable3) / sizeof(char*))]);
 		break;
-	case RACE_HALF_ORC:	case RACE_HALF_TROLL:	case RACE_KOBOLD:
+	case RACE_HALF_TROLL:	case RACE_KOBOLD:
 	case RACE_BEASTMAN:
 		strcpy(name, orc_syllable1[rand_int(sizeof(orc_syllable1) / sizeof(char*))]);
 		strcat(name, orc_syllable2[rand_int(sizeof(orc_syllable2) / sizeof(char*))]);
@@ -1056,7 +1079,7 @@ static bool point_mod_player(void)
 			continue;
 		}
 		else    /* Reduce stat case */
-		{ 
+		{
 			if (p_ptr->stat_use[i] > 3)
 			{
 				if (p_ptr->stat_max[i] > 27)
@@ -1448,7 +1471,7 @@ static void get_history(void)
 			chart = 13;	break;
 		case RACE_DWARF:
 			chart = 16;	break;
-		case RACE_HALF_ORC:
+		case RACE_NHADRAGH:
 			chart = 19;	break;
 		case RACE_HALF_TROLL:
 			chart = 22;	break;
@@ -1456,7 +1479,7 @@ static void get_history(void)
 			chart = 30;	break;
 		case RACE_HALF_GIANT:
 			chart = 75;	break;
-		case RACE_HALF_TITAN:
+		case RACE_SIDHI:
 			chart = 76;	break;
 		case RACE_KOBOLD:
 			chart = 82;	break;
@@ -2390,7 +2413,7 @@ static bool player_birth_aux()
 
 #if 0
         /* Verify legality */
-        if (!(rp_ptr->choice & (1L << n))) mod = " (*)";
+		  if (!(rp_ptr->choice & (1L << n))) mod = " (*)";
 #endif
 
     if (!(rp_ptr->choice & (1L << n )))
@@ -2967,7 +2990,7 @@ static bool player_birth_aux()
 			if (c == 'Q') quit(NULL);
 
 			/* Start over */
-		    if (c == 'S') return (FALSE);
+			 if (c == 'S') return (FALSE);
 
 			/* Escape accepts the roll */
 			if (c == ESCAPE) break;

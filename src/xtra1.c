@@ -2119,8 +2119,8 @@ static void calc_bonuses(void)
 		case RACE_DWARF:
 			p_ptr->resist_blind = TRUE;
 			break;
-		case RACE_HALF_ORC:
-			p_ptr->resist_dark = TRUE;
+		case RACE_NHADRAGH:
+			p_ptr->sustain_con = TRUE;
 			break;
 		case RACE_HALF_TROLL:
 			p_ptr->sustain_str = TRUE;
@@ -2146,9 +2146,6 @@ static void calc_bonuses(void)
 		case RACE_HALF_GIANT:
 			p_ptr->sustain_str = TRUE;
 			p_ptr->xtra_might = TRUE;
-			break;
-		case RACE_HALF_TITAN:
-			p_ptr->resist_chaos = TRUE;
 			break;
 		case RACE_KLACKON:
 			p_ptr->resist_conf = TRUE;
@@ -2562,6 +2559,19 @@ static void calc_bonuses(void)
 		p_ptr->dis_to_d -= 5;
 	}
 
+	/* Temporary "Beserk" (was +24 to hit -- Gumby) */
+	if (p_ptr->shero)
+	{
+		p_ptr->to_h += 25;
+		p_ptr->dis_to_h += 25;
+		/* You hit harder when Berserk (was +10) */
+		p_ptr->to_d += (p_ptr->lev / 2);
+		p_ptr->dis_to_d += (p_ptr->lev / 2);
+		/* Magical armour can't save you when you're Berserk */
+		p_ptr->to_a = 0;
+		p_ptr->dis_to_a = 0;
+	}
+
 	/* Invulnerability */
 	if (p_ptr->invuln)
 	{
@@ -2597,19 +2607,6 @@ static void calc_bonuses(void)
 	{
 		p_ptr->to_h += 15;
 		p_ptr->dis_to_h += 15;
-	}
-
-	/* Temporary "Beserk" (was +24 to hit -- Gumby) */
-	if (p_ptr->shero)
-	{
-		p_ptr->to_h += 25;
-		p_ptr->dis_to_h += 25;
-		/* You hit harder when Berserk (was +10) */
-		p_ptr->to_d += (p_ptr->lev / 2);
-		p_ptr->dis_to_d += (p_ptr->lev / 2);
-		/* Magical armour can't save you when you're Berserk */
-		p_ptr->to_a = 0;
-		p_ptr->dis_to_a = 0;
 	}
 
 	/* Temporary "fast" */

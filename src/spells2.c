@@ -350,13 +350,12 @@ void self_knowledge(void)
 			if (plev > 4)
 			{
 				sprintf(Dummy, "You can teleport, range %d (cost %d).",
-				    (1+plev), (5 + (plev/5)));
+					 (1+plev), (5 + (plev/5)));
 				info[i++] = Dummy;
 			}
 			break;
-		case RACE_HALF_ORC:
-			if (plev > 2)
-				info[i++] = "You can remove fear (cost 5).";
+		case RACE_NHADRAGH:
+			info[i++] = "You can detect monsters (cost 1).";
 			break;
 		case RACE_HALF_TROLL:
 			if (plev > 9)
@@ -374,8 +373,8 @@ void self_knowledge(void)
 			if (plev > 19)
 				info[i++] = "You can break stone walls (cost 10).";
 			break;
-		case RACE_HALF_TITAN:
-			if (plev > 34)
+		case RACE_SIDHI:
+			if (plev > 24)
 				info[i++] = "You can probe monsters (cost 20).";
 			break;
 		case RACE_KLACKON:

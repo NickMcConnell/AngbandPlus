@@ -20,7 +20,7 @@ of Immortality
 of Diamond
 'Living Armour'
 'Living Wall'
-'Life Matrix'
+of Hawkwind
 of Malachite
 'Mana Prism'
 'Power Tower'
@@ -54,6 +54,6 @@ of Invincibility
 'Eternal Bastion'
 of Lions
 'Ever-Faithful'
-of Collapsium
+of Craig Don
 of the First Day
 of the Isles of the Blessed

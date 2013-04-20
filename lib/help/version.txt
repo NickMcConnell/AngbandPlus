@@ -11,7 +11,7 @@ officially stands for "Gods Unbalancing the Multiverse Angband".
                                                               -- RDH
 
 So you're looking for version information on Gumband, eh?  Well, as the 'V'
-command says, this is v2.2.1.  Why the large number?  Well, that's because
+command says, this is v2.2.4.  Why the large number?  Well, that's because
 the version number of ZAngband I used as the base for Gumband was 2.1.1, so
 that was the logical place to start the count.
 

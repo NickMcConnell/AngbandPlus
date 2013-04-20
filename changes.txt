@@ -54,9 +54,76 @@ over and over and over... :) Also, read ./lib/user/pref.prf and the other
 files there so you can undo or change the macros I've set...
 ============================================================================
 
-=============================================
-= Gumband 2.2.3  = Last Update: Jan-18-2003 =
-=============================================
+================================================================
+= Gumband 2.2.4  = Last Update: 10-Jun-2006 = The Corum update =
+================================================================
+01) Updated birth.txt entry for Half-Giants (forgot to do for 2.2.3)
+Also, Extra Might ability should now display on character screen.
+(Displayed multiplier on bow will still not reflect this.) Note that
+this does not stack with Extra Might on a bow.
+02) Removed Amberian "Courts of Chaos" reference from demon summoning
+messages.
+03) Added "repeat last command", naively copying from 2.9.3 source. This
+will doubtless prove buggy in some way, but is a much needed UI improvement.
+Gumband repeat command is 'n'. Bug is that it is not working for either
+mutations/racial powers or for mindcrafting, both of which need to be
+rewritten anyway.
+04) Removed class/realm specific .prf files (which will become obsolete
+once I really get making changes anyway). They reflect the original
+maintainers biases and may not suit all player and increase download. Also,
+without documentation, they result in undocumented behaviors.
+05) Antiques Store now charges normal price, as half was abuseable (high
+Charisma meant you could buy and sell to Antiques Store at profit).
+06) Aggravation no longer makes pets hostile. This should mean that
+Stormbringer's activation should now actually be useful.
+07) Removed extraneous space in a_info.txt in Runestaff entry. Minor
+corrections in r_info.txt.
+08) Berserking was negating not only magical bonus to AC on armor, but
+spell protections including the clearly physical "Stone Skin". Now timed
+spells grant AC after berserking sets +AC to zero so they will be effective.
+However, I suspect mutations granting armor will not be applied when berserk.
+I'll worry about this when I get around to rewriting mutation.c.
+09a) Monsters Removed: Greater Hell-Beast (level 79), Pukelman, Mithril golem,
+Mirkwood spider, Anti-paladin, Shagrat, Mummified Orc, Sangahyando of Umbar,
+Creeping mithril coins, Greater hell-beast (level 1), Giant fruit fly,
+Star-spawn of Cthulhu, Night-gaunt, Groo, Bull Gates, Santa Claus, Mongbat,
+Shelob, Greater hell-beast (level 31), Black Knight, Greater hell-beast
+(level 96), Cherub, Barrow wight, Giant skeleton troll, Golfimbul, Warg,
+Azrael, Atlas, Greater hell-beast (level 47), The Witch-King of Angmar,
+Shoggoth, Ice troll, Khamul the Easterling, Great Wyrm of Matter,
+Pseudo dragon, Lich, Saruman, Fasolt the Giant, Lo Wang, Newt,
+Hastur the Unspeakable, Thuringwethil, the Lernean Hydra, Skull druj,
+Eye druj, Hand druj, and the Phoenix
+09b) Monsters Added: Crimson Cow, Bronze Flyer, Sea Giant, Blandhagna,
+Denledhyssi, Pony Tribesman, Allomglyl Bat, Earl Moidel, Brikling, Ragha-da-Kheta,
+Flamelands Beast, Sefano, Shefenhow, King Lyr-a-Brode, The Dog, The Horned Bear,
+Great Black Bird, Freenshak, Ghanh, Chaos Packling, Karmanal (of Zert), Chaos Sea,
+Bear Soldier, Chaos Army Dog, Ertil, Little Demon, Urleh, Duke Teer, Flying Serpent,
+Prince Gaynor the Damned, Ghoolegh, Ice Phantom, Pine Warrior, Sidhi Bull,
+Ynys Scaith Dragon, Malibann, Sactric, Calatin, The Karach, Rabbit, Balahr,
+Kerenos, Rhannon, Goim, Sreng, Bress, Arek
+09c) Monsters Edited: Shool-an-Jyvan, Mutilator, Xiombarg*, Mabelrode*,
+Earl Glandyth-a-Krae, Hound of Kerenos
+(* - Description tweaks only. Saving Arioch revision for the Elric series.)
+10) Item Changes: began reworking armor names from *D&D naming to armors Moorcock
+actually mentions, including some exotic types. Elven cloaks replaced with Vadhagh
+robes. Spear of Hagen replaced with Spear of Mag-an-Mag. Cloaks of Aman renamed to
+Cloaks of the Shalafen. Dirks changed to Poniards. Armour of Elvenkind renamed to
+Armour of Tanelorn. Elven Cloak of Thingol replaced with Vadhagh Robe of Corum.
+Edited the Hand of Kwll, the spear "Bryionak" and Retaliator. Pair of Sandals
+of Hermes replaced with the Sling of Medhbh of the Long Arm. "Nature Bane" replaced
+with Slaughter Axe of Goffanon. Traitor replaces Glamdring.
+11) New "Vadhagh" syllables for random Vadhagh, Melnibonean, Nhadragh and Sidhi
+names.
+12) Text data files changed to more descriptive names.
+13) New monster flag: AURA_COLD, adding cold auras similar to existing fire and
+electric auras.
+14) Replaced Half-Orc player race with Nhadragh. Sidhi replace Half-Titans. Humans
+get a +5 to melee and missiles, just to make them a little less pathetic.
+15) Hisak Sunthief is now the best Weapon Smith shopkeeper.
+==================================================================
+= Gumband 2.2.3  = Last Update: Jan-18-2004 = The Hawkmoon update=
+==================================================================
 01) Replaced "porcupines" with "hedgehogs". (More Euromythic.)
 02) Changed three rumors, added three new crimes, gave Weaponmasters their
 own level titles, and other bits of text tweaking.

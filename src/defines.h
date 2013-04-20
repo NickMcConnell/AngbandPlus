@@ -42,7 +42,7 @@
 #define FAKE_VERSION
 #define FAKE_VER_MAJOR 2
 #define FAKE_VER_MINOR 2
-#define FAKE_VER_PATCH 1
+#define FAKE_VER_PATCH 4
 
 #define ANGBAND_2_8_1
 
@@ -571,13 +571,13 @@ and tables.c --TY */
 #define RACE_HOBBIT		 2
 #define RACE_GNOME		 3
 #define RACE_DWARF		 4
-#define RACE_HALF_ORC		 5
+#define RACE_NHADRAGH		 5
 #define RACE_HALF_TROLL		 6
 #define RACE_GAMBOLT		 7
 #define RACE_HIGH_ELF		 8
 #define RACE_BARBARIAN		 9
 #define RACE_HALF_GIANT		10
-#define RACE_HALF_TITAN		11
+#define RACE_SIDHI		11
 #define RACE_KLACKON		12
 #define RACE_KOBOLD		13
 #define RACE_DRACONIAN		14
@@ -693,7 +693,7 @@ and tables.c --TY */
 
 
 
-/*** Terrain Feature Indexes (see "lib/edit/f_info.txt") ***/
+/*** Terrain Feature Indexes (see "lib/edit/terrain.txt") ***/
 
 /* Nothing */
 #define FEAT_NONE               0x00
@@ -747,7 +747,7 @@ and tables.c --TY */
 #define FEAT_SHOP_TAIL          0x53
 
 
-/*** Artifact indexes (see "lib/edit/a_info.txt") ***/
+/*** Artifact indexes (see "lib/edit/artifact.txt") ***/
 
 /* Lites */
 #define ART_GALADRIEL                   1
@@ -817,7 +817,7 @@ and tables.c --TY */
 /* Cloaks */
 #define ART_COLLUIN                     44
 #define ART_HOLCOLLETH                  45
-#define ART_THINGOL                     46
+#define ART_CORUM                       46
 #define ART_THORONGIL                   47
 #define ART_COLANNON                    48
 #define ART_LUTHIEN                     49
@@ -850,7 +850,7 @@ and tables.c --TY */
 #define ART_BELANGIL                    70
 #define ART_CALRIS                      71
 #define ART_ARUNRUTH                    72
-#define ART_GLAMDRING                   73
+#define ART_TRAITOR                     73
 #define ART_AEGLIN                      74
 #define ART_ORCRIST                     75
 #define ART_GURTHANG                    76
@@ -878,7 +878,7 @@ and tables.c --TY */
 #define ART_TIL                         96
 #define ART_AEGLOS                      97
 #define ART_OROME                       98
-#define ART_HAGEN                       99  /* was Nimloth */
+#define ART_MAG_AN_MAG                       99  /* was Hagen, before that was Nimloth */
 #define ART_EORLINGAS                   100
 #define ART_DURIN                       101
 #define ART_EONWE                       102
@@ -931,13 +931,13 @@ and tables.c --TY */
 #define ART_ORCHAST			138
 #define ART_NIGHT			139
 #define ART_ENERGY			140
-#define ART_NATUREBANE			141
+#define ART_GOFFANON			141
 #define ART_SOULSUCKER			142
 #define ART_CATAPULT			143
 #define ART_FUMA_LA_URSO		144
 #define ART_ICE				145
 #define ART_ENDURANCE			146
-#define ART_HERMES			147
+#define ART_MEDHBH			147
 #define ART_BATALOSIRMO			148
 #define ART_DEATH			149
 #define ART_PINPRICK			150
@@ -952,7 +952,7 @@ and tables.c --TY */
 /* 158-255 unused */
 
 
-/*** Ego-Item indexes (see "lib/edit/e_info.txt") ***/
+/*** Ego-Item indexes (see "lib/edit/ego_item.txt") ***/
 
 
 /* Nothing */
@@ -964,7 +964,7 @@ and tables.c --TY */
 #define EGO_RESIST_FIRE         6
 #define EGO_RESIST_COLD         7
 #define EGO_RESISTANCE          8
-#define EGO_ELVENKIND           9
+#define EGO_TANELORN            9
 #define EGO_SPINES		10
 #define EGO_PERMANENCE          11
 #define EGO_TOUGHNESS		12
@@ -996,7 +996,7 @@ and tables.c --TY */
 /* Cloaks */
 #define EGO_PROTECTION          40
 #define EGO_STEALTH             41
-#define EGO_AMAN                42
+#define EGO_SHALAFEN            42
 #define EGO_AURA_FIRE           43
 /* 44 - 46 unused */
 #define EGO_AURA_ELEC           47
@@ -1272,7 +1272,7 @@ and tables.c --TY */
 
 /* The "sval" codes for TV_SWORD */
 #define SV_DAGGER               4       /* 1d4 */
-#define SV_DIRK                 5       /* 1d5 */
+#define SV_PONIARD                 5       /* 1d5 */
 #define SV_RAPIER               7       /* 1d6 */
 #define SV_SHORT_SWORD          10      /* 2d3 */
 #define SV_SABRE                11      /* 1d7 */
@@ -1293,7 +1293,7 @@ and tables.c --TY */
 #define SV_BUCKLER		 2
 #define SV_WOODEN_SHIELD	 3
 #define SV_IRON_SHIELD		 4
-#define SV_STEEL_SHIELD		 5
+#define SV_CRAB_SHIELD		 5
 
 /* Shields with sval >= 6 are always 'good' */
 #define SV_DRAGON_SHIELD         6
@@ -1306,6 +1306,7 @@ and tables.c --TY */
 #define SV_IRON_HELM            5
 #define SV_STEEL_HELM           6
 #define SV_DRAGON_HELM          7
+#define SV_MUREX_SHELL          8
 
 /* The "sval" codes for TV_CROWN */
 #define SV_IRON_CROWN           10
@@ -1321,7 +1322,7 @@ and tables.c --TY */
 
 /* The "sval" codes for TV_CLOAK */
 #define SV_CLOAK                   1
-#define SV_ELVEN_CLOAK             2
+#define SV_NAME_ROBE               2
 #define SV_SHADOW_CLOAK            6
 
 /* The "sval" codes for TV_GLOVES */
@@ -1347,7 +1348,7 @@ and tables.c --TY */
 #define SV_PARTIAL_PLATE_ARMOUR    12      /* 20 */
 #define SV_METAL_LAMELLAR_ARMOUR   13      /* 22 */
 #define SV_FULL_PLATE_ARMOUR       15      /* 25 */
-#define SV_MITHRIL_CHAIN_MAIL      20      /* 28+ */
+#define SV_SHELL_ARMOUR            20      /* 28+ */
 #define SV_SCARLET_PLATE_ARMOUR    23      /* 30 - INSTA_ART */
 #define SV_MITHRIL_PLATE_MAIL      25      /* 35+ */
 #define SV_ADAMANTITE_PLATE_MAIL   30      /* 40+ */
@@ -2391,7 +2392,7 @@ and tables.c --TY */
 /* Explosive monsters go boom when they die. See xtra2.c for details */
 #define RF2_SPINES              0x02000000	/* was RF2_BRAIN_2 - G */
 #define RF2_CHAOTIC             0x04000000	/* Creature of Chaos - G [was RF2_BRAIN_3] */
-#define RF2_BRAIN_4             0x08000000
+#define RF2_AURA_COLD           0x08000000	/* Freezes in melee - RDH [was RF2_BRAIN_4] */
 #define RF2_BRAIN_5             0x10000000
 #define RF2_BRAIN_6             0x20000000
 #define RF2_BRAIN_7             0x40000000

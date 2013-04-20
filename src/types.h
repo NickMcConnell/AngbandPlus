@@ -310,7 +310,7 @@ typedef struct monster_race monster_race;
 struct monster_race
 {
 	u16b name;		/* Name (offset) */
-	u16b text;		/* Text (offset) */
+	u32b text;		/* Text (offset) */
 
 	byte hdice;		/* Creatures hit dice count */
 	byte hside;		/* Creatures hit dice sides */

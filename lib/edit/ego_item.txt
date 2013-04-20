@@ -58,7 +58,7 @@ C:0:0:10:0
 F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | IGNORE_ACID | IGNORE_ELEC | 
 F:IGNORE_FIRE | IGNORE_COLD | RAND_RESIST
 
-N:9:of Elvenkind
+N:9:of Tanelorn
 X:30:25
 W:0:0:0:14000
 C:0:0:10:4
@@ -217,7 +217,10 @@ W:0:0:0:500
 C:0:0:0:3
 F:STEALTH
 
-N:42:of Aman
+# The Shalafen lived in castles built into coral reefs. Arioch's vassal
+# Urleh ordered their destruction in _Knight of the Swords_. Nothing else
+# is known of them. -- RDH
+N:42:of the Shalafen
 X:31:20
 W:0:0:0:4000
 C:0:0:20:3
