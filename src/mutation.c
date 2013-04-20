@@ -356,7 +356,7 @@ bool gain_random_mutation(int choose_mut)
 		case 126: case 127:
 			muta_class = &(p_ptr->muta2);
 			muta_which = MUT2_CHAOS_GIFT;
-			muta_desc = "You attract the notice of a Chaos deity!";
+			muta_desc = "You attract the notice of a Lord of Chaos!";
 			break;
 		case 128:
 			muta_class = &(p_ptr->muta2);
@@ -1018,7 +1018,7 @@ bool lose_mutation(int choose_mut)
 		case 126: case 127:
 			muta_class = &(p_ptr->muta2);
 			muta_which = MUT2_CHAOS_GIFT;
-			muta_desc = "The Chaos deity gets bored with you.";
+			muta_desc = "The Chaos Lord gets bored with you.";
 			break;
 		case 128:
 			muta_class = &(p_ptr->muta2);
@@ -1436,7 +1436,7 @@ void dump_mutations(FILE * OutFile)
 		}
 		if (p_ptr->muta2 & MUT2_CHAOS_GIFT)
 		{
-			fprintf(OutFile, " Chaos deities give you gifts.\n");
+			fprintf(OutFile, " A Chaos Lord has taken notice of you.\n");
 		}
 		if (p_ptr->muta2 & MUT2_WALK_SHAD)
 		{
@@ -1911,7 +1911,7 @@ static void cmd_racial_power_aux (void)
 				else
 				{
 					msg_print("You concentrate and your eyes glow red...");
-					fire_bolt(GF_PSI, dir, plev * 2);
+					fire_ball(GF_PSI, dir, plev * 2, 0);
 				}
 			}
 			break;
@@ -2917,29 +2917,15 @@ void do_cmd_racial_power(void)
 			case MUT1_RECALL:
 				if (racial_aux(17, 50, A_INT, 16))
 				{
-					/* Astral beings don't WoR! -- G */
-					if (p_ptr->astral)
+					if (!dun_level)
 					{
-						msg_print("You feel a terrible sense of loss.");
-						break;
-					}
-
-					if (dun_level && (p_ptr->max_dlv > dun_level))
-					{
-						if (get_check("Reset recall depth? "))
-							p_ptr->max_dlv = dun_level;
-					}
-
-					if (!p_ptr->word_recall)
-					{
-						p_ptr->word_recall = rand_int(21) + 15;
-						msg_print("The air about you becomes charged...");
+						msg_print("You concentrate on the depths...");
 					}
 					else
 					{
-						p_ptr->word_recall = 0;
-						msg_print("A tension leaves the air around you...");
+						msg_print("You concentrate on home...");
 					}
+					(void) word_of_recall();
 				}
 				break;
 

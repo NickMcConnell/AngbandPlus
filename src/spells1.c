@@ -2399,16 +2399,19 @@ static bool project_m(int who, bool pet_attack, int r, int y, int x, int dam, in
 		case GF_WATER:
 		{
 			if (seen) obvious = TRUE;
-			if ((strstr((r_name + r_ptr->name),"Water")))
+			if ((strstr((r_name + r_ptr->name),"Water")) ||
+			    (strstr((r_name + r_ptr->name),"water")))
 			{
 				note = " is barely affected.";
 				dam /= 9;
 			}
-			else if (r_ptr->flags3 & (RF3_RES_WATE))
+			else if ((r_ptr->flags3 & (RF3_RES_WATE)) ||
+				 (r_ptr->flags4 & (RF4_BR_WATE)))
 			{
 				note = " resists.";
 				dam /= 3;
-				if (seen) r_ptr->r_flags3 |= (RF3_RES_WATE);
+				if ((seen) && r_ptr->flags3 & (RF3_RES_WATE))
+					r_ptr->r_flags3 |= (RF3_RES_WATE);
 			}
 			break;
 		}

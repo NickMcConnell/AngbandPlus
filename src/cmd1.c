@@ -176,9 +176,7 @@ s16b critical_norm(int weight, int plus, int dam)
 s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 {
 	int mult = 1;
-
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
-
 	u32b f1, f2, f3;
 
 	/* Extract the flags */
@@ -383,8 +381,11 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 				else mult += 1;
 			}
 
-			if ((f1 & (TR1_SLAY_EVIL)) &&
-			    (r_ptr->flags3 & (RF3_EVIL)))
+			if ((p_ptr->blessed &&
+			    !((o_ptr->tval >= TV_SHOT) &&
+			      (o_ptr->tval <= TV_BOLT))) ||
+			    ((f1 & (TR1_SLAY_EVIL)) &&
+			     (r_ptr->flags3 & (RF3_EVIL))))
 			{
 				if (m_ptr->ml)
 					r_ptr->r_flags3 |= (RF3_EVIL);
@@ -1164,19 +1165,13 @@ static void natural_attack(s16b m_idx, int attack, bool *fear, bool *mdeath)
 void py_attack(int y, int x)
 {
 	int		num = 0, k, bonus, chance;
-
 	cave_type       *c_ptr = &cave[y][x];
-
 	monster_type    *m_ptr = &m_list[c_ptr->m_idx];
 	monster_race    *r_ptr = &r_info[m_ptr->r_idx];
-
 	object_type     *o_ptr;
-
 	char            m_name[80];
-
 	bool            fear = FALSE;
 	bool            mdeath = FALSE;
-
 	bool            backstab = FALSE, vorpal_cut = FALSE, chaos_effect = FALSE;
 	bool            stab_fleeing = FALSE;
 	bool            do_quake = FALSE;
@@ -1355,6 +1350,17 @@ void py_attack(int y, int x)
 				}
 
 				k = damroll(ma_ptr->dd, ma_ptr->ds);
+
+				/* Since the Monk isn't using a weapon, this
+				 * must be done to give them the same bonus
+				 * for being blessed as weapon-using
+				 * characters get. -- Gumby
+				 */
+				if (p_ptr->blessed && (r_ptr->flags3 & (RF3_EVIL)))
+				{
+					if (m_ptr->ml) r_ptr->r_flags3 |= (RF3_EVIL);
+					k *= 2;
+				}
 
 				if (ma_ptr->effect == MA_KNEE)
 				{

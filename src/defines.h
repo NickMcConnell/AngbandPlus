@@ -2293,7 +2293,7 @@ and tables.c --TY */
 #define RBM_INSULT      22
 #define RBM_OFFER       23 /* was MOAN - Gumby */
 #define RBM_SHOW        24 /* TY */
-
+#define RBM_CHAOTIC	25 /* hits for a random effect -- Gumby */
 
 /*
  * New monster blow effects
@@ -2328,6 +2328,9 @@ and tables.c --TY */
 #define RBE_EXP_80      28
 #define RBE_VAMP	29 /* EXP_60 + Heals Monster */
 #define RBE_HALLU	30
+#define RBE_VORPAL	31
+#define RBE_CHAOTIC	32 /* Hits for a random effect -- Gumby */
+
 
 /*** Monster flag values (hard-coded) ***/
 

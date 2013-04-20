@@ -7,7 +7,7 @@
  *
  * curse_artifact() random_plus() random_resistance() random_misc()
  * random_slay() give_activation_power() get_random_name() create_artifact()
- * artifact_scroll()item_tester_hook_activate() ring_of_power()
+ * artifact_scroll() item_tester_hook_activate() ring_of_power()
  * brand_bolts() activate_random_artifact() do_cmd_activate()
  * item_activation() random_artifact_resistance()
  *
@@ -2363,29 +2363,8 @@ static bool activate_random_artifact(object_type * o_ptr)
 
 		case ACT_RECALL:
 		{
-			if (p_ptr->astral)
-			{
-				msg_print("You feel a terrible sense of loss.");
-				break;
-			}
-
-			if (dun_level && (p_ptr->max_dlv > dun_level))
-			{
-				if (get_check("Reset recall depth? "))
-				p_ptr->max_dlv = dun_level;
-			}
-
 			msg_print("It glows soft white...");
-			if (p_ptr->word_recall == 0)
-			{
-				p_ptr->word_recall = randint(20) + 15;
-				msg_print("The air about you becomes charged...");
-			}
-			else
-			{
-				p_ptr->word_recall = 0;
-				msg_print("A tension leaves the air around you...");
-			}
+			(void) word_of_recall();
 			o_ptr->timeout = 200;
 			break;
 		}
@@ -2602,15 +2581,15 @@ void do_cmd_activate(void)
 			case ART_RAZORBACK:
 			{
 				msg_print("Your armor is surrounded by lightning...");
-				for (i = 0; i < 8; i++) fire_ball(GF_ELEC, ddd[i], 225, 3);
-				o_ptr->timeout = 250;
+				for (i = 0; i < 8; i++) fire_ball(GF_ELEC, ddd[i], 400, 3);
+				o_ptr->timeout = randint(75) + 75;
 				break;
 			}
 			case ART_BLADETURNER:
 			{
 				if (!get_aim_dir(&dir)) return;
 				msg_print("You breathe the elements.");
-				fire_ball(GF_MISSILE, dir, 450, 4);
+				fire_ball(GF_MISSILE, dir, 800, 4);
 				msg_print("Your armor glows many colours...");
 				(void)set_afraid(0);
 				(void)set_shero(p_ptr->shero + randint(50) + 50);
@@ -2621,7 +2600,7 @@ void do_cmd_activate(void)
 				(void)set_oppose_fire(p_ptr->oppose_fire + randint(50) + 50);
 				(void)set_oppose_cold(p_ptr->oppose_cold + randint(50) + 50);
 				(void)set_oppose_pois(p_ptr->oppose_pois + randint(50) + 50);
-				o_ptr->timeout = 300;
+				o_ptr->timeout = rand_int(100) + 100;
 				break;
 			}
 			case ART_SOULKEEPER:
@@ -2989,30 +2968,9 @@ void do_cmd_activate(void)
 			}
 			case ART_AVAVIR:
 			{
-				if (p_ptr->astral)
-				{
-					msg_print("You feel a terrible sense of loss.");
-					break;
-				}
-
-				if (dun_level && (p_ptr->max_dlv > dun_level))
-				{
-					if (get_check("Reset recall depth? "))
-					p_ptr->max_dlv = dun_level;
-				}
-                
 				msg_print("Your scythe glows soft white...");
-				if (p_ptr->word_recall == 0)
-				{
-					p_ptr->word_recall = randint(20) + 15;
-					msg_print("The air about you becomes charged...");
-				}
-				else
-				{
-					p_ptr->word_recall = 0;
-					msg_print("A tension leaves the air around you...");
-				}
-				o_ptr->timeout = 200;
+				(void) word_of_recall();
+				o_ptr->timeout = 100;
 				break;
 			}
 			case ART_TOTILA:
@@ -3870,7 +3828,7 @@ cptr item_activation(object_type *o_ptr)
 		}
 		case ART_AVAVIR:
 		{
-			return "word of recall every 200 turns";
+			return "word of recall every 100 turns";
 		}
 		case ART_TARATOL:
 		{
@@ -3986,11 +3944,11 @@ cptr item_activation(object_type *o_ptr)
 		}
 		case ART_RAZORBACK:
 		{
-			return "star ball (225) every 250 turns";
+			return "star ball (400) every 75+d75 turns";
 		}
 		case ART_BLADETURNER:
 		{
-			return "breathe elements (450), berserk rage, bless, and resistance";
+			return "breathe elements (800), berserk rage, bless, and resistance";
 		}
 		case ART_GALADRIEL:
 		{

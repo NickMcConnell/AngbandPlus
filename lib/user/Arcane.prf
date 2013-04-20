@@ -2,12 +2,12 @@
 #
 # TAB - Teleport Other      F1 - Static Bolt         SF1 - Teleport Level
 #   [ - Magic Mapping       F2 - Stinking Cloud      SF2 - Word of Recall
-#   ] - Satisfy Hunger      F3 - Confuse Monster     SF3 - Restoration
-#   ' - Remove Curse        F4 - Sleep Monster
-#   " - Summon Monster      F5 - Lightning Bolt
-#   ; - Recharging          F6 - Vampiric Drain
-#   : - Brand Weapon        F7 - Ball Lightning
-#   h - Resist Environment  F8 - Poison Gas
+#   ] - Satisfy Hunger      F3 - Lightning Bolt      SF3 - Restoration
+#   ' - Remove Curse        F4 - Vampiric Drain
+#   " - Summon Monster      F5 - Ball Lightning
+#   ; - Recharging          F6 - Poison Gas
+#   : - Brand Weapon        F7 - Confuse Monster
+#   h - Resist Environment  F8 - Sleep Monster
 #   H - Haste Self          F9 - Cure Light Wounds
 #   J - Identify           F10 - Cure Medium Wounds
 #   n - Detect Monsters    F11 - Cure Critical Wounds
@@ -96,28 +96,28 @@ P:^_x3B\r
 A:m1g
 P:^_x3C\r
 
-# F3 - Confuse Monster
-A:m1h
+# F3 - Lightning Bolt
+A:\e\e\e*tm2d
 P:^_x3D\r
 
-# F4 - Sleep Monster
-A:m2b
+# F4 - Vampiric Drain
+A:m4a
 P:^_x3E\r
 
-# F5 - Lightning Bolt
-A:\e\e\e*tm2d
+# F5 - Ball Lightning
+A:m4b
 P:^_x3F\r
 
-# F6 - Vampiric Drain
-A:m4a
+# F6 - Poison Gass
+A:m4e
 P:^_x40\r
 
-# F7 - Ball Lightning
-A:m4b
+# F7 - Confuse Monster
+A:m1h
 P:^_x41\r
 
-# F8 - Poison Gas
-A:m4e
+# F8 - Sleep Monster
+A:m2b
 P:^_x42\r
 
 # Healing

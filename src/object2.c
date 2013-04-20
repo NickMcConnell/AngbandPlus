@@ -2006,7 +2006,7 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 			if (power > 1)
 			{
 				/* Roll for an ego-item */
-				switch (randint(46))
+				switch (randint(45))
 				{
 					case 1:
 					{
@@ -2020,12 +2020,20 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 					}
 					case 2:
 					{
-						o_ptr->name2 = EGO_DF;
-						if (randint(3)==1)
-							o_ptr->art_flags2 |= TR2_RES_POIS;
-						if (p_ptr->realm1 == REALM_LIFE)
-							o_ptr->to_a += 10;
-						break;
+						if (randint(10)==1)
+						{
+							o_ptr->name2 = EGO_HOLY_DF;
+							if (randint(3)==1)
+								o_ptr->art_flags2 |= TR2_RES_POIS;
+							break;
+						}
+						else
+						{
+							o_ptr->name2 = EGO_DF;
+							if (randint(3)==1)
+								o_ptr->art_flags2 |= TR2_RES_POIS;
+							break;
+						}
 					}
 					case 3:
 					{
@@ -2190,11 +2198,6 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 					case 43: /* taken from DrAngband */
 					{
 						o_ptr->name2 = EGO_HASTE;
-						break;
-					}
-					case 44:
-					{
-						o_ptr->name2 = EGO_HOLY_DF;
 						break;
 					}
 					default: /* 2 slots for Sharpness - Hafted get Earthquake instead */

@@ -1256,15 +1256,15 @@ static cptr likert(int x, int y)
  */
 static void display_player_various(void)
 {
-    int         tmp, damdice, damsides, dambonus, blows;
-	int			xthn, xthb, xfos, xsrh;
-	int			xdis, xdev, xsav, xstl;
+	int		tmp, damdice, damsides, dambonus, blows;
+	int		xthn, xthb, xfos, xsrh;
+	int		xdis, xdev, xsav, xstl;
+	int		xdig;
 	cptr		desc;
-    int         muta_att = 0;
-
-	object_type		*o_ptr;
-	int i;
-	martial_arts *ma_ptr = &ma_blows[0];
+        int		muta_att = 0;
+	object_type	*o_ptr;
+	int		i;
+	martial_arts	*ma_ptr = &ma_blows[0];
 
 	if (p_ptr->muta2 & (MUT2_SCOR_TAIL)) muta_att++;
 	if (p_ptr->muta2 & (MUT2_HORNS)) muta_att++;
@@ -1310,6 +1310,7 @@ static void display_player_various(void)
 	xstl = p_ptr->skill_stl;
 	xsrh = p_ptr->skill_srh;
 	xfos = p_ptr->skill_fos;
+	xdig = p_ptr->skill_dig;
 
 	put_str("Fighting    :", 16, 1);
 	desc = likert(xthn, 12);
@@ -1326,6 +1327,10 @@ static void display_player_various(void)
 	put_str("Stealth     :", 19, 1);
 	desc = likert(xstl, 1);
 	c_put_str(likert_color, desc, 19, 15);
+
+	put_str("Tunneling   :", 20, 1);
+	desc = likert(xdig, 14);
+	c_put_str(likert_color, desc, 20, 15);
 
 	put_str("Perception  :", 16, 28);
 	desc = likert(xfos, 6);
@@ -2719,26 +2724,31 @@ errr file_character(cptr name, bool full)
         else
            fprintf(fff,"\n You have defeated %lu enemies.\n", Total);
     }
-    
-        if (stupid_monsters)
-		fprintf(fff, "\n Your opponents are behaving stupidly.");
+
+	if (p_ptr->astral)
+	{
+		if (death) fprintf(fff, "\n You were an astral being.");
+		else       fprintf(fff, "\n You are an astral being.");
+	}
+	else if (p_ptr->was_astral)
+	{
+		fprintf(fff, "\n You began the game as an astral being.");
+	}
 
 	if (quick_start)
 		fprintf(fff, "\n You got off to a quick start.");
 
-	if (p_ptr->astral || p_ptr->was_astral)
-		fprintf(fff, "\n You began the game as an astral being.");
+        if (stupid_monsters)
+		fprintf(fff, "\n Your opponents are behaving stupidly.");
 
 	if (name_slimes)
 		fprintf(fff, "\n You're an amateur mycologist.");
-	else if (!name_slimes)
-		fprintf(fff, "\n You have an irrational hatred of Slime Molds.");
 
         if (noscore)
 		fprintf(fff, "\n You have done something illegal.");
 
 	if (total_winner)
-		fprintf(fff, "\n You defeated Mabelrode! Congratulations, your Majesty.");
+		fprintf(fff, "\n You defeated Mabelrode the Faceless!  Congratulations, your Majesty!");
 
 	/* Skip a line */
 	fprintf(fff, "\n");

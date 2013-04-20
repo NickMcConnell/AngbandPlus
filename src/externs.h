@@ -843,6 +843,7 @@ extern void phlogiston(void);
 extern bool brand_weapon(int brand_type);
 extern void call_the_(void);
 extern void wild_magic(int spell);
+extern bool word_of_recall(void);
 
 /* artifact.c */
 extern void random_resistance (object_type * o_ptr, bool is_scroll, int specific);

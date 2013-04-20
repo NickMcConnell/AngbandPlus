@@ -30,16 +30,16 @@ penalties for taking this option is that your final score will be cut in
 half and having a note in your character dumps mentioning your use of this
 option.
 
-If you choose to start your life as an astral being, your character will be
-deposited at level 97 in the dungeon with a pile of Scrolls of Identify.  He
-or she will then have to make their way up, on foot, to the town in order to
-become solid again - then they'll have to walk all the way back down in
-order to fight the Sword Rulers.  This may seem impossible, but until you
-enter the town for the first time, your character will have telepathy, they
-will be able to see invisible creatures, their digestion is slowed to a
-managable rate, will be able to see in the dungeon as if it were as light as
-day, and move at +10 speed and can pass through walls as if they were the
-lightest of fogs, so all is not lost.
+You can choose to start your life as an astral being.  If you do, your
+character will be deposited at level 97 in the dungeon with a pile of
+Scrolls of Identify.  He or she will then have to make their way up, on
+foot, to the town in order to become solid again - then they'll have to walk
+all the way back down in order to fight the Sword Rulers.  This may seem
+impossible, but until you enter the town for the first time, your character
+will have telepathy, they will be able to see invisible creatures, their
+digestion is slowed to a managable rate, will be able to see in the dungeon
+as if it were as light as day, and move at +10 speed and can pass through
+walls as if they were the lightest of fogs, so all is not lost.
 
 Once your character has been generated, you will be given the choice to
 generate a new character obeying the same constraints, and once you have

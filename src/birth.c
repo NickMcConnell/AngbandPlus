@@ -1912,6 +1912,21 @@ static void player_outfit(void)
 		(void)inven_carry(q_ptr, FALSE);
 	}
 
+	/* Start off With a wand of Magic Missiles if you're a High-Mage
+	 * who chose Sorcery, but only if they've quick-started -- Gumby */
+	if (quick_start && ((p_ptr->pclass == CLASS_HIGH_MAGE) &&
+			    (p_ptr->realm1 == REALM_SORCERY)))
+	{
+		/* Get local object */
+		q_ptr = &forge;
+
+		object_prep(q_ptr, lookup_kind(TV_WAND, SV_WAND_MAGIC_MISSILE));
+		q_ptr->pval = 10 + randint(10);
+		object_aware(q_ptr);
+		object_known(q_ptr);
+		(void)inven_carry(q_ptr, FALSE);
+	}
+
 	/* Gotta give Weaponmasters a weapon they can use! -- Gumby */
 	if (p_ptr->pclass == CLASS_WEAPONMASTER)
 	{
@@ -1954,6 +1969,18 @@ static void player_outfit(void)
 			e_ptr = &e_info[q_ptr->name2];
 
 			if (e_ptr->max_pval) q_ptr->pval = randint(e_ptr->max_pval);
+
+			if (e_ptr->flags2 & (TR2_RAND_SUSTAIN))
+				q_ptr->xtra1 = EGO_XTRA_SUSTAIN;
+
+			if (e_ptr->flags2 & (TR2_RAND_ABILITY))
+				q_ptr->xtra1 = EGO_XTRA_ABILITY;
+
+			if (e_ptr->flags2 & (TR2_RAND_RESIST))
+				q_ptr->xtra1 = EGO_XTRA_POWER;
+
+			/* Randomize the "xtra" power */
+			if (q_ptr->xtra1) q_ptr->xtra2 = randint(256);
 
 			/* You know its properties */
 			q_ptr->ident |= IDENT_MENTAL;
@@ -2125,6 +2152,19 @@ static void player_outfit(void)
 				e_ptr = &e_info[q_ptr->name2];
 
 				if (e_ptr->max_pval) q_ptr->pval = randint(e_ptr->max_pval);
+
+				if (e_ptr->flags2 & (TR2_RAND_SUSTAIN))
+					q_ptr->xtra1 = EGO_XTRA_SUSTAIN;
+
+				if (e_ptr->flags2 & (TR2_RAND_ABILITY))
+					q_ptr->xtra1 = EGO_XTRA_ABILITY;
+
+				if (e_ptr->flags2 & (TR2_RAND_RESIST))
+					q_ptr->xtra1 = EGO_XTRA_POWER;
+
+				/* Randomize the "xtra" power */
+				if (q_ptr->xtra1) q_ptr->xtra2 = randint(256);
+
 			}
 
 			if ((tv >= TV_SOFT_ARMOR) && (tv <= TV_HARD_ARMOR))

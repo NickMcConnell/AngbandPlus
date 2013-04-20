@@ -830,6 +830,11 @@ void lore_do_probe(int m_idx)
 	r_ptr->r_flags2 = r_ptr->flags2;
 	r_ptr->r_flags3 = r_ptr->flags3;
 
+	/* Hack -- Memorize the rest of the flags -- Gumby */
+	r_ptr->r_flags4 = r_ptr->flags4;
+	r_ptr->r_flags5 = r_ptr->flags5;
+	r_ptr->r_flags6 = r_ptr->flags6;
+
 	/* Update monster recall window */
 	if (monster_race_idx == m_ptr->r_idx)
 	{
@@ -2192,8 +2197,8 @@ static bool summon_specific_okay(int r_idx)
 
 		case SUMMON_ELEMENTAL:
 		{
-			okay = (((r_ptr->flags3 & (RF3_ELEMENTAL)) ||
-				(r_ptr->d_char == 'E')));
+			okay = ((r_ptr->flags3 & (RF3_ELEMENTAL)) &&
+			       !(r_ptr->flags1 & (RF1_UNIQUE)));
 			break;
 		}
 

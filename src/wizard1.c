@@ -2199,7 +2199,15 @@ static void spoil_mon_info(cptr fname)
 				{
 					if (strstr((r_name + r_ptr->name),"The Thing With 1000 "))
 					{
-						p = "grab you with its tongues.";
+						p = "grab you with its tongues";
+					}
+					else if (r_ptr->flags1 & (RF1_MALE))
+					{
+						p = "grab you with his tongue";
+					}
+					else if (r_ptr->flags1 & (RF1_FEMALE))
+					{
+						p = "grab you with her tongue";
 					}
 					else
 					{
@@ -2218,11 +2226,27 @@ static void spoil_mon_info(cptr fname)
 				case RBM_GAZE:   p = "gaze"; break;
 				case RBM_WAIL:   p = "wail"; break;
 				case RBM_SPORE:  p = "release spores"; break;
-				case RBM_TENTACLE: p = "grab you with its tentacles"; break;
+				case RBM_TENTACLE:
+				{
+					if (r_ptr->flags1 & (RF1_MALE))
+					{
+						p = "grab you with his tentacles";
+					}
+					else if (r_ptr->flags1 & (RF1_FEMALE))
+					{
+						p = "grab you with her tentacles";
+					}
+					else
+					{
+						p = "grab you with its tentacles";
+					}
+					break;
+				}
 				case RBM_BEG:    p = "beg"; break;
 				case RBM_INSULT: p = "insult"; break;
 				case RBM_OFFER:  p = "offer"; break;
 				case RBM_SHOW:   p = "sing"; break;
+				case RBM_CHAOTIC: p = "attack randomly"; break;
 			}
 
 
@@ -2262,6 +2286,8 @@ static void spoil_mon_info(cptr fname)
 				case RBE_EXP_80:        q = "lower experience (by 80d6+)"; break;
 				case RBE_VAMP:		q = "drain life"; break;
 				case RBE_HALLU:		q = "cause hallucinations"; break;
+				case RBE_VORPAL:	q = "cut"; break;
+				case RBE_CHAOTIC:	q = "cause a chaotic effect"; break;
 			}
 
 

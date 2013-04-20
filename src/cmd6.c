@@ -1333,30 +1333,7 @@ void do_cmd_read_scroll(void)
 
 		case SV_SCROLL_WORD_OF_RECALL:
 		{
-			/* Astral beings don't WoR! -- Gumby */
-			if (p_ptr->astral)
-			{
-				msg_print("You feel a terrible sense of loss.");
-				ident = TRUE;
-				break;
-			}
-
-			if (dun_level && (p_ptr->max_dlv > dun_level))
-			{
-				if (get_check("Reset recall depth? "))
-					p_ptr->max_dlv = dun_level;
-			}
-
-			if (p_ptr->word_recall == 0)
-			{
-				p_ptr->word_recall = randint(20) + 15;
-				msg_print("The air about you becomes charged...");
-			}
-			else
-			{
-				p_ptr->word_recall = 0;
-				msg_print("A tension leaves the air around you...");
-			}
+			(void) word_of_recall();
 			ident = TRUE;
 			break;
 		}
@@ -2696,30 +2673,7 @@ void do_cmd_zap_rod(void)
 
 		case SV_ROD_RECALL:
 		{
-			/* Astral beings don't WoR! -- G */
-			if (p_ptr->astral)
-			{
-				msg_print("You feel a terrible sense of loss.");
-				ident = TRUE;
-				break;
-			}
-
-			if (dun_level && (p_ptr->max_dlv > dun_level))
-			{
-				if (get_check("Reset recall depth? "))
-					p_ptr->max_dlv = dun_level;
-			}
-            
-			if (p_ptr->word_recall == 0)
-			{
-				msg_print("The air about you becomes charged...");
-				p_ptr->word_recall = 15 + randint(20);
-			}
-			else
-			{
-				msg_print("A tension leaves the air around you...");
-				p_ptr->word_recall = 0;
-			}
+			(void) word_of_recall();
 			ident = TRUE;
 			o_ptr->pval = 60;
 			break;

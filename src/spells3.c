@@ -14,6 +14,7 @@
  * enchant_table[]; enchant(); enchant_spell(); ident_level();
  * ident_spell(); identify_fully(); item_tester_hook_recharge(); recharge();
  * phlogiston(); brand_weapon(); call_the_(void); wild_magic();
+ * word_of_recall();
  *
  */
 
@@ -1191,7 +1192,6 @@ bool mass_genocide(bool player_cast)
 bool probing(void)
 {
 	int     i;
-
 	bool    probe = FALSE;
 
 
@@ -1220,7 +1220,7 @@ bool probing(void)
 			/* Describe the monster */
 			msg_format("%^s has %d hit points.", m_name, m_ptr->hp);
 
-			/* Learn all of the non-spell, non-treasure flags */
+			/* Learn all of its flags. */
 			lore_do_probe(i);
 
 			/* Probe worked */
@@ -2296,4 +2296,33 @@ void wild_magic(int spell)
 			activate_ty_curse();
 	}
 	return;
+}
+
+
+bool word_of_recall(void)
+{
+	if (p_ptr->astral)
+	{
+		msg_print("You feel a terrible sense of loss.");
+		return (FALSE);
+	}
+
+	if (dun_level && (p_ptr->max_dlv > dun_level))
+	{
+		if (get_check("Reset recall depth? "))
+		p_ptr->max_dlv = dun_level;
+	}
+
+	if (p_ptr->word_recall == 0)
+	{
+		p_ptr->word_recall = randint(20) + 15;
+		msg_print("The air about you becomes charged...");
+	}
+	else
+	{
+		p_ptr->word_recall = 0;
+		msg_print("A tension leaves the air around you...");
+	}
+
+	return (TRUE);
 }

@@ -912,32 +912,8 @@ void do_cmd_cast(void)
 		(void)teleport_player_level();
 		break;
 	   case 21: /* Word of Recall */
-		{
-			/* Astral beings don't WoR! -- G */
-			if (p_ptr->astral)
-			{
-				msg_print("You feel a terrible sense of loss.");
-				break;
-			}
-
-	                if (dun_level && (p_ptr->max_dlv > dun_level))
-        	        {
-                	    if (get_check("Reset recall depth? "))
-	                    p_ptr->max_dlv = dun_level;
-	                }
-
-			if (!p_ptr->word_recall)
-			{
-				p_ptr->word_recall = rand_int(21) + 15;
-				msg_print("The air about you becomes charged...");
-			}
-			else
-			{
-				p_ptr->word_recall = 0;
-				msg_print("A tension leaves the air around you...");
-			}
+			(void) word_of_recall();
 			break;
-		}
 	   case 22: /* Detection */
 		(void)detect_all();
 		break;
@@ -1549,8 +1525,7 @@ void do_cmd_cast(void)
 		break;
         case 1: /* Mind Blast */
 		if (!get_aim_dir(&dir)) return;
-		fire_bolt_or_beam(beam-10, GF_PSI, dir,
-					damroll(3 + ((plev - 1) / 3), 4));
+		fire_ball(GF_PSI, dir, damroll(3 + ((plev - 1) / 3), 4), 0);
 		break;
         case 2: /* Shuffle */
            {
@@ -1773,32 +1748,8 @@ void do_cmd_cast(void)
 		}
 		break;
         case 12: /* Word of Recall */
-		{
-			/* Astral beings don't WoR! -- G */
-			if (p_ptr->astral)
-			{
-				msg_print("You feel a terrible sense of loss.");
-				break;
-			}
-
-			if (dun_level && (p_ptr->max_dlv > dun_level))
-			{
-				if (get_check("Reset recall depth? "))
-				p_ptr->max_dlv = dun_level;
-			}
-
-			if (!p_ptr->word_recall)
-			{
-				p_ptr->word_recall = rand_int(21) + 15;
-				msg_print("The air about you becomes charged...");
-			}
-			else
-			{
-				p_ptr->word_recall = 0;
-				msg_print("A tension leaves the air around you...");
-			}
-			break;
-		}
+		(void) word_of_recall();
+		break;
         case 13: /* Trump Animal */
 		{
 			msg_print ("You concentrate on the trump of an animal...");
@@ -2243,32 +2194,8 @@ void do_cmd_cast(void)
 		case 29: /* Teleport Level */
 			(void)teleport_player_level(); break;
 		case 30: /* Word of Recall */
-		{
-			/* Astral beings don't WoR! -- G */
-			if (p_ptr->astral)
-			{
-				msg_print("You feel a terrible sense of loss.");
-				break;
-			}
-
-			if (dun_level && (p_ptr->max_dlv > dun_level))
-			{
-				if (get_check("Reset recall depth? "))
-				p_ptr->max_dlv = dun_level;
-			}
-
-			if (!p_ptr->word_recall)
-			{
-				p_ptr->word_recall = rand_int(21) + 15;
-				msg_print("The air about you becomes charged...");
-			}
-			else
-			{
-				p_ptr->word_recall = 0;
-				msg_print("A tension leaves the air around you...");
-			}
+			(void) word_of_recall();
 			break;
-		}
 		case 31: /* Restoration */
 			(void)do_res_stat(A_STR);
 			(void)do_res_stat(A_INT);

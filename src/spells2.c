@@ -664,7 +664,7 @@ void self_knowledge(void)
 		}
 		if (p_ptr->muta2 & MUT2_CHAOS_GIFT)
 		{
-			info[i++] = "Chaos deities give you gifts.";
+			info[i++] = "A Chaos Lord has taken notice of you.";
 		}
 		if (p_ptr->muta2 & MUT2_WALK_SHAD)
 		{
@@ -2456,6 +2456,10 @@ void stair_creation(void)
 	{
 		cave_set_feat(py, px, FEAT_LESS);
 	}
+	else if (p_ptr->astral && (dun_level == 97))
+	{
+		cave_set_feat(py, px, FEAT_LESS);
+	}
 	else if (rand_int(100) < 50)
 	{
 		cave_set_feat(py, px, FEAT_MORE);
@@ -3815,13 +3819,13 @@ bool stasis_monster(int dir)
 bool confuse_monster(int dir, int plev)
 {
 	int flg = PROJECT_STOP | PROJECT_KILL;
-	return (project_hook(GF_OLD_CONF, dir, p_ptr->lev, flg, TRUE));
+	return (project_hook(GF_OLD_CONF, dir, plev, flg, TRUE));
 }
 
 bool stun_monster(int dir, int plev)
 {
 	int flg = PROJECT_STOP | PROJECT_KILL;
-	return (project_hook(GF_STUN, dir, p_ptr->lev, flg, TRUE));
+	return (project_hook(GF_STUN, dir, plev, flg, TRUE));
 }
 
 bool poly_monster(int dir)
@@ -3839,7 +3843,7 @@ bool clone_monster(int dir)
 bool fear_monster(int dir, int plev)
 {
 	int flg = PROJECT_STOP | PROJECT_KILL;
-	return (project_hook(GF_TURN_ALL, dir, p_ptr->lev, flg, TRUE));
+	return (project_hook(GF_TURN_ALL, dir, plev, flg, TRUE));
 }
 
 bool death_ray(int dir, int plev)

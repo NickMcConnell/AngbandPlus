@@ -458,10 +458,7 @@ void do_cmd_mindcraft(void)
 				break;
 			case 1: /* Neural Blast */
 				if (!get_aim_dir(&dir)) return;
-				if (randint(100) < plev * 2)
-					fire_beam(GF_PSI, dir, damroll(3 + ((plev - 1) / 3), (3+plev/15)));
-				else
-					fire_ball(GF_PSI, dir, damroll(3 + ((plev - 1) / 3), (3+plev/15)), 0);
+				fire_ball(GF_PSI, dir, damroll(3 + ((plev - 1) / 3), (3+plev/15)), 0);
 				break;
 			case 2: /* Minor Displacement */
 				if (plev < 30)

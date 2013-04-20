@@ -5375,10 +5375,8 @@ static bool monst_attack_monst(int m_idx,int t_idx)
 	{
 		bool visible = FALSE;
 		bool obvious = FALSE;
-
 		int power = 0;
 		int damage = 0;
-
 		cptr act = NULL;
 
 		/* Extract the attack infomation */
@@ -5386,6 +5384,10 @@ static bool monst_attack_monst(int m_idx,int t_idx)
 		int method = r_ptr->blow[ap_cnt].method;
 		int d_dice = r_ptr->blow[ap_cnt].d_dice;
 		int d_side = r_ptr->blow[ap_cnt].d_side;
+
+		/* Choose a random method and effect -- Gumby */
+		if (method == RBM_CHAOTIC) method = rand_range(1, (RBM_CHAOTIC-1));
+		if (effect == RBE_CHAOTIC) effect = rand_range(1, (RBE_CHAOTIC-1));
 
 		if (t_ptr == m_ptr) /* Paranoia */
 		{
@@ -5442,6 +5444,7 @@ static bool monst_attack_monst(int m_idx,int t_idx)
 			case RBE_EXP_80:        power = 20; break;
 			case RBE_VAMP:		power = 18; break;
 			case RBE_HALLU:		power = 10; break;
+			case RBE_VORPAL:	power = 30; break;
 		}
 
 
@@ -5508,13 +5511,20 @@ static bool monst_attack_monst(int m_idx,int t_idx)
 		   if (strstr((r_name + r_ptr->name),"The Thing With 1000 "))
 		   {
 			act = "grabs %s with its tongues.";
-			touched = TRUE;
+		   }
+		   else if (r_ptr->flags1 & (RF1_MALE))
+		   {
+			act = "grabs %s with his tongue.";
+		   }
+		   else if (r_ptr->flags1 & (RF1_FEMALE))
+		   {
+			act = "grabs %s with her tongue.";
 		   }
 		   else
 		   {
 			act = "grabs %s with its tongue.";
-			touched = TRUE;
 		   }
+		   touched = TRUE;
                    break;
                }
 
@@ -5598,7 +5608,18 @@ static bool monst_attack_monst(int m_idx,int t_idx)
 
                case RBM_TENTACLE: /* was XXX4 */
                {
-                   act = "grabs %s with its tentacles.";
+		   if (r_ptr->flags1 & (RF1_MALE))
+		   {
+			act = "grabs %s with his tentacles.";
+		   }
+		   else if (r_ptr->flags1 & (RF1_FEMALE))
+		   {
+			act = "grabs %s with her tentacles.";
+		   }
+		   else
+		   {
+			act = "grabs %s with its tentacles.";
+		   }
                    touched = TRUE;
                    break;
                }

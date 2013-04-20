@@ -1,13 +1,13 @@
 # Death Magic
 #
 # TAB - Wraithform          F1 - Malediction         SF1 - Stinking Cloud
-#   [ - Poison Branding     F2 - Black Sleep         SF2 - Infernal Orb
-#   ] - Vampiric Branding   F3 - Horrify             SF3 - Terrror
-#   ' - Resist Poison       F4 - Nether Bolt         SF4 - Cloud Kill
-#   " - Restore Life        F5 - Vampiric Drain      SF5 - Punish Undead
-#   ; - Detect Unlife       F6 - Dark Bolt           SF6 - Darkness Storm
-#   : - Detect Evil         F7 - Drain Life          SF7 - Enslave Undead
-#   Z - Esoteria            F8 - Death Ray           SF8 - Raise the Dead
+#   [ - Poison Branding     F2 - Nether Bolt         SF2 - Infernal Orb
+#   ] - Vampiric Branding   F3 - Vampiric Drain      SF3 - Cloud Kill
+#   ' - Resist Poison       F4 - Dark Bolt           SF4 - Darkness Storm
+#   " - Restore Life        F5 - Drain Life          SF5 - Terror
+#   ; - Detect Unlife       F6 - Death Ray           SF6 - Punish Undead
+#   : - Detect Evil         F7 - Black Sleep         SF7 - Enslave Undead
+#   Z - Esoteria            F8 - Horrify             SF8 - Raise the Dead
 #                           F9 - Berserk             SF9 - Battle Frenzy
 
 # TAB - Wraithform
@@ -48,32 +48,32 @@ C:0:Z
 A:\e\e\e*tm1b
 P:^_x3B\r
 
-# F2 - Black Sleep
-A:m1e
+# F2 - Nether Bolt
+A:\e\e\e*tm2b
 P:^_x3C\r
 
-# F3 - Horrify
-A:m1g
+# F3 - Vampiric Drain
+A:m2e
 P:^_x3D\r
 
-# F4 - Nether Bolt
-A:\e\e\e*tm2b
+# F4 - Dark Bolt
+A:\e\e\e*tm3c
 P:^_x3E\r
 
-# F5 - Vampiric Drain
-A:m2e
+# F5 - Drain Life
+A:m3e
 P:^_x3F\r
 
-# F6 - Dark Bolt
-A:\e\e\e*tm3c
+# F6 - Death Ray
+A:m4a
 P:^_x40\r
 
-# F7 - Drain Life
-A:m3e
+# F7 - Black Sleep
+A:m1e
 P:^_x41\r
 
-# F8 - Death Ray
-A:m4a
+# F8 - Horrify
+A:m1g
 P:^_x42\r
 
 # Misc.
@@ -92,20 +92,20 @@ P:^_Sx54\r
 A:m2a
 P:^_Sx55\r
 
-# SHIFT-F3 - Terror
-A:m2d
+# SHIFT-F3 - Cloud Kill
+A:m2f
 P:^_Sx56\r
 
-# SHIFT-F4 - Cloud Kill
-A:m2f
+# SHIFT-F4 - Darkness Storm
+A:m3g
 P:^_Sx57\r
 
-# SHIFT-F5 - Punish Undead
-A:m3b
+# SHIFT-F5 - Terror
+A:m2d
 P:^_Sx58\r
 
-# SHIFT-F6 - Darkness Storm
-A:m3g
+# SHIFT-F6 - Punish Undead
+A:m3b
 P:^_Sx59\r
 
 # Misc.

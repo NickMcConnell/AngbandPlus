@@ -118,26 +118,16 @@ static cptr desc_offer[] =
 bool make_attack_normal(int m_idx)
 {
 	monster_type *m_ptr = &m_list[m_idx];
-
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
-
 	int ap_cnt;
-
 	int i, j, k, tmp, ac, rlev;
 	int do_cut, do_stun;
-
 	s32b gold;
-
 	object_type *o_ptr;
-
 	char o_name[80];
-
 	char m_name[80];
-
 	char ddesc[80];
-
 	bool blinked;
-
 	bool touched = FALSE, fear = FALSE, alive = TRUE;
 
 	/* Not allowed to attack */
@@ -152,13 +142,11 @@ bool make_attack_normal(int m_idx)
 	/* Extract the effective monster level */
 	rlev = ((r_ptr->level >= 1) ? r_ptr->level : 1);
 
-
 	/* Get the monster name (or "it") */
 	monster_desc(m_name, m_ptr, 0);
 
 	/* Get the "died from" information (i.e. "a kobold") */
 	monster_desc(ddesc, m_ptr, 0x88);
-
 
 	/* Assume no blink */
 	blinked = FALSE;
@@ -168,10 +156,8 @@ bool make_attack_normal(int m_idx)
 	{
 		bool visible = FALSE;
 		bool obvious = FALSE;
-
 		int power = 0;
 		int damage = 0;
-
 		cptr act = NULL;
 
 		/* Extract the attack infomation */
@@ -180,24 +166,23 @@ bool make_attack_normal(int m_idx)
 		int d_dice = r_ptr->blow[ap_cnt].d_dice;
 		int d_side = r_ptr->blow[ap_cnt].d_side;
 
+		/* Choose a random method and effect -- Gumby */
+		if (method == RBM_CHAOTIC) method = rand_range(1, (RBM_CHAOTIC-1));
+		if (effect == RBE_CHAOTIC) effect = rand_range(1, (RBE_CHAOTIC-1));
 
 		/* Hack -- no more attacks */
 		if (!method) break;
 
-
 		/* Stop if player is dead or gone */
 		if (!alive || death || new_level_flag) break;
-
 
 		/* Extract visibility (before blink) */
 		if (m_ptr->ml) visible = TRUE;
 
-
-
 		/* Extract the attack "power" */
 		switch (effect)
 		{
-			case RBE_HURT:	power = 60; break;
+			case RBE_HURT:		power = 60; break;
 			case RBE_POISON:	power =  5; break;
 			case RBE_UN_BONUS:	power = 20; break;
 			case RBE_UN_POWER:	power = 15; break;
@@ -205,11 +190,11 @@ bool make_attack_normal(int m_idx)
 			case RBE_EAT_ITEM:	power =  5; break;
 			case RBE_EAT_FOOD:	power =  5; break;
 			case RBE_EAT_LITE:	power =  5; break;
-			case RBE_ACID:	power =  0; break;
-			case RBE_ELEC:	power = 10; break;
-			case RBE_FIRE:	power = 10; break;
-			case RBE_COLD:	power = 10; break;
-			case RBE_BLIND:	power =  2; break;
+			case RBE_ACID:		power =  0; break;
+			case RBE_ELEC:		power = 10; break;
+			case RBE_FIRE:		power = 10; break;
+			case RBE_COLD:		power = 10; break;
+			case RBE_BLIND:		power =  2; break;
 			case RBE_CONFUSE:	power = 10; break;
 			case RBE_TERRIFY:	power = 10; break;
 			case RBE_PARALYZE:	power =  2; break;
@@ -227,15 +212,14 @@ bool make_attack_normal(int m_idx)
 			case RBE_EXP_80:	power = 20; break;
 			case RBE_VAMP:		power = 18; break;
 			case RBE_HALLU:		power = 10; break;
+			case RBE_VORPAL:	power = 30; break;
 		}
-
 
 		/* Monster hits player */
 		if (!effect || check_hit(power, rlev))
 		{
 			/* Always disturbing */
 			disturb(1, 0);
-
 
 			/* Hack -- Apply "protection from evil" */
 			if ((p_ptr->protevil > 0) &&
@@ -252,7 +236,6 @@ bool make_attack_normal(int m_idx)
 				/* Hack -- Next attack */
 				continue;
 			}
-
 
 			/* Assume no cut or stun */
 			do_cut = do_stun = 0;
@@ -319,13 +302,20 @@ bool make_attack_normal(int m_idx)
 					if (strstr((r_name + r_ptr->name),"The Thing With 1000 "))
 					{
 						act = "grabs you with its tongues.";
-						touched = TRUE;
+					}
+					else if (r_ptr->flags1 & (RF1_MALE))
+					{
+						act = "grabs you with his tongue.";
+					}
+					else if (r_ptr->flags1 & (RF1_FEMALE))
+					{
+						act = "grabs you with her tongue.";
 					}
 					else
 					{
 						act = "grabs you with its tongue.";
-						touched = TRUE;
 					}
+					touched = TRUE;
 					break;
 				}
 
@@ -404,7 +394,18 @@ bool make_attack_normal(int m_idx)
 
 				case RBM_TENTACLE: /* was XXX4 */
 				{
-					act = "grabs you with its tentacles.";
+					if (r_ptr->flags1 & (RF1_MALE))
+					{
+						act = "grabs you with his tentacles.";
+					}
+					else if (r_ptr->flags1 & (RF1_FEMALE))
+					{
+						act = "grabs you with her tentacles.";
+					}
+					else
+					{
+						act = "grabs you with its tentacles.";
+					}
 					touched = TRUE;
 					break;
 				}
@@ -1345,6 +1346,29 @@ bool make_attack_normal(int m_idx)
 						{
 							obvious = TRUE;
 						}
+					}
+					break;
+				}
+				case RBE_VORPAL:
+				{
+					take_hit(damage, ddesc);
+					do_cut = do_stun = 0;
+
+					if (p_ptr->resist_shard)
+					{
+						update_smart_learn(m_idx, DRS_SHARD);
+					}
+
+					if (p_ptr->reflect)
+					{
+						update_smart_learn(m_idx, DRS_REFLECT);
+					}
+
+					if (!p_ptr->resist_shard &&
+					    !p_ptr->reflect)
+					{
+						(void)set_cut(p_ptr->cut += r_ptr->level);
+						p_ptr->redraw |= (PR_CUT);
 					}
 					break;
 				}

@@ -85,6 +85,7 @@ static cptr r_info_blow_method[] =
 	"INSULT",
 	"OFFER",    /* WAS: MOAN */
 	"SHOW",     /* WAS: XXX5 */
+	"CHAOTIC",
 	NULL
 };
 
@@ -125,6 +126,8 @@ static cptr r_info_blow_effect[] =
 	"EXP_80",
 	"VAMP",
 	"HALLU",
+	"VORPAL",
+	"CHAOTIC",
 	NULL
 };
 
