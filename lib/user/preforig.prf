@@ -1,18 +1,5 @@
 # File: pref.prf
-#
-# This file has been modified to suit *my* tastes.  Delete this and rename
-# 'preforig.prf' to 'pref.prf' to get the original defaults.
-#
-# Oh, and the font-***-old.prf files were done that way so that I don't have
-# to put up with IBM graphics.  Just rename them to remove the '-old' part
-# if you want those graphics...
-#
-# The various <realm>.prf files (and the ones like 'Mage.SC' [Sorcery/Chaos
-# spells for Magi]) are the spell macro files I use.  They are set up for
-# MS-DOS/Windows function key definitions - you'll have to get the proper
-# escape sequences for the function keys on your machine on your own.
-# 'template.txt' is just that - a blank pref file that I fill in when I need
-# to use a new realm combination...
+
 #
 # This file defines "default" actions of various kinds
 #
@@ -74,30 +61,8 @@ C:0:^C
 
 # Hack -- swap equipment
 A:w0
-C:0:x
-
-A:w1
 C:0:X
 
-# Activate Light Source
-A:Af
-C:0:^v
-
-# Look Around
-A:L
-C:0:W
-
-# Kill on Ground
-A:k-
-C:0:K
-
-# Count to #
-A:0
-C:0:#
-
-# Fire ammo #2 at nearest target
-A:\e\e\e*tf2
-P:`
 
 ##### Roguelike Keyset Mappings #####
 

@@ -462,8 +462,8 @@
 /*
  * OPTION: Person to bother if something goes wrong.
  */
-#define MAINTAINER	"rr9@angband.org"
-
+/* #define MAINTAINER	"rr9@angband.org" */
+#define MAINTAINER	"gumby@gwar.net"
 
 /*
  * OPTION: Default font (when using X11).
@@ -557,7 +557,7 @@
 /* Allow Klackon- and Sprite-Monks to get extra speed */
 /* Klackons and Sprites are not *supposed* to be
    playing monks in the first place */
-/* #define MONK_HACK */
+#define MONK_HACK
 
 /* Wizard mode testing options: */
 
@@ -566,4 +566,3 @@
 
 /* Testing upkeep */
 /* # define TRACK_FRIENDS */
-

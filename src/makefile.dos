@@ -42,14 +42,14 @@ LIBS = -lpc -ljgmod -lalleg
 # Targets
 #
 
-default: zangband.exe
-	copy zangband.exe ..
-	del zangband.exe
+default: Gumband.exe
+	copy Gumband.exe ..
+	del Gumband.exe
 
-install: zangband.exe
-	copy zangband.exe ..
+install: Gumband.exe
+	copy Gumband.exe ..
 
-all: zangband.exe
+all: Gumband.exe
 	@echo All done.  Use 'make install' to install.
 
 
@@ -57,7 +57,7 @@ all: zangband.exe
 # Link executables
 #
 
-zangband.exe: $(OBJS)
+Gumband.exe: $(OBJS)
 	$(CC) $(CFLAGS) -o $@ $(OBJS) $(LIBS)
 
 
@@ -78,4 +78,3 @@ clean:
 
 cleanall: clean
 	del *.exe
-

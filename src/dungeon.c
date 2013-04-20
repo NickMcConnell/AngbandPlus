@@ -134,14 +134,23 @@ static void sense_inventory(void)
 			break;
 		}
 
-		case CLASS_MAGE: case CLASS_HIGH_MAGE:
+		case CLASS_MAGE:
 		{
 			/* Very bad (light) sensing */
-			if (0 != rand_int(240000L / (plev + 5))) return;
+			if (0 != rand_int(200000L / (plev * plev + 40))) return;
 
 			/* Done */
 			break;
 		}
+
+                case CLASS_HIGH_MAGE:
+                {
+                         /* Okay (light) sensing */
+                         if (0 != rand_int(50000L / (plev * plev + 40))) return;
+
+                         /* Done */
+                         break;
+                }
 
 		case CLASS_PRIEST:
 		{
@@ -168,7 +177,7 @@ static void sense_inventory(void)
 		{
 
 			/* Bad sensing */
-			if (0 != rand_int(95000L / (plev * plev + 40))) return;
+			if (0 != rand_int(60000L / (plev * plev + 40))) return;
 
 			/* Changed! */
 			heavy = TRUE;
@@ -180,7 +189,7 @@ static void sense_inventory(void)
 		case CLASS_PALADIN:
 		{
 			/* Bad sensing */
-			if (0 != rand_int(77777L / (plev * plev + 40))) return;
+			if (0 != rand_int(60000L / (plev * plev + 40))) return;
 
 			/* Heavy sensing */
 			heavy = TRUE;
@@ -193,7 +202,10 @@ static void sense_inventory(void)
 		{
 
 			/* Bad sensing */
-			if (0 != rand_int(75000L / (plev * plev + 40))) return;
+			if (0 != rand_int(60000L / (plev * plev + 40))) return;
+
+			/* Heavy Sensing */
+			heavy = TRUE;
 
 			/* Done */
 			break;
@@ -203,7 +215,7 @@ static void sense_inventory(void)
 		{
 
 			/* Bad sensing */
-			if (0 != rand_int(55000L / (plev * plev + 40))) return;
+			if (0 != rand_int(50000L / (plev * plev + 40))) return;
 
 			/* Done */
 			break;
@@ -213,7 +225,7 @@ static void sense_inventory(void)
 		{
 
 			/* Bad sensing */
-			if (0 != rand_int(80000L / (plev * plev + 40))) return;
+			if (0 != rand_int(60000L / (plev * plev + 40))) return;
 
 			/* Changed! */
 			heavy = TRUE;
@@ -265,6 +277,8 @@ static void sense_inventory(void)
 			case TV_SOFT_ARMOR:
 			case TV_HARD_ARMOR:
 			case TV_DRAG_ARMOR:
+			case TV_RING:
+			case TV_AMULET:
 			{
 				okay = TRUE;
 				break;

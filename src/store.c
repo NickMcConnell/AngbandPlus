@@ -933,7 +933,7 @@ static bool store_will_buy(object_type *o_ptr)
 			/* Analyze the type */
 			switch (o_ptr->tval)
 			{
-		                case TV_LIFE_BOOK:
+/*		                case TV_LIFE_BOOK: */
 				case TV_SCROLL:
 				case TV_POTION:
 				case TV_HAFTED:
@@ -969,12 +969,12 @@ static bool store_will_buy(object_type *o_ptr)
 			/* Analyze the type */
 			switch (o_ptr->tval)
 			{
-                case TV_SORCERY_BOOK:
+/*              case TV_SORCERY_BOOK:
                 case TV_NATURE_BOOK:
                 case TV_CHAOS_BOOK:
                 case TV_DEATH_BOOK:
                 case TV_TRUMP_BOOK:
-                case TV_ARCANE_BOOK:
+                case TV_ARCANE_BOOK: */
 				case TV_AMULET:
 				case TV_RING:
 				case TV_STAFF:

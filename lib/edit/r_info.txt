@@ -165,12 +165,11 @@ D:A thin flea-ridden mutt, growling as you get close.
 N:4:Farmer Maggot
 G:h:w
 I:110:35d10:40:10:3
-W:0:4:0:0
-B:MOAN
+W:0:1:0:0
 B:MOAN
 F:UNIQUE | MALE | CAN_SPEAK |
 F:FORCE_MAXHP | 
-F:ONLY_ITEM | DROP_90 | DROP_GOOD | 
+F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
 F:OPEN_DOOR | BASH_DOOR | 
 F:NO_CONF | NO_SLEEP
 D:He's lost his dogs.  He's had his mushrooms stolen.  He's not a happy 
@@ -282,18 +281,17 @@ F:RAND_50 | DROP_90 |
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR
 D:He doesn't take to strangers kindly.
 
-N:15:Martti Ihrasaari
+N:15:Brian Mulroney
 G:P:w
 I:109:35d20:50:15:4
-W:0:4:0:0
-B:SHOW
+W:0:1:0:0
 B:SHOW
 F:UNIQUE | MALE | CAN_SPEAK |
 F:FORCE_MAXHP | 
-F:ONLY_ITEM | DROP_90 | DROP_GOOD |
+F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
 F:OPEN_DOOR | BASH_DOOR | 
 F:NO_CONF | NO_SLEEP
-D:He weighs 127 kg. He is the president of some remote country. 
+D:Here comes a former Canadian Prime Minister to sell your soul to the USA!
 
 ##### Normal monsters #####
 

@@ -1,87 +1,54 @@
-# File: Makefile.dos
+# File: Makefile.ibm
 
-# Purpose: Makefile support for "main-dos.c"
+# Purpose: Makefile support for "main-ibm.c" and Gnu C
 
-#
 # Note: Rename to "Makefile" before using
-#
-# Allegro support by Robert Ruehlmann (rr9@angband.org)
-#
+# Added extra targets: mrmarcel@eos.ncsu.edu (Mike Marcelais)
 
-# Compiling with MOD-file support:
-# - Get the JG-MOD library from http://www.jgmod.home.ml.org and install it.
-# - Insert -ljgmod in front of -lalleg to the Libraries section.
-# - Add -DUSE_MOD_FILES to the compiler flags.
-# - Copy your MOD-files into the "lib/xtra/music" folder.
-
-
-#
-# Basic definitions
-#
-
-# Objects
 OBJS = \
-  main.o main-dos.o main-ibm.o \
-  generate.o dungeon.o init1.o init2.o \
-  store.o birth.o wizard1.o wizard2.o \
-  cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o \
-  load1.o load2.o save.o files.o \
-  xtra1.o xtra2.o spells1.o spells2.o melee1.o melee2.o \
-  object1.o object2.o monster1.o monster2.o \
+  z-util.o z-virt.o z-form.o z-rand.o z-term.o \
   variable.o tables.o util.o cave.o \
-  z-term.o z-rand.o z-form.o z-virt.o z-util.o \
-  quest.o
+  object1.o object2.o monster1.o monster2.o \
+  xtra1.o xtra2.o spells1.o spells2.o melee1.o melee2.o \
+  load1.o load2.o save.o files.o \
+  cmd1.o cmd2.o cmd3.o cmd4.o cmd5.o cmd6.o \
+  store.o birth.o wizard1.o wizard2.o \
+  generate.o dungeon.o init1.o init2.o \
+  quest.o \
+  main-ibm.o main.o
+
 
 # Compiler
+
 CC = gcc
 
 # Compiler flags
-CFLAGS = -Wall -O2 -s -DUSE_DOS -DUSE_IBM -DUSE_BACKGROUND \
--DUSE_TRANSPARENCY
 
+CFLAGS = -Wall -O2 -DUSE_IBM
 
 # Libraries
-LIBS = -lpc -lalleg
 
+LIBS = -lpc
+GLIBS= -lgrx20
 
-#
-# Targets
-#
+# Name of Program
 
-default: zangband.exe
-	copy zangband.exe ..
-	del zangband.exe
+PROGRAM = Gumband.exe
 
-install: zangband.exe
-	copy zangband.exe ..
+all: $(PROGRAM)
 
-all: zangband.exe
-	@echo All done.  Use 'make install' to install.
+# Generate binary file
 
+Gumband.exe: $(OBJS)
+	$(CC) $(CFLAGS) -o Gumband.bin $(OBJS) $(LIBS)
 
-#
-# Link executables
-#
-
-zangband.exe: $(OBJS)
-	$(CC) $(CFLAGS) -o $@ $(OBJS) $(LIBS)
-
-
-#
 # Compile source files
-#
 
 .c.o:
 	$(CC) $(CFLAGS) -c $*.c
 
 
-#
 # Clean up
-#
 
 clean:
-	del *.o
-
-cleanall: clean
-	del *.exe
-
+	del *.o $(PROGRAM) *.bin

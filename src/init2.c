@@ -1995,7 +1995,7 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		{ TV_POTION, SV_POTION_RESTORE_EXP },
 		{ TV_POTION, SV_POTION_RESTORE_EXP },
 
-		{ TV_LIFE_BOOK, 0 },
+/*		{ TV_LIFE_BOOK, 0 },
 		{ TV_LIFE_BOOK, 0 },
 		{ TV_LIFE_BOOK, 0 },
 		{ TV_LIFE_BOOK, 0 },
@@ -2003,7 +2003,7 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		{ TV_LIFE_BOOK, 1 },
 		{ TV_LIFE_BOOK, 1 },
 		{ TV_LIFE_BOOK, 1 },
-		{ TV_LIFE_BOOK, 1 },
+		{ TV_LIFE_BOOK, 1 }, */
 
 		{ TV_HAFTED, SV_WHIP },		/* +16 */
 		{ TV_HAFTED, SV_MACE },
@@ -2139,7 +2139,7 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		{ TV_STAFF, SV_STAFF_CURE_LIGHT },
 		{ TV_STAFF, SV_STAFF_PROBING },
 
-		{ TV_SORCERY_BOOK, 0 },
+/*		{ TV_SORCERY_BOOK, 0 },
 		{ TV_SORCERY_BOOK, 0 },
 		{ TV_SORCERY_BOOK, 1 },
 		{ TV_SORCERY_BOOK, 1 },
@@ -2152,7 +2152,7 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 		{ TV_ARCANE_BOOK, 2 },
 		{ TV_ARCANE_BOOK, 2 },
 		{ TV_ARCANE_BOOK, 3 },
-		{ TV_ARCANE_BOOK, 3 },
+		{ TV_ARCANE_BOOK, 3 }, */
 
 	},
 

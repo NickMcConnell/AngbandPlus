@@ -539,51 +539,51 @@ and tables.c --TY */
  * Player race constants (hard-coded by save-files, arrays, etc)
  */
 #define RACE_HUMAN              0
-#define RACE_HALF_ELF   1
+#define RACE_HALF_ELF           1
 #define RACE_ELF                2
 #define RACE_HOBBIT             3
 #define RACE_GNOME              4
 #define RACE_DWARF              5
-#define RACE_HALF_ORC   6
-#define RACE_HALF_TROLL 7
-#define RACE_AMBERITE   8
-#define RACE_HIGH_ELF   9
-#define RACE_BARBARIAN 10
-#define RACE_HALF_OGRE 11
-#define RACE_HALF_GIANT     12
-#define RACE_HALF_TITAN     13
-#define RACE_CYCLOPS        14
-#define RACE_YEEK           15
-#define RACE_KLACKON        16
-#define RACE_KOBOLD         17
-#define RACE_NIBELUNG       18
-#define RACE_DARK_ELF       19
-#define RACE_DRACONIAN      20
-#define RACE_MIND_FLAYER    21
-#define RACE_IMP            22
-#define RACE_GOLEM          23
-#define RACE_SKELETON       24
-#define RACE_ZOMBIE         25
-#define RACE_VAMPIRE        26
-#define RACE_SPECTRE        27
-#define RACE_SPRITE         28
-#define RACE_BEASTMAN       29
+#define RACE_HALF_ORC           6
+#define RACE_HALF_TROLL         7
+#define RACE_AMBERITE           8
+#define RACE_HIGH_ELF           9
+#define RACE_BARBARIAN         10
+#define RACE_HALF_OGRE         11
+#define RACE_HALF_GIANT        12
+#define RACE_HALF_TITAN        13
+#define RACE_CYCLOPS           14
+#define RACE_YEEK              15
+#define RACE_KLACKON           16
+#define RACE_KOBOLD            17
+#define RACE_NIBELUNG          18
+#define RACE_DARK_ELF          19
+#define RACE_DRACONIAN         20
+#define RACE_MIND_FLAYER       21
+#define RACE_IMP               22
+#define RACE_GOLEM             23
+#define RACE_SKELETON          24
+#define RACE_ZOMBIE            25
+#define RACE_VAMPIRE           26
+#define RACE_SPECTRE           27
+#define RACE_SPRITE            28
+#define RACE_BEASTMAN          29
 
 
 /*
  * Player class constants (hard-coded by save-files, arrays, etc)
  */
-#define CLASS_WARRIOR   0
+#define CLASS_WARRIOR           0
 #define CLASS_MAGE              1
-#define CLASS_PRIEST    2
+#define CLASS_PRIEST            2
 #define CLASS_ROGUE             3
-#define CLASS_RANGER    4
-#define CLASS_PALADIN   5
-#define CLASS_WARRIOR_MAGE 6
-#define CLASS_CHAOS_WARRIOR 7
-#define CLASS_MONK 8
-#define CLASS_MINDCRAFTER 9
-#define CLASS_HIGH_MAGE 10
+#define CLASS_RANGER            4
+#define CLASS_PALADIN           5
+#define CLASS_WARRIOR_MAGE      6
+#define CLASS_CHAOS_WARRIOR     7
+#define CLASS_MONK              8
+#define CLASS_MINDCRAFTER       9
+#define CLASS_HIGH_MAGE        10
 
 /*** Screen Locations ***/
 
@@ -647,14 +647,14 @@ and tables.c --TY */
 #define ROW_BLIND               23
 #define COL_BLIND               7       /* "Blind" */
 
-#define ROW_CONFUSED    23
-#define COL_CONFUSED    13      /* "Confused" */
+#define ROW_CONFUSED            23
+#define COL_CONFUSED            13      /* "Confused" */
 
 #define ROW_AFRAID              23
 #define COL_AFRAID              22      /* "Afraid" */
 
-#define ROW_POISONED    23
-#define COL_POISONED    29      /* "Poisoned" */
+#define ROW_POISONED            23
+#define COL_POISONED            29      /* "Poisoned" */
 
 #define ROW_STATE               23
 #define COL_STATE               38      /* <state> */
@@ -685,12 +685,12 @@ and tables.c --TY */
 #define FEAT_MORE               0x07
 
 /* Traps */
-#define FEAT_TRAP_HEAD  0x10
-#define FEAT_TRAP_TAIL  0x1F
+#define FEAT_TRAP_HEAD          0x10
+#define FEAT_TRAP_TAIL          0x1F
 
 /* Doors */
-#define FEAT_DOOR_HEAD  0x20
-#define FEAT_DOOR_TAIL  0x2F
+#define FEAT_DOOR_HEAD          0x20
+#define FEAT_DOOR_TAIL          0x2F
 
 /* Extra */
 #define FEAT_SECRET             0x30
@@ -699,30 +699,30 @@ and tables.c --TY */
 /* Seams */
 #define FEAT_MAGMA              0x32
 #define FEAT_QUARTZ             0x33
-#define FEAT_MAGMA_H    0x34
-#define FEAT_QUARTZ_H   0x35
-#define FEAT_MAGMA_K    0x36
-#define FEAT_QUARTZ_K   0x37
+#define FEAT_MAGMA_H            0x34
+#define FEAT_QUARTZ_H           0x35
+#define FEAT_MAGMA_K            0x36
+#define FEAT_QUARTZ_K           0x37
 
 /* Walls */
-#define FEAT_WALL_EXTRA 0x38
-#define FEAT_WALL_INNER 0x39
-#define FEAT_WALL_OUTER 0x3A
-#define FEAT_WALL_SOLID 0x3B
-#define FEAT_PERM_EXTRA 0x3C
-#define FEAT_PERM_INNER 0x3D
-#define FEAT_PERM_OUTER 0x3E
-#define FEAT_PERM_SOLID 0x3F
-#define FEAT_MINOR_GLYPH 0x40
-#define FEAT_PATTERN_START 0x41
-#define FEAT_PATTERN_1  0x42
-#define FEAT_PATTERN_2  0x43
-#define FEAT_PATTERN_3  0x44
-#define FEAT_PATTERN_4  0x45
-#define FEAT_PATTERN_END 0x46
-#define FEAT_PATTERN_OLD 0x47
-#define FEAT_PATTERN_XTRA1 0x48
-#define FEAT_PATTERN_XTRA2 0x49
+#define FEAT_WALL_EXTRA         0x38
+#define FEAT_WALL_INNER         0x39
+#define FEAT_WALL_OUTER         0x3A
+#define FEAT_WALL_SOLID         0x3B
+#define FEAT_PERM_EXTRA         0x3C
+#define FEAT_PERM_INNER         0x3D
+#define FEAT_PERM_OUTER         0x3E
+#define FEAT_PERM_SOLID         0x3F
+#define FEAT_MINOR_GLYPH        0x40
+#define FEAT_PATTERN_START      0x41
+#define FEAT_PATTERN_1          0x42
+#define FEAT_PATTERN_2          0x43
+#define FEAT_PATTERN_3          0x44
+#define FEAT_PATTERN_4          0x45
+#define FEAT_PATTERN_END        0x46
+#define FEAT_PATTERN_OLD        0x47
+#define FEAT_PATTERN_XTRA1      0x48
+#define FEAT_PATTERN_XTRA2      0x49
 
 /*
  * ZAngband shops are moved to 0x4A to 0x52
@@ -730,20 +730,20 @@ and tables.c --TY */
  */
 
 /* Shops */
-#define FEAT_SHOP_HEAD  0x4A
-#define FEAT_SHOP_TAIL  0x52
+#define FEAT_SHOP_HEAD          0x4A
+#define FEAT_SHOP_TAIL          0x52
 
 
 /*** Artifact indexes (see "lib/edit/a_info.txt") ***/
 
 
 /* Lites */
-#define ART_GALADRIEL           1
+#define ART_GALADRIEL                   1
 #define ART_ELENDIL                     2
 #define ART_THRAIN                      3
 
 /* Amulets */
-#define ART_CARLAMMAS           4
+#define ART_CARLAMMAS                   4
 #define ART_INGWE                       5
 #define ART_DWARVES                     6
 
@@ -756,56 +756,56 @@ and tables.c --TY */
 #define ART_POWER                       13
 
 /* Dragon Scale */
-#define ART_RAZORBACK           16
-#define ART_BLADETURNER         17
+#define ART_RAZORBACK                   16
+#define ART_BLADETURNER                 17
 
 /* Hard Armour */
-#define ART_SOULKEEPER          19
+#define ART_SOULKEEPER                  19
 #define ART_ISILDUR                     20
-#define ART_ROHIRRIM            21
-#define ART_BELEGENNON          22
-#define ART_CELEBORN            23
+#define ART_ROHIRRIM                    21
+#define ART_BELEGENNON                  22
+#define ART_CELEBORN                    23
 #define ART_ARVEDUI                     24
-#define ART_CASPANION           25
+#define ART_CASPANION                   25
 
 /* Soft Armour */
-#define ART_HITHLOMIR           27
-#define ART_THALKETTOTH         28
+#define ART_HITHLOMIR                   27
+#define ART_THALKETTOTH                 28
 
 /* Shields */
 #define ART_THORIN                      30
-#define ART_CELEGORM            31
+#define ART_CELEGORM                    31
 #define ART_ANARION                     32
 
 /* Helms and Crowns */
 #define ART_MORGOTH                     34
-#define ART_BERUTHIEL           35
-#define ART_THRANDUIL           36
+#define ART_BERUTHIEL                   35
+#define ART_THRANDUIL                   36
 #define ART_THENGEL                     37
-#define ART_HAMMERHAND          38
+#define ART_HAMMERHAND                  38
 #define ART_DOR                         39
-#define ART_HOLHENNETH          40
+#define ART_HOLHENNETH                  40
 #define ART_GORLIM                      41
 #define ART_GONDOR                      42
 
 /* Cloaks */
 #define ART_COLLUIN                     44
-#define ART_HOLCOLLETH          45
+#define ART_HOLCOLLETH                  45
 #define ART_THINGOL                     46
-#define ART_THORONGIL           47
-#define ART_COLANNON            48
+#define ART_THORONGIL                   47
+#define ART_COLANNON                    48
 #define ART_LUTHIEN                     49
 #define ART_TUOR                        50
 
 /* Gloves */
-#define ART_CAMBELEG            52
-#define ART_CAMMITHRIM          53
-#define ART_PAURHACH            54
-#define ART_PAURNIMMEN          55
-#define ART_PAURAEGEN           56
+#define ART_CAMBELEG                    52
+#define ART_CAMMITHRIM                  53
+#define ART_PAURHACH                    54
+#define ART_PAURNIMMEN                  55
+#define ART_PAURAEGEN                   56
 #define ART_PAURNEN                     57
 #define ART_CAMLOST                     58
-#define ART_FINGOLFIN           59
+#define ART_FINGOLFIN                   59
 
 /* Boots */
 #define ART_FEANOR                      60
@@ -813,35 +813,35 @@ and tables.c --TY */
 #define ART_THROR                       62
 
 /* Swords */
-#define ART_MAEDHROS            64
+#define ART_MAEDHROS                    64
 #define ART_ANGRIST                     65
-#define ART_NARTHANC            66
-#define ART_NIMTHANC            67
+#define ART_NARTHANC                    66
+#define ART_NIMTHANC                    67
 #define ART_DETHANC                     68
 #define ART_RILIA                       69
-#define ART_BELANGIL            70
+#define ART_BELANGIL                    70
 #define ART_CALRIS                      71
-#define ART_ARUNRUTH            72
-#define ART_GLAMDRING           73
+#define ART_ARUNRUTH                    72
+#define ART_GLAMDRING                   73
 #define ART_AEGLIN                      74
 #define ART_ORCRIST                     75
-#define ART_GURTHANG            76
-#define ART_ZARCUTHRA           77
-#define ART_MORMEGIL            78
-#define ART_GONDRICAM           79
-#define ART_CRISDURIAN          80
-#define ART_AGLARANG            81
+#define ART_GURTHANG                    76
+#define ART_ZARCUTHRA                   77
+#define ART_MORMEGIL                    78
+#define ART_GONDRICAM                   79
+#define ART_CRISDURIAN                  80
+#define ART_AGLARANG                    81
 #define ART_RINGIL                      82
 #define ART_ANDURIL                     83
-#define ART_ANGUIREL            84
+#define ART_ANGUIREL                    84
 #define ART_ELVAGIL                     85
-#define ART_FORASGIL            86
+#define ART_FORASGIL                    86
 #define ART_CARETH                      87
 #define ART_STING                       88
-#define ART_HARADEKKET          89
-#define ART_GILETTAR            90
-#define ART_DOOMCALLER          91
-#define ART_VORPAL_BLADE        92
+#define ART_HARADEKKET                  89
+#define ART_GILETTAR                    90
+#define ART_DOOMCALLER                  91
+#define ART_VORPAL_BLADE                92
 
 /* Polearms */
 #define ART_THEODEN                     93
@@ -851,38 +851,38 @@ and tables.c --TY */
 #define ART_AEGLOS                      97
 #define ART_OROME                       98
 #define ART_NIMLOTH                     99
-#define ART_EORLINGAS           100
+#define ART_EORLINGAS                   100
 #define ART_DURIN                       101
 #define ART_EONWE                       102
 #define ART_BALLI                       103
-#define ART_LOTHARANG           104
-#define ART_MUNDWINE            105
-#define ART_BARUKKHELED         106
+#define ART_LOTHARANG                   104
+#define ART_MUNDWINE                    105
+#define ART_BARUKKHELED                 106
 #define ART_WRATH                       107
 #define ART_ULMO                        108
 #define ART_AVAVIR                      109
 
 /* The sword of the Dawn */
-#define ART_DAWN                110
+#define ART_DAWN                        110
 
 /* Hafted */
 #define ART_GROND                       111
 #define ART_TOTILA                      112
-#define ART_THUNDERFIST         113
-#define ART_BLOODSPIKE          114
-#define ART_FIRESTAR            115
+#define ART_THUNDERFIST                 113
+#define ART_BLOODSPIKE                  114
+#define ART_FIRESTAR                    115
 #define ART_TARATOL                     116
 #define ART_AULE                        117
 #define ART_NAR                         118
 #define ART_ERIRIL                      119
 #define ART_OLORIN                      120
-#define ART_DEATHWREAKER        121
+#define ART_DEATHWREAKER                121
 #define ART_TURMIL                      122
 
 /* Bows */
-#define ART_BELTHRONDING        124
+#define ART_BELTHRONDING                124
 #define ART_BARD                        125
-#define ART_CUBRAGOL            126
+#define ART_CUBRAGOL                    126
 
 
 

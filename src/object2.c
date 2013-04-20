@@ -5725,7 +5725,7 @@ static void spell_info(char *p, int spell, int realm)
 		int plev = p_ptr->lev;
 
 		/* See below */
-		int orb = (plev / ((p_ptr->pclass == 2 || p_ptr->pclass == CLASS_HIGH_MAGE) ? 2 : 4));
+/*		int orb = (plev / ((p_ptr->pclass == 2 || p_ptr->pclass == CLASS_HIGH_MAGE) ? 2 : 4)); */
 
 		/* Analyze the spell */
 		switch (realm)
@@ -5733,23 +5733,23 @@ static void spell_info(char *p, int spell, int realm)
 			case 0: /* Life */
 				switch (spell)
 				{
-					case  1: strcpy (p, " heal 2d10"); break;
+					case  1: strcpy (p, " heal 3d10"); break;
 					case  2: strcpy (p, " dur 12+d12 turns"); break;
 					case  4: sprintf(p, " dam %d", 10 + (plev / 2)); break;
-					case  6: strcpy (p, " heal 4d10"); break;
-					case 10: strcpy (p, " heal 8d10"); break;
+					case  6: strcpy (p, " heal 6d10"); break;
+					case 10: strcpy (p, " heal 12d10"); break;
 					case 11: strcpy (p, " dur 24+d24"); break;
-					case 12: sprintf(p, " dam 3d6+%d", (plev + orb)); break;
+					case 12: sprintf(p, " dam %d", 25 + (plev + (plev / 2))); break;
 					case 13: sprintf(p, " dur d25+%d", 3 * (plev)); break;
 					case 14: strcpy (p, " heal 300"); break;
 					case 16: sprintf(p, " dam %d+%d", plev, plev); break;
-					case 18: sprintf(p, " dam %d+%d", 3 * plev, 3 * plev); break;
-					case 20: sprintf(p, " dam %d", 4 * plev); break;
-					case 22: sprintf(p, " d %d/h 1000", 4 * plev); break;
+					case 18: sprintf(p, " dam %d+%d", 4 * plev, 4 * plev); break;
+					case 20: sprintf(p, " dam %d", 5 * plev); break;
+					case 22: sprintf(p, " d %d/h 1000", 5 * plev); break;
 					case 24: strcpy (p, " dur 25+d25"); break;
 					case 25: strcpy (p, " dur 48+d48"); break;
 					case 28: strcpy (p, " heal 2000"); break;
-					case 30: sprintf(p, " h300/d%d+388", plev * 4); break;
+					case 30: sprintf(p, " h300/d%d+388", plev * 5); break;
 					case 31: strcpy (p, " dur 7+d7"); break;
 				}
 				break;
@@ -5774,49 +5774,48 @@ static void spell_info(char *p, int spell, int realm)
 			case 2: /* Nature */
 				switch (spell)
 				{
-					case  1: strcpy (p, " heal 2d8"); break;
+					case  1: strcpy (p, " heal 3d8"); break;
 					case  4: sprintf(p, " dam %d", 10 + (plev / 2)); break;
 					case  6: strcpy (p, " dur 20+d20"); break;
-					case  9: sprintf(p, " dam %dd8", (3+((plev-5)/4))); break;
-					case 11: sprintf(p, " dam %dd8", (5+((plev-5)/4))); break;
+					case  9: sprintf(p, " dam %dd8", (5+((plev-5)/3))); break;
+					case 11: sprintf(p, " dam %dd8", (8+((plev-5)/3))); break;
 					case 12: strcpy (p, " dam 6d8"); break;
 					case 15: strcpy (p, " heal 1000"); break;
 					case 18: strcpy (p, " dur 20+d30"); break;
 					case 19: strcpy (p, " dur 20+d20"); break;
 					case 24: strcpy (p, " rad 10"); break;
-					case 26: sprintf(p, " dam %d", 70+plev); break;
-					case 27: sprintf(p, " dam %d", 90+plev); break;
-					case 28: sprintf(p, " dam %d", 100+plev); break;
-					case 29: strcpy (p, " dam 75"); break;
-					case 31: sprintf(p, " dam %d+%d", 4*plev,100+plev); break;
+					case 26: sprintf(p, " dam %d", 105+plev); break;
+					case 27: sprintf(p, " dam %d", 135+plev); break;
+					case 28: sprintf(p, " dam %d", 150+plev); break;
+					case 29: strcpy (p, " dam 100"); break;
+					case 31: sprintf(p, " dam %d+%d", 5*plev,150+plev); break;
 				}
 				break;
 
 			case 3: /* Chaos */
 				switch (spell)
 				{
-					case  0: sprintf(p, " dam %dd4", 3+((plev-1)/5)); break;
+					case  0: sprintf(p, " dam %dd4", 3+((plev-1)/3)); break;
 					case  2: sprintf(p, " dam %d", 10 + (plev / 2)); break;
-					case  4: sprintf(p, " dam 3d5+%d", plev + (plev / 
-					     (((p_ptr->pclass == CLASS_MAGE) ||
-					     (p_ptr->pclass == CLASS_HIGH_MAGE)) ? 2 : 4))); break;
-					case  5: sprintf(p, " dam %dd8", (6+((plev-5)/4))); break;
-					case  6: sprintf(p, " dam %dd8", (8+((plev-5)/4))); break;
+					case  4: sprintf(p, " dam %d", 25 + (plev + (plev / 2))); break; 
+					case  5: sprintf(p, " dam %dd8", (9+((plev-5)/3))); break;
+					case  6: sprintf(p, " dam %dd8", (12+((plev-5)/3))); break;
 					case  7: sprintf(p, " range %d", plev * 5); break;
 					case  8: strcpy (p, " random"); break;
-					case  9: sprintf(p, " dam %dd8", (10+((plev-5)/4))); break;
-					case 10: sprintf(p, " dam %d", 45 + plev); break;
-					case 11: sprintf(p, " dam %dd8", (11+((plev-5)/4))); break;
-					case 12: sprintf(p, " dam %d", 55 + plev); break;
-					case 15: sprintf(p, " dam %d", 66 + plev); break;
-					case 17: sprintf(p, " dam %dd8", (5+((plev)/10))); break;
-					case 19: sprintf(p, " dam %d", 80 + plev); break;
-					case 24: sprintf(p, " dam %dd8", (9 + ((plev/10)))); break;
-					case 25: sprintf(p, " dam %d each", (3*plev)/2); break;
-					case 26: sprintf(p, " dam %d", 75 + plev); break;
+					case  9: sprintf(p, " dam %dd8", (15+((plev-5)/3))); break;
+					case 10: sprintf(p, " dam %d", 65 + plev); break;
+					case 11: sprintf(p, " dam %dd8", (11+((plev-5)/3))); break;
+					case 12: sprintf(p, " dam %d", 80 + plev); break;
+					case 15: sprintf(p, " dam %d", 100 + plev); break;
+					case 17: sprintf(p, " dam %dd8", (8+((plev)/5))); break;
+					case 19: sprintf(p, " dam %d", 120 + plev); break;
+/*					case 24: sprintf(p, " dam %dd8", (9 + ((plev/10)))); break; */
+					case 24: sprintf(p, " dam %dd8", (14+((plev-5)/3))); break;
+					case 25: sprintf(p, " dam %d each", (4*plev)/2); break;
+					case 26: sprintf(p, " dam %d", 100 + plev); break;
 					case 27: strcpy (p, " dam 75 / 150"); break;
-					case 28: sprintf(p, " dam %d", 120 + plev); break;
-					case 29: sprintf(p, " dam %d", 300 + (plev * 2)); break;
+					case 28: sprintf(p, " dam %d", 180 + plev); break;
+					case 29: sprintf(p, " dam %d", 400 + (plev * 2)); break;
 					case 30: sprintf(p, " dam %d", p_ptr->chp); break;
 					case 31: strcpy (p, " dam 3 * 175"); break;
 				}
@@ -5825,23 +5824,21 @@ static void spell_info(char *p, int spell, int realm)
 			case 4: /* Death */
 				switch(spell)
 				{
-					case  1: sprintf(p, " dam %dd3", (3 + ((plev-1)/5))); break;
-					case  3: sprintf(p, " dam %d", 10 + (plev / 2)); break;
+					case  1: sprintf(p, " dam %dd4", (3 + ((plev-1)/3))); break;
+					case  3: sprintf(p, " dam %d", 15 + (plev / 2)); break;
 					case  5: sprintf(p, " dur 20+d20"); break;
-					case  8: sprintf(p, " dam 3d6+%d", plev +
-					    (plev / (((p_ptr->pclass == CLASS_MAGE) ||
-					    (p_ptr->pclass == CLASS_HIGH_MAGE)) ? 2 : 4))); break;
-					case  9: sprintf(p, " dam %dd8", (6+((plev-5)/4))); break;
+					case  8: sprintf(p, " dam %d", 25 + (plev + (plev / 2))); break;
+					case  9: sprintf(p, " dam %dd8", (9+((plev-5)/3))); break;
 					case 11: sprintf(p, " dm %d* 5+d15", 2 + (plev/15)); break;
-					case 13: sprintf(p, " dam %d", 4 * plev); break;
+					case 13: sprintf(p, " dam %d", 5 * plev); break;
 					case 16: strcpy (p, " dur 25+d25"); break;
 					case 17: strcpy (p, " random"); break;
-					case 18: sprintf(p, " dam %dd8", (4+((plev-5)/4))); break;
+					case 18: sprintf(p, " dam %dd8", (6+((plev-5)/3))); break;
 					case 19: strcpy (p, " max dur 50"); break;
 					case 20: strcpy (p, " dam 3*100"); break;
-					case 22: strcpy (p, " dam 120"); break;
-					case 27: sprintf(p, " dam %d", plev * 3); break;
-					case 28: sprintf(p, " dam %d", plev * 4); break;
+					case 22: strcpy (p, " dam 180"); break;
+					case 27: sprintf(p, " dam %d", plev * 4); break;
+					case 28: sprintf(p, " dam %d", plev * 5); break;
 					case 29: strcpy (p, " dam 666"); break;
 					case 31: sprintf(p, " dur %d+d%d", (plev/2), (plev/2)); break;
 				}
@@ -5851,33 +5848,33 @@ static void spell_info(char *p, int spell, int realm)
 				switch(spell)
 				{
 					case  0: strcpy (p, " range 10"); break;
-					case  1: sprintf(p, " dam %dd3", 3 + ((plev-1)/5)); break;
+					case  1: sprintf(p, " dam %dd4", 3 + ((plev-1)/3)); break;
 					case  2: strcpy (p, " random"); break;
 					case  4: sprintf(p, " range %d", plev * 4); break;
 					case  5: sprintf(p, " range %d", plev+2); break;
 					case  6: strcpy (p, " dur 25+d30"); break;
 					case  8: sprintf(p, " max wgt %d", plev * 15 / 10); break;
 					case 14: strcpy (p, " delay 15+d21"); break;
-					case 22: sprintf(p, " dam %d", plev * 3); break;
+					case 22: sprintf(p, " dam %d", plev * 4); break;
 				}
 				break;
 
 			case 6: /* Arcane */
 				switch (spell)
 				{
-					case  0: sprintf(p, " dam %dd3", 3 + ((plev-1)/5)); break;
+					case  0: sprintf(p, " dam %dd4", 3 + ((plev-1)/3)); break;
 					case  4: strcpy (p, " range 10"); break;
 					case  5: sprintf(p, " dam 2d%d", plev / 2); break;
-					case  7: strcpy (p, " heal 2d8"); break;
+					case  7: strcpy (p, " heal 3d8"); break;
 					case 14:
 					case 15:
 					case 16:
 					case 17: strcpy (p, " dur 20+d20"); break;
-					case 18: strcpy (p, " heal 4d8"); break;
+					case 18: strcpy (p, " heal 6d8"); break;
 					case 19: sprintf(p, " range %d", plev * 5); break;
 					case 21: strcpy (p, " dam 6d8"); break;
 					case 23: strcpy (p, " dur 24+d24"); break;
-					case 28: sprintf(p, " dam %d", 75 + (plev)); break;
+					case 28: sprintf(p, " dam %d", 115 + (plev)); break;
 					case 30: strcpy (p, " delay 15+d21"); break;
 					case 31: strcpy (p, " dur 25+30"); break;
 				}

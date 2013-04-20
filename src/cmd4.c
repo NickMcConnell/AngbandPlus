@@ -2529,7 +2529,7 @@ void do_cmd_version(void)
     msg_format("You are playing Angband %d.%d.%d.",
 	           VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 #else
-    msg_format("You are playing Zangband %d.%d.%d.",
+    msg_format("You are playing Gumband %d.%d.%d.",
                 FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH);
 #endif
                

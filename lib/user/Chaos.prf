@@ -1,0 +1,148 @@
+# Chaos Magic
+#
+# TAB - Teleport Other      F1 - Magic Missile       SF1 - Mana Burst
+#   [ - Arcane Binding      F2 - Fire Bolt           SF2 - Sonic Boom
+#   ] - Chaos Branding      F3 - Fist of Force       SF3 - Fire Ball
+#   ' - Teleport Self       F4 - Chaos Bolt          SF4 - Invoke Logrus
+#   " - Alter Reality       F5 - Doom Bolt           SF5 - Chain Lightning
+#   ; - Trap/Door Destruct. F6 - Polymorph Other     SF6 - Disintegrate
+#   : - Word of Destruction F7 - Beam of Gravity     SF7 - Meteor Swarm
+#   Z - Flash of Light      F8 - Call the Void       SF8 - Flame Strike
+#                           F9 - Touch of Confusion  SF9 - Call Chaos
+#                          F10 - Wonder             SF10 - Magic Rocket
+#                          F11 - Polymorph Self     SF11 - Mana Storm
+#                          F12 - Summon Demon       SF12 - Breathe Logrus
+
+# TAB - Teleport Other
+A:m2f
+P:\t
+
+# [ - Arcane Binding
+A:m3c
+C:0:[
+
+# ] - Chaos Branding
+A:m3g
+C:0:]
+
+# ' - Teleport Self
+A:m1h
+C:0:'
+
+# " - Alter Reality
+A:m3e
+C:0:"
+
+# ; - Trap/Door Destruction
+A:m1b
+C:0:;
+
+# : - Word of Destruction
+A:m2g
+C:0::
+
+# Z - Flash of Light
+A:m1c
+C:0:Z
+
+# Bolt Spells
+
+# F1 - Magic Missile
+A:\e\e\e*tm1a
+P:^_x3B\r
+
+# F2 - Fire Bolt
+A:\e\e\e*tm1f
+P:^_x3C\r
+
+# F3 - Fist of Force
+A:m1g
+P:^_x3D\r
+
+# F4 - Chaos Bolt
+A:\e\e\e*tm2b
+P:^_x3E\r
+
+# F5 - Doom Bolt
+A:\e\e\e*tm2d
+P:^_x3F\r
+
+# F6 - Polymorph Other
+A:m3a
+P:^_x40\r
+
+# F7 - Beam of Gravity
+A:\e\e\e*tm4a
+P:^_x41\r
+
+# F8 - Call the Void
+A:m4h
+P:^_x42\r
+
+# Misc Crap
+
+# F9 - Touch of Confusion
+A:m1d
+P:^_x43\r
+
+# F10 - Wonder
+A:m2a
+P:^_x44\r
+
+# F11 - Polymorph Self
+A:m3f
+P:^_x85\r
+
+# F12 - Summon Demon
+A:m3h
+P:^_x86\r
+
+# Ball Spells
+
+# SHIFT-F1 - Mana Burst
+A:m1e
+P:^_Sx54\r
+
+# SHIFT-F2 - Sonic Boom
+A:m2c
+P:^_Sx55\r
+
+# SHIFT-F3 - Fire Ball
+A:m2e
+P:^_Sx56\r
+
+# SHIFT-F4 - Invoke Logrus
+A:m2h
+P:^_Sx57\r
+
+# SHIFT-F5 - Chain Lightning
+A:m3b
+P:^_Sx58\r
+
+# SHIFT-F6 - Disintegrate
+A:m3d
+P:^_Sx59\r
+
+# SHIFT-F7 - Meteor Swarm
+A:m4b
+P:^_Sx5A\r
+
+# SHIFT-F8 - Flame Strike
+A:m4c
+P:^_Sx5B\r
+
+# SHIFT-F9 - Call Chaos
+A:m4d
+P:^_Sx5C\r
+
+# SHIFT-F10 - Magic Rocket
+A:m4e
+P:^_Sx5D\r
+
+# SHIFT-F11 - Mana Storm
+A:m4f
+P:^_Sx87\r
+
+# SHIFT-F12 - Breathe Logrus
+A:m4g
+P:^_Sx88\r

@@ -420,9 +420,9 @@ bool make_attack_normal(int m_idx)
 				case RBM_SHOW:
 				{
 					if (randint(3)==1)
-						act = "sings 'We are a happy family.'";
+						act = "yells, 'Come on! You know you want NAFTA!'";
 					else
-						act = "sings 'I love you, you love me.'";
+						act = "says, 'Free trade with the USA is a good thing, I swear!'";
 					break;
 				}
 			}

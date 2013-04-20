@@ -1,0 +1,138 @@
+============================================================================
+= Gumband 2.1.1c: Changes from ZAngband 2.1.1c = Last Update: 24-Nov-2000  =
+============================================================================
+I have never compiled this for any platform other than MS-DOS, so your
+milage may vary.  I won't be compiling anything but DOS versions, either,
+but anyone who wants to compile and upload for their favorite platform is
+free to do so, of course.  I can't make heads or tails out of most of the
+standard makefiles, so you'll have to do some hacking of 'em on your own if
+you plan to compile...
+============================================================================
+On that subject, I've compiled without graphics or sound, using main-ibm.c.
+If you want the graphics, recompile using main-dos.c, I suppose...
+============================================================================
+Send any and all suggestions or complaints to gumby@gwar.net - but remember
+that my C skills are minimal, so the changes to the source will be as well.
+============================================================================
+There have been other minor changes than those listed here that aren't worth
+individual mentions.
+============================================================================
+Please note that the numbering is just for convenience and not any sort of
+chronology of the changes I've made since the list has been rewritten and
+reordered several times now. :)
+============================================================================
+
+01) Enabled the Monk hack to make their speed bonus cumulative with those
+    of Klackons and Sprites. [config.h] I've played them both with and
+    without the 'hack' enabled and have never really seen the point of
+    adding the code to limit them in the first place - after all, Sprites
+    and Klackons don't have the 'legal' option to be Monks, so why was
+    special effort made to balance them? Plus speed's soooo common in ZAng
+    that a little more won't hurt. :)
+
+02) Tweaked the pseudo-ID of most classes. The various spellcasting Warriors
+    have all been speeded up a bit (to the 60000 mark), with Warrior-Magi
+    gaining heavy sensing. Magi have been changed to the (plev * plev + 40)
+    formula. High Magi now use the same formula as Mindcrafters - still
+    rather slow, but they needed it to be playable, IMHO. :) The rest have
+    had their pseudo-ID's speeded only slightly. [dungeon.c]
+
+03) Rings and Amulets can now be pseudo-ID'd, tho only as good, average and
+    cursed. [dungeon.c]
+
+04) Got rid of the autoroller delay during character creation. [birth.c]
+    Yes, it keeps players a bit more honest with their stats to keep the
+    autoroller relatively slow, but that does nothing useful except fill the
+    high-scores table with tons of low-level characters and force players to
+    hang around the 'stat-gain' levels until they're bored to tears. And
+    once past stat-gain, does it really matter what your starting statistics
+    were?
+
+05) Many activated artifacts, wands, staves, rods, etc., now deal 50% more
+    damage. [cmd6.c, object1.c] IMHO, they're usually so weak that there's
+    no incentive to use the offensive abilities of these objects, except for
+    the occasional blast with a ball-spell item against *WEAK* breeders or
+    group monsters.
+
+06) Spell damages have been adjusted upwards a bit, up to 50% or so more
+    effective. Cure Light, Medium and Critical Wounds have had their die
+    rolls increased by 50% as well. [cmd5.c, object2.c] Spellcasters are
+    supposed to attack with magic, but the normal damage rolls were rather
+    pathetic, causing spellcasters to melee as much, if not more, as they
+    cast damage spells...
+
+07) The Mindcrafter power 'Precognition' now detects doors and stairs at
+    character level 5, with detect traps moved to character level 10.
+    [cmd5.c]
+
+08) The Identify portion of 'Psychometry' has been moved up to level 30,
+    inserting an *Identify* effect at level 45. [cmd5.c] No justification
+    for this other than that I wanted to. :)
+
+09) Again with the Mindcrafters, the Dimension Door part of 'Minor
+    Displacement' has been moved to level 30. [cmd5.c]
+
+10) Replaced the Trump Spell "Reset Recall" with the spell "Minor
+    Divination," which detects traps, doors, stairs and normal monsters.
+    [cmd5c., tables.c] Reset Recall is almost completely useless since you
+    couldn't Reset to a depth that you had never visited. The cost and fail
+    rate for Minor Divination are the same as they were for Reset Recall, so
+    there's no cheap & easy early detection for Trump users. :)
+
+11) Removed spellbooks from the Temple and Magic Shoppe - they were too much
+    competition for the Bookstore. :) [store.c, init2.c]
+
+12) Removed the aggravation/XP-drain option and the NO_TELE flag from
+    Stormbringer. It now deals 8d8 damage (to jibe with The Stormbringer's
+    attacks as a monster) and is permanently cursed instead. [xtra2.c] I'm a
+    complete bastard, ain't I? :)
+
+13) Potions of New Life are cheaper and more common. Instead of re-rating
+    your hit points and then removing all mutations, it first removes all of
+    your mutations and then polymorphs you, for the same effect as the
+    Polymorph Self spell. [cmd6.c] Now you might end up again with the
+    mutation you were desperate to get rid of in the first place, or turn
+    into a Yeek or an Abomination. :)
+
+14) Altered the purses of the store owners, mainly to remove the 5000 gold
+    limits on the Armour and Weapon Shops. The upper limits for a couple of
+    shops has been increased a bit, and the rest have a more even flow to
+    the different purses. [tables.c]
+
+15) Only Warrior-Magi have access to the Arcane Realm.
+
+##) Made the following major changes to classes and races:
+    [birth.c  - magic, starting equipment
+     xtra1.c  - melee and missile attacks, intrinsics display(?)
+     tables.c - magic costs and race/class definitions
+     files.c  - intrinsics definitions(?)]
+
+Golems: XP required now at +150% (up from +100%).
+        They now have 13 hit dice (up from 12 HD).
+        Magic Devices skill now at +5 (up from -5). [being magical devices
+           themselves, Golems have an instinctive understanding of these
+           things]
+        They no longer get intrinsic See Invisible, Free Action or their
+           level 35 Hold Life.
+
+Ranger: Bonus melee attack at level 25.
+        Bonus shots with Short and Long Bows at levels 15, 30 and 45,
+           instead of just at 20 and 40.
+        +1 to hit and to damage every 10 levels.
+        Nature magic only, no secondary realm.
+        Begins with Short Bow instead of second spellbook.
+
+Warrior-Mage: Bonus melee attacks at levels 25 and 50.
+              6 blows with same weight and multiplier restrictions as
+                 Warriors.
+              Bonus missile shot at level 35.
+              +1 to hit and to damage every 5 levels.
+              Arcane magic only, no secondary realm.
+              Begins with Hard Leather Armour instead of second spellbook.
+
+Chaos Warrior/
+       Paladin: Bonus melee attack at level 25.
+                Bonus missile shot at level 35.
+                +1 to hit and to damage every 10 levels.
+
+Mindcrafters: XP required is now +30%, up from +25%.

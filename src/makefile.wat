@@ -22,11 +22,11 @@ OBJS = &
   quest.obj &
   main-ibm.obj main.obj
 
-all: angband.exe gredit.exe makepref.exe
+all: Gumband.exe gredit.exe makepref.exe
 
 # Use whichever of these two you wish...
-angband.exe: $(OBJS) angband.lnk
-   wlink system dos4g @angband.lnk
+Gumband.exe: $(OBJS) Gumband.lnk
+   wlink system dos4g @Gumband.lnk
 #   wlink system pmodew @angband.lnk
 
 # Use whichever of these two you wish...
@@ -39,13 +39,13 @@ makepref.exe: makepref.obj makepref.lnk
    wlink system dos4g @makepref.lnk
 #   wlink system pmodew @makepref.lnk
 
-angband.lnk:
-    %create  angband.lnk
-#   @%append angband.lnk debug all
-    @%append angband.lnk OPTION CASEEXACT
-    @%append angband.lnk OPTION STACK=16k
-    @%append angband.lnk name angband
-    @for %i in ($(OBJS)) do @%append angband.lnk file %i
+Gumband.lnk:
+    %create  Gumband.lnk
+#   @%append Gumband.lnk debug all
+    @%append Gumband.lnk OPTION CASEEXACT
+    @%append Gumband.lnk OPTION STACK=16k
+    @%append Gumband.lnk name Gumband
+    @for %i in ($(OBJS)) do @%append Gumband.lnk file %i
 
 makepref.lnk:
     %create  makepref.lnk

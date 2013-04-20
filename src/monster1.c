@@ -1258,7 +1258,7 @@ static void roff_aux(int r_idx)
 			case RBM_BEG:		p = "beg"; break;
 			case RBM_INSULT:	p = "insult"; break;
 			case RBM_MOAN:		p = "moan"; break;
-			case RBM_SHOW:  	p = "sing"; break;
+			case RBM_SHOW:  	p = "spout lies"; break;
 		}
 
 

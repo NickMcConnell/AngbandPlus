@@ -1531,14 +1531,14 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3)
     }
     else if (p_ptr->prace == RACE_GOLEM)
     {
-        (*f3) |= (TR3_SEE_INVIS);
-        (*f2) |= (TR2_FREE_ACT);
+/*      (*f3) |= (TR3_SEE_INVIS);     */
+/*      (*f2) |= (TR2_FREE_ACT);      */
         (*f2) |= (TR2_RES_POIS);
         (*f3) |= (TR3_SLOW_DIGEST);
-        if (p_ptr->lev > 34)
-        {
-            (*f2) |= (TR2_HOLD_LIFE);
-        }
+/*      if (p_ptr->lev > 34)          */
+/*      {                             */
+/*          (*f2) |= (TR2_HOLD_LIFE); */
+/*      }                             */
     }
     else if (p_ptr->prace == RACE_SKELETON)
     {
@@ -2637,7 +2637,7 @@ errr file_character(cptr name, bool full)
 	fprintf(fff, "  [Angband %d.%d.%d Character Dump]\n\n",
 	        VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 #else
-   fprintf(fff, "  [Zangband %d.%d.%d Character Dump]\n\n",
+   fprintf(fff, "  [Gumband %d.%d.%d Character Dump]\n\n",
             FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH);
 #endif
 
@@ -3074,7 +3074,7 @@ static bool do_cmd_help_aux(cptr name, cptr what, int line)
 		           VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH,
 		           caption, line, size), 0, 0);
 #else
-        prt(format("[Zangband %d.%d.%d, %s, Line %d/%d]",
+        prt(format("[Gumband %d.%d.%d, %s, Line %d/%d]",
                    FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH,
 		           caption, line, size), 0, 0);
 #endif
@@ -4143,7 +4143,7 @@ static void display_scores_aux(int from, int to, int note, high_score *score)
 		Term_clear();
 
 		/* Title */
-		put_str("                Zangband Hall of Fame", 0, 0);
+		put_str("                 Gumband Hall of Fame", 0, 0);
 
 		/* Indicate non-top scores */
 		if (k > 0)

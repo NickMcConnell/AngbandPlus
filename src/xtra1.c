@@ -2119,10 +2119,10 @@ static void calc_bonuses(void)
 			break;
 		case RACE_GOLEM:
 			p_ptr->slow_digest = TRUE;
-			p_ptr->free_act = TRUE;
-			p_ptr->see_inv = TRUE;
+/*			p_ptr->free_act = TRUE;                       */
+/*			p_ptr->see_inv = TRUE;                        */
 			p_ptr->resist_pois = TRUE;
-			if (p_ptr->lev > 34) p_ptr->hold_life = TRUE;
+/*			if (p_ptr->lev > 34) p_ptr->hold_life = TRUE; */
 			break;
 		case RACE_SKELETON:
 			p_ptr->resist_shard = TRUE;
@@ -2800,11 +2800,14 @@ static void calc_bonuses(void)
 		/* Hack -- Reward High Level Rangers using Bows */
 		if (((p_ptr->pclass == 4) && (p_ptr->tval_ammo == TV_ARROW)))
 		{
-			/* Extra shot at level 20 */
-			if (p_ptr->lev >= 20) p_ptr->num_fire++;
+			/* Extra shot at level 15 */
+			if (p_ptr->lev >= 15) p_ptr->num_fire++;
 
-			/* Extra shot at level 40 */
-			if (p_ptr->lev >= 40) p_ptr->num_fire++;
+			/* Extra shot at level 30 */
+			if (p_ptr->lev >= 30) p_ptr->num_fire++;
+
+			/* Extra shot at level 45 */
+			if (p_ptr->lev >= 45) p_ptr->num_fire++;
 		}
 
 		/*
@@ -2820,6 +2823,15 @@ static void calc_bonuses(void)
 
 			/* Extra shot at level 50 */
 			if (p_ptr->lev >= 50) p_ptr->num_fire++;
+		}
+
+		/* And reward Chaos Warriors, Warrior Magi and Paladins */
+		if (p_ptr->pclass == (CLASS_CHAOS_WARRIOR || CLASS_WARRIOR_MAGE || CLASS_PALADIN) &&
+		    (p_ptr->tval_ammo <= TV_BOLT) &&
+		    (p_ptr->tval_ammo >= TV_SHOT))
+		{
+			/* Extra shot at level 35 */
+			if (p_ptr->lev >= 35) p_ptr->num_fire++;
 		}
 
 		/* Add in the "bonus shots" */
@@ -2886,7 +2898,7 @@ static void calc_bonuses(void)
 
 			/* Warrior-Mage */
 			case CLASS_WARRIOR_MAGE:
-				num = 5; wgt = 35; mul = 3; break;
+				num = 6; wgt = 30; mul = 5; break;
 
 			/* Chaos Warrior */
 			case CLASS_CHAOS_WARRIOR:
@@ -2923,6 +2935,13 @@ static void calc_bonuses(void)
 
 		/* Level bonus for warriors (1-3) */
 		if (p_ptr->pclass == CLASS_WARRIOR) p_ptr->num_blow += (p_ptr->lev) / 15;
+
+		/* Level bonus for Warrior-Magi (1-2) */
+		if (p_ptr->pclass == CLASS_WARRIOR_MAGE) p_ptr->num_blow += (p_ptr->lev) / 25;
+
+		/* Level bonus for the other spellcasting warrior-types */
+		if (p_ptr->pclass == CLASS_CHAOS_WARRIOR || CLASS_PALADIN || CLASS_RANGER)
+			if (p_ptr->lev >= 25) p_ptr->num_blow++;
 
 		/* Require at least one blow */
 		if (p_ptr->num_blow < 1) p_ptr->num_blow = 1;
@@ -2965,13 +2984,23 @@ static void calc_bonuses(void)
 	monk_armour_aux = FALSE;
 
 	/* Extra bonus for warriors... */
-	if (p_ptr->pclass == CLASS_WARRIOR)
+	if (p_ptr->pclass == CLASS_WARRIOR || CLASS_WARRIOR_MAGE)
 	{
 		p_ptr->to_h += (p_ptr->lev/5);
 		p_ptr->to_d += (p_ptr->lev/5);
 
 		p_ptr->dis_to_h += (p_ptr->lev/5);
 		p_ptr->dis_to_d += (p_ptr->lev/5);
+	}
+
+	/* Extra bonus for spellcasting warrior-types... */
+	if (p_ptr->pclass == CLASS_CHAOS_WARRIOR || CLASS_PALADIN || CLASS_RANGER)
+	{
+		p_ptr->to_h += (p_ptr->lev/10);
+		p_ptr->to_d += (p_ptr->lev/10);
+
+		p_ptr->dis_to_h += (p_ptr->lev/10);
+		p_ptr->dis_to_d += (p_ptr->lev/10);
 	}
 
 	/* Priest weapon penalty for non-blessed edged weapons */

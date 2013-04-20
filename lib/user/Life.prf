@@ -1,0 +1,139 @@
+# Life Magic
+#
+# TAB - Holy Word           F1 - Cure Light Wounds
+#   [ - Glyph of Warding    F2 - Cure Medium Wounds
+#   ] - Warding True        F3 - Cure Critical Wounds
+#   ' - Holy Vision         F4 - Healing
+#   " - Bless Weapon        F5 - Healing True
+#   ; - Remove Curse        F6 - Cure Poison
+#   : - Dispel Curse        F7 - Restoration
+#   h - Heroism             F8 - Divine Intervention
+#   H - Holy Invunerability F9 - Exorcism
+#   J - Satisfy Hunger     F10 - Dispel Undead and Demons
+#   n - Detect Evil        F11 - Dispel Evil
+#   N - Det.Traps & S.Door F12 - Banish
+#   O - Holy Orb
+#   P - Protection from Evil
+#   y - Bless
+#   Y - Prayer
+#   Z - Call Light
+
+# TAB - Holy Word
+A:m3g
+P:\t
+
+# [ - Glyph of Warding
+A:m2h
+C:0:[
+
+# ] - Warding True
+A:m3h
+C:0:]
+
+# ' - Holy Vision
+A:m4f
+C:0:'
+
+# " - Bless Weapon
+A:m4c
+C:0:"
+
+# ; - Remove Curse
+A:m2a
+C:0:;
+
+# : - Dispel Curse
+A:m3c
+C:0::
+
+# h - Heroism
+A:m4a
+C:0:h
+
+# H - Holy Invunerability
+A:m4h
+C:0:H
+
+# J - Satisfy Hunger
+A:m1h
+C:0:J
+
+# n - Detect Evil
+A:m1a
+C:0:n
+
+# N - Detect Traps and Secret Doors
+A:m1f
+C:0:N
+
+# O - Holy Orb
+A:m2e
+C:0:O
+
+# P - Protection from Evil
+A:m1f
+C:0:P
+
+# y - Bless
+A:m1c
+C:0:y
+
+# Y - Prayer
+A:m4b
+C:0:Y
+
+# Z - Call Light
+A:m1e
+C:0:Z
+
+# Healing
+
+# F1 - Cure Light Wounds
+A:m1b
+P:^_x3B\r
+
+# F2 - Cure Medium Wounds
+A:m1g
+P:^_x3C\r
+
+# F3 - Cure Critical Wounds
+A:m2c
+P:^_x3D\r
+
+# F4 - Healing
+A:m2g
+P:^_x3E\r
+
+# F5 - Healing True
+A:m4e
+P:^_x3F\r
+
+# F6 - Cure Poison
+A:m2b
+P:^_x40\r
+
+# F7 - Restoration
+A:m4d
+P:^_x41\r
+
+# F8 - Divine Intervention
+A:m4g
+P:^_x42\r
+
+# Dispelling/Other
+
+# F9 - Exorcism
+A:m3a
+P:^_x43\r
+
+# F10 - Dispel Undead and Demons
+A:m3c
+P:^_x44\r
+
+# F11 - Dispel Evil
+A:m3e
+P:^_x85\r
+
+# F12 - Banish
+A:m3f
+P:^_x86\r

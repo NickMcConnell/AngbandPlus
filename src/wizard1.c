@@ -982,7 +982,7 @@ static void print_header(void)
 		VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 	spoiler_underline(buf);
 #else /* FAKE_VERSION */
-    sprintf(buf, "Artifact Spoilers for Zangband Version %d.%d.%d",
+    sprintf(buf, "Artifact Spoilers for Gumband Version %d.%d.%d",
             FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH);
 	spoiler_underline(buf);
 #endif /* FAKE_VERSION */
@@ -1333,7 +1333,7 @@ static void spoil_mon_desc(cptr fname)
 		VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 	fprintf(fff, "------------------------------------------\n\n");
 #else
-    fprintf(fff, "Monster Spoilers for Zangband Version %d.%d.%d\n",
+    fprintf(fff, "Monster Spoilers for Gumband Version %d.%d.%d\n",
             FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH);
 	fprintf(fff, "------------------------------------------\n\n");
 #endif
@@ -1555,7 +1555,7 @@ static void spoil_mon_info(cptr fname)
 	sprintf(buf, "Monster Spoilers for Angband Version %d.%d.%d\n",
 		VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
 #else
-    sprintf(buf, "Monster Spoilers for Zangband Version %d.%d.%d\n",
+    sprintf(buf, "Monster Spoilers for Gumband Version %d.%d.%d\n",
          FAKE_VER_MAJOR, FAKE_VER_MINOR, FAKE_VER_PATCH);
 #endif
 
@@ -2176,7 +2176,7 @@ static void spoil_mon_info(cptr fname)
 				case RBM_BEG:    p = "beg"; break;
 				case RBM_INSULT: p = "insult"; break;
 				case RBM_MOAN:   p = "moan"; break;
-				case RBM_SHOW:   p = "sing"; break;
+				case RBM_SHOW:   p = "spout lies"; break;
 			}
 
 

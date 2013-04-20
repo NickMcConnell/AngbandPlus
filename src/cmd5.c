@@ -1009,9 +1009,9 @@ void do_cmd_cast(void)
 
 	magic_type	*s_ptr;
 
-        char	ppp[80];
+/*        char	ppp[80];      */
 
-        char	tmp_val[160];
+/*        char	tmp_val[160]; */
 
 	/* Require spell ability */
 	if (p_ptr->realm1 == 0)
@@ -1150,7 +1150,7 @@ void do_cmd_cast(void)
 			(void)detect_monsters_evil();
 		       break;
 	   case 1: /* Cure Light Wounds */
-			(void)hp_player(damroll(2, 10));
+			(void)hp_player(damroll(3, 10));
 			(void)set_cut(p_ptr->cut - 10);
 		       break;
 	   case 2: /* Bless */
@@ -1168,7 +1168,7 @@ void do_cmd_cast(void)
 			(void)detect_stairs();
 		       break;
 	   case 6: /* Cure Medium Wounds */
-			(void)hp_player(damroll(4, 10));
+			(void)hp_player(damroll(6, 10));
 			(void)set_cut((p_ptr->cut / 2) - 20);
 		       break;
 	   case 7: /* Satisfy Hunger */
@@ -1181,20 +1181,16 @@ void do_cmd_cast(void)
 			(void)set_poisoned(0);
 		       break;
 	   case 10: /* Cure Critical Wounds */
-			(void)hp_player(damroll(8, 10));
+			(void)hp_player(damroll(12, 10));
 			(void)set_stun(0);
 			(void)set_cut(0);
 		       break;
 	   case 11: /* Sense Unseen */
 			(void)set_tim_invis(p_ptr->tim_invis + randint(24) + 24);
 		       break;
-	   case 12: /* Orb or Draining */
+	   case 12: /* Orb of Draining */
 	   if (!get_aim_dir(&dir)) return;
-            fire_ball(GF_HOLY_FIRE, dir,
-				(damroll(3, 6) + plev +
-                    (plev / ((p_ptr->pclass == 2
-                              || p_ptr->pclass == CLASS_HIGH_MAGE) ? 2 : 4))),
-					((plev < 30) ? 2 : 3));
+            fire_ball(GF_HOLY_FIRE, dir, 25 + (plev + (plev / 2)), ((plev < 30) ? 2 : 3));
 		       break;
 	   case 13: /* Protection from Evil */
 			(void)set_protevil(p_ptr->protevil + randint(25) + 3 * p_ptr->lev);
@@ -1216,14 +1212,14 @@ void do_cmd_cast(void)
 			(void)remove_all_curse();
 		       break;
        case 18: /* Dispel Undead + Demons */
-            (void)dispel_undead(plev * 3);
-        (void)dispel_demons(plev * 3);
+            (void)dispel_undead(plev * 4);
+        (void)dispel_demons(plev * 4);
 			break;
        case 19: /* 'Day of the Dove' */
                   charm_monsters(plev * 2);
 		       break;
        case 20: /* Dispel Evil */
-			(void)dispel_evil(plev * 4);
+			(void)dispel_evil(plev * 5);
 		       break;
 	   case 21: /* Banishment */
 			if (banish_evil(100))
@@ -1232,7 +1228,7 @@ void do_cmd_cast(void)
 			}
 			break;
 	   case 22: /* Holy Word */
-	   (void)dispel_evil(plev * 4);
+	   (void)dispel_evil(plev * 5);
 			(void)hp_player(1000);
 			(void)set_afraid(0);
 			(void)set_poisoned(0);
@@ -1281,7 +1277,7 @@ void do_cmd_cast(void)
 		       break;
        case 30: /* Divine Intervention */
          project(0, 1, py, px, 777, GF_HOLY_FIRE,   PROJECT_KILL);
-         dispel_monsters(plev * 4);
+         dispel_monsters(plev * 5);
          slow_monsters();
          stun_monsters(plev*4);
          confuse_monsters(plev*4);
@@ -1470,7 +1466,7 @@ void do_cmd_cast(void)
 			(void)detect_monsters_normal();
 		       break;
 	   case 1: /* First Aid */
-			(void)hp_player(damroll(2, 8));
+			(void)hp_player(damroll(3, 8));
 			(void)set_cut(p_ptr->cut - 15);
 		       break;
 	   case 2: /* Detect Doors + Traps */
@@ -1509,7 +1505,7 @@ void do_cmd_cast(void)
 	   case 9: /* Lightning Bolt */
 				if (!get_aim_dir(&dir)) return;
 				fire_bolt_or_beam(beam-10, GF_ELEC, dir,
-						  damroll(3+((plev-5)/4), 8));
+						  damroll(5+((plev-5)/3), 8));
 		       break;
        case 10: /* Nature Awareness -- downgraded */
 			map_area();
@@ -1521,7 +1517,7 @@ void do_cmd_cast(void)
 	   case 11: /* Frost Bolt */
 			if (!get_aim_dir(&dir)) return;
 			fire_bolt_or_beam(beam-10, GF_COLD, dir,
-				damroll(5+((plev-5)/4), 8));
+				damroll(8+((plev-5)/3), 8));
 		       break;
 	   case 12: /* Ray of Sunlight */
 			if (!get_aim_dir(&dir)) return;
@@ -1595,21 +1591,21 @@ void do_cmd_cast(void)
        case 26: /* Blizzard */
 			if (!get_aim_dir(&dir)) return;
 			fire_ball(GF_COLD, dir,
-				70 + (plev), (plev/12)+1);
+				105 + (plev), (plev/12)+1);
 		       break;
 	   case 27: /* Lightning Storm */
 			if (!get_aim_dir(&dir)) return;
 			fire_ball(GF_ELEC, dir,
-				90 + (plev), (plev/12)+1);
+				135 + (plev), (plev/12)+1);
 		       break;
 	   case 28: /* Whirlpool */
 			if (!get_aim_dir(&dir)) return;
 			fire_ball(GF_WATER, dir,
-				100 + (plev), (plev/12)+1);
+				150 + (plev), (plev/12)+1);
 		       break;
 	   case 29: /* Call Sunlight */
 
-			fire_ball(GF_LITE, 0, 150, 8);
+			fire_ball(GF_LITE, 0, 200, 8);
 			wiz_lite();
             if ((p_ptr->prace == RACE_VAMPIRE) && !(p_ptr->resist_lite))
             {
@@ -1621,10 +1617,10 @@ void do_cmd_cast(void)
             brand_weapon(0);
 		       break;
 	   case 31: /* Nature's Wrath */
-            (void)dispel_monsters(plev * 4);
+            (void)dispel_monsters(plev * 5);
             earthquake(py, px, 20 + (plev / 2) );
          project(0, 1+plev/12, py, px,
-             100+plev, GF_DISINTEGRATE, PROJECT_KILL|PROJECT_ITEM);
+             150+plev, GF_DISINTEGRATE, PROJECT_KILL|PROJECT_ITEM);
 		       break;
 	       default:
 		 msg_format("You cast an unknown Nature spell: %d.", spell);
@@ -1640,7 +1636,7 @@ void do_cmd_cast(void)
 		case 0: /* Magic Missile */
 				if (!get_aim_dir(&dir)) return;
 				fire_bolt_or_beam(beam-10, GF_MISSILE, dir,
-						  damroll(3 + ((plev - 1) / 5), 4));
+						  damroll(3 + ((plev - 1) / 3), 4));
                 break;
         case 1: /* Trap / Door destruction, was: Blink */
 			(void)destroy_doors_touch();
@@ -1657,23 +1653,19 @@ void do_cmd_cast(void)
 			break;
        case 4: /* Manaburst */
              if (!get_aim_dir(&dir)) return;
-             fire_ball(GF_MISSILE, dir,
-            (damroll(3, 5) + plev +
-             (plev / (((p_ptr->pclass == CLASS_MAGE)
-                || (p_ptr->pclass == CLASS_HIGH_MAGE)) ? 2 : 4))),
-            ((plev < 30) ? 2 : 3));
+             fire_ball(GF_MISSILE, dir, 25 + (plev + (plev / 2)), ((plev < 30) ? 2 : 3));
           /* Shouldn't actually use GF_MANA, as it will destroy all
        * items on the floor */
              break;
         case 5: /* Fire Bolt */
 			if (!get_aim_dir(&dir)) return;
 			fire_bolt_or_beam(beam, GF_FIRE, dir,
-				damroll(8+((plev-5)/4), 8));
+				damroll(9+((plev-5)/3), 8));
 			break;
         case 6: /* Fist of Force ("Fist of Fun") */
 			if (!get_aim_dir(&dir)) return;
            fire_ball(GF_DISINTEGRATE, dir,
-               damroll(8+((plev-5)/4), 8), 0);
+               damroll(12+((plev-5)/3), 8), 0);
             break;
 		case 7: /* Teleport Self */
 			teleport_player(plev * 5);
@@ -1699,35 +1691,35 @@ void do_cmd_cast(void)
                else if (die < 36)
                    fire_bolt_or_beam (beam - 10,
                    GF_MISSILE, dir,
-                   damroll(3 + ((plev - 1) / 5), 4));
+                   damroll(5 + ((plev - 1) / 4), 4));
                else if (die < 41) confuse_monster (dir, plev);
-               else if (die < 46) fire_ball (GF_POIS, dir, 20 + (plev / 2), 3);
+               else if (die < 46) fire_ball (GF_POIS, dir, 30 + (plev / 2), 3);
                else if (die < 51) lite_line (dir);
                else if (die < 56)
                    fire_bolt_or_beam (beam - 10, GF_ELEC, dir,
-                   damroll(3+((plev-5)/4),8));
+                   damroll(5+((plev-5)/3),8));
                else if (die < 61)
                    fire_bolt_or_beam (beam - 10, GF_COLD, dir,
-                   damroll(5+((plev-5)/4),8));
+                   damroll(8+((plev-5)/3),8));
                else if (die < 66)
                    fire_bolt_or_beam (beam, GF_ACID, dir,
-                   damroll(6+((plev-5)/4),8));
+                   damroll(9+((plev-5)/3),8));
                else if (die < 71)
                    fire_bolt_or_beam (beam, GF_FIRE, dir,
-                   damroll(8+((plev-5)/4),8));
-               else if (die < 76) drain_life (dir, 75);
-               else if (die < 81) fire_ball (GF_ELEC, dir, 30 + plev / 2, 2);
-               else if (die < 86) fire_ball (GF_ACID, dir, 40 + plev, 2);
-               else if (die < 91) fire_ball (GF_ICE, dir, 70 + plev, 3);
-               else if (die < 96) fire_ball (GF_FIRE, dir, 80 + plev, 3);
-               else if (die < 101) drain_life (dir, 100 + plev);
+                   damroll(12+((plev-5)/3),8));
+               else if (die < 76) drain_life (dir, 113);
+               else if (die < 81) fire_ball (GF_ELEC, dir, 45 + plev / 2, 2);
+               else if (die < 86) fire_ball (GF_ACID, dir, 60 + plev, 2);
+               else if (die < 91) fire_ball (GF_ICE, dir, 105 + plev, 3);
+               else if (die < 96) fire_ball (GF_FIRE, dir, 120 + plev, 3);
+               else if (die < 101) drain_life (dir, 150 + plev);
                else if (die < 104) earthquake (py, px, 12);
                else if (die < 106) destroy_area (py, px, 15, TRUE);
                else if (die < 108) genocide(TRUE);
-               else if (die < 110) dispel_monsters (120);
+               else if (die < 110) dispel_monsters (180);
                else /* RARE */
                {
-                   dispel_monsters (150);
+                   dispel_monsters (225);
                    slow_monsters();
                    sleep_monsters();
                    hp_player (300);
@@ -1738,21 +1730,21 @@ void do_cmd_cast(void)
 		case 9: /* Chaos Bolt */
 			if (!get_aim_dir(&dir)) return;
 			fire_bolt_or_beam(beam, GF_CHAOS, dir,
-				damroll(10+((plev-5)/4), 8));
+				damroll(15+((plev-5)/3), 8));
 			break;
         case 10: /* Sonic Boom */
                msg_print("BOOM! Shake the room!");
                    project(0, 2+plev/10, py, px,
-               45+plev, GF_SOUND, PROJECT_KILL|PROJECT_ITEM);
+               65+plev, GF_SOUND, PROJECT_KILL|PROJECT_ITEM);
                    break;
         case 11: /* Doom Bolt -- always beam in 2.0.7 or later */
 				if (!get_aim_dir(&dir)) return;
-                fire_beam(GF_MANA, dir, damroll(11+((plev-5)/4), 8));
+                fire_beam(GF_MANA, dir, damroll(11+((plev-5)/3), 8));
 			break;
 		case 12: /* Fire Ball */
 			if (!get_aim_dir(&dir)) return;
 			fire_ball(GF_FIRE, dir,
-					55 + (plev), 2);
+					80 + (plev), 2);
 			break;
 		case 13: /* Teleport Other */
            if (!get_aim_dir(&dir)) return;
@@ -1764,7 +1756,7 @@ void do_cmd_cast(void)
 		case 15: /* Invoke Logrus */
 			if (!get_aim_dir(&dir)) return;
 			fire_ball(GF_CHAOS, dir,
-					66 + (plev), (plev / 5));
+					100 + (plev), (plev / 5));
 			break;
         case 16: /* Polymorph Other */
 			if (!get_aim_dir(&dir)) return;
@@ -1772,7 +1764,7 @@ void do_cmd_cast(void)
 			break;
         case 17: /* Chain Lightning */
           for (dir = 0; dir <= 9; dir++)
-            fire_beam(GF_ELEC, dir, damroll(5+(plev/10), 8));
+            fire_beam(GF_ELEC, dir, damroll(8+(plev/5), 8));
            break;
         case 18: /* Arcane Binding == Charging */
 			(void)recharge(40);
@@ -1780,7 +1772,7 @@ void do_cmd_cast(void)
         case 19: /* Disintegration */
 			if (!get_aim_dir(&dir)) return;
            fire_ball(GF_DISINTEGRATE, dir,
-               80 + (plev), 3 + (plev/40));
+               120 + (plev), 3 + (plev/40));
                break;
             break;
         case 20: /* Alter Reality */
@@ -1821,7 +1813,7 @@ void do_cmd_cast(void)
 		break;
         case 24: /* Beam of Gravity */
 			if (!get_aim_dir(&dir)) return;
-                fire_beam(GF_GRAVITY, dir, damroll(9+((plev-5)/4), 8));
+                fire_beam(GF_GRAVITY, dir, damroll(14+((plev-5)/3), 8));
             break;
         case 25: /* Meteor Swarm  */
 #if 1
@@ -1842,19 +1834,19 @@ void do_cmd_cast(void)
 			   
 			   if (count > 1000)   break;
 			   count = 0;
-               project(0, 2, y, x, (plev*3)/2, GF_METEOR, PROJECT_KILL|PROJECT_JUMP|PROJECT_ITEM);
+               project(0, 2, y, x, (plev*4)/2, GF_METEOR, PROJECT_KILL|PROJECT_JUMP|PROJECT_ITEM);
 		       }
 		   }
 	           break;
 #else
 			if (!get_aim_dir(&dir)) return;
 			fire_ball(GF_METEOR, dir,
-				65 + (plev), 3 + (plev/40));
+				95 + (plev), 3 + (plev/40));
 			break;
 #endif
 		case 26: /* Flame Strike */
 			fire_ball(GF_FIRE, 0,
-                150 + (2*plev), 8);
+                200 + (2*plev), 8);
 			break;
         case 27: /* Call Chaos */
             call_chaos();
@@ -1863,12 +1855,12 @@ void do_cmd_cast(void)
 			if (!get_aim_dir(&dir)) return;
             msg_print("You launch a rocket!");
 			fire_ball(GF_ROCKET, dir,
-					120 + (plev), 2);
+					180 + (plev), 2);
 			break;
         case 29: /* Mana Storm */
 			if (!get_aim_dir(&dir)) return;
 			fire_ball(GF_MANA, dir,
-				300 + (plev * 2), 4);
+				400 + (plev * 2), 4);
             break;
         case 30: /* Breathe Logrus */
                if (!get_aim_dir(&dir)) return;
@@ -1898,7 +1890,7 @@ void do_cmd_cast(void)
           * to the monster. */
 
          fire_ball(GF_HELL_FIRE, dir,
-           damroll(3 + ((plev - 1) / 5), 3), 0);
+           damroll(3 + ((plev - 1) / 3), 4), 0);
          if (randint(5)==1) {   /* Special effect first */
          dummy = randint(1000);
          if (dummy == 666)
@@ -1917,7 +1909,7 @@ void do_cmd_cast(void)
 	   case 3: /* Stinking Cloud */
 			if (!get_aim_dir(&dir)) return;
 			fire_ball(GF_POIS, dir,
-				10 + (plev / 2), 2);
+				15 + (plev / 2), 2);
 		       break;
 	   case 4: /* Black Sleep */
 			if (!get_aim_dir(&dir)) return;
@@ -1937,16 +1929,12 @@ void do_cmd_cast(void)
                break;
        case 8: /* Orb of Entropy */
          if (!get_aim_dir(&dir)) return;
-         fire_ball(GF_OLD_DRAIN, dir,
-           (damroll(3, 6) + plev +
-            (plev / (((p_ptr->pclass == CLASS_MAGE)
-            || (p_ptr->pclass == CLASS_HIGH_MAGE)) ? 2 : 4))),
-           ((plev < 30) ? 2 : 3));
+         fire_ball(GF_OLD_DRAIN, dir, 25 + (plev + (plev / 2)), ((plev < 30) ? 2 : 3));
                break;
        case 9: /* Nether Bolt */
 			if (!get_aim_dir(&dir)) return;
             fire_bolt_or_beam(beam, GF_NETHER, dir,
-				damroll(6+((plev-5)/4), 8));
+				damroll(9+((plev-5)/3), 8));
 		       break;
        case 10: /* Terror */
              turn_monsters(30+plev);
@@ -1972,10 +1960,10 @@ void do_cmd_cast(void)
 #if 0
 				if (!get_aim_dir(&dir)) return;
 				fire_ball(GF_POIS, dir,
-					  60 + plev, (plev/10)+1);
+					  90 + plev, (plev/10)+1);
 		       break;
 #endif
-            (void)dispel_good(plev * 4);
+            (void)dispel_good(plev * 5);
 		       break;
 	   case 14: /* Genocide */
 			(void)genocide(TRUE);
@@ -2011,37 +1999,37 @@ void do_cmd_cast(void)
                } else if (die < 36) {
                fire_bolt_or_beam (beam - 10,
                           GF_MISSILE, dir,
-                          damroll(3 + ((plev - 1) / 5), 4));
+                          damroll(3 + ((plev - 1) / 3), 4));
                } else if (die < 41) {
                confuse_monster (dir, plev);
                } else if (die < 46) {
-               fire_ball (GF_POIS, dir, 20 + (plev / 2), 3);
+               fire_ball (GF_POIS, dir, 30 + (plev / 2), 3);
                } else if (die < 51) {
                lite_line (dir);
                } else if (die < 56) {
                fire_bolt_or_beam (beam - 10, GF_ELEC, dir,
-                          damroll(3+((plev-5)/4),8));
+                          damroll(5+((plev-5)/3),8));
                } else if (die < 61) {
                fire_bolt_or_beam (beam - 10, GF_COLD, dir,
-                          damroll(5+((plev-5)/4),8));
+                          damroll(8+((plev-5)/3),8));
                } else if (die < 66) {
                fire_bolt_or_beam (beam, GF_ACID, dir,
-                          damroll(6+((plev-5)/4),8));
+                          damroll(9+((plev-5)/3),8));
                } else if (die < 71) {
                fire_bolt_or_beam (beam, GF_FIRE, dir,
-                          damroll(8+((plev-5)/4),8));
+                          damroll(12+((plev-5)/3),8));
                } else if (die < 76) {
-               drain_life (dir, 75);
+               drain_life (dir, 112);
                } else if (die < 81) {
-               fire_ball (GF_ELEC, dir, 30 + plev / 2, 2);
+               fire_ball (GF_ELEC, dir, 45 + plev / 2, 2);
                } else if (die < 86) {
-               fire_ball (GF_ACID, dir, 40 + plev, 2);
+               fire_ball (GF_ACID, dir, 60 + plev, 2);
                } else if (die < 91) {
-               fire_ball (GF_ICE, dir, 70 + plev, 3);
+               fire_ball (GF_ICE, dir, 105 + plev, 3);
                } else if (die < 96) {
-               fire_ball (GF_FIRE, dir, 80 + plev, 3);
+               fire_ball (GF_FIRE, dir, 120 + plev, 3);
                } else if (die < 101) {
-               drain_life (dir, 100 + plev);
+               drain_life (dir, 150 + plev);
                } else if (die < 104) {
                earthquake (py, px, 12);
                } else if (die < 106) {
@@ -2049,9 +2037,9 @@ void do_cmd_cast(void)
                } else if (die < 108) {
                genocide(TRUE);
                } else if (die < 110) {
-               dispel_monsters (120);
+               dispel_monsters (180);
                } else { /* RARE */
-               dispel_monsters (150);
+               dispel_monsters (225);
                slow_monsters();
                sleep_monsters();
                hp_player (300);
@@ -2064,7 +2052,7 @@ void do_cmd_cast(void)
 	   case 18: /* Dark Bolt */
 			if (!get_aim_dir(&dir)) return;
 			fire_bolt_or_beam(beam, GF_DARK, dir,
-				damroll(4+((plev-5)/4), 8));
+				damroll(6+((plev-5)/3), 8));
 		       break;
        case 19: /* Battle Frenzy */
 			(void)set_shero(p_ptr->shero + randint(25) + 25);
@@ -2093,7 +2081,7 @@ void do_cmd_cast(void)
        case 22: /* Darkness Storm */
 			if (!get_aim_dir(&dir)) return;
 			fire_ball(GF_DARK, dir,
-					120, 4);
+					180, 4);
 		       break;
         case 23: /* Mass Genocide */
 			(void)mass_genocide(TRUE);
@@ -2125,11 +2113,11 @@ void do_cmd_cast(void)
 		    identify_fully();
 		       break;
        case 27: /* Word of Death */
-	    (void)dispel_living(plev * 3);
+	    (void)dispel_living(plev * 4);
 		       break;
        case 28: /* Evocation       */
-        (void)dispel_monsters(plev * 4);
-         turn_monsters(plev*4);
+        (void)dispel_monsters(plev * 5);
+         turn_monsters(plev*5);
          banish_monsters(plev*4);
 		       break;
        case 29: /* Hellfire */
@@ -2210,7 +2198,7 @@ void do_cmd_cast(void)
         case 1: /* Mind Blast */
                if (!get_aim_dir(&dir)) return;
                  fire_bolt_or_beam(beam-10, GF_PSI, dir,
-                              damroll(3 + ((plev - 1) / 5), 3));
+                              damroll(3 + ((plev - 1) / 3), 4));
         break;
         case 2: /* Shuffle */
 
@@ -2371,29 +2359,11 @@ void do_cmd_cast(void)
 
            }
         break;
-        case 3: /* Reset Recall */
-            {
-                /* Prompt */
-                sprintf(ppp, "Reset to which level (1-%d): ", p_ptr->max_dlv);
-
-                /* Default */
-                sprintf(tmp_val, "%d", MAX(dun_level,1));
-
-                /* Ask for a level */
-                if (!get_string(ppp, tmp_val, 10)) return;
-
-                /* Extract request */
-                dummy = atoi(tmp_val);
-
-                /* Paranoia */
-                if (dummy < 1) dummy = 1;
-
-                /* Paranoia */
-                if (dummy > p_ptr->max_dlv) dummy = p_ptr->max_dlv;
-
-                /* Accept request */
-                msg_format("Recall depth set to level %d (%d').", dummy, dummy * 50 );
-            }
+        case 3: /* Sense Region - replaces Reset Recall */
+			(void)detect_traps();
+			(void)detect_doors();
+			(void)detect_stairs();
+			(void)detect_monsters_normal();
         break;
         case 4: /* Teleport Self */
             teleport_player(plev * 4);
@@ -2621,7 +2591,7 @@ void do_cmd_cast(void)
             msg_print("You have turned into a Living Trump.");
         break;
         case 22: /* Death Dealing */
-            (void)dispel_living(plev * 3);
+            (void)dispel_living(plev * 4);
         break;
         case 23: /* Trump Cyberdemon */
         {
@@ -2794,7 +2764,7 @@ void do_cmd_cast(void)
         case 0: /* Zap */
                if (!get_aim_dir(&dir)) return;
                  fire_bolt_or_beam(beam-10, GF_ELEC, dir,
-                              damroll(3 + ((plev - 1) / 5), 3));
+                              damroll(3 + ((plev - 1) / 3), 4));
         break;
         case 1: /* Wizard Lock */
             if (!(get_aim_dir(&dir))) break;
@@ -2817,7 +2787,7 @@ void do_cmd_cast(void)
             (void) destroy_door(dir);
         break;
         case 7: /* Cure Light Wounds */
-            (void) hp_player(damroll(2, 8));
+            (void) hp_player(damroll(3, 8));
             (void) set_cut(p_ptr->cut - 10);
         break;
         case 8: /* Detect Doors & Traps */
@@ -2855,7 +2825,7 @@ void do_cmd_cast(void)
             (void)set_oppose_acid(p_ptr->oppose_acid + randint(20) + 20);
         break;
         case 18: /* Cure Medium Wounds */
-            (void)hp_player(damroll(4, 8));
+            (void)hp_player(damroll(6, 8));
             (void)set_cut((p_ptr->cut / 2) - 50);
         break;
         case 19: /* Teleport */
@@ -2899,7 +2869,7 @@ void do_cmd_cast(void)
                 default: dummy = GF_ACID;
             }
             fire_ball(dummy, dir,
-                    75 + (plev), 2);
+                    115 + (plev), 2);
         break;
         case 29: /* Detection */
 			(void)detect_all();
@@ -4036,13 +4006,13 @@ void mindcraft_info(char *p, int power)
      case 2:  sprintf(p, " range %d", (plev < 25 ? 10 : plev + 2)); break;
      case 3:  sprintf(p, " range %d", plev * 5);  break;
      case 4:  break;
-     case 5:  sprintf(p, " dam %dd8", 8+((plev-5)/4));  break;
+     case 5:  sprintf(p, " dam %dd8", 10+((plev-5)/3));  break;
      case 6:  sprintf(p, " dur %d", plev);  break;
      case 7:  break;
-     case 8:  sprintf(p, " dam %d", plev * ((plev-5) / 10 + 1)); break;
+     case 8:  sprintf(p, " dam %d", plev * ((plev-5) / 9 + 1)); break;
      case 9:  sprintf(p, " dur 11-%d", plev + plev/2);  break;
-     case 10: sprintf(p, " dam %dd6", plev/2);  break;
-     case 11: sprintf(p, " dam %d", plev * (plev > 39 ? 4: 3)); break;
+     case 10: sprintf(p, " dam %dd8", plev/2);  break;
+     case 11: sprintf(p, " dam %d", plev * (plev > 39 ? 5: 4)); break;
     }
 }
 
@@ -4367,7 +4337,9 @@ void do_cmd_mindcraft(void)
 				{
 					b = detect_monsters_normal();
 					if (plev > 14)  b |=  detect_monsters_invis();
-					if (plev > 4)   b |=  detect_traps();
+                                        if (plev > 9)   b |=  detect_traps();
+					if (plev > 4)   b |=  detect_doors();
+                                        if (plev > 4)   b |=  detect_stairs();
 				}
 				else
 				{
@@ -4383,13 +4355,13 @@ void do_cmd_mindcraft(void)
 				/* Mindblast */
 				if (!get_aim_dir(&dir)) return;
 				if (randint(100) < plev * 2)
-					fire_beam(GF_PSI, dir, damroll(3 + ((plev - 1) / 4), (3+plev/15)));
+					fire_beam(GF_PSI, dir, damroll(3 + ((plev - 1) / 3), (3+plev/15)));
 				else
-					fire_ball(GF_PSI, dir, damroll(3 + ((plev - 1) / 4), (3+plev/15)), 0);
+					fire_ball(GF_PSI, dir, damroll(3 + ((plev - 1) / 3), (3+plev/15)), 0);
 				break;
 			case 2:
 				/* Minor displace */
-				if (plev < 25)
+				if (plev < 30)
 				{
 					teleport_player(10);
 				}
@@ -4432,7 +4404,7 @@ void do_cmd_mindcraft(void)
 			case 5:
 				/* Fist of Force  ---  not 'true' TK  */
 				if (!get_aim_dir(&dir)) return;
-				fire_ball(GF_SOUND, dir, damroll(8+((plev-5)/4), 8),
+				fire_ball(GF_SOUND, dir, damroll(10+((plev-5)/3), 8),
 				    (plev > 20 ? (plev-20)/8 + 1 : 0));
 				break;
 			case 6:
@@ -4446,19 +4418,21 @@ void do_cmd_mindcraft(void)
 				break;
 			case 7:
 				/* Psychometry */
-				if (plev < 40)
-					psychometry();
-				else
+				if (plev > 44)
+					identify_fully();
+				else if (plev > 29)
 					ident_spell();
+				else
+					psychometry();
 				break;
 			case 8:
 				/* Mindwave */
 				msg_print("Mind-warping forces emanate from your brain!");
 				if (plev < 25)
 					project(0, 2+plev/10, py, px,
-					    (plev*3)/2, GF_PSI, PROJECT_KILL);
+					    (plev*4)/2, GF_PSI, PROJECT_KILL);
 				else
-					(void)mindblast_monsters(plev * ((plev-5) / 10 + 1));
+					(void)mindblast_monsters(plev * ((plev-5) / 9 + 1));
 				break;
 			case 9:
 				/* Adrenaline */
@@ -4484,7 +4458,7 @@ void do_cmd_mindcraft(void)
 			case 10:
 				/* Psychic Drain */
 				if (!get_aim_dir(&dir)) return;
-				b = damroll(plev/2, 6);
+				b = damroll(plev/2, 8);
 				if (fire_ball(GF_PSI_DRAIN, dir, b,  0 +
 				    (plev-25)/10))
 				p_ptr->energy -= randint(150);
@@ -4493,7 +4467,7 @@ void do_cmd_mindcraft(void)
 				/* Telekinesis */
 				msg_print("A wave of pure physical force radiates out from your body!");
 				project(0, 3+plev/10, py, px,
-				    plev * (plev > 39 ? 4 : 3), GF_TELEKINESIS, PROJECT_KILL|PROJECT_ITEM|PROJECT_GRID);
+				    plev * (plev > 39 ? 5 : 4), GF_TELEKINESIS, PROJECT_KILL|PROJECT_ITEM|PROJECT_GRID);
 				break;
 			default:
 				msg_print("Zap?");

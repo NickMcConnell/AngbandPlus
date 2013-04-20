@@ -723,9 +723,9 @@ void get_realms()
 		p_ptr->realm1 = choose_realm(realm_choices[pclas]);
 	}
 
-	/* Paladins, Chaos warrriors and rogues get no second realm */
-	if (pclas == 5 || pclas == 3 || pclas == CLASS_CHAOS_WARRIOR
-		|| pclas == CLASS_MONK || pclas == CLASS_HIGH_MAGE) return;
+	/* Rangers, Paladins, Chaos Warrriors, Warrior-Magi and Rogues get no second realm */
+	if (pclas == 4 || pclas == 5 || pclas == 3 || pclas == CLASS_CHAOS_WARRIOR
+		|| pclas == CLASS_WARRIOR_MAGE || pclas == CLASS_MONK || pclas == CLASS_HIGH_MAGE) return;
 	else
 		p_ptr->realm2 = choose_realm(realm_choices[pclas]);
 }
@@ -1549,7 +1549,7 @@ static byte player_init[MAX_CLASS][3][2] =
 		/* Ranger */
 		{ TV_NATURE_BOOK, 0 },
 		{ TV_SWORD, SV_BROAD_SWORD },
-		{ TV_DEATH_BOOK, 0 }		/* Hack: for realm2 book */
+		{ TV_BOW, SV_SHORT_BOW }
 	},
 
 	{
@@ -1561,9 +1561,9 @@ static byte player_init[MAX_CLASS][3][2] =
 
 	{
 		/* Warrior-Mage */
-		{ TV_SORCERY_BOOK, 0 }, /* Hack: for realm1 book */
+		{ TV_ARCANE_BOOK, 0 }, /* Hack: for realm1 book */
 		{ TV_SWORD, SV_SHORT_SWORD },
-		{ TV_DEATH_BOOK, 0 } /* Hack: for realm2 book */
+		{ TV_SOFT_ARMOR, SV_HARD_LEATHER_ARMOR }
 	},
 
 	{
@@ -2290,8 +2290,8 @@ static bool player_birth_aux()
 				/* Make sure they see everything */
 				Term_fresh();
 
-				/* Delay 1/10 second */
-				if (flag) Term_xtra(TERM_XTRA_DELAY, 100);
+				/* Delay 1/10 (100) second */
+				if (flag) Term_xtra(TERM_XTRA_DELAY, 1);
 
 				/* Do not wait for a key */
 				inkey_scan = TRUE;

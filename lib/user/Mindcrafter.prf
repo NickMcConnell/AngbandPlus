@@ -1,0 +1,57 @@
+# Mindcrafter
+#
+# TAB - Domination            F1 - Neural Blast
+#   [ - Precognition          F2 - Pulverize
+#   ] - Psychometry           F3 - Mind Wave
+#   ' - Character Armour      F4 - Psychic Drain
+#   " - Adrenaline Channeling F5 - Telekinetic Wave
+#   ; - Minor Displacement
+#   : - Major Displacement
+
+# TAB - Domination [lev 9]
+A:me
+P:\t
+
+# [ - Precognition [lev 1]
+A:ma
+C:0:[
+
+# ] - Psychometry [lev 15]
+A:mh
+C:0:]
+
+# ' - Character Armour [lev 13]
+A:mg
+C:0:'
+
+# " - Adrenaline Channeling [lev 23]
+A:mj
+C:0:"
+
+# ; - Minor Displacement [lev 3]
+A:mc
+C:0:;
+
+# : - Major Displacement [lev 7]
+A:md
+C:0::
+
+# F1 - Neural Blast [lev 2]
+A:\e\e\e*tmb
+P:^_x3B\r
+
+# F2 - Pulverize [lev 11]
+A:mf
+P:^_x3C\r
+
+# F3 - Mind Wave [lev 18]
+A:mi
+P:^_x3D\r
+
+# F4 - Psychic Drain [lev 25]
+A:mk
+P:^_x3E\r
+
+# F5 - Telekinetic Wave [lev 28]
+A:ml
+P:^_x3F\r

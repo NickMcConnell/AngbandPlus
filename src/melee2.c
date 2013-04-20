@@ -5385,7 +5385,7 @@ static bool monst_attack_monst(int m_idx,int t_idx)
 
                case RBM_SHOW:
                {
-                   act = "sings to %s.";
+                   act = "spouts lies at %s.";
                    touched = FALSE;
                    t_ptr->csleep = 0;
                    break;

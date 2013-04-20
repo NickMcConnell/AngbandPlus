@@ -33,21 +33,15 @@ GLIBS= -lgrx20
 
 # Name of Program
 
-PROGRAM = angband.exe makepref.exe gredit.exe
-
+PROGRAM = Gumband.exe
 
 all: $(PROGRAM)
 
 # Generate binary file
 
-angband.exe: $(OBJS)
-	$(CC) $(CFLAGS) -o angband.bin $(OBJS) $(LIBS)
+Gumband.exe: $(OBJS)
+	$(CC) $(CFLAGS) -o Gumband.bin $(OBJS) $(LIBS)
 
-gredit.exe: gredit.o
-	$(CC) $(CFLAGS) -o gredit.bin gredit.o $(LIBS) $(GLIBS)
-
-makepref.exe: makepref.o
-	$(CC) $(CFLAGS) -o makepref.bin makepref.o $(LIBS)
 # Compile source files
 
 .c.o:
@@ -58,5 +52,3 @@ makepref.exe: makepref.o
 
 clean:
 	del *.o $(PROGRAM) *.bin
-
-

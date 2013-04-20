@@ -29,12 +29,12 @@ G: :w
 # 0x01 --> open floor
 
 N:1:open floor
-G:.:w
+G:.:W
 
 # 0x02 --> invisible trap (drawn as open floor)
 
 N:2:invisible trap
-G:.:w
+G:.:W
 M:1
 
 # 0x03 --> glyph of warding
@@ -50,7 +50,7 @@ G:':U
 # 0x05 --> broken door
 
 N:5:broken door
-G:':U
+G:`:r
 
 # 0x06 --> up stairs (perm)
 
@@ -85,12 +85,12 @@ G:4:g
 # 0x0C --> shop -- alchemist (perm)
 
 N:12:Alchemy Shop
-G:5:b
+G:5:B
 
 # 0x0D --> shop -- magic shop (perm)
 
 N:13:Magic Shop
-G:6:r
+G:6:R
 
 # 0x0E --> shop -- black market (perm)
 
@@ -281,7 +281,7 @@ M:32
 # 0x30 --> secret door
 
 N:48:secret door
-G:#:w
+G:#:s
 M:56
 
 # 0x31 --> rubble
@@ -292,79 +292,79 @@ G:::w
 # 0x32 --> magma vein
 
 N:50:magma vein
-G:%:s
+G:%:r
 
 # 0x33 --> quartz vein
 
 N:51:quartz vein
-G:%:w
+G:%:b
 
 # 0x34 --> magma vein + treasure
 
 N:52:magma vein
-G:%:s
+G:%:r
 M:50
 
 # 0x35 --> quartz vein + treasure
 
 N:53:quartz vein
-G:%:w
+G:%:b
 M:51
 
 # 0x36 --> magma vein + known treasure
 
 N:54:magma vein with treasure
-G:*:o
+G:*:R
 
 # 0x37 --> quartz vein + known treasure
 
 N:55:quartz vein with treasure
-G:*:o
+G:*:B
 
 # 0x38 --> granite wall -- basic
 
 N:56:granite wall
-G:#:w
+G:#:s
 
 # 0x39 --> granite wall -- inner
 
 N:57:granite wall
-G:#:w
+G:#:s
 M:56
 
 # 0x3A --> granite wall -- outer
 
 N:58:granite wall
-G:#:w
+G:#:s
 M:56
 
 # 0x3B --> granite wall -- solid
 
 N:59:granite wall
-G:#:w
+G:#:s
 M:56
 
 # 0x3C --> permanent wall -- basic (perm)
 
 N:60:permanent wall
-G:#:w
+G:#:W
 
 # 0x3D --> permanent wall -- inner (perm)
 
 N:61:permanent wall
-G:#:w
+G:#:W
 M:60
 
 # 0x3E --> permanent wall -- outer (perm)
 
 N:62:permanent wall
-G:#:w
+G:#:W
 M:60
 
 # 0x3F --> permanent wall -- solid (perm)
 
 N:63:permanent wall
-G:#:w
+G:#:W
 M:60
 
 N:64:explosive rune
@@ -420,12 +420,12 @@ G:4:g
 # 0x0C --> shop -- alchemist (perm)
 
 N:78:Alchemy Shop
-G:5:b
+G:5:B
 
 # 0x0D --> shop -- magic shop (perm)
 
 N:79:Magic Shop
-G:6:r
+G:6:R
 
 # 0x0E --> shop -- black market (perm)
 
