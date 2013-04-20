@@ -50,7 +50,7 @@ static cptr ring_adj[MAX_ROCKS] =
 	"Rhodonite", "Ruby", "Sapphire", "Tiger Eye", "Topaz",
 	"Turquoise", "Zircon", "Platinum", "Bronze", "Gold",
 	"Obsidian", "Silver", "Tortoise Shell", "Mithril", "Jet",
-	"Engagement", "Adamantite", "Wire", "Dilithium", "Bone",
+	"Engagement", "Adamantite", "Wire", "Ivory", "Bone",
 	"Wooden", "Serpent", "Wedding", "Double", "Plain",
 	"Brass", "Scarab", "Shining", "Rusty", "Transparent",
 	"White Gold"
@@ -1993,11 +1993,11 @@ bool identify_fully_aux2(object_type *o_ptr, cptr *info, int len)
 	{
 		if (artifact_p(o_ptr))
 		{
-			info[i++] = "It provides light (radius 3) forever.";
+			info[i++] = "It provides eternal light (radius 3).";
 		}
 		else if (o_ptr->sval == SV_LITE_FEANORAN_LAMP)
 		{
-			info[i++] = "It provides light (radius 2) forever.";
+			info[i++] = "It provides eternal light (radius 2).";
 		}
 		else if (o_ptr->sval == SV_LITE_LANTERN)
 		{

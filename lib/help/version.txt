@@ -1,5 +1,15 @@
 === Gumband History and Information ===
 
+When Joseph William Dixon aka "Gumby" announced he would no longer
+maintain Gumband, I agreed to take over as maintainer because I've
+always felt that Moorcock's Eternal Champion multiverse was the best
+pre-existing setting for a roguelike, especially a wade-in-blood style
+like Angband, and because nobody else was going to do it. The change
+log should cover most of what you'll want to know about its history in
+my hands, but one change to the below is worth noting: Gumband now
+officially stands for "Gods Unbalancing the Multiverse Angband".
+                                                              -- RDH
+
 So you're looking for version information on Gumband, eh?  Well, as the 'V'
 command says, this is v2.2.1.  Why the large number?  Well, that's because
 the version number of ZAngband I used as the base for Gumband was 2.1.1, so

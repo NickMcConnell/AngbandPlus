@@ -193,6 +193,7 @@ bool disturb_minor;		/* Disturb whenever boring things happen */
 bool disturb_other;		/* Disturb whenever various things happen */
 bool alert_hitpoint;		/* Alert user to critical hitpoints */
 bool alert_failure;		/* Alert user to various failures */
+bool easy_open;		/* Open easily :)*/
 
 /* Option Set 3 -- Game-Play */
 bool auto_haggle;		/* Auto-haggle in stores */

@@ -191,6 +191,7 @@ extern bool disturb_minor;
 extern bool disturb_other;
 extern bool alert_hitpoint;
 extern bool alert_failure;
+extern bool easy_open;
 
 /* Options (3) */
 extern bool auto_haggle;

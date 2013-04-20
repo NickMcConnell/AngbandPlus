@@ -742,17 +742,6 @@ and tables.c --TY */
 /* Explosive Rune */
 #define FEAT_MINOR_GLYPH        0x40
 
-/* The Pattern */
-#define FEAT_PATTERN_START      0x41
-#define FEAT_PATTERN_1          0x42
-#define FEAT_PATTERN_2          0x43
-#define FEAT_PATTERN_3          0x44
-#define FEAT_PATTERN_4          0x45
-#define FEAT_PATTERN_END        0x46
-#define FEAT_PATTERN_OLD        0x47
-#define FEAT_PATTERN_XTRA1      0x48
-#define FEAT_PATTERN_XTRA2      0x49
-
 /* Shops */
 #define FEAT_SHOP_HEAD          0x4A
 #define FEAT_SHOP_TAIL          0x53
@@ -2750,6 +2739,15 @@ and tables.c --TY */
  */
 #define in_bounds2u(Y,X) \
    (((Y) < cur_hgt) && ((X) < cur_wid))
+
+/*
+ * Determines if a map location is fully inside the outer walls
+ * This is more than twice as expensive as "in_bounds()", but
+ * often we need to exclude the outer walls from calculations.
+ */
+#define in_bounds_fully(Y,X) \
+	(((Y) > 0) && ((Y) < cur_hgt-1) && \
+	 ((X) > 0) && ((X) < cur_wid-1))
 
 /*
  * Determines if a map location is currently "on screen" -RAK-

@@ -6066,11 +6066,11 @@ cptr player_title[MAX_CLASS][PY_MAX_LEVEL/5] =
 		"Mercenary",
 		"Veteran",
 		"Swordsman",
-		"Champion",
+		"Lord",
 		"Hero",
 		"Baron",
 		"Duke",
-		"Lord",
+		"Champion",
 	},
 
 	/* Mage */
@@ -6098,18 +6098,18 @@ cptr player_title[MAX_CLASS][PY_MAX_LEVEL/5] =
 		"High Priest",
 		"Cardinal",
 		"Inquisitor",
-		"Pope",
+		"Theocrat",
 	},
 
 	/* Rogues */
 	{
+		"Begger",
 		"Cutpurse",
 		"Robber",
 		"Burglar",
 		"Filcher",
 		"Sharper",
-		"Low Thief",
-		"High Thief",
+		"Thief",
 		"Master Thief",
 		"Assassin",
 		"Guildmaster",
@@ -6159,16 +6159,16 @@ cptr player_title[MAX_CLASS][PY_MAX_LEVEL/5] =
 
 	/* Chaos Warrior */
 	{
-		"Rookie",
+		"Fresh Meat",
 		"Soldier",
 		"Mercenary",
 		"Veteran",
 		"Swordsman",
-		"Champion",
+		"Chaos Knight",
 		"Chaos Hero",
 		"Chaos Baron",
 		"Chaos Duke",
-		"Chaos Lord",
+		"Chaos Champion",
 	},
 
 	/* Monk */
@@ -6223,38 +6223,38 @@ cptr player_title[MAX_CLASS][PY_MAX_LEVEL/5] =
 		"Mercenary",
 		"Veteran",
 		"Specialist",
-		"Champion",
+		"Lord",
 		"Hero",
 		"Baron",
 		"Duke",
-		"Lord",
+		"Champion",
 	},
 
 	/* Archer */
 	{
 		"Rock Thrower",
-		"Slinger",
+		"Flinger",
 		"Slinger",
 		"Bowman",
-		"Bowman",
+		"Shooter",
 		"Marksman",
-		"Marksman",
+		"Expert Shot",
 		"Archer",
-		"Archer",
+		"Fine Archer",
 		"Master Archer",
 	},
 
 	/* Beastmaster */
 	{
+		"Ratmaster",
 		"Rabblerouser",
-		"Rabblerouser",
+		"Grouper",
 		"Leader",
-		"Leader",
+		"Alpha",
 		"Commander",
-		"Commander",
+		"Herdmaster",
 		"Hordemaster",
-		"Hordemaster",
-		"Beastmaster",
+		"Beastlord",
 		"Beastmaster",
 	},
 };
@@ -6458,6 +6458,10 @@ option_type option_info[] =
 
 	{ &alert_failure,               TRUE,  2,       0, 27,
 	"alert_failure",                "Alert user to various failures" },
+
+	{ &easy_open,					     FALSE, 2, 		0, 28,
+	"easy_open",					     "Open/Disarm/Close without direction" },
+
 
 	/* set 0, bits 28-31 unused */
 
@@ -6734,7 +6738,7 @@ int chaos_rewards[MAX_PATRON][20] =
 	},
 
 
-	/* Pyaray the Tentacled Whisperer of Impossible Secretes: */
+	/* Pyaray the Tentacled Whisperer of Impossible Secrets: */
 	{
 		REW_WRATH, REW_TY_CURSE, REW_PISS_OFF, REW_H_SUMMON, REW_H_SUMMON,
 		REW_IGNORE, REW_IGNORE, REW_IGNORE, REW_POLY_WND, REW_POLY_SLF,

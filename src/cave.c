@@ -3589,8 +3589,7 @@ bool projectable(int y1, int x1, int y2, int x2)
 	{
 		/* Never pass through walls */
         if (dist && !cave_floor_bold(y, x) &&
-            !((cave[y][x].feat <= FEAT_PATTERN_XTRA2) &&
-              (cave[y][x].feat >= FEAT_MINOR_GLYPH))) break;
+				!(cave[y][x].feat >= FEAT_MINOR_GLYPH)) break;
 
 		/* Check for arrival at "final target" */
 		if ((x == x2) && (y == y2)) return (TRUE);
@@ -3626,8 +3625,7 @@ bool projectable(int y1, int x1, int y2, int x2)
 
 		/* Never pass through walls */
         if (dist && !cave_floor_bold(y, x) &&
-            !((cave[y][x].feat <= FEAT_PATTERN_XTRA2) &&
-              (cave[y][x].feat >= FEAT_MINOR_GLYPH))) break;
+				!(cave[y][x].feat >= FEAT_MINOR_GLYPH)) break;
 
 		/* Calculate the new location */
 		mmove2(&y, &x, y1, x1, y2, x2);

@@ -1366,7 +1366,7 @@ void py_attack(int y, int x)
 				{
 					if (r_ptr->flags1 & RF1_MALE)
 					{
-						msg_format("You hit %s in the groin with your knee!", m_name);
+						msg_format("You knee %s in the groin!", m_name);
 						special_effect = MA_KNEE;
 					}
 					else
@@ -1690,121 +1690,6 @@ void py_attack(int y, int x)
 
 
 
-static bool pattern_tile(byte y, byte x)
-{
-	return ((cave[y][x].feat <= FEAT_PATTERN_XTRA2) &&
-	    (cave[y][x].feat >= FEAT_PATTERN_START));
-}
-
-static bool pattern_seq(c_y, c_x, n_y, n_x)
-{
-	if (!(pattern_tile(c_y, c_x)) && !(pattern_tile(n_y, n_x)))
-		return TRUE;
-
-	if (cave[n_y][n_x].feat == FEAT_PATTERN_START)
-	{
-		if ((!(pattern_tile(c_y, c_x))) &&
-		    !(p_ptr->confused || p_ptr->stun || p_ptr->image))
-		{
-			if (get_check("If you start walking the Pattern, you must walk the whole way. Ok? "))
-				return TRUE;
-			else
-				return FALSE;
-		}
-		else
-			return TRUE;
-	}
-	else if ((cave[n_y][n_x].feat == FEAT_PATTERN_OLD) ||
-	    (cave[n_y][n_x].feat == FEAT_PATTERN_END) ||
-	    (cave[n_y][n_x].feat == FEAT_PATTERN_XTRA2))
-	{
-		if (pattern_tile(c_y, c_x))
-		{
-			return TRUE;
-		}
-		else
-		{
-			msg_print("You must start walking the Pattern from the startpoint.");
-			return FALSE;
-		}
-	}
-	else if ((cave[n_y][n_x].feat == FEAT_PATTERN_XTRA1)||
-	    (cave[c_y][c_x].feat == FEAT_PATTERN_XTRA1))
-	{
-		return TRUE;
-	}
-	else if (cave[c_y][c_x].feat == FEAT_PATTERN_START)
-	{
-		if (pattern_tile(n_y, n_x))
-			return TRUE;
-		else
-		{
-			msg_print("You must walk the Pattern in correct order.");
-			return FALSE;
-		}
-	}
-	else if ((cave[c_y][c_x].feat == FEAT_PATTERN_OLD) ||
-	    (cave[c_y][c_x].feat == FEAT_PATTERN_END) ||
-	    (cave[c_y][c_x].feat == FEAT_PATTERN_XTRA2))
-	{
-		if (!pattern_tile(n_y, n_x))
-		{
-			msg_print("You may not step off from the Pattern.");
-			return FALSE;
-		}
-		else
-		{
-			return TRUE;
-		}
-	}
-	else
-	{
-		if (!pattern_tile(c_y, c_x))
-		{
-			msg_print("You must start walking the Pattern from the startpoint.");
-			return FALSE;
-		}
-		else
-		{
-			byte ok_move = FEAT_PATTERN_START;
-			switch (cave[c_y][c_x].feat)
-			{
-				case FEAT_PATTERN_1:
-					ok_move = FEAT_PATTERN_2;
-					break;
-				case FEAT_PATTERN_2:
-					ok_move = FEAT_PATTERN_3;
-					break;
-				case FEAT_PATTERN_3:
-					ok_move = FEAT_PATTERN_4;
-					break;
-				case FEAT_PATTERN_4:
-					ok_move = FEAT_PATTERN_1;
-					break;
-				default:
-					if (wizard)
-						msg_format("Funny Pattern walking, %d.", cave[c_y][c_x]);
-					return TRUE; /* Goof-up */
-			}
-
-			if ((cave[n_y][n_x].feat == ok_move) ||
-			    (cave[n_y][n_x].feat == cave[c_y][c_x].feat))
-				return TRUE;
-			else
-			{
-				if (!pattern_tile(n_y, n_x))
-					msg_print("You may not step off from the Pattern.");
-				else
-					msg_print("You must walk the Pattern in correct order.");
-
-				return FALSE;
-			}
-		}
-	}
-}
-
-
-
 /*
  * Move player in the given direction, with the given "pickup" flag.
  *
@@ -1863,10 +1748,9 @@ void move_player(int dir, int do_pickup)
 
 		/* Attack -- only if we can see it OR it is not in a wall */
 		if ((m_ptr->smart & SM_FRIEND) &&
-		    !(p_ptr->confused || p_ptr->image || !(m_ptr->ml) || p_ptr->stun ||
-		    ((p_ptr->muta2 & MUT2_BERS_RAGE) && p_ptr->shero)) &&
-		    (pattern_seq(py, px, y, x)) &&
-		    ((cave_floor_bold(y, x)) || (p_can_pass_walls)))
+			 !(p_ptr->confused || p_ptr->image || !(m_ptr->ml) || p_ptr->stun ||
+			 ((p_ptr->muta2 & MUT2_BERS_RAGE) && p_ptr->shero)) &&
+			 ((cave_floor_bold(y, x)) || (p_can_pass_walls)))
 		{
 			m_ptr->csleep = 0;
 
@@ -1987,18 +1871,6 @@ void move_player(int dir, int do_pickup)
 		return;
 	}
 
-	/* Normal movement */
-	if (!pattern_seq(py, px, y, x))
-	{
-		if (!(p_ptr->confused || p_ptr->stun || p_ptr->image))
-		{
-			energy_use = 0;
-		}
-
-		disturb(0,0); /* To avoid a loop with running */
-		return;
-	}
-	/*    else */
 	{
 		int oy, ox;
 

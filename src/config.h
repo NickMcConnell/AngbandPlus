@@ -168,7 +168,10 @@
  */
 /* #define VERIFY_SAVEFILE */
 
-
+/*
+ * OPTION: Allow open/disarm/close without direction.
+ */
+#define ALLOW_EASY_OPEN
 
 /*
  * OPTION: Hack -- Compile in support for "Cyborg" mode
@@ -441,7 +444,7 @@
 /*
  * OPTION: Person to bother if something goes wrong.
  */
-#define MAINTAINER	"gumby_jd@yahoo.com"
+#define MAINTAINER	"rdanhenry@earthlink.net"
 
 /*
  * OPTION: Default font (when using X11).

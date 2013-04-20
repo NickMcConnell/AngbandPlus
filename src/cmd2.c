@@ -16,6 +16,201 @@
  */
 #include "angband.h"
 
+/*
+ * Determine if a grid contains a chest
+ */
+static s16b chest_check(int y, int x)
+{
+	cave_type *c_ptr = &cave[y][x];
+
+	s16b this_o_idx, next_o_idx = 0;
+
+
+	/* Scan all objects in the grid */
+	for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
+	{
+		object_type *o_ptr;
+
+		/* Acquire object */
+		o_ptr = &o_list[this_o_idx];
+
+		/* Acquire next object */
+		next_o_idx = o_ptr->next_o_idx;
+
+		/* Skip unknown chests XXX XXX */
+		/* if (!o_ptr->marked) continue; */
+
+		/* Check for chest */
+		if (o_ptr->tval == TV_CHEST) return (this_o_idx);
+	}
+
+	/* No chest */
+	return (0);
+}
+
+/* RMG just some testing for easy_open*/
+
+#if defined(ALLOW_EASY_OPEN)
+
+/*
+ * Return TRUE if the given feature is an open (or broken) door
+ */
+static bool is_open(int feat)
+{
+	return ((feat == FEAT_OPEN) || (feat == FEAT_BROKEN));
+}
+
+
+/*
+ * Return TRUE if the given feature is a closed door
+ */
+static bool is_closed(int feat)
+{
+	return ((feat >= FEAT_DOOR_HEAD) &&
+			  (feat <= FEAT_DOOR_TAIL));
+}
+
+
+/*
+ * Return TRUE if the given feature is a trap
+ */
+static bool is_trap(int feat)
+{
+	return ((feat >= FEAT_TRAP_HEAD) &&
+			  (feat <= FEAT_TRAP_TAIL));
+}
+
+
+/*
+ * Return the number of doors/traps around (or under) the character.
+ */
+static int count_feats(int *y, int *x, bool (*test)(int feat), bool under)
+{
+	int d;
+	int xx, yy;
+	int count = 0; /* Count how many matches */
+
+	/* Check around (and under) the character */
+	for (d = 0; d < 9; d++)
+	{
+		/* if not searching under player continue */
+		if ((d == 8) && !under) continue;
+
+		/* Extract adjacent (legal) location */
+		yy = py + ddy_ddd[d];
+		xx = px + ddx_ddd[d];
+
+		/* Paranoia */
+		if (!in_bounds_fully(yy, xx)) continue;
+
+		/* Must have knowledge */
+		if (!(cave[yy][xx].info & (CAVE_MARK))) continue;
+
+		/* Not looking for this feature */
+		if (!((*test)(cave[yy][xx].feat))) continue;
+
+		/* Count it */
+		++count;
+
+		/* Remember the location of the last door found */
+		*y = yy;
+		*x = xx;
+	}
+
+	/* All done */
+	return count;
+}
+
+
+/*
+ * Return the number of chests around (or under) the character.
+ * If requested, count only trapped chests.
+ */
+static int count_chests(int *y, int *x, bool trapped)
+{
+	int d, count, o_idx;
+
+	object_type *o_ptr;
+
+	/* Count how many matches */
+	count = 0;
+
+	/* Check around (and under) the character */
+	for (d = 0; d < 9; d++)
+	{
+		/* Extract adjacent (legal) location */
+		int yy = py + ddy_ddd[d];
+		int xx = px + ddx_ddd[d];
+
+		/* No (visible) chest is there */
+		if ((o_idx = chest_check(yy, xx)) == 0) continue;
+
+		/* Grab the object */
+		o_ptr = &o_list[o_idx];
+
+		/* Already open */
+		if (o_ptr->pval == 0) continue;
+
+		/* No (known) traps here */
+		if (trapped &&
+			 (!object_known_p(o_ptr) ||
+			  (o_ptr->pval < 0) ||
+			  !chest_traps[o_ptr->pval]))
+		{
+			continue;
+		}
+
+		/* Count it */
+		++count;
+
+		/* Remember the location of the last chest found */
+		*y = yy;
+		*x = xx;
+	}
+
+	/* All done */
+	return count;
+}
+
+/*
+ * Given a "source" and "target" location, extract a "direction",
+ * which will move one step from the "source" towards the "target".
+ *
+ * Note that we use "diagonal" motion whenever possible.
+ *
+ * We return "5" if no motion is needed.
+ */
+int motion_dir(int y1, int x1, int y2, int x2)
+{
+	/* No movement required */
+	if ((y1 == y2) && (x1 == x2)) return (5);
+
+	/* South or North */
+	if (x1 == x2) return ((y1 < y2) ? 2 : 8);
+
+	/* East or West */
+	if (y1 == y2) return ((x1 < x2) ? 6 : 4);
+
+	/* South-east or South-west */
+	if (y1 < y2) return ((x1 < x2) ? 3 : 1);
+
+	/* North-east or North-west */
+	if (y1 > y2) return ((x1 < x2) ? 9 : 7);
+
+	/* Paranoia */
+	return (5);
+}
+
+/*
+ * Extract a "direction" which will move one step from the player location
+ * towards the given "target" location (or "5" if no motion necessary).
+ */
+static int coords_to_dir(int y, int x)
+{
+	return (motion_dir(py, px, y, x));
+}
+
+#endif /* ALLOW_EASY_OPEN */
 
 /*
  * Go up one level					-RAK-
@@ -227,41 +422,6 @@ void do_cmd_toggle_search(void)
 	}
 }
 
-
-
-/*
- * Determine if a grid contains a chest
- */
-static s16b chest_check(int y, int x)
-{
-	cave_type *c_ptr = &cave[y][x];
-
-	s16b this_o_idx, next_o_idx = 0;
-
-
-	/* Scan all objects in the grid */
-	for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
-	{
-		object_type *o_ptr;
-		
-		/* Acquire object */
-		o_ptr = &o_list[this_o_idx];
-
-		/* Acquire next object */
-		next_o_idx = o_ptr->next_o_idx;
-
-		/* Skip unknown chests XXX XXX */
-		/* if (!o_ptr->marked) continue; */
-
-		/* Check for chest */
-		if (o_ptr->tval == TV_CHEST) return (this_o_idx);
-	}
-
-	/* No chest */
-	return (0);
-}
-
-
 /*
  * Allocates objects upon opening a chest    -BEN-
  *
@@ -276,7 +436,7 @@ static s16b chest_check(int y, int x)
 static void chest_death(int y, int x, s16b o_idx)
 {
 	int number;
-	
+
 	bool small;
 
 	object_type forge;
@@ -610,6 +770,27 @@ void do_cmd_open(void)
 
 	bool more = FALSE;
 
+#ifdef ALLOW_EASY_OPEN
+
+	/* Easy Open */
+	if (easy_open)
+	{
+		int num_doors, num_chests;
+
+		/* Count closed doors */
+		num_doors = count_feats(&y, &x, is_closed, FALSE);
+
+		/* Count chests (locked) */
+		num_chests = count_chests(&y, &x, FALSE);
+
+		/* See if only one target */
+		if ((num_doors + num_chests) == 1)
+		{
+			command_dir = coords_to_dir(y, x);
+		}
+	}
+
+#endif /* ALLOW_EASY_OPEN */
 
 	/* Allow repeated command */
 	if (command_arg)
@@ -639,8 +820,8 @@ void do_cmd_open(void)
 
 		/* Nothing useful */
 		if (!((c_ptr->feat >= FEAT_DOOR_HEAD) &&
-		      (c_ptr->feat <= FEAT_DOOR_TAIL)) &&
-		    !o_idx)
+				(c_ptr->feat <= FEAT_DOOR_TAIL)) &&
+			 !o_idx)
 		{
 			/* Message */
 			msg_print("You see nothing there to open.");
@@ -750,6 +931,19 @@ void do_cmd_close(void)
 
 	bool more = FALSE;
 
+#ifdef ALLOW_EASY_OPEN
+
+	/* Easy Close */
+	if (easy_open)
+	{
+		/* Count open doors */
+		if (count_feats(&y, &x, is_open, FALSE) == 1)
+		{
+			command_dir = coords_to_dir(y, x);
+		}
+	}
+
+#endif /* ALLOW_EASY_OPEN */
 
 	/* Allow repeated command */
 	if (command_arg)
@@ -1048,8 +1242,7 @@ void do_cmd_tunnel(void)
 		c_ptr = &cave[y][x];
 
 		/* Oops */
-		if (cave_floor_grid(c_ptr) || ((c_ptr->feat >= FEAT_MINOR_GLYPH) &&
-		    (c_ptr->feat <= FEAT_PATTERN_XTRA2)))
+		if (cave_floor_grid(c_ptr) || (c_ptr->feat >= FEAT_MINOR_GLYPH))
 		{
 			/* Message */
 			msg_print("You cannot tunnel through air.");
@@ -1276,6 +1469,28 @@ void do_cmd_disarm(void)
 
 	bool more = FALSE;
 
+#ifdef ALLOW_EASY_OPEN
+
+	/* Easy Disarm */
+	if (easy_open)
+	{
+		int num_traps, num_chests;
+
+		/* Count visible traps */
+		num_traps = count_feats(&y, &x, is_trap, TRUE);
+
+		/* Count chests (trapped) */
+		num_chests = count_chests(&y, &x, TRUE);
+
+		/* See if only one target */
+		if (num_traps || num_chests)
+		{
+			if (num_traps + num_chests <= 1)
+				command_dir = coords_to_dir(y, x);
+		}
+	}
+
+#endif /* ALLOW_EASY_OPEN */
 
 	/* Allow repeated command */
 	if (command_arg)

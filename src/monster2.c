@@ -1058,24 +1058,24 @@ void sanity_blast (monster_type * m_ptr, bool necro)
             case 3:
             if (!(p_ptr->muta2 & MUT2_HALLU) && !(p_ptr->resist_chaos))
             {
-                msg_print("You are afflicted by a hallucinatory insanity!");
-                p_ptr->muta2 |= MUT2_HALLU;
-                happened = TRUE;
-            }
-            break;
-            default:
-            if (!(p_ptr->muta2 & MUT2_BERS_RAGE))
-            {
-                msg_print("You become subject to fits of berserk rage!");
-                p_ptr->muta2 |= MUT2_BERS_RAGE;
-                happened = TRUE;
-            }
-            break;
-        }
-    }
+					 msg_print("You are afflicted by delusional visions!");
+					 p_ptr->muta2 |= MUT2_HALLU;
+					 happened = TRUE;
+				}
+				break;
+				default:
+				if (!(p_ptr->muta2 & MUT2_BERS_RAGE))
+				{
+					 msg_print("You become subject to fits of berserk rage!");
+					 p_ptr->muta2 |= MUT2_BERS_RAGE;
+					 happened = TRUE;
+				}
+				break;
+		  }
+	 }
 
-    p_ptr->update |= PU_BONUS;
-    handle_stuff();
+	 p_ptr->update |= PU_BONUS;
+	 handle_stuff();
 
 }
 
@@ -1183,7 +1183,7 @@ void update_mon(int m_idx, bool full)
 	{
 		/* Ignore unseen monsters */
 		if (!m_ptr->ml) return;
-    
+
 		/* Detected */
 		if (m_ptr->mflag & (MFLAG_MARK)) flag = TRUE;
 	}
@@ -1431,11 +1431,6 @@ bool place_monster_one(int y, int x, int r_idx, bool slp, bool charm)
 	/* Hack -- no creation on glyph of warding */
 	if (cave[y][x].feat == FEAT_GLYPH) return (FALSE);
 	if (cave[y][x].feat == FEAT_MINOR_GLYPH) return (FALSE);
-
-	/* Nor on the Pattern */
-	if ((cave[y][x].feat >= FEAT_PATTERN_START)
-	 && (cave[y][x].feat <= FEAT_PATTERN_XTRA2))
-		return (FALSE);
 
 	/* Paranoia */
 	if (!r_idx) return (FALSE);
@@ -2267,11 +2262,6 @@ bool summon_specific(int y1, int x1, int lev, int type)
 		if (cave[y][x].feat == FEAT_GLYPH) continue;
 		if (cave[y][x].feat == FEAT_MINOR_GLYPH) continue;
 
-		/* ... nor on the Pattern */
-		if ((cave[y][x].feat >= FEAT_PATTERN_START) &&
-		    (cave[y][x].feat <= FEAT_PATTERN_XTRA2))
-			continue;
-
 		/* Okay */
 		break;
 	}
@@ -2343,11 +2333,6 @@ bool summon_specific_friendly(int y1, int x1, int lev, int type, bool Group_ok)
 		/* Hack -- no summon on glyph of warding */
 		 if (cave[y][x].feat == FEAT_GLYPH) continue;
 		 if (cave[y][x].feat == FEAT_MINOR_GLYPH) continue;
-
-		/* ... nor on the Pattern */
-		if ((cave[y][x].feat >= FEAT_PATTERN_START) &&
-		    (cave[y][x].feat <= FEAT_PATTERN_XTRA2))
-			continue;
 
 		/* Okay */
 		break;
@@ -2503,7 +2488,7 @@ void message_pain(int m_idx, int dam)
 		else if (percentage > 10)
 			msg_format("%^s writhes in agony.", m_name);
 		else
-			msg_format("%^s yelps feebly.", m_name);
+			msg_format("%^s whines feebly.", m_name);
 	}
 
 	/* One type of monsters (ignore,squeal,shriek) */
@@ -2650,8 +2635,8 @@ void update_smart_learn(int m_idx, int what)
 			if (!p_ptr->msp) m_ptr->smart |= (SM_IMM_MANA);
 			break;
 
-	        case DRS_REFLECT:
-	        	if (p_ptr->reflect) m_ptr-> smart |= (SM_IMM_REFLECT);
+			  case DRS_REFLECT:
+				if (p_ptr->reflect) m_ptr-> smart |= (SM_IMM_REFLECT);
 			break;
 	}
 #endif /* DRS_SMART_OPTIONS */
@@ -2709,18 +2694,18 @@ void monster_swap(int y1, int x1, int y2, int x2)
 	int m1, m2;
 
 	monster_type *m_ptr;
-        cave_type *c_ptr1,*c_ptr2;
+		  cave_type *c_ptr1,*c_ptr2;
 
-        c_ptr1 = &cave[y1][x1];
-        c_ptr2 = &cave[y2][x2];
+		  c_ptr1 = &cave[y1][x1];
+		  c_ptr2 = &cave[y2][x2];
 
 	/* Monsters */
-        m1 = c_ptr1->m_idx;
-        m2 = c_ptr2->m_idx;
+		  m1 = c_ptr1->m_idx;
+		  m2 = c_ptr2->m_idx;
 
 	/* Update grids */
-        c_ptr1->m_idx = m2;
-        c_ptr2->m_idx = m1;
+		  c_ptr1->m_idx = m2;
+		  c_ptr2->m_idx = m1;
 
 	/* Monster 1 */
 	if (m1 > 0)
@@ -2739,8 +2724,8 @@ void monster_swap(int y1, int x1, int y2, int x2)
 	else if (m1 < 0)
 	{
 		/* Move player */
-                py = y2;
-                px = x2;
+					 py = y2;
+					 px = x2;
 
 		/* Check for new panel (redraw map) */
 		verify_panel();

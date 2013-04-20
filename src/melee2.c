@@ -671,10 +671,6 @@ static bool summon_possible(int y1, int x1)
 			if (cave[y][x].feat == FEAT_GLYPH) continue;
 			if (cave[y][x].feat == FEAT_MINOR_GLYPH) continue;
 
-			/* ...nor on the Pattern */
-			if ((cave[y][x].feat >= FEAT_PATTERN_START)
-			&& (cave[y][x].feat <= FEAT_PATTERN_XTRA2)) continue;
-
 			/* Require empty floor grid in line of sight */
 			if (cave_empty_bold(y,x) && los(y1,x1,y,x)) return (TRUE);
 		}
@@ -6671,13 +6667,6 @@ static void process_monster(int m_idx, bool is_friend)
 
 			/* Took a turn */
 			do_turn = TRUE;
-		}
-
-		if ((cave[ny][nx].feat >= FEAT_PATTERN_START) &&
-		    (cave[ny][nx].feat <= FEAT_PATTERN_XTRA2) &&
-		    do_turn == FALSE)
-		{
-			do_move = FALSE;
 		}
 
 

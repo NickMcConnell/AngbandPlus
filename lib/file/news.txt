@@ -1,7 +1,7 @@
 
 
              ************************************************
-             ** Gumband 2.2.1b ** Based on ZAngband 2.1.1c **
+             ** Gumband 2.2.2  ** Based on ZAngband 2.1.1c **
              ************************************************
 
          Based on Moria:    Copyright (c) 1985 Robert Alan Koeneke
@@ -13,7 +13,8 @@
 
         ZAngband code:      (Mr) Topi Ylinen (f1toyl@uta.fi)
      Current maintainer:   Robert Ruehlmann < rr9@angband.org >
-         Gumband author: Joseph W. Dixon < aa343@chebucto.ns.ca >
+         Gumband creator: Joseph W. Dixon < aa343@chebucto.ns.ca >
+     Current Gumband maintainer: R. Dan Henry < rdanhenry@earthlink.net >
 
  Visit "Thangorodrim - The Angband Page" at "http://thangorodrim.angband.org/"
-       Send all comments, bug reports, etc, to "mailto:aa343@chebucto.ns.ca".
+       Send all comments, bug reports, etc, to "mailto:rdanhenry@earthlink.net".

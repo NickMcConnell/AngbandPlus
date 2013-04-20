@@ -360,7 +360,7 @@ static void prt_hunger(void)
 	/* Fainting / Starving */
 	if (p_ptr->food < PY_FOOD_FAINT)
 	{
-		c_put_str(TERM_RED, "Weak  ", ROW_HUNGRY, COL_HUNGRY);
+		c_put_str(TERM_RED, "Faint ", ROW_HUNGRY, COL_HUNGRY);
 	}
 
 	/* Weak */
@@ -697,7 +697,7 @@ static void prt_cut(void)
 	}
 	else if (c)
 	{
-		c_put_str(TERM_YELLOW, "Graze       ", ROW_CUT, COL_CUT);
+		c_put_str(TERM_YELLOW, "Mere scratch", ROW_CUT, COL_CUT);
 	}
 	else
 	{
@@ -1505,7 +1505,7 @@ static void calc_spells(void)
         if (k>32) k = 32;
     }
     else
-    {
+	 {
         if (k>64) k = 64;
     }
 
@@ -1595,7 +1595,7 @@ static void calc_mana(void)
 
 		/* Normal gloves hurt mage-type spells */
 		if (o_ptr->k_idx && !(f2 & (TR2_FREE_ACT)) &&
-		    !((f1 & (TR1_DEX)) && (o_ptr->pval > 0)))
+			 !((f1 & (TR1_DEX)) && (o_ptr->pval > 0)))
 		{
 			/* Encumbered */
 			p_ptr->cumber_glove = TRUE;
@@ -2252,8 +2252,8 @@ static void calc_bonuses(void)
 	}
 
 	/* Calculate effects of mutations on stats (see mutation.c) - G */
-        if (p_ptr->muta3)
-        {
+		  if (p_ptr->muta3)
+		  {
 		calc_mutations();
 	}
 
@@ -2383,40 +2383,40 @@ static void calc_bonuses(void)
 		if (object_known_p(o_ptr)) p_ptr->dis_to_d += o_ptr->to_d;
 	}
 
-    /* Monks get extra ac for armour _not worn_ */
-    if ((p_ptr->pclass == CLASS_MONK) && !(monk_heavy_armor()))
-    {
-        if (!(inventory[INVEN_BODY].k_idx))
-        {
-            p_ptr->to_a += (p_ptr->lev * 3) / 2;
-            p_ptr->dis_to_a += (p_ptr->lev * 3) / 2;
-        }
-        if (!(inventory[INVEN_OUTER].k_idx) && (p_ptr->lev > 15))
-        {
-            p_ptr->to_a += ((p_ptr->lev - 13) / 3);
-            p_ptr->dis_to_a += ((p_ptr->lev - 13) / 3);
-        }
-        if (!(inventory[INVEN_ARM].k_idx) && (p_ptr->lev > 10))
-        {
-            p_ptr->to_a += ((p_ptr->lev - 8) / 3);
-            p_ptr->dis_to_a += ((p_ptr->lev - 8) / 3);
-        }
-        if (!(inventory[INVEN_HEAD].k_idx)&& (p_ptr->lev > 4))
-        {
-            p_ptr->to_a += (p_ptr->lev - 2) / 3;
-            p_ptr->dis_to_a += (p_ptr->lev -2) / 3;
-        }
-        if (!(inventory[INVEN_HANDS].k_idx))
-        {
-            p_ptr->to_a += (p_ptr->lev / 2);
-            p_ptr->dis_to_a += (p_ptr->lev / 2);
-        }
-        if (!(inventory[INVEN_FEET].k_idx))
-        {
-            p_ptr->to_a += (p_ptr->lev / 3);
-            p_ptr->dis_to_a += (p_ptr->lev / 3);
-        }
-    }
+	 /* Monks get extra ac for armour _not worn_ */
+	 if ((p_ptr->pclass == CLASS_MONK) && !(monk_heavy_armor()))
+	 {
+		  if (!(inventory[INVEN_BODY].k_idx))
+		  {
+				p_ptr->to_a += (p_ptr->lev * 3) / 2;
+				p_ptr->dis_to_a += (p_ptr->lev * 3) / 2;
+		  }
+		  if (!(inventory[INVEN_OUTER].k_idx) && (p_ptr->lev > 15))
+		  {
+				p_ptr->to_a += ((p_ptr->lev - 13) / 3);
+				p_ptr->dis_to_a += ((p_ptr->lev - 13) / 3);
+		  }
+		  if (!(inventory[INVEN_ARM].k_idx) && (p_ptr->lev > 10))
+		  {
+				p_ptr->to_a += ((p_ptr->lev - 8) / 3);
+				p_ptr->dis_to_a += ((p_ptr->lev - 8) / 3);
+		  }
+		  if (!(inventory[INVEN_HEAD].k_idx)&& (p_ptr->lev > 4))
+		  {
+				p_ptr->to_a += (p_ptr->lev - 2) / 3;
+				p_ptr->dis_to_a += (p_ptr->lev -2) / 3;
+		  }
+		  if (!(inventory[INVEN_HANDS].k_idx))
+		  {
+				p_ptr->to_a += (p_ptr->lev / 2);
+				p_ptr->dis_to_a += (p_ptr->lev / 2);
+		  }
+		  if (!(inventory[INVEN_FEET].k_idx))
+		  {
+				p_ptr->to_a += (p_ptr->lev / 3);
+				p_ptr->dis_to_a += (p_ptr->lev / 3);
+		  }
+	 }
 
 	/* Hack -- fire aura provide light */
 	if (p_ptr->sh_fire) p_ptr->lite = TRUE;
@@ -2783,13 +2783,13 @@ static void calc_bonuses(void)
 			case CLASS_CHAOS_WARRIOR: case CLASS_BEASTMASTER:
 				/* 1 extra shot */
 				if ((p_ptr->tval_ammo <= TV_BOLT) &&
-				    (p_ptr->tval_ammo >= TV_SHOT) &&
-				    (p_ptr->lev > 29))
+					 (p_ptr->tval_ammo >= TV_SHOT) &&
+					 (p_ptr->lev > 29))
 					p_ptr->num_fire += 1;
 				break;
 			case CLASS_ARCHER: /* 3 extra shots */
 				if ((p_ptr->tval_ammo <= TV_BOLT) &&
-				    (p_ptr->tval_ammo >= TV_SHOT))
+					 (p_ptr->tval_ammo >= TV_SHOT))
 					p_ptr->num_fire += (p_ptr->lev / 15);
 				break;
 			default: /* no extra shots */
@@ -2941,7 +2941,7 @@ static void calc_bonuses(void)
 			p_ptr->dis_to_d += (p_ptr->lev / 2);
 		}
 	}
- 
+
 	/* Assume okay */
 	p_ptr->icky_wield = FALSE;
 	monk_armour_aux = FALSE;
@@ -2965,8 +2965,8 @@ static void calc_bonuses(void)
 	 */
 		case CLASS_PRIEST:
 			if ((!p_ptr->bless_blade) &&
-			    ((o_ptr->tval >= TV_POLEARM) &&
-			     (o_ptr->tval <= TV_SWORD)))
+				 ((o_ptr->tval >= TV_POLEARM) &&
+				  (o_ptr->tval <= TV_SWORD)))
 			{
 				p_ptr->to_h -= 15;
 				p_ptr->to_d -= 15;
@@ -3143,7 +3143,7 @@ static void calc_bonuses(void)
 			msg_print("You regain your balance.");
 		monk_notify_aux = monk_armour_aux;
 	}
-    
+
 }
 
 

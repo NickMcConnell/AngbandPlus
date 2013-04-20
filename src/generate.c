@@ -2864,41 +2864,13 @@ static void build_vault(int yval, int xval, int ymax, int xmax, cptr data)
 					break;
 				}
 
-			case 'p':
-                cave_set_feat(y, x, FEAT_PATTERN_START);
-                break;
-
-			case 'a':
-                cave_set_feat(y, x, FEAT_PATTERN_1);
-                break;
-
-			case 'b':
-                cave_set_feat(y, x, FEAT_PATTERN_2);
-                break;
-
-			case 'c':
-                cave_set_feat(y, x, FEAT_PATTERN_3);
-                break;
-
-			case 'd':
-                cave_set_feat(y, x, FEAT_PATTERN_4);
-                break;
-
-			case 'P':
-                cave_set_feat(y, x, FEAT_PATTERN_END);
-                break;
-
-			case 'B':
-                cave_set_feat(y, x, FEAT_PATTERN_XTRA1);
-                break;
-
 			case 'A':
-                {
-                    object_level = dun_level + 12;
+					 {
+						  object_level = dun_level + 12;
 					place_object(y, x, TRUE, FALSE);
 					object_level = dun_level;
-                }
-                break;
+					 }
+					 break;
 			}
 		}
 	}
@@ -2912,19 +2884,19 @@ static void build_type7(int yval, int xval)
 {
 	vault_type	*v_ptr;
 	int dummy = 0;
-	
+
 	/* Pick a lesser vault */
 	while (dummy < SAFE_MAX_ATTEMPTS)
 	{
 		dummy++;
-		
+
 		/* Access a random vault record */
 		v_ptr = &v_info[rand_int(MAX_V_IDX)];
-		
+
 		/* Accept the first lesser vault */
 		if (v_ptr->typ == 7) break;
 	}
-	
+
 	if (dummy >= SAFE_MAX_ATTEMPTS)
 	{
 		if (cheat_room)
@@ -2933,15 +2905,15 @@ static void build_type7(int yval, int xval)
 		}
 		return;
 	}
-    
-	
+
+
 #ifdef FORCE_V_IDX
 	v_ptr = &v_info[2];
 #endif
-	
+
 	/* Message */
 	if (cheat_room) msg_format("%s", v_name + v_ptr->name);
-	
+
 	/* Boost the rating */
 	rating += v_ptr->rat;
 	

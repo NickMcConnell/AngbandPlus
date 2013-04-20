@@ -5401,9 +5401,7 @@ bool project(int who, bool pet_attack, int rad, int y, int x, int dam, int typ, 
 					/* Ball explosions are stopped by walls */
 					if (typ == GF_DISINTEGRATE)
 					{
-						if (cave_valid_bold(y,x) &&
-						     (cave[y][x].feat < FEAT_PATTERN_START
-						   || cave[y][x].feat > FEAT_PATTERN_XTRA2))
+						if (cave_valid_bold(y,x))
 							cave_set_feat(y, x, FEAT_FLOOR);
 
 						/* Update some things -- similar to GF_KILL_WALL */

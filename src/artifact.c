@@ -3216,7 +3216,7 @@ void do_cmd_activate(void)
 		{
 			case EGO_SPINES:
 			{
-				msg_print("Your amour expels some spines...");
+				msg_print("Your armour expels some spines...");
 				fire_ball(GF_SHARDS, 0, 80, 2);
 				o_ptr->timeout = 100 + randint(100);
 				break;

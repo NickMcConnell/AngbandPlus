@@ -270,21 +270,21 @@ static void roff_aux(int r_idx)
 		if (r_ptr->r_deaths)
 		{
 			/* Killed ancestors */
-			roff(format("%^s has slain %d of your ancestors",
-			            wd_he[msex], r_ptr->r_deaths));
+			roff(format("%^s has slain %d prior incarnations",
+							wd_he[msex], r_ptr->r_deaths));
 
 			/* But we've also killed it */
 			if (dead)
 			{
 				roff(format(", but you have avenged %s!  ",
-				            plural(r_ptr->r_deaths, "him", "them")));
+								plural(r_ptr->r_deaths, "him", "them")));
 			}
 
 			/* Unavenged (ever) */
 			else
 			{
 				roff(format(", who %s unavenged.  ",
-				            plural(r_ptr->r_deaths, "remains", "remain")));
+								plural(r_ptr->r_deaths, "remains", "remain")));
 			}
 		}
 
@@ -299,28 +299,28 @@ static void roff_aux(int r_idx)
 	else if (r_ptr->r_deaths)
 	{
 		/* Dead ancestors */
-		roff(format("%d of your ancestors %s been killed by this creature, ",
-		            r_ptr->r_deaths, plural(r_ptr->r_deaths, "has", "have")));
+		roff(format("%d prior incarnations %s been killed by this creature, ",
+						r_ptr->r_deaths, plural(r_ptr->r_deaths, "has", "have")));
 
 		/* Some kills this life */
 		if (r_ptr->r_pkills)
 		{
 			roff(format("and you have exterminated at least %d of the creatures.  ",
-			            r_ptr->r_pkills));
+							r_ptr->r_pkills));
 		}
 
 		/* Some kills past lives */
 		else if (r_ptr->r_tkills)
 		{
 			roff(format("and %s have exterminated at least %d of the creatures.  ",
-			            "your ancestors", r_ptr->r_tkills));
+							"your ancestors", r_ptr->r_tkills));
 		}
 
 		/* No kills */
 		else
 		{
 			roff(format("and %s is not ever known to have been defeated.  ",
-			            wd_he[msex]));
+							wd_he[msex]));
 		}
 	}
 
@@ -331,14 +331,14 @@ static void roff_aux(int r_idx)
 		if (r_ptr->r_pkills)
 		{
 			roff(format("You have killed at least %d of these creatures.  ",
-			            r_ptr->r_pkills));
+							r_ptr->r_pkills));
 		}
 
 		/* Killed some last life */
 		else if (r_ptr->r_tkills)
 		{
-			roff(format("Your ancestors have killed at least %d of these creatures.  ",
-			            r_ptr->r_tkills));
+			roff(format("Your prior incarnations killed at least %d of these creatures.  ",
+							r_ptr->r_tkills));
 		}
 
 		/* Killed none */
@@ -863,7 +863,7 @@ static void roff_aux(int r_idx)
 	if (know_armour(r_idx))
 	{
 		/* Armor */
-		roff(format("%^s has an armor rating of %d",
+		roff(format("%^s has an armour rating of %d",
 		            wd_he[msex], r_ptr->ac));
 
 		/* Maximized hitpoints */

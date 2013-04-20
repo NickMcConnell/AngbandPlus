@@ -242,159 +242,6 @@ static void sense_inventory(void)
 }
 
 
-/*
- * Go to any level (ripped off from wiz_jump)
- */
-static void pattern_teleport(void)
-{
-	/* Ask for level */
-	if (get_check("Teleport level? "))
-	{
-		char	ppp[80];
-		char	tmp_val[160];
-
-		/* Prompt */
-		sprintf(ppp, "Teleport to level (0-%d): ", 97);
-
-		/* Default */
-		sprintf(tmp_val, "%d", dun_level);
-
-		/* Ask for a level */
-		if (!get_string(ppp, tmp_val, 10)) return;
-
-		/* Extract request */
-		command_arg = atoi(tmp_val);
-	}
-	else if (get_check("Normal teleport? "))
-	{
-		teleport_player(200);
-	        return;
-	}
-	else
-	{
-		return;
-	}
-
-	/* Paranoia */
-	if (command_arg < 0) command_arg = 0;
-
-	/* Paranoia */
-	if (command_arg > 97) command_arg = 97;
-
-	/* Accept request */
-	msg_format("You teleport to dungeon level %d.", command_arg);
-
-	if (autosave_l)
-	{
-		is_autosave = TRUE;
-		msg_print("Autosaving the game...");
-		do_cmd_save_game();
-		is_autosave = FALSE;
-	}
-
-	/* Change level */
-	dun_level = command_arg;
-	new_level_flag = TRUE;
-}
-
-
-static void wreck_the_pattern(void)
-{
-	int to_ruin = 0, r_y, r_x;
-
-	if (cave[py][px].feat == FEAT_PATTERN_XTRA2)
-	{
-		/* Ruined already */
-		return;
-	}
-
-	msg_print("You bleed on the Pattern!");
-	msg_print("Something terrible happens!");
-
-	if (!(p_ptr->invuln))
-		take_hit(damroll(10,8), "corrupting the Pattern");
-
-	to_ruin = randint(45) + 35;
-
-	while (to_ruin--)
-	{
-		scatter(&r_y, &r_x, py, px, 4, 0);
-		if ((cave[r_y][r_x].feat >= FEAT_PATTERN_START)
-		    && (cave[r_y][r_x].feat < FEAT_PATTERN_XTRA2))
-		{
-			cave_set_feat(r_y, r_x, FEAT_PATTERN_XTRA2);
-		}
-	}
-
-	cave_set_feat(py, px, FEAT_PATTERN_XTRA2);
-}
-
-
-/* Returns TRUE if we are on the Pattern... */
-static bool pattern_effect(void)
-{
-	if ((cave[py][px].feat < FEAT_PATTERN_START)
-	    || (cave[py][px].feat > FEAT_PATTERN_XTRA2))
-	return FALSE;
-
-	if ((p_ptr->cut>0) && (randint(10)==1))
-	{
-		wreck_the_pattern();
-	}
-
-	if (cave[py][px].feat == FEAT_PATTERN_END)
-	{
-		(void)set_poisoned(0);
-		(void)set_image(0);
-		(void)set_stun(0);
-		(void)set_cut(0);
-		(void)set_blind(0);
-		(void)set_afraid(0);
-		(void)do_res_stat(A_STR);
-		(void)do_res_stat(A_INT);
-		(void)do_res_stat(A_WIS);
-		(void)do_res_stat(A_DEX);
-		(void)do_res_stat(A_CON);
-		(void)do_res_stat(A_CHR);
-		(void)restore_level();
-		(void)hp_player(1000);
-		cave_set_feat(py, px, FEAT_PATTERN_OLD);
-		msg_print("This section of the Pattern looks less powerful.");
-	}
-
-
-	/*
-	 * We could make the healing effect of the
-	 * Pattern center one-time only to avoid various kinds
-	 * of abuse, like luring the win monster into fighting you
-	 * in the middle of the pattern...
-	 */
-
-	else if (cave[py][px].feat == FEAT_PATTERN_OLD)
-	{
-		/* No effect */
-	}
-	else if (cave[py][px].feat == FEAT_PATTERN_XTRA1)
-	{
-		pattern_teleport();
-	}
-	else if (cave[py][px].feat == FEAT_PATTERN_XTRA2)
-	{
-		if (!(p_ptr->invuln))
-		take_hit(200, "walking the corrupted Pattern");
-	}
-
-	else
-	{
-		if (!(p_ptr->invuln))
-			take_hit(damroll(1,3), "walking the Pattern");
-	}
-	return TRUE;
-}
-
-
-
-
 
 /*
  * Regenerate hit points				-RAK-
@@ -1087,12 +934,6 @@ static void process_world(void)
 	}
 
 
-	/* Are we walking the pattern? */
-	if (pattern_effect())
-	{
-		cave_no_regen = TRUE;
-	}
-	else
 	{
 		/* Regeneration ability */
 		if (p_ptr->regenerate)
@@ -1114,21 +955,10 @@ static void process_world(void)
 	if (p_ptr->poisoned) regen_amount = 0;
 	if (p_ptr->cut) regen_amount = 0;
 
-	/* Special floor -- Pattern, in a wall -- yields no healing */
-	if (cave_no_regen) regen_amount = 0;
-
 	/* Regenerate Hit Points if needed */
-	if ((p_ptr->chp < p_ptr->mhp) && !(cave_no_regen))
+	if (p_ptr->chp < p_ptr->mhp)
 	{
-		if ((cave[py][px].feat < FEAT_PATTERN_END) &&
-		    (cave[py][px].feat >= FEAT_PATTERN_START))
-		{
-			regenhp(regen_amount / 5); /* Hmmm. this should never happen? */
-		}
-		else
-		{
-			regenhp(regen_amount);
-		}
+		regenhp(regen_amount);
 	}
 
 

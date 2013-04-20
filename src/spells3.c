@@ -405,10 +405,6 @@ void teleport_away(int m_idx, int dis)
 			if (cave[ny][nx].feat == FEAT_GLYPH) continue;
 			if (cave[ny][nx].feat == FEAT_MINOR_GLYPH) continue;
 
-			/* ...nor onto the Pattern */
-			if ((cave[ny][nx].feat >= FEAT_PATTERN_START) &&
-			    (cave[ny][nx].feat <= FEAT_PATTERN_XTRA2)) continue;
-
 			/* No teleporting into vaults and such */
 			/* if (cave[ny][nx].info & (CAVE_ICKY)) continue; */
 
@@ -504,10 +500,6 @@ void teleport_to_player(int m_idx)
 			/* Hack -- no teleport onto glyph of warding */
 			if (cave[ny][nx].feat == FEAT_GLYPH) continue;
 			if (cave[ny][nx].feat == FEAT_MINOR_GLYPH) continue;
-
-			/* ...nor onto the Pattern */
-			if ((cave[ny][nx].feat >= FEAT_PATTERN_START) &&
-			    (cave[ny][nx].feat <= FEAT_PATTERN_XTRA2)) continue;
 
 			/* No teleporting into vaults and such */
 			/* if (cave[ny][nx].info & (CAVE_ICKY)) continue; */

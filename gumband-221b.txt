@@ -54,6 +54,20 @@ files there so you can undo or change the macros I've set...
 ============================================================================
 
 =============================================
+= Gumband 2.2.2  = Last Update: 17-Jun-2003 =
+=============================================
+The big change here is the new maintainer. I've tweaked some flavor text
+already, including some level titles, but I won't be tracking that level
+of detail. Real changes follow:
+
+01) Applied easy open patch supplied by Riivo Mägi. Default is off. It is
+under "Disturbance Options".
+02) Replaced linux_fix.tar.gz with newer version from Joseph William Dixon.
+03) Ripped out Pattern Vaults and supporting code. Goodbye Amberism.
+04) Reduced monster healing from RBE_VAMP attacks as suggested by JWD, but
+also reduced healing when Hold Life worked for consistency.
+
+=============================================
 = Gumband 2.2.1b = Last Update: 28-Aug-2002 =
 =============================================
 01) Removed the named Slime Molds, a joke that was boring about 2 versions
