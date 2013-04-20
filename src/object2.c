@@ -5587,9 +5587,9 @@ static void spell_info(char *p, int spell, int realm)
 					case 20: strcpy (p, " heal 12d8"); break;
 					case 23: sprintf(p, " dur %d+d%d", plev, plev); break;
 					case 24: sprintf(p, " dm %d * 5+d15", 2 + (plev/15)); break;
-					case 25: sprintf(p, " dam %d", 80 + plev); break;
+					case 25: sprintf(p, " dam %d", 100 + (plev*2)); break;
 					case 26: strcpy (p, " heal 250"); break;
-					case 28: sprintf(p, " dam %d", 100 + plev); break;
+					case 28: sprintf(p, " dam %d", 200 + (plev*2)); break;
 					case 30: strcpy (p, " delay 15+d21"); break;
 				}
 				break;

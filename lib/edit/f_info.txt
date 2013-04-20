@@ -461,3 +461,8 @@ G:8:y
 
 N:82:Bookstore
 G:9:o
+
+# 0x53 --> shop -- bookstore (perm)
+
+N:83:Antiques Store
+G:0:v

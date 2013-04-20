@@ -1336,7 +1336,7 @@ bool make_attack_normal(int m_idx)
 					}
 					else if (rand_int(100) < p_ptr->skill_sav)
 					{
-						msg_print("Your vision blurs for a second");
+						msg_print("Your vision blurs for a second.");
 						obvious = TRUE;
 					}
 					else
@@ -1364,8 +1364,7 @@ bool make_attack_normal(int m_idx)
 						update_smart_learn(m_idx, DRS_REFLECT);
 					}
 
-					if (!p_ptr->resist_shard &&
-					    !p_ptr->reflect)
+					if (!p_ptr->resist_shard && !p_ptr->reflect)
 					{
 						(void)set_cut(p_ptr->cut += r_ptr->level);
 						p_ptr->redraw |= (PR_CUT);

@@ -29,7 +29,7 @@ something you are more comfortable with.
    
  
                 Features that do not block line of sight
- 
+
   .   A floor space                   1   Entrance to General Store
   .   A trap (hidden)                 2   Entrance to Armoury
   ^   A trap (known)                  3   Entrance to Weapon Smith
@@ -38,7 +38,8 @@ something you are more comfortable with.
   '   A broken door                   6   Entrance to Magic Shop
   <   A staircase up                  7   Entrance to the Black Market
   >   A staircase down                8   Entrance to your Home
-
+                                      9   Entrance to the Bookstore
+                                      0   Entrance to the Antiques Store
 
                    Features that block line of sight
 
@@ -210,12 +211,16 @@ The Black Market ("7")
      not known for their tolerance...
 
 Your Home ("8")
-     This is your house where  you  can  store  objects  that you 
-     cannot carry on your travels, or will need at a  later date.
+     This is your house where you can store objects that you cannot carry
+     on your travels, or will need at a later date.
 
 The Bookstore ("9")
     The Bookstore deals in all sorts of magical books. You can purchase
     and sell spellbooks for the spellcasters here.
+
+The Antiques Store ("A")
+    The Antiques Store will only stock items of great historical
+    significance, those objects known commonly as 'artifacts'.
 
 
 === Within The Dungeon ===
@@ -333,13 +338,10 @@ Also, occasionally you will notice that something in your inventory or
 equipment list seems to be magical.  High level characters are much more
 likely to notice this than beginning characters.  When you do notice this,
 the item in question will be inscribed with "good" or "cursed" as is
-relevant.  Priests acquire this ability far more readily than other
-character classes.
+relevant.
 
-Warriors, Rogues, Rangers and Paladins have a special method of "sensing"
-their inventory/equipment items, which tells them not only if an item is
-"good" or "cursed", but also if it is "average", and if it is "special"
-or "excellent", or "terrible" or "worthless".
+If the heavy_pseudo option is turned on, your character will also learn if
+the object is "average", "special", "excellent", "terrible", or "worthless".
 
 It is rumored that rings of power and extra rare spell books may be found
 deeper in the dungeon...

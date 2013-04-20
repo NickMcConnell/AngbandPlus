@@ -42,7 +42,7 @@
 #define FAKE_VERSION
 #define FAKE_VER_MAJOR 2
 #define FAKE_VER_MINOR 2
-#define FAKE_VER_PATCH 0
+#define FAKE_VER_PATCH 1
 
 #define ANGBAND_2_8_1
 
@@ -78,7 +78,7 @@
 /*
  * Total number of stores (see "store.c", etc)
  */
-#define MAX_STORES      9
+#define MAX_STORES      10
 
 /*
  * Total number of owners per store (see "store.c", etc)
@@ -755,7 +755,7 @@ and tables.c --TY */
 
 /* Shops */
 #define FEAT_SHOP_HEAD          0x4A
-#define FEAT_SHOP_TAIL          0x52
+#define FEAT_SHOP_TAIL          0x53
 
 
 /*** Artifact indexes (see "lib/edit/a_info.txt") ***/

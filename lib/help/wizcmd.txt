@@ -1,4 +1,4 @@
-=== Wizard/Debug Mode Command Summary (Gumband 2.2.0) ===
+=== Wizard/Debug Mode Command Summary (Gumband 2.2.1) ===
 
 ### Note that using these commands will constitute cheating: your game will
 ### not be scored and your character dump will be marked...

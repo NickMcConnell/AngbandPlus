@@ -92,7 +92,7 @@ static void sense_inventory(void)
 {
 	int		i;
 	int		plev = p_ptr->lev;
-	bool		heavy = FALSE;
+	bool		heavy = heavy_pseudo;
 	cptr		feel;
 	object_type	*o_ptr;
 	char		o_name[80];
@@ -123,13 +123,6 @@ static void sense_inventory(void)
 		case CLASS_ARCHER:
 		{
 			if (0 != rand_int(10000L / (plev * plev + 40))) return;
-			heavy = TRUE;
-			break;
-		}
-
-		case CLASS_MAGE:
-		{
-			if (0 != rand_int(150000L / (plev * plev + 40))) return;
 			break;
 		}
 
@@ -139,10 +132,10 @@ static void sense_inventory(void)
 			break;
 		}
 
-		case CLASS_ROGUE: case CLASS_BEASTMASTER:
+		case CLASS_ROGUE: case CLASS_BEASTMASTER: case CLASS_MONK:
+		case CLASS_HIGH_MAGE:
 		{
 			if (0 != rand_int(20000L / (plev * plev + 40))) return;
-			heavy = TRUE;
 			break;
 		}
 
@@ -150,13 +143,6 @@ static void sense_inventory(void)
 		case CLASS_WARRIOR_MAGE: case CLASS_CHAOS_WARRIOR:
 		{
 			if (0 != rand_int(50000L / (plev * plev + 40))) return;
-			heavy = TRUE;
-			break;
-		}
-
-		case CLASS_MONK:
-		{
-			if (0 != rand_int(20000L / (plev * plev + 40))) return;
 			break;
 		}
 
@@ -166,10 +152,9 @@ static void sense_inventory(void)
 			break;
 		}
 
-		case CLASS_HIGH_MAGE:
+		case CLASS_MAGE:
 		{
-			if (0 != rand_int(20000L / (plev * plev + 40))) return;
-			heavy = FALSE;
+			if (0 != rand_int(150000L / (plev * plev + 40))) return;
 			break;
 		}
 	}

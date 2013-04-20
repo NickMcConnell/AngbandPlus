@@ -1,4 +1,4 @@
-=== Options and Effects (Gumband 2.2.0) ===
+=== Options and Effects (Gumband 2.2.1) ===
 
 Most of the "options" are accessible through the '=' command, which provides
 an interface to the various "sets" of options available to the player.
@@ -96,6 +96,11 @@ Use color if possible (slow)    [use_color]
     the game slower, you should always disable this option if you are using
     a machine which is not capable of using color.
 
+Show certain choices in the main window [show_choices_main]
+    This option, despite its name, automatically expands certain menus, such
+    as when 'q'uaffing a potion, without requiring the player to hit SPACE
+    or the * key.
+
 
 === Option Set 2 -- Disturbance ===
 
@@ -137,6 +142,13 @@ Disturb whenever boring things happen    [disturb_minor]
     This option causes you to be disturbed by various bring things,
     including monsters bashing down doors, inventory feelings, and
     beginning to run out of fuel.
+
+Disturb whenever random things happen    [disturb_other]
+    In Gumband, uncursed teleporting items may teleport you around
+    sometimes, asking for your confirmation (and possibly disturbing your
+    rest). If you unset this option, they will stop asking you and
+    teleporting you randomly. Cursed items will neither ask for confirmation
+    nor stop teleporting you even if this option is unset.
 
 Alert user to critical hitpoints    [alert_hitpoint]
     Produce a "bell" noise, and flush all pending input, when your hitpoints
@@ -365,14 +377,6 @@ Use special colors for floor grids (slow)    [view_special_lite]
 All features which are typical to Gumband (i.e. which are not in vanilla
 Angband) are collected in this menu (except for the Autosave options).
 
-Disturb whenever random things happen    [disturb_other]
-    In Zangband, uncursed teleporting items may teleport you around
-    sometimes, asking for your confirmation (and possibly disturbing
-    your rest). If you unset this option, they will stop asking you
-    and teleporting you randomly. Cursed items will neither ask for
-    confirmation nor stop teleporting you even if this option is
-    unset.
-
 Get last words when the character dies  [last_words]
     Display a  random line  from  the "death.txt"  file when  your  character 
     dies. If this option is not selected, the "You die." message is displayed
@@ -385,7 +389,7 @@ Allow shopkeepers and uniques to speak  [speak_unique]
     the option is selected) be wanted by the law, in which case you get the
     reward if you kill it.
 
-Allow unusually small dungeon levels    [small_levels]
+Always create small (3x3) dungeon levels [small_levels]
     This option enables the creation of levels of varying sizes. Levels 
     that are as small as the town level (i.e. 1 'screen') are possible,
     yet they can be dangerous, especially for a low level character.
@@ -427,15 +431,11 @@ Plain object descriptions    [plain_descriptions]
     descriptions, set this option.
 
 Monsters behave stupidly    [stupid_monsters]
-    Zangband 2.1.0 incorporates Keldon Jones' improved monster Artificial
-    Intelligence patch. While this patch most certainly makes monsters
-    behave more realistically, they will also be more deadly with the
-    improved AI. If you are a sissy, set this option to get the old,
-    really stupid monster AI.
-    Note that the new AI is a bit processing power expensive. If you have
-    an old computer (386sx) and Zangband is running too slowly, you could
-    try turning stupid_monsters on. Or buying that Pentium II so you can
-    run Zangband. :-)
+    Zangband 2.1.0 (and thus Gumband) incorporates Keldon Jones' improved
+    monster Artificial Intelligence patch. While this patch most certainly
+    makes monsters behave more realistically, they will also be more deadly
+    with the improved AI. If you are a sissy, set this option to get the
+    old, really stupid monster AI.
 
 Group monsters behave stupidly     [stupid_groups]
     With this option set to 'Off', monsters that normally appear in groups
@@ -475,6 +475,21 @@ Slime Molds have names		[name_slimes]
     Slime Molds with names like {Bill Clinton} and {Bugs Bunny}. Turn it off
     if you find such things to be annoying. Thanks go out to 'Fufie' of
     #angband for this patch...
+
+Show only appropriate items for Identify  [filter_identify]
+    When on, this option will only show objects which are currently
+    unidentified (or un*identified* for *Identify* effects) when you read a
+    scroll of Identify, cast the spell, etc., thus saving you from
+    accidentally wasting the scrolls (or mana or charges) on items you
+    already know about.
+
+Allow 'heavy' pseudo-ID for all classes    [heavy_pseudo]
+    Previously, whether your character could detect {average} or {excellent}
+    or {special} items, instead of just {good} and {cursed} items, depended
+    only on your character class. Now all classes can get the more detailed
+    pseudo-identification when this option is on. Conversely, if the option
+    is off, all classes are stuck with {good} and {cursed}, which can be
+    quite challenging...
 
 Randomize midi songs    [shuffle_songs]
     This option is usable only if your version is capable of playing MIDI

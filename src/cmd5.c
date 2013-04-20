@@ -2174,7 +2174,7 @@ void do_cmd_cast(void)
 			break;
 		case 25: /* Ball Lightning */
 			if (!get_aim_dir(&dir)) return;
-			fire_ball(GF_ELEC, dir, 80 + (plev), 2);
+			fire_ball(GF_ELEC, dir, 100 + (plev*2), 2);
 			break;
 		case 26: /* Healing */
 			(void)hp_player(250);
@@ -2189,7 +2189,7 @@ void do_cmd_cast(void)
 			break;
 		case 28: /* Poison Gas */
 			if (!get_aim_dir(&dir)) return;
-			fire_ball(GF_POIS, dir, 100 + plev, (plev/10)+1);
+			fire_ball(GF_POIS, dir, 200 + (plev*4), (plev/10)+1);
 			break;
 		case 29: /* Teleport Level */
 			(void)teleport_player_level(); break;

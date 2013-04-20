@@ -531,6 +531,9 @@ static s32b price_item(object_type *o_ptr, int greed, bool flip)
 
 		/* Mega-Hack -- Black market sucks */
 		if (store_num == 6) price = price * 2;
+
+		/* Mega-Hack -- So does the Antiques Store -- Gumby */
+		if (store_num == 9) price = price * 2;
 	}
 
 	/* Compute the final price (with rounding) */
@@ -941,6 +944,13 @@ static bool store_will_buy(object_type *o_ptr)
 			}
 			break;
 		}
+		/* Antiques Store */
+		case 9:
+		{
+			if (o_ptr->name1 || o_ptr->art_name) break;
+			else return (FALSE);
+			break;
+		}
 	}
 
 	/* XXX XXX XXX Ignore "worthless" items */
@@ -1071,7 +1081,6 @@ static int store_carry(object_type *o_ptr)
 	s32b	value, j_value;
 	object_type	*j_ptr;
 
-
 	/* Evaluate the object */
 	value = object_value(o_ptr);
 
@@ -1103,7 +1112,6 @@ static int store_carry(object_type *o_ptr)
 
 	/* No space? */
 	if (st_ptr->stock_num >= st_ptr->stock_size) return (-1);
-
 
 	/* Check existing slots to see if we must "slide" */
 	for (slot = 0; slot < st_ptr->stock_num; slot++)
@@ -1240,6 +1248,15 @@ static bool black_market_crap(object_type *o_ptr)
 	return (FALSE);
 }
 
+/* Keep only weapons and armour in the Antiques Store -- Gumby */
+static bool antique_crap(object_type *o_ptr)
+{
+	/* Accept only weapons and armor */
+	if ((o_ptr->tval >= TV_BOW) && (o_ptr->tval <= TV_HARD_ARMOR)) return (FALSE);
+
+	/* Assume crap */
+	return (TRUE);
+}
 
 /*
  * Attempt to delete (some of) a random item from the store
@@ -1281,7 +1298,6 @@ static void store_delete(void)
 static void store_create(void)
 {
 	int i, tries, level;
-
 	object_type forge;
 	object_type *q_ptr;
 
@@ -1296,6 +1312,19 @@ static void store_create(void)
 		{
 			/* Pick a level for object/magic */
 			level = 25 + (p_ptr->lev / 2) + rand_int(25);
+
+			/* Random item (usually of given level) */
+			i = get_obj_num(level);
+
+			/* Handle failure */
+			if (!i) continue;
+		}
+
+		/* Antiques Store -- Gumby */
+		else if (store_num == 9)
+		{
+			/* Pick a level for object/magic */
+			level = 25 + rand_int(25);
 
 			/* Random item (usually of given level) */
 			i = get_obj_num(level);
@@ -1320,8 +1349,16 @@ static void store_create(void)
 		/* Create a new object of the chosen kind */
 		object_prep(q_ptr, i);
 
-		/* Apply some "low-level" magic (no artifacts) */
-		apply_magic(q_ptr, level, FALSE, FALSE, FALSE);
+		/* Randarts for the Antique Store! -- Gumby */
+		if (store_num == 9)
+		{
+			create_artifact(q_ptr, FALSE);
+		}
+		else
+		{
+			/* Apply some "low-level" magic (no artifacts) */
+			apply_magic(q_ptr, level, FALSE, FALSE, FALSE);
+		}
 
 		/* Hack -- Charge lite's */
 		if (q_ptr->tval == TV_LITE)
@@ -1329,7 +1366,6 @@ static void store_create(void)
 			if (q_ptr->sval == SV_LITE_TORCH) q_ptr->pval = FUEL_TORCH / 2;
 			if (q_ptr->sval == SV_LITE_LANTERN) q_ptr->pval = FUEL_LAMP / 2;
 		}
-
 
 		/* The item is "known" */
 		object_known(q_ptr);
@@ -1353,13 +1389,18 @@ static void store_create(void)
 			/* if (object_value(q_ptr) <= 0) continue; */
 		}
 
+		else if (store_num == 9)
+		{
+			/* Only Weapons/Armour */
+			if (antique_crap(q_ptr)) continue;
+		}
+
 		/* Prune normal stores */
 		else
 		{
 			/* No "worthless" items */
 			if (object_value(q_ptr) <= 0) continue;
 		}
-
 
 		/* Mass produce and/or Apply discount */
 		mass_produce(q_ptr);
@@ -3537,6 +3578,23 @@ void store_maint(int which)
 		}
 	}
 
+	/* Mega-Hack -- prune the Antiques Store */
+	if (store_num == 9)
+	{
+		/* Destroy crappy antique items */
+		for (j = st_ptr->stock_num - 1; j >= 0; j--)
+		{
+			object_type *o_ptr = &st_ptr->stock[j];
+
+			/* Destroy crappy items */
+			if (antique_crap(o_ptr))
+			{
+				/* Destroy the item */
+				store_item_increase(j, 0 - o_ptr->number);
+				store_item_optimize(j);
+			}
+		}
+	}
 
 	/* Choose the number of slots to keep */
 	j = st_ptr->stock_num;

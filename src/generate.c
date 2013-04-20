@@ -2006,6 +2006,36 @@ static bool vault_aux_demon(int r_idx)
 
 
 /*
+* Hack -- breath type for "vault_aux_dragon()"
+*/
+static cptr vault_aux_elemental_name;
+
+/*
+ * Helper function for "monster pit (elemental)" -- Gumby, based on
+ * an idea by Antimatter of #angband.
+ */
+static bool vault_aux_elemental(int r_idx)
+{
+	monster_race *r_ptr = &r_info[r_idx];
+	
+	/* Decline unique monsters */
+	if (r_ptr->flags1 & (RF1_UNIQUE)) return (FALSE);
+	
+	/* Hack -- Require "E" monsters */
+	if (!strchr("E", r_ptr->d_char)) return (FALSE);
+
+	/* Hack -- Require ELEMENTAL creatures */
+	if (!(r_ptr->flags3 & (RF3_ELEMENTAL))) return (FALSE);
+
+	/* Hack -- Require 'Air', 'Earth', 'Fire', 'Water' creatures */
+	if (!strstr(r_name + r_ptr->name, vault_aux_elemental_name)) return (FALSE);
+
+	/* Okay */
+	return (TRUE);
+}
+
+
+/*
 * Type 5 -- Monster nests
 *
 * A monster nest is a "big" room, with an "inner" room, containing
@@ -2392,9 +2422,47 @@ static void build_type6(int yval, int xval)
 		/* Restrict monster selection */
 		get_mon_num_hook = vault_aux_troll;
 	}
-	
+	/* Elemental pit */
+	else if (tmp < 50)
+	{
+		switch (rand_int(4))
+		{
+			case 0: /* Air */
+			{
+				/* Message */
+				name = "air elemental";
+
+				/* Check elemental's name */
+				vault_aux_elemental_name = "Air ";
+
+				/* Done */
+				break;
+			}
+			case 1: /* Earth */
+			{
+				name = "earth elemental";
+				vault_aux_elemental_name = "Earth ";
+				break;
+			}
+			case 2: /* Fire */
+			{
+				name = "fire elemental";
+				vault_aux_elemental_name = "Fire ";
+				break;
+			}
+			default: /* Water */
+			{
+				name = "water elemental";
+				vault_aux_elemental_name = "Water ";
+				break;
+			}
+		}
+
+		/* Restrict monster selection */
+		get_mon_num_hook = vault_aux_elemental;
+	}
 	/* Giant pit */
-	else if (tmp < 55)
+	else if (tmp < 60)
 	{
 		/* Message */
 		name = "giant";
@@ -2425,13 +2493,11 @@ static void build_type6(int yval, int xval)
         }
 		
     }
-	
-	
 	/* Dragon pit */
 	else if (tmp < 80)
 	{
 		/* Pick dragon type */
-		switch (rand_int(12))
+		switch (rand_int(13))
 		{
 			case 0: case 1: /* Black */
 			{
@@ -2478,6 +2544,12 @@ static void build_type6(int yval, int xval)
 			{
 				name = "confusing dragon";
 				vault_aux_dragon_mask4 = RF4_BR_CONF;
+				break;
+			}
+			case 11: /* Ethereal */
+			{
+				name = "ethereal dragon";
+				vault_aux_dragon_mask4 = (RF4_BR_LITE | RF4_BR_DARK);
 				break;
 			}
 			default: /* Multi-Hued */
@@ -3897,9 +3969,7 @@ static void town_gen_hack(void)
 {
 	int y, x, k, n;
 	int dummy = 0;
-	
 	cave_type *c_ptr;
-	
 	int rooms[MAX_STORES];
 	
 	
@@ -3930,8 +4000,9 @@ static void town_gen_hack(void)
 	}
 	
 	/* Hack -- Build the 9th store */
-	build_store(rooms[0], rand_int(2), 4);
-	
+	build_store(rooms[1], 0, 4);
+	build_store(rooms[0], 1, 4);
+
 	/* Place the stairs */
 	while (dummy < SAFE_MAX_ATTEMPTS)
 	{
@@ -4165,6 +4236,7 @@ void generate_cave(void)
 		/* Build a real level */
 		else
 		{
+#if 0
 			if ((randint(SMALL_LEVEL)==1) && small_levels)
 			{
 				if (cheat_room)
@@ -4199,6 +4271,26 @@ void generate_cave(void)
 				
                 		if (cheat_room)
 					msg_format("X:%d, Y:%d.", max_panel_cols, max_panel_rows);
+			}
+#endif
+			if (small_levels)
+			{
+				tester_1 = 2;
+				tester_2 = 2;
+
+		                cur_hgt = tester_1 * SCREEN_HGT;
+        		        cur_wid = tester_2 * SCREEN_WID;
+
+	                	/* Determine number of panels */
+		                max_panel_rows = (cur_hgt / SCREEN_HGT) * 2 - 2;
+        		        max_panel_cols = (cur_wid / SCREEN_WID) * 2 - 2;
+
+	                	/* Assume illegal panel */
+		                panel_row = max_panel_rows;
+        		        panel_col = max_panel_cols;
+				
+                		if (cheat_room)
+					msg_print("A small dungeon level.");
 			}
 			else
 			{

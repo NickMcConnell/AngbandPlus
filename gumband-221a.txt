@@ -53,6 +53,31 @@ over and over and over... :) Also, read ./lib/user/pref.prf and the other
 files there so you can undo or change the macros I've set...
 ============================================================================
 
+=============================================
+= Gumband 2.2.1a = Last Update: 22-Jul-2002 =
+=============================================
+01) Added Elemental pits. [thanks to Antimatter for the idea, and to Kieron
+Dunbar for the help with the implementation]
+02) Added Ethereal Dragon pits (Dark/Light breathers).
+03) The dice for melee damage the Sword Rulers deal have been changed to
+d3's across the board. Total damage is unchanged. (original dice were d15's
+for Mabelrode, d14's for Xiombarg, and d13's for Arioch)
+04) NEW OPTION: "heavy_pseudo". Pseudo-ID type is no longer based on class.
+Instead, if this option is TRUE (the default), your character will have
+'heavy' pseudo-ID and will therefore sense {average}, {special}, etc.... If
+off, you will only sense {good} and {cursed}.
+05) Changed the small_levels option. Now, if on, *all* non-town levels will
+be 3x3 panels ([0,0] to [2,2] when <L>ooking around) instead of having only
+the occasional level be of random, smaller dimensions.
+06) Increased the damage (more than doubled) from Arcane magic's "Ball
+Lightning" and "Poison Gas" spells.
+07) High-Magi who choose Sorcery as their realm now get a Wand of Magic
+Missiles as part of their normal, non-Quick-Start equipment.
+08) NEW STORE: Added the Antiques Store, which only stocks random artifacts
+and which only buys artifacts (random or standard). It is represented in the
+town by a violet '0'. It buys at normal price, but sells at x2 the normal
+price. All of its owners have a 30000au purse.
+
 ======================================================================
 = Gumband 2.2.0d = Last Update: 18-May-2002 = Bugfix release, mainly =
 ======================================================================
@@ -81,8 +106,8 @@ Quick Start option, you will begin the game with a Wand of Magic Missiles in
 addition to the normal Quick Start bonuses.
 04) Altered the messages for the CHAOS_GIFT mutation - they're not Chaos
 deities, they're Chaos Lords...
-05) Beware! Mabelrode the Faceless now moves at +40 speed!  Xiombarg moves
-now moves at +30.  Arioch remains at +20.
+05) Beware! Mabelrode the Faceless now moves at +40 speed! Xiombarg now
+moves at +30. Arioch remains at +20.
 06) Rearranged the spell macros in .\lib\user\Death.prf and
 .\lib\user\Rogue.D a bit.
 07) Astral characters with the Stair Creation spell can no longer create
@@ -333,15 +358,15 @@ patch. Object weight patch when 'l'ooking. Patch to automatically show an
 inventory choices list for some actions. Patch to enhance windows a bit for
 X11 systems. Patch to list nearby visible monsters in their own window.
 02) Prfnoff: '[Last Messages]' routine to the character dump.
-03) Eric Bock: Pet Command menu from Zceband.
+03) Qlzqqlzup: Pet Command menu from Zceband.
 04) A.P. White: The 'push-back' effect for GF_FORCE from DrAngband.  Yeeks.
 05) Fufie: Slime Mold names patch.
 06) Leon Marrick: Rogue theft routines from OAngband.
 07) Riivo Magi (RMG): code for *ID*ing artifacts for character dumps.
-08) Shaun Sides: Suggestion for adding map_area() to detect_random(). Patch
+08) arch: Suggestion for adding map_area() to detect_random(). Patch
 to fix flavours of storebought items in your inventory. (based on code by
 A.P. White)
-09) Ross-Morgan Linial: Stacking of items pseudo-ID'd as {average}.
+09) Antimatter: Stacking of items pseudo-ID'd as {average}.
 10) Ivan Tkatchev: Modified version of the Ghost class (astral mode) and the
 Beastmaster class from Kamband.
 11) David Thornley: Random player names and point-based character generation
@@ -390,12 +415,13 @@ from CthAngband.
  disappear. This is *very* bad in the case of quest monsters... Also, if the
  monster is hit while standing directly in front of 1 grid of granite, or a
  door, or whatever, it will be pushed through to the other side. (see,
- starting at lines 2536 and 4000, spells1.c for details - I'm stumped as to
- how to fix it: any solutions gratefully accepted)
+ starting around lines 2536 and 4000, spells1.c for details - I'm stumped
+ as how to fix it: any solutions gratefully accepted)
 
  Finally got around to marking all the compiler warnings (that I get with
  gcc v3.02) in the source. Just search for '/* warning:'. Anyone who can fix
- them, mail me.
+ them, mail me. These are just the ones that '-Wall' show. The ones given by
+ the full '-W -Wall -pedantic' are too numerous to mark off. :)
 
  When generating a point-based character in non-Maximize mode, some
  combinations (like Gambolt Beastmaster) can reach a maximum of 18/110 for a
@@ -403,14 +429,3 @@ from CthAngband.
 
  Sometimes when a friendly/pet monster summons a Unique, that Unique will be
  friendly despite code in process_monster() to prevent that from happening.
-
-## FIXED: The game should no longer crash, or at least not nearly as often,
- upon entering a level. At least one of the causes was the game attempting
- to boost the non-existant damage dice of random artifact rings and amulets,
- which caused an infinite loop...
-
-## FIXED: The Broad Sword of the Dawn should no longer appear twice. This
- means, unfortunately, that Dorian Hawkmoon will no longer always drop it.
- He now has a chance of dropping either the Sword *or* the Red Amulet,
- instead of always dropping the Sword and having a chance to drop the
- Amulet...

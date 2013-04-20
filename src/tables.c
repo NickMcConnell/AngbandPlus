@@ -1186,16 +1186,21 @@ owner_type owners[MAX_STORES][MAX_OWNERS] =
 		{ "Your home",            0,      100, 100,  0, 99, 99},
 		{ "Your home",            0,      100, 100,  0, 99, 99}
 	},
-
 	{
 		/* Bookstore */
 		{ "Dolaf the Greedy",     15000, 200, 114, 4, 12, RACE_HUMAN},
-		{ "Odnar the Sage",       20000, 180, 111, 6, 16, RACE_HIGH_ELF},
+		{ "Aziraphale",           20000, 180, 111, 6, 16, RACE_HIGH_ELF},
 		{ "Dragon King of Arms",  25000, 195, 115, 7, 19, RACE_VAMPIRE},
 		{ "Ro-sha the Patient",   30000, 185, 112, 6, 12, RACE_ELF},
+	},
+	{
+		/* Antiques Store */
+		{ "Dilon Brandybuck",       30000, 170, 107, 5, 15, RACE_HOBBIT},
+		{ "Mr. Jeffries",           30000, 210, 115, 7, 10, RACE_HUMAN},
+		{ "Alwe the Historian",     30000, 200, 113, 5, 11, RACE_HIGH_ELF},
+		{ "Glod Glodsunclesnephew", 30000, 200, 112, 4,  5, RACE_DWARF},
 	}
 };
-
 
 
 
@@ -6563,7 +6568,7 @@ option_type option_info[] =
 	"speak_unique",                 "Allow shopkeepers and uniques to speak" },
 
 	{ &small_levels,                TRUE,  5,       5, 2,
-	"small_levels",                 "Allow unusually small dungeon levels" },
+	"small_levels",                 "Always create small (3x3) dungeon levels" },
 
 	{ &show_damage,			FALSE, 5,       5, 3,
 	"show_damage",			"Show damage dealt by player" },
@@ -6607,7 +6612,10 @@ option_type option_info[] =
 	{ &filter_identify,		FALSE, 5,	5, 16,
 	"filter_identify",		"Show only appropriate items for Identify" },
 
-	/* set 5, bits 17-28 unused */
+	{ &heavy_pseudo,		TRUE, 5,	5, 17,
+	"heavy_pseudo",			"Allow 'heavy' pseudo-ID for all classes" },
+
+	/* set 5, bits 18-28 unused */
 
 #ifdef USE_SOUND
 	{ &shuffle_songs,               FALSE, 5,	5, 29,

@@ -4455,7 +4455,6 @@ void gain_level_reward(int chosen_reward)
 	case REW_MEGA_REW:
             msg_format("The voice of %s whispers:", chaos_patrons[p_ptr->chaos_patron]);
             msg_print("'Thou truly art the sweetest of my slaves...'");
-            (void) mass_genocide(FALSE);
             restore_level();
             (void)set_poisoned(0);
             (void)set_blind(0);
@@ -4472,6 +4471,7 @@ void gain_level_reward(int chosen_reward)
             {
                 (void) do_inc_stat(dummy);
             }
+            (void) mass_genocide(FALSE);
 	    if (p_ptr->exp < PY_MAX_EXP)
 	    {
 		s32b ee = (p_ptr->exp / 2) + 10;

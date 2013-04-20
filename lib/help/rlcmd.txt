@@ -1,4 +1,4 @@
-===  Roguelike Keyset Command Summary (Gumband 2.2.0) ===
+===  Roguelike Keyset Command Summary (Gumband 2.2.1) ===
 
  Roguelike Keyset Directions
           y  k  u
@@ -65,4 +65,4 @@
                 Original: Alexander Cutler and Andy Astrand
          Updated (2.7.6): Russ Allbery (rra@cs.stanford.edu)
          Updated (2.7.9): Ben Harrison (benh@phial.com)
-Updated (Gumband 2.1.4a): Joe Dixon (gumby_jd@yahoo.com)
+Updated (Gumband 2.2.1a): Joe Dixon (gumby_jd@yahoo.com)

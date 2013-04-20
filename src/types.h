@@ -706,19 +706,19 @@ typedef struct store_type store_type;
 
 struct store_type
 {
-	byte owner;				/* Owner index */
-	byte extra;				/* Unused for now */
-	s16b insult_cur;		/* Insult counter */
-	s16b good_buy;			/* Number of "good" buys */
-	s16b bad_buy;			/* Number of "bad" buys */
-	s32b store_open;		/* Closed until this turn */
-	s32b store_wrap;		/* Unused for now */
-	s16b table_num;			/* Table -- Number of entries */
-	s16b table_size;		/* Table -- Total Size of Array */
-	s16b *table;			/* Table -- Legal item kinds */
-	s16b stock_num;			/* Stock -- Number of entries */
-	s16b stock_size;		/* Stock -- Total Size of Array */
-	object_type *stock;		/* Stock -- Actual stock items */
+	byte owner;		/* Owner index */
+	byte extra;		/* Unused for now */
+	s16b insult_cur;	/* Insult counter */
+	s16b good_buy;		/* Number of "good" buys */
+	s16b bad_buy;		/* Number of "bad" buys */
+	s32b store_open;	/* Closed until this turn */
+	s32b store_wrap;	/* Unused for now */
+	s16b table_num;		/* Table -- Number of entries */
+	s16b table_size;	/* Table -- Total Size of Array */
+	s16b *table;		/* Table -- Legal item kinds */
+	s16b stock_num;		/* Stock -- Number of entries */
+	s16b stock_size;	/* Stock -- Total Size of Array */
+	object_type *stock;	/* Stock -- Actual stock items */
 };
 
 

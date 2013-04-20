@@ -1879,7 +1879,7 @@ static void player_outfit(void)
 	{
 		/* Hack -- Give the player scrolls of satisfy hunger */
 		object_prep(q_ptr, lookup_kind(TV_SCROLL, SV_SCROLL_SATISFY_HUNGER));
-		q_ptr->number = rand_range(5,8);
+		q_ptr->number = rand_range(5, 8);
 		object_aware(q_ptr);
 		object_known(q_ptr);
 
@@ -1913,11 +1913,10 @@ static void player_outfit(void)
 	}
 
 	/* Start off With a wand of Magic Missiles if you're a High-Mage
-	 * who chose Sorcery, but only if they've quick-started -- Gumby */
-	if (quick_start && ((p_ptr->pclass == CLASS_HIGH_MAGE) &&
-			    (p_ptr->realm1 == REALM_SORCERY)))
+	 * who chose Sorcery. -- Gumby
+	 */
+	if ((p_ptr->pclass == CLASS_HIGH_MAGE) && (p_ptr->realm1 == REALM_SORCERY))
 	{
-		/* Get local object */
 		q_ptr = &forge;
 
 		object_prep(q_ptr, lookup_kind(TV_WAND, SV_WAND_MAGIC_MISSILE));
@@ -1930,7 +1929,6 @@ static void player_outfit(void)
 	/* Gotta give Weaponmasters a weapon they can use! -- Gumby */
 	if (p_ptr->pclass == CLASS_WEAPONMASTER)
 	{
-		/* Get local object */
 		q_ptr = &forge;
 
 		switch (p_ptr->wm_choice)
