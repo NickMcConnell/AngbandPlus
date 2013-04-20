@@ -338,7 +338,7 @@ static cptr r_info_flags6[] =
 	"TELE_TO",
 	"TELE_AWAY",
 	"TELE_LEVEL",
-	"XXX5",
+	"S_ELEMENTAL",
 	"DARKNESS",
 	"TRAPS",
 	"FORGET",

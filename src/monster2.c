@@ -2124,8 +2124,8 @@ static bool summon_specific_okay(int r_idx)
 
 		case SUMMON_DEMON:
 		{
-			okay = ((r_ptr->flags3 & (RF3_DEMON)) &&
-			        !(r_ptr->flags1 & (RF1_UNIQUE)));
+			okay = (r_ptr->flags3 & (RF3_DEMON));
+/*			&& !(r_ptr->flags1 & (RF1_UNIQUE))); */
 			break;
 		}
 
@@ -2293,8 +2293,9 @@ static bool summon_specific_okay(int r_idx)
 
 		case SUMMON_ELEMENTAL:
 		{
-			okay = ((strstr((r_name + r_ptr->name),"lemental")) &&
-			       !(r_ptr->flags1 & (RF1_UNIQUE)));
+			okay = (r_ptr->d_char == 'E');
+/*			okay = ((strstr((r_name + r_ptr->name),"lemental")) &&
+			       !(r_ptr->flags1 & (RF1_UNIQUE))); */
 			break;
 		}
 	}

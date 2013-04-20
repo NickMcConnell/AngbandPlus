@@ -699,15 +699,15 @@ static void mass_produce(object_type *o_ptr)
 	}
 
 
-    if (o_ptr->art_name)
-    {
-        if (cheat_peek && discount)
-        {
-            msg_print("No discount on random artifacts.");
-        }
-        discount = 0;
-    }
-
+/*	if (o_ptr->art_name)
+ *	{
+ *		if (cheat_peek && discount)
+ *		{
+ *			msg_print("No discount on random artifacts.");
+ *		}
+ *		discount = 0;
+ *	}
+ */
 	/* Save the discount */
 	o_ptr->discount = discount;
 
@@ -939,7 +939,6 @@ static bool store_will_buy(object_type *o_ptr)
 			/* Analyze the type */
 			switch (o_ptr->tval)
 			{
-/*		                case TV_LIFE_BOOK: */
 				case TV_SCROLL:
 				case TV_POTION:
 				case TV_HAFTED:
@@ -975,12 +974,6 @@ static bool store_will_buy(object_type *o_ptr)
 			/* Analyze the type */
 			switch (o_ptr->tval)
 			{
-/*              case TV_SORCERY_BOOK:
-                case TV_NATURE_BOOK:
-                case TV_CHAOS_BOOK:
-                case TV_DEATH_BOOK:
-                case TV_TRUMP_BOOK:
-                case TV_ARCANE_BOOK: */
 				case TV_AMULET:
 				case TV_RING:
 				case TV_STAFF:
@@ -1353,6 +1346,7 @@ static void store_delete(void)
 static void store_create(void)
 {
 	int i, tries, level;
+	int plev = p_ptr->lev;
 
 	object_type forge;
 	object_type *q_ptr;
@@ -1369,7 +1363,7 @@ static void store_create(void)
 		if (store_num == 6)
 		{
 			/* Pick a level for object/magic */
-			level = 25 + rand_int(25);
+			level = (25 + ((plev - 5) / 3)) + rand_int(25);
 
 			/* Random item (usually of given level) */
 			i = get_obj_num(level);
@@ -1385,7 +1379,7 @@ static void store_create(void)
 			i = st_ptr->table[rand_int(st_ptr->table_num)];
 
 			/* Hack -- fake level for apply_magic() */
-			level = rand_range(1, STORE_OBJ_LEVEL);
+			level = rand_range(1, (STORE_OBJ_LEVEL + (plev / 5)));
 		}
 
 

@@ -125,7 +125,7 @@ have intrinsic abilities.
                not as strong.  Half-elves are slightly better at searching,
                disarming, saving throws, stealth, bows, and magic, but they
                are not as good at hand weapons.  Half-elves may choose any
-               class.  Starting at level 10, Half-elves are able to spot any
+               class.  Starting at level 15, Half-elves are able to spot any
                animals that may be nearby.
  
           Elf

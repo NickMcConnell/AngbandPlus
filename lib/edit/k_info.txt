@@ -1096,7 +1096,7 @@ N:143:Poison Resistance
 G:=:d
 I:45:20:0
 W:60:0:2:16000
-A:60/2
+A:60/1
 F:RES_POIS | EASY_KNOW
 
 N:144:Free Action
@@ -1228,8 +1228,8 @@ F:SUST_CHR | EASY_KNOW
 N:162:Slaying
 G:=:d
 I:45:30:0
-W:40:0:2:1500
-A:40/2
+W:50:0:2:1750
+A:50/2
 F:SHOW_MODS
 
 ##### Amulets #####
@@ -1237,8 +1237,8 @@ F:SHOW_MODS
 N:163:Brilliance
 G:":d
 I:40:6:0
-W:20:0:3:500
-A:20/1
+W:30:0:3:600
+A:30/1
 F:INT | WIS | HIDE_TYPE
 
 N:164:Charisma
@@ -1251,8 +1251,8 @@ F:CHR | HIDE_TYPE
 N:165:Searching
 G:":d
 I:40:5:0
-W:30:0:3:600
-A:30/4
+W:15:0:3:300
+A:15/1
 F:SEARCH | HIDE_TYPE
 
 N:166:Teleportation
@@ -1276,12 +1276,12 @@ W:20:0:3:300
 A:20/1
 F:RES_ACID | IGNORE_ACID | EASY_KNOW
 
-N:169:Adornment
+N:169:Thieves
 G:":d
 I:40:2:0
-W:15:0:3:20
+W:15:0:3:250
 A:15/1
-F:EASY_KNOW
+F:STEALTH | HIDE_TYPE
 
 ## XXX 170 XXX ##
 
@@ -1333,7 +1333,7 @@ N:177:*Identify*
 G:?:d
 I:70:13:0
 W:20:0:5:750
-A:20/1:40/1:60/1:80/1
+A:20/2:40/1:60/1:80/1
 
 N:178:Rumour
 G:?:d
@@ -1414,7 +1414,7 @@ N:190:Rune of Protection
 G:?:d
 I:70:38:0
 W:50:0:5:500
-A:50/2:90/4
+A:50/4:90/2
 
 N:191:*Remove Curse*
 G:?:d
@@ -1454,19 +1454,19 @@ N:198:Acquirement
 G:?:d
 I:70:46:0
 W:20:0:5:100000
-A:20/8
+A:20/6
 
 N:199:*Acquirement*
 G:?:d
 I:70:47:0
 W:60:0:5:200000
-A:60/16
+A:60/8
 
 N:200:Mass Genocide
 G:?:d
 I:70:45:0
 W:50:0:5:1000
-A:50/4:100/4
+A:50/4:100/2
 
 N:201:Detect Invisible
 G:?:d
@@ -1495,8 +1495,8 @@ A:10/1
 N:205:Artifact Creation
 G:?:d
 I:70:52:0
-W:70:0:5:200000
-A:70/16
+W:40:0:5:80000
+A:40/8
 
 N:206:Recharging
 G:?:d
@@ -1508,7 +1508,7 @@ N:207:Genocide
 G:?:d
 I:70:44:0
 W:40:0:5:750
-A:40/4:80/4
+A:40/4:80/2
 
 N:208:Darkness
 G:?:d
@@ -1721,7 +1721,7 @@ N:239:New Life
 G:!:d
 I:75:63:100
 W:30:0:4:20000
-A:30/10:60/5:90/1
+A:30/8:60/4:90/1
 P:0:1d1:0:0:0
 
 N:240:Cure Serious Wounds
@@ -1755,8 +1755,8 @@ P:0:1d1:0:0:0
 N:244:Experience
 G:!:d
 I:75:59:0
-W:65:0:4:25000
-A:65/1
+W:60:0:4:25000
+A:60/1
 P:0:1d1:0:0:0
 
 N:245:Sleep
@@ -2036,7 +2036,7 @@ N:283:Clone Monster
 G:-:d
 I:65:2:0
 W:15:0:10:0
-A:15/1:50/1
+A:15/1
 P:0:1d1:0:0:0
 
 N:284:Scare Monster

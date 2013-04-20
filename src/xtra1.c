@@ -2939,8 +2939,8 @@ static void calc_bonuses(void)
 		if (p_ptr->pclass == CLASS_WARRIOR_MAGE) p_ptr->num_blow += (p_ptr->lev) / 25;
 
 		/* Level bonus for the other spellcasting warrior-types */
-		if (p_ptr->pclass == CLASS_CHAOS_WARRIOR || CLASS_PALADIN || CLASS_RANGER)
-			if (p_ptr->lev >= 25) p_ptr->num_blow++;
+		if ((p_ptr->pclass == (CLASS_CHAOS_WARRIOR || CLASS_PALADIN || CLASS_RANGER)) &&
+			(p_ptr->lev >= 25)) p_ptr->num_blow++;
 
 		/* Require at least one blow */
 		if (p_ptr->num_blow < 1) p_ptr->num_blow = 1;

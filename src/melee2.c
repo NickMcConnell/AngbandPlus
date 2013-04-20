@@ -2167,11 +2167,23 @@ static bool monst_spell_monst(int m_idx)
            break;
        }
 
-       /* RF6_XXX5 */
+       /* RF6_S_ELEMENTAL (was RF6_XXX5) */
        case 160+11:
        {
+           disturb(1, 0);
+           if (blind || !see_m) msg_format("%^s mumbles.", m_name);
+           else msg_format("%^s magically summons an elemental!", m_name);
+           for (k = 0; k < 1; k++)
+           {
+               if (friendly)
+               count += summon_specific_friendly(y, x, rlev, SUMMON_ELEMENTAL, TRUE);
+               else
+               count += summon_specific(y, x, rlev, SUMMON_ELEMENTAL);
+           }
+           if (blind && count) msg_print("You hear something appear nearby.");
            break;
        }
+
 
        /* RF6_DARKNESS */
        case 160+12:
@@ -2207,7 +2219,7 @@ static bool monst_spell_monst(int m_idx)
        {
            disturb(1, 0);
            if (blind || !see_m) msg_format("%^s mumbles.", m_name);
-             else msg_format("%^s summons GWAR!", m_name);
+             else msg_format("%^s summons one of the Scumdogs of the Universe!", m_name);
            for (k = 0; k < 1; k++)
            {
                if (friendly)
@@ -4013,9 +4025,17 @@ bool make_attack_spell(int m_idx)
 			break;
 		}
 
-		/* RF6_XXX5 */
+		/* RF6_S_ELEMENTAL (was RF6_XXX5) */
 		case 160+11:
 		{
+			disturb(1, 0);
+			if (blind) msg_format("%^s mumbles.", m_name);
+			else msg_format("%^s magically summons an elemental!", m_name);
+			for (k = 0; k < 1; k++)
+			{
+				count += summon_specific(y, x, rlev, SUMMON_ELEMENTAL);
+			}
+			if (blind && count) msg_print("You hear something appear nearby.");
 			break;
 		}
 
@@ -4064,7 +4084,7 @@ bool make_attack_spell(int m_idx)
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
-			else msg_format("%^s summons GWAR!", m_name);
+			else msg_format("%^s summons one of the Scumdogs of the Universe!", m_name);
 			for (k = 0; k < 1; k++)
 			{
 				count += summon_specific(y, x, rlev, SUMMON_SCUMDOG);

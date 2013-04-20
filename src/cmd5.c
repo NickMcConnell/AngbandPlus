@@ -712,19 +712,41 @@ static void phlogiston (void)
 	p_ptr->update |= (PU_TORCH);
 }
 
-
 static void brand_weapon(int brand_type)
 {
-	object_type *o_ptr;
+	int		item;
+	object_type	*o_ptr;
 
-	o_ptr = &inventory[INVEN_WIELD];
+	/* Taken from bless_weapon() to allow the branding of inven items */
+	/* Get an item (from equip or inven or floor) */
+	if (!get_item(&item, "Brand which weapon? ", TRUE, TRUE, TRUE))
+	{
+		if (item == -2) msg_print("You have weapon to brand.");
+		return;
+	}
+
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
 
 	/* you can never modify artifacts / ego-items */
 	/* you can never modify cursed items */
 	/* TY: You _can_ modify broken items (if you're silly enough) */
+	/* Gum: You can only modify melee weapons */
+	/* Gum: You cannot modify stacks */
 	if ((o_ptr->k_idx) &&
 	    (!artifact_p(o_ptr)) && (!ego_item_p(o_ptr)) &&
-	    (!(o_ptr->art_name)) && (!cursed_p(o_ptr)))
+	    (!(o_ptr->art_name)) && (!cursed_p(o_ptr)) &&
+	    ((o_ptr->tval > TV_DIGGING) && (o_ptr->tval < TV_BOOTS)) &&
+	    (o_ptr->number == 1))
 	{
 		cptr act = NULL;
 
@@ -1357,7 +1379,7 @@ void do_cmd_cast(void)
 			}
 			else
 			{
-				(void)set_fast(p_ptr->fast + randint(5));
+				(void)set_fast(p_ptr->fast + randint(plev));
 			}
 		       break;
 	   case 14: /* Detection True */
@@ -4020,8 +4042,12 @@ void mindcraft_info(char *p, int power)
     switch (power) {
      case 0:  break;
      case 1:  sprintf(p, " dam %dd%d", 3 + ((plev - 1) / 4), 3 + plev/15); break;
-     case 2:  sprintf(p, " range %d", (plev < 25 ? 10 : plev + 2)); break;
-     case 3:  sprintf(p, " range %d", plev * 5);  break;
+     case 2:  sprintf(p, " range %d", (plev < 30 ? 10 : plev + 2)); break;
+     case 3:  if (plev < 50)
+              	sprintf(p, " range %d", plev * 5);
+              else
+              	sprintf(p, " range %d", plev);
+              break;
      case 4:  break;
      case 5:  sprintf(p, " dam %dd8", 10+((plev-5)/3));  break;
      case 6:  sprintf(p, " dur %d", plev);  break;
@@ -4350,7 +4376,7 @@ void do_cmd_mindcraft(void)
 				else if (plev > 19)
 					map_area();
 
-				if (plev < 30)
+				if (plev < 35)
 				{
 					b = detect_monsters_normal();
 					if (plev > 14)  b |=  detect_monsters_invis();
@@ -4402,9 +4428,15 @@ void do_cmd_mindcraft(void)
 				break;
 			case 3:
 				/* Major displace */
-				if (plev > 29)
-					banish_monsters(plev);
+				if (plev < 50)
+				{
 					teleport_player(plev * 5);
+				}
+				else
+				{
+				if (!get_aim_dir(&dir)) return;
+					(void)fire_beam(GF_AWAY_ALL, dir, plev);
+				}
 				break;
 			case 4:
 				/* Domination */

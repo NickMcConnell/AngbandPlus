@@ -2465,7 +2465,7 @@ and tables.c --TY */
 #define RF6_TELE_TO             0x00000100      /* Move player to monster */
 #define RF6_TELE_AWAY           0x00000200      /* Move player far away */
 #define RF6_TELE_LEVEL          0x00000400      /* Move player vertically */
-#define RF6_XXX5                0x00000800      /* Move player (?) */
+#define RF6_S_ELEMENTAL         0x00000800      /* Summon Elemental */
 #define RF6_DARKNESS            0x00001000      /* Create Darkness */
 #define RF6_TRAPS               0x00002000      /* Create Traps */
 #define RF6_FORGET              0x00004000      /* Cause amnesia */
@@ -2501,7 +2501,7 @@ and tables.c --TY */
 
 #define RF6_INT_MASK \
    (RF6_BLINK |  RF6_TPORT | RF6_TELE_LEVEL | RF6_TELE_AWAY | \
-    RF6_HEAL | RF6_HASTE | RF6_TRAPS | RF6_S_SCUMDOG | \
+    RF6_HEAL | RF6_HASTE | RF6_TRAPS | RF6_S_ELEMENTAL | RF6_S_SCUMDOG | \
     RF6_S_KIN | RF6_S_CYBER | RF6_S_MONSTER | RF6_S_MONSTERS | \
     RF6_S_ANT | RF6_S_SPIDER | RF6_S_HOUND | RF6_S_HYDRA | \
     RF6_S_ANGEL | RF6_S_DRAGON | RF6_S_UNDEAD | RF6_S_DEMON | \
@@ -2532,8 +2532,9 @@ and tables.c --TY */
     0L
 
 #define RF6_SUMMON_MASK \
-    (RF6_S_KIN | RF6_S_CYBER | RF6_S_MONSTER | RF6_S_MONSTERS | RF6_S_ANT | \
-     RF6_S_SPIDER | RF6_S_HOUND | RF6_S_HYDRA | RF6_S_ANGEL | RF6_S_DEMON | \
+    (RF6_S_ELEMENTAL | RF6_S_SCUMDOG | RF6_S_KIN | RF6_S_CYBER | \
+     RF6_S_MONSTER | RF6_S_MONSTERS | RF6_S_ANT | RF6_S_SPIDER | \
+     RF6_S_HOUND | RF6_S_HYDRA | RF6_S_ANGEL | RF6_S_DEMON | \
      RF6_S_UNDEAD | RF6_S_DRAGON | RF6_S_HI_UNDEAD | RF6_S_HI_DRAGON | \
      RF6_S_WRAITH | RF6_S_UNIQUE)
 

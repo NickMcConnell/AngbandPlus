@@ -1,3 +1,34 @@
+So you're looking for version information on Gumband, eh?  Well, as the 'V'
+command says, this is v2.1.1.  Why the large number?  Well, that's the
+version number of ZAngband I used as the base for Gumband.
+
+First question on your lips, or at your fingers, is probably "Why call it
+'Gumband?' Sounds rather silly to me."  Well, each variant (not that this
+qualifies as much more than a sub-variant) pretty much requires a name, and
+since I've been known as 'Gumby' online (and sometimes offline :) since the
+summer of 1989, I figured it would do.  It stays under the 8-character file-
+name limit for MS-DOS, it's easy to pronounce (wonder if 'gum' has any
+actual meaning in Sindarin? :), and it indicates both the author and that it
+is a descendant of Angband.
+
+Thanks to the folks in rec.games.roguelike.angband and on the #angband IRC
+channel for their help on figuring out where things are in the code, for
+putting up with my rather pathetic questions about how to get things done in
+C  [I swear, I'm really going to learn how to program sometime in 2001 :],
+and for their other suggestions and comments.  Special thanks to Eric Bock
+for guiding me through setting up new blocks of summoning code, and to
+Kieron Dunbar for that auto-cursing patch...
+
+Well, that's all you're getting as far as version information goes. For more
+information on how this differs from ZAngband 2.1.1c, the code-base I began
+with, see the gumband-<ver>.txt file down by the executable...
+                                                       --- Gumby
+
+Because Topi would probably kill me if I mutilated it, I've left his
+ZAngband version information intact. :) The information for standard (or
+"Vanilla," as it's now commonly called) Angband has also been left intact.
+                                                         - G
+
 === Zangband History and Information ===
 
 The seeds of Zangband lie in an obsolete and long ago vanished PC variant

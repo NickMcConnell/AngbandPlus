@@ -1,7 +1,7 @@
 
 
              ************************************************
-             ** Gumband 2.1.1e ** Based on ZAngband 2.1.1c **
+             ** Gumband 2.1.1f ** Based on ZAngband 2.1.1c **
              ************************************************
 
          Based on Moria:    Copyright (c) 1985 Robert Alan Koeneke
@@ -11,9 +11,9 @@
 
        Curses/X11 Module: Ben Harrison, Torbj|rn Lindgren
 
-        ZAngband code:    (Mr) Topi Ylinen (f1toyl@uta.fi)
+        ZAngband code:      (Mr) Topi Ylinen (f1toyl@uta.fi)
      Current maintainer:  Robert Ruehlmann < rr9@angband.org >
-         Gumband author: Joseph W. Dixon <gumby@gwar.net>
+         Gumband author:   Joseph W. Dixon < gumby@gwar.net >
 
  Visit "Thangorodrim - The Angband Page" at "http://thangorodrim.angband.org/"
        Send all comments, bug reports, etc, to "mailto:gumby@gwar.net".

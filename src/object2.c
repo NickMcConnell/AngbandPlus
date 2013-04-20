@@ -3467,6 +3467,27 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 					break;
 				}
 
+				/* Amulet of Thieves (was Adornment - Gumby) */
+				case SV_AMULET_ADORNMENT:
+				{
+					o_ptr->pval = randint(2) + m_bonus(2, level);
+
+					/* Cursed */
+					if (power < 0)
+					{
+						/* Broken */
+						o_ptr->ident |= (IDENT_BROKEN);
+
+						/* Cursed */
+						o_ptr->ident |= (IDENT_CURSED);
+
+						/* Reverse bonuses */
+						o_ptr->pval = 0 - (o_ptr->pval);
+					}
+
+					break;
+				}
+
 				/* Amulet of the Magi -- never cursed */
 				case SV_AMULET_THE_MAGI:
 				{

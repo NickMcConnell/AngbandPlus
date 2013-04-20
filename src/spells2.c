@@ -587,7 +587,11 @@ void self_knowledge(void)
 			if (plev > 14)
 				info[i++] = "You have an understanding of your abilities (cost 10).";
 			break;
-		case RACE_HALF_ELF: case RACE_ELF:
+		case RACE_HALF_ELF:
+			if (plev > 14)
+				info[i++] = "You can sense natural creatures (cost 5).";
+			break;
+		case RACE_ELF:
 			if (plev > 9)
 				info[i++] = "You can sense natural creatures (cost 5).";
 			break;
@@ -648,8 +652,8 @@ void self_knowledge(void)
 			}
 			break;
 		case RACE_YEEK:
-			if (plev > 14)
-				info[i++] = "You can make a terrifying scream (cost 15).";
+			if (plev > 4)
+				info[i++] = "You can make a terrifying scream (cost 10).";
 			break;
 		case RACE_KLACKON:
 			if (plev > 8)

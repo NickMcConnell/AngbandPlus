@@ -392,7 +392,7 @@ F:RES_ACID | RES_NEXUS
 
 # The _DRAGON_ Helm of Dor-Lomin
 
-N:39:of Dor-Lomin
+N:39:of Melnibone
 I:32:7:4
 W:40:12:75:300000
 P:8:1d3:0:0:20

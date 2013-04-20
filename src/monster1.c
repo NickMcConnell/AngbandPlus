@@ -764,7 +764,7 @@ static void roff_aux(int r_idx)
 	if (flags6 & (RF6_TELE_TO))		vp[vn++] = "teleport to";
 	if (flags6 & (RF6_TELE_AWAY))		vp[vn++] = "teleport away";
 	if (flags6 & (RF6_TELE_LEVEL))		vp[vn++] = "teleport level";
-	if (flags6 & (RF6_XXX5))		vp[vn++] = "do something";
+	if (flags6 & (RF6_S_ELEMENTAL))		vp[vn++] = "summon an elemental";
 	if (flags6 & (RF6_DARKNESS))		vp[vn++] = "create darkness";
 	if (flags6 & (RF6_TRAPS))		vp[vn++] = "create traps";
 	if (flags6 & (RF6_FORGET))		vp[vn++] = "cause amnesia";

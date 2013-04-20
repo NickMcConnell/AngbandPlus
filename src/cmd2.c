@@ -2769,7 +2769,15 @@ static void cmd_racial_power_aux (void)
 			}
 			break;
 
-		case RACE_HALF_ELF: case RACE_ELF:
+		case RACE_HALF_ELF:
+			if (racial_aux(15, 5, A_WIS, 10))
+			{
+				msg_print("You look for your animal friends.");
+				(void)detect_monsters_xxx(RF3_ANIMAL);
+			}
+			break;
+
+		case RACE_ELF:
 			if (racial_aux(10, 5, A_WIS, 10))
 			{
 				msg_print("You look for your animal friends.");
@@ -2941,7 +2949,7 @@ static void cmd_racial_power_aux (void)
 			break;
 
 		case RACE_YEEK:
-			if (racial_aux(15, 15, A_WIS, 10))
+			if (racial_aux(5, 10, A_WIS, 10))
 			{
 				if (!get_aim_dir(&dir)) break;
 				msg_print("You make a horrible scream!");
@@ -3264,11 +3272,19 @@ void do_cmd_racial_power(void)
 			has_racial = TRUE;
 			break;
 
-		case RACE_HALF_ELF: case RACE_ELF:
+		case RACE_HALF_ELF:
+			if (lvl < 15)
+				racial_power = "detect animals (racial, lvl 15, cost 5)";
+			else
+				racial_power = "detect animals (racial, cost 5, WIS 10@15)";
+			has_racial = TRUE;
+			break;
+
+		case RACE_ELF:
 			if (lvl < 10)
 				racial_power = "detect animals (racial, lvl 10, cost 5)";
 			else
-				racial_power = "detect animals (racial, cost 10, WIS 10@10)";
+				racial_power = "detect animals (racial, cost 5, WIS 10@10)";
 			has_racial = TRUE;
 			break;
 
@@ -3372,10 +3388,10 @@ void do_cmd_racial_power(void)
 			break;
 
 		case RACE_YEEK:
-			if (lvl < 15)
-				racial_power = "scare monster      (racial, lvl 15, cost 15)";
+			if (lvl < 5)
+				racial_power = "scare monster      (racial, lvl 5, cost 10)";
 			else
-				racial_power = "scare monster      (racial, cost 15, WIS 10@15)";
+				racial_power = "scare monster      (racial, cost 10, WIS 10@5)";
 			has_racial = TRUE;
 			break;
 

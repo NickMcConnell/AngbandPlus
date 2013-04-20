@@ -173,15 +173,16 @@ F:OPEN_DOOR | BASH_DOOR | NO_CONF | NO_SLEEP
 D:He's lost his dogs.  He's had his mushrooms stolen.  He's not a happy 
 D:hobbit!
 
-N:5:Blubbering idiot
-G:t:W
+N:5:Gumby
+G:t:w
 I:110:1d2:6:1:0
 W:0:1:0:0
 B:DROOL
-F:MALE | 
-F:RAND_25 | 
-F:TAKE_ITEM
-D:He tends to blubber a lot.
+F:MALE | RAND_25 | RAND_50 | TAKE_ITEM
+D:An absurd person with a tiny moustache and spectacles, wearing gumrubber 
+D:boots, suspenders and a handkerchief on his head instead of a real 
+D:hat.  He's talking so loudly and hoarsely that he's all but impossible 
+D:to understand.  Not that you'd want to, anyway.
 
 N:6:Hobo
 G:t:g
@@ -2222,8 +2223,8 @@ B:BITE:POISON:1d6
 F:FORCE_SLEEP | 
 F:BASH_DOOR | 
 F:EVIL | IM_POIS
-S:1_IN_8 | 
-S:CONF | CAUSE_1 | DARKNESS | MISSILE | ARROW_2
+S:1_IN_6 | 
+S:CONF | CAUSE_1 | DARKNESS | MISSILE | ARROW_2 | S_SPIDER
 D:A dark elven torso merged with the bloated form of a giant spider.
 
 N:181:Mongbat
@@ -3068,7 +3069,7 @@ F:ANIMAL | EVIL
 D:A fast-moving and deadly dragonian animal. Beware its poisonous sting!
 
 N:246:Livingstone
-G:#:W
+G:#:s
 I:110:6d8:45:28:20
 W:20:4:0:56
 B:HIT:HURT:2d5
@@ -4066,7 +4067,7 @@ D:He is a figure encased in deep black plate armour; he looks at you
 D:menacingly.
 
 N:318:Lesser wall monster
-G:#:W
+G:#:s
 I:110:13d8:20:75:40
 W:28:4:0:600
 B:HIT:HURT:2d6
@@ -5189,12 +5190,11 @@ N:391:Raal's Tome of Destruction
 G:?:r
 I:120:50d15:20:150:15
 W:36:4:0:1500
-F:NEVER_MOVE | NEVER_BLOW
-F:FORCE_SLEEP | DROP_90 | DROP_GOOD | EVIL | COLD_BLOOD | EMPTY_MIND |
-F:FORCE_MAXHP | NO_CONF | NO_FEAR | NO_SLEEP | CHAR_MULTI |
+F:NEVER_MOVE | NEVER_BLOW | FORCE_SLEEP | DROP_90 | DROP_GOOD | EVIL | 
+F:COLD_BLOOD | FORCE_MAXHP | NO_CONF | NO_FEAR | NO_SLEEP | CHAR_MULTI | 
 F:IM_ACID | IM_POIS | IM_COLD | IM_ELEC | HURT_FIRE | RES_NETH | RES_TELE
-S:1_IN_2  |
-S:BO_ACID | BR_FIRE | BO_MANA | BR_COLD | BR_POIS |
+S:1_IN_2  | 
+S:BO_ACID | BR_FIRE | BO_MANA | BR_COLD | BR_POIS | 
 S:BO_WATE | BA_POIS | BR_NETH
 D:A sentient arcane tome casting spells with malevolent intent.
 
@@ -5409,10 +5409,10 @@ D:A Lord of Chaos famous for his skill at arms.
 N:405:Chaos spawn
 G:e:u
 I:110:20d18:20:50:20
-W:36:2:0:600
+W:36:2:0:700
 B:GAZE:PARALYZE
-B:GAZE:UN_BONUS
-B:GAZE:EXP_40
+B:GAZE:UN_BONUS:3d5
+B:GAZE:EXP_40:3d5
 B:GAZE:HURT:10d6
 F:FORCE_MAXHP | BASH_DOOR | EVIL | RES_CHAO
 D:It has two eyestalks and a large central eye. Its gaze can kill.
@@ -6725,20 +6725,24 @@ D:Smaug is one of the Uruloki that still survive, a fire-drake of immense
 D:cunning and intelligence.  His speed through air is matched by few other 
 D:dragons and his dragonfire is what legends are made of.
 
-N:485:The Stormbringer
-G:|:D
-I:120:13d123:20:99:20
-W:45:2:0:13333
-B:WAIL:TERRIFY
+N:485:Elric of Melnibone
+G:h:w
+I:120:20d125:30:100:0
+W:45:2:0:15000
 B:HIT:EXP_80:8d8
 B:HIT:EXP_80:8d8
-B:HIT:EXP_80:8d8
-F:CHAR_MULTI | EVIL | IM_POIS | IM_COLD | IM_FIRE | RES_NETH | RES_CHAO | 
-F:FORCE_SLEEP | UNIQUE | FORCE_MAXHP |
-F:COLD_BLOOD | BASH_DOOR | NONLIVING |
-F:NO_CONF | NO_SLEEP | NO_FEAR
-D:The mightiest of hellblades, a black runesword which thirsts for 
-D:your soul.
+B:HIT:EXP_80:6d6
+B:HIT:EXP_80:6d6
+F:UNIQUE | MALE | FORCE_MAXHP | ONLY_ITEM | DROP_2D2 | DROP_GOOD | 
+F:DROP_GREAT | DROP_CHOSEN | SMART | CAN_SPEAK | OPEN_DOOR | BASH_DOOR | 
+F:MOVE_BODY | KILL_BODY | TAKE_ITEM | IM_ACID | IM_ELEC | IM_FIRE | 
+F:IM_COLD | IM_POIS | RES_DISE | RES_CHAO | NO_FEAR | NO_STUN | NO_CONF | 
+F:REGENERATE | 
+S:1_IN_3 | 
+S:CAUSE_4 | HEAL | S_ELEMENTAL | S_DEMON
+D:The Emperor of Melnibone, and most-loved servant of Arioch.  He carries 
+D:that hellsword known as Stormbringer, which thirsts for your blood - and 
+D:for your soul.
 
 N:486:Ultra-elite paladin
 G:p:w
@@ -6887,7 +6891,7 @@ D:command them to appear whenever he so wishes.  He is the definition of
 D:dragonfire.
 
 N:494:Greater wall monster
-G:#:W
+G:#:s
 I:120:15d40:20:80:20
 W:50:4:0:900
 B:HIT:HURT:3d6
@@ -7113,7 +7117,7 @@ S:1_IN_3 |
 S:CAUSE_4 | HOLD | DRAIN_MANA | SCARE | BLIND | 
 S:S_UNDEAD | S_HI_UNDEAD | S_HI_DRAGON | S_UNIQUE | 
 S:BA_NETH | FORGET | TRAPS | BRAIN_SMASH | TELE_AWAY 
-D:Why would anybody want to kill Santa Claus? To get all the presents, 
+D:Why would anybody want to kill Santa Claws? To get all the presents, 
 D:of course!
 
 N:507:Lord of Chaos
@@ -8651,26 +8655,127 @@ D:disrupted, the Pattern damaged, and all the shadow is being absorbed by
 D:the Serpent. Unless it is stopped, the word as we know it will come to 
 D:an end, all order reverting to Primal Chaos.
 
-N:584:The Icky Queen
+N:584:Mutilator
+G:u:B
+I:110:5d5:10:15:10
+W:3:2:0:10
+B:DROOL:LOSE_CHR
+B:BITE:LOSE_CHR:1d3
+B:CLAW:LOSE_CHR:1d2
+B:CLAW:LOSE_CHR:1d2
+F:FORCE_SLEEP | RAND_25 | DROP_60 | STUPID | EMPTY_MIND | BASH_DOOR | 
+F:DEMON | EVIL | IM_FIRE | NO_FEAR
+D:A little blue thing that seems to be all claws, teeth, warts and drool.
+
+N:585:The Icky Queen
 G:i:v
 I:120:30d10:40:40:0
-W:15:1:0:200
+W:12:1:0:200
 B:TOUCH:HURT:3d5
 B:CRAWL:POISON:3d5
 B:CRAWL:ACID:3d5
 B:CRAWL:EAT_FOOD:3d5
-F:UNIQUE | FEMALE | ATTR_MULTI | FORCE_MAXHP | ESCORT | 
-F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | DROP_GREAT | 
-F:SMART | CAN_SPEAK | INVISIBLE | EMPTY_MIND | ATTR_ANY | 
-F:OPEN_DOOR | BASH_DOOR | MOVE_BODY | TAKE_ITEM | 
-F:EVIL | IM_ACID | IM_POIS | NO_CONF | NO_SLEEP
-S:1_IN_5 | 
-S:SHRIEK | DRAIN_MANA | SCARE | BLIND | CONF | SLOW | S_KIN
+F:UNIQUE | FEMALE | ATTR_MULTI | FORCE_MAXHP | ESCORT | ONLY_ITEM | 
+F:DROP_1D2 | DROP_GOOD | SMART | CAN_SPEAK | INVISIBLE | EMPTY_MIND | 
+F:ATTR_ANY | OPEN_DOOR | BASH_DOOR | MOVE_BODY | TAKE_ITEM | EVIL | 
+F:IM_ACID | IM_POIS | NO_CONF | NO_SLEEP
+S:1_IN_3 | 
+S:S_KIN | DRAIN_MANA | SCARE | BLIND | CONF | SLOW | SHRIEK
 D:You've been killing her children, and boy is she mad!
 
-N:585:Slymenstra Hymen
+N:586:Dalfax, Queen of the Yeeks
+G:y:R
+I:120:20d10:50:25:10
+W:15:3:0:300
+B:CLAW:HURT:3d5
+B:CLAW:HURT:3d5
+B:GAZE:PARALYZE:1d5
+F:UNIQUE | FEMALE | FORCE_MAXHP | ESCORT | ESCORTS | ONLY_ITEM | 
+F:DROP_90 | DROP_1D2 | DROP_GOOD | SMART | OPEN_DOOR | BASH_DOOR | 
+F:CAN_SPEAK | ANIMAL | EVIL | IM_ACID
+S:1_IN_3 | 
+S:HEAL | BLINK | TPORT | SLOW | S_KIN | BR_FIRE | TELE_TO
+D:Ah, this explains why Boldor and Orfax spend so much time in the 
+D:dungeon.  She might be 8-feet tall and bright pink, but a yeek is 
+D:still a yeek, right?  Guess you've got the chance to find out...
+
+N:587:Duke Nukem
+G:p:y
+I:120:85d10:30:70:0
+W:25:1:0:1100
+B:HIT:HURT:5d6
+B:HIT:HURT:5d6
+B:KICK:HURT:6d6
+F:UNIQUE | MALE | FORCE_MAXHP | ONLY_ITEM | DROP_2D2 | DROP_GOOD | 
+F:DROP_CHOSEN | CAN_SPEAK | OPEN_DOOR | BASH_DOOR | MOVE_BODY | 
+F:TAKE_ITEM | GOOD | IM_COLD | IM_FIRE | IM_ELEC | IM_POIS | 
+F:NO_FEAR | NO_CONF | 
+S:1_IN_6 | 
+S:ROCKET | BO_ICEE | HASTE | HEAL
+D:He doesn't know who it was who transported him to this strange world, 
+D:but Duke suspects it was those alien bastards.  He's mad enough to 
+D:destoy anyone who gets in the way of his search for a portal back to 
+D:Earth.
+
+N:588:Lo Wang, the Shadow Warrior
+G:p:u
+I:120:11d100:40:75:0
+W:33:2:0:1200
+B:HIT:HURT:5d8
+B:HIT:HURT:5d8
+B:PUNCH:HURT:5d6
+B:PUNCH:HURT:5d6
+F:UNIQUE | MALE | FORCE_MAXHP | ONLY_ITEM | DROP_2D2 | DROP_GOOD | 
+F:DROP_CHOSEN | CAN_SPEAK | INVISIBLE | OPEN_DOOR | BASH_DOOR | 
+F:MOVE_BODY | TAKE_ITEM | GOOD | IM_COLD | IM_FIRE | IM_ELEC | 
+F:NO_FEAR | NO_CONF | 
+S:1_IN_6 | 
+S:ROCKET | ARROW_4 | BA_FIRE | BO_FIRE | BLIND | CONF | HEAL
+D:He is the Shadow Warrior.  Lo Wang is on his seemingly endless quest to 
+D:find and destroy Master Zilla, his former employer.  As Zilla will soon 
+D:find out, it's a very bad thing to have Lo Wang coming for you!
+
+N:589:GWAR Slave
+G:h:v
+I:110:20d25:10:60:10
+W:45:1:0:600
+B:CLAW:POISON:5d5
+B:CLAW:POISON:5d5
+B:BITE:HURT:4d5
+B:DROOL:LOSE_CHR:3d5
+F:ATTR_MULTI | FRIEND | FRIENDS | RAND_25 | ONLY_ITEM | DROP_90 | 
+F:STUPID | WEIRD_MIND | OPEN_DOOR | BASH_DOOR | TAKE_ITEM | 
+F:EVIL | IM_POIS | RES_CHAO
+S:1_IN_5 | 
+S:SHRIEK | SCARE | CONF
+D:A hideously, and somewhat humorously, malformed being.  It used to be 
+D:human, but that was before having every available orifice brutally 
+D:violated by the Scumdogs of the Universe.
+
+N:590:Sleazy P. Martini
+G:p:r
+I:130:50d100:50:75:20
+W:57:1:0:25000
+B:TOUCH:EAT_ITEM:5d8
+B:TOUCH:EAT_GOLD:6d8
+B:TOUCH:EAT_ITEM:5d8
+B:TOUCH:EAT_GOLD:6d8
+F:UNIQUE | MALE | FORCE_MAXHP | DROP_4D2 | DROP_GOOD | 
+F:SMART | CAN_SPEAK | OPEN_DOOR | TAKE_ITEM | EVIL | 
+F:IM_POIS | RES_TELE | RES_CHAO | NO_FEAR | NO_CONF | NO_SLEEP
+S:1_IN_3 | 
+S:DRAIN_MANA | CAUSE_3 | TELE_TO | TRAPS | S_SCUMDOG
+D:Ex-pimp, pusher and congressman, Sleazy P. Martini fled the U.S.A., he 
+D:was facing charges of tax evasion and embezzlement, and found GWAR 
+D:thawing under the Antarctic ice.  He took GWAR under his oh-so-corrupt 
+D:wings and, becoming their manager, turned them into one of the most 
+D:obscenely funny musical acts in the known universe - making quite a tidy 
+D:profit out of it, of course.
+
+
+N:591:Slymenstra Hymen
 G:U:B
-I:120:55d100:20:90:100
+I:120:55d100:20:90:50
 W:60:2:0:25000
 B:CLAW:HURT:5d8
 B:CLAW:HURT:5d8
@@ -8686,9 +8791,9 @@ D:The GWAR Woman.  She collects heads, though probably not the ones
 D:you're thinking of.  She once held the Guinness world-record in one 
 D:of the fire-breathing categories, so watch out!
 
-N:586:Flattus Maximus
+N:592:Flattus Maximus
 G:U:B
-I:110:55d100:20:90:100
+I:110:55d100:20:90:70
 W:60:2:0:25000
 B:HIT:HURT:6d8
 B:HIT:EAT_FOOD:6d8
@@ -8703,9 +8808,9 @@ S:BR_POIS | BR_SOUN | TELE_TO | DARKNESS
 D:Plays guitar for GWAR.  Lives on a diet of beans, old cheese and 
 D:vegetarians.
 
-N:587:Beefcake the Mighty
+N:593:Beefcake the Mighty
 G:U:B
-I:110:55d100:20:90:100
+I:110:55d100:20:90:70
 W:60:2:0:25000
 B:HIT:HURT:7d8
 B:HIT:HURT:7d8
@@ -8721,9 +8826,9 @@ D:GWAR's bassist is a sensitive soul.  He cried when GWAR wiped out
 D:the dinosaurs, and then used their guts to create a bass out of the 
 D:Grand Canyon.
 
-N:588:Oderus Urungus
+N:594:Oderus Urungus
 G:U:B
-I:120:60d100:20:90:100
+I:120:60d100:20:90:50
 W:60:2:0:27000
 B:HIT:HURT:7d8
 B:HIT:HURT:7d8
@@ -8742,9 +8847,9 @@ D:that got GWAR banished to Earth millions of years ago.  Oderus is also
 D:notable as the creator of the human race.  His sister Slymenstra had a 
 D:headache, so found some apes and, well, you get the idea.
 
-N:589:Scroda Moon
+N:595:Scroda Moon
 G:U:B
-I:120:55d100:20:90:100
+I:120:55d100:20:90:50
 W:60:2:0:25000
 B:HIT:HURT:6d8
 B:HIT:HURT:6d8
@@ -8761,9 +8866,9 @@ D:He joined GWAR on Earth to warn of the coming of their Master, who is
 D:heading towards Earth as we speak in order to destroy GWAR for enjoying 
 D:what was supposed to be a humiliating exile on this mudball planet...
 
-N:590:BalSac, the Jaws of Death
+N:596:BalSac, the Jaws of Death
 G:U:B
-I:120:55d100:20:90:100
+I:120:55d100:20:90:50
 W:60:2:0:25000
 B:BITE:HURT:8d8
 B:HIT:HURT:6d8
@@ -8780,9 +8885,9 @@ D:head.  He wasn't nearly as good a navigator as he is at playing guitar.
 D:It was his mistake that put GWAR in orbit around Flab Quarv 6, instead 
 D:of Flab Quarv 7, leading to its destruction at Oderus Urungus' orders.
 
-N:591:JizMak, the Gusher
+N:597:JizMak, the Gusher
 G:U:B
-I:120:55d100:20:90:100
+I:120:55d100:20:90:50
 W:60:2:0:27000
 B:BITE:HURT:7d8
 B:HIT:HURT:5d8
@@ -8797,7 +8902,7 @@ S:BR_SOUN | TELE_TO | DARKNESS
 D:GWAR's beast-headed drummer.  He replaced GWAR's original drummer, 
 D:Nippleus Erectus, after Nippleus went limp on stage one too many times.
 
-N:592:The Master
+N:598:The Master
 G:U:U
 I:130:80d100:50:120:0
 W:80:5:0:60000
@@ -8811,7 +8916,7 @@ F:DEMON | EVIL | IM_FIRE | IM_COLD | IM_ACID | IM_ELEC | IM_POIS |
 F:RES_CHAO | RES_DISE | RES_NETH | RES_WATE | RES_TELE | 
 F:NO_FEAR | NO_STUN | NO_CONF | NO_SLEEP | FORCE_MAXHP
 S:1_IN_3 | 
-S:BR_POIS | SCARE | BLIND
+S:BR_POIS | SCARE | BLIND | DARKNESS | FORGET
 D:GWAR's Master has arrived, and no, he is *not* mooning you - he really 
 D:is a giant set of buttocks, with all that implies...  Once, back at the 
 D:dawn of time, the Master had to take a dump, and thus the universe as we 
@@ -8820,59 +8925,3 @@ D:than war?  So he created the Scumdogs of the Universe, also known as
 D:GWAR to perform this vital task.  After the blunder at Flab Quarv 6, the 
 D:Master banished GWAR to the insignificant mudball of a planet that would 
 D:come to be known as Earth.
-
-N:593:Sleazy P. Martini
-G:p:r
-I:130:50d100:50:75:30
-W:57:1:0:25000
-B:TOUCH:EAT_ITEM:5d8
-B:TOUCH:EAT_GOLD:6d8
-B:TOUCH:EAT_ITEM:5d8
-B:TOUCH:EAT_GOLD:6d8
-F:UNIQUE | MALE | FORCE_MAXHP | DROP_4D2 | DROP_GOOD | 
-F:SMART | CAN_SPEAK | OPEN_DOOR | TAKE_ITEM | EVIL | 
-F:IM_POIS | RES_TELE | RES_CHAO | NO_FEAR | NO_CONF | NO_SLEEP
-S:1_IN_3 | 
-S:DRAIN_MANA | CAUSE_3 | TELE_TO | TRAPS | S_SCUMDOG
-D:Ex-pimp, pusher and congressman, Sleazy P. Martini fled the U.S.A., he 
-D:was facing charges of tax evasion and embezzlement, and found GWAR 
-D:thawing under the Antarctic ice.  He took GWAR under his oh-so-corrupt 
-D:wings and, becoming their manager, turned them into one of the most 
-D:obscenely funny musical acts in the known universe - making quite a tidy 
-D:profit out of it, of course.
-
-N:594:Lo Wang, the Shadow Warrior
-G:p:u
-I:120:11d100:40:75:0
-W:30:2:0:1200
-B:HIT:HURT:5d8
-B:HIT:HURT:5d8
-B:PUNCH:HURT:5d6
-B:PUNCH:HURT:5d6
-F:UNIQUE | MALE | FORCE_MAXHP | ONLY_ITEM | DROP_2D2 | DROP_GOOD | 
-F:DROP_CHOSEN | CAN_SPEAK | INVISIBLE | OPEN_DOOR | BASH_DOOR | 
-F:MOVE_BODY | TAKE_ITEM | GOOD | IM_COLD | IM_FIRE | IM_ELEC | 
-F:NO_FEAR | NO_CONF | 
-S:1_IN_8 | 
-S:ROCKET | ARROW_4 | BA_FIRE | BO_FIRE | BLIND | CONF | HEAL
-D:He is the Shadow Warrior.  Lo Wang is on his seemingly endless quest to 
-D:find and destroy Master Zilla, his former employer.  As Zilla will soon 
-D:find out, it's a very bad thing to have Lo Wang coming for you!
-
-N:595:Duke Nukem
-G:p:y
-I:120:85d10:30:70:10
-W:25:1:0:1100
-B:HIT:HURT:5d6
-B:HIT:HURT:5d6
-B:KICK:HURT:6d6
-F:UNIQUE | MALE | FORCE_MAXHP | ONLY_ITEM | DROP_2D2 | DROP_GOOD | 
-F:DROP_CHOSEN | CAN_SPEAK | OPEN_DOOR | BASH_DOOR | MOVE_BODY | 
-F:TAKE_ITEM | GOOD | IM_COLD | IM_FIRE | IM_ELEC | IM_POIS | 
-F:NO_FEAR | NO_CONF | 
-S:1_IN_10 | 
-S:ROCKET | BO_ICEE | HASTE | HEAL
-D:He doesn't know who it was who transported him to this strange world, 
-D:but Duke suspects it was those alien bastards.  He's mad enough to 
-D:destoy anyone who gets in the way of his search for a portal back to 
-D:Earth.

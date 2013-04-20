@@ -1,5 +1,13 @@
 ============================================================================
-= Gumband 2.1.1e: Changes from ZAngband 2.1.1c = Last Update: 29-Nov-2000  =
+= Gumband 2.1.1f: Changes from ZAngband 2.1.1c = Last Update: 11-Dec-2000  =
+============================================================================
+****************************************************************************
+This might be my last update for a while. My ISP, the ad-based Excite Free-
+Lane, is discontinuing service to Canada. Until I find either another 'free'
+ISP, or I get a steady stream of cash going, I'll be unable to upload any
+further iterations. :( Development, such as it is, on my part will continue,
+however...
+****************************************************************************
 ============================================================================
 I've only ever compiled this under MS-DOS with DJGPP. Your milage may vary
 for other platforms and compilers... :) If you've had problems compiling
@@ -26,26 +34,15 @@ yourself thanked. :) [individual thanks will be down there in the entries
 that apply]
 ============================================================================
 There have been other minor changes than those listed here that aren't worth
-individual mentions.
+individual mentions. Many items, for example, have had their rarities and
+prices played with a bit.
 ============================================================================
-Please note that the numbering is just for convenience and not any sort of
-chronology of the changes I've made since the list has been rewritten and
-reordered several times now. :) It will never be a very good read, and there
-are no changes-by-version section - that'd make this file far too large,
-unless I decided to be far less thorough in my reporting. :)
+Please note that these are only changes from ZAngband v2.1.1c, not changes
+from previous releases of Gumband. It keeps this file relatively short if I
+don't keep track of all the changes by version. :)
 ============================================================================
-
-*********************************** NOTE ***********************************
-Due to popular demand, items being wielded/worn can no longer be destroyed
-by elemental attacks in this version.
-****************************************************************************
 
 01) Got rid of the autoroller delay during character creation. [birth.c]
- Yes, it keeps players a bit more honest with their stats to keep the
- autoroller relatively slow, but that does nothing useful except fill the
- high-scores table with tons of low-level characters and force players to
- hang around the 'stat-gain' levels until they're bored to tears. And once
- past stat-gain, does it really matter what your starting statistics were?
 
 02) Many activated artifacts, wands, staves, rods, etc., now deal 50% more
  damage. [cmd6.c, object1.c] IMHO, they're usually so weak that there's no
@@ -58,80 +55,92 @@ by elemental attacks in this version.
  objects are now self-cursing as well). Stormy is now in a_info.txt and is a
  Runesword. [too many files were changed to name :] Thanks to Kieron Dunbar
  for the auto-cursing patch and the patch to place Stormbringer into
- a_info.txt. (I probably would've been able to figure out the latter on my
- own - eventually - but I doubt I'd ever have gotten any sort of auto-
- cursing working. I'm much better at tweaking and modifying code than I am
- at creating original routines. :) Note that there seems to be a very minor
- bug in the auto-cursing code - when the auto-curse kicks in, it doesn't
- update the {uncursed} inscription (if any) to {cursed}. No idea why. I'll
- try to fix.
+ a_info.txt. Note that there seems to be a very minor bug in the auto-
+ cursing code - when the auto-curse kicks in, it doesn't update the
+ {uncursed} inscription (if any) to {cursed}. No idea why. I'll try to fix.
 
-04) Potions of New Life are cheaper and more common. [k_info.txt] Instead of
+04) On the same subject, it is now Elric of Melnibone that drops
+ Stormbringer (ie, Stormy's no longer a monster). [r_info.txt, xtra2.c] I
+ hope that those who complain (like me :) about it being too easy to get
+ your hands on Stormbringer won't be disappointed.
+
+05) Potions of New Life are cheaper and more common. [k_info.txt] Instead of
  re-rating your hit points and then removing all mutations, it first removes
  all of your mutations and then polymorphs you, for the same effect as the
  Polymorph Self spell. [cmd6.c] Now you might end up again with the mutation
  you were desperate to get rid of in the first place, or turn into a Yeek or
  an Abomination. :)
 
-05) Stores now have a 1 in 15 chance of shuffling each day (originally a 1
+06) Stores now have a 1 in 15 chance of shuffling each day (originally a 1
  in 21 chance). The {on sale} discount has been reduced to 35% since sales
  are that much more common. [defines.h, store.c] The purses of the General
  Store and Black Market owners have been altered slightly. [tables.c]
 
-06) The chance of 'inflating' an object's level during its creation has been
- changed to a 1/15 (6.6%) chance, up from the normal 1/20 (5%). [defines.h]
+07) Stores now tend to create better items as the character gains in level.
+ [store.c] The 'level' for normal stores is increased by (plev / 5), while
+ the Black Market increases by ((plev - 5) / 3).
 
-07) Dungeon generation has been altered slightly: Small levels are now more
+08) The chance of 'inflating' an object's level during its creation has been
+ changed to a 1/15 (6.6%) chance, up from the normal 1/20 (5%). [defines.h]
+ Probably considered a bit munchkinish, but it means there's slightly fewer
+ items created as you get deeper that you'd discard immediately...
+
+09) Dungeon generation has been altered slightly: Small levels are now more
  common (50% chance instead of 33%). Destroyed levels are less common (3.3%
  chance instead of 5.5%). Empty 'Arena' levels are now less likely to be
  darkened (10% chance instead of 20%). [generate.c]
 
-08) Worn items can be be stolen, but thieves won't go near cursed items,
- regardless of whether it's worn or in your pack. [melee1.c]
+10) Worn items can be be stolen, but thieves won't go near cursed items,
+ regardless of whether it's worn or in your pack. [melee1.c] Doesn't seem to
+ happen all that often, tho, especially with only about a half-dozen or so
+ item-thieves in the game...
 
-09) Changed 'info_size' and 'text_size' in 'struct header' to u32b from
+11) Changed the table for Dexterity vs. theft attacks. You now don't get
+ full immunity from theft until your Dex is at 18/200. [tables.c] So I'm an
+ evil bastard. Get used to it. ;)
+
+12) Changed 'info_size' and 'text_size' in 'struct header' to u32b from
  u16b. It might break things. If so, my apologies. :) [types.h] Did this so
  that I can add monsters of my own without having to remove the ones native
  to ZAngband 2.1.1c...
 
-10) Chaotic weapons now deal extra damage (x2 base) against creatures that
+13) Chaotic weapons now deal extra damage (x2 base) against creatures that
  resist and/or breathe chaos. [normally, the extra damage would go against
  the creatures that *don't* resist. Go read Moorcock's Elric series to see
- the logic in this. (briefly, weapons of Chaos, such as Stormbringer and
- Mournblade, were created by Law to fight Chaos, but it was a case of having
- to fight fire with fire, so to speak)] Most creatures who either have
- 'chaos' as part of their name or else breathe it, along with a few others,
- now explicitly resist chaos via the new RES_CHAO flag. [defines.h, init1.c,
- cmd1.c, monster1.c, wizard1.c and one or two others, I think :]
+ the logic in this. Most creatures who either have 'chaos' as part of their
+ name or else breathe it, along with a few others, now explicitly resist (or
+ are vunerable to it, depending on the method of Chaos delivery) chaos via
+ the new RES_CHAO flag. [defines.h, init1.c, cmd1.c, monster1.c, wizard1.c
+ and one or two others, I think :]
 
-11) Creatures with the HURT_FIRE and HURT_COLD flags now take +50% damage
+14) Creatures with the HURT_FIRE and HURT_COLD flags now take +50% damage
  from those types of attacks. [defines.h, init1.c, cmd1.c, spells1.c,
  monster1.c, wizard1.c] Actually, I didn't have to change much, just cmd1.c
  and spells1.c - the rest of the code to use these flags was already in
- place, but unused, for some reason...
+ place, but seemed unused, for some reason...
 
-12) Changed the table for Dexterity vs. theft attacks. You now don't get
- full immunity from theft until your Dex is at 18/200. [tables.c] So I'm an
- evil bastard. Get used to it. ;)
+15) Be on the lookout for GWAR... :) [r_info.txt] They're a bunch of demonic
+ Scumdogs. [defines.h, init1.c, monster1.c, wizard1.c] The Scumdogs of the
+ Universe can now be summoned. [defines.h, init1.c, melee2.c, monster1.c,
+ monster2.c, wizard1.c] Only one unique creature can do so at the moment.
+ Thanks to Eric Bock and Antimatter (of #angband) for how to go about doing
+ this...
 
-13) Be on the lookout for GWAR... :) [r_info.txt] They're a bunch of demonic
- Scumdogs. [defines.h, init1.c, monster1.c, wizard1.c]
+16) In the same vein, monsters can now summon Elementals. [same files as
+ in #15 :] There's only one creature (a unique, and I'm sure that many folks
+ 'round here will know immediately who it is :), so far, that can summon
+ elementals specifically.
 
-14) The Scumdogs of the Universe can now be summoned. [defines.h, init1.c,
- melee2.c, monster1.c, monster2.c, wizard1.c] Only one creature, Sleazy P.
- Martini (GWAR's manager :), can do so at the moment. [r_info.txt] Thanks
- to Eric Bock and Antimatter (of #angband) for how to go about doing this...
-
-15) Hmmm. Is that Scruffy looking hobbit who I think it is...? ;) [xtra2.c]
-
-16) Watch out for Duke Nukem & Lo Wang. Neither of them are in a very good
- mood. :) [r_info.txt, melee2.c, xtra2.c]
+17) Amulets of Adornment have been dumped in favor of Amulets of Thieves.
+ [object2.c, k_info.txt] They increase Stealth by 1-4 (supposed to be only
+ one to 3 - a minor bug. Oh well, I'll try and squash it) points and can be
+ generated in the Magic Shop. [init2.c]
 
               -*-*-*- Altered Races and Classes -*-*-*-
 
-[birth.c   - magic, starting equipment
+[birth.c   - choices of realms, starting equipment
  xtra1.c   - melee and missile attacks, intrinsics display(?)
- tables.c  - magic costs and race/class definitions
+ tables.c  - class definitions
  files.c   - intrinsics definitions(?)
  cmd2.c    - racial activations
  spells2.c - racial activations part 2]
@@ -161,7 +170,7 @@ Golems:
    Hold Life.
 
 Half-Elves:
- Now gain Detect Animals at level 10.
+ Now gain Detect Animals at level 15.
 
 Humans:
  Now gain Self Knowledge at level 15.
@@ -200,6 +209,9 @@ Warrior-Magi:
  Arcane magic only, no secondary realm.
  Begins with Hard Leather Armour instead of second spellbook.
 
+Yeeks:
+ Their racial activation, Scare Monster, has been moved to level 5 and now
+   has a cost of 10. (it now might actually be useful)
 
                    -*-*-*- Altered Spells -*-*-*-
 
@@ -240,22 +252,20 @@ Warrior-Magi:
  but the normal damage rolls were rather pathetic, causing spellcasters to
  melee as much, if not more, as they cast damage spells...
 
- The Mindcrafter power 'Precognition' now detects doors and stairs at
- character level 5, with detect traps moved to character level 10.
+ Mindcraft has been altered as follows:
+   Precognition now detects doors and stairs at level 5, with detect traps
+      bumped to level 10, and full detection moves to level 35, up from 30.
+   Psychometry now gives Identify at level 30 and *Identify* at level 45.
+   Minor Displacement has moved Dimension Door (targeted, short-ranged
+      teleportation) to level 30 (from level 25).
+   Major Displacement now gives Teleport Other at level 50, instead of its
+      original 'Banish' (teleport away all creatures in line of sight)
+      effect.
 
- The Identify portion of 'Psychometry' has been moved up to level 30,
- inserting an *Identify* effect at level 45. No justification for this other
- than that I wanted to. :)
-
- Again with the Mindcrafters, the Dimension Door portion of 'Minor
- Displacement' has been moved to level 30.
-
- Replaced the Trump Spell 'Reset Recall' with the spell 'Minor Divination,'
- which detects traps, doors, stairs and normal monsters. Reset Recall is
- almost completely useless since you couldn't Reset to a depth that you had
- never visited. The cost and fail rate for Minor Divination are the same as
- they were for Reset Recall, so there's no cheap and easy early detection
- for Trump users. :)
+ Replaced the Trump Spell almost useless 'Reset Recall' with the spell
+ 'Minor Divination' which detects traps, doors, stairs and normal monsters.
+ The cost and fail rate for Minor Divination are the same as they were for
+ Reset Recall, so there's no cheap and easy early detection for Trump users.
 
  Chaos' 'Mana Burst' now has a 1-in-10 chance of being a ball of *real* mana
  (GF_MANA instead of the normal GF_MISSILE). It is compensation for the
@@ -263,3 +273,13 @@ Warrior-Magi:
  50.
 
  Nature's 'Nature Awareness' now no longer detects monsters.
+
+ The various branding spells can now be used on non-stacked items in the
+ inventory and on the floor. [cmd5.c] It's a butt-ugly hack, I suppose,
+ since I had to find a way to stop it from enchanting missile weapons, ammo,
+ armour and stacks of items, but I figured that Priests should not be
+ penalized when trying to brand stuff. I might've tried moving the branding
+ code over to spells2.c with bless_weapon() and enchant_spell() [why is
+ brand_weapon() in cmd5.c, anyway?], which probably would've been more
+ elegant (allowing the use of the item_tester_hook_foos), but I'm too lazy.
+ 8-)

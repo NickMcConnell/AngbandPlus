@@ -2119,8 +2119,8 @@ void monster_death(int m_idx)
 	/* Forget objects */
 	m_ptr->hold_o_idx = 0;
 
-	/* Mega^1.8-hack -- destroying the Stormbringer gives it us! */
-	if (strstr((r_name + r_ptr->name),"Stormbringer"))
+	/* Mega^1.8-hack -- destroying Elric of Melnibone gives us Stormbringer! */
+	if (strstr((r_name + r_ptr->name),"Elric of Melnibone"))
   	{
 		/* Get local object */
 		q_ptr = &forge;
@@ -2338,6 +2338,11 @@ void monster_death(int m_idx)
 			{
 				a_idx = ART_VORPAL_BLADE;
 				chance = 10;
+			}
+			else if (strstr((r_name + r_ptr->name),"Elric of Melnibone"))
+			{
+				a_idx = ART_DOR;
+				chance = 35;
 			}
 
 			if ((a_idx > 0) && ((randint(99)<chance) || (wizard)))
