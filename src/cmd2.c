@@ -228,7 +228,7 @@ static void chest_death(int y, int x, s16b o_idx)
 		else
 		{
 			/* Make an object */
-			if (!make_object(i_ptr, FALSE, FALSE)) continue;
+			if (!make_object(i_ptr, TRUE, FALSE)) continue;
 		}
 
 		/* Drop it in the dungeon */
@@ -2286,6 +2286,13 @@ static void do_cmd_hold_or_stay(int pickup)
 
 		/* Cancel the arg */
 		p_ptr->command_arg = 0;
+	}
+
+	/* P+ hack -- do not penalize players not using auto-pickup */
+	if (pickup && cave_o_idx[py][px])
+	{
+		py_pickup(pickup);
+		return;
 	}
 
 	/* Take a turn */

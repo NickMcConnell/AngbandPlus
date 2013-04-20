@@ -108,6 +108,8 @@
 
 # P+ changed: BA_ICEE, HURT_FIRE, HURT_COLD,
 # RES_WATE, RES_NEXU, RES_PLAS, RES_NETH, RES_DISE
+# Also added CAN_SPEAK, and the third "W:" number is the type of speech
+
 
 # Version stamp (required)
 
@@ -151,13 +153,15 @@ F:RAND_25 |
 F:ANIMAL
 D:A thin flea-ridden mutt, growling as you get close.
 
+# P+ added CAN_SPEAK
+
 N:4:Farmer Maggot
 G:h:w
 I:110:35d10:40:10:3
-W:0:4:0:0
+W:0:4:4:0
 B:MOAN
 B:MOAN
-F:UNIQUE | MALE | 
+F:UNIQUE | CAN_SPEAK | MALE | 
 F:FORCE_MAXHP | 
 F:ONLY_ITEM | DROP_90 | DROP_GOOD | 
 F:OPEN_DOOR | BASH_DOOR | 
@@ -667,13 +671,15 @@ F:ANIMAL
 D:A larger than normal feline, hissing loudly.  Its velvet claws conceal a 
 D:fistful of needles.
 
+# P+ added CAN_SPEAK
+
 N:52:Smeagol
 G:h:b
 I:130:5d5:20:12:5
-W:3:2:0:16
+W:3:2:52:16
 B:HIT:HURT:1d4
 B:TOUCH:EAT_GOLD
-F:UNIQUE | MALE | 
+F:UNIQUE | CAN_SPEAK | MALE | 
 F:FORCE_MAXHP | 
 F:RAND_50 | RAND_25 | 
 F:ONLY_GOLD | DROP_60 | DROP_1D2 | 
@@ -964,7 +970,7 @@ F:OPEN_DOOR | BASH_DOOR |
 D:He is a sturdy hobbit who is renowned for his unusual strength and 
 D:vigour.  He can prove a troublesome opponent.
 
-N:77:Novice mage
+N:77:Apprentice
 G:p:r
 I:110:6d4:20:6:10
 W:5:2:0:7
@@ -1105,7 +1111,7 @@ F:STUPID | EMPTY_MIND |
 F:NO_CONF | NO_SLEEP | NO_FEAR
 D:Yum!  It looks quite tasty.
 
-N:89:Novice priest
+N:89:Acolyte
 G:p:g
 I:110:7d4:20:10:5
 W:6:2:0:7
@@ -1118,7 +1124,7 @@ S:1_IN_12 |
 S:HEAL | SCARE | CAUSE_1
 D:He is tripping over his priestly robes.
 
-N:90:Novice warrior
+N:90:Soldier
 G:p:u
 I:110:9d4:20:16:5
 W:6:2:0:6
@@ -1129,7 +1135,7 @@ F:FRIENDS | DROP_60 |
 F:OPEN_DOOR | BASH_DOOR
 D:He looks inexperienced but tough.
 
-N:91:Novice rogue
+N:91:Robber
 G:p:b
 I:110:8d4:20:12:5
 W:6:2:0:6
@@ -1231,6 +1237,8 @@ F:WEIRD_MIND | BASH_DOOR |
 F:ANIMAL | IM_POIS
 D:It scuttles towards you.
 
+# P+ added RES_NETH
+
 N:100:Manes
 G:u:u
 I:110:8d8:20:32:30
@@ -1238,7 +1246,7 @@ W:7:2:0:16
 B:HIT:HURT:1d8
 F:FRIENDS | 
 F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL | DEMON | IM_FIRE | NO_FEAR
+F:EVIL | DEMON | IM_FIRE | NO_FEAR | RES_NETH
 D:It is a minor but aggressive demon.
 
 N:101:Bloodshot eye
@@ -1323,6 +1331,8 @@ S:1_IN_15 |
 S:TPORT | DRAIN_MANA
 D:It is almost insubstantial.
 
+# P+ added RES_NETH
+
 N:108:Dark elf
 G:h:D
 I:110:7d10:20:16:20
@@ -1333,7 +1343,7 @@ F:MALE |
 F:FORCE_SLEEP | 
 F:DROP_90 | 
 F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL | HURT_LITE
+F:EVIL | HURT_LITE | RES_NETH
 S:1_IN_10 | 
 S:CONF | DARKNESS
 D:An elven figure with jet black skin and white hair, his eyes are large and 
@@ -1407,7 +1417,7 @@ F:OPEN_DOOR | BASH_DOOR |
 F:ANIMAL
 D:It is a strange small humanoid.
 
-N:114:Novice ranger
+N:114:Scout
 G:p:W
 I:110:6d8:20:6:5
 W:8:1:0:18
@@ -1456,7 +1466,7 @@ F:IM_COLD | IM_POIS |
 F:NO_CONF | NO_SLEEP | NO_FEAR
 D:It is an animated orc skeleton.
 
-N:118:Novice paladin
+N:118:Protector
 G:p:w
 I:110:6d8:20:16:5
 W:8:2:0:20
@@ -1470,6 +1480,8 @@ S:1_IN_9 |
 S:SCARE | CAUSE_1
 D:An adventurer both devoutly religious and skillful in combat.
 
+# P+ added RES_NETH
+
 N:119:Lemure
 G:u:U
 I:110:13d9:20:32:30
@@ -1477,7 +1489,7 @@ W:8:3:0:16
 B:HIT:HURT:1d8
 F:FRIENDS | 
 F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL | DEMON | IM_FIRE | NO_FEAR
+F:EVIL | DEMON | IM_FIRE | NO_FEAR | RES_NETH
 D:It is the larval form of a major demon.
 
 N:120:Hill orc
@@ -1696,6 +1708,8 @@ F:WEIRD_MIND | BASH_DOOR |
 F:ANIMAL | IM_POIS
 D:It is a vast black spider whose bulbous body is bloated with poison.
 
+# P+ added RES_NETH
+
 N:136:Dark elven mage
 G:h:v
 I:120:7d10:20:16:20
@@ -1706,20 +1720,22 @@ F:MALE |
 F:FORCE_SLEEP | 
 F:ONLY_ITEM | DROP_1D2 | 
 F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL | IM_POIS | HURT_LITE
+F:EVIL | IM_POIS | HURT_LITE | RES_NETH
 S:1_IN_5 | 
 S:BLIND | CONF | MISSILE | DARKNESS | BA_POIS
 D:A dark elven figure, dressed all in black, hurling spells at you.
 
+# P+ added CAN_SPEAK
+
 N:137:Orfax, Son of Boldor
 G:y:b
 I:120:12d10:18:20:10
-W:10:3:0:80
+W:10:3:137:80
 B:HIT:HURT:1d9
 B:HIT:HURT:1d8
 B:INSULT
 B:INSULT
-F:UNIQUE | MALE | 
+F:UNIQUE | CAN_SPEAK | MALE | 
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:ESCORT | ESCORTS | 
 F:ONLY_ITEM | DROP_90 | DROP_GOOD | 
@@ -1731,6 +1747,8 @@ S:S_MONSTER
 D:He's just like daddy!  He knows mighty spells, but fortunately he is a 
 D:yeek.
 
+# P+ added RES_NETH
+
 N:138:Dark elven warrior
 G:h:u
 I:110:10d11:20:16:20
@@ -1740,7 +1758,7 @@ B:HIT:HURT:1d8
 F:MALE | 
 F:DROP_1D2 | 
 F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL | HURT_LITE
+F:EVIL | HURT_LITE | RES_NETH
 D:A dark elven figure in armour and ready with his sword.
 
 N:139:Clear mushroom patch
@@ -1821,13 +1839,15 @@ S:CONF | SCARE |
 S:BR_LITE | BR_DARK
 D:A small relative of the dragon that inhabits dark caves.
 
+# P+ added RES_NETH
+
 N:145:Tengu
 G:u:R
 I:120:16d9:20:32:30
 W:10:1:0:40
 B:HIT:HURT:1d8
 F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL | DEMON | IM_FIRE | NO_FEAR
+F:EVIL | DEMON | IM_FIRE | NO_FEAR | RES_NETH
 S:1_IN_3 | 
 S:BLINK | TELE_TO
 D:It is a fast-moving demon that blinks quickly in and out of existence; no 
@@ -2041,6 +2061,8 @@ S:HEAL | SCARE | CAUSE_2 |
 S:S_MONSTER
 D:A robed humanoid dedicated to his god.
 
+# P+ added RES_NETH
+
 N:162:Dark elven priest
 G:h:g
 I:120:7d10:20:30:30
@@ -2051,7 +2073,7 @@ F:MALE |
 F:FORCE_SLEEP | 
 F:ONLY_ITEM | DROP_1D2 | 
 F:SMART | OPEN_DOOR | BASH_DOOR | 
-F:EVIL | HURT_LITE
+F:EVIL | HURT_LITE | RES_NETH
 S:1_IN_5 | 
 S:HEAL | BLIND | CONF | CAUSE_2 | DARKNESS
 D:A dark elven figure, dressed all in black, chanting curses and waiting to 
@@ -2153,6 +2175,8 @@ F:IM_ACID | IM_POIS | HURT_LITE |
 F:NO_CONF | NO_SLEEP | NO_FEAR
 D:A jelly thing.
 
+# P+ added RES_NETH
+
 N:171:Drider
 G:S:u
 I:110:10d13:8:30:80
@@ -2162,7 +2186,7 @@ B:HIT:HURT:1d12
 B:BITE:POISON:1d6
 F:FORCE_SLEEP | 
 F:BASH_DOOR | 
-F:EVIL | IM_POIS
+F:EVIL | IM_POIS | RES_NETH
 S:1_IN_8 | 
 S:CONF | CAUSE_1 | DARKNESS
 D:A dark elven torso merged with the bloated form of a giant spider.
@@ -2176,14 +2200,16 @@ F:WEIRD_MIND | BASH_DOOR |
 F:ANIMAL
 D:It is a vicious insect with a tough carapace.
 
+# P+ added CAN_SPEAK
+
 N:173:Boldor, King of the Yeeks
 G:y:U
 I:120:18d10:18:24:10
-W:13:3:0:200
+W:13:3:137:200
 B:HIT:HURT:1d9
 B:HIT:HURT:1d9
 B:HIT:HURT:1d8
-F:UNIQUE | MALE | 
+F:UNIQUE | CAN_SPEAK | MALE | 
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:ESCORT | ESCORTS | 
 F:ONLY_ITEM | DROP_90 | DROP_1D2 | DROP_GOOD | 
@@ -2312,6 +2338,8 @@ S:1_IN_10 |
 S:BR_COLD
 D:It is a large fly that drips frost.
 
+# P+ added RES_NETH
+
 N:183:Blue icky thing
 G:i:b
 I:100:10d6:15:20:20
@@ -2323,7 +2351,7 @@ B:HIT:HURT:1d4
 F:FORCE_SLEEP | 
 F:RAND_50 | 
 F:MULTIPLY | OPEN_DOOR | BASH_DOOR | 
-F:EVIL | IM_POIS
+F:EVIL | IM_POIS | RES_NETH
 S:1_IN_8 | 
 S:BLIND | CONF | SCARE
 D:It is a strange, slimy, icky creature, with rudimentary intelligence, 
@@ -2351,6 +2379,8 @@ F:IM_ELEC |
 F:NO_CONF | NO_SLEEP | NO_FEAR
 D:A shambling humanoid monster with long scars.
 
+# P+ added RES_NETH
+
 N:186:Warg
 G:C:s
 I:120:8d8:20:20:40
@@ -2359,7 +2389,7 @@ B:BITE:HURT:1d8
 F:RAND_25 | 
 F:FRIENDS | 
 F:BASH_DOOR | 
-F:ANIMAL | EVIL
+F:ANIMAL | EVIL | RES_NETH
 D:It is a large wolf with eyes full of cunning.
 
 N:187:Giant black louse
@@ -2385,6 +2415,8 @@ F:NO_CONF | NO_SLEEP | NO_FEAR
 D:A strange creature that merges with the dungeon floor, trapping its 
 D:victims by enveloping them within its perfectly disguised form.
 
+# P+ added RES_NETH
+
 N:189:Wererat
 G:r:D
 I:110:20d8:10:10:10
@@ -2395,7 +2427,7 @@ B:BITE:HURT:2d6
 F:FORCE_SLEEP | 
 F:ONLY_GOLD | DROP_60 | 
 F:OPEN_DOOR | BASH_DOOR | 
-F:ANIMAL | EVIL
+F:ANIMAL | EVIL | RES_NETH
 S:1_IN_9 | 
 S:BLINK | CAUSE_2 | BO_COLD | BA_POIS
 D:A large rat with glowing red eyes.  The wererat is a disgusting creature, 
@@ -2537,6 +2569,8 @@ F:BASH_DOOR |
 F:ANIMAL
 D:It is half lion, half eagle.  It flies menacingly towards you.
 
+# P+ added RES_NETH
+
 N:201:Homonculous
 G:u:y
 I:110:8d8:20:32:30
@@ -2544,10 +2578,10 @@ W:15:3:0:40
 B:HIT:PARALYZE:1d2
 B:HIT:HURT:1d10
 F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL | DEMON | IM_FIRE | NO_FEAR
+F:EVIL | DEMON | IM_FIRE | NO_FEAR | RES_NETH
 D:It is a small demonic spirit full of malevolence.
 
-N:202:Gnome mage
+N:202:Gnome illusionist
 G:h:r
 I:110:7d8:20:20:20
 W:15:2:0:40
@@ -2586,6 +2620,8 @@ F:HURT_ROCK |
 F:NO_CONF | NO_SLEEP | NO_FEAR
 D:It is a massive animated statue made out of hardened clay.
 
+# P+ added RES_NETH
+
 N:205:Umber hulk
 G:X:U
 I:110:20d10:20:50:10
@@ -2597,7 +2633,7 @@ B:BITE:HURT:2d6
 F:EMPTY_MIND | COLD_BLOOD | 
 F:BASH_DOOR | KILL_WALL | 
 F:ANIMAL | EVIL | 
-F:IM_POIS | 
+F:IM_POIS | RES_NETH | 
 F:HURT_ROCK | NO_CONF | NO_SLEEP
 D:This bizarre creature has glaring eyes and large mandibles capable of 
 D:slicing through rock.
@@ -2685,6 +2721,8 @@ F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR |
 F:EVIL
 D:A short and swarthy Easterling.
 
+# P+ added RES_NETH
+
 N:212:Quasit
 G:u:o
 I:110:6d8:20:30:20
@@ -2696,10 +2734,12 @@ F:FORCE_SLEEP |
 F:RAND_25 | 
 F:ONLY_ITEM | DROP_1D2 | 
 F:SMART | INVISIBLE | BASH_DOOR | 
-F:EVIL | DEMON | IM_FIRE
+F:EVIL | DEMON | IM_FIRE | RES_NETH
 S:1_IN_10 | 
 S:BLINK | TPORT | TELE_TO | TELE_LEVEL | BLIND | CONF | SCARE
 D:The chaotic evil master's favourite pet.
+
+# P+ added RES_NETH
 
 N:213:Imp
 G:u:g
@@ -2711,7 +2751,7 @@ F:FORCE_SLEEP |
 F:RAND_25 | 
 F:ONLY_ITEM | DROP_1D2 | 
 F:SMART | INVISIBLE | COLD_BLOOD | BASH_DOOR | 
-F:EVIL | DEMON | IM_FIRE
+F:EVIL | DEMON | IM_FIRE | RES_NETH
 S:1_IN_10 | 
 S:BLINK | TPORT | TELE_TO | TELE_LEVEL | BLIND | CONF | SCARE
 D:The lawful evil master's favourite pet.
@@ -2797,7 +2837,7 @@ B:HIT:HURT:1d8
 F:RAND_25 | 
 F:EMPTY_MIND | COLD_BLOOD | 
 F:PASS_WALL | 
-F:EVIL | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | HURT_ROCK | 
+F:IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | HURT_ROCK | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
 D:A whirling form of sentient rock.
 
@@ -2812,7 +2852,7 @@ B:HIT:FIRE:2d6
 B:HIT:FIRE:2d6
 F:RAND_25 | 
 F:EMPTY_MIND | BASH_DOOR | 
-F:EVIL | IM_FIRE | IM_POIS | HURT_COLD | 
+F:IM_FIRE | IM_POIS | HURT_COLD | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
 D:A whirlwind of sentient flame.
 
@@ -2944,6 +2984,8 @@ F:EVIL | ORC | IM_POIS
 D:A gruesomely ugly but cunning orc, his eyes regard you with hatred.  His 
 D:powerful arms flex menacingly as he advances.
 
+# P+ added RES_NETH
+
 N:229:Shambling mound
 G:,:W
 I:110:20d6:20:16:40
@@ -2952,7 +2994,7 @@ B:HIT:HURT:1d8
 B:HIT:HURT:1d8
 F:ONLY_GOLD | DROP_90 | 
 F:STUPID | EMPTY_MIND | OPEN_DOOR | BASH_DOOR | 
-F:EVIL | 
+F:EVIL | RES_NETH | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_4 | 
 S:SHRIEK
@@ -3174,6 +3216,8 @@ F:OPEN_DOOR | BASH_DOOR |
 F:ANIMAL | IM_COLD | HURT_FIRE
 D:A tall shaggy, furry humanoid, it could call the yeti brother.
 
+# P+ added RES_NETH
+
 N:245:Werewolf
 G:C:D
 I:110:20d22:15:30:70
@@ -3183,8 +3227,10 @@ B:BITE:HURT:1d6
 B:BITE:HURT:1d10
 F:RAND_25 | 
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
-F:ANIMAL | EVIL
+F:ANIMAL | EVIL | RES_NETH
 D:It is a huge wolf with eyes that glow with manly intelligence.
+
+# P+ added RES_NETH
 
 N:246:Dark elven lord
 G:h:D
@@ -3196,7 +3242,7 @@ F:MALE |
 F:FORCE_SLEEP | 
 F:ONLY_ITEM | DROP_2D2 | 
 F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL | HURT_LITE
+F:EVIL | HURT_LITE | RES_NETH
 S:1_IN_5 | 
 S:HASTE | BLIND | CONF | DARKNESS | BO_FIRE | BO_COLD
 D:A dark elven figure in armour and radiating evil power.
@@ -3550,6 +3596,7 @@ F:NO_CONF | NO_SLEEP | NO_FEAR
 D:It is a human form encased in mouldy wrappings.
 
 # GJW removed NO_CONF
+# P+ added RES_NETH
 
 N:272:Vampire bat
 G:b:v
@@ -3558,9 +3605,11 @@ W:24:2:0:150
 B:BITE:EXP_40:1d4
 B:BITE:EXP_40:1d4
 F:RAND_50 | COLD_BLOOD | REGENERATE | 
-F:EVIL | ANIMAL | UNDEAD | IM_COLD | IM_POIS | 
+F:EVIL | ANIMAL | UNDEAD | IM_COLD | IM_POIS | RES_NETH | 
 F:NO_SLEEP | NO_FEAR
 D:An undead bat that flies at your neck hungrily.
+
+# P+ added RES_NETH
 
 N:273:Sangahyando of Umbar
 G:p:u
@@ -3574,10 +3623,12 @@ F:UNIQUE | MALE |
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:ONLY_ITEM | DROP_90 | DROP_1D2 | DROP_GOOD | 
 F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL | IM_FIRE | IM_ELEC | NO_CONF | NO_SLEEP
+F:EVIL | IM_FIRE | IM_ELEC | RES_NETH | NO_CONF | NO_SLEEP
 S:1_IN_4 | 
 S:SLOW | FORGET
 D:A Black Numenorean with a blacker heart.
+
+# P+ added RES_NETH
 
 N:274:Angamaite of Umbar
 G:p:u
@@ -3591,7 +3642,7 @@ F:UNIQUE | MALE |
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:ONLY_ITEM | DROP_90 | DROP_1D2 | DROP_GOOD | 
 F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL | IM_FIRE | IM_ELEC | NO_CONF | NO_SLEEP
+F:EVIL | IM_FIRE | IM_ELEC | RES_NETH | NO_CONF | NO_SLEEP
 S:1_IN_4 | 
 S:SLOW | FORGET
 D:A Black Numenorean who hates the men of the west.
@@ -3629,6 +3680,8 @@ S:SLOW | CONF | BO_ACID
 D:A stumpy figure carved from stone, with glittering eyes, this sentinel 
 D:strides towards you with deadly intent.
 
+# P+ added RES_NETH
+
 N:277:Dark elven druid
 G:h:g
 I:120:20d20:15:75:10
@@ -3640,7 +3693,7 @@ F:MALE |
 F:FORCE_SLEEP | 
 F:ONLY_ITEM | DROP_1D2 | 
 F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL | IM_POIS | HURT_LITE | NO_CONF | NO_SLEEP
+F:EVIL | IM_POIS | HURT_LITE | RES_NETH | NO_CONF | NO_SLEEP
 S:1_IN_6 | 
 S:HEAL | CONF | DARKNESS | 
 S:S_MONSTER | S_SPIDER
@@ -3804,6 +3857,8 @@ S:BLIND | CONF | SCARE | FORGET
 D:A lesser angel wearing little more than a loincloth - its steely skin 
 D:provides all the protection it needs.
 
+# P+ added RES_NETH
+
 N:290:Mim, Betrayer of Turin
 G:h:o
 I:120:11d100:20:80:20
@@ -3816,7 +3871,7 @@ F:UNIQUE | MALE |
 F:FORCE_MAXHP | FORCE_SLEEP | 
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | 
 F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL | IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
+F:EVIL | IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | RES_NETH | 
 F:NO_CONF | NO_SLEEP
 S:1_IN_6 | 
 S:HEAL | SCARE | BO_ACID | BA_ACID
@@ -3984,6 +4039,8 @@ S:BO_ELEC
 D:A man-shaped form of living lightning, sparks and shocks crackle all over 
 D:this madly capering figure, as it leaps and whirls around and about you.
 
+# P+ added RES_NETH
+
 N:301:Spirit naga
 G:n:w
 I:110:30d15:20:75:120
@@ -3996,7 +4053,7 @@ F:FEMALE |
 F:FORCE_SLEEP | 
 F:ONLY_ITEM | DROP_90 | DROP_2D2 | 
 F:INVISIBLE | OPEN_DOOR | BASH_DOOR | 
-F:EVIL | NO_CONF | NO_SLEEP
+F:EVIL | NO_CONF | NO_SLEEP | RES_NETH
 S:1_IN_4 | 
 S:HEAL | BLIND | MIND_BLAST | DARKNESS
 D:A wraithly snake-like form with the torso of a beautiful woman, it is the 
@@ -4018,6 +4075,8 @@ S:1_IN_5 |
 S:SCARE | BA_POIS
 D:A strange reptilian hybrid with five heads dripping venom.
 
+# P+ added RES_NETH
+
 N:303:Black knight
 G:p:s
 I:120:30d10:20:70:10
@@ -4028,7 +4087,7 @@ B:HIT:HURT:5d5
 F:MALE | 
 F:FORCE_SLEEP | DROP_1D2 | 
 F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL
+F:EVIL | RES_NETH
 S:1_IN_8 | 
 S:BLIND | SCARE | CAUSE_3 | DARKNESS
 D:He is a figure encased in deep black plate armour; he looks at you 
@@ -4081,6 +4140,8 @@ S:BLIND | HOLD | SCARE | MIND_BLAST | BRAIN_SMASH | FORGET
 D:A humanoid form with a gruesome head, tentacular mouth, and piercing 
 D:eyes.  Claws reach out for you and you feel a presence invade your mind.
 
+# P+ added RES_NETH
+
 N:307:Draebor, the Imp
 G:u:g
 I:120:52d10:20:50:20
@@ -4094,7 +4155,7 @@ F:ESCORT |
 F:RAND_25 | 
 F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | 
 F:SMART | INVISIBLE | BASH_DOOR | 
-F:EVIL | DEMON | IM_FIRE
+F:EVIL | DEMON | IM_FIRE | RES_NETH
 S:1_IN_5 | 
 S:BLINK | TPORT | TELE_TO | TELE_AWAY | TELE_LEVEL | BLIND | 
 S:CONF | SCARE
@@ -4278,6 +4339,8 @@ F:IM_FIRE | IM_COLD | IM_ELEC | IM_POIS |
 F:NO_CONF | NO_SLEEP | NO_FEAR
 D:It is a massive statue of purest mithril.  It looks expensive!
 
+# P+ added RES_NETH
+
 N:319:Shadow drake
 G:d:D
 I:110:20d10:25:50:30
@@ -4288,7 +4351,7 @@ B:BITE:COLD:1d6
 F:FORCE_SLEEP | RAND_25 | 
 F:ONLY_ITEM | DROP_2D2 | 
 F:TAKE_ITEM | INVISIBLE | OPEN_DOOR | BASH_DOOR | 
-F:ANIMAL | EVIL | DRAGON | IM_COLD
+F:ANIMAL | EVIL | DRAGON | IM_COLD | RES_NETH
 S:1_IN_6 | 
 S:HASTE | SLOW | CONF | SCARE | DARKNESS
 D:It is a dragon-like form wrapped in shadow.  Glowing red eyes shine out in 
@@ -4431,6 +4494,8 @@ S:1_IN_1 |
 S:BLINK | TELE_AWAY | BR_NEXU
 D:It is a very unstable, strange pulsing mound of flesh.
 
+# P+ added RES_NETH
+
 N:330:Shelob, Spider of Darkness
 G:S:D
 I:110:12d100:8:80:80
@@ -4444,7 +4509,7 @@ F:FORCE_SLEEP | FORCE_MAXHP |
 F:ESCORT | ESCORTS | 
 F:ONLY_ITEM | DROP_1D2 | DROP_2D2 | DROP_GOOD | 
 F:SMART | BASH_DOOR | 
-F:ANIMAL | EVIL | HURT_LITE | NO_CONF | NO_SLEEP
+F:ANIMAL | EVIL | HURT_LITE | RES_NETH | NO_CONF | NO_SLEEP
 S:1_IN_2 | 
 S:HEAL | BLIND | SLOW | CONF | SCARE | CAUSE_3 | CAUSE_4 | 
 S:TRAPS | 
@@ -4637,7 +4702,7 @@ S:BR_SOUN | BR_SHAR | BR_DISE | BR_CHAO
 D:A mighty dragon, the balance drake seeks to maintain the Cosmic Balance, 
 D:and despises your feeble efforts to destroy evil.
 
-# P+ removed NO_CONF
+# P+ removed NO_CONF, added RES_NETH
 
 N:342:Ethereal drake
 G:d:o
@@ -4649,7 +4714,7 @@ B:BITE:HURT:2d6
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:ONLY_ITEM | DROP_2D2 | 
 F:INVISIBLE | PASS_WALL | 
-F:EVIL | DRAGON | NO_CONF
+F:EVIL | DRAGON | NO_CONF | RES_NETH
 S:1_IN_6 | 
 S:SLOW | CONF | SCARE | 
 S:BR_LITE | BR_DARK
@@ -4808,6 +4873,8 @@ S:1_IN_6 |
 S:BO_COLD
 D:It is a towering tempest of water.
 
+# P+ added RES_NETH
+
 N:352:Invisible stalker
 G:E:y
 I:130:19d12:20:46:20
@@ -4818,7 +4885,7 @@ B:HIT:HURT:1d6
 F:RAND_50 | 
 F:EMPTY_MIND | INVISIBLE | COLD_BLOOD | 
 F:OPEN_DOOR | BASH_DOOR | POWERFUL | 
-F:EVIL | IM_ELEC | IM_POIS | 
+F:EVIL | IM_ELEC | IM_POIS | RES_NETH | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
 D:It is impossible to define its form but its violence is legendary.
 
@@ -4944,7 +5011,7 @@ S:1_IN_8 |
 S:BO_ELEC
 D:It is a towering tornado of winds.
 
-# P+ added HURT_COLD
+# P+ added HURT_COLD, RES_NETH
 
 N:361:Hell hound
 G:C:r
@@ -4956,7 +5023,7 @@ B:BITE:FIRE:3d12
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:RAND_25 | 
 F:BASH_DOOR | MOVE_BODY | 
-F:ANIMAL | EVIL | IM_FIRE | HURT_COLD
+F:ANIMAL | EVIL | IM_FIRE | HURT_COLD | RES_NETH
 S:1_IN_5 | 
 S:BR_FIRE
 D:It is a giant dog that glows with heat.  Flames pour from its nostrils.
@@ -5409,7 +5476,7 @@ F:NO_CONF | NO_SLEEP | NO_FEAR
 D:A larger cousin of the lurker, this creature traps unsuspecting victims 
 D:and paralyzes them, to be slowly digested later.
 
-# P+ added HURT_COLD
+# P+ added HURT_COLD, RES_NETH
 
 N:389:Bodak
 G:u:r
@@ -5420,7 +5487,8 @@ B:HIT:FIRE:4d6
 B:GAZE:EXP_20
 F:FORCE_SLEEP | 
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
-F:EVIL | DEMON | IM_FIRE | IM_POIS | HURT_COLD | NO_CONF | NO_SLEEP
+F:EVIL | DEMON | IM_FIRE | IM_POIS | RES_NETH | 
+F:HURT_COLD | NO_CONF | NO_SLEEP
 S:1_IN_4 | 
 S:BO_FIRE | BA_FIRE | 
 S:S_DEMON
@@ -5484,6 +5552,8 @@ S:S_MONSTERS
 D:A mighty warrior from the east, Lorgan hates everything that he cannot 
 D:control.
 
+# P+ added RES_NETH
+
 N:393:Demonologist
 G:p:R
 I:120:28d10:20:50:10
@@ -5495,7 +5565,7 @@ F:MALE |
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:ONLY_ITEM | DROP_1D2 | 
 F:SMART | OPEN_DOOR | BASH_DOOR | 
-F:EVIL
+F:EVIL | RES_NETH
 S:1_IN_2 | 
 S:TPORT | HOLD | 
 S:S_DEMON
@@ -5741,6 +5811,8 @@ D:It is a humanoid form dressed in armour of an ancient form.  From beneath
 D:its helmet, eyes glow a baleful red and seem to pierce you like lances of 
 D:fire.
 
+# P+ added RES_NETH
+
 N:408:Castamir the Usurper
 G:p:R
 I:120:88d10:20:90:40
@@ -5753,7 +5825,7 @@ F:UNIQUE | MALE |
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | 
 F:SMART | OPEN_DOOR | TAKE_ITEM | BASH_DOOR | 
-F:EVIL
+F:EVIL | RES_NETH
 S:1_IN_2 | 
 S:HEAL | TRAPS | BO_FIRE | BO_COLD | BO_ELEC | BO_ICEE
 D:A Black Numenorean who usurped the throne of Gondor, he is treacherous and 
@@ -5819,6 +5891,8 @@ S:BLIND | CONF | SCARE |
 S:BR_CONF
 D:A huge draconic form enveloped in a cascade of colour.
 
+# P+ added RES_NETH
+
 N:413:Beholder
 G:e:U
 I:120:16d100:30:80:10
@@ -5829,7 +5903,7 @@ B:GAZE:LOSE_INT:2d6
 B:GAZE:UN_POWER:2d6
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:BASH_DOOR | 
-F:EVIL | IM_POIS | NO_CONF | NO_SLEEP
+F:EVIL | IM_POIS | RES_NETH | NO_CONF | NO_SLEEP
 S:1_IN_2 | 
 S:BLIND | SLOW | CONF | SCARE | DRAIN_MANA | MIND_BLAST | FORGET | 
 S:DARKNESS | BO_ACID | BO_FIRE | BO_COLD
@@ -5908,6 +5982,8 @@ S:BLIND | HOLD | SCARE | CAUSE_3 | BO_NETH
 D:A figure that seems made of void, its strangely human shape is cloaked in 
 D:shadow.  It reaches out at you.
 
+# P+ added RES_NETH
+
 N:418:Erinyes
 G:U:u
 I:110:24d10:20:50:80
@@ -5919,7 +5995,7 @@ F:FORCE_SLEEP | FORCE_MAXHP |
 F:ONLY_ITEM | DROP_60 | 
 F:OPEN_DOOR | BASH_DOOR | POWERFUL | 
 F:EVIL | DEMON | 
-F:IM_FIRE | IM_POIS | NO_CONF | NO_SLEEP
+F:IM_FIRE | IM_POIS | RES_NETH | NO_CONF | NO_SLEEP
 S:1_IN_7 | 
 S:BLIND | CONF | BO_FIRE
 D:It is a lesser demon of female form; however, she takes little time to 
@@ -5956,6 +6032,8 @@ F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR |
 F:EVIL | TROLL | IM_POIS | NO_CONF | NO_SLEEP
 D:A massive troll, larger and stronger than many men together.
 
+# P+ added GIANT
+
 N:421:Ettin
 G:T:b
 I:110:15d100:20:100:30
@@ -5966,7 +6044,7 @@ B:HIT:HURT:3d6
 F:FORCE_MAXHP | 
 F:ONLY_ITEM | DROP_1D2 | 
 F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL | TROLL | IM_POIS | NO_CONF | NO_SLEEP
+F:EVIL | TROLL | GIANT | IM_POIS | NO_CONF | NO_SLEEP
 D:A massive troll of huge strength.  Ettins are stupid but violent.
 
 # P+ added BA_ICEE, RES_WATE
@@ -6063,6 +6141,8 @@ S:SCARE | BA_POIS |
 S:BR_POIS
 D:A strange reptilian hybrid with seven heads dripping venom.
 
+# P+ added RES_NETH (redundant)
+
 N:427:Night mare
 G:q:D
 I:120:15d100:30:85:0
@@ -6074,7 +6154,7 @@ B:HIT:CONFUSE:6d6
 F:FORCE_MAXHP | 
 F:ONLY_GOLD | DROP_2D2 | 
 F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | 
-F:EVIL | UNDEAD | IM_COLD | IM_POIS | NO_CONF | NO_SLEEP
+F:EVIL | UNDEAD | RES_NETH | IM_COLD | IM_POIS | NO_CONF | NO_SLEEP
 D:A fearsome skeletal horse with glowing eyes, that watch you with little 
 D:more than a hatred of all that lives.
 
@@ -6125,13 +6205,15 @@ F:ANIMAL | HURT_LITE | NO_FEAR | RES_DISE
 D:It is a strange mass of squirming worms.  Magical energy crackles 
 D:around its disgusting form.
 
+# P+ added RES_NETH
+
 N:431:Rotting quylthulg
 G:Q:u
 I:120:16d10:20:1:0
 W:40:1:0:1500
 F:FORCE_SLEEP | FORCE_MAXHP | NEVER_MOVE | NEVER_BLOW | 
 F:INVISIBLE | EMPTY_MIND | 
-F:ANIMAL | EVIL | 
+F:ANIMAL | EVIL | RES_NETH | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_2 | 
 S:BLINK | TPORT | 
@@ -6207,6 +6289,8 @@ S:S_DRAGON
 D:This elusive female spellcaster has a special affinity for dragons, whom 
 D:she rarely fights without.
 
+# P+ added RES_NETH
+
 N:436:Archpriest
 G:p:G
 I:120:52d10:20:60:10
@@ -6218,7 +6302,7 @@ F:MALE |
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:ONLY_ITEM | DROP_90 | DROP_2D2 | 
 F:SMART | OPEN_DOOR | BASH_DOOR | 
-F:EVIL | NO_CONF | NO_SLEEP
+F:EVIL | NO_CONF | NO_SLEEP | RES_NETH
 S:1_IN_2 | 
 S:HEAL | BLIND | HOLD | CONF | CAUSE_3 | 
 S:S_MONSTER | S_UNDEAD
@@ -6398,6 +6482,8 @@ D:A huge crystalline dragon.  Its claws could cut you to shreds and its
 D:teeth are razor sharp.  Strange colours ripple through it as it moves in 
 D:the light.
 
+# P+ added RES_NETH
+
 N:447:Vrock
 G:U:s
 I:110:40d10:20:50:80
@@ -6409,10 +6495,12 @@ F:FORCE_SLEEP | FORCE_MAXHP |
 F:FRIENDS | 
 F:ONLY_ITEM | DROP_60 | 
 F:OPEN_DOOR | BASH_DOOR | POWERFUL | 
-F:EVIL | DEMON | IM_FIRE | NO_CONF | NO_SLEEP
+F:EVIL | DEMON | IM_FIRE | RES_NETH | NO_CONF | NO_SLEEP
 S:1_IN_8 | 
 S:BLIND | CONF
 D:It is a demon with a long neck and raking claws.
+
+# P+ added RES_NETH
 
 N:448:Death quasit
 G:u:D
@@ -6424,7 +6512,7 @@ B:CLAW:HURT:3d3
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:ONLY_ITEM | DROP_90 | DROP_2D2 | DROP_4D2 | 
 F:SMART | INVISIBLE | PASS_WALL | 
-F:EVIL | DEMON | IM_FIRE | IM_POIS | 
+F:EVIL | DEMON | IM_FIRE | RES_NETH | IM_POIS | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_10 | 
 S:BLIND | CONF | SCARE | CAUSE_3 | FORGET | 
@@ -6452,6 +6540,8 @@ S:S_MONSTER
 D:A sorceress in life, Adunaphel quickly fell under Sauron's sway and the 
 D:power of the rings.
 
+# P+ added RES_NETH
+
 N:450:Dark elven sorceror
 G:h:v
 I:130:80d10:20:70:10
@@ -6463,7 +6553,7 @@ F:MALE |
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:ONLY_ITEM | DROP_90 | DROP_4D2 | 
 F:SMART | OPEN_DOOR | BASH_DOOR | 
-F:EVIL | HURT_LITE | NO_CONF | NO_SLEEP
+F:EVIL | HURT_LITE | RES_NETH | NO_CONF | NO_SLEEP
 S:1_IN_2 | 
 S:HEAL | BLINK | TELE_TO | BLIND | CONF | CAUSE_3 | DARKNESS | 
 S:BO_ACID | BA_FIRE | BA_COLD | 
@@ -6490,6 +6580,8 @@ S:S_UNDEAD
 D:A skeletal form wrapped in robes.  Powerful magic crackles along its bony 
 D:fingers.
 
+# P+ added RES_NETH
+
 N:452:Hezrou
 G:U:v
 I:110:52d10:20:40:80
@@ -6499,7 +6591,7 @@ B:HIT:HURT:3d4
 F:FORCE_SLEEP | FORCE_MAXHP | FRIENDS | 
 F:ONLY_ITEM | DROP_2D2 | 
 F:OPEN_DOOR | BASH_DOOR | POWERFUL | 
-F:EVIL | DEMON | IM_FIRE | NO_CONF | NO_SLEEP
+F:EVIL | DEMON | IM_FIRE | RES_NETH | NO_CONF | NO_SLEEP
 S:1_IN_9 | 
 S:BO_FIRE | 
 S:S_DEMON
@@ -6526,6 +6618,8 @@ D:A mighty sorcerer King, Akhorahil was blind in life.  With powerful
 D:enchantments, he created jewelled eyes that enabled him to see better than 
 D:any ordinary man ever could.
 
+# P+ added RES_NETH
+
 N:454:Gorlim, Betrayer of Barahir
 G:p:s
 I:120:16d100:20:120:40
@@ -6538,7 +6632,7 @@ F:UNIQUE | MALE |
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | 
 F:SMART | OPEN_DOOR | BASH_DOOR | 
-F:IM_ACID | IM_COLD | IM_ELEC | IM_POIS | NO_CONF | NO_SLEEP
+F:IM_ACID | IM_COLD | IM_ELEC | IM_POIS | RES_NETH | NO_CONF | NO_SLEEP
 S:1_IN_2 | 
 S:CAUSE_3 | BO_WATE | BO_MANA
 D:This once-mighty warrior was so dominated by Morgoth's power that he 
@@ -6563,6 +6657,8 @@ D:Never a more heavenly being have you seen.  The very holiness of its
 D:presence makes you deeply respect it.  Few creatures can match the powers 
 D:of a Solar; fewer still live to tell the tale after attacking one.
 
+# P+ added RES_NETH
+
 N:456:Glabrezu
 G:U:o
 I:110:60d10:20:40:80
@@ -6572,7 +6668,7 @@ B:HIT:HURT:3d4
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:ONLY_ITEM | DROP_90 | 
 F:OPEN_DOOR | BASH_DOOR | POWERFUL | 
-F:EVIL | DEMON | IM_FIRE | NO_CONF | NO_SLEEP
+F:EVIL | DEMON | IM_FIRE | RES_NETH | NO_CONF | NO_SLEEP
 S:1_IN_9 | 
 S:BO_FIRE | 
 S:S_DEMON
@@ -6599,7 +6695,7 @@ D:Ren was an insane eastern king who believed himself to be the son of a
 D:volcano god.  At an early age his sanity was destroyed by a plague that 
 D:wiped out his family, and he never recovered.
 
-# P+ added HURT_COLD
+# P+ added HURT_COLD, RES_NETH
 
 N:458:Nalfeshnee
 G:U:r
@@ -6612,7 +6708,7 @@ F:FORCE_SLEEP | FORCE_MAXHP |
 F:ONLY_ITEM | DROP_1D2 | 
 F:OPEN_DOOR | BASH_DOOR | POWERFUL | 
 F:EVIL | DEMON | 
-F:IM_FIRE | HURT_COLD | NO_CONF | NO_SLEEP
+F:IM_FIRE | RES_NETH | HURT_COLD | NO_CONF | NO_SLEEP
 S:1_IN_9 | 
 S:BLIND | CONF | 
 S:BR_FIRE | 
@@ -6731,6 +6827,8 @@ S:S_UNDEAD
 D:This Ringwraith was a weak-minded sorcerer-king who fell easily under 
 D:Sauron's power.
 
+# P+ added RES_NETH
+
 N:465:Marilith
 G:U:y
 I:120:12d100:20:75:80
@@ -6743,7 +6841,7 @@ F:FEMALE |
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:ONLY_ITEM | DROP_1D2 | 
 F:OPEN_DOOR | BASH_DOOR | POWERFUL | 
-F:EVIL | DEMON | IM_FIRE | NO_CONF | NO_SLEEP
+F:EVIL | DEMON | IM_FIRE | RES_NETH | NO_CONF | NO_SLEEP
 S:1_IN_9 | 
 S:BLIND | CAUSE_2 | 
 S:S_DEMON
@@ -6769,7 +6867,7 @@ S:BO_ACID | BA_ACID
 D:A towering stone elemental stands before you.  The walls and ceiling are 
 D:reduced to rubble as Quaker advances.
 
-# P+ added HURT_COLD
+# P+ added HURT_COLD, RES_NETH
 
 N:467:Lesser Balrog
 G:U:R
@@ -6782,7 +6880,7 @@ B:HIT:HURT:5d5
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:ONLY_ITEM | DROP_1D2 | DROP_2D2 | 
 F:OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY | 
-F:EVIL | DEMON | IM_FIRE | HURT_COLD | NO_CONF | NO_SLEEP
+F:EVIL | DEMON | IM_FIRE | RES_NETH | HURT_COLD | NO_CONF | NO_SLEEP
 S:1_IN_4 | 
 S:BLIND | CONF | 
 S:BR_FIRE | 
@@ -6828,6 +6926,8 @@ S:SCARE | BO_FIRE | BO_PLAS | BA_FIRE |
 S:BR_FIRE
 D:A strange reptilian hybrid with eleven smouldering heads.
 
+# P+ added RES_NETH
+
 N:470:Patriarch
 G:p:G
 I:120:80d10:20:60:10
@@ -6839,7 +6939,7 @@ F:MALE |
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:ONLY_ITEM | DROP_90 | DROP_4D2 | 
 F:SMART | OPEN_DOOR | BASH_DOOR | 
-F:EVIL | NO_CONF | NO_SLEEP
+F:EVIL | NO_CONF | NO_SLEEP | RES_NETH
 S:1_IN_2 | 
 S:HEAL | BLIND | HOLD | CAUSE_4 | BRAIN_SMASH | 
 S:S_MONSTERS | S_UNDEAD
@@ -7012,7 +7112,7 @@ S:BR_FIRE | BR_NETH
 D:A mixture of dragon and basilisk, the dracolisk stares at you with deep 
 D:piercing eyes, its evil breath burning the ground where it stands.
 
-# P+ added RES_DISE
+# P+ added RES_DISE, RES_NETH
 
 N:479:Death mold
 G:m:D
@@ -7024,7 +7124,7 @@ B:HIT:UN_BONUS:7d7
 B:HIT:EXP_80:5d5
 F:FORCE_SLEEP | NEVER_MOVE | 
 F:EVIL | IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
-F:RES_DISE | NO_CONF | NO_SLEEP | NO_FEAR
+F:RES_DISE | RES_NETH | NO_CONF | NO_SLEEP | NO_FEAR
 D:It is the epitome of all that is evil, in a mold.  Its lifeless form draws 
 D:power from sucking the souls of those that approach it, a nimbus of pure 
 D:evil surrounds it.  Luckily for you, it can't move.
@@ -7095,7 +7195,7 @@ D:A lord of all that is natural, skilled in the mystic ways.  He is a master
 D:of martial arts and is at one with nature, able to summon help from the 
 D:wild if need be.
 
-# P+ added HURT_COLD
+# P+ added HURT_COLD, RES_NETH
 
 N:483:Muar, the Balrog
 G:U:o
@@ -7109,7 +7209,7 @@ F:FORCE_SLEEP | FORCE_MAXHP |
 F:ESCORT | ESCORTS | 
 F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_4D2 | DROP_GOOD | 
 F:OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY | 
-F:EVIL | DEMON | IM_FIRE | HURT_COLD | 
+F:EVIL | DEMON | IM_FIRE | RES_NETH | HURT_COLD | 
 F:NO_CONF | NO_SLEEP
 S:1_IN_4 | 
 S:CONF | SCARE | 
@@ -7727,7 +7827,7 @@ D:will crush you like the pitiful insignificant being he sees you to be.
 D:Your very soul will be taken into judgement by his supreme authority as he 
 D:cleanses the world of evil.
 
-# P+ added DROP_GREAT, BA_ICEE
+# P+ added DROP_GREAT, BA_ICEE, RES_NETH
 
 N:514:Saruman of Many Colours
 G:p:v
@@ -7742,7 +7842,7 @@ F:FORCE_SLEEP | FORCE_MAXHP |
 F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_4D2 | DROP_GOOD | DROP_GREAT | 
 F:SMART | OPEN_DOOR | BASH_DOOR | 
 F:EVIL | IM_FIRE | IM_COLD | 
-F:IM_ELEC | IM_POIS | NO_CONF | NO_SLEEP
+F:IM_ELEC | IM_POIS | RES_NETH | NO_CONF | NO_SLEEP
 S:1_IN_2 | 
 S:HEAL | HASTE | TPORT | TELE_AWAY | BLIND | CONF | SCARE | 
 S:CAUSE_4 | MIND_BLAST | FORGET | TRAPS | 
@@ -7927,6 +8027,8 @@ D:and destruction.  Tselakus is a being of sneering contempt, laughing at
 D:your pitiful efforts to defy him.  Mighty claws rend reality as he 
 D:annihilates all in his path to your soul!
 
+# P+ added RES_NETH
+
 N:523:Tiamat, Celestial Dragon of Evil
 G:D:v
 I:130:100d100:20:125:70
@@ -7942,7 +8044,8 @@ F:ESCORT |
 F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_4D2 | DROP_GOOD | DROP_GREAT | 
 F:OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY | 
 F:EVIL | DRAGON | 
-F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | NO_CONF | NO_SLEEP
+F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
+F:RES_NETH | NO_CONF | NO_SLEEP
 S:1_IN_2 | 
 S:BLIND | CONF | SCARE | 
 S:BR_ACID | BR_FIRE | BR_COLD | BR_ELEC | BR_POIS | 
@@ -8004,13 +8107,15 @@ S:S_HI_DRAGON
 D:A massive mound of scaled flesh, throbbing and pulsating with multi-hued 
 D:light.
 
+# P+ added RES_NETH
+
 N:527:Greater rotting quylthulg
 G:Q:U
 I:120:15d100:20:1:0
 W:71:3:0:10500
 F:FORCE_SLEEP | FORCE_MAXHP | NEVER_MOVE | NEVER_BLOW | 
 F:INVISIBLE | EMPTY_MIND | 
-F:ANIMAL | EVIL | 
+F:ANIMAL | EVIL | RES_NETH | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_2 | 
 S:BLINK | TELE_TO | 
@@ -8043,6 +8148,8 @@ S:S_MONSTERS | S_UNDEAD
 D:He is a highly cunning, extremely magical being, spoken of in legends.  
 D:This ancient shadow of death wilts any living thing it passes.
 
+# P+ added RES_NETH
+
 N:529:Omarax the Eye Tyrant
 G:e:v
 I:130:65d100:30:80:10
@@ -8054,7 +8161,7 @@ B:GAZE:LOSE_INT:2d6
 F:UNIQUE | MALE | 
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:SMART | BASH_DOOR | 
-F:EVIL | IM_POIS | 
+F:EVIL | IM_POIS | RES_NETH | 
 F:NO_CONF | NO_SLEEP
 S:1_IN_2 | 
 S:BLIND | SLOW | CONF | SCARE | DRAIN_MANA | MIND_BLAST | FORGET | 
@@ -8062,6 +8169,8 @@ S:DARKNESS | BA_DARK | BO_ACID | BO_FIRE | BO_COLD
 D:A disembodied eye, floating in the air.  His gaze seems to shred your 
 D:soul and his spells crush your will.  He is ancient, his history steeped 
 D:in forgotten evils, his atrocities numerous and sickening.
+
+# P+ added RES_NETH
 
 N:530:Ungoliant, the Unlight
 G:S:D
@@ -8075,7 +8184,8 @@ F:UNIQUE | FEMALE |
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | 
 F:SMART | BASH_DOOR | 
-F:ANIMAL | EVIL | IM_POIS | HURT_LITE | NO_CONF | NO_SLEEP
+F:ANIMAL | EVIL | IM_POIS | RES_NETH | HURT_LITE | 
+F:NO_CONF | NO_SLEEP
 S:1_IN_3 | 
 S:HEAL | BLIND | SLOW | CONF | SCARE | DARKNESS | BA_DARK | 
 S:BR_POIS | BR_DARK | 
@@ -8112,7 +8222,7 @@ D:A shifting, swirling form.  It seems to be all colours and sizes and
 D:shapes, though the dominant form is that of a huge dog.  You feel very 
 D:uncertain all of a sudden.
 
-# P+ added BA_ICEE
+# P+ added BA_ICEE, RES_NETH
 
 N:532:The Mouth of Sauron
 G:p:v
@@ -8127,7 +8237,7 @@ F:FORCE_SLEEP | FORCE_MAXHP | SMART |
 F:ONLY_ITEM | DROP_1D2 | DROP_4D2 | DROP_GOOD | 
 F:INVISIBLE | OPEN_DOOR | BASH_DOOR | 
 F:EVIL | IM_FIRE | IM_COLD | 
-F:IM_ELEC | NO_CONF | NO_SLEEP
+F:IM_ELEC | RES_NETH | NO_CONF | NO_SLEEP
 S:1_IN_2 | 
 S:TELE_TO | HOLD | CAUSE_3 | TRAPS | 
 S:BO_PLAS | BA_DARK | BA_MANA | BA_ICEE | BA_FIRE | BA_WATE | BA_NETH
@@ -8153,6 +8263,8 @@ D:A huge seething mass of flesh with a rudimentary intelligence, the Emperor
 D:Quylthulg changes colours in front of your eyes.  Pulsating first one 
 D:colour then the next, it knows only it must bring help to protect itself.
 
+# P+ added RES_NETH
+
 N:534:Qlzqqlzuup, the Lord of Flesh
 G:Q:o
 I:130:50d100:30:1:0
@@ -8161,7 +8273,7 @@ F:UNIQUE |
 F:FORCE_SLEEP | FORCE_MAXHP | NEVER_MOVE | NEVER_BLOW | 
 F:ONLY_ITEM | DROP_4D2 | 
 F:INVISIBLE | 
-F:ANIMAL | EVIL | 
+F:ANIMAL | EVIL | RES_NETH | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_1 | 
 S:S_MONSTER | S_MONSTERS | S_UNDEAD | S_DEMON | S_DRAGON | S_ANGEL | 
@@ -8194,6 +8306,8 @@ D:spells are lethal and his combat blows crushingly hard.  He moves at
 D:speed, and commands legions of evil to do his bidding.  It is said that he 
 D:is fated never to die by the hand of mortal man.
 
+# P+ added RES_NETH
+
 N:536:Pazuzu, Lord of Air
 G:B:w
 I:140:55d100:40:125:10
@@ -8207,15 +8321,15 @@ F:FORCE_SLEEP | FORCE_MAXHP |
 F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | 
 F:INVISIBLE | OPEN_DOOR | BASH_DOOR | 
 F:EVIL | DEMON | IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | 
-F:IM_POIS | NO_CONF | NO_SLEEP
+F:IM_POIS | RES_NETH | NO_CONF | NO_SLEEP
 S:1_IN_3 | 
 S:MIND_BLAST | BO_ELEC | BO_MANA | BA_ELEC
 D:A winged humanoid from the Planes of Hell, Pazuzu grins inhumanely at you 
 D:as he decides your fate.
 
-# P+ added HURT_COLD
+# P+ added HURT_COLD, RES_NETH, changed name
 
-N:537:Hell hound
+N:537:Greater hell hound
 G:C:r
 I:120:48d10:25:80:30
 W:83:4:0:600
@@ -8225,7 +8339,7 @@ B:BITE:FIRE:3d12
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:RAND_25 | FRIENDS | 
 F:BASH_DOOR | MOVE_BODY | 
-F:ANIMAL | EVIL | IM_FIRE | HURT_COLD
+F:ANIMAL | EVIL | IM_FIRE | RES_NETH | HURT_COLD
 S:1_IN_5 | 
 S:BR_FIRE
 D:It is a giant dog that glows with heat.  Flames pour from its nostrils.
@@ -8275,7 +8389,7 @@ S:BR_FIRE | BR_COLD | BR_DISE
 D:The Tarrasque is a massive reptile of legend, rumoured to be unkillable 
 D:and immune to magic.  Fear its anger, for its devastation is unmatched!
 
-# P+ added HURT_COLD
+# P+ added HURT_COLD, RES_NETH
 
 N:540:Lungorthin, the Balrog of White Fire
 G:U:w
@@ -8290,7 +8404,7 @@ F:FORCE_SLEEP | FORCE_MAXHP |
 F:ESCORT | ESCORTS | 
 F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_4D2 | DROP_GOOD | 
 F:OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY | 
-F:EVIL | DEMON | IM_FIRE | HURT_COLD | 
+F:EVIL | DEMON | IM_FIRE | RES_NETH | HURT_COLD | 
 F:NO_CONF | NO_SLEEP
 S:1_IN_4 | 
 S:BLIND | CONF | SCARE | 
@@ -8299,6 +8413,8 @@ S:S_DEMON | S_HI_UNDEAD
 D:A massive form cloaked in flame.  Lungorthin stares balefully at you with 
 D:eyes that smoulder red.  The dungeon floor where he stands is scorched by 
 D:the heat of his body.
+
+# P+ added RES_NETH
 
 N:541:Draugluin, Sire of All Werewolves
 G:C:u
@@ -8314,7 +8430,7 @@ F:ESCORT | ESCORTS |
 F:RAND_25 | 
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | MOVE_BODY | 
-F:ANIMAL | EVIL | IM_POIS
+F:ANIMAL | EVIL | IM_POIS | RES_NETH
 S:1_IN_3 | 
 S:SCARE | 
 S:S_MONSTERS | S_HOUND
@@ -8345,7 +8461,7 @@ S:S_MONSTERS | S_DEMON | S_HI_UNDEAD
 D:A stench of corruption and decay surrounds this sorcerer, who has clearly 
 D:risen from the grave to continue his foul plots and schemes.
 
-# P+ added HURT_COLD
+# P+ added HURT_COLD, RES_NETH
 
 N:543:Carcharoth, the Jaws of Thirst
 G:C:D
@@ -8359,7 +8475,8 @@ F:UNIQUE | MALE |
 F:FORCE_SLEEP | FORCE_MAXHP | RAND_25 | 
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
 F:SMART | TAKE_ITEM | OPEN_DOOR | BASH_DOOR | MOVE_BODY | 
-F:ANIMAL | EVIL | IM_FIRE | IM_POIS | HURT_COLD | NO_CONF | NO_SLEEP
+F:ANIMAL | EVIL | IM_FIRE | IM_POIS | RES_NETH | HURT_COLD | 
+F:NO_CONF | NO_SLEEP
 S:1_IN_4 | 
 S:HEAL | SCARE | BRAIN_SMASH | 
 S:BR_FIRE | 
@@ -8390,7 +8507,7 @@ S:S_HOUND
 D:A two-headed hell hound of fearsome aspect.  Flame burns merrily from its 
 D:hide as it snarls and roars its defiance.
 
-# P+ added HURT_COLD
+# P+ added HURT_COLD, RES_NETH
 
 N:545:Gothmog, the High Captain of Balrogs
 G:U:R
@@ -8406,7 +8523,7 @@ F:ESCORT | ESCORTS |
 F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_4D2 | DROP_GOOD | DROP_GREAT | 
 F:OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY | 
 F:EVIL | DEMON | 
-F:IM_FIRE | IM_ELEC | HURT_COLD | NO_CONF | NO_SLEEP
+F:IM_FIRE | IM_ELEC | RES_NETH | HURT_COLD | NO_CONF | NO_SLEEP
 S:1_IN_3 | 
 S:BLIND | CONF | SCARE | 
 S:BR_FIRE | 
@@ -8419,7 +8536,7 @@ D:saved his master from Ungoliant's rage.
 
 # Sauron is the basic "Quest" (thus the QUESTOR flag).
 # You must kill him to gain access to Morgoth's level.
-# P+ changed name, added BA_ICEE
+# P+ changed name, added BA_ICEE, RES_NETH
 
 N:546:Sauron, Lord of the Rings
 G:p:v
@@ -8433,7 +8550,7 @@ F:UNIQUE | QUESTOR | MALE |
 F:FORCE_SLEEP | FORCE_MAXHP | FORCE_DEPTH | 
 F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_4D2 | DROP_GOOD | DROP_GREAT | 
 F:SMART | OPEN_DOOR | BASH_DOOR | MOVE_BODY | REGENERATE | 
-F:EVIL | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
+F:EVIL | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | RES_NETH | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_2 | 
 S:TPORT | TELE_LEVEL | BLIND | CONF | SCARE | CAUSE_4 | 
@@ -8448,6 +8565,7 @@ D:destroy your soul.  He has many servants, and rarely fights without them.
 
 # Morgoth is the final "Quest" (thus the QUESTOR flag).
 # You must kill him to complete the final quest, and win the game.
+# P+ added RES_NETH
 
 N:547:Morgoth, Lord of Darkness
 G:P:D
@@ -8464,7 +8582,7 @@ F:DROP_GOOD | DROP_GREAT | DROP_CHOSEN |
 F:SMART | KILL_WALL | MOVE_BODY | 
 F:REGENERATE | 
 F:EVIL | IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
-F:NO_CONF | NO_SLEEP | NO_FEAR
+F:RES_NETH | NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_3 | 
 S:BRAIN_SMASH | 
 S:BA_MANA | BO_MANA | BA_NETH | 
@@ -8535,6 +8653,7 @@ S:DRAIN_MANA | BLIND | CONF | SCARE
 D:And you thought her offspring were icky!
 
 # From Kangband (which got it from Angband/64)
+# P+ added RES_NETH
 
 N:551:Old Sorcerer
 G:p:v
@@ -8547,7 +8666,7 @@ F:MALE |
 F:FORCE_SLEEP | FORCE_MAXHP |
 F:ONLY_ITEM | DROP_4D2 | DROP_GOOD | DROP_USEFUL |
 F:OPEN_DOOR | BASH_DOOR | TAKE_ITEM |
-F:EVIL | NO_CONF | NO_SLEEP
+F:EVIL | NO_CONF | NO_SLEEP | RES_NETH
 S:1_IN_2 |
 S:BLINK | TELE_TO | BLIND | CONF | CAUSE_3 | CAUSE_4 | TRAPS |
 S:BO_ACID | BA_FIRE | BA_COLD | BA_POIS | 
@@ -8557,13 +8676,14 @@ D:hands are ablur with spell casting. You stagger at the mighty sound of his
 D:spells as they echo hollowly through the dungeon.
 
 # From DSCreamer
+# P+ changed KILL_WALL into PASS_WALL
 
 N:552:Wood wasp
 G:I:y
 I:110:1d5:100:10:0
 W:5:5:0:1
 B:STING:HURT:1d2
-F:ANIMAL | MULTIPLY | KILL_WALL
+F:ANIMAL | MULTIPLY | PASS_WALL
 D:The dungeon is infested with them!
 
 

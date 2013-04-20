@@ -2379,6 +2379,8 @@ P:0:1d1:0:0:0
 
 ##### Chests #####
 
+# P+ changed levels of chests
+
 N:338:& Small wooden chest~
 G:~:s
 I:7:1:0
@@ -2389,29 +2391,29 @@ P:0:2d3:0:0:0
 N:339:& Large wooden chest~
 G:~:s
 I:7:5:0
-W:15:0:500:60
-A:15/1
+W:35:0:500:60
+A:35/1
 P:0:2d5:0:0:0
 
 N:340:& Small iron chest~
 G:~:s
 I:7:2:0
-W:25:0:300:100
-A:25/1
+W:15:0:300:100
+A:15/1
 P:0:2d4:0:0:0
 
 N:341:& Large iron chest~
 G:~:s
 I:7:6:0
-W:35:0:1000:150
-A:35/1
+W:45:0:1000:150
+A:45/1
 P:0:2d6:0:0:0
 
 N:342:& Small steel chest~
 G:~:s
 I:7:3:0
-W:45:0:500:200
-A:45/1
+W:25:0:500:200
+A:25/1
 P:0:2d4:0:0:0
 
 N:343:& Large steel chest~

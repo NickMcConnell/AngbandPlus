@@ -519,33 +519,7 @@ static void process_world(void)
 		/*** Update the Stores ***/
 
 		/* Update the stores once a day (while in dungeon) */
-		if (!(turn % (10L * STORE_TURNS)))
-		{
-			int n;
-
-			/* Message */
-			if (cheat_xtra) msg_print("Updating Shops...");
-
-			/* Maintain each shop (except home) */
-			for (n = 0; n < MAX_STORES - 1; n++)
-			{
-				/* Maintain */
-				store_maint(n);
-			}
-
-			/* Sometimes, shuffle the shop-keepers */
-			if (rand_int(STORE_SHUFFLE) == 0)
-			{
-				/* Message */
-				if (cheat_xtra) msg_print("Shuffling a Shopkeeper...");
-
-				/* Shuffle a random shop (except home) */
-				store_shuffle(rand_int(MAX_STORES - 1));
-			}
-
-			/* Message */
-			if (cheat_xtra) msg_print("Done.");
-		}
+		if (!(turn % (10L * STORE_TURNS))) store_update();
 	}
 
 

@@ -179,7 +179,7 @@ static cptr r_info_flags2[] =
 {
 	"STUPID",
 	"SMART",
-	"XXX1X2",
+	"CAN_SPEAK",
 	"XXX2X2",
 	"INVISIBLE",
 	"COLD_BLOOD",

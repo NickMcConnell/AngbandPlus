@@ -2953,9 +2953,10 @@ void do_cmd_knowledge(void)
 		prt("(1) Display known artifacts", 4, 5);
 		prt("(2) Display known uniques", 5, 5);
 		prt("(3) Display known objects", 6, 5);
+		prt("(4) Display self knowledge", 7, 5);
 
 		/* Prompt */
-		prt("Command: ", 8, 0);
+		prt("Command: ", 9, 0);
 
 		/* Prompt */
 		i = inkey();
@@ -2982,6 +2983,13 @@ void do_cmd_knowledge(void)
 		{
 			/* Spawn */
 			do_cmd_knowledge_objects();
+		}
+
+		/* Self */
+		else if (i == '4')
+		{
+			/* Spawn */
+			do_cmd_knowledge_self();
 		}
 
 		/* Unknown option */

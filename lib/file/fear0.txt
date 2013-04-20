@@ -1,0 +1,10 @@
+9
+%^s says: "Run as fast as you can, you can't catch me!"
+%^s says: "Do you know how long I can keep this up?"
+%^s sobs: "Why did you have to do this?"
+You hear %^s screaming for help!
+%^s screams: "Help! They're after me!"
+%^s says: "Stop following me!"
+%^s says: "Stop it, will you? Maybe we can work out a deal..."
+%^s mutters: "I thought I felt something special about this level..."
+%^s says: "Someday, you'll be the one who's running away..."

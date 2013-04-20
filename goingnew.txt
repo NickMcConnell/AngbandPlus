@@ -1,6 +1,44 @@
 (This file is included in the distribution.)
 
---- Version 2.8.3v3, merge with GW-Angband ---
+--- Version 2.8.3v4 ---
+
+* Added monster speech, which was stolen from both Kamband and Zangband;
+  to add speech to a monster, give the monster the CAN_SPEAK flag, and
+  be sure the third number in the "W:" line matches the numbers in
+  "bravnnn.txt" and "fearnnn.txt". Speech kinds 0 and 52 were stolen
+  from Zangband, while kinds 4 and 137 were from the built-in
+  "moan"/"insult" arrays.
+* Turned off auto-pickup, and made it so that if you stay still and
+  pick up an object, you do not use up a turn (but searching doesn't
+  activate, and you should use '_' to enter a store without taking
+  a turn)
+* Under the knowledge ('~') command, there is a new self knowledge
+  sub-command, but it is not the same as the magical effect...
+* Added circular rooms from Ying-Yangband by Dag Arneson (does every
+  variant have this now? ;-)
+* Raised the quality of treasure in the "cross-shaped, inner
+  vault" room type (Remco Gerlich)
+* Changed the names of certain "novice xxx" monsters and other
+  monsters which have the same name as each other
+* Applied Keldon Jones' "center panel on player" patch, adding two
+  options in the Goingband Options screen
+* Added dungeon level/max to the character display
+* Removed the "EVIL implies RES_NETH" stuff
+* (Aidan Ryder) Chests drop good items; changed the levels of chests
+* The roguelike set now uses the ']' key for the 'repeat last command'
+  command, and the multiple artifact and monster inventory bugs were
+  fixed due to the Recall Patch 1.1
+* (Tim Baker) Fixed bug in earthquake routine where monsters would
+  end up in walls
+* Alter Reality updates stores and generates a new town layout
+
+Goingband is now among the Angband variants listed at Bablos's page:
+  http://homepages.enterprise.net/bablos/angband/
+
+Darin Takemoto has ported Goingband 2.8.3v3 for the Macintosh (68K):
+  ftp://export.andrew.cmu.edu/angband/Incoming/goingband-2833.cpt.bin
+
+--- Version 2.8.3v3, merge with GW-Angband (Sunjul 26, 1998) ---
 
 * Added lots of things from GW-Angband, including three
   inappropriately named classes (GW-Mage, GW-Ranger, GW-Rogue),
@@ -35,7 +73,7 @@
 
 The Angband Variant ('v'/'v')
 This creature breeds explosively and can be found at town level.  It
-can summon the RNG, and is magical, castint spells to take over your
+can summon the RNG, and is magical, casting spells to take over your
 hard drive or cause you to become addicted to the game; 1 time in 4.
 It can hit to lose sleep, hit to make you late to work, hit to lose
 sleep and hit to drain intelligence and thereby cause stupid character
@@ -45,7 +83,7 @@ Humbreto has ported Goingband 2.8.3v2 for DOS:
   http://www.geocities.com/TimesSquare/Arcade/7832/Goingbnd.zip
 
 Darin Takemoto has ported Goingband 2.8.3v2 for the Macintosh (68K):
-  ftp://export.andrew.cmu.edu/angband/Incoming/goingband-2832.cpt.bin
+  ftp://export.andrew.cmu.edu/angband/Variant/goingband-2832.cpt.bin
 
 --- Version 2.8.3v2, bug fixes (Satjul 11, 1998) ---
 
@@ -141,6 +179,27 @@ leap at you to crash the game.
 * Artifacts *can* break (but not as easily as regular objects),
   to allow for the future Seeker Arrow of Bard
 
+DONE:
+. Bug: Recall Patch 1.0 generates multiple artifacts with preserve mode
+  (because of this, "remember_recall" is now off by default, but this is
+  just a hack until a new version of the Recall Patch comes out) (fixed
+  in 2.8.3v4)
+. Bug: monster_place (or whatever it's called) doesn't take into account
+  hold_o_idx, so monster inventories still don't get restored XXX XXX XXX
+  (fixed in 2.8.3v4)
+, Orc/yeek uniques should insult you without taking up precious
+  (no, not Smeagol's) melee attacks... (see below for similar idea)
+. Monster elemental susceptibilities! (done for fire/cold in 2.8.3v3)
+. (like Zangband) Have a specialized form of talking uniques, where you
+  can give messages to each unique monster. Make a generic set of speech
+  lines for non-specific uniques. Differentiate bravado and fear. (done
+  in 2.8.3v4)
+. (Aidan Ryder) Monsters should be less resistant; most EVIL monsters
+  should not resist nether (done in 2.8.3v4), more susceptibilities
+  (done in 2.8.3v3)
+. (several) Should give not just info on "cuts", "stuns", "paralyzation"
+  but also "bless", "heroism", "berserker", etc. (done in 2.8.3v4)
+
 TO DO:
 * Sleep brand for ammo (!!!)
 * Items which actually use IGNORE_DISEN
@@ -148,30 +207,19 @@ TO DO:
   an amount proportional to the number of RF5/RF6 spells the monster has.
   Maybe also include charge-draining attacks?
 * Change the maximum number of monster blows to 8
-. Make a new monster spell: BA_ICEE (ice storm) (done as of 2.8.3v2)
 * Also BR_PARA, but GF_OLD_SLEEP should be able to work on
   player before I do this
-. When you have feather fall and resist nexus, should you be
-  immune to the effects of gravity? (implemented somewhat in 2.8.3v2)
 * Add new town buildings (bookstore, castle, arena, gambling house,
   adventurer's guild, etc.)
 * Be able to customize town, spells, races, classes,
   (!!!) artifact activations
 * Add "auto_stair" option that will make stairs go up/down
   approximately 1d6 levels (somewhat like Cthangband)
-. Add Kamband's race characters (done as of 2.8.3v2)
-* Bug: Recall Patch 1.0 generates multiple artifacts with preserve mode
-  (because of this, "remember_recall" is now off by default, but this is
-  just a hack until a new version of the Recall Patch comes out)
-* Bug: monster_place (or whatever it's called) doesn't take into account
-  hold_o_idx, so monster inventories still don't get restored XXX XXX XXX
 * Add highscore-summarising features, like "angscore"
 * Add "video recorder" mechanism
 * Add lots of things from GW-Angband (2.8.3v3), Kangband, Kamband
   (both have annoying bugs now), Cthangband, and Zangband
 * Add a spell to command a monster to return to where you are
-, Orc/yeek uniques should insult you without taking up precious
-  (no, not Smeagol's) melee attacks... (see below for similar idea)
 * Have chests give items based on the level on which they were created
 * More detailed monster descriptions (weisiger is working on this)
 * Black Market: be able to order items, either
@@ -183,10 +231,6 @@ TO DO:
 * A new "spell", Energy Drain, will remove 1 hit die of a monster. When
   done, will turn the monster into an undead (skeleton/zombie/mummy) under
   your control. This does not work on EMPTY_MIND monsters.
-. Monster elemental susceptibilities! (done for fire/cold in 2.8.3v3)
-* (like Zangband) Have a specialized form of talking uniques, where you
-  can give messages to each unique monster. Make a generic set of speech
-  lines for non-specific uniques. Differentiate bravado and fear.
 * "spell_colors" modifiable by font pref files
 
 -- P+rfnoff

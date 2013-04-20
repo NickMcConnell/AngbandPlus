@@ -374,6 +374,7 @@ extern void exit_game_panic(void);
 extern void signals_ignore_tstp(void);
 extern void signals_handle_tstp(void);
 extern void signals_init(void);
+extern errr get_random_line(char *fname, char *output);
 
 /* generate.c */
 extern void generate_cave(void);
@@ -538,6 +539,7 @@ extern bool remove_curse(void);
 extern bool remove_all_curse(void);
 extern bool restore_level(void);
 extern void self_knowledge(void);
+extern void do_cmd_knowledge_self(void);
 extern bool lose_all_info(void);
 extern bool detect_traps(void);
 extern bool detect_doors(void);
@@ -602,6 +604,7 @@ extern void do_cmd_store(void);
 extern void store_shuffle(int which);
 extern void store_maint(int which);
 extern void store_init(int which);
+extern void store_update(void);
 
 /* util.c */
 extern errr path_parse(char *buf, int max, cptr file);

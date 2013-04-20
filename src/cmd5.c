@@ -2270,6 +2270,10 @@ void do_cmd_pray(void)
 			{
 				msg_print("The world changes!");
 
+				/* P+: update stores, redo town */
+				store_update();
+				seed_town = rand_int(0x10000000);
+
 				/* Leaving */
 				p_ptr->leaving = TRUE;
 

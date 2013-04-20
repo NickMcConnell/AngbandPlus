@@ -170,7 +170,7 @@
 /*
  * Maximal number of room types
  */
-#define ROOM_MAX	9
+#define ROOM_MAX	10
 
 
 
@@ -258,7 +258,8 @@ static room_data room[ROOM_MAX] =
 	{ 0, 0, -1, 1, 5 },		/* 5 = Monster nest (33x11) */
 	{ 0, 0, -1, 1, 5 },		/* 6 = Monster pit (33x11) */
 	{ 0, 1, -1, 1, 5 },		/* 7 = Lesser vault (33x22) */
-	{ -1, 2, -2, 3, 10 }	/* 8 = Greater vault (66x44) */
+	{ -1, 2, -2, 3, 10 },	/* 8 = Greater vault (66x44) */
+	{ 0, 1, 0, 1, 1 }		/* 9 = Circular (22x22) (DAG) */
 };
 
 
@@ -1012,7 +1013,7 @@ static void generate_hole(int y1, int x1, int y2, int x2, int feat)
 /*
  * Room building routines.
  *
- * Six basic room types:
+ * Nine basic room types:
  *   1 -- normal
  *   2 -- overlapping
  *   3 -- cross shaped
@@ -1021,6 +1022,7 @@ static void generate_hole(int y1, int x1, int y2, int x2, int feat)
  *   6 -- monster pits
  *   7 -- simple vaults
  *   8 -- greater vaults
+ *   9 -- circular rooms (DAG)
  */
 
 
@@ -1232,7 +1234,8 @@ static void build_type3(int y0, int x0)
 			generate_hole(y1b, x1a, y2b, x2a, FEAT_SECRET);
 
 			/* Place a treasure in the vault */
-			place_object(y0, x0, FALSE, FALSE);
+			/* P+ improved quality */
+			place_object(y0, x0, TRUE, FALSE);
 
 			/* Let's guard the treasure well */
 			vault_monsters(y0, x0, rand_int(2) + 3);
@@ -2499,6 +2502,51 @@ static void build_type8(int y0, int x0)
 
 
 /*
+ * DAG:
+ * Build an vertical oval room.
+ * For every grid in the possible square, check the distance.
+ * If it's less than or == than the radius, make it a room square.
+ * If its less, make it a normal grid. If it's == make it an outer
+ * wall.
+ */
+static void build_type9(int y0, int x0)
+{
+	int rad, x, y;
+
+	int light = FALSE;
+
+	/* Occasional light */
+	if (randint(p_ptr->depth) <= 5) light = TRUE;
+
+
+	rad = rand_int(10);
+
+	for (x = x0 - rad; x <= x0 + rad; x++)
+	{
+		for (y = y0 - rad; y <= y0 + rad; y++)
+		{
+			if (distance(y0, x0, y, x) == rad)
+			{
+				cave_info[y][x] |= (CAVE_ROOM);
+				if (light) cave_info[y][x] |= (CAVE_GLOW);
+
+				cave_set_feat(y, x, FEAT_WALL_OUTER);
+			}
+
+			if (distance(y0, x0, y, x) < rad)
+			{
+				cave_info[y][x] |= (CAVE_ROOM);
+				if (light) cave_info[y][x] |= (CAVE_GLOW);
+
+				cave_set_feat(y, x, FEAT_FLOOR);
+			}
+		}
+	}
+}
+
+
+
+/*
  * Constructs a tunnel between two points
  *
  * This function must be called BEFORE any streamers are created,
@@ -2893,6 +2941,7 @@ static bool room_build(int by0, int bx0, int typ)
 	switch (typ)
 	{
 		/* Build an appropriate room */
+		case 9: build_type9(y, x); break;
 		case 8: build_type8(y, x); break;
 		case 7: build_type7(y, x); break;
 		case 6: build_type6(y, x); break;
@@ -3045,8 +3094,11 @@ static void cave_gen(void)
 			/* Type 3 -- Cross room (25%) */
 			if ((k < 50) && room_build(by, bx, 3)) continue;
 
-			/* Type 2 -- Overlapping (50%) */
-			if ((k < 100) && room_build(by, bx, 2)) continue;
+			/* Type 2 -- Overlapping (25%) */
+			if ((k < 75) && room_build(by, bx, 2)) continue;
+
+			/* Type 9 -- Circular (25%) (DAG) */
+			if ((k < 100) && room_build(by, bx, 9)) continue;
 		}
 
 		/* Attempt a trivial room */

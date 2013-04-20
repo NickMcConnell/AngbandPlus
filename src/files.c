@@ -1258,6 +1258,13 @@ static void display_player_xtra_info(void)
 	}
 
 
+	/* P+ hack -- dungeon level */
+	Term_putstr(col, 14, -1, TERM_WHITE, "Dun Lev");
+	sprintf(buf, "%d/%d", p_ptr->depth, p_ptr->max_depth);
+	Term_putstr(col+8, 14, -1, TERM_L_GREEN,
+	            format("%10s", buf));
+
+
 	/* Gold */
 	Term_putstr(col, 15, -1, TERM_WHITE, "Gold");
 	Term_putstr(col+8, 15, -1, TERM_L_GREEN,
@@ -4390,3 +4397,45 @@ void signals_init(void)
 #endif	/* HANDLE_SIGNALS */
 
 
+
+/* Stolen from Kamband, modified again */
+errr get_random_line(char *fname, char *output)
+{
+	FILE    *fp;
+	char    buf[1024];
+	int     line, num_lines, counter;
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_FILE, fname);
+
+	/* Open the file */
+	fp = my_fopen(buf, "r");
+
+	/* Failed */
+	if (!fp) return (-1);
+
+	/* Parse the file */
+	if (my_fgets(fp, buf, 80) != 0)
+	{
+		my_fclose(fp);
+		return (1);
+	}
+
+	/* Select a random line */
+	num_lines = atoi(buf);
+	line = rand_int(num_lines);
+
+	for (counter = 0; counter <= line; counter++)
+	{
+		if (my_fgets(fp, buf, 80) != 0)
+		{
+			if (counter > 0) break;
+			my_fclose(fp);
+			return (1);
+		}
+	}
+
+	strcpy(output, buf);
+	my_fclose(fp);
+	return (0);
+}

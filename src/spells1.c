@@ -1944,6 +1944,8 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
  *
  * We assume "Nether" is an evil, necromantic force, so it doesn't hurt undead,
  * and hurts evil less.  If can breath nether, then it resists it as well.
+ * P+ -- this has now changed. Undead are immune, but other monsters must have
+ * the RES_NETH flag to resist.
  *
  * Damage reductions use the following formulas:
  *   Note that "dam = dam * 6 / (randint(6) + 6);"
@@ -2174,7 +2176,8 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 		}
 
 		/* Nether -- see above */
-		/* P+ changed: uses RES_NETH (except if undead or evil) */
+		/* P+ changed: uses RES_NETH (except if undead) */
+		/* P+ changed again: don't use the EVIL flag */
 		case GF_NETHER:
 		{
 			if (seen) obvious = TRUE;
@@ -2189,12 +2192,6 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 				note = note_resists;
 				dam *= 3; dam /= (randint(6)+6);
 				if (seen) r_ptr->r_flags3 |= (RF3_RES_NETH);
-			}
-			else if (r_ptr->flags3 & (RF3_EVIL))
-			{
-				dam /= 2;
-				note = " resists somewhat.";
-				if (seen) r_ptr->r_flags3 |= (RF3_EVIL);
 			}
 			break;
 		}

@@ -924,9 +924,38 @@ void do_cmd_locate(void)
 	char out_val[160];
 
 
-	/* Start at current panel */
-	y2 = y1 = p_ptr->wy;
-	x2 = x1 = p_ptr->wx;
+	if (center_locate)
+	{
+		/* Immediately center on player */
+		y2 = p_ptr->py - SCREEN_HGT / 2;
+		x2 = p_ptr->px - SCREEN_WID / 2;
+
+		/* Verify panel */
+		if (y2 < 0) y2 = 0;
+		if (x2 < 0) x2 = 0;
+		if (y2 > DUNGEON_HGT - SCREEN_HGT) y2 = DUNGEON_HGT - SCREEN_HGT;
+		if (x2 > DUNGEON_WID - SCREEN_WID) x2 = DUNGEON_WID - SCREEN_WID;
+
+		/* Show new panel */
+		p_ptr->wy = y1 = y2;
+		p_ptr->wx = x1 = x2;
+
+		/* Redraw map */
+		p_ptr->redraw |= (PR_MAP);
+
+		/* Window stuff */
+		p_ptr->window |= (PW_OVERHEAD);
+
+		/* Handle stuff */
+		handle_stuff();
+	}
+
+	else
+	{
+		/* Start at current panel */
+		y2 = y1 = p_ptr->wy;
+		x2 = x1 = p_ptr->wx;
+	}
 
 	/* Show panels until done */
 	while (1)
@@ -946,7 +975,8 @@ void do_cmd_locate(void)
 		/* Prepare to ask which way to look */
 		sprintf(out_val,
 		        "Map sector [%d,%d], which is%s your sector.  Direction?",
-		        (y2 / PANEL_HGT), (x2 / PANEL_WID), tmp_val);
+		        ((y2 + PANEL_HGT - 1) / PANEL_HGT),
+		        ((x2 + PANEL_WID - 1) / PANEL_WID), tmp_val);
 
 		/* Assume no direction */
 		dir = 0;
@@ -958,6 +988,16 @@ void do_cmd_locate(void)
 
 			/* Get a command (or Cancel) */
 			if (!get_com(out_val, &command)) break;
+
+#if 0
+			/* Let player look on another panel */
+			/* Has many problems */
+			if (command == 'l')
+			{
+				do_cmd_look();
+				break;
+			}
+#endif
 
 			/* Extract direction */
 			dir = target_dir(command);

@@ -101,7 +101,7 @@ bool set_confused(int v)
 	{
 		if (p_ptr->confused)
 		{
-			msg_print("You feel less confused now.");
+			msg_print("You regain your senses.");
 			notice = TRUE;
 		}
 	}
@@ -347,7 +347,7 @@ bool set_fast(int v)
 	{
 		if (!p_ptr->fast)
 		{
-			msg_print("You feel yourself moving faster!");
+			msg_print("You start to move faster!");
 			notice = TRUE;
 		}
 	}
@@ -357,7 +357,7 @@ bool set_fast(int v)
 	{
 		if (p_ptr->fast)
 		{
-			msg_print("You feel yourself slow down.");
+			msg_print("You slow down.");
 			notice = TRUE;
 		}
 	}
@@ -397,7 +397,7 @@ bool set_slow(int v)
 	{
 		if (!p_ptr->slow)
 		{
-			msg_print("You feel yourself moving slower!");
+			msg_print("You start to move slower!");
 			notice = TRUE;
 		}
 	}
@@ -407,7 +407,7 @@ bool set_slow(int v)
 	{
 		if (p_ptr->slow)
 		{
-			msg_print("You feel yourself speed up.");
+			msg_print("You speed up.");
 			notice = TRUE;
 		}
 	}
@@ -608,7 +608,7 @@ bool set_shero(int v)
 	{
 		if (p_ptr->shero)
 		{
-			msg_print("You feel less Berserk.");
+			msg_print("You feel less berserk.");
 			notice = TRUE;
 		}
 	}
@@ -2286,53 +2286,102 @@ void verify_panel(void)
 	bool scroll = FALSE;
 
 
-	/* Initial row */
-	i = p_ptr->wy;
-
-	/* Scroll screen when 2 grids from top/bottom edge */
-	if ((py < p_ptr->wy + 2) || (py >= p_ptr->wy+SCREEN_HGT - 2))
+	/* Center on player */
+	if (center_player)
 	{
-		i = ((py - PANEL_HGT / 2) / PANEL_HGT) * PANEL_HGT;
+		/* Center vertically */
+		i = py - SCREEN_HGT / 2;
+
+		/* Verify */
 		if (i < 0) i = 0;
-		if (i > DUNGEON_HGT - SCREEN_HGT) i = DUNGEON_HGT - SCREEN_HGT;
-	}
+		if (i + SCREEN_HGT > DUNGEON_HGT) i = DUNGEON_HGT - SCREEN_HGT;
 
-	/* Hack -- handle town */
-	if (!p_ptr->depth) i = SCREEN_HGT;
+		/* Hack -- handle town */
+		if (!p_ptr->depth) i = SCREEN_HGT;
 
-	/* New panel row */
-	if (p_ptr->wy != i)
-	{
-		/* Update panel */
-		p_ptr->wy = i;
+		/* New panel row */
+		if (p_ptr->wy != i)
+		{
+			/* Update panel */
+			p_ptr->wy = i;
 
-		/* Scroll */
-		scroll = TRUE;
-	}
+			/* Scroll */
+			scroll = TRUE;
+		}
 
 
-	/* Initial col */
-	i = p_ptr->wx;
+		/* Center horizontally */
+		i = px - SCREEN_WID / 2;
 
-	/* Scroll screen when 4 grids from left/right edge */
-	if ((px < p_ptr->wx + 4) || (px >= p_ptr->wx+SCREEN_WID - 4))
-	{
-		i = ((px - PANEL_WID / 2) / PANEL_WID) * PANEL_WID;
+		/* Verify */
 		if (i < 0) i = 0;
-		if (i > DUNGEON_WID - SCREEN_WID) i = DUNGEON_WID - SCREEN_WID;
+		if (i + SCREEN_WID > DUNGEON_WID) i = DUNGEON_WID - SCREEN_WID;
+
+		/* Hack -- handle town */
+		if (!p_ptr->depth) i = SCREEN_WID;
+
+		/* New panel column */
+		if (p_ptr->wx != i)
+		{
+			/* Update panel */
+			p_ptr->wx = i;
+
+			/* Scroll */
+			scroll = TRUE;
+		}
 	}
 
-	/* Hack -- handle town */
-	if (!p_ptr->depth) i = SCREEN_WID;
-
-	/* New panel col */
-	if (p_ptr->wx != i)
+	/* Don't center on player */
+	else
 	{
-		/* Update panel */
-		p_ptr->wx = i;
+		/* Initial row */
+		i = p_ptr->wy;
 
-		/* Scroll */
-		scroll = TRUE;
+		/* Scroll screen when 2 grids from top/bottom edge */
+		if ((py < p_ptr->wy + 2) || (py >= p_ptr->wy+SCREEN_HGT - 2))
+		{
+			i = ((py - PANEL_HGT / 2) / PANEL_HGT) * PANEL_HGT;
+			if (i < 0) i = 0;
+			if (i > DUNGEON_HGT - SCREEN_HGT) i = DUNGEON_HGT - SCREEN_HGT;
+		}
+
+		/* Hack -- handle town */
+		if (!p_ptr->depth) i = SCREEN_HGT;
+
+		/* New panel row */
+		if (p_ptr->wy != i)
+		{
+			/* Update panel */
+			p_ptr->wy = i;
+
+			/* Scroll */
+			scroll = TRUE;
+		}
+
+
+		/* Initial col */
+		i = p_ptr->wx;
+
+		/* Scroll screen when 4 grids from left/right edge */
+		if ((px < p_ptr->wx + 4) || (px >= p_ptr->wx+SCREEN_WID - 4))
+		{
+			i = ((px - PANEL_WID / 2) / PANEL_WID) * PANEL_WID;
+			if (i < 0) i = 0;
+			if (i > DUNGEON_WID - SCREEN_WID) i = DUNGEON_WID - SCREEN_WID;
+		}
+
+		/* Hack -- handle town */
+		if (!p_ptr->depth) i = SCREEN_WID;
+
+		/* New panel col */
+		if (p_ptr->wx != i)
+		{
+			/* Update panel */
+			p_ptr->wx = i;
+
+			/* Scroll */
+			scroll = TRUE;
+		}
 	}
 
 
@@ -2340,7 +2389,7 @@ void verify_panel(void)
 	if (scroll)
 	{
 		/* Optional disturb on "panel change" */
-		if (disturb_panel) disturb(0, 0);
+		if (!center_player && disturb_panel) disturb(0, 0);
 
 		/* Redraw map */
 		p_ptr->redraw |= (PR_MAP);

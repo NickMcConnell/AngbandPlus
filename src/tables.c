@@ -3159,9 +3159,9 @@ cptr option_text[OPT_MAX] =
 	"extend_dump",				/* OPT_extend_dump */
 	"race_chars",				/* OPT_race_chars */
 	"class_colors",				/* OPT_class_colors */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
-	NULL,						/* xxx */
+	"center_locate",			/* OPT_center_locate */
+	"center_player",			/* OPT_center_player */
+	"speak_monsters",				/* OPT_speak_monsters */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
 	NULL,						/* xxx */
@@ -3315,9 +3315,9 @@ cptr option_desc[OPT_MAX] =
 	"Show resistances in character dumps",		/* OPT_extend_dump */
 	"Use special characters for races",		/* OPT_race_chars */
 	"Use special colors for classes",		/* OPT_class_colors */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
-	NULL,										/* xxx */
+	"Locate player in the center",				/* OPT_center_locate */
+	"Keep view centered on player (slow)",		/* OPT_center_player */
+	"Allow certain monsters to speak",			/* OPT_speak_monsters */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
@@ -3389,7 +3389,7 @@ bool option_norm[OPT_MAX] =
 	TRUE,		/* OPT_floor_query_flag */
 	FALSE,		/* OPT_carry_query_flag */
 	FALSE,		/* OPT_use_old_target */
-	TRUE,		/* OPT_always_pickup */
+	FALSE,		/* OPT_always_pickup */
 	FALSE,		/* OPT_always_repeat */
 	FALSE,		/* OPT_depth_in_feet */
 	FALSE,		/* OPT_stack_force_notes */
@@ -3471,9 +3471,9 @@ bool option_norm[OPT_MAX] =
 	TRUE,		/* OPT_extend_dump */
 	FALSE,		/* OPT_race_chars */
 	TRUE,		/* OPT_class_colors */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
-	FALSE,		/* xxx */
+	TRUE,		/* OPT_center_locate */
+	FALSE,		/* OPT_center_player */
+	TRUE,		/* OPT_speak_monsters */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
 	FALSE,		/* xxx */
@@ -3648,9 +3648,9 @@ byte option_page[5][16] =
 #else
 		255,
 #endif /* MONSTER_AI */
-		255,
-		255,
-		255,
+		OPT_center_locate,
+		OPT_center_player,
+		OPT_speak_monsters,
 		255,
 		255,
 		255,

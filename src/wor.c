@@ -786,6 +786,22 @@ static errr rd_dungeon(void)
 		}
 	}
 
+	/*
+	 * Attach objects carried by a monster to the monster again.
+	 * We look for the each object in o_list[] that is carried by
+	 * a monster. If the monster isn't carrying any object yet,
+	 * then assign it the object. The object with the highest
+	 * o_idx is assumed to be at the head of the list of objects
+	 * carried by a monster.
+	 */
+	for (i = o_max; i > 0; i--)
+	{
+		object_type *o_ptr = &o_list[i];
+		if (!o_ptr->held_m_idx) continue;
+		if (m_list[o_ptr->held_m_idx].hold_o_idx) continue;
+		m_list[o_ptr->held_m_idx].hold_o_idx = i;
+	}
+
 	/* Success */
 	return (0);
 }
@@ -922,6 +938,46 @@ bool wor_load(void)
 	/* The level was restored */
 	if (e == 0)
 	{
+		/*
+		 * If an unknown artifact was saved in the recall buffer,
+		 * and the same artifact was later created as the character
+		 * adventured elsewhere, we will delete the artifact.
+		 * If the artifact was not created (and identified) elsewhere,
+		 * then we must mark the artifact as existing, otherwise it
+		 * may get created multiple times.
+		 */
+		if (p_ptr->preserve)
+		{
+			int i;
+
+			/* Process the objects (backwards) */
+			for (i = o_max - 1; i > 0; i--)
+			{
+				/* Access object */
+				object_type *o_ptr = &o_list[i];
+
+				/* Skip dead objects */
+				if (!o_ptr->k_idx) continue;
+
+				/* It's an unknown artifact */
+				if (artifact_p(o_ptr) && !object_known_p(o_ptr))
+				{
+					/* The artifact was created elsewhere */
+					if (a_info[o_ptr->name1].cur_num)
+					{
+						delete_object_idx(i);
+					}
+
+					/* The artifact was not created */
+					else
+					{
+						/* XXX Mega-Hack -- Preserve the artifact */
+						a_info[o_ptr->name1].cur_num = 1;
+					}
+				}
+			}
+		}
+
 		/*
 		 * Time has passed on this level. Regenerate monsters and recharge
 		 * treasure. We should also handle other stuff ala process_monster()

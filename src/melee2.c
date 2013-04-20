@@ -54,6 +54,9 @@
 
 
 
+#define SPEAK_CHANCE	8	/* 1-in-X chance that a monster speaks */
+
+
 /*
  * Internal probablility routine
  */
@@ -3380,6 +3383,30 @@ static void process_monster(int m_idx)
 				return;
 			}
 		}
+	}
+
+
+	if (speak_monsters && (rand_int(SPEAK_CHANCE) == 0))
+	{
+		if (player_has_los_bold(oy, ox) &&
+		    (r_ptr->flags2 & (RF2_CAN_SPEAK)))
+		{
+			char monname[80];
+			char buf[32];
+			char speech[80];
+
+			/* Acquire the monster name/poss */
+			if (m_ptr->ml) monster_desc(monname, m_ptr, 0x00);
+			else strcpy(monname, "It");
+
+			if (m_ptr->monfear)
+				sprintf(buf, "fear%d.txt", r_ptr->extra);
+			else
+				sprintf(buf, "brav%d.txt", r_ptr->extra);
+
+			if ((get_random_line(buf, speech) == 0) &&
+			    (*speech != '\0')) msg_format(speech, monname);
+                }
 	}
 
 

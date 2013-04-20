@@ -2901,6 +2901,11 @@ static bool leave_store = FALSE;
  */
 static void store_process_command(void)
 {
+	if (rogue_like_commands && p_ptr->command_cmd == 'l')
+	{
+		p_ptr->command_cmd = 'x';  /* hack! */
+	}
+
 #ifdef ALLOW_REPEAT /* TNB */
 
 	/* Handle repeating the last command */
@@ -3604,6 +3609,39 @@ void store_maint(int which)
 
 	/* Hack -- Restore the rating */
 	rating = old_rating;
+}
+
+
+/*
+ * Update the stores
+ * P+ moved this from dungeon.c
+ */
+void store_update(void)
+{
+	int n;
+
+	/* Message */
+	if (cheat_xtra) msg_print("Updating Shops...");
+
+	/* Maintain each shop (except home) */
+	for (n = 0; n < MAX_STORES - 1; n++)
+	{
+		/* Maintain */
+		store_maint(n);
+	}
+
+	/* Sometimes, shuffle the shop-keepers */
+	if (rand_int(STORE_SHUFFLE) == 0)
+	{
+		/* Message */
+		if (cheat_xtra) msg_print("Shuffling a Shopkeeper...");
+
+		/* Shuffle a random shop (except home) */
+		store_shuffle(rand_int(MAX_STORES - 1));
+	}
+
+	/* Message */
+	if (cheat_xtra) msg_print("Done.");
 }
 
 

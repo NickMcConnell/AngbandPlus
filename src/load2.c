@@ -2163,6 +2163,23 @@ static errr rd_dungeon_aux(s16b depth, s16b py, s16b px)
 		}
 	}
 
+	/*
+	 * P+ added this from Tim Baker's Recall Patch 1.1:
+	 * Attach objects carried by a monster to the monster again.
+	 * We look for the each object in o_list[] that is carried by
+	 * a monster. If the monster isn't carrying any object yet,
+	 * then assign it the object. The object with the highest
+	 * o_idx is assumed to be at the head of the list of objects
+	 * carried by a monster.
+	 */
+	for (i = o_max; i > 0; i--)
+	{
+		object_type *o_ptr = &o_list[i];
+		if (!o_ptr->held_m_idx) continue;
+		if (m_list[o_ptr->held_m_idx].hold_o_idx) continue;
+		m_list[o_ptr->held_m_idx].hold_o_idx = i;
+	}
+
 
 
 	/* The dungeon is ready */

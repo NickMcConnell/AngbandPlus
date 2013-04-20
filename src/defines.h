@@ -49,7 +49,7 @@
 #define VERSION_MAJOR	2
 #define VERSION_MINOR	8
 #define VERSION_PATCH	3
-#define VERSION_EXTRA	3
+#define VERSION_EXTRA	4
 
 
 /*
@@ -2034,7 +2034,7 @@
  */
 #define RF2_STUPID			0x00000001	/* Monster is stupid */
 #define RF2_SMART			0x00000002	/* Monster is smart */
-#define RF2_XXX1			0x00000004	/* (?) */
+#define RF2_CAN_SPEAK		0x00000004	/* Monster can speak */
 #define RF2_XXX2			0x00000008	/* (?) */
 #define RF2_INVISIBLE		0x00000010	/* Monster avoids vision */
 #define RF2_COLD_BLOOD		0x00000020	/* Monster avoids infra */
@@ -2364,6 +2364,9 @@
 #define OPT_extend_dump				64
 #define OPT_race_chars				65
 #define OPT_class_colors		66
+#define OPT_center_locate		67
+#define OPT_center_player		68
+#define OPT_speak_monsters			69
 #define OPT_MAX						128
 
 
@@ -2457,6 +2460,9 @@
 #define extend_dump				op_ptr->opt[OPT_extend_dump]
 #define race_chars				op_ptr->opt[OPT_race_chars]
 #define class_colors				op_ptr->opt[OPT_class_colors]
+#define center_locate			op_ptr->opt[OPT_center_locate]
+#define center_player			op_ptr->opt[OPT_center_player]
+#define speak_monsters			op_ptr->opt[OPT_speak_monsters]
 
 
 

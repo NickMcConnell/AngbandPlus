@@ -210,6 +210,14 @@ C:1:^C
 A:w0
 C:1:X
 
+# Repeat last command (Easy Patch)
+A:n
+C:1:]
+
+# Hack -- time of day (Zangband)
+A:^T
+C:1:'
+
 
 ##### System Specific Subfiles #####
 

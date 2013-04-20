@@ -1,0 +1,23 @@
+22
+%^s shouts: "Hey! You're not hurting me!"
+%^s says: "You know, this will be bad for you."
+%^s says: "Come on and fight!"
+%^s taunts: "You're just playing around with me."
+%^s laughs.
+%^s grins.
+%^s says: "Don't you know that this fight's over already?"
+%^s says: "But I can do things that you can't do."
+%^s asks: "Which kind of death do you want?"
+%^s shouts: "Die!"
+%^s says: "I consider you dead already!"
+%^s says: "I know where you will die."
+%^s cackles: "The dungeon knows no mercy."
+%^s says: "It's pointless for you to go on like this."
+%^s says: "I don't know what you're doing, but I know it won't work."
+%^s says: "Fighting is something I always look forward to."
+%^s says: "Say your prayers now, because there won't be time later."
+%^s says: "This is getting boring!"
+%^s says: "Too bad I can't turn up your difficulty level."
+%^s says: "Those who dare to fight me die, and you're no exception."
+%^s says: "And no running away, because I always find those who do."
+%^s checks the Monster AI option.
