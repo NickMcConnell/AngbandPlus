@@ -1226,7 +1226,7 @@ bool make_attack_normal(int m_idx)
 					/* Take damage */
 					take_hit(damage, ddesc);
 
-					if (p_ptr->hold_life && (rand_int(100) < 75))
+					if (p_ptr->hold_life && (rand_int(100) < 60))
 					{
 						msg_print("You keep hold of your life force!");
 
@@ -1248,6 +1248,7 @@ bool make_attack_normal(int m_idx)
 					else
 					{
 						s32b d = damroll(60, 6) + (p_ptr->exp/100) * MON_DRAIN_LIFE;
+
 						if (p_ptr->hold_life)
 						{
 							msg_print("You feel your life slipping away!");
@@ -1292,7 +1293,8 @@ bool make_attack_normal(int m_idx)
 					break;
 				}
 
-				case RBE_HALLU: /* I'm feeling mean :) - G */
+				/* I'm feeling mean :) -- Gumby */
+				case RBE_HALLU:
 				{
 					take_hit(damage, ddesc);
 

@@ -198,8 +198,7 @@ void do_poly_self(void)
 					while (new_race == p_ptr->prace);
 
 					msg_format("You turn into a%s %s!",
-					    ((new_race == RACE_ELF ||
-					    new_race == RACE_IMP)?"n":""),
+					    ((new_race == RACE_ELF)?"n":""),
 					    race_info[new_race].title);
 
 					p_ptr->prace = new_race;
@@ -327,7 +326,7 @@ void fetch(int dir, int wgt, bool require_los)
 	o_ptr->ix = px;
 
 	object_desc(o_name, o_ptr, TRUE, 0);
-	msg_format("%^s flies through the air to your feet.", o_name);
+	msg_format("%^s appears at your feet.", o_name);
 
 	note_spot(py,px);
 	p_ptr->redraw |= PR_MAP;
@@ -1837,8 +1836,14 @@ void phlogiston(void)
 bool brand_weapon(int brand_type)
 {
 	int		item;
+	int		k = 0;
+	bool		brand_exists = FALSE;
+	char		buf[80];
 	object_type	*o_ptr;
 	ego_item_type	*e_ptr;
+
+	/* Assume enchant weapon */
+	item_tester_hook = item_tester_hook_weapon;
 
 	/* Taken from bless_weapon() to allow the branding of inven items */
 	/* Get an item (from equip or inven or floor) */
@@ -1857,20 +1862,85 @@ bool brand_weapon(int brand_type)
 		o_ptr = &o_list[0 - item];
 	}
 
-	/* you can never modify artifacts */
-	/* you can never modify cursed items */
-	/* TY: You _can_ modify broken items (if you're silly enough) */
+	k = randint(2);
+
 	/*
-	 * Gum: You can only modify melee weapons.
-	 *      You cannot modify stacks.
-	 *      Using on an ego-item will add the brand, tho not any
+	 * Check to make sure the brand or ego-item type doesn't already
+	 * exist on the item - if it does, branding must fail. -- Gumby
+	 */
+	switch (brand_type)
+	{
+		case 4:
+		{
+			if ((o_ptr->name2 == EGO_TRUMP) ||
+			    ((o_ptr->art_flags1 & TR1_SLAY_EVIL) &&
+			     (o_ptr->art_flags3 & TR3_TELEPORT)))
+				brand_exists = TRUE;
+				break;
+		}
+
+		case 3:
+		{
+			if ((o_ptr->name2 == EGO_VAMPIRIC) ||
+			    (o_ptr->art_flags1 & TR1_VAMPIRIC))
+				brand_exists = TRUE;
+				break;
+		}
+
+		case 2:
+		{
+			if ((o_ptr->name2 == EGO_BRAND_POIS) ||
+			    (o_ptr->art_flags1 & TR1_BRAND_POIS))
+				brand_exists = TRUE;
+				break;
+		}
+
+		case 1:
+		{
+			if ((o_ptr->name2 == EGO_CHAOTIC) ||
+			    (o_ptr->art_flags1 & TR1_CHAOTIC))
+				brand_exists = TRUE;
+				break;
+		}
+
+		default:
+		{
+			if (k==1)
+			{
+				if ((o_ptr->name2 == EGO_BRAND_FIRE) ||
+				    (o_ptr->art_flags1 & TR1_BRAND_FIRE))
+				{
+					brand_exists = TRUE;
+				}
+			}
+			else if (k==2)
+			{
+				if ((o_ptr->name2 == EGO_BRAND_COLD) ||
+				    (o_ptr->art_flags1 & TR1_BRAND_COLD))
+				{
+					brand_exists = TRUE;
+				}
+			}
+			break;
+		}
+	}
+
+	/*
+	 * you can never modify artifacts or cursed items
+	 * TY: You _can_ modify broken items (if you're silly enough)
+	 *
+	 * Gum:	You can only modify melee weapons.
+	 *	You cannot modify stacks.
+	 *	Using on an ego-item will add the brand, tho not any
 	 *         supplementary abilities, to the weapon.
-	 *      Using this on an ego-item *WILL* make that item unsellable,
+	 *	You cannot brand an item more than once.
+	 *	Fail if the brand already exists on the item.
+	 *	Using this on an ego-item *WILL* make that item unsellable,
 	 *         just as the ego-items made from plain weapons cannot be
 	 *         sold...
 	 */
-	if ((o_ptr->k_idx) && (!artifact_p(o_ptr)) &&
-	    (!(o_ptr->art_name)) && (!cursed_p(o_ptr)) &&
+	if ((o_ptr->k_idx) && (!artifact_p(o_ptr)) && (!o_ptr->branded) &&
+	    (!o_ptr->art_name) && (!cursed_p(o_ptr)) && (!brand_exists) &&
 	    ((o_ptr->tval > TV_DIGGING) && (o_ptr->tval < TV_BOOTS)) &&
 	    (o_ptr->number == 1))
 	{
@@ -1882,37 +1952,8 @@ bool brand_weapon(int brand_type)
 
 		switch (brand_type)
 		{
-			case 5:
-				if (o_ptr->tval == TV_HAFTED)
-				{
-					act = "makes the ground rumble in fear.";
-
-					if (ego_item_p(o_ptr))
-					{
-						o_ptr->art_flags1 |= TR1_IMPACT;
-					}
-					else
-					{
-						o_ptr->name2 = EGO_EARTHQUAKES;
-						o_ptr->pval = randint(3);
-					}
-				}
-				else
-				{
-					act = "sharpens itself on the air.";
-
-					if (ego_item_p(o_ptr))
-					{
-						o_ptr->art_flags1 |= TR1_VORPAL;
-					}
-					else
-					{
-						o_ptr->name2 = EGO_SHARPNESS;
-						o_ptr->pval = randint(3);
-					}
-				}
-				break;
-			case 4:
+			case 4: /* Trump */
+			{
 				act = "seems very unstable now.";
 
 				if (ego_item_p(o_ptr))
@@ -1926,7 +1967,10 @@ bool brand_weapon(int brand_type)
 					o_ptr->pval = randint(3);
 				}
 				break;
-			case 3:
+			}
+
+			case 3: /* Vampiric */
+			{
 				act = "thirsts for blood!";
 
 				if (ego_item_p(o_ptr))
@@ -1938,7 +1982,10 @@ bool brand_weapon(int brand_type)
 					o_ptr->name2 = EGO_VAMPIRIC;
 				}
 				break;
-			case 2:
+			}
+
+			case 2: /* Poison */
+			{
 				act = "begins to drip poison.";
 				if (ego_item_p(o_ptr))
 				{
@@ -1949,7 +1996,10 @@ bool brand_weapon(int brand_type)
 					o_ptr->name2 = EGO_BRAND_POIS;
 				}
 				break;
-			case 1:
+			}
+
+			case 1: /* Chaos */
+			{
 				act = "is engulfed in raw Chaos!";
 
 				if (ego_item_p(o_ptr))
@@ -1961,8 +2011,11 @@ bool brand_weapon(int brand_type)
 					o_ptr->name2 = EGO_CHAOTIC;
 				}
 				break;
-			default:
-				if (randint(2)==1)
+			}
+
+			default: /* Fire or Frost */
+			{
+				if (k==1)
 				{
 					act = "is engulfed in flames!";
 
@@ -1989,6 +2042,7 @@ bool brand_weapon(int brand_type)
 					}
 				}
 				break;
+			}
 		}
 
 		msg_format("Your %s %s", o_name, act);
@@ -2010,8 +2064,24 @@ bool brand_weapon(int brand_type)
 		/* Randomize the "xtra" power */
 		if (o_ptr->xtra1) o_ptr->xtra2 = randint(256);
 
+		/* You can't add another brand, so mark it. -- Gumby */
+		o_ptr->branded = TRUE;
+
 		/* Don't want the player to profit at all. -- Gumby */
 		o_ptr->ident |= IDENT_BROKEN;
+
+		/* We don't want a typo to kill it, however. -- Gumby */
+		if (o_ptr->note)
+		{
+			/* Find out the old inscription then add !k to it */
+			sprintf(buf, "%s !k", quark_str(o_ptr->note));
+			o_ptr->note = quark_add(buf);
+		}
+		else
+		{
+			/* Give it an inscription if it doesn't have one */
+			o_ptr->note = quark_add("!k");
+		}
 
 		/* You made it, you know it. -- Gumby */
 		o_ptr->ident |= IDENT_MENTAL;
@@ -2020,7 +2090,15 @@ bool brand_weapon(int brand_type)
 	{
 		if (flush_failure) flush();
 
-		msg_print("The Branding failed.");
+		if (o_ptr->branded)
+		{
+			msg_print("You've already Branded this item.");
+		}
+		else
+		{
+			msg_print("The Branding failed.");
+		}
+		return FALSE;
 	}
 
 	return TRUE;
@@ -2038,17 +2116,17 @@ void call_the_(void)
 	{
 		for (i = 1; i < 10; i++)
 		{
-			if (i-5) fire_ball(GF_ROCKET, i, 175, 2);
+			if (i-5) fire_ball(GF_ROCKET, i, 250, 2);
 		}
 
 		for (i = 1; i < 10; i++)
 		{
-			if (i-5) fire_ball(GF_MANA, i, 175, 3);
+			if (i-5) fire_ball(GF_MANA, i, 250, 3);
 		}
 		
 		for (i = 1; i < 10; i++)
 		{
-			if (i-5) fire_ball(GF_NUKE, i, 175, 4);
+			if (i-5) fire_ball(GF_NUKE, i, 250, 4);
 		}
 	}
 	else
@@ -2067,10 +2145,10 @@ void call_the_(void)
 void wild_magic(int spell)
 {
 	int counter = 0;
-	int type = SUMMON_BIZARRE1 - 1 + (randint(6));
+	int type = SUMMON_MOLD - 1 + (randint(6));
 
-	if (type < SUMMON_BIZARRE1) type = SUMMON_BIZARRE1;
-	else if (type > SUMMON_BIZARRE6) type = SUMMON_BIZARRE6;
+	if (type < SUMMON_MOLD) type = SUMMON_MOLD;
+	else if (type > SUMMON_TREASURE) type = SUMMON_TREASURE;
 
 	switch(randint(spell) + randint(8) + 1)
 	{
@@ -2093,8 +2171,10 @@ void wild_magic(int spell)
 			trap_creation(); break;
 		case 21: case 22:
 			door_creation(); break;
-		case 23: case 24: case 25:
-			aggravate_monsters(1); break;
+		case 23: case 24:
+			aggravate_monsters(1, FALSE); break;
+		case 25:
+			aggravate_monsters(1, TRUE); break;
 		case 26:
 			earthquake(py, px, 5); break;
 		case 27: case 28:

@@ -466,8 +466,6 @@ static bool do_cmd_open_chest(int y, int x, s16b o_idx)
 		if (rand_int(100) < j)
 		{
 			msg_print("You have picked the lock.");
-			/* Only Rogues get XP -- Gumby */
-			if (p_ptr->pclass == CLASS_ROGUE) gain_exp(1);
 			flag = TRUE;
 		}
 
@@ -562,15 +560,6 @@ static bool do_cmd_open_aux(int y, int x, int dir)
 
 			/* Sound */
 			sound(SOUND_OPENDOOR);
-
-			/*
-			 * Only Rogues gain XP, and only for stronger doors
-			 * and doors they didn't lock themselves (which are
-			 * FEAT_DOOR_HEAD + 0x01 - see do_cmd_close()). - G
-			 */
-			if ((p_ptr->pclass == CLASS_ROGUE) &&
-			    (c_ptr->feat >= FEAT_DOOR_HEAD + 0x02))
-				gain_exp(1);
 		}
 
 		/* Failure */
@@ -730,9 +719,13 @@ static bool do_cmd_close_aux(int y, int x, int dir)
 
 		/* Close the door */
 		if (rogue_close)
-			cave_set_feat(y, x, FEAT_DOOR_HEAD + 0x01);
+		{
+			cave_set_feat(y, x, FEAT_DOOR_HEAD + 0x01 + (p_ptr->lev/10));
+		}
 		else
+		{
 			cave_set_feat(y, x, FEAT_DOOR_HEAD + 0x00);
+		}
 
 		/* Update some things */
 		p_ptr->update |= (PU_VIEW | PU_LITE | PU_MONSTERS);
@@ -1542,11 +1535,9 @@ void do_cmd_bash(void)
 void do_cmd_alter(void)
 {
 	int			y, x, dir;
-
 	cave_type	*c_ptr;
-
 	bool		more = FALSE;
-
+	monster_type	*m_ptr;
 
 	/* Allow repeated command */
 	if (command_arg)
@@ -1574,11 +1565,19 @@ void do_cmd_alter(void)
 		/* Take a turn */
 		energy_use = 100;
 		
-		/* Attack monsters */
+		/* If a monster is present, and visible, Rogues may steal
+		 * from it.  Otherwise, the player will simply attack. -LM-
+		 */
 		if (c_ptr->m_idx)
 		{
-			/* Attack */
-			py_attack(y, x);
+			if (p_ptr->pclass == CLASS_ROGUE)
+			{
+				m_ptr = &m_list[c_ptr->m_idx];
+
+				if (m_ptr->ml) py_steal(y, x);
+				else py_attack(y, x);
+			}
+			else py_attack(y, x);
 		}
 
 		/* Tunnel through walls */
@@ -1803,7 +1802,6 @@ void do_cmd_run(void)
 }
 
 
-
 /*
  * Stay still.  Search.  Enter stores.
  * Pick up treasure if "pickup" is true.
@@ -1811,7 +1809,6 @@ void do_cmd_run(void)
 void do_cmd_stay(int pickup)
 {
 	cave_type *c_ptr = &cave[py][px];
-
 
 	/* Allow repeated command */
 	if (command_arg)
@@ -1826,11 +1823,10 @@ void do_cmd_stay(int pickup)
 		command_arg = 0;
 	}
 
-
 	/* Take a turn */
 	energy_use = 100;
 
-
+#if 0
 	/* Spontaneous Searching */
 	if ((p_ptr->skill_fos >= 50) || (0 == rand_int(50 - p_ptr->skill_fos)))
 	{
@@ -1838,15 +1834,17 @@ void do_cmd_stay(int pickup)
 	}
 
 	/* Continuous Searching */
-	if (p_ptr->searching)
+	if (p_ptr->searching) search();
+#endif
+
+	/* Spontaneous & continuous searching */
+	if ((rand_int(100) <= p_ptr->skill_fos) || (p_ptr->searching))
 	{
 		search();
 	}
 
-
 	/* Handle "objects" */
 	carry(pickup);
-
 
 	/* Hack -- enter a store if we are on one */
 	if ((c_ptr->feat >= FEAT_SHOP_HEAD) &&
@@ -1859,9 +1857,6 @@ void do_cmd_stay(int pickup)
 		command_new = '_';
 	}
 }
-
-
-
 
 
 
@@ -1946,11 +1941,7 @@ static int breakage_chance(object_type *o_ptr)
 	switch (o_ptr->tval)
 	{
 		/* Always break */
-		case TV_FLASK:
-		case TV_POTION:
-		case TV_BOTTLE:
-		case TV_FOOD:
-		case TV_JUNK:
+		case TV_FLASK: case TV_POTION: case TV_FOOD:
 		{
 			return (100);
 		}
@@ -1962,18 +1953,13 @@ static int breakage_chance(object_type *o_ptr)
 			return (50);
 		}
 
-		case TV_SCROLL:
-		case TV_ARROW:
-		case TV_SKELETON:
+		case TV_SCROLL: case TV_ARROW:
 		{
 			return (50);
 		}
 
 		/* Sometimes break */
-		case TV_WAND:
-		case TV_SHOT:
-		case TV_BOLT:
-		case TV_SPIKE:
+		case TV_WAND: case TV_SHOT: case TV_BOLT: case TV_SPIKE:
 		{
 			return (25);
 		}

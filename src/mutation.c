@@ -1,13 +1,17 @@
 /* File: mutation.c */
 
-/* Purpose: Mutation-related code (includes racial activations */
+/* Purpose: Mutation/Racial Activation Code */
 
 /*
  * Functions included here:
  *
  * gain_random_mutation(); lose_mutation(); dump_mutations();
  * do_cmd_knowledge_mutations(); racial_aux(); cmd_racial_power_aux();
- * do_cmd_racial_power();
+ * do_cmd_racial_power(); process_mutations(); calc_mutations();
+ *
+ * Note that setting flags for the character display & dump due to
+ * mutations is still in files.c, and the effects of the melee attack
+ * mutations (Claws, Beak, etc.), are still in cmd1.c. -- Gumby
  */
 
 /*
@@ -22,7 +26,7 @@
 
 bool gain_random_mutation(int choose_mut)
 {
-	int attempts_left = 20;
+	int attempts_left = 50;
 	cptr muta_desc = "";
 	bool muta_chosen = FALSE;
 	int muta_which = 0;
@@ -212,7 +216,7 @@ bool gain_random_mutation(int choose_mut)
 		case 80: case 81:
                 	muta_class = &(p_ptr->muta3);
                 	muta_which = MUT3_IRON_SKIN;
-                	muta_desc = "Your skin turns to steel!";
+                	muta_desc = "Your skin turns to iron!";
                 	break;
 		case 82: case 83:
                 	muta_class = &(p_ptr->muta3);
@@ -347,7 +351,7 @@ bool gain_random_mutation(int choose_mut)
 		case 125:
 			muta_class = &(p_ptr->muta2);
 			muta_which = MUT2_NAUSEA;
-			muta_desc = "Your stomach starts to roil nauseously.";
+			muta_desc = "Your stomach starts to roil.";
 			break;
 		case 126: case 127:
 			muta_class = &(p_ptr->muta2);
@@ -469,12 +473,12 @@ bool gain_random_mutation(int choose_mut)
 			muta_which = MUT1_MISSILE;
 			muta_desc = "Your hands throb with energy.";
 			break;
-		case 172:
+		case 172: case 173: case 174:
 			muta_class = &(p_ptr->muta1);
 			muta_which = MUT1_SHARD_BOLT;
 			muta_desc = "A spiked lump rises from your arm.";
 			break;
-		case 173: case 174: case 175:
+		case 175:
 			muta_class = &(p_ptr->muta1);
 			muta_desc = "Your hands grow knobby protrusions.";
 			if(rand_int(2)) muta_which = MUT1_SHARD_BLAST;
@@ -502,7 +506,7 @@ bool gain_random_mutation(int choose_mut)
                 	break;
 		case 181:
 			muta_class = &(p_ptr->muta1);
-			muta_desc = "You can focus along a line of gravity.";
+			muta_desc = "You can focus a line of gravity.";
 			muta_which = MUT1_GRAV_BEAM;
 			break;
 		default:
@@ -529,28 +533,17 @@ bool gain_random_mutation(int choose_mut)
     else
     {
 
-        if (p_ptr->prace == RACE_VAMPIRE &&
-            !(p_ptr->muta1 & MUT1_HYPN_GAZE) &&
-            (randint(10)<7))
-        {
-            muta_class = &(p_ptr->muta1);
-            muta_which = MUT1_HYPN_GAZE;
-            muta_desc = "Your eyes look mesmerizing...";
-        }
-
-        else if (p_ptr->prace == RACE_IMP &&
-            !(p_ptr->muta2 & MUT2_HORNS) &&
-            (randint(10)<7))
-        {
-            muta_class = &(p_ptr->muta2);
-            muta_which = MUT2_HORNS;
-            muta_desc = "Horns pop forth into your forehead!";
+        if (p_ptr->prace == RACE_VAMPIRE && !(p_ptr->muta1 & MUT1_HYPN_GAZE)
+	    && (randint(10) < 7))
+	{
+		muta_class = &(p_ptr->muta1);
+		muta_which = MUT1_HYPN_GAZE;
+		muta_desc = "Your eyes look mesmerizing...";
         }
 
         msg_print("You mutate!");
         msg_print(muta_desc);
         *(muta_class) |= muta_which;
-
 
         if (muta_class == &(p_ptr->muta3))
         {
@@ -609,7 +602,7 @@ bool gain_random_mutation(int choose_mut)
             {
                 if (p_ptr->muta3 & MUT3_IRON_SKIN)
                 {
-                    msg_print("Your skin is no longer made of steel.");
+                    msg_print("Your skin is no longer made of iron.");
                     p_ptr->muta3 &= ~(MUT3_IRON_SKIN);
                 }
             }
@@ -689,7 +682,7 @@ bool gain_random_mutation(int choose_mut)
 
 bool lose_mutation(int choose_mut)
 {
-	int attempts_left = 200;
+	int attempts_left = 500;
 	cptr muta_desc = "";
 	bool muta_chosen = FALSE;
 	int muta_which = 0;
@@ -859,7 +852,7 @@ bool lose_mutation(int choose_mut)
 		case 70: case 71:
                 	muta_class = &(p_ptr->muta3);
                 	muta_which = MUT3_ELEC_TOUC;
-                	muta_desc = "Electricity stops running through you.";
+                	muta_desc = "You short out.";
                 	break;
 		case 72: case 73:
                 	muta_class = &(p_ptr->muta3);
@@ -879,7 +872,7 @@ bool lose_mutation(int choose_mut)
 		case 80: case 81:
                 	muta_class = &(p_ptr->muta3);
                 	muta_which = MUT3_IRON_SKIN;
-                	muta_desc = "Your steel turns to skin!";
+                	muta_desc = "Your iron turns to skin!";
                 	break;
 		case 82: case 83:
                 	muta_class = &(p_ptr->muta3);
@@ -899,7 +892,7 @@ bool lose_mutation(int choose_mut)
 		case 89: case 90:
                 	muta_class = &(p_ptr->muta3);
                 	muta_which = MUT3_ESP;
-                	muta_desc = "You are no longer telepathic!";
+                	muta_desc = "Your mind becomes cloudy.";
                 	break;
 		case 91: case 92:
                 	muta_class = &(p_ptr->muta2);
@@ -1136,12 +1129,12 @@ bool lose_mutation(int choose_mut)
 			muta_which = MUT1_MISSILE;
 			muta_desc = "Your hands stop throbbing.";
 			break;
-		case 172:
+		case 172: case 173: case 174:
 			muta_class = &(p_ptr->muta1);
 			muta_which = MUT1_SHARD_BOLT;
 			muta_desc = "A spiked lump retreats back into your arm.";
 			break;
-		case 173: case 174: case 175:
+		case 175:
 			muta_class = &(p_ptr->muta1);
 			muta_desc = "Your hands smooths out.";
 			if (p_ptr->muta1 & MUT1_SHARD_BLAST)
@@ -1561,7 +1554,7 @@ void dump_mutations(FILE * OutFile)
                 }
                 if (p_ptr->muta3 & MUT3_IRON_SKIN)
                 {
-                        fprintf(OutFile, " Your skin is made of steel (-1 DEX, +25 AC).\n");
+                        fprintf(OutFile, " Your skin is made of iron (-1 DEX, +25 AC).\n");
                 }
                 if (p_ptr->muta3 & MUT3_WINGS)
                 {
@@ -1726,14 +1719,6 @@ static void cmd_racial_power_aux (void)
 			}
 			break;
 
-		case RACE_HALF_ELF:
-			if (racial_aux(15, 5, A_WIS, 10))
-			{
-				msg_print("You look for your animal friends.");
-				(void)detect_monsters_xxx(RF3_ANIMAL);
-			}
-			break;
-
 		case RACE_ELF:
 			if (racial_aux(10, 5, A_WIS, 10))
 			{
@@ -1809,7 +1794,7 @@ static void cmd_racial_power_aux (void)
 				else
 				{
 					msg_print("You act cute.");
-					(void)charm_monsters(plev);
+					(void)charm_monsters(plev * 2);
 				}
 			}
 			break;
@@ -1821,14 +1806,6 @@ static void cmd_racial_power_aux (void)
 				(void)set_afraid(0);
 				(void)set_shero(p_ptr->shero + 10 + randint(plev));
 				(void)hp_player(30);
-			}
-			break;
-
-		case RACE_HALF_OGRE:
-			if (racial_aux(25, 35, A_INT, 15))
-			{
-				msg_print("You carefully set an explosive rune...");
-				explosive_rune();
 			}
 			break;
 
@@ -1863,24 +1840,6 @@ static void cmd_racial_power_aux (void)
 			}
 			break;
 
-		case RACE_CYCLOPS:
-			if (racial_aux(20, 15, A_STR, 12))
-			{
-				if (!get_aim_dir(&dir)) break;
-				msg_print("You throw a huge boulder.");
-				fire_bolt(GF_MISSILE, dir, (3 * p_ptr->lev));
-			}
-			break;
-
-		case RACE_YEEK:
-			if (racial_aux(5, 10, A_WIS, 10))
-			{
-				if (!get_aim_dir(&dir)) break;
-				msg_print("You make a horrible scream!");
-				(void)fear_monster(dir, plev);
-			}
-			break;
-
 		case RACE_KLACKON:
 			if (racial_aux(9, 9, A_DEX, 14))
 			{
@@ -1899,27 +1858,6 @@ static void cmd_racial_power_aux (void)
 				if(!get_aim_dir(&dir)) break;
 				msg_print("You throw a dart of poison.");
 				fire_bolt(GF_POIS, dir, plev * 2);
-			}
-			break;
-
-		case RACE_NIBELUNG:
-			if (racial_aux(10, 10, A_WIS, 10))
-			{
-				msg_print("You examine your surroundings.");
-				if (p_ptr->lev >= 35) (void)map_area();
-				(void)detect_traps();
-				(void)detect_doors();
-				(void)detect_stairs();
-			}
-			break;
-
-		case RACE_DARK_ELF:
-			if (racial_aux(2, 2, A_INT, 9))
-			{
-				if (!get_aim_dir(&dir)) break;
-				msg_print("You cast a magic missile.");
-				fire_bolt_or_beam(10, GF_MISSILE, dir,
-				    damroll(3 + ((plev - 1) / 3), 4));
 			}
 			break;
 
@@ -1975,37 +1913,11 @@ static void cmd_racial_power_aux (void)
 			}
 			break;
 
-		case RACE_IMP:
-			if (racial_aux(9, 15, A_DEX, 15))
-			{
-				if (!get_aim_dir(&dir)) break;
-				if (p_ptr->lev >= 30)
-				{
-					msg_print("You cast a ball of fire.");
-					fire_ball(GF_FIRE, dir, plev * 2, 2);
-				}
-				else
-				{
-					msg_print("You cast a bolt of fire.");
-					fire_bolt_or_beam(plev * 2, GF_FIRE,
-							dir, plev * 2);
-				}
-			}
-			break;
-
 		case RACE_GOLEM:
 			if (racial_aux(20, 15, A_CON, 8))
 			{
 				msg_print("You feel hard.");
 				(void)set_shield(p_ptr->shield + randint(20) + 30);
-			}
-			break;
-
-		case RACE_SKELETON: case RACE_ZOMBIE:
-			if (racial_aux(30, 30, A_WIS, 18))
-			{
-				msg_print("You attempt to restore your lost energies.");
-				(void)restore_level();
 			}
 			break;
 
@@ -2052,17 +1964,6 @@ static void cmd_racial_power_aux (void)
 				msg_print("You emit an eldritch howl!");
 				if (!get_aim_dir(&dir)) break;
 				(void)fear_monster(dir, plev);
-			}
-			break;
-
-		case RACE_SPRITE:
-			if (racial_aux(8, 12, A_INT, 15))
-			{
-				msg_print("You throw some magic dust...");
-				if (p_ptr->lev < 25)
-					sleep_monsters_touch();
-				else
-					(void)sleep_monsters();
 			}
 			break;
 
@@ -2122,14 +2023,6 @@ void do_cmd_racial_power(void)
 			has_racial = TRUE;
 			break;
 
-		case RACE_HALF_ELF:
-			if (lvl < 15)
-				racial_power = "detect animals     (racial, lvl 15, cost 5)";
-			else
-				racial_power = "detect animals     (racial, cost 5, WIS 10@15)";
-			has_racial = TRUE;
-			break;
-
 		case RACE_ELF:
 			if (lvl < 10)
 				racial_power = "detect animals     (racial, lvl 10, cost 5)";
@@ -2143,14 +2036,6 @@ void do_cmd_racial_power(void)
 				racial_power = "sense surroundings (racial, lvl 5, cost 5)";
 			else
 				racial_power = "sense surroundings (racial, cost 5, WIS 12@5)";
-			has_racial = TRUE;
-			break;
-
-		case RACE_NIBELUNG:
-			if (lvl < 10)
-				racial_power = "sense surroundings (racial, lvl 10, cost 10)";
-			else
-				racial_power = "sense surroundings (racial, cost 10, WIS 12@10)";
 			has_racial = TRUE;
 			break;
 
@@ -2208,14 +2093,6 @@ void do_cmd_racial_power(void)
 			has_racial = TRUE;
 			break;
 
-		case RACE_HALF_OGRE:
-			if (lvl < 25)
-				racial_power = "explosive rune     (racial, lvl 25, cost 35)";
-			else
-				racial_power = "explosive rune     (racial, cost 35, INT 15@25)";
-			has_racial = TRUE;
-			break;
-
 		case RACE_HALF_GIANT:
 			if (lvl < 20)
 				racial_power = "smash down a wall  (racial, lvl 20, cost 10)";
@@ -2229,22 +2106,6 @@ void do_cmd_racial_power(void)
 				racial_power = "probing            (racial, lvl 25, cost 20)";
 			else
 				racial_power = "probing            (racial, cost 20, INT 12@25)";
-			has_racial = TRUE;
-			break;
-
-		case RACE_CYCLOPS:
-			if (lvl < 20)
-				racial_power = "throw boulder      (racial, lvl 20, cost 15, dam 3*lvl)";
-			else
-				racial_power = "throw boulder      (racial, cost 15, dam 3*lvl, STR 12@20)";
-			has_racial = TRUE;
-			break;
-
-		case RACE_YEEK:
-			if (lvl < 5)
-				racial_power = "scare monster      (racial, lvl 5, cost 10)";
-			else
-				racial_power = "scare monster      (racial, cost 10, WIS 10@5)";
 			has_racial = TRUE;
 			break;
 
@@ -2272,16 +2133,8 @@ void do_cmd_racial_power(void)
 			has_racial = TRUE;
 			break;
 
-		case RACE_DARK_ELF:
-			if (lvl < 2)
-				racial_power = "magic missile      (racial, lvl 2, cost 2)";
-			else
-				racial_power = "magic missile      (racial, cost 2, INT 9@2)";
-			has_racial = TRUE;
-			break;
-
 		case RACE_DRACONIAN:
-			racial_power = "breath weapon              (racial, cost lvl, dam lvl*3, CON 16@1)";
+			racial_power = "breath weapon      (racial, cost lvl, dam lvl*3, CON 16@1)";
 			has_racial = TRUE;
 			break;
 
@@ -2293,27 +2146,11 @@ void do_cmd_racial_power(void)
 			has_racial = TRUE;
 			break;
 
-		case RACE_IMP:
-			if (lvl < 9)
-				racial_power = "fire bolt/ball     (racial, lvl 9/30, cost 15, dam lvl*2)";
-			else
-				racial_power = "fire bolt/ball(30) (racial, cost 15, dam lvl*2, DEX 15@9)";
-			has_racial = TRUE;
-			break;
-
 		case RACE_GOLEM:
 			if (lvl < 20)
 				racial_power = "stone skin         (racial, lvl 20, cost 15, dur 30+d20)";
 			else
 				racial_power = "stone skin         (racial, cost 15, dur 30+d20, CON 8@20)";
-			has_racial = TRUE;
-			break;
-
-		case RACE_SKELETON: case RACE_ZOMBIE:
-			if (lvl < 30)
-				racial_power = "restore life       (racial, lvl 30, cost 30)";
-			else
-				racial_power = "restore life       (racial, cost 30, WIS 18@30)";
 			has_racial = TRUE;
 			break;
 
@@ -2325,13 +2162,6 @@ void do_cmd_racial_power(void)
 			has_racial = TRUE;
 			break;
 
-		case RACE_SPRITE:
-			if (lvl < 8)
-				racial_power = "sleeping dust      (racial, lvl 8, cost 12)";
-			else
-				racial_power = "sleeping dust      (racial, cost 12, INT 15@8)";
-			has_racial = TRUE;
-			break;
 	}
 
 	if (!(has_racial) && !(p_ptr->muta1))
@@ -2402,7 +2232,7 @@ void do_cmd_racial_power(void)
 			if (lvl < 5)
 				strcpy(power_desc[num],"mind blast         (mutation, lvl 5, cost 3)");
 			else
-				strcpy(power_desc[num],"mind blast         (mutation, cost 3, WIS 15@7)");
+				strcpy(power_desc[num],"mind blast         (mutation, cost 3, WIS 15@5)");
 			powers[num++] = MUT1_MIND_BLST;
 		}
 
@@ -2422,6 +2252,15 @@ void do_cmd_racial_power(void)
 			else
 				strcpy(power_desc[num],"vampiric drain     (mutation, cost lvl, CON 14@13)");
 			powers[num++] = MUT1_VAMPIRISM;
+		}
+
+		if (p_ptr->muta1 & MUT1_SUMMON_M)
+		{
+			if (lvl < 10)
+				strcpy(power_desc[num],"summon monsters    (mutation, lvl 10, cost lvl / 2)");
+			else
+				strcpy(power_desc[num],"summon monsters    (mutation, cost lvl / 2, CON 10@10)");
+			powers[num++] = MUT1_SUMMON_M;
 		}
 
 		if (p_ptr->muta1 & MUT1_BLINK)
@@ -2494,15 +2333,6 @@ void do_cmd_racial_power(void)
 			else
 				strcpy(power_desc[num],"Midas touch        (mutation, cost 15, INT 12@20)");
 			powers[num++] = MUT1_MIDAS_TCH;
-		}
-
-		if (p_ptr->muta1 & MUT1_SUMMON_M)
-		{
-			if (lvl < 10)
-				strcpy(power_desc[num],"summon monsters    (mutation, lvl 10, cost lvl / 2)");
-			else
-				strcpy(power_desc[num],"summon monsters    (mutation, cost lvl / 2, CON 10@10)");
-			powers[num++] = MUT1_SUMMON_M;
 		}
 
 		if (p_ptr->muta1 & MUT1_GROW_MOLD)
@@ -2767,7 +2597,7 @@ void do_cmd_racial_power(void)
 				{
 					msg_print("Your eyes look mesmerizing...");
 					if (get_aim_dir(&dir))
-						(void) charm_monster(dir, p_ptr->lev);
+						(void)charm_monster(dir, p_ptr->lev);
 				}
 				break;
 
@@ -2776,7 +2606,7 @@ void do_cmd_racial_power(void)
 				{
 					msg_print("You concentrate...");
 					if (get_aim_dir(&dir))
-						fetch(dir, p_ptr->lev * 10, TRUE);
+						fetch(dir, p_ptr->lev * 10, FALSE);
 				}
 				break;
 
@@ -2810,7 +2640,14 @@ void do_cmd_racial_power(void)
 				{
 					if (!get_aim_dir(&dir)) return;
 					if (drain_life(dir, (p_ptr->lev * 2)))
-						hp_player(p_ptr->lev + randint(p_ptr->lev));
+						hp_player(p_ptr->lev * 2);
+				}
+				break;
+
+			case MUT1_SUMMON_M:
+				if (racial_aux(10, p_ptr->lev / 2, A_CON, 10))
+				{
+					summon_specific_friendly(py, px, lvl, SUMMON_NO_UNIQUES, TRUE);
 				}
 				break;
 
@@ -2828,9 +2665,11 @@ void do_cmd_racial_power(void)
 					cave_type *c_ptr;
 
 					if (!get_rep_dir(&dir)) break;
+
 					y = py + ddy[dir];
 					x = px + ddx[dir];
 					c_ptr = &cave[y][x];
+
 					if (cave_floor_bold(y, x))
 					{
 						msg_print("You bite into thin air!");
@@ -2867,19 +2706,16 @@ void do_cmd_racial_power(void)
 							(void)set_food(p_ptr->food + 3000);
 						}
 					}
+
 					(void)wall_to_mud(dir);
 				
 					oy = py;
 					ox = px;
-				
 					py = y;
 					px = x;
-
 					lite_spot(py, px);
 					lite_spot(oy, ox);
-
 					verify_panel();
-
 					p_ptr->update |= (PU_VIEW | PU_LITE | PU_FLOW);
 					p_ptr->update |= (PU_DISTANCE);
 					p_ptr->window |= (PW_OVERHEAD);
@@ -2890,7 +2726,7 @@ void do_cmd_racial_power(void)
 				if (racial_aux(20, 14, A_CON, 16))
 				{
 					(void)fire_ball(GF_SOUND, 0, 3 * lvl, 8);
-					(void)aggravate_monsters(0);
+					(void)aggravate_monsters(0, FALSE);
 				}
 				break;
 
@@ -2941,22 +2777,13 @@ void do_cmd_racial_power(void)
 				}
 				break;
 
-			/* Summon pet monsters around the player */
-			case MUT1_SUMMON_M:
-				if (racial_aux(10, p_ptr->lev / 2, A_CON, 10))
-				{
-					summon_specific_friendly(py, px, lvl, SUMMON_NO_UNIQUES, TRUE);
-				}
-				break;
-
-			/* Summon pet molds around the player */
 			case MUT1_GROW_MOLD:
 				if (racial_aux(1, 6, A_CON, 14))
 				{
 					int i;
 					for (i = 0; i < 8; i++)
 					{
-						summon_specific_friendly(py, px, lvl, SUMMON_BIZARRE1, FALSE);
+						summon_specific_friendly(py, px, lvl, SUMMON_MOLD, FALSE);
 					}
 				}
 				break;
@@ -3151,6 +2978,7 @@ void do_cmd_racial_power(void)
 						fire_ball(GF_SHARDS, dir, lvl * 4, 2);
 				}
 				break;
+
 			case MUT1_GRAV_BEAM:
 				if (racial_aux(30, 20, A_CON, 18))
 				{
@@ -3159,6 +2987,7 @@ void do_cmd_racial_power(void)
 						fire_beam(GF_GRAVITY, dir, damroll(10 + (lvl / 5), 8));
 				}
 				break;
+
 			default:
 				energy_use = 0;
 				msg_format("Power %s not implemented. Oops.", powers[i]);
@@ -3169,3 +2998,453 @@ void do_cmd_racial_power(void)
 	return;
 }
 
+
+/* Process randomly activating mutations, called from dungeon.c. -- Gumby */
+void process_mutations(void)
+{
+	if ((p_ptr->muta2 & MUT2_BERS_RAGE) && !rand_int(3000))
+	{
+		if (disturb_minor) disturb(0,0);
+		msg_print("RAAAAGHH!");
+		msg_print("You feel a fit of rage coming over you!");
+		(void) set_shero(p_ptr->shero + 10 + randint(p_ptr->lev));
+	}
+
+	if ((p_ptr->muta2 & MUT2_COWARDICE) && !p_ptr->resist_fear &&
+	    !p_ptr->hero && !p_ptr->shero && !rand_int(3000))
+	{
+		if (disturb_minor) disturb(0,0);
+		msg_print("It's so dark... so scary!");
+		p_ptr->redraw |= PR_AFRAID;
+		p_ptr->afraid = (p_ptr->afraid) + 13 + randint(26);
+	}
+
+	if ((p_ptr->muta2 & MUT2_RTELEPORT) && !rand_int(5000) &&
+	    !p_ptr->anti_tele && !(p_ptr->muta1 & MUT1_VTELEPORT))
+	{
+		disturb(0,0);
+		msg_print("Your position suddenly seems very uncertain...");
+		msg_print(NULL);
+		teleport_player(40);
+	}
+
+	if ((p_ptr->muta2 & MUT2_ALCOHOL) && !p_ptr->resist_conf &&
+	    !rand_int(6500))
+	{
+		disturb(0,0);
+		p_ptr->redraw |= PR_EXTRA;
+		msg_print("You feel a SSSCHtupor cOmINg over yOu... *HIC*!");
+
+		if (randint(20)==1)
+		{
+			msg_print(NULL);
+			if (randint(3)==1) lose_all_info();
+			else wiz_dark();
+			teleport_player(100);
+			msg_print("You wake up somewhere with a sore head...");
+			msg_print("You can't remember a thing, or how you got here!");
+		}
+		else
+		{
+			(void)set_confused(p_ptr->confused + randint(20) + 15);
+
+			if ((randint(3)==1) && !p_ptr->resist_chaos)
+			{
+				msg_print("Thishcischs GooDSChtuff!");
+				(void)set_image(p_ptr->image + randint(150) + 150);
+			}
+		}
+	}
+
+	if ((p_ptr->muta2 & MUT2_HALLU) && !p_ptr->resist_chaos &&
+	    !rand_int(6500))
+	{
+		if (disturb_minor) disturb(0,0);
+		p_ptr->redraw |= PR_EXTRA;
+		(void)set_image(p_ptr->image + rand_int(50) + 20);
+	}
+
+	if ((p_ptr->muta2 & MUT2_FLATULENT) && !rand_int(3000))
+	{
+		if (disturb_minor) disturb(0,0);
+
+		msg_print("BRRAAAP! Oops.");
+		msg_print(NULL);
+		fire_ball(GF_POIS, 0, p_ptr->lev, 3);
+	}
+
+	if ((p_ptr->muta2 & MUT2_ATT_DEMON) && !p_ptr->anti_magic &&
+	    (randint(6666)==666))
+	{
+		bool d_summon = FALSE;
+
+		if (!rand_int(5))
+		{
+			d_summon = summon_specific_friendly(py, px, dun_level, SUMMON_DEMON, TRUE);
+		}
+		else
+		{
+			d_summon = summon_specific(py, px, dun_level, SUMMON_DEMON);
+		}
+
+		if (d_summon)
+		{
+			msg_print("You have attracted a demon!");
+			disturb(0,0);
+		}
+	}
+
+	if ((p_ptr->muta2 & MUT2_PROD_MANA) && !p_ptr->anti_magic &&
+	    !rand_int(9000))
+	{
+		int dire = 0;
+		disturb(0,0);
+		msg_print("Magical energy flows through you! You must release it!");
+		flush();
+		msg_print(NULL);
+		(void)get_hack_dir(&dire);
+		fire_ball(GF_MANA, dire, p_ptr->lev * 2, 3);
+	}
+
+	if (p_ptr->muta2 & MUT2_WOUND && !p_ptr->resist_shard &&
+	    !rand_int(3000))
+	{
+		if (disturb_minor) disturb(0,0);
+		msg_print("Your skin rips open!  Ouch!");
+		set_cut(p_ptr->cut + rand_int(20) + 10);
+	}
+
+	if (p_ptr->muta2 & MUT2_DISPEL_ALL && !rand_int(9000))
+	{
+		if (disturb_minor) disturb(0, 0);
+		msg_print("You feel a dark power take hold of you.");
+		dispel_monsters(150);
+		set_stun(p_ptr->stun + randint(10) + 10);
+
+		if (!dun_level)
+		{
+			msg_print("You see one of the shopkeepers running for the hills!");
+			store_shuffle(rand_int(MAX_STORES));
+		}
+	}
+
+	if ((p_ptr->muta2 & MUT2_EAT_LIGHT) && !rand_int(3000))
+	{
+		object_type *o_ptr;
+
+		msg_print("A shadow passes over you.");
+
+		/* Absorb light from the current position */
+		if (cave[py][px].info & CAVE_GLOW) hp_player(10);
+
+		o_ptr = &inventory[INVEN_LITE];
+
+		/* Absorb some fuel in the current lite */
+		if (o_ptr->tval == TV_LITE)
+		{
+			/* Use some fuel (except on artifacts) */
+			if (!artifact_p(o_ptr) && (o_ptr->pval > 0) &&
+			    !(o_ptr->sval == SV_LITE_FEANORAN_LAMP))
+			{
+				/* Heal the player a bit */
+				hp_player(o_ptr->pval / 20);
+
+				/* Decrease life-span of lite */
+				o_ptr->pval /= 2;
+
+				msg_print("You absorb energy from your light!");
+			}
+		}
+
+		/*
+		 * Unlite the area (radius 10) around player and
+		 * do 50 points damage to every affected monster
+		 */
+		unlite_area(50, 10);
+	}
+
+	if ((p_ptr->muta2 & MUT2_ATT_ANIMAL) && !p_ptr->anti_magic &&
+	    !rand_int(6500))
+	{
+		bool d_summon = FALSE;
+
+		if (!rand_int(5))
+		{
+			d_summon = summon_specific_friendly(py, px, dun_level, SUMMON_ANIMAL, TRUE);
+		}
+		else
+		{
+			d_summon = summon_specific(py, px, dun_level, SUMMON_ANIMAL);
+		}
+
+		if (d_summon)
+		{
+			msg_print("You have attracted an animal!");
+			disturb(0, 0);
+		}
+	}
+
+	if ((p_ptr->muta2 & MUT2_RAW_CHAOS) && !p_ptr->anti_magic &&
+	    !rand_int(8000))
+	{
+		if (disturb_minor) disturb(0, 0);
+		msg_print("You feel the world warping around you!");
+		msg_print(NULL);
+		fire_ball(GF_CHAOS, 0, p_ptr->lev, 8);
+	}
+
+	if ((p_ptr->muta2 & MUT2_WRAITH) && !p_ptr->anti_magic &&
+	    !rand_int(3000) && !p_ptr->wraith_form)
+	{
+		if (disturb_minor) disturb(0, 0);
+		set_shadow(p_ptr->wraith_form + p_ptr->lev);
+	}
+
+	if ((p_ptr->muta2 & MUT2_POLY_WOUND) && !rand_int(3000))
+	{
+		if (disturb_minor) disturb(0, 0);
+		do_poly_wounds();
+	}
+
+	if ((p_ptr->muta2 & MUT2_WASTING) && !rand_int(3000))
+	{
+		int which_stat = rand_int(6);
+		int sustained = FALSE;
+
+		switch (which_stat)
+		{
+			case A_STR: if (p_ptr->sustain_str) sustained = TRUE; break;
+			case A_INT: if (p_ptr->sustain_int) sustained = TRUE; break;
+			case A_WIS: if (p_ptr->sustain_wis) sustained = TRUE; break;
+			case A_DEX: if (p_ptr->sustain_dex) sustained = TRUE; break;
+			case A_CON: if (p_ptr->sustain_con) sustained = TRUE; break;
+			case A_CHR: if (p_ptr->sustain_chr) sustained = TRUE; break;
+			default:
+				msg_print("Invalid stat chosen!");
+				sustained = TRUE;
+				break;
+		}
+
+		if (!sustained)
+		{
+			disturb(0, 0);
+			msg_print("You can feel yourself wasting away!");
+			msg_print(NULL);
+			(void)dec_stat(which_stat, randint(6) + 6, randint(3) == 1);
+		}
+	}
+
+	if ((p_ptr->muta2 & MUT2_ATT_DRAGON) && !p_ptr->anti_magic &&
+	    !rand_int(6500))
+	{
+		bool d_summon = FALSE;
+
+		if (!rand_int(5))
+		{
+			d_summon = summon_specific_friendly(py, px, dun_level, SUMMON_DRAGON, TRUE);
+		}
+		else
+		{
+			d_summon = summon_specific(py, px, dun_level, SUMMON_DRAGON);
+		}
+
+		if (d_summon)
+		{
+			msg_print("You have attracted a dragon!");
+			disturb(0,0);
+		}
+	}
+
+	if ((p_ptr->muta2 & MUT2_WEIRD_MIND) && !p_ptr->anti_magic &&
+	    !p_ptr->telepathy && !rand_int(3000))
+	{
+		if (p_ptr->tim_esp > 0)
+		{
+			set_tim_esp(0);
+		}
+		else
+		{
+			set_tim_esp(p_ptr->lev * 2);
+		}
+	}
+
+	if ((p_ptr->muta2 & MUT2_NAUSEA) && !p_ptr->slow_digest &&
+	    !rand_int(9000))
+	{
+		disturb(0,0);
+		msg_print("Your stomach roils, and you lose your lunch!");
+		msg_print(NULL);
+		set_food(PY_FOOD_WEAK);
+	}
+
+	if ((p_ptr->muta2 & MUT2_WALK_SHAD) && !p_ptr->anti_magic &&
+	    !rand_int(12000))
+	{
+		disturb(0,0);
+		msg_print("A shadowy gate appears.  You enter...");
+		new_level_flag = TRUE;
+	}
+
+	/* MUT2_WARNING now detects monsters at random. -- Gumby */
+	if ((p_ptr->muta2 & MUT2_WARNING) && !rand_int(1000))
+	{
+		(void)detect_monsters_normal();
+	}
+
+	if ((p_ptr->muta2 & MUT2_INVULN) && !p_ptr->anti_magic &&
+	    !rand_int(5000) && !p_ptr->invuln)
+	{
+		if (disturb_minor) disturb(0, 0);
+		(void)set_invuln(p_ptr->invuln + randint(10) + 10);
+	}
+
+	if ((p_ptr->muta2 & MUT2_SP_TO_HP) && !p_ptr->anti_magic &&
+	    !rand_int(2000))
+	{
+		int wounds = p_ptr->mhp - p_ptr->chp;
+
+		if (wounds > 0)
+		{
+			int healing = p_ptr->csp;
+
+			if (healing > wounds) healing = wounds;
+
+			hp_player(healing);
+			p_ptr->csp -= healing;
+		}
+	}
+
+	if ((p_ptr->muta2 & MUT2_HP_TO_SP) && !p_ptr->anti_magic &&
+		!rand_int(2000))
+	{
+		int wounds = p_ptr->msp - p_ptr->csp;
+
+		if (wounds > 0)
+		{
+			int healing = p_ptr->chp;
+
+			if (healing > wounds) healing = wounds;
+
+			p_ptr->csp += healing;
+			take_hit(healing, "blood rushing to the head");
+		}
+	}
+
+	if ((p_ptr->muta2 & MUT2_DISARM) && (!rand_int(10000)) &&
+	    (inventory[INVEN_WIELD].k_idx))
+	{
+		object_type *o_ptr;
+
+		disturb(0, 0); bell();
+		msg_print("You trip over your own feet!");
+		take_hit(randint(p_ptr->wt / 6), "tripping");
+
+		msg_print(NULL);
+		o_ptr = &inventory[INVEN_WIELD];
+		if (o_ptr->k_idx)
+		{
+			msg_print("You drop your weapon!");
+			inven_drop(INVEN_WIELD,1);
+		}
+	}
+}
+
+
+/*
+ * Calculate the effects of mutations on stats, resistances and suchlike.
+ * Called from xtra1.c. -- Gumby
+ */
+void calc_mutations(void)
+{
+	if (p_ptr->muta3 & MUT3_HYPER_STR)	p_ptr->stat_add[A_STR] += 4;
+	if (p_ptr->muta3 & MUT3_PUNY)		p_ptr->stat_add[A_STR] -= 4;
+
+	if (p_ptr->muta3 & MUT3_HYPER_INT)
+	{
+		p_ptr->stat_add[A_INT] += 4;
+		p_ptr->stat_add[A_WIS] += 4;
+	}
+
+	if (p_ptr->muta3 & MUT3_MORONIC)
+	{
+		p_ptr->stat_add[A_INT] -= 4;
+		p_ptr->stat_add[A_WIS] -= 4;
+	}
+
+	if (p_ptr->muta3 & MUT3_RESILIENT)	p_ptr->stat_add[A_CON] += 4;
+
+	if (p_ptr->muta3 & MUT3_XTRA_FAT)
+	{
+		p_ptr->stat_add[A_CON] += 2;
+		p_ptr->pspeed -= 2;
+	}
+
+	if (p_ptr->muta3 & MUT3_ALBINO)		p_ptr->stat_add[A_CON] -= 4;
+
+	if (p_ptr->muta3 & MUT3_FLESH_ROT)
+	{
+		p_ptr->stat_add[A_CON] -= 2;
+		p_ptr->stat_add[A_CHR] -= 1;
+		p_ptr->regenerate = FALSE;
+	}
+
+	if (p_ptr->muta3 & MUT3_SILLY_VOI)	p_ptr->stat_add[A_CHR] -= 4;
+	if (p_ptr->muta3 & MUT3_BLANK_FAC)	p_ptr->stat_add[A_CHR] -= 1;
+	if (p_ptr->muta3 & MUT3_ILL_NORM)	p_ptr->stat_add[A_CHR] = 0;
+	if (p_ptr->muta3 & MUT3_XTRA_EYES)	p_ptr->skill_fos += 15;
+	if (p_ptr->muta3 & MUT3_MAGIC_RES)	p_ptr->skill_sav += (15+(p_ptr->lev/5));
+	if (p_ptr->muta3 & MUT3_XTRA_NOIS)	p_ptr->skill_stl -= 3;
+	if (p_ptr->muta3 & MUT3_INFRAVIS)	p_ptr->see_infra += 3;
+	if (p_ptr->muta3 & MUT3_XTRA_LEGS)	p_ptr->pspeed += 3;
+	if (p_ptr->muta3 & MUT3_SHORT_LEG)	p_ptr->pspeed -= 3;
+
+	if (p_ptr->muta3 & MUT3_ELEC_TOUC)
+	{
+		p_ptr->sh_elec = TRUE;
+		p_ptr->resist_elec = TRUE;
+	}
+
+	if (p_ptr->muta3 & MUT3_FIRE_BODY)
+	{
+		p_ptr->sh_fire = TRUE;
+		p_ptr->resist_fire = TRUE;
+		p_ptr->lite = TRUE;
+	}
+
+	if (p_ptr->muta3 & MUT3_WART_SKIN)
+	{
+		p_ptr->stat_add[A_CHR] -= 2;
+		p_ptr->to_a += 5;
+		p_ptr->dis_to_a += 5;
+	}
+
+	if (p_ptr->muta3 & MUT3_SCALES)
+	{
+		p_ptr->stat_add[A_CHR] -= 1;
+		p_ptr->to_a += 10;
+		p_ptr->dis_to_a += 10;
+	}
+
+	if (p_ptr->muta3 & MUT3_IRON_SKIN)
+	{
+		p_ptr->stat_add[A_DEX] -= 1;
+		p_ptr->to_a += 25;
+		p_ptr->dis_to_a += 25;
+	}
+
+	if (p_ptr->muta3 & MUT3_WINGS)		p_ptr->ffall = TRUE;
+	if (p_ptr->muta3 & MUT3_FEARLESS)	p_ptr->resist_fear = TRUE;
+	if (p_ptr->muta3 & MUT3_REGEN)		p_ptr->regenerate = TRUE;
+	if (p_ptr->muta3 & MUT3_ESP)		p_ptr->telepathy =TRUE;
+	if (p_ptr->muta3 & MUT3_TWISTED)	p_ptr->stat_add[A_CHR] -= 3;
+	if (p_ptr->muta3 & MUT3_SPINES)		p_ptr->sh_spine = TRUE;
+	if (p_ptr->muta3 & MUT3_LIMBER)		p_ptr->stat_add[A_DEX] += 3;
+	if (p_ptr->muta3 & MUT3_ARTHRITIS)	p_ptr->stat_add[A_DEX] -= 3;
+
+	if (p_ptr->muta3 & MUT3_GLOW)
+	{
+		p_ptr->resist_dark = TRUE;
+		p_ptr->resist_lite = TRUE;
+		p_ptr->lite = TRUE;
+	}
+}

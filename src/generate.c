@@ -488,21 +488,21 @@ static void place_random_door(int y, int x)
 	}
 	
 	/* Broken doors (100/1000) */
-	else if (tmp < 400)
+	else if (tmp < 350) /* was 400 */
 	{
 		/* Create broken door */
 		c_ptr->feat = FEAT_BROKEN;
 	}
 	
 	/* Secret doors (200/1000) */
-	else if (tmp < 600)
+	else if (tmp < 500) /* was 600 - G */
 	{
 		/* Create secret door */
 		c_ptr->feat = FEAT_SECRET;
 	}
 	
 	/* Closed doors (300/1000) */
-	else if (tmp < 900)
+	else if (tmp < 800) /* was 900 - G */
 	{
 		/* Create closed door */
 		c_ptr->feat = FEAT_DOOR_HEAD + 0x00;
@@ -4004,8 +4004,7 @@ static void town_gen(void)
 			c_ptr->feat = FEAT_FLOOR;
 		}
 	}
-	
-	
+
 	/* Perma-walls -- North/South */
 	for (x = 0; x < cur_wid; x++)
 	{
@@ -4096,8 +4095,7 @@ static void town_gen(void)
 void generate_cave(void)
 {
 	int i, num, tester_1, tester_2;
-	
-	
+
 	/* The dungeon is not ready */
 	character_dungeon = FALSE;
 	
@@ -4120,8 +4118,7 @@ void generate_cave(void)
 			/* Wipe a whole row at a time */
 			C_WIPE(cave[i], MAX_WID, cave_type);
 		}
-		
-		
+
 		/* Mega-Hack -- no player yet */
 		px = py = 0;
 		
@@ -4130,8 +4127,7 @@ void generate_cave(void)
 		panel_row_max = 0;
 		panel_col_min = 0;
 		panel_col_max = 0;
-		
-		
+
 		/* Reset the monster generation level */
 		monster_level = dun_level;
 		
@@ -4143,8 +4139,7 @@ void generate_cave(void)
 		
 		/* Nothing good here yet */
 		rating = 0;
-		
-		
+
 		/* Build the town */
 		if (!dun_level)
 		{
@@ -4167,55 +4162,56 @@ void generate_cave(void)
 		/* Build a real level */
 		else
 		{
-			if (only_small || ((randint(SMALL_LEVEL)==1) && small_levels))
-            {
-                if (cheat_room)
-                    msg_print ("A 'small' dungeon level.");
+			if ((randint(SMALL_LEVEL)==1) && small_levels)
+			{
+				if (cheat_room)
+					msg_print("A small dungeon level.");
 
-		/*
-		 * Thanks to Eytan Zweig for this loop that stops full-sized
-		 * levels from sometimes being created when a small level
-		 * was supposed to happen. -- Gumby
-		 */
-		while (TRUE)
-		{
-	                tester_1 = randint(MAX_HGT/SCREEN_HGT);
-        	        tester_2 = randint(MAX_WID/SCREEN_WID);
+				/*
+				 * Thanks to Eytan Zweig for this loop that
+				 * stops full-sized levels from sometimes
+				 * being created when a small level was
+				 * supposed to happen. -- Gumby
+				 */
+				while (TRUE)
+				{
+	        		        tester_1 = randint(MAX_HGT / SCREEN_HGT);
+        	        		tester_2 = randint(MAX_WID / SCREEN_WID);
 
-			/* Exit if less than normal dungeon */
-			if ((tester_1 < MAX_HGT/SCREEN_HGT) ||
-			    (tester_2 < MAX_WID/SCREEN_WID)) break;
-		}
+					/* Exit if less than normal dungeon */
+					if ((tester_1 < MAX_HGT / SCREEN_HGT) ||
+					    (tester_2 < MAX_WID / SCREEN_WID)) break;
+				}
 
-                cur_hgt = tester_1 * SCREEN_HGT;
-                cur_wid = tester_2 * SCREEN_WID;
+		                cur_hgt = tester_1 * SCREEN_HGT;
+        		        cur_wid = tester_2 * SCREEN_WID;
 
-                /* Determine number of panels */
-                max_panel_rows = (cur_hgt / SCREEN_HGT) * 2 - 2;
-                max_panel_cols = (cur_wid / SCREEN_WID) * 2 - 2;
+	                	/* Determine number of panels */
+		                max_panel_rows = (cur_hgt / SCREEN_HGT) * 2 - 2;
+        		        max_panel_cols = (cur_wid / SCREEN_WID) * 2 - 2;
 
-                /* Assume illegal panel */
-                panel_row = max_panel_rows;
-                panel_col = max_panel_cols;
+	                	/* Assume illegal panel */
+		                panel_row = max_panel_rows;
+        		        panel_col = max_panel_cols;
 				
-                if (cheat_room)
-                    msg_format("X:%d, Y:%d.", max_panel_cols, max_panel_rows);
-            }
-            else
-            {
-                /* Big dungeon */
-                cur_hgt = MAX_HGT;
-                cur_wid = MAX_WID;
-				
-                /* Determine number of panels */
-                max_panel_rows = (cur_hgt / SCREEN_HGT) * 2 - 2;
-                max_panel_cols = (cur_wid / SCREEN_WID) * 2 - 2;
-				
+                		if (cheat_room)
+					msg_format("X:%d, Y:%d.", max_panel_cols, max_panel_rows);
+			}
+			else
+			{
+				/* Big dungeon */
+				cur_hgt = MAX_HGT;
+				cur_wid = MAX_WID;
+
+				/* Determine number of panels */
+				max_panel_rows = (cur_hgt / SCREEN_HGT) * 2 - 2;
+				max_panel_cols = (cur_wid / SCREEN_WID) * 2 - 2;
+
 				/* Assume illegal panel */
 				panel_row = max_panel_rows;
 				panel_col = max_panel_cols;
 			}
-			
+
 			/* Make a dungeon */
 			if (!cave_gen())
 			{
@@ -4223,8 +4219,7 @@ void generate_cave(void)
 				okay = FALSE;
 			}
 		}
-		
-		
+
 		/* Extract the feeling */
 		if (rating > 100) feeling = 2;     /* visions of death */
 		else if (rating > 80) feeling = 3; /* very dangerous */
@@ -4300,13 +4295,15 @@ void generate_cave(void)
 		/* Wipe the monsters */
 		wipe_m_list();
 	}
-	
-	
+
 	/* The dungeon is ready */
 	character_dungeon = TRUE;
 	
 	/* Remember when this level was "created" */
 	old_turn = turn;
+
+	/* Reset the number of thefts on the level. -LM- */
+	number_of_thefts_on_level = 0;
 
 	/* 'Ghosts' automatically know the level -- Gumby */
 	if (p_ptr->astral)

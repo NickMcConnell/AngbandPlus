@@ -615,6 +615,11 @@ static void roff_aux(int r_idx)
 		roff(format("%^s is surrounded by electricity.  ", wd_he[msex]));
 	}
 
+	if (flags2 & (RF2_SPINES))
+	{
+		roff(format("%^s is covered in spines.  ", wd_he[msex]));
+	}
+
 	if (flags2 & (RF2_REFLECTING))
 	{
 		roff(format("%^s reflects bolt spells.  ", wd_he[msex]));
@@ -640,11 +645,11 @@ static void roff_aux(int r_idx)
 	}
 
 
-	/* Collect inate attacks (boulders were XXX2 & XXX3) */
+	/* Collect inate attacks */
 	vn = 0;
 	if (flags4 & (RF4_SHRIEK))	vp[vn++] = "shriek for help";
-	if (flags4 & (RF4_BOULDER_1))	vp[vn++] = "throw a boulder";
-	if (flags4 & (RF4_BOULDER_2))	vp[vn++] = "throw a large boulder";
+	if (flags4 & (RF4_XXX2))	vp[vn++] = "do something";
+	if (flags4 & (RF4_XXX3))	vp[vn++] = "do something";
 	if (flags4 & (RF4_ROCKET))	vp[vn++] = "shoot a rocket";
 	if (flags4 & (RF4_ARROW_1))	vp[vn++] = "shoot an arrow";
 	if (flags4 & (RF4_ARROW_2))	vp[vn++] = "fire an arrow";

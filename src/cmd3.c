@@ -18,19 +18,10 @@
  */
 void do_cmd_inven(void)
 {
-
-/* Broken */
-#if 0
-    int capacity_tester = 0;
-    int i = 0, j = 0;
-#endif
-    
 	char out_val[160];
-
 
 	/* Note that we are in "inventory" mode */
 	command_wrk = FALSE;
-
 
 	/* Save the screen */
 	Term_save();
@@ -44,25 +35,10 @@ void do_cmd_inven(void)
 	/* Hack -- hide empty slots */
 	item_tester_full = FALSE;
 
-/* Broken */
-#if 0
-    /* Extract the current weight (in tenth pounds) */
-	j = total_weight;
+	sprintf(out_val, "Inventory: carrying %d.%d pounds (%d%% of capacity). Command: ",
+				       total_weight / 10, total_weight % 10,
+	  (total_weight*100)/((adj_str_wgt[p_ptr->stat_ind[A_STR]]*100)/2));
 
-	/* Extract the "weight limit" (in tenth pounds) */
-    i = adj_str_wgt[p_ptr->stat_ind[A_STR]] * 100;
-
-    capacity_tester = i + (i/10) - 1;
-
-    sprintf(out_val, "Inventory: carrying %d.%d pounds (%d%% of capacity). Command: ",
-           total_weight / 10, total_weight % 10,
-       (total_weight * 100) / ((capacity_tester) / 2));
-
-#else
-    sprintf(out_val, "Inventory: carrying %d.%d pounds (%d%% of capacity). Command: ",
-           total_weight / 10, total_weight % 10,
-       (total_weight * 100) / ((adj_str_wgt[p_ptr->stat_ind[A_STR]] * 100) / 2));
-#endif
 	/* Get a command */
 	prt(out_val, 0, 0);
 
@@ -71,7 +47,6 @@ void do_cmd_inven(void)
 
 	/* Restore the screen */
 	Term_load();
-
 
 	/* Process "Escape" */
 	if (command_new == ESCAPE)
@@ -1642,3 +1617,190 @@ void do_cmd_query_symbol(void)
 }
 
 
+/* Hack -- possible victim outcry. -LM- */
+static cptr desc_victim_outcry[] =
+{
+	"'My money, where's my money?'",
+	"'Thief! Thief! Thief! Baggins! We hates it forever!'",
+	"'Tell me, have you seen a purse wandering around?'",
+	"'Thieves, Fire, Murder!'",
+	"''Ere, 'oo are you?'",
+	"'Hey, look what I've copped!'",
+	"'How dare you!'",
+	"'Help yourself again, thief, there is plenty and to spare!'",
+	"'All the world detests a thief.'",
+	"'Catch me this thief!'",
+	"'Hi! Ho! Robbery!'",
+	"'My gold, my precious gold!'",
+	"'My gold is costly, thief!'",
+	"'Your blood for my gold?  Agreed!'",
+	"'I scrimp, I save, and now it's gone!'",
+	"'Robbers like you are part of the problem!'",
+	"'Banditti!  This dungeon's just not safe anymore!'",
+	"'Ruined!  I'm ruined!'",
+	"'Where, where is the common decency?'",
+	"'Your knavish tricks end here and now!'",
+};
+
+
+
+/*
+ * Rogues may steal gold from monsters.  The monster needs to have 
+ * something to steal (it must drop some form of loot), and should 
+ * preferably be asleep.  Humanoids and dragons are a rogue's favorite
+ * targets.  Steal too often on a level, and monsters will be more wary, 
+ * and the hue and cry will be eventually be raised.  Having every 
+ * monster on the level awake and aggravated is not pleasant. -LM-
+ */
+void py_steal(int y, int x)
+{
+	cptr act = NULL;
+
+	cave_type *c_ptr = &cave[y][x];
+
+	monster_type *m_ptr = &m_list[c_ptr->m_idx];
+	monster_race *r_ptr = &r_info[m_ptr->r_idx];
+
+	char m_name[80];
+
+	int i;
+	int effect, theft_protection;
+	int filching_power = 0;
+	int purse = 0;
+
+	bool thief = FALSE;
+	bool success = FALSE;
+
+	/* Hard limit on theft. */
+	if (number_of_thefts_on_level > 4)
+	{
+		msg_print("Everyone is keeping a lookout for you.  You can steal nothing here.");
+		return;
+	}
+
+	/* Determine the cunning of the thief. */
+/*	filching_power = 2 * p_ptr->lev; */
+	filching_power = p_ptr->lev + p_ptr->skill_stl;
+
+	/* Determine how much protection the monster has. */
+	theft_protection = (7 * (r_ptr->level + 2) / 4);
+	theft_protection += (m_ptr->mspeed - p_ptr->pspeed);
+	if (theft_protection < 1) theft_protection = 1;
+
+	/* Send a thief to catch a thief. */
+	for (i = 0; i < 4; i++)
+	{
+		/* Extract infomation about the blow effect */
+		effect = r_ptr->blow[i].effect;
+		if (effect == RBE_EAT_GOLD) thief = TRUE;
+		if (effect == RBE_EAT_ITEM) thief = TRUE;
+	}
+	if (thief) theft_protection += 30;
+
+	if (m_ptr->csleep) theft_protection = 3 * theft_protection / 5;
+
+	/* The more you steal on a level, the more wary the monsters. */
+	theft_protection += number_of_thefts_on_level * 15;
+
+	/* Did the theft succeed?  */
+	if (randint(theft_protection) < filching_power) success = TRUE;
+
+	/* If the theft succeeded, determine the value of the purse. */
+	if (success)
+	{
+		purse = (r_ptr->level + 1) + randint(3 * (r_ptr->level + 1) / 2);
+
+		/* Uniques are juicy targets. */
+		if (r_ptr->flags1 & (RF1_UNIQUE)) purse *= 3;
+
+		/* But some monsters are dirt poor. */
+		if (!((r_ptr->flags1 & (RF1_DROP_60)) || 
+			(r_ptr->flags1 & (RF1_DROP_90)) || 
+			(r_ptr->flags1 & (RF1_DROP_1D2)) || 
+			(r_ptr->flags1 & (RF1_DROP_2D2)) || 
+			(r_ptr->flags1 & (RF1_DROP_3D2)) || 
+			(r_ptr->flags1 & (RF1_DROP_4D2)))) purse = 0;
+
+		/* Some monster races are far better to steal from than others. */
+		if ((r_ptr->d_char == 'D') || (r_ptr->d_char == 'd') || 
+			(r_ptr->d_char == 'p') || (r_ptr->d_char == 'h')) 
+			purse *= 2 + randint(3) + randint(r_ptr->level / 20);
+		else if ((r_ptr->d_char == 'P') || (r_ptr->d_char == 'o') || 
+			(r_ptr->d_char == 'O') || (r_ptr->d_char == 'T') ||
+			(r_ptr->d_char == 'n') || (r_ptr->d_char == 'W') ||
+			(r_ptr->d_char == 'k') || (r_ptr->d_char == 'L') ||
+			(r_ptr->d_char == 'V') || (r_ptr->d_char == 'y')) 
+			purse *= 1 + randint(3) + randint(r_ptr->level / 30);
+
+		/* Pickings are scarce in a land of many thieves. */
+		purse *= (dun_level + 5) / (p_ptr->max_dlv + 5);
+
+		/* Increase player gold. */
+		p_ptr->au += purse;
+
+		/* Redraw gold */
+		p_ptr->redraw |= (PR_GOLD);
+
+		/* Announce the good news. */
+		if (purse) msg_format("You burgle %d gold.", purse);
+
+		/* Pockets are empty. */
+		else msg_print("You burgle only dust.");
+	}
+
+	/* The victim normally, but not always, wakes up and is aggravated. */
+	if (randint(3) != 1)
+	{
+		m_ptr->csleep = 0;
+		if (m_ptr->mspeed < r_ptr->speed + 3) m_ptr->mspeed += 10;
+
+		/* Occasionally, amuse the player with a message. */
+		if ((randint(5) == 1) && (purse) &&
+		    (r_ptr->flags2 & (RF2_SMART)))
+		{
+			monster_desc(m_name, m_ptr, 0);
+			act = desc_victim_outcry[rand_int(20)];
+			msg_format("%^s cries out %s", m_name, act);
+		}
+		/* Otherwise, simply explain what happened. */
+		else 
+		{
+			monster_desc(m_name, m_ptr, 0);
+			msg_format("You have aroused %s.", m_name);
+		}
+	}
+
+	/* The thief also speeds up, but only for just long enough to escape. */
+	if (!p_ptr->fast) p_ptr->fast += 2;
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Increment the number of thefts, and possibly raise the hue and cry. */
+	number_of_thefts_on_level++;
+
+	if (number_of_thefts_on_level > 4)
+	{
+		/* Notify the player of the trouble he's in. */
+		msg_print("All the level is in an uproar over your misdeeds!");
+
+		/* Aggravate and speed up all monsters on level. */
+		aggravate_monsters(1, TRUE);
+	}
+	else if ((number_of_thefts_on_level > 2) || (randint(8) == 1))
+	{
+		msg_print("You hear hunting parties scouring the area for a notorious burgler.");
+		
+		/* Aggravate monsters nearby. */
+		aggravate_monsters(1, FALSE);
+	}
+
+	if (success && (randint(3)==1))
+	{
+		msg_format("You flee laughing!");
+		teleport_player(MAX_SIGHT * 2 + 5);
+	}
+}

@@ -377,12 +377,6 @@ static bool hates_acid(object_type *o_ptr)
 		{
 			return (TRUE);
 		}
-
-		/* Junk is useless */
-		case TV_SKELETON: case TV_BOTTLE: case TV_JUNK:
-		{
-			return (TRUE);
-		}
 	}
 	return (FALSE);
 }
@@ -460,7 +454,7 @@ static bool hates_cold(object_type *o_ptr)
 {
 	switch (o_ptr->tval)
 	{
-		case TV_POTION: case TV_FLASK: case TV_BOTTLE:
+		case TV_POTION: case TV_FLASK:
 		{
 			return (TRUE);
 		}
@@ -1417,16 +1411,13 @@ static int project_m_y;
 static bool project_f(int who, int r, int y, int x, int dam, int typ)
 {
 	cave_type       *c_ptr = &cave[y][x];
-
 	bool            obvious = FALSE;
-
 
 	/* XXX XXX XXX */
 	who = who ? who : 0;
 
 	/* Reduce damage by distance */
 	dam = (dam + r) / (r + 1);
-
 
 	/* Analyze the type */
 	switch (typ)
@@ -1792,26 +1783,19 @@ static bool project_f(int who, int r, int y, int x, int dam, int typ)
  */
 static bool project_o(int who, int r, int y, int x, int dam, int typ)
 {
-	cave_type *c_ptr = &cave[y][x];
-
-	s16b this_o_idx, next_o_idx = 0;
-
-	bool obvious = FALSE;
-
-	u32b f1, f2, f3;
-
-	char o_name[80];
-
-	int o_sval = 0;
-	bool is_potion = FALSE;
-
+	cave_type	*c_ptr = &cave[y][x];
+	s16b		this_o_idx, next_o_idx = 0;
+	bool		obvious = FALSE;
+	u32b		f1, f2, f3;
+	char		o_name[80];
+	int		o_sval = 0;
+	bool		is_potion = FALSE;
 
 	/* XXX XXX XXX */
 	who = who ? who : 0;
 
 	/* Reduce damage by distance */
 	dam = (dam + r) / (r + 1);
-
 
 	/* Scan all objects in the grid */
 	for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
@@ -2135,12 +2119,6 @@ static bool project_m(int who, bool pet_attack, int r, int y, int x, int dam, in
 	int b = 0;
 	int do_move = 0;
 
-	/* Walls protect monsters */
-	/* (No, they don't)  */
-#if 0
-	if (!cave_floor_bold(y,x)) return (FALSE);
-#endif
-
 	/* Nobody here */
 	if (!c_ptr->m_idx) return (FALSE);
 
@@ -2339,7 +2317,7 @@ static bool project_m(int who, bool pet_attack, int r, int y, int x, int dam, in
 			break;
 		}
 
-		/* Hellfire hurts good -- Gumby */
+		/* Hellfire hurts good, Demons resist -- Gumby */
 		case GF_HELL_FIRE:
 		{
 			if (seen) obvious = TRUE;
@@ -2348,6 +2326,12 @@ static bool project_m(int who, bool pet_attack, int r, int y, int x, int dam, in
 				dam *= 2;
 				note = " is hit hard.";
 				if (seen) r_ptr->r_flags3 |= (RF3_GOOD);
+			}
+			else if (r_ptr->flags3 & (RF3_DEMON))
+			{
+				dam /= 3;
+				note = " resists.";
+				if (seen) r_ptr->r_flags3 |= (RF3_DEMON);
 			}
 			break;
 		}
@@ -3318,13 +3302,8 @@ static bool project_m(int who, bool pet_attack, int r, int y, int x, int dam, in
 			if ((r_ptr->flags1 & (RF1_UNIQUE)) ||
 			    (r_ptr->flags1 & (RF1_QUESTOR)) ||
 			    (!(r_ptr->flags3 & (RF3_UNDEAD))) ||
-			    (rand_int(r_ptr->level + 10) > dam) ||
-			    (r_ptr->flags3 & (RF3_NO_CONF)))
+			    (rand_int(r_ptr->level + 10) > dam))
 			{
-				/* Memorize a flag */
-				if (r_ptr->flags3 & (RF3_NO_CONF))
-					if (seen) r_ptr->r_flags3 |= (RF3_NO_CONF);
-
 				/* Resist */
 				/* No obvious effect */
 				note = " is unaffected!";
@@ -3354,13 +3333,8 @@ static bool project_m(int who, bool pet_attack, int r, int y, int x, int dam, in
 			if ((r_ptr->flags1 & (RF1_UNIQUE)) ||
 			    (r_ptr->flags1 & (RF1_QUESTOR)) ||
 			    (!(r_ptr->flags3 & (RF3_ANIMAL))) ||
-			    (rand_int(r_ptr->level + 10) > dam) ||
-			    (r_ptr->flags3 & (RF3_NO_CONF)))
+			    (rand_int(r_ptr->level + 10) > dam))
 			{
-				/* Memorize a flag */
-				if (r_ptr->flags3 & (RF3_NO_CONF))
-					if (seen) r_ptr->r_flags3 |= (RF3_NO_CONF);
-
 				/* Resist */
 				/* No obvious effect */
 				note = " is unaffected!";
@@ -4347,13 +4321,11 @@ static bool project_p(int who, bool pet_attack, int r, int y, int x, int dam, in
 	/* Hack -- messages */
 	cptr act = NULL;
 
-
 	/* Player is not here */
 	if ((x != px) || (y != py)) return (FALSE);
 
 	/* Player cannot hurt himself */
 	if (!who) return (FALSE);
-
 
 	if (p_ptr->reflect && !a_rad && !(randint(10)==1))
 	{
@@ -4370,12 +4342,9 @@ static bool project_p(int who, bool pet_attack, int r, int y, int x, int dam, in
 			t_x = m_list[who].fx - 1 + randint(3);
 			max_attempts--;
 		}
-/*
- * "Warning: comparison is always true due to limited range of data type"
- * in DJGPP - problem with 'in_bounds2' #define? -- Gumby
- */
+		/* was in_bounds2() -- Gumby */
 		while (max_attempts && in_bounds2u(t_y, t_x) &&
-		     !(player_has_los_bold(t_y, t_x)));
+		       !(player_has_los_bold(t_y, t_x)));
 
 		if (max_attempts < 1)
 		{
@@ -4396,10 +4365,8 @@ static bool project_p(int who, bool pet_attack, int r, int y, int x, int dam, in
 	/* Reduce damage by distance */
 	dam = (dam + r) / (r + 1);
 
-
 	/* If the player is blind, be more descriptive */
 	if (blind) fuzzy = TRUE;
-
 
 	/* Get the source monster */
 	m_ptr = &m_list[who];
@@ -4593,7 +4560,6 @@ static bool project_p(int who, bool pet_attack, int r, int y, int x, int dam, in
 			{
 				take_hit(dam, killer);
 			}
-
 			break;
 		}
 
@@ -5283,8 +5249,9 @@ bool project(int who, bool pet_attack, int rad, int y, int x, int dam, int typ, 
 	/* Initial grid */
 	y = y1;
 	x = x1;
+#if 0
 	dist = 0;
-
+#endif
 	/* Collect beam grids */
 	if (flg & (PROJECT_BEAM))
 	{
@@ -5296,7 +5263,6 @@ bool project(int who, bool pet_attack, int rad, int y, int x, int dam, int typ, 
 
 	/* Calculate the projection path */
 	path_n = project_path(path_g, MAX_RANGE, y1, x1, y2, x2, flg);
-
 
 	/* Hack -- Handle stuff */
 	handle_stuff();
@@ -5613,12 +5579,9 @@ bool project(int who, bool pet_attack, int rad, int y, int x, int dam, int typ, 
 						max_attempts--;
 					}
 
-/*
- * "Warning: comparison is always true due to limited range of data type"
- * in DJGPP - problem with 'in_bounds2' #define? -- Gumby
- */
-					while (max_attempts && in_bounds2u(t_y, t_x) &&
-					    !(los(y, x, t_y, t_x)));
+					while (max_attempts &&
+					       in_bounds2u(t_y, t_x) &&
+					       !(los(y, x, t_y, t_x)));
 
 					if (max_attempts < 1)
 					{
@@ -5632,7 +5595,7 @@ bool project(int who, bool pet_attack, int rad, int y, int x, int dam, int typ, 
 						ref_ptr->r_flags2 |= RF2_REFLECTING;
 					}
 
-					project(cave[y][x].m_idx, pet_attack, 0, t_y, t_x,  dam, typ, flg);
+					project(cave[y][x].m_idx, pet_attack, 0, t_y, t_x, dam, typ, flg);
 				}
 				else
 				{
@@ -5792,14 +5755,20 @@ bool potion_smash_effect(int who, int y, int x, int o_sval)
 			ident = TRUE;
 			break;
 		case SV_POTION_RUINATION:
+			dt = GF_NETHER;
+			dam = damroll(25, 25);
+			angry = TRUE;
+			ident = TRUE;
+			break;
 		case SV_POTION_DETONATIONS:
 			dt = GF_SHARDS;
-			dam = damroll(25, 25);
+			dam = damroll(40, 50);
 			angry = TRUE;
 			ident = TRUE;
 			break;
 		case SV_POTION_DEATH:
 			dt = GF_DEATH_RAY;    /* !! */
+			dam = damroll(50, 50);
 			angry = TRUE;
 			radius = 1;
 			ident = TRUE;

@@ -26,6 +26,9 @@
 # 'template.txt' is just that - a blank pref file that I fill in when I need
 # to use a new realm combination...
 #
+# If you use a Linux system, remove the ` macro (which auto-targets missiles
+# inscribed with @f2) if it causes any problems.
+#
 # This file defines "default" actions of various kinds
 #
 # This file includes, if appropriate, various "sub-files"

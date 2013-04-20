@@ -5,12 +5,14 @@ Please choose one of the following online help files:
     (1) Artifact Spoilers          (artifact.spo)
     (2) List of Objects            (obj-list.spo)
     (3) List of Monsters           (mon-list.spo)
-    (4) Monster Spoilers           (mon-full.spo)
+    (4) Monster Spoilers           (monsters.spo)
+    (5) Mutation Spoilers          (mutation.spo)
 
     (0) Return to Main Help Menu
 
 ***** [1] artifact.spo
 ***** [2] obj-list.spo
 ***** [3] mon-list.spo
-***** [4] artifact.spo
+***** [4] monsters.spo
+***** [5] mutation.spo
 ***** [0] help.hlp

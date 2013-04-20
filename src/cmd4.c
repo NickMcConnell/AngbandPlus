@@ -3060,28 +3060,17 @@ void plural_aux(char * Name)
  */
 void do_cmd_knowledge_pets(void)
 {
-	int i;
-
-	FILE *fff;
-
-	monster_type * m_ptr;
-
-	int t_friends = 0;
-	int t_levels = 0;
-	int show_upkeep = 0;
-	int upkeep_divider = 20;
-
-	char file_name[1024];
-
+	int		i;
+	FILE		*fff;
+	monster_type	*m_ptr;
+	int		t_friends = 0;
+	char		file_name[1024];
 
 	/* Temporary file */
 	if (path_temp(file_name, 1024)) return;
 
 	/* Open a new file */
 	fff = my_fopen(file_name, "w");
-
-	if (p_ptr->pclass == CLASS_MAGE) upkeep_divider = 15;
-	else if (p_ptr->pclass == CLASS_HIGH_MAGE) upkeep_divider = 12;
 
 	/* Process the monsters (backwards) */
 	for (i = m_max - 1; i >= 1; i--)
@@ -3092,31 +3081,19 @@ void do_cmd_knowledge_pets(void)
 		/* Ignore "dead" monsters */
 		if (!m_ptr->r_idx) continue;
 
-		/* Calculate "upkeep" for friendly monsters */
+		/* Find and show the pets */
 		if (m_ptr->smart & (SM_FRIEND))
 		{
 			char pet_name[80];
 			t_friends++;
-			t_levels += r_info[m_ptr->r_idx].level;
 			monster_desc(pet_name, m_ptr, 0x88);
 			strcat(pet_name, "\n");
-			fprintf(fff,pet_name);
+			fprintf(fff, pet_name);
 		}
 	}
 
-	if (t_friends > 1 + (p_ptr->lev / (upkeep_divider)))
-	{
-		show_upkeep = (t_levels);
-
-		if (show_upkeep > 100) show_upkeep = 100;
-		else if (show_upkeep < 10) show_upkeep = 10;
-	}
-
-
 	fprintf(fff,"----------------------------------------------\n");
 	fprintf(fff,"   Total: %d pet%s.\n", t_friends, (t_friends==1?"":"s"));
-	fprintf(fff,"   Upkeep: %d%% mana.\n", show_upkeep);
-
 
 	/* Close the file */
 	my_fclose(fff);

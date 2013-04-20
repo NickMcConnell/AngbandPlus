@@ -10,7 +10,7 @@
 #   h - Haste Self          F8 - Protect. from Evil   SF8 - Divine Inter.
 #   H - Holy Invulnerabil.  F9 - Cure Light Wounds    SF9 - Cure Med. Wounds
 #   J - Dimension Door     F10 - Cure Crit. Wounds   SF10 - Healing
-#   n - Rune of Protection F11 - Restoration         SF11 - Healing True
+#   n - Rune of Protection F11 - Restoration         SF11 - Greater Healing
 #   N - Sea of Runes       F12 - Identify            SF12 - Insight
 #   O - Detection
 #   P - Recharging
@@ -174,7 +174,7 @@ P:^_Sx5C\r
 A:m4d
 P:^_Sx5D\r
 
-# SHIFT-F11 - Healing True
+# SHIFT-F11 - Greater Healing
 A:m4e
 P:^_Sx87\r
 

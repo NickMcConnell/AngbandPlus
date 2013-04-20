@@ -3,9 +3,9 @@
 # TAB - Teleport Away       F1 - Mind Blast          SF1 - Phantasmal Serv.
 #   [ - Magic Mapping       F2 - Confuse Monster     SF2 - Trump Monster
 #   ] - Clairvoyance        F3 - Sleep Monster       SF3 - Trump Spiders
-#   ' - Detect Objs./Treas  F4 - Nexus Bolt          SF4 - Trump Reptiles
-#   " - Detect Doors/Traps  F5 - Slow Monster        SF5 - Trump Hounds
-#   ; - Detect Monsters     F6 - Mass Sleep          SF6 - Trump Cyberdemon
+#   ' - Minor Divination    F4 - Nexus Bolt          SF4 - Trump Reptiles
+#   " - Detect Obj./Treas.  F5 - Slow Monster        SF5 - Trump Hounds
+#   ; - Self Knowledge      F6 - Mass Sleep          SF6 - Trump Cyberdemon
 #   : - Detection           F7 - Banish              SF7 - Trump Undead
 #   h - Identify            F8 - Death Dealing       SF8 - Trump Dragon
 #   H - Insight             F9 - Stasis              SF9 - Mass Trump
@@ -30,16 +30,16 @@ C:0:[
 A:m4d
 C:0:]
 
-# ' - Detect Objects/Treasure
-A:m1c
+# ' - Minor Divination
+A:m5d
 C:0:'
 
-# " - Detect Doors/Traps
-A:m1d
+# " - Detect Objects/Treasure
+A:m1c
 C:0:"
 
-# ; - Detect Monsters
-A:m1a
+# ; - Self Knowledge
+A:m3d
 C:0:;
 
 # : - Detection

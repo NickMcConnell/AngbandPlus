@@ -151,8 +151,6 @@ extern s16b m_max;
 extern s16b m_cnt;
 extern s16b hack_m_idx;
 extern s16b hack_m_idx_ii;
-extern int total_friends;
-extern s32b total_friend_levels;
 extern bool multi_rew;
 extern char summon_kin_type;
 extern bool hack_mind;
@@ -230,7 +228,7 @@ extern bool view_special_lite;
 extern bool last_words;
 extern bool speak_unique;
 extern bool small_levels;
-extern bool only_small;
+/* set 5, bit 3 option */
 extern bool empty_levels;
 extern bool player_symbols;
 extern bool equippy_chars;
@@ -397,8 +395,7 @@ extern bool (*get_mon_num_hook)(int r_idx);
 extern bool (*get_obj_num_hook)(int k_idx);
 extern bool monk_armour_aux;
 extern bool monk_notify_aux;
-
-
+extern byte number_of_thefts_on_level;
 
 
 /*
@@ -492,6 +489,7 @@ extern void do_cmd_target(void);
 extern void do_cmd_look(void);
 extern void do_cmd_locate(void);
 extern void do_cmd_query_symbol(void);
+extern void py_steal(int y, int x);
 
 /* cmd4.c */
 extern void do_cmd_redraw(void);
@@ -735,7 +733,7 @@ extern bool wall_stone(void);
 extern bool speed_monsters(void);
 extern bool slow_monsters(void);
 extern bool sleep_monsters(void);
-extern void aggravate_monsters(int who);
+extern void aggravate_monsters(int who, bool the_entire_level);
 extern bool banish_evil(int dist);
 extern bool dispel_evil(int dam);
 extern bool dispel_good(int dam);
@@ -977,6 +975,8 @@ extern bool lose_mutation(int choose_mut);
 extern void dump_mutations(FILE *OutFile);
 extern void do_cmd_knowledge_mutations(void);
 extern void do_cmd_racial_power(void);
+extern void process_mutations(void);
+extern void calc_mutations(void);
 
 /* quest.c */
 extern int get_quest_monster(void);

@@ -198,7 +198,7 @@ static cptr r_info_flags2[] =
 	"TAKE_ITEM",
 	"KILL_ITEM",
 	"EXPLOSIVE", /* was BRAIN_1 - G */
-	"BRAIN_2",
+	"SPINES",    /* was BRAIN_2 - G */
 	"BRAIN_3",
 	"BRAIN_4",
 	"BRAIN_5",
@@ -252,8 +252,8 @@ static cptr r_info_flags3[] =
 static cptr r_info_flags4[] =
 {
 	"SHRIEK",
-	"BOULDER_1",	/* WAS: XXX2X4 */
-	"BOULDER_2",	/* WAS: XXX3X4 */
+	"XXX2X4",
+	"XXX3X4",
 	"ROCKET",	/* WAS: XXX4X4 */
 	"ARROW_1",
 	"ARROW_2",
@@ -1418,9 +1418,6 @@ errr init_a_info_txt(FILE *fp, char *buf)
 		/* There better be a current a_ptr */
 		if (!a_ptr) return (3);
 
-
-#if 0
-
 		/* Process 'D' for "Description" */
 		if (buf[0] == 'D')
 		{
@@ -1442,8 +1439,6 @@ errr init_a_info_txt(FILE *fp, char *buf)
 			/* Next... */
 			continue;
 		}
-
-#endif
 
 		/* Process 'I' for "Info" (one line only) */
 		if (buf[0] == 'I')

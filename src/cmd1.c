@@ -974,7 +974,6 @@ void touch_zap_player(monster_type *m_ptr)
 		}
 	}
 
-
 	if (r_ptr->flags2 & (RF2_AURA_ELEC))
 	{
 		if (!(p_ptr->immune_elec))
@@ -992,6 +991,24 @@ void touch_zap_player(monster_type *m_ptr)
 			msg_print("You get zapped!");
 			take_hit(aura_damage, aura_dam);
 			r_ptr->r_flags2 |= RF2_AURA_ELEC;
+			handle_stuff();
+		}
+	}
+
+	if (r_ptr->flags2 & (RF2_SPINES))
+	{
+		if (!(p_ptr->reflect))
+		{
+			char aura_dam[80];
+
+			aura_damage = damroll(1 + (r_ptr->level / 26), 1 + (r_ptr->level / 17));
+
+			/* Hack -- Get the "died from" name */
+			monster_desc(aura_dam, m_ptr, 0x88);
+
+			msg_print("You get pierced!");
+			take_hit(aura_damage, aura_dam);
+			r_ptr->r_flags2 |= RF2_SPINES;
 			handle_stuff();
 		}
 	}
@@ -1055,7 +1072,6 @@ static void natural_attack(s16b m_idx, int attack, bool *fear, bool *mdeath)
 
 	/* Extract monster name (or "it") */
 	monster_desc(m_name, m_ptr, 0);
-
 
 	/* Calculate the "attack quality" */
 	bonus = p_ptr->to_h;
@@ -1138,7 +1154,6 @@ static void natural_attack(s16b m_idx, int attack, bool *fear, bool *mdeath)
 }
 
 
-
 /*
  * Player attacks a (poor, defenseless) creature        -RAK-
  *
@@ -1169,7 +1184,6 @@ void py_attack(int y, int x)
 	u32b            f1, f2, f3; /* A massive hack -- life-draining weapons */
 	bool            no_extra = FALSE;
 
-
 	/* Disturb the player */
 	disturb(0, 0);
 
@@ -1180,10 +1194,9 @@ void py_attack(int y, int x)
 	 * shapechangers :), and then only after a check against the Rogue's
 	 * Stealth skill and the monster's native depth. -- Gumby
 	 */
-	if ((p_ptr->pclass == CLASS_ROGUE) &&
+	if ((p_ptr->pclass == CLASS_ROGUE) && is_humanoid(r_ptr->d_char) &&
 	    (inventory[INVEN_WIELD].weight <= 50) &&
-	    (randint(r_ptr->level + 10) <= p_ptr->skill_stl) &&
-	    (is_humanoid(r_ptr->d_char)))
+	    (randint(r_ptr->level + 10) <= p_ptr->skill_stl))
 	{
 		if ((m_ptr->csleep || m_ptr->confused || m_ptr->stunned) &&
 		    (m_ptr->ml))
@@ -2005,16 +2018,19 @@ void move_player(int dir, int do_pickup)
 		/* Window stuff */
 		p_ptr->window |= (PW_OVERHEAD);
 
-
+#if 0
 		/* Spontaneous Searching */
-		if ((p_ptr->skill_fos >= 50) ||
-		    (0 == rand_int(50 - p_ptr->skill_fos)))
+		if ((p_ptr->skill_fos >= 50) || (0 == rand_int(50 - p_ptr->skill_fos)))
 		{
 			search();
 		}
 
 		/* Continuous Searching */
-		if (p_ptr->searching)
+		if (p_ptr->searching) search();
+#endif
+
+		/* Spontaneous & continuous searching */
+		if ((rand_int(100) <= p_ptr->skill_fos) || (p_ptr->searching))
 		{
 			search();
 		}

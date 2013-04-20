@@ -299,17 +299,12 @@ bool remove_all_curse(void)
  */
 void self_knowledge(void)
 {
-	int i = 0, j, k;
-
-	u32b f1 = 0L, f2 = 0L, f3 = 0L;
-
-	object_type *o_ptr;
-
-	char Dummy[80];
-
-	cptr info[128];
-
-	int plev = p_ptr->lev;
+	int		i = 0, j, k;
+	u32b		f1 = 0L, f2 = 0L, f3 = 0L;
+	object_type	*o_ptr;
+	char		Dummy[80];
+	cptr		info[128];
+	int		plev = p_ptr->lev;
 
 	strcpy (Dummy, "");
 
@@ -332,17 +327,12 @@ void self_knowledge(void)
 		f3 |= t3;
 	}
 
-
 	/* Racial powers... */
 	switch (p_ptr->prace)
 	{
 		case RACE_HUMAN:
 			if (plev > 14)
 				info[i++] = "You have an understanding of your abilities (cost 10).";
-			break;
-		case RACE_HALF_ELF:
-			if (plev > 14)
-				info[i++] = "You can sense natural creatures (cost 5).";
 			break;
 		case RACE_ELF:
 			if (plev > 9)
@@ -380,10 +370,6 @@ void self_knowledge(void)
 			if (plev > 7)
 				info[i++] = "You can go berserk (cost 10).";
 			break;
-		case RACE_HALF_OGRE:
-			if (plev > 24)
-				info[i++] = "You can set an Explosive Rune (cost 35).";
-			break;
 		case RACE_HALF_GIANT:
 			if (plev > 19)
 				info[i++] = "You can break stone walls (cost 10).";
@@ -391,18 +377,6 @@ void self_knowledge(void)
 		case RACE_HALF_TITAN:
 			if (plev > 34)
 				info[i++] = "You can probe monsters (cost 20).";
-			break;
-		case RACE_CYCLOPS:
-			if (plev > 19)
-			{
-				sprintf(Dummy, "You can throw a boulder, dam. %d (cost 15).",
-				    4 * plev);
-				info[i++] = Dummy;
-			}
-			break;
-		case RACE_YEEK:
-			if (plev > 4)
-				info[i++] = "You can make a terrifying scream (cost 10).";
 			break;
 		case RACE_KLACKON:
 			if (plev > 8)
@@ -419,20 +393,8 @@ void self_knowledge(void)
 				info[i++] = Dummy;
 			}
 			break;
-		case RACE_DARK_ELF:
-			if (plev > 1)
-			{
-				sprintf(Dummy, "You can cast a Magic Missile, dam %dd4 (cost 2).",
-				    ( 3 + ((plev-1) / 3) ) );
-				info[i++] = Dummy;
-			}
-			break;
-		case RACE_NIBELUNG:
-			if (plev > 9)
-				info[i++] = "You can find traps, doors and stairs (cost 5).";
-			break;
 		case RACE_DRACONIAN:
-			sprintf(Dummy, "You can breathe, dam. %d (cost %d).", 3 * plev, plev);
+			sprintf(Dummy, "You can breathe, dam. %d (cost %d).", (plev * 3), plev);
 			info[i++] = Dummy;
 			break;
 		case RACE_MIND_FLAYER:
@@ -440,25 +402,9 @@ void self_knowledge(void)
 				sprintf(Dummy, "You can mind blast your enemies, dam %d (cost 12).", plev * 2);
 			info[i++] = Dummy;
 			break;
-		case RACE_IMP:
-			if (plev > 29)
-			{
-				sprintf(Dummy, "You can cast a Fire Ball, dam. %d (cost 15).", plev * 2);
-				info[i++] = Dummy;
-			}
-			else if (plev > 8)
-			{
-				sprintf(Dummy, "You can cast a Fire Bolt, dam. %d (cost 15).", plev * 2);
-				info[i++] = Dummy;
-			}
-			break;
 		case RACE_GOLEM:
 			if (plev > 19)
 				info[i++] = "You can turn your skin to stone, dur d20+30 (cost 15).";
-			break;
-		case RACE_ZOMBIE: case RACE_SKELETON:
-			if (plev > 29)
-				info[i++] = "You can restore lost life forces (cost 30).";
 			break;
 		case RACE_VAMPIRE:
 			if (plev > 1)
@@ -474,18 +420,11 @@ void self_knowledge(void)
 				info[i++] = "You can wail to terrify your enemies (cost 3).";
 			}
 			break;
-		case RACE_SPRITE:
-			if (plev > 7)
-			{
-				info[i++] = "You can throw magic dust which induces sleep (cost 12).";
-			}
-			break;
 		default:
 			break;
 	}
 
 	/* Handle mutations */
-
 	if (p_ptr->muta1)
 	{
 		if (p_ptr->muta1 & MUT1_SPIT_ACID)
@@ -834,7 +773,7 @@ void self_knowledge(void)
 		}
 		if (p_ptr->muta3 & MUT3_IRON_SKIN)
 		{
-			info[i++] = "Your skin is made of steel (-1 DEX, +25 AC).";
+			info[i++] = "Your skin is made of iron (-1 DEX, +25 AC).";
 		}
 		if (p_ptr->muta3 & MUT3_WINGS)
 		{
@@ -2398,7 +2337,7 @@ bool dispel_animals(int dam)
 }
 
 /* Wake up all monsters, and speed up "los" monsters. */
-void aggravate_monsters(int who)
+void aggravate_monsters(int who, bool the_entire_level)
 {
 	int i;
 
@@ -2417,38 +2356,66 @@ void aggravate_monsters(int who)
 		/* Skip aggravating monster (or player) */
 		if (i == who) continue;
 
-		/* Wake up nearby sleeping monsters */
-		if (m_ptr->cdis < MAX_SIGHT * 2)
+		/* Wake up and hasten all monsters. No additional messages. -LM- */
+		if (the_entire_level)
 		{
 			/* Wake up */
 			if (m_ptr->csleep)
 			{
 				/* Wake up */
 				m_ptr->csleep = 0;
-				sleep = TRUE;
 			}
-		}
 
-		/* Speed up monsters in line of sight */
-		if (player_has_los_bold(m_ptr->fy, m_ptr->fx))
-		{
-			/* Speed up (instantly) to racial base + 10 */
+			/* Get mad. */
 			if (m_ptr->mspeed < r_ptr->speed + 10)
 			{
-				/* Speed up */
 				m_ptr->mspeed = r_ptr->speed + 10;
-				speed = TRUE;
 			}
 
-			if (m_ptr->smart & SM_FRIEND)
+			if (randint(2)==1)
 			{
-				if (randint(2)==1)
+				m_ptr->smart &= ~SM_FRIEND;
+			}
+			else
+			{
+				p_ptr->pet_follow_distance = 255;
+			}
+		}
+		else
+		{
+			/* Wake up nearby sleeping monsters */
+			if (m_ptr->cdis < MAX_SIGHT * 2)
+			{
+				/* Wake up */
+				if (m_ptr->csleep)
 				{
-					m_ptr->smart &= ~SM_FRIEND;
+					/* Wake up */
+					m_ptr->csleep = 0;
+					sleep = TRUE;
 				}
-				else
+			}
+
+			/* Speed up monsters in line of sight */
+			if (player_has_los_bold(m_ptr->fy, m_ptr->fx))
+			{
+				/* Speed up (instantly) to racial base + 10 */
+				if (m_ptr->mspeed < r_ptr->speed + 10)
 				{
-					p_ptr->pet_follow_distance = 255;
+					/* Speed up */
+					m_ptr->mspeed = r_ptr->speed + 10;
+					speed = TRUE;
+				}
+
+				if (m_ptr->smart & SM_FRIEND)
+				{
+					if (randint(2)==1)
+					{
+						m_ptr->smart &= ~SM_FRIEND;
+					}
+					else
+					{
+						p_ptr->pet_follow_distance = 255;
+					}
 				}
 			}
 		}
@@ -3769,9 +3736,9 @@ void call_chaos(void)
 	{
 		if (!get_aim_dir(&dir)) return;
 		if (line_chaos)
-			fire_beam(Chaos_type, dir, 150);
+			fire_beam(Chaos_type, dir, 300);
 		else
-			fire_ball(Chaos_type, dir, 150, 3 + (plev/35));
+			fire_ball(Chaos_type, dir, 300, 3 + (plev/35));
 	}
 }
 
@@ -3790,71 +3757,65 @@ void activate_ty_curse()
 	{
 		switch(randint(27))
 		{
-		case 1: case 2: case 3: case 16: case 17:
-			aggravate_monsters(1);
-			if (randint(6)!=1) break;
-		case 4: case 5: case 6:
-			activate_hi_summon();
-			if (randint(6)!=1) break;
-		case 7: case 8: case 9: case 18:
-			(void) summon_specific(py, px, dun_level, 0);
-			if (randint(6)!=1) break;
-		case 10: case 11: case 12:
-		{
-			msg_print("You feel your life draining away...");
-
-			if (!p_ptr->hold_life)
+			case 1: case 2: case 3: case 16:
+				aggravate_monsters(1, FALSE);
+				if (randint(6)!=1) break;
+			case 17:
+				aggravate_monsters(1, TRUE);
+				if (randint(6)!=1) break;
+			case 4: case 5: case 6:
+				activate_hi_summon();
+				if (randint(6)!=1) break;
+			case 7: case 8: case 9: case 18:
+				(void) summon_specific(py, px, dun_level, 0);
+				if (randint(6)!=1) break;
+			case 10: case 11: case 12:
 			{
-				lose_exp(p_ptr->exp / 16);
+				msg_print("You feel your life draining away...");
+				lose_exp(p_ptr->exp / 15);
+				if (randint(6)!=1) break;
 			}
-			else
-			{
-				lose_exp(p_ptr->exp / 160);
-			}
-
-			if (randint(6)!=1) break;
-		}
-		case 13: case 14: case 15: case 19: case 20:
-			if (p_ptr->free_act && (randint(100) < p_ptr->skill_sav))
-			{
-				/* Do nothing */ ;
-			}
-			else
-			{
-				msg_print("You feel like a statue!");
-				if (p_ptr->free_act)
-					set_paralyzed (p_ptr->paralyzed + randint(3));
-				else
-					set_paralyzed (p_ptr->paralyzed + randint(13));
-				stop_ty = TRUE;
-			}
-			if (randint(6)!=1) break;
-		case 21: case 22: case 23:
-			(void)do_dec_stat((randint(6))-1);
-			if (randint(6)!=1) break;
-		case 24:
-			msg_print("Huh? Who am I? What am I doing here?");
-			lose_all_info();
-			break;
-		case 25:
-			if ((dun_level > 65) && !stop_ty)
-			{
-				msg_print("oshitoshitoshit, you're gonna die you're gonna die you're gonna DIE!");
-				summon_cyber();
-				stop_ty = TRUE;
-			}
-			if (randint(6)!=1) break;
-		default:
-			while (i<6)
-			{
-				do
+			case 13: case 14: case 15: case 19: case 20:
+				if (p_ptr->free_act && (randint(100) < p_ptr->skill_sav))
 				{
-					(void)do_dec_stat(i);
+					/* Do nothing */ ;
 				}
-				while (randint(2)==1);
+				else
+				{
+					msg_print("You feel like a statue!");
+					if (p_ptr->free_act)
+						set_paralyzed (p_ptr->paralyzed + randint(5));
+					else
+						set_paralyzed (p_ptr->paralyzed + randint(15));
+					stop_ty = TRUE;
+				}
+				if (randint(6)!=1) break;
+			case 21: case 22: case 23:
+				(void)do_dec_stat((randint(6))-1);
+				if (randint(6)!=1) break;
+			case 24:
+				msg_print("Huh? Who am I? What am I doing here?");
+				lose_all_info();
+				break;
+			case 25:
+				if ((dun_level > 65) && !stop_ty)
+				{
+					msg_print("oshitoshitoshit, you're gonna die you're gonna die you're gonna DIE!");
+					summon_cyber();
+					stop_ty = TRUE;
+				}
+				if (randint(6)!=1) break;
+			default:
+				while (i<6)
+				{
+					do
+					{
+						(void)do_dec_stat(i);
+					}
+					while (randint(2)==1);
 
-				i++;
-			}
+					i++;
+				}
 		}
 	}
 	while ((randint(3)==1) && !stop_ty);

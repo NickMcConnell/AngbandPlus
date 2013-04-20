@@ -471,7 +471,6 @@ static void prt_poisoned(void)
 static void prt_state(void)
 {
 	byte attr = TERM_WHITE;
-
 	char text[16];
 
 
@@ -481,6 +480,47 @@ static void prt_state(void)
 		attr = TERM_RED;
 
 		strcpy(text, "Paralyzed!");
+	}
+
+	/* Invulnerable! */
+	else if (p_ptr->invuln) strcpy(text, "Invulner. ");
+
+	/* Wraith Form! */
+	else if (p_ptr->wraith_form)
+	{
+		attr = TERM_L_DARK;
+		strcpy(text, "Wraithform");
+	}
+
+	/* Protection from Evil */
+	else if (p_ptr->protevil)
+	{
+		attr = TERM_SLATE;
+		strcpy(text, "Prot. Evil");
+	}
+
+	/* Berserk */
+	else if (p_ptr->shero)
+	{
+		attr = TERM_L_RED;
+		strcpy(text, "Berserking");
+	}
+
+	/* Heroism */
+	else if (p_ptr->hero)
+	{
+		attr = TERM_BLUE;
+		strcpy(text, "Heroic    ");
+	}
+
+	/* Blessed */
+	else if (p_ptr->blessed) strcpy(text, "Blessed   ");
+
+	/* Temporary ESP */
+	else if (p_ptr->tim_esp)
+	{
+		attr = TERM_ORANGE;
+		strcpy(text, "Telepathic");
 	}
 
 	/* Resting */
@@ -2015,8 +2055,7 @@ static void calc_bonuses(void)
 			/* Unencumbered Monks become faster every 10 levels */
 			if (!(monk_heavy_armor()))
 #ifndef MONK_HACK
-				if (!((p_ptr->prace == RACE_KLACKON) ||
-				    (p_ptr->prace == RACE_SPRITE)))
+				if (!(p_ptr->prace == RACE_KLACKON))
 #endif /* MONK_HACK */
 					p_ptr->pspeed += (p_ptr->lev) / 10;
 
@@ -2068,10 +2107,6 @@ static void calc_bonuses(void)
 		case RACE_BARBARIAN:
 			p_ptr->resist_fear = TRUE;
 			break;
-		case RACE_HALF_OGRE:
-			p_ptr->resist_dark = TRUE;
-			p_ptr->sustain_str = TRUE;
-			break;
 		case RACE_HALF_GIANT:
 			p_ptr->sustain_str = TRUE;
 			p_ptr->resist_shard = TRUE;
@@ -2079,28 +2114,13 @@ static void calc_bonuses(void)
 		case RACE_HALF_TITAN:
 			p_ptr->resist_chaos = TRUE;
 			break;
-		case RACE_CYCLOPS:
-			p_ptr->resist_sound = TRUE;
-			break;
-		case RACE_YEEK:
-			p_ptr->resist_acid = TRUE;
-			if (p_ptr->lev > 29) p_ptr->immune_acid = TRUE;
-			break;
 		case RACE_KLACKON:
 			p_ptr->resist_conf = TRUE;
 			p_ptr->resist_acid = TRUE;
-			p_ptr->pspeed += (p_ptr->lev) / 10;
+			p_ptr->pspeed += (p_ptr->lev / 10);
 			break;
 		case RACE_KOBOLD:
 			p_ptr->resist_pois = TRUE;
-			break;
-		case RACE_NIBELUNG:
-			p_ptr->resist_disen = TRUE;
-			p_ptr->resist_dark = TRUE;
-			break;
-		case RACE_DARK_ELF:
-			p_ptr->resist_dark = TRUE;
-			if (p_ptr->lev > 19) p_ptr->see_inv = TRUE;
 			break;
 		case RACE_DRACONIAN:
 			p_ptr->ffall = TRUE;
@@ -2118,30 +2138,11 @@ static void calc_bonuses(void)
 			if (p_ptr->lev > 14) p_ptr->see_inv = TRUE;
 			if (p_ptr->lev > 29) p_ptr->telepathy = TRUE;
 			break;
-		case RACE_IMP:
-			p_ptr->resist_fire = TRUE;
-			if (p_ptr->lev > 9) p_ptr->see_inv = TRUE;
-			break;
 		case RACE_GOLEM:
 			p_ptr->slow_digest = TRUE;
 			p_ptr->resist_fire = TRUE;
 			p_ptr->resist_pois = TRUE;
 			p_ptr->resist_shard = TRUE;
-			break;
-		case RACE_SKELETON:
-			p_ptr->resist_shard = TRUE;
-			p_ptr->hold_life = TRUE;
-			p_ptr->see_inv = TRUE;
-			p_ptr->resist_pois = TRUE;
-			if (p_ptr->lev > 9) p_ptr->resist_cold = TRUE;
-			break;
-		case RACE_ZOMBIE:
-			p_ptr->resist_neth = TRUE;
-			p_ptr->hold_life = TRUE;
-			p_ptr->see_inv = TRUE;
-			p_ptr->resist_pois = TRUE;
-			p_ptr->slow_digest = TRUE;
-			if (p_ptr->lev > 4) p_ptr->resist_cold = TRUE;
 			break;
 		case RACE_VAMPIRE:
 			p_ptr->resist_dark = TRUE;
@@ -2160,11 +2161,6 @@ static void calc_bonuses(void)
 			p_ptr->resist_pois = TRUE;
 			p_ptr->slow_digest = TRUE;
 			p_ptr->resist_cold = TRUE;
-			break;
-		case RACE_SPRITE:
-			p_ptr->ffall = TRUE;
-			p_ptr->resist_lite = TRUE;
-			p_ptr->pspeed += (p_ptr->lev) / 10;
 			break;
 		case RACE_BEASTMAN:
 			p_ptr->resist_conf  = TRUE;
@@ -2206,7 +2202,6 @@ static void calc_bonuses(void)
 				p_ptr->resist_fire = TRUE; break;
 			case PATRON_NARJHAN:
 				p_ptr->skill_srh += 5;
-				p_ptr->skill_fos += 5;
 				break;
 			case PATRON_KHORNE:
 				p_ptr->to_d += 10;
@@ -2217,179 +2212,11 @@ static void calc_bonuses(void)
 		}
 	}
 
+	/* Calculate effects of mutations on stats (see mutation.c) - G */
         if (p_ptr->muta3)
         {
-                if (p_ptr->muta3 & MUT3_HYPER_STR)
-                {
-                    p_ptr->stat_add[A_STR] += 4;
-                }
-
-                if (p_ptr->muta3 & MUT3_PUNY)
-                {
-                    p_ptr->stat_add[A_STR] -= 4;
-                }
-
-                if (p_ptr->muta3 & MUT3_HYPER_INT)
-                {
-                    p_ptr->stat_add[A_INT] += 4;
-                    p_ptr->stat_add[A_WIS] += 4;
-                }
-
-                if (p_ptr->muta3 & MUT3_MORONIC)
-                {
-                    p_ptr->stat_add[A_INT] -= 4;
-                    p_ptr->stat_add[A_WIS] -= 4;
-                }
-
-                if (p_ptr->muta3 & MUT3_RESILIENT)
-                {
-                    p_ptr->stat_add[A_CON] += 4;
-                }
-
-                if (p_ptr->muta3 & MUT3_XTRA_FAT)
-                {
-                    p_ptr->stat_add[A_CON] += 2;
-                    p_ptr->pspeed -= 2;
-                }
-
-                if (p_ptr->muta3 & MUT3_ALBINO)
-                {
-                    p_ptr->stat_add[A_CON] -= 4;
-                }
-
-                if (p_ptr->muta3 & MUT3_FLESH_ROT)
-                {
-                    p_ptr->stat_add[A_CON] -= 2;
-                    p_ptr->stat_add[A_CHR] -= 1;
-                    p_ptr->regenerate = FALSE;
-                    /* Cancel innate regeneration */
-                }
-
-                if (p_ptr->muta3 & MUT3_SILLY_VOI)
-                {
-                    p_ptr->stat_add[A_CHR] -= 4;
-                }
-
-                if (p_ptr->muta3 & MUT3_BLANK_FAC)
-                {
-                    p_ptr->stat_add[A_CHR] -= 1;
-                }
-
-                if (p_ptr->muta3 & MUT3_XTRA_EYES)
-                {
-                    p_ptr->skill_fos += 15;
-                    p_ptr->skill_srh += 15;
-                }
-
-                if (p_ptr->muta3 & MUT3_MAGIC_RES)
-                {
-                    p_ptr->skill_sav += (15 + (p_ptr->lev / 5));
-
-                }
-
-                if (p_ptr->muta3 & MUT3_XTRA_NOIS)
-                {
-                    p_ptr->skill_stl -= 3;
-                }
-
-                if (p_ptr->muta3 & MUT3_INFRAVIS)
-                {
-                    p_ptr->see_infra += 3;
-                }
-
-                if (p_ptr->muta3 & MUT3_XTRA_LEGS)
-                {
-                    p_ptr->pspeed += 3;
-                }
-
-                if (p_ptr->muta3 & MUT3_SHORT_LEG)
-                {
-                    p_ptr->pspeed -= 3;
-                }
-
-                if (p_ptr->muta3 & MUT3_ELEC_TOUC)
-                {
-                    p_ptr->sh_elec = TRUE;
-		    p_ptr->resist_elec = TRUE;
-		    p_ptr->lite = TRUE;
-                }
-
-                if (p_ptr->muta3 & MUT3_FIRE_BODY)
-                {
-                    p_ptr->sh_fire = TRUE;
-		    p_ptr->resist_fire = TRUE;
-                    p_ptr->lite = TRUE;
-                }
-
-		if (p_ptr->muta3 & MUT3_SPINES)
-		{
-			p_ptr->sh_spine = TRUE;
-		}
-
-                if (p_ptr->muta3 & MUT3_WART_SKIN)
-                {
-                    p_ptr->stat_add[A_CHR] -= 2;
-                    p_ptr->to_a += 5;
-                    p_ptr->dis_to_a += 5;
-                }
-
-                if (p_ptr->muta3 & MUT3_SCALES)
-                {
-                    p_ptr->stat_add[A_CHR] -= 1;
-                    p_ptr->to_a += 10;
-                    p_ptr->dis_to_a += 10;
-                }
-
-                if (p_ptr->muta3 & MUT3_IRON_SKIN)
-                {
-                    p_ptr->stat_add[A_DEX] -= 1;
-                    p_ptr->to_a += 25;
-                    p_ptr->dis_to_a += 25;
-                }
-
-                if (p_ptr->muta3 & MUT3_WINGS)
-                {
-                    p_ptr->ffall = TRUE;
-                }
-
-                if (p_ptr->muta3 & MUT3_FEARLESS)
-                {
-                    p_ptr->resist_fear = TRUE;
-                }
-
-                if (p_ptr->muta3 & MUT3_REGEN)
-                {
-                    p_ptr->regenerate = TRUE;
-                }
-
-                if (p_ptr->muta3 & MUT3_ESP)
-                {
-                    p_ptr->telepathy =TRUE;
-                }
-
-		if (p_ptr->muta3 & MUT3_LIMBER)
-		{
-			p_ptr->stat_add[A_DEX] += 3;
-		}
-
-		if (p_ptr->muta3 & MUT3_ARTHRITIS)
-		{
-			p_ptr->stat_add[A_DEX] -= 3;
-		}
-
-		if (p_ptr->muta3 & MUT3_ILL_NORM)
-		{
-			p_ptr->stat_add[A_CHR] = 0;
-		}
-
-		if (p_ptr->muta3 & MUT3_GLOW)
-		{
-			p_ptr->resist_dark = TRUE;
-			p_ptr->resist_lite = TRUE;
-			p_ptr->lite = TRUE;
-		}
-        }
-    
+		calc_mutations();
+	}
 
 	/* Scan the usable inventory */
 	for (i = INVEN_WIELD; i < INVEN_TOTAL; i++)
@@ -2415,9 +2242,6 @@ static void calc_bonuses(void)
 
 		/* Affect searching ability (factor of five) */
 		if (f1 & (TR1_SEARCH)) p_ptr->skill_srh += (o_ptr->pval * 5);
-
-		/* Affect searching frequency (factor of five) */
-		if (f1 & (TR1_SEARCH)) p_ptr->skill_fos += (o_ptr->pval * 5);
 
 		/* Affect infravision */
 		if (f1 & (TR1_INFRA)) p_ptr->see_infra += o_ptr->pval;
@@ -3026,15 +2850,20 @@ static void calc_bonuses(void)
 			case CLASS_CHAOS_WARRIOR: /* 1 extra blow */
 				if (p_ptr->lev > 24) p_ptr->num_blow += 1;
 				break;
+			/* Rogues get 1 extra blow with light weapons */
+			case CLASS_ROGUE:
+				if ((o_ptr->weight <= 50) && (p_ptr->lev > 24))
+					p_ptr->num_blow += 1;
+				break;
 			case CLASS_WEAPONMASTER:
 			/*
 			 * Weaponmasters only get 1 blow with weapons that
 			 * don't match their specialty. Otherwise, they get a
 			 * bonus of 1-3 blows (as per Warriors). -- Gumby
 			 */
-				if (!(inventory[INVEN_WIELD].tval == p_ptr->wm_choice))
+				if (!(o_ptr->tval == p_ptr->wm_choice))
 					p_ptr->num_blow = 1;
-				else if (inventory[INVEN_WIELD].tval == p_ptr->wm_choice)
+				else if (o_ptr->tval == p_ptr->wm_choice)
 					p_ptr->num_blow += (p_ptr->lev / 15);
 				break;
 			default: /* no extra blows */
@@ -3043,7 +2872,6 @@ static void calc_bonuses(void)
 
 		/* Require at least one blow */
 		if (p_ptr->num_blow < 1) p_ptr->num_blow = 1;
-
 
 		/* Boost digging skill by weapon weight */
 		p_ptr->skill_dig += (o_ptr->weight / 10);

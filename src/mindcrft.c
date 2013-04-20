@@ -34,6 +34,7 @@ mindcraft_power mindcraft_powers[MAX_MINDCRAFT_POWERS] =
         { 13, 12,  50, "Character Armour" },      /* +AC & Resistances */
         { 15, 12,  60, "Psychometry" },		  /* Identify -> *ID* */
         { 18, 10,  45, "Mind Wave" },             /* Centered Ball -> LOS */
+	{ 20, 12,  40, "Telekinesis" },		  /* Fetch an item */
         { 23, 15,  50, "Adrenaline Channeling" }, /* Haste + Hero/Berserk */
         { 25, 10,  40, "Psychic Drain" },         /* Enemy HP to SP */
         { 28, 20,  45, "Telekinetic Wave" },      /* Centered Ball -> LOS */
@@ -50,20 +51,17 @@ void mindcraft_info(char *p, int power)
 	{
 		case 0:  break;
 		case 1:  sprintf(p, " dam %dd%d", 3 + ((plev - 1) / 4), 3 + plev/15); break;
-		case 2:  sprintf(p, " range %d", (plev < 35 ? 10 : plev + 2)); break;
-		case 3:  if (plev < 45)
-				sprintf(p, " range %d", plev * 5);
-			 else
-				sprintf(p, " range %d", plev);
-			 break;
+		case 2:  sprintf(p, " range %d", (plev < 30 ? 10 : plev + 2)); break;
+		case 3:  sprintf(p, " range %d", (plev < 45 ? plev * 5 : plev)); break;
 		case 4:  break;
 		case 5:  sprintf(p, " dam %dd8", 10+((plev-5)/3)); break;
 		case 6:  sprintf(p, " dur %d", plev); break;
 		case 7:  break;
 		case 8:  sprintf(p, " dam %d", plev * ((plev / 10) + 1)); break;
-		case 9:  sprintf(p, " dur 11-%d", plev + plev / 2); break;
-		case 10: sprintf(p, " dam %dd8", plev/2);  break;
-		case 11: sprintf(p, " dam %d", plev * ((plev / 10) + 2)); break;
+		case 9:  sprintf(p, " wgt %d", plev*20); break;
+		case 10: sprintf(p, " dur 11-%d", plev + plev / 2); break;
+		case 11: sprintf(p, " dam %dd8", plev/2);  break;
+		case 12: sprintf(p, " dam %d", plev * ((plev / 10) + 2)); break;
 	}
 }
 
@@ -84,26 +82,19 @@ void mindcraft_info(char *p, int power)
  */
 static int get_mindcraft_power(int *sn)
 {
-	int                     i;
-
-	int                     num = 0;
-    int y = 1;
-    int x = 20;
-    int minfail = 0;
-    
-        int  plev = p_ptr->lev;
-    int chance = 0;
-    
-    bool            flag, redraw;
-    int             ask;
-	char            choice;
-
-        mindcraft_power spell;
-    
-	char            out_val[160];
-        char            comment[80];
-    
-    cptr p = "power";
+	int		i, ask, cur_wgt, max_wgt;
+	int		num = 0;
+	int		y = 1;
+	int		x = 20;
+	int		minfail = 0;
+	int		plev = p_ptr->lev;
+	int		chance = 0;
+	bool		flag, redraw;
+	char		choice;
+	mindcraft_power	spell;
+	char		out_val[160];
+	char		comment[80];
+	cptr		p = "power";
 
 	/* Assume cancelled */
 	*sn = (-1);
@@ -114,24 +105,24 @@ static int get_mindcraft_power(int *sn)
 	/* No redraw yet */
 	redraw = FALSE;
 
-       for (i = 0; i < MAX_MINDCRAFT_POWERS; i++)
-	      if (mindcraft_powers[i].min_lev <= plev)
-		num++;
+	for (i = 0; i < MAX_MINDCRAFT_POWERS; i++)
+		if (mindcraft_powers[i].min_lev <= plev)
+			num++;
 
 	/* Build a prompt (accept all spells) */
-    strnfmt(out_val, 78, "(%^ss %c-%c, *=List, ESC=exit) Use which %s? ",
-		p, I2A(0), I2A(num - 1), p);
+	strnfmt(out_val, 78, "(%^ss %c-%c, *=List, ESC=exit) Use which %s? ",
+						p, I2A(0), I2A(num - 1), p);
 
 	/* Get a spell from the user */
 	while (!flag && get_com(out_val, &choice))
 	{
 		/* Request redraw */
-        if ((choice == ' ') || (choice == '*') || (choice == '?'))
+		if ((choice == ' ') || (choice == '*') || (choice == '?'))
 		{
-            /* Show the list */
+			/* Show the list */
 			if (!redraw)
 			{
-                char psi_desc[80];
+				char psi_desc[80];
 
 				/* Show list */
 				redraw = TRUE;
@@ -139,56 +130,93 @@ static int get_mindcraft_power(int *sn)
 				/* Save the screen */
 				Term_save();
 
-			    /* Display a list of spells */
-			    prt("", y, x);
-			    put_str("Name", y, x + 5);
-			    put_str("Lv Mana Fail Info", y, x + 35);
+				/* Display a list of spells */
+				prt("", y, x);
+				put_str("Name", y, x + 5);
+				put_str("Lv Mana Fail Info", y, x + 35);
 
-			    /* Dump the spells */
-			    for (i = 0; i < MAX_MINDCRAFT_POWERS; i++)
+				/* Dump the spells */
+				for (i = 0; i < MAX_MINDCRAFT_POWERS; i++)
 				{
-				    /* Access the spell */
-				    spell = mindcraft_powers[i];
-				    if (spell.min_lev > plev)   break;
+					/* Access the spell */
+					spell = mindcraft_powers[i];
+					if (spell.min_lev > plev) break;
 
-				    chance = spell.fail;
-                    /* Reduce failure rate by "effective" level adjustment */
-                    chance -= 3 * (p_ptr->lev - spell.min_lev);
+					chance = spell.fail;
 
-                    /* Reduce failure rate by INT/WIS adjustment */
-                    chance -= 3 * (adj_mag_stat[p_ptr->stat_ind[mp_ptr->spell_stat]] - 1);
+					/*
+					 * Reduce failure rate by
+					 * "effective" level adjustment
+					 */
+					chance -= 3 * (p_ptr->lev - spell.min_lev);
+					if (chance < 0) chance = 0;
 
-				    /* Not enough mana to cast */
-				    if (spell.mana_cost > p_ptr->csp)
+					/*
+					 * Reduce failure rate by INT/WIS
+					 * adjustment
+					 */
+					chance -= 3 * (adj_mag_stat[p_ptr->stat_ind[mp_ptr->spell_stat]] - 1);
+					if (chance < 0) chance = 0;
+
+					/* Extract the minimum failure rate */
+					minfail = adj_mag_fail[p_ptr->stat_ind[mp_ptr->spell_stat]];
+				    
+					/* Minimum failure rate */
+					if (chance < minfail) chance = minfail;
+
+					/* Not enough mana to cast */
+					if (spell.mana_cost > p_ptr->csp)
 					{
-                        chance += 5 * (spell.mana_cost - p_ptr->csp);
+						chance += 5 * (spell.mana_cost - p_ptr->csp);
 					}
 
-                    /* Extract the minimum failure rate */
-                    minfail = adj_mag_fail[p_ptr->stat_ind[mp_ptr->spell_stat]];
-				    
-				    /* Minimum failure rate */
-                    if (chance < minfail) chance = minfail;
+					/*
+					 * Wearing too much armour hurts
+					 * your spellcasting. -- Gumby
+					 */
+					if (p_ptr->cumber_armor)
+					{
+						/* Weigh the armor */
+						cur_wgt = 0;
+						cur_wgt += inventory[INVEN_BODY].weight;
+						cur_wgt += inventory[INVEN_HEAD].weight;
+						cur_wgt += inventory[INVEN_ARM].weight;
+						cur_wgt += inventory[INVEN_OUTER].weight;
+						cur_wgt += inventory[INVEN_HANDS].weight;
+						cur_wgt += inventory[INVEN_FEET].weight;
 
-				    /* Stunning makes spells harder */
-                    if (p_ptr->stun > 50) chance += 25;
-                    else if (p_ptr->stun) chance += 15;
+						/* Determine the weight allowance */
+						max_wgt = mp_ptr->spell_weight;
 
-                    /* Always a 5 percent chance of working */
-				    if (chance > 95) chance = 95;
+						/* Heavy armor increases fail rate */
+						if (((cur_wgt - max_wgt) / 10) > 0)
+						{
+							chance += ((cur_wgt - max_wgt) / 20);
+						}
+					}
+
+					/* Stunning makes spells harder */
+					if (p_ptr->stun > 50) chance += 25;
+					else if (p_ptr->stun) chance += 15;
+
+					/* Being Berserk doesn't help- G */
+					if (p_ptr->shero) chance += 25;
+
+					/* Always a 5 percent chance of working */
+					if (chance > 95) chance = 95;
 				    
-				    /* Get info */
-				    mindcraft_info(comment, i);
+					/* Get info */
+					mindcraft_info(comment, i);
 				    
-				    /* Dump the spell --(-- */
-                    sprintf(psi_desc, "  %c) %-30s%2d %4d %3d%%%s",
-                        I2A(i), spell.name,
-                        spell.min_lev, spell.mana_cost, chance, comment);
-                    prt(psi_desc, y + i + 1, x);
+					/* Dump the spell */
+					sprintf(psi_desc, "  %c) %-30s%2d %4d %3d%%%s",
+					I2A(i), spell.name, spell.min_lev,
+					spell.mana_cost, chance, comment);
+					prt(psi_desc, y + i + 1, x);
 				}
 
-			    /* Clear the bottom line */
-			    prt("", y + i + 1, x);
+				/* Clear the bottom line */
+				prt("", y + i + 1, x);
 			}
 
 			/* Hide the list */
@@ -201,11 +229,9 @@ static int get_mindcraft_power(int *sn)
 				Term_load();
 			}
 
-	    /* Redo asking */
+			/* Redo asking */
 			continue;
 		}
-
-
 
 		/* Note verify */
 		ask = (isupper(choice));
@@ -215,7 +241,6 @@ static int get_mindcraft_power(int *sn)
 
 		/* Extract request */
 		i = (islower(choice) ? A2I(choice) : -1);
-
 
 		/* Totally Illegal */
 		if ((i < 0) || (i >= num))
@@ -227,27 +252,24 @@ static int get_mindcraft_power(int *sn)
 		/* Save the spell index */
 		spell = mindcraft_powers[i];
 
-        /* Verify it */
+	        /* Verify it */
 		if (ask)
 		{
 			char tmp_val[160];
 
 			/* Prompt */
-            strnfmt(tmp_val, 78, "Use %s? ", mindcraft_powers[i].name);
+			strnfmt(tmp_val, 78, "Use %s? ", mindcraft_powers[i].name);
 
 			/* Belay that order */
 			if (!get_check(tmp_val)) continue;
 		}
 
-
 		/* Stop the loop */
 		flag = TRUE;
 	}
 
-
 	/* Restore the screen */
 	if (redraw) Term_load();
-
 
 	/* Show choices */
 	if (show_choices)
@@ -278,7 +300,7 @@ static int get_mindcraft_power(int *sn)
 void do_cmd_mindcraft(void)
 {
 	int		n = 0, b = 0;
-	int		chance, dir;
+	int		chance, dir, cur_wgt, max_wgt;
 	int		minfail = 0;
 	int		plev = p_ptr->lev;
 	mindcraft_power	spell;
@@ -310,15 +332,11 @@ void do_cmd_mindcraft(void)
 
 	/* Reduce failure rate by "effective" level adjustment */
 	chance -= 3 * (p_ptr->lev - spell.min_lev);
+	if (chance < 0) chance = 0;
 
 	/* Reduce failure rate by INT/WIS adjustment */
 	chance -= 3 * (adj_mag_stat[p_ptr->stat_ind[mp_ptr->spell_stat]] - 1);
-
-	/* Not enough mana to cast */
-	if (spell.mana_cost > p_ptr->csp)
-	{
-		chance += 5 * (spell.mana_cost - p_ptr->csp);
-	}
+	if (chance < 0) chance = 0;
 
 	/* Extract the minimum failure rate */
 	minfail = adj_mag_fail[p_ptr->stat_ind[mp_ptr->spell_stat]];
@@ -326,9 +344,40 @@ void do_cmd_mindcraft(void)
 	/* Minimum failure rate */
 	if (chance < minfail) chance = minfail;
 
+	/* Not enough mana to cast */
+	if (spell.mana_cost > p_ptr->csp)
+	{
+		chance += 5 * (spell.mana_cost - p_ptr->csp);
+	}
+
+	/* Wearing too much armour hurts your spellcasting. -- Gumby */
+	if (p_ptr->cumber_armor)
+	{
+		/* Weigh the armor */
+		cur_wgt = 0;
+		cur_wgt += inventory[INVEN_BODY].weight;
+		cur_wgt += inventory[INVEN_HEAD].weight;
+		cur_wgt += inventory[INVEN_ARM].weight;
+		cur_wgt += inventory[INVEN_OUTER].weight;
+		cur_wgt += inventory[INVEN_HANDS].weight;
+		cur_wgt += inventory[INVEN_FEET].weight;
+
+		/* Determine the weight allowance */
+		max_wgt = mp_ptr->spell_weight;
+
+		/* Heavy armor increases fail rate */
+		if (((cur_wgt - max_wgt) / 10) > 0)
+		{
+			chance += ((cur_wgt - max_wgt) / 20);
+		}
+	}
+
 	/* Stunning makes spells harder */
 	if (p_ptr->stun > 50) chance += 25;
 	else if (p_ptr->stun) chance += 15;
+
+	/* Being Berserk doesn't help, either. -- Gumby */
+	if (p_ptr->shero) chance += 25;
 
 	/* Always a 5 percent chance of working */
 	if (chance > 95) chance = 95;
@@ -377,7 +426,7 @@ void do_cmd_mindcraft(void)
 		/* spell code */
 		switch (n)
 		{
-			case 0:   /* Precognition */
+			case 0: /* Precognition */
 				if (plev > 44) wiz_lite();
 				else if (plev > 19) map_area();
 
@@ -400,17 +449,15 @@ void do_cmd_mindcraft(void)
 
 				if (!b) msg_print("You feel safe.");
 				break;
-			case 1:
-				/* Neural Blast */
+			case 1: /* Neural Blast */
 				if (!get_aim_dir(&dir)) return;
 				if (randint(100) < plev * 2)
 					fire_beam(GF_PSI, dir, damroll(3 + ((plev - 1) / 3), (3+plev/15)));
 				else
 					fire_ball(GF_PSI, dir, damroll(3 + ((plev - 1) / 3), (3+plev/15)), 0);
 				break;
-			case 2:
-				/* Minor Displacement */
-				if (plev < 35)
+			case 2: /* Minor Displacement */
+				if (plev < 30)
 				{
 					teleport_player(10);
 				}
@@ -436,8 +483,7 @@ void do_cmd_mindcraft(void)
 					break;
 				}
 				break;
-			case 3:
-				/* Major Displacement */
+			case 3: /* Major Displacement */
 				if (plev < 45)
 				{
 					teleport_player(plev * 5);
@@ -448,9 +494,8 @@ void do_cmd_mindcraft(void)
 					(void)fire_beam(GF_AWAY_ALL, dir, plev);
 				}
 				break;
-			case 4:
-				/* Domination */
-				if (plev < 30)
+			case 4: /* Domination */
+				if (plev < 35)
 				{
 					if (!get_aim_dir(&dir)) return;
 					fire_ball(GF_DOMINATION, dir, plev, 0);
@@ -460,14 +505,12 @@ void do_cmd_mindcraft(void)
 					charm_monsters(p_ptr->lev * 2);
 				}
 				break;
-			case 5:
-				/* Pulverize */
+			case 5: /* Pulverize */
 				if (!get_aim_dir(&dir)) return;
 				fire_ball(GF_SOUND, dir, damroll(10+((plev-5)/3), 8),
 				    (plev > 20 ? (plev-20)/8 + 1 : 0));
 				break;
-			case 6:
-				/* Character Armour */
+			case 6: /* Character Armour */
 				set_shield(p_ptr->shield + plev);
 				if (plev > 14) set_oppose_acid(p_ptr->oppose_acid + plev);
 				if (plev > 19) set_oppose_fire(p_ptr->oppose_fire + plev);
@@ -475,14 +518,12 @@ void do_cmd_mindcraft(void)
 				if (plev > 29) set_oppose_elec(p_ptr->oppose_elec + plev);
 				if (plev > 34) set_oppose_pois(p_ptr->oppose_pois + plev);
 				break;
-			case 7:
-				/* Psychometry */
+			case 7: /* Psychometry */
 				if (plev > 39) identify_fully();
 				else if (plev > 29) ident_spell();
 				else psychometry();
 				break;
-			case 8:
-				/* Mind Wave */
+			case 8: /* Mind Wave */
 				msg_print("Mind-warping forces emanate from your brain!");
 				if (plev < 30)
 					project(0, FALSE, 2 + (plev / 10), py, px,
@@ -491,8 +532,11 @@ void do_cmd_mindcraft(void)
 				else
 					(void)mindblast_monsters(plev * ((plev / 10) + 1));
 				break;
-			case 9:
-				/* Adrenaline Channeling */
+			case 9: /* Telekinesis */
+				if (!get_aim_dir(&dir)) return;
+				fetch(dir, plev*20, FALSE);
+				break;
+			case 10: /* Adrenaline Channeling */
 				set_afraid(0);
 				set_stun(0);
 				hp_player(plev);
@@ -505,16 +549,14 @@ void do_cmd_mindcraft(void)
 				if (!p_ptr->fast) (void)set_fast(b);
 				else (void)set_fast(p_ptr->fast + b);
 				break;
-			case 10:
-				/* Psychic Drain */
+			case 11: /* Psychic Drain */
 				if (!get_aim_dir(&dir)) return;
 				b = damroll(plev / 2, 8);
 				if (fire_ball(GF_PSI_DRAIN, dir, b,
 						0 + (plev - 25) / 10))
 					p_ptr->energy -= randint(150);
 				break;
-			case 11:
-				/* Telekinetic Wave */
+			case 12: /* Telekinetic Wave */
 				msg_print("A wave of pure physical force radiates out from your body!");
 				project(0, FALSE, 3 + (plev / 10), py, px,
 				   plev * ((plev / 10) + 2), GF_TELEKINESIS,

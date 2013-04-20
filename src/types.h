@@ -309,80 +309,73 @@ typedef struct monster_race monster_race;
 
 struct monster_race
 {
-	u16b name;				/* Name (offset) */
-	u16b text;				/* Text (offset) */
+	u16b name;		/* Name (offset) */
+	u16b text;		/* Text (offset) */
 
-	byte hdice;				/* Creatures hit dice count */
-	byte hside;				/* Creatures hit dice sides */
+	byte hdice;		/* Creatures hit dice count */
+	byte hside;		/* Creatures hit dice sides */
 
-	s16b ac;				/* Armour Class */
+	s16b ac;		/* Armour Class */
 
-	s16b sleep;				/* Inactive counter (base) */
-	byte aaf;				/* Area affect radius (1-100) */
-	byte speed;				/* Speed (normally 110) */
+	s16b sleep;		/* Inactive counter (base) */
+	byte aaf;		/* Area affect radius (1-100) */
+	byte speed;		/* Speed (normally 110) */
 
-	s32b mexp;				/* Exp value for kill */
+	s32b mexp;		/* Exp value for kill */
 
-	s16b extra;				/* Unused (for now) */
+	s16b extra;		/* Unused (for now) */
 
-	byte freq_inate;		/* Inate spell frequency */
-	byte freq_spell;		/* Other spell frequency */
+	byte freq_inate;	/* Inate spell frequency */
+	byte freq_spell;	/* Other spell frequency */
 
-	u32b flags1;			/* Flags 1 (general) */
-	u32b flags2;			/* Flags 2 (abilities) */
-	u32b flags3;			/* Flags 3 (race/resist) */
-	u32b flags4;			/* Flags 4 (inate/breath) */
-	u32b flags5;			/* Flags 5 (normal spells) */
-	u32b flags6;			/* Flags 6 (special spells) */
+	u32b flags1;		/* Flags 1 (general) */
+	u32b flags2;		/* Flags 2 (abilities) */
+	u32b flags3;		/* Flags 3 (race/resist) */
+	u32b flags4;		/* Flags 4 (inate/breath) */
+	u32b flags5;		/* Flags 5 (normal spells) */
+	u32b flags6;		/* Flags 6 (special spells) */
 
 	monster_blow blow[4];	/* Up to four blows per round */
 
+	byte level;		/* Level of creature */
+	byte rarity;		/* Rarity of creature */
 
-	byte level;				/* Level of creature */
-	byte rarity;			/* Rarity of creature */
+	byte d_attr;		/* Default monster attribute */
+	char d_char;		/* Default monster character */
 
+	byte x_attr;		/* Desired monster attribute */
+	char x_char;		/* Desired monster character */
 
-	byte d_attr;			/* Default monster attribute */
-	char d_char;			/* Default monster character */
+	byte max_num;		/* Maximum population allowed per level */
+	byte cur_num;		/* Monster population on current level */
 
+	s16b r_sights;		/* Count sightings of this monster */
+	s16b r_deaths;		/* Count deaths from this monster */
 
-	byte x_attr;			/* Desired monster attribute */
-	char x_char;			/* Desired monster character */
+	s16b r_pkills;		/* Count monsters killed in this life */
+	s16b r_tkills;		/* Count monsters killed in all lives */
 
+	byte r_wake;		/* Number of times woken up (?) */
+	byte r_ignore;		/* Number of times ignored (?) */
 
-	byte max_num;			/* Maximum population allowed per level */
+	byte r_xtra1;		/* Something (unused) */
+	byte r_xtra2;		/* Something (unused) */
 
-	byte cur_num;			/* Monster population on current level */
+	byte r_drop_gold;	/* Max number of gold dropped at once */
+	byte r_drop_item;	/* Max number of item dropped at once */
 
+	byte r_cast_inate;	/* Max number of inate spells seen */
+	byte r_cast_spell;	/* Max number of other spells seen */
 
-	s16b r_sights;			/* Count sightings of this monster */
-	s16b r_deaths;			/* Count deaths from this monster */
+	byte r_blows[4];	/* Number of times each blow type was seen */
 
-	s16b r_pkills;			/* Count monsters killed in this life */
-	s16b r_tkills;			/* Count monsters killed in all lives */
-
-	byte r_wake;			/* Number of times woken up (?) */
-	byte r_ignore;			/* Number of times ignored (?) */
-
-	byte r_xtra1;			/* Something (unused) */
-	byte r_xtra2;			/* Something (unused) */
-
-	byte r_drop_gold;		/* Max number of gold dropped at once */
-	byte r_drop_item;		/* Max number of item dropped at once */
-
-	byte r_cast_inate;		/* Max number of inate spells seen */
-	byte r_cast_spell;		/* Max number of other spells seen */
-
-	byte r_blows[4];		/* Number of times each blow type was seen */
-
-	u32b r_flags1;			/* Observed racial flags */
-	u32b r_flags2;			/* Observed racial flags */
-	u32b r_flags3;			/* Observed racial flags */
-	u32b r_flags4;			/* Observed racial flags */
-	u32b r_flags5;			/* Observed racial flags */
-	u32b r_flags6;			/* Observed racial flags */
+	u32b r_flags1;		/* Observed racial flags */
+	u32b r_flags2;		/* Observed racial flags */
+	u32b r_flags3;		/* Observed racial flags */
+	u32b r_flags4;		/* Observed racial flags */
+	u32b r_flags5;		/* Observed racial flags */
+	u32b r_flags6;		/* Observed racial flags */
 };
-
 
 
 /*
@@ -489,15 +482,15 @@ typedef struct object_type object_type;
 
 struct object_type
 {
-	s16b k_idx;			/* Kind index (zero if "dead") */
+	s16b k_idx;		/* Kind index (zero if "dead") */
 
-	byte iy;			/* Y-position on map, or zero */
-	byte ix;			/* X-position on map, or zero */
+	byte iy;		/* Y-position on map, or zero */
+	byte ix;		/* X-position on map, or zero */
 
-	byte tval;			/* Item type (from kind) */
-	byte sval;			/* Item sub-type (from kind) */
+	byte tval;		/* Item type (from kind) */
+	byte sval;		/* Item sub-type (from kind) */
 
-	s16b pval;			/* Item extra-parameter */
+	s16b pval;		/* Item extra-parameter */
 
 	byte discount;		/* Discount (if any) */
 
@@ -505,32 +498,34 @@ struct object_type
 
 	s16b weight;		/* Item weight */
 
-	byte name1;			/* Artifact type, if any */
-	byte name2;			/* Ego-Item type, if any */
+	byte name1;		/* Artifact type, if any */
+	byte name2;		/* Ego-Item type, if any */
 
-	byte xtra1;			/* Extra info type */
-	byte xtra2;			/* Extra info index */
+	byte xtra1;		/* Extra info type */
+	byte xtra2;		/* Extra info index */
 
-	s16b to_h;			/* Plusses to hit */
-	s16b to_d;			/* Plusses to damage */
-	s16b to_a;			/* Plusses to AC */
+	s16b to_h;		/* Plusses to hit */
+	s16b to_d;		/* Plusses to damage */
+	s16b to_a;		/* Plusses to AC */
 
-	s16b ac;			/* Normal AC */
+	s16b ac;		/* Normal AC */
 
 	byte dd, ds;		/* Damage dice/sides */
 
 	s16b timeout;		/* Timeout Counter */
 
-	byte ident;			/* Special flags  */
+	byte ident;		/* Special flags  */
 
 	byte marked;		/* Object is marked */
 
-	u16b note;			/* Inscription index */
-    u16b art_name;      /* Artifact name (random artifacts) */
+	byte branded;		/* Object has been branded -- Gumby */
 
-    u32b art_flags1;        /* Flags, set 1  Alas, these were necessary */
-    u32b art_flags2;        /* Flags, set 2  for the random artifacts of*/
-    u32b art_flags3;        /* Flags, set 3  Zangband */
+	u16b note;		/* Inscription index */
+
+	u16b art_name;		/* Artifact name (random artifacts) */
+	u32b art_flags1;        /* Flags, set 1  Alas, these were necessary */
+	u32b art_flags2;        /* Flags, set 2  for the random artifacts of*/
+	u32b art_flags3;        /* Flags, set 3  Zangband */
 
 	
 	s16b next_o_idx;	/* Next object in stack (if any) */
@@ -553,13 +548,13 @@ typedef struct monster_type monster_type;
 
 struct monster_type
 {
-	s16b r_idx;			/* Monster race index */
+	s16b r_idx;		/* Monster race index */
 
-	byte fy;			/* Y location on map */
-	byte fx;			/* X location on map */
+	byte fy;		/* Y location on map */
+	byte fx;		/* X location on map */
 
-	s16b hp;			/* Current Hit points */
-	s16b maxhp;			/* Max Hit points */
+	s16b hp;		/* Current Hit points */
+	s16b maxhp;		/* Max Hit points */
 
 	s16b csleep;		/* Inactive counter */
 
@@ -570,29 +565,24 @@ struct monster_type
 	byte confused;		/* Monster is confused */
 	byte monfear;		/* Monster is afraid */
 
-	byte cdis;			/* Current dis from player */
+	byte cdis;		/* Current dis from player */
 
-	byte mflag;			/* Extra monster flags */
+	byte mflag;		/* Extra monster flags */
 
-	bool ml;			/* Monster is "visible" */
+	bool ml;		/* Monster is "visible" */
 
 	s16b hold_o_idx;	/* Object being held (if any) */
 
 #ifdef WDT_TRACK_OPTIONS
+	byte ty;		/* Y location of target */
+	byte tx;		/* X location of target */
 
-	byte ty;			/* Y location of target */
-	byte tx;			/* X location of target */
-
-	byte t_dur;			/* How long are we tracking */
-
-	byte t_bit;			/* Up to eight bit flags */
-
+	byte t_dur;		/* How long are we tracking */
+	byte t_bit;		/* Up to eight bit flags */
 #endif
 
 #ifdef DRS_SMART_OPTIONS
-
-	u32b smart;			/* Field for "smart_learn" */
-
+	u32b smart;		/* Field for "smart_learn" */
 #endif
 
 };
@@ -908,7 +898,6 @@ struct player_type
 	byte pclass;		/* Class index */
 	byte realm1;		/* First magic realm */
 	byte realm2;		/* Second magic realm */
-/*	byte oops; */		/* Unused */
 	byte wm_choice;		/* Hopefully Weapomaster's tval choice */
 
 
@@ -1017,7 +1006,6 @@ struct player_type
 
 	s16b old_food_aux;	/* Old value of food */
 
-
 	bool cumber_armor;	/* Mana draining armor */
 	bool cumber_glove;	/* Mana draining gloves */
 	bool heavy_wield;	/* Heavy weapon */
@@ -1025,7 +1013,6 @@ struct player_type
 	bool icky_wield;	/* Icky weapon */
 
 	s16b cur_lite;		/* Radius of lite (if any) */
-
 
 	u32b notice;		/* Special Updates (bit flags) */
 	u32b update;		/* Pending Updates (bit flags) */

@@ -10,7 +10,8 @@
 # After modifying this file, delete the "lib/raw/k_info.raw" file.
 
 # Available slots:
-# 30, 46, 47, 111, 112, 117, 121, 440-479 (reserved???), 539-575
+# 30, 46, 47, 111, 112, 117, 121, 349, 389-398, 440-479 (reserved???),
+# 545-575
 
 # XXX XXX Add some "IGNORE_XXX" flags to Rings, Amulets, etc.
 
@@ -181,7 +182,7 @@ N:24:& Slime Mold~
 G:,:o
 I:80:36:3000
 W:1:0:5:2
-A:1/1
+A:1/1:20/1
 
 N:25:& Piece~ of Elvish Waybread
 G:,:B
@@ -806,14 +807,14 @@ P:5:1d1:0:0:0
 N:105:Hard Leather Armour~
 G:(:U
 I:36:6:0
-W:7:0:100:100
+W:7:0:100:75
 A:7/1
 P:6:1d1:-1:0:0
 
 N:106:Hard Studded Leather~
 G:(:U
 I:36:7:0
-W:10:0:110:150
+W:10:0:110:100
 A:10/1
 P:7:1d2:-1:0:0
 
@@ -1264,7 +1265,12 @@ W:15:0:3:250
 A:15/1
 F:STEALTH | HIDE_TYPE
 
-## XXX 170 XXX ##
+N:170:Regenerateion
+G:":d
+I:40:17:0
+W:20:0:3:1000
+A:20/2:40/1
+F:REGEN
 
 N:171:the Magi
 G:":d
@@ -1617,7 +1623,7 @@ N:225:Strength
 G:!:d
 I:75:48:0
 W:20:0:4:8000
-A:20/3:25/2:30/1:35/1
+A:20/5:25/3:30/1:35/1
 P:0:1d1:0:0:0
 
 N:226:Weakness
@@ -1638,7 +1644,7 @@ N:228:Intelligence
 G:!:d
 I:75:49:0
 W:20:0:4:8000
-A:25/3:25/2:30/1:35/1
+A:20/5:25/3:30/1:35/1
 P:0:1d1:0:0:0
 
 N:229:Stupidity
@@ -1659,7 +1665,7 @@ N:231:Wisdom
 G:!:d
 I:75:50:0
 W:20:0:4:8000
-A:25/3:25/2:30/1:35/1
+A:20/5:25/3:30/1:35/1
 P:0:1d1:0:0:0
 
 N:232:Naivety
@@ -1743,7 +1749,7 @@ N:243:Constitution
 G:!:d
 I:75:52:0
 W:20:0:4:8000
-A:25/3:25/2:30/1:35/1
+A:20/5:25/3:30/1:35/1
 P:0:1d1:0:0:0
 
 N:244:Experience
@@ -1799,7 +1805,7 @@ N:251:Dexterity
 G:!:d
 I:75:51:0
 W:20:0:4:8000
-A:25/3:25/2:30/1:35/1
+A:20/5:25/3:30/1:35/1
 P:0:1d1:0:0:0
 
 N:252:Restore Dexterity
@@ -1966,8 +1972,8 @@ P:0:1d1:0:0:0
 N:274:Polymorph
 G:-:d
 I:65:13:0
-W:20:0:10:400
-A:20/1
+W:10:0:10:400
+A:10/1
 P:0:1d1:0:0:0
 
 N:275:Heal Monster
@@ -2377,7 +2383,7 @@ P:0:1d2:0:0:0
 
 ##### Basic Books #####
 
-N:330:[Book of Common Prayer]
+N:330:[Common Prayers]
 G:?:W
 I:90:0:0
 W:10:0:30:100
@@ -2399,7 +2405,7 @@ A:40/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:333:[Blessings of the Grail]
+N:333:[Holy Blessings]
 G:?:w
 I:90:3:0
 W:90:0:30:100000
@@ -2414,14 +2420,14 @@ W:10:0:30:100
 A:10/1
 P:0:1d1:0:0:0
 
-N:335:[Master Sorcerer's Handbook]
+N:335:[Master's Handbook]
 G:?:B
 I:91:1:0
 W:20:0:30:1000
 A:20/1
 P:0:1d1:0:0:0
 
-N:336:[Pattern Sorcery]
+N:336:[High Sorcery]
 G:?:b
 I:91:2:0
 W:40:0:30:25000
@@ -2508,7 +2514,7 @@ F:EASY_KNOW
 N:347:& Brass Lantern~
 G:~:U
 I:39:1:7500
-W:5:0:50:50
+W:5:0:50:60
 A:5/1
 P:0:1d1:0:0:0
 F:EASY_KNOW | IGNORE_FIRE
@@ -2516,17 +2522,11 @@ F:EASY_KNOW | IGNORE_FIRE
 N:348:& Flask~ of oil
 G:!:y
 I:77:0:7500
-W:1:0:10:3
+W:1:0:5:3
 A:1/1
 P:0:2d6:0:0:0
 
-N:349:& Empty Bottle~
-G:!:w
-I:2:1:0
-W:0:0:2:0
-A:0/1
-P:0:1d1:0:0:0
-
+# 349 (unused)
 
 ##### Here are the Rods #####
 
@@ -2751,7 +2751,7 @@ A:40/1
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-N:382:[Nature's Wrath]
+N:382:[The Book of Storms]
 G:?:g
 I:92:3:0
 W:90:0:30:100000
@@ -2803,81 +2803,7 @@ W:20:0:30:1000
 A:20/1
 P:0:1d1:0:0:0
 
-
-##### Junk #####
-
-N:389:& Shard~ of Pottery
-G:~:r
-I:3:3:0
-W:0:0:5:0
-A:0/1
-P:0:1d1:0:0:0
-
-N:390:& Broken Stick~
-G:~:r
-I:3:6:0
-W:0:0:3:0
-A:0/1
-P:0:1d1:0:0:0
-
-
-##### Skeletons #####
-
-N:391:& Broken Skull~
-G:~:w
-I:1:1:0
-W:0:0:1:0
-A:0/1
-P:0:1d1:0:0:0
-
-N:392:& Broken Bone~
-G:~:w
-I:1:2:0
-W:0:0:2:0
-A:0/1
-P:0:1d1:0:0:0
-
-N:393:& Canine Skeleton~
-G:~:w
-I:1:4:0
-W:1:0:10:0
-A:1/1
-P:0:1d1:0:0:0
-
-N:394:& Rodent Skeleton~
-G:~:w
-I:1:3:0
-W:1:0:10:0
-A:1/1
-P:0:1d1:0:0:0
-
-N:395:& Human Skeleton~
-G:~:w
-I:1:8:0
-W:5:0:60:0
-A:5/1
-P:0:1d2:0:0:0
-
-N:396:& Dwarf Skeleton~
-G:~:w
-I:1:7:0
-W:5:0:50:0
-A:5/1
-P:0:1d2:0:0:0
-
-N:397:& Elf Skeleton~
-G:~:w
-I:1:6:0
-W:5:0:40:0
-A:5/1
-P:0:1d2:0:0:0
-
-N:398:& Gnome Skeleton~
-G:~:w
-I:1:5:0
-W:5:0:30:0
-A:5/1
-P:0:1d2:0:0:0
+# 389-398 (unused)
 
 # The Scarlet Plate Armour of Pan Tang -- see artifact list
 
@@ -3032,7 +2958,7 @@ G:!:d
 I:75:23:0
 W:55:0:4:0
 A:55/4
-P:0:20d20:0:0:0
+P:0:50d50:0:0:0
 
 N:416:Ruination
 G:!:d
@@ -3046,7 +2972,7 @@ G:!:d
 I:75:22:0
 W:60:0:4:10000
 A:60/8
-P:0:25d25:0:0:0
+P:0:40d50:0:0:0
 
 N:418:Augmentation
 G:!:d
@@ -3362,7 +3288,7 @@ F:INSTA_ART
 # special "base names" (such as "Necklace").
 
 
-# The Phial of Galadriel -- see artifact list [was level 2]
+# The Phial of Galadriel -- see artifact list
 
 N:500:& Phial~
 G:!:y
@@ -3388,7 +3314,6 @@ I:39:6:0
 W:60:0:5:60000
 P:0:1d1:0:0:0
 F:INSTA_ART
-
 
 # The Red Amulet -- see artifact list
 
@@ -3500,7 +3425,7 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 # Arcane Spellbooks
 
-N:516:[Cantrips for Beginners]
+N:516:[Cantrips]
 G:?:s
 I:96:0:0
 W:10:0:30:100
@@ -3648,8 +3573,8 @@ A:20/2
 N:534:& Feanoran Lamp~
 G:~:y
 I:39:2:0
-W:10:0:25:1500
-A:10/4:15/2:25/1
+W:11:0:25:1500
+A:15/1
 P:0:1d1:0:0:0
 F:EASY_KNOW | IGNORE_FIRE
 
@@ -3676,8 +3601,8 @@ F:SHOW_MODS
 
 N:538:Summon Pet
 G:?:d
-I:70:6:200
-W:10:0:5:0
+I:70:6:0
+W:10:0:5:500
 A:10/2:30/1:60/1
 
 N:539:Striking
@@ -3685,4 +3610,40 @@ G:-:d
 I:65:30:0
 W:20:0:10:800
 A:20/2
+P:0:1d1:0:0:0
+
+N:540:Brand Weapon
+G:?:d
+I:70:53:0
+W:10:0:5:4500
+A:10/4:20/3:40/2:80/1
+
+# The Ring of Immunity -- see artifact list
+
+N:541:& Ring~
+G:=:d
+I:45:50:0
+W:100:0:2:2500000
+F:INSTA_ART
+
+N:542:Alteration
+G:_:d
+I:55:30:0
+W:30:0:50:1500
+A:30/2:60/1
+P:0:1d2:0:0:0
+
+# The Rabbit's Foot of Burglary -- see artifact list
+
+N:543:& Rabbit's Foot~
+G:":d
+I:40:16:0
+W:55:0:3:55000
+F:INSTA_ART
+
+N:544:Apportation
+G:-:d
+I:65:31:0
+W:50:0:10:1500
+A:50/4
 P:0:1d1:0:0:0

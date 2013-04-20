@@ -535,6 +535,9 @@ bool set_blessed(int v)
 	/* Disturb */
 	if (disturb_state) disturb(0, 0);
 
+	/* Redraw the state */
+	p_ptr->redraw |= (PR_STATE);
+
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
 
@@ -584,6 +587,9 @@ bool set_hero(int v)
 
 	/* Disturb */
 	if (disturb_state) disturb(0, 0);
+
+	/* Redraw the state */
+	p_ptr->redraw |= (PR_STATE);
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
@@ -638,6 +644,9 @@ bool set_shero(int v)
 	/* Disturb */
 	if (disturb_state) disturb(0, 0);
 
+	/* Redraw the state */
+	p_ptr->redraw |= (PR_STATE);
+
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
 
@@ -691,6 +700,9 @@ bool set_protevil(int v)
 	/* Disturb */
 	if (disturb_state) disturb(0, 0);
 
+	/* Redraw the state */
+	p_ptr->redraw |= (PR_STATE);
+
 	/* Handle stuff */
 	handle_stuff();
 
@@ -711,47 +723,47 @@ bool set_shadow(int v)
 	/* Open */
 	if (v)
 	{
-        if (!p_ptr->wraith_form)
+		if (!p_ptr->wraith_form)
 		{
-
-            msg_print("You leave the physical world!");
+			msg_print("You leave the physical world!");
 			notice = TRUE;
 
-            {
-                /* Redraw map */
-                p_ptr->redraw |= (PR_MAP);
+			{
+				/* Redraw map */
+				p_ptr->redraw |= (PR_MAP);
 
-                /* Update monsters */
-                p_ptr->update |= (PU_MONSTERS);
+				/* Update monsters */
+				p_ptr->update |= (PU_MONSTERS);
 
-                /* Window stuff */
-                p_ptr->window |= (PW_OVERHEAD);
-            }
+				/* Window stuff */
+				p_ptr->window |= (PW_OVERHEAD);
+			}
 		}
 	}
 
 	/* Shut */
 	else
 	{
-        if (p_ptr->wraith_form)
+		if (p_ptr->wraith_form)
 		{
-            msg_print("You feel opaque.");
+			msg_print("You feel opaque.");
 			notice = TRUE;
-            {
-                /* Redraw map */
-                p_ptr->redraw |= (PR_MAP);
 
-                /* Update monsters */
-                p_ptr->update |= (PU_MONSTERS);
+			{
+				/* Redraw map */
+				p_ptr->redraw |= (PR_MAP);
 
-                /* Window stuff */
-                p_ptr->window |= (PW_OVERHEAD);
-            }
+				/* Update monsters */
+				p_ptr->update |= (PU_MONSTERS);
+
+				/* Window stuff */
+				p_ptr->window |= (PW_OVERHEAD);
+			}
 		}
 	}
 
 	/* Use the value */
-    p_ptr->wraith_form = v;
+	p_ptr->wraith_form = v;
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
@@ -759,21 +771,18 @@ bool set_shadow(int v)
 	/* Disturb */
 	if (disturb_state) disturb(0, 0);
 
+	/* Redraw the state */
+	p_ptr->redraw |= (PR_STATE);
+
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
-
-
-
 
 	/* Handle stuff */
 	handle_stuff();
 
 	/* Result */
 	return (TRUE);
-
 }
-
-
 
 
 /*
@@ -837,11 +846,11 @@ bool set_invuln(int v)
 	/* Disturb */
 	if (disturb_state) disturb(0, 0);
 
+	/* Redraw the state */
+	p_ptr->redraw |= (PR_STATE);
+
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
-
-
-
 
 	/* Handle stuff */
 	handle_stuff();
@@ -884,13 +893,16 @@ bool set_tim_esp(int v)
 	}
 
 	/* Use the value */
-    p_ptr->tim_esp = v;
+	p_ptr->tim_esp = v;
 
 	/* Nothing to notice */
 	if (!notice) return (FALSE);
 
 	/* Disturb */
 	if (disturb_state) disturb(0, 0);
+
+	/* Redraw the state */
+	p_ptr->redraw |= (PR_STATE);
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
@@ -1256,9 +1268,6 @@ bool set_oppose_pois(int v)
  */
 bool set_stun(int v)
 {
-
-
-
 	int old_aux, new_aux;
 
 	bool notice = FALSE;
@@ -1266,7 +1275,7 @@ bool set_stun(int v)
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
-    if (p_ptr->prace == RACE_GOLEM)
+	if (p_ptr->prace == RACE_GOLEM)
         v = 0;
 
 	/* Knocked out */
@@ -1410,19 +1419,15 @@ bool set_stun(int v)
 bool set_cut(int v)
 {
 	int old_aux, new_aux;
-
 	bool notice = FALSE;
 
 	/* Hack -- Force good values */
 	v = (v > 10000) ? 10000 : (v < 0) ? 0 : v;
 
-    if (p_ptr->prace == RACE_GOLEM || p_ptr->prace == RACE_SKELETON ||
-        p_ptr->prace == RACE_SPECTRE )
-        v = 0;
-    else if (p_ptr->prace == RACE_ZOMBIE && p_ptr->lev > 11)
-        v = 0;
+	if ((p_ptr->prace == RACE_GOLEM) || (p_ptr->prace == RACE_SPECTRE))
+		v = 0;
 
-    /* Mortal wound */
+	/* Mortal wound */
 	if (p_ptr->cut > 1000)
 	{
 		old_aux = 7;
@@ -1799,7 +1804,8 @@ bool set_food(int v)
 	if (!notice) return (FALSE);
 
 	/* Disturb */
-	if (disturb_state) disturb(0, 0);
+	if (disturb_state || (p_ptr->food <= PY_FOOD_ALERT))
+		disturb(0, 0);
 
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
@@ -1820,10 +1826,9 @@ bool set_food(int v)
  */
 void check_experience(void)
 {
-	int		i;
-	bool level_reward = FALSE;
-	bool level_mutation = FALSE;
-
+	int	i;
+	bool	level_reward = FALSE;
+	bool	level_mutation = FALSE;
 
 	/* Note current level */
 	i = p_ptr->lev;
@@ -1849,7 +1854,6 @@ void check_experience(void)
 	/* Handle stuff */
 	handle_stuff();
 
-
 	/* Lose levels while possible */
 	while ((p_ptr->lev > 1) &&
 	       (p_ptr->exp < (player_exp[p_ptr->lev-2] * p_ptr->expfact / 100L)))
@@ -1871,7 +1875,6 @@ void check_experience(void)
 		handle_stuff();
 	}
 
-
 	/* Gain levels while possible */
 	while ((p_ptr->lev < PY_MAX_LEVEL) &&
 	       (p_ptr->exp >= (player_exp[p_ptr->lev-1] * p_ptr->expfact / 100L)))
@@ -1890,10 +1893,9 @@ void check_experience(void)
 				level_reward = TRUE;
 			}
 
-
 			if (p_ptr->prace == RACE_BEASTMAN)
 			{
-				if (randint(3)==1) level_mutation = TRUE;
+				level_mutation = TRUE;
 			}
 		}
 
@@ -1924,7 +1926,21 @@ void check_experience(void)
 		if (level_mutation)
 		{
 			msg_print("You feel different...");
-			(void)gain_random_mutation(0);
+
+			/*
+			 * Lose a mutation - but only if you have one or
+			 * more to begin with. -- Gumby
+			 */
+			if ((p_ptr->muta1 || p_ptr->muta2 || p_ptr->muta3) &&
+			    (randint(3)==1))
+			{
+				lose_mutation(0);
+			}
+			else /* Gain one... */
+			{
+				gain_random_mutation(0);
+			}
+
 			level_mutation = FALSE;
 		}
 	}

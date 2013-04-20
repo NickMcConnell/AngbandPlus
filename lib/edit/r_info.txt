@@ -311,14 +311,14 @@ B:BITE:HURT:1d3
 F:WEIRD_MIND | ANIMAL
 D:A small, harmless lizard.
 
-N:19:Giant white centipede
-G:c:w
-I:110:3d5:7:10:40
-W:1:1:0:2
-B:BITE:HURT:1d2
-B:STING:HURT:1d2
-F:RAND_50 | WEIRD_MIND | BASH_DOOR | ANIMAL
-D:It is about four feet long and carnivorous.
+N:19:Porcupine
+G:q:U
+I:100:3d5:3:15:40
+W:1:1:0:5
+B:BITE:HURT:2d2
+F:RAND_25 | WEIRD_MIND | BASH_DOOR | ANIMAL | SPINES
+D:It may be large, slow and relatively weak, but its covering of long, 
+D:sharp quills make it a tricky beast to take on.
 
 N:20:White icky thing
 G:i:w
@@ -720,11 +720,11 @@ D:for a good tavern.
 
 N:63:Neekerbreeker
 G:I:u
-I:120:2d2:0:10:80
+I:120:1d2:10:10:50
 W:3:3:0:2
-B:BITE:HURT:1d2
+B:BITE:HURT:1d1
 F:WEIRD_MIND | ANIMAL | FRIENDS | FORCE_SLEEP
-S:1_IN_3 | 
+S:1_IN_2 | 
 S:SHRIEK
 D:An annoying, cricket-like insect.  The noise from even one Neekerbreeker 
 D:makes you wish you had brought some earplugs.
@@ -1073,7 +1073,7 @@ D:It screeches as it attacks.
 
 N:100:Novice archer
 G:p:G
-I:120:6d8:20:10:5
+I:115:6d8:20:10:5
 W:6:2:0:20
 B:HIT:HURT:1d4
 B:HIT:HURT:1d4
@@ -2173,8 +2173,6 @@ W:14:1:0:70
 B:HIT:HURT:3d6
 B:HIT:HURT:3d6
 F:DROP_60 | OPEN_DOOR | BASH_DOOR | EVIL | GIANT | MALE
-S:1_IN_10 | 
-S:BOULDER_1
 D:A ten foot tall humanoid with powerful muscles.
 
 N:203:Flesh golem
@@ -2337,8 +2335,6 @@ B:HIT:COLD:3d6
 B:HIT:HURT:2d8
 F:DROP_60 | OPEN_DOOR | BASH_DOOR | EVIL | GIANT | MALE | IM_COLD | 
 F:HURT_FIRE
-S:1_IN_8 | 
-S:BOULDER_1
 D:A twelve foot tall giant covered in furs.
 
 N:218:Griffon
@@ -2440,8 +2436,6 @@ B:HIT:FIRE:3d7
 B:HIT:FIRE:3d7
 F:DROP_60 | OPEN_DOOR | BASH_DOOR | EVIL | GIANT | MALE | IM_FIRE | 
 F:HURT_COLD
-S:1_IN_8 | 
-S:BOULDER_1
 D:A glowing fourteen foot tall giant.  Flames drip from its red skin.
 
 N:227:Ulfast, Son of Ulfang
@@ -2666,8 +2660,6 @@ W:18:1:0:100
 B:HIT:HURT:3d8
 B:HIT:HURT:3d8
 F:DROP_60 | TAKE_ITEM | OPEN_DOOR | BASH_DOOR | EVIL | GIANT | MALE
-S:1_IN_5 | 
-S:BOULDER_1
 D:It is eighteen feet tall and looking at you.
 
 N:246:Giant black dragon fly
@@ -2904,8 +2896,6 @@ B:HIT:ELEC:3d8
 B:HIT:ELEC:3d8
 F:DROP_90 | TAKE_ITEM | OPEN_DOOR | BASH_DOOR | EVIL | GIANT | IM_ELEC | 
 F:MALE
-S:1_IN_5 | 
-S:BOULDER_1
 D:It is a twenty foot tall giant wreathed in clouds.
 
 N:266:Ugluk, the Uruk
@@ -2994,8 +2984,8 @@ B:HIT:HURT:4d8
 B:HIT:HURT:4d8
 F:DROP_90 | DROP_GOOD | TAKE_ITEM | OPEN_DOOR | BASH_DOOR | MOVE_BODY | 
 F:GIANT | MALE
-S:1_IN_4 | 
-S:ARROW_3 | S_ANIMAL | BOULDER_1
+S:1_IN_3 | 
+S:ARROW_3 | S_ANIMAL
 D:He's as tall as the trees.
 
 N:274:Killer stag beetle
@@ -4136,7 +4126,7 @@ B:HIT:ELEC:3d8
 F:FORCE_SLEEP | FORCE_MAXHP | DROP_1D2 | TAKE_ITEM | OPEN_DOOR | EVIL | 
 F:BASH_DOOR | AURA_ELEC | GIANT | IM_COLD | IM_ELEC | MALE
 S:1_IN_8 | 
-S:BLINK | TELE_TO | CONF | SCARE | BO_ELEC | BA_ELEC | BOULDER_2
+S:BLINK | TELE_TO | CONF | SCARE | BO_ELEC | BA_ELEC
 D:It is a twenty-five foot tall giant wreathed in lighting.
 
 N:364:Spectator
@@ -4298,8 +4288,6 @@ B:HIT:EAT_GOLD:2d2
 F:UNIQUE | MALE | CAN_SPEAK | FORCE_MAXHP | ESCORT | ONLY_ITEM | DROP_1D2 | 
 F:DROP_GOOD | TAKE_ITEM | OPEN_DOOR | BASH_DOOR | EVIL | GIANT | IM_COLD | 
 F:IM_POIS
-S:1_IN_5 | 
-S:BOULDER_2
 D:Big, brawny, powerful and with a greed for gold.
 
 N:376:Chaos ghost
@@ -4783,8 +4771,8 @@ B:HIT:HURT:6d6
 F:FORCE_MAXHP | EMPTY_MIND | COLD_BLOOD | BASH_DOOR | IM_FIRE | IM_COLD | 
 F:IM_ELEC | IM_POIS | RES_NEXU | NONLIVING | REFLECTING | NO_CONF | 
 F:NO_SLEEP | NO_FEAR | NO_STUN
-S:1_IN_8 | 
-S:ARROW_4 | BOULDER_1
+S:1_IN_6 | 
+S:ARROW_4
 D:An enormous construct resembling a titan made from stone.  It strides 
 D:purposefully towards you, swinging its slow fists with earth-shattering 
 D:power.
@@ -5518,7 +5506,7 @@ B:CRUSH:CONFUSE:6d4
 F:FORCE_SLEEP | FORCE_MAXHP | DROP_2D2 | DROP_4D2 | SMART | TAKE_ITEM | 
 F:OPEN_DOOR | BASH_DOOR | EVIL | GIANT | MALE
 S:1_IN_3 | 
-S:HEAL | TELE_TO | SCARE | S_MONSTERS | BOULDER_1
+S:HEAL | TELE_TO | SCARE | S_MONSTERS
 D:It is a humanoid figure thirty feet tall that gives off an aura of power 
 D:and hate.
 
@@ -5926,8 +5914,6 @@ B:HIT:HURT:5d10
 B:HIT:HURT:5d10
 F:MALE | ONLY_ITEM | ONLY_ITEM | DROP_1D2 | OPEN_DOOR | BASH_DOOR | EVIL | 
 F:GIANT | IM_POIS | NO_SLEEP | NO_FEAR | NO_STUN
-S:1_IN_5 | 
-S:BOULDER_2
 D:He helps keep the peace among the Ogre tribes.
 
 N:490:Mumak
@@ -6206,7 +6192,7 @@ B:CRUSH:CONFUSE:12d8
 F:FORCE_SLEEP | FORCE_MAXHP | ONLY_ITEM | DROP_4D2 | DROP_GOOD | MALE | 
 F:MOVE_BODY | SMART | TAKE_ITEM | OPEN_DOOR | BASH_DOOR | EVIL | GIANT 
 S:1_IN_3 | 
-S:HEAL | TELE_TO | S_MONSTERS | BOULDER_2
+S:HEAL | TELE_TO | S_MONSTERS
 D:A forty foot tall humanoid that shakes the ground as it walks.  The power 
 D:radiating from its frame shakes your courage, its hatred inspired by your 
 D:defiance.
@@ -6290,19 +6276,17 @@ D:a dragon, greedily watching over his hoard.
 
 N:513:Ice demon
 G:U:w
-I:120:50d50:40:80:10
-W:47:2:0:8000
+I:110:50d50:40:80:10
+W:47:2:0:5000
 B:HIT:COLD:6d8
 B:HIT:COLD:6d8
-B:HIT:HURT:6d4
-B:HIT:HURT:6d4
+B:BITE:COLD:6d6
 F:FORCE_MAXHP | ONLY_ITEM | DROP_2D2 | DROP_GOOD | RES_TELE | EVIL | 
 F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | MOVE_BODY | RES_CHAO | DEMON | 
-F:IM_COLD | IM_POIS | HURT_FIRE | NO_CONF | NO_SLEEP | NONLIVING
+F:IM_COLD | IM_POIS | HURT_FIRE | NO_CONF | NO_SLEEP
 S:1_IN_2 | 
 S:BO_COLD | BA_COLD | BO_ICEE
-D:A huge demonic creature of ice.  The very air crystalizes in its 
-D:presence.
+D:A huge, demonic lump of ice.  The very air crystalizes in its presence.
 
 N:514:Greater hell-beast
 G:U:s
@@ -6374,17 +6358,16 @@ D:trying to kill you...
 
 N:518:Glaurung, Father of Dragons
 G:D:r
-I:120:28d100:20:120:70
-W:49:2:0:25000
+I:120:30d100:20:120:10
+W:49:2:0:30000
 B:CLAW:HURT:7d12
 B:CLAW:HURT:7d12
-B:BITE:HURT:8d14
-B:BITE:HURT:8d14
+B:BITE:HURT:10d14
 F:UNIQUE | MALE | FORCE_SLEEP | FORCE_MAXHP | ONLY_ITEM | DROP_3D2 | EVIL | 
 F:DROP_4D2 | DROP_GOOD | BASH_DOOR | POWERFUL | MOVE_BODY | CAN_SPEAK | 
 F:DRAGON | IM_FIRE | HURT_COLD | NO_CONF | NO_SLEEP
-S:1_IN_5 | 
-S:CONF | CAUSE_3 | BR_FIRE | S_DRAGON
+S:1_IN_3 | 
+S:HOLD | CAUSE_3 | BR_FIRE | S_DRAGON | BR_PLAS | S_HI_DRAGON
 D:Glaurung is the father of all dragons, and was for a long time the most 
 D:powerful.  Nevertheless, he still has full command over his brood and can 
 D:command them to appear whenever he so wishes.  His is the definition of 
@@ -6420,22 +6403,22 @@ S:BLIND | CONF | BRAIN_SMASH | BR_FIRE | BO_PLAS | BA_NETH | S_HI_UNDEAD |
 S:S_UNDEAD | S_DEMON
 D:It is a massive humanoid demon wreathed in flames.
 
-N:521:Goat of Mendes
-G:q:D
+N:521:Baphomet, the Goat of Mendes
+G:U:D
 I:120:18d111:30:66:40
 W:50:3:0:6666
 B:GAZE:TERRIFY:6d6
-B:BUTT:HURT:6d6
+B:BUTT:LOSE_CON:6d6
 B:BITE:EXP_40:6d6
-B:BITE:LOSE_CON:6d6
+B:HIT:HURT:10d6
 F:EVIL | DEMON | FORCE_SLEEP | FORCE_MAXHP | ONLY_ITEM | DROP_2D2 | 
 F:BASH_DOOR | POWERFUL | MOVE_BODY | SMART | NONLIVING | NO_CONF | 
-F:NO_SLEEP | HURT_LITE | IM_FIRE | IM_COLD
+F:NO_SLEEP | HURT_LITE | IM_FIRE | IM_COLD | UNIQUE
 S:1_IN_4 | 
 S:BLIND | CONF | BRAIN_SMASH | SCARE | BA_NETH | FORGET | S_UNDEAD | 
 S:DRAIN_MANA | S_DEMON | CAUSE_4 | BA_COLD
-D:It is a demonic creature from the lowest hell, vaguely resembling a 
-D:large black he-goat.
+D:A large, winged, goat-headed hermaphroditic demon, generally considered 
+D:the patron and god of those who practice witchcraft.
 
 N:522:Nightwing
 G:W:b
@@ -6543,7 +6526,7 @@ D:A vast dragon of power.  Storms and lightning crash around its titanic
 D:form.  Deep blue scales reflect the flashes and highlight the creature's 
 D:great muscles.  It regards you with contempt.
 
-N:529:Baphomet the Minotaur Lord
+N:529:The Minotaur Lord
 G:N:o
 I:130:35d100:30:120:30
 W:51:4:0:18000
@@ -6555,9 +6538,9 @@ F:UNIQUE | MALE | CAN_SPEAK | FORCE_SLEEP | FORCE_MAXHP | ONLY_ITEM |
 F:DROP_1D2 | DROP_4D2 | DROP_GOOD | BASH_DOOR | EVIL | IM_FIRE | IM_POIS | 
 F:NO_CONF | NO_SLEEP | ESCORT
 S:1_IN_6 | 
-S:SLOW | BOULDER_2 | BO_MANA | BO_PLAS | BA_ELEC | BR_WALL
-D:A fearsome bull-headed demon, Baphomet swings a mighty axe as he curses 
-D:all that defy him.
+S:SLOW | BO_MANA | BO_PLAS | BA_ELEC | BR_WALL
+D:A fearsome bull-headed giant, the Minotaur Lord swings a mighty axe as he 
+D:curses all that defy him.
 
 N:530:Bull Gates
 G:p:D
@@ -6969,15 +6952,14 @@ N:555:Ancalagon the Black
 G:D:D
 I:130:75d100:20:125:70
 W:58:3:0:55000
-B:CLAW:HURT:6d12
-B:CLAW:HURT:6d12
-B:BITE:HURT:9d14
-B:BITE:FIRE:9d14
+B:CLAW:HURT:8d12
+B:CLAW:HURT:8d12
+B:BITE:HURT:10d15
 F:UNIQUE | MALE | CAN_SPEAK | FORCE_SLEEP | FORCE_MAXHP | ONLY_ITEM | 
 F:DROP_3D2 | DROP_4D2 | DROP_GOOD | BASH_DOOR | POWERFUL | MOVE_BODY | 
 F:EVIL | DRAGON | IM_FIRE | HURT_COLD | NO_CONF | NO_SLEEP
 S:1_IN_2 | 
-S:BLIND | CONF | SCARE | BR_FIRE | S_DRAGON | S_HI_DRAGON
+S:BR_FIRE | S_DRAGON | S_HI_DRAGON | BR_PLAS
 D:'Rushing Jaws' is his name, and death is his game.  No dragon of the 
 D:brood of Glaurung can match him.
 
@@ -7285,7 +7267,7 @@ B:CLAW:HURT:10d10
 B:BITE:HURT:10d10
 B:BITE:HURT:10d10
 F:ATTR_MULTI | FORCE_SLEEP | FORCE_MAXHP | RES_TELE | ONLY_ITEM | DROP_60 | 
-F:DROP_90 | BASH_DOOR | ANIMAL | RES_CHAO | 
+F:DROP_90 | BASH_DOOR | ANIMAL | RES_CHAO | ATTR_ANY
 S:1_IN_5 | 
 S:CAUSE_4 | BR_CHAO
 D:"Beware the Jabberwock, my son! The jaws that bite, the claws that 
@@ -7543,8 +7525,7 @@ F:DROP_GOOD | COLD_BLOOD | OPEN_DOOR | BASH_DOOR | EVIL | UNDEAD |
 F:IM_COLD | IM_POIS | RES_TELE | NO_CONF | NO_SLEEP | KILL_WALL | NO_FEAR
 S:1_IN_3 | 
 S:TELE_TO | BLIND | HOLD | CONF | CAUSE_3 | CAUSE_4 | DRAIN_MANA | 
-S:BRAIN_SMASH | BA_MANA | BA_NETH | 
-S:S_UNDEAD
+S:BRAIN_SMASH | BA_MANA | BA_NETH | S_UNDEAD
 D:A humanoid form,  black as night, advancing steadily and unstoppably.  
 D:Flee!
 
@@ -7750,8 +7731,6 @@ F:UNIQUE | MALE | FORCE_SLEEP | FORCE_MAXHP | ONLY_ITEM | DROP_GOOD |
 F:DROP_4D2 | KILL_BODY | KILL_WALL | SMART | TAKE_ITEM | OPEN_DOOR | 
 F:BASH_DOOR | GIANT | HURT_ROCK | IM_FIRE | IM_COLD | IM_ACID | IM_ELEC | 
 F:IM_POIS
-S:1_IN_5 | 
-S:BOULDER_2
 D:The strongest of all the Titans. Legend has it that he use to hold the 
 D:sky up; and the mountain range that now does so bears his name.
 
@@ -8058,7 +8037,7 @@ F:DROP_4D2 | DROP_3D2 | DROP_GOOD | SMART | TAKE_ITEM | BASH_DOOR |
 F:GIANT | ESCORT | IM_FIRE | IM_COLD | IM_ACID | IM_POIS | IM_ELEC
 S:1_IN_3 | 
 S:BR_FIRE | BR_COLD | BR_SHAR | BR_SOUN | S_MONSTERS | S_KIN | TELE_TO | 
-S:HEAL | BOULDER_2
+S:HEAL
 D:The lord of the Titans, he has broken loose from his confinement in 
 D:the nether Hells to seek revenge on the world.
 
@@ -8132,8 +8111,8 @@ F:ESCORT | ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_4D2 | DROP_GOOD | SMART |
 F:DROP_GREAT | COLD_BLOOD | OPEN_DOOR | BASH_DOOR | UNDEAD | IM_FIRE | 
 F:IM_COLD | IM_ELEC | IM_POIS | NO_CONF | NO_SLEEP |
 S:1_IN_3 | 
-S:TPORT | BLIND | SCARE | CAUSE_4 | BRAIN_SMASH | BA_MANA | BO_MANA | 
-S:BA_FIRE | S_MONSTERS | S_DEMON | S_HI_UNDEAD | HAND_DOOM
+S:TPORT | SCARE | CAUSE_4 | BRAIN_SMASH | BA_MANA | BO_MANA | S_MONSTERS | 
+S:S_DEMON | S_HI_UNDEAD | HAND_DOOM | S_KIN
 D:A stench of corruption and decay surrounds this sorcerer, who has clearly 
 D:risen from the grave to continue his foul plots and schemes.
 

@@ -114,9 +114,6 @@ static grouper group_item[] =
 	{ TV_SPIKE,             "Tools/Misc" },
 	{ TV_LITE,                NULL },
 	{ TV_FLASK,               NULL },
-	{ TV_JUNK,                NULL },
-	{ TV_BOTTLE,      NULL },
-	{ TV_SKELETON,    NULL },
 
 	{ 0, "" }
 };
@@ -1750,15 +1747,25 @@ static void spoil_mon_info(cptr fname)
 			spoil_out(buf);
 		}
 
-		if (flags2 & (RF2_AURA_FIRE))
+		if ((flags2 & (RF2_AURA_FIRE)) && (flags2 & (RF2_AURA_ELEC)))
+		{
+			sprintf(buf, "%s is surrounded by flames and electricity.  ", wd_che[msex]);
+			spoil_out(buf);
+		}
+		else if (flags2 & (RF2_AURA_FIRE))
 		{
 			sprintf(buf, "%s is surrounded in flames.  ", wd_che[msex]);
 			spoil_out(buf);
 		}
-
-		if (flags2 & (RF2_AURA_ELEC))
+		else if (flags2 & (RF2_AURA_ELEC))
 		{
 			sprintf(buf, "%s is surrounded in electricity.  ", wd_che[msex]);
+			spoil_out(buf);
+		}
+
+		if (flags2 & (RF2_SPINES))
+		{
+			sprintf(buf, "%s is covered in spines.  ", wd_che[msex]);
 			spoil_out(buf);
 		}
 
@@ -1788,11 +1795,11 @@ static void spoil_mon_info(cptr fname)
 			spoil_out(buf);
 		}
 
-		/* Collect inate attacks (boulders were XXX2 & XXX3) */
+		/* Collect inate attacks */
 		vn = 0;
 		if (flags4 & (RF4_SHRIEK))	vp[vn++] = "shriek for help";
-		if (flags4 & (RF4_BOULDER_1))	vp[vn++] = "throw a boulder";
-		if (flags4 & (RF4_BOULDER_2))	vp[vn++] = "throw a large boulder";
+		if (flags4 & (RF4_XXX2))	vp[vn++] = "do something";
+		if (flags4 & (RF4_XXX3))	vp[vn++] = "do something";
 		if (flags4 & (RF4_ROCKET))	vp[vn++] = "shoot a rocket";
 		if (flags4 & (RF4_ARROW_1))	vp[vn++] = "shoot an arrow";
 		if (flags4 & (RF4_ARROW_2))	vp[vn++] = "fire an arrow";

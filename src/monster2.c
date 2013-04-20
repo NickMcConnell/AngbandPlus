@@ -950,12 +950,8 @@ void sanity_blast (monster_type * m_ptr, bool necro)
 
         r_ptr->r_flags2 |= RF2_ELDRITCH_HORROR;
 
-        /* Demon characters are unaffected */
-        if (p_ptr->prace == RACE_IMP) return;
-
         /* Undead characters are 50% likely to be unaffected */
-        if ((p_ptr->prace == RACE_SKELETON) || (p_ptr->prace == RACE_ZOMBIE)
-            || (p_ptr->prace == RACE_VAMPIRE) || (p_ptr->prace == RACE_SPECTRE))
+        if ((p_ptr->prace == RACE_VAMPIRE) || (p_ptr->prace == RACE_SPECTRE))
         {
             if (randint(100) < (25 + (p_ptr->lev))) return;
         }
@@ -2173,40 +2169,40 @@ static bool summon_specific_okay(int r_idx)
 			break;
 		}
 
-		case SUMMON_BIZARRE1:
+		case SUMMON_MOLD:
 		{
 			okay = ((r_ptr->d_char == 'm') &&
 			       !(r_ptr->flags1 & (RF1_UNIQUE)));
 			break;
 		}
-		case SUMMON_BIZARRE2:
+		case SUMMON_BAT:
 		{
 			okay = ((r_ptr->d_char == 'b') &&
 			       !(r_ptr->flags1 & (RF1_UNIQUE)));
 			break;
 		}
-		case SUMMON_BIZARRE3:
+		case SUMMON_QUYLTHULG:
 		{
 			okay = ((r_ptr->d_char == 'Q') &&
 			       !(r_ptr->flags1 & (RF1_UNIQUE)));
 			break;
 		}
 
-		case SUMMON_BIZARRE4:
+		case SUMMON_VORTEX:
 		{
 			okay = ((r_ptr->d_char == 'v') &&
 			       !(r_ptr->flags1 & (RF1_UNIQUE)));
 			break;
 		}
 
-		case SUMMON_BIZARRE5:
+		case SUMMON_COIN:
 		{
 			okay = ((r_ptr->d_char == '$') &&
 			       !(r_ptr->flags1 & (RF1_UNIQUE)));
 			break;
 		}
 
-		case SUMMON_BIZARRE6:
+		case SUMMON_TREASURE:
 		{
 			okay = (((r_ptr->d_char == '!') ||
 			         (r_ptr->d_char == '?') ||
@@ -2302,6 +2298,11 @@ static bool summon_specific_okay(int r_idx)
 				!(r_ptr->flags1 & (RF1_UNIQUE)));
 			break;
 		}
+
+		case SUMMON_MINOR:
+			okay = ((r_ptr->level <= (p_ptr->lev / 2)) &&
+				!(r_ptr->flags1 & (RF1_UNIQUE)));
+			break;
 	}
 
 	/* Result */

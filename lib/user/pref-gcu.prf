@@ -36,7 +36,9 @@ P:\e[6~
 A:4
 P:\e[D
 
+# Delete the middle line if it causes any problems on your system -- Gumby
 A:5
+P:\e[E
 P:\e[G
 
 A:6

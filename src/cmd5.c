@@ -648,7 +648,7 @@ void do_cmd_cast(void)
 	   case 2: /* Bless */
 			(void)set_blessed(p_ptr->blessed + 10 + plev);
 		       break; 
-	   case 3: /* Spiritual Hammer (was Resist Fear) */
+	   case 3: /* Spiritual Hammer */
 		if (!get_aim_dir(&dir)) return;
 		fire_bolt_or_beam(beam - 10, GF_HOLY_FIRE, dir,
 		  damroll(3 + ((plev - 1) / 7), 4));
@@ -743,7 +743,7 @@ void do_cmd_cast(void)
 	   case 25: /* Prayer */
 		(void)set_blessed(p_ptr->blessed + 50 + plev);
 		break;
-	/* Summon Angel (was Bless Weapon) */
+	/* Summon Angel */
        case 26:
 		if (randint(5) == 1)
 		{
@@ -891,15 +891,17 @@ void do_cmd_cast(void)
              else teleport_player_to(ij,ii);
              break;
             }
-       case 18: /* Sense Minds */
-            (void)set_tim_esp(p_ptr->tim_esp + randint(30) + 25);
-		       break;
+       case 18: /* Telekinesis */
+		if (!get_aim_dir(&dir)) return;
+		fetch(dir, plev*15, FALSE);
+		break;
        case 19: /* Self knowledge */
-           (void)self_knowledge();
-               break;
+		(void)self_knowledge();
+		(void)identify_pack();
+		break;
 	   case 20: /* Teleport Level */
-			(void)teleport_player_level();
-		       break;
+		(void)teleport_player_level();
+		break;
 	   case 21: /* Word of Recall */
 		{
 			/* Astral beings don't WoR! -- G */
@@ -937,12 +939,6 @@ void do_cmd_cast(void)
 		if (!get_aim_dir(&dir)) return;
 		(void)stasis_monster(dir);
 		break;
-#if 0
-	case 25: /* Telekinesis */
-		if (!get_aim_dir(&dir)) return;
-		fetch(dir, plev*15, FALSE);
-		break;
-#endif
 	case 25: /* Slow Monsters */
 		(void)slow_monsters();
 		break;
@@ -979,7 +975,7 @@ void do_cmd_cast(void)
 	case 0: /* Animal Detection */
 		(void)detect_monsters_xxx(RF3_ANIMAL);
 		break;
-	case 1: /* Pesticide (was First Aid) */
+	case 1: /* Pesticide */
 		msg_print("You spray a mild pesticide into the air...");
 		dispel_animals(3 + ((plev - 1) / 7)); break;
 	case 2: /* Detect Doors + Traps */
@@ -1174,7 +1170,7 @@ void do_cmd_cast(void)
 		if (!get_aim_dir(&dir)) return;
 		fire_bolt_or_beam(beam, GF_FIRE, dir, damroll(9+((plev-5)/3), 8));
 		break;
-	case 6: /* Fist of Force (was GF_DISINTEGRATE) */
+	case 6: /* Fist of Force */
 		if (!get_aim_dir(&dir)) return;
 		fire_bolt(GF_FORCE, dir, damroll(9+((plev-5)/3), 8));
 		break;
@@ -1249,7 +1245,7 @@ void do_cmd_cast(void)
 		project(0, FALSE, 2+plev/10, py, px, 65 + plev, GF_SOUND,
 					PROJECT_KILL | PROJECT_ITEM);
 		break;
-        case 12: /* Mana Bolt (was Doom Bolt) */
+        case 12: /* Mana Bolt */
 		if (!get_aim_dir(&dir)) return;
 		fire_bolt_or_beam(beam + 20, GF_MANA, dir, damroll(11 + ((plev - 5) / 3), 8));
 		break;
@@ -1321,7 +1317,7 @@ void do_cmd_cast(void)
 		break;
         case 24: /* Beam of Gravity */
 		if (!get_aim_dir(&dir)) return;
-		fire_beam(GF_GRAVITY, dir, damroll(14+((plev-5)/3), 8));
+		fire_beam(GF_GRAVITY, dir, damroll(15+((plev-5)/3), 8));
 		break;
         case 25: /* Meteor Swarm  */
 		{
@@ -1359,7 +1355,7 @@ void do_cmd_cast(void)
         case 28: /* Magic Rocket */
 		if (!get_aim_dir(&dir)) return;
 		msg_print("You launch a rocket!");
-		fire_ball(GF_ROCKET, dir, 200 + (2*plev), 2);
+		fire_ball(GF_ROCKET, dir, 250 + (2*plev), 2);
 		break;
         case 29: /* Mana Storm */
 		if (!get_aim_dir(&dir)) return;
@@ -1426,7 +1422,7 @@ void do_cmd_cast(void)
 		if (!get_aim_dir(&dir)) return;
 		(void)control_one_undead(dir, plev);
 		break;
-	case 8: /* Infernal Orb (was GF_OLD_DRAIN) */
+	case 8: /* Infernal Orb */
 		if (!get_aim_dir(&dir)) return;
 		fire_ball(GF_HELL_FIRE, dir, 25 + (plev + (plev / 2)), ((plev < 30) ? 2 : 3));
 		break;
@@ -1452,7 +1448,7 @@ void do_cmd_cast(void)
              (void)set_food(dummy >= PY_FOOD_MAX ? PY_FOOD_MAX-1 : dummy);
        }
          break;
-       case 13: /* Cloud Kill (was Dispel Good) */
+       case 13: /* Cloud Kill */
 		if (!get_aim_dir(&dir)) return;
 		fire_ball(GF_POIS, dir, 100 + plev, (plev/10)+1);
 		break;
@@ -1467,7 +1463,7 @@ void do_cmd_cast(void)
 		(void)hp_player(30);
 		(void)set_afraid(0);
 		break;
-       case 17: /* Punish Undead (was Invoke Spirits) */
+       case 17: /* Punish Undead */
 		(void)dispel_undead(plev * 5);
 		(void)turn_undead();
 		break;
@@ -1543,7 +1539,7 @@ void do_cmd_cast(void)
 		fire_ball(GF_HELL_FIRE, dir, 666, 3);
 		take_hit(50+randint(50), "the strain of casting Hellfire");
 		break;
-        case 30: /* Summon Death (was Omnicide) */
+        case 30: /* Summon Death */
 		msg_print("The Grim Reaper appears and begins His harvest...");
 		(void) deathray_monsters();
 
@@ -1601,7 +1597,7 @@ void do_cmd_cast(void)
             else if (die < 22 )
             {
                 msg_print("It's the swords of discord.");
-                aggravate_monsters(1);
+                aggravate_monsters(1, FALSE);
             }
             else if (die < 26)
             {
@@ -1663,25 +1659,25 @@ void do_cmd_cast(void)
             else if (die<82)
             {
                 msg_print("It's the picture of a friendly monster.");
-                if (!(summon_specific_friendly(py, px, (dun_level * 3) / 2, SUMMON_BIZARRE1, FALSE)))
+                if (!(summon_specific_friendly(py, px, (dun_level * 3) / 2, SUMMON_MOLD, FALSE)))
                     no_trump = TRUE;
             }
             else if (die<84)
             {
                 msg_print("It's the picture of a friendly monster.");
-                if (!(summon_specific_friendly(py, px, (dun_level * 3) / 2, SUMMON_BIZARRE2, FALSE)))
+                if (!(summon_specific_friendly(py, px, (dun_level * 3) / 2, SUMMON_BAT, FALSE)))
                     no_trump = TRUE;
             }
             else if (die<86)
             {
                 msg_print("It's the picture of a friendly monster.");
-                if (!(summon_specific_friendly(py, px, (dun_level * 3) / 2, SUMMON_BIZARRE4, FALSE)))
+                if (!(summon_specific_friendly(py, px, (dun_level * 3) / 2, SUMMON_VORTEX, FALSE)))
                     no_trump = TRUE;
             }
             else if (die<88)
             {
                 msg_print("It's the picture of a friendly monster.");
-                if (!(summon_specific_friendly(py, px, (dun_level * 3) / 2, SUMMON_BIZARRE5, FALSE)))
+                if (!(summon_specific_friendly(py, px, (dun_level * 3) / 2, SUMMON_COIN, FALSE)))
                     no_trump = TRUE;
             }
             else if (die<96)
@@ -1750,9 +1746,27 @@ void do_cmd_cast(void)
              else teleport_player_to(ij,ii);
              break;
             }
-        case 6: /* Trump Spying */
-		(void)set_tim_esp(p_ptr->tim_esp + randint(30) + 25);
+        case 6: /* Minor Trump */
+	{
+		msg_print ("You concentrate on the lesser trumps...");
+		if (randint(10) == 1)
+		{
+			if (summon_specific(py, px, plev, SUMMON_MINOR))
+			{
+				msg_print("The summoned creature is pissed!");
+			}
+			else
+			{
+				no_trump = TRUE;
+			}
+		}
+		else
+		{
+			if (!(summon_specific_friendly(py, px, plev, SUMMON_MINOR, TRUE)))
+			no_trump = TRUE;
+		}
 		break;
+	}
         case 7: /* Teleport Away */
 		if (!get_aim_dir(&dir)) return;
 		(void)fire_beam(GF_AWAY_ALL, dir, plev);
@@ -1864,29 +1878,10 @@ void do_cmd_cast(void)
             }
         }
         break;
-        case 16: /* Joker Card */
-            msg_print("You concentrate on a joker card...");
-            switch(randint(4))
-            {
-                case 1: dummy = SUMMON_BIZARRE1; break;
-                case 2: dummy = SUMMON_BIZARRE2; break;
-                case 3: dummy = SUMMON_BIZARRE4; break;
-                case 4: dummy = SUMMON_BIZARRE5; break;
-
-            }
-            if (randint(2)==1)
-            {
-                if (summon_specific(py, px, plev, dummy))
-                    msg_print("The summoned creature gets angry!");
-                 else
-                    no_trump = TRUE;
-                }
-            else
-            {
-                if (!(summon_specific_friendly(py, px, plev, dummy, FALSE)))
-                    no_trump = TRUE;
-            }
-        break;
+        case 16: /* Trump Reach */
+		if (!get_aim_dir(&dir)) return;
+		fetch(dir, plev*15, FALSE);
+		break;
         case 17: /* Trump Spiders */
         {
             msg_print ("You concentrate on the trump of a spider...");
@@ -2216,7 +2211,7 @@ void do_cmd_cast(void)
 			(void)set_cut(0);
 			break;
 		case 21: /* Brand Weapon */
-			brand_weapon(rand_int(6)); break;
+			brand_weapon(rand_int(5)); break;
 		case 22: /* Teleport Other */
 			if (!get_aim_dir(&dir)) return;
 			(void)fire_beam(GF_AWAY_ALL, dir, plev);

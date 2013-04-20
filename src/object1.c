@@ -27,15 +27,14 @@
 /*
  * Max sizes of the following arrays
  */
-#define MAX_ROCKS	56	/* Used with rings (min 38) */
-#define MAX_AMULETS	17	/* Used with amulets (min 13) */
+#define MAX_ROCKS	55	/* Used with rings (min 38) */
+#define MAX_AMULETS	20	/* Used with amulets (min 13) */
 #define MAX_WOODS	35	/* Used with staffs (min 30) */
 #define MAX_METALS	39	/* Used with wands/rods (min 29/28) */
 #define MAX_COLORS	66	/* Used with potions (min 60) */
 #define MAX_SHROOM	20	/* Used with mushrooms (min 20) */
 #define MAX_TITLES	54	/* Used with scrolls (min 48) */
 #define MAX_SYLLABLES	164	/* Used with scrolls (see below) */
-#define MAX_SLIMES	40	/* Used with slime molds */
 
 
 /*
@@ -52,9 +51,8 @@ static cptr ring_adj[MAX_ROCKS] =
 	"Turquoise", "Zircon", "Platinum", "Bronze", "Gold",
 	"Obsidian", "Silver", "Tortoise Shell", "Mithril", "Jet",
 	"Engagement", "Adamantite", "Wire", "Dilithium", "Bone",
-	"Wooden", "Spikard", "Serpent", "Wedding", "Double",
-	"Plain", "Brass",  "Scarab","Shining", "Rusty",
-	"Transparent"
+	"Wooden", "Serpent", "Wedding", "Double", "Plain",
+	"Brass", "Scarab", "Shining", "Rusty", "Transparent"
 };
 
 static byte ring_col[MAX_ROCKS] =
@@ -68,9 +66,8 @@ static byte ring_col[MAX_ROCKS] =
 	TERM_L_BLUE, TERM_L_UMBER, TERM_WHITE, TERM_L_UMBER, TERM_YELLOW,
 	TERM_L_DARK, TERM_L_WHITE, TERM_GREEN, TERM_L_BLUE, TERM_L_DARK,
 	TERM_YELLOW, TERM_VIOLET, TERM_UMBER, TERM_L_WHITE, TERM_WHITE,
-	TERM_UMBER, TERM_BLUE, TERM_GREEN, TERM_YELLOW, TERM_ORANGE,
-	TERM_YELLOW, TERM_ORANGE, TERM_L_GREEN, TERM_YELLOW, TERM_RED,
-	TERM_WHITE
+	TERM_UMBER, TERM_GREEN, TERM_YELLOW, TERM_ORANGE, TERM_YELLOW,
+	TERM_ORANGE, TERM_L_GREEN, TERM_YELLOW, TERM_RED, TERM_WHITE
 };
 
 
@@ -82,7 +79,7 @@ static cptr amulet_adj[MAX_AMULETS] =
 	"Amber", "Driftwood", "Coral", "Agate", "Ivory",
 	"Obsidian", "Bone", "Brass", "Bronze", "Pewter",
 	"Tortoise Shell", "Golden", "Azure", "Crystal", "Silver",
-	"Copper", "Emerald"
+	"Copper", "Emerald", "Granite", "Ruby", "Sapphire"
 };
 
 static byte amulet_col[MAX_AMULETS] =
@@ -90,7 +87,7 @@ static byte amulet_col[MAX_AMULETS] =
 	TERM_YELLOW, TERM_L_UMBER, TERM_WHITE, TERM_L_WHITE, TERM_WHITE,
 	TERM_L_DARK, TERM_WHITE, TERM_L_UMBER, TERM_L_UMBER, TERM_SLATE,
 	TERM_GREEN, TERM_YELLOW, TERM_L_BLUE, TERM_L_BLUE, TERM_L_WHITE,
-	TERM_L_UMBER, TERM_GREEN
+	TERM_L_UMBER, TERM_GREEN, TERM_SLATE, TERM_RED, TERM_BLUE
 };
 
 
@@ -254,24 +251,11 @@ static byte scroll_col[MAX_TITLES];
 
 
 /* Name your slime molds!  Thanks to Fufie for this patch */
-static cptr slime_names[MAX_SLIMES] =
-{
-	"Jean Chretien", "Brian Mulroney", "Bill Clinton", "Hillary Clinton", "Dubya",
-	"George Bush", "Tony Blair", "Margaret Thatcher", "Fufie", "Gumby",
-	"Buster Bunny", "Babs Bunny", "Plucky Duck", "Fifi LaFume", "Yakko",
-	"Wakko", "Dot", "Slappy Squirrel", "Skippy Squirrel", "Bugs Bunny",
-	"Daffy Duck", "Porky Pig", "Sylvester", "Tweety", "Elmer Fudd",
-	"Elmyra Duff", "Montana Max", "Freakazoid", "Pinky", "The Brain",
-	"Optimus Prime", "Megatron", "Judge Dredd", "Judge Anderson", "Judge Death",
-	"Homer", "Bart", "Lisa", "Marge", "Maggie"
-};
-
-
-/* Name your slime molds!  Thanks to Fufie for this patch */
 static void name_slime_mold(object_type *o_ptr)
 {
-	int value = rand_int(MAX_SLIMES);
-	o_ptr->note = quark_add(slime_names[value]);
+	char slime_name[80];
+	get_rnd_line("slimes.txt", slime_name);	
+	o_ptr->note = quark_add(slime_name);
 }
 
 
@@ -393,8 +377,7 @@ static bool object_easy_know(int i)
 		}
 
 		/* Simple items */
-		case TV_FLASK: case TV_JUNK: case TV_BOTTLE:
-		case TV_SKELETON: case TV_SPIKE:
+		case TV_FLASK: case TV_SPIKE:
 		{
 			return (TRUE);
 		}
@@ -1194,7 +1177,6 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	/* Analyze the object */
 	switch (o_ptr->tval)
 	{
-		case TV_SKELETON: case TV_BOTTLE: case TV_JUNK:
 		case TV_SPIKE: case TV_FLASK: case TV_CHEST: case TV_LITE:
 		{
 			break;
@@ -2015,10 +1997,58 @@ bool identify_fully_aux(object_type *o_ptr)
 	u32b	f1, f2, f3;
 	cptr	info[128];
 
-
 	/* Extract the flags */
 	object_flags(o_ptr, &f1, &f2, &f3);
 
+	/*
+	 * Mega-Hack -- Parse the 'D:' line for arts. -- Gumby
+	 * [stolen from PernAngband]
+	 */
+	if (o_ptr->name1)
+	{
+                char buff2[400], *s, *t;
+		int n;
+                artifact_type *a_ptr = &a_info[o_ptr->name1];
+			   
+	        a_ptr = &a_info[o_ptr->name1];
+		strcpy (buff2, a_text + a_ptr->text);
+
+		s = buff2;
+		
+                /* Collect the history */
+                while (TRUE)
+                {
+                        /* Extract remaining length */
+                        n = strlen(s);
+
+                        /* All done */
+                        if (n < 60)
+                        {
+                                /* Save one line of history */
+                                info[i++] = s;
+
+                                /* All done */
+                                break;
+                        }
+
+                        /* Find a reasonable break-point */
+                        for (n = 60; ((n > 0) && (s[n-1] != ' ')); n--) /* loop */;
+
+                        /* Save next location */
+                        t = s + n;
+
+                        /* Wipe trailing spaces */
+                        while ((n > 0) && (s[n-1] == ' ')) s[--n] = '\0';
+
+                        /* Save one line of history */
+                        info[i++] = s;
+
+                        s = t;
+                }
+
+                /* Add a blank line */
+                info[i++] = "";
+	}
 
 	/* Mega-Hack -- describe activation */
 	if (f3 & (TR3_ACTIVATE))
@@ -2053,6 +2083,10 @@ bool identify_fully_aux(object_type *o_ptr)
 
 	/* And then describe it fully */
 
+	if (object_value(o_ptr) <= 0)
+	{
+		info[i++] = "It is worthless in the eyes of shopkeepers.";
+	}
 	if (f1 & (TR1_STR))
 	{
 		info[i++] = "It affects your strength.";
@@ -2412,27 +2446,21 @@ bool identify_fully_aux(object_type *o_ptr)
 		info[i++] = "It carries an ancient foul curse.";
 	}
 
-	if (f3 & (TR3_IGNORE_ACID))
+	if ((f3 & (TR3_IGNORE_ACID)) && (f3 & (TR3_IGNORE_ELEC)) &&
+	    (f3 & (TR3_IGNORE_FIRE)) && (f3 & (TR3_IGNORE_COLD)))
 	{
-		info[i++] = "It cannot be harmed by acid.";
+		info[i++] = "It cannot be harmed by the elements.";
 	}
-	if (f3 & (TR3_IGNORE_ELEC))
+	else
 	{
-		info[i++] = "It cannot be harmed by electricity.";
+		if (f3 & (TR3_IGNORE_ACID)) info[i++] = "It cannot be harmed by acid.";
+		if (f3 & (TR3_IGNORE_ELEC)) info[i++] = "It cannot be harmed by electricity.";
+		if (f3 & (TR3_IGNORE_FIRE)) info[i++] = "It cannot be harmed by fire.";
+		if (f3 & (TR3_IGNORE_COLD)) info[i++] = "It cannot be harmed by cold.";
 	}
-	if (f3 & (TR3_IGNORE_FIRE))
-	{
-		info[i++] = "It cannot be harmed by fire.";
-	}
-	if (f3 & (TR3_IGNORE_COLD))
-	{
-		info[i++] = "It cannot be harmed by cold.";
-	}
-
 
 	/* No special effects */
 	if (!i) return (FALSE);
-
 
 	/* Save the screen */
 	Term_save();
@@ -2468,7 +2496,6 @@ bool identify_fully_aux(object_type *o_ptr)
 	/* Gave knowledge */
 	return (TRUE);
 }
-
 
 
 /*

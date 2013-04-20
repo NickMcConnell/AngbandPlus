@@ -25,7 +25,7 @@
 
 #include "angband.h"
 
-#define TABLE_NAME		45
+#define TABLE_NAME		50
 #define A_CURSED		13
 #define WEIRD_LUCK		12
 #define BIAS_LUCK		20
@@ -1129,11 +1129,14 @@ void give_activation_power(object_type * o_ptr)
 
 void get_random_name(char * return_name, bool armour, int power)
 {
-	if (randint(100)<=TABLE_NAME)
+	if (randint(100) <= TABLE_NAME)
+	{
 		get_table_name(return_name);
+	}
 	else
 	{
 		char NameFile[16];
+
 		switch (armour)
 		{
 			case 1:
@@ -1350,8 +1353,11 @@ bool create_artifact(object_type *o_ptr, bool a_scroll)
 		strcpy(dummy_name, "");
 		identify_fully_aux(o_ptr);
 		o_ptr->ident |= IDENT_STOREB;
+
 		if (!(get_string("What do you want to call it (ESC for random)? ", dummy_name, 80)))
+		{
 			get_random_name(new_name, (o_ptr->tval >= TV_BOOTS), power_level);
+		}
 		else
 		{
 			strcpy(new_name,"called '");
@@ -2626,7 +2632,10 @@ void do_cmd_activate(void)
 			case ART_PAN_TANG:
 			{
 				msg_print("Your glowing armour shines even brighter...");
-				for (i = 0; i < 6; i++) (void)summon_specific_friendly(py, px, dun_level, SUMMON_DEMON, TRUE);
+				for (i = 0; i < 6; i++)
+				{
+					(void)summon_specific_friendly(py, px, dun_level, SUMMON_DEMON, TRUE);
+				}
 				o_ptr->timeout = 400;
 				break;
 			}
@@ -2701,8 +2710,9 @@ void do_cmd_activate(void)
 				msg_print("The Hand draws forth undead from Limbo.");
 				turn_monsters(p_ptr->lev * 4);
 				for (i = 0; i <= ((dun_level + 10) / 5); i++)
+				{
 					(void)summon_specific_friendly(py, px, dun_level, SUMMON_UNDEAD, TRUE);
-				
+				}
 				o_ptr->timeout = 500;
 				break;
 			}
@@ -2779,7 +2789,10 @@ void do_cmd_activate(void)
 			case ART_STORMBRINGER:
 			{
 				msg_print("Stormbringer summons its brothers!");
-				for (i = 0; i < 10; i++) (void)summon_specific_friendly(py, px, dun_level, SUMMON_HELLBLADES, TRUE);
+				for (i = 0; i < 10; i++)
+				{
+					(void)summon_specific_friendly(py, px, dun_level, SUMMON_HELLBLADES, TRUE);
+				}
 				o_ptr->timeout = 1000;
 				break;
 			}
@@ -2916,7 +2929,7 @@ void do_cmd_activate(void)
 			}
 			case ART_LOTHARANG:
 			{
-				msg_print("Your battle axe radiates deep purple...");
+				msg_print("Your axe radiates deep purple...");
 				hp_player(damroll(6, 8));
 				(void)set_cut((p_ptr->cut / 2) - 50);
 				o_ptr->timeout = rand_int(3) + 3;
@@ -3064,20 +3077,6 @@ void do_cmd_activate(void)
 						py_attack(y, x);
 				}
 				o_ptr->timeout = 250;
-				break;
-			}
-			case ART_ARIANROD:
-			{
-				msg_print("You step into another plane of existence.");
-				if (autosave_l)
-				{
-					is_autosave = TRUE;
-					msg_print("Autosaving the game...");
-					do_cmd_save_game();
-					is_autosave = FALSE;
-				}
-				new_level_flag = TRUE;
-				o_ptr->timeout = 100;
 				break;
 			}
 			case ART_RETALIATOR:
@@ -4014,10 +4013,6 @@ cptr item_activation(object_type *o_ptr)
 		{
 			return "whirlwind attack every 250 turns";
 		}
-		case ART_ARIANROD:
-		{
-			return "alter reality every 100 turns";
-		}
 		case ART_RETALIATOR:
 		{
 			return "confuse monsters (lvl*6) every 75+d75 turns";
@@ -4197,40 +4192,44 @@ void random_artifact_resistance(object_type * o_ptr)
 		case ART_NARTHANC: case ART_TURMIL: case ART_THALKETTOTH:
 		case ART_HACKMEAT: case ART_DRAGONBANE: case ART_SOULSUCKER:
 		case ART_HASTNEN: case ART_STING: case ART_ENDURANCE:
-			{
-				/* Give a resistance */
-				give_resistance = TRUE;
-			}
-			break;
+		{
+			/* Give a resistance */
+			give_resistance = TRUE;
+		}
+		break;
+
 		case ART_MAEDHROS: case ART_GLAMDRING: case ART_ORCRIST:
 		case ART_KANAJANA: case ART_ZARCUTHRA: case ART_GURTHANG:
 		case ART_HARADEKKET: case ART_CUBRAGOL: case ART_DAWN:
 		case ART_MORDAGA: case ART_COWARDICE: case ART_WHIRLWIND:
 		case ART_HAMMERHAND: case ART_PAURHACH: case ART_PAURNIMMEN:
-		case ART_PAURAEGEN: case ART_PAURNEN:
-			{
-				/* Give a resistance OR a power */
-				if (randint(2)==1) give_resistance = TRUE;
-				else give_power = TRUE;
-			}
-			break;
+		case ART_PAURAEGEN: case ART_PAURNEN: case ART_NEMOVEBLA:
+		{
+			/* Give a resistance OR a power */
+			if (randint(2)==1) give_resistance = TRUE;
+			else give_power = TRUE;
+		}
+		break;
+
 		case ART_NENYA: case ART_VILYA: case ART_BERUTHIEL:
 		case ART_FINGOLFIN: case ART_THINGOL: case ART_ULMO:
 		case ART_OLORIN: case ART_LIMBSLICER: case ART_ENERGY:
 		case ART_CATAPULT: case ART_THAUMATURGIST:
-			{
-				/* Give a power */
-				give_power = TRUE;
-			}
-			break;
+		case ART_BURGLARY:
+		{
+			/* Give a power */
+			give_power = TRUE;
+		}
+		break;
+
 		case ART_POWER: case ART_GONDOR: case ART_AULE:
 		case ART_NATUREBANE:
-			{
-				/* Give both */
-				give_power = TRUE;
-				give_resistance = TRUE;
-			}
-			break;
+		{
+			/* Give both */
+			give_power = TRUE;
+			give_resistance = TRUE;
+		}
+		break;
 	}
 
 	if (give_power)

@@ -548,6 +548,8 @@ static void rd_item(object_type *o_ptr)
 		rd_byte(&o_ptr->ident);
 
 		rd_byte(&o_ptr->marked);
+
+		if (!z_older_than(2,1,6)) rd_byte(&o_ptr->branded);
 	}
 
 #if 0
@@ -1436,7 +1438,7 @@ static void rd_extra(void)
 	rd_byte(&p_ptr->searching);
 	rd_byte(&p_ptr->maximize);
 	rd_byte(&p_ptr->preserve);
-	rd_byte(&tmp8u);
+	rd_byte(&number_of_thefts_on_level);
 
 	/* Future use */
 	for (i = 0; i < 48; i++) rd_byte(&tmp8u);

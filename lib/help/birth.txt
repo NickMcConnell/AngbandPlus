@@ -146,14 +146,6 @@ races also have intrinsic abilities.
                Humans are able to understand their own capabilities and
                limits.
  
-          Half-Elf
-               Half-elves tend to be smarter and faster than a  human,  but
-               not as strong.  Half-elves are slightly better at searching,
-               disarming, saving throws, stealth, bows, and magic, but they
-               are not as good at hand weapons.  Half-elves may choose any
-               class.  Starting at level 15, Half-elves are able to spot any
-               animals that may be nearby.
- 
           Elf
                Elves are better magicians then humans, but not as good at
                fighting.  They tend to be smarter and faster than either
@@ -266,16 +258,6 @@ races also have intrinsic abilities.
                 Paladins, either, because their wild bloodlust is totally
                 incompatible with the strict discipline of knighthood.
 
-          Half-Ogre
-                Half-Ogres are like Half-Orcs, but only more so. They
-                are big, bad, and stupid. For warriors, they have all
-                the necessary attributes, and they can even become
-                wizards: after all, they are related to Ogre Magi,
-                from whom they have learned the skill of setting
-                trapped runes once their level is high enough. Like Half-
-                Orcs, they resist darkness, and like Half-Trolls, they
-                have their strength sustained.
-
           Half-Giant
                 Half-Giants are not too unusual, as there has been a
                 tradition according to which it is a noble and brave thing
@@ -300,21 +282,6 @@ races also have intrinsic abilities.
                 strengths of their foes, and their love for law and
                 order makes them resistant to the effects of Chaos.
 
-          Cyclops
-                With but one eye, a cyclops can see more than many
-                with two eyes. They are headstrong, and loud noises
-                bother them very little. They are not quite qualified
-                for the magic using professions, and due to a lack of depth
-                perception, they are rather bad marksmen.
-
-          Yeek
-                Yeeks are among the most pathetic creatures. Fortunately,
-                their horrible screams can scare away less confident foes,
-                and their skin becomes more and more resistant to acid,
-                as they gain experience. But having said that, even a
-                mediocre monster can proverbially wipe the floor with
-                an unwary yeek.
-
           Klackon
                 Klackons are bizarre semi-intelligent ant-like insectoid
                 creatures. They make great servants and warriors, but
@@ -330,23 +297,6 @@ races also have intrinsic abilities.
                 an unlimited supply). They are also inherently resistant to
                 poison, and can become adequate fighters, although they are
                 not one of the more powerful races.
-
-          Nibelung
-                The hated and persecuted race of nocturnal dwarves, these
-                cave-dwellers are not much bothered by darkness. Their
-                natural inclination to magical items has made them immune
-                to effects which could drain away magical energy, and like
-                ordinary dwarves, they can examine the dungeon to discover
-                traps and secret doors.
-
-          Dark Elf
-                Another dark, cave-dwelling race, likewise unhampered by
-                darkness attacks, the Dark Elves have a long tradition
-                and knowledge of magic. With their intelligence they can
-                become superb mages or priests, and they have an inherent
-                magic missile attack available to them at a low level. With
-                their keen sight, they also learn to see invisible things
-                as their relatives High-Elves do, but at a higher level.
 
           Draconian
                 A humanoid race with dragon-like attributes. As they advance
@@ -367,12 +317,6 @@ races also have intrinsic abilities.
                 levels, they gain the powers of See Invisible, Telepathy
                 and a mind blast attack.
 
-          Imp
-                A demon-creature from the nether-world, naturally resistant
-                to fire attacks, and capable of learning fire bolt and fire
-                ball attacks. They are little loved by other races, but
-                can perform fairly well in most professions.
-
           Golem
                 A golem is an artificial creature, built from a lifeless
                 raw material like clay, and awakened to life.  They are
@@ -388,35 +332,6 @@ races also have intrinsic abilities.
                 as befits a creature made of iron, clay or other inorganic
                 materials.  At level 20, and with extreme concentration, a
                 Golem may temporarily harden its outer surface even further.
-
-          Skeleton
-                There are two types of skeletons: the ordinary, warrior-
-                like skeletons, and the spell-using skeletons, which are
-                also called liches. As undead beings, skeletons need to
-                worry very little about poison or attacks that can drain
-                life. They do not really use eyes for perceiving things,
-                and are thus not fooled by invisibility. Their bones are
-                resistant to sharp shrapnels (not much to cut there),
-                and they will quickly become resistant to cold. Should
-                a skeleton be unlucky enough to lose some of his or her
-                remaining life, he or she will learn to restore it at
-                will. It is very hard for skeletons to eat food or drink
-                potions. Although the magical effects of these will affect
-                the skeleton even without entering the skeleton's (non-
-                existent) belly, the potion / food itself will fall through
-                the skeleton's jaws, giving no nutritional benefit.
-
-          Zombie
-                Much like Skeletons, Zombies too are undead horrors: they
-                are resistant to life-draining attacks, and can learn to
-                restore their life-force. Like skeletons, they become
-                resistant to cold-based attacks (actually earlier than
-                skeletons), resist poison and can see invisible. While
-                still vulnerable to cuts (unlike skeletons), Zombies are
-                resistant to Nether. Like golems, they gain very little
-                nutrition from the food of mortals. However, Zombies are,
-                as the name implies, practically mindless: in this company,
-                Groo would seem a genius.
 
           Vampire
                 One of the mightier undead creatures, the Vampire is an
@@ -453,16 +368,6 @@ races also have intrinsic abilities.
                 make superb spellcasters, but their physical form is very
                 weak. Like Golems and Zombies, Spectres gain almost no
                 nutrition from ordinary food.
-
-          Sprite
-                One of the several fairy races, sprites are very small.
-                They have tiny wings, and can fly over traps that may open
-                up beneath them. They enjoy sunlight intensely, and need
-                worry little about light based attacks. Although physically
-                among the weakest races, Sprites are very talented in magic,
-                and can become highly skilled wizards. Sprites have the
-                special power of spraying Sleeping Dust, and at higher
-                levels they learn to fly faster.
 
           Beastman
                 This race is a blasphemous abomination produced by Chaos.
@@ -537,23 +442,28 @@ races also have intrinsic abilities.
                select a secondary realm from Trump, Nature, and Chaos.
 
           Rogue
-               A Rogue is a character that prefers to live by his  cunning,
-               but  is capable of fighting his way out of a tight spot.  He
+               A Rogue is a character that prefers to live by his cunning,
+               but is capable of fighting his way out of a tight spot.  He
                is the master of traps and locks, no device being impossible
-               for  him  to  overcome.  A rogue has a high stealth allowing
-               him to sneak around many creatures without having to  fight,
-               or sneak up and get the first blow.  A rogue's perception is
-               higher than any other class, and many times he will notice a
-               trap  or  secret  door  before having to search.  A rogue is
-               better than warriors or paladins with magical  devices,  but
-               still  can  not  rely on their performance.  Rogues can also
-               learn a few spells, but not the  powerful  offensive  spells
-               magi  can use.  A rogue's primary stats are Intelligence and
-               Dexterity.
-               Rogues  who  wish  to  specialize  as burglars can choose to
-               study Sorcery while Death magic is  available to rogues  who
-               wish to become Assassins. Rogues who study Trump magic are
-               known as card sharps.
+               for him to overcome.  A rogue has a high stealth allowing him
+               to sneak around many creatures without having to fight, or
+               sneak up and get the first blow, causing more and more damage
+               as the rogue gains in level.  A rogue's perception is higher
+               than any other class, and many times he will notice a trap
+               or secret door before having to search.  A rogue is better
+               than warriors or paladins with magical devices, but still
+               cannot rely on their performance.  Rogues can also learn a
+               few spells, but not the  powerful offensive spells magi can
+               use.  A rogue's primary stats are Intelligence and Dexterity.
+               Rogues who wish to specialize as burglars can choose to study
+               Sorcery while Death magic is available to rogues who wish to
+               become Assassins.  Rogues who study Trump magic are known as
+               card sharps, and for very good reason...  Of course, no rogue
+               is above picking up a little cash here and there, using the
+               'alter grid' command on an adjacenet monster.  But the grape-
+               vine in the dungeon is among the best, so be careful of
+               putting your hands into too many pockets or word *will* get
+               around.
  
           Ranger
                A Ranger is a warrior/mage.  He is a good fighter,  and  the
@@ -801,7 +711,7 @@ races also have intrinsic abilities.
  
  
  
-=== Combinations of Race and Class (updated for Gumband 2.1.4) ===
+=== Combinations of Race and Class (updated for Gumband 2.1.6) ===
 
 These are the classes that are recommended for different races. You can
 still select a race that is not in the chart, but these combinations are
@@ -813,7 +723,6 @@ don't complain if things don't turn out as you expected them to.
             Warrior  Mage    Priest  Rogue   Ranger  Paladin Warrior Chaos
                                                              -Mage  Warrior
 Human         Yes     Yes     Yes     Yes     Yes     Yes     Yes     Yes
-Half-Elf      Yes     Yes     Yes     Yes     Yes     Yes     Yes     Yes
 Elf           Yes     Yes     Yes     Yes     Yes     No      Yes     No
 Hobbit        Yes     Yes     No      Yes     No      No      No      No
 Gnome         Yes     Yes     Yes     Yes     No      No      No      No
@@ -823,32 +732,21 @@ Half-Troll    Yes     No      Yes     No      No      No      No      No
 Gambolt       Yes     Yes     No      Yes     Yes     No      Yes     No
 High-Elf      Yes     Yes     Yes     Yes     Yes     No      Yes     No
 Barbarian     Yes     No      Yes     Yes     Yes     No      No      Yes
-Half-Ogre     Yes     Yes     Yes     No      No      No      No      No
 Half-Giant    Yes     No      No      No      Yes     No      No      No
 Half-Titan    Yes     Yes     Yes     No      No      Yes     No      No
-Cyclops       Yes     No      Yes     No      No      No      No      No
-Yeek          Yes     Yes     Yes     Yes     No      No      No      No
 Klackon       Yes     No      No      No      Yes     No      No      No
 Kobold        Yes     No      No      Yes     No      No      No      No
-Nibelung      Yes     Yes     Yes     Yes     No      No      No      No
-Dark Elf      Yes     Yes     Yes     Yes     Yes     No      Yes     Yes
 Draconian     Yes     Yes     Yes     No      No      No      Yes     No
 Mind Flayer   No      Yes     Yes     No      No      No      Yes     No
-Imp           Yes     Yes     No      Yes     No      No      Yes     Yes
 Golem         Yes     No      No      No      No      No      No      No
-Skeleton      Yes     Yes     Yes     Yes     No      No      No      No
-Zombie        Yes     No      No      No      No      No      No      No
 Vampire       Yes     Yes     Yes     Yes     Yes     Yes     Yes     Yes
 Spectre       No      Yes     Yes     Yes     No      No      Yes     No
-Sprite        No      Yes     Yes     Yes     Yes     No      Yes     No
 Beastman      Yes     Yes     Yes     Yes     No      No      Yes     Yes
-
 
 
                      Mind-   High
             Monk    crafter  Mage Weaponmaster
 Human         Yes     Yes     Yes     Yes
-Half-Elf      Yes     Yes     Yes     Yes
 Elf           Yes     Yes     Yes     Yes
 Hobbit        No      No      Yes     Yes
 Gnome         No      Yes     Yes     Yes
@@ -858,24 +756,15 @@ Half-Troll    No      No      No      Yes
 Gambolt       No      Yes     Yes     Yes
 High-Elf      Yes     Yes     Yes     Yes
 Barbarian     No      No      No      Yes
-Half-Ogre     No      No      Yes     Yes
 Half-Giant    No      No      No      Yes
 Half-Titan    Yes     Yes     Yes     Yes
-Cyclops       No      No      No      Yes
-Yeek          No      Yes     Yes     Yes
 Klackon       No      No      No      Yes
 Kobold        No      No      No      Yes
-Nibelung      No      No      Yes     Yes
-Dark Elf      Yes     Yes     Yes     Yes
 Draconian     Yes     Yes     Yes     Yes
 Mind Flayer   Yes     Yes     Yes     No
-Imp           Yes     Yes     Yes     Yes
 Golem         No      No      No      Yes
-Skeleton      Yes     Yes     Yes     Yes
-Zombie        No      No      No      Yes
 Vampire       Yes     Yes     Yes     Yes
 Spectre       Yes     Yes     Yes     No
-Sprite        No      Yes     Yes     No
 Beastman      Yes     Yes     Yes     Yes
 
 
@@ -893,14 +782,13 @@ Beastman      Yes     Yes     Yes     Yes
                Human can gain infra-vision only if it is magically enhanced.
  
                                                                    
-=== Stat Bonus Tables (updated for Gumband 2.1.5) ===
+=== Stat Bonus Tables (updated for Gumband 2.1.6) ===
 
 Stat, hit dice, and experience points per level modifications due to race
 are listed in the following table.
  
                        STR  INT  WIS  DEX  CON  CHR  Hit Dice  Rqd Exp/level
            Human        0    0    0    0    0    0      10          +0%
-           Half-Elf     0   +1   +1   +2   -1   +1       9         +10%
            Elf         -1   +2   +1   +3   -2   +2       8         +20%
            Hobbit      -2   +1   +1   +2   +2   +2       7         +10%
            Gnome       -1   +2    0   +2   +1   -2       8         +30%
@@ -910,24 +798,15 @@ are listed in the following table.
            Gambolt     -1    0    0   +5   -1   +5       8         +30%
            High-Elf    +1   +3   +2   +3   +1   +5      10         +75%
            Barbarian   +3   -2   -1   +1   +2   -2      11         +20%
-           Half-Ogre   +3   -1   -1   -1   +3   -3      12         +30%
            Half-Giant  +4   -2   -2   -2   +3   -3      13         +25%
            Half-Titan  +5   +1   +1   -2   +3   +1      14         +125%
-           Cyclops     +4   -3   -3   -3   +4   -6      13         +30%
-           Yeek        -2   +1   +1   +1   -2   -7       7          +0%
            Klackon     +2   -1   -1   +1   +2   -2      12         +35%
            Kobold      -1   -1    0   +2   +1   -4       9         +25%
-           Nibelung    +1   -1   +2    0   +2   -4      11         +35%
-           Dark Elf    -1   +3   +2   +2   -2   +1       9         +50%
            Draconian   +2   +1   +1   +1   +2   -3      11         +125%
            Mind Flayer -3   +4   +4    0   -2   -5       9         +40%
-           Imp         -1   -1   -1   +1   +2   -3      10         +10%
            Golem       +4   -5   -5    0   +4   -4      13         +125%
-           Skeleton     0   -2   -2    0   +1   -4      10         +45%
-           Zombie      +2   -6   -6   +1   +4   -5      13         +35%
            Vampire     +3   +3   -1   -1   +1   +2      11         +100%
            Spectre     -5   +4   +4   +2   -3   -6       7         +80%
-           Sprite      -4   +3   +3   +3   -2   +2       7         +75%
            Beastman    +2   -2   -1   -1   +2   -4      11         +40%
 
                                                              Spellcasting
@@ -948,11 +827,11 @@ are listed in the following table.
 
 (a '*' next to a number indicates the spellcasting stat for that class)
  
-=== Ability Tables (updated for Gumband 2.1.4) ===
+
+=== Ability Tables (updated for Gumband 2.1.6) ===
 
                         Dsrm Dvce Save Stlh Srch Prcp HtH  Misl   Infra
            Human        +0   +0   +0   +0   +0   +10  +0   +0     None
-           Half-Elf     +2   +3   +3   +2   +6   +11  -1   +5     30 feet
            Elf          +5   +6   +6   +4   +8   +12  -5   +5     40 feet
            Hobbit       +15  +18  +18  +4   +12  +15  -10  +20    30 feet
            Gnome        +10  +12  +12  +3   +6   +13  -8   +12    40 feet
@@ -962,26 +841,17 @@ are listed in the following table.
            Gambolt      +0   +0   +20  +5   +20  +30  +10  +0     60 feet
            High-Elf     +4   +20  +20  +4   +3   +14  +10  +25    40 feet
            Barbarian    -2   -10  +2   -1   +1   +7   +12  +10    None
-           Half-Ogre    -3   -5   -5   -2   -1   +5   +20  +0     30 feet
            Half-Giant   -6   -8   -6   -2   -1   +5   +25  +5     30 feet
            Half-Titan   -5   +5   +2   -2   +1   +8   +25  +0     None
-           Cyclops      -4   -5   -5   -2   -2   +5   +20  -10    10 feet
-           Yeek         +2   +4   +10  +3   +5   +15  -5   -5     20 feet
            Klackon      +10  +5   +5   +0   -1   +10  +5   +5     20 feet
            Kobold       -2   -3   -2   -1   +1   +8   +10  -8     30 feet
-           Nibelung     +3   +5   +10  +1   +5   +10  +9   +0     50 feet
-           Dark Elf     +5   +15  +20  +3   +8   +12  -5   +10    50 feet
            Draconian    -2   +5   +3   +0   +1   +10  +5   +5     20 feet
            Mind Flayer  +10  +25  +15  +2   +5   +12  -10  -5     40 feet
-           Imp          -3   +2   -1   +1   -1   +10  +5   -5     30 feet
            Golem        -5   +5   +10  -1   -1   +8   +20  +0     40 feet
-           Skeleton     -5   -5   +5   -1   -1   +8   +10  +0     20 feet
-           Zombie       -5   -5   +8   -1   -1   +5   +15  +0     20 feet
            Vampire      +4   +10  +10  +4   +1   +8   +5   +0     50 feet
            Spectre      +10  +25  +20  +5   +5   +14  -15  -5     50 feet
-           Sprite       +10  +10  +10  +4   +10  +10  -12  +0     40 feet
            Beastman     -5   -2   -1   -1   -1   +5   +12  +5     None
- 
+
 
                 Disarm  Device  Save    Stealth Search  Melee   Missile XP
 Warrior         25+12   18+7    18+10   1       14/2    70+45   55+45  + 0%

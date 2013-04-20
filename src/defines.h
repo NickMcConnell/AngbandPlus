@@ -42,7 +42,7 @@
 #define FAKE_VERSION
 #define FAKE_VER_MAJOR 2
 #define FAKE_VER_MINOR 1
-#define FAKE_VER_PATCH 5
+#define FAKE_VER_PATCH 6
 
 #define ANGBAND_2_8_1
 
@@ -93,7 +93,7 @@
 /*
  * Maximum number of player "race" types (see "table.c", etc)
  */
-#define MAX_RACES           30 /* Fingers crossed, hope this works... */
+#define MAX_RACES           20 /* Fingers crossed, hope this works... */
 
 /*
  * Maximum number of player "class" types (see "table.c", etc)
@@ -159,7 +159,8 @@
 #define REW_SER_DEMO    34
 #define REW_SER_MONS    35
 
-/* Chaos mutations */
+
+/* Mutations */
 
 /* "Activatable" mutations must be in MUT1_* */
 #define MUT1_SPIT_ACID                  0x00000001L
@@ -269,7 +270,7 @@
 # define MA_SLOW 2
 
 /* Mindcraft */
-#define MAX_MINDCRAFT_POWERS  12
+#define MAX_MINDCRAFT_POWERS  13
 
 /* A hack for cave.c */
 #define BMP_FIRST_PC_CLASS 164
@@ -552,7 +553,6 @@ and tables.c --TY */
 #define MAX_STACK_SIZE                  100
 
 
-
 /* Indexes of the various "stats" (hard-coded by savefiles, etc). */
 #define A_STR   0
 #define A_INT   1
@@ -567,35 +567,25 @@ and tables.c --TY */
 
 /* Player race constants (hard-coded by save-files, arrays, etc) */
 #define RACE_HUMAN              0
-#define RACE_HALF_ELF           1
-#define RACE_ELF                2
-#define RACE_HOBBIT             3
-#define RACE_GNOME              4
-#define RACE_DWARF              5
-#define RACE_HALF_ORC           6
-#define RACE_HALF_TROLL         7
-#define RACE_GAMBOLT            8 /* was RACE_AMBERITE -- Gumby */
-#define RACE_HIGH_ELF           9
-#define RACE_BARBARIAN         10
-#define RACE_HALF_OGRE         11
-#define RACE_HALF_GIANT        12
-#define RACE_HALF_TITAN        13
-#define RACE_CYCLOPS           14
-#define RACE_YEEK              15
-#define RACE_KLACKON           16
-#define RACE_KOBOLD            17
-#define RACE_NIBELUNG          18
-#define RACE_DARK_ELF          19
-#define RACE_DRACONIAN         20
-#define RACE_MIND_FLAYER       21
-#define RACE_IMP               22
-#define RACE_GOLEM             23
-#define RACE_SKELETON          24
-#define RACE_ZOMBIE            25
-#define RACE_VAMPIRE           26
-#define RACE_SPECTRE           27
-#define RACE_SPRITE            28
-#define RACE_BEASTMAN          29
+#define RACE_ELF                1
+#define RACE_HOBBIT             2
+#define RACE_GNOME              3
+#define RACE_DWARF              4
+#define RACE_HALF_ORC           5
+#define RACE_HALF_TROLL         6
+#define RACE_GAMBOLT            7
+#define RACE_HIGH_ELF           8
+#define RACE_BARBARIAN          9
+#define RACE_HALF_GIANT        10
+#define RACE_HALF_TITAN        11
+#define RACE_KLACKON           12
+#define RACE_KOBOLD            13
+#define RACE_DRACONIAN         14
+#define RACE_MIND_FLAYER       15
+#define RACE_GOLEM             16
+#define RACE_VAMPIRE           17
+#define RACE_SPECTRE           18
+#define RACE_BEASTMAN          19
 
 
 /*
@@ -776,7 +766,7 @@ and tables.c --TY */
 #define ART_RED_AMULET                  4 /* was Carlammas */
 #define ART_INGWE                       5
 #define ART_DWARVES                     6
-/* 7 unused */
+#define ART_BURGLARY			7
 
 /* Rings */
 #define ART_BARAHIR                     8
@@ -785,8 +775,9 @@ and tables.c --TY */
 #define ART_NENYA                       11
 #define ART_VILYA                       12
 #define ART_POWER                       13
+#define ART_IMMUNITY			14
 
-/* 14 & 15 unused, must be INSTA_ARTS */
+/* 15 unused, must be INSTA_ARTS */
 
 /* Dragon Scale */
 #define ART_RAZORBACK                   16
@@ -938,7 +929,7 @@ and tables.c --TY */
 #define ART_HACKMEAT			128
 #define ART_BASHER			129
 #define ART_WHIRLWIND			130
-#define ART_ARIANROD			131
+#define ART_DRASILO			131
 #define ART_RETALIATOR			132
 #define ART_MARKSMANSHIP		133
 #define ART_ENTANGLEMENT		134
@@ -960,8 +951,12 @@ and tables.c --TY */
 #define ART_PINPRICK			150
 #define ART_BEGGING			151
 #define ART_HASTNEN			152
+#define ART_NEMOVEBLA			153
+#define ART_PASTRO_FORTA		154
+#define ART_FENDILO			155
+#define ART_PENIG_LEDA_KIRASO		156
 
-/* 153-255 unused */
+/* 157-255 unused */
 
 
 /*** Ego-Item indexes (see "lib/edit/e_info.txt") ***/
@@ -981,7 +976,7 @@ and tables.c --TY */
 #define EGO_ELVENKIND           9
 #define EGO_SPINES		10
 #define EGO_PERMANENCE          11
-/* xxx */
+#define EGO_TOUGHNESS		12
 /* xxx */
 /* xxx */
 /* xxx */
@@ -1212,10 +1207,6 @@ and tables.c --TY */
  * Note that as of 2.7.8, the "item flags" apply to all items, though
  * only armor and weapons and a few other items use any of these flags.
  */
-
-#define TV_SKELETON      1      /* Skeletons ('s') */
-#define TV_BOTTLE        2      /* Empty bottles ('!') */
-#define TV_JUNK          3      /* Sticks, Pottery, etc ('~') */
 #define TV_SPIKE         5      /* Spikes ('~') */
 #define TV_CHEST         7      /* Chests ('~') */
 #define TV_SHOT         16      /* Ammo for slings */
@@ -1434,6 +1425,8 @@ and tables.c --TY */
 #define SV_AMULET_NO_MAGIC         13
 #define SV_AMULET_NO_TELE          14
 #define SV_AMULET_RESISTANCE       15
+#define SV_AMULET_BURGLARY	   16
+#define SV_AMULET_REGENERATION	   17
 
 /* The sval codes for TV_RING */
 #define SV_RING_WOE                0
@@ -1486,6 +1479,7 @@ and tables.c --TY */
 #define SV_RING_RES_BLINDNESS      47
 #define SV_RING_LORDLY             48
 #define SV_RING_ATTACKS            49
+#define SV_RING_IMMUNITY	   50
 
 /* The "sval" codes for TV_STAFF */
 #define SV_STAFF_DARKNESS          0
@@ -1518,6 +1512,7 @@ and tables.c --TY */
 #define SV_STAFF_GENOCIDE          27
 #define SV_STAFF_EARTHQUAKES       28
 #define SV_STAFF_DESTRUCTION       29
+#define SV_STAFF_ALTERATION	   30
 
 
 /* The "sval" codes for TV_WAND */
@@ -1552,6 +1547,7 @@ and tables.c --TY */
 #define SV_WAND_DRAGON_BREATH      28
 #define SV_WAND_ROCKETS            29
 #define SV_WAND_STRIKING	   30
+#define SV_WAND_APPORTATION	   31
 
 /* The "sval" codes for TV_ROD */
 #define SV_ROD_DETECT_TRAP         0
@@ -1640,6 +1636,7 @@ and tables.c --TY */
 #define SV_SCROLL_CHAOS                  50
 #define SV_SCROLL_RUMOR                  51
 #define SV_SCROLL_ARTIFACT               52
+#define SV_SCROLL_BRAND_WEAPON		 53
 
 /* The "sval" codes for TV_POTION */
 #define SV_POTION_WATER                  0
@@ -1966,24 +1963,24 @@ and tables.c --TY */
 #define SUMMON_SCUMDOG          30
 #define SUMMON_WRAITH           31
 #define SUMMON_UNIQUE           32
-#define SUMMON_BIZARRE1         33
-#define SUMMON_BIZARRE2         34
-#define SUMMON_BIZARRE3         35
-#define SUMMON_BIZARRE4         36
-#define SUMMON_BIZARRE5         37
-#define SUMMON_BIZARRE6         38
+#define SUMMON_MOLD             33	/* was BIZARRE1 */
+#define SUMMON_BAT              34	/* was BIZARRE2 */
+#define SUMMON_QUYLTHULG        35	/* was BIZARRE3 */
+#define SUMMON_VORTEX           36	/* was BIZARRE4 */
+#define SUMMON_COIN             37	/* was BIZARRE5 */
+#define SUMMON_TREASURE         38	/* was BIZARRE6 */
 #define SUMMON_CYBER            39
 #define SUMMON_KIN              40
 #define SUMMON_DAWN             41
 #define SUMMON_ANIMAL           42
 #define SUMMON_ANIMAL_RANGER    43
 #define SUMMON_HI_UNDEAD_NO_UNIQUES	44
-#define SUMMON_HI_DRAGON_NO_UNIQUES            45
-#define SUMMON_NO_UNIQUES                      46
+#define SUMMON_HI_DRAGON_NO_UNIQUES	45
+#define SUMMON_NO_UNIQUES	46
 #define SUMMON_PHANTOM          47
 #define SUMMON_ELEMENTAL        48
 #define SUMMON_HELLBLADES       49
-
+#define SUMMON_MINOR		50	/* Summons creatures < plev. - G */
 
 
 /*
@@ -2422,7 +2419,7 @@ and tables.c --TY */
 #define RF2_KILL_ITEM           0x00800000      /* Monster can crush items */
 #define RF2_EXPLOSIVE           0x01000000	/* was RF2_BRAIN_1 - G */
 /* Explosive monsters go boom when they die. See xtra2.c for details */
-#define RF2_BRAIN_2             0x02000000
+#define RF2_SPINES              0x02000000	/* was RF2_BRAIN_2 - G */
 #define RF2_BRAIN_3             0x04000000
 #define RF2_BRAIN_4             0x08000000
 #define RF2_BRAIN_5             0x10000000
@@ -2470,8 +2467,8 @@ and tables.c --TY */
  * New monster race bit flags
  */
 #define RF4_SHRIEK	0x00000001      /* Shriek for help */
-#define RF4_BOULDER_1	0x00000002      /* Throw a boulder (XXX2) */
-#define RF4_BOULDER_2	0x00000004      /* Throw a large boulder (XXX3) */
+#define RF4_XXX2	0x00000002
+#define RF4_XXX3	0x00000004
 #define RF4_ROCKET	0x00000008      /* TY: Rocket */
 #define RF4_ARROW_1	0x00000010      /* Shoot an arrow (light) */
 #define RF4_ARROW_2	0x00000020      /* Fire an arrow (heavy) */

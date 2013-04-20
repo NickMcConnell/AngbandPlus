@@ -4,7 +4,7 @@
 #   [ - Magic Mapping       F2 - Nether Bolt         SF2 - Infernal Orb
 #   ] - Clairvoyance        F3 - Vampiric Drain      SF3 - Cloud Kill
 #   ' - Detect Objs/Treas.  F4 - Dark Bolt           SF4 - Punish Undead
-#   " - Detect Doors/Traps  F5 - Vamprism True       SF5 - Darkness Storm
+#   " - Detect Doors/Traps  F5 - Drain Life          SF5 - Darkness Storm
 #   ; - Detect Monsters     F6 - Death Ray           SF6 - Word of Death
 #   : - Detection           F7 - Berserk             SF7 - Evocation
 #   h - Haste Self          F8 - Battle Frenzy       SF8 - Hellfire
@@ -104,7 +104,7 @@ P:^_x3D\r
 A:\e\e\e*tm3c
 P:^_x3E\r
 
-# F5 - Vamprisim True
+# F5 - Drain Life
 A:m3e
 P:^_x3F\r
 

@@ -2232,12 +2232,9 @@ static void msg_flush(int x)
  */
 void msg_print(cptr msg)
 {
-	static p = 0;
-
+	static int p = 0;
 	int n;
-
 	char *t;
-
 	char buf[1024];
 
 

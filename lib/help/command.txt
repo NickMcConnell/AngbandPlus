@@ -559,13 +559,14 @@ Disarm a trap or chest (D)
 Alter (+)
         This special command allows the use of a single keypress to select
         any of the "obvious" commands above (attack, tunnel, bash, open,
-        disarm, close), and, by using macros or keymaps, to combine this
-        keypress with directions.  In general, this allows the use of the
-        "control" key plus the appropriate "direction" key (including the
-        roguelike direction keys in roguelike mode) as a kind of generic
-        "alter the terrain feature of an adjacent grid" command.  Alter
-        can take a count, requires a direction, and is affected by the
-        "always_repeat" option.
+        disarm, close, and stealing from monsters if you are a Rogue), and,
+        by using macros or keymaps, to combine this keypress with
+        directions.  In general, this allows the use of the "control" key
+        plus the appropriate "direction" key (including the roguelike
+        direction keys in roguelike mode) as a kind of generic "alter the
+        terrain feature of an adjacent grid" command.  Alter can take a
+        count, requires a direction, and is affected by the "always_repeat"
+        option.
 
 Order your pet around (p)
 	Use this command to give various orders to your pets.  You can
@@ -980,4 +981,4 @@ Save screen dump (right-paren)
                 Original: Alexander Cutler and Andy Astrand
          Updated (2.7.6): Russ Allbery (rra@cs.stanford.edu)
          Updated (2.7.9): Ben Harrison (benh@phial.com)
-Updated (Gumband 2.1.5a): Joe Dixon (gumby_jd@yahoo.com)
+Updated (Gumband 2.1.6a): Joe Dixon (gumby_jd@yahoo.com)

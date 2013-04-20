@@ -1,18 +1,18 @@
 # Sorcery
 #
-# TAB - Teleport Away       F1 - Detect Monsters     SF1 - Enchant Weapon
-#   [ - Haste Self          F2 - Detect Obj./Treas.  SF2 - Enchant Armour
-#   ] - Globe of Invulner.  F3 - Detect Doors/Traps  SF3 - Alchemy
-#   ' - Confuse Monster     F4 - Magic Mapping
-#   " - Slow Monster        F5 - Detect Enchantment
-#   ; - Sleep Monster       F6 - Sense Minds
-#   : - Mass Sleep          F7 - Detection
-#   h - Charm Monster       F8 - Clairvoyance
-#   H - Stasis              F9 - Self Knowledge
-#   J - Word of Recall     F10 - Teleport Level
-#   n - Identify           F11 - Slow Monsters
-#   N - Insight            F12 - Explosive Rune
-#   O - Dimension Door
+# TAB - Teleport Away       F1 - Confuse Monster     SF1 - Enchant Weapon
+#   [ - Magic Mapping       F2 - Sleep Monster       SF2 - Enchant Armour
+#   ] - Clairvoyance        F3 - Slow Monster        SF3 - Alchemy
+#   ' - Detect Obj./Treas.  F4 - Mass Sleep
+#   " - Detect Enchantment  F5 - Charm Monster
+#   ; - Detect Monsters     F6 - Stasis
+#   : - Detect Doors/Traps  F7 - Slow Monsters
+#   h - Haste Self          F8 - Telekinesis
+#   H - Globe of Invulner.  F9 - Explosive Rune
+#   J - Dimension Door     F10 - Identify
+#   n - Teleport Level     F11 - Self Knowledge
+#   N - Word of Recall     F12 - Insight
+#   O - Detection
 #   P - Recharging
 #   y - Phase Door
 #   Y - Teleport
@@ -22,52 +22,52 @@
 A:m2g
 P:\t
 
-# [ - Haste Self
-A:m2h
+# [ - Magic Mapping
+A:m2b
 C:0:[
 
-# ] - Globe of Invulnerability
-A:m4h
+# ] - Clairvoyance
+A:m4d
 C:0:]
 
-# ' - Confuse Monster
-A:m1f
+# ' - Detect Objects/Treasure
+A:m1c
 C:0:'
 
-# " - Slow Monster
-A:m2e
+# " - Detect Enchantment
+A:m2d
 C:0:"
 
-# ; - Sleep Monster
-A:m1h
+# ; - Detect Monsters
+A:m1a
 C:0:;
 
-# : - Mass Sleep
-A:m2f
+# : - Detect Doors/Traps
+A:m1d
 C:0::
 
-# h - Charm Monster
-A:m3a
+# h - Haste Self
+A:m2h
 C:0:h
 
-# H - Stasis
-A:m4a
+# H - Globe of Invulnerability
+A:m4h
 C:0:H
 
-# J - Word of Recall
-A:m3f
+# J - Dimension Door
+A:m3b
 C:0:J
 
-# n - Identify
-A:m2c
+# n - Teleport Level
+A:m3e
 C:0:n
 
-# N - Identify True
-A:m3h
+# N - Word of Recall
+A:m3f
 C:0:N
 
-# O - Dimension Door
-A:m3b
+# O - Detection
+A:m3g
 C:0:O
 
 # P - Recharging
@@ -86,57 +86,61 @@ C:0:Y
 A:m1e
 C:0:Z
 
-# Detection Spells
+# Combat
 
-# F1 - Detect Monsters
-A:m1a
+# F1 - Confuse Monster
+A:m1f
 P:^_x3B\r
 
-# F2 - Detect Objects/Treasure
-A:m1c
+# F2 - Sleep Monster
+A:m1h
 P:^_x3C\r
 
-# F3 - Detect Doors/Traps
-A:m1d
+# F3 - Slow Monster
+A:m2e
 P:^_x3D\r
 
-# F4 - Magic Mapping
-A:m2b
+# F4 - Mass Sleep
+A:m2f
 P:^_x3E\r
 
-# F5 - Detect Enchantment
-A:m2d
+# F5 - Charm Monster
+A:m3a
 P:^_x3F\r
 
-# F6 - Sense Minds
-A:m3c
+# F6 - Stasis
+A:m4a
 P:^_x40\r
 
-# F7 - Detection True
-A:m3g
+# F7 - Slow Monsters
+A:m4b
 P:^_x41\r
-
-# F8 - Clairvoyance
-A:m4d
-P:^_x42\r
 
 # Miscellaneous
 
-# F9 - Self Knowledge
-A:m3d
+# F8 - Telekinesis
+A:m3c
+P:^_x42\r
+
+# F9 - Explosive Rune
+A:m4c
 P:^_x43\r
 
-# F10 - Teleport Level
-A:m3e
+# Identification
+
+# F10 - Identify
+A:m2c
 P:^_x44\r
 
-# F11 - Slow Monsters
-A:m4b
+# F11 - Self Knowledge
+A:m3d
 P:^_x85\r
 
-# F12 - Explosive Rune
-A:m4c
+# F12 - Insight
+A:m3h
 P:^_x86\r
+
+# Moneymakers
 
 # SHIFT-F1 - Enchant Weapon
 A:m4e

@@ -312,7 +312,6 @@ void do_cmd_eat_food(void)
 		}
 	}
 
-
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
@@ -329,7 +328,6 @@ void do_cmd_eat_food(void)
 	/* Window stuff */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
 
-
 	/* Food can feed the player */
 	if (p_ptr->prace == RACE_VAMPIRE)
 	{
@@ -339,30 +337,8 @@ void do_cmd_eat_food(void)
 		if (p_ptr->food < PY_FOOD_ALERT)   /* Hungry */
 			msg_print("Your hunger can only be satisfied with fresh blood!");
 	}
-	else if (p_ptr->prace == RACE_SKELETON)
-	{
-		if (!((o_ptr->sval == SV_FOOD_WAYBREAD)
-		  ||  (o_ptr->sval < SV_FOOD_BISCUIT)))
-		{
-			object_type forge;
-			object_type * q_ptr = & forge;
-
-			msg_print("The food falls through your jaws!");
-
-			/* Create the item */
-			object_prep(q_ptr, lookup_kind(o_ptr->tval, o_ptr->sval));
-
-			/* Drop the object from heaven */
-			drop_near(q_ptr, -1, py, px);
-		}
-		else
-		{
-			msg_print("The food falls through your jaws and vanishes!");
-		}
-	}
 	else if ((p_ptr->prace == RACE_GOLEM) ||
-	         (p_ptr->prace == RACE_ZOMBIE) ||
-	         (p_ptr->prace == RACE_SPECTRE))
+		 (p_ptr->prace == RACE_SPECTRE))
 	{
 		msg_print("The food of mortals is poor sustenance for you.");
 		set_food(p_ptr->food + ((o_ptr->pval) / 20));
@@ -371,7 +347,6 @@ void do_cmd_eat_food(void)
 	{
 		(void)set_food(p_ptr->food + o_ptr->pval);
 	}
-
 
 	/* Destroy a food in the pack */
 	if (item >= 0)
@@ -392,16 +367,13 @@ void do_cmd_eat_food(void)
 
 
 
-
 /*
  * Quaff a potion (from the pack or the floor)
  */
 void do_cmd_quaff_potion(void)
 {
 	int		item, ident, lev;
-
 	object_type	*o_ptr;
-
 
 	/* Restrict choices to potions */
 	item_tester_tval = TV_POTION;
@@ -425,10 +397,8 @@ void do_cmd_quaff_potion(void)
 		o_ptr = &o_list[0 - item];
 	}
 
-
 	/* Sound */
 	sound(SOUND_QUAFF);
-
 
 	/* Take a turn */
 	energy_use = 100;
@@ -499,19 +469,21 @@ void do_cmd_quaff_potion(void)
 
 		case SV_POTION_CONFUSION: /* Booze */
 		{
-			if (!((p_ptr->resist_conf) || (p_ptr->resist_chaos)))
+			if (!p_ptr->resist_conf)
 			{
 				if (set_confused(p_ptr->confused + rand_int(25) + 25 + (p_ptr->lev * 2)))
 				{
 					ident = TRUE;
 				}
-				if (randint(2)==1)
+
+				if (randint(2)==1 && !p_ptr->resist_chaos)
 				{
 					if (set_image(p_ptr->image + rand_int(150) + 150))
 					{
 						ident = TRUE;
 					}
 				}
+
 				if (randint(13)==1)
 				{
 					ident = TRUE;
@@ -1036,12 +1008,6 @@ void do_cmd_quaff_potion(void)
 		}
 	}
 
-	if ((p_ptr->prace == RACE_SKELETON) && (randint(12)==1))
-	{
-		msg_print("Some of the fluid falls through your jaws!");
-		potion_smash_effect(0, py, px, o_ptr->sval);
-	}
-
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
@@ -1288,7 +1254,7 @@ void do_cmd_read_scroll(void)
 		case SV_SCROLL_AGGRAVATE_MONSTER:
 		{
 			msg_print("There is a high pitched humming noise.");
-			aggravate_monsters(1);
+			aggravate_monsters(1, FALSE);
 			ident = TRUE;
 			break;
 		}
@@ -1597,8 +1563,8 @@ void do_cmd_read_scroll(void)
 
 		case SV_SCROLL_BLESS_WEAPON:
 		{
-			ident = TRUE;
 			if (!bless_weapon()) used_up = FALSE;
+			ident = TRUE;
 			break;
 		}
 
@@ -1632,10 +1598,7 @@ void do_cmd_read_scroll(void)
 
 		case SV_SCROLL_FIRE:
 		{
-			fire_ball(GF_FIRE, 0, 150, 4);
-			/* Note: "Double" damage since it is centered on the player ... */
-			if (!(p_ptr->oppose_fire || p_ptr->resist_fire || p_ptr->immune_fire))
-				take_hit(50+randint(50), "a Scroll of Fire");
+			fire_ball(GF_FIRE, 0, 175, 4);
 			ident = TRUE;
 			break;
 		}
@@ -1643,18 +1606,14 @@ void do_cmd_read_scroll(void)
 
 		case SV_SCROLL_ICE:
 		{
-			fire_ball(GF_ICE, 0, 175, 4);
-			if (!(p_ptr->oppose_cold || p_ptr->resist_cold || p_ptr->immune_cold))
-				take_hit(100+randint(100), "a Scroll of Ice");
+			fire_ball(GF_ICE, 0, 200, 4);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_SCROLL_CHAOS:
 		{
-			fire_ball(GF_CHAOS, 0, 222, 4);
-			if (!p_ptr->resist_chaos)
-				take_hit(111+randint(111), "a Scroll of Chaos");
+			fire_ball(GF_CHAOS, 0, 225, 4);
 			ident = TRUE;
 			break;
 		}
@@ -1690,6 +1649,13 @@ void do_cmd_read_scroll(void)
 		{
 			ident = TRUE;
 			if (!artifact_scroll()) used_up = FALSE;
+			break;
+		}
+
+		case SV_SCROLL_BRAND_WEAPON:
+		{
+			if (!brand_weapon(rand_int(5))) used_up = FALSE;
+			ident = TRUE;
 			break;
 		}
 	}
@@ -2086,6 +2052,13 @@ void do_cmd_use_staff(void)
 			ident = TRUE;
 			break;
 		}
+
+		case SV_STAFF_ALTERATION:
+		{
+			do_poly_self();
+			ident = TRUE;
+			break;
+		}
 	}
 
 
@@ -2176,10 +2149,8 @@ void do_cmd_use_staff(void)
  */
 void do_cmd_aim_wand(void)
 {
-	int			item, lev, ident, chance, dir, sval;
-
-	object_type		*o_ptr;
-
+	int		item, lev, ident, chance, dir, sval;
+	object_type	*o_ptr;
 
 	/* Restrict choices to wands */
 	item_tester_tval = TV_WAND;
@@ -2203,7 +2174,6 @@ void do_cmd_aim_wand(void)
 		o_ptr = &o_list[0 - item];
 	}
 
-
 	/* Mega-Hack -- refuse to aim a pile from the ground */
 	if ((item < 0) && (o_ptr->number > 1))
 	{
@@ -2211,10 +2181,8 @@ void do_cmd_aim_wand(void)
 		return;
 	}
 
-
 	/* Allow direction to be cancelled for free */
 	if (!get_aim_dir(&dir)) return;
-
 
 	/* Take a turn */
 	energy_use = 100;
@@ -2257,10 +2225,8 @@ void do_cmd_aim_wand(void)
 		return;
 	}
 
-
 	/* Sound */
 	sound(SOUND_ZAP);
-
 
 	/* XXX Hack -- Extract the "sval" effect */
 	sval = o_ptr->sval;
@@ -2495,7 +2461,7 @@ void do_cmd_aim_wand(void)
 		case SV_WAND_ROCKETS:
 		{
 			msg_print("You launch a rocket!");
-			fire_ball(GF_ROCKET, dir, 125 + (randint(75)), 2);
+			fire_ball(GF_ROCKET, dir, 150 + (randint(50)), 2);
 			ident = TRUE;
 			break;
 		}
@@ -2503,6 +2469,13 @@ void do_cmd_aim_wand(void)
 		case SV_WAND_STRIKING:
 		{
 			fire_bolt(GF_FORCE, dir, damroll(8, 8));
+			ident = TRUE;
+			break;
+		}
+
+		case SV_WAND_APPORTATION:
+		{
+			fetch(dir, p_ptr->lev * 10, FALSE);
 			ident = TRUE;
 			break;
 		}

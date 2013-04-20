@@ -722,6 +722,8 @@ static void wr_item(object_type *o_ptr)
 
 	wr_byte(o_ptr->marked);
 
+	wr_byte(o_ptr->branded);
+
 #if 0
 	/* Old flags */
     if (o_ptr->art_name || o_ptr->art_flags1 || o_ptr->art_flags2 ||
@@ -787,7 +789,7 @@ static void wr_monster(monster_type *m_ptr)
 	wr_byte(m_ptr->stunned);
 	wr_byte(m_ptr->confused);
 	wr_byte(m_ptr->monfear);
-    wr_u32b(m_ptr->smart);
+	wr_u32b(m_ptr->smart);
 	wr_byte(0);
 }
 
@@ -1147,7 +1149,7 @@ static void wr_extra(void)
 	wr_byte(p_ptr->searching);
 	wr_byte(p_ptr->maximize);
 	wr_byte(p_ptr->preserve);
-	wr_byte(0);
+	wr_byte(number_of_thefts_on_level);
 
 	/* Future use */
 	for (i = 0; i < 12; i++) wr_u32b(0L);

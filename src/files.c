@@ -1445,22 +1445,12 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3)
 			break;
 		case RACE_BARBARIAN:
 			(*f2) |= (TR2_RES_FEAR); break;
-		case RACE_HALF_OGRE:
-			(*f2) |= (TR2_SUST_STR);
-			(*f2) |= (TR2_RES_DARK);
-			break;
 		case RACE_HALF_GIANT:
 			(*f2) |= (TR2_RES_SHARDS);
 			(*f2) |= (TR2_SUST_STR);
 			break;
 		case RACE_HALF_TITAN:
 			(*f2) |= (TR2_RES_CHAOS); break;
-		case RACE_CYCLOPS:
-			(*f2) |= (TR2_RES_SOUND); break;
-		case RACE_YEEK:
-			(*f2) |= (TR2_RES_ACID);
-			if (p_ptr->lev > 29) (*f2) |= (TR2_IM_ACID);
-			break;
 		case RACE_KLACKON:
 			(*f2) |= (TR2_RES_CONF);
 			(*f2) |= (TR2_RES_ACID);
@@ -1468,14 +1458,6 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3)
 			break;
 		case RACE_KOBOLD:
 			(*f2) |= (TR2_RES_POIS); break;
-		case RACE_NIBELUNG:
-			(*f2) |= (TR2_RES_DISEN);
-			(*f2) |= (TR2_RES_DARK);
-			break;
-		case RACE_DARK_ELF:
-			(*f2) |= (TR2_RES_DARK);
-			if (p_ptr->lev > 19) (*f3) |= (TR3_SEE_INVIS);
-			break;
 		case RACE_DRACONIAN:
 			(*f3) |= (TR3_FEATHER);
 			if (p_ptr->lev > 4)  (*f2) |= (TR2_RES_FIRE);
@@ -1492,30 +1474,11 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3)
 			if (p_ptr->lev > 14) (*f3) |= (TR3_SEE_INVIS);
 			if (p_ptr->lev > 29) (*f3) |= (TR3_TELEPATHY);
 			break;
-		case RACE_IMP:
-			(*f2) |= (TR2_RES_FIRE);
-			if (p_ptr->lev > 9) (*f3) |= (TR3_SEE_INVIS);
-			break;
 		case RACE_GOLEM:
 			(*f2) |= (TR2_RES_FIRE);
 			(*f2) |= (TR2_RES_POIS);
 			(*f2) |= (TR2_RES_SHARDS);
 			(*f3) |= (TR3_SLOW_DIGEST);
-			break;
-		case RACE_SKELETON:
-			(*f3) |= (TR3_SEE_INVIS);
-			(*f2) |= (TR2_RES_SHARDS);
-			(*f2) |= (TR2_HOLD_LIFE);
-			(*f2) |= (TR2_RES_POIS);
-			if (p_ptr->lev > 9) (*f2) |= (TR2_RES_COLD);
-			break;
-		case RACE_ZOMBIE:
-			(*f3) |= (TR3_SEE_INVIS);
-			(*f2) |= (TR2_HOLD_LIFE);
-			(*f2) |= (TR2_RES_NETHER);
-			(*f2) |= (TR2_RES_POIS);
-			(*f3) |= (TR3_SLOW_DIGEST);
-			if (p_ptr->lev > 4) (*f2) |= (TR2_RES_COLD);
 			break;
 		case RACE_VAMPIRE:
 			(*f2) |= (TR2_HOLD_LIFE);
@@ -1534,11 +1497,6 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3)
 			(*f2) |= (TR2_RES_POIS);
 			(*f3) |= (TR3_SLOW_DIGEST);
 			(*f3) |= (TR3_FEATHER);
-			break;
-		case RACE_SPRITE:
-			(*f2) |= (TR2_RES_LITE);
-			(*f3) |= (TR3_FEATHER);
-			if (p_ptr->lev > 9) (*f1) |= (TR1_SPEED);
 			break;
 		case RACE_BEASTMAN:
 			(*f2) |= (TR2_RES_SOUND);
@@ -1566,7 +1524,6 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3)
 		{
 			(*f2) |= (TR2_RES_ELEC);
 			(*f3) |= (TR3_SH_ELEC);
-			(*f3) |= (TR3_LITE);
 		}
 
 		if (p_ptr->muta3 & MUT3_FIRE_BODY)
@@ -1791,7 +1748,7 @@ static void display_player_flag_info(void)
     display_player_flag_aux(row+6, col, "Regeneration :", 3, TR3_REGEN);
     display_player_flag_aux(row+7, col, "Levitation   :", 3, TR3_FEATHER);
     display_player_flag_aux(row+8, col, "Perm Lite    :", 3, TR3_LITE);
-    display_player_flag_aux(row+9, col, "WraithForm   :", 3, TR3_WRAITH);
+/*  display_player_flag_aux(row+9, col, "Wraith Form  :", 3, TR3_WRAITH); */
 }
 
 
@@ -2706,11 +2663,6 @@ errr file_character(cptr name, bool full)
             fprintf(fff, "\n Small Levels:       ON");
         else
             fprintf(fff, "\n Small Levels:       OFF");
-
-	if (only_small)
-	    fprintf(fff, "\n Only Small Levels:  ON");
-	else
-	    fprintf(fff, "\n Only Small Levels:  OFF");
 
         if (empty_levels)
             fprintf(fff, "\n Arena Levels:       ON");
@@ -4899,7 +4851,6 @@ static void handle_signal_abort(int sig)
 	/* Nothing to save, just quit */
 	if (!character_generated || character_saved) quit(NULL);
 
-
 	/* Clear the bottom line */
 	Term_erase(0, 23, 255);
 
@@ -4940,8 +4891,6 @@ static void handle_signal_abort(int sig)
 	/* Quit */
 	quit("software bug");
 }
-
-
 
 
 /*

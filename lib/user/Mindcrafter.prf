@@ -7,6 +7,7 @@
 #   " - Adrenaline Channeling [23-35]         F5 - Telekinetic Wave [28-40]
 #   ; - Minor Displacement [3-35]
 #   : - Major Displacement [7-50]
+#   Z - Telekinesis [20]
 
 # TAB - Domination [lev 9]
 A:me
@@ -25,7 +26,7 @@ A:mg
 C:0:'
 
 # " - Adrenaline Channeling [lev 23]
-A:mj
+A:mk
 C:0:"
 
 # ; - Minor Displacement [lev 3]
@@ -35,6 +36,10 @@ C:0:;
 # : - Major Displacement [lev 7]
 A:md
 C:0::
+
+# Z - Telekinesis [lev 20]
+A:mj
+C:0:Z
 
 # F1 - Neural Blast [lev 2]
 A:\e\e\e*tmb
@@ -49,9 +54,9 @@ A:mi
 P:^_x3D\r
 
 # F4 - Psychic Drain [lev 25]
-A:mk
+A:ml
 P:^_x3E\r
 
 # F5 - Telekinetic Wave [lev 28]
-A:ml
+A:mm
 P:^_x3F\r

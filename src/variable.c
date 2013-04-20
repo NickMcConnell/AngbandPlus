@@ -156,9 +156,6 @@ s16b hack_m_idx_ii = 0;
 bool multi_rew = FALSE;
 char summon_kin_type;   /* Hack, by Julian Lighton: summon 'relatives' */
 
-int total_friends = 0;
-s32b total_friend_levels = 0;
-
 
 /*
  * Software options (set via the '=' command).  See "tables.c"
@@ -234,7 +231,7 @@ bool view_special_lite;		/* Use special colors for floor grids (slow) */
 bool last_words;		/* Get last words upon dying */
 bool speak_unique;		/* Speaking uniques + shopkeepers */
 bool small_levels;		/* Allow unusually small dungeon levels */
-bool only_small;		/* Only generate small dungeon levels - G */
+				/* set 5, bit 3 option */
 bool empty_levels;		/* Allow empty 'arena' levels */
 bool player_symbols;		/* Use varying symbols for the player char */
 bool equippy_chars;		/* Back by popular demand... */
@@ -848,3 +845,10 @@ bool (*get_obj_num_hook)(int k_idx);
 /* Hack, monk armour */
 bool monk_armour_aux;
 bool monk_notify_aux;
+
+
+/*
+ * Variable that limits rogue stealing.
+ * Cleared when a level is created. -LM-
+ */
+byte number_of_thefts_on_level;

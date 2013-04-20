@@ -42,6 +42,9 @@ struct birther
 	s16b stat[6];
 
 	char history[4][60];
+
+	byte weapon;
+	s16b patron;
 };
 
 
@@ -64,7 +67,6 @@ typedef struct hist_type hist_type;
 struct hist_type
 {
 	cptr info;			    /* Textual History */
-
 	byte roll;			    /* Frequency of this entry */
 	byte chart;			    /* Chart index */
 	byte next;			    /* Next chart index */
@@ -77,7 +79,6 @@ struct hist_type
  *
  * Chart progression by race:
  * Human      -->   1 -->   2 -->   3 -->  50 -->  51 -->  52 -->  53
- * Half-Elf   -->   4 -->   1 -->   2 -->   3 -->  50 -->  51 -->  52 --> 53
  * Elf        -->   7 -->   8 -->   9 -->  54 -->  55 -->  56
  * Hobbit     -->  10 -->  11 -->   3 -->  50 -->  51 -->  52 -->  53
  * Gnome      -->  13 -->  14 -->   3 -->  50 -->  51 -->  52 -->  53
@@ -87,24 +88,15 @@ struct hist_type
  * Gambolt    -->  30 -->  31 -->  32
  * High-Elf   -->   7 -->   8 -->   9 -->  54 -->  55 -->  56
  * Barbarian  -->   1 -->   2 -->   3 -->  50 -->  51 -->  52 -->  53
- * Half-Ogre  -->  74 -->  20 -->   2 -->   3 -->  50 -->  51 -->  52 --> 53
  * Half-Giant -->  75 -->  20 -->   2 -->   3 -->  50 -->  51 -->  52 --> 53
  * Half-Titan -->  76 -->  20 -->   2 -->   3 -->  50 -->  51 -->  52 --> 53
- * Cyclops    -->  77 --> 109 --> 110 --> 111 --> 112
- * Yeek       -->  78 -->  79 -->  80 -->  81 -->  65 -->  66
  * Klackon    -->  84 -->  85 -->  86
  * Kobold     -->  82 -->  83 -->  80 -->  81 -->  65 -->  66
- * Nibelung   -->  87 -->  88 -->  18 -->  57 -->  58 -->  59 -->  60 --> 61
- * Dark Elf   -->  69 -->  70 -->  71 -->  72 -->  73
  * Draconian  -->  89 -->  90 -->  91
  * Mindflayer -->  92 -->  93
- * Imp        -->  94 -->  95 -->  96 -->  97
  * Golem      -->  98 -->  99 --> 100 --> 101
- * Skeleton   --> 102 --> 103 --> 104 --> 105 --> 106
- * Zombie     --> 107 --> 108 -->  62 -->  63 -->  64 -->  65 -->  66
  * Vampire    --> 113 --> 114 --> 115 --> 116 --> 117
  * Spectre    --> 118 --> 119 --> 134 --> 120 --> 121 --> 122 --> 123
- * Sprite     --> 124 --> 125 --> 126 --> 127 --> 128
  * Beastman   --> 129 --> 130 --> 131 --> 132 --> 133
  *
  * XXX XXX XXX This table *must* be correct or drastic errors may occur!
@@ -129,12 +121,7 @@ static hist_type bg[] =
 	{"You are a credit to the family.  ",                80, 3, 50, 55},
 	{"You are a well liked child.  ",                   100, 3, 50, 60},
 
-	{"Your mother was of the Teleri.  ",                  40, 4, 1, 50},
-	{"Your father was of the Teleri.  ",                  75, 4, 1, 55},
-	{"Your mother was of the Noldor.  ",                  90, 4, 1, 55},
-	{"Your father was of the Noldor.  ",                  95, 4, 1, 60},
-	{"Your mother was of the Vanyar.  ",                  98, 4, 1, 65},
-	{"Your father was of the Vanyar.  ",                 100, 4, 1, 70},
+	/* Lines 4-6 unused */
 
 	{"You are one of several children ",                  60, 7, 8, 50},
 	{"You are the only child ",                          100, 7, 8, 55},
@@ -162,6 +149,8 @@ static hist_type bg[] =
 	{"Mage.  ",                                         99, 11, 3, 125},
 	{"Clan Elder.  ",                                  100, 11, 3, 140},
 
+	/* Line 12 unused */
+
 	{"You are one of several children of a Gnome ",     85, 13, 14, 45},
 	{"You are the only child of a Gnome ",             100, 13, 14, 55},
 
@@ -170,6 +159,8 @@ static hist_type bg[] =
 	{"Prankster.  ",  75, 14, 3,  85},
 	{"Warrior.  ",    95, 14, 3, 100},
 	{"Mage.  ",      100, 14, 3, 125},
+
+	/* Line 15 unused */
 
 	{"You are one of two children of a Dwarven ",  25, 16, 17, 40},
 	{"You are the only child of a Dwarven ",      100, 16, 17, 50},
@@ -190,6 +181,8 @@ static hist_type bg[] =
 
 	{"You are the adopted child ", 100, 20, 2, 50},
 
+	/* Line 21 unused */
+
 	{"Your mother was a Cave-Troll ",   30, 22, 23, 20},
 	{"Your father was a Cave-Troll ",   60, 22, 23, 25},
 	{"Your mother was a Hill-Troll ",   75, 22, 23, 30},
@@ -201,6 +194,8 @@ static hist_type bg[] =
 	{"Warrior.  ",     95, 23, 62, 55},
 	{"Shaman.  ",      99, 23, 62, 65},
 	{"Clan Chief.  ", 100, 23, 62, 80},
+
+	/* Lines 24-29 unused */
 
 	{"You were the smallest kitten in the litter.  ",   25, 30, 31, 40},
 	{"You were just one of a large number of kittens in the litter.  ",
@@ -219,6 +214,8 @@ static hist_type bg[] =
 	{", with white paws.",                              70, 32, 0,  50},
 	{", with a white chest.",                           90, 32, 0,  75},
 	{".",                                              100, 32, 0, 100},
+
+	/* Lines 33-49 unused */
 
 	{"You have dark brown eyes, ",  20, 50, 51, 50},
 	{"You have brown eyes, ",       60, 50, 51, 50},
@@ -293,23 +290,7 @@ static hist_type bg[] =
 	{"scabby skin.",					 66, 66, 0, 50},
 	{"leprous skin.",       		                100, 66, 0, 50},
 
-	{"You are one of several children of a Dark Elven ",	 85, 69, 70, 45},
-	{"You are the only child of a Dark Elven ",		100, 69, 70, 55},
-
-	{"Warrior.  ",						 50, 70, 71, 60 },
-	{"Warlock.  ",						 80, 70, 71, 75 },
-	{"Noble.  ",						100, 70, 71, 95 },
-
-	{"You have black eyes, ",				100, 71, 72, 50},
-
-	{"straight ",						 70, 72, 73, 50},
-	{"wavy ",						 90, 72, 73, 50},
-	{"curly ",						100, 72, 73, 50},
-
-	{"black hair and a very dark complexion.",		100, 73,  0, 50 },
-
-	{"Your mother was an Ogre, but it is unacknowledged.  ",  25, 74, 20, 25},
-	{"Your father was an Ogre, but it is unacknowledged.  ", 100, 74, 20, 25},
+	/* Lines 67-74 unused */
 
 	{"Your mother was a Hill Giant.  ",			 10, 75, 20, 50},
 	{"Your mother was a Fire Giant.  ",			 12, 75, 20, 55},
@@ -322,245 +303,151 @@ static hist_type bg[] =
 	{"Your father was a Cloud Giant.  ",			 90, 75, 20, 65},
 	{"Your father was a Storm Giant.  ",			100, 75, 20, 70},
 
-	{"Your father was an unknown Titan.  ",			 75, 76, 20, 50 },
-	{"Your mother was Themis.  ",				 80, 76, 20, 100 },
-	{"Your mother was Mnemosyne.  ",			 85, 76, 20, 100 },
-	{"Your father was Okeanoas.  ",				 90, 76, 20, 100 },
-	{"Your father was Crius.  ",				 95, 76, 20, 100 },
-	{"Your father was Hyperion.  ",				 98, 76, 20, 125 },
-	{"Your father was Kronos.  ",				100, 76, 20, 150 },
+	{"Your father was an unknown Titan.  ",			 75, 76, 20, 50},
+	{"Your mother was Themis.  ",				 80, 76, 20, 100},
+	{"Your mother was Mnemosyne.  ",			 85, 76, 20, 100},
+	{"Your father was Okeanoas.  ",				 90, 76, 20, 100},
+	{"Your father was Crius.  ",				 95, 76, 20, 100},
+	{"Your father was Hyperion.  ",				 98, 76, 20, 125},
+	{"Your father was Kronos.  ",				100, 76, 20, 150},
 
-	{"You are the offspring of an unknown Cyclops.  ",	 90, 77, 109, 50 },
-	{"You are Polyphemos's child.  ",			 98, 77, 109, 80 },
-	{"You are Uranos's child.  ",				100, 77, 109, 135 },
+	/* Lines 77-79 unused */
 
-	{"You are one of several children of ",			100, 78, 79, 50 },
+	{"You have pale eyes, ",				 25, 80, 81, 50},
+	{"You have glowing eyes, ",				 50, 80, 81, 50},
+	{"You have tiny black eyes, ",				 75, 80, 81, 50},
+	{"You have shining black eyes, ",			100, 80, 81, 50},
 
-	{"a Brown Yeek. ",					 50, 79, 80, 50 },
-	{"a Blue Yeek.  ",					 75, 79, 80, 50 },
-	{"a Master Yeek.  ",					 95, 79, 80, 85 },
-	{"Boldor, the King of the Yeeks.  ",			100, 79, 80, 120 },
+	{"no hair at all, ",					 20, 81, 65, 50},
+	{"short black hair, ",					 40, 81, 65, 50},
+	{"long black hair, ",					 60, 81, 65, 50},
+	{"bright red hair, ",					 80, 81, 65, 50},
+	{"colourless albino hair, ",				100, 81, 65, 50},
 
-	{"You have pale eyes, ",				 25, 80, 81, 50 },
-	{"You have glowing eyes, ",				 50, 80, 81, 50 },
-	{"You have tiny black eyes, ",				 75, 80, 81, 50 },
-	{"You have shining black eyes, ",			100, 80, 81, 50 },
+	{"You are one of several children of ",			100, 82, 83, 50},
 
-	{"no hair at all, ",					 20, 81, 65, 50 },
-	{"short black hair, ",					 40, 81, 65, 50 },
-	{"long black hair, ",					 60, 81, 65, 50 },
-	{"bright red hair, ",					 80, 81, 65, 50 },
-	{"colourless albino hair, ",				100, 81, 65, 50 },
+	{"a Small Kobold.  ",					 40, 83, 80, 50},
+	{"a Kobold.  ",						 75, 83, 80, 55},
+	{"a Large Kobold.  ",					 95, 83, 80, 65},
+	{"Mughash, the Kobold Lord.  ",				100, 83, 80, 100},
 
-	{"You are one of several children of ",			100, 82, 83, 50 },
+	{"You are one of several children of a Klackon hive queen.  ", 100, 84, 85, 50},
 
-	{"a Small Kobold.  ",					 40, 83, 80, 50 },
-	{"a Kobold.  ",						 75, 83, 80, 55 },
-	{"a Large Kobold.  ",					 95, 83, 80, 65 },
-	{"Mughash, the Kobold Lord.  ",				100, 83, 80, 100 },
+	{"You have red skin, ",					 40, 85, 86, 50},
+	{"You have black skin, ",				 90, 85, 86, 50},
+	{"You have yellow skin, ",				100, 85, 86, 50},
 
-	{"You are one of several children of a Klackon hive queen.  ", 100, 84, 85, 50 },
+	{"and black eyes.",					100, 86, 0, 50},
 
-	{"You have red skin, ",					 40, 85, 86, 50 },
-	{"You have black skin, ",				 90, 85, 86, 50 },
-	{"You have yellow skin, ",				100, 85, 86, 50 },
+	/* Lines 87-88 unused */
 
-	{"and black eyes.",					100, 86, 0, 50 },
+	{"You are one of several children of a Draconian ",	 85, 89, 90, 50},
+	{"You are the only child of a Draconian ",		100, 89, 90, 55},
 
-	{"You are one of several children of ",			100, 87, 88, 89 },
+	{"Warrior.  ",						 50, 90, 91, 50},
+	{"Priest.  ",						 65, 90, 91, 65},
+	{"Mage.  ",						 85, 90, 91, 70},
+	{"Noble.  ",						100, 90, 91, 100},
 
-	{"a Nibelung Slave.  ",					 30, 88, 18, 20 },
-	{"a Nibelung Thief.  ",					 50, 88, 18, 40 },
-	{"a Nibelung Smith.  ",					 70, 88, 18, 60 },
-	{"a Nibelung Miner.  ",					 90, 88, 18, 75 },
-	{"a Nibelung Shaman.  ",				 95, 88, 18, 100 },
-	{"Mime, the Nibelung.  ",				100, 88, 18, 100 },
-
-	{"You are one of several children of a Draconian ",	 85, 89, 90, 50  },
-	{"You are the only child of a Draconian ",		100, 89, 90, 55 },
-
-	{"Warrior.  ",						 50, 90, 91, 50 },
-	{"Priest.  ",						 65, 90, 91, 65 },
-	{"Mage.  ",						 85, 90, 91, 70 },
-	{"Noble.  ",						100, 90, 91, 100 },
-
-	{"You have green wings, green skin and yellow belly.",	 30, 91, 0, 50 },
-	{"You have green wings, and green skin.",		 55, 91, 0, 50 },
-	{"You have red wings, and red skin.",			 80, 91, 0, 50 },
-	{"You have black wings, and black skin.",		 90, 91, 0, 50 },
+	{"You have green wings, green skin and yellow belly.",	 30, 91, 0, 50},
+	{"You have green wings, and green skin.",		 55, 91, 0, 50},
+	{"You have red wings, and red skin.",			 80, 91, 0, 50},
+	{"You have black wings, and black skin.",		 90, 91, 0, 50},
 	{"You have metallic skin, and shining wings.",		100, 91, 0, 50},
 
-	{"You have slimy skin, empty glowing eyes, and ",	100, 92, 93, 80 },
+	{"You have slimy skin, empty glowing eyes, and ",	100, 92, 93, 80},
 
-	{"three tentacles around your mouth.",			 20, 93, 0, 45 },
-	{"four tentacles around your mouth.",			 80, 93, 0, 50 },
-	{"five tentacles around your mouth.",			100, 93, 0, 55 },
+	{"three tentacles around your mouth.",			 20, 93, 0, 45},
+	{"four tentacles around your mouth.",			 80, 93, 0, 50},
+	{"five tentacles around your mouth.",			100, 93, 0, 55},
 
-	{"You ancestor was ",					100, 94, 95, 50 },
+	/* Lines 94-97 unused */
 
-	{"a mindless demonic spawn.  ",				 30, 95, 96, 20 },
-	{"a minor demon.  ",					 60, 95, 96, 50 },
-	{"a major demon.  ",					 90, 95, 96, 75 },
-	{"a demon lord.  ",					100, 95, 96, 99 },
+	{"You were shaped from ",				100, 98, 99, 50},
 
-	{"You have red skin, ",					 50, 96, 97, 50 },
-	{"You have brown skin, ",				100, 96, 97, 50},
+	{"clay ",						 40, 99, 100,  40},
+	{"stone ",						 75, 99, 100,  45},
+	{"copper ",						 85, 99, 100,  50},
+	{"iron ",						 95, 99, 100,  70},
+	{"silver ",						 99, 99, 100,  85},
+	{"gold ",						100, 99, 100, 100},
 
-	{"claws, fangs, spikes, and glowing red eyes.",		 40, 97, 0, 50 },
-	{"claws, fangs, and glowing red eyes.",			 70, 97, 0, 50 },
-	{"claws, and glowing red eyes.",			100, 97, 0, 50 },
+	{"by a Kabbalist",					 40, 100, 101, 50},
+	{"by a Wizard",						 65, 100, 101, 50},
+	{"by an Alchemist",					 90, 100, 101, 50},
+	{"by a Priest",						100, 100, 101, 60},
 
-	{"You were shaped from ",				100, 98, 99, 50 },
+	{" to fight evil.",					 10, 101, 0, 80},
+	{" to do heavy labour.",				 30, 101, 0, 60},
+	{" to do household chores.",				 50, 101, 0, 40},
+	{" to keep the crows out of the corn.",			 60, 101, 0, 30},
+	{".",							100, 101, 0, 20},
 
-	{"clay ",						 40, 99, 100,  40 },
-	{"stone ",						 75, 99, 100,  45 },
-	{"copper ",						 85, 99, 100,  50 },
-	{"iron ",						 95, 99, 100,  70 },
-	{"silver ",						 99, 99, 100,  85 },
-	{"gold ",						100, 99, 100, 100 },
+	/* Lines 102-112 unused */
 
-	{"by a Kabbalist",					 40, 100, 101, 50 },
-	{"by a Wizard",						 65, 100, 101, 50 },
-	{"by an Alchemist",					 90, 100, 101, 50 },
-	{"by a Priest",						100, 100, 101, 60 },
+	{"You arose from an unmarked grave.  ",			 20, 113, 114, 50},
+	{"In life you were a simple peasant.  ",		 40, 113, 114, 50},
+	{"In life you were a Vampire Hunter, but they got you.  ", 60, 113, 114, 50},
+	{"In life you were a Necromancer.  ",			 80, 113, 114, 50},
+	{"In life you were a powerful noble.  ",		 95, 113, 114, 50},
+	{"In life you were a powerful and cruel tyrant.  ",	100, 113, 114, 50},
 
-	{" to fight evil.",					 10, 101, 0, 80 },
-	{" to do heavy labour.",				 30, 101, 0, 60 },
-	{" to do household chores.",				 50, 101, 0, 40 },
-	{" to keep the crows out of the corn.",			 60, 101, 0, 30 },
-	{".",							100, 101, 0, 20 },
+	{"You have ",						100, 114, 115, 50},
 
-	{"You were created by ",				100, 102, 103, 50 },
+	{"jet-black hair, ",					 25, 115, 116, 50},
+	{"matted brown hair, ",					 50, 115, 116, 50},
+	{"white hair, ",					 75, 115, 116, 50},
+	{"a hairless head, ",					100, 115, 116, 50},
 
-	{"a Necromancer.  ",					 30, 103, 104, 50 },
-	{"a magical experiment.  ",				 50, 103, 104, 50 },
-	{"an Evil Priest.  ",					 70, 103, 104, 50 },
-	{"a pact with the demons.  ",				 75, 103, 104, 50 },
-	{"a restless spirit.  ",				 85, 103, 104, 50 },
-	{"a curse.  ",						 95, 103, 104, 30 },
-	{"an oath.  ",						100, 103, 104, 50 },
+	{"eyes like red coals, ",				 25, 116, 117, 50},
+	{"blank white eyes, ",					 50, 116, 117, 50},
+	{"feral yellow eyes, ",					 75, 116, 117, 50},
+	{"bloodshot red eyes, ",				100, 116, 117, 50},
 
-	{"You have ",						100, 104, 105, 50 },
+	{"and a deathly pale complexion.",			100, 117, 0, 50},
 
-	{"dirty, dry bones, ",					 40, 105, 106, 50 },
-	{"rotten black bones, ",				 60, 105, 106, 50 },
-	{"filthy, brown bones, ",				 80, 105, 106, 50 },
-	{"shining white bones, ",				100, 105, 106, 50 },
+	{"You were created by ",				100, 118, 119, 50},
 
-	{"and glowing eyes.",					 30, 106, 0, 50 },
-	{"and eyes which burn with hellfire.",			 50, 106, 0, 50 },
-	{"and empty eyesockets.",				100, 106, 0, 50 },
+	{"a Necromancer.  ",					 30, 119, 134, 50},
+	{"a magical experiment.  ",				 50, 119, 134, 50},
+	{"an Evil Priest.  ",					 70, 119, 134, 50},
+	{"a pact with the demons.  ",				 75, 119, 134, 50},
+	{"a restless spirit.  ",				 85, 119, 134, 50},
+	{"a curse.  ",						 95, 119, 134, 30},
+	{"an oath.  ",						100, 119, 134, 50},
 
-	{"You were created by ",				100, 107, 108, 50 },
+	{"jet-black hair, ",					 25, 120, 121, 50},
+	{"matted brown hair, ",					 50, 120, 121, 50},
+	{"white hair, ",					 75, 120, 121, 50},
+	{"a hairless head, ",					100, 120, 121, 50},
 
-	{"a Necromancer.  ",					 30, 108, 62, 50 },
-	{"a Wizard.  ",						 50, 108, 62, 50 },
-	{"a restless spirit.  ",				 60, 108, 62, 50 },
-	{"an Evil Priest.  ",					 70, 108, 62, 50 },
-	{"a pact with the demons.  ",				 80, 108, 62, 50 },
-	{"a curse.  ",						 95, 108, 62, 30 },
-	{"an oath.  ",						100, 108, 62, 50 },
+	{"eyes like red coals, ",				 25, 121, 122, 50},
+	{"blank white eyes, ",					 50, 121, 122, 50},
+	{"feral yellow eyes, ",					 75, 121, 122, 50},
+	{"bloodshot red eyes, ",				100, 121, 122, 50},
 
-	{"You have a dark brown eye, ",				 20, 109, 110, 50},
-	{"You have a brown eye, ",				 60, 109, 110, 50},
-	{"You have a hazel eye, ",				 70, 109, 110, 50},
-	{"You have a green eye, ",				 80, 109, 110, 50},
-	{"You have a blue eye, ",				 90, 109, 110, 50},
-	{"You have a blue-gray eye, ",				100, 109, 110, 50},
+	{" and a deathly gray complexion. ",			100, 122, 123, 50},
 
-	{"straight ",						 70, 110, 111, 50},
-	{"wavy ",						 90, 110, 111, 50},
-	{"curly ",						100, 110, 111, 50},
+	{"An eerie green aura surrounds you.",			100, 123, 0, 50},
 
-	{"black hair, ",					 30, 111, 112, 50},
-	{"brown hair, ",					 70, 111, 112, 50},
-	{"auburn hair, ",					 80, 111, 112, 50},
-	{"red hair, ",						 90, 111, 112, 50},
-	{"blond hair, ",					100, 111, 112, 50},
-
-	{"and a very dark complexion.",				 10, 112, 0, 50},
-	{"and a dark complexion.",				 30, 112, 0, 50},
-	{"and an average complexion.",				 80, 112, 0, 50},
-	{"and a fair complexion.",				 90, 112, 0, 50},
-	{"and a very fair complexion.",				100, 112, 0, 50},
-
-	{"You arose from an unmarked grave.  ",			 20, 113, 114, 50 },
-	{"In life you were a simple peasant.  ",		 40, 113, 114, 50 },
-	{"In life you were a Vampire Hunter, but they got you.  ", 60, 113, 114, 50 },
-	{"In life you were a Necromancer.  ",			 80, 113, 114, 50 },
-	{"In life you were a powerful noble.  ",		 95, 113, 114, 50 },
-	{"In life you were a powerful and cruel tyrant.  ",	100, 113, 114, 50 },
-
-	{"You have ",						100, 114, 115, 50 },
-
-	{"jet-black hair, ",					 25, 115, 116, 50 },
-	{"matted brown hair, ",					 50, 115, 116, 50 },
-	{"white hair, ",					 75, 115, 116, 50 },
-	{"a hairless head, ",					100, 115, 116, 50 },
-
-	{"eyes like red coals, ",				 25, 116, 117, 50 },
-	{"blank white eyes, ",					 50, 116, 117, 50 },
-	{"feral yellow eyes, ",					 75, 116, 117, 50 },
-	{"bloodshot red eyes, ",				100, 116, 117, 50 },
-
-	{"and a deathly pale complexion.",			100, 117, 0, 50 },
-
-	{"You were created by ",				100, 118, 119, 50 },
-
-	{"a Necromancer.  ",					 30, 119, 134, 50 },
-	{"a magical experiment.  ",				 50, 119, 134, 50 },
-	{"an Evil Priest.  ",					 70, 119, 134, 50 },
-	{"a pact with the demons.  ",				 75, 119, 134, 50 },
-	{"a restless spirit.  ",				 85, 119, 134, 50 },
-	{"a curse.  ",						 95, 119, 134, 30 },
-	{"an oath.  ",						100, 119, 134, 50 },
-
-	{"jet-black hair, ",					 25, 120, 121, 50 },
-	{"matted brown hair, ",					 50, 120, 121, 50 },
-	{"white hair, ",					 75, 120, 121, 50 },
-	{"a hairless head, ",					100, 120, 121, 50 },
-
-	{"eyes like red coals, ",				 25, 121, 122, 50 },
-	{"blank white eyes, ",					 50, 121, 122, 50 },
-	{"feral yellow eyes, ",					 75, 121, 122, 50 },
-	{"bloodshot red eyes, ",				100, 121, 122, 50 },
-
-	{" and a deathly gray complexion. ",			100, 122, 123, 50 },
-
-	{"An eerie green aura surrounds you.",			100, 123, 0, 50 },
-
-	{"Your parents were ",					100, 124, 125, 50 },
-
-	{"pixies.  ",						 20, 125, 126, 35 },
-	{"nixies.  ",						 30, 125, 126, 25 },
-	{"wood sprites.  ",					 75, 125, 126, 50 },
-	{"wood spirits.  ",					 90, 125, 126, 75 },
-	{"noble faerie folk.  ",				100, 125, 126, 85 },
-
-	{"You have light blue wings attached to your back, ",	100, 126, 127, 50 },
-
-	{"straight blond hair, ",				 80, 127, 128, 50},
-	{"wavy blond hair, ",					100, 127, 128, 50},
-
-	{"blue eyes, and a very fair complexion.",		100, 128, 0, 50},
+	/* Lines 124-128 unused */
 
 	{"You were produced by a magical experiment.  ",	 30, 129, 130, 40},
 	{"As a child, you were stupid enough to stick your head in raw Chaos.  ",
-								 50, 129, 130, 50 },
-	{"A Demon Lord of Chaos decided to have some fun, and so he created you.  ",
-								 60, 129, 130, 60 },
+								 50, 129, 130, 50},
+	{"A Lord of Chaos wanted spome fun, so he created you.  ",
+								 60, 129, 130, 60},
 	{"You are the magical crossbreed of an animal and a man.  ",
 								 75, 129, 130, 50},
 	{"You are the blasphemous crossbreed of unspeakable creatures of Chaos.  ",
 								100, 129, 130, 30},
-
 
 	{"You have green reptilian eyes, ",			 60, 130, 131, 50},
 	{"You have the black eyes of a bird, ",			 85, 130, 131, 50},
 	{"You have the orange eyes of a cat, ",			 99, 130, 131, 50},
 	{"You have the fiery eyes of a demon, ",		100, 130, 131, 55},
 
-	{"no hair at all, ",					 10, 131, 133, 50 },
+	{"no hair at all, ",					 10, 131, 133, 50},
 	{"dirty ",						 33, 131, 132, 50},
 	{"mangy ",						 66, 131, 132, 50},
 	{"oily ",						100, 131, 132, 50},
@@ -569,15 +456,15 @@ static hist_type bg[] =
 	{"gray fur, ",						 66, 132, 133, 50},
 	{"albino fur, ",					100, 132, 133, 50},
 
-	{"and the hooves of a goat.",				 50, 133, 0, 50 },
-	{"and human feet.",					 75, 133, 0, 50 },
-	{"and bird's feet.",					 85, 133, 0, 50 },
-	{"and reptilian feet.",					 90, 133, 0, 50 },
-	{"and bovine feet.",					 95, 133, 0, 50 },
-	{"and feline feet.",					 97, 133, 0, 50 },
-	{"and canine feet.",					100, 133, 0, 50 },
+	{"and the hooves of a goat.",				 50, 133, 0, 50},
+	{"and human feet.",					 75, 133, 0, 50},
+	{"and bird's feet.",					 85, 133, 0, 50},
+	{"and reptilian feet.",					 90, 133, 0, 50},
+	{"and bovine feet.",					 95, 133, 0, 50},
+	{"and feline feet.",					 97, 133, 0, 50},
+	{"and canine feet.",					100, 133, 0, 50},
 
-	{"You have ",						100, 134, 120, 50 },
+	{"You have ",						100, 134, 120, 50},
 };
 
 
@@ -768,6 +655,8 @@ static void save_prev_data(void)
 	prev.ht = p_ptr->ht;
 	prev.sc = p_ptr->sc;
 	prev.au = p_ptr->au;
+	prev.weapon = p_ptr->wm_choice;
+	prev.patron = p_ptr->chaos_patron;
 
 	/* Save the stats */
 	for (i = 0; i < 6; i++)
@@ -801,6 +690,8 @@ static void load_prev_data(void)
 	temp.ht = p_ptr->ht;
 	temp.sc = p_ptr->sc;
 	temp.au = p_ptr->au;
+	temp.weapon = p_ptr->wm_choice;
+	temp.patron = p_ptr->chaos_patron;
 
 	/* Save the stats */
 	for (i = 0; i < 6; i++)
@@ -823,6 +714,8 @@ static void load_prev_data(void)
 	p_ptr->ht = prev.ht;
 	p_ptr->sc = prev.sc;
 	p_ptr->au = prev.au;
+	p_ptr->wm_choice = prev.weapon;
+	p_ptr->chaos_patron = prev.patron;
 
 	/* Load the stats */
 	for (i = 0; i < 6; i++)
@@ -846,6 +739,8 @@ static void load_prev_data(void)
 	prev.ht = temp.ht;
 	prev.sc = temp.sc;
 	prev.au = temp.au;
+	prev.weapon = temp.weapon;
+	prev.patron = temp.patron;
 
 	/* Save the stats */
 	for (i = 0; i < 6; i++)
@@ -1088,70 +983,44 @@ static void get_history(void)
 	/* Starting place */
 	switch (p_ptr->prace)
 	{
-		case RACE_HUMAN:
-		case RACE_BARBARIAN:
+		case RACE_HUMAN: case RACE_BARBARIAN:
 		{
 			chart = 1;
 			break;
 		}
-
-		case RACE_HALF_ELF:
-		{
-			chart = 4;
-			break;
-		}
-
-		case RACE_ELF:
-		case RACE_HIGH_ELF:
+		case RACE_ELF: case RACE_HIGH_ELF:
 		{
 			chart = 7;
 			break;
 		}
-
 		case RACE_HOBBIT:
 		{
 			chart = 10;
 			break;
 		}
-
 		case RACE_GNOME:
 		{
 			chart = 13;
 			break;
 		}
-
 		case RACE_DWARF:
 		{
 			chart = 16;
 			break;
 		}
-
 		case RACE_HALF_ORC:
 		{
 			chart = 19;
 			break;
 		}
-
 		case RACE_HALF_TROLL:
 		{
 			chart = 22;
 			break;
 		}
-
 		case RACE_GAMBOLT:
 		{
 			chart = 30;
-			break;
-		}
-
-		case RACE_DARK_ELF:
-		{
-			chart = 69;
-			break;
-		}
-		case RACE_HALF_OGRE:
-		{
-			chart = 74;
 			break;
 		}
 		case RACE_HALF_GIANT:
@@ -1164,16 +1033,6 @@ static void get_history(void)
 			chart = 76;
 			break;
 		}
-		case RACE_CYCLOPS:
-		{
-			chart = 77;
-			break;
-		}
-		case RACE_YEEK:
-		{
-			chart = 78;
-			break;
-		}
 		case RACE_KOBOLD:
 		{
 			chart = 82;
@@ -1182,11 +1041,6 @@ static void get_history(void)
 		case RACE_KLACKON:
 		{
 			chart = 84;
-			break;
-		}
-		case RACE_NIBELUNG:
-		{
-			chart = 87;
 			break;
 		}
 		case RACE_DRACONIAN:
@@ -1199,24 +1053,9 @@ static void get_history(void)
 			chart = 92;
 			break;
 		}
-		case RACE_IMP:
-		{
-			chart = 94;
-			break;
-		}
 		case RACE_GOLEM:
 		{
 			chart = 98;
-			break;
-		}
-		case RACE_SKELETON:
-		{
-			chart = 102;
-			break;
-		}
-		case RACE_ZOMBIE:
-		{
-			chart = 107;
 			break;
 		}
 		case RACE_VAMPIRE:
@@ -1227,11 +1066,6 @@ static void get_history(void)
 		case RACE_SPECTRE:
 		{
 			chart = 118;
-			break;
-		}
-		case RACE_SPRITE:
-		{
-			chart = 124;
 			break;
 		}
 		case RACE_BEASTMAN:
@@ -1246,7 +1080,6 @@ static void get_history(void)
 		}
 	}
 
-
 	/* Process the history */
 	while (chart)
 	{
@@ -1255,7 +1088,6 @@ static void get_history(void)
 
 		/* Roll for nobility */
 		roll = randint(100);
-
 
 		/* Access the proper entry in the table */
 		while ((chart != bg[i].chart) || (roll > bg[i].roll)) i++;
@@ -1270,15 +1102,12 @@ static void get_history(void)
 		chart = bg[i].next;
 	}
 
-
-
 	/* Verify social class */
 	if (social_class > 100) social_class = 100;
 	else if (social_class < 1) social_class = 1;
 
 	/* Save the social class */
 	p_ptr->sc = social_class;
-
 
 	/* Skip leading spaces */
 	for (s = buf; *s == ' '; s++) /* loop */;
@@ -1288,7 +1117,6 @@ static void get_history(void)
 
 	/* Kill trailing spaces */
 	while ((n > 0) && (s[n-1] == ' ')) s[--n] = '\0';
-
 
 	/* Start at first line */
 	i = 0;
@@ -2014,44 +1842,19 @@ static bool player_birth_aux()
 		str = rp_ptr->title;
 		
 		/* Display */
-
-		if (n<RACE_VAMPIRE)
-			sprintf(buf, "%c%c %s", I2A(n), p2, str);
-		else
-			sprintf(buf, "%d%c %s", (n - RACE_ZOMBIE), p2, str); /* HACK */
+		sprintf(buf, "%c%c %s", I2A(n), p2, str);
 		put_str(buf, 18 + (n/5), 2 + 15 * (n%5));
 	}
 
 	/* Choose */
 	while (1)
 	{
-	        sprintf(buf, "Choose a race (%c-4, *): ", I2A(0));
+	        sprintf(buf, "Choose a race (%c-%c, *): ", I2A(0), I2A(n-1));
 	        put_str(buf, 17, 2);
 		c = inkey();
 		if (c == 'Q') quit(NULL);
 		if (c == 'S') return (FALSE);
-	        if (c == '1')
-	        {
-			k = RACE_VAMPIRE;
-			break;
-	        }
-	        else if (c == '2')
-	        {
-			k = RACE_SPECTRE;
-			break;
-	        }
-	        else if (c == '3')
-	        {
-			k = RACE_SPRITE;
-			break;
-	        }
-	        else if (c == '4')
-	        {
-			k = RACE_BEASTMAN;
-			hack_mutation = TRUE;
-			break;
-	        }
-	        else if (c == '*')
+		if (c == '*')
 	        {
 			k = rand_int(MAX_RACES);
 			if (k == RACE_BEASTMAN)
@@ -2062,6 +1865,10 @@ static bool player_birth_aux()
 		else
 		{
 	        	k = (islower(c) ? A2I(c) : -1);
+			if (k == RACE_BEASTMAN)
+			{
+				hack_mutation = TRUE;
+			}
 		}
 		if ((k >= 0) && (k < n)) break;
 	       	if (c == '?') do_cmd_help("help.hlp");

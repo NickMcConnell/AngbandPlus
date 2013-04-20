@@ -349,162 +349,89 @@ static owner_type *ot_ptr = NULL;
 static byte rgold_adj[MAX_RACES][MAX_RACES] =
 {
        /*
-	* Hum, HEl, Elf, Hal, Gno, Dwa, HOr, HTr, Gam, HiE,
-	* Bar, HOg, HGi, HTi, Cyc, Yee, Kla, Kob, Nib, DEl,
-	* Dra, MFl, Imp, Gol, Ske, Zom, Vam, Spe, Spr, Bea
+	* Hum, Elf, Hal, Gno, Dwa, HOr, HTr, Gam, HiE, Bar,
+	* HGi, HTi, Kla, Kob, Dra, MFl, Gol, Vam, Spe, Bea
 	*/
 			/* Human */
-	{ 100, 105, 105, 110, 113, 115, 120, 125, 100, 105,
-	  100, 124, 120, 110, 125, 115, 120, 120, 120, 120,
-	  115, 120, 115, 105, 125, 125, 125, 125, 105, 120 },
-
-			/* Half-Elf */
-	{ 105, 100, 100, 105, 110, 120, 125, 130, 110, 100,
-	  110, 120, 115, 108, 115, 110, 110, 120, 120, 115,
-	  115, 110, 120, 110, 110, 110, 120, 110, 100, 125 },
+	{ 100, 105, 110, 113, 115, 120, 125, 100, 105, 100,
+	  120, 110, 120, 120, 115, 120, 105, 125, 125, 120 },
 
 			/* Elf */
-	{ 105, 100, 100, 105, 110, 120, 125, 130, 110, 100,
-	  110, 120, 120, 105, 120, 110, 105, 125, 125, 110,
-	  115, 108, 120, 115, 110, 110, 120, 110, 100, 125 },
+	{ 105, 100, 105, 110, 120, 125, 130, 110, 100, 110,
+	  120, 105, 105, 125, 115, 108, 115, 120, 110, 125 },
 
 			/* Halfling */
-	{ 110, 105, 105, 100, 105, 110, 120, 130, 115, 105,
-	  115, 125, 120, 120, 125, 115, 110, 120, 120, 120,
-	  115, 115, 120, 110, 120, 120, 130, 120, 110, 130 },
+	{ 110, 105, 100, 105, 110, 120, 130, 115, 105, 115,
+	  120, 120, 110, 120, 115, 115, 110, 130, 120, 130 },
 
 			/* Gnome */
-	{ 113, 110, 110, 105, 100, 110, 115, 130, 115, 110,
-	  115, 120, 125, 110, 120, 110, 105, 120, 110, 110,
-	  105, 110, 120, 105, 110, 110, 120, 120, 115, 130 },
+	{ 113, 110, 105, 100, 110, 115, 130, 115, 110, 115,
+	  125, 110, 105, 120, 105, 110, 105, 120, 120, 130 },
 
 			/* Dwarf */
-	{ 115, 120, 120, 110, 110, 100, 125, 135, 115, 120,
-	  115, 125, 140, 130, 130, 120, 115, 115, 115, 135,
-          125, 120, 120, 105, 115, 115, 115, 115, 120, 130 },
+	{ 115, 120, 110, 110, 100, 125, 135, 115, 120, 115,
+	  140, 130, 115, 115, 125, 120, 105, 115, 115, 130 },
 
 			/* Half-Orc */
-	{ 120, 125, 125, 120, 115, 125, 100, 115, 115, 125,
-	  115, 110, 110, 120, 110, 120, 125, 115, 115, 110,
-	  120, 110, 115, 125, 120, 120, 115, 120, 125, 115 },
+	{ 120, 125, 120, 115, 125, 100, 115, 115, 125, 115,
+	  110, 120, 125, 115, 120, 110, 125, 115, 120, 115 },
 
 			/* Half-Troll */
-	{ 125, 130, 130, 130, 130, 135, 115, 100, 110, 115,
-	  110, 110, 115, 120, 110, 120, 120, 110, 110, 110,
-	  115, 110, 110, 115, 112, 112, 115, 112, 120, 110 },
+	{ 125, 130, 130, 130, 135, 115, 100, 110, 115, 110,
+	  115, 120, 120, 110, 115, 110, 115, 115, 112, 110 },
 
 			/* Gambolt */
-	{ 100, 110, 110, 115, 115, 115, 115, 110, 100, 110,
-	  115, 125, 120, 120, 125, 115, 110, 120, 120, 120,
-	  115, 115, 120, 110, 120, 120, 130, 110, 110, 130 },
+	{ 100, 110, 115, 115, 115, 115, 110, 100, 110, 115,
+	  120, 120, 110, 120, 115, 115, 110, 130, 110, 130 },
 
 			/* High_Elf */
-	{ 105, 100, 100, 105, 110, 120, 125, 115, 110, 100,
-	  110, 125, 125, 101, 120, 115, 110, 115, 125, 110,
-	  110, 110, 125, 115, 120, 120, 125, 120, 100, 125 },
+	{ 105, 100, 105, 110, 120, 125, 115, 110, 100, 110,
+	  125, 101, 110, 115, 110, 110, 115, 125, 120, 125 },
 
 			/* Barbarian */
-	{ 100, 110, 110, 115, 115, 115, 115, 110, 115, 110,
-	  100, 124, 120, 110, 125, 115, 120, 120, 120, 120,
-	  115, 120, 115, 105, 125, 125, 130, 125, 115, 120 },
-
-			/* Half-Ogre */
-	{ 124, 120, 120, 125, 120, 125, 110, 110, 125, 125,
-	  124, 100, 115, 120, 110, 120, 120, 110, 110, 110,
-	  115, 110, 110, 115, 112, 112, 115, 112, 120, 110 },
+	{ 100, 110, 115, 115, 115, 115, 110, 115, 110, 100,
+	  120, 110, 120, 120, 115, 120, 105, 130, 125, 120 },
 
 			/* Half-Giant */
-	{ 120, 115, 120, 120, 125, 140, 110, 115, 120, 125,
-	  120, 115, 100, 120, 110, 120, 120, 110, 110, 110,
-	  115, 110, 110, 115, 112, 112, 115, 112, 130, 120 },
+	{ 120, 120, 120, 125, 140, 110, 115, 120, 125, 120,
+	  100, 120, 120, 110, 115, 110, 115, 115, 112, 120 },
 
 			/* Half-Titan */
-	{ 110, 108, 105, 120, 110, 130, 120, 120, 120, 101,
-	  110, 120, 120, 100, 120, 115, 110, 115, 125, 110,
-	  110, 110, 125, 115, 120, 120, 120, 120, 130, 130 },
-
-			/* Cyclops */
-	{ 125, 115, 120, 125, 120, 130, 110, 110, 125, 120,
-	  125, 110, 110, 120, 100, 120, 120, 110, 110, 110,
-	  115, 110, 110, 115, 112, 112, 115, 112, 130, 130 },
-
-			/* Yeek */
-	{ 115, 110, 110, 115, 110, 120, 120, 120, 115, 115,
-	  115, 120, 120, 115, 120, 100, 125, 115, 115, 110,
-	  120, 110, 115, 125, 120, 120, 120, 120, 130, 130 },
+	{ 110, 105, 120, 110, 130, 120, 120, 120, 101, 110,
+	  120, 100, 110, 115, 110, 110, 115, 120, 120, 130 },
 
 			/* Klackon */
-	{ 120, 110, 105, 110, 105, 115, 125, 120, 110, 110,
-	  120, 120, 120, 110, 120, 125, 100, 120, 110, 110,
-	  105, 110, 120, 101, 110, 110, 120, 120, 130, 130 },
+	{ 120, 105, 110, 105, 115, 125, 120, 110, 110, 120,
+	  120, 110, 100, 120, 105, 110, 101, 120, 120, 130 },
 
 			/* Kobold */
-	{ 120, 120, 125, 120, 120, 115, 115, 110, 120, 115,
-	  120, 110, 110, 115, 110, 115, 120, 100, 115, 110,
-	  120, 110, 115, 125, 120, 120, 120, 120, 130, 130 },
-
-			/* Nibelung */
-	{ 120, 120, 125, 120, 110, 115, 115, 110, 120, 125,
-	  120, 110, 110, 125, 110, 115, 110, 115, 100, 135,
-	  125, 120, 120, 105, 115, 115, 120, 120, 130, 130 },
-
-			/* Dark Elf */
-	{ 120, 115, 110, 120, 110, 135, 110, 110, 120, 110,
-	  120, 110, 110, 110, 110, 110, 110, 110, 135, 100,
-	  110, 110, 110, 110, 112, 122, 110, 110, 110, 115 },
+	{ 120, 125, 120, 120, 115, 115, 110, 120, 115, 120,
+	  110, 115, 120, 100, 120, 110, 125, 120, 120, 130 },
 
 			/* Draconian */
-	{ 115, 115, 115, 115, 105, 125, 120, 115, 115, 110,
-	  115, 115, 115, 110, 115, 120, 105, 120, 125, 110,
-	  100, 110, 125, 115, 120, 120, 120, 120, 130, 130 },
+	{ 115, 115, 115, 105, 125, 120, 115, 115, 110, 115,
+	  115, 110, 105, 120, 100, 110, 115, 120, 120, 130 },
 
 			/* Mind Flayer */
-	{ 120, 110, 108, 115, 110, 120, 110, 110, 115, 110,
-	  120, 110, 110, 110, 110, 110, 110, 110, 120, 110,
-	  110, 100, 125, 115, 120, 120, 120, 120, 130, 130 },
-
-			/* Imp */
-	{ 125, 120, 120, 120, 120, 120, 115, 110, 120, 125,
-	  115, 110, 110, 125, 110, 115, 120, 115, 120, 110,
-	  125, 125, 100, 115, 120, 120, 120, 120, 130, 130 },
+	{ 120, 108, 115, 110, 120, 110, 110, 115, 110, 120,
+	  110, 110, 110, 110, 110, 100, 115, 120, 120, 130 },
 
 			/* Golem */
-	{ 105, 110, 115, 110, 105, 105, 125, 115, 110, 115,
-	  105, 115, 115, 115, 115, 125, 101, 125, 105, 110,
-	  115, 115, 115, 100, 125, 125, 125, 125, 115, 125 },
-
-			/* Skeleton */
-	{ 125, 110, 110, 120, 110, 115, 120, 112, 120, 120,
-	  125, 112, 112, 120, 112, 120, 110, 120, 115, 112,
-	  120, 120, 120, 125, 100, 120, 120, 120, 130, 130 },
-
-			/* Zombie */
-	{ 125, 110, 110, 120, 110, 115, 120, 112, 120, 120,
-	  125, 112, 112, 120, 112, 120, 110, 120, 115, 122,
-	  120, 120, 120, 125, 120, 100, 120, 120, 130, 130 },
+	{ 105, 115, 110, 105, 105, 125, 115, 110, 115, 105,
+	  115, 115, 101, 125, 115, 115, 100, 125, 125, 125 },
 
 			/* Vampire */
-	{ 125, 120, 120, 130, 120, 115, 115, 115, 130, 125,
-	  130, 115, 115, 120, 115, 120, 120, 120, 120, 110,
-	  120, 120, 120, 125, 120, 120, 100, 120, 130, 130 },
+	{ 125, 120, 130, 120, 115, 115, 115, 130, 125, 130,
+	  115, 120, 120, 120, 120, 120, 125, 100, 120, 130 },
 
 			/* Spectre */
-	{ 125, 110, 110, 120, 120, 115, 120, 112, 110, 120,
-	  125, 112, 112, 120, 112, 120, 120, 120, 120, 110,
-	  120, 120, 120, 125, 120, 120, 120, 100, 130, 130 },
+	{ 125, 110, 120, 120, 115, 120, 112, 110, 120, 125,
+	  112, 120, 120, 120, 120, 120, 125, 120, 100, 130 },
 
-			/* Sprite */
-	{ 105, 100, 100, 110, 115, 120, 125, 120, 110, 100,
-	  115, 120, 130, 130, 130, 130, 130, 130, 130, 110,
-	  130, 130, 130, 115, 130, 130, 130, 130, 100, 125 },
-
-	/* Beastman */
-	{ 120, 125, 125, 130, 130, 130, 115, 110, 130, 125,
-	  120, 110, 120, 130, 130, 130, 130, 130, 130, 115,
-	  130, 130, 130, 125, 130, 130, 130, 130, 125, 100 },
+			/* Beastman */
+	{ 120, 125, 130, 130, 130, 115, 110, 130, 125, 120,
+	  120, 130, 130, 130, 130, 130, 125, 130, 130, 100 },
 };
-
-
 
 
 /*
@@ -532,20 +459,17 @@ static s32b price_item(object_type *o_ptr, int greed, bool flip)
 	int     adjust;
 	s32b    price;
 
-
 	/* Get the value of one of the items */
 	price = object_value(o_ptr);
 
 	/* Worthless items */
 	if (price <= 0) return (0L);
 
-
 	/* Compute the racial factor */
 	factor = rgold_adj[ot_ptr->owner_race][p_ptr->prace];
 
 	/* Add in the charisma factor */
 	factor += adj_chr_gold[p_ptr->stat_ind[A_CHR]];
-
 
 	/* Shop is buying */
 	if (flip)
@@ -869,15 +793,9 @@ static bool store_will_buy(object_type *o_ptr)
 						return(FALSE);
 					break;
 				}
-				case TV_FOOD:
-				case TV_LITE:
-				case TV_FLASK:
-				case TV_SPIKE:
-				case TV_SHOT:
-				case TV_ARROW:
-				case TV_BOLT:
-				case TV_DIGGING:
-				case TV_CLOAK:
+				case TV_FOOD: case TV_LITE: case TV_FLASK:
+				case TV_SPIKE: case TV_SHOT: case TV_ARROW:
+				case TV_BOLT: case TV_DIGGING: case TV_CLOAK:
 					break;
 				default:
 					return (FALSE);
@@ -891,18 +809,13 @@ static bool store_will_buy(object_type *o_ptr)
 			/* Analyze the type */
 			switch (o_ptr->tval)
 			{
-				case TV_BOOTS:
-				case TV_GLOVES:
-				case TV_CROWN:
-				case TV_HELM:
-				case TV_SHIELD:
-				case TV_CLOAK:
-				case TV_SOFT_ARMOR:
-				case TV_HARD_ARMOR:
+				case TV_BOOTS: case TV_GLOVES: case TV_CROWN:
+				case TV_HELM: case TV_SHIELD: case TV_CLOAK:
+				case TV_SOFT_ARMOR: case TV_HARD_ARMOR:
 				case TV_DRAG_ARMOR:
-				break;
+					break;
 				default:
-				return (FALSE);
+					return (FALSE);
 			}
 			break;
 		}
@@ -913,18 +826,12 @@ static bool store_will_buy(object_type *o_ptr)
 			/* Analyze the type */
 			switch (o_ptr->tval)
 			{
-				case TV_SHOT:
-				case TV_BOLT:
-				case TV_ARROW:
-				case TV_BOW:
-				case TV_DIGGING:
-				case TV_HAFTED:
-				case TV_POLEARM:
-				case TV_AXE:
-				case TV_SWORD:
-				break;
+				case TV_SHOT: case TV_BOLT: case TV_ARROW:
+				case TV_BOW: case TV_DIGGING: case TV_HAFTED:
+				case TV_POLEARM: case TV_AXE: case TV_SWORD:
+					break;
 				default:
-				return (FALSE);
+					return (FALSE);
 			}
 			break;
 		}
@@ -935,17 +842,14 @@ static bool store_will_buy(object_type *o_ptr)
 			/* Analyze the type */
 			switch (o_ptr->tval)
 			{
-				case TV_SCROLL:
-				case TV_POTION:
+				case TV_SCROLL: case TV_POTION:
 				case TV_HAFTED:
-				break;
-				case TV_POLEARM:
-				case TV_AXE:
-				case TV_SWORD:
-                if (is_blessed(o_ptr))
-                    break;
+					break;
+				case TV_POLEARM: case TV_AXE: case TV_SWORD:
+					if (is_blessed(o_ptr))
+					break;
 				default:
-				return (FALSE);
+					return (FALSE);
 			}
 			break;
 		}
@@ -956,11 +860,10 @@ static bool store_will_buy(object_type *o_ptr)
 			/* Analyze the type */
 			switch (o_ptr->tval)
 			{
-				case TV_SCROLL:
-				case TV_POTION:
-				break;
+				case TV_SCROLL: case TV_POTION:
+					break;
 				default:
-				return (FALSE);
+					return (FALSE);
 			}
 			break;
 		}
@@ -971,16 +874,12 @@ static bool store_will_buy(object_type *o_ptr)
 			/* Analyze the type */
 			switch (o_ptr->tval)
 			{
-				case TV_AMULET:
-				case TV_RING:
-				case TV_STAFF:
-				case TV_WAND:
-				case TV_ROD:
-				case TV_SCROLL:
+				case TV_AMULET: case TV_RING: case TV_STAFF:
+				case TV_WAND: case TV_ROD: case TV_SCROLL:
 				case TV_POTION:
-				break;
+					break;
 				default:
-				return (FALSE);
+					return (FALSE);
 			}
 			break;
 		}
@@ -990,13 +889,10 @@ static bool store_will_buy(object_type *o_ptr)
 			/* Analyze the type */
 			switch (o_ptr->tval)
 			{
-		                case TV_SORCERY_BOOK:
-                		case TV_NATURE_BOOK:
-		                case TV_CHAOS_BOOK:
-                		case TV_DEATH_BOOK:
-		                case TV_LIFE_BOOK:
-		                case TV_TRUMP_BOOK:
-                		case TV_ARCANE_BOOK:
+				case TV_SORCERY_BOOK:	case TV_NATURE_BOOK:
+				case TV_CHAOS_BOOK:	case TV_DEATH_BOOK:
+				case TV_LIFE_BOOK:	case TV_TRUMP_BOOK:
+				case TV_ARCANE_BOOK:
 					break;
 				default:
 					return (FALSE);
@@ -1497,15 +1393,12 @@ static void updatebargain(s32b price, s32b minprice)
  */
 static void display_entry(int pos)
 {
-	int			i;
-	object_type		*o_ptr;
+	int		i;
+	object_type	*o_ptr;
 	s32b		x;
-
 	char		o_name[80];
 	char		out_val[160];
-
-
-	int maxwid = 75;
+	int		maxwid = 75;
 
 	/* Get the item */
 	o_ptr = &st_ptr->stock[pos];
@@ -1997,13 +1890,9 @@ static bool purchase_haggle(object_type *o_ptr, s32b *price)
 	s32b               min_per, max_per;
 	int                flag, loop_flag, noneed;
 	int                annoyed = 0, final = FALSE;
-
 	bool		cancel = FALSE;
-
 	cptr		pmt = "Asking";
-
 	char		out_val[160];
-
 
 	*price = 0;
 
@@ -3556,8 +3445,7 @@ void store_shuffle(int which)
 		o_ptr = &st_ptr->stock[i];
 
 		/* Hack -- Sell all old items for "half price" */
-        if (!(o_ptr->art_name))
-            o_ptr->discount = 35;
+		if (!(o_ptr->art_name)) o_ptr->discount = 35;
 
 		/* Hack -- Items are no longer "fixed price" */
 		o_ptr->ident &= ~(IDENT_FIXED);

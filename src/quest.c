@@ -196,6 +196,7 @@ int get_number_monster(int i)
 	else
 	{
 		num = 5 + rand_range(1, (q_list[i].level / 3) + 5);
+		if (num > 20) num = 20;
 		return (num);
 	}
 }

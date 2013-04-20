@@ -4,7 +4,7 @@
 #   [ - Rune of Protection  F2 - Cure Medium Wounds  SF2 - Sense Unseen
 #   ] - Sea of Runes        F3 - Cure Critical Wnds. SF3 - Day of the Dove
 #   ' - Holy Vision         F4 - Healing
-#   " - Summon Angel        F5 - Healing True
+#   " - Summon Angel        F5 - Greater Healing
 #   ; - Remove Curse        F6 - Cure Poison
 #   : - Dispel Curse        F7 - Restoration
 #   h - Heroism             F8 - Divine Intervention
@@ -104,7 +104,7 @@ P:^_x3D\r
 A:m2g
 P:^_x3E\r
 
-# F5 - Healing True
+# F5 - Greater Healing
 A:m4e
 P:^_x3F\r
 

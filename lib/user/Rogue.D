@@ -6,7 +6,7 @@
 #   ' - Resist Poison       F4 - Nether Bolt         SF4 - Cloud Kill
 #   " - Restore Life        F5 - Vampiric Drain      SF5 - Punish Undead
 #   ; - Detect Unlife       F6 - Dark Bolt           SF6 - Darkness Storm
-#   : - Detect Evil         F7 - Vampirism True      SF7 - Enslave Undead
+#   : - Detect Evil         F7 - Drain Life          SF7 - Enslave Undead
 #   Z - Esoteria            F8 - Death Ray           SF8 - Raise the Dead
 #                           F9 - Berserk             SF9 - Battle Frenzy
 
@@ -68,7 +68,7 @@ P:^_x3F\r
 A:\e\e\e*tm3c
 P:^_x40\r
 
-# F7 - Vampirism True
+# F7 - Drain Life
 A:m3e
 P:^_x41\r
 

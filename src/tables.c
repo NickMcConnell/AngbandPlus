@@ -1158,24 +1158,24 @@ owner_type owners[MAX_STORES][MAX_OWNERS] =
 {
 	{
 		/* General Store */
-		{ "Gilnex the Icky",      200,    170, 108,  5, 15, RACE_YEEK},
+		{ "Grabpot Thundergust",  200,    170, 108,  5, 15, RACE_DWARF},
 		{ "C.M.O.T. Dibbler",     250,    175, 108,  4, 12, RACE_HUMAN},
-		{ "Tinkerbell",           300,    170, 107,  5, 15, RACE_SPRITE},
+		{ "Bilbo the Friendly",   300,    170, 107,  5, 15, RACE_HOBBIT},
 		{ "Shmata",               350,    165, 107,  6, 18, RACE_GOLEM},
 	},
 	{
 		/* Armoury */
 		{ "Kon-Dar the Ugly",     5000,   210, 115,  5,  7, RACE_HALF_ORC},
-		{ "Bilbo the Friendly",   10000,  190, 111,  4,  9, RACE_HOBBIT},
-		{ "Antenor the Grim",     25000,  200, 112,  4, 10, RACE_CYCLOPS},
-		{ "Grabpot Thundergust",  30000,  200, 112,  4,  5, RACE_DWARF},
+		{ "Goffanon the Smith",   10000,  190, 111,  4,  9, RACE_HALF_TITAN},
+		{ "Celebran the Skilled", 25000,  200, 112,  4, 10, RACE_ELF},
+		{ "Lars Skulldrinker",    30000,  200, 112,  4,  5, RACE_DWARF},
 	},
 	{
 		/* Weapon Smith */
 		{ "Arnold the Beastly",   5000,   210, 115,  6,  6, RACE_HALF_TROLL},
-		{ "Arndal Beast-Slayer",  10000,  185, 110,  5,  9, RACE_HALF_ELF},
+		{ "Milgish Dogbreath",    10000,  185, 110,  5,  9, RACE_KOBOLD},
 		{ "Dexxinok",             25000,  190, 115,  5,  7, RACE_KLACKON},
-		{ "Lars Skulldrinker",    30000,  195, 112,  4,  8, RACE_DWARF},
+		{ "Curufin the Traitor",  30000,  195, 112,  4,  8, RACE_HIGH_ELF},
 	},
 	{
 		/* Temple */
@@ -1187,22 +1187,22 @@ owner_type owners[MAX_STORES][MAX_OWNERS] =
 	{
 		/* Alchemist */
 		{ "Garbo the Chemist",    10000,  190, 111,  5,  8, RACE_GAMBOLT},
-		{ "Wizzle the Chaotic",   10000,  190, 110,  6,  8, RACE_IMP},
+		{ "Ximzinix the Mixer",   10000,  190, 110,  6,  8, RACE_MIND_FLAYER},
 		{ "Midas the Greedy",     15000,  200, 116,  6,  9, RACE_GNOME},
 		{ "Ja-Far the Alchemist", 15000,  220, 111,  4,  9, RACE_ELF},
 	},
 	{
 		/* Magic Shop */
-		{ "Angol the Sorcerer",   20000,  200, 110,  7,  8, RACE_HIGH_ELF},
-		{ "Xomfanix the Great",   20000,  215, 113,  6, 10, RACE_MIND_FLAYER},
+		{ "Celebran of Eregion",  20000,  200, 110,  7,  8, RACE_ELF},
+		{ "Xomfanox the Great",   20000,  215, 113,  6, 10, RACE_MIND_FLAYER},
 		{ "The Wizard of Yendor", 30000,  200, 110,  7, 10, RACE_HUMAN},
-		{ "Rjak the Necromancer", 30000,  175, 110,  5, 11, RACE_DARK_ELF},
+		{ "Nolwe the Shining",    30000,  175, 110,  5, 11, RACE_HIGH_ELF},
 	},
 	{
 		/* Black Market */
-		{ "Yipper the Yapper",    20000,  250, 150, 10,  5, RACE_KOBOLD},
-		{ "Thag the Dim",         25000,  250, 150, 10,  5, RACE_HALF_OGRE},
-		{ "Dagor the Mighty",     30000,  250, 150, 10,  5, RACE_HALF_GIANT},
+		{ "Dagor the Tight",      20000,  250, 150, 10,  5, RACE_HALF_GIANT},
+		{ "Graaagh the Mighty",   25000,  250, 150, 10,  5, RACE_HALF_TROLL},
+		{ "Kranik the Smelly",    30000,  250, 150, 10,  5, RACE_HALF_ORC},
 		{ "Gumby the Godly",      30000,  250, 150, 10,  5, RACE_BEASTMAN},
 	},
 	{
@@ -1217,7 +1217,7 @@ owner_type owners[MAX_STORES][MAX_OWNERS] =
 		/* Bookstore */
 		{ "Dolaf the Greedy",     15000, 175, 108, 4, 12, RACE_HUMAN},
 		{ "Odnar the Sage",       20000, 120, 105, 6, 16, RACE_HIGH_ELF},
-		{ "Gandar the Neutral",   25000, 120, 110, 7, 19, RACE_DARK_ELF},
+		{ "Dragon King of Arms",  25000, 120, 110, 7, 19, RACE_VAMPIRE},
 		{ "Ro-sha the Patient",   30000, 140, 105, 6, 12, RACE_ELF},
 	}
 };
@@ -1380,17 +1380,6 @@ player_race race_info[MAX_RACES] =
                 0x7FF + CLASS_MASK(CLASS_WEAPONMASTER),
 	},
 	{
-		"Half-Elf",
-		{ 0,  1,  1,  2, -1,  1 },
-		2,  3,  3,  2, 6,  11, -1,  5,
-		9,  110,
-		24, 16,
-		66,  6, 130, 15,
-		62,  6, 100, 10,
-		3,
-                0x7FF + CLASS_MASK(CLASS_WEAPONMASTER),
-	},
-	{
 		"Elf",
 		{ -1,  2,  1,  3, -2,  2 },
 		5,  6,  6,  4, 8,  12, -5, 15,
@@ -1491,17 +1480,6 @@ player_race race_info[MAX_RACES] =
 		0x09D + CLASS_MASK(CLASS_WEAPONMASTER),
 	},
 	{
-		"Half-Ogre",
-		{ 3, -1, -1, -1, 3, -3 },
-		-3, -5, -5, -2, -1, 5, 20, 0,
-		12,  130,
-		40, 10,
-		92, 10, 255, 60,
-		80,  8, 235, 60,
-		3,
-		0x407 + CLASS_MASK(CLASS_WEAPONMASTER),
-	},
-	{
 		"Half-Giant",
 		{ 4, -2, -2, -2, 3, -3 },
 		-6, -8, -6, -2, -1, 5, 25, 5,
@@ -1522,28 +1500,6 @@ player_race race_info[MAX_RACES] =
 		99, 11, 250, 86,
 		0,
 		0x727 + CLASS_MASK(CLASS_WEAPONMASTER),
-	},
-	{
-		"Cyclops",
-		{ 4, -3, -3, -3, 4, -6 },
-		-4, -5, -5, -2, -2, 5, 20, -10,
-		13, 130,
-		50, 24,
-		92, 10, 255, 60,
-		80,  8, 235, 60,
-		1,
-		0x005 + CLASS_MASK(CLASS_WEAPONMASTER),
-	},
-	{
-		"Yeek",
-		{ -2, 1, 1, 1, -2, -7 },
-		2, 4, 10, 3, 5, 15, -5, -5,
-		7, 100,
-		14, 3,
-		50,  3, 90,  6,
-		50,  3, 75,  3,
-		2,
-		0x60F + CLASS_MASK(CLASS_WEAPONMASTER),
 	},
 	{
 		"Klackon",
@@ -1568,28 +1524,6 @@ player_race race_info[MAX_RACES] =
 		0x009 + CLASS_MASK(CLASS_WEAPONMASTER),
 	},
 	{
-		"Nibelung",
-		{ 1, -1, 2, 0, 2, -4 },
-		3, 5, 10, 1, 5, 10, 9, 0,
-		11, 135,
-		40, 12,
-		43,  3, 92,  6,
-		40,  3, 78,  3,
-		5,
-		0x40F + CLASS_MASK(CLASS_WEAPONMASTER),
-	},
-	{
-		"Dark Elf",
-		{ -1, 3, 2, 2, -2, 1 },
-		5, 15, 20, 3, 8, 12, -5, 10,
-		9, 150,
-		75, 75,
-		60,  4, 100,  6,
-		54,  4, 80,  6,
-		5,
-		0x7DF + CLASS_MASK(CLASS_WEAPONMASTER),
-	},
-	{
 		"Draconian",
 		{ 2, 1, 1, 1, 2, -3 },
 		-2, 5, 3, 0, 1, 10, 5, 5,
@@ -1612,17 +1546,6 @@ player_race race_info[MAX_RACES] =
 		0x746,
 	},
 	{
-		"Imp",
-		{ -1, -1, -1, 1, 2, -3 },
-		-3, 2, -1, 1, -1, 10, 5, -5,
-		10, 110,
-		13,  4,
-		68,  1, 150,  5,
-		64,  1, 120,  5,
-		3,
-		0x7CB + CLASS_MASK(CLASS_WEAPONMASTER),
-	},
-	{
 		"Golem",
 		{ 4, -5, -5, 0, 4, -4 },
                 -5, 5, 10, -1, -1, 8, 20, 0,
@@ -1631,28 +1554,6 @@ player_race race_info[MAX_RACES] =
 		68,  1, 255,  6,
 		68,  1, 255,  6,
 		4,
-		0x001 + CLASS_MASK(CLASS_WEAPONMASTER),
-	},
-	{
-		"Skeleton",
-		{ 0, -2, -2, 0, 1, -4 },
-		-5, -5, 5, -1, -1, 8, 10, 0,
-		10, 145,
-		100, 35,
-		72,  6, 50, 5,
-		66,  4, 50, 5,
-		2,
-		0x70F + CLASS_MASK(CLASS_WEAPONMASTER),
-	},
-	{
-		"Zombie",
-		{ 2, -6, -6, 1, 4, -5 },
-		-5, -5, 8, -1, -1, 5, 15, 0,
-		13, 135,
-		100, 30,
-		72, 6, 100, 25,
-		66, 4, 100, 20,
-		2,
 		0x001 + CLASS_MASK(CLASS_WEAPONMASTER),
 	},
 	{
@@ -1676,17 +1577,6 @@ player_race race_info[MAX_RACES] =
 		66, 4, 100, 20,
 		5,
 		0x74E,
-	},
-	{
-		"Sprite",
-		{  -4, 3, 3, 3, -2, 2 },
-		10, 10, 10, 4, 10, 10, -12, 0,
-		7, 175,
-		50, 25,
-		32,  2, 75,  2,
-		29,  2, 65,  2,
-		4,
-		0x65E,
 	},
 	{
 		"Beastman",
@@ -2702,8 +2592,8 @@ player_magic magic_info[MAX_CLASS] =
 		{ 17,   9, 75,   1 },
 
 		{ 21,  12, 80,   1 },
-		{ 25,  14, 80,   1 },
-		{ 26,  15, 80,   1 },
+		{ 23,  14, 75,   1 },
+		{ 25,  15, 80,   1 },
 		{ 27,  16, 80,   2 },
 		{ 29,  17, 75,   2 },
 		{ 30,  20, 80,   4 },
@@ -4632,12 +4522,12 @@ player_magic magic_info[MAX_CLASS] =
 
         { 5, 5, 40, 40 },
         { 20, 20, 40, 50 },
-        { 30, 70, 60, 115 },
-        { 40, 80, 60, 225 },
-        { 42, 75, 60, 115 },
-        { 45, 40, 60, 100 },
-        { 47, 90, 70, 250 },
-        { 49, 90, 70, 250 }
+        { 25, 60, 60, 115 },
+        { 30, 80, 60, 225 },
+        { 32, 75, 60, 115 },
+        { 35, 40, 60, 100 },
+        { 40, 90, 70, 250 },
+        { 48, 90, 70, 250 }
 	},
 
 
@@ -5267,7 +5157,7 @@ cptr spell_names[7][32] =
 		"Prayer",
 	        "Summon Angel",
 		"Restoration",
-		"Healing True",
+		"Greater Healing",
 		"Holy Vision",
 	        "Divine Intervention",
 		"Holy Invulnerability"
@@ -5297,7 +5187,7 @@ cptr spell_names[7][32] =
 		/* Rare Sorcery Spellbooks */
 	        "Charm Monster",
 	        "Dimension Door",
-	        "Sense Minds",
+	        "Telekinesis",
 	        "Self Knowledge",
 		"Teleport Level",
 		"Word of Recall",
@@ -5305,7 +5195,7 @@ cptr spell_names[7][32] =
 		"Insight",
 
 		"Stasis",
-	        "Slow Monsters", /* was Telekinesis */
+	        "Slow Monsters",
 	        "Explosive Rune",
 		"Clairvoyance",
 		"Enchant Weapon",
@@ -5422,7 +5312,7 @@ cptr spell_names[7][32] =
 		"Punish Undead",
 		"Dark Bolt",
 		"Battle Frenzy",
-		"Vampirism True",
+		"Drain Life",
 		"Vampiric Branding",
 		"Darkness Storm",
 		"Mass Genocide",
@@ -5446,12 +5336,12 @@ cptr spell_names[7][32] =
 		"Minor Divination",
 		"Teleport",
 		"Dimension Door",
-		"Trump Spying",
+		"Minor Trump",
 		"Teleport Away",
 
 		"Trump Branding",
 		"Teleport Level",
-		"Nexus Bolt", /* was Trump Reach */
+		"Nexus Bolt",
 		"Trump Animal",
 		"Word of Recall",
 		"Phantasmal Servant",
@@ -5459,7 +5349,7 @@ cptr spell_names[7][32] =
 		"Conjure Elemental",
 
 		/* Rare Trump Spellbooks */
-		"Joker Card",
+		"Trump Reach",
 		"Trump Spiders",
 		"Trump Reptiles",
 		"Trump Hounds",
@@ -5467,7 +5357,6 @@ cptr spell_names[7][32] =
 		"Living Trump",
 		"Death Dealing",
 		"Trump Cyberdemon",
-
 
 		"Trump Divination",
 		"Trump Lore",
@@ -5891,10 +5780,6 @@ cptr window_flag_desc[32] =
  * 5) Gumband Options
  * 255) Stacking Options
  *
- * Available bits:
- *
- * 0 (28-31), 1 (12-13), 5 (14-28)
- *
  */
 option_type option_info[] =
 {
@@ -6098,8 +5983,7 @@ option_type option_info[] =
 	{ &small_levels,                TRUE,  5,       5, 2,
 	"small_levels",                 "Allow unusually small dungeon levels" },
 
-	{ &only_small,                  FALSE, 5,       5, 3,
-	"only_small",                   "Only create small dungeon levels" },
+	/* set 5, bit 3 unused */
 
 	{ &empty_levels,                FALSE, 5,       5, 4,
         "empty_levels",                 "Allow empty 'arena' levels" },
@@ -6135,7 +6019,7 @@ option_type option_info[] =
 	"disturb_pets",                 "Disturb when visible pets move" },
 
 	{ &name_slimes,			TRUE, 5,	5, 15,
-	"name_slimes",			"Slime Molds have names." },
+	"name_slimes",			"Slime Molds have names" },
 
 	/* set 5, bits 16-28 unused */
 

@@ -1223,32 +1223,18 @@ void map_info(int y, int x, byte *ap, char *cp)
 							c = 184;
 							break;
 						case RACE_ELF:
-						case RACE_HALF_ELF:
 						case RACE_HIGH_ELF:
 							c = 223;
 							break;
-						case RACE_HALF_OGRE:
-							c = 168;
-							break;
 						case RACE_HALF_GIANT:
 						case RACE_HALF_TITAN:
-						case RACE_CYCLOPS:
 							c = 145;
-							break;
-						case RACE_YEEK:
-							c = 209;
 							break;
 						case RACE_KLACKON:
 							c = 229;
 							break;
 						case RACE_KOBOLD:
 							c = 204;
-							break;
-						case RACE_NIBELUNG:
-							c = 144;
-							break;
-						case RACE_DARK_ELF:
-							c = 223;
 							break;
 						case RACE_DRACONIAN:
 							if (p_ptr->lev < 20)
@@ -1261,33 +1247,14 @@ void map_info(int y, int x, byte *ap, char *cp)
 						case RACE_MIND_FLAYER:
 							c = 236;
 							break;
-						case RACE_IMP:
-							c = 142;
-							break;
 						case RACE_GOLEM:
 							c = 6;
-							break;
-						case RACE_SKELETON:
-							if (p_ptr->pclass == CLASS_MAGE ||
-								p_ptr->pclass == CLASS_PRIEST ||
-								p_ptr->pclass == CLASS_HIGH_MAGE ||
-								p_ptr->pclass == CLASS_MONK ||
-								p_ptr->pclass == CLASS_MINDCRAFTER)
-								c = 159;
-							else
-								c = 181;
-							break;
-						case RACE_ZOMBIE:
-							c = 221;
 							break;
 						case RACE_VAMPIRE:
 							c = 217;
 							break;
 						case RACE_SPECTRE:
 							c = 241;
-							break;
-						case RACE_SPRITE:
-							c = 244;
 							break;
 						case RACE_BEASTMAN:
 							c = 154;
@@ -1335,8 +1302,7 @@ void print_rel(char c, byte a, int y, int x)
 		/* Hack -- fake monochrome */
 		if (!use_graphics || streq(ANGBAND_SYS, "ibm"))
 		{
-			if (p_ptr->invuln || !use_color) a = TERM_L_WHITE;
-			else if (p_ptr->wraith_form) a = TERM_SLATE;
+			if (!use_color) a = TERM_WHITE;
 		}
 
 		/* Draw the char using the attr */
@@ -1503,8 +1469,7 @@ void lite_spot(int y, int x)
 		/* Hack -- fake monochrome */
 		if (!use_graphics || streq(ANGBAND_SYS, "ibm"))
 		{
-			if (p_ptr->invuln || !use_color) a = TERM_L_WHITE;
-			else if (p_ptr->wraith_form) a = TERM_SLATE;
+			if (!use_color) a = TERM_WHITE;
 		}
 
 #ifdef USE_TRANSPARENCY
@@ -1558,8 +1523,7 @@ void prt_map(void)
 			/* Hack -- fake monochrome */
 			if (!use_graphics || streq(ANGBAND_SYS, "ibm"))
 			{
-				if (p_ptr->invuln || !use_color) a = TERM_L_WHITE;
-				else if (p_ptr->wraith_form) a = TERM_SLATE;
+				if (!use_color) a = TERM_WHITE;
 			}
 
 			/* Efficiency -- Redraw that grid of the map */
@@ -1571,8 +1535,7 @@ void prt_map(void)
 			/* Hack -- fake monochrome */
 			if (!use_graphics || streq(ANGBAND_SYS, "ibm"))
 			{
-				if (p_ptr->invuln || !use_color) a = TERM_L_WHITE;
-				else if (p_ptr->wraith_form) a = TERM_SLATE;
+				if (!use_color) a = TERM_WHITE;
 			}
 
 			/* Efficiency -- Redraw that grid of the map */
@@ -1799,8 +1762,7 @@ void display_map(int *cy, int *cx)
 			/* Hack -- fake monochrome */
 			if (!use_graphics || streq(ANGBAND_SYS, "ibm"))
 			{
-				if (p_ptr->invuln || !use_color) ta = TERM_L_WHITE;
-				else if (p_ptr->wraith_form) ta = TERM_SLATE;
+				if (!use_color) ta = TERM_WHITE;
 			}
 
 			/* Add the character */
