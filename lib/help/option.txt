@@ -1,6 +1,6 @@
 --- This file might be out of date for Gumband. You have been warned. :)
 
-=== Options and Effects (Gumband 2.1.7) ===
+=== Options and Effects (Gumband 2.1.9) ===
 
 Most of the "options" are accessible through the '=' command, which provides
 an interface to the various "sets" of options available to the player.

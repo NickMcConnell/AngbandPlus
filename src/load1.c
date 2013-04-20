@@ -1040,17 +1040,11 @@ static errr rd_item_old(object_type *o_ptr)
 {
 	byte old_ident;
 	byte old_names;
-
 	s16b old_k_idx;
-
 	s16b old_pval;
-
 	s32b old_cost;
-
 	u32b f1, f2, f3;
-
 	object_kind *k_ptr;
-
 	char old_note[128];
 
 

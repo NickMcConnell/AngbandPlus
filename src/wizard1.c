@@ -2009,6 +2009,11 @@ static void spoil_mon_info(cptr fname)
 			spoil_out(wd_che[msex]);
 			spoil_out(" regenerates quickly.  ");
 		}
+		if (flags2 & (RF2_SHAPECHANGER))
+		{
+			spoil_out(wd_che[msex]);
+			spoil_out(" is a shapechanger.  ");
+		}
 
 		/* Collect susceptibilities */
 		vn = 0;

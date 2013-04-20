@@ -210,11 +210,11 @@ static hist_type bg[] =
 	{"You are one of several children ",                   95, 24, 25, 45},
 	{"You are the first child ",                          100, 24, 25, 50},
 
-	{"Melnibonean commoner.  ",			       25, 25, 3, 30},
-	{"Melnibonean soldier.  ",			       50, 25, 3, 50},
-	{"Melnibonean priest.  ",			       65, 25, 3, 65},
-	{"Melnibonean Dragonmaster.  ",			       85, 25, 3, 70},
-	{"Melnibonean noble.  ",			      100, 25, 3, 100},
+	{"of a Melnibonean commoner.  ",		       25, 25, 3, 30},
+	{"of a Melnibonean soldier.  ",			       50, 25, 3, 50},
+	{"of a Melnibonean priest.  ",			       65, 25, 3, 65},
+	{"of a Melnibonean Dragonmaster.  ",		       85, 25, 3, 70},
+	{"of a Melnibonean noble.  ",			      100, 25, 3, 100},
 
 	/* Lines 26-29 unused */
 
@@ -1183,7 +1183,7 @@ static void get_money(void)
 	/* Minimum gold */
 	if (gold < 99 + p_ptr->sc) gold = 99 + p_ptr->sc;
 
-	if (quick_start) gold = 1000;
+	if (quick_start) gold *= 10;
 
 	/* Save the gold */
 	p_ptr->au = gold;
@@ -1463,7 +1463,8 @@ static void player_outfit(void)
 	{
 		/* Hack -- Give the player some food */
 		object_prep(q_ptr, lookup_kind(TV_FOOD, SV_FOOD_RATION));
-		q_ptr->number = rand_range(4, 7);
+		q_ptr->number = rand_range(5, 8);
+		if (p_ptr->astral) q_ptr->number += 5;
 		object_aware(q_ptr);
 		object_known(q_ptr);
 		(void)inven_carry(q_ptr, FALSE);

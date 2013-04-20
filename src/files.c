@@ -1621,10 +1621,8 @@ static void player_flags(u32b *f1, u32b *f2, u32b *f3)
 static void display_player_equippy(int y, int x)
 {
 	int i;
-
 	byte a;
 	char c;
-
 	object_type *o_ptr;
 
 
@@ -1637,7 +1635,6 @@ static void display_player_equippy(int y, int x)
 #if 0
 		/* Skip empty objects */
 		if (!o_ptr->k_idx) continue;
-
 
 		/* Get attr/char for display */
 		a = tval_to_attr[o_ptr->tval & 0x7F];
@@ -1671,8 +1668,7 @@ void print_equippy()
 /*
  * Helper function, see below
  */
-static void display_player_flag_aux(int row, int col,
-			char *header, int n, u32b flag)
+static void display_player_flag_aux(int row, int col, char *header, int n, u32b flag)
 {
 	int i;
 	u32b f[3];
@@ -1683,7 +1679,6 @@ static void display_player_flag_aux(int row, int col,
 
 	/* Advance */
 	col += strlen(header) + 1;
-
 
 	/* Check equipment */
 	for (i=INVEN_WIELD; i<INVEN_TOTAL; i++)
@@ -1837,14 +1832,11 @@ static void display_player_stat_info(void)
 	int i, e_adj;
 	int stat_col, stat;
 	int row, col;
-
 	object_type *o_ptr;
 	u32b f1, f2, f3;
 	s16b k_idx;
-
 	byte a;
 	char c;
-
 	char buf[80];
 
 
@@ -3642,7 +3634,6 @@ static void center_string(char *buf, cptr str)
 static void make_bones(void)
 {
 	FILE                *fp;
-
 	char                str[1024];
 
 

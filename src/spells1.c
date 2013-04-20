@@ -256,9 +256,7 @@ static u16b bolt_pict(int y, int x, int ny, int nx, int typ)
 void take_hit(int damage, cptr hit_from)
 {
 	int old_chp = p_ptr->chp;
-
 	char death_message[80];
-
 	int warning = (p_ptr->mhp * hitpoint_warn / 10);
 
 
@@ -271,14 +269,8 @@ void take_hit(int damage, cptr hit_from)
 	/* Mega-Hack -- Apply "invulnerability" */
 	if (p_ptr->invuln)
 	{
-		damage /= 9;
-		if ((damage==0) && (randint(10)==1)) damage = 1;
-	}
-
-	if (p_ptr->wraith_form)
-	{
 		damage /= 3;
-		if ((damage==0) && (randint(10)==1)) damage = 1;
+		if (damage <= 0) damage = 1;
 	}
 
 	/* Hurt the player */
@@ -2549,11 +2541,12 @@ static bool project_m(int who, bool pet_attack, int r, int y, int x, int dam, in
 			 * If fired by player, try pushing monster.
 			 * First get vector from player to monster.
 			 * x10 so we can use pseudo-fixed point maths.
-			 *
 			 * Really should use get_angle_to_grid (util.c)
 			 *
 			 * Taken from DrAngband 2.9.8, with help from
 			 * DarkGod to get it working. -- Gumby
+			 * Force breathers don't get blasted back -- Gumby
+			 *
 			 */
 			if (!who) /* was 'who < 0' */
 			{
@@ -2612,6 +2605,7 @@ static bool project_m(int who, bool pet_attack, int r, int y, int x, int dam, in
 			{
 				note = " resists.";
 				dam /= 3;
+				do_move = FALSE;
 			}
 			break;
 		}
@@ -3048,9 +3042,6 @@ static bool project_m(int who, bool pet_attack, int r, int y, int x, int dam, in
 		/* Death Ray */
 		case GF_DEATH_RAY:
 		{
-#if 0
-			dam = 0;
-#endif
 			if (seen) obvious = TRUE;
 			if ((r_ptr->flags3 & (RF3_UNDEAD)) ||
 			    (r_ptr->flags3 & (RF3_NONLIVING)))
@@ -3065,15 +3056,13 @@ static bool project_m(int who, bool pet_attack, int r, int y, int x, int dam, in
 				dam = 0;
 			}
 			else if (((r_ptr->flags1 & (RF1_UNIQUE)) &&
-			    (randint(888) != 666)) ||
-			    (((r_ptr->level + randint(20))> randint((dam)+randint(10))) &&
-			    randint(100) != 66 ))
+			          (randint(1000) != 666)) ||
+			         ((r_ptr->level + randint(20)) > randint(dam)))
 			{
 				note = " resists!";
 				obvious = FALSE;
 				dam = 0;
 			}
-
 			else dam = (p_ptr->lev) * 200;
 
 			break;
@@ -3913,6 +3902,10 @@ static bool project_m(int who, bool pet_attack, int r, int y, int x, int dam, in
 	 */
 	if (r_ptr->flags1 & (RF1_QUESTOR)) do_poly = FALSE;
 
+	if ((cave[m_ptr->fy][m_ptr->fx].feat >= FEAT_DOOR_HEAD) &&
+	    (cave[m_ptr->fy][m_ptr->fx].feat <= FEAT_PERM_SOLID))
+		do_poly = FALSE;
+
 	/* "Unique" monsters can only be "killed" by the player */
 	if (r_ptr->flags1 & (RF1_UNIQUE))
 		if (who && (dam > m_ptr->hp)) dam = m_ptr->hp;
@@ -4586,40 +4579,46 @@ static bool project_p(int who, bool pet_attack, int r, int y, int x, int dam, in
 		case GF_CHAOS:
 		{
 			if (fuzzy) msg_print("You are hit by a wave of anarchy!");
+
 			if (p_ptr->resist_chaos)
 			{
 				dam = (dam * 2) / 3;
 			}
-			if (!p_ptr->resist_conf)
-			{
-				(void)set_confused(p_ptr->confused + rand_int(20) + 10);
-			}
+
 			if (!p_ptr->resist_chaos)
 			{
 				(void)set_image(p_ptr->image + randint(10));
+
 				if (randint(3)==1)
 				{
 					msg_print("Your body is twisted by chaos!");
 					(void)gain_random_mutation(0);
 				}
+
+				if (!p_ptr->resist_conf)
+				{
+					(void)set_confused(p_ptr->confused + rand_int(20) + 10);
+				}
+
+				if (!p_ptr->resist_neth)
+				{
+					if (p_ptr->hold_life && (rand_int(100) < 75))
+					{
+						msg_print("You keep hold of your life force!");
+					}
+					else if (p_ptr->hold_life)
+					{
+						msg_print("You feel your life slipping away!");
+						lose_exp(500 + (p_ptr->exp/1000) * MON_DRAIN_LIFE);
+					}
+					else
+					{
+						msg_print("You feel your life draining away!");
+						lose_exp(5000 + (p_ptr->exp/100) * MON_DRAIN_LIFE);
+					}
+				}
 			}
-			if (!p_ptr->resist_neth && !p_ptr->resist_chaos)
-			{
-				if (p_ptr->hold_life && (rand_int(100) < 75))
-				{
-					msg_print("You keep hold of your life force!");
-				}
-				else if (p_ptr->hold_life)
-				{
-					msg_print("You feel your life slipping away!");
-					lose_exp(500 + (p_ptr->exp/1000) * MON_DRAIN_LIFE);
-				}
-				else
-				{
-					msg_print("You feel your life draining away!");
-					lose_exp(5000 + (p_ptr->exp/100) * MON_DRAIN_LIFE);
-				}
-			}
+
 			if ((!p_ptr->resist_chaos) || (randint(9)==1))
 			{
 				inven_damage(set_elec_destroy, 2);

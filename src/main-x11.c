@@ -2002,9 +2002,9 @@ static cptr color_name[16] =
 /*
  * Initialization function for an "X11" module to Angband
  */
-errr init_x11(void)
+errr init_x11(int argc, char *argv[])
 {
-	int i;
+	int i, num_term = MAX_TERM_DATA;
 
 	cptr fnt_name;
 
@@ -2020,6 +2020,19 @@ errr init_x11(void)
 	Infoclr_set (xor);
 	Infoclr_init_ccn ("fg", "bg", "xor", 0);
 
+	for (i = 1; i < argc; i++)
+	{
+		if (prefix(argv[i], "-n"))
+		{
+			num_term = atoi(&argv[i][2]);
+			if (num_term > MAX_TERM_DATA) num_term = MAX_TERM_DATA;
+			else if (num_term < 1) num_term = 1;
+			continue;
+		}
+
+		plog_fmt("Ignoring option: %s", argv[i]);
+	}
+
 	/* Prepare the colors (including "black") */
 	for (i = 0; i < 16; ++i)
 	{
@@ -2031,7 +2044,6 @@ errr init_x11(void)
 		Infoclr_init_ccn (cname, "bg", "cpy", 0);
 	}
 
-
 	/* Check environment for "base" font */
 	fnt_name = getenv("ANGBAND_X11_FONT");
 
@@ -2039,9 +2051,14 @@ errr init_x11(void)
 	if (!fnt_name) fnt_name = DEFAULT_X11_FONT_SCREEN;
 
 	/* Initialize the windows */
-	for (i = 0; i < MAX_TERM_DATA; i++)
+	for (i = 0; i < num_term; i++)
 	{
 		cptr name = angband_term_name[i];
+
+		/* Use window-specific default if available. */
+		cptr font_name_x = getenv(format("ANGBAND_X11_FONT_%d", i));
+		if (font_name_x) fnt_name = font_name_x;
+
 		term_data_init(&data[i], TRUE, name, fnt_name);
 		angband_term[i] = Term;
 	}

@@ -90,7 +90,7 @@ static cptr value_check_aux2(object_type *o_ptr)
  */
 static void sense_inventory(void)
 {
-	int		i, k;
+	int		i;
 	int		plev = p_ptr->lev;
 	bool		heavy = FALSE;
 	cptr		feel;
@@ -166,20 +166,10 @@ static void sense_inventory(void)
 			break;
 		}
 
-		case CLASS_HIGH_MAGE: /* Speed based on realm. -- Gumby */
+		case CLASS_HIGH_MAGE:
 		{
-			switch (p_ptr->realm1)
-			{
-				case REALM_LIFE: case REALM_DEATH:
-				case REALM_TRUMP:
-					k = 20000L; break;
-				case REALM_NATURE: case REALM_CHAOS:
-					k = 30000L; break;
-				default: /* Sorcery & Arcane */
-					k = 150000L; break;
-			}
-
-			if (0 != rand_int(k / (plev * plev + 40))) return;
+			if (0 != rand_int(20000L / (plev * plev + 40))) return;
+			heavy = FALSE;
 			break;
 		}
 	}
@@ -279,7 +269,7 @@ static void pattern_teleport(void)
 		char	tmp_val[160];
 
 		/* Prompt */
-		sprintf(ppp, "Teleport to level (0-%d): ", 99);
+		sprintf(ppp, "Teleport to level (0-%d): ", 97);
 
 		/* Default */
 		sprintf(tmp_val, "%d", dun_level);
@@ -304,7 +294,7 @@ static void pattern_teleport(void)
 	if (command_arg < 0) command_arg = 0;
 
 	/* Paranoia */
-	if (command_arg > 99) command_arg = 99;
+	if (command_arg > 97) command_arg = 97;
 
 	/* Accept request */
 	msg_format("You teleport to dungeon level %d.", command_arg);
@@ -1443,6 +1433,8 @@ static void process_world(void)
 			if ((o_ptr->ident & IDENT_CURSED) && !(p_ptr->anti_tele))
 			{
 				disturb(0,0);
+
+				msg_print("You feel unstable...");
 
 				/* Teleport player */
 				teleport_player(40);
@@ -2924,7 +2916,7 @@ static void dungeon(void)
 	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_MONSTER);
+	p_ptr->window |= (PW_MONSTER | PW_VISIBLE);
 
 	/* Redraw dungeon */
 	p_ptr->redraw |= (PR_WIPE | PR_BASIC | PR_EXTRA | PR_EQUIPPY);
@@ -3302,7 +3294,7 @@ void play_game(bool new_game)
 	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_MONSTER);
+	p_ptr->window |= (PW_MONSTER | PW_VISIBLE);
 
 	/* Window stuff */
 	window_stuff();

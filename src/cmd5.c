@@ -76,8 +76,20 @@ static int get_spell(int *sn, cptr prompt, int sval, bool known, bool realm_2)
 	/* Nothing chosen yet */
 	flag = FALSE;
 
-	/* No redraw yet */
-	redraw = FALSE;
+	if (show_choices_main)
+	{
+		/* Show list */
+		redraw = TRUE;
+		Term_save();
+
+		/* Display a list of spells */
+		print_spells(spells, num, 1, 20, use_realm-1);
+	}		
+	else
+	{
+		/* No redraw yet */
+		redraw = FALSE;
+	}
 
 	/* Show choices */
 	if (show_choices)
@@ -669,15 +681,15 @@ void do_cmd_cast(void)
 			if (remove_curse())
 				msg_print("A blue glow surrounds you.");
 			break;
-	   case 9: /* Cure Poison */
-			(void)set_poisoned(0);
-		       break;
+	   case 9: /* Turn Undead */
+		(void)turn_undead();
+		break;
 	   case 10: /* Cure Critical Wounds */
-			(void)hp_player(damroll(6 + ((plev - 5) / 3), 10));
-			(void)set_poisoned(0);
-			(void)set_stun(0);
-			(void)set_cut(0);
-		       break;
+		(void)hp_player(damroll(6 + ((plev - 5) / 3), 10));
+		(void)set_poisoned(0);
+		(void)set_stun(0);
+		(void)set_cut(0);
+		break;
 	   case 11: /* Sense Unseen */
 		(void)set_tim_invis(p_ptr->tim_invis + (25 + ((3 * plev) / 2)));
 		break;
@@ -793,8 +805,8 @@ void do_cmd_cast(void)
 		}
 		(void)set_afraid(0);
 		break;
-	   case 31: /* Holy Invulnerability */
-		(void)set_invuln(p_ptr->invuln + randint(10) + 10);
+	   case 31: /* Holy Resistance*/
+		(void)set_invuln(p_ptr->invuln + randint(5) + 5);
 		break;
 	   default:
 		 msg_format("You cast an unknown Life spell: %d.", spell);
@@ -958,8 +970,8 @@ void do_cmd_cast(void)
 	   case 30: /* Alchemy */
 		(void)alchemy();
 		break;
-	   case 31: /* Globe of Invulnerability */
-		(void)set_invuln(p_ptr->invuln + randint(10) + 10);
+	   case 31: /* Globe of Resilience */
+		(void)set_invuln(p_ptr->invuln + randint(5) + 5);
 		break;
 	   default:
 		msg_format("You cast an unknown Sorcery spell: %d.", spell);
@@ -1001,7 +1013,7 @@ void do_cmd_cast(void)
 		(void)set_oppose_fire(p_ptr->oppose_fire + randint(20) + 20);
 		(void)set_oppose_elec(p_ptr->oppose_elec + randint(20) + 20);
 		break;
-	case 7: /* Cure Wounds + Poison */
+	case 7: /* Magic Poultice */
 		(void)hp_player(damroll(6 , 8));
 		(void)set_cut(0);
 		(void)set_poisoned(0);
@@ -1207,11 +1219,16 @@ void do_cmd_cast(void)
 		if (!get_aim_dir(&dir)) return;
 		fire_ball(GF_CHAOS, dir, 100 + (plev), (plev / 5));
 		break;
-        case 16: /* Chain Lightning */
+        case 16: /* Confusion Bolt (was Chain Lightning) */
+#if 0
 		for (dir = 0; dir <= 9; dir++)
 		{
-			fire_beam(GF_ELEC, dir, damroll(10 + (plev / 5), 8));
+			fire_beam(GF_ELEC, dir, damroll(10+(plev/5), 8));
 		}
+		break;
+#endif
+		if (!get_aim_dir(&dir)) return;
+		fire_bolt_or_beam(beam, GF_CONFUSION, dir, damroll(10+((plev-5)/3), 8));
 		break;
         case 17: /* Arcane Binding == Charging */
 		(void)recharge(50 + plev);
@@ -1309,21 +1326,21 @@ void do_cmd_cast(void)
 		}
 		break;
 	case 26: /* Flame Strike */
-		fire_ball(GF_FIRE, 0, 200 + (4*plev), 8); break;
+		fire_ball(GF_FIRE, 0, 200 + (4 * plev), 8); break;
         case 27: /* Call Chaos */
 		call_chaos(); break;
         case 28: /* Magic Rocket */
 		if (!get_aim_dir(&dir)) return;
 		msg_print("You launch a rocket!");
-		fire_ball(GF_ROCKET, dir, 250 + (2*plev), 2);
+		fire_ball(GF_ROCKET, dir, 350 + (2 * plev), 2);
 		break;
         case 29: /* Mana Storm */
 		if (!get_aim_dir(&dir)) return;
-		fire_ball(GF_MANA, dir, 400 + (plev * 2), 4);
+		fire_ball(GF_MANA, dir, 400 + (plev * 3), 4);
 		break;
         case 30: /* Breathe Chaos */
 		if (!get_aim_dir(&dir)) return;
-		fire_ball(GF_CHAOS, dir, p_ptr->chp, 2);
+		fire_ball(GF_CHAOS, dir, p_ptr->chp, 3);
 		break;
 	case 31: /* Call the Void */
 		call_the_(); break;
@@ -1464,28 +1481,30 @@ void do_cmd_cast(void)
 		fire_ball(GF_DARK, dir,	150 + (2 * plev), 4);
 		break;
         case 23: /* Mass Genocide */
-			(void)mass_genocide(TRUE);
-		       break;
+		(void)mass_genocide(TRUE);
+		break;
        case 24: /* Death Ray */
-			if (!get_aim_dir(&dir)) return;
-			(void)death_ray(dir, plev);
-		       break;
+		if (!get_aim_dir(&dir)) return;
+		(void)death_ray(dir, plev * 2);
+		break;
        case 25: /* Raise the Dead */
-                   if (randint(3) == 1) {
-               if (summon_specific(py, px, (plev*3)/2,
-                       (plev > 47 ? SUMMON_HI_UNDEAD : SUMMON_UNDEAD))) {
-               msg_print("Cold winds begin to blow around you, carrying with them the stench of decay...");
-               msg_print("'The dead arise... to punish you for disturbing them!'");
-               }
-           } else {
-               if (summon_specific_friendly(py, px, (plev*3)/2,
-                       (plev > 47 ? SUMMON_HI_UNDEAD_NO_UNIQUES : SUMMON_UNDEAD),
-                       (((plev > 24) && (randint(3) == 1)) ? TRUE : FALSE))) {
-               msg_print("Cold winds begin to blow around you, carrying with them the stench of decay...");
-               msg_print("Ancient, long-dead forms arise from the ground to serve you!");
-               }
-           }
-           break;
+		if (randint(3) == 1)
+		{
+			if (summon_specific(py, px, (plev*3)/2, (plev > 47 ? SUMMON_HI_UNDEAD : SUMMON_UNDEAD)))
+			{
+				msg_print("Cold winds begin to blow around you, carrying with them the stench of decay...");
+				msg_print("'The dead arise... to punish you for disturbing them!'");
+			}
+		}
+		else
+		{
+			if (summon_specific_friendly(py, px, (plev*3)/2, (plev > 47 ? SUMMON_HI_UNDEAD_NO_UNIQUES : SUMMON_UNDEAD), (((plev > 24) && (randint(3) == 1)) ? TRUE : FALSE)))
+			{
+				msg_print("Cold winds begin to blow around you, carrying with them the stench of decay...");
+				msg_print("Ancient, long-dead forms arise from the ground to serve you!");
+			}
+		}
+		break;
        case 26: /* Esoteria */
 		if (randint(50)>plev) (void) ident_spell();
 		else identify_fully();
@@ -1495,7 +1514,6 @@ void do_cmd_cast(void)
        case 28: /* Evocation */
 		(void)dispel_monsters(plev * 4);
 		(void)turn_monsters(plev*4);
-		(void)banish_monsters(plev*4);
 		break;
        case 29: /* Hellfire */
 		if (!get_aim_dir(&dir)) return;
@@ -1507,8 +1525,7 @@ void do_cmd_cast(void)
 		(void) deathray_monsters();
 
 		/* Must punish the player severely for his presumption! */
-		if (!(p_ptr->invuln))
-			take_hit(200 + randint(200), "Death's cold touch");
+		take_hit((p_ptr->chp / 2), "Death's cold touch");
 		break;
         case 31: /* Wraithform */
 		set_shadow(p_ptr->wraith_form + randint(plev) + (plev/2));
@@ -1541,23 +1558,24 @@ void do_cmd_cast(void)
 
             msg_print("You shuffle the deck and draw a card...");
 
-            if (die < 7 )
+            if (die < 5)
             {
                 msg_print("Oh no! It's Death!");
                 for (dummy = 0; dummy < randint(3); dummy++)
                     (void)activate_hi_summon();
             }
-            else if (die < 14)
+            else if (die < 10)
             {
                 msg_print("Oh no! It's the Devil!");
                 (void) summon_specific(py, px, dun_level, SUMMON_DEMON);
             }
-            else if (die < 18 )
+            else if (die < 18)
             {
-                msg_print("Oh no! It's the Hanged Man.");
-                activate_ty_curse();
+		msg_print("It's the picture of a friendly monster.");
+		if (!(summon_specific_friendly(py, px, plev, SUMMON_MINOR, TRUE)))
+			no_trump = TRUE;
             }
-            else if (die < 22 )
+            else if (die < 22)
             {
                 msg_print("It's the swords of discord.");
                 aggravate_monsters(1, FALSE);
@@ -1909,7 +1927,7 @@ void do_cmd_cast(void)
         case 20: /* Banish */
 		banish_monsters(plev*4); break;
         case 21: /* Living Trump */
-	        if (randint(8)==1) dummy = 12;
+	        if (randint(2)==1) dummy = 12;
 	        else dummy = 17;
 	        if (gain_random_mutation(dummy))
 	            msg_print("You have turned into a Living Trump.");
@@ -2167,6 +2185,7 @@ void do_cmd_cast(void)
 			break;
 		case 20: /* Cure Critical Wounds */
 			(void)hp_player(damroll(12, 8));
+			(void)set_poisoned(0);
 			(void)set_stun(0);
 			(void)set_cut(0);
 			break;
@@ -2203,8 +2222,10 @@ void do_cmd_cast(void)
 			break;
 		case 26: /* Healing */
 			(void)hp_player(250);
+			(void)set_poisoned(0);
 			(void)set_stun(0);
 			(void)set_cut(0);
+			(void)set_image(0);
 			break;
 		case 27: /* Summon Monster */
 			if (!(summon_specific_friendly(py, px, plev, SUMMON_NO_UNIQUES, FALSE)))

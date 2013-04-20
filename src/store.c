@@ -1441,12 +1441,16 @@ static void display_entry(int pos)
 	char		o_name[80];
 	char		out_val[160];
 	int		maxwid = 75;
+	bool		plain_descriptions_init = plain_descriptions;
 
 	/* Get the item */
 	o_ptr = &st_ptr->stock[pos];
 
 	/* Get the "offset" */
 	i = (pos % 12);
+
+	/* turn off flavors in the shop - arch */
+	plain_descriptions = TRUE;
 
 	/* Label it, clear the line --(-- */
 	(void)sprintf(out_val, "%c) ", I2A(i));
@@ -1534,6 +1538,9 @@ static void display_entry(int pos)
 			put_str(out_val, i+6, 68);
 		}
 	}
+
+	/* hack -- restore flavors to original condition - arch */
+	plain_descriptions = plain_descriptions_init;
 }
 
 
@@ -2102,18 +2109,14 @@ static bool purchase_haggle(object_type *o_ptr, s32b *price)
  */
 static bool sell_haggle(object_type *o_ptr, s32b *price)
 {
-	s32b               purse, cur_ask, final_ask;
-	s32b               last_offer = 0, offer = 0;
-	s32b               x1, x2, x3;
-	s32b               min_per, max_per;
-
-	int			flag, loop_flag, noneed;
-	int			annoyed = 0, final = FALSE;
-
+	s32b            purse, cur_ask, final_ask;
+	s32b            last_offer = 0, offer = 0;
+	s32b            x1, x2, x3;
+	s32b            min_per, max_per;
+	int		flag, loop_flag, noneed;
+	int		annoyed = 0, final = FALSE;
 	bool		cancel = FALSE;
-
 	cptr		pmt = "Offer";
-
 	char		out_val[160];
 
 
@@ -2302,16 +2305,11 @@ static void store_purchase(void)
 {
 	int i, amt, choice;
 	int item, item_new;
-
 	s32b price, best;
-
 	object_type forge;
 	object_type *j_ptr;
-
 	object_type *o_ptr;
-
 	char o_name[80];
-
 	char out_val[160];
 
 
@@ -2610,16 +2608,11 @@ static void store_sell(void)
 	int choice;
 	int item, item_pos;
 	int amt;
-
 	s32b price, value, dummy;
-
 	object_type forge;
 	object_type *q_ptr;
-
 	object_type *o_ptr;
-
 	cptr pmt = "Sell which item? ";
-
 	char o_name[80];
 
 

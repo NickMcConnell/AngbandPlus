@@ -42,7 +42,7 @@
 #define FAKE_VERSION
 #define FAKE_VER_MAJOR 2
 #define FAKE_VER_MINOR 1
-#define FAKE_VER_PATCH 8
+#define FAKE_VER_PATCH 9
 
 #define ANGBAND_2_8_1
 
@@ -948,7 +948,7 @@ and tables.c --TY */
 #define ART_ICE				145
 #define ART_ENDURANCE			146
 #define ART_HERMES			147
-/* 148 unused */
+#define ART_BATALOSIRMO			148
 #define ART_DEATH			149
 #define ART_PINPRICK			150
 #define ART_BEGGING			151
@@ -1618,7 +1618,7 @@ and tables.c --TY */
 #define SV_SCROLL_ICE                    49
 #define SV_SCROLL_CHAOS                  50
 #define SV_SCROLL_RUMOR                  51
-/* 52 unused */
+#define SV_SCROLL_ARTIFACT		 52
 #define SV_SCROLL_BRAND_WEAPON		 53
 
 /* The "sval" codes for TV_POTION */
@@ -1912,7 +1912,7 @@ and tables.c --TY */
 #define PW_EQUIP        0x00000002L     /* Display equip/inven */
 #define PW_SPELL        0x00000004L     /* Display spell list */
 #define PW_PLAYER       0x00000008L     /* Display character */
-/* xxx */
+#define PW_VISIBLE	0x00000010L	/* Show visible monster list */
 /* xxx */
 #define PW_MESSAGE      0x00000040L     /* Display messages */
 #define PW_OVERHEAD     0x00000080L     /* Display overhead view */
@@ -2345,7 +2345,7 @@ and tables.c --TY */
 #define RF1_MALE                0x00000004      /* Male gender */
 #define RF1_FEMALE              0x00000008      /* Female gender */
 #define RF1_CHAR_CLEAR          0x00000010      /* Absorbs symbol */
-#define RF1_CHAR_MULTI          0x00000020      /* Changes symbol */
+#define RF1_XXX2	        0x00000020      /* was RF1_CHAR_MULTI */
 #define RF1_ATTR_CLEAR          0x00000040      /* Absorbs color */
 #define RF1_ATTR_MULTI          0x00000080      /* Changes color */
 #define RF1_FORCE_DEPTH         0x00000100      /* Start at "correct" depth */
@@ -2617,7 +2617,7 @@ and tables.c --TY */
  * the argument on how this should be implemented. :)
  */
 #define is_humanoid(T) \
-	strchr("AhkNoOpPtTyYVW", (T))
+	strchr("AhkLNoOpPstTyYVWz", (T))
 
 /*
  * Hack -- The main "screen"

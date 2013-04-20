@@ -131,7 +131,7 @@ bool gain_random_mutation(int choose_mut)
 		case 40: case 41:
                 	muta_class = &(p_ptr->muta3);
                 	muta_which = MUT3_RESILIENT;
-                	muta_desc = "You become extraordinarily resilient.";
+                	muta_desc = "You become extraordinarily tough.";
                 	break;
 		case 42: case 43:
                 	muta_class = &(p_ptr->muta3);
@@ -371,7 +371,7 @@ bool gain_random_mutation(int choose_mut)
 		case 131:
 			muta_class = &(p_ptr->muta2);
 			muta_which = MUT2_INVULN;
-			muta_desc = "You are blessed with fits of invulnerability.";
+			muta_desc = "You are blessed with fits of resilience.";
 			break;
 		case 132: case 133:
 			muta_class = &(p_ptr->muta2);
@@ -674,7 +674,7 @@ bool gain_random_mutation(int choose_mut)
 	    {
 		if (p_ptr->muta3 & MUT3_RESILIENT)
 		{
-			msg_print("You no longer feel resilient.");
+			msg_print("You no longer feel tough.");
 			p_ptr->muta3 &= ~(MUT3_RESILIENT);
 		}
 	    }
@@ -793,7 +793,7 @@ bool lose_mutation(int choose_mut)
 		case 40: case 41:
                 	muta_class = &(p_ptr->muta3);
                 	muta_which = MUT3_RESILIENT;
-                	muta_desc = "You are no longer resilient.";
+                	muta_desc = "You are no longer tough.";
                 	break;
 		case 42: case 43:
                 	muta_class = &(p_ptr->muta3);
@@ -1033,7 +1033,7 @@ bool lose_mutation(int choose_mut)
 		case 131:
 			muta_class = &(p_ptr->muta2);
 			muta_which = MUT2_INVULN;
-			muta_desc = "You are no longer blessed with fits of invulnerability.";
+			muta_desc = "You are no longer blessed with fits of resilience.";
 			break;
 		case 132: case 133:
 			muta_class = &(p_ptr->muta2);
@@ -1448,7 +1448,7 @@ void dump_mutations(FILE * OutFile)
 		}
 		if (p_ptr->muta2 & MUT2_INVULN)
 		{
-			fprintf(OutFile, " You occasionally feel invincible.\n");
+			fprintf(OutFile, " You occasionally feel resilient.\n");
 		}
 		if (p_ptr->muta2 & MUT2_SP_TO_HP)
 		{
@@ -1488,7 +1488,7 @@ void dump_mutations(FILE * OutFile)
                 }
                 if (p_ptr->muta3 & MUT3_RESILIENT)
                 {
-                        fprintf(OutFile, " You are very resilient (+4 CON).\n");
+                        fprintf(OutFile, " You are very tough (+4 CON).\n");
                 }
                 if (p_ptr->muta3 & MUT3_XTRA_FAT)
                 {
@@ -3365,7 +3365,7 @@ void process_mutations(void)
 	    !rand_int(5000) && !p_ptr->invuln)
 	{
 		if (disturb_minor) disturb(0, 0);
-		(void)set_invuln(p_ptr->invuln + randint(10) + 10);
+		(void)set_invuln(p_ptr->invuln + randint(5) + 5);
 	}
 
 	if ((p_ptr->muta2 & MUT2_SP_TO_HP) && !p_ptr->anti_magic &&

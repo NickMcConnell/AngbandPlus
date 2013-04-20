@@ -3129,11 +3129,8 @@ void do_cmd_knowledge_pets(void)
 static void do_cmd_knowledge_kill_count(void)
 {
 	int k;
-
 	FILE *fff;
-
 	char file_name[1024];
-
 	s32b Total = 0;
 
 

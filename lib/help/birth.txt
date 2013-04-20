@@ -23,11 +23,12 @@ artifacts that are generated on a level, but not identified by you, to be
 If you choose to have a "quick start" to your game, your character will
 begin with their armour (if any) enchanted to resist Electricity, Fire or
 Cold, and their weapon enchanted with a minor Slay or elemental Brand. This
-is in addition to starting the game with 1000 gold pieces in your purse,
-having a (Word of) recall depth of 250' (level 5), and enough experience
-points to begin the game as a level 5 character.  The only penalties for
-taking this option is that your final score will be cut in half and having a
-note in your character dumps mentioning your use of this option.
+is in addition to starting the game with at least 1000 gold pieces in your
+purse, having a (Word of) recall depth of 250' (level 5), and enough
+experience points to begin the game as a level 5 character.  The only
+penalties for taking this option is that your final score will be cut in
+half and having a note in your character dumps mentioning your use of this
+option.
 
 If you choose to start your life as an astral being, your character will be
 deposited at level 97 in the dungeon with a pile of Scrolls of Identify.  He
@@ -780,7 +781,7 @@ races also have intrinsic abilities.
  
  
  
-=== Combinations of Race and Class (updated for Gumband 2.1.8) ===
+=== Combinations of Race and Class (updated for Gumband 2.1.9) ===
 
 These are the classes that are recommended for different races. You can
 still select a race that is not in the chart, but these combinations are
@@ -860,7 +861,7 @@ Vadhagh       No      Yes     Yes     Yes     Yes
                Human can gain infra-vision only if it is magically enhanced.
  
                                                                    
-=== Stat Bonus Tables (updated for Gumband 2.1.8) ===
+=== Stat Bonus Tables (updated for Gumband 2.1.9) ===
 
 Stat, hit dice, and experience points per level modifications due to race
 are listed in the following table.
@@ -910,7 +911,7 @@ are listed in the following table.
 (a '*' next to a number indicates the spellcasting stat for that class)
  
 
-=== Ability Tables (updated for Gumband 2.1.8) ===
+=== Ability Tables (updated for Gumband 2.1.9) ===
 
                         Dsrm Dvce Save Stlh Srch Prcp HtH  Misl   Infra
            Human        +0   +0   +0   +0   +0   +10  +0   +0     None
@@ -946,7 +947,7 @@ Ranger          30+8    32+10   28+10   3       24/16   56+30   72+45  +30%
 Paladin         20+7    24+10   26+11   1       12/2    68+35   40+30  +35%
 Warrior-Mage    30+7    30+10   28+9    2       18/16   50+20   25+20  +35%
 Chaos Warrior   20+7    25+11   25+10   1       14/12   65+34   40+29  +35%
-Monk            45+15   32+11   28+10   4       32/24   64+40   60+30  +40%
+Monk            35+13   32+11   28+10   4       32/24   64+40   60+30  +40%
 Mindcrafter     30+10   30+10   30+10   3       22/16   50+20   40+30  +30%
 High Mage       30+7    36+13   30+9    2       15/20   34+15   20+15  +25%
 Weaponmaster    23+10   17+6    18+10   1       14/2    70+45   20+15  +30%

@@ -178,6 +178,7 @@ bool show_choices;		/* Show choices in certain sub-windows */
 bool show_details;		/* Show details in certain sub-windows */
 bool ring_bell;			/* Ring the bell (on errors, etc) */
 bool use_color;			/* Use color if possible (slow) */
+bool show_choices_main;		/* Show choices in main window */
 
 /* Option Set 2 -- Disturbance */
 bool find_ignore_stairs;	/* Run past stairs */

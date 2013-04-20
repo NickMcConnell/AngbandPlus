@@ -4,11 +4,11 @@
 #   [ - Arcane Binding      F2 - Fire Bolt           SF2 - Sonic Boom
 #   ] - Chaos Branding      F3 - Fist of Force       SF3 - Fire Ball
 #   ' - Teleport Self       F4 - Chaos Bolt          SF4 - Invoke Chaos
-#   " - Alter Reality       F5 - Mana Bolt           SF5 - Chain Lightning
-#   ; - Trap/Door Destruct. F6 - Beam of Gravity     SF6 - Disintegrate
-#   : - Word of Destruction F7 - Call the Void       SF7 - Meteor Swarm
-#   Z - Flash of Light      F8 - Polymorph Other     SF8 - Flame Strike
-#                           F9 - Mass Polymorph      SF9 - Call Chaos
+#   " - Alter Reality       F5 - Mana Bolt           SF5 - Disintegrate
+#   ; - Trap/Door Destruct. F6 - Confusion Bolt      SF6 - Meteor Swarm
+#   : - Word of Destruction F7 - Beam of Gravity     SF7 - Flame Strike
+#   Z - Flash of Light      F8 - Call the Void       SF8 - Call Chaos
+#                           F9 - Polymorph Other     SF9 - Mass Polymorph
 #                          F10 - Chaotic Sensing    SF10 - Magic Rocket
 #                          F11 - Polymorph Self     SF11 - Mana Storm
 #                          F12 - Summon Demon       SF12 - Breathe Chaos
@@ -67,20 +67,20 @@ P:^_x3E\r
 A:\e\e\e*tm2e
 P:^_x3F\r
 
-# F6 - Beam of Gravity
-A:\e\e\e*tm4a
+# F6 - Confusion Bolt
+A:\e\e\e*tm3a
 P:^_x40\r
 
-# F7 - Call the Void
-A:m4h
+# F7 - Beam of Gravity
+A:\e\e\e*tm4a
 P:^_x41\r
 
-# F8 - Polymorph Self
-A:m2b
+# F8 - Call the Void
+A:m4h
 P:^_x42\r
 
-# F9 - Mass Polymorph
-A:m3g
+# F9 - Polymorph Other
+A:m2b
 P:^_x43\r
 
 # F10 - Chaotic Sensing
@@ -113,24 +113,24 @@ P:^_Sx56\r
 A:m2h
 P:^_Sx57\r
 
-# SHIFT-F5 - Chain Lightning
-A:m3a
+# SHIFT-F5 - Disintegrate
+A:m3c
 P:^_Sx58\r
 
-# SHIFT-F6 - Disintegrate
-A:m3c
+# SHIFT-F6 - Meteor Swarm
+A:m4b
 P:^_Sx59\r
 
-# SHIFT-F7 - Meteor Swarm
-A:m4b
+# SHIFT-F7 - Flame Strike
+A:m4c
 P:^_Sx5A\r
 
-# SHIFT-F8 - Flame Strike
-A:m4c
+# SHIFT-F8 - Call Chaos
+A:m4d
 P:^_Sx5B\r
 
-# SHIFT-F9 - Call Chaos
-A:m4d
+# SHIFT-F9 - Mass Polymorph
+A:m3g
 P:^_Sx5C\r
 
 # SHIFT-F10 - Magic Rocket

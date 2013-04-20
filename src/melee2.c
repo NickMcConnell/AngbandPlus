@@ -2260,7 +2260,7 @@ static bool monst_spell_monst(int m_idx)
        {
            disturb(1, 0);
            if (blind || !see_m) msg_format("%^s mumbles.", m_name);
-           else msg_format("%^s magically summons Hellblades!", m_name);
+           else msg_format("%^s magically summons Stormbringer's brothers!", m_name);
            for (k = 0; k < 10; k++)
            {
                if (friendly)
@@ -4155,7 +4155,7 @@ bool make_attack_spell(int m_idx)
 		{
 			disturb(1, 0);
 			if (blind) msg_format("%^s mumbles.", m_name);
-			else msg_format("%^s magically summons Hellblades!", m_name);
+			else msg_format("%^s magically summons Stormbringer's brothers!", m_name);
 			for (k = 0; k < 10; k++)
 			{
 				count += summon_specific(y, x, rlev, SUMMON_HELLBLADES);

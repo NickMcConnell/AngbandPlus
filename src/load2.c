@@ -136,27 +136,12 @@ static bool wearable_p(object_type *o_ptr)
 	/* Valid "tval" codes */
 	switch (o_ptr->tval)
 	{
-		case TV_SHOT:
-		case TV_ARROW:
-		case TV_BOLT:
-		case TV_BOW:
-		case TV_DIGGING:
-		case TV_HAFTED:
-		case TV_POLEARM:
-		case TV_AXE:
-		case TV_SWORD:
-		case TV_BOOTS:
-		case TV_GLOVES:
-		case TV_HELM:
-		case TV_CROWN:
-		case TV_SHIELD:
-		case TV_CLOAK:
-		case TV_SOFT_ARMOR:
-		case TV_HARD_ARMOR:
-		case TV_DRAG_ARMOR:
-		case TV_LITE:
-		case TV_AMULET:
-		case TV_RING:
+		case TV_SHOT: case TV_ARROW: case TV_BOLT: case TV_BOW:
+		case TV_DIGGING: case TV_HAFTED: case TV_POLEARM:
+		case TV_AXE: case TV_SWORD: case TV_BOOTS: case TV_GLOVES:
+		case TV_HELM: case TV_CROWN: case TV_SHIELD: case TV_CLOAK:
+		case TV_SOFT_ARMOR: case TV_HARD_ARMOR: case TV_DRAG_ARMOR:
+		case TV_LITE: case TV_AMULET: case TV_RING:
 		{
 			return (TRUE);
 		}
@@ -475,13 +460,9 @@ static void rd_item(object_type *o_ptr)
 {
 	byte old_dd;
 	byte old_ds;
-
 	s32b old_cost;
-
 	u32b f1, f2, f3;
-
 	object_kind *k_ptr;
-
 	char buf[128];
 
 
@@ -508,20 +489,14 @@ static void rd_item(object_type *o_ptr)
 		rd_byte(&o_ptr->number);
 		rd_s16b(&o_ptr->weight);
 		rd_s16b(&o_ptr->timeout);
-
 		rd_s16b(&o_ptr->to_h);
 		rd_s16b(&o_ptr->to_d);
 		rd_s16b(&o_ptr->to_a);
-
 		rd_s16b(&o_ptr->ac);
-
 		rd_byte(&old_dd);
 		rd_byte(&old_ds);
-
 		strip_bytes(2);
-
 		rd_s32b(&old_cost);
-
 		strip_bytes(4);
 	}
 
@@ -531,24 +506,17 @@ static void rd_item(object_type *o_ptr)
 		rd_byte(&o_ptr->discount);
 		rd_byte(&o_ptr->number);
 		rd_s16b(&o_ptr->weight);
-
 		rd_byte(&o_ptr->name1);
 		rd_byte(&o_ptr->name2);
 		rd_s16b(&o_ptr->timeout);
-
 		rd_s16b(&o_ptr->to_h);
 		rd_s16b(&o_ptr->to_d);
 		rd_s16b(&o_ptr->to_a);
-
 		rd_s16b(&o_ptr->ac);
-
 		rd_byte(&old_dd);
 		rd_byte(&old_ds);
-
 		rd_byte(&o_ptr->ident);
-
 		rd_byte(&o_ptr->marked);
-
 		if (!z_older_than(2,1,6)) rd_byte(&o_ptr->branded);
 	}
 
@@ -592,7 +560,6 @@ static void rd_item(object_type *o_ptr)
 	/* Mega-Hack -- handle "dungeon objects" later */
 	if ((o_ptr->k_idx >= 445) && (o_ptr->k_idx <= 479)) return;
 
-
 	/* Obtain the "kind" template */
 	k_ptr = &k_info[o_ptr->k_idx];
 
@@ -600,10 +567,8 @@ static void rd_item(object_type *o_ptr)
 	o_ptr->tval = k_ptr->tval;
 	o_ptr->sval = k_ptr->sval;
 
-
 	/* Hack -- notice "broken" items */
 	if (k_ptr->cost <= 0) o_ptr->ident |= (IDENT_BROKEN);
-
 
 	/* Hack -- the "gold" values changed in 2.7.8 */
 	if (older_than(2, 7, 8) && (o_ptr->tval == TV_GOLD))
@@ -614,7 +579,6 @@ static void rd_item(object_type *o_ptr)
 		/* Done */
 		return;
 	}
-
 
 	/* Repair non "wearable" items */
 	if (!wearable_p(o_ptr))

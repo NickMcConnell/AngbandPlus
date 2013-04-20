@@ -10,7 +10,7 @@
 #   h - Sonic Boom          F8 - Vampiric Drain      SF8 - Darkness Storm
 #   H - Flame Strike        F9 - Dark Bolt           SF9 - Magic Rocket
 #   J - Chaotic Sensing    F10 - Drain Life         SF10 - Mana Storm
-#   n - Chain Lightning    F11 - Beam of Gravity    SF11 - Hellfire
+#   n - Confusion Bolt     F11 - Beam of Gravity    SF11 - Hellfire
 #   N - Meteor Swarm       F12 - Death Ray          SF12 - Breathe Chaos
 #   O - Esoteria
 #   P - Teleport Self
@@ -58,8 +58,8 @@ C:0:H
 A:m5d
 C:0:J
 
-# n - Chain Lightning
-A:m7a
+# n - Confusion Bolt
+A:\e\e\e*tm7a
 C:0:n
 
 # N - Meteor Swarm

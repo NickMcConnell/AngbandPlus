@@ -335,7 +335,7 @@ bool set_image(int v)
 	p_ptr->update |= (PU_MONSTERS);
 
 	/* Window stuff */
-	p_ptr->window |= (PW_OVERHEAD);
+	p_ptr->window |= (PW_OVERHEAD | PW_VISIBLE);
 
 	/* Handle stuff */
 	handle_stuff();
@@ -801,7 +801,7 @@ bool set_invuln(int v)
 		if (!p_ptr->invuln)
 		{
 
-            msg_print("Invulnerability!");
+            msg_print("You feel resilient!");
 			notice = TRUE;
 
             {
@@ -822,7 +822,7 @@ bool set_invuln(int v)
 	{
 		if (p_ptr->invuln)
 		{
-            msg_print("The invulnerability wears off.");
+            msg_print("You no longer feel resilient.");
 			notice = TRUE;
             {
                 /* Redraw map */
@@ -2068,42 +2068,32 @@ static void drop_quest_stairs(int y, int x)
 void monster_death(int m_idx)
 {
 	int j, y, x;
-
 	int dump_item = 0;
 	int dump_gold = 0;
-
 	int number = 0;
-
 	s16b this_o_idx, next_o_idx = 0;
-
 	monster_type *m_ptr = &m_list[m_idx];
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
-
 	bool visible = (m_ptr->ml || (r_ptr->flags1 & (RF1_UNIQUE)));
-
 	bool good = (r_ptr->flags1 & (RF1_DROP_GOOD)) ? TRUE : FALSE;
 	bool great = (r_ptr->flags1 & (RF1_DROP_GREAT)) ? TRUE : FALSE;
-
 	bool do_gold = (!(r_ptr->flags1 & (RF1_ONLY_ITEM)));
 	bool do_item = (!(r_ptr->flags1 & (RF1_ONLY_GOLD)));
-
 	bool cloned = FALSE;
-
 	bool pet_attack = (m_ptr->smart & (SM_FRIEND)) ? TRUE : FALSE;
-
 	int force_coin = get_coin_type(r_ptr);
-
 	object_type forge;
 	object_type *q_ptr;
-
 	int q_idx = 0;
-
 	bool reward = FALSE;
 
 
 	/* Get the location */
 	y = m_ptr->fy;
 	x = m_ptr->fx;
+
+	/* Update monster list window */
+	p_ptr->window |= (PW_VISIBLE);
 
 	if (m_ptr->smart &(SM_CLONED))
 		cloned = TRUE;
@@ -2309,7 +2299,7 @@ void monster_death(int m_idx)
 		else if (strstr((r_name + r_ptr->name),"Dorian Hawkmoon"))
 	  	{
 			q_ptr = &forge;
-			object_prep(q_ptr, lookup_kind(TV_SWORD, SV_LONG_SWORD));
+			object_prep(q_ptr, lookup_kind(TV_SWORD, SV_BROAD_SWORD));
 			q_ptr->name1 = ART_DAWN;
 			apply_magic(q_ptr, -1, TRUE, TRUE, TRUE);
 			drop_near(q_ptr, -1, y, x);
@@ -2595,13 +2585,11 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 {
 	monster_type	*m_ptr = &m_list[m_idx];
 	monster_race	*r_ptr = &r_info[m_ptr->r_idx];
-
 	s32b		div, new_exp, new_exp_frac;
 
 
 	/* Redraw (later) if needed */
 	if (health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
-
 
 	/* Wake it up */
 	m_ptr->csleep = 0;
@@ -3565,7 +3553,8 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 				object_desc(o_name, o_ptr, TRUE, 3);
 
 				/* Describe the object */
-				sprintf(out_val, "%s%s%s%s [%s]", s1, s2, s3, o_name, info);
+				sprintf(out_val, "%s%s%s%s%s [%s]", s1, s2, s3, o_name,
+					(show_weights) ? format(" (%d.%d lb)", o_ptr->weight/10, o_ptr->weight%10) : "", info);
 				prt(out_val, 0, 0);
 				move_cursor_relative(y, x);
 				query = inkey();

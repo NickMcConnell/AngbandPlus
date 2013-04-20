@@ -8,7 +8,7 @@
 #   ; - Detect Monsters     F6 - Mass Sleep           SF6 - Slow Monsters
 #   : - Detect Evil         F7 - Bless                SF7 - Prayer
 #   h - Haste Self          F8 - Protection from Evil SF8 - Divine Inter.
-#   H - Holy Invulnerabil.  F9 - Cure Light Wounds    SF9 - Cure Med. Wounds
+#   H - Holy Resistance     F9 - Cure Light Wounds    SF9 - Cure Med. Wounds
 #   J - Dimension Door     F10 - Cure Crit. Wounds   SF10 - Restoration
 #   n - Rune of Protection F11 - Healing             SF11 - Greater Healing
 #   N - Sea of Runes       F12 - Identify            SF12 - Insight
@@ -50,7 +50,7 @@ C:0::
 A:m6h
 C:0:h
 
-# H - Holy Invulnerability
+# H - Holy Resistance
 A:m4h
 C:0:H
 

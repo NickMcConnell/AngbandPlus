@@ -1,4 +1,4 @@
-164
+161
 ******** BUFFER LINE *********************************** DO NOT REMOVE *******
 They say that you can't trust rumors.
 Throw a Potion of Blindness at a monster and it cannot cast any spells!
@@ -19,9 +19,6 @@ They say that Jagreen Lern killed Elric's wife...
 A Mithril mail will not rust.
 An Adamantite mail will not rust.
 A Rusty Chain Mail cannot rust any further.
-If you are a mage, you will NOT want to find Raal's Tome of Destruction!
-You won't want to find Raal's Tome of Destruction!
-You won't want to find Raal's Tome of Destruction, unless you are a mage.
 A Wand of Death is useless against monsters that are tougher than you.
 A Wand of Death is of little use against foes that are dead already.
 Try taking off your armor before fighting a Gelatinous Cube!

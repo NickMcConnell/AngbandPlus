@@ -481,7 +481,7 @@ static void prt_state(void)
 	}
 
 	/* Invulnerable! */
-	else if (p_ptr->invuln) strcpy(text, "Invulner. ");
+	else if (p_ptr->invuln) strcpy(text, "Resilient ");
 
 	/* Wraith Form! */
 	else if (p_ptr->wraith_form)
@@ -1178,6 +1178,39 @@ static void fix_object(void)
 
 		/* Display monster race info */
 		if (object_kind_idx) display_koff(object_kind_idx);
+
+		/* Fresh */
+		Term_fresh();
+
+		/* Restore */
+		Term_activate(old);
+	}
+}
+
+
+/*
+ * Hack -- display visible monster list in sub-windows
+ */
+static void fix_visible(void)
+{
+	int j;
+
+	/* Scan windows */
+	for (j = 0; j < 8; j++)
+	{
+		term *old = Term;
+
+		/* No window */
+		if (!angband_term[j]) continue;
+
+		/* No relevant flags */
+		if (!(window_flag[j] & (PW_VISIBLE))) continue;
+
+		/* Activate */
+		Term_activate(angband_term[j]);
+
+		/* Display monster list */
+		display_visible();
 
 		/* Fresh */
 		Term_fresh();
@@ -2197,8 +2230,8 @@ static void calc_bonuses(void)
 				p_ptr->dis_to_d += 5;
 				break;
 			case PATRON_HIONHURN:
-				p_ptr->to_d += 7;
-				p_ptr->dis_to_d += 7;
+				p_ptr->to_h += 10;
+				p_ptr->dis_to_h += 10;
 				break;
 			case PATRON_XIOMBARG:
 				p_ptr->to_h += 5;
@@ -2391,7 +2424,7 @@ static void calc_bonuses(void)
 	/*
 	 * Warriors *know* how to use and wear their armour - others just
 	 * throw it on any old way and know nothing about how to make sure
-	 * that blows are recieved so as to take best advantage of the
+	 * that blows are received so as to take best advantage of the
 	 * armour's protective value. -- Gumby
 	 */
 	if (p_ptr->pclass == CLASS_WARRIOR)
@@ -2539,8 +2572,8 @@ static void calc_bonuses(void)
 	/* wraith_form */
 	if (p_ptr->wraith_form)
 	{
-		p_ptr->to_a += 75;
-		p_ptr->dis_to_a += 75;
+		p_ptr->to_a += 50;
+		p_ptr->dis_to_a += 50;
 	}
 
 	/* Temporary blessing */
@@ -3493,6 +3526,13 @@ void window_stuff(void)
 		p_ptr->window &= ~(PW_PLAYER);
 		fix_player();
 	}
+
+	/* Display monster list */
+	if (p_ptr->window & (PW_VISIBLE))
+	{
+		p_ptr->window &= ~(PW_VISIBLE);
+		fix_visible();
+  	}
 
 	/* Display overhead view */
 	if (p_ptr->window & (PW_MESSAGE))

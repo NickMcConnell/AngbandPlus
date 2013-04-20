@@ -11,7 +11,7 @@
 #   H - Insight             F9 - Stasis              SF9 - Mass Trump
 #   J - Dimension Door     F10 - Slow Monsters      SF10 - Trump Demon
 #   n - Teleport Level     F11 - Haste Self         SF11 - Trump Anc. Dragon
-#   N - Word of Recall     F12 - Globe of Invulner. SF12 - Trump Gr. Undead
+#   N - Word of Recall     F12 - Globe of Resilien. SF12 - Trump Gr. Undead
 #   O - Charm Monster
 #   P - Recharging
 #   y - Phase Door
@@ -132,7 +132,7 @@ P:^_x44\r
 A:m2h
 P:^_x85\r
 
-# F12 - Globe of Invulnerability
+# F12 - Globe of Resilience
 A:m4h
 P:^_x86\r
 

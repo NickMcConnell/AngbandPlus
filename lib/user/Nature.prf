@@ -19,7 +19,7 @@
 #   Z - Daylight
 
 # TAB - Whirlwind Attack
-A:m4b
+A:m4c
 P:\t
 
 # [ - Protection from Corrosion
@@ -101,19 +101,19 @@ A:m4a
 P:^_x3D\r
 
 # F4 - Blizzard
-A:m4c
+A:m4d
 P:^_x3E\r
 
 # F5 - Lightning Storm
-A:m4d
+A:m4e
 P:^_x3F\r
 
 # F6 - Whirlpool
-A:m4e
+A:m4f
 P:^_x40\r
 
 # F7 - Call Sunlight
-A:m4f
+A:m4g
 P:^_x41\r
 
 # F8 - Nature's Wrath
@@ -149,5 +149,5 @@ A:m2g
 P:^_Sx55\r
 
 # SHIFT-F3 - Earthquake
-A:m4a
+A:m4b
 P:^_Sx56\r

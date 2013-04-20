@@ -1,4 +1,4 @@
-/* File: monster.c */
+/* File: monster2.c */
 
 /* Purpose: misc code for monsters */
 
@@ -378,7 +378,6 @@ s16b m_pop(void)
 {
 	int i;
 
-
 	/* Normal allocation */
 	if (m_max < MAX_M_IDX)
 	{
@@ -394,7 +393,6 @@ s16b m_pop(void)
 		/* Return the index */
 		return (i);
 	}
-
 
 	/* Recycle dead monsters */
 	for (i = 1; i < m_max; i++)
@@ -414,14 +412,12 @@ s16b m_pop(void)
 		return (i);
 	}
 
-
 	/* Warn the player (except during dungeon creation) */
 	if (character_dungeon) msg_print("Too many monsters!");
 
 	/* Try not to crash */
 	return (0);
 }
-
 
 
 
@@ -483,15 +479,11 @@ errr get_mon_num_prep(void)
  */
 s16b get_mon_num(int level)
 {
-	int			i, j, p;
-
-	int			r_idx;
-
+	int		i, j, p;
+	int		r_idx;
 	long		value, total;
-
 	monster_race	*r_ptr;
-
-	alloc_entry		*table = alloc_race_table;
+	alloc_entry	*table = alloc_race_table;
 
 
 	/* Boost the level */
@@ -517,7 +509,6 @@ s16b get_mon_num(int level)
 			level += ((d < 5) ? d : 5);
 		}
 	}
-
 
 	/* Reset total */
 	total = 0L;
@@ -563,7 +554,6 @@ s16b get_mon_num(int level)
 	/* No legal monsters */
 	if (total <= 0) return (0);
 
-
 	/* Pick a monster */
 	value = rand_int(total);
 
@@ -576,7 +566,6 @@ s16b get_mon_num(int level)
 		/* Decrement */
 		value = value - table[i].prob3;
 	}
-
 
 	/* Power boost */
 	p = rand_int(100);
@@ -627,12 +616,9 @@ s16b get_mon_num(int level)
 		if (table[i].level < table[j].level) i = j;
 	}
 
-
 	/* Result */
 	return (table[i].index);
 }
-
-
 
 
 
@@ -1275,10 +1261,13 @@ void update_mon(int m_idx, bool full)
 			/* Update health bar as needed */
 			if (health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
 
+			/* Update monster list window */
+			p_ptr->window |= (PW_VISIBLE);
+
 			/* Hack -- Count "fresh" sightings */
 			if (r_ptr->r_sights < MAX_SHORT) r_ptr->r_sights++;
 
-			/* Disturb on appearance */
+	    /* Disturb on appearance */
             if (disturb_move)
             {   if (disturb_pets || !(m_ptr->smart & (SM_FRIEND)))
                     disturb(1, 0);
@@ -1314,6 +1303,9 @@ void update_mon(int m_idx, bool full)
 
 			/* Update health bar as needed */
 			if (health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
+
+			/* Update monster list window */
+			p_ptr->window |= (PW_VISIBLE);
 
 			/* Disturb on disappearance*/
             if (disturb_move)
@@ -1420,13 +1412,9 @@ void update_monsters(bool full)
 bool place_monster_one(int y, int x, int r_idx, bool slp, bool charm)
 {
 	int			i;
-
 	cave_type		*c_ptr;
-
 	monster_type	*m_ptr;
-
 	monster_race	*r_ptr = &r_info[r_idx];
-
 	cptr		name = (r_name + r_ptr->name);
 
 
@@ -1451,7 +1439,6 @@ bool place_monster_one(int y, int x, int r_idx, bool slp, bool charm)
 	/* Paranoia */
 	if (!r_ptr->name) return (FALSE);
 
-
 	/* Hack -- "unique" monsters must be "unique" */
 	if ((r_ptr->flags1 & (RF1_UNIQUE)) && (r_ptr->cur_num >= r_ptr->max_num))
 	{
@@ -1459,14 +1446,12 @@ bool place_monster_one(int y, int x, int r_idx, bool slp, bool charm)
 		return (FALSE);
 	}
 
-
 	/* Depth monsters may NOT be created out of depth */
 	if ((r_ptr->flags1 & (RF1_FORCE_DEPTH)) && (dun_level < r_ptr->level))
 	{
 		/* Cannot create */
 		return (FALSE);
 	}
-
 
 	/*
 	 * Check quest monsters
@@ -1514,7 +1499,6 @@ bool place_monster_one(int y, int x, int r_idx, bool slp, bool charm)
 		if (cheat_hear) msg_format("Unique (%s).", name);
 	}
 
-
 	/* Access the location */
 	c_ptr = &cave[y][x];
 
@@ -1525,7 +1509,6 @@ bool place_monster_one(int y, int x, int r_idx, bool slp, bool charm)
 	/* Mega-Hack -- catch "failure" */
 	if (!c_ptr->m_idx) return (FALSE);
 
-
 	/* Get a new monster record */
 	m_ptr = &m_list[c_ptr->m_idx];
 
@@ -1535,7 +1518,6 @@ bool place_monster_one(int y, int x, int r_idx, bool slp, bool charm)
 	/* Place the monster at the location */
 	m_ptr->fy = y;
 	m_ptr->fx = x;
-
 
 	/* No "damage" yet */
 	m_ptr->stunned = 0;
@@ -1558,7 +1540,6 @@ bool place_monster_one(int y, int x, int r_idx, bool slp, bool charm)
 		m_ptr->csleep = ((val * 2) + randint(val * 10));
 	}
 
-
 	/* Unknown distance */
 	m_ptr->cdis = 0;
 
@@ -1567,7 +1548,6 @@ bool place_monster_one(int y, int x, int r_idx, bool slp, bool charm)
 
 	/* Not visible */
 	m_ptr->ml = FALSE;
-
 
 	/* Assign maximal hitpoints */
 	if (r_ptr->flags1 & (RF1_FORCE_MAXHP))
@@ -1582,7 +1562,6 @@ bool place_monster_one(int y, int x, int r_idx, bool slp, bool charm)
 	/* And start out fully healthy */
 	m_ptr->hp = m_ptr->maxhp;
 
-
 	/* Extract the monster base speed */
 	m_ptr->mspeed = r_ptr->speed;
 
@@ -1593,7 +1572,6 @@ bool place_monster_one(int y, int x, int r_idx, bool slp, bool charm)
 		i = extract_energy[r_ptr->speed] / 10;
 		if (i) m_ptr->mspeed += rand_spread(0, i);
 	}
-
 
 	/* Give a random starting energy */
 	m_ptr->energy = rand_int(100);
@@ -1615,22 +1593,17 @@ bool place_monster_one(int y, int x, int r_idx, bool slp, bool charm)
 		m_ptr->mflag |= (MFLAG_BORN);
 	}
 
-
 	/* Update the monster */
 	update_mon(c_ptr->m_idx, TRUE);
-
 
 	/* Hack -- Count the monsters on the level */
 	r_ptr->cur_num++;
 
-
 	/* Hack -- Count the number of "reproducers" */
 	if (r_ptr->flags2 & (RF2_MULTIPLY)) num_repro++;
 
-
 	/* Hack -- Notice new multi-hued monsters */
 	if (r_ptr->flags1 & (RF1_ATTR_MULTI)) shimmer_monsters = TRUE;
-
 
 	/* Success */
 	return (TRUE);
@@ -1744,7 +1717,6 @@ static int place_monster_idx = 0;
 static bool place_monster_okay(int r_idx)
 {
 	monster_race *r_ptr = &r_info[place_monster_idx];
-
 	monster_race *z_ptr = &r_info[r_idx];
 
 	/* Require similar "race" */
@@ -1785,17 +1757,14 @@ static bool place_monster_okay(int r_idx)
 bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp, bool charm)
 {
 	int			i;
-
 	monster_race	*r_ptr = &r_info[r_idx];
 
 
 	/* Place one monster, or fail */
 	if (!place_monster_one(y, x, r_idx, slp, charm)) return (FALSE);
 
-
 	/* Require the "group" flag */
 	if (!grp) return (TRUE);
-
 
 	/* Friends for certain monsters */
 	if (r_ptr->flags1 & (RF1_FRIENDS))
@@ -1803,7 +1772,6 @@ bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp, bool charm)
 		/* Attempt to place a group */
 	        (void)place_monster_group(y, x, r_idx, slp, charm);
 	}
-
 
 	/* Escorts for certain monsters */
 	if (r_ptr->flags1 & (RF1_ESCORT))
@@ -1819,10 +1787,8 @@ bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp, bool charm)
 			/* Require empty grids */
 			if (!cave_empty_bold(ny, nx)) continue;
 
-
 			/* Set the escort index */
 			place_monster_idx = r_idx;
-
 
 			/* Set the escort hook */
 			get_mon_num_hook = place_monster_okay;
@@ -1830,17 +1796,14 @@ bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp, bool charm)
 			/* Prepare allocation table */
 			get_mon_num_prep();
 
-
 			/* Pick a random race */
 			z = get_mon_num(r_ptr->level);
-
 
 			/* Remove restriction */
 			get_mon_num_hook = NULL;
 
 			/* Prepare allocation table */
 			get_mon_num_prep();
-
 
 			/* Handle failure */
 			if (!z) break;
@@ -1857,7 +1820,6 @@ bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp, bool charm)
 			}
 		}
 	}
-
 
 	/* Success */
 	return (TRUE);
@@ -1885,60 +1847,6 @@ bool place_monster(int y, int x, bool slp, bool grp)
 	/* Oops */
 	return (FALSE);
 }
-
-
-
-
-/*
- * XXX XXX XXX Player Ghosts are such a hack, they have been completely
- * removed until Angband 2.8.0, in which there will actually be a small
- * number of "unique" monsters which will serve as the "player ghosts".
- * Each will have a place holder for the "name" of a deceased player,
- * which will be extracted from a "bone" file, or replaced with a
- * "default" name if a real name is not available.  Each ghost will
- * appear exactly once and will not induce a special feeling.
- *
- * Possible methods:
- *   (s) 1 Skeleton
- *   (z) 1 Zombie
- *   (M) 1 Mummy
- *   (G) 1 Polterguiest, 1 Spirit, 1 Ghost, 1 Shadow, 1 Phantom
- *   (W) 1 Wraith
- *   (V) 1 Vampire, 1 Vampire Lord
- *   (L) 1 Lich
- *
- * Possible change: Lose 1 ghost, Add "Master Lich"
- *
- * Possible change: Lose 2 ghosts, Add "Wraith", Add "Master Lich"
- *
- * Possible change: Lose 4 ghosts, lose 1 vampire lord
- *
- * Note that ghosts should never sleep, should be very attentive, should
- * have maximal hitpoints, drop only good (or great) items, should be
- * cold blooded, evil, undead, immune to poison, sleep, confusion, fear.
- *
- * Base monsters:
- *   Skeleton
- *   Zombie
- *   Mummy
- *   Poltergeist
- *   Spirit
- *   Ghost
- *   Vampire
- *   Wraith
- *   Vampire Lord
- *   Shadow
- *   Phantom
- *   Lich
- *
- * This routine will simply extract ghost names from files, and
- * attempt to allocate a player ghost somewhere in the dungeon,
- * note that normal allocation may also attempt to place ghosts,
- * so we must work with some form of default names.
- *
- * XXX XXX XXX
- */
-
 
 
 #ifdef MONSTER_HORDES
@@ -2294,7 +2202,7 @@ static bool summon_specific_okay(int r_idx)
 
 		case SUMMON_HELLBLADES:
 		{
-			okay = ((strstr((r_name + r_ptr->name),"ellblade")) &&
+			okay = ((strstr((r_name + r_ptr->name),"Blade of Chaos")) &&
 				!(r_ptr->flags1 & (RF1_UNIQUE)));
 			break;
 		}

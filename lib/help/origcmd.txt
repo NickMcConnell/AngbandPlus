@@ -1,4 +1,4 @@
-=== Original Keyset Command Summary (Gumband 2.1.7) ===
+=== Original Keyset Command Summary (Gumband 2.1.9) ===
 
  Original Keyset Directions
          7  8  9

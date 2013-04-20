@@ -4,12 +4,12 @@
 #   [ - Magic Mapping       F2 - Fire Bolt           SF2 - Sonic Boom
 #   ] - Clairvoyance        F3 - Fist of Force       SF3 - Fire Ball
 #   ' - Identify            F4 - Chaos Bolt          SF4 - Invoke Chaos
-#   " - Insight             F5 - Mana Bolt           SF5 - Chain Lightning
-#   ; - Trap/Door Destruct. F6 - Beam of Gravity     SF6 - Disintegrate
-#   : - Recharging          F7 - Confuse Monster     SF7 - Meteor Swarm
-#   h - Haste Self          F8 - Sleep Monster       SF8 - Flame Strike
-#   H - Globe of Invulner.  F9 - Slow Monster        SF9 - Call Chaos
-#   J - Dimension Door     F10 - Mass Sleep         SF10 - Magic Rocket
+#   " - Insight             F5 - Mana Bolt           SF5 - Disintegrate
+#   ; - Trap/Door Destruct. F6 - Confusion Bolt      SF6 - Meteor Swarm
+#   : - Recharging          F7 - Beam of Gravity     SF7 - Flame Strike
+#   h - Haste Self          F8 - Confuse Monster     SF8 - Call Chaos
+#   H - Globe of Resilience F9 - Sleep Monster       SF9 - Mass Sleep
+#   J - Dimension Door     F10 - Slow Monster       SF10 - Magic Rocket
 #   n - Detect Monsters    F11 - Stasis             SF11 - Mana Storm
 #   N - Detect Doors/Traps F12 - Slow Monsters      SF12 - Breathe Chaos
 #   O - Detect Objects/Treasure
@@ -50,7 +50,7 @@ C:0::
 A:m2h
 C:0:h
 
-# H - Globe of Invulnerability
+# H - Globe of Resilience
 A:m4h
 C:0:H
 
@@ -108,26 +108,24 @@ P:^_x3E\r
 A:\e\e\e*tm6e
 P:^_x3F\r
 
-# F6 - Beam of Gravity
-A:\e\e\e*tm8a
+# F6 - Confusion Bolt
+A:\e\e\e*tm7a
 P:^_x40\r
 
-# Sorcerous Combat
-
-# F7 - Confuse Monster
-A:m1f
+# F7 - Beam of Gravity
+A:\e\e\e*tm8a
 P:^_x41\r
 
-# F8 - Sleep Monster
-A:m1h
+# F8 - Confuse Monster
+A:m1f
 P:^_x42\r
 
-# F9 - Slow Monster
-A:m2e
+# F9 - Sleep Monster
+A:m1h
 P:^_x43\r
 
-# F10 - Mass Sleep
-A:m2f
+# F10 - Slow Monster
+A:m2e
 P:^_x44\r
 
 # F11 - Stasis
@@ -156,24 +154,24 @@ P:^_Sx56\r
 A:m6h
 P:^_Sx57\r
 
-# SHIFT-F5 - Chain Lightning
-A:m7a
+# SHIFT-F5 - Disintegrate
+A:m7c
 P:^_Sx58\r
 
-# SHIFT-F6 - Disintegrate
-A:m7c
+# SHIFT-F6 - Meteor Swarm
+A:m8b
 P:^_Sx59\r
 
-# SHIFT-F7 - Meteor Swarm
-A:m8b
+# SHIFT-F7 - Flame Strike
+A:m8c
 P:^_Sx5A\r
 
-# SHIFT-F8 - Flame Strike
-A:m8c
+# SHIFT-F8 - Call Chaos
+A:m8d
 P:^_Sx5B\r
 
-# SHIFT-F9 - Call Chaos
-A:m8d
+# SHIFT-F9 - Mass Sleep
+A:m2f
 P:^_Sx5C\r
 
 # SHIFT-F10 - Magic Rocket

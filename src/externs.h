@@ -175,6 +175,7 @@ extern bool show_choices;
 extern bool show_details;
 extern bool ring_bell;
 extern bool use_color;
+extern bool show_choices_main;
 
 /* Options (2) */
 extern bool find_ignore_stairs;
@@ -590,6 +591,7 @@ extern void curse_equipment(int chance, int heavy_chance);
 /* monster1.c */
 extern void screen_roff(int r_idx);
 extern void display_roff(int r_idx);
+extern void display_visible(void);
 
 /* monster2.c */
 extern void sanity_blast(monster_type * m_ptr, bool necro);
@@ -810,10 +812,6 @@ extern s32b flag_cost(object_type * o_ptr, int plusses);
 extern bool item_tester_hook_weapon(object_type *o_ptr);
 extern bool item_tester_hook_armour(object_type *o_ptr);
 extern bool item_tester_hook_weapon_armour(object_type *o_ptr);
-extern bool item_tester_hook_ring(object_type *o_ptr);
-extern bool item_tester_hook_amulet(object_type *o_ptr);
-extern bool item_tester_hook_ring_amulet(object_type *o_ptr);
-extern bool item_tester_hook_we_ar_ri_am(object_type *o_ptr);
 extern bool item_tester_hook_unknown(object_type *o_ptr);
 extern bool item_tester_hook_unknown_star(object_type *o_ptr);
 extern bool rustproof(void);
@@ -848,6 +846,7 @@ extern void wild_magic(int spell);
 /* artifact.c */
 extern void random_resistance (object_type * o_ptr, bool is_scroll, int specific);
 extern bool create_artifact(object_type *o_ptr, bool a_scroll);
+extern bool artifact_scroll();
 extern void do_cmd_activate(void);
 extern cptr item_activation(object_type *o_ptr);
 extern void random_artifact_resistance (object_type * o_ptr);

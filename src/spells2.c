@@ -676,7 +676,7 @@ void self_knowledge(void)
 		}
 		if (p_ptr->muta2 & MUT2_INVULN)
 		{
-			info[i++] = "You occasionally feel invincible.";
+			info[i++] = "You occasionally feel resilient.";
 		}
 		if (p_ptr->muta2 & MUT2_SP_TO_HP)
 		{
@@ -716,7 +716,7 @@ void self_knowledge(void)
 		}
 		if (p_ptr->muta3 & MUT3_RESILIENT)
 		{
-			info[i++] = "You are very resilient (+4 CON).";
+			info[i++] = "You are very tough (+4 CON).";
 		}
 		if (p_ptr->muta3 & MUT3_XTRA_FAT)
 		{
@@ -890,7 +890,7 @@ void self_knowledge(void)
 	}
 	if (p_ptr->invuln)
 	{
-		info[i++] = "You are temporarily invulnerable.";
+		info[i++] = "You are temporarily resilient.";
 	}
 	if (p_ptr->wraith_form)
 	{
@@ -1083,54 +1083,70 @@ void self_knowledge(void)
 		info[i++] = "Your eyes are resistant to blindness.";
 	}
 
-	if (p_ptr->sustain_str)
+	if (p_ptr->sustain_str && p_ptr->sustain_int && p_ptr->sustain_wis &&
+	    p_ptr->sustain_dex && p_ptr->sustain_con && p_ptr->sustain_chr)
 	{
-		info[i++] = "Your strength is sustained.";
+		info[i++] = "All of your attributes are sustained.";
 	}
-	if (p_ptr->sustain_int)
+	else
 	{
-		info[i++] = "Your intelligence is sustained.";
-	}
-	if (p_ptr->sustain_wis)
-	{
-		info[i++] = "Your wisdom is sustained.";
-	}
-	if (p_ptr->sustain_con)
-	{
-		info[i++] = "Your constitution is sustained.";
-	}
-	if (p_ptr->sustain_dex)
-	{
-		info[i++] = "Your dexterity is sustained.";
-	}
-	if (p_ptr->sustain_chr)
-	{
-		info[i++] = "Your charisma is sustained.";
+		if (p_ptr->sustain_str)
+		{
+			info[i++] = "Your strength is sustained.";
+		}
+		if (p_ptr->sustain_int)
+		{
+			info[i++] = "Your intelligence is sustained.";
+		}
+		if (p_ptr->sustain_wis)
+		{
+			info[i++] = "Your wisdom is sustained.";
+		}
+		if (p_ptr->sustain_con)
+		{
+			info[i++] = "Your constitution is sustained.";
+		}
+		if (p_ptr->sustain_dex)
+		{
+			info[i++] = "Your dexterity is sustained.";
+		}
+		if (p_ptr->sustain_chr)
+		{
+			info[i++] = "Your charisma is sustained.";
+		}
 	}
 
-	if (f1 & (TR1_STR))
+	if ((f1 & (TR1_STR)) && (f1 & (TR1_INT)) && (f1 & (TR1_WIS)) &&
+	    (f1 & (TR1_DEX)) && (f1 & (TR1_CON)) && (f1 & (TR1_STR)))
 	{
-		info[i++] = "Your strength is affected by your equipment.";
+		info[i++] = "All of your stats are affected by equipment.";
 	}
-	if (f1 & (TR1_INT))
+	else
 	{
-		info[i++] = "Your intelligence is affected by your equipment.";
-	}
-	if (f1 & (TR1_WIS))
-	{
-		info[i++] = "Your wisdom is affected by your equipment.";
-	}
-	if (f1 & (TR1_DEX))
-	{
-		info[i++] = "Your dexterity is affected by your equipment.";
-	}
-	if (f1 & (TR1_CON))
-	{
-		info[i++] = "Your constitution is affected by your equipment.";
-	}
-	if (f1 & (TR1_CHR))
-	{
-		info[i++] = "Your charisma is affected by your equipment.";
+		if (f1 & (TR1_STR))
+		{
+			info[i++] = "Your strength is affected by your equipment.";
+		}
+		if (f1 & (TR1_INT))
+		{
+			info[i++] = "Your intelligence is affected by your equipment.";
+		}
+		if (f1 & (TR1_WIS))
+		{
+			info[i++] = "Your wisdom is affected by your equipment.";
+		}
+		if (f1 & (TR1_DEX))
+		{
+			info[i++] = "Your dexterity is affected by your equipment.";
+		}
+		if (f1 & (TR1_CON))
+		{
+			info[i++] = "Your constitution is affected by your equipment.";
+		}
+		if (f1 & (TR1_CHR))
+		{
+			info[i++] = "Your charisma is affected by your equipment.";
+		}
 	}
 
 	if (f1 & (TR1_STEALTH))
@@ -1496,6 +1512,13 @@ bool detect_random(void)
 				flag = TRUE;
 			}
 		}
+	}
+
+	/* Possible chance of getting the panel mapped -- arch */
+	if(randint(100) <= chance / 2)
+	{
+		map_area();
+		flag = TRUE;
 	}
 
 	/* Describe */
@@ -1993,14 +2016,15 @@ bool detect_monsters_mental(void)
 		monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
 		/*
-		 * Skip dead, stupid and mindless monsters
-		 * Only sometimes skip those with erratic minds
+		 * Skip dead and mindless monsters. Only sometimes skip
+		 * those with erratic minds or those who are stupid.
 		 */
-		if (!m_ptr->r_idx) continue;
-		if (r_ptr->flags2 & (RF2_STUPID)) continue;
-		if (r_ptr->flags2 & (RF2_EMPTY_MIND)) continue;
+		if (!m_ptr->r_idx)			continue;
+		if (r_ptr->flags2 & (RF2_EMPTY_MIND))	continue;
+		if ((r_ptr->flags2 & (RF2_STUPID)) &&
+		    (randint(100) > (p_ptr->lev * 2)))	continue;
 		if ((r_ptr->flags2 & (RF2_WEIRD_MIND)) &&
-		    (randint(100) > (p_ptr->lev * 2))) continue;
+		    (randint(100) > (p_ptr->lev * 2)))	continue;
 
 		/* Location */
 		y = m_ptr->fy;
@@ -2659,9 +2683,7 @@ void aggravate_monsters(int who, bool the_entire_level)
 void destroy_area(int y1, int x1, int r, bool full)
 {
 	int y, x, k, t;
-
 	cave_type *c_ptr;
-
 	bool flag = FALSE;
 
 	/* XXX XXX */
@@ -3924,9 +3946,9 @@ void call_chaos(void)
 			if (dummy-5)
 			{
 				if (line_chaos)
-					fire_beam(Chaos_type, dummy, 75);
+					fire_beam(Chaos_type, dummy, 150);
 				else
-					fire_ball(Chaos_type, dummy, 75, 2);
+					fire_ball(Chaos_type, dummy, 150, 2);
 			}
 		}
 	}
@@ -4410,7 +4432,7 @@ bool turn_monsters(int dam)
  */
 bool deathray_monsters(void)
 {
-	return (project_hack(GF_DEATH_RAY, (p_ptr->lev * 3 ) / 2));
+	return (project_hack(GF_DEATH_RAY, p_ptr->lev * 3));
 }
 
 bool charm_monster(int dir, int plev)

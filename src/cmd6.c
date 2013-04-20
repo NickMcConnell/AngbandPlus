@@ -992,7 +992,7 @@ void do_cmd_quaff_potion(void)
 
 		case SV_POTION_INVULNERABILITY:
 		{
-			(void)set_invuln(p_ptr->invuln + randint(10) + 10);
+			(void)set_invuln(p_ptr->invuln + randint(5) + 5);
 			ident = TRUE;
 			break;
 		}
@@ -1069,7 +1069,6 @@ bool curse_armor(void)
 	/* Attempt a saving throw for artifacts */
 	if (((o_ptr->art_name) || artifact_p(o_ptr)) && (rand_int(100) < 80))
 	{
-		/* Cool */
 		msg_format("A %s tries to %s, but your %s resists the effects!",
 		           "terrible black aura", "surround your armor", o_name);
 	}
@@ -1090,10 +1089,10 @@ bool curse_armor(void)
 		o_ptr->art_flags1 = 0;
 		o_ptr->art_flags2 = 0;
 		o_ptr->art_flags3 = 0;
-
-		/* Curse it */
+#if 0
+		/* Curse it - not! -- Gumby */
 		o_ptr->ident |= (IDENT_CURSED);
-
+#endif
 		/* Break it */
 		o_ptr->ident |= (IDENT_BROKEN);
 
@@ -1137,7 +1136,7 @@ bool curse_weapon(void)
 	else /* not artifact or failed save... */
 	{
 		/* Oops */
-		msg_format("A terrible black aura blasts your %s!", o_name);
+		msg_format("A terrible black aura shatters your %s!", o_name);
 
 		/* Shatter the weapon */
 		o_ptr->name1 = 0;
@@ -1151,10 +1150,10 @@ bool curse_weapon(void)
 		o_ptr->art_flags1 = 0;
 		o_ptr->art_flags2 = 0;
 		o_ptr->art_flags3 = 0;
-
-		/* Curse it */
+#if 0
+		/* Curse it - not! -- Gumby */
 		o_ptr->ident |= (IDENT_CURSED);
-
+#endif
 		/* Break it */
 		o_ptr->ident |= (IDENT_BROKEN);
 
@@ -1682,6 +1681,13 @@ void do_cmd_read_scroll(void)
 			msg_print(NULL);
 			msg_print("The scroll disappears in a puff of smoke!");
 			ident = TRUE;
+			break;
+		}
+
+		case SV_SCROLL_ARTIFACT:
+		{
+			ident = TRUE;
+			if (!artifact_scroll()) used_up = FALSE;
 			break;
 		}
 
@@ -2425,14 +2431,14 @@ void do_cmd_aim_wand(void)
 
 		case SV_WAND_DRAGON_FIRE:
 		{
-			fire_ball(GF_FIRE, dir, 150, 3);
+			fire_ball(GF_FIRE, dir, 200, 3);
 			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_DRAGON_COLD:
 		{
-			fire_ball(GF_COLD, dir, 150, 3);
+			fire_ball(GF_COLD, dir, 200, 3);
 			ident = TRUE;
 			break;
 		}
@@ -2443,27 +2449,27 @@ void do_cmd_aim_wand(void)
 			{
 				case 1:
 				{
-					fire_ball(GF_ACID, dir, 150, 3);
+					fire_ball(GF_ACID, dir, 250, 3);
 					break;
 				}
 				case 2:
 				{
-					fire_ball(GF_ELEC, dir, 150, 3);
+					fire_ball(GF_ELEC, dir, 250, 3);
 					break;
 				}
 				case 3:
 				{
-					fire_ball(GF_FIRE, dir, 150, 3);
+					fire_ball(GF_FIRE, dir, 250, 3);
 					break;
 				}
 				case 4:
 				{
-					fire_ball(GF_COLD, dir, 150, 3);
+					fire_ball(GF_COLD, dir, 250, 3);
 					break;
 				}
 				default:
 				{
-					fire_ball(GF_POIS, dir, 150, 3);
+					fire_ball(GF_POIS, dir, 250, 3);
 					break;
 				}
 			}
@@ -2473,14 +2479,15 @@ void do_cmd_aim_wand(void)
 
 		case SV_WAND_ANNIHILATION:
 		{
-			if (drain_life(dir, 200)) ident = TRUE;
+			death_ray(dir, 60);
+			ident = TRUE;
 			break;
 		}
 
 		case SV_WAND_ROCKETS:
 		{
 			msg_print("You launch a rocket!");
-			fire_ball(GF_ROCKET, dir, 150 + (randint(50)), 2);
+			fire_ball(GF_ROCKET, dir, 300, 2);
 			ident = TRUE;
 			break;
 		}

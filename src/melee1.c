@@ -1235,6 +1235,9 @@ bool make_attack_normal(int m_idx)
 
 				case RBE_VAMP: /* EXP_60 + Heal -- Gumby */
 				{
+					/* To help prevent overflow */
+					u32b k = m_ptr->hp;
+
 					/* Obvious */
 					obvious = TRUE;
 
@@ -1251,10 +1254,12 @@ bool make_attack_normal(int m_idx)
 						/* Heal the monster */
 						if (!(p_ptr->prace >= RACE_GOLEM && p_ptr->prace <= RACE_SPECTRE))
 						{
-							m_ptr->hp += damage;
+							k += (damage/2);
 
-							/* No supercharging! */
-							if (m_ptr->hp > m_ptr->maxhp) m_ptr->hp = m_ptr->maxhp;
+							if (k > m_ptr->maxhp)
+								m_ptr->hp = m_ptr->maxhp;
+							else
+								m_ptr->hp += (damage/2);
 
 							/* Tell the player */
 							msg_format("%^s seems only slightly revitalized.", m_name);
@@ -1275,10 +1280,12 @@ bool make_attack_normal(int m_idx)
 							/* Heal the monster */
 							if (!(p_ptr->prace >= RACE_GOLEM && p_ptr->prace <= RACE_SPECTRE))
 							{
-								m_ptr->hp += ((d / 10) + damage);
+								k += (((d / 10) + damage) / 2);
 
-								/* No supercharging! */
-								if (m_ptr->hp > m_ptr->maxhp) m_ptr->hp = m_ptr->maxhp;
+								if (k > m_ptr->maxhp)
+									m_ptr->hp = m_ptr->maxhp;
+								else
+									m_ptr->hp += (((d / 10) + damage) / 2);
 
 								/* Tell the player */
 								msg_format("%^s seems slightly revitalized!", m_name);
@@ -1295,10 +1302,12 @@ bool make_attack_normal(int m_idx)
 							/* Heal the monster */
 							if (!(p_ptr->prace >= RACE_GOLEM && p_ptr->prace <= RACE_SPECTRE))
 							{
-								m_ptr->hp += (d + damage);
+								k += ((d + damage) / 2);
 
-								/* No supercharging! */
-								if (m_ptr->hp > m_ptr->maxhp) m_ptr->hp = m_ptr->maxhp;
+								if (k > m_ptr->maxhp)
+									m_ptr->hp = m_ptr->maxhp;
+								else
+									m_ptr->hp += ((d + damage) / 2);
 
 								/* Tell the player */
 								msg_format("%^s seems revitalized!", m_name);

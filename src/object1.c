@@ -1203,8 +1203,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 			/* Color the object */
 			modstr = amulet_adj[indexx];
 			if (aware) append_name = TRUE;
-			if (((plain_descriptions) && (aware)) ||
-			    (o_ptr->ident & IDENT_STOREB))
+			if ((plain_descriptions) && (aware))
 				basenm = "& Amulet~";
 			else
 				basenm = aware ? "& # Amulet~" : "& # Amulet~";
@@ -1217,8 +1216,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 
 			modstr = ring_adj[indexx];
 			if (aware) append_name = TRUE;
-			if (((plain_descriptions) && (aware)) ||
-			    (o_ptr->ident & IDENT_STOREB))
+			if ((plain_descriptions) && (aware))
 				basenm = "& Ring~";
 			else
 				basenm = aware ? "& # Ring~" : "& # Ring~";
@@ -1234,8 +1232,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		{
 			modstr = staff_adj[indexx];
 			if (aware) append_name = TRUE;
-			if (((plain_descriptions) && (aware)) ||
-			    (o_ptr->ident & IDENT_STOREB))
+			if ((plain_descriptions) && (aware))
 				basenm = "& Staff~";
 			else
 				basenm = aware ? "& # Staff~" : "& # Staff~";
@@ -1246,8 +1243,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		{
 			modstr = wand_adj[indexx];
 			if (aware) append_name = TRUE;
-			if (((plain_descriptions) && (aware)) ||
-			    (o_ptr->ident & IDENT_STOREB))
+			if ((plain_descriptions) && (aware))
 				basenm = "& Wand~";
 			else
 				basenm = aware ? "& # Wand~" : "& # Wand~";
@@ -1258,8 +1254,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		{
 			modstr = rod_adj[indexx];
 			if (aware) append_name = TRUE;
-			if (((plain_descriptions) && (aware)) ||
-			    (o_ptr->ident & IDENT_STOREB))
+			if ((plain_descriptions) && (aware))
 				basenm = "& Rod~";
 			else
 				basenm = aware ? "& # Rod~" : "& # Rod~";
@@ -1270,8 +1265,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		{
 			modstr = scroll_adj[indexx];
 			if (aware) append_name = TRUE;
-			if (((plain_descriptions) && (aware)) ||
-			    (o_ptr->ident & IDENT_STOREB))
+			if ((plain_descriptions) && (aware))
 				basenm = "& Scroll~";
 			else
 				basenm = aware ? "& Scroll~ titled \"#\"" : "& Scroll~ titled \"#\"";
@@ -1282,8 +1276,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 		{
 			modstr = potion_adj[indexx];
 			if (aware) append_name = TRUE;
-			if (((plain_descriptions) && (aware)) ||
-			    (o_ptr->ident & IDENT_STOREB))
+			if ((plain_descriptions) && (aware))
 				basenm = "& Potion~";
 			else
 				basenm = aware ? "& # Potion~" : "& # Potion~";
@@ -1304,8 +1297,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 
 			modstr = food_adj[indexx];
 			if (aware) append_name = TRUE;
-			if (((plain_descriptions) && (aware)) ||
-			    (o_ptr->ident & IDENT_STOREB))
+			if ((plain_descriptions) && (aware))
 				basenm = "& Mushroom~";
 			else
 				basenm = aware ? "& # Mushroom~" : "& # Mushroom~";
@@ -2044,29 +2036,37 @@ bool identify_fully_aux2(object_type *o_ptr, cptr *info, int len)
 	{
 		info[i++] = "It is worthless in the eyes of shopkeepers.";
 	}
-	if (f1 & (TR1_STR))
+	if ((f1 & (TR1_STR)) && (f1 & (TR1_INT)) && (f1 & (TR1_WIS)) &&
+	    (f1 & (TR1_DEX)) && (f1 & (TR1_CON)) && (f1 & (TR1_CHR)))
 	{
-		info[i++] = "It affects your strength.";
+		info[i++] = "It affects all of your attributes.";
 	}
-	if (f1 & (TR1_INT))
+	else
 	{
-		info[i++] = "It affects your intelligence.";
-	}
-	if (f1 & (TR1_WIS))
-	{
-		info[i++] = "It affects your wisdom.";
-	}
-	if (f1 & (TR1_DEX))
-	{
-		info[i++] = "It affects your dexterity.";
-	}
-	if (f1 & (TR1_CON))
-	{
-		info[i++] = "It affects your constitution.";
-	}
-	if (f1 & (TR1_CHR))
-	{
-		info[i++] = "It affects your charisma.";
+		if (f1 & (TR1_STR))
+		{
+			info[i++] = "It affects your strength.";
+		}
+		if (f1 & (TR1_INT))
+		{
+			info[i++] = "It affects your intelligence.";
+		}
+		if (f1 & (TR1_WIS))
+		{
+			info[i++] = "It affects your wisdom.";
+		}
+		if (f1 & (TR1_DEX))
+		{
+			info[i++] = "It affects your dexterity.";
+		}
+		if (f1 & (TR1_CON))
+		{
+			info[i++] = "It affects your constitution.";
+		}
+		if (f1 & (TR1_CHR))
+		{
+			info[i++] = "It affects your charisma.";
+		}
 	}
 	if (f1 & (TR1_SLAY_HUMANOID))
 	{
@@ -2172,29 +2172,39 @@ bool identify_fully_aux2(object_type *o_ptr, cptr *info, int len)
 	{
 		info[i++] = "It is especially deadly against natural creatures.";
 	}
-	if (f2 & (TR2_SUST_STR))
+
+	if ((f2 & (TR2_SUST_STR)) && (f2 & (TR2_SUST_INT)) &&
+	    (f2 & (TR2_SUST_WIS)) && (f2 & (TR2_SUST_DEX)) &&
+	    (f2 & (TR2_SUST_CON)) && (f2 & (TR2_SUST_CHR)))
 	{
-		info[i++] = "It sustains your strength.";
+		info[i++] = "It sustains all of your attributes.";
 	}
-	if (f2 & (TR2_SUST_INT))
+	else
 	{
-		info[i++] = "It sustains your intelligence.";
-	}
-	if (f2 & (TR2_SUST_WIS))
-	{
-		info[i++] = "It sustains your wisdom.";
-	}
-	if (f2 & (TR2_SUST_DEX))
-	{
-		info[i++] = "It sustains your dexterity.";
-	}
-	if (f2 & (TR2_SUST_CON))
-	{
-		info[i++] = "It sustains your constitution.";
-	}
-	if (f2 & (TR2_SUST_CHR))
-	{
-		info[i++] = "It sustains your charisma.";
+		if (f2 & (TR2_SUST_STR))
+		{
+			info[i++] = "It sustains your strength.";
+		}
+		if (f2 & (TR2_SUST_INT))
+		{
+			info[i++] = "It sustains your intelligence.";
+		}
+		if (f2 & (TR2_SUST_WIS))
+		{
+			info[i++] = "It sustains your wisdom.";
+		}
+		if (f2 & (TR2_SUST_DEX))
+		{
+			info[i++] = "It sustains your dexterity.";
+		}
+		if (f2 & (TR2_SUST_CON))
+		{
+			info[i++] = "It sustains your constitution.";
+		}
+		if (f2 & (TR2_SUST_CHR))
+		{
+			info[i++] = "It sustains your charisma.";
+		}
 	}
 	if (f2 & (TR2_IM_ACID))
 	{
@@ -2399,7 +2409,7 @@ bool identify_fully_aux2(object_type *o_ptr, cptr *info, int len)
 	/* RMG probably useless code haven't had the time to debug it, */
 	/* Unknown extra powers (ego-item with random extras or artifact) */
 	if (object_known_p(o_ptr) && (!(o_ptr->ident & IDENT_MENTAL)) &&
-	    ((o_ptr->xtra1) || artifact_p(o_ptr)))
+	    ((o_ptr->xtra1) || artifact_p(o_ptr)) && !(death))
 	{
 		info[i++] = "It has hidden powers.";
 	}
@@ -3579,10 +3589,11 @@ bool get_item(int *cp, cptr pmt, bool equip, bool inven, bool floor)
 		}
 	}
 
+	/* Allow the user to choose to see everything. */
+	command_see |= show_choices_main;
 
 	/* Hack -- start out in "display" mode */
 	if (command_see) Term_save();
-
 
 	/* Repeat until done */
 	while (!done)

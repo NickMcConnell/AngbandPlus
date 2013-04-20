@@ -8,7 +8,7 @@
 #   ; - Detect Monsters     F6 - Stasis
 #   : - Detect Doors/Traps  F7 - Slow Monsters
 #   h - Haste Self          F8 - Apport Arcane
-#   H - Globe of Invulner.  F9 - Explosive Rune
+#   H - Globe of Resilience F9 - Explosive Rune
 #   J - Dimension Door     F10 - Identify
 #   n - Teleport Level     F11 - Self Knowledge
 #   N - Word of Recall     F12 - Insight
@@ -50,7 +50,7 @@ C:0::
 A:m2h
 C:0:h
 
-# H - Globe of Invulnerability
+# H - Globe of Resilience
 A:m4h
 C:0:H
 

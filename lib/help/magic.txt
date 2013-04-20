@@ -1,4 +1,4 @@
-=== Introduction to the Gumband (2.1.8) Magic System ===
+=== Introduction to the Gumband (2.1.9) Magic System ===
 
 [note: this document was originally for ZAngband 2.1.0 and later, but has
  been updated to account for Gumband differences. -- Gumby]
@@ -156,13 +156,13 @@ Satisfy Hunger                     Sea of Runes
 High Mass                          Holy Blessings
 ---------                          --------------
 Remove Curse                       Heroism
-Cure Poison                        Prayer
+Turn Undead                        Prayer
 Cure Critical Wounds               Summon Angel
 Sense Unseen                       Restoration
 Holy Orb                           Greater Healing
 Protection from Evil               Holy Vision
 Healing                            Divine Intervention
-Rune of Protection                 Holy Invulnerability
+Rune of Protection                 Holy Resistance
 
 
 SORCERY: Sorcery is a 'meta' realm, including enchantment and general
@@ -195,7 +195,7 @@ Detect Enchantment                 Clairvoyance
 Slow Monster                       Enchant Weapon
 Mass Sleep                         Enchant Armour
 Teleport Away                      Alchemy
-Haste Self                         Globe of Invulnerability
+Haste Self                         Globe of Resilience
 
 
 ARCANE: Even more than Sorcery, Arcane magic is a general purpose realm of

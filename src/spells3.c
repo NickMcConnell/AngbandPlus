@@ -5,9 +5,7 @@
  * Included functions, taken from cmd5.c, spells1.c, and spells2.c:
  *
  * item_tester_hook_weapon(); item_tester_hook_armour();
- * item_tester_hook_weapon_armour(); item_tester_hook_ring(); 
- * item_tester_hook_amulet(); item_tester_hook_ring_amulet();
- * item_tester_hook_we_ar_ri_am(); item_tester_hook_unknown();
+ * item_tester_hook_weapon_armour(); item_tester_hook_unknown();
  * item_tester_hook_unknown_star(); rustproof(); do_poly_wounds();
  * do_poly_self(); fetch(); teleport_away(); teleport_to_player();
  * teleport_player(); teleport_player_to(); teleport_player_level();
@@ -66,46 +64,6 @@ bool item_tester_hook_weapon_armour(object_type *o_ptr)
 {
 	return(item_tester_hook_weapon(o_ptr) ||
 	       item_tester_hook_armour(o_ptr));
-}
-
-
-/* Hook to specify "ring" -- Gumby */
-bool item_tester_hook_ring(object_type *o_ptr)
-{
-	switch (o_ptr->tval)
-	{
-		case TV_RING: return (TRUE);
-	}
-	return (FALSE);
-}
-
-
-/* Hook to specify "amulet" -- Gumby */
-bool item_tester_hook_amulet(object_type *o_ptr)
-{
-	switch (o_ptr->tval)
-	{
-		case TV_AMULET: return (TRUE);
-	}
-	return (FALSE);
-}
-
-
-/* Check to see if the item is a ring or amulet -- Gumby */
-bool item_tester_hook_ring_amulet(object_type *o_ptr)
-{
-	return(item_tester_hook_ring(o_ptr) ||
-	       item_tester_hook_amulet(o_ptr));
-}
-
-
-/* Check to see if the item is a weapon, armour, ring or amulet -- Gumby */
-bool item_tester_hook_we_ar_ri_am(object_type *o_ptr)
-{
-	return(item_tester_hook_weapon(o_ptr) ||
-	       item_tester_hook_armour(o_ptr) ||
-	       item_tester_hook_ring(o_ptr) ||
-	       item_tester_hook_amulet(o_ptr));
 }
 
 
@@ -311,10 +269,10 @@ void fetch(int dir, int wgt, bool require_los)
 	object_type     *o_ptr;
 	char            o_name[80];
 
-	/* Check to see if an object is already there */
-	if(cave[py][px].o_idx)
+	/* Check to see if you're on an empty floor square */
+	if(!cave_clean_bold(py, px))
 	{
-		msg_print("You can't fetch when you're already standing on something.");
+		msg_print("You need an empty space on the floor to fetch something.");
 		return;
 	}
 
@@ -1925,6 +1883,7 @@ bool brand_weapon(int brand_type)
 	char		buf[80];
 	object_type	*o_ptr;
 	ego_item_type	*e_ptr;
+	ego_item_type	*eo_ptr;
 
 	/* Assume enchant weapon */
 	item_tester_hook = item_tester_hook_weapon;
@@ -1946,6 +1905,9 @@ bool brand_weapon(int brand_type)
 		o_ptr = &o_list[0 - item];
 	}
 
+	/* For checking existing brands -- Gumby */
+	eo_ptr = &e_info[o_ptr->name2];
+
 	k = randint(4);
 
 	/*
@@ -1956,16 +1918,15 @@ bool brand_weapon(int brand_type)
 	{
 		case 4:
 		{
-			if ((o_ptr->name2 == EGO_TRUMP) ||
-			    ((o_ptr->art_flags1 & TR1_SLAY_EVIL) &&
-			     (o_ptr->art_flags3 & TR3_TELEPORT)))
+			if ((eo_ptr->flags1 & TR1_SLAY_EVIL) ||
+			    (o_ptr->art_flags1 & TR1_SLAY_EVIL))
 				brand_exists = TRUE;
 				break;
 		}
 
 		case 3:
 		{
-			if ((o_ptr->name2 == EGO_VAMPIRIC) ||
+			if ((eo_ptr->flags1 & TR1_VAMPIRIC) ||
 			    (o_ptr->art_flags1 & TR1_VAMPIRIC))
 				brand_exists = TRUE;
 				break;
@@ -1973,7 +1934,7 @@ bool brand_weapon(int brand_type)
 
 		case 2:
 		{
-			if ((o_ptr->name2 == EGO_BRAND_POIS) ||
+			if ((eo_ptr->flags1 & TR1_BRAND_POIS) ||
 			    (o_ptr->art_flags1 & TR1_BRAND_POIS))
 				brand_exists = TRUE;
 				break;
@@ -1981,7 +1942,7 @@ bool brand_weapon(int brand_type)
 
 		case 1:
 		{
-			if ((o_ptr->name2 == EGO_CHAOTIC) ||
+			if ((eo_ptr->flags1 & TR1_CHAOTIC) ||
 			    (o_ptr->art_flags1 & TR1_CHAOTIC))
 				brand_exists = TRUE;
 				break;
@@ -1991,7 +1952,7 @@ bool brand_weapon(int brand_type)
 		{
 			if (k==1)
 			{
-				if ((o_ptr->name2 == EGO_BRAND_FIRE) ||
+				if ((eo_ptr->flags1 & TR1_BRAND_FIRE) ||
 				    (o_ptr->art_flags1 & TR1_BRAND_FIRE))
 				{
 					brand_exists = TRUE;
@@ -1999,7 +1960,7 @@ bool brand_weapon(int brand_type)
 			}
 			else if (k==2)
 			{
-				if ((o_ptr->name2 == EGO_BRAND_COLD) ||
+				if ((eo_ptr->flags1 & TR1_BRAND_COLD) ||
 				    (o_ptr->art_flags1 & TR1_BRAND_COLD))
 				{
 					brand_exists = TRUE;
@@ -2007,7 +1968,7 @@ bool brand_weapon(int brand_type)
 			}
 			else if (k==3)
 			{
-				if ((o_ptr->name2 == EGO_BRAND_ELEC) ||
+				if ((eo_ptr->flags1 & TR1_BRAND_ELEC) ||
 				    (o_ptr->art_flags1 & TR1_BRAND_ELEC))
 				{
 					brand_exists = TRUE;
@@ -2015,7 +1976,7 @@ bool brand_weapon(int brand_type)
 			}
 			else if (k==4)
 			{
-				if ((o_ptr->name2 == EGO_BRAND_ACID) ||
+				if ((eo_ptr->flags1 & TR1_BRAND_ACID) ||
 				    (o_ptr->art_flags1 & TR1_BRAND_ACID))
 				{
 					brand_exists = TRUE;
@@ -2041,7 +2002,7 @@ bool brand_weapon(int brand_type)
 	 */
 	if ((o_ptr->k_idx) && (!artifact_p(o_ptr)) && (!o_ptr->branded) &&
 	    (!o_ptr->art_name) && (!cursed_p(o_ptr)) && (!brand_exists) &&
-	    ((o_ptr->tval > TV_DIGGING) && (o_ptr->tval < TV_BOOTS)) &&
+	    ((o_ptr->tval >= TV_DIGGING) && (o_ptr->tval < TV_BOOTS)) &&
 	    (o_ptr->number == 1))
 	{
 		cptr act = NULL;
@@ -2226,7 +2187,6 @@ bool brand_weapon(int brand_type)
 		}
 		return FALSE;
 	}
-
 	return TRUE;
 }
 
@@ -2242,17 +2202,17 @@ void call_the_(void)
 	{
 		for (i = 1; i < 10; i++)
 		{
-			if (i-5) fire_ball(GF_ROCKET, i, 250, 2);
+			if (i-5) fire_ball(GF_ROCKET, i, 500, 2);
 		}
 
 		for (i = 1; i < 10; i++)
 		{
-			if (i-5) fire_ball(GF_MANA, i, 250, 3);
+			if (i-5) fire_ball(GF_MANA, i, 500, 3);
 		}
 		
 		for (i = 1; i < 10; i++)
 		{
-			if (i-5) fire_ball(GF_NUKE, i, 250, 4);
+			if (i-5) fire_ball(GF_NUKE, i, 500, 4);
 		}
 	}
 	else

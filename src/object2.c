@@ -1054,9 +1054,7 @@ s32b flag_cost(object_type * o_ptr, int plusses)
 s32b object_value_real(object_type *o_ptr)
 {
 	s32b value;
-
 	u32b f1, f2, f3;
-
 	object_kind *k_ptr = &k_info[o_ptr->k_idx];
 
 
@@ -1065,7 +1063,6 @@ s32b object_value_real(object_type *o_ptr)
 
 	/* Base cost */
 	value = k_ptr->cost;
-
 
 	/* Extract some flags */
 	object_flags(o_ptr, &f1, &f2, &f3);
@@ -1313,10 +1310,8 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 {
 	int total = o_ptr->number + j_ptr->number;
 
-
 	/* Require identical object types */
 	if (o_ptr->k_idx != j_ptr->k_idx) return (0);
-
 
 	/* Analyze the items */
 	switch (o_ptr->tval)
@@ -1440,7 +1435,6 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 	/* Hack -- Require identical "broken" status */
 	if ((o_ptr->ident & (IDENT_BROKEN)) != (j_ptr->ident & (IDENT_BROKEN))) return (0);
 
-
 	/* Hack -- require semi-matching "inscriptions" */
 	if (o_ptr->note && j_ptr->note && (o_ptr->note != j_ptr->note)) return (0);
 
@@ -1450,10 +1444,8 @@ bool object_similar(object_type *o_ptr, object_type *j_ptr)
 	/* Hack -- normally require matching "discounts" */
 	if (!stack_force_costs && (o_ptr->discount != j_ptr->discount)) return (0);
 
-
 	/* Maximal "stacking" limit */
 	if (total >= MAX_STACK_SIZE) return (0);
-
 
 	/* They match, so they must be similar */
 	return (TRUE);
@@ -3729,19 +3721,15 @@ bool make_object(object_type *j_ptr, bool good, bool great)
 void place_object(int y, int x, bool good, bool great)
 {
 	s16b o_idx;
-
 	cave_type *c_ptr;
-
 	object_type forge;
 	object_type *q_ptr;
-
 
 	/* Paranoia -- check bounds */
 	if (!in_bounds(y, x)) return;
 
 	/* Require clean floor space */
 	if (!cave_clean_bold(y, x)) return;
-
 
 	/* Get local object */
 	q_ptr = &forge;
@@ -3751,7 +3739,6 @@ void place_object(int y, int x, bool good, bool great)
 
 	/* Make an object (if possible) */
 	if (!make_object(q_ptr, good, great)) return;
-
 
 	/* Make an object */
 	o_idx = o_pop();
@@ -3811,9 +3798,7 @@ void place_object(int y, int x, bool good, bool great)
 bool make_gold(object_type *j_ptr)
 {
 	int i;
-
 	s32b base;
-
 
 	/* Hack -- Pick a Treasure variety */
 	i = ((randint(object_level + 2) + 2) / 2) - 1;
@@ -5488,7 +5473,7 @@ static void spell_info(char *p, int spell, int realm)
 					case 25: sprintf(p, " dur %d turns", 50 + plev); break;
 					case 28: strcpy (p, " heal 2000"); break;
 					case 30: sprintf(p, " h300/d%d+388", plev * 5); break;
-					case 31: strcpy (p, " dur 8+d8"); break;
+					case 31: strcpy (p, " dur 5+d5"); break;
 				}
 				break;
 
@@ -5504,7 +5489,7 @@ static void spell_info(char *p, int spell, int realm)
 					case 21: strcpy (p, " delay 15+d21"); break;
 					case 26: sprintf(p, " dam 7d7+%d", (plev/2)); break;
 					case 27: strcpy (p, " dur 25+d30"); break;
-					case 31: strcpy (p, " dur 8+d8"); break;
+					case 31: strcpy (p, " dur 5+d5"); break;
 				}
 				break;
 
@@ -5545,17 +5530,17 @@ static void spell_info(char *p, int spell, int realm)
 					case 12: sprintf(p, " dam %dd8", 11 + ((plev-5) / 3)); break;
 					case 13: sprintf(p, " dam %d", 80 + plev); break;
 					case 15: sprintf(p, " dam %d", 100 + plev); break;
-					case 16: sprintf(p, " dam %dd8", 10+(plev/5)); break;
+					case 16: sprintf(p, " dam %dd8", 10+((plev-5)/3)); break;
 					case 18: sprintf(p, " dam %d", 100 + (plev*4)); break;
 					case 19: sprintf(p, " %d%% ident", 50 + (p_ptr->lev - 5)); break;
 					case 24: sprintf(p, " dam %dd8", 15 + ((plev-5) / 3)); break;
 					case 25: sprintf(p, " dam %d each", plev * 4); break;
 					case 26: sprintf(p, " dam %d", 200 + (plev * 4)); break;
-					case 27: strcpy (p, " dam 300"); break;
-					case 28: sprintf(p, " dam %d", 250 + (plev * 2)); break;
-					case 29: sprintf(p, " dam %d", 400 + (plev * 2)); break;
+					case 27: strcpy (p, " dam 150/300"); break;
+					case 28: sprintf(p, " dam %d", 350 + (plev * 2)); break;
+					case 29: sprintf(p, " dam %d", 400 + (plev * 3)); break;
 					case 30: sprintf(p, " dam %d", p_ptr->chp); break;
-					case 31: strcpy (p, " dam 3 * 250"); break;
+					case 31: strcpy (p, " dam 3 * 500"); break;
 				}
 				break;
 

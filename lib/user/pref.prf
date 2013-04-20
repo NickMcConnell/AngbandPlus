@@ -7,27 +7,15 @@
 # to put up with IBM graphics.  Just rename them to remove the '-old' part
 # if you want those graphics...
 #
-# The various <realm>.prf files (and the ones like 'Mage.SC' [Sorcery/Chaos
-# spells for Magi]) are the spell macro files I use.  They are set up for
-# MS-DOS/Windows function key definitions - you'll have to get the proper
-# escape sequences for the function keys on your machine on your own.
-#
 # If you turn off the use_old_target option, it's best to go through the
 # spell pref files (and the targetting of @f2 missiles below) and either
 # remove the '*t' (thus requiring manual targetting each time - yech! ;), or
 # else move the '*t' to the end of the macro, from each targetted macro to
 # avoid any possible problems.
 #
-# The <realm>.prf will load on their own, but that's only good for single-
-# realm characters.  For multi-realm characters, you'll have to explicitly
-# load the files in the '@' macro menu. [eg, load 'Priest.DS' for Death/
-# Sorcery Priests]
-#
-# 'template.txt' is just that - a blank pref file that I fill in when I need
-# to use a new realm combination...
-#
 # If you use a Linux system, remove the ` macro (which auto-targets missiles
 # inscribed with @f2) if it causes any problems.
+#
 #
 # This file defines "default" actions of various kinds
 #

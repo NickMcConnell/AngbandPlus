@@ -1,0 +1,189 @@
+# Mage Death/Trump
+#
+# TAB - Teleport Away       F1 - Malediction         SF1 - Stinking Cloud
+#   [ - Wraithform          F2 - Mind Blast          SF2 - Infernal Orb
+#   ] - Enslave Undead      F3 - Nether Bolt         SF3 - Cloud Kill
+#   ' - Detect Minds        F4 - Nexus Bolt          SF4 - Punish Undead
+#   " - Trump Divination    F5 - Vampiric Drain      SF5 - Darkness Storm
+#   ; - Detect Unlife       F6 - Dark Bolt           SF6 - Death Dealing
+#   : - Detect Evil         F7 - Drain Life          SF7 - Word of Death
+#   h - Berserk             F8 - Death Ray           SF8 - Evocation
+#   H - Battle Frenzy       F9 - Black Sleep         SF9 - Hellfire
+#   J - Dimension Door     F10 - Horrify            SF10 - Summon Death
+#   n - Resist Poison      F11 - Terror             SF11 - Genocide
+#   N - Restore Life       F12 - Banish             SF12 - Mass Genocide
+#   O - Word of Recall
+#   P - Trump Lore
+#   y - Phase Door
+#   Y - Teleport
+#   Z - Apportation
+
+# TAB - Teleport Away
+A:m5h
+P:\t
+
+# [ - Wraithform
+A:m4h
+C:0:[
+
+# ] - Enslave Undead
+A:m1h
+C:0:]
+
+# ' - Detect Minds 
+A:m5d
+C:0:'
+
+# " - Trump Divination
+A:m8a
+C:0:"
+
+# ; - Detect Unlife
+A:m1a
+C:0:;
+
+# : - Detect Evil
+A:m1c
+C:0::
+
+# h - Berserk
+A:m3a
+C:0:h
+
+# H - Battle Frenzy
+A:m3d
+C:0:H
+
+# J - Dimension Door
+A:m5f
+C:0:J
+
+# n - Resist Poison
+A:m1f
+C:0:n
+
+# N - Restore Life
+A:m2f
+C:0:N
+
+# O - Word of Recall
+A:m6e
+C:0:O
+
+# P - Trump Lore
+A:m4a
+C:0:P
+
+# y - Phase Door
+A:m5a
+C:0:y
+
+# Y - Teleport
+A:m5e
+C:0:Y
+
+# Z - Apportation
+A:m7a
+C:0:Z
+
+# Bolt Spells
+
+# F1 - Malediction
+A:\e\e\e*tm1b
+P:^_x3B\r
+
+# F2 - Mind Blast
+A:\e\e\e*tm5b
+P:^_x3C\r
+
+# F3 - Nether Bolt
+A:\e\e\e*tm2b
+P:^_x3D\r
+
+# F4 - Nexus Bolt
+A:\e\e\e*tm6c
+P:^_x3E\r
+
+# F5 - Vampiric Drain
+A:m2e
+P:^_x3F\r
+
+# F6 - Dark Bolt
+A:\e\e\e*tm3c
+P:^_x40\r
+
+# F7 - Drain Life
+A:m3e
+P:^_x41\r
+
+# F8 - Death Ray
+A:m4a
+P:^_x42\r
+
+# Non-Deadly Spells
+
+# F9 - Black Sleep
+A:m1e
+P:^_x43\r
+
+# F10 - Horrify
+A:m1g
+P:^_x44\r
+
+# F11 - Terror
+A:m2d
+P:^_x85\r
+
+# F12 - Banish
+A:m7e
+P:^_x86\r
+
+# Ball/Area Effect
+
+# SHIFT-F1 - Stinking Cloud
+A:m1d
+P:^_Sx54\r
+
+# SHIFT-F2 - Infernal Orb
+A:m2a
+P:^_Sx55\r
+
+# SHIFT-F3 - Cloud Kill
+A:m2f
+P:^_Sx56\r
+
+# SHIFT-F4 - Punish Undead
+A:m3b
+P:^_Sx57\r
+
+# SHIFT-F5 - Darkness Storm
+A:m3g
+P:^_Sx58\r
+
+# SHIFT-F6 - Death Dealing
+A:m7g
+P:^_Sx59\r
+
+# SHIFT-F7 - Word of Death
+A:m4d
+P:^_Sx5A\r
+
+# SHIFT-F8 - Evocation
+A:m4e
+P:^_Sx5B\r
+
+# SHIFT-F9 - Hellfire
+A:m4f
+P:^_Sx5C\r
+
+# SHIFT-F10 - Summon Death
+A:m4g
+P:^_Sx5D\r
+
+# SHIFT-F11 - Genocide
+A:m2g
+P:^_Sx87\r
+
+# SHIFT-F12 - Mass Genocide
+A:m3h
+P:^_Sx88\r

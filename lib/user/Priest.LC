@@ -5,10 +5,10 @@
 #   ] - Detect Doors/Traps  F3 - Fire Bolt           SF3 - Sonic Boom
 #   ' - Cure Crit. Wounds   F4 - Fist of Force       SF4 - Fire Ball
 #   " - Greater Healing     F5 - Chaos Bolt          SF5 - Invoke Chaos
-#   ; - Cure Light Wounds   F6 - Mana Bolt           SF6 - Chain Lightning
-#   : - Cure Medium Wounds  F7 - Beam of Gravity     SF7 - Disintegrate
-#   h - Protect. from Evil  F8 - Call Chaos          SF8 - Meteor Swarm
-#   H - Holy Invulnerabil.  F9 - Exorcise Demons     SF9 - Flame Strike
+#   ; - Cure Light Wounds   F6 - Mana Bolt           SF6 - Disintegrate
+#   : - Cure Medium Wounds  F7 - Confusion Bolt      SF7 - Meteor Swarm
+#   h - Protect. from Evil  F8 - Beam of Gravity     SF8 - Flame Strike
+#   H - Holy Resistance     F9 - Exorcise Demons     SF9 - Call Chaos
 #   J - Satisfy Hunger     F10 - Destroy Undead     SF10 - Magic Rocket
 #   n - Demonic Consultat. F11 - Dispel Evil        SF11 - Mana Storm
 #   N - Holy Vision        F12 - Holy Word          SF12 - Breathe Chaos
@@ -50,7 +50,7 @@ C:0::
 A:m2f
 C:0:h
 
-# H - Holy Invulnerability
+# H - Holy Resistance
 A:m4h
 C:0:H
 
@@ -112,12 +112,12 @@ P:^_x3F\r
 A:\e\e\e*tm6e
 P:^_x40\r
 
-# F7 - Beam of Gravity
-A:\e\e\e*tm8a
+# F7 - Confusion Bolt
+A:\e\e\e*tm7a
 P:^_x41\r
 
-# F8 - Call Chaos
-A:m8d
+# F8 - Beam of Gravity
+A:\e\e\e*tm8a
 P:^_x42\r
 
 # Dispellings
@@ -160,20 +160,20 @@ P:^_Sx57\r
 A:m6h
 P:^_Sx58\r
 
-# SHIFT-F6 - Chain Lightning
-A:m7a
+# SHIFT-F6 - Disintegrate
+A:m7c
 P:^_Sx59\r
 
-# SHIFT-F7 - Disintegrate
-A:m7c
+# SHIFT-F7 - Meteor Swarm
+A:m8b
 P:^_Sx5A\r
 
-# SHIFT-F8 - Meteor Swarm
-A:m8b
+# SHIFT-F8 - Flame Strike
+A:m8c
 P:^_Sx5B\r
 
-# SHIFT-F9 - Flame Strike
-A:m8c
+# SHIFT-F9 - Call Chaos
+A:m8d
 P:^_Sx5C\r
 
 # SHIFT-F10 - Magic Rocket

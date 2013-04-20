@@ -5,10 +5,10 @@
 #   ] - Sea of Runes        F3 - Cure Critical Wnds. SF3 - Day of the Dove
 #   ' - Holy Vision         F4 - Healing
 #   " - Summon Angel        F5 - Greater Healing
-#   ; - Remove Curse        F6 - Cure Poison
-#   : - Dispel Curse        F7 - Restoration
-#   h - Heroism             F8 - Divine Intervention
-#   H - Holy Invunerability F9 - Exorcise Demons
+#   ; - Remove Curse        F6 - Restoration
+#   : - Dispel Curse        F7 - Divine Intervention
+#   h - Heroism             F8 - Turn Undead
+#   H - Holy Resistance     F9 - Exorcise Demons
 #   J - Satisfy Hunger     F10 - Destroy Undead
 #   n - Detect Evil        F11 - Banish Evil
 #   N - Detect Doors/Traps F12 - Dispel Evil
@@ -50,7 +50,7 @@ C:0::
 A:m4a
 C:0:h
 
-# H - Holy Invunerability
+# H - Holy Resistance
 A:m4h
 C:0:H
 
@@ -108,19 +108,19 @@ P:^_x3E\r
 A:m4e
 P:^_x3F\r
 
-# F6 - Cure Poison
-A:m2b
+# F6 - Restoration
+A:m4d
 P:^_x40\r
 
-# F7 - Restoration
-A:m4d
+# F7 - Divine Intervention
+A:m4g
 P:^_x41\r
 
-# F8 - Divine Intervention
-A:m4g
-P:^_x42\r
-
 # Dispelling/Other
+
+# F8 - Turn Undead
+A:m2b
+P:^_x42\r
 
 # F9 - Exorcise Demons
 A:m3a
@@ -137,8 +137,6 @@ P:^_x85\r
 # F12 - Dispel Evil
 A:m3f
 P:^_x86\r
-
-# Misc
 
 # SHIFT-F1 - Spiritual Hammer
 A:\e\e\e*tm1d

@@ -11,7 +11,10 @@
 */
 
 #include "angband.h"
-#define SAFE_MAX_ATTEMPTS 5000
+
+#define SAFE_MAX_ATTEMPTS 1000 /* was 5000, but maybe that's what caused
+				* the freezes we get sometimes -- Gumby
+				*/
 
 int template_race;
 

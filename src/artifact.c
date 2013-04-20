@@ -7,9 +7,9 @@
  *
  * curse_artifact() random_plus() random_resistance() random_misc()
  * random_slay() give_activation_power() get_random_name() create_artifact()
- * item_tester_hook_activate() ring_of_power() brand_bolts()
- * activate_random_artifact() do_cmd_activate() item_activation()
- * random_artifact_resistance()
+ * artifact_scroll()item_tester_hook_activate() ring_of_power()
+ * brand_bolts() activate_random_artifact() do_cmd_activate()
+ * item_activation() random_artifact_resistance()
  *
  * wiz_create_named_art() remains in wizard2.c.
  *
@@ -1414,6 +1414,83 @@ bool create_artifact(object_type *o_ptr, bool a_scroll)
 }
 
 
+/* Create a random artifact */
+bool artifact_scroll()
+{
+	int             item;
+	bool            okay = FALSE;
+	object_type     *o_ptr;
+	char            o_name[80];
+
+	item_tester_hook = item_tester_hook_weapon_armour;
+
+	/* Get an item (from equip or inven or floor) */
+	if (!get_item(&item, "Enchant which item? ", TRUE, TRUE, TRUE))
+	{
+		if (item == -2) msg_print("You have nothing to enchant.");
+		return (FALSE);
+	}
+
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
+
+	/* Description */
+	object_desc(o_name, o_ptr, FALSE, 0);
+
+	/* Describe */
+	msg_format("%s %s radiate%s a blinding light!",
+	          ((item >= 0) ? "Your" : "The"), o_name,
+	          ((o_ptr->number > 1) ? "" : "s"));
+
+	if (o_ptr->name1 || o_ptr->art_name)
+	{
+		msg_format("The %s %s already %s!",
+		    o_name, ((o_ptr->number > 1) ? "are" : "is"),
+		    ((o_ptr->number > 1) ? "artifacts" : "an artifact"));
+		okay = FALSE;
+	}
+	else if (o_ptr->name2)
+	{
+		msg_format("The %s %s already %s!",
+		    o_name, ((o_ptr->number > 1) ? "are" : "is"),
+		    ((o_ptr->number > 1) ? "ego items" : "an ego item"));
+		okay = FALSE;
+	}
+	else
+	{
+		if (o_ptr->number > 1)
+		{
+			msg_print("Not enough enough energy to enchant more than one object!");
+			msg_format("%d of your %s %s destroyed!",(o_ptr->number)-1, o_name, (o_ptr->number>2?"were":"was"));
+			o_ptr->number = 1;
+		}
+		okay = create_artifact(o_ptr, TRUE);
+	}
+
+	/* Failure */
+	if (!okay)
+	{
+		/* Flush */
+		if (flush_failure) flush();
+
+		/* Message */
+		msg_print("The enchantment failed.");
+	}
+
+	/* Something happened */
+	return (TRUE);
+}
+
+
 /* Hook to determine if an object is activatable */
 static bool item_tester_hook_activate(object_type *o_ptr)
 {
@@ -2144,7 +2221,7 @@ static bool activate_random_artifact(object_type * o_ptr)
 
 		case ACT_INVULN:
 		{
-			(void)set_invuln(p_ptr->invuln + randint(8) + 8);
+			(void)set_invuln(p_ptr->invuln + randint(5) + 5);
 			o_ptr->timeout = 1000;
 			break;
 		}
@@ -3642,7 +3719,7 @@ cptr item_activation(object_type *o_ptr)
 			}
 			case ACT_INVULN:
 			{
-				return "invulnerability (dur 8+d8) every 1000 turns";
+				return "invulnerability (dur 5+d5) every 1000 turns";
 			}
 			case ACT_LIGHT:
 			{

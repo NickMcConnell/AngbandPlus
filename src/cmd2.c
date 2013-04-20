@@ -1184,13 +1184,9 @@ static bool do_cmd_disarm_chest(int y, int x, s16b o_idx)
 static bool do_cmd_disarm_aux(int y, int x, int dir)
 {
 	int i, j, power;
-
 	cave_type *c_ptr;
-
 	cptr name;
-
 	bool more = FALSE;
-
 
 	/* Take a turn */
 	energy_use = 100;

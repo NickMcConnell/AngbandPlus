@@ -942,6 +942,10 @@ static void roff_aux(int r_idx)
 	{
 		roff(format("%^s regenerates quickly.  ", wd_he[msex]));
 	}
+	if (flags2 & (RF2_SHAPECHANGER))
+	{
+		roff(format("%^s is a shapechanger.  ", wd_he[msex]));
+	}
 
 
 	/* Collect susceptibilities */
@@ -1509,4 +1513,258 @@ void display_roff(int r_idx)
 }
 
 
+/*
+ * The following code to display visible monsters is taken from Eyangband
+ * 0.3.3 and uses a few strategic #defines to minimise the number of
+ * changes needed to do this.
+ *
+ * In actual fact, the only changes to the functions themselves are in the
+ * definition of who[x].u_idx and the removal of the Term_clear().
+ */
+  
+typedef struct monster_list_entry monster_list_entry;
 
+struct monster_list_entry
+{
+	s16b r_idx;			/* Monster race index */
+	s16b u_idx;			/* Unique index (for uniques) */
+	byte amount;
+};
+
+
+#define get_lore_idx(idx, unused) (&(r_info[idx]))
+#define get_monster_fake(idx, unused) (&(r_info[idx]))
+#define monster_name_idx(idx, unused) (r_name+r_info[idx].name)
+#define monster_lore monster_race
+
+
+/*
+ * Sorting hook -- Comp function -- see below
+ *
+ * We use "u" to point to array of monster indexes,
+ * and "v" to select the type of sorting to perform on "u".
+ */
+static bool ang_mon_sort_comp_hook(vptr u, vptr v, int a, int b)
+{
+	monster_list_entry *who = (monster_list_entry*)(u);
+	u16b *why = (u16b*)(v);
+	int r1 = who[a].r_idx;
+	int r2 = who[b].r_idx;
+	int z1, z2;
+
+	/* Sort by player kills */
+	if (*why >= 4)
+	{
+		/* Extract player kills */
+		z1 = get_lore_idx(r1,who[a].u_idx)->r_pkills;
+		z2 = get_lore_idx(r2,who[b].u_idx)->r_pkills;
+
+		/* Compare player kills */
+		if (z1 < z2) return (TRUE);
+		if (z1 > z2) return (FALSE);
+	}
+
+	/* Sort by total kills */
+	if (*why >= 3)
+	{
+		/* Extract total kills */
+		z1 = get_lore_idx(r1,who[a].u_idx)->r_tkills;
+		z2 = get_lore_idx(r2,who[b].u_idx)->r_tkills;
+
+		/* Compare total kills */
+		if (z1 < z2) return (TRUE);
+		if (z1 > z2) return (FALSE);
+	}
+
+	/* Sort by monster level */
+	if (*why >= 2)
+	{
+		/* Extract levels */
+		z1 = get_monster_fake(r1,who[a].u_idx)->level;
+		z2 = get_monster_fake(r2,who[b].u_idx)->level;
+
+		/* Compare levels */
+		if (z1 < z2) return (TRUE);
+		if (z1 > z2) return (FALSE);
+	}
+
+	/* Sort by monster experience */
+	if (*why >= 1)
+	{
+		/* Extract experience */
+		z1 = get_monster_fake(r1,who[a].u_idx)->mexp;
+		z2 = get_monster_fake(r2,who[b].u_idx)->mexp;
+
+		/* Compare experience */
+		if (z1 < z2) return (TRUE);
+		if (z1 > z2) return (FALSE);
+	}
+
+	/* Compare indexes */
+	return (r1 <= r2);
+}
+
+
+/*
+ * Sorting hook -- Swap function -- see below
+ *
+ * We use "u" to point to array of monster indexes,
+ * and "v" to select the type of sorting to perform.
+ */
+static void ang_mon_sort_swap_hook(vptr u, vptr unused, int a, int b)
+{
+	monster_list_entry *who = (monster_list_entry*)(u);
+	monster_list_entry holder;
+
+	/* Swap */
+	holder = who[a];
+	who[a] = who[b];
+	who[b] = holder;
+}
+
+
+/*
+ * Display the visible monster list in a window.
+ */
+void display_visible(void)
+{
+	int i, j;
+	int c = 0;
+	int items = 0;
+	monster_list_entry *who;
+
+	/* Clear the screen first. */
+	Term_clear();
+
+	/* XXX Hallucination - no monster list */
+	if (p_ptr->image)
+	{		
+		c_prt(TERM_WHITE,"You see a lot of pretty colours.",0,0);
+		return;
+	}
+
+	/* Allocate the "who" array */
+	C_MAKE(who, m_max, monster_list_entry);
+
+	/* Count up the number visible in each race */
+	for (i = 1; i < m_max; i++)
+	{
+		monster_type *m_ptr = &m_list[i];
+		bool found = FALSE;
+
+		/* Skip dead monsters */
+		if (!m_ptr->r_idx) continue;
+
+		/* Skip unseen monsters */
+		if (!m_ptr->ml) continue;
+
+		/* Increase for this race */
+		if (items)
+		{
+			for (j = 0; j < items; j++)
+			{
+				if (who[j].r_idx == m_ptr->r_idx)
+				{
+					who[j].amount++;
+					found = TRUE;
+					break;
+				}
+			}
+		}
+		
+		if (!found)
+		{
+			who[items].r_idx = m_ptr->r_idx;
+			who[items].u_idx = !!(r_info[m_ptr->r_idx].flags1 & RF1_UNIQUE);
+			who[items].amount = 1;
+
+			items++;
+		}
+
+		/* Increase total Count */
+		c++;
+	}
+
+	/* Are monsters visible? */
+	if (items)
+	{
+		int w, h, num = 0;
+		u16b why = 1;
+
+		/* First, sort the monsters by expereince*/
+		ang_sort_comp = ang_mon_sort_comp_hook;
+		ang_sort_swap = ang_mon_sort_swap_hook;
+
+		/* Sort the array */
+		ang_sort(who, &why, items);
+
+		/* Then, display them */
+		(void)Term_get_size(&w, &h);
+
+		c_prt(TERM_WHITE,format("You can see %d monster%s", c, (c > 1 ? "s:" : ":")), 0, 0);
+
+		/* Print the monsters in reverse order */
+		for (i = items - 1; i >= 0; i--)
+		{
+			monster_lore *l_ptr = get_lore_idx(who[i].r_idx, who[i].u_idx);
+			monster_race *r_ptr = get_monster_fake(who[i].r_idx, who[i].u_idx);
+
+			cptr m_name;
+
+			/* Default Colour */
+			byte attr = TERM_WHITE;
+
+			/* Uniques */
+			if (who[i].u_idx)
+			{
+				attr = TERM_L_RED;
+			}
+
+			/* Have we ever killed one? */
+			if (l_ptr->r_tkills)
+			{
+				if (r_ptr->level > dun_level)
+				{
+					attr = TERM_VIOLET;
+
+					if (who[i].u_idx)
+					{
+						attr = TERM_RED;
+					}
+				}
+			}
+			else
+			{
+				if (!who[i].u_idx) attr = TERM_SLATE;
+			}			
+			
+			/* 
+			 * Dump the monster symbol
+			 * Gives the standard symbol as keeping track of shapechangers
+			 * is too much trouble.
+			 */
+
+			Term_putch((num / (h - 1)) * 26, (num % (h - 1)) + 1, r_ptr->x_attr, r_ptr->x_char);
+
+			/* Dump the monster name */
+
+			m_name = format(" %s", monster_name_idx(who[i].r_idx, who[i].u_idx));
+
+			if (who[i].amount > 1)
+			{
+				m_name = format("%s (x%d)", m_name, who[i].amount);
+			}
+
+			Term_addstr(-1, attr, m_name);
+
+			num++;
+		}
+	}
+	else
+	{
+		c_prt(TERM_WHITE,"You see no monsters.",0,0);
+	}
+
+	/* XXX XXX Free the "who" array */
+	C_FREE(who, m_max, monster_list_entry);
+}
