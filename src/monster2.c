@@ -463,6 +463,12 @@ s16b get_mon_num(int level)
 			continue;
 		}
 
+		/* No uniques for astral characters */
+		if ((r_ptr->flags1 & (RF1_UNIQUE)) && (p_ptr->astral))
+		{
+			continue;
+		}
+
 		/* Depth Monsters never appear out of depth */
 		if ((r_ptr->flags1 & (RF1_FORCE_DEPTH)) && (r_ptr->level > p_ptr->depth))
 		{
@@ -1595,6 +1601,13 @@ static bool place_monster_group(int y, int x, int r_idx, bool slp)
 		{
 			int mx = hx + ddx_ddd[i];
 			int my = hy + ddy_ddd[i];
+
+			scatter(&my, &mx, hy, hx, 10, 0);
+			
+			if (!in_bounds(my, mx)) continue;
+
+			/* Not on player */
+			if ((my == p_ptr->py) && (mx == p_ptr->px)) continue;
 
 			/* Walls and Monsters block flow */
 			if (!cave_empty_bold(my, mx)) continue;

@@ -1344,15 +1344,19 @@ static errr rd_extra(void)
 	/* Age/Height/Weight */
 	rd_s16b(&p_ptr->age);
 	rd_s16b(&p_ptr->ht);
+	rd_s16b(&p_ptr->ht_birth);
 	rd_s16b(&p_ptr->wt);
+	rd_s16b(&p_ptr->wt_birth);
 
 	/* Read the stat info */
 	for (i = 0; i < A_MAX; i++) rd_s16b(&p_ptr->stat_max[i]);
 	for (i = 0; i < A_MAX; i++) rd_s16b(&p_ptr->stat_cur[i]);
+	for (i = 0; i < A_MAX; i++) rd_s16b(&p_ptr->stat_birth[i]);
 
 	strip_bytes(24);	/* oops */
 
 	rd_s32b(&p_ptr->au);
+	rd_s32b(&p_ptr->au_birth);
 
 	for (i = 0; i < MAX_CLASS; i++)
 	{
@@ -1396,6 +1400,7 @@ static errr rd_extra(void)
 	/* More info */
 	strip_bytes(8);
 	rd_s16b(&p_ptr->sc);
+	rd_s16b(&p_ptr->sc_birth);
 	strip_bytes(2);
 
 	/* Ignore old redundant info */
@@ -1454,6 +1459,7 @@ static errr rd_extra(void)
 
 	rd_byte(&p_ptr->astral);
 	rd_byte(&p_ptr->astral_start);
+	rd_byte(&p_ptr->astral_birth);
 
 	/* Old redundant flags */
 	if (older_than(2, 7, 7)) strip_bytes(34);

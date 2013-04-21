@@ -2674,7 +2674,7 @@ void check_experience()
 		  p_ptr->max_lev[class] = p_ptr->lev[class];
 
 		/* Message */
-      		cmsg_format(TERM_L_GREEN, "You are now a level %d %s!", 
+		cmsg_format(TERM_L_GREEN, "You are now a level %d %s!", 
 			    p_ptr->lev[class], 
 			    cp_ptr[p_ptr->pclass[class]]->title);
 
@@ -2730,8 +2730,11 @@ void check_experience()
 void gain_exp_all(int type, s32b amount)
 {
         int class;
+
 	int div = (p_ptr->available_classes == 4 ? 10 : (p_ptr->available_classes == 3 ? 6 : (p_ptr->available_classes == 2 ? 3 : 1)));
+
 	s32b new_exp = 0, new_exp_frac;
+
 	/* Calculate max_level before it changes so that first class (which
 	   should be highest level) does not gain erronuous bonus XP */
 	int max_level = max_player_level();

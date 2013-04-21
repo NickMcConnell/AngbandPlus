@@ -848,10 +848,14 @@ struct player_type
 
 	s16b age;			/* Characters age */
 	s16b ht;			/* Height */
+        s16b ht_birth;
 	s16b wt;			/* Weight */
+        s16b wt_birth;
 	s16b sc;			/* Social Class */
+        s16b sc_birth;
 
 	s32b au;			/* Current Gold */
+        s32b au_birth;
 
 	s16b max_depth;		/* Max depth */
 	s16b depth;			/* Cur depth */
@@ -880,6 +884,7 @@ struct player_type
 
 	s16b stat_max[A_MAX];	/* Current "maximal" stat values */
 	s16b stat_cur[A_MAX];	/* Current "natural" stat values */
+	s16b stat_birth[A_MAX];	/* Birth "natural" stat values */
 
         s16b fast;			/* Timed -- Fast */
 	s16b slow;			/* Timed -- Slow */
@@ -928,6 +933,7 @@ struct player_type
 
         byte astral;
         byte astral_start;
+        byte astral_birth;
 
 	s16b word_recall;	/* Word of recall counter */
 

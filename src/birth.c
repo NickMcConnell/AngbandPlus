@@ -115,16 +115,17 @@ static void load_prev_data(void)
 
 	/* Load the data */
 	p_ptr->age = prev.age;
-	p_ptr->wt = prev.wt;
-	p_ptr->ht = prev.ht;
-	p_ptr->sc = prev.sc;
-	p_ptr->au = prev.au;
+	p_ptr->wt_birth = p_ptr->wt = prev.wt;
+	p_ptr->ht_birth = p_ptr->ht = prev.ht;
+	p_ptr->sc_birth = p_ptr->sc = prev.sc;
+	p_ptr->au_birth = p_ptr->au = prev.au;
 
 	/* Load the stats */
 	for (i = 0; i < A_MAX; i++)
 	{
 		p_ptr->stat_max[i] = prev.stat[i];
 		p_ptr->stat_cur[i] = prev.stat[i];
+		p_ptr->stat_birth[i] = prev.stat[i];
 	}
 
 	/* Load the history */
@@ -264,7 +265,7 @@ static void get_stats(void)
 		if (adult_maximize)
 		{
 			/* Start fully healed */
-			p_ptr->stat_cur[i] = p_ptr->stat_max[i];
+			p_ptr->stat_birth[i] = p_ptr->stat_cur[i] = p_ptr->stat_max[i];
 
 			/* Efficiency -- Apply the racial/class bonuses */
 			stat_use[i] = modify_stat_value(p_ptr->stat_max[i], bonus);
@@ -277,7 +278,7 @@ static void get_stats(void)
 			stat_use[i] = adjust_stat(p_ptr->stat_max[i], bonus, FALSE);
 
 			/* Save the resulting stat maximum */
-			p_ptr->stat_cur[i] = p_ptr->stat_max[i] = stat_use[i];
+			p_ptr->stat_birth[i] = p_ptr->stat_cur[i] = p_ptr->stat_max[i] = stat_use[i];
 		}
 	}
 }
@@ -453,15 +454,15 @@ static void get_ahw(void)
 	/* Calculate the height/weight for males */
 	if (p_ptr->psex == SEX_MALE)
 	{
-		p_ptr->ht = Rand_normal(rp_ptr->m_b_ht, rp_ptr->m_m_ht);
-		p_ptr->wt = Rand_normal(rp_ptr->m_b_wt, rp_ptr->m_m_wt);
+		p_ptr->ht_birth = p_ptr->ht = Rand_normal(rp_ptr->m_b_ht, rp_ptr->m_m_ht);
+		p_ptr->wt_birth = p_ptr->wt = Rand_normal(rp_ptr->m_b_wt, rp_ptr->m_m_wt);
 	}
 
 	/* Calculate the height/weight for females */
 	else if (p_ptr->psex == SEX_FEMALE)
 	{
-		p_ptr->ht = Rand_normal(rp_ptr->f_b_ht, rp_ptr->f_m_ht);
-		p_ptr->wt = Rand_normal(rp_ptr->f_b_wt, rp_ptr->f_m_wt);
+		p_ptr->ht_birth = p_ptr->ht = Rand_normal(rp_ptr->f_b_ht, rp_ptr->f_m_ht);
+		p_ptr->wt_birth = p_ptr->wt = Rand_normal(rp_ptr->f_b_wt, rp_ptr->f_m_wt);
 	}
 }
 
@@ -498,7 +499,7 @@ static void get_money(void)
 	if (gold < 100) gold = 100;
 
 	/* Save the gold */
-	p_ptr->au = gold;
+	p_ptr->au_birth = p_ptr->au = gold;
 }
 
 
@@ -1335,11 +1336,13 @@ static bool player_birth_aux_1(void)
 	{
 		p_ptr->astral = TRUE;
 		p_ptr->astral_start = TRUE;
+		p_ptr->astral_birth = TRUE;
 	}
 	else
 	{
 	        p_ptr->astral = FALSE;
 		p_ptr->astral_start = FALSE;
+		p_ptr->astral_birth = FALSE;
 	}
 
 	/* Clear */
@@ -1466,7 +1469,7 @@ static bool player_birth_aux_2(void)
 		  
 		    /* Apply the racial/class bonuses */
 		    p_ptr->stat_cur[i] = modify_stat_value(stats[i], bonus);
-		    p_ptr->stat_max[i] = p_ptr->stat_cur[i];
+		    p_ptr->stat_birth[i] = p_ptr->stat_max[i] = p_ptr->stat_cur[i];
 
 		    /* Total cost */
 		    cost += birth_stat_costs[stats[i] - 10];
@@ -1486,7 +1489,7 @@ static bool player_birth_aux_2(void)
 		}
 
 		/* Gold is inversely proportional to cost */
-		p_ptr->au = (100 * (48 - cost)) + 100;
+		p_ptr->au_birth = p_ptr->au = (100 * (48 - cost)) + 100;
 
 		/* Easy mode gives more gold, but not more points */
 		if (adult_easy) { p_ptr->au += 500; p_ptr->au *= 10; }
@@ -2088,6 +2091,149 @@ static bool player_birth_aux(void)
 	return (TRUE);
 }
 
+/* Create a character from previous character, code was originally
+   from EyAngband */
+static bool player_birth_quick()
+{
+	char ch;
+	int i;
+	birther old_char;
+	byte old_astral;
+	byte old_class[MAX_CLASS];
+	byte old_current_class;
+	byte old_available_classes;
+	byte old_race;
+	byte old_sex;
+	byte old_hitdie;
+	u16b old_expfact[MAX_CLASS];
+	s16b old_hp[PY_MAX_LEVEL];
+
+	old_astral = p_ptr->astral_birth;
+	old_sex = p_ptr->psex;
+	for (i = 0; i < MAX_CLASS; i++)
+	  old_class[i] = p_ptr->pclass[i];
+	old_current_class = p_ptr->current_class;
+	old_available_classes = p_ptr->available_classes;
+	old_race = p_ptr->prace;
+
+	old_hitdie = p_ptr->hitdie;
+	for (i = 0; i < MAX_CLASS; i++)
+	  old_expfact[i] = p_ptr->expfact[i];
+
+	old_char.age = p_ptr->age;
+	old_char.au = p_ptr->au_birth;
+	old_char.ht = p_ptr->ht_birth;
+	old_char.wt = p_ptr->wt_birth;
+	old_char.sc = p_ptr->sc_birth;
+	
+	/* Save the stats */
+	for (i = 0; i < A_MAX; i++)
+	{
+		old_char.stat[i] = p_ptr->stat_birth[i];
+	}
+
+	/* Save the history */
+	for (i = 0; i < 4; i++)
+	{
+	     strcpy(old_char.history[i], p_ptr->history[i]);
+	}
+
+	/* Save the hp */
+	for (i = 0; i < PY_MAX_LEVEL; i++)
+	{
+		old_hp[i] = p_ptr->player_hp[i];
+	}
+
+	/* Wipe the player */
+	player_wipe();
+
+	p_ptr->astral_birth = p_ptr->astral_start = p_ptr->astral = old_astral;
+	p_ptr->current_class = old_current_class;
+	p_ptr->available_classes = old_available_classes;
+
+	/* Level one */
+	for (i = 0; i < p_ptr->available_classes; i++)
+	  p_ptr->max_lev[i] = p_ptr->lev[i] = 1;
+
+	p_ptr->psex = old_sex;
+	for (i = 0; i < p_ptr->available_classes; i++)
+	  p_ptr->pclass[i] = old_class[i];
+	p_ptr->prace = old_race;
+
+	p_ptr->hitdie = old_hitdie;
+	for (i = 0; i < p_ptr->available_classes; i++)
+	  p_ptr->expfact[i] = old_expfact[i];
+
+	p_ptr->age = old_char.age;
+	p_ptr->au_birth = p_ptr->au = old_char.au;
+	p_ptr->ht_birth = p_ptr->ht = old_char.ht;
+	p_ptr->wt_birth = p_ptr->wt = old_char.wt;
+	p_ptr->sc_birth = p_ptr->sc = old_char.sc;
+	
+	/* Load the stats */
+	for (i = 0; i < A_MAX; i++)
+	{
+		p_ptr->stat_birth[i] = p_ptr->stat_cur[i] = p_ptr->stat_max[i] = old_char.stat[i];
+	}
+
+	/* Load the history */
+	for (i = 0; i < 4; i++)
+	{
+	     strcpy(p_ptr->history[i], old_char.history[i]);
+	}
+
+	/* Load the hp */
+	for (i = 0; i < PY_MAX_LEVEL; i++)
+	{
+		p_ptr->player_hp[i] = old_hp[i];
+	}
+
+	/* Set birth options from adult options */
+	for (i = 0; i < 32; i++)
+	{
+		op_ptr->opt[OPT_BIRTH + i] = op_ptr->opt[OPT_ADULT + i];
+	}
+
+	/* Reset score options */
+	for (i = 0; i < 32; i++)
+	{
+		op_ptr->opt[OPT_SCORE + i] = FALSE;
+		op_ptr->opt[OPT_CHEAT + i] = FALSE;
+	}
+
+	/* Calculate the bonuses and hitpoints */
+	p_ptr->update |= (PU_BONUS | PU_HP);
+
+	/* Update stuff */
+	update_stuff();
+
+	/* Fully healed */
+	p_ptr->chp = p_ptr->mhp;
+
+	/* Fully rested */
+	p_ptr->csp = p_ptr->msp;
+
+	/* Get a name, prepare savefile */
+	get_name();
+
+	/* Display the player */
+	display_player(0);
+
+	/* Prompt for it */
+	prt("['Q' to suicide, 'S' to start over or ESC to continue]", 23, 10);
+
+	/* Get a key */
+	ch = inkey();
+
+	/* Quit */
+	if (ch == 'Q') quit(NULL);
+
+	/* Start over */
+	if (ch == 'S') return (FALSE);
+
+	/* Accept */
+	return (TRUE);
+}
 
 /*
  * Create a new character.
@@ -2098,16 +2244,42 @@ static bool player_birth_aux(void)
 void player_birth(void)
 {
 	int i, n;
+	bool done = FALSE;
 
+	/* Quickstart if previous character existed on the savefile */
+	if (character_existed)
+	{
+	     char ch;
+	     char buf[80];
+
+	     while (TRUE)
+	     {
+		  Term_clear();
+
+		  sprintf(buf, "Quickstart character based on previous one (y/n) ? ");
+		  put_str(buf, 2, 2);
+		  ch = inkey();
+		  if (ch == 'Q') quit (NULL);
+		  if (ch == ESCAPE) break;
+		  if (strchr("YyNn", ch)) break;
+		  if (ch == '?') { do_cmd_help(); continue; }
+		  bell("Illegal answer!");
+	     }
+
+	     if (ch == 'Y' || ch == 'y')
+	     {
+		  if (player_birth_quick()) done = TRUE;
+	     }
+	}
 
 	/* Create a new character */
-	while (1)
+	while (!done)
 	{
 		/* Wipe the player */
 		player_wipe();
 
 		/* Roll up a new character */
-		if (player_birth_aux()) break;
+		done = (player_birth_aux());
 	}
 
 

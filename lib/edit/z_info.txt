@@ -18,7 +18,7 @@ V:2.9.2
 M:F:64
 
 # Maximum number of object kinds
-M:K:600
+M:K:630
 
 # Maximum number of artifacts
 M:A:128

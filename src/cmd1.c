@@ -1316,8 +1316,20 @@ void py_attack(int y, int x)
 		        /* Berserker stuns monsters on critical hits */
 		        int stunning = 0; 
 
+		        /* Describe action */
+		        char hit_desc[10] = "hit";
+
+			/* Unarmed combat */
+			if (!inventory[INVEN_WIELD].k_idx)
+			{
+			     strcpy(hit_desc, "punch");
+
+			     if (player_has_class(CLASS_MONK, 0) && rand_int(2))
+			       strcpy(hit_desc, "kick");
+			}
+
 			/* Message */
-			message_format(MSG_HIT, m_ptr->r_idx, "You hit %s.", m_name);
+			message_format(MSG_HIT, m_ptr->r_idx, "You %s %s.", hit_desc, m_name);
 
 			/* Hack -- bare hands do one damage */
 			k = 1;

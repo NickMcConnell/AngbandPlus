@@ -1,3 +1,8 @@
+two-weapon combat, two-handed weapons (>20lbs + mage staff, qstaff, beaked axe, glaive, halberd, awl-pike, pike)
+stop attacking when monster dies, take less time if not all blows were used
+tv_axe
+
+--
 
 rod/wand/staff stacking
 
@@ -10,11 +15,15 @@ Add auto-more option
 Show permanent walls in different colour - cyan or umber?
 
 allow player to choose which class gets XP
+- get rid of code to divide XP automagiaclly
+- class/race xp penalties remain
 - show unallocated XP with ADV and each class's with normal XP display
 - show each class's number in 'c' screen
-- default amount is all
-- get rid of code to divide XP automagiaclly
-- xp penalties for second/third/fourth classes remain
+- add command to add xp to a class
+- default amount is all, ask for amount
+- add option to divide ZP in asked for proportions, ie 2 in one class and 5 in another
+- XP draining code takes unallocated XP first, then from class with highest amount of XP
+- regained XP goes to unallocated
 
 ---
 
@@ -41,8 +50,10 @@ thief abilities? steal from shops, guess objects value, good at throwing
 ---
 
 add random quests, give choice of one of three rewards from useful items list
+
 add stalls in town, selling a set of related items, eg by TVAL, or ego-items only, or rare items only, etc
 make stalls move around, arrive and depart, but not change owner
+add gambling store
 
 ---
 

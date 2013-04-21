@@ -1185,15 +1185,19 @@ static void store_create(void)
 		/* Black Market */
 		if (store_num == STORE_B_MARKET)
 		{
-			/* Pick a level for object/magic, adjusted by recall 
-			   depth */
-		        level = rand_range(p_ptr->max_depth, 
-					   p_ptr->max_depth + 20);
-			/* Easy mode gives better items */
-			if (adult_easy) level += (level < 20) ? 20 : level;
+		        /* Random level */
+		        level = p_ptr->max_depth + 10;
+			if (level > 127) level = 127;
+
+			/* Better items in easy mode */
+			if (adult_easy) level += 10;
 
 			/* Random object kind (usually of given level) */
 			k_idx = get_obj_num(level);
+
+			/* Level for magic */
+			level = rand_range(level / 2, level * 2);
+			if (level > 127) level = 127;
 
 			/* Handle failure */
 			if (!k_idx) continue;
@@ -1503,6 +1507,7 @@ static void store_prt_gold(void)
 	prt("Gold Remaining: ", 19, 53);
 
 	sprintf(out_val, "%9ld", (long)p_ptr->au);
+
 	prt(out_val, 19, 68);
 }
 

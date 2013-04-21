@@ -362,3 +362,30 @@ Added ego-items for charms/talismans, (Glowing) or (Indestructible)
 Cancelling staffs/rods of id does not take time
 Spell failure chance is set to 0% if it would have gone below that before penalties are added
 
+1.1.0
+
+Redid calculation of how many scrolls runecasters get from books<br>
+Groups of monsters are scattered
+No unique monsters are generated for astral characters, they have to
+go to the surface first
+Changed how black market gets items, tied closer to player depth
+Show extra might in multiplier of missile launcher
+Changed message when attacking monsters to 'you punch it' if no weapon is
+wielded, monks using unarmed combat get 'you kick it' half the time
+Added number of shots to kill a monster to monster memory
+Added some more weapons and body armour
+
+Added shifter power to 'unshift', ie return to default form, 0% failure chance
+If shapeshifted, show current form on character info screen
+Fixed mindflayer form giving bonus to str/con instead of penalty
+
+---
+
+Fixed some polearms having the wrong tval in k_info.txt
+Priests/Crusader/Slayer now have -1 to Int (was -3), Mage/Illusionist
+has -1 to Wis (was 0), Monk has +1 to Wis (was -1).
+Fixed spells in Purifications and Healing
+Crusader/Slayer haste and infravision stacks with temporary haste/infra
+Fixed unid'd missile weapons/ammo showing damage/to-hit on 'C' screen
+Items give exact chance to be activated/used now, instead of estimate
+Quick-start added

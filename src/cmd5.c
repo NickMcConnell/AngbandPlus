@@ -497,10 +497,10 @@ void do_cmd_study(void)
 	/* Message if needed */
 	if (p_ptr->new_spells)
 	{
-		/* Message */
-		msg_format("You can learn %d more %s%s.",
-		           p_ptr->new_spells, p,
-		           (p_ptr->new_spells != 1) ? "s" : "");
+	  /* Message */
+	  msg_format("You can learn %d more %s%s.",
+		     p_ptr->new_spells, p,
+		     (p_ptr->new_spells != 1) ? "s" : "");
 	}
 
 	/* Save the new_spells value */
@@ -4063,9 +4063,15 @@ struct shifter_power {
      int cost;  /* If a power, then mana cost. If a shift, then chance of failure */
 };
 
+cptr shifter_forms[MAX_SHIFTER_FORMS-1] = {
+  "Giant Spider", "Tengu", "Arctic Bear", "Wyvern", "Ent", "Umber Hulk", "Gorgon", "Phase Spider",
+  "Mind Flayer", "Colbran", "Ice Troll", "Beholder", "Vampire", "Chaos Drake"
+};
+
 struct shifter_power shifter_powers[MAX_SHIFTER_POWERS] =
 {
-     /* Giant Spider : res pois, dex +1, stealth +3 */
+     {  1,     "Unshift",       TRUE,  0,                  0 },
+     /* Giant Spider : res pois, dex +1, stealth +3 */     
      {  1,     "Giant Spider",  TRUE,  FORM_GIANT_SPIDER, 10 },
      {  1, "Sting",            FALSE,  FORM_GIANT_SPIDER,  1 },
      {  1, "Stinking Cloud",   FALSE,  FORM_GIANT_SPIDER,  3 },
@@ -4291,6 +4297,8 @@ static int get_shifter_power(int *sn)
 						  chance = adj_mag_fail[p_ptr->stat_ind[A_DEX]];
 					     /* Always a 5 percent chance of working */
 					     if (chance > 95) chance = 95;
+					     /* Returning to default form always succeeds */
+					     if (temp[i] == SHIFTER_UNSHIFT) chance = 0;
 					     sprintf(power_desc, "  %c) %-30s%3d%% %s",
 						     I2A(i), shifter_powers[temp[i]].name, 
 						     chance, comment);
@@ -4396,6 +4404,8 @@ void do_cmd_shifter()
 	       chance = adj_mag_fail[p_ptr->stat_ind[A_DEX]];
 	  /* Always a 5 percent chance of working */
 	  if (chance > 95) chance = 95;
+	  /* Returning to default form always succeeds */
+	  if (power == SHIFTER_UNSHIFT) chance = 0;
 
 	  if (rand_int(100) < chance)
 	  {
@@ -4422,6 +4432,11 @@ void do_cmd_shifter()
      /* Use the power */
      switch (power)
      {
+     case SHIFTER_UNSHIFT:
+          msg_format("You return to your originial form.");
+	  p_ptr->shapeshift = 0;
+	  notice = TRUE;
+	  break;
      case SHIFTER_GIANT_SPIDER:
      case SHIFTER_TENGU:
      case SHIFTER_ARCTIC_BEAR:

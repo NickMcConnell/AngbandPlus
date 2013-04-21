@@ -1688,6 +1688,9 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 			/* Hack -- Extract the "base power" */
 			power = (o_ptr->sval % 10);
 
+			/* Show extra might */
+			if (f1 & (TR1_MIGHT)) power += o_ptr->pval;
+
 			/* Append a "power" string */
 			object_desc_chr_macro(t, ' ');
 			object_desc_chr_macro(t, p1);
@@ -2348,33 +2351,11 @@ static cptr device_chance(const object_type *o_ptr, bool artifact)
      {         
 	  if (artifact)
 	  {
-	       if (chance < 3) return ("You have almost no chance of activating it for..."); 	  
-	       else if (chance < 6) return ("You have around a 1/20 chance of activating it for..."); 
-	       else if (chance < 16) return ("You have around a 1/10 chance of activating it for...");
-	       else if (chance < 26) return ("You have around a 2/10 chance of activating it for...");
-	       else if (chance < 36) return ("You have around a 3/10 chance of activating it for...");
-	       else if (chance < 46) return ("You have around a 4/10 chance of activating it for...");
-	       else if (chance < 56) return ("You have around a 5/10 chance of activating it for...");
-	       else if (chance < 66) return ("You have around a 6/10 chance of activating it for...");
-	       else if (chance < 76) return ("You have around a 7/10 chance of activating it for...");
-	       else if (chance < 86) return ("You have around a 8/10 chance of activating it for...");
-	       else if (chance < 96) return ("You have around a 9/10 chance of activating it for...");
-	       else return ("You have an almost certain chance of activating it for...");
+	       return (format("You have a %d%% chance of activating it.", chance));
 	  }
 	  else
 	  {
-	       if (chance < 3) return ("You have almost no chance of using it."); 
-	       else if (chance < 6) return ("You have around a 1/20 chance of using it."); 
-	       else if (chance < 16) return ("You have around a 1/10 chance of using it.");
-	       else if (chance < 26) return ("You have around a 2/10 chance of using it.");
-	       else if (chance < 36) return ("You have around a 3/10 chance of using it.");
-	       else if (chance < 46) return ("You have around a 4/10 chance of using it.");
-	       else if (chance < 56) return ("You have around a 5/10 chance of using it.");
-	       else if (chance < 66) return ("You have around a 6/10 chance of using it.");
-	       else if (chance < 76) return ("You have around a 7/10 chance of using it.");
-	       else if (chance < 86) return ("You have around a 8/10 chance of using it.");
-	       else if (chance < 96) return ("You have around a 9/10 chance of using it.");
-	       else return ("You have an almost certain chance of using it.");
+	       return (format("You have a %d%% chance of using it.", chance));
 	  }
      }
 }

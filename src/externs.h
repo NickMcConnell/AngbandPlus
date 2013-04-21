@@ -93,6 +93,7 @@ extern bool character_generated;
 extern bool character_dungeon;
 extern bool character_loaded;
 extern bool character_saved;
+extern bool character_existed;
 extern s16b character_icky;
 extern s16b character_xtra;
 extern u32b seed_randart;
@@ -367,6 +368,7 @@ extern void do_cmd_pray(void);
 extern void do_cmd_cast_illusion(void);
 extern void do_cmd_cast_death(void);
 extern void do_cmd_power(void);
+extern cptr shifter_forms[MAX_SHIFTER_FORMS-1];
 extern void do_cmd_shifter(void);
 
 /* cmd6.c */

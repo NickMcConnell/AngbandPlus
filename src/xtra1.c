@@ -175,7 +175,7 @@ static void prt_stat(int stat)
 	    put_str(stat_names_reduced[stat], ROW_STAT + stat, 0);
 	    c_put_str(likert_stat_color, desc, ROW_STAT + stat, COL_STAT + 6);
 	  }
-	else
+	else 
 	  {
 	    /* Display "injured" stat */
 	    if (p_ptr->stat_cur[stat] < p_ptr->stat_max[stat])
@@ -525,7 +525,7 @@ static void piety_player_redraw(void)
     }
   else
     {
-      put_str("HP/Mana/Piety", ROW_MAXHP, COL_MAXHP);
+      put_str("HP/Mana/Piet", ROW_MAXHP, COL_MAXHP);
       row = ROW_PIETY;
     }
 
@@ -961,11 +961,11 @@ static void prt_study(void)
 {
 	if (p_ptr->new_spells)
 	{
-		put_str(format("Study[%d]", p_ptr->new_spells), ROW_STUDY, COL_STUDY);
+	     put_str(format("Study[%d]", p_ptr->new_spells), ROW_STUDY, COL_STUDY);
 	}
 	else
 	{
-		put_str("         ", ROW_STUDY, COL_STUDY);
+	     put_str("         ", ROW_STUDY, COL_STUDY);
 	}
 }
 
@@ -1754,10 +1754,10 @@ static void calc_spells(void)
 		/* Message if needed */
 		if (p_ptr->new_spells)
 		{
-			/* Message */
-			cmsg_format(TERM_L_BLUE, "You can learn %d more %s%s.",
-			           p_ptr->new_spells, p,
-			           (p_ptr->new_spells != 1) ? "s" : "");
+		     /* Message */
+		     cmsg_format(TERM_L_BLUE, "You can learn %d more %s%s.",
+				 p_ptr->new_spells, p,
+				 (p_ptr->new_spells != 1) ? "s" : "");
 		}
 
 		/* Save the new_spells value */
@@ -2709,7 +2709,11 @@ static void calc_bonuses(void)
 	}
 
 	/* Temporary "fast" */
-	if ((p_ptr->fast) || (p_ptr->power_passive == POWER_HASTE))
+	if (p_ptr->fast) 
+	{
+		p_ptr->pspeed += 10;
+	}
+	if (p_ptr->power_passive == POWER_HASTE)
 	{
 		p_ptr->pspeed += 10;
 	}
@@ -2727,7 +2731,11 @@ static void calc_bonuses(void)
 	}
 
 	/* Temporary infravision boost */
-	if ((p_ptr->tim_infra) || (p_ptr->power_passive == POWER_VISION))
+	if (p_ptr->tim_infra)
+	{
+		p_ptr->see_infra += 3;
+	}
+	if (p_ptr->power_passive == POWER_VISION)
 	{
 		p_ptr->see_infra += 3;
 	}
@@ -2863,8 +2871,8 @@ static void calc_bonuses(void)
 	     p_ptr->stat_use[A_STR] = modify_stat_value(p_ptr->stat_use[A_STR], 2); break;
 	case FORM_MINDFLAYER: p_ptr->sustain_int = TRUE; p_ptr->resist_confu = TRUE; 
 	     p_ptr->telepathy = TRUE;
-	     p_ptr->stat_use[A_STR] = modify_stat_value(p_ptr->stat_use[A_STR], 2); 
-	     p_ptr->stat_use[A_CON] = modify_stat_value(p_ptr->stat_use[A_CON], 2); 
+	     p_ptr->stat_use[A_STR] = modify_stat_value(p_ptr->stat_use[A_STR], -2); 
+	     p_ptr->stat_use[A_CON] = modify_stat_value(p_ptr->stat_use[A_CON], -2); 
 	     p_ptr->stat_use[A_INT] = modify_stat_value(p_ptr->stat_use[A_INT], 5); break;
 	case FORM_COLBRAN: p_ptr->resist_elec = TRUE; p_ptr->resist_shard = TRUE; 
 	     p_ptr->stat_use[A_STR] = modify_stat_value(p_ptr->stat_use[A_STR], 3); break;

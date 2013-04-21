@@ -1,0 +1,207 @@
+#
+# Makefile for Angband using the lcc32 compiler
+#
+
+
+#
+# Basic defines (change the file locations as appropriate).
+#
+
+LCC_PATH =	C:\tools
+LINK	=	$(LCC_PATH)\bin\lcclnk.exe
+CC		=	$(LCC_PATH)\bin\lcc.exe
+RC		=	$(LCC_PATH)\bin\lrc.exe
+LIBS	=	$(LCC_PATH)\lib\winmm.lib
+INCS	=	$(LCC_PATH)\include
+CFLAGS	=	-I$(INCS) -DHAS_STRICMP -DUSE_TRANSPARENCY
+
+OBJS=\
+	z-virt.obj \
+	z-util.obj \
+	z-term.obj \
+	z-rand.obj \
+	z-form.obj \
+	xtra2.obj \
+	xtra1.obj \
+	wizard2.obj \
+	wizard1.obj \
+	variable.obj \
+	util.obj \
+	tables.obj \
+	store.obj \
+	spells2.obj \
+	spells1.obj \
+	save.obj \
+	readdib.obj \
+	randart.obj \
+	object2.obj \
+	object1.obj \
+	monster2.obj \
+	monster1.obj \
+	melee2.obj \
+	melee1.obj \
+	main-win.obj \
+	load.obj \
+	init2.obj \
+	init1.obj \
+	generate.obj \
+	files.obj \
+	dungeon.obj \
+	multi.obj \
+	cmd6.obj \
+	cmd5.obj \
+	cmd4.obj \
+	cmd3.obj \
+	cmd2.obj \
+	cmd1.obj \
+	cave.obj \
+	birth.obj \
+	angband.res
+
+#
+# Targets
+#
+
+angband.exe:	$(OBJS) Makefile
+	$(LINK) -s -subsystem windows -o angband.exe $(OBJS) $(LIBS)
+
+INCLUDES=\
+	angband.h\
+	h-basic.h\
+	h-config.h\
+	h-define.h\
+	h-system.h\
+	h-type.h\
+	z-form.h\
+	z-rand.h\
+	z-term.h\
+	z-util.h\
+	z-virt.h\
+	config.h\
+	defines.h\
+	types.h\
+	externs.h\
+
+z-virt.obj: $(INCLUDES) z-virt.c
+	$(CC) -c $(CFLAGS) z-virt.c
+
+z-util.obj: $(INCLUDES) z-util.c
+	$(CC) -c $(CFLAGS) z-util.c
+
+z-term.obj: $(INCLUDES) z-term.c
+	$(CC) -c $(CFLAGS) z-term.c
+
+z-rand.obj: $(INCLUDES) z-rand.c
+	$(CC) -c $(CFLAGS) z-rand.c
+
+z-form.obj: $(INCLUDES) z-form.c
+	$(CC) -c $(CFLAGS) z-form.c
+
+xtra2.obj: $(INCLUDES) xtra2.c
+	$(CC) -c $(CFLAGS) xtra2.c
+
+xtra1.obj: $(INCLUDES) xtra1.c
+	$(CC) -c $(CFLAGS) xtra1.c
+
+wizard2.obj: $(INCLUDES) wizard2.c
+	$(CC) -c $(CFLAGS) wizard2.c
+
+wizard1.obj: $(INCLUDES) wizard1.c
+	$(CC) -c $(CFLAGS) wizard1.c
+
+variable.obj: $(INCLUDES) variable.c
+	$(CC) -c $(CFLAGS) variable.c
+
+util.obj: $(INCLUDES) util.c
+	$(CC) -c $(CFLAGS) util.c
+
+tables.obj: $(INCLUDES) tables.c
+	$(CC) -c $(CFLAGS) tables.c
+
+store.obj: $(INCLUDES) store.c
+	$(CC) -c $(CFLAGS) store.c
+
+spells2.obj: $(INCLUDES) spells2.c
+	$(CC) -c $(CFLAGS) spells2.c
+
+spells1.obj: $(INCLUDES) spells1.c
+	$(CC) -c $(CFLAGS) spells1.c
+
+save.obj: $(INCLUDES) save.c
+	$(CC) -c $(CFLAGS) save.c
+
+readdib.obj: $(INCLUDES) readdib.h readdib.c
+	$(CC) -c $(CFLAGS) readdib.c
+
+object2.obj: $(INCLUDES) object2.c
+	$(CC) -c $(CFLAGS) object2.c
+
+object1.obj: $(INCLUDES) object1.c
+	$(CC) -c $(CFLAGS) object1.c
+
+monster2.obj: $(INCLUDES) monster2.c
+	$(CC) -c $(CFLAGS) monster2.c
+
+monster1.obj: $(INCLUDES) monster1.c
+	$(CC) -c $(CFLAGS) monster1.c
+
+melee2.obj: $(INCLUDES) melee2.c
+	$(CC) -c $(CFLAGS) melee2.c
+
+melee1.obj: $(INCLUDES) melee1.c
+	$(CC) -c $(CFLAGS) melee1.c
+
+main-win.obj: $(INCLUDES) readdib.h main-win.c
+	$(CC) -c $(CFLAGS) main-win.c
+
+load.obj: $(INCLUDES) load.c
+	$(CC) -c $(CFLAGS) load.c
+
+init2.obj: $(INCLUDES) init2.c
+	$(CC) -c $(CFLAGS) init2.c
+
+init1.obj: $(INCLUDES) init1.c
+	$(CC) -c $(CFLAGS) init1.c
+
+generate.obj: $(INCLUDES) generate.c
+	$(CC) -c $(CFLAGS) generate.c
+
+files.obj: $(INCLUDES) files.c
+	$(CC) -c $(CFLAGS) files.c
+
+dungeon.obj: $(INCLUDES) dungeon.c
+	$(CC) -c $(CFLAGS) dungeon.c
+
+multi.obj: $(INCLUDES) multi.c
+	$(CC) -c $(CFLAGS) multi.c
+
+cmd6.obj: $(INCLUDES) cmd6.c
+	$(CC) -c $(CFLAGS) cmd6.c
+
+cmd5.obj: $(INCLUDES) cmd5.c
+	$(CC) -c $(CFLAGS) cmd5.c
+
+cmd4.obj: $(INCLUDES) cmd4.c
+	$(CC) -c $(CFLAGS) cmd4.c
+
+cmd3.obj: $(INCLUDES) cmd3.c
+	$(CC) -c $(CFLAGS) cmd3.c
+
+cmd2.obj: $(INCLUDES) cmd2.c
+	$(CC) -c $(CFLAGS) cmd2.c
+
+cmd1.obj: $(INCLUDES) cmd1.c
+	$(CC) -c $(CFLAGS) cmd1.c
+
+cave.obj: $(INCLUDES) cave.c
+	$(CC) -c $(CFLAGS) cave.c
+
+birth.obj: $(INCLUDES) birth.c
+	$(CC) -c $(CFLAGS) birth.c
+
+randart.obj: randart.c
+	$(CC) -c $(CFLAGS) randart.c
+
+angband.res: angband.rc
+	$(RC) -I$(INCS) angband.rc
+

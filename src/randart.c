@@ -1167,19 +1167,24 @@ static void choose_item(int a_idx)
 		/* Create a "blunt" weapon. */
 		tval = TV_HAFTED;
 		r2 = Rand_normal(target_level * 2, target_level);
-		if (r2 < 3) sval = SV_WOODEN_CLUB;
-		else if (r2 < 6) sval = SV_WHIP;
-		else if (r2 < 9) sval = SV_SPIKED_CLUB;
-		else if (r2 < 12) sval = SV_MACE;
-		else if (r2 < 20) sval = SV_WAR_HAMMER;
-		else if (r2 < 28) sval = SV_QUARTERSTAFF;
-		else if (r2 < 34) sval = SV_LUCERN_HAMMER;
-		else if (r2 < 38) sval = SV_MORNING_STAR;
-		else if (r2 < 45) sval = SV_FLAIL;
-		else if (r2 < 50) sval = SV_GIANT_CLUB;
-		else if (r2 < 55) sval = SV_LEAD_FILLED_MACE;
-		else if (r2 < 80) sval = SV_BALL_AND_CHAIN;
-		else if (r2 < 120) sval = SV_TWO_HANDED_FLAIL;
+		if (r2 < 3) sval = SV_MAGE_STAFF;
+		else if (r2 < 5) sval = SV_WHIP;
+		else if (r2 < 7) sval = SV_BULLWHIP;
+		else if (r2 < 9) sval = SV_WOODEN_CLUB;
+		else if (r2 < 12) sval = SV_CLAW_HAMMER;
+		else if (r2 < 15) sval = SV_MACE;
+		else if (r2 < 20) sval = SV_QUARTERSTAFF;
+		else if (r2 < 25) sval = SV_WAR_HAMMER;
+		else if (r2 < 30) sval = SV_LUCERN_HAMMER;
+		else if (r2 < 40) sval = SV_MORNING_STAR;
+		else if (r2 < 50) sval = SV_FLAIL;
+		else if (r2 < 60) sval = SV_SPIKED_CLUB;
+		else if (r2 < 70) sval = SV_LEAD_FILLED_MACE;
+		else if (r2 < 80) sval = SV_GIANT_CLUB;
+		else if (r2 < 90) sval = SV_BALL_AND_CHAIN;
+		else if (r2 < 100) sval = SV_TWO_HANDED_FLAIL;
+		else if (r2 < 110) sval = SV_GREAT_HAMMER;
+		else if (r2 < 120) sval = SV_MAUL;
 		else sval = SV_MACE_OF_DISRUPTION;
 	}
 	else if (r < 33)
@@ -1189,6 +1194,7 @@ static void choose_item(int a_idx)
 		r2 = Rand_normal(target_level * 2, target_level);
 		if (r2 < 0) sval = SV_BROKEN_DAGGER;
 		else if (r2 < 1) sval = SV_BROKEN_SWORD;
+		else if (r2 < 3) sval = SV_DIRK;
 		else if (r2 < 5) sval = SV_DAGGER;
 		else if (r2 < 7) sval = SV_KNIFE;
 		else if (r2 < 9) sval = SV_MAIN_GAUCHE;
@@ -1198,9 +1204,10 @@ static void choose_item(int a_idx)
 		else if (r2 < 16) sval = SV_SABRE;
 		else if (r2 < 18) sval = SV_CUTLASS;
 		else if (r2 < 20) sval = SV_TULWAR;
-		else if (r2 < 23) sval = SV_BROAD_SWORD;
-		else if (r2 < 26) sval = SV_LONG_SWORD;
-		else if (r2 < 30) sval = SV_SCIMITAR;
+		else if (r2 < 23) sval = SV_FALCHION;
+		else if (r2 < 26) sval = SV_BROAD_SWORD;
+		else if (r2 < 30) sval = SV_LONG_SWORD;
+		else if (r2 < 35) sval = SV_SCIMITAR;
 		else if (r2 < 45) sval = SV_BASTARD_SWORD;
 		else if (r2 < 60) sval = SV_KATANA;
 		else if (r2 < 75) sval = SV_GREAT_SCIMITAR;
@@ -1213,20 +1220,29 @@ static void choose_item(int a_idx)
 		/* Create a weapon that's not blunt or sword-shaped. */
 		tval = TV_POLEARM;
 		r2 = Rand_normal(target_level * 2, target_level);
-		if (r2 < 12) sval = SV_SPEAR;
+		if (r2 < 5) sval = SV_HATCHET;
+		else if (r2 < 10) sval = SV_SPEAR;
+		else if (r2 < 15) sval = SV_SICKLE;
 		else if (r2 < 20) sval = SV_TRIDENT;
-		else if (r2 < 24) sval = SV_HAND_AXE;
-		else if (r2 < 27) sval = SV_LANCE;
-		else if (r2 < 35) sval = SV_AWL_PIKE;
-		else if (r2 < 45) sval = SV_PIKE;
-		else if (r2 < 50) sval = SV_BEAKED_AXE;
-		else if (r2 < 55) sval = SV_BROAD_AXE;
-		else if (r2 < 60) sval = SV_BATTLE_AXE;
-		else if (r2 < 65) sval = SV_GLAIVE;
-		else if (r2 < 80) sval = SV_HALBERD;
-		else if (r2 < 120) sval = SV_GREAT_AXE;
-		else if (r2 < 128) sval = SV_SCYTHE;
-		else if (r2 < 135) sval = SV_LOCHABER_AXE;
+		else if (r2 < 25) sval = SV_BROAD_SPEAR;
+		else if (r2 < 30) sval = SV_HAND_AXE;
+		else if (r2 < 35) sval = SV_CLEAVER;
+		else if (r2 < 40) sval = SV_LIGHT_WAR_AXE;
+		else if (r2 < 45) sval = SV_AWL_PIKE;
+		else if (r2 < 50) sval = SV_PIKE;
+		else if (r2 < 55) sval = SV_LANCE;
+		else if (r2 < 60) sval = SV_DOUBLE_AXE;
+		else if (r2 < 65) sval = SV_BEAKED_AXE;
+		else if (r2 < 70) sval = SV_BROAD_AXE;
+		else if (r2 < 75) sval = SV_BATTLE_AXE;
+		else if (r2 < 80) sval = SV_HEAVY_WAR_AXE;
+		else if (r2 < 85) sval = SV_GLAIVE;
+		else if (r2 < 90) sval = SV_HALBERD;
+		else if (r2 < 95) sval = SV_TRI_SPEAR;
+		else if (r2 < 100) sval = SV_GREAT_AXE;
+		else if (r2 < 110) sval = SV_SCYTHE;
+		else if (r2 < 115) sval = SV_LOCHABER_AXE;
+		else if (r2 < 120) sval = SV_HEAVY_LANCE;
 		else sval = SV_SCYTHE_OF_SLICING;
 	}
 	else if (r < 64)
@@ -1237,26 +1253,34 @@ static void choose_item(int a_idx)
 
 		/* Soft stuff. */
 		if (r2 < 0) sval = SV_FILTHY_RAG;
-		else if (r2 < 5) sval = SV_ROBE;
+		else if (r2 < 3) sval = SV_ROBE;
+		else if (r2 < 6) sval = SV_LEATHER_JACKET;
 		else if (r2 < 10) sval = SV_SOFT_LEATHER_ARMOR;
 		else if (r2 < 15) sval = SV_SOFT_STUDDED_LEATHER;
 		else if (r2 < 20) sval = SV_HARD_LEATHER_ARMOR;
 		else if (r2 < 30) sval = SV_HARD_STUDDED_LEATHER;
+		else if (r2 < 35) sval = SV_QUILTED_ARMOR;
 		else if (r2 < 45) sval = SV_LEATHER_SCALE_MAIL;
 
 		/* Hard stuff. */
 		else if (r2 < 55) sval = SV_RUSTY_CHAIN_MAIL;
+		else if (r2 < 60) sval = SV_RING_MAIL;
 		else if (r2 < 65) sval = SV_METAL_SCALE_MAIL;
 		else if (r2 < 75) sval = SV_CHAIN_MAIL;
 		else if (r2 < 85) sval = SV_AUGMENTED_CHAIN_MAIL;
 		else if (r2 < 90) sval = SV_DOUBLE_CHAIN_MAIL;
-		else if (r2 < 97) sval = SV_BAR_CHAIN_MAIL;
+		else if (r2 < 95) sval = SV_LIGHT_PLATE_ARMOUR;
+		else if (r2 < 100) sval = SV_BAR_CHAIN_MAIL;
 		else if (r2 < 105) sval = SV_METAL_BRIGANDINE_ARMOUR;
-		else if (r2 < 115) sval = SV_PARTIAL_PLATE_ARMOUR;
-		else if (r2 < 125) sval = SV_METAL_LAMELLAR_ARMOUR;
-		else if (r2 < 135) sval = SV_FULL_PLATE_ARMOUR;
-		else if (r2 < 140) sval = SV_RIBBED_PLATE_ARMOUR;
-		else if (r2 < 150) sval = SV_MITHRIL_CHAIN_MAIL;
+		else if (r2 < 110) sval = SV_SPLINT_MAIL;
+		else if (r2 < 115) sval = SV_BREAST_PLATE;
+		else if (r2 < 120) sval = SV_CHAIN_MESH_ARMOUR;
+		else if (r2 < 125) sval = SV_PARTIAL_PLATE_ARMOUR;
+		else if (r2 < 130) sval = SV_METAL_LAMELLAR_ARMOUR;
+		else if (r2 < 135) sval = SV_FIELD_PLATE_ARMOUR;
+		else if (r2 < 140) sval = SV_FULL_PLATE_ARMOUR;
+		else if (r2 < 145) sval = SV_RIBBED_PLATE_ARMOUR;
+		else if (r2 < 155) sval = SV_MITHRIL_CHAIN_MAIL;
 		else if (r2 < 170) sval = SV_MITHRIL_PLATE_MAIL;
 		else sval = SV_ADAMANTITE_PLATE_MAIL;
 	}

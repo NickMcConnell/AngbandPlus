@@ -47,7 +47,7 @@
 /*
  * Current version string
  */
-#define VERSION_STRING	"1.0.9"
+#define VERSION_STRING	"1.1.0"
 
 
 /*
@@ -543,7 +543,8 @@
 #define POWER_SLAY_ANIMAL 20
 
 /* Shifter powers */
-#define MAX_SHIFTER_POWERS     62
+#define MAX_SHIFTER_FORMS      15
+#define MAX_SHIFTER_POWERS     63
 #define FORM_GIANT_SPIDER       1
 #define FORM_TENGU              2
 #define FORM_ARCTIC_BEAR        3
@@ -558,68 +559,69 @@
 #define FORM_BEHOLDER          12
 #define FORM_VAMPIRE           13
 #define FORM_CHAOS_DRAKE       14
-#define SHIFTER_GIANT_SPIDER    0
-#define SHIFTER_STING           1
-#define SHIFTER_STINKING_CLOUD  2
-#define SHIFTER_RES_POIS        3
-#define SHIFTER_TENGU           4
-#define SHIFTER_PHASE_DOOR      5
-#define SHIFTER_TELE_SELF       6
-#define SHIFTER_ARCTIC_BEAR     7
-#define SHIFTER_HEROISM         8
-#define SHIFTER_RES_COLD        9
-#define SHIFTER_BERSERK        10
-#define SHIFTER_WYVERN         11
-#define SHIFTER_LIGHT_AREA     12
-#define SHIFTER_RES_FIRE       13
-#define SHIFTER_BR_FIRE        14
-#define SHIFTER_ENT            15
-#define SHIFTER_FIRST_AID      16
-#define SHIFTER_SAT_HUNGER     17
-#define SHIFTER_HERBAL_HEALING 18
-#define SHIFTER_ENTANGLE       19
-#define SHIFTER_UMBER_HULK     20
-#define SHIFTER_CONFUSE        21
-#define SHIFTER_STONE_TO_MUD   22
-#define SHIFTER_EARTHQUAKE     23
-#define SHIFTER_GORGON         24
-#define SHIFTER_RES_ACID       25
-#define SHIFTER_SLEEP          26
-#define SHIFTER_BR_ACID        27
-#define SHIFTER_PHASE_SPIDER   28
-#define SHIFTER_STING2         29
-#define SHIFTER_PHASE_DOOR2    30
-#define SHIFTER_HASTE          31
-#define SHIFTER_MINDFLAYER     32
-#define SHIFTER_CONFUSE2       33
-#define SHIFTER_SCARE2         34
-#define SHIFTER_TELE_SELF2     35
-#define SHIFTER_MIND_BLAST     36
-#define SHIFTER_COLBRAN        37
-#define SHIFTER_L_BOLT         38
-#define SHIFTER_RES_ELEC       39
-#define SHIFTER_L_BALL         40
-#define SHIFTER_HASTE2         41
-#define SHIFTER_ICE_TROLL      42
-#define SHIFTER_SLOW           43
-#define SHIFTER_SHIELD         44
-#define SHIFTER_ICE_BOLT       45
-#define SHIFTER_BEHOLDER       46
-#define SHIFTER_DETECT_MONS    47
-#define SHIFTER_MAGIC_MAP      48
-#define SHIFTER_TELE_OTHER     49
-#define SHIFTER_CONF_BALL      50
-#define SHIFTER_TERROR         51
-#define SHIFTER_MASS_SLEEP     52
-#define SHIFTER_VAMPIRE        53
-#define SHIFTER_SCARE          54
-#define SHIFTER_DRAIN_LIFE     55
-#define SHIFTER_NETHER_BOLT    56
-#define SHIFTER_LIFE_MANA      57
-#define SHIFTER_CHAOS_DRAKE    58
-#define SHIFTER_POLY_OTHER     59
-#define SHIFTER_CHAOS_BOLT     60
-#define SHIFTER_NEXUS_BOLT     61
+#define SHIFTER_UNSHIFT         0
+#define SHIFTER_GIANT_SPIDER    1
+#define SHIFTER_STING           2
+#define SHIFTER_STINKING_CLOUD  3
+#define SHIFTER_RES_POIS        4
+#define SHIFTER_TENGU           5
+#define SHIFTER_PHASE_DOOR      6
+#define SHIFTER_TELE_SELF       7
+#define SHIFTER_ARCTIC_BEAR     8
+#define SHIFTER_HEROISM         9
+#define SHIFTER_RES_COLD       10
+#define SHIFTER_BERSERK        11
+#define SHIFTER_WYVERN         12
+#define SHIFTER_LIGHT_AREA     13
+#define SHIFTER_RES_FIRE       14
+#define SHIFTER_BR_FIRE        15
+#define SHIFTER_ENT            16
+#define SHIFTER_FIRST_AID      17
+#define SHIFTER_SAT_HUNGER     18
+#define SHIFTER_HERBAL_HEALING 19
+#define SHIFTER_ENTANGLE       20
+#define SHIFTER_UMBER_HULK     21
+#define SHIFTER_CONFUSE        22
+#define SHIFTER_STONE_TO_MUD   23
+#define SHIFTER_EARTHQUAKE     24
+#define SHIFTER_GORGON         25
+#define SHIFTER_RES_ACID       26
+#define SHIFTER_SLEEP          27
+#define SHIFTER_BR_ACID        28
+#define SHIFTER_PHASE_SPIDER   29
+#define SHIFTER_STING2         30
+#define SHIFTER_PHASE_DOOR2    31
+#define SHIFTER_HASTE          32
+#define SHIFTER_MINDFLAYER     33
+#define SHIFTER_CONFUSE2       34
+#define SHIFTER_SCARE2         35
+#define SHIFTER_TELE_SELF2     36
+#define SHIFTER_MIND_BLAST     37
+#define SHIFTER_COLBRAN        38
+#define SHIFTER_L_BOLT         39
+#define SHIFTER_RES_ELEC       40
+#define SHIFTER_L_BALL         41
+#define SHIFTER_HASTE2         42
+#define SHIFTER_ICE_TROLL      43
+#define SHIFTER_SLOW           44
+#define SHIFTER_SHIELD         45
+#define SHIFTER_ICE_BOLT       46
+#define SHIFTER_BEHOLDER       47
+#define SHIFTER_DETECT_MONS    48
+#define SHIFTER_MAGIC_MAP      49
+#define SHIFTER_TELE_OTHER     50
+#define SHIFTER_CONF_BALL      51
+#define SHIFTER_TERROR         52
+#define SHIFTER_MASS_SLEEP     53
+#define SHIFTER_VAMPIRE        54
+#define SHIFTER_SCARE          55
+#define SHIFTER_DRAIN_LIFE     56
+#define SHIFTER_NETHER_BOLT    57
+#define SHIFTER_LIFE_MANA      58
+#define SHIFTER_CHAOS_DRAKE    59
+#define SHIFTER_POLY_OTHER     60
+#define SHIFTER_CHAOS_BOLT     61
+#define SHIFTER_NEXUS_BOLT     62
 
 /*
  * Maximum number of "normal" pack slots, and the index of the "overflow"
@@ -1358,43 +1360,58 @@
 #define SV_MATTOCK              7
 
 /* The "sval" values for TV_HAFTED */
-#define SV_WHIP					2	/* 1d6 */
+#define SV_WHIP					1	/* 1d4 */
+#define SV_BULLWHIP					2	/* 1d6 */
 #define SV_QUARTERSTAFF			3	/* 1d9 */
-#define SV_WOODEN_CLUB                  4       /* 1d4 */
+#define SV_WOODEN_CLUB                  4       /* 1d7 */
 #define SV_MACE					5	/* 2d4 */
 #define SV_BALL_AND_CHAIN		6	/* 2d4 */
-#define SV_SPIKED_CLUB                  7       /* 1d7 */
+#define SV_SPIKED_CLUB                  7       /* 2d7 */
 #define SV_WAR_HAMMER			8	/* 3d3 */
+#define SV_MAGE_STAFF                   9       /* 1d4 */
 #define SV_LUCERN_HAMMER		10	/* 2d5 */
+#define SV_CLAW_HAMMER                  11      /* 2d3 */
 #define SV_MORNING_STAR			12	/* 2d6 */
 #define SV_FLAIL			13	/* 2d6 */
-#define SV_GIANT_CLUB                   14      /* 2d7 */
+#define SV_GIANT_CLUB                   14      /* 4d7 */
 #define SV_LEAD_FILLED_MACE		15	/* 3d4 */
 #define SV_LARGE_HAMMER                 16      /* 3d5 */
+#define SV_MAUL                         17      /* 4d8 */
 #define SV_TWO_HANDED_FLAIL		18	/* 3d6 */
+#define SV_GREAT_HAMMER                 19      /* 4d6 */
 #define SV_MACE_OF_DISRUPTION	        20	/* 5d8 */
 #define SV_GROND			50	/* 9d9 */
 
 /* The "sval" values for TV_POLEARM */
+#define SV_HATCHET                       1      /* 1d5 */
 #define SV_SPEAR				2	/* 1d6 */
+#define SV_SICKLE                               3       /* 2d3 */
 #define SV_AWL_PIKE				4	/* 1d8 */
 #define SV_TRIDENT				5	/* 1d9 */
 #define SV_HAND_AXE                             6       /* 2d3 */
+#define SV_BROAD_SPEAR                          7       /* 1d9 */
 #define SV_PIKE				        8	/* 2d5 */
+#define SV_DOUBLE_AXE                    9      /* 3d3 */
 #define SV_BEAKED_AXE			10	/* 2d6 */
 #define SV_BROAD_AXE			11	/* 2d6 */
+#define SV_CLEAVER                       12      /* 2d4 */
 #define SV_GLAIVE				13	/* 2d6 */
+#define SV_LIGHT_WAR_AXE                 14      /* 2d5 */
 #define SV_HALBERD				15	/* 3d4 */
+#define SV_TRI_SPEAR                            16      /* 2d9 */
 #define SV_SCYTHE				17	/* 5d3 */
+#define SV_HEAVY_WAR_AXE                18      /* 3d5 */
 #define SV_LANCE				20	/* 2d8 */
 #define SV_BATTLE_AXE			22	/* 2d8 */
 #define SV_GREAT_AXE			25	/* 4d4 */
 #define SV_LOCHABER_AXE			28	/* 3d8 */
+#define SV_HEAVY_LANCE          29      /* 4d8 */
 #define SV_SCYTHE_OF_SLICING	30	/* 8d4 */
 
 /* The "sval" codes for TV_SWORD */
 #define SV_BROKEN_DAGGER		1	/* 1d1 */
 #define SV_BROKEN_SWORD			2	/* 1d2 */
+#define SV_DIRK                         3       /* 1d3 */
 #define SV_DAGGER				4	/* 1d4 */
 #define SV_MAIN_GAUCHE			5	/* 1d5 */
 #define SV_KNIFE                        6       /* 1d5 */
@@ -1403,6 +1420,7 @@
 #define SV_SHORT_SWORD			10	/* 1d7 */
 #define SV_SABRE				11	/* 1d7 */
 #define SV_CUTLASS				12	/* 1d7 */
+#define SV_FALCHION                     14      /* 2d4 */
 #define SV_TULWAR				15	/* 2d4 */
 #define SV_BROAD_SWORD			16	/* 2d5 */
 #define SV_LONG_SWORD			17	/* 2d5 */
@@ -1456,24 +1474,32 @@
 /* The "sval" codes for TV_SOFT_ARMOR */
 #define SV_FILTHY_RAG				1
 #define SV_ROBE						2
+#define SV_LEATHER_JACKET               3
 #define SV_SOFT_LEATHER_ARMOR		4
 #define SV_SOFT_STUDDED_LEATHER		5
 #define SV_HARD_LEATHER_ARMOR		6
 #define SV_HARD_STUDDED_LEATHER		7
+#define SV_QUILTED_ARMOR                8
 #define SV_LEATHER_SCALE_MAIL		11
 
 /* The "sval" codes for TV_HARD_ARMOR */
 #define SV_RUSTY_CHAIN_MAIL			1	/* 14- */
+#define SV_RING_MAIL                            2       /* 12 */
 #define SV_METAL_SCALE_MAIL			3	/* 13 */
 #define SV_CHAIN_MAIL				4	/* 14 */
 #define SV_AUGMENTED_CHAIN_MAIL		6	/* 16 */
 #define SV_DOUBLE_CHAIN_MAIL		7	/* 16 */
 #define SV_BAR_CHAIN_MAIL			8	/* 18 */
 #define SV_METAL_BRIGANDINE_ARMOUR	9	/* 19 */
+#define SV_SPLINT_MAIL                  10      /* 20 */
+#define SV_BREAST_PLATE                 11      /* 21 */
 #define SV_PARTIAL_PLATE_ARMOUR		12	/* 22 */
 #define SV_METAL_LAMELLAR_ARMOUR	13	/* 23 */
+#define SV_FIELD_PLATE_ARMOUR           14      /* 24 */
 #define SV_FULL_PLATE_ARMOUR		15	/* 25 */
+#define SV_LIGHT_PLATE_ARMOUR           16      /* 17 */
 #define SV_RIBBED_PLATE_ARMOUR		18	/* 28 */
+#define SV_CHAIN_MESH_ARMOUR            19      /* 17 */
 #define SV_MITHRIL_CHAIN_MAIL		20	/* 28+ */
 #define SV_MITHRIL_PLATE_MAIL		25	/* 35+ */
 #define SV_ADAMANTITE_PLATE_MAIL	30	/* 40+ */

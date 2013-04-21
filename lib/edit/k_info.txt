@@ -9,7 +9,7 @@
 # After modifying this file, delete the "lib/data/k_info.raw" file.
 
 # Available slots (possibly out of date):
-#   29, 29, 90, 177, 178, 179, 182, 183, 195, 196, 205,
+#   178, 179, 182, 183, 195, 196, 205,
 #   268, 270, 293, 299, 350, 351, 399, 413, 414, 423-479
 
 # Add some "IGNORE_XXX" flags to Rings, Amulets, etc.  XXX XXX
@@ -234,9 +234,22 @@ I:80:39:1000
 W:0:0:5:2
 
 
-## XXX 28 XXX ##
+# Whip changed to Bullwhip
+N:28:& Whip~
+G:\:D
+I:21:1:0
+W:3:0:30:30
+A:3/1
+P:0:1d4:0:0:0
+F:SHOW_MODS
 
-## XXX 29 XXX ##
+N:29:& Mage Staff~
+G:\:B
+I:21:9:0
+W:5:0:30:300
+A:5/1
+P:0:1d4:0:0:0
+F:SHOW_MODS
 
 
 ##### Edged Weapons #####
@@ -396,7 +409,7 @@ A:20/1
 P:0:2d4:0:0:0
 F:SHOW_MODS
 
-N:49:& Whip~
+N:49:& Bullwhip~
 G:\:D
 I:21:2:0
 W:3:0:30:30
@@ -730,7 +743,13 @@ A:50/1
 P:0:1d4:0:0:0
 F:SHOW_MODS | TUNNEL
 
-## XXX 90 XXX ##
+N:90:& Mattock~
+G:\:D
+I:20:7:3
+W:50:0:250:700
+A:50/2
+P:0:1d8:0:0:0
+F:SHOW_MODS | TUNNEL
 
 
 ##### Armor #####
@@ -3491,13 +3510,13 @@ F:RES_ELEC | IGNORE_ELEC | ACTIVATE
 
 # More Items
 
-N:555:& Mattock~
+N:555:& Great Hammer~
 G:\:D
-I:20:7:3
-W:50:0:250:700
-A:50/2
-P:0:1d8:0:0:0
-F:SHOW_MODS | TUNNEL
+I:21:19:0
+W:45:0:300:350
+A:45/3
+P:0:4d6:0:0:0
+F:SHOW_MODS
 
 N:556:& Wooden Club~
 G:\:u
@@ -3632,7 +3651,7 @@ G:\:u
 I:21:14:0
 W:12:0:260:200
 A:12/1
-P:0:2d7:0:0:0
+P:0:4d7:0:0:0
 F:SHOW_MODS
 
 N:574:& Large Hammer~
@@ -3814,5 +3833,172 @@ G:\:u
 I:21:7:0
 W:8:0:195:125
 A:8/1
-P:0:1d7:0:0:0
+P:0:2d7:0:0:0
 F:SHOW_MODS
+
+N:598:& Claw Hammer~
+G:\:D
+I:21:11:0
+W:10:0:60:450
+A:10/1
+P:0:2d3:0:0:0
+F:SHOW_MODS
+
+N:600:& Maul~
+G:\:D
+I:21:17:0
+W:60:0:600:1100
+A:60/4
+P:0:4d8:0:0:0
+F:SHOW_MODS
+
+N:601:& Sickle~
+G:/:s
+I:22:3:0
+W:10:0:70:110
+A:10/3
+P:0:2d3:0:0:0
+F:SHOW_MODS
+
+N:602:& Broad Spear~
+G:/:w
+I:22:7:0
+W:14:0:100:240
+A:14/3
+P:0:1d9:0:0:0
+F:SHOW_MODS
+
+N:603:& Trifurcate Spear~
+G:/:o
+I:22:16:0
+W:35:0:140:400
+A:35/3
+P:0:2d9:0:0:0
+F:SHOW_MODS
+
+N:604:& Heavy Lance~
+G:/:s
+I:22:29:0
+W:43:0:400:700
+A:43/4
+P:0:4d8:0:0:0
+F:SHOW_MODS
+
+N:605:& Dirk~
+G:|:W
+I:23:3:0
+W:0:0:10:50
+A:0/1:5/1:10/1:20/1
+P:0:1d3:0:0:0
+F:SHOW_MODS
+
+N:606:& Falchion~
+G:|:W
+I:23:14:0
+W:10:0:90:150
+A:10/2
+P:0:2d4:0:0:0
+F:SHOW_MODS
+
+N:607:& Hatchet~
+G:/:s
+I:22:1:0
+W:10:0:60:120
+A:10/2
+P:0:1d5:0:0:0
+F:SHOW_MODS
+
+N:608:& Double Axe~
+G:/:s
+I:22:9:0
+W:10:0:150:560
+A:10/1
+P:0:3d3:0:0:0
+F:SHOW_MODS
+
+N:609:& Cleaver~
+G:/:s
+I:22:12:0
+W:13:0:110:175
+A:13/1
+P:0:2d4:0:0:0
+F:SHOW_MODS
+
+N:610:& Light War Axe~
+G:/:s
+I:22:14:0
+W:16:0:140:300
+A:16/1
+P:0:2d5:0:0:0
+F:SHOW_MODS
+
+N:611:& Heavy War Axe~
+G:/:s
+I:22:18:0
+W:24:0:210:660
+A:24/1
+P:0:3d5:0:0:0
+F:SHOW_MODS
+
+N:612:Leather Jacket~
+G:(:U
+I:36:3:0
+W:20:0:130:550
+A:20/3
+P:3:1d2:-1:0:0
+
+N:613:Quilted Armour~
+G:(:U
+I:36:8:0
+W:5:0:60:27
+A:5/1
+P:8:0d0:0:0:0
+
+N:614:Ring Mail~
+G:[:s
+I:37:2:0
+W:20:0:200:500
+A:20/1
+P:12:1d4:-2:0:0
+
+N:615:Splint Mail~
+G:[:D
+I:37:10:0
+W:35:0:250:950
+A:35/1
+P:20:1d4:-2:0:0
+
+N:616:Breast Plate~
+G:[:W
+I:37:11:0
+W:45:0:200:1800
+A:45/1
+P:21:1d6:-2:0:0
+
+N:617:Field Plate Armour~
+G:[:W
+I:37:14:0
+W:45:0:300:2000
+A:45/1
+P:24:2d4:-3:0:0
+
+N:618:Light Plate Armour~
+G:[:W
+I:37:16:0
+W:60:0:225:3000
+A:60/1
+P:17:2d4:-2:0:0
+
+N:619:Chain Mesh Armour~
+G:[:s
+I:37:19:0
+W:50:0:255:1400
+A:50/1
+P:17:1d4:-2:0:0
+
+
+
+
+
+
+

@@ -501,7 +501,7 @@ void do_cmd_destroy(void)
 	/* Give spell scrolls from spell books */
 	if (o_ptr->tval >= TV_FIRST_BOOK && o_ptr->tval < TV_LAST_BOOK)
 	{
-	     int num_pages, chance, i, j, spell, num = 0;
+	     int num_pages = 0, chance, i, j, spell, num = 0;
 	     byte spells[PY_MAX_SPELLS];
 	     
 	     /* Extract spells */
@@ -519,47 +519,39 @@ void do_cmd_destroy(void)
 
 	     if (player_has_class(CLASS_RUNECASTER, 0))
 	     {
-		  int boost = level_of_class(CLASS_RUNECASTER) / 10;
-		  int min_pages = 0;
+		  int min_pages = 0, pages;
+		  int sval = (o_ptr->sval < SV_BOOK_MIN_GOOD ? o_ptr->sval : SV_BOOK_MIN_GOOD);
 
-		  if (o_ptr->sval < SV_BOOK_MIN_GOOD) chance = (((4+boost) - o_ptr->sval) / 2) + 1;
-		  else chance = (boost / 2) + 1;
-
-		  if (chance < 1)
+		  /* For each number of pages to test */
+		  for (pages = 6; pages > 0; pages--)
 		  {
-		       /* 1 in 4 chance anyway */
-		       if (rand_int(4) == 0) num_pages = 1; else num_pages = 0;
-		  } else {
-		       /* Get number of pages */
-		       num_pages = rand_int(chance+1);
+		       /* Chance increases with level and number of pages and
+			* decreases with sval */
+		       int chance = ( (level_of_class(CLASS_RUNECASTER) / 10) + (7 - pages) ) - sval;
+
+		       /* No chance, try less pages */
+		       if (chance < 1) continue;
+
+		       /* Out of 20 */
+		       if (rand_int(20) < chance)
+		       {
+			   /* Get this many */
+			   num_pages = pages;
+			   break;
+		       }
 		  }
 
 		  /* Runecasters are guaranteed some pages */
-		  min_pages = (level_of_class(CLASS_RUNECASTER) / 25);
-
+		  if (level_of_class(CLASS_RUNECASTER) >= 15) min_pages = 1;
+		  if (level_of_class(CLASS_RUNECASTER) >= 45) min_pages = 2;
 		  if (o_ptr->sval < SV_BOOK_MIN_GOOD)
 		       min_pages = ((level_of_class(CLASS_RUNECASTER) / 15) + 1) - o_ptr->sval;
 		  
 		  if (num_pages < min_pages)
 		       num_pages = min_pages;
-
-		  /* Summary
-		   * lvl             svals
-		   *       0     1     2     3    4-8
-		   *  0   90&   70%   50%   30%   10%
-		   *  1   1-3   0-2   0-2   50%   50%
-		   * 10   1-3   0-3   0-2   0-2   50%
-		   * 15   2-3   1-3   0-2   0-2   50%
-		   * 20   2-4   1-3   0-3   0-2   0-2
-		   * 25   2-4   1-3   1-3   1-2   1-2
-		   * 30   3-4   2-4   1-3   1-3   1-2
-		   * 35   3-4   2-4   1-3   1-3   1-2
-		   * 40   3-5   2-4   1-4   1-3   1-3
-		   * 45   4-5   3-4   2-4   1-3   1-3
-		   * 50   4-5   3-5   2-4   2-4   2-3
-		   */
 	     }
-	     else
+
+	     if (num_pages < 1)
 	     {
 		  if (o_ptr->sval < SV_BOOK_MIN_GOOD) chance = 9 - (o_ptr->sval * 2);
 		  else chance = 1;

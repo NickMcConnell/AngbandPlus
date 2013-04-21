@@ -1039,16 +1039,20 @@ static void wr_extra(void)
 
 	wr_s16b(p_ptr->age);
 	wr_s16b(p_ptr->ht);
+	wr_s16b(p_ptr->ht_birth);
 	wr_s16b(p_ptr->wt);
+	wr_s16b(p_ptr->wt_birth);
 
 	/* Dump the stats (maximum and current) */
 	for (i = 0; i < A_MAX; ++i) wr_s16b(p_ptr->stat_max[i]);
 	for (i = 0; i < A_MAX; ++i) wr_s16b(p_ptr->stat_cur[i]);
+	for (i = 0; i < A_MAX; ++i) wr_s16b(p_ptr->stat_birth[i]);
 
 	/* Ignore the transient stats */
 	for (i = 0; i < 12; ++i) wr_s16b(0);
 
 	wr_u32b(p_ptr->au);
+	wr_u32b(p_ptr->au_birth);
 
 	for (i = 0; i < MAX_CLASS; i++)
 	  { 
@@ -1083,6 +1087,7 @@ static void wr_extra(void)
 	wr_s16b(0);	/* oops */
 	wr_s16b(0);	/* oops */
 	wr_s16b(p_ptr->sc);
+	wr_s16b(p_ptr->sc_birth);
 	wr_s16b(0);	/* oops */
 
 	wr_s16b(0);		/* old "rest" */
@@ -1138,6 +1143,7 @@ static void wr_extra(void)
 
 	wr_byte(p_ptr->astral);
 	wr_byte(p_ptr->astral_start);
+	wr_byte(p_ptr->astral_birth);
 
 	wr_byte(p_ptr->confusing);
 	wr_byte(0);	/* oops */
@@ -2044,6 +2050,9 @@ bool load_player(void)
 
 			/* Forget turns */
 			turn = old_turn = 0;
+
+			/* A character once existed on this savefile */
+			character_existed = TRUE;
 
 			/* Done */
 			return (TRUE);

@@ -18,6 +18,8 @@ static cptr wd_he[3] =
 { "it", "he", "she" };
 static cptr wd_his[3] =
 { "its", "his", "her" };
+static cptr wd_him[3] =
+{ "it", "him", "her" };
 
 
 /*
@@ -902,9 +904,9 @@ static void roff_aux(int r_idx)
 	{
 	     /* Code to get average number of successful blows needed to kill
 		the target */
-	     int mod = p_ptr->dis_to_d, average_damage = 0, mons_hp, blows;
-	     /* Get weapon */
-	     object_type *o_ptr;
+	     int mod = p_ptr->dis_to_d, average_damage = 0, avg_missile_dmg = 0, mons_hp, blows, shots;
+	     object_type *o_ptr, *i_ptr, *j_ptr;
+	     u32b f1, f2, f3;
 	     o_ptr = &inventory[INVEN_WIELD];
 
 	     /* Get known damage bonus */
@@ -991,39 +993,113 @@ static void roff_aux(int r_idx)
 	     /* If average damage is 0, blows will be 1 per hp */
 	     if (average_damage < 1) average_damage = 1;
 
+	     /* Get missile weapon and ammo */
+	     i_ptr = &inventory[INVEN_BOW];
+	     j_ptr = &inventory[INVEN_AMMO];
+	     /* Find extra might flag from launcher */
+	     object_flags(i_ptr, &f1, &f2, &f3);
+		
+	     /* Get known damage bonus */
+	     mod = 0;
+	     if (object_known_p(i_ptr)) mod += i_ptr->to_d;
+	     if (object_known_p(j_ptr)) mod += j_ptr->to_d;
+	     
+	     /* Get average missile damage */
+	     if (i_ptr->k_idx && j_ptr->k_idx)
+	     {
+		  int mult = 1;
+
+	          /* Get average damage from ammo */
+	          avg_missile_dmg = (j_ptr->dd * (j_ptr->ds+1) / 2) + mod;
+
+		  /* mult has default of 2 set above */
+		  if (i_ptr->sval == SV_LONG_BOW || i_ptr->sval == SV_LIGHT_XBOW) mult = 3;
+		  if (i_ptr->sval == SV_HEAVY_XBOW) mult = 4;
+
+		  /* Get extra might if known */
+		  if (object_known_p(i_ptr) && (f1 & TR1_MIGHT)) mult += i_ptr->pval;
+
+		  /* Add +to-dmg */
+		  avg_missile_dmg += (i_ptr->to_d + j_ptr->to_d);
+
+		  /* Apply multiplier */
+		  avg_missile_dmg *= mult;
+	     }
+	     else /* Cannot determine missile damage */
+	       avg_missile_dmg = 0;
+		
 	     /* Get hp */
 	     if (flags1 & RF1_FORCE_MAXHP)
 		  mons_hp = r_ptr->hdice * r_ptr->hside;
 	     else mons_hp = r_ptr->hdice * (r_ptr->hside+1) / 2;
 
 	     /* Get average blows needed */
-	     blows = mons_hp * 10 / average_damage;
+	     blows = ((average_damage > 0) ? mons_hp * 10 / average_damage : -1);
+	     shots = ((avg_missile_dmg > 0) ? mons_hp * 10 / avg_missile_dmg : -1);
 
 	     /* Armor */
 	     roff(format("%^s has an armor rating of ", wd_he[msex]));
 	     c_roff(TERM_L_RED, format("%d", r_ptr->ac));
-	     roff(".");
+	     roff(",");
 
-	     /* Average blows, shown in bright red */
-	     /* Average blows, shown in bright red */
-	     if (blows < 11) /* 1 blow or less */
-	     {
-		  roff(" It takes an average of ");
-		  c_roff(TERM_L_RED, "1");
-		  roff(" successful blow to kill.  ");
-	     }
-	     else if (blows % 10 == 0) /* Round number of blows */
-	     {
-		  roff(" It takes an average ");
-		  c_roff(TERM_L_RED, format("%d", blows / 10));
-		  roff(" successful blows to kill.  ");
-	     }
-	     else /* Decimal number of blows */
-	     {
-		  roff(" It takes an average ");
-		  c_roff(TERM_L_RED, format("%d.%d", blows / 10, blows % 10));
-		  roff(" successful blows to kill.  ");
-	     }
+		/* Average blows */
+		roff(" and you would take an ");
+		if (blows == -1) /* None */
+		{
+		     c_roff(TERM_L_RED, "infinite");
+		     roff(" number of blows ");
+		}
+		else if (blows < 11) /* 1 blow or less */
+		{
+		     roff("average of ");
+		     c_roff(TERM_L_RED, "1");
+		     roff(" blow ");
+		}
+		else if (blows % 10 == 0) /* Round number of blows */
+		{
+		     roff("average of ");
+		     c_roff(TERM_L_RED, format("%d", blows / 10));
+		     roff(" blows ");
+		}
+		else /* Decimal number of blows */
+		{
+		     roff("average of ");
+		     c_roff(TERM_L_RED, format("%d.%d", blows / 10, blows % 10));
+		     roff(" blows ");
+		}
+
+		/* Show missile damage */
+		if (i_ptr->k_idx && j_ptr->k_idx)
+		{
+		     roff("and an ");
+
+		     if (shots == -1) /* None */
+		     {
+			 c_roff(TERM_L_RED, "infinite");
+			 roff(" number of shots ");
+		     }
+		     else if (shots < 11) /* 1 shot or less */
+		     {
+			 roff("average of ");
+			 c_roff(TERM_L_RED, "1");
+			 roff(" shot ");
+		     }
+		     else if (shots % 10 == 0) /* Round number of shots */
+		     {
+			 roff("average of ");
+			 c_roff(TERM_L_RED, format("%d", shots / 10));
+			 roff(" shots ");
+		     }
+		     else /* Decimal number of shots */
+		     {
+			 roff("average of ");
+			 c_roff(TERM_L_RED, format("%d.%d", shots / 10, shots % 10));
+			 roff(" shots ");
+		     }
+
+		     /* Finished */
+		     roff(format("to kill %s.  ", wd_him[msex]));
+		}
 	}
 
 

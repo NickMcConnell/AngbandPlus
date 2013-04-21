@@ -1284,7 +1284,7 @@ const player_class class_info[MAX_CLASS] =
 
 	{
 		"Mage",
-		{-5, 3, 0, 1, -2, 1},
+		{-5, 3, -1, 1, -2, 1},
 		30, 36, 30, 2,  16, 20, 34, 20,
 		7,  13, 9,  0,  0,  0,  15, 15,
 		0, 30
@@ -1292,7 +1292,7 @@ const player_class class_info[MAX_CLASS] =
 
 	{
 		"Holy Priest",
-		{-1, -3, 3, -1, 0, 2},
+		{-1, -1, 3, -1, 0, 2},
 		25, 30, 32, 2,  16, 8, 48, 35,
 		7,  10, 12, 0,  0,  0, 20, 20,
 		2, 20
@@ -1308,7 +1308,7 @@ const player_class class_info[MAX_CLASS] =
 
 	{ /* Added -KMW- */
 		"Illusionist",
-		{-5, 3, 0, 1, -2, 1},
+		{-5, 3, -1, 1, -2, 1},
 		30, 36, 30, 2,  16, 20, 34, 20,
 		7,  13, 9,  0,  0,  0,  15, 15,
 		0, 30
@@ -1324,7 +1324,7 @@ const player_class class_info[MAX_CLASS] =
 
 	{
 		"Death Priest",
-		{-1, -3, 3, -1, 0, 2},
+		{-1, -1, 3, -1, 0, 2},
 		25, 10, 32, 2,  16, 8, 48, 35,
 		7,   1, 12, 0,  0,  0, 20, 20,
 		2, 20
@@ -1340,7 +1340,7 @@ const player_class class_info[MAX_CLASS] =
 
 	{
 		"Monk",
-		{ 2, -1, -1, 4, 3, -1},
+		{ 2, -1, 1, 4, 3, -1},
 		45, 24, 32, 5, 32, 24, 75, 20,
 		15, 10, 12, 0,  0,  0, 45, 10,
 		8, 35
@@ -1356,7 +1356,7 @@ const player_class class_info[MAX_CLASS] =
 
 	{
 		"Crusader",
-		{ 4, -3, 2, 1, 2, 1},
+		{ 4, -1, 2, 1, 2, 1},
 		20, 18, 32, 1,  14, 2, 68, 40,
 		7 , 7,  12, 0,  0,  0, 35, 30,
 		6, 50
@@ -1372,7 +1372,7 @@ const player_class class_info[MAX_CLASS] =
 
 	{
 		"Dark Slayer",
-		{ 3, -3, 1, 0, 3, 0},
+		{ 3, -1, 1, 0, 3, 0},
 		20, 18, 25, 1,  12, 2, 68, 40,
 		7 , 7,  11, 0,  0,  0, 35, 30,
 		6, 50
@@ -1638,11 +1638,11 @@ const player_magic magic_info[MAX_CLASS] =
 			{ 25, 10, 80, 150},
 			{ 35, 50, 80, 230},
 
-			{ 15,  7, 70,  25},
 			{ 15,  5, 50,  25},
 			{ 17,  7, 60,  45},
 			{ 30, 50, 80, 130},
 			{ 35, 70, 90, 230},
+			{ 35, 70, 90, 250},
 
 			{  5,  6, 50,  40},
 			{ 15, 20, 80,  25},
@@ -2349,11 +2349,11 @@ const player_magic magic_info[MAX_CLASS] =
 			{ 25, 10, 80, 150},
 			{ 35, 50, 80, 230},
 
-			{ 15,  7, 70,  25},
 			{ 15,  5, 50,  25},
 			{ 17,  7, 60,  45},
 			{ 30, 50, 80, 130},
 			{ 35, 70, 90, 230},
+			{ 35, 70, 90, 250},
 
 			{  5,  6, 50,  40},
 			{ 15, 20, 80,  25},
@@ -3886,10 +3886,10 @@ cptr option_desc[OPT_MAX] =
 	"Birth: Restrict the use of stores/home",	/* OPT_birth_no_stores */
 	"Birth: Restrict creation of artifacts",	/* OPT_birth_no_artifacts */
 	"Birth: Randomize some of the artifacts (beta)",	/* OPT_birth_rand_artifacts */
-	"Birth: Hide all character knowledge", /* OPT_birth_hidden */
+	"Birth: Hide some character knowledge", /* OPT_birth_hidden */
+	"Birth: Hide more character knowledge", /* OPT_birth_hidden */
 	"Birth: Nightmare mode (doubles score)",
 	"Birth: Easy mode (halves score)",
-	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
@@ -3950,11 +3950,11 @@ cptr option_desc[OPT_MAX] =
 	"Adult: Restrict the use of stores/home",	/* OPT_adult_no_stores */
 	"Adult: Restrict creation of artifacts",	/* OPT_adult_no_artifacts */
 	"Adult: Randomize some of the artifacts (beta)",	/* OPT_adult_rand_artifacts */
-	"Adult: Hide all character knowledge", /* OPT_adult_hidden */
+	"Adult: Hide some character knowledge", /* OPT_adult_hidden */
+	"Adult: Hide more character knowledge", /* OPT_adult_hidden */
 	"Adult: Nightmare mode!",
 	"Adult: Start with some basic equipment",
 	"Adult: Easy mode!",
-	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
 	NULL,										/* xxx */
