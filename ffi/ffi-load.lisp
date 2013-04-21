@@ -76,7 +76,7 @@ the Free Software Foundation; either version 2 of the License, or
 
     #+unix
     (progn
-      #-cmu
+      #-(or cmu sbcl)
       (load-shared-lib :key :dc :lib (concatenate 'string lib-path "liblangband_dc.so"))
       ;; everyone
       (load-shared-lib :key :lang-ffi :lib (concatenate 'string lib-path "liblangband_ui.so")))

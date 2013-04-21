@@ -41,7 +41,7 @@ The direction is a number from the keypad."
        ))
 
     #||
-    (warn "Position ~a ~a has currently ~a,~a -> ~a" wanted-x wanted-y (cave-feature dun wanted-x wanted-y)
+    (warn "Position ~a ~a has currently ~a,~a -> ~a" wanted-x wanted-y (cave-floor dun wanted-x wanted-y)
 	  (cave-info dun wanted-x wanted-y)
 	  (cave-floor-bold? dun wanted-x wanted-y))
 
@@ -61,7 +61,7 @@ The direction is a number from the keypad."
 	    
 	    ;; something is in the way
 	    ((not (cave-floor-bold? dun wanted-x wanted-y))
-	     (c-print-message! "Cannot walk that way.."))
+	     (print-message! "Cannot walk that way.."))
 
 	    ;; default is just to move
 	    (t
@@ -82,7 +82,7 @@ The direction is a number from the keypad."
 	(assert (plusp (items.cur-size objs)))
 	(let ((obj (item-table-find objs 0)))
 	  (check-type obj active-object)
-	  (c-print-message! (format nil "You see ~a."
+	  (print-message! (format nil "You see ~a."
 				    (with-output-to-string (s)
 				      (write-obj-description var-obj obj s))))
 	  ))
@@ -114,15 +114,23 @@ The direction is a number from the keypad."
 		     (cons (1- x) y)
 		     (cons (1+ x) y)))
       (when (< (random 100) chance)
-	(let ((feat (cave-feature dun (car i) (cdr i))))
-	  (cond ((= feat +feature-secret+)
-		 (c-print-message! "You found a secret door!")
-		 (place-closed-door! dun (car i) (cdr i))
-		 t)
-		(t
-		 ;; add more here, traps, chests.. 
-		 ))))
-      )))
+	(let* ((cur-x (car i))
+	       (cur-y (cdr i))
+	       (coord (cave-coord dun cur-x cur-y))
+	       (floor (coord.floor coord))
+	       (decor (coord.decor coord)))
+
+	  (when (typep decor 'active-trap)
+	    (make-trap-visible decor dun cur-x cur-y)
+	    (print-message! "You have found a trap."))
+	  
+	  (when (= floor +floor-secret-door+)
+	    (print-message! "You found a secret door!")
+	    (place-closed-door! dun cur-x cur-y))
+	  
+	  ;; add more here, traps, chests.. 
+	  )))
+    ))
 
 	
   
@@ -134,12 +142,12 @@ is above a stair.  DIR can be :UP or :DOWN"
   (let* ((depth (player.depth pl))
 	 (x (location-x pl))
 	 (y (location-y pl))
-	 (feat (cave-feature dun x y))
+	 (feat (cave-floor dun x y))
 	 (leaving-sym nil))
     (declare (type u-16b depth x y feat))
     (case dir
       (:up
-       (unless (= +feature-less+ feat)
+       (unless (= +floor-less+ feat)
 	 (return-from use-stair! nil))
        
        (if (= depth 0)
@@ -148,7 +156,7 @@ is above a stair.  DIR can be :UP or :DOWN"
        (setf leaving-sym :up-stair))
       
       (:down
-       (unless (= +feature-more+ feat)
+       (unless (= +floor-more+ feat)
 	 (return-from use-stair! nil))
        
        (incf depth)
@@ -207,7 +215,7 @@ a list if more items occupy the same place."
 			 (retval (item-table-add! backpack removed-obj)))
 
 		    (cond (retval
-			   (c-print-message! (format nil "You pick up ~a."
+			   (print-message! (format nil "You pick up ~a."
 						     (with-output-to-string (s)
 						       (write-obj-description var-obj removed-obj s))))
 			   ;; succesful
@@ -217,7 +225,7 @@ a list if more items occupy the same place."
 			  (t 
 			   ;; not succesful.. put it back
 			   (item-table-add! objs removed-obj)
-			   (c-print-message! "No room in backpack.")
+			   (print-message! "No room in backpack.")
 			   (return-from pick-up-from-floor! nil))))))
 
 	   (unless (cave-objects dungeon x y)
@@ -230,18 +238,20 @@ a list if more items occupy the same place."
   "Drop some inventory"
 
   (let ((var-obj *variant*)
-	(selection (select-item dun pl '(:backpack :equip)
-				:prompt "Drop item: "
-				:where :backpack)))
+	(selection (with-new-screen ()
+		     (select-item dun pl '(:backpack :equip)
+				  :prompt "Drop item: "
+				  :where :backpack))))
     (cond (selection
 	   (let* ((the-table (get-item-table dun pl (car selection)))
 		  (removed-obj (item-table-remove! the-table (cdr selection))))
 	     (cond (removed-obj
-		    (drop-near-location! var-obj dun removed-obj (location-x pl) (location-y pl)) 
+		    (drop-near-location! var-obj dun removed-obj (location-x pl) (location-y pl))
+		    (bit-flag-add! *update* +pl-upd-bonuses+ +pl-upd-mana+ +pl-upd-torch+)
 		    ;;(item-table-add! (get-item-table dun pl :floor) removed-obj)
 		    )
 		   (t
-		    (c-print-message! (format nil "Did not find selected obj ~a" selection)
+		    (print-message! (format nil "Did not find selected obj ~a" selection)
 				      )))))
 	  (t
 	   ;;(warn "Did not select anything.")
@@ -284,7 +294,8 @@ a list if more items occupy the same place."
 		
 		((typep retval 'active-object)
 		 ;; an object was returned
-		 (%put-obj-in-cnt dun pl :backpack retval))
+		 (%put-obj-in-cnt dun pl :backpack retval)
+		 (bit-flag-add! *update* +pl-upd-bonuses+ +pl-upd-mana+ +pl-upd-torch+))
 		
 		(t
 		 ;; succesful and nothing returned.. do nothing, except waste energy
@@ -331,7 +342,8 @@ a list if more items occupy the same place."
   (assert (consp limit-from))
   (assert (stringp prompt))
   
-  (let ((selection (select-item dun pl limit-from
+  (let ((variant *variant*)
+	(selection (select-item dun pl limit-from
 				:prompt prompt
 				:where (first limit-from))))
 
@@ -350,7 +362,7 @@ a list if more items occupy the same place."
       
 ;;      (warn "Will ~a ~s" prompt removed-obj)
 	  
-      (let ((retval (use-object! *variant* dun pl removed-obj :which-use which-use)))
+      (let ((retval (use-object! variant dun pl removed-obj :which-use which-use)))
 ;;	(warn "use returned ~s" retval)
 	(cond ((or (eq retval nil) ;; didn't use the object for some reason..
 		   (eq retval :not-used))
@@ -376,15 +388,3 @@ a list if more items occupy the same place."
 	
 	))
       ))
-
-  
-
-(defun invoke-spell! (dun pl &key spell-type)
-  "Invokes a spell.. gee."
-
-  (declare (ignore dun pl spell-type))
-  ;; fill in all the nasty details
-  (warn "player invokes a spell.")
-  
-  (values))
-

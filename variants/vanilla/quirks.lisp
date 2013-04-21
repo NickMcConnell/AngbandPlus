@@ -86,7 +86,7 @@ the rest of the game is init'ed."
 
 
   (assert (eq nil (variant.legal-effects var-obj)))
-  (setf (variant.legal-effects var-obj) '(:quaff :read :eat :use)) ;; make :use a meta-effect?
+  (setf (variant.legal-effects var-obj) '(:quaff :read :eat :create :add-magic :use)) ;; make :use a meta-effect?
 
   ;; fix these two to something real
   (register-help-topic& var-obj (make-help-topic :id "keys" :key #\k :name "Show commands/keys"))
@@ -100,10 +100,14 @@ the rest of the game is init'ed."
   (let ((*load-verbose* nil))
     (load-variant-data& var-obj "defines")
     (load-variant-data& var-obj "stats")
+    (load-variant-data& var-obj "flavours")
+    (load-variant-data& var-obj "stores")
+    (load-variant-data& var-obj "traps")
+
+    (load-variant-data& var-obj "spells")
     (load-variant-data& var-obj "races")
     (load-variant-data& var-obj "classes")
-    (load-variant-data& var-obj "flavours")
-    (load-variant-data& var-obj "stores"))
+    )
 
   ;; we ensure that any elements in variant are sorted
   (setf (variant.elements var-obj)
@@ -219,7 +223,7 @@ the rest of the game is init'ed."
 				   #'van-add-basic-equip))
 	(birth-settings (get-setting var-obj :birth)))
     
-    (register-event& (event.id equip-event) equip-event)
+    (register-event& (event.id equip-event) equip-event :variant var-obj)
     (if (not birth-settings)
 	(warn "Unable to find birth-settings, not registering event.")
 	(register-object-event! birth-settings equip-event)
@@ -340,10 +344,12 @@ the rest of the game is init'ed."
 (defmethod activate-object ((var-obj vanilla-variant) &key)
 
 ;;  (warn "active..")
+  
   (initialise-objects&  var-obj :file "objects")
   (initialise-objects&  var-obj :file "armour")
   (initialise-objects&  var-obj :file "weapons")
   (initialise-objects&  var-obj :file "potions")
+  (initialise-objects&  var-obj :file "rings")
   (initialise-objects&  var-obj :file "scrolls")
   (initialise-objects&  var-obj :file "sticks")
   (initialise-objects&  var-obj :file "books")
@@ -352,12 +358,18 @@ the rest of the game is init'ed."
   (initialise-monsters& var-obj :file "monsters")
   (initialise-monsters& var-obj :file "town-monsters")
   (initialise-monsters& var-obj :file "uniques")
-
+  
   (initialise-floors& var-obj)
 
   ;;  (warn "flav")
   ;; after all objects are in
   (init-flavours& (variant.flavour-types var-obj))
+
+  ;; hack, fix later
+  (let ((*load-verbose* nil))
+    (load-variant-data& var-obj "ego-items"))
+  ;; hack
+  (dump-egos)
 
 ;;  (van-combine-effects-with-objects! var-obj (variant.objects var-obj))
 
@@ -433,6 +445,55 @@ the rest of the game is init'ed."
   (add-attk-desc var-obj '<drool> "drools on you.")
   
   )
+
+
+(defun %set-simple-effect (player state value)
+  "Sets the value of a temorary attribute/effect.  Only supports boolean ones."
+  (let* ((attr (gethash state (player.temp-attrs player)))
+	 (old-value (attr.value attr))
+	 (new-duration (attr.duration attr))
+	 (noticed nil))
+    
+    (check-type attr temp-player-attribute)
+    
+    (cond ((eq value t)
+	   (setf new-duration (incf new-duration (+ 25 (randint 25)))))
+	  ((or (eq value nil)
+	       (and (integerp value) (= value 0)))
+	   (setf new-duration 0))
+	  ((integerp value)
+	   (incf new-duration value)) ;; both for positive and negative numbers
+	  (t
+	   (error "Weird value given to ~s: ~s" state value)))
+
+    (when (minusp new-duration) ;; never negative
+      (setf new-duration 0))
+
+;;    (warn "going berserk [~a,~a] -> [~a,~a]" old-value (attr.duration attr) value new-duration)
+    
+    (setf (attr.duration attr) new-duration)
+    
+    (cond ((plusp new-duration)
+	   (setf (attr.value attr) t)
+	   (when (eq nil old-value)
+	     (setf noticed t)
+	     (when (attr.turned-on-msg attr)
+	       (print-message! (attr.turned-on-msg attr)))))
+	  (t
+	   (setf (attr.value attr) nil)
+	   (when (eq t old-value)
+	     (setf noticed t)
+	     (when (attr.turned-off-msg attr)
+	       (print-message! (attr.turned-off-msg attr))))))
+
+    (when noticed
+      (let ((on-upd (attr.on-update attr)))
+	(when (and on-upd (functionp on-upd))
+	  (funcall on-upd player attr))))
+
+    ;; call to handle-stuff ?
+    t))
+
 
 ;; we override to add our own stuff
 (defmethod produce-player-object ((variant vanilla-variant))
@@ -808,13 +869,9 @@ the rest of the game is init'ed."
 	      ((symbolp i)
 	       (case i
 		 (<see-invisible>
-		  (alter-attribute! '<see-invisible> calc-attrs +max-sight+)
-		  ;;(setf (attr.see-invisible attrs) +max-sight+)
-		  ) ;; radius
+		  (alter-attribute! '<see-invisible> calc-attrs +max-sight+)) ;; radius
 		 (<free-action>
-		  (alter-attribute! '<free-action> calc-attrs t) ;; boolean
-;;		  (setf (attr.free-action attrs) t)
-		  ) 
+		  (alter-attribute! '<free-action> calc-attrs t)) ;; boolean
 		 (otherwise 
 		  (warn "Unhandled racial ability ~a" i))))
 	      (t
@@ -829,6 +886,7 @@ the rest of the game is init'ed."
   (let (;;(actual-abs (player.actual-abilities player))
 	;;(perc-abs (player.perceived-abilities player))
 	(resist-array (player.resists player))
+	(calc-attrs (player.calc-attrs player))
 	)
 
     (loop for obj across (items.objs items)
@@ -837,6 +895,18 @@ the rest of the game is init'ed."
 	    ;; time to get resists
 	    (when-bind (gvals (aobj.game-values obj))
 	      (%van-fill-resists variant resist-array (gval.resists gvals) +calculated-effect+)
+
+	      (dolist (i (gval.abilities gvals))
+		(case i
+		  (<feather-fall>
+		   (alter-attribute! '<feather-fall> calc-attrs t)) ;; boolean
+		  (<free-action>
+		   (alter-attribute! '<free-action> calc-attrs t)) ;; boolean
+		  (<see-invisible>
+		   (alter-attribute! '<see-invisible> calc-attrs +max-sight+)) 
+		  (t
+		   (warn "Unhandled item-ability ~s for item ~s" i obj))))
+	      
 	      )))
     ))
   
@@ -848,6 +918,26 @@ the rest of the game is init'ed."
     ))
 
 
+(defun get-stat-row (data val)
+  (dolist (j data)
+    (cond ((consp j) 
+	   (cond ((= val (car j))
+		  (return-from get-stat-row j))
+		 ((and (integerp (cadr j)) (<= val (cadr j)))
+		  (return-from get-stat-row j))))
+	  ((stat-field-p j)
+	   (let ((lower (stat-field-lower j))
+		 (upper (stat-field-upper j)))
+	     
+	     (cond ((= val lower)
+		    (return-from get-stat-row j))
+		   ((and (integerp upper) (<= val upper))
+		    (return-from get-stat-row j)))))))
+  (error "Fell through GET-ROW with ~a val in ~s" val data))
+
+(defun get-stat-info (stat-obj stat-value info-key)
+  (let ((the-row (get-stat-row (stat.fields stat-obj) stat-value)))
+    (cdr (assoc info-key (stat-field-data the-row)))))
 
 (defmethod handle-player-updates! ((variant vanilla-variant) (player player) (old old-player-info))
   (let ((calc-attrs (player.calc-attrs player))
@@ -934,21 +1024,16 @@ the rest of the game is init'ed."
     ;; time to add modifiers from stats
     (let ((stats (variant.stats variant))
 	  (active-stats (player.active-stats player)))
-      (flet ((get-row (data val)
-	       (dolist (j data)
-		 (cond ((= val (car j))
-			(return-from get-row j))
-		       ((and (integerp (cadr j)) (<= val (cadr j)))
-			(return-from get-row j))))
-	       (error "Fell through GET-ROW with ~a val in ~s" val data)))
 	
       (dolist (i stats)
+	
 	(let* ((cur-val (svref active-stats (stat.number i)))
-	       (cur-row (get-row (stat.data i) cur-val)))
+	       ;;(cur-row (get-stat-row (stat.fields i) cur-val))
+	       )
 	  (case (stat.symbol i)
-	    (<dex> (let ((to-hit (sixth cur-row))
-			 (to-ac (fourth cur-row))
-			 (disarm (elt cur-row 7)))
+	    (<dex> (let ((to-hit (get-stat-info i cur-val :hit-modifier))
+			 (to-ac (get-stat-info i cur-val :ac-modifier))
+			 (disarm (get-stat-info i cur-val :disarm)))
 		     ;; + to-hit
 		     (incf (pl-ability.to-hit-modifier actual-abs) to-hit)
 		     (incf (pl-ability.to-hit-modifier perc-abs)   to-hit)
@@ -960,8 +1045,8 @@ the rest of the game is init'ed."
 		     
 		     ))
 	    
-	    (<str> (let ((to-hit (sixth cur-row))
-			(to-dmg (fourth cur-row)))
+	    (<str> (let ((to-hit (get-stat-info i cur-val :hit-modifier))
+			 (to-dmg (get-stat-info i cur-val :dam-modifier)))
 		     (incf (pl-ability.to-hit-modifier actual-abs) to-hit)
 		     (incf (pl-ability.to-hit-modifier perc-abs)   to-hit)
 		     (incf (pl-ability.to-dmg-modifier actual-abs) to-dmg)
@@ -969,20 +1054,20 @@ the rest of the game is init'ed."
 		     ;; add digging
 		     ))
 	    
-	    (<int> (let ((disarm (elt cur-row 13))
-			 (device (elt cur-row 11)))
+	    (<int> (let ((disarm (get-stat-info i cur-val :disarm))
+			 (device (get-stat-info i cur-val :mag-dev)))
 		     ;; better at disarming
 		     (incf (skills.disarming skills) disarm)
 		     ;; better at devices
 		     (incf (skills.device skills) device)
 		     ))
 	    
-	    (<wis> (let ((save (elt cur-row 11)))
+	    (<wis> (let ((save (get-stat-info i cur-val :saving-throw)))
 		     ;; better at saves
 		     (incf (skills.saving-throw skills) save)
 		     ))
-	    )))
-      ))
+	    ))
+	))
 
     ;; somehow vanilla-people help players with bonuses
     (incf (skills.stealth skills))
@@ -1003,12 +1088,15 @@ the rest of the game is init'ed."
     t))
 
 ;; move later
-(defun resists-element? (player elm &key (variant *variant*))
+(defun get-resistance-level (variant player elm)
   (let ((num (if (integerp elm)
 		 elm
 		 (get-element-number variant elm))))
-    (plusp (aref (player.resists player) num))))
+    (aref (player.resists player) num)))
 
+(defun resists-element? (player elm &key (variant *variant*))
+  (plusp (get-resistance-level variant player elm)))
+  
 (defmethod get-creature-state ((player player) state)
   "Very limited so far, but might work for some stuff.  do not rely on it."
   (let* ((temp-attrs (player.temp-attrs player))
@@ -1018,56 +1106,11 @@ the rest of the game is init'ed."
       (let ((calc-attrs (player.calc-attrs player)))
 	(setf attr (gethash state calc-attrs))))
 
-    (when (and attr (typep attr 'player-attribute))
-      (attr.value attr))))
+    (if (and attr (typep attr 'player-attribute))
+	(attr.value attr)
+	(error "Attribute ~s is not know for player" state))
+    ))
 
-
-(defun %set-simple-effect (player state value)
-  "Sets the value of a temorary attribute/effect.  Only supports boolean ones."
-  (let* ((attr (gethash state (player.temp-attrs player)))
-	 (old-value (attr.value attr))
-	 (new-duration (attr.duration attr))
-	 (noticed nil))
-    
-    (check-type attr temp-player-attribute)
-    
-    (cond ((eq value t)
-	   (setf new-duration (incf new-duration (+ 25 (randint 25)))))
-	  ((or (eq value nil)
-	       (and (integerp value) (= value 0)))
-	   (setf new-duration 0))
-	  ((integerp value)
-	   (incf new-duration value)) ;; both for positive and negative numbers
-	  (t
-	   (error "Weird value given to ~s: ~s" state value)))
-
-    (when (minusp new-duration) ;; never negative
-      (setf new-duration 0))
-
-;;    (warn "going berserk [~a,~a] -> [~a,~a]" old-value (attr.duration attr) value new-duration)
-    
-    (setf (attr.duration attr) new-duration)
-    
-    (cond ((plusp new-duration)
-	   (setf (attr.value attr) t)
-	   (when (eq nil old-value)
-	     (setf noticed t)
-	     (when (attr.turned-on-msg attr)
-	       (print-message! (attr.turned-on-msg attr)))))
-	  (t
-	   (setf (attr.value attr) nil)
-	   (when (eq t old-value)
-	     (setf noticed t)
-	     (when (attr.turned-off-msg attr)
-	       (print-message! (attr.turned-off-msg attr))))))
-
-    (when noticed
-      (let ((on-upd (attr.on-update attr)))
-	(when (and on-upd (functionp on-upd))
-	  (funcall on-upd player attr))))
-
-    ;; call to handle-stuff ?
-    t))
 
 
 ;; very hackish, improve/integrate later
@@ -1097,5 +1140,33 @@ the rest of the game is init'ed."
 	      t))
 	   ))
     ))
-    
 
+
+(defmethod deliver-elemental-damage! ((variant vanilla-variant) source (target player) element damage)
+
+  ;; skip immunity, add later
+  (unless (<= damage 0)
+    (let ((percentage (cond ((>= damage 60) 3)
+			    ((>= damage 30) 2)
+			    (t 1)))
+	  (res-level (get-resistance-level variant target element)))
+      (when (bit-flag-set? res-level +calculated-effect+)
+	(setf damage (int-/ (+ 2 damage) 3)))
+      (when (bit-flag-set? res-level +temporary-effect+)
+	(setf damage (int-/ (+ 2 damage) 3)))
+
+      (deliver-damage! variant source target damage)
+      ;; add equipment dmg
+      t)))
+
+
+
+#||
+(defun parse-ego-items& (variant &key file)
+  (let ((fname (variant-data-fname variant file)))
+    (warn "Reading ego from ~s" fname)
+
+    (compat-read-ego-file& fname)
+    
+    t))
+||#

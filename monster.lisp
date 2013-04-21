@@ -18,6 +18,13 @@ ADD_DESC: The code which deals with critters you can meet in the dungeon.
 
 (in-package :org.langband.engine)
 
+(defun is-monster? (obj)
+  (typep obj 'active-monster))
+
+(defun is-unique-monster? (obj)
+  "Is the object a unique monster?"
+  (and (typep obj 'active-monster)
+       (typep (amon.kind obj) 'unique-monster)))
 
 (defmethod is-creatable? ((variant variant) (mon monster-kind))
   t)
@@ -118,6 +125,10 @@ ADD_DESC: The code which deals with critters you can meet in the dungeon.
 
 (defmethod get-creature-name ((creature player))
   (player.name creature))
+
+(defmethod get-creature-name ((creature active-trap)) ;; :-)
+  (trap.name (trap.type creature)))
+
 
 (defmethod alter-xp! ((mon active-monster) amount)
   (declare (ignore amount))

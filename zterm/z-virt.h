@@ -29,7 +29,7 @@
  * Note the macros below which simplify the details of allocation,
  * deallocation, setting, clearing, casting, size extraction, etc.
  *
- * The macros MAKE/C_MAKE and KILL/C_KILL have a "procedural" metaphor,
+ * The macros MAKE/C_MAKE and KILL have a "procedural" metaphor,
  * and they actually modify their arguments.
  *
  * Note that, for some reason, some allocation macros may disallow
@@ -57,11 +57,11 @@
 
 /* Compare two arrays of type T[N], at locations P1 and P2 */
 #define C_DIFF(P1,P2,N,T) \
-	(memcmp((char*)(P1),(char*)(P2),C_SIZE(N,T)))
+	(memcmp((const char*)(P1),(const char*)(P2),C_SIZE(N,T)))
 
 /* Compare two things of type T, at locations P1 and P2 */
 #define DIFF(P1,P2,T) \
-	(memcmp((char*)(P1),(char*)(P2),SIZE(T)))
+	(memcmp((const char*)(P1),(const char*)(P2),SIZE(T)))
 
 
 /* Set every byte in an array of type T[N], at location P, to V, and return P */
@@ -84,20 +84,11 @@
 
 /* Load an array of type T[N], at location P1, from another, at location P2 */
 #define C_COPY(P1,P2,N,T) \
-	(T*)(memcpy((char*)(P1),(char*)(P2),C_SIZE(N,T)))
+	(T*)(memcpy((char*)(P1),(const char*)(P2),C_SIZE(N,T)))
 
 /* Load a thing of type T, at location P1, from another, at location P2 */
 #define COPY(P1,P2,T) \
-	(T*)(memcpy((char*)(P1),(char*)(P2),SIZE(T)))
-
-
-/* Free an array of N things of type T at P, return NULL */
-#define C_FREE(P,N,T) \
-	(T*)(rnfree(P,C_SIZE(N,T)))
-
-/* Free one thing of type T at P, return NULL */
-#define FREE(P,T) \
-	(T*)(rnfree(P,SIZE(T)))
+	(T*)(memcpy((char*)(P1),(const char*)(P2),SIZE(T)))
 
 
 /* Allocate, and return, an array of type T[N] */
@@ -127,20 +118,20 @@
 	((P)=ZNEW(T))
 
 
-/* Free an array of type T[N], at location P, and set P to NULL */
-#define C_KILL(P,N,T) \
-	((P)=C_FREE(P,N,T))
+/* Free one thing at P, return NULL */
+#define FREE(P) \
+	(rnfree(P))
 
-/* Free a thing of type T, at location P, and set P to NULL */
-#define KILL(P,T) \
-	((P)=FREE(P,T))
+/* Free a thing at location P and set P to NULL */
+#define KILL(P) \
+	((P)=FREE(P))
 
 
 
 /**** Available variables ****/
 
 /* Replacement hook for "rnfree()" */
-extern vptr (*rnfree_aux)(vptr, huge);
+extern vptr (*rnfree_aux)(vptr);
 
 /* Replacement hook for "rpanic()" */
 extern vptr (*rpanic_aux)(huge);
@@ -151,8 +142,8 @@ extern vptr (*ralloc_aux)(huge);
 
 /**** Available functions ****/
 
-/* De-allocate a given amount of memory */
-extern vptr rnfree(vptr p, huge len);
+/* De-allocate memory */
+extern vptr rnfree(vptr p);
 
 /* Panic, attempt to Allocate 'len' bytes */
 extern vptr rpanic(huge len);
@@ -166,10 +157,4 @@ extern cptr string_make(cptr str);
 /* Free a string allocated with "string_make()" */
 extern errr string_free(cptr str);
 
-
-
-
-#endif
-
-
-
+#endif /* INCLUDED_Z_VIRT_H */

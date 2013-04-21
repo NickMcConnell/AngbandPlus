@@ -49,7 +49,7 @@ the Free Software Foundation; either version 2 of the License, or
      #'(lambda (dun pl)
 	 (declare (ignore dun))
 	 (with-new-screen ()
-	   (let ((table (player.eq pl)))
+	   (let ((table (player.equipment pl)))
 	     (item-table-print table :show-pause t)))
 	 ))
 
@@ -71,7 +71,7 @@ the Free Software Foundation; either version 2 of the License, or
 	       (c-clear-from! 0)
 	       (display-creature *variant* pl)
 	       (c-prt! "['C' to show combat-info, 'R' to show resists,  ESC to continue]"
-		       *last-console-line* 5)
+		       5 (get-last-console-line))
 
 	       (let* ((ch (read-one-character))
 		      (fun (check-keypress loc-table ch)))
@@ -116,8 +116,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-key-operation 'drop-item
     #'(lambda (dun pl)
-	(with-new-screen ()
-	  (drop-something! dun pl))))
+	(drop-something! dun pl)
+	))
 
 (define-key-operation 'wear-item
     #'(lambda (dun pl)
@@ -132,7 +132,7 @@ the Free Software Foundation; either version 2 of the License, or
 (define-key-operation 'quaff-potion
     #'(lambda (dun pl)
 	(with-new-screen ()
-	  (use-something! dun pl :restrict-type '(<potion>)
+	  (use-something! dun pl :restrict-type '(:on-quaff)
 			  :which-use :quaff
 			  :limit-from '(:backpack :floor) ;; only place with potions
 			  :prompt "Quaff which potion?")
@@ -160,7 +160,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-key-operation 'invoke-spell
     #'(lambda (dun pl)
-	(invoke-spell! dun pl)))
+	(van-invoke-spell! dun pl)))
 
 ;; hackish
 (define-key-operation 'open-all
@@ -189,7 +189,7 @@ the Free Software Foundation; either version 2 of the License, or
 	    (funcall func *variant* pl *level*
 		     :fname (concatenate 'string home-path *binary-save-file*)
 		     :format :binary))
-	  (c-print-message! "Your game was saved [binary+source]")
+	  (print-message! "Your game was saved [binary+source]")
 	  )))
 
 
@@ -201,10 +201,14 @@ the Free Software Foundation; either version 2 of the License, or
 	  (c-clear-from! 0)
 	  (display-help-topics *variant* "LAangband help (Vanilla)" 3)
 
-;;	  (c-pause-line *last-console-line*)
+	  ;;(pause-last-line!)
+
 	  )))
 
 
+(define-key-operation 'learn-spell
+    #'(lambda (dun pl)
+	(van-learn-spell! dun pl)))
 
 
 (define-key-operation 'fire-missile
@@ -249,6 +253,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-keypress *ang-keys* :global #\C 'show-character)
 (define-keypress *ang-keys* :global #\E 'eat-something)
+(define-keypress *ang-keys* :global #\L 'learn-spell)
 (define-keypress *ang-keys* :global #\Q 'quit-game)
 (define-keypress *ang-keys* :global #\S 'save-game)
 (define-keypress *ang-keys* :global #\? 'show-help)

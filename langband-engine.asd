@@ -2,7 +2,7 @@
 
 #|
 
-DESC: langband-engine.system - system-def for vanilla
+DESC: langband-engine.system - another system-def for vanilla
 Copyright (c) 2001-2002 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
@@ -13,10 +13,6 @@ the Free Software Foundation; either version 2 of the License, or
 |#
 
 (in-package :cl-user)
-
-#-langband-development
-(setf (logical-pathname-translations "langband")
-      '(("**;*.*.*" "cl-library:;langband-engine;**;*.*.*")))
 
 ;; we need certain flags
 (eval-when (:execute :load-toplevel :compile-toplevel)
@@ -42,26 +38,30 @@ the Free Software Foundation; either version 2 of the License, or
   
   )
 
+(defpackage :langband-engine-system 
+  (:use :cl :asdf))
 
-#+enough-support-for-langband
-(mk:defsystem :langband-engine
-    :source-pathname
-  #-langband-development #p"langband:"
-  #+langband-development (translate-logical-pathname #p"langband:")
-  ;;    :source-pathname ""
-    :source-extension "lisp"
+(in-package :langband-engine-system)
+  
+(asdf:defsystem :langband-engine
+    :version "0.0.19"
     :components
-    (
+    ((:module settings
+	      :pathname ""
+	      :components ((:file "pre-build")))
+     
+     (:module binary-types
+	      :pathname "binary-types/"
+	      :components ((:file "binary-types"))
+	      :depends-on (settings))
+     
      (:module decl
-              :source-pathname ""
-              :components ((:file "pre-build")
-			   #+langband-development
-			   (:file "binary-types/binary-types")
-			   (:file "package")
-			   ))
+              :pathname ""
+              :components ((:file "package"))
+	      :depends-on (binary-types))
 
      (:module foreign
-	      :source-pathname "ffi/"
+	      :pathname "ffi/"
 	      :components ((:file "ffi-load")
 			   (:file "ffi-sys")
 			   #+cmu
@@ -78,7 +78,7 @@ the Free Software Foundation; either version 2 of the License, or
 
      ;; fix remaining dependency-problems as they show up
      (:module basic
-              :source-pathname ""
+              :pathname ""
               :components ((:file "memoize")
 			   (:file "base" :depends-on ("memoize"))
 			   (:file "constants" :depends-on ("base"))
@@ -97,7 +97,7 @@ the Free Software Foundation; either version 2 of the License, or
 			   (:file "building" :depends-on ("generics" "base" "global"))
 			   (:file "stores" :depends-on ("building" "generics" "equipment"))
 			   (:file "allocate" :depends-on ("generics" "dungeon" "constants"))
-			   (:file "generate" :depends-on ("dungeon" "allocate" "classes" "generics" "object" "equipment"))
+			   (:file "generate" :depends-on ("dungeon" "allocate" "classes" "object" "equipment" "generics"))
 			   (:file "print" :depends-on ("generics" "player"))
 			   (:file "util" :depends-on ("dungeon" "classes" "global" "generics" "generate"))
 			   (:file "combat" :depends-on ("generics" "base" "sound" "global" "classes"))
@@ -114,27 +114,25 @@ the Free Software Foundation; either version 2 of the License, or
 			   (:file "dump" :depends-on ("monster" "classes" "object" "character" "global" "building" "equipment"))
 			   (:file "init" :depends-on ("classes" "monster" "object" "loop"))
 			   (:file "verify" :depends-on ("player" "global" "base" "dungeon" "monster" "character"))
-			   
+			   			   
 			   )
 	      :depends-on (foreign))
+     
      ;; this can safely be commented all out, or parts of it may be commented out
      (:module compat
-              :source-pathname "lib/compat/"
-              :components (
+	      :pathname "lib/compat/"
+	      :components (
 			   #+never
 			   (:file "ego")
 
 			   (:file "savefiles")
 			   )
 	      :depends-on (basic))
+     
+     ))
 
-     )
-    
-    :depends-on (#-langband-development
-		 binary-types))
 
 #-enough-support-for-langband
 (warn "Langband-Engine has not been tested with '~a ~a', skips compilation."
       (lisp-implementation-type)
       (lisp-implementation-version))
-

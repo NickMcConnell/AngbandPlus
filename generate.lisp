@@ -35,32 +35,19 @@ ADD_DESC: Most of the code which deals with generation of dungeon levels.
 	    (values 0 rdir))
 	(values cdir rdir))))
 
-(defun in-bounds? (dungeon x y)
-  "Checks that the coordinate is well within the dungeon"
-  (declare (type fixnum x y))
-  (legal-coord? dungeon x y))
-
-
-(defun in-bounds-fully? (dungeon x y)
-  "Checks that the coordinate is well within the dungeon"
-  (declare (type fixnum x y))
-  (and (> x 0)
-       (> y 0)
-       (< x (1- (dungeon.width dungeon)))
-       (< y (1- (dungeon.height dungeon)))))
 
 (defun place-closed-door! (dungeon x y)
   "Places a closed door at the given coordinate"
   (let ((val (random 400)))
     ;; normal closed door
     (cond ((< val 300)
-	   (setf (cave-feature dungeon x y) +feature-door-head+))
+	   (setf (cave-floor dungeon x y) +floor-door-head+))
 	  ;; locked door
 	  ((< val 399)
-	   (setf (cave-feature dungeon x y) (+ +feature-door-head+ (randint 7))))
+	   (setf (cave-floor dungeon x y) (+ +floor-door-head+ (randint 7))))
 	  ;; stuck door
 	  (t
-	   (setf (cave-feature dungeon x y) (+ +feature-door-head+ #x08 (random 8)))))))
+	   (setf (cave-floor dungeon x y) (+ +floor-door-head+ #x08 (random 8)))))))
 
 
 
@@ -69,13 +56,13 @@ ADD_DESC: Most of the code which deals with generation of dungeon levels.
   (let ((val (random 1000)))
     ;; open door
     (cond ((< val 300)
-	   (setf (cave-feature dungeon x y) +feature-open+))
+	   (setf (cave-floor dungeon x y) +floor-open-door+))
 	  ;; broken door
 	  ((< val 400)
-	   (setf (cave-feature dungeon x y) +feature-broken+))
+	   (setf (cave-floor dungeon x y) +floor-broken-door+))
 	  ;; secret door
 	  ((< val 600)
-	   (setf (cave-feature dungeon x y) +feature-secret+))
+	   (setf (cave-floor dungeon x y) +floor-secret-door+))
 	  ;; closed door
 	  (t
 	   (place-closed-door! dungeon x y)))))
@@ -94,7 +81,7 @@ ADD_DESC: Most of the code which deals with generation of dungeon levels.
 	(declare (type u-fixnum tmp-x tmp-y))
 	
 	(unless (or (not (cave-floor-bold? dungeon tmp-x tmp-y))
-		    (/= (cave-feature dungeon tmp-x tmp-y) +feature-floor+)
+		    (/= (cave-floor dungeon tmp-x tmp-y) +floor-regular+)
 		    (cave-is-room? dungeon tmp-x tmp-y))
 	  (incf retval))))
     retval))
@@ -103,12 +90,12 @@ ADD_DESC: Most of the code which deals with generation of dungeon levels.
   (declare (type fixnum x y))
   (when (>= (next-to-corridor dungeon x y) 2)
     ;; check vertical
-    (when (and (<= +feature-magma+ (cave-feature dungeon x (1- y)))
-	       (<= +feature-magma+ (cave-feature dungeon x (1+ y))))
+    (when (and (<= +floor-magma+ (cave-floor dungeon x (1- y)))
+	       (<= +floor-magma+ (cave-floor dungeon x (1+ y))))
       (return-from possible-doorway? t))
     ;; check horizontal
-    (when (and (<= +feature-magma+ (cave-feature dungeon (1- x) y))
-	       (<= +feature-magma+ (cave-feature dungeon (1+ x) y)))
+    (when (and (<= +floor-magma+ (cave-floor dungeon (1- x) y))
+	       (<= +floor-magma+ (cave-floor dungeon (1+ x) y)))
       (return-from possible-doorway? t)))
   nil)
     
@@ -118,7 +105,7 @@ ADD_DESC: Most of the code which deals with generation of dungeon levels.
   (declare (type fixnum x y))
   (unless (in-bounds? dungeon x y)
     ;; ignore walls or rooms
-    (unless (or (>= (cave-feature dungeon x y) +feature-magma+)
+    (unless (or (>= (cave-floor dungeon x y) +floor-magma+)
 		(cave-is-room? dungeon x y))
       ;; chance and allowed
       (when (and (< (random 100) +tunnel-junction+)
@@ -143,15 +130,59 @@ ADD_DESC: Most of the code which deals with generation of dungeon levels.
        (place-player! dungeon player x y)
        (return-from new-player-spot! nil)))))
 
-(defun place-rubble! (dungeon x y)
+(defmethod place-rubble! ((variant variant) dungeon x y)
   (declare (type fixnum x y))
-  (setf (cave-feature dungeon x y) +feature-rubble+))
+  (setf (cave-floor dungeon x y) +floor-rubble+))
 
-(defun place-trap! (dungeon x y)
-  
-  (declare (ignore dungeon x y))
-  ;; add later
-  (values))
+(defun make-trap-visible (the-trap dungeon x y)
+  (setf (decor.visible? the-trap) t)
+  (light-spot! dungeon x y))
+
+(defun %execute-trap (the-trap dungeon x y)
+  (cond ((and (typep the-trap 'active-trap) (typep (trap.type the-trap) 'trap-type))
+	 (let ((trap-type (trap.type the-trap)))
+	   (cond ((functionp (trap.effect trap-type))
+		  (funcall (trap.effect trap-type) the-trap dungeon x y)
+		  ;; assuming everything went ok
+		  (make-trap-visible the-trap dungeon x y))
+		 (t
+		  (warn "Trap ~s does not have a funcallable effect." (trap.id trap-type))))))
+	(t
+	 (warn "%EXECUTE-TRAP was not passed a TRAP-argument, but ~s" the-trap))
+	))
+			
+;;  (warn "Executing trap ~s" the-trap)
+
+
+;; should be reimplemented, slow and ignores rarity
+(defmethod find-random-trap (variant dungeon x y)
+  (declare (ignore dungeon))
+  (let* ((table (variant.traps variant))
+	 (num-traps (hash-table-count table))
+	 (which-trap (random num-traps)))
+    
+    (loop for i from 0
+	  for v being the hash-values of table
+	  do
+	  (when (= i which-trap)
+	    (let ((trap (make-instance 'active-trap :type v :loc-x x :loc-y y)))
+	      (return-from find-random-trap trap))))
+    nil))
+ 
+
+(defmethod place-trap! ((variant variant) dungeon x y)
+  "Tries to place a trap at given location."
+  (when (and (in-bounds? dungeon x y)
+	     (cave-boldly-naked? dungeon x y))
+
+    (when-bind (the-trap (find-random-trap variant dungeon x y))
+;;      (warn "Making trap (~s) at ~s,~s" (trap.name (trap.type the-trap)) x y)
+      (push (make-coord-event "step" #'%execute-trap nil) (decor.events the-trap))
+      (setf (cave-decor dungeon x y) the-trap)
+      ;; hack I guess
+      (setf (cave-floor dungeon x y) +floor-invisible-trap+))
+    ))
+
 
 (defun let-floor-carry! (dungeon x y obj)
 
@@ -168,18 +199,14 @@ ADD_DESC: Most of the code which deals with generation of dungeon levels.
 (defmethod create-gold ((variant variant) (dungeon dungeon))
   (error "Please make CREATE-GOLD for variant.. this depends heavily on variant."))
 
-(defmethod add-magic-to-item! (dungeon item quality)
-  (declare (ignore dungeon item quality))
+(defmethod add-magic-to-item! ((variant variant) item depth quality)
+  (declare (ignore item depth quality))
   ;; do nothing, not magical
   )
 
-(defmethod add-magic-to-item! (dungeon (item active-object/weapon) quality)
-  (declare (ignore dungeon quality))
-  ;;(warn "checking for magic for weapon ~s." item)
-  t)
-	
+;; :good is +1, :great is +2, :cursed is -1 and :broken is -2
 
-(defun apply-magic! (dungeon obj base-level &key good-p great-p (allow-artifact t))
+(defmethod apply-magic! ((variant variant) obj base-level &key good-p great-p (allow-artifact t))
   
   (let* ((base-good-chance (+ 10 base-level))
 	 (base-great-chance (int-/ base-good-chance 2))
@@ -218,7 +245,7 @@ ADD_DESC: Most of the code which deals with generation of dungeon levels.
     ;; skip analysis of artifact
 
     
-    (add-magic-to-item! dungeon obj status)
+    (add-magic-to-item! variant obj base-level status)
 
     ;; skip analysis of ego-items
 
@@ -239,7 +266,7 @@ ADD_DESC: Most of the code which deals with generation of dungeon levels.
 	 
 	 (obj (get-active-object-by-level variant level :depth base-obj-depth)))
 
-    (apply-magic! dungeon obj depth)
+    (apply-magic! variant obj depth)
     
     obj))
 
@@ -266,10 +293,10 @@ ADD_DESC: Most of the code which deals with generation of dungeon levels.
   "Returns number of close walls in the four dirs."
   (declare (type fixnum x y))  
   (let ((k 0))
-    (when (>= (cave-feature dungeon (1+ x) y) +feature-wall-extra+) (incf k))
-    (when (>= (cave-feature dungeon (1- x) y) +feature-wall-extra+) (incf k))
-    (when (>= (cave-feature dungeon x (1+ y)) +feature-wall-extra+) (incf k))
-    (when (>= (cave-feature dungeon x (1- y)) +feature-wall-extra+) (incf k))
+    (when (>= (cave-floor dungeon (1+ x) y) +floor-wall-extra+) (incf k))
+    (when (>= (cave-floor dungeon (1- x) y) +floor-wall-extra+) (incf k))
+    (when (>= (cave-floor dungeon x (1+ y)) +floor-wall-extra+) (incf k))
+    (when (>= (cave-floor dungeon x (1- y)) +floor-wall-extra+) (incf k))
     k))
 
 (defmethod allocate-object! ((variant variant) (dungeon dungeon) set type number)
@@ -299,8 +326,8 @@ ADD_DESC: Most of the code which deals with generation of dungeon levels.
 	       (return-from legal-spot-finder)))
       
       (case type
-	(alloc-type-rubble (place-rubble! dungeon x y))
-	(alloc-type-trap   (place-trap! dungeon x y))
+	(alloc-type-rubble (place-rubble! variant dungeon x y))
+	(alloc-type-trap   (place-trap! variant dungeon x y))
 	;; add again later
 	(alloc-type-gold   (place-gold! variant dungeon x y))
 	(alloc-type-object (place-object! variant dungeon x y nil nil))))
@@ -324,9 +351,9 @@ ADD_DESC: Most of the code which deals with generation of dungeon levels.
 	    (when (and (cave-boldly-naked? dungeon x y)
 		       (>= (next-to-walls dungeon x y) walls))
 	    
-	      (setf (cave-feature dungeon x y) (if (eq dir :up)
-						   +feature-less+
-						   +feature-more+))
+	      (setf (cave-floor dungeon x y) (if (eq dir :up)
+						   +floor-less+
+						   +floor-more+))
 	      (return-from placed-stair))))
       
 	(when (> walls 0)
@@ -388,24 +415,24 @@ ADD_DESC: Most of the code which deals with generation of dungeon levels.
 			     tmp-row (+ row1 row-dir)))
 
 		 ;; get the feature in question
-		 (let ((feature (cave-feature dungeon tmp-col tmp-row)))
+		 (let ((feature (cave-floor dungeon tmp-col tmp-row)))
 
 		   ;; mae sure we're not at the map-edge, vault-edge or at solid granite
-		   (cond ((or (eql feature +feature-perm-solid+)
-			      (eql feature +feature-perm-outer+)
-			      (eql feature +feature-wall-solid+))
+		   (cond ((or (eql feature +floor-perm-solid+)
+			      (eql feature +floor-perm-outer+)
+			      (eql feature +floor-wall-solid+))
 			  (go start-of-loop))
 
 			 ;; pierce normal outer walls
-			 ((eql feature +feature-wall-outer+)
+			 ((eql feature +floor-wall-outer+)
 			  (let* ((y (+ tmp-row row-dir))
 				 (x (+ tmp-col col-dir))
-				 (feat (cave-feature dungeon x y)))
+				 (feat (cave-floor dungeon x y)))
 
-			    (when (or (eql feat +feature-perm-solid+)
-				      (eql feat +feature-perm-outer+)
-				      (eql feat +feature-wall-solid+)
-				      (eql feat +feature-wall-outer+))
+			    (when (or (eql feat +floor-perm-solid+)
+				      (eql feat +floor-perm-outer+)
+				      (eql feat +floor-wall-solid+)
+				      (eql feat +floor-wall-outer+))
 			      (go start-of-loop))
 
 			    (setq row1 tmp-row
@@ -418,8 +445,8 @@ ADD_DESC: Most of the code which deals with generation of dungeon levels.
 				  do
 				  (loop for wx of-type u-fixnum from (1- col1) to (1+ col1)
 					do
-					(when (eql (cave-feature dungeon wx wy) +feature-wall-outer+)
-					  (setf (cave-feature dungeon wx wy) +feature-wall-solid+))))
+					(when (eql (cave-floor dungeon wx wy) +floor-wall-outer+)
+					  (setf (cave-floor dungeon wx wy) +floor-wall-solid+))))
 			    
 			    ))
 
@@ -432,7 +459,7 @@ ADD_DESC: Most of the code which deals with generation of dungeon levels.
 			 
 			 
 			 ;; tunnel through other walls
-			 ((>= feature +feature-wall-extra+)
+			 ((>= feature +floor-wall-extra+)
 			  ;;(warn "g.")
 			  (setq col1 tmp-col
 				row1 tmp-row)
@@ -467,12 +494,12 @@ ADD_DESC: Most of the code which deals with generation of dungeon levels.
       ;; turn it into corridor
       (dolist (i (dun-data.tunnels *cur-dun*))
 ;;	(warn "tunnel..~a" i)
-	(setf (cave-feature dungeon (car i) (cdr i)) +feature-floor+))
+	(setf (cave-floor dungeon (car i) (cdr i)) +floor-regular+))
       
 
       ;; do piercing
       (dolist (i (dun-data.walls *cur-dun*))
-	(setf (cave-feature dungeon (car i) (cdr i)) +feature-floor+)
+	(setf (cave-floor dungeon (car i) (cdr i)) +floor-regular+)
 	(when (< (random 100) +tunnel-door+)
 	  (place-random-door! dungeon (car i) (cdr i))))
       
@@ -514,7 +541,7 @@ light argument is a boolean."
 	(loop for x of-type fixnum from x1 to x2
 	      do
 	      ;;(warn "fish [~a,~a] -> ~a" x y feat)
-	      (setf (cave-feature dungeon x y) feat))))
+	      (setf (cave-floor dungeon x y) feat))))
 
 
 (defun generate-draw (dungeon x1 y1 x2 y2 feat)
@@ -524,13 +551,13 @@ light argument is a boolean."
   
   (loop for y of-type fixnum from y1 to y2
 	do
-	(setf (cave-feature dungeon x1 y) feat)
-	(setf (cave-feature dungeon x2 y) feat))
+	(setf (cave-floor dungeon x1 y) feat)
+	(setf (cave-floor dungeon x2 y) feat))
 
   (loop for x of-type fixnum from x1 to x2
 	do
-	(setf (cave-feature dungeon x y1) feat)
-	(setf (cave-feature dungeon x y2) feat))
+	(setf (cave-floor dungeon x y1) feat)
+	(setf (cave-floor dungeon x y2) feat))
 
   )
 
@@ -547,13 +574,11 @@ argument is passed it will be used as new dungeon and returned."
 	 (dungeon (create-dungeon dungeon-width dungeon-height
 				  :its-depth (level.depth level)))
 	 (*cur-dun* (make-dun-data))
-	 ;;(qy +screen-height+)
-	 ;;(qx +screen-width+)
 	 )
 
     
     ;; start with granite
-    (fill-dungeon-with-feature! dungeon +feature-wall-extra+)
+    (fill-dungeon-with-floor! dungeon +floor-wall-extra+)
 
     ;; skip destroyed levels
     
@@ -598,13 +623,13 @@ argument is passed it will be used as new dungeon and returned."
     (loop for y in (list 0 (1- dungeon-height))
 	  for x from 0 to (1- dungeon-width)
 	  do
-	  (setf (cave-feature dungeon x y) +feature-perm-solid+))
+	  (setf (cave-floor dungeon x y) +floor-perm-solid+))
     
     ;; perm walls on left and right
     (loop for x in (list 0 (1- dungeon-width))
 	  for y from 0 to (1- dungeon-height)
 	  do
-	  (setf (cave-feature dungeon x y) +feature-perm-solid+))
+	  (setf (cave-floor dungeon x y) +floor-perm-solid+))
     
     
     ;; make list into an array
@@ -662,15 +687,18 @@ argument is passed it will be used as new dungeon and returned."
 						  (cdr stairs-down)) 3)
       (allocate-stairs! dungeon :up   (rand-range (car stairs-up)
 						  (cdr stairs-up)) 3))
-   
-    
-    (let ((monster-amount (int-/ (dungeon.depth dungeon) 3)))
-      (when (> monster-amount 10) (setq monster-amount 10))
-      (when (< monster-amount 2)  (setq monster-amount 2))
 
-      (setq monster-amount (+ monster-amount 14 (random 8)))
+    (let ((depth-constant (int-/ (dungeon.depth dungeon) 3)))
+      (when (> depth-constant 10) (setq depth-constant 10))
+      (when (< depth-constant 2)  (setq depth-constant 2))
 
-      (dotimes (i monster-amount)
+      ;; allocate rubble
+      ;; allocate traps
+      (dotimes (i 10) ;; hack
+	(allocate-object! variant dungeon 'alloc-set-both 'alloc-type-trap (randint depth-constant)))
+
+      ;; we want monsters
+      (dotimes (i (+ depth-constant 14 (randint 8)))
 	(allocate-monster! variant dungeon player 0 t)))
 
     
@@ -682,9 +710,6 @@ argument is passed it will be used as new dungeon and returned."
 	
     (allocate-object! variant dungeon 'alloc-set-both 'alloc-type-gold 4)
     (allocate-object! variant dungeon 'alloc-set-both 'alloc-type-object 4)
-    ;;    (fill-dungeon-part-with-feature dungeon +feature-floor+
-    ;;				    (cons (1+ +screen-width+)  (+ +screen-width+ qx -1))
-    ;;				    (cons (1+ +screen-height+) (+ +screen-height+ qy -1)))
 
     (setf (level.dungeon level) dungeon)
     
@@ -701,14 +726,14 @@ argument is passed it will be used as new dungeon and returned."
 	   (px (location-x pl))
 	   (py (location-y pl))
 	   (feat (case leave-method
-		   (:down-stair +feature-less+)
-		   (:up-stair +feature-more+)
+		   (:down-stair +floor-less+)
+		   (:up-stair +floor-more+)
 		   (otherwise nil))))
 
       
       (when feat
 ;;	(warn "placing feature at ~s,~s" px py) 
-	(setf (cave-feature dun px py) feat))
+	(setf (cave-floor dun px py) feat))
       ))
   
 

@@ -16,7 +16,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 ;;; ===  mage-books
 
-(define-object-kind "beginner-magic" "[magic for beginners]"
+(define-object-kind "magic-beginner" "[magic for beginners]"
   :numeric-id 330
   :x-attr #\R
   :x-char #\?
@@ -31,7 +31,7 @@ the Free Software Foundation; either version 2 of the License, or
   :the-kind '<book>
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
-(define-object-kind "conjuring-tricks" "[conjurings and tricks]"
+(define-object-kind "conjurings-and-tricks" "[conjurings and tricks]"
   :numeric-id 331
   :x-attr #\R
   :x-char #\?
@@ -61,7 +61,7 @@ the Free Software Foundation; either version 2 of the License, or
   :the-kind '<book>
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
-(define-object-kind "sorcery-evocation" "[sorcery and evocations]"
+(define-object-kind "sorcery-evocations" "[sorcery and evocations]"
   :numeric-id 333
   :x-attr #\R
   :x-char #\?
@@ -77,7 +77,7 @@ the Free Software Foundation; either version 2 of the License, or
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 
-(define-object-kind "scarab-resistance" "[resistance of scarabtarices]"
+(define-object-kind "resistance-scarab" "[resistance of scarabtarices]"
   :numeric-id 379
   :x-attr #\r
   :x-char #\?
@@ -107,7 +107,7 @@ the Free Software Foundation; either version 2 of the License, or
   :the-kind '<book>
   :game-values (make-game-values :base-dice 1 :num-dice 1 :ignores '(<cold> <fire> <electricity> <acid>))) 
 
-(define-object-kind "kelek-grimoire" "[Kelek's grimoire of power]"
+(define-object-kind "keleks-grimoire" "[Kelek's grimoire of power]"
   :numeric-id 381
   :x-attr #\r
   :x-char #\?
@@ -122,7 +122,7 @@ the Free Software Foundation; either version 2 of the License, or
   :the-kind '<book>
   :game-values (make-game-values :base-dice 1 :num-dice 1 :ignores '(<cold> <fire> <electricity> <acid>))) 
 
-(define-object-kind "tenser-transform" "[Tenser's transformations]"
+(define-object-kind "tensers-transformations" "[Tenser's transformations]"
   :numeric-id 382
   :x-attr #\r
   :x-char #\?

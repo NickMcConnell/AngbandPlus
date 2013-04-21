@@ -1080,7 +1080,7 @@ the Free Software Foundation; either version 2 of the License, or
   :speed 120
   :xp 5000
   :abilities '(<bash-door> <open-door> <pick-up-item> <max-hitpoints>)
-  :immunities '(<poison> <cold>)
+  :immunities '(<poison> <acid>)
   :alertness 50
   :vision 20
   :attacks '((<spit> :type <acid> :damage (3 . 8)) (<bite> :type <hurt> :damage (2 . 3))

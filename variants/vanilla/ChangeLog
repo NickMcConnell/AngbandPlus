@@ -1,3 +1,20 @@
+2002-05-19  Stig E Sandø <stig@users.sourceforge.net>
+	* Added basics of the magic-system, commands to use it, commands
+	to learn spells, mana-calculation, spellbook-code and some basic
+	spells.  Still missing many features, but a rough system is up.
+	* Updated the ability-calculations, both temporary ones and
+	equipment/class/race based ones.
+	* Added elemental damage function
+	* Added some debug functions
+	* Added spell-info to some classes
+	* Added code to some rings
+	* Revamped floor-info to reflect changes in trap-code, but adds a
+	lot of interesting new traps with working code.
+	* Other minor changes
+	
+2002-02-17  Stig E Sandø <stig@users.sourceforge.net>
+        * Sent out a release, 0.0.19
+	
 2002-02-16  Stig E Sandø <stig@users.sourceforge.net>
 	* Updated all references to sex to gender
 	* Installed a lot of player-calculation in quirks.lisp, as that

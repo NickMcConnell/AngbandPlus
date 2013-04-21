@@ -145,7 +145,7 @@ the Free Software Foundation; either version 2 of the License, or
 			  (get-armour-desc var-obj i)))
 	    
 	    )
-	  (c-print-message! "Odd info was dumped to dumps/odd.info")
+	  (print-message! "Odd info was dumped to dumps/odd.info")
 	  )))
 
 (define-key-operation 'print-keys
@@ -188,7 +188,7 @@ the Free Software Foundation; either version 2 of the License, or
 (define-key-operation 'dump-features
     #'(lambda (dun pl)
 	(declare (ignore dun pl))
-	(dump-features (concatenate 'string *dumps-directory* "feat.list"))
+	(dump-floors (concatenate 'string *dumps-directory* "floors.list"))
 	))
 
 (define-key-operation 'inspect-coord
@@ -222,7 +222,7 @@ the Free Software Foundation; either version 2 of the License, or
     #'(lambda (dun pl)
 	(declare (ignore pl))
 	(print-map-to-file dun "./map.ascii")
-	(c-print-message! "Map printed to map.ascii.")
+	(print-message! "Map printed to map.ascii.")
 	))
 
 
@@ -230,7 +230,7 @@ the Free Software Foundation; either version 2 of the License, or
     #'(lambda (dun pl)
 	(declare (ignore pl))
 	(print-map-as-ppm dun "./map.ppm")
-	(c-print-message! "Map printed to map.ppm.")
+	(print-message! "Map printed to map.ppm.")
 	))
 
 (define-key-operation 'gain-level
@@ -248,6 +248,63 @@ the Free Software Foundation; either version 2 of the License, or
 	(setf (current-hp player) (maximum-hp player))
 	(bit-flag-add! *redraw* +print-hp+)
 	))
+(define-key-operation 'load-vanilla
+    #'(lambda (dun player)
+	(declare (ignore dun player))
+	(compat-read-savefile& "vanilla.save")))
+
+(define-key-operation 'send-spell
+    #'(lambda (dun player)
+	(declare (ignore dun))
+
+	(let ((px (location-x player))
+	      (py (location-y player))
+	      (fire-effect (get-spell-effect '<fire>)))
+	  
+	  ;; let us do a fire-bolt
+	  (let ((flag (logior +project-kill+ +project-stop+ +project-through+)))
+	    (when-bind (dir (%read-direction))
+	      (do-projection player (+ (aref *ddx* dir) px) (+ (aref *ddy* dir) py) flag
+			     :effect fire-effect :damage 4)))
+	  
+	  ;; let us do a fire-beam
+	  (let ((flag (logior +project-kill+ +project-beam+ +project-through+)))
+	    (when-bind (dir (%read-direction))
+	      (do-projection player (+ (aref *ddx* dir) px) (+ (aref *ddy* dir) py) flag
+			     :effect fire-effect :damage 4)))
+	  
+	  ;; let us do a fire-ball
+	  (let ((flag (logior +project-kill+ +project-stop+ +project-grid+ +project-item+)))
+	    (when-bind (dir (%read-direction))
+	      (do-projection player (+ px (* 99 (aref *ddx* dir))) (+ py (* 99 (aref *ddy* dir))) flag
+			     :effect fire-effect :radius 4 :damage 4)))
+
+	)
+
+	))
+
+(define-key-operation 'jump-to-test-level
+    #'(lambda (dun player)
+	(let ((wanted-level 25)
+	      (depth 40))
+	;; get decent 
+	(loop while (< (player.level player) wanted-level)
+	      do
+	      (alter-xp! player (+ 100 (player.max-xp player))))
+	
+	(heal-creature! player 7000)
+	
+	(when (and (integerp depth) (plusp depth))
+	  (setf (player.depth player) depth
+		(dungeon.depth dun) depth)
+	  
+	  (when (> depth (player.max-depth player))
+	    (setf (player.max-depth player) depth))
+	  
+	  (setf (player.leaving-p player) :teleport)
+	  t)
+
+	)))
 
 
 (define-key-operation 'wizard-menu
@@ -290,15 +347,18 @@ the Free Software Foundation; either version 2 of the License, or
 (define-keypress *ang-keys* :wizard #\G 'set-gold)
 (define-keypress *ang-keys* :wizard #\H 'heal-player)
 (define-keypress *ang-keys* :wizard #\I 'inspect-coord)
+(define-keypress *ang-keys* :wizard #\J 'jump-to-test-level)
 (define-keypress *ang-keys* :wizard #\K 'print-keys)
 (define-keypress *ang-keys* :wizard #\L 'gain-level) 
 (define-keypress *ang-keys* :wizard #\O 'object-create)
 (define-keypress *ang-keys* :wizard #\P 'print-map-as-ppm)
+(define-keypress *ang-keys* :wizard #\S 'send-spell)
 (define-keypress *ang-keys* :wizard #\T 'print-map)
 (define-keypress *ang-keys* :wizard #\U 'summon)
 (define-keypress *ang-keys* :wizard #\W 'print-odd-info)
 (define-keypress *ang-keys* :wizard #\Z 'in-game-test)
 
+(define-keypress *ang-keys* :wizard #\l 'load-vanilla)
 (define-keypress *ang-keys* :wizard #\m 'dump-monsters)
 (define-keypress *ang-keys* :wizard #\o 'dump-objects)
 

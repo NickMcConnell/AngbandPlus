@@ -7,7 +7,7 @@ Build-Depends: debhelper, xlibs-dev, libncurses5-dev
 
 Package: langband-engine
 Architecture: all
-Depends: cmucl (>= 2.5.2) | sbcl (>= 0.7.1), common-lisp-controller (>= 2.4), langband-zterm (>= 0.0.19), cl-binary-types (>= 0.84)
+Depends: cmucl (>= 2.5.2) | sbcl (>= 0.7.3-3), common-lisp-controller (>= 2.4), langband-zterm (>= 0.0.20), cl-binary-types (>= 0.84)
 Recommends: langband-variant
 Description: The Langband engine
  It is a complete rewrite of the roguelike Angband but written in Common Lisp.
@@ -26,7 +26,7 @@ Description: The Langband term-libs
 Package: langband-vanilla
 Provides: langband-variant
 Architecture: all
-Depends: langband-engine (>= 0.0.19)
+Depends: langband-engine (>= 0.0.20)
 Description: A Vanilla-Angband plugin to the langband-engine
  This package provides a plugin to the langband-engine that lets you play
  vanilla/standard Angband. 

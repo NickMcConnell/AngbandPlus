@@ -46,6 +46,9 @@ the Free Software Foundation; either version 2 of the License, or
     
     (number
      (< key (items.cur-size table)))
+
+    (active-object
+     (find key (items.objs table)))
     
     (t
      nil)))
@@ -81,6 +84,7 @@ the Free Software Foundation; either version 2 of the License, or
 	 (let ((key-as-num (typecase key
 			     (character (a2i key))
 			     (number key)
+			     (active-object (position key (items.objs table)))
 			     (otherwise nil))))
 	   (when key-as-num
 	     (let ((old-obj (aref (items.objs table) key-as-num)))
@@ -186,15 +190,15 @@ the Free Software Foundation; either version 2 of the License, or
 	     (let ((attr (get-colour val))
 		   (desc (with-output-to-string (s)
 			   (write-obj-description *variant* val s))))
-	       (c-prt! "" (+ i y) (- x 2))
-	       (c-col-put-str! +term-white+ (format nil "~a) " (i2a i)) (+ i y) x)
-	       (c-col-put-str! attr desc (+ i y) (+ x 4))
+	       (c-prt! "" (- x 2) (+ i y))
+	       (put-coloured-str! +term-white+ (format nil "~a) " (i2a i)) x (+ i y))
+	       (put-coloured-str! attr desc (+ x 4) (+ i y))
 	       (incf i))))
       
     (item-table-iterate! table #'iterator-fun)
     
     (when show-pause
-      (c-pause-line! *last-console-line*))
+      (pause-last-line!))
 
     )))
 
@@ -244,9 +248,10 @@ to variant obj."
   (let ((real-key key))
     (unless real-key
       (let ((its-types (object.obj-type obj)))
-;;	(warn "Checking types ~a" its-types)
+	(warn "Checking types ~a" its-types)
 	(dolist (i its-types)
 	  (let ((poss-key (get i 'equip-slot)))
+	    (warn "Checking ~s" poss-key)
 	    (when (and poss-key (numberp poss-key))
 	      (setq real-key poss-key))))))
 
@@ -261,22 +266,48 @@ to variant obj."
 
 ;;(trace %get-equip-key-as-num)
 
+(defun %get-possible-places-to-add (table obj)
+  (let ((its-types (object.obj-type obj))
+	(poss-list '()))
+    (loop for i from 0
+	  for x across *allowed-types-for-slots*
+	  do (cond ((consp x)
+		    (dolist (type its-types)
+		      (when (find type x)
+			(push i poss-list))))
+		   (t
+		    (warn "Odd format ~s of ~s element in table *allowed-types-for-slots*" x i))))
+    (let ((ret-list '()))
+      (dolist (i poss-list)
+	(when (eq nil (aref (items.objs table) i))
+	  (push i ret-list)))
+
+      (if ret-list ret-list poss-list)
+      )))
+
+;;(trace %get-possible-places-to-add)
 
 (defmethod item-table-add! ((table items-worn) obj &optional key)
+  (let ((possible-keys (%get-possible-places-to-add table obj)))
+    (unless possible-keys
+      ;; hack
+      (setf possible-keys (%get-equip-key-as-num key obj))
+      (unless (listp possible-keys)
+	(setf possible-keys (cons possible-keys nil))))
 
-  (let ((real-key (%get-equip-key-as-num key obj)))
-;;    (warn "RK: ~a" real-key)
-    (if (not real-key)
-	nil
+    (when (consp possible-keys)
+      (dolist (real-key possible-keys)
 	;; now let's check if we're allowed to put the item there
 	(let ((type-list (aref *allowed-types-for-slots* real-key)))
-	  (if (obj-is-in? obj type-list)
-	      (let ((old-obj (aref (items.objs table) real-key)))
-		(setf (aref (items.objs table) real-key) obj)
-		(if old-obj old-obj t)) ;; return T if succesful or object
-	      (progn
-		(warn "Object ~a cannot be equipped.." obj)
-		nil))))
+	  (cond ((obj-is-in? obj type-list)
+		 (let ((old-obj (aref (items.objs table) real-key)))
+		   (setf (aref (items.objs table) real-key) obj)
+		   ;; return T if succesful or object
+		   (return-from item-table-add! (if old-obj old-obj t))))
+		(t
+		 (warn "Object ~a cannot be equipped.." obj)
+		 nil)))
+	))
     ))
 
 
@@ -325,17 +356,17 @@ to variant obj."
 		   (desc (if val (with-output-to-string (s)
 				   (write-obj-description *variant* val s))
 			     "(nothing)")))
-	       (c-prt! "" (+ i y) (- x 2))
-	       (c-col-put-str! +term-white+ (format nil "~a) ~13a : " (i2a i)
-						    (get (aref *equip-slot-order* i) 'description))
-			       (+ i y) x)
-	       (c-col-put-str! attr desc (+ i y) (+ x 20))
+	       (c-prt! "" (- x 2) (+ i y))
+	       (put-coloured-str! +term-white+ (format nil "~a) ~13a : " (i2a i)
+						       (get (aref *equip-slot-order* i) 'description))
+				  x (+ i y))
+	       (put-coloured-str! attr desc (+ x 20) (+ i y))
 	       (incf i))))
       
     (item-table-iterate! table #'iterator-fun)
     
     (when show-pause
-      (c-pause-line! *last-console-line*))
+      (pause-last-line!))
 
     )))
 

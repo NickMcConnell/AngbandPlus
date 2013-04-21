@@ -13,12 +13,14 @@ the Free Software Foundation; either version 2 of the License, or
 |#
 
 (in-package :org.langband.vanilla)
-
+#||
 (define-normal-event ()
     :backpack-creation
   :on-create
   #'common-creating-backpack)
+||#
 
+(defconstant +common-backpack-size+ 23)
 
 (define-object-kind 
     "backpack" "backpack" :numeric-id 750
@@ -27,7 +29,12 @@ the Free Software Foundation; either version 2 of the License, or
     :locale #(0 0 0 0) :weight nil
     :cost 1200 :obj-type '(<container> <backpack>)
     :the-kind '<container>
-    :events (list :backpack-creation))
+    :on-create #'(lambda (item)
+		   (let ((container (make-container +common-backpack-size+)))
+		     (setf (aobj.contains item) container)
+		     t))
+    ;;:events (list :backpack-creation)
+    )
 
 (define-room "simple-room" #'common-make-simple-room)
 (define-room "overlapping-room" #'common-make-overlapping-room)
@@ -89,4 +96,3 @@ the Free Software Foundation; either version 2 of the License, or
 (define-effect '<resist-fire>     "resist fire"         :number 33 :bit-flag #x200000000)
 (define-effect '<resist-cold>     "resist cold"         :number 34 :bit-flag #x400000000)
 (define-effect '<resist-poison>   "resist poison"       :number 35 :bit-flag #x800000000)
-

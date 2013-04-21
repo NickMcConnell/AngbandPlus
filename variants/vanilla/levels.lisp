@@ -24,13 +24,6 @@ the Free Software Foundation; either version 2 of the License, or
   (when (level.dungeon level)
     t))
 
-(defun make-coord-event (id function extra)
-  (let ((ret-event (make-event id :step-on-coord function
-			       :state (if (listp extra)
-					  extra
-					  (list extra)))))
-    ret-event))
-    
 
 (defun %van-visit-shop (dungeon x y house-num)
   "Visits shop.."
@@ -53,8 +46,12 @@ part of the new level."
 	 (dungeon (create-dungeon max-dungeon-width
 				  max-dungeon-height
 				  :its-depth 0))
-	 (qy +screen-height+)
-	 (qx +screen-width+)
+	 (screen-height *screen-height*)
+	 (screen-width *screen-width*)
+	 (town-height 22)
+	 (town-width 66)
+	 (qy 0)
+	 (qx 0)
 ;;	 (build-stores nil) ;; for testing
 	 (build-stores t)
 	 )
@@ -65,18 +62,18 @@ part of the new level."
     
 ;;    (setf (player.map player) (make-map dungeon))
     
-    (fill-dungeon-with-feature! dungeon +feature-perm-solid+)
+    (fill-dungeon-with-floor! dungeon +floor-perm-solid+)
     
-    (fill-dungeon-part-with-feature! dungeon +feature-floor+
-				     (cons (1+ +screen-width+)  (+ +screen-width+ qx -1))
-				     (cons (1+ +screen-height+) (+ +screen-height+ qy -1)))
+    (fill-dungeon-part-with-floor! dungeon +floor-regular+
+				   (cons 1 (1- town-width))
+				   (cons 1 (1- town-height)))
 
     (setf (level.dungeon level) dungeon)
     
     (when build-stores
       ;; we need stores
-      (let* ((y-offset +screen-height+)
-	     (x-offset +screen-width+)
+      (let* ((y-offset 1)
+	     (x-offset 1)
 	     (store-num (level.num-stores level))
 	     (store-numbers (shuffle-array! (get-array-with-numbers store-num :fill-pointer t)
 					    store-num))
@@ -96,7 +93,7 @@ part of the new level."
 		      (y0 (+ y-offset (* y 9) 6)))
 		  ;;(warn "building ~s [~a]" the-house house-num)
 		  (build-house! level the-house x0 y0
-				:door-feature (1- (+ +feature-shop-head+ house-num))
+				:door-feature (1- (+ +floor-shop-head+ house-num))
 				:door-trigger (make-coord-event (format nil "house-event-~d" house-num)
 								#'%van-visit-shop house-num))
 		  ;;	(warn "Entering shop ~a, ~a" house-num the-house)))
@@ -106,11 +103,11 @@ part of the new level."
     
 
     (loop named place-the-player
-	  for x of-type u-fixnum = (with-type u-fixnum (+ qx (rand-range 3 (- +screen-width+ 4))))
-	  for y of-type u-fixnum = (with-type u-fixnum (+ qy (rand-range 3 (- +screen-height+ 4))))
+	  for x of-type u-fixnum = (with-type u-fixnum (+ qx (rand-range 3 (- screen-width 4))))
+	  for y of-type u-fixnum = (with-type u-fixnum (+ qy (rand-range 3 (- screen-height 4))))
 	  do
 	  (when (cave-boldly-naked? dungeon x y)
-	    (setf (cave-feature dungeon x y) +feature-more+)
+	    (setf (cave-floor dungeon x y) +floor-more+)
 	    (place-player! dungeon player x y)
 	    (return-from place-the-player nil)))
 
@@ -171,7 +168,9 @@ part of the new level."
 (defmethod print-depth ((level van-town-level) setting)
   "prints current depth somewhere"
   (declare (ignore setting))
-  (c-col-put-str! +term-l-blue+ "Town" *last-console-line* 70)) ;;fix 
+  (put-coloured-str! +term-l-blue+ "Town"
+		     (- (get-last-console-column) 10)
+		     (get-last-console-line))) 
 
 
 (defmethod activate-object :after ((level van-town-level) &key)
@@ -205,9 +204,9 @@ part of the new level."
   
     (with-dungeon (dungeon (coord x y))
       (declare (ignore x y))
-      (let ((feat (coord.feature coord)))
+      (let ((feat (coord.floor coord)))
 	;; slightly interesting grids
-	(cond ((> feat +feature-invisible+)
+	(cond ((> feat +floor-invisible-trap+)
 	       (bit-flag-add! (coord.flags coord) #.(logior +cave-glow+ +cave-mark+)))
 	      ;; day-time
 	      ((eq time-of-day 'day)

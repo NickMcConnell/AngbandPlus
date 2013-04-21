@@ -4440,6 +4440,7 @@ the Free Software Foundation; either version 2 of the License, or
   :speed 110
   :xp 150
   :abilities '(<bash-door> <open-door>)
+  :immunities '(<poison>)
   :alertness 40
   :vision 20
   :attacks '((<bite> :type <hurt> :damage (1 . 6)) (<claw> :type <poison> :damage (3 . 3))

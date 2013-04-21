@@ -80,13 +80,13 @@ the monster
     d))
 
 ;; hackish
-(defun (setf coord-feature) (val coord)
+(defun (setf coord-floor) (val coord)
   "this is an evil hack."
 
   ;; fix me
-  (setf (coord.feature coord) val)
+  (setf (coord.floor coord) val)
   
-  (if (>= val +feature-door-head+)
+  (if (>= val +floor-door-head+)
       ;; this is a wall or a door..
       (bit-flag-add! (coord.flags coord) +cave-wall+)
       ;; we're not a a wall or a door.. 
@@ -97,10 +97,11 @@ the monster
 (defun clean-coord! (coord)
   "Cleans the given coordinate."
   
-  (setf (coord-feature  coord) 0
+  (setf (coord-floor    coord) 0
 	(coord.flags    coord) 0
 	(coord.objects  coord) nil
-	(coord.monsters coord) nil)
+	(coord.monsters coord) nil
+	(coord.decor    coord) nil)
   coord)
 
 
@@ -108,7 +109,7 @@ the monster
 (defun clean-dungeon! (dungeon)
   "Clears all flags and everything from the dungeon."
 
-  (warn "!!! cleaning dungeon..")
+;;  (warn "!!! cleaning dungeon..")
   
   (with-dungeon (dungeon (coord x y))
     (declare (ignore x y))
@@ -148,13 +149,17 @@ extra tricks.
   `(aref (dungeon.table ,dungeon) ,x ,y))
 
 ;;#+compiler-that-inlines
-(defun cave-feature (dungeon x y)
+(defun cave-floor (dungeon x y)
   (declare (type fixnum x y))
-  (coord.feature (cave-coord dungeon x y)))
+  (coord.floor (cave-coord dungeon x y)))
+
+(defun cave-decor (dungeon x y)
+  (declare (type fixnum x y))
+  (coord.decor (cave-coord dungeon x y)))
 
 ;;#-compiler-that-inlines
-;;(defmacro cave-feature (dungeon x y)
-;;  `(coord.feature (cave-coord ,dungeon ,x ,y)))
+;;(defmacro cave-floor (dungeon x y)
+;;  `(coord.floor (cave-coord ,dungeon ,x ,y)))
 
 ;;#+compiler-that-inlines
 (defun cave-flags (dungeon x y)
@@ -203,15 +208,18 @@ extra tricks.
 (defun (setf cave-flags) (val dungeon x y)
   (setf (coord.flags (aref (dungeon.table dungeon) x y)) val)
   )
- 
 
-(defun (setf cave-feature) (val dungeon x y)
+(defun (setf cave-decor) (val dungeon x y)
+  (setf (coord.decor (aref (dungeon.table dungeon) x y)) val))
+
+
+(defun (setf cave-floor) (val dungeon x y)
 ;;  (warn "Setting ~a ~a to ~a" x y val)
   (declare (type fixnum val))
   (let ((coord (aref (dungeon.table dungeon) x y)))
 
     ;; hack
-    (setf (coord-feature coord) val)
+    (setf (coord-floor coord) val)
     
     (when (dungeon.active dungeon)
       (light-spot! dungeon x y)
@@ -223,28 +231,30 @@ extra tricks.
 
 
 
-(defun fill-dungeon-with-feature! (dungeon feature)
-  "Cleans and then fills the dungeon with a given feature.
+(defun fill-dungeon-with-floor! (dungeon floor)
+  "Cleans and then fills the dungeon with a given floor.
 Returns nothing."
   
-;;  (warn "filling up dungeon with feature ~s.." feature)
+;;  (warn "filling up dungeon with floor ~s.." floor)
 
+;;  (check-type floor floor-type)
+  
   (with-dungeon (dungeon (coord x y))
     (declare (ignore x y))
     (clean-coord! coord)
-    (setf (coord-feature coord) feature))
+    (setf (coord-floor coord) floor))
 
   ;; check
   (with-dungeon (dungeon (coord x y))
     (declare (ignore x y))
-    (assert (and (= (coord.feature coord) feature)
+    (assert (and (= (coord.floor coord) floor)
 		 ;;(= (coord.flags coord) 0)
 		 (eq (coord.monsters coord) nil)
 		 (eq (coord.objects coord) nil))))
   
   (values))
 
-(defun fill-dungeon-part-with-feature! (dungeon feature width-range height-range)
+(defun fill-dungeon-part-with-floor! (dungeon floor width-range height-range)
   "height-range and width-range should be conses where
 car is start and cdr is the non-included end  (ie [start, end> )"
 
@@ -259,7 +269,7 @@ car is start and cdr is the non-included end  (ie [start, end> )"
 	(loop for j of-type fixnum from (car width-range)
 	            to (the fixnum (1- (cdr width-range)))
 	      do
-	      (setf (cave-feature dungeon j i) feature)))
+	      (setf (cave-floor dungeon j i) floor)))
   (values))
 
 (defun map-info (dungeon x y)
@@ -268,10 +278,11 @@ car is start and cdr is the non-included end  (ie [start, end> )"
   ;; maybe get the coord in one go..
   (let* ((coord (cave-coord dungeon x y)) ;; faster
 	 (mon (coord.monsters coord))
-	 (feat (coord.feature coord))
+	 (feat (coord.floor coord))
 	 (flags (coord.flags coord))
 	 (obj-table (coord.objects coord))
 	 (f-obj nil)
+	 (decor (coord.decor coord))
 	 (ret-attr +term-white+)
 	 (ret-char #\X)
 	 (pl-obj *player*)
@@ -283,16 +294,22 @@ car is start and cdr is the non-included end  (ie [start, end> )"
       (setf mon (car mon)))
     
     ;; skip hallucination
-    
-    ;; boring grids
-    (cond ((<= feat +feature-invisible+)
+    (cond ;; places with decor
+	  ((and (typep decor 'decor) (decor.visible? decor))
+	   ;; hackish
+	   (setf f-obj (get-floor-type feat)) ;; ok?
+	   (setf ret-attr (decor.x-attr decor)
+		 ret-char (decor.x-char decor))
+	   )
+	  ;; boring grids
+	  ((<= feat +floor-invisible-trap+)
 	   ;; something we see
 	   (cond ((or (bit-flag-set? flags +cave-mark+)
 		      (bit-flag-set? flags +cave-seen+))
 
-		  (setf f-obj (get-feature +feature-floor+))
-		  (setf ret-attr (feature.x-attr f-obj)
-			ret-char (feature.x-char f-obj))
+		  (setf f-obj (get-floor-type +floor-regular+))
+		  (setf ret-attr (floor.x-attr f-obj)
+			ret-char (floor.x-char f-obj))
 
 		  ;; do tricky handling here
 		  ;; torch-light
@@ -306,25 +323,27 @@ car is start and cdr is the non-included end  (ie [start, end> )"
 		 
 		 ;; otherwise darkness
 		 (t
-		  (setf f-obj (get-feature +feature-none+))
-		  (setf ret-attr (feature.x-attr f-obj)
-			ret-char (feature.x-char f-obj))
+		  (setf f-obj (get-floor-type +floor-none+))
+		  (setf ret-attr (floor.x-attr f-obj)
+			ret-char (floor.x-char f-obj))
 		  ))
 	     
 	   )
+	  
+		
 	  ;; interesting grids
 	  (t
 
 	   (cond ((bit-flag-set? flags +cave-mark+)
-		  (setf f-obj (get-feature feat))
-		  (setf ret-attr (feature.x-attr f-obj)
-			ret-char (feature.x-char f-obj)))
+		  (setf f-obj (get-floor-type feat))
+		  (setf ret-attr (floor.x-attr f-obj)
+			ret-char (floor.x-char f-obj)))
 
 		 ;; not noted
 		 (t
-		  (setf f-obj (get-feature +feature-none+))
-		  (setf ret-attr (feature.x-attr f-obj)
-			ret-char (feature.x-char f-obj)))
+		  (setf f-obj (get-floor-type +floor-none+))
+		  (setf ret-attr (floor.x-attr f-obj)
+			ret-char (floor.x-char f-obj)))
 		 
 		)
 	   
@@ -346,7 +365,7 @@ car is start and cdr is the non-included end  (ie [start, end> )"
 	       ;; single object
 	       (let* ((kind (aobj.kind first-obj))
 		      (flavour (object.flavour kind)))
-		 ;;(warn "Object ~s of kind ~s has flavour ~s" obj kind flavour)
+		 ;;(warn "Object ~s of kind ~s has flavour ~s" first-obj kind flavour)
 		 ;;(warn "-> (~s,~s) / (~s,~s)"
 		 ;;  (if flavour (cadr flavour) nil) (object.x-char kind)
 		 ;;  (object.x-attr kind) (object.x-char kind) )
@@ -439,7 +458,7 @@ car is start and cdr is the non-included end  (ie [start, end> )"
 (defun cave-boldly-naked? (dungeon x y)
   (declare (type fixnum x y))
   (let ((coord (cave-coord dungeon x y)))
-    (and (= (coord.feature coord) +feature-floor+)
+    (and (= (coord.floor coord) +floor-regular+)
 	 (eq nil (coord.objects coord))
 	 (eq nil (coord.monsters coord)))))
 
@@ -447,6 +466,10 @@ car is start and cdr is the non-included end  (ie [start, end> )"
   (declare (type fixnum x y))
   (not (bit-flag-set? (cave-flags dungeon x y)
 		      +cave-wall+)))
+
+(defun cave-empty-bold? (dungeon x y)
+  (and (cave-floor-bold? dungeon x y)
+       (eq (cave-monsters dungeon x y) nil)))
 
 (defun cave-icky? (dungeon x y)
   (declare (type fixnum x y))
@@ -464,6 +487,37 @@ car is start and cdr is the non-included end  (ie [start, end> )"
   (bit-flag-set? (cave-flags dungeon x y)
 		 +cave-seen+))
 
+(defun in-bounds? (dungeon x y)
+  "Checks that the coordinate is well within the dungeon"
+  (declare (type fixnum x y))
+  (legal-coord? dungeon x y))
+
+
+(defun in-bounds-fully? (dungeon x y)
+  "Checks that the coordinate is well within the dungeon"
+  (declare (type fixnum x y))
+  (and (> x 0)
+       (> y 0)
+       (< x (1- (dungeon.width dungeon)))
+       (< y (1- (dungeon.height dungeon)))))
+
+
+(defun is-closed-door? (dun x y)
+  (let ((feat (cave-floor dun x y)))
+    (and (>= feat +floor-door-head+)
+	 (< feat +floor-door-tail+))))
+
+(defun panel-contains? (player x y)
+  "Returns T if the panel contains the coordinate."
+  (let ((pvx (player.view-x player))
+	(pvy (player.view-y player))
+	(screen-width *screen-width*)
+	(screen-height *screen-height*))
+	
+    (and (< (- x pvx) screen-width)
+	 (< (- y pvy) screen-height))))
+
+
 (defun place-player! (dungeon player x y)
   (declare (ignore dungeon))
   (declare (type fixnum x y))
@@ -474,15 +528,13 @@ car is start and cdr is the non-included end  (ie [start, end> )"
   player)
 
 
-
-
 (defun print-map (dungeon player)
   "Prints a map of the given dungeon to the screen"
   (declare (optimize (safety 0) (speed 3) (debug 0)
 		     #+cmu (ext:inhibit-warnings 3)))
 
-  (let ((ty (+ +start-row-of-map+ +screen-height+))
-	(tx (+ +start-column-of-map+ +screen-width+))
+  (let ((ty (+ +start-row-of-map+    *screen-height*))
+	(tx (+ +start-column-of-map+ *screen-width*))
 	(*player* player)
 ;;	(dungeon-height (dungeon.height dungeon))
 ;;	(dungeon-width (dungeon.width dungeon))
@@ -501,10 +553,11 @@ car is start and cdr is the non-included end  (ie [start, end> )"
 	  (loop for x of-type fixnum from (player.view-x player)
 		for vx of-type fixnum from +start-column-of-map+ to (the fixnum (1- tx))
 		do
-		(multiple-value-bind (the-attr the-char)
-		    (map-info dungeon x y)
-	  ;;		  (warn "Q at ~a ~a with ~a" vx vy (cdr point-info))
-		  (%queue-char-to-spot vx vy the-attr the-char))))
+		(when (in-bounds? dungeon x y)
+		  (multiple-value-bind (the-attr the-char)
+		      (map-info dungeon x y)
+		    ;;		  (warn "Q at ~a ~a with ~a" vx vy (cdr point-info))
+		    (%queue-char-to-spot vx vy the-attr the-char)))))
 
 
 
@@ -526,77 +579,76 @@ car is start and cdr is the non-included end  (ie [start, end> )"
 		      (char-code the-char)))
 
 
-(defun verify-panel (dungeon pl)
 
-  "verifies that the panel is correct and scrolls as needed"
+(defun modify-panel! (dungeon player vx vy)
+  "maybe let variants override this one to avoid the town-hack below?"
+  (let ((pl-depth (dungeon.depth dungeon))
+	(screen-height *screen-height*)
+	(screen-width *screen-width*)
+	(dun-height (dungeon.height dungeon))
+	(dun-width (dungeon.width dungeon)))
   
-  (let* ((d-y (player.view-y pl))
-	 (d-x (player.view-x pl))
-	 (dungeon-height (dungeon.height dungeon))
-	 (dungeon-width (dungeon.width dungeon))
-	 (pl-depth (player.depth pl))
-	 (new-y d-y)
-	 (new-x d-x)
-	 (p-y (location-y pl))
-	 (p-x (location-x pl))
-	 (scroll-p nil))
+  (cond ((= pl-depth 0)
+	 (setf vy 0))
+	((> vy (- dun-height screen-height))
+	 (setf vy (- dun-height screen-height)))
+	((< vy 0)
+	 (setf vy 0)))
 
-    (declare (type fixnum d-y d-x new-y new-x p-y p-x pl-depth))
-    ;; skip center-code
+  (cond ((= pl-depth 0)
+	 (setf vx 0))
+	((> vx (- dun-width screen-width))
+	 (setf vx (- dun-width screen-width)))
+	((< vx 0)
+	 (setf vx 0)))
 
-    (when (or (< p-y (+ d-y 2))
-	      (>= p-y (+ d-y +screen-height+ -2)))
-      
-      (setq new-y (the fixnum (* (int-/ (the fixnum (- p-y (int-/ +panel-height+ 2)))
-					+panel-height+)
-				 +panel-height+)))
+  (when (or (/= (player.view-x player) vx)
+	    (/= (player.view-y player) vy))
+;;    (warn "modify panel to ~s ~s" vx vy)
+    (setf (player.view-x player) vx
+	  (player.view-y player) vy)
+    (bit-flag-add! *redraw* +print-map+)
+    ;; skip window
 
-      (if (< new-y 0)
-	(setq new-y 0)
-	(let ((extreme-point (- dungeon-height +screen-height+)))
-	  (when (> new-y extreme-point)
-	    (setq new-y extreme-point)))))
-
-    ;; hack for town
-    (when (= 0 pl-depth)
-      (setq new-y +screen-height+))
-
-    (unless (= d-y new-y)
-      (setf (player.view-y pl) new-y)
-      (setq scroll-p t))
+    t)))
 
 
-    ;; skipping center
-    (when (or (< p-x (the fixnum (+ d-x 4)))
-	      (>= p-x (the fixnum (+ d-x +screen-width+ -4))))
+(defun verify-panel (dungeon pl)
+  "verifies that the panel is correct and scrolls as needed"
+
+  (let ((p-y (location-y pl))
+	(p-x (location-x pl))
+	(v-y (player.view-y pl))
+	(v-x (player.view-x pl))
+	(screen-height *screen-height*)
+	(screen-width *screen-width*)
+	(centre-on-player nil)
+	)
+
+    ;; hackish, update when running arrives
+    (cond ((and centre-on-player
+		(/= p-y (+ v-y (int-/ screen-height 2))))
+	   (setf v-y (- p-y (int-/ screen-height 2))))
 	  
-      (setq new-x (* (int-/ (- p-x (int-/ +panel-width+ 2))
-			+panel-width+)
-		     +panel-width+))
-      
-      (if (< new-x 0)
-	(setq new-x 0)
-	(let ((extreme-point (- dungeon-width +screen-width+)))
-	  (when (> new-x extreme-point)
-	    (setq new-x extreme-point)))))
-    
-    ;; hack for town
-    (when (= 0 (player.depth pl))
-      (setq new-x +screen-width+))
+	  ((or (< p-y (+ v-y 2))
+	       (>= p-y (+ v-y screen-height -2)))
+	   (setf v-y (* (int-/ (- p-y (int-/ +panel-height+ 2))
+			       +panel-height+)
+			+panel-height+))))
 
-    ;; add x
-    
-    (unless (= d-x new-x)
-      (setf (player.view-x pl) new-x)
-      (setq scroll-p t))
+    (cond ((and centre-on-player
+		(/= p-x (+ v-x (int-/ screen-width 2))))
+	   (setf v-x (- p-x (int-/ screen-width 2))))
+	  
+	  ((or (< p-x (+ v-x 4))
+	       (>= p-x (+ v-x screen-width -4)))
+	   (setf v-x (* (int-/ (- p-x (int-/ +panel-width+ 2))
+			       +panel-width+)
+			+panel-width+))))
+
+    (modify-panel! dungeon pl v-x v-y)))
 
 
-    (when scroll-p
-      (bit-flag-add! *redraw* +print-map+)
-      ;; more stuff
-      )
-    
-    t))
 
 (defun distance (x1 y1 x2 y2)
   "returns a fixnum"
@@ -622,7 +674,7 @@ car is start and cdr is the non-included end  (ie [start, end> )"
   
 
 (defun note-spot! (dungeon x y)
-  "noting the spot, does not remember objects yet."
+  "noting the spot."
   (declare (optimize (safety 0) (speed 3) (debug 0)
 		     #+cmu (ext:inhibit-warnings 3))
 	   (type fixnum x y))
@@ -638,8 +690,8 @@ car is start and cdr is the non-included end  (ie [start, end> )"
 	  (setf (aobj.marked i) t)))
       
       (unless (bit-flag-set? flag +cave-mark+)
-	(let ((feat (coord.feature coord)))
-	  (if (<= feat +feature-invisible+)
+	(let ((feat (coord.floor coord)))
+	  (if (<= feat +floor-invisible-trap+)
 	      ;; skip save of certain floors
 	      nil
 	      (bit-flag-add! (coord.flags coord) +cave-mark+))))
@@ -668,12 +720,13 @@ car is start and cdr is the non-included end  (ie [start, end> )"
       ;;    (when (or (minusp kx) (minusp ky))
       ;;    (error "a value became negative.."))
 
+;;      (warn "drawing ~s,~s at ~s,~s" the-attr the-char x y)
     
-					;, sometimes we cross a screen
+      ;; sometimes we cross a screen
       (when (and (<= 0 kx)
 		 (<= 0 ky)
-		 (< ky +screen-height+)
-		 (< kx +screen-width+))
+		 (< ky *screen-height*)
+		 (< kx *screen-width*))
 
 	(%queue-char-to-spot (+ +start-column-of-map+ kx)
 			     (+ +start-row-of-map+ ky)
@@ -684,6 +737,7 @@ car is start and cdr is the non-included end  (ie [start, end> )"
 (defun light-spot! (dungeon x y)
   "lighting up the spot.."
   (declare (type fixnum x y))
+;;  (warn "Light-spot ~s,~s" x y)
   (multiple-value-bind (the-attr the-char)
 	  (map-info dungeon x y)
     (print-relative! dungeon x y the-char the-attr)))
@@ -730,8 +784,8 @@ car is start and cdr is the non-included end  (ie [start, end> )"
 			(map-info dungeon x y)
 		      (declare (ignore the-attr))
 		      (let ((val (case the-char
-				   (#\# (if (eql +feature-secret+
-						 (cave-feature dungeon x y))
+				   (#\# (if (eql +floor-secret-door+
+						 (cave-floor dungeon x y))
 					    str-orange-colour
 					    str-gray-colour))
 				   (#\. str-white-colour)
@@ -771,7 +825,7 @@ car is start and cdr is the non-included end  (ie [start, end> )"
 
 
 (defun print-map-to-file (dungeon fname)
-  "prints the feature-map to a file"
+  "prints the floor-map to a file"
   ;; print ascii
     
   (with-open-file (s (pathname fname)
@@ -787,8 +841,8 @@ car is start and cdr is the non-included end  (ie [start, end> )"
 	    
 		(loop for x of-type fixnum from 0 to (1- dungeon-width)
 		      do
-		      (let ((point-info (cave-feature dungeon x y)))
-			(format s "~a" (feature.x-char (get-feature point-info))))))
+		      (let ((point-info (cave-floor dungeon x y)))
+			(format s "~a" (floor.x-char (get-floor-type point-info))))))
 	  (format s "~%"))))
 
 (defun get-coord-trigger (dun x y)
@@ -822,9 +876,18 @@ car is start and cdr is the non-included end  (ie [start, end> )"
   "This is a hack.. fix me later.."
   (declare (type fixnum x y))
 
+  (when-bind (decor (cave-decor dun x y))
+    (when-bind (events (decor.events decor))
+      (dolist (i events)
+	(when (typep i 'l-event)
+	  (funcall (event.function i) decor dun x y)
+	  (return-from apply-possible-coord-trigger t)))))
+
+    
   (let ((trigger (get-coord-trigger dun x y)))
     (when (and trigger (consp trigger) (is-event? (cdr trigger)))
-      (apply (event.function (cdr trigger)) dun x y (event.state (cdr trigger)))
+      (let ((the-event (cdr trigger)))
+	(apply (event.function the-event) dun x y (event.state the-event)))
       )))
 
 (defun put-cursor-relative! (dun x y)
@@ -842,8 +905,8 @@ car is start and cdr is the non-included end  (ie [start, end> )"
     
     (when (and (<= 0 kx)
                (<= 0 ky)
-               (< ky +screen-height+)
-               (< kx +screen-width+))
+               (< ky *screen-height*)
+               (< kx *screen-width*))
 
       (c-term-gotoxy! (+ +start-column-of-map+ kx)
 		      (+ +start-row-of-map+ ky)))))
@@ -1012,3 +1075,4 @@ car is start and cdr is the non-included end  (ie [start, end> )"
     (let ((mon-table (slot-value var-obj slot)))
       (when mon-table
 	(gethash id mon-table)))))
+

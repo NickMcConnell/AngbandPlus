@@ -2,7 +2,7 @@
 
 #|
 
-DESC: variants/vanilla/langband-vanilla.system - system-def for vanilla
+DESC: variants/vanilla/langband-vanilla.asdm - another system-def for vanilla
 Copyright (c) 2001 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
@@ -14,10 +14,6 @@ the Free Software Foundation; either version 2 of the License, or
 
 (in-package :cl-user)
 
-#-langband-development
-(setf (logical-pathname-translations "langband-vanilla")
-      '(("**;*.*.*" "cl-library:langband-vanilla;**;*.*.*")))
-
 ;; we need certain flags
 (eval-when (:execute :load-toplevel :compile-toplevel)
   #+(or cmu allegro sbcl lispworks)
@@ -26,23 +22,21 @@ the Free Software Foundation; either version 2 of the License, or
   (pushnew :enough-support-for-langband *features*)
   )
 
-#+enough-support-for-langband
-(mk:defsystem :langband-vanilla
-    :source-pathname
-  #-langband-development
-  #p"langband-vanilla:"
-  #+langband-development
-  (translate-logical-pathname #p"langband-vanilla:")
-  
-  :source-extension "lisp"
-  :components ((:file "base")
-	       (:file "quirks" :depends-on ("base"))
-	       (:file "various" :depends-on ("base"))
-	       (:file "rooms" :depends-on ("base"))
-	       (:file "levels" :depends-on ("base"))
-	       (:file "spells" :depends-on ("base" "various" "quirks"))
-	       (:file "wizard" :depends-on ("spells"))
-	       (:file "keys" :depends-on ("wizard" "spells"))
+(defpackage :langband-vanilla-system 
+  (:use :cl :asdf))
+
+(in-package :langband-vanilla-system)
+
+(asdf:defsystem :langband-vanilla
+    :version "0.0.19"
+    :components ((:file "base")
+		 (:file "quirks" :depends-on ("base"))
+		 (:file "various" :depends-on ("base"))
+		 (:file "rooms" :depends-on ("base"))
+		 (:file "levels" :depends-on ("base"))
+		 (:file "spells" :depends-on ("base" "various" "quirks"))
+		 (:file "wizard")
+		 (:file "keys" :depends-on ("wizard" "spells"))
 	       )
   :depends-on (langband-engine))
 

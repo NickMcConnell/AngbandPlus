@@ -22,6 +22,9 @@ ADD_DESC: Most of the code which deals with keyboard input.
 
 (defun define-key-operation (key operation)
   "defines a key-operation which later can be bound."
+  ;; to trigger warnings early
+;;  (when (functionp operation)
+;;    (setf operation (compile nil operation)))
   (setf (gethash key *key-operations*) operation))
 
 (defun find-key-operation (key)
@@ -93,14 +96,33 @@ operation."
        ))
     ))
 
-(defun is-closed-door? (dun x y)
-  (let ((feat (cave-feature dun x y)))
-    (and (>= feat +feature-door-head+)
-	 (< feat +feature-door-tail+))))
+
+(defun %read-direction ()
+  (flush-messages!)
+  (let ((retval (block read-loop
+		  (loop
+		   (c-prt! "Direction: " 0 0)
+		   (let ((val (read-one-character)))
+		     (cond ((or (eql val #\.)
+				(eql val #\0)
+				(eql val #\t))
+			    (c-prt! "" 0 0)
+			    (return-from read-loop 5))
+			   ((digit-char-p val)
+			    (c-prt! "" 0 0)
+			    (return-from read-loop (digit-char-p val)))
+			   ((eql val +escape+)
+			    (c-prt! "" 0 0)
+			    (return-from read-loop nil))
+			   (t
+			    (c-prt! "Unknown direction!" 0 0))))))))
+    (c-prt! "" 0 0)
+    retval))
+
 
 (defun open-door! (dun x y)
   "hackish, fix me later.."
-  (setf (cave-feature dun x y) +feature-open+)
+  (setf (cave-floor dun x y) +floor-open-door+)
   (light-spot! dun x y))
 
 

@@ -1,12 +1,12 @@
-# File: e_info.txt
+# File: ego_item.txt
 
 
-# This file is used to initialize the "lib/raw/e_info.raw" file, which is
+# This file is used to initialize the "lib/data/ego_item.raw" file, which is
 # used to initialize the "ego-item" information for the Angband game.
 
 # Do not modify this file unless you know exactly what you are doing,
 # unless you wish to risk possible system crashes and broken savefiles.
-# After modifying this file, delete the "lib/raw/e_info.raw" file.
+# After modifying this file, delete the "lib/data/ego_item.raw" file.
 
 # The ego-item indexes are defined in "defines.h", and must not be changed.
 
@@ -22,10 +22,45 @@
 # Note that several "ego-item" types may share the same "textual name",
 # such as with "Armor of Resistance" and "Shield of Resistance".
 
+# === Understanding ego_item.txt ===
+
+# N: serial number : ego type
+# X: inventory slot : rating : xtra
+# C: max to-hit : max to-dam : max to-ac : pval
+# W: depth : rarity : weight : cost
+# T: tval : min_sval : max_sval
+# F: flag | flag | etc
+
+# 'N' indicates the beginning of an entry. The serial number must
+# increase for each new item.
+
+# 'X' is for extra information - inventory slot and rating. Slots
+# range from 23 (for ammunition) to 35 (for boots). Rating affects
+# level feelings.  The xtra value determines random extra flags for
+# the ego-item.  Nothing happens with a value of 0, 1 stands for
+# "one random extra sustain", 2 is "one random extra resist", and
+# 3 is "one random extra ability".
+
+# 'C' is for creation bonusses - maximum to-hit, to-dam, to-ac, and
+# pval. Cursed ego-items will negate the given value.
+
+# 'W' is for extra information. Depth is the depth the object is
+# normally found at, rarity determines how common the object is,
+# weight is in tenth-pounds and cost is the items value.
+
+# 'F' is for flags. These are fairly self-explanatory. As many F:
+# lines may be used as are needed to specify all the flags and flags
+# are separated by the '|' symbol.
+
+# 'T' is for possible 'tval' and 'sval' values of the base-item.
+# Up to three 'T' entries are possible for a single object. The
+# ego-item can only be generated from items of this tval, with sval
+# in the specified range.
+
 
 # Version stamp (required)
 
-V:2.9.0
+V:2.9.3
 
 
 ### Body Armor ###
@@ -324,9 +359,9 @@ F:AGGRAVATE | SHOW_MODS | LIGHT_CURSE
 
 N:48:of Free Action
 X:34:11:0
+W:0:3:0:1000
 T:31:0:99
 F:FREE_ACT
-W:0:3:0:1000
 
 N:49:of Slaying
 X:34:17:0
@@ -688,13 +723,9 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 # 101 (unused)
 
-# Weapons of Morgul are level 127 items to force the "old" generation probability.
-# Note that the "depth" of cursed ego-items is used in a different way than for "good"
-# ego-items, see make_ego_item() in object2.c
-
 N:102:of Morgul
 X:24:0:0
-W:127:1:0:0
+W:5:20:0:0
 C:20:20:10:0
 T:21:0:99
 T:22:0:99
@@ -746,7 +777,7 @@ F:SHOTS
 # Note the 'weird' rarities #
 
 N:112:of Hurt Animal
-X:23:10:0:0
+X:23:10:0
 W:0:25:0:25
 T:16:0:99
 T:17:0:99
@@ -815,19 +846,19 @@ F:SLAY_DRAGON
 
 N:122:of Flame
 X:23:10:0
-F:BRAND_FIRE | IGNORE_FIRE
 W:0:25:0:30
 T:16:0:99
 T:17:0:99
 T:18:0:99
+F:BRAND_FIRE | IGNORE_FIRE
 
 N:123:of Frost
 X:23:10:0
-F:BRAND_COLD | IGNORE_COLD
 W:0:25:0:25
 T:16:0:99
 T:17:0:99
 T:18:0:99
+F:BRAND_COLD | IGNORE_COLD
 
 N:124:of Wounding
 X:23:5:0
@@ -837,11 +868,9 @@ T:16:0:99
 T:17:0:99
 T:18:0:99
 
-# These have a level of 127 like weapons of Morgul 
-
 N:125:of Backbiting
 X:23:0:0
-W:127:1:0:0
+W:5:30:0:0
 C:50:50:0:0
 T:16:0:99
 T:17:0:99

@@ -239,67 +239,20 @@ the Free Software Foundation; either version 2 of the License, or
   (int-/ (get-price object store) 4)) ;; decent value, eh?
 
 (defmethod store-generate-object ((variant vanilla-variant) (the-store black-market))
-    (let* (
-	   (level *level*)
-	   (some-obj (get-active-object-by-level variant level
-						 :depth (+ 25 (randint 25))))
-	   (o-type (when some-obj (aobj.kind some-obj))))
-
+  (let* ((object-depth (+ 25 (randint 25)))
+	 (level *level*)
+	 (some-obj (get-active-object-by-level variant level
+					       :depth object-depth))
+	 (o-type (when some-obj (aobj.kind some-obj))))
+    
+    ;; possibly add magic
+    (apply-magic! variant some-obj object-depth :allow-artifact nil)
+    
     (when (and some-obj (plusp (get-price some-obj the-store))
 	       (not (obj-is? o-type '<chest>))) ;; hack
       some-obj)))
 
-(defun teleport-creature! (dun pl creature range)
-  (assert (numberp range))
-
-  (let* ((minimum (floor range))
-	 (cx (location-x creature))
-	 (cy (location-y creature))
-	 (tx cx)
-	 (ty cy)
-	 (cur-d range))
-    (block find-grid
-      (loop
-       (when (> range 200)
-	 (setf range 200))
-       
-       (block legal-dist
-	 (dotimes (i 500)
-	   (setf tx (rand-spread cx range)
-		 ty (rand-spread cy range))
-	   (setf cur-d (distance cx cy tx ty))
-	   (when (and (>= cur-d minimum) (<= cur-d minimum))
-	     (return-from legal-dist))))
-       
-       (when (and (in-bounds-fully? dun tx ty)
-		  (cave-boldly-naked? dun tx ty)
-		  (not (cave-icky? dun tx ty)))
-	 (return-from find-grid))
-       
-       (setf range (* 2 range)
-	     minimum (floor minimum 2))))
-
-    ;; we found an ok spot!
-    (assert (and (in-bounds-fully? dun tx ty)
-		 (cave-boldly-naked? dun tx ty)
-		 (not (cave-icky? dun tx ty))))
-
-    ;; sound
-
-    ;; swap monster
-    (swap-monsters! dun pl cx cy tx ty)
-#||    
-    (warn "UPD: ~s (~s ~s ~a)  -> (~s ~s ~a), ~s"
-	  *update* cx cy (multiple-value-bind (a b) (map-info dun cx cy) b)
-	  (location-x pl) (location-y pl) (multiple-value-bind (a b) (map-info dun (location-x pl) (location-y pl)) b)
-	  (distance cx cy tx ty))
-    ||#
-;;    (handle-stuff dun pl) ;; hack
-
-;;    (print-map dun pl)
-    ))
-
-				     
+			     
 
 (defmethod generate-random-name ((variant vanilla-variant) creature race)
   (declare (ignore creature))
@@ -323,6 +276,7 @@ the Free Software Foundation; either version 2 of the License, or
     ))
 
 (defun van-group-chance (id mon-depth lvl-depth)
+  (declare (ignore id))
   (let* ((diff (- lvl-depth mon-depth))
 	 (chance (if (plusp diff)
 		     (* 10 diff)
@@ -359,58 +313,227 @@ the Free Software Foundation; either version 2 of the License, or
 		      )))
 
 
-#||
-(defmethod ok-object? ((obj object-kind/staff) &key context warn-on-failure)
+(defmethod apply-projection-effect-to-target! ((variant vanilla-variant) source (target active-monster)
+					       &key
+					       (x 0) (y 0) (damage 0) (effect nil) (distance 0))
+;;  (declare (ignore x y damage effect distance source))
 
-  (when (eq context :in-game)
-    (%ok-check (legal-flavour-obj? (object.flavour obj))))
-  
-  (call-next-method))
+  (let* ((dungeon *dungeon*)
+	 (the-monster target)
+	 (the-kind (amon.kind the-monster))
+	 (balanced-damage (int-/ (+ damage distance) (1+ distance)))
+	 (cur-hp (current-hp the-monster))
+	 (meff (make-instance 'vanilla-monster-effect :seen (amon.seen-by-player? the-monster)
+			      :damage balanced-damage
+			      :note nil :dying-note " dies.")))
 
-(defmethod ok-object? ((obj object-kind/rod) &key context warn-on-failure)
-  
-  (when (eq context :in-game)
-    (%ok-check (legal-flavour-obj? (object.flavour obj))))
-  
-  (call-next-method))
+    (let ((type (monster.type the-kind)))
+      (when (or (eq type '<demon>)
+		(eq type '<undead>)
+		(eq type '<stupid>)) ;; fix
+	(setf (meff.dying-note meff) " is destroyed.")))
+    
+    
+	(cond ((functionp effect)
+;;	       (warn "Function-effect not implemented for project-monster")
+	       (let ((retval (funcall effect variant source the-monster :x x :y y :damage balanced-damage
+				      :state-object meff)))
+		 (when (typep retval 'vanilla-monster-effect)
+		   (setf meff retval))))
+	      (t
+;;	       (warn "Hit monster ~s at (~s,~s) from ~s at (~s,~s) [~s]" (monster.name the-monster) loc-x loc-y
+;;		     (if (typep source 'player) "player" "someone")
+;;		     (location-x source) (location-y source) distance)
+	       ))
 
-(defmethod ok-object? ((obj object-kind/wand) &key context warn-on-failure)
-  
-  (when (eq context :in-game)
-    (%ok-check (legal-flavour-obj? (object.flavour obj))))
-  
-  (call-next-method))
+	;; add skip!
+	
+	;; we simplify greatly here!
 
-(defmethod ok-object? ((obj object-kind/potion) &key context warn-on-failure)
-  
-  (when (eq context :in-game)
-    (%ok-check (legal-flavour-obj? (object.flavour obj))))
-  
-  (call-next-method))
+	(setf balanced-damage (meff.damage meff))
+	
+	;; uniques only killed by player
+	(when (and (is-unique-monster? the-monster)
+		   (is-player? source) 
+		   (< cur-hp balanced-damage))
+	  (setf balanced-damage cur-hp))
 
-(defmethod ok-object? ((obj object-kind/mushroom) &key context warn-on-failure)
+
+	(cond ((> balanced-damage cur-hp)
+	       (setf (meff.note meff) (meff.dying-note meff)))
+	      ;; skip polymorph
+	      ;; skip teleport
+	      ;; skip stun
+	      ;; skip confusion
+	      (t))
+	;; skip fear
+
+	(cond ((is-monster? source)
+	       (warn "Monster attacked.."))
+	      ((is-player? source)
+	       (let ((is-dead? (deliver-damage! variant source target balanced-damage
+						:dying-note (meff.dying-note meff))))
+		 (unless is-dead? ;; he died
+		   ;; improve message later
+		   (print-message! (format nil "~a was hurt." (monster.name target)))
+		   ;; skip fear
+		   ;; skip sleep
+		   )))
+	      (t
+	       (warn "Who was source?? ~s" source)))
+
+
+	      
+	(update-monster! variant the-monster nil)
+	(light-spot! dungeon x y)
+
+	
+	;; skip window
+
+	;, return if the object was obviously seen
+	(meff.obvious meff)))
+
+
+(defmethod apply-projection-effect-to-target! ((variant vanilla-variant) source (target active-object)
+					       &key
+					       (x 0) (y 0) (damage 0) (effect nil) (distance 0))
+  (declare (ignore distance))
+;;  (warn "VAN-OBJ: Applying effect ~s to ~s" effect target)
+  (when (and effect (functionp effect))
+    (funcall effect variant source target :x x :y y :damage damage)))
+
+
+
+(defmethod damaged-by-element? ((variant vanilla-variant) (object active-monster) element)
+  (declare (ignore element))
+  t)
+
+(defmethod damaged-by-element? ((variant vanilla-variant) (object active-object) element)
+  ;; must be improved by looking not only at general type, but also at ignores and resists!
+  (let* ((okind (aobj.kind object))
+	 (otype (object.the-kind okind)))
+
+    (assert (symbolp otype))
+;;    (warn "Checking if ~s resists ~s" otype element)
+    
+    (case element
+      (<cold> (member otype '(<potion> ))) ;; flask bottle
+      (<electricity> (member otype '(<ring> <wand>)))
+      (<fire> (member otype '(<bow> <cloak> <gloves> <boots> <book> <light-source> <staff> <scroll>))) ;; add more
+      (<acid> t)
+      )))
+
+(defmethod is-spellcaster? (obj)
+  (declare (ignore obj))
+  nil)
+
+(defmethod is-spellcaster? ((obj player))
+  (is-spellcaster? (player.class obj)))
+
+(defmethod is-spellcaster? ((obj spellcasting-class))
+  t)
+
+(defmethod produce-character-class ((variant vanilla-variant) id name &key spells magic-abilities &allow-other-keys)
+  ;; we only do stuff if we get magic-abiltiies info, otherwise we assume he is no spell-caster
+  (cond ((consp magic-abilities)
+	 (let ((class-obj (make-instance 'spellcasting-class)))
+
+	   (setf (class.learnt-spells class-obj) (make-array 10 :fill-pointer 0 :initial-element nil))
+	   
+	   ;; handle basic magic-info
+	   (destructuring-bind (&key spell-stat spells-at-level) magic-abilities
+	     (when (and spell-stat (symbolp spell-stat))
+	       (setf (class.spell-stat class-obj) spell-stat))
+	     (when (and spells-at-level (integerp spells-at-level) (plusp spells-at-level))
+	       (setf (class.spells-at-level class-obj) spells-at-level)))
+	   
+	   ;; handle spells
+	   (when (consp spells)
+	     (let ((collected-spells '()))
+	       (dolist (spell spells)
+		 (destructuring-bind (&key id level mana fail xp) spell
+		   (let ((spell-obj (make-instance 'spell-classdata)))
+		     (if (and id (verify-id id))
+			 (setf (spell.id spell-obj) id)
+			 (error "Unable to understand spell-info for ~s for class ~s" spell id))
+		     (when (and level (integerp level) (plusp level))
+		       (setf (spell.level spell-obj) level))
+		     (when (and mana (integerp mana) (plusp mana))
+		       (setf (spell.mana spell-obj) mana))
+		     (when (and fail (integerp fail) (<= 0 fail))
+		       (setf (spell.failure spell-obj) fail))
+		     (when (and xp (integerp xp) (<= 0 xp))
+		       (setf (spell.xp spell-obj) xp))
+
+		     ;; check if something matches the def
+		     (unless (gethash id (variant.spells variant))
+		       (warn "Can't find reference to spell-id ~s for class ~s" id name))
+		     		     
+		     (push spell-obj collected-spells))))
+	       
+	       (assert (plusp (length collected-spells)))
+	       (let ((spell-array (make-array (length collected-spells))))
+		 (loop for i from 0
+		       for spell in (nreverse collected-spells)
+		       do
+		       (setf (aref spell-array i) spell))
+		 (setf (class.spells class-obj) spell-array))))
+		     
+		 
+	   class-obj))
+
+	(t
+	 (call-next-method))))
+
+(defmethod add-magic-to-item! ((variant vanilla-variant) (item active-object/ring) depth quality)
+
+  (let ((add-magic-effect (get-object-effect variant item :add-magic)))
+    (when (and add-magic-effect
+	       (effect-entry-p add-magic-effect)
+	       (functionp (effect-entry-fun add-magic-effect)))
+      (funcall (effect-entry-fun add-magic-effect) item depth quality))
+    
+    t))
+
+
+(defmethod add-magic-to-item! ((variant variant) (item active-object/weapon) depth quality)
   
-  (when (eq context :in-game)
-    (%ok-check (legal-flavour-obj? (object.flavour obj))))
-  (call-next-method))
+  (when (eq quality :normal)
+    (return-from add-magic-to-item! nil))
 
-(defmethod ok-object? ((obj object-kind/scroll) &key context warn-on-failure)
+  ;; skip ego-check for :great and :broken
+
+    (unless (aobj.game-values item)
+      (setf (aobj.game-values item) (make-game-values)))
   
-  (when (eq context :in-game)
-    (%ok-check (legal-flavour-obj? (object.flavour obj))))
+  (let ((to-hit (+ (randint 5) (magic-bonus-for-level 5 depth)))
+	(to-dmg (+ (randint 5) (magic-bonus-for-level 5 depth)))
+	(to-hit-extra (+ (magic-bonus-for-level 10 depth)))
+	(to-dmg-extra (+ (magic-bonus-for-level 10 depth)))
+	(gvals (aobj.game-values item))
+	)
+    
 
-  (call-next-method))
 
-(defmethod ok-object? ((obj object-kind/amulet) &key context warn-on-failure)
-  
-  (when (eq context :in-game)
-    (%ok-check (legal-flavour-obj? (object.flavour obj))))
+    (case quality
+      (:good
+       (incf (gval.dmg-modifier gvals) to-dmg)
+       (incf (gval.tohit-modifier gvals) to-hit))
+      (:great
+       (incf (gval.dmg-modifier gvals) (+ to-dmg to-dmg-extra))
+       (incf (gval.tohit-modifier gvals) (+ to-hit to-hit-extra)))
+      (:cursed
+       (decf (gval.dmg-modifier gvals) to-dmg)
+       (decf (gval.tohit-modifier gvals) to-hit))
+      (:broken
+       (decf (gval.dmg-modifier gvals) (+ to-dmg to-dmg-extra))
+       (decf (gval.tohit-modifier gvals) (+ to-hit to-hit-extra)))
+      (otherwise
+       (warn "Unknown quality ~s wanted for item ~s" quality item)))
 
-  (call-next-method))
+    ;; skip cursed flag
+    ;; skip super-charges
 
-(defmethod ok-object? ((obj object-kind/ring) &key context warn-on-failure)
-  
-  (when (eq context :in-game)
-    (%ok-check (legal-flavour-obj? (object.flavour obj))))
-  (call-next-method))
-||#
+;;    (warn "Added magic (~s,~s) to ~s" to-hit to-dmg item)
+    
+    t))

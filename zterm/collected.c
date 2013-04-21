@@ -354,11 +354,15 @@ play_game(bool new_game) {
     }
 
     /* Forbid resizing */
-    Term->fixed_shape = TRUE;
+//    Term->fixed_shape = TRUE;
 
     /* Hack -- Turn off the cursor */
     (void)Term_set_cursor(0);
+    /* discard old input */
+    Term_flush();
+    flush();
 
+//    fprintf(stderr,"lisp-sys %d, callback %d\n", current_lisp_system, lisp_will_use_callback);
     if (lisp_will_use_callback) {
 	// this is a callback
 	play_game_lisp();
@@ -432,16 +436,16 @@ static const char *token_list[] = {
     "Cur AC", // 10
     "AU",
     "Str",
-    "Int",
-    "Wis",
-    "Dex", // 15
+    "Dex", 
     "Con",
+    "Int", // 15
+    "Wis",
     "Chr",
     "STR",
-    "INT",
-    "WIS", //20
     "DEX",
-    "CON",
+    "CON", //20
+    "INT",
+    "WIS", 
     "CHR",
     "            "
 };

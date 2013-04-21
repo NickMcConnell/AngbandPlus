@@ -170,7 +170,7 @@ the Free Software Foundation; either version 2 of the License, or
 	 (new-arr (make-array (list width height))))
     
     (with-dungeon (object (coord x y))
-      (setf (aref new-arr x y) (cons (coord.feature coord)
+      (setf (aref new-arr x y) (cons (coord.floor coord)
 				     (logand (coord.flags coord) +saved-cave-flags+)
 				     )))
     
@@ -214,7 +214,7 @@ the Free Software Foundation; either version 2 of the License, or
 
     (with-dungeon (object (coord x y))
       (declare (ignore x y))
-      (write-binary 'u16 str (coord.feature coord))
+      (write-binary 'u16 str (coord.floor coord))
       (write-binary 'u16 str (logand (coord.flags coord)
 				     +saved-cave-flags+)))
 
@@ -428,7 +428,7 @@ the Free Software Foundation; either version 2 of the License, or
     
     (format str "~a  :cur-hp ~s :fraction-hp ~s :cur-mana ~s :fraction-mana ~s ~%"
 	    ind (current-hp obj) (player.fraction-hp obj)
-	    (player.cur-mana obj) (player.fraction-mana obj))
+	    (current-mana obj) (player.fraction-mana obj))
 
     (format str "~a  :gold ~s :food ~s :energy ~s ~%"
 	    ind (player.gold obj) (player.food obj) (player.energy obj))
@@ -456,7 +456,7 @@ the Free Software Foundation; either version 2 of the License, or
     (bt:write-binary 'u32 str (player.fraction-xp obj))
     (bt:write-binary 'u32 str (current-hp obj))
     (bt:write-binary 'u32 str (player.fraction-hp obj))
-    (bt:write-binary 'u32 str (player.cur-mana obj))
+    (bt:write-binary 'u32 str (current-mana obj))
     (bt:write-binary 'u32 str (player.fraction-mana obj))
     (bt:write-binary 'u32 str (player.gold obj))
     (bt:write-binary 'u32 str (player.food obj))
@@ -674,7 +674,7 @@ the Free Software Foundation; either version 2 of the License, or
 
       ;; then the player comes
       (let ((ret-obj (load-object *variant* :player the-lang-stream)))
-	(cond ((and ret-obj (typep ret-obj 'player))
+	(cond ((and ret-obj (is-player? ret-obj))
 	       (setf *player* ret-obj))
 	      (t
 	       (error "Unable to read player-object from file ~a" fname))))

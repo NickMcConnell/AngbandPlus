@@ -109,6 +109,10 @@ ADD_DESC: parts of the code.  Small classes, functions, et.al
 
 ;;; == variant-related code
 
+;; uses id.. 
+(defmethod variant-home-path ((variant variant))
+  (concatenate 'string (home-langband-path) (variant.id variant) "/"))
+
 (defmethod initialise-monsters& (variant &key)
   (error "No INIT-MONSTERS for ~s" (type-of variant)))
   
@@ -313,6 +317,8 @@ ADD_DESC: parts of the code.  Small classes, functions, et.al
 	 (gval (produce-game-values-object var-obj)))
     
     (cond ((eq ignores :unspec))
+	  ((and (integerp ignores) (<= 0 ignores))
+	   (setf (gval.ignores gval) ignores))
 	  ((listp ignores)
 	   (dolist (i ignores)
 	     (bit-flag-add! (gval.ignores gval) (get-element-flag var-obj i))))
@@ -320,6 +326,8 @@ ADD_DESC: parts of the code.  Small classes, functions, et.al
 	   (error "Value of ignores is odd: ~s" ignores)))
     
     (cond ((eq resists :unspec))
+	  ((and (integerp resists) (<= 0 resists))
+	   (setf (gval.resists gval) resists))
 	  ((listp resists)
 	   (dolist (i resists)
 	     (bit-flag-add! (gval.resists gval) (get-element-flag var-obj i))))
@@ -662,8 +670,9 @@ information from the list skills whose content depends on variant."
 
 ;; some wrappers for C-functions.
 
-(defun flush-messages! (x)
-  (c-term-putstr! x 0 -1 +term-l-blue+ "-more-")
+(defun %flush-messages! (x-pos)
+  "Do not use unless you know what you're doing."
+  (%term-putstr! x-pos 0 -1 +term-l-blue+ "-more-")
 
   (block input-loop
     (loop
@@ -687,7 +696,7 @@ information from the list skills whose content depends on variant."
       (when (and (> msg-col 0)
 		 (or (eq msg nil)
 		     (> (+ msg-len msg-col) end-col)))
-	(flush-messages! msg-col)
+	(%flush-messages! msg-col)
 	;; skip msg-flag
 	(setf msg-col 0))
 
@@ -699,14 +708,21 @@ information from the list skills whose content depends on variant."
 
       ;; skip msg-add
       
-      (c-term-putstr! msg-col 0 -1 +term-white+ msg)
+      (%term-putstr! msg-col 0 -1 +term-white+ msg)
 
       (incf msg-col (1+ msg-len))
       
-      t)))
+      t))
+  
+  (defun flush-messages! ()
+    ;; add reset-later
+    (when (plusp msg-col)
+      (%flush-messages! msg-col)
+      ;; skip reset of msg-flag
+      (setf msg-col 0))))
 
-(defun c-print-message! (msg)
-  (print-message! msg))
+;;(defun c-print-message! (msg)
+;;  (print-message! msg))
 
 (let ((screen-lock nil))
   
@@ -738,11 +754,23 @@ information from the list skills whose content depends on variant."
     (org.langband.ffi:c_quit! base-ptr))
   (values))
 
-(defun c-prt! (str row col)
-  (c_term_erase! col row 255)
-  (c-term-putstr! col row -1 +term-white+ str))
+(defun put-coloured-line! (colour text col row)
+  "Erases rest of line and puts a string."
+    (c_term_erase! col row 255)
+    (unless (or (eq text nil) (and (stringp text) (= (length text) 0)))
+      (%term-putstr! col row -1 colour text)))
 
-(defun c-term-putstr! (col row some colour text)
+;; needs to print empty stuff?
+(defun put-coloured-str! (colour text col row)
+  (%term-putstr! col row -1 colour text)
+  (values))
+
+;; deprecated!!
+(defun c-prt! (str col row)
+  (put-coloured-line! +term-white+ str col row))
+
+;; do not use outside global.lisp!
+(defun %term-putstr! (col row some colour text)
   #-lispworks
   (org.langband.ffi:c_term_putstr! col row some colour (org.langband.ffi:to-arr text))
   #+lispworks
@@ -751,15 +779,10 @@ information from the list skills whose content depends on variant."
     (org.langband.ffi:c_term_putstr! col row some colour base-ptr))
   (values))
 
-(defun c-col-put-str! (colour text row col)
-  (c-term-putstr! col row -1 colour text)
-  (values))
-
-(defun c-put-str! (text row col)
-  (c-term-putstr! col row -1 +term-white+ text))
 
 
 (defun c-bell! (text)
+  (declare (ignore text))
   ;; fix this later
   (c-term-fresh!)
   ;; skip msg-add
@@ -769,9 +792,20 @@ information from the list skills whose content depends on variant."
 
 (defun c-pause-line! (row)
   (c-prt! "" row 0)
-  (c-term-putstr! 23 row -1 +term-white+ "[Press any key to continue]")
+  (put-coloured-str! +term-white+ "[Press any key to continue]" 23 row)
   (read-one-character)
   (c-prt! "" row 0))
+
+(defun get-last-console-line ()
+  (+ +start-row-of-map+ *screen-height*))
+
+(defun get-last-console-column ()
+  (+ +start-column-of-map+ *screen-width*))
+
+;;(trace get-last-console-column)
+
+(defun pause-last-line! ()
+  (c-pause-line! (get-last-console-line)))
 
 (defun init-c-side& (ui base-path debug-level)
   #-lispworks
@@ -802,9 +836,9 @@ information from the list skills whose content depends on variant."
     (flet ((print-word (word)
 	     (let ((word-len (length word)))
 ;;	     (warn "Printing word ~s at ~s,~s" word cur-col cur-row)
-	       (c-col-put-str! colour word cur-row cur-col)
+	       (put-coloured-str! colour word cur-col cur-row)
 	       (incf cur-col word-len)
-	       (c-col-put-str! colour " " cur-row cur-col)
+	       (put-coloured-str! colour " " cur-col cur-row)
 	       (incf cur-col)
 	       (1+ word-len))))
 
@@ -856,46 +890,49 @@ information from the list skills whose content depends on variant."
      (c-quit! +c-null-value+)))
   nil)
  
+;;; === Code related to floors
 
-
-(defun get-feature (id)
-  "Returns an object of type FEATURE-TYPE or NIL."
-  (let ((table (variant.floor-features *variant*)))
+(defun get-floor-type (id &key (variant *variant*))
+  "Returns an object of type FLOOR-TYPE or NIL."
+  (let ((table (variant.floor-types variant)))
     (gethash id table)))
 
-(defun (setf get-feature) (feature id)
-  "Adds a feature with given id to the appropriate table."
-  (let ((table (variant.floor-features *variant*)))
-    (setf (gethash id table) feature)))
+(defun (setf get-floor-type) (floor id)
+  "Adds a floor-type with given id to the appropriate table."
+  (let ((table (variant.floor-types *variant*)))
+    (setf (gethash id table) floor)))
 
-(defun define-feature-type (id name x-attr x-char &key mimic)
-  "Defines a feature/floor-type and registers it.  The floor/feature
-is returned."
-  (let ((ftype (make-instance 'feature-type :id id
+(defun define-floor-type (id name x-attr x-char &key mimic)
+  "Defines a floor-type and registers it.  The floor is returned."
+  (let ((ftype (make-instance 'floor-type :id id
 			      :name name
 			      :x-attr (etypecase x-attr
 					(number (charify-number x-attr)))
 			      :x-char x-char
 			      :mimic mimic)))
-    (setf (get-feature id) ftype)
+    (setf (get-floor-type id) ftype)
     ftype))
+
+;;; === end floor code
 
 ;;; == Event related code
 
 (defun is-event? (obj)
   (typep obj 'l-event))
 
-(defun register-event& (id event)
+(defun register-event& (id event &key (variant *variant*))
   "Registers an event-id and connects it to a function."
   (unless (equal id (event.id event))
     (warn "registration id ~s of event ~s aren't equal")) 
-  (let ((key (if (symbolp id) (symbol-name id) id)))
-    (setf (gethash key *global-event-table*) event)))
+  (let ((key (if (symbolp id) (symbol-name id) id))
+	(table (variant.event-types variant)))
+    (setf (gethash key table) event)))
 
-(defun find-event-for-key (id)
+(defun find-event-for-key (id &key (variant *variant*))
   "Tries to find an event for the given id."
-  (let ((key (if (symbolp id) (symbol-name id) id)))
-    (gethash key *global-event-table*)))
+  (let ((key (if (symbolp id) (symbol-name id) id))
+	(table (variant.event-types variant)))
+    (gethash key table)))
 
 (defun make-event (id type function &key (state nil) (return-action :remove-event))
   "Returns an event-object that can be used."
@@ -904,12 +941,20 @@ is returned."
   (make-instance 'l-event :id id :type type :function function :state state
 		 :return return-action))
 
-(defun define-normal-event (dummy-arg id type function)
+(defun make-coord-event (id function extra)
+  (let ((ret-event (make-event id :step-on-coord function
+			       :state (if (listp extra)
+					  extra
+					  (list extra)))))
+    ret-event))
+ 
+
+(defun define-normal-event (dummy-arg id type function &key (variant *variant*))
   "establishes an event basically."
   (declare (ignore dummy-arg))
   
   (let ((the-event (make-event id type function)))
-    (register-event& id the-event)
+    (register-event& id the-event :variant variant)
     the-event))
 
 (defmethod trigger-event (obj event arg-list)
@@ -962,8 +1007,21 @@ or removed.  Conses up a new list."
     (when abbreviation
       (setf (stat.abbreviation the-stat) abbreviation))
 
-    (when data
-      (setf (stat.data the-stat) data))
+    (when (consp data)
+      (setf (stat.data the-stat) data)
+      ;; let's hack things better
+
+      (let ((field-list '()))
+	(dolist (list data)
+	  (push (make-stat-field :lower (car list) :upper (cadr list)
+				 :data (loop for (first second) on (cddr list) by #'cddr
+					     collect (cons first second)))
+		field-list))
+	(setf (stat.fields the-stat) (nreverse field-list))
+;;	(warn "Fields: ~s" (stat.fields the-stat))
+	))
+
+      
 
     ;; now let's add it
 
@@ -975,6 +1033,12 @@ or removed.  Conses up a new list."
 
 (defmethod make-stat-array ((variant variant))
   (make-array (variant.stat-length variant) :initial-element 0))
+
+(defmethod is-stat-array? ((variant variant) obj)
+  (and (arrayp obj)
+       (= (length obj) (variant.stat-length variant))
+       ;; add more?
+       ))
 
 ;;; The stat-functions below should be checked and possible be improved
 ;;; now that there is a class/object and not just random tables
@@ -1018,4 +1082,39 @@ or removed.  Conses up a new list."
 	    (cadr i)))
     table))
 
-;;(trace build-stat-table-from-symlist)
+(defmethod decor.x-attr ((obj active-trap))
+  (trap.x-attr (trap.type obj)))
+
+(defmethod decor.x-char ((obj active-trap))
+  (trap.x-char (trap.type obj)))
+
+
+(defun define-trap-type (id name &key x-char x-attr effect min-depth max-depth rarity)
+  "Defines and registers a trap-type."
+  (unless (verify-id id)
+    (warn "Trap-id ~s not valid" id)
+    (return-from define-trap-type nil))
+  
+  (let ((trap-obj (make-instance 'trap-type :id id :name name
+				 :x-char x-char :x-attr x-attr
+				 :min-depth min-depth :max-depth max-depth
+				 :rarity rarity
+				 ))
+	(table (variant.traps *variant*)))
+
+;;    (warn "Effect is ~s ~s ~s" effect (functionp effect) (compiled-function-p effect))
+    (when (functionp effect)
+      ;; we assume it is not compiled
+      (setf effect (compile nil effect))
+      (when (functionp effect)
+	(setf (trap.effect trap-obj) effect)))
+    
+    (setf (gethash id table) trap-obj)
+    
+    trap-obj))
+
+(defmacro trap-effect (arguments &body body)
+  (assert (= (length arguments) 4))
+  (let ((def `(lambda ,arguments ,@body)))
+;;    (warn "Def is ~s" def)
+    `(function ,def)))

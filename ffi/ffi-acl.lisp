@@ -70,7 +70,8 @@
 
 
 #+use-callback-from-c
-(ff:def-foreign-call (c-set-lisp-callback! "set_lisp_callback") ((ptr)) :returning :void)
+(ff:def-foreign-call (c-set-lisp-callback! "set_lisp_callback") ((name cptr)
+                                                                 (ptr)) :returning :void)
 
 
 #+win32

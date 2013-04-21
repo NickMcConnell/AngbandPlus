@@ -115,6 +115,22 @@ the Free Software Foundation; either version 2 of the License, or
 	    )
       )))
 
+(defun projectable? (dungeon x1 y1 x2 y2)
+  "Is it projectable from (x1,y1) to (x2,y2)"
+  
+  (let* ((max-range 50)
+	 (path-arr (make-array (1+ max-range) :fill-pointer 0))
+	 (path-len (project-path dungeon max-range path-arr x1 y1 x2 y2 0)))
+
+    (when (plusp path-len)
+      (let* ((last-g (aref path-arr (1- path-len)))
+	     (last-x (grid-x last-g))
+	     (last-y (grid-y last-g)))
+	(when (and (cave-floor-bold? dungeon last-x last-y)
+		   (= x2 last-x)
+		   (= y2 last-y))
+	  t)))))
+
 
 (defun display-moving-object (dungeon x y obj-char obj-attr)
   "Prints the OBJ-CHAR with OBJ-ATTR at given coordinates with proper delay."
@@ -131,7 +147,7 @@ the Free Software Foundation; either version 2 of the License, or
     (let ((the-bow (get-missile-weapon player))
 	  (the-missile nil))
       (unless (and the-bow (typep the-bow 'active-object/bow))
-	(c-print-message! "You have no missile weapon!")
+	(print-message! "You have no missile weapon!")
 	(return-from missile-shooting nil))
 
       (with-new-screen ()
@@ -143,7 +159,7 @@ the Free Software Foundation; either version 2 of the License, or
       (cond ((and the-missile (typep the-missile 'active-object/ammo))
 	     (shoot-a-missile dungeon player the-bow the-missile))
 	    (t
-	     (c-print-message! "No missile selected!")))
+	     (print-message! "No missile selected!")))
 	)))
 
 
@@ -226,10 +242,10 @@ the Free Software Foundation; either version 2 of the License, or
 			 (mon-name (get-creature-name fmon)))
 		    (when (missile-hit-creature? player fmon missile-weapon arrow)
 		      
-		      (c-print-message! (format nil "The ~a was hit." mon-name))
+		      (print-message! (format nil "The ~a was hit." mon-name))
 		      (missile-inflict-damage! player fmon missile-weapon arrow)
 		      (when (< (current-hp fmon) 0)
-			(c-print-message! (format nil "The ~a died." mon-name))
+			(print-message! (format nil "The ~a died." mon-name))
 			(let ((target-xp (get-xp-value fmon)))
 			  (alter-xp! player (if target-xp target-xp 0)))
 			(kill-target! dungeon player fmon x y)
@@ -248,25 +264,6 @@ the Free Software Foundation; either version 2 of the License, or
 
 	
 	    
-
-(defun %read-direction ()
-  (block read-loop
-    (loop
-     (c-prt! "Direction: " 0 0)
-     (let ((val (read-one-character)))
-       (cond ((or (eql val #\.)
-		  (eql val #\0)
-		  (eql val #\t))
-	      (c-prt! "" 0 0)
-	      (return-from read-loop 5))
-	     ((digit-char-p val)
-	      (c-prt! "" 0 0)
-	      (return-from read-loop (digit-char-p val)))
-	     ((eql val +escape+)
-	      (c-prt! "" 0 0)
-	      (return-from read-loop nil))
-	     (t
-	      (c-prt! "Unknown direction!" 0 0)))))))
 
 ;;(trace project-path)
 #+never
@@ -297,3 +294,308 @@ the Free Software Foundation; either version 2 of the License, or
 
 ;;      (warn "did ~s" lst)
       nil)))
+
+(defmethod do-projection (source target-x target-y flag &key (effect nil) (damage 0) (radius 0) (range +max-range+))
+
+  
+  (let ((source-x (location-x source))
+	(source-y (location-y source))
+	(player *player*)
+	(dungeon *dungeon*)
+	(notice nil) ;; can the player see anything?
+	(drawn-beam nil) ;; have we drawn anything?
+	(drawn-blast nil) ;; have we drawn anything?
+	(blind-player nil) ;; fix
+	(draw-delay 50)
+	(start-x 0) ;; start-coordinate
+	(start-y 0) ;; start-coordinate
+	(dest-x 0)
+	(dest-y 0)
+	(cur-x target-x)
+	(cur-y target-y)
+	(affected-grids (make-array 256 :fill-pointer 0))
+	)
+
+    ;; hack, jump directly to target
+    (cond ((bit-flag-set? flag +project-jump+)
+	   (setf start-x target-x
+		 start-x target-y)
+	   ;; clear flag
+	   (bit-flag-remove! flag +project-jump+))
+	  ((or (is-player? source) (is-monster? source))
+	   (setf start-x source-x
+		 start-y source-y))
+	  (t
+	   (warn "Fell through source-check in PROJECT with source ~s" source)
+	   ;; assume target is source
+	   (setf start-x target-x
+		 start-y target-y)
+	   ))
+
+    ;; default
+    (setf dest-x target-x
+	  dest-y target-y)
+
+    ;; hack, a verify
+    (when (and (bit-flag-set? flag +project-through+)
+	       (= start-x dest-x)
+	       (= start-y dest-y))
+      (bit-flag-remove! flag +project-through+))
+
+    ;; skip radius-thing
+
+    ;; initial pos
+    (setf cur-x start-x
+	  cur-y start-y)
+    
+
+    ;; if we're a beam, include this spot
+    (when (bit-flag-set? flag +project-beam+)
+      (vector-push (grid cur-x cur-y) affected-grids))
+	
+    (let* ((max-range range)
+	   (path-arr (make-array max-range :fill-pointer 0)) ;; set to max-range
+	   (path-len (project-path dungeon max-range path-arr start-x start-y dest-x dest-y flag))
+	   
+	   (max-explosion 25)
+	   (explosion-area (make-array max-explosion :initial-element nil))
+	   )
+
+;;      (warn "Projection from (~s,~s) to (~s,~s) [target: ~s,~s]" start-x start-y dest-x dest-y target-x target-y)
+
+      (loop named path-tracer
+	    for i from 0 to (1- path-len)
+	    do
+
+	    (let* (;;(old-x cur-x)
+		   ;;(old-y cur-y)
+		   (new-g (aref path-arr i))
+		   (new-x (grid-x new-g))
+		   (new-y (grid-y new-g)))
+
+	      ;; if we're going to make a ball, stop one step before a wall!
+	      (when (and (not (cave-floor-bold? dungeon new-x new-y))
+			 (plusp radius))
+		(return-from path-tracer t))
+	      
+	      (setf cur-x new-x
+		    cur-y new-y)
+
+	      ;; if we're a beam, include this spot
+	      (when (bit-flag-set? flag +project-beam+)
+		(vector-push (grid cur-x cur-y) affected-grids))
+
+	      (when (and (not blind-player) (not (bit-flag-set? flag +project-hide+)))
+
+		(cond ((and (panel-contains? player cur-x cur-y)
+			    (player-has-los-bold? dungeon cur-x cur-y))
+		       (display-moving-object dungeon cur-x cur-y #\* +term-red+)
+		       (setf drawn-beam t))
+		      (drawn-beam
+		       ;; add delay
+		       )))
+		
+			    
+		
+;;	      (format t "~&At (~3s,~3s)~%" cur-x cur-y)
+	      ))
+
+      ;; hack
+      (setf dest-x cur-x
+	    dest-y cur-y)
+      
+#||
+;;      (loop for g across path-arr
+;;	    do
+;;	    (format t "~&>At (~3s,~3s)~%" (grid-x g) (grid-y g)))
+
+      (loop for g across affected-grids
+	    do
+	    (format t "~&-Effect (~3s,~3s)~%" (grid-x g) (grid-y g)))
+||#
+
+      #||
+      ;; hack.. 
+      (when (bit-flag-set? flag +project-beam+)
+	(setf (fill-pointer affected-grids) (1- (fill-pointer affected-grids))))
+      ||#
+
+      ;; get blast area
+      (loop for dist from 0 to radius
+	    do
+	    (loop for y from (- dest-y dist) to (+ dest-y dist)
+		  do
+		  (loop for x from (- dest-x dist) to (+ dest-x dist)
+			do
+			(when (and (in-bounds? dungeon x y) ;; skip illegal
+				   (= (distance dest-x dest-y x y) dist) ;; circular
+				   (projectable? dungeon dest-x dest-y x y)
+				   )
+			  (push (grid x y) (aref explosion-area dist))
+			  ))))
+      #||
+      (format t "~&Explosion [~s]: ~s~%" radius explosion-area)
+				   
+      
+      
+      (warn "Went from (~s,~s,~s) to (~s,~s,~s) with [~s ~s]"
+	    start-x start-y #\.
+	    dest-x dest-y #\.
+	    path-len path-arr)
+      ||#
+      ;; do a check here if we have explosion
+
+
+      ;; should we show the explosion?
+
+      (when (and (not blind-player) (not (bit-flag-set? flag +project-hide+)))
+
+	(loop for i from 0 to radius
+	      do
+	      (let ((cur-val (aref explosion-area i)))
+		(when (consp cur-val)
+		  (dolist (j cur-val)
+		    (let ((loc-x (grid-x j))
+			  (loc-y (grid-y j)))
+		      (when (and (panel-contains? player loc-x loc-y)
+				 (player-has-los-bold? dungeon loc-x loc-y))
+			(setf drawn-blast t)
+			(print-relative! dungeon loc-x loc-y #\* +term-red+))
+		      )))
+		(put-cursor-relative! dungeon dest-x dest-y)
+		(c-term-fresh!)
+		(when (or drawn-blast drawn-beam)
+		  (org.langband.ffi:c-term-xtra& 13 draw-delay) 
+		  )
+;;		(light-spot! dungeon x y)
+;;		(c-term-fresh!)
+		))
+
+	(when drawn-blast
+	  ;; clean up
+	  (loop for i from 0 to radius
+		do
+		(let ((cur-val (aref explosion-area i)))
+		  ;;		(warn "Cur-val for ~s is ~s" i cur-val)
+		  (when (consp cur-val)
+		    (dolist (j cur-val)
+		      (let ((loc-x (grid-x j))
+			    (loc-y (grid-y j)))
+			(light-spot! dungeon loc-x loc-y)
+			)))
+		  ))
+	
+	  (put-cursor-relative! dungeon dest-x dest-y)
+	  (c-term-fresh!)
+	  ))
+
+      (setf notice (apply-projection-effect! *variant* source path-arr :explosion-area explosion-area
+					     :flag flag :damage damage :effect effect))
+
+      )
+
+    notice))
+
+(defmethod apply-projection-effect-to-target! ((variant variant) source target &key
+					       (x 0) (y 0) (damage 0) (effect nil) (distance 0))
+  (declare (ignore x y damage effect distance source))
+  (warn "Applying effect to ~s" target)
+  
+  )
+
+(defmethod apply-projection-effect-to-target! ((variant variant) source (target active-object)
+					       &key
+					       (x 0) (y 0) (damage 0) (effect nil) (distance 0))
+  (declare (ignore x y damage effect distance source))
+  (warn "OBJ: Applying effect to ~s" target)
+  )
+
+(defmethod apply-projection-effect-to-target! ((variant variant) source (target floor-type)
+					       &key
+					       (x 0) (y 0) (damage 0) (effect nil) (distance 0))
+  (declare (ignore x y damage effect distance source))
+;;  (warn "FLOOR: Applying effect to ~s" (floor.name target))
+  )
+
+
+
+(defmethod apply-projection-effect! ((variant variant) source path-array
+				    &key (explosion-area nil) (flag 0) 
+				    (distance 0) (damage 0) (effect nil))
+  (declare (ignore distance))
+  
+  (let ((notice nil)
+	(dungeon *dungeon*))
+
+;;    (warn "We're going to dish out effect ~s" effect)
+    
+    (flet ((apply-to! (target distance grid)
+	     (when (apply-projection-effect-to-target! variant source target
+						       :x (grid-x grid) :y (grid-y grid)
+						       :damage damage :effect effect
+						       :distance distance)
+	       (setf notice t))))
+    
+    ;; check floors
+      (when (bit-flag-set? flag +project-grid+)
+	(flet ((apply-to-floor! (grid distance)
+		 (apply-to! (get-floor-type (cave-floor dungeon (grid-x grid) (grid-y grid))) distance grid)))
+	  
+	  ;; first do beam
+	  (loop for g across path-array do
+		(apply-to-floor! g 0))
+	  ;; then do explosion
+	  (loop for i from 0
+		for x across explosion-area
+		do
+		(dolist (c x) ;; coordinates
+		  (apply-to-floor! c i)))
+	  ))
+
+      ;; do updates
+      ;; check objects
+      (when (bit-flag-set? flag +project-item+)
+	(flet ((apply-to-objs! (grid distance)
+		 (let ((obj-table (cave-objects dungeon (grid-x grid) (grid-y grid))))
+		   (when obj-table
+		     (dolist (i (items.objs obj-table))
+		       (apply-to! i distance grid))))))
+	  
+	  ;; first do beam
+	  (loop for g across path-array do
+		(apply-to-objs! g 0))
+	  ;; then do explosion
+	  (loop for i from 0
+		for x across explosion-area
+		do
+		(dolist (c x) ;; coordinates
+		  (apply-to-objs! c i)))
+	  ))
+      
+      ;; check monsters
+      (when (bit-flag-set? flag +project-kill+)
+	(flet ((apply-to-monsters! (grid distance)
+		 (let ((loc-x (grid-x grid))
+		       (loc-y (grid-y grid)))
+		   (when (cave-floor-bold? dungeon loc-x loc-y) ;; monsters in wall are safe
+		     (dolist (m (cave-monsters dungeon loc-x loc-y))
+		       (unless (eq source m)
+			 (apply-to! m distance grid)))))))
+		   
+	;; first do beam
+	(loop for g across path-array do
+	      (apply-to-monsters! g 0))
+
+	;; then do explosion
+	(loop for i from 0
+	      for x across explosion-area
+		do
+		(dolist (c x) ;; coordinates
+		  (apply-to-monsters! c i)))
+	))
+	
+      ;; check player
+            
+   
+    
+    notice)))

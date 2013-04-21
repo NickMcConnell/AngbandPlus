@@ -1,3 +1,61 @@
+2002-05-19  Stig E Sandø <stig@users.sourceforge.net>
+	* These changes have been done gradually the last two weeks but
+	are summarised here.
+	* Upgraded parts of the c-code to Angband v3.0, including support
+	for bigscreen.
+	* Added traps in dungeon as 'decor', plus updated the
+	dungeon-related code to handle it.  Decor can have
+	effect-functions that can be triggered.
+	* Renamed cave-feature to cave-floor, and similar change to all
+	constants.
+	* Updated lisp-side to use variables, not constants for
+	screen-size to accomodate resizing.  Also updated all
+	panel-related code.
+	* Added system to add magic to objects in the game.  This is
+	called in the dungeon-generation, in stores and during birth.
+	Still has a lot to implement to make it complete but the skeleton
+	plus examples are there now.
+	* Updated 'w'ear command to be more intelligent and now it allows
+	player to wear several rings.
+	* Made callback-code slightly safer by making a GC-hook.  Now SBCL
+	should also use callbacks.
+	* Updated the player-update/calculations considerably, including
+	mana and stat-code
+	* Started on the ego-item code, but it has not been integrated
+	yet.
+	* Updated some printouts of the player (the 'C' command)
+	* Added normalised-random function (in util.lisp) for normalised
+	random values.
+	* Started to add the possibility of loading vanilla saves in
+	lib/compat/savefiles.lisp 
+	* Many many other tweaks, bug-fixes and slight changes.  Please
+	use diff when appropriate. 
+	
+2002-02-22  Stig E Sandø <stig@users.sourceforge.net>
+	* Did some real work to add the project() family of functions to
+	langband.  Took real motivation, but basics seem to work now.  I
+	need to find a good protocol for applying effects in a
+	variant-specific and clean way.  Added simple generics for it to
+	generics.lisp 
+	* Added hack to spell-casting for testing project(), will be
+	removed
+	* removed dead code from base.lisp and moved some dynamic
+	variables to base.lisp from constants.lisp
+	* added panel-check to dungeon.lisp
+	* added ASDF-support to game.lisp, plus langband-engine.asd and
+	langband-vanilla.asd and tools/asdf.lisp  This is cleaner than
+	mk:defsystem.  sbcl, cmucl, lispworks and acl now uses ASDF, but
+	clisp has problems with it so it'll wait.  debian-packages also
+	use ASDF
+	* added a few predicates to player.lisp and monster.lisp, makes
+	code cleaner
+	* added PROJECTABLE? to project.lisp plus all the PROJECT*
+	functions
+	* other minor tweaks
+	
+2002-02-17  Stig E Sandø <stig@users.sourceforge.net>
+	* Sent out a release, 0.0.19
+
 2002-02-16  Stig E Sandø <stig@users.sourceforge.net>
 	* More reorganisation of files, and some files were removed.
 	* All references to sex changed to gender

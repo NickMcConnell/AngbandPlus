@@ -103,8 +103,8 @@ the Free Software Foundation; either version 2 of the License, or
        
 
 (defmethod lang-equal ((first-obj dungeon-coord) (second-obj dungeon-coord))
-  (and (= (coord.feature first-obj)
-	  (coord.feature second-obj))
+  (and (= (coord.floor first-obj)
+	  (coord.floor second-obj))
 ;;       (= (coord.flags first-obj)
 ;;	  (coord.flags second-obj))
        (= (logand (coord.flags first-obj) +saved-cave-flags+)
@@ -242,7 +242,7 @@ the Free Software Foundation; either version 2 of the License, or
    (report-equal (current-hp x)           (current-hp y))
    (report-equal (player.fraction-hp x)   (player.fraction-hp y))
 
-   (report-equal (player.cur-mana x)      (player.cur-mana y))
+   (report-equal (current-mana x)         (current-mana y))
    (report-equal (player.fraction-mana x) (player.fraction-mana y))
 
    (report-equal (player.gold x)         (player.gold y))
@@ -254,7 +254,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 
    (report-equal (maximum-hp x)           (maximum-hp y))
-   (report-equal (player.max-mana x)      (player.max-mana y))
+   (report-equal (maximum-mana x)          (maximum-mana y))
    (report-equalp (player.xp-table x)      (player.xp-table y))
 
    (report-equal (player.energy-use x)    (player.energy-use y))

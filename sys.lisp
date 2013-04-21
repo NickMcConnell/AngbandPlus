@@ -57,6 +57,6 @@ but stops errors from floating out.. returns NIL instead."
       (when (and home-dir (length home-dir))
         (setq home-dir (lbsys/ensure-dir-name home-dir))
         ;;      (print home-dir)
-        (concatenate 'string home-dir ".langband/"))))
+        (concatenate 'string home-dir ".angband/langband/"))))
   #+win32
   "c:/")

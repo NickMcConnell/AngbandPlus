@@ -163,6 +163,7 @@
 #+use-callback-from-c
 (alien:def-alien-routine ("set_lisp_callback" c-set-lisp-callback!)
            c-call:void
+           (name cptr)
            (ptr alien:unsigned :in))
 
 

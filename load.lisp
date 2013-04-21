@@ -147,7 +147,7 @@ the Free Software Foundation; either version 2 of the License, or
     (with-dungeon (dungeon (coord x y))
       (let ((old-cons (aref table x y)))
 	(setf (coord.flags coord) (cdr old-cons)) ;; flag first.
-	(setf (coord-feature coord) (car old-cons)) ;; then feature
+	(setf (coord-floor coord) (car old-cons)) ;; then floor
 	))
 
 	      
@@ -311,7 +311,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 	  (current-hp pl-obj) cur-hp
 	  (player.fraction-hp pl-obj) fraction-hp
-	  (player.cur-mana pl-obj) cur-mana
+	  (current-mana pl-obj) cur-mana
 	  (player.fraction-mana pl-obj) fraction-mana
 	  (player.gold pl-obj) gold
 	  (player.food pl-obj) food
@@ -366,7 +366,7 @@ the Free Software Foundation; either version 2 of the License, or
 	(let* ((feat (read-binary 'bt:u16 str))
 	       (flag (read-binary 'bt:u16 str)))
 	  (setf (coord.flags coord) flag ;; flag first
-		(coord-feature coord) feat ;; then feature
+		(coord-floor coord) feat ;; then floor
 		)))
 
       (let* ((mon-len (bt:read-binary 'bt:u32 str))
@@ -451,7 +451,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 	  (current-hp pl-obj) (read-binary 'bt:u32 str)
 	  (player.fraction-hp pl-obj) (read-binary 'bt:u32 str)
-	  (player.cur-mana pl-obj) (read-binary 'bt:u32 str)
+	  (current-mana pl-obj) (read-binary 'bt:u32 str)
 	  (player.fraction-mana pl-obj) (read-binary 'bt:u32 str)
 	  (player.gold pl-obj) (read-binary 'bt:u32 str)
 	  (player.food pl-obj) (read-binary 'bt:u32 str)

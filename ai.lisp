@@ -128,7 +128,7 @@ order to get from monster to player."
 
 	    (cond ((cave-floor-bold? dungeon nx ny)
 		   (setf use-move t))
-		  ((>= (cave-feature dungeon nx ny) +feature-wall-extra+)
+		  ((>= (cave-floor dungeon nx ny) +floor-wall-extra+)
 		   ;; nothing
 		   )
 		  ;; skip move through walls

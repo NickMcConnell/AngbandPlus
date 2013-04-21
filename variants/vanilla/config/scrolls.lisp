@@ -142,6 +142,13 @@ the Free Software Foundation; either version 2 of the License, or
   :cost 0
   :obj-type '(<scroll> <summon> <monster>)
   :sort-value 5004
+  :on-read (object-effect (dun pl item)
+;;			  (warn "summon")
+			  (dotimes (i (randint 3))
+			    (when (summon-monster dun
+						  (location-x pl) (location-y pl)
+						  (dungeon.depth dun) :type :any)
+			      (possible-identify! pl item))))
   :the-kind '<scroll>) 
 
 (define-object-kind "scroll-phase-door" "phase door"
@@ -570,6 +577,13 @@ the Free Software Foundation; either version 2 of the License, or
   :cost 0
   :obj-type '(<scroll> <summon> <undead>)
   :sort-value 5005
+  :on-read (object-effect (dun pl item)
+			  (dotimes (i (randint 3))
+			    (when (summon-monster dun
+						  (location-x pl) (location-y pl)
+						  (dungeon.depth dun) :type :undead)
+			      (possible-identify! pl item))))
+
   :the-kind '<scroll>) 
 
 (define-object-kind "scroll-blessing" "blessing"

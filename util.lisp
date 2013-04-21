@@ -130,7 +130,7 @@ a number or a symbol identifying the place."
 	    (the-y (if y y (location-y player))))
        (get-ensured-floor-table dungeon the-x the-y)))
     (:backpack (aobj.contains (player.inventory player)))
-    (:equip (player.eq player))))
+    (:equip (player.equipment player))))
 
 
 
@@ -163,6 +163,7 @@ a number or a symbol identifying the place."
 	       (num-key (typecase key
 			  (character (a2i key))
 			  (number key)
+			  (active-object (position key (items.objs table)))
 			  (t nil))))
 	   (when (numberp num-key)
 	     (let ((old-obj (elt (items.objs table) num-key)))
@@ -222,20 +223,6 @@ a number or a symbol identifying the place."
   (declare (ignore variant))
   (+ (player.max-xp player) (* 100 (player.depth player))))
 
-;;; Code for backpacks.. move later
-
-(defconstant +common-backpack-size+ 23)
-
-(defun common-creating-backpack (state dungeon player aobj)
-  "Assigns a container to aobj.contains."
-  
-  (declare (ignore player dungeon state))
-  
-  (let ((container (make-container +common-backpack-size+)))
-    (setf (aobj.contains aobj) container)
-    t))
-
-
 ;;; === Some simple code for actual rooms, move them later.
 
 (defclass simple-room (room-type)
@@ -278,26 +265,26 @@ a number or a symbol identifying the place."
 	(x2 (+ x0 (randint 11))))
 
     (generate-room dungeon (1- x1) (1- y1) (1+ x2) (1+ y2) light)
-    (generate-draw dungeon (1- x1) (1- y1) (1+ x2) (1+ y2) +feature-wall-outer+)
-    (generate-fill dungeon x1 y1 x2 y2 +feature-floor+)
+    (generate-draw dungeon (1- x1) (1- y1) (1+ x2) (1+ y2) +floor-wall-outer+)
+    (generate-fill dungeon x1 y1 x2 y2 +floor-regular+)
 
     (cond ((= 0 (random 20)) ;; pillar room
 	   (loop for y from y1 to y2 by 2
 		 do
 		 (loop for x from x1 to x2 by 2
 		       do
-		       (setf (cave-feature dungeon x y) +feature-wall-inner+))))
+		       (setf (cave-floor dungeon x y) +floor-wall-inner+))))
 	  
 	  ((= 0 (random 50)) ;; ragged
 	   (loop for y from (+ y1 2) to (- y2 2) by 2
 		 do
-		 (setf (cave-feature dungeon x1 y) +feature-wall-inner+
-		       (cave-feature dungeon x2 y) +feature-wall-inner+))
+		 (setf (cave-floor dungeon x1 y) +floor-wall-inner+
+		       (cave-floor dungeon x2 y) +floor-wall-inner+))
 	   
 	   (loop for x from (+ x1 2) to (- x2 2) by 2
 		 do
-		 (setf (cave-feature dungeon x y1) +feature-wall-inner+
-		       (cave-feature dungeon x y2) +feature-wall-inner+))
+		 (setf (cave-floor dungeon x y1) +floor-wall-inner+
+		       (cave-floor dungeon x y2) +floor-wall-inner+))
 	   ))
 
     ))
@@ -320,11 +307,11 @@ a number or a symbol identifying the place."
     (generate-room dungeon (1- a-x1) (1- a-y1) (1+ a-x2) (1+ a-y2) light)
     (generate-room dungeon (1- b-x1) (1- b-y1) (1+ b-x2) (1+ b-y2) light)
 	
-    (generate-draw dungeon (1- a-x1) (1- a-y1) (1+ a-x2) (1+ a-y2) +feature-wall-outer+)
-    (generate-draw dungeon (1- b-x1) (1- b-y1) (1+ b-x2) (1+ b-y2) +feature-wall-outer+)
+    (generate-draw dungeon (1- a-x1) (1- a-y1) (1+ a-x2) (1+ a-y2) +floor-wall-outer+)
+    (generate-draw dungeon (1- b-x1) (1- b-y1) (1+ b-x2) (1+ b-y2) +floor-wall-outer+)
     
-    (generate-fill dungeon a-x1 a-y1 a-x2 a-y2 +feature-floor+)
-    (generate-fill dungeon b-x1 b-y1 b-x2 b-y2 +feature-floor+)
+    (generate-fill dungeon a-x1 a-y1 a-x2 a-y2 +floor-regular+)
+    (generate-fill dungeon b-x1 b-y1 b-x2 b-y2 +floor-regular+)
     ))
 
 
@@ -376,7 +363,7 @@ a number or a symbol identifying the place."
 (defmethod drop-near-location! ((variant variant) (dungeon dungeon) (object active-object) x y)
   ;; we do this hackish
   (flet ((poss-drop (tx ty)
-	   (when (= (cave-feature dungeon tx ty) +feature-floor+) ;; must be a floor
+	   (when (= (cave-floor dungeon tx ty) +floor-regular+) ;; must be a floor
 	     (let ((tbl (get-ensured-floor-table dungeon tx ty)))
 	       ;;(warn "Dropped ~s at (~s,~s)" object tx ty)
 	       (item-table-add! tbl object)
@@ -520,6 +507,155 @@ a number or a symbol identifying the place."
     (dolist (i monsters)
       (when (creature-alive? i)
 	(update-monster! variant i full-update?)))))
+
+(defmethod deliver-damage! ((variant variant) source (target active-monster) damage &key note dying-note)
+  "Delivers damage to someone."
+  (declare (ignore source note))
+
+  (let ((did-target-die? nil))
+  
+    ;; wake it up
+    ;; deliver damage
+    (setf (current-hp target) (- (current-hp target) damage))
+
+    
+    (when (minusp (current-hp target))
+      (setf did-target-die? t)
+      ;; make a message about it
+      (cond (dying-note
+	     (print-message! (format nil "The ~a~a" (monster.name target) dying-note)))
+	    (t
+	     (print-message! (format nil "You have slain ~a." (monster.name target)))))
+
+      (let ((attacker *player*)
+	    (dungeon *dungeon*)
+	    (target-xp (get-xp-value target)))
+	(alter-xp! attacker (if target-xp target-xp 0))
+	(kill-target! dungeon attacker target (location-x target) (location-y target))
+	))
+
+    ;; skip fear
+    did-target-die?))
+  
+
+(defmethod deliver-damage! ((variant variant) (source active-trap) (target player) damage &key note dying-note)
+
+  (let ((did-target-die? nil))
+  
+    ;; wake it up
+    ;; deliver damage
+    (setf (current-hp target) (- (current-hp target) damage))
+
+    (bit-flag-add! *redraw* +print-hp+)
+    
+    (when (minusp (current-hp target))
+      (setf did-target-die? t)
+
+      (print-message! (format nil "You were killed by a ~a" (trap.name (trap.type source))))
+      (kill-target! *dungeon* source target (location-x target) (location-y target))
+      )
+
+    did-target-die?))
+
+
+(defconstant +random-normal-number+ 256 "Number of entries in table.")
+(defconstant +random-normal-deviation+ 64 "The standard deviation of the table.")
+
+(defparameter *random-normal-table* #256(
+          206     613    1022    1430    1838       2245    2652    3058
+         3463    3867    4271    4673    5075       5475    5874    6271
+         6667    7061    7454    7845    8234       8621    9006    9389
+         9770   10148   10524   10898   11269      11638   12004   12367
+        12727   13085   13440   13792   14140      14486   14828   15168
+        15504   15836   16166   16492   16814      17133   17449   17761
+        18069   18374   18675   18972   19266      19556   19842   20124
+        20403   20678   20949   21216   21479      21738   21994   22245
+
+        22493   22737   22977   23213   23446      23674   23899   24120
+        24336   24550   24759   24965   25166      25365   25559   25750
+        25937   26120   26300   26476   26649      26818   26983   27146
+        27304   27460   27612   27760   27906      28048   28187   28323
+        28455   28585   28711   28835   28955      29073   29188   29299
+        29409   29515   29619   29720   29818      29914   30007   30098
+        30186   30272   30356   30437   30516      30593   30668   30740
+        30810   30879   30945   31010   31072      31133   31192   31249
+
+        31304   31358   31410   31460   31509      31556   31601   31646
+        31688   31730   31770   31808   31846      31882   31917   31950
+        31983   32014   32044   32074   32102      32129   32155   32180
+        32205   32228   32251   32273   32294      32314   32333   32352
+        32370   32387   32404   32420   32435      32450   32464   32477
+        32490   32503   32515   32526   32537      32548   32558   32568
+        32577   32586   32595   32603   32611      32618   32625   32632
+        32639   32645   32651   32657   32662      32667   32672   32677
+
+        32682   32686   32690   32694   32698      32702   32705   32708
+        32711   32714   32717   32720   32722      32725   32727   32729
+        32731   32733   32735   32737   32739      32740   32742   32743
+        32745   32746   32747   32748   32749      32750   32751   32752
+        32753   32754   32755   32756   32757      32757   32758   32758
+        32759   32760   32760   32761   32761      32761   32762   32762
+        32763   32763   32763   32764   32764      32764   32764   32765
+        32765   32765   32765   32766   32766      32766   32766   32767))
+
+
+(defun normalised-random (mean stand)
+  "Generate a random integer number of NORMAL distribution
+ 
+  The table above is used to generate a psuedo-normal distribution,
+  in a manner which is much faster than calling a transcendental
+  function to calculate a true normal distribution."
+
+  ;; paranoia
+  (when (< stand 1)
+    (return-from normalised-random mean))
+  
+  (let ((low 0)
+	(high +random-normal-number+)
+	(tmp (random 32768)))
+    (loop while (< low high)
+	  do
+	  (let ((mid (int-/ (+ low high) 2)))
+	    (cond ((< (aref *random-normal-table* mid) tmp)
+		   (setf low (1+ low)))
+		  (t
+		   (setf high mid)))))
+    (let ((offset (int-/ (* stand low) 
+			 +random-normal-deviation+)))
+      (if (< (random 100) 50)
+	  (- mean offset)
+	  (+ mean offset)))))
+  
+
+(defun magic-bonus-for-level (max level)
+  "Returns an appropriate bonus for the level."
+  (let* ((variant *variant*)
+	 (max-depth (variant.max-depth variant)))
+    (assert (numberp max))
+    (assert (numberp level))
+    (when (> level (1- max-depth))
+      (setf level (1- max-depth)))
+
+    (let ((bonus (int-/ (* max level)
+			max-depth))
+	  (extra (mod (* max level)
+			max-depth))
+	  (stand (int-/ max 4)))
+      
+      ;; hack
+      (when (< (random max-depth) extra)
+	(incf bonus))
+
+      ;; hack
+      (when (< (random 4) (mod max 4))
+	(incf stand))
+
+      (let ((value (normalised-random bonus stand)))
+	(cond ((minusp value) 0)
+	      ((> value max) max)
+	      (t value)))
+      )))
+      			
 
 ;;(trace update-monsters!)		     
 ;;(trace select-item :encapsulate t)

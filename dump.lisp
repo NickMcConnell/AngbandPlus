@@ -135,11 +135,11 @@ the Free Software Foundation; either version 2 of the License, or
 	   (race.name inst)))
   inst)
 
-(defmethod print-object ((inst feature-type) stream)
+(defmethod print-object ((inst floor-type) stream)
   (print-unreadable-object
    (inst stream :identity t)
    (format stream "~:(~S~) [~S]" (class-name (class-of inst)) 
-	   (feature.name inst)))
+	   (floor.name inst)))
   inst)
 
 
@@ -195,6 +195,21 @@ the Free Software Foundation; either version 2 of the License, or
    (format stream "~:(~a~) [~S, (~s,~s)]" (class-name (class-of inst)) 
 	   (amon.kind inst) (location-x inst) (location-y inst))
   inst))
+
+(defmethod print-object ((inst trap-type) stream)
+  (print-unreadable-object
+   (inst stream :identity t)
+   (format stream "~:(~S~) [~S]" (class-name (class-of inst)) 
+	   (trap.id inst)))
+  inst)
+
+(defmethod print-object ((inst active-trap) stream)
+  (print-unreadable-object
+   (inst stream :identity t)
+   (format stream "~:(~S~) [~S]" (class-name (class-of inst)) 
+	   (if (trap.type inst) (trap.id (trap.type inst)) "NO TYPE")))
+  inst)
+
 
 (defmethod print-object ((inst treasure-drop) stream)
   (print-unreadable-object
@@ -262,12 +277,12 @@ the Free Software Foundation; either version 2 of the License, or
 
 
 ;; turn into loadable forms
-(defun dump-features (out-file &optional feature-list)
-  (let* ((features (if feature-list
-		       feature-list
-		       (loop for x being the hash-values of (variant.floor-features *variant*)
+(defun dump-floors (out-file &optional floor-list)
+  (let* ((features (if floor-list
+		       floor-list
+		       (loop for x being the hash-values of (variant.floor-types *variant*)
 			     collecting x)))
-	 (sorted-features (sort (copy-list features) #'< :key #'feature.id)))
+	 (sorted-features (sort (copy-list features) #'< :key #'floor.id)))
 
     (let ((*print-case* :downcase))
       (with-open-file (ffile (pathname out-file)
@@ -276,10 +291,10 @@ the Free Software Foundation; either version 2 of the License, or
 			     :if-does-not-exist :create)
 	(loop for x in sorted-features
 	      do
-	      (pprint `(define-feature-type ,(feature.id x)
-			,(feature.name x)
-			,(feature.x-attr x)
-			,(feature.x-char x)
-			:mimic ,(feature.mimic x))
+	      (pprint `(define-floor-type ,(floor.id x)
+			,(floor.name x)
+			,(floor.x-attr x)
+			,(floor.x-char x)
+			:mimic ,(floor.mimic x))
 		      ffile))))))
 

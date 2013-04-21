@@ -108,7 +108,9 @@
 
 
 #+use-callback-from-c
-(fli:define-foreign-function (c-set-lisp-callback! "set_lisp_callback") ((ptr
+(fli:define-foreign-function (c-set-lisp-callback! "set_lisp_callback") ((name
+                                                                          :pointer)
+                                                                         (ptr
                                                                           ptr-type))
    :result-type :void :language :c :calling-convention :stdcall :module :lang-ffi)
 

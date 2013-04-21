@@ -84,10 +84,9 @@ The COL, ROW argument specifies where the alternatives should start
 ALTERNATIVES is a list of valid alternatives
 DISPLAY-FUN is a function to display help for a given option
 MOD-VALUE is how much space should be between rows (I think)
-BOTTOM-DISPLAY means something
+BOTTOM-DISPLAY means something."
+  ;; [add more info]
 
-[add more info]
-"
   
   (let ((alt-len (length alternatives)))
     (labels ((display-alternatives (highlight-num)
@@ -98,7 +97,6 @@ BOTTOM-DISPLAY means something
 		 
 		 (when desc
 		   (c-print-text! 2 bottom-display +term-white+ desc :end-col 75)
-		   ;;   (c-term-putstr! 2 10 -1 +term-white+ "<no description>"))
 		   ))
 		 
 		 (loop for cur-alt in alternatives
@@ -107,23 +105,21 @@ BOTTOM-DISPLAY means something
 		       for the-row = (truncate (+ 1 row (/ i mod-value)))
 		       for cur-bg  = (if (= i highlight-num) +term-l-blue+ +term-white+)
 		       do
-		       (c-term-putstr! the-col the-row -1 +term-white+
-				       (format nil "~c) " (i2a i)))
-		       (c-term-putstr! (+ 3 the-col) the-row -1 cur-bg
-				       (format nil "~a" cur-alt))
+		       (put-coloured-str! +term-white+ (format nil "~c) " (i2a i)) the-col the-row)
+		       (put-coloured-str! cur-bg (format nil "~a" cur-alt) (+ 3 the-col) the-row)
 		       ))
 	     
 	     (get-a-value (cur-sel)
 	       (display-alternatives cur-sel)
-	       (c-term-putstr! col row -1 +term-l-red+
-			       (format nil "Choose a ~a (~c-~c, or * for random): "
-				       ask-for (i2a 0) (i2a (- alt-len 1))))
+	       (put-coloured-str! +term-l-red+ (format nil "Choose a ~a (~c-~c, or * for random): "
+						       ask-for (i2a 0) (i2a (- alt-len 1)))
+				  col row)
 	       (let ((rval (%birth-input-char alt-len)))
 		 (if (not (symbolp rval))
 		     rval
 		     (case rval
 		       (bad-value (get-a-value cur-sel)) ;; retry
-		       (current cur-sel)                 ;; return current
+		       (current cur-sel)	     ;; return current
 		       (up    (get-a-value (mod (- cur-sel mod-value) alt-len))) ;; move selection
 		       (down  (get-a-value (mod (+ cur-sel mod-value) alt-len))) ;; move selection
 		       (left  (get-a-value (mod (- cur-sel 1) alt-len))) ;; move selection
@@ -161,8 +157,8 @@ Modififes the passed player object THE-PLAYER.  This is a long function."
     ;; First we do the player gender
     (c-clear-from! info-row) ;; clears things
     ;; Print extra-info Extra info 
-    (c-term-putstr! info-col info-row -1 info-colour
-		    "Your 'gender' does not have any significant gameplay effects.")
+    (put-coloured-str! info-colour "Your 'gender' does not have any significant gameplay effects."
+		       info-col info-row)
 
     (block input-loop
       (loop
@@ -182,14 +178,14 @@ Modififes the passed player object THE-PLAYER.  This is a long function."
 		(warn "Unknown return-value from input-loop ~s, must be [0..~s)" inp alt-len))
 	       ))))
    
-    (c-put-str! "Gender" 3 1)
-    (c-col-put-str! +term-l-blue+ (get-gender-name the-player) 3 8)
+    (put-coloured-str! +term-white+  "Gender" 1 3) 
+    (put-coloured-str! +term-l-blue+ (get-gender-name the-player) 8 3)
 
     
     (c-clear-from! info-row) ;; clears things
    
-    (c-term-putstr! info-col info-row  -1 info-colour
-		   "Your 'race' determines various intrinsic factors and bonuses.")
+    (put-coloured-str! info-colour "Your 'race' determines various intrinsic factors and bonuses."
+		       info-col info-row)
 
     (block input-loop
       (loop
@@ -215,17 +211,17 @@ Modififes the passed player object THE-PLAYER.  This is a long function."
 	       ))))
 
 
-      (c-put-str! "Race" 4 1)
-      (c-col-put-str! +term-l-blue+ (get-race-name the-player) 4 8)
+      (put-coloured-str! +term-white+  "Race" 1 4)
+      (put-coloured-str! +term-l-blue+ (get-race-name the-player) 8 4)
 
       (c-clear-from! info-row) ;; clears things
 
       ;; time to do classes.. slightly more tricky
 
-      (c-term-putstr! info-col info-row -1 info-colour
-		     "Your 'class' determines various intrinsic abilities and bonuses.")
-      (c-term-putstr! info-col (1+ info-row) -1 info-colour
-		      "Any entries with a (*) should only be used by advanced players.")
+      (put-coloured-str! info-colour "Your 'class' determines various intrinsic abilities and bonuses."
+			 info-col info-row)
+      (put-coloured-str! info-colour "Any entries with a (*) should only be used by advanced players."
+			 info-col (1+ info-row))
       
 
    
@@ -287,8 +283,8 @@ Modififes the passed player object THE-PLAYER.  This is a long function."
 
 
 
-  (c-put-str! "Class" 5 1)
-  (c-col-put-str! +term-l-blue+ (get-class-name the-player) 5 8)
+  (put-coloured-str! +term-white+  "Class" 1 5)
+  (put-coloured-str! +term-l-blue+ (get-class-name the-player) 8 5)
 
   (c-clear-from! info-row) ;; clears things
   
@@ -351,43 +347,62 @@ Returns the base-stats as an array or NIL if something failed."
 
     ;; first level we have max
     (setf (aref (player.hp-table player) 0) hit-dice)
+    
     (setf (maximum-hp player) hit-dice
 	  (current-hp player) hit-dice))
 
   (update-xp-table! variant player) ;; hack
+  
+ ;; (bit-flag-add! *update* +pl-upd-bonuses+ +pl-upd-hp+ +pl-upd-mana+)
+;;  (warn "upd is ~s" *update*)
+;;  (update-stuff variant nil player)
+
+
 
   ;; improve?  hackish.
   (calculate-creature-bonuses! variant player)
+  (calculate-creature-mana! variant player)
   
-;;  (c-pause-line *last-console-line*)
+  ;; hack
+  (setf (current-hp player) (maximum-hp player)
+	(current-mana player) (maximum-mana player))
+    
   
   t)
 
+
 (defun %create-obj-from-spec (variant spec)
   "Creates an object from a spec by guessing wildly."
-  (cond ((and (consp spec) (eq (car spec) 'obj))
-	 (destructuring-bind (dummy-id &key (type nil) (id nil) (numeric-id nil) (amount 1))
-	     spec
-	   (declare (ignore dummy-id))
-	   (cond ((and type (or (symbolp type) (consp type)))
-		  (let ((objs (objs-that-satisfy type :var-obj variant)))
-		    (cond ((not objs)
-			   (warn "Did not find any objects satisfying ~s" type))
-;;			  ((typep objs 'object-kind)
-;;			   (create-aobj-from-kind objs :variant variant :amount amount))
-			  ((consp objs)
-			   (create-aobj-from-kind (rand-elm objs) :variant variant :amount amount))
-			  #-cmu
-			  (t
-			   (warn "Fell through with object-type ~s -> ~s" type objs)))))
-		 ((and id (stringp id))
-		  (create-aobj-from-id id :variant variant :amount amount))
-		 ((and numeric-id (numberp numeric-id))
-		  (create-aobj-from-kind-num numeric-id :variant variant :amount amount))
-		 (t
-		  (warn "Unable to handle obj-spec ~s" spec)))))
-	(t
-	 (warn "Don't know how to handle obj-creation from ~s" spec))))
+  (let ((retobj nil))
+    (cond ((and (consp spec) (eq (car spec) 'obj))
+	   (destructuring-bind (dummy-id &key (type nil) (id nil) (numeric-id nil) (amount 1) (no-magic nil))
+	       spec
+	     (declare (ignore dummy-id))
+	     (cond ((and type (or (symbolp type) (consp type)))
+		    (let ((objs (objs-that-satisfy type :var-obj variant)))
+		      (cond ((not objs)
+			     (warn "Did not find any objects satisfying ~s" type))
+			    ;;			  ((typep objs 'object-kind)
+			    ;;			   (create-aobj-from-kind objs :variant variant :amount amount))
+			    ((consp objs)
+			     (setf retobj (create-aobj-from-kind (rand-elm objs) :variant variant :amount amount)))
+			    #-cmu
+			    (t
+			     (warn "Fell through with object-type ~s -> ~s" type objs)))))
+		   ((and id (stringp id))
+		    (setf retobj (create-aobj-from-id id :variant variant :amount amount)))
+		   ((and numeric-id (numberp numeric-id))
+		    (setf retobj (create-aobj-from-kind-num numeric-id :variant variant :amount amount)))
+		   (t
+		    (warn "Unable to handle obj-spec ~s" spec)))
+	     (unless no-magic
+	       (apply-magic! variant retobj 1 :allow-artifact nil))
+	     ))
+		   
+	  (t
+	   (warn "Don't know how to handle obj-creation from ~s" spec)))
+    
+    retobj))
 
 
 (defmethod equip-character! ((variant variant) player settings)
@@ -454,7 +469,7 @@ on success.  Returns NIL on failure or user-termination (esc)."
 	(return-value nil))
 
     ;; wipe before we start to enter stuff
-    (c-term-putstr! xpos ypos -1 +term-dark+ wipe-str)
+    (put-coloured-str! +term-dark+ wipe-str xpos ypos)
     (c-term-gotoxy! (+ cnt xpos) ypos)
     
     (block str-input
@@ -479,8 +494,8 @@ on success.  Returns NIL on failure or user-termination (esc)."
 		(warn "Got unknown char ~s" val)))
 	    
 	 ;;	    (warn "print ~s" (coerce (reverse collected) 'string))
-	 (c-term-putstr! xpos ypos -1 +term-dark+ wipe-str)
-	 (c-term-putstr! xpos ypos -1 +term-l-blue+ (coerce (reverse collected) 'string))
+	 (put-coloured-str! +term-dark+ wipe-str xpos ypos)
+	 (put-coloured-str! +term-l-blue+ (coerce (reverse collected) 'string) xpos ypos)
 	 (c-term-gotoxy! (+ cnt xpos) ypos))))
     
     (c-prt! "" x-pos y-pos)
@@ -529,7 +544,8 @@ Returns the new PLAYER object or NIL on failure."
       (loop
        (display-creature variant the-player)
        (c-prt! "['c' to change name, 'r' to re-roll stats, 'Q' to quit, ESC to continue]"
-	       *last-console-line* 2)
+	       2 (get-last-console-line))
+
        (let ((val (read-one-character)))
 	 (cond ((eql val #\Q)
 		(quit-game&))

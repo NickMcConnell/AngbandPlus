@@ -8,8 +8,9 @@ the vanilla-variant is in variants/vanilla/TODO.
 
 
 DUNGEON
- - trap-support not implemented
- - searching not implemented [more or less fixed]
+ - trap-support not implemented [more or less there]
+ - chest traps not there
+ - searching not implemented [just misses chest-traps]
  - integrate room-code much more.
 
 
@@ -22,7 +23,8 @@ STORES/TOWN
 
 SPELLS
  - no support for spells and spell-casting
- - also missing project() which is needed for balls and beams
+ - also missing project() which is needed for balls and beams [partly done]
+ - need 'L'earn spell, 'b'rowse spells and improved 'm'agicking
 
 
 MAGICAL ITEMS
@@ -40,10 +42,11 @@ MONSTERS
  - extremely primitive AI, all monsters aggressive
  - none of the monsters behave as they really should
  - do not carry items or use items [not in v0.1]
- - no monster-memory
+ - no monster-memory or monster-lore
  - no monster-drops [fixed]
- - does not know that monsters are unique [fixed, miss some features
+ - does not know that monsters are unique [fixed, miss some features]
  - does not generate groups of monsters [fixed, simple, but working]
+ - does not register temporary effects on monsters (or cuts, stun, ..)
 
 COMBAT
  - no magical weapons done [barely started]
@@ -84,7 +87,7 @@ OTHER
    extensible way. [a decent system found for player, started work]
  - integrate effect and element-code in a good way. [very hard]
  - optimise FFI-code to be fast and not generate garbage, esp strings
- - missing project() which a lot of features need
+ - missing project() which a lot of features need [is more or less there now]
  - messages are not saved or kept, should be done on the lisp-side.
  - no option-system [bad settings and parameter-system now]
  - no visual changing
@@ -97,4 +100,5 @@ OTHER
    respects subclasses), e.g for picking up one of a group of objects
  - find a good way to represent stat-information, preferrably via
    generics+classes and controlled by variant-code
- -add print-* methods for poison, confusion, ...
+ - add print-* methods for poison, confusion, ...
+ - integrate DAMGE functions/methods

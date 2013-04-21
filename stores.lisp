@@ -167,10 +167,10 @@ should be an exisiting id."
 	   (items (store.items store))
 	   (item-len (items.cur-size items)))
   
-      (c-col-put-str! +term-white+
-		      (format nil "(Items ~a-~a, ESC to exit) Which item are you interested in?"
-			      (i2a 0) (i2a (1- item-len)))
-		      0 0)
+      (put-coloured-str! +term-white+
+			 (format nil "(Items ~a-~a, ESC to exit) Which item are you interested in?"
+				 (i2a 0) (i2a (1- item-len)))
+			 0 0)
       (let ((selected (%store-select-item 0 (1- item-len))))
 	(when (and selected (numberp selected))
 	  (let* ((retval nil)
@@ -265,31 +265,31 @@ should be an exisiting id."
     
     (with-foreign-str (s)
       (lb-format s "~a (~a)" owner-name owner-race)
-      (c-col-put-str! +term-white+ s 3 10))
+      (put-coloured-str! +term-white+ s 10 3))
 
     (with-foreign-str (s)
       (lb-format s "~a (~a)" store-name store-limit)
-      (c-col-put-str! +term-white+ s 3 50))
+      (put-coloured-str! +term-white+ s 50 3))
 
     
-    (c-col-put-str! +term-white+ "Item Description" 5 3)
-    (c-col-put-str! +term-white+ "Weight" 5 60)
-    (c-col-put-str! +term-white+ "Price" 5 72)
+    (put-coloured-str! +term-white+ "Item Description" 3 5)
+    (put-coloured-str! +term-white+ "Weight" 60 5)
+    (put-coloured-str! +term-white+ "Price" 72 5)
 
-    (c-col-put-str! +term-white+ "Gold Remaining:" 19 53)
+    (put-coloured-str! +term-white+ "Gold Remaining:" 53 19)
     
-    (c-col-put-str! +term-white+
-		    (format nil "~9d" (player.gold player))
-		    19 68)
+    (put-coloured-str! +term-white+
+		       (format nil "~9d" (player.gold player))
+		       68 19)
 
     
     (item-table-print (house.items store) :store store)
 
-    (c-col-put-str! +term-white+ " ESC) Exit from building." 22 0)
-    (c-col-put-str! +term-white+ " g) Get/purchase item." 22 31)
-    (c-col-put-str! +term-white+ " d) Drop/sell item." 23 31)
+    (put-coloured-str! +term-white+ " ESC) Exit from building." 0 22)
+    (put-coloured-str! +term-white+ " g) Get/purchase item." 31 22)
+    (put-coloured-str! +term-white+ " d) Drop/sell item." 31 23)
 
-    (c-col-put-str! +term-white+ "You may: " 21 0)
+    (put-coloured-str! +term-white+ "You may: " 0 21)
 
    
     t))
@@ -326,8 +326,7 @@ should be an exisiting id."
     (%store-display *player* house)
     (%shop-input-loop *player* level house)
     
-    
-;;    (c-pause-line! *last-console-line*)
+    ;;(pause-last-line!)
     ))
 
 (defmethod store-mass-produce! ((variant variant) (store store) (object active-object))
@@ -362,36 +361,26 @@ should be an exisiting id."
 
     ;; add discount..
      
-    
-  
+      
     (setf (aobj.number object) number)))
 
 
 ;; hackish  create/delete/maint
 (defmethod store-generate-object ((variant variant) (the-store store))
-  "fix me.. works only as black market."
-  ;; this is just a black market, fix for a regular store!
+  "this is just for a regular store, not a black market"
 
   (when-bind (sells (store.sells the-store))
     (when-bind (kind (rand-elm sells))
       (when (typep kind 'object-kind)
 	(let ((aobj (create-aobj-from-kind kind :variant variant)))
 	  ;; possibly add magic
+	  (apply-magic! variant aobj (store.object-depth the-store) :allow-artifact nil)
 	  (store-mass-produce! variant the-store aobj)
 	  (return-from store-generate-object aobj)))))
 
-  (warn "Using outdated code in store..")
-
-  (let* (
-	 (level *level*)
-	 (some-obj (get-active-object-by-level variant level
-					       :depth (+ 25 (randint 25))))
-	 (o-type (when some-obj (aobj.kind some-obj))))
-
-    (when (and some-obj
-	       (plusp (get-price some-obj the-store))
-	       (not (obj-is? o-type '<chest>))) ;; hack
-      some-obj)))
+  (warn "Fell through in obj-generation for store ~s" the-store)
+    
+  nil)
 
 
 (defun store-delete-obj! (the-store &optional obj-key)
@@ -443,10 +432,10 @@ should be an exisiting id."
 		   (price (get-price val store))
 		   (desc (with-output-to-string (s)
 			   (write-obj-description *variant* val s :store t))))
-	       (c-prt! "" (+ i y) (- x 2))
-	       (c-col-put-str! +term-white+ (format nil "~a) " (i2a i)) (+ i y) x)
+	       (c-prt! "" (- x 2) (+ i y))
+	       (put-coloured-str! +term-white+ (format nil "~a) " (i2a i)) x (+ i y))
 	       
-	       (c-col-put-str! attr desc (+ i y) (+ x 4))
+	       (put-coloured-str! attr desc (+ x 4) (+ i y))
 	       
 	       (let* ((weight (object.weight (aobj.kind val)))
 		      (full-pounds (int-/ weight 10))
@@ -455,19 +444,17 @@ should be an exisiting id."
 				 (if (> full-pounds 1)
 				     "s"
 				     ""))
-			 (+ i y) 61))
+			 61 (+ i y)))
 	       
-	       (c-col-put-str! +term-white+ (format nil "~9d " price)
-			       (+ i y) 70)
+	       (put-coloured-str! +term-white+ (format nil "~9d " price)
+			       70 (+ i y))
 
 	       (incf i))))
       
-;;      (describe table)
       
       (item-table-iterate! table #'iterator-fun)
     
       (when show-pause
-	(c-pause-line! *last-console-line*))
-      )))
+	(pause-last-line!))
 
-;;(trace get-price)
+      )))

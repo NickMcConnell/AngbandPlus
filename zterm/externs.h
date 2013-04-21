@@ -90,6 +90,8 @@ INTERFACE void print_coloured_number(byte colour, long number, int padding, int 
 INTERFACE errr init_c_side(const char *ui, const char *base_path, int debug);
 INTERFACE char *load_sound(int msg, char *fname);
 void play_game_lisp();
+void readjust_screen_lisp(int width, int height);
+
 /** will we access lisp through callbacks? */
 extern int lisp_will_use_callback;
 extern LISP_SYSTEMS current_lisp_system;
@@ -98,7 +100,7 @@ INTERFACE void set_lisp_system(LISP_SYSTEMS type);
 #ifdef WIN32
 INTERFACE int setHINST(long val);
 #else
-INTERFACE void set_lisp_callback(void *ptr);
+INTERFACE void set_lisp_callback(char *name, void *ptr);
 #endif
 
 /* util.c */

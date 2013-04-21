@@ -136,7 +136,8 @@ DESC: ffi/ffi-defs.lisp - the foreign declarations that [L] uses
 
 (def-foreign-function ("set_lisp_callback" c-set-lisp-callback!)
     :returns 'void
-    :args '((ptr-type ptr)
+    :args '((cptr name)
+	    (ptr-type ptr)
 	    )
     :only-when 'use-callback-from-c)
 

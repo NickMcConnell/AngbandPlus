@@ -91,8 +91,9 @@
 
 
 #+use-callback-from-c
-(ffi:def-call-out c-set-lisp-callback! (:name "set_lisp_callback") (:language :stdc) (:arguments (ptr
-                                                                                                  c-pointer)) (:return-type nil))
+(ffi:def-call-out c-set-lisp-callback! (:name "set_lisp_callback") (:language :stdc) (:arguments (name
+                                                                                                  c-string)(ptr
+                                                                                                            c-pointer)) (:return-type nil))
 
 
 #+win32

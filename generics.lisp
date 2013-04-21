@@ -76,6 +76,9 @@ but one that works with langband-objects."))
 (defgeneric produce-high-score-object (variant player)
   (:documentation "Returns a high-score entry for the player."))
 
+(defgeneric produce-character-class (variant id name &key &allow-other-keys)
+  (:documentation "Returns a character-class object."))
+
 ;;; === End factories
 
 
@@ -122,6 +125,9 @@ scoring-system."))
   (:documentation "Tries to find a gender that matches KEY and returns it.
 Returns NIL on failure."))
 
+(defgeneric variant-home-path (variant)
+  (:documentation "Returns the path to the given variant, possibly also for the
+current version."))
 ;;; ===
 
 
@@ -133,6 +139,9 @@ Returns NIL on failure."))
   (:documentation "Does a walk-through of the creature and updates the light-radius."))
 (defgeneric calculate-creature-hit-points! (variant creature)
   (:documentation "Does a walk-through of the creature and recalculates hit-points."))
+(defgeneric calculate-creature-mana! (variant creature)
+  (:documentation "Does a walk-through of the creature and recalculates mana."))
+
 
 (defgeneric display-creature (variant creature &key mode)
   (:documentation "Displays the creature to the UI."))
@@ -203,9 +212,12 @@ Returns NIL on failure."))
 (defgeneric possible-identify! (player object)
   (:documentation "Checks if the player identifies the given object,
 and if so, marks the object."))
-  
-(defgeneric add-magic-to-item! (dungeon item quality)
-  (:documentation "Adds magical properites to an item."))
+
+(defgeneric apply-magic! (variant obj base-level &key good-p great-p allow-artifact)
+  (:documentation "Applies certain magic to a bare item."))
+
+(defgeneric add-magic-to-item! (variant item depth quality)
+  (:documentation "Adds magical properties to an item."))
 
 (defgeneric is-object-known? (object)
   (:documentation "Returns T if the particular object is known.  NIL if not."))
@@ -262,6 +274,9 @@ level/room/player combo.  Allowed to return NIL."))
 
 (defgeneric print-depth (level setting)
   (:documentation "fix me later.. currently just prints depth."))
+
+(defgeneric print-mana-points (variant creature setting)
+  (:documentation "prints mana points according to setting."))
 
 (defgeneric get-monster-kind-by-level (variant level &key depth)
   (:documentation "Returns a monster-kind or NIL."))
@@ -430,6 +445,9 @@ player object or NIL."))
 (defgeneric print-tomb (variant player)
   (:documentation "Prints a tomb for the given (dead) player."))
 
+(defgeneric organise-death& (variant player)
+  (:documentation "Organises complete funeral for the dead player."))
+
 (defgeneric create-gold (variant dungeon)
   (:documentation "Creates gold in the dungeon."))
 
@@ -533,6 +551,26 @@ the given variant and given level."))
 (defgeneric make-stat-array (variant)
   (:documentation "Returns an array suitable for holding all the stats."))
 
+(defgeneric do-projection (source target-x target-y flag &key effect damage radius range)
+  (:documentation "Does a general projection."))
+
+(defgeneric apply-projection-effect! (variant source path-array
+					     &key explosion-area flag 
+					     distance damage effect)
+  (:documentation "Tries to apply projection effect to the path-array and possibly to explosion-area."))
+
+(defgeneric apply-projection-effect-to-target! (variant source target
+							&key x y damage effect distance)
+  (:documentation "Applies a projection effect to a specific target."))
+
+(defgeneric damaged-by-element? (variant target element)
+  (:documentation "Returns T if the target can be damaged, NIL if it immune/ignoring
+it, and :vulnerable if it is especially vulnerable."))
+
+(defgeneric deliver-damage! (variant source target amount &key note dying-note)
+  (:documentation "Delivers AMOUNT damage to the TARGET, and prints either a note or a dying-note."))
+
+
 ;;; === End misc
 
 ;;; === Player-protocol
@@ -557,3 +595,15 @@ need to cons up a new object."))
 It is passed the object returned by GET-OLD-PLAYER-INFO at start of recalculation."))
 
 ;;; === End player-protocol
+
+(defgeneric place-rubble! (variant dungeon x y)
+  (:documentation "Places rubble at the given coord."))
+
+(defgeneric find-random-trap (variant dungeon x y)
+  (:documentation "Finds a random trap and returns it initialised."))
+
+(defgeneric place-trap! (variant dungeon x y)
+  (:documentation "Places a trap at the given coord."))
+
+(defgeneric deliver-elemental-damage! (variant source target element damage)
+  (:documentation "Gives out decent elemental damage to a target."))

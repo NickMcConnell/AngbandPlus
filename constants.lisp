@@ -53,50 +53,50 @@ ADD_DESC: This file contains the constants in the game.  should be small.
 ;;; === end cave-flags
 
 
-;;; === Flags for features/floors
-(defconst +feature-none+ u-fixnum #x00  "no feature")
-(defconst +feature-floor+ u-fixnum #x01 "a feature")
-(defconst +feature-invisible+ u-fixnum #x02 "a feature")
-(defconst +feature-glyph+ u-fixnum #x03 "a feature")
-(defconst +feature-open+ u-fixnum #x04 "a feature")
-(defconst +feature-broken+ u-fixnum #x05 "a feature")
-(defconst +feature-less+ u-fixnum #x06 "a feature")
-(defconst +feature-more+ u-fixnum #x07 "a feature")
+;;; === Flags for floors
+(defconst +floor-none+ u-fixnum #x00  "no feature")
+(defconst +floor-regular+ u-fixnum #x01 "a floor-type")
+(defconst +floor-invisible-trap+ u-fixnum #x02 "a floor-type")
+(defconst +floor-glyph+ u-fixnum #x03 "a floor-type")
+(defconst +floor-open-door+ u-fixnum #x04 "a floor-type")
+(defconst +floor-broken-door+ u-fixnum #x05 "a floor-type")
+(defconst +floor-less+ u-fixnum #x06 "a floor-type")
+(defconst +floor-more+ u-fixnum #x07 "a floor-type")
 
 ;; Shops
-(defconst +feature-shop-head+ u-fixnum #x08 "a feature")
-(defconst +feature-shop-tail+ u-fixnum #x0F "a feature")
+(defconst +floor-shop-head+ u-fixnum #x08 "a floor-type")
+(defconst +floor-shop-tail+ u-fixnum #x0F "a floor-type")
 
 ;; Traps
-(defconst +feature-trap-head+ u-fixnum #x10 "a feature")
-(defconst +feature-trap-tail+ u-fixnum #x1F "a feature")
+(defconst +floor-trap-head+ u-fixnum #x10 "a floor-type")
+(defconst +floor-trap-tail+ u-fixnum #x1F "a floor-type")
 
 ;; doors
-(defconstant +feature-door-head+ #x20)
-(defconstant +feature-door-tail+ #x2F)
+(defconstant +floor-door-head+ #x20)
+(defconstant +floor-door-tail+ #x2F)
 
-(defconstant +feature-secret+ #x30)
-(defconstant +feature-rubble+ #x31)
+(defconstant +floor-secret-door+ #x30)
+(defconstant +floor-rubble+ #x31)
 
 ;; seams
-(defconstant +feature-magma+ #x32)
-(defconstant +feature-quartz+ #x33)
-(defconstant +feature-magma-h+ #x34)
-(defconstant +feature-quartz-h+ #x35)
-(defconstant +feature-magma-k+ #x36)
-(defconstant +feature-quartz-k+ #x37)
+(defconstant +floor-magma+ #x32)
+(defconstant +floor-quartz+ #x33)
+(defconstant +floor-magma-h+ #x34)
+(defconstant +floor-quartz-h+ #x35)
+(defconstant +floor-magma-k+ #x36)
+(defconstant +floor-quartz-k+ #x37)
 
 
-(defconstant +feature-wall-extra+ #x38)
-(defconstant +feature-wall-inner+ #x39)
-(defconstant +feature-wall-outer+ #x3a)
-(defconstant +feature-wall-solid+ #x3b)
+(defconstant +floor-wall-extra+ #x38)
+(defconstant +floor-wall-inner+ #x39)
+(defconstant +floor-wall-outer+ #x3a)
+(defconstant +floor-wall-solid+ #x3b)
 
-(defconstant +feature-perm-extra+ #x3c)
-(defconstant +feature-perm-inner+ #x3d)
-(defconstant +feature-perm-outer+ #x3e)
-(defconstant +feature-perm-solid+ #x3f)
-;;; === end feature/floor flags
+(defconstant +floor-perm-extra+ #x3c)
+(defconstant +floor-perm-inner+ #x3d)
+(defconstant +floor-perm-outer+ #x3e)
+(defconstant +floor-perm-solid+ #x3f)
+;;; === end floor flags
 
 
 ;;; === flags that control print/redraw
@@ -180,8 +180,6 @@ ADD_DESC: This file contains the constants in the game.  should be small.
 
 ;; make these into variables later.. 
 
-(defconst +screen-height+ u-fixnum 22 "height of screen")
-(defconst +screen-width+ u-fixnum 66 "width of screen")
 
 (defconstant +panel-height+ 11)
 (defconstant +panel-width+ 33)
@@ -269,11 +267,6 @@ ADD_DESC: This file contains the constants in the game.  should be small.
 (defconstant +illegal-loc-y+ 7777)
 (defconstant +room-size-arg-len+ 5)
 
-(defvar *readable-save-file* "_save-game.lisp")
-(defvar *binary-save-file* "_save-game.bin")
-
-(defvar *dumps-directory* "doc/dumps/" "Where should various debug-dumps go?")
-
 (defconstant +saved-cave-flags+ (logior +cave-mark+ +cave-glow+ +cave-icky+ +cave-room+))
 
 ;; stuff for view.lisp
@@ -298,3 +291,5 @@ ADD_DESC: This file contains the constants in the game.  should be small.
 
 (defconstant +calculated-effect+ #x01)
 (defconstant +temporary-effect+  #x02)
+
+(defconstant +max-range+ 18)

@@ -124,7 +124,7 @@ failure and owner on success."
 
       (loop for y from y1 to y2 do
 	    (loop for x from x1 to x2 do
-		  (setf (cave-feature dungeon x y) +feature-perm-extra+)))
+		  (setf (cave-floor dungeon x y) +floor-perm-extra+)))
       
 
      ;; add doors
@@ -155,7 +155,7 @@ failure and owner on success."
 
        ;; time to place house number
        (when door-feature
-	 (setf (cave-feature dungeon x y) door-feature))
+	 (setf (cave-floor dungeon x y) door-feature))
        
        (when door-trigger
 	 (setf (get-coord-trigger dungeon x y) door-trigger))

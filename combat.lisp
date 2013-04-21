@@ -58,14 +58,14 @@ the Free Software Foundation; either version 2 of the License, or
 (defmethod cmb-describe-miss (attacker target)
 
   ;; update with uniques later
-  (let ((p-or-u? (typep target 'player)))
+  (let ((p-or-u? (is-player? target)))
   
     (with-foreign-str (s)
       (lb-format s "~a misses ~a~a."
 		 (get-creature-name attacker)
 		 (if p-or-u? "" "the ")
 		 (get-creature-name target))
-      (c-print-message! s)))
+      (print-message! s)))
   nil)
 
 
@@ -76,13 +76,13 @@ the Free Software Foundation; either version 2 of the License, or
 
 ;;(trace %calc-perchance)
 
-(defun %did-i-hit? (the-target combat-skill the-ac visible-p)
+(defun melee-hit-ac? (the-target combat-skill the-ac visible-p)
   "Helper-function that checks if something was a hit."
   (declare (ignore the-target))
   
   (let ((k (random 100)))
     ;; instant miss or hit (5% chance each)
-    (when (< k 10) (return-from %did-i-hit? (< k 5))))
+    (when (< k 10) (return-from melee-hit-ac? (< k 5))))
   
   (unless visible-p
     (setq combat-skill (int-/ combat-skill 2)))
@@ -110,7 +110,7 @@ the Free Software Foundation; either version 2 of the License, or
 	   (monster-ac (get-creature-ac target))
 	   (visible-p t))
       
-    (%did-i-hit? target chance monster-ac visible-p)))
+    (melee-hit-ac? target chance monster-ac visible-p)))
 
 
 (defmethod melee-hit-creature? ((attacker active-monster) (target player) the-attack)
@@ -120,7 +120,7 @@ the Free Software Foundation; either version 2 of the License, or
 	 (mlvl (monster.depth (amon.kind attacker)))
 	 (rlev (if (plusp mlvl) mlvl 1)))
     
-    (%did-i-hit? target (+ power (* 3 rlev))
+    (melee-hit-ac? target (+ power (* 3 rlev))
 		 (get-creature-ac target)
 		 t)))
 
@@ -142,7 +142,7 @@ the Free Software Foundation; either version 2 of the License, or
 ;;		   (car dmg-dice) (cdr dmg-dice) dmg
 ;;		   (current-hp target) (- (current-hp target) dmg))
 	     (deduct-hp! target dmg)
-	     (when (typep target 'player)
+	     (when (is-player? target)
 	       (bit-flag-add! *redraw* +print-hp+))
 
 	     dmg))
@@ -186,7 +186,7 @@ the Free Software Foundation; either version 2 of the License, or
   (let ((desc (get-attk-desc the-attack)))
     (with-foreign-str (s)
       (lb-format s "The ~a ~a " (get-creature-name attacker) desc)
-      (c-print-message! s))))
+      (print-message! s))))
 
 (defmethod cmb-describe-hit (attacker target the-attack)
   (declare (ignore the-attack))
@@ -195,14 +195,14 @@ the Free Software Foundation; either version 2 of the License, or
 	    (get-creature-name attacker)
 	    (get-creature-name target))
 ;;    (warn "Going format on ~s" (type-of s))
-    (c-print-message! s))
+    (print-message! s))
   nil)
 
 (defmethod cmb-describe-death (attacker target)
   (declare (ignore attacker))
   (with-foreign-str (s)
     (lb-format s "The ~a dies.. " (get-creature-name target))
-    (c-print-message! s))
+    (print-message! s))
   nil)
 
 (defun attack-target! (dun attacker target x y the-attack)
@@ -265,5 +265,3 @@ the Free Software Foundation; either version 2 of the License, or
   (error "Unknown combo ~s ~s" attacker target))
 ||#
   
-;;(trace %did-i-hit?)
-;;(trace kill-target!)

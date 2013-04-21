@@ -91,10 +91,6 @@ throughout dungeon-generation")
 (defvar *hitpoint-warning* 3
   "Value in [0..9] of when to warn about hitpoint-losses")
 
-(defvar *last-console-line* 23 "just a dummy for later use.")
-
-(defvar *global-event-table* (make-hash-table :test #'equal))
-
 (defvar *obj-type-mappings* (make-hash-table :test #'eq)
   "keeps track of mapping from key to object-types, used by factories.")
 
@@ -110,9 +106,15 @@ throughout dungeon-generation")
   #-(or unix win32)
   (pathname "./config/"))
 
+(defvar *readable-save-file* "_save-game.lisp")
+(defvar *binary-save-file* "_save-game.bin")
+
+(defvar *dumps-directory* "doc/dumps/" "Where should various debug-dumps go?")
+
+(defvar *screen-height* 22 "height of screen")
+(defvar *screen-width* 66 "width of screen")
+
 ;;; === End dynamic variables
-
-
 
 (defmacro with-type (type expr)
   "Evaluate the arithmetic expression in TYPE.
@@ -182,13 +184,6 @@ but optimized for vectors."
 (defun dequeue (q)
   (pop (car q)))
 ;;; end queue-code
-
-(defun register-variant-common& (&key before-game-init after-game-init)
-  "Registers callbacks for common functions for all variants. Called
-before variant init-functions."
-  (setf (get 'common 'pre-init) before-game-init
-	(get 'common 'post-init) after-game-init))
-
 
 (defmacro charify-number (num)
   #+handle-char-as-num
@@ -337,7 +332,8 @@ and NIL if unsuccesful."
 (defun roll-dice (number dice)
   "Rolls dice numbber of times and returns the result."
   (declare (type u-fixnum number dice))
-  (if (plusp number)
+  
+  (if (and (plusp number) (plusp dice))
       (loop for x from 1 to number
 	    summing (randint dice))
       0))
@@ -378,6 +374,8 @@ and NIL if unsuccesful."
   "Verifies the id, returns NIL on failure, T when ok."
   (flet ((char-checker (x)
 	   (cond ((eql x #\-)
+		  t)
+		 ((eql x #\/)
 		  t)
 		 ((alpha-char-p x) ;; fix to only lowercase later
 		  t)
@@ -651,13 +649,3 @@ symbol which can be passed to e.g defun (as name of function)."
            ))
     ))
 
-
-#||
-(defun register-variant& (id name &key before-game-init after-game-init)
-  "Registers variant in appropriate places."
-  
-  (setf (get 'variant 'id) id
-	(get 'variant 'name) name
-	(get 'variant 'pre-init) before-game-init
-	(get 'variant 'post-init) after-game-init))
-||#

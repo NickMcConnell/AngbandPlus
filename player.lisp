@@ -14,6 +14,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 (in-package :org.langband.engine)
 
+(defun is-player? (obj)
+  "Is the object a player-object?"
+  (typep obj 'player))
+
 (defun make-old-player-info (variant)
   "creates and returns a freshly init'ed OLD-PLAYER-INFO object."
   (let ((old (make-instance 'old-player-info)))
@@ -35,7 +39,10 @@ the Free Software Foundation; either version 2 of the License, or
     (:temporary (setf (gethash (attr.key attr) (player.temp-attrs player))
 		       attr))))
 
-(defun make-player-attribute (name key &key type desc value default-value turned-on-msg turned-off-msg update-fun on-update)
+(defun make-player-attribute (name key
+			      &key type desc value default-value
+			      turned-on-msg turned-off-msg
+			      update-fun on-update)
   (case type
     (:temporary
      (make-instance 'temp-player-attribute
@@ -51,13 +58,6 @@ the Free Software Foundation; either version 2 of the License, or
 		    :value value :default-value default-value))
     ))
 
-
-;; hack, remove later
-(defun player.eq (pl-obj)
-  (player.equipment pl-obj))
-
-(defun (setf player.eq) (val pl-obj)
-  (setf (player.equipment pl-obj) val))
 
 (defmethod creature-alive? ((crt player))
   (not (player.dead-p crt)))
@@ -86,12 +86,12 @@ the Free Software Foundation; either version 2 of the License, or
 
 (defmethod get-creature-ac ((crt player))
   (let ((actual (player.actual-abilities crt)))
-    (the fixnum (+ (the fixnum (pl-ability.base-ac actual))
-		   (the fixnum (pl-ability.ac-modifier actual))))))
+    (+ (pl-ability.base-ac actual)
+       (pl-ability.ac-modifier actual))
+    ))
 
 (defmethod get-weight ((crt player))
-  (the fixnum (+ (the fixnum (player.burden crt))
-		 (the fixnum (playermisc.weight (player.misc crt))))))
+  (+ (player.burden crt) (playermisc.weight (player.misc crt))))
 
 (defmethod get-creature-burden ((crt player))
   (player.burden crt))
@@ -155,7 +155,7 @@ the Free Software Foundation; either version 2 of the License, or
 ;;    (setf (creature.attributes t-p) (make-instance 'calculated-attributes))
     
     (setf (player.skills t-p) (produce-skills-object variant))
-    (setf (player.eq t-p) (make-equipment-slots))
+    (setf (player.equipment t-p) (make-equipment-slots))
     
     (setf (player.hp-table t-p) (%make-level-array variant)
 	  (player.xp-table t-p) (%make-level-array variant)
@@ -163,7 +163,7 @@ the Free Software Foundation; either version 2 of the License, or
 
     (flet ((make-and-assign-backpack! (id)
 	     (let ((back-obj (create-aobj-from-id id))
-		   (eq-slots (player.eq t-p)))
+		   (eq-slots (player.equipment t-p)))
 	       ;;(warn "eq-slots ~a" eq-slots)
 	       (item-table-add! eq-slots back-obj 'eq.backpack)
 	       (setf (player.inventory t-p) back-obj))))
@@ -181,15 +181,6 @@ the Free Software Foundation; either version 2 of the License, or
     t-p))
 
 
-(defun get-stat-bonus (player stat-num)
-  "Returns the stat-bonus from race, class and equipment for given stat"
-  
-  (let ((race-mod (race.stat-changes (player.race player)))
-	(class-mod (class.stat-changes (player.class player))))
-    
-    ;; iterate through equipment
-    (the fixnum (+ (the fixnum (svref race-mod stat-num))
-		   (the fixnum (svref class-mod stat-num))))))
 
 (defun add-stat-bonus (base amount)
   "Returns a numeric value with base incremented with amount"
@@ -215,49 +206,18 @@ the Free Software Foundation; either version 2 of the License, or
     retval))
 		
 
-(defun calculate-stat! (player num)
-  "modifies appropriate arrays.."
-
-  (let* ((var-obj *variant*)
-	 (stat-len (variant.stat-length var-obj))
-	 (bstat-table (player.base-stats player))
-	 (cstat-table (player.cur-statmods player))
-	 (mstat-table (player.modbase-stats player))
-	 (astat-table (player.active-stats player))
-	 )
-
-    (assert (and (>= num 0)
-		 (< num stat-len)))
-    
-    #+langband-extra-checks
-    (assert (and (not (eq bstat-table cstat-table))
-		 (not (eq bstat-table mstat-table))
-		 (not (eq bstat-table astat-table))
-		 (not (eq cstat-table mstat-table))
-		 (not (eq cstat-table astat-table))
-		 (not (eq mstat-table astat-table))))
-    
-    ;; two of these are required.. bstat and cstat
-    
-    
-    (let ((base-stat (svref bstat-table num))
-	  ;;	  (cur-stat (svref cstat-table num))
-	  (bonus (get-stat-bonus player num)))
-      
-      (setf (svref mstat-table num) (add-stat-bonus base-stat bonus))
-      (setf (svref astat-table num) (+ (svref cstat-table num)
-				       (svref mstat-table num)))
-      )
-    
-    (values)))
-
 (defmethod calculate-creature-hit-points! ((variant variant) (player player))
 
   t)
 
+(defmethod calculate-creature-mana! ((variant variant) (player player))
+
+  t)
+
+
 (defmethod calculate-creature-light-radius! ((variant variant) (player player))
   (let ((old-val (player.light-radius player))
-	(slots (player.eq player)))
+	(slots (player.equipment player)))
     (unless slots
       (error "Can't find equipment-slots for player, bad."))
     
@@ -304,6 +264,7 @@ the Free Software Foundation; either version 2 of the License, or
 (defmethod handle-player-updates! ((variant variant) (player player) (old old-player-info))
   (let ((old/abilities (old.abilities old))
 	(perc-abs (player.perceived-abilities player)))
+
     
     ;; only check perceived changes!
     (when (or (/= (pl-ability.base-ac old/abilities) (pl-ability.base-ac perc-abs))
@@ -315,6 +276,14 @@ the Free Software Foundation; either version 2 of the License, or
     (when (/= (player.see-invisible player) (old.see-inv old))
       (bit-flag-add! *update* +pl-upd-monsters+))
 
+    (block stat-check
+      (let ((old/stats (old.stats old))
+	    (a-stats (player.active-stats player)))
+	(dotimes (i (variant.stat-length variant))
+	  (when (/= (aref a-stats i) (aref old/stats i))
+	    (bit-flag-add! *redraw* +print-stats+)
+	    (return-from stat-check nil)))))
+    
     player))
 
 #||
@@ -329,6 +298,7 @@ the Free Software Foundation; either version 2 of the License, or
 
   (let ((actual-abs (player.actual-abilities player))
 	(perc-abs (player.perceived-abilities player))
+	(base-stats (player.base-stats player))
 	(active-stats (player.active-stats player))
 	(modbase-stats (player.modbase-stats player))
 	(stat-len (variant.stat-length variant)))
@@ -338,14 +308,19 @@ the Free Software Foundation; either version 2 of the License, or
     
     (setf (pl-ability.base-ac actual-abs) 0
 	  (pl-ability.ac-modifier actual-abs) 0
+	  (pl-ability.to-hit-modifier actual-abs) 0
+	  (pl-ability.to-dmg-modifier actual-abs) 0
 	  (pl-ability.base-ac perc-abs) 0
 	  (pl-ability.ac-modifier perc-abs) 0
+	  (pl-ability.to-hit-modifier perc-abs) 0
+	  (pl-ability.to-dmg-modifier perc-abs) 0
 	  (player.burden player) 0
 	  (player.speed player) 110)
 
     (dotimes (i stat-len)
-      (setf (aref active-stats i) 0)
-      (setf (aref modbase-stats i) 0))
+      ;; active stats are set up right at end of calculation
+      (setf (aref active-stats i) 0
+	    (aref modbase-stats i) (aref base-stats i))) ;; starts at base, then is modified
     
     t))
 
@@ -357,7 +332,17 @@ the Free Software Foundation; either version 2 of the License, or
     
 
 (defmethod calculate-abilities! ((variant variant) (player player) (race character-race))
+
+  (when-bind (stat-changes (race.stat-changes race))
+    (let ((m-stats (player.modbase-stats player)))
+      (cond ((is-stat-array? variant stat-changes)
+	     (loop for i from 0
+		   for x across stat-changes
+		   do (incf (aref m-stats i) x)))
+	    (t
+	     (warn "Unknown format ~s for stat-changes for race ~s" stat-changes race)))))
   
+
   (dolist (i (variant.skill-translations variant))
       (%add-to-a-skill! (cdr i)
 			(player.skills player)
@@ -367,6 +352,16 @@ the Free Software Foundation; either version 2 of the License, or
 
 
 (defmethod calculate-abilities! ((variant variant) (player player) (cls character-class))
+
+  (when-bind (stat-changes (class.stat-changes cls))
+    (let ((m-stats (player.modbase-stats player)))
+      (cond ((is-stat-array? variant stat-changes)
+	     (loop for i from 0
+		   for x across stat-changes
+		   do (incf (aref m-stats i) x)))
+	    (t
+	     (warn "Unknown format ~s for stat-changes for class ~s" stat-changes cls)))))
+
   
   (dolist (i (variant.skill-translations variant))
     (%add-to-a-skill! (cdr i)
@@ -386,6 +381,18 @@ the Free Software Foundation; either version 2 of the License, or
 	do
 	(when obj
 	  (when-bind (gvals (aobj.game-values obj))
+
+	    ;; fix stats
+	    (when-bind (stat-changes (gval.stat-modifiers gvals))
+	      (let ((m-stats (player.modbase-stats player)))
+		(cond ((is-stat-array? variant stat-changes)
+		       (loop for i from 0
+			     for x across stat-changes
+			     do (incf (aref m-stats i) x)))
+		      (t
+		       (warn "Unknown format ~s for stat-changes for object ~s" stat-changes obj)))))
+	    
+	    
 	    (incf (pl-ability.base-ac actual-abs) (gval.base-ac gvals))
 	    ;; armour-value always known?  (move to variant?)
 	    (incf (pl-ability.base-ac perc-abs) (gval.base-ac gvals))
@@ -393,6 +400,22 @@ the Free Software Foundation; either version 2 of the License, or
 	    ;; sometimes we know bonus
 	    (when (is-object-known? obj)
 	      (incf (pl-ability.ac-modifier perc-abs) (gval.ac-modifier gvals)))
+
+
+	    ;; hack, skip weapons
+	    (unless (typep obj 'active-object/weapon)
+	      ;; to hit
+	      (incf (pl-ability.to-hit-modifier actual-abs) (gval.tohit-modifier gvals))
+	      (when (is-object-known? obj)
+		(incf (pl-ability.to-hit-modifier perc-abs) (gval.tohit-modifier gvals)))
+	      
+	      ;; to damage
+	      (incf (pl-ability.to-dmg-modifier actual-abs) (gval.dmg-modifier gvals))
+	      (when (is-object-known? obj)
+		(incf (pl-ability.to-dmg-modifier perc-abs) (gval.dmg-modifier gvals)))
+	      )
+	    
+	    
 	    ;; fix this
 ;;	    (bit-flag-add! (creature.resists player) (gval.resists gvals))
 	    (incf (player.burden player) (object.weight obj))
@@ -433,14 +456,21 @@ the Free Software Foundation; either version 2 of the License, or
     (calculate-abilities! variant player (player.class player))
 
     ;;; calculate based on what you're wearing
-    (calculate-abilities! variant player (player.eq player))
+    (calculate-abilities! variant player (player.equipment player))
+
     
-    ;; recalculate stats, still needed?
-    (dotimes (i stat-len)
-      (calculate-stat! player i))
+    ;; calculate active stats based on modifiers and temporary modifiers
+    (let ((a-stats (player.active-stats player))
+	  (m-stats (player.modbase-stats player))
+	  (c-stats (player.cur-statmods player)))
+      (dotimes (i stat-len)
+	(setf (aref a-stats i) (+ (aref m-stats i) (aref c-stats i)))))
+
     
-    (let ((backpack-weight (get-weight (aobj.contains (player.inventory player)))))
-      (incf (player.burden player) backpack-weight))
+    (when-bind (inventory (player.inventory player))
+      (when-bind (worn-items (aobj.contains inventory))
+	(let ((backpack-weight (get-weight worn-items)))
+	  (incf (player.burden player) backpack-weight))))
 
     ;; check what has happened, and do necessary updates
     (handle-player-updates! variant player old)
@@ -473,7 +503,7 @@ the Free Software Foundation; either version 2 of the License, or
 
     (with-foreign-str (s)
       (lb-format s "You attain level ~d and ~d new hitpoints. " (player.level player) next-hp)
-      (c-print-message! s))
+      (print-message! s))
 
     (bit-flag-add! *update* +pl-upd-hp+ +pl-upd-bonuses+ +pl-upd-mana+ +pl-upd-spells+)
     (bit-flag-add! *redraw* +print-level+ +print-title+ +print-xp+)
@@ -523,19 +553,19 @@ the Free Software Foundation; either version 2 of the License, or
 
 
 (defmethod get-weapon ((crt player))
-  (let ((the-eq (player.eq crt)))
+  (let ((the-eq (player.equipment crt)))
     (check-type the-eq item-table)
     
     (item-table-find the-eq 'eq.weapon)))
 
 (defmethod get-missile-weapon ((crt player))
-  (let ((the-eq (player.eq crt)))
+  (let ((the-eq (player.equipment crt)))
     (check-type the-eq item-table)
     
     (item-table-find the-eq 'eq.bow)))
 
 (defmethod get-light-source ((crt player))
-  (let ((the-eq (player.eq crt)))
+  (let ((the-eq (player.equipment crt)))
     (check-type the-eq item-table)
     
     (item-table-find the-eq 'eq.light)))
@@ -615,13 +645,13 @@ the Free Software Foundation; either version 2 of the License, or
       
       ;; message
       (cond ((< amount 5)
-	     (c-print-message! "You feel a little better."))
+	     (print-message! "You feel a little better."))
 	    ((< amount 15)
-	     (c-print-message! "You feel better."))
+	     (print-message! "You feel better."))
 	    ((< amount 35)
-	     (c-print-message! "You feel much better."))
+	     (print-message! "You feel much better."))
 	    (t
-	     (c-print-message! "You feel very good.")))
+	     (print-message! "You feel very good.")))
       
       t))) ;; it returns nil if when doesn't make sense
 
@@ -664,7 +694,7 @@ the Free Software Foundation; either version 2 of the License, or
 	 (when (< cbval bval)
 	   (with-foreign-str (s)
 	     (lb-format s "You feel less ~s" (get-stat-name-from-sym stat))
-	     (c-print-message! s))
+	     (print-message! s))
 	   (setf (aref cbs num) (aref bs num))
 	   t)))
       

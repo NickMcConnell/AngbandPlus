@@ -42,8 +42,8 @@ ADD_DESC: Various code which just prints stuff somewhere
     (c-prt-token! +term-white+ +token-empty-field+
 		  y x)
 
-    ;; (c-col-put-str! +term-white+ "            " y x)
-    (c-col-put-str! +term-l-blue+ str y x)
+    ;; (put-coloured-str! +term-white+ "            " x y)
+    (put-coloured-str! +term-l-blue+ str x y)
     ))
 
 (defun print-stat (pl setting num)
@@ -64,11 +64,12 @@ ADD_DESC: Various code which just prints stuff somewhere
 		  (+ num row)
 		  col)
     
-;;    (c-put-str! (if reduced-stat-p
+;;    (put-coloured-str! +term-white+ (if reduced-stat-p
 ;;		   name
 ;;		   (string-upcase name))
-;;	       (+ num row)
-;;	       col)
+;;	       col
+;;	       (+ num row))
+
 
     (c-prt-stat! (if reduced-stat-p +term-yellow+ +term-l-green+)
 		 stat-val (+ row num) (+ col 6))
@@ -176,11 +177,11 @@ ADD_DESC: Various code which just prints stuff somewhere
     
     ))
 
-(defun print-mana-points (pl setting)
+(defmethod print-mana-points ((variant variant) pl setting)
   "Prints mana-points info to left frame."
   
-  (let ((cur-hp (player.cur-mana pl))
-	(max-hp (player.max-mana pl))
+  (let ((cur-hp (current-mana pl))
+	(max-hp (maximum-mana pl))
 	(cur-set (slot-value setting 'cur-mana))
 	(max-set (slot-value setting 'max-mana)))
 
@@ -227,7 +228,7 @@ ADD_DESC: Various code which just prints stuff somewhere
 
     (print-armour-class pl pr-set)
     (print-hit-points pl pr-set)
-    (print-mana-points pl pr-set) 
+    (print-mana-points variant pl pr-set) 
 
     (print-gold pl pr-set)
     
@@ -255,8 +256,9 @@ ADD_DESC: Various code which just prints stuff somewhere
   (declare (ignore setting))
   (with-foreign-str (s)
     (lb-format s "~d ft" (* 50 (level.depth level)))
-    (c-col-put-str! +term-l-blue+ s *last-console-line* 70) ;;fix 
-    )) 
+    (put-coloured-str! +term-l-blue+ s (- (get-last-console-column) 10)
+		       (get-last-console-line)) 
+    ))
 
 
 (defmethod display-creature ((variant variant) (player player) &key mode)
@@ -276,8 +278,8 @@ ADD_DESC: Various code which just prints stuff somewhere
 	 (title (get-title-for-level the-class the-lvl)))
 
     (flet ((print-info (title text row)
-	     (c-put-str! title row 1)
-	     (c-col-put-str! +term-l-blue+ text row 8)))
+	     (put-coloured-str! +term-white+ title 1 row)
+	     (put-coloured-str! +term-l-blue+ text 8 row)))
 
       (print-info "Name" (player.name player) 2)
       (print-info "Gender" (get-gender-name player) 3)
@@ -289,8 +291,8 @@ ADD_DESC: Various code which just prints stuff somewhere
 			       (maximum-hp player))
 		  7)
       
-      (print-info "MP" (format nil "~d/~d" (player.cur-mana player)
-			       (player.max-mana player))
+      (print-info "MP" (format nil "~d/~d" (current-mana player)
+			       (maximum-mana player))
 		       8)
 
       )))
@@ -306,16 +308,16 @@ ADD_DESC: Various code which just prints stuff somewhere
 	 (misc (player.misc pl)))
     
 
-    (c-put-str! "Age" 3 col)
-    (c-col-put-str! +term-l-blue+ (%get-4str (playermisc.age misc)) 3 f-col)
+    (put-coloured-str! +term-white+  "Age" col 3)
+    (put-coloured-str! +term-l-blue+ (%get-4str (playermisc.age misc)) f-col 3)
 
-    (c-put-str! "Height" 4 col)
-    (c-col-put-str! +term-l-blue+ (%get-4str (playermisc.height misc))  4 f-col)
+    (put-coloured-str! +term-white+  "Height" col 4)
+    (put-coloured-str! +term-l-blue+ (%get-4str (playermisc.height misc))  f-col 4)
 
-    (c-put-str! "Weight" 5 col)
-    (c-col-put-str! +term-l-blue+ (%get-4str (playermisc.weight misc))  5 f-col)
-    (c-put-str! "Status" 6 col)
-    (c-col-put-str! +term-l-blue+ (%get-4str (playermisc.status misc))  6 f-col)
+    (put-coloured-str! +term-white+  "Weight" col 5)
+    (put-coloured-str! +term-l-blue+ (%get-4str (playermisc.weight misc))  f-col 5)
+    (put-coloured-str! +term-white+  "Status" col 6)
+    (put-coloured-str! +term-l-blue+ (%get-4str (playermisc.status misc))  f-col 6)
 
     ;; always in maximize and preserve, do not include
 
@@ -323,91 +325,98 @@ ADD_DESC: Various code which just prints stuff somewhere
     (setq col 1)
     (setq f-col (+ col 8))
 
-    (c-put-str! "Level" 10 col)
-    (c-col-put-str! (if (>= lvl
-			   (player.max-level pl))
-		       +term-l-green+
-		       +term-yellow+)
-		   (format nil "~10d" lvl)  10 f-col)
+    (put-coloured-str! +term-white+ "Level" col 10)
+    (put-coloured-str! (if (>= lvl
+			       (player.max-level pl))
+			   +term-l-green+
+			   +term-yellow+)
+		       (format nil "~10d" lvl)  f-col 10)
   
   
-    (c-put-str! "Cur Exp" 11 col)
+    (put-coloured-str! +term-white+ "Cur Exp" col 11)
     
-    (c-col-put-str! (if (>= cur-xp
-			   max-xp)
-		       +term-l-green+
-		       +term-yellow+)
-		   (format nil "~10d" cur-xp)  11 f-col)
+    (put-coloured-str! (if (>= cur-xp
+			       max-xp)
+			   +term-l-green+
+			   +term-yellow+)
+		       (format nil "~10d" cur-xp) f-col 11)
     
-    (c-put-str! "Max Exp" 12 col)
+    (put-coloured-str! +term-white+ "Max Exp" col 12)
     
-    (c-col-put-str! +term-l-green+
-		   (format nil "~10d" max-xp)  12 f-col)
+    (put-coloured-str! +term-l-green+
+		       (format nil "~10d" max-xp) f-col 12)
     
 
-    (c-put-str! "Adv Exp" 13 col)
-    (c-col-put-str! +term-l-green+
-		   (format nil "~10d" (aref (player.xp-table pl)
-					    (player.level pl)))
-		   13 f-col)
+    (put-coloured-str! +term-white+ "Adv Exp" col 13)
+    (put-coloured-str! +term-l-green+
+		       (format nil "~10d" (aref (player.xp-table pl)
+						(player.level pl)))
+		       f-col 13)
 
     
     
-    (c-put-str! "Gold" 15 col)
+    (put-coloured-str! +term-white+ "Gold" col 15)
 
-    (c-col-put-str! +term-l-green+
-		   (format nil "~10d" (player.gold pl))  15 f-col)
+    (put-coloured-str! +term-l-green+
+		       (format nil "~10d" (player.gold pl)) f-col 15)
 
-    (c-put-str! "Burden" 17 col)
+    (put-coloured-str! +term-white+ "Burden" col 17)
     (let* ((weight (player.burden pl))
 	   (pound (int-/ weight 10))
 	   (frac (mod weight 10))
 	   (str (format nil "~10d.~d lbs" pound frac)))
-      (c-col-put-str! +term-l-green+ str 17 f-col))
+      (put-coloured-str! +term-l-green+ str f-col 17))
 
     ;; middle again
     (setq col 26)
     (setq f-col (+ col 5))
 
-    (c-put-str! "Armour" 10 col)
+    (put-coloured-str! +term-white+ "Armour" col 10)
     (let* ((perc (player.perceived-abilities pl))
 	   (p-ac (pl-ability.base-ac perc))
 	   (p-acmod (pl-ability.ac-modifier perc)))
          
-      (c-col-put-str! +term-l-blue+
-		      (format nil "~12@a" (format nil "[~d,~@d]" p-ac p-acmod))
-		   10 (1+ f-col)))
+      (put-coloured-str! +term-l-blue+
+			 (format nil "~12@a" (format nil "[~d,~@d]" p-ac p-acmod))
+			 (1+ f-col) 10))
 
 ;;    (let ((weapon (get-weapon pl)))
 ;;     
 ;;      nil)
-	  
+
+    (let* ((perc (player.perceived-abilities pl))
+	   (tohit (pl-ability.to-hit-modifier perc))
+	   (dmg (pl-ability.to-dmg-modifier perc))
+	   )
       
-    (c-put-str! "Fight" 11 col)
-    (c-col-put-str! +term-l-blue+ (%get-13astr "(+0,+0)")
-		   11 f-col)
+    (put-coloured-str! +term-white+  "Fight" col 11)
+    (put-coloured-str! +term-l-blue+ (format nil "~13@a" (format nil "(~@d,~@d)" tohit dmg))
+		       f-col 11)
 
-    (c-put-str! "Melee" 12 col)
-    (c-col-put-str! +term-l-blue+ (%get-13astr "(+0,+0)")
-		   12 f-col)
+    ;; skip weapon+bow specifics now
+    (put-coloured-str! +term-white+  "Melee" col 12)
+    (put-coloured-str! +term-l-blue+ (format nil "~13@a" (format nil "(~@d,~@d)" tohit dmg))
+		       f-col 12)
 
-    (c-put-str! "Shoot" 13 col)
-    (c-col-put-str! +term-l-blue+ (%get-13astr "(+0,+0)")
-		   13 f-col)
+    (put-coloured-str! +term-white+ "Shoot" col 13)
+    (put-coloured-str! +term-l-blue+ (format nil "~13@a" (format nil "(~@d,+0)" tohit))
+		       f-col 13)
+
+    )
     
-    (c-put-str! "Blows" 14 col)
-    (c-col-put-str! +term-l-blue+ (%get-13astr "1/turn")
-		   14 f-col)
+    (put-coloured-str! +term-white+  "Blows" col 14)
+    (put-coloured-str! +term-l-blue+ (%get-13astr "1/turn")
+		       f-col 14)
     
-    (c-put-str! "Shots" 15 col)
-    (c-col-put-str! +term-l-blue+ (%get-13astr "1/turn")
-		   15 f-col)
+    (put-coloured-str! +term-white+  "Shots" col 15)
+    (put-coloured-str! +term-l-blue+ (%get-13astr "1/turn")
+		       f-col 15)
 		   
-    (c-put-str! "Infra" 17 col)
+    (put-coloured-str! +term-white+ "Infra" col 17)
 	    
-    (c-col-put-str! +term-l-blue+
-		   (format nil "~10d ft" (* 10 (player.infravision pl)))
-		   17 f-col)
+    (put-coloured-str! +term-l-blue+
+		       (format nil "~10d ft" (* 10 (player.infravision pl)))
+		       f-col 17)
 
     ;; then right
     (setq col 49)
@@ -416,33 +425,33 @@ ADD_DESC: Various code which just prints stuff somewhere
     (flet ((print-skill (skill div row)
 	     (declare (ignore div))
 	     (let ((val (slot-value (player.skills pl) skill)))
-	       (c-col-put-str! +term-l-green+
-			      (format nil "~9d" val)
-			      row
-			      f-col))))
+	       (put-coloured-str! +term-l-green+
+				  (format nil "~9d" val)
+				  f-col
+				  row))))
       
-      (c-put-str! "Saving Throw" 10 col)
+      (put-coloured-str! +term-white+ "Saving Throw" col 10)
       (print-skill 'saving-throw 6 10)
 
-      (c-put-str! "Stealth" 11 col)
+      (put-coloured-str! +term-white+ "Stealth" col 11)
       (print-skill 'stealth 1 11)
       
-      (c-put-str! "Fighting" 12 col)
+      (put-coloured-str! +term-white+ "Fighting" col 12)
       (print-skill 'fighting 12 12)
 
-      (c-put-str! "Shooting" 13 col)
+      (put-coloured-str! +term-white+ "Shooting" col 13)
       (print-skill 'shooting 12 13)
 
-      (c-put-str! "Disarming" 14 col)
+      (put-coloured-str! +term-white+ "Disarming" col 14)
       (print-skill 'disarming 8 14)
 
-      (c-put-str! "Magic Device" 15 col)
+      (put-coloured-str! +term-white+ "Magic Device" col 15)
       (print-skill 'device 6 15)
 
-      (c-put-str! "Perception" 16 col)
+      (put-coloured-str! +term-white+ "Perception" col 16)
       (print-skill 'perception 6 16)
 
-      (c-put-str! "Searching" 17 col)
+      (put-coloured-str! +term-white+ "Searching" col 17)
       (print-skill 'searching 6 17))
       
   ))
@@ -465,11 +474,11 @@ ADD_DESC: Various code which just prints stuff somewhere
 	)
     ;; labels
     
-    (c-col-put-str! +term-white+ "  Self" (1- row) (+ col  5))
-    (c-col-put-str! +term-white+ " RB"    (1- row) (+ col 12))
-    (c-col-put-str! +term-white+ " CB"    (1- row) (+ col 16))
-    (c-col-put-str! +term-white+ " EB"    (1- row) (+ col 20))
-    (c-col-put-str! +term-white+ "  Best" (1- row) (+ col 24))
+    (put-coloured-str! +term-white+ "  Self" (+ col  5) (1- row))
+    (put-coloured-str! +term-white+ " RB"    (+ col 12) (1- row))
+    (put-coloured-str! +term-white+ " CB"    (+ col 16) (1- row))
+    (put-coloured-str! +term-white+ " EB"    (+ col 20) (1- row))
+    (put-coloured-str! +term-white+ "  Best" (+ col 24) (1- row))
 
 
     (dotimes (i stat-len)
@@ -481,48 +490,47 @@ ADD_DESC: Various code which just prints stuff somewhere
 	    (cur-race-add (gsdfn racial-adding i))
 	    (cur-class-add (gsdfn  class-adding i)))
 
-	(c-put-str! (get-stat-name-from-num i)
-		   (+ i row)
-		   col)
+	(put-coloured-str! +term-white+ (get-stat-name-from-num i)
+		    col
+		   (+ i row))
+
 
 	;; base stat
 	(c-prt-stat! +term-l-green+ its-base (+ row i) (+ col 5))
 
-;;	(c-col-put-str! +term-l-green+ (%get-stat its-base)
-;;		       (+ row i)
-;;		       (+ col 5))
+;;	(put-coloured-str! +term-l-green+ (%get-stat its-base)
+;;		       (+ col 5) (+ row i))
 
 
 	;; racial bonus
-	(c-col-put-str! +term-l-green+ (format nil "~3@d" cur-race-add)
-		       (+ row i)
-		       (+ col 12))
+	(put-coloured-str! +term-l-green+ (format nil "~3@d" cur-race-add)
+			   (+ col 12)
+			   (+ row i))
 
 	;; class bonus
-	(c-col-put-str! +term-l-green+ (format nil "~3@d" cur-class-add)
-		       (+ row i)
-		       (+ col 16))
+	(put-coloured-str! +term-l-green+ (format nil "~3@d" cur-class-add)
+			   (+ col 16)
+			   (+ row i))
 
 	;; equipment
-	(c-col-put-str! +term-l-green+ " +0"
-		       (+ row i)
-		       (+ col 20))
+	(put-coloured-str! +term-l-green+ " +0"
+			   (+ col 20)
+			   (+ row i))
+
 
 	;; max stat
 	(c-prt-stat! +term-l-green+ its-mod (+ row i) (+ col 24))
 
-;;	(c-col-put-str! +term-l-green+ (%get-stat its-mod)
-;;		       (+ row i)
-;;		       (+ col 24))
+;;	(put-coloured-str! +term-l-green+ (%get-stat its-mod)
+;;		       (+ col 24) (+ row i))
 
 	;; if active is lower than max
 	(when (< its-active its-mod)
 	  ;; max stat
 	  (c-prt-stat! +term-yellow+ its-active (+ row i) (+ col 28)))
 
-;;	  (c-col-put-str! +term-yellow+ (%get-stat its-active)
-;;			 (+ row i)
-;;			 (+ col 28)))
+;;	  (put-coloured-str! +term-yellow+ (%get-stat its-active)
+;;			 (+ col 28) (+ row i))
 	      
 	      
 	)))
@@ -543,19 +551,19 @@ ADD_DESC: Various code which just prints stuff somewhere
 	(title-len (length title)))
 
     (flet ((show-title ()
-	     (c-col-put-str! +term-l-blue+ title start-row 12)
-	     (c-col-put-str! +term-l-blue+ (make-string title-len :initial-element #\=)
-			     (1+ start-row) 12))
+	     (put-coloured-str! +term-l-blue+ title 12 start-row)
+	     (put-coloured-str! +term-l-blue+ (make-string title-len :initial-element #\=)
+				12 (1+ start-row)))
 	   (show-entries ()
 	     (loop for cnt from 3
 		   for i being the hash-values of topics
 		   do
 		   (let ((key (help-topic-key i)))
-		     (c-col-put-str! +term-l-green+ (format nil "~a." key) (+ start-row cnt) 3)
-		     (c-col-put-str! +term-l-green+ (help-topic-name i) (+ start-row cnt) 6)
+		     (put-coloured-str! +term-l-green+ (format nil "~a." key) 3 (+ start-row cnt))
+		     (put-coloured-str! +term-l-green+ (help-topic-name i)    6 (+ start-row cnt))
 		     )))
 	   (get-valid-key ()
-	     (c-col-put-str! +term-l-blue+ "-> Please enter selection (Esc to exit): " 20 3)
+	     (put-coloured-str! +term-l-blue+ "-> Please enter selection (Esc to exit): " 3 20)
 	     (read-one-character)))
 
       (loop 
@@ -572,26 +580,26 @@ ADD_DESC: Various code which just prints stuff somewhere
     
     (dotimes (i 10)
       (let ((y (- 19 (* i 2))))
-	(c-col-put-str! +term-l-blue+ (format nil "~3d%" (* i 10))
-			y 3)))
+	(put-coloured-str! +term-l-blue+ (format nil "~3d%" (* i 10))
+			3 y)))
     (dotimes (i 20)
-      (c-col-put-str! +term-l-blue+ "|" i 7))
+      (put-coloured-str! +term-l-blue+ "|" 7 i))
 
-    (c-col-put-str! +term-l-blue+ "CHANCE TO HIT" 1 64)
-    (c-col-put-str! +term-l-blue+ "=============" 2 64)
+    (put-coloured-str! +term-l-blue+ "CHANCE TO HIT" 64 1)
+    (put-coloured-str! +term-l-blue+ "=============" 64 2)
     
-    (c-col-put-str! +term-l-red+ "Unarm." 20 8)
-    (c-col-put-str! +term-white+ "Leath." 21 13)
-    (c-col-put-str! +term-orange+ "L. met." 22 18)
-    (c-col-put-str! +term-yellow+ "Met." 20 22)
-    (c-col-put-str! +term-violet+ "H. Met." 21 26)
-    (c-col-put-str! +term-l-green+ "Plate" 22 30)
-    (c-col-put-str! +term-l-red+ "H. Plate" 20 35)
-    (c-col-put-str! +term-white+ "Dragon" 21 40)
-    (c-col-put-str! +term-orange+ "H. Dragon" 22 44)
-    (c-col-put-str! +term-yellow+ "Ench Drg" 20 50)
-    (c-col-put-str! +term-violet+ "Legend" 21 62)
-    (c-col-put-str! +term-l-green+ "Myth" 22 74)
+    (put-coloured-str! +term-l-red+ "Unarm." 8 20)
+    (put-coloured-str! +term-white+ "Leath." 13 21)
+    (put-coloured-str! +term-orange+ "L. met." 18 22)
+    (put-coloured-str! +term-yellow+ "Met." 22 20)
+    (put-coloured-str! +term-violet+ "H. Met." 26 21)
+    (put-coloured-str! +term-l-green+ "Plate" 30 22)
+    (put-coloured-str! +term-l-red+ "H. Plate" 35 20)
+    (put-coloured-str! +term-white+ "Dragon" 40 21)
+    (put-coloured-str! +term-orange+ "H. Dragon" 44 22)
+    (put-coloured-str! +term-yellow+ "Ench Drg" 50 20)
+    (put-coloured-str! +term-violet+ "Legend" 62 21)
+    (put-coloured-str! +term-l-green+ "Myth" 74 22)
 
     (let ((skill (get-known-combat-skill var-obj player)))
       
@@ -605,21 +613,20 @@ ADD_DESC: Various code which just prints stuff somewhere
 	      (let ((chance (get-chance var-obj skill i))
 		    (desc (get-armour-desc var-obj i)))
 		(check-type desc cons)
-		(c-col-put-str! (cdr desc) "*" (get-y chance)
-				(get-x j)))
+		(put-coloured-str! (cdr desc) "*" (get-x j) (get-y chance)))
 	      
 	      )))
       
 			    
-    (c-pause-line! *last-console-line*)
+    (pause-last-line!)
     )
 
 (defun print-attack-table (var-obj player)
 ;;  (declare (ignore player))
     (c-clear-from! 0)
 
-    (c-col-put-str! +term-l-blue+ "CHANCE TO HIT" 0 2)
-    (c-col-put-str! +term-l-blue+ "=============" 1 2)
+    (put-coloured-str! +term-l-blue+ "CHANCE TO HIT" 2 0)
+    (put-coloured-str! +term-l-blue+ "=============" 2 1)
     (let ((last-colour +term-green+)
 	  (count 2)
 	  (skill (get-known-combat-skill var-obj player)))
@@ -635,8 +642,8 @@ ADD_DESC: Various code which just prints stuff somewhere
 		    (t
 		     (setf last-colour (cdr desc))
 		     (incf count)
-		     (c-col-put-str! (cdr desc) (format nil "~40a: ~a%" (car desc) chance)
-				     count 4)
+		     (put-coloured-str! (cdr desc) (format nil "~40a: ~a%" (car desc) chance)
+					4 count)
 		     ))
 	      ))
 
@@ -652,15 +659,15 @@ The armour-value describes a full set-up of armour, including
 
       
       
-      (c-pause-line! *last-console-line*)
+      (pause-last-line!)
       ))
 
 (defun print-resists (var-obj player)
 ;;  (declare (ignore player))
     (c-clear-from! 0)
 
-    (c-col-put-str! +term-l-blue+ "RESISTANCES" 0 2)
-    (c-col-put-str! +term-l-blue+ "===========" 1 2)
+    (put-coloured-str! +term-l-blue+ "RESISTANCES" 2 0)
+    (put-coloured-str! +term-l-blue+ "===========" 2 1)
 
     (let ((elms (variant.elements var-obj))
 	  (resists (player.resists player))
@@ -670,23 +677,23 @@ The armour-value describes a full set-up of armour, including
 	(let* ((idx (element.number i))
 	       (str (format nil "~20a ~20s ~10s" (element.name i) (element.symbol i) idx)))
 	  (when (plusp (aref resists idx))
-	    (c-col-put-str! +term-l-red+ "*" row 1)) 
-	  (c-col-put-str! +term-l-green+ str row 3)
+	    (put-coloured-str! +term-l-red+ "*" 1 row)) 
+	  (put-coloured-str! +term-l-green+ str 3 row)
 	  (incf row)))
 
-      (c-pause-line! *last-console-line*)
+      (pause-last-line!)
       ))
 
 (defun print-misc-info (var-obj player)
   (declare (ignore var-obj player))
 
   (c-clear-from! 0)
-  (c-col-put-str! +term-l-blue+ "MISC INFO" 0 2)
-  (c-col-put-str! +term-l-blue+ "=========" 1 2)
+  (put-coloured-str! +term-l-blue+ "MISC INFO" 2 0)
+  (put-coloured-str! +term-l-blue+ "=========" 2 1)
 
-  (c-col-put-str! +term-l-green+ "Height:" 3 2)
-  (c-col-put-str! +term-yellow+ (format nil "~5d" 0) 3 12)
-;;  (c-col-put-str! +term-l-green+ "Weight:" 4 2)
-;;  (c-col-put-str! +term-yellow+ (format nil "~5d" (creature.weight player)) 4 12)
-  (c-pause-line! *last-console-line*)
+  (put-coloured-str! +term-l-green+ "Height:" 2 3)
+  (put-coloured-str! +term-yellow+ (format nil "~5d" 0) 12 3)
+;;  (put-coloured-str! +term-l-green+ "Weight:" 2 4)
+;;  (put-coloured-str! +term-yellow+ (format nil "~5d" (creature.weight player)) 12 4)
+  (pause-last-line!)
   )

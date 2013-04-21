@@ -84,9 +84,9 @@ a succesful ACTIVATE-OBJECT."))
 		   :initform (make-hash-table :test #'equal)
 		   :initarg :level-builders)
 
-   (floor-features :accessor variant.floor-features
-		   :initform (make-hash-table :test #'eql)
-		   :initarg :floor-features)
+   (floor-types :accessor variant.floor-types
+		:initform (make-hash-table :test #'eql)
+		:initarg :floor-types)
 
    (room-builders  :accessor variant.room-builders
 		   :initform (make-hash-table :test #'equal)
@@ -132,6 +132,10 @@ a succesful ACTIVATE-OBJECT."))
 		     :initform (make-hash-table :test #'equal)
 		     :documentation "these are object-types organised by levels.")
    
+   (traps :accessor variant.traps
+	  :initform (make-hash-table :test #'equal)
+	  :documentation "A table with trap-types.")
+   
    
    (filters :accessor variant.filters
 	    :initform (make-hash-table :test #'equal)
@@ -169,15 +173,21 @@ a succesful ACTIVATE-OBJECT."))
 	     :initarg :settings
 	     :initform (make-hash-table :test #'equal) ;; maybe #'eq is enough?
 	     :documentation "table with settings for various parts of the code, see later")
+
+   (event-types :accessor variant.event-types
+		:initarg :event-types
+		:initform (make-hash-table :test #'equal) ;; maybe #'eq is enough?
+		:documentation "table with known events that can occur.")
    
    ))
 
 
 (defstruct (dungeon-coord (:conc-name coord.))
-  (feature 0 :type u-16b)
+  (floor 0 :type u-16b)
   (flags 0 :type u-16b)  ;; info-flag in angband
   (objects nil)
   (monsters nil)
+  (decor nil)
   )
 
 ;; Remember to update [save|load|checking].lisp when updating this one
@@ -340,10 +350,18 @@ Each location should be a cons with (row . col)."))
 		 :initarg :abbreviation)
    (number       :accessor stat.number
 		 :initarg :number)
+   (fields       :accessor stat.fields
+		 :initform nil)
    (data         :accessor stat.data
 		 :initform nil
 		 :initarg :data)
    ))
+
+;; this is a hack!
+(defstruct stat-field
+  lower
+  upper
+  data)
 
 (defclass player ()
 
@@ -395,7 +413,7 @@ Each location should be a cons with (row . col)."))
    (cur-hp      :accessor current-hp         :initform 0)
    (fraction-hp :accessor player.fraction-hp :initform 0)
    
-   (cur-mana      :accessor player.cur-mana      :initform 0)
+   (cur-mana      :accessor current-mana         :initform 0)
    (fraction-mana :accessor player.fraction-mana :initform 0)
    
    (gold        :accessor player.gold   :initform 0)
@@ -414,7 +432,7 @@ Each location should be a cons with (row . col)."))
    (max-hp    :accessor maximum-hp
 	      :initform 0
 	      :documentation "can be calculated")
-   (max-mana  :accessor player.max-mana
+   (max-mana  :accessor maximum-mana
 	      :initform 0
 	      :documentation "can be calculated")
    (xp-table  :accessor player.xp-table
@@ -732,7 +750,8 @@ by variants."))
 (defclass monster-kind ()
   ((id        :initarg :id
 	      :accessor monster.id
-	      :initform "")
+	      :initform ""
+	      :documentation "Should be a legal (string) id.")
    (name      :initarg :name
 	      :accessor monster.name
 	      :initform "")
@@ -848,10 +867,10 @@ is all about?")
 		 :initarg :sort-value
 		 :initform 0)
    
-     ;; should be a list of conses (event . function-obj)
      (events     :accessor object.events
 		 :initarg :events
-		 :initform nil)
+		 :initform nil
+		 :documentation "should be a list of conses (event . function-obj)")
 
      (effects   :accessor object.effects
 		:initarg :events
@@ -913,14 +932,32 @@ is all about?")
    ))
 
 
-(defclass feature-type ()
-  ((id     :accessor feature.id     :initform nil :initarg :id)
-   (name   :accessor feature.name   :initform nil :initarg :name)
-   (x-attr :accessor feature.x-attr :initform nil :initarg :x-attr)
-   (x-char :accessor feature.x-char :initform nil :initarg :x-char)
-   (mimic  :accessor feature.mimic  :initform nil :initarg :mimic)
+(defclass floor-type ()
+  ((id     :accessor floor.id     :initform nil :initarg :id)
+   (name   :accessor floor.name   :initform nil :initarg :name)
+   (x-attr :accessor floor.x-attr :initform nil :initarg :x-attr)
+   (x-char :accessor floor.x-char :initform nil :initarg :x-char)
+   (mimic  :accessor floor.mimic  :initform nil :initarg :mimic)
    ))
 
+(defclass decor ()
+  ((id       :accessor decor.id       :initform nil :initarg :id)
+   (name     :accessor decor.name     :initform nil :initarg :name)
+   (x-attr   :accessor decor.x-attr   :initform nil :initarg :x-attr)
+   (x-char   :accessor decor.x-char   :initform nil :initarg :x-char)
+   (visible? :accessor decor.visible? :initform t   :initarg :visible?)
+   (loc-x     :accessor location-x
+	      :initarg :loc-x
+	      :initform nil)
+   (loc-y     :accessor location-y
+	      :initarg :loc-y
+	      :initform nil)
+   (events     :accessor decor.events
+	       :initarg :events
+	       :initform nil
+	       :documentation "should be a list of conses (event . function-obj)")
+
+   ))
 
 (defclass room-type ()
   ((id        :accessor room-type.id
@@ -976,21 +1013,68 @@ is all about?")
 (defclass l-event ()
   ((id            :reader event.id
 		  :initform nil
-		  :initarg :id)
+		  :initarg :id
+		  :documentation "A string id for the event that can be saved I think.")
+   
    (type          :reader event.type
 		  :initform nil
-		  :initarg :type)
+		  :initarg :type
+		  :documentation "correspond to EVENT-TYPES")
+   
    ;; the function when called should return T when ok and NIL when not ok
    (function      :reader event.function
 		  :initform nil
-		  :initarg :function)
+		  :initarg :function
+		  :documentation "the function/funcallable object when called should return T when ok and NIL when not ok")
+   
    (state         :reader event.state
 		  :initform nil
 		  :initarg :state)
+   
    (return-action :reader event.return
 		  :initform :remove-event
 		  :initarg :return)
    ))
+
+(defclass trap-type ()
+  ((id        :accessor trap.id
+	      :initform ""
+	      :initarg :id
+	      :documentation "string-id")
+   (name      :accessor trap.name
+	      :initform ""
+	      :initarg :name
+	      :documentation "displayable name")
+   (x-char    :accessor trap.x-char
+	      :initform #\^
+	      :initarg :x-char
+	      :documentation "the displayed char")       
+   (x-attr    :accessor trap.x-attr
+	      :initform +term-red+
+	      :initarg :x-attr
+	      :documentation "the colour of the trap")
+   (effect    :accessor trap.effect
+	      :initform nil
+	      :initarg :effect
+	      :documentation "a funcallable object")
+   (min-depth :accessor trap.min-depth
+	      :initform 0
+	      :initarg :min-depth
+	      :documentation "minimum depth it can be generated at")
+   (max-depth :accessor trap.max-depth
+	      :initform nil
+	      :initarg :max-depth
+	      :documentation "maximum depth it can be generated at")
+   (rarity    :accessor trap.rarity
+	      :initform 1
+	      :initarg :rarity
+	      :documentation "the rarity of the trap")))
+
+(defclass active-trap (decor)
+  ((type :accessor trap.type :initarg :type :initform nil :documentation "pointer to trap-type")
+   (visible? :initform nil) ;; by default not visible initially
+   ))
+
 
 ;;; === Equipment-classes
 
@@ -1060,12 +1144,14 @@ is all about?")
      
    ;; unsure on this
 
-   (sells      :accessor store.sells      :initform nil :initarg :sells)
-   (items      :accessor store.items      :initform nil :initarg :items)
-   (turnover   :accessor store.turnover   :initform 9   :initarg :turnover)
-   (min-items  :accessor store.min-items  :initform 6   :initarg :min-items)
-   (max-items  :accessor store.max-items  :initform 18  :initarg :max-items)
-   (item-limit :accessor store.item-limit :initform 24 :initarg :item-limit)
+   (sells        :accessor store.sells        :initform nil :initarg :sells)
+   (items        :accessor store.items        :initform nil :initarg :items)
+   (turnover     :accessor store.turnover     :initform 9   :initarg :turnover)
+   (min-items    :accessor store.min-items    :initform 6   :initarg :min-items)
+   (max-items    :accessor store.max-items    :initform 18  :initarg :max-items)
+   (item-limit   :accessor store.item-limit   :initform 24  :initarg :item-limit)
+   (object-depth :accessor store.object-depth :initform 5   :initarg :object-depth)
+   
    ))
 
  

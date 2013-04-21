@@ -253,8 +253,14 @@ call appropriately high-level init in correct order."
 ;;  (c-set-hinst! (win32:get-window-long (win32:get-active-window) -6))
   
   #+use-callback-from-c
-  (arrange-callback)
+  (arrange-callbacks)
 
+  #+cmu
+  (pushnew 'arrange-callbacks ext:*after-gc-hooks*)
+
+  #+sbcl
+  (pushnew 'arrange-callbacks sb-ext:*after-gc-hooks*)
+  
   (handler-case
       (progn
 	(init-c-side& (%to-a-string ui)
@@ -269,18 +275,41 @@ call appropriately high-level init in correct order."
   
   )))
 
+(defun %adjust-screen-size (width height)
+  (let ((adjusted-width (- width +start-column-of-map+ 1))
+	(adjusted-height (- height +start-row-of-map+ 1)))
+	
+;;    (warn "Adjusting to ~s ~s from ~s ~s" adjusted-width adjusted-height *screen-width* *screen-height*)
+    (when (or (/= *screen-width* adjusted-width)
+	      (/= *screen-height* adjusted-height))
+      (setf *screen-width* adjusted-width
+	    *screen-height* adjusted-height)
+      (verify-panel *dungeon* *player*)
+      t)))
 
-(defun arrange-callback ()
-  "Assures that the C-side has a callback to the Lisp-side."
+(defun arrange-callbacks ()
+  "Assures that the C-side has necessary callbacks to the Lisp-side."
   
   #+allegro
-  (org.langband.ffi:c-set-lisp-callback! (ff:register-foreign-callable `c-callable-play nil t))
-
+  (let ((play-ptr (ff:register-foreign-callable `c-callable-play nil t))
+	(size-ptr (ff:register-foreign-callable `%adjust-screen-size nil t)))
+    (org.langband.ffi:c-set-lisp-callback! "play-game" play-ptr)
+    (org.langband.ffi:c-set-lisp-callback! "adjust-size" size-ptr))
+  
   #+cmu
-  (let ((ptr (kernel:get-lisp-obj-address #'play-game&)))
-    (org.langband.ffi:c-set-lisp-callback! ptr))
+  (let ((play-ptr (kernel:get-lisp-obj-address #'play-game&))
+	(size-ptr (kernel:get-lisp-obj-address #'%adjust-screen-size)))
+    (org.langband.ffi:c-set-lisp-callback! "play-game" play-ptr)
+    (org.langband.ffi:c-set-lisp-callback! "adjust-size" size-ptr))
 
-  #-(or cmu allegro)
+  #+sbcl
+  (let ((play-ptr (sb-kernel:get-lisp-obj-address #'play-game&))
+	(size-ptr (sb-kernel:get-lisp-obj-address #'%adjust-screen-size)))
+    (warn "setting callbacks ~d ~d" play-ptr size-ptr)
+    (org.langband.ffi:c-set-lisp-callback! "play-game" play-ptr)
+    (org.langband.ffi:c-set-lisp-callback! "adjust-size" size-ptr))
+
+  #-(or sbcl cmu allegro)
   (error "No callback arranged for implementation..")
   
   )

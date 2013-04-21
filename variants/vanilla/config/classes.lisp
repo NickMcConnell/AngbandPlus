@@ -47,7 +47,14 @@ the Free Software Foundation; either version 2 of the License, or
   :starting-equipment '((obj :type <broad-sword>)
 			(obj :type (<body-armour> <chain>))
 			(obj :type (<potion> <berserk-strength>))
+			
 			#||
+			;; hack
+			(obj :id "ring-feather-fall")
+			(obj :id "ring-resist-poison")
+			(obj :id "ring-dmg")
+			(obj :id "ring-woe")
+			
 			(obj :type (<potion> <heroism>) :amount 2)
 			(obj :id "amulet-resist-acid")
 			||#
@@ -212,7 +219,27 @@ the Free Software Foundation; either version 2 of the License, or
 	    (<perception> 8 0)
 	    (<fighting> 48 20)
 	    (<shooting> 35 20))
-  
+
+  :magic-abilities '(:spell-stat <wis> :spells-at-level 1)
+  :spells '((:id "priest-detect-evil"       :level 1 :mana 1 :fail 10 :xp 4)
+	    (:id "priest-cure-light-wounds" :level 1 :mana 2 :fail 15 :xp 4)
+	    (:id "bless"                    :level 1 :mana 2 :fail 20 :xp 4)
+	    (:id "remove-fear"              :level 3 :mana 2 :fail 25 :xp 4)
+	    (:id "call-light"               :level 3 :mana 2 :fail 25 :xp 1)
+	    (:id "find-traps"               :level 3 :mana 3 :fail 27 :xp 2)
+	    (:id "detect-doors/stairs"      :level 3 :mana 3 :fail 27 :xp 2)
+	    (:id "slow-poison"              :level 3 :mana 3 :fail 28 :xp 4)
+
+	    (:id "scare-monster"         :level 5 :mana 4 :fail 29 :xp 3)
+	    (:id "portal"                :level 5 :mana 4 :fail 30 :xp 4)
+	    (:id "cure-serious-wounds"   :level 5 :mana 4 :fail 32 :xp 4)
+	    (:id "chant"                 :level 5 :mana 5 :fail 34 :xp 4)
+	    (:id "sanctuary"             :level 7 :mana 5 :fail 36 :xp 3)
+	    (:id "priest-satisfy-hunger" :level 7 :mana 5 :fail 38 :xp 4)
+	    (:id "remove-curse"          :level 7 :mana 6 :fail 38 :xp 5)
+	    (:id "resist-heat-and-cold"  :level 7 :mana 7 :fail 38 :xp 5)
+
+	    )
 )
 
 (define-character-class "mage" "Mage"
@@ -267,6 +294,62 @@ the Free Software Foundation; either version 2 of the License, or
 	      (<perception> 20 0)
 	      (<fighting> 34 15)
 	      (<shooting> 20 15))
+    
+    :magic-abilities '(:spell-stat <int> :spells-at-level 1)
+    
+    :spells '((:id "magic-missile"          :level 1 :mana 1 :fail 22 :xp 4) 
+	      (:id "mage-detect-monsters"   :level 1 :mana 1 :fail 23 :xp 4)
+	      (:id "phase-door"             :level 1 :mana 2 :fail 24 :xp 4)
+	      (:id "light-area"             :level 1 :mana 2 :fail 26 :xp 4)
+	      ;; does not have treasure detection
+	      (:id "mage-cure-light-wounds" :level 3 :mana 3 :fail 25 :xp 3)
+	      ;; no object-detection
+	      (:id "find-traps/doors"       :level 3 :mana 3 :fail 25 :xp 1)
+	      (:id "stinking-cloud"         :level 3 :mana 3 :fail 27 :xp 3)
+
+	      (:id "confuse-monster"       :level 3 :mana 4 :fail 30 :xp 1)
+	      (:id "lightning-bolt"        :level 5 :mana 4 :fail 30 :xp 4)
+	      (:id "trap/door-destruction" :level 5 :mana 5 :fail 30 :xp 6)
+	      (:id "sleep-1"               :level 5 :mana 5 :fail 30 :xp 4)
+	      (:id "cure-poison"           :level 5 :mana 5 :fail 35 :xp 4)
+	      (:id "mage-teleport-self"    :level 7 :mana 6 :fail 35 :xp 5)
+	      (:id "spear-of-light"        :level 7 :mana 6 :fail 30 :xp 5)
+	      (:id "frost-bolt"            :level 7 :mana 6 :fail 40 :xp 6)
+	      (:id "stone-to-mud"          :level 9 :mana 7 :fail 44 :xp 8)
+
+	      (:id "mage-satisfy-hunger" :level  9 :mana 7 :fail 45 :xp 8)
+	      (:id "recharge-item-1"     :level  9 :mana 7 :fail 75 :xp 9)
+	      (:id "sleep-2"             :level  9 :mana 7 :fail 45 :xp 8)
+	      (:id "polymorph-other"     :level 11 :mana 7 :fail 45 :xp 9)
+	      (:id "identify"            :level 11 :mana 7 :fail 75 :xp 6)
+	      (:id "sleep-3"             :level 13 :mana 7 :fail 50 :xp 6)
+	      (:id "fire-bolt"           :level 15 :mana 9 :fail 50 :xp 6)
+	      (:id "slow-monster"        :level 17 :mana 9 :fail 50 :xp 7)
+
+	      (:id "frost-ball"               :level 19 :mana 12 :fail 55 :xp 8)
+	      (:id "recharge-item-2"          :level 21 :mana 12 :fail 90 :xp 8)
+	      (:id "mage-teleport-other"      :level 23 :mana 12 :fail 60 :xp 8)
+	      (:id "haste-self"               :level 25 :mana 12 :fail 65 :xp 10)
+	      (:id "fire-ball"                :level 29 :mana 18 :fail 65 :xp 12)
+	      (:id "mage-word-of-destruction" :level 33 :mana 21 :fail 80 :xp 15)
+	      (:id "genocide-1"               :level 37 :mana 25 :fail 95 :xp 21)
+
+	      (:id "door-creation"       :level 7  :mana 7  :fail 20 :xp 28)
+	      (:id "stair-creation"      :level 9  :mana 12 :fail 40 :xp 44)
+	      (:id "mage-teleport-level" :level 15 :mana 17 :fail 60 :xp 29)
+	      (:id "mage-earthquake"     :level 20 :mana 18 :fail 60 :xp 24)
+	      (:id "mage-word-of-recall" :level 25 :mana 25 :fail 75 :xp 19)
+
+	      (:id "acid-bolt"    :level 10 :mana 6  :fail 50 :xp 12)
+	      (:id "cloud-kill"   :level 12 :mana 9  :fail 60 :xp 16)
+	      (:id "acid-ball"    :level 20 :mana 15 :fail 70 :xp 20)
+	      (:id "ice-storm"    :level 27 :mana 25 :fail 75 :xp 29)
+	      (:id "meteor-swarm" :level 35 :mana 35 :fail 85 :xp 34)
+	      (:id "mana-storm"   :level 42 :mana 45 :fail 95 :xp 200)
+
+	      ;; add rest
+	      
+	      )
     )
 
 (define-character-class "rogue" "Rogue"

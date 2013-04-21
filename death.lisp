@@ -119,6 +119,9 @@ the Free Software Foundation; either version 2 of the License, or
   (check-type current number)
   (assert (listp highscore-list))
 
+  ;; this line provokes a bug, the line is cut off!
+  (put-coloured-line! +term-l-green+ "---------------------------------------------------------------------" 0 0)
+  
   (flet ((get-str (hs num)
 	   (format nil "~a. ~a (~a) at dlvl ~a got ~a points"
 		   (1+ num)
@@ -134,11 +137,12 @@ the Free Software Foundation; either version 2 of the License, or
       (loop for i in highscore-list
 	    for cnt from 0
 	    do
-	    (when (and (typep i 'hs-entry) (< cnt 20)) ;; limit to best 20. 
+	    (when (and (typep i 'hs-entry) (< cnt 20)) ;; limit to best 20.
+;;	      (warn "printing ~s" (get-str i cnt)) 
 	      (if use-term
-		  (c-col-put-str! (if (= cnt current) +term-l-blue+ +term-l-green+)
-				  (get-str i cnt)
-				  cnt 0)
+		  (put-coloured-line! (if (= cnt current) +term-l-blue+ +term-l-green+)
+				      (get-str i cnt)
+				      0 (1+ cnt))
 		  (write-string (get-str i cnt) *standard-output*))))
       ;; returns how many entries it printed. 
       len)))
@@ -187,7 +191,7 @@ the Free Software Foundation; either version 2 of the License, or
 	    until (eq x 'eof)
 	    do
 	    ;;	  (warn "Printing ~s on ~d" x i)
-	    (c-put-str! x i 0)))
+	    (put-coloured-str! +term-white+ x 0 i)))
 
     ;; now let's make things perty
     (let* ((title (get-title-for-level (player.class player) (player.level player)))
@@ -196,7 +200,7 @@ the Free Software Foundation; either version 2 of the License, or
 	   (max-width 31))
     
       (flet ((dump-str (str y x)
-	       (c-put-str! (%centred-string str max-width) y x)))
+	       (put-coloured-str! +term-white+ (%centred-string str max-width) x y)))
 
 	(dump-str name  6 11)
 	(dump-str "the"  7 11)
@@ -217,15 +221,15 @@ the Free Software Foundation; either version 2 of the License, or
     
 	nil))))
 
-(defun organise-death& (pl var-obj)
+(defmethod organise-death& ((variant variant) player)
   "Organises things dealing with death of a player..
 Thanks for all the fish."
 
 
-  (let* ((hs (produce-high-score-object var-obj pl))
-	 (home-path (home-langband-path))
+  (let* ((hs (produce-high-score-object variant player))
+	 (home-path (variant-home-path variant))
 	 (fname (concatenate 'string home-path "high-scores"))
-	 (enter-high-score (if (eq (player.leaving-p pl) :quit) nil t))
+	 (enter-high-score (if (eq (player.leaving-p player) :quit) nil t))
 	 (hs-pos 12)
 	 ) ;; must do something smart here
 
@@ -233,21 +237,21 @@ Thanks for all the fish."
     
     (when enter-high-score
 	;;    (warn "writing to ~s" fname)
-	(setf hs-pos (save-high-score& var-obj hs fname)))
+	(setf hs-pos (save-high-score& variant hs fname)))
     
-    (c-prt! "Oops.. you died.. " 0 0)
+    (put-coloured-line! +term-white+ "Oops.. you died.. " 0 0)
     
     (progn
       (c-clear-from! 0)
-      (print-tomb var-obj pl))
-    
-    (c-pause-line! *last-console-line*)
+      (print-tomb variant player))
 
-    (let ((hlist (get-high-scores var-obj fname)))
+    (pause-last-line!)
+
+    (let ((hlist (get-high-scores variant fname)))
       (unless enter-high-score
 	(setf hlist (%sort-hscores (cons hs hlist)))
 	(setf hs-pos (position hs hlist)))
       (c-clear-from! 0)
-      (display-high-scores var-obj hlist :current hs-pos))
+      (display-high-scores variant hlist :current hs-pos))
     
     t))

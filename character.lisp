@@ -49,14 +49,20 @@ the Free Software Foundation; either version 2 of the License, or
     (loop for i in the-list
 	  collecting (gethash i table))))
 
-(defun define-character-class (id name &key symbol desc xp-extra stat-changes (resists :unspec)
+(defmethod produce-character-class ((variant variant) id name &key &allow-other-keys)
+;;  (warn "Spells is ~s" spells)
+  (make-instance 'character-class))
+
+(defun define-character-class (id name &rest args &key symbol desc xp-extra stat-changes (resists :unspec)
 			       (abilities :unspec) titles
-			       starting-equipment hit-dice skills)
+			       starting-equipment hit-dice skills &allow-other-keys)
   "Defines and establishes a class."
 
+;;  (warn "Defining class ~s with args ~s" id args)
 	    
-  (let ((my-class (make-instance 'character-class))
-	(var-obj *variant*))
+  (let* ((var-obj *variant*)
+	 (my-class (apply #'produce-character-class var-obj id name args)))
+	
     ;;    (warn "Creating class ~a [~a]" name desc)
 
     (check-type var-obj variant)
@@ -68,7 +74,7 @@ the Free Software Foundation; either version 2 of the License, or
 	    resists abilities name))
 
     
-    (unless (stringp id)
+    (unless (and (stringp id) (verify-id id))
       (warn "Id ~s for class ~s must be a string, use symbol for class-symbol."))
     ;;      (warn "Creating race ~a [~a]" name desc)
 
@@ -155,7 +161,7 @@ in the global race-table for easy access."
   (let ((race (make-instance 'character-race))
 	(var-obj *variant*))
 
-    (unless (stringp id)
+    (unless (and (stringp id) (verify-id id))
       (warn "Id ~s for race ~s must be a string, use symbol for race-symbol."))
     ;;      (warn "Creating race ~a [~a]" name desc)
 

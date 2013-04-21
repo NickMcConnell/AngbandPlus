@@ -76,7 +76,12 @@ ADD_DESC: Most of the code which deals with the game loops.
       (print-xp pl pr-set)
       (setf retval t))
 
-    ;; stats
+    (when (bit-flag-set? *redraw* +print-stats+)
+      (bit-flag-remove! *redraw* +print-stats+)
+      (unless pr-set (setf pr-set (get-setting variant :basic-frame-printing)))
+      (dotimes (i (variant.stat-length variant))
+	(print-stat pl pr-set i)) ;; probaly not optimal handling
+      (setf retval t))
     
     (when (bit-flag-set? *redraw* +print-armour+)
       (bit-flag-remove! *redraw* +print-armour+)
@@ -93,7 +98,7 @@ ADD_DESC: Most of the code which deals with the game loops.
     (when (bit-flag-set? *redraw* +print-mana+)
       (bit-flag-remove! *redraw* +print-mana+)
       (unless pr-set (setf pr-set (get-setting variant :basic-frame-printing)))
-      (print-mana-points pl pr-set)
+      (print-mana-points variant pl pr-set)
       (setf retval t))
 
     (when (bit-flag-set? *redraw* +print-gold+)
@@ -209,7 +214,7 @@ ADD_DESC: Most of the code which deals with the game loops.
     
     (when (bit-flag-set? *update* +pl-upd-mana+)
       (bit-flag-remove! *update* +pl-upd-mana+)
-;;      (calculate-creature-hit-points! var-obj pl)
+      (calculate-creature-mana! var-obj pl)
       (setf retval t))
 
     (when (bit-flag-set? *update* +pl-upd-spells+)
@@ -306,8 +311,40 @@ ADD_DESC: Most of the code which deals with the game loops.
   
 
 (defun regenerate-mana! (crt percent)
-  (declare (ignore crt percent))
-  nil)
+  ;; clean up later
+    
+  (let* ((regen-base 1442)
+	 (old-mana (current-mana crt))
+	 (new-mana (+ (* (maximum-mana crt) percent) regen-base))
+	 (max-short 32767)
+	 (increase (int-/ new-mana (expt 2 16)))
+	 (new-frac (+ (player.fraction-mana crt)
+		      (logand new-mana #xffff)))
+	 )
+
+    (incf (current-mana crt) increase)
+
+    (when (and (minusp (current-mana crt))
+	       (plusp old-mana))
+      (setf (current-mana crt) max-short))
+
+    (if (> new-frac #x10000)
+	(progn
+	  (setf (player.fraction-mana crt) (- new-frac #x10000))
+	  (incf (current-mana crt)))
+	(setf (player.fraction-mana crt) new-frac))
+
+    (when (>= (current-mana crt)
+	      (maximum-mana crt))
+      (setf (current-mana crt) (maximum-mana crt)
+	    (player.fraction-mana crt) 0))
+
+    (when (/= old-mana (current-mana crt))
+;;      (warn "Regenerated..")
+      (bit-flag-add! *redraw* +print-mana+))
+      
+    (current-mana crt)))
+
 
 (defun regenerate-hp! (crt percent)
   "Tries to regenerate the creature, and includes percent-chance."
@@ -376,8 +413,8 @@ ADD_DESC: Most of the code which deals with the game loops.
       ;; affect regen by food
       ;; affect regen by abilities and items
 
-      (when (< (player.cur-mana pl)
-	       (player.max-mana pl))
+      (when (< (current-mana pl)
+	       (maximum-mana pl))
 	(regenerate-mana! pl regen-amount))
 
       ;; affected by condition
@@ -477,7 +514,7 @@ ADD_DESC: Most of the code which deals with the game loops.
     ;; postpone verify of panel
     (verify-panel dun pl)
     
-    (c-print-message! +c-null-value+)
+    (print-message! +c-null-value+)
 
     ;;; == this section needs serious rework.. see angband
     ;; postpone flush
@@ -624,9 +661,11 @@ ADD_DESC: Most of the code which deals with the game loops.
 (defun play-game& ()
   "Should not be called directly."
   
-
   (let ((*player* nil)
 	(*level* nil)
+	(*screen-height* 22)
+	(*screen-width* 66)
+
 ;;	#+allegro
 ;;	(old-spread (sys:gsgc-parameter :generation-spread))
 	)
@@ -636,6 +675,7 @@ ADD_DESC: Most of the code which deals with the game loops.
 
     ;; hack to remove cursor
     (c-set-cursor& 0)
+    (flush-messages!)
 
     ;; FIX: this code _must_ be rewritten!!
     (block creation
@@ -657,7 +697,7 @@ ADD_DESC: Most of the code which deals with the game loops.
 		 ;; we can load a saved game
 		 (multiple-value-bind (lv pl var)
 		     (%load-saved-game the-save-file format)
-		   (if (and pl (typep pl 'player))
+		   (if (and pl (is-player? pl))
 		       (setf the-player pl)
 		       (warn "Unable to load player from ~s" the-save-file))
 		   (if (and lv (typep lv 'level))
@@ -686,7 +726,7 @@ ADD_DESC: Most of the code which deals with the game loops.
 
 ;;    (unless *level*
 ;;      (c-prt! "Please wait..." 0 0)  
-;;      (c-pause-line! *last-console-line*))
+;;      (pause-last-line!))
     
     (clear-the-screen!)
     
@@ -701,14 +741,15 @@ ADD_DESC: Most of the code which deals with the game loops.
       (game-loop&))
 
     (cond ((and *player* (player.dead-p *player*))
-	   (organise-death& *player* *variant*))
+	   (flush-messages!)
+	   (organise-death& *variant* *player*))
 	   
 	  (t
 	   (c-prt! "Quitting..." 0 0)
 
 	   ))
     
-    (c-pause-line! *last-console-line*)
+    (pause-last-line!)
     (quit-game&)
     t))
 
@@ -716,6 +757,10 @@ ADD_DESC: Most of the code which deals with the game loops.
 #+allegro
 (ff:defun-foreign-callable c-callable-play ()
   (play-game&))
+
+#+allegro
+(ff:defun-foreign-callable c-callable-resize (w h)
+  (%adjust-screen-size w h))
 
 
 ;;(trace redraw-stuff)

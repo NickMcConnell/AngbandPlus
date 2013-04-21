@@ -42,42 +42,59 @@ ADD_DESC: This file just contains simple init and loading of the game
 ;;  #-clisp
 ;;  (push :using-sound *features*)
   ;; this one should be turned on in releases and in curses
-;;  (pushnew :hide-warnings *features*)
+  (pushnew :hide-warnings *features*)
 
 ;;  (pushnew :maintainer-mode *features*)
-  #+(or cmu clisp allegro sbcl (and lispworks unix))
-  (pushnew :defsystem-madness *features*)
+  #+(or cmu allegro sbcl (and lispworks unix))
+  (pushnew :use-asdf *features*)
+  
+  #+(or clisp)
+  (pushnew :use-mkdefsystem *features*)
   )
 
-(defconstant +defsystem-file+
+(defvar *defsystem-file*
   #+(or ecl cormanlisp) "tools/defsystem.lisp"
   #-(or ecl cormanlisp) "tools/defsystem")
+
+(defvar *asdf-file*
+  #+(or ecl cormanlisp) "tools/asdf.lisp"
+  #-(or ecl cormanlisp) "tools/asdf")
 
 (defun strcat (&rest args)
   (apply #'concatenate 'string args))
 
+#+use-mkdefsystem
 (defun assign-log-path& (log-path name)
-  #+defsystem-madness
+
   (setf (logical-pathname-translations name)
 	(list (list ";**;*.*.*"  (strcat log-path "**/*.*"))
 	      (list "**;*.*.*"  (strcat log-path "**/*.*"))
 ;;	      (list "**;*"     (strcat log-path "**/*")) 
 	      (list ";*.*.*"  (strcat log-path "*.*"))
 	      (list "*.*.*"  (strcat log-path "*.*"))))
-  #-defsystem-madness
-  nil)
+  )
 
-;; make some logical paths for later loading
-(assign-log-path& *current-dir* "langband")
-(assign-log-path& (strcat *current-dir* "tools/") "langband-tools")
-(assign-log-path& (strcat *current-dir* "tests/") "langband-tests")
-(assign-log-path& (strcat *current-dir* "variants/vanilla/") "langband-vanilla")
-;;(assign-log-path& (strcat *current-dir* "lib/foreign/") "langband-foreign")
+#+use-mkdefsystem
+(progn
+  ;; make some logical paths for later loading
+  (assign-log-path& *current-dir* "langband")
+  (assign-log-path& (strcat *current-dir* "tools/") "langband-tools")
+  (assign-log-path& (strcat *current-dir* "tests/") "langband-tests")
+  (assign-log-path& (strcat *current-dir* "variants/vanilla/") "langband-vanilla")
+  ;;(assign-log-path& (strcat *current-dir* "lib/foreign/") "langband-foreign")
+  )
 
-#+defsystem-madness
+#+use-mkdefsystem
 (unless (find-package :make)
-    (load +defsystem-file+ :verbose nil))
-    
+  (load *defsystem-file* :verbose nil))
+
+#+use-asdf
+(unless (find-package :asdf)
+  (load *asdf-file* :verbose nil))
+
+;; hack!
+#+(and cmu use-asdf)
+(setf *default-pathname-defaults* (%get-default-directory))
 
 (defvar *normal-opt* '(optimize
 		       #+cmu (ext:inhibit-warnings 3)
@@ -99,8 +116,8 @@ ADD_DESC: This file just contains simple init and loading of the game
 		    ))
 
 
-;;(proclaim *dev-opt*)
-(proclaim *normal-opt*)
+(proclaim *dev-opt*)
+;;(proclaim *normal-opt*)
  
 (defun compile-in-environment (func)
   (let (
@@ -116,7 +133,17 @@ ADD_DESC: This file just contains simple init and loading of the game
 (defun progress-msg (msg)
   (format t "~&~a~%" msg))
 
-#+defsystem-madness
+#+use-asdf
+(defun load-game ()
+  "Tries to load the game asdf-style."
+  (let ((asdf:*central-registry* (list *default-pathname-defaults* "variants/vanilla/")))
+    (load "langband-engine.asd")
+    (load "variants/vanilla/langband-vanilla.asd")
+    (asdf:oos 'asdf:load-op :langband-vanilla)
+    (progress-msg "Variant loaded...")
+    t))
+
+#+use-mkdefsystem
 (defun load-game ()
   "Tries to load the game."
   ;;  (push :langband-debug *features*)
@@ -133,7 +160,7 @@ ADD_DESC: This file just contains simple init and loading of the game
   (progress-msg "Variant loaded...")
   t)
 
-#-defsystem-madness
+#-(or use-mkdefsystem use-asdf)
 (defun load-game ()
   (labels ((%cl (x)
 	     (let* ((fname (strcat x ".lisp"))

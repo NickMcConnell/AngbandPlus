@@ -29,7 +29,7 @@ the Free Software Foundation; either version 2 of the License, or
   :the-kind '<potion>
   :on-quaff (object-effect (dun pl item)
 			   (declare (ignore dun))
-			   (c-print-message! "You feel less thirsty!")
+			   (print-message! "You feel less thirsty!")
 			   (possible-identify! pl item)
 			   :used)
   :game-values (make-game-values :base-dice 1 :num-dice 1 :food-value 400)) 
@@ -49,7 +49,7 @@ the Free Software Foundation; either version 2 of the License, or
   :the-kind '<potion>
   :on-quaff (object-effect (dun pl item)
 			   (declare (ignore dun))
-			   (c-print-message! "You feel less thirsty!")
+			   (print-message! "You feel less thirsty!")
 			   (possible-identify! pl item)
 			   :used)
 
@@ -70,7 +70,7 @@ the Free Software Foundation; either version 2 of the License, or
   :the-kind '<potion>
   :on-quaff (object-effect (dun pl item)
 			   (declare (ignore dun))
-			   (c-print-message! "You feel less thirsty!")
+			   (print-message! "You feel less thirsty!")
 			   (possible-identify! pl item)
 			   :used)
 
@@ -1084,7 +1084,7 @@ the Free Software Foundation; either version 2 of the License, or
   :on-quaff (object-effect (dun pl item)
 			   (declare (ignore dun))
 			   (let ((amount 5000))
-			     (c-print-message! "You feel life flow through your body.")
+			     (print-message! "You feel life flow through your body.")
 			     ;; fix, add restore levels
 			     (heal-creature! pl amount)
 			     (setf (get-creature-state pl '<blindness>) nil

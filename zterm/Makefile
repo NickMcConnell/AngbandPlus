@@ -21,7 +21,7 @@ UIOBJS=
 UIDEFINES=
 UIFLAGS=
 BASEDEFINES=
-BASEFLAGS=-Wall -W #-ggdb
+BASEFLAGS=-Wall -W -ggdb
 DLLEXT=so
 PICFLAG=-fPIC
 
@@ -37,7 +37,7 @@ endif
 # X11 Settings
 ifeq ($(findstring X11,$(ENVIRONMENTS)), X11)
 UIDEFINES += -D"USE_X11" 
-UIOBJS += main-x11.o
+UIOBJS += maid-x11.o main-x11.o
 UILIBS += -L/usr/X11R6/lib -lX11
 endif
 
