@@ -239,7 +239,7 @@ void do_cmd_browse(void)
 {
 	int item, sval;
 
-	int spell;
+	int spell, i;
 	int num = 0;
 
 	byte spells[PY_MAX_SPELLS];
@@ -248,6 +248,13 @@ void do_cmd_browse(void)
 
 	cptr q, s;
 
+	char choice;
+
+	char out_val[160];
+
+	int priest = ((mp_ptr[p_ptr->pclass[p_ptr->current_class]]->spell_book == TV_PRAYER_BOOK || mp_ptr[p_ptr->pclass[p_ptr->current_class]]->spell_book == TV_DEATH_BOOK) ? 1 : 0);
+
+	cptr p = ((priest) ? "prayer" : "spell");
 
 	/* Warriors are illiterate */
 	if (!mp_ptr[p_ptr->pclass[p_ptr->current_class]]->spell_book)
@@ -318,29 +325,47 @@ void do_cmd_browse(void)
 		}
 	}
 
+	/* Build a prompt (accept all spells) */
+	strnfmt(out_val, 78, "(%^ss %c-%c, ESC=exit) Browse which %s? ",
+	p, I2A(0), I2A(num - 1), p);
 
 	/* Save screen */
 	screen_save();
 
-	/* Display the spells */
+	/* Display a list of spells */
 	print_spells(spells, num, 1, 20);
 
-	/* Prompt for a command */
-	put_str("(Browsing) Command: ", 0, 0);
-
-	/* Hack -- Get a new command */
-	p_ptr->command_new = inkey();
-
-	/* Load screen */
-	screen_load();
-
-
-	/* Hack -- Process "Escape" */
-	if (p_ptr->command_new == ESCAPE)
+	/* Get a spell from the user */
+	while (get_com(out_val, &choice))
 	{
-		/* Reset stuff */
-		p_ptr->command_new = 0;
+		/* Display a list of spells */
+		print_spells(spells, num, 1, 20);
+
+		/* Stop browsing */
+		if (choice == ESCAPE) continue;
+
+		/* Lowercase */
+		choice = tolower(choice);
+
+		/* Extract request */
+		i = (islower(choice) ? A2I(choice) : -1);
+
+		/* Totally Illegal */
+		if ((i < 0) || (i >= num))
+		{
+			bell("Illegal spell choice!");
+			continue;
+		}
+
+		/* Save the spell index */
+		spell = spells[i];
+
+		/* Display spell description */
+		c_prt(TERM_L_BLUE, spell_descs[mp_ptr[p_ptr->pclass[p_ptr->current_class]]->spell_type][spell], num+2, 22);
 	}
+
+	/* Restore the screen */
+	screen_load();
 }
 
 /*

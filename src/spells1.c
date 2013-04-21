@@ -3409,12 +3409,12 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 				else if (p_ptr->hold_life)
 				{
 					msg_print("You feel your life slipping away!");
-					lose_exp(200 + (p_ptr->exp[best_class()]/1000) * MON_DRAIN_LIFE, best_class());
+					lose_exp(200 + (p_ptr->exp[best_experience()]/1000) * MON_DRAIN_LIFE, best_experience());
 				}
 				else
 				{
 					msg_print("You feel your life draining away!");
-					lose_exp(200 + (p_ptr->exp[best_class()]/100) * MON_DRAIN_LIFE, best_class());
+					lose_exp(200 + (p_ptr->exp[best_experience()]/100) * MON_DRAIN_LIFE, best_experience());
 				}
 			}
 			take_hit(dam, killer);
@@ -3462,12 +3462,12 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 				else if (p_ptr->hold_life)
 				{
 					msg_print("You feel your life slipping away!");
-					lose_exp(500 + (p_ptr->exp[best_class()]/1000) * MON_DRAIN_LIFE, best_class());
+					lose_exp(500 + (p_ptr->exp[best_experience()]/1000) * MON_DRAIN_LIFE, best_experience());
 				}
 				else
 				{
 					msg_print("You feel your life draining away!");
-					lose_exp(5000 + (p_ptr->exp[best_class()]/100) * MON_DRAIN_LIFE, best_class());
+					lose_exp(5000 + (p_ptr->exp[best_experience()]/100) * MON_DRAIN_LIFE, best_experience());
 				}
 			}
 			take_hit(dam, killer);
@@ -3618,7 +3618,7 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 				case 1: case 2: case 3: case 4: case 5:
 				{
 					msg_print("You feel life has clocked back.");
-					lose_exp(100 + (p_ptr->exp[best_class()] / 100) * MON_DRAIN_LIFE, best_class());
+					lose_exp(100 + (p_ptr->exp[best_experience()] / 100) * MON_DRAIN_LIFE, best_experience());
 					break;
 				}
 

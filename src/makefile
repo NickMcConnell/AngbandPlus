@@ -48,7 +48,7 @@ SRCS = \
   store.c birth.c load.c \
   wizard1.c wizard2.c \
   generate.c dungeon.c init1.c init2.c randart.c \
-  main-cap.c main-gcu.c main.c
+  main-gcu.c main.c
 
 OBJS = \
   z-util.o z-virt.o z-form.o z-rand.o z-term.o \
@@ -60,7 +60,7 @@ OBJS = \
   store.o birth.o load.o \
   wizard1.o wizard2.o \
   generate.o dungeon.o init1.o init2.o randart.o \
-  main-cap.o main-gcu.o main.o
+  main-gcu.o main.o
 
 
 
@@ -294,7 +294,6 @@ init1.o: init1.c $(INCS)
 init2.o: init2.c $(INCS)
 randart.o: randart.c $(INCS)
 load.o: load.c $(INCS)
-main-cap.o: main-cap.c $(INCS)
 main-gcu.o: main-gcu.c $(INCS)
 main.o: main.c $(INCS)
 melee1.o: melee1.c $(INCS)

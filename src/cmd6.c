@@ -492,7 +492,7 @@ void do_cmd_quaff_potion(void)
 			if (!p_ptr->hold_life && (p_ptr->exp[best_class()] > 0))
 			{
 				msg_print("You feel your memories fade.");
-				lose_exp(p_ptr->exp[best_class()] / 4, best_class());
+				lose_exp(p_ptr->exp[best_experience()] / 4, best_experience());
 				ident = TRUE;
 			}
 			break;
@@ -1774,12 +1774,11 @@ void do_cmd_read_scroll(void)
 
 	        case SV_SCROLL_INFINITE_SPELL:
 		{
-
 		     /* Runecasters can copy spells to talismans */
 		     if (player_has_class(CLASS_RUNECASTER, 0))
 		     {
 			  /* Must be a known scroll */
-			  if (object_known_p(o_ptr))
+			  if (object_aware_p(o_ptr))
 			  {
 			       char out_val[160];
 			       /* Ask */
@@ -1845,7 +1844,7 @@ void do_cmd_read_scroll(void)
 		     else if (player_has_class(CLASS_SORCEROR, 0))
 		     {
 			  /* Must be a known scroll */
-			  if (object_known_p(o_ptr))
+			  if (object_aware_p(o_ptr))
 			  {
 			       char out_val[160];
 			       /* Ask */
@@ -1895,15 +1894,15 @@ void do_cmd_read_scroll(void)
 		     else cast_spell(o_ptr->pval / 64, o_ptr->pval % 64); /* Not runecaster or sorceror */
 
 		     /* 1 in 100 chance of being used up */
-		     if (rand_int(100)) used_up = FALSE;
+		     if (rand_int(100)) 
+			  used_up = FALSE;
+		     else
+			  /* Also forget it, to prevent spell being shown when another is found */
+			  k_info[o_ptr->k_idx].aware = FALSE;
 
-		     /* 1 in 3 times */
-		     if (rand_int(3) == 0) 
-		     {
-			  o_ptr->pval = get_item_spell(o_ptr, 50, FALSE);
+		     o_ptr->pval = get_item_spell(o_ptr, 50, FALSE);
 			  
-			  msg_print("The words on the scroll warp!");
-		     }
+		     msg_print("The words on the scroll warp!");
 
 		     break;
 		}

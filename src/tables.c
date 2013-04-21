@@ -3215,6 +3215,356 @@ cptr spell_names[MAX_REALM][PY_MAX_SPELLS] =
 	}
 };
 
+/*
+ * Descriptions of the spells (mage spells then priest spells)
+ * Maximum length of 58 characters
+ */
+cptr spell_descs[MAX_REALM][PY_MAX_SPELLS] =
+{
+	/*** Mage Spells ***/
+
+	{
+		/* Magic for Beginners (sval 0) */
+		"Fires an unresistable bolt of pure mana",
+		"Detects non-invisible monsters in the current map pane",
+		"Teleports you a small distance to a randomly selected location",
+		"Lights a room or area and damages nearby light-sensitive creatures",
+		"Detects treasure in the current map pane",
+		"Restores a small number of hit points and cures minor cuts",
+		"Detects objects in the current map pane",
+		"Detects traps, doors and stairs in the current map pane",
+		"Fires a ball of poisonous vapours",
+
+		/* Conjurings and Tricks (sval 1) */
+		"Attempts to confuse a monster, to cause it to act randomly",
+		"Fires a bolt of lightning",
+		"Destroys doors and traps in adjacent spaces",
+		"Attempts to put a monster to sleep",
+		"Removes all traces of poison from the caster's body",
+		"Teleports you a long distance to a randomly selected location",
+		"Fires a beam of light that can damage light-sensitive creatures",
+		"Fires a bolt of cold",
+		"Weakens a section of wall so much so that it crumbles away",
+
+		/* Incantations and Illusions (sval 2) */
+		"Magically removes caster's hunger",
+		"Recharges staffs, wands, or rods",
+		"Attempts to put adjacent monsters to sleep",
+		"Attempts to change a monster",
+		"Identifies an object",
+		"Attempts to put all visible monsters to sleep",
+		"Fires a bolt of fire",
+		"Attempts to slow a monster",
+
+		/* Sorcery and Evocations (sval 3) */
+		"Fires a ball of cold",
+		"Recharges staffs, wands, or rods",
+		"Teleports a monster away",
+		"Gives the caster a temporary speed bonus",
+		"Fires a ball of fire",
+		"Destroys nearby objects, deletes monsters, and banishes uniques from the level",
+		"Deletes all monsters of the symbol you choose, except uniques",
+
+		/* Mordenkainen's Escapes (sval 5) */
+		"Creates a barrier of doors around you",
+		"Creates a staircase nearby - randomly choses between up or down",
+		"Teleports you to the next level up or down",
+		"Shakes dungeon structure, and results in random swapping of floors and walls",
+		"Recalls player from dungeon to town, or from town to the deepest level of dungeon",
+
+		/* Raal's Tome of Destruction (sval 8) */
+		"Fires a bolt of acid",
+		"Fires a ball of poison",
+		"Fires a ball of acid",
+		"Fires a ball of cold",
+		"Fires a meteor",
+		"Fires a ball of mana",
+
+		/* Kelek's Grimoire of Power (sval 6) */
+		"Detects evil monsters in the current map pane",
+		"Detects magical objects in the current map pane",
+		"Recharges staffs, wands, or rods",
+		"Deletes all monsters of the symbol you choose, except uniques",
+		"Deletes all nearby monsters except uniques",
+
+		/* Resistance of Scarabtarices (sval 4) */
+		"Grants temporary resistance to fire",
+		"Grants temporary resistance to cold",
+		"Grants temporary resistance to acid",
+		"Grants temporary resistance to poison",
+		"Grants temporary resistance to fire, cold, acid, electricity and poison",
+
+		/* Tenser's transformations... (sval 7) */
+		"Grants temporary heroism",
+		"Grants a temporary bonus to AC",
+		"Grants temporary berserk strength",
+		"Gives the caster a temporary speed bonus",
+		"Grants the caster temporary invulnerability",
+
+		"(blank)",
+		"(blank)",
+		"(blank)",
+		"(blank)",
+		"(blank)"
+	},
+
+
+	/*** Priest Spells ***/
+
+	{
+		/* Beginners Handbook (sval 0) */
+		"Detects evil monsters in the current map pane",
+		"Restores a small number of hit points and cures minor cuts",
+		"Grants the caster a temporary blessing",
+		"Removes all traces of magical fear from the caster",
+		"Lights a room or area and damages nearby light-sensitive creatures",
+		"Detects traps in the current map pane",
+		"Detects doors and stairs in the current map pane",
+		"Reduces the duration of poison on the caster",
+
+		/* Words of Wisdom (sval 1) */
+		"Attempts to scare a monster",
+		"Teleports you a moderate distance to a randomly selected location",
+		"Restores some hit points and cures some cuts",
+		"Somewhat longer lasting blessing",
+		"Attempts to put adjacent monsters to sleep",
+		"Magically removes caster's hunger",
+		"Allows the caster to remove most cursed items",
+		"Grants temporary resistance to fire and cold",
+
+		/* Chants and Blessings (sval 2) */
+		"Removes all traces of poison from the caster's body",
+		"Fires a ball that does increased damage to evil monsters",
+		"Restores some hit points and cures cuts",
+		"Grants the caster the temporary ability to see invisible monsters",
+		"Protects the caster from evil monster's physical attack",
+		"Shakes dungeon structure, and results in random swapping of floors and walls",
+		"Maps nearby area",
+		"Restores some hit points and cures cuts and stun",
+		"Attempts to make undead run away",
+
+		/* Exorcism and Dispelling (sval 3) */
+		"Longer lasting blessing",
+		"Damages undead",
+		"Restores a large amount of hit points and cures cuts and stun",
+		"Damages evil monsters",
+		"Sets a glyph on the floor beneath you, that monsters have difficulty passing",
+		"Damages evil monsters, heals a lot, removes fear, poison, cuts and stun",
+
+		/* Ethereal openings (sval 4) */
+		"Teleports you a small distance to a randomly selected location",
+		"Teleports you a long distance to a randomly selected location",
+		"Teleports a monster away",
+		"Teleports you to the next level up or down",
+		"Recalls player from dungeon to town, or from town to the deepest level of dungeon.",
+		"Recreates the current dungeon level",
+
+		/* Godly Insights... (sval 5) */
+		"Detects non-invisible monsters in the current map pane",
+		"Detects all monsters, traps, doors, stairs, treasures and items in your vicinity",
+		"Identifies an object",
+		"Learns about nearby monsters",
+		"Lights up and reveals the whole dungeon map",
+
+		/* Purifications and Healing (sval 6) */
+		"Restores some hit points and cures cuts",
+		"Restores some hit points and cures cuts and stun",
+		"Restores a large amount of hit points and cures cuts and stun",
+		"Restores drained attributes",
+		"Restores drained experience",
+
+		/* Holy Infusions (sval 7) */
+		"Destroys doors and traps in adjacent spaces",
+		"Recharges staffs, wands, or rods",
+		"Allows the caster to remove cursed items",
+		"Enchants a weapon with to-hit and to-damage bonuses",
+		"Enchants a piece of armour with an AC bonus",
+		"Brands a weapon with elemental damage",
+
+		/* Wrath of God (sval 8) */
+		"Damages undead",
+		"Damages evil monsters",
+		"Teleports nearby evil monsters away",
+		"Destroys nearby objects, deletes monsters, and banishes uniques from the level",
+		"Drains life",
+
+		"(blank)",
+		"(blank)",
+		"(blank)",
+		"(blank)",
+		"(blank)",
+		"(blank)"
+	},
+
+	/*** Illusionist Spells ***/
+	/* Added by -KMW- */
+
+	{
+		/* Illusions for Beginners (sval 0) */
+		"Does damage and confuses the target",
+		"Detects non-invisible monsters in the current map pane",
+		"Teleports you a small distance to a randomly selected location",
+		"Lights a room or area and damages nearby light-sensitive creatures",
+		"Detects treasure in the current map pane",
+		"Attempts to scare a monster",
+		"Detects objects in the current map pane",
+		"Detects traps, doors and stairs in the current map pane",
+		"Fires a ball of poisonous vapours",
+
+		/* Tricks and Visions (sval 1) */
+		"Grants temporary infravision bonus to the caster",
+		"Attempts to put a monster to sleep",
+		"Trap/Door Destruction",
+		"Fires a ball of poisonous vapours",
+		"Removes all traces of poison from the caster's body",
+		"Magically removes caster's hunger",
+		"Creates a barrier of doors around you",
+		"Fires a bolt of force",
+		"Weakens a section of wall so much so that it crumbles away",
+
+		/* Phantasms and Illusions (sval 2) */
+		"Detects invisible monsters in the current map pane",
+		"Recharges staffs, wands, or rods",
+		"Brands ammunition with an elemental brand",
+		"Fires a beam of light that can damage light-sensitive creatures",
+		"Fires a ball of chaos",
+		"Grants temporary sustain intelligence and sustain wisdom",
+		"Maps nearby area",
+		"Attempts to slow a monster",
+
+		/* Shadows and Prisms (sval 3) */
+		"Fires a ball of darkness",
+		"Fires a bolt of darkness",
+		"Grants temporary wraith-form, allowing the caster to pass through walls",
+		"Gives the caster a temporary speed bonus",
+		"Sets a glyph on the floor beneath you, that monsters have difficulty passing",
+		"Fires a ball and a beam of light",
+		"Grants a temporary bonus to AC",
+
+		/* Knowledge of Kenault (sval 5) */
+		"Locks a nearby door",
+		"Fires a ball of chaos",
+		"Recalls player from dungeon to town, or from town to the deepest level of dungeon",
+		"Detects magical objects in the current map pane",
+		"Learns about nearby monsters",
+		"Fires a ball of light",
+
+		/* Bigby's Handbook (sval 8) */
+		"Sets a glyph on the floor beneath you, that monsters have difficulty passing",
+		"Fires a bolt of confusion",
+		"Fires a bolt of force",
+		"Attempts to slow a monster",
+		"Fires a beam of force",
+		"Fires a bolt of gravitational force",
+		"A blast of force centered around the caster",
+
+		/* Otiluke's Spheres (sval 6) */
+		"Fires a ball of light",
+		"Fires a ball of darkness",
+		"Fires a ball of confusion",
+		"Fires a ball of chaos",
+		"Fires a ball of sound",
+		"Fires a ball of shards",
+
+		/* Serten's Immunities (sval 4) */
+		"Removes all traces of magical fear from the caster",
+		"Grants temporary resistance to light & dark",
+		"Grants temporary resistance to poison",
+		"Grants temporary resistance to chaos & confusion",
+		"Grants temporary resistance to sound & shards",
+		"Grants temporary resistance to nexus",
+
+		/* Boccob's Book of Shadows (sval 7) */
+		"Grants temporary invisibility to the caster",
+		"Fires a ball of darkness and a ball of force",
+		"Fires a ball of darkness",
+		"Converts caster's life into mana",
+		"Teleports you to a randomly selected location",
+		"Summons shadows to fight for you"
+	},
+
+	/*** Death spells ***/
+
+	{
+	     /* Black Prayers */
+	     "Fires a bolt of nether",
+	     "Detects undead monsters in the current map pane",
+		"Restores a small number of hit points and cures minor cuts",
+		"Grants the caster a temporary blessing",
+		"Removes all traces of magical fear from the caster",
+	     "Grants tmeporary infravision to the caster",
+		"Attempts to scare a monster",
+		"Reduces the duration of poison on the caster",
+	     "Grants a temporary stealth bonus to the caster",
+
+	     /* Darker Elements */
+	     "Lights a room or area and damages nearby light-sensitive creatures",
+		"Detects traps, doors and stairs in the current map pane",
+		"Restores some hit points and cures some cuts",
+		"Grants temporary heroism",
+	     "Attempts to put nearby monsters to sleep",
+	     "Grants temporary resistance to cold",
+		"Fires a ball of poisonous vapours",
+		"Allows the caster to remove most cursed items",
+		"Magically removes caster's hunger",
+
+	     /* Death Mastery */
+		"Removes all traces of poison from the caster's body",
+		"Grants a temporary bonus to AC",
+	     "Fires a ball of nether",
+	     "Restores some hit points and cures some cuts",
+	     "Protects the caster from undead monster's physical attack",
+		"Grants the caster the temporary ability to see invisible monsters",
+	     "Attempts to make undead run away",
+	     "Drains life",
+
+	     /* Necronomicon */
+	     "Maps nearby area",
+		"Restores some hit points and cures cuts and stun",
+	     "Attempts to scare visible monsters",
+	     "Damages undead",
+		"Restores a large amount of hit points and cures cuts and stun",
+	     "Fires a ball of darkness",
+		"Sets a glyph on the floor beneath you, that monsters have difficulty passing",
+
+	     /* Controlling Life */
+		"Restores some hit points and cures cuts",
+		"Restores some hit points and cures cuts and stun",
+		"Restores a large amount of hit points and cures cuts and stun",
+	     "Restores drained experience",
+	     "Restores drained attributes",
+
+	     /* Annihilations */
+	     "Damages undead",
+	     "Teleports away undead mosnters",
+		"Deletes all monsters of the symbol you choose, except uniques",
+		"Deletes all nearby monsters except uniques",
+	     "Drains life",
+
+	     /* Unholy Protection */
+	     "Grants temporary resistance to light and darkness",
+	     "Grants temporary invisibility",
+	     "Grants temporary regeneration",
+	     "Grants temporary resistance to nether",
+		"Grants temporary wraith-form, allowing the caster to pass through walls",
+		"Grants temporary berserk strength",
+		"Grants the caster temporary invulnerability",
+
+	     /* Channeling the Void */
+		"Recharges staffs, wands, or rods",
+		"Allows the caster to remove cursed items",
+		"Enchants a weapon with to-hit and to-damage bonuses",
+		"Enchants a piece of armour with an AC bonus",
+		"Brands a weapon with poison damage",
+
+	     /* Material Shadows */
+		"Teleports you a small distance to a randomly selected location",
+		"Destroys doors and traps in adjacent spaces",
+		"Identifies an object",
+		"Learns about nearby monsters",
+		"Recalls player from dungeon to town, or from town to the deepest level of dungeon",
+	}
+};
 
 
 /*

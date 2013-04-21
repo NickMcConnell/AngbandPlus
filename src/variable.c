@@ -730,5 +730,3 @@ u16b no_breeders;
 
 /* Count how many times an effect has been used */
 u16b effects[MAX_EFFECTS];
-
-

@@ -423,3 +423,14 @@ penalty
 (stats are shown on main screen the same as before, green except for
 when reduced, then in yellow)
 
+1.1.2
+
+Show experience bar (in hidden mode) in yellow if xp has been drained
+Experience drain now happens from class with highest experience first
+Book of Infinite Spells changes the spell it contains every time it is
+used (rather than 1 in 3 times), and will always be unidentified when
+found, and renamed it to Scroll of Infinite Spells to avoid confusion
+(as it is actually a scroll)
+Show number of blows when in hidden mode
+Added descriptions to spells, thanks to somniloquy for the code and
+some of the descriptions

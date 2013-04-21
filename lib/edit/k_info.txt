@@ -3799,7 +3799,7 @@ W:10:0:2:1200
 A:10/1:25/1:50/1:75/1
 F:ACTIVATE | EASY_KNOW
 
-N:593:& Book~ of Infinite Spells
+N:593:& Scroll~ of Infinite Spells
 G:?:y
 I:70:57:0
 W:80:0:5:125000

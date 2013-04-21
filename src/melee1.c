@@ -1070,16 +1070,16 @@ bool make_attack_normal(int m_idx)
 					}
 					else
 					{
-						s32b d = damroll(10, 6) + (p_ptr->exp[best_class()]/100) * MON_DRAIN_LIFE;
+						s32b d = damroll(10, 6) + (p_ptr->exp[best_experience()]/100) * MON_DRAIN_LIFE;
 						if (p_ptr->hold_life)
 						{
 							msg_print("You feel your life slipping away!");
-							lose_exp(d/10, best_class());
+							lose_exp(d/10, best_experience());
 						}
 						else
 						{
 							msg_print("You feel your life draining away!");
-							lose_exp(d, best_class());
+							lose_exp(d, best_experience());
  						}
 					}
 					break;
@@ -1099,17 +1099,17 @@ bool make_attack_normal(int m_idx)
 					}
 					else
 					{
-						s32b d = damroll(20, 6) + (p_ptr->exp[best_class()] / 100) * MON_DRAIN_LIFE;
+						s32b d = damroll(20, 6) + (p_ptr->exp[best_experience()] / 100) * MON_DRAIN_LIFE;
 
 						if (p_ptr->hold_life)
 						{
 							msg_print("You feel your life slipping away!");
-							lose_exp(d / 10, best_class());
+							lose_exp(d / 10, best_experience());
 						}
 						else
 						{
 							msg_print("You feel your life draining away!");
-							lose_exp(d, best_class());
+							lose_exp(d, best_experience());
 						}
 					}
 					break;
@@ -1129,17 +1129,17 @@ bool make_attack_normal(int m_idx)
 					}
 					else
 					{
-						s32b d = damroll(40, 6) + (p_ptr->exp[best_class()] / 100) * MON_DRAIN_LIFE;
+						s32b d = damroll(40, 6) + (p_ptr->exp[best_experience()] / 100) * MON_DRAIN_LIFE;
 
 						if (p_ptr->hold_life)
 						{
 							msg_print("You feel your life slipping away!");
-							lose_exp(d / 10, best_class());
+							lose_exp(d / 10, best_experience());
 						}
 						else
 						{
 							msg_print("You feel your life draining away!");
-							lose_exp(d, best_class());
+							lose_exp(d, best_experience());
 						}
 					}
 					break;
@@ -1159,17 +1159,17 @@ bool make_attack_normal(int m_idx)
 					}
 					else
 					{
-						s32b d = damroll(80, 6) + (p_ptr->exp[best_class()] / 100) * MON_DRAIN_LIFE;
+						s32b d = damroll(80, 6) + (p_ptr->exp[best_experience()] / 100) * MON_DRAIN_LIFE;
 
 						if (p_ptr->hold_life)
 						{
 							msg_print("You feel your life slipping away!");
-							lose_exp(d / 10, best_class());
+							lose_exp(d / 10, best_experience());
 						}
 						else
 						{
 							msg_print("You feel your life draining away!");
-							lose_exp(d, best_class());
+							lose_exp(d, best_experience());
 						}
 					}
 					break;

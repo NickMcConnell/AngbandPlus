@@ -284,7 +284,10 @@ static void XP_player_redraw(void)
      Term_putstr(COL_EXP, ROW_EXP, 12, TERM_WHITE, "[----------]");
 
      /* Dump the current "XP" (use '*' symbols) */
-     Term_putstr(COL_EXP + 1, ROW_EXP, len, TERM_L_GREEN, "**********");
+     if (p_ptr->exp[p_ptr->current_class] >= p_ptr->max_exp[p_ptr->current_class])
+	  Term_putstr(COL_EXP + 1, ROW_EXP, len, TERM_L_GREEN, "**********");
+     else
+	  Term_putstr(COL_EXP + 1, ROW_EXP, len, TERM_YELLOW, "**********");
 }
 
 /*
@@ -327,11 +330,11 @@ static void prt_exp(void)
 	{
 	    if (adult_hidden)
 	    {
-		/* Print XP */
-		sprintf(out_val, "    100%%"); /* 100% */
-
-		put_str("EXP ", ROW_EXP, 0);
-		c_put_str(TERM_L_GREEN, out_val, ROW_EXP, COL_EXP + 4);
+		 Term_putstr(COL_EXP, ROW_EXP, 12, TERM_WHITE, "[----------]");
+		if (p_ptr->exp[p_ptr->current_class] >= p_ptr->max_exp[p_ptr->current_class])
+		     Term_putstr(COL_EXP + 1, ROW_EXP, 12, TERM_L_GREEN, "**********");
+		else
+		     Term_putstr(COL_EXP + 1, ROW_EXP, 12, TERM_YELLOW, "**********");
 	    }
 	    else
 	    {

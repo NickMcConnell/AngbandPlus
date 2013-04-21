@@ -1261,7 +1261,7 @@ void object_desc(char *buf, const object_type *o_ptr, int pref, int mode)
 			{
 			     modstr = scroll_adj[o_ptr->sval];
 			     if (aware) append_name = TRUE;
-			     basenm = "& Book~ of Infinite Spells";
+			     basenm = "& Scroll~ of Infinite Spells";
 			}
 			else if (o_ptr->sval < SV_SCROLL_SPELL || o_ptr->sval > SV_SCROLL_DEATH)
 			{

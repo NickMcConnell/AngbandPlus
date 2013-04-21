@@ -1459,12 +1459,25 @@ static void display_player_xtra_info(void)
 		 sprintf(buf, " ");
 	    Term_putstr(col, 12, -1, TERM_WHITE, "Shoot");
 	    Term_putstr(col+5, 12, -1, TERM_L_BLUE, format("%13s", buf));
+	}
 
+	if (!adult_hidden)
+	{
 	    /* Blows */
 	    sprintf(buf, "%d/turn", p_ptr->num_blow);
 	    Term_putstr(col, 13, -1, TERM_WHITE, "Blows");
 	    Term_putstr(col+5, 13, -1, TERM_L_BLUE, format("%13s", buf));
+	}
+	else
+	{
+	    /* Blows */
+	    sprintf(buf, "%d/turn", p_ptr->num_blow);
+	    Term_putstr(1, 14, -1, TERM_WHITE, "Blows");
+	    Term_putstr(6, 14, -1, TERM_L_BLUE, format("%13s", buf));
+	}
 
+	if (!adult_hidden)
+	{
 	    /* Shots */
 	    sprintf(buf, "%d/turn", p_ptr->num_fire);
 	    Term_putstr(col, 14, -1, TERM_WHITE, "Shots");
@@ -1598,7 +1611,7 @@ static void display_player_xtra_info(void)
 		  {
 		      s32b advance = (player_exp[p_ptr->lev[class] - 1] *
 				      p_ptr->expfact[class] / 100L);
-		      Term_putstr(39, 19 + class, -1, TERM_L_GREEN,
+		      Term_putstr(39, 19 + class, -1, xp_color,
 				  format("%10ld", advance));
 
 		      /* Exp factor */
@@ -1613,6 +1626,8 @@ static void display_player_xtra_info(void)
 	     }
 	     else /* Show XP bar and gold, + in different positions */
 	     {
+		  byte xp_color = (p_ptr->exp[class] >= p_ptr->max_exp[class]) ? TERM_L_GREEN : TERM_YELLOW;
+
 		  Term_putstr(20, 19 + class, 35, TERM_WHITE,   "[---------------------------------]");
 		  if (p_ptr->lev[class] < PY_MAX_LEVEL)
 		  {
@@ -1622,10 +1637,10 @@ static void display_player_xtra_info(void)
 		    long achieved = p_ptr->exp[class] - last_needed;
 		    long pct = achieved * 100 / diff;
 		    int len = (pct < 3) ? 0 : (pct < 100) ? (pct / 3) : 33;
-		    Term_putstr(21, 19 + class, len, TERM_L_GREEN, "*********************************");
+		    Term_putstr(21, 19 + class, len, xp_color, "*********************************");
 		  }
 		  else
-		       Term_putstr(21, 19 + class, 33, TERM_L_GREEN, "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");		    
+		       Term_putstr(21, 19 + class, 33, xp_color, "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX");		    
 	     }
 	     
 	     /* Title */

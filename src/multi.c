@@ -166,6 +166,31 @@ int best_class()
      return temp;
 }
 
+/* Which class does the player have the highest experience in ? */
+int best_experience()
+{
+     int i;
+     int best_exp = 0; /* Assume none */
+     int temp = 0; /* Assume first class */
+
+     /* Get best experience */
+     for (i = 0; i < p_ptr->available_classes; i++)
+     {
+	  /* Any higher levels ? */
+	  if (p_ptr->exp[i] > best_exp)
+	  {
+	       /* Store higher level */
+	       best_exp = p_ptr->exp[i];
+
+	       /* Store this class */
+	       temp = i;
+	  }
+     }
+
+     /* Return best class */
+     return temp;
+}
+
 /* Get the index of a sought class, ie CLASS_WARRIOR */
 int index_of_class(int class_sought)
 {

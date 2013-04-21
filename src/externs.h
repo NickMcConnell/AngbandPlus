@@ -56,6 +56,7 @@ extern const player_magic magic_info[MAX_CLASS];
 extern cptr realm_names[];
 extern const u32b spell_flags[MAX_REALM][9][2];
 extern cptr spell_names[MAX_REALM][PY_MAX_SPELLS];
+extern cptr spell_descs[MAX_REALM][PY_MAX_SPELLS];
 extern const byte chest_traps[64];
 extern cptr player_title[MAX_CLASS][PY_MAX_LEVEL/5];
 extern cptr color_names[16];

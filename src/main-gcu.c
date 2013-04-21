@@ -1101,15 +1101,15 @@ errr init_gcu(int argc, char *argv[])
 			case 2:
 				rows = 24;
 				cols = COLS - 81;
-				y = 0;
+				y = 1;
 				x = 81;
 				break;
 
 			/* Lower right */
 			case 3:
-				rows = LINES - 25;
+				rows = LINES - 26;
 				cols = COLS - 81;
-				y = 25;
+				y = 26;
 				x = 81;
 				break;
 
