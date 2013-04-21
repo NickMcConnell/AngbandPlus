@@ -1,0 +1,7 @@
+-1.0.1-
+
+Fixed priest/paladin spell list, dungeon books were broken
+Changed title in files.txt, 'V' command gives correct info now
+Removed limit on number of traps when in nightmare mode
+Activations of wands/staffs/rods/artifacts do not use player level anymore
+

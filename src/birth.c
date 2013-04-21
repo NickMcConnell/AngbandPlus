@@ -1228,7 +1228,7 @@ static bool player_birth_aux_2(void)
 {
 	int i;
 
-	int row = 3;
+	int row = 2;
 	int col = 42;
 
 	int stat = 0;
@@ -1621,25 +1621,25 @@ static bool player_birth_aux_3(void)
 			Term_clear();
 
 			/* Label */
-			if (!adult_hidden) put_str(" Limit", 2, col+5);
+			if (!adult_hidden) put_str(" Limit", 1, col+5);
 
 			/* Label */
-			put_str("  Freq", 2, col+13);
+			put_str("  Freq", 1, col+13);
 
 			/* Label */
-			put_str("  Roll", 2, col+24);
+			put_str("  Roll", 1, col+24);
 
 			/* Put the minimal stats */
 			for (i = 0; i < A_MAX; i++)
 			{
 				/* Label stats */
-				put_str(stat_names[i], 3+i, col);
+				put_str(stat_names[i], 2+i, col);
 
 				/* Put the stat */
 				if (!adult_hidden)
 				{
 				     cnv_stat(stat_limit[i], buf);
-				     c_put_str(TERM_L_BLUE, buf, 3+i, col+5);
+				     c_put_str(TERM_L_BLUE, buf, 2+i, col+5);
 				}
 			}
 
@@ -1647,10 +1647,10 @@ static bool player_birth_aux_3(void)
 			last_round = auto_round;
 
 			/* Label count */
-			put_str("Round:", 10, col+13);
+			put_str("Round:", 9, col+13);
 
 			/* Indicate the state */
-			put_str("(Hit ESC to stop)", 12, col+13);
+			put_str("(Hit ESC to stop)", 11, col+13);
 
 			/* Auto-roll */
 			while (1)
@@ -1696,7 +1696,7 @@ static bool player_birth_aux_3(void)
 					{
 						/* Put the stat */
 						cnv_stat(stat_use[i], buf);
-						c_put_str(TERM_L_GREEN, buf, 3+i, col+24);
+						c_put_str(TERM_L_GREEN, buf, 2+i, col+24);
 
 						/* Put the percent */
 						if (stat_match[i])
@@ -1704,18 +1704,18 @@ static bool player_birth_aux_3(void)
 							int p = 1000L * stat_match[i] / auto_round;
 							byte attr = (p < 100) ? TERM_YELLOW : TERM_L_GREEN;
 							sprintf(buf, "%3d.%d%%", p/10, p%10);
-							c_put_str(attr, buf, 3+i, col+13);
+							c_put_str(attr, buf, 2+i, col+13);
 						}
 
 						/* Never happened */
 						else
 						{
-							c_put_str(TERM_RED, "(NONE)", 3+i, col+13);
+							c_put_str(TERM_RED, "(NONE)", 2+i, col+13);
 						}
 					}
 
 					/* Dump round */
-					put_str(format("%10ld", auto_round), 10, col+20);
+					put_str(format("%10ld", auto_round), 9, col+20);
 
 					/* Make sure they see everything */
 					Term_fresh();

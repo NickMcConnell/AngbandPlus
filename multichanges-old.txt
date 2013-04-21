@@ -1,7 +1,16 @@
+---Summary of from Angband 2.9.2 to Multiband 1.0.0---
 
--- also see multi_changes.txt --
+Yet another variant of Angband. Like we need more. Anyway...
 
-OPTIONS
+Adds classes (Monk, Berserker, Archer, Illusionist (from Kangband), Trickster, Death Priest.
+
+Added Yeek, Maia, Dark Elf, Wood Elf, Kobold, Nibelung. New race : Caveman.
+
+Added easy mode, nightmare mode, astral, hide all character info mode.
+
+Added multiclassing. Can become a new class when all current classses are level 25 or more. XP is divided between all classes usually.
+
+-Options-
 
 Removed delay from autoroller
 
@@ -26,7 +35,6 @@ Nightmare mode
     10% chance of monsters being generated in a group
     1/2 chance of inflating monster level, depth monsters CAN appear out of 
     depth
-    more traps
     no connected stairs, and sometimes more than one level is descended
     player aggravates monsters
     player forgets location constantly
@@ -40,7 +48,7 @@ Easy mode
     gets better objects in black market
     halves final score
 
-Astral mode
+Astral mode     
      start on level 95 of the dungeon with 75 scrolls of identify
      cannot use recall or descend below 97 til surface is reached, then recall 
      depth reset to 0 and loses all benefits
@@ -48,7 +56,7 @@ Astral mode
      every level
      can move first when entering a level   
 
-RACES
+-Races-
 
 Added Wood-Elf and Dark-Elf
 Added Caveman - variation of the human
@@ -61,7 +69,7 @@ extra damage with bows
 
 Added info on races in birth.txt
 
-CLASSES
+-Classes-
 
 Changed the name of Priest to Holy Priest
 
@@ -94,7 +102,7 @@ Added Trickster (Rogue with Illusion spells)
 
 Added info on classes in birth.txt
 
-ADDED ITEMS
+-Added Items-
 
 mattock, wooden club, giant club, large hammer, hand axe, knife, great
 scimitar, leather sandals, spiked leather boots, silk gloves, wizard hat,
@@ -119,7 +127,7 @@ magery and illusion : small blades (up to 2d5 dmg), quarterstaff and mage staff
 holiness and death  : any blunt weapon (also penalizes the opposing realm) 
 crown of the Magi   : gives a bonus to both magic and illusion spells
 
-CHANGES TO ITEMS
+-Changes to items-
 
 Skeletons (the items) now appear as 's' instead of '~'
 
@@ -142,7 +150,7 @@ Changed format of melee weapons and missiles from (2d5) (+5, +5) to (+5, 2d5+5)
 
 Staff of Cure Light Wounds (1d8) changed to Cure Medium Wounds (2d8)
 
-STORES
+-Stores-
 
 Armoury now sells Soft Studded Leather
 Temple sells Death books (for Death Priest)
@@ -151,7 +159,7 @@ Magic Shop sells Illusion books
 
 Quality of items in Black Market depends on recall depth
 
-COMBAT
+-Combat-
 
 Added Quiver slot
 
@@ -162,7 +170,7 @@ other *bands, show only the damage done each attack, not each turn)
 
 Increased priest weapon penalties from -2 to -10
 
-SPELLCASTING
+-Spellcasting-
 
 Ranger no longer gets access to Magic Missile - starts with missiles anyway
 
@@ -181,7 +189,7 @@ hallucinating
 
 When priests fail to recite prayers, damage WIS instead of CON
 
-EFFECTS
+-Effects-
 
 Added effect of persistence, which means all timed conditions do not time-out,
 currently used by an amulet and an ego-item for quarterstaffs
@@ -201,7 +209,7 @@ Added option to display effects list at tombstone
 
 Most timed effects are now shown on player flag list on character info screen
 
-MISC
+-Others-
 
 If below level 50, show XP needed to advance to next level
 
@@ -222,4 +230,69 @@ Monster memory
   innate attacks, breaths and spells in violet, the message above in light red,
   and 'you feel an intense desire to kill this monster' in yellow
 
+---Multiclass related changes---
+
+-General-
+
+multi.c added to Makefiles
+
+Added info on commands in playing.txt and commands.txt
+Multiclass help in lib/help/multi.txt, added to help menu
+
+Tombstone shows levels attained in all classes, no longer shows experience
+High score list shows that player was multiclassed, does not show classes yet
+
+Info screen rearranged, now shows all classes, as do file dumps
+
+No more support for old savefiles (too many changes have been made)
+
+-Multiclass-
+
+Currently player begins with one class
+
+Have to gain level 25 in all current classes before another can be added
+
+Humans, Yeeks and Maia can have 4 classes, Half-Elves, High-Elves and
+Dunadan can have 3, everyone else is limited to 2
+
+Cannot multiclass with a non-recommended combination of race and class
+Not all combinations are allowed - see lib/help/multi.txt
+
+Added command 'N' to create a new class, roguelike command is 'O'
+Added wizard command 'N' to create a new class (with less restrictions - can
+combine more classes, ignore racial limits and multiclass at level 1
+Added commands ']' and '[' to switch forwards and backwards between classes
+Inform player when they switch a class
+
+Player is always informed about level changes in XP gaining/losing messages
+Experience draining usually affects the class which has the highest level
+Effects which restore experience affect all classes
+Wizard command 'x' to gain XP gives specified amount to all classes
+Wizard command 'e' to adjust stuff asks for XP for each class
+
+Experience is divived between all available classes when using unid-d items, 
+killing monsters and drinking potions of XP
+Monster memory now shows total XP gain, which is split between classes
+Only the relevant spellcasting classes get XP from casting their spells
+Rogues and Tricksters are the only ones to gain experience from
+lockpicking/disarming chests and doors
+
+-Character-
+
+Attributes are only affected by class bonuses of the first class chosen
+
+HP are calculated using the class which would give the most HP
+Use class which gets most blows to calculate how many blows the character gets
+Use class which gets fastest psuedo-id
+For skills, use best skill (out of all classes)
+Activations of devices which look at player level look at the highest level
+
+Study[] display is now cleared if current class cannot learn spells
+
+Mana and Piety regenerate regardless of which class is active
+
+Archer bonuses are gained regardless of which class is active
+Gains class intrinstics regardless of which class is active
+
+Priest and archer penalties affect player regardless of which class is active
 

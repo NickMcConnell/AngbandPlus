@@ -3041,11 +3041,11 @@ static void cave_gen(void)
 
 	/* Basic "amount" */
 	k = (p_ptr->depth / 3);
-	if (k > 10) k = 10;
+	if ((!adult_nightmare) && (k > 10)) k = 10;
 	if (k < 2) k = 2;
 
-	/* Many traps... */
-	if (adult_nightmare) k = 10;
+	/* Many, many traps... */
+	if (adult_nightmare) k *= 2;
 
 	/* Put some rubble in corridors */
 	alloc_object(ALLOC_SET_CORR, ALLOC_TYP_RUBBLE, randint(k));

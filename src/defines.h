@@ -41,13 +41,13 @@
 /*
  * Name of the version/variant
  */
-#define VERSION_NAME "Angband"
+#define VERSION_NAME "Multiband"
 
 
 /*
  * Current version string
  */
-#define VERSION_STRING	"2.9.2"
+#define VERSION_STRING	"1.0.1"
 
 
 /*
@@ -471,42 +471,41 @@
 #define PRAYER_HOLY_WORD               30
 
 /* Godly Insights */
-#define PRAYER_DETECT_MONSTERS         33
-#define PRAYER_DETECTION               34
-#define PRAYER_PERCEPTION              35
-#define PRAYER_PROBING                 36
-#define PRAYER_CLAIRVOYANCE            37
-
-/* Purifications and Healing */
-#define PRAYER_CURE_SERIOUS_WOUNDS2    38
-#define PRAYER_CURE_MORTAL_WOUNDS2     39
-#define PRAYER_HEALING                 40
-#define PRAYER_RESTORATION             41
-#define PRAYER_REMEMBRANCE             42
-
-/* Wrath of God */
-#define PRAYER_DISPEL_UNDEAD2          43
-#define PRAYER_DISPEL_EVIL2            44
-#define PRAYER_BANISHMENT              45
-#define PRAYER_WORD_OF_DESTRUCTION     46
-#define PRAYER_ANNIHILATION            47
-
-/* Holy Infusions */
-#define PRAYER_UNBARRING_WAYS          48
-#define PRAYER_RECHARGING              49
-#define PRAYER_DISPEL_CURSE            50
-#define PRAYER_ENCHANT_WEAPON          51
-#define PRAYER_ENCHANT_ARMOUR          52
-#define PRAYER_ELEMENTAL_BRAND         53
+#define PRAYER_DETECT_MONSTERS         37
+#define PRAYER_DETECTION               38
+#define PRAYER_PERCEPTION              39
+#define PRAYER_PROBING                 40
+#define PRAYER_CLAIRVOYANCE            41
 
 /* Ethereal openings */
-#define PRAYER_BLINK                   54
-#define PRAYER_TELEPORT_SELF           55
-#define PRAYER_TELEPORT_OTHER          56
-#define PRAYER_TELEPORT_LEVEL          57
-#define PRAYER_WORD_OF_RECALL          58
-#define PRAYER_ALTER_REALITY           59
+#define PRAYER_BLINK                   31
+#define PRAYER_TELEPORT_SELF           32
+#define PRAYER_TELEPORT_OTHER          33
+#define PRAYER_TELEPORT_LEVEL          34
+#define PRAYER_WORD_OF_RECALL          35
+#define PRAYER_ALTER_REALITY           36
 
+/* Purifications and Healing */
+#define PRAYER_CURE_SERIOUS_WOUNDS2    42
+#define PRAYER_CURE_MORTAL_WOUNDS2     43
+#define PRAYER_HEALING                 44
+#define PRAYER_RESTORATION             45
+#define PRAYER_REMEMBRANCE             46
+
+/* Wrath of God */
+#define PRAYER_DISPEL_UNDEAD2          53
+#define PRAYER_DISPEL_EVIL2            54
+#define PRAYER_BANISHMENT              55
+#define PRAYER_WORD_OF_DESTRUCTION     56
+#define PRAYER_ANNIHILATION            57
+
+/* Holy Infusions */
+#define PRAYER_UNBARRING_WAYS          47
+#define PRAYER_RECHARGING              48
+#define PRAYER_DISPEL_CURSE            49
+#define PRAYER_ENCHANT_WEAPON          50
+#define PRAYER_ENCHANT_ARMOUR          51
+#define PRAYER_ELEMENTAL_BRAND         52
 
 #define BOOK1(x) (((x) < 0) ? 0 : (x) < 32 ? (1L << (x)) : 0)
 #define BOOK2(x) (((x) < 0) ? 0 : (x) < 32 ? 0 : (1L << ((x) % 32)))

@@ -1516,8 +1516,7 @@ void do_cmd_read_scroll(void)
 
 		case SV_SCROLL_PROTECTION_FROM_EVIL:
 		{
-			k = 3 * p_ptr->lev[best_class()];
-			if (set_protevil(p_ptr->protevil + randint(25) + k)) ident = TRUE;
+			if (set_protevil(p_ptr->protevil + randint(50) + 50)) ident = TRUE;
 			if (ident) effects[EFFECT_PRO_EVIL]++;
 			break;
 		}
@@ -1584,8 +1583,7 @@ void do_cmd_read_scroll(void)
 
 		case SV_SCROLL_PROTECTION_FROM_UNDEAD:
 		{
-			k = 3 * p_ptr->lev[best_class()];
-			if (set_prot_undead(p_ptr->prot_undead + randint(25) + k)) ident = TRUE;
+			if (set_prot_undead(p_ptr->prot_undead + randint(50) + 50)) ident = TRUE;
 			if (ident) effects[EFFECT_PRO_UNDEAD]++;
 			break;
 		}
@@ -1784,7 +1782,7 @@ void do_cmd_use_staff(void)
 
 		case SV_STAFF_HASTE_MONSTERS:
 		{
-			if (speed_monsters(best_class())) ident = TRUE;
+			if (speed_monsters(rand_int(10) + 10)) ident = TRUE;
 			break;
 		}
 
@@ -1949,14 +1947,14 @@ void do_cmd_use_staff(void)
 
 		case SV_STAFF_SLEEP_MONSTERS:
 		{
-			if (sleep_monsters(best_class())) ident = TRUE;
+			if (sleep_monsters(randint(25) + 25)) ident = TRUE;
 			if (ident) effects[EFFECT_SLEEP_ALL]++;
 			break;
 		}
 
 		case SV_STAFF_SLOW_MONSTERS:
 		{
-			if (slow_monsters(best_class())) ident = TRUE;
+			if (slow_monsters(randint(25) + 25)) ident = TRUE;
 			if (ident) effects[EFFECT_SLOW_ALL]++;
 			break;
 		}
@@ -2001,8 +1999,7 @@ void do_cmd_use_staff(void)
 		{
 			if (dispel_evil(120)) { ident = TRUE;
 			effects[EFFECT_DISPEL_EVIL]++; }
-			k = 3 * p_ptr->lev[best_class()];
-			if (set_protevil(p_ptr->protevil + randint(25) + k)) { ident = TRUE;
+			if (set_protevil(p_ptr->protevil + randint(25) + 25)) { ident = TRUE;
 			effects[EFFECT_PRO_EVIL]++; }
 			if (set_poisoned(0)) { ident = TRUE;
 			effects[EFFECT_CURE_POISON]++; }
@@ -2268,7 +2265,7 @@ void do_cmd_aim_wand(void)
 
 		case SV_WAND_HASTE_MONSTER:
 		{
-			if (speed_monster(dir, best_class())) ident = TRUE;
+			if (speed_monster(dir, randint(25) + 25)) ident = TRUE;
 			break;
 		}
 
@@ -2318,14 +2315,14 @@ void do_cmd_aim_wand(void)
 
 		case SV_WAND_SLEEP_MONSTER:
 		{
-			if (sleep_monster(dir, best_class())) ident = TRUE;
+			if (sleep_monster(dir, randint(25) + 25)) ident = TRUE;
 			if (ident) effects[EFFECT_SLEEP_MONSTER]++; 
 			break;
 		}
 
 		case SV_WAND_SLOW_MONSTER:
 		{
-			if (slow_monster(dir, best_class())) ident = TRUE;
+			if (slow_monster(dir, randint(25) + 25)) ident = TRUE;
 			if (ident) effects[EFFECT_SLOW_MONSTER]++; 
 			break;
 		}
@@ -2353,7 +2350,7 @@ void do_cmd_aim_wand(void)
 
 		case SV_WAND_POLYMORPH:
 		{
-			if (poly_monster(dir, best_class())) ident = TRUE;
+			if (poly_monster(dir, randint(25) + 25)) ident = TRUE;
 			if (ident) effects[EFFECT_POLY_OTHER]++; 
 			break;
 		}
@@ -2853,7 +2850,7 @@ void do_cmd_zap_rod(void)
 
 		case SV_ROD_SLEEP_MONSTER:
 		{
-			if (sleep_monster(dir, best_class())) ident = TRUE;
+			if (sleep_monster(dir, randint(25) + 25)) ident = TRUE;
 			if (ident) effects[EFFECT_SLEEP_MONSTER]++; 
 			o_ptr->pval = 18;
 			break;
@@ -2861,7 +2858,7 @@ void do_cmd_zap_rod(void)
 
 		case SV_ROD_SLOW_MONSTER:
 		{
-			if (slow_monster(dir, best_class())) ident = TRUE;
+			if (slow_monster(dir, randint(25) + 25)) ident = TRUE;
 			if (ident) effects[EFFECT_SLOW_MONSTER]++; 
 			o_ptr->pval = 20;
 			break;
@@ -2877,7 +2874,7 @@ void do_cmd_zap_rod(void)
 
 		case SV_ROD_POLYMORPH:
 		{
-			if (poly_monster(dir, best_class())) ident = TRUE;
+			if (poly_monster(dir, rand_int(25) + 25)) ident = TRUE;
 			if (ident) effects[EFFECT_POLY_OTHER]++; 
 			o_ptr->pval = 25;
 			break;
@@ -3312,8 +3309,7 @@ void do_cmd_activate(void)
 			case ACT_PROT_EVIL:
 			{
 				msg_format("The %s lets out a shrill wail...", o_name);
-				k = 3 * p_ptr->lev[best_class()];
-				(void)set_protevil(p_ptr->protevil + randint(25) + k);
+				(void)set_protevil(p_ptr->protevil + randint(50) + 50);
 				effects[EFFECT_PRO_EVIL]++; 
 				break;
 			}
@@ -3321,7 +3317,7 @@ void do_cmd_activate(void)
 			case ACT_DISP_EVIL:
 			{
 				msg_format("The %s floods the area with goodness...", o_name);
-				dispel_evil(p_ptr->lev[best_class()] * 5);
+				dispel_evil(250);
 				effects[EFFECT_DISPEL_EVIL]++; 
 				break;
 			}
@@ -3484,7 +3480,7 @@ void do_cmd_activate(void)
 			case ACT_SLEEP:
 			{
 				msg_format("Your %s glows deep blue...", o_name);
-				sleep_monsters_touch(best_class());
+				sleep_monsters_touch(50);
 				effects[EFFECT_SLEEP_TOUCH]++; 
 				break;
 			}

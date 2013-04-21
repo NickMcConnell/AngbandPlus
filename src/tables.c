@@ -1618,23 +1618,24 @@ const player_magic magic_info[MAX_CLASS] =
 			{ 33, 55, 90,  15},
 			{ 39, 32, 95,  20},
 
+			{  3,  3, 50,   6},
+			{ 10, 10, 50,   8},
+			{ 20, 20, 80,  16},
+			{ 30, 40, 75, 133},
+			{ 35, 50, 75,  11},
+			{ 40, 60, 75, 250},	/* 300 */
+
 			{  3,  3, 50,   2},
 			{ 10, 10, 80,  20},
 			{ 20, 20, 80,  20},
 			{ 25, 10, 80, 150},
 			{ 35, 50, 80, 230},
 
+			{ 15,  7, 70,  25},
 			{ 15,  5, 50,  25},
 			{ 17,  7, 60,  45},
 			{ 30, 50, 80, 130},
 			{ 35, 70, 90, 230},
-			{ 35, 70, 90, 250},	/* 350 */
-
-			{ 15,  7, 70,  25},
-			{ 20, 10, 75,  60},
-			{ 25, 25, 80, 250},
-			{ 35, 35, 80, 115},
-			{ 45, 60, 75, 250},	/* 350 */
 
 			{  5,  6, 50,  40},
 			{ 15, 20, 80,  25},
@@ -1643,12 +1644,11 @@ const player_magic magic_info[MAX_CLASS] =
 			{ 37, 60, 85, 250},	/* 325 */
 			{ 45, 95, 85, 250},	/* 530 */
 
-			{  3,  3, 50,   6},
-			{ 10, 10, 50,   8},
-			{ 20, 20, 80,  16},
-			{ 30, 40, 75, 133},
-			{ 35, 50, 75,  11},
-			{ 40, 60, 75, 250},	/* 300 */
+			{ 15,  7, 70,  25},
+			{ 20, 10, 75,  60},
+			{ 25, 25, 80, 250},
+			{ 35, 35, 80, 115},
+			{ 45, 60, 75, 250},	/* 350 */
 
 			{ 99,  0,  0,    0},
 			{ 99,  0,  0,    0},
@@ -1882,6 +1882,13 @@ const player_magic magic_info[MAX_CLASS] =
 			{ 37, 70, 90,   5},
 			{ 39, 38, 95,  10},
 
+			{  7,  7, 50,   2},
+			{ 20, 20, 50,   4},
+			{ 25, 25, 80,  12},
+			{ 35, 50, 75, 115},
+			{ 40, 60, 75,  10},
+			{ 45, 70, 75, 250},
+
 			{ 5,  5,  50,   1},
 			{ 15, 15, 80,  12},
 			{ 25, 25, 80,  16},
@@ -1894,12 +1901,6 @@ const player_magic magic_info[MAX_CLASS] =
 			{ 40, 80, 90, 200},
 			{ 40, 80, 90, 250},	/* 300 */
 
-			{ 20, 13, 70,  20},
-			{ 30, 20, 75,  40},
-			{ 30, 35, 80, 200},
-			{ 40, 40, 80, 100},
-			{ 47, 70, 75, 250},	/* 350 */
-
 			{ 10, 16, 50,  20},
 			{ 25, 30, 80,  15},
 			{ 30, 50, 80, 130},
@@ -1907,12 +1908,11 @@ const player_magic magic_info[MAX_CLASS] =
 			{ 42, 80, 85, 250},	/* 285 */
 			{ 47, 95, 85, 250},	/* 500 */
 
-			{  7,  7, 50,   2},
-			{ 20, 20, 50,   4},
-			{ 25, 25, 80,  12},
-			{ 35, 50, 75, 115},
-			{ 40, 60, 75,  10},
-			{ 45, 70, 75, 250},
+			{ 20, 13, 70,  20},
+			{ 30, 20, 75,  40},
+			{ 30, 35, 80, 200},
+			{ 40, 40, 80, 100},
+			{ 47, 70, 75, 250},	/* 350 */
 
 			{ 99,  0,  0,   0},
 			{ 99,  0,  0,   0},
@@ -2795,6 +2795,13 @@ cptr spell_names[MAX_REALM][PY_MAX_SPELLS] =
 		"Glyph of Warding",
 		"Holy Word",
 
+		/* Ethereal openings (sval 4) */
+		"Blink",
+		"Teleport Self",
+		"Teleport Other",
+		"Teleport Level",
+		"Word of Recall",
+		"Alter Reality",
 		/* Godly Insights... (sval 5) */
 		"Detect Monsters",
 		"Detection",
@@ -2809,13 +2816,6 @@ cptr spell_names[MAX_REALM][PY_MAX_SPELLS] =
 		"Restoration",
 		"Remembrance",
 
-		/* Wrath of God (sval 8) */
-		"Dispel Undead",
-		"Dispel Evil",
-		"Banishment",
-		"Word of Destruction",
-		"Annihilation",
-
 		/* Holy Infusions (sval 7) */
 		"Unbarring Ways",
 		"Recharging",
@@ -2824,13 +2824,12 @@ cptr spell_names[MAX_REALM][PY_MAX_SPELLS] =
 		"Enchant Armour",
 		"Elemental Brand",
 
-		/* Ethereal openings (sval 4) */
-		"Blink",
-		"Teleport Self",
-		"Teleport Other",
-		"Teleport Level",
-		"Word of Recall",
-		"Alter Reality",
+		/* Wrath of God (sval 8) */
+		"Dispel Undead",
+		"Dispel Evil",
+		"Banishment",
+		"Word of Destruction",
+		"Annihilation",
 
 		"(blank)",
 		"(blank)",
