@@ -1131,6 +1131,7 @@ bool make_attack_spell(int m_idx)
 			}
 			else
 			{
+			                  curse_equipment(33, 0);
 				take_hit(damroll(3, 8), ddesc);
 			}
 			break;
@@ -1149,6 +1150,7 @@ bool make_attack_spell(int m_idx)
 			}
 			else
 			{
+			                  curse_equipment(50, 5);
 				take_hit(damroll(8, 8), ddesc);
 			}
 			break;
@@ -1167,6 +1169,7 @@ bool make_attack_spell(int m_idx)
 			}
 			else
 			{
+			                  curse_equipment(80, 15);
 				take_hit(damroll(10, 15), ddesc);
 			}
 			break;
@@ -3357,4 +3360,57 @@ void process_monsters(void)
 }
 
 
+void curse_equipment(int chance, int heavy_chance)
+{
+    bool changed = FALSE;
+    u32b    o1, o2, o3;
+    object_type * o_ptr = &inventory[INVEN_WIELD - 1 + randint(12)];
+
+    if (randint(100)>chance) return;
+
+    if (!(o_ptr->k_idx)) return;
+
+    object_flags(o_ptr, &o1, &o2, &o3);
+
+
+    /* Extra, biased saving throw for blessed items */
+    if ((o3 & (TR3_BLESSED)) && (randint(888) > chance))
+    {
+        char o_name[256];
+        object_desc(o_name, o_ptr, FALSE, 0);
+        msg_format("Your %s resist%s cursing!", o_name,
+       ((o_ptr->number > 1) ? "" : "s"));
+       /* Hmmm -- can we wear multiple items? If not, this is unnecessary */
+        return;
+    }
+
+    if (randint(100)<=heavy_chance &&
+        (o_ptr->name1 || o_ptr->name2 || o_ptr->art_name))
+    {
+        if (!(o3 & TR3_HEAVY_CURSE))
+            changed = TRUE;
+        o_ptr->art_flags3 |= TR3_HEAVY_CURSE;
+        o_ptr->art_flags3 |= TR3_LIGHT_CURSE;
+        o_ptr->ident |= IDENT_CURSED;
+    }
+    else
+    {
+        if (!(o_ptr->ident & (IDENT_CURSED)))
+            changed = TRUE;
+        o_ptr->art_flags3 |= TR3_LIGHT_CURSE;
+        o_ptr->ident |= IDENT_CURSED;
+    }
+
+    if (changed)
+    {
+        msg_print("There is a malignant black aura surrounding you...");
+        if (o_ptr->note)
+        {
+            if (streq(quark_str(o_ptr->note), "uncursed"))
+            {
+                o_ptr->note = 0;
+            }
+        }
+    }
+}
 

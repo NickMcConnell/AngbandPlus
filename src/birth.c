@@ -968,7 +968,14 @@ static byte player_init[MAX_CLASS][3][2] =
 		{ TV_PRAYER_BOOK, 0 },
 		{ TV_SWORD, SV_BROAD_SWORD },
 		{ TV_SCROLL, SV_SCROLL_PROTECTION_FROM_EVIL }
-	}
+	},
+
+	{
+	        /* Elementalist */
+	        { TV_ELEMENT_BOOK, 0},
+	        { TV_SWORD, SV_SMALL_SWORD },
+	        { TV_RING, SV_RING_RESIST_FIRE }
+        }
 };
 
 
@@ -1026,6 +1033,226 @@ static void player_outfit(void)
 	}
 }
 
+/* Allow player to modify the character by spending points Taken from Cth*/
+static bool point_mod_player(void)
+{
+	char b1 = '[';
+	char b2 = ']';
+	char stat;
+	char modpts[4] = "none";
+	char *buf = "zero";
+	int tmp = 0;
+	int hp = 0;
+	int addhp = 0;
+	int x = 0;
+	int i, points;
+
+
+	points = 34;
+	sprintf(modpts,"%d",points);
+	clear_from(23);
+	while(1)
+	{
+		/* reset variable */
+		i = 0;
+
+		/* Calculate the bonuses and hitpoints */
+		p_ptr->update |= (PU_BONUS | PU_HP);
+
+		/* Update stuff */
+		update_stuff();
+
+		/* Fully healed */
+		p_ptr->chp = p_ptr->mhp;
+
+		/* Fully rested */
+		p_ptr->csp = p_ptr->msp;
+
+		/* Display the player */
+		display_player(0);
+
+		/* Display Stat Menu */
+		clear_from(23);
+		sprintf(modpts,"%d",points);
+
+		Term_putstr(73,3,-1,TERM_WHITE,"<-S/s->");
+		Term_putstr(73,4,-1,TERM_WHITE,"<-I/i->");
+		Term_putstr(73,5,-1,TERM_WHITE,"<-W/w->");
+		Term_putstr(73,6,-1,TERM_WHITE,"<-D/d->");
+		Term_putstr(73,7,-1,TERM_WHITE,"<-C/c->");
+		Term_putstr(73,8,-1,TERM_WHITE,"<-H/h->");
+
+		Term_gotoxy(2, 23);
+		Term_addch(TERM_WHITE, b1);
+		if(points == 0)
+		{
+			Term_addstr(-1, TERM_GREEN, modpts);
+		}
+		else if(points > 0)
+		{
+			Term_addstr(-1, TERM_YELLOW, modpts);
+		}
+		else
+		{
+			Term_addstr(-1, TERM_RED, modpts);
+		}
+		Term_addstr(-1, TERM_WHITE, " points left. Press 'ESC' whilst on 0 points to finish.");
+		Term_addch(TERM_WHITE, b2);
+		/* Get an entry */
+		stat = inkey();
+
+		/* ESC goes back to previous menu */
+		if((stat == ESCAPE) && (points == 0)) break;
+
+		/* Assign values to entries, stats 0 to 5 */
+		switch(stat)
+		{
+
+			/* The index to a specific stat is retrieved */
+		case 's':
+			i = 1;
+			break;
+		case 'S':
+			i = 1;
+			break;
+		case 'i':
+			i = 2;
+			break;
+		case 'I':
+			i = 2;
+			break;
+		case 'w':
+			i = 3;
+			break;
+		case 'W':
+			i = 3;
+			break;
+		case 'd':
+			i = 4;
+			break;
+		case 'D':
+			i = 4;
+			break;
+		case 'c':
+			i = 5;
+			break;
+		case 'C':
+			i = 5;
+			break;
+		case 'h':
+			i = 6;
+			break;
+		case 'H':
+			i = 6;
+			break;
+		default:
+			i = 0;
+		}
+
+		/* Test for invalid key */
+		if(!i) continue;
+		i--;
+
+		/* Test for lower case (add to stat) or
+		upper case (subtract stat) */
+		if(islower(stat)) /* ('a' < stat) */
+		{
+			/* different conditions for maximize on */
+			if(p_ptr->maximize)
+			{
+				/* Max stat increase */
+				if(p_ptr->stat_max[i] < 17)
+				{
+					p_ptr->stat_cur[i] = ++p_ptr->stat_max[i];
+				}
+				else
+				{
+                                    if(p_ptr->stat_max[i] == 17)
+                                    {
+                                       p_ptr->stat_cur[i] = ++p_ptr->stat_max[i];
+                                       points--;
+                                       points--;
+                                    }
+				    else continue;
+				}
+			/* Efficiency -- Apply the racial/class bonuses */
+			stat_use[i] = modify_stat_value(p_ptr->stat_max[i], (rp_ptr->r_adj[i] + cp_ptr->c_adj[i]));
+			}
+			else
+			{
+				/* Max stat increase, maximize off */
+				x = rp_ptr->r_adj[i] + cp_ptr->c_adj[i];
+				if(x > 8) x = 8;
+				if(x > 0) x *= 13;
+				if(p_ptr->stat_max[i] < 18 + x)
+				{
+					if(p_ptr->stat_max[i]> 17)
+					{
+						p_ptr->stat_max[i] += 10;
+						p_ptr->stat_cur[i] += 10;
+					}
+					else
+					{
+						p_ptr->stat_cur[i] = ++p_ptr->stat_max[i];
+					}
+				}
+				else
+				{
+					continue;
+				}
+			}
+
+			/* Higher stats linearly cost more */
+			if(p_ptr->stat_max[i] > 97) points--;
+			if(p_ptr->stat_max[i] > 67) points--;
+			if(p_ptr->stat_max[i] > 18) points--;
+			if(p_ptr->stat_max[i] > 14) points--;
+			if(p_ptr->stat_max[i] > 3) points--;
+			continue;
+		}
+		else    /* Reduce stat case */
+		{
+			if(p_ptr->stat_use[i] > 3)
+			{
+			   if(p_ptr->maximize && p_ptr->stat_max[i] == 18)
+			   {
+			        p_ptr->stat_cur[i] = --p_ptr->stat_max[i];
+			        points++;
+			        points++;
+			   }
+			   else
+			   {
+			  if(p_ptr->stat_max[i] > 27)
+				{
+					p_ptr->stat_max[i] -= 10;
+					p_ptr->stat_cur[i] -= 10;
+				}
+				else
+				{
+					p_ptr->stat_cur[i] = --p_ptr->stat_max[i];
+				}
+			   }
+			}
+			else
+			{
+				continue;
+			}
+			if(p_ptr->maximize)
+			{
+			/* Efficiency -- Apply the racial/class bonuses */
+			stat_use[i] = modify_stat_value(p_ptr->stat_max[i], (rp_ptr->r_adj[i] + cp_ptr->c_adj[i]));
+			}
+			/* Higher stats yield more mod points */
+			if(p_ptr->stat_max[i] > 87) points++;
+			if(p_ptr->stat_max[i] > 57) points++;
+			if(p_ptr->stat_max[i] > 17) points++;
+			if(p_ptr->stat_max[i] > 13) points++;
+			if(p_ptr->stat_max[i] > 2) points++;
+			continue;
+		}
+	}
+	return TRUE;
+}
 
 /*
  * Helper function for 'player_birth()'
@@ -1057,7 +1284,9 @@ static bool player_birth_aux()
 	char buf[80];
 
 	bool autoroll = FALSE;
+        bool point_mod = TRUE;
 
+	char inp[80];
 
 	/*** Instructions ***/
 
@@ -1268,126 +1497,130 @@ static bool player_birth_aux()
 
 #ifdef ALLOW_AUTOROLLER
 
-	/*** Autoroll ***/
+		/*** Autoroll ***/
 
-	/* Extra info */
-	Term_putstr(5, 15, -1, TERM_WHITE,
+		/* Extra info */
+		Term_putstr(5, 15, -1, TERM_WHITE,
 		"The 'autoroller' allows you to specify certain 'minimal' stats,");
-	Term_putstr(5, 16, -1, TERM_WHITE,
+		Term_putstr(5, 16, -1, TERM_WHITE,
 		"but be warned that your various stats may not be independant!");
+		Term_putstr(5,17,-1,TERM_WHITE,
+		"'Points' lets you specify your stats exactly, but will give you");
+		Term_putstr(5,18,-1,TERM_WHITE,
+		"a slightly lower total than a random character.");
 
-	/* Ask about "auto-roller" mode */
-	while (1)
-	{
-		put_str("Use the Auto-Roller? (y/n) ", 20, 2);
-		c = inkey();
-		if (c == 'Q') quit(NULL);
-		if (c == 'S') return (FALSE);
-		if (c == ESCAPE) break;
-		if ((c == 'y') || (c == 'n')) break;
-		if (c == '?') do_cmd_help();
-		else bell("Illegal autoroller flag!");
-	}
-
-	/* Set "autoroll" */
-	autoroll = (c == 'y');
-
-	/* Clear */
-	clear_from(15);
-
-
-	/* Initialize */
-	if (autoroll)
-	{
-		int mval[6];
-
-		char inp[80];
-
-
-		/* Clear fields */
-		auto_round = 0L;
-		last_round = 0L;
-
-		/* Clean up */
-		clear_from(10);
-
-		/* Prompt for the minimum stats */
-		put_str("Enter minimum attribute for: ", 15, 2);
-
-		/* Output the maximum stats */
-		for (i = 0; i < 6; i++)
+		/* Ask about "auto-roller" mode */
+		while (1)
 		{
-			/* Reset the "success" counter */
-			stat_match[i] = 0;
-
-			/* Race/Class bonus */
-			j = rp_ptr->r_adj[i] + cp_ptr->c_adj[i];
-
-			/* Obtain the "maximal" stat */
-			m = adjust_stat(17, j, TRUE);
-
-			/* Save the maximum */
-			mval[i] = m;
-
-			/* Extract a textual format */
-			/* cnv_stat(m, inp); */
-
-			/* Above 18 */
-			if (m > 18)
-			{
-				sprintf(inp, "(Max of 18/%02d):", (m - 18));
-			}
-
-			/* From 3 to 18 */
-			else
-			{
-				sprintf(inp, "(Max of %2d):", m);
-			}
-
-			/* Prepare a prompt */
-			sprintf(buf, "%-5s%-20s", stat_names[i], inp);
-
-			/* Dump the prompt */
-			put_str(buf, 16 + i, 5);
+			put_str("Use the Auto-Roller/Points/Normal? (a/p/n) ", 20, 2);
+			c = inkey();
+			if (c == 'Q') quit(NULL);
+			if (c == 'S') return (FALSE);
+			if (c == ESCAPE) break;
+			if ((c == 'a') || (c == 'n') || (c == 'p')) break;
+			if ((c == 'A') || (c == 'N') || (c == 'P')) break;
+			if (c == '?') do_cmd_help();
+			else bell("Illegal Choice!");
 		}
 
-		/* Input the minimum stats */
-		for (i = 0; i < 6; i++)
+		/* Set "autoroll" and "point_mod" */
+		autoroll = ((c == 'a') || (c == 'A'));
+		point_mod = ((c == 'p') || (c == 'P'));
+
+		/* Clear */
+		clear_from(15);
+
+		/* Initialize Autoroller if necessary */
+		if (autoroll)
 		{
-			/* Get a minimum stat */
-			while (TRUE)
+			int mval[6];
+
+
+
+			/* Clear fields */
+			auto_round = 0L;
+			last_round = 0L;
+
+			/* Clean up */
+			clear_from(10);
+
+			/* Prompt for the minimum stats */
+			put_str("Enter minimum attribute for: ", 15, 2);
+
+			/* Output the maximum stats */
+			for (i = 0; i < 6; i++)
 			{
-				char *s;
+				/* Reset the "success" counter */
+				stat_match[i] = 0;
 
-				/* Move the cursor */
-				put_str("", 16 + i, 30);
+				/* Race/Template bonus */
+				j = rp_ptr->r_adj[i] + cp_ptr->c_adj[i];
 
-				/* Default */
-				strcpy(inp, "");
+				/* Obtain the "maximal" stat */
+				m = adjust_stat(17,(s16b) j, TRUE);
 
-				/* Get a response (or escape) */
-				if (!askfor_aux(inp, 8)) inp[0] = '\0';
+				/* Save the maximum */
+				mval[i] = m;
 
-				/* Hack -- add a fake slash */
-				strcat(inp, "/");
+				/* Extract a textual format */
+				/* cnv_stat(m, inp); */
 
-				/* Hack -- look for the "slash" */
-				s = strchr(inp, '/');
+				/* Above 18 */
+				if (m > 18)
+				{
+					sprintf(inp, "(Max of 18/%02d):", (m - 18));
+				}
 
-				/* Hack -- Nuke the slash */
-				*s++ = '\0';
+				/* From 3 to 18 */
+				else
+				{
+					sprintf(inp, "(Max of %2d):", m);
+				}
 
-				/* Hack -- Extract an input */
-				v = atoi(inp) + atoi(s);
+				/* Prepare a prompt */
+				sprintf(buf, "%-5s%-20s", stat_names[i], inp);
 
-				/* Break on valid input */
-				if (v <= mval[i]) break;
+				/* Dump the prompt */
+				put_str(buf, 16 + i, 5);
 			}
 
-			/* Save the minimum stat */
-			stat_limit[i] = (v > 0) ? v : 0;
+			/* Input the minimum stats */
+			for (i = 0; i < 6; i++)
+			{
+				/* Get a minimum stat */
+				while (TRUE)
+				{
+					char *s;
+
+					/* Move the cursor */
+					put_str("", 16 + i, 30);
+
+					/* Default */
+					strcpy(inp, "");
+
+					/* Get a response (or escape) */
+					if (!askfor_aux(inp, 8)) inp[0] = '\0';
+
+					/* Hack -- add a fake slash */
+					strcat(inp, "/");
+
+					/* Hack -- look for the "slash" */
+					s = strchr(inp, '/');
+
+					/* Hack -- Nuke the slash */
+					*s++ = '\0';
+
+					/* Hack -- Extract an input */
+					v = atoi(inp) + atoi(s);
+
+					/* Break on valid input */
+					if (v <= mval[i]) break;
+				}
+
+				/* Save the minimum stat */
+				stat_limit[i] = (v > 0) ? v : 0;
+			}
 		}
-	}
 
 #endif /* ALLOW_AUTOROLLER */
 
@@ -1442,8 +1675,19 @@ static bool player_birth_aux()
 		/* Otherwise just get a character */
 		else
 		{
-			/* Get a new character */
-			get_stats();
+				/* Get a new character */
+				if (point_mod)
+				{
+					for(i=0;i<6;i++)
+					{
+						p_ptr->stat_cur[i] = p_ptr->stat_max[i] = 8;
+					}
+					point_mod_player();
+				}
+				else
+				{
+					get_stats();
+				}
 		}
 
 		/* Auto-roll */
@@ -1662,12 +1906,13 @@ void player_birth(void)
 		store_init(n);
 
 		/* Ignore home */
-		if (n == MAX_STORES - 1) continue;
+		if (n == MAX_STORES - 2) continue;
 
 		/* Maintain the shop (ten times) */
 		for (i = 0; i < 10; i++) store_maint(n);
 	}
 }
+
 
 
 

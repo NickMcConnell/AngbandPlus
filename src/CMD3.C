@@ -23,6 +23,12 @@ void do_cmd_inven(void)
 	/* Note that we are in "inventory" mode */
 	p_ptr->command_wrk = FALSE;
 
+#ifdef ALLOW_EASY_FLOOR
+
+	/* Note that we are in "inventory" mode */
+	if (easy_floor) p_ptr->command_wrk = (USE_INVEN);
+	
+#endif /* ALLOW_EASY_FLOOR */
 
 	/* Save screen */
 	screen_save();
@@ -70,6 +76,12 @@ void do_cmd_equip(void)
 	/* Note that we are in "equipment" mode */
 	p_ptr->command_wrk = TRUE;
 
+#ifdef ALLOW_EASY_FLOOR
+
+	/* Note that we are in "equipment" mode */
+	if (easy_floor) p_ptr->command_wrk = (USE_EQUIP);
+	
+#endif /* ALLOW_EASY_FLOOR */
 
 	/* Save screen */
 	screen_save();

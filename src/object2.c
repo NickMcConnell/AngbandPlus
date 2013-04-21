@@ -1363,6 +1363,7 @@ void object_prep(object_type *o_ptr, int k_idx)
 
 	/* Clear the record */
 	WIPE(o_ptr, object_type);
+	o_ptr->art_flag_init = FALSE;
 
 	/* Save the kind index */
 	o_ptr->k_idx = k_idx;
@@ -1737,12 +1738,19 @@ static void charge_staff(object_type *o_ptr)
  */
 static void a_m_aux_1(object_type *o_ptr, int level, int power)
 {
+        int big = o_ptr->dd * o_ptr->ds;
+        int biggish = big/2;
 	int tohit1 = randint(5) + m_bonus(5, level);
-	int todam1 = randint(5) + m_bonus(5, level);
+	int todam1 = randint(biggish) + m_bonus(biggish, level);
 
 	int tohit2 = m_bonus(10, level);
-	int todam2 = m_bonus(10, level);
+	int todam2 = m_bonus(big, level);
 
+        if ((o_ptr->tval == TV_SHOT) || (o_ptr->tval == TV_BOLT) || (o_ptr->tval == TV_ARROW) || (o_ptr->tval == TV_BOW))
+        {
+          todam1 = randint(5) + m_bonus(5, level);
+          todam2 = m_bonus(10, level);
+        }
 
 	/* Good */
 	if (power > 0)
@@ -2734,17 +2742,29 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 				}
 
 				/* Weakness, Stupidity */
-				case SV_RING_WEAKNESS:
-				case SV_RING_STUPIDITY:
+				case SV_RING_GEEKNESS:
 				{
 					/* Broken */
-					o_ptr->ident |= (IDENT_BROKEN);
+					/* o_ptr->ident |= (IDENT_BROKEN); */
 
 					/* Cursed */
 					o_ptr->ident |= (IDENT_CURSED);
 
 					/* Penalize */
-					o_ptr->pval = 0 - (1 + m_bonus(5, level));
+					o_ptr->pval = 0 - (randint(2) + randint(2));
+
+					break;
+				}
+				case SV_RING_BRUTALITY:
+				{
+					/* Broken */
+					/* o_ptr->ident |= (IDENT_BROKEN); */
+
+					/* Cursed */
+					o_ptr->ident |= (IDENT_CURSED);
+
+					/* Penalize */
+					o_ptr->pval = 0 - (1 + randint(2) + randint(2));
 
 					break;
 				}
@@ -3327,6 +3347,7 @@ static bool kind_is_good(int k_idx)
 		/* Books -- High level books are good */
 		case TV_MAGIC_BOOK:
 		case TV_PRAYER_BOOK:
+		case TV_ELEMENT_BOOK:
 		{
 			if (k_ptr->sval >= SV_BOOK_MIN_GOOD) return (TRUE);
 			return (FALSE);
@@ -4743,7 +4764,7 @@ s16b spell_chance(int spell)
 	minfail = adj_mag_fail[p_ptr->stat_ind[mp_ptr->spell_stat]];
 
 	/* Non mage/priest characters never get better than 5 percent */
-	if ((p_ptr->pclass != CLASS_MAGE) && (p_ptr->pclass != CLASS_PRIEST))
+	if ((p_ptr->pclass != CLASS_MAGE) && (p_ptr->pclass != CLASS_PRIEST) && (p_ptr->pclass != CLASS_ELEMENTALIST))
 	{
 		if (minfail < 5) minfail = 5;
 	}
@@ -4898,6 +4919,11 @@ void spell_info(char *p, int spell)
 			case 53: sprintf(p, " range %d", 8*plev); break;
 		}
 	}
+        if (mp_ptr->spell_book == TV_ELEMENT_BOOK)
+        {
+        strcpy(p, " writing");
+        }
+
 }
 
 
@@ -5057,5 +5083,6 @@ void display_koff(int k_idx)
 		print_spells(spells, num, 2, 0);
 	}
 }
+
 
 

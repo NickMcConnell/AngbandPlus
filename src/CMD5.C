@@ -40,8 +40,22 @@ static int get_spell(int *sn, cptr prompt, int sval, bool known)
 
 	char out_val[160];
 
-	cptr p = ((mp_ptr->spell_book == TV_MAGIC_BOOK) ? "spell" : "prayer");
+	cptr p = ((mp_ptr->spell_book == TV_PRAYER_BOOK) ? "prayer" : "spell");
 
+#ifdef ALLOW_REPEAT
+
+	/* Get the spell, if available */
+	if (repeat_pull(sn))
+	{
+		/* Verify the spell */
+		if (spell_okay(*sn, known))
+		{
+			/* Success */
+			return (TRUE);
+		}
+	}
+
+#endif /* ALLOW_REPEAT */
 
 	/* Extract spells */
 	for (spell = 0; spell < 64; spell++)
@@ -201,6 +215,12 @@ static int get_spell(int *sn, cptr prompt, int sval, bool known)
 	/* Save the choice */
 	(*sn) = spell;
 
+#ifdef ALLOW_REPEAT
+
+	repeat_push(*sn);
+
+#endif /* ALLOW_REPEAT */
+
 	/* Success */
 	return (TRUE);
 }
@@ -336,7 +356,7 @@ void do_cmd_study(void)
 
 	int spell = -1;
 
-	cptr p = ((mp_ptr->spell_book == TV_MAGIC_BOOK) ? "spell" : "prayer");
+	cptr p = ((mp_ptr->spell_book == TV_PRAYER_BOOK) ? "prayer" : "spell");
 
 	cptr q, s;
 
@@ -400,7 +420,7 @@ void do_cmd_study(void)
 
 
 	/* Mage -- Learn a selected spell */
-	if (mp_ptr->spell_book == TV_MAGIC_BOOK)
+	if ((mp_ptr->spell_book == TV_MAGIC_BOOK) || (mp_ptr->spell_book == TV_ELEMENT_BOOK))
 	{
 		/* Ask for a spell, allow cancel */
 		if (!get_spell(&spell, "study", sval, FALSE) && (spell == -1)) return;
@@ -513,10 +533,25 @@ void do_cmd_cast(void)
 
 	object_type *o_ptr;
 
+        object_type *mjb_ptr;
+        u32b t1, t2, t3;
+
 	magic_type *s_ptr;
 
 	cptr q, s;
 
+        /* Hack - unified casting */
+	if (mp_ptr->spell_book == TV_PRAYER_BOOK)
+	{
+	       do_cmd_pray();
+	       return;
+	}
+
+        if (mp_ptr->spell_book == TV_ELEMENT_BOOK)
+        {
+               do_cmd_element();
+               return;
+        }
 
 	/* Require spell ability */
 	if (mp_ptr->spell_book != TV_MAGIC_BOOK)
@@ -610,6 +645,10 @@ void do_cmd_cast(void)
 		/* Hack -- chance of "beam" instead of "bolt" */
 		beam = ((p_ptr->pclass == 1) ? plev : (plev / 2));
 
+                /* Weapon properties for later */
+                mjb_ptr = &inventory[INVEN_WIELD];
+                object_flags(mjb_ptr, &t1, &t2, &t3);
+
 		/* Spells.  */
 		switch (spell)
 		{
@@ -685,8 +724,16 @@ void do_cmd_cast(void)
 			case 10:
 			{
 				if (!get_aim_dir(&dir)) return;
+
+				if (t1 & TR1_BRAND_ELEC)
+				{
 				fire_bolt_or_beam(beam-10, GF_ELEC, dir,
-				                  damroll(3+((plev-5)/4), 8));
+				                  (3*damroll(3+((plev-5)/4), 8)/2));                               }
+				else
+				{
+				fire_bolt_or_beam(beam-10, GF_ELEC, dir,
+				                  damroll(3+((plev-5)/4), 8));                               }
+
 				break;
 			}
 
@@ -726,8 +773,17 @@ void do_cmd_cast(void)
 			case 16:
 			{
 				if (!get_aim_dir(&dir)) return;
+				if (t1 & TR1_BRAND_COLD)
+				{
+				fire_bolt_or_beam(beam-10, GF_COLD, dir,
+				                  (3*damroll((5+((plev-5)/4)), 8)/2));
+				}
+				else
+				{
 				fire_bolt_or_beam(beam-10, GF_COLD, dir,
 				                  damroll(5+((plev-5)/4), 8));
+				}
+
 				break;
 			}
 
@@ -778,8 +834,17 @@ void do_cmd_cast(void)
 			case 24:
 			{
 				if (!get_aim_dir(&dir)) return;
+                                if (t1 & TR1_BRAND_FIRE)
+                                {
+				fire_bolt_or_beam(beam, GF_FIRE, dir,
+				                  (3*damroll(8+((plev-5)/4), 8)/2));
+				}
+				else
+				{
 				fire_bolt_or_beam(beam, GF_FIRE, dir,
 				                  damroll(8+((plev-5)/4), 8));
+				}
+
 				break;
 			}
 
@@ -793,8 +858,17 @@ void do_cmd_cast(void)
 			case 26:
 			{
 				if (!get_aim_dir(&dir)) return;
+                                if (t1 & TR1_BRAND_COLD)
+                                {
+				fire_ball(GF_COLD, dir,
+				          (45 + (3*(plev)/2)), 2);
+				}
+				else
+				{
 				fire_ball(GF_COLD, dir,
 				          30 + (plev), 2);
+				}
+
 				break;
 			}
 
@@ -827,8 +901,17 @@ void do_cmd_cast(void)
 			case 30:
 			{
 				if (!get_aim_dir(&dir)) return;
+                                if (t1 & TR1_BRAND_FIRE)
+                                {
+				fire_ball(GF_FIRE, dir,
+				          (3*(55 + (plev))/2), 2);
+				}
+				else
+				{
 				fire_ball(GF_FIRE, dir,
 				          55 + (plev), 2);
+				}
+
 				break;
 			}
 
@@ -886,8 +969,17 @@ void do_cmd_cast(void)
 			case 38:
 			{
 				if (!get_aim_dir(&dir)) return;
+				if (t1 & TR1_BRAND_ACID)
+				{
+				fire_bolt_or_beam(beam, GF_ACID, dir,
+				                  (3*damroll(6+((plev-5)/4), 8)/2));
+				}
+				else
+				{
 				fire_bolt_or_beam(beam, GF_ACID, dir,
 				                  damroll(6+((plev-5)/4), 8));
+				}
+
 				break;
 			}
 
@@ -902,16 +994,34 @@ void do_cmd_cast(void)
 			case 40:
 			{
 				if (!get_aim_dir(&dir)) return;
+                                if (t1 & TR1_BRAND_ACID)
+                                {
+				fire_ball(GF_ACID, dir,
+				          60 + (3*(plev)/2), 2);
+				}
+				else
+				{
 				fire_ball(GF_ACID, dir,
 				          40 + (plev), 2);
+				}
+
 				break;
 			}
 
 			case 41:
 			{
 				if (!get_aim_dir(&dir)) return;
+                                if (t1 & TR1_BRAND_COLD)
+                                {
+				fire_ball(GF_COLD, dir,
+				          105 + (3*(plev)/2), 3);
+				}
+				else
+				{
 				fire_ball(GF_COLD, dir,
 				          70 + (plev), 3);
+				}
+
 				break;
 			}
 
@@ -1112,7 +1222,12 @@ static void brand_weapon(void)
 {
 	object_type *o_ptr;
 
+        u32b f1, f2, f3;
+
 	o_ptr = &inventory[INVEN_WIELD];
+
+
+        object_flags(o_ptr, &f1, &f2, &f3);
 
 	/* you can never modify artifacts / ego-items */
 	/* you can never modify broken / cursed items */
@@ -1128,12 +1243,14 @@ static void brand_weapon(void)
 		{
 			act = "is covered in a fiery shield!";
 			o_ptr->name2 = EGO_BRAND_FIRE;
+			o_ptr->art_flags1 |= TR1_BRAND_FIRE;
 		}
 
 		else
 		{
 			act = "glows deep, icy blue!";
 			o_ptr->name2 = EGO_BRAND_COLD;
+			o_ptr->art_flags1 |= TR1_BRAND_COLD;
 		}
 
 		object_desc(o_name, o_ptr, FALSE, 0);
@@ -1149,7 +1266,545 @@ static void brand_weapon(void)
 		msg_print("The Branding failed.");
 	}
 }
+static void brand_weapon_fire(void)
+{
+	object_type *o_ptr;
+        u32b f1, f2, f3;
 
+	o_ptr = &inventory[INVEN_WIELD];
+
+        object_flags(o_ptr, &f1, &f2, &f3);
+
+	/* you can never modify artifacts / ego-items */
+	/* you can never modify broken / cursed items */
+	if ((o_ptr->k_idx) &&
+	    (!artifact_p(o_ptr)) && (!ego_item_p(o_ptr)) &&
+	    (!broken_p(o_ptr)) && (!cursed_p(o_ptr)))
+	{
+		cptr act = NULL;
+
+		char o_name[80];
+
+			act = "is covered in a fiery shield!";
+			o_ptr->name2 = EGO_BRAND_FIRE;
+                        o_ptr->art_flags1 |= TR1_BRAND_FIRE;
+
+		object_desc(o_name, o_ptr, FALSE, 0);
+
+		msg_format("Your %s %s", o_name, act);
+
+		enchant(o_ptr, rand_int(3) + 4, ENCH_TOHIT | ENCH_TODAM);
+	}
+
+	else
+	{
+		if (flush_failure) flush();
+		msg_print("The Branding failed.");
+	}
+}
+
+void do_cmd_element()
+{
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+
+	int item, sval, spell, dir;
+	int chance, beam;
+
+	int plev = p_ptr->lev;
+
+	object_type *o_ptr;
+
+        object_type *mjb_ptr;
+        u32b t1, t2, t3;
+
+	magic_type *s_ptr;
+
+	cptr q, s;
+
+	/* Require lite */
+	if (p_ptr->blind || no_lite())
+	{
+		msg_print("You cannot see!");
+		return;
+	}
+
+	/* Not when confused */
+	if (p_ptr->confused)
+	{
+		msg_print("You are too confused!");
+		return;
+	}
+
+
+	/* Restrict choices to spell books */
+	item_tester_tval = mp_ptr->spell_book;
+
+	/* Get an item */
+	q = "Use which book? ";
+	s = "You have no elemental books!";
+	if (!get_item(&item, q, s, (USE_INVEN | USE_FLOOR))) return;
+
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
+
+	/* Access the item's sval */
+	sval = o_ptr->sval;
+
+
+	/* Track the object kind */
+	object_kind_track(o_ptr->k_idx);
+
+	/* Hack -- Handle stuff */
+	handle_stuff();
+
+
+	/* Ask for a spell */
+	if (!get_spell(&spell, "cast", sval, TRUE))
+	{
+		if (spell == -2) msg_print("You don't know any spells in that book.");
+		return;
+	}
+
+
+	/* Access the spell */
+	s_ptr = &mp_ptr->info[spell];
+
+
+	/* Verify "dangerous" spells */
+	if (s_ptr->smana > p_ptr->csp)
+	{
+		/* Warning */
+		msg_print("You do not have enough mana to cast this spell.");
+
+		/* Verify */
+		if (!get_check("Attempt it anyway? ")) return;
+	}
+
+
+	/* Spell failure chance */
+	chance = spell_chance(spell);
+
+	/* Failed spell */
+	if (rand_int(100) < chance)
+	{
+		if (flush_failure) flush();
+		msg_print("You failed to get the spell off!");
+	}
+
+	/* Process spell */
+	else
+	{
+		/* Hack -- chance of "beam" instead of "bolt" */
+		beam = ((p_ptr->pclass == 1) ? plev : (plev / 2));
+
+                /* Weapon properties for later */
+                mjb_ptr = &inventory[INVEN_WIELD];
+                object_flags(mjb_ptr, &t1, &t2, &t3);
+
+		/* Spells.  */
+		switch (spell)
+		{
+
+		  case 0:
+		  {
+		    (void)detect_monsters_normal();
+		    break;
+		  }
+		  case 1:
+		  {
+		    (void)do_mirage();
+		    break;
+		  }
+		  case 2:
+		  {
+		    (void)lite_area(damroll(3, (plev / 2)), (plev / 10) + 1);
+		    break;
+		  }
+		  case 3:
+		  {
+			if (!get_aim_dir(&dir)) return;
+			msg_print("A line of blue shimmering light appears.");
+			lite_line(dir);
+			break;
+		  }
+		  case 4:
+		  {
+		    (void)detect_doors();
+		    break;
+		  }
+		  case 5:
+		  {
+		    (void)detect_traps();
+		    break;
+		  }
+		  case 6:
+		  {
+		    (void)do_ident_pseudo();
+		    break;
+		  }
+                  case 7:
+                  {
+                    (void)spell_xtra_lite();
+                    break;
+                  }
+                  case 8:
+                  {
+                       if (!get_aim_dir(&dir)) return;
+                       fire_bolt_or_beam(beam-10, GF_ELEC, dir,
+		            damroll(3+((plev-5)/4), 8));
+		       break;
+                  }
+                  case 9:
+                  {
+			(void)destroy_doors_touch();
+			break;
+                  }
+                  case 10:
+                  {
+                    (void)elemental_warrior(1);
+                    break;
+                  }
+                  case 11:
+                  {
+                    fire_bolt_or_beam(beam-10, GF_STUN, dir, damroll(2+((plev/10)), 6));
+                    break;
+                  }
+                  case 12:
+                  {
+			(void)hp_player(damroll(2, 10));
+			(void)set_cut(p_ptr->cut - 10);
+			(void)set_poisoned(0);
+			break;
+                  }
+                  case 13:
+		  {
+			earthquake(py, px, 10);
+			break;
+		  }
+                  case 14:
+                  {
+                    (void)recharge(10 + plev);
+                    break;
+                  }
+                  case 15:
+                  {
+                    (void)hp_player(damroll(4, 10));
+                    (void)set_cut(0);
+                    (void)set_poisoned(0);
+                  }
+                  case 16:
+                  {
+			(void)set_shield(p_ptr->shield + randint(20) + 30);
+                        (void)set_oppose_cold(p_ptr->oppose_cold + randint(20) + 20);
+			break;
+                  }
+                  case 17:
+                  {
+                    (void)ident_spell();
+                    break;
+                  }
+                  case 18:
+                  {
+                       if (!get_aim_dir(&dir)) return;
+                    chill_touch_spell(damroll(5+((plev-5)/4), 8), GF_COLD, dir);
+                    break;
+                  }
+                  case 19:
+                  {
+                    (void)elemental_warrior(2);
+                    break;
+                  }
+                  case 20:
+                  {
+                    (void)slow_monsters();
+                    break;
+                  }
+                  case 21:
+                  {
+                    (void)scare_all();
+                    break;
+                  }
+                  case 22:
+                  {
+			(void)set_food(PY_FOOD_MAX - 1);
+			break;
+                  }
+                  case 23:
+                  {
+                    if (!get_aim_dir(&dir)) return;
+                    fire_ball(GF_FIRE, dir,
+		          20 + (plev), 2);
+                    break;
+                  }
+                  case 24:
+                  {
+                    if (!get_aim_dir(&dir)) return;
+                    fire_ball(GF_POIS, dir,
+		          25 + (plev), 2);
+                    break;
+                  }
+                  case 25:
+                  {
+                    (void)elemental_warrior(2);
+                    break;
+                  }
+                  case 26:
+                  {
+			(void)hp_player(100 + damroll(10, 10));
+			(void)set_cut(0);
+			(void)set_poisoned(0);
+			break;
+                  }
+                  case 27:
+                  {
+                    (void)brand_weapon_fire();
+                    break;
+                  }
+                  case 28:
+                  {
+                    teleport_player(plev*4 + randint(plev));
+                    break;
+                  }
+                  case 29:
+                  {
+                    if (!get_aim_dir(&dir)) return;
+                    fire_ball(GF_TELE_TO, dir, 1, 0);
+                    break;
+                  }
+                  case 30:
+                  {
+                    (void)teleport_player_level();
+                    break;
+                  }
+                  case 31:
+                  {
+                    if (!get_rep_dir(& dir)) return;
+                    (void)dimension_jump(dir);
+                    break;
+                  }
+                  case 32:
+                  {
+                    (void)teleport_everything();
+                    break;
+                  }
+                  case 33:
+                  {
+			if (!p_ptr->word_recall)
+			{
+		        	p_ptr->word_recall = rand_int(20) + 15;
+				msg_print("The air about you becomes charged...");
+			}
+			else
+			{
+				p_ptr->word_recall = 0;
+				msg_print("A tension leaves the air around you...");
+			}
+			break;
+                  }
+                  case 34:
+                  {
+		       if (!get_aim_dir(&dir)) return;
+			(void)poly_monster(dir);
+			break;
+                  }
+                  case 35:
+                  {
+                    (void)confuse_monsters();
+                    break;
+                  }
+                  case 36:
+                  {
+                    if (!get_aim_dir(&dir)) return;
+                    (void)fire_bolt_or_beam(100, GF_CHAOS, dir, damroll(10+plev, 8));
+                    break;
+                  }
+                  case 37:
+                  {
+                    (void)wheel_of_death();
+                    break;
+                  }
+                  case 38:
+                  {
+                    destroy_area(py, px, 15, TRUE);
+                    break;
+                  }
+                  case 39:
+                  {
+                    if (!p_ptr->fast)
+		    {
+	                (void)set_fast(randint(20) + plev);
+		    }
+		    else
+		    {
+		        (void)set_fast(p_ptr->fast + randint(5));
+		    }
+		    break;
+                  }
+                  case 40:
+                  {
+                    if (!get_aim_dir(&dir)) return;
+                    (void)fire_bolt_or_beam(beam-10, GF_TIME, dir, damroll(15+plev, 8));
+                  }
+                  case 41:
+                  {
+                    do_res_stat(A_STR);
+                    do_res_stat(A_INT);
+                    do_res_stat(A_WIS);
+                    do_res_stat(A_DEX);
+                    do_res_stat(A_CON);
+                    do_res_stat(A_CHR);
+                    p_ptr->max_exp -= (p_ptr->max_exp/1000);
+                    check_experience();
+                    (void)restore_level();
+                    break;
+                  }
+                  case 42:
+                  {
+                    do_quicken_blade();
+                    break;
+                  }
+                  case 43:
+                  {
+                    if (!get_aim_dir(&dir)) return;
+                    fire_ball(GF_NETHER, dir,
+		          40 + (plev*2), 2);
+                    break;
+                  }
+                  case 44:
+                  {
+                    (void)dispel_undead(randint(plev * 3));
+                    break;
+                  }
+                  case 45:
+                  {
+                    (void)dispel_evil(randint(plev * 3));
+                    break;
+                  }
+                  case 46:
+                  {
+                    (void)dispel_animal(randint(plev * 3));
+                    break;
+                  }
+                  case 47:
+                  {
+                    (void)dispel_monsters(randint(plev * 3));
+                    break;
+                  }
+                  case 48:
+                  {
+                    if (!get_aim_dir(&dir)) return;
+                    (void)fire_bolt_or_beam(beam-10, GF_FIRE, dir, damroll(plev/5, 8));
+                    (void)fire_bolt_or_beam(beam-10, GF_ACID, dir, damroll(plev/5, 8));
+                    (void)fire_bolt_or_beam(beam-10, GF_ELEC, dir, damroll(plev/5, 8));
+                    (void)fire_bolt_or_beam(beam-10, GF_COLD, dir, damroll(plev/5, 8));
+                    break;
+                  }
+                  case 49:
+                  {
+                    if (!get_aim_dir(&dir)) return;
+                    fire_ball(GF_SHARD, dir, 50 + (plev), 2);
+                    break;
+                  }
+                  case 50:
+                  {
+                    if (!get_aim_dir(&dir)) return;
+                    fire_ball(GF_SOUND, dir, 50 + (plev), 2);
+                    break;
+                  }
+                  case 51:
+                  {
+                    do_elemental_burst();
+                    break;
+                  }
+                  case 52:
+                  {
+                      (void)set_invuln(p_ptr->invuln + randint(8) + 8);
+                  }
+                  default:
+                  {
+                      msg_print("I'm working on it");
+                      break;
+                  }
+
+		}
+
+		/* A spell was cast */
+		if (!((spell < 32) ?
+		      (p_ptr->spell_worked1 & (1L << spell)) :
+		      (p_ptr->spell_worked2 & (1L << (spell - 32)))))
+		{
+			int e = s_ptr->sexp;
+
+			/* The spell worked */
+			if (spell < 32)
+			{
+				p_ptr->spell_worked1 |= (1L << spell);
+			}
+			else
+			{
+				p_ptr->spell_worked2 |= (1L << (spell - 32));
+			}
+
+			/* Gain experience */
+			gain_exp(e * s_ptr->slevel);
+		}
+	}
+
+	/* Take a turn */
+	p_ptr->energy_use = 100;
+
+	/* Sufficient mana */
+	if (s_ptr->smana <= p_ptr->csp)
+	{
+		/* Use some mana */
+		p_ptr->csp -= s_ptr->smana;
+	}
+
+	/* Over-exert the player */
+	else
+	{
+		int oops = s_ptr->smana - p_ptr->csp;
+
+		/* No mana left */
+		p_ptr->csp = 0;
+		p_ptr->csp_frac = 0;
+
+		/* Message */
+		msg_print("You faint from the effort!");
+
+		/* Hack -- Bypass free action */
+		(void)set_paralyzed(p_ptr->paralyzed + randint(5 * oops + 1));
+
+		/* Damage CON (possibly permanently) */
+		if (rand_int(100) < 50)
+		{
+			bool perm = (rand_int(100) < 25);
+
+			/* Message */
+			msg_print("You have damaged your health!");
+
+			/* Reduce constitution */
+			(void)dec_stat(A_CON, 15 + randint(10), perm);
+		}
+	}
+
+	/* Redraw mana */
+	p_ptr->redraw |= (PR_MANA);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
+
+}
 
 /*
  * Pray a prayer
@@ -1165,10 +1820,25 @@ void do_cmd_pray(void)
 
 	object_type *o_ptr;
 
+        object_type *mjb_ptr;
+        u32b t1, t2, t3;
+
 	magic_type *s_ptr;
 
 	cptr q, s;
 
+        /* Hack - unified casting */
+	if (mp_ptr->spell_book == TV_MAGIC_BOOK)
+	{
+	       do_cmd_cast();
+	       return;
+	}
+
+        if (mp_ptr->spell_book == TV_ELEMENT_BOOK)
+        {
+               do_cmd_element();
+               return;
+        }
 
 	/* Must use prayer books */
 	if (mp_ptr->spell_book != TV_PRAYER_BOOK)
@@ -1259,8 +1929,13 @@ void do_cmd_pray(void)
 	/* Success */
 	else
 	{
-		switch (spell)
-		{
+                /* Weapon properties for later */
+                mjb_ptr = &inventory[INVEN_WIELD];
+                object_flags(mjb_ptr, &t1, &t2, &t3);
+
+
+	           switch (spell)
+		   {
 			case 0:
 			{
 				(void)detect_monsters_evil();
@@ -1419,7 +2094,8 @@ void do_cmd_pray(void)
 
 			case 24:
 			{
-				(void)turn_undead();
+                                if (t1 & TR1_SLAY_UNDEAD) (void)turn_undead();
+			        (void)turn_undead();
 				break;
 			}
 
@@ -1431,7 +2107,15 @@ void do_cmd_pray(void)
 
 			case 26:
 			{
-				(void)dispel_undead(randint(plev * 3));
+                                if (t1 & TR1_SLAY_UNDEAD)
+                                {
+			        (void)dispel_undead(randint(plev * 4));
+			        }
+			        else
+                                {
+			        (void)dispel_undead(randint(plev * 3));
+			        }
+
 				break;
 			}
 
@@ -1445,7 +2129,15 @@ void do_cmd_pray(void)
 
 			case 28:
 			{
-				(void)dispel_evil(randint(plev * 3));
+                                if (t1 & TR1_SLAY_EVIL)
+                                {
+			        (void)dispel_evil(randint(plev * 4));
+                                }
+                                else
+                                {
+			        (void)dispel_evil(randint(plev * 3));
+                                }
+
 				break;
 			}
 
@@ -1457,7 +2149,15 @@ void do_cmd_pray(void)
 
 			case 30:
 			{
-				(void)dispel_evil(randint(plev * 4));
+                                if (t1 & TR1_SLAY_EVIL)
+                                {
+			        (void)dispel_evil(randint(plev * 5));
+			        }
+			        else
+			        {
+			        (void)dispel_evil(randint(plev * 4));
+			        }
+
 				(void)hp_player(1000);
 				(void)set_afraid(0);
 				(void)set_poisoned(0);
@@ -1538,13 +2238,29 @@ void do_cmd_pray(void)
 
 			case 41:
 			{
-				(void)dispel_undead(randint(plev * 4));
+                                if (t1 & TR1_SLAY_UNDEAD)
+                                {
+			        (void)dispel_undead(randint(plev * 5));
+				}
+				else
+				{
+			        (void)dispel_undead(randint(plev * 4));
+				}
+
 				break;
 			}
 
 			case 42:
 			{
-				(void)dispel_evil(randint(plev * 4));
+                                if (t1 & TR1_SLAY_EVIL)
+                                {
+			        (void)dispel_evil(randint(plev * 5));
+				}
+				else
+				{
+			        (void)dispel_evil(randint(plev * 4));
+				}
+
 				break;
 			}
 
@@ -1655,6 +2371,12 @@ void do_cmd_pray(void)
 
 				break;
 			}
+                        case 58:
+                        {
+                          /* Man, this is gonna be fun */
+                            (void)set_invuln(p_ptr->invuln + randint(8) + 8);
+                        }
+
 		}
 
 		/* A prayer was prayed */

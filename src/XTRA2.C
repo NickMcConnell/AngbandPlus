@@ -693,21 +693,41 @@ bool set_invuln(int v)
 	/* Open */
 	if (v)
 	{
-		if (!p_ptr->invuln)
+		if ((!p_ptr->invuln) && (mp_ptr->spell_book == TV_MAGIC_BOOK))
 		{
 			msg_print("You feel invulnerable!");
 			notice = TRUE;
 		}
+                else if ((!p_ptr->invuln) && (mp_ptr->spell_book == TV_PRAYER_BOOK))
+                {
+                        msg_print("You feel your god's presence");
+                        notice = TRUE;
+                }
+                else if (!p_ptr->invuln)
+                {
+                  msg_print("You feel yourself beyond the baser elements.");
+                  notice = TRUE;
+                }
 	}
 
 	/* Shut */
 	else
 	{
-		if (p_ptr->invuln)
+		if ((p_ptr->invuln) && (mp_ptr->spell_book == TV_MAGIC_BOOK))
 		{
 			msg_print("You feel vulnerable once more.");
 			notice = TRUE;
 		}
+                else if ((p_ptr->invuln)  && (mp_ptr->spell_book == TV_PRAYER_BOOK))
+                {
+                        msg_print("You feel a divine presence leave you");
+                        notice = TRUE;
+                }
+                else if (p_ptr->invuln)
+                {
+                  msg_print("You feel gripped by the elements once more");
+                  notice = TRUE;
+                }
 	}
 
 	/* Use the value */
@@ -1165,6 +1185,25 @@ bool set_stun(int v)
 				msg_print("You have been knocked out.");
 				break;
 			}
+        if (randint(2000)<v || randint(32)==1)
+        {
+
+            msg_print("A vicious blow hits your head.");
+            if(randint(3)==1)
+            {
+                if (!p_ptr->sustain_int) { (void) do_dec_stat(A_INT); }
+                if (!p_ptr->sustain_wis) { (void) do_dec_stat(A_WIS); }
+            }
+            else if (randint(2)==1)
+            {
+                if (!p_ptr->sustain_int) { (void) do_dec_stat(A_INT); }
+            }
+            else
+            {
+                if (!p_ptr->sustain_wis) { (void) do_dec_stat(A_WIS); }
+            }
+        }
+
 		}
 
 		/* Notice */
@@ -1381,6 +1420,15 @@ bool set_cut(int v)
 
 		/* Notice */
 		notice = TRUE;
+                if (randint(1000)<v || randint(16)==1)
+                {
+                  if(!p_ptr->sustain_chr)
+                    {
+                      msg_print("You have been horribly scarred.");
+                      do_dec_stat(A_CHR);
+                    }
+                }
+
 	}
 
 	/* Decrease cut */
@@ -3089,6 +3137,80 @@ static int target_set_interactive_aux(int y, int x, int mode, cptr info)
 			}
 		}
 
+#ifdef ALLOW_EASY_FLOOR
+
+		/* Scan all objects in the grid */
+		if (easy_floor)
+		{
+			int floor_list[23], floor_num;
+
+			if (scan_floor(floor_list, &floor_num, y, x, 0x02))
+			{
+				/* Not boring */
+				boring = FALSE;
+
+				while (1)
+				{
+					if (floor_num == 1)
+					{
+						char o_name[80];
+
+						object_type *o_ptr;
+
+						/* Acquire object */
+						o_ptr = &o_list[floor_list[0]];
+
+						/* Describe the object */
+						object_desc(o_name, o_ptr, TRUE, 3);
+
+						/* Message */
+						sprintf(out_val, "%s%s%s%s [%s]",
+							s1, s2, s3, o_name, info);
+					}
+					else
+					{
+						/* Message */
+						sprintf(out_val, "%s%s%sa pile of %d items [l,%s]",
+							s1, s2, s3, floor_num, info);
+					}
+
+					prt(out_val, 0, 0);
+					move_cursor_relative(y, x);
+
+					/* Command */
+					query = inkey();
+
+					/* Display list of items (query == "el", not "won") */
+					if ((floor_num > 1) && (query == 'l'))
+					{
+						/* Save screen */
+						screen_save();
+
+						/* Display */
+						show_floor(y, x);
+
+						/* Prompt */
+						prt("Hit any key to continue", 0, 0);
+
+						/* Wait */
+						(void) inkey();
+
+						/* Load screen */
+						screen_load();
+					}
+					else
+					{
+						/* Stop */
+						break;
+					}
+				}
+
+				/* Stop */
+				break;
+			}
+		}
+
+#endif /* ALLOW_EASY_FLOOR */
 
 		/* Scan all objects in the grid */
 		for (this_o_idx = cave_o_idx[y][x]; this_o_idx; this_o_idx = next_o_idx)
@@ -3510,6 +3632,18 @@ bool get_aim_dir(int *dp)
 
 	cptr p;
 
+#ifdef ALLOW_REPEAT
+
+	if (repeat_pull(dp))
+	{
+		/* Verify */
+		if (!(*dp == 5 && !target_okay()))
+		{
+			return (TRUE);
+		}
+	}
+
+#endif /* ALLOW_REPEAT */
 
 	/* Initialize */
 	(*dp) = 0;
@@ -3590,6 +3724,12 @@ bool get_aim_dir(int *dp)
 	/* Save direction */
 	(*dp) = dir;
 
+#ifdef ALLOW_REPEAT
+
+	repeat_push(dir);
+
+#endif /* ALLOW_REPEAT */
+
 	/* A "valid" direction was entered */
 	return (TRUE);
 }
@@ -3619,6 +3759,14 @@ bool get_rep_dir(int *dp)
 
 	cptr p;
 
+#ifdef ALLOW_REPEAT
+
+	if (repeat_pull(dp))
+	{
+		return (TRUE);
+	}
+
+#endif /* ALLOW_REPEAT */
 
 	/* Initialize */
 	(*dp) = 0;
@@ -3650,6 +3798,12 @@ bool get_rep_dir(int *dp)
 
 	/* Save direction */
 	(*dp) = dir;
+
+#ifdef ALLOW_REPEAT
+
+	repeat_push(dir);
+
+#endif /* ALLOW_REPEAT */
 
 	/* Success */
 	return (TRUE);

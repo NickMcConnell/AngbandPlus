@@ -538,13 +538,13 @@ static void do_cmd_options_aux(int page, cptr info)
 
 	int i, k = 0, n = 0;
 
-	int opt[16];
+	int opt[OPT_PER_PAGE];
 
 	char buf[80];
 
 
 	/* Scan the options */
-	for (i = 0; i < 16; i++)
+	for (i = 0; i < OPT_PER_PAGE; i++)
 	{
 		/* Collect options on this "page" */
 		if (option_page[page][i] != 255)
@@ -2331,8 +2331,9 @@ void do_cmd_note(void)
 void do_cmd_version(void)
 {
 	/* Silly message */
-	msg_format("You are playing Angband %d.%d.%d.  Type '?' for more info.",
-	           VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
+/*	msg_format("You are playing Angband %d.%d.%d.  Type '?' for more info.",
+	           VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH); */
+  msg_format("You are playing MJBand %s. Type '?' for more info.", MJB_VERSION);
 }
 
 

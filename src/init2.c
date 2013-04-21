@@ -1774,7 +1774,7 @@ static errr init_v_info(void)
 /*
  * Hack -- Objects sold in the stores -- by tval/sval pair.
  */
-static byte store_table[MAX_STORES-2][STORE_CHOICES][2] =
+static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 {
 	{
 		/* General Store */
@@ -1926,12 +1926,12 @@ static byte store_table[MAX_STORES-2][STORE_CHOICES][2] =
 		{ TV_POTION, SV_POTION_RESTORE_EXP },
 		{ TV_POTION, SV_POTION_RESTORE_EXP },
 
+		{ TV_SCROLL, SV_SCROLL_STAR_REMOVE_CURSE },
+		{ TV_SCROLL, SV_SCROLL_REMOVE_CURSE },
 		{ TV_PRAYER_BOOK, 0 },
-		{ TV_PRAYER_BOOK, 0 },
-		{ TV_PRAYER_BOOK, 0 },
+		{ TV_POTION, SV_POTION_RES_WIS },
 		{ TV_PRAYER_BOOK, 1 },
-		{ TV_PRAYER_BOOK, 1 },
-		{ TV_PRAYER_BOOK, 2 },
+		{ TV_SCROLL, SV_SCROLL_BLESSING },
 		{ TV_PRAYER_BOOK, 2 },
 		{ TV_PRAYER_BOOK, 3 }
 	},
@@ -2006,15 +2006,131 @@ static byte store_table[MAX_STORES-2][STORE_CHOICES][2] =
 		{ TV_STAFF, SV_STAFF_IDENTIFY },
 		{ TV_STAFF, SV_STAFF_IDENTIFY },
 
+		{ TV_ROD, SV_ROD_DETECT_TRAP },
+		{ TV_WAND, SV_WAND_STONE_TO_MUD },
 		{ TV_MAGIC_BOOK, 0 },
-		{ TV_MAGIC_BOOK, 0 },
-		{ TV_MAGIC_BOOK, 0 },
+		{ TV_STAFF, SV_STAFF_STARLITE },
 		{ TV_MAGIC_BOOK, 1 },
-		{ TV_MAGIC_BOOK, 1 },
-		{ TV_MAGIC_BOOK, 2 },
+		{ TV_RING, SV_RING_RESIST_FIRE },
 		{ TV_MAGIC_BOOK, 2 },
 		{ TV_MAGIC_BOOK, 3 }
+	},
+	        /* BM Unused */
+	{
+	        {0, 0},
+	        {0, 0},
+	        {0, 0},
+	        {0, 0},
+	        {0, 0},
+	        {0, 0},
+	        {0, 0},
+	        {0, 0},
+
+	        {0, 0},
+	        {0, 0},
+	        {0, 0},
+	        {0, 0},
+	        {0, 0},
+	        {0, 0},
+	        {0, 0},
+	        {0, 0},
+
+	        {0, 0},
+	        {0, 0},
+	        {0, 0},
+	        {0, 0},
+	        {0, 0},
+	        {0, 0},
+	        {0, 0},
+	        {0, 0},
+
+	        {0, 0},
+	        {0, 0},
+	        {0, 0},
+	        {0, 0},
+	        {0, 0},
+	        {0, 0},
+	        {0, 0},
+	        {0, 0}
+	},
+	        /* Home Unused */
+	{
+	        {0, 0},
+	        {0, 0},
+	        {0, 0},
+	        {0, 0},
+	        {0, 0},
+	        {0, 0},
+	        {0, 0},
+	        {0, 0},
+
+	        {0, 0},
+	        {0, 0},
+	        {0, 0},
+	        {0, 0},
+	        {0, 0},
+	        {0, 0},
+	        {0, 0},
+	        {0, 0},
+
+	        {0, 0},
+	        {0, 0},
+	        {0, 0},
+	        {0, 0},
+	        {0, 0},
+	        {0, 0},
+	        {0, 0},
+	        {0, 0},
+
+	        {0, 0},
+	        {0, 0},
+	        {0, 0},
+	        {0, 0},
+	        {0, 0},
+	        {0, 0},
+	        {0, 0},
+	        {0, 0}
+	},
+
+	{
+	        { TV_MAGIC_BOOK, 0 },
+		{ TV_MAGIC_BOOK, 0 },
+		{ TV_MAGIC_BOOK, 0 },
+		{ TV_MAGIC_BOOK, 1 },
+		{ TV_MAGIC_BOOK, 1 },
+		{ TV_MAGIC_BOOK, 2 },
+		{ TV_MAGIC_BOOK, 2 },
+		{ TV_MAGIC_BOOK, 3 },
+
+		{ TV_PRAYER_BOOK, 0 },
+		{ TV_PRAYER_BOOK, 0 },
+		{ TV_PRAYER_BOOK, 0 },
+		{ TV_PRAYER_BOOK, 1 },
+		{ TV_PRAYER_BOOK, 1 },
+		{ TV_PRAYER_BOOK, 2 },
+		{ TV_PRAYER_BOOK, 2 },
+		{ TV_PRAYER_BOOK, 3 },
+
+		{ TV_ELEMENT_BOOK, 0 },
+		{ TV_ELEMENT_BOOK, 0 },
+		{ TV_ELEMENT_BOOK, 0 },
+		{ TV_ELEMENT_BOOK, 1 },
+		{ TV_ELEMENT_BOOK, 1 },
+		{ TV_ELEMENT_BOOK, 2 },
+		{ TV_ELEMENT_BOOK, 2 },
+		{ TV_ELEMENT_BOOK, 3 },
+
+		{ TV_ELEMENT_BOOK, 0 },
+		{ TV_MAGIC_BOOK, 0 },
+		{ TV_PRAYER_BOOK, 0 },
+		{ TV_MAGIC_BOOK, 1 },
+		{ TV_ELEMENT_BOOK, 1 },
+		{ TV_PRAYER_BOOK, 2 },
+		{ TV_ELEMENT_BOOK, 2 },
+		{ TV_PRAYER_BOOK, 3 }
+
 	}
+
 };
 
 

@@ -3560,8 +3560,44 @@ void do_cmd_activate(void)
 		/* Success */
 		return;
 	}
+	/* Hack -- Some rings can be activated as well */
+	if (o_ptr->tval == TV_RING)
+	{
+	      switch (o_ptr->sval)
+	      {
+	             case SV_RING_TELEPORTATION:
+	             {
+				msg_print("You give yourself up to the ring's incessant pull...");
+				teleport_player(100);
+				o_ptr->timeout = rand_int(200)+100;
+				break;
+	             }
+	             case SV_RING_ICE:
+	             {
+				(void)set_oppose_cold(p_ptr->oppose_cold + randint(20) + 20);
+				o_ptr->timeout = rand_int(20)+40;
+				break;
+	             }
+	             case SV_RING_ACID:
+	             {
+				(void)set_oppose_acid(p_ptr->oppose_acid + randint(20) + 20);
+				o_ptr->timeout = rand_int(20)+40;
+				break;
+	             }
+	             case SV_RING_FLAMES:
+	             {
+				(void)set_oppose_fire(p_ptr->oppose_fire + randint(20) + 20);
+				o_ptr->timeout = rand_int(20)+40;
+				break;
+	             }
+	      }
 
+		/* Window stuff */
+		p_ptr->window |= (PW_INVEN | PW_EQUIP);
 
+		/* Success */
+		return;
+	}
 	/* Mistake */
 	msg_print("Oops.  That object cannot be activated.");
 }

@@ -55,6 +55,7 @@
  */
 #define VERSION_EXTRA	0
 
+#define MJB_VERSION "0.0.6"
 
 /*
  * Number of grids in each block (vertically)
@@ -113,7 +114,7 @@
 /*
  * Total number of stores (see "store.c", etc)
  */
-#define MAX_STORES	8
+#define MAX_STORES	9
 
 /*
  * Total number of owners per store (see "store.c", etc)
@@ -133,17 +134,17 @@
 /*
  * Maximum number of player "class" types (see "table.c", etc)
  */
-#define MAX_CLASS            6
+#define MAX_CLASS            7
 
 
 /*
  * Maximum array bounds for template based arrays
  */
-#define MAX_F_IDX	64	/* Max size for "f_info[]" */
+#define MAX_F_IDX	75	/* Max size for "f_info[]" */
 #define MAX_K_IDX	512	/* Max size for "k_info[]" */
 #define MAX_A_IDX	128	/* Max size for "a_info[]" */
 #define MAX_E_IDX	128	/* Max size for "e_info[]" */
-#define MAX_R_IDX	549	/* Max size for "r_info[]" */
+#define MAX_R_IDX	568	/* Max size for "r_info[]" */
 #define MAX_V_IDX	16	/* Max size for "v_info[]" */
 
 
@@ -420,7 +421,7 @@
 #define CLASS_ROGUE		3
 #define CLASS_RANGER	4
 #define CLASS_PALADIN	5
-
+#define CLASS_ELEMENTALIST 6
 
 
 /*** Screen Locations ***/
@@ -589,7 +590,10 @@
 #define GF_OLD_SLEEP	57
 #define GF_OLD_DRAIN	58
 #define GF_XXX8			59
-
+#define GF_STUN         60
+#define GF_TELE_TO      61
+#define GF_AWAY_OBJ     62
+#define GF_DISP_ANIMAL  63
 
 /*
  * Some constants for the "learn" code
@@ -646,10 +650,6 @@
 #define FEAT_LESS		0x06
 #define FEAT_MORE		0x07
 
-/* Shops */
-#define FEAT_SHOP_HEAD	0x08
-#define FEAT_SHOP_TAIL	0x0F
-
 /* Traps */
 #define FEAT_TRAP_HEAD	0x10
 #define FEAT_TRAP_TAIL	0x1F
@@ -680,6 +680,9 @@
 #define FEAT_PERM_OUTER	0x3E
 #define FEAT_PERM_SOLID	0x3F
 
+/* Shops */
+#define FEAT_SHOP_HEAD	0x40
+#define FEAT_SHOP_TAIL	0x48
 
 
 /*** Artifact indexes (see "lib/edit/a_info.txt") ***/
@@ -1041,6 +1044,7 @@
 #define TV_FOOD         80
 #define TV_MAGIC_BOOK   90
 #define TV_PRAYER_BOOK  91
+#define TV_ELEMENT_BOOK 92
 #define TV_GOLD         100	/* Gold can only be picked up by players */
 
 
@@ -1211,8 +1215,8 @@
 /* The sval codes for TV_RING */
 #define SV_RING_WOE				0
 #define SV_RING_AGGRAVATION		1
-#define SV_RING_WEAKNESS		2
-#define SV_RING_STUPIDITY		3
+#define SV_RING_GEEKNESS		2
+#define SV_RING_BRUTALITY		3
 #define SV_RING_TELEPORTATION	4
 /* xxx */
 #define SV_RING_SLOW_DIGESTION	6
@@ -2245,11 +2249,11 @@
  * Hack -- Option symbols
  */
 #define cheat_peek				p_ptr->cheat[CHEAT_cheat_peek]
-#define cheat_hear				p_ptr->cheat[CHEAT_cheat_hear]		
-#define cheat_room				p_ptr->cheat[CHEAT_cheat_room]	
-#define cheat_xtra				p_ptr->cheat[CHEAT_cheat_xtra]	
-#define cheat_know				p_ptr->cheat[CHEAT_cheat_know]	
-#define cheat_live				p_ptr->cheat[CHEAT_cheat_live]	
+#define cheat_hear				p_ptr->cheat[CHEAT_cheat_hear]
+#define cheat_room				p_ptr->cheat[CHEAT_cheat_room]
+#define cheat_xtra				p_ptr->cheat[CHEAT_cheat_xtra]
+#define cheat_know				p_ptr->cheat[CHEAT_cheat_know]
+#define cheat_live				p_ptr->cheat[CHEAT_cheat_live]
 
 
 
@@ -2289,7 +2293,11 @@
 #define OPT_verify_destroy			28
 #define OPT_verify_special			29
 #define OPT_allow_quantity			30
+#ifdef ALLOW_EASY_OPEN
+#define OPT_easy_open 31
+#else /* ALLOW_EASY_OPEN */
 /* xxx */
+#endif /* ALLOW_EASY_OPEN */
 #define OPT_auto_haggle				32
 #define OPT_auto_scum				33
 #define OPT_testing_stack			34
@@ -2302,8 +2310,16 @@
 #define OPT_dungeon_stair			41
 #define OPT_flow_by_sound			42
 #define OPT_flow_by_smell			43
+#ifdef ALLOW_EASY_DISARM
+#define OPT_easy_disarm 44
+#else  /* ALLOW_EASY_DISARM */
 /* xxx */
+#endif /* ALLOW_EASY_DISARM */
+#ifdef ALLOW_EASY_FLOOR
+#define OPT_easy_floor 45
+#else  /* ALLOW_EASY_FLOOR */
 /* xxx */
+#endif /* ALLOW_EASY_FLOOR */
 #define OPT_smart_learn				46
 #define OPT_smart_cheat				47
 #define OPT_view_reduce_lite		48
@@ -2324,6 +2340,8 @@
 #define OPT_view_special_lite		63
 #define OPT_MAX						64
 
+#define OPT_PAGE_MAX 4 /* Number of pages of options -- TNB */
+#define OPT_PER_PAGE 22 /* Max. number of options in a page -- TNB */
 
 /*
  * Hack -- Option symbols
@@ -2359,7 +2377,11 @@
 #define verify_destroy			op_ptr->opt[OPT_verify_destroy]
 #define verify_special			op_ptr->opt[OPT_verify_special]
 #define allow_quantity			op_ptr->opt[OPT_allow_quantity]
+#ifdef ALLOW_EASY_OPEN
+#define easy_open			op_ptr->opt[OPT_easy_open]
+#else /* ALLOW_EASY_OPEN */
 /* xxx */
+#endif /* ALLOW_EASY_OPEN */
 #define auto_haggle				op_ptr->opt[OPT_auto_haggle]
 #define auto_scum				op_ptr->opt[OPT_auto_scum]
 #define testing_stack			op_ptr->opt[OPT_testing_stack]
@@ -2372,8 +2394,16 @@
 #define dungeon_stair			op_ptr->opt[OPT_dungeon_stair]
 #define flow_by_sound			op_ptr->opt[OPT_flow_by_sound]
 #define flow_by_smell			op_ptr->opt[OPT_flow_by_smell]
+#ifdef ALLOW_EASY_DISARM
+#define easy_disarm			op_ptr->opt[OPT_easy_disarm]
+#else /* ALLOW_EASY_DISARM */
 /* xxx */
+#endif /* ALLOW_EASY_DISARM */
+#ifdef ALLOW_EASY_FLOOR
+#define easy_floor			op_ptr->opt[OPT_easy_floor]
+#else /* ALLOW_EASY_FLOOR */
 /* xxx */
+#endif /* ALLOW_EASY_FLOOR */
 #define smart_learn				op_ptr->opt[OPT_smart_learn]
 #define smart_cheat				op_ptr->opt[OPT_smart_cheat]
 #define view_reduce_lite		op_ptr->opt[OPT_view_reduce_lite]

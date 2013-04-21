@@ -269,6 +269,27 @@ static int enchant_table[16] =
 	1000
 };
 
+int enchant_new_dam(int cur, int big)
+{
+  int chance = 1000;
+  if ((cur*2) < (big*3)) chance=999;
+  if ((cur*10) < (big*14)) chance=996;
+  if ((cur*10) < (big*12)) chance=990;
+  if (cur < big) chance=950;
+  if ((cur*10) < (big*9)) chance=750;
+  if ((cur*10) < (big*8)) chance=600;
+  if ((cur*10) < (big*7)) chance=500;
+  if ((cur*10) < (big*6)) chance=400;
+  if ((cur*10) < (big*5)) chance=300;
+  if ((cur*10) < (big*4)) chance=200;
+  if ((cur*10) < (big*3)) chance=100;
+  if ((cur*10) < (big*2)) chance=50;
+  if ((cur*10) < big) chance=20;
+  if (cur <= 0) chance=0;
+  return chance;
+}
+
+
 
 /*
  * Removes curses from items in inventory
@@ -478,7 +499,17 @@ void self_knowledge(void)
 	}
 	if (p_ptr->invuln)
 	{
+	  switch(mp_ptr->spell_book)
+	  {
+	    case TV_MAGIC_BOOK:
+	    {
 		info[i++] = "You are temporarily invulnerable.";
+	    }
+	    case TV_PRAYER_BOOK:
+	    {
+	      info[i++] = "You are hopeful of a miracle.";
+	    }
+	  }
 	}
 	if (p_ptr->confusing)
 	{
@@ -1262,6 +1293,7 @@ bool detect_objects_magic(void)
 		    (tv == TV_STAFF) || (tv == TV_WAND) || (tv == TV_ROD) ||
 		    (tv == TV_SCROLL) || (tv == TV_POTION) ||
 		    (tv == TV_MAGIC_BOOK) || (tv == TV_PRAYER_BOOK) ||
+		    (tv == TV_ELEMENT_BOOK) ||
 		    ((o_ptr->to_a > 0) || (o_ptr->to_h + o_ptr->to_d > 0)))
 		{
 			/* Memorize the item */
@@ -1584,6 +1616,34 @@ static bool item_tester_hook_armour(object_type *o_ptr)
 	return (FALSE);
 }
 
+static bool item_tester_hook_weapon_armour(object_type *o_ptr)
+{
+	switch (o_ptr->tval)
+	{
+		case TV_DRAG_ARMOR:
+		case TV_HARD_ARMOR:
+		case TV_SOFT_ARMOR:
+		case TV_SHIELD:
+		case TV_CLOAK:
+		case TV_CROWN:
+		case TV_HELM:
+		case TV_BOOTS:
+		case TV_GLOVES:
+		case TV_SWORD:
+		case TV_HAFTED:
+		case TV_POLEARM:
+		case TV_DIGGING:
+		case TV_BOW:
+		case TV_BOLT:
+		case TV_ARROW:
+		case TV_SHOT:
+		{
+			return (TRUE);
+		}
+	}
+
+	return (FALSE);
+}
 
 
 /*
@@ -1603,7 +1663,7 @@ static bool item_tester_hook_armour(object_type *o_ptr)
  */
 bool enchant(object_type *o_ptr, int n, int eflag)
 {
-	int i, chance, prob;
+	int i, chance, prob, temp;
 
 	bool res = FALSE;
 
@@ -1622,7 +1682,7 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 	if ((o_ptr->tval == TV_BOLT) ||
 	    (o_ptr->tval == TV_ARROW) ||
 	    (o_ptr->tval == TV_SHOT))
-	{
+        {
 		prob = prob / 20;
 	}
 
@@ -1660,9 +1720,15 @@ bool enchant(object_type *o_ptr, int n, int eflag)
 		/* Enchant to damage */
 		if (eflag & (ENCH_TODAM))
 		{
-			if (o_ptr->to_d < 0) chance = 0;
-			else if (o_ptr->to_d > 15) chance = 1000;
-			else chance = enchant_table[o_ptr->to_d];
+			temp=(o_ptr->dd * o_ptr->ds);
+			chance = enchant_new_dam(o_ptr->to_d, temp);
+
+                        if ((o_ptr->tval == TV_BOLT) || (o_ptr->tval == TV_ARROW) || (o_ptr->tval == TV_SHOT) || (o_ptr->tval == TV_BOW))
+                        {
+                          if (o_ptr->to_d > 15) chance = 1000;
+                          else if (o_ptr->to_d < 0) chance = 0;
+                          else chance = enchant_table[o_ptr->to_d];
+                        }
 
 			if ((randint(1000) > chance) && (!a || (rand_int(100) < 50)))
 			{
@@ -2134,7 +2200,7 @@ bool recharge(int num)
  *
  * Note that affected monsters are NOT auto-tracked by this usage.
  */
-static bool project_hack(int typ, int dam)
+bool project_hack(int typ, int dam)
 {
 	int i, x, y;
 
@@ -2191,6 +2257,11 @@ bool sleep_monsters(void)
 	return (project_hack(GF_OLD_SLEEP, p_ptr->lev));
 }
 
+bool confuse_monsters(void)
+{
+	return (project_hack(GF_OLD_CONF, p_ptr->lev));
+}
+
 
 /*
  * Banish evil monsters
@@ -2209,6 +2280,12 @@ bool turn_undead(void)
 	return (project_hack(GF_TURN_UNDEAD, p_ptr->lev));
 }
 
+bool scare_all(void)
+{
+          (void)project_hack(GF_TURN_ALL, (p_ptr->lev*2));
+	return TRUE;
+}
+
 
 /*
  * Dispel undead monsters
@@ -2216,6 +2293,14 @@ bool turn_undead(void)
 bool dispel_undead(int dam)
 {
 	return (project_hack(GF_DISP_UNDEAD, dam));
+}
+
+/*
+ * Dispel animals
+ */
+bool dispel_animal(int dam)
+{
+	return (project_hack(GF_DISP_ANIMAL, dam));
 }
 
 /*
@@ -3429,4 +3514,743 @@ bool sleep_monsters_touch(void)
 	return (project(-1, 1, py, px, p_ptr->lev, GF_OLD_SLEEP, flg));
 }
 
+bool do_mirage(void)
+{
+        int py = p_ptr->py;
+        int px = p_ptr->px;
 
+        int flg = PROJECT_KILL | PROJECT_GRID;
+        int pow, rad;
+
+        pow = p_ptr->lev;
+        rad = (2 + ((p_ptr->lev)/10));
+
+        return (project(-1, rad, py, px, pow, GF_OLD_CONF, flg));
+}
+
+bool do_ident_pseudo(void)
+{
+	int item;
+
+	object_type *o_ptr;
+
+	char o_name[80];
+        cptr feel;
+        int feeling;
+
+	cptr q, s;
+
+        item_tester_hook = item_tester_hook_weapon_armour;
+
+	/* Get an item */
+	q = "Identify which item? ";
+	s = "You have nothing to identify.";
+	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) return (FALSE);
+
+	/* Get the item (in the pack) */
+	if (item >= 0)
+	{
+		o_ptr = &inventory[item];
+	}
+
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr = &o_list[0 - item];
+	}
+
+        if (o_ptr->ident & (IDENT_SENSE))
+        {
+          msg_print("You already know all you could sense from that object");
+          return FALSE;
+        }
+
+        if (object_known_p(o_ptr))
+        {
+          msg_print("You already know all you could sense from that object");
+          return FALSE;
+        }
+
+
+        feeling = value_check_mjb(o_ptr);
+
+        switch(feeling)
+        {
+          case 0:
+          {
+            feel = "terrible";
+            break;
+          }
+          case 1:
+          {
+            feel = "worthless";
+            break;
+          }
+          case 2:
+          {
+            feel = "broken";
+            break;
+          }
+          case 3:
+          {
+            feel = "cursed";
+            break;
+          }
+          case 4:
+          {
+            feel = "average";
+            break;
+          }
+          case 5:
+          {
+            feel = "good";
+            break;
+          }
+          case 6:
+          {
+            feel = "excellent";
+            break;
+          }
+          case 7:
+          {
+            feel = "special";
+            break;
+          }
+          default:
+          {
+            msg_print("BIG BUG!");
+            break;
+          }
+        }
+	/* Get an object description */
+	object_desc(o_name, o_ptr, FALSE, 0);
+
+	/* Message (equipment) */
+	if (item >= INVEN_WIELD)
+	{
+		msg_format("You feel the %s (%c) you are %s %s %s...",
+		           o_name, index_to_label(item), describe_use(item),
+		           ((o_ptr->number == 1) ? "is" : "are"), feel);
+	}
+	/* Message (inventory) */
+	else if (item >= 0)
+	{
+		msg_format("You feel the %s (%c) in your pack %s %s...",
+		           o_name, index_to_label(item),
+		           ((o_ptr->number == 1) ? "is" : "are"), feel);
+	}
+	else
+	{
+	        msg_format("You feel the %s on the floor %s %s...",
+	                    o_name, ((o_ptr->number == 1) ? "is" : "are"),
+	                    feel);
+	}
+
+	o_ptr->ident |= IDENT_SENSE;
+        if (!o_ptr->note) { o_ptr->note = quark_add(feel); }
+
+	/* Combine / Reorder the pack (later) */
+	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
+
+	/* Window stuff */
+	p_ptr->window |= (PW_INVEN | PW_EQUIP);
+
+        return TRUE;
+}
+int value_check_mjb(object_type *o_ptr)
+{
+	/* Artifacts */
+	if (artifact_p(o_ptr))
+	{
+		/* Cursed/Broken */
+		if (cursed_p(o_ptr) || broken_p(o_ptr)) return 0;
+
+		/* Normal */
+		return 7;
+	}
+
+	/* Ego-Items */
+	if (ego_item_p(o_ptr))
+	{
+		/* Cursed/Broken */
+		if (cursed_p(o_ptr) || broken_p(o_ptr)) return 1;
+
+		/* Normal */
+		return 6;
+	}
+
+	/* Cursed items */
+	if (cursed_p(o_ptr)) return 3;
+
+	/* Broken items */
+	if (broken_p(o_ptr)) return 2;
+
+	/* Good "armor" bonus */
+	if (o_ptr->to_a > 0) return 5;
+
+	/* Good "weapon" bonus */
+	if (o_ptr->to_h + o_ptr->to_d > 0) return 5;
+
+	/* Default to "average" */
+	return 4;
+}
+
+bool spell_xtra_lite(void)
+{
+  int plev = (p_ptr->lev);
+
+  if (!p_ptr->xlite)
+  {
+    do_xtra_lite(plev + randint(plev));
+  }
+  else
+  {
+    do_xtra_lite(plev + randint(plev) + (p_ptr->xlite));
+  }
+  return TRUE;
+}
+
+bool do_xtra_lite(int lite)
+{
+  bool notice;
+  /* Hack -- Force good values */
+  lite = (lite > 10000) ? 10000 : (lite < 0) ? 0 : lite;
+
+  if (lite)
+  {
+    if (!p_ptr->xlite)
+    {
+      msg_print("A bright glow surrounds you");
+      p_ptr->xlite = lite;
+      notice = TRUE;
+    }
+    else
+    {
+      p_ptr->xlite = lite;
+      notice = FALSE;
+    }
+  }
+  else
+  {
+    if (p_ptr->xlite)
+    {
+      msg_print("The bright glow fades.");
+      p_ptr->xlite = 0;
+      notice = TRUE;
+    }
+    else
+    {
+      p_ptr->xlite = 0;
+      notice = FALSE;
+    }
+  }
+
+  	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_TORCH);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+
+bool elemental_warrior(int elem)
+{
+
+  /* elem 1 = elec, 2 = ice, 3 = fire */
+  switch(elem)
+  {
+    case 1:
+    {
+      if (!p_ptr->elec_warr)
+      {
+        do_elem_warr(elem, (5 + randint(p_ptr->lev/2)));
+        break;
+      }
+      else
+      {
+        do_elem_warr(elem, (p_ptr->elec_warr + (5 + randint(p_ptr->lev/2))));
+        break;
+      }
+    }
+    case 2:
+    {
+      if (!p_ptr->ice_warr)
+      {
+        do_elem_warr(elem, (20 + randint(p_ptr->lev/2)));
+        break;
+      }
+      else
+      {
+        do_elem_warr(elem, (p_ptr->elec_warr +  (20 + randint(p_ptr->lev/2))));
+        break;
+      }
+    }
+    case 3:
+    {
+      if (!p_ptr->fire_warr)
+      {
+        do_elem_warr(elem, damroll(3, p_ptr->lev/3) + 20);
+        break;
+      }
+      else
+      {
+        do_elem_warr(elem, p_ptr->fire_warr + (damroll(3, p_ptr->lev/3) + 20));
+        break;
+      }
+    }
+    default:
+    {
+      msg_print("Bug in elemental warrior code");
+    }
+  }
+  return TRUE;
+}
+
+bool do_elem_warr(int elem, int dur)
+{
+  bool notice;
+
+  switch(elem)
+  {
+    case 1:
+    {
+      if (!p_ptr->elec_warr)
+      {
+        if (dur)
+        {
+          p_ptr->elec_warr = dur;
+          msg_print("You are wreathed in sparks.");
+          (void)set_oppose_elec(p_ptr->oppose_elec + dur);
+          notice = TRUE;
+        }
+        else
+        {
+          p_ptr->elec_warr = 0;
+          notice = FALSE;
+        }
+        break;
+      }
+      else
+      {
+        if (dur)
+        {
+          p_ptr->elec_warr = dur;
+          if (p_ptr->elec_warr > 300)  {p_ptr->elec_warr = 300;}
+          notice = FALSE;
+        }
+        else
+        {
+          p_ptr->elec_warr = 0;
+          msg_print("You are no longer wreathed in sparks");
+          notice = TRUE;
+        }
+      }
+      break;
+    }
+    case 2:
+    {
+      if (!p_ptr->ice_warr)
+      {
+        if (dur)
+        {
+          p_ptr->ice_warr = dur;
+          msg_print("You are covered in frost.");
+          (void)set_oppose_cold(p_ptr->oppose_cold + dur);
+          notice = TRUE;
+        }
+        else
+        {
+          p_ptr->ice_warr = 0;
+          notice = FALSE;
+        }
+        break;
+      }
+      else
+      {
+        if (dur)
+        {
+          p_ptr->ice_warr = dur;
+          if (p_ptr->ice_warr > 300)  {p_ptr->ice_warr = 300;}
+          notice = FALSE;
+        }
+        else
+        {
+          p_ptr->ice_warr = 0;
+          msg_print("The frost melts from you.");
+          notice = TRUE;
+        }
+      }
+      break;
+    }
+    case 3:
+    {
+      if (!p_ptr->fire_warr)
+      {
+        if (dur)
+        {
+          p_ptr->fire_warr = dur;
+          msg_print("You are wreathed in flame.");
+          (void)set_oppose_fire(p_ptr->oppose_fire + dur);
+          notice = TRUE;
+        }
+        else
+        {
+          p_ptr->fire_warr = 0;
+          notice = FALSE;
+        }
+        break;
+      }
+      else
+      {
+        if (dur)
+        {
+          p_ptr->fire_warr = dur;
+          if (p_ptr->fire_warr > 300)  {p_ptr->fire_warr = 300;}
+          notice = FALSE;
+        }
+        else
+        {
+          p_ptr->fire_warr = 0;
+          msg_print("You are no longer wreathed in flame.");
+          notice = TRUE;
+        }
+      }
+      break;
+    }
+
+  }
+    	/* Nothing to notice */
+	if (!notice) return (FALSE);
+
+	/* Disturb */
+	if (disturb_state) disturb(0, 0);
+
+	/* Handle stuff */
+	handle_stuff();
+
+	/* Result */
+	return (TRUE);
+}
+bool chill_touch_spell(int dam, int type, int dir)
+{
+  	int py = p_ptr->py;
+	int px = p_ptr->px;
+
+	int ty, tx;
+
+	/* Use the given direction */
+	ty = py + ddy[dir];
+	tx = px + ddx[dir];
+
+        return (project(-1, 0, ty, tx, dam, GF_COLD, PROJECT_JUMP));
+}
+bool dimension_jump(int dir)
+{
+	int py = p_ptr->py;
+	int px = p_ptr->px;
+	int y = py;
+	int x = px;
+	int rad = 10;
+	int yfoo = ddy[dir];
+	int xfoo = ddx[dir];
+	int min = rad / 4;
+	int dis = rad;
+	int i, d;
+	bool look = TRUE;
+	bool y_major = FALSE;
+	bool x_major = FALSE;
+	int y_neg = 1;
+	int x_neg = 1;
+
+	if (xfoo == 0 && yfoo == 0)
+	{
+		teleport_player(rad);
+		return TRUE;
+	}
+	if (yfoo == 0)
+	{
+		x_major = TRUE;
+	}
+	if (xfoo == 0)
+	{
+		y_major = TRUE;
+	}
+	if (yfoo < 0)
+	{
+		y_neg = -1;
+	}
+	if (xfoo < 0)
+	{
+		x_neg = -1;
+	}
+
+	/* Look until done */
+	while (look)
+	{
+		/* Verify max distance */
+		if (dis > 200)
+		{
+			teleport_player(rad);
+			return TRUE;
+		}
+
+		/* Try several locations */
+		for (i = 0; i < 500; i++)
+		{
+			/* Pick a (possibly illegal) location */
+			while (1)
+			{
+				if (y_major)
+				{
+					y = rand_spread(py + y_neg * dis / 2, dis / 2);
+				}
+				else
+				{
+					y = rand_spread(py, dis / 3);
+				}
+
+				if (x_major)
+				{
+					x = rand_spread(px + x_neg * dis / 2, dis / 2);
+				}
+				else
+				{
+					x = rand_spread(px, dis / 3);
+				}
+
+				d = distance(py, px, y, x);
+				if ((d >= min) && (d <= dis) && ((!cave_info[y][x] || CAVE_ICKY)) )
+					break;
+			}
+
+			/* Ignore illegal locations */
+			if (!in_bounds_fully(y, x))
+				continue;
+
+			/* Require "naked" floor space */
+			if (!cave_empty_bold(y, x))
+				continue;
+
+			/* This grid looks good */
+			look = FALSE;
+
+			/* Stop looking */
+			break;
+		}
+
+		/* Increase the maximum distance */
+		dis = dis * 2;
+
+		/* Decrease the minimum distance */
+		min = min / 2;
+	}
+
+	/* Sound */
+	sound(SOUND_TELEPORT);
+
+	/* Move player */
+	monster_swap(py, px, y, x);
+
+	/* Handle stuff XXX XXX XXX */
+	handle_stuff();
+	return TRUE;
+
+}
+
+bool teleport_everything(void)
+{
+     (void)project_hack(GF_AWAY_ALL, 200);
+     (void)project_hack(GF_AWAY_OBJ, 200);
+     (void)teleport_player(100);
+     return TRUE;
+}
+
+bool teleport_object(object_type *o_ptr, int dist)
+{
+	int oy = o_ptr->iy;
+	int ox = o_ptr->ix;
+
+	int d, i, min, y, x;
+
+	bool look = TRUE;
+
+
+	/* Initialize */
+	y = oy;
+	x = ox;
+
+	/* Minimum distance */
+	min = dist / 2;
+
+	/* Look until done */
+	while (look)
+	{
+		/* Verify max distance */
+		if (dist > 200) dist = 200;
+
+		/* Try several locations */
+		for (i = 0; i < 500; i++)
+		{
+			/* Pick a (possibly illegal) location */
+			while (1)
+			{
+				y = rand_spread(oy, dist);
+				x = rand_spread(ox, dist);
+				d = distance(oy, ox, y, x);
+				if ((d >= min) && (d <= dist)) break;
+			}
+
+			/* Ignore illegal locations */
+			if (!in_bounds_fully(y, x)) continue;
+
+			/* Require "naked" floor space */
+			if (!cave_naked_bold(y, x)) continue;
+
+			/* No teleporting into vaults and such */
+			if (cave_info[y][x] & (CAVE_ICKY)) continue;
+
+			/* This grid looks good */
+			look = FALSE;
+
+			/* Stop looking */
+			break;
+		}
+
+		/* Increase the maximum distance */
+		dist = dist * 2;
+
+		/* Decrease the minimum distance */
+		min = min / 2;
+	}
+
+	/* Sound */
+	sound(SOUND_TELEPORT);
+
+	/* Move object */
+        floor_carry(y, x, o_ptr);
+
+	/* Handle stuff XXX XXX XXX */
+	handle_stuff();
+	return TRUE;
+}
+
+bool wheel_of_death(void)
+{
+  int y, x, unlucky;
+  int flg = PROJECT_KILL | PROJECT_GRID;
+  temp_n = 0;
+
+  /* Find monsters within 19 squares */
+
+  for (y = p_ptr->py - 19; y < p_ptr->py + 19; y++)
+  {
+    for (x = p_ptr->px - 19; x < p_ptr->px + 19; x++)
+    {
+      /* Only in Line Of Sight */
+      if (!player_has_los_bold(y, x)) continue;
+
+      if (!(cave_m_idx[y][x] > 0)) continue;
+      /* paranoia */
+      if ((y == p_ptr->py) && (x == p_ptr->px)) continue;
+
+      if (distance(p_ptr->py, p_ptr->px, y, x) > 19) continue;
+
+      if (!(cave_m_idx[y][x] > 0)) continue;
+
+      temp_x[temp_n] = x;
+      temp_y[temp_n] = y;
+      temp_n++;
+    }
+  }
+
+  /* Can we get on with it now? :-) */
+  unlucky = rand_int(temp_n);
+
+  if (unlucky == temp_n)
+  {
+    take_hit(damroll(10, 20), "The Wheel of Death.");
+    return TRUE;
+  }
+  else
+  {
+     return (project(-1, 1, y, x, damroll(10, 20), GF_CHAOS, flg));
+  }
+
+}
+bool do_quicken_blade(void)
+{
+  int dur;
+
+  if (p_ptr->quickblade)
+  {
+    dur = randint(20);
+  }
+  else
+  {
+    dur = 10 + randint(10);
+  }
+
+  return set_quick_blade(p_ptr->quickblade + dur);
+}
+
+bool set_quick_blade(int dur)
+{
+  bool notice = FALSE;
+      if (!p_ptr->quickblade)
+      {
+        if (dur)
+        {
+          p_ptr->quickblade = dur;
+          msg_print("Your weapon moves faster.");
+          notice = TRUE;
+        }
+        else
+        {
+          p_ptr->quickblade = 0;
+          notice = FALSE;
+        }
+      }
+      else
+      {
+        if (dur)
+        {
+          p_ptr->quickblade = dur;
+          if (p_ptr->quickblade > 100)  {p_ptr->quickblade = 100;}
+          notice = FALSE;
+        }
+        else
+        {
+          p_ptr->quickblade = 0;
+          msg_print("Your weapon slows.");
+          notice = TRUE;
+        }
+      }
+      if (notice)
+      {
+        p_ptr->update |= PU_BONUS;
+        handle_stuff();
+      }
+      return TRUE;
+}
+
+bool do_elemental_burst(void)
+{
+        int py = p_ptr->py;
+        int px = p_ptr->px;
+
+        int flg = PROJECT_KILL | PROJECT_GRID;
+        int pow, rad;
+
+        pow = 200;
+        rad = 6;
+
+        return (project(-1, rad, py, px, pow, GF_MISSILE, flg));
+}

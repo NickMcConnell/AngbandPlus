@@ -498,6 +498,14 @@ struct object_type
 
 	u16b note;			/* Inscription index */
 
+        u16b art_name;      /* Artifact name (random artifacts - future?) */
+
+        byte art_flag_init;  /* Are the following set up yet? */
+        u32b art_flags1;     /* Flags, set 1  Alas, these were necessary */
+        u32b art_flags2;     /* Flags, set 2  for me to play with */
+        u32b art_flags3;     /* Flags, set 3  object settings */
+
+
 	s16b next_o_idx;	/* Next object in stack (if any) */
 
 	s16b held_m_idx;	/* Monster holding us (if any) */
@@ -884,11 +892,34 @@ struct player_type
 	s16b oppose_cold;	/* Timed -- oppose cold */
 	s16b oppose_pois;	/* Timed -- oppose poison */
 
+        s16b xlite;             /* Timed -- Extra Lite Spell */
+
+        s16b elec_warr;         /* Timed -- Elemental Warrior Spells */
+        s16b ice_warr;
+        s16b fire_warr;
+
+	u32b muta1;             /* Later */
+	u32b muta2;
+	u32b muta3;
+
 	s16b word_recall;	/* Word of recall counter */
 
 	s16b energy;		/* Current energy */
 
 	s16b food;			/* Current nutrition */
+
+        s16b quickblade;                /* Timed - Quick Blade */
+
+	s16b res_1;              /* reserved (future-proofing) */
+	s16b res_2;
+	s16b res_3;
+	s16b res_4;
+	s16b res_5;
+	s16b res_6;
+	s16b res_7;
+	s16b res_8;
+	s16b res_9;
+	s16b res_10;
 
 	byte confusing;		/* Glowing hands */
 	byte searching;		/* Currently searching */

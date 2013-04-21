@@ -1144,7 +1144,7 @@ static void calc_spells(void)
 
 	magic_type *s_ptr;
 
-	cptr p = ((mp_ptr->spell_book == TV_MAGIC_BOOK) ? "spell" : "prayer");
+	cptr p = ((mp_ptr->spell_book == TV_PRAYER_BOOK) ? "prayer" : "spell");
 
 
 	/* Hack -- must be literate */
@@ -1615,7 +1615,11 @@ static void calc_torch(void)
 
 		/* Artifact Lites provide permanent, bright, lite */
 		if (artifact_p(o_ptr)) p_ptr->cur_lite = 3;
+
 	}
+
+	/* xtra lite spell ? */
+	if (p_ptr->xlite) p_ptr->cur_lite = 4;
 
 	/* Reduce lite when running if requested */
 	if (p_ptr->running && view_reduce_lite)
@@ -1854,6 +1858,13 @@ static void calc_bonuses(void)
 		if (p_ptr->lev >= 30) p_ptr->resist_fear = TRUE;
 	}
 
+        if ((p_ptr->invuln) && (mp_ptr->spell_book == TV_ELEMENT_BOOK))
+        {
+          p_ptr->immune_acid = TRUE;
+          p_ptr->immune_fire = TRUE;
+          p_ptr->immune_cold = TRUE;
+          /* No lightning - nice suprise <EG> */
+        }
 
 	/*** Analyze equipment ***/
 
@@ -2355,7 +2366,7 @@ static void calc_bonuses(void)
 
 			/* Paladin */
 			case CLASS_PALADIN: num = 5; wgt = 30; mul = 4; break;
-		}
+			case CLASS_ELEMENTALIST: num = 4; wgt = 35; mul = 3; break;		}
 
 		/* Enforce a minimum "weight" (tenth pounds) */
 		div = ((o_ptr->weight < wgt) ? wgt : o_ptr->weight);
@@ -2380,6 +2391,7 @@ static void calc_bonuses(void)
 
 		/* Add in the "bonus blows" */
 		p_ptr->num_blow += extra_blows;
+                if (p_ptr->quickblade) p_ptr->num_blow++;
 
 		/* Require at least one blow */
 		if (p_ptr->num_blow < 1) p_ptr->num_blow = 1;

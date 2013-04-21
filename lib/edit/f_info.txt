@@ -61,45 +61,6 @@ G:<:w
 N:7:down staircase
 G:>:w
 
-# 0x08 --> shop -- general store (perm)
-
-N:8:General Store
-G:1:U
-
-# 0x09 --> shop -- armoury (perm)
-
-N:9:Armoury
-G:2:s
-
-# 0x0A --> shop -- weapon shop (perm)
-
-N:10:Weapon Smiths
-G:3:w
-
-# 0x0B --> shop -- temple (perm)
-
-N:11:Temple
-G:4:g
-
-# 0x0C --> shop -- alchemist (perm)
-
-N:12:Alchemy Shop
-G:5:b
-
-# 0x0D --> shop -- magic shop (perm)
-
-N:13:Magic Shop
-G:6:r
-
-# 0x0E --> shop -- black market (perm)
-
-N:14:Black Market
-G:7:D
-
-# 0x0F --> shop -- home (perm)
-
-N:15:Home
-G:8:y
 
 # 0x10 --> visible trap -- trap door
 
@@ -365,4 +326,49 @@ M:60
 N:63:permanent wall
 G:#:w
 M:60
+
+# 0x40 --> shop -- general store (perm)
+
+N:64:General Store
+G:1:U
+
+# 0x41 --> shop -- armoury (perm)
+
+N:65:Armoury
+G:2:s
+
+# 0x42 --> shop -- weapon shop (perm)
+
+N:66:Weapon Smiths
+G:3:w
+
+# 0x43 --> shop -- temple (perm)
+
+N:67:Temple
+G:4:g
+
+# 0x44 --> shop -- alchemist (perm)
+
+N:68:Alchemy Shop
+G:5:b
+
+# 0x45 --> shop -- magic shop (perm)
+
+N:69:Magic Shop
+G:6:r
+
+# 0x46 --> shop -- black market (perm)
+
+N:70:Black Market
+G:7:D
+
+# 0x47 --> shop -- home (perm)
+
+N:71:Home
+G:8:y
+
+# 0x48
+
+N:72:Bookstore
+G:9:o
 

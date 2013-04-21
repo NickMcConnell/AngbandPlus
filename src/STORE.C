@@ -504,6 +504,7 @@ static void mass_produce(object_type *o_ptr)
 
 		case TV_MAGIC_BOOK:
 		case TV_PRAYER_BOOK:
+		case TV_ELEMENT_BOOK:
 		{
 			if (cost <= 50L) size += mass_roll(2, 3);
 			if (cost <= 500L) size += mass_roll(1, 3);
@@ -726,6 +727,7 @@ static bool store_check_num(object_type *o_ptr)
  */
 static bool store_will_buy(object_type *o_ptr)
 {
+u32b f1, f2, f3;
 	/* Hack -- The Home is simple */
 	if (store_num == 7) return (TRUE);
 
@@ -808,6 +810,13 @@ static bool store_will_buy(object_type *o_ptr)
 				case TV_POTION:
 				case TV_HAFTED:
 				break;
+                                case TV_SWORD:
+                                case TV_POLEARM:
+                                {
+                                  object_flags(o_ptr, &f1, &f2, &f3);
+                                  if ((f3 & (TR3_BLESSED)) && (o_ptr->ident & (IDENT_KNOWN))) break;
+                                  else return (FALSE);
+                                }
 				default:
 				return (FALSE);
 			}
@@ -836,6 +845,7 @@ static bool store_will_buy(object_type *o_ptr)
 			switch (o_ptr->tval)
 			{
 				case TV_MAGIC_BOOK:
+				case TV_ELEMENT_BOOK:
 				case TV_AMULET:
 				case TV_RING:
 				case TV_STAFF:
@@ -843,6 +853,20 @@ static bool store_will_buy(object_type *o_ptr)
 				case TV_ROD:
 				case TV_SCROLL:
 				case TV_POTION:
+				break;
+				default:
+				return (FALSE);
+			}
+			break;
+		}
+		case 8:
+		{
+			/* Analyze the type */
+			switch (o_ptr->tval)
+			{
+				case TV_MAGIC_BOOK:
+				case TV_ELEMENT_BOOK:
+				case TV_PRAYER_BOOK:
 				break;
 				default:
 				return (FALSE);
@@ -1586,6 +1610,20 @@ static bool get_stock(int *com_val, cptr pmt)
 
 	object_type *o_ptr;
 
+#ifdef ALLOW_REPEAT
+
+	/* Get the item index */
+	if (repeat_pull(com_val))
+	{
+		/* Verify the item */
+		if ((*com_val >= 0) && (*com_val <= (st_ptr->stock_num - 1)))
+		{
+			/* Success */
+			return (TRUE);
+		}
+	}
+
+#endif /* ALLOW_REPEAT */
 
 	/* Assume failure */
 	*com_val = (-1);
@@ -1631,7 +1669,7 @@ static bool get_stock(int *com_val, cptr pmt)
 			/* Describe */
 			object_desc(o_name, o_ptr, TRUE, 3);
 		}
-	
+
 		/* Shop */
 		else
 		{
@@ -1651,6 +1689,12 @@ static bool get_stock(int *com_val, cptr pmt)
 
 	/* Save item */
 	(*com_val) = item;
+
+#ifdef ALLOW_REPEAT
+
+	repeat_push(*com_val);
+
+#endif /* ALLOW_REPEAT */
 
 	/* Success */
 	return (TRUE);
@@ -2284,7 +2328,86 @@ static bool sell_haggle(object_type *o_ptr, s32b *price)
 	return (FALSE);
 }
 
+static void store_examine(void)
+{
+       	int n;
+	int amt, choice;
+	int item, item_new;
 
+	s32b price;
+
+	object_type *o_ptr;
+
+	object_type *i_ptr;
+	object_type object_type_body;
+
+	char o_name[80];
+
+	char out_val[160];
+
+
+	/* Empty? */
+	if (st_ptr->stock_num <= 0)
+	{
+		if (store_num == 7)
+		{
+			msg_print("Your home is empty.");
+		}
+		else
+		{
+			msg_print("I am currently out of stock.");
+		}
+		return;
+	}
+
+
+	/* Prompt */
+	if (store_num == 7)
+	{
+		sprintf(out_val, "Which item do you want to examine? ");
+	}
+	else
+	{
+		sprintf(out_val, "Which item do you want to examine? ");
+	}
+
+	/* Get the object number to be examined */
+	if (!get_stock(&item, out_val)) return;
+
+	/* Get the actual object */
+	o_ptr = &st_ptr->stock[item];
+
+	/* Get local object */
+	i_ptr = &object_type_body;
+
+	/* Get desired object */
+	object_copy(i_ptr, o_ptr);
+
+	/* Modify quantity */
+	i_ptr->number = 1;
+
+        if (store_num != 7)
+        {
+              object_desc_store(o_name, i_ptr, TRUE, 3);
+              msg_format("Examining %s...", o_name);
+              if (!identify_fully_aux(i_ptr)) msg_print("You see nothing special.");
+        }
+        else
+        {
+              if (!(i_ptr->ident & (IDENT_MENTAL)))
+              {
+                msg_print("you have no special knowledge about that item.");
+                return;
+              }
+              else
+              {
+                object_desc(o_name, i_ptr, TRUE, 3);
+                msg_format("Examining %s...", o_name);
+                	if (!identify_fully_aux(i_ptr)) msg_print("You see nothing special.");
+              }
+        }
+
+}
 
 
 
@@ -2406,6 +2529,7 @@ static void store_purchase(void)
 
 				/* Buying an object makes you aware of it */
 				object_aware(i_ptr);
+                                i_ptr->ident |= IDENT_MENTAL;
 
 				/* Combine / Reorder the pack (later) */
 				p_ptr->notice |= (PN_COMBINE | PN_REORDER);
@@ -2808,6 +2932,13 @@ static bool leave_store = FALSE;
  */
 static void store_process_command(void)
 {
+#ifdef ALLOW_REPEAT
+
+	/* Handle repeating the last command */
+	repeat_check();
+
+#endif /* ALLOW_REPEAT */
+
 	/* Parse the command */
 	switch (p_ptr->command_cmd)
 	{
@@ -2868,6 +2999,12 @@ static void store_process_command(void)
 		{
 			store_sell();
 			break;
+		}
+
+		case 'x':
+		{
+		        store_examine();
+		        break;
 		}
 
 			/* Ignore return */

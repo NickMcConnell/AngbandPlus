@@ -7318,7 +7318,7 @@ F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | REGENERATE |
 F:EVIL | UNDEAD | IM_COLD | IM_POIS | HURT_LITE | NO_CONF | NO_SLEEP
 S:1_IN_3 | 
 S:BLIND | HOLD | SCARE | CAUSE_3 | CAUSE_4 | DRAIN_MANA | 
-S:BRAIN_SMASH | BA_NETH
+S:BRAIN_SMASH | BA_NETH | TELE_TO
 D:Chief messenger between Sauron and Morgoth, she is surely the most deadly 
 D:of her vampire race.  At first she is charming to meet, but her wings and 
 D:eyes give away her true form.
@@ -8201,3 +8201,207 @@ D:two remaining Silmarils forever burning him.  Grond, the mighty Hammer of
 D:the Underworld, cries defiance as he strides towards you to crush you to a 
 D:pulp!
 
+# New additions
+
+N:548:Crow
+G:B:s
+I:120:3d5:40:12:0
+W:2:2:0:8
+B:BITE:HURT:1d3
+B:BITE:HURT:1d3
+F:ANIMAL
+D:It is a hooded crow, gray except for the black wings and head.
+
+N:549:Raven
+G:B:D
+I:120:4d5:40:12:0
+W:4:2:0:10
+B:BITE:HURT:1d4
+B:BITE:HURT:1d4
+F:ANIMAL
+D:Larger than a crow, and pitch black.
+
+N:550:Crebain
+G:B:D
+I:120:5d5:40:12:0
+W:16:2:0:20
+B:CLAW:HURT:1d4
+B:CLAW:HURT:1d4
+F:ANIMAL | FRIENDS
+S:1_IN_4 | SHRIEK
+D:A type of crow, specially bred by the forces of evil as spies: their
+D:rudimentary intelligence guided by an evil mind has tracked you down.
+
+N:551:Winged Horror
+G:B:D
+I:120:25d80:30:80:5
+W:48:8:0:4000
+B:CLAW:HURT:3d8
+B:CLAW:HURT:3d8
+B:BITE:EXP_40:4d6
+B:BITE:EXP_40:4d6
+F:ANIMAL | IM_COLD | IM_POIS
+S:1_IN_6
+S:BR_NETH | BR_DARK | BR_POIS
+D:A terrifying sight: a winged creature greater than any bird you have ever
+D:seen, and with no feathers on its horrid black leathery wings. Descended
+D:from a creature of an older world perhaps, bred by the Dark Lord to be a
+D:winged steed for his Ringwraiths.
+
+N:552:Cave bear
+G:q:u
+I:110:8d8:10:35:10
+W:9:1:0:25
+B:CLAW:HURT:1d6
+B:CLAW:HURT:1d6
+B:BITE:HURT:1d8
+F:BASH_DOOR | ANIMAL | RAND_25
+D:A large bear appears to have made its home in this cave. It is hungry,
+D:and you are trespassing in its territory.
+
+N:553:Grizzly bear
+G:q:U
+I:110:12d12:10:35:10
+W:16:2:0:55
+B:CLAW:HURT:1d8
+B:CLAW:HURT:1d8
+B:BITE:HURT:1d12
+B:CRUSH:HURT:1d10
+F:BASH_DOOR | ANIMAL
+D:A huge, beastly bear, more savage than most of its kind.
+
+N:554:Werebear
+G:q:D
+I:110:25d25:20:50:20
+W:24:2:0:200
+B:CLAW:HURT:1d10
+B:CLAW:HURT:1d10
+B:BITE:HURT:2d8
+B:CRUSH:HURT:2d6
+F:BASH_DOOR | OPEN_DOOR |
+F:ANIMAL | EVIL | DROP_1D2
+D:In the eyes of this bear, there glimmers the faintest light of intelligence.
+D:And then its form begins to change... The combination of animal cunning,
+D:human intelligence and the great physical strength of the bear makes for
+D:a dangerous enemy.
+
+N:555:Neekerbreeker
+G:I:D
+I:120:3d2:8:18:10
+W:19:5:0:4
+B:BITE:POISON:2d2
+F:RAND_50 | RAND_25 |
+F:WEIRD_MIND | ANIMAL
+S:1_IN_4 | SHRIEK
+D:Believed to be an evil relative of the cricket, this creature gets its name
+D:from its incessant squeaking, which can best be described as "neek-breek,
+D:breek-neek". The noise can drive people frantic, and worse still, can be
+D:heard for quite some distance, alerting other monsters to your presence.
+
+N:556:Silver mouse
+G:r:s
+I:110:1d3:8:4:20
+W:4:1:0:1
+B:BITE:EAT_LITE:1d2
+F:RAND_50 |
+F:MULTIPLY | HURT_LITE
+F:ANIMAL
+D:It is about three feet long with large teeth. As the light of your lamp falls
+D:on it, it seems to grow stronger.
+
+N:557:Giant brown tick
+G:S:u
+I:100:18d8:12:50:20
+W:25:2:0:27
+B:BITE:POISON:2d6
+B:STING:BLIND:1d1
+F:WEIRD_MIND | BASH_DOOR |
+F:ANIMAL | IM_POIS
+D:It is moving slowly towards you.
+
+N:558:Giant tan bat
+G:b:U
+I:130:3d8:12:20:50
+W:15:2:0:18
+B:BITE:TERRIFY:1d3
+B:CLAW:HURT:1d2
+B:CLAW:HURT:1d2
+F:FORCE_SLEEP | RAND_50 | ANIMAL
+D:A giant bat, the beating of whose wings produces a strangely unnerving noise.
+
+N:559:Disenchanter bat
+G:b:r
+I:130:6d8:12:28:50
+W:26:4:0:75
+B:HIT:UN_POWER
+F:FORCE_SLEEP | RAND_50 | ANIMAL
+D:A giant bat which feeds on raw magical energy.
+
+N:560:Rot jelly
+G:j:u
+I:120:20d8:2:30:99
+W:5:1:0:15
+B:TOUCH:EAT_FOOD:2d3
+F:NEVER_MOVE |
+F:STUPID | EMPTY_MIND |
+F:HURT_LITE |
+F:NO_CONF | NO_SLEEP | NO_FEAR
+D:It is a large pile of rotting flesh, whose touch spoils your rations.
+
+N:561:Giant silver ant
+G:a:W
+I:110:9d8:10:38:40
+W:23:1:0:45
+B:BITE:ACID:4d4
+F:RAND_25 |
+F:WEIRD_MIND | BASH_DOOR |
+F:ANIMAL
+D:A giant silver ant with a caustic bite.
+
+N:562:Shimmering mold
+G:m:w
+I:110:32d8:2:24:70
+W:27:1:0:140
+B:TOUCH:ELEC:5d4
+F:NEVER_MOVE |
+F:STUPID | EMPTY_MIND |
+F:IM_ELEC | IM_POIS |
+F:NO_CONF | NO_SLEEP | NO_FEAR
+D:It is a strange growth on the dungeon floor, glowing and crackling with sparks.
+
+N:563:Atlas, the Titan
+G:P:s
+I:130:50d100:30:160:15
+W:77:3:0:37000
+B:HIT:CONFUSE:13d13
+B:HIT:CONFUSE:13d13
+B:HIT:SHATTER:13d13
+B:HIT:SHATTER:13d13
+F:UNIQUE | MALE |
+F:FORCE_SLEEP | FORCE_MAXHP |
+F:DROP_GOOD | DROP_4D2 | KILL_BODY | KILL_WALL |
+F:SMART | TAKE_ITEM | OPEN_DOOR | BASH_DOOR |
+F:EVIL | GIANT | HURT_ROCK |
+F:IM_FIRE | IM_COLD | IM_ACID | IM_ELEC | IM_POIS
+D:The strongest of all the Titans. Legend has it that he use to hold the sky
+D:up, and the mountain range that now does so bears his name.
+
+N:564:Kronos, Lord of the Titans
+G:P:v
+I:120:70d100:30:150:15
+W:88:3:0:42000
+B:HIT:CONFUSE:12d12
+B:HIT:CONFUSE:12d12
+B:HIT:CONFUSE:12d12
+B:HIT:CONFUSE:12d12
+F:UNIQUE | MALE |
+F:FORCE_SLEEP | FORCE_MAXHP | MOVE_BODY |
+F:ONLY_ITEM | DROP_4D2 | DROP_3D2 | DROP_GOOD |
+F:SMART | TAKE_ITEM | BASH_DOOR |
+F:EVIL | GIANT | ESCORT |
+F:IM_FIRE | IM_COLD | IM_ACID | IM_ELEC | IM_POIS
+S:1_IN_3
+S:BR_FIRE | BR_COLD | BR_SHAR | BR_SOUN
+S:S_MONSTERS | TELE_TO | HEAL |
+D:The lord of the Titans, he has broken loose from his confinement in hell
+D:to seek revenge on the world.

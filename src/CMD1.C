@@ -313,7 +313,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 			}
 
 			/* Brand (Elec) */
-			if (f1 & (TR1_BRAND_ELEC))
+			if ((f1 & (TR1_BRAND_ELEC)) || p_ptr->elec_warr)
 			{
 				/* Notice immunity */
 				if (r_ptr->flags3 & (RF3_IM_ELEC))
@@ -332,7 +332,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 			}
 
 			/* Brand (Fire) */
-			if (f1 & (TR1_BRAND_FIRE))
+			if ((f1 & (TR1_BRAND_FIRE) || p_ptr->fire_warr))
 			{
 				/* Notice immunity */
 				if (r_ptr->flags3 & (RF3_IM_FIRE))
@@ -351,7 +351,7 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 			}
 
 			/* Brand (Cold) */
-			if (f1 & (TR1_BRAND_COLD))
+			if ((f1 & (TR1_BRAND_COLD)) || p_ptr->ice_warr)
 			{
 				/* Notice immunity */
 				if (r_ptr->flags3 & (RF3_IM_COLD))
@@ -371,6 +371,68 @@ sint tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 
 			break;
 		}
+		default:
+		{
+		  /* Brand (Elec) */
+			if (p_ptr->elec_warr)
+			{
+				/* Notice immunity */
+				if (r_ptr->flags3 & (RF3_IM_ELEC))
+				{
+					if (m_ptr->ml)
+					{
+						r_ptr->r_flags3 |= (RF3_IM_ELEC);
+					}
+				}
+
+				/* Otherwise, take the damage */
+				else
+				{
+					if (mult < 3) mult = 3;
+				}
+			}
+
+			/* Brand (Fire) - Hacked for Flasks */
+			if ((f1 & (TR1_BRAND_FIRE)) || p_ptr->fire_warr)
+			{
+				/* Notice immunity */
+				if (r_ptr->flags3 & (RF3_IM_FIRE))
+				{
+					if (m_ptr->ml)
+					{
+						r_ptr->r_flags3 |= (RF3_IM_FIRE);
+					}
+				}
+
+				/* Otherwise, take the damage */
+				else
+				{
+					if (mult < 3) mult = 3;
+				}
+			}
+
+			/* Brand (Cold) */
+			if (p_ptr->ice_warr)
+			{
+				/* Notice immunity */
+				if (r_ptr->flags3 & (RF3_IM_COLD))
+				{
+					if (m_ptr->ml)
+					{
+						r_ptr->r_flags3 |= (RF3_IM_COLD);
+					}
+				}
+
+				/* Otherwise, take the damage */
+				else
+				{
+					if (mult < 3) mult = 3;
+				}
+			}
+
+			break;
+		}
+
 	}
 
 
@@ -485,6 +547,15 @@ void py_pickup(int pickup)
 
 	char o_name[80];
 
+#ifdef ALLOW_EASY_FLOOR
+
+	if (easy_floor)
+	{
+		py_pickup_floor(pickup);
+		return;
+	}
+
+#endif /* ALLOW_EASY_FLOOR */
 
 	/* Scan the pile of objects */
 	for (this_o_idx = cave_o_idx[py][px]; this_o_idx; this_o_idx = next_o_idx)
@@ -883,7 +954,7 @@ void hit_trap(int y, int x)
  */
 void py_attack(int y, int x)
 {
-	int num = 0, k, bonus, chance;
+	int num = 0, k, bonus, chance, mike = 0, mikes = 0;
 
 	monster_type *m_ptr;
 	monster_race *r_ptr;
@@ -958,11 +1029,17 @@ void py_attack(int y, int x)
 			/* Handle normal weapon */
 			if (o_ptr->k_idx)
 			{
+			   if (o_ptr->to_d)
+			   {
+			     mike = rand_int(o_ptr->to_d);
+			     mikes = (o_ptr->to_d - mike);
+			   }
 				k = damroll(o_ptr->dd, o_ptr->ds);
+				k += mike;
 				k = tot_dam_aux(o_ptr, k, m_ptr);
 				if (p_ptr->impact && (k > 50)) do_quake = TRUE;
+				k += mikes;
 				k = critical_norm(o_ptr->weight, o_ptr->to_h, k);
-				k += o_ptr->to_d;
 			}
 
 			/* Apply the player damage bonuses */
@@ -1076,6 +1153,18 @@ void move_player(int dir, int do_pickup)
 		py_attack(y, x);
 	}
 
+#ifdef ALLOW_EASY_DISARM
+
+	/* Disarm a visible trap */
+	else if ((do_pickup != easy_disarm) &&
+		(cave_feat[y][x] >= FEAT_TRAP_HEAD) &&
+		(cave_feat[y][x] <= FEAT_TRAP_TAIL))
+	{
+		(void) do_cmd_disarm_aux(y, x);
+	}
+
+#endif /* ALLOW_EASY_DISARM */
+
 	/* Player can not walk through "walls" */
 	else if (!cave_floor_bold(y, x))
 	{
@@ -1122,6 +1211,12 @@ void move_player(int dir, int do_pickup)
 			/* Closed door */
 			else if (cave_feat[y][x] < FEAT_SECRET)
 			{
+#ifdef ALLOW_EASY_OPEN
+
+				if (easy_open && easy_open_door(y, x)) return;
+
+#endif /* ALLOW_EASY_OPEN */
+
 				msg_print("There is a door blocking your way.");
 			}
 
@@ -1164,7 +1259,15 @@ void move_player(int dir, int do_pickup)
 		}
 
 		/* Handle "objects" */
+#ifdef ALLOW_EASY_DISARM
+
+		py_pickup(do_pickup != always_pickup);
+
+#else  /* ALLOW_EASY_DISARM */
+
 		py_pickup(do_pickup);
+
+#endif /* ALLOW_EASY_DISARM */
 
 		/* Handle "store doors" */
 		if ((cave_feat[y][x] >= FEAT_SHOP_HEAD) &&
@@ -1935,6 +2038,14 @@ void run_step(int dir)
 	p_ptr->energy_use = 100;
 
 	/* Move the player, using the "pickup" flag */
+#ifdef ALLOW_EASY_DISARM
+
+	move_player(p_ptr->run_cur_dir, FALSE);
+
+#else /* ALLOW_EASY_DISARM */
+
 	move_player(p_ptr->run_cur_dir, always_pickup);
+
+#endif /* ALLOW_EASY_DISARM */
 }
 

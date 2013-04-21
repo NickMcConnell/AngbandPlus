@@ -1,23 +1,25 @@
 
 
               **************************************************
-              **   Angband 2.8.3   **   The Pits of Angband   **
+              **   MJBand 0.0.6    **   The Pits of my mind   **
               **************************************************
 
            Based on Moria:   Copyright (c) 1985 Robert Alan Koeneke
                and Umoria:   Copyright (c) 1989 James E. Wilson
-
+                             And also on:
                        Angband 2.0 - 2.4 - 2.6.2 by:
                    Alex Cutler, Andy Astrand, Sean Marsh,
                  Geoff Hill, Charles Teague, Charles Swiger
-
                Angband 2.8.3:  Copyright (c) 1997 Ben Harrison
 
-         Send comments, bug reports, and patches, to "benh@phial.com"
-        Visit the Angband Home Page at "http://www.phial.com/angband/"
+
+      Send comments, bug reports, and patches, to "litening@dircon.co.uk"
+                         Visit the MJBand Home Page at
+                 "http://www.litening.dircon.co.uk/mjband.html"
+
       Browse the Angband newsgroup at "news:rec.games.roguelike.angband"
     Read the online help files, especially "general.txt" and "version.txt"
-   Angband is available for Unix, X11, DOS, Windows, Macintosh, Amiga, etc.
+    MJBand is available for whatever platforms people have ported it to.
 
 
 

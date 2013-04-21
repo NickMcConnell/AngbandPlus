@@ -505,6 +505,8 @@ static void rd_item(object_type *o_ptr)
 		rd_s32b(&old_cost);
 
 		strip_bytes(4);
+                /* Old flags */
+	        strip_bytes(12);
 	}
 
 	/* New method */
@@ -530,10 +532,13 @@ static void rd_item(object_type *o_ptr)
 		rd_byte(&o_ptr->ident);
 
 		rd_byte(&o_ptr->marked);
+       rd_byte(&o_ptr->art_flag_init);
+       rd_u32b(&o_ptr->art_flags1);
+       rd_u32b(&o_ptr->art_flags2);
+       rd_u32b(&o_ptr->art_flags3);
+
 	}
 
-	/* Old flags */
-	strip_bytes(12);
 
 	/* Old version */
 	if (older_than(2,8,0))
@@ -554,7 +559,7 @@ static void rd_item(object_type *o_ptr)
 		/* Old special powers */
 		strip_bytes(2);
 	}
-	
+
 	else
 	{
 		/* Special powers */
@@ -567,6 +572,12 @@ static void rd_item(object_type *o_ptr)
 
 	/* Save the inscription */
 	if (buf[0]) o_ptr->note = quark_add(buf);
+
+	/* Future - Artefacts */
+	rd_string(buf, 128);
+
+	/* Save the name */
+	if (buf[0]) o_ptr->art_name = quark_add(buf);
 
 
 	/* Mega-Hack -- handle "dungeon objects" later */
@@ -1345,6 +1356,30 @@ static errr rd_extra(void)
 	rd_s16b(&p_ptr->oppose_acid);
 	rd_s16b(&p_ptr->oppose_elec);
 	rd_s16b(&p_ptr->oppose_pois);
+
+	rd_s16b(&p_ptr->xlite);
+
+	rd_s16b(&p_ptr->elec_warr);
+	rd_s16b(&p_ptr->ice_warr);
+	rd_s16b(&p_ptr->fire_warr);
+	rd_s16b(&p_ptr->quickblade);
+
+        rd_u32b(&p_ptr->muta1);
+        rd_u32b(&p_ptr->muta2);
+        rd_u32b(&p_ptr->muta3);
+
+
+        rd_s16b(&p_ptr->res_1);
+        rd_s16b(&p_ptr->res_2);
+        rd_s16b(&p_ptr->res_3);
+        rd_s16b(&p_ptr->res_4);
+        rd_s16b(&p_ptr->res_5);
+        rd_s16b(&p_ptr->res_6);
+        rd_s16b(&p_ptr->res_7);
+        rd_s16b(&p_ptr->res_8);
+        rd_s16b(&p_ptr->res_9);
+        rd_s16b(&p_ptr->res_10);
+
 
 	/* Old redundant flags */
 	if (older_than(2, 7, 7)) strip_bytes(34);

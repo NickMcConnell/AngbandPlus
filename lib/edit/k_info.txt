@@ -186,7 +186,7 @@ I:80:37:7500
 W:5:0:3:10
 A:5/1:10/1:20/1
 
-N:26:& Pint~ of Fine Ale
+N:26:& Pint~ of Real Ale
 G:,:y
 I:80:38:500
 W:0:0:5:1
@@ -946,7 +946,7 @@ I:35:6:0
 W:60:0:5:4000
 A:60/4
 P:6:0d0:0:0:4
-
+F:RES_LITE | RES_DARK
 
 ### The Gloves ###
 
@@ -1050,9 +1050,9 @@ F:SEARCH | HIDE_TYPE
 N:138:Teleportation
 G:=:d
 I:45:4:0
-W:5:0:2:0
+W:5:0:2:50
 A:5/1
-F:LIGHT_CURSE | TELEPORT | EASY_KNOW
+F:LIGHT_CURSE | TELEPORT | ACTIVATE | EASY_KNOW
 
 N:139:Slow Digestion
 G:=:d
@@ -1096,12 +1096,12 @@ W:20:0:2:1500
 A:20/1
 F:FREE_ACT | EASY_KNOW
 
-N:145:Weakness
+N:145:Geekness
 G:=:d
 I:45:2:-5
 W:5:0:2:0
 A:5/1
-F:LIGHT_CURSE | STR | HIDE_TYPE
+F:LIGHT_CURSE | STR | CON | SUST_WIS | SUST_INT | HIDE_TYPE
 
 N:146:Flames
 G:=:d
@@ -1109,7 +1109,7 @@ I:45:18:0
 W:50:0:2:3000
 A:50/1
 P:0:0d0:0:0:15
-F:RES_FIRE | IGNORE_FIRE
+F:RES_FIRE | ACTIVATE | IGNORE_FIRE
 
 N:147:Acid
 G:=:d
@@ -1117,7 +1117,7 @@ I:45:17:0
 W:50:0:2:3000
 A:50/1
 P:0:0d0:0:0:15
-F:RES_ACID | IGNORE_ACID
+F:RES_ACID | ACTIVATE | IGNORE_ACID
 
 N:148:Ice
 G:=:d
@@ -1125,7 +1125,7 @@ I:45:19:0
 W:50:0:2:3000
 A:50/1
 P:0:0d0:0:0:15
-F:RES_COLD | IGNORE_COLD
+F:RES_COLD | ACTIVATE | IGNORE_COLD
 
 N:149:Woe
 G:=:d
@@ -1134,12 +1134,12 @@ W:50:0:2:0
 A:50/1
 F:LIGHT_CURSE | TELEPORT | WIS | CHR | HIDE_TYPE
 
-N:150:Stupidity
+N:150:Brutality
 G:=:d
 I:45:3:-5
 W:5:0:2:0
 A:5/1
-F:LIGHT_CURSE | INT | HIDE_TYPE
+F:LIGHT_CURSE | INT | WIS | SUST_STR | SUST_CON | HIDE_TYPE
 
 N:151:Damage
 G:=:d
@@ -1164,7 +1164,7 @@ G:=:d
 I:45:1:0
 W:5:0:2:0
 A:5/1
-F:LIGHT_CURSE | AGGRAVATE | EASY_KNOW
+F:LIGHT_CURSE | AGGRAVATE | RES_FEAR | EASY_KNOW
 
 N:155:See Invisible
 G:=:d
@@ -2451,14 +2451,15 @@ I:39:1:7500
 W:3:0:50:35
 A:3/1
 P:0:1d1:0:0:0
-F:EASY_KNOW | IGNORE_FIRE
+F:EASY_KNOW | IGNORE_FIRE | BRAND_FIRE
 
 N:348:& Flask~ of oil
 G:!:y
 I:77:0:7500
 W:1:0:10:3
 A:1/1
-P:0:2d6:0:0:0
+P:0:1d3:0:0:0
+F:BRAND_FIRE
 
 N:349:& Empty Bottle~
 G:!:w
@@ -3013,7 +3014,77 @@ P:0:1d1:0:0:0
 ## XXX 424 XXX ##
 
 
-##### Items 425 to 439 unused #####
+##### Items 425 to 433 Elemental books #####
+
+N:425:[Book of Light & Dark]
+G:?:y
+I:92:0:0
+W:5:0:30:25
+A:5/1
+P:0:1d1:0:0:0
+
+N:426:[Book of Lightning]
+G:?:y
+I:92:1:0
+W:10:0:30:100
+A:10/1
+P:0:1d1:0:0:0
+
+N:427:[Book of Cold]
+G:?:y
+I:92:2:0
+W:20:0:30:400
+A:20/1
+P:0:1d1:0:0:0
+
+N:428:[Book of Fire]
+G:?:y
+I:92:3:0
+W:30:0:30:800
+A:30/1
+P:0:1d1:0:0:0
+
+N:429:[Book of Nexus]
+G:?:o
+I:92:4:0
+W:40:0:30:5000
+A:40/1
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:430:[Book of Chaos]
+G:?:o
+I:92:5:0
+W:50:0:30:10000
+A:50/1
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:431:[Book of Time]
+G:?:o
+I:92:6:0
+W:60:0:30:30000
+A:60/1
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:432:[Book of Nether]
+G:?:o
+I:92:7:0
+W:80:0:30:50000
+A:80/2
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:433:[Elemental Mastery]
+G:?:o
+I:92:8:0
+W:100:0:30:100000
+A:100/4
+P:0:1d1:0:0:0
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+##### 434 - 439 unused #####
 
 ##### Items 440 to 444 reserved (old "fake" objects) #####
 

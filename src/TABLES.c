@@ -1196,7 +1196,14 @@ owner_type owners[MAX_STORES][MAX_OWNERS] =
 		{ "Your home",				0,      100, 100,  0, 99, 99},
 		{ "Your home",				0,      100, 100,  0, 99, 99},
 		{ "Your home",				0,      100, 100,  0, 99, 99},
-		{ "Your home",				0,      100, 100,  0, 99, 99}
+		{ "Your home",				0,      100, 100,  0, 99, 99},
+	},
+	{
+	        /* Bookstore */
+	        { "Valeria Lightwalker",          30000,        200, 110,  7, 7, RACE_ELF},
+	        { "The Mighty Nakhal",            25000,        210, 105,  8, 6, RACE_DWARF},
+	        { "Julf The Knowing",             20000,        200, 110,  8, 7, RACE_HUMAN},
+	        { "Sprinkle The Bookworm",        20000,        180, 112, 10, 8, RACE_GNOME}
 	}
 };
 
@@ -1358,7 +1365,7 @@ player_race race_info[MAX_RACES] =
 		72,  6, 180, 25,
 		66,  4, 150, 20,
 		0,
-		0x3F
+		0x7F
 	},
 
 	{
@@ -1370,7 +1377,7 @@ player_race race_info[MAX_RACES] =
 		66,  6, 130, 15,
 		62,  6, 100, 10,
 		2,
-		0x3F
+		0x7F
 	},
 
 	{
@@ -1382,7 +1389,7 @@ player_race race_info[MAX_RACES] =
 		60,  4, 100,  6,
 		54,  4, 80,  6,
 		3,
-		0x1F
+		0x5F
 	},
 
 	{
@@ -1394,7 +1401,7 @@ player_race race_info[MAX_RACES] =
 		36,  3, 60,  3,
 		33,  3, 50,  3,
 		4,
-		0x0B
+		0x4B
 	},
 
 	{
@@ -1406,7 +1413,7 @@ player_race race_info[MAX_RACES] =
 		42,  3, 90,  6,
 		39,  3, 75,  3,
 		4,
-		0x0F
+		0x4F
 	},
 
 	{
@@ -1454,7 +1461,7 @@ player_race race_info[MAX_RACES] =
 		82, 5, 190, 20,
 		78,  6, 180, 15,
 		0,
-		0x3F
+		0x7F
 	},
 
 	{
@@ -1466,7 +1473,7 @@ player_race race_info[MAX_RACES] =
 		90, 10, 190, 20,
 		82, 10, 180, 15,
 		4,
-		0x1F
+		0x5F
 	}
 };
 
@@ -1528,9 +1535,16 @@ player_class class_info[MAX_CLASS] =
 		20, 24, 25, 1,  12, 2, 68, 40,
 		7,  10, 11, 0,  0,  0,  35, 30,
 		6, 35
+	},
+
+	{
+	        "Elementalist",
+	        { -3, 3, -1, 0, -1, 0},
+	        25, 30, 30, 2, 16, 15, 48, 35,
+                7,  10,  9, 0,  0,  0, 20, 20,
+                2, 25
 	}
 };
-
 
 
 
@@ -1812,7 +1826,9 @@ player_magic magic_info[MAX_CLASS] =
 			{ 35, 50, 75,  11},
 			{ 40, 60, 75, 250},	/* 300 */
 
-			{ 99,  0,  0,    0},
+
+                        { 45, 70, 75, 250}, /* Added in MJB */
+
 			{ 99,  0,  0,    0},
 			{ 99,  0,  0,    0},
 			{ 99,  0,  0,    0},
@@ -2083,14 +2099,106 @@ player_magic magic_info[MAX_CLASS] =
 			{ 99,  0,  0,   0},
 			{ 99,  0,  0,   0}
 		}
-	}
+	},
+
+	{
+		/*** Elementalist ***/
+
+		TV_ELEMENT_BOOK,
+		0,
+
+		A_INT,
+		2,
+
+		1,
+		250,
+
+		{
+            /* Array of { Lev, Mana, Fail, Exp/Lev } */
+		        /* Light & Dark */
+		        { 1,  1,  20,   4},
+			{ 1,  2,  20,   4},
+			{ 1,  2,  20,   4},
+			{ 3,  3,  20,   2},
+			{ 3,  3,  20,   2},
+			{ 3,  3,  20,   2},
+			{ 5,  8,  20,  3},
+			{ 5,  6,  20,  2},
+			/* Lightning */
+			{ 7,  4,  30,   3},
+			{ 7,  4,  30,   4},
+			{ 7,  6,  30,   3},
+			{ 8,  5,  30,   3},
+			{ 8,  5,  30,   3},
+			{ 9,  6,  30,   3},
+			{ 9,  7,  30,   4},
+                        /* Cold */
+			{ 9,  8,  45,   3},
+			{ 9,  10,  45,   4},
+			{ 11,  9,  45,   4},
+			{ 11,  10,  45,   3},
+			{ 13,  12,  45,   4},
+			{ 13,  10,  45,   3},
+			{ 15,  12,  45,   3},
+                        /* Fire */
+			{ 15,  10,  60,   3},
+			{ 17,  20,  60,   3},
+			{ 19,  25,  60,   3},
+			{ 25,  35,  70,   3},
+			{ 30,  40,  70,   3},
+			{ 40,  80,  90,   4},
+                        /* Nexus */
+			{ 10,  5,  20,   4},
+			{ 15,  10,  20,   4},
+			{ 15,  10,  30,   4},
+			{ 20,  20,  40,   5},
+			{ 25,  40,  40,   8},
+			{ 25,  40,  50,   8},
+			/* Chaos */
+			{ 10,  5,  50,   5},
+			{ 12,  10,  50,   5},
+			{ 20,  10,  60,   8},
+			{ 30,  20,  60,   8},
+			{ 40,  50,  80,   10},
+			/* Time */
+			{ 40,  40,  50,   5},
+			{ 40,  50,  50,   5},
+			{ 45,  50,  60,   5},
+			{ 50,  70,  80,   5},
+			/* Nether */
+			{ 30,  20,  60,   8},
+			{ 35,  30,  60,   8},
+			{ 40,  40,  60,   20},
+			{ 40,  40,  80,   20},
+			{ 50,  50,  80,   50},
+			/* Mastery */
+			{ 30,  30,  80,   20},
+			{ 35,  50,  80,   50},
+			{ 37,  50,  80,   50},
+			{ 40,  70,  80,   100},
+			{ 45,  90,  80,   150},
+
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0},
+			{ 99,  0,  0,   0}
+		}
+	},
+
 };
 
 
 /*
  * Spells in each book (mage spells then priest spells)
  */
-u32b spell_flags[2][9][2] =
+u32b spell_flags[3][9][2] =
 {
 	{
 		/*** Mage spell books ***/
@@ -2113,17 +2221,30 @@ u32b spell_flags[2][9][2] =
 		{ 0x7e000000, 0x00000000 },
 		{ 0x00000000, 0x03f00000 },
 		{ 0x80000000, 0x0000000f },
-		{ 0x00000000, 0x000001f0 },
+		{ 0x00000000, 0x040001f0 },
 		{ 0x00000000, 0x000fc000 },
 		{ 0x00000000, 0x00003e00 }
-	}
+	},
+
+        {
+                /*** Elementalist Books ***/
+                { 0x000000ff, 0x00000000 },
+                { 0x00007f00, 0x00000000 },
+                { 0x003f8000, 0x00000000 },
+                { 0x0fc00000, 0x00000000 },
+                { 0xf0000000, 0x00000003 },
+                { 0x00000000, 0x0000007c },
+                { 0x00000000, 0x00000780 },
+                { 0x00000000, 0x0000f800 },
+                { 0x00000000, 0x001f0000 }
+        }
 };
 
 
 /*
  * Names of the spells (mage spells then priest spells)
  */
-cptr spell_names[2][64] =
+cptr spell_names[3][64] =
 {
 	/*** Mage Spells ***/
 
@@ -2292,11 +2413,98 @@ cptr spell_names[2][64] =
 		"Word of Recall",
 		"Alter Reality",
 
-		"(blank)",
+                "Miracle",
+
 		"(blank)",
 		"(blank)",
 		"(blank)",
 		"(blank)"
+	},
+
+	/* Elementalist (working) */
+	{
+	        /* Light & Dark */
+	        "Detect Monsters",
+	        "Mirage",
+	        "Light Area",
+	        "Spear Of Light",
+	        "Illuminate Doors",
+	        "Reveal Traps",
+	        "Perceive Value",
+	        "Ball Of Light",
+
+	        /* Lightning */
+	        "Lightning Bolt",
+	        "Blast Door",
+	        "Electro Warrior",
+	        "Shock Monsters",
+	        "Animal Electricity",
+	        "Collapse Area",
+	        "Recharging",
+
+	        /* Cold */
+	        "Chill Wounds",
+	        "Ice Shield",
+	        "Cold Truth",
+	        "Chill Touch",
+	        "Ice Warrior",
+	        "Ice Floor",
+	        "Chilling Gaze",
+
+	        /* Fire */
+	        "Kitchen Fires",
+	        "Fireball",
+	        "Poisonous Smoke",
+	        "Fire Warrior",
+	        "Vital Spark",
+	        "Brand Weapon",
+
+	        /* Nexus */
+	        "Teleport",
+	        "Teleport To",
+	        "Teleport Level",
+	        "Phase Jump",
+	        "Teleport All",
+	        "Word Of Recall",
+
+	        /* Chaos */
+	        "Polymorph",
+	        "Confuse Monsters",
+	        "Chaos Beam",
+	        "Wheel Of Death",
+	        "Destruction",
+
+	        /* Time */
+	        "Slow Time",
+	        "Age Monster",
+	        "Recover Lost Vigour",
+	        "Quicken Blade",
+
+	        /* Nether */
+	        "Nether Ball",
+	        "Dispel Undead",
+	        "Dispel Evil",
+	        "Dispel Animal",
+	        "Dispelling",
+
+	        /* Mastery */
+	        "Elemental Blast",
+	        "Shard Ball",
+	        "Sound Ball",
+	        "Elemental Burst",
+	        "Transcend The Elements",
+
+	        "Blank",
+	        "Blank",
+	        "Blank",
+	        "Blank",
+	        "Blank",
+	        "Blank",
+	        "Blank",
+	        "Blank",
+	        "Blank",
+	        "Blank",
+	        "Blank"
 	}
 };
 
@@ -2474,7 +2682,20 @@ cptr player_title[MAX_CLASS][PY_MAX_LEVEL/5] =
 		"Low Paladin",
 		"High Paladin",
 		"Paladin Lord",
-	}
+	},
+
+	{
+	        "Fluxer",
+	        "Energiser",
+	        "Holder",
+	        "Melder",
+	        "Morphologer",
+	        "Cuprist",
+	        "Folder",
+	        "Hybrist",
+	        "Bastion",
+	        "Element Weaver",
+        }
 };
 
 
@@ -2601,7 +2822,11 @@ cptr option_text[OPT_MAX] =
 	"verify_destroy",			/* OPT_verify_destroy */
 	"verify_special",			/* OPT_verify_special */
 	"allow_quantity",			/* OPT_allow_quantity */
+#ifdef ALLOW_EASY_OPEN
+	"easy_open",   /* OPT_easy_open */
+#else /* ALLOW_EASY_OPEN */
 	NULL,						/* xxx */
+#endif /* ALLOW_EASY_OPEN */
 	"auto_haggle",				/* OPT_auto_haggle */
 	"auto_scum",				/* OPT_auto_scum */
 	"testing_stack",			/* OPT_testing_stack */
@@ -2614,8 +2839,16 @@ cptr option_text[OPT_MAX] =
 	"dungeon_stair",			/* OPT_dungeon_stair */
 	"flow_by_sound",			/* OPT_flow_by_sound */
 	"flow_by_smell",			/* OPT_flow_by_smell */
+#ifdef ALLOW_EASY_DISARM
+	"easy_disarm",   /* OPT_easy_disarm */
+#else  /* ALLOW_EASY_DISARM */
 	NULL,						/* xxx track_follow */
+#endif /* ALLOW_EASY_DISARM */
+#ifdef ALLOW_EASY_FLOOR
+	"easy_floor",   /* OPT_easy_floor */
+#else  /* ALLOW_EASY_FLOOR */
 	NULL,						/* xxx track_target */
+#endif /* ALLOW_EASY_FLOOR */
 	"smart_learn",				/* OPT_smart_learn */
 	"smart_cheat",				/* OPT_smart_cheat */
 	"view_reduce_lite",			/* OPT_view_reduce_lite */
@@ -2673,7 +2906,11 @@ cptr option_desc[OPT_MAX] =
 	"Verify destruction of objects",			/* OPT_verify_destroy */
 	"Verify use of special commands",			/* OPT_verify_special */
 	"Allow quantity specification",				/* OPT_allow_quantity */
+#ifdef ALLOW_EASY_OPEN
+	"Open and close automatically",   /* OPT_easy_open */
+#else /* ALLOW_EASY_OPEN */
 	NULL,										/* xxx */
+#endif /* ALLOW_EASY_OPEN */
 	"Auto-haggle in stores",					/* OPT_auto_haggle */
 	"Auto-scum for good levels",				/* OPT_auto_scum */
 	"Allow objects to stack on floor",			/* OPT_testing_stack */
@@ -2686,8 +2923,16 @@ cptr option_desc[OPT_MAX] =
 	"Generate dungeons with connected stairs",	/* OPT_dungeon_stair */
 	"Monsters chase current location (v.slow)",	/* OPT_flow_by_sound */
 	"Monsters chase recent locations (v.slow)",	/* OPT_flow_by_smell */
+#ifdef ALLOW_EASY_DISARM
+	"Disarm traps automatically",   /* OPT_easy_disarm */
+#else /* ALLOW_EASY_DISARM */
 	NULL,										/* xxx */
+#endif /* ALLOW_EASY_DISARM */
+#ifdef ALLOW_EASY_FLOOR
+	"Display floor stacks in a list",   /* OPT_easy_floor */
+#else /* ALLOW_EASY_FLOOR */
 	NULL,										/* xxx */
+#endif /* ALLOW_EASY_FLOOR */
 	"Monsters learn from their mistakes",		/* OPT_smart_learn */
 	"Monsters exploit players weaknesses",		/* OPT_smart_cheat */
 	"Reduce lite-radius when running",			/* OPT_view_reduce_lite */
@@ -2715,13 +2960,13 @@ cptr option_desc[OPT_MAX] =
 bool option_norm[OPT_MAX] =
 {
 	FALSE,		/* OPT_rogue_like_commands */
-	FALSE,		/* OPT_quick_messages */
+	TRUE,		/* OPT_quick_messages */
 	TRUE,		/* OPT_floor_query_flag */
 	FALSE,		/* OPT_carry_query_flag */
 	FALSE,		/* OPT_use_old_target */
 	TRUE,		/* OPT_always_pickup */
-	FALSE,		/* OPT_always_repeat */
-	FALSE,		/* OPT_depth_in_feet */
+	TRUE,		/* OPT_always_repeat */
+	TRUE,		/* OPT_depth_in_feet */
 	FALSE,		/* OPT_stack_force_notes */
 	FALSE,		/* OPT_stack_force_costs */
 	TRUE,		/* OPT_show_labels */
@@ -2729,27 +2974,31 @@ bool option_norm[OPT_MAX] =
 	TRUE,		/* OPT_show_choices */
 	TRUE,		/* OPT_show_details */
 	TRUE,		/* OPT_ring_bell */
-	TRUE,		/* OPT_show_flavors */
+	FALSE,		/* OPT_show_flavors */
 	TRUE,		/* OPT_run_ignore_stairs */
 	TRUE,		/* OPT_run_ignore_doors */
 	TRUE,		/* OPT_run_cut_corners */
 	TRUE,		/* OPT_run_use_corners */
-	TRUE,		/* OPT_disturb_move */
+	FALSE,		/* OPT_disturb_move */
 	TRUE,		/* OPT_disturb_near */
 	TRUE,		/* OPT_disturb_panel */
 	TRUE,		/* OPT_disturb_state */
-	TRUE,		/* OPT_disturb_minor */
+	FALSE,		/* OPT_disturb_minor */
 	TRUE,		/* OPT_disturb_other */
 	FALSE,		/* OPT_alert_hitpoint */
 	FALSE,		/* OPT_alert_failure */
 	TRUE,		/* OPT_verify_destroy */
 	TRUE,		/* OPT_verify_special */
 	TRUE,		/* OPT_allow_quantity */
+#ifdef ALLOW_EASY_OPEN
+	TRUE,   /* OPT_easy_open */
+#else /* ALLOW_EASY_OPEN */
 	FALSE,		/* xxx */
+#endif /* ALLOW_EASY_OPEN */
 	TRUE,		/* OPT_auto_haggle */
 	FALSE,		/* OPT_auto_scum */
-	FALSE,		/* OPT_testing_stack */
-	FALSE,		/* OPT_testing_carry */
+	TRUE,		/* OPT_testing_stack */
+	TRUE,		/* OPT_testing_carry */
 	FALSE,		/* OPT_expand_look */
 	FALSE,		/* OPT_expand_list */
 	TRUE,		/* OPT_view_perma_grids */
@@ -2758,8 +3007,16 @@ bool option_norm[OPT_MAX] =
 	TRUE,		/* OPT_dungeon_stair */
 	FALSE,		/* OPT_flow_by_sound */
 	FALSE,		/* OPT_flow_by_smell */
+#ifdef ALLOW_EASY_DISARM
+	TRUE,   /* OPT_easy_disarm */
+#else /* ALLOW_EASY_DISARM */
 	FALSE,		/* xxx */
+#endif /* ALLOW_EASY_DISARM */
+#ifdef ALLOW_EASY_FLOOR
+	TRUE,   /* OPT_easy_floor */
+#else /* ALLOW_EASY_FLOOR */
 	FALSE,		/* xxx */
+#endif /* ALLOW_EASY_FLOOR */
 	FALSE,		/* OPT_smart_learn */
 	FALSE,		/* OPT_smart_cheat */
 	FALSE,		/* OPT_view_reduce_lite */
@@ -2774,17 +3031,17 @@ bool option_norm[OPT_MAX] =
 	FALSE,		/* xxx */
 	TRUE,		/* OPT_compress_savefile */
 	FALSE,		/* OPT_hilite_player */
-	FALSE,		/* OPT_view_yellow_lite */
-	FALSE,		/* OPT_view_bright_lite */
-	FALSE,		/* OPT_view_granite_lite */
-	FALSE		/* OPT_view_special_lite */
+	TRUE,		/* OPT_view_yellow_lite */
+	TRUE,		/* OPT_view_bright_lite */
+	TRUE,		/* OPT_view_granite_lite */
+	TRUE		/* OPT_view_special_lite */
 };
 
 
 /*
  * Option screen interface
  */
-byte option_page[4][16] =
+byte option_page[OPT_PAGE_MAX][OPT_PER_PAGE] =
 {
 	/*** User-Interface ***/
 
@@ -2804,7 +3061,13 @@ byte option_page[4][16] =
 		OPT_show_choices,
 		OPT_show_details,
 		OPT_show_flavors,
-		OPT_ring_bell
+		OPT_ring_bell,
+		255,
+		255,
+		255,
+		255,
+		255,
+		255
 	},
 
 	/*** Disturbance ***/
@@ -2825,6 +3088,12 @@ byte option_page[4][16] =
 		OPT_verify_destroy,
 		OPT_verify_special,
 		OPT_allow_quantity,
+		255,
+		255,
+		255,
+		255,
+		255,
+		255,
 		255
 	},
 
@@ -2845,6 +3114,24 @@ byte option_page[4][16] =
 		OPT_flow_by_smell,
 		OPT_smart_learn,
 		OPT_smart_cheat,
+#ifdef ALLOW_EASY_OPEN
+		OPT_easy_open,
+#else /* ALLOW_EASY_OPEN */
+		255,
+#endif /* ALLOW_EASY_OPEN */
+#ifdef ALLOW_EASY_DISARM
+		OPT_easy_disarm,
+#else /* ALLOW_EASY_DISARM */
+		255,
+#endif /* ALLOW_EASY_DISARM */
+#ifdef ALLOW_EASY_FLOOR
+		OPT_easy_floor,
+#else /* ALLOW_EASY_FLOOR */
+		255,
+#endif /* ALLOW_EASY_FLOOR */
+		255,
+		255,
+		255,
 		255,
 		255
 	},
@@ -2866,6 +3153,12 @@ byte option_page[4][16] =
 		OPT_view_bright_lite,
 		OPT_view_granite_lite,
 		OPT_view_special_lite,
+		255,
+		255,
+		255,
+		255,
+		255,
+		255,
 		255,
 		255
 	}

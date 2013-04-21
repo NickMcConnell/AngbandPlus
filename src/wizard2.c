@@ -378,6 +378,7 @@ static tval_desc tvals[] =
 	{ TV_ROD,               "Rod"                  },
 	{ TV_PRAYER_BOOK,       "Priest Book"          },
 	{ TV_MAGIC_BOOK,        "Magic Book"           },
+        { TV_ELEMENT_BOOK,      "Elemental Book"       },
 	{ TV_SPIKE,             "Spikes"               },
 	{ TV_DIGGING,           "Digger"               },
 	{ TV_CHEST,             "Chest"                },

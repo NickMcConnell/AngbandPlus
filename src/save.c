@@ -716,10 +716,10 @@ static void wr_item(object_type *o_ptr)
 
 	wr_byte(o_ptr->marked);
 
-	/* Old flags */
-	wr_u32b(0L);
-	wr_u32b(0L);
-	wr_u32b(0L);
+        wr_byte(o_ptr->art_flag_init);
+        wr_u32b(o_ptr->art_flags1);
+        wr_u32b(o_ptr->art_flags2);
+        wr_u32b(o_ptr->art_flags3);
 
 	/* Held by monster index */
 	wr_s16b(o_ptr->held_m_idx);
@@ -737,6 +737,17 @@ static void wr_item(object_type *o_ptr)
 	{
 		wr_string("");
 	}
+
+	/* If it is a "new" named artifact, save the name */
+	if (o_ptr->art_name)
+	{
+        wr_string(quark_str(o_ptr->art_name));
+	}
+	else
+	{
+		wr_string("");
+	}
+
 }
 
 
@@ -1104,6 +1115,30 @@ static void wr_extra(void)
 	wr_s16b(p_ptr->oppose_acid);
 	wr_s16b(p_ptr->oppose_elec);
 	wr_s16b(p_ptr->oppose_pois);
+
+	wr_s16b(p_ptr->xlite);
+
+	wr_s16b(p_ptr->elec_warr);
+	wr_s16b(p_ptr->ice_warr);
+	wr_s16b(p_ptr->fire_warr);
+        wr_s16b(p_ptr->quickblade);
+
+        wr_u32b(p_ptr->muta1);
+        wr_u32b(p_ptr->muta2);
+        wr_u32b(p_ptr->muta3);
+
+
+        wr_s16b(p_ptr->res_1);
+        wr_s16b(p_ptr->res_2);
+        wr_s16b(p_ptr->res_3);
+        wr_s16b(p_ptr->res_4);
+        wr_s16b(p_ptr->res_5);
+        wr_s16b(p_ptr->res_6);
+        wr_s16b(p_ptr->res_7);
+        wr_s16b(p_ptr->res_8);
+        wr_s16b(p_ptr->res_9);
+        wr_s16b(p_ptr->res_10);
+
 
 	wr_byte(p_ptr->confusing);
 	wr_byte(0);	/* oops */

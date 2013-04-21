@@ -3162,14 +3162,35 @@ static void build_store(int n, int yy, int xx)
 
 	/* Find the "center" of the store */
 	y0 = qy + yy * 9 + 6;
-	x0 = qx + xx * 14 + 12;
+	switch(yy)
+	{
+	case 0:
+	     {
+	      x0 = qx + xx * 14 + 12;
+	     }
 
+	case 1:
+	     {
+	      x0 = qx + xx * 10 + 12;
+	     }
+	}
 	/* Determine the store boundaries */
 	y1 = y0 - randint((yy == 0) ? 3 : 2);
 	y2 = y0 + randint((yy == 1) ? 3 : 2);
-	x1 = x0 - randint(5);
-	x2 = x0 + randint(5);
 
+	switch(yy)
+	{
+	  case 0:
+	  {
+	   x1 = x0 - randint(5);
+	   x2 = x0 + randint(5);
+	  }
+	  case 1:
+	  {
+	    x1 = x0 - randint(3);
+	    x2 = x0 + randint(3);
+	  }
+	}
 	/* Build an invulnerable rectangular building */
 	for (y = y1; y <= y2; y++)
 	{
@@ -3249,7 +3270,7 @@ static void town_gen_hack(void)
 
 	int qy = SCREEN_HGT;
 	int qx = SCREEN_WID;
-
+        int z = 4;
 	int rooms[MAX_STORES];
 
 
@@ -3267,7 +3288,7 @@ static void town_gen_hack(void)
 	for (y = 0; y < 2; y++)
 	{
 		/* Place four stores per row */
-		for (x = 0; x < 4; x++)
+		for (x = 0; x < z; x++)
 		{
 			/* Pick a random unplaced store */
 			k = ((n <= 1) ? 0 : rand_int(n));
@@ -3278,6 +3299,8 @@ static void town_gen_hack(void)
 			/* Shift the stores down, remove one store */
 			rooms[k] = rooms[--n];
 		}
+		z = 5;
+		/* Put 5 on the bottom row */
 	}
 
 

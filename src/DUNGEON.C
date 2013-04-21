@@ -131,6 +131,7 @@ static void sense_inventory(void)
 		}
 
 		case CLASS_MAGE:
+		case CLASS_ELEMENTALIST:
 		{
 			/* Very bad (light) sensing */
 			if (0 != rand_int(240000L / (plev + 5))) return;
@@ -903,6 +904,28 @@ static void process_world(void)
 	/* Calculate torch radius */
 	p_ptr->update |= (PU_TORCH);
 
+        if (p_ptr->xlite)
+        {
+          (void)do_xtra_lite(p_ptr->xlite - 1);
+        }
+
+        /* Elemental Warrior Spells */
+        if (p_ptr->elec_warr)
+        {
+          (void)do_elem_warr(1, p_ptr->elec_warr - 1);
+        }
+        if (p_ptr->ice_warr)
+        {
+          (void)do_elem_warr(2, p_ptr->ice_warr - 1);
+        }
+        if (p_ptr->fire_warr)
+        {
+          (void)do_elem_warr(3, p_ptr->fire_warr - 1);
+        }
+        if (p_ptr->quickblade)
+        {
+          (void)set_quick_blade(p_ptr->quickblade -1);
+        }
 
 	/*** Process Inventory ***/
 
@@ -1168,6 +1191,13 @@ extern void do_cmd_borg(void);
  */
 static void process_command(void)
 {
+#ifdef ALLOW_REPEAT
+
+	/* Handle repeating the last command */
+	repeat_check();
+
+#endif /* ALLOW_REPEAT */
+
 	/* Parse the command */
 	switch (p_ptr->command_cmd)
 	{

@@ -266,6 +266,55 @@ void teleport_player_to(int ny, int nx)
 	handle_stuff();
 }
 
+bool teleport_monster_to(int m_idx)
+{
+	monster_type *m_ptr = &m_list[m_idx];
+	int my = m_ptr->fy;
+	int mx = m_ptr->fx;
+        int py = p_ptr->py;
+        int px = p_ptr->px;
+
+	int y, x;
+
+	int dis = 0, ctr = 0;
+
+	/* Initialize */
+	y = my;
+	x = mx;
+
+	/* Find a usable location */
+	while (1)
+	{
+		/* Pick a nearby legal location */
+		while (1)
+		{
+			y = rand_spread(py, dis);
+			x = rand_spread(px, dis);
+			if (in_bounds_fully(y, x)) break;
+		}
+
+		/* Accept "naked" floor grids */
+		if (cave_naked_bold(y, x)) break;
+
+		/* Occasionally advance the distance */
+		if (++ctr > (4 * dis * dis + 4 * dis + 1))
+		{
+			ctr = 0;
+			dis++;
+		}
+	}
+
+	/* Sound */
+	sound(SOUND_TELEPORT);
+
+        /*msg_format("Trying it, %d,%d to %d,%d", mx, my, x, y);*/
+	/* Move it */
+	monster_swap(my, mx, y, x);
+
+	/* Handle stuff XXX XXX XXX */
+	handle_stuff();
+	return TRUE;
+}
 
 
 /*
@@ -362,6 +411,7 @@ static byte spell_color(int type)
 		case GF_PLASMA:		return (TERM_RED);
 		case GF_METEOR:		return (TERM_RED);
 		case GF_ICE:		return (TERM_WHITE);
+		case GF_STUN:           return (TERM_UMBER);
 	}
 
 	/* Standard "color" */
@@ -416,8 +466,61 @@ static u16b bolt_pict(int y, int x, int ny, int nx, int typ)
 }
 
 
-
-
+void do_miracle(void)
+{
+        msg_print("You feel the will of your god.");
+    	(void)set_afraid(0);
+	(void)set_poisoned(0);
+	(void)set_stun(0);
+	(void)set_cut(0);
+        switch (randint(20)){
+               case 1:
+               case 2:
+               case 3:
+               case 4:
+               case 5:
+               {
+                 teleport_player(100);
+               }
+               case 6:
+               case 7:
+               case 8:
+               case 9:
+               case 10:
+               {
+       		 (void)hp_player(randint(1000));
+               }
+               case 11:
+               case 12:
+               case 13:
+               {
+                 (void)dispel_evil(randint(200));
+               }
+               case 14:
+               case 15:
+               case 16:
+               {
+                 teleport_player(10);
+               }
+               case 17:
+               case 18:
+               {
+		if (banish_evil(100))
+			{
+                        	msg_print("The power of your god banishes evil!");
+			}
+               }
+	       case 19:
+	       {
+               (void) project_hack(GF_AWAY_ALL, 1000);
+               }
+               case 20:
+               {
+                 (void) project_hack(GF_TURN_ALL, 1000);
+                 (void) project_hack(GF_TURN_UNDEAD, 1000);
+               }
+        }
+}
 /*
  * Decreases players hit points and sets death flag if necessary
  *
@@ -442,7 +545,7 @@ void take_hit(int dam, cptr kb_str)
 	disturb(1, 0);
 
 	/* Mega-Hack -- Apply "invulnerability" */
-	if (p_ptr->invuln && (dam < 9000)) return;
+	if (p_ptr->invuln && (dam < 9000) && mp_ptr->spell_book == TV_MAGIC_BOOK) return;
 
 	/* Hurt the player */
 	p_ptr->chp -= dam;
@@ -456,6 +559,13 @@ void take_hit(int dam, cptr kb_str)
 	/* Dead player */
 	if (p_ptr->chp < 0)
 	{
+	  /* Yet Another Hack - Miracle Escape (or not) */
+	        if (p_ptr->invuln && mp_ptr->spell_book == TV_PRAYER_BOOK)
+	        {
+	            p_ptr->chp = 1;
+	            do_miracle();
+	            return;
+	        }
 		/* Sound */
 		sound(SOUND_DEATH);
 
@@ -598,6 +708,7 @@ static bool hates_fire(object_type *o_ptr)
 		/* Books */
 		case TV_MAGIC_BOOK:
 		case TV_PRAYER_BOOK:
+		case TV_ELEMENT_BOOK:
 		{
 			return (TRUE);
 		}
@@ -1854,6 +1965,15 @@ static bool project_o(int who, int r, int y, int x, int dam, int typ)
 
 				break;
 			}
+			case GF_AWAY_OBJ:
+			{
+			  teleport_object(o_ptr, 200);
+			  break;
+			}
+			default:
+			{
+			  break;
+			}
 		}
 
 
@@ -1992,6 +2112,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 	/* Fear amount (amount to fear) */
 	int do_fear = 0;
 
+        int teleto = 0;
 
 	/* Hold the monster name */
 	char m_name[80];
@@ -2841,6 +2962,35 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			break;
 		}
 
+		/* Dispel animals */
+		case GF_DISP_ANIMAL:
+		{
+			/* Only affect undead */
+			if (r_ptr->flags3 & (RF3_ANIMAL))
+			{
+				/* Learn about type */
+				if (seen) r_ptr->r_flags3 |= (RF3_ANIMAL);
+
+				/* Obvious */
+				if (seen) obvious = TRUE;
+
+				/* Message */
+				note = " shudders.";
+				note_dies = " dissolves!";
+			}
+
+			/* Others ignore */
+			else
+			{
+				/* Irrelevant */
+				skipped = TRUE;
+
+				/* No damage */
+				dam = 0;
+			}
+
+			break;
+		}
 
 		/* Dispel evil */
 		case GF_DISP_EVIL:
@@ -2886,6 +3036,23 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			break;
 		}
 
+		case GF_STUN:
+		{
+			if (seen) obvious = TRUE;
+			do_stun = dam;
+                        dam = (dam/10);
+			break;
+		}
+
+                case GF_TELE_TO:
+                {
+                  note="disappears.";
+                  skipped = FALSE;
+                  if (seen) obvious=TRUE;
+                  teleto = dam+1;
+                  dam = 0;
+                  break;
+                }
 
 		/* Default */
 		default:
@@ -2960,6 +3127,13 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 			r_ptr = &r_info[m_ptr->r_idx];
 		}
 	}
+
+        else if (teleto)
+        {
+          teleport_monster_to(cave_m_idx[y][x]);
+          x = m_ptr->fx;
+          y = m_ptr->fy;
+        }
 
 	/* Handle "teleport" */
 	else if (do_dist)
@@ -3262,9 +3436,26 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 			if (p_ptr->oppose_pois) dam = (dam + 2) / 3;
 			take_hit(dam, killer);
 			if (!(p_ptr->resist_pois || p_ptr->oppose_pois))
-			{
+		      {
 				(void)set_poisoned(p_ptr->poisoned + rand_int(dam) + 10);
+
+			if (randint(5000) < dam)
+			{
+			  if (randint(5) == 1)
+			  {
+                            if (!p_ptr->sustain_str) { (void) do_dec_stat(A_STR); }
+                            if (!p_ptr->sustain_con) { (void) do_dec_stat(A_CON); }
+			  }
+                          else if (randint(2)==1)
+                          {
+                            if (!p_ptr->sustain_con) { (void) do_dec_stat(A_CON); }
+                          }
+                          else
+                          {
+                            if (!p_ptr->sustain_str) { (void) do_dec_stat(A_STR); }
+                          }
 			}
+	             }
 			break;
 		}
 
@@ -3290,6 +3481,11 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 		{
 			if (fuzzy) msg_print("You are hit by something sharp!");
 			take_hit(dam, killer);
+			if (randint(5000) < dam)
+			{
+			  msg_print("You are hit in the leg.");
+			  if (!p_ptr->sustain_dex) { (void) do_dec_stat(A_DEX); }
+			}
 			break;
 		}
 
