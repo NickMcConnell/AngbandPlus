@@ -106,7 +106,7 @@ struct term_data
 static term_data data[MAX_TERM_DATA];
 
 
-#if 0	/* Fix the syntax below XXX XXX XXX */
+#if 0 /* Fix the syntax below XXX XXX XXX */
 
 /*
  * The "color" array for the visual module XXX XXX XXX
@@ -131,24 +131,38 @@ static term_data data[MAX_TERM_DATA];
  * parts of each Red,Green,Blue are shown in the comments below,
  * again, these values are *before* gamma correction.
  */
-static local_color_data_type color_data[16] =
-{
-	/* XXX XXX XXX 0,0,0 */,		/* TERM_DARK */
-	/* XXX XXX XXX 4,4,4 */,		/* TERM_WHITE */
-	/* XXX XXX XXX 2,2,2 */,		/* TERM_SLATE */
-	/* XXX XXX XXX 4,2,0 */,		/* TERM_ORANGE */
-	/* XXX XXX XXX 3,0,0 */,		/* TERM_RED */
-	/* XXX XXX XXX 0,2,1 */,		/* TERM_GREEN */
-	/* XXX XXX XXX 0,0,4 */,		/* TERM_BLUE */
-	/* XXX XXX XXX 2,1,0 */,		/* TERM_UMBER */
-	/* XXX XXX XXX 1,1,1 */,		/* TERM_L_DARK */
-	/* XXX XXX XXX 3,3,3 */,		/* TERM_L_WHITE */
-	/* XXX XXX XXX 4,0,4 */,		/* TERM_VIOLET */
-	/* XXX XXX XXX 4,4,0 */,		/* TERM_YELLOW */
-	/* XXX XXX XXX 4,0,0 */,		/* TERM_L_RED */
-	/* XXX XXX XXX 0,4,0 */,		/* TERM_L_GREEN */
-	/* XXX XXX XXX 0,4,4 */,		/* TERM_L_BLUE */
-	/* XXX XXX XXX 3,2,1 */ 		/* TERM_L_UMBER */
+static local_color_data_type color_data[16] = {
+	/* XXX XXX XXX 0,0,0 */ ,
+	/* TERM_DARK */
+	/* XXX XXX XXX 4,4,4 */ ,
+	/* TERM_WHITE */
+	/* XXX XXX XXX 2,2,2 */ ,
+	/* TERM_SLATE */
+	/* XXX XXX XXX 4,2,0 */ ,
+	/* TERM_ORANGE */
+	/* XXX XXX XXX 3,0,0 */ ,
+	/* TERM_RED */
+	/* XXX XXX XXX 0,2,1 */ ,
+	/* TERM_GREEN */
+	/* XXX XXX XXX 0,0,4 */ ,
+	/* TERM_BLUE */
+	/* XXX XXX XXX 2,1,0 */ ,
+	/* TERM_UMBER */
+	/* XXX XXX XXX 1,1,1 */ ,
+	/* TERM_L_DARK */
+	/* XXX XXX XXX 3,3,3 */ ,
+	/* TERM_L_WHITE */
+	/* XXX XXX XXX 4,0,4 */ ,
+	/* TERM_VIOLET */
+	/* XXX XXX XXX 4,4,0 */ ,
+	/* TERM_YELLOW */
+	/* XXX XXX XXX 4,0,0 */ ,
+	/* TERM_L_RED */
+	/* XXX XXX XXX 0,4,0 */ ,
+	/* TERM_L_GREEN */
+	/* XXX XXX XXX 0,4,4 */ ,
+	/* TERM_L_BLUE */
+/* XXX XXX XXX 3,2,1 *//* TERM_L_UMBER */
 };
 
 #endif
@@ -166,9 +180,9 @@ static local_color_data_type color_data[16] =
  * preparing the cursor, setting the font/colors, etc.  Usually, this
  * function does nothing, and the "init_xxx()" function does it all.
  */
-static void Term_init_xxx(term *t)
+static void Term_init_xxx(term * t)
 {
-	term_data *td = (term_data*)(t->data);
+	term_data *td = (term_data *) (t->data);
 
 	/* XXX XXX XXX */
 }
@@ -183,9 +197,9 @@ static void Term_init_xxx(term *t)
  * the screen, restoring the cursor, fixing the font, etc.  Often this function
  * does nothing and lets the operating system clean up when the program quits.
  */
-static void Term_nuke_xxx(term *t)
+static void Term_nuke_xxx(term * t)
 {
-	term_data *td = (term_data*)(t->data);
+	term_data *td = (term_data *) (t->data);
 
 	/* XXX XXX XXX */
 }
@@ -205,7 +219,7 @@ static void Term_nuke_xxx(term *t)
  */
 static errr Term_user_xxx(int n)
 {
-	term_data *td = (term_data*)(Term->data);
+	term_data *td = (term_data *) (Term->data);
 
 	/* XXX XXX XXX */
 
@@ -231,7 +245,7 @@ static errr Term_user_xxx(int n)
  */
 static errr Term_xtra_xxx(int n, int v)
 {
-	term_data *td = (term_data*)(Term->data);
+	term_data *td = (term_data *) (Term->data);
 
 	/* Analyze */
 	switch (n)
@@ -473,7 +487,7 @@ static errr Term_xtra_xxx(int n, int v)
  */
 static errr Term_curs_xxx(int x, int y)
 {
-	term_data *td = (term_data*)(Term->data);
+	term_data *td = (term_data *) (Term->data);
 
 	/* XXX XXX XXX */
 
@@ -491,7 +505,7 @@ static errr Term_curs_xxx(int x, int y)
  */
 static errr Term_wipe_xxx(int x, int y, int n)
 {
-	term_data *td = (term_data*)(Term->data);
+	term_data *td = (term_data *) (Term->data);
 
 	/* XXX XXX XXX */
 
@@ -534,7 +548,7 @@ static errr Term_wipe_xxx(int x, int y, int n)
  */
 static errr Term_text_xxx(int x, int y, int n, byte a, const char *cp)
 {
-	term_data *td = (term_data*)(Term->data);
+	term_data *td = (term_data *) (Term->data);
 
 	/* XXX XXX XXX */
 
@@ -569,9 +583,10 @@ static errr Term_text_xxx(int x, int y, int n, byte a, const char *cp)
  * This function is only used if one of the "higher_pict" and/or
  * "always_pict" flags are set.
  */
-static errr Term_pict_xxx(int x, int y, int n, const byte *ap, const char *cp)
+static errr Term_pict_xxx(int x, int y, int n, const byte * ap,
+	const char *cp)
 {
-	term_data *td = (term_data*)(Term->data);
+	term_data *td = (term_data *) (Term->data);
 
 	/* XXX XXX XXX */
 
@@ -654,7 +669,7 @@ static void term_data_link(int i)
 	td->t->pict_hook = Term_pict_xxx;
 
 	/* Remember where we came from */
-	td->t->data = (vptr)(td);
+	td->t->data = (vptr) (td);
 
 	/* Activate it */
 	Term_activate(td->t);
@@ -753,7 +768,8 @@ int main(int argc, char *argv[])
 	/* Process command line arguments XXX XXX XXX */
 
 	/* Initialize the windows */
-	if (init_xxx()) quit("Oops!");
+	if (init_xxx())
+		quit("Oops!");
 
 	/* XXX XXX XXX */
 	ANGBAND_SYS = "xxx";
@@ -763,11 +779,10 @@ int main(int argc, char *argv[])
 
 	/* Initialize */
 	init_angband */
-
-	/* Allow auto-startup XXX XXX XXX */
-
-	/* Event loop forever XXX XXX XXX */
-	while (TRUE) CheckEvents(TRUE);
+		/* Allow auto-startup XXX XXX XXX */
+		/* Event loop forever XXX XXX XXX */
+	while (TRUE)
+		 CheckEvents(TRUE);
 }
 
 

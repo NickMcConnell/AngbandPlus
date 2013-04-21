@@ -230,8 +230,7 @@ u32b fake_text_size;
 /*
  * Standard error message text
  */
-static cptr err_str[8] =
-{
+static cptr err_str[8] = {
 	NULL,
 	"parse error",
 	"obsolete file",
@@ -259,15 +258,15 @@ static errr init_f_info_raw(int fd)
 
 
 	/* Read and Verify the header */
-	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
-	    (test.v_major != f_head->v_major) ||
-	    (test.v_minor != f_head->v_minor) ||
-	    (test.v_patch != f_head->v_patch) ||
-	    (test.v_extra != f_head->v_extra) ||
-	    (test.info_num != f_head->info_num) ||
-	    (test.info_len != f_head->info_len) ||
-	    (test.head_size != f_head->head_size) ||
-	    (test.info_size != f_head->info_size))
+	if (fd_read(fd, (char *) (&test), sizeof(header)) ||
+		(test.v_major != f_head->v_major) ||
+		(test.v_minor != f_head->v_minor) ||
+		(test.v_patch != f_head->v_patch) ||
+		(test.v_extra != f_head->v_extra) ||
+		(test.info_num != f_head->info_num) ||
+		(test.info_len != f_head->info_len) ||
+		(test.head_size != f_head->head_size) ||
+		(test.info_size != f_head->info_size))
 	{
 		/* Error */
 		return (-1);
@@ -282,14 +281,14 @@ static errr init_f_info_raw(int fd)
 	C_MAKE(f_info, f_head->info_num, feature_type);
 
 	/* Read the "f_info" array */
-	fd_read(fd, (char*)(f_info), f_head->info_size);
+	fd_read(fd, (char *) (f_info), f_head->info_size);
 
 
 	/* Allocate the "f_name" array */
 	C_MAKE(f_name, f_head->name_size, char);
 
 	/* Read the "f_name" array */
-	fd_read(fd, (char*)(f_name), f_head->name_size);
+	fd_read(fd, (char *) (f_name), f_head->name_size);
 
 
 #ifndef DELAY_LOAD_F_TEXT
@@ -298,7 +297,7 @@ static errr init_f_info_raw(int fd)
 	C_MAKE(f_text, f_head->text_size, char);
 
 	/* Read the "f_text" array */
-	fd_read(fd, (char*)(f_text), f_head->text_size);
+	fd_read(fd, (char *) (f_text), f_head->text_size);
 
 #endif
 
@@ -369,7 +368,8 @@ static errr init_f_info(void)
 		fd_close(fd);
 
 		/* Success */
-		if (!err) return (0);
+		if (!err)
+			return (0);
 
 		/* Information */
 		msg_print("Ignoring obsolete/defective 'f_info.raw' file.");
@@ -400,7 +400,8 @@ static errr init_f_info(void)
 	fp = my_fopen(buf, "r");
 
 	/* Parse it */
-	if (!fp) quit("Cannot open 'f_info.txt' file.");
+	if (!fp)
+		quit("Cannot open 'f_info.txt' file.");
 
 	/* Parse the file */
 	err = init_f_info_txt(fp, buf);
@@ -417,7 +418,8 @@ static errr init_f_info(void)
 		oops = (((err > 0) && (err < 8)) ? err_str[err] : "unknown");
 
 		/* Oops */
-		msg_format("Error %d at line %d of 'f_info.txt'.", err, error_line);
+		msg_format("Error %d at line %d of 'f_info.txt'.", err,
+			error_line);
 		msg_format("Record %d contains a '%s' error.", error_idx, oops);
 		msg_format("Parsing '%s'.", buf);
 		msg_print(NULL);
@@ -445,16 +447,16 @@ static errr init_f_info(void)
 	if (fd >= 0)
 	{
 		/* Dump it */
-		fd_write(fd, (char*)(f_head), f_head->head_size);
+		fd_write(fd, (char *) (f_head), f_head->head_size);
 
 		/* Dump the "f_info" array */
-		fd_write(fd, (char*)(f_info), f_head->info_size);
+		fd_write(fd, (char *) (f_info), f_head->info_size);
 
 		/* Dump the "f_name" array */
-		fd_write(fd, (char*)(f_name), f_head->name_size);
+		fd_write(fd, (char *) (f_name), f_head->name_size);
 
 		/* Dump the "f_text" array */
-		fd_write(fd, (char*)(f_text), f_head->text_size);
+		fd_write(fd, (char *) (f_text), f_head->text_size);
 
 		/* Close */
 		fd_close(fd);
@@ -474,7 +476,7 @@ static errr init_f_info(void)
 	fake_name_size = 0;
 	fake_text_size = 0;
 
-#endif	/* ALLOW_TEMPLATES */
+#endif /* ALLOW_TEMPLATES */
 
 
 	/*** Load the binary image file ***/
@@ -486,7 +488,8 @@ static errr init_f_info(void)
 	fd = fd_open(buf, O_RDONLY);
 
 	/* Process existing "raw" file */
-	if (fd < 0) quit("Cannot load 'f_info.raw' file.");
+	if (fd < 0)
+		quit("Cannot load 'f_info.raw' file.");
 
 	/* Attempt to parse the "raw" file */
 	err = init_f_info_raw(fd);
@@ -495,7 +498,8 @@ static errr init_f_info(void)
 	fd_close(fd);
 
 	/* Error */
-	if (err) quit("Cannot parse 'f_info.raw' file.");
+	if (err)
+		quit("Cannot parse 'f_info.raw' file.");
 
 	/* Success */
 	return (0);
@@ -512,15 +516,15 @@ static errr init_k_info_raw(int fd)
 
 
 	/* Read and Verify the header */
-	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
-	    (test.v_major != k_head->v_major) ||
-	    (test.v_minor != k_head->v_minor) ||
-	    (test.v_patch != k_head->v_patch) ||
-	    (test.v_extra != k_head->v_extra) ||
-	    (test.info_num != k_head->info_num) ||
-	    (test.info_len != k_head->info_len) ||
-	    (test.head_size != k_head->head_size) ||
-	    (test.info_size != k_head->info_size))
+	if (fd_read(fd, (char *) (&test), sizeof(header)) ||
+		(test.v_major != k_head->v_major) ||
+		(test.v_minor != k_head->v_minor) ||
+		(test.v_patch != k_head->v_patch) ||
+		(test.v_extra != k_head->v_extra) ||
+		(test.info_num != k_head->info_num) ||
+		(test.info_len != k_head->info_len) ||
+		(test.head_size != k_head->head_size) ||
+		(test.info_size != k_head->info_size))
 	{
 		/* Error */
 		return (-1);
@@ -535,14 +539,14 @@ static errr init_k_info_raw(int fd)
 	C_MAKE(k_info, k_head->info_num, object_kind);
 
 	/* Read the "k_info" array */
-	fd_read(fd, (char*)(k_info), k_head->info_size);
+	fd_read(fd, (char *) (k_info), k_head->info_size);
 
 
 	/* Allocate the "k_name" array */
 	C_MAKE(k_name, k_head->name_size, char);
 
 	/* Read the "k_name" array */
-	fd_read(fd, (char*)(k_name), k_head->name_size);
+	fd_read(fd, (char *) (k_name), k_head->name_size);
 
 
 #ifndef DELAY_LOAD_K_TEXT
@@ -551,7 +555,7 @@ static errr init_k_info_raw(int fd)
 	C_MAKE(k_text, k_head->text_size, char);
 
 	/* Read the "k_text" array */
-	fd_read(fd, (char*)(k_text), k_head->text_size);
+	fd_read(fd, (char *) (k_text), k_head->text_size);
 
 #endif
 
@@ -622,7 +626,8 @@ static errr init_k_info(void)
 		fd_close(fd);
 
 		/* Success */
-		if (!err) return (0);
+		if (!err)
+			return (0);
 
 		/* Information */
 		msg_print("Ignoring obsolete/defective 'k_info.raw' file.");
@@ -653,7 +658,8 @@ static errr init_k_info(void)
 	fp = my_fopen(buf, "r");
 
 	/* Parse it */
-	if (!fp) quit("Cannot open 'k_info.txt' file.");
+	if (!fp)
+		quit("Cannot open 'k_info.txt' file.");
 
 	/* Parse the file */
 	err = init_k_info_txt(fp, buf);
@@ -670,7 +676,8 @@ static errr init_k_info(void)
 		oops = (((err > 0) && (err < 8)) ? err_str[err] : "unknown");
 
 		/* Oops */
-		msg_format("Error %d at line %d of 'k_info.txt'.", err, error_line);
+		msg_format("Error %d at line %d of 'k_info.txt'.", err,
+			error_line);
 		msg_format("Record %d contains a '%s' error.", error_idx, oops);
 		msg_format("Parsing '%s'.", buf);
 		msg_print(NULL);
@@ -698,16 +705,16 @@ static errr init_k_info(void)
 	if (fd >= 0)
 	{
 		/* Dump it */
-		fd_write(fd, (char*)(k_head), k_head->head_size);
+		fd_write(fd, (char *) (k_head), k_head->head_size);
 
 		/* Dump the "k_info" array */
-		fd_write(fd, (char*)(k_info), k_head->info_size);
+		fd_write(fd, (char *) (k_info), k_head->info_size);
 
 		/* Dump the "k_name" array */
-		fd_write(fd, (char*)(k_name), k_head->name_size);
+		fd_write(fd, (char *) (k_name), k_head->name_size);
 
 		/* Dump the "k_text" array */
-		fd_write(fd, (char*)(k_text), k_head->text_size);
+		fd_write(fd, (char *) (k_text), k_head->text_size);
 
 		/* Close */
 		fd_close(fd);
@@ -727,7 +734,7 @@ static errr init_k_info(void)
 	fake_name_size = 0;
 	fake_text_size = 0;
 
-#endif	/* ALLOW_TEMPLATES */
+#endif /* ALLOW_TEMPLATES */
 
 
 	/*** Load the binary image file ***/
@@ -739,7 +746,8 @@ static errr init_k_info(void)
 	fd = fd_open(buf, O_RDONLY);
 
 	/* Process existing "raw" file */
-	if (fd < 0) quit("Cannot load 'k_info.raw' file.");
+	if (fd < 0)
+		quit("Cannot load 'k_info.raw' file.");
 
 	/* Attempt to parse the "raw" file */
 	err = init_k_info_raw(fd);
@@ -748,7 +756,8 @@ static errr init_k_info(void)
 	fd_close(fd);
 
 	/* Error */
-	if (err) quit("Cannot parse 'k_info.raw' file.");
+	if (err)
+		quit("Cannot parse 'k_info.raw' file.");
 
 	/* Success */
 	return (0);
@@ -765,15 +774,15 @@ static errr init_a_info_raw(int fd)
 
 
 	/* Read and Verify the header */
-	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
-	    (test.v_major != a_head->v_major) ||
-	    (test.v_minor != a_head->v_minor) ||
-	    (test.v_patch != a_head->v_patch) ||
-	    (test.v_extra != a_head->v_extra) ||
-	    (test.info_num != a_head->info_num) ||
-	    (test.info_len != a_head->info_len) ||
-	    (test.head_size != a_head->head_size) ||
-	    (test.info_size != a_head->info_size))
+	if (fd_read(fd, (char *) (&test), sizeof(header)) ||
+		(test.v_major != a_head->v_major) ||
+		(test.v_minor != a_head->v_minor) ||
+		(test.v_patch != a_head->v_patch) ||
+		(test.v_extra != a_head->v_extra) ||
+		(test.info_num != a_head->info_num) ||
+		(test.info_len != a_head->info_len) ||
+		(test.head_size != a_head->head_size) ||
+		(test.info_size != a_head->info_size))
 	{
 		/* Error */
 		return (-1);
@@ -788,14 +797,14 @@ static errr init_a_info_raw(int fd)
 	C_MAKE(a_info, a_head->info_num, artifact_type);
 
 	/* Read the "a_info" array */
-	fd_read(fd, (char*)(a_info), a_head->info_size);
+	fd_read(fd, (char *) (a_info), a_head->info_size);
 
 
 	/* Allocate the "a_name" array */
 	C_MAKE(a_name, a_head->name_size, char);
 
 	/* Read the "a_name" array */
-	fd_read(fd, (char*)(a_name), a_head->name_size);
+	fd_read(fd, (char *) (a_name), a_head->name_size);
 
 
 #ifndef DELAY_LOAD_A_TEXT
@@ -804,7 +813,7 @@ static errr init_a_info_raw(int fd)
 	C_MAKE(a_text, a_head->text_size, char);
 
 	/* Read the "a_text" array */
-	fd_read(fd, (char*)(a_text), a_head->text_size);
+	fd_read(fd, (char *) (a_text), a_head->text_size);
 
 #endif
 
@@ -875,7 +884,8 @@ static errr init_a_info(void)
 		fd_close(fd);
 
 		/* Success */
-		if (!err) return (0);
+		if (!err)
+			return (0);
 
 		/* Information */
 		msg_print("Ignoring obsolete/defective 'a_info.raw' file.");
@@ -906,7 +916,8 @@ static errr init_a_info(void)
 	fp = my_fopen(buf, "r");
 
 	/* Parse it */
-	if (!fp) quit("Cannot open 'a_info.txt' file.");
+	if (!fp)
+		quit("Cannot open 'a_info.txt' file.");
 
 	/* Parse the file */
 	err = init_a_info_txt(fp, buf);
@@ -923,7 +934,8 @@ static errr init_a_info(void)
 		oops = (((err > 0) && (err < 8)) ? err_str[err] : "unknown");
 
 		/* Oops */
-		msg_format("Error %d at line %d of 'a_info.txt'.", err, error_line);
+		msg_format("Error %d at line %d of 'a_info.txt'.", err,
+			error_line);
 		msg_format("Record %d contains a '%s' error.", error_idx, oops);
 		msg_format("Parsing '%s'.", buf);
 		msg_print(NULL);
@@ -951,16 +963,16 @@ static errr init_a_info(void)
 	if (fd >= 0)
 	{
 		/* Dump it */
-		fd_write(fd, (char*)(a_head), a_head->head_size);
+		fd_write(fd, (char *) (a_head), a_head->head_size);
 
 		/* Dump the "a_info" array */
-		fd_write(fd, (char*)(a_info), a_head->info_size);
+		fd_write(fd, (char *) (a_info), a_head->info_size);
 
 		/* Dump the "a_name" array */
-		fd_write(fd, (char*)(a_name), a_head->name_size);
+		fd_write(fd, (char *) (a_name), a_head->name_size);
 
 		/* Dump the "a_text" array */
-		fd_write(fd, (char*)(a_text), a_head->text_size);
+		fd_write(fd, (char *) (a_text), a_head->text_size);
 
 		/* Close */
 		fd_close(fd);
@@ -980,7 +992,7 @@ static errr init_a_info(void)
 	fake_name_size = 0;
 	fake_text_size = 0;
 
-#endif	/* ALLOW_TEMPLATES */
+#endif /* ALLOW_TEMPLATES */
 
 
 	/*** Load the binary image file ***/
@@ -992,7 +1004,8 @@ static errr init_a_info(void)
 	fd = fd_open(buf, O_RDONLY);
 
 	/* Process existing "raw" file */
-	if (fd < 0) quit("Cannot open 'a_info.raw' file.");
+	if (fd < 0)
+		quit("Cannot open 'a_info.raw' file.");
 
 	/* Attempt to parse the "raw" file */
 	err = init_a_info_raw(fd);
@@ -1001,7 +1014,8 @@ static errr init_a_info(void)
 	fd_close(fd);
 
 	/* Error */
-	if (err) quit("Cannot parse 'a_info.raw' file.");
+	if (err)
+		quit("Cannot parse 'a_info.raw' file.");
 
 	/* Success */
 	return (0);
@@ -1018,15 +1032,15 @@ static errr init_e_info_raw(int fd)
 
 
 	/* Read and Verify the header */
-	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
-	    (test.v_major != e_head->v_major) ||
-	    (test.v_minor != e_head->v_minor) ||
-	    (test.v_patch != e_head->v_patch) ||
-	    (test.v_extra != e_head->v_extra) ||
-	    (test.info_num != e_head->info_num) ||
-	    (test.info_len != e_head->info_len) ||
-	    (test.head_size != e_head->head_size) ||
-	    (test.info_size != e_head->info_size))
+	if (fd_read(fd, (char *) (&test), sizeof(header)) ||
+		(test.v_major != e_head->v_major) ||
+		(test.v_minor != e_head->v_minor) ||
+		(test.v_patch != e_head->v_patch) ||
+		(test.v_extra != e_head->v_extra) ||
+		(test.info_num != e_head->info_num) ||
+		(test.info_len != e_head->info_len) ||
+		(test.head_size != e_head->head_size) ||
+		(test.info_size != e_head->info_size))
 	{
 		/* Error */
 		return (-1);
@@ -1041,14 +1055,14 @@ static errr init_e_info_raw(int fd)
 	C_MAKE(e_info, e_head->info_num, ego_item_type);
 
 	/* Read the "e_info" array */
-	fd_read(fd, (char*)(e_info), e_head->info_size);
+	fd_read(fd, (char *) (e_info), e_head->info_size);
 
 
 	/* Allocate the "e_name" array */
 	C_MAKE(e_name, e_head->name_size, char);
 
 	/* Read the "e_name" array */
-	fd_read(fd, (char*)(e_name), e_head->name_size);
+	fd_read(fd, (char *) (e_name), e_head->name_size);
 
 
 #ifndef DELAY_LOAD_E_TEXT
@@ -1057,7 +1071,7 @@ static errr init_e_info_raw(int fd)
 	C_MAKE(e_text, e_head->text_size, char);
 
 	/* Read the "e_text" array */
-	fd_read(fd, (char*)(e_text), e_head->text_size);
+	fd_read(fd, (char *) (e_text), e_head->text_size);
 
 #endif
 
@@ -1128,7 +1142,8 @@ static errr init_e_info(void)
 		fd_close(fd);
 
 		/* Success */
-		if (!err) return (0);
+		if (!err)
+			return (0);
 
 		/* Information */
 		msg_print("Ignoring obsolete/defective 'e_info.raw' file.");
@@ -1159,7 +1174,8 @@ static errr init_e_info(void)
 	fp = my_fopen(buf, "r");
 
 	/* Parse it */
-	if (!fp) quit("Cannot open 'e_info.txt' file.");
+	if (!fp)
+		quit("Cannot open 'e_info.txt' file.");
 
 	/* Parse the file */
 	err = init_e_info_txt(fp, buf);
@@ -1176,7 +1192,8 @@ static errr init_e_info(void)
 		oops = (((err > 0) && (err < 8)) ? err_str[err] : "unknown");
 
 		/* Oops */
-		msg_format("Error %d at line %d of 'e_info.txt'.", err, error_line);
+		msg_format("Error %d at line %d of 'e_info.txt'.", err,
+			error_line);
 		msg_format("Record %d contains a '%s' error.", error_idx, oops);
 		msg_format("Parsing '%s'.", buf);
 		msg_print(NULL);
@@ -1204,16 +1221,16 @@ static errr init_e_info(void)
 	if (fd >= 0)
 	{
 		/* Dump it */
-		fd_write(fd, (char*)(e_head), e_head->head_size);
+		fd_write(fd, (char *) (e_head), e_head->head_size);
 
 		/* Dump the "e_info" array */
-		fd_write(fd, (char*)(e_info), e_head->info_size);
+		fd_write(fd, (char *) (e_info), e_head->info_size);
 
 		/* Dump the "e_name" array */
-		fd_write(fd, (char*)(e_name), e_head->name_size);
+		fd_write(fd, (char *) (e_name), e_head->name_size);
 
 		/* Dump the "e_text" array */
-		fd_write(fd, (char*)(e_text), e_head->text_size);
+		fd_write(fd, (char *) (e_text), e_head->text_size);
 
 		/* Close */
 		fd_close(fd);
@@ -1233,7 +1250,7 @@ static errr init_e_info(void)
 	fake_name_size = 0;
 	fake_text_size = 0;
 
-#endif	/* ALLOW_TEMPLATES */
+#endif /* ALLOW_TEMPLATES */
 
 
 	/*** Load the binary image file ***/
@@ -1245,7 +1262,8 @@ static errr init_e_info(void)
 	fd = fd_open(buf, O_RDONLY);
 
 	/* Process existing "raw" file */
-	if (fd < 0) quit("Cannot load 'e_info.raw' file.");
+	if (fd < 0)
+		quit("Cannot load 'e_info.raw' file.");
 
 	/* Attempt to parse the "raw" file */
 	err = init_e_info_raw(fd);
@@ -1254,7 +1272,8 @@ static errr init_e_info(void)
 	fd_close(fd);
 
 	/* Error */
-	if (err) quit("Cannot parse 'e_info.raw' file.");
+	if (err)
+		quit("Cannot parse 'e_info.raw' file.");
 
 	/* Success */
 	return (0);
@@ -1271,15 +1290,15 @@ static errr init_r_info_raw(int fd)
 
 
 	/* Read and Verify the header */
-	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
-	    (test.v_major != r_head->v_major) ||
-	    (test.v_minor != r_head->v_minor) ||
-	    (test.v_patch != r_head->v_patch) ||
-	    (test.v_extra != r_head->v_extra) ||
-	    (test.info_num != r_head->info_num) ||
-	    (test.info_len != r_head->info_len) ||
-	    (test.head_size != r_head->head_size) ||
-	    (test.info_size != r_head->info_size))
+	if (fd_read(fd, (char *) (&test), sizeof(header)) ||
+		(test.v_major != r_head->v_major) ||
+		(test.v_minor != r_head->v_minor) ||
+		(test.v_patch != r_head->v_patch) ||
+		(test.v_extra != r_head->v_extra) ||
+		(test.info_num != r_head->info_num) ||
+		(test.info_len != r_head->info_len) ||
+		(test.head_size != r_head->head_size) ||
+		(test.info_size != r_head->info_size))
 	{
 		/* Error */
 		return (-1);
@@ -1293,14 +1312,14 @@ static errr init_r_info_raw(int fd)
 	C_MAKE(r_info, r_head->info_num, monster_race);
 
 	/* Read the "r_info" array */
-	fd_read(fd, (char*)(r_info), r_head->info_size);
+	fd_read(fd, (char *) (r_info), r_head->info_size);
 
 
 	/* Allocate the "r_name" array */
 	C_MAKE(r_name, r_head->name_size, char);
 
 	/* Read the "r_name" array */
-	fd_read(fd, (char*)(r_name), r_head->name_size);
+	fd_read(fd, (char *) (r_name), r_head->name_size);
 
 
 #ifndef DELAY_LOAD_R_TEXT
@@ -1309,13 +1328,13 @@ static errr init_r_info_raw(int fd)
 	C_MAKE(r_text, r_head->text_size, char);
 
 	/* Read the "r_text" array */
-	fd_read(fd, (char*)(r_text), r_head->text_size);
+	fd_read(fd, (char *) (r_text), r_head->text_size);
 
 	/* Allocate the "sayings_text" array */
 	C_MAKE(sayings_text, r_head->text2_size, char);
 
 	/* Read the "sayings_text" array */
-	fd_read(fd, (char*)(sayings_text), r_head->text2_size);
+	fd_read(fd, (char *) (sayings_text), r_head->text2_size);
 
 #endif
 
@@ -1386,7 +1405,8 @@ static errr init_r_info(void)
 		fd_close(fd);
 
 		/* Success */
-		if (!err) return (0);
+		if (!err)
+			return (0);
 
 		/* Information */
 		msg_print("Ignoring obsolete/defective 'r_info.raw' file.");
@@ -1418,7 +1438,8 @@ static errr init_r_info(void)
 	fp = my_fopen(buf, "r");
 
 	/* Parse it */
-	if (!fp) quit("Cannot open 'r_info.txt' file.");
+	if (!fp)
+		quit("Cannot open 'r_info.txt' file.");
 
 	/* Parse the file */
 	err = init_r_info_txt(fp, buf);
@@ -1435,7 +1456,8 @@ static errr init_r_info(void)
 		oops = (((err > 0) && (err < 8)) ? err_str[err] : "unknown");
 
 		/* Oops */
-		msg_format("Error %d at line %d of 'r_info.txt'.", err, error_line);
+		msg_format("Error %d at line %d of 'r_info.txt'.", err,
+			error_line);
 		msg_format("Record %d contains a '%s' error.", error_idx, oops);
 		msg_format("Parsing '%s'.", buf);
 		msg_print(NULL);
@@ -1463,19 +1485,19 @@ static errr init_r_info(void)
 	if (fd >= 0)
 	{
 		/* Dump it */
-		fd_write(fd, (char*)(r_head), r_head->head_size);
+		fd_write(fd, (char *) (r_head), r_head->head_size);
 
 		/* Dump the "r_info" array */
-		fd_write(fd, (char*)(r_info), r_head->info_size);
+		fd_write(fd, (char *) (r_info), r_head->info_size);
 
 		/* Dump the "r_name" array */
-		fd_write(fd, (char*)(r_name), r_head->name_size);
+		fd_write(fd, (char *) (r_name), r_head->name_size);
 
 		/* Dump the "r_text" array */
-		fd_write(fd, (char*)(r_text), r_head->text_size);
+		fd_write(fd, (char *) (r_text), r_head->text_size);
 
 		/* Dump the "sayings_text" array */
-		fd_write(fd, (char*)(sayings_text), r_head->text2_size);
+		fd_write(fd, (char *) (sayings_text), r_head->text2_size);
 
 		/* Close */
 		fd_close(fd);
@@ -1491,13 +1513,13 @@ static errr init_r_info(void)
 	C_KILL(r_name, fake_name_size, char);
 	C_KILL(r_text, fake_text_size, char);
 	C_KILL(sayings_text, fake_text_size, char);
-	
+
 
 	/* Forget the array sizes */
 	fake_name_size = 0;
 	fake_text_size = 0;
 
-#endif	/* ALLOW_TEMPLATES */
+#endif /* ALLOW_TEMPLATES */
 
 
 	/*** Load the binary image file ***/
@@ -1509,7 +1531,8 @@ static errr init_r_info(void)
 	fd = fd_open(buf, O_RDONLY);
 
 	/* Process existing "raw" file */
-	if (fd < 0) quit("Cannot load 'r_info.raw' file.");
+	if (fd < 0)
+		quit("Cannot load 'r_info.raw' file.");
 
 	/* Attempt to parse the "raw" file */
 	err = init_r_info_raw(fd);
@@ -1518,7 +1541,8 @@ static errr init_r_info(void)
 	fd_close(fd);
 
 	/* Error */
-	if (err) quit("Cannot parse 'r_info.raw' file.");
+	if (err)
+		quit("Cannot parse 'r_info.raw' file.");
 
 	/* Success */
 	return (0);
@@ -1535,15 +1559,15 @@ static errr init_v_info_raw(int fd)
 
 
 	/* Read and Verify the header */
-	if (fd_read(fd, (char*)(&test), sizeof(header)) ||
-	    (test.v_major != v_head->v_major) ||
-	    (test.v_minor != v_head->v_minor) ||
-	    (test.v_patch != v_head->v_patch) ||
-	    (test.v_extra != v_head->v_extra) ||
-	    (test.info_num != v_head->info_num) ||
-	    (test.info_len != v_head->info_len) ||
-	    (test.head_size != v_head->head_size) ||
-	    (test.info_size != v_head->info_size))
+	if (fd_read(fd, (char *) (&test), sizeof(header)) ||
+		(test.v_major != v_head->v_major) ||
+		(test.v_minor != v_head->v_minor) ||
+		(test.v_patch != v_head->v_patch) ||
+		(test.v_extra != v_head->v_extra) ||
+		(test.info_num != v_head->info_num) ||
+		(test.info_len != v_head->info_len) ||
+		(test.head_size != v_head->head_size) ||
+		(test.info_size != v_head->info_size))
 	{
 		/* Error */
 		return (-1);
@@ -1557,33 +1581,33 @@ static errr init_v_info_raw(int fd)
 	C_MAKE(v_info, v_head->info_num, vault_type);
 
 	/* Read the "v_info" array */
-	fd_read(fd, (char*)(v_info), v_head->info_size);
+	fd_read(fd, (char *) (v_info), v_head->info_size);
 
 
 	/* Allocate the "v_name" array */
 	C_MAKE(v_name, v_head->name_size, char);
 
 	/* Read the "v_name" array */
-	fd_read(fd, (char*)(v_name), v_head->name_size);
+	fd_read(fd, (char *) (v_name), v_head->name_size);
 
 
 	/* Allocate the "v_text" array */
 	C_MAKE(v_text, v_head->text_size, char);
 
 	/* Read the "v_text" array */
-	fd_read(fd, (char*)(v_text), v_head->text_size);
+	fd_read(fd, (char *) (v_text), v_head->text_size);
 
 	/* Allocate the "q_text" array */
 	C_MAKE(q_text, v_head->text2_size, char);
 
 	/* Read the "q_text" array */
-	fd_read(fd, (char*)(q_text), v_head->text2_size);
+	fd_read(fd, (char *) (q_text), v_head->text2_size);
 
 	/* Allocate the "vm_text" array */
 	C_MAKE(vm_text, v_head->text3_size, char);
 
 	/* Read the "vm_text" array */
-	fd_read(fd, (char*)(vm_text), v_head->text3_size);
+	fd_read(fd, (char *) (vm_text), v_head->text3_size);
 
 	/* Success */
 	return (0);
@@ -1645,13 +1669,14 @@ static errr init_v_info(void)
 	if (fd >= 0)
 	{
 		/* Attempt to parse the "raw" file */
-		err = init_v_info_raw(fd); 
+		err = init_v_info_raw(fd);
 
 		/* Close it */
-		fd_close(fd); 
+		fd_close(fd);
 
 		/* Success */
-		if (!err) return (0); 
+		if (!err)
+			return (0);
 
 		/* Information */
 		msg_print("Ignoring obsolete/defective 'v_info.raw' file.");
@@ -1686,7 +1711,8 @@ static errr init_v_info(void)
 	fp = my_fopen(buf, "r");
 
 	/* Parse it */
-	if (!fp) quit("Cannot open 'v_info.txt' file.");
+	if (!fp)
+		quit("Cannot open 'v_info.txt' file.");
 
 	/* Parse the file */
 	err = init_v_info_txt(fp, buf);
@@ -1703,7 +1729,8 @@ static errr init_v_info(void)
 		oops = (((err > 0) && (err < 8)) ? err_str[err] : "unknown");
 
 		/* Oops */
-		msg_format("Error %d at line %d of 'v_info.txt'.", err, error_line);
+		msg_format("Error %d at line %d of 'v_info.txt'.", err,
+			error_line);
 		msg_format("Record %d contains a '%s' error.", error_idx, oops);
 		msg_format("Parsing '%s'.", buf);
 		msg_print(NULL);
@@ -1730,22 +1757,22 @@ static errr init_v_info(void)
 	if (fd >= 0)
 	{
 		/* Dump it */
-		fd_write(fd, (char*)(v_head), v_head->head_size);
+		fd_write(fd, (char *) (v_head), v_head->head_size);
 
 		/* Dump the "v_info" array */
-		fd_write(fd, (char*)(v_info), v_head->info_size);
+		fd_write(fd, (char *) (v_info), v_head->info_size);
 
 		/* Dump the "v_name" array */
-		fd_write(fd, (char*)(v_name), v_head->name_size);
+		fd_write(fd, (char *) (v_name), v_head->name_size);
 
 		/* Dump the "v_text" array */
-		fd_write(fd, (char*)(v_text), v_head->text_size);
+		fd_write(fd, (char *) (v_text), v_head->text_size);
 
 		/* Dump the "q_text" array */
-		fd_write(fd, (char*)(q_text), v_head->text2_size);
+		fd_write(fd, (char *) (q_text), v_head->text2_size);
 
 		/* Dump the "vm_text" array */
-		fd_write(fd, (char*)(vm_text), v_head->text3_size);
+		fd_write(fd, (char *) (vm_text), v_head->text3_size);
 
 		/* Close */
 		fd_close(fd);
@@ -1766,7 +1793,7 @@ static errr init_v_info(void)
 	fake_name_size = 0;
 	fake_text_size = 0;
 
-#endif	/* ALLOW_TEMPLATES */
+#endif /* ALLOW_TEMPLATES */
 
 
 	/*** Load the binary image file ***/
@@ -1778,7 +1805,8 @@ static errr init_v_info(void)
 	fd = fd_open(buf, O_RDONLY);
 
 	/* Process existing "raw" file */
-	if (fd < 0) quit("Cannot load 'v_info.raw' file.");
+	if (fd < 0)
+		quit("Cannot load 'v_info.raw' file.");
 
 	/* Attempt to parse the "raw" file */
 	err = init_v_info_raw(fd);
@@ -1787,7 +1815,8 @@ static errr init_v_info(void)
 	fd_close(fd);
 
 	/* Error */
-	if (err) quit("Cannot parse 'v_info.raw' file.");
+	if (err)
+		quit("Cannot parse 'v_info.raw' file.");
 
 	/* Success */
 	return (0);
@@ -1802,19 +1831,14 @@ static errr init_v_info(void)
  */
 static errr init_other(void)
 {
-  int i, n;
-	vault_type* v_ptr = NULL;
+	int i, n;
+	vault_type *v_ptr = NULL;
 
 
 	/*** Prepare the various "bizarre" arrays ***/
 
-	/* Macro variables */
-	C_MAKE(macro__pat, MACRO_MAX, cptr);
-	C_MAKE(macro__act, MACRO_MAX, cptr);
-	C_MAKE(macro__cmd, MACRO_MAX, bool);
-
-	/* Macro action buffer */
-	C_MAKE(macro__buf, 1024, char);
+	/* Initialize the "macro" package */
+	(void) macro_init();
 
 	/* Quark variables */
 	C_MAKE(quark__str, QUARK_MAX, cptr);
@@ -1830,58 +1854,66 @@ static errr init_other(void)
 	/* Hack -- No messages yet */
 	message__tail = MESSAGE_BUF;
 
+	/* Initialize tval priority table */
+	init_tval_order();
+
+
 	/*** Prepare quest tables ***/
 
-	C_WIPE(q_v_ptrs, MAX_QUESTS, vault_type*);
+	C_WIPE(q_v_ptrs, MAX_QUESTS, vault_type *);
 	max_quests = 0;
 
-	for (i = 0; i < MAX_V_IDX; i++) {
-	  v_ptr = &v_info[i];
+	for (i = 0; i < MAX_V_IDX; i++)
+	{
+		v_ptr = &v_info[i];
 
-	  if (v_ptr->typ == 99) {
-	    q_v_ptrs[v_ptr->q_idx] = v_ptr;
-	    max_quests++;
-	  }
+		if (v_ptr->typ == 99)
+		{
+			q_v_ptrs[v_ptr->q_idx] = v_ptr;
+			max_quests++;
+		}
 	}
 
 	/*** Initialize all the intrinsic powers. ***/
 	power_num = init_s_info_txt(SV_SPELLBOOK_POWER, powers, MAX_POWERS);
-	activation_num = init_s_info_txt(SV_SPELLBOOK_ACTIVATION,
-					  activations, MAX_ACTIVATIONS);
+	activation_num =
+		init_s_info_txt(SV_SPELLBOOK_ACTIVATION, activations,
+		MAX_ACTIVATIONS);
 
 	/*** Prepare the Stores ***/
 
 	/* Allocate the stores */
 	C_MAKE(store, MAX_STORES, store_type);
 
-    /* Initialise st_info.txt array */
-    init_st_info();
+	/* Initialise st_info.txt array */
+	init_st_info();
 
 #if 0
 	/* Fill in each store */
-	for (i = 0; i < MAX_STORES; i++) {
-	  /* Call maintenance function */
-	  store_maint(i);
+	for (i = 0; i < MAX_STORES; i++)
+	{
+		/* Call maintenance function */
+		store_maint(i);
 	}
 #endif
 
 	/*** Pre-allocate the basic "auto-inscriptions" ***/
 
 	/* The "basic" feelings */
-	(void)quark_add("cursed");
-	(void)quark_add("broken");
-	(void)quark_add("average");
-	(void)quark_add("good");
+	(void) quark_add("cursed");
+	(void) quark_add("broken");
+	(void) quark_add("average");
+	(void) quark_add("good");
 
 	/* The "extra" feelings */
-	(void)quark_add("excellent");
-	(void)quark_add("worthless");
-	(void)quark_add("special");
-	(void)quark_add("terrible");
+	(void) quark_add("excellent");
+	(void) quark_add("worthless");
+	(void) quark_add("special");
+	(void) quark_add("terrible");
 
 	/* Some extra strings */
-	(void)quark_add("uncursed");
-	(void)quark_add("on sale");
+	(void) quark_add("uncursed");
+	(void) quark_add("on sale");
 
 
 	/*** Prepare the options ***/
@@ -1904,7 +1936,7 @@ static errr init_other(void)
 	/*** Pre-allocate space for the "format()" buffer ***/
 
 	/* Hack -- Just call the "format()" function */
-	(void)format("%s (%s).", "Ben Harrison", MAINTAINER);
+	(void) format("%s (%s).", "Ben Harrison", MAINTAINER);
 
 
 	/* Success */
@@ -1966,11 +1998,12 @@ static errr init_alloc(void)
 	for (i = 1; i < MAX_DEPTH; i++)
 	{
 		/* Group by level */
-		num[i] += num[i-1];
+		num[i] += num[i - 1];
 	}
 
 	/* Paranoia */
-	if (!num[0]) quit("No town objects!");
+	if (!num[0])
+		quit("No town objects!");
 
 
 	/*** Initialize object allocation info ***/
@@ -2001,7 +2034,7 @@ static errr init_alloc(void)
 				p = (100 / k_ptr->chance[j]);
 
 				/* Skip entries preceding our locale */
-				y = (x > 0) ? num[x-1] : 0;
+				y = (x > 0) ? num[x - 1] : 0;
 
 				/* Skip previous entries at this locale */
 				z = y + aux[x];
@@ -2052,11 +2085,12 @@ static errr init_alloc(void)
 	for (i = 1; i < MAX_DEPTH; i++)
 	{
 		/* Group by level */
-		num[i] += num[i-1];
+		num[i] += num[i - 1];
 	}
 
 	/* Paranoia */
-	if (!num[0]) quit("No town monsters!");
+	if (!num[0])
+		quit("No town monsters!");
 
 
 	/*** Initialize monster allocation info ***/
@@ -2085,7 +2119,7 @@ static errr init_alloc(void)
 			p = (100 / r_ptr->rarity);
 
 			/* Skip entries preceding our locale */
-			y = (x > 0) ? num[x-1] : 0;
+			y = (x > 0) ? num[x - 1] : 0;
 
 			/* Skip previous entries at this locale */
 			z = y + aux[x];
@@ -2114,8 +2148,9 @@ static errr init_alloc(void)
  */
 static void note(cptr str)
 {
-	Term_erase(0, 23, 255);
-	Term_putstr(20, 23, -1, TERM_WHITE, str);
+	Term_erase(0, screen_y - 1, 255);
+	Term_putstr((screen_x - 80) / 2 + 20, screen_y - 1, -1, TERM_WHITE,
+		str);
 	Term_fresh();
 }
 
@@ -2243,13 +2278,14 @@ void init_angband(void)
 	/* Dump */
 	if (fp)
 	{
-		int i = 0;
+		int i = (screen_y - 24) / 2;
+		int w = (screen_x - 80) / 2;
 
 		/* Dump the file to the screen */
 		while (0 == my_fgets(fp, buf, 1024))
 		{
 			/* Display and advance */
-			Term_putstr(0, i++, -1, TERM_WHITE, buf);
+			Term_putstr(w, i++, -1, TERM_WHITE, buf);
 		}
 
 		/* Close */
@@ -2298,35 +2334,43 @@ void init_angband(void)
 
 	/* Initialize feature info */
 	note("[Initializing arrays... (features)]");
-	if (init_f_info()) quit("Cannot initialize features");
+	if (init_f_info())
+		quit("Cannot initialize features");
 
 	/* Initialize object info */
 	note("[Initializing arrays... (objects)]");
-	if (init_k_info()) quit("Cannot initialize objects");
+	if (init_k_info())
+		quit("Cannot initialize objects");
 
 	/* Initialize artifact info */
 	note("[Initializing arrays... (artifacts)]");
-	if (init_a_info()) quit("Cannot initialize artifacts");
+	if (init_a_info())
+		quit("Cannot initialize artifacts");
 
 	/* Initialize ego-item info */
 	note("[Initializing arrays... (ego-items)]");
-	if (init_e_info()) quit("Cannot initialize ego-items");
+	if (init_e_info())
+		quit("Cannot initialize ego-items");
 
 	/* Initialize monster info */
 	note("[Initializing arrays... (monsters)]");
-	if (init_r_info()) quit("Cannot initialize monsters");
+	if (init_r_info())
+		quit("Cannot initialize monsters");
 
 	/* Initialize vault info */
 	note("[Initializing arrays... (vaults)]");
-	if (init_v_info()) quit("Cannot initialize vaults");
+	if (init_v_info())
+		quit("Cannot initialize vaults");
 
 	/* Initialize some other arrays */
 	note("[Initializing arrays... (other)]");
-	if (init_other()) quit("Cannot initialize other stuff");
+	if (init_other())
+		quit("Cannot initialize other stuff");
 
 	/* Initialize some other arrays */
 	note("[Initializing arrays... (alloc)]");
-	if (init_alloc()) quit("Cannot initialize alloc stuff");
+	if (init_alloc())
+		quit("Cannot initialize alloc stuff");
 
 	/*** Load default user pref files ***/
 
@@ -2334,11 +2378,8 @@ void init_angband(void)
 	note("[Loading basic user pref file...]");
 
 	/* Process that file */
-	(void)process_pref_file("pref.prf");
+	(void) process_pref_file("pref.prf");
 
 	/* Done */
 	note("[Initialization complete]");
 }
-
-
-

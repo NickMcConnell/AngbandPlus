@@ -14,8 +14,7 @@
 /*
  * Hack -- Link a copyright message into the executable
  */
-cptr copyright[5] =
-{
+cptr copyright[5] = {
 	"Copyright (c) 1997 Ben Harrison, James E. Wilson, Robert A. Keoneke",
 	"",
 	"This software may be copied and distributed for educational, research,",
@@ -35,103 +34,116 @@ byte version_extra = VERSION_EXTRA;
 /*
  * Savefile version
  */
-byte sf_major;			/* Savefile's "version_major" */
-byte sf_minor;			/* Savefile's "version_minor" */
-byte sf_patch;			/* Savefile's "version_patch" */
-byte sf_extra;			/* Savefile's "version_extra" */
+byte sf_major; /* Savefile's "version_major" */
+byte sf_minor; /* Savefile's "version_minor" */
+byte sf_patch; /* Savefile's "version_patch" */
+byte sf_extra; /* Savefile's "version_extra" */
 
 /*
  * Savefile information
  */
-u32b sf_xtra;			/* Operating system info */
-u32b sf_when;			/* Time when savefile created */
-u16b sf_lives;			/* Number of past "lives" with this file */
-u16b sf_saves;			/* Number of "saves" during this life */
+u32b sf_xtra; /* Operating system info */
+u32b sf_when; /* Time when savefile created */
+u16b sf_lives; /* Number of past "lives" with this file */
+u16b sf_saves; /* Number of "saves" during this life */
 
 /*
  * Run-time arguments
  */
-bool arg_fiddle;			/* Command arg -- Request fiddle mode */
-bool arg_wizard;			/* Command arg -- Request wizard mode */
-bool arg_sound;				/* Command arg -- Request special sounds */
-bool arg_graphics;			/* Command arg -- Request graphics mode */
-bool arg_force_original;	/* Command arg -- Request original keyset */
-bool arg_force_roguelike;	/* Command arg -- Request roguelike keyset */
+bool arg_fiddle; /* Command arg -- Request fiddle mode */
+bool arg_wizard; /* Command arg -- Request wizard mode */
+bool arg_sound;	/* Command arg -- Request special sounds */
+bool arg_graphics; /* Command arg -- Request graphics mode */
+bool arg_force_original; /* Command arg -- Request original keyset */
+bool arg_force_roguelike; /* Command arg -- Request roguelike keyset */
 
 /*
  * Various things
  */
 
-bool character_generated;	/* The character exists */
-bool character_dungeon;		/* The character has a dungeon */
-bool character_loaded;		/* The character was loaded from a savefile */
-bool character_saved;		/* The character was just saved to a savefile */
+bool character_generated; /* The character exists */
+bool character_dungeon;	/* The character has a dungeon */
+bool character_loaded; /* The character was loaded from a savefile */
+bool character_saved; /* The character was just saved to a savefile */
 
-bool character_icky;		/* The game is in an icky full screen mode */
-bool character_xtra;		/* The game is in an icky startup mode */
+s16b character_icky; /* The game is in an icky full screen mode */
+bool character_xtra; /* The game is in an icky startup mode */
 
-u32b seed_flavor;		/* Hack -- consistent object colors */
-u32b seed_town;			/* Hack -- consistent town layout */
-u32b seed_dungeon;              /* Simulate persistent dungeons */
-u32b seed_wild;                 /* Persistent wilderness */
+u32b seed_flavor; /* Hack -- consistent object colors */
+u32b seed_town;	/* Hack -- consistent town layout */
+u32b seed_dungeon; /* Simulate persistent dungeons */
+u32b seed_wild;	/* Persistent wilderness */
 
-s16b num_repro;			/* Current reproducer count */
-s16b object_level;		/* Current object creation level */
-s16b monster_level;		/* Current monster creation level */
+s16b num_repro;	/* Current reproducer count */
+s16b object_level; /* Current object creation level */
+s16b monster_level;	/* Current monster creation level */
 
 s16b arena_monsters[MAX_ARENAS][MAX_ARENA_MONS]; /* -KMW- */
 
-s32b turn;				/* Current game turn */
+s32b turn; /* Current game turn */
 
-s32b old_turn;			/* Hack -- Level feeling counter */
+s32b old_turn; /* Hack -- Level feeling counter */
 
-s32b old_resting_turn;          /* Hack -- Resting turn counter */
+s32b old_resting_turn; /* Hack -- Resting turn counter */
 
-bool use_sound;			/* The "sound" mode is enabled */
-bool use_graphics;		/* The "graphics" mode is enabled */
+bool use_sound;	/* The "sound" mode is enabled */
+bool use_graphics; /* The "graphics" mode is enabled */
 
-s16b signal_count;		/* Hack -- Count interupts */
+s16b signal_count; /* Hack -- Count interupts */
 
-bool msg_flag;			/* Player has pending message */
+bool msg_flag; /* Player has pending message */
 
-bool inkey_base;		/* See the "inkey()" function */
-bool inkey_xtra;		/* See the "inkey()" function */
-bool inkey_scan;		/* See the "inkey()" function */
-bool inkey_flag;		/* See the "inkey()" function */
+bool inkey_base; /* See the "inkey()" function */
+bool inkey_xtra; /* See the "inkey()" function */
+bool inkey_scan; /* See the "inkey()" function */
+bool inkey_flag; /* See the "inkey()" function */
 
-s16b coin_type;			/* Hack -- force coin type */
+s16b coin_type;	/* Hack -- force coin type */
 
-bool opening_chest;		/* Hack -- prevent chest generation */
+bool opening_chest;	/* Hack -- prevent chest generation */
 
-bool shimmer_monsters;	/* Hack -- optimize multi-hued monsters */
-bool shimmer_objects;	/* Hack -- optimize multi-hued objects */
+bool shimmer_monsters; /* Hack -- optimize multi-hued monsters */
+bool shimmer_objects; /* Hack -- optimize multi-hued objects */
 
 bool repair_mflag_born;	/* Hack -- repair monster flags (born) */
 bool repair_mflag_nice;	/* Hack -- repair monster flags (nice) */
 bool repair_mflag_show;	/* Hack -- repair monster flags (show) */
 bool repair_mflag_mark;	/* Hack -- repair monster flags (mark) */
 
-s16b o_max = 1;			/* Number of allocated objects */
-s16b o_cnt = 0;			/* Number of live objects */
+s16b o_max = 1;	/* Number of allocated objects */
+s16b o_cnt = 0;	/* Number of live objects */
 
-s16b m_max = 1;			/* Number of allocated monsters */
-s16b m_cnt = 0;			/* Number of live monsters */
+s16b m_max = 1;	/* Number of allocated monsters */
+s16b m_cnt = 0;	/* Number of live monsters */
 
-s16b m_pet_num = 0;       /* Number of pets that are active at this time */
+s16b m_pet_num = 0;	/* Number of pets that are active at this time */
 
-s16b m_generators = 0;    /* Number of monster generators */
+s16b m_generators = 0; /* Number of monster generators */
+
+/* 
+ * Screen size (in characters)
+ * This should be corrected (if non-default) by main-xxx.c
+ */
+s16b screen_x = 80;
+s16b screen_y = 24;
+
+/*
+ * Height of dungeon map on screen.
+ */
+s16b SCREEN_HGT = 22;
+s16b SCREEN_WID = 66;
 
 /*
  * Dungeon variables
  */
 
-s16b feeling;			/* Most recent feeling */
-s16b rating;			/* Level's current rating */
-s16b pet_rating;                /* Amount of sacred pets on the level. */
+s16b feeling; /* Most recent feeling */
+s16b rating; /* Level's current rating */
+s16b pet_rating; /* Amount of sacred pets on the level. */
 
-bool good_item_flag;	/* True if "Artifact" on this level */
+bool good_item_flag; /* True if "Artifact" on this level */
 
-bool closing_flag;		/* Dungeon is closing */
+bool closing_flag; /* Dungeon is closing */
 
 
 /*
@@ -191,12 +203,6 @@ cptr *macro__act;
 bool *macro__cmd;
 
 /*
- * Current macro action [1024]
- */
-char *macro__buf;
-
-
-/*
  * The number of quarks
  */
 s16b quark__num;
@@ -235,7 +241,7 @@ u16b *message__ptr;
 /*
  * An array of message priorities, corresponds to ``message__ptr''
  */
-byte* message__pty;
+byte *message__pty;
 
 /*
  * The array of chars, by offset [MESSAGE_BUF]
@@ -252,8 +258,7 @@ term *angband_term[8];
 /*
  * Standard window names
  */
-char angband_term_name[8][16] =
-{
+char angband_term_name[8][16] = {
 	"Angband",
 	"Term-1",
 	"Term-2",
@@ -268,32 +273,30 @@ char angband_term_name[8][16] =
 /*
  * Global table of color definitions (mostly zeros)
  */
-byte angband_color_table[256][4] =
-{
-	{0x00, 0x00, 0x00, 0x00},	/* TERM_DARK */
-	{0x00, 0xFF, 0xFF, 0xFF},	/* TERM_WHITE */
-	{0x00, 0x80, 0x80, 0x80},	/* TERM_SLATE */
-	{0x00, 0xFF, 0x80, 0x00},	/* TERM_ORANGE */
-	{0x00, 0xC0, 0x00, 0x00},	/* TERM_RED */
-	{0x00, 0x00, 0x80, 0x40},	/* TERM_GREEN */
-	{0x00, 0x00, 0x40, 0xFF},	/* TERM_BLUE */
-	{0x00, 0x80, 0x40, 0x00},	/* TERM_UMBER */
-	{0x00, 0x60, 0x60, 0x60},	/* TERM_L_DARK */
-	{0x00, 0xC0, 0xC0, 0xC0},	/* TERM_L_WHITE */
-	{0x00, 0xFF, 0x00, 0xFF},	/* TERM_VIOLET */
-	{0x00, 0xFF, 0xFF, 0x00},	/* TERM_YELLOW */
-	{0x00, 0xFF, 0x00, 0x00},	/* TERM_L_RED */
-	{0x00, 0x00, 0xFF, 0x00},	/* TERM_L_GREEN */
-	{0x00, 0x00, 0xFF, 0xFF},	/* TERM_L_BLUE */
-	{0x00, 0xC0, 0x80, 0x40}	/* TERM_L_UMBER */
+byte angband_color_table[256][4] = {
+	{0x00, 0x00, 0x00, 0x00}, /* TERM_DARK */
+	{0x00, 0xFF, 0xFF, 0xFF}, /* TERM_WHITE */
+	{0x00, 0x80, 0x80, 0x80}, /* TERM_SLATE */
+	{0x00, 0xFF, 0x80, 0x00}, /* TERM_ORANGE */
+	{0x00, 0xC0, 0x00, 0x00}, /* TERM_RED */
+	{0x00, 0x00, 0x80, 0x40}, /* TERM_GREEN */
+	{0x00, 0x00, 0x40, 0xFF}, /* TERM_BLUE */
+	{0x00, 0x80, 0x40, 0x00}, /* TERM_UMBER */
+	{0x00, 0x60, 0x60, 0x60}, /* TERM_L_DARK */
+	{0x00, 0xC0, 0xC0, 0xC0}, /* TERM_L_WHITE */
+	{0x00, 0xFF, 0x00, 0xFF}, /* TERM_VIOLET */
+	{0x00, 0xFF, 0xFF, 0x00}, /* TERM_YELLOW */
+	{0x00, 0xFF, 0x00, 0x00}, /* TERM_L_RED */
+	{0x00, 0x00, 0xFF, 0x00}, /* TERM_L_GREEN */
+	{0x00, 0x00, 0xFF, 0xFF}, /* TERM_L_BLUE */
+	{0x00, 0xC0, 0x80, 0x40} /* TERM_L_UMBER */
 };
 
 
 /*
  * Standard sound names
  */
-char angband_sound_name[SOUND_MAX][16] =
-{
+char angband_sound_name[SOUND_MAX][16] = {
 	"",
 	"hit",
 	"miss",
@@ -334,7 +337,7 @@ byte cave_cost[DUNGEON_HGT][DUNGEON_WID];
  */
 byte cave_when[DUNGEON_HGT][DUNGEON_WID];
 
-#endif	/* MONSTER_FLOW */
+#endif /* MONSTER_FLOW */
 
 /*
  * The array of cave grid info flags
@@ -352,7 +355,7 @@ byte cave_feat[DUNGEON_HGT][DUNGEON_WID];
  *
  * This array gives a pointer to the object in the o_list.
  */
-object_type* cave_o_idx[DUNGEON_HGT][DUNGEON_WID];
+object_type *cave_o_idx[DUNGEON_HGT][DUNGEON_WID];
 
 /*
  * The array of cave grid monster indexes
@@ -370,7 +373,7 @@ s16b cave_m_idx[DUNGEON_HGT][DUNGEON_WID];
 /*
  * The linked list of dungeon objects
  */
-object_type* o_list = NULL;
+object_type *o_list = NULL;
 
 /*
  * The array of dungeon monsters
@@ -392,7 +395,7 @@ byte recipe_recall[MAX_RECIPES];
  * Quest status, quest-to-v_ptr array.
  */
 byte quest_status[MAX_QUESTS];
-vault_type* q_v_ptrs[MAX_QUESTS];
+vault_type *q_v_ptrs[MAX_QUESTS];
 byte max_quests;
 
 /*
@@ -446,7 +449,7 @@ object_type *inventory = NULL;
 /*
  * Helpfull pointers to currently used items.
  */
-object_type* equipment[EQUIP_MAX];
+object_type *equipment[EQUIP_MAX];
 
 
 /*
@@ -485,12 +488,17 @@ char misc_to_char[128];
  */
 byte tval_to_attr[128];
 
+
 /*
- * Simple keymap method, see "init.c" and "cmd6.c".
- * Be sure to use "index & 0x7F" to avoid illegal access
+ * Current (or recent) macro action
  */
-byte keymap_cmds[128];
-byte keymap_dirs[128];
+char macro_buffer[1024];
+
+
+/*
+ * Keymaps for each "mode" associated with each keypress.
+ */
+cptr keymap_act[KEYMAP_MODES][256];
 
 
 
@@ -532,8 +540,8 @@ header *v_head;
 vault_type *v_info;
 char *v_name;
 char *v_text;
-char* q_text;
-char* vm_text;
+char *q_text;
+char *vm_text;
 
 /*
  * The terrain feature arrays
@@ -575,7 +583,7 @@ header *r_head;
 monster_race *r_info;
 char *r_name;
 char *r_text;
-char* sayings_text;
+char *sayings_text;
 
 
 /*
@@ -583,6 +591,12 @@ char* sayings_text;
  * This variable is used to choose an appropriate "pref-xxx" file
  */
 cptr ANGBAND_SYS = "xxx";
+
+/*
+ * Hack -- The special Angband "Graphics Suffix"
+ * This variable is used to choose an appropriate "graf-xxx" file
+ */
+cptr ANGBAND_GRAF = "old";
 
 /*
  * Path name: The main "lib" directory
@@ -669,37 +683,54 @@ byte item_tester_tval;
  * Here is a "hook" used during calls to "get_item()" and
  * "show_inven()" and "show_equip()", and the choice window routines.
  */
-bool (*item_tester_hook)(object_type*);
+bool(*item_tester_hook) (object_type *);
 
 
 
 /*
  * Current "comp" function for ang_sort()
  */
-bool (*ang_sort_comp)(vptr u, vptr v, int a, int b);
+bool(*ang_sort_comp) (vptr u, vptr v, int a, int b);
 
 
 /*
  * Current "swap" function for ang_sort()
  */
-void (*ang_sort_swap)(vptr u, vptr v, int a, int b);
+void (*ang_sort_swap) (vptr u, vptr v, int a, int b);
 
 
 
 /*
  * Hack -- function hook to restrict "get_mon_num_prep()" function
  */
-bool (*get_mon_num_hook)(int r_idx);
+bool(*get_mon_num_hook) (int r_idx);
 
 
 
 /*
  * Hack -- function hook to restrict "get_obj_num_prep()" function
  */
-bool (*get_obj_num_hook)(int k_idx);
+bool(*get_obj_num_hook) (int k_idx);
+
+
+/* XXX Mega-Hack - See main-win.c */
+bool angband_keymap_flag = TRUE;
 
 
 /*
  * Hack -- don't punish thefts. 
  */
 bool hack_punish_theft = TRUE;
+
+
+/*
+ * Hack -- Extra flags to control object_desc()
+ */
+byte object_desc_mode = 0;
+
+
+/*
+ * Hack -- object_unabsortb() should combine store items
+ */
+bool store_combine_flag = TRUE;
+

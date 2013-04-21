@@ -34,10 +34,6 @@ void do_cmd_redraw(void)
 	Term_xtra(TERM_XTRA_REACT, 0);
 
 
-	/* Verify the keymap */
-	keymap_init();
-
-
 	/* Combine and Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
 
@@ -74,7 +70,8 @@ void do_cmd_redraw(void)
 	for (j = 0; j < 8; j++)
 	{
 		/* Dead window */
-		if (!angband_term[j]) continue;
+		if (!angband_term[j])
+			continue;
 
 		/* Activate */
 		Term_activate(angband_term[j]);
@@ -103,11 +100,8 @@ void do_cmd_change_name(void)
 	char tmp[160];
 
 
-	/* Enter "icky" mode */
-	character_icky = TRUE;
-
 	/* Save the screen */
-	Term_save();
+	screen_save();
 
 	/* Forever */
 	while (1)
@@ -123,7 +117,8 @@ void do_cmd_change_name(void)
 		c = inkey();
 
 		/* Exit */
-		if (c == ESCAPE) break;
+		if (c == ESCAPE)
+			break;
 
 		/* Change name */
 		if (c == 'c')
@@ -161,10 +156,7 @@ void do_cmd_change_name(void)
 	}
 
 	/* Restore the screen */
-	Term_load();
-
-	/* Leave "icky" mode */
-	character_icky = FALSE;
+	screen_load();
 }
 
 
@@ -200,6 +192,8 @@ void do_cmd_messages(void)
 	char shower[80];
 	char finder[80];
 
+	int per_screen = screen_y - 4;
+
 
 	/* Wipe finder */
 	strcpy(finder, "");
@@ -218,11 +212,8 @@ void do_cmd_messages(void)
 	q = 0;
 
 
-	/* Enter "icky" mode */
-	character_icky = TRUE;
-
 	/* Save the screen */
-	Term_save();
+	screen_save();
 
 	/* Process requests until done */
 	while (1)
@@ -230,17 +221,17 @@ void do_cmd_messages(void)
 		/* Clear screen */
 		Term_clear();
 
-		/* Dump up to 20 lines of messages */
-		for (j = 0; (j < 20) && (i + j < n); j++)
+		/* Dump per_screen lines of messages */
+		for (j = 0; (j < per_screen) && (i + j < n); j++)
 		{
-		  cptr msg = message_str(i+j);
-		  byte color = message_prior(i+j);
+			cptr msg = message_str(i + j);
+			byte color = message_prior(i + j);
 
 			/* Apply horizontal scroll */
 			msg = (strlen(msg) >= q) ? (msg + q) : "";
 
 			/* Dump the messages, bottom to top */
-			Term_putstr(0, 21-j, -1, color, msg);
+			Term_putstr(0, (screen_y - 3) - j, -1, color, msg);
 
 			/* Hilite "shower" */
 			if (shower[0])
@@ -253,7 +244,8 @@ void do_cmd_messages(void)
 					int len = strlen(shower);
 
 					/* Display the match */
-					Term_putstr(str-msg, 21-j, len, TERM_YELLOW, shower);
+					Term_putstr(str - msg, (screen_y - 3) - j, len,
+						TERM_YELLOW, shower);
 
 					/* Advance */
 					str += len;
@@ -262,17 +254,19 @@ void do_cmd_messages(void)
 		}
 
 		/* Display header XXX XXX XXX */
-		prt(format("Message Recall (%d-%d of %d), Offset %d",
-		           i, i+j-1, n, q), 0, 0);
+		prt(format("Message Recall (%d-%d of %d), Offset %d", i, i + j - 1,
+				n, q), 0, 0);
 
 		/* Display prompt (not very informative) */
-		prt("[Press 'p' for older, 'n' for newer, ..., or ESCAPE]", 23, 0);
+		prt("[Press 'p' for older, 'n' for newer, ..., or ESCAPE]",
+			screen_y - 1, 0);
 
 		/* Get a command */
 		k = inkey();
 
 		/* Exit on Escape */
-		if (k == ESCAPE) break;
+		if (k == ESCAPE)
+			break;
 
 		/* Hack -- Save the old index */
 		j = i;
@@ -301,10 +295,11 @@ void do_cmd_messages(void)
 		if (k == '=')
 		{
 			/* Prompt */
-			prt("Show: ", 23, 0);
+			prt("Show: ", screen_y - 1, 0);
 
 			/* Get a "shower" string, or continue */
-			if (!askfor_aux(shower, 80, FALSE)) continue;
+			if (!askfor_aux(shower, 80, FALSE))
+				continue;
 
 			/* Okay */
 			continue;
@@ -316,10 +311,11 @@ void do_cmd_messages(void)
 			int z;
 
 			/* Prompt */
-			prt("Find: ", 23, 0);
+			prt("Find: ", screen_y - 1, 0);
 
 			/* Get a "finder" string, or continue */
-			if (!askfor_aux(finder, 80, FALSE)) continue;
+			if (!askfor_aux(finder, 80, FALSE))
+				continue;
 
 			/* Show it */
 			strcpy(shower, finder);
@@ -345,28 +341,31 @@ void do_cmd_messages(void)
 		if ((k == '8') || (k == '\n') || (k == '\r'))
 		{
 			/* Go newer if legal */
-			if (i + 1 < n) i += 1;
+			if (i + 1 < n)
+				i += 1;
 		}
 
 		/* Recall 10 older messages */
 		if (k == '+')
 		{
 			/* Go older if legal */
-			if (i + 10 < n) i += 10;
+			if (i + 10 < n)
+				i += 10;
 		}
 
-		/* Recall 20 older messages */
+		/* Recall one screen of older messages */
 		if ((k == 'p') || (k == KTRL('P')) || (k == ' '))
 		{
 			/* Go older if legal */
-			if (i + 20 < n) i += 20;
+			if (i + per_screen < n)
+				i += per_screen;
 		}
 
-		/* Recall 20 newer messages */
+		/* Recall one screen of newer messages */
 		if ((k == 'n') || (k == KTRL('N')))
 		{
 			/* Go newer (if able) */
-			i = (i >= 20) ? (i - 20) : 0;
+			i = (i >= per_screen) ? (i - per_screen) : 0;
 		}
 
 		/* Recall 10 newer messages */
@@ -384,22 +383,60 @@ void do_cmd_messages(void)
 		}
 
 		/* Hack -- Error of some kind */
-		if (i == j) bell();
+		if (i == j)
+			bell();
 	}
 
 	/* Restore the screen */
-	Term_load();
+	screen_load();
+}
 
-	/* Leave "icky" mode */
-	character_icky = FALSE;
+
+/*
+ * Ask for a "user pref file" and process it.
+ *
+ * This function should only be used by standard interaction commands,
+ * in which a standard "Command:" prompt is present on the given row.
+ *
+ * Allow absolute file names?  XXX XXX XXX
+ */
+static bool do_cmd_pref_file_hack(int row)
+{
+	char ftmp[80];
+
+	/* Prompt */
+	prt("Command: Load a user pref file", row, 0);
+
+	/* Prompt */
+	prt("File: ", row + 2, 0);
+
+	/* Default filename */
+	sprintf(ftmp, "%s.prf", op_ptr->base_name);
+
+	/* Ask for a file (or cancel) */
+	if (!askfor_aux(ftmp, 80, FALSE))
+		return (FALSE);
+
+	/* Process the given filename */
+	if (process_pref_file(ftmp))
+	{
+		/* Mention failure */
+		msg_format("Failed to load '%s'!", ftmp);
+	}
+	else
+	{
+		/* Mention success */
+		msg_format("Loaded '%s'.", ftmp);
+	}
+
+	return (TRUE);
 }
 
 
 /*
  * Cheating options -- textual names
  */
-cptr cheating_text[CHEAT_MAX] =
-{
+cptr cheating_text[CHEAT_MAX] = {
 	"cheat_peek",
 	"cheat_hear",
 	"cheat_room",
@@ -411,8 +448,7 @@ cptr cheating_text[CHEAT_MAX] =
 /*
  * Cheating options -- descriptions
  */
-cptr cheating_desc[CHEAT_MAX] =
-{
+cptr cheating_desc[CHEAT_MAX] = {
 	"Peek into object creation",
 	"Peek into monster creation",
 	"Peek into dungeon creation",
@@ -425,53 +461,87 @@ cptr cheating_desc[CHEAT_MAX] =
 /*
  * Hack -- write all current options to the given file
  */
-static errr option_dump(cptr fname) {
-  int i;
+static errr option_dump(cptr fname)
+{
+	int i, j;
 
-  FILE *fff;
+	FILE *fff;
 
-  char buf[1024];
+	char buf[1024];
 
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_USER, fname);
 
-  /* Build the filename */
-  path_build(buf, 1024, ANGBAND_DIR_USER, fname);
+	/* File type is "TEXT" */
+	FILE_TYPE(FILE_TYPE_TEXT);
 
-  /* File type is "TEXT" */
-  FILE_TYPE(FILE_TYPE_TEXT);
+	/* Write to the file */
+	fff = my_fopen(buf, "w");
 
-  /* Append to the file */
-  fff = my_fopen(buf, "w");
+	/* Failure */
+	if (!fff)
+		return (-1);
 
-  /* Failure */
-  if (!fff) return (-1);
+	/* Start dumping */
+	fprintf(fff, "# Automatic option dump\n\n");
 
-  /* Skip space */
-  fprintf(fff, "\n\n");
+	/* Dump them */
+	for (i = 0; i < OPT_MAX; i++)
+	{
+		/* Finished. */
+		if (!option_text[i])
+			break;
 
-  /* Start dumping */
-  fprintf(fff, "# Automatic option dump\n\n");
+		fprintf(fff, "# Option '%s'\n", option_desc[i]);
 
-  /* Dump them */
-  for (i = 0; i < OPT_MAX; i++) {
-    /* Finished. */
-    if (!option_text[i]) break;
+		if (op_ptr->opt[i])
+		{
+			fprintf(fff, "Y:%s\n\n", option_text[i]);
+		}
+		else
+		{
+			fprintf(fff, "X:%s\n\n", option_text[i]);
+		}
+	}
 
-    fprintf(fff, "# Option '%s'\n", option_desc[i]);
+	/* Dump window flags */
+	for (i = 1; i < 8; i++)
+	{
+		/* Require a real window */
+		if (!angband_term[i])
+			continue;
 
-    if (op_ptr->opt[i]) {
-      fprintf(fff, "Y:%s\n\n", option_text[i]);
-    } else {
-      fprintf(fff, "X:%s\n\n", option_text[i]);
-    }
-  }
+		/* Check each flag */
+		for (j = 0; j < 32; j++)
+		{
+			/* Require a real flag */
+			if (!window_flag_desc[j])
+				continue;
 
-  fprintf(fff, "\n\n");
+			/* Comment */
+			fprintf(fff, "# Window '%s', Flag '%s'\n",
+				angband_term_name[i], window_flag_desc[j]);
 
-  /* Close */
-  my_fclose(fff);
+			/* Dump the flag */
+			if (op_ptr->window_flag[i] & (1L << j))
+			{
+				fprintf(fff, "W:%d:%d:1\n", i, j);
+			}
+			else
+			{
+				fprintf(fff, "W:%d:%d:0\n", i, j);
+			}
 
-  /* Success */
-  return (0);
+			/* Skip a line */
+			fprintf(fff, "\n");
+		}
+	}
+
+	/* Close */
+	my_fclose(fff);
+
+	/* Success */
+	return (0);
 }
 
 
@@ -494,7 +564,8 @@ static void do_cmd_options_cheat(cptr info)
 	while (TRUE)
 	{
 		/* Prompt XXX XXX XXX */
-		sprintf(buf, "%s (RET to advance, y/n to set, ESC to accept) ", info);
+		sprintf(buf, "%s (RET to advance, y/n to set, ESC to accept) ",
+			info);
 		prt(buf, 0, 0);
 
 		/* Display the options */
@@ -503,13 +574,12 @@ static void do_cmd_options_cheat(cptr info)
 			byte a = TERM_WHITE;
 
 			/* Color current option */
-			if (i == k) a = TERM_L_BLUE;
+			if (i == k)
+				a = TERM_L_BLUE;
 
 			/* Display the option text */
-			sprintf(buf, "%-48s: %s  (%s)",
-			        cheating_desc[i],
-			        p_ptr->cheat[i] ? "yes" : "no ",
-			        cheating_text[i]);
+			sprintf(buf, "%-48s: %s  (%s)", cheating_desc[i],
+				p_ptr->cheat[i] ? "yes" : "no ", cheating_text[i]);
 			c_prt(a, buf, i + 2, 0);
 		}
 
@@ -625,7 +695,8 @@ static void do_cmd_options_aux(int page, cptr info)
 	while (TRUE)
 	{
 		/* Prompt XXX XXX XXX */
-		sprintf(buf, "%s (RET to advance, y/n to set, ESC to accept) ", info);
+		sprintf(buf, "%s (RET to advance, y/n to set, ESC to accept) ",
+			info);
 		prt(buf, 0, 0);
 
 		/* Display the options */
@@ -634,13 +705,12 @@ static void do_cmd_options_aux(int page, cptr info)
 			byte a = TERM_WHITE;
 
 			/* Color current option */
-			if (i == k) a = TERM_L_BLUE;
+			if (i == k)
+				a = TERM_L_BLUE;
 
 			/* Display the option text */
-			sprintf(buf, "%-48s: %s  (%s)",
-			        option_desc[opt[i]],
-			        op_ptr->opt[opt[i]] ? "yes" : "no ",
-			        option_text[opt[i]]);
+			sprintf(buf, "%-48s: %s  (%s)", option_desc[opt[i]],
+				op_ptr->opt[opt[i]] ? "yes" : "no ", option_text[opt[i]]);
 			c_prt(a, buf, i + 2, 0);
 		}
 
@@ -749,7 +819,8 @@ static void do_cmd_options_win(void)
 			cptr s = angband_term_name[j];
 
 			/* Use color */
-			if (j == x) a = TERM_L_BLUE;
+			if (j == x)
+				a = TERM_L_BLUE;
 
 			/* Window name, staggered, centered */
 			Term_putstr(35 + j * 5 - strlen(s) / 2, 2 + j % 2, -1, a, s);
@@ -763,10 +834,12 @@ static void do_cmd_options_win(void)
 			cptr str = window_flag_desc[i];
 
 			/* Use color */
-			if (i == y) a = TERM_L_BLUE;
+			if (i == y)
+				a = TERM_L_BLUE;
 
 			/* Unused option */
-			if (!str) str = "(Unused option)";
+			if (!str)
+				str = "(Unused option)";
 
 			/* Flag name */
 			Term_putstr(0, i + 5, -1, a, str);
@@ -779,10 +852,12 @@ static void do_cmd_options_win(void)
 				char c = '.';
 
 				/* Use color */
-				if ((i == y) && (j == x)) a = TERM_L_BLUE;
+				if ((i == y) && (j == x))
+					a = TERM_L_BLUE;
 
 				/* Active flag */
-				if (op_ptr->window_flag[j] & (1L << i)) c = 'X';
+				if (op_ptr->window_flag[j] & (1L << i))
+					c = 'X';
 
 				/* Flag value */
 				Term_putch(35 + j * 5, i + 5, a, c);
@@ -832,13 +907,22 @@ static void do_cmd_options_win(void)
 
 			default:
 			{
-				int d = keymap_dirs[ch & 0x7F];
+				/* Extract direction */
+				int d = target_dir(ch);
 
-				x = (x + ddx[d] + 8) % 8;
-				y = (y + ddy[d] + 16) % 16;
+				/* Move */
+				if (d != 0)
+				{
+					x = (x + ddx[d] + 8) % 8;
+					y = (y + ddy[d] + 16) % 16;
+				}
 
-				if (!d) bell();
-				
+				/* Oops */
+				else
+				{
+					bell();
+				}
+
 				break;
 			}
 		}
@@ -850,10 +934,12 @@ static void do_cmd_options_win(void)
 		term *old = Term;
 
 		/* Dead window */
-		if (!angband_term[j]) continue;
+		if (!angband_term[j])
+			continue;
 
 		/* Ignore non-changes */
-		if (op_ptr->window_flag[j] == old_flag[j]) continue;
+		if (op_ptr->window_flag[j] == old_flag[j])
+			continue;
 
 		/* Activate */
 		Term_activate(angband_term[j]);
@@ -883,11 +969,8 @@ void do_cmd_options(void)
 	int k;
 
 
-	/* Enter "icky" mode */
-	character_icky = TRUE;
-
 	/* Save the screen */
-	Term_save();
+	screen_save();
 
 
 	/* Interact */
@@ -897,7 +980,7 @@ void do_cmd_options(void)
 		Term_clear();
 
 		/* Why are we here */
-		prt("Angband options", 2, 0);
+		prt("Kamband options", 2, 0);
 
 		/* Give some choices */
 		prt("(1) User Interface Options", 4, 5);
@@ -915,7 +998,10 @@ void do_cmd_options(void)
 		/* Special choices */
 		prt("(D) Base Delay Factor", 13, 5);
 		prt("(H) Hitpoint Warning", 14, 5);
-		prt("(S) Save the options to a pref file", 15, 5);
+
+		/* Load and Save */
+		prt("(R) Read options from a file", 4, 40);
+		prt("(S) Write options to a file", 5, 40);
 
 		/* Prompt */
 		prt("Command: ", 18, 0);
@@ -924,12 +1010,13 @@ void do_cmd_options(void)
 		k = inkey();
 
 		/* Exit */
-		if (k == ESCAPE) break;
+		if (k == ESCAPE)
+			break;
 
 		/* Analyze */
 		switch (k)
 		{
-			/* General Options */
+				/* General Options */
 			case '1':
 			{
 				/* Process the general options */
@@ -937,7 +1024,7 @@ void do_cmd_options(void)
 				break;
 			}
 
-			/* Disturbance Options */
+				/* Disturbance Options */
 			case '2':
 			{
 				/* Spawn */
@@ -945,7 +1032,7 @@ void do_cmd_options(void)
 				break;
 			}
 
-			/* Inventory Options */
+				/* Inventory Options */
 			case '3':
 			{
 				/* Spawn */
@@ -953,7 +1040,7 @@ void do_cmd_options(void)
 				break;
 			}
 
-			/* Efficiency Options */
+				/* Efficiency Options */
 			case '4':
 			{
 				/* Spawn */
@@ -961,15 +1048,15 @@ void do_cmd_options(void)
 				break;
 			}
 
-			/* Kamband Options */
+				/* Kamband Options */
 			case '5':
 			{
-			    /* Spawn */
-			    do_cmd_options_aux(4, "Kamband Options");
-			    break;
+				/* Spawn */
+				do_cmd_options_aux(4, "Kamband Options");
+				break;
 			}
 
-			/* Cheating Options */
+				/* Cheating Options */
 			case 'C':
 			{
 				/* Spawn */
@@ -977,7 +1064,7 @@ void do_cmd_options(void)
 				break;
 			}
 
-			/* Window flags */
+				/* Window flags */
 			case 'W':
 			case 'w':
 			{
@@ -986,7 +1073,7 @@ void do_cmd_options(void)
 				break;
 			}
 
-			/* Hack -- Delay Speed */
+				/* Hack -- Delay Speed */
 			case 'D':
 			case 'd':
 			{
@@ -998,18 +1085,21 @@ void do_cmd_options(void)
 				{
 					int msec = op_ptr->delay_factor * op_ptr->delay_factor;
 					prt(format("Current base delay factor: %d (%d msec)",
-					           op_ptr->delay_factor, msec), 22, 0);
+							op_ptr->delay_factor, msec), 22, 0);
 					prt("Delay Factor (0-9 or ESC to accept): ", 20, 0);
 					k = inkey();
-					if (k == ESCAPE) break;
-					if (isdigit(k)) op_ptr->delay_factor = D2I(k);
-					else bell();
+					if (k == ESCAPE)
+						break;
+					if (isdigit(k))
+						op_ptr->delay_factor = D2I(k);
+					else
+						bell();
 				}
 
 				break;
 			}
 
-			/* Hack -- hitpoint warning factor */
+				/* Hack -- hitpoint warning factor */
 			case 'H':
 			case 'h':
 			{
@@ -1020,42 +1110,69 @@ void do_cmd_options(void)
 				while (1)
 				{
 					prt(format("Current hitpoint warning: %2d%%",
-					           op_ptr->hitpoint_warn * 10), 22, 0);
-					prt("Hitpoint Warning (0-9 or ESC to accept): ", 20, 0);
+							op_ptr->hitpoint_warn * 10), 22, 0);
+					prt("Hitpoint Warning (0-9 or ESC to accept): ", 20,
+						0);
 					k = inkey();
-					if (k == ESCAPE) break;
-					if (isdigit(k)) op_ptr->hitpoint_warn = D2I(k);
-					else bell();
+					if (k == ESCAPE)
+						break;
+					if (isdigit(k))
+						op_ptr->hitpoint_warn = D2I(k);
+					else
+						bell();
 				}
 
 				break;
 			}
 
-		case 'S':
-		case 's':
-		  {
-		    char tmp[80];
+			case 'R':
+			case 'r':
+			{
+				/* Ask for and load a user pref file */
+				(void) do_cmd_pref_file_hack(18);
+				break;
+			}
 
-		    /* Prepare the prompt */
-		    prt("Command: Save options to pref file", 18, 0);
-		    prt("File: ", 22, 0);
-		    sprintf(tmp, "%s.prf", op_ptr->base_name);
+			case 'S':
+			case 's':
+			{
+				char ftmp[80];
 
-		    if (!askfor_aux(tmp, 70, FALSE)) break;
+				/* Prepare the prompt */
+				prt("Command: Write options to a file", 18, 0);
 
-		    /* Drop priviledges (?) */
-		    safe_setuid_drop();
+				/* Prompt */
+				prt("File: ", 20, 0);
 
-		    /* Dump the options. */
-		    option_dump(tmp);
-		    
-		    /* Grab priviledges */
-		    safe_setuid_grab();
+				/* Default filename */
+				sprintf(ftmp, "%s.prf", op_ptr->base_name);
 
-		    break;
-		  }
+				/* Ask for a file */
+				if (!askfor_aux(ftmp, 70, FALSE))
+					break;
 
-			/* Unknown option */
+				/* Drop priviledges (?) */
+				safe_setuid_drop();
+
+				/* Dump the options */
+				if (option_dump(ftmp))
+				{
+					/* Failure */
+					mprint(MSG_TEMP, "Failed!");
+				}
+				else
+				{
+					/* Success */
+					mprint(MSG_TEMP, "Done.");
+				}
+
+				/* Grab priviledges */
+				safe_setuid_grab();
+
+				break;
+			}
+
+				/* Unknown option */
 			default:
 			{
 				/* Oops */
@@ -1070,10 +1187,7 @@ void do_cmd_options(void)
 
 
 	/* Restore the screen */
-	Term_load();
-
-	/* Leave "icky" mode */
-	character_icky = FALSE;
+	screen_load();
 }
 
 
@@ -1091,10 +1205,11 @@ void do_cmd_pref(void)
 	strcpy(buf, "");
 
 	/* Ask for a "user pref command" */
-	if (!get_string("Pref: ", buf, 80)) return;
+	if (!get_string("Pref: ", buf, 80))
+		return;
 
 	/* Process that pref command */
-	(void)process_pref_file_aux(buf);
+	(void) process_pref_file_aux(buf);
 }
 
 
@@ -1122,7 +1237,8 @@ static errr macro_dump(cptr fname)
 	fff = my_fopen(buf, "a");
 
 	/* Failure */
-	if (!fff) return (-1);
+	if (!fff)
+		return (-1);
 
 
 	/* Skip space */
@@ -1146,11 +1262,8 @@ static errr macro_dump(cptr fname)
 		/* Extract the action */
 		ascii_to_text(buf, macro__pat[i]);
 
-		/* Dump command macros */
-		if (macro__cmd[i]) fprintf(fff, "C:%s\n", buf);
-
 		/* Dump normal macros */
-		else fprintf(fff, "P:%s\n", buf);
+		fprintf(fff, "P:%s\n", buf);
 
 		/* End the macro */
 		fprintf(fff, "\n\n");
@@ -1173,7 +1286,8 @@ static errr macro_dump(cptr fname)
  *
  * Note the complex use of the "inkey()" function from "util.c".
  *
- * Note that both "flush()" calls are extremely important.
+ * Note that both "flush()" calls are extremely important.  This may
+ * no longer be true, since "util.c" is much simpler now.  XXX XXX XXX
  */
 static void do_cmd_macro_aux(char *buf)
 {
@@ -1221,7 +1335,131 @@ static void do_cmd_macro_aux(char *buf)
 	Term_addstr(-1, TERM_WHITE, tmp);
 }
 
-#endif
+
+/*
+ * Hack -- ask for a keymap "trigger" (see below)
+ *
+ * Note that both "flush()" calls are extremely important.  This may
+ * no longer be true, since "util.c" is much simpler now.  XXX XXX XXX
+ */
+static void do_cmd_macro_aux_keymap(char *buf)
+{
+	char tmp[1024];
+
+
+	/* Flush */
+	flush();
+
+
+	/* Get a key */
+	buf[0] = inkey();
+	buf[1] = '\0';
+
+
+	/* Convert to ascii */
+	ascii_to_text(tmp, buf);
+
+	/* Hack -- display the trigger */
+	Term_addstr(-1, TERM_WHITE, tmp);
+
+
+	/* Flush */
+	flush();
+}
+
+
+/*
+ * Hack -- append all keymaps to the given file
+ */
+static errr keymap_dump(cptr fname)
+{
+	int i;
+
+	FILE *fff;
+
+	char key[1024];
+	char buf[1024];
+
+	int mode;
+
+
+	/* Roguelike */
+	if (rogue_like_commands)
+	{
+		mode = KEYMAP_MODE_ROGUE;
+	}
+
+	/* Original */
+	else
+	{
+		mode = KEYMAP_MODE_ORIG;
+	}
+
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_USER, fname);
+
+	/* File type is "TEXT" */
+	FILE_TYPE(FILE_TYPE_TEXT);
+
+	/* Append to the file */
+	fff = my_fopen(buf, "a");
+
+	/* Failure */
+	if (!fff)
+		return (-1);
+
+
+	/* Skip space */
+	fprintf(fff, "\n\n");
+
+	/* Start dumping */
+	fprintf(fff, "# Automatic keymap dump\n\n");
+
+	/* Dump them */
+	for (i = 0; i < 256; i++)
+	{
+		cptr act;
+
+		/* Loop up the keymap */
+		act = keymap_act[mode][i];
+
+		/* Skip empty keymaps */
+		if (!act)
+			continue;
+
+		/* Start the keymap */
+		fprintf(fff, "# Keymap '%d'\n\n", i);
+
+		/* Encode the action */
+		ascii_to_text(buf, act);
+
+		/* Dump the action */
+		fprintf(fff, "A:%s\n", buf);
+
+		/* Encode the key */
+		buf[0] = i;
+		buf[1] = '\0';
+		ascii_to_text(key, buf);
+
+		/* Dump the key */
+		fprintf(fff, "C:%d:%s\n", mode, key);
+
+		/* End the keymap */
+		fprintf(fff, "\n\n");
+	}
+
+	/* Terminate */
+	fprintf(fff, "\n\n\n");
+
+	/* Close */
+	my_fclose(fff);
+
+	/* Success */
+	return (0);
+}
+
+#endif /* ALLOW_MACROS */
 
 
 /*
@@ -1229,26 +1467,39 @@ static void do_cmd_macro_aux(char *buf)
  *
  * Note that the macro "action" must be defined before the trigger.
  *
- * XXX XXX XXX Need messages for success, plus "helpful" info
+ * Could use some helpful instructions on this page.  XXX XXX XXX
  */
 void do_cmd_macros(void)
 {
 	int i;
 
-	char tmp[160];
+	char tmp[1024];
 
 	char buf[1024];
+
+	int mode;
+
+
+	/* Roguelike */
+	if (rogue_like_commands)
+	{
+		mode = KEYMAP_MODE_ROGUE;
+	}
+
+	/* Original */
+	else
+	{
+		mode = KEYMAP_MODE_ORIG;
+	}
 
 
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
 
 
-	/* Enter "icky" mode */
-	character_icky = TRUE;
+	/* Save screen */
+	screen_save();
 
-	/* Save the screen */
-	Term_save();
 
 	/* Process requests until done */
 	while (1)
@@ -1261,225 +1512,344 @@ void do_cmd_macros(void)
 
 
 		/* Describe that action */
-		prt("Current action (if any) shown below:", 18, 0);
+		prt("Current action (if any) shown below:", 20, 0);
 
 		/* Analyze the current action */
-		ascii_to_text(buf, macro__buf);
+		ascii_to_text(buf, macro_buffer);
 
 		/* Display the current action */
-		prt(buf, 20, 0);
+		prt(buf, 22, 0);
 
 
 		/* Selections */
 		prt("(1) Load a user pref file", 4, 5);
 #ifdef ALLOW_MACROS
-		prt("(2) Dump macros", 5, 5);
-		prt("(3) Enter a new action", 6, 5);
-		prt("(4) Query a macro action", 7, 5);
-		prt("(5) Create a command macro", 8, 5);
-		prt("(6) Create a normal macro", 9, 5);
-		prt("(7) Create an identity macro", 10, 5);
-		prt("(8) Create an empty macro", 11, 5);
-		prt("(9) Define a special keymap", 12, 5);
+		prt("(2) Append macros to a file", 5, 5);
+		prt("(3) Query a macro", 6, 5);
+		prt("(4) Create a macro", 7, 5);
+		prt("(5) Remove a macro", 8, 5);
+		prt("(6) Append keymaps to a file", 9, 5);
+		prt("(7) Query a keymap", 10, 5);
+		prt("(8) Create a keymap", 11, 5);
+		prt("(9) Remove a keymap", 12, 5);
+		prt("(0) Enter a new action", 13, 5);
 #endif /* ALLOW_MACROS */
 
 		/* Prompt */
-		prt("Command: ", 14, 0);
+		prt("Command: ", 16, 0);
 
 		/* Get a command */
 		i = inkey();
 
 		/* Leave */
-		if (i == ESCAPE) break;
+		if (i == ESCAPE)
+			break;
 
 		/* Load a 'macro' file */
 		else if (i == '1')
 		{
 			/* Prompt */
-			prt("Command: Load a user pref file", 14, 0);
+			prt("Command: Load a user pref file", 16, 0);
 
 			/* Prompt */
-			prt("File: ", 16, 0);
+			prt("File: ", 18, 0);
 
 			/* Default filename */
-			sprintf(tmp, "user.prf");
+			sprintf(tmp, "%s.prf", op_ptr->base_name);
 
 			/* Ask for a file */
-			if (!askfor_aux(tmp, 70, FALSE)) continue;
+			if (!askfor_aux(tmp, 80, FALSE))
+				continue;
 
 			/* Process the given filename */
-			(void)process_pref_file(tmp);
+			if (0 != process_pref_file(tmp))
+			{
+				/* Prompt */
+				mprint(MSG_TEMP, "Could not load file!");
+			}
 		}
 
 #ifdef ALLOW_MACROS
 
-		/* Save a 'macro' file */
+		/* Save macros */
 		else if (i == '2')
 		{
 			/* Prompt */
-			prt("Command: Save a macro file", 14, 0);
+			prt("Command: Append macros to a file", 16, 0);
 
 			/* Prompt */
-			prt("File: ", 16, 0);
+			prt("File: ", 18, 0);
 
 			/* Default filename */
-			sprintf(tmp, "user.prf");
+			sprintf(tmp, "%s.prf", op_ptr->base_name);
 
 			/* Ask for a file */
-			if (!askfor_aux(tmp, 70, FALSE)) continue;
+			if (!askfor_aux(tmp, 80, FALSE))
+				continue;
 
 			/* Drop priv's */
 			safe_setuid_drop();
 
 			/* Dump the macros */
-			(void)macro_dump(tmp);
+			(void) macro_dump(tmp);
 
 			/* Grab priv's */
 			safe_setuid_grab();
+
+			/* Prompt */
+			mprint(MSG_TEMP, "Appended macros.");
+		}
+
+		/* Query a macro */
+		else if (i == '3')
+		{
+			int k;
+
+			/* Prompt */
+			prt("Command: Query a macro", 16, 0);
+
+			/* Prompt */
+			prt("Trigger: ", 18, 0);
+
+			/* Get a macro trigger */
+			do_cmd_macro_aux(buf);
+
+			/* Acquire action */
+			k = macro_find_exact(buf);
+
+			/* Nothing found */
+			if (k < 0)
+			{
+				/* Prompt */
+				mprint(MSG_TEMP, "Found no macro.");
+			}
+
+			/* Found one */
+			else
+			{
+				/* Obtain the action */
+				strcpy(macro_buffer, macro__act[k]);
+
+				/* Analyze the current action */
+				ascii_to_text(buf, macro_buffer);
+
+				/* Display the current action */
+				prt(buf, 22, 0);
+
+				/* Prompt */
+				mprint(MSG_TEMP, "Found a macro.");
+			}
+		}
+
+		/* Create a macro */
+		else if (i == '4')
+		{
+			/* Prompt */
+			prt("Command: Create a macro", 16, 0);
+
+			/* Prompt */
+			prt("Trigger: ", 18, 0);
+
+			/* Get a macro trigger */
+			do_cmd_macro_aux(buf);
+
+			/* Clear */
+			clear_from(20);
+
+			/* Prompt */
+			prt("Action: ", 20, 0);
+
+			/* Convert to text */
+			ascii_to_text(tmp, macro_buffer);
+
+			/* Get an encoded action */
+			if (askfor_aux(tmp, 80, FALSE))
+			{
+				/* Convert to ascii */
+				text_to_ascii(macro_buffer, tmp);
+
+				/* Link the macro */
+				macro_add(buf, macro_buffer);
+
+				/* Prompt */
+				mprint(MSG_TEMP, "Added a macro.");
+			}
+		}
+
+		/* Remove a macro */
+		else if (i == '5')
+		{
+			/* Prompt */
+			prt("Command: Remove a macro", 16, 0);
+
+			/* Prompt */
+			prt("Trigger: ", 18, 0);
+
+			/* Get a macro trigger */
+			do_cmd_macro_aux(buf);
+
+			/* Link the macro */
+			macro_add(buf, buf);
+
+			/* Prompt */
+			mprint(MSG_TEMP, "Removed a macro.");
+		}
+
+		/* Save keymaps */
+		else if (i == '6')
+		{
+			/* Prompt */
+			prt("Command: Append keymaps to a file", 16, 0);
+
+			/* Prompt */
+			prt("File: ", 18, 0);
+
+			/* Default filename */
+			sprintf(tmp, "%s.prf", op_ptr->base_name);
+
+			/* Ask for a file */
+			if (!askfor_aux(tmp, 80, FALSE))
+				continue;
+
+			/* Drop priv's */
+			safe_setuid_drop();
+
+			/* Dump the macros */
+			(void) keymap_dump(tmp);
+
+			/* Grab priv's */
+			safe_setuid_grab();
+
+			/* Prompt */
+			mprint(MSG_TEMP, "Appended keymaps.");
+		}
+
+		/* Query a keymap */
+		else if (i == '7')
+		{
+			cptr act;
+
+			/* Prompt */
+			prt("Command: Query a keymap", 16, 0);
+
+			/* Prompt */
+			prt("Keypress: ", 18, 0);
+
+			/* Get a keymap trigger */
+			do_cmd_macro_aux_keymap(buf);
+
+			/* Look up the keymap */
+			act = keymap_act[mode][(byte) (buf[0])];
+
+			/* Nothing found */
+			if (!act)
+			{
+				/* Prompt */
+				mprint(MSG_TEMP, "Found no keymap.");
+			}
+
+			/* Found one */
+			else
+			{
+				/* Obtain the action */
+				strcpy(macro_buffer, act);
+
+				/* Analyze the current action */
+				ascii_to_text(buf, macro_buffer);
+
+				/* Display the current action */
+				prt(buf, 22, 0);
+
+				/* Prompt */
+				mprint(MSG_TEMP, "Found a keymap.");
+			}
+		}
+
+		/* Create a keymap */
+		else if (i == '8')
+		{
+			/* Prompt */
+			prt("Command: Create a keymap", 16, 0);
+
+			/* Prompt */
+			prt("Keypress: ", 18, 0);
+
+			/* Get a keymap trigger */
+			do_cmd_macro_aux_keymap(buf);
+
+			/* Clear */
+			clear_from(20);
+
+			/* Prompt */
+			prt("Action: ", 20, 0);
+
+			/* Convert to text */
+			ascii_to_text(tmp, macro_buffer);
+
+			/* Get an encoded action */
+			if (askfor_aux(tmp, 80, FALSE))
+			{
+				/* Convert to ascii */
+				text_to_ascii(macro_buffer, tmp);
+
+				/* Free old keymap */
+				string_free(keymap_act[mode][(byte) (buf[0])]);
+
+				/* Make new keymap */
+				keymap_act[mode][(byte) (buf[0])] =
+					string_make(macro_buffer);
+
+				/* Prompt */
+				mprint(MSG_TEMP, "Added a keymap.");
+
+				/* XXX Hack -- See main-win.c */
+				angband_keymap_flag = TRUE;
+			}
+		}
+
+		/* Remove a keymap */
+		else if (i == '9')
+		{
+			/* Prompt */
+			prt("Command: Remove a keymap", 16, 0);
+
+			/* Prompt */
+			prt("Keypress: ", 18, 0);
+
+			/* Get a keymap trigger */
+			do_cmd_macro_aux_keymap(buf);
+
+			/* Free old keymap */
+			string_free(keymap_act[mode][(byte) (buf[0])]);
+
+			/* Make new keymap */
+			keymap_act[mode][(byte) (buf[0])] = NULL;
+
+			/* Prompt */
+			mprint(MSG_TEMP, "Removed a keymap.");
+
+			/* XXX Hack -- See main-win.c */
+			angband_keymap_flag = TRUE;
 		}
 
 		/* Enter a new action */
-		else if (i == '3')
+		else if (i == '0')
 		{
 			/* Prompt */
-			prt("Command: Enter a new action", 14, 0);
+			prt("Command: Enter a new action", 16, 0);
 
 			/* Go to the correct location */
-			Term_gotoxy(0, 20);
+			Term_gotoxy(0, 22);
 
 			/* Hack -- limit the value */
 			tmp[80] = '\0';
 
 			/* Get an encoded action */
-			if (!askfor_aux(buf, 80, FALSE)) continue;
+			if (!askfor_aux(buf, 80, FALSE))
+				continue;
 
 			/* Extract an action */
-			text_to_ascii(macro__buf, buf);
-		}
-
-		/* Query a macro action */
-		else if (i == '4')
-		{
-
-#if 0
-			/* Prompt */
-			prt("Command: Query a macro action", 14, 0);
-
-			/* Prompt */
-			prt("Enter a macro trigger: ", 16, 0);
-
-			/* Get a macro trigger */
-			do_cmd_macro_aux(buf);
-#endif
-
-			/* XXX XXX XXX */
-			mprint(MSG_TEMP, "Command not ready.");
-		}
-
-		/* Create a command macro */
-		else if (i == '5')
-		{
-			/* Prompt */
-			prt("Command: Create a command macro", 14, 0);
-
-			/* Prompt */
-			prt("Trigger: ", 16, 0);
-
-			/* Get a macro trigger */
-			do_cmd_macro_aux(buf);
-
-			/* Link the macro */
-			macro_add(buf, macro__buf, TRUE);
-
-			/* Message */
-			mprint(MSG_TEMP, "Created a new command macro.");
-		}
-
-		/* Create a normal macro */
-		else if (i == '6')
-		{
-			/* Prompt */
-			prt("Command: Create a normal macro", 14, 0);
-
-			/* Prompt */
-			prt("Trigger: ", 16, 0);
-
-			/* Get a macro trigger */
-			do_cmd_macro_aux(buf);
-
-			/* Link the macro */
-			macro_add(buf, macro__buf, FALSE);
-
-			/* Message */
-			mprint(MSG_TEMP, "Created a new normal macro.");
-		}
-
-		/* Create an identity macro */
-		else if (i == '7')
-		{
-			/* Prompt */
-			prt("Command: Create an identity macro", 14, 0);
-
-			/* Prompt */
-			prt("Trigger: ", 16, 0);
-
-			/* Get a macro trigger */
-			do_cmd_macro_aux(buf);
-
-			/* Link the macro */
-			macro_add(buf, buf, FALSE);
-
-			/* Message */
-			mprint(MSG_TEMP, "Created a new identity macro.");
-		}
-
-		/* Create an empty macro */
-		else if (i == '8')
-		{
-			/* Prompt */
-			prt("Command: Create an empty macro", 14, 0);
-
-			/* Prompt */
-			prt("Trigger: ", 16, 0);
-
-			/* Get a macro trigger */
-			do_cmd_macro_aux(buf);
-
-			/* Link the macro */
-			macro_add(buf, "", FALSE);
-
-			/* Message */
-			mprint(MSG_TEMP, "Created a new empty macro.");
-		}
-
-		/* Define a keymap */
-		else if (i == '9')
-		{
-			char i1, i2, i3;
-
-			/* Flush the input */
-			flush();
-
-			/* Get the trigger */
-			if (get_com("Type the trigger keypress: ", &i1) &&
-			    get_com("Type the resulting keypress: ", &i2) &&
-			    get_com("Type a direction (or zero): ", &i3))
-			{
-				/* Acquire the array index */
-				int k = (i1 & 0x7F);
-				int r = (i2 & 0x7F);
-				int d = (i3 & 0x7F);
-
-				/* Analyze the result key */
-				keymap_cmds[k] = r;
-
-				/* Hack -- Analyze the "direction" (always allow numbers) */
-				keymap_dirs[k] = (isdigit(d) ? (d - '0') : keymap_dirs[d]);
-
-				/* Success */
-				mformat(MSG_TEMP, "Keypress 0x%02x mapped to 0x%02x (direction %d)",
-				           k, keymap_cmds[k], keymap_dirs[k]);
-			}
+			text_to_ascii(macro_buffer, buf);
 		}
 
 #endif /* ALLOW_MACROS */
@@ -1496,11 +1866,8 @@ void do_cmd_macros(void)
 	}
 
 
-	/* Load the screen */
-	Term_load();
-
-	/* Leave "icky" mode */
-	character_icky = FALSE;
+	/* Load screen */
+	screen_load();
 }
 
 
@@ -1523,11 +1890,8 @@ void do_cmd_visuals(void)
 	FILE_TYPE(FILE_TYPE_TEXT);
 
 
-	/* Enter "icky" mode */
-	character_icky = TRUE;
-
 	/* Save the screen */
-	Term_save();
+	screen_save();
 
 
 	/* Interact until done */
@@ -1560,7 +1924,8 @@ void do_cmd_visuals(void)
 		i = inkey();
 
 		/* Done */
-		if (i == ESCAPE) break;
+		if (i == ESCAPE)
+			break;
 
 		/* Load a 'pref' file */
 		else if (i == '1')
@@ -1575,10 +1940,11 @@ void do_cmd_visuals(void)
 			sprintf(tmp, "user.prf");
 
 			/* Query */
-			if (!askfor_aux(tmp, 70, FALSE)) continue;
+			if (!askfor_aux(tmp, 70, FALSE))
+				continue;
 
 			/* Process the given filename */
-			(void)process_pref_file(tmp);
+			(void) process_pref_file(tmp);
 		}
 
 #ifdef ALLOW_VISUALS
@@ -1596,7 +1962,8 @@ void do_cmd_visuals(void)
 			sprintf(tmp, "user.prf");
 
 			/* Get a filename */
-			if (!askfor_aux(tmp, 70, FALSE)) continue;
+			if (!askfor_aux(tmp, 70, FALSE))
+				continue;
 
 			/* Build the filename */
 			path_build(buf, 1024, ANGBAND_DIR_USER, tmp);
@@ -1611,7 +1978,8 @@ void do_cmd_visuals(void)
 			safe_setuid_grab();
 
 			/* Failure */
-			if (!fff) continue;
+			if (!fff)
+				continue;
 
 			/* Start dumping */
 			fprintf(fff, "\n\n");
@@ -1623,14 +1991,15 @@ void do_cmd_visuals(void)
 				monster_race *r_ptr = &r_info[i];
 
 				/* Skip non-entries */
-				if (!r_ptr->name) continue;
+				if (!r_ptr->name)
+					continue;
 
 				/* Dump a comment */
 				fprintf(fff, "# %s\n", (r_name + r_ptr->name));
 
 				/* Dump the monster attr/char info */
 				fprintf(fff, "R:%d:0x%02X:0x%02X\n\n", i,
-				        (byte)(r_ptr->x_attr), (byte)(r_ptr->x_char));
+					(byte) (r_ptr->x_attr), (byte) (r_ptr->x_char));
 			}
 
 			/* All done */
@@ -1656,7 +2025,8 @@ void do_cmd_visuals(void)
 			sprintf(tmp, "user.prf");
 
 			/* Get a filename */
-			if (!askfor_aux(tmp, 70, FALSE)) continue;
+			if (!askfor_aux(tmp, 70, FALSE))
+				continue;
 
 			/* Build the filename */
 			path_build(buf, 1024, ANGBAND_DIR_USER, tmp);
@@ -1671,7 +2041,8 @@ void do_cmd_visuals(void)
 			safe_setuid_grab();
 
 			/* Failure */
-			if (!fff) continue;
+			if (!fff)
+				continue;
 
 			/* Start dumping */
 			fprintf(fff, "\n\n");
@@ -1683,14 +2054,15 @@ void do_cmd_visuals(void)
 				object_kind *k_ptr = &k_info[i];
 
 				/* Skip non-entries */
-				if (!k_ptr->name) continue;
+				if (!k_ptr->name)
+					continue;
 
 				/* Dump a comment */
 				fprintf(fff, "# %s\n", (k_name + k_ptr->name));
 
 				/* Dump the object attr/char info */
 				fprintf(fff, "K:%d:0x%02X:0x%02X\n\n", i,
-				        (byte)(k_ptr->x_attr), (byte)(k_ptr->x_char));
+					(byte) (k_ptr->x_attr), (byte) (k_ptr->x_char));
 			}
 
 			/* All done */
@@ -1716,7 +2088,8 @@ void do_cmd_visuals(void)
 			sprintf(tmp, "user.prf");
 
 			/* Get a filename */
-			if (!askfor_aux(tmp, 70, FALSE)) continue;
+			if (!askfor_aux(tmp, 70, FALSE))
+				continue;
 
 			/* Build the filename */
 			path_build(buf, 1024, ANGBAND_DIR_USER, tmp);
@@ -1731,7 +2104,8 @@ void do_cmd_visuals(void)
 			safe_setuid_grab();
 
 			/* Failure */
-			if (!fff) continue;
+			if (!fff)
+				continue;
 
 			/* Start dumping */
 			fprintf(fff, "\n\n");
@@ -1743,14 +2117,15 @@ void do_cmd_visuals(void)
 				feature_type *f_ptr = &f_info[i];
 
 				/* Skip non-entries */
-				if (!f_ptr->name) continue;
+				if (!f_ptr->name)
+					continue;
 
 				/* Dump a comment */
 				fprintf(fff, "# %s\n", (f_name + f_ptr->name));
 
 				/* Dump the feature attr/char info */
 				fprintf(fff, "F:%d:0x%02X:0x%02X\n\n", i,
-				        (byte)(f_ptr->z_attr), (byte)(f_ptr->z_char));
+					(byte) (f_ptr->z_attr), (byte) (f_ptr->z_char));
 			}
 
 			/* All done */
@@ -1776,45 +2151,52 @@ void do_cmd_visuals(void)
 			{
 				monster_race *r_ptr = &r_info[r];
 
-				int da = (byte)(r_ptr->d_attr);
-				int dc = (byte)(r_ptr->d_char);
-				int ca = (byte)(r_ptr->x_attr);
-				int cc = (byte)(r_ptr->x_char);
+				int da = (byte) (r_ptr->d_attr);
+				int dc = (byte) (r_ptr->d_char);
+				int ca = (byte) (r_ptr->x_attr);
+				int cc = (byte) (r_ptr->x_char);
 
 				/* Label the object */
 				Term_putstr(5, 17, -1, TERM_WHITE,
-				            format("Monster = %d, Name = %-40.40s",
-				                   r, (r_name + r_ptr->name)));
+					format("Monster = %d, Name = %-40.40s", r,
+						(r_name + r_ptr->name)));
 
 				/* Label the Default values */
 				Term_putstr(10, 19, -1, TERM_WHITE,
-				            format("Default attr/char = %3u / %3u", da, dc));
+					format("Default attr/char = %3u / %3u", da, dc));
 				Term_putstr(40, 19, -1, TERM_WHITE, "<< ? >>");
 				Term_putch(43, 19, da, dc);
 
 				/* Label the Current values */
 				Term_putstr(10, 20, -1, TERM_WHITE,
-				            format("Current attr/char = %3u / %3u", ca, cc));
+					format("Current attr/char = %3u / %3u", ca, cc));
 				Term_putstr(40, 20, -1, TERM_WHITE, "<< ? >>");
 				Term_putch(43, 20, ca, cc);
 
 				/* Prompt */
 				Term_putstr(0, 22, -1, TERM_WHITE,
-				            "Command (n/N/a/A/c/C): ");
+					"Command (n/N/a/A/c/C): ");
 
 				/* Get a command */
 				i = inkey();
 
 				/* All done */
-				if (i == ESCAPE) break;
+				if (i == ESCAPE)
+					break;
 
 				/* Analyze */
-				if (i == 'n') r = (r + MAX_R_IDX + 1) % MAX_R_IDX;
-				if (i == 'N') r = (r + MAX_R_IDX - 1) % MAX_R_IDX;
-				if (i == 'a') r_ptr->x_attr = (byte)(ca + 1);
-				if (i == 'A') r_ptr->x_attr = (byte)(ca - 1);
-				if (i == 'c') r_ptr->x_char = (byte)(cc + 1);
-				if (i == 'C') r_ptr->x_char = (byte)(cc - 1);
+				if (i == 'n')
+					r = (r + MAX_R_IDX + 1) % MAX_R_IDX;
+				if (i == 'N')
+					r = (r + MAX_R_IDX - 1) % MAX_R_IDX;
+				if (i == 'a')
+					r_ptr->x_attr = (byte) (ca + 1);
+				if (i == 'A')
+					r_ptr->x_attr = (byte) (ca - 1);
+				if (i == 'c')
+					r_ptr->x_char = (byte) (cc + 1);
+				if (i == 'C')
+					r_ptr->x_char = (byte) (cc - 1);
 			}
 		}
 
@@ -1831,45 +2213,52 @@ void do_cmd_visuals(void)
 			{
 				object_kind *k_ptr = &k_info[k];
 
-				int da = (byte)k_ptr->k_attr;
-				int dc = (byte)k_ptr->k_char;
-				int ca = (byte)k_ptr->x_attr;
-				int cc = (byte)k_ptr->x_char;
+				int da = (byte) k_ptr->k_attr;
+				int dc = (byte) k_ptr->k_char;
+				int ca = (byte) k_ptr->x_attr;
+				int cc = (byte) k_ptr->x_char;
 
 				/* Label the object */
 				Term_putstr(5, 17, -1, TERM_WHITE,
-				            format("Object = %d, Name = %-40.40s",
-				                   k, (k_name + k_ptr->name)));
+					format("Object = %d, Name = %-40.40s", k,
+						(k_name + k_ptr->name)));
 
 				/* Label the Default values */
 				Term_putstr(10, 19, -1, TERM_WHITE,
-				            format("Default attr/char = %3d / %3d", da, dc));
+					format("Default attr/char = %3d / %3d", da, dc));
 				Term_putstr(40, 19, -1, TERM_WHITE, "<< ? >>");
 				Term_putch(43, 19, da, dc);
 
 				/* Label the Current values */
 				Term_putstr(10, 20, -1, TERM_WHITE,
-				            format("Current attr/char = %3d / %3d", ca, cc));
+					format("Current attr/char = %3d / %3d", ca, cc));
 				Term_putstr(40, 20, -1, TERM_WHITE, "<< ? >>");
 				Term_putch(43, 20, ca, cc);
 
 				/* Prompt */
 				Term_putstr(0, 22, -1, TERM_WHITE,
-				            "Command (n/N/a/A/c/C): ");
+					"Command (n/N/a/A/c/C): ");
 
 				/* Get a command */
 				i = inkey();
 
 				/* All done */
-				if (i == ESCAPE) break;
+				if (i == ESCAPE)
+					break;
 
 				/* Analyze */
-				if (i == 'n') k = (k + MAX_K_IDX + 1) % MAX_K_IDX;
-				if (i == 'N') k = (k + MAX_K_IDX - 1) % MAX_K_IDX;
-				if (i == 'a') k_info[k].x_attr = (byte)(ca + 1);
-				if (i == 'A') k_info[k].x_attr = (byte)(ca - 1);
-				if (i == 'c') k_info[k].x_char = (byte)(cc + 1);
-				if (i == 'C') k_info[k].x_char = (byte)(cc - 1);
+				if (i == 'n')
+					k = (k + MAX_K_IDX + 1) % MAX_K_IDX;
+				if (i == 'N')
+					k = (k + MAX_K_IDX - 1) % MAX_K_IDX;
+				if (i == 'a')
+					k_info[k].x_attr = (byte) (ca + 1);
+				if (i == 'A')
+					k_info[k].x_attr = (byte) (ca - 1);
+				if (i == 'c')
+					k_info[k].x_char = (byte) (cc + 1);
+				if (i == 'C')
+					k_info[k].x_char = (byte) (cc - 1);
 			}
 		}
 
@@ -1886,45 +2275,52 @@ void do_cmd_visuals(void)
 			{
 				feature_type *f_ptr = &f_info[f];
 
-				int da = (byte)f_ptr->f_attr;
-				int dc = (byte)f_ptr->f_char;
-				int ca = (byte)f_ptr->z_attr;
-				int cc = (byte)f_ptr->z_char;
+				int da = (byte) f_ptr->f_attr;
+				int dc = (byte) f_ptr->f_char;
+				int ca = (byte) f_ptr->z_attr;
+				int cc = (byte) f_ptr->z_char;
 
 				/* Label the object */
 				Term_putstr(5, 17, -1, TERM_WHITE,
-				            format("Terrain = %d, Name = %-40.40s",
-				                   f, (f_name + f_ptr->name)));
+					format("Terrain = %d, Name = %-40.40s", f,
+						(f_name + f_ptr->name)));
 
 				/* Label the Default values */
 				Term_putstr(10, 19, -1, TERM_WHITE,
-				            format("Default attr/char = %3d / %3d", da, dc));
+					format("Default attr/char = %3d / %3d", da, dc));
 				Term_putstr(40, 19, -1, TERM_WHITE, "<< ? >>");
 				Term_putch(43, 19, da, dc);
 
 				/* Label the Current values */
 				Term_putstr(10, 20, -1, TERM_WHITE,
-				            format("Current attr/char = %3d / %3d", ca, cc));
+					format("Current attr/char = %3d / %3d", ca, cc));
 				Term_putstr(40, 20, -1, TERM_WHITE, "<< ? >>");
 				Term_putch(43, 20, ca, cc);
 
 				/* Prompt */
 				Term_putstr(0, 22, -1, TERM_WHITE,
-				            "Command (n/N/a/A/c/C): ");
+					"Command (n/N/a/A/c/C): ");
 
 				/* Get a command */
 				i = inkey();
 
 				/* All done */
-				if (i == ESCAPE) break;
+				if (i == ESCAPE)
+					break;
 
 				/* Analyze */
-				if (i == 'n') f = (f + MAX_F_IDX + 1) % MAX_F_IDX;
-				if (i == 'N') f = (f + MAX_F_IDX - 1) % MAX_F_IDX;
-				if (i == 'a') f_info[f].z_attr = (byte)(ca + 1);
-				if (i == 'A') f_info[f].z_attr = (byte)(ca - 1);
-				if (i == 'c') f_info[f].z_char = (byte)(cc + 1);
-				if (i == 'C') f_info[f].z_char = (byte)(cc - 1);
+				if (i == 'n')
+					f = (f + MAX_F_IDX + 1) % MAX_F_IDX;
+				if (i == 'N')
+					f = (f + MAX_F_IDX - 1) % MAX_F_IDX;
+				if (i == 'a')
+					f_info[f].z_attr = (byte) (ca + 1);
+				if (i == 'A')
+					f_info[f].z_attr = (byte) (ca - 1);
+				if (i == 'c')
+					f_info[f].z_char = (byte) (cc + 1);
+				if (i == 'C')
+					f_info[f].z_char = (byte) (cc - 1);
 			}
 		}
 
@@ -1952,10 +2348,7 @@ void do_cmd_visuals(void)
 
 
 	/* Restore the screen */
-	Term_load();
-
-	/* Leave "icky" mode */
-	character_icky = FALSE;
+	screen_load();
 }
 
 
@@ -1977,11 +2370,8 @@ void do_cmd_colors(void)
 	FILE_TYPE(FILE_TYPE_TEXT);
 
 
-	/* Enter "icky" mode */
-	character_icky = TRUE;
-
 	/* Save the screen */
-	Term_save();
+	screen_save();
 
 
 	/* Interact until done */
@@ -2007,7 +2397,8 @@ void do_cmd_colors(void)
 		i = inkey();
 
 		/* Done */
-		if (i == ESCAPE) break;
+		if (i == ESCAPE)
+			break;
 
 		/* Load a 'pref' file */
 		if (i == '1')
@@ -2022,10 +2413,11 @@ void do_cmd_colors(void)
 			sprintf(tmp, "user.prf");
 
 			/* Query */
-			if (!askfor_aux(tmp, 70, FALSE)) continue;
+			if (!askfor_aux(tmp, 70, FALSE))
+				continue;
 
 			/* Process the given filename */
-			(void)process_pref_file(tmp);
+			(void) process_pref_file(tmp);
 
 			/* Mega-Hack -- react to changes */
 			Term_xtra(TERM_XTRA_REACT, 0);
@@ -2049,7 +2441,8 @@ void do_cmd_colors(void)
 			sprintf(tmp, "user.prf");
 
 			/* Get a filename */
-			if (!askfor_aux(tmp, 70, FALSE)) continue;
+			if (!askfor_aux(tmp, 70, FALSE))
+				continue;
 
 			/* Build the filename */
 			path_build(buf, 1024, ANGBAND_DIR_USER, tmp);
@@ -2064,7 +2457,8 @@ void do_cmd_colors(void)
 			safe_setuid_grab();
 
 			/* Failure */
-			if (!fff) continue;
+			if (!fff)
+				continue;
 
 			/* Start dumping */
 			fprintf(fff, "\n\n");
@@ -2081,17 +2475,19 @@ void do_cmd_colors(void)
 				cptr name = "unknown";
 
 				/* Skip non-entries */
-				if (!kv && !rv && !gv && !bv) continue;
+				if (!kv && !rv && !gv && !bv)
+					continue;
 
 				/* Extract the color name */
-				if (i < 16) name = color_names[i];
+				if (i < 16)
+					name = color_names[i];
 
 				/* Dump a comment */
 				fprintf(fff, "# Color '%s'\n", name);
 
 				/* Dump the monster attr/char info */
-				fprintf(fff, "V:%d:0x%02X:0x%02X:0x%02X:0x%02X\n\n",
-				        i, kv, rv, gv, bv);
+				fprintf(fff, "V:%d:0x%02X:0x%02X:0x%02X:0x%02X\n\n", i, kv,
+					rv, gv, bv);
 			}
 
 			/* All done */
@@ -2124,10 +2520,10 @@ void do_cmd_colors(void)
 				for (i = 0; i < 16; i++)
 				{
 					/* Exhibit this color */
-					Term_putstr(i*4, 20, -1, a, "###");
+					Term_putstr(i * 4, 20, -1, a, "###");
 
 					/* Exhibit all colors */
-					Term_putstr(i*4, 22, -1, i, format("%3d", i));
+					Term_putstr(i * 4, 22, -1, i, format("%3d", i));
 				}
 
 				/* Describe the color */
@@ -2135,37 +2531,56 @@ void do_cmd_colors(void)
 
 				/* Describe the color */
 				Term_putstr(5, 10, -1, TERM_WHITE,
-				            format("Color = %d, Name = %s", a, name));
+					format("Color = %d, Name = %s", a, name));
 
 				/* Label the Current values */
 				Term_putstr(5, 12, -1, TERM_WHITE,
-				            format("K = 0x%02x / R,G,B = 0x%02x,0x%02x,0x%02x",
-				                   angband_color_table[a][0],
-				                   angband_color_table[a][1],
-				                   angband_color_table[a][2],
-				                   angband_color_table[a][3]));
+					format("K = 0x%02x / R,G,B = 0x%02x,0x%02x,0x%02x",
+						angband_color_table[a][0],
+						angband_color_table[a][1],
+						angband_color_table[a][2],
+						angband_color_table[a][3]));
 
 				/* Prompt */
 				Term_putstr(0, 14, -1, TERM_WHITE,
-				            "Command (n/N/k/K/r/R/g/G/b/B): ");
+					"Command (n/N/k/K/r/R/g/G/b/B): ");
 
 				/* Get a command */
 				i = inkey();
 
 				/* All done */
-				if (i == ESCAPE) break;
+				if (i == ESCAPE)
+					break;
 
 				/* Analyze */
-				if (i == 'n') a = (byte)(a + 1);
-				if (i == 'N') a = (byte)(a - 1);
-				if (i == 'k') angband_color_table[a][0] = (byte)(angband_color_table[a][0] + 1);
-				if (i == 'K') angband_color_table[a][0] = (byte)(angband_color_table[a][0] - 1);
-				if (i == 'r') angband_color_table[a][1] = (byte)(angband_color_table[a][1] + 1);
-				if (i == 'R') angband_color_table[a][1] = (byte)(angband_color_table[a][1] - 1);
-				if (i == 'g') angband_color_table[a][2] = (byte)(angband_color_table[a][2] + 1);
-				if (i == 'G') angband_color_table[a][2] = (byte)(angband_color_table[a][2] - 1);
-				if (i == 'b') angband_color_table[a][3] = (byte)(angband_color_table[a][3] + 1);
-				if (i == 'B') angband_color_table[a][3] = (byte)(angband_color_table[a][3] - 1);
+				if (i == 'n')
+					a = (byte) (a + 1);
+				if (i == 'N')
+					a = (byte) (a - 1);
+				if (i == 'k')
+					angband_color_table[a][0] =
+						(byte) (angband_color_table[a][0] + 1);
+				if (i == 'K')
+					angband_color_table[a][0] =
+						(byte) (angband_color_table[a][0] - 1);
+				if (i == 'r')
+					angband_color_table[a][1] =
+						(byte) (angband_color_table[a][1] + 1);
+				if (i == 'R')
+					angband_color_table[a][1] =
+						(byte) (angband_color_table[a][1] - 1);
+				if (i == 'g')
+					angband_color_table[a][2] =
+						(byte) (angband_color_table[a][2] + 1);
+				if (i == 'G')
+					angband_color_table[a][2] =
+						(byte) (angband_color_table[a][2] - 1);
+				if (i == 'b')
+					angband_color_table[a][3] =
+						(byte) (angband_color_table[a][3] + 1);
+				if (i == 'B')
+					angband_color_table[a][3] =
+						(byte) (angband_color_table[a][3] - 1);
 
 				/* Hack -- react to changes */
 				Term_xtra(TERM_XTRA_REACT, 0);
@@ -2189,10 +2604,7 @@ void do_cmd_colors(void)
 
 
 	/* Restore the screen */
-	Term_load();
-
-	/* Leave "icky" mode */
-	character_icky = FALSE;
+	screen_load();
 }
 
 
@@ -2207,10 +2619,12 @@ void do_cmd_note(void)
 	strcpy(buf, "");
 
 	/* Input */
-	if (!get_string("Note: ", buf, 60)) return;
+	if (!get_string("Note: ", buf, 60))
+		return;
 
 	/* Ignore empty notes */
-	if (!buf[0] || (buf[0] == ' ')) return;
+	if (!buf[0] || (buf[0] == ' '))
+		return;
 
 	/* Add the note to the message recall */
 	mformat(MSG_WARNING, "Note: %s", buf);
@@ -2224,7 +2638,7 @@ void do_cmd_version(void)
 {
 	/* Silly message */
 	msg_format("You are playing Kamband %d.%d.  Type '?' for more info.",
-	           KAM_VERSION_MAJOR, KAM_VERSION_MINOR);
+		KAM_VERSION_MAJOR, KAM_VERSION_MINOR);
 }
 
 
@@ -2232,8 +2646,7 @@ void do_cmd_version(void)
 /*
  * Array of feeling strings
  */
-static cptr do_cmd_feeling_text[11] =
-{
+static cptr do_cmd_feeling_text[11] = {
 	"Looks like any other level.",
 	"You feel there is something special about this level.",
 	"You have a superb feeling about this level.",
@@ -2253,16 +2666,16 @@ static cptr do_cmd_feeling_text[11] =
  */
 
 static cptr do_cmd_pet_feeling_text[11] = {
-  "You sense a small friendly aura.",
-  "You sense a friendly aura.",
-  "You have a feeling of friendship.",
-  "You feel supported by your allies.",
-  "You feel a sense of true friendship.",
-  "You sense you are deeply respected.",
-  "You feel the adoration your followers.",
-  "You feel like a true leader.",
-  "You feel that your followers will do anything for you.",
-  "You feel as if you are in charge of this level."
+	"You sense a small friendly aura.",
+	"You sense a friendly aura.",
+	"You have a feeling of friendship.",
+	"You feel supported by your allies.",
+	"You feel a sense of true friendship.",
+	"You sense you are deeply respected.",
+	"You feel the adoration your followers.",
+	"You feel like a true leader.",
+	"You feel that your followers will do anything for you.",
+	"You feel as if you are in charge of this level."
 };
 
 
@@ -2273,8 +2686,10 @@ static cptr do_cmd_pet_feeling_text[11] = {
 void do_cmd_feeling(void)
 {
 	/* Verify the feeling */
-	if (feeling < 0) feeling = 0;
-	if (feeling > 10) feeling = 10;
+	if (feeling < 0)
+		feeling = 0;
+	if (feeling > 10)
+		feeling = 10;
 
 	/* No useful feeling in town */
 	if (!p_ptr->depth)
@@ -2285,9 +2700,10 @@ void do_cmd_feeling(void)
 
 	/* Display the feeling */
 	msg_print(do_cmd_feeling_text[feeling]);
-	
-	if (pet_rating) {
-	  msg_print(do_cmd_pet_feeling_text[pet_rating-1]);
+
+	if (pet_rating)
+	{
+		msg_print(do_cmd_pet_feeling_text[pet_rating - 1]);
 	}
 }
 
@@ -2312,93 +2728,106 @@ void do_cmd_load_screen(void)
 
 	FILE *fff;
 
-	char buf[1024];
+	char tmp_val[80], buf[1024];
 
+	int len;
+
+
+	/* Default filename */
+	(void) strcpy(tmp_val, "dump.txt");
+
+	/* Ask for a file */
+	if (!get_string("File: ", tmp_val, 80))
+		return;
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_USER, "dump.txt");
+	path_build(buf, 1024, ANGBAND_DIR_USER, tmp_val);
 
-	/* Append to the file */
+	/* Read the file */
 	fff = my_fopen(buf, "r");
 
 	/* Oops */
-	if (!fff) return;
+	if (!fff)
+		return;
 
-
-	/* Enter "icky" mode */
-	character_icky = TRUE;
-
-	/* Save the screen */
-	Term_save();
+	/* Save screen */
+	screen_save();
 
 	/* Clear the screen */
 	Term_clear();
 
-
 	/* Load the screen */
-	for (y = 0; okay && (y < 24); y++)
+	for (y = 0; okay; y++)
 	{
 		/* Get a line of data */
-		if (my_fgets(fff, buf, 1024)) okay = FALSE;
+		if (my_fgets(fff, buf, 1024))
+			okay = FALSE;
+
+		/* Stop on blank line */
+		if (!buf[0])
+			break;
+
+		/* Get the width */
+		len = strlen(buf);
+
+		/* XXX Restrict to current screen size */
+		if (len >= Term->wid)
+			len = Term->wid;
 
 		/* Show each row */
-		for (x = 0; x < 79; x++)
+		for (x = 0; x < len; x++)
 		{
 			/* Put the attr/char */
 			Term_draw(x, y, TERM_WHITE, buf[x]);
 		}
 	}
 
-	/* Get the blank line */
-	if (my_fgets(fff, buf, 1024)) okay = FALSE;
-
-
 	/* Dump the screen */
-	for (y = 0; okay && (y < 24); y++)
+	for (y = 0; okay; y++)
 	{
 		/* Get a line of data */
-		if (my_fgets(fff, buf, 1024)) okay = FALSE;
+		if (my_fgets(fff, buf, 1024))
+			okay = FALSE;
+
+		/* Stop on blank line */
+		if (!buf[0])
+			break;
+
+		/* Get the width */
+		len = strlen(buf);
+
+		/* XXX Restrict to current screen size */
+		if (len >= Term->wid)
+			len = Term->wid;
 
 		/* Dump each row */
-		for (x = 0; x < 79; x++)
+		for (x = 0; x < len; x++)
 		{
 			/* Get the attr/char */
-			(void)(Term_what(x, y, &a, &c));
+			(void) (Term_what(x, y, &a, &c));
 
 			/* Look up the attr */
 			for (i = 0; i < 16; i++)
 			{
 				/* Use attr matches */
-				if (hack[i] == buf[x]) a = i;
+				if (hack[i] == buf[x])
+					a = i;
 			}
 
 			/* Put the attr/char */
 			Term_draw(x, y, a, c);
 		}
-
-		/* End the row */
-		fprintf(fff, "\n");
 	}
-
-
-	/* Get the blank line */
-	if (my_fgets(fff, buf, 1024)) okay = FALSE;
-
 
 	/* Close it */
 	my_fclose(fff);
-
 
 	/* Message */
 	mprint(MSG_TEMP, "Screen dump loaded.");
 	msg_print(NULL);
 
-
 	/* Restore the screen */
-	Term_load();
-
-	/* Leave "icky" mode */
-	character_icky = FALSE;
+	screen_load();
 }
 
 
@@ -2414,11 +2843,18 @@ void do_cmd_save_screen(void)
 
 	FILE *fff;
 
-	char buf[1024];
+	char tmp_val[80], buf[1024];
 
+
+	/* Ask for a file (or cancel) */
+	(void) strcpy(tmp_val, "dump.txt");
+
+	/* Ask for a file */
+	if (!get_string("File: ", tmp_val, 80))
+		return;
 
 	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_USER, "dump.txt");
+	path_build(buf, 1024, ANGBAND_DIR_USER, tmp_val);
 
 	/* File type is "TEXT" */
 	FILE_TYPE(FILE_TYPE_TEXT);
@@ -2433,24 +2869,20 @@ void do_cmd_save_screen(void)
 	safe_setuid_grab();
 
 	/* Oops */
-	if (!fff) return;
+	if (!fff)
+		return;
 
-
-	/* Enter "icky" mode */
-	character_icky = TRUE;
-
-	/* Save the screen */
-	Term_save();
-
+	/* Save screen */
+	screen_save();
 
 	/* Dump the screen */
-	for (y = 0; y < 24; y++)
+	for (y = 0; y < Term->hgt; y++)
 	{
 		/* Dump each row */
-		for (x = 0; x < 79; x++)
+		for (x = 0; x < Term->wid; x++)
 		{
 			/* Get the attr/char */
-			(void)(Term_what(x, y, &a, &c));
+			(void) (Term_what(x, y, &a, &c));
 
 			/* Dump it */
 			buf[x] = c;
@@ -2466,18 +2898,17 @@ void do_cmd_save_screen(void)
 	/* Skip a line */
 	fprintf(fff, "\n");
 
-
 	/* Dump the screen */
-	for (y = 0; y < 24; y++)
+	for (y = 0; y < Term->hgt; y++)
 	{
 		/* Dump each row */
-		for (x = 0; x < 79; x++)
+		for (x = 0; x < Term->wid; x++)
 		{
 			/* Get the attr/char */
-			(void)(Term_what(x, y, &a, &c));
+			(void) (Term_what(x, y, &a, &c));
 
 			/* Dump it */
-			buf[x] = hack[a&0x0F];
+			buf[x] = hack[a & 0x0F];
 		}
 
 		/* Terminate */
@@ -2490,24 +2921,16 @@ void do_cmd_save_screen(void)
 	/* Skip a line */
 	fprintf(fff, "\n");
 
-
 	/* Close it */
 	my_fclose(fff);
-
 
 	/* Message */
 	mprint(MSG_TEMP, "Screen dump saved.");
 	msg_print(NULL);
 
-
-	/* Restore the screen */
-	Term_load();
-
-	/* Leave "icky" mode */
-	character_icky = FALSE;
+	/* Load screen */
+	screen_load();
 }
-
-
 
 
 /*
@@ -2525,11 +2948,12 @@ static void do_cmd_knowledge_artifacts(void)
 
 	bool okay[MAX_A_IDX];
 
-	object_type* o_ptr;
+	object_type *o_ptr;
 
 
 	/* Temporary file */
-	if (path_temp(file_name, 1024)) return;
+	if (path_temp(file_name, 1024))
+		return;
 
 	/* Open a new file */
 	fff = my_fopen(file_name, "w");
@@ -2543,29 +2967,35 @@ static void do_cmd_knowledge_artifacts(void)
 		okay[k] = FALSE;
 
 		/* Skip "empty" artifacts */
-		if (!a_ptr->name) continue;
+		if (!a_ptr->name)
+			continue;
 
 		/* Skip "uncreated" artifacts */
-		if (!a_ptr->cur_num) continue;
+		if (!a_ptr->cur_num)
+			continue;
 
 		/* Assume okay */
 		okay[k] = TRUE;
 	}
 
 	/* Check the dungeon */
-	for (o_ptr = o_list; o_ptr != NULL; o_ptr = o_ptr->next_global) {
+	for (o_ptr = o_list; o_ptr != NULL; o_ptr = o_ptr->next_global)
+	{
 
-	  /* Ignore random artifacts */
-	  if (o_ptr->tval == TV_RANDART) continue;
-	  
-	  /* Ignore non-artifacts */
-	  if (!artifact_p(o_ptr)) continue;
+		/* Ignore random artifacts */
+		if (o_ptr->tval == TV_RANDART)
+			continue;
 
-	  /* Ignore known items */
-	  if (object_known_p(o_ptr)) continue;
+		/* Ignore non-artifacts */
+		if (!artifact_p(o_ptr))
+			continue;
 
-	  /* Note the artifact */
-	  okay[o_ptr->name1] = FALSE;
+		/* Ignore known items */
+		if (object_known_p(o_ptr))
+			continue;
+
+		/* Note the artifact */
+		okay[o_ptr->name1] = FALSE;
 	}
 
 	/* Scan the artifacts */
@@ -2574,7 +3004,8 @@ static void do_cmd_knowledge_artifacts(void)
 		artifact_type *a_ptr = &a_info[k];
 
 		/* List "dead" ones */
-		if (!okay[k]) continue;
+		if (!okay[k])
+			continue;
 
 		/* Paranoia */
 		strcpy(base_name, "Unknown Artifact");
@@ -2631,13 +3062,14 @@ static void do_cmd_knowledge_uniques(void)
 
 
 	/* Temporary file */
-	if (path_temp(file_name, 1024)) return;
+	if (path_temp(file_name, 1024))
+		return;
 
 	/* Open a new file */
 	fff = my_fopen(file_name, "w");
 
 	/* Scan the monster races */
-	for (k = 1; k < MAX_R_IDX-1; k++)
+	for (k = 1; k < MAX_R_IDX - 1; k++)
 	{
 		monster_race *r_ptr = &r_info[k];
 
@@ -2650,9 +3082,8 @@ static void do_cmd_knowledge_uniques(void)
 			if (dead || cheat_know || r_ptr->r_sights)
 			{
 				/* Print a message */
-				fprintf(fff, "     %s is %s\n",
-				        (r_name + r_ptr->name),
-				        (dead ? "dead" : "alive"));
+				fprintf(fff, "     %s is %s\n", (r_name + r_ptr->name),
+					(dead ? "dead" : "alive"));
 			}
 		}
 	}
@@ -2683,7 +3114,8 @@ static void do_cmd_knowledge_objects(void)
 
 
 	/* Temporary file */
-	if (path_temp(file_name, 1024)) return;
+	if (path_temp(file_name, 1024))
+		return;
 
 	/* Open a new file */
 	fff = my_fopen(file_name, "w");
@@ -2694,7 +3126,8 @@ static void do_cmd_knowledge_objects(void)
 		object_kind *k_ptr = &k_info[k];
 
 		/* Hack -- skip artifacts */
-		if (k_ptr->flags3 & (TR3_INSTA_ART)) continue;
+		if (k_ptr->flags3 & (TR3_INSTA_ART))
+			continue;
 
 		/* List known flavored objects */
 		if (k_ptr->has_flavor && k_ptr->aware)
@@ -2729,65 +3162,71 @@ static void do_cmd_knowledge_objects(void)
 /*
  * Display known recipes.
  */
+static void do_cmd_knowledge_recipes(void)
+{
+	int k, i;
+	long mask;
+	FILE *fff;
+	char o_name[80];
+	char ingr_names[80];
+	char file_name[1024];
+	object_type tmp_obj;
 
-static void do_cmd_knowledge_recipes(void) {
-  int k, i;
-  long mask;
-  FILE* fff;
-  char o_name[80];
-  char ingr_names[80];
-  char file_name[1024];
-  object_type tmp_obj;
+	if (path_temp(file_name, 1024))
+		return;
 
-  if (path_temp(file_name, 1024)) return;
+	fff = my_fopen(file_name, "w");
 
-  fff = my_fopen(file_name, "w");
+	for (k = 0; k < MAX_RECIPES; k++)
+	{
+		/*
+		 * for (i = 0; i < MAX_RECIPES; i++) {
+		 * if (k != i) {
+		 * if (recipe_info[k].ingrs == recipe_info[i].ingrs &&
+		 * recipe_info[k].result_kind != 0) {
+		 * printf("Illegal mismatch: %d vs %d\n", recipe_info[k].result_kind,
+		 * recipe_info[i].result_kind);
+		 * }
+		 * }
+		 * }
+		 */
 
-  ingr_names[0] = '\0';
+		if (recipe_recall[k])
+		{
+			mask = recipe_info[k].ingrs;
 
-  for (k = 0; k < MAX_RECIPES; k++) {
+			if (recipe_recall[k] == 1)
+			{
+				/* Get resulting object description. */
 
-    /*
-      for (i = 0; i < MAX_RECIPES; i++) {
-      if (k != i) {
-      if (recipe_info[k].ingrs == recipe_info[i].ingrs &&
-      recipe_info[k].result_kind != 0) {
-      printf("Illegal mismatch: %d vs %d\n", recipe_info[k].result_kind,
-      recipe_info[i].result_kind);
-      }
-      }
-      }
-    */
+				object_prep(&tmp_obj, recipe_info[k].result_kind);
+				object_desc_store(o_name, &tmp_obj, FALSE, 0);
+			}
+			else
+			{
+				strcpy(o_name, "Something");
+			}
 
-    if (recipe_recall[k]) {
-      mask = recipe_info[k].ingrs;
+			ingr_names[0] = '\0';
 
-      if (recipe_recall[k] == 1) {
-	/* Get resulting object description. */	
+			for (i = 0; i < 16; i++)
+			{
+				if (mask & (1L << i))
+				{
+					strcat(ingr_names, ingr_short_names[i]);
+					strcat(ingr_names, " ");
+				}
+			}
 
-	object_prep(&tmp_obj, recipe_info[k].result_kind);
-	object_desc_store(o_name, &tmp_obj, FALSE, 0);
-      } else {
-	strcpy(o_name, "Something");
-      }
-
-      for (i = 0; i < 16; i++) {
-	if (mask & (1L << i)) {
-	  strcat(ingr_names, ingr_short_names[i]);
-	  strcat(ingr_names, " ");
+			fprintf(fff, "  %s -- %s\n", o_name, ingr_names);
+		}
 	}
-      }
 
-      fprintf(fff, "  %s -- %s\n", o_name, ingr_names);
-      ingr_names[0] = '\0';
-    }
-  }
-  
-  my_fclose(fff);
-  
-  show_file(file_name, "Known Formulae", 0, 0);
+	my_fclose(fff);
 
-  fd_kill(file_name);
+	show_file(file_name, "Known Formulae", 0, 0);
+
+	fd_kill(file_name);
 }
 
 
@@ -2797,34 +3236,40 @@ static void do_cmd_knowledge_recipes(void) {
  * Display your mutations.
  */
 
-static void do_cmd_knowledge_mutations(void) {
-  int i;
-  FILE* fff;
-  char file_name[1024];
+static void do_cmd_knowledge_mutations(void)
+{
+	int i;
+	FILE *fff;
+	char file_name[1024];
 
-  if (path_temp(file_name, 1024)) return;
+	if (path_temp(file_name, 1024))
+		return;
 
-  fff = my_fopen(file_name, "w");
+	fff = my_fopen(file_name, "w");
 
-  for (i = 0; i < 32; i++) {
-    if (p_ptr->mutations1 & (1L << i)) {
-      fprintf(fff, "%s\n", mutation_names[i][0]);
-    }
+	for (i = 0; i < 32; i++)
+	{
+		if (p_ptr->mutations1 & (1L << i))
+		{
+			fprintf(fff, "%s\n", mutation_names[i][0]);
+		}
 
-    if (p_ptr->mutations2 & (1L << i)) {
-      fprintf(fff, "%s\n", mutation_names[i+32][0]);
-    }
+		if (p_ptr->mutations2 & (1L << i))
+		{
+			fprintf(fff, "%s\n", mutation_names[i + 32][0]);
+		}
 
-    if (p_ptr->mutations3 & (1L << i)) {
-      fprintf(fff, "%s\n", mutation_names[i+64][0]);
-    }
-  }
+		if (p_ptr->mutations3 & (1L << i))
+		{
+			fprintf(fff, "%s\n", mutation_names[i + 64][0]);
+		}
+	}
 
-  my_fclose(fff);
-  
-  show_file(file_name, "Your mutations", 0, 0);
+	my_fclose(fff);
 
-  fd_kill(file_name);
+	show_file(file_name, "Your mutations", 0, 0);
+
+	fd_kill(file_name);
 }
 
 
@@ -2832,34 +3277,43 @@ static void do_cmd_knowledge_mutations(void) {
  * Display completed quests.
  */
 
-static void do_cmd_knowledge_quests(void) {
-  int i, q_stat;
-  FILE* fff;
-  char file_name[1024];
+static void do_cmd_knowledge_quests(void)
+{
+	int i, q_stat;
+	FILE *fff;
+	char file_name[1024];
 
-  if (path_temp(file_name, 1024)) return;
+	if (path_temp(file_name, 1024))
+		return;
 
-  fff = my_fopen(file_name, "w");
+	fff = my_fopen(file_name, "w");
 
-  for (i = 0; i < max_quests; i++) {
-    q_stat = quest_status[i];
+	for (i = 0; i < max_quests; i++)
+	{
+		q_stat = quest_status[i];
 
-    if (q_stat == QUEST_COMPLETED) {
-      fprintf(fff, "%30s: Completed\n", v_name + q_v_ptrs[i]->name);
+		if (q_stat == QUEST_COMPLETED)
+		{
+			fprintf(fff, "%30s: Completed\n", v_name + q_v_ptrs[i]->name);
 
-    } else if (q_stat == QUEST_IN_PROGRESS) {
-      fprintf(fff, "%30s: In progress\n", v_name + q_v_ptrs[i]->name);
+		}
+		else if (q_stat == QUEST_IN_PROGRESS)
+		{
+			fprintf(fff, "%30s: In progress\n",
+				v_name + q_v_ptrs[i]->name);
 
-    } else if (q_stat == QUEST_ASSIGNED) {
-      fprintf(fff, "%30s: Assigned\n", v_name + q_v_ptrs[i]->name);
-    }
-  }
+		}
+		else if (q_stat == QUEST_ASSIGNED)
+		{
+			fprintf(fff, "%30s: Assigned\n", v_name + q_v_ptrs[i]->name);
+		}
+	}
 
-  my_fclose(fff);
-  
-  show_file(file_name, "Your completed quests", 0, 0);
+	my_fclose(fff);
 
-  fd_kill(file_name);
+	show_file(file_name, "Your completed quests", 0, 0);
+
+	fd_kill(file_name);
 }
 
 
@@ -2868,54 +3322,64 @@ static void do_cmd_knowledge_quests(void) {
  * Display your spell-list, in a nice tabular form.
  */
 
-static void do_cmd_knowledge_spells(void) {
-  int i;
-  FILE* fff;
-  char file_name[1024];
-  spell* rspell;
+static void do_cmd_knowledge_spells(void)
+{
+	int i;
+	FILE *fff;
+	char file_name[1024];
+	spell *rspell;
 
-  if (path_temp(file_name, 1024)) return;
+	if (path_temp(file_name, 1024))
+		return;
 
-  fff = my_fopen(file_name, "w");
+	fff = my_fopen(file_name, "w");
 
-  for (i = 0; i < spell_num; i++) {
-    rspell = &spells[i];
+	for (i = 0; i < spell_num; i++)
+	{
+		rspell = &spells[i];
 
-    if (rspell->unknown) continue;
+		if (rspell->unknown)
+			continue;
 
-    if (rspell->untried) {
-      fprintf(fff, "%3d) %-30s (Spell Untried)\n", i+1, rspell->name);
+		if (rspell->untried)
+		{
+			fprintf(fff, "%3d) %-30s (Spell Untried)\n", i + 1,
+				rspell->name);
 
-    } else {
-      fprintf(fff, "%3d) %-30s %4d%% %3d (%s)\n", i+1,
-	      rspell->name, spell_chance(rspell), rspell->mana,
-	      rspell->desc);
-    }
-  }
+		}
+		else
+		{
+			fprintf(fff, "%3d) %-30s %4d%% %3d (%s)\n", i + 1,
+				rspell->name, spell_chance(rspell), rspell->mana,
+				rspell->desc);
+		}
+	}
 
-  my_fclose(fff);
-  
-  show_file(file_name, "Your spells", 0, 0);
+	my_fclose(fff);
 
-  fd_kill(file_name);
+	show_file(file_name, "Your spells", 0, 0);
+
+	fd_kill(file_name);
 }
 
-  
+
 
 /*
  * Display your character dump.
  */
 
-static void do_cmd_knowledge_dump(void) {
-  char file_name[1024];
+static void do_cmd_knowledge_dump(void)
+{
+	char file_name[1024];
 
-  if (path_temp(file_name, 1024)) return;
+	if (path_temp(file_name, 1024))
+		return;
 
-  file_character(file_name);
-  
-  show_file(file_name, "Character dump", 0, 0);
+	file_character(file_name);
 
-  fd_kill(file_name);
+	show_file(file_name, "Character dump", 0, 0);
+
+	fd_kill(file_name);
 }
 
 /*
@@ -2930,11 +3394,8 @@ void do_cmd_knowledge(void)
 	FILE_TYPE(FILE_TYPE_TEXT);
 
 
-	/* Enter "icky" mode */
-	character_icky = TRUE;
-
 	/* Save the screen */
-	Term_save();
+	screen_save();
 
 
 	/* Interact until done */
@@ -2963,7 +3424,8 @@ void do_cmd_knowledge(void)
 		i = inkey();
 
 		/* Done */
-		if (i == ESCAPE) break;
+		if (i == ESCAPE)
+			break;
 
 		/* Artifacts */
 		if (i == '1')
@@ -2986,26 +3448,31 @@ void do_cmd_knowledge(void)
 			do_cmd_knowledge_objects();
 		}
 
-		else if (i == '4') {
-		  do_cmd_knowledge_recipes();
+		else if (i == '4')
+		{
+			do_cmd_knowledge_recipes();
 		}
 
-		else if (i == '5') {
-		  do_cmd_knowledge_mutations();
+		else if (i == '5')
+		{
+			do_cmd_knowledge_mutations();
 		}
 
-		else if (i == '6') {
-		  do_cmd_knowledge_quests();
+		else if (i == '6')
+		{
+			do_cmd_knowledge_quests();
 		}
 
-		else if (i == '7') {
-		  do_cmd_knowledge_spells();
+		else if (i == '7')
+		{
+			do_cmd_knowledge_spells();
 		}
 
-		else if (i == '8') {
-		  do_cmd_knowledge_dump();
+		else if (i == '8')
+		{
+			do_cmd_knowledge_dump();
 		}
-		
+
 		/* Unknown option */
 		else
 		{
@@ -3018,10 +3485,23 @@ void do_cmd_knowledge(void)
 
 
 	/* Restore the screen */
-	Term_load();
-
-	/* Leave "icky" mode */
-	character_icky = FALSE;
+	screen_load();
 }
 
+/*
+ * Display the time and date
+ */
+void do_cmd_time(void)
+{
+	s32b len = 10L * TOWN_DAWN;
+	s32b tick = turn % len + len / 4;
 
+	int day = turn / len + 1;
+	int hour = (24 * tick / len) % 24;
+	int min = (1440 * tick / len) % 60;
+
+	/* Message */
+	mformat(MSG_TEMP, "This is day %d. The time is %d:%02d %s.", day,
+		(hour % 12 == 0) ? 12 : (hour % 12), min,
+		(hour < 12) ? "AM" : "PM");
+}

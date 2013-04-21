@@ -31,7 +31,7 @@ int distance(int y1, int x1, int y2, int x2)
 	dx = (x1 > x2) ? (x1 - x2) : (x2 - x1);
 
 	/* Hack -- approximate the distance */
-	d = (dy > dx) ? (dy + (dx>>1)) : (dx + (dy>>1));
+	d = (dy > dx) ? (dy + (dx >> 1)) : (dx + (dy >> 1));
 
 	/* Return the distance */
 	return (d);
@@ -107,7 +107,8 @@ bool los(int y1, int x1, int y2, int x2)
 
 
 	/* Handle adjacent (or identical) grids */
-	if ((ax < 2) && (ay < 2)) return (TRUE);
+	if ((ax < 2) && (ay < 2))
+		return (TRUE);
 
 
 	/* Directly South/North */
@@ -118,7 +119,8 @@ bool los(int y1, int x1, int y2, int x2)
 		{
 			for (ty = y1 + 1; ty < y2; ty++)
 			{
-				if (!cave_floor_bold_los(ty, x1)) return (FALSE);
+				if (!cave_floor_bold_los(ty, x1))
+					return (FALSE);
 			}
 		}
 
@@ -127,7 +129,8 @@ bool los(int y1, int x1, int y2, int x2)
 		{
 			for (ty = y1 - 1; ty > y2; ty--)
 			{
-				if (!cave_floor_bold_los(ty, x1)) return (FALSE);
+				if (!cave_floor_bold_los(ty, x1))
+					return (FALSE);
 			}
 		}
 
@@ -143,7 +146,8 @@ bool los(int y1, int x1, int y2, int x2)
 		{
 			for (tx = x1 + 1; tx < x2; tx++)
 			{
-				if (!cave_floor_bold_los(y1, tx)) return (FALSE);
+				if (!cave_floor_bold_los(y1, tx))
+					return (FALSE);
 			}
 		}
 
@@ -152,7 +156,8 @@ bool los(int y1, int x1, int y2, int x2)
 		{
 			for (tx = x1 - 1; tx > x2; tx--)
 			{
-				if (!cave_floor_bold_los(y1, tx)) return (FALSE);
+				if (!cave_floor_bold_los(y1, tx))
+					return (FALSE);
 			}
 		}
 
@@ -171,7 +176,8 @@ bool los(int y1, int x1, int y2, int x2)
 	{
 		if (ay == 2)
 		{
-			if (cave_floor_bold_los(y1 + sy, x1)) return (TRUE);
+			if (cave_floor_bold_los(y1 + sy, x1))
+				return (TRUE);
 		}
 	}
 
@@ -180,7 +186,8 @@ bool los(int y1, int x1, int y2, int x2)
 	{
 		if (ax == 2)
 		{
-			if (cave_floor_bold_los(y1, x1 + sx)) return (TRUE);
+			if (cave_floor_bold_los(y1, x1 + sx))
+				return (TRUE);
 		}
 	}
 
@@ -216,7 +223,8 @@ bool los(int y1, int x1, int y2, int x2)
 		/* the LOS exactly meets the corner of a tile. */
 		while (x2 - tx)
 		{
-			if (!cave_floor_bold_los(ty, tx)) return (FALSE);
+			if (!cave_floor_bold_los(ty, tx))
+				return (FALSE);
 
 			qy += m;
 
@@ -227,7 +235,8 @@ bool los(int y1, int x1, int y2, int x2)
 			else if (qy > f2)
 			{
 				ty += sy;
-				if (!cave_floor_bold_los(ty, tx)) return (FALSE);
+				if (!cave_floor_bold_los(ty, tx))
+					return (FALSE);
 				qy -= f1;
 				tx += sx;
 			}
@@ -263,7 +272,8 @@ bool los(int y1, int x1, int y2, int x2)
 		/* the LOS exactly meets the corner of a tile. */
 		while (y2 - ty)
 		{
-			if (!cave_floor_bold_los(ty, tx)) return (FALSE);
+			if (!cave_floor_bold_los(ty, tx))
+				return (FALSE);
 
 			qx += m;
 
@@ -274,7 +284,8 @@ bool los(int y1, int x1, int y2, int x2)
 			else if (qx > f2)
 			{
 				tx += sx;
-				if (!cave_floor_bold_los(ty, tx)) return (FALSE);
+				if (!cave_floor_bold_los(ty, tx))
+					return (FALSE);
 				qx -= f1;
 				ty += sy;
 			}
@@ -346,20 +357,24 @@ bool los(int y1, int x1, int y2, int x2)
 bool player_can_see_bold(int y, int x)
 {
 	/* Blind players see nothing */
-	if (p_ptr->blind) return (FALSE);
+	if (p_ptr->blind)
+		return (FALSE);
 
 	/* Note that "torch-lite" yields "illumination" */
-	if (cave_info[y][x] & (CAVE_LITE)) return (TRUE);
+	if (cave_info[y][x] & (CAVE_LITE))
+		return (TRUE);
 
 	/* Require line of sight to the grid */
-	if (!player_has_los_bold(y, x)) return (FALSE);
+	if (!player_has_los_bold(y, x))
+		return (FALSE);
 
 	/* Require "perma-lite" of the grid */
-	if (!(cave_info[y][x] & (CAVE_GLOW))) return (FALSE);
+	if (!(cave_info[y][x] & (CAVE_GLOW)))
+		return (FALSE);
 
 	/* Floors are simple */
 	if (cave_floor_bold_los(y, x))
-	  return (TRUE);
+		return (TRUE);
 
 	/* Walls */
 	if (TRUE)
@@ -373,9 +388,12 @@ bool player_can_see_bold(int y, int x)
 
 #if 0
 		/* Alternative method */
-		if ((cave_floor_bold_los(yy, xx) && (cave_info[yy][xx] & (CAVE_GLOW))) ||
-		    (cave_floor_bold_los(y, xx) && (cave_info[y][xx] & (CAVE_GLOW))) ||
-		    (cave_floor_bold_los(yy, x) && (cave_info[yy][x] & (CAVE_GLOW))))
+		if ((cave_floor_bold_los(yy, xx) &&
+				(cave_info[yy][xx] & (CAVE_GLOW))) ||
+			(cave_floor_bold_los(y, xx) &&
+				(cave_info[y][xx] & (CAVE_GLOW))) ||
+			(cave_floor_bold_los(yy, x) &&
+				(cave_info[yy][x] & (CAVE_GLOW))))
 		{
 			/* Assume the wall is really illuminated */
 			return (TRUE);
@@ -417,17 +435,20 @@ bool no_lite(void)
  */
 bool cave_valid_bold(int y, int x)
 {
-	object_type* o_ptr;
+	object_type *o_ptr;
 
 
 	/* Forbid perma-grids */
-	if (cave_perma_bold(y, x)) return (FALSE);
+	if (cave_perma_bold(y, x))
+		return (FALSE);
 
 	/* Check objects */
-	for (o_ptr = cave_o_idx[y][x]; o_ptr != NULL; o_ptr = o_ptr->next) {
+	for (o_ptr = cave_o_idx[y][x]; o_ptr != NULL; o_ptr = o_ptr->next)
+	{
 
 		/* Forbid artifact grids */
-		if (artifact_p(o_ptr)) return (FALSE);
+		if (artifact_p(o_ptr))
+			return (FALSE);
 	}
 
 	/* Accept */
@@ -443,13 +464,13 @@ bool cave_valid_bold(int y, int x)
 /*
  * Hack -- Legal monster codes
  */
-static cptr image_monster_hack = \
-"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+static cptr image_monster_hack =
+	"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 /*
  * Mega-Hack -- Hallucinatory monster
  */
-static void image_monster(byte *ap, char *cp)
+static void image_monster(byte * ap, char *cp)
 {
 	int n = strlen(image_monster_hack);
 
@@ -464,13 +485,12 @@ static void image_monster(byte *ap, char *cp)
 /*
  * Hack -- Legal object codes
  */
-static cptr image_object_hack = \
-"?/|\\\"!$()_-=[]{},~";
+static cptr image_object_hack = "?/|\\\"!$()_-=[]{},~";
 
 /*
  * Mega-Hack -- Hallucinatory object
  */
-static void image_object(byte *ap, char *cp)
+static void image_object(byte * ap, char *cp)
 {
 	int n = strlen(image_object_hack);
 
@@ -485,7 +505,7 @@ static void image_object(byte *ap, char *cp)
 /*
  * Hack -- Random hallucination
  */
-static void image_random(byte *ap, char *cp)
+static void image_random(byte * ap, char *cp)
 {
 	/* Normally, assume monsters */
 	if (rand_int(100) < 75)
@@ -616,11 +636,11 @@ static void image_random(byte *ap, char *cp)
  * "x_ptr->xxx", is quicker than "x_info[x].xxx", if this is incorrect
  * then a whole lot of code should be changed...  XXX XXX XXX
  */
-void map_info(int y, int x, byte *ap, char *cp)
+void map_info(int y, int x, byte * ap, char *cp)
 {
 	feature_type *f_ptr;
 
-	object_type* o_ptr;
+	object_type *o_ptr;
 
 	int feat;
 
@@ -635,10 +655,10 @@ void map_info(int y, int x, byte *ap, char *cp)
 	{
 		/* Memorized (or visible) floor */
 		if ((cave_info[y][x] & (CAVE_MARK)) ||
-		    (((cave_info[y][x] & (CAVE_LITE)) ||
-		      ((cave_info[y][x] & (CAVE_GLOW)) &&
-		       (cave_info[y][x] & (CAVE_VIEW)))) &&
-		     !p_ptr->blind))
+			(((cave_info[y][x] & (CAVE_LITE)) ||
+					((cave_info[y][x] & (CAVE_GLOW)) &&
+						(cave_info[y][x] & (CAVE_VIEW)))) &&
+				!p_ptr->blind))
 		{
 			/* Access floor */
 			f_ptr = &f_info[feat];
@@ -663,8 +683,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 				else if (cave_info[y][x] & (CAVE_LITE))
 				{
 					/* Torch lite */
-					if (view_yellow_lite && 
-					    a == TERM_WHITE)
+					if (view_yellow_lite && a == TERM_WHITE)
 					{
 						/* Use "yellow" */
 						a = TERM_YELLOW;
@@ -684,13 +703,13 @@ void map_info(int y, int x, byte *ap, char *cp)
 					/* Special flag */
 					if (view_bright_lite)
 					{
-					  if (a == TERM_WHITE)
-					    /* Use "gray" */
-					    a = TERM_SLATE;
+						if (a == TERM_WHITE)
+							/* Use "gray" */
+							a = TERM_SLATE;
 
-					  else
-					    /* Use "dark gray" */
-					    a = TERM_L_DARK;
+						else
+							/* Use "dark gray" */
+							a = TERM_L_DARK;
 					}
 				}
 			}
@@ -732,7 +751,8 @@ void map_info(int y, int x, byte *ap, char *cp)
 			a = f_ptr->z_attr;
 
 			/* Special lighting effects */
-			if (view_granite_lite && (a == TERM_WHITE) && (feat >= FEAT_SECRET))
+			if (view_granite_lite && (a == TERM_WHITE) &&
+				(feat >= FEAT_SECRET))
 			{
 				/* Handle "blind" */
 				if (p_ptr->blind)
@@ -776,8 +796,10 @@ void map_info(int y, int x, byte *ap, char *cp)
 						int px = p_ptr->px;
 
 						/* Hack -- move towards player */
-						int yy = (y < py) ? (y + 1) : (y > py) ? (y - 1) : y;
-						int xx = (x < px) ? (x + 1) : (x > px) ? (x - 1) : x;
+						int yy =
+							(y < py) ? (y + 1) : (y > py) ? (y - 1) : y;
+						int xx =
+							(x < px) ? (x + 1) : (x > px) ? (x - 1) : x;
 
 						/* Check for "local" illumination */
 						if (!(cave_info[yy][xx] & (CAVE_GLOW)))
@@ -808,7 +830,8 @@ void map_info(int y, int x, byte *ap, char *cp)
 	}
 
 	/* Hack -- rare random hallucination, except on outer dungeon walls */
-	if (p_ptr->image && (!rand_int(256)) && (cave_feat[y][x] < FEAT_PERM_SOLID))
+	if (p_ptr->image && (!rand_int(256)) &&
+		(cave_feat[y][x] < FEAT_PERM_SOLID))
 	{
 		/* Hallucinate */
 		image_random(ap, cp);
@@ -816,26 +839,30 @@ void map_info(int y, int x, byte *ap, char *cp)
 
 
 	/* Objects */
-	for (o_ptr = cave_o_idx[y][x]; o_ptr != NULL; o_ptr = o_ptr->next) {
+	for (o_ptr = cave_o_idx[y][x]; o_ptr != NULL; o_ptr = o_ptr->next)
+	{
 
-	  /* Memorized objects */
-	  if (o_ptr->marked) {
-	    
-	    /* Skip ``dead'' objects. */
-	    if (!o_ptr->k_idx) continue;
+		/* Memorized objects */
+		if (o_ptr->marked)
+		{
 
-	    /* Normal char */
-	    (*cp) = object_char(o_ptr);
+			/* Skip ``dead'' objects. */
+			if (!o_ptr->k_idx)
+				continue;
 
-	    /* Normal attr */
-	    (*ap) = object_attr(o_ptr);
+			/* Normal char */
+			(*cp) = object_char(o_ptr);
 
-	    /* Hack -- hallucination */
-	    if (p_ptr->image) image_object(ap, cp);
+			/* Normal attr */
+			(*ap) = object_attr(o_ptr);
 
-	    /* Done */
-	    break;
-	  }
+			/* Hack -- hallucination */
+			if (p_ptr->image)
+				image_object(ap, cp);
+
+			/* Done */
+			break;
+		}
 	}
 
 
@@ -942,9 +969,10 @@ void map_info(int y, int x, byte *ap, char *cp)
 		byte s_att = 0;
 		char s_chr = 0;
 
-		if (p_ptr->shape) {
-		  s_att = shape_info[p_ptr->shape-1].shape_attr;
-		  s_chr = shape_info[p_ptr->shape-1].shape_char;
+		if (p_ptr->shape)
+		{
+			s_att = shape_info[p_ptr->shape - 1].shape_attr;
+			s_chr = shape_info[p_ptr->shape - 1].shape_char;
 		}
 
 		/* Get the "player" attr */
@@ -955,13 +983,18 @@ void map_info(int y, int x, byte *ap, char *cp)
 
 		/* Process special race/shape attributes/chars. */
 
-		if (race_chars) {
-		  if (r_att) (*ap) = r_att;
-		  if (r_chr) (*cp) = r_chr;
+		if (race_chars)
+		{
+			if (r_att)
+				(*ap) = r_att;
+			if (r_chr)
+				(*cp) = r_chr;
 		}
 
-		if (s_att) (*ap) = s_att;
-		if (s_chr) (*cp) = s_chr;
+		if (s_att)
+			(*ap) = s_att;
+		if (s_chr)
+			(*cp) = s_chr;
 
 	}
 }
@@ -977,28 +1010,32 @@ void move_cursor_relative(int y, int x)
 	unsigned vy, vx;
 
 	/* Location relative to panel */
-	ky = (unsigned)(y - p_ptr->wy);
+	ky = (unsigned) (y - p_ptr->wy);
 
 	/* Verify location */
-	if (ky >= (unsigned)(SCREEN_HGT)) return;
+	if (ky >= (unsigned) (SCREEN_HGT))
+		return;
 
 	/* Location relative to panel */
-	kx = (unsigned)(x - p_ptr->wx);
+	kx = (unsigned) (x - p_ptr->wx);
 
 	/* Verify location */
-	if (kx >= (unsigned)(SCREEN_WID)) return;
+	if (kx >= (unsigned) (SCREEN_WID))
+		return;
 
 	/* Location in window */
 	vy = ky + ROW_MAP;
 
 	/* Verify location */
-	if (vy >= (unsigned)(Term->hgt)) return;
+	if (vy >= (unsigned) (Term->hgt))
+		return;
 
 	/* Location in window */
 	vx = kx + COL_MAP;
 
 	/* Verify location */
-	if (vx >= (unsigned)(Term->wid)) return;
+	if (vx >= (unsigned) (Term->wid))
+		return;
 
 	/* Go there */
 	Term_gotoxy(vx, vy);
@@ -1019,28 +1056,32 @@ void print_rel(char c, byte a, int y, int x)
 	unsigned vy, vx;
 
 	/* Location relative to panel */
-	ky = (unsigned)(y - p_ptr->wy);
+	ky = (unsigned) (y - p_ptr->wy);
 
 	/* Verify location */
-	if (ky >= (unsigned)(SCREEN_HGT)) return;
+	if (ky >= (unsigned) (SCREEN_HGT))
+		return;
 
 	/* Location relative to panel */
-	kx = (unsigned)(x - p_ptr->wx);
+	kx = (unsigned) (x - p_ptr->wx);
 
 	/* Verify location */
-	if (kx >= (unsigned)(SCREEN_WID)) return;
+	if (kx >= (unsigned) (SCREEN_WID))
+		return;
 
 	/* Location in window */
 	vy = ky + ROW_MAP;
 
 	/* Verify location */
-	if (vy >= (unsigned)(Term->hgt)) return;
+	if (vy >= (unsigned) (Term->hgt))
+		return;
 
 	/* Location in window */
 	vx = kx + COL_MAP;
 
 	/* Verify location */
-	if (vx >= (unsigned)(Term->wid)) return;
+	if (vx >= (unsigned) (Term->wid))
+		return;
 
 	/* Hack -- Queue it */
 	Term_queue_char(vx, vy, a, c);
@@ -1091,25 +1132,29 @@ void print_rel(char c, byte a, int y, int x)
  */
 void note_spot(int y, int x)
 {
-  object_type* o_ptr;
+	object_type *o_ptr;
 
 
 	/* Blind players see nothing */
-	if (p_ptr->blind) return;
+	if (p_ptr->blind)
+		return;
 
 	/* Analyze non-torch-lit grids */
 	if (!(cave_info[y][x] & (CAVE_LITE)))
 	{
 		/* Require line of sight to the grid */
-		if (!(cave_info[y][x] & (CAVE_VIEW))) return;
+		if (!(cave_info[y][x] & (CAVE_VIEW)))
+			return;
 
 		/* Require "perma-lite" of the grid */
-		if (!(cave_info[y][x] & (CAVE_GLOW))) return;
+		if (!(cave_info[y][x] & (CAVE_GLOW)))
+			return;
 	}
 
 
 	/* Hack -- memorize objects */
-	for (o_ptr = cave_o_idx[y][x]; o_ptr != NULL; o_ptr = o_ptr->next) {
+	for (o_ptr = cave_o_idx[y][x]; o_ptr != NULL; o_ptr = o_ptr->next)
+	{
 		/* Memorize objects */
 		o_ptr->marked = TRUE;
 	}
@@ -1187,28 +1232,32 @@ void lite_spot(int y, int x)
 	unsigned vy, vx;
 
 	/* Location relative to panel */
-	ky = (unsigned)(y - p_ptr->wy);
+	ky = (unsigned) (y - p_ptr->wy);
 
 	/* Verify location */
-	if (ky >= (unsigned)(SCREEN_HGT)) return;
+	if (ky >= (unsigned) (SCREEN_HGT))
+		return;
 
 	/* Location relative to panel */
-	kx = (unsigned)(x - p_ptr->wx);
+	kx = (unsigned) (x - p_ptr->wx);
 
 	/* Verify location */
-	if (kx >= (unsigned)(SCREEN_WID)) return;
+	if (kx >= (unsigned) (SCREEN_WID))
+		return;
 
 	/* Location in window */
 	vy = ky + ROW_MAP;
 
 	/* Verify location */
-	if (vy >= (unsigned)(Term->hgt)) return;
+	if (vy >= (unsigned) (Term->hgt))
+		return;
 
 	/* Location in window */
 	vx = kx + COL_MAP;
 
 	/* Verify location */
-	if (vx >= (unsigned)(Term->wid)) return;
+	if (vx >= (unsigned) (Term->wid))
+		return;
 
 	/* Examine the grid */
 	map_info(y, x, &a, &c);
@@ -1241,8 +1290,10 @@ void prt_map(void)
 	tx = COL_MAP + SCREEN_WID;
 
 	/* Take account of reduced windows */
-	if (ty > Term->hgt) ty = Term->hgt;
-	if (tx > Term->wid) tx = Term->wid;
+	if (ty > Term->hgt)
+		ty = Term->hgt;
+	if (tx > Term->wid)
+		tx = Term->wid;
 
 	/* Dump the map */
 	for (y = p_ptr->wy, vy = ROW_MAP; vy < ty; vy++, y++)
@@ -1268,55 +1319,54 @@ void prt_map(void)
  *
  * Note that all "walls" always look like "secret doors" (see "map_info()").
  */
-static byte priority_table[][2] =
-{
+static byte priority_table[][2] = {
 	/* Dark */
-	{ FEAT_NONE, 2 },
+	{FEAT_NONE, 2},
 
 	/* Floors */
-	{ FEAT_FLOOR, 5 },
+	{FEAT_FLOOR, 5},
 
 	/* Walls */
-	{ FEAT_SECRET, 10 },
+	{FEAT_SECRET, 10},
 
 	/* Quartz */
-	{ FEAT_QUARTZ, 11 },
+	{FEAT_QUARTZ, 11},
 
 	/* Magma */
-	{ FEAT_MAGMA, 12 },
+	{FEAT_MAGMA, 12},
 
 	/* Rubble */
-	{ FEAT_RUBBLE, 13 },
+	{FEAT_RUBBLE, 13},
 
 	/* Open doors */
-	{ FEAT_OPEN, 15 },
-	{ FEAT_BROKEN, 15 },
+	{FEAT_OPEN, 15},
+	{FEAT_BROKEN, 15},
 
 	/* Closed doors */
-	{ FEAT_DOOR_HEAD + 0x00, 17 },
+	{FEAT_DOOR_HEAD + 0x00, 17},
 
 	/* Hidden gold */
-	{ FEAT_QUARTZ_K, 19 },
-	{ FEAT_MAGMA_K, 19 },
+	{FEAT_QUARTZ_K, 19},
+	{FEAT_MAGMA_K, 19},
 
 	/* water, lava, & trees oh my! -KMW- */
-	{ FEAT_DEEP_WATER, 20 },
-	{ FEAT_SHAL_WATER, 20 },
-	{ FEAT_DEEP_LAVA, 20 },
-	{ FEAT_SHAL_LAVA, 20 },
-	{ FEAT_TREES, 20 },
-	{ FEAT_MOUNTAIN, 20 },
+	{FEAT_DEEP_WATER, 20},
+	{FEAT_SHAL_WATER, 20},
+	{FEAT_DEEP_LAVA, 20},
+	{FEAT_SHAL_LAVA, 20},
+	{FEAT_TREES, 20},
+	{FEAT_MOUNTAIN, 20},
 
 	/* Chaos Fog */
-	{ FEAT_CHAOS_FOG, 20 },
-	{ FEAT_FOG,       20 },
+	{FEAT_CHAOS_FOG, 20},
+	{FEAT_FOG, 20},
 
 	/* Stairs */
-	{ FEAT_LESS, 25 },
-	{ FEAT_MORE, 25 },
+	{FEAT_LESS, 25},
+	{FEAT_MORE, 25},
 
 	/* End */
-	{ 0, 0 }
+	{0, 0}
 };
 
 
@@ -1336,7 +1386,8 @@ static byte priority(byte a, char c)
 		p1 = priority_table[i][1];
 
 		/* End of table */
-		if (!p1) break;
+		if (!p1)
+			break;
 
 		/* Feature index */
 		p0 = priority_table[i][0];
@@ -1345,7 +1396,8 @@ static byte priority(byte a, char c)
 		f_ptr = &f_info[p0];
 
 		/* Check character and attribute, accept matches */
-		if ((f_ptr->z_char == c) && (f_ptr->z_attr == a)) return (p1);
+		if ((f_ptr->z_char == c) && (f_ptr->z_attr == a))
+			return (p1);
 	}
 
 	/* Default */
@@ -1364,111 +1416,125 @@ static byte priority(byte a, char c)
  * attempts to optimize this function where possible.
  */
 
-void display_map(int scale) {
-  int map_h = 24;
-  int map_w = 80;
+void display_map(int scale)
+{
+	int map_h = screen_y;
+	int map_w = screen_x;
 
-  int py = p_ptr->py;
-  int px = p_ptr->px;
+	int py = p_ptr->py;
+	int px = p_ptr->px;
 
-  int i, j, x, y;
+	int i, j, x, y;
 
-  byte ta;
-  char tc;
+	byte ta;
+	char tc;
 
-  byte tp;
+	byte tp;
 
-  byte ma[map_h][map_w];
-  char mc[map_h][map_w];
+	byte ma[map_h][map_w];
+	char mc[map_h][map_w];
 
-  byte mp[map_h][map_w];
-  
-  bool old_view_special_lite;
-  bool old_view_granite_lite;
+	byte mp[map_h][map_w];
 
-  int rect_sx = px - scale * map_w / 10;
-  int rect_sy = py - scale * map_h / 10;
-  int rect_ex = px + scale * map_w / 10;
-  int rect_ey = py + scale * map_h / 10;
+	bool old_view_special_lite;
+	bool old_view_granite_lite;
 
-  /* Save lighting effects */
-  old_view_special_lite = view_special_lite;
-  old_view_granite_lite = view_granite_lite;
+	int rect_sx = px - scale * map_w / 10;
+	int rect_sy = py - scale * map_h / 10;
+	int rect_ex = px + scale * map_w / 10;
+	int rect_ey = py + scale * map_h / 10;
 
-  /* Disable lighting effects */
-  view_special_lite = FALSE;
-  view_granite_lite = FALSE;
+	/* Save lighting effects */
+	old_view_special_lite = view_special_lite;
+	old_view_granite_lite = view_granite_lite;
 
-  
-  /* Clear the chars and attributes */
-  for (y = 0; y < map_h; ++y) {
-    for (x = 0; x < map_w; ++x) {
-      /* Nothing here */
-      ma[y][x] = TERM_WHITE;
-      mc[y][x] = ' ';
-	    
-      /* No priority */
-      mp[y][x] = 0;
-    }
-  }
-
-  for (i = rect_sx; i < rect_ex; i++) {
-
-    if (i < 0) continue;
-    if (i >= DUNGEON_WID) break;
-
-    for (j = rect_sy; j < rect_ey; j++) {
-
-      if (j < 0) continue;
-      if (j >= DUNGEON_HGT) break;
+	/* Disable lighting effects */
+	view_special_lite = FALSE;
+	view_granite_lite = FALSE;
 
 
-      x = (i-rect_sx) / (scale/5);
-      y = (j-rect_sy) / (scale/5);
+	/* Clear the chars and attributes */
+	for (y = 0; y < map_h; ++y)
+	{
+		for (x = 0; x < map_w; ++x)
+		{
+			/* Nothing here */
+			ma[y][x] = TERM_WHITE;
+			mc[y][x] = ' ';
 
-      map_info(j, i, &ta, &tc);
-      
-      tp = priority(ta, tc);
-      
-      if (mp[y][x] < tp) {
-	mc[y][x] = tc;
-	ma[y][x] = ta;
-	mp[y][x] = tp;
-      }
-    }
-  }	    
+			/* No priority */
+			mp[y][x] = 0;
+		}
+	}
 
-  /* Corners */
-  x = map_w-1;
-  y = map_h-1;
+	for (i = rect_sx; i < rect_ex; i++)
+	{
 
-  /* Draw the border. */
-  mc[0][0] = mc[0][x] = mc[y][0] = mc[y][x] = '+';
+		if (i < 0)
+			continue;
+		if (i >= DUNGEON_WID)
+			break;
 
-  /* Draw the horizontal edges */
-  for (x = 1; x < map_w-1; x++) mc[0][x] = mc[y][x] = '-';
+		for (j = rect_sy; j < rect_ey; j++)
+		{
 
-  /* Draw the vertical edges */
-  for (y = 1; y < map_h-1; y++) mc[y][0] = mc[y][x] = '|';
+			if (j < 0)
+				continue;
+			if (j >= DUNGEON_HGT)
+				break;
 
-  /* Display each map line in order */
-  for (y = 0; y < map_h; ++y) {
-    /* Start a new line */
-    Term_gotoxy(0, y);
 
-    /* Display the line */
-    for (x = 0; x < map_w; ++x) {
-      ta = ma[y][x];
-      tc = mc[y][x];
+			x = (i - rect_sx) / (scale / 5);
+			y = (j - rect_sy) / (scale / 5);
 
-      /* Add the character */
-      Term_addch(ta, tc);
-    }
-  }
+			map_info(j, i, &ta, &tc);
 
-  /* Restore lighting effects */
-  view_special_lite = old_view_special_lite;
-  view_granite_lite = old_view_granite_lite;
+			tp = priority(ta, tc);
+
+			if (mp[y][x] < tp)
+			{
+				mc[y][x] = tc;
+				ma[y][x] = ta;
+				mp[y][x] = tp;
+			}
+		}
+	}
+
+	/* Corners */
+	x = map_w - 1;
+	y = map_h - 1;
+
+	/* Draw the border. */
+	mc[0][0] = mc[0][x] = mc[y][0] = mc[y][x] = '+';
+
+	/* Draw the horizontal edges */
+	for (x = 1; x < map_w - 1; x++)
+		mc[0][x] = mc[y][x] = '-';
+
+	/* Draw the vertical edges */
+	for (y = 1; y < map_h - 1; y++)
+		mc[y][0] = mc[y][x] = '|';
+
+	/* Display each map line in order */
+	for (y = 0; y < map_h; ++y)
+	{
+		/* Start a new line */
+		Term_gotoxy(0, y);
+
+		/* Display the line */
+		for (x = 0; x < map_w; ++x)
+		{
+			ta = ma[y][x];
+			tc = mc[y][x];
+
+			/* Add the character */
+			Term_addch(ta, tc);
+		}
+	}
+
+	/* Restore lighting effects */
+	view_special_lite = old_view_special_lite;
+	view_granite_lite = old_view_granite_lite;
 }
 
 
@@ -1481,48 +1547,51 @@ void do_cmd_view_map(void)
 {
 	int c, ratio = 30;
 
-	/* Enter "icky" mode */
-	character_icky = TRUE;
-
 	/* Save the screen */
-	Term_save();
+	screen_save();
 
-	while (TRUE) {
-	  /* Flush */
-	  Term_fresh();
+	while (TRUE)
+	{
+		/* Flush */
+		Term_fresh();
 
-	  /* Clear the screen */
-	  Term_clear();
+		/* Clear the screen */
+		Term_clear();
 
-	  /* Display the map */
-	  display_map(ratio);
+		/* Display the map */
+		display_map(ratio);
 
-	  /* Wait for it */
-	  put_str(format("Scale: %d. Press +/- to zoom in/out, ESC to stop.",
-			 ratio), 23, 2);
+		/* Wait for it */
+		put_str_center(format
+			("Scale: %d. Press +/- to zoom in/out, ESC to stop.", ratio),
+			screen_y - 1);
 
-	  /* Get any key */
-	  c = inkey();
+		/* Get any key */
+		c = inkey();
 
-	  if (c == '+' && ratio < 30) {
-	    ratio += 5;
+		if (c == '+' && ratio < 30)
+		{
+			ratio += 5;
 
-	  } else if (c == '-' && ratio > 5) {
-	    ratio -= 5;
+		}
+		else if (c == '-' && ratio > 5)
+		{
+			ratio -= 5;
 
-	  } else if (c == ESCAPE) {
-	    break;
+		}
+		else if (c == ESCAPE)
+		{
+			break;
 
-	  } else {
-	    bell();
-	  }
+		}
+		else
+		{
+			bell();
+		}
 	}
 
 	/* Restore the screen */
-	Term_load();
-
-	/* Leave "icky" mode */
-	character_icky = FALSE;
+	screen_load();
 }
 
 
@@ -1701,7 +1770,8 @@ void forget_lite(void)
 	int i, x, y;
 
 	/* None to forget */
-	if (!lite_n) return;
+	if (!lite_n)
+		return;
 
 	/* Clear them all */
 	for (i = 0; i < lite_n; i++)
@@ -1800,51 +1870,51 @@ void update_lite(void)
 	if (r >= 1)
 	{
 		/* Adjacent grid */
-		cave_lite_hack(py+1, px);
-		cave_lite_hack(py-1, px);
-		cave_lite_hack(py, px+1);
-		cave_lite_hack(py, px-1);
+		cave_lite_hack(py + 1, px);
+		cave_lite_hack(py - 1, px);
+		cave_lite_hack(py, px + 1);
+		cave_lite_hack(py, px - 1);
 
 		/* Diagonal grids */
-		cave_lite_hack(py+1, px+1);
-		cave_lite_hack(py+1, px-1);
-		cave_lite_hack(py-1, px+1);
-		cave_lite_hack(py-1, px-1);
+		cave_lite_hack(py + 1, px + 1);
+		cave_lite_hack(py + 1, px - 1);
+		cave_lite_hack(py - 1, px + 1);
+		cave_lite_hack(py - 1, px - 1);
 	}
 
 	/* Radius 2 -- lantern radius */
 	if (r >= 2)
 	{
 		/* South of the player */
-		if (cave_floor_bold_los(py+1, px))
+		if (cave_floor_bold_los(py + 1, px))
 		{
-			cave_lite_hack(py+2, px);
-			cave_lite_hack(py+2, px+1);
-			cave_lite_hack(py+2, px-1);
+			cave_lite_hack(py + 2, px);
+			cave_lite_hack(py + 2, px + 1);
+			cave_lite_hack(py + 2, px - 1);
 		}
 
 		/* North of the player */
-		if (cave_floor_bold_los(py-1, px))
+		if (cave_floor_bold_los(py - 1, px))
 		{
-			cave_lite_hack(py-2, px);
-			cave_lite_hack(py-2, px+1);
-			cave_lite_hack(py-2, px-1);
+			cave_lite_hack(py - 2, px);
+			cave_lite_hack(py - 2, px + 1);
+			cave_lite_hack(py - 2, px - 1);
 		}
 
 		/* East of the player */
-		if (cave_floor_bold_los(py, px+1))
+		if (cave_floor_bold_los(py, px + 1))
 		{
-			cave_lite_hack(py, px+2);
-			cave_lite_hack(py+1, px+2);
-			cave_lite_hack(py-1, px+2);
+			cave_lite_hack(py, px + 2);
+			cave_lite_hack(py + 1, px + 2);
+			cave_lite_hack(py - 1, px + 2);
 		}
 
 		/* West of the player */
-		if (cave_floor_bold_los(py, px-1))
+		if (cave_floor_bold_los(py, px - 1))
 		{
-			cave_lite_hack(py, px-2);
-			cave_lite_hack(py+1, px-2);
-			cave_lite_hack(py-1, px-2);
+			cave_lite_hack(py, px - 2);
+			cave_lite_hack(py + 1, px - 2);
+			cave_lite_hack(py - 1, px - 2);
 		}
 	}
 
@@ -1854,47 +1924,52 @@ void update_lite(void)
 		int y1, y2, x1, x2;
 
 		/* Paranoia */
-		if (r > 5) r = 5;
+		if (r > 5)
+			r = 5;
 
 		/* South-East of the player */
-		if (cave_floor_bold_los(py+1, px+1))
+		if (cave_floor_bold_los(py + 1, px + 1))
 		{
-			cave_lite_hack(py+2, px+2);
+			cave_lite_hack(py + 2, px + 2);
 		}
 
 		/* South-West of the player */
-		if (cave_floor_bold_los(py+1, px-1))
+		if (cave_floor_bold_los(py + 1, px - 1))
 		{
-			cave_lite_hack(py+2, px-2);
+			cave_lite_hack(py + 2, px - 2);
 		}
 
 		/* North-East of the player */
-		if (cave_floor_bold_los(py-1, px+1))
+		if (cave_floor_bold_los(py - 1, px + 1))
 		{
-			cave_lite_hack(py-2, px+2);
+			cave_lite_hack(py - 2, px + 2);
 		}
 
 		/* North-West of the player */
-		if (cave_floor_bold_los(py-1, px-1))
+		if (cave_floor_bold_los(py - 1, px - 1))
 		{
-			cave_lite_hack(py-2, px-2);
+			cave_lite_hack(py - 2, px - 2);
 		}
 
 		/* Maximal north */
 		y1 = py - r;
-		if (y1 < 0) y1 = 0;
+		if (y1 < 0)
+			y1 = 0;
 
 		/* Maximal south */
 		y2 = py + r;
-		if (y2 > DUNGEON_HGT-1) y2 = DUNGEON_HGT-1;
+		if (y2 > DUNGEON_HGT - 1)
+			y2 = DUNGEON_HGT - 1;
 
 		/* Maximal west */
 		x1 = px - r;
-		if (x1 < 0) x1 = 0;
+		if (x1 < 0)
+			x1 = 0;
 
 		/* Maximal east */
 		x2 = px + r;
-		if (x2 > DUNGEON_WID-1) x2 = DUNGEON_WID-1;
+		if (x2 > DUNGEON_WID - 1)
+			x2 = DUNGEON_WID - 1;
 
 		/* Scan the maximal box */
 		for (y = y1; y <= y2; y++)
@@ -1907,13 +1982,15 @@ void update_lite(void)
 				int dx = (px > x) ? (px - x) : (x - px);
 
 				/* Skip the "central" grids (above) */
-				if ((dy <= 2) && (dx <= 2)) continue;
+				if ((dy <= 2) && (dx <= 2))
+					continue;
 
 				/* Hack -- approximate the distance */
-				d = (dy > dx) ? (dy + (dx>>1)) : (dx + (dy>>1));
+				d = (dy > dx) ? (dy + (dx >> 1)) : (dx + (dy >> 1));
 
 				/* Skip distant grids */
-				if (d > r) continue;
+				if (d > r)
+					continue;
 
 				/* Viewable grids get "torch lit" */
 				if (cave_info[y][x] & (CAVE_VIEW))
@@ -2142,7 +2219,8 @@ void forget_view(void)
 	int i;
 
 	/* None to forget */
-	if (!view_n) return;
+	if (!view_n)
+		return;
 
 	/* Clear them all */
 	for (i = 0; i < view_n; i++)
@@ -2199,7 +2277,8 @@ static bool update_view_aux(int y, int x, int y1, int x1, int y2, int x2)
 	f2 = (cave_floor_bold_los(y2, x2));
 
 	/* Totally blocked by physical walls */
-	if (!f1 && !f2) return (TRUE);
+	if (!f1 && !f2)
+		return (TRUE);
 
 
 	/* Check for visibility */
@@ -2207,7 +2286,8 @@ static bool update_view_aux(int y, int x, int y1, int x1, int y2, int x2)
 	v2 = (f2 && (cave_info[y2][x2] & (CAVE_VIEW)));
 
 	/* Totally blocked by "unviewable neighbors" */
-	if (!v1 && !v2) return (TRUE);
+	if (!v1 && !v2)
+		return (TRUE);
 
 
 	/* Check for walls */
@@ -2370,33 +2450,37 @@ void update_view(void)
 	/* Scan south-east */
 	for (d = 1; d <= z; d++)
 	{
-		cave_info[y+d][x+d] |= (CAVE_XTRA);
-		cave_view_hack(y+d, x+d);
-		if (!cave_floor_bold_los(y+d, x+d)) break;
+		cave_info[y + d][x + d] |= (CAVE_XTRA);
+		cave_view_hack(y + d, x + d);
+		if (!cave_floor_bold_los(y + d, x + d))
+			break;
 	}
 
 	/* Scan south-west */
 	for (d = 1; d <= z; d++)
 	{
-		cave_info[y+d][x-d] |= (CAVE_XTRA);
-		cave_view_hack(y+d, x-d);
-		if (!cave_floor_bold_los(y+d, x-d)) break;
+		cave_info[y + d][x - d] |= (CAVE_XTRA);
+		cave_view_hack(y + d, x - d);
+		if (!cave_floor_bold_los(y + d, x - d))
+			break;
 	}
 
 	/* Scan north-east */
 	for (d = 1; d <= z; d++)
 	{
-		cave_info[y-d][x+d] |= (CAVE_XTRA);
-		cave_view_hack(y-d, x+d);
-		if (!cave_floor_bold_los(y-d, x+d)) break;
+		cave_info[y - d][x + d] |= (CAVE_XTRA);
+		cave_view_hack(y - d, x + d);
+		if (!cave_floor_bold_los(y - d, x + d))
+			break;
 	}
 
 	/* Scan north-west */
 	for (d = 1; d <= z; d++)
 	{
-		cave_info[y-d][x-d] |= (CAVE_XTRA);
-		cave_view_hack(y-d, x-d);
-		if (!cave_floor_bold_los(y-d, x-d)) break;
+		cave_info[y - d][x - d] |= (CAVE_XTRA);
+		cave_view_hack(y - d, x - d);
+		if (!cave_floor_bold_los(y - d, x - d))
+			break;
 	}
 
 
@@ -2405,9 +2489,10 @@ void update_view(void)
 	/* Scan south */
 	for (d = 1; d <= full; d++)
 	{
-		cave_info[y+d][x] |= (CAVE_XTRA);
-		cave_view_hack(y+d, x);
-		if (!cave_floor_bold_los(y+d, x)) break;
+		cave_info[y + d][x] |= (CAVE_XTRA);
+		cave_view_hack(y + d, x);
+		if (!cave_floor_bold_los(y + d, x))
+			break;
 	}
 
 	/* Initialize the "south strips" */
@@ -2416,9 +2501,10 @@ void update_view(void)
 	/* Scan north */
 	for (d = 1; d <= full; d++)
 	{
-		cave_info[y-d][x] |= (CAVE_XTRA);
-		cave_view_hack(y-d, x);
-		if (!cave_floor_bold_los(y-d, x)) break;
+		cave_info[y - d][x] |= (CAVE_XTRA);
+		cave_view_hack(y - d, x);
+		if (!cave_floor_bold_los(y - d, x))
+			break;
 	}
 
 	/* Initialize the "north strips" */
@@ -2427,9 +2513,10 @@ void update_view(void)
 	/* Scan east */
 	for (d = 1; d <= full; d++)
 	{
-		cave_info[y][x+d] |= (CAVE_XTRA);
-		cave_view_hack(y, x+d);
-		if (!cave_floor_bold_los(y, x+d)) break;
+		cave_info[y][x + d] |= (CAVE_XTRA);
+		cave_view_hack(y, x + d);
+		if (!cave_floor_bold_los(y, x + d))
+			break;
 	}
 
 	/* Initialize the "east strips" */
@@ -2438,9 +2525,10 @@ void update_view(void)
 	/* Scan west */
 	for (d = 1; d <= full; d++)
 	{
-		cave_info[y][x-d] |= (CAVE_XTRA);
-		cave_view_hack(y, x-d);
-		if (!cave_floor_bold_los(y, x-d)) break;
+		cave_info[y][x - d] |= (CAVE_XTRA);
+		cave_view_hack(y, x - d);
+		if (!cave_floor_bold_los(y, x - d))
+			break;
 	}
 
 	/* Initialize the "west strips" */
@@ -2458,8 +2546,10 @@ void update_view(void)
 
 		/* Acquire the "bounds" of the maximal circle */
 		z = over - n - n;
-		if (z > full - n) z = full - n;
-		while ((z + n + (n>>1)) > full) z--;
+		if (z > full - n)
+			z = full - n;
+		while ((z + n + (n >> 1)) > full)
+			z--;
 
 
 		/* Access the four diagonal grids */
@@ -2479,12 +2569,14 @@ void update_view(void)
 			if (n < se)
 			{
 				/* Scan */
-				for (k = n, ypnpd = ypn+1, d = 1; d <= m; d++, ypnpd++)
+				for (k = n, ypnpd = ypn + 1, d = 1; d <= m; d++, ypnpd++)
 				{
 					/* Check grid "d" in strip "n", notice "blockage" */
-					if (update_view_aux(ypnpd, xpn, ypnpd-1, xpn-1, ypnpd-1, xpn))
+					if (update_view_aux(ypnpd, xpn, ypnpd - 1, xpn - 1,
+							ypnpd - 1, xpn))
 					{
-						if (n + d >= se) break;
+						if (n + d >= se)
+							break;
 					}
 
 					/* Track most distant "non-blockage" */
@@ -2502,12 +2594,14 @@ void update_view(void)
 			if (n < sw)
 			{
 				/* Scan */
-				for (k = n, ypnpd = ypn+1, d = 1; d <= m; d++, ypnpd++)
+				for (k = n, ypnpd = ypn + 1, d = 1; d <= m; d++, ypnpd++)
 				{
 					/* Check grid "d" in strip "n", notice "blockage" */
-					if (update_view_aux(ypnpd, xmn, ypnpd-1, xmn+1, ypnpd-1, xmn))
+					if (update_view_aux(ypnpd, xmn, ypnpd - 1, xmn + 1,
+							ypnpd - 1, xmn))
 					{
-						if (n + d >= sw) break;
+						if (n + d >= sw)
+							break;
 					}
 
 					/* Track most distant "non-blockage" */
@@ -2533,12 +2627,14 @@ void update_view(void)
 			if (n < ne)
 			{
 				/* Scan */
-				for (k = n, ymnmd = ymn-1, d = 1; d <= m; d++, ymnmd--)
+				for (k = n, ymnmd = ymn - 1, d = 1; d <= m; d++, ymnmd--)
 				{
 					/* Check grid "d" in strip "n", notice "blockage" */
-					if (update_view_aux(ymnmd, xpn, ymnmd+1, xpn-1, ymnmd+1, xpn))
+					if (update_view_aux(ymnmd, xpn, ymnmd + 1, xpn - 1,
+							ymnmd + 1, xpn))
 					{
-						if (n + d >= ne) break;
+						if (n + d >= ne)
+							break;
 					}
 
 					/* Track most distant "non-blockage" */
@@ -2556,12 +2652,14 @@ void update_view(void)
 			if (n < nw)
 			{
 				/* Scan */
-				for (k = n, ymnmd = ymn-1, d = 1; d <= m; d++, ymnmd--)
+				for (k = n, ymnmd = ymn - 1, d = 1; d <= m; d++, ymnmd--)
 				{
 					/* Check grid "d" in strip "n", notice "blockage" */
-					if (update_view_aux(ymnmd, xmn, ymnmd+1, xmn+1, ymnmd+1, xmn))
+					if (update_view_aux(ymnmd, xmn, ymnmd + 1, xmn + 1,
+							ymnmd + 1, xmn))
 					{
-						if (n + d >= nw) break;
+						if (n + d >= nw)
+							break;
 					}
 
 					/* Track most distant "non-blockage" */
@@ -2587,12 +2685,14 @@ void update_view(void)
 			if (n < es)
 			{
 				/* Scan */
-				for (k = n, xpnpd = xpn+1, d = 1; d <= m; d++, xpnpd++)
+				for (k = n, xpnpd = xpn + 1, d = 1; d <= m; d++, xpnpd++)
 				{
 					/* Check grid "d" in strip "n", notice "blockage" */
-					if (update_view_aux(ypn, xpnpd, ypn-1, xpnpd-1, ypn, xpnpd-1))
+					if (update_view_aux(ypn, xpnpd, ypn - 1, xpnpd - 1,
+							ypn, xpnpd - 1))
 					{
-						if (n + d >= es) break;
+						if (n + d >= es)
+							break;
 					}
 
 					/* Track most distant "non-blockage" */
@@ -2610,12 +2710,14 @@ void update_view(void)
 			if (n < en)
 			{
 				/* Scan */
-				for (k = n, xpnpd = xpn+1, d = 1; d <= m; d++, xpnpd++)
+				for (k = n, xpnpd = xpn + 1, d = 1; d <= m; d++, xpnpd++)
 				{
 					/* Check grid "d" in strip "n", notice "blockage" */
-					if (update_view_aux(ymn, xpnpd, ymn+1, xpnpd-1, ymn, xpnpd-1))
+					if (update_view_aux(ymn, xpnpd, ymn + 1, xpnpd - 1,
+							ymn, xpnpd - 1))
 					{
-						if (n + d >= en) break;
+						if (n + d >= en)
+							break;
 					}
 
 					/* Track most distant "non-blockage" */
@@ -2641,12 +2743,14 @@ void update_view(void)
 			if (n < ws)
 			{
 				/* Scan */
-				for (k = n, xmnmd = xmn-1, d = 1; d <= m; d++, xmnmd--)
+				for (k = n, xmnmd = xmn - 1, d = 1; d <= m; d++, xmnmd--)
 				{
 					/* Check grid "d" in strip "n", notice "blockage" */
-					if (update_view_aux(ypn, xmnmd, ypn-1, xmnmd+1, ypn, xmnmd+1))
+					if (update_view_aux(ypn, xmnmd, ypn - 1, xmnmd + 1,
+							ypn, xmnmd + 1))
 					{
-						if (n + d >= ws) break;
+						if (n + d >= ws)
+							break;
 					}
 
 					/* Track most distant "non-blockage" */
@@ -2664,12 +2768,14 @@ void update_view(void)
 			if (n < wn)
 			{
 				/* Scan */
-				for (k = n, xmnmd = xmn-1, d = 1; d <= m; d++, xmnmd--)
+				for (k = n, xmnmd = xmn - 1, d = 1; d <= m; d++, xmnmd--)
 				{
 					/* Check grid "d" in strip "n", notice "blockage" */
-					if (update_view_aux(ymn, xmnmd, ymn+1, xmnmd+1, ymn, xmnmd+1))
+					if (update_view_aux(ymn, xmnmd, ymn + 1, xmnmd + 1,
+							ymn, xmnmd + 1))
 					{
-						if (n + d >= wn) break;
+						if (n + d >= wn)
+							break;
 					}
 
 					/* Track most distant "non-blockage" */
@@ -2709,7 +2815,7 @@ void update_view(void)
 
 		/* Update/Redraw all perma-lit wall grids */
 		else if ((cave_info[y][x] & (CAVE_GLOW)) &&
-		         !cave_floor_bold_los(y, x))
+			!cave_floor_bold_los(y, x))
 		{
 			/* Note */
 			note_spot(y, x);
@@ -2780,7 +2886,8 @@ void forget_flow(void)
 	int x, y;
 
 	/* Nothing to forget */
-	if (!flow_n) return;
+	if (!flow_n)
+		return;
 
 	/* Check the entire dungeon */
 	for (y = 0; y < DUNGEON_HGT; y++)
@@ -2819,10 +2926,12 @@ static void update_flow_aux(int y, int x, int n)
 
 
 	/* Ignore "pre-stamped" entries */
-	if (cave_when[y][x] == flow_n) return;
+	if (cave_when[y][x] == flow_n)
+		return;
 
 	/* Ignore "walls" and "rubble" */
-	if (cave_feat[y][x] >= FEAT_RUBBLE) return;
+	if (cave_feat[y][x] >= FEAT_RUBBLE)
+		return;
 
 	/* Save the time-stamp */
 	cave_when[y][x] = flow_n;
@@ -2831,17 +2940,20 @@ static void update_flow_aux(int y, int x, int n)
 	cave_cost[y][x] = n;
 
 	/* Hack -- limit flow depth */
-	if (n == MONSTER_FLOW_DEPTH) return;
+	if (n == MONSTER_FLOW_DEPTH)
+		return;
 
 	/* Enqueue that entry */
 	temp_y[flow_head] = y;
 	temp_x[flow_head] = x;
 
 	/* Advance the queue */
-	if (++flow_head == TEMP_MAX) flow_head = 0;
+	if (++flow_head == TEMP_MAX)
+		flow_head = 0;
 
 	/* Hack -- notice overflow by forgetting new entry */
-	if (flow_head == flow_tail) flow_head = old_head;
+	if (flow_head == flow_tail)
+		flow_head = old_head;
 }
 
 #endif
@@ -2871,10 +2983,12 @@ void update_flow(void)
 	int x, y, d;
 
 	/* Hack -- disabled */
-	if (!flow_by_sound) return;
+	if (!flow_by_sound)
+		return;
 
 	/* Paranoia -- make sure the array is empty */
-	if (temp_n) return;
+	if (temp_n)
+		return;
 
 	/* Cycle the old entries (once per 128 updates) */
 	if (flow_n == 255)
@@ -2912,13 +3026,15 @@ void update_flow(void)
 		x = temp_x[flow_tail];
 
 		/* Forget that entry */
-		if (++flow_tail == TEMP_MAX) flow_tail = 0;
+		if (++flow_tail == TEMP_MAX)
+			flow_tail = 0;
 
 		/* Add the "children" */
 		for (d = 0; d < 8; d++)
 		{
 			/* Add that child if "legal" */
-			update_flow_aux(y+ddy_ddd[d], x+ddx_ddd[d], cave_cost[y][x]+1);
+			update_flow_aux(y + ddy_ddd[d], x + ddx_ddd[d],
+				cave_cost[y][x] + 1);
 		}
 	}
 
@@ -2948,15 +3064,19 @@ void map_area(void)
 
 	/* Pick an area to map */
 	y1 = p_ptr->wy - randint(10);
-	y2 = p_ptr->wy+SCREEN_HGT + randint(10);
+	y2 = p_ptr->wy + SCREEN_HGT + randint(10);
 	x1 = p_ptr->wx - randint(20);
-	x2 = p_ptr->wx+SCREEN_WID + randint(20);
+	x2 = p_ptr->wx + SCREEN_WID + randint(20);
 
 	/* Efficiency -- shrink to fit legal bounds */
-	if (y1 < 1) y1 = 1;
-	if (y2 > DUNGEON_HGT-1) y2 = DUNGEON_HGT-1;
-	if (x1 < 1) x1 = 1;
-	if (x2 > DUNGEON_WID-1) x2 = DUNGEON_WID-1;
+	if (y1 < 1)
+		y1 = 1;
+	if (y2 > DUNGEON_HGT - 1)
+		y2 = DUNGEON_HGT - 1;
+	if (x1 < 1)
+		x1 = 1;
+	if (x2 > DUNGEON_WID - 1)
+		x2 = DUNGEON_WID - 1;
 
 	/* Scan that area */
 	for (y = y1; y < y2; y++)
@@ -3019,25 +3139,28 @@ void wiz_lite(void)
 {
 	int i, y, x;
 
-	object_type* o_ptr;
+	object_type *o_ptr;
 
 	/* Memorize objects */
-	for (o_ptr = o_list; o_ptr != NULL; o_ptr = o_ptr->next_global) {
+	for (o_ptr = o_list; o_ptr != NULL; o_ptr = o_ptr->next_global)
+	{
 		/* Skip dead objects */
-		if (!o_ptr->k_idx) continue;
+		if (!o_ptr->k_idx)
+			continue;
 
 		/* Skip held objects */
-		if (o_ptr->stack != STACK_FLOOR) continue;
+		if (o_ptr->stack != STACK_FLOOR)
+			continue;
 
 		/* Memorize */
 		o_ptr->marked = TRUE;
 	}
 
 	/* Scan all normal grids */
-	for (y = 1; y < DUNGEON_HGT-1; y++)
+	for (y = 1; y < DUNGEON_HGT - 1; y++)
 	{
 		/* Scan all normal grids */
-		for (x = 1; x < DUNGEON_WID-1; x++)
+		for (x = 1; x < DUNGEON_WID - 1; x++)
 		{
 			/* Process all non-walls */
 			if (cave_feat[y][x] < FEAT_SECRET)
@@ -3084,7 +3207,7 @@ void wiz_dark(void)
 {
 	int y, x;
 
-	object_type* o_ptr;
+	object_type *o_ptr;
 
 	/* Forget every grid */
 	for (y = 0; y < DUNGEON_HGT; y++)
@@ -3097,13 +3220,16 @@ void wiz_dark(void)
 	}
 
 	/* Forget all objects */
-	for (o_ptr = o_list; o_ptr != NULL; o_ptr = o_ptr->next_global) {
+	for (o_ptr = o_list; o_ptr != NULL; o_ptr = o_ptr->next_global)
+	{
 
 		/* Skip dead objects */
-		if (!o_ptr->k_idx) continue;
+		if (!o_ptr->k_idx)
+			continue;
 
 		/* Skip held objects */
-		if (o_ptr->stack != STACK_FLOOR) continue;
+		if (o_ptr->stack != STACK_FLOOR)
+			continue;
 
 		/* Forget the object */
 		o_ptr->marked = FALSE;
@@ -3170,7 +3296,8 @@ void mmove2(int *y, int *x, int y1, int x1, int y2, int x2)
 	dx = (x2 < x1) ? (x1 - x2) : (x2 - x1);
 
 	/* Paranoia -- Hack -- no motion */
-	if (!dy && !dx) return;
+	if (!dy && !dx)
+		return;
 
 
 	/* Move mostly vertically */
@@ -3187,12 +3314,14 @@ void mmove2(int *y, int *x, int y1, int x1, int y2, int x2)
 		/* Extract a shift factor */
 		for (k = 0; k < dist; k++)
 		{
-			if (shift <= 0) shift += dy;
+			if (shift <= 0)
+				shift += dy;
 			shift -= dx;
 		}
 
 		/* Sometimes move along minor axis */
-		if (shift <= 0) (*x) = (x2 < x1) ? (*x - 1) : (*x + 1);
+		if (shift <= 0)
+			(*x) = (x2 < x1) ? (*x - 1) : (*x + 1);
 
 		/* Always move along major axis */
 		(*y) = (y2 < y1) ? (*y - 1) : (*y + 1);
@@ -3200,7 +3329,7 @@ void mmove2(int *y, int *x, int y1, int x1, int y2, int x2)
 #endif
 
 		/* Extract a shift factor */
-		shift = (dist * dx + (dy-1) / 2) / dy;
+		shift = (dist * dx + (dy - 1) / 2) / dy;
 
 		/* Sometimes move along the minor axis */
 		(*x) = (x2 < x1) ? (x1 - shift) : (x1 + shift);
@@ -3223,12 +3352,14 @@ void mmove2(int *y, int *x, int y1, int x1, int y2, int x2)
 		/* Extract a shift factor */
 		for (k = 0; k < dist; k++)
 		{
-			if (shift <= 0) shift += dx;
+			if (shift <= 0)
+				shift += dx;
 			shift -= dy;
 		}
 
 		/* Sometimes move along minor axis */
-		if (shift <= 0) (*y) = (y2 < y1) ? (*y - 1) : (*y + 1);
+		if (shift <= 0)
+			(*y) = (y2 < y1) ? (*y - 1) : (*y + 1);
 
 		/* Always move along major axis */
 		(*x) = (x2 < x1) ? (*x - 1) : (*x + 1);
@@ -3236,7 +3367,7 @@ void mmove2(int *y, int *x, int y1, int x1, int y2, int x2)
 #endif
 
 		/* Extract a shift factor */
-		shift = (dist * dy + (dx-1) / 2) / dx;
+		shift = (dist * dy + (dx - 1) / 2) / dx;
 
 		/* Sometimes move along the minor axis */
 		(*y) = (y2 < y1) ? (y1 - shift) : (y1 + shift);
@@ -3264,10 +3395,12 @@ bool projectable(int y1, int x1, int y2, int x2)
 	for (dist = 0; dist <= MAX_RANGE; dist++)
 	{
 		/* Never pass through walls */
-		if (dist && !cave_floor_bold(y, x)) break;
+		if (dist && !cave_floor_bold(y, x))
+			break;
 
 		/* Check for arrival at "final target" */
-		if ((x == x2) && (y == y2)) return (TRUE);
+		if ((x == x2) && (y == y2))
+			return (TRUE);
 
 		/* Calculate the new location */
 		mmove2(&y, &x, y1, x1, y2, x2);
@@ -3284,34 +3417,39 @@ bool projectable(int y1, int x1, int y2, int x2)
  * of a certain pet status are harmed.
  */
 
-bool target_clear(monster_type* m_ptr, int y2, int x2) {
-  int dist, y, x;
-  int y1 = m_ptr->fy;
-  int x1 = m_ptr->fx;
+bool target_clear(monster_type * m_ptr, int y2, int x2)
+{
+	int dist, y, x;
+	int y1 = m_ptr->fy;
+	int x1 = m_ptr->fx;
 
-  /* Start at the initial location */
-  y = y1, x = x1;
+	/* Start at the initial location */
+	y = y1, x = x1;
 
-  /* See "project()" */
-  for (dist = 0; dist <= MAX_RANGE; dist++) {
-    /* Never pass through walls */
-    if (dist && !cave_floor_bold(y, x)) break;
+	/* See "project()" */
+	for (dist = 0; dist <= MAX_RANGE; dist++)
+	{
+		/* Never pass through walls */
+		if (dist && !cave_floor_bold(y, x))
+			break;
 
-    /* Monster in the way */
-    if ((x != x1 || y != y1) && cave_m_idx[y][x] > 0 &&
-	m_list[cave_m_idx[y][x]].is_pet == m_ptr->is_pet) {
-      break;
-    }
+		/* Monster in the way */
+		if ((x != x1 || y != y1) && cave_m_idx[y][x] > 0 &&
+			m_list[cave_m_idx[y][x]].is_pet == m_ptr->is_pet)
+		{
+			break;
+		}
 
-    /* Check for arrival at "final target" */
-    if ((x == x2) && (y == y2)) return (TRUE);
+		/* Check for arrival at "final target" */
+		if ((x == x2) && (y == y2))
+			return (TRUE);
 
-    /* Calculate the new location */
-    mmove2(&y, &x, y1, x1, y2, x2);
-  }
+		/* Calculate the new location */
+		mmove2(&y, &x, y1, x1, y2, x2);
+	}
 
-  /* Assume obstruction */
-  return (FALSE);
+	/* Assume obstruction */
+	return (FALSE);
 }
 
 
@@ -3342,13 +3480,16 @@ void scatter(int *yp, int *xp, int y, int x, int d, int m)
 		nx = rand_spread(x, d);
 
 		/* Ignore annoying locations */
-		if (!in_bounds_fully(ny, nx)) continue;
+		if (!in_bounds_fully(ny, nx))
+			continue;
 
 		/* Ignore "excessively distant" locations */
-		if ((d > 1) && (distance(y, x, ny, nx) > d)) continue;
+		if ((d > 1) && (distance(y, x, ny, nx) > d))
+			continue;
 
 		/* Require "line of sight" */
-		if (los(y, x, ny, nx)) break;
+		if (los(y, x, ny, nx))
+			break;
 	}
 
 	/* Save the location */
@@ -3437,7 +3578,7 @@ void disturb(int stop_search, int unused_flag)
 		/* Redraw the state (later) */
 		p_ptr->redraw |= (PR_STATE);
 
-		mformat(MSG_TEMP, "%d turns have passed.", 
+		mformat(MSG_TEMP, "%d turns have passed.",
 			(turn - old_resting_turn) / 10);
 	}
 
@@ -3446,6 +3587,10 @@ void disturb(int stop_search, int unused_flag)
 	{
 		/* Cancel */
 		p_ptr->running = 0;
+
+		/* Recenter the panel when running stops */
+		if (center_player && !center_running)
+			verify_panel();
 
 		/* Calculate torch radius */
 		p_ptr->update |= (PU_TORCH);
@@ -3465,6 +3610,6 @@ void disturb(int stop_search, int unused_flag)
 	}
 
 	/* Flush the input if requested */
-	if (flush_disturb) flush();
+	if (flush_disturb)
+		flush();
 }
-

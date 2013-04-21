@@ -1,0 +1,17 @@
+PseudoGraphics
+==============
+
+Don't bother reading this if your aren't using the Win32 version.
+
+The Windows version has always allowed you to use simple graphics for
+walls and magma/quartz streams. Version 1.8b removed default support
+for this so that you can use any font installed on your computer.
+
+If you are using one of the lib\xtra\font files, and not a font installed
+on your computer, you can restore the pseudo-graphics by renaming the
+lib\user\font-win-pseudo.prf file to font-win.prf.
+
+-- Tim Baker
+dbaker@direct.ca
+March 1, 1999
+

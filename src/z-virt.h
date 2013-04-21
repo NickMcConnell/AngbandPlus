@@ -140,13 +140,13 @@
 /**** Available variables ****/
 
 /* Replacement hook for "rnfree()" */
-extern vptr (*rnfree_aux)(vptr, huge);
+extern vptr(*rnfree_aux) (vptr, huge);
 
 /* Replacement hook for "rpanic()" */
-extern vptr (*rpanic_aux)(huge);
+extern vptr(*rpanic_aux) (huge);
 
 /* Replacement hook for "ralloc()" */
-extern vptr (*ralloc_aux)(huge);
+extern vptr(*ralloc_aux) (huge);
 
 
 /**** Available functions ****/
@@ -170,6 +170,3 @@ extern errr string_free(cptr str);
 
 
 #endif
-
-
-

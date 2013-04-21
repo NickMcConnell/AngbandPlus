@@ -14,22 +14,22 @@
 /*
  * Local "savefile" pointer
  */
-static FILE	*fff;
+static FILE *fff;
 
 /*
  * Hack -- old "encryption" byte
  */
-static byte	xor_byte;
+static byte xor_byte;
 
 /*
  * Hack -- simple "checksum" on the actual values
  */
-static u32b	v_check = 0L;
+static u32b v_check = 0L;
 
 /*
  * Hack -- simple "checksum" on the encoded bytes
  */
-static u32b	x_check = 0L;
+static u32b x_check = 0L;
 
 
 
@@ -47,7 +47,8 @@ static void note(cptr msg)
 	prt(msg, y, 0);
 
 	/* Advance one line (wrap if needed) */
-	if (++y >= 24) y = 2;
+	if (++y >= screen_y)
+		y = 2;
 
 	/* Flush it */
 	Term_fresh();
@@ -77,33 +78,33 @@ static byte sf_get(void)
 	return (v);
 }
 
-static void rd_byte(byte *ip)
+static void rd_byte(byte * ip)
 {
 	*ip = sf_get();
 }
 
-static void rd_u16b(u16b *ip)
+static void rd_u16b(u16b * ip)
 {
 	(*ip) = sf_get();
-	(*ip) |= ((u16b)(sf_get()) << 8);
+	(*ip) |= ((u16b) (sf_get()) << 8);
 }
 
-static void rd_s16b(s16b *ip)
+static void rd_s16b(s16b * ip)
 {
-	rd_u16b((u16b*)ip);
+	rd_u16b((u16b *) ip);
 }
 
-static void rd_u32b(u32b *ip)
+static void rd_u32b(u32b * ip)
 {
 	(*ip) = sf_get();
-	(*ip) |= ((u32b)(sf_get()) << 8);
-	(*ip) |= ((u32b)(sf_get()) << 16);
-	(*ip) |= ((u32b)(sf_get()) << 24);
+	(*ip) |= ((u32b) (sf_get()) << 8);
+	(*ip) |= ((u32b) (sf_get()) << 16);
+	(*ip) |= ((u32b) (sf_get()) << 24);
 }
 
-static void rd_s32b(s32b *ip)
+static void rd_s32b(s32b * ip)
 {
-	rd_u32b((u32b*)ip);
+	rd_u32b((u32b *) ip);
 }
 
 
@@ -123,14 +124,16 @@ static void rd_string(char *str, int max)
 		rd_byte(&tmp8u);
 
 		/* Collect string while legal */
-		if (i < max) str[i] = tmp8u;
+		if (i < max)
+			str[i] = tmp8u;
 
 		/* End of string */
-		if (!tmp8u) break;
+		if (!tmp8u)
+			break;
 	}
 
 	/* Terminate */
-	str[max-1] = '\0';
+	str[max - 1] = '\0';
 }
 
 
@@ -142,14 +145,15 @@ static void strip_bytes(int n)
 	byte tmp8u;
 
 	/* Strip the bytes */
-	while (n--) rd_byte(&tmp8u);
+	while (n--)
+		rd_byte(&tmp8u);
 }
 
 
 /*
  * Read an object
  */
-static object_type* rd_item_aux(bool store)
+static object_type *rd_item_aux(bool store)
 {
 	u32b f1, f2, f3;
 	s16b kind;
@@ -158,19 +162,23 @@ static object_type* rd_item_aux(bool store)
 
 	char buf[128];
 
-	object_type* o_ptr;
+	object_type *o_ptr;
 
 
 	/* Kind */
 	rd_s16b(&kind);
 
 	/* No object here. */
-	if (kind == 0) return NULL;
+	if (kind == 0)
+		return NULL;
 
-	if (store) {
-	  MAKE(o_ptr, object_type);
-	} else {
-	  o_ptr = new_object();
+	if (store)
+	{
+		MAKE(o_ptr, object_type);
+	}
+	else
+	{
+		o_ptr = new_object();
 	}
 
 	o_ptr->k_idx = kind;
@@ -207,7 +215,7 @@ static object_type* rd_item_aux(bool store)
 	rd_byte(&o_ptr->ds);
 
 	rd_byte(&o_ptr->ident);
-	
+
 	rd_byte(&o_ptr->marked);
 
 	rd_byte(&o_ptr->tag);
@@ -216,13 +224,15 @@ static object_type* rd_item_aux(bool store)
 	rd_string(buf, 128);
 
 	/* Save the inscription */
-	if (buf[0]) o_ptr->note = quark_add(buf);
+	if (buf[0])
+		o_ptr->note = quark_add(buf);
 
 	/* Obtain the "kind" template */
 	k_ptr = &k_info[o_ptr->k_idx];
 
 	/* Hack -- notice "broken" items */
-	if (k_ptr->cost <= 0) o_ptr->ident |= (IDENT_BROKEN);
+	if (k_ptr->cost <= 0)
+		o_ptr->ident |= (IDENT_BROKEN);
 
 
 	/* Extract the flags */
@@ -238,7 +248,8 @@ static object_type* rd_item_aux(bool store)
 		a_ptr = &a_info[o_ptr->name1];
 
 		/* Verify that artifact */
-		if (!a_ptr->name) o_ptr->name1 = 0;
+		if (!a_ptr->name)
+			o_ptr->name1 = 0;
 	}
 
 	/* Paranoia */
@@ -250,7 +261,8 @@ static object_type* rd_item_aux(bool store)
 		e_ptr = &e_info[o_ptr->name2];
 
 		/* Verify that ego-item */
-		if (!e_ptr->name) o_ptr->name2 = 0;
+		if (!e_ptr->name)
+			o_ptr->name2 = 0;
 	}
 
 	return o_ptr;
@@ -258,48 +270,52 @@ static object_type* rd_item_aux(bool store)
 
 
 
-static object_type* rd_item(void) {
-  return rd_item_aux(FALSE);
+static object_type *rd_item(void)
+{
+	return rd_item_aux(FALSE);
 }
 
-static object_type* rd_item_store(void) {
-  return rd_item_aux(TRUE);
+static object_type *rd_item_store(void)
+{
+	return rd_item_aux(TRUE);
 }
 
 
 /*
  * Read a monster
  */
-static void rd_monster(monster_type *m_ptr)
+static void rd_monster(monster_type * m_ptr)
 {
-  object_type* o_ptr;
+	object_type *o_ptr;
 
-  /* Read the monster race */
-  rd_s16b(&m_ptr->r_idx);
+	/* Read the monster race */
+	rd_s16b(&m_ptr->r_idx);
 
-  /* Read the other information */
-  rd_byte(&m_ptr->fy);
-  rd_byte(&m_ptr->fx);
-  rd_s16b(&m_ptr->hp);
-  rd_s16b(&m_ptr->maxhp);
-  rd_s16b(&m_ptr->csleep);
-  rd_byte(&m_ptr->mspeed);
-  rd_byte(&m_ptr->energy);
-  rd_byte(&m_ptr->stunned);
-  rd_byte(&m_ptr->confused);
-  rd_byte(&m_ptr->monfear);
-  rd_byte(&m_ptr->is_pet);
-  rd_s16b(&m_ptr->random_name_idx);
-  rd_s16b(&m_ptr->mflag);
+	/* Read the other information */
+	rd_byte(&m_ptr->fy);
+	rd_byte(&m_ptr->fx);
+	rd_s16b(&m_ptr->hp);
+	rd_s16b(&m_ptr->maxhp);
+	rd_s16b(&m_ptr->csleep);
+	rd_byte(&m_ptr->mspeed);
+	rd_byte(&m_ptr->energy);
+	rd_byte(&m_ptr->stunned);
+	rd_byte(&m_ptr->confused);
+	rd_byte(&m_ptr->monfear);
+	rd_byte(&m_ptr->is_pet);
+	rd_s16b(&m_ptr->random_name_idx);
+	rd_s16b(&m_ptr->mflag);
 
-  /* Read the monster's inventory. */
-  while (1) {
-    o_ptr = rd_item();
-    
-    if (!o_ptr) break;
-	  
-    monster_inven_carry(m_ptr, o_ptr);
-  }
+	/* Read the monster's inventory. */
+	while (1)
+	{
+		o_ptr = rd_item();
+
+		if (!o_ptr)
+			break;
+
+		monster_inven_carry(m_ptr, o_ptr);
+	}
 }
 
 
@@ -352,10 +368,10 @@ static void rd_lore(int r_idx)
 	rd_u32b(&r_ptr->r_flags6);
 	rd_u32b(&r_ptr->r_flags7);
 
-	
+
 	/* Read the "Racial" monster limit per level */
 	rd_byte(&r_ptr->max_num);
-	
+
 	/* Later (?) */
 	rd_byte(&tmp8u);
 	rd_byte(&tmp8u);
@@ -378,7 +394,7 @@ static void rd_lore(int r_idx)
 static errr rd_store(int n)
 {
 	store_type *st_ptr = &store[n];
-	object_type* o_ptr;
+	object_type *o_ptr;
 
 	/* Read the basic info */
 	rd_u32b(&st_ptr->store_open);
@@ -388,17 +404,19 @@ static errr rd_store(int n)
 	rd_s16b(&st_ptr->bad_buy);
 
 	/* Read the items */
-	while (1) {
-	  o_ptr = rd_item_store();
+	while (1)
+	{
+		o_ptr = rd_item_store();
 
-	  if (!o_ptr) break;
+		if (!o_ptr)
+			break;
 
-	  /* Location */
-	  rd_byte(&o_ptr->iy);
-	  rd_byte(&o_ptr->ix);
+		/* Location */
+		rd_byte(&o_ptr->iy);
+		rd_byte(&o_ptr->ix);
 
-	  insert_to_global_list(o_ptr, &(st_ptr->stock),
-				(n == 7 ? WORLD_HOME : WORLD_STORE));
+		insert_to_global_list(o_ptr, &(st_ptr->stock),
+			(n == 7 ? WORLD_HOME : WORLD_STORE));
 	}
 
 	/* Success */
@@ -472,7 +490,8 @@ static void rd_options(void)
 
 	rd_u16b(&c);
 
-	if (c & 0x0002) p_ptr->wizard = TRUE;
+	if (c & 0x0002)
+		p_ptr->wizard = TRUE;
 
 	/* Extract the cheating flags */
 	for (i = 0; i < CHEAT_MAX; ++i)
@@ -483,10 +502,12 @@ static void rd_options(void)
 	/*** Normal Options ***/
 
 	/* Read the option flags */
-	for (n = 0; n < 8; n++) rd_u32b(&flag[n]);
+	for (n = 0; n < 8; n++)
+		rd_u32b(&flag[n]);
 
 	/* Read the option masks */
-	for (n = 0; n < 8; n++) rd_u32b(&mask[n]);
+	for (n = 0; n < 8; n++)
+		rd_u32b(&mask[n]);
 
 	/* Analyze the options */
 	for (i = 0; i < OPT_MAX; i++)
@@ -521,10 +542,12 @@ static void rd_options(void)
 	/*** Window Options ***/
 
 	/* Read the window flags */
-	for (n = 0; n < 8; n++) rd_u32b(&flag[n]);
+	for (n = 0; n < 8; n++)
+		rd_u32b(&flag[n]);
 
 	/* Read the window masks */
-	for (n = 0; n < 8; n++) rd_u32b(&mask[n]);
+	for (n = 0; n < 8; n++)
+		rd_u32b(&mask[n]);
 
 	/* Analyze the options */
 	for (n = 0; n < 8; n++)
@@ -586,8 +609,10 @@ static errr rd_extra(void)
 	rd_s16b(&p_ptr->wt);
 
 	/* Read the stat info */
-	for (i = 0; i < 6; i++) rd_s16b(&p_ptr->stat_max[i]);
-	for (i = 0; i < 6; i++) rd_s16b(&p_ptr->stat_cur[i]);
+	for (i = 0; i < 6; i++)
+		rd_s16b(&p_ptr->stat_max[i]);
+	for (i = 0; i < 6; i++)
+		rd_s16b(&p_ptr->stat_cur[i]);
 
 	rd_s32b(&p_ptr->au);
 
@@ -603,12 +628,15 @@ static errr rd_extra(void)
 	rd_s16b(&p_ptr->which_town);
 	rd_s16b(&p_ptr->which_arena_layout);
 
-	for (i = 0; i < MAX_ARENAS; i++) rd_s16b(&p_ptr->arena_number[i]);
-	for (i = 0; i < MAX_REWARDS; i++) rd_byte(&rewards[i]);
-	
-	for (i = 0; i < MAX_BOUNTIES; i++) {
-	  rd_s16b(&bounties[i][0]);
-	  rd_s16b(&bounties[i][1]);
+	for (i = 0; i < MAX_ARENAS; i++)
+		rd_s16b(&p_ptr->arena_number[i]);
+	for (i = 0; i < MAX_REWARDS; i++)
+		rd_byte(&rewards[i]);
+
+	for (i = 0; i < MAX_BOUNTIES; i++)
+	{
+		rd_s16b(&bounties[i][0]);
+		rd_s16b(&bounties[i][1]);
 	}
 
 	rd_byte(&p_ptr->exit_bldg);
@@ -640,10 +668,12 @@ static errr rd_extra(void)
 	rd_s16b(&p_ptr->max_depth);
 
 	/* Hack -- Repair maximum player level */
-	if (p_ptr->max_lev < p_ptr->lev) p_ptr->max_lev = p_ptr->lev;
+	if (p_ptr->max_lev < p_ptr->lev)
+		p_ptr->max_lev = p_ptr->lev;
 
 	/* Hack -- Repair maximum dungeon level */
-	if (p_ptr->max_depth < 0) p_ptr->max_depth = 1;
+	if (p_ptr->max_depth < 0)
+		p_ptr->max_depth = 1;
 
 	/* More info */
 	rd_s16b(&p_ptr->sc);
@@ -690,7 +720,8 @@ static errr rd_extra(void)
 	rd_byte(&p_ptr->preserve);
 
 	/* Future use */
-	for (i = 0; i < 48; i++) rd_byte(&tmp8u);
+	for (i = 0; i < 48; i++)
+		rd_byte(&tmp8u);
 
 	/* Hack -- the two "special seeds" */
 	rd_u32b(&seed_flavor);
@@ -741,29 +772,33 @@ static errr rd_extra(void)
  * Read the player's inventory.
  */
 
-static errr rd_inventory(void) {
-  object_type* o_ptr;
-  s16b slot;
-  bool foo;
+static errr rd_inventory(void)
+{
+	object_type *o_ptr;
+	s16b slot;
+	bool foo;
 
-  while (1) {
-    o_ptr = rd_item();
+	while (1)
+	{
+		o_ptr = rd_item();
 
-    /* All done. */
-    if (!o_ptr) break;
+		/* All done. */
+		if (!o_ptr)
+			break;
 
-    /* Insert into the stack. */
-    foo = inven_carry(o_ptr);
+		/* Insert into the stack. */
+		foo = inven_carry(o_ptr);
 
-    /* Read equipment slot. */
-    rd_s16b(&slot);
+		/* Read equipment slot. */
+		rd_s16b(&slot);
 
-    if (foo && slot >= 0) {
-      equipment[slot] = o_ptr;
-    }
-  }
+		if (foo && slot >= 0)
+		{
+			equipment[slot] = o_ptr;
+		}
+	}
 
-  return 0;
+	return 0;
 }
 
 
@@ -812,7 +847,7 @@ static errr rd_dungeon(void)
 	s16b py, px;
 	s16b ymax, xmax;
 
-	object_type* o_ptr;
+	object_type *o_ptr;
 
 	byte count;
 	byte tmp8u;
@@ -832,7 +867,7 @@ static errr rd_dungeon(void)
 
 	rd_s16b(&ymax);
 	rd_s16b(&xmax);
-
+	
 	/* Ignore illegal dungeons */
 	if ((depth < 0) || (depth >= MAX_DEPTH))
 	{
@@ -851,8 +886,7 @@ static errr rd_dungeon(void)
 	}
 
 	/* Ignore illegal dungeons */
-	if ((px < 0) || (px >= DUNGEON_WID) ||
-	    (py < 0) || (py >= DUNGEON_HGT))
+	if ((px < 0) || (px >= DUNGEON_WID) || (py < 0) || (py >= DUNGEON_HGT))
 	{
 		note(format("Ignoring illegal player location (%d,%d).", px, py));
 		msg_print(NULL);
@@ -864,7 +898,7 @@ static errr rd_dungeon(void)
 	/*** Run length decoding ***/
 
 	/* Load the dungeon data */
-	for (x = y = 0; y < DUNGEON_HGT; )
+	for (x = y = 0; y < DUNGEON_HGT;)
 	{
 		/* Grab RLE info */
 		rd_byte(&count);
@@ -883,7 +917,8 @@ static errr rd_dungeon(void)
 				x = 0;
 
 				/* Advance/Wrap */
-				if (++y >= DUNGEON_HGT) break;
+				if (++y >= DUNGEON_HGT)
+					break;
 			}
 		}
 	}
@@ -892,7 +927,7 @@ static errr rd_dungeon(void)
 	/*** Run length decoding ***/
 
 	/* Load the dungeon data */
-	for (x = y = 0; y < DUNGEON_HGT; )
+	for (x = y = 0; y < DUNGEON_HGT;)
 	{
 		/* Grab RLE info */
 		rd_byte(&count);
@@ -911,7 +946,8 @@ static errr rd_dungeon(void)
 				x = 0;
 
 				/* Advance/Wrap */
-				if (++y >= DUNGEON_HGT) break;
+				if (++y >= DUNGEON_HGT)
+					break;
 			}
 		}
 	}
@@ -932,27 +968,31 @@ static errr rd_dungeon(void)
 	/*** Objects ***/
 
 	/* Read the dungeon items */
-	while (1) {
-	  byte ix, iy;
-	  object_type* o_ptr = rd_item();
-	  
-	  if (!o_ptr) break;
+	while (1)
+	{
+		byte ix, iy;
+		object_type *o_ptr = rd_item();
 
-	  /* Location */
-	  rd_byte(&iy);
-	  rd_byte(&ix);
+		if (!o_ptr)
+			break;
 
-	  floor_carry(iy, ix, o_ptr);
+		/* Location */
+		rd_byte(&iy);
+		rd_byte(&ix);
+
+		floor_carry(iy, ix, o_ptr);
 	}
 
-	/* Hack: Scatter the items in a store. */ 
-	if (p_ptr->inside_special == SPECIAL_STORE) {
+	/* Hack: Scatter the items in a store. */
+	if (p_ptr->inside_special == SPECIAL_STORE)
+	{
 
-	  for (o_ptr = store[p_ptr->s_idx].stock; 
-	       o_ptr != NULL; o_ptr = o_ptr->next_global) {
+		for (o_ptr = store[p_ptr->s_idx].stock; o_ptr != NULL;
+			o_ptr = o_ptr->next_global)
+		{
 
-	    floor_carry(o_ptr->iy, o_ptr->ix, o_ptr);
-	  }
+			floor_carry(o_ptr->iy, o_ptr->ix, o_ptr);
+		}
 	}
 
 	/*** Monsters ***/
@@ -970,25 +1010,25 @@ static errr rd_dungeon(void)
 	/* Read the monsters */
 	for (i = 1; i < limit; i++)
 	{
-	  monster_type *n_ptr;
-	  monster_type monster_type_body;
+		monster_type *n_ptr;
+		monster_type monster_type_body;
 
 
-	  /* Get local monster */
-	  n_ptr = &monster_type_body;
+		/* Get local monster */
+		n_ptr = &monster_type_body;
 
-	  /* Clear the monster */
-	  WIPE(n_ptr, monster_type);
+		/* Clear the monster */
+		WIPE(n_ptr, monster_type);
 
-	  /* Read the monster */
-	  rd_monster(n_ptr);
+		/* Read the monster */
+		rd_monster(n_ptr);
 
-	  /* Place monster in dungeon */
-	  if (!monster_place(n_ptr->fy, n_ptr->fx, n_ptr))
-	    {
-	      note(format("Cannot place monster %d", i));
-	      return (162);
-	    }
+		/* Place monster in dungeon */
+		if (!monster_place(n_ptr->fy, n_ptr->fx, n_ptr))
+		{
+			note(format("Cannot place monster %d", i));
+			return (162);
+		}
 	}
 
 	/*** Success ***/
@@ -1004,48 +1044,51 @@ static errr rd_dungeon(void)
  * Read a spell.
  */
 
-static void rd_spell(spell* s_ptr) {
-  proj_node* pnode;
-  proj_node* pnode_prev = NULL;
-  int i;
-  byte len;
+static void rd_spell(spell * s_ptr)
+{
+	proj_node *pnode;
+	proj_node *pnode_prev = NULL;
+	int i;
+	byte len;
 
-  rd_string(s_ptr->name, 30);
-  rd_string(s_ptr->desc, 30);
-  rd_byte(&s_ptr->class);
-  rd_byte(&s_ptr->level);
-  rd_byte(&s_ptr->mana);
-  rd_byte(&s_ptr->untried);
-  rd_byte(&s_ptr->unknown);
+	rd_string(s_ptr->name, 30);
+	rd_string(s_ptr->desc, 30);
+	rd_byte(&s_ptr->class);
+	rd_byte(&s_ptr->level);
+	rd_byte(&s_ptr->mana);
+	rd_byte(&s_ptr->untried);
+	rd_byte(&s_ptr->unknown);
 
-  /* Number of nodes. */
-  rd_byte(&len);
+	/* Number of nodes. */
+	rd_byte(&len);
 
-  /* Create the head pf the list. */
-  MAKE(s_ptr->proj_list, proj_node);
-  pnode = s_ptr->proj_list;
-  
-  /* Read in the node data, creating the list. */
-  for (i = 0; i < len; i++) {
-    rd_u32b(&pnode->proj_flags);
-    rd_byte(&pnode->safe);
-    rd_byte(&pnode->attack_kind);
-    rd_byte(&pnode->radius);
-    rd_s16b(&pnode->dam_dice);
-    rd_s16b(&pnode->dam_sides);
+	/* Create the head pf the list. */
+	MAKE(s_ptr->proj_list, proj_node);
+	pnode = s_ptr->proj_list;
 
-    /* Save the previous node */
-    pnode_prev = pnode;
+	/* Read in the node data, creating the list. */
+	for (i = 0; i < len; i++)
+	{
+		rd_u32b(&pnode->proj_flags);
+		rd_byte(&pnode->safe);
+		rd_byte(&pnode->attack_kind);
+		rd_byte(&pnode->radius);
+		rd_s16b(&pnode->dam_dice);
+		rd_s16b(&pnode->dam_sides);
 
-    /* Create a new node */
-    MAKE(pnode->next, proj_node);
-    pnode = pnode->next;
-  }
+		/* Save the previous node */
+		pnode_prev = pnode;
 
-  /* Hack -- remove the final leftover node. */
-  if (pnode_prev != NULL) {
-    KILL(pnode_prev->next, proj_node);
-  }
+		/* Create a new node */
+		MAKE(pnode->next, proj_node);
+		pnode = pnode->next;
+	}
+
+	/* Hack -- remove the final leftover node. */
+	if (pnode_prev != NULL)
+	{
+		KILL(pnode_prev->next, proj_node);
+	}
 }
 
 /*
@@ -1061,8 +1104,8 @@ static errr rd_savefile_new_aux(void)
 
 
 	/* Mention the savefile version */
-	note(format("Loading a %d.%d.%d savefile...",
-	            sf_major, sf_minor, sf_patch));
+	note(format("Loading a %d.%d.%d savefile...", sf_major, sf_minor,
+			sf_patch));
 
 
 	/* Strip the version bytes */
@@ -1099,17 +1142,20 @@ static errr rd_savefile_new_aux(void)
 
 	/* Read RNG state */
 	rd_randomizer();
-	if (arg_fiddle) note("Loaded Randomizer Info");
+	if (arg_fiddle)
+		note("Loaded Randomizer Info");
 
 
 	/* Then the options */
 	rd_options();
-	if (arg_fiddle) note("Loaded Option Flags");
+	if (arg_fiddle)
+		note("Loaded Option Flags");
 
 
 	/* Then the "messages" */
 	rd_messages();
-	if (arg_fiddle) note("Loaded Messages");
+	if (arg_fiddle)
+		note("Loaded Messages");
 
 
 	/* Monster Memory */
@@ -1133,7 +1179,8 @@ static errr rd_savefile_new_aux(void)
 		/* Access that monster */
 		r_ptr = &r_info[i];
 	}
-	if (arg_fiddle) note("Loaded Monster Memory");
+	if (arg_fiddle)
+		note("Loaded Monster Memory");
 
 
 	/* Object Memory */
@@ -1155,80 +1202,91 @@ static errr rd_savefile_new_aux(void)
 
 		rd_byte(&tmp8u);
 
-		k_ptr->aware = (tmp8u & 0x01) ? TRUE: FALSE;
-		k_ptr->tried = (tmp8u & 0x02) ? TRUE: FALSE;
+		k_ptr->aware = (tmp8u & 0x01) ? TRUE : FALSE;
+		k_ptr->tried = (tmp8u & 0x02) ? TRUE : FALSE;
 	}
-	if (arg_fiddle) note("Loaded Object Memory");
+	if (arg_fiddle)
+		note("Loaded Object Memory");
 
 
 	/* Load the Quests */
 	rd_u16b(&tmp16u);
 
 	/* Incompatible save files */
-	if (tmp16u > MAX_QUESTS) {
-	  note(format("Too many (%u) quests!", tmp16u));
-	  return (23);
+	if (tmp16u > MAX_QUESTS)
+	{
+		note(format("Too many (%u) quests!", tmp16u));
+		return (23);
 	}
 
 	/* Load the Quest Information */
-	for (i = 0; i < tmp16u; i++) {
-	  rd_byte(&tmp8u);
-	  quest_status[i] = tmp8u;
+	for (i = 0; i < tmp16u; i++)
+	{
+		rd_byte(&tmp8u);
+		quest_status[i] = tmp8u;
 	}
-	if (arg_fiddle) note("Loaded Quests");
+	if (arg_fiddle)
+		note("Loaded Quests");
 
 
 	/* Load the recipe recall info. */
 
 	rd_u16b(&tmp16u);
 
-	if (tmp16u > MAX_RECIPES) {
-	  note(format("Too many (%u) recipes!", tmp16u));
-	  return 23;
+	if (tmp16u > MAX_RECIPES)
+	{
+		note(format("Too many (%u) recipes!", tmp16u));
+		return 23;
 	}
 
-	for (i = 0; i < tmp16u; i++) {
-	  rd_byte(&tmp8u);
-	  recipe_recall[i] = tmp8u;
+	for (i = 0; i < tmp16u; i++)
+	{
+		rd_byte(&tmp8u);
+		recipe_recall[i] = tmp8u;
 	}
 
 	/* Load the random artifacts. */
 	rd_u16b(&tmp16u);
-	if (tmp16u > MAX_RANDARTS) {
-	  note(format("Too many (%u) random artifacts!", tmp16u));
-	  return 23;
+	if (tmp16u > MAX_RANDARTS)
+	{
+		note(format("Too many (%u) random artifacts!", tmp16u));
+		return 23;
 	}
 
-	for (i = 0; i < tmp16u; i++) {
-	  random_artifact* ra_ptr = &random_artifacts[i];
+	for (i = 0; i < tmp16u; i++)
+	{
+		random_artifact *ra_ptr = &random_artifacts[i];
 
-	  rd_string(ra_ptr->name_full, 80);
-	  rd_string(ra_ptr->name_short, 80);
-	  rd_byte(&ra_ptr->level);
-	  rd_byte(&ra_ptr->attr);
-	  rd_u32b(&ra_ptr->cost);
-	  rd_s16b(&ra_ptr->activation);
-	  rd_byte(&ra_ptr->generated);
+		rd_string(ra_ptr->name_full, 80);
+		rd_string(ra_ptr->name_short, 80);
+		rd_byte(&ra_ptr->level);
+		rd_byte(&ra_ptr->attr);
+		rd_u32b(&ra_ptr->cost);
+		rd_s16b(&ra_ptr->activation);
+		rd_byte(&ra_ptr->generated);
 	}
 
 	/* Load the random spells. */
 
 	rd_u16b(&tmp16u);
-	if (tmp16u > MAX_SPELLS) {
-	  note(format("Too many (%u) random spells!", tmp16u));
-	  return 23;
+	if (tmp16u > MAX_SPELLS)
+	{
+		note(format("Too many (%u) random spells!", tmp16u));
+		return 23;
 	}
 
 	rd_u16b(&spell_num);
 
-	for (i = 0; i < spell_num; i++) {
-	  spell* rspell = &spells[i];
+	for (i = 0; i < spell_num; i++)
+	{
+		spell *rspell = &spells[i];
 
-	  rd_spell(rspell);
+		rd_spell(rspell);
 	}
-	
-	if (arg_fiddle) note("Loaded Random Spells");
-	
+
+	if (arg_fiddle)
+		note("Loaded Random Spells");
+
 
 	/* Load the Artifacts */
 	rd_u16b(&tmp16u);
@@ -1249,12 +1307,15 @@ static errr rd_savefile_new_aux(void)
 		rd_byte(&tmp8u);
 		rd_byte(&tmp8u);
 	}
-	if (arg_fiddle) note("Loaded Artifacts");
+	if (arg_fiddle)
+		note("Loaded Artifacts");
 
 
 	/* Read the extra stuff */
-	if (rd_extra()) return (25);
-	if (arg_fiddle) note("Loaded extra information");
+	if (rd_extra())
+		return (25);
+	if (arg_fiddle)
+		note("Loaded extra information");
 
 
 	/* Important -- Initialize the sex */
@@ -1276,7 +1337,8 @@ static errr rd_savefile_new_aux(void)
 	rd_u16b(&tmp16u);
 	for (i = 0; i < tmp16u; i++)
 	{
-		if (rd_store(i)) return (22);
+		if (rd_store(i))
+			return (22);
 	}
 
 	/* I'm not dead. (yet)... */
@@ -1294,7 +1356,7 @@ static errr rd_savefile_new_aux(void)
 	}
 
 	/* Hack -- no ghosts */
-	r_info[MAX_R_IDX-1].max_num = 0;
+	r_info[MAX_R_IDX - 1].max_num = 0;
 
 
 	/* Success */
@@ -1313,13 +1375,15 @@ errr rd_savefile_new(void)
 	fff = my_fopen(savefile, "rb");
 
 	/* Paranoia */
-	if (!fff) return (-1);
+	if (!fff)
+		return (-1);
 
 	/* Call the sub-function */
 	err = rd_savefile_new_aux();
 
 	/* Check for errors */
-	if (ferror(fff)) err = -1;
+	if (ferror(fff))
+		err = -1;
 
 	/* Close the file */
 	my_fclose(fff);
@@ -1332,36 +1396,40 @@ errr rd_savefile_new(void)
 /*
  * Attempt to load a temporary dungeon.
  */
-bool load_dungeon(s16b tag) {
-  char temp[128];
-  char path[1024];
+bool load_dungeon(s16b tag)
+{
+	char temp[128];
+	char path[1024];
 
-  /* Paranoia. */
-  if (tag > 999 || tag < 0) return TRUE;
+	/* Paranoia. */
+	if (tag > 999 || tag < 0)
+		return TRUE;
 
-  sprintf(temp, "%s.%d", op_ptr->base_name, tag);
-  path_build(path, 1024, ANGBAND_DIR_SAVE, temp);
+	sprintf(temp, "%s.%d", op_ptr->base_name, tag);
+	path_build(path, 1024, ANGBAND_DIR_SAVE, temp);
 
-  fff = my_fopen(path, "rb");
+	fff = my_fopen(path, "rb");
 
-  if (!fff) return TRUE;
+	if (!fff)
+		return TRUE;
 
-  xor_byte = 0;
-  v_check = 0L;
-  x_check = 0L;
+	xor_byte = 0;
+	v_check = 0L;
+	x_check = 0L;
 
-  /* Read the dungeon. */
-  if (rd_dungeon()) return TRUE;
+	/* Read the dungeon. */
+	if (rd_dungeon())
+		return TRUE;
 
-  /* Check for errors */
-  if (ferror(fff)) return TRUE;
+	/* Check for errors */
+	if (ferror(fff))
+		return TRUE;
 
-  /* Close the file */
-  my_fclose(fff);
+	/* Close the file */
+	my_fclose(fff);
 
-  /* Delete the file. */
-  fd_kill(path);
+	/* Delete the file. */
+	fd_kill(path);
 
-  return FALSE;
+	return FALSE;
 }
-

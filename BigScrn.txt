@@ -1,0 +1,24 @@
+This version of Kamband supports Tom Morton's BigScreen Patch,
+which allows you to have a terminal larger than 80x24. When the
+main terminal is at least 26 rows tall, two extra rows of status
+messages appear at the bottom.
+
+How to change the terminal size
+===============================
+You can only change the size of the main terminal before starting
+the game.
+
+On MS Windows
+-------------
+Change the NumCols and NumRows entries in the ANGBAND.INI file.
+NumCols must be greater or equal to 80. NumRows must be greater 
+or equal to 24.
+
+On other platforms
+------------------
+Pass "-y rows" and "-x cols" options on the command line.
+
+-- Tim Baker
+dbaker@direct.ca
+March 1, 2000
+

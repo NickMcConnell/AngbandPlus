@@ -1,6 +1,7 @@
 /* File: main.c */
 
-/*
+/* system-specific variations and special features, command-line arguments.
+ *
  * Copyright (c) 1997 Ben Harrison, and others
  *
  * This software may be copied and distributed for educational, research,
@@ -269,10 +270,8 @@ int main(int argc, char *argv[])
 
 #endif
 
-
 	/* Get the file paths */
 	init_stuff();
-
 
 #ifdef SET_UID
 
@@ -387,6 +386,24 @@ int main(int argc, char *argv[])
 				break;
 			}
 
+			case 'B':
+			case 'b':
+			case 'Y':
+			case 'y':
+			{
+				screen_y = atoi(&argv[i][2]);
+				if (screen_y <= 0) screen_y = 50;
+				break;
+			}
+			
+			case 'X':
+			case 'x':
+			{
+				screen_x = atoi(&argv[i][2]);
+				if (screen_x <= 80) screen_x = 80;
+				break;
+			}
+			
 			case 'O':
 			case 'o':
 			{
@@ -446,6 +463,9 @@ int main(int argc, char *argv[])
 				puts("  -g       Request graphics mode");
 				puts("  -o       Request original keyset");
 				puts("  -r       Request rogue-like keyset");
+				puts("  -xnn     Request nn width screen. Defaults to 80.");
+				puts("  -ynn     Request nn line screen. Normally 25.");
+				puts("           This option defaults to 50 lines.");
 				puts("  -s<num>  Show <num> high scores");
 				puts("  -u<who>  Use your <who> savefile");
 				puts("  -m<sys>  Force 'main-<sys>.c' usage");
@@ -468,6 +488,10 @@ int main(int argc, char *argv[])
 	/* Process the player name */
 	process_player_name(TRUE);
 
+
+
+	/* Install "quit" hook */
+	quit_aux = quit_hook;
 
 
 	/* Drop privs (so X11 will work correctly) */
@@ -500,7 +524,6 @@ int main(int argc, char *argv[])
 	}
 #endif
 
-
 #ifdef USE_GCU
 	/* Attempt to use the "main-gcu.c" support */
 	if (!done && (!mstr || (streq(mstr, "gcu"))))
@@ -528,67 +551,99 @@ int main(int argc, char *argv[])
 #endif
 
 
-#ifdef USE_IBM
-	/* Attempt to use the "main-ibm.c" support */
-	if (!done)
+#ifdef USE_DOS
+	/* Attempt to use the "main-dos.c" support */
+	if (!done && (!mstr || (streq(mstr, "dos"))))
 	{
-		extern errr init_ibm(void);
-		if (0 == init_ibm()) done = TRUE;
-		if (done) ANGBAND_SYS = "ibm";
+		extern errr init_dos(void);
+		if (0 == init_dos())
+		{
+			ANGBAND_SYS = "dos";
+			done = TRUE;
+		}
 	}
 #endif
 
+#ifdef USE_IBM
+	/* Attempt to use the "main-ibm.c" support */
+	if (!done && (!mstr || (streq(mstr, "ibm"))))
+	{
+		extern errr init_ibm(void);
+		if (0 == init_ibm())
+		{
+			ANGBAND_SYS = "ibm";
+			done = TRUE;
+		}
+	}
+#endif
+
+
 #ifdef USE_EMX
 	/* Attempt to use the "main-emx.c" support */
-	if (!done)
+	if (!done && (!mstr || (streq(mstr, "emx"))))
 	{
 		extern errr init_emx(void);
-		if (0 == init_emx()) done = TRUE;
-		if (done) ANGBAND_SYS = "emx";
+		if (0 == init_emx())
+		{
+			ANGBAND_SYS = "emx";
+			done = TRUE;
+		}
 	}
 #endif
 
 
 #ifdef USE_SLA
 	/* Attempt to use the "main-sla.c" support */
-	if (!done)
+	if (!done && (!mstr || (streq(mstr, "sla"))))
 	{
 		extern errr init_sla(void);
-		if (0 == init_sla()) done = TRUE;
-		if (done) ANGBAND_SYS = "sla";
+		if (0 == init_sla())
+		{
+			ANGBAND_SYS = "sla";
+			done = TRUE;
+		}
 	}
 #endif
 
 
 #ifdef USE_LSL
 	/* Attempt to use the "main-lsl.c" support */
-	if (!done)
+	if (!done && (!mstr || (streq(mstr, "lsl"))))
 	{
 		extern errr init_lsl(void);
-		if (0 == init_lsl()) done = TRUE;
-		if (done) ANGBAND_SYS = "lsl";
+		if (0 == init_lsl())
+		{
+			ANGBAND_SYS = "lsl";
+			done = TRUE;
+		}
 	}
 #endif
 
 
 #ifdef USE_AMI
 	/* Attempt to use the "main-ami.c" support */
-	if (!done)
+	if (!done && (!mstr || (streq(mstr, "ami"))))
 	{
 		extern errr init_ami(void);
-		if (0 == init_ami()) done = TRUE;
-		if (done) ANGBAND_SYS = "ami";
+		if (0 == init_ami())
+		{
+			ANGBAND_SYS = "ami";
+			done = TRUE;
+		}
 	}
 #endif
 
 
 #ifdef USE_VME
 	/* Attempt to use the "main-vme.c" support */
-	if (!done)
+	if (!done && (!mstr || (streq(mstr, "vme"))))
 	{
 		extern errr init_vme(void);
-		if (0 == init_vme()) done = TRUE;
-		if (done) ANGBAND_SYS = "vme";
+		if (0 == init_vme())
+		{
+			ANGBAND_SYS = "vme";
+			done = TRUE;
+		}
 	}
 #endif
 
@@ -600,12 +655,11 @@ int main(int argc, char *argv[])
 	/* Make sure we have a display! */
 	if (!done) quit("Unable to prepare any 'display module'!");
 
+	/* Calculate screen geometry */
+	SCREEN_HGT = screen_y - 2;
+	SCREEN_WID = screen_x - (COL_MAP + 1);
 
-	/* Tell "quit()" to call "Term_nuke()" */
-	quit_aux = quit_hook;
-
-
-	/* If requested, display scores and quit */
+	/* Hack -- If requested, display scores and quit */
 	if (show_score > 0) display_scores(0, show_score);
 
 
@@ -616,7 +670,7 @@ int main(int argc, char *argv[])
 	init_angband();
 
 	/* Wait for response */
-	pause_line(23);
+	pause_line(screen_y-1);
 
 	/* Play the game */
 	play_game(new_game);

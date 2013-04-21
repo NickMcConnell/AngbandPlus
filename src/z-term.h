@@ -177,20 +177,21 @@ struct term
 	term_win *tmp;
 	term_win *mem;
 
-	void (*init_hook)(term *t);
-	void (*nuke_hook)(term *t);
+	void (*init_hook) (term * t);
+	void (*nuke_hook) (term * t);
 
-	errr (*user_hook)(int n);
+	 errr(*user_hook) (int n);
 
-	errr (*xtra_hook)(int n, int v);
+	 errr(*xtra_hook) (int n, int v);
 
-	errr (*curs_hook)(int x, int y);
+	 errr(*curs_hook) (int x, int y);
 
-	errr (*wipe_hook)(int x, int y, int n);
+	 errr(*wipe_hook) (int x, int y, int n);
 
-	errr (*text_hook)(int x, int y, int n, byte a, cptr s);
+	 errr(*text_hook) (int x, int y, int n, byte a, cptr s);
 
-	errr (*pict_hook)(int x, int y, int n, const byte *ap, const char *cp);
+	 errr(*pict_hook) (int x, int y, int n, const byte * ap,
+		const char *cp);
 };
 
 
@@ -219,19 +220,19 @@ struct term
  *
  * The other actions do not need a "v" code, so "zero" is used.
  */
-#define TERM_XTRA_EVENT	1	/* Process some pending events */
-#define TERM_XTRA_FLUSH 2	/* Flush all pending events */
-#define TERM_XTRA_CLEAR 3	/* Clear the entire window */
-#define TERM_XTRA_SHAPE 4	/* Set cursor shape (optional) */
-#define TERM_XTRA_FROSH 5	/* Flush one row (optional) */
-#define TERM_XTRA_FRESH 6	/* Flush all rows (optional) */
-#define TERM_XTRA_NOISE 7	/* Make a noise (optional) */
-#define TERM_XTRA_SOUND 8	/* Make a sound (optional) */
-#define TERM_XTRA_BORED 9	/* Handle stuff when bored (optional) */
-#define TERM_XTRA_REACT 10	/* React to global changes (optional) */
-#define TERM_XTRA_ALIVE 11	/* Change the "hard" level (optional) */
-#define TERM_XTRA_LEVEL 12	/* Change the "soft" level (optional) */
-#define TERM_XTRA_DELAY 13	/* Delay some milliseconds (optional) */
+#define TERM_XTRA_EVENT	1 /* Process some pending events */
+#define TERM_XTRA_FLUSH 2 /* Flush all pending events */
+#define TERM_XTRA_CLEAR 3 /* Clear the entire window */
+#define TERM_XTRA_SHAPE 4 /* Set cursor shape (optional) */
+#define TERM_XTRA_FROSH 5 /* Flush one row (optional) */
+#define TERM_XTRA_FRESH 6 /* Flush all rows (optional) */
+#define TERM_XTRA_NOISE 7 /* Make a noise (optional) */
+#define TERM_XTRA_SOUND 8 /* Make a sound (optional) */
+#define TERM_XTRA_BORED 9 /* Handle stuff when bored (optional) */
+#define TERM_XTRA_REACT 10 /* React to global changes (optional) */
+#define TERM_XTRA_ALIVE 11 /* Change the "hard" level (optional) */
+#define TERM_XTRA_LEVEL 12 /* Change the "soft" level (optional) */
+#define TERM_XTRA_DELAY 13 /* Delay some milliseconds (optional) */
 
 
 /**** Available Variables ****/
@@ -262,7 +263,7 @@ extern errr Term_redraw(void);
 extern errr Term_get_cursor(int *v);
 extern errr Term_get_size(int *w, int *h);
 extern errr Term_locate(int *x, int *y);
-extern errr Term_what(int x, int y, byte *a, char *c);
+extern errr Term_what(int x, int y, byte * a, char *c);
 
 extern errr Term_flush(void);
 extern errr Term_keypress(int k);
@@ -276,11 +277,10 @@ extern errr Term_exchange(void);
 
 extern errr Term_resize(int w, int h);
 
-extern errr Term_activate(term *t);
+extern errr Term_activate(term * t);
 
-extern errr term_nuke(term *t);
-extern errr term_init(term *t, int w, int h, int k);
+extern errr term_nuke(term * t);
+extern errr term_init(term * t, int w, int h, int k);
 
 
 #endif
-

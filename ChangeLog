@@ -1,0 +1,86 @@
+This is the list of changes for Kamband 1.8a, which was put together
+by Tim Baker to make some user-interface improvements and fix some
+bugs.
+
+Kamband 1.8b
+============
+
+o Add Bigscreen support
+
+o New "center_running" option can be turned off to disable the "center_player"
+	option while running
+
+o Objects inscribed with =g will automatically be picked up, regardless of any
+	pickup options. Inscribe your ammo!
+
+o Gold will always be picked up
+
+o The "easy_alter" and "easy_open" options were added to the Game-Play page
+	of the options
+
+o Removed random annoying messages about hitting a wall when running
+
+o Improved inventory command. The -/+/=/space keys can be used to scroll
+	through whole *pages* of items. The game also allows you to type a new
+	command while looking at your inventory.
+
+o Improved equipment command allows you to enter a command while looking at
+	your equipment
+
+o Added "verify_destroy" and "verify_destroy_junk" to the Disturbance page of
+	the options.
+
+o Added the "time of day" command, ^T or '
+
+o The screen dump commands now ask you for a file name.
+
+o The keymap/macro facility was updated to Angband 2.8.3
+
+o The spell/power display is now colorized, depending on the status of each
+	spell
+
+o Improved the browse command so you can repeatedly select spells to see the
+	spell comment
+
+o Added a whole new display for mixing ingredients. All the known recipes
+	are displayed in a scrollable list, along with their ingredients. Color
+	is used to indicate which ingredients are available, which ingredients
+	are currently mixed, and which recipes can actually be mixed.
+
+o Added the "hidden_pet_messages" option to the Kamband page of the options.
+	When "show_pet_messages" and "hidden_pet_messages" are on, pet messages
+	are not displayed if fighting pets are not visible.
+
+o Fixed town lighting when the sun rises/sets, when the "wiz_lite_town" option
+	is on
+
+o Race-specific and class-specific preference files are read in when a game
+	starts
+
+o You can read and write options to a file through the options display. Window
+	flags are also saved.
+
+o The lib\user\birth.prf file is read when a character is created, to set
+	default options
+
+o The Windows version has a bunch of menus with game commands, and improved
+	performance when drawing the screen. Any fixed-width font installed on
+	your computer can be chosen, in addition to the supplied font files.
+
+o The embedded <Slot> names are no longer displayed in the equipment display,
+	if "show_labels" is on.
+
+o When selecting an item, the -/+/=/space keys are used to scroll through
+	whole pages of items.
+
+o Object stacking/sorting is more robust and feels like the original Angband.
+	Similar objects are combined in the stores and home. Spell books always
+	come first. Pack items are reordered when objects are used/identified.
+
+o Restored the original Angband store display. The -/+/=/space keys are used
+	to browse through pages of stock.
+
+-- Tim Baker
+dbaker@direct.ca
+March 1, 2000
+

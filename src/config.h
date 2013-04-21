@@ -227,7 +227,7 @@
 /*
  * OPTION: Load previous versions of the Kamband save file.
  */
-#define ALLOW_OLD_SAVEFILES 
+#define ALLOW_OLD_SAVEFILES
 
 
 /*
@@ -507,5 +507,3 @@
 # define VERIFY_CHECKSUMS
 # define VERIFY_TIMESTAMP
 #endif
-
-

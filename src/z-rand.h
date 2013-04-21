@@ -93,5 +93,3 @@ extern s16b maxroll(int num, int sides);
 
 
 #endif
-
-
