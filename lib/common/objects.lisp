@@ -16,22 +16,15 @@ the Free Software Foundation; either version 2 of the License, or
 
 (in-package :langband)
 
-(defun common-creating-backpack (dungeon player aobj)
+(defconstant +common-backpack-size+ 23)
+
+(defun common-creating-backpack (state dungeon player aobj)
   "Assigns a container to aobj.contains."
   
-  (declare (ignore player dungeon))
+  (declare (ignore player dungeon state))
   
-  (let ((container (make-container 23)))
+  (let ((container (make-container +common-backpack-size+)))
     (setf (aobj.contains aobj) container)
     t))
 
-;; moved to vanilla
-#||
-(define-object-kind :backpack "backpack" :numeric-id 750
-		    :x-attr +term-white+ :x-char #\&
-		    :level 0 :rarity nil :chance #(0 0 0 0)
-		    :locale #(0 0 0 0) :weight nil
-		    :cost 1200 :obj-type '(<container> <backpack>)
-		    :events (list (cons :on-create #'common-creating-backpack)))
-||#
-
+;;(trace common-creating-backpack)

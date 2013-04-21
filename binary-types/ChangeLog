@@ -1,0 +1,232 @@
+2001-04-12  Frode Vatvedt Fjeld  <frodef@acm.org>
+
+	* RELEASE: 0.74
+
+	* binary-types.lisp: The previous fix for DEFINE-BINARY-STRUCT's
+	lambda list was wrong. Hopefully this actually fixes it.
+
+2001-04-11  Frode Vatvedt Fjeld  <frodef@acm.org>
+
+	* RELEASE: 0.73
+
+	* binary-types.lisp: Changed in DEFINE-BINARY-STRUCT a (format
+	"MAKE-~A" name) to (format "~A-~A" '#:make name), which should
+	allow for lower-case lisps to work.
+
+	* binary-types.lisp: Modified DEFINE-BINARY-STRUCT's macro
+	lambda-list slightly to accommodate a bug in clisp. (This
+	shouldn't affect other systems at all.)
+
+2001-03-29  Frode Vatvedt Fjeld  <frodef@acm.org>
+
+	* RELEASE: 0.72.
+
+2001-03-28  Frode Vatvedt Fjeld  <frodef@acm.org>
+
+	* binary-types.lisp: Added macro WITH-BINARY-OUTPUT-TO-LIST that,
+	given a stream variable S, evaluates its body such that calls to
+	WRITE-BINARY to stream S collects in a list the individual bytes
+	as integers. This list is returned by the macro form.
+
+	* binary-types.lisp: Added two dynamic variables that allows you
+	to override the low-level IO functions binary-types use to read
+	and write single octets: *BINARY-READ-BYTE* and
+	*BINARY-WRITE-BYTE*, respectively. They default to the standard CL
+	functions READ-BYTE and WRITE-BYTE, and you may rebind them to any
+	function with the same signature.
+
+	* binary-types.lisp: Fixed bug in the expansion of
+	DEFINE-BINARY-STRUCT that caused nested declarations not to
+	work. This bug even made example.lisp not work. Sigh.
+
+2001-02-19  Frode Vatvedt Fjeld  <frodef@acm.org>
+
+	* RELEASE: 0.71.
+
+	* README: Revamped the documentation somewhat. Fixed up some
+	inconsistencies etc.
+
+2001-02-13  Frode Vatvedt Fjeld  <frodef@acm.org>
+
+	* binary-types.lisp: Changed some more syntax (slightly) in order
+	to be more consistent with CL syntax. Specifically,
+	DEFINE-BITFIELD now requires parens around the storage-type (as
+	does DEFINE-ENUM).
+
+	* example.lisp: Changed to reflext new syntax.
+
+2001-02-12  Frode Vatvedt Fjeld  <frodef@acm.org>
+
+	* binary-types.lisp: Changed syntax of DEFINE-ENUM. The
+	storage-type must be put in braces, and you may optionally specify
+	the :byte.
+
+	* binary-types.lisp: Added function ENUM-VALUE.
+
+2000-11-01  Frode Vatvedt Fjeld  <frodef@acm.org>
+
+	* binary-types.lisp: Changed COMPOUND-SLOT-NAMES to not include
+	padding slots, unless explicity requested.
+
+	* binary-types.lisp: Added method WRITE-BINARY-COMPOUND that is
+	like WRITE-BINARY only it will automatically look up the correct
+	binary-type from the object, and it only works on compounds (that
+	is, binary-classes and binary-structs).
+
+2000-10-31  Frode Vatvedt Fjeld  <frodef@acm.org>
+
+	* binary-types.lisp: Added slot-option :on-write, that provides a
+	function that will be called (at binary-writing time) on the
+	slot's value to obtain the actual value that is written.
+
+2000-10-26  Frode Vatvedt Fjeld  <frodef@acm.org>
+
+	* RELEASE: 0.70.
+
+	* binary-types.lisp: Renamed DEF-BINCLASS to DEFINE-BINARY-CLASS,
+	and DEF-BINSTRUCT to DEFINE-BINARY-STRUCT, and DEF-* to DEFINE-*.
+
+	* binary-types.lisp: Added a variation of the :BT slot-option. It
+	is named :BTT, and will have the extra effect of adding a :TYPE
+	slot-option to the class or struct slot. Be careful when using
+	this in DEF-BINSTRUCT to provide an slot-initform that is of the
+	correct type!
+
+	* binary-types.lisp: Changed the way nested declarations are
+	expanded. Now, even nested declarations will (in the expansion)
+	become top-level forms, I believe. This means that the
+	type-specifiers (the place after :BT in e.g. DEF-BINCLASS) is no
+	longer really evaluated, rather it is parsed by the
+	macro-expander. This means you no longer have to quote the
+	type-names (See "example.lisp"). Bitfield types are represented
+	symbolically by lists, so they are all of the lisp-type
+	"list". Fixed-size-nt-strings are equivalent to lisp strings (they
+	should really be strings of a maximum size, but lisp can't easily
+	express that concept). Also note that padding binary types which
+	are named by integer objects don't translate to lisp types at
+	all. This is just fine, I think, since padding "slots" are not
+	supposed to hold any lisp data.
+
+	* binary-types.lisp: Added DEFTYPE declarations so that all
+	binary-types also become lisp-types. For example, if you declare
+	(def-unsigned raw-number 1), you implicitly declare a lisp
+	type-specifier RAW-NUMBER that is equivalent to (integer 0 255).
+
+2000-10-25  Frode Vatvedt Fjeld  <frodef@acm.org>
+
+	* RELEASE: 0.61
+
+	* binary-types.lisp: Fixed bug in READ-BINARY for signed integers.
+
+	* binary-types.lisp: Added a WRITE-BINARY for binary-type
+	fixed-size-nt-string. Hopefully, read/write symmetry is complete
+	now. At least it should be possible to write the elf-header from
+	example.lisp.
+
+	* binary-types.lisp: Added DEF-BINSTRUCT macro, which is (supposed
+	to be) to DEFSTRUCT what DEF-BINCLASS is to DEFCLASS. If nothing
+	else, structs prints and reads more easily than classes. See the
+	definition of E-IDENT in the updated example.lisp.
+
+2000-10-24  Frode Vatvedt Fjeld  <frodef@acm.org>
+
+	* binary-types.lisp: Added class-option for DEF-BINCLASS
+	:class-slot-align that allows you to adjust the offsets by
+	declaring the offset of one slot. Like this
+	(:class-slot-align slot-name offset)
+
+	* binary-types.lisp: Added a class-option for DEF-BINCLASS,
+	:class-slot-offset <integer>, that specifies an offset to add to
+	any slot-offset as returned by SLOT-OFFSET.
+
+	* README-bitfield: This is my response to a query about how
+	DEF-BITFIELD works, included here to provide some documentation.
+
+2000-10-23  Frode Vatvedt Fjeld  <frodef@acm.org>
+
+	* RELEASE: 0.50
+
+	* binary-types.lisp: Added a macro WITH-BINARY-FILE that is a thin
+	wrapper around WITH-OPEN-FILE that tries to force the stream to
+	have the correct element-type.
+
+2000-10-22  Frode Vatvedt Fjeld  <frodef@acm.org>
+
+	* binary-types.lisp: Changed syntax of DEF-BINCLASS again, so that
+	it now completely matches the DEFCLASS syntax, only you have one
+	extra slot-option, :BT, which declares the slot's
+	binary-type. This slot-option is evaluated, so you may still have
+	nested declarations. What is new is that you may have slots that
+	don't have a binary-type. Such slots are simply ignored by
+	READ-BINARY and WRITE-BINARY.
+
+2000-10-21  Frode Vatvedt Fjeld  <frodef@acm.org>
+
+	* binary-types.lisp: Added COMPOUND-SLOT-NAMES, to replace
+	COMPOUND-ALIST and COMPOUND-MERGE which are now deprecated (the
+	functions are still there, but their symbols are no longer
+	exported..).
+
+	* binary-types.lisp: Changed the two BITFIELD-COMPUTE-XX-VALUE
+	from generic to regular functions (no reason for these to be
+	generic functions).
+
+2000-10-20  Frode Vatvedt Fjeld  <frodef@acm.org>
+
+	* example.lisp: Changed the example ELF header declaration to work
+	with the slightly changed syntax. Basically, all slots' type-field
+	is evaluated, so type-names (symbols) must be quoted.
+
+	* binary-types.lisp: Renamed DEF-COMPOUND to DEF-BINCLASS, and
+	changed the syntax so it looks more like DEFCLASS.
+
+	* binary-types.lisp: Added the capability of binary-integers to be
+	declared a certain endianess. So an integer is either :BIG-ENDIAN
+	or :LITTLE-ENDIAN (regardless of *ENDIAN*), or it depends
+	dynamically on the value of *ENDIAN*. The DEF-INTEGER macros now
+	takes and optional endianess argument.
+
+	* binary-types.lisp: Changed the (previously very ugly)
+	implementation of the binary-types name-space. Now use the new
+	accessor FIND-BINARY-TYPE which is implemented with a simple
+	hash-table. This means that BINARY TYPES MUST NOW BE NAMED BY
+	SYMBOLS (binary-types no longer touches the symbol-value of
+	symbols).
+
+	* binary-types.lisp: Removed generic function BIT-SIZEOF, since we
+	only deal with octets anyway.
+
+	* binary-types.lisp: Changed *ENDIAN* to take keyword symbols
+	:BIG-ENDIAN or :LITTLE-ENDIAN (old BT-interned symbols still
+	work).
+
+2000-08-25  Frode Vatvedt Fjeld  <frodef@acm.org>
+
+	* binary-types.lisp: Fixed reading of signed integers.
+
+2000-06-13  Frode Vatvedt Fjeld  <frodef@acm.org>
+
+	* README: Added a little more documentation.
+
+	* example.lisp: Cleaned up some small things.
+
+2000-03-30  Frode Vatvedt Fjeld  <frodef@acm.org>
+
+	* binary-types.lisp: Added write support for bitfield.
+
+	* binary-types.lisp: Changed the bitfield type to use proper CL
+	"bytes" for subfields.
+
+1999-12-08  Frode Vatvedt Fjeld  <frodef@acm.org>
+
+	* test.lisp: Added this file for tests of the BINARY-TYPES
+	package. Not much in it so far.
+
+	* binary-types.lisp: Fixed READ-BINARY for signed integers so it
+	actually works.
+
+	* binary-types.lisp: Added WRITE-BINARY for integers, char8,
+	padding, and compound.
+
+	* ChangeLog: Started
+

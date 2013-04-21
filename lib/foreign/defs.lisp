@@ -1,3 +1,8 @@
+#|
+
+DESC: lib/foreign/defs.lisp - the foreign declarations that [L] uses
+
+|#
 
 (in-package :langband-ffi)
 

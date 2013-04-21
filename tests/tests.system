@@ -21,7 +21,10 @@
 			  :source-pathname ""
 			  :components ((:file "core")
 				       (:file "stat")
+				       (:file "checking")
+				       (:file "player")
 				       (:file "building")
+				       (:file "save")
 				       )
 			  :depends-on (basic))
 		 ))

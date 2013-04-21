@@ -188,6 +188,9 @@ is above a stair.  DIR can be :UP or :DOWN"
 	  (player.energy-use pl) +energy-normal-action+ 
 	  (dungeon.depth dun) depth)
 
+    (when (> depth (player.max-depth pl))
+      (setf (player.max-depth pl) depth))
+
     
     (setf (player.leaving-p pl) leaving-sym)
     t))

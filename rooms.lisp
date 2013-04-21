@@ -20,102 +20,126 @@ ADD_DESC: Most of the code which deals with generation of rooms
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (defclass room-type ()
-    ((id        :accessor room.id
+    ((id        :accessor room-type.id
 		:initarg :id
 		:initform nil)
      
-     (name      :accessor room.name
+     (name      :accessor room-type.name
 		:initarg :name
 		:initform "room")
      
-     (size-mod  :accessor room.size-mod
+     (size-mod  :accessor room-type.size-mod
 		:initarg :size-mod
 		:initform #1A(0 0 0 0 0))
      
-     (min-level :accessor room.min-level
+     (min-level :accessor room-type.min-level
 		:initarg :min-level
 		:initform 1)
-     )))
+     ))
 
+  (defclass active-room (activatable)
+    ((type      :accessor room.type
+		:initarg :type
+		:initform nil)
+     (loc-x     :accessor location-x
+		:initarg :loc-x
+		:initform +illegal-loc-x+)
+     (loc-y     :accessor location-y
+		:initarg :loc-y
+		:initform +illegal-loc-y+)))
+     
+		
 
-(defgeneric build-room! (room dungeon player where-x where-y)
-  (:documentation "Builds given room in the dungeon at [where-x, where-y]."))
-
-(defgeneric find-appropriate-room (variant level player)
-  (:documentation "Tries to find an appropriate room-type for given
-dungeon."))
-
-
-(defun define-room (key constructor)
-  "First argument should be an integer.. fix this later.."
+  (defgeneric build-room! (room dungeon player where-x where-y)
+    (:documentation "Builds given room in the dungeon at [where-x, where-y]."))
   
-  (let ((table (variant.room-builders *variant*)))
+  (defgeneric find-appropriate-room (variant level player)
+    (:documentation "Tries to find an appropriate room-type for given
+dungeon."))
+  )
+
+(defun define-room (id constructor)
+  "First argument should be an integer.. fix this later.."
+  (assert (or (stringp id) (symbolp id)))
+  (assert (functionp constructor))
+
+  (let ((table (variant.room-builders *variant*))
+	(key (if (symbolp id) (symbol-name id) id)))
     (setf (gethash key table) constructor)))
 
 (defun get-room (id)
   "Returns the constructor to build the given room, or NIL."
+
+  (assert (or (stringp id) (symbolp id)))
   
-  (let ((table (variant.room-builders *variant*)))
-    (gethash id table)))
+  (let ((key (if (symbolp id) (symbol-name id) id))
+	(table (variant.room-builders *variant*)))
+    (gethash key table)))
 
 (defmethod find-appropriate-room (variant level player)
   (declare (ignore variant level player))
   (error "find-appropriate-room not implemented."))
 
-(defun construct-room! (room dungeon player bx0 by0)
+(defun construct-room! (room-type dungeon player bx0 by0)
+  "Constructs and returns an active-room."
   
-;;  (declare (ignore player))
+  ;;  (declare (ignore player))
   ;;  (warn "Build room ~a ~a" by0 bx0)
 
   (assert (and (>= bx0 0) (>= by0 0) (< bx0 18) (< by0 6)))
 
-  (block room-construction
+  (let ((returned-room nil))
   
-    (let* (;;(room-builder (get-room-builder num))
-	   (room-info (room.size-mod room))
-	   (room-map (dun-data.room-map *cur-dun*))
-	   (by1 (+ by0 (svref room-info 0)))
-	   (by2 (+ by0 (svref room-info 1)))
-	   (bx1 (+ bx0 (svref room-info 2)))
-	   (bx2 (+ bx0 (svref room-info 3))))
-
-      (when (or (< by1 0)
-		(< bx1 0)
-		(>= by2 (dun-data.row-rooms *cur-dun*))
-		(>= bx2 (dun-data.col-rooms *cur-dun*)))
-	(warn "off the screen...")
-	(return-from room-construction nil))
-
-      ;; verify open space
-      (loop for i from by1 to by2
-	    do
-	    (loop for j from bx1 to bx2
-		  do
-		  (when (aref room-map j i)
-		    (return-from room-construction nil))))
-
-    
-      (let (;;(fun (cdr room-builder))
-	    (y (int-/ (* (+ by1 by2 1) +block-height+) 2))
-	    (x (int-/ (* (+ bx1 bx2 1) +block-width+) 2)))
-
-	(build-room! room dungeon player x y)
-	
-	;; hackish
-	(push (cons room (cons x y)) (dungeon.rooms dungeon))
-	;;      (funcall fun dungeon x y)
-
-	(push (cons x y) (dun-data.room-centres *cur-dun*))
-
-	;; reserve space in the room map
+    (block room-construction
       
+      (let* (;;(room-builder (get-room-builder num))
+	     (room-info (room-type.size-mod room-type))
+	     (room-map (dun-data.room-map *cur-dun*))
+	     (by1 (+ by0 (svref room-info 0)))
+	     (by2 (+ by0 (svref room-info 1)))
+	     (bx1 (+ bx0 (svref room-info 2)))
+	     (bx2 (+ bx0 (svref room-info 3))))
+	
+	(when (or (< by1 0)
+		  (< bx1 0)
+		  (>= by2 (dun-data.row-rooms *cur-dun*))
+		  (>= bx2 (dun-data.col-rooms *cur-dun*)))
+	  (warn "off the screen...")
+	  (return-from room-construction nil))
+	
+	;; verify open space
 	(loop for i from by1 to by2
 	      do
 	      (loop for j from bx1 to bx2
 		    do
-		    (setf (aref room-map j i) t)))
+		    (when (aref room-map j i)
+		      (return-from room-construction nil))))
 
-	;; skip crowd
+    
+	(let (;;(fun (cdr room-builder))
+	      (y (int-/ (* (+ by1 by2 1) +block-height+) 2))
+	      (x (int-/ (* (+ bx1 bx2 1) +block-width+) 2)))
+
+	  (build-room! room-type dungeon player x y)
+
+	  (let ((aroom (make-instance 'active-room :type room-type
+				      :loc-x x
+				      :loc-y y)))
+	    (add-room-to-dungeon! dungeon aroom)
+	    (setq returned-room aroom))
 
 
-	t))))
+	  (push (cons x y) (dun-data.room-centres *cur-dun*))
+
+	  ;; reserve space in the room map
+      
+	  (loop for i from by1 to by2
+		do
+		(loop for j from bx1 to bx2
+		      do
+		      (setf (aref room-map j i) t)))
+
+	  ;; skip crowd
+
+
+	  returned-room)))))

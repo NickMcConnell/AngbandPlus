@@ -51,8 +51,7 @@ ADD_DESC: Most of the code which deals with generation of dungeon levels.
 
 (defun in-bounds? (dungeon x y)
   "Checks that the coordinate is well within the dungeon"
-  (and (< x (dungeon.width dungeon))
-       (< y (dungeon.height dungeon))))
+  (legal-coord? dungeon x y))
 
 
 (defun in-bounds-fully? (dungeon x y)
@@ -167,7 +166,7 @@ ADD_DESC: Most of the code which deals with generation of dungeon levels.
 ;;  (warn "carry ~a" obj)
   (let ((place (cave-objects dungeon x y)))
     (unless place
-      (setf (cave-objects dungeon x y) (make-floor-container)))
+      (setf (cave-objects dungeon x y) (make-floor-container dungeon x y)))
     
     (item-table-add! (cave-objects dungeon x y) obj))
 
@@ -528,8 +527,8 @@ argument is passed it will be used as new dungeon and returned."
 	    
 		;; skip destroy
 		;; skip unusual
-		(let ((the-room (find-appropriate-room *variant* level player)))
-		  (construct-room! the-room dungeon player bx by))
+		(let ((the-room-type (find-appropriate-room *variant* level player)))
+		  (construct-room! the-room-type dungeon player bx by))
 		
 		;; fill in
 	  

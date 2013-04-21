@@ -1,0 +1,52 @@
+
+> My only problem is with DEF-BITFIELD. All other BINARY-TYPES
+> features are intuitive and easy to use.
+
+Hi, you are right that DEF-BITFIELD is poorly documented. I think
+that's because it's a bit complex and I'm not quite confident it is
+the way it should be. Anyways, here are a couple of examples:
+
+(define-bitfield r-info (u32)
+              (((:enum :byte (8 0))
+                 r-386-none     0
+                 r-386-32       1
+                 r-386-pc32     2
+                 r-386-got32    3
+                 r-386-plt32    4
+                 r-386-copy     5
+                 r-386-glob-dat 6
+                 r-386-jmp-slot 7
+                 r-386-relative 8
+                 r-386-gotoff   9
+                 r-386-gotpc    10)
+                ((:numeric r-sym 24 8))))
+
+This declares R-INFO to be an unsigned 32-bit number, divided into two
+fields. The first field resides in bits 0-7, and is one of the values
+r-386-xx. The second field is a numeric value that resides in bits
+8-23. So this type R-INFO may for example have symbolic value
+(r-386-pc32 (r-sym 1)), which translates to a numeric value of
+ (logior 2 1<<8)) = 258.
+
+Another example:
+
+(define-bitfield p-flags (u8)
+                (((:bits)
+                  pf-x 0
+                  pf-w 1
+                  pf-r 2)))
+
+Here P-FLAGS has just one bit-field, where bit 0 is named PF-X, bit 1
+is named PF-W etc. So the value (PF-X PF-R) maps to 5.
+
+As you may see by now, DEF-BITFIELD divides a numeric base-type
+(typically an unsigned integer) into a number of fields, where each
+field is one of :BITS for bitmaps, :ENUM for an enumerated field
+(takes an optional :BYTE <bytespec>), and finally :NUMERIC <byte-size>
+<byte-pos> for a subfield that is a number.
+
+Hope this helps.
+
+-- 
+Frode Vatvedt Fjeld
+

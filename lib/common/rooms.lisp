@@ -19,26 +19,23 @@ ADD_DESC: The rooms should be registered in the individual variant
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (defclass simple-room (room-type)
-    ()))
+    ())
+  (defclass shop-room (room-type)
+    ((shop :accessor room.shop :initform nil :initarg :shop))
+    ))
 
 (defun common-make-simple-room ()
   "constructor for the simple room."
-  (let ((room (make-instance 'simple-room :id :simple-room
+  (let ((room (make-instance 'simple-room :id "simple-room"
 			     :name "simple room"
 			     :size-mod #1A(0 0 -1 1)
 			     :min-level 1)))
 
     room))
     
-(eval-when (:compile-toplevel :load-toplevel :execute)
-  (defclass shop-room (room-type)
-    ((shop :accessor room.shop :initform nil :initarg :shop))
-
-    ))
-    
 (defun common-make-shop-room ()
   "constructor for the shop room."
-  (let ((room (make-instance 'shop-room :id :shop-room
+  (let ((room (make-instance 'shop-room :id "shop-room"
 			     :name "shop room"
 			     :size-mod #1A(0 0 -1 1)
 			     :min-level 1)))

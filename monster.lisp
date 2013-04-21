@@ -63,7 +63,12 @@ ADD_DESC: The code which deals with critters you can meet in the dungeon.
 
 (defun create-monster (id)
   "Returns an appropriate monster or NIL."
-  (let ((kind (get-monster-kind id)))
+
+  (assert (or (stringp id) (symbolp id)))
+  
+  (let ((kind (get-monster-kind (if (symbolp id)
+				    (symbol-name id)
+				    id))))
     
     (when kind
       (create-active-monster kind))))
@@ -105,7 +110,11 @@ ADD_DESC: The code which deals with critters you can meet in the dungeon.
 
   (let ((m-obj (make-instance 'Monster-kind)))
 
-    (setf (monster.id m-obj) id)
+    (assert (or (stringp id) (symbolp id)))
+    (setf (monster.id m-obj) (if (symbolp id)
+				 (symbol-name id)
+				 id))
+    (assert (stringp name))
     (setf (monster.name m-obj) name)
 
     (if (stringp desc)
@@ -170,57 +179,27 @@ ADD_DESC: The code which deals with critters you can meet in the dungeon.
 
 (defun get-monster-kind (id)
   "Returns monster-kind or nil."
-  (let ((table (get-mkind-table)))
-    (gethash id table)))
+  (assert (or (stringp id) (symbolp id)))
+  (let ((table (get-mkind-table))
+	(key (if (symbolp id) (symbol-name id) id)))
+;;    (warn "htbl has test ~a" (hash-table-test table))
+    (gethash key table)))
 
 (defun add-new-mkind! (obj id)
   ""
   (declare (ignore id))
   (apply-filters-on-obj :monsters *variant* obj))
 
-(defun add-monster-kind-to-table! (monster-kind id table)
-  ""
-  (setf (gethash id table) monster-kind))
-
 (defun (setf get-monster-kind) (monster-kind id)
   "establishes a monster-kind"
 
-  (let ((table (get-mkind-table)))
-    (add-monster-kind-to-table! monster-kind id table)))
+  (assert (or (stringp id) (symbolp id)))
+    
+  (let ((table (get-mkind-table))
+	(key (if (symbolp id) (symbol-name id) id)))
+    (setf (gethash key table) monster-kind)))
 
 
-(defmethod dump-object ((obj monster-kind) stream (style (eql :lispy)))
-  
-    (let* (;;(attacks (monster.attacks obj))
-	   (clause `(define-monster-kind ,(monster.id obj)
-		     ,(monster.name obj)
-		     :desc ,(monster.desc obj)
-		     :symbol ,(monster.symbol obj)
-		     :colour ,(symbolify (monster.colour obj))
-		     :alignment ,(symbolify (monster.alignment obj))
-		     :type ,(symbolify (monster.type obj))
-		     :level ,(monster.level obj)
-		     :rarity ,(monster.rarity obj)
-		     :hitpoints ,(monster.hitpoints obj)
-		     :armour ,(monster.armour obj)
-		     :speed ,(monster.speed obj)
-		     :xp ,(monster.xp obj)
-		     :alertness ,(monster.alertness obj)
-		     :vision ,(monster.vision obj)
-
-		     :abilities ,(symbolify (monster.abilities obj))
-		     :sp-abilities ,(symbolify (monster.sp-abilities obj))
-		     ;;		  :resists ,(monster.resists obj)
-		     :immunities ,(symbolify (monster.immunities obj))
-		     :vulnerabilities ,(symbolify (monster.vulnerabilities obj))
-		     :attacks ,(symbolify (mon-attacks-as-list obj))
-		     :treasures ,(symbolify (monster.treasures obj))
-		     :sex ,(symbolify (monster.sex obj))
-		     )
-	  
-	     ))
-  
-      (pprint clause stream)))
 
 (defun mon-attacks-as-list (monster)
   (let ((attacks (monster.attacks monster)))
@@ -237,23 +216,3 @@ ADD_DESC: The code which deals with critters you can meet in the dungeon.
 		 #'string-equal
 		 :key #'monster.id)))
 
-
-
-#||
-(defun dump-all-monsters (out-file monster-list style)
-  (with-open-file (o-str (pathname out-file)
-			 :direction :output 
-			 :if-exists :supersede)
-    (let ((*print-case* :downcase)
-	  (*print-escape* t)))
-    (dolist (i monster-list)
-      (dump-object i o-str style))))
-
-(defun print-all-monsters (&optional (var-obj *variant*))
-  (let ((*print-readably* nil)
-	(table (get-mkind-table)))
-    
-    (maphash #'(lambda (k v)
-		 (format t "~a -> ~a~%" k v))
-	     table)))
-||#

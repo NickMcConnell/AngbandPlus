@@ -133,10 +133,10 @@ the rest of the game is init'ed."
   )
 
 ;; EVENT function
-(defun van-add-basic-equip (player dungeon)
+(defun van-add-basic-equip (state player dungeon)
   "Adds basic equipment to player.  Dungeon argument is NIL."
 
-  (declare (ignore dungeon))
+  (declare (ignore state dungeon))
 
   (let* ((backpack (player.inventory player))
 	 (inventory (aobj.contains backpack)))
@@ -151,7 +151,9 @@ the rest of the game is init'ed."
 	    (item-table-add! inventory obj)))
 	))
 
-    ))
+    t))
+
+;;(trace van-add-basic-equip)
 
 (defmethod activate-object :after ((var-obj vanilla-variant) &key)
   "Does post-initialisation of the game with variant tweaking."
@@ -171,9 +173,28 @@ the rest of the game is init'ed."
 		       :stairs-down '(10 . 20) ;; (3 4)
 		       :stairs-up '(10 . 20) ;; (1 2)
 		       ))
-  
-  (register-setting-event& :birth (cons :on-pre-equip #'van-add-basic-equip))
 
+  ;; trying to make an event and register it. 
+  (let ((equip-event (make-event :vanilla-equipment-addition
+				   :on-pre-equip
+				   #'van-add-basic-equip))
+	(birth-settings (get-setting :birth)))
+    
+    (register-event& (event.id equip-event) equip-event)
+    (if (not birth-settings)
+	(warn "Unable to find birth-settings, not registering event.")
+	(register-object-event! birth-settings equip-event)
+	))
+  
+  ;; register level-constructors
+  (register-level-builder! 'random-level
+			   (get-late-bind-function 'langband
+						   'make-random-level-obj))
+  
+  (register-level-builder! 'town-level
+			   (get-late-bind-function 'langband
+						   'van-create-bare-town-level-obj))
+  
   )
 
     

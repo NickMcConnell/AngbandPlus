@@ -1,9 +1,41 @@
+2001-04-21  Stig E Sandø <stig@users.sourceforge.net>
+	* improving gradually save/load, now introducing the level-object
+	* made level-constructions use a factory in the variant object,
+	this is still ugly however
+	* added more to verify.lisp
+	* moved some equipment-implementation to util.lisp
+	* ...
+	
+2001-04-21  Stig E Sandø <stig@users.sourceforge.net>
+	* improving gradually the save/load process, which now mostly
+	includes the player-object.
+	* also refactored other parts of the code, though mostly related
+	to the player-object.
+	* improved test-set somewhat
+	* minor bug-fixing
+	* ...
+	
+2001-04-20  Stig E Sandø <stig@users.sourceforge.net>	
+	* started to add save/load of both a source-based save/load and a
+	binary version.  For the binary version I use binary-types made by
+	Frode Vatvedt Fjeld which seems to work.
+	* added a LANG-EQUAL function to be able to check that save/load
+	is consistent and to allow XP-testing of the system.
+	* Added in-game XP-testing of save/load of both binary and source.
+	* added illegal x/y values to coordinates to ensure that
+	safe-values are always put there.
+	* added x/y coordinates to items-on-floor and a dungeon-pointer
+	* tries to ensure that all id's of monsters/objects are strings,
+	help in save/load process
+	
+	
+	
 2001-04-15  Stig E Sandø <stig@users.sourceforge.net>
 	* added more or less the same speed-system as in Angband, which
 	means that speed matters now.  Some actions have different
 	energy-use though
 	* added more generic functions to ensure that code for
-	monsters/player is more or less chared.
+	monsters/player is more or less shared.
 	* ensured that the combat-system uses skill more or less
 	* added a WITH-DUNGEON-MONSTERS macro to simplify code
 	* improved WITH-NEW-SCREEN and use it in more places

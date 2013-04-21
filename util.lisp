@@ -28,30 +28,71 @@ ADD_DESC: classes and must be loaded late.
 	    (py (location-y player))
 	    (cur-objs (cave-objects dungeon px py)))
        (unless cur-objs
-	 (setf cur-objs (make-floor-container))
+	 (setf cur-objs (make-floor-container dungeon px py))
 	 (setf (cave-objects dungeon px py) cur-objs))
        cur-objs))
     (:backpack (aobj.contains (player.inventory player)))
     (:equip (player.eq player))))
 
-(defun save-game (dun pl &optional (filename "save.file"))
-  "Tries to save a game."
 
-  (with-open-file (s (pathname filename)
-		     :direction :output
-		     :if-exists :supersede)
-    (let ((*print-case* :downcase))
+;;; === Equipment-implementation for floors ===
 
-      (dump-object pl s :save)
-      (dump-object dun s :save)
-      ))
-  
-  (values))
+(defmethod item-table-add! ((table items-on-floor) obj &optional key)
+  (declare (ignore key))
+;;  (lang-warn "Pushing ~a [~a,~a] onto floor [~a,~a]"
+;;	    obj (location-x obj) (location-y obj)
+;;	    (location-x table) (location-y table))
+  (setf (location-x obj) (location-x table)
+	(location-y obj) (location-y table))
+  (push obj (dungeon.objects (items.dun table)))
+  (push obj (items.objs table))
+  (incf (items.cur-size table))
+  t)
 
-(defmethod dump-object ((obj player) stream style)
-  (declare (ignore stream style))
-  (format t "~a~%" (get 'player 'struct-slots)))
+(defmethod item-table-remove! ((table items-on-floor) key)
+  (cond ((item-table-verify-key table key)
+	 (let ((old-obj nil)
+	       (num-key (typecase key
+			  (character (a2i key))
+			  (number key)
+			  (t nil))))
+	   (when (numberp num-key)
+	     (setq old-obj (elt (items.objs table) num-key))
+	     (setf (items.objs table) (delete old-obj (items.objs table)))
+	     (remove-item-from-dungeon! (items.dun table) old-obj)
+	     (decf (items.cur-size table)))
+	   
+	   old-obj))
+	(t
+	 (warn "illegal key ~a" key)
+	 nil)))
 
-(defmethod dump-object ((obj dungeon) stream style)
-  (declare (ignore stream style))
-  (format t "~a ~a~%" (dungeon.rooms obj) (dungeon.monsters obj)))
+(defmethod item-table-clean! ((table items-on-floor))
+  (when (next-method-p)
+    (call-next-method table))
+  (let ((dun (items.dun table)))
+    (dolist (i (items.objs table))
+      (remove-item-from-dungeon! dun i)))
+
+  (setf (items.objs table) nil))
+
+(defmethod item-table-find ((table items-on-floor) key)
+  (when (item-table-verify-key table key)
+    (typecase key
+      (character (elt (items.objs table) (a2i key)))
+      (number (elt (items.objs table) key))
+      (t
+       (warn "unknown type ~a of key" (type-of key))
+       nil))))
+
+
+(defmethod item-table-sort! ((table items-on-floor) sorter)
+  (declare (ignore sorter))
+  ;; the floor is never sorted
+  nil)
+
+(defmethod item-table-iterate! ((table items-on-floor) function)
+  (loop for i from 0
+	for obj in (items.objs table)
+	do
+	(funcall function table i obj)))

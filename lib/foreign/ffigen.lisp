@@ -1,3 +1,8 @@
+#|
+
+DESC: lib/foreign/ffigen.lisp - code that reads defs and generates actual ffi-code.
+
+|#
 
 (in-package :langband-ffi)
 

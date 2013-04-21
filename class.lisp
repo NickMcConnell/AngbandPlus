@@ -46,13 +46,17 @@ ADD_DESC: This file contains basics for dealing with character classes
 
 (defun (setf get-char-class) (class id)
   "Adds class to appropriate tables id'ed by id."
-  (let ((table (variant.classes *variant*)))
-    (setf (gethash id table) class)))
+  (assert (or (stringp id) (symbolp id)))
+  (let ((key (if (symbolp id) (symbol-name id) id))
+	(table (variant.classes *variant*)))
+    (setf (gethash key table) class)))
 
 (defun get-char-class (id)
   "Gets the class id'ed by id."
-  (let ((table (variant.classes *variant*)))
-    (gethash id table)))
+  (assert (or (stringp id) (symbolp id)))
+  (let ((key (if (symbolp id) (symbol-name id) id))
+	(table (variant.classes *variant*)))
+    (gethash key table)))
 
 (defun get-classes-as-a-list ()
   "Returns all available classes."

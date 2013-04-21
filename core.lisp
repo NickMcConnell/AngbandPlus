@@ -15,13 +15,14 @@ the Free Software Foundation; either version 2 of the License, or
 (in-package :langband)
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
+  
   (defstruct (game-obj-table (:conc-name gobj-table.))
     (obj-table nil)
     (alloc-table nil)
     (obj-table-by-lvl nil)
-    ))
+    )
 
-(eval-when (:compile-toplevel :load-toplevel :execute)
+
 
   (defclass variant (activatable)
     (
@@ -33,11 +34,11 @@ the Free Software Foundation; either version 2 of the License, or
 		:initform "lithping"
 		:initarg :name)
 
-     (sys-file  :accessor variant.sys-file
+     (sys-file  :accessor variant.sys-file ;; used for?
 		:initform nil
 		:initarg :sys-file)
 
-     (file-path :accessor variant.file-path
+     (file-path :accessor variant.file-path ;; used for?
 		:initform nil
 		:initarg :file-path)
 
@@ -60,13 +61,18 @@ the Free Software Foundation; either version 2 of the License, or
 		  :initarg :turn-events)
 
 
+     ;; a level builder is a constructor that must be funcalled
+     ;; the key is the level-id
+     (level-builders :accessor variant.level-builders
+		     :initform (make-hash-table :test #'equal)
+		     :initarg :level-builders)
 
      (floor-features :accessor variant.floor-features
 		     :initform (make-hash-table :test #'eql)
 		     :initarg :floor-features)
 
      (room-builders  :accessor variant.room-builders
-		     :initform (make-hash-table :test #'eql)
+		     :initform (make-hash-table :test #'equal)
 		     :initarg :room-builders)
 
      (sort-values    :accessor variant.sort-values
@@ -119,51 +125,13 @@ the Free Software Foundation; either version 2 of the License, or
      (attk-descs :accessor variant.attk-descs
 		 :initform (make-hash-table :test #'eq)
 		 :initarg :attk-descs)
-     
-#||     
-     (alloc-table-monsters :accessor variant.alloc-table-monsters
-			   :initarg :alloc-table-monsters
-			   :initform nil)
 
-     (alloc-table-objects  :accessor variant.alloc-table-objects
-			   :initarg :alloc-table-objects
-			   :initform nil)
-
-     
-     ;; monster kind
-     (mkind-table :accessor variant.mkind-table
-		  :initarg :mkind-table
-		  :initform (make-hash-table :test #'equal))
-
-     ;; numeric version.. remove later
-     (mkind-table-num :accessor variant.mkind-table-num
-		      :initarg :mkind-table-num
-		      :initform (make-hash-table :test #'equal))
-
-     (mkind-by-lvl :accessor variant.mkind-by-lvl
-		   :initarg :mkind-by-lvl
-		   :initform nil)
-
-     (okind-by-lvl :accessor variant.okind-by-lvl
-		   :initarg :okind-by-lvl
-		   :initform nil)
-
-     ;; object kind
-     (okind-table :accessor variant.okind-table
-		  :initarg :okind-table
-		  :initform (make-hash-table :test #'equal))
-
-     ;; numeric version.. remove later
-     (okind-table-num :accessor variant.okind-table-num
-		      :initarg :okind-table-num
-		      :initform (make-hash-table :test #'equal))
-     ||#
      (day-length      :accessor variant.day-length
 		      :initarg :day-length
 		      :initform 10000)
-
-   
+     
      )))
+
 
 (defun register-variant& (var-obj)
   "Registers a variant-object."
@@ -206,7 +174,7 @@ the Free Software Foundation; either version 2 of the License, or
   (let ((table (variant.sort-values *variant*)))
     (gethash key table)))
 
-(defun execute-turn-events (var-obj)
+(defun execute-turn-events! (var-obj)
   "Executes any turn-events."
   (let* ((turn (variant.turn var-obj))
 	 (turn-table (variant.turn-events var-obj))
@@ -216,7 +184,7 @@ the Free Software Foundation; either version 2 of the License, or
       (warn "Executing events ~a" turn-ev)
       (remhash turn turn-table))))
 
-(defun add-turn-event (var-obj wanted-turn event)
+(defun register-turn-event! (var-obj wanted-turn event)
   "Adds a turn-event."
 
   (push event (gethash wanted-turn (variant.turn-events var-obj))))
@@ -253,6 +221,21 @@ are sorted first.  Returns nothing."
 	(setf (gethash key table) sort-val)))
     (values)))
 
+(defun get-level-builder (id &optional (var-obj *variant*))
+  "Returns a level-builder or nil."
+  (assert (or (symbolp id) (stringp id)))
+  (let ((table (variant.level-builders var-obj))
+	(key (if (symbolp id) (symbol-name id) id)))
+    (gethash key table)))
+
+(defun register-level-builder! (id builder &optional (var-obj *variant*))
+  "Registers a level-builder which must be a function."
+  (assert (or (symbolp id) (stringp id)))
+  (assert (functionp builder))
+
+  (let ((table (variant.level-builders var-obj))
+	(key (if (symbolp id) (symbol-name id) id)))
+    (setf (gethash key table) builder)))
 
 
 

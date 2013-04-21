@@ -22,7 +22,18 @@ the Free Software Foundation; either version 2 of the License, or
     (:documentation "abstract interface for all item-tables."))
 
   (defclass items-on-floor (item-table)
-    ((obj-list :accessor items.objs     :initform nil))
+    ((obj-list :accessor items.objs
+	       :initform nil)
+     (dungeon  :accessor items.dun
+	       :initarg :dungeon
+	       :initform nil)
+     (loc-x    :accessor location-x
+	       :initarg :loc-x
+	       :initform +illegal-loc-x+) ;; invalid value
+     (loc-y    :accessor location-y
+	       :initarg :loc-y
+	       :initform +illegal-loc-y+))
+    
     (:documentation "Represents the items on the floor."))
 
   (defclass items-in-container (item-table)
@@ -103,57 +114,6 @@ the table, the key and the object itself."))
 
 
 
-;;; ----------------------------
-;; floors
-(defmethod item-table-add! ((table items-on-floor) obj &optional key)
-  (declare (ignore key))
-;;  (warn "Pushing ~a onto floor" obj)
-  (push obj (items.objs table))
-  (incf (items.cur-size table))
-  t)
-
-(defmethod item-table-remove! ((table items-on-floor) key)
-  (cond ((item-table-verify-key table key)
-	 (let ((old-obj nil)
-	       (num-key (typecase key
-			  (character (a2i key))
-			  (number key)
-			  (t nil))))
-	   (when (numberp num-key)
-	     (setq old-obj (elt (items.objs table) num-key))
-	     (setf (items.objs table) (delete old-obj (items.objs table)))
-	     (decf (items.cur-size table)))
-	   
-	   old-obj))
-	(t
-	 (warn "illegal key ~a" key)
-	 nil)))
-
-(defmethod item-table-clean! ((table items-on-floor))
-  (when (next-method-p)
-    (call-next-method table))
-  (setf (items.objs table) nil))
-
-(defmethod item-table-find ((table items-on-floor) key)
-  (when (item-table-verify-key table key)
-    (typecase key
-      (character (elt (items.objs table) (a2i key)))
-      (number (elt (items.objs table) key))
-      (t
-       (warn "unknown type ~a of key" (type-of key))
-       nil))))
-
-
-(defmethod item-table-sort! ((table items-on-floor) sorter)
-  (declare (ignore sorter))
-  ;; the floor is never sorted
-  nil)
-
-(defmethod item-table-iterate! ((table items-on-floor) function)
-  (loop for i from 0
-	for obj in (items.objs table)
-	do
-	(funcall function table i obj)))
 
 ;;; ----------------------------
 ;; backpack
@@ -262,7 +222,16 @@ the table, the key and the object itself."))
       (c-pause-line! *last-console-line*))
 
     )))
-	    
+
+
+(defmethod print-object ((inst items-in-container) stream)
+  (print-unreadable-object
+   (inst stream :identity t)
+   (format stream "~:(~S~) [~A ~A]" (class-name (class-of inst))
+	   (items.cur-size inst)
+	   (items.max-size inst)))
+  inst)
+
 
 ;;; ----------------------------
 ;; equipment slots
@@ -415,7 +384,9 @@ to variant obj."
 		 :cur-size 0
 		 :objs (make-array size :initial-element nil)))
 
-(defun make-floor-container ()
+(defun make-floor-container (dun loc-x loc-y)
   "Returns a container for floor-objects."
-  (make-instance 'items-on-floor))
+  (make-instance 'items-on-floor :dungeon dun :loc-x loc-x :loc-y loc-y))
 
+;;(trace make-container)
+;;(trace make-floor-container)

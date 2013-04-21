@@ -24,36 +24,12 @@ ADD_DESC: for different parts of the code
  
   (defclass settings ()
     ((name   :accessor setting.name   :initform "No-name" :initarg :name)
-     (events :accessor setting.events :initform nil :initarg nil))))
+     (events :accessor setting.events :initform nil :initarg nil)))
 
+  (defclass birth-settings (settings)
+    ((allow-all-classes :accessor birth.allow-classes :initform nil))
+    (:documentation "Settings when creating characters."))
 
-(defmethod trigger-event ((obj settings) event arg-list)
-  "trigger events registered for the settings."
-  (apply-event event (setting.events obj) arg-list))
-
-
-(defun get-setting (key)
-  "Returns the setting or NIL."
-  (gethash key *game-settings*))
-
-
-(defun (setf get-setting) (setting key)
-  "Ensures that the setting is accesible from key."
-  (when setting
-    (unless (keywordp key)
-      (warn "Registered setting without a keyword as key [~s]"
-	    key))
-    (setf (gethash key *game-settings*) setting)))
-
-(defun register-setting-event& (setting-key event)
-  "Registers an event for an existing setting."
-  (let ((setting (get-setting setting-key)))
-    (if (not setting)
-	(warn "Unable to find setting with key ~s" setting-key)
-	(push event (setting.events setting)))))
-
-
-(eval-when (:compile-toplevel :load-toplevel :execute)
   (defclass dungeon-settings (settings)
     ((max-width   :initarg :max-width   :initform 198)
      (max-height  :initarg :max-height  :initform 66)
@@ -62,12 +38,9 @@ ADD_DESC: for different parts of the code
      ;; ranges
      (stairs-down :initarg :stairs-down :initform '(3 4))
      (stairs-up   :initarg :stairs-up   :initform '(1 2)))
-    (:documentation "A class I will be expanding later..")))
+    (:documentation "A class I will be expanding later.."))
 
-
-(eval-when (:compile-toplevel :load-toplevel :execute)
- 
-  (defclass printing-settings (settings)
+   (defclass printing-settings (settings)
     ((race   :initarg :race)
      (class  :initarg :class)
      (title  :initarg :title)
@@ -82,8 +55,31 @@ ADD_DESC: for different parts of the code
      (cur-mana :initarg :cur-mana))
 
     (:documentation "Locations and various settings when printing stuff.
-Each location should be a cons with (row . col).")))
-	    
+Each location should be a cons with (row . col)."))
+  
+   )
+
+
+
+(defmethod trigger-event ((obj settings) event arg-list)
+  "trigger events registered for the settings."
+  (apply-event event (setting.events obj) arg-list))
+
+(defmethod register-object-event! ((obj settings) event)
+  (push event (setting.events obj)))
+
+(defun get-setting (key)
+  "Returns the setting or NIL."
+  (gethash key *game-settings*))
+
+(defun (setf get-setting) (setting key)
+  "Ensures that the setting is accesible from key."
+  (when setting
+    (unless (keywordp key)
+      (warn "Registered setting without a keyword as key [~s]"
+	    key))
+    (setf (gethash key *game-settings*) setting)))
+  
 
 (defun make-prt-settings ()
   "Creates and returns appropriate default printing-settings."
@@ -104,17 +100,9 @@ Each location should be a cons with (row . col).")))
 		 ))
 
 
-
-(eval-when (:compile-toplevel :load-toplevel :execute)
-  (defclass birth-settings (settings)
-    ((allow-all-classes :accessor birth.allow-classes :initform nil))
-    (:documentation "Settings when creating characters.")))
-
 (defun make-birth-settings (&key allow-all-classes)
   "Returns a birth-settings object."
   (let ((settings (make-instance 'birth-settings :name "Birth settings")))
     (when allow-all-classes
       (setf (birth.allow-classes settings) t))
     settings))
-
-  

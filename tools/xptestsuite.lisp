@@ -120,6 +120,9 @@ setup method did for this instance."
   "Perform the test represented by the given test-case or test-suite.
 Returns one or more test-result objects, one for each test-case
 performed."
+  #+cmu
+  (declare (optimize (ext:inhibit-warnings 3)))
+
   (let ((start-time (get-universal-time))
 	(failures ())
 	(errs ()))

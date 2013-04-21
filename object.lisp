@@ -111,30 +111,42 @@ ADD_DESC: available in the game.
 
 (defun get-obj-kind (id)
   "Returns the obj-kind for the given id."
-  (gethash id (get-okind-table)))
+  (assert (or (stringp id) (symbolp id)))
+  (let ((table (get-okind-table))
+	(key (if (symbolp id) (symbol-name id) id)))
+    (gethash key table)))
 
+#||
 (defun (setf get-obj-kind) (obj id)
   ;;  (warn "Adding ~a" obj)
   "Adds the obj to the obj-kind table identified by given id."
-  (warn "do not use me")
+  (error "do not use me")
   (let ((table (get-okind-table)))
     (setf (gethash id table) obj)) )
+||#
 
 (defun add-new-okind! (obj id)
   ""
   (declare (ignore id))
+;;  (warn "Adding obj with id ~s" id)
   (apply-filters-on-obj :objects *variant* obj))
 
 
-(defun define-object-kind (id name &key numeric-id x-attr x-char level rarity
+(defun define-object-kind (dummy-arg id name
+			   &key numeric-id x-attr x-char level rarity
 			   chance locale weight cost obj-type sort-value
 			   events)
   "creates and establishes an object corresponding to parameters"
-  (let ((new-obj (make-instance 'object-kind
-				:id id
+  (declare (ignore dummy-arg))
+  
+  (assert (or (stringp id) (symbolp id)))
+  
+  (let* ((key (if (symbolp id) (symbol-name id) id))
+	 (new-obj (make-instance 'object-kind
+				:id key
 				:numeric-id (if numeric-id
 						numeric-id
-						id)
+						key)
 				:name name
 				:x-attr x-attr
 				:x-char x-char
@@ -148,9 +160,9 @@ ADD_DESC: available in the game.
 				:obj-type (if (listp obj-type)
 					      obj-type
 					      (list obj-type))
-				:events events
+				:events (get-legal-events events)
 				)))
-
+    
     (add-new-okind! new-obj id)
 ;;    (apply-filters-on-obj :objects *variant* new-obj)
 ;;    (setf (get-obj-kind id) new-obj)
@@ -312,8 +324,6 @@ with k-info.txt numbers. NUM is the numeric id."
   "this one should be moved out into the variant directories"
   
   (declare (ignore store))
-
-
   
   (let* ((o-type (aobj.kind item))
 	 (name (object.name o-type))
@@ -343,28 +353,6 @@ with k-info.txt numbers. NUM is the numeric id."
     tot-str))
 
 
-(defmethod dump-object ((obj object-kind) stream (style (eql :lispy)))
-  "Dumps the object in a lispy-style which can be evaluated later.
-Loses information."
-  
-  (let ((clause `(define-object-kind
-		  ,(object.id obj)
-		  ,(object.name obj)
-		  :numeric-id ,(object.numeric-id obj)
-		  :x-attr ,(get-letter-from-colour-code (object.x-attr obj))
-		  :x-char ,(object.x-char obj)
-		  :level ,(object.level obj)
-		  :rarity ,(object.rarity obj)
-		  :chance ,(object.chance obj)
-		  :locale ,(object.locale obj)
-		  :weight ,(object.weight obj)
-		  :sort-value ,(object.sort-value obj)
-		  :cost ,(object.cost obj)
-		  :obj-type ,(symbolify (object.obj-type obj))
-		  )))
-		  
-    (pprint clause stream)))
-
 (defmethod print-object ((inst object-kind) stream)
   (print-unreadable-object
    (inst stream :identity t)
@@ -375,24 +363,8 @@ Loses information."
 (defmethod print-object ((inst active-object) stream)
   (print-unreadable-object
    (inst stream :identity t)
-   (format stream "~:(~S~) [~S]" (class-name (class-of inst)) 
-	   (aobj.kind inst))
+   (format stream "~:(~S~) [~S (~a,~a)]" (class-name (class-of inst)) 
+	   (aobj.kind inst) (location-x inst) (location-y inst))
   inst))
 
 
-
-(defun %output-kinds-to-file (fname)
-  "Dumps the obj-kind table to the given filename."
-  
-  (with-open-file (s (pathname fname)
-		     :direction :output 
-		     :if-exists :supersede)
-    (let ((*print-case* :downcase)
-	  (*print-escape* t)
-	  (table (get-okind-table)))
-
-      (loop for v being the hash-values of table
-	    do
-	    (dump-object v s :lispy)
-	    (write-char #\newline s)
-	    ))))

@@ -61,6 +61,7 @@ How to play:
     p - prints a map of dungeon to map.ascii (debugging)
     P - prints a ppm map to map.ppm (debugging)
     z - "zap" the game (expert debugging)
+    S - save the game (save-file will be used on restart)
     Q - quit the game
 
   The keys and their code may be found in lib/common/keys.lisp

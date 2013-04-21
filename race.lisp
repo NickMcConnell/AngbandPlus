@@ -42,13 +42,17 @@ the Free Software Foundation; either version 2 of the License, or
 
 (defun (setf get-char-race) (race id)
   "Puts the race in appropriate tables id'ed by id."
-  (let ((table (variant.races *variant*)))
-    (setf (gethash id table) race)))
+  (assert (or (stringp id) (symbolp id)))
+  (let ((key (if (symbolp id) (symbol-name id) id))
+	(table (variant.races *variant*)))
+    (setf (gethash key table) race)))
 
 (defun get-char-race (id)
   "Fetches the race id'ed by id from the appropriate table."
-  (let ((table (variant.races *variant*)))
-    (gethash id table)))
+  (assert (or (stringp id) (symbolp id)))
+  (let ((key (if (symbolp id) (symbol-name id) id))
+	(table (variant.races *variant*)))
+    (gethash key table)))
 
 (defun get-races-as-a-list ()
   "Returns a fresh list of all races."
@@ -94,13 +98,3 @@ the Free Software Foundation; either version 2 of the License, or
     ;; return the race
     race))
 
-
-#||
-(defun print-all-races ()
-  "Prints to stdout all races with their key."
-  (let ((*print-readably* nil))
-    (maphash #'(lambda (k v)
-		 (format t "~a -> ~a~%" k v))
-	     *race-table*)))
-||#
-;; (print-all-races)

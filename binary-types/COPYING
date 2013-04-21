@@ -1,0 +1,26 @@
+######################################################################
+## 
+##    Copyright (C) 1999,
+##    Department of Computer Science, University of Tromsø, Norway
+## 
+## Filename:      COPYING
+## Description:   Defines the terms under which this software may be copied.
+## Author:        Frode Vatvedt Fjeld <frodef@acm.org>
+## Created at:    Mon Nov  8 20:32:12 1999
+## Distribution:  See the accompanying file COPYING.
+##                
+## $Id: COPYING,v 1.1 2001/04/19 23:54:28 stig Exp $
+##                
+######################################################################
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+  1. Redistributions of source code must retain the above copyright
+     notice, this list of conditions and the following disclaimer.
+  2. Redistributions in binary form must reproduce the above copyright
+     notice, this list of conditions and the following disclaimer in the
+     documentation and/or other materials provided with the distribution.
+  3. Neither the name of the University nor the names of its contributors
+     may be used to endorse or promote products derived from this software
+     without specific prior written permission.

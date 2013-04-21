@@ -117,9 +117,33 @@ the Free Software Foundation; either version 2 of the License, or
 	(declare (ignore dun))
 	(assert (eq pl nil))))
 
+(define-key-operation 'in-game-test
+    #'(lambda (dun pl)
+	(declare (ignore dun pl))
+	;; temporary place
+	#+xp-testing
+	(do-a-test :in)
+	#||
+	  ;; for those times when things crash
+	  (let ((func (get-late-bind-function 'lb-test '%loc-save-test)))
+	    (when func
+	      (funcall func lb::*variant* :variant)
+	      (funcall func lb::*level* :level)
+	      (funcall func lb::*player* :player)))
+	  ||#
+
+	))
+
 (define-key-operation 'save-game
     #'(lambda (dun pl)
-	(save-game dun pl)))
+	(declare (ignore dun pl))
+	(let ((func (get-late-bind-function 'langband 'save-the-game)))
+	  (when func
+	    (funcall func *variant* *player* *level* :fname +readable-save-file+ :format :readable)
+	    (funcall func *variant* *player* *level* :fname +binary-save-file+ :format :binary)
+	    )
+	  )))
+
 
 (define-key-operation 'inspect-coord
     #'(lambda (dun pl)
@@ -141,7 +165,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 
 (define-keypress *ang-keys* :global #\z 'halt-program)
-(define-keypress *ang-keys* :global #\Z 'save-game)
+(define-keypress *ang-keys* :global #\S 'save-game)
+(define-keypress *ang-keys* :global #\Z 'in-game-test)
 (define-keypress *ang-keys* :global #\I 'inspect-coord)
 (define-keypress *ang-keys* :global #\K 'print-keys) 
 

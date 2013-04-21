@@ -64,6 +64,8 @@ the Free Software Foundation; either version 2 of the License, or
 	    (cadr i)))
     table))
 
+(defun make-stat-array ()
+  (make-array +stat-length+ :initial-element 0))
 
 (defun cnv-stat (val stream)
   "Converts given stat integer to a 6 char long string with

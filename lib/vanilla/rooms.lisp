@@ -25,11 +25,10 @@ the Free Software Foundation; either version 2 of the License, or
 
     ;; might surprise someone 
     (cond ((< some-val 1)
-	   (setf the-room (funcall (get-room :shop-room))))
+	   (setf the-room (funcall (get-room "shop-room"))))
 	  
 	  (t
-	   (setf the-room (funcall (get-room :simple-room)))
+	   (setf the-room (funcall (get-room "simple-room")))
 	   ))
     
     the-room))
-

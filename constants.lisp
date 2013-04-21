@@ -251,3 +251,12 @@ ADD_DESC: This file contains the constants in the game.  should be small.
 
 
 (defconstant +speed-base+ 110)
+
+(defconstant +illegal-loc-x+ 7777)
+(defconstant +illegal-loc-y+ 7777)
+(defconstant +room-size-arg-len+ 5)
+
+(defconstant +readable-save-file+ "_save-game.lisp")
+(defconstant +binary-save-file+ "_save-game.bin")
+
+(defconstant +saved-cave-flags+ (logior +cave-mark+ +cave-glow+ +cave-icky+ +cave-room+))

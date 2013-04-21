@@ -14,71 +14,73 @@ the Free Software Foundation; either version 2 of the License, or
 
 (in-package :langband)
 
+(eval-when (:compile-toplevel :load-toplevel :execute)
 
-(def-saveable-struct
-    (player (:conc-name player.))
-  
+  (bt:define-binary-struct (player (:conc-name player.)) ()
+
+    ;; === Need Special saving ===
+    
     (name "Foo")
-  (class nil)
-  (race nil)
-   (sex nil)
+    (class nil)
+    (race nil)
+    (sex nil)
+
+    (base-stats nil);; "this is the base stats"
+    (curbase-stats nil);; "this is the current (possibly drained) base stats"
+    (hp-table    nil) ;; should be saved
+    (equipment   nil)
+
+    ;; === Directly savable to binary ===
+
+    (loc-x +illegal-loc-x+ :bt u16)
+    (loc-y +illegal-loc-y+ :bt u16)
+
+    (view-x +illegal-loc-x+ :bt u16);; wx
+    (view-y +illegal-loc-y+ :bt u16);; wy
+    
+    (depth     0 :bt s16)
+    (max-depth 0 :bt s16)
+    
+    (max-xp      0 :bt u32)
+    (cur-xp      0 :bt u32)
+    (fraction-xp 0 :bt u32) 
+
+    (cur-hp      0 :bt u32)
+    (fraction-hp 0 :bt u32)
+
+    (cur-mana      0 :bt u32)
+    (fraction-mana 0 :bt u32)
+
+    (gold        0 :bt u32)
+    (energy      0 :bt u16)
+
+    ;; === The remaining values can be calculated from the above ===
+    
+    (level     1)  ;; can be calculated from cur-xp
+    (max-level 1)  ;; can be calculated from max-xp
+
+    (max-hp      0)   ;; can be calculated
+    (max-mana    0)   ;; can be calculated
+    (xp-table    nil) ;; can be calculated
+    
+    (energy-use  0)   ;; is just a temp-variable
+    (leaving-p   nil) ;; need to save it?
+    (dead-p      nil) ;; need to save it?
+    (speed       +speed-base+)  ;; does this change?
+    
+
+    (base-ac      0)
+    (ac-bonus     0)
+    (light-radius 0)
    
-   (base-stats nil) ;; "this is the base stats"
-   (curbase-stats nil) ;; "this is the current (possibly drained) base stats"
-   (modbase-stats nil) ;; "this is the modified base stats (base + race + class + eq)"
-   (active-stats nil) ;; "this is the current active stat-value (curbase + race + class + eq)"
+    (infravision 0)
+    (inventory   nil) ;; quick variable to equipment.backpack.content
+    (skills      nil)
 
-   (loc-x nil)
-   (loc-y nil)
-   
-   (view-x nil)  ;; wx
-   (view-y nil)  ;; wy
-   
-   (depth     0)
-   (max-depth nil)
-   (level     1)
-   (max-level 1)
-
-   (xp-table    nil)
-   (max-xp      0)
-   (cur-xp      0)
-   (fraction-xp 0) 
-   
-   (hp-table    nil)
-   (max-hp      0)
-   (cur-hp      0)
-   (fraction-hp 0)
-
-   (max-mana      0)
-   (cur-mana      0)
-   (fraction-mana 0)
-
-   
-   (leaving-p nil)
-
-   (energy      0)
-   (energy-use  0)
-   (speed       +speed-base+)
-
-   (base-ac      0)
-   (ac-bonus     0)
-   (light-radius 0)
-   
-   (gold        0)
-   (infravision 0)
-
-   (dead-p      nil)
-
-   (equipment   nil)
-   ;; quick variable to equipment.backpack.content
-   (inventory   nil)
-
-   (skills      nil)
-
-   ;; the map as seen from the player.
-   (map         nil) 
-   
-   )
+    (modbase-stats nil);; "this is the modified base stats (base + race + class + eq)"
+    (active-stats nil);; "this is the current active stat-value (curbase + race + class + eq)"
+  
+    ))
 
 ;; hack, remove later
 (defun player.eq (pl-obj)
@@ -145,21 +147,25 @@ the Free Software Foundation; either version 2 of the License, or
 (defmethod (setf get-creature-speed) (val (crt player))
   (setf (player.speed crt) val))
 
-(defun create-player-obj ()
+(defun make-level-array ()
+  (let ((max-char-level (variant.max-charlevel *variant*)))
+    (make-array max-char-level :initial-element 0)))
+
+
+
+(defun init-player-obj! (t-p)
   "Creates and returns a PLAYER object."
   
-  (let ((t-p (make-player)))
-    (setf (player.base-stats t-p) #1A(0 0 0 0 0 0))
-    (setf (player.curbase-stats t-p) #1A(0 0 0 0 0 0))
-    (setf (player.modbase-stats t-p) #1A(0 0 0 0 0 0))
-    (setf (player.active-stats t-p) #1A(0 0 0 0 0 0))
+    (setf (player.base-stats t-p)    (make-stat-array)
+	  (player.curbase-stats t-p) (make-stat-array)
+	  (player.modbase-stats t-p) (make-stat-array)
+	  (player.active-stats t-p)  (make-stat-array))
 
     (setf (player.skills t-p) (make-skills))
     (setf (player.eq t-p) (make-equipment-slots))
-
-    (let ((max-char-level (variant.max-charlevel *variant*)))
-      (setf (player.hp-table t-p) (make-array max-char-level :initial-element nil))
-      (setf (player.xp-table t-p) (make-array max-char-level :initial-element nil)))
+    
+    (setf (player.hp-table t-p) (make-level-array)
+	  (player.xp-table t-p) (make-level-array))
     
     (flet ((make-and-assign-backpack! (id)
 	     (let ((back-obj (create-aobj-from-id id))
@@ -178,8 +184,12 @@ the Free Software Foundation; either version 2 of the License, or
     ;; hack
 ;;    (setf (player.light-radius t-p) 3)
     
-    t-p))
- 
+    t-p)
+
+(defun create-player-obj ()
+  (init-player-obj! (make-player)))
+
+;;(trace init-player-obj!)
 
 (defun get-stat-bonus (player stat-num)
   "Returns the stat-bonus from race, class and equipment for given stat"
@@ -215,15 +225,23 @@ the Free Software Foundation; either version 2 of the License, or
 
 (defun calculate-stat! (player num)
   "modifies appropriate arrays.."
-  
-  (let ((base-stat (svref (player.base-stats player) num))
-	(cur-stat (svref (player.curbase-stats player) num))
-	(bonus (get-stat-bonus player num)))
 
-    (setf (svref (player.modbase-stats player) num) (add-stat-bonus base-stat bonus))
-    (setf (svref (player.active-stats player) num) (add-stat-bonus cur-stat bonus)))
+  (let ((bstat-table (player.base-stats player))
+	(cstat-table (player.curbase-stats player))
+	(mstat-table (player.modbase-stats player))
+	(astat-table (player.active-stats player)))
+	
+    ;; two of these are required.. bstat and cstat
+
   
-  (values))
+    (let ((base-stat (svref bstat-table num))
+	  (cur-stat (svref cstat-table num))
+	  (bonus (get-stat-bonus player num)))
+
+      (setf (svref mstat-table num) (add-stat-bonus base-stat bonus))
+      (setf (svref astat-table num) (add-stat-bonus cur-stat bonus)))
+  
+    (values)))
 
 (defun update-player! (player)
   "modifies player object appropriately"
@@ -238,7 +256,21 @@ the Free Software Foundation; either version 2 of the License, or
   
   
   (let ((race (player.race player)))
-  
+
+    ;; if cur and base are missing, that should be fixed elsewhere
+    
+    (unless (arrayp (player.modbase-stats player))
+      (setf (player.modbase-stats player) (make-stat-array)))
+    (unless (arrayp (player.active-stats player))
+      (setf (player.active-stats player) (make-stat-array)))
+
+    ;; check that they're all there
+    (assert (and (arrayp (player.base-stats player))
+		 (arrayp (player.curbase-stats player))
+		 (arrayp (player.active-stats player))
+		 (arrayp (player.modbase-stats player))))
+
+    
     (dotimes (i +stat-length+)
       (calculate-stat! player i))
 
@@ -260,6 +292,8 @@ the Free Software Foundation; either version 2 of the License, or
      
     ;; let us skim through items and update variables
     (let ((slots (player.eq player)))
+      (unless slots
+	(error "Can't find equipment-slots for player, bad."))
       (item-table-iterate!
        slots
        #'(lambda (table key obj)
@@ -274,10 +308,21 @@ the Free Software Foundation; either version 2 of the License, or
 		 (incf (player.ac-bonus player) (gval.ac-bonus gval))))))
        ))
 
+    (update-xp-table! player)
+
+    (let ((xp-table (player.xp-table player)))
+      (setf (player.level player) (find-level-for-xp (player.cur-xp player)
+						     xp-table)
+	    (player.max-level player) (find-level-for-xp (player.max-xp player)
+							 xp-table)))
+
+    (update-max-hp! player)
     (update-skills! player (player.skills player))
     
     (bit-flag-add! *redraw* +print-basic+)
-    
+
+    ;; when leavin we should be ok
+    (assert (ok-object? player))
     player))
 
 
@@ -306,7 +351,16 @@ the Free Software Foundation; either version 2 of the License, or
     
     ))
 
+(defun find-level-for-xp (xp xp-table)
+  "Returns level for given xp according to given xp-table."
+  (loop for x across xp-table
+	for i from 1
+	do
+	(when (> x xp)
+	  (return-from find-level-for-xp (1- i))))
+  50) ;; fix me later
 
+;;(trace find-level-for-xp)
 
 (defmethod increase-xp! ((player player) amount)
   "increases xp for the player. update later."
@@ -323,19 +377,6 @@ the Free Software Foundation; either version 2 of the License, or
 	 (return-from increase-xp! nil)))
   
    ))
-
-
-;; map related stuff:
-(defun cave-info-from-map (player x y)
-  (aref (player.map player) x y))
-
-
-
-(defun (setf cave-info-from-map) (val player x y)
-;;  (warn "Setting ~a ~a to ~a" x y val)
-  (setf (aref (player.map player) x y) val)
-  ;; more
-  )
 
 
 (defmethod get-weapon ((crt player))
@@ -394,14 +435,37 @@ the Free Software Foundation; either version 2 of the License, or
     
     t)))
 
+(defun update-xp-table! (player)
+  "Updates the xp-table on the player, and returns updated player."
+  
+  (let* ((base-xp-table (variant.xp-table *variant*))
+	 (max-char-level (variant.max-charlevel *variant*))
+	 (the-race (player.race player))
+	 (the-class (player.class player))
+	 (xp-extra (+ 100
+		      (race.xp-extra the-race)
+		      (class.xp-extra the-class))))
 
-#||
-(defmethod print-object ((inst l-player) stream)
-  (print-unreadable-object
-   (inst stream :identity t)
-   (format stream "~:(~S~) [~A ~A ~A]" (class-name (class-of inst))
-	   (player.name inst)
-	   (player.race inst)
-	   (player.class inst)))
-  inst)
-||#
+    (unless (arrayp (player.xp-table player))
+      (setf (player.xp-table player) (make-level-array)))
+
+    (let ((xp-table (player.xp-table player)))
+    
+      (setf (aref xp-table 0) 0)
+      (loop for i of-type u-fixnum from 1 to (1- max-char-level)
+	    do
+	    (setf (aref xp-table i) (int-/ (* (aref base-xp-table (1- i)) xp-extra)
+					   100))))
+    player))
+
+(defun update-max-hp! (player)
+  "Updates the maximum number of hitpoints.  Returns an updated player."
+
+  (let ((lvl (player.level player))
+	(hp-table (player.hp-table player)))
+    
+    (setf (player.max-hp player)
+	  (loop for i from 0 to (1- lvl)
+		summing (aref hp-table i))))
+  player)
+	   

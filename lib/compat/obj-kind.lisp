@@ -53,7 +53,7 @@ the Free Software Foundation; either version 2 of the License, or
 		   (assert (string-equal (car res) "n"))
 		   ;; the second should be the numeric id
 		   (let ((num-id (parse-integer (second res))))
-		     (setf (object.id cur-obj) num-id
+		     (setf (object.id cur-obj) (concatenate 'string "object-" (second res))
 			   (object.numeric-id cur-obj) num-id))
 		   ;; the third is the name
 		   (setf (object.name cur-obj) (nstring-downcase (third res)))

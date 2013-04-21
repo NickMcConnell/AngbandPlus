@@ -58,11 +58,11 @@ the Free Software Foundation; either version 2 of the License, or
 		   (assert (string-equal (car res) "n"))
 
 		   ;; the second should be a number
-		   (let ((num (parse-integer (cadr res))))
+		   (let ((num (parse-integer (second res))))
 		     (when (> num 0)
 		       (setf cur-monster (make-instance 'monster-kind))
-		       (setf (monster.id cur-monster) (concatenate 'string "monster-" (cadr res)))
-		       (setf (monster.name cur-monster) (nstring-downcase (caddr res))))))
+		       (setf (monster.id cur-monster) (concatenate 'string "monster-" (second res)))
+		       (setf (monster.name cur-monster) (nstring-downcase (third res))))))
 		 )
 
 		;; Graphics

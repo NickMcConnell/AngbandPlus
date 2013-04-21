@@ -18,27 +18,33 @@ ADD_DESC: Simple code to access the dungeon object(s)
 (in-package :langband)
 
 (defstruct (dungeon-coord (:conc-name coord.))
-  (feature 0 :type fixnum)
-  (flags 0 :type fixnum)  ;; info-flag in angband
+  (feature 0 :type u-16b)
+  (flags 0 :type u-16b)  ;; info-flag in angband
   (objects nil)
   (monsters nil)
   )
 
+;; Remember to update [save|load|checking].lisp when updating this one
 (defstruct (dungeon (:conc-name dungeon.))
+  
+  (depth 0 :type fixnum)  ; just a fixnum
+
+  (height 0 :type u-fixnum) ;; height of table below
+  (width  0 :type u-fixnum) ;; width of table below
+
   (table nil)
-  (height 0 :type u-fixnum)
-  (width  0 :type u-fixnum)
 
-  (up-stairs-p nil)
-  (down-stairs-p nil)
 
-  (depth nil)
+  ;; enable these two later if the need should arise
+;;  (up-stairs-p nil)
+;;  (down-stairs-p nil)
+
   (monsters nil)
-  (rooms nil) ;; unused
-  (triggers nil)
+  (objects nil)
+  (rooms nil)
+  (triggers nil) ;; can't be used yet
   )
   
-
 
 (defun invoke-on-dungeon (dungeon fun)
   "calls given FUN with three arguments:
@@ -52,7 +58,6 @@ the Y-coordinate of the COORD
       (dotimes (x (dungeon.width dungeon))
 	(funcall fun (aref table x y) x y)))
     ))
-
 
 (defmacro with-dungeon (parameters &body code)
   "a WITH- construct.  parameters should be: (dungeon-variable (arg-names to INVOKE))."
@@ -72,6 +77,12 @@ the monster
 	
 (defmacro with-dungeon-monsters ((dungeon-var monster-var) &body code)
   `(invoke-on-dungeon-monsters ,dungeon-var #'(lambda (,dungeon-var ,monster-var) ,@code)))
+
+(defun legal-coord? (dungeon x y)
+  (and (> x 0)
+       (> y 0)
+       (< x (dungeon.width dungeon))
+       (< y (dungeon.height dungeon))))
 
 
 (defun create-dungeon (width height &key its-depth) 
@@ -113,7 +124,7 @@ the monster
   )
 
 (defun clean-coord! (coord)
-  "Cleands the given coordinate."
+  "Cleans the given coordinate."
   
   (setf (coord-feature  coord) 0
 	(coord.flags    coord) 0
@@ -681,6 +692,10 @@ car is start and cdr is the non-included end  (ie [start, end> )"
 
 (defun (setf get-coord-trigger) (val dun x y)
   "Adds a trigger to the given dungeon."
+  val)
+
+;; this is the real code below:
+#||
   (dolist (i (dungeon.triggers dun))
     (let ((place (car i)))
       (when (and (= (car place) x)
@@ -689,6 +704,7 @@ car is start and cdr is the non-included end  (ie [start, end> )"
 	(return-from get-coord-trigger i))))
   
   (push (cons (cons x y) val) (dungeon.triggers dun)))
+||#
 
 
 (defun apply-possible-coord-trigger (dun x y)
@@ -715,5 +731,10 @@ car is start and cdr is the non-included end  (ie [start, end> )"
       (c-term-gotoxy! (+ +start-column-of-map+ kx)
 		      (+ +start-row-of-map+ ky)))))
 
-
 	 
+(defun remove-item-from-dungeon! (dungeon item)
+;;  (lang-warn "Removing item ~s from dungeon" item)
+  (setf (dungeon.objects dungeon) (delete item (dungeon.objects dungeon))))
+
+(defun add-room-to-dungeon! (dungeon room)
+  (push room (dungeon.rooms dungeon)))

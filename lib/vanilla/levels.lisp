@@ -24,25 +24,9 @@ the Free Software Foundation; either version 2 of the License, or
 
     ))
 
-#||
-(defun van-store-build! (dungeon number xx yy
-			 &key
-			 (y-offset +screen-height+)
-			 (x-offset +screen-width+))
-			 
-  "more or less taken directly"
-
-  (let ((the-house (get-house number)))
-    (when the-house
-      (build-house! *level* the-house xx yy))))
-  
-       ;; fake it
-;;       (setf (get-coord-trigger dungeon x y) #'(lambda (dun x y)
-;;						 (warn "Entering shop ~a" number)))
-;;       (setf (cave-feature dungeon x y) (+ +feature-shop-head+ number)))
-
-||#
-     
+(defun van-create-bare-town-level-obj ()
+  "Returns a bare town-level."
+  (make-instance 'van-town-level :depth 0 :rating 0))
 
 
 (defmethod level-ready? ((level van-town-level))
@@ -133,11 +117,13 @@ part of the new level."
 
 (defvar *van-saved-town-seed* nil)
 
+
 (defun van-make-town-level-obj (player)
   "A sucky function which should be simplified greatly."
 
   (flet ((do-generation (seed)
-	   (let* ((town (make-instance 'van-town-level :depth 0))
+	   (let* ((builder (get-level-builder 'town-level))
+		  (town (funcall builder))
 		  (cl:*random-state* (cl:make-random-state seed)))
 
 	     (generate-level! town player))))
@@ -157,9 +143,18 @@ part of the new level."
 (defmethod create-appropriate-level ((variant vanilla-variant) old-level player depth)
 
   (declare (ignore old-level))
-  (let ((level (if (= depth 0)
-		   (van-make-town-level-obj player)
-		   (make-random-level-obj depth))))
+  (let ((level nil))
+
+    (cond ((= depth 0)
+	   (setf level (van-make-town-level-obj player)))
+	  (t ;; the rest
+	   (let ((builder (get-level-builder 'random-level)))
+	     (unless builder
+	       (error "Can't find random-level builder"))
+	     (setf level (funcall builder)))))
+    
+    ;; we set the depth now.
+    (setf (level.depth level) depth)
 
     (unless (level-ready? level)
       ;; (warn "Generating level ~a" level)
@@ -246,3 +241,24 @@ part of the new level."
 
 (defmethod get-mtype-table ((level (eql 'town-level)) var-obj)
   (%get-var-table var-obj level 'monsters))
+
+
+#||
+(defun van-store-build! (dungeon number xx yy
+			 &key
+			 (y-offset +screen-height+)
+			 (x-offset +screen-width+))
+			 
+  "more or less taken directly"
+
+  (let ((the-house (get-house number)))
+    (when the-house
+      (build-house! *level* the-house xx yy))))
+  
+       ;; fake it
+;;       (setf (get-coord-trigger dungeon x y) #'(lambda (dun x y)
+;;						 (warn "Entering shop ~a" number)))
+;;       (setf (cave-feature dungeon x y) (+ +feature-shop-head+ number)))
+
+||#
+     

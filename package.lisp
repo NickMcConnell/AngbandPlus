@@ -14,7 +14,7 @@ DESC: package.lisp - package def for langband
 
 (defpackage :langband
   (:nicknames :lb)
-  (:use :common-lisp :langband-ffi)
+  (:use :common-lisp :langband-ffi :binary-types)
   (:export #:game-init&)
   #+lisp2csf
   (:documentation "This is the Langband game package."))

@@ -16,7 +16,8 @@ SPELLS and MAGICAL ITEMS
  - not implemented
 
 SAVE and LOAD
- - not implemented
+ - mostly implemented
+ - misses events, shops, etc.
 
 HIGH-SCORE FILE
  - not implemented
@@ -62,6 +63,14 @@ COMMANDS
  - no 'D'estroy item command
  - eating, drinking, etc not implemented
  - no redraw of a screwed up screen
+ - no 'L'ook command
 
 BIRTH
  - writing ones own name missing
+ - point-based system missing [don't need it]
+
+OTHER
+ - messages are not saved
+ - no option-system
+ - no visual changing
+ - no macro-system from within the game

@@ -4,7 +4,7 @@
 
 DESC: tests/stat.lisp - testing code for stats
 
-#|
+|#
 
 (in-package :lb-test)
 
@@ -16,10 +16,9 @@ DESC: tests/stat.lisp - testing code for stats
 
 (defmethod perform-test ((fix stat-fixture))
 
-  
   (dotimes (i 18)
     (test-assert (equal (format nil "~6d" i)
-			(lb::cnv-stat i)))
+			(lb::cnv-stat i nil)))
     )
 
   (loop for i from 0 to 103 do
@@ -34,8 +33,3 @@ DESC: tests/stat.lisp - testing code for stats
 	(test-assert (equal (format nil "~13@a" i)
 			    (lb::%get-13astr i)))
 	))
-  
-
-
-
-

@@ -1,3 +1,11 @@
+#|
+
+DESC: lib/foreign/build.lisp - batch lisp-code for building FFI-declarations
+
+|#
+
+(in-package :cl-user)
+
 (setq ext:*gc-verbose* nil
       *compile-print* nil)
 

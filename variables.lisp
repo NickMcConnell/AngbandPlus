@@ -48,3 +48,4 @@ throughout dungeon-generation")
 
 (defvar *last-console-line* 23 "just a dummy for later use.")
 
+(defvar *global-event-table* (make-hash-table :test #'equal))

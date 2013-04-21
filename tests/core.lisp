@@ -23,7 +23,7 @@ DESC: tests/core.lisp - testing code for variant obj
   (let ((var-obj lb::*variant*))
 
     ;; do dummy tests with no meaning
-    (test-assert (eq nil var-obj))
+    (test-assert (eq nil var-obj)) ;; it really shouldn't have a value
     ))
 
 
@@ -34,6 +34,7 @@ DESC: tests/core.lisp - testing code for variant obj
     ;; simple checks to see that our variant has some valid values
     (test-assert (not (eq nil var-obj)))
     (test-assert (typep var-obj 'lb::variant))
+    (test-assert (lb::ok-object? var-obj))
     (test-assert (plusp (hash-table-count (lb::variant.races var-obj))))
     (test-assert (plusp (hash-table-count (lb::variant.classes var-obj))))
     (test-assert (plusp (hash-table-count (lb::variant.floor-features var-obj))))

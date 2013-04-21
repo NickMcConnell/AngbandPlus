@@ -17,6 +17,8 @@ the Free Software Foundation; either version 2 of the License, or
 (eval-when (:compile-toplevel :load-toplevel :execute)
   ;; 28 bits
   (deftype u-fixnum () '(unsigned-byte 28))
+  ;; 16 bits
+  (deftype u-16b () '(unsigned-byte 16))
 ;;  (deftype vinfo-bit-type () `(unsigned-byte 32))
   (deftype vinfo-bit-type () `(unsigned-byte 16))
 
@@ -27,20 +29,77 @@ may be removed later for efficiency-reasons.  It enforces a
 protocol that allows activated? to be set automagically after
 a succesful ACTIVATE-OBJECT."))
   
-)
+  
+  ;; move to better place later
+  (defgeneric print-depth (level setting)
+    (:documentation "fix me later.. currently just prints depth."))
+  
+  ;; see print.lisp
+  
+  ;; move me later
+  (defgeneric activate-object (obj &key &allow-other-keys)
+    (:documentation "Most objects in Langband is created lazily.
+This means that an object may be created but may not be fully initialised
+and filled with appropriate values right away.  The normal CL/CLOS mechanisms
+deal with the actual creation of the bare object, but non-trivial objects
+should also be \"activated\", ie get proper values on all variables.
+The object in question must be returned, failure to do so may lead to a
+situation where the system assumes the object is invalid."))  
 
-(defmacro def-saveable-struct (&rest rest)
-  (let ((name (if (consp (car rest))
-		  (caar rest)
-		  (car rest)))
-	(sym-list (mapcar #'(lambda (x)
-			      (if (consp x)
-				  (car x)
-				  x))
-			  (cdr rest))))
-    `(progn
-      (setf (get ',name 'struct-slots) ',sym-list)
-      (defstruct ,@rest))))
+  (defgeneric ok-object? (obj)
+    (:documentation "Checks to make sure the object is ok."))
+  
+  (defgeneric find-appropriate-monster (level room player)
+    (:documentation "Returns an appropriate monster for a given
+level/room/player combo.  Allowed to return NIL."))
+
+  (defgeneric initialise-monsters& (variant &key &allow-other-keys)
+    (:documentation "Initialises monsters for the given variant."))
+  
+  (defgeneric initialise-features& (variant &key &allow-other-keys)
+    (:documentation "Initialises features for the given variant."))
+  
+  (defgeneric initialise-objects& (variant &key &allow-other-keys)
+    (:documentation "Initialises objects for the given variant."))
+
+  )
+
+
+(defmethod find-appropriate-monster (level room player)
+  (declare (ignore room player))
+  (error "No proper FIND-APPROPRIATE-MONSTER for ~s" (type-of level)))
+  
+(defmethod initialise-monsters& (variant &key)
+  (error "No INIT-MONSTERS for ~s" (type-of variant)))
+  
+(defmethod initialise-features& (variant &key)
+  (error "No INIT-FEATURES for ~s" (type-of variant)))
+
+(defmethod initialise-objects& (variant &key)
+  (error "No INIT-OBJECTS for ~s" (type-of variant)))
+
+
+(defmethod activate-object (obj &key)
+
+  obj)
+
+(defmethod activate-object :around ((obj activatable) &key)
+   (unless (next-method-p)
+     ;; this will never happen
+     (lang-warn "Unable to find ACTIVATE-OBJECT for type ~a" (type-of obj))
+     (return-from activate-object nil))
+
+   ;; we pass along the same arguments.. 
+   (let ((result (call-next-method)))
+     ;; we only say that an object is activated if it returned the object
+     (cond ((eq obj result)
+	    (setf (slot-value obj 'activated) t)
+	    obj)
+	   
+	   (t
+	    (lang-warn "Activation of object ~a failed, return was ~a" obj result)
+	    nil)
+	   )))
 
 
 (defmacro defsubst (name arglist &body body)
@@ -100,29 +159,6 @@ but optimized for vectors."
                  (cons (subseq str prev-pos next-pos)
                        stuff)))
         ((null next-pos) (nreverse stuff)))))
-
-
-
-(defgeneric dump-object (obj stream style)
-  (:documentation "Dumps an object to a stream in a certain style."))
-
-(defmethod dump-object (obj stream style)
-  (declare (ignore stream style))
-  (warn "DUMP-OBJECT not implemented for ~a" (type-of obj)))
-
-(defgeneric trigger-event (obj event arg-list)
-  (:documentation "Triggers a given event on the object. Recursive."))
-
-(defmethod trigger-event (obj event arg-list)
-  (declare (ignore obj event arg-list))
-  (values))
-
-(defun apply-event (event event-list arg-list)
-  "Iterates through event-list and funcalls any events
-with given arg-list if any events match."
-  (dolist (i event-list)
-    (when (eq event (car i))
-      (apply (cdr i) arg-list))))
 
 
 #||
@@ -331,72 +367,8 @@ and NIL if unsuccesful."
   #+cmu
   (c-clear-from! 0))
 
-;; move to better place later
-(defgeneric print-depth (level setting)
-  (:documentation "fix me later.. currently just prints depth."))
-
-;; see print.lisp
 
 ;; move me later
-(defgeneric activate-object (obj &key &allow-other-keys)
-  (:documentation "Most objects in Langband is created lazily.
-This means that an object may be created but may not be fully initialised
-and filled with appropriate values right away.  The normal CL/CLOS mechanisms
-deal with the actual creation of the bare object, but non-trivial objects
-should also be \"activated\", ie get proper values on all variables.
-The object in question must be returned, failure to do so may lead to a
-situation where the system assumes the object is invalid."))  
-
-(defmethod activate-object (obj &key)
-
-  obj)
-
-(defmethod activate-object :around ((obj activatable) &key)
-   (unless (next-method-p)
-     ;; this will never happen
-     (lang-warn "Unable to find ACTIVATE-OBJECT for type ~a" (type-of obj))
-     (return-from activate-object nil))
-
-   ;; we pass along the same arguments.. 
-   (let ((result (call-next-method)))
-     ;; we only say that an object is activated if it returned the object
-     (cond ((eq obj result)
-	    (setf (slot-value obj 'activated) t)
-	    obj)
-	   
-	   (t
-	    (lang-warn "Activation of object ~a failed, return was ~a" obj result)
-	    nil)
-	   )))
-
-
-;; move me later
-
-(defgeneric find-appropriate-monster (level room player)
-  (:documentation "Returns an appropriate monster for a given
-level/room/player combo.  Allowed to return NIL."))
-
-(defmethod find-appropriate-monster (level room player)
-  (declare (ignore room player))
-  (error "No proper FIND-APPROPRIATE-MONSTER for ~s" (type-of level)))
-
-(defgeneric initialise-monsters& (variant &key &allow-other-keys)
-  (:documentation "Initialises monsters for the given variant."))
-  
-(defmethod initialise-monsters& (variant &key)
-  (error "No INIT-MONSTERS for ~s" (type-of variant)))
-
-(defgeneric initialise-features& (variant &key &allow-other-keys)
-  (:documentation "Initialises features for the given variant."))
-  
-(defmethod initialise-features& (variant &key)
-  (error "No INIT-FEATURES for ~s" (type-of variant)))
-
-(defgeneric initialise-objects& (variant &key &allow-other-keys)
-  (:documentation "Initialises objects for the given variant."))
-  
-(defmethod initialise-objects& (variant &key)
-  (error "No INIT-OBJECTS for ~s" (type-of variant)))
 
 ;; move me later
 
@@ -463,6 +435,20 @@ level/room/player combo.  Allowed to return NIL."))
 (defmacro tricky-profile (expr type)
   (declare (ignore type))
   `(time ,expr))
+
+(defun get-late-bind-function (package name)
+  "Tries to find a function that may not exist at read, compile
+or load time, ie totally dynamic."
+  (let* ((pack (find-package package))
+         (sym (find-symbol (symbol-name name) pack)))
+    (when (fboundp sym)
+      (fdefinition sym))))
+
+#+xp-testing
+(defun do-a-test (stage)
+  (let ((func (get-late-bind-function 'lb-test 'run-lb-test)))
+    (when func
+      (funcall func stage :verbose t))))
 
 (defun garbage-collect (&key (global nil))
   "Tries to enforce a garbage collect."

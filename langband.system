@@ -6,7 +6,8 @@
     (
      (:module decl
               :source-pathname ""
-              :components ((:file "package")
+              :components ((:file "binary-types/binary-types")
+			   (:file "package")
 			   (:file "memoize")
 			   )
 	      )
@@ -30,6 +31,7 @@
               :components ((:file "base")
 			   (:file "constants")
 			   (:file "variables")
+			   (:file "event")
 			   (:file "core")
 			   ;;(:file "lib/foreign/cmu")
 			   ;;(:file "lib/foreign/dump-cmu")
@@ -75,8 +77,13 @@
      (:module execution
 	      :source-pathname ""
 	      :components ((:file "view")
+			   (:file "checking")
+			   (:file "save")
+			   (:file "load")
 			   (:file "loop")
 			   (:file "init")
+			   (:file "verify")
+			   
 			   ;; hack
 			   (:file "lib/vanilla/base")
 			   )

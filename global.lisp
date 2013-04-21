@@ -71,110 +71,108 @@ in the game at some point."))
      (dmg-type :accessor attack.dmg-type :initform nil)
      (damage :accessor attack.damage :initform nil)
      ))
-    )
+   
     
    
+
+    (defclass active-object (activatable)
+      ((kind        :accessor aobj.kind
+		    :initarg :obj
+		    :initform nil)
+       (inscription :accessor aobj.inscr
+		    :initform "")
+       (number      :accessor aobj.number
+		  :initarg :number
+		  :initform 1)
+       (contains    :accessor aobj.contains
+		    :initarg :contains
+		    :initform nil)
+       (events      :accessor aobj.events
+		    :initarg :events
+		    :initform nil)
+       (loc-x       :accessor location-x
+		    :initarg :loc-x
+		    :initform +illegal-loc-x+)
+       (loc-y       :accessor location-y
+		    :initarg :loc-y
+		    :initform +illegal-loc-y+)
+       ))
+
+
+
+    (defclass active-monster (activatable)
+      ((kind    :accessor amon.kind
+		:initarg :kind
+		:initform nil)
+       (cur-hp  :accessor current-hp
+		:initarg :hp
+		:initform 0)
+       (max-hp  :accessor get-creature-max-hp
+		:initarg :max-hp
+		:initform 0)
+       (speed   :accessor get-creature-speed
+		:initarg :speed
+		:initform 0)
+       (energy  :accessor get-creature-energy
+		:initarg :energy
+		:initform 0)
+       (mana    :accessor get-creature-mana
+		:initarg :mana
+		:initform 0)
+       
+       (loc-x   :accessor location-x      :initarg :loc-x :initform nil)
+       (loc-y   :accessor location-y      :initarg :loc-y :initform nil)
+       (alive?  :accessor creature-alive? :initarg :alive? :initform t)
+       
+       ))
+
+    (defstruct (alloc-entry (:conc-name alloc.))
+      (obj nil)
+      (index nil)
+      (level nil)
+      (prob1 nil)
+      (prob2 nil)
+      (prob3 nil))
+
+
+    (defstruct (dun-data (:conc-name dun-data.))
+      (room-centres nil)
+      (doors nil)
+      (walls nil)
+      (tunnels nil)
+      (row-rooms nil)
+      (col-rooms nil)
+      (room-map nil)
+      (crowded nil))
+
+    ;; this is a dummy for classes, not objects.. the player will have numbers
+    (defstruct (skill (:conc-name skill.))
+      (name "")
+      (base 0)
+      (lvl-gain 0)) ;; this is for 10 levels, to allow for fractions
+
+
+    ;; move this to variants later
+    (defclass skills ()
+      ((saving-throw :accessor skills.saving-throw  :initform 0)
+       (stealth      :accessor skills.stealth       :initform 0)
+       (fighting     :accessor skills.fighting      :initform 0)
+       (shooting     :accessor skills.shooting      :initform 0)
+       (disarming    :accessor skills.disarming     :initform 0)
+       (device       :accessor skills.device        :initform 0)
+       (perception   :accessor skills.perception    :initform 0)
+       (searching    :accessor skills.searching     :initform 0))
+      (:documentation "Various skills..")
+      ;;    #+cmu
+      ;;    (:metaclass pcl::standard-class)
+      ))
+
 
 (defun make-game-values ()
   "Returns an object of type game-values."
   (make-instance 'game-values))
 
 
-(eval-when (:compile-toplevel :load-toplevel :execute)
-
-  (defclass active-object (activatable)
-    ((kind        :accessor aobj.kind
-		  :initarg :obj
-		  :initform nil)
-     (inscription :accessor aobj.inscr
-		  :initform nil)
-     (number      :accessor aobj.number
-		  :initarg :number
-		  :initform 1)
-     (contains    :accessor aobj.contains
-		  :initarg :contains
-		  :initform nil)
-     (events      :accessor aobj.events
-		  :initarg :events
-		  :initform nil)
-     (loc-x       :accessor location-x
-		  :initarg :loc-x
-		  :initform nil)
-     (loc-y       :accessor location-y
-		  :initarg :loc-y
-		  :initform nil)
-     )))
-
-
-
-(eval-when (:compile-toplevel :load-toplevel :execute)
-
-  (defclass active-monster (activatable)
-    ((kind    :accessor amon.kind
-	      :initarg :kind
-	      :initform nil)
-     (cur-hp  :accessor current-hp
-	      :initarg :hp
-	      :initform 0)
-     (max-hp  :accessor get-creature-max-hp
-	      :initarg :max-hp
-	      :initform 0)
-     (speed   :accessor get-creature-speed
-	      :initarg :speed
-	      :initform 0)
-     (energy  :accessor get-creature-energy
-	      :initarg :energy
-	      :initform 0)
-     (mana    :accessor get-creature-mana
-	      :initarg :mana
-	      :initform 0)
-     
-     (loc-x   :accessor location-x      :initarg :loc-x :initform nil)
-     (loc-y   :accessor location-y      :initarg :loc-y :initform nil)
-     (alive?  :accessor creature-alive? :initarg :alive? :initform t)
-
-     )))
-
-(defstruct (alloc-entry (:conc-name alloc.))
-  (obj nil)
-  (index nil)
-  (level nil)
-  (prob1 nil)
-  (prob2 nil)
-  (prob3 nil))
-
-
-(defstruct (dun-data (:conc-name dun-data.))
-  (room-centres nil)
-  (doors nil)
-  (walls nil)
-  (tunnels nil)
-  (row-rooms nil)
-  (col-rooms nil)
-  (room-map nil)
-  (crowded nil))
-
-;; this is a dummy for classes, not objects.. the player will have numbers
-(defstruct (skill (:conc-name skill.))
-  (name "")
-  (base 0)
-  (lvl-gain 0)) ;; this is for 10 levels, to allow for fractions
-
-(eval-when (:compile-toplevel :load-toplevel :execute)
-  ;; move this to variants later
-  (defclass skills ()
-    ((saving-throw :accessor skills.saving-throw  :initform 0)
-     (stealth      :accessor skills.stealth       :initform 0)
-     (fighting     :accessor skills.fighting      :initform 0)
-     (shooting     :accessor skills.shooting      :initform 0)
-     (disarming    :accessor skills.disarming     :initform 0)
-     (device       :accessor skills.device        :initform 0)
-     (perception   :accessor skills.perception    :initform 0)
-     (searching    :accessor skills.searching     :initform 0))
-    (:documentation "Various skills..")
-;;    #+cmu
-;;    (:metaclass pcl::standard-class)
-    ))
 
 (defun make-skills (&key (default-value 0))
   "Returns a skills object."
@@ -239,13 +237,13 @@ information from the list skills whose content depends on variant."
 		    )))))
       skill-obj))
 	
-
 #||
-(defmethod print-object ((inst l-alloc-entry) stream)
+;; comment this out when code is working.. it conses and isn't needed
+(defmethod print-object ((inst skills) stream)
   (print-unreadable-object
    (inst stream :identity t)
-   (format stream "~:(~S~) [~S ~S]" (class-name (class-of inst)) 
-	   (alloc.obj inst) (alloc.level inst)))
+   (format stream "~:(~S~) ~{ ~S~}" (class-name (class-of inst)) 
+	   (mapcar #'(lambda (x) (slot-value inst (cdr x))) (variant.skill-translations *variant*))))
   inst)
 ||#
 

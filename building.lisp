@@ -31,22 +31,24 @@ the Free Software Foundation; either version 2 of the License, or
   (defclass owner ()
     ((id         :accessor owner.id         :initform nil :initarg :id)
      (name       :accessor owner.name       :initform nil :initarg :name))
-    ))
+    )
 
 
-(defgeneric build-house! (level house topleft-x topleft-y &key)
-  (:documentation "Builds a house on the given level at given coord."))
+  (defgeneric build-house! (level house topleft-x topleft-y &key)
+    (:documentation "Builds a house on the given level at given coord."))
+  
+  (defgeneric visit-house (level house)
+    (:documentation "Visits a given house.."))
 
-(defgeneric visit-house (level house)
-  (:documentation "Visits a given house.."))
+  (defgeneric find-owner-for-house (level house &key)
+    (:documentation "Tries to find an appropriate owner for the house."))
+
+  )
 
 (defmethod visit-house (level (house house))
   (declare (ignore level))
   (warn "simple house.."))
   
-(defgeneric find-owner-for-house (level house &key)
-  (:documentation "Tries to find an appropriate owner for the house."))
-
 (defmethod find-owner-for-house (level house &key)
   (declare (ignore level house))
   nil)

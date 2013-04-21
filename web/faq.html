@@ -11,7 +11,7 @@
     <ol type=i>
       <li> <b>What is Langband?</b><br>
 	Langband is a rewrite of the traditional/vanilla version of
-	Angband.  It is based on version 2.9.0 but will be upgraded to
+	Angband.  It is based on version 2.9.0, but will be upgraded to
 	2.9.x at a later stage.  Langband is written in Common Lisp,
 	which will allow me to combine the dynamic nature of easy
 	scripting with good compiler technology providing an
@@ -66,6 +66,13 @@
 	traditional angband and isn't really needed when the necessary
 	files have been converted to lisp.  Please be patient. </li>
 
+      <li> <b>The game hangs once in awhile, why?</b><br>
+	I have noticed this earlier though not frequently anymore.  It
+	might be the garbage-collector interfering.  This will be
+	adressed gradually and memory-allocation will be reduced when
+	it is a problem.  But during early development this isn't
+	crucial. </li>
+      
       <li> <b>How do I get things working with CLISP?</b><br>
 	It's a bit tricky still but can be done.  First tweak
 	lib/zterm/Makefile to use CLISP, and then do (if you don't use

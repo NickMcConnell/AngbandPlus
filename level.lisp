@@ -1,4 +1,4 @@
-;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: LANGBAND -*-
+;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: LANGBAND -*-
 
 #|
 
@@ -21,8 +21,8 @@ the Free Software Foundation; either version 2 of the License, or
     (
      (id      :accessor level.id      :initarg :id      :initform 'level)
      (dungeon :accessor level.dungeon :initarg :dungeon :initform nil)
-     (rating  :accessor level.rating  :initarg :rating  :initform nil)
-     (depth   :accessor level.depth   :initarg :depth   :initform nil)
+     (rating  :accessor level.rating  :initarg :rating  :initform 0)
+     (depth   :accessor level.depth   :initarg :depth   :initform 0)
      ))
 
 
@@ -34,12 +34,23 @@ the Free Software Foundation; either version 2 of the License, or
     ((id :initform 'themed-level)))
      
 
+  (defgeneric generate-level! (level player)
+    (:documentation "Returns the level-object."))
+  
+  (defgeneric create-appropriate-level (variant old-level player depth)
+    (:documentation "Returns an appropriate level for the given
+variant and player."))
+  
+  (defgeneric level-ready? (level)
+    (:documentation "Returns T if the level is ready for use, returns NIL otherwise."))
+  
+  (defgeneric get-otype-table (level var-obj)
+    (:documentation "hack, may be updated later."))
+  
+  (defgeneric get-mtype-table (level var-obj)
+    (:documentation "hack, may be updated later."))
 
   )
-
-(defgeneric generate-level! (level player)
-  (:documentation "Returns the level-object."))
-
 
 (defmethod generate-level! (level player)
   (declare (ignore level player))
@@ -50,17 +61,13 @@ a proper LEVEL object.")
 ;; see generate.lisp and variants
 
 
-(defgeneric create-appropriate-level (variant old-level player depth)
-  (:documentation "Returns an appropriate level for the given
-variant and player."))
 
 (defmethod create-appropriate-level (variant old-level player depth)
   (declare (ignore old-level player depth))
   (error "CREATE-APPROPRIATE-LEVEL not implemented for variant ~a"
 	 (type-of variant)))
 
-(defgeneric level-ready? (level)
-  (:documentation "Returns T if the level is ready for use, returns NIL otherwise."))
+
 
 (defmethod level-ready? (level)
   (declare (ignore level))
@@ -69,9 +76,9 @@ variant and player."))
 
 ;;; random levels (see also generate.lisp)
 
-
-(defun make-random-level-obj (depth)
-  (make-instance 'random-level :depth depth))
+;; a simple builder, register it in your variant as 'random-level
+(defun make-random-level-obj ()
+  (make-instance 'random-level :depth 0 :rating 0))
 
 (defmethod level-ready? ((level random-level))
   (when (level.dungeon level)
@@ -99,16 +106,6 @@ variant and player."))
 	(gethash id mon-table)))))
 
 
-;;(defun get-mtype-table (var-obj key)
-;;  ""
-;;  (%get-var-table var-obj key 'monsters))
-
-;;(defun get-otype-table (var-obj key)
-;;  ""
-;;  (%get-var-table var-obj key 'objects))
-
-(defgeneric get-otype-table (level var-obj)
-  (:documentation "hack, may be updated later."))
 
 (defmethod get-otype-table ((level level) var-obj)
   (%get-var-table var-obj level 'objects))
@@ -117,8 +114,6 @@ variant and player."))
   (%get-var-table var-obj level 'objects))
 
 
-(defgeneric get-mtype-table (level var-obj)
-  (:documentation "hack, may be updated later."))
 
 (defmethod get-mtype-table ((level level) var-obj)
   (declare (ignore var-obj))

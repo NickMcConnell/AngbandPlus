@@ -339,8 +339,8 @@ ADD_DESC: Most of the code which deals with the game loops.
     (setf (player.view-y pl) dungeon-height)
   
     ;; no stairs from town
-    (setf (dungeon.up-stairs-p dun) nil
-	  (dungeon.down-stairs-p dun) nil)
+;;    (setf (dungeon.up-stairs-p dun) nil
+;;	  (dungeon.down-stairs-p dun) nil)
     
 
     ;; create stairs.. (postponed)
@@ -446,6 +446,26 @@ ADD_DESC: Most of the code which deals with the game loops.
 	  (get '*variant* 'last-value)
 	  (get '*level* 'last-value)))
 
+(defun load-saved-game (fname format)
+  "Returns three values."
+  
+  (let ((loaded (do-load format fname (list :variant :player :level)))
+	(the-player nil)
+	(the-level nil)
+	(the-var nil))
+
+    ;; we're lenient about the order things are returned in
+    (dolist (i loaded)
+      (typecase i
+	(player (setf the-player i))
+	(level (setf the-level i))
+	(variant (setf the-var i))
+	(otherwise
+	 (warn "Loading gave weird value back: ~s" i))))
+
+
+    (values the-level the-player the-var)))
+  
 (defun play-game& ()
   "Should not be called directly."
   
@@ -464,17 +484,51 @@ ADD_DESC: Most of the code which deals with the game loops.
     
     (block creation
       (loop
-       (let* (;; this is an evil hack, use dummy level
-	      (*level* (make-instance 'level))
-	      (the-player (create-character)))
+       (let ((the-player nil)
+	     (the-level nil)
+	     (the-variant nil)
+	     (the-save-file +binary-save-file+)
+	     (format :binary)
+	     ;;(the-save-file +readable-save-file+)
+	     ;;(format :readable)
+	     )
+	 
+	 (when (probe-file (pathname the-save-file))
+	   ;; we can load a saved game
+	   (let ((*level* (make-instance 'level))) ;; evil hack
+	     (multiple-value-bind (lv pl var)
+		 (load-saved-game the-save-file format)
+	       (if (and pl (typep pl 'player))
+		   (setf the-player pl)
+		   (warn "Unable to load player from ~s" the-save-file))
+	       (if (and lv (typep lv 'level))
+		   (setf the-level lv)
+		   (warn "Unable to load level from ~s" the-save-file))
+	       (if (and var (typep var 'variant))
+		   (setf the-variant var)
+		   (warn "Unable to load variant from ~s" the-save-file))
+			
+	       )))
+
+	 (unless the-player ;; unable to load one.
+	   
+	   (let ((*level* (make-instance 'level))) ;; evil hack
+	     (setf the-player (create-character))))
+
+	 ;; ok have we gotten anything?
 	 (when the-player
 	   (setf *player* the-player)
+	   (when the-level (setf *level* the-level))
+	   (when the-variant (setf *variant* the-variant))
 	   (return-from creation))
        
-	 (warn "Trying to create player again.."))))
+	 (warn "Trying to create player again..")
+	 )))
 
-    (c-prt! "Please wait..." 0 0)  
-    (c-pause-line! *last-console-line*)
+    (unless *level*
+      (c-prt! "Please wait..." 0 0)  
+      (c-pause-line! *last-console-line*))
+    
     (clear-the-screen!)
     
     (block dungeon-running
