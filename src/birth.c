@@ -492,6 +492,7 @@ static void get_money(void)
 
 	/* Extra gold */
 	if (adult_easy) gold += 500;
+	if (adult_easy) gold *= 10;
 
 	/* Minimum 100 gold */
 	if (gold < 100) gold = 100;
@@ -589,8 +590,8 @@ static void player_wipe(void)
 	  }
 
 	/* No crusader powers active */
-	p_ptr->crusader_active = -1;
-	p_ptr->crusader_passive = -1;
+	p_ptr->power_active = -1;
+	p_ptr->power_passive = -1;
 
 	/* Shapeshifter form */
 	p_ptr->shapeshift = 0;
@@ -633,12 +634,6 @@ static const byte player_init[MAX_CLASS][2] =
   },
   { /* Thief */
     TV_SCROLL, SV_SCROLL_TELEPORT
-  },
-  { /* Ranger */
-    TV_CLOAK, SV_FUR_CLOAK
-  },
-  { /* Paladin */
-    TV_SHIELD, SV_LARGE_METAL_SHIELD
   },
   { /* Illusionist */
     TV_HELM, SV_WIZARD_HAT
@@ -746,18 +741,6 @@ static void player_outfit(void)
 	     /* Do not overwrite a 'better' weapon */
 	     bool got_weapon = FALSE;
 	     
-	     /* Paladin/ranger, cannot conflict with other classes */
-	     if (player_has_class(CLASS_PALADIN, 0))
-	     {
-		  tv = TV_SWORD; sv = SV_BROAD_SWORD;
-		  got_weapon = TRUE;
-	     }
-	     if (player_has_class(CLASS_RANGER, 0))
-	     {
-		  tv = TV_SWORD; sv = SV_LONG_SWORD;
-		  got_weapon = TRUE;
-	     }
-	     
 	     /* Warrior/Crusader gets better weapon than Berserker */
 	     if (player_has_class(CLASS_WARRIOR, 0))
 	     {
@@ -782,14 +765,14 @@ static void player_outfit(void)
 	     
 	     if (player_has_class(CLASS_SLAYER, 0))
 	     {
-		  tv = TV_SWORD; sv = SV_KNIFE;
+		  tv = TV_SWORD; sv = SV_SCIMITAR;
 		  got_weapon = TRUE;
 	     }	       
 	     
 	     /* Only grant berserker weapon if no other has been granted */
 	     if (player_has_class(CLASS_BERSERKER, 0) && (!got_weapon))
 	     {
-		  tv = TV_HAFTED; sv = SV_WOODEN_CLUB;
+		  tv = TV_HAFTED; sv = SV_SPIKED_CLUB;
 		  got_weapon = TRUE;
 	     }
 
@@ -840,15 +823,15 @@ static void player_outfit(void)
 		  /* Slaying weapons */
 		  if (player_has_class(CLASS_WARRIOR, 0)) {
 		       random_ego[num] = EGO_SLAY_ORC; num++; }
-		  if (player_has_class(CLASS_PRIEST, 0) || player_has_class(CLASS_PALADIN, 0)) {
+		  if (player_has_class(CLASS_PRIEST, 0)) {
 		       random_ego[num] = EGO_SLAY_EVIL; num++; }
-		  if (player_has_class(CLASS_RANGER, 0)) {
-		       random_ego[num] = EGO_SLAY_ANIMAL; num++; }
 		  if (player_has_class(CLASS_CRUSADER, 0)) {
 		       random_ego[num] = EGO_SLAY_UNDEAD; num++; 
 		       random_ego[num] = EGO_SLAY_DEMON; num++; 
 		       random_ego[num] = EGO_SLAY_EVIL; num++; 
 		  }
+		  if (player_has_class(CLASS_SLAYER, 0)) {
+		       random_ego[num] = EGO_SLAY_ANIMAL; num++; }
 
 		  /* Anyone can gain these ego-items */
 		  random_ego[num] = EGO_BRAND_ELEC; num++;
@@ -881,37 +864,6 @@ static void player_outfit(void)
 		  }
 
 	     }
-	     object_aware(i_ptr);
-	     object_known(i_ptr);
-	     (void)inven_carry(i_ptr);
-	}
-
-	/* Give rangers a bow and some ammo */
-	if (player_has_class(CLASS_RANGER, 0))
-	{ 
-	     i_ptr = &object_type_body;
-	     if (rand_int(3) == 1)
-		  object_prep(i_ptr, lookup_kind(TV_BOW, SV_LONG_BOW));
-	     else /* 2 in 3 */
-		  object_prep(i_ptr, lookup_kind(TV_BOW, SV_SHORT_BOW));
-	     if (adult_easy)
-	     {
-		  apply_magic(i_ptr, 20, TRUE, TRUE, TRUE);
-		  i_ptr->discount = 90;
-	     }
-	     object_aware(i_ptr);
-	     object_known(i_ptr);
-	     (void)inven_carry(i_ptr);
-	     
-	     /* Create the ammo */
-	     i_ptr = &object_type_body;
-	     object_prep(i_ptr, lookup_kind(TV_ARROW, SV_AMMO_NORMAL));
-	     if (adult_easy)
-	     {
-		  apply_magic(i_ptr, 20, TRUE, TRUE, TRUE);
-		  i_ptr->discount = 90;
-	     }
-	     i_ptr->number = (byte)rand_range(10, 30);
 	     object_aware(i_ptr);
 	     object_known(i_ptr);
 	     (void)inven_carry(i_ptr);
@@ -969,19 +921,31 @@ static void player_outfit(void)
 	     (void)inven_carry(i_ptr);
 	}	  
 
-	/* Hack -- Give runecasters some more talismans */
+	/* Hack -- Give runecasters some charms */
 	if (player_has_class(CLASS_RUNECASTER, 0) && adult_easy)
 	{
+	     int spell1, spell2;
+
+	     switch (rand_int(6))
+	     {
+	     case 0: spell1 = SPELL_DETECT_MONSTERS; spell2 = SPELL_PHASE_DOOR; break;
+	     case 1: spell1 = SPELL_FIND_TRAPS_DOORS; spell2 = SPELL_LIGHT_AREA; break;
+	     case 2: spell1 = SPELL_LIGHT_AREA; spell2 = SPELL_DETECT_MONSTERS; break;
+	     case 3: spell1 = SPELL_PHASE_DOOR; spell2 = SPELL_LIGHT_AREA; break;
+	     case 4: spell1 = SPELL_PHASE_DOOR; spell2 = SPELL_FIND_TRAPS_DOORS; break;
+	     case 5: spell1 = SPELL_FIND_TRAPS_DOORS; spell2 = SPELL_DETECT_MONSTERS; break;
+	     }
+
 	     i_ptr = &object_type_body;
 	     object_prep(i_ptr, lookup_kind(TV_RING, SV_RING_SPELL));
-	     i_ptr->pval = SPELL_DETECT_MONSTERS; 
+	     i_ptr->pval = spell1; 
 	     object_aware(i_ptr);
 	     object_known(i_ptr);
 	     (void)inven_carry(i_ptr);	     
 		  
 	     i_ptr = &object_type_body;
 	     object_prep(i_ptr, lookup_kind(TV_RING, SV_RING_SPELL));
-	     i_ptr->pval = PRAYER_CURE_LIGHT_WOUNDS + 64; 
+	     i_ptr->pval = spell2; 
 	     object_aware(i_ptr);
 	     object_known(i_ptr);
 	     (void)inven_carry(i_ptr);	     
@@ -1523,6 +1487,9 @@ static bool player_birth_aux_2(void)
 
 		/* Gold is inversely proportional to cost */
 		p_ptr->au = (100 * (48 - cost)) + 100;
+
+		/* Easy mode gives more gold, but not more points */
+		if (adult_easy) { p_ptr->au += 500; p_ptr->au *= 10; }
 
 		/* Calculate the bonuses and hitpoints */
 		p_ptr->update |= (PU_BONUS | PU_HP | PU_MANA);

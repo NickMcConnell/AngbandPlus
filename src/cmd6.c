@@ -236,7 +236,7 @@ void do_cmd_eat_food(void)
 		case SV_FOOD_CURE_BLINDNESS:
 		{
 			if (set_blind(0)) ident = TRUE;
-			if (ident) effects[EFFECT_CURE_BLIND]++;
+			if (ident) effects[EFFECT_CURE_BLIND_CONF]++;
 			break;
 		}
 
@@ -250,45 +250,39 @@ void do_cmd_eat_food(void)
 		case SV_FOOD_CURE_CONFUSION:
 		{
 			if (set_confused(0)) ident = TRUE;
-			if (ident) effects[EFFECT_CURE_CONF]++;
+			if (ident) effects[EFFECT_CURE_BLIND_CONF]++;
 			break;
 		}
 
 		case SV_FOOD_CURE_SERIOUS:
 		{
 			if (hp_player(damroll(4, 8))) ident = TRUE;
-			if (ident) effects[EFFECT_CURE_SERIOUS]++;
+			if (ident) effects[EFFECT_CURE_LIGHT_SERIOUS]++;
 			break;
 		}
 
 		case SV_FOOD_RESTORE_STR:
 		{
 			if (do_res_stat(A_STR)) ident = TRUE;
-			if (ident) effects[EFFECT_RESTORE_STR]++;
+			if (ident) effects[EFFECT_RESTORE_ATT]++;
 			break;
 		}
 
 		case SV_FOOD_RESTORE_CON:
 		{
 			if (do_res_stat(A_CON)) ident = TRUE;
-			if (ident) effects[EFFECT_RESTORE_CON]++;
+			if (ident) effects[EFFECT_RESTORE_ATT]++;
 			break;
 		}
 
 		case SV_FOOD_RESTORING:
 		{
-			if (do_res_stat(A_STR)) { ident = TRUE;
-			effects[EFFECT_RESTORE_STR]++; }
-			if (do_res_stat(A_INT)) { ident = TRUE;
-			effects[EFFECT_RESTORE_INT]++; }
-			if (do_res_stat(A_WIS)) { ident = TRUE;
-			effects[EFFECT_RESTORE_WIS]++; }
-			if (do_res_stat(A_DEX)) { ident = TRUE;
-			effects[EFFECT_RESTORE_DEX]++; }
-			if (do_res_stat(A_CON)) { ident = TRUE;
-			effects[EFFECT_RESTORE_CON]++; }
-			if (do_res_stat(A_CHR)) { ident = TRUE;
-			effects[EFFECT_RESTORE_CHR]++; }
+			if (do_res_stat(A_STR) || do_res_stat(A_INT) || do_res_stat(A_WIS) ||
+			    do_res_stat(A_DEX) || do_res_stat(A_CON) || do_res_stat(A_CHR))
+			{ 
+			     ident = TRUE;
+			     effects[EFFECT_RESTORE_ATT]++; 
+			}
 			break;
 		}
 
@@ -309,7 +303,7 @@ void do_cmd_eat_food(void)
 			if (set_poisoned(0)) { ident = TRUE;
 			effects[EFFECT_CURE_POISON]++; }
 			if (hp_player(damroll(4, 8))) { ident = TRUE;
-			effects[EFFECT_CURE_SERIOUS]++; }
+			effects[EFFECT_CURE_LIGHT_SERIOUS]++; }
 			break;
 		}
 
@@ -581,7 +575,7 @@ void do_cmd_quaff_potion(void)
 			if (set_tim_invis(p_ptr->tim_invis + 12 + randint(12)))
 			{
 				ident = TRUE;
-				effects[EFFECT_SEE_INVIS]++;
+				effects[EFFECT_DETECT_INVIS]++;
 			}
 			break;
 		}
@@ -591,7 +585,7 @@ void do_cmd_quaff_potion(void)
 			if (set_poisoned(p_ptr->poisoned / 2))
 			  { 
 			    ident = TRUE;
-			    effects[EFFECT_SLOW_POISON]++;
+			    effects[EFFECT_CURE_POISON]++;
 			  }
 			break;
 		}
@@ -635,7 +629,7 @@ void do_cmd_quaff_potion(void)
 			if (set_oppose_fire(p_ptr->oppose_fire + randint(10) + 10))
 			{
 				ident = TRUE;
-				effects[EFFECT_RES_FIRE]++;
+				effects[EFFECT_RES_ELEMENT]++;
 			}
 			break;
 		}
@@ -645,7 +639,7 @@ void do_cmd_quaff_potion(void)
 			if (set_oppose_cold(p_ptr->oppose_cold + randint(10) + 10))
 			{
 				ident = TRUE;
-				effects[EFFECT_RES_COLD]++;
+				effects[EFFECT_RES_ELEMENT]++;
 			}
 			break;
 		}
@@ -653,7 +647,7 @@ void do_cmd_quaff_potion(void)
 		case SV_POTION_HEROISM:
 		{
 			if (hp_player(10)) 
-			  { ident = TRUE; effects[EFFECT_CURE_LIGHT]++; }
+			  { ident = TRUE; effects[EFFECT_CURE_LIGHT_SERIOUS]++; }
 			if (set_afraid(0)) 
 			  { ident = TRUE; effects[EFFECT_REMOVE_FEAR]++; }
 			if (set_hero(p_ptr->hero + randint(25) + 25)) 
@@ -664,7 +658,7 @@ void do_cmd_quaff_potion(void)
 		case SV_POTION_BESERK_STRENGTH:
 		{
 			if (hp_player(30))
-			  { ident = TRUE; effects[EFFECT_CURE_SERIOUS]++; }
+			  { ident = TRUE; effects[EFFECT_CURE_LIGHT_SERIOUS]++; }
 			if (set_afraid(0))
 			  { ident = TRUE; effects[EFFECT_REMOVE_FEAR]++; }
 			if (set_shero(p_ptr->shero + randint(25) + 25))
@@ -675,9 +669,9 @@ void do_cmd_quaff_potion(void)
 		case SV_POTION_CURE_LIGHT:
 		{
 			if (hp_player(damroll(2, 8))) ident = TRUE;
-			  { ident = TRUE; effects[EFFECT_CURE_LIGHT]++; }
+			  { ident = TRUE; effects[EFFECT_CURE_LIGHT_SERIOUS]++; }
 			if (set_blind(0)) ident = TRUE;
-			  { ident = TRUE; effects[EFFECT_CURE_BLIND]++; }
+			  { ident = TRUE; effects[EFFECT_CURE_BLIND_CONF]++; }
 			if (set_cut(p_ptr->cut - 10)) ident = TRUE;
 			break;
 		}
@@ -685,11 +679,9 @@ void do_cmd_quaff_potion(void)
 		case SV_POTION_CURE_SERIOUS:
 		{
 			if (hp_player(damroll(4, 8)))
-			  { ident = TRUE; effects[EFFECT_CURE_SERIOUS]++; }
-			if (set_blind(0)) 
-			  { ident = TRUE; effects[EFFECT_CURE_BLIND]++; }
-			if (set_confused(0))
-			  { ident = TRUE; effects[EFFECT_CURE_CONF]++; }
+			  { ident = TRUE; effects[EFFECT_CURE_LIGHT_SERIOUS]++; }
+			if (set_blind(0) || set_confused(0))
+			  { ident = TRUE; effects[EFFECT_CURE_BLIND_CONF]++; }
 			if (set_cut((p_ptr->cut / 2) - 50)) ident = TRUE;
 			break;
 		}
@@ -697,11 +689,9 @@ void do_cmd_quaff_potion(void)
 		case SV_POTION_CURE_CRITICAL:
 		{
 			if (hp_player(damroll(6, 8))) 
-			  { ident = TRUE; effects[EFFECT_CURE_CRITICAL]++; }
-			if (set_blind(0))
-			  { ident = TRUE; effects[EFFECT_CURE_BLIND]++; }
-			if (set_confused(0))
-			  { ident = TRUE; effects[EFFECT_CURE_CONF]++; }
+			  { ident = TRUE; effects[EFFECT_CURE_CRIT_MORTAL]++; }
+			if (set_blind(0) || set_confused(0))
+			  { ident = TRUE; effects[EFFECT_CURE_BLIND_CONF]++; }
 			if (set_poisoned(0))
 			  { ident = TRUE; effects[EFFECT_CURE_POISON]++; }
 			if (set_stun(0)) ident = TRUE;
@@ -713,10 +703,8 @@ void do_cmd_quaff_potion(void)
 		{
 			if (hp_player(300)) 
 			  { ident = TRUE; effects[EFFECT_HEAL]++; }
-			if (set_blind(0)) 
-			  { ident = TRUE; effects[EFFECT_CURE_BLIND]++; }
-			if (set_confused(0))
-			  { ident = TRUE; effects[EFFECT_CURE_CONF]++; }
+			if (set_blind(0) || set_confused(0))
+			  { ident = TRUE; effects[EFFECT_CURE_BLIND_CONF]++; }
 			if (set_poisoned(0))
 			  { ident = TRUE; effects[EFFECT_CURE_POISON]++; }
 			if (set_stun(0)) ident = TRUE;
@@ -728,10 +716,8 @@ void do_cmd_quaff_potion(void)
 		{
 			if (hp_player(1200))
 			  { ident = TRUE; effects[EFFECT_HEAL]++; }
-			if (set_blind(0)) 
-			  { ident = TRUE; effects[EFFECT_CURE_BLIND]++; }
-			if (set_confused(0)) 
-			  { ident = TRUE; effects[EFFECT_CURE_CONF]++; }
+			if (set_blind(0) || set_confused(0))
+			  { ident = TRUE; effects[EFFECT_CURE_BLIND_CONF]++; }
 			if (set_poisoned(0)) 
 			  { ident = TRUE; effects[EFFECT_CURE_POISON]++; }
 			if (set_stun(0)) ident = TRUE;
@@ -742,19 +728,17 @@ void do_cmd_quaff_potion(void)
 		case SV_POTION_LIFE:
 		{
 			msg_print("You feel life flow through your body!");
-			if (do_res_stat(A_STR)) effects[EFFECT_RESTORE_STR]++;
-			if (do_res_stat(A_CON)) effects[EFFECT_RESTORE_CON]++;
-			if (do_res_stat(A_DEX)) effects[EFFECT_RESTORE_DEX]++;
-			if (do_res_stat(A_WIS)) effects[EFFECT_RESTORE_WIS]++;
-			if (do_res_stat(A_INT)) effects[EFFECT_RESTORE_INT]++;
-			if (do_res_stat(A_CHR)) effects[EFFECT_RESTORE_CHR]++;
+			if (do_res_stat(A_STR) || do_res_stat(A_INT) || do_res_stat(A_WIS) ||
+			    do_res_stat(A_DEX) || do_res_stat(A_CON) || do_res_stat(A_CHR))
+			{ 
+			     effects[EFFECT_RESTORE_ATT]++; 
+			}
 			restore_level();
 			hp_player(5000);
 			effects[EFFECT_RESTORE_EXP]++; 
 			effects[EFFECT_HEAL]++; 
 			if (set_poisoned(0)) effects[EFFECT_CURE_POISON]++;
-			if (set_blind(0)) effects[EFFECT_CURE_BLIND]++;
-			if (set_confused(0)) effects[EFFECT_CURE_CONF]++;
+			if (set_blind(0) || set_confused(0)) effects[EFFECT_CURE_BLIND_CONF]++;
 			(void)set_image(0);
 			(void)set_stun(0);
 			(void)set_cut(0);
@@ -772,7 +756,7 @@ void do_cmd_quaff_potion(void)
 		      p_ptr->redraw |= (PR_MANA);
 		      p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
 		      ident = TRUE;
-		      effects[EFFECT_RESTORE_MANA]++;
+		      effects[EFFECT_RESTORE_MP_PP]++;
 		    }
 		  break;
 		}
@@ -789,7 +773,7 @@ void do_cmd_quaff_potion(void)
 		{
 			if (do_res_stat(A_STR)) 
 			  { ident = TRUE;
-			  effects[EFFECT_RESTORE_STR]++; }
+			  effects[EFFECT_RESTORE_ATT]++; }
 			break;
 		}
 
@@ -797,7 +781,7 @@ void do_cmd_quaff_potion(void)
 		{
 			if (do_res_stat(A_INT)) 
 			  { ident = TRUE;
-			  effects[EFFECT_RESTORE_INT]++; }
+			  effects[EFFECT_RESTORE_ATT]++; }
 			break;
 		}
 
@@ -805,7 +789,7 @@ void do_cmd_quaff_potion(void)
 		{
 			if (do_res_stat(A_WIS)) 
 			  { ident = TRUE;
-			  effects[EFFECT_RESTORE_WIS]++; }
+			  effects[EFFECT_RESTORE_ATT]++; }
 			break;
 		}
 
@@ -813,7 +797,7 @@ void do_cmd_quaff_potion(void)
 		{
 			if (do_res_stat(A_DEX)) 
 			  { ident = TRUE;
-			  effects[EFFECT_RESTORE_DEX]++; }
+			  effects[EFFECT_RESTORE_ATT]++; }
 			break;
 		}
 
@@ -821,7 +805,7 @@ void do_cmd_quaff_potion(void)
 		{
 			if (do_res_stat(A_CON)) 
 			  { ident = TRUE;
-			  effects[EFFECT_RESTORE_CON]++; }
+			  effects[EFFECT_RESTORE_ATT]++; }
 			break;
 		}
 
@@ -829,7 +813,7 @@ void do_cmd_quaff_potion(void)
 		{
 			if (do_res_stat(A_CHR)) 
 			  { ident = TRUE;
-			  effects[EFFECT_RESTORE_CHR]++; }
+			  effects[EFFECT_RESTORE_ATT]++; }
 			break;
 		}
 
@@ -897,10 +881,8 @@ void do_cmd_quaff_potion(void)
 			effects[EFFECT_WIZ_LITE]++;
 			(void)do_inc_stat(A_INT);
 			(void)do_inc_stat(A_WIS);
-			if (detect_traps()) effects[EFFECT_DETECT_TRAP]++;
-			if (detect_doors() || detect_stairs()) effects[EFFECT_DETECT_DOOR]++;
-			if (detect_treasure() || detect_objects_gold()) effects[EFFECT_DETECT_TREASURE]++;
-			if (detect_objects_normal()) effects[EFFECT_DETECT_OBJECTS]++;
+			if (detect_traps() || detect_doors() || detect_stairs()) effects[EFFECT_DETECT_DOOR_TRAP]++;
+			if (detect_treasure() || detect_objects_gold() || detect_objects_normal()) effects[EFFECT_DETECT_ITEM]++;
 			identify_pack();
 			self_knowledge();
 			effects[EFFECT_SELF_KNOWLEDGE]++;
@@ -1333,7 +1315,7 @@ void do_cmd_read_scroll(void)
 		{
 			(void)teleport_player_level();
 			ident = TRUE;
-			effects[EFFECT_TELEPORT_LEVEL]++;
+			effects[EFFECT_ALTER_REALITY]++;
 			break;
 		}
 
@@ -1372,7 +1354,7 @@ void do_cmd_read_scroll(void)
 			{
 				msg_print("You feel as if someone is watching over you.");
 				ident = TRUE;
-				effects[EFFECT_REMOVE_CURSE]++;
+				effects[EFFECT_DISPEL_REMOVE_CURSE]++;
 			}
 			break;
 		}
@@ -1381,7 +1363,7 @@ void do_cmd_read_scroll(void)
 		{
 			remove_all_curse();
 			ident = TRUE;
-			effects[EFFECT_DISPEL_CURSE]++;
+			effects[EFFECT_DISPEL_REMOVE_CURSE]++;
 			break;
 		}
 
@@ -1389,16 +1371,18 @@ void do_cmd_read_scroll(void)
 		{
 			ident = TRUE;
 			if (!enchant_spell(0, 0, 1)) 
-			  { used_up = FALSE;
-			  effects[EFFECT_ENCHANT_ARMOUR]++; }
+			  used_up = FALSE;
+			else
+			  effects[EFFECT_ENCHANT_ARMOUR]++;
 			break;
 		}
 
 		case SV_SCROLL_ENCHANT_WEAPON_TO_HIT:
 		{
 			if (!enchant_spell(1, 0, 0)) 
-			  { used_up = FALSE;
-			  effects[EFFECT_ENCHANT_WEAPON_HIT]++; }
+			  used_up = FALSE;
+			else
+			  effects[EFFECT_ENCHANT_WEAPON]++;
 			ident = TRUE;
 			break;
 		}
@@ -1406,8 +1390,9 @@ void do_cmd_read_scroll(void)
 		case SV_SCROLL_ENCHANT_WEAPON_TO_DAM:
 		{
 			if (!enchant_spell(0, 1, 0)) 
-			  { used_up = FALSE;
-			  effects[EFFECT_ENCHANT_WEAPON_DAM]++; }
+			  used_up = FALSE;
+			else
+			  effects[EFFECT_ENCHANT_WEAPON]++;
 			ident = TRUE;
 			break;
 		}
@@ -1415,8 +1400,9 @@ void do_cmd_read_scroll(void)
 		case SV_SCROLL_STAR_ENCHANT_ARMOR:
 		{
 			if (!enchant_spell(0, 0, randint(3) + 2)) 
-			  { used_up = FALSE;
-			  effects[EFFECT_ENCHANT_ARMOUR]++; }
+			  used_up = FALSE;
+			else
+			  effects[EFFECT_ENCHANT_ARMOUR]++;
 			ident = TRUE;
 			break;
 		}
@@ -1424,9 +1410,9 @@ void do_cmd_read_scroll(void)
 		case SV_SCROLL_STAR_ENCHANT_WEAPON:
 		{
 			if (!enchant_spell(randint(3), randint(3), 0)) 
-			  { used_up = FALSE;
-			  effects[EFFECT_ENCHANT_WEAPON_HIT]++;
-			  effects[EFFECT_ENCHANT_WEAPON_DAM]++; }
+			  used_up = FALSE;
+			else
+			  effects[EFFECT_ENCHANT_WEAPON]++;
 			ident = TRUE;
 			break;
 		}
@@ -1434,8 +1420,9 @@ void do_cmd_read_scroll(void)
 		case SV_SCROLL_RECHARGING:
 		{
 			if (!recharge(60)) 
-			  { used_up = FALSE;
-			  effects[EFFECT_RECHARGE_MEDIUM]++; }
+			  used_up = FALSE;
+			else
+			  effects[EFFECT_RECHARGE]++;
 			ident = TRUE;
 			break;
 		}
@@ -1459,21 +1446,21 @@ void do_cmd_read_scroll(void)
 		{
 			if (detect_treasure()) ident = TRUE;
 			if (detect_objects_gold()) ident = TRUE;
-			if (ident) effects[EFFECT_DETECT_TREASURE]++;
+			if (ident) effects[EFFECT_DETECT_ITEM]++;
 			break;
 		}
 
 		case SV_SCROLL_DETECT_ITEM:
 		{
 			if (detect_objects_normal()) ident = TRUE;
-			if (ident) effects[EFFECT_DETECT_OBJECTS]++;
+			if (ident) effects[EFFECT_DETECT_ITEM]++;
 			break;
 		}
 
 		case SV_SCROLL_DETECT_TRAP:
 		{
 			if (detect_traps()) ident = TRUE;
-			if (ident) effects[EFFECT_DETECT_TRAP]++;
+			if (ident) effects[EFFECT_DETECT_DOOR_TRAP]++;
 			break;
 		}
 
@@ -1481,7 +1468,7 @@ void do_cmd_read_scroll(void)
 		{
 			if (detect_doors()) ident = TRUE;
 			if (detect_stairs()) ident = TRUE;
-			if (ident) effects[EFFECT_DETECT_DOOR]++;
+			if (ident) effects[EFFECT_DETECT_DOOR_TRAP]++;
 			break;
 		}
 
@@ -1509,14 +1496,14 @@ void do_cmd_read_scroll(void)
 		case SV_SCROLL_HOLY_CHANT:
 		{
 			if (set_blessed(p_ptr->blessed + randint(24) + 12)) ident = TRUE;
-			if (ident) effects[EFFECT_CHANT]++;
+			if (ident) effects[EFFECT_BLESS]++;
 			break;
 		}
 
 		case SV_SCROLL_HOLY_PRAYER:
 		{
 			if (set_blessed(p_ptr->blessed + randint(48) + 24)) ident = TRUE;
-			if (ident) effects[EFFECT_PRAYER]++;
+			if (ident) effects[EFFECT_BLESS]++;
 			break;
 		}
 
@@ -1535,7 +1522,7 @@ void do_cmd_read_scroll(void)
 		case SV_SCROLL_PROTECTION_FROM_EVIL:
 		{
 			if (set_protevil(p_ptr->protevil + randint(50) + 50)) ident = TRUE;
-			if (ident) effects[EFFECT_PRO_EVIL]++;
+			if (ident) effects[EFFECT_PROTECT_FROM]++;
 			break;
 		}
 
@@ -1558,14 +1545,14 @@ void do_cmd_read_scroll(void)
 		{
 			destroy_area(py, px, 15, TRUE);
 			ident = TRUE;
-			effects[EFFECT_STAR_DESTRUCT]++;
+			effects[EFFECT_DESTRUCTION]++;
 			break;
 		}
 
 		case SV_SCROLL_DISPEL_UNDEAD:
 		{
 			if (dispel_undead(60)) ident = TRUE;
-			if (ident) effects[EFFECT_DISPEL_UNDEAD]++;
+			if (ident) effects[EFFECT_DISPEL_EVIL_UNDEAD]++;
 			break;
 		}
 
@@ -1602,14 +1589,14 @@ void do_cmd_read_scroll(void)
 		case SV_SCROLL_PROTECTION_FROM_UNDEAD:
 		{
 			if (set_prot_undead(p_ptr->prot_undead + randint(50) + 50)) ident = TRUE;
-			if (ident) effects[EFFECT_PRO_UNDEAD]++;
+			if (ident) effects[EFFECT_PROTECT_FROM]++;
 			break;
 		}
 
 		case SV_SCROLL_DISPEL_EVIL:
 		{
 			if (dispel_evil(60)) ident = TRUE;
-			if (ident) effects[EFFECT_DISPEL_EVIL]++;
+			if (ident) effects[EFFECT_DISPEL_EVIL_UNDEAD]++;
 			break;
 		}
 
@@ -1622,7 +1609,7 @@ void do_cmd_read_scroll(void)
 			  p_ptr->redraw |= (PR_MANA);
 			  p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
 			  ident = TRUE;
-			  effects[EFFECT_RESTORE_PIETY]++;
+			  effects[EFFECT_RESTORE_MP_PP]++;
 		     }
 		     break;
 
@@ -1864,7 +1851,7 @@ void do_cmd_use_staff(void)
 	int py = p_ptr->py;
 	int px = p_ptr->px;
 
-	int item, ident, chance, k, lev;
+	int item, ident, chance, k, lev, sval;
 
 	object_type *o_ptr;
 
@@ -1902,9 +1889,6 @@ void do_cmd_use_staff(void)
 		return;
 	}
 
-
-	/* Take a turn */
-	p_ptr->energy_use = 100;
 
 	/* Not identified yet */
 	ident = FALSE;
@@ -1948,9 +1932,14 @@ void do_cmd_use_staff(void)
 	/* Sound */
 	sound(MSG_ZAP);
 
+	/* XXX Hack -- Extract the "sval" effect */
+	sval = o_ptr->sval;
+
+	/* XXX Hack -- Staff of suprises can do anything before it */
+	if (sval == SV_STAFF_SUPRISES) sval = rand_int(SV_STAFF_SUPRISES);
 
 	/* Analyze the staff */
-	switch (o_ptr->sval)
+	switch (sval)
 	{
 		case SV_STAFF_DARKNESS:
 		{
@@ -2007,7 +1996,7 @@ void do_cmd_use_staff(void)
 					msg_print("The staff glows blue for a moment...");
 				}
 				ident = TRUE;
-				effects[EFFECT_REMOVE_CURSE]++;
+				effects[EFFECT_DISPEL_REMOVE_CURSE]++;
 			}
 			break;
 		}
@@ -2043,21 +2032,21 @@ void do_cmd_use_staff(void)
 		{
 			if (detect_treasure()) ident = TRUE;
 			if (detect_objects_gold()) ident = TRUE;
-			if (ident) effects[EFFECT_DETECT_TREASURE]++;
+			if (ident) effects[EFFECT_DETECT_ITEM]++;
 			break;
 		}
 
 		case SV_STAFF_DETECT_ITEM:
 		{
 			if (detect_objects_normal()) ident = TRUE;
-			if (ident) effects[EFFECT_DETECT_OBJECTS]++;
+			if (ident) effects[EFFECT_DETECT_ITEM]++;
 			break;
 		}
 
 		case SV_STAFF_DETECT_TRAP:
 		{
 			if (detect_traps()) ident = TRUE;
-			if (ident) effects[EFFECT_DETECT_TRAP]++;
+			if (ident) effects[EFFECT_DETECT_DOOR_TRAP]++;
 			break;
 		}
 
@@ -2065,7 +2054,7 @@ void do_cmd_use_staff(void)
 		{
 			if (detect_doors()) ident = TRUE;
 			if (detect_stairs()) ident = TRUE;
-			if (ident) effects[EFFECT_DETECT_DOOR]++;
+			if (ident) effects[EFFECT_DETECT_DOOR_TRAP]++;
 			break;
 		}
 
@@ -2079,25 +2068,23 @@ void do_cmd_use_staff(void)
 		case SV_STAFF_DETECT_EVIL:
 		{
 			if (detect_monsters_evil()) ident = TRUE;
-			if (ident) effects[EFFECT_DETECT_EVIL]++;
+			if (ident) effects[EFFECT_DETECT_SEMI]++;
 			break;
 		}
 
 		case SV_STAFF_CURE_LIGHT:
 		{
 			if (hp_player(damroll(2, 8))) ident = TRUE;
-			if (ident) effects[EFFECT_CURE_LIGHT]++;
+			if (ident) effects[EFFECT_CURE_LIGHT_SERIOUS]++;
 			break;
 		}
 
 		case SV_STAFF_CURING:
 		{
-			if (set_blind(0)) { ident = TRUE;
-			effects[EFFECT_CURE_BLIND]++; }
+			if (set_blind(0) || set_confused(0)) { ident = TRUE;
+			effects[EFFECT_CURE_BLIND_CONF]++; }
 			if (set_poisoned(0)) { ident = TRUE;
 			effects[EFFECT_CURE_POISON]++; }
-			if (set_confused(0)) { ident = TRUE;
-			effects[EFFECT_CURE_CONF]++; }
 			if (set_stun(0)) ident = TRUE;
 			if (set_cut(0)) ident = TRUE;
 			break;
@@ -2115,7 +2102,7 @@ void do_cmd_use_staff(void)
 		case SV_STAFF_THE_MAGI:
 		{
 			if (do_res_stat(A_INT)) { ident = TRUE;
-			effects[EFFECT_RESTORE_INT]++; }
+			effects[EFFECT_RESTORE_ATT]++; }
 			if (p_ptr->csp < p_ptr->msp)
 			  {
 			    p_ptr->csp = p_ptr->msp;
@@ -2124,7 +2111,7 @@ void do_cmd_use_staff(void)
 			    msg_print("Your feel your head clear.");
 			    p_ptr->redraw |= (PR_MANA);
 			    p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
-			    effects[EFFECT_RESTORE_MANA]++;
+			    effects[EFFECT_RESTORE_MP_PP]++;
 			  }
 			break;
 		}
@@ -2132,14 +2119,14 @@ void do_cmd_use_staff(void)
 		case SV_STAFF_SLEEP_MONSTERS:
 		{
 			if (sleep_monsters(randint(25) + 25)) ident = TRUE;
-			if (ident) effects[EFFECT_SLEEP_ALL]++;
+			if (ident) effects[EFFECT_MASS_HINDER]++;
 			break;
 		}
 
 		case SV_STAFF_SLOW_MONSTERS:
 		{
 			if (slow_monsters(randint(25) + 25)) ident = TRUE;
-			if (ident) effects[EFFECT_SLOW_ALL]++;
+			if (ident) effects[EFFECT_MASS_HINDER]++;
 			break;
 		}
 
@@ -2168,7 +2155,7 @@ void do_cmd_use_staff(void)
 		case SV_STAFF_DISPEL_EVIL:
 		{
 			if (dispel_evil(60)) ident = TRUE;
-			if (ident) effects[EFFECT_DISPEL_EVIL]++;
+			if (ident) effects[EFFECT_DISPEL_EVIL_UNDEAD]++;
 			break;
 		}
 
@@ -2182,15 +2169,15 @@ void do_cmd_use_staff(void)
 		case SV_STAFF_HOLINESS:
 		{
 			if (dispel_evil(120)) { ident = TRUE;
-			effects[EFFECT_DISPEL_EVIL]++; }
+			effects[EFFECT_DISPEL_EVIL_UNDEAD]++; }
 			if (set_protevil(p_ptr->protevil + randint(25) + 25)) { ident = TRUE;
-			effects[EFFECT_PRO_EVIL]++; }
+			effects[EFFECT_PROTECT_FROM]++; }
 			if (set_poisoned(0)) { ident = TRUE;
 			effects[EFFECT_CURE_POISON]++; }
 			if (set_afraid(0)) { ident = TRUE;
 			effects[EFFECT_REMOVE_FEAR]++; }
 			if (hp_player(50)) { ident = TRUE;
-			effects[EFFECT_CURE_CRITICAL]++; }
+			effects[EFFECT_CURE_CRIT_MORTAL]++; }
 			if (set_stun(0)) ident = TRUE;
 			if (set_cut(0)) ident = TRUE;
 			if (p_ptr->cpp < p_ptr->mpp)
@@ -2201,7 +2188,7 @@ void do_cmd_use_staff(void)
 			     p_ptr->redraw |= (PR_MANA);
 			     p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
 			     ident = TRUE;
-			     effects[EFFECT_RESTORE_PIETY]++;
+			     effects[EFFECT_RESTORE_MP_PP]++;
 			}
 			break;
 		}
@@ -2226,33 +2213,35 @@ void do_cmd_use_staff(void)
 		{
 			destroy_area(py, px, 15, TRUE);
 			ident = TRUE;
-			effects[EFFECT_STAR_DESTRUCT]++; 
+			effects[EFFECT_DESTRUCTION]++; 
 			break;
 		}
 
 		case SV_STAFF_DISPEL_UNDEAD:
 		{
 			if (dispel_undead(60)) ident = TRUE;
-			if (ident) effects[EFFECT_DISPEL_UNDEAD]++;
+			if (ident) effects[EFFECT_DISPEL_EVIL_UNDEAD]++;
 			break;
 		}
 
 		case SV_STAFF_DETECT_UNDEAD:
 		{
 			if (detect_monsters_undead()) ident = TRUE;
-			if (ident) effects[EFFECT_DETECT_UNDEAD]++;
+			if (ident) effects[EFFECT_DETECT_SEMI]++;
 			break;
 		}
 
 		case SV_STAFF_DETECT_ANIMALS:
 		{
 			if (detect_monsters_animal()) ident = TRUE;
-			if (ident) effects[EFFECT_DETECT_ANIMALS]++;
+			if (ident) effects[EFFECT_DETECT_SEMI]++;
 			break;
 		}
 
 	}
 
+	/* Take a turn */
+	if (use_charge) p_ptr->energy_use = 100;
 
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
@@ -2467,7 +2456,7 @@ void do_cmd_aim_wand(void)
 		case SV_WAND_DISARMING:
 		{
 			if (disarm_trap(dir)) ident = TRUE;
-			if (ident) effects[EFFECT_DISARM_TRAP]++; 
+			if (ident) effects[EFFECT_DOOR_DESTRUCT]++; 
 			break;
 		}
 
@@ -2490,35 +2479,36 @@ void do_cmd_aim_wand(void)
 			msg_print("A line of blue shimmering light appears.");
 			lite_line(dir);
 			ident = TRUE;
-			effects[EFFECT_SPEAR_LIGHT]++; 
+			effects[EFFECT_BEAM]++; 
+			effects[EFFECT_LIGHT]++; 
 			break;
 		}
 
 		case SV_WAND_SLEEP_MONSTER:
 		{
 			if (sleep_monster(dir, randint(25) + 25)) ident = TRUE;
-			if (ident) effects[EFFECT_SLEEP_MONSTER]++; 
+			if (ident) effects[EFFECT_HINDER]++; 
 			break;
 		}
 
 		case SV_WAND_SLOW_MONSTER:
 		{
 			if (slow_monster(dir, randint(25) + 25)) ident = TRUE;
-			if (ident) effects[EFFECT_SLOW_MONSTER]++; 
+			if (ident) effects[EFFECT_HINDER]++; 
 			break;
 		}
 
 		case SV_WAND_CONFUSE_MONSTER:
 		{
 			if (confuse_monster(dir, 10)) ident = TRUE;
-			if (ident) effects[EFFECT_CONFUSE_MONSTER]++; 
+			if (ident) effects[EFFECT_HINDER]++; 
 			break;
 		}
 
 		case SV_WAND_FEAR_MONSTER:
 		{
 			if (fear_monster(dir, 10)) ident = TRUE;
-			if (ident) effects[EFFECT_FEAR_MONSTER]++; 
+			if (ident) effects[EFFECT_HINDER]++; 
 			break;
 		}
 
@@ -2540,7 +2530,8 @@ void do_cmd_aim_wand(void)
 		{
 			fire_ball(GF_POIS, dir, 12, 2);
 			ident = TRUE;
-			effects[EFFECT_STINKING_CLOUD]++; 
+			effects[EFFECT_BALL]++; 
+			effects[EFFECT_POIS]++; 
 			break;
 		}
 
@@ -2548,7 +2539,8 @@ void do_cmd_aim_wand(void)
 		{
 			fire_bolt_or_beam(20, GF_MISSILE, dir, damroll(2, 6));
 			ident = TRUE;
-			effects[EFFECT_MAGIC_MISSILE]++; 
+			effects[EFFECT_BBOLT]++; 
+			effects[EFFECT_ARROW]++; 
 			break;
 		}
 
@@ -2556,7 +2548,8 @@ void do_cmd_aim_wand(void)
 		{
 			fire_bolt_or_beam(20, GF_ACID, dir, damroll(5, 8));
 			ident = TRUE;
-			effects[EFFECT_ACID_BOLT]++; 
+			effects[EFFECT_BBOLT]++; 
+			effects[EFFECT_ACID]++; 
 			break;
 		}
 
@@ -2564,7 +2557,8 @@ void do_cmd_aim_wand(void)
 		{
 			fire_bolt_or_beam(20, GF_ELEC, dir, damroll(3, 8));
 			ident = TRUE;
-			effects[EFFECT_LIGHTNING_BOLT]++; 
+			effects[EFFECT_BBOLT]++; 
+			effects[EFFECT_LIGHTNING]++; 
 			break;
 		}
 
@@ -2572,7 +2566,8 @@ void do_cmd_aim_wand(void)
 		{
 			fire_bolt_or_beam(20, GF_FIRE, dir, damroll(6, 8));
 			ident = TRUE;
-			effects[EFFECT_FIRE_BOLT]++; 
+			effects[EFFECT_BBOLT]++; 
+			effects[EFFECT_FIRE]++; 
 			break;
 		}
 
@@ -2580,7 +2575,8 @@ void do_cmd_aim_wand(void)
 		{
 			fire_bolt_or_beam(20, GF_COLD, dir, damroll(3, 8));
 			ident = TRUE;
-			effects[EFFECT_COLD_BOLT]++; 
+			effects[EFFECT_BBOLT]++; 
+			effects[EFFECT_COLD]++; 
 			break;
 		}
 
@@ -2588,7 +2584,8 @@ void do_cmd_aim_wand(void)
 		{
 			fire_ball(GF_ACID, dir, 60, 2);
 			ident = TRUE;
-			effects[EFFECT_ACID_BALL]++; 
+			effects[EFFECT_BALL]++; 
+			effects[EFFECT_ACID]++; 
 			break;
 		}
 
@@ -2596,7 +2593,8 @@ void do_cmd_aim_wand(void)
 		{
 			fire_ball(GF_ELEC, dir, 32, 2);
 			ident = TRUE;
-			effects[EFFECT_LIGHTNING_BALL]++; 
+			effects[EFFECT_BALL]++; 
+			effects[EFFECT_LIGHTNING]++; 
 			break;
 		}
 
@@ -2604,7 +2602,8 @@ void do_cmd_aim_wand(void)
 		{
 			fire_ball(GF_FIRE, dir, 72, 2);
 			ident = TRUE;
-			effects[EFFECT_FIRE_BALL]++; 
+			effects[EFFECT_BALL]++; 
+			effects[EFFECT_FIRE]++; 
 			break;
 		}
 
@@ -2612,7 +2611,8 @@ void do_cmd_aim_wand(void)
 		{
 			fire_ball(GF_COLD, dir, 48, 2);
 			ident = TRUE;
-			effects[EFFECT_COLD_BALL]++; 
+			effects[EFFECT_BALL]++; 
+			effects[EFFECT_COLD]++; 
 			break;
 		}
 
@@ -2626,7 +2626,8 @@ void do_cmd_aim_wand(void)
 		{
 			fire_ball(GF_FIRE, dir, 100, 3);
 			ident = TRUE;
-			effects[EFFECT_DRAGON_FIRE]++; 
+			effects[EFFECT_BALL]++; 
+			effects[EFFECT_FIRE]++; 
 			break;
 		}
 
@@ -2634,7 +2635,8 @@ void do_cmd_aim_wand(void)
 		{
 			fire_ball(GF_COLD, dir, 80, 3);
 			ident = TRUE;
-			effects[EFFECT_DRAGON_COLD]++; 
+			effects[EFFECT_BALL]++; 
+			effects[EFFECT_COLD]++; 
 			break;
 		}
 
@@ -2810,9 +2812,6 @@ void do_cmd_zap_rod(void)
 	}
 
 
-	/* Take a turn */
-	p_ptr->energy_use = 100;
-
 	/* Not identified yet */
 	ident = FALSE;
 
@@ -2862,7 +2861,7 @@ void do_cmd_zap_rod(void)
 		{
 			if (detect_traps()) ident = TRUE;
 			o_ptr->pval = 50;
-			if (ident) effects[EFFECT_DETECT_TRAP]++; 
+			if (ident) effects[EFFECT_DETECT_DOOR_TRAP]++; 
 			break;
 		}
 
@@ -2870,7 +2869,7 @@ void do_cmd_zap_rod(void)
 		{
 			if (detect_doors()) ident = TRUE;
 			if (detect_stairs()) ident = TRUE;
-			if (ident) effects[EFFECT_DETECT_DOOR]++; 
+			if (ident) effects[EFFECT_DETECT_DOOR_TRAP]++; 
 			o_ptr->pval = 70;
 			break;
 		}
@@ -2935,12 +2934,10 @@ void do_cmd_zap_rod(void)
 
 		case SV_ROD_CURING:
 		{
-			if (set_blind(0)) { ident = TRUE;
-			effects[EFFECT_CURE_BLIND]++; }
+			if (set_blind(0) || set_confused(0)) { ident = TRUE;
+			effects[EFFECT_CURE_BLIND_CONF]++; }
 			if (set_poisoned(0)) { ident = TRUE;
 			effects[EFFECT_CURE_POISON]++; }
-			if (set_confused(0)) { ident = TRUE;
-			effects[EFFECT_CURE_CONF]++; }
 			if (set_stun(0)) ident = TRUE;
 			if (set_cut(0)) ident = TRUE;
 			o_ptr->pval = 999;
@@ -2959,20 +2956,12 @@ void do_cmd_zap_rod(void)
 
 		case SV_ROD_RESTORATION:
 		{
-			if (restore_level()) { ident = TRUE;
-			effects[EFFECT_RESTORE_EXP]++; }
-			if (do_res_stat(A_STR)) { ident = TRUE;
-			effects[EFFECT_RESTORE_STR]++; }
-			if (do_res_stat(A_INT)) { ident = TRUE;
-			effects[EFFECT_RESTORE_INT]++; }
-			if (do_res_stat(A_WIS)) { ident = TRUE;
-			effects[EFFECT_RESTORE_WIS]++; }
-			if (do_res_stat(A_DEX)) { ident = TRUE;
-			effects[EFFECT_RESTORE_DEX]++; }
-			if (do_res_stat(A_CON)) { ident = TRUE;
-			effects[EFFECT_RESTORE_CON]++; }
-			if (do_res_stat(A_CHR)) { ident = TRUE;
-			effects[EFFECT_RESTORE_CHR]++; }
+			if (do_res_stat(A_STR) || do_res_stat(A_INT) || do_res_stat(A_WIS) ||
+			    do_res_stat(A_DEX) || do_res_stat(A_CON) || do_res_stat(A_CHR))
+			{ 
+			     ident = TRUE;
+			     effects[EFFECT_RESTORE_ATT]++; 
+			}
 			o_ptr->pval = 999;
 			break;
 		}
@@ -3011,7 +3000,7 @@ void do_cmd_zap_rod(void)
 		case SV_ROD_DISARMING:
 		{
 			if (disarm_trap(dir)) ident = TRUE;
-			if (ident) effects[EFFECT_DISARM_TRAP]++; 
+			if (ident) effects[EFFECT_DOOR_DESTRUCT]++; 
 			o_ptr->pval = 30;
 			break;
 		}
@@ -3021,7 +3010,8 @@ void do_cmd_zap_rod(void)
 			msg_print("A line of blue shimmering light appears.");
 			lite_line(dir);
 			ident = TRUE;
-			effects[EFFECT_SPEAR_LIGHT]++; 
+			effects[EFFECT_BEAM]++; 
+			effects[EFFECT_LIGHT]++; 
 			o_ptr->pval = 9;
 			break;
 		}
@@ -3029,7 +3019,7 @@ void do_cmd_zap_rod(void)
 		case SV_ROD_SLEEP_MONSTER:
 		{
 			if (sleep_monster(dir, randint(25) + 25)) ident = TRUE;
-			if (ident) effects[EFFECT_SLEEP_MONSTER]++; 
+			if (ident) effects[EFFECT_HINDER]++; 
 			o_ptr->pval = 18;
 			break;
 		}
@@ -3037,7 +3027,7 @@ void do_cmd_zap_rod(void)
 		case SV_ROD_SLOW_MONSTER:
 		{
 			if (slow_monster(dir, randint(25) + 25)) ident = TRUE;
-			if (ident) effects[EFFECT_SLOW_MONSTER]++; 
+			if (ident) effects[EFFECT_HINDER]++; 
 			o_ptr->pval = 20;
 			break;
 		}
@@ -3062,7 +3052,8 @@ void do_cmd_zap_rod(void)
 		{
 			fire_bolt_or_beam(10, GF_ACID, dir, damroll(6, 8));
 			ident = TRUE;
-			effects[EFFECT_ACID_BOLT]++; 
+			effects[EFFECT_BBOLT]++; 
+			effects[EFFECT_ACID]++; 
 			o_ptr->pval = 12;
 			break;
 		}
@@ -3071,7 +3062,8 @@ void do_cmd_zap_rod(void)
 		{
 			fire_bolt_or_beam(10, GF_ELEC, dir, damroll(3, 8));
 			ident = TRUE;
-			effects[EFFECT_LIGHTNING_BOLT]++; 
+			effects[EFFECT_BBOLT]++; 
+			effects[EFFECT_LIGHTNING]++; 
 			o_ptr->pval = 11;
 			break;
 		}
@@ -3080,7 +3072,8 @@ void do_cmd_zap_rod(void)
 		{
 			fire_bolt_or_beam(10, GF_FIRE, dir, damroll(8, 8));
 			ident = TRUE;
-			effects[EFFECT_FIRE_BOLT]++; 
+			effects[EFFECT_BBOLT]++; 
+			effects[EFFECT_FIRE]++; 
 			o_ptr->pval = 15;
 			break;
 		}
@@ -3089,7 +3082,8 @@ void do_cmd_zap_rod(void)
 		{
 			fire_bolt_or_beam(10, GF_COLD, dir, damroll(5, 8));
 			ident = TRUE;
-			effects[EFFECT_COLD_BOLT]++; 
+			effects[EFFECT_BBOLT]++; 
+			effects[EFFECT_COLD]++; 
 			o_ptr->pval = 13;
 			break;
 		}
@@ -3098,7 +3092,8 @@ void do_cmd_zap_rod(void)
 		{
 			fire_ball(GF_ACID, dir, 60, 2);
 			ident = TRUE;
-			effects[EFFECT_ACID_BALL]++; 
+			effects[EFFECT_BALL]++; 
+			effects[EFFECT_ACID]++; 
 			o_ptr->pval = 27;
 			break;
 		}
@@ -3107,7 +3102,8 @@ void do_cmd_zap_rod(void)
 		{
 			fire_ball(GF_ELEC, dir, 32, 2);
 			ident = TRUE;
-			effects[EFFECT_LIGHTNING_BALL]++; 
+			effects[EFFECT_BALL]++; 
+			effects[EFFECT_LIGHTNING]++; 
 			o_ptr->pval = 23;
 			break;
 		}
@@ -3116,7 +3112,8 @@ void do_cmd_zap_rod(void)
 		{
 			fire_ball(GF_FIRE, dir, 72, 2);
 			ident = TRUE;
-			effects[EFFECT_FIRE_BALL]++; 
+			effects[EFFECT_BALL]++; 
+			effects[EFFECT_FIRE]++; 
 			o_ptr->pval = 30;
 			break;
 		}
@@ -3125,7 +3122,8 @@ void do_cmd_zap_rod(void)
 		{
 			fire_ball(GF_COLD, dir, 48, 2);
 			ident = TRUE;
-			effects[EFFECT_COLD_BALL]++; 
+			effects[EFFECT_BALL]++; 
+			effects[EFFECT_COLD]++; 
 			o_ptr->pval = 25;
 			break;
 		}
@@ -3134,7 +3132,8 @@ void do_cmd_zap_rod(void)
 		{
 			fire_bolt_or_beam(10, GF_FORCE, dir, damroll(10, 8));
 			ident = TRUE;
-			effects[EFFECT_FORCE_BOLT]++; 
+			effects[EFFECT_BBOLT]++; 
+			effects[EFFECT_FORCE]++; 
 			o_ptr->pval = 20;
 			break;
 		}
@@ -3143,12 +3142,15 @@ void do_cmd_zap_rod(void)
 		{
 			fire_ball(GF_FORCE, dir, 90, 2);
 			ident = TRUE;
-			effects[EFFECT_FORCE_BALL]++; 
+			effects[EFFECT_BALL]++; 
+			effects[EFFECT_FORCE]++; 
 			o_ptr->pval = 40;
 			break;
 		}
 	}
 
+	/* Take a turn */
+	if (use_charge) p_ptr->energy_use = 100;
 
 	/* Combine / Reorder the pack (later) */
 	p_ptr->notice |= (PN_COMBINE | PN_REORDER);
@@ -3496,8 +3498,7 @@ void do_cmd_activate(void)
 				(void)detect_traps();
 				(void)detect_doors();
 				(void)detect_stairs();
-				effects[EFFECT_DETECT_TRAP]++; 
-				effects[EFFECT_DETECT_DOOR]++; 
+				effects[EFFECT_DETECT_DOOR_TRAP]++; 
 				break;
 			}
 
@@ -3505,7 +3506,7 @@ void do_cmd_activate(void)
 			{
 				msg_format("The %s lets out a shrill wail...", o_name);
 				(void)set_protevil(p_ptr->protevil + randint(50) + 50);
-				effects[EFFECT_PRO_EVIL]++; 
+				effects[EFFECT_PROTECT_FROM]++; 
 				break;
 			}
 
@@ -3513,7 +3514,7 @@ void do_cmd_activate(void)
 			{
 				msg_format("The %s floods the area with goodness...", o_name);
 				dispel_evil(250);
-				effects[EFFECT_DISPEL_EVIL]++; 
+				effects[EFFECT_DISPEL_EVIL_UNDEAD]++; 
 				break;
 			}
 
@@ -3537,7 +3538,8 @@ void do_cmd_activate(void)
 				msg_format("The %s glows deep red...", o_name);
 				if (!get_aim_dir(&dir)) return;
 				fire_ball(GF_FIRE, dir, 120, 3);
-				effects[EFFECT_FIRE_BALL]++; 
+				effects[EFFECT_BALL]++; 
+				effects[EFFECT_FIRE]++; 
 				break;
 			}
 
@@ -3546,7 +3548,8 @@ void do_cmd_activate(void)
 				msg_format("The %s glows bright white...", o_name);
 				if (!get_aim_dir(&dir)) return;
 				fire_ball(GF_COLD, dir, 200, 3);
-				effects[EFFECT_COLD_BALL]++; 
+				effects[EFFECT_BALL]++; 
+				effects[EFFECT_COLD]++; 
 				break;
 			}
 
@@ -3555,7 +3558,8 @@ void do_cmd_activate(void)
 				msg_format("The %s glows deep blue...", o_name);
 				if (!get_aim_dir(&dir)) return;
 				fire_ball(GF_ELEC, dir, 250, 3);
-				effects[EFFECT_LIGHTNING_BALL]++; 
+				effects[EFFECT_BALL]++; 
+				effects[EFFECT_LIGHTNING]++; 
 				break;
 			}
 
@@ -3572,7 +3576,8 @@ void do_cmd_activate(void)
 			{
 				msg_format("Your %s is surrounded by lightning...", o_name);
 				for (i = 0; i < 8; i++) fire_ball(GF_ELEC, ddd[i], 150, 3);
-				effects[EFFECT_LIGHTNING_BALL]++; 
+				effects[EFFECT_BALL]++; 
+				effects[EFFECT_LIGHTNING]++; 
 				break;
 			}
 
@@ -3589,14 +3594,11 @@ void do_cmd_activate(void)
 				(void)set_oppose_fire(p_ptr->oppose_fire + randint(50) + 50);
 				(void)set_oppose_cold(p_ptr->oppose_cold + randint(50) + 50);
 				(void)set_oppose_pois(p_ptr->oppose_pois + randint(50) + 50);
-				effects[EFFECT_CURE_SERIOUS]++; 
+				effects[EFFECT_CURE_LIGHT_SERIOUS]++; 
 				effects[EFFECT_REMOVE_FEAR]++; 
 				effects[EFFECT_BERSERK]++; 
-				effects[EFFECT_PRAYER]++; 
-				effects[EFFECT_RES_ACID]++; 
-				effects[EFFECT_RES_ELEC]++; 
-				effects[EFFECT_RES_FIRE]++; 
-				effects[EFFECT_RES_COLD]++; 
+				effects[EFFECT_BLESS]++; 
+				effects[EFFECT_RES_ELEMENT]++; 
 				effects[EFFECT_RES_POIS]++; 
 				break;
 			}
@@ -3631,7 +3633,7 @@ void do_cmd_activate(void)
 			{
 				msg_format("Your %s glows bright red...", o_name);
 				destroy_doors_touch();
-				effects[EFFECT_DOOR_DESTRUCT_TOUCH]++; 
+				effects[EFFECT_DOOR_DESTRUCT]++; 
 				break;
 			}
 
@@ -3662,10 +3664,7 @@ void do_cmd_activate(void)
 				(void)set_oppose_fire(p_ptr->oppose_fire + randint(20) + 20);
 				(void)set_oppose_cold(p_ptr->oppose_cold + randint(20) + 20);
 				(void)set_oppose_pois(p_ptr->oppose_pois + randint(20) + 20);
-				effects[EFFECT_RES_ACID]++; 
-				effects[EFFECT_RES_ELEC]++; 
-				effects[EFFECT_RES_FIRE]++; 
-				effects[EFFECT_RES_COLD]++; 
+				effects[EFFECT_RES_ELEMENT]++; 
 				effects[EFFECT_RES_POIS]++; 
 				break;
 			}
@@ -3674,7 +3673,7 @@ void do_cmd_activate(void)
 			{
 				msg_format("Your %s glows deep blue...", o_name);
 				sleep_monsters_touch(50);
-				effects[EFFECT_SLEEP_TOUCH]++; 
+				effects[EFFECT_HINDER]++; 
 				break;
 			}
 
@@ -3682,7 +3681,7 @@ void do_cmd_activate(void)
 			{
 				msg_format("Your %s glows bright yellow...", o_name);
 				recharge(60);
-				effects[EFFECT_RECHARGE_MEDIUM]++; 
+				effects[EFFECT_RECHARGE]++; 
 				break;
 			}
 
@@ -3707,7 +3706,8 @@ void do_cmd_activate(void)
 				msg_format("Your %s glows extremely brightly...", o_name);
 				if (!get_aim_dir(&dir)) return;
 				fire_bolt(GF_MISSILE, dir, damroll(2, 6));
-				effects[EFFECT_MAGIC_MISSILE]++; 
+				effects[EFFECT_BOLT]++; 
+				effects[EFFECT_ARROW]++; 
 				break;
 			}
 
@@ -3716,7 +3716,8 @@ void do_cmd_activate(void)
 				msg_format("Your %s is covered in fire...", o_name);
 				if (!get_aim_dir(&dir)) return;
 				fire_bolt(GF_FIRE, dir, damroll(9, 8));
-				effects[EFFECT_FIRE_BOLT]++; 
+				effects[EFFECT_BOLT]++; 
+				effects[EFFECT_FIRE]++; 
 				break;
 			}
 
@@ -3725,7 +3726,8 @@ void do_cmd_activate(void)
 				msg_format("Your %s is covered in frost...", o_name);
 				if (!get_aim_dir(&dir)) return;
 				fire_bolt(GF_COLD, dir, damroll(6, 8));
-				effects[EFFECT_COLD_BOLT]++; 
+				effects[EFFECT_BOLT]++; 
+				effects[EFFECT_COLD]++; 
 				break;
 			}
 
@@ -3734,7 +3736,8 @@ void do_cmd_activate(void)
 				msg_format("Your %s is covered in sparks...", o_name);
 				if (!get_aim_dir(&dir)) return;
 				fire_bolt(GF_ELEC, dir, damroll(4, 8));
-				effects[EFFECT_LIGHTNING_BOLT]++; 
+				effects[EFFECT_BOLT]++; 
+				effects[EFFECT_LIGHTNING]++; 
 				break;
 			}
 
@@ -3743,7 +3746,8 @@ void do_cmd_activate(void)
 				msg_format("Your %s is covered in acid...", o_name);
 				if (!get_aim_dir(&dir)) return;
 				fire_bolt(GF_ACID, dir, damroll(5, 8));
-				effects[EFFECT_ACID_BOLT]++; 
+				effects[EFFECT_BOLT]++; 
+				effects[EFFECT_ACID]++; 
 				break;
 			}
 
@@ -3752,7 +3756,8 @@ void do_cmd_activate(void)
 				msg_format("Your %s grows magical spikes...", o_name);
 				if (!get_aim_dir(&dir)) return;
 				fire_bolt(GF_ARROW, dir, 150);
-				effects[EFFECT_MAGIC_ARROW]++; 
+				effects[EFFECT_BOLT]++; 
+				effects[EFFECT_ARROW]++; 
 				break;
 			}
 
@@ -3786,7 +3791,8 @@ void do_cmd_activate(void)
 				msg_format("Your %s throbs deep green...", o_name);
 				if (!get_aim_dir(&dir)) return;
 				fire_ball(GF_POIS, dir, 12, 3);
-				effects[EFFECT_STINKING_CLOUD]++; 
+				effects[EFFECT_BALL]++; 
+				effects[EFFECT_POIS]++; 
 				break;
 			}
 
@@ -3795,7 +3801,8 @@ void do_cmd_activate(void)
 				msg_format("Your %s is covered in frost...", o_name);
 				if (!get_aim_dir(&dir)) return;
 				fire_ball(GF_COLD, dir, 48, 2);
-				effects[EFFECT_COLD_BALL]++; 
+				effects[EFFECT_BALL]++; 
+				effects[EFFECT_COLD]++; 
 				break;
 			}
 
@@ -3804,7 +3811,8 @@ void do_cmd_activate(void)
 				msg_format("Your %s glows a pale blue...", o_name);
 				if (!get_aim_dir(&dir)) return;
 				fire_bolt(GF_COLD, dir, damroll(12, 8));
-				effects[EFFECT_COLD_BOLT]++; 
+				effects[EFFECT_BOLT]++; 
+				effects[EFFECT_COLD]++; 
 				break;
 			}
 
@@ -3813,7 +3821,8 @@ void do_cmd_activate(void)
 				msg_format("Your %s glows a intense blue...", o_name);
 				if (!get_aim_dir(&dir)) return;
 				fire_ball(GF_COLD, dir, 100, 2);
-				effects[EFFECT_COLD_BALL]++; 
+				effects[EFFECT_BALL]++; 
+				effects[EFFECT_COLD]++; 
 				break;
 			}
 
@@ -3822,7 +3831,8 @@ void do_cmd_activate(void)
 				msg_format("Your %s rages in fire...", o_name);
 				if (!get_aim_dir(&dir)) return;
 				fire_ball(GF_FIRE, dir, 72, 2);
-				effects[EFFECT_FIRE_BALL]++; 
+				effects[EFFECT_BALL]++; 
+				effects[EFFECT_FIRE]++; 
 				break;
 			}
 
@@ -3857,7 +3867,7 @@ void do_cmd_activate(void)
 				msg_format("Your %s radiates deep purple...", o_name);
 				hp_player(damroll(4, 8));
 				(void)set_cut((p_ptr->cut / 2) - 50);
-				effects[EFFECT_CURE_SERIOUS]++; 
+				effects[EFFECT_CURE_LIGHT_SERIOUS]++; 
 				break;
 			}
 
@@ -3888,7 +3898,7 @@ void do_cmd_activate(void)
 				msg_format("Your %s glows in scintillating colours...", o_name);
 				if (!get_aim_dir(&dir)) return;
 				confuse_monster(dir, 20);
-				effects[EFFECT_CONFUSE_MONSTER]++; 
+				effects[EFFECT_HINDER]++; 
 				break;
 			}
 
@@ -3921,7 +3931,7 @@ void do_cmd_activate(void)
 			{
 				msg_format("Your %s glows deep red...", o_name);
 				(void)brand_bolts();
-				effects[EFFECT_ELEMENTAL_BRAND_AMMO]++; 
+				effects[EFFECT_ELEMENTAL_BRAND]++; 
 				break;
 			}
 		}
@@ -3953,7 +3963,8 @@ void do_cmd_activate(void)
 				msg_print("You breathe lightning.");
 				fire_ball(GF_ELEC, dir, 100, 2);
 				o_ptr->timeout = rand_int(450) + 450;
-				effects[EFFECT_LIGHTNING_BALL]++; 
+				effects[EFFECT_BALL]++; 
+				effects[EFFECT_LIGHTNING]++; 
 				break;
 			}
 
@@ -3962,7 +3973,8 @@ void do_cmd_activate(void)
 				msg_print("You breathe frost.");
 				fire_ball(GF_COLD, dir, 110, 2);
 				o_ptr->timeout = rand_int(450) + 450;
-				effects[EFFECT_COLD_BALL]++; 
+				effects[EFFECT_BALL]++; 
+				effects[EFFECT_COLD]++; 
 				break;
 			}
 
@@ -3971,7 +3983,8 @@ void do_cmd_activate(void)
 				msg_print("You breathe acid.");
 				fire_ball(GF_ACID, dir, 130, 2);
 				o_ptr->timeout = rand_int(450) + 450;
-				effects[EFFECT_ACID_BALL]++; 
+				effects[EFFECT_BALL]++; 
+				effects[EFFECT_ACID]++; 
 				break;
 			}
 
@@ -3980,7 +3993,8 @@ void do_cmd_activate(void)
 				msg_print("You breathe poison gas.");
 				fire_ball(GF_POIS, dir, 150, 2);
 				o_ptr->timeout = rand_int(450) + 450;
-				effects[EFFECT_POIS_BALL]++; 
+				effects[EFFECT_BALL]++; 
+				effects[EFFECT_POIS]++; 
 				break;
 			}
 
@@ -3989,7 +4003,8 @@ void do_cmd_activate(void)
 				msg_print("You breathe fire.");
 				fire_ball(GF_FIRE, dir, 200, 2);
 				o_ptr->timeout = rand_int(450) + 450;
-				effects[EFFECT_FIRE_BALL]++; 
+				effects[EFFECT_BALL]++; 
+				effects[EFFECT_FIRE]++; 
 				break;
 			}
 
@@ -4016,7 +4031,8 @@ void do_cmd_activate(void)
 				msg_print("You breathe confusion.");
 				fire_ball(GF_CONFUSION, dir, 120, 2);
 				o_ptr->timeout = rand_int(450) + 450;
-				effects[EFFECT_DRAGON_BREATH]++; 
+				effects[EFFECT_BALL]++; 
+				effects[EFFECT_CONF]++; 
 				break;
 			}
 
@@ -4025,7 +4041,8 @@ void do_cmd_activate(void)
 				msg_print("You breathe sound.");
 				fire_ball(GF_SOUND, dir, 130, 2);
 				o_ptr->timeout = rand_int(450) + 450;
-				effects[EFFECT_DRAGON_BREATH]++; 
+				effects[EFFECT_BALL]++; 
+				effects[EFFECT_SOUND]++; 
 				break;
 			}
 
@@ -4085,7 +4102,8 @@ void do_cmd_activate(void)
 				msg_print("You breathe the elements.");
 				fire_ball(GF_MISSILE, dir, 300, 2);
 				o_ptr->timeout = rand_int(300) + 300;
-				effects[EFFECT_DRAGON_BREATH]++; 
+				effects[EFFECT_BALL]++; 
+				effects[EFFECT_ARROW]++; 
 				break;
 			}
 		}
@@ -4192,7 +4210,7 @@ void do_cmd_activate(void)
 		  {
 		       (void)set_oppose_acid(p_ptr->oppose_acid + 
 					     randint(20) + 20);
-		       effects[EFFECT_RES_ACID]++;
+		       effects[EFFECT_RES_ELEMENT]++;
 		       o_ptr->timeout = 40 + rand_int(40);
 		       break;
 		  }
@@ -4200,7 +4218,7 @@ void do_cmd_activate(void)
 		  {
 		       (void)set_oppose_fire(p_ptr->oppose_fire + 
 					     randint(20) + 20);
-		       effects[EFFECT_RES_FIRE]++;
+		       effects[EFFECT_RES_ELEMENT]++;
 		       o_ptr->timeout = 40 + rand_int(40);
 		       break;
 		  }
@@ -4208,7 +4226,7 @@ void do_cmd_activate(void)
 		  {
 		       (void)set_oppose_cold(p_ptr->oppose_cold + 
 					     randint(20) + 20);
-		       effects[EFFECT_RES_COLD]++;
+		       effects[EFFECT_RES_ELEMENT]++;
 		       o_ptr->timeout = 40 + rand_int(40);
 		       break;
 		  }
@@ -4216,7 +4234,7 @@ void do_cmd_activate(void)
 		  {
 		       (void)set_oppose_elec(p_ptr->oppose_elec + 
 					     randint(20) + 20);
-		       effects[EFFECT_RES_ELEC]++;
+		       effects[EFFECT_RES_ELEMENT]++;
 		       o_ptr->timeout = 40 + rand_int(40);
 		       break;
 		  }

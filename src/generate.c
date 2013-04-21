@@ -3359,6 +3359,9 @@ static void town_gen(void)
 	/* Apply illumination */
 	town_illuminate(daytime);
 
+	/* Forget the town */
+	if (p_ptr->amnesia) wiz_dark();
+
 	/* Make some residents */
 	for (i = 0; i < residents; i++)
 	{
@@ -3558,7 +3561,7 @@ void generate_cave(void)
 
 	/* Astrals already know the dungeon, and move first when entering
 	   a level */
-	if (p_ptr->astral)
+	if (p_ptr->astral && (!p_ptr->amnesia))
 	{
 	      msg_print("You sense the living rock beneath your feet.");
 	      wiz_lite();

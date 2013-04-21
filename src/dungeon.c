@@ -89,8 +89,6 @@ static int value_check_aux2(const object_type *o_ptr)
  *   Class 1 = Mage    --> slow and light (and Illusionist, Runecaster)
  *   Class 2 = Priest  --> fast but light (and Death Priest)
  *   Class 3 = Thief   --> okay and heavy
- *   Class 4 = Ranger  --> slow and light (and Monk)
- *   Class 5 = Paladin --> slow but heavy
  */
 static void sense_inventory(void)
 {
@@ -132,10 +130,6 @@ static void sense_inventory(void)
 	      case CLASS_ARCHER: /* 500 - 4 */
 		test += 20000L / (plev * plev + 40);
 		break;
-	      case CLASS_RANGER: /* 750 - 6 */
-		test += 30000L / (plev * plev + 40);
-		break;
-	      case CLASS_PALADIN:
 	      case CLASS_CRUSADER: 
 	      case CLASS_MONK: /* 2000 - 17 */
 	      case CLASS_SHIFTER:
@@ -155,7 +149,6 @@ static void sense_inventory(void)
 	/* These classes get better pseudo-id */
 	if (player_has_class(CLASS_WARRIOR, 0) || 
 	    player_has_class(CLASS_THIEF, 0) ||
-	    player_has_class(CLASS_PALADIN, 0) ||
 	    player_has_class(CLASS_BERSERKER, 0) ||
 	    player_has_class(CLASS_CRUSADER, 0) ||
 	    player_has_class(CLASS_SLAYER, 0))
@@ -484,7 +477,7 @@ static void process_world(void)
 	object_type *o_ptr;
 
 	/* Amnesia */
-	if ((p_ptr->amnesia) && (!p_ptr->astral))
+	if (p_ptr->amnesia)
 	{
 	     /* Forget the map */
 	     wiz_dark();
@@ -578,6 +571,9 @@ static void process_world(void)
 
 			/* Illuminate */
 			town_illuminate(dawn);
+
+			/* Forget the town */
+			if (p_ptr->amnesia) wiz_dark();
 		}
 	}
 
@@ -722,17 +718,27 @@ static void process_world(void)
 	}
 
 	/* Decrease piety of Crusaders/Slayers over time */
-	if ( ((player_has_class(CLASS_CRUSADER, 0) &&  
-	       (turn % (250 + level_of_class(CLASS_CRUSADER) * 50) == 0)) ||
-	      (player_has_class(CLASS_SLAYER, 0) &&
-		   (turn % (50 + level_of_class(CLASS_SLAYER) * 10) == 0))) &&
-	     (p_ptr->mpp > 0))
+	if ((player_has_class(CLASS_CRUSADER, 0) || player_has_class(CLASS_SLAYER, 0)) && p_ptr->depth)
 	{
-	     p_ptr->mpp--;
-	     
-	     /* Redraw piety */
-	     p_ptr->redraw |= (PR_MANA);
-	     redraw_stuff();
+	     /* Get rate to decrease piety at, increases as level increases */
+	     int time;
+	     if (player_has_class(CLASS_CRUSADER, 0))
+		  time = 510 - (level_of_class(CLASS_CRUSADER) * 10);
+	     if (player_has_class(CLASS_SLAYER, 0))
+		  time = 510 - (level_of_class(CLASS_SLAYER) * 10);
+
+	     /* Meditation makes piety decrease faster */
+	     if (p_ptr->power_passive == POWER_MEDITATION) time /= 5;
+
+	     /* Every 'time' turns, reduce piety if it is non-zero */
+	     if ((turn % time == 0) && (p_ptr->mpp > 0))
+	     {
+		  p_ptr->mpp--;
+		  
+		  /* Redraw piety */
+		  p_ptr->redraw |= (PR_MANA);
+		  redraw_stuff();
+	     }
 	}
 
 	/* Default regeneration */
@@ -1547,7 +1553,11 @@ static void process_command(void)
 
 #endif
 
-
+	        case KTRL('T'):
+		{
+		     do_cmd_time();
+		     break;
+		}
 
 		/*** Inventory Commands ***/
 
@@ -1820,14 +1830,13 @@ static void process_command(void)
 			  switch (magery_class(FALSE))
 			  {
 			  case CLASS_CRUSADER:
-			       do_cmd_crusader(); break;
+			  case CLASS_SLAYER:
+			       do_cmd_power(); break;
 			  case CLASS_SHIFTER:
 			       do_cmd_shifter(); break;
 			  case CLASS_ILLUSIONIST:
 			       do_cmd_cast_illusion(); break;
 			  case CLASS_MAGE:
-			  case CLASS_THIEF:
-			  case CLASS_RANGER:
 			       do_cmd_cast(); break;
 			  }
 		     }
@@ -1845,13 +1854,11 @@ static void process_command(void)
 
 			  switch (priest_class(FALSE))
 			  {
-			  case CLASS_CRUSADER:
-			       do_cmd_crusader_prayer(); break;
 			  case CLASS_DEATH_PRIEST:
 			  case CLASS_SLAYER:
 			       do_cmd_cast_death(); break;
 			  case CLASS_PRIEST:
-			  case CLASS_PALADIN:
+			  case CLASS_CRUSADER:
 			       do_cmd_pray(); break;
 			  }
 		     }

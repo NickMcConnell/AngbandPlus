@@ -1,4 +1,4 @@
- -1.0.1-
+-1.0.1-
 
 Fixed priest/paladin spell list, dungeon books were broken
 Changed title in files.txt, 'V' command gives correct info now
@@ -305,3 +305,60 @@ of crusader and shifter modifiers (brands and claws)
 Damage shown in character info screen takes account of shifter claws, but not brands
 Some gloves and boots help monks do more damage, but sandals penalize them slightly
 Added ego-item boots of Kicking (not sandals or soft leather boots tho)
+
+1.0.9
+
+Easy mode gives even more gold and better objects, but score /5 instead of /2
+Changed Hp calculation to really give an average, rather than using best value
+Removed Ranger and Paladin classes
+Thiefs cannot use magic any longer, they will be given other abilities later
+Kobolds can be Death Priests
+Archers get less chance of preferred missiles breaking
+Runecasters are even worse at melee/missile combat now
+Runecasters start with talisman of magic missile and 2 charms from
+detect monsters, detect traps/doors, light area and phase door
+Death Priests can use scythes without penalties, and scythes can be weapons of death
+Heavy armour penalizes spell failure rates much more now, it was too low
+Added IGNORE_ flags to death books
+Spell scrolls from destroyed books are worth only 10% of original price
+Half as many spell/prayer scrolls in shops and a few more books
+Added some new flavours from Sangband
+Added spiked club, kite shield, steel gauntlets
+A few artifacts have their base type changed
+Added brand_lite and weapons of magery/illusion/holiness/death to randart generation code
+Added Staff of Suprises, like Wand of Wonder, chooses a random effect
+
+Changed the way crusaders and slayers piety decreases - now loses more
+at higher levels, as it is harder to keep their deity pleased. At
+level 1, loses 1 piety per 50 turns, up to level 50 and losing 1 piety
+every turn. Also, it no longer decreases over time in town (but you
+don't get any piety from level 0 monsters)
+Crusaders/slayers xp penalty increased to 50
+Crusaders gain a small amount of piety from destroying Death books, Slayers get the same
+from Holy Prayer books, but neither will ever get spell scrolls from these books
+Slayers now get a list of powers similar to those that Crusaders get
+Crusader prays from Holy Prayer books just like Slayer prays from Death books,
+instead of having a separate list of prayers
+Added meditation power, piety decreases 5 times as fast, prayers are easier and
+those that increase in power with player level are twice as effective
+Added weapon of darkness for slayers, has chance of scaring monster each hit,
+decreases player's light radius by 1 (unless that would mean no light
+available), and grants resistance to light
+
+Cancelling spells that require directions, identify, recharge and enchanting costs no mana now
+Added a command to show the time of day (control-T).
+Changed and cleaned up monster recall colours
+
+Shortened 'effects' list (one of the '~' screens) and divided effects
+into 3 types - attack forms (bolt, bolt or beam, beam, and ball),
+attack types (type of element, eg fire or chaos), and other effects
+(eg Satisfy Hunger or Phase Door).
+
+Mundanify scroll gives same question as Enchant scrolls
+Amnesia makes character forget the town, also affects astral characters and
+prevents them from knowing the level
+Fixed giving more gold in easy mode when using point-based stats
+Added ego-items for charms/talismans, (Glowing) or (Indestructible)
+Cancelling staffs/rods of id does not take time
+Spell failure chance is set to 0% if it would have gone below that before penalties are added
+

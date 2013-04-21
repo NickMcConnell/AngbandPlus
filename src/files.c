@@ -1758,27 +1758,35 @@ void player_flags(u32b *f1, u32b *f2, u32b *f3)
 	if (p_ptr->tim_lite) (*f3) |= (TR3_LITE);
 	if (p_ptr->tim_regen) (*f3) |= (TR3_REGEN);
 
-	/* Crusader powers */
-	switch (p_ptr->crusader_passive)
+	/* Powers */
+	switch (p_ptr->power_passive)
 	{
-	case CRUSADER_HEROISM:
-	case CRUSADER_BERSERK:
+	case POWER_HEROISM:
+	case POWER_BERSERK:
 	     (*f2) |= (TR2_RES_FEAR);
 	     break;
-	case CRUSADER_REGEN: (*f3) |= (TR3_REGEN); break;
-	case CRUSADER_RESISTANCE: 
+	case POWER_STEALTH: (*f1) |= (TR1_STEALTH); break;
+	case POWER_VISION: (*f1) |= (TR1_INFRA); (*f3) |= (TR3_SEE_INVIS); break;
+	case POWER_REGEN: (*f3) |= (TR3_REGEN); break;
+	case POWER_HASTE: (*f1) |= (TR1_SPEED); break;
+	case POWER_RESISTANCE1: 
 	     (*f2) |= (TR2_RES_ACID); (*f2) |= (TR2_RES_COLD);
 	     (*f2) |= (TR2_RES_ELEC); (*f2) |= (TR2_RES_FIRE);
 	     if (level_of_class(CLASS_CRUSADER) >= 24)
 		  (*f2) |= (TR2_RES_POIS);
 	     break;
-	case CRUSADER_HASTE: (*f1) |= (TR1_SPEED); break;
+	case POWER_RESISTANCE2: 
+	     (*f2) |= (TR2_RES_DARK); (*f2) |= (TR2_RES_COLD); 
+	     (*f2) |= (TR2_RES_FEAR); (*f2) |= (TR2_RES_POIS);
+	     if (level_of_class(CLASS_SLAYER) >= 29)
+		  (*f2) |= (TR2_RES_NETHR);		  
+	     break;
 	default:
 	     break;
 	}
-	switch (p_ptr->crusader_active)
+	switch (p_ptr->power_active)
 	{
-	case CRUSADER_WPN_LIGHT:
+	case POWER_WPN_LIGHT:
 	{
 	     /* Only if melee weapon is wielded */
 	     object_type *o_ptr;
@@ -1787,6 +1795,17 @@ void player_flags(u32b *f1, u32b *f2, u32b *f3)
 		  (*f3) |= (TR3_LITE);
 	     else if (player_has_class(CLASS_MONK, 0))
 		  (*f3) |= (TR3_LITE);
+	     break;
+	}
+	case POWER_WPN_DARK:
+	{
+	     /* Only if melee weapon is wielded */
+	     object_type *o_ptr;
+	     o_ptr = &inventory[INVEN_WIELD];
+	     if (o_ptr->k_idx)
+		  (*f2) |= (TR2_RES_LITE);
+	     else if (player_has_class(CLASS_MONK, 0))
+		  (*f2) |= (TR2_RES_LITE);
 	     break;
 	}
 	default:
@@ -3359,8 +3378,8 @@ long total_points(void)
   /* Nightmare mode doubles score */
   if (adult_nightmare) mult *= 2;
 
-  /* Easy mode halves score */
-  if (adult_easy) mult /= 2;
+  /* Easy mode reduces score */
+  if (adult_easy) mult /= 5;
   
   /* Maia get half score */
   if (rp_ptr->flags3 & (TR3_BLESSED)) mult /= 2;

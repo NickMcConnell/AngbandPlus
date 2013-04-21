@@ -508,27 +508,27 @@ void self_knowledge(void)
 	     info[i++] = "You cannot remember where you are!";
 	}
 
-	if ((p_ptr->blessed) || (p_ptr->crusader_passive == CRUSADER_BLESSING))
+	if ((p_ptr->blessed) || (p_ptr->power_passive == POWER_BLESSING))
 	{
 		info[i++] = "You feel righteous.";
 	}
-	if ((p_ptr->hero) || (p_ptr->crusader_passive == CRUSADER_HEROISM))
+	if ((p_ptr->hero) || (p_ptr->power_passive == POWER_HEROISM))
 	{
 		info[i++] = "You feel heroic.";
 	}
-	if ((p_ptr->shero) || (p_ptr->crusader_passive == CRUSADER_BERSERK))
+	if ((p_ptr->shero) || (p_ptr->power_passive == POWER_BERSERK))
 	{
 		info[i++] = "You are in a battle rage.";
 	}
-	if ((p_ptr->protevil) || (p_ptr->crusader_passive == CRUSADER_PROT_EVIL))
+	if ((p_ptr->protevil) || (p_ptr->power_passive == POWER_PROT_EVIL))
 	{
 		info[i++] = "You are protected from evil.";
 	}
-	if ((p_ptr->shield) || (p_ptr->crusader_passive == CRUSADER_SHIELD))
+	if ((p_ptr->shield) || (p_ptr->power_passive == POWER_SHIELD))
 	{
 		info[i++] = "You are protected by a mystic shield.";
 	}
-	if ((p_ptr->fast) || (p_ptr->crusader_passive == CRUSADER_HASTE))
+	if ((p_ptr->fast) || (p_ptr->power_passive == POWER_HASTE))
 	{
 	        info[i++] = "You are fast.";
 	}
@@ -552,7 +552,7 @@ void self_knowledge(void)
 	{
 		info[i++] = "You will soon be recalled.";
 	}
-	if (p_ptr->see_infra)
+	if (p_ptr->see_infra || p_ptr->power_passive == POWER_VISION)
 	{
 		info[i++] = "Your eyes are sensitive to infrared light.";
 	}
@@ -569,7 +569,7 @@ void self_knowledge(void)
 	{
 		info[i++] = "You are glowing with light.";
 	}
-	if (p_ptr->regenerate)
+	if (p_ptr->regenerate || p_ptr->power_passive == POWER_REGEN)
 	{
 		info[i++] = "You regenerate quickly.";
 	}
@@ -577,7 +577,7 @@ void self_knowledge(void)
 	{
 		info[i++] = "You have ESP.";
 	}
-	if (p_ptr->see_inv)
+	if ((p_ptr->see_inv) || (p_ptr->power_passive == POWER_VISION))
 	{
 		info[i++] = "You can see invisible creatures.";
 	}
@@ -829,33 +829,38 @@ void self_knowledge(void)
 		{
 			info[i++] = "Your weapon shocks your foes.";
 		}
-		if ((f1 & (TR1_BRAND_FIRE)) || (p_ptr->crusader_active == CRUSADER_WPN_FLAME))
+		if ((f1 & (TR1_BRAND_FIRE)) || (p_ptr->power_active == POWER_WPN_FLAME))
 		{
 			info[i++] = "Your weapon burns your foes.";
 		}
-		if (f1 & (TR1_BRAND_COLD))
+		if ((f1 & (TR1_BRAND_COLD)) || (p_ptr->power_active == POWER_WPN_COLD))
 		{
 			info[i++] = "Your weapon freezes your foes.";
 		}
-		if (f1 & (TR1_BRAND_POIS))
+		if ((f1 & (TR1_BRAND_POIS)) || (p_ptr->power_active == POWER_WPN_POISON))
 		{
 			info[i++] = "Your weapon poisons your foes.";
 		}
-		if ((f1 & (TR1_BRAND_LITE)) || (p_ptr->crusader_active == CRUSADER_WPN_LIGHT))
+		if ((f1 & (TR1_BRAND_LITE)) || (p_ptr->power_active == POWER_WPN_LIGHT))
 		{
 			info[i++] = "Your weapon is shining with a bright light.";
 		}
+		if (p_ptr->power_active == POWER_WPN_DARK)
+		{
+			info[i++] = "Your weapon is absorbing light.";
+		}
+
 
 		/* Special "slay" flags */
-		if (f1 & (TR1_SLAY_ANIMAL))
+		if ((f1 & (TR1_SLAY_ANIMAL)) || (p_ptr->power_active == POWER_SLAY_ANIMAL))
 		{
 			info[i++] = "Your weapon strikes at animals with extra force.";
 		}
-		if ((f1 & (TR1_SLAY_EVIL)) || (p_ptr->crusader_active == CRUSADER_SLAY_EVIL))
+		if ((f1 & (TR1_SLAY_EVIL)) || (p_ptr->power_active == POWER_SLAY_EVIL))
 		{
 			info[i++] = "Your weapon strikes at evil with extra force.";
 		}
-		if ((f1 & (TR1_SLAY_UNDEAD)) || (p_ptr->crusader_active == CRUSADER_SLAY_UNDEAD))
+		if ((f1 & (TR1_SLAY_UNDEAD)) || (p_ptr->power_active == POWER_SLAY_UNDEAD))
 		{
 			info[i++] = "Your weapon strikes at undead with holy wrath.";
 		}
@@ -901,20 +906,33 @@ void self_knowledge(void)
 	}
 	else if (player_has_class(CLASS_MONK, 0))
 	{
-	     switch (p_ptr->crusader_active)
+	     switch (p_ptr->power_active)
 	     {
-	     case CRUSADER_WPN_LIGHT:
+	     case POWER_WPN_LIGHT:
 		  info[i++] = "Your hands are shining with a bright light.";
 		  break;
-	     case CRUSADER_WPN_FLAME:
+	     case POWER_WPN_COLD:
+		  if (p_ptr->shapeshift != FORM_ICE_TROLL)
+		       info[i++] = "Your fists do freezing damage.";
+		  break;
+	     case POWER_WPN_FLAME:
 		  if (p_ptr->shapeshift != FORM_CHAOS_DRAKE)
 		       info[i++] = "Your fists burn your foes.";
 		  break;
-	     case CRUSADER_SLAY_UNDEAD:
+	     case POWER_WPN_DARK:
+		  info[i++] = "Your hands are absorbing light.";
+		  break;
+	     case POWER_SLAY_UNDEAD:
 		  info[i++] = "You strike at undead with holy wrath.";
 		  break;
-	     case CRUSADER_SLAY_EVIL:
+	     case POWER_WPN_POISON:
+		  info[i++] = "Your hands are dripping with poison.";
+		  break;
+	     case POWER_SLAY_EVIL:
 		  info[i++] = "You strike at evil with extra force.";
+		  break;
+	     case POWER_SLAY_ANIMAL:
+		  info[i++] = "You strike at animals with extra force.";
 		  break;
 	     }
 
@@ -2519,8 +2537,8 @@ bool mundane_spell()
 	item_tester_hook = item_tester_hook_weapon_armour;
 
 	/* Get an item */
-	q = "Use which item? ";
-	s = "You have nothing you can use.";
+	q = "Enchant which item? ";
+	s = "You have nothing to enchant.";
 	if (!get_item(&item, q, s, (USE_EQUIP | USE_INVEN | USE_FLOOR))) 
 	  return (FALSE);
 	/* Get the item (in the pack) */

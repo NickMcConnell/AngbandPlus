@@ -623,9 +623,9 @@ A:ACID1:5:5
 # The Set of Gauntlets 'Camlost'
 
 N:58:'Camlost'
-I:31:2:-5
+I:31:3:-5
 W:10:20:25:0
-P:2:1d1:-11:-12:0
+P:3:1d1:-11:-12:0
 F:STR | DEX | HIDE_TYPE | 
 F:AGGRAVATE | LIGHT_CURSE | SHOW_MODS
 
@@ -728,12 +728,12 @@ F:BRAND_ELEC | RES_ELEC | ACTIVATE | SHOW_MODS
 A:LIGHTNING_BOLT:6:6
 
 
-# The Dagger of Rilia
+# The Knife of Rilia
 
 N:69:of Rilia
-I:23:4:0
+I:23:5:0
 W:5:40:12:15000
-P:0:2d4:4:3:0
+P:0:2d5:4:3:0
 F:SLAY_ORC | RES_POIS | RES_DISEN | ACTIVATE | SHOW_MODS
 A:STINKING_CLOUD:4:4
 

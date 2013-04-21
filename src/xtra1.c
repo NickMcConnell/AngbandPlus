@@ -1788,8 +1788,6 @@ static void calc_cumber(void)
 
 	/* Only check if relevant */
 	if (player_has_class(CLASS_MAGE, 0) || 
-	    player_has_class(CLASS_THIEF, 0) || 
-	    player_has_class(CLASS_RANGER, 0) || 
 	    player_has_class(CLASS_ILLUSIONIST, 0))
 	{
 	     
@@ -1825,40 +1823,26 @@ static void calc_cumber(void)
 	/* Heavy armor penalizes sfail (magic users and illusionists) */
 	if ((cur_wgt > max_wgt) && (max_wgt > 0) &&
 	    (player_has_class(CLASS_MAGE, 0) ||
-	     player_has_class(CLASS_THIEF, 0) ||
-	     player_has_class(CLASS_RANGER, 0) ||
 	     player_has_class(CLASS_ILLUSIONIST, 0)))
 	{
 	     /* Encumbered */
-	     p_ptr->cumber_armor_wizard = 
-		  (100 * (cur_wgt - max_wgt)) / max_wgt;
-	     
-	     /* Max of 100% penalty */
-	     if (p_ptr->cumber_armor_wizard > 100) 
-		  p_ptr->cumber_armor_wizard = 100;
+	     p_ptr->cumber_armor_wizard = (cur_wgt - max_wgt) / 5;
 	}
 
 	/* Heavy armor penalizes sfail (priests) */
 	if ((cur_wgt > max_wgt) && (max_wgt > 0) &&
 	    (player_has_class(CLASS_PRIEST, 0) ||
-	     player_has_class(CLASS_PALADIN, 0) ||
 	     player_has_class(CLASS_DEATH_PRIEST, 0) ||
+	     player_has_class(CLASS_CRUSADER, 0) ||
 	     player_has_class(CLASS_SLAYER, 0)))
 	{
 	     /* Encumbered */
-	     p_ptr->cumber_armor_priest = 
-		  (100 * (cur_wgt - max_wgt)) / max_wgt;
-
-	     /* Max of 100% penalty */
-	     if (p_ptr->cumber_armor_priest > 100) 
-		  p_ptr->cumber_armor_priest = 100;
+	     p_ptr->cumber_armor_priest = (cur_wgt - max_wgt) / 5;
 	}
 
 	/* Take note when "glove state" changes (only if relevant) */
 	if ((p_ptr->old_cumber_glove != p_ptr->cumber_glove) &&
 	    (p_ptr->pclass[p_ptr->current_class] == CLASS_MAGE || 
-	     p_ptr->pclass[p_ptr->current_class] == CLASS_THIEF || 
-	     p_ptr->pclass[p_ptr->current_class] == CLASS_RANGER || 
 	     p_ptr->pclass[p_ptr->current_class] == CLASS_ILLUSIONIST))
 	{
 		/* Message */
@@ -1878,8 +1862,6 @@ static void calc_cumber(void)
 	/* Take note when "armor state" changes */
 	if ((p_ptr->old_cumber_armor_wizard != p_ptr->cumber_armor_wizard) &&
 	    (p_ptr->pclass[p_ptr->current_class] == CLASS_MAGE || 
-	     p_ptr->pclass[p_ptr->current_class] == CLASS_THIEF || 
-	     p_ptr->pclass[p_ptr->current_class] == CLASS_RANGER || 
 	     p_ptr->pclass[p_ptr->current_class] == CLASS_ILLUSIONIST))
 	{
 		/* Message */
@@ -1899,8 +1881,8 @@ static void calc_cumber(void)
 	/* Take note when "armor state" changes */
 	if ((p_ptr->old_cumber_armor_priest != p_ptr->cumber_armor_priest) &&
 	    (p_ptr->pclass[p_ptr->current_class] == CLASS_PRIEST ||
-	     p_ptr->pclass[p_ptr->current_class] == CLASS_PALADIN ||
 	     p_ptr->pclass[p_ptr->current_class] == CLASS_DEATH_PRIEST ||
+	     p_ptr->pclass[p_ptr->current_class] == CLASS_CRUSADER ||
 	     p_ptr->pclass[p_ptr->current_class] == CLASS_SLAYER))
 	{
 		/* Message */
@@ -2045,7 +2027,7 @@ static void calc_piety(void)
  */
 static void calc_hitpoints(void)
 {
-	int bonus, i, best_hp = 1;
+	int bonus, i, total_hp = 0;
 
 	/* Un-inflate "half-hitpoint bonus per level" value */
 	bonus = ((int)(adj_con_mhp[p_ptr->stat_ind[A_CON]]) - 128);
@@ -2053,22 +2035,21 @@ static void calc_hitpoints(void)
 	/* Get the total HP of all classes */
 	for (i = 0; i < p_ptr->available_classes; i++)
 	  {
-	    int temp_hp = p_ptr->player_hp[p_ptr->lev[i] - 1] + 
+	    total_hp += p_ptr->player_hp[p_ptr->lev[i] - 1] + 
 		 (bonus * p_ptr->lev[i] / 2);
-
-	    if (temp_hp > best_hp) best_hp = temp_hp;
 	  }
+	total_hp /= p_ptr->available_classes;
 
 	/* New maximum hitpoints */
-	if (p_ptr->mhp != best_hp)
+	if (p_ptr->mhp != total_hp)
 	{
 		/* Save new limit */
-		p_ptr->mhp = best_hp;
+		p_ptr->mhp = total_hp;
 
 		/* Enforce new limit */
-		if (p_ptr->chp >= best_hp)
+		if (p_ptr->chp >= total_hp)
 		{
-			p_ptr->chp = best_hp;
+			p_ptr->chp = total_hp;
 			p_ptr->chp_frac = 0;
 		}
 
@@ -2095,12 +2076,24 @@ static void calc_torch(void)
 	p_ptr->cur_lite = 0;
 
 	/* Crusaders */
-	if (p_ptr->crusader_active == CRUSADER_WPN_LIGHT)
+	if (p_ptr->power_active == POWER_WPN_LIGHT)
 	{
 	     /* Only if melee weapon is wielded */
 	     o_ptr = &inventory[INVEN_WIELD];
 	     if (o_ptr->k_idx)
 		  p_ptr->cur_lite++;
+	}
+
+	/* Slayers */
+	if (p_ptr->power_active == POWER_WPN_DARK)
+	{
+	     /* Only if melee weapon is wielded or monk */
+	     o_ptr = &inventory[INVEN_WIELD];
+	     if (o_ptr->k_idx || player_has_class(CLASS_MONK, 0))
+	     {
+		  /* Don't reduce below 1 */
+		  if (p_ptr->cur_lite > 1) p_ptr->cur_lite--;
+	     }
 	}
 
 	if (p_ptr->shapeshift == 12)
@@ -2661,7 +2654,7 @@ static void calc_bonuses(void)
 	}
 
 	/* Temporary blessing */
-	if ((p_ptr->blessed) || (p_ptr->crusader_passive == CRUSADER_BLESSING))
+	if ((p_ptr->blessed) || (p_ptr->power_passive == POWER_BLESSING))
 	{
 		p_ptr->to_a += 5;
 		p_ptr->dis_to_a += 5;
@@ -2670,21 +2663,21 @@ static void calc_bonuses(void)
 	}
 
 	/* Temprory shield */
-	if ((p_ptr->shield) || (p_ptr->crusader_passive == CRUSADER_SHIELD))
+	if ((p_ptr->shield) || (p_ptr->power_passive == POWER_SHIELD))
 	{
 		p_ptr->to_a += 50;
 		p_ptr->dis_to_a += 50;
 	}
 
 	/* Temporary "Hero" */
-	if ((p_ptr->hero) || (p_ptr->crusader_passive == CRUSADER_HEROISM))
+	if ((p_ptr->hero) || (p_ptr->power_passive == POWER_HEROISM))
 	{
 		p_ptr->to_h += 12;
 		p_ptr->dis_to_h += 12;
 	}
 
 	/* Temporary "Beserk" */
-	if ((p_ptr->shero) || (p_ptr->crusader_passive == CRUSADER_BERSERK) || 
+	if ((p_ptr->shero) || (p_ptr->power_passive == POWER_BERSERK) || 
 	    ((player_has_class(CLASS_BERSERKER, 0)) && (p_ptr->confused || p_ptr->cut)))
 	{
 	        /* Berserkers get better bonuses and worse penalties */
@@ -2716,7 +2709,7 @@ static void calc_bonuses(void)
 	}
 
 	/* Temporary "fast" */
-	if ((p_ptr->fast) || (p_ptr->crusader_passive == CRUSADER_HASTE))
+	if ((p_ptr->fast) || (p_ptr->power_passive == POWER_HASTE))
 	{
 		p_ptr->pspeed += 10;
 	}
@@ -2728,13 +2721,13 @@ static void calc_bonuses(void)
 	}
 
 	/* Temporary see invisible */
-	if (p_ptr->tim_invis)
+	if ((p_ptr->tim_invis) || (p_ptr->power_passive == POWER_VISION))
 	{
 		p_ptr->see_inv = TRUE;
 	}
 
 	/* Temporary infravision boost */
-	if (p_ptr->tim_infra)
+	if ((p_ptr->tim_infra) || (p_ptr->power_passive == POWER_VISION))
 	{
 		p_ptr->see_infra += 3;
 	}
@@ -2743,14 +2736,28 @@ static void calc_bonuses(void)
 
 	/* Hack -- Hero/Shero -> Res fear */
 	if ((p_ptr->hero) || (p_ptr->shero) || 
-	    (p_ptr->crusader_passive == CRUSADER_HEROISM) ||
-	    (p_ptr->crusader_passive == CRUSADER_BERSERK))
+	    (p_ptr->power_passive == POWER_HEROISM) ||
+	    (p_ptr->power_passive == POWER_BERSERK) ||
+	    (p_ptr->power_passive == POWER_RESISTANCE2))
 	{
 		p_ptr->resist_fear = TRUE;
 	}
 
 	/* New effects - easier to set them here */
 
+	if (p_ptr->power_active == POWER_WPN_DARK)
+	{
+	     /* Only if melee weapon is wielded or monk */
+	     o_ptr = &inventory[INVEN_WIELD];
+	     if (o_ptr->k_idx || player_has_class(CLASS_MONK, 0))
+		  p_ptr->resist_lite = TRUE;
+	}
+
+	if (p_ptr->power_passive == POWER_RESISTANCE2)
+	{
+	       p_ptr->resist_dark = TRUE;
+	}
+	
 	if (p_ptr->oppose_ld)
 	{
 	       p_ptr->resist_lite = TRUE;
@@ -2772,6 +2779,16 @@ static void calc_bonuses(void)
 	if (p_ptr->oppose_nex)
 	{
 	       p_ptr->resist_nexus = TRUE;
+	}
+
+	if ((p_ptr->oppose_nether) || (p_ptr->power_passive == POWER_RESISTANCE2))
+	{
+	       p_ptr->resist_nethr = TRUE;
+	}
+
+	if (p_ptr->oppose_disen)
+	{
+	       p_ptr->resist_disen = TRUE;
 	}
 
 	if (p_ptr->mental_barrier)
@@ -2801,7 +2818,7 @@ static void calc_bonuses(void)
 	if (p_ptr->tim_lite)
 	     p_ptr->lite = TRUE;
 
-	if (p_ptr->tim_regen)
+	if ((p_ptr->tim_regen) || (p_ptr->power_passive == POWER_REGEN))
 	    p_ptr->regenerate = TRUE;
 
 	/* Astral */
@@ -2861,6 +2878,15 @@ static void calc_bonuses(void)
 	     p_ptr->regenerate = TRUE; p_ptr->see_inv = TRUE; break;
 	case FORM_CHAOS_DRAKE: p_ptr->resist_confu = TRUE; p_ptr->resist_chaos = TRUE; 
 	     p_ptr->resist_nexus = TRUE; p_ptr->immune_fire = TRUE; p_ptr->ffall = TRUE; break;
+	}
+
+	/* Mediation grants easier prayers */
+	if (p_ptr->power_passive == POWER_MEDITATION)
+	{
+	     if (player_has_class(CLASS_CRUSADER, 0)) 
+		  p_ptr->r_holy += (level_of_class(CLASS_CRUSADER) / 10) + 1;
+	     if (player_has_class(CLASS_SLAYER, 0)) 
+		  p_ptr->r_death += (level_of_class(CLASS_SLAYER) / 10) + 1;
 	}
 
 	/*** Analyze weight ***/
@@ -3011,14 +3037,6 @@ static void calc_bonuses(void)
 			/* Extra might */
 			p_ptr->ammo_mult += extra_might;
 
-			/* Hack -- Rangers get extra shots with bows */
-			if (player_has_class(CLASS_RANGER, 20) &&
-			    p_ptr->ammo_tval == TV_ARROW)
-			     p_ptr->num_fire++;
-			if (player_has_class(CLASS_RANGER, 40) &&
-			    p_ptr->ammo_tval == TV_ARROW)
-			     p_ptr->num_fire++;
-
 			/* Hack -- Reward High Level Archer (using the right 
 			   type of weapon) */
 			if ((rp_ptr->archer_type == 0) ||
@@ -3115,13 +3133,10 @@ static void calc_bonuses(void)
 		  { num = 6; wgt = 20; mul = 5; } 
 		else if (player_has_class(CLASS_WARRIOR, 0))
 		  { num = 6; wgt = 30; mul = 5; } 
-		else if (player_has_class(CLASS_PALADIN, 0) ||
-			 player_has_class(CLASS_CRUSADER, 0) ||
+		else if (player_has_class(CLASS_CRUSADER, 0) ||
 			 player_has_class(CLASS_SHIFTER, 0) ||
 			 player_has_class(CLASS_SLAYER, 0))
 		  { num = 5; wgt = 30; mul = 4; } 
-		else if (player_has_class(CLASS_RANGER, 0))
-		  { num = 5; wgt = 35; mul = 4; } 
 		else if (player_has_class(CLASS_ARCHER, 0))
 		  { num = 4; wgt = 35; mul = 4; } 
 		else if (player_has_class(CLASS_THIEF, 0))
@@ -3195,10 +3210,12 @@ static void calc_bonuses(void)
 	p_ptr->icky_shield = FALSE;
 
 	/* Priest weapon penalty for non-blessed edged weapons */
-	if ((player_has_class(CLASS_PRIEST, 0) ||
-	     player_has_class(CLASS_DEATH_PRIEST, 0)) &&
-	    (!p_ptr->bless_blade) && 
-	    ((o_ptr->tval == TV_SWORD) || (o_ptr->tval == TV_POLEARM)))
+	if ((player_has_class(CLASS_PRIEST, 0) && (!p_ptr->bless_blade) && 
+	     (o_ptr->tval == TV_SWORD || o_ptr->tval == TV_POLEARM)) ||
+	    /* Death priests can also use scythes without penalties */
+	    (player_has_class(CLASS_DEATH_PRIEST, 0) && (!p_ptr->bless_blade) &&
+	     (o_ptr->tval == TV_SWORD || (o_ptr->tval == TV_POLEARM && o_ptr->sval != SV_SCYTHE && 
+					  o_ptr->sval != SV_SCYTHE_OF_SLICING))))
 	{
 		/* Reduce the real bonuses */
 		p_ptr->to_h -= 10;

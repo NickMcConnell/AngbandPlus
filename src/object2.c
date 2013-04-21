@@ -1955,6 +1955,7 @@ static void charge_staff(object_type *o_ptr)
 	        case SV_STAFF_DISPEL_UNDEAD:            o_ptr->pval = randint(3)  + 4; break;
 	        case SV_STAFF_DETECT_UNDEAD:            o_ptr->pval = randint(15) + 8; break;
 	        case SV_STAFF_DETECT_ANIMALS:           o_ptr->pval = randint(15) + 8; break;
+		case SV_STAFF_SUPRISES:			o_ptr->pval = randint(15) + 8; break;
 	}
 }
 
@@ -2458,6 +2459,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 
 			        case SV_RING_SPELL:
 				{
+				     if (power > 1) (void)make_ego_item(o_ptr, FALSE);
 				     o_ptr->pval = get_item_spell(o_ptr, level, FALSE);
 
 				     if (cheat_peek) object_mention(o_ptr);
@@ -2558,6 +2560,7 @@ static void a_m_aux_3(object_type *o_ptr, int level, int power)
 
 			        case SV_AMULET_SPELL:
 				{
+				     if (power > 1) (void)make_ego_item(o_ptr, FALSE);
 				     o_ptr->pval = get_item_spell(o_ptr, level, FALSE);
 				     
 				     if (cheat_peek) object_mention(o_ptr);
@@ -4541,6 +4544,21 @@ s16b spell_chance(int spell)
 	/* Reduce failure rate by INT/WIS adjustment */
 	chance -= 3 * (adj_mag_stat[p_ptr->stat_ind[ ((priest) ? A_WIS : A_INT) ]] - 1);
 
+	if (chance < 0) chance = 0;
+
+	/* Decrease failure rate for spellcasting bonus from equipment */
+	switch (mp_ptr[p_ptr->pclass[p_ptr->current_class]]->spell_book)
+	{
+	case TV_MAGIC_BOOK: chance -= (p_ptr->r_magery * 5); break;
+	case TV_PRAYER_BOOK: chance -= (p_ptr->r_holy * 5); 
+	     chance += (p_ptr->r_death * 5); break;
+	case TV_ILLUSION_BOOK: chance -= (p_ptr->r_illusion * 5); break;
+	case TV_DEATH_BOOK: chance -= (p_ptr->r_death * 5); 
+	     chance += (p_ptr->r_holy * 5); break;
+	}
+
+	if (chance < 0) chance = 0;
+
 	/* Increase failure rate if encumbered by gloves */
         if (p_ptr->cumber_glove && !(priest))
 	{
@@ -4571,17 +4589,6 @@ s16b spell_chance(int spell)
 	     chance += 25;
 	if (p_ptr->image)
 	  chance += 50;
-
-	/* Decrease failure rate for spellcasting bonus from equipment */
-	switch (mp_ptr[p_ptr->pclass[p_ptr->current_class]]->spell_book)
-	{
-	case TV_MAGIC_BOOK: chance -= (p_ptr->r_magery * 5); break;
-	case TV_PRAYER_BOOK: chance -= (p_ptr->r_holy * 5); 
-	     chance += (p_ptr->r_death * 5); break;
-	case TV_ILLUSION_BOOK: chance -= (p_ptr->r_illusion * 5); break;
-	case TV_DEATH_BOOK: chance -= (p_ptr->r_death * 5); 
-	     chance += (p_ptr->r_holy * 5); break;
-	}
 
 	/* Not enough mana/piety to cast */
 	if (priest)
@@ -4785,7 +4792,7 @@ void spell_info(char *p, int spell)
 	/* Priest spells */
 	if (mp_ptr[p_ptr->pclass[p_ptr->current_class]]->spell_book == TV_PRAYER_BOOK)
 	{
-		int plev = p_ptr->lev[p_ptr->current_class];
+		int plev = ((p_ptr->power_passive == POWER_MEDITATION) ? p_ptr->lev[p_ptr->current_class] * 2 : p_ptr->lev[p_ptr->current_class]);
 
 		/* See below */
 		int orb = (plev / ((p_ptr->pclass[p_ptr->current_class] == CLASS_PRIEST) ? 2 : 4));
@@ -4920,6 +4927,7 @@ void spell_info(char *p, int spell)
 	if (mp_ptr[p_ptr->pclass[p_ptr->current_class]]->spell_book == TV_DEATH_BOOK)
 	{
 		int plev = p_ptr->lev[p_ptr->current_class];
+		if (p_ptr->power_passive == POWER_MEDITATION) plev *= 2;
 
 		/* Analyze the spell */
 		switch (spell)

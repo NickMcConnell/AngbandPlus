@@ -14,13 +14,13 @@
 /*
  * Max sizes of the following arrays.
  */
-#define MAX_ROCKS      42       /* Used with rings (min 38) */
+#define MAX_ROCKS      49       /* Used with rings (min 38) */
 #define MAX_AMULETS    27       /* Used with amulets (min 23) */
-#define MAX_WOODS      35       /* Used with staffs (min 32) */
-#define MAX_METALS     32       /* Used with wands/rods (min 29/30) */
-#define MAX_COLORS     69       /* Used with potions (min 61) */
-#define MAX_SHROOM     20       /* Used with mushrooms (min 20) */
-#define MAX_TITLES     58       /* Used with scrolls (min 58) */
+#define MAX_WOODS      51       /* Used with staffs (min 32) */
+#define MAX_METALS     51       /* Used with wands/rods (min 29/30) */
+#define MAX_COLORS     83       /* Used with potions (min 61) */
+#define MAX_SHROOM     27       /* Used with mushrooms (min 20) */
+#define MAX_TITLES     60       /* Used with scrolls (min 58) */
 #define MAX_SYLLABLES 158       /* Used with scrolls (see below) */
 
 
@@ -30,28 +30,30 @@
 
 static cptr ring_adj[MAX_ROCKS] =
 {
-	"Alexandrite", "Amethyst", "Aquamarine", "Azurite", "Beryl",
-	"Bloodstone", "Calcite", "Carnelian", "Corundum", "Diamond",
-	"Emerald", "Fluorite", "Garnet", "Granite", "Jade",
-	"Jasper", "Lapis Lazuli", "Malachite", "Marble", "Moonstone",
-	"Onyx", "Opal", "Pearl", "Quartz", "Quartzite",
-	"Rhodonite", "Ruby", "Sapphire", "Tiger Eye", "Topaz",
-	"Turquoise", "Zircon", "Platinum", "Bronze", "Gold",
-	"Obsidian", "Silver", "Tortoise Shell", "Mithril", "Jet",
-	"Engagement", "Adamantite"
+	"Adamantite", "Agate", "Alexandrite", "Amethyst", "Aquamarine",
+	"Azurite", "Beryl", "Bloodstone", "Bronze", "Calcite",
+	"Carnelian", "Corundum", "Diamond", "Emerald", "Engagement",
+	"Fluorite", "Garnet", "Gold", "Granite", "Hematite",
+	"Jade", "Jasper", "Jet", "Lapis Lazuli", "Malachite",
+	"Marble", "Mithril", "Moonstone", "Mother-of-Pearl", "Nephrite",
+	"Obsidian", "Onyx", "Opal", "Pearl", "Platinum",
+	"Quartz", "Quartzite", "Rhodonite", "Ruby", "Sapphire",
+	"Serpent", "Silver", "Steel", "Tanzanite", "Tiger Eye",
+	"Topaz", "Tortoise Shell", "Turquoise", "Zircon"
 };
 
 static byte ring_col[MAX_ROCKS] =
 {
-	TERM_GREEN, TERM_VIOLET, TERM_L_BLUE, TERM_L_BLUE, TERM_L_GREEN,
-	TERM_RED, TERM_WHITE, TERM_RED, TERM_SLATE, TERM_WHITE,
-	TERM_GREEN, TERM_L_GREEN, TERM_RED, TERM_L_WHITE, TERM_L_GREEN,
-	TERM_UMBER, TERM_BLUE, TERM_GREEN, TERM_WHITE, TERM_L_WHITE,
-	TERM_L_RED, TERM_L_WHITE, TERM_WHITE, TERM_L_WHITE, TERM_L_WHITE,
-	TERM_L_RED, TERM_RED, TERM_BLUE, TERM_YELLOW, TERM_YELLOW,
-	TERM_L_BLUE, TERM_L_UMBER, TERM_WHITE, TERM_L_UMBER, TERM_YELLOW,
-	TERM_L_DARK, TERM_L_WHITE, TERM_UMBER, TERM_L_BLUE, TERM_L_DARK,
-	TERM_YELLOW, TERM_L_GREEN
+	TERM_L_GREEN, TERM_VIOLET, TERM_GREEN, TERM_VIOLET, TERM_L_BLUE,
+	TERM_L_BLUE, TERM_L_GREEN, TERM_RED, TERM_YELLOW, TERM_WHITE,
+	TERM_RED, TERM_RED, TERM_WHITE, TERM_GREEN, TERM_YELLOW,
+	TERM_L_GREEN, TERM_RED, TERM_YELLOW, TERM_SLATE, TERM_L_DARK,
+	TERM_L_GREEN, TERM_UMBER, TERM_L_DARK, TERM_BLUE, TERM_GREEN,
+	TERM_WHITE, TERM_L_BLUE, TERM_L_WHITE, TERM_WHITE, TERM_GREEN,
+	TERM_L_DARK, TERM_L_RED, TERM_L_WHITE, TERM_WHITE, TERM_L_WHITE,
+	TERM_WHITE, TERM_L_WHITE, TERM_L_RED, TERM_RED, TERM_BLUE,
+	TERM_BLUE, TERM_L_WHITE, TERM_WHITE, TERM_YELLOW, TERM_L_UMBER,
+	TERM_L_UMBER, TERM_UMBER, TERM_L_BLUE, TERM_YELLOW
 };
 
 
@@ -61,22 +63,22 @@ static byte ring_col[MAX_ROCKS] =
 
 static cptr amulet_adj[MAX_AMULETS] =
 {
-	"Amber", "Driftwood", "Coral", "Agate", "Ivory",
-	"Obsidian", "Bone", "Brass", "Bronze", "Pewter",
-	"Tortoise Shell", "Golden", "Azure", "Crystal", "Silver",
-	"Copper", "Platinum", "Carved Oak", "Aluminum", "Sapphire",
-	"Ruby", "Emerald", "Flint", "White Gold", "Turqoise",
-	"Opal", "Pearl", 
+	"Agate", "Amber", "Azure", "Bead", "Bone",
+	"Brass", "Bronze", "Cochineal", "Copper", "Coral",
+	"Crystal", "Driftwood", "Enameled", "Faceted",
+	"Gold", "Golden", "Horn", "Ivory", "Jade",
+	"Jeweled", "Obsidian", "Pewter", "Scarab", "Serpentine",
+	"Silver", "Starstone", "Tortoise Shell"
 };
 
 static byte amulet_col[MAX_AMULETS] =
 {
-	TERM_YELLOW, TERM_L_UMBER, TERM_WHITE, TERM_L_WHITE, TERM_WHITE,
-	TERM_L_DARK, TERM_WHITE, TERM_L_UMBER, TERM_L_UMBER, TERM_SLATE,
-	TERM_UMBER, TERM_YELLOW, TERM_L_BLUE, TERM_WHITE, TERM_L_WHITE,
-	TERM_L_UMBER, TERM_WHITE, TERM_L_UMBER, TERM_L_BLUE, TERM_BLUE,
-	TERM_RED, TERM_L_GREEN, TERM_SLATE, TERM_WHITE, TERM_L_BLUE,
-	TERM_L_DARK, TERM_WHITE,
+	TERM_L_WHITE, TERM_ORANGE, TERM_L_BLUE, TERM_L_GREEN, TERM_WHITE,
+	TERM_YELLOW, TERM_ORANGE, TERM_RED, TERM_L_UMBER, TERM_WHITE,
+	TERM_L_WHITE, TERM_UMBER, TERM_BLUE, TERM_L_WHITE,
+	TERM_YELLOW, TERM_YELLOW, TERM_WHITE, TERM_WHITE, TERM_GREEN,
+	TERM_VIOLET, TERM_L_DARK, TERM_SLATE, TERM_UMBER, TERM_GREEN,
+	TERM_WHITE, TERM_L_BLUE, TERM_L_UMBER
 };
 
 
@@ -86,24 +88,32 @@ static byte amulet_col[MAX_AMULETS] =
 
 static cptr staff_adj[MAX_WOODS] =
 {
-	"Aspen", "Balsa", "Banyan", "Birch", "Cedar",
-	"Cottonwood", "Cypress", "Dogwood", "Elm", "Eucalyptus",
-	"Hemlock", "Hickory", "Ironwood", "Locust", "Mahogany",
-	"Maple", "Mulberry", "Oak", "Pine", "Redwood",
-	"Rosewood", "Spruce", "Sycamore", "Teak", "Walnut",
-	"Mistletoe", "Hawthorn", "Bamboo", "Silver", "Runed",
-	"Golden", "Ashen", "Gnarled", "Ivory", "Willow"
+	"Applewood", "Ash", "Aspen", "Balsa", "Bamboo",
+	"Banyan", "Baobab", "Beech", "Birch", "Butternut",
+	"Cedar", "Cherry", "Cottonwood", "Cypress", "Dogwood",
+	"Elm", "Eucalyptus", "Fir", "Golden", "Hazel",
+	"Hawthorn", "Hemlock", "Hickory", "Holly", "Ironwood",
+	"Ivory", "Laurel", "Linden", "Locust", "Mahogany",
+	"Maple", "Mallorn", "Mistletoe", "Mulberry", "Oak",
+	"Olive", "Palmwood", "Poplar", "Pine", "Redwood",
+	"Rosewood", "Rowan", "Runed", "Sequoia", "Silver",
+	"Spruce", "Sycamore", "Teak", "Walnut", "Willow",
+	"Yew"
 };
 
 static byte staff_col[MAX_WOODS] =
 {
-	TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER,
-	TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER,
-	TERM_L_UMBER, TERM_L_UMBER, TERM_UMBER, TERM_L_UMBER, TERM_UMBER,
-	TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER, TERM_RED,
-	TERM_RED, TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER, TERM_UMBER,
-	TERM_GREEN, TERM_L_UMBER, TERM_L_UMBER, TERM_L_WHITE, TERM_UMBER,
-	TERM_YELLOW, TERM_SLATE, TERM_L_UMBER, TERM_L_WHITE, TERM_L_UMBER,
+	TERM_L_GREEN, TERM_L_WHITE, TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER,
+	TERM_L_UMBER, TERM_SLATE, TERM_WHITE, TERM_L_UMBER, TERM_YELLOW,
+	TERM_L_UMBER, TERM_RED, TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER,
+	TERM_L_UMBER, TERM_L_UMBER, TERM_UMBER, TERM_YELLOW, TERM_L_UMBER,
+	TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER, TERM_UMBER,
+	TERM_UMBER, TERM_SLATE, TERM_WHITE, TERM_L_UMBER, TERM_UMBER,
+	TERM_L_UMBER, TERM_YELLOW, TERM_GREEN, TERM_L_UMBER, TERM_L_UMBER,
+	TERM_L_GREEN, TERM_L_UMBER, TERM_UMBER, TERM_L_UMBER, TERM_RED,
+	TERM_L_RED, TERM_UMBER, TERM_UMBER, TERM_L_WHITE, TERM_L_UMBER,
+	TERM_L_UMBER, TERM_L_DARK, TERM_UMBER, TERM_L_UMBER, TERM_SLATE,
+	TERM_L_DARK
 };
 
 
@@ -113,24 +123,32 @@ static byte staff_col[MAX_WOODS] =
 
 static cptr wand_adj[MAX_METALS] =
 {
-	"Aluminum", "Cast Iron", "Chromium", "Copper", "Gold",
-	"Iron", "Magnesium", "Molybdenum", "Nickel", "Rusty",
-	"Silver", "Steel", "Tin", "Titanium", "Tungsten",
-	"Zirconium", "Zinc", "Aluminum-Plated", "Copper-Plated", "Gold-Plated",
-	"Nickel-Plated", "Silver-Plated", "Steel-Plated", "Tin-Plated", "Zinc-Plated",
-	"Mithril-Plated", "Mithril", "Runed", "Bronze", "Brass",
-	"Platinum", "Lead"/*,"Lead-Plated","Ivory","Pewter"*/
+	"Adamantium", "Adamantium-Plated", "Aluminum", "Antimony", "Beryllium",
+	"Billon", "Shining", "Brass", "Bronze", "Carbonized",
+	"Cast Iron", "Chromium", "Cobalt", "Copper", "Copper-Plated",
+	"Corundum", "Damascened", "Electrum", "Galvorn", "Tarnished",
+	"Gold", "Iridescent", "Iron", "Ivory", "Jeweled",
+	"Lead", "Glass", "Magnesium", "Mithril", "Molybdenum",
+	"Nickel", "Palladium", "Platinum", "Pewter", "Rhodium",
+	"Runed", "Rusty", "Sapphire", "Silver", "Silver-Plated",
+	"Steel", "Tin", "Tin-Plated", "Titanium", "Stubby",
+	"Tungsten", "Uridium", "Wrought Iron", "Gleaming", "Zinc",
+	"Zinc-Plated"
 };
 
 static byte wand_col[MAX_METALS] =
 {
-	TERM_L_BLUE, TERM_L_DARK, TERM_WHITE, TERM_L_UMBER, TERM_YELLOW,
-	TERM_SLATE, TERM_L_WHITE, TERM_L_WHITE, TERM_L_UMBER, TERM_RED,
-	TERM_L_WHITE, TERM_L_WHITE, TERM_L_WHITE, TERM_WHITE, TERM_WHITE,
-	TERM_L_WHITE, TERM_L_WHITE, TERM_L_BLUE, TERM_L_UMBER, TERM_YELLOW,
-	TERM_L_UMBER, TERM_L_WHITE, TERM_L_WHITE, TERM_L_WHITE, TERM_L_WHITE,
-	TERM_L_BLUE, TERM_L_BLUE, TERM_UMBER, TERM_L_UMBER, TERM_L_UMBER,
-	TERM_WHITE, TERM_SLATE, /*TERM_SLATE,TERM_WHITE,TERM_SLATE*/
+	TERM_L_GREEN, TERM_L_GREEN, TERM_L_BLUE, TERM_SLATE, TERM_L_BLUE,
+	TERM_UMBER, TERM_YELLOW, TERM_L_UMBER, TERM_ORANGE, TERM_L_DARK,
+	TERM_L_DARK, TERM_WHITE, TERM_BLUE, TERM_UMBER, TERM_UMBER,
+	TERM_RED, TERM_L_BLUE, TERM_L_WHITE, TERM_L_DARK, TERM_GREEN,
+	TERM_YELLOW, TERM_VIOLET, TERM_SLATE, TERM_WHITE, TERM_VIOLET,
+	TERM_SLATE, TERM_WHITE, TERM_L_WHITE, TERM_L_BLUE, TERM_L_WHITE,
+	TERM_SLATE, TERM_L_WHITE, TERM_L_WHITE, TERM_SLATE, TERM_WHITE,
+	TERM_L_RED, TERM_RED, TERM_BLUE, TERM_L_WHITE, TERM_L_WHITE,
+	TERM_WHITE, TERM_WHITE, TERM_WHITE, TERM_L_WHITE, TERM_YELLOW,
+	TERM_WHITE, TERM_L_GREEN, TERM_L_DARK, TERM_L_WHITE, TERM_SLATE,
+	TERM_SLATE
 };
 
 
@@ -152,17 +170,21 @@ static byte rod_col[MAX_METALS];
 static cptr food_adj[MAX_SHROOM] =
 {
 	"Blue", "Black", "Black Spotted", "Brown", "Dark Blue",
-	"Dark Green", "Dark Red", "Yellow", "Furry", "Green",
-	"Grey", "Light Blue", "Light Green", "Violet", "Red",
-	"Slimy", "Tan", "White", "White Spotted", "Wrinkled",
+	"Dark Green", "Dark Red", "Yellow", "Furry", "Fuzzy",
+	"Green", "Greasy", "Grey", "Light Blue", "Light Green",
+	"Pink", "Purple Blotched", "Red", "Red Spotted", "Slimy",
+	"Tan", "Violet", "White", "White Spotted", "Wrinkled",
+	"Luminescent", "Smelly"
 };
 
 static byte food_col[MAX_SHROOM] =
 {
 	TERM_BLUE, TERM_L_DARK, TERM_L_DARK, TERM_UMBER, TERM_BLUE,
-	TERM_GREEN, TERM_RED, TERM_YELLOW, TERM_L_WHITE, TERM_GREEN,
-	TERM_SLATE, TERM_L_BLUE, TERM_L_GREEN, TERM_VIOLET, TERM_RED,
-	TERM_SLATE, TERM_L_UMBER, TERM_WHITE, TERM_WHITE, TERM_UMBER
+	TERM_GREEN, TERM_RED, TERM_YELLOW, TERM_L_WHITE, TERM_WHITE,
+	TERM_GREEN, TERM_L_WHITE, TERM_SLATE, TERM_L_BLUE, TERM_L_GREEN,
+	TERM_L_RED, TERM_VIOLET, TERM_RED, TERM_L_RED, TERM_SLATE,
+	TERM_L_UMBER, TERM_VIOLET, TERM_WHITE, TERM_WHITE, TERM_UMBER,
+	TERM_L_BLUE, TERM_L_DARK
 };
 
 
@@ -175,38 +197,46 @@ static byte food_col[MAX_SHROOM] =
 
 static cptr potion_adj[MAX_COLORS] =
 {
-	"Clear", "Light Brown", "Icky Green", "xxx",
-	"Azure", "Blue", "Blue Speckled", "Black", "Brown", "Brown Speckled",
-	"Bubbling", "Chartreuse", "Cloudy", "Copper Speckled", "Crimson", "Cyan",
-	"Dark Blue", "Dark Green", "Dark Red", "Gold Speckled", "Green",
-	"Green Speckled", "Grey", "Grey Speckled", "Hazy", "Indigo",
-	"Light Blue", "Light Green", "Magenta", "Metallic Blue", "Metallic Red",
-	"Metallic Green", "Metallic Purple", "Misty", "Orange", "Orange Speckled",
-	"Pink", "Pink Speckled", "Puce", "Purple", "Purple Speckled",
-	"Red", "Red Speckled", "Silver Speckled", "Smoky", "Tangerine",
-	"Violet", "Vermilion", "White", "Yellow", "Violet Speckled",
-	"Pungent", "Clotted Red", "Viscous Pink", "Oily Yellow", "Gloopy Green",
-	"Shimmering", "Coagulated Crimson", "Yellow Speckled", "Gold",
-	"Foaming", "Stinking", "Oily Black", "Ichor", "Ivory White",
-	"Lavender", "Luminescent", "Sky Blue", "Flourescent",
+	"Clear", "Light Brown", "Icky Green", "Swirling",
+
+	"Amber", "Ashen", "Auburn", "Azure", "Black",
+	"Blue", "Blue Speckled", "Brown", "Brown Speckled", "Bubbling",
+	"Carnation", "Chartreuse", "Clear Blue", "Clotted Red",
+	"Cloudy", "Cobalt", "Copper Speckled", "Crimson", "Cyan",
+	"Dark Blue", "Dark Green", "Dark Red", "Dirty", "Frothing",
+	"Gloopy Green", "Gold", "Gold Speckled", "Golden Brown", "Green",
+	"Greenish", "Grey", "Grey Speckled", "Hazy", "Indigo",
+	"Ivory White", "Lavender", "Light Blue", "Light Green", "Limpid",
+	"Lincoln Green", "Magenta", "Maroon", "Metallic Blue", "Metallic Red",
+	"Metallic Purple", "Misty", "Moldy", "Muddy", "Myrtle Green",
+	"Oily Yellow", "Orange", "Orange Speckled", "Peach", "Pink",
+	"Pearl-Grey", "Puce", "Pungent", "Purple", "Purple Speckled",
+	"Red", "Red Speckled", "Tyrian Purple", "Rosy", "Sea-blue",
+	"Shimmering", "Shining", "Sickly Green", "Silver Speckled", "Smoky",
+	"Tangerine", "Tawny", "Turgid", "Umber", "Violet",
+	"Vermilion", "Viscous Pink", "White", "Yellow", "Yellow Dappled"
 };
 
 static byte potion_col[MAX_COLORS] =
 {
-	TERM_WHITE, TERM_L_UMBER, TERM_GREEN, 0,
-	TERM_L_BLUE, TERM_BLUE, TERM_BLUE, TERM_L_DARK, TERM_UMBER, TERM_UMBER,
-	TERM_L_WHITE, TERM_L_GREEN, TERM_WHITE, TERM_L_UMBER, TERM_RED, TERM_L_BLUE,
-	TERM_BLUE, TERM_GREEN, TERM_RED, TERM_YELLOW, TERM_GREEN,
-	TERM_GREEN, TERM_SLATE, TERM_SLATE, TERM_L_WHITE, TERM_VIOLET,
-	TERM_L_BLUE, TERM_L_GREEN, TERM_RED, TERM_BLUE, TERM_RED,
-	TERM_GREEN, TERM_VIOLET, TERM_L_WHITE, TERM_ORANGE, TERM_ORANGE,
-	TERM_L_RED, TERM_L_RED, TERM_VIOLET, TERM_VIOLET, TERM_VIOLET,
-	TERM_RED, TERM_RED, TERM_L_WHITE, TERM_L_DARK, TERM_ORANGE,
-	TERM_VIOLET, TERM_RED, TERM_WHITE, TERM_YELLOW, TERM_VIOLET,
-	TERM_L_RED, TERM_RED, TERM_L_RED, TERM_YELLOW, TERM_GREEN,
-	TERM_VIOLET, TERM_RED, TERM_YELLOW, TERM_YELLOW,
-	TERM_WHITE, TERM_UMBER, TERM_L_DARK, TERM_RED, TERM_WHITE,
-	TERM_L_WHITE, TERM_YELLOW, TERM_L_BLUE, TERM_YELLOW,
+	TERM_WHITE, TERM_L_UMBER, TERM_GREEN, TERM_WHITE,
+
+	TERM_ORANGE, TERM_WHITE, TERM_UMBER, TERM_L_BLUE, TERM_L_DARK,
+	TERM_BLUE, TERM_BLUE, TERM_UMBER, TERM_UMBER, TERM_L_WHITE,
+	TERM_L_RED, TERM_L_GREEN, TERM_L_BLUE, TERM_RED,
+	TERM_SLATE, TERM_L_BLUE, TERM_UMBER, TERM_L_RED, TERM_L_BLUE,
+	TERM_BLUE, TERM_GREEN, TERM_RED, TERM_L_UMBER, TERM_SLATE,
+	TERM_GREEN, TERM_YELLOW, TERM_YELLOW, TERM_L_UMBER, TERM_GREEN,
+	TERM_L_GREEN, TERM_SLATE, TERM_SLATE, TERM_WHITE, TERM_BLUE,
+	TERM_L_WHITE, TERM_VIOLET, TERM_L_BLUE, TERM_L_GREEN, TERM_WHITE,
+	TERM_GREEN, TERM_RED, TERM_RED, TERM_BLUE, TERM_RED,
+	TERM_VIOLET, TERM_L_WHITE, TERM_L_UMBER, TERM_L_UMBER, TERM_GREEN,
+	TERM_YELLOW, TERM_ORANGE, TERM_ORANGE, TERM_L_RED, TERM_L_RED,
+	TERM_WHITE, TERM_UMBER, TERM_L_GREEN, TERM_VIOLET, TERM_VIOLET,
+	TERM_RED, TERM_RED, TERM_VIOLET, TERM_L_RED, TERM_BLUE,
+	TERM_YELLOW, TERM_WHITE, TERM_L_GREEN, TERM_L_WHITE, TERM_L_DARK,
+	TERM_ORANGE, TERM_SLATE, TERM_L_UMBER, TERM_UMBER, TERM_VIOLET,
+	TERM_L_RED, TERM_L_RED, TERM_WHITE, TERM_YELLOW, TERM_YELLOW
 };
 
 

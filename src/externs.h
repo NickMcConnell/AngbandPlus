@@ -67,7 +67,7 @@ extern cptr option_desc[OPT_MAX];
 extern const bool option_norm[OPT_MAX];
 extern const byte option_page[OPT_PAGE_MAX][OPT_PAGE_PER];
 extern cptr inscrip_text[MAX_INSCRIP];
-extern char effects_info[MAX_EFFECTS][30];
+extern char effects_info[MAX_EFFECTS][60];
 
 /* variable.c */
 extern cptr copyright[5];
@@ -356,17 +356,17 @@ extern void do_cmd_load_screen(void);
 extern void do_cmd_save_screen(void);
 extern void do_cmd_check_effects(void);
 extern void do_cmd_knowledge(void);
+extern void do_cmd_time();
 
 /* cmd5.c */
 extern void do_cmd_browse(void);
 extern void do_cmd_study(void);
-extern void cast_spell(int realm, int spell);
+extern bool cast_spell(int realm, int spell);
 extern void do_cmd_cast(void);
 extern void do_cmd_pray(void);
 extern void do_cmd_cast_illusion(void);
 extern void do_cmd_cast_death(void);
-extern void do_cmd_crusader(void);
-extern void do_cmd_crusader_prayer(void);
+extern void do_cmd_power(void);
 extern void do_cmd_shifter(void);
 
 /* cmd6.c */

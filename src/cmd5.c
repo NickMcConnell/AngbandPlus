@@ -672,7 +672,7 @@ static void poison_weapon(void)
 }
 
 /* Cast a spell */
-void cast_spell(int realm, int spell)
+bool cast_spell(int realm, int spell)
 {
   int beam, dir;
   int py = p_ptr->py;
@@ -687,10 +687,6 @@ void cast_spell(int realm, int spell)
 	/* Only one of these classes can be chosen */
 	if (player_has_class(CLASS_MAGE, 0)) 
 	  plev = level_of_class(CLASS_MAGE);
-	if (player_has_class(CLASS_THIEF, 0)) 
-	  plev = level_of_class(CLASS_THIEF);
-	if (player_has_class(CLASS_RANGER, 0)) 
-	  plev = level_of_class(CLASS_RANGER);
 
 	/* Hack -- chance of "beam" instead of "bolt" */
 	beam = ((player_has_class(CLASS_MAGE, 0)) ? plev : (plev / 2));
@@ -700,10 +696,11 @@ void cast_spell(int realm, int spell)
 	  {
 	  case SPELL_MAGIC_MISSILE:
 	    {
-	      if (!get_aim_dir(&dir)) return;
+	      if (!get_aim_dir(&dir)) return FALSE;
 	      fire_bolt_or_beam(beam-10, GF_MISSILE, dir,
 				damroll(3 + ((plev - 1) / 5), 4));
-	      effects[EFFECT_MAGIC_MISSILE] += 1;
+	      effects[EFFECT_BBOLT] += 1;
+	      effects[EFFECT_ARROW] += 1;
 	      break;
 	    }
 
@@ -732,7 +729,7 @@ void cast_spell(int realm, int spell)
 	    {
 	      (void)detect_treasure();
 	      (void)detect_objects_gold();
-	      effects[EFFECT_DETECT_TREASURE]++;
+	      effects[EFFECT_DETECT_ITEM]++;
 	      break;
 	    }
 
@@ -740,14 +737,14 @@ void cast_spell(int realm, int spell)
 	    {
 	      (void)hp_player(damroll(2, 8));
 	      (void)set_cut(p_ptr->cut - 15);
-	      effects[EFFECT_CURE_LIGHT]++;
+	      effects[EFFECT_CURE_LIGHT_SERIOUS]++;
 	      break;
 	    }
 
 	  case SPELL_OBJECT_DETECTION:
 	    {
 	      (void)detect_objects_normal();
-	      effects[EFFECT_DETECT_OBJECTS]++;
+	      effects[EFFECT_DETECT_ITEM]++;
 	      break;
 	    }
 
@@ -756,49 +753,50 @@ void cast_spell(int realm, int spell)
 	      (void)detect_traps();
 	      (void)detect_doors();
 	      (void)detect_stairs();
-	      effects[EFFECT_DETECT_TRAP]++;
-	      effects[EFFECT_DETECT_DOOR]++;
+	      effects[EFFECT_DETECT_DOOR_TRAP]++;
 	      break;
 	    }
 
 	  case SPELL_STINKING_CLOUD:
 	    {
-	      if (!get_aim_dir(&dir)) return;
+	      if (!get_aim_dir(&dir)) return FALSE;
 	      fire_ball(GF_POIS, dir,
 			10 + (plev / 2), 2);
-	      effects[EFFECT_STINKING_CLOUD]++;
+	      effects[EFFECT_BALL]++;
+	      effects[EFFECT_POIS]++;
 	      break;
 	    }
 
 	  case SPELL_CONFUSE_MONSTER:
 	    {
-	      if (!get_aim_dir(&dir)) return;
+	      if (!get_aim_dir(&dir)) return FALSE;
 	      (void)confuse_monster(dir, plev);
-	      effects[EFFECT_CONFUSE_MONSTER]++;
+	      effects[EFFECT_HINDER]++;
 	      break;
 	    }
 
 	  case SPELL_LIGHTNING_BOLT:
 	    {
-	      if (!get_aim_dir(&dir)) return;
+	      if (!get_aim_dir(&dir)) return FALSE;
 	      fire_bolt_or_beam(beam-10, GF_ELEC, dir,
 				damroll(3+((plev-5)/4), 8));
-	      effects[EFFECT_LIGHTNING_BOLT]++;
+	      effects[EFFECT_BBOLT]++;
+	      effects[EFFECT_LIGHTNING]++;
 	      break;
 	    }
 
 	  case SPELL_TRAP_DOOR_DESTRUCTION:
 	    {
 	      (void)destroy_doors_touch();
-	      effects[EFFECT_DOOR_DESTRUCT_TOUCH]++;
+	      effects[EFFECT_DOOR_DESTRUCT]++;
 	      break;
 	    }
 
 	  case SPELL_SLEEP_I:
 	    {
-	      if (!get_aim_dir(&dir)) return;
+	      if (!get_aim_dir(&dir)) return FALSE;
 	      (void)sleep_monster(dir, p_ptr->current_class);
-	      effects[EFFECT_SLEEP_MONSTER]++;
+	      effects[EFFECT_HINDER]++;
 	      break;
 	    }
 
@@ -818,25 +816,27 @@ void cast_spell(int realm, int spell)
 
 	  case SPELL_SPEAR_OF_LIGHT:
 	    {
-	      if (!get_aim_dir(&dir)) return;
+	      if (!get_aim_dir(&dir)) return FALSE;
 	      msg_print("A line of blue shimmering light appears.");
 	      lite_line(dir);
-	      effects[EFFECT_SPEAR_LIGHT]++;
+	      effects[EFFECT_BEAM]++;
+	      effects[EFFECT_LIGHT]++;
 	      break;
 	    }
 
 	  case SPELL_FROST_BOLT:
 	    {
-	      if (!get_aim_dir(&dir)) return;
+	      if (!get_aim_dir(&dir)) return FALSE;
 	      fire_bolt_or_beam(beam-10, GF_COLD, dir,
 				damroll(5+((plev-5)/4), 8));
-	      effects[EFFECT_COLD_BOLT]++;
+	      effects[EFFECT_BBOLT]++;
+	      effects[EFFECT_COLD]++;
 	      break;
 	    }
 
 	  case SPELL_TURN_STONE_TO_MUD:
 	    {
-	      if (!get_aim_dir(&dir)) return;
+	      if (!get_aim_dir(&dir)) return FALSE;
 	      (void)wall_to_mud(dir);
 	      effects[EFFECT_STONE_TO_MUD]++;
 	      break;
@@ -851,21 +851,21 @@ void cast_spell(int realm, int spell)
 
 	  case SPELL_RECHARGE_ITEM_I:
 	    {
-	      (void)recharge(5);
-	      effects[EFFECT_RECHARGE_SMALL]++;
+	      if (!recharge(5)) return FALSE;
+	      effects[EFFECT_RECHARGE]++;
 	      break;
 	    }
 
 	  case SPELL_SLEEP_II:
 	    {
 	      (void)sleep_monsters_touch(p_ptr->current_class);
-	      effects[EFFECT_SLEEP_TOUCH]++;
+	      effects[EFFECT_MASS_HINDER]++;
 	      break;
 	    }
 
 	  case SPELL_POLYMORPH_OTHER:
 	    {
-	      if (!get_aim_dir(&dir)) return;
+	      if (!get_aim_dir(&dir)) return FALSE;
 	      (void)poly_monster(dir, p_ptr->current_class);
 	      effects[EFFECT_POLY_OTHER]++;
 	      break;
@@ -873,7 +873,7 @@ void cast_spell(int realm, int spell)
 	
 	  case SPELL_IDENTIFY:
 	    {
-	      (void)ident_spell();
+	      if (!ident_spell()) return FALSE;
 	      effects[EFFECT_IDENTIFY]++;
 	      break;
 	    }
@@ -881,46 +881,48 @@ void cast_spell(int realm, int spell)
 	  case SPELL_SLEEP_III:
 	    {
 	      (void)sleep_monsters(p_ptr->current_class);
-	      effects[EFFECT_SLEEP_ALL]++;
+	      effects[EFFECT_MASS_HINDER]++;
 	      break;
 	    }
 
 	  case SPELL_FIRE_BOLT:
 	    {
-	      if (!get_aim_dir(&dir)) return;
+	      if (!get_aim_dir(&dir)) return FALSE;
 	      fire_bolt_or_beam(beam, GF_FIRE, dir,
 				damroll(8+((plev-5)/4), 8));
-	      effects[EFFECT_FIRE_BOLT]++;
+	      effects[EFFECT_BBOLT]++;
+	      effects[EFFECT_FIRE]++;
 	      break;
 	    }
 
 	  case SPELL_SLOW_MONSTER:
 	    {
-	      if (!get_aim_dir(&dir)) return;
+	      if (!get_aim_dir(&dir)) return FALSE;
 	      (void)slow_monster(dir, p_ptr->current_class);
-	      effects[EFFECT_SLOW_MONSTER]++;
+	      effects[EFFECT_HINDER]++;
 	      break;
 	    }
 
 	  case SPELL_FROST_BALL:
 	    {
-	      if (!get_aim_dir(&dir)) return;
+	      if (!get_aim_dir(&dir)) return FALSE;
 	      fire_ball(GF_COLD, dir,
 			30 + (plev), 2);
-	      effects[EFFECT_COLD_BALL]++;
+	      effects[EFFECT_BALL]++;
+	      effects[EFFECT_COLD]++;
 	      break;
 	    }
 
 	  case SPELL_RECHARGE_ITEM_II:
 	    {
-	      (void)recharge(40);
-	      effects[EFFECT_RECHARGE_MEDIUM]++;
+	      if (!recharge(40)) return FALSE;
+	      effects[EFFECT_RECHARGE]++;
 	      break;
 	    }
 
 	  case SPELL_TELEPORT_OTHER:
 	    {
-	      if (!get_aim_dir(&dir)) return;
+	      if (!get_aim_dir(&dir)) return FALSE;
 	      (void)teleport_monster(dir);
 	      effects[EFFECT_TELEPORT_OTHER]++;
 	      break;
@@ -942,17 +944,18 @@ void cast_spell(int realm, int spell)
 
 	  case SPELL_FIRE_BALL:
 	    {
-	      if (!get_aim_dir(&dir)) return;
+	      if (!get_aim_dir(&dir)) return FALSE;
 	      fire_ball(GF_FIRE, dir,
 			55 + (plev), 2);
-	      effects[EFFECT_FIRE_BALL]++;
+	      effects[EFFECT_BALL]++;
+	      effects[EFFECT_FIRE]++;
 	      break;
 	    }
 
 	  case SPELL_WORD_OF_DESTRUCTION:
 	    {
 	      destroy_area(py, px, 15, TRUE);
-	      effects[EFFECT_WORD_OF_DESTRUCT]++;
+	      effects[EFFECT_DESTRUCTION]++;
 	      break;
 	    }
 
@@ -980,7 +983,7 @@ void cast_spell(int realm, int spell)
 	  case SPELL_TELEPORT_LEVEL:
 	    {
 	      (void)teleport_player_level();
-	      effects[EFFECT_TELEPORT_LEVEL]++;
+	      effects[EFFECT_ALTER_REALITY]++;
 	      break;
 	    }
 
@@ -1005,76 +1008,82 @@ void cast_spell(int realm, int spell)
 
 	  case SPELL_ACID_BOLT:
 	    {
-	      if (!get_aim_dir(&dir)) return;
+	      if (!get_aim_dir(&dir)) return FALSE;
 	      fire_bolt_or_beam(beam, GF_ACID, dir,
 				damroll(6+((plev-5)/4), 8));
-	      effects[EFFECT_ACID_BOLT]++;
+	      effects[EFFECT_BBOLT]++;
+	      effects[EFFECT_ACID]++;
 	      break;
 	    }
 
 	  case SPELL_CLOUD_KILL:
 	    {
-	      if (!get_aim_dir(&dir)) return;
+	      if (!get_aim_dir(&dir)) return FALSE;
 	      fire_ball(GF_POIS, dir,
 			20 + (plev / 2), 3);
-	      effects[EFFECT_CLOUD_KILL]++;
+	      effects[EFFECT_BALL]++;
+	      effects[EFFECT_POIS]++;
 	      break;
 	    }
 
 	  case SPELL_ACID_BALL:
 	    {
-	      if (!get_aim_dir(&dir)) return;
+	      if (!get_aim_dir(&dir)) return FALSE;
 	      fire_ball(GF_ACID, dir,
 			40 + (plev), 2);
-	      effects[EFFECT_ACID_BALL]++;
+	      effects[EFFECT_BALL]++;
+	      effects[EFFECT_ACID]++;
 	      break;
 	    }
 
 	  case SPELL_ICE_STORM:
 	    {
-	      if (!get_aim_dir(&dir)) return;
+	      if (!get_aim_dir(&dir)) return FALSE;
 	      fire_ball(GF_COLD, dir,
 			70 + (plev), 3);
-	      effects[EFFECT_ICE_STORM]++;
+	      effects[EFFECT_BALL]++;
+	      effects[EFFECT_COLD]++;
 	      break;
 	    }
 
 	  case SPELL_METEOR_SWARM:
 	    {
-	      if (!get_aim_dir(&dir)) return;
+	      if (!get_aim_dir(&dir)) return FALSE;
 	      fire_ball(GF_METEOR, dir,
 			65 + (plev), 3);
-	      effects[EFFECT_METEOR_SWARM]++;
+	      effects[EFFECT_BALL]++;
+	      effects[EFFECT_METEOR]++;
 	      break;
 	    }
 
 	  case SPELL_MANA_STORM:
 	    {
-	      if (!get_aim_dir(&dir)) return;
+	      if (!get_aim_dir(&dir)) return FALSE;
 	      fire_ball(GF_MANA, dir,
 			300 + (plev * 2), 3);
-	      effects[EFFECT_MANA_STORM]++;
+	      effects[EFFECT_BALL]++;
+	      effects[EFFECT_MANA]++;
 	      break;
 	    }
 
 	  case SPELL_DETECT_EVIL:
 	    {
 	      (void)detect_monsters_evil();
-	      effects[EFFECT_DETECT_EVIL]++;
+	      effects[EFFECT_DETECT_SEMI]++;
 	      break;
 	    }
 
 	  case SPELL_DETECT_ENCHANTMENT:
 	    {
 	      (void)detect_objects_magic();
-	      effects[EFFECT_DETECT_MAGIC]++;
+	      effects[EFFECT_DETECT_ITEM]++;
 	      break;
 	    }
 
 	  case SPELL_RECHARGE_ITEM_III:
 	    {
-	      recharge(100);
-	      effects[EFFECT_RECHARGE_LARGE]++;
+	      if (!recharge(100)) return FALSE;
+	      effects[EFFECT_RECHARGE]++;
 	      break;
 	    }
 
@@ -1095,21 +1104,21 @@ void cast_spell(int realm, int spell)
 	  case SPELL_RESIST_FIRE:
 	    {
 	      (void)set_oppose_fire(p_ptr->oppose_fire + randint(20) + 20);
-	      effects[EFFECT_RES_FIRE]++;
+	      effects[EFFECT_RES_ELEMENT]++;
 	      break;
 	    }
 
 	  case SPELL_RESIST_COLD:
 	    {
 	      (void)set_oppose_cold(p_ptr->oppose_cold + randint(20) + 20);
-	      effects[EFFECT_RES_COLD]++;
+	      effects[EFFECT_RES_ELEMENT]++;
 	      break;
 	    }
 
 	  case SPELL_RESIST_ACID:
 	    {
 	      (void)set_oppose_acid(p_ptr->oppose_acid + randint(20) + 20);
-	      effects[EFFECT_RES_ACID]++;
+	      effects[EFFECT_RES_ELEMENT]++;
 	      break;
 	    }
 
@@ -1128,10 +1137,7 @@ void cast_spell(int realm, int spell)
 	      (void)set_oppose_fire(p_ptr->oppose_fire + time);
 	      (void)set_oppose_cold(p_ptr->oppose_cold + time);
 	      (void)set_oppose_pois(p_ptr->oppose_pois + time);
-	      effects[EFFECT_RES_ACID]++;
-	      effects[EFFECT_RES_ELEC]++;
-	      effects[EFFECT_RES_FIRE]++;
-	      effects[EFFECT_RES_COLD]++;
+	      effects[EFFECT_RES_ELEMENT]++;
 	      effects[EFFECT_RES_POIS]++;
 	      break;
 	    }
@@ -1193,8 +1199,9 @@ void cast_spell(int realm, int spell)
 	/* Only one of these classes can be chosen */
 	if (player_has_class(CLASS_PRIEST, 0))
 	  plev = level_of_class(CLASS_PRIEST);
-	if (player_has_class(CLASS_PALADIN, 0))
-	  plev = level_of_class(CLASS_PALADIN);
+	if (player_has_class(CLASS_CRUSADER, 0))
+	  plev = level_of_class(CLASS_CRUSADER);
+	if (p_ptr->power_passive == POWER_MEDITATION) plev *= 2;
 
 	/* Spells. */
 	switch (spell)
@@ -1202,7 +1209,7 @@ void cast_spell(int realm, int spell)
 	  case PRAYER_DETECT_EVIL:
 	    {
 	      (void)detect_monsters_evil();
-	      effects[EFFECT_DETECT_EVIL]++;
+	      effects[EFFECT_DETECT_SEMI]++;
 	      break;
 	    }
 	
@@ -1210,7 +1217,7 @@ void cast_spell(int realm, int spell)
 	    {
 	      (void)hp_player(damroll(2, 10));
 	      (void)set_cut(p_ptr->cut - 10);
-	      effects[EFFECT_CURE_LIGHT]++;
+	      effects[EFFECT_CURE_LIGHT_SERIOUS]++;
 	      break;
 	    }
       
@@ -1238,7 +1245,7 @@ void cast_spell(int realm, int spell)
 	  case PRAYER_FIND_TRAPS:
 	    {
 	      (void)detect_traps();
-	      effects[EFFECT_DETECT_TRAP]++;
+	      effects[EFFECT_DETECT_DOOR_TRAP]++;
 	      break;
 	    }
 
@@ -1246,22 +1253,22 @@ void cast_spell(int realm, int spell)
 	    {
 	      (void)detect_doors();
 	      (void)detect_stairs();
-	      effects[EFFECT_DETECT_DOOR]++;
+	      effects[EFFECT_DETECT_DOOR_TRAP]++;
 	      break;
 	    }
 
 	  case PRAYER_SLOW_POISON:
 	    {
 	      (void)set_poisoned(p_ptr->poisoned / 2);
-	      effects[EFFECT_SLOW_POISON]++;
+	      effects[EFFECT_CURE_POISON]++;
 	      break;
 	    }
 
 	  case PRAYER_SCARE_MONSTER:
 	    {
-	      if (!get_aim_dir(&dir)) return;
+	      if (!get_aim_dir(&dir)) return FALSE;
 	      (void)fear_monster(dir, plev);
-	      effects[EFFECT_FEAR_MONSTER]++;
+	      effects[EFFECT_HINDER]++;
 	      break;
 	    }
 
@@ -1276,21 +1283,21 @@ void cast_spell(int realm, int spell)
 	    {
 	      (void)hp_player(damroll(4, 10));
 	      (void)set_cut((p_ptr->cut / 2) - 20);
-	      effects[EFFECT_CURE_SERIOUS]++;
+	      effects[EFFECT_CURE_LIGHT_SERIOUS]++;
 	      break;
 	    }
 
 	  case PRAYER_CHANT:
 	    {
 	      (void)set_blessed(p_ptr->blessed + randint(24) + 24);
-	      effects[EFFECT_CHANT]++;
+	      effects[EFFECT_BLESS]++;
 	      break;
 	    }
 
 	  case PRAYER_SANCTUARY:
 	    {
 	      (void)sleep_monsters_touch(p_ptr->current_class);
-	      effects[EFFECT_SLEEP_TOUCH]++;
+	      effects[EFFECT_MASS_HINDER]++;
 	      break;
 	    }
 
@@ -1304,7 +1311,7 @@ void cast_spell(int realm, int spell)
 	  case PRAYER_REMOVE_CURSE:
 	    {
 	      remove_curse();
-	      effects[EFFECT_REMOVE_CURSE]++;
+	      effects[EFFECT_DISPEL_REMOVE_CURSE]++;
 	      break;
 	    }
 
@@ -1312,8 +1319,7 @@ void cast_spell(int realm, int spell)
 	    {
 	      (void)set_oppose_fire(p_ptr->oppose_fire + randint(10) + 10);
 	      (void)set_oppose_cold(p_ptr->oppose_cold + randint(10) + 10);
-	      effects[EFFECT_RES_FIRE]++;
-	      effects[EFFECT_RES_COLD]++;
+	      effects[EFFECT_RES_ELEMENT]++;
 	      break;
 	    }
 
@@ -1326,12 +1332,13 @@ void cast_spell(int realm, int spell)
 
 	  case PRAYER_ORB_OF_DRAINING:
 	    {
-	      if (!get_aim_dir(&dir)) return;
+	      if (!get_aim_dir(&dir)) return FALSE;
 	      fire_ball(GF_HOLY_ORB, dir,
 			(damroll(3, 6) + plev +
 			 (plev / ((p_ptr->pclass[p_ptr->current_class] == CLASS_PRIEST) ? 2 : 4))),
 			((plev < 30) ? 2 : 3));
-	      effects[EFFECT_ORB_DRAINING]++;
+	      effects[EFFECT_BALL]++;
+	      effects[EFFECT_HOLY_ORB]++;
 	      break;
 	    }
 
@@ -1339,21 +1346,21 @@ void cast_spell(int realm, int spell)
 	    {
 	      (void)hp_player(damroll(6, 10));
 	      (void)set_cut(0);
-	      effects[EFFECT_CURE_CRITICAL]++;
+	      effects[EFFECT_CURE_CRIT_MORTAL]++;
 	      break;
 	    }
 
 	  case PRAYER_SENSE_INVISIBLE:
 	    {
 	      (void)set_tim_invis(p_ptr->tim_invis + randint(24) + 24);
-	      effects[EFFECT_SEE_INVIS]++;
+	      effects[EFFECT_DETECT_INVIS]++;
 	      break;
 	    }
 
 	  case PRAYER_PROTECTION_FROM_EVIL:
 	    {
 	      (void)set_protevil(p_ptr->protevil + randint(25) + 3 * p_ptr->lev[p_ptr->current_class]);
-	      effects[EFFECT_PRO_EVIL]++;
+	      effects[EFFECT_PROTECT_FROM]++;
 	      break;
 	    }
 
@@ -1376,28 +1383,28 @@ void cast_spell(int realm, int spell)
 	      (void)hp_player(damroll(8, 10));
 	      (void)set_stun(0);
 	      (void)set_cut(0);
-	      effects[EFFECT_CURE_MORTAL]++;
+	      effects[EFFECT_CURE_CRIT_MORTAL]++;
 	      break;
 	    }
 
 	  case PRAYER_TURN_UNDEAD:
 	    {
 	      (void)turn_undead(p_ptr->current_class);
-	      effects[EFFECT_TURN_UNDEAD]++;
+	      effects[EFFECT_MASS_HINDER]++;
 	      break;
 	    }
 
 	  case PRAYER_PRAYER:
 	    {
 	      (void)set_blessed(p_ptr->blessed + randint(48) + 48);
-	      effects[EFFECT_PRAYER]++;
+	      effects[EFFECT_BLESS]++;
 	      break;
 	    }
 
 	  case PRAYER_DISPEL_UNDEAD:
 	    {
 	      (void)dispel_undead(randint(plev * 3));
-	      effects[EFFECT_DISPEL_UNDEAD]++;
+	      effects[EFFECT_DISPEL_EVIL_UNDEAD]++;
 	      break;
 	    }
 
@@ -1413,7 +1420,7 @@ void cast_spell(int realm, int spell)
 	  case PRAYER_DISPEL_EVIL:
 	    {
 	      (void)dispel_evil(randint(plev * 3));
-	      effects[EFFECT_DISPEL_EVIL]++;
+	      effects[EFFECT_DISPEL_EVIL_UNDEAD]++;
 	      break;
 	    }
 
@@ -1432,7 +1439,7 @@ void cast_spell(int realm, int spell)
 	      (void)set_poisoned(0);
 	      (void)set_stun(0);
 	      (void)set_cut(0);
-	      effects[EFFECT_DISPEL_EVIL]++;
+	      effects[EFFECT_DISPEL_EVIL_UNDEAD]++;
 	      effects[EFFECT_HEAL]++;
 	      effects[EFFECT_REMOVE_FEAR]++;
 	      effects[EFFECT_CURE_POISON]++;
@@ -1455,7 +1462,7 @@ void cast_spell(int realm, int spell)
 
 	  case PRAYER_PERCEPTION:
 	    {
-	      (void)ident_spell();
+	      if (!ident_spell()) return FALSE;
 	      effects[EFFECT_IDENTIFY]++;
 	      break;
 	    }
@@ -1478,7 +1485,7 @@ void cast_spell(int realm, int spell)
 	    {
 	      (void)hp_player(damroll(4, 10));
 	      (void)set_cut(0);
-	      effects[EFFECT_CURE_SERIOUS]++;
+	      effects[EFFECT_CURE_LIGHT_SERIOUS]++;
 	      break;
 	    }
 
@@ -1487,7 +1494,7 @@ void cast_spell(int realm, int spell)
 	      (void)hp_player(damroll(8, 10));
 	      (void)set_stun(0);
 	      (void)set_cut(0);
-	      effects[EFFECT_CURE_MORTAL]++;
+	      effects[EFFECT_CURE_CRIT_MORTAL]++;
 	      break;
 	    }
 
@@ -1508,12 +1515,7 @@ void cast_spell(int realm, int spell)
 	      (void)do_res_stat(A_DEX);
 	      (void)do_res_stat(A_CON);
 	      (void)do_res_stat(A_CHR);
-	      effects[EFFECT_RESTORE_STR]++;
-	      effects[EFFECT_RESTORE_CON]++;
-	      effects[EFFECT_RESTORE_DEX]++;
-	      effects[EFFECT_RESTORE_INT]++;
-	      effects[EFFECT_RESTORE_WIS]++;
-	      effects[EFFECT_RESTORE_CHR]++;
+	      effects[EFFECT_RESTORE_ATT]++;
 	      break;
 	    }
 
@@ -1527,14 +1529,14 @@ void cast_spell(int realm, int spell)
 	  case PRAYER_DISPEL_UNDEAD2:
 	    {
 	      (void)dispel_undead(randint(plev * 4));
-	      effects[EFFECT_DISPEL_UNDEAD]++;
+	      effects[EFFECT_DISPEL_EVIL_UNDEAD]++;
 	      break;
 	    }
 
 	  case PRAYER_DISPEL_EVIL2:
 	    {
 	      (void)dispel_evil(randint(plev * 4));
-	      effects[EFFECT_DISPEL_EVIL]++;
+	      effects[EFFECT_DISPEL_EVIL_UNDEAD]++;
 	      break;
 	    }
 
@@ -1544,20 +1546,20 @@ void cast_spell(int realm, int spell)
 		{
 		  msg_print("The power of your god banishes evil!");
 		}
-	      effects[EFFECT_BANISH_EVIL]++;
+	      effects[EFFECT_BANISH]++;
 	      break;
 	    }
 
 	  case PRAYER_WORD_OF_DESTRUCTION:
 	    {
 	      destroy_area(py, px, 15, TRUE);
-	      effects[EFFECT_WORD_OF_DESTRUCT]++;
+	      effects[EFFECT_DESTRUCTION]++;
 	      break;
 	    }
 
 	  case PRAYER_ANNIHILATION:
 	    {
-	      if (!get_aim_dir(&dir)) return;
+	      if (!get_aim_dir(&dir)) return FALSE;
 	      drain_life(dir, 200);
 	      effects[EFFECT_DRAIN_LIFE]++;
 	      break;
@@ -1566,35 +1568,34 @@ void cast_spell(int realm, int spell)
 	  case PRAYER_UNBARRING_WAYS:
 	    {
 	      (void)destroy_doors_touch();
-	      effects[EFFECT_DOOR_DESTRUCT_TOUCH]++;
+	      effects[EFFECT_DOOR_DESTRUCT]++;
 	      break;
 	    }
 
 	  case PRAYER_RECHARGING:
 	    {
-	      (void)recharge(15);
-	      effects[EFFECT_RECHARGE_SMALL]++;
+	      if (!recharge(15)) return FALSE;
+	      effects[EFFECT_RECHARGE]++;
 	      break;
 	    }
 
 	  case PRAYER_DISPEL_CURSE:
 	    {
 	      (void)remove_all_curse();
-	      effects[EFFECT_DISPEL_CURSE]++;
+	      effects[EFFECT_DISPEL_REMOVE_CURSE]++;
 	      break;
 	    }
 
 	  case PRAYER_ENCHANT_WEAPON:
 	    {
-	      (void)enchant_spell(rand_int(4) + 1, rand_int(4) + 1, 0);
-	      effects[EFFECT_ENCHANT_WEAPON_HIT]++;
-	      effects[EFFECT_ENCHANT_WEAPON_DAM]++;
+	      if (!enchant_spell(rand_int(4) + 1, rand_int(4) + 1, 0)) return FALSE;
+	      effects[EFFECT_ENCHANT_WEAPON]++;
 	      break;
 	    }
 
 	  case PRAYER_ENCHANT_ARMOUR:
 	    {
-	      (void)enchant_spell(0, 0, rand_int(3) + 2);
+	      if (!enchant_spell(0, 0, rand_int(3) + 2)) return FALSE;
 	      effects[EFFECT_ENCHANT_ARMOUR]++;
 	      break;
 	    }
@@ -1622,7 +1623,7 @@ void cast_spell(int realm, int spell)
 
 	  case PRAYER_TELEPORT_OTHER:
 	    {
-	      if (!get_aim_dir(&dir)) return;
+	      if (!get_aim_dir(&dir)) return FALSE;
 	      (void)teleport_monster(dir);
 	      effects[EFFECT_TELEPORT_OTHER]++;
 	      break;
@@ -1631,7 +1632,7 @@ void cast_spell(int realm, int spell)
 	  case PRAYER_TELEPORT_LEVEL:
 	    {
 	      (void)teleport_player_level();
-	      effects[EFFECT_TELEPORT_LEVEL]++;
+	      effects[EFFECT_ALTER_REALITY]++;
 	      break;
 	    }
 
@@ -1675,10 +1676,11 @@ void cast_spell(int realm, int spell)
 	  case 0:
 	    {
 	      /* confusion bolt -KMW- */
-	      if (!get_aim_dir(&dir)) return;
+	      if (!get_aim_dir(&dir)) return FALSE;
 	      fire_bolt_or_beam(beam-10, GF_CONFUSION, dir,
 				damroll(2 + ((plev - 1) / 5), 4));
-	      effects[EFFECT_CONFUSION_BOLT]++;
+	      effects[EFFECT_BBOLT]++;
+	      effects[EFFECT_CONF]++;
 	      break;
 	    }
 
@@ -1707,22 +1709,22 @@ void cast_spell(int realm, int spell)
 	    {
 	      (void)detect_treasure();
 	      (void)detect_objects_gold();
-	      effects[EFFECT_DETECT_TREASURE]++;
+	      effects[EFFECT_DETECT_ITEM]++;
 	      break;
 	    }
 
 	  case 5:
 	    {
-	      if (!get_aim_dir(&dir)) return;
+	      if (!get_aim_dir(&dir)) return FALSE;
 	      (void)fear_monster(dir, plev);
-	      effects[EFFECT_FEAR_MONSTER]++;
+	      effects[EFFECT_HINDER]++;
 	      break;
 	    }
 
 	  case 6: /* object detection */
 	    {
 	      (void)detect_objects_normal();
-	      effects[EFFECT_DETECT_OBJECTS]++;
+	      effects[EFFECT_DETECT_ITEM]++;
 	      break;
 	    }
 
@@ -1731,17 +1733,17 @@ void cast_spell(int realm, int spell)
 	      (void)detect_traps();
 	      (void)detect_doors();
 	      (void)detect_stairs();
-	      effects[EFFECT_DETECT_DOOR]++;
-	      effects[EFFECT_DETECT_TRAP]++;
+	      effects[EFFECT_DETECT_DOOR_TRAP]++;
 	      break;
 	    }
 
 	  case 8: /* stinking cloud */
 	    {
-	      if (!get_aim_dir(&dir)) return;
+	      if (!get_aim_dir(&dir)) return FALSE;
 	      fire_ball(GF_POIS, dir,
 			10 + (plev / 2), 2);
-	      effects[EFFECT_STINKING_CLOUD]++;
+	      effects[EFFECT_BALL]++;
+	      effects[EFFECT_POIS]++;
 	      break;
 	    }
 
@@ -1756,26 +1758,27 @@ void cast_spell(int realm, int spell)
 
 	  case 10:
 	    {
-	      if (!get_aim_dir(&dir)) return;
+	      if (!get_aim_dir(&dir)) return FALSE;
 	      (void)sleep_monster(dir, p_ptr->current_class);
-	      effects[EFFECT_SLEEP_MONSTER]++;
+	      effects[EFFECT_HINDER]++;
 	      break;
 	    }
 
 	  case 11: /* trap/door destruction */
 	    {
 	      (void)destroy_doors_touch();
-	      effects[EFFECT_DOOR_DESTRUCT_TOUCH]++;
+	      effects[EFFECT_DOOR_DESTRUCT]++;
 	      break;
 	    }
 
 	  case 12:
 	    {
 	      /* fog cloud -KMW- */
-	      if (!get_aim_dir(&dir)) return;
+	      if (!get_aim_dir(&dir)) return FALSE;
 	      fire_ball(GF_POIS, dir,
 			10 + (plev / 2), 3);
-	      effects[EFFECT_FOG_CLOUD]++;
+	      effects[EFFECT_BALL]++;
+	      effects[EFFECT_POIS]++;
 	      break;
 	    }
 
@@ -1805,16 +1808,17 @@ void cast_spell(int realm, int spell)
 	  case 16:
 	    {
 	      /* shadow monster */
-	      if (!get_aim_dir(&dir)) return;
+	      if (!get_aim_dir(&dir)) return FALSE;
 	      fire_bolt(GF_FORCE, dir,
 			damroll(5+((plev-6)/4), 8));
-	      effects[EFFECT_SHADOW_MONSTER]++;
+	      effects[EFFECT_BOLT]++;
+	      effects[EFFECT_FORCE]++;
 	      break;
 	    }
 
 	  case 17: /* turn stone to mud */
 	    {
-	      if (!get_aim_dir(&dir)) return;
+	      if (!get_aim_dir(&dir)) return FALSE;
 	      (void)wall_to_mud(dir);
 	      effects[EFFECT_STONE_TO_MUD]++;
 	      break;
@@ -1824,14 +1828,14 @@ void cast_spell(int realm, int spell)
 	    {
 	      /* detect invisible */
 	      (void)set_tim_invis(p_ptr->tim_invis + randint(24) + 24);
-	      effects[EFFECT_SEE_INVIS]++;
+	      effects[EFFECT_DETECT_INVIS]++;
 	      break;
 	    }
 
 	  case 19: /* recharge item */
 	    {
-	      (void)recharge((plev * 2));
-	      effects[EFFECT_RECHARGE_MEDIUM]++;
+	      if (!recharge((plev * 2))) return FALSE;
+	      effects[EFFECT_RECHARGE]++;
 	      break;
 	    }
 
@@ -1839,29 +1843,31 @@ void cast_spell(int realm, int spell)
 	    {
 	      /* Random enchantment */
 	      (void)brand_ammo(0);
-	      effects[EFFECT_ELEMENTAL_BRAND_AMMO]++;
+	      effects[EFFECT_ELEMENTAL_BRAND]++;
 	      break;
 	    }
 
 	  case 21:
 	    {
 	      /* spear of light */
-	      if (!get_aim_dir(&dir)) return;
+	      if (!get_aim_dir(&dir)) return FALSE;
 	      msg_print("A line of blue shimmering light appears.");
 	      fire_beam(GF_LITE, dir,
 			damroll(2+((plev-5)/4), 6));
 	      lite_line(dir);
-	      effects[EFFECT_SPEAR_LIGHT]++;
+	      effects[EFFECT_BEAM]++;
+	      effects[EFFECT_LIGHT]++;
 	      break;
 	    }
 
 	  case 22:
 	    {
 	      /* chaos */
-	      if (!get_aim_dir(&dir)) return;
+	      if (!get_aim_dir(&dir)) return FALSE;
 	      fire_ball(GF_CHAOS, dir,
 			25 + plev, 2);	
-	      effects[EFFECT_CHAOS_BALL]++;
+	      effects[EFFECT_BALL]++;
+	      effects[EFFECT_CHAOS]++;
 	      break;
 	    }
 
@@ -1884,27 +1890,29 @@ void cast_spell(int realm, int spell)
 
 	  case 25: /* slow monster */
 	    {
-	      if (!get_aim_dir(&dir)) return;
+	      if (!get_aim_dir(&dir)) return FALSE;
 	      (void)slow_monster(dir, p_ptr->current_class);
-	      effects[EFFECT_SLOW_MONSTER]++;
+	      effects[EFFECT_HINDER]++;
 	      break;
 	    }
 
 	  case 26:
 	    {
 	      /* shadow ball */
-	      if (!get_aim_dir(&dir)) return;
+	      if (!get_aim_dir(&dir)) return FALSE;
 	      fire_ball(GF_DARK, dir, 35 + (plev), 2);
-	      effects[EFFECT_SHADOW_BALL]++;
+	      effects[EFFECT_BALL]++;
+	      effects[EFFECT_DARK]++;
 	    }
 
 	  case 27:
 	    {
 	      /* bolt of darkness */
-	      if (!get_aim_dir(&dir)) return;
+	      if (!get_aim_dir(&dir)) return FALSE;
 	      fire_bolt_or_beam(beam, GF_DARK, dir,
 				damroll(8+((plev-5)/4), 8));
-	      effects[EFFECT_DARK_BOLT]++;
+	      effects[EFFECT_BBOLT]++;
+	      effects[EFFECT_DARK]++;
 	      break;
 	    }
 
@@ -1937,11 +1945,13 @@ void cast_spell(int realm, int spell)
 	  case 31:
 	    {
 	      /* prismatic spray */
-	      if (!get_aim_dir(&dir)) return;
+	      if (!get_aim_dir(&dir)) return FALSE;
 	      fire_ball(GF_LITE, 5, 40 + (plev), 2);
 	      fire_beam(GF_LITE, dir,
 			damroll(8+((plev-5)/4), 8));
-	      effects[EFFECT_PRISMATIC_SPRAY]++;
+	      effects[EFFECT_BALL]++;
+	      effects[EFFECT_BEAM]++;
+	      effects[EFFECT_LIGHT]++;
 	      break;
 	    }
 
@@ -1965,10 +1975,11 @@ void cast_spell(int realm, int spell)
 	  case 34:
 	    {
 	      /* bedlam */
-	      if (!get_aim_dir(&dir)) return;
+	      if (!get_aim_dir(&dir)) return FALSE;
 	      fire_ball(GF_CHAOS, dir,
 			50 + plev, 10);
-	      effects[EFFECT_BEDLAM]++;
+	      effects[EFFECT_BALL]++;
+	      effects[EFFECT_CHAOS]++;
 	      break;
 	    }
 
@@ -1989,7 +2000,7 @@ void cast_spell(int realm, int spell)
 	    {
 	      /* detect enchantment */
 	      (void)detect_objects_magic();
-	      effects[EFFECT_DETECT_MAGIC]++;
+	      effects[EFFECT_DETECT_ITEM]++;
 	      break;
 	    }
 
@@ -2004,10 +2015,11 @@ void cast_spell(int realm, int spell)
 	  case 38:
 	    {
 	      /* sunfire */
-	      if (!get_aim_dir(&dir)) return;
+	      if (!get_aim_dir(&dir)) return FALSE;
 	      fire_ball(GF_LITE, dir,
 			50 + plev, 10);
-	      effects[EFFECT_SUNFIRE]++;
+	      effects[EFFECT_BALL]++;
+	      effects[EFFECT_LIGHT]++;
 	      break;
 	    }
 
@@ -2022,39 +2034,42 @@ void cast_spell(int realm, int spell)
 	  case 40:
 	    {
 	      /* Bigby's Phantom Hand */
-	      if (!get_aim_dir(&dir)) return;
+	      if (!get_aim_dir(&dir)) return FALSE;
 	      fire_bolt_or_beam(beam, GF_CONFUSION, dir,
 				damroll(2+((plev-5)/4), 8));
-	      effects[EFFECT_PHANTOM_HAND]++;
+	      effects[EFFECT_BBOLT]++;
+	      effects[EFFECT_CONF]++;
 	      break;
 	    }
 
 	  case 41:
 	    {
 	      /* Bigby's Forceful Hand */
-	      if (!get_aim_dir(&dir)) return;
+	      if (!get_aim_dir(&dir)) return FALSE;
 	      fire_bolt_or_beam(beam, GF_FORCE, dir,
 				damroll(6+((plev-5)/4), 8));
-	      effects[EFFECT_FORCEFUL_HAND]++;
+	      effects[EFFECT_BBOLT]++;
+	      effects[EFFECT_FORCE]++;
 	      break;
 	    }
 
 	  case 42:
 	    {
 	      /* Bigby's Grasping Hand */
-	      if (!get_aim_dir(&dir)) return;
+	      if (!get_aim_dir(&dir)) return FALSE;
 	      (void)slow_monster(dir, p_ptr->current_class);
-	      effects[EFFECT_SLOW_MONSTER]++;
+	      effects[EFFECT_HINDER]++;
 	      break;
 	    }
 
 	  case 43:
 	    {
 	      /* Bigby's Clenched Fist */
-	      if (!get_aim_dir(&dir)) return;
+	      if (!get_aim_dir(&dir)) return FALSE;
 	      fire_beam(GF_FORCE, dir,
 			damroll(10+((plev-5)/4), 8));
-	      effects[EFFECT_CLENCHED_FIST]++;
+	      effects[EFFECT_BEAM]++;
+	      effects[EFFECT_FORCE]++;
 	      break;
 	    }
 
@@ -2062,10 +2077,11 @@ void cast_spell(int realm, int spell)
 	    {
 	      /* Bigby's Crushing Hand */
 	      /* want to have this last two turns */
-	      if (!get_aim_dir(&dir)) return;
+	      if (!get_aim_dir(&dir)) return FALSE;
 	      fire_bolt(GF_GRAVITY, dir,
 			damroll(12+((plev-5)/4), 8));
-	      effects[EFFECT_CRUSHING_HAND]++;
+	      effects[EFFECT_BOLT]++;
+	      effects[EFFECT_GRAVITY]++;
 	      break;
 	    }
 
@@ -2074,67 +2090,74 @@ void cast_spell(int realm, int spell)
 	      /* force blast */
 	      fire_ball(GF_FORCE, 5,
 			300 + (plev * 2), 3);
-	      effects[EFFECT_FORCE_BLAST]++;
+	      effects[EFFECT_BALL]++;
+	      effects[EFFECT_FORCE]++;
 	      break;
 	    }
 
 	  case 46:
 	    {
 	      /* Sphere of Light */
-	      if (!get_aim_dir(&dir)) return;
+	      if (!get_aim_dir(&dir)) return FALSE;
 	      fire_ball(GF_LITE, dir,
 			30 + (plev), 2);
-	      effects[EFFECT_LIGHT_SPHERE]++;
+	      effects[EFFECT_BALL]++;
+	      effects[EFFECT_LIGHT]++;
 	      break;
 	    }
 
 	  case 47:
 	    {
 	      /* sphere of darkness */
-	      if (!get_aim_dir(&dir)) return;
+	      if (!get_aim_dir(&dir)) return FALSE;
 	      fire_ball(GF_DARK, dir,
 			35 + (plev), 2);
-	      effects[EFFECT_DARK_SPHERE]++;
+	      effects[EFFECT_BALL]++;
+	      effects[EFFECT_DARK]++;
 	      break;
 	    }
 
 	  case 48:
 	    {
 	      /* sphere of confusion */
-	      if (!get_aim_dir(&dir)) return;
+	      if (!get_aim_dir(&dir)) return FALSE;
 	      fire_ball(GF_CONFUSION, dir,
 			40 + (plev), 2);
-	      effects[EFFECT_CONF_SPHERE]++;
+	      effects[EFFECT_BALL]++;
+	      effects[EFFECT_CONF]++;
 	      break;
 	    }
 
 	  case 49:
 	    {
 	      /* sphere of chaos */
-	      if (!get_aim_dir(&dir)) return;
+	      if (!get_aim_dir(&dir)) return FALSE;
 	      fire_ball(GF_CHAOS, dir,
 			45 + (plev), 2);
-	      effects[EFFECT_CHAOS_SPHERE]++;
+	      effects[EFFECT_BALL]++;
+	      effects[EFFECT_CHAOS]++;
 	      break;
 	    }
 
 	  case 50:
 	    {
 	      /* sphere of sound */
-	      if (!get_aim_dir(&dir)) return;
+	      if (!get_aim_dir(&dir)) return FALSE;
 	      fire_ball(GF_SOUND, dir,
 			50 + (plev), 2);
-	      effects[EFFECT_SOUND_SPHERE]++;
+	      effects[EFFECT_BALL]++;
+	      effects[EFFECT_SOUND]++;
 	      break;
 	    }
 
 	  case 51:
 	    {
 	      /* explosion */
-	      if (!get_aim_dir(&dir)) return;
+	      if (!get_aim_dir(&dir)) return FALSE;
 	      fire_ball(GF_SHARD, dir,
 			80 + (plev), 2);
-	      effects[EFFECT_EXPLOSION]++;
+	      effects[EFFECT_BALL]++;
+	      effects[EFFECT_SHARD]++;
 	      break;
 	    }
 
@@ -2196,21 +2219,25 @@ void cast_spell(int realm, int spell)
 	  case 59:
 	    {
 	      /* shadow monsters */
-	      if (!get_aim_dir(&dir)) return;
+	      if (!get_aim_dir(&dir)) return FALSE;
 	      fire_ball(GF_DARK, 5, 30 + (plev), 2);
 	      fire_beam(GF_FORCE, dir,
 			damroll(6+((plev-5)/4), 8));
-	      effects[EFFECT_SHADOW_MONSTERS]++;
+	      effects[EFFECT_BALL]++;
+	      effects[EFFECT_BEAM]++;
+	      effects[EFFECT_DARK]++;
+	      effects[EFFECT_FORCE]++;
 	      break;
 	    }
 
 	  case 60:
 	    {
 	      /* shadow ball */
-	      if (!get_aim_dir(&dir)) return;
+	      if (!get_aim_dir(&dir)) return FALSE;
 	      fire_ball(GF_DARK, dir,
 			40 + (plev), 2);
-	      effects[EFFECT_SHADOW_BALL]++;
+	      effects[EFFECT_BALL]++;
+	      effects[EFFECT_DARK]++;
 	      break;
 	    }
 
@@ -2219,11 +2246,11 @@ void cast_spell(int realm, int spell)
 	      /* life for mana */
 	      int m = 0;
 	      m = get_quantity("How much mana?",999);
-	      if (!m) return;
-	      if (m<0) return;
+	      if (!m) return FALSE;
+	      if (m<0) return FALSE;
 	      if (m > p_ptr->chp) {
 		msg_print("You don't have that much life!");
-		return;
+		return FALSE;
 	      }
 	      if ((p_ptr->csp + m) > p_ptr->msp)
 		m = p_ptr->msp - p_ptr->csp;
@@ -2260,23 +2287,25 @@ void cast_spell(int realm, int spell)
 	  plev = level_of_class(CLASS_DEATH_PRIEST);
 	if (player_has_class(CLASS_SLAYER, 0))
 	  plev = level_of_class(CLASS_SLAYER);
+	if (p_ptr->power_passive == POWER_MEDITATION) plev *= 2;
 
 	/* Spells.  */
 	switch (spell)
 	  {		       
 	  case 0: /* Malediction */
 	    {
-	      if (!get_aim_dir(&dir)) return;
+	      if (!get_aim_dir(&dir)) return FALSE;
 	      fire_bolt(GF_NETHER, dir,
 			damroll(3 + ((plev - 1) / 5), 4));
-	      effects[EFFECT_MALEDICTION] += 1;
+	      effects[EFFECT_BOLT]++;
+	      effects[EFFECT_NETHER] += 1;
 	      break;
 	    }
 		  
 	  case 1: /* Detect Undead */
 	    {
 	      (void)detect_monsters_undead();
-	      effects[EFFECT_DETECT_UNDEAD]++;
+	      effects[EFFECT_DETECT_SEMI]++;
 	      break;
 	    }
 
@@ -2284,7 +2313,7 @@ void cast_spell(int realm, int spell)
 	    {
 	      (void)hp_player(damroll(2, 8));
 	      (void)set_cut(p_ptr->cut - 15);
-	      effects[EFFECT_CURE_LIGHT]++;
+	      effects[EFFECT_CURE_LIGHT_SERIOUS]++;
 	      break;
 	    }
 
@@ -2313,16 +2342,16 @@ void cast_spell(int realm, int spell)
 
 	  case 6: /* Horrify */
 	    {
-	      if (!get_aim_dir(&dir)) return;
+	      if (!get_aim_dir(&dir)) return FALSE;
 	      (void)fear_monster(dir, plev);
-	      effects[EFFECT_FEAR_MONSTER]++;
+	      effects[EFFECT_HINDER]++;
 	      break;
 	    }
 
 	  case 7: /* Slow Poison */
 	    {
 	      (void)set_poisoned(p_ptr->poisoned / 2);
-	      effects[EFFECT_SLOW_POISON]++;
+	      effects[EFFECT_CURE_POISON]++;
 	      break;
 	    }
 
@@ -2348,8 +2377,7 @@ void cast_spell(int realm, int spell)
 	      (void)detect_traps();
 	      (void)detect_doors();
 	      (void)detect_stairs();
-	      effects[EFFECT_DETECT_TRAP]++;
-	      effects[EFFECT_DETECT_DOOR]++;
+	      effects[EFFECT_DETECT_DOOR_TRAP]++;
 	      break;
 	    }
 
@@ -2357,7 +2385,7 @@ void cast_spell(int realm, int spell)
 	    {
 	      (void)hp_player(damroll(4, 10));
 	      (void)set_cut((p_ptr->cut / 2) - 20);
-	      effects[EFFECT_CURE_SERIOUS]++;
+	      effects[EFFECT_CURE_LIGHT_SERIOUS]++;
 	      break;
 	    }
 
@@ -2374,30 +2402,31 @@ void cast_spell(int realm, int spell)
 	  case 13: /* Sanctuary */
 	    {
 	      (void)sleep_monsters_touch(p_ptr->current_class);
-	      effects[EFFECT_SLEEP_TOUCH]++;
+	      effects[EFFECT_HINDER]++;
 	      break;
 	    }
 
 	  case 14: /* Res Cold */
 	    {
 	      (void)set_oppose_cold(p_ptr->oppose_cold + randint(20) + 20);
-	      effects[EFFECT_RES_COLD]++;
+	      effects[EFFECT_RES_ELEMENT]++;
 	      break;
 	    }
 
 	  case 15: /* Noxious Fumes */
 	    {
-	      if (!get_aim_dir(&dir)) return;
+	      if (!get_aim_dir(&dir)) return FALSE;
 	      fire_ball(GF_POIS, dir,
 			10 + (plev / 2), 3);
-	      effects[EFFECT_STINKING_CLOUD]++;
+	      effects[EFFECT_BALL]++;
+	      effects[EFFECT_POIS]++;
 	      break;
 	    }
 
 	  case 16: /* Break Curse */
 	    {
 	      remove_curse();
-	      effects[EFFECT_REMOVE_CURSE]++;
+	      effects[EFFECT_DISPEL_REMOVE_CURSE]++;
 	      break;
 	    }
 
@@ -2424,12 +2453,13 @@ void cast_spell(int realm, int spell)
 
 	  case 20: /* Orb of Enthropy */
 	    {
-	      if (!get_aim_dir(&dir)) return;
+	      if (!get_aim_dir(&dir)) return FALSE;
 	      fire_ball(GF_NETHER, dir,
 			(damroll(3, 6) + plev +
 			 (plev / 2)),
 			((plev < 30) ? 2 : 3));
-	      effects[EFFECT_ORB_ENTHROPY]++;
+	      effects[EFFECT_BALL]++;
+	      effects[EFFECT_NETHER]++;
 	      break;
 	    }
 
@@ -2437,7 +2467,7 @@ void cast_spell(int realm, int spell)
 	    {
 	      (void)hp_player(damroll(6, 10));
 	      (void)set_cut(0);
-	      effects[EFFECT_CURE_CRITICAL]++;
+	      effects[EFFECT_CURE_CRIT_MORTAL]++;
 	      break;
 	    }
 
@@ -2446,7 +2476,7 @@ void cast_spell(int realm, int spell)
 	      (void)set_prot_undead(p_ptr->prot_undead + 
 				    randint(25) + 
 				    3 * p_ptr->lev[p_ptr->current_class]);
-	      effects[EFFECT_PRO_UNDEAD]++;
+	      effects[EFFECT_PROTECT_FROM]++;
 	      break;
 	    }
 
@@ -2454,20 +2484,20 @@ void cast_spell(int realm, int spell)
 	    {
 	      (void)set_tim_invis(p_ptr->tim_invis + 
 				  randint(24) + 24);
-	      effects[EFFECT_SEE_INVIS]++;
+	      effects[EFFECT_DETECT_INVIS]++;
 	      break;
 	    }
 
 	  case 24: /* Turn Undead */
 	    {
 	      (void)turn_undead(p_ptr->current_class);
-	      effects[EFFECT_TURN_UNDEAD]++;
+	      effects[EFFECT_MASS_HINDER]++;
 	      break;
 	    }
 
 	  case 25: /* Drain Life */
 	    {
-	      if (!get_aim_dir(&dir)) return;
+	      if (!get_aim_dir(&dir)) return FALSE;
 	      drain_life(dir, 50);
 	      effects[EFFECT_DRAIN_LIFE]++;
 	      break;
@@ -2485,21 +2515,21 @@ void cast_spell(int realm, int spell)
 	      (void)hp_player(damroll(8, 10));
 	      (void)set_stun(0);
 	      (void)set_cut(0);
-	      effects[EFFECT_CURE_MORTAL]++;
+	      effects[EFFECT_CURE_CRIT_MORTAL]++;
 	      break;
 	    }
 
 	  case 28: /* Terror */
 	    {
 	      (void)scare_monsters(p_ptr->current_class);
-	      effects[EFFECT_FEAR_ALL]++;
+	      effects[EFFECT_MASS_HINDER]++;
 	      break;
 	    }
 
 	  case 29: /* Dispel Undead */
 	    {
 	      (void)dispel_undead(randint(plev * 3));
-	      effects[EFFECT_DISPEL_UNDEAD]++;
+	      effects[EFFECT_DISPEL_EVIL_UNDEAD]++;
 	      break;
 	    }
 
@@ -2514,9 +2544,10 @@ void cast_spell(int realm, int spell)
 
 	  case 31: /* Darkness Storm */
 	    {
-	      if (!get_aim_dir(&dir)) return;
+	      if (!get_aim_dir(&dir)) return FALSE;
 	      fire_ball(GF_DARK, dir, 35 + (plev), 2);
-	      effects[EFFECT_DARKNESS_STORM]++;
+	      effects[EFFECT_BALL]++;
+	      effects[EFFECT_DARK]++;
 	      break;
 	    }
 
@@ -2531,7 +2562,7 @@ void cast_spell(int realm, int spell)
 	    {
 	      (void)hp_player(damroll(4, 10));
 	      (void)set_cut(0);
-	      effects[EFFECT_CURE_SERIOUS]++;
+	      effects[EFFECT_CURE_LIGHT_SERIOUS]++;
 	      break;
 	    }
 
@@ -2540,7 +2571,7 @@ void cast_spell(int realm, int spell)
 	      (void)hp_player(damroll(8, 10));
 	      (void)set_stun(0);
 	      (void)set_cut(0);
-	      effects[EFFECT_CURE_MORTAL]++;
+	      effects[EFFECT_CURE_CRIT_MORTAL]++;
 	      break;
 	    }
 
@@ -2568,19 +2599,14 @@ void cast_spell(int realm, int spell)
 	      (void)do_res_stat(A_DEX);
 	      (void)do_res_stat(A_CON);
 	      (void)do_res_stat(A_CHR);
-	      effects[EFFECT_RESTORE_STR]++;
-	      effects[EFFECT_RESTORE_CON]++;
-	      effects[EFFECT_RESTORE_DEX]++;
-	      effects[EFFECT_RESTORE_INT]++;
-	      effects[EFFECT_RESTORE_WIS]++;
-	      effects[EFFECT_RESTORE_CHR]++;
+	      effects[EFFECT_RESTORE_ATT]++;
 	      break;
 	    }
 
 	  case 38: /* Dispel Undead II */
 	    {
 	      (void)dispel_undead(randint(plev * 4));
-	      effects[EFFECT_DISPEL_UNDEAD]++;
+	      effects[EFFECT_DISPEL_EVIL_UNDEAD]++;
 	      break;
 	    }
 
@@ -2590,7 +2616,7 @@ void cast_spell(int realm, int spell)
 		{
 		  msg_print("You banish the undead!");
 		}
-	      effects[EFFECT_BANISH_UNDEAD]++;
+	      effects[EFFECT_BANISH]++;
 	      break;
 	    }
 
@@ -2610,7 +2636,7 @@ void cast_spell(int realm, int spell)
 
 	  case 42: /* Annihilation */
 	    {
-	      if (!get_aim_dir(&dir)) return;
+	      if (!get_aim_dir(&dir)) return FALSE;
 	      drain_life(dir, 200);
 	      effects[EFFECT_DRAIN_LIFE]++;
 	      break;
@@ -2675,29 +2701,28 @@ void cast_spell(int realm, int spell)
 
 	  case 50: /* Recharging */
 	    {
-	      (void)recharge(15);
-	      effects[EFFECT_RECHARGE_SMALL]++;
+	      if (!recharge(15)) return FALSE;
+	      effects[EFFECT_RECHARGE]++;
 	      break;
 	    }
 
 	  case 51: /* Dispel Curse */
 	    {
 	      (void)remove_all_curse();
-	      effects[EFFECT_DISPEL_CURSE]++;
+	      effects[EFFECT_DISPEL_REMOVE_CURSE]++;
 	      break;
 	    }
 
 	  case 52: /* Enchant Weapon */
 	    {
-	      (void)enchant_spell(rand_int(4) + 1, rand_int(4) + 1, 0);
-	      effects[EFFECT_ENCHANT_WEAPON_HIT]++;
-	      effects[EFFECT_ENCHANT_WEAPON_DAM]++;
+	      if (!enchant_spell(rand_int(4) + 1, rand_int(4) + 1, 0)) return FALSE;
+	      effects[EFFECT_ENCHANT_WEAPON]++;
 	      break;
 	    }
 
 	  case 53: /* Enchant Armour */
 	    {
-	      (void)enchant_spell(0, 0, rand_int(3) + 2);
+	      if (!enchant_spell(0, 0, rand_int(3) + 2)) return FALSE;
 	      effects[EFFECT_ENCHANT_ARMOUR]++;
 	      break;
 	    }
@@ -2719,13 +2744,13 @@ void cast_spell(int realm, int spell)
 	  case 56: /* Unbarring Ways */
 	    {
 	      (void)destroy_doors_touch();
-	      effects[EFFECT_DOOR_DESTRUCT_TOUCH]++;
+	      effects[EFFECT_DOOR_DESTRUCT]++;
 	      break;
 	    }
 
 	  case 57: /* Perception */
 	    {
-	      (void)ident_spell();
+	      if (!ident_spell()) return FALSE;
 	      effects[EFFECT_IDENTIFY]++;
 	      break;
 	    }
@@ -2753,6 +2778,8 @@ void cast_spell(int realm, int spell)
 	break;
       }
   }
+
+  return TRUE;
 }
 
 /*
@@ -2885,10 +2912,6 @@ void do_cmd_cast(void)
 			/* Gain experience */
 			if (player_has_class(CLASS_MAGE, 0))
 			  gain_exp(e * s_ptr->slevel, index_of_class(CLASS_MAGE));
-			if (player_has_class(CLASS_THIEF, 0))
-			  gain_exp(e * s_ptr->slevel, index_of_class(CLASS_THIEF));
-			if (player_has_class(CLASS_RANGER, 0))
-			  gain_exp(e * s_ptr->slevel, index_of_class(CLASS_RANGER));
 
 			/* Redraw object recall */
 			p_ptr->window |= (PW_OBJECT);
@@ -3022,7 +3045,19 @@ void do_cmd_pray(void)
 
 
 	/* Verify "dangerous" prayers */
-	if (s_ptr->smana > p_ptr->cpp)
+	if (player_has_class(CLASS_CRUSADER, 0) && (s_ptr->smana > p_ptr->mpp))
+	{
+		/* Warning */
+		msg_print("You do not have enough piety to recite this prayer.");
+
+		/* Flush input */
+		flush();
+
+		/* No chance */
+		return;
+	}
+	/* Verify "dangerous" prayers */
+	else if (s_ptr->smana > p_ptr->cpp)
 	{
 		/* Warning */
 		msg_print("You do not have enough piety to recite this prayer.");
@@ -3071,8 +3106,8 @@ void do_cmd_pray(void)
 			/* Gain experience */
 			if (player_has_class(CLASS_PRIEST, 0))
 			  gain_exp(e * s_ptr->slevel, index_of_class(CLASS_PRIEST));
-			if (player_has_class(CLASS_PALADIN, 0))
-			  gain_exp(e * s_ptr->slevel, index_of_class(CLASS_PALADIN));
+			if (player_has_class(CLASS_CRUSADER, 0))
+			  gain_exp(e * s_ptr->slevel, index_of_class(CLASS_CRUSADER));
 
 			/* Redraw object recall */
 			p_ptr->window |= (PW_OBJECT);
@@ -3083,7 +3118,12 @@ void do_cmd_pray(void)
 	p_ptr->energy_use = 100;
 
 	/* Sufficient mana */
-	if (s_ptr->smana <= p_ptr->cpp)
+	if (player_has_class(CLASS_CRUSADER, 0))
+	{
+	     p_ptr->mpp -= s_ptr->smana;
+	     p_ptr->cpp = p_ptr->mpp;
+	}
+	else if (s_ptr->smana <= p_ptr->cpp)
 	{
 		/* Use some mana */
 		p_ptr->cpp -= s_ptr->smana;
@@ -3507,33 +3547,45 @@ void do_cmd_cast_death(void)
 }
 
 /* Crusaders */
-struct crusader_power {
+struct power {
      int min_lev;
      cptr name;
      bool active;
+     bool crusader;
+     bool slayer;
 };
 
-struct crusader_power crusader_powers[MAX_CRUSADER_POWERS] =
+struct power powers[MAX_POWERS] =
 {
-     /* Level, name, is it active rather than passive */
-     {  1, "Blessing",             FALSE },
-     {  3, "Heroism",              FALSE },
-     {  5, "Weapon : Light",       TRUE },
-     {  7, "Berserk Strength",     FALSE },
-     {  9, "Shield",               FALSE },
-     { 12, "Regeneration",         FALSE },
-     { 15, "Resistance",           FALSE },
-     { 20, "Weapon: Flame",        TRUE },
-     { 25, "Haste Self",           FALSE },
-     { 30, "Weapon : Slay Undead", TRUE },
-     { 35, "Protection from Evil", FALSE },
-     { 40, "Weapon : Slay Evil",   TRUE },
+     /* Level, name, is it active rather than passive, can crusaders use it, can slayers use it */
+     {  1, "Blessing",             FALSE, TRUE,  TRUE },
+     {  2, "Stealth",              FALSE, FALSE, TRUE },
+     {  3, "Heroism",              FALSE, TRUE,  TRUE },
+     {  5, "Dark Vision",          FALSE, FALSE, TRUE },
+     {  5, "Weapon : Light",       TRUE,  TRUE,  FALSE },
+     {  7, "Berserk Strength",     FALSE, TRUE,  TRUE },
+     {  9, "Shield",               FALSE, TRUE,  TRUE },
+     { 12, "Regeneration",         FALSE, TRUE,  TRUE },
+     { 15, "Weapon : Cold",        TRUE,  FALSE, TRUE },
+     { 15, "Weapon : Flame",       TRUE,  TRUE,  FALSE },
+     { 18, "Meditation",           FALSE, TRUE,  TRUE },
+     { 21, "Resistance",           FALSE, TRUE,  FALSE },
+     { 21, "Weapon : Dark",        TRUE,  FALSE, TRUE },
+     { 24, "Resistance",           FALSE, FALSE, TRUE },
+     { 27, "Haste Self",           FALSE, TRUE,  TRUE },
+     { 30, "Weapon : Slay Undead", TRUE,  TRUE,  FALSE },
+     { 30, "Weapon : Poison",      TRUE,  FALSE, TRUE },
+     { 35, "Protection from Evil", FALSE, TRUE,  FALSE },
+     { 35, "Protection from Animals", FALSE, FALSE, TRUE },
+     { 40, "Weapon : Slay Evil",   TRUE,  TRUE,  FALSE },
+     { 40, "Weapon : Slay Animal", TRUE,  FALSE, TRUE },
 };
 
-static int get_crusader_power(int *sn)
+static int get_power(int *sn)
 {
         int             i, ask, num = 0, y = 1, x = 20;
         int             plev = level_of_class(CLASS_CRUSADER);
+	int             temp[MAX_POWERS];
 	char		choice;
 	char            out_val[160];
 	byte            line_attr;
@@ -3555,9 +3607,26 @@ static int get_crusader_power(int *sn)
 	/* Assume cancelled */
 	(*sn) = -1;
 
-	for (i = 0; i < MAX_CRUSADER_POWERS; i++)
-	     if (crusader_powers[i].min_lev <= plev)
-		  num++;
+	/* Only one of these clases can be chosen */
+	if (player_has_class(CLASS_CRUSADER, 0)) plev = level_of_class(CLASS_CRUSADER);
+	if (player_has_class(CLASS_SLAYER, 0)) plev = level_of_class(CLASS_SLAYER);
+
+	for (i = 0; i < MAX_POWERS; i++)
+	{
+	     if (powers[i].min_lev <= plev)
+	     {
+		  if (powers[i].crusader && player_has_class(CLASS_CRUSADER, 0))
+		  {
+		       temp[num] = i;
+		       num++;
+		  }
+		  else if (powers[i].slayer && player_has_class(CLASS_SLAYER, 0))
+		  {
+		       temp[num] = i;
+		       num++;
+		  }
+	     }
+	}
 
 	/* Build a prompt (accept all spells) */
 	strnfmt(out_val, 78, "(Powers %c-%c, *=List, ESC=exit) Use which power? ",
@@ -3586,31 +3655,31 @@ static int get_crusader_power(int *sn)
 				put_str("Lv", y, x + 35);
 
 				/* Dump the spells */
-				for (i = 0; i < MAX_CRUSADER_POWERS; i++)
+				for (i = 0; i < num; i++)
 				{
 					/* Access the spell */
-					if (crusader_powers[i].min_lev > plev) break;
+					if (powers[temp[i]].min_lev > plev) break;
 					
 					/* Color */
 					line_attr = TERM_WHITE;
 
-					if (crusader_powers[i].active)
+					if (powers[temp[i]].active)
 					{
-					     if (i == p_ptr->crusader_active) 
+					     if (temp[i] == p_ptr->power_active) 
 						  line_attr = TERM_L_BLUE;
 					     else line_attr = TERM_BLUE;
 					}
 					else
 					{
-					     if (i == p_ptr->crusader_passive) 
+					     if (temp[i] == p_ptr->power_passive) 
 						  line_attr = TERM_L_GREEN;
 					     else line_attr = TERM_GREEN;
 					}
 
 					/* Dump the spell */
 					sprintf(power_desc, "  %c) %-30s%2d",
-						I2A(i), crusader_powers[i].name, 
-						crusader_powers[i].min_lev);
+						I2A(i), powers[temp[i]].name, 
+						powers[temp[i]].min_lev);
 					c_prt(line_attr, power_desc, y + i + 1, x);
 				}
 
@@ -3654,7 +3723,7 @@ static int get_crusader_power(int *sn)
 			char tmp_val[160];
 
 			/* Prompt */
-			strnfmt(tmp_val, 78, "Use %s? ", crusader_powers[i].name);
+			strnfmt(tmp_val, 78, "Use %s? ", powers[temp[i]].name);
 
 			/* Belay that order */
 			if (!get_check(tmp_val)) continue;
@@ -3671,7 +3740,7 @@ static int get_crusader_power(int *sn)
 	if (!flag) return (FALSE);
 
 	/* Save the choice */
-	(*sn) = i;
+	(*sn) = temp[i];
 	
 #ifdef ALLOW_REPEAT
 
@@ -3683,82 +3752,119 @@ static int get_crusader_power(int *sn)
 	return (TRUE);	
 }
 
-/* Use a crusader power */
-void do_cmd_crusader(void)
+/* Use a power */
+void do_cmd_power(void)
 {
      int power;
      /* Save last power */
-     byte last_active = p_ptr->crusader_active;
-     byte last_passive = p_ptr->crusader_passive;
+     byte last_active = p_ptr->power_active;
+     byte last_passive = p_ptr->power_passive;
      /* Notice changes? */
      bool notice = FALSE;
 
      /* Ask for a power */
-     if (!get_crusader_power(&power)) return;
+     if (!get_power(&power)) return;
 
      /* Use the power */
      switch (power)
      {
-     case CRUSADER_BLESSING:
-	      p_ptr->crusader_passive = CRUSADER_BLESSING;
-	      effects[EFFECT_BLESS]++;
-	      break;
-     case CRUSADER_HEROISM:
-	      p_ptr->crusader_passive = CRUSADER_HEROISM;
-	      if (p_ptr->afraid) {
-		   (void)set_afraid(0);
-		   effects[EFFECT_REMOVE_FEAR]++;
-	      }
-	      effects[EFFECT_HEROISM]++;
-	      break;
-     case CRUSADER_WPN_LIGHT:
-	      p_ptr->crusader_active = CRUSADER_WPN_LIGHT;
-	      break;
-     case CRUSADER_BERSERK:
-	      p_ptr->crusader_passive = CRUSADER_BERSERK;
-	      if (p_ptr->afraid) {
-		   (void)set_afraid(0);
-		   effects[EFFECT_REMOVE_FEAR]++;
-	      }
-	      effects[EFFECT_BERSERK]++;
-	      break;
-     case CRUSADER_SHIELD:
-	      p_ptr->crusader_passive = CRUSADER_SHIELD;
-	      effects[EFFECT_SHIELD]++;
-	      break;
-     case CRUSADER_REGEN:
-	      p_ptr->crusader_passive = CRUSADER_REGEN;
-	      effects[EFFECT_REGEN]++;
-	      break;
-     case CRUSADER_RESISTANCE:
-	      p_ptr->crusader_passive = CRUSADER_RESISTANCE;
-	      effects[EFFECT_RES_ACID]++;
-	      effects[EFFECT_RES_ELEC]++;
-	      effects[EFFECT_RES_FIRE]++;
-	      effects[EFFECT_RES_COLD]++;
-	      if (level_of_class(CLASS_CRUSADER) >= 24) effects[EFFECT_RES_POIS]++;
-	      break;
-     case CRUSADER_WPN_FLAME:
-	      p_ptr->crusader_active = CRUSADER_WPN_FLAME;
-	      break;
-     case CRUSADER_HASTE:
-	      p_ptr->crusader_passive = CRUSADER_HASTE;
-	      effects[EFFECT_HASTE]++;
-	      break;
-     case CRUSADER_SLAY_UNDEAD:
-	      p_ptr->crusader_active = CRUSADER_SLAY_UNDEAD;
-	      break;
-     case CRUSADER_PROT_EVIL:
-	      p_ptr->crusader_passive = CRUSADER_PROT_EVIL;
-	      effects[EFFECT_PRO_EVIL]++;
-	      break;
-     case CRUSADER_SLAY_EVIL:
-	      p_ptr->crusader_active = CRUSADER_SLAY_EVIL;
-	      break;
+     case POWER_BLESSING:
+	  p_ptr->power_passive = POWER_BLESSING;
+	  effects[EFFECT_BLESS]++;
+	  break;
+     case POWER_STEALTH:
+	  p_ptr->power_passive = POWER_STEALTH;
+	  effects[EFFECT_STEALTH]++;
+	  break;
+     case POWER_HEROISM:
+	  p_ptr->power_passive = POWER_HEROISM;
+	  if (p_ptr->afraid) {
+	       (void)set_afraid(0);
+	       effects[EFFECT_REMOVE_FEAR]++;
+	  }
+	  effects[EFFECT_HEROISM]++;
+	  break;
+     case POWER_VISION:
+	  p_ptr->power_passive = POWER_VISION;
+	  effects[EFFECT_INFRA]++;
+	  effects[EFFECT_DETECT_INVIS]++;
+	  break;
+     case POWER_WPN_LIGHT:
+	  p_ptr->power_active = POWER_WPN_LIGHT;
+	  break;
+     case POWER_BERSERK:
+	  p_ptr->power_passive = POWER_BERSERK;
+	  if (p_ptr->afraid) {
+	       (void)set_afraid(0);
+	       effects[EFFECT_REMOVE_FEAR]++;
+	  }
+	  effects[EFFECT_BERSERK]++;
+	  break;
+     case POWER_SHIELD:
+	  p_ptr->power_passive = POWER_SHIELD;
+	  effects[EFFECT_SHIELD]++;
+	  break;
+     case POWER_REGEN:
+	  p_ptr->power_passive = POWER_REGEN;
+	  effects[EFFECT_REGEN]++;
+	  break;
+     case POWER_WPN_COLD:
+	  p_ptr->power_active = POWER_WPN_COLD;
+	  break;
+     case POWER_WPN_FLAME:
+	  p_ptr->power_active = POWER_WPN_FLAME;
+	  break;
+     case POWER_HASTE:
+	  p_ptr->power_passive = POWER_HASTE;
+	  effects[EFFECT_HASTE]++;
+	  break;
+     case POWER_MEDITATION:
+	  p_ptr->power_passive = POWER_MEDITATION;
+	  break;
+     case POWER_RESISTANCE1:
+	  /* The crusader version gives res elements and poison */
+	  p_ptr->power_passive = POWER_RESISTANCE1;
+	  effects[EFFECT_RES_ELEMENT]++;
+	  if (level_of_class(CLASS_CRUSADER) >= 24) effects[EFFECT_RES_POIS]++;
+	  break;
+     case POWER_WPN_DARK:
+	  p_ptr->power_active = POWER_WPN_DARK;
+	  effects[EFFECT_OPPOSE_LD]++;
+	  break;
+     case POWER_RESISTANCE2:
+	  /* The slayer version gives res dark, cold, fear, poison and nether */
+	  p_ptr->power_passive = POWER_RESISTANCE2;
+	  (void)set_afraid(0);
+	  effects[EFFECT_REMOVE_FEAR]++;
+	  effects[EFFECT_OPPOSE_LD]++;
+	  effects[EFFECT_RES_ELEMENT]++;
+	  effects[EFFECT_RES_POIS]++;
+	  if (level_of_class(CLASS_SLAYER) >= 29) effects[EFFECT_OPPOSE_NETHER]++;
+	  break;
+     case POWER_SLAY_UNDEAD:
+	  p_ptr->power_active = POWER_SLAY_UNDEAD;
+	  break;
+     case POWER_WPN_POISON:
+	  p_ptr->power_active = POWER_WPN_POISON;
+	  break;
+     case POWER_PROT_EVIL:
+	  p_ptr->power_passive = POWER_PROT_EVIL;
+	  effects[EFFECT_PROTECT_FROM]++;
+	  break;
+     case POWER_PROT_ANIMAL:
+	  p_ptr->power_passive = POWER_PROT_ANIMAL;
+	  effects[EFFECT_PROTECT_FROM]++;
+	  break;
+     case POWER_SLAY_EVIL:
+	  p_ptr->power_active = POWER_SLAY_EVIL;
+	  break;
+     case POWER_SLAY_ANIMAL:
+	  p_ptr->power_active = POWER_SLAY_ANIMAL;
+	  break;
      }
 
      /* Notice if active power changes */
-     if (p_ptr->crusader_active != last_active)
+     if (p_ptr->power_active != last_active)
      {
 	  cptr open = ((player_has_class(CLASS_MONK, 0)) ? "hands start" : "weapon starts");
 	  cptr close = ((player_has_class(CLASS_MONK, 0)) ? "hands stop" : "weapon stops");
@@ -3766,33 +3872,57 @@ void do_cmd_crusader(void)
 	  /* Notice ending of last power */
 	  switch (last_active)
 	  {
-	  case CRUSADER_WPN_LIGHT:
+	  case POWER_WPN_LIGHT:
 	       msg_format("Your %s shining.", close);
 	       break;
-	  case CRUSADER_WPN_FLAME:
+	  case POWER_WPN_COLD:
+	       msg_format("Your %s radiating cold.", close);
+	       break;
+	  case POWER_WPN_FLAME:
 	       msg_format("Your %s burning.", close);
 	       break;
-	  case CRUSADER_SLAY_UNDEAD:
+	  case POWER_WPN_DARK:
+	       msg_format("You %s absorbing light.", close);
+	       break;
+	  case POWER_SLAY_UNDEAD:
 	       msg_format("Your %s being more effective against undead.", close);
 	       break;
-	  case CRUSADER_SLAY_EVIL:
+	  case POWER_WPN_POISON:
+	       msg_format("Your %s dripping with poison.", close);
+	       break;
+	  case POWER_SLAY_EVIL:
 	       msg_format("Your %s being more effective against evil.", close);
+	       break;
+	  case POWER_SLAY_ANIMAL:
+	       msg_format("Your %s being more effective against animals.", close);
 	       break;
 	  }
 	  /* Notice beginning of new power */
-	  switch (p_ptr->crusader_active)
+	  switch (p_ptr->power_active)
 	  {
-	  case CRUSADER_WPN_LIGHT:
+	  case POWER_WPN_LIGHT:
 	       msg_format("Your %s shining!", open);
 	       break;
-	  case CRUSADER_WPN_FLAME:
+	  case POWER_WPN_COLD:
+	       msg_format("Your %s radiating cold!", open);
+	       break;
+	  case POWER_WPN_FLAME:
 	       msg_format("Your %s burning!", open);
 	       break;
-	  case CRUSADER_SLAY_UNDEAD:
+	  case POWER_WPN_DARK:
+	       msg_format("You %s absorbing light.", open);
+	       break;
+	  case POWER_SLAY_UNDEAD:
 	       msg_format("Your %s being more effective against undead!", open);
 	       break;
-	  case CRUSADER_SLAY_EVIL:
+	  case POWER_WPN_POISON:
+	       msg_format("Your %s dripping with poison!", open);
+	       break;
+	  case POWER_SLAY_EVIL:
 	       msg_format("Your %s being more effective against evil!", open);
+	       break;
+	  case POWER_SLAY_ANIMAL:
+	       msg_format("Your %s being more effective against animals!", open);
 	       break;
 	  }
 
@@ -3800,66 +3930,102 @@ void do_cmd_crusader(void)
      }
 
      /* Notice if passive power changes */
-     if (p_ptr->crusader_passive != last_passive)
+     if (p_ptr->power_passive != last_passive)
      {
 	  /* Notice ending of last power */
 	  switch (last_passive)
 	  {
-	  case CRUSADER_BLESSING:
+	  case POWER_BLESSING:
 	       msg_print("The prayer has expired.");
 	       break;
-	  case CRUSADER_HEROISM:
+	  case POWER_STEALTH:
+	       msg_print("You become less stealthy.");
+	       break;
+	  case POWER_HEROISM:
 	       msg_print("The heroism wears off.");
 	       break;
-	  case CRUSADER_BERSERK:
+	  case POWER_VISION:
+	       msg_print("Your vision dims.");
+	       break;
+	  case POWER_BERSERK:
 	       msg_print("You feel less Berserk.");
 	       break;
-	  case CRUSADER_REGEN:
-	       msg_print("You stop regenerating.");
-	       break;
-	  case CRUSADER_SHIELD:
+	  case POWER_SHIELD:
 	       msg_print("Your mystic shield crumbles away.");
 	       break;
-	  case CRUSADER_RESISTANCE:
+	  case POWER_REGEN:
+	       msg_print("You stop regenerating.");
+	       break;
+	  case POWER_HASTE:
+	       msg_print("You feel yourself slow down.");
+	       break;
+	  case POWER_MEDITATION:
+	       msg_print("You stop meditating.");
+	       break;
+	  case POWER_RESISTANCE1:
 	       msg_print("You feel less resistant to the elements.");
 	       if (level_of_class(CLASS_CRUSADER) >= 24)
 		    msg_print("You feel less resistant to poison.");
 	       break;
-	  case CRUSADER_HASTE:
-	       msg_print("You feel yourself slow down.");
+	  case POWER_RESISTANCE2:
+	       if (level_of_class(CLASS_SLAYER) >= 29)
+		    msg_print("You feel less resistant to fear, darkness, cold, poison and nether.");
+	       else
+		    msg_print("You feel less resistant to fear, darkness, cold and poison.");
 	       break;
-	  case CRUSADER_PROT_EVIL:
+	  case POWER_PROT_EVIL:
 	       msg_print("You no longer feel safe from evil.");
+	       break;
+	  case POWER_PROT_ANIMAL:
+	       msg_print("You no longer feel safe from animals.");
 	       break;
 	  }
 	  /* Notice beginning of new power */
-	  switch (p_ptr->crusader_passive)
+	  switch (p_ptr->power_passive)
 	  {
-	  case CRUSADER_BLESSING:
+	  case POWER_BLESSING:
 	       msg_print("You feel righteous!");
 	       break;
-	  case CRUSADER_HEROISM:
+	  case POWER_STEALTH:
+	       msg_print("You become more stealthy.");
+	       break;
+	  case POWER_HEROISM:
 	       msg_print("You feel like a hero!");
 	       break;
-	  case CRUSADER_BERSERK:
+	  case POWER_VISION:
+	       msg_print("Your eyes pierce the darkness!");
+	       break;
+	  case POWER_BERSERK:
 	       msg_print("You feel like a killing machine!");
 	       break;
-	  case CRUSADER_REGEN:
-	       msg_print("You start regenerating!");
-	       break;
-	  case CRUSADER_SHIELD:
+	  case POWER_SHIELD:
 	       msg_print("A mystic shield forms around your body!");
 	       break;
-	  case CRUSADER_RESISTANCE:
+	  case POWER_REGEN:
+	       msg_print("You start regenerating!");
+	       break;
+	  case POWER_HASTE:
+	       msg_print("You feel yourself moving faster!");
+	       break;
+	  case POWER_MEDITATION:
+	       msg_print("You start meditating.");
+	       break;
+	  case POWER_RESISTANCE1:
 	       msg_print("You feel resistant to the elements!");
 	       if (level_of_class(CLASS_CRUSADER) >= 24)
 		    msg_print("You feel resistant to poison!");
 	       break;
-	  case CRUSADER_HASTE:
-	       msg_print("You feel yourself moving faster!");
+	  case POWER_RESISTANCE2:
+	       if (level_of_class(CLASS_SLAYER) >= 29)
+		    msg_print("You feel resistant to fear, darkness, cold, poison and nether!");
+	       else
+		    msg_print("You feel resistant to fear, darkness, cold and poison!");
 	       break;
-	  case CRUSADER_PROT_EVIL:
+	  case POWER_PROT_EVIL:
 	       msg_print("You feel safe from evil!");
+	       break;
+	  case POWER_PROT_ANIMAL:
+	       msg_print("You feel safe from animals!");
 	       break;
 	  }
 
@@ -3886,349 +4052,6 @@ void do_cmd_crusader(void)
 }
 
 
-
-/*** Crusader Prayers ***/
-
-struct crusader_prayer {
-     cptr name;
-     int  smana;
-};
-
-struct crusader_prayer crusader_prayers[MAX_CRUSADER_PRAYERS] =
-{
-     /* Name, piety cost, failure rate */
-     { "Detect Evil",                 1 },
-     { "Call Light",                  2 },
-     { "First Aid",                   3 },
-     { "Sense Invisible",             6 },
-     { "Spear of Light",              9 },
-     { "Turn Undead",                15 },
-     { "Remove Curse",               20 },
-     { "Healing",                    30 },
-     { "Healing II",                 60 },
-     { "Healing III",               120 },
-     { "Banish Undead",             150 },
-     { "Banish Demons",             180 },
-     { "Dispel Evil",               200 },
-     { "Restore Life Levels",       300 },
-     { "Dispel Evil II",            400 },
-     { "Enchant Armour",            450 },
-     { "Enchant Weapon",            500 },
-};
-
-static void crusader_prayer_info(char *p, int power)
-{
-     int plev = level_of_class(CLASS_CRUSADER);
-
-     /* Default */
-     strcpy(p, "");
-
-     /* Hide spell information */
-     if (adult_hidden) return;
-
-     switch (power)
-     {
-     case 1: sprintf(p, " dam 2d%d, r%d", plev, (plev/10)+2); break;
-     case 2: sprintf(p, " cure 2d%d", plev+5); break;
-     case 3: strcpy(p, " dur 24+d24"); break;
-     case 4: sprintf(p, " dam %dd8", (8+((plev-5)/4))); break;
-     case 7: sprintf(p, " cure %d", plev*2); break;
-     case 8: sprintf(p, " cure %d", plev*5); break;
-     case 9: sprintf(p, " cure %d", plev*10); break;
-     case 10: sprintf(p, " range %d", (plev*5)+5); break;
-     case 11: sprintf(p, " range %d", (plev*5)+5); break;
-     case 12: sprintf(p, " dam %d", plev*5); break;
-     case 14: sprintf(p, " dam %d", plev*10); break;
-     }
-}
-
-static int get_crusader_prayer(int *sn)
-{
-        int             i = -1, ask, y = 1, x = 20;
-	char		choice;
-	char            out_val[160];
-	byte            line_attr;
-
-	/* Nothing chosen yet */
-	bool flag = FALSE;
-
-	/* No redraw yet */
-	bool redraw = FALSE;
-
-#ifdef ALLOW_REPEAT
-
-	/* Get the spell, if available */
-	if (repeat_pull(sn))
-	     return (TRUE);
-
-#endif /* ALLOW_REPEAT */
-
-	/* Assume cancelled */
-	(*sn) = -1;
-
-	/* Build a prompt (accept all spells) */
-	strnfmt(out_val, 78, "(Prayers %c-%c, *=List, ESC=exit) Use which prayer? ",
-						I2A(0), I2A(MAX_CRUSADER_PRAYERS - 1));
-	
-	/* Get a spell from the user */
-	while (!flag && get_com(out_val, &choice))
-	{
-		/* Request redraw */
-		if ((choice == ' ') || (choice == '*') || (choice == '?'))
-		{
-			/* Show the list */
-			if (!redraw)
-			{
-				char power_desc[80];
-				char info[40];
-				cptr comment;
-
-				/* Show list */
-				redraw = TRUE;
-
-				/* Save the screen */
-				Term_save();
-
-				/* Display a list of spells */
-				prt("", y, x);
-				if (!adult_hidden)
-				{
-				     put_str("Name", y, x + 5);
-				     put_str("Piety", y, x + 35);
-				}
-
-				/* Dump the spells */
-				for (i = 0; i < MAX_CRUSADER_PRAYERS; i++)
-				{
-					/* Color */
-					line_attr = TERM_WHITE;
-
-					if (crusader_prayers[i].smana > p_ptr->mpp)
-					     line_attr = TERM_L_DARK;
-					else line_attr = TERM_WHITE;
-
-					/* Get information */
-					crusader_prayer_info(info, i);
-					comment = info;
-
-					/* Dump the spell */
-					if (adult_hidden)
-					{
-					     sprintf(power_desc, "  %c) %-30s",
-						     I2A(i), crusader_prayers[i].name);
-					     c_prt(line_attr, power_desc, y + i, x + 30);
-					}
-					else
-					{
-					     sprintf(power_desc, "  %c) %-30s%3d %s",
-						     I2A(i), crusader_prayers[i].name, 
-						     crusader_prayers[i].smana, comment);
-					     c_prt(line_attr, power_desc, y + i + 1, x);
-					}
-				}
-
-				/* Clear the bottom line */
-				prt("", y + i + 1, x);
-			}
-
-			/* Hide the list */
-			else
-			{
-				/* Hide list */
-				redraw = FALSE;
-
-				/* Restore the screen */
-				Term_load();
-			}
-
-			/* Redo asking */
-			continue;
-		}
-
-		/* Note verify */
-		ask = (isupper(choice));
-
-		/* Lowercase */
-		if (ask) choice = tolower(choice);
-
-		/* Extract request */
-		i = (islower(choice) ? A2I(choice) : -1);
-
-		/* Totally Illegal */
-		if ((i < 0) || (i >= MAX_CRUSADER_PRAYERS))
-		{
-			bell("Illegal prayer choice!");
-			continue;
-		}
-		
-	        /* Verify it */
-		if (ask)
-		{
-			char tmp_val[160];
-
-			/* Prompt */
-			strnfmt(tmp_val, 78, "Use %s? ", crusader_prayers[i].name);
-
-			/* Belay that order */
-			if (!get_check(tmp_val)) continue;
-		}
-
-		/* Stop the loop */
-		flag = TRUE;
-	}
-
-	/* Restore the screen */
-	if (redraw) Term_load();
-
-	/* Abort if needed */
-	if (!flag) return (FALSE);
-
-	/* Save the choice */
-	(*sn) = i;
-	
-#ifdef ALLOW_REPEAT
-
-	repeat_push(*sn);
-
-#endif /* ALLOW_REPEAT */
-
-	/* Success */
-	return (TRUE);	
-}
-
-void do_cmd_crusader_prayer()
-{
-     int power;
-     int plev = level_of_class(CLASS_CRUSADER);
-
-     /* Ask for a power */
-     if (!get_crusader_prayer(&power)) return;
-     
-     /* Not enough piety */
-     if (crusader_prayers[power].smana > p_ptr->mpp)
-     {
-	  /* Warning */
-	  msg_print("You do not have enough piety to recite this prayer.");
-
-	  /* Flush input */
-	  flush();
-
-	  return;
-     }
-
-     /* Use the power */
-     switch (power)
-     {
-     case 0:
-	  (void)detect_monsters_evil();
-	  effects[EFFECT_DETECT_EVIL]++;	  
-	  break;
-     case 1:
-	  (void)lite_area(damroll(2, plev), (plev / 10) + 2);
-	  effects[EFFECT_LIGHT_AREA]++;
-	  break;
-     case 2:
-	  (void)hp_player(damroll(2, plev+5));
-	  (void)set_cut(p_ptr->cut - (plev+10));
-	  (void)set_poisoned(p_ptr->poisoned / 2);
-	  effects[EFFECT_CURE_LIGHT]++;
-	  effects[EFFECT_SLOW_POISON]++;
-	  break;
-     case 3:
-	  (void)set_tim_invis(p_ptr->tim_invis + randint(24) + 24);
-	  effects[EFFECT_SEE_INVIS]++;
-	  break;
-     case 4:
-     {
-	  int dir;
-	  if (!get_aim_dir(&dir)) return;
-	  msg_print("A line of blue shimmering light appears.");
-	  fire_beam(GF_LITE, dir, damroll(8+((plev-5)/4), 8));
-	  effects[EFFECT_SPEAR_LIGHT]++;
-	  break;
-     }
-     case 5:
-	  (void)turn_undead(p_ptr->current_class);
-	  effects[EFFECT_TURN_UNDEAD]++;
-	  break;
-     case 6:
-	  remove_curse();
-	  effects[EFFECT_REMOVE_CURSE]++;
-	  break;
-     case 7:
-	  (void)hp_player(plev * 2);
-	  (void)set_stun(0);
-	  (void)set_cut(0);
-	  (void)set_poisoned(0);
-	  effects[EFFECT_HEAL]++;
-	  effects[EFFECT_CURE_POISON]++;
-	  break;
-     case 8:
-	  (void)hp_player(plev * 5);
-	  (void)set_stun(0);
-	  (void)set_cut(0);
-	  (void)set_poisoned(0);
-	  effects[EFFECT_HEAL]++;
-	  effects[EFFECT_CURE_POISON]++;
-	  break;
-     case 9:
-	  (void)hp_player(plev * 10);
-	  (void)set_stun(0);
-	  (void)set_cut(0);
-	  (void)set_poisoned(0);
-	  effects[EFFECT_HEAL]++;
-	  effects[EFFECT_CURE_POISON]++;
-	  break;
-     case 10:
-	  if (banish_undead((plev * 5) + 5))
-	  {
-	       msg_print("You banish undead!");
-	  }
-	  effects[EFFECT_BANISH_UNDEAD]++;
-	  break;
-     case 11:
-	  if (banish_demons((plev * 5) + 5))
-	  {
-	       msg_print("You banish demons!");
-	  }
-	  effects[EFFECT_BANISH_DEMONS]++;
-	  break;
-     case 12:
-	  (void)dispel_evil(randint(plev * 5));
-	  effects[EFFECT_DISPEL_EVIL]++;
-	  break;
-     case 13:
-	  (void)restore_level();
-	  effects[EFFECT_RESTORE_EXP]++;
-	  break;
-     case 14:
-	  (void)dispel_evil(randint(plev * 10));
-	  effects[EFFECT_DISPEL_EVIL]++;
-	  break;
-     case 15:
-	  (void)enchant_spell(0, 0, rand_int(3) + 2);
-	  effects[EFFECT_ENCHANT_ARMOUR]++;
-	  break;
-     case 16:
-	  (void)enchant_spell(rand_int(4) + 1, rand_int(4) + 1, 0);
-	  effects[EFFECT_ENCHANT_WEAPON_HIT]++;
-	  effects[EFFECT_ENCHANT_WEAPON_DAM]++;
-	  break;
-     }
-
-     /* Take a turn */
-     p_ptr->energy_use = 100;
-
-     /* Use piety */
-     p_ptr->mpp -= crusader_prayers[power].smana;
-     p_ptr->cpp = p_ptr->mpp;
-
-     /* Redraw mana */
-     p_ptr->redraw |= (PR_MANA);
-
-     /* Window stuff */
-     p_ptr->window |= (PW_PLAYER_0 | PW_PLAYER_1);
-}
 
 /*** Shifters ***/
 
@@ -4621,13 +4444,15 @@ void do_cmd_shifter()
      case SHIFTER_STING2:
 	  if (!get_aim_dir(&dir)) return;
 	  fire_bolt(GF_POIS, dir, damroll(3 + ((plev - 1) / 5), 4));
-	  effects[EFFECT_STING] += 1;
+	  effects[EFFECT_BOLT] += 1;
+	  effects[EFFECT_POIS] += 1;
 	  break;
      case SHIFTER_STINKING_CLOUD:
 	  if (!get_aim_dir(&dir)) return;
 	  fire_ball(GF_POIS, dir,
 		    10 + (plev / 2), 2);
-	  effects[EFFECT_STINKING_CLOUD]++;
+	  effects[EFFECT_BALL]++;
+	  effects[EFFECT_POIS] += 1;
 	  break;
      case SHIFTER_RES_POIS:
 	  (void)set_oppose_pois(p_ptr->oppose_pois + randint(20) + 20);
@@ -4653,7 +4478,7 @@ void do_cmd_shifter()
 	  break;
      case SHIFTER_RES_COLD:
 	  (void)set_oppose_cold(p_ptr->oppose_cold + randint(20) + 20);
-	  effects[EFFECT_RES_COLD]++;
+	  effects[EFFECT_RES_ELEMENT]++;
 	  break;
      case SHIFTER_BERSERK:
 	  (void)hp_player(30);
@@ -4669,19 +4494,20 @@ void do_cmd_shifter()
 	  break;
      case SHIFTER_RES_FIRE:
 	  (void)set_oppose_fire(p_ptr->oppose_fire + randint(20) + 20);
-	  effects[EFFECT_RES_FIRE]++;
+	  effects[EFFECT_RES_ELEMENT]++;
 	  break;
      case SHIFTER_BR_FIRE:
 	  if (!get_aim_dir(&dir)) return;
 	  fire_ball(GF_FIRE, dir,
 		    55 + (plev), 2);
-	  effects[EFFECT_FIRE_BALL]++;
+	  effects[EFFECT_BALL]++;
+	  effects[EFFECT_FIRE]++;
 	  break;
      case SHIFTER_CONFUSE:
      case SHIFTER_CONFUSE2:
 	  if (!get_aim_dir(&dir)) return;
 	  (void)confuse_monster(dir, plev);
-	  effects[EFFECT_CONFUSE_MONSTER]++;
+	  effects[EFFECT_HINDER]++;
 	  break;
      case SHIFTER_STONE_TO_MUD:
 	  if (!get_aim_dir(&dir)) return;
@@ -4706,25 +4532,26 @@ void do_cmd_shifter()
 	  break;
      case SHIFTER_RES_ACID:
 	  (void)set_oppose_acid(p_ptr->oppose_acid + randint(20) + 20);
-	  effects[EFFECT_RES_ACID]++;
+	  effects[EFFECT_RES_ELEMENT]++;
 	  break;
      case SHIFTER_SLEEP:
 	  if (!get_aim_dir(&dir)) return;
 	  (void)sleep_monster(dir, p_ptr->current_class);
-	  effects[EFFECT_SLEEP_MONSTER]++;
+	  effects[EFFECT_HINDER]++;
 	  break;
      case SHIFTER_BR_ACID:
 	  if (!get_aim_dir(&dir)) return;
 	  fire_ball(GF_ACID, dir,
 		    55 + (plev), 2);
-	  effects[EFFECT_ACID_BALL]++;
+	  effects[EFFECT_BALL]++;
+	  effects[EFFECT_ACID]++;
 	  break;
      case SHIFTER_FIRST_AID:
 	  (void)hp_player(damroll(2, plev+5));
 	  (void)set_cut(p_ptr->cut - (plev+10));
 	  (void)set_poisoned(p_ptr->poisoned / 2);
-	  effects[EFFECT_CURE_LIGHT]++;
-	  effects[EFFECT_SLOW_POISON]++;
+	  effects[EFFECT_CURE_LIGHT_SERIOUS]++;
+	  effects[EFFECT_CURE_POISON]++;
 	  break;
      case SHIFTER_HERBAL_HEALING:
 	  (void)hp_player(plev * 2);
@@ -4740,34 +4567,37 @@ void do_cmd_shifter()
 	  break;
      case SHIFTER_ENTANGLE:
 	  (void)slow_monsters(p_ptr->current_class);
-	  effects[EFFECT_SLOW_ALL]++;
+	  effects[EFFECT_MASS_HINDER]++;
 	  break;
      case SHIFTER_MIND_BLAST:
 	  if (!get_aim_dir(&dir)) return;
 	  fire_bolt_or_beam(plev, GF_CONFUSION, dir,
 			    damroll(6+((plev-5)/4), 8));
-	  effects[EFFECT_ICE_BOLT]++;
+	  effects[EFFECT_BBOLT]++;
+	  effects[EFFECT_CONF]++;
 	  break;
      case SHIFTER_L_BOLT:
 	  if (!get_aim_dir(&dir)) return;
 	  fire_bolt_or_beam(plev, GF_ELEC, dir,
 			    damroll(3+((plev-5)/4), 6));
-	  effects[EFFECT_LIGHTNING_BOLT]++;
+	  effects[EFFECT_BBOLT]++;
+	  effects[EFFECT_LIGHTNING]++;
 	  break;
      case SHIFTER_RES_ELEC:
 	  (void)set_oppose_elec(p_ptr->oppose_elec + randint(20) + 20);
-	  effects[EFFECT_RES_ELEC]++;
+	  effects[EFFECT_RES_ELEMENT]++;
 	  break;
      case SHIFTER_L_BALL:
 	  if (!get_aim_dir(&dir)) return;
 	  fire_ball(GF_ELEC, dir,
 		    55 + (plev), 2);
-	  effects[EFFECT_LIGHTNING_BALL]++;
+	  effects[EFFECT_BALL]++;
+	  effects[EFFECT_LIGHTNING]++;
 	  break;
      case SHIFTER_SLOW:
 	  if (!get_aim_dir(&dir)) return;
 	  (void)slow_monster(dir, p_ptr->current_class);
-	  effects[EFFECT_SLOW_MONSTER]++;
+	  effects[EFFECT_HINDER]++;
 	  break;
      case SHIFTER_SHIELD:
 	  (void)set_shield(p_ptr->shield + randint(30) + 30);
@@ -4777,7 +4607,8 @@ void do_cmd_shifter()
 	  if (!get_aim_dir(&dir)) return;
 	  fire_bolt_or_beam(plev, GF_ICE, dir,
 			    damroll(6+((plev-5)/4), 8));
-	  effects[EFFECT_ICE_BOLT]++;
+	  effects[EFFECT_BBOLT]++;
+	  effects[EFFECT_COLD]++;
 	  break;
      case SHIFTER_DETECT_MONS:
 	  (void)detect_monsters_normal();
@@ -4796,21 +4627,22 @@ void do_cmd_shifter()
 	  if (!get_aim_dir(&dir)) return;
 	  fire_ball(GF_CONFUSION, dir,
 		    40 + (plev), 3);
-	  effects[EFFECT_CONF_SPHERE]++;
+	  effects[EFFECT_BALL]++;
+	  effects[EFFECT_CONF]++;
 	  break;
      case SHIFTER_TERROR:
 	  (void)scare_monsters(p_ptr->current_class);
-	  effects[EFFECT_FEAR_ALL]++;
+	  effects[EFFECT_MASS_HINDER]++;
 	  break;
      case SHIFTER_MASS_SLEEP:
 	  (void)sleep_monsters(p_ptr->current_class);
-	  effects[EFFECT_SLEEP_ALL]++;
+	  effects[EFFECT_MASS_HINDER]++;
 	  break;
      case SHIFTER_SCARE:
      case SHIFTER_SCARE2:
 	  if (!get_aim_dir(&dir)) return;
 	  (void)fear_monster(dir, plev);
-	  effects[EFFECT_FEAR_MONSTER]++;
+	  effects[EFFECT_HINDER]++;
 	  break;
      case SHIFTER_DRAIN_LIFE:
 	  if (!get_aim_dir(&dir)) return;
@@ -4821,7 +4653,8 @@ void do_cmd_shifter()
 	  if (!get_aim_dir(&dir)) return;
 	  fire_bolt_or_beam(plev-10, GF_NETHER, dir,
 		    damroll(9 + ((plev-5)/4), 8));
-	  effects[EFFECT_NETHER_BOLT] += 1;
+	  effects[EFFECT_BBOLT] += 1;
+	  effects[EFFECT_NETHER] += 1;
 	  break;
      case SHIFTER_LIFE_MANA:
      {
@@ -4851,13 +4684,15 @@ void do_cmd_shifter()
 	  if (!get_aim_dir(&dir)) return;
 	  fire_bolt(GF_CHAOS, dir,
 		    damroll(6 + ((plev-5)/3), 8));
-	  effects[EFFECT_CHAOS_BOLT] += 1;
+	  effects[EFFECT_BOLT] += 1;
+	  effects[EFFECT_CHAOS] += 1;
 	  break;
      case SHIFTER_NEXUS_BOLT:
 	  if (!get_aim_dir(&dir)) return;
 	  fire_bolt(GF_NEXUS, dir,
 		    damroll(6 + ((plev-5)/2), 8));
-	  effects[EFFECT_NEXUS_BOLT] += 1;
+	  effects[EFFECT_BOLT] += 1;
+	  effects[EFFECT_NEXUS] += 1;
 	  break;
      }
 

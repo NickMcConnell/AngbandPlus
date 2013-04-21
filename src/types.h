@@ -91,7 +91,7 @@ typedef struct hist_type hist_type;
 typedef struct player_other player_other;
 typedef struct player_type player_type;
 typedef struct high_score high_score;
-typedef struct cruasder_power crusader_power;
+typedef struct power power;
 
 
 
@@ -938,9 +938,9 @@ struct player_type
 	byte confusing;		/* Glowing hands */
 	byte searching;		/* Currently searching */
 
-        /* Crusader powers */
-        byte crusader_active;
-        byte crusader_passive;
+        /* Crusader/Slayer powers */
+        byte power_active;
+        byte power_passive;
 
         /* Shifter's current form */
         byte shapeshift;

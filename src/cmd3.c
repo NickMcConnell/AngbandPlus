@@ -535,10 +535,10 @@ void do_cmd_destroy(void)
 		  }
 
 		  /* Runecasters are guaranteed some pages */
+		  min_pages = (level_of_class(CLASS_RUNECASTER) / 25);
+
 		  if (o_ptr->sval < SV_BOOK_MIN_GOOD)
 		       min_pages = ((level_of_class(CLASS_RUNECASTER) / 15) + 1) - o_ptr->sval;
-		  else
-		       min_pages = (level_of_class(CLASS_RUNECASTER) / 25);
 		  
 		  if (num_pages < min_pages)
 		       num_pages = min_pages;
@@ -551,12 +551,12 @@ void do_cmd_destroy(void)
 		   * 10   1-3   0-3   0-2   0-2   50%
 		   * 15   2-3   1-3   0-2   0-2   50%
 		   * 20   2-4   1-3   0-3   0-2   0-2
-		   * 25   2-4   1-3   0-3   0-2   1-2
-		   * 30   3-4   2-4   1-3   0-3   1-2
-		   * 35   3-4   2-4   1-3   0-3   1-2
-		   * 40   3-5   2-4   1-4   0-3   1-3
+		   * 25   2-4   1-3   1-3   1-2   1-2
+		   * 30   3-4   2-4   1-3   1-3   1-2
+		   * 35   3-4   2-4   1-3   1-3   1-2
+		   * 40   3-5   2-4   1-4   1-3   1-3
 		   * 45   4-5   3-4   2-4   1-3   1-3
-		   * 50   4-5   3-5   2-4   1-4   2-3
+		   * 50   4-5   3-5   2-4   2-4   2-3
 		   */
 	     }
 	     else
@@ -567,6 +567,23 @@ void do_cmd_destroy(void)
 		  /* chance in 10 of getting a page */
 		  if (rand_int(10) < chance) num_pages = 1;
 		  else num_pages = 0;
+	     }
+
+	     /* Get piety, but no pages, from opposing books */
+	     if ((player_has_class(CLASS_CRUSADER, 0) && (o_ptr->tval == TV_DEATH_BOOK) && 
+		  (o_ptr->sval >= SV_BOOK_MIN_GOOD)) ||
+		 (player_has_class(CLASS_SLAYER, 0) && (o_ptr->tval == TV_PRAYER_BOOK) && 
+		  (o_ptr->sval >= SV_BOOK_MIN_GOOD)))
+	     {
+	          num_pages = 0;
+
+		  /* From 20 to 40 piety */
+		  p_ptr->mpp += o_ptr->sval * 5;
+		  p_ptr->cpp = p_ptr->mpp;
+		  p_ptr->redraw |= (PR_MANA);
+		  redraw_stuff();
+
+		  msg_print("You feel pious!");
 	     }
 
 	     /* Pages were created */
@@ -591,6 +608,9 @@ void do_cmd_destroy(void)
 		  /* Set the pval */
 		  i_ptr->pval = spells[random_spell];
 		  
+		  /* Shops don't like crumpled torn-out pages */
+		  i_ptr->discount = 90;
+
 		  /* Know it */
 		  object_aware(i_ptr);
 		  object_known(i_ptr);

@@ -1,14 +1,63 @@
 
-Make hiscore list show class information
-(maybe) Add realms
+rod/wand/staff stacking
 
-Reject non-Multiband savefiles, do conversions for older Multiband savefiles
-Then I can change VERSION_MAJOR/MINOR/PATCH and headers in *_info.txt's
+combining warrior/berserker with mage/illusionist/priest
+- use any weapon
+- increase max weight of armour allowed
 
----
-
+make groups monsters stay away from doorways when they are in a room and you are in a corridor
 Add auto-more option
 Show permanent walls in different colour - cyan or umber?
 
+allow player to choose which class gets XP
+- show unallocated XP with ADV and each class's with normal XP display
+- show each class's number in 'c' screen
+- default amount is all
+- get rid of code to divide XP automagiaclly
+- xp penalties for second/third/fourth classes remain
+
+---
+
+Make hiscore list show class information
+
+Reject non-Multiband savefiles, do conversions for older Multiband savefiles
+change VERSION_MAJOR/MINOR/PATCH and headers in *_info.txt's
+
+---
+
 Add code for set_shadow, wizard_lock, set_invis, SUMMON_SHADOWS, and
 then fix spell_flags so those spells can be seen in books again
+- invisibility and monster AI
+- pets
+
+make effects for throwing potions, add throwing weapons, spikes and flasks do
+more damage
+make monsters affected by traps
+traps - on disarming leave a trapkit sometimes (depending on how well the trap
+was disarmed)
+thiefs can reset traps
+thief abilities? steal from shops, guess objects value, good at throwing
+
+---
+
+add random quests, give choice of one of three rewards from useful items list
+add stalls in town, selling a set of related items, eg by TVAL, or ego-items only, or rare items only, etc
+make stalls move around, arrive and depart, but not change owner
+
+---
+
+add 'Warlock' class
+- uses random powers
+- create power list at birth
+- only show castable powers, requires plev of power level, dim not enough mana powers
+- each power has a random elemental type, higher level powers get access to better types
+- each power has a chance of being bolt, beamable bolt, ball, beam, or large
+  ball, higher levels get larger chance of better types
+- don't repeat powers, ie more than 2 of same element and same type
+- damage and ball radius depends on power level, large balls get larger radius
+- mana cost depends on power level
+- power name depends on type, base name of 'Element Type' ie 'Fire Bolt'
+- names 
+  for large balls - sphere, cloud, storm
+  beam/spear, fire/flame, cold/frost, lightning/spark(minor), acid/corrosion,
+  poison/toxic/stinking(minor), nether/enthropy, dark/shadow, light/sunfire(major only)

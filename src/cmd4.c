@@ -2891,10 +2891,32 @@ void do_cmd_check_effects(void)
 	if (!fff) return;
 
 	/* Scan and show the effects in order */
+	{
+	int n = 0;
 	for (j = maxnum; j > 0; j--)
-	     for (i = 0; i < MAX_EFFECTS; i++)
+	     for (i = 0; i < EFFECT_ACID; i++)
+		  if (effects[i] == j)
+		  {
+		       fprintf(fff, "%3d %s\n", effects[i], effects_info[i]);
+		       n++;
+		  }
+	if (n > 0) /* Something was shown */
+	  fprintf(fff, "\n");
+	n = 0;
+	for (j = maxnum; j > 0; j--)
+	     for (i = EFFECT_ACID; i < EFFECT_ALTER_REALITY; i++)
+		  if (effects[i] == j)
+		  {
+		       fprintf(fff, "%3d %s\n", effects[i], effects_info[i]);
+		       n++;
+		  }
+	if (n > 0) /* Something was shown */
+	  fprintf(fff, "\n");
+	for (j = maxnum; j > 0; j--)
+	     for (i = EFFECT_ALTER_REALITY; i < MAX_EFFECTS; i++)
 		  if (effects[i] == j)
 		       fprintf(fff, "%3d %s\n", effects[i], effects_info[i]);
+	}
 
 	if (maxnum == 0)
 	{
@@ -2993,4 +3015,21 @@ void do_cmd_knowledge(void)
 
 	/* Load screen */
 	screen_load();
+}
+
+/*
+ * Display the time
+ */
+void do_cmd_time()
+{
+     s32b len = 10L * TOWN_DAWN;
+     s32b tick = turn % len + len / 4;
+
+     int hour = (24 * tick / len) % 24;
+     int min = (1440 * tick / len) % 60;
+     
+     /* Message */
+     msg_format("The time is %d:%02d %s.",
+		(hour % 12 == 0) ? 12 : (hour % 12),
+		min, (hour < 12) ? "AM" : "PM");
 }

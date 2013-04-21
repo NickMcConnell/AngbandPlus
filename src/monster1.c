@@ -428,20 +428,22 @@ static void roff_aux(int r_idx)
 	/* Describe location */
 	if (r_ptr->level == 0)
 	{
-		roff(format("%^s lives in the town", wd_he[msex]));
+		roff(format("%^s lives in the ", wd_he[msex]));
+		c_roff(TERM_UMBER, "town");
 		old = TRUE;
 	}
 	else if (l_ptr->r_tkills)
 	{
 		if (depth_in_feet)
 		{
-			roff(format("%^s is normally found at depths of %d feet",
-			            wd_he[msex], r_ptr->level * 50));
+			roff(format("%^s is normally found at depths of ", wd_he[msex]));
+			c_roff(TERM_L_GREEN, format("%d", r_ptr->level * 50));
+			roff(" feet");
 		}
 		else
 		{
-			roff(format("%^s is normally found on dungeon level %d",
-			            wd_he[msex], r_ptr->level));
+			roff(format("%^s is normally found on dungeon level ", wd_he[msex]));
+			c_roff(TERM_L_GREEN, format("%d", r_ptr->level));
 		}
 		old = TRUE;
 	}
@@ -465,19 +467,19 @@ static void roff_aux(int r_idx)
 		/* Adverb */
 		if ((flags1 & (RF1_RAND_50)) && (flags1 & (RF1_RAND_25)))
 		{
-			roff(" extremely");
+			c_roff(TERM_VIOLET, " extremely");
 		}
 		else if (flags1 & (RF1_RAND_50))
 		{
-			roff(" somewhat");
+			c_roff(TERM_VIOLET, " somewhat");
 		}
 		else if (flags1 & (RF1_RAND_25))
 		{
-			roff(" a bit");
+			c_roff(TERM_VIOLET, " a bit");
 		}
 
 		/* Adjective */
-		roff(" erratically");
+		c_roff(TERM_VIOLET, " erratically");
 
 		/* Hack -- Occasional conjunction */
 		if (r_ptr->speed != 110) roff(", and");
@@ -486,19 +488,21 @@ static void roff_aux(int r_idx)
 	/* Speed */
 	if (r_ptr->speed > 110)
 	{
-		if (r_ptr->speed > 130) roff(" incredibly");
-		else if (r_ptr->speed > 120) roff(" very");
-		roff(" quickly");
+		if (r_ptr->speed > 130) c_roff(TERM_L_GREEN, " incredibly");
+		else if (r_ptr->speed > 120) c_roff(TERM_L_GREEN, " very");
+		c_roff(TERM_L_GREEN, " quickly");
 	}
 	else if (r_ptr->speed < 110)
 	{
-		if (r_ptr->speed < 90) roff(" incredibly");
-		else if (r_ptr->speed < 100) roff(" very");
-		roff(" slowly");
+		if (r_ptr->speed < 90) c_roff(TERM_L_DARK, " incredibly");
+		else if (r_ptr->speed < 100) c_roff(TERM_L_DARK, " very");
+		c_roff(TERM_L_DARK, " slowly");
 	}
 	else
 	{
-		roff(" at normal speed");
+		roff(" at ");
+		c_roff(TERM_L_DARK, "normal");
+		roff(" speed");
 	}
 
 	/* The code above includes "attack speed" */
@@ -516,7 +520,7 @@ static void roff_aux(int r_idx)
 		}
 
 		/* Describe */
-		roff("does not deign to chase intruders");
+		c_roff(TERM_L_DARK, "does not deign to chase intruders");
 	}
 
 	/* End this sentence */
@@ -541,15 +545,15 @@ static void roff_aux(int r_idx)
 		}
 
 		/* Describe the "quality" with color */
-		if (flags3 & (RF3_ANIMAL)) c_roff(TERM_L_UMBER, " natural");
-		if (flags3 & (RF3_EVIL)) c_roff(TERM_SLATE, " evil");
-		if (flags3 & (RF3_UNDEAD)) c_roff(TERM_SLATE, " undead");
+		if (flags3 & (RF3_ANIMAL)) c_roff(TERM_UMBER, " natural");
+		if (flags3 & (RF3_EVIL)) c_roff(TERM_VIOLET, " evil");
+		if (flags3 & (RF3_UNDEAD)) c_roff(TERM_VIOLET, " undead");
 
 		/* Describe the "race" with color */
-		if (flags3 & (RF3_DRAGON)) c_roff(TERM_L_GREEN, " dragon");
-		else if (flags3 & (RF3_DEMON)) c_roff(TERM_L_RED, " demon");
+		if (flags3 & (RF3_DRAGON)) c_roff(TERM_UMBER, " dragon");
+		else if (flags3 & (RF3_DEMON)) c_roff(TERM_VIOLET, " demon");
 		else if (flags3 & (RF3_GIANT)) c_roff(TERM_UMBER, " giant");
-		else if (flags3 & (RF3_TROLL)) c_roff(TERM_GREEN, " troll");
+		else if (flags3 & (RF3_TROLL)) c_roff(TERM_UMBER, " troll");
 		else if (flags3 & (RF3_ORC)) c_roff(TERM_UMBER, " orc");
 		else roff(" creature");
 
@@ -562,24 +566,26 @@ static void roff_aux(int r_idx)
 		}
 
 		/* Mention the experience */
-		roff(format(" is worth %ld.%02ld point%s to you.  ",
-			        (long)i, (long)j,
-			        (((i == 1) && (j == 0)) ? "" : "s")));
+		roff(" is worth ");
+		c_roff(TERM_L_GREEN, format("%ld.%02ld", (long)i, (long)j));
+		roff(format(" point%s to you.  ", (((i == 1) && (j == 0)) ? "" : "s")));
 	}
 
 
 	/* Describe escorts */
 	if ((flags1 & (RF1_ESCORT)) || (flags1 & (RF1_ESCORTS)))
 	{
-		roff(format("%^s usually appears with escorts.  ",
-		            wd_he[msex]));
+		roff(format("%^s usually appears with ", wd_he[msex]));
+		c_roff(TERM_UMBER, "escorts");
+		roff(".  ");
 	}
 
 	/* Describe friends */
 	else if ((flags1 & (RF1_FRIEND)) || (flags1 & (RF1_FRIENDS)))
 	{
-		roff(format("%^s usually appears in groups.  ",
-		            wd_he[msex]));
+	        roff(format("%^s usually appears in ", wd_he[msex])); 
+		c_roff(TERM_UMBER, "groups"); 
+		roff(".  ");
 	}
 
 
@@ -598,22 +604,22 @@ static void roff_aux(int r_idx)
 	if (vn)
 	{
 		/* Intro */
-		c_roff(TERM_VIOLET, format("%^s", wd_he[msex]));
+		roff(format("%^s", wd_he[msex]));
 
 		/* Scan */
 		for (n = 0; n < vn; n++)
 		{
 			/* Intro */
-			if (n == 0) c_roff(TERM_VIOLET, " may ");
-			else if (n < vn-1) c_roff(TERM_VIOLET, ", ");
-			else c_roff(TERM_VIOLET, " or ");
+			if (n == 0) roff(" may ");
+			else if (n < vn-1) roff(", ");
+			else roff(" or ");
 
 			/* Dump */
-			c_roff(TERM_VIOLET, vp[n]);
+			c_roff(TERM_L_BLUE, vp[n]);
 		}
 
 		/* End */
-		c_roff(TERM_VIOLET, ".  ");
+		roff(".  ");
 	}
 
 
@@ -675,18 +681,18 @@ static void roff_aux(int r_idx)
 		breath = TRUE;
 
 		/* Intro */
-		c_roff(TERM_VIOLET, format("%^s", wd_he[msex]));
+		roff(format("%^s", wd_he[msex]));
 
 		/* Scan */
 		for (n = 0; n < vn; n++)
 		{
 			/* Intro */
-			if (n == 0) c_roff(TERM_VIOLET, " may breathe ");
-			else if (n < vn-1) c_roff(TERM_VIOLET, ", ");
-			else c_roff(TERM_VIOLET, " or ");
+			if (n == 0) roff(" may breathe ");
+			else if (n < vn-1) roff(", ");
+			else roff(" or ");
 
 			/* Dump (with color) */
-			c_roff(TERM_VIOLET, vp[n]);
+			c_roff(TERM_L_BLUE, vp[n]);
 		}
 	}
 
@@ -831,29 +837,29 @@ static void roff_aux(int r_idx)
 		/* Intro */
 		if (breath)
 		{
-			c_roff(TERM_VIOLET, ", and is also");
+			roff(", and is also");
 		}
 		else
 		{
-			c_roff(TERM_VIOLET, format("%^s is", wd_he[msex]));
+			roff(format("%^s is", wd_he[msex]));
 		}
 
 		/* Verb Phrase */
-		c_roff(TERM_VIOLET, " magical, casting spells");
+		roff(" magical, casting spells");
 
 		/* Adverb */
-		if (flags2 & (RF2_SMART)) c_roff(TERM_VIOLET, " intelligently");
+		if (flags2 & (RF2_SMART)) c_roff(TERM_L_DARK, " intelligently");
 
 		/* Scan */
 		for (n = 0; n < vn; n++)
 		{
 			/* Intro */
-			if (n == 0) c_roff(TERM_VIOLET, " which ");
-			else if (n < vn-1) c_roff(TERM_VIOLET, ", ");
-			else c_roff(TERM_VIOLET, " or ");
+			if (n == 0) roff(" which ");
+			else if (n < vn-1) roff(", ");
+			else roff(" or ");
 
 			/* Dump */
-			c_roff(TERM_VIOLET, vp[n]);
+			c_roff(TERM_L_BLUE, vp[n]);
 		}
 	}
 
@@ -870,18 +876,24 @@ static void roff_aux(int r_idx)
 		/* Describe the spell frequency */
 		if (m > 100)
 		{
-			c_roff(TERM_VIOLET, format("; 1 time in %d", 100 / n));
+			roff("; ");
+			c_roff(TERM_L_BLUE, "1");
+			roff(" time in ");
+			c_roff(TERM_L_BLUE, format("%d", 100 / n));
 		}
 
 		/* Guess at the frequency */
 		else if (m)
 		{
 			n = ((n + 9) / 10) * 10;
-			c_roff(TERM_VIOLET, format("; about 1 time in %d", 100 / n));
+			roff("; about ");
+			c_roff(TERM_L_BLUE, "1");
+			roff(" time in ");
+			c_roff(TERM_L_BLUE, format("%d", 100 / n));
 		}
 
 		/* End this sentence */
-		c_roff(TERM_VIOLET, ".  ");
+		roff(".  ");
 	}
 
 
@@ -907,16 +919,22 @@ static void roff_aux(int r_idx)
 		  if (player_has_class(CLASS_CRUSADER, 0))
 		  {
 		       int mult = 1;
-		       switch (p_ptr->crusader_active)
+		       switch (p_ptr->power_active)
 		       {
-		       case CRUSADER_WPN_LIGHT:
+		       case POWER_WPN_LIGHT:
 			    if ((flags3 & (RF3_HURT_LITE)) && (mult < 3)) mult = 3; break;
-		       case CRUSADER_WPN_FLAME:
+		       case POWER_WPN_COLD:
+			    if ((flags3 & (RF3_IM_COLD)) && (mult < 3)) mult = 3; break;
+		       case POWER_WPN_FLAME:
 			    if (!(flags3 & (RF3_IM_FIRE)) && (mult < 3)) mult = 3; break;
-		       case CRUSADER_SLAY_UNDEAD:
+		       case POWER_SLAY_UNDEAD:
 			    if ((flags3 & (RF3_UNDEAD)) && (mult < 3)) mult = 3; break;
-		       case CRUSADER_SLAY_EVIL:
+		       case POWER_WPN_POISON:
+			    if (!(flags3 & (RF3_IM_POIS)) && (mult < 3)) mult = 3; break;
+		       case POWER_SLAY_EVIL:
 			    if ((flags3 & (RF3_EVIL)) && (mult < 2)) mult = 2; break;
+		       case POWER_SLAY_ANIMAL:
+			    if ((flags3 & (RF3_ANIMAL)) && (mult < 2)) mult = 2; break;
 		       }
 		       average_damage *= mult;
 		  }
@@ -945,16 +963,22 @@ static void roff_aux(int r_idx)
 		  /* intrinstic brands */
 		  if (player_has_class(CLASS_CRUSADER, 0))
 		  {
-		       switch (p_ptr->crusader_active)
+		       switch (p_ptr->power_active)
 		       {
-		       case CRUSADER_WPN_LIGHT:
+		       case POWER_WPN_LIGHT:
 			    if ((flags3 & (RF3_HURT_LITE)) && (mult < 3)) mult = 3; break;
-		       case CRUSADER_WPN_FLAME:
+		       case POWER_WPN_COLD:
+			    if ((flags3 & (RF3_IM_COLD)) && (mult < 3)) mult = 3; break;
+		       case POWER_WPN_FLAME:
 			    if (!(flags3 & (RF3_IM_FIRE)) && (mult < 3)) mult = 3; break;
-		       case CRUSADER_SLAY_UNDEAD:
+		       case POWER_SLAY_UNDEAD:
 			    if ((flags3 & (RF3_UNDEAD)) && (mult < 3)) mult = 3; break;
-		       case CRUSADER_SLAY_EVIL:
+		       case POWER_WPN_POISON:
+			    if (!(flags3 & (RF3_IM_POIS)) && (mult < 3)) mult = 3; break;
+		       case POWER_SLAY_EVIL:
 			    if ((flags3 & (RF3_EVIL)) && (mult < 2)) mult = 2; break;
+		       case POWER_SLAY_ANIMAL:
+			    if ((flags3 & (RF3_ANIMAL)) && (mult < 2)) mult = 2; break;
 		       }
 		  }
 
@@ -976,16 +1000,30 @@ static void roff_aux(int r_idx)
 	     blows = mons_hp * 10 / average_damage;
 
 	     /* Armor */
-	     roff(format("%^s has an armor rating of %d.",
-			 wd_he[msex], r_ptr->ac));
+	     roff(format("%^s has an armor rating of ", wd_he[msex]));
+	     c_roff(TERM_L_RED, format("%d", r_ptr->ac));
+	     roff(".");
 
 	     /* Average blows, shown in bright red */
+	     /* Average blows, shown in bright red */
 	     if (blows < 11) /* 1 blow or less */
-		  c_roff(TERM_L_RED, " It takes an average of 1 successful blow to kill.  ");
+	     {
+		  roff(" It takes an average of ");
+		  c_roff(TERM_L_RED, "1");
+		  roff(" successful blow to kill.  ");
+	     }
 	     else if (blows % 10 == 0) /* Round number of blows */
-		  c_roff(TERM_L_RED, format(" It takes an average %d successful blows to kill.  ", blows / 10));
+	     {
+		  roff(" It takes an average ");
+		  c_roff(TERM_L_RED, format("%d", blows / 10));
+		  roff(" successful blows to kill.  ");
+	     }
 	     else /* Decimal number of blows */
-		  c_roff(TERM_L_RED, format(" It takes an average %d.%d successful blows to kill.  ", blows / 10, blows % 10));
+	     {
+		  roff(" It takes an average ");
+		  c_roff(TERM_L_RED, format("%d.%d", blows / 10, blows % 10));
+		  roff(" successful blows to kill.  ");
+	     }
 	}
 
 
@@ -1016,7 +1054,7 @@ static void roff_aux(int r_idx)
 			else roff(" and ");
 
 			/* Dump */
-			roff(vp[n]);
+			c_roff(TERM_L_DARK, vp[n]);
 		}
 
 		/* End */
@@ -1027,23 +1065,32 @@ static void roff_aux(int r_idx)
 	/* Describe special abilities. */
 	if (flags2 & (RF2_INVISIBLE))
 	{
-		roff(format("%^s is invisible.  ", wd_he[msex]));
+	        roff(format("%^s is ", wd_he[msex]));
+		c_roff(TERM_L_DARK, "invisible");
+		roff(".  ");
 	}
 	if (flags2 & (RF2_COLD_BLOOD))
 	{
-		roff(format("%^s is cold blooded.  ", wd_he[msex]));
+		roff(format("%^s is ", wd_he[msex]));
+		c_roff(TERM_L_DARK, "cold blooded");
+		roff(".  ");
 	}
 	if (flags2 & (RF2_EMPTY_MIND))
 	{
-		roff(format("%^s is not detected by telepathy.  ", wd_he[msex]));
+		roff(format("%^s is ", wd_he[msex]));
+		c_roff(TERM_L_DARK, "not detected");
+		roff(" by telepathy.  ");
 	}
 	if (flags2 & (RF2_WEIRD_MIND))
 	{
-		roff(format("%^s is rarely detected by telepathy.  ", wd_he[msex]));
+		roff(format("%^s is ", wd_he[msex]));
+		c_roff(TERM_L_DARK, "rarely detected"); 
+		roff(" by telepathy.  ");
 	}
 	if (flags2 & (RF2_MULTIPLY))
 	{
-		roff(format("%^s breeds explosively.  ", wd_he[msex]));
+		roff(format("%^s ", wd_he[msex]));
+		c_roff(TERM_YELLOW, "breeds explosively.  ");
 	}
 	if (flags2 & (RF2_REGENERATE))
 	{
@@ -1073,7 +1120,7 @@ static void roff_aux(int r_idx)
 			else roff(" and ");
 
 			/* Dump */
-			roff(vp[n]);
+			c_roff(TERM_L_GREEN, vp[n]);
 		}
 
 		/* End */
@@ -1104,7 +1151,7 @@ static void roff_aux(int r_idx)
 			else roff(" and ");
 
 			/* Dump */
-			roff(vp[n]);
+			c_roff(TERM_L_RED, vp[n]);
 		}
 
 		/* End */
@@ -1135,7 +1182,7 @@ static void roff_aux(int r_idx)
 			else roff(" and ");
 
 			/* Dump */
-			roff(vp[n]);
+			c_roff(TERM_L_RED, vp[n]);
 		}
 
 		/* End */
@@ -1165,7 +1212,7 @@ static void roff_aux(int r_idx)
 			else roff(" or ");
 
 			/* Dump */
-			roff(vp[n]);
+			c_roff(TERM_L_RED, vp[n]);
 		}
 
 		/* End */
@@ -1252,13 +1299,17 @@ static void roff_aux(int r_idx)
 		/* Two drops */
 		else if (n == 2)
 		{
-			roff(" one or two");
+		        roff(" ");
+			c_roff(TERM_YELLOW, "one");
+			roff(" or ");
+			c_roff(TERM_YELLOW, "two");
 		}
 
 		/* Many drops */
 		else
 		{
-			roff(format(" up to %d", n));
+		        roff(" up to ");
+			c_roff(TERM_YELLOW, format("%d", n));
 		}
 
 
@@ -1290,9 +1341,9 @@ static void roff_aux(int r_idx)
 			sin = FALSE;
 
 			/* Dump "object(s)" */
-			if (p) roff(p);
-			roff(" object");
-			if (n != 1) roff("s");
+			if (p) c_roff(TERM_YELLOW, p);
+			c_roff(TERM_YELLOW, " object");
+			if (n != 1) c_roff(TERM_YELLOW, "s");
 
 			/* Conjunction replaces variety, if needed for "gold" below */
 			p = " or";
@@ -1310,8 +1361,8 @@ static void roff_aux(int r_idx)
 
 			/* Dump "treasure(s)" */
 			if (p) roff(p);
-			roff(" treasure");
-			if (n != 1) roff("s");
+			c_roff(TERM_YELLOW, " treasure");
+			if (n != 1) c_roff(TERM_YELLOW, "s");
 		}
 
 		/* End this sentence */
@@ -1437,7 +1488,7 @@ static void roff_aux(int r_idx)
 		if (!p) p = "do something weird";
 
 		/* Describe the method */
-		roff(p);
+		c_roff(TERM_L_BLUE, p);
 
 
 		/* Describe the effect (if any) */
@@ -1445,14 +1496,14 @@ static void roff_aux(int r_idx)
 		{
 			/* Describe the attack type */
 			roff(" to ");
-			roff(q);
+			c_roff(TERM_L_BLUE, q);
 
 			/* Describe damage (if known) */
 			if (d1 && d2 && know_damage(r_idx, m))
 			{
 				/* Display the damage */
 				roff(" with damage");
-				roff(format(" %dd%d", d1, d2));
+				c_roff(TERM_L_GREEN, format(" %dd%d", d1, d2));
 			}
 		}
 

@@ -186,7 +186,8 @@ sint tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 		case TV_DIGGING:
 		{
 			/* Slay Animal */
-			if ((f1 & (TR1_SLAY_ANIMAL)) &&
+			if (((f1 & (TR1_SLAY_ANIMAL)) ||
+			     (p_ptr->power_active == POWER_SLAY_ANIMAL)) &&
 			    (r_ptr->flags3 & (RF3_ANIMAL)))
 			{
 				if (m_ptr->ml)
@@ -199,7 +200,7 @@ sint tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 
 			/* Slay Evil */
 			if (((f1 & (TR1_SLAY_EVIL)) || 
-			     (p_ptr->crusader_active == CRUSADER_SLAY_EVIL)) &&
+			     (p_ptr->power_active == POWER_SLAY_EVIL)) &&
 			    (r_ptr->flags3 & (RF3_EVIL)))
 			{
 				if (m_ptr->ml)
@@ -212,7 +213,7 @@ sint tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 
 			/* Slay Undead */
 			if (((f1 & (TR1_SLAY_UNDEAD)) ||
-			     (p_ptr->crusader_active == CRUSADER_SLAY_UNDEAD)) &&
+			     (p_ptr->power_active == POWER_SLAY_UNDEAD)) &&
 			    (r_ptr->flags3 & (RF3_UNDEAD)))
 			{
 				if (m_ptr->ml)
@@ -336,7 +337,7 @@ sint tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 
 			/* Brand (Fire) */
 			if ((f1 & (TR1_BRAND_FIRE))
-			    || (p_ptr->crusader_active == CRUSADER_WPN_FLAME))
+			    || (p_ptr->power_active == POWER_WPN_FLAME))
 			{
 				/* Notice immunity */
 				if (r_ptr->flags3 & (RF3_IM_FIRE))
@@ -355,7 +356,8 @@ sint tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 			}
 
 			/* Brand (Cold) */
-			if (f1 & (TR1_BRAND_COLD))
+			if ((f1 & (TR1_BRAND_COLD)) ||
+			    (p_ptr->power_active == POWER_WPN_COLD))
 			{
 				/* Notice immunity */
 				if (r_ptr->flags3 & (RF3_IM_COLD))
@@ -374,7 +376,8 @@ sint tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 			}
 
 			/* Brand (Poison) */
-			if (f1 & (TR1_BRAND_POIS))
+			if ((f1 & (TR1_BRAND_POIS)) ||
+			    (p_ptr->power_active == POWER_WPN_POISON))
 			{
 				/* Notice immunity */
 				if (r_ptr->flags3 & (RF3_IM_POIS))
@@ -394,7 +397,7 @@ sint tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 
 			/* Brand (Light) */
 			if ((f1 & (TR1_BRAND_LITE))
-			    || (p_ptr->crusader_active == CRUSADER_WPN_LIGHT))
+			    || (p_ptr->power_active == POWER_WPN_LIGHT))
 			{
 				if (r_ptr->flags3 & (RF3_HURT_LITE))
 				{
@@ -415,9 +418,9 @@ sint tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 	{
 	     if (!(inventory[INVEN_WIELD].k_idx))
 	     {
-		  switch (p_ptr->crusader_active)
+		  switch (p_ptr->power_active)
 		  {
-		       case CRUSADER_WPN_LIGHT:
+		       case POWER_WPN_LIGHT:
 			    if (r_ptr->flags3 & (RF3_HURT_LITE))
 			    {
 				 if (mult < 3) mult = 3;
@@ -425,7 +428,15 @@ sint tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 				      l_ptr->r_flags3 |= (RF3_HURT_LITE);
 			    }
 			    break;
-		       case CRUSADER_WPN_FLAME:
+		       case POWER_WPN_COLD:
+			    if (r_ptr->flags3 & (RF3_IM_COLD))
+			    {
+				 if (m_ptr->ml)
+				      l_ptr->r_flags3 |= (RF3_IM_COLD);
+			    }
+			    else if (mult < 3) mult = 3;
+			    break;
+		       case POWER_WPN_FLAME:
 			    if (r_ptr->flags3 & (RF3_IM_FIRE))
 			    {
 				 if (m_ptr->ml)
@@ -433,7 +444,7 @@ sint tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 			    }
 			    else if (mult < 3) mult = 3;
 			    break;
-		       case CRUSADER_SLAY_UNDEAD:
+		       case POWER_SLAY_UNDEAD:
 			    if (r_ptr->flags3 & (RF3_UNDEAD))
 			    {
 				 if (mult < 3) mult = 3;
@@ -441,13 +452,29 @@ sint tot_dam_aux(const object_type *o_ptr, int tdam, const monster_type *m_ptr)
 					l_ptr->r_flags3 |= (RF3_UNDEAD);
 			    }
 			    break;
-		       case CRUSADER_SLAY_EVIL:
+		       case POWER_WPN_POISON:
+			    if (r_ptr->flags3 & (RF3_IM_POIS))
+			    {
+				 if (m_ptr->ml)
+				      l_ptr->r_flags3 |= (RF3_IM_POIS);
+			    }
+			    else if (mult < 3) mult = 3;
+			    break;
+		       case POWER_SLAY_EVIL:
 			    if (r_ptr->flags3 & (RF3_EVIL))
 			    {
 				 if (mult < 2) mult = 2;
 				 if (m_ptr->ml)
 					l_ptr->r_flags3 |= (RF3_EVIL);
 			    }
+			    break;
+		       case POWER_SLAY_ANIMAL:
+			    if (r_ptr->flags3 & (RF3_ANIMAL))
+			    {
+				 if (m_ptr->ml)
+				      l_ptr->r_flags3 |= (RF3_ANIMAL);
+			    }
+			    else if (mult < 2) mult = 2;
 			    break;
 		  }
 
@@ -1205,8 +1232,9 @@ int monk_damage()
      {
 	  switch (gloves_ptr->sval)
 	  {
-	  case SV_SET_OF_GAUNTLETS: dmg += 2; break;
-	  case SV_SET_OF_CESTI: dmg += 3; break;
+	  case SV_SET_OF_MAIL_GAUNTLETS: dmg += 2; break;
+	  case SV_SET_OF_STEEL_GAUNTLETS: dmg += 3; break;
+	  case SV_SET_OF_CESTI: dmg += 5; break;
 	  }
      }
 
@@ -1403,6 +1431,30 @@ void py_attack(int y, int x)
 				{
 					msg_format("%^s appears confused.", m_name);
 					m_ptr->confused += 10 + rand_int(p_ptr->lev[best_class()]) / 5;
+				}
+			}
+
+			/* Fear attack 1 in 3 times */
+			if ((p_ptr->power_active == POWER_WPN_DARK) && 
+			    player_has_class(CLASS_SLAYER, 0) && (!rand_int(3)))
+			{
+				/* Scare the monster */
+				if (r_ptr->flags3 & (RF3_NO_FEAR))
+				{
+					if (m_ptr->ml)
+					{
+						l_ptr->r_flags3 |= (RF3_NO_FEAR);
+					}
+					msg_format("You fail to scare %^s.", m_name);
+				}
+				else if (rand_int(100) < r_ptr->level)
+				{
+					msg_format("You fail to scare %^s.", m_name);
+				}
+				else
+				{
+					msg_format("%^s appears scared.", m_name);
+					m_ptr->monfear += 10 + rand_int(level_of_class(CLASS_SLAYER)) / 5;
 				}
 			}
 		}

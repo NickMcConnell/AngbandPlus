@@ -2326,13 +2326,42 @@ static int breakage_chance(const object_type *o_ptr)
 		/* Sometimes break */
 		case TV_ARROW:
 		{
-			return (35);
+		     // Archers get lower chance
+		     if (rp_ptr->archer_type == 2 || rp_ptr->archer_type == 0)
+			  return (35 - (level_of_class(CLASS_ARCHER) / 2));
+		     else
+			  return (35);
+		}
+
+		/* Sometimes break */
+		case TV_SHOT:
+		{
+		     // Archers get lower chance
+		     if (rp_ptr->archer_type == 1 || rp_ptr->archer_type == 0)
+		     {
+			  int temp = 25 - (level_of_class(CLASS_ARCHER) / 2);
+			  if (temp < 10) temp = 10;
+			  return (temp);
+		     }
+		     else
+			return (25);
+		}
+
+		case TV_BOLT:
+		{
+		     // Archers get lower chance
+		     if (rp_ptr->archer_type == 3 || rp_ptr->archer_type == 0)
+		     {
+			  int temp = 25 - (level_of_class(CLASS_ARCHER) / 2);
+			  if (temp < 10) temp = 10;
+			  return (temp);
+		     }
+		     else
+			return (25);
 		}
 
 		/* Sometimes break */
 		case TV_WAND:
-		case TV_SHOT:
-		case TV_BOLT:
 		case TV_SPIKE:
 		{
 			return (25);

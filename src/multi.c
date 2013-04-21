@@ -13,23 +13,21 @@
 /* 0 = allowed, 1 = disallowed (except to cheaters), 2 = disallowed to all */
 bool not_allowed[MAX_CLASS][MAX_CLASS] =
 {
-     /* War Mag Pri Thi Ran Pal Ill Arc Dea Ber Mon Run Cru Shi Slay */
-     /*  f   m   p   m   m   p   m   f   p   m   f   m  m+p  m   p   */
-     {   2,  0,  0,  0,  1,  1,  0,  1,  0,  1,  1,  0,  1,  0,  1 }, /* Warrior         */
-     {   0,  2,  0,  2,  2,  1,  2,  0,  0,  2,  0,  2,  2,  2,  0 }, /* Mage            */
-     {   0,  0,  2,  1,  1,  2,  0,  0,  2,  0,  0,  1,  2,  0,  2 }, /* Priest          */
-     {   0,  2,  1,  2,  2,  1,  2,  0,  0,  2,  0,  2,  2,  2,  0 }, /* Thief           */
-     {   1,  2,  1,  2,  2,  1,  2,  1,  1,  2,  1,  2,  2,  2,  1 }, /* Ranger          */
-     {   1,  1,  2,  1,  1,  2,  1,  1,  2,  1,  1,  1,  2,  1,  2 }, /* Paladin         */
-     {   0,  2,  0,  2,  2,  1,  2,  0,  0,  2,  0,  2,  2,  2,  0 }, /* Illusionist     */
-     {   1,  0,  0,  0,  1,  1,  0,  2,  0,  1,  0,  0,  0,  0,  0 }, /* Archer          */
-     {   0,  0,  2,  0,  1,  2,  0,  0,  2,  0,  0,  1,  2,  0,  2 }, /* Death Priest    */
-     {   1,  2,  0,  2,  2,  1,  2,  1,  0,  2,  0,  2,  0,  2,  0 }, /* Berserker       */
-     {   1,  0,  0,  0,  1,  1,  0,  0,  0,  0,  2,  0,  0,  0,  0 }, /* Monk            */
-     {   0,  2,  1,  2,  2,  1,  2,  0,  1,  2,  0,  2,  2,  2,  1 }, /* Runecaster      */
-     {   1,  2,  2,  2,  2,  2,  2,  0,  2,  0,  0,  2,  2,  2,  2 }, /* Crusader        */
-     {   0,  2,  0,  2,  2,  1,  2,  0,  0,  2,  0,  2,  2,  2,  0 }, /* Shifter         */
-     {   1,  0,  2,  0,  1,  2,  0,  0,  2,  0,  0,  1,  2,  0,  2 }, /* Slayer */
+     /* War Mag Pri Thi Ill Arc Dea Ber Mon Run Cru Shi Slay */
+     /*  f   m   p   m   m   f   p   m   f   m  m+p  m   p   */
+     {   2,  0,  0,  0,  0,  1,  0,  1,  1,  0,  1,  0,  1 }, /* Warrior         */
+     {   0,  2,  0,  0,  2,  0,  0,  2,  0,  2,  2,  2,  2 }, /* Mage            */
+     {   0,  0,  2,  1,  0,  0,  2,  0,  0,  1,  2,  0,  2 }, /* Priest          */
+     {   0,  0,  1,  2,  0,  0,  0,  2,  0,  0,  2,  0,  0 }, /* Thief           */
+     {   0,  2,  0,  0,  2,  0,  0,  2,  0,  2,  2,  2,  2 }, /* Illusionist     */
+     {   1,  0,  0,  0,  0,  2,  0,  1,  0,  0,  0,  0,  0 }, /* Archer          */
+     {   0,  0,  2,  0,  0,  0,  2,  0,  0,  1,  2,  0,  2 }, /* Death Priest    */
+     {   1,  2,  0,  2,  2,  1,  0,  2,  0,  2,  0,  2,  0 }, /* Berserker       */
+     {   1,  0,  0,  0,  0,  0,  0,  0,  2,  0,  0,  0,  0 }, /* Monk            */
+     {   0,  2,  1,  0,  2,  0,  1,  2,  0,  2,  2,  2,  2 }, /* Runecaster      */
+     {   1,  2,  2,  2,  2,  0,  2,  0,  0,  2,  2,  2,  2 }, /* Crusader        */
+     {   0,  2,  0,  0,  2,  0,  0,  2,  0,  2,  2,  2,  2 }, /* Shifter         */
+     {   1,  2,  2,  0,  2,  0,  2,  0,  0,  2,  2,  2,  2 }, /* Slayer */
 };
 
 /* Switch class (wrap around if neccesary) */
@@ -188,13 +186,12 @@ int index_of_class(int class_sought)
 int magery_class(bool bookcaster)
 {
   if (player_has_class(CLASS_MAGE, 0)) return CLASS_MAGE;
-  if (player_has_class(CLASS_THIEF, 0)) return CLASS_THIEF;
-  if (player_has_class(CLASS_RANGER, 0)) return CLASS_RANGER;
   if (player_has_class(CLASS_ILLUSIONIST, 0)) return CLASS_ILLUSIONIST;
 
   if (bookcaster) return -1;
 
   if (player_has_class(CLASS_CRUSADER, 0)) return CLASS_CRUSADER;
+  if (player_has_class(CLASS_SLAYER, 0)) return CLASS_SLAYER;
   if (player_has_class(CLASS_SHIFTER, 0)) return CLASS_SHIFTER;
   if (player_has_class(CLASS_RUNECASTER, 0)) return CLASS_RUNECASTER;
 
@@ -205,14 +202,12 @@ int magery_class(bool bookcaster)
 int priest_class(bool bookcaster)
 {
   if (player_has_class(CLASS_PRIEST, 0)) return CLASS_PRIEST;
-  if (player_has_class(CLASS_PALADIN, 0)) return CLASS_PALADIN;
   if (player_has_class(CLASS_DEATH_PRIEST, 0)) return CLASS_DEATH_PRIEST;
+  if (player_has_class(CLASS_CRUSADER, 0)) return CLASS_CRUSADER;
   if (player_has_class(CLASS_SLAYER, 0)) return CLASS_SLAYER;
     
   if (bookcaster) return -1;
   
-  if (player_has_class(CLASS_CRUSADER, 0)) return CLASS_CRUSADER;
-
   return -1;
 }
 

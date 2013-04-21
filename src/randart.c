@@ -939,6 +939,7 @@ static s32b artifact_power(int a_idx)
 			if (a_ptr->flags1 & TR1_SLAY_ORC) p = (p * 5) / 4;
 			if (a_ptr->flags1 & TR1_SLAY_GIANT) p = (p * 6) / 5;
 
+			if (a_ptr->flags1 & TR1_BRAND_LITE) p = (p * 3) / 2;
 			if (a_ptr->flags1 & TR1_BRAND_ACID) p = p * 2;
 			if (a_ptr->flags1 & TR1_BRAND_ELEC) p = (p * 3) / 2;
 			if (a_ptr->flags1 & TR1_BRAND_FIRE) p = (p * 4) / 3;
@@ -1010,6 +1011,10 @@ static s32b artifact_power(int a_idx)
 		if (a_ptr->flags1 & TR1_DEX) p += a_ptr->pval * a_ptr->pval;
 		if (a_ptr->flags1 & TR1_CON) p += a_ptr->pval * a_ptr->pval;
 		if (a_ptr->flags1 & TR1_STEALTH) p += a_ptr->pval * a_ptr->pval;
+		if (a_ptr->flags3 & TR3_R_MAGERY) p += a_ptr->pval;
+		if (a_ptr->flags3 & TR3_R_HOLY) p += a_ptr->pval;
+		if (a_ptr->flags3 & TR3_R_ILLUSION) p += a_ptr->pval;
+		if (a_ptr->flags3 & TR3_R_DEATH) p += a_ptr->pval;
 	}
 	else if (a_ptr->pval < 0)	/* hack: don't give large negatives */
 	{
@@ -1019,6 +1024,10 @@ static s32b artifact_power(int a_idx)
 		if (a_ptr->flags1 & TR1_DEX) p += a_ptr->pval;
 		if (a_ptr->flags1 & TR1_CON) p += a_ptr->pval;
 		if (a_ptr->flags1 & TR1_STEALTH) p += a_ptr->pval;
+		if (a_ptr->flags3 & TR3_R_MAGERY) p += a_ptr->pval;
+		if (a_ptr->flags3 & TR3_R_HOLY) p += a_ptr->pval;
+		if (a_ptr->flags3 & TR3_R_ILLUSION) p += a_ptr->pval;
+		if (a_ptr->flags3 & TR3_R_DEATH) p += a_ptr->pval;
 	}
 	if (a_ptr->flags1 & TR1_CHR) p += a_ptr->pval;
 	if (a_ptr->flags1 & TR1_INFRA) p += (a_ptr->pval + sign(a_ptr->pval)) / 2;
@@ -1158,13 +1167,16 @@ static void choose_item(int a_idx)
 		/* Create a "blunt" weapon. */
 		tval = TV_HAFTED;
 		r2 = Rand_normal(target_level * 2, target_level);
-		if (r2 < 6) sval = SV_WHIP;
+		if (r2 < 3) sval = SV_WOODEN_CLUB;
+		else if (r2 < 6) sval = SV_WHIP;
+		else if (r2 < 9) sval = SV_SPIKED_CLUB;
 		else if (r2 < 12) sval = SV_MACE;
 		else if (r2 < 20) sval = SV_WAR_HAMMER;
 		else if (r2 < 28) sval = SV_QUARTERSTAFF;
 		else if (r2 < 34) sval = SV_LUCERN_HAMMER;
 		else if (r2 < 38) sval = SV_MORNING_STAR;
 		else if (r2 < 45) sval = SV_FLAIL;
+		else if (r2 < 50) sval = SV_GIANT_CLUB;
 		else if (r2 < 55) sval = SV_LEAD_FILLED_MACE;
 		else if (r2 < 80) sval = SV_BALL_AND_CHAIN;
 		else if (r2 < 120) sval = SV_TWO_HANDED_FLAIL;
@@ -1178,6 +1190,7 @@ static void choose_item(int a_idx)
 		if (r2 < 0) sval = SV_BROKEN_DAGGER;
 		else if (r2 < 1) sval = SV_BROKEN_SWORD;
 		else if (r2 < 5) sval = SV_DAGGER;
+		else if (r2 < 7) sval = SV_KNIFE;
 		else if (r2 < 9) sval = SV_MAIN_GAUCHE;
 		else if (r2 < 10) sval = SV_RAPIER;	/* or at least pointy ;-) */
 		else if (r2 < 12) sval = SV_SMALL_SWORD;
@@ -1190,6 +1203,7 @@ static void choose_item(int a_idx)
 		else if (r2 < 30) sval = SV_SCIMITAR;
 		else if (r2 < 45) sval = SV_BASTARD_SWORD;
 		else if (r2 < 60) sval = SV_KATANA;
+		else if (r2 < 75) sval = SV_GREAT_SCIMITAR;
 		else if (r2 < 90) sval = SV_TWO_HANDED_SWORD;
 		else if (r2 < 120) sval = SV_EXECUTIONERS_SWORD;
 		else sval = SV_BLADE_OF_CHAOS;
@@ -1201,6 +1215,7 @@ static void choose_item(int a_idx)
 		r2 = Rand_normal(target_level * 2, target_level);
 		if (r2 < 12) sval = SV_SPEAR;
 		else if (r2 < 20) sval = SV_TRIDENT;
+		else if (r2 < 24) sval = SV_HAND_AXE;
 		else if (r2 < 27) sval = SV_LANCE;
 		else if (r2 < 35) sval = SV_AWL_PIKE;
 		else if (r2 < 45) sval = SV_PIKE;
@@ -1260,7 +1275,8 @@ static void choose_item(int a_idx)
 		tval = TV_GLOVES;
 		r2 = Rand_normal(target_level * 2, target_level);
 		if (r2 < 10) sval = SV_SET_OF_LEATHER_GLOVES;
-		else if (r2 < 30) sval = SV_SET_OF_GAUNTLETS;
+		else if (r2 < 30) sval = SV_SET_OF_MAIL_GAUNTLETS;
+		else if (r2 < 45) sval = SV_SET_OF_STEEL_GAUNTLETS;
 		else sval = SV_SET_OF_CESTI;
 	}
 	else if (r < 87)
@@ -1287,6 +1303,7 @@ static void choose_item(int a_idx)
 		else if (r2 < 20) sval = SV_SMALL_METAL_SHIELD;
 		else if (r2 < 40) sval = SV_LARGE_LEATHER_SHIELD;
 		else if (r2 < 60) sval = SV_LARGE_METAL_SHIELD;
+		else if (r2 < 80) sval = SV_KITE_SHIELD;
 		else sval = SV_SHIELD_OF_DEFLECTION;
 	}
 	else 
@@ -1451,7 +1468,12 @@ static void add_ability(artifact_type *a_ptr)
 			case TV_POLEARM:
 			case TV_SWORD:
 			{
-				if (r < 4)
+			        if (r < 3)
+				{
+					a_ptr->flags1 |= TR1_BRAND_LITE;
+					if (rand_int(4) > 0) a_ptr->flags3 |= TR3_LITE;
+				}
+				else if (r < 6)
 				{
 					a_ptr->flags1 |= TR1_WIS;
 					do_pval(a_ptr);
@@ -1460,12 +1482,12 @@ static void add_ability(artifact_type *a_ptr)
 					    (a_ptr->tval == TV_POLEARM))
 						a_ptr->flags3 |= TR3_BLESSED;
 				}
-				else if (r < 7)
+				else if (r < 9)
 				{
 					a_ptr->flags1 |= TR1_BRAND_ACID;
 					if (rand_int(4) > 0) a_ptr->flags2 |= TR2_RES_ACID;
 				}
-				else if (r < 10)
+				else if (r < 12)
 				{
 					a_ptr->flags1 |= TR1_BRAND_ELEC;
 					if (rand_int(4) > 0) a_ptr->flags2 |= TR2_RES_ELEC;
@@ -1475,10 +1497,45 @@ static void add_ability(artifact_type *a_ptr)
 					a_ptr->flags1 |= TR1_BRAND_FIRE;
 					if (rand_int(4) > 0) a_ptr->flags2 |= TR2_RES_FIRE;
 				}
-				else if (r < 20)
+				else if (r < 18)
 				{
 					a_ptr->flags1 |= TR1_BRAND_COLD;
 					if (rand_int(4) > 0) a_ptr->flags2 |= TR2_RES_COLD;
+				}
+				else if (r < 21)
+				{
+				    if ((a_ptr->tval == TV_SWORD && a_ptr->sval < 20) ||
+					(a_ptr->tval == TV_HAFTED && a_ptr->sval == SV_QUARTERSTAFF))
+				    {
+					if (rand_int(2)) 
+					  a_ptr->flags3 |= TR3_R_MAGERY;
+					else
+					  a_ptr->flags3 |= TR3_R_ILLUSION;
+
+					if (rand_int(4) > 0) a_ptr->flags1 |= TR1_INT;
+				        if (rand_int(2) == 0) a_ptr->flags2 |= TR2_SUST_INT;
+				        do_pval(a_ptr);
+				    }
+
+				    if (a_ptr->tval == TV_HAFTED && a_ptr->sval != SV_QUARTERSTAFF)
+				    {
+					if (rand_int(2)) 
+					  a_ptr->flags3 |= TR3_R_HOLY;
+					else
+					  a_ptr->flags3 |= TR3_R_DEATH;
+					if (rand_int(4) > 0) a_ptr->flags1 |= TR1_WIS;
+				        if (rand_int(2) == 0) a_ptr->flags2 |= TR2_SUST_WIS;
+				        do_pval(a_ptr);
+				    }
+
+				    if (a_ptr->tval == TV_POLEARM && (a_ptr->sval == SV_SCYTHE ||
+								      a_ptr->sval == SV_SCYTHE_OF_SLICING))
+				    {
+				      a_ptr->flags3 |= TR3_R_DEATH;
+				      if (rand_int(4) > 0) a_ptr->flags1 |= TR1_WIS;
+				      if (rand_int(2) == 0) a_ptr->flags2 |= TR2_SUST_WIS;
+				      do_pval(a_ptr);
+				    }
 				}
 				else if (r < 28)
 				{

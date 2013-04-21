@@ -2764,6 +2764,7 @@ void gain_exp_all(int type, s32b amount)
 
 	     /* Handle fractional experience */
 	     new_exp_frac = p_ptr->exp_frac[class];
+
 	     /* Different types of XP gain */
 	     switch (type)
 	     {

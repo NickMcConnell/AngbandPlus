@@ -1480,8 +1480,8 @@ static bool wr_savefile_new(void)
 	        wr_u16b(effects[i]);
 	}
 
-	wr_byte(p_ptr->crusader_active);
-	wr_byte(p_ptr->crusader_passive);
+	wr_byte(p_ptr->power_active);
+	wr_byte(p_ptr->power_passive);
 	wr_byte(p_ptr->shapeshift);
 
 	/* Write spell data */

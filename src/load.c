@@ -1565,8 +1565,8 @@ static errr rd_extra(void)
 	        rd_u16b(&effects[i]);
 	}
 
-	rd_byte(&p_ptr->crusader_active);
-	rd_byte(&p_ptr->crusader_passive);
+	rd_byte(&p_ptr->power_active);
+	rd_byte(&p_ptr->power_passive);
 	rd_byte(&p_ptr->shapeshift);
 
 	/* Read spell info */

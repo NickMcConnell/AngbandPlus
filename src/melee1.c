@@ -237,7 +237,7 @@ bool make_attack_normal(int m_idx)
 
 			/* Hack -- Apply "protection from evil" */
 			if (((p_ptr->protevil > 0) || 
-			     (p_ptr->crusader_passive == CRUSADER_PROT_EVIL)) &&
+			     (p_ptr->power_passive == POWER_PROT_EVIL)) &&
 			    (r_ptr->flags3 & (RF3_EVIL)) &&
 			    (p_ptr->lev[best_class()] >= rlev) &&
 			    ((rand_int(100) + p_ptr->lev[best_class()]) > 50))
@@ -275,7 +275,8 @@ bool make_attack_normal(int m_idx)
 			}
 
 			/* Hack -- Apply "protection from animals" */
-			if ((p_ptr->prot_animal > 0) &&
+			if (((p_ptr->prot_animal > 0) ||
+			     (p_ptr->power_active == POWER_PROT_ANIMAL)) &&
 			    (r_ptr->flags3 & (RF3_ANIMAL)) &&
 			    (p_ptr->lev[best_class()] >= rlev) &&
 			    ((rand_int(100) + p_ptr->lev[best_class()]) > 50))

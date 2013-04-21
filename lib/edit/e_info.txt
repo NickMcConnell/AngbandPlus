@@ -66,35 +66,35 @@ V:2.9.2
 ### Body Armor ###
 
 N:4:of Resist Acid
-X:30:16:0
+X:31:16:0
 W:0:1:0:1000
 T:36:0:99
 T:37:0:99
 F:RES_ACID | IGNORE_ACID
 
 N:5:of Resist Lightning
-X:30:10:0
+X:31:10:0
 W:0:1:0:400
 T:36:0:99
 T:37:0:99
 F:RES_ELEC | IGNORE_ELEC
 
 N:6:of Resist Fire
-X:30:14:0
+X:31:14:0
 W:0:1:0:800
 T:36:0:99
 T:37:0:99
 F:RES_FIRE | IGNORE_FIRE
 
 N:7:of Resist Cold
-X:30:12:0
+X:31:12:0
 W:0:1:0:600
 T:36:0:99
 T:37:0:99
 F:RES_COLD | IGNORE_COLD
 
 N:8:of Resistance
-X:30:20:0
+X:31:20:0
 W:0:2:0:12500
 C:0:0:10:0
 T:36:0:99
@@ -105,7 +105,7 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 # OnePower
 
 N:9:of Elvenkind
-X:30:25:2
+X:31:25:2
 W:0:4:0:15000
 C:0:0:10:3
 T:36:0:99
@@ -119,7 +119,7 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 # OnePower
 
 N:11:of Permanence
-X:30:30:2
+X:31:30:2
 W:0:2:0:30000
 C:0:0:10:0
 T:36:2:2
@@ -127,13 +127,23 @@ F:SUST_STR | SUST_DEX | SUST_CON | SUST_INT | SUST_WIS | SUST_CHR |
 F:HOLD_LIFE | RES_ACID | RES_ELEC | RES_FIRE | RES_COLD | 
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-# 12 (unused)
+# Talismans and Charms
 
-# 13 (unused)
+N:12:(Glowing)
+X:29:6:0
+W:0:6:0:500
+T:40:17:17
+T:45:38:38
+F:LITE
 
-# 14 (unused)
+N:13:(Indestructible)
+X:29:6:0
+W:0:6:0:500
+T:40:17:17
+T:45:38:38
+F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-# 15 (unused)
+# 14-15 unused
 
 
 ### Shields ###
@@ -142,31 +152,31 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 # That is to keep close to original Angband rarities.
 
 N:16:of Resist Acid
-X:32:16:0
+X:33:16:0
 W:0:6:0:1000
 T:34:0:99
 F:RES_ACID | IGNORE_ACID
 
 N:17:of Resist Lightning
-X:32:10:0
+X:33:10:0
 W:0:2:0:400
 T:34:0:99
 F:RES_ELEC | IGNORE_ELEC
 
 N:18:of Resist Fire
-X:32:14:0
+X:33:14:0
 W:0:3:0:800
 T:34:0:99
 F:RES_FIRE | IGNORE_FIRE
 
 N:19:of Resist Cold
-X:32:12:0
+X:33:12:0
 W:0:2:0:600
 T:34:0:99
 F:RES_COLD | IGNORE_COLD
 
 N:20:of Resistance
-X:32:20:0
+X:33:20:0
 W:0:6:0:12500
 C:0:0:10:0
 T:34:0:99
@@ -183,21 +193,21 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 ### Crowns and Helms ###
 
 N:24:of Intelligence
-X:33:13:0
+X:34:13:0
 C:0:0:0:2
 W:0:2:0:500
 T:32:0:99
 F:INT | SUST_INT
 
 N:25:of Wisdom
-X:33:13:0
+X:34:13:0
 W:0:2:0:500
 C:0:0:0:2
 T:32:0:99
 F:WIS | SUST_WIS
 
 N:26:of Beauty
-X:33:8:0
+X:34:8:0
 W:0:2:0:1000
 C:0:0:0:4
 T:32:0:99
@@ -206,7 +216,7 @@ F:CHR | SUST_CHR
 # OneAbility
 
 N:27:of the Magi
-X:33:15:3
+X:34:15:3
 W:0:4:0:7500
 C:0:0:0:3
 T:33:0:99
@@ -215,21 +225,21 @@ F:RES_ACID | RES_ELEC | RES_FIRE | RES_COLD |
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:28:of Might
-X:33:19:0
+X:34:19:0
 W:0:4:0:2000
 C:0:0:0:3
 T:33:0:99
 F:STR | DEX | CON | SUST_STR | SUST_DEX | SUST_CON | FREE_ACT
 
 N:29:of Lordliness
-X:33:17:0
+X:34:17:0
 W:0:2:0:2000
 C:0:0:0:3
 T:33:0:99
 F:WIS | CHR | SUST_WIS | SUST_CHR
 
 N:30:of Seeing
-X:33:8:0
+X:34:8:0
 W:0:2:0:1000
 C:0:0:0:5
 T:33:0:99
@@ -237,39 +247,39 @@ T:32:0:99
 F:SEARCH | RES_BLIND | SEE_INVIS
 
 N:31:of Infravision
-X:33:11:0
+X:34:11:0
 W:0:1:0:500
 C:0:0:0:5
 T:32:0:99
 F:INFRA | HIDE_TYPE
 
 N:32:of Light
-X:33:6:0
+X:34:6:0
 W:0:2:0:500
 T:32:0:99
 F:LITE | RES_LITE
 
 N:33:of Telepathy
-X:33:20:0
+X:34:20:0
 W:0:4:0:50000
 T:33:0:99
 F:TELEPATHY
 
 N:34:of Regeneration
-X:33:10:0
+X:34:10:0
 W:0:4:0:1500
 T:33:0:99
 F:REGEN
 
 N:35:of Teleportation
-X:33:0:0
+X:34:0:0
 W:0:2:0:0
 T:32:0:99
 T:33:0:99
 F:TELEPORT | LIGHT_CURSE
 
 N:36:of Stupidity
-X:33:0:0
+X:34:0:0
 C:0:0:0:5
 W:0:1:0:0
 T:32:0:99
@@ -277,7 +287,7 @@ T:33:0:99
 F:INT | LIGHT_CURSE
 
 N:37:of Naivety
-X:33:0:0
+X:34:0:0
 C:0:0:0:5
 W:0:1:0:0
 T:32:0:99
@@ -285,7 +295,7 @@ T:33:0:99
 F:WIS | LIGHT_CURSE
 
 N:38:of Ugliness
-X:33:0:0
+X:34:0:0
 C:0:0:0:5
 W:0:2:0:0
 T:32:0:99
@@ -293,7 +303,7 @@ T:33:0:99
 F:CHR | LIGHT_CURSE
 
 N:39:of Sickliness
-X:33:0:0
+X:34:0:0
 C:0:0:0:5
 W:0:2:0:0
 T:32:0:99
@@ -304,14 +314,14 @@ F:STR | DEX | CON | LIGHT_CURSE
 ### Cloaks ###
 
 N:40:of Protection
-X:31:10:0
+X:32:10:0
 W:0:1:0:500
 C:0:0:10:0
 T:35:0:99
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 N:41:of Stealth
-X:31:10:0
+X:32:10:0
 W:0:1:0:500
 C:0:0:0:3
 T:35:0:99
@@ -320,7 +330,7 @@ F:STEALTH
 # OnePower
 
 N:42:of Aman
-X:31:20:2
+X:32:20:2
 W:0:7:0:4000
 C:0:0:20:3
 T:35:0:99
@@ -330,21 +340,21 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 # 43 (unused)
 
 N:44:of Enveloping
-X:31:0:0
+X:32:0:0
 W:0:1:0:0
 C:10:10:0:0
 T:35:0:99
 F:SHOW_MODS | LIGHT_CURSE
 
 N:45:of Vulnerability
-X:31:0:0
+X:32:0:0
 W:0:1:0:0
 C:0:0:50:0
 T:35:0:99
 F:AGGRAVATE | LIGHT_CURSE
 
 N:46:of Irritation
-X:31:0:0
+X:32:0:0
 W:0:1:0:0
 C:15:15:0:0
 T:35:0:99
@@ -358,27 +368,27 @@ F:AGGRAVATE | SHOW_MODS | LIGHT_CURSE
 # Gloves of Free Action are the most common, rarity 3 
 
 N:48:of Free Action
-X:34:11:0
+X:35:11:0
 T:31:0:99
 F:FREE_ACT
 W:0:3:0:1000
 
 N:49:of Slaying
-X:34:17:0
+X:35:17:0
 W:0:4:0:1500
 C:5:5:0:0
 T:31:0:99
 F:SHOW_MODS
 
 N:50:of Agility
-X:34:14:0
+X:35:14:0
 W:0:6:0:1000
 C:0:0:0:5
 T:31:0:99
 F:DEX | HIDE_TYPE
 
 N:51:of Power
-X:34:22:0
+X:35:22:0
 W:0:12:0:2500
 C:5:5:0:5
 T:31:0:99
@@ -389,14 +399,14 @@ F:STR | SHOW_MODS | HIDE_TYPE
 # 53 (unused)
 
 N:54:of Weakness
-X:34:0:0
+X:35:0:0
 W:0:1:0:0
 C:0:0:0:10
 T:31:0:99
 F:STR | LIGHT_CURSE
 
 N:55:of Clumsiness
-X:34:0:0
+X:35:0:0
 W:0:1:0:0
 C:0:0:0:10
 T:31:0:99
@@ -408,33 +418,33 @@ F:DEX | LIGHT_CURSE
 # here as well, the rarities are weird #
 
 N:56:of Slow Descent
-X:35:7:0
+X:36:7:0
 W:0:9:0:250
 T:30:0:99
 F:FEATHER
 
 N:57:of Stealth
-X:35:16:0
+X:36:16:0
 W:0:12:0:500
 C:0:0:0:3
 T:30:0:99
 F:STEALTH
 
 N:58:of Free Action
-X:35:15:0
+X:36:15:0
 W:0:25:0:1000
 T:30:0:99
 F:FREE_ACT
 
 N:59:of Speed
-X:35:25:0
+X:36:25:0
 W:0:100:0:200000
 C:0:0:0:10
 T:30:0:99
 F:SPEED | HIDE_TYPE
 
 N:60:of Kicking
-X:35:17:0
+X:36:17:0
 W:0:4:0:500
 C:0:5:0:0
 # Not Sandals or Soft Leather Boots
@@ -442,20 +452,20 @@ T:30:3:99
 F:SHOW_MODS
 
 N:61:of Noise
-X:35:0:0
+X:36:0:0
 W:0:1:1:0
 T:30:0:99
 F:AGGRAVATE | LIGHT_CURSE
 
 N:62:of Slowness
-X:35:0:0
+X:36:0:0
 W:0:1:0:0
 C:0:0:0:5
 T:30:0:99
 F:SPEED | LIGHT_CURSE
 
 N:63:of Annoyance
-X:35:0:0
+X:36:0:0
 W:0:1:0:0
 C:0:0:0:10
 T:30:0:99
@@ -748,12 +758,14 @@ T:23:0:19
 T:21:3:3
 F:SUST_INT | INT | R_ILLUSION
 
-# Any hafted weapon
+# Any hafted weapon, or scythes
 N:99:of Death
 X:24:15:3
 W:0:6:0:4000
 C:5:5:0:5
 T:21:0:99
+T:22:17:17
+T:22:30:30
 F:SUST_WIS | WIS | R_DEATH
 
 N:100:of Digging
@@ -829,7 +841,7 @@ F:SHOTS
 # Note the 'weird' rarities #
 
 N:112:of Hurt Animal
-X:23:10:0:0
+X:26:10:0:0
 W:0:25:0:25
 T:16:0:99
 T:17:0:99
@@ -837,7 +849,7 @@ T:18:0:99
 F:SLAY_ANIMAL
 
 N:113:of Hurt Evil
-X:23:10:0
+X:26:10:0
 W:0:25:0:25
 T:16:0:99
 T:17:0:99
@@ -845,7 +857,7 @@ T:18:0:99
 F:SLAY_EVIL
 
 N:114:of Hurt Undead
-X:23:10:0
+X:26:10:0
 W:0:50:0:25
 T:16:0:99
 T:17:0:99
@@ -853,7 +865,7 @@ T:18:0:99
 F:SLAY_UNDEAD
 
 N:115:of Hurt Demon
-X:23:10:0
+X:26:10:0
 W:0:50:0:15
 T:16:0:99
 T:17:0:99
@@ -861,7 +873,7 @@ T:18:0:99
 F:SLAY_DEMON
 
 N:116:of Hurt Orc
-X:23:10:0
+X:26:10:0
 W:0:50:0:15
 T:16:0:99
 T:17:0:99
@@ -869,7 +881,7 @@ T:18:0:99
 F:SLAY_ORC
 
 N:117:of Hurt Troll
-X:23:10:0
+X:26:10:0
 W:0:50:0:15
 T:16:0:99
 T:17:0:99
@@ -877,7 +889,7 @@ T:18:0:99
 F:SLAY_TROLL
 
 N:118:of Hurt Giant
-X:23:10:0
+X:26:10:0
 W:0:50:0:15
 T:16:0:99
 T:17:0:99
@@ -885,7 +897,7 @@ T:18:0:99
 F:SLAY_GIANT
 
 N:119:of Hurt Dragon
-X:23:10:0
+X:26:10:0
 W:0:50:0:35
 T:16:0:99
 T:17:0:99
@@ -897,7 +909,7 @@ F:SLAY_DRAGON
 # 121 (unused)
 
 N:122:of Flame
-X:23:10:0
+X:26:10:0
 F:BRAND_FIRE | IGNORE_FIRE
 W:0:25:0:30
 T:16:0:99
@@ -905,7 +917,7 @@ T:17:0:99
 T:18:0:99
 
 N:123:of Frost
-X:23:10:0
+X:26:10:0
 F:BRAND_COLD | IGNORE_COLD
 W:0:25:0:25
 T:16:0:99
@@ -913,7 +925,7 @@ T:17:0:99
 T:18:0:99
 
 N:124:of Wounding
-X:23:5:0
+X:26:5:0
 W:0:8:0:20
 C:5:5:0:0
 T:16:0:99
@@ -923,7 +935,7 @@ T:18:0:99
 # These have a level of 127 like weapons of Morgul 
 
 N:125:of Backbiting
-X:23:0:0
+X:26:0:0
 W:127:1:0:0
 C:50:50:0:0
 T:16:0:99
@@ -945,7 +957,7 @@ C:5:5:0:0
 # Destroyed Body Armor
 
 N:127:(Blasted)
-X:30:0:0
+X:31:0:0
 W:0:0:0:0
 C:0:0:10:0
 
