@@ -435,6 +435,9 @@ void do_cmd_drop(void)
 	/* Take a partial turn */
 	p_ptr->energy_use = 50;
 
+	/* Handle fate here. */
+	fate_effect(o_ptr->fate, FATE_DROP);
+
 	drop_near(o_ptr, FALSE, p_ptr->py, p_ptr->px);
 
 }

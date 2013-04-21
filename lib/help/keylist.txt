@@ -1,0 +1,60 @@
+
+'w': Wear or wield equipment.
+'t': Take off equipment.
+'d': Drop something.
+'k': Destroy ("kill") an item.
+'e': Show equipment.
+'i': Show inventory.
+'I': Examine an object. (Includes damage status.)
+'A': Activate an artifact.
+'E': Eat something.
+'F': Refill a torch or lantern.
+'f': Fire a projectile weapon.
+'v': Throw something.
+'a': Fire ("aim") a wand.
+'z': Fire ("zap") a rod.
+'q': Drink ("quaff") a potion.
+'r': Read a scroll.
+'u': Fire ("use") a staff.
+'$': Mix alchemical recipes.
+'{': Inscribe an object.
+'}': Uninscribe an object.
+
+'+': "Alter" a grid.
+'T': Dig ("tunnel") into a wall.
+'.': Begin running.
+',': Hold still. Special powers for immovable chracters.
+'g': Pick up items.
+'R': Rest.
+'s': Search for hidden doors/traps.
+'S': Toggle search mode.
+'<': Go up a staircase.
+'>': Go down a staircase.
+'o': Open a door or chest.
+'c': Close a door.
+'j': Jam a door with a spike.
+'B': Bash a door or an altar.
+'D': Disarm a trap.
+'M': Look at the map.
+'L': Look around the dungeon.
+'l': Examine things around you.
+'*': Target a monster or location.
+
+'G': Learn ("gain") new spells.
+'b': Read ("browse") a spellbook.
+'m': Cast a spell or use an innate power.
+'p': Pray to your god.
+'O': Sacrifice something.
+'#': Call pets.
+
+'~': Show character's knowledge.
+'C': Examine character info.
+'=': Change options.
+
+'Single-quote' key: Type in the command name in the hard way.
+
+Ctrl-'S': Save but do not quit.
+Ctrl-'T': Show in-game time.
+Ctrl-'X': Save and quit.
+'Q': Suicide.
+

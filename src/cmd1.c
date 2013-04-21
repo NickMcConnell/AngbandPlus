@@ -1428,10 +1428,15 @@ void py_attack(int y, int x)
 	m_ptr = &m_list[cave_m_idx[y][x]];
 	r_ptr = &r_info[m_ptr->r_idx];
 
-	if (m_ptr->is_pet)
-	{
-		msg_print("Be nice to your pets, please!");
-		return;
+	/* 
+	 * Melkor does not particularly appreciate this code.
+	 */
+
+	if (m_ptr->is_pet && 
+	    !(m_ptr->fate == FATE_KILL || m_ptr->fate == FATE_SACRIFICE)) {
+
+	  msg_print("Be nice to your pets, please!");
+	  return;
 	}
 
 	if (confirm_blasphemy && sacred_monster(r_ptr))
@@ -1476,6 +1481,10 @@ void py_attack(int y, int x)
 		return;
 	}
 
+
+	if (m_ptr->is_pet) {
+	  hostile_monsters(cave_m_idx[m_ptr->fy][m_ptr->fx]);
+	}
 
 	/* Access the weapon */
 	o_ptr = equipment[EQUIP_WIELD];

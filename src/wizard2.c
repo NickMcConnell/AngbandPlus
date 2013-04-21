@@ -1663,6 +1663,7 @@ void do_cmd_debug(void)
 		{
 			show_god_info(TRUE);
 			msg_format("Your current grace: %d", p_ptr->grace);
+			msg_format("Your current luck: %d", p_ptr->luck);
 			break;
 		}
 

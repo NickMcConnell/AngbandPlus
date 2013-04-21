@@ -29,7 +29,7 @@ Added ``Corrupted'' class:
     Chr: -5
 
     The ``Corrupted'' get a new set of spells vaguely based on the
-Illusionist spells, although the spells are more powerfull.
+Illusionist spells, although the spells are more powerful.
 They can gain spells at any time, but the spell gained is random. 
 The ``Corrupted'' books can't be bought, sold, or found.
 Instead, a random book is received every 5 levels. If your race
@@ -68,10 +68,10 @@ is remembered. Each character starts with a couple randomly known
 recipes.
 
 Added pets. They don't ever attack the player, and can fight other
-monsters. The pets are downright viscious -- they track other monsters 
+monsters. The pets are downright vicious -- they track other monsters 
 (somewhat stupidly) and cast spells at other monsters. Pets will act 
 independently of the player, chasing other monsters on their own.
-Regular monsters keep their old behaviour, i.e. chase the player exclusively.
+Regular monsters keep their old behavior, i.e. chase the player exclusively.
 The player can't attack his pet hand-to-hand, and casting damaging spells
 on the pet will cause the pet to turn on the player.
 The pets choose their spells carefully, and will not hurt the
@@ -85,7 +85,7 @@ Note that pets disappear along with other monsters when the
 player leaves the level. 
 
 Also note that pets don't act if the player isn't around. This
-is the normal angband behaviour for all monsters, and changing it 
+is the normal angband behavior for all monsters, and changing it 
 would be slow and unbalancing.
 
 Added new command -- ``#''. This will attract your pet's 
@@ -132,7 +132,7 @@ Added a Scroll of Summon Pet.
 Added religions. You can find altars in dungeons, and use the "O" command
 to sacrifice something. The more you sacrifice, the better your standing
 with your god. Eventually you will get many bonuses. If you neglect to
-sacrifice, your standing will gradually go down, untill you get many bad
+sacrifice, your standing will gradually go down, until you get many bad
 things happening to you. Once you pick a god, it is hard to switch, so
 don't sacrifice at just any altar. There are currently 16 gods.
 
@@ -245,13 +245,13 @@ Added another race -- Leprechaun.
    Con: -10
    Chr: -10
 
-They get sustain dexterity and reisist blind. 
-As special destinguishing characteristics, they have speed +10 and
+They get sustain dexterity and resist blind. 
+As special distinguishing characteristics, they have speed +10 and
 cause strange things to happen when attacking monsters. (Try it to see
 what I mean.)
 
 Added a new item flag -- ``WEIRD_ATTACK'' to grant weird attacks (like
-with the Leprechaun) when weilded. Added two types of ego items --
+with the Leprechaun) when wielded. Added two types of ego items --
 ``of Insanity'' and ``of the Jesters'' to provide this flag.
 
 Added three artifacts to take advantage of ``WEIRD_ATTACK'' --
@@ -320,7 +320,7 @@ They are:
   Kobold, Fire cloud, Cold cloud, Dragon, Hound, Vampire, Quylthulg, Angel,
   Serpent, Mana ball, Giant, Spider, Mold, Zombie, and Deity.
 
-Note: When in the Quylthulg form, the ``m'' command is overriden to summon
+Note: When in the Quylthulg form, the ``m'' command is overridden to summon
 pets, like a beastmaster!
 
 You can use the debugging command ``control-a-shift-s''
@@ -390,13 +390,13 @@ character creation screen. Note that levels are NOT saved to disk,
 only the RNG seed is saved. Item and monster generation and player
 memory is not persistent!
 
-Made spell failure chances for Corrupted a lot smaller.
+Made spell failure chances for Corrupted alot smaller.
 
 ---- Release 1.0 ----
 
 Removed the minimum spell failure chance restriction for Corrupted.
 
-Made side effects a lot less dangerous.
+Made side effects alot less dangerous.
 
 Monsters will now hunt down pets if they can't see the player.
 Note: This introduces a slight performance loss.
@@ -462,7 +462,7 @@ Enlarged the arena, and split it into 3 different monster sets based
 on monster type. You can select the monster set you want when you
 enter the arena. (Idea thanks to prfnoff@aol.com)
 
-Different types of weapons now act differently. First of all, many monster
+Different types of weapons now act differently. First of all, many monsters
 resist or are immune to particular weapon types. Second of all, sword
 and polearm damage is now more random, while hafted weapons will affect 
 monsters in weird ways on critical hits.
@@ -498,7 +498,7 @@ crime instead of appearing around you.
 
 Added Yet Another random artifact scheme. This one is a little different
 as random artifacts are ``miscellaneous'' magic items that have a
-high chance of being nasty ``junk'' items. You cannot weild random
+high chance of being nasty ``junk'' items. You cannot wield random
 artifacts, but you can activate them even if it is not identified.
 
 Added another stat, ``Sanity''. This acts like hitpoints for the most
@@ -540,7 +540,7 @@ try to pray too often, you'll get really bad results!
 Priests and paladins will have a slightly higher chance of getting
 better results from prayer.
 
-Preists can pray about twice as much as other classes,
+Priests can pray about twice as much as other classes,
 and Paladins about 1.5 times as much.
 
 You can now see how likely your prayers are to be answered in the
@@ -565,7 +565,7 @@ Most notably:
 5. The building commands and prices have been changed. In particular,
    rumors have been implemented, the Weaponsmaster now costs more, but
    is open to everyone. You always have access to your home now.
-   In general, you don't have to wait a certain time perioid to access
+   In general, you don't have to wait a certain time period to access
    building rewards.
 6. The ``q_info.txt'' has been removed. All quest information is stored
    in v_info.txt
@@ -658,7 +658,7 @@ of ego-item and artifact creation. A scroll of named artifact creation
 ---- Release 1.5 ----
 
 All artifact and item activations are now in the s_info.txt file!
-That means you can add complately new artifacts or items without changing 
+That means you can add completely new artifacts or items without changing 
 the code. 
 
 Added a nasty surprise at low depths. :)
@@ -680,7 +680,7 @@ except that it uses charisma as the spellcasting stat.
 Changed the code for random artifacts. Now the activation is chosen 
 randomly from all the activations in the s_info.txt file.
 
-Added a few more terains for outdoor settings. For now they don't have
+Added a few more terrains for outdoor settings. For now they don't have
 any game-play significance, although the terrain level generation
 has been changed to use them.
 
@@ -692,7 +692,7 @@ The ``other_query_flag'' option will automatically select the item
 if there is only one possible item you can select. This is primarily
 for people who use autopickup.
 
-Added a new option ``protect_equipment'', which will ensure that weilded
+Added a new option ``protect_equipment'', which will ensure that wielded
 items won't get destroyed or stolen.
 
 Changed the monster generation routines:
@@ -703,7 +703,7 @@ Changed the monster generation routines:
 - The rules for monster nests/pits have been relaxed. It is now possible
   to have a pit or nest of any type of monster.
 
-- Occasionaly groups or related or unrelated monsters will be generated,
+- Occasionally groups or related or unrelated monsters will be generated,
   even if the monster doesn't normally appear in groups.
 
 Added a bunch of of aquatic monsters.
@@ -715,17 +715,17 @@ are relatively far away from the player.
 
 Added item hitpoints. Every item has some number of hitpoints, and all
 attacks that damage inventory will decrease the item's hitpoints instead
-of outright destroying it. Aritfacts will never get damaged.
+of outright destroying it. Artifacts will never get damaged.
 
 Weapon and armor will get damaged out with use! The damage your weapon
-takes is roughly equal to the amout of damage you do to the monster.
+takes is roughly equal to the amount of damage you do to the monster.
 Likewise, the damage to your armor is roughly equal to the damage you
 take. 
 
 Added corpses. Monster will now sometimes leave body parts when they die.
 There are many different body types -- heads, hearts, wings, scales, etc.
 Also, you can find body parts just laying in the dungeon like regular
-items. Bady parts will only be generated on appropriate monsters, (that 
+items. Body parts will only be generated on appropriate monsters, (that 
 is, no orc wings of death mold heads) but other than that, any
 non-unique monster except ghosts and elementals can leave a corpse.
 
@@ -733,7 +733,7 @@ The beastmaster building now keeps a list of bounties. You can trade
 corpses of monsters on the beastmaster's list for gold. The list will be
 refreshed with the same frequency as shops do.
 
-Added a new class -- the Necromancer. The Necromancer is a spell casting
+Added a new class -- the Necromancer. The Necromancer is a spellcasting
 class with just one spell -- raise dead. If you have a corpse, you can put
 it on the floor and cast ``raise dead'' on it. If you are successful, the
 corpse will be turned into a pet.
@@ -796,7 +796,7 @@ than the old hack used to be. (1.5 betas.) Now you can have a real home --
 complete with bathroom and fireplace. (Not really, but it comes close.)
 You can also take advantage of a limited form of stealing -- if you use an
 item without paying for it, guards will be summoned who will try to kill
-you. You won't have to pay for it, though. You can also read parchements
+you. You won't have to pay for it, though. You can also read parchments
 without paying for them.
 
 Note that you can turn off use of shop vaults with an option. Shop vaults
@@ -899,4 +899,43 @@ press `#' again -- your pets will switch targets automatically.
 Added truly persistent levels, where the whole dungeon can be saved
 and loaded later. Currently the only place this functionality is used 
 is when a player enters a vault shop.
+
+--- Release 1.9 "Anachron" ---
+
+Added a new class -- the Avatar. Avatars start right from the beginning
+worshiping a randomly selected god, and are supposed to put the god's
+whims into life. 
+
+That means that an avatar character will occasionally be assigned "fates"
+specific to a particular god. A "fate" is an assignment, for example, to
+kill or sacrifice a certain monster, collect or use a certain item,
+protect a monster from death, etc. There are many different combinations
+of fates possible, and if a monster or item is fated to you this will be
+clearly shown.
+
+Each god has his/her particular preferences, some quite specific/weird.
+For example, Melkor likes to collect rings, the god of wind has a soft 
+spot for flying monsters, etc. The particular preferences of each god 
+are a state secret. :) 
+
+When a fate is correctly completed, the player's luck rating increases.
+Conversely, failing to complete a fate lowers your luck.
+Every once in a while, the game will check your luck rating and will
+give you a bonus/punish you, depending on what your luck is. Of course,
+the bigger your luck, the better your bonus. The lower your luck, the
+worse is your punishment. Note, however, that you get punished only if
+your luck drops to below zero.
+
+Changed the scoring system to reflect the true state of things. From now
+on the dominant factor is the time spent playing, not your character's
+level. This means that scorefiles won't accumulate braindead ghost 
+beastmasters and such at the top positions.
+
+Now includes a simple help file for the game, "kamband.txt".
+
+Kamband is now registered at sourceforge. (http://kamband.sourceforge.net)
+
+Versions will now have a descriptive label along with a version number,
+a la Red Hat. This is great just for the mystification value. :)
+
 

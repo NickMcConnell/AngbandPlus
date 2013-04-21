@@ -477,6 +477,7 @@ static void wr_item(object_type * o_ptr)
 	wr_s16b(o_ptr->mhp);
 
 	wr_byte(o_ptr->stuff);
+	wr_byte(o_ptr->fate);
 
 	wr_byte(o_ptr->name1);
 	wr_byte(o_ptr->name2);
@@ -527,6 +528,7 @@ static void wr_monster(monster_type * m_ptr)
 	wr_byte(m_ptr->confused);
 	wr_byte(m_ptr->monfear);
 	wr_byte(m_ptr->is_pet);
+	wr_byte(m_ptr->fate);
 	wr_s16b(m_ptr->random_name_idx);
 	wr_s16b(m_ptr->mflag);
 
@@ -857,6 +859,7 @@ static void wr_extra(void)
 
 	wr_s32b(p_ptr->grace);
 	wr_s32b(p_ptr->god_favor);
+	wr_s32b(p_ptr->luck);
 	wr_byte(p_ptr->pgod);
 
 	wr_byte(p_ptr->number_pets);

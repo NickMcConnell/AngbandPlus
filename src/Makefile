@@ -114,8 +114,9 @@ CC = gcc
 # including "USE_GETCH" and "USE_CURS_SET".  Note that "config.h" will
 # attempt to "guess" at many of these flags based on your system.
 #
+
 CFLAGS = -Wall -g -D"USE_X11"
-LIBS = -L/usr/X11R6/lib -lX11 -lefence
+LIBS = -L/usr/X11R6/lib -lX11
 
 ##
 ## Variation -- Only support "main-x11.c" (not "main-gcu.c")

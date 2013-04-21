@@ -148,6 +148,17 @@ static void sense_inventory(void)
 			break;
 		}
 
+	case CLASS_AVATAR: {
+
+	  /* Good sensing */
+	  if (0 != rand_int(15000L / (plev * plev + 40)))
+	    return;
+
+	  /* Heavy sensing */
+	  heavy = TRUE;
+	  break;
+	}
+
 		case CLASS_MAGE:
 		{
 			/* Very bad (light) sensing */
@@ -697,10 +708,10 @@ static void process_world(void)
 
 	/* Take damage from light, if appropriate. */
 	if (p_ptr->hates_light &&
-		(cave_info[p_ptr->py][p_ptr->px] & CAVE_GLOW))
-	{
-		mprint(MSG_TEMP, "The scorching light burns your skin!");
-		take_hit(1, "sunburn");
+	    (cave_info[p_ptr->py][p_ptr->px] & CAVE_GLOW)) {
+
+	  mprint(MSG_TEMP, "The scorching light burns your skin!");
+	  take_hit(1, "sunburn");
 	}
 
 	/* Take damage from cuts */
@@ -978,6 +989,8 @@ static void process_world(void)
 		p_ptr->immov_cntr--;
 	}
 
+	/*** Process Religion. ***/
+
 	if (p_ptr->pgod > 0)
 	{
 		if ((turn % 50) == 0)
@@ -992,14 +1005,25 @@ static void process_world(void)
 
 			mns = (mns / 4) + 1;
 
-			if (p_ptr->pclass == CLASS_PRIEST)
-				mns *= 2;
-			else if (p_ptr->pclass == CLASS_PALADIN)
-				mns = (mns * 3) / 2;
+			if (p_ptr->pclass == CLASS_PRIEST) {
+			  mns *= 2;
+
+			} else if (p_ptr->pclass == CLASS_PALADIN) {
+			  mns = (mns * 3) / 2;
+
+			} else if (p_ptr->pclass == CLASS_AVATAR) {
+			  mns *= 4;
+			}
+			
 
 			p_ptr->god_favor -= mns;
 		}
 	}
+
+	/* That segfault was fated to happen. */
+	hand_of_fate();
+	
+	strike_it_lucky();
 
 	/*** Poison and Stun and Cut ***/
 

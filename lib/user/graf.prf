@@ -11,6 +11,9 @@
 
 ##### System Specific Subfiles #####
 
+?[EQU $SYS x11]
+%:graf-x11.prf
+
 ?:[EQU $SYS ami]
 %:graf-ami.prf
 

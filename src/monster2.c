@@ -889,8 +889,32 @@ void monster_desc(char *desc, monster_type * m_ptr, int mode)
 		{
 			strcat(desc, " (pet)");
 		}
+
+		/* Show fate */
+		switch (m_ptr->fate) {
+		case FATE_NONE:
+		  break;
+
+		case FATE_KILL:
+		    strcat(desc, " (fate: kill)");
+		    break;
+
+		case FATE_SAVE:
+		  strcat(desc, " (fate: save)");
+		  break;
+
+		case FATE_SACRIFICE:
+		  strcat(desc, " (fate: sacrifice)");
+		  break;
+
+		default:
+		  strcat(desc, " (fate: DEBUG)");
+		  break;
+		}
+
 	}
 }
+
 
 
 

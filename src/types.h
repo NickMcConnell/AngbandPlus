@@ -142,7 +142,7 @@ struct feature_type
 
 	byte mimic;	/* Feature to mimic */
 
-	byte extra;	/* Extra byte (unused) */
+        byte extra;	/* Foo. */
 
 	s16b unused; /* Extra bytes (unused) */
 
@@ -507,6 +507,7 @@ struct object_type
 	/* Note: Fractional hp isn't handled. Maybe later, if it's worthwhile. */
 
 	byte stuff;	/* What's it made of? */
+        byte fate; /* Item's fate idicator. */
 
 	byte name1;	/* Artifact type, if any */
 	byte name2;	/* Ego-Item type, if any */
@@ -573,6 +574,7 @@ struct monster_type
 	byte confused; /* Monster is confused */
 	byte monfear; /* Monster is afraid */
 	byte is_pet; /* Is monster "friendly"? */
+        byte fate; /* Monster's fate indicator. */
 
 	/* random_name_idx gets set the first time ``monster_desc'' gets called. */
 	s16b random_name_idx; /* The index of the random monster name. */
@@ -693,14 +695,14 @@ struct recipe
 
 /* A structure for deity information. */
 
-struct deity
-{
-	cptr name;
-	cptr god_of;
-	byte grace_deduction;
-	byte aligned;
-	byte opposed;
-	byte rarity;
+struct deity {
+  cptr name;
+  cptr god_of;
+  byte grace_deduction;
+  byte aligned;
+  byte opposed;
+  byte rarity;
+  byte female;
 };
 
 /* A structure for shapes */
@@ -1076,6 +1078,7 @@ struct player_type
 
 	s32b grace;	/* Your God's appreciation factor. */
 	s32b god_favor;	/* Last time you asked for a favor. */
+        s32b luck; /* Your luck. */
 	byte pgod; /* Your God. */
 
 	byte pets_notice; /* Are pets following player? */
@@ -1289,6 +1292,7 @@ struct player_type
 	bool true_vampirism; /* Feed player when he attack something. */
 	bool no_equip; /* Can't use equipment. */
 	bool engulfs; /* Has an innate engulfing attack. */
+        bool fated; /* Fated character. */
 
 	byte perma_blind; /* Permanent blindness */
 

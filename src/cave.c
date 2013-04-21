@@ -1569,7 +1569,7 @@ void do_cmd_view_map(void)
 		/* Get any key */
 		c = inkey();
 
-		if (c == '+' && ratio < 30)
+		if ((c == '+' || c == '=') && ratio < 30)
 		{
 			ratio += 5;
 

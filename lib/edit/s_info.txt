@@ -2113,7 +2113,7 @@ C:SHAPE_HOUND
 
 N:POWER:18:Soulcatcher
 F:KILL | ETHER | BLAST
-T:SAFE:NETHER:10d10:0
+T:SAFE:NETHER:10d10:2
 P:1:3
 C:SHAPE_VAMPIRE
 D:Damage 10d10
@@ -3929,31 +3929,31 @@ N:NECRO:0:Raise Dead I
 F:ITEM | STOP
 T:UNSAFE:RAISE_DEAD:50d1:0
 P:1:1
-D:50% failure chance.
+D:50% failure chance
 
 N:NECRO:1:Raise Dead II
 F:ITEM | STOP
 T:UNSAFE:RAISE_DEAD:70d1:0
 P:5:5
-D:30% failure chance.
+D:30% failure chance
 
 N:NECRO:2:Raise Dead III
 F:ITEM | STOP
 T:UNSAFE:RAISE_DEAD:90d1:0
 P:10:10
-D:10% failure chance.
+D:10% failure chance
 
 N:NECRO:3:Raise Dead IV
 F:ITEM | STOP
 T:UNSAFE:RAISE_DEAD:70d1:5
 P:15:15
-D:30% failure chance.
+D:30% failure chance
 
 N:NECRO:4:Raise Dead V
 F:ITEM | STOP
 T:UNSAFE:RAISE_DEAD:90d1:5
 P:20:20
-D:10% failure chance.
+D:10% failure chance
 
 N:NECRO:5:Summon Undead
 F:GRID | STOP

@@ -660,7 +660,17 @@ int main(int argc, char *argv[])
 	SCREEN_WID = screen_x - (COL_MAP + 1);
 
 	/* Hack -- If requested, display scores and quit */
-	if (show_score > 0) display_scores(0, show_score);
+	if (show_score > 0) {
+	  
+	  /* Hack, don't lose your lunch...
+	   * This is needed 'cause macros are automagically used in the
+	   * terminal code sometimes.
+	   */
+
+	  macro_init();
+
+	  display_scores(0, show_score);
+	}
 
 
 	/* Catch nasty signals */

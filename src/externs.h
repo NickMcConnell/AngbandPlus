@@ -251,6 +251,7 @@ extern cptr ANGBAND_DIR_XTRA;
 extern bool item_tester_full;
 extern byte item_tester_tval;
 extern bool(*item_tester_hook) (object_type *);
+extern bool item_tester_automatic;
 extern bool(*ang_sort_comp) (vptr u, vptr v, int a, int b);
 extern void (*ang_sort_swap) (vptr u, vptr v, int a, int b);
 extern bool(*get_mon_num_hook) (int r_idx);
@@ -650,6 +651,7 @@ extern bool hates_shards(object_type * o_ptr);
 extern bool hates_sound(object_type * o_ptr);
 extern bool hates_impact(object_type * o_ptr);
 
+extern void inven_damage(bool (*func)(object_type*), int dam, cptr verb);
 extern void acid_dam(int dam, cptr kb_str);
 extern void elec_dam(int dam, cptr kb_str);
 extern void fire_dam(int dam, cptr kb_str);
@@ -896,6 +898,10 @@ extern void describe_attack_fully(int type, char *r);
 
 extern int interpret_grace(void);
 extern int interpret_favor(void);
+
+extern void hand_of_fate(void);
+extern void fate_effect(int fate_given, int fate_gotten);
+extern void strike_it_lucky(void);
 
 /*
  * Hack -- conditional (or "bizarre") externs

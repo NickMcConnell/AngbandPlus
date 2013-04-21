@@ -912,20 +912,15 @@ static void analyze_misc_magic(object_type * o_ptr, cptr * misc_list)
 	 * being "lightly cursed".
 	 */
 
-	if (cursed_p(o_ptr))
-	{
-		if (f3 & (TR3_PERMA_CURSE))
-		{
-			*misc_list++ = "Permanently Cursed";
-		}
-		else if (f3 & (TR3_HEAVY_CURSE))
-		{
-			*misc_list++ = "Heavily Cursed";
-		}
-		else
-		{
-			*misc_list++ = "Cursed";
-		}
+	if (f3 & (TR3_PERMA_CURSE)) {
+	  *misc_list++ = "Permanently Cursed";
+
+	} else if (f3 & (TR3_HEAVY_CURSE)) {
+
+	  *misc_list++ = "Heavily Cursed";
+	} else if (f3 & (TR3_LIGHT_CURSE)) {
+
+	  *misc_list++ = "Cursed";
 	}
 
 	/* Terminate the description list */
@@ -2002,8 +1997,9 @@ static void spoil_mon_info(cptr fname)
 			}
 		}
 
-		if (breath || magic)
-		{
+		if ((breath || magic) && 
+		    (r_ptr->freq_inate + r_ptr->freq_spell)) {
+
 			sprintf(buf, "; 1 time in %d.  ",
 				200 / (r_ptr->freq_inate + r_ptr->freq_spell));
 			spoil_out(buf);
@@ -2446,6 +2442,10 @@ static void spoil_mon_info(cptr fname)
 				case RBM_HALT:
 					p = "shout ``Halt'' alot";
 					break;
+			        case RBM_EXPLODE:
+				        p = "explode";
+					break;
+
 			}
 
 

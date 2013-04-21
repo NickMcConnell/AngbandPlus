@@ -539,10 +539,8 @@ object_type *item_effect(cptr name, cptr act, bool obvious,
 
 			msg_format("You failed to %s it properly.", act);
 
-			if (one_time_use)
-				remove_object(o_ptr);
+			goto done; 
 
-			return NULL;
 		}
 	}
 
@@ -551,10 +549,7 @@ object_type *item_effect(cptr name, cptr act, bool obvious,
 	{
 		mprint(MSG_TEMP, "It whines, glows and fades...");
 
-		if (one_time_use)
-			remove_object(o_ptr);
-
-		return NULL;
+		goto done;
 	}
 
 	/* Mondo-hack -- check wand/staff charges. */
@@ -635,10 +630,23 @@ object_type *item_effect(cptr name, cptr act, bool obvious,
 			o_name);
 	}
 
-	if (one_time_use)
-	{
-		remove_object(o_ptr);
-		o_ptr = NULL;
+	/* Handle fate. */
+	fate_effect(o_ptr->fate, FATE_USE);
+
+	/* HACK! */
+	if (o_ptr->fate == FATE_USE) {
+	  o_ptr->fate = FATE_NONE;
+	}
+
+ done:
+	
+	/* HACK. */
+	if (one_time_use) {
+
+	  fate_effect(o_ptr->fate, FATE_KILL);
+
+	  remove_object(o_ptr);
+	  o_ptr = NULL;
 	}
 
 	return o_ptr;
@@ -1075,6 +1083,10 @@ void do_cmd_brew_stuff(void)
 					}
 				}
 		
+
+				/* Handle fate. */
+				fate_effect(o_ptr->fate, FATE_KILL);
+
 				remove_object(o_ptr);
 
 				redraw = TRUE;
@@ -1130,7 +1142,8 @@ static bool item_tester_hook_sacrifice(object_type * o_ptr)
 			return FALSE;
 	}
 
-	if (object_value(o_ptr) * o_ptr->number > 0)
+	if (object_value(o_ptr) * o_ptr->number > 0 ||
+	    o_ptr->fate == FATE_SACRIFICE)
 		return TRUE;
 
 	return FALSE;
@@ -1155,8 +1168,15 @@ void do_cmd_sacrifice(void)
 
 	if (on_what < FEAT_ALTAR_HEAD || on_what > FEAT_ALTAR_TAIL)
 	{
-		show_god_info(FALSE);
-		return;
+	  
+	  /* HACK. */
+	  if (p_ptr->fated) {
+	    show_god_info(TRUE);
+
+	  } else {
+	    show_god_info(FALSE);
+	  }
+	  return;
 	}
 
 	what_god = on_what - FEAT_ALTAR_HEAD + 1;
@@ -1206,6 +1226,9 @@ void do_cmd_sacrifice(void)
 	{
 		set_grace(p_ptr->grace + val * 5);
 	}
+
+	/* Handle fate. */
+	fate_effect(o_ptr->fate, FATE_SACRIFICE);
 
 	remove_object(o_ptr);
 }
@@ -1694,20 +1717,21 @@ void do_cmd_pray(void)
 	}
 
 	if (confirm_prayers &&
-		!get_check("Are you sure you want to disturb your God? "))
-		return;
+	    !get_check("Are you sure you want to disturb your God? "))
+	  return;
 
 	level = interpret_grace() - interpret_favor();
 	name = deity_info[p_ptr->pgod - 1].name;
 
-	if (p_ptr->pclass == CLASS_PRIEST && magik(30))
-	{
-		level++;
-	}
+	if (p_ptr->pclass == CLASS_PRIEST && magik(30)) {
 
-	if (p_ptr->pclass == CLASS_PALADIN && magik(10))
-	{
-		level++;
+	  level++;
+	} else if (p_ptr->pclass == CLASS_PALADIN && magik(10)) {
+
+	  level++;
+	} else if (p_ptr->pclass == CLASS_AVATAR && magik(30)) {
+	  
+	  level += rand_int(3);
 	}
 
 	if (level < 0)

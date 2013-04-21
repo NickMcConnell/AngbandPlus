@@ -686,6 +686,11 @@ byte item_tester_tval;
 bool(*item_tester_hook) (object_type *);
 
 
+/*
+ * Pick an item at random without notifying the player.
+ */
+bool item_tester_automatic;
+
 
 /*
  * Current "comp" function for ang_sort()

@@ -46,7 +46,7 @@
 #define VERSION_PATCH	2
 
 #define KAM_VERSION_MAJOR 1
-#define KAM_VERSION_MINOR 8
+#define KAM_VERSION_MINOR 9
 #define KAM_VERSION_PATCH 0
 
 
@@ -160,7 +160,7 @@
 /*
  * Maximum number of player "class" types (see "table.c", etc)
  */
-#define MAX_CLASS		15 /* Added illusionist -KMW- */
+#define MAX_CLASS		16 /* Added illusionist -KMW- */
 
 
 /*
@@ -468,6 +468,7 @@
 #define CLASS_BARD             12
 #define CLASS_NECRO            13
 #define CLASS_ELEMENTAL        14
+#define CLASS_AVATAR           15
 
 /*** Screen Locations ***/
 
@@ -1243,6 +1244,19 @@
 
 #define STUFF_MAX         29
 
+
+/*
+ * Fate types.
+ */
+
+#define FATE_NONE       0
+#define FATE_KILL       1
+#define FATE_SAVE       2
+#define FATE_USE        3
+#define FATE_UNUSE      4
+#define FATE_CARRY      5
+#define FATE_DROP       6
+#define FATE_SACRIFICE  7
 
 
 /*** Object "tval" and "sval" codes ***/
@@ -2628,15 +2642,17 @@
 /*
  * Special Monster Flags. Note that some aren't temporary!
  */
-#define MFLAG_VIEW	0x0001 /* Monster is in line of sight */
-#define MFLAG_ARENA     0x0002 /* It's an arena monster */
+#define MFLAG_VIEW	  0x0001 /* Monster is in line of sight */
+#define MFLAG_ARENA       0x0002 /* It's an arena monster */
 #define MFLAG_DROP_CORPSE 0x0004 /* Drop a corpse at death. */
-#define MFLAG_QUEST     0x0008 /* Monster is a quest target. */
-#define MFLAG_BORN	0x0010 /* Monster is still being born */
-#define MFLAG_NICE	0x0020 /* Monster is still being nice */
-#define MFLAG_SHOW	0x0040 /* Monster is recently memorized */
-#define MFLAG_MARK	0x0080 /* Monster is currently memorized */
-#define MFLAG_AVATAR    0x0100 /* Monster is an avatar of a god. */
+#define MFLAG_QUEST       0x0008 /* Monster is a quest target. */
+#define MFLAG_BORN	  0x0010 /* Monster is still being born */
+#define MFLAG_NICE	  0x0020 /* Monster is still being nice */
+#define MFLAG_SHOW	  0x0040 /* Monster is recently memorized */
+#define MFLAG_MARK	  0x0080 /* Monster is currently memorized */
+#define MFLAG_AVATAR      0x0100 /* Monster is an avatar of a god. */
+#define MFLAG_PACIFIST    0x0200 /* Monster is a pacifist. */
+
 
 /*
  * New monster race bit flags
@@ -2722,7 +2738,7 @@
 #define RF3_EVIL			0x00000040 /* Evil */
 #define RF3_ANIMAL			0x00000080 /* Animal */
 #define RF3_RANDOM_NAME		0x00000100 /* Generate a random name */
-#define RF3_FRIENDLY		0x00000200 /* Firendly, non-pet */
+#define RF3_FRIENDLY		0x00000200 /* Friendly, non-pet */
 #define RF3_SILENT	        0x00000400 /* Doesn't speak even if smart */
 #define RF3_XXX4			0x00000800 /* Non-Living (?) */
 #define RF3_HURT_LITE		0x00001000 /* Hurt by lite */

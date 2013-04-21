@@ -2039,7 +2039,20 @@ player_class class_info[MAX_CLASS] = {
 			SV_SPELLBOOK_ELEMENTAL,
 			TRUE, TRUE,
 			A_WIS,
-		500}
+		500},
+
+	{
+	  "Avatar",
+	  {0, -5, 5, 0, 0, -2},
+	  20, 30, 45, 2, 20, 10, 30, 20,
+	  5,  10, 15, 0,  0,  0, 10, 10,
+	  2, 0, 
+
+	  SV_SPELLBOOK_NONE,
+	  FALSE, FALSE,
+	  A_WIS,
+	  300
+	}
 };
 
 
@@ -2364,8 +2377,8 @@ cptr deity_niceness[10] = {
 	"uncaring",
 	"wary",
 	"unforgiving",
-	"wrathfull",
-	"hatefull",
+	"wrathful",
+	"hateful",
 	"extremely evil"
 };
 
@@ -2454,75 +2467,82 @@ cptr deity_affiliation[23] = {
 		"magic missile",
 
 	/* GA_TIME */
-	"those who can cast ``haste'', teleport, and breathe time.",
+	"those who can cast ``haste'', teleport, and breathe time",
 
 	/* GA_INFINITY */
 	"those who are smart, those who multiply or regenerate, and those who can "
-		"breathe or resist nexus.",
+		"breathe or resist nexus",
 
 	/* GA_CHANGE */
 	"those who are shimmering, and those who can breathe destruction or "
-		"disenchantment or chaos.",
+		"disenchantment or chaos",
 
 	/* GA_STASIS */
 	"those who do not move, those that have empty minds or those that are "
-		"undead.",
+		"undead",
 
 	/* GA_SMALL */
-	"those who multiply, and those who appear in groups.",
+	"those who multiply, and those who appear in groups",
 
 	/* GA_LARGE */
-	"those who are giants, dragons, or have powerful breath.",
+	"those who are giants, dragons, or have powerful breath",
 
 	/* GA_ENERGY */
-	"those who breathe plasma, mana, fire, light, or sound.",
+	"those who breathe or are immune to "
+	"plasma, mana, fire, light, or sound",
 
 	/* GA_MATTER */
-	"those who breathe acid, cold, poison, shards, or darkness.",
+	"those who breathe or are immune to "
+	"acid, cold, poison, shards, or darkness",
 
 	/* GA_BEING */
-	"all living creatures, whatever form they come in.",
+	"all living creatures, whatever form they come in",
 
 	/* GA_UNBEING */
-	"absolutely nothing."
+	"absolutely nothing"
 };
 
 /*
  * Information on gods.
- * { "name", "god_of", grace_deduction, alignment, opposition }
+ * { "name", "god_of", grace_deduct., alignment, opposition, rarity, female? }
  */
 
 deity deity_info[MAX_GODS] = {
-	{"Chernobog", "Night", 5, GA_NIGHT, GA_DAY, 0},
-	{"Belobog", "Day", 3, GA_DAY, GA_NIGHT, 0},
-	{"Melkor", "Shadow", 6, GA_SHADOW, GA_GOOD, 0},
-	{"Svarog", "Fire", 4, GA_FIRE, GA_WATER, 0},
-	{"Chthon", "Blood", 7, GA_FLESH, GA_STONE, 0},
-	{"Mokosh", "Nature", 2, GA_NATURE, GA_SMARTS, 0},
-	{"Naunet", "Water", 3, GA_WATER, GA_FIRE, 0},
-	{"Voltumna", "Stone", 1, GA_STONE, GA_FLESH, 0},
-	{"Shaitan", "Evil", 9, GA_EVIL, GA_GOOD, 0},
-	{"Amon-Ras", "Good", 2, GA_GOOD, GA_EVIL, 0},
-	{"Apep", "Chaos", 4, GA_CHAOS, GA_NATURE, 0},
-	{"Radogast", "Sun", 3, GA_DAY, GA_EVIL, 0},
-	{"Herovit", "Rage", 8, GA_FLESH, GA_SMARTS, 0},
-	{"Veles", "Beasts", 4, GA_NATURE, GA_STONE, 0},
-	{"Stribog", "Winds", 5, GA_AIR, GA_FIRE, 0},
-	{"Chenti", "Spheres", 4, GA_SMARTS, GA_NATURE, 0},
+	{"Chernobog", "Night", 5, GA_NIGHT, GA_DAY, 0, 0},
+	{"Belobog", "Day", 3, GA_DAY, GA_NIGHT, 0, 0},
+	{"Melkor", "Shadow", 6, GA_SHADOW, GA_GOOD, 0, 0},
+	{"Svarog", "Fire", 4, GA_FIRE, GA_WATER, 0, 0},
+	{"Chthon", "Blood", 7, GA_FLESH, GA_STONE, 0, 0},
+	{"Mokosh", "Nature", 2, GA_NATURE, GA_SMARTS, 0, 1},
+	{"Naunet", "Water", 3, GA_WATER, GA_FIRE, 0, 1},
+	{"Voltumna", "Stone", 1, GA_STONE, GA_FLESH, 0, 1},
+	{"Shaitan", "Evil", 9, GA_EVIL, GA_GOOD, 0, 0},
+	{"Amon-Ras", "Good", 2, GA_GOOD, GA_EVIL, 0, 0},
+	{"Apep", "Chaos", 4, GA_CHAOS, GA_NATURE, 0, 0},
+	{"Radogast", "Sun", 3, GA_DAY, GA_EVIL, 0, 0},
+	{"Herovit", "Rage", 8, GA_FLESH, GA_SMARTS, 0, 0},
+	{"Veles", "Beasts", 4, GA_NATURE, GA_STONE, 0, 0},
+	{"Stribog", "Winds", 5, GA_AIR, GA_FIRE, 0, 0},
+	{"Chenti", "Spheres", 4, GA_SMARTS, GA_NATURE, 0, 0},
 
-	{"Clabkothep", "Time", 5, GA_TIME, GA_INFINITY, 1},
-	{"Jaarlephon", "Infinity", 7, GA_INFINITY, GA_TIME, 1},
-	{"Blopeufuurd", "Change", 7, GA_CHANGE, GA_STASIS, 1},
-	{"Gaawuurvud", "Stasis", 3, GA_STASIS, GA_CHANGE, 1},
+	/* 
+	 * These names are now authentic, thank the Gods. 
+	 * (The previously random-generated names were phoney to the
+	 *  extreme.)
+	 */
 
-	{"Quardunoorp", "Particles", 7, GA_SMALL, GA_LARGE, 2},
-	{"Zarccinaenum", "Continuity", 4, GA_LARGE, GA_SMALL, 2},
-	{"Klauuplugrop", "Energy", 6, GA_ENERGY, GA_MATTER, 2},
-	{"Pwarrdeshneg", "Matter", 4, GA_MATTER, GA_ENERGY, 2},
+	{"Embla", "Time", 5, GA_TIME, GA_INFINITY, 1, 1},
+	{"Oiw", "Infinity", 7, GA_INFINITY, GA_TIME, 1, 0},
+	{"Belenos", "Change", 7, GA_CHANGE, GA_STASIS, 1, 0},
+	{"Blodewedd", "Stasis", 3, GA_STASIS, GA_CHANGE, 1, 1},
 
-	{"Aankros", "Being", 0, GA_BEING, GA_UNBEING, 3},
-	{"Umgruul", "Unbeing", 9, GA_UNBEING, GA_BEING, 3}
+	{"Monegarn", "Particles", 7, GA_SMALL, GA_LARGE, 2, 0},
+	{"Boann", "Continuity", 4, GA_LARGE, GA_SMALL, 2, 1},
+	{"Njoerd", "Energy", 6, GA_ENERGY, GA_MATTER, 2, 0},
+	{"Skade", "Matter", 4, GA_MATTER, GA_ENERGY, 2, 1},
 
+	{"Inanna", "Being", 0, GA_BEING, GA_UNBEING, 3, 1},
+	{"Belzebuth", "Unbeing", 9, GA_UNBEING, GA_BEING, 3, 0}
 };
 
 /* 
@@ -3342,7 +3362,21 @@ cptr player_title[MAX_CLASS][PY_MAX_LEVEL / 5] = {
 			"Elemental",
 			"Elemental",
 			"Elemental",
-		"Elemental"}
+		"Elemental"},
+
+	/* Avatar */
+	{
+	  "Enlightened",
+	  "Voice of Truth",
+	  "Apostle",
+	  "Prophet",
+	  "Divine Light",
+	  "Eye of God",
+	  "Avatar",
+	  "Avatar",
+	  "Divine Scourge",
+	  "Fist of God"
+	}
 };
 
 

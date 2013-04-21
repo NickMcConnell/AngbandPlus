@@ -1375,6 +1375,12 @@ static void calc_spells(void)
 	/* See how many spells we must forget or may learn */
 	p_ptr->new_spells = num_allowed - num_known;
 
+	/* WARNING. 
+	* (This can happen if we suddenly get catastrophically stupid,
+	* for example during a shape shift.) */
+	if (p_ptr->new_spells < 0) {
+	  p_ptr->new_spells = 0;
+	}
 
 	/* Assume no spells available */
 	k = 0;
@@ -1927,7 +1933,7 @@ static void god_bonus(int god, int goodness, bool do_print)
 		case 7: /* Water */
 			p_ptr->slow_digest = TRUE;
 			if (do_print)
-				mprint(MSG_BONUS, "Your body becomes changes subtly.");
+				mprint(MSG_BONUS, "Your body changes subtly.");
 
 			if (goodness > 2)
 			{
@@ -2222,50 +2228,50 @@ static void god_bonus(int god, int goodness, bool do_print)
 
 			if (goodness > 1)
 			{
-				p_ptr->resist_fire = FALSE;
-				p_ptr->resist_cold = FALSE;
-				p_ptr->resist_fear = FALSE;
+				p_ptr->resist_fire = TRUE;
+				p_ptr->resist_cold = TRUE;
+				p_ptr->resist_fear = TRUE;
 			}
 
 			if (goodness > 2)
 			{
-				p_ptr->resist_acid = FALSE;
-				p_ptr->resist_elec = FALSE;
-				p_ptr->resist_pois = FALSE;
+				p_ptr->resist_acid = TRUE;
+				p_ptr->resist_elec = TRUE;
+				p_ptr->resist_pois = TRUE;
 			}
 
 			break;
 
 		case 21: /* Particles. */
 		case 24: /* Matter. */
-			p_ptr->resist_chaos = FALSE;
-			p_ptr->resist_shard = FALSE;
-			p_ptr->resist_acid = FALSE;
-			p_ptr->resist_cold = FALSE;
-			p_ptr->resist_pois = FALSE;
+			p_ptr->resist_chaos = TRUE;
+			p_ptr->resist_shard = TRUE;
+			p_ptr->resist_acid = TRUE;
+			p_ptr->resist_cold = TRUE;
+			p_ptr->resist_pois = TRUE;
 
 			if (do_print)
 				mprint(MSG_BIG_BONUS, "You feel protected in a big way.");
 			break;
 
 		case 22: /* Continuity. */
-			p_ptr->resist_fear = FALSE;
-			p_ptr->resist_confu = FALSE;
-			p_ptr->resist_disen = FALSE;
-			p_ptr->resist_nexus = FALSE;
-			p_ptr->resist_nethr = FALSE;
-			p_ptr->resist_blind = FALSE;
+			p_ptr->resist_fear = TRUE;
+			p_ptr->resist_confu = TRUE;
+			p_ptr->resist_disen = TRUE;
+			p_ptr->resist_nexus = TRUE;
+			p_ptr->resist_nethr = TRUE;
+			p_ptr->resist_blind = TRUE;
 
 			if (do_print)
 				mprint(MSG_BIG_BONUS, "You feel protected in a big way.");
 			break;
 
 		case 23: /* Energy. */
-			p_ptr->resist_elec = FALSE;
-			p_ptr->resist_fire = FALSE;
-			p_ptr->resist_lite = FALSE;
-			p_ptr->resist_dark = FALSE;
-			p_ptr->resist_sound = FALSE;
+			p_ptr->resist_elec = TRUE;
+			p_ptr->resist_fire = TRUE;
+			p_ptr->resist_lite = TRUE;
+			p_ptr->resist_dark = TRUE;
+			p_ptr->resist_sound = TRUE;
 
 			if (do_print)
 				mprint(MSG_BIG_BONUS, "You feel protected in a big way.");
@@ -2332,7 +2338,7 @@ static void god_effect(int god, int badness)
 		case 7:
 			if (do_print)
 				mformat(MSG_BONUS,
-					"%s has noticed you. You feel enlightened", name);
+					"%s has noticed you. You feel enlightened.", name);
 			break;
 		case 6:
 			if (do_print)
@@ -3104,6 +3110,7 @@ static void calc_bonuses(void)
 	p_ptr->true_vampirism = FALSE;
 	p_ptr->no_equip = FALSE;
 	p_ptr->engulfs = FALSE;
+	p_ptr->fated = FALSE;
 
 	/*** Extract race/class info ***/
 
@@ -3317,6 +3324,11 @@ static void calc_bonuses(void)
 		p_ptr->no_eating = TRUE;
 		p_ptr->true_vampirism = TRUE;
 		p_ptr->resist_dark = TRUE;
+	}
+
+	if (p_ptr->pclass == CLASS_AVATAR) {
+	  
+	  p_ptr->fated = TRUE;
 	}
 
 
@@ -3958,6 +3970,12 @@ static void calc_bonuses(void)
 
 		int num = 0, wgt = 0, mul = 0, div = 0;
 
+		/* Explanation: 
+		 * num -- maximum number of blows.
+		 * wgt -- minimum weight in tenth pounds.
+		 * mul -- strength index multiplier.
+		 */
+
 		/* Analyze the class */
 		switch (p_ptr->pclass)
 		{
@@ -4001,11 +4019,12 @@ static void calc_bonuses(void)
 				break;
 
 				/* Paladin  Modified by GJW -KMW- */
-			case CLASS_PALADIN:
-				num = 5;
-				wgt = 35;
-				mul = 4;
-				break;
+		case CLASS_AVATAR:
+		case CLASS_PALADIN:
+		  num = 5;
+		  wgt = 35;
+		  mul = 4;
+		  break;
 
 			case CLASS_BARD:
 			case CLASS_ILLUSIONIST:

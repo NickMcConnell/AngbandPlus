@@ -2335,6 +2335,44 @@ void object_desc(char *buf, object_type * o_ptr, int pref, int mode)
 		t = object_desc_str(t, &len, " (charging)");
 	}
 
+	/* Fate indicator. */
+	switch (o_ptr->fate) {
+	case FATE_NONE:
+	  break;
+
+	case FATE_KILL:
+	  t = object_desc_str(t, &len, " (fate: destroy)");
+	  break;
+
+	case FATE_SAVE:
+	  t = object_desc_str(t, &len, " (fate: save)");
+	  break;
+
+	case FATE_USE:
+	  t = object_desc_str(t, &len, " (fate: use)");
+	  break;
+
+	case FATE_UNUSE:
+	  t = object_desc_str(t, &len, " (fate: avoid)");
+	  break;
+
+	case FATE_CARRY:
+	  t = object_desc_str(t, &len, " (fate: carry)");
+	  break;
+
+	case FATE_DROP:
+	  t = object_desc_str(t, &len, " (fate: drop)");
+	  break;
+
+	case FATE_SACRIFICE:
+	  t = object_desc_str(t, &len, " (fate: sacrifice)");
+	  break;
+
+	default:
+	  t = object_desc_str(t, &len, " (fate: DEBUG)");
+	  break;
+	}
+
 
 	/* No more details wanted */
 	if (mode < 3)
@@ -4170,6 +4208,63 @@ object_type *get_item(cptr prompt, cptr str, int y, int x, int mode)
 
 	size_main = size_stack(stack, FALSE);
 	size_aux = size_stack(s_aux, FALSE);
+
+	/* HACK. Allow interface-less usage of this function. If
+	 * "item_tester_automatic" is set, pick one item at random.
+	 * This will not work if any of "USE_REMOVE", "USE_BY_PARTS" or 
+	 * "USE_JUST_ONE" are set. It is possible that an item on the 
+	 * floor will be picked. 
+	 */
+	if (item_tester_automatic) {
+	  int foo, i;
+
+	  object_type* ret;
+
+	  if (mode & USE_REMOVE || 
+	      mode & USE_BY_PARTS || 
+	      mode & USE_JUST_ONE) {
+
+	    ret = NULL;
+
+	  } else {
+	    foo = rand_int((mode & USE_INVEN ? size_main : 0) +
+			   (mode & USE_FLOOR ? size_aux : 0));
+
+	    if (foo < size_main) {
+	      ret = stack;
+
+	      for (ret = stack; ret != NULL; ret = ret->next) {
+		if (i == foo) {
+		  break;
+		}
+
+		if (item_tester_okay(ret)) {
+		  i++;
+		}
+	      }
+
+	    } else {
+	      foo -= size_main;
+
+	      for (ret = s_aux; ret != NULL; ret = ret->next) {
+		if (i == foo) {
+		  break;
+		}
+
+		if (item_tester_okay(ret)) {
+		  i++;
+		}
+	      }
+	    }
+	  }
+
+	  item_tester_tval = 0;
+	  item_tester_hook = NULL;
+	  item_tester_automatic = FALSE;
+
+	  return ret;
+	}
+
 
 	/* Require at least one legal choice */
 	if (!size_main && !size_aux)

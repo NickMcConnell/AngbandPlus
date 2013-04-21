@@ -1,4 +1,6 @@
 
+- More specialized classes; preferrably based on real-life stuff.
+
 ? - Sorceror class, with spells formed from syllables.
 ? - Add pr_info.txt and pc_info.txt, for player races/classes.
 ? - A few non-combat spells for corrupteds.
@@ -6,17 +8,16 @@
 ? - Upgrade to 2.8.3 (Wait for 2.8.4?)
 ? - Improve weaponsmaster
 ? - Some sort of extension language?
-? - Remove the town-level restiriction for ghosts, and make religion
+? - Remove the town-level restriction for ghosts, and make religion
     prohibited for Ghosts.
 ? - ts_info.txt for tvals/svals.
 
-- Vaults for the wilderness.
-TEST - More pet control.
+- (More) Vaults for the wilderness.
+- Monster AI. (That is, for interactivity)
+- Twiddle with the wilderness.
 
 - Shopkeepers.
 - Corrupted weapons.
-
-- Do something about stacking.
 
 - Make social class more important.
 

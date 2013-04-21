@@ -1,26 +1,21 @@
-Welcome to the Angband Online Help System.
+Welcome to the Kamband Online Help System.
 
 Please choose one of the following online help files:
 
-    (1) General Information        (general.txt)
-    (2) Creating a Character       (birth.txt)
-    (3) Exploring the Dungeon      (dungeon.txt)
-    (4) Attacking Monsters         (attack.txt)
-    (5) Playing the Game           (playing.txt)
-    (6) Command Descriptions       (command.txt)
-    (7) Option Descriptions        (option.txt)
-    (8) Version Information        (version.txt)
-    (9) Spoiler Menu (if any)      (spoiler.hlp)
+    (1) Kamband Help            (kamband.txt)
+    (2) Kamband Key List        (keylist.txt)
+    (3) "Readme" and changelog  (README)
+        for Kamband
 
-    (0) README for KamBand         (README)
-    
-***** [1] general.txt
-***** [2] birth.txt
-***** [3] dungeon.txt
-***** [4] attack.txt
-***** [5] playing.txt
-***** [6] command.txt
-***** [7] option.txt
-***** [8] version.txt
-***** [9] spoiler.hlp
-***** [0] README
+Angband help: 
+
+* Note: This is likely to be highly inaccurate. You have been warned. *
+
+    (0) Angband Help     (angband.hlp)
+
+***** [1] kamband.txt
+***** [2] keylist.txt
+***** [3] README
+***** [0] angband.hlp
+
+

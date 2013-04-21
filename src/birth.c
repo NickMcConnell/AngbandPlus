@@ -934,9 +934,37 @@ static void get_extra(void)
 	p_ptr->grace = 0;
 	p_ptr->pgod = 0;
 
+	p_ptr->luck = 0;
+
 	p_ptr->pets_notice = 0;
 	p_ptr->number_pets = 0;
 
+	/* Hack -- Start with a god. */
+	if (p_ptr->pclass == CLASS_AVATAR) {
+
+	  int pgod;
+
+	  while (1) {
+	    pgod = rand_int(MAX_GODS);
+
+	    if (magik(100 / (deity_info[pgod].rarity + 1))) break;
+	  }
+
+	  mformat(MSG_BONUS, 
+		  "You are forevermore fated to be the Avatar of %s, "
+		  "the God%s of %s.", 
+		  deity_info[pgod].name, 
+		  (deity_info[pgod].female ? "dess" : ""),
+		  deity_info[pgod].god_of);
+
+	  msg_print(NULL);
+
+	  p_ptr->pgod = pgod + 1;
+	  p_ptr->grace = 200;
+	  p_ptr->god_favor = -60000;
+	}
+
+	    
 	/* Hitdice */
 	p_ptr->hitdie = rp_ptr->r_mhp + cp_ptr->c_mhp;
 
@@ -1552,8 +1580,13 @@ static byte player_init[MAX_CLASS][3][2] = {
 	{ /* Elemental */
 			{TV_WAND, SV_WAND_FIRE_BOLT},
 			{TV_WAND, SV_WAND_COLD_BOLT},
-			{TV_WAND, SV_WAND_ELEC_BOLT},
-		}
+			{TV_WAND, SV_WAND_ELEC_BOLT}
+		},
+	{ /* Avatar */
+	  { TV_SWORD, SV_DAGGER },
+	  { TV_POTION, SV_POTION_HEALING },
+	  { TV_STAFF, SV_STAFF_POWER }
+	}
 };
 
 /*
@@ -1862,14 +1895,14 @@ static bool player_birth_aux()
 
 		/* Display */
 		sprintf(buf, "%c%c %s%s", I2A(n), p2, str, mod);
-		put_str(buf, 19 + (n / 3), 2 + 20 * (n % 3));
+		put_str(buf, 18 + (n / 3), 2 + 20 * (n % 3));
 	}
 
 	/* Get a class */
 	while (1)
 	{
 		sprintf(buf, "Choose a class (%c-%c): ", I2A(0), I2A(n - 1));
-		put_str(buf, 18, 2);
+		put_str(buf, 17, 2);
 		c = inkey();
 		if (c == 'Q')
 			quit(NULL);

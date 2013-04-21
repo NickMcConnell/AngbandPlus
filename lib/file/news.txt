@@ -1,13 +1,15 @@
 
 
-                        ***********************
-                        **   KaMband  1.8c   **
-                        ***********************
+                        +---------------------+
+                       <     KaMband  1.9      >
+                        +---------------------+
+
+                           a.k.a. "Anachron"
 
          Based on Moria:    Copyright (c) 1985 Robert Alan Koeneke
              and Umoria:    Copyright (c) 1989 James E. Wilson
 
-       Angband 2.0 - 2.4: Alex Cutler, Andy Astrand, Sean Marsh, 
+       Angband 2.0 - 2.4: Alex Cutler, Andy Astrand, Sean Marsh,
                           Geoff Hill, Charles Teague, and others
 
        Angband 2.5 - 2.6: Charles Swiger (cs4w+@andrew.cmu.edu)
@@ -16,8 +18,6 @@
 
        Curses/X11 Module: Ben Harrison, Torbj|rn Lindgren
 
- Angband 2.8.2 is available for Unix, X11, Macintosh, IBM, Windows, etc.
- Be sure to read the online help, especially "general.txt" and "version.txt".
 
  Visit the Angband Home Page at "http://www.phial.com/angband/".
- Send all comments, bug reports, patches, etc, to "tkatchev@cs.purdue.edu"
+ Send all comments, bug reports, patches, etc, to "tkatchev@angel.cs.msu.su"

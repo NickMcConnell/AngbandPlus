@@ -427,7 +427,7 @@ static void remove_bad_spells(int m_idx, u32b * f4p, u32b * f5p,
 /*
  * Find closest target. This function looks through all the
  * monsters and tries to find the closest one that is of opposite
- * pet status. Note that `line-og-sight' between monsters is not checked.
+ * pet status. Note that `line-of-sight' between monsters is not checked.
  */
 
 static void find_target_nearest(monster_type * m_ptr, monster_race * r_ptr,
@@ -484,8 +484,9 @@ static void find_target_nearest(monster_type * m_ptr, monster_race * r_ptr,
 
 		o_r_ptr = &r_info[o_m_ptr->r_idx];
 
-		if (o_m_ptr->is_pet != m_ptr->is_pet && !(m_ptr->is_pet &&
-				o_r_ptr->flags3 & RF3_FRIENDLY))
+		if (o_m_ptr->is_pet != m_ptr->is_pet && 
+		    !(m_ptr->is_pet &&
+		      o_r_ptr->flags3 & RF3_FRIENDLY))
 		{
 			j = distance(o_m_ptr->fy, o_m_ptr->fx, sy, sx);
 
@@ -3145,8 +3146,9 @@ static void process_monster(int m_idx)
 	stagger = FALSE;
 
 	/* Confused */
-	if (m_ptr->confused || r_ptr->flags3 & RF3_FRIENDLY)
-	{
+	if (m_ptr->confused || r_ptr->flags3 & RF3_FRIENDLY ||
+	    m_ptr->mflag & MFLAG_PACIFIST) {
+
 		/* Stagger */
 		stagger = TRUE;
 	}
@@ -3510,7 +3512,8 @@ static void process_monster(int m_idx)
 
 		/* Some monsters never attack */
 		if (do_move && (cave_m_idx[ny][nx] < 0) &&
-			(r_ptr->flags1 & (RF1_NEVER_BLOW)))
+		    (r_ptr->flags1 & RF1_NEVER_BLOW ||
+		     m_ptr->mflag & MFLAG_PACIFIST))
 		{
 			/* Hack -- memorize lack of attacks */
 			/* if (m_ptr->ml) r_ptr->r_flags1 |= (RF1_NEVER_BLOW); */

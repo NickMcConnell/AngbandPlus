@@ -9,10 +9,17 @@ Ammo
 
      Rounded Pebble                                    1d2    0.4    0        1
      Arrow                                             1d4    0.2    3        1
-     Iron Shot                                         1d3    0.5    3        2
+     Flare                                             1d4    0.2    3        1
+     Shot                                              1d3    0.5    3        2
      Bolt                                              1d5    0.3    3        2
      Seeker Arrow                                      4d4    0.2   55       20
      Seeker Bolt                                       4d5    0.3   65       25
+     Magic Arrow                                       1d4    0.2   20       30
+     Fire Arrow                                        1d4    0.2   24       40
+     Frost Arrow                                       1d4    0.2   24       40
+     Lightning Arrow                                   1d4    0.2   24       40
+     Acid Arrow                                        1d4    0.2   24       40
+     Nether Arrow                                      1d4    0.2   74      500
 
 
 Bows
@@ -37,6 +44,7 @@ Weapons
      Small Sword                                       1d6    7.5    5       48
      Sabre                                             1d7    5.0    5       50
      Pick                                              1d3   15.0    5       50
+     Scalpel                                           2d4    1.0    4       85
      Cutlass                                           1d7   11.0    5       85
      Short Sword                                       1d7    8.0    5       90
      Gnomish Shovel                                    1d2    6.0   20      100
@@ -63,7 +71,7 @@ Weapons
      Morning Star                                      2d6   15.0   10      396
      Katana                                            3d4   12.0   20      400
      Beaked Axe                                        2d6   18.0   15      408
-     Halberd                                           3d4   19.0   25      430
+     Halberd                                           3d5   19.0   25      430
      Great Axe                                         4d4   23.0   40      500
      Lead-Filled Mace                                  3d4   18.0   15      502
      Two-Handed Flail                                  3d6   28.0   45      590
@@ -127,11 +135,11 @@ Armour (Misc)
      Set of Gauntlets                                    2    2.5   10       35
      Small Metal Shield                                  3    6.5   10       50
      Pair of Metal Shod Boots                            6    8.0   20       50
-     Iron Helm                                           5    7.5   20       75
+     Helm                                                5    7.5   20       75
      Set of Cesti                                        5    4.0   50      100
      Large Leather Shield                                4   10.0   15      120
      Large Metal Shield                                  5   12.0   30      200
-     Steel Helm                                          6    6.0   40      200
+     Great Helm                                          6    6.0   40      200
      Iron Crown                                          0    2.0   45      500
      Golden Crown                                        0    3.0   45     1000
      Jewel Encrusted Crown                               0    4.0   50     2000
@@ -155,10 +163,7 @@ Amulets
 Rings
 
      Ring of Teleportation                                    0.2    5        0
-     Ring of Weakness                                         0.2    5        0
-     Ring of Stupidity                                        0.2    5        0
      Ring of Aggravate Monster                                0.2    5        0
-     Ring of Woe                                              0.2   50        0
      Ring of Feather Falling                                  0.2    5      200
      Ring of Searching                                        0.2    5      250
      Ring of Slow Digestion                                   0.2    5      250
@@ -190,12 +195,12 @@ Rings
 Scrolls
 
      Scroll of Summon Monster                                 0.5    1        0
-     Scroll of Darkness                                       0.5    1        0
      Scroll of Aggravate Monster                              0.5    5        0
-     Scroll of Trap Creation                                  0.5   10        0
      Scroll of Summon Undead                                  0.5   15        0
      Scroll of Curse Weapon                                   0.5   50        0
      Scroll of Curse Armor                                    0.5   50        0
+     Scroll of Darkness                                       0.5    1        1
+     Scroll of Trap Creation                                  0.5   10        1
      Scroll of Satisfy Hunger                                 0.5    5       10
      Scroll of Light                                          0.5    0       15
      Scroll of Treasure Detection                             0.5    0       15
@@ -205,11 +210,14 @@ Scrolls
      Scroll of Blessing                                       0.5    1       15
      Scroll of Monster Confusion                              0.5    5       30
      Scroll of Trap Detection                                 0.5    5       35
-     Scroll of Door/Stair Location                            0.5    5       35
+     Scroll of Door Location                                  0.5    5       35
+     Scroll of Summon Pet                                     0.5    1       40
+     Scroll of Repair                                         0.5    4       40
      Scroll of Magic Mapping                                  0.5    5       40
-     Scroll of Teleport                                       0.5   10       40
+     Scroll of Teleportation                                  0.5   10       40
      Scroll of Holy Chant                                     0.5   10       40
      Scroll of Identify                                       0.5    1       50
+     Scroll of Recipe                                         0.5    7       50
      Scroll of Trap/Door Destruction                          0.5   10       50
      Scroll of Teleport Level                                 0.5   20       50
      Scroll of Protection from Evil                           0.5   30       50
@@ -218,6 +226,7 @@ Scrolls
      Scroll of Enchant Weapon To-Hit                          0.5   15      125
      Scroll of Enchant Weapon To-Dam                          0.5   15      125
      Scroll of Enchant Armor                                  0.5   15      125
+     Scroll of Transmutation                                  0.5    1      150
      Scroll of Word of Recall                                 0.5    5      150
      Scroll of Recharging                                     0.5   40      200
      Scroll of Dispel Undead                                  0.5   40      200
@@ -227,46 +236,67 @@ Scrolls
      Scroll of Rune of Protection                             0.5   60      500
      Scroll of Genocide                                       0.5   40      750
      Scroll of *Identify*                                     0.5   30     1000
+     Scroll of *Transmutation*                                0.5   30     1000
      Scroll of Mass Genocide                                  0.5   50     1000
      Scroll of *Remove Curse*                                 0.5   50     8000
+     Scroll of Ego-item creation                              0.5   20   100000
      Scroll of Acquirement                                    0.5   20   100000
+     Scroll of Artifact creation                              0.5   60   200000
      Scroll of *Acquirement*                                  0.5   60   200000
 
 
 Potions
 
-     Potion of Sleep                                          0.4    0        0
-     Potion of Blindness                                      0.4    0        0
-     Potion of Confusion                                      0.4    0        0
      Potion of Salt Water                                     0.4    0        0
-     Potion of Slowness                                       0.4    1        0
-     Potion of Weakness                                       0.4    3        0
-     Potion of Poison                                         0.4    3        0
-     Potion of Clumsiness                                     0.4    5        0
-     Potion of Sickliness                                     0.4   10        0
-     Potion of Lose Memories                                  0.4   10        0
-     Potion of Stupidity                                      0.4   20        0
-     Potion of Naivety                                        0.4   20        0
      Potion of Ugliness                                       0.4   20        0
-     Potion of Ruination                                      0.4   40        0
-     Potion of Death                                          0.4   55        0
      Potion of Apple Juice                                    0.4    0        1
      Potion of Water                                          0.4    0        1
+     Potion of Blindness                                      0.4    0        1
+     Potion of Weakness                                       0.4    3        1
+     Potion of Clumsiness                                     0.4    5        1
+     Potion of Sickliness                                     0.4   10        1
+     Potion of Stupidity                                      0.4   20        1
+     Potion of Naivety                                        0.4   20        1
      Potion of Slime Mold Juice                               0.4    0        2
+     Potion of Sleep                                          0.4    0        5
+     Potion of Confusion                                      0.4    0        5
+     Potion of Shape of Abomination                           0.4    0        5
+     Potion of Slowness                                       0.4    1        5
+     Potion of Poison                                         0.4    3        5
+     Potion of Mutation                                       0.4    3        5
      Potion of Boldness                                       0.4    1       10
+     Potion of Experience Drain                               0.4   10       10
      Potion of Cure Light Wounds                              0.4    0       15
+     Potion of Cure Light Insanity                            0.4    0       15
      Potion of Infra-vision                                   0.4    3       20
      Potion of Slow Poison                                    0.4    1       25
      Potion of Resist Heat                                    0.4    1       30
      Potion of Resist Cold                                    0.4    1       30
      Potion of Heroism                                        0.4    1       35
      Potion of Cure Serious Wounds                            0.4    3       40
+     Potion of Cure Serious Insanity                          0.4    3       40
      Potion of Detect Invisible                               0.4    3       50
      Potion of Speed                                          0.4    1       75
      Potion of Neutralize Poison                              0.4    5       75
      Potion of Berserk Strength                               0.4    3      100
+     Potion of Cure Mutation                                  0.4    3      100
      Potion of Cure Critical Wounds                           0.4    5      100
+     Potion of Cure Critical Insanity                         0.4    5      100
+     Potion of Shape of Wolf                                  0.4    5      300
+     Potion of Shape of Ape                                   0.4    5      300
+     Potion of Shape of Goat                                  0.4    5      300
+     Potion of Shape of Insect                                0.4    5      300
+     Potion of Shape of Sparrow                               0.4    5      300
+     Potion of Shape of Statue                                0.4    5      300
+     Potion of Shape of Vampire                               0.4    5      300
+     Potion of Shape of Serpent                               0.4    5      300
+     Potion of Shape of Spider                                0.4    5      300
+     Potion of Shape of Mana ball                             0.4    5      300
+     Potion of Shape of Fire cloud                            0.4    5      300
+     Potion of Shape of Cold cloud                            0.4    5      300
+     Potion of Shape of Chaos cloud                           0.4    5      300
      Potion of Healing                                        0.4   15      300
+     Potion of Cure Insanity                                  0.4   15      300
      Potion of Restore Charisma                               0.4   20      300
      Potion of Restore Strength                               0.4   25      300
      Potion of Restore Intelligence                           0.4   25      300
@@ -277,15 +307,17 @@ Potions
      Potion of Restore Life Levels                            0.4   40      400
      Potion of Enlightenment                                  0.4   25      800
      Potion of Charisma                                       0.4   20     1000
+     Potion of Ruination                                      0.4   40     1000
      Potion of *Healing*                                      0.4   40     1500
      Potion of Self Knowledge                                 0.4   40     2000
+     Potion of Death                                          0.4   55     5000
      Potion of Life                                           0.4   60     5000
      Potion of Strength                                       0.4   30     8000
      Potion of Intelligence                                   0.4   30     8000
      Potion of Wisdom                                         0.4   30     8000
      Potion of Constitution                                   0.4   30     8000
      Potion of Dexterity                                      0.4   30     8000
-     Potion of Detonations                                    0.4   60    10000
+     Potion of Detonation                                     0.4   60    10000
      Potion of Experience                                     0.4   65    25000
      Potion of Augmentation                                   0.4   40    60000
      Potion of *Enlightenment*                                0.4   70    80000
@@ -326,10 +358,10 @@ Rods
 
      Rod of Trap Location                                     1.5    5      100
      Rod of Light                                             1.5   10      500
-     Rod of Door/Stair Location                               1.5   15     1000
+     Rod of Door Location                                     1.5   15     1000
      Rod of Illumination                                      1.5   20     1000
      Rod of Polymorph                                         1.5   35     1200
-     Rod of Teleport Away                                     1.5   45     1400
+     Rod of Teleport Other                                    1.5   45     1400
      Rod of Slow Monster                                      1.5   30     1500
      Rod of Sleep Monster                                     1.5   30     1500
      Rod of Lightning Bolts                                   1.5   20     2000
@@ -346,7 +378,7 @@ Rods
      Rod of Fire Balls                                        1.5   75     5000
      Rod of Acid Balls                                        1.5   70     5500
      Rod of Enlightenment                                     1.5   65    10000
-     Rod of Perceptions                                       1.5   50    13000
+     Rod of Perception                                        1.5   50    13000
      Rod of Curing                                            1.5   65    15000
      Rod of Healing                                           1.5   80    20000
      Rod of Restoration                                       1.5   80    25000
@@ -355,15 +387,15 @@ Rods
 
 Wands
 
-     Wand of Heal Monster                                     1.0    3        0
-     Wand of Haste Monster                                    1.0    3        0
-     Wand of Clone Monster                                    1.0   15        0
+     Wand of Heal Monster                                     1.0    3        1
+     Wand of Haste Monster                                    1.0    3        1
+     Wand of Clone Monster                                    1.0   15        1
      Wand of Trap/Door Destruction                            1.0   10      100
      Wand of Light                                            1.0    3      200
      Wand of Magic Missile                                    1.0    3      200
      Wand of Wonder                                           1.0    3      250
      Wand of Stone to Mud                                     1.0   10      300
-     Wand of Teleport Away                                    1.0   20      350
+     Wand of Teleport Other                                   1.0   20      350
      Wand of Stinking Cloud                                   1.0    5      400
      Wand of Polymorph                                        1.0   20      400
      Wand of Slow Monster                                     1.0    5      500
@@ -388,20 +420,20 @@ Wands
 
 Staffs
 
-     Staff of Darkness                                        5.0    5        0
      Staff of Summoning                                       5.0   10        0
-     Staff of Haste Monsters                                  5.0   10        0
-     Staff of Slowness                                        5.0   40        0
+     Staff of Haste Monsters                                  5.0   10        2
+     Staff of Slowness                                        5.0   40        2
+     Staff of Darkness                                        5.0    5        5
      Staff of Treasure Location                               5.0    5      200
      Staff of Object Location                                 5.0    5      200
      Staff of Detect Invisible                                5.0    5      200
      Staff of Light                                           5.0    5      250
      Staff of Cure Light Wounds                               5.0    5      350
      Staff of Trap Location                                   5.0   10      350
-     Staff of Door/Stair Location                             5.0   10      350
+     Staff of Door Location                                   5.0   10      350
      Staff of Detect Evil                                     5.0   20      350
      Staff of Earthquakes                                     5.0   40      350
-     Staff of Perceptions                                     5.0   10      400
+     Staff of Perception                                      5.0   10      400
      Staff of Remove Curse                                    5.0   40      500
      Staff of Sleep Monsters                                  5.0   10      700
      Staff of Enlightenment                                   5.0   20      750
@@ -420,57 +452,118 @@ Staffs
      Staff of Healing                                         5.0   70     5000
 
 
-Books (Mage)
+Spellbooks
 
-     Book of Magic Spells [Magic for Beginners]               3.0    5       25
-     Book of Magic Spells [Conjurings and Tricks]             3.0   10      100
-     Book of Magic Spells [Incantations and Illusions]            3.0   20      400
-     Book of Magic Spells [Sorcery and Evocations]            3.0   30      800
-     Book of Magic Spells [Resistance of Scarabtarices]            3.0   40     5000
-     Book of Magic Spells [Mordenkainen's Escapes]            3.0   50    10000
-     Book of Magic Spells [Kelek's Grimoire of Power]            3.0   60    30000
-     Book of Magic Spells [Tenser's Transformations]            3.0   80    50000
-     Book of Magic Spells [Raal's Tome of Destruction]            3.0  100   100000
+     Book of Magic Spells                                     3.0    5       25
+     Book of Devout Chants                                    3.0    5       25
+     Book of Illusions                                        3.0    5       25
+     Book of Shadows                                          3.0    5       25
+     Book of Nature                                           3.0    5       25
+     Book of Black Magic                                      3.0    5       25
+     Book of Songs                                            3.0    5       25
+     Book of the Dead                                         3.0    5       25
 
 
-Books (Priest)
+Books of Lore
 
-     Holy Book of Prayers [Beginners Handbook]                3.0    5       25
-     Holy Book of Prayers [Words of Wisdom]                   3.0   10      100
-     Holy Book of Prayers [Chants and Blessings]              3.0   20      300
-     Holy Book of Prayers [Exorcism and Dispelling]            3.0   30      900
-     Holy Book of Prayers [Ethereal Openings]                 3.0   40     5000
-     Holy Book of Prayers [Godly Insights]                    3.0   50    10000
-     Holy Book of Prayers [Purifications and Healing]            3.0   60    30000
-     Holy Book of Prayers [Holy Infusions]                    3.0   80    50000
-     Holy Book of Prayers [Wrath of God]                      3.0  100   100000
+     Book of Lore [Wolf]                                      3.0    5      100
+     Book of Lore [Insect]                                    3.0   10      300
+     Book of Lore [Sparrow]                                   3.0   20      300
+     Book of Lore [Kobold]                                    3.0   20      300
+     Book of Lore [Goat]                                      3.0   15      400
+     Book of Lore [Ape]                                       3.0   15      400
+     Book of Lore [Statue]                                    3.0   15      400
+     Book of Lore [Serpent]                                   3.0   25      400
+     Book of Lore [Chaos Cloud]                               3.0   25      500
+     Book of Lore [Mold]                                      3.0   30      500
+     Book of Lore [Ghost]                                     3.0   20      600
+     Book of Lore [Spider]                                    3.0   35      600
+     Book of Lore [Mana ball]                                 3.0   35      700
+     Book of Lore [Fire cloud]                                3.0   30      800
+     Book of Lore [Cold cloud]                                3.0   30      800
+     Book of Lore [Vampire]                                   3.0   30      800
+     Book of Lore [Quylthulg]                                 3.0   35      800
+     Book of Lore [Dragon]                                    3.0   35      900
+     Book of Lore [Zombie]                                    3.0   50     1100
+     Book of Lore [Demon]                                     3.0   45     1200
+     Book of Lore [Giant]                                     3.0   60     1200
+     Book of Lore [Hound]                                     3.0   55     2000
+     Book of Lore [Angel]                                     3.0   75    60000
+     Book of Lore [Wraith]                                    3.0  100   100000
 
 
 Chests
 
      Ruined chest                                            25.0    0        0
-     Small wooden chest                                      25.0    5       20
-     Large wooden chest                                      50.0   15       60
-     Small iron chest                                        30.0   25      100
-     Large iron chest                                       100.0   35      150
-     Small steel chest                                       50.0   45      200
-     Large steel chest                                      100.0   55      250
+     Small chest                                             25.0    5       20
+     Large chest                                             50.0   15       60
+     Small chest                                             30.0   25      100
+     Large chest                                            100.0   35      150
+     Small chest                                             50.0   45      200
+     Large chest                                            100.0   55      250
 
 
 Various
+
+     Spike                                                    1.0    1        1
+
+
+Alchemical Ingredients
+
+     Chunk of Ebony                                           0.2    0       10
+     Pile of Salt                                             0.2    0       10
+     Lump of Graphite                                         0.2    0       10
+     Stone of Flint                                           0.2    0       10
+     Vial of Blood                                            0.2    0       10
+     Blob of Slime                                            0.2    0       10
+     Stone of Sapphire                                        0.2    0       10
+     Sphere of Amber                                          0.2    0       10
+     Rock of Obsidian                                         0.2    0       10
+     Crystal                                                  0.2    0       10
+     Sheet of Silk                                            0.2    0       10
+     Sulfur Compound                                          0.2    0       10
+     Rock of Quartz                                           0.2    0       10
+     Gem of Emerald                                           0.2    0       10
+     Phial of Water                                           0.2    0       10
+     Speck of Mud                                             0.2    0       10
+
+
+Parchments
+
+     Parchment titled "Deep Thoughts"                         0.5    3       50
+     Parchment titled "More Deep Thoughts"                    0.5    4       50
+     Parchment titled "Compendum of Deep Thoughts"            0.5    5       50
+     Parchment titled "The One Ring"                          0.5   10       50
+     Parchment titled "Theology Pt. I"                        0.5   15       50
+     Parchment titled "Theology Pt. II"                       0.5   25       50
+     Parchment titled "Theology Pt. III"                      0.5   35       50
+     Parchment titled "Artifact Lore Vol. I"                  0.5   40       50
+     Parchment titled "Artifact Lore Vol. II"                 0.5   40       50
+     Parchment titled "Artifact Lore Vol. III"                0.5   40       50
+
+
+Corpses
 
      Shard of Pottery                                         0.5    0        0
      Broken Stick                                             0.3    0        0
      Empty Bottle                                             0.2    0        0
      Broken Skull                                             0.1    0        0
      Broken Bone                                              0.2    0        0
+     Player corpse                                           50.0    1        0
+     Player head                                             10.0    1        0
+     Player heart                                             5.0    1        0
+     Player liver                                             5.0    1        0
+     Player skin                                              8.0    1        0
+     Player scale                                             3.0    1        0
+     Player tongue                                            1.0    1        0
+     Player wing                                             10.0    1        0
+     clump of Player hair                                     1.0    1        0
      Canine Skeleton                                          1.0    1        0
      Rodent Skeleton                                          1.0    1        0
      Human Skeleton                                           6.0    5        0
      Dwarf Skeleton                                           5.0    5        0
      Elf Skeleton                                             4.0    5        0
      Gnome Skeleton                                           3.0    5        0
-     Iron Spike                                               1.0    1        1
-     Wooden Torch                                             3.0    1        2
+     Torch                                                    3.0    1        2
      Flask of oil                                             1.0    1        3
-     Brass Lantern                                            5.0    3       35
+     Lantern                                                  5.0    3       35

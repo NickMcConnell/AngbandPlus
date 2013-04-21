@@ -1242,14 +1242,18 @@ bool show_god_info(bool ext)
 		Term_save();
 		Term_gotoxy(0, 0);
 
-		roff(format("You worship %s, the %s God of %s. ", d_ptr->name,
-				deity_rarity[d_ptr->rarity], d_ptr->god_of));
-		roff(format("%s is %s, and you are %s by him. ", d_ptr->name,
-				deity_niceness[d_ptr->grace_deduction],
-				deity_standing[badness]));
-		roff(format("%s hates %s. He holds sacred %s.", d_ptr->name,
-				deity_affiliation[d_ptr->opposed - 1],
-				deity_affiliation[d_ptr->aligned - 1]));
+		roff(format("You worship %s, the %s God%s of %s. ", 
+			    d_ptr->name, deity_rarity[d_ptr->rarity],
+			    (d_ptr->female ? "dess" : ""),
+			    d_ptr->god_of));
+		roff(format("%s is %s, and you are %s by %s. ", d_ptr->name,
+			    deity_niceness[d_ptr->grace_deduction],
+			    deity_standing[badness],
+			    (d_ptr->female ? "her" : "him")));
+		roff(format("%s hates %s. %s holds sacred %s.", d_ptr->name,
+			    deity_affiliation[d_ptr->opposed - 1],
+			    (d_ptr->female ? "She" : "He"),
+			    deity_affiliation[d_ptr->aligned - 1]));
 		roff("\n");
 
 		if (ext)

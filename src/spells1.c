@@ -74,7 +74,7 @@ s16b poly_r_idx(int r_idx)
  */
 void teleport_away(int m_idx, int dis)
 {
-	int ny, nx, oy, ox, d, i, min;
+	int ny, nx, oy, ox, d, i, min, foo;
 
 	bool look = TRUE;
 
@@ -93,6 +93,8 @@ void teleport_away(int m_idx, int dis)
 	min = dis / 2;
 
 	/* Look until done */
+	foo = 0;
+
 	while (look)
 	{
 		/* Verify max distance */
@@ -105,12 +107,12 @@ void teleport_away(int m_idx, int dis)
 		/* Try several locations */
 		for (i = 0; i < 500; i++)
 		{
-			/* Pick a (possibly illegal) location */
-			while (1)
-			{
+		        /* Pick a (possibly illegal) location */
+			while (1) {
 				ny = rand_spread(oy, dis);
 				nx = rand_spread(ox, dis);
 				d = distance(oy, ox, ny, nx);
+
 				if ((d >= min) && (d <= dis))
 					break;
 			}
@@ -138,10 +140,26 @@ void teleport_away(int m_idx, int dis)
 		}
 
 		/* Increase the maximum distance */
-		dis = dis * 2;
+		/* dis = dis * 2; */
+
+		/* NOT! Fairly closed spaces are common, but being locked 
+		 * inside a huge stone mountain is way exotic. 
+		 * (c.f. First quest.) */
+		dis = dis / 2;
+
+		if (dis < 5) {
+		  dis = 5;
+		}
 
 		/* Decrease the minimum distance */
 		min = min / 2;
+
+		foo++;
+
+		/* It's not his day today. :( */
+		if (foo >= 1000) {
+		  return;
+		}
 	}
 
 	/* Sound */
@@ -1058,7 +1076,7 @@ typedef bool(*inven_func) (object_type *);
  * Loops through the whole inventory, and damages those items that
  * match the given funciton.
  */
-static void inven_damage(inven_func typ, int dam, cptr verb)
+void inven_damage(inven_func typ, int dam, cptr verb)
 {
 	object_type *o_ptr = inventory;
 	object_type *o_nxt;
@@ -5140,11 +5158,12 @@ static bool project_p(int who, int r, int y, int x, int dam, int typ)
 		fuzzy = TRUE;
 
 	/* Did ``God'' do it? */
-	if (who > -99 && who < -1)
+	if (who >= -99 && who <= -1)
 	{
 		byte god = who + 99;
 
-		sprintf(killer, "%s, God of %s", deity_info[god].name,
+		sprintf(killer, "%s, God%s of %s", deity_info[god].name,
+			(deity_info[god].female ? "dess" : ""),
 			deity_info[god].god_of);
 
 	}

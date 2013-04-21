@@ -2379,7 +2379,7 @@ errr init_x11(int argc, char *argv[])
 
 	cptr dpy_name = "";
 
-	int num_term = MAX_TERM_DATA;
+	int num_term = 2; /* MAX_TERM_DATA; Changed by Ivan */
 
 	char buf[80];
 
@@ -2436,18 +2436,17 @@ errr init_x11(int argc, char *argv[])
 #endif /* USE_GRAPHICS */
 
 
-	/* Load colors */
-	if (use_graphics)
-	{
-		/* Process "graf-x11.prf" XXX XXX XXX */
-		(void)process_pref_file("graf-x11.prf");
+	/* EVIL! Whoopie, segfaults at your age are crass... */
+	/* DO NOT uncomment this, this is a crude bug, actually. */
+#if 0
+	/*
+	if (use_graphics) {
+	  (void)process_pref_file("graf-x11.prf");
+	} else {
+	  (void)process_pref_file("font-x11.prf");
 	}
-	else
-	{
-		/* Process "font-x11.prf" XXX XXX XXX */
-		(void)process_pref_file("font-x11.prf");
-	}
-
+	*/
+#endif
 
 	/* Init the Metadpy if possible */
 	if (Metadpy_init_name(dpy_name)) return (-1);

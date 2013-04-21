@@ -2264,8 +2264,10 @@ void monster_death(int m_idx)
 	}
 
 	/* Try to drop a corpse. (40% chance.) */
-	if ((magik(40) || m_ptr->mflag & MFLAG_DROP_CORPSE) &&
-		!(r_ptr->flags7 & RF7_NO_CORPSE) && !(r_ptr->flags1 & RF1_UNIQUE))
+	if ((magik(40) || m_ptr->mflag & MFLAG_DROP_CORPSE ||
+	     m_ptr->fate == FATE_SACRIFICE) &&
+	    !(r_ptr->flags7 & RF7_NO_CORPSE) && 
+	    !(r_ptr->flags1 & RF1_UNIQUE))
 	{
 
 		byte sval = monster_corpse_sval(m_ptr);
@@ -2273,6 +2275,11 @@ void monster_death(int m_idx)
 		o_ptr = new_object();
 		object_prep(o_ptr, lookup_kind(TV_CORPSE, sval));
 		o_ptr->pval = m_ptr->r_idx;
+
+		if (m_ptr->fate == FATE_SACRIFICE) {
+		  o_ptr->fate = FATE_SACRIFICE;
+		  m_ptr->fate = FATE_NONE;
+		}
 
 		drop_near(o_ptr, FALSE, y, x);
 	}
@@ -2494,6 +2501,19 @@ bool mon_take_hit(int m_idx, int dam, bool * fear, cptr note,
 			monster_race_track(m_ptr->r_idx);
 		}
 
+
+
+		/* Handle fate. */
+		fate_effect(m_ptr->fate, FATE_KILL);
+
+		/* Hack. */
+		if (m_ptr->fate == FATE_KILL || 
+		    m_ptr->fate == FATE_SACRIFICE) {
+		  
+		  god_hated = 0;
+		  god_liked = 0;
+		}
+
 		/* Delete the monster */
 		delete_monster_idx(m_idx);
 
@@ -2506,6 +2526,7 @@ bool mon_take_hit(int m_idx, int dam, bool * fear, cptr note,
 		{
 			awake_monsters(1);
 		}
+
 
 		/* Handle religous consequenses. */
 
@@ -5580,3 +5601,1367 @@ int interpret_favor(void)
 	/* Should never happen! */
 	return -1;
 }
+
+
+
+
+static void monster_strike_fate(monster_type* m_ptr) {
+
+  monster_race* r_ptr = &r_info[m_ptr->r_idx];
+
+  /* The RNG is the mightiest god of all. */
+  if (!p_ptr->pgod) {
+
+    if (magik(10)) {
+      m_ptr->fate = (magik(50) ? FATE_KILL : FATE_SAVE);
+    }
+    
+    return;
+  }
+
+  switch (deity_info[p_ptr->pgod - 1].aligned) {
+
+    /* Night: Breed darkness, that is, save monsters affiliated with night. */
+  case GA_NIGHT: 
+    if (sacred_monster(r_ptr)) {
+      m_ptr->fate = FATE_SAVE;
+    }
+    break;
+
+    /* Day: Promote light, that is, kill monsters affiliated with night. */
+  case GA_DAY: 
+    /* Hack. */
+    if (aligned_monster(r_ptr, 0)) {
+      m_ptr->fate = FATE_KILL;
+    }
+    break;
+
+    /* Shadow: Sacrifice everything. (Create maximum corpses) */
+  case GA_SHADOW: 
+    if (magik(75)) {
+      m_ptr->fate = FATE_SACRIFICE;
+    }
+    break;
+
+    /* Fire: A small bit of random aggression + sacrifices. */
+  case GA_FIRE: 
+    if (magik(25)) {
+      m_ptr->fate = (magik(35) ? FATE_SACRIFICE : FATE_KILL);
+    }
+    break;
+
+    /* Flesh: Sacrifice random flesh-and-blood creatues. */
+  case GA_FLESH: 
+    if (!r_ptr->flags3 & RF3_ANIMAL && magik(30)) {
+      m_ptr->fate = FATE_SACRIFICE;
+    }
+    break;
+
+    /* Nature: Save plants and dumb animals. */
+  case GA_NATURE: 
+    if ((r_ptr->flags3 & RF3_ANIMAL || r_ptr->flags7 & RF7_HEADLESS ||
+	 r_ptr->flags2 & RF2_STUPID) && !r_ptr->flags7 & RF7_NO_CORPSE) {
+      m_ptr->fate = FATE_SAVE;
+    }
+    break;
+
+    /* Water: Randomly place fate on aquatic monsters. */
+  case GA_WATER: 
+    if (r_ptr->flags2 & RF2_AQUATIC) {
+      switch (randint(3)) {
+      case 1: m_ptr->fate = FATE_KILL;
+      case 2: m_ptr->fate = FATE_SAVE;
+      case 3: m_ptr->fate = FATE_SACRIFICE;
+      }
+    }
+    break;
+
+    /* Stone: No effect on flora and fauna. */
+  case GA_STONE: 
+    break;
+
+    /* Evil: Sacrifice pets. */
+  case GA_EVIL: 
+    if (m_ptr->is_pet && magik(20)) {
+      m_ptr->fate = FATE_SACRIFICE;
+    }
+    break;
+
+    /* Good: Save lots of random creatures. */
+  case GA_GOOD: 
+    if (magik(25)) {
+      m_ptr->fate = FATE_SAVE;
+    }
+    break;
+
+    /* Chaos: Kill natural creatures, save chaotic creatures, + randomness. */
+  case GA_CHAOS: 
+    if (sacred_monster(r_ptr)) {
+      m_ptr->fate = (magik(25) ? FATE_KILL : FATE_SAVE);
+
+    } else if (despised_monster(r_ptr)) {
+      m_ptr->fate = (magik(25) ? FATE_SAVE : FATE_KILL);
+
+    } else if (magik(10)) {
+      m_ptr->fate = (magik(50) ? FATE_KILL : FATE_SAVE);
+    }
+    break;
+
+    /* Air: Save the birds, sacrifice some land animals. */
+  case GA_AIR: 
+    if (r_ptr->flags2 & RF2_FLY) {
+      m_ptr->fate = FATE_SAVE;
+
+    } else if (magik(15)) {
+      m_ptr->fate = FATE_SACRIFICE;
+    }
+    break;
+
+    /* Smarts: Kill plants and dumb animals. */
+  case GA_SMARTS: 
+    if ((r_ptr->flags3 & RF3_ANIMAL || r_ptr->flags7 & RF7_HEADLESS ||
+	 r_ptr->flags2 & RF2_STUPID) && !r_ptr->flags7 & RF7_NO_CORPSE) {
+      m_ptr->fate = FATE_KILL;
+    }
+    break;
+
+    /* Time: No effect. */
+  case GA_TIME:
+    break;
+
+    /* Infinity: No effect. */
+  case GA_INFINITY: 
+    break;
+
+    /* Change: Random effects. */
+  case GA_CHANGE: 
+    if (magik(15)) {
+      switch (randint(3)) {
+      case 1: m_ptr->fate = FATE_KILL;
+      case 2: m_ptr->fate = FATE_SAVE;
+      case 3: m_ptr->fate = FATE_SACRIFICE;
+      }
+    }
+    break;
+
+    /* Stasis: Kill a few random monsters. */
+  case GA_STASIS: 
+    if (magik(7)) {
+      m_ptr->fate = FATE_KILL;
+    }
+    break;
+
+    /* Small: Save worms and other varmints. */
+  case GA_SMALL: 
+    if (r_ptr->flags2 & RF2_MULTIPLY) {
+      m_ptr->fate = FATE_SAVE;
+    }
+    break;
+
+    /* Large: Kill worms and other varmints. */
+  case GA_LARGE: 
+    if (r_ptr->flags2 & RF2_MULTIPLY) {
+      m_ptr->fate = FATE_KILL;
+    }
+    break;
+
+    /* Energy: No effect. */
+  case GA_ENERGY: 
+    break;
+
+    /* Matter: Save a few random monsters. */
+  case GA_MATTER: 
+    if (magik(7)) {
+      m_ptr->fate = FATE_SAVE;
+    }
+    break;
+
+    /* Being: Save everything. */
+  case GA_BEING: 
+    m_ptr->fate = FATE_SAVE;
+    break;
+
+    /* Unbeing: Destroy everything. */
+  case GA_UNBEING: 
+    m_ptr->fate = FATE_KILL;
+    break;
+  }
+}
+
+
+
+
+static void object_strike_fate(object_type* o_ptr) {
+
+  object_kind* k_ptr = &k_info[o_ptr->k_idx];
+
+  u32b f1, f2, f3;
+
+  object_flags(o_ptr, &f1, &f2, &f3);
+
+  if (o_ptr->tval == TV_GOLD) return;
+
+  /* The RNG is the mightiest god of all. */
+  if (!p_ptr->pgod) {
+
+    if (magik(10)) {
+      switch (randint(6)) {
+      case 1: o_ptr->fate = FATE_KILL;
+      case 2: o_ptr->fate = FATE_SAVE;
+      case 3: if (k_ptr->activation) o_ptr->fate = FATE_USE;
+      case 4: if (k_ptr->activation) o_ptr->fate = FATE_UNUSE;
+      case 5: o_ptr->fate = FATE_CARRY;
+      case 6: o_ptr->fate = FATE_DROP;
+      }
+    }
+    
+    return;
+  }
+
+  switch (deity_info[p_ptr->pgod - 1].aligned) {
+    /* Night: Save corpses. */
+  case GA_NIGHT: 
+    if (magik(33) && o_ptr->tval == TV_CORPSE) {
+      o_ptr->fate = FATE_SAVE;
+    }
+    break;
+
+    /* Day: Kill trash. */
+  case GA_DAY: 
+    if (o_ptr->tval == TV_SKELETON || o_ptr->tval == TV_BOTTLE ||
+	o_ptr->tval == TV_JUNK) {
+      o_ptr->fate = FATE_KILL;
+    }
+    break;
+
+    /* Shadow: Collect rings. :) (+ sacrifice a few.) */
+  case GA_SHADOW: 
+
+    if (o_ptr->tval == TV_RING) {
+      if (magik(33)) {
+	o_ptr->fate = FATE_SACRIFICE;
+      } else {
+	o_ptr->fate = FATE_CARRY;
+      }
+    }
+    break;
+
+    /* Fire: Save wands/rods/staffs. */
+  case GA_FIRE: 
+    if (o_ptr->tval == TV_STAFF || o_ptr->tval == TV_WAND ||
+	o_ptr->tval == TV_ROD) {
+
+      o_ptr->fate = FATE_SAVE;
+    }
+    break;
+
+    /* Flesh: Use up organic items. */
+  case GA_FLESH: 
+    if (o_ptr->stuff == STUFF_FLESH && k_ptr->activation) {
+      o_ptr->fate = FATE_USE;
+    }
+    break;
+
+    /* Nature: Destroy all items / avoid some */
+  case GA_NATURE: 
+    if (magik(10)) {
+      o_ptr->fate = FATE_KILL;
+
+    } else if (magik(15) && k_ptr->activation) {
+      o_ptr->fate = FATE_UNUSE;
+    }
+    break;
+
+    /* Water: Use up potions, save some. */
+  case GA_WATER: 
+    if (o_ptr->tval == TV_POTION) {
+      if (magik(25)) {
+	o_ptr->fate = FATE_SAVE;
+      } else {
+	o_ptr->fate = FATE_USE;
+      }
+    }
+    break;
+
+    /* Stone: Collect random stone items. */
+  case GA_STONE: 
+    if (magik(40) && 
+	(o_ptr->stuff == STUFF_CRYSTAL || o_ptr->stuff == STUFF_OBSIDIAN ||
+	 o_ptr->stuff == STUFF_FLINT || o_ptr->stuff == STUFF_GRAPHITE ||
+	 o_ptr->stuff == STUFF_RUBY || o_ptr->stuff == STUFF_SAPPHIRE ||
+	 o_ptr->stuff == STUFF_EMERALD || o_ptr->stuff == STUFF_ADAMANTITE ||
+	 o_ptr->stuff == STUFF_OPAL || o_ptr->stuff == STUFF_GARNET ||
+	 o_ptr->stuff == STUFF_QUARTZ || o_ptr->stuff == STUFF_DIAMOND)) {
+
+      o_ptr->fate = FATE_CARRY;
+    }
+    break;
+
+    /* Evil: Destroy/sacrifice all sorts of junk, +collect cursed stuff. */
+  case GA_EVIL: 
+    if (cursed_p(o_ptr)) {
+      o_ptr->fate = FATE_CARRY;
+
+    } else if (magik(10)) {
+      o_ptr->fate = (magik(33) ? FATE_SACRIFICE : FATE_KILL);
+    }
+    break;
+
+    /* Good: Destroy cursed items. */
+  case GA_GOOD: 
+    if (cursed_p(o_ptr)) {
+      o_ptr->fate = FATE_KILL;
+    }
+    break;
+
+    /* Chaos: Random. */
+  case GA_CHAOS: 
+    if (magik(25)) {
+      switch (randint(5)) {
+      case 1: o_ptr->fate = FATE_KILL;
+      case 2: o_ptr->fate = FATE_SAVE;
+      case 3: if (k_ptr->activation) { o_ptr->fate = FATE_USE; }
+      case 4: o_ptr->fate = FATE_UNUSE;
+      case 5: o_ptr->fate = FATE_CARRY;
+      case 6: o_ptr->fate = FATE_SACRIFICE;
+      }
+    }
+    break;
+
+    /* Air: Unuse random items. */
+  case GA_AIR: 
+    if (magik(33) && k_ptr->activation) {
+      o_ptr->fate = FATE_UNUSE;
+    }
+    break;
+
+    /* Smarts: Use random items, collect books */
+  case GA_SMARTS: 
+    if (magik(65) && k_ptr->activation) {
+      o_ptr->fate = FATE_USE;
+
+    } else if (o_ptr->tval == TV_SPELLBOOK || o_ptr->tval == TV_TEXT) {
+      o_ptr->fate = FATE_CARRY;
+    }
+    break;
+
+    /* Time: Save lots of random items. */
+  case GA_TIME:
+    if (magik(40)) {
+      o_ptr->fate = FATE_SAVE;
+    }
+    break;
+
+    /* Infinity: Unuse lots of random items. */
+  case GA_INFINITY: 
+    if (magik(65) && k_ptr->activation) {
+      o_ptr->fate = FATE_UNUSE;
+    }
+    break;
+
+    /* Change: Kill/Save at random. */
+  case GA_CHANGE: 
+    if (magik(35)) {
+      o_ptr->fate = (magik(50) ? FATE_KILL : FATE_SAVE);
+    }
+    break;
+
+    /* Stasis: Collect random items. */
+  case GA_STASIS: 
+    if (magik(10)) {
+      o_ptr->fate = FATE_SAVE;
+    }
+    break;
+
+    /* Small: Save small items. */
+  case GA_SMALL: 
+    if (o_ptr->weight < 50) {
+      o_ptr->fate = FATE_SAVE;
+    }
+    break;
+
+    /* Large: Save large items. */
+  case GA_LARGE: 
+    if (o_ptr->weight > 150) {
+      o_ptr->fate = FATE_SAVE;
+    }
+    break;
+
+    /* Energy: Use/sacrifice some items. */
+  case GA_ENERGY: 
+    if (magik(33) && k_ptr->activation) {
+      o_ptr->fate = (magik(33) ? FATE_SACRIFICE : FATE_USE);
+    }
+    break;
+
+    /* Matter: Kill ethereal items. */
+  case GA_MATTER: 
+    if (o_ptr->stuff == STUFF_ETHER) {
+      o_ptr->fate = FATE_KILL;
+    }
+    break;
+
+    /* Being: No effect. */
+  case GA_BEING: 
+    break;
+
+    /* Unbeing: No effect. */
+  case GA_UNBEING: 
+    break;
+  }
+}
+
+
+
+/*
+ * This game has a will of it's own! Don't forget that next time
+ * you play. 
+ */
+
+void hand_of_fate(void) {
+
+  int i;
+
+  monster_type* m_ptr;
+  object_type* iter;
+
+  s32b old_luck = p_ptr->luck;
+
+  if (!p_ptr->fated) return;
+
+  /* Fiddle with mortal lives about once every 600 game turns. */
+  if ((turn % randnor(600, 50)) == 0) {
+
+    /* Try to find a monster in our field of view. */
+    for (i = m_max - 1; i >= 1; i--) {
+
+      m_ptr = &m_list[i];
+
+      if (!m_ptr->r_idx || !m_ptr->ml || m_ptr->fate) continue;
+
+      monster_strike_fate(m_ptr);
+
+      if (m_ptr->fate == FATE_SAVE) {
+	p_ptr->luck += 100;
+
+      } else if (m_ptr->fate) {
+	p_ptr->luck -= 100;
+      }
+    }
+
+    for (iter = o_list; iter != NULL; iter = iter->next_global) {
+
+      /* Note: Assuming that only objects on the floor have the "marked"
+       * field set. */
+      if (!iter->k_idx || !(player_has_los_bold(iter->iy, iter->ix)) ||
+	  !iter->marked || iter->stack != STACK_FLOOR || iter->fate) continue;
+
+      object_strike_fate(iter);
+
+      if (iter->fate == FATE_SAVE || iter->fate == FATE_UNUSE) {
+	p_ptr->luck += 100;
+
+      } else if (iter->fate) {
+	p_ptr->luck -= 100;
+      }
+    }
+
+    if (p_ptr->luck != old_luck) {
+      /* Add a bit of divine incomprehensibility. */
+      switch (randint(5)) {
+      case 1: mprint(MSG_WARNING, "You feel the hand of fate."); break;
+      case 2: mprint(MSG_WARNING, "You feel doomed."); break;
+      case 3: mprint(MSG_WARNING, "You feel a strange compulsion."); break;
+      case 4: mprint(MSG_WARNING, "You feel a divine responsibility."); break;
+      case 5: mprint(MSG_WARNING, "You feel you are driven."); break;
+      }
+
+      disturb(0, 0);
+    }
+
+    if (cheat_xtra) {
+      mformat(MSG_WARNING, "Fate checked. (Luck is %d.)", p_ptr->luck);
+    }
+
+  }
+}
+
+void fate_effect(int fate_given, int fate_gotten) {
+
+  if (fate_given == FATE_NONE) return;
+
+  switch (fate_gotten) {
+  case FATE_DROP:
+
+    switch (fate_given) {
+    case FATE_DROP: /* FATE_DROP */
+      p_ptr->luck += 200;
+      break;
+
+    case FATE_CARRY: /* FATE_DROP */
+      p_ptr->luck -= 50;
+      break;
+    }
+    break;
+
+  case FATE_USE:
+
+    switch (fate_given) {
+    case FATE_USE: /* FATE_USE */
+      p_ptr->luck += 200;
+      break;
+
+    case FATE_UNUSE: /* FATE_USE */
+      p_ptr->luck -= 400;
+      break;
+    }
+    break;
+
+  case FATE_KILL:
+
+    switch (fate_given) {
+    case FATE_KILL: /* FATE_KILL */
+      p_ptr->luck += 300;
+      break;
+
+    case FATE_CARRY: /* FATE_KILL */
+    case FATE_SAVE: /* FATE_KILL */
+      p_ptr->luck -= 250;
+      break;
+
+    case FATE_SACRIFICE: /* FATE_KILL */
+      p_ptr->luck -= 1000;
+
+    case FATE_USE:
+      p_ptr->luck -= 200;
+      break;
+    }
+    break;
+
+  case FATE_SACRIFICE:
+
+    switch (fate_given) {
+    case FATE_SACRIFICE: /* FATE_SACRIFICE */
+      p_ptr->luck += 400;
+      break;
+
+    case FATE_KILL: /* FATE_SACRIFICE */
+      p_ptr->luck -= 550;
+      break;
+
+    case FATE_SAVE:
+      p_ptr->luck -= 400;
+      break;
+
+    case FATE_USE:
+      p_ptr->luck -= 150;
+      break;
+    }
+    break;
+
+  case FATE_CARRY:
+
+    switch (fate_given) {
+    case FATE_CARRY: /* FATE_CARRY */
+      p_ptr->luck += 100;
+      break;
+
+    case FATE_KILL: /* FATE_CARRY */
+    case FATE_DROP: /* FATE_CARRY */
+      p_ptr->luck -= 200;
+      break;
+    }
+    break;
+  }
+    
+  if (cheat_xtra) {
+    mformat(MSG_WARNING, "Fate completed. (Luck is %d.)", p_ptr->luck);
+  }
+}
+
+
+
+/*
+ * Make sure that we always give a bonus, assuming that there is sufficient
+ * supply of luck to pay for it.
+ *
+ * The "prices" are subject for consideration.
+ */
+
+
+static int strike_it_bonus(int amount) {
+  int exit = 0;
+  int foo;
+
+  int iter = 0;
+
+  while (!exit && iter <= 1000) {
+
+    /* Warning: Watch this number! */
+
+    switch (randint(25)) {
+
+    case 1: /* Heal the player. */
+      amount -= (amount >= p_ptr->mhp ? p_ptr->mhp : amount);
+      exit = hp_player(amount);
+
+      if (cheat_xtra) {
+	mformat(MSG_WARNING, "Luck: Healing player.");
+      }
+      break;
+
+    case 2: /* Restore stats. */
+      if (amount >= 150) {
+	switch (randint(6)) {
+	case 1: exit = do_res_stat(A_STR); break;
+	case 2: exit = do_res_stat(A_INT); break;
+	case 3: exit = do_res_stat(A_WIS); break;
+	case 4: exit = do_res_stat(A_DEX); break;
+	case 5: exit = do_res_stat(A_CON); break;
+	case 6: exit = do_res_stat(A_CHR); break;
+	}
+
+	if (exit) {
+	  amount -= 150;
+	}
+
+	if (cheat_xtra) {
+	  mformat(MSG_WARNING, "Luck: Restoring stats.");
+	}
+      }
+      break;
+
+    case 3: /* Heal sanity. (Separately on purpose.) 
+	     * This stuff's expensive. */
+
+      foo = (p_ptr->msane - p_ptr->csane) * 3;
+      amount -= (amount >= foo ? foo : amount);
+      exit = heal_insanity(amount / 3);
+
+      if (cheat_xtra) {
+	mformat(MSG_WARNING, "Luck: Healing sanity.");
+      }
+      break;
+
+    case 4: /* Remove sucky effects. 
+	     * This code sucks. */
+      if (amount >= 350) {
+	switch (randint(9)) {
+	case 1: exit = set_blind(0); break;
+	case 2: exit = set_confused(0); break;
+	case 3: exit = set_poisoned(0); break;
+	case 4: exit = set_afraid(0); break;
+	case 5: exit = set_paralyzed(0); break;
+	case 6: exit = set_image(0); break;
+	case 7: exit = set_slow(0); break;
+	case 8: exit = set_stun(0); break;
+	case 9: exit = set_cut(0); break;
+	}
+
+	if (exit) {
+	  amount -= 350;
+	}
+
+	if (cheat_xtra) {
+	  mformat(MSG_WARNING, "Luck: Remove suckage.");
+	}
+      }
+      break;
+
+    case 5: /* Pacify monster. */
+      {
+	int i, j;
+	monster_type* m_ptr;
+
+	for (i = -1; i <= 1; i++) {
+	  for (j = -1; j <= 1; j++) {
+
+	    m_ptr = &m_list[cave_m_idx[p_ptr->py + i][p_ptr->px + j]];
+
+	    if (cave_m_idx[p_ptr->py + i][p_ptr->px + j] > 0 &&
+		m_ptr->hp * 5 <= amount) {
+
+	      exit = 1;
+	      i = 1;
+	      j = 1;
+
+	      amount -= m_ptr->hp * 5;
+
+	      m_ptr->mflag &= MFLAG_PACIFIST;
+	    }
+	  }
+	}
+
+	if (cheat_xtra) {
+	  mformat(MSG_WARNING, "Luck: Pacifist.");
+	}
+      }
+      break;
+
+    case 6: /* Teleport monster. */
+      exit = fire_visible_monsters(GF_AWAY_ALL, amount / 2);
+
+      if (exit) {
+	amount = 0;
+      }
+
+      if (cheat_xtra) {
+	mformat(MSG_WARNING, "Luck: Teleport monsters.");
+      }
+      break;
+
+    case 7: /* Dispel monster. */
+      switch (randint(2)) {
+      case 1: foo = GF_DISP_UNDEAD; break;
+      case 2: foo = GF_DISP_EVIL; break;
+      }
+
+      exit = fire_visible_monsters(foo, amount / 3);
+
+      if (exit) {
+	amount = 0;
+      }
+
+      if (cheat_xtra) {
+	mformat(MSG_WARNING, "Luck: Dispel monsters.");
+      }
+      break;
+
+    case 8: /* Probe monster. */
+      exit = fire_visible_monsters(GF_IDENT, amount);
+
+      if (exit) {
+	amount = 0;
+      }
+
+      if (cheat_xtra) {
+	mformat(MSG_WARNING, "Luck: Probe monsters.");
+      }
+      break;
+
+    case 9: /* Sleep/Slow/Confuse/Scare monster. */
+      switch (randint(4)) {
+      case 1: foo = GF_SLEEP; break;
+      case 2: foo = GF_SLOW; break;
+      case 3: foo = GF_CONF; break;
+      case 4: foo = GF_TURN_ALL; break;
+      }
+
+      exit = fire_visible_monsters(foo, amount / 5);
+
+      if (exit) {
+	amount = 0;
+      }
+
+      if (cheat_xtra) {
+	mformat(MSG_WARNING, "Luck: Monster suckage.");
+      }
+      break;
+
+    case 10: /* Polymorph monster. */
+      exit = fire_visible_monsters(GF_POLY, amount);
+
+      if (exit) {
+	amount = 0;
+      }
+
+      if (cheat_xtra) {
+	mformat(MSG_WARNING, "Luck: Polymorph monsters.");
+      }
+      break;
+
+
+    case 11: /* Unlock/Reveal door. */
+      switch (randint(2)) {
+      case 1: foo = GF_KILL_TRAP; break;
+      case 2: foo = GF_KILL_DOOR; break;
+      }
+
+      if (amount >= 100) {
+	exit = project(-100, 0, p_ptr->py, p_ptr->px, 1, 
+		       foo,
+		       PROJECT_GRID | PROJECT_PANEL);
+
+	if (exit) {
+	  amount -= 100;
+	}
+      }
+
+      if (cheat_xtra) {
+	mformat(MSG_WARNING, "Luck: Kill door/traps.");
+      }
+      break;
+
+    case 12: /* Teleport/Phase door. 
+	      * Wow, that's some massive code. Plus it might not be
+	      * so amusing to the player. */
+      if ((p_ptr->chp <= p_ptr->mhp / 3) &&
+	  ((cave_m_idx[p_ptr->py - 1][p_ptr->px - 1] > 0) ||
+	   (cave_m_idx[p_ptr->py - 1][p_ptr->px    ] > 0) ||
+	   (cave_m_idx[p_ptr->py - 1][p_ptr->px + 1] > 0) ||
+	   (cave_m_idx[p_ptr->py    ][p_ptr->px - 1] > 0) ||
+	   (cave_m_idx[p_ptr->py    ][p_ptr->px + 1] > 0) ||
+	   (cave_m_idx[p_ptr->py + 1][p_ptr->px - 1] > 0) ||
+	   (cave_m_idx[p_ptr->py + 1][p_ptr->px    ] > 0) ||
+	   (cave_m_idx[p_ptr->py + 1][p_ptr->px + 1] > 0))) {
+	
+	foo = (amount >= 300 ? 300 : amount);
+	teleport_player(foo / 3);
+	amount -= foo;
+      }
+
+      if (cheat_xtra) {
+	mformat(MSG_WARNING, "Luck: Teleport player.");
+      }
+      break;
+
+    case 13: /* Map screen. */
+      if (amount >= 150) {
+	map_area();
+	amount -= 150;
+	exit = 1;
+      }
+
+      if (cheat_xtra) {
+	mformat(MSG_WARNING, "Luck: Map screen.");
+      }
+      break;
+
+    case 14: /* Light room. */
+      if (!(cave_info[p_ptr->py][p_ptr->px] & (CAVE_GLOW))) {
+	foo = (amount > 100 ? 100 : amount);
+	exit = lite_area(foo, foo / 20);
+	amount -= foo;
+      }
+
+      if (cheat_xtra) {
+	mformat(MSG_WARNING, "Luck: Light room.");
+      }
+      break;
+
+    case 15: /* Detect monsters. */
+      if (amount >= 150) {
+	exit = project(-100, 0, p_ptr->py, p_ptr->px, 1, 
+		       GF_DETECT_MONSTER, 
+		       PROJECT_KILL | PROJECT_PANEL);
+
+	if (exit) {
+	  amount -= 150;
+	}
+      }
+
+      if (cheat_xtra) {
+	mformat(MSG_WARNING, "Luck: Detect monsters.");
+      }
+      break;
+
+    case 16: /* Detect traps/stairs/treasure. */
+      switch (randint(3)) {
+      case 1: foo = GF_DETECT_TRAP; break;
+      case 2: foo = GF_DETECT_STAIR; break;
+      case 3: foo = GF_DETECT_TREASURE; break;
+      }
+
+      if (amount >= 100) {
+	exit = project(-100, 0, p_ptr->py, p_ptr->px, 1, 
+		       foo,
+		       PROJECT_GRID | PROJECT_PANEL);
+
+	if (exit) {
+	  amount -= 100;
+	}
+      }
+
+      if (cheat_xtra) {
+	mformat(MSG_WARNING, "Luck: Detect terrain.");
+      }
+      break;
+
+    case 17: /* Detect gold/objects/magic items. */
+      switch (randint(3)) {
+      case 1: foo = GF_DETECT_GOLD; break;
+      case 2: foo = GF_DETECT_OBJECT; break;
+      case 3: foo = GF_DETECT_MAGIC; break;
+      }
+
+      if (amount >= 125) {
+	exit = project(-100, 0, p_ptr->py, p_ptr->px, 1, 
+		       foo,
+		       PROJECT_GRID | PROJECT_PANEL);
+
+	if (exit) {
+	  amount -= 125;
+	}
+      }
+
+      if (cheat_xtra) {
+	mformat(MSG_WARNING, "Luck: Detect items.");
+      }
+      break;
+
+    case 18: /* Identify items. */
+      if (amount >= 200) {
+	item_tester_automatic = TRUE;
+
+	exit = ident_spell();
+
+	if (exit) {
+	  amount -= 200;
+	}
+      }
+
+      if (cheat_xtra) {
+	mformat(MSG_WARNING, "Luck: Identify.");
+      }
+      break;
+
+    case 19: /* Remove curse. */
+      if (amount >= 300) {
+	exit = remove_curse();
+
+	if (exit) {
+	  amount -= 300;
+
+	  if (amount >= 250) {
+	    exit = remove_all_curse();
+
+	    if (exit) {
+	      amount -= 250;
+	    }
+	  }
+	}
+      }
+
+      if (cheat_xtra) {
+	mformat(MSG_WARNING, "Luck: Remove curse.");
+      }
+      break;
+
+    case 20: /* Enchant item. */
+      if (amount >= 75) {
+	foo = amount / 75;
+
+	item_tester_automatic = TRUE;
+
+	if (randint(3) == 1) {
+	  exit = enchant_spell(foo, foo, foo);
+
+	} else {
+	  exit = enchant_spell(foo, foo, 0);
+	}
+
+	if (exit) {
+	  amount = 0;
+	}
+      }
+
+      if (cheat_xtra) {
+	mformat(MSG_WARNING, "Luck: Enchant item.");
+      }
+      break;
+
+    case 21: /* Recharge item. */
+      foo = amount / 5;
+
+      item_tester_automatic = TRUE;
+      
+      exit = recharge(foo);
+      
+      if (exit) {
+	amount = 0;
+      }
+
+      if (cheat_xtra) {
+	mformat(MSG_WARNING, "Luck: Recharge item.");
+      }
+      break;
+
+    case 22: /* Acquirement. */
+      foo = object_level;
+
+      object_level = amount / 25;
+      acquirement(p_ptr->py, p_ptr->px, 1, FALSE);
+      object_level = foo;
+
+      exit = 1;
+      amount = 0;
+
+      if (cheat_xtra) {
+	mformat(MSG_WARNING, "Luck: Acquirement.");
+      }
+      break;
+
+    case 23: /* Transmute item. */
+      item_tester_automatic = TRUE;
+
+      exit = transmute_spell(FALSE);
+
+      if (exit) {
+	amount -= 25;
+      }
+
+      if (cheat_xtra) {
+	mformat(MSG_WARNING, "Luck: Transmute item.");
+      }
+      break;
+
+    case 24: /* Restore level. */
+      if (amount >= 500) {
+	exit = restore_level();
+
+	if (exit) {
+	  amount -= 500;
+	}
+      }
+
+      if (cheat_xtra) {
+	mformat(MSG_WARNING, "Luck: Restore level.");
+      }
+      break;
+
+    case 25: /* Repair item. */
+      foo = amount;
+
+      item_tester_automatic = TRUE;
+
+      exit = repair_spell(foo);
+
+      if (exit) {
+	amount = 0;
+      }
+
+      if (cheat_xtra) {
+	mformat(MSG_WARNING, "Luck: Repair item.");
+      }
+      break;
+    }
+
+    iter++;
+  }
+
+  return amount;
+}
+
+
+
+/*
+ * Punish the player, make him (it?) less unlucky.
+ */
+
+static bool inven_damage_aux(object_type* o_ptr) {
+  if (magik(15)) {
+    return TRUE;
+  }
+
+  return FALSE;
+}
+
+
+static int strike_it_sucky(int amount) {
+  int exit = 0, foo;
+
+  int iter = 0;
+
+  while (!exit && iter <= 1000) {
+    /* This simply undoes the effects of the bonus routine above.
+     * Note that, unexplicably, the game seems to have less negative effects
+     * than bonuses. */
+
+    switch (randint(16)) {
+
+    case 1: /* Whack, whack. */
+      foo = (p_ptr->chp * 100) / p_ptr->mhp;
+
+      if (foo > 25) {
+	foo = (p_ptr->chp - p_ptr->mhp / 4);
+	foo = (foo > amount ? amount : foo);
+
+	take_hit(foo, "bad luck");
+	amount -= foo;
+	exit = 1;
+
+	if (cheat_xtra) {
+	  mformat(MSG_WARNING, "Luck: Damage player.");
+	}
+      }
+      break;
+
+    case 2: /* Lower one of the stats. */
+      if (amount >= 150) {
+	switch (randint(6)) {
+	case 1: exit = do_dec_stat(A_STR); break;
+	case 2: exit = do_dec_stat(A_INT); break;
+	case 3: exit = do_dec_stat(A_WIS); break;
+	case 4: exit = do_dec_stat(A_DEX); break;
+	case 5: exit = do_dec_stat(A_CON); break;
+	case 6: exit = do_dec_stat(A_CHR); break;
+	}
+
+	if (exit) {
+	  amount -= 150;
+	}
+
+	if (cheat_xtra) {
+	  mformat(MSG_WARNING, "Luck: Lower stats.");
+	}
+      }
+      break;
+
+    case 3: /* Damage sanity. */
+      foo = (p_ptr->csane * 100) / p_ptr->msane;
+
+      if (foo > 25) {
+	foo = (p_ptr->csane - p_ptr->msane / 4);
+	foo = (foo * 3 > amount ? amount : foo * 3);
+
+	take_sanity_hit(foo, "bad luck");
+	amount -= foo;
+	exit = 1;
+
+	if (cheat_xtra) {
+	  mformat(MSG_WARNING, "Luck: Damage sanity.");
+	}
+      }
+      break;
+
+    case 4: /* Sucky effects. */
+      if (amount > 10) {
+	foo = amount / 10;
+
+	switch (randint(9)) {
+	case 1: exit = set_blind(foo); break;
+	case 2: exit = set_confused(foo); break;
+	case 3: exit = set_poisoned(foo); break;
+	case 4: exit = set_afraid(foo); break;
+	case 5: exit = set_paralyzed(foo); break;
+	case 6: exit = set_image(foo); break;
+	case 7: exit = set_slow(foo); break;
+	case 8: exit = set_stun(foo); break;
+	case 9: exit = set_cut(foo); break;
+	}
+
+	if (exit) {
+	  amount -= foo;
+	}
+
+	if (cheat_xtra) {
+	  mformat(MSG_WARNING, "Luck: Suckage.");
+	}
+      }
+      break;
+
+    case 5: /* Aggravate monster. */
+      if (amount > 400) {
+	hostile_monsters(-1);
+	amount -= 400;
+	exit = 1;
+
+	if (cheat_xtra) {
+	  mformat(MSG_WARNING, "Luck: Pet aggravation.");
+	}
+      }
+      break;
+
+    case 6: /* Speed up monsters. 
+	     * (Teleporting to the player is extra code to write and 
+	     *  completely unfair anyways.) */
+      if (amount > 250) {
+	aggravate_monsters(-1);
+	amount -= 250;
+	exit = 1;
+
+	if (cheat_xtra) {
+	  mformat(MSG_WARNING, "Luck: Aggravation.");
+	}
+      }
+      break;
+
+    case 7: /* Fire monster healing. */
+      exit = fire_visible_monsters(GF_HEAL, amount / 10);
+
+      if (exit) {
+	amount = 0;
+      }
+
+      if (cheat_xtra) {
+	mformat(MSG_WARNING, "Luck: Heal monsters.");
+      }
+      break;
+
+    case 8: /* Forgetfullness. */
+      if (amount > 500) {
+	exit = lose_all_info();
+
+	if (exit) {
+	  amount -= 500;
+	}
+
+	if (cheat_xtra) {
+	  mformat(MSG_WARNING, "Luck: Amnesia.");
+	}
+      }
+      break;
+
+    case 9: /* Haste monsters. */
+      if (amount >= 200) {
+	exit = speed_monsters();
+
+	if (exit) {
+	  amount -= 200;
+	}
+
+	if (cheat_xtra) {
+	  mformat(MSG_WARNING, "Luck: Haste monsters.");
+	}
+      }
+      break;
+
+    case 10: /* Polymorph monster. 
+	      * What's funny is that this is exactly the same as in the 
+	      * "bonus" routine. */
+      exit = fire_visible_monsters(GF_POLY, amount);
+
+      if (exit) {
+	amount = 0;
+      }
+
+      if (cheat_xtra) {
+	mformat(MSG_WARNING, "Luck: Polymorph monsters.");
+      }
+      break;
+
+    case 11: /* Forget the dungeon. */
+      if (amount > 350) {
+	wiz_dark();
+
+	exit = 1;
+	amount -= 350;
+
+	if (cheat_xtra) {
+	  mformat(MSG_WARNING, "Luck: Darken dungeon.");
+	}
+      }
+      break;
+
+    case 12: /* Darken room. */
+      foo = (amount > 100 ? 100 : amount);
+
+      exit = unlite_area(foo, foo / 20);
+      amount -= foo;
+
+      if (cheat_xtra) {
+	mformat(MSG_WARNING, "Luck: Darken room.");
+      }
+      break;
+
+    case 13: /* Curse something. */
+      if (amount > 700) {
+	(randint(2) == 1 ? curse_armor() : curse_weapon());
+
+	amount -= 700;
+	exit = 1;
+
+	if (cheat_xtra) {
+	  mformat(MSG_WARNING, "Luck: Curse items.");
+	}
+      }
+      break;
+
+    case 14: /* Disenchant stuff. */
+      if (amount > 500) {
+	exit = apply_disenchant(0);
+      
+	if (exit) {
+	  amount -= 500;
+	}
+
+	if (cheat_xtra) {
+	  mformat(MSG_WARNING, "Luck: Disenchantment.");
+	}
+      }
+      break;
+
+    case 15: /* Drain life. */
+      foo = amount * (p_ptr->lev / 5);
+
+      lose_exp(foo);
+
+      exit = 1;
+      amount -= foo;
+
+      if (cheat_xtra) {
+	mformat(MSG_WARNING, "Luck: Drain life.");
+      }
+      break;
+
+    case 16: /* Damage item(s). */
+      inven_damage(inven_damage_aux, amount, "broke");
+      exit = 1;
+      amount = 0;
+
+      if (cheat_xtra) {
+	mformat(MSG_WARNING, "Luck: Damage items.");
+      }
+      break;
+    }
+
+    iter++;
+  }
+  
+  return amount;
+}
+
+
+
+
+
+
+
+void strike_it_lucky(void) {
+
+  /* All sorts of evil and not-so-evil random happenings here.
+   * Note that luck should be very gradual, not discrete. 
+   * (Probably only one person in the world understands the above
+   * phrase, though.)
+   */
+
+  if ((turn % randnor(2000, 500)) == 0) {
+
+    if (cheat_xtra) {
+      mformat(MSG_WARNING, "Handling luck. (Luck is %d.)", p_ptr->luck);
+    }
+
+    if (p_ptr->luck > 0) {
+      p_ptr->luck = strike_it_bonus(p_ptr->luck);
+
+      /* Divine incomprehensibility. */
+      switch (randint(5)) {
+      case 1: mprint(MSG_BONUS, "Today is your lucky day."); break;
+      case 2: mprint(MSG_BONUS, "Things are looking better for you."); break;
+      case 3: mprint(MSG_BONUS, "You feel great."); break;
+      case 4: mprint(MSG_BONUS, "Wow, what a great day today!"); break;
+      case 5: mprint(MSG_BONUS, "Today is just lovely, you know?"); break;
+      }
+
+      disturb(0, 0);
+
+    } else if (p_ptr->luck < 0) {
+      p_ptr->luck = -strike_it_sucky(-p_ptr->luck);
+
+      /* Divine incomprehensibility. */
+      switch (randint(5)) {
+      case 1: mprint(MSG_WARNING, "Something's not right here."); break;
+      case 2: 
+	mprint(MSG_WARNING, "You don't feel quite comfortable here."); 
+	break;
+      case 3: mprint(MSG_WARNING, "Some weather today, huh?"); break;
+      case 4: mprint(MSG_WARNING, "You feel crappy."); break;
+      case 5: mprint(MSG_WARNING, "This is getting old already..."); break;
+      }
+
+      disturb(0, 0);
+
+    }
+  }
+}
+

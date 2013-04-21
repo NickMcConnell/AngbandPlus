@@ -1,0 +1,339 @@
+
+The amalgamated Kamband help file. (Alpha version.)
+Conforms to version 1.9 "Anachron".
+Work in progress by Ivan Tkatchev.
+
+----------------------------------
+
+
+I. Words of Wisdom.
+
+1. Introduction.
+
+  First of all, Kamband is not Angband. In it's current incarnation it is
+a demented, mean-spirited roguelike with Nethackish elements masquerading
+under an Angband skin; as such, don't be surprised at anything. One of the
+guiding elements of Kamband development, for good or evil, has been the
+separation from the classic philosophy of Angband. 
+
+  The Kamband site is hosted on sourceforge, http://kamband.sourceforge.net
+
+II. Playing the Thing.
+
+1. General Hints.
+
+  The most important thing you must keep in mind is that unlike Angband
+(and to some extent Nethack) Kamband is a roguelike that completely disregards
+equipment. All items in the game are quite transient, and even the most 
+powerful items quickly wither away and die; food potions and dragon scale 
+mail rots, potions and bottles break, swords scratch and snap. That means
+that the player must seek hidden potential within himself, as corny as that
+sounds; the game provides ample opportunities for that. The next paragraphs
+will provide some character "career choices" that the player can follow,
+regardless of initial race and class.
+
+a. Piety.
+
+  The game has 26 gods, each with his/her own personality and special traits.
+Roughly, they can be divided into evil/benevolent gods and rare/common ones.
+All characters start without a religion. To join a cult, all you need to do
+is find an altar in the dungeon and sacrifice anything at all of value on it.
+(The key is 'O' while standing over an altar.) Each god has his or her own
+altar type. Once you have joined, you are given various bonuses, depending 
+on the god you now worship; on the other hand, you are now required to 
+regularly appease your god with sacrifices of valuable objects. Your standing
+in the cult is computed solely on the basis of the net worth of the objects
+you sacrifice, thus it is not important what kinds of items you sacrifice and
+when. There are three levels of standing in a cult, "rewarded", "favored" and
+"championed", each giving more bonuses over the previous ones attained.
+Note that your standing drops over time, and if it gets sufficiently low
+your god will start severely punishing you and generally making your life
+miserable. "Evil" gods require sacrifices much more frequently than "nice"
+ones, but on the other hand usually give nicer bonuses. You can check your
+religious status if you press the "sacrifice" key ('O') while not standing 
+over an altar. If you have a hard time finding an appropriate altar while
+dungeon-diving, you can bash ('B') any other altar to convert it; note, 
+however, that bashing altars is a dangerous activity. The gods don't like
+mortals to get too uppity. 
+
+  Another option for religious characters is praying. (The key is 'p'.) 
+Praying allows you to ask your god for help during a difficult situation.
+With any luck you might be saved even in a seemingly hopeless situation.
+Praying is a very dangerous activity; praying too frequently or praying if
+your standing is too low pretty much amounts to suicide. 
+
+  As a side bonus, if your character happens to be a priest or a paladin,
+he will be treated more leniently when sacrificing and praying; even better,
+those who are priests will have access to more in-depth information on their
+religious standing in the Temple in the town.
+
+b. Chaos.
+
+  The game allows the character to change the original shape of his body
+during the course of the game. The two methods by which this can be achieved
+is mutations and shape-shifting. Mutations are gained from potions or by
+being breathed on with chaos; gaining a new mutation is a random process, and
+what's worse is that "good" and "bad" mutations are about evenly split.
+However, once a mutation is gained, it stays with you forever unless you 
+drink a potion of "remove mutation". Shape-shifting is a different process --
+you change shape either by drinking a potion or by using your innate ability.
+(For example, if you're a lycanthrope.) Your shape is a temporary condition
+and will wear off soon; on the other hand, each shape allows you to use
+several special magic spells which are available only while in that particular
+shape. (Regardless of character class.) You cannot wear any armor while 
+shape-shifted.
+
+c. Leadership.
+
+  The game has a concept of a "pet" monster, though in real-life terms pets
+are closer to "allies". Each pet will attempt to eliminate hostile monsters
+to the best of its ability, and all killed monsters will contribute to 
+your experience as if you killed it personally. The three main ways of gaining
+pets are innate ability, (when you're playing a beastmaster) 
+religious allegiance and spells. Unless your pets are gained by fortune of
+your religious standing, the total number of pets is limited by your charisma.
+Pets are not completely stupid and will do things like target enemies while
+avoiding damaging you, following you when you call for them and even listen
+to your orders. You can press the "pet call" key (usually '#') to call your
+pets to your side or target them at something else. Note, however, that
+calling pets tends to aggravate enemy monsters. Pets will generally be happy
+to die for you, but abusing them by throwing things or firing spells at them
+will cause rebellion.
+
+d. Charity.
+
+  There is an extensive system of quests in the town; completing quests is
+a great way of collecting precious items. Many quest rewards turn out to be
+artifacts. There are two main sources of quests, one in the castle and one
+in the sorcery tower. Obviously, the quests in the sorcery tower are more
+geared towards the magic-user. Once you have accepted a quest (you can select
+any quest you wish, but only one at a time) simply walk onto the 
+"quest entrance" tile to start the quest. Sometimes you can safely exit the 
+quest, sometimes not; in any case, be very careful as our opponents tend to
+be wildly powerful. 
+
+  Besides general bonuses you can get from places like the castle, arena and
+gambling house, each class has a special guild building which gives 
+class-specific bonuses. On the whole, it is possible to play a full-fledged
+game and build up your character to a high enough level without ever
+stepping foot in the dungeon.
+
+e. Magic.
+
+  There are a great abundance of magic-using player classes, some of which
+are designed to be played without melee combat at all. For example, the
+"Mutant/Corrupted" race/class combination, which is a physically weak
+character with randomly generated purely offensive spells. Listing all
+the classes is not the goal here, so just try it out yourself to see.
+
+f. Avatars.
+
+  One special class is the avatar, where you start from the beginning
+worshiping a god and proceed through life trying to fulfill a fate
+given to you by your god.  Each god has his or her own particular
+preferences, which will be revealed to you by an occasional "fate"
+imposed on you. A fate is a little assignment, for example, to kill a
+certain monster or sacrifice some item; in actuality there are many
+different combinations possible, and each god interprets fates a
+little differently. Just as an example, Melkor the God of Shadow likes
+to collect rings, Stribog the God of Winds tries to protect birds from
+harm, etc. 
+
+If you complete your fate, your luck rating goes up; if you fail, your luck
+obviously goes down. This luck rating is a purely internal counter and not
+visible to the player in any way. However, once in a while the game decides
+to reward lucky players in some way, usually by a bonus of some sort. 
+Each bonus costs a little luck and lowers your luck rating somewhat.
+
+On the other hand, if you are unlucky enough to have negative luck, the game
+will start punishing you instead of rewarding, though as before each time
+you are punished your luck will slowly increase towards zero.
+
+2. Miscellaneous Hints.
+
+  There are other neat features in the game, which include:
+
+a. Alchemy.
+
+  You can collect ingredients in the dungeon and mix them in different 
+combinations (the '$' key) to create items. Each item that can be mixed
+has its own combination of ingredients, though this combination is forever 
+fixed and identical for every copy of the game. You start the game with a
+few known alchemical recipes, and if you happen to discover new ones you will
+memorize them. Note however that mixing high-level items is difficult for a
+low-level character.
+
+b. Corpses.
+
+  You can collect corpses and turn them in to the beastmaster for rewards if
+your corpse type happens to be on the bounty list. Beware, however -- the 
+bounty list is updated quite frequently. 
+
+  Note that if you play a necromancer class, you can put corpses to much
+better use -- when you cast "raise dead" on any corpse, you have a chance
+of turning it into a live pet of the same monster. Note, however, that if you
+fail the consequences can be very harsh, for example, sanity loss.
+
+c. Level Generation.
+
+  The game has a large amount of different weird levels -- from strange 
+("themed") vaults to flooded or destroyed levels. The frequency of weirdness
+is quite large, so that pretty much every level is bound to be "weird". 
+Note that the "weirdness" frequency can be toggled by an option. 
+Furthermore, outside the town is a randomly-generated infinite wilderness.
+This wilderness can be reached by simply stepping on a "wilderness entrance"
+tile in the town. Be careful, though, the wilderness is a difficult and
+very unpredictable place! 
+
+d. Sanity.
+
+  Your character has a "sanity" stat -- this is like health except that it
+will not heal simply by resting; to heal your sanity you must drink a special
+potion. On the bright side, sanity is damaged only by special "mentalic"
+monsters such as mind flayers.
+
+e. Shop Vaults.
+
+  You can turn on Nethack-like shops with a option. (Turned off by default.)
+The bonus is that you get a realistic-looking home and an ability to steal
+in a limited way.
+
+f. Crime.
+
+  Committing crimes will summon town guards, so beware. 
+
+g. Weird Races.
+
+  There are some races that dramatically change the gameplay dynamics -- for
+example: ghosts, vampires, death molds. I won't explain all of these here,
+though -- try it yourself or simply read the changelog.
+
+3. Item Damage.
+
+  The game implements item damage in a very strict way -- all items quickly
+decay and break, worn down by use or simply time. Unless you are using an
+artifact and have artifact damage turned off, you should always keep at the
+back of your mind that the weapon or armor you are using is temporary. This
+is especially important for low-level characters, since being stranded in
+the middle of a dungeon without any weapons is horrible. 
+
+  The other important fact is that magic items are usually very fragile --
+it does not take too much force to break a potion or snap a wand; what's
+worse, when magic items break they usually explode. Sometimes this is 
+enough to set off a small chain reaction. This applies to items you carry
+in your inventory, so for example carrying a Potion of Death is extremely
+dangerous. 
+
+4. Surviving.
+
+  Getting your character off the ground is easy, but usually when you reach
+what seems to you a comfortable level horrible things seem to suddenly happen.
+Before you know it, you experience a sudden, random death. This is because
+the game does not scale well to high-level characters -- just because you
+are level 9 and comfortably equipped does not mean you can relax at 50'.
+The ways of dying are so varied and sudden that at no time should you 
+let your guard down and start doing rash things. 
+
+  Here I list a few most common ways of sudden death:
+
+a. Sanity.
+
+  Sanity loss is almost impossible to protect from, and getting appropriate
+potions is difficult for low-level characters. Your best bet is to steer
+clear of sanity-draining monsters and use powerful remote attacks to take
+care of these. Since such monsters usually have very little hitpoints, you'd
+want to strike preemtively and only once.
+
+b. Quest Inflation.
+
+  Up to a point the quests and arena monsters seem easy, but at some
+point a quick jump in difficulty happens. Simply don't try to take all the
+quests in one stride and think twice before rushing in. If in doubt, it's
+much better to run away.
+
+c. Uniques.
+
+  There are a few low-level uniques that are devastating to low-level 
+characters, namely the Black Death and the four horsemen of the apocalypse.
+Remember that it only takes one shot to destroy these, so if you keep them
+at a distance and strike first, you'll do fine. If you have no distance weapon,
+simply throw some junk at them. The difficulty, of course, is when you
+are stuck in a narrow corridor and the monster is coming at you straight
+through the wall, in such a case there is little you can do except hope
+that you do not die immediately. Your best solution is to stick to open
+levels, though this opens up new difficulties.
+
+d. Open Levels.
+
+  Open levels really shift the balance towards group monsters with high
+speed; a pack of Cave Spiders on an open level is difficult to handle even
+for a relatively experienced character, especially when you are playing a 
+fighter-type. When playing an open level a good idea is to get as many
+pets as possible, simply so that any monster has to fight it's way through
+several layers of dead bodies before it can reach you. 
+
+  The wilderness is even more difficult than open levels in the dungeon,
+simply because you have no good way of judging how powerful the monsters
+populating that area are. Just don't rush from screen to screen too quickly.
+
+III. Appendix A: Key List.
+
+  This is a list of in-game key defaults.
+
+'w': Wear or wield equipment.
+'t': Take off equipment.
+'d': Drop something.
+'k': Destroy ("kill") an item.
+'e': Show equipment.
+'i': Show inventory.
+'I': Examine an object. (Includes damage status.)
+'A': Activate an artifact.
+'E': Eat something.
+'F': Refill a torch or lantern.
+'f': Fire a projectile weapon.
+'v': Throw something.
+'a': Fire ("aim") a wand.
+'z': Fire ("zap") a rod.
+'q': Drink ("quaff") a potion.
+'r': Read a scroll.
+'u': Fire ("use") a staff.
+'$': Mix alchemical recipes.
+'{': Inscribe an object.
+'}': Uninscribe an object.
+
+'+': "Alter" a grid.
+'T': Dig ("tunnel") into a wall.
+'.': Begin running.
+',': Hold still. Special powers for immovable chracters.
+'g': Pick up items.
+'R': Rest.
+'s': Search for hidden doors/traps.
+'S': Toggle search mode.
+'<': Go up a staircase.
+'>': Go down a staircase.
+'o': Open a door or chest.
+'c': Close a door.
+'j': Jam a door with a spike.
+'B': Bash a door or an altar.
+'D': Disarm a trap.
+'M': Look at the map.
+'L': Look around the dungeon.
+'l': Examine things around you.
+'*': Target a monster or location.
+
+'G': Learn ("gain") new spells.
+'b': Read ("browse") a spellbook.
+'m': Cast a spell or use an innate power.
+'p': Pray to your god.
+'O': Sacrifice something.
+'#': Call pets.
+
+'~': Show character's knowledge.
+'C': Examine character info.
+'=': Change options.
+
+Ctrl-'S': Save but do not quit.
+Ctrl-'T': Show in-game time.
+Ctrl-'X': Save and quit.
+'Q': Suicide.
+

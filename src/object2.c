@@ -875,6 +875,9 @@ bool inven_carry(object_type * o_ptr)
 		return FALSE;
 	}
 
+	/* Handle fate. */
+	fate_effect(o_ptr->fate, FATE_CARRY);
+
 	if (insert_to_stack(o_ptr, &(inventory)))
 	{
 		o_ptr->stack = STACK_INVEN;
@@ -1572,9 +1575,8 @@ s32b object_value(object_type * o_ptr)
 		material *m1_ptr = &materials[k_ptr->stuff];
 		material *m2_ptr = &materials[o_ptr->stuff];
 
-		value =
-			transmute_aux(value, m1_ptr->cost_factor, m2_ptr->cost_factor,
-			TRUE);
+		value = transmute_aux(value, m1_ptr->cost_factor, 
+				      m2_ptr->cost_factor, TRUE);
 	}
 
 	/* Return the final value */
@@ -3549,7 +3551,7 @@ void process_generators(void)
  * affect other objects, which in turn could affect yet more objects. In 
  * effect, an intricate recursive loop is formed. The problem occurs when
  * an exploding object loops through a list (say, player inventory) exploding
- * yet more objects. These newly exploded objects affect delete elements 
+ * yet more objects. These newly exploded objects affect deleted elements 
  * on the original loop. The original object then segfaults when it tries to
  * explode an already deleted item.
  *
@@ -3578,6 +3580,11 @@ bool explode_object(object_type * o_ptr, int y, int x)
 	o_ptr->k_idx = 0;
 
 	p_ptr->notice |= PN_CLEAN_EXPLOSION;
+
+
+	/* MEGA-HACK: Handle fate here. */
+	fate_effect(o_ptr->fate, FATE_KILL);
+
 
 	if (!(fl1 & TR1_EXPLODES) && o_ptr->tval != TV_POTION &&
 		o_ptr->tval != TV_WAND && o_ptr->tval != TV_STAFF &&
@@ -3818,14 +3825,14 @@ bool repair_object(object_type * o_ptr, s16b dam)
 	}
 	else
 	{
-		if (dam > o_ptr->mhp)
+		if (o_ptr->chp + dam > o_ptr->mhp)
 		{
 			o_ptr->chp = o_ptr->mhp;
 
 		}
 		else
 		{
-			o_ptr->chp = dam;
+			o_ptr->chp += dam;
 		}
 	}
 
@@ -3841,7 +3848,6 @@ bool repair_object(object_type * o_ptr, s16b dam)
 bool transmute(object_type * o_ptr, byte stuff)
 {
 	int i;
-	bool equip = FALSE;
 	object_kind *k_ptr = &k_info[o_ptr->k_idx];
 
 	material *m1_ptr = &materials[k_ptr->stuff];
@@ -3864,37 +3870,32 @@ bool transmute(object_type * o_ptr, byte stuff)
 		FALSE);
 
 	/* Hack -- preserve total weight. */
-	for (i = 0; i < EQUIP_MAX; i++)
-	{
-		if (equipment[i] == o_ptr)
-		{
-			p_ptr->total_weight -= o_ptr->weight;
-			equip = TRUE;
-		}
+	if (o_ptr->stack == STACK_INVEN) {
+	  p_ptr->total_weight -= o_ptr->weight;
 	}
 
 
 	o_ptr->weight =
-		transmute_aux(k_ptr->weight * o_ptr->number, m1_ptr->weight_factor,
-		m2_ptr->weight_factor, FALSE);
+	  transmute_aux(k_ptr->weight * o_ptr->number, m1_ptr->weight_factor,
+			m2_ptr->weight_factor, FALSE);
 
-	if (equip)
-	{
-		p_ptr->total_weight += o_ptr->weight;
+	if (o_ptr->stack == STACK_INVEN) {
+	  p_ptr->total_weight += o_ptr->weight;
 	}
 
 	/* Affect armor class if it's armor. */
-	if (wield_slot(o_ptr) >= EQUIP_BODY)
-	{
-		o_ptr->ac =
-			transmute_aux(k_ptr->ac, m1_ptr->ac_factor, m2_ptr->ac_factor,
-			FALSE);
+	if (wield_slot(o_ptr) >= EQUIP_BODY) {
+	  o_ptr->ac = transmute_aux(k_ptr->ac, m1_ptr->ac_factor, 
+				    m2_ptr->ac_factor, FALSE);
 
-		if (equip)
-		{
-			p_ptr->update |= (PU_BONUS | PU_MANA);
-			p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
-		}
+	  for (i = 0; i < EQUIP_MAX; i++) {
+
+	    if (equipment[i] == o_ptr) {
+	      p_ptr->update |= (PU_BONUS | PU_MANA);
+	      p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_SPELL | PW_PLAYER);
+	      break;
+	    }
+	  }
 	}
 
 	/* Hack -- automatically heal the item. */

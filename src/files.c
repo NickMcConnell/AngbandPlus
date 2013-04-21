@@ -2210,9 +2210,11 @@ errr file_character(cptr name)
 		deity *d_ptr = &deity_info[pgod];
 
 		fprintf(fff,
-			"Player worships %s, the %s God of %s, "
+			"Player worships %s, the %s God%s of %s, "
 			"and is %s by him.\n\n", d_ptr->name,
-			deity_rarity[d_ptr->rarity], d_ptr->god_of,
+			deity_rarity[d_ptr->rarity], 
+			(d_ptr->female ? "dess" : ""),
+			d_ptr->god_of,
 			deity_standing[badness]);
 	}
 
@@ -3015,6 +3017,8 @@ void do_cmd_save_game(void)
  */
 long total_points(void)
 {
+
+#if 0
 	/* Yuck -- ugly hack for ghosts. */
 	if (p_ptr->prace == RACE_GHOST)
 	{
@@ -3026,6 +3030,27 @@ long total_points(void)
 	}
 
 	return (p_ptr->max_exp + (100 * p_ptr->max_depth));
+#endif
+
+	/* Kamband 1.9 now includes a new score calculation algorithm. 
+	 * The reasoning is that it is royally useless to score based 
+	 * on experience, that just fills the top slots of the scorefile
+	 * with braindamaged "ghost beastmaster" characters.
+	 *
+	 * We now score mostly on the amount of turns plus max depth and 
+	 * a little bit of experience.
+	 * 
+	 * Note: Ghosts do NOT get extra treatment.
+	 * 
+	 * Also note: You can "cheat" and get a huge score just by
+	 * waiting a long, long time. In any case, this is still less
+	 * arbitrary than the old way.
+	 */
+
+	int days = (turn / (TOWN_DAWN));
+
+	return (days * 1000 + p_ptr->max_depth * 10 + p_ptr->max_lev * 5);
+
 }
 
 
@@ -3959,8 +3984,7 @@ static errr top_twenty(void)
 	WIPE(&the_score, high_score);
 
 	/* Save the version */
-	sprintf(the_score.what, "%u.%u.%u", VERSION_MAJOR, VERSION_MINOR,
-		VERSION_PATCH);
+	sprintf(the_score.what, "%u.%u", KAM_VERSION_MAJOR, KAM_VERSION_MINOR);
 
 	/* Calculate and save the points */
 	sprintf(the_score.pts, "%9lu", (long) total_points());
@@ -4062,8 +4086,7 @@ static errr predict_score(void)
 
 
 	/* Save the version */
-	sprintf(the_score.what, "%u.%u.%u", VERSION_MAJOR, VERSION_MINOR,
-		VERSION_PATCH);
+	sprintf(the_score.what, "%u.%u", KAM_VERSION_MAJOR, KAM_VERSION_MINOR);
 
 	/* Calculate and save the points */
 	sprintf(the_score.pts, "%9lu", (long) total_points());

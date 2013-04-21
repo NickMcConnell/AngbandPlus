@@ -202,6 +202,7 @@ static object_type *rd_item_aux(bool store)
 	rd_s16b(&o_ptr->mhp);
 
 	rd_byte(&o_ptr->stuff);
+	rd_byte(&o_ptr->fate);
 
 	rd_byte(&o_ptr->name1);
 	rd_byte(&o_ptr->name2);
@@ -303,6 +304,7 @@ static void rd_monster(monster_type * m_ptr)
 	rd_byte(&m_ptr->confused);
 	rd_byte(&m_ptr->monfear);
 	rd_byte(&m_ptr->is_pet);
+	rd_byte(&m_ptr->fate);
 	rd_s16b(&m_ptr->random_name_idx);
 	rd_s16b(&m_ptr->mflag);
 
@@ -649,6 +651,7 @@ static errr rd_extra(void)
 
 	rd_s32b(&p_ptr->grace);
 	rd_s32b(&p_ptr->god_favor);
+	rd_s32b(&p_ptr->luck);
 	rd_byte(&p_ptr->pgod);
 
 	p_ptr->pets_notice = 0;
