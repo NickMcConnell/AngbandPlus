@@ -456,15 +456,15 @@ static tval_desc tvals[] =
 	{ TV_WAND,              "Wand"                 },
 	{ TV_STAFF,             "Staff"                },
 	{ TV_ROD,               "Rod"                  },
-	{ TV_MIRACLES_BOOK,     "Miracles Spellbook"       },
+	{ TV_MIRACLES_BOOK,     "Miracles Spellbook"   },
 	{ TV_SORCERY_BOOK,      "Sorcery Spellbook"    },
 	{ TV_NATURE_BOOK,       "Nature Spellbook"     },
 	{ TV_CHAOS_BOOK,        "Chaos Spellbook"      },
 	{ TV_DEATH_BOOK,        "Death Spellbook"      },
-	{ TV_TAROT_BOOK,        "Tarot Spellbook"       },
+	{ TV_TAROT_BOOK,        "Tarot Spellbook"      },
 	{ TV_CHARMS_BOOK,       "Charms Spellbook"     },
-	{ TV_SOMATIC_BOOK,      "Somatic Spellbook"},
-	{ TV_DEMONIC_BOOK,      "Demonic Spellbook"},    
+	{ TV_SOMATIC_BOOK,      "Somatic Spellbook"    },
+	{ TV_DEMONIC_BOOK,      "Demonic Spellbook"    },
 	{ TV_SPIKE,             "Spikes"               },
 	{ TV_DIGGING,           "Digger"               },
 	{ TV_CHEST,             "Chest"                },
@@ -1609,6 +1609,9 @@ void do_cmd_debug(void)
 	case '?':
 		do_cmd_wiz_help();
 		break;
+	case ']':
+		lose_all_info();
+		break;
 	case '0':
 		do_cmd_perma_prison();
 		break;
@@ -1848,6 +1851,7 @@ void do_cmd_wiz_help(void)
 
 	c_put_str(TERM_RED,"General Commands",14,26);
 	c_put_str(TERM_RED,"================",15,26);
+	put_str("] = Induce Amnesia",16,26);
 	put_str("\" = Generate spoilers",17,26);
 	put_str("d = Detect All",18,26);
 	put_str("m = Map Area",19,26);

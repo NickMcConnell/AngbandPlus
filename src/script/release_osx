@@ -1,0 +1,14 @@
+mkdir hellband.app
+cd hellband.app
+mkdir Contents
+cd Contents
+mkdir MacOS
+mkdir Resources
+cd MacOS
+cp ../../../hellband hellband
+cd ..
+cd resources
+cp ../../../src/osx/*.icns .
+cp ../../../src/osx/*.rsrc .
+cd ..
+cp ../../src/osx/Info.plist .

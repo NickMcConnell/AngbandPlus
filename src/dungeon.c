@@ -313,6 +313,9 @@ static void sense_inventory(void)
 		/* Check for a feeling */
 		feel = (heavy ? value_check_aux1(o_ptr) : value_check_aux2(o_ptr));
 
+		/* We have "felt" it , we should set this before considering to squelch */
+		o_ptr->ident |= (IDENT_SENSE);
+
 		/*Should we be squelchin' ?*/
 		consider_squelch( o_ptr );
 		
@@ -340,9 +343,6 @@ static void sense_inventory(void)
 				o_name, index_to_label(i),
 				((o_ptr->number == 1) ? "is" : "are"), feel);
 		}
-
-		/* We have "felt" it */
-		o_ptr->ident |= (IDENT_SENSE);
 
 		/* Inscribe it textually */
 		if (!o_ptr->note) o_ptr->note = quark_add(feel);
@@ -1009,23 +1009,11 @@ static void process_world(void)
 		/* Update the stores once a day (while in dungeon) */
 		if (!(turn % (10L * STORE_TURNS)))
 		{
-			int n;
-
 			/* Message */
 			if (debug_xtra) msg_print("Updating Shops...");
 
-			/* Maintain each shop */
-			for (n = 0; n < MAX_STORES; n++)
-			{
-				/* Ignore home, hall  and pawnbrokers */
-				if ((n != STORE_HOME) &&
-					(n != STORE_HALL) &&
-					(n != STORE_PAWN))
-				{
-					/* Maintain */
-					store_maint(n);
-				}
-			}
+			/* Maintain each shop once*/
+			store_maint_all(1);
 
 			/* Sometimes, shuffle the shop-keepers */
 			if (rand_int(STORE_SHUFFLE) == 0)
@@ -1083,7 +1071,7 @@ static void process_world(void)
 		}
 
 		if ((inventory[INVEN_LITE].tval)
-			&& (inventory[INVEN_LITE].sval >= SV_LITE_GALADRIEL)
+			&& (inventory[INVEN_LITE].sval >= SV_LITE_BEATRICE)
 			&& (inventory[INVEN_LITE].sval < SV_LITE_INSIGHT)
 			&& !(p_ptr->resist_lite))
 		{
@@ -1485,7 +1473,7 @@ static void process_world(void)
 	/* Poison */
 	if (p_ptr->poisoned)
 	{
-		int adjust = (adj_con_fix[p_ptr->stat_ind[A_CON]] + 1);
+		int adjust = (adj_stat[p_ptr->stat_ind[A_CON]][ADJ_REGEN] + 1);
 
 		/* Apply some healing */
 		(void)set_timed_effect( TIMED_POISONED , p_ptr->poisoned - adjust);
@@ -1494,7 +1482,7 @@ static void process_world(void)
 	/* Stun */
 	if (p_ptr->stun)
 	{
-		int adjust = (adj_con_fix[p_ptr->stat_ind[A_CON]] + 1);
+		int adjust = (adj_stat[p_ptr->stat_ind[A_CON]][ADJ_REGEN] + 1);
 
 		/* Apply some healing */
 		(void)set_timed_effect( TIMED_STUN, p_ptr->stun - adjust);
@@ -1503,7 +1491,7 @@ static void process_world(void)
 	/* Cut */
 	if (p_ptr->cut)
 	{
-		int adjust = (adj_con_fix[p_ptr->stat_ind[A_CON]] + 1);
+		int adjust = (adj_stat[p_ptr->stat_ind[A_CON]][ADJ_REGEN] + 1);
 
 		/* Hack -- Truly "mortal" wound */
 		if (p_ptr->cut > 1000) adjust = 0;
@@ -3542,11 +3530,6 @@ static void dungeon(void)
 	/* Notice a Quest Level */
 	if (is_quest(dun_level)) quest_discovery();
 
-	if (dun_bias)
-	{
-		show_dun_bias();
-	}
-
 	/*** Process this dungeon level ***/
 
 	/* Reset the monster generation level */
@@ -3567,7 +3550,6 @@ static void dungeon(void)
 
 		/* Hack -- Compress the monster list occasionally */
 		if (m_cnt + 32 < m_max) compact_monsters(0);
-
 
 		/* Hack -- Compact the object list occasionally */
 		if (o_cnt + 32 > MAX_O_IDX) compact_objects(64);
@@ -3696,20 +3678,20 @@ static void load_all_pref_files(void)
 	process_pref_file(buf);
 
 	/* Access the "realm 1" pref file */
-	if (realm_names[p_ptr->realm1]!="no magic")
-		if (realm_names[p_ptr->realm1]!="unknown")
+	if (realm_names[p_ptr->realm1].name != "no magic")
+		if (realm_names[p_ptr->realm1].name != "unknown")
 		{
-			sprintf(buf, "%s.prf",realm_names[p_ptr->realm1]);
+			sprintf(buf, "%s.prf",realm_names[p_ptr->realm1].name);
 
 			/* Process that file */
 			process_pref_file(buf);
 		}
 
 		/* Access the "realm 2" pref file */
-		if (realm_names[p_ptr->realm2]!="no magic")
-			if (realm_names[p_ptr->realm2]!="unknown")
+		if (realm_names[p_ptr->realm2].name!="no magic")
+			if (realm_names[p_ptr->realm2].name!="unknown")
 			{
-				sprintf(buf, "%s.prf",realm_names[p_ptr->realm2]);
+				sprintf(buf, "%s.prf",realm_names[p_ptr->realm2].name);
 
 				/* Process that file */
 				process_pref_file(buf);
@@ -3841,9 +3823,7 @@ void play_game(bool new_game)
 
 		/* Start in town */
 		dun_level = 0;
-		dun_bias = 0;
 		came_from = START_RANDOM;
-
 
 		/* Roll up a new character */
 		player_birth();

@@ -618,7 +618,8 @@ void do_poly_self(void)
 					race_info[new_race].title);
 
 				p_ptr->prace = new_race;
-				rp_ptr = &race_info[p_ptr->prace];
+				/* rp_ptr = &race_info[p_ptr->prace]; */
+				p_race = race_info[p_ptr->prace];
 
 				/* Access the "race" pref file */
 				sprintf(buf, "%s.prf", rp_ptr->title);
@@ -2358,9 +2359,12 @@ void do_cmd_cast(void)
 
 					/* Paranoia */
 					if (dummy > p_ptr->max_dun_level) dummy = p_ptr->max_dun_level;
-
+					
+					/*Actually set the new depth*/
+					p_ptr->max_dun_level= dummy;
+					
 					/* Accept request */
-					msg_format("Recall depth set to level %d (%d').", dummy, dummy * 50 );
+					msg_format("Recall depth set to level %d (%d').", p_ptr->max_dun_level, p_ptr->max_dun_level * 50 );
 				}
 				break;
 			case 4: /* Fool's Journey */
@@ -2463,8 +2467,9 @@ void do_cmd_cast(void)
 				break;
 			case 18: /* Fortitude */
 				{
-                    (void)set_timed_effect( TIMED_BLESSED, p_ptr->blessed + plev);                    
-                    (void)set_timed_effect( TIMED_HERO, p_ptr->hero + plev);
+					(void)set_timed_effect( TIMED_BLESSED, p_ptr->blessed + plev);
+					(void)set_timed_effect( TIMED_HERO, p_ptr->hero + plev);
+					(void)set_timed_effect( TIMED_FAST, p_ptr->hero + plev);
 				}
 				break;
 			case 19: /* The Emperor */
@@ -3225,7 +3230,7 @@ static int get_mindcraft_power(int *sn)
 					chance -= 3 * (p_ptr->lev - spell.min_lev);
 
 					/* Reduce failure rate by INT/WIS adjustment */
-					chance -= 3 * (adj_mag_stat[p_ptr->stat_ind[mp_ptr->spell_stat]] - 1);
+					chance -= 3 * (adj_stat[p_ptr->stat_ind[mp_ptr->spell_stat]][ADJ_INTWIS] - 1);
 
 					/* Not enough mana to cast */
 					if (spell.mana_cost > p_ptr->csp)
@@ -3234,7 +3239,7 @@ static int get_mindcraft_power(int *sn)
 					}
 
 					/* Extract the minimum failure rate */
-					minfail = adj_mag_fail[p_ptr->stat_ind[mp_ptr->spell_stat]];
+					minfail = adj_stat[p_ptr->stat_ind[mp_ptr->spell_stat]][ADJ_FAILURE];
 
 					/* Minimum failure rate */
 					if (chance < minfail) chance = minfail;
@@ -3385,7 +3390,7 @@ void do_cmd_mindcraft(void)
 	chance -= 3 * (p_ptr->lev - spell.min_lev);
 
 	/* Reduce failure rate by INT/WIS adjustment */
-	chance -= 3 * (adj_mag_stat[p_ptr->stat_ind[mp_ptr->spell_stat]] - 1);
+	chance -= 3 * (adj_stat[p_ptr->stat_ind[mp_ptr->spell_stat]][ADJ_INTWIS] - 1);
 
 	/* Not enough mana to cast */
 	if (spell.mana_cost > p_ptr->csp)
@@ -3394,7 +3399,7 @@ void do_cmd_mindcraft(void)
 	}
 
 	/* Extract the minimum failure rate */
-	minfail = adj_mag_fail[p_ptr->stat_ind[mp_ptr->spell_stat]];
+	minfail = adj_stat[p_ptr->stat_ind[mp_ptr->spell_stat]][ADJ_FAILURE];
 
 	/* Minimum failure rate */
 	if (chance < minfail) chance = minfail;

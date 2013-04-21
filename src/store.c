@@ -21,7 +21,6 @@
 
 #include "angband.h"
 
-
 #define RUMOR_CHANCE 8
 
 #define MAX_COMMENT_1	6
@@ -48,7 +47,7 @@ static owner_type *ot_ptr = NULL;
 
 static cptr comment_1[MAX_COMMENT_1] =
 {
-	"Okay.",
+		"Okay.",
 		"Fine.",
 		"Accepted!",
 		"Agreed!",
@@ -68,7 +67,7 @@ static cptr comment_2a[MAX_COMMENT_2A] =
 
 static cptr comment_2b[MAX_COMMENT_2B] =
 {
-	"I can take no less than %s gold pieces.",
+		"I can take no less than %s gold pieces.",
 		"I will accept no less than %s gold pieces.",
 		"Ha!  No less than %s gold pieces.",
 		"You knave!  No less than %s gold pieces.",
@@ -86,7 +85,7 @@ static cptr comment_2b[MAX_COMMENT_2B] =
 
 static cptr comment_3a[MAX_COMMENT_3A] =
 {
-	"You try my patience.  %s is final.",
+		"You try my patience.  %s is final.",
 		"My patience grows thin.  %s is final."
 };
 
@@ -95,7 +94,7 @@ static cptr comment_3a[MAX_COMMENT_3A] =
 
 static cptr comment_3b[MAX_COMMENT_3B] =
 {
-	"Perhaps %s gold pieces?",
+		"Perhaps %s gold pieces?",
 		"How about %s gold pieces?",
 		"I will pay no more than %s gold pieces.",
 		"I can afford no more than %s gold pieces.",
@@ -113,7 +112,7 @@ static cptr comment_3b[MAX_COMMENT_3B] =
 
 static cptr comment_4a[MAX_COMMENT_4A] =
 {
-	"Enough!  You have abused me once too often!",
+		"Enough!  You have abused me once too often!",
 		"Arghhh!  I have had enough abuse for one day!",
 		"That does it!  You shall waste my time no more!",
 		"This is getting nowhere!"
@@ -123,7 +122,7 @@ static cptr comment_4a[MAX_COMMENT_4A] =
 
 static cptr comment_4b[MAX_COMMENT_4B] =
 {
-	"Leave my store!",
+		"Leave my store!",
 		"Get out of my sight!",
 		"Begone, you scoundrel!",
 		"Out, out, out!"
@@ -133,7 +132,7 @@ static cptr comment_4b[MAX_COMMENT_4B] =
 
 static cptr comment_5[MAX_COMMENT_5] =
 {
-	"Try again.",
+		"Try again.",
 		"Ridiculous!",
 		"You will have to do better than that!",
 		"Do you wish to do business or not?",
@@ -147,7 +146,7 @@ static cptr comment_5[MAX_COMMENT_5] =
 
 static cptr comment_6[MAX_COMMENT_6] =
 {
-	"I must have heard you wrong.",
+		"I must have heard you wrong.",
 		"I'm sorry, I missed that.",
 		"I'm sorry, what was that?",
 		"Sorry, what was that again?"
@@ -190,17 +189,10 @@ void room_rest(bool night)
 	}
 	/* Store globals to stop them getting corrupted */
 	temp_store_num=cur_store_num;
-	/* Maintain each shop (except homes etc) */
-	for (n = 0; n < MAX_STORES - 1; n++)
-	{
-		/* Maintain */
-		if ((n != STORE_HOME) &&
-			(n != STORE_HALL) &&
-			(n != STORE_PAWN))
-		{
-			store_maint(n);
-		}
-	}
+	
+	/* Maintain each shop (except homes etc) once */
+	store_maint_all(1);
+	
 	/* And restore the globals */
 	cur_store_num=temp_store_num;
 	/* Reset the Store and Owner pointers */
@@ -230,7 +222,6 @@ bool free_homes(void)
 	return (FALSE);
 }
 
-
 /*
 * Successful haggle.
 */
@@ -239,7 +230,6 @@ static void say_comment_1(void)
 	/*char rumour[80];  */
 	msg_print(comment_1[rand_int(MAX_COMMENT_1)]);
 }
-
 
 /*
 * Continue haggling (player is buying)
@@ -265,7 +255,6 @@ static void say_comment_2(s32b value, int annoyed)
 		msg_format(comment_2b[rand_int(MAX_COMMENT_2B)], tmp_val);
 	}
 }
-
 
 /*
 * Continue haggling (player is selling)
@@ -320,8 +309,6 @@ static void say_comment_6(void)
 	msg_print(comment_6[rand_int(5)]);
 }
 
-
-
 /*
 * Messages for reacting to purchase prices.
 */
@@ -330,7 +317,7 @@ static void say_comment_6(void)
 
 static cptr comment_7a[MAX_COMMENT_7A] =
 {
-	"Arrgghh!",
+		"Arrgghh!",
 		"You bastard!",
 		"You hear someone sobbing...",
 		"The shopkeeper howls in agony!"
@@ -340,7 +327,7 @@ static cptr comment_7a[MAX_COMMENT_7A] =
 
 static cptr comment_7b[MAX_COMMENT_7B] =
 {
-	"Damn!",
+		"Damn!",
 		"You bastard!",
 		"The shopkeeper curses at you.",
 		"The shopkeeper glares at you."
@@ -350,7 +337,7 @@ static cptr comment_7b[MAX_COMMENT_7B] =
 
 static cptr comment_7c[MAX_COMMENT_7C] =
 {
-	"Cool!",
+		"Cool!",
 		"You've made my day!",
 		"The shopkeeper giggles.",
 		"The shopkeeper laughs loudly."
@@ -360,7 +347,7 @@ static cptr comment_7c[MAX_COMMENT_7C] =
 
 static cptr comment_7d[MAX_COMMENT_7D] =
 {
-	"Yipee!",
+		"Yipee!",
 		"I think I'll retire!",
 		"The shopkeeper jumps for joy.",
 		"The shopkeeper smiles gleefully."
@@ -454,9 +441,6 @@ static byte rgold_adj[COUNT_SUBRACES][COUNT_SUBRACES] =
 
 };
 
-
-
-
 /*
 * Determine the price of an item (qty one) in a store.
 *
@@ -495,7 +479,8 @@ static s32b price_item(object_type *o_ptr, int greed, bool flip)
 	factor = rgold_adj[ot_ptr->owner_race][p_ptr->prace];
 
 	/* Add in the charisma factor */
-	factor += adj_cha_gold[p_ptr->stat_ind[A_CHA]];
+	msg_fiddle( "Adjustment : %d" , adj_stat[p_ptr->stat_ind[A_CHA]][ADJ_PRICE]);
+	factor += adj_stat[p_ptr->stat_ind[A_CHA]][ADJ_PRICE];
 
 
 	/* Shop is buying */
@@ -798,6 +783,8 @@ static bool is_blessed(object_type *o_ptr)
 * Determine if the current store will purchase the given item
 *
 * Note that a shop-keeper must refuse to buy "worthless" items
+* Konijn Note : shopkeepers no longer refuse to buy worthless items for 0 gold
+* It's a service rendered ;)
 */
 static bool store_will_buy(object_type *o_ptr)
 {
@@ -947,6 +934,7 @@ static bool store_will_buy(object_type *o_ptr)
 		}
 		/* Bookstore */
 	case 8:
+	case 12:
 		{
 			/* Analyze the type */
 			switch (o_ptr->tval)
@@ -959,7 +947,10 @@ static bool store_will_buy(object_type *o_ptr)
 			case TV_TAROT_BOOK:
 			case TV_CHARMS_BOOK:
 			case TV_SOMATIC_BOOK:
-            case TV_DEMONIC_BOOK:                
+            case TV_DEMONIC_BOOK:  
+				/* Player needs to start donating a really rare book */
+				if( cur_store_num == STORE_BOOK_SWAP && !store[cur_store_num].bought && o_ptr->sval != 3 )
+					return (FALSE);
 				break;
 			default:
 				return (FALSE);
@@ -993,8 +984,6 @@ static bool store_will_buy(object_type *o_ptr)
 	/* Assume okay */
 	return (TRUE);
 }
-
-
 
 /*
 * Add the item "o_ptr" to the inventory of the "Home"
@@ -1217,6 +1206,8 @@ static void store_item_increase(int item, int num)
 	else if (cnt < 0) cnt = 0;
 	num = cnt - o_ptr->number;
 
+	/* make sure wand charges are taken into account */
+
 	/* Save the new number */
 	o_ptr->number += num;
 }
@@ -1327,21 +1318,29 @@ static void store_delete(void)
 */
 static void store_create(void)
 {
-	int i, tries, level;
+	int i, tries, level, bm_dice, tries_count;
 
 	object_type forge;
 	object_type *q_ptr;
 
-
 	/* Paranoia -- no room left */
 	if (st_ptr->stock_num >= st_ptr->stock_size) return;
 
+	tries_count = 4;
+	/* Some, well ok, one store, for now, gets more items */
+	if ( cur_store_num == STORE_BOOK_SWAP )
+	{
+		tries_count = tries_count * 2;
+	}
+
 	/* Hack -- consider up to four items */
-	for (tries = 0; tries < 4; tries++)
+	for (tries = 0; tries < tries_count; tries++)
 	{
 		/* Black Market */
 		if (cur_store_num == STORE_BLACK)
 		{
+			bm_dice = p_ptr->lev>25?p_ptr->lev:25; 
+			
 			/* Pick a level for object/magic */
 			level = 25 + rand_int(25);
 
@@ -1379,7 +1378,6 @@ static void store_create(void)
 			if (q_ptr->sval == SV_LITE_LANTERN) q_ptr->pval = FUEL_LAMP / 2;
 		}
 
-
 		/* The item is "known" */
 		object_known(q_ptr,FALSE);
 
@@ -1397,9 +1395,6 @@ static void store_create(void)
 
 			/* Hack -- No "cheap" items */
 			if (object_value(q_ptr) < 10) continue;
-
-			/* No "worthless" items */
-			/* if (object_value(q_ptr) <= 0) continue; */
 		}
 
 		/* Prune normal stores */
@@ -1408,7 +1403,6 @@ static void store_create(void)
 			/* No "worthless" items */
 			if (object_value(q_ptr) <= 0) continue;
 		}
-
 
 		/* Mass produce and/or Apply discount */
 		mass_produce(q_ptr);
@@ -1420,8 +1414,6 @@ static void store_create(void)
 		break;
 	}
 }
-
-
 
 /*
 * Eliminate need to bargain if player has haggled well in the past
@@ -1476,8 +1468,6 @@ static void updatebargain(s32b price, s32b minprice)
 		}
 	}
 }
-
-
 
 /*
 * Re-displays a single store entry
@@ -1625,6 +1615,13 @@ static void display_inventory(void)
 {
 	int i, k;
 
+	/* Only show the inventory of the Mage Guild if a high level book has been gifted */
+	if( cur_store_num == STORE_BOOK_SWAP && !store[cur_store_num].bought )
+	{
+		put_str( "Before you can use these services, you need to donate any rare spellbook.   " , 5 , 3 );
+		return;
+	}
+
 	/* Display the next 12 items */
 	for (k = 0; k < 12; k++)
 	{
@@ -1711,6 +1708,7 @@ static void display_store(void)
 		}
 		else
 		{
+			/*Hack, this is one the second floor of the feature ;\ */
 			store_name = "Mage Guild";
 		}	
 
@@ -1742,6 +1740,8 @@ static void display_store(void)
 
 	/* Display the current gold */
 	store_prt_gold();
+
+
 
 	/* Draw in the inventory */
 	display_inventory();
@@ -2591,6 +2591,96 @@ static bool sell_haggle(object_type *o_ptr, s32b *price)
 	return (FALSE);
 }
 
+/*
+* Maintain the inventory at 1 store
+*/
+void store_maint(int which)
+{
+	int         j;
+
+	int		old_rating = rating;
+
+	/* Ignore home */
+	if ((which == STORE_HOME) || (which == STORE_HALL) || (which == STORE_PAWN) )return;
+
+
+	/* Save the store indices */
+	cur_store_num = which;
+	cur_store_num = which;
+
+	/* Activate that store */
+	st_ptr = &store[cur_store_num];
+
+	/* Activate the owner */
+	ot_ptr = &owners[cur_store_num][st_ptr->owner];
+
+	/* Store keeper forgives the player */
+	st_ptr->insult_cur = 0;
+
+	/* Mega-Hack -- prune the black market */
+	if (cur_store_num == STORE_BLACK)
+	{
+		/* Destroy crappy black market items */
+		for (j = st_ptr->stock_num - 1; j >= 0; j--)
+		{
+			object_type *o_ptr = &st_ptr->stock[j];
+
+			/* Destroy crappy items */
+			if (black_market_crap(o_ptr))
+			{
+				/* Destroy the item */
+				store_item_increase(j, 0 - o_ptr->number);
+				store_item_optimize(j);
+			}
+		}
+	}
+
+
+	/* Choose the number of slots to keep */
+	j = st_ptr->stock_num;
+
+	/* Sell a few items */
+	j = j - randint(STORE_TURNOVER);
+
+	/* Never keep more than "STORE_MAX_KEEP" slots */
+	if (j > STORE_MAX_KEEP) j = STORE_MAX_KEEP;
+
+	/* Always "keep" at least "STORE_MIN_KEEP" items */
+	if (j < STORE_MIN_KEEP) j = STORE_MIN_KEEP;
+
+	/* Hack -- prevent "underflow" */
+	if (j < 0) j = 0;
+
+	/* Destroy objects until only "j" slots are left */
+	while (st_ptr->stock_num > j) store_delete();
+
+	/* Choose the number of slots to fill */
+	j = st_ptr->stock_num;
+
+	/* Buy some more items */
+	j = j + randint(STORE_TURNOVER);
+
+	/* Never keep more than "STORE_MAX_KEEP" slots */
+	if (j > STORE_MAX_KEEP) j = STORE_MAX_KEEP;
+
+	/* Always "keep" at least "STORE_MIN_KEEP" items */
+	if (j < STORE_MIN_KEEP) j = STORE_MIN_KEEP;
+
+	/* Hack -- prevent "overflow" */
+	if (j >= st_ptr->stock_size) j = st_ptr->stock_size - 1;
+
+	/* Hack -- Inn only has four possible items so use all four */
+	if ((j > 4) && ( cur_store_num == STORE_INN)) j=4;
+
+	/* Acquire some new items */
+	while (st_ptr->stock_num < j)
+	{
+		store_create();
+	}
+
+	/* Hack -- Restore the rating */
+	rating = old_rating;
+}
 
 
 
@@ -2614,6 +2704,9 @@ static void store_purchase(void)
 
 	char out_val[160];
 
+	/* Only allow purchasing in the Mage Guild if a high level book has been gifted */
+	if( cur_store_num == STORE_BOOK_SWAP && !store[cur_store_num].bought )
+		return;
 
 	/* Empty? */
 	if (st_ptr->stock_num <= 0)
@@ -2696,6 +2789,10 @@ static void store_purchase(void)
 	/* Modify quantity */
 	j_ptr->number = amt;
 
+
+	
+
+
 	/* Hack -- require room in pack */
 	if (!inven_carry_okay(j_ptr))
 	{
@@ -2769,6 +2866,11 @@ static void store_purchase(void)
 
 				/* Hack -- clear the "fixed" flag from the item */
 				j_ptr->ident &= ~(IDENT_FIXED);
+
+				/* Distribute charges of wands, staves, or rods */
+				/* Right here, before description happens, after the sell is final */
+				distribute_charges(o_ptr, j_ptr, amt);
+
 
 				/* Describe the transaction */
 				object_desc(o_name, j_ptr, TRUE, 3);
@@ -2880,6 +2982,9 @@ static void store_purchase(void)
 	/* Home is much easier */
 	else
 	{
+		/* Distribute charges of wands, staves, or rods */
+		distribute_charges(o_ptr, j_ptr, amt);
+
 		/* Give it to the player */
 		item_new = inven_carry(j_ptr, FALSE);
 
@@ -2970,7 +3075,6 @@ static void store_sell(void)
 		o_ptr = &o_list[0 - item];
 	}
 
-
 	/* Hack -- Cannot remove cursed items */
 	if ((item >= INVEN_WIELD) && cursed_p(o_ptr))
 	{
@@ -3036,15 +3140,23 @@ static void store_sell(void)
 		}
 		else
 		{
-			msg_format("Junking %s (%c).", o_name, index_to_label(item));
-			msg_print(NULL);
-			/* Identify it fully */
-			object_full_id( q_ptr );
-			/* Get a potentially new full description */
-			object_desc(o_name, q_ptr, TRUE, 3);
-			/* Eco friendly shop owners will not charge for making Hell a cleaner place */
-			price = 0;
-			choice = 0;
+			if (get_check("This is worthless, do you want me to junk it?"))
+			{
+				msg_format("Junking %s (%c).", o_name, index_to_label(item));
+				msg_print(NULL);
+				/* Identify it fully */
+				object_full_id( q_ptr );
+				/* Get a potentially new full description */
+				object_desc(o_name, q_ptr, TRUE, 3);
+				/* Eco friendly shop owners will not charge for making Hell a cleaner place */
+				price = 0;
+				choice = 0;
+			}
+			else{
+				/* Identify it fully, just to show the customer why the store owner wanted to junk it */
+				object_full_id( q_ptr );				
+				return;
+			}
 		}
 
 		/* Kicked out */
@@ -3166,6 +3278,16 @@ static void store_sell(void)
 				store_top = (item_pos / 12) * 12;
 				display_inventory();
 			}
+
+			/* If we are dealing with the Mage Guild, then Mage Guild will open it */
+			if( cur_store_num == STORE_BOOK_SWAP && !store[cur_store_num].bought )
+			{
+				store[cur_store_num].bought = 1;
+				msg_print("Welcome to the Mages Guild!");
+				display_inventory();
+			}
+
+
 			}
 		}
 	}
@@ -3212,6 +3334,9 @@ static void store_examine(void)
 
 	char out_val[160];
 
+	/* Only examine the inventory of the Mage Guild if a high level book has been gifted */
+	if( cur_store_num == STORE_BOOK_SWAP && !store[cur_store_num].bought )
+		return;
 
 	/* Empty? */
 	if (st_ptr->stock_num <= 0)
@@ -3361,15 +3486,41 @@ static void store_process_command(void)
 		/* View hiscores in hall */
 	case 'c':
 		{
-			if(cur_store_num == STORE_HALL)
+		if( cur_store_num == STORE_TEMPLE ){
+			if (!service_haggle(1500000,&price))
 			{
-				show_highclass(p_ptr->pclass,p_ptr->realm1);
+				if (price >= p_ptr->au)
+				{
+					msg_format("You do not have the gold, I am sorry.");
+				} 
+				else			
+				{
+					p_ptr->au -= price;
+					/* Say "okay" */
+					say_comment_1();
+					/* Make a sound */
+					sound(SOUND_BUY);
+					/* Be happy */
+					decrease_insults();
+					store_prt_gold();
+					/*Cleanse, clear all mutations*/
+					p_ptr->muta1 = 0;
+					p_ptr->muta2 = 0;
+					p_ptr->muta3 = 0;
+					msg_format("You feel remarkably normal.");
+				}
+				p_ptr->window |= (PW_SPELL | PW_PLAYER);
+				handle_stuff();
 			}
-			else
-			{
-				msg_print("That command does not work in this store.");
-			}
-			break;
+		} else if(cur_store_num == STORE_HALL)
+		{
+			show_highclass(p_ptr->pclass,p_ptr->realm1);
+		}
+		else
+		{
+			msg_print("That command does not work in this store.");
+		}
+		break;
 		}
 	case 'h':
 		{
@@ -3385,14 +3536,36 @@ static void store_process_command(void)
 		}
 	case '<':
 		{
-			/* Go upstairs to get to the geek club */
-			cur_store_num = STORE_BOOK_SWAP;
-			/* Set pointer to correct store */
-			st_ptr = &store[cur_store_num];
-			/* Start at the beginning */
-			store_top = 0;
-			/* Display the store */
-			display_store();
+			if( cur_store_num == STORE_LIBRARY )
+			{
+				/* Go upstairs to get to the geek club */
+				cur_store_num = STORE_BOOK_SWAP;
+				/* Set pointer to correct store */
+				st_ptr = &store[cur_store_num];
+				/* Start at the beginning */
+				store_top = 0;
+				/* Display the store */
+				display_store();
+			}else{
+				msg_print("Only the library has a second floor.");
+			}
+			break;
+		}
+	case '>':
+		{
+			if( cur_store_num == STORE_BOOK_SWAP )
+			{
+				/* Go upstairs to get to the geek club */
+				cur_store_num = STORE_LIBRARY;
+				/* Set pointer to correct store */
+				st_ptr = &store[cur_store_num];
+				/* Start at the beginning */
+				store_top = 0;
+				/* Display the store */
+				display_store();
+			}else{
+				msg_print("Only the mage guild is on the second floor.");
+			}
 			break;
 		}
 		/* perform 'special' for store */
@@ -3541,6 +3714,7 @@ static void store_process_command(void)
 								store_prt_gold();
 								p_ptr->ritual = 1;
 								msg_format("You perform the Ritual of True Recall.");
+								msg_format("You feel as if Life might give you a second chance.");
 							}
 							p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
 							handle_stuff();
@@ -3549,6 +3723,7 @@ static void store_process_command(void)
 					break;
 				}
 			case STORE_BLACK:
+			case STORE_BOOK_SWAP:
 				{
 					msg_print("That command does not work in this store.");
 					break;
@@ -3917,6 +4092,121 @@ static void store_process_command(void)
 	}
 }
 
+/*
+ * -Konijn- This is really all one big hodgepodge of hacks and aggregated common things between shops
+ * I extracted it from do_cmd_store because I needed evil returns breaking normal flow
+ * Yes, I will burn
+*/
+
+void put_store_commands()
+{
+		/*One day : c_put_str*/
+
+		/* Basic commands */
+		prt(" escape) Exit", 22, 0);
+
+		/* Unbought Mage Guild does not follow any rule*/
+		if( cur_store_num == STORE_BOOK_SWAP && !store[cur_store_num].bought )
+		{
+			prt("d) Donate" , 22 , 17 );
+			prt(">) Go downstairs" , 22 , 30 );
+			return;
+		}
+
+		/* Shop commands XXX XXX XXX */
+		if ((cur_store_num != STORE_HOME) && (cur_store_num != STORE_HALL))
+		{
+			prt(" s) Sell", 22, 15);
+			prt(" p) Purchase", 22, 30);
+		}		
+		
+		/* Home commands */
+		if (cur_store_num == STORE_HOME)
+		{
+			prt(" g) Get", 22, 31);
+			prt(" d) Drop", 23, 31);
+		}
+
+		if (cur_store_num == STORE_HALL)
+		{
+			prt(" h) view racial Heroes.", 22, 31);
+			prt(" c) view Class heroes.", 23,31);
+		}
+		else
+			/* Add in the eXamine option */
+		{
+			prt(" x) eXamine", 22, 45);
+		}
+		
+		/* Browse if necessary */
+		if (st_ptr->stock_num > 12)
+		{
+			prt("  space) More", 23, 0);
+		}
+
+		/* Special for each store */
+
+		switch (cur_store_num)
+		{
+		case STORE_ARMOURY:
+			{
+				prt(" r) Enchant Armour", 22,60);
+				break;
+			}
+		case STORE_WEAPON:
+			{
+				prt(" r) Enchant Weapon", 22,60);
+				break;
+			}
+		case STORE_TEMPLE:
+			{
+				prt(" r) Restoration", 22,60);
+				prt(" c) Cleanse", 23, 15);
+				break;
+			}
+		case STORE_ALCHEMIST:
+			{
+				prt(" r) Research", 22, 60);
+				break;
+			}
+		case STORE_MAGIC:
+			{
+				prt(" r) True Recall.", 22,60);
+				break;
+			}
+		case STORE_HOME:
+			{
+				prt(" r) Rest.",23,56);
+				break;
+			}
+		case STORE_LIBRARY:
+			{
+				prt(" r) Gain a spell.",22, 60);
+				prt(" <) Go upstairs", 23, 15);
+				break;
+			}
+		case STORE_BOOK_SWAP:
+			{
+				prt(">) Go downstairs" , 22 , 60 );
+				break;
+			}
+		case STORE_INN:
+			{
+				prt(" r) Rent a Room", 22,60);
+				break;
+			}
+		case STORE_HALL:
+			{
+				prt(" r) Buy a house.", 23,56);
+				break;
+			}
+		case STORE_PAWN:
+			{
+				prt(" r) Identify all", 22,60);
+				break;
+			}
+		}
+}
 
 /*
 * Enter a store, and interact with it.
@@ -4023,101 +4313,11 @@ void do_cmd_store(void)
 		/* Clear */
 		clear_from(21);
 		
-		/*One day : c_put_str*/
-
-		/* Basic commands */
-		prt(" escape) Exit", 22, 0);
-
-		/* Shop commands XXX XXX XXX */
-		if ((cur_store_num != STORE_HOME) && (cur_store_num != STORE_HALL))
-		{
-			prt(" s) Sell", 22, 15);
-			prt(" p) Purchase", 22, 30);
-		}		
-		
-		/* Home commands */
-		if (cur_store_num == STORE_HOME)
-		{
-			prt(" g) Get", 22, 31);
-			prt(" d) Drop", 23, 31);
-		}
-
-		if (cur_store_num == STORE_HALL)
-		{
-			prt(" h) view racial Heroes.", 22, 31);
-			prt(" c) view Class heroes.", 23,31);
-		}
-		else
-			/* Add in the eXamine option */
-		{
-			prt(" x) eXamine", 22, 45);
-		}
-		
-		/* Browse if necessary */
-		if (st_ptr->stock_num > 12)
-		{
-			prt("  space) More", 23, 0);
-		}
-
-		/* Special for each store */
-
-		switch (cur_store_num)
-		{
-		case STORE_ARMOURY:
-			{
-				prt(" r) Enchant Armour", 22,60);
-				break;
-			}
-		case STORE_WEAPON:
-			{
-				prt(" r) Enchant Weapon", 22,60);
-				break;
-			}
-		case STORE_TEMPLE:
-			{
-				prt(" r) Restoration", 22,60);
-				break;
-			}
-		case STORE_ALCHEMIST:
-			{
-				prt(" r) Research", 22, 60);
-				break;
-			}
-		case STORE_MAGIC:
-			{
-				prt(" r) True Recall.", 22,60);
-				break;
-			}
-		case STORE_HOME:
-			{
-				prt(" r) Rest.",23,56);
-				break;
-			}
-		case STORE_LIBRARY:
-			{
-				prt(" r) Gain a spell.",22, 60);
-				prt(" <) Go upstairs", 23, 15);
-				break;
-			}
-		case STORE_INN:
-			{
-				prt(" r) Rent a Room", 22,60);
-				break;
-			}
-		case STORE_HALL:
-			{
-				prt(" r) Buy a house.", 23,56);
-				break;
-			}
-		case STORE_PAWN:
-			{
-				prt(" r) Identify all", 22,60);
-				break;
-			}
-		}
-
 		/* Prompt */
 		put_str("You may: ", 21, 0);
+
+		/* Put all possible command */
+		put_store_commands();
 
 		/* Get a command */
 		request_command(TRUE);
@@ -4311,98 +4511,24 @@ void store_shuffle(int which)
 
 
 /*
-* Maintain the inventory at the stores.
-*/
-void store_maint(int which)
+ * Maintain the inventory at 1 store, times times
+ * So we can force a good measure of shuffling
+ */
+void store_maint_all( int times )
 {
-	int         j;
-
-	int		old_rating = rating;
-
-	/* Ignore home */
-	if ((which == STORE_HOME) || (which == STORE_HALL) || (which == STORE_PAWN) || (which == STORE_BOOK_SWAP))return;
-
-
-	/* Save the store indices */
-	cur_store_num = which;
-	cur_store_num = which;
-
-	/* Activate that store */
-	st_ptr = &store[cur_store_num];
-
-	/* Activate the owner */
-	ot_ptr = &owners[cur_store_num][st_ptr->owner];
-
-
-	/* Store keeper forgives the player */
-	st_ptr->insult_cur = 0;
-
-
-	/* Mega-Hack -- prune the black market */
-	if (cur_store_num == STORE_BLACK)
+	int n; /* Store Indicator */
+	int i; /* Generic counter */
+	for (n = 0; n < MAX_STORES; n++)
 	{
-		/* Destroy crappy black market items */
-		for (j = st_ptr->stock_num - 1; j >= 0; j--)
+		/* Ignore home, hall  and pawnbrokers */
+		if ((n != STORE_HOME) &&
+			(n != STORE_HALL) &&
+			(n != STORE_PAWN))
 		{
-			object_type *o_ptr = &st_ptr->stock[j];
-
-			/* Destroy crappy items */
-			if (black_market_crap(o_ptr))
-			{
-				/* Destroy the item */
-				store_item_increase(j, 0 - o_ptr->number);
-				store_item_optimize(j);
-			}
+			/* Maintain the shop (ten times) */
+			for (i = 0; i < times; i++) store_maint(n);
 		}
 	}
-
-
-	/* Choose the number of slots to keep */
-	j = st_ptr->stock_num;
-
-	/* Sell a few items */
-	j = j - randint(STORE_TURNOVER);
-
-	/* Never keep more than "STORE_MAX_KEEP" slots */
-	if (j > STORE_MAX_KEEP) j = STORE_MAX_KEEP;
-
-	/* Always "keep" at least "STORE_MIN_KEEP" items */
-	if (j < STORE_MIN_KEEP) j = STORE_MIN_KEEP;
-
-	/* Hack -- prevent "underflow" */
-	if (j < 0) j = 0;
-
-	/* Destroy objects until only "j" slots are left */
-	while (st_ptr->stock_num > j) store_delete();
-
-
-	/* Choose the number of slots to fill */
-	j = st_ptr->stock_num;
-
-	/* Buy some more items */
-	j = j + randint(STORE_TURNOVER);
-
-	/* Never keep more than "STORE_MAX_KEEP" slots */
-	if (j > STORE_MAX_KEEP) j = STORE_MAX_KEEP;
-
-	/* Always "keep" at least "STORE_MIN_KEEP" items */
-	if (j < STORE_MIN_KEEP) j = STORE_MIN_KEEP;
-
-	/* Hack -- prevent "overflow" */
-	if (j >= st_ptr->stock_size) j = st_ptr->stock_size - 1;
-
-	/* Hack -- Inn only has four possible items so use all four */
-	if ((j > 4) && ( cur_store_num == STORE_INN)) j=4;
-
-	/* Acquire some new items */
-	while (st_ptr->stock_num < j)
-	{
-		store_create();
-	}
-
-
-	/* Hack -- Restore the rating */
-	rating = old_rating;
 }
 
 
@@ -4412,8 +4538,6 @@ void store_maint(int which)
 void store_init(int which)
 {
 	int         k;
-
-
 
 	/* Save the store index */
 	cur_store_num = which;

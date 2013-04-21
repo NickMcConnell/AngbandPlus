@@ -42,7 +42,7 @@ CC = gcc
 CFLAGS = -Wall -O2 -fno-strength-reduce -DWINDOWS -mno-cygwin
 
 # Libraries
-LIBS = -s -mwindows -e _mainCRTStartup -lwinmm
+LIBS = -s -mwindows -e _mainCRTStartup -lwinmm -mno-cygwin
 
 WRES = windres
 
@@ -215,4 +215,4 @@ z-util.o: z-util.c $(HDRS) externs.h
 	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<
 
 z-virt.o: z-virt.c $(HDRS) z-virt.h externs.h
-	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $< 
+	$(CC) $(CFLAGS) $(INCDIRS) -c -o $@ $<

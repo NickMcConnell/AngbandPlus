@@ -409,6 +409,13 @@ void carry(int pickup)
     
     cptr feel;
     
+	/* Is there anything on the floor we can pick up and have space for in the inventory ? Assume no */
+	bool can_pick_up;
+
+	/* Stolen from get_item, since we default to the first item if there's only one */
+	int floor_list[MAX_FLOOR_STACK];
+	int floor_num;
+
 	/* Scan the pile of objects */
 	for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
 	{
@@ -416,10 +423,8 @@ void carry(int pickup)
 
 		/* Acquire object */
 		o_ptr = &o_list[this_o_idx];
-
 		/* Describe the object */
 		object_desc(o_name, o_ptr, TRUE, 3);
-
 		/* Acquire next object */
 		next_o_idx = o_ptr->next_o_idx;
 
@@ -446,7 +451,9 @@ void carry(int pickup)
 			delete_object_idx(this_o_idx);
 		}
 
-		/* Pick up objects */
+		/* So, its not gold, consider
+			1. ID'ing under plutus
+			2. Informing the user what he's walking over*/
 		else
 		{
             /*those born under plutus have super pseudo id sense*/
@@ -483,32 +490,21 @@ void carry(int pickup)
                     }
                 }
             }
-  			/* Describe the object */
-			if (!pickup)
-			{
-				msg_format("You see %s.", o_name);
-			}
 
-			/* If the object is worthless then destroy it instead of picking it up */
+			/* If the object is worthless then destroy it instead of looking at it up or pick it up */
 			/* Fix konijn, dont go destroying 'worhtless' artefacts... */
-			else if ((auto_destroy) && (object_value(o_ptr) <= 0) && !artefact_p(o_ptr) && o_ptr->tval!=TV_POTION)
-			{     
-				/* Delete the object */
+			if ((auto_destroy) && (object_value(o_ptr) <= 0) && !o_ptr->art_name && !artefact_p(o_ptr) && o_ptr->tval!=TV_POTION)
+			{   /* Delete the object */  
 				delete_object_idx(this_o_idx);
 				msg_format("You stomp on %s.", o_name);
 			}
-
-			/* Note that the pack is too full */
-			else if (!inven_carry_okay(o_ptr))
-			{
-				msg_format("You have no room for %s.", o_name);
+			else if (!pickup) 
+			{	/* Describe the object otherwise */
+				msg_format("You see %s.", o_name);
 			}
-
-			/* Pick up the item (if requested and allowed) */
-			else
-			{
+			else if( pickup && always_pickup )
+			{  /* Pick up the item (if requested and allowed) */
 				int okay = TRUE;
-
 				/* Hack -- query every item */
 				if (carry_query_flag)
 				{
@@ -516,34 +512,81 @@ void carry(int pickup)
 					sprintf(out_val, "Pick up %s? ", o_name);
 					okay = get_check(out_val);
 				}
-
 				/* Attempt to pick up an object. */
 				if (okay)
 				{
 					int slot;
-
 					/* Carry the item */
 					slot = inven_carry(o_ptr, FALSE);
-
 					/* Get the item again */
 					o_ptr = &inventory[slot];
-
 					/* Describe the object */
 					object_desc(o_name, o_ptr, TRUE, 3);
-
 					/* Message */
 					msg_format("You have %s (%c).", o_name, index_to_label(slot));
-
 					/* Delete the object */
 					delete_object_idx(this_o_idx);
 				}
 			}
 		}
 	}
+
+
+	can_pick_up = FALSE;
+	/* Scan the pile of objects for anything that can be picked up and stored in the inventory */
+	for (this_o_idx = c_ptr->o_idx; this_o_idx; this_o_idx = next_o_idx)
+	{
+		object_type *o_ptr;
+		/* Acquire object */
+		o_ptr = &o_list[this_o_idx];
+		/* Can we pick it up ? */
+		can_pick_up = can_pick_up || inven_carry_okay( o_ptr );
+		/* Acquire next object */
+		next_o_idx = o_ptr->next_o_idx;
+	}
+
+	/* Scan all objects in the grid */
+	floor_num = scan_floor(floor_list, MAX_FLOOR_STACK, py, px, 0x00);
+		
+	/* Note that the pack is too full to pick up anything, if anything is left */
+	if ( !always_pickup && pickup && floor_num > 0 && !can_pick_up ){
+		msg_format("You have no room for picking up items.");
+	}
+	/* Pick up the item (if requested and allowed) */
+	else if( !always_pickup && pickup && can_pick_up )
+	{
+		object_type *o_ptr;
+		int item, slot;
+
+		//If there's only 1 item, just pick it up..
+		if( floor_num == 1 )
+		{
+			item = 0 - floor_list[0];
+		}
+		else
+		{
+			/* Get an item from the floor */
+			if (!get_item(&item, "Pick up which item? ", "There is nothing to pick up." , USE_FLOOR))
+			{
+				return;
+			}
+		}
+
+		o_ptr = &o_list[0 - item];
+
+		/* Carry the item */
+		slot = inven_carry(o_ptr, FALSE);
+		/* Get the item again */
+		o_ptr = &inventory[slot];
+		/* Describe the object */
+		object_desc(o_name, o_ptr, TRUE, 3);
+		/* Message */
+		msg_format("You have %s (%c).", o_name, index_to_label(slot));
+		/* Delete the object */
+		delete_object_idx(0-item);
+		
+	}
 }
-
-
-
 
 
 /*
@@ -1919,18 +1962,7 @@ void move_player(int dir, int do_pickup)
 			/* Closed doors */
 			else if (c_ptr->feat < FEAT_SECRET)
 			{
-#ifdef ALLOW_EASY_OPEN /* TNB */
-
 				if (easy_open_door(y, x)) return;
-
-#else /* ALLOW_EASY_OPEN -- TNB */
-
-				msg_print("There is a closed door blocking your way.");
-
-				if (!(p_ptr->confused || p_ptr->stun || p_ptr->image))
-					energy_use = 0;
-
-#endif /* ALLOW_EASY_OPEN -- TNB */
 			}
 
 			/* Wall (or secret door) */

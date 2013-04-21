@@ -24,7 +24,7 @@
 
 extern void fetch(int dir, int wgt, bool require_los);
 
-#if defined(ALLOW_EASY_OPEN) || defined(ALLOW_EASY_DISARM) /* TNB */
+
 
 /*
 * Return the number of features around (or under) the character.
@@ -124,8 +124,6 @@ static int coords_to_dir(int y, int x)
 
 	return d[dx + 1][dy + 1];
 }
-
-#endif /* defined(ALLOW_EASY_OPEN) || defined(ALLOW_EASY_DISARM) -- TNB */
 
 /*
 * Go up one level					-RAK-
@@ -258,6 +256,12 @@ void do_cmd_go_down(void)
 						msg = "You enter the sewers of Volterra.";
 					else if (dun_level == 1)
 						msg = "You descend into the lower levels of Hell.";
+					else if (dun_level == 9)
+						msg = "You descend into the circle of the Heretics.";
+					else if (dun_level == 25)
+						msg = "You descend into the final circle of Dis.";
+					else if (dun_level == 26)
+						msg = "You leave Dis...";
 
 					if (msg)
 					{
@@ -421,7 +425,6 @@ static void chest_death(int y, int x, s16b o_idx)
 
 	object_type *o_ptr = &o_list[o_idx];
 
-
 	/* Small chests often hold "gold" */
 	small = (o_ptr->sval < SV_CHEST_MIN_LARGE);
 
@@ -449,15 +452,19 @@ static void chest_death(int y, int x, s16b o_idx)
 		/* Small chests often drop gold */
 		if (small && (rand_int(100) < 75))
 		{
-			/* Make some gold */
+			/* Make some gold , square it to insure some serious coin */
 			if (!make_gold(q_ptr)) continue;
+			q_ptr->pval = q_ptr->pval * q_ptr->pval;
 		}
 
 		/* Otherwise drop an item */
 		else
 		{
 			/* Make an object */
-			if (!make_object(q_ptr, FALSE, FALSE)) continue;
+			/*  20% crap , 40% good, 40% awesome */
+			int outof3 = damroll(1,3);
+			if ( outof3 < 2 && !make_object(q_ptr, TRUE , FALSE)) continue;
+			if ( outof3 > 1 && !make_object(q_ptr, TRUE , TRUE)) continue;
 		}
 
 		/* Drop it in the dungeon */
@@ -751,7 +758,7 @@ void do_cmd_open(void)
 
 	bool more = FALSE;
 
-#ifdef ALLOW_EASY_OPEN /* TNB */
+
 
 	/* Option: Pick a direction */
 	if (easy_open) {
@@ -771,8 +778,6 @@ void do_cmd_open(void)
 			if (!too_many) command_dir = coords_to_dir(y, x);
 		}
 	}
-
-#endif /* ALLOW_EASY_OPEN -- TNB */
 
 	/* Allow repeated command */
 	if (command_arg)
@@ -902,7 +907,7 @@ void do_cmd_close(void)
 
 	bool		more = FALSE;
 
-#ifdef ALLOW_EASY_OPEN /* TNB */
+
 
 	/* Option: Pick a direction */
 	if (easy_open) {
@@ -913,7 +918,7 @@ void do_cmd_close(void)
 		}
 	}
 
-#endif /* ALLOW_EASY_OPEN -- TNB */
+
 
 	/* Allow repeated command */
 	if (command_arg)
@@ -1282,7 +1287,7 @@ void do_cmd_tunnel(void)
 	if (!more) disturb(0, 0);
 }
 
-#ifdef ALLOW_EASY_OPEN /* TNB */
+
 
 /*
 * easy_open_door --
@@ -1382,7 +1387,7 @@ bool easy_open_door(int y, int x)
 	return (TRUE);
 }
 
-#endif /* ALLOW_EASY_OPEN -- TNB */
+
 
 /*
 * Perform the basic "disarm" command
@@ -1729,7 +1734,7 @@ static bool do_cmd_bash_aux(int y, int x, int dir)
 
 	/* Hack -- Bash power based on strength */
 	/* (Ranges from 3 to 20 to 100 to 200) */
-	bash = adj_str_blow[p_ptr->stat_ind[A_STR]];
+	bash = adj_stat[p_ptr->stat_ind[A_STR]][ADJ_STR_BLOW];
 
 	/* Extract door power */
 	temp = ((c_ptr->feat - FEAT_DOOR_HEAD) & 0x07);
@@ -1770,7 +1775,7 @@ static bool do_cmd_bash_aux(int y, int x, int dir)
 	}
 
 	/* Saving throw against stun */
-	else if (rand_int(100) < adj_dex_safe[p_ptr->stat_ind[A_DEX]] +
+	else if (rand_int(100) < adj_stat[p_ptr->stat_ind[A_DEX]][ADJ_DODGE] +
 		p_ptr->lev)
 	{
 		/* Message */
@@ -2816,7 +2821,7 @@ void do_cmd_throw(void)
 	div = ((q_ptr->weight > 10) ? q_ptr->weight : 10);
 
 	/* Hack -- Distance -- Reward strength, penalize weight */
-	tdis = (adj_str_blow[p_ptr->stat_ind[A_STR]] + 20) * mul / div;
+	tdis = (adj_stat[p_ptr->stat_ind[A_STR]][ADJ_STR_BLOW] + 20) * mul / div;
 
 	/* Max distance of 10 */
 	if (tdis > 10) tdis = 10;

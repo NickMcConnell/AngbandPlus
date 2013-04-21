@@ -1,0 +1,258 @@
+
+//Get file, show that we got it and about to start
+file = #args[0];
+
+//Show that we started
+. "About to process " @ file;
+
+
+//Get content of old file
+content = getFileAsString( file );
+
+backupfilename = "old/" + file + ( Date().formatDate( "yyyyMMdd_hhmmss" ) );
+
+//Backup content
+backupfile = openFile( backupfilename , 'w' );
+. <backupfile> content;
+backupfile.close();
+
+regex = true;
+text  = false;
+
+
+//Do C style
+//a_becomes_zee becomes aBecomesZee
+old_items = [ "new_player_spot" , "old_px" , "old_py" , "monster_count" , "place_monster_idx" , "monster_filter_hook" ];
+
+for item in old_items{
+	content = style( content , item );
+}
+
+remove_items = [ "monster_race" ];
+
+for item in remove_items{
+  content = myReplace( content  , text  , item , "" );
+}
+
+content = myReplace( content  , text  , "px"               , "player.x" );
+content = myReplace( content  , regex , "([^a-z])py"         , "$1player.y" ); //We dont want to screw up 'copyright' ;]
+content = myReplace( content  , text  , "old_turn"         , "player.oldTurn" );
+content = myReplace( content  , text  , "msg_print("       , "view.message(" );
+content = myReplace( content  , text  , "came_from"        , "player.cameFrom" );
+content = myReplace( content  , text  , "player_hp["       , "player.precalc.hitdice[" );
+content = myReplace( content  , text  , "p_ptr->lev"       , "player.level" );
+content = myReplace( content  , text  , "adj_stat["        , "statAdjustments[" );
+content = myReplace( content  , text  , "p_ptr->stat_ind[" , "statIndex(" );
+content = myReplace( content  , text  , "dun_level"        , "player.dungeonLevel" );
+content = myReplace( content  , text  , "alloc_monster("   , "cave.placeMonsters(" );
+content = myReplace( content  , text  , "place_monster("   , "cave.placeMonster(" );
+content = myReplace( content  , regex , "([^\\.]{1})distance\\(" , "$1Math.distance(" );
+content = myReplace( content  , text  , "object_level"     , "cave.objectLevel" );
+content = myReplace( content  , text  , "monster_level"    , "cave.monsterLevel" );
+content = myReplace( content  , text  , "place_monster_group" , "cave.placeMonsterGroup" );
+content = myReplace( content  , text  , "place_monster_aux" , "cave.placeMonsterAux" );
+content = myReplace( content  , text  , "place_monster_one" , "cave.placeMonsterOne" );
+content = myReplace( content  , text  , "&r_info["         , "monsters[" );
+content = myReplace( content  , text  , "r_info["         , "monsters[" );
+content = myReplace( content  , text  , "*r_ptr"           , "monsterRace" );
+content = myReplace( content  , text  , "r_ptr"           , "monsterRace" );
+content = myReplace( content  , text  , "->"           , "." );
+content = myReplace( content  , text  , "get_mon_num("     , "cave.pickMonsterRace(" );
+content = myReplace( content  , text  , "alloc_race_size"     , "monsters.length" );
+
+content = myReplace( content  , regex  , flex("in_bounds\\((\\w*),(\\w*)\\)") , "cave.inBounds( $2 , $1 )" );
+
+
+//Must be after the monsterRace replacement
+content = myReplace( content  , text  , "monsterRace.cur_num" , "monsterRace.count.current" );
+content = myReplace( content  , text  , "monsterRace.max_num" , "monsterRace.count.max" );
+content = myReplace( content  , text  , "monsterRace.r_sights" , "monsterRace.sights" );
+
+content = myReplace( content  , text  , ".ml"     , ".visible" );
+content = myReplace( content  , text  , ".csleep" , ".sleep" );
+content = myReplace( content  , text  , "m_ptr" , "monster" );
+content = myReplace( content  , text  , "monster.fx" , "monster.x" );
+content = myReplace( content  , text  , "monster.fy" , "monster.y" );
+content = myReplace( content  , text  , "monster.cdis" , "monster.distance" );
+
+content = myReplace( content  , text  , "is_ally(monster)" , "monster.isAlly()" );
+content = myReplace( content  , regex  , "r_flags[0-9] \\|\\= " , "observe" );
+
+content = myReplace( content  , regex  , "monsterRace\\.observe\\(RF[0-9]_([A-Z_]*)\\)" , 'monsterRace.observe( "$1" )' );
+content = myReplace( content  , text  , "repair_monsters" , "population.repairNeeded" );
+
+
+
+
+
+//cell magic
+content = myReplace( content  , text  , "cave_type *c_ptr" , "var cell" );
+content = myReplace( content  , text  , "c_ptr" , "cell" );
+
+content = myReplace( content ,  regex  , flex( "&cave\\[(\\w*)\\]\\[(\\w*)\\]" ) ,  "cave[$2][$1]" );
+
+//player magic
+content = myReplace( content  , text  , "p_ptr"            , "player" );
+content = myReplace( content  , text  , "player.see_infra" , "player.calc.infravision" );
+content = myReplace( content  , text  , "disturb_move" , "player.disturb.move" );
+content = myReplace( content  , text  , "disturb_allies" , "player.disturb.allies" );
+
+//inventory magic
+content = myReplace( content  , regex  , flex( "&inventory\\[(\\w*)\\]" ) , "gear.pack[$1].item" );
+content = myReplace( content  , text  , "o_ptr" , "gizmo" );
+content = myReplace( content  , text  , "tval" , "type" );
+//so we copy all properties of k_info into the item, which might regret ;]
+content = myReplace( content  , text  , "k_ptr" , "gizmo" );
+content = myReplace( content  , text  , "a_ptr" , "gizmo.artefact" );
+content = myReplace( content  , text  , "gizmo.sval" , "gizmo.subtype" );
+content = myReplace( content  , text  , "gizmo.sval" , "gizmo.subtype" );
+content = myReplace( content  , text  , "cursed_p(gizmo)" , "gizmo.subtype" );
+
+
+
+content = myReplace( content  , text  , "item_tester_type" , "gizmos.tester.type" );
+content = myReplace( content  , text  , "item_tester_hook" , "gizmos.tester.hook" );
+
+
+
+content = myReplace( content  , regex  , flex("f1 & \\((\\w*)\\)") , "gizmo.has( '$1' )" );
+//quick & dirty
+content = myReplace( content  , text  , "has( 'TR1_" , "has( '" );
+content = myReplace( content  , text  , "has( 'TR2_" , "has( '" );
+content = myReplace( content  , text  , "has( 'TR3_" , "has( '" );
+content = myReplace( content  , text  , "has( 'TR4_" , "has( '" );
+content = myReplace( content  , text  , "has( 'TR5_" , "has( '" );
+content = myReplace( content  , text  , "has( 'TR6_" , "has( '" );
+content = myReplace( content  , text  , "has( 'TR7_" , "has( '" );
+
+
+
+content  = myReplace( content   , text   , "inventory[INVEN_PACK]"     , "gear.pack" );
+content  = myReplace( content   , text   , "inventory[INVEN_WIELD]"    , "gear.wield" );
+content  = myReplace( content   , text   , "inventory[INVEN_BOW]"      , "gear.bow" );
+content  = myReplace( content   , text   , "inventory[INVEN_LEFT]"     , "gear.left" );
+content  = myReplace( content   , text   , "inventory[INVEN_RIGHT]"    , "gear.right" );
+content  = myReplace( content   , text   , "inventory[INVEN_NECK]"     , "gear.neck" );
+content  = myReplace( content   , text   , "inventory[INVEN_LITE]"     , "gear.lite" );
+content  = myReplace( content   , text   , "inventory[INVEN_BODY]"     , "gear.body" );
+content  = myReplace( content   , text   , "inventory[INVEN_OUTER]"    , "gear.outer" );
+content  = myReplace( content   , text   , "inventory[INVEN_ARM]"      , "gear.arm" );
+content  = myReplace( content   , text   , "inventory[INVEN_HEAD]"     , "gear.head" );
+content  = myReplace( content   , text   , "inventory[INVEN_HANDS]"    , "gear.hands" );
+content  = myReplace( content   , text   , "inventory[INVEN_FEET]"     , "gear.feet" );
+content  = myReplace( content   , text   , "inventory[INVEN_POUCH_1]"  , "gear.pouch_1" );
+content  = myReplace( content   , text   , "inventory[INVEN_POUCH_2]"  , "gear.pouch_2" );
+content  = myReplace( content   , text   , "inventory[INVEN_POUCH_3]"  , "gear.pouch_3" );
+content  = myReplace( content   , text   , "inventory[INVEN_POUCH_4]"  , "gear.pouch_4" );
+content  = myReplace( content   , text   , "inventory[INVEN_POUCH_5]"  , "gear.pouch_5" );
+content  = myReplace( content   , text   , "inventory[INVEN_POUCH_6]"  , "gear.pouch_6" );
+
+
+//. "Working on cave and generation stuff";
+
+content = myReplace( content  , text  , "cur_hgt"           , "cave.currentHeight" );
+content = myReplace( content  , text  , "cur_wid"           , "cave.currentWidth" );
+content = myReplace( content  , text  , "alloc_monster("    , "cave.currentWidth" );
+content = myReplace( content  , text  , "view_perma_grids"  , "options['viewPermaGrids'].value" );
+content = myReplace( content  , text  , "build_store"       , "buildStore" );
+
+
+
+//. "Fixing declarations";
+
+content = myReplace( content , regex , "\\tint "  , "  var " );
+content = myReplace( content , regex , "\\tu32b " , "  var " );
+content = myReplace( content , regex , "\\tbyte " , "  var " );
+content = myReplace( content , regex , "\\tbool " , "  var " );
+
+//. "Removing (type)";
+
+content = myReplace( content , text , "(void)" , "" );
+content = myReplace( content , text , "(u32b)" , "" );
+
+//. "Working on RNG stuff";
+
+content = myReplace( content  , text  , "Rand_quick"    ,  "rng.quick" );
+content = myReplace( content  , text  , "Rand_value"    ,  "rng.current" );
+content = myReplace( content  , text  , "Rand_place"    ,  "rng.index" );
+content = myReplace( content  , text  , "Rand_state"    ,  "rng.states" );
+content = myReplace( content  , text  , "rand_unbiased" ,  "rng.unbiased()" );
+content = myReplace( content  , text  , "Rand_div("     ,  "_biased(" );
+content = myReplace( content ,  text  , "rand_int("     ,  "rng.base0.random(" );
+content = myReplace( content ,  text  , "randint("      ,  "rng.base1.random(" );
+content = myReplace( content ,  text  , "rand_range("   ,  "rng.range(" );
+content = myReplace( content ,  text  , "rand_spread("  ,  "rng.spread(" );
+content = myReplace( content ,  text  , "magik("        ,  "rng.odds(" );
+content = myReplace( content ,  text  , "randnor("      ,  "Rand_normal(" );
+
+//Gah
+content = myReplace( content  , text  , "FALSE"    ,  "false" );
+content = myReplace( content  , text  , "TRUE"     ,  "true"  );
+
+
+//Tricky cave manipulations
+content = myReplace( content ,  regex  , flex( "cave_naked_bold\\((\\w*),(\\w*)\\)" ) ,  "cave[$2][$1].isEmpty()" );
+content = myReplace( content ,  regex  , flex( "cave_empty_bold\\((\\w*),(\\w*)\\)" ) , "!cave[$2][$1].isOccupied()" );
+content = myReplace( content ,  regex  , flex( "cave_floor_bold\\((\\w*),(\\w*)\\)" ) ,  "cave[$2][$1].isLevel()" );
+content = myReplace( content ,  regex  , flex( "cave_clean_bold\\((\\w*),(\\w*)\\)" ) ,  "cave[$2][$1].isClean()" );
+
+//Tricky monster flag manipulations
+
+content = myReplace( content ,  regex  , flex( "\\.flags[0-9] & \\(RF[0-9]_([A-Z_]*)\\)" ) ,  '\\.has( "$1" )' );
+content = myReplace( content ,  regex  , flex( "\\.flags[0-9] & RF[0-9]_([A-Z_]*)" ) ,  '\\.has( "$1" )' );
+
+//Tricky other stuff
+content = myReplace( content ,  regex  , flex( "lite_spot\\((\\w*),(\\w*)\\)" ) ,  'cave.illuminate($2,$1)' );
+
+
+
+
+//Prone to failure bug replacement
+content = myReplace( content ,  text  , "bug_" , "bug." );
+
+
+
+
+//. "Braces in the proper place";
+
+content = myReplace( content , regex , "\\)\\n\\t*\\{" , "){" );
+
+content.writeToFile( file );
+
+cmd = "diff -y --suppress-common-lines --width=260 " + file + " " + backupfilename;
+
+exec( cmd );
+
+
+function flex( s ){
+	s = s.replace( "\\(" , "\\s*\\(\\s*" );  //flex starting bracket
+	s = s.replace( ","  , "\\s*,\\s*" );   //flex comma's
+	s = s.replace( "\\)"  , "\\s*\\)" );    //flex closing bracket, left side
+	return s;
+}
+
+
+function style( s , old_style ){
+
+	newStyle = "";
+	pieces = old_style.split("_");
+	for piece in pieces{
+		newStyle = (newStyle == "")?(piece.toLower()):(newStyle @ piece.left(1).toUpper() @ piece.substring(1).toLower() );
+	}
+	return myReplace( s , false /*text*/ , old_style , newStyle );
+}
+
+
+function myReplace( s , regex , caterpillar , butterfly ){
+
+	//. "Replacing " @ caterpillar @ " with " @ butterfly @ ".";
+	if( regex )
+		return s.replaceAll( caterpillar , butterfly );
+	else
+		return s.replace( caterpillar , butterfly );
+}
+
+
+
+
+

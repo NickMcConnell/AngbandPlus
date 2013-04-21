@@ -50,15 +50,15 @@
 
 
 /*
-* Current version number of Hellband: 0.8.6
+* Current version number of Hellband: 0.8.7
 */
-#define VERSION_NAME	"Hellband 0.8.6"
-#define VERSION     	"0.8.6"
+#define VERSION_NAME	"Hellband 0.8.7"
+#define VERSION     	"0.8.7"
 
 /* <<VERSION STAMP>> */
 #define VERSION_MAJOR   0
 #define VERSION_MINOR   8
-#define VERSION_PATCH   6
+#define VERSION_PATCH   7
 
 /*
 * This value is not currently used
@@ -135,10 +135,7 @@
 * Maximum number of player "sex" types (see "table.c", etc)
 */
 #define MAX_SEXES            2
-/*
-* Maximum number of player "class" types (see "table.c", etc)
-*/
-#define MAX_CLASS            13
+
 
 /* The number of "patrons" available (for Hell Knights and Devilspawn and Warlocks ) */
 #define MAX_PATRON          16
@@ -319,7 +316,7 @@
 /*
 * Maximum array bounds for entity list arrays
 */
-#define MAX_O_IDX       256     /* Max size for "o_list[]" */
+#define MAX_O_IDX       512     /* Max size for "o_list[]" */
 #define MAX_M_IDX       512     /* Max size for "m_list[]" */
 #define MAX_P_IDX       512     /* Max size for "p_list[]" */
 
@@ -563,10 +560,12 @@ and tables.c --TY */
 #define CH_NATURE       0x04
 #define CH_CHAOS        0x08
 #define CH_DEATH        0x10
-#define CH_TAROT       0x20
-#define CH_CHARMS         0x40
+#define CH_TAROT        0x20
+#define CH_CHARMS       0x40
 #define CH_SOMATIC      0x80
 #define CH_DEMONIC      0x100
+
+#define CH_ALL          0x1FF
 
 #define REALM_NONE         0
 #define REALM_MIRACLES     1
@@ -574,19 +573,19 @@ and tables.c --TY */
 #define REALM_NATURE       3
 #define REALM_CHAOS        4
 #define REALM_DEATH        5
-#define REALM_TAROT       6
+#define REALM_TAROT        6
 #define REALM_CHARMS       7
 #define REALM_SOMATIC      8
 #define REALM_DEMONIC      9
 
 #define MAX_REALM          9
 
-#define NO				   0
-#define POOR			   1
-#define WORSE			   2
-#define SAME			   3
-#define BETTER			   4
-#define SUPER			   5
+#define NO                 0
+#define POOR               1
+#define WORSE              2
+#define SAME               3
+#define BETTER             4
+#define SUPER              5
 
 /*
 * Maximum number of "normal" pack slots, and the index of the "overflow"
@@ -660,21 +659,26 @@ and tables.c --TY */
 #define SEX_MALE                1
 
 /*
+* Maximum number of player "class" types (see "table.c", etc)
+*/
+#define MAX_CLASS            13
+
+/*
 * Player class constants (hard-coded by save-files, arrays, etc)
 */
-#define CLASS_WARRIOR		0
-#define CLASS_MAGE			1
-#define CLASS_ROGUE			3
-#define CLASS_PRIEST		2
-#define CLASS_RANGER		4
-#define CLASS_PALADIN		5
-#define CLASS_WARRIOR_MAGE	6
+#define CLASS_WARRIOR			0
+#define CLASS_MAGE				1
+#define CLASS_ROGUE				3
+#define CLASS_PRIEST			2
+#define CLASS_RANGER			4
+#define CLASS_PALADIN			5
+#define CLASS_WARRIOR_MAGE		6
 #define CLASS_HELL_KNIGHT		7
-#define CLASS_MYSTIC		8
-#define CLASS_MINDCRAFTER	9
-#define CLASS_HIGH_MAGE		10
-#define CLASS_DRUID			11
-#define CLASS_WARLOCK	12
+#define CLASS_MYSTIC			8
+#define CLASS_MINDCRAFTER		9
+#define CLASS_HIGH_MAGE			10
+#define CLASS_DRUID				11
+#define CLASS_WARLOCK			12
 
 #define COUNT_LINES  14
 #define COUNT_SEXES  2
@@ -708,7 +712,7 @@ and tables.c --TY */
 #define TITAN		9	
 #define NEPHILIM	10
 #define HUMAN		11 /*Special case for shop owners*/
-#define AFFLICTED	11 /*Special caseto indicate these guys dont have a birthsign*/
+#define AFFLICTED	11 /*Special case to indicate these guys dont have a birthsign*/
 #define FAE 		12
 #define GNOME		13
 #define LEPRECHAUN	14
@@ -1390,7 +1394,7 @@ ART_THOTH -> ART_KINSLAYER
 #define TV_JUNK          3      /* Sticks, Pottery, etc ('~') */
 #define TV_SPIKE         5      /* Spikes ('~') */
 #define TV_CHEST         7      /* Chests ('~') */
-#define TV_SHOT                 16      /* Ammo for slings */
+#define TV_SHOT         16      /* Ammo for slings */
 #define TV_ARROW        17      /* Ammo for bows */
 #define TV_BOLT         18      /* Ammo for x-bows */
 #define TV_BOW          19      /* Slings/Bows/Xbows */
@@ -1417,17 +1421,17 @@ ART_THOTH -> ART_KINSLAYER
 #define TV_POTION       75
 #define TV_FLASK        77
 #define TV_FOOD         80
-#define TV_MIRACLES_BOOK    90
-#define TV_SORCERY_BOOK 91
-#define TV_BOOK_REALM1	91  
-#define TV_NATURE_BOOK  92
-#define TV_CHAOS_BOOK   93
-#define TV_DEATH_BOOK   94
-#define TV_BOOK_REALM2	94
-#define TV_TAROT_BOOK   95
-#define TV_CHARMS_BOOK  96
-#define TV_SOMATIC_BOOK 97
-#define TV_DEMONIC_BOOK 98
+#define TV_MIRACLES_BOOK 90
+#define TV_SORCERY_BOOK  91
+#define TV_BOOK_REALM1	 91  
+#define TV_NATURE_BOOK   92
+#define TV_CHAOS_BOOK    93
+#define TV_DEATH_BOOK    94
+#define TV_BOOK_REALM2	 94
+#define TV_TAROT_BOOK    95
+#define TV_CHARMS_BOOK   96
+#define TV_SOMATIC_BOOK  97
+#define TV_DEMONIC_BOOK  98
 #define TV_GOLD         100     /* Gold can only be picked up by players */
 
 
@@ -1579,10 +1583,12 @@ ART_THOTH -> ART_KINSLAYER
 /* The sval codes for TV_LITE */
 #define SV_LITE_TORCH           0
 #define SV_LITE_LANTERN         1
-#define SV_LITE_GALADRIEL       4
+#define SV_LITE_BEATRICE        4
 #define SV_LITE_SEEING          5
 #define SV_LITE_INSIGHT         6
 #define SV_LITE_ORB             7
+#define SV_LITE_WHITE_BANNER    8
+#define SV_LITE_BANNER          9
 
 /* The "sval" codes for TV_AMULET */
 #define SV_AMULET_DOOM                  0
@@ -3135,6 +3141,8 @@ ART_THOTH -> ART_KINSLAYER
 */
 #define SOUND_MAX 29
 
+#define MSG_MAX   153
+
 
 /*** Hack ***/
 
@@ -3263,6 +3271,31 @@ ART_THOTH -> ART_KINSLAYER
 #define TIMED_WRAITH_FORM   25
 
 #define TIMED_COUNT         26
+
+/*
+ * Adjustment 2D Matrix indexes
+ */
+#define ADJ_SPELLS   0 
+#define ADJ_MANA     1 
+#define ADJ_FAILURE  2 
+#define ADJ_INTWIS   3 
+#define ADJ_PRICE    4 
+#define ADJ_DEVICE   5 
+#define ADJ_RESIST   6 
+#define ADJ_DEX_TRAP 7 
+#define ADJ_INT_TRAP 8 
+#define ADJ_AC       9
+#define ADJ_DAM      10
+#define ADJ_DEX_HIT  11
+#define ADJ_STR_HIT  12
+#define ADJ_WEIGHT   13
+#define ADJ_SIZE     14
+#define ADJ_DIG      15
+#define ADJ_STR_BLOW 16
+#define ADJ_DEX_BLOW 17
+#define ADJ_DODGE    18
+#define ADJ_REGEN    19
+#define ADJ_HP       20
 
 /*
  * Bit flags for the "get_item" function

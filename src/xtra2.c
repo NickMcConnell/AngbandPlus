@@ -1129,6 +1129,10 @@ void monster_death(int m_idx)
 			/* Make some gold */
 			if (!make_gold(q_ptr)) continue;
 
+			/* Unique only golds should give loads of gold */
+			if( ( r_ptr->flags1 & (RF1_UNIQUE) ) && (r_ptr->flags1 & (RF1_ONLY_GOLD)) )
+				q_ptr->pval = q_ptr->pval * q_ptr->pval;
+
 			/* XXX XXX XXX */
 			dump_gold++;
 		}
@@ -1269,10 +1273,8 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 
 	s32b		div, new_exp, new_exp_frac;
 
-
 	/* Redraw (later) if needed */
 	if (health_who == m_idx) p_ptr->redraw |= (PR_HEALTH);
-
 
 	/* Wake it up */
 	m_ptr->csleep = 0;
@@ -1293,10 +1295,28 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 			msg_format("%^s discards this temporary mortal shell.",m_name);
 			if (randint(5)==1 && dun_level > DIS_END )
 			{
+				u32b f1, f2, f3;
+				object_type *weapon_ptr;
+				char	o_name[80];
 				int curses = 1 + randint(3);
+				/* Scare the player */
 				msg_format("Lucifer puts a terrible curse on you!", m_name);
-				curse_equipment(100, 50);
-				do { activate_ty_curse(); } while (--curses);
+				/* Weapons that are bane of Angels protect against the curse */
+				weapon_ptr = &inventory[INVEN_WIELD];
+				/* Extract the flags */
+				object_flags(weapon_ptr, &f1, &f2, &f3);
+				/* Angel bane ? */
+				if( weapon_ptr->tval && ( f1 & ( TR1_KILL_ANGEL ) ) )
+				{
+					object_desc(o_name, weapon_ptr, TRUE, 3);
+					msg_format("%^s throbs in your hands and protects you from the curse.", o_name);
+				}
+				else
+				/* Oops, I feel bad for monks.. */
+				{				
+					curse_equipment(100, 50);
+					do { activate_ty_curse(); } while (--curses);\
+				}
 			}
 		}
 
@@ -2353,9 +2373,6 @@ static int target_set_aux(int y, int x, int mode, cptr info)
 	/* Keep going */
 	return (query);
 }
-
-
-
 
 /*
 * Handle "target" and "look".

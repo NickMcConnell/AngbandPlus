@@ -1628,7 +1628,7 @@ static void init_stuff(void)
 
 	strcpy(buf, "Angband:");
 
-	init_file_paths(buf);
+	init_file_paths(buf,1);
 }
 
 /*

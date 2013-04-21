@@ -287,6 +287,32 @@
 term *Term = NULL;
 
 
+/*
+ * Translate from ISO Latin-1 characters 128+ to 7-bit ASCII.
+ *
+ * We use this table to maintain compatibility with systems that cannot
+ * display 8-bit characters.  We also use it whenever we wish to suppress
+ * accents or ensure that a character is 7-bit.
+ */
+const char seven_bit_translation[128] =
+{
+ 	' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
+ 	' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
+ 	' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
+ 	' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
+ 	' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
+ 	' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
+ 	' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
+ 	' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
+ 	'A', 'A', 'A', 'A', 'A', 'A', ' ', 'C',
+ 	'E', 'E', 'E', 'E', 'I', 'I', 'I', 'I',
+ 	'D', 'N', 'O', 'O', 'O', 'O', 'O', ' ',
+ 	'O', 'U', 'U', 'U', 'U', 'Y', ' ', ' ',
+ 	'a', 'a', 'a', 'a', 'a', 'a', ' ', 'c',
+ 	'e', 'e', 'e', 'e', 'i', 'i', 'i', 'i',
+ 	'o', 'n', 'o', 'o', 'o', 'o', 'o', ' ',
+	'o', 'u', 'u', 'u', 'u', 'y', ' ', 'y'
+};
 
 
 /*** Local routines ***/
@@ -753,6 +779,8 @@ static void Term_fresh_row_both(int y, int x1, int x2)
 				/* Draw pending chars (normal) */
 				if (fa || always_text)
 				{
+					/* OMG32 */
+					(void)((*Term->pict_hook)(fx, y, fn, &scr_aa[fx], &scr_cc[fx],&scr_taa[fx], &scr_tcc[fx]));
 					(void)((*Term->text_hook)(fx, y, fn, fa, &scr_cc[fx]));
 				}
 
@@ -788,6 +816,8 @@ static void Term_fresh_row_both(int y, int x1, int x2)
 				/* Draw pending chars (normal) */
 				if (fa || always_text)
 				{
+					/* OMG32 */
+					(void)((*Term->pict_hook)(fx, y, fn, &scr_aa[fx], &scr_cc[fx], &scr_taa[fx], &scr_tcc[fx]));
 					(void)((*Term->text_hook)(fx, y, fn, fa, &scr_cc[fx]));
 				}
 
@@ -817,6 +847,8 @@ static void Term_fresh_row_both(int y, int x1, int x2)
 				/* Draw the pending chars */
 				if (fa || always_text)
 				{
+					/* OMG32 */
+					(void)((*Term->pict_hook)(fx, y, fn, &scr_aa[fx], &scr_cc[fx], &scr_taa[fx], &scr_tcc[fx]));
 					(void)((*Term->text_hook)(fx, y, fn, fa, &scr_cc[fx]));
 				}
 
@@ -844,6 +876,8 @@ static void Term_fresh_row_both(int y, int x1, int x2)
 		/* Draw pending chars (normal) */
 		if (fa || always_text)
 		{
+			/* OMG32 */
+			(void)((*Term->pict_hook)(fx, y, fn, &scr_aa[fx], &scr_cc[fx], &scr_taa[fx], &scr_tcc[fx]));
 			(void)((*Term->text_hook)(fx, y, fn, fa, &scr_cc[fx]));
 		}
 
@@ -1203,6 +1237,9 @@ errr Term_fresh(void)
 			byte ota = old_taa[tx];
 			char otc = old_tcc[tx];
 
+			/* Hard core wipe out */
+			(void)((*Term->wipe_hook)(tx, ty, 1));
+
 			/* Hack -- use "Term_pict()" always */
 			if (Term->always_pict)
 			{
@@ -1218,6 +1255,7 @@ errr Term_fresh(void)
 			/* Hack -- restore the actual character */
 			else if (oa || Term->always_text)
 			{
+				(void)((*Term->pict_hook)(tx, ty, 1, &oa, &oc, &ota, &otc));
 				(void)((*Term->text_hook)(tx, ty, 1, oa, &oc));
 			}
 

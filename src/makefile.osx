@@ -1,0 +1,58 @@
+# File: Makefile.osx
+# This is a Makefile for the Mac OS X Carbon port of hellband. This port does
+# not support graphic tiles or sound.
+
+###################### DEFINES ######################
+
+CC = gcc
+CFLAGS = -w -g -O2 -fpascal-strings -DMACH_O_CARBON
+LIBS = -framework CoreFoundation -framework QuickTime -framework Carbon
+APPNAME = hellband.app
+APPBNDL = ../$(APPNAME)
+APPCONT = $(APPBNDL)/Contents
+APPBIN = $(APPCONT)/MacOS
+APPRES = $(APPCONT)/Resources
+PLIST = hellband.xml
+RESSRCS = osx/hellband.icns osx/Save.icns osx/Edit.icns osx/Data.icns
+REZ = hellband.r
+
+# object files and headers
+OBJS = \
+  birth.o cmd3.o dungeon.o init2.o monster1.o quest.o spells2.o variable.o xtra2.o z-util.o \
+  cave.o cmd4.o files.o load.o main-crb.o monster2.o readdib.o store.o wizard1.o z-form.o z-virt.o \
+  cmd1.o cmd5.o generate.o load_gif.o melee1.o object1.o save.o tables.o wizard2.o z-rand.o \
+  cmd2.o cmd6.o init1.o melee2.o object2.o spells1.o util.o xtra1.o z-term.o 
+ HEADERS = \
+ angband.h config.h defines.h externs.h init.h main.h types.h \
+ h-basic.h h-define.h h-type.h h-system.h h-config.h \
+ z-term.h z-rand.h z-util.h z-virt.h z-form.h
+
+###################### TARGETS ######################
+
+# Install the game as an application bundle.
+install: hellband $(RESSRCS) $(PLIST)
+	echo $(APPBNDL)
+	echo $(APPCONT)
+	[ -d $(APPBNDL) ] || mkdir $(APPBNDL)
+	[ -d $(APPCONT) ] || mkdir $(APPCONT)
+	[ -d $(APPBIN) ] || mkdir $(APPBIN)
+	[ -d $(APPRES) ] || mkdir $(APPRES)
+	install -m 755 hellband $(APPBIN)
+	install -m 644 $(RESSRCS) $(APPRES)
+	install -m 644 $(PLIST) $(APPCONT)/Info.plist
+	/Developer/Tools/Rez -i /Developer/Headers/FlatCarbon -d MACH_O_CARBON -o $(APPRES)/hellband.rsrc $(REZ)
+	/Developer/Tools/SetFile -a B $(APPBNDL)
+
+# Build the "hellband" program
+hellband: $(OBJS)
+	$(CC) $(CFLAGS) $(LDFLAGS) -o hellband $(OBJS) $(LIBS)
+
+# Clean up old junk
+clean:
+	-rm -f *.o hellband
+
+
+###################### RULES ######################
+
+%.o: %.c $(HEADERS)
+

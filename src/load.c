@@ -363,14 +363,12 @@ static void rd_item(object_type *o_ptr)
 	/* Mega-Hack -- handle "dungeon objects" later */
 	if ((o_ptr->k_idx >= 445) && (o_ptr->k_idx <= 479)) return;
 
-
 	/* Obtain the "kind" template */
 	k_ptr = &k_info[o_ptr->k_idx];
 
 	/* Obtain tval/sval from k_info */
 	o_ptr->tval = k_ptr->tval;
 	o_ptr->sval = k_ptr->sval;
-
 
 	/* Hack -- notice "broken" items */
 	if (k_ptr->cost <= 0) o_ptr->ident |= (IDENT_BROKEN);
@@ -399,7 +397,6 @@ static void rd_item(object_type *o_ptr)
 		return;
 	}
 
-
 	/* Extract the flags */
 	object_flags(o_ptr, &f1, &f2, &f3);
 
@@ -427,7 +424,6 @@ static void rd_item(object_type *o_ptr)
 		if (!e_ptr->name) o_ptr->name2 = 0;
 	}
 
-
 	/* Acquire standard fields */
 	o_ptr->ac = k_ptr->ac;
 	o_ptr->dd = k_ptr->dd;
@@ -438,7 +434,6 @@ static void rd_item(object_type *o_ptr)
 
 	/* Hack -- extract the "broken" flag */
 	if (!o_ptr->pval < 0) o_ptr->ident |= (IDENT_BROKEN);
-
 
 	/* Artifacts */
 	if (o_ptr->name1)
@@ -472,7 +467,6 @@ static void rd_item(object_type *o_ptr)
 		/* Obtain the ego-item info */
 		e_ptr = &e_info[o_ptr->name2];
 
-
 		o_ptr->dd = old_dd;
 		o_ptr->ds = old_ds;
 
@@ -487,9 +481,6 @@ static void rd_item(object_type *o_ptr)
 		o_ptr->ds = old_ds;
 	}
 }
-
-
-
 
 /*
 * Read a monster
@@ -1221,7 +1212,6 @@ static errr rd_dungeon(void)
 
 	/* Header info */
 	rd_s16b(&dun_level);
-	rd_s16b(&dun_bias);
 	rd_byte(&came_from);
 	rd_s16b(&num_repro);
 	rd_s16b(&py);
@@ -1542,7 +1532,6 @@ static errr rd_savefile_new_aux(void)
 	}
 	if (arg_fiddle) note("Loaded Monster Memory");
 
-
 	/* Object Memory */
 	rd_u16b(&tmp16u);
 
@@ -1616,9 +1605,7 @@ static errr rd_savefile_new_aux(void)
 		q_list[i].max_num = tmp8u;
 	}
 
-
 	if (arg_fiddle) note("Loaded Quests");
-
 
 	/* Load the Artifacts */
 	rd_u16b(&tmp16u);
@@ -1641,11 +1628,9 @@ static errr rd_savefile_new_aux(void)
 	}
 	if (arg_fiddle) note("Loaded Artifacts");
 
-
 	/* Read the extra stuff */
 	rd_extra();
 	if (arg_fiddle) note("Loaded extra information");
-
 
 	/* Read the player_hp array */
 	rd_u16b(&tmp16u);
@@ -1663,12 +1648,12 @@ static errr rd_savefile_new_aux(void)
 		rd_s16b(&player_hp[i]);
 	}
 
-
 	/* Important -- Initialize the sex */
 	sp_ptr = &sex_info[p_ptr->psex];
 
 	/* Important -- Initialize the race/class */
-	rp_ptr = &race_info[p_ptr->prace];
+	/* rp_ptr = &race_info[p_ptr->prace]; */
+	p_race = race_info[p_ptr->prace];
 	cp_ptr = &class_info[p_ptr->pclass];
 	bsp_ptr = &sign_info[p_ptr->psign];
 
@@ -1757,7 +1742,6 @@ static errr rd_savefile_new_aux(void)
 	return (0);
 }
 
-
 /*
 * Actually read the savefile
 */
@@ -1783,5 +1767,4 @@ errr rd_savefile_new(void)
 	/* Result */
 	return (err);
 }
-
 

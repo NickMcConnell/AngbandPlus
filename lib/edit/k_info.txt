@@ -35,7 +35,7 @@
 
 # Version stamp (required)
 
-V:0.8.6
+V:0.8.7
 
 
 ##### Something special #####
@@ -3323,7 +3323,6 @@ G:$:G
 I:100:18:0
 W:1:0:0:80
 
-
 ##### Objects 498 and 499 are the "Morgoth Artifacts" #####
 
 # These objects, like objects 500 to 511, are never created
@@ -3607,7 +3606,7 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 N:528:& Orb~
 G:~:v
 I:39:7:0
-W:10:0:80:1000
+W:10:0:5:1000
 A:10/1
 P:0:1d1:0:0:0
 
@@ -3664,3 +3663,18 @@ W:90:0:30:100000
 A:90/3
 P:0:1d1:0:0:0
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
+
+N:536:& White Banner~
+G:!:w
+I:39:8:0
+W:1:0:10:10000
+P:0:1d1:0:0:0
+F:INSTA_ART
+
+N:537:& Banner~
+G:!:R
+I:39:9:0
+W:1:0:10:10000
+P:0:1d1:0:0:0
+A:60/3
+

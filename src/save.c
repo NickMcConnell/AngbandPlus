@@ -1110,7 +1110,6 @@ static void wr_dungeon(void)
 
 	/* Dungeon specific info follows */
 	wr_u16b(dun_level);
-	wr_u16b(dun_bias);
 	wr_byte(came_from);
 	wr_u16b(num_repro);
 	wr_u16b(py);

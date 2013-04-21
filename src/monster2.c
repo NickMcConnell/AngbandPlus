@@ -758,6 +758,14 @@ void compact_monsters(int size)
 
 	int		cur_lev, cur_dis, chance;
 
+	/* MAN! I hate frikkin legacy m_ bugs!! */
+	/* Hack^Hack !! */
+	if( m_cnt > m_max ){
+		size = size - ( m_cnt - m_max );
+		m_cnt = m_max;
+		if( size < 1 )
+			return;
+	}
 
 	/* Message (only if compacting) */
 	if (size) msg_print("Compacting monsters...");
@@ -855,6 +863,12 @@ void remove_non_pets(void)
 
 		/* Compress m_max */
 		m_max--;
+
+		/* Twould seem there is m_max creepage, if you play long enough, m_cnt keeps growing
+		   My theory is that some code forgets to decrease m_cnt and that because of the 512
+		   monster limit nobody noticed, as I often stair scum I kind of did notice ;) -Konijn */
+		if(m_max > m_cnt)
+			m_cnt = m_max;
 	}
 }
 
@@ -1907,8 +1921,6 @@ bool place_monster_one(int y, int x, int r_idx, bool slp, bool charm)
 		}
 	}
 
-
-
 	/* Powerful monster */
 	if (r_ptr->level > dun_level)
 	{
@@ -1950,7 +1962,6 @@ bool place_monster_one(int y, int x, int r_idx, bool slp, bool charm)
 
 	/* Mega-Hack -- catch "failure" */
 	if (!c_ptr->m_idx) return (FALSE);
-
 
 	/* Get a new monster record */
 	m_ptr = &m_list[c_ptr->m_idx];
@@ -2018,7 +2029,6 @@ bool place_monster_one(int y, int x, int r_idx, bool slp, bool charm)
 	/* And start out fully healthy */
 	m_ptr->hp = m_ptr->maxhp;
 
-
 	/* Extract the monster base speed */
 	m_ptr->mspeed = r_ptr->speed;
 
@@ -2029,7 +2039,6 @@ bool place_monster_one(int y, int x, int r_idx, bool slp, bool charm)
 		i = extract_energy[r_ptr->speed] / 10;
 		if (i) m_ptr->mspeed += rand_spread(0, i);
 	}
-
 
 	/* Give a random starting energy */
 	m_ptr->energy = rand_int(100)+900;
@@ -2051,18 +2060,14 @@ bool place_monster_one(int y, int x, int r_idx, bool slp, bool charm)
 		m_ptr->mflag |= (MFLAG_BORN);
 	}
 
-
 	/* Update the monster */
 	update_mon(c_ptr->m_idx, TRUE);
-
 
 	/* Hack -- Count the monsters on the level */
 	r_ptr->cur_num++;
 
-
 	/* Hack -- Count the number of "reproducers" */
 	if (r_ptr->flags2 & (RF2_MULTIPLY)) num_repro++;
-
 
 	/* Hack -- Notice new multi-hued monsters */
 	if (r_ptr->flags1 & (RF1_ATTR_MULTI)) shimmer_monsters = TRUE;
@@ -2126,7 +2131,7 @@ bool place_monster_one(int y, int x, int r_idx, bool slp, bool charm)
 /*
 * Attempt to place a "group" of monsters around the given location
 */
-static bool place_monster_group(int y, int x, int r_idx, bool slp, bool charm)
+static byte place_monster_group(int y, int x, int r_idx, bool slp, bool charm)
 {
 	monster_race *r_ptr = &r_info[r_idx];
 
@@ -2134,10 +2139,10 @@ static bool place_monster_group(int y, int x, int r_idx, bool slp, bool charm)
 	int total = 0, extra = 0;
 
 	int hack_n = 0;
+	int monster_count = 0;
 
 	byte hack_y[GROUP_MAX];
 	byte hack_x[GROUP_MAX];
-
 
 	/* Pick a group size */
 	total = randint(13);
@@ -2167,7 +2172,6 @@ static bool place_monster_group(int y, int x, int r_idx, bool slp, bool charm)
 
 	/* Maximum size */
 	if (total > GROUP_MAX) total = GROUP_MAX;
-
 
 	/* Save the rating */
 	old = rating;
@@ -2201,6 +2205,7 @@ static bool place_monster_group(int y, int x, int r_idx, bool slp, bool charm)
 				hack_y[hack_n] = my;
 				hack_x[hack_n] = mx;
 				hack_n++;
+				monster_count++;
 			}
 		}
 	}
@@ -2210,7 +2215,7 @@ static bool place_monster_group(int y, int x, int r_idx, bool slp, bool charm)
 
 
 	/* Success */
-	return (TRUE);
+	return monster_count;
 }
 
 
@@ -2263,15 +2268,16 @@ static bool place_monster_okay(int r_idx)
 * Note the use of the new "monster allocation table" code to restrict
 * the "get_mon_num()" function to "legal" escort types.
 */
-bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp, bool charm)
+byte place_monster_aux(int y, int x, int r_idx, bool slp, bool grp, bool charm)
 {
-	int			i;
+	int i;
+	int monster_count;
 
-	monster_race	*r_ptr = &r_info[r_idx];
-
+	monster_race *r_ptr = &r_info[r_idx];
 
 	/* Place one monster, or fail */
-	if (!place_monster_one(y, x, r_idx, slp, charm)) return (FALSE);
+	if (!place_monster_one(y, x, r_idx, slp, charm)) return (0);
+	monster_count = 1;
 	/* Escorts for certain monsters */
 	if (r_ptr->flags1 & (RF1_ESCORT))
 	{
@@ -2283,7 +2289,7 @@ bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp, bool charm)
 			/* Pick a location */
 			scatter(&ny, &nx, y, x, d, 0);
 
-            if( r_ptr->r_escort > 0 )
+			if( r_ptr->r_escort > 0 )
 			{
 				/* Some monsters have their escorts defined */
 				z = r_ptr->r_escort;
@@ -2318,31 +2324,31 @@ bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp, bool charm)
 			if(!can_place_monster(ny,nx,z))continue;
 
 			/* Place a single escort */
-			(void)place_monster_one(ny, nx, z, slp, charm);
+			if( place_monster_one(ny, nx, z, slp, charm) )
+				monster_count++;
 
 			/* Place a "group" of escorts if needed */
 			if ((r_info[z].flags1 & (RF1_FRIENDS)) ||
 				(r_ptr->flags1 & (RF1_ESCORTS)))
 			{
 				/* Place a group of monsters */
-				(void)place_monster_group(ny, nx, z, slp, charm);
+				monster_count = monster_count + place_monster_group(ny, nx, z, slp, charm);
 			}
 		}
 	}
 
 	/* Require the "group" flag */
-	if (!grp) return (TRUE);
-
+	if (!grp) return monster_count;
 
 	/* Friends for certain monsters */
 	if (r_ptr->flags1 & (RF1_FRIENDS))
 	{
 		/* Attempt to place a group */
-		(void)place_monster_group(y, x, r_idx, slp, charm);
+		monster_count = monster_count + place_monster_group(y, x, r_idx, slp, charm);
 	}
 
 	/* Success */
-	return (TRUE);
+	return monster_count;
 }
 
 
@@ -2351,7 +2357,7 @@ bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp, bool charm)
 *
 * Attempt to find a monster appropriate to the "monster_level"
 */
-bool place_monster(int y, int x, bool slp, bool grp)
+byte place_monster(int y, int x, bool slp, bool grp)
 {
 	int r_idx;
 
@@ -2361,11 +2367,9 @@ bool place_monster(int y, int x, bool slp, bool grp)
 	/* Handle failure */
 	if (!r_idx) return (FALSE);
 
-	/* Attempt to place the monster */
-	if (place_monster_aux(y, x, r_idx, slp, grp, FALSE)) return (TRUE);
+	/* Place monster, return info on how many were placed */
+	return (place_monster_aux(y, x, r_idx, slp, grp, FALSE));
 
-	/* Oops */
-	return (FALSE);
 }
 
 
@@ -2466,11 +2470,11 @@ bool alloc_horde(int y, int x)
 *
 * Use "monster_level" for the monster level
 */
-bool alloc_monster(int dis, int slp)
+byte alloc_monster(int dis, int slp)
 {
-	int			y, x;
-	int         attempts_left = 10000;
-
+	int y, x;
+	int attempts_left = 10000;
+	
 	/* Find a legal, distant, unoccupied, space */
 	while (attempts_left)
 	{
@@ -2496,7 +2500,7 @@ bool alloc_monster(int dis, int slp)
 		return (FALSE);
 	}
 
-
+/* Monster Hordes will go out one day, still need to test them a little before tossing out */
 #ifdef MONSTER_HORDES
 	if (randint(5000)<=dun_level)
 	{
@@ -2506,25 +2510,9 @@ bool alloc_monster(int dis, int slp)
 			return (TRUE);
 		}
 	}
-	else
-	{
-#endif
-		/* Attempt to place the monster, allow groups */
-		if ((dun_bias > 0) && (rand_range(1,10) > 6))
-		{
-			if (summon_specific(y,x,(dun_level),dun_bias)) return (TRUE);
-		}
-		else
-		{
-			if (place_monster(y, x, (bool)slp, (bool)TRUE)) return (TRUE);
-		}
-
-#ifdef MONSTER_HORDES
-	}
 #endif
 
-	/* Nope */
-	return (FALSE);
+		return (place_monster(y, x, (bool)slp, (bool)TRUE));
 }
 
 /*
@@ -2822,7 +2810,7 @@ bool monster_filter_okay(int r_idx)
 *
 * Note that this function may not succeed, though this is very rare.
 */
-bool summon_specific(int y1, int x1, int lev, int type)
+byte summon_specific(int y1, int x1, int lev, int type)
 {
 	int i, x, y, r_idx;
 
@@ -2891,11 +2879,8 @@ bool summon_specific(int y1, int x1, int lev, int type)
     monster_filter_type = 0;
 	
 	/* Attempt to place the monster (awake, allow groups) */
-	if (!place_monster_aux(y, x, r_idx, FALSE, Group_ok, FALSE)) return (FALSE);
+	return(place_monster_aux(y, x, r_idx, FALSE, Group_ok, FALSE));
 
-
-	/* Success */
-	return (TRUE);
 }
 
 /* Eeeeeeeew , I couldnt make the regular FILTER_SKULLS work, sadness...*/

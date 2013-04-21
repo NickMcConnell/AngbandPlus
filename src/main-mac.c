@@ -4055,7 +4055,7 @@ static void init_stuff(void)
 	while (1)
 	{
 		/* Prepare the paths */
-		init_file_paths(path);
+		init_file_paths(path,1);
 
 		/* Build the filename */
 		path_build(path, 1024, ANGBAND_DIR_FILE, "news.txt");

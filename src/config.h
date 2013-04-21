@@ -336,6 +336,7 @@
 
 /*
 * OPTION: Allow the use of "graphics" in various places
+* I dont know why that was turned on... Konijn.
 */
 #define USE_GRAPHICS
 

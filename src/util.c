@@ -241,22 +241,43 @@ errr path_parse(char *buf, int max, cptr file)
 
 
 /*
+ * Kenneth 'Bessarion' Boyd: next two from Zaiband; relicensed per Hellband license
+ */
+
+static char tmp_file[L_tmpnam] = "";
+
+static void instantiate_tmp_file(void)
+{
+	/* instantiate tmp_file buffer, if it has not already been initialized */
+	if (!tmp_file[0])
+		{
+		tmpnam(tmp_file);
+#ifdef WINDOWS
+		/* defeat Vista's breakage of tmpnam/tmpfile for non-administrators */
+		if ('\\'==tmp_file[0])
+			{
+			memmove(tmp_file,tmp_file+1,L_tmpnam-1);
+			tmp_file[L_tmpnam-1] = '\0';
+			}
+#endif		
+		}
+}
+
+
+/*
 * Hack -- acquire a "temporary" file name if possible
 *
 * This filename is always in "system-specific" form.
 */
 errr path_temp(char *buf, int max)
 {
-	cptr s;
-
-	/* Temp file */
-	s = tmpnam(NULL);
+	instantiate_tmp_file();
 
 	/* Oops */
-	if (!s) return (-1);
+	if (!*tmp_file) return (-1);
 
 	/* Format to length */
-	strnfmt(buf, max, "%s", s);
+	strnfmt(buf, max, "%s", tmp_file);
 
 	/* Success */
 	return (0);
@@ -275,8 +296,12 @@ errr path_temp(char *buf, int max)
 *
 * Note that this function yields a path which must be "parsed"
 * using the "parse" function above.
+*
+* Konijn changed cptr to char* for file
+* I want to build my filenames dynamically, gosh darnit
+* If this would happen to blow up later, let me know
 */
-errr path_build(char *buf, int max, cptr path, cptr file)
+errr path_build(char *buf, int max, cptr path, char *file)
 {
 	/* Special file */
 	if (file[0] == '~')
@@ -317,6 +342,8 @@ errr path_build(char *buf, int max, cptr path, cptr file)
 FILE *my_fopen(cptr file, cptr mode)
 {
 	char                buf[1024];
+	
+	plog_fmt_fiddle( file );
 
 	/* Hack -- Try to parse the path */
 	if (path_parse(buf, 1024, file)) return (NULL);
@@ -585,12 +612,20 @@ int fd_make(cptr file, int mode)
 int fd_open(cptr file, int flags)
 {
 	char                buf[1024];
+	int                 return_int;
+
+	plog_fmt_fiddle( "Opening %s" , file );
 
 	/* Hack -- Try to parse the path */
 	if (path_parse(buf, 1024, file)) return (-1);
 
 	/* Attempt to open the file */
-	return (open(buf, flags | O_BINARY, 0));
+	return_int = (open(buf, flags | O_BINARY, 0));
+	if( return_int < 0)
+	{
+		plog_fmt_fiddle(  "Failed to open %s" , file );
+	}
+	return return_int;
 }
 
 

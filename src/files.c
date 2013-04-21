@@ -824,7 +824,7 @@ errr process_pref_file(cptr name)
 */
 static char days[7][29] =
 {
-	"SUN:XXXXXXXXXXXXXXXXXXXXXXXX",
+		"SUN:XXXXXXXXXXXXXXXXXXXXXXXX",
 		"MON:XXXXXXXX.........XXXXXXX",
 		"TUE:XXXXXXXX.........XXXXXXX",
 		"WED:XXXXXXXX.........XXXXXXX",
@@ -2343,9 +2343,9 @@ static void display_name_race_class()
 	{
 		put_str("Magic  :", start_row, start_col);
 		if (p_ptr->realm2)
-			sprintf(realm_buff,"%s/%s",realm_names[p_ptr->realm1],realm_names[p_ptr->realm2]);
+			sprintf(realm_buff,"%s/%s",realm_names[p_ptr->realm1].name,realm_names[p_ptr->realm2].name);
 		else
-			sprintf(realm_buff,"%s",realm_names[p_ptr->realm1]);
+			sprintf(realm_buff,"%s",realm_names[p_ptr->realm1].name);
 		c_put_str(TERM_L_BLUE, realm_buff,start_row++,start_col+indent);
 	}
     /* Hack, filling in -1 for the evil patron means that we havent chosen the evil patron just yet */
@@ -2358,14 +2358,17 @@ static void display_name_race_class()
 
 static void display_age_weight_social()
 {
-  char date_buff[20]="\0";
-  int start_row = 1;
-  int start_col = 32;
   
-  /* Age, Height, Weight, Social */
-  put_str("Birthday",start_row,start_col);
-  day_to_date(p_ptr->birthday,date_buff);
-  c_put_str(TERM_L_BLUE,date_buff,start_row++, start_col + 14  );
+  int start_row = 2;
+  int start_col = 32;
+
+/* No more birthday display
+   char date_buff[20]="\0";
+   put_str("Birthday",start_row,start_col);
+   day_to_date(p_ptr->birthday,date_buff);
+   c_put_str(TERM_L_BLUE,date_buff,start_row++, start_col + 14  );
+*/   
+  /* Height, Weight, Social */
   prt_num("Age          ", (int)p_ptr->age, start_row++, start_col, TERM_L_BLUE);
   prt_num("Height       ", (int)p_ptr->ht,  start_row++, start_col, TERM_L_BLUE);
   prt_num("Weight       ", (int)p_ptr->wt,  start_row++, start_col, TERM_L_BLUE);
@@ -2463,7 +2466,7 @@ errr file_character(cptr name, bool full)
 
 	FILE		*fff = NULL;
 
-	/*store_type		*st_ptr = &store[7];*/ /*Unused*/
+	/*store_type	*st_ptr = &store[7];*/ /*Unused*/
 
 	char		o_name[80];
 
@@ -3223,9 +3226,6 @@ errr show_file(cptr name, cptr what)
 	return (0);
 }
 
-
-
-
 /*
 * Process the player name.
 * Extract a clean "base name".
@@ -3234,14 +3234,7 @@ errr show_file(cptr name, cptr what)
 void process_player_name(void)
 {
 	int i, k = 0;
-
-
-	/* Cannot be too long */
-	if (strlen(player_name) > 15)
-	{
-		/* Name too long */
-		quit_fmt("The name '%s' is too long!", player_name);
-	}
+	int max = 15;
 
 	/* Cannot contain "icky" characters */
 	for (i = 0; player_name[i]; i++)
@@ -3254,36 +3247,29 @@ void process_player_name(void)
 		}
 	}
 
-
-#ifdef MACINTOSH
-
 	/* Extract "useful" letters */
-	for (i = 0; player_name[i]; i++)
+	for (i = 0; player_name[i] && i < max ; i++)
 	{
 		char c = player_name[i];
+
+#ifdef MACINTOSH
 
 		/* Convert "dot" to "underscore" */
 		if (c == '.') c = '_';
 
 		/* Accept all the letters */
 		player_base[k++] = c;
-	}
 
 #else
-
-	/* Extract "useful" letters */
-	for (i = 0; player_name[i]; i++)
-	{
-		char c = player_name[i];
 
 		/* Accept some letters */
 		if (isalpha(c) || isdigit(c)) player_base[k++] = c;
 
 		/* Convert space, dot, and underscore to underscore */
 		else if (strchr(". _", c)) player_base[k++] = '_';
-	}
 
 #endif
+	}
 
 
 #if defined(WINDOWS) || defined(MSDOS)
@@ -3329,7 +3315,7 @@ void process_player_name(void)
 */
 void get_name(void)
 {
-	char tmp[32];
+	char tmp[45];
 
 	/* Clear last line */
 	clear_from(22);
@@ -3343,14 +3329,14 @@ void get_name(void)
 		/* Put name in temp var */
 		strcpy(tmp,  player_name);
 		
-		/* Zero out existing location*/
-		c_put_str(TERM_L_BLUE, "               ", 1, 10);
+		/* Zero out existing location , 45 spaces */
+		c_put_str(TERM_L_BLUE, "                                         ", 1, 10);
 		
 		/* Go to the "name" field */
 		move_cursor(1, 10);
 
 		/* Get an input, ignore "Escape" */
-		if (askfor_aux(tmp, 15)) strcpy(player_name, tmp);
+		if (askfor_aux(tmp, 40)) strcpy(player_name, tmp);
 
 		/* Process the player name */
 		process_player_name();
@@ -3362,16 +3348,16 @@ void get_name(void)
 	sprintf(tmp,"%s %s",sp_ptr->address,player_name);
 
 	/* Pad the name (to clear junk) */
-	sprintf(tmp, "%-21.21s", tmp);
+	/*sprintf(tmp, "%-40.40s", tmp); */
 
 	/* Re-Draw the name (in light blue) */
 	c_put_str(TERM_L_BLUE, tmp, 1, 10);
 
 	/* Erase the prompt, etc */
 	clear_from(22);
-    
-    /*go in debug mode if we are konijn*/
-    debug_mode = streq(player_name,"konijn");
+
+	/*go in debug mode if we are konijn*/
+	debug_mode = streq(player_name,"konijn");
 }
 
 
@@ -3484,8 +3470,6 @@ long total_points(void)
 	k=p_ptr->exp + 100 * p_ptr->max_dun_level;
 	return (k);
 }
-
-
 
 /*
 * Centers a string within a 31 character string		-JWT-
@@ -3707,7 +3691,6 @@ static void show_info(void)
 
 	/*store_type		*st_ptr = &store[7]; */
 
-
 	/* Hack -- Know everything in the inven/equip */
 	for (i = 0; i < INVEN_TOTAL; i++)
 	{
@@ -3862,7 +3845,6 @@ static int highscore_seek(int i)
 	return (fd_seek(highscore_fd, (huge)(i) * sizeof(high_score)));
 }
 
-
 /*
 * Read one score from the highscore file
 */
@@ -3872,7 +3854,6 @@ static errr highscore_read(high_score *score)
 	return (fd_read(highscore_fd, (char*)(score), sizeof(high_score)));
 }
 
-
 /*
 * Write one score to the highscore file
 */
@@ -3881,9 +3862,6 @@ static int highscore_write(high_score *score)
 	/* Write the record, note failure */
 	return (fd_write(highscore_fd, (char*)(score), sizeof(high_score)));
 }
-
-
-
 
 /*
 * Just determine where a new score *would* be placed
@@ -4594,6 +4572,10 @@ void close_game(void)
 {
 	char buf[1024];
 
+	time_t    c;
+	struct tm *tp;
+	char   tmp[160];
+
 
 	/* Handle stuff */
 	handle_stuff();
@@ -4626,6 +4608,14 @@ void close_game(void)
 		/* Handle retirement */
 		if (total_winner) kingly();
 
+		/* Dump player file */
+		c = time((time_t *)0);
+		tp = localtime(&c);
+
+		sprintf(tmp, "%s_%02d%02d%02d_dead_clevel%d_dlevel%d.txt", player_base , tp->tm_year , tp->tm_mon+1 , tp->tm_mday , p_ptr->max_plv , dun_level );
+		if (tmp[0] && (tmp[0] != ' '))
+			file_character(tmp, TRUE);
+
 		/* Save memories */
 		if (!save_player()) msg_print("death save failed!");
 
@@ -4640,6 +4630,7 @@ void close_game(void)
 
 		/* Handle score, show Top scores */
 		top_twenty();
+
 	}
 
 	/* Still alive */

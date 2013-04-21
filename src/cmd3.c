@@ -49,7 +49,7 @@ void do_cmd_inven(void)
 	/* Build a prompt */
 	sprintf(out_val, "Inventory: carrying %d.%d pounds (%d%% of capacity). Command: ",
 		total_weight / 10, total_weight % 10,
-		(total_weight * 100) / ((adj_str_wgt[p_ptr->stat_ind[A_STR]] * 100) / 2));
+		(total_weight * 100) / ((adj_stat[p_ptr->stat_ind[A_STR]][ADJ_WEIGHT] * 100) / 2));
 
 	/* Get a command */
 	prt(out_val, 0, 0);
@@ -105,7 +105,7 @@ void do_cmd_equip(void)
 	/* Build a prompt */
 	sprintf(out_val, "Equipment: carrying %d.%d pounds (%d%% of capacity). Command: ",
 		total_weight / 10, total_weight % 10,
-		(total_weight * 100) / ((adj_str_wgt[p_ptr->stat_ind[A_STR]] * 100) / 2));
+		(total_weight * 100) / ((adj_stat[p_ptr->stat_ind[A_STR]][ADJ_WEIGHT] * 100) / 2));
 
 	/* Get a command */
 	prt(out_val, 0, 0);
@@ -188,6 +188,50 @@ void do_cmd_wield(void)
 
 	/* Check the slot */
 	slot = wield_slot(o_ptr);
+
+	/* If we are dealing with rings, we should ask the player which finger */
+	if( slot == INVEN_LEFT || slot == INVEN_RIGHT )
+	{
+		char ch;
+		char	o_name[80];
+		object_type *ring_ptr; 
+		bool not_escape;
+		/* Separator */
+		put_str( "                     " , 1 , 0 );
+		/* Show left ring */
+		ring_ptr = &inventory[INVEN_LEFT];
+		object_desc(o_name, ring_ptr, TRUE, 3);
+		o_name[79] = 0;
+		
+		put_str( "c) =               : " , 2 , 0 );
+		put_str( mention_use(INVEN_LEFT) , 2 , 5 );
+		c_put_str( object_attr( ring_ptr )            ,  "="   , 2 , 3 );
+		c_put_str( tval_to_attr[ring_ptr->tval % 128] , o_name , 2 , 21 );
+
+		/* Show right ring */
+		ring_ptr = &inventory[INVEN_RIGHT];
+		object_desc(o_name, ring_ptr, TRUE, 3);
+		o_name[79] = 0;
+		
+		put_str( "d) =               : "  , 3 , 0 );
+		put_str( mention_use(INVEN_RIGHT) , 3 , 5 );
+		c_put_str( object_attr( ring_ptr )            ,  "="   , 3 , 3 );
+		c_put_str( tval_to_attr[ring_ptr->tval % 128] , o_name , 3 , 21 );
+
+		not_escape = get_com("Use left or right finger ? (l/r) ", &ch);
+		do_cmd_redraw();
+		if ( not_escape )
+		{	
+			slot = -1;
+			if( ch == 'l' || ch == 'L' || ch == 'c' || ch == 'C' ) slot = INVEN_LEFT;
+			if( ch == 'r' || ch == 'R' || ch == 'd' || ch == 'D'  ) slot = INVEN_RIGHT;
+			if( slot == -1 ) return;
+		}
+		else
+		{
+			return;
+		}
+	}
 
 	/* Prevent wielding into a cursed slot */
 	if (cursed_p(&inventory[slot]))
@@ -437,9 +481,13 @@ void do_cmd_drop(void)
 
 static bool high_level_book(object_type * o_ptr)
 {
-	if ((o_ptr->tval == TV_MIRACLES_BOOK) || (o_ptr->tval == TV_SORCERY_BOOK) ||
-		(o_ptr->tval == TV_NATURE_BOOK) || (o_ptr->tval == TV_CHAOS_BOOK) ||
-		(o_ptr->tval == TV_DEATH_BOOK) || (o_ptr->tval == TV_TAROT_BOOK) ||
+	if ((o_ptr->tval == TV_MIRACLES_BOOK) || 
+		(o_ptr->tval == TV_SORCERY_BOOK) ||
+		(o_ptr->tval == TV_NATURE_BOOK) || 
+		(o_ptr->tval == TV_CHAOS_BOOK) ||
+		(o_ptr->tval == TV_DEATH_BOOK) || 
+		(o_ptr->tval == TV_TAROT_BOOK) ||
+		(o_ptr->tval == TV_SOMATIC_BOOK) ||
         (o_ptr->tval == TV_DEMONIC_BOOK))
 	{
 		if (o_ptr->sval>1) return TRUE;

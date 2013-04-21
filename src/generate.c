@@ -3630,7 +3630,7 @@ static bool cave_gen(void)
 	bool empty_level = FALSE;
     /* Same name as in monster2.c to facilitate greps */
 	bool      shielded_level;
-
+	byte base_feat;
 	dun_data dun_body;
 
 	/* Global data */
@@ -3663,18 +3663,23 @@ static bool cave_gen(void)
 			msg_print("Arena level.");
 	}
 
-	/* Hack -- Start with basic granite */
+	
+	/* Determine whether to start with granite or with floor */
+	if (empty_level)
+		/* Create granite wall */
+		base_feat = FEAT_FLOOR;
+	else
+		/* Create granite wall */
+		base_feat = FEAT_WALL_EXTRA;	
+
+
+	/* Hack -- Start with basic granite or floor */
 	for (y = 0; y < cur_hgt; y++)
 	{
 		for (x = 0; x < cur_wid; x++)
 		{
 			cave_type *c_ptr = &cave[y][x];
-
-			if (empty_level)
-				c_ptr->feat = FEAT_FLOOR;
-			else
-				/* Create granite wall */
-				c_ptr->feat = FEAT_WALL_EXTRA;
+			c_ptr->feat = base_feat;
 		}
 	}
 
@@ -3707,10 +3712,8 @@ static bool cave_gen(void)
 		}
 	}
 
-
 	/* No "crowded" rooms yet */
 	dun->crowded = FALSE;
-
 
 	/* No rooms yet */
 	dun->cent_n = 0;
@@ -3900,7 +3903,6 @@ static bool cave_gen(void)
 		build_streamer(FEAT_QUARTZ, DUN_STR_QC);
 	}
 
-
 	/* Destroy the level if necessary */
 	if (destroyed) destroy_level();
 
@@ -3909,8 +3911,6 @@ static bool cave_gen(void)
 
 	/* Place 1 or 2 up stairs near some walls */
 	alloc_stairs(FEAT_LESS, rand_range(1, 2), 3);
-
-
 
 	/* Determine the character location */
 	if (!new_player_spot()) return FALSE;
@@ -3959,10 +3959,18 @@ static bool cave_gen(void)
 
 	i += randint(8);
 
-	/* Put some monsters in the dungeon */
-	for (i = i + k; i > 0; i--)
+	/* 
+	   Put some monsters in the dungeon 
+	   Used to be i = i + k  
+	   Then, because sometimes no monster might be found and we wanted to decrease for sure 
+	   it became i = (i + k)*2
+	   but because of previous shenanigans, the dungeon starts to look empty or sparse
+	   so I upped it just a tad ;)
+	   so  now i = (i + k)*2
+	*/
+	for (i = (i + k)*3; i > 0; )
 	{
-		(void)alloc_monster(0, TRUE);
+		i = i - alloc_monster(0, TRUE) - 1;
 	}
 
 
@@ -4390,9 +4398,6 @@ void generate_cave(void)
 		/* Nothing good here yet */
 		rating = 0;
 
-		dun_bias = 0; /* Nothing exciting yet */
-
-
 		/* Build the town */
 		if (dun_level == 0)
 		{
@@ -4414,48 +4419,6 @@ void generate_cave(void)
 		/* Build a real level */
 		else
 		{
-
-			/* Never bias the level , randint 50 should never be 51 */
-			if((dun_level > 5) && (randint(50)==51))
-			{
-				switch(randint(10))
-				{
-				case 1:
-				case 2:
-				case 3:
-					{
-						dun_bias=FILTER_ORC;
-						break;
-					}
-				case 4:
-				case 5:
-					{
-						dun_bias=FILTER_DEMON;
-						break;
-					}
-				case 6:
-					{
-						dun_bias=FILTER_DEVIL;
-						break;
-					}
-				case 7:
-				case 8:
-					{
-						dun_bias=FILTER_UNDEAD;
-						break;
-					}
-				case 9:
-					{
-						dun_bias=FILTER_DRAGON;
-						break;
-					}
-				case 10:
-					{
-						dun_bias=FILTER_SPIDER;
-						break;
-					}
-				}
-			}
 
 			/* Sometimes build a small dungeon */
 			if (((randint(SMALL_LEVEL)==1) && small_levels) || dungeon_small)

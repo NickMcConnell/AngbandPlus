@@ -624,7 +624,7 @@ bool make_attack_normal(int m_idx)
 
 				/* Saving throw (unless paralyzed) based on dex and level */
 				if (!p_ptr->paralyzed &&
-					(rand_int(100) < (adj_dex_safe[p_ptr->stat_ind[A_DEX]] +
+					(rand_int(100) < (adj_stat[p_ptr->stat_ind[A_DEX]][ADJ_DODGE] +
 					p_ptr->lev)))
 				{
 					/* Saving throw message */
@@ -677,7 +677,7 @@ bool make_attack_normal(int m_idx)
 
 				/* Saving throw (unless paralyzed) based on dex and level */
 				if (!p_ptr->paralyzed &&
-					(rand_int(100) < (adj_dex_safe[p_ptr->stat_ind[A_DEX]] +
+					(rand_int(100) < (adj_stat[p_ptr->stat_ind[A_DEX]][ADJ_DODGE] +
 					p_ptr->lev)))
 				{
 					/* Saving throw message */

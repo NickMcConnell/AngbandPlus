@@ -738,14 +738,13 @@ struct owner_type
 */
 
 typedef struct store_type store_type;
-
 struct store_type
 {
-	byte x;                    /* Coords of store in town */
+	byte x;					/* Coords of store in town */
 	byte y;
 
-	byte bought;             /* Flag for player purchase (only used on houses) */
-	byte owner;			  /* Owner index */
+	byte bought;			/* Flag for player purchase (only used on houses) */
+	byte owner;				/* Owner index */
 	byte extra;				/* Unused for now */
 
 	s16b insult_cur;		/* Insult counter */
@@ -764,6 +763,61 @@ struct store_type
 	s16b stock_num;			/* Stock -- Number of entries */
 	s16b stock_size;		/* Stock -- Total Size of Array */
 	object_type *stock;		/* Stock -- Actual stock items */
+};
+
+/*
+ * One deal wants maximum 3 books for 3 books
+ * If less books are wanted, leave the higher values zero
+ */
+
+typedef struct bookswap_deal bookswap_deal;
+struct bookswap_deal
+{
+	byte race;				/* Race of the counterpart */
+	byte pclass;			/* Class of the counterpart */
+	char player_name[32];	/* Name of the counterpart */
+	
+	bool active;			/* Hack, setting this to true will make the deal appear in the shop */
+	
+	s16b wants_tval1; 		/* tvals of the wanted books */
+	s16b wants_tval2;
+	s16b wants_tval3;
+
+	byte wants_sval1;		/* svals of the wanted books */
+	byte wants_sval2;
+	byte wants_sval3;
+	
+	s16b offers_tval1;		/* tvals of the offered books */
+	s16b offers_tval2;
+	s16b offers_tval3;
+
+	byte offers_sval1;		/* svals of the offered books */
+	byte offers_sval2;
+	byte offers_sval3;
+};
+
+typedef struct tv_describer_type tv_describer_type;
+struct tv_describer_type
+{
+	s16b tval;		/* tval of the object */
+	bool easy_know;	/* Easy know ?*/
+	byte attribute;	/* attribute (color) of the object */
+	byte action;	/* related describing actions */
+	cptr *adj;		/* address to the related adjectives table */
+	cptr plain;		/* plain description */
+	cptr full;		/* full description */
+};
+
+/*
+ * Most realm info is here
+ */
+typedef struct realm_type realm_type;
+struct realm_type
+{
+	s16b tval;		/* tval of the corresponding book */
+	cptr name;		/* Name of the realm */
+	cptr basename1;	/* Basename for non-magic users */
+	cptr basename2;	/* Basename for magic users */
 };
 
 /*
@@ -904,6 +958,21 @@ struct player_race
 	/*    byte choice_xtra;   */
 };
 
+/*
+ * Birth item info
+ */
+typedef struct birth_item birth_item;
+struct birth_item
+{
+	byte prace;				/* Race of the counterpart */
+	byte pclass;			/* Class of the counterpart */
+	bool *flag;				/* Potential flag to be checked such as hates_light */
+	byte tval;				/* tval of item */
+	byte sval;				/* sval of item */
+	byte action;			/* to wear or to hold*/
+	byte minimum;			/* minimum amount generated */
+	byte maximum;			/* maximum amount generated */
+};
 
 /*
 * Player class info

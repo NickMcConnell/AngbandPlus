@@ -191,16 +191,16 @@ static background_type background[] =
     {"You are a credit to the family. ",                                           UNLIKELY,            10,   0},                                                                                                               
     {"You are a well liked child. ",                                               LIKELY,              5,    END_GROUP},
     
-    {"You have left your family the moment you became a werewolf.",                UNLIKELY,            30,   BG_WEREWOLF},
-    {"After some family members went missing, you left the family.",               LIKELY,              10,   0},
-    {"You have slain most of your village and went hiding.",                       LIKELY,              -5,   END_GROUP},
+    {"You have left your family the moment you became a werewolf. ",               UNLIKELY,            30,   BG_WEREWOLF},
+    {"After some family members went missing, you left the family. ",              LIKELY,              10,   0},
+    {"You have slain most of your village and went hiding. ",                      LIKELY,              -5,   END_GROUP},
 
     {"You have been captured by the League, forced now to do their bidding.",      UNLIKELY,            -5,   BG_WEREWOLF},
     {"You have joined the League, hoping to find a cure.",                         LIKELY,              10,   END_GROUP},
     
-    {"You have awakened 1 millemium ago, and yearn to retreat soon.",              LIKELY,              35,   BG_ELDER},
-    {"You have studied demonic magics for 700 years, and seek some adventure.",    UNLIKELY,            20,   0},
-    {"You are on a quest to find your Maker since the world is born.",             RARE,                70,   END_GROUP},    
+    {"You have awakened 1 millenium ago, and yearn to retreat soon. ",             LIKELY,              35,   BG_ELDER},
+    {"You have studied demonic magics for 700 years, and seek some adventure. ",   UNLIKELY,            20,   0},
+    {"You are on a quest to find your Maker since the world is born. ",            RARE,                70,   END_GROUP},    
     
     {"You were born in Ireland. ",                                                 UNLIKELY,            15,   BG_FAE|BG_LEPRECHAUN|BG_GNOME },                                                                                  
     {"You were born in Scotland. ",                                                UNLIKELY,            15,   0 },                                                                                                              
@@ -215,7 +215,7 @@ static background_type background[] =
     {"spiked red hair, ",                                                          UNLIKELY,            0,    END_GROUP},                                                                                                       
     
     {"blue eyes, and a very fair complexion.",                                     UNLIKELY,            0,    BG_FAE|BG_LEPRECHAUN|BG_GNOME},                                                                                   
-    {"green eyes, and fair complexion.",                                           UNLIKELY,            0,    END_GROUP},                                                                                                       
+    {"green eyes, and a fair complexion.",                                           UNLIKELY,            0,    END_GROUP},                                                                                                       
     
     {"You have a green complexion, ",                                              UNLIKELY,            0,    BG_KOBOLD},                                                                                                       
     {"You have a dark green complexion, ",                                         UNLIKELY,            0,    0},                                                                                                               
@@ -302,9 +302,9 @@ static background_type background[] =
     {"and a fair complexion.",                                                     UNLIKELY,            0,    0},                                                                                                               
     {"and a very fair complexion.",                                                UNLIKELY,            0,    END_GROUP},                                                                                                       
     
-    {"You have become corrupted in the last century.",                             LIKELY,              0,    BG_HORROR},                                                                                                       
-    {"You have become corrupted a millenium ago.",                                 UNLIKELY,            0,    0},                                                                                                                
-    {"You have become corrupted during the Great Flood",                           RARE,                10,   END_GROUP},                                                                                                        
+    {"You have become corrupted in the last century. ",                             LIKELY,              0,    BG_HORROR},                                                                                                       
+    {"You have become corrupted a millenium ago. ",                                 UNLIKELY,            0,    0},                                                                                                                
+    {"You have become corrupted during the Great Flood. ",                          RARE,                10,   END_GROUP},                                                                                                        
     
     {"You have slimy skin, empty glowing eyes, and ",                              UNLIKELY,            15,   BG_HORROR},                                                                                                       
     {"You have slimy scales, a set of eyestalks, and ",                            UNLIKELY,            15,   END_GROUP},                                                                                                        
@@ -486,9 +486,13 @@ static char *human_syllable1[] = { "Ab", "Ac", "Ad", "Af", "Agr", "Ast", "As", "
 static char *human_syllable2[] = { "a", "ae", "au", "ao", "are", "ale", "ali", "ay", "ardo", "e", "ei", "ea", "eri", "era", "ela", "eli", "enda", "erra", "i", "ia", "ie", "ire", "ira", "ila", "ili", "ira", "igo", "o", "oa", "oi", "oe", "ore", "u", "y", };
 static char *human_syllable3[] = { "a", "and", "b", "bwyn", "baen", "bard", "c", "ctred", "cred", "ch", "can", "d", "dan", "don", "der", "dric", "dfrid", "dus", "f", "g", "gord", "gan", "l", "li", "lgrin", "lin", "lith", "lath", "loth", "ld", "ldric", "ldan", "m", "mas", "mos", "mar", "mond", "n", "nydd", "nidd", "nnon", "nwan", "nyth", "nad", "nn", "nnor", "nd", "p", "r", "ron", "rd", "s", "sh", "seth", "sean", "t", "th", "tha", "tlan", "trem", "tram", "v", "vudd", "w", "wan", "win", "wyn", "wyr", "wyr", "wyth", };
 
-static char *orc_syllable1[] = { "B", "Er", "G", "Gr", "H", "P", "Pr", "R", "V", "Vr", "T", "Tr", "M", "Dr", };
-static char *orc_syllable2[] = { "a", "i", "o", "oo", "u", "ui", };
-static char *orc_syllable3[] = { "dash", "dish", "dush", "gar", "gor", "gdush", "lo", "gdish", "k", "lg", "nak", "rag", "rbag", "rg", "rk", "ng", "nk", "rt", "ol", "urk", "shnak", "mog", "mak", "rak", };
+//static char *orc_syllable1[] = { "B", "Er", "G", "Gr", "H", "P", "Pr", "R", "V", "Vr", "T", "Tr", "M", "Dr", };
+//static char *orc_syllable2[] = { "a", "i", "o", "oo", "u", "ui", };
+//static char *orc_syllable3[] = { "dash", "dish", "dush", "gar", "gor", "gdush", "lo", "gdish", "k", "lg", "nak", "rag", "rbag", "rg", "rk", "ng", "nk", "rt", "ol", "urk", "shnak", "mog", "mak", "rak", };
+
+static char *swamp_syllable1[] = { "Kr", "Skr", "Schr", "Sch", "Pr", "M" , };
+static char *swamp_syllable2[] = { "ae", "ea", "owe", "oo", "ui", "oeu" , "eve" , };
+static char *swamp_syllable3[] = { "dash", "dush", "gar", "gor", "nak", "rag", "rg", "rk", "mak", "rak", };
 
 static char *angel_syllable1[] = { "Sa","A","U","Mi","Ra","Ana","Pa","Lu","She","Ga","Da","O","Pe","Lau", };
 static char *angel_syllable2[] = { "br","m","l","z","zr","mm","mr","r","ral","ch","zaz","tr","n","lar", };
@@ -497,6 +501,31 @@ static char *angel_syllable3[] = { "iel","ial","ael","ubim","aphon","iel","ael",
 static char *illithid_syllable1[] = { "Cth","Az","Fth","Ts","Xo","Q'N","R'L","Ghata","L","Zz","Fl","Cl","S","Y", };
 static char *illithid_syllable2[] = { "nar","loi","ul","lu","noth","thon","ath","'N","rhy","oth","aza","agn","oa","og", };
 static char *illithid_syllable3[] ={ "l","a","u","oa","oggua","oth","ath","aggua","lu","lo","loth","lotha","agn","axl",};
+
+/* Thomas, Peter, Paul , James , John , George , Matteus ,Marc , filip , Luke*/
+static char *italian_male_firstnames[]   = { "Tommaso" , "Pietro" , "Paolo" , "Giacomo" , "Giovanni" , "Giorgio" , "Matteo" , "Marco" , "Filippo" , "Lucas" , "Dante" , "Arcolana" , };
+static char *italian_female_firstnames[] = { "Beatrice" , "Deianira" , "Lucia" , "Penelope" , "Piccarda" , "Rachel" , "Carlotta" , "Carla", };
+static char *italian_last_names[]        = { "da Casalodi" , "dei Bonacolsi" , "da Siena" , "Aldobrandi" , "dei Malavolti" , "Andalo" , "d'Arezzo" , "de'Mozzi" , "di Carignano" , "Argenti" , "da Sant'Andrea" , "Berti" , "Brunelleschi" , "Donati" , "Bruni", };
+
+static char *romani_male_firstnames[]    = { "Andrezj" , "Emilian" , "Guaril" , "Harman" , "Luca" , "Mihai" , "Nicolae" , "Shandor" , "Simionce" , "Stefan" , "Tobar" , "Yanko" , "Yoska" , };
+static char *romani_female_firstnames[]  = { "Esmeralda" , "Magdolna" , "Florica" , "Jaelle" , "Kizzy" , "Lyuba" , "Nadya" , "Tsura" , };
+static char *romani_last_names[]         = { "Grey" , "Petulengro" , "Hearne" , "Lee" , "Caumlo" , "Marhshall" , "Stanley" , };
+
+static char *nordic_male_firstnames[]    = { "Aksel" , "Asger" , "Bjorn" , "Eirik" , "Leif" , "Sigfinn" , "Tyr" , "Ulf" , "Ymir" , "Balder" , };
+static char *nordic_female_firstnames[]  = { "Anniken" , "Asfrid" , "Dagny" , "Eira" , "Eisa" , "Eydis" , "Fylla" , "Gunnhild" , "Inga" , "Liv" , };
+static char *nordic_last_names[]         = { "Olsson" , "Hansson" , "Karlsson" , "Gustavson" , "Erikson" , "Anderson" , "Hirvonen" , "Luhtanen" , "Sari" , "Uurainen" , };
+
+static char *egypt_male_firstnames[]    = { "Akil" , "Amenemhat" , "Amun" , "Asar" , "Awan" , "Chenzira" , "Funsani" , "Haji" , "Jumoke" , "Paki" , };
+static char *egypt_female_firstnames[]  = { "Akana" , "Azeneth" , "Bastet" , "Djeserit" , "Halima" , "Hasina" , "Irisi" , "Kiya" , "Naeehmah" , "Raziya" , };
+static char *egypt_last_names[]         = { "Nakthoreb" , "Osorkon" , "Pseusennes" , "Ptolemy" , "Taharqa" , "Yewelot" , "Ahhotep" , "Amenemheb" , "Amenhotep" , "Hatshepsut" , "Horemheb" , "Isetnofret" , "Khaemwaset" , "Meritamen" , "Mutemwiya" , "Rekhmire" , "Tewosret" , };
+
+static char *celtic_male_firstnames[]    = { "Abenzio" , "Annan" , "Anwell" , "Anyon" , "Beacan" , "Bryce" , "Camlin" , "Caradoc" , "Coalan" , "Drostan" , };
+
+static char *giant_male_firstnames[]    = { "Agasthenes " , "Aristaios" , "Astraios" , "Azeios" , "Damysos" , "Emphytos" , "Euboios" , "Euphorbos" , "Euryalos" , "Eurmedon" , "Hyperbios" , "Khtonios" , "Koios" , "Mimon" , "Otos" , "Ouranion" , "Pankrates" , "Peloreus" , "Rhoikos" , "Sykeus" , "Theodamas" , "Theomises" , };
+
+static char *titan_male_firstnames[]    = { "Adanus" , "Andes" , "Astraeus" , "Atlas" , "Coeus" , "Kreios" , "Epimetheus" , "Hoplodames" , "Iapetus" , "Lelantos" , "Megamedes" , "Melisseus" , "Menoitios" , "Mylinos" , "Okeanos" , "Olymbros" , "Ophion" , "Ostatus" , "Phorkys" , "Sykeus" , };
+static char *titan_female_firstnames[]  = { "Anchiale" , "Anytos" , "Asteria" , "Aura" , "Klymene" , "Dione" , "Eos" , "Eurybia" , "Eurynome", "Leto" , "Metis" , "Mnemosyne " , "Phoibe" , "Rheia" , "Selene" , "Styx" , "Tethys" , "Theia" , "Themis" , "Tytaen" };
+
 
 /* Hellband new/mad creation screen tables */
 
@@ -513,13 +542,12 @@ static cptr sexes_descriptions[COUNT_SEXES][COUNT_LINES] =
 	{"The League sports a few women, all worthy members.     ",
 	 "Since the world in the year 1500 is ruled by men, you  ",
 	 "have learned your skills outside of the public view.   ",
-	 "",
-	 "","","","","","","","","",""},
+	 NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
 	/*Gentleman*/
 	{"You have been accepted quite soon in the League because",
 	 "of your potential. You have never considered that being",
 	 "male has made your progress in the League much easier. ",
-	 "","","","","","","","","","",""},	
+	 NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},	
 };
 
 
@@ -528,7 +556,7 @@ static cptr races_strings[] =
 	"Human",
 	"Faerie",
 	"Spawn",
-	"Elder",	
+	"Elder",
 };
 
 static cptr races_descriptions[COUNT_RACES][COUNT_LINES] =
@@ -539,11 +567,7 @@ static cptr races_descriptions[COUNT_RACES][COUNT_LINES] =
 	 "of them are of pure blood. Others have been bitten by  ",
 	 "vampires or werewolves. Humans born under the right    ",
 	 "constellation have gained extra-ordinary powers.       ",
-	 "                                                       ",
-	 "                                                       ",
-	 "                                                       ",
-	 "                                                       ",
-	 "","","","","",""},
+	 NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
 	/*Faerie*/
 	{"These little creatures are almost lost to the world,   ",
 	 "but some have adapted to the ways of the humans. Mostly",
@@ -552,8 +576,7 @@ static cptr races_descriptions[COUNT_RACES][COUNT_LINES] =
 	 "are more dextrous, intelligent, charming, stealthier   ",
 	 "and superior in magic. They are much weaker though.    ",
 	 "Their magic keeps them from falling into traps.        ",
-	 "                                                       ",
-	 "","","","","",""},	
+	 NULL,NULL,NULL,NULL,NULL,NULL,NULL},
 	/*Spawn*/
 	{"Creatures born in the pits of Hell, they all fight for ",
 	 "their spot. Some win, some loose and some get thrown in",
@@ -562,8 +585,8 @@ static cptr races_descriptions[COUNT_RACES][COUNT_LINES] =
 	 "Spawn. The league employs some of them, using a magical",
 	 "bond that lasts a hundred years. Spawns are stronger,  ",
 	 "faster, tougher and more intelligent. They are heinous ",
-	 "though, providing little charisma.",
-	 "","","","","",""},	
+	 "though, providing little charisma.                     ",
+	 NULL,NULL,NULL,NULL,NULL,NULL},
 	/*Elder*/
 	{"Little is known about the Elder, even the Elder have   ",
 	 "forgotten where they come from, what their purpose is. ",
@@ -572,9 +595,7 @@ static cptr races_descriptions[COUNT_RACES][COUNT_LINES] =
 	 "the Earth will be undone. The Elder employ Guardians, a",
 	 "subspecies of the Elder born to protect them. Elder are",
 	 "charismatic, intelligent and superior in magic.        ",
-	 "                                                       ",
-	 "","","","","",""},		
-	
+	 NULL,NULL,NULL,NULL,NULL,NULL,NULL},
 };
 
 static int subraces[COUNT_RACES][2] = 
@@ -616,95 +637,43 @@ static cptr subraces_descriptions[COUNT_SUBRACES][COUNT_LINES] =
 {
 	/*0123456789012345678901234567890123456789012345678912345*/	
 	/*Florentian*/
-	{   "Florentians are citizens are Italians from the city of ",
+	{   "Florentians are Italian citizens from the city of      ",
 		"Florence. They are your basic human, with maybe a bit  ",
 		"more interest in Inferno than the average person given ",
 		"that Dante was a Florentian as well. Being an Italian  ",
 		"they get discount in Italian shops.                    ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       "},
+		NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
 	/*Gipsy*/
 	{   "Gipsies are not very well liked, even though they are  ",
 		"great entertainers and sport some of the most beautiful",
 		"women. Gipsies are charismatic, have a knack for being ",
 		"stealthy and gain the Second Sight when they become    ",
 		"more experienced. They are slightly better in magic.   ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       "},
+		NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
 	/*Nordic*/
 	{   "Nordics are hardy men from the North. They are still   ",
 		"very much in touch with Nature and its' spirits. This  ",
 		"makes them slightly better at magical abilities.       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       "},
+		NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
 	/*Atlantian*/
 	{   "Living in a dome on the bottom of the ocean, they have ",
 		"no natural enemies and grown weak. They do however have",
 		"a knack for magic and are resistant to darkness. Their ",
 		"innate magical abilities allow to fire magical missiles",
 		"at will.                                               ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       "},
+		NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
 	/*Dwarf*/
 	{   "True dwarfs have not dwelled on the planet surface     ",
-		"since ages, but they had mingled with humans and some  ",
+		"since ages, but they have mingled with humans and some ",
 		"of their descendants are almost as stocky, loudmouthed ",
 		"and foul-tempered as they once were. They are hard to  ",
 		"be blinded and find their ways easily under the ground.",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       "},
+		NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
 	/*Elf*/
 	{   "True elfs have not dwelled in the Scandinavian lands   ",
-		"since ages, but they had mingled with humans and some  ",
+		"since ages, but they have mingled with humans and some ",
 		"of their descendants show a startling gracefulness.    ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       "},
+		NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
 	/*Ogre*/
 	{   "Ogres were a race of large humanoid beings, fierce and ",
 		"cruel monsters that ate human flesh. The most viscious ",
@@ -716,25 +685,13 @@ static cptr subraces_descriptions[COUNT_SUBRACES][COUNT_LINES] =
 		"shapeshift. Ogres are resistant to darkness, their     ",
 		"strength cannot be drained and they can place magical  ",
 		"traps that explode when touched. They tend be rich.    ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       "},
+		NULL,NULL,NULL,NULL},
 	/*Troll*/
 	{   "Trolls are the Scandinavian version of the German and  ",
 		"French ogres. Their descendants even though civilized  ",
-		"are uglier, stronger, stupider and regenerate faster. ",
+		"are uglier, stronger, stupider and regenerate faster.  ",
 		"Experienced troll can enter into a berserker fury.     ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       "},
+		NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
 	/*Giant*/
 	{   "Like the descendants of the Titans they have concealed ",
 		"themselves on an island in the Mediterranean sea. The  ",
@@ -744,12 +701,7 @@ static cptr subraces_descriptions[COUNT_SUBRACES][COUNT_LINES] =
 		"toughness and strength. They resist strength draining  ",
 		"attacks and shards. Experienced, they can smash stone  ",
 		"into dust.                                             ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       "},
+		NULL,NULL,NULL,NULL,NULL,NULL},
 	/*Titan*/
 	{   "The largest of all, and superior in almost every aspect",
 		"these descedants have been found on a remote island in ",
@@ -758,13 +710,7 @@ static cptr subraces_descriptions[COUNT_SUBRACES][COUNT_LINES] =
 		"some of the inhabitants have decided to join them. They",
 		"resist chaos, resistance and can spot the weaknesses of",
 		"others.                                                ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       "},
+		NULL,NULL,NULL,NULL,NULL,NULL,NULL},
 	/*Nephilim*/
 	{   "Children of men and angels, they usually become giant  ",
 		"man-eating creatures. It seems that at some point in   ",
@@ -772,29 +718,14 @@ static cptr subraces_descriptions[COUNT_SUBRACES][COUNT_LINES] =
 		"human heritage. Nephilim starting this adventure have  ",
 		"not yet made this choice, allowing them to go either   ",
 		"way.                                                   ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       "},
+		NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
 	/*Afflicted*/
 	{   "Either bitten by vampire or werewolf or undead, the    ",
 		"afflicted have lost their humanity. This usually means ",
 		"also a higher resistance than usual to nether, cold and",
 		"darkness. It also means that they have lost the effects",
 		"of any constellation they were born under.             ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       "},	
+		NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},	
 	/*Seelie Fae*/
 	{   "Seelie Fae, or properly called Seelie Court, are good  ",
 		"faeries of the British Isles. They are a beautifull to ",
@@ -803,43 +734,20 @@ static cptr subraces_descriptions[COUNT_SUBRACES][COUNT_LINES] =
 		"prevents them from falling intro traps, from light and ",
 		"it allows them to toss around magical sleeping dust.   ",
 		"As they get more experienced, they become faster.      ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       "},
+		NULL,NULL,NULL,NULL,NULL,NULL,NULL},
 	/*Gnome*/
 	{   "Gnomes are a small, playful folk. Whilst being very    ",
 		"intelligent, they suffer from an almost chronic failure",
 		" to take anything seriously. Gnomes are constantly on  ",
 		"the move, and are impossible to paralyse or slow. In   ",
 		"fact, they can even teleport themself at higher levels.",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       "},
+		NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
 	/*Leprechaun*/
 	{   "Leprechauns are male faeries inhabiting Ireland.  They ", 
 		"are into shoemaking, mischief and gold collections.    ",
 		"There are no famous leprechauns yet, even though they  ",
 		"are superior in magic, dexterity, charm and speed.     ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       "},
+		NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
 	/*Kobold*/
 	{   "Kobolds are malicious faeries inhabiting the Black     ", 
 		"Forest. Some of their talents are very useful and for  ",
@@ -848,13 +756,7 @@ static cptr subraces_descriptions[COUNT_SUBRACES][COUNT_LINES] =
 		"kobold even grows glands that allow it to spit poison  ",
 		"darts. They are not an intelligent type of faerie, and ",
 		"arent great lookers either.                            ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       "},	
+		NULL,NULL,NULL,NULL,NULL,NULL,NULL},
 	/*Devilspawn*/
 	{   "Devilspawn are the progeny of mortals and demons. As   ",
 		"such, they inherit some of the raw strength of their   ",
@@ -864,12 +766,7 @@ static cptr subraces_descriptions[COUNT_SUBRACES][COUNT_LINES] =
 		"and as such they always get a demonic patron. Their    ",
 		"association with the pandemonium of hell allows them to",
 		"resist both confusion and sound attacks.               ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       "},
+		NULL,NULL,NULL,NULL,NULL,NULL},
 	/*Imp*/
 	{   "Imps are small red-skinned fire demons. Although not   ",
 		"terribly strong or smart, they are tough and fast. As  ",
@@ -877,14 +774,7 @@ static cptr subraces_descriptions[COUNT_SUBRACES][COUNT_LINES] =
 		"it, growing into immunity as they toughen up. They can ",
 		"learn how to toss flame bolts, fireballs and can even  ",
 		"gain Second Sight .                                    ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       "},
+		NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
 	/*Succubus*/
 	{   "Born in the pits of Hell, they have been selected as   ",
 		"much for their beauty as their visciousness. They are  ",
@@ -892,14 +782,7 @@ static cptr subraces_descriptions[COUNT_SUBRACES][COUNT_LINES] =
 		"have a special draining attacks against men. They are  ",
 		"intelligent, dextrous, fast and stealthy with a knack  ",
 		"for magic. They resists chaos and confusion naturally. ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       "},
+		NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
 	/*Lili*/
 	{   "Born from Lilith and Asmodeus they know that Lillith   ",
 		"will come one day after them. They join the League for ",
@@ -907,14 +790,7 @@ static cptr subraces_descriptions[COUNT_SUBRACES][COUNT_LINES] =
 		"beautiful and rebellious like their mother and sensual ",
 		"like their father. Lilim resist chaos and confusion    ",
 		"and are very tough.                                    ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       "},	
+		NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
 	/*Elder*/
 	{	"The true Elder is a very tough creature, regenerating  ",
 		"wounds even when almost completely destroyed. They are ",
@@ -922,14 +798,7 @@ static cptr subraces_descriptions[COUNT_SUBRACES][COUNT_LINES] =
 		"dark. Their senses are magically attuned and they have ",
 		"the second sight. They are protected from light-based  ",
 		"attacks.                                               ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       "},
+		NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
 	/*Elder Guardian*/
 	{	"Elder Guardians have been completely designed to defend",
 		"their assigned Elder. A few Elder Guardians have lost  ",
@@ -940,12 +809,8 @@ static cptr subraces_descriptions[COUNT_SUBRACES][COUNT_LINES] =
 		"them. They have awesome defences, they cannot be bled  ",
 		"or stunned. They are naturally resistant to poison and ",
 		"have Second Sight.                                     ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",},
-	/*Horror*/     
+		NULL,NULL,NULL,NULL,NULL,},
+	/*Horror*/
 	{	"Some of the Elder have become Horrors, after recovering",
 		"from grievous wounds their body has changed into a     ",
 		"nightmarish creature. Slimy, their faces covered with  ",
@@ -953,14 +818,7 @@ static cptr subraces_descriptions[COUNT_SUBRACES][COUNT_LINES] =
 		"the cost of frailty. They can gain the Second Sight,   ",
 		"sense minds from a distance and project mental energies",
 		"in a direct attack.                                    ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       "},	
-			
+		NULL,NULL,NULL,NULL,NULL,NULL,NULL},
 };
 
 static cptr afflictions_strings[] =
@@ -981,14 +839,14 @@ static cptr afflictions_descriptions[COUNT_AFFLICTIONS][COUNT_LINES] =
 	"torches or lanterns. They resist poison, nether, cold, ",
 	"bleeding and draining attacks. They are superior beings",
 	"safe for their wisdom.                                 ",
-	"                                                       ",
-	"                                                       ",
-	"                                                       ",
-	"                                                       ",
-	"                                                       ",
-	"                                                       ",
-	"                                                       ",
-	"                                                       "},
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL},
 /*Werewolf*/
 {   "Werewolves are mostly originating from the Black Forest",
 	"in Germany. They tend to kill their beloved ones under ",
@@ -996,14 +854,14 @@ static cptr afflictions_descriptions[COUNT_AFFLICTIONS][COUNT_LINES] =
 	"wander. Experienced werewolves can trigger the change  ",
 	"to Wolf at will. Canines are neutral to Werewolves and ",
 	"will not attack them.                                  ",
-	"                                                       ",
-	"                                                       ",
-	"                                                       ",
-	"                                                       ",
-	"                                                       ",
-	"                                                       ",
-	"                                                       ",
-	"                                                       "},
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL},
 /*Skeleton*/
 {   "Skeletons in Hellband are the remains of the poor souls",
 	"that annoyed an African medicin man. They have can bind",
@@ -1011,29 +869,29 @@ static cptr afflictions_descriptions[COUNT_AFFLICTIONS][COUNT_LINES] =
 	"skin in the progress. Not even ambrosia can feed them, ",
 	"they rely soulely on magical means to feed themselves. ",
 	"They are protected from bleeding, shards, poison, cold ",
-	"and life draining. They all have the Second Sigh.      ",
-	"                                                       ",
-	"                                                       ",
-	"                                                       ",
-	"                                                       ",
-	"                                                       ",
-	"                                                       ",
-	"                                                       "},
+	"and life draining. They all have the Second Sight.     ",
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL},
 /*Mummy*/
 {   "Mummies are the new zombies, and I am all out of witty ",
 	"description. So here's the deal. If you play a Mummy,  ",
 	"you really should take the effort to write me a nice   ",
 	"overview and I'll include it in Hellband.              ",
-	"                                                       ",
-	"                                                       ",
-	"                                                       ",
-	"                                                       ",
-	"                                                       ",
-	"                                                       ",
-	"                                                       ",
-	"                                                       ",
-	"                                                       ",
-	"                                                       "},
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL},
 /*Spectre*/
 {   "Spectres are incorporeal undead spirits. As such, they ",
 	"can walk through walls. This hurts them slightly, and  ",
@@ -1045,10 +903,10 @@ static cptr afflictions_descriptions[COUNT_AFFLICTIONS][COUNT_LINES] =
 	"detect surrounding minds. Like most undead Spectres    ",
 	"can only feed on Ambrosio or with magical means. Their ",
 	"glowing ectoplasmic form emits light much like a torch.",
-	"                                                       ",
-	"                                                       ",
-	"                                                       ",
-	"                                                       "},
+	NULL,
+	NULL,
+	NULL,
+	NULL},
 };
 
 static cptr signs_strings[] =
@@ -1066,17 +924,17 @@ static cptr signs_descriptions[COUNT_AFFLICTIONS][COUNT_LINES] =
 {   "You have been born under no particular constellation,  ",
 	"causing concern among the Elder Gods. You have no      ",
 	"special powers or weaknesses.                          ",
-	"                                                       ",
-	"                                                       ",
-	"                                                       ",
-	"                                                       ",
-	"                                                       ",
-	"                                                       ",
-	"                                                       ",
-	"                                                       ",
-	"                                                       ",
-	"                                                       ",
-	"                                                       "},
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL},
 /*Draco*/
 {   "The constellation Draco or 'Dragon' confers under rare ",
 	"circumstances dragon powers to newborn children. Later ",
@@ -1084,29 +942,29 @@ static cptr signs_descriptions[COUNT_AFFLICTIONS][COUNT_LINES] =
 	"elements, they will also find that they can shapeshift ",
 	"into a Dragonling; scaled, winged and capable to breath",
 	"fire and other elements.                               ",
-	"                                                       ",
-	"                                                       ",
-	"                                                       ",
-	"                                                       ",
-	"                                                       ",
-	"                                                       ",
-	"                                                       ",
-	"                                                       "},
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL},
 /*Serpens*/
 {   "The constellation Serpens or 'Serpent' confers under   ",
 	"rare conditions powers of and over snakes. People born ",
 	"under this constellation can resist poison and will not",
 	"be attacked by snakes and serpents. They also can be   ",
 	"very stealthy.                                         ",
-	"                                                       ",
-	"                                                       ",
-	"                                                       ",
-	"                                                       ",
-	"                                                       ",
-	"                                                       ",
-	"                                                       ",
-	"                                                       ",
-	"                                                       "},
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL},
 /*Plutus*/
 {   "Even though Plutus' star is not classified under modern",
 	"astronomy, it's effects on newborns can be profound.The",
@@ -1117,11 +975,11 @@ static cptr signs_descriptions[COUNT_AFFLICTIONS][COUNT_LINES] =
 	"hidden. The only drawback they have is that they cannot",
 	"easily part with their money, they can only spend 10%  ",
 	"of it at one time.                                     ",
-	"                                                       ",
-	"                                                       ",
-	"                                                       ",
-	"                                                       ",
-	"                                                       "},
+	NULL,
+	NULL,
+	NULL,
+	NULL,
+	NULL},
 /*Morui*/
 {   "Stories are told of the people from the star Morui, now",
 	"more commonly called Orion. It is said that they have  ",
@@ -1133,10 +991,10 @@ static cptr signs_descriptions[COUNT_AFFLICTIONS][COUNT_LINES] =
 	"that help avoid pits and falls. As they get more       ",
 	"experienced, they also get faster and gain the ability ",
 	"to spit acid.                                          ",
-	"                                                       ",
-	"                                                       ",
-	"                                                       ",
-	"                                                       "},
+	NULL,
+	NULL,
+	NULL,
+	NULL},
 };
 
 
@@ -1148,31 +1006,15 @@ static cptr classes_descriptions[MAX_CLASS][COUNT_LINES] =
 		"special abilities, other than learning to resist fear  ",
 		"(min lev = 30). They simply fight. However, they are   ",
 		"are tougher and better at fighting than any other.     ",
-		"                                                       ",  
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       "},
+		NULL,  
+		NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
 	/*Mage*/
 	{   "Mages study arcane magic, but do not specialize as     ",
 		"strongly as high-mages do. Mages receive two realms of ",
 		"magic of their choice. Mages struggle with combat when ",
 		"not using spells.                                      ",
-		"                                                       ",  
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       "},
+		NULL,  
+		NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},
 	/*Priest*/
 	{   "Priests are divine magic specialists. Whilst not as    ",
 		"good at combat as paladins, they are better at magic. ",
@@ -1182,12 +1024,8 @@ static cptr classes_descriptions[MAX_CLASS][COUNT_LINES] =
 		"magic are called Cultists. Priests take religious vows ",
 		"which prevent them from using edged weapons unless     ",
 		"those weapons are blessed.",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       "},	
+		NULL,NULL,NULL,NULL,NULL,
+		NULL},	
 	/*Rogue*/
 	{   "Rogues are masters of stealth. Although they are not as",
 		"good as warriors in a straight fight, they can backstab",
@@ -1197,27 +1035,15 @@ static cptr classes_descriptions[MAX_CLASS][COUNT_LINES] =
 		"Rogues who learn death magic are called Assassins.     ",
 		"Rogues who learn tarot magic are called Card Sharps. ",
 		"Rogues who learn folk magic are called Thieves.        ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       "},	
+		NULL,NULL,NULL,NULL,NULL,
+		NULL},	
 	/*Ranger*/
 	{   "Rangers are decent fighters, although they specialize  ",
 		"in missile weapons. Like druids, they use divine magic ",
 		"from the Nature realm. They are not as good as druids  ",
 		"at nature magic, but make up for it by also learning a ",
 		"second realm.                                          ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       "},	
+		NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},	
 	/*Paladin*/
 	{   "Paladins are holy warriors. There are two types - true ",
 		"Paladins and Death Knights. True paladins get divine   ",
@@ -1227,12 +1053,8 @@ static cptr classes_descriptions[MAX_CLASS][COUNT_LINES] =
 		"they make up for this by fighting almost as well as a  ",
 		"warrior does. Paladins can learn to resist the effects ",
 		"of fear at a higher level.                             ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       "},	
+		NULL,NULL,NULL,NULL,NULL,
+		NULL},	
 	/*Warrior-Mage*/
 	{   "Warrior mages combine reasonable combat skills with two",
 		"realms of arcane magic. One of their realms of magic   ",
@@ -1241,13 +1063,7 @@ static cptr classes_descriptions[MAX_CLASS][COUNT_LINES] =
 		"good at magic as true mages, but they make up for their",
 		"lack of strength by combining it with a lack of        ",
 		"weakness.                                              ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       "},	
+		NULL,NULL,NULL,NULL,NULL,NULL,NULL},	
 	/*Hell Knight*/
 	{   "Hell Knights have made pacts with an infernal patron in",
 		"exchange for physical prowess. As such, they are good  ",
@@ -1255,14 +1071,8 @@ static cptr classes_descriptions[MAX_CLASS][COUNT_LINES] =
 		"divine magic from the chaos realm, and occasionally    ",
 		"give them other rewards too. Hell Knights can learn to ",
 		"resist the effects of chaos and fear.                  ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       "},	
+		NULL,NULL,NULL,NULL,NULL,NULL,NULL,
+		NULL},	
 	/*Mystic*/
 	{   "Mystics are martial artists. As such they are masters  ",
 		"of unarmed combat and increase their speed as they gain",
@@ -1271,13 +1081,7 @@ static cptr classes_descriptions[MAX_CLASS][COUNT_LINES] =
 		"off slowing and paralyzing attacks. As part of their   ",
 		"meditations, mystics learn divine magic from the       ",
 		"Somatic realm.                                         ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       "},	
+		NULL,NULL,NULL,NULL,NULL,NULL,NULL},	
 	/*Mindcrafter*/
 	{   "Mindcrafters rely on the supernatural powers that their",
 		"mind is capable of producing. Many of their powers are ",
@@ -1287,12 +1091,8 @@ static cptr classes_descriptions[MAX_CLASS][COUNT_LINES] =
 		". They can sustain their wisdom, and even sense other  ",
 		"minds once they are very experienced. They can handle  ",
 		"themselves in combat.                                  ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       "},		
+		NULL,NULL,NULL,NULL,NULL,
+		NULL},		
 	/*High-Mage**/
 	{   "High mages study arcane magic from a single realm to   ",
 		"the exclusion of any other magic. As such, their       ",
@@ -1303,26 +1103,14 @@ static cptr classes_descriptions[MAX_CLASS][COUNT_LINES] =
 		"have different names: Vivimancer, Sorceror, Naturist,  ",
 		"Hell Knight, Necromancer, Summoner, Hedge Wizard or Zen",
 		"Master.                                                ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       "},			
+		NULL,NULL,NULL,NULL,NULL},			
 	/*Druid**/
 	{   "Druids are nature worshippers. As such, they use divine",
 		"magic from the realm of Nature. They are better at     ",
 		"nature magic than any other class. Like priests, druids",
 		"are not allowed to use edged weapons unless those      ",
 		"weapons are blessed.                                   ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       "},		
+		NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL},		
 	/*Warlock**/
 	{   "Warlocks are people who have studied the magical       ",
 		"arts of demon magic with the aid of an infernal patron.",
@@ -1334,13 +1122,16 @@ static cptr classes_descriptions[MAX_CLASS][COUNT_LINES] =
 		"Warlocks have great difficulty wielding any weapon     ",
 		"that is not a weapon of chaos, since their pact with   ",
 		"their patron involves only using the power of chaos.   ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       ",
-		"                                                       "},		
+		NULL,NULL,NULL,
+		NULL},		
 	
 };
 
+/* Did the player already decide on stat points */
+bool points_decided;
+/* Storage for the decided stat points, as these get overwritten */
+s16b cache_stat_max[6];	/* Cached "maximal" stat values */
+s16b cache_stat_cur[6];	/* Cached "natural" stat values */
 
 /* Allow player to modify the character by spending points */
 static bool point_mod_player(void)
@@ -1349,12 +1140,19 @@ static bool point_mod_player(void)
 	char b2 = ']';
 	char stat;
 	char modpts[4] = "none";
-	/*char *buf = "zero";*/
-	/*int tmp = 0;*/
-	/*int hp = 0;*/
-	/*int addhp = 0; */
 	int x = 0;
 	int i, points;
+	
+	/* Check first if the player already decided once, if so, retrieve those values */
+	if( points_decided == TRUE )
+	{
+		for( i = 0 ; i < 6 ; i++ )
+		{
+			p_ptr->stat_cur[i] = cache_stat_cur[i];
+			p_ptr->stat_max[i] = cache_stat_max[i];
+		}
+		return TRUE;
+	}
 
 
 	points = 34;
@@ -1510,7 +1308,7 @@ static bool point_mod_player(void)
 			if(p_ptr->stat_max[i] > 67) points--;
 			if(p_ptr->stat_max[i] > 18) points--;
 			if(p_ptr->stat_max[i] > 14) points--;
-			if(p_ptr->stat_max[i] > 3) points--;
+			if(p_ptr->stat_max[i] > 3)  points--;
 			continue;
 		}
 		else    /* Reduce stat case */
@@ -1536,19 +1334,29 @@ static bool point_mod_player(void)
 			if(p_ptr->stat_max[i] > 57) points++;
 			if(p_ptr->stat_max[i] > 17) points++;
 			if(p_ptr->stat_max[i] > 13) points++;
-			if(p_ptr->stat_max[i] > 2) points++;
+			if(p_ptr->stat_max[i] > 2)  points++;
 			continue;
 		}
 	}
+	
+		/* Store values into cache */
+		for( i = 0 ; i < 6 ; i++ )
+		{
+			cache_stat_cur[i] = p_ptr->stat_cur[i];
+			cache_stat_max[i] = p_ptr->stat_max[i];
+		}
+		/*Indicate the cache can be used*/
+		points_decided = TRUE;
+	
 	return TRUE;
 }
 
 /*
-* Random Name Generator
-* based on a Javascript by Michael Hensley
-* "http://geocities.com/timessquare/castle/6274/"
-*/
-void create_random_name(int race, char *name)
+ * Random Name Generator
+ * based on a Javascript by Michael Hensley
+ * "http://geocities.com/timessquare/castle/6274/"
+ */
+void create_random_name(int race, byte sex , char *name)
 {
 	/* Paranoia */
 	if (!name) return;
@@ -1556,18 +1364,31 @@ void create_random_name(int race, char *name)
 	/* Select the monster type */
 	switch (race)
 	{
-		/* Create the monster name */
+	/* Create the monster name */
 	case DWARF:
-	case GIANT:
 	case GUARDIAN:
 		strcpy(name, dwarf_syllable1[rand_int(sizeof(dwarf_syllable1) / sizeof(char*))]);
 		strcat(name, dwarf_syllable2[rand_int(sizeof(dwarf_syllable2) / sizeof(char*))]);
 		strcat(name, dwarf_syllable3[rand_int(sizeof(dwarf_syllable3) / sizeof(char*))]);
 		break;
-	case ELF:
-	case FAE:
+	case GIANT:
+		strcpy(name, giant_male_firstnames[rand_int(sizeof(giant_male_firstnames) / sizeof(char*))]);			
+		break;
+	case TITAN:
+		break;
+		if( sex == SEX_MALE )
+		{
+			strcpy(name, titan_male_firstnames[rand_int(sizeof(titan_male_firstnames) / sizeof(char*))]);
+		}
+		else
+		{
+			strcpy(name, titan_female_firstnames[rand_int(sizeof(titan_female_firstnames) / sizeof(char*))]);
+		}
 	case LEPRECHAUN:
-	case ATLANTIAN:	
+		strcpy(name, celtic_male_firstnames[rand_int(sizeof(celtic_male_firstnames) / sizeof(char*))]);
+		break;
+	case ELF:
+	case FAE:		
 		strcpy(name, elf_syllable1[rand_int(sizeof(elf_syllable1) / sizeof(char*))]);
 		strcat(name, elf_syllable2[rand_int(sizeof(elf_syllable2) / sizeof(char*))]);
 		strcat(name, elf_syllable3[rand_int(sizeof(elf_syllable3) / sizeof(char*))]);
@@ -1578,23 +1399,68 @@ void create_random_name(int race, char *name)
 		strcat(name, gnome_syllable3[rand_int(sizeof(gnome_syllable3) / sizeof(char*))]);
 		break;
 	case FLORENTIAN:
-	case TITAN:
-	case SKELETON:
-	case SPECTRE:
-	case VAMPIRE:
-	case MUMMY:
+		if( sex == SEX_MALE )
+		{
+			strcpy(name, italian_male_firstnames[rand_int(sizeof(italian_male_firstnames) / sizeof(char*))]);
+		}
+		else
+		{
+			strcpy(name, italian_female_firstnames[rand_int(sizeof(italian_female_firstnames) / sizeof(char*))]);
+		}
+		strcat(name, " " );
+		strcat(name, italian_last_names[rand_int(sizeof(italian_last_names) / sizeof(char*))]);
+		break;
 	case GIPSY:
-	case NORDIC:	
+		if( sex == SEX_MALE )
+		{
+			strcpy(name, romani_male_firstnames[rand_int(sizeof(romani_male_firstnames) / sizeof(char*))]);
+		}
+		else
+		{
+			strcpy(name, romani_female_firstnames[rand_int(sizeof(romani_female_firstnames) / sizeof(char*))]);
+		}
+		strcat(name, " " );
+		strcat(name, romani_last_names[rand_int(sizeof(romani_last_names) / sizeof(char*))]);
+		break;
+	case NORDIC:
+	case TROLL:
+		if( sex == SEX_MALE )
+		{
+			strcpy(name, nordic_male_firstnames[rand_int(sizeof(nordic_male_firstnames) / sizeof(char*))]);
+		}
+		else
+		{
+			strcpy(name, nordic_female_firstnames[rand_int(sizeof(nordic_female_firstnames) / sizeof(char*))]);
+		}
+		strcat(name, " " );
+		strcat(name, nordic_last_names[rand_int(sizeof(nordic_last_names) / sizeof(char*))]);
+		break;
+	case MUMMY:
+	case SKELETON:
+	case ATLANTIAN:	
+	case SPECTRE:
+		if( sex == SEX_MALE )
+		{
+			strcpy(name, egypt_male_firstnames[rand_int(sizeof(egypt_male_firstnames) / sizeof(char*))]);
+		}
+		else
+		{
+			strcpy(name, egypt_female_firstnames[rand_int(sizeof(egypt_female_firstnames) / sizeof(char*))]);
+		}
+		strcat(name, " " );
+		strcat(name, egypt_last_names[rand_int(sizeof(egypt_last_names) / sizeof(char*))]);
+		break;
+	case WEREWOLF:
+	case VAMPIRE:
+	case OGRE:		
 		strcpy(name, human_syllable1[rand_int(sizeof(human_syllable1) / sizeof(char*))]);
 		strcat(name, human_syllable2[rand_int(sizeof(human_syllable2) / sizeof(char*))]);
 		strcat(name, human_syllable3[rand_int(sizeof(human_syllable3) / sizeof(char*))]);
 		break;
-	case OGRE:
-	case TROLL:
 	case KOBOLD:
-		strcpy(name, orc_syllable1[rand_int(sizeof(orc_syllable1) / sizeof(char*))]);
-		strcat(name, orc_syllable2[rand_int(sizeof(orc_syllable2) / sizeof(char*))]);
-		strcat(name, orc_syllable3[rand_int(sizeof(orc_syllable3) / sizeof(char*))]);
+		strcpy(name, swamp_syllable1[rand_int(sizeof(swamp_syllable1) / sizeof(char*))]);
+		strcat(name, swamp_syllable2[rand_int(sizeof(swamp_syllable2) / sizeof(char*))]);
+		strcat(name, swamp_syllable3[rand_int(sizeof(swamp_syllable3) / sizeof(char*))]);
 		break;
 	case HORROR:
 	case ELDER:	
@@ -1618,8 +1484,8 @@ void create_random_name(int race, char *name)
 	}
 }
 
-u16b choose_realm(byte choices)
-{                                                                                                           
+u16b choose_realm(u16b choices)
+{
 	int picks[MAX_REALM] = {0};
 	int byteflag = 1;
 	int n, i, choice, dir;
@@ -1635,9 +1501,9 @@ u16b choose_realm(byte choices)
 	int screen_width = 80;
 	
 	/*Collect all chooseable realms, store them in array*/
-	/*Note that n contains how many realms can be chose*/
+	/*Note that n contains how many realms can be chosen*/
 	n = 0;
-	for( i = 1 ; i < MAX_REALM ; i ++ )
+	for( i = 1 ; i < MAX_REALM+1 ; i ++ )
 	{
 		if( (choices & byteflag) && p_ptr->realm1 != i)
 		{
@@ -1660,20 +1526,20 @@ u16b choose_realm(byte choices)
 	{
 		
 		sprintf(buf,"What realm will you master, %s?", str);
-		c_put_str(TERM_YELLOW, buf, 5, ((screen_width-strlen(buf))>>1) );
+		c_put_str(TERM_YELLOW, buf, 5, ((screen_width-(int)strlen(buf))>>1) );
 		
 		for(i=0;i<n;i++)
 			c_put_str(TERM_L_BLUE, i==choice?">":" " , 8+i , 2 );			
 				
 		for(i=0;i<n;i++)
-			c_put_str(i==choice?TERM_L_BLUE:TERM_L_WHITE, realm_names[picks[i]], 8+i, 3);
+			c_put_str(i==choice?TERM_L_BLUE:TERM_L_WHITE, realm_names[picks[i]].name , 8+i, 3);
 		
 /*		for(i=0;i<COUNT_LINES;i++)
 			put_str( races_descriptions[choice][i] , 8+i , 23 );*/
 		
 		c = inkey();
 		if (c == 'Q') quit(NULL);
-		if (c == 'S') return (0);		
+		if (c == 'S' || c == 's') return (0);		
 		if (c == '*')
 		{
 			choice = randint(COUNT_RACES);
@@ -1698,57 +1564,26 @@ u16b choose_realm(byte choices)
 	
 }
 
-u16b choose_realm_randomly(byte choices)
+u16b choose_realm_randomly(u16b choices)
 {
 	int picks[MAX_REALM] = {0};
 	int k, n;
+	u16b  bitflag;
+	byte realm;
+	
+	bitflag = 1;
 	n = 0;
-	/* Hack: Allow priests to specialize in Miracles or Death magic */
-	if ((choices & CH_CHAOS) && p_ptr->realm1 != REALM_CHAOS)
+	
+	for( realm = 1 ; realm <= MAX_REALM ; realm++ )
 	{
-		picks[n]=REALM_CHAOS;
-		n++;
+		if( ( choices & bitflag ) && p_ptr->realm1 != realm )
+		{
+			picks[n] = realm;
+			n++;
+		}
+		bitflag = bitflag * 2;
 	}
-	if ((choices & CH_DEMONIC) && p_ptr->realm1 != REALM_DEMONIC)
-	{
-		picks[n]=REALM_DEMONIC;
-		n++;
-	}    
-	if ((choices & CH_SOMATIC) && p_ptr->realm1 != REALM_SOMATIC)
-	{
-		picks[n]=REALM_SOMATIC;
-		n++;
-	}
-	if ((choices & CH_DEATH) && p_ptr->realm1 != REALM_DEATH)
-	{
-		picks[n]=REALM_DEATH;
-		n++;
-	}
-	if ((choices & CH_CHARMS) && p_ptr->realm1 != REALM_CHARMS)
-	{
-		picks[n]=REALM_CHARMS;
-		n++;
-	}
-	if ((choices & CH_MIRACLES) && p_ptr->realm1 != REALM_MIRACLES)
-	{
-		picks[n]=REALM_MIRACLES;
-		n++;
-	}
-	if ((choices & CH_NATURE) && p_ptr->realm1 != REALM_NATURE)
-	{
-		picks[n]=REALM_NATURE;
-		n++;
-	}
-	if ((choices & CH_TAROT) && p_ptr->realm1 != REALM_TAROT)
-	{
-		picks[n]=REALM_TAROT;
-		n++;
-	}
-	if ((choices & CH_SORCERY) && p_ptr->realm1 != REALM_SORCERY)
-	{
-		picks[n]=REALM_SORCERY;
-		n++;
-	}
+	
 	/* Get a realm */
 	k=rand_range(0,n-1);
 	return (picks[k]);
@@ -1756,96 +1591,36 @@ u16b choose_realm_randomly(byte choices)
 
 int get_realms()
 {
-
+	/* Shortcut */
 	int pclas=p_ptr->pclass;
-
-	/* First we have null realms */
+	/* Paranoia : set realms to null */
 	p_ptr->realm1=p_ptr->realm2=0;
-
 	/* Warriors and certain others get no realms */
-
-	if (realm_choices[pclas] == (CH_NONE)) return TRUE;
-
+	if(realm_choices[pclas][0] == (CH_NONE)) return TRUE;
 	/* Other characters get at least one realm */
-
-	switch (pclas)
-	{
-	case CLASS_WARRIOR_MAGE:
-		p_ptr->realm1 = REALM_CHARMS;
-		break;
-	case CLASS_HELL_KNIGHT:
-		p_ptr->realm1 = REALM_DEMONIC;
-		break;
-	case CLASS_PRIEST:
-		/* Hack... priests can be 'dark' priests and choose death instead of Miracles, but not both */		
-		p_ptr->realm1 = choose_realm( CH_MIRACLES | CH_DEATH);
-		if(!p_ptr->realm1)return FALSE;
-		break;
-	case CLASS_RANGER:
-		p_ptr->realm1 = REALM_NATURE;
-		break;
-	case CLASS_MYSTIC:
-		p_ptr->realm1 = REALM_SOMATIC;
-		break;
-	case CLASS_DRUID:
-		p_ptr->realm1 = REALM_NATURE;
-		break;
-	case CLASS_WARLOCK:
-		p_ptr->realm1 = REALM_DEMONIC;
-		break;
-	default:
-		p_ptr->realm1 = choose_realm(realm_choices[pclas]);
-		if(!p_ptr->realm1)return FALSE;
-	}
-
-	/* Paladins, Oathbreakers and Rogues get no second realm */
-	if (pclas == CLASS_PALADIN || pclas == CLASS_ROGUE || pclas == CLASS_HELL_KNIGHT
-		|| pclas == CLASS_MYSTIC || pclas == CLASS_HIGH_MAGE || pclas == CLASS_DRUID) return TRUE;
-	else
-		p_ptr->realm2 = choose_realm(realm_choices[pclas]);
-		if(!p_ptr->realm2)return FALSE;
-		return TRUE;
+	p_ptr->realm1 = choose_realm( realm_choices[pclas][0] );
+	/* Only some characters get a second realm */
+	if(realm_choices[pclas][1] == (CH_NONE)) return TRUE;
+	/* Other characters get at least one realm */
+	p_ptr->realm2 = choose_realm( realm_choices[pclas][1] );
+	return TRUE;
 }
 
 /* Get realms randomly without asking player */
 void get_realms_randomly()
 {
+	/* Shortcut */
 	int pclas=p_ptr->pclass;
-	/* First we have null realms */
+	/* Paranoia : set realms to null */
 	p_ptr->realm1=p_ptr->realm2=0;
 	/* Warriors and certain others get no realms */
-	if (realm_choices[pclas] == (CH_NONE)) return;
+	if(realm_choices[pclas][0] == (CH_NONE)) return;
 	/* Other characters get at least one realm */
-	switch (pclas)
-	{
-	case CLASS_WARRIOR_MAGE:
-		p_ptr->realm1 = 7;
-		break;
-	case CLASS_HELL_KNIGHT:
-		p_ptr->realm1 = 4;
-		break;
-	case CLASS_PRIEST:
-		p_ptr->realm1 = choose_realm_randomly( CH_MIRACLES | CH_DEATH);
-		/* Hack... priests can be 'dark' priests and choose death instead
-		of life, but not both */
-		break;
-	case CLASS_RANGER:
-		p_ptr->realm1 = 3;
-		break;
-	case CLASS_DRUID:
-		p_ptr->realm1 = 3;
-		break;
-	case CLASS_WARLOCK:
-		p_ptr->realm1 = 4;
-		break;
-	default:
-		p_ptr->realm1 = choose_realm_randomly(realm_choices[pclas]);
-	}
-	/* Paladins, Hell Knights and rogues get no second realm */
-	if (pclas == CLASS_PALADIN || pclas == CLASS_ROGUE || pclas == CLASS_HELL_KNIGHT
-		|| pclas == CLASS_MYSTIC || pclas == CLASS_HIGH_MAGE || pclas == CLASS_DRUID) return;
-	else
-		p_ptr->realm2 = choose_realm_randomly(realm_choices[pclas]);
+	p_ptr->realm1 = choose_realm_randomly( realm_choices[pclas][0] );
+	/* Only some characters get a second realm */
+	if(realm_choices[pclas][1] == (CH_NONE)) return;
+	/* Other characters get at least one realm */
+	p_ptr->realm2 = choose_realm_randomly( realm_choices[pclas][1] );
 }
 
 /*
@@ -2233,7 +2008,7 @@ static void get_history(void)
 	for (s = buf; *s == ' '; s++) /* loop */;
 
 	/* Get apparent length */
-	n = strlen(s);
+	n = (int)strlen(s);
 
 	/* Kill trailing spaces */
 	while ((n > 0) && (s[n-1] == ' ')) s[--n] = '\0';
@@ -2401,63 +2176,6 @@ void initialise_quests()
 
 
 /*
-* Get number of quest monsters for quest i
-* Heino Vander Sanden
-*/
-int get_number_monster(int i)
-{
-	int num;
-
-	if ((r_info[q_list[i].r_idx].flags1 & (RF1_UNIQUE)) ||
-		(r_info[q_list[i].r_idx].flags2 & (RF2_MULTIPLY)))
-		return (1);
-	else
-	{
-		if (r_info[q_list[i].r_idx].flags1 & (RF1_FRIENDS))
-			num = 10;
-		else
-			num = 5;
-
-		num += rand_range(1, (q_list[i].level / 3) + 5);
-		return (num);
-	}
-}
-
-/*
-* Get random monster
-* Heino Vander Sanden
-*/
-int get_rnd_q_monster(int q_idx)
-{
-	int r_idx,j,tmp;
-
-	tmp = rand_range(1,10);
-	/* first level 6 monster (87), last monster (573) */
-	switch (tmp)
-	{
-	case 1 : r_idx = rand_range(181,220); break;
-	case 2 : r_idx = rand_range(221,260); break;
-	case 3 : r_idx = rand_range(261,300); break;
-	case 4 : r_idx = rand_range(301,340); break;
-	case 5 : r_idx = rand_range(341,380); break;
-	case 6 : r_idx = rand_range(381,420); break;
-	case 7 : r_idx = rand_range(421,460); break;
-	case 8 : r_idx = rand_range(461,500); break;
-	case 9 : r_idx = rand_range(501,530); break;
-	case 10 : r_idx = rand_range(531,560); break;
-	default : r_idx = rand_range (87,573);
-	}
-	/* Don't allow multipliers to be random guardians */
-	if (r_info[r_idx].flags2 & (RF2_MULTIPLY)) return (0);
-	/* Don't allow duplicate guardians */
-	for (j = 2; j < q_idx; j++)
-	{
-		if (q_list[j].r_idx == r_idx) return (0);
-	}
-	return (r_idx);
-}
-
-/*
 * Clear all the global "character" data
 */
 static void player_wipe(void)
@@ -2577,120 +2295,74 @@ static void player_wipe(void)
  * In addition, he always has some food and a few torches.
  */
 
-static byte player_init[MAX_CLASS][3][3] =
+
+#define ANY            255
+#define ANY_BOOL_TRUE  254
+#define ANY_BOOL_FALSE 253
+
+birth_item birth_items[] =
 {
-	{
-		/* Warrior */
-	{ TV_RING, SV_RING_RES_FEAR , WORN }, /* Warriors need it! */
-	{ TV_SWORD, SV_BROAD_SWORD , WORN},
-	{ TV_HARD_ARMOR, SV_CHAIN_MAIL , WORN }
-	},
-	
-	{
-		/* Mage */
-	{ TV_BOOK_REALM1, 0 , CARRIED}, 
-	{ TV_SWORD, SV_DAGGER , WORN },
-	{ TV_BOOK_REALM2, 0 , CARRIED} 
-	},
-	
-	{
-		/* Priest */
-	{ TV_BOOK_REALM1, 0 , CARRIED}, 
-	{ TV_HAFTED, SV_MACE , WORN},
-	{ TV_BOOK_REALM2, 0 , CARRIED} 
-	},
-	
-	{
-		/* Rogue */
-	{ TV_BOOK_REALM1, 0 , CARRIED}, 
-	{ TV_SWORD, SV_DAGGER , WORN },
-	{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR , WORN }
-	},
-	
-	{
-		/* Ranger */
-	{ TV_NATURE_BOOK, 0 , CARRIED},
-	{ TV_SWORD, SV_BROAD_SWORD , WORN},
-	{ TV_BOOK_REALM2, 0 , CARRIED}  
-	},
-	
-	{
-		/* Paladin */
-	{ TV_BOOK_REALM1, 0 , CARRIED },
-	{ TV_SWORD, SV_BROAD_SWORD , WORN },
-	{ TV_SCROLL, SV_SCROLL_PROTECTION_FROM_EVIL , CARRIED }
-	},
-	
-	{
-		/* Warrior-Mage */
-	{ TV_BOOK_REALM1, 0 , CARRIED }, 
-	{ TV_SWORD, SV_SHORT_SWORD , WORN},
-	{ TV_BOOK_REALM2, 0 , WORN} 
-	},
-	
-	{
-		/* Hell Knight */
-	{ TV_BOOK_REALM1, 0 , CARRIED}, 
-	{ TV_SWORD, SV_BROAD_SWORD , WORN},
-	{ TV_HARD_ARMOR, SV_METAL_SCALE_MAIL , WORN }
-	},
-	
-	{
-		/* Mystic */
-	{ TV_BOOK_REALM1, 0 , CARRIED },
-	{ TV_POTION, SV_POTION_HEALING , CARRIED},
-	{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR , WORN},
-	},
-	
-	
-	{
-		/* Mindcrafter */
-	{ TV_SWORD, SV_SMALL_SWORD, WORN },
-	{ TV_POTION, SV_POTION_RESTORE_MANA , CARRIED},
-	{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR , WORN},
-	},
-	
-	{
-		/* High Mage */
-	{ TV_BOOK_REALM1, 0 , CARRIED}, 
-	{ TV_BOOK_REALM1, 1 , CARRIED}, 
-	{ TV_SWORD, SV_DAGGER , WORN}, 		
-	},
-	
-	{
-		/* Druid */
-	{TV_BOOK_REALM1,0 , CARRIED}, 
-	{ TV_HAFTED, SV_QUARTERSTAFF , WORN},
-	{TV_AMULET,SV_AMULET_BRILLIANCE , WORN},
-	},
-	
-	{
-		/* Warlock */
-	{ TV_BOOK_REALM1, 0 , CARRIED}, 
-	{ TV_RING, SV_RING_SUSTAIN_MIND , WORN },
-	{ TV_BOOK_REALM2, 0 , CARRIED} 
-	},
-	
+{ ANY, CLASS_WARRIOR      ,&reallyTRUE          ,TV_RING       ,SV_RING_RES_FEAR               ,WORN    ,1 ,1 },
+{ ANY, CLASS_WARRIOR      ,&reallyTRUE          ,TV_SWORD      ,SV_BROAD_SWORD                 ,WORN    ,1 ,1 },
+{ ANY, CLASS_WARRIOR      ,&reallyTRUE          ,TV_HARD_ARMOR ,SV_CHAIN_MAIL                  ,WORN    ,1 ,1 },	
+{ ANY, CLASS_MAGE         ,&reallyTRUE          ,TV_SWORD      ,SV_DAGGER                      ,WORN    ,1 ,1 },
+{ ANY, CLASS_PRIEST       ,&reallyTRUE          ,TV_HAFTED     ,SV_MACE                        ,WORN    ,1 ,1 },
+{ ANY, CLASS_ROGUE        ,&reallyTRUE          ,TV_SWORD      ,SV_DAGGER                      ,WORN    ,1 ,1 },
+{ ANY, CLASS_ROGUE        ,&reallyTRUE          ,TV_SOFT_ARMOR ,SV_SOFT_LEATHER_ARMOR          ,WORN    ,1 ,1 },
+{ ANY, CLASS_RANGER       ,&reallyTRUE          ,TV_SWORD      ,SV_BROAD_SWORD                 ,WORN    ,1 ,1 },	
+{ ANY, CLASS_PALADIN      ,&reallyTRUE          ,TV_SWORD      ,SV_BROAD_SWORD                 ,WORN    ,1 ,1 },
+{ ANY, CLASS_PALADIN      ,&reallyTRUE          ,TV_SCROLL     ,SV_SCROLL_PROTECTION_FROM_EVIL ,CARRIED ,1 ,1 },
+{ ANY, CLASS_WARRIOR_MAGE ,&reallyTRUE          ,TV_SWORD      ,SV_SHORT_SWORD                 ,WORN    ,1 ,1 },
+{ ANY, CLASS_HELL_KNIGHT  ,&reallyTRUE          ,TV_SWORD      ,SV_BROAD_SWORD                 ,WORN    ,1 ,1 },
+{ ANY, CLASS_HELL_KNIGHT  ,&reallyTRUE          ,TV_HARD_ARMOR ,SV_METAL_SCALE_MAIL            ,WORN    ,1 ,1 },
+{ ANY, CLASS_MYSTIC       ,&reallyTRUE          ,TV_POTION     ,SV_POTION_HEALING              ,CARRIED ,1 ,1 },
+{ ANY, CLASS_MYSTIC       ,&reallyTRUE          ,TV_SOFT_ARMOR ,SV_ROBE                        ,WORN    ,1 ,1 },
+{ ANY, CLASS_MINDCRAFTER  ,&reallyTRUE          ,TV_SWORD      ,SV_SMALL_SWORD                 ,WORN    ,1 ,1 },
+{ ANY, CLASS_MINDCRAFTER  ,&reallyTRUE          ,TV_POTION     ,SV_POTION_RESTORE_MANA         ,CARRIED ,1 ,1 },
+{ ANY, CLASS_MINDCRAFTER  ,&reallyTRUE          ,TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR          ,WORN    ,1 ,1 },
+{ ANY, CLASS_HIGH_MAGE    ,&reallyTRUE          ,TV_SWORD      ,SV_DAGGER                      ,WORN    ,1 ,1 },
+{ ANY, CLASS_HIGH_MAGE    ,&reallyTRUE          ,TV_BOOK_REALM1,1                              ,WORN    ,1 ,1 },
+{ ANY, CLASS_DRUID        ,&reallyTRUE          ,TV_HAFTED     ,SV_QUARTERSTAFF                ,WORN    ,1 ,1 },
+{ ANY, CLASS_DRUID        ,&reallyTRUE          ,TV_AMULET     ,SV_AMULET_BRILLIANCE           ,WORN    ,1 ,1 },
+{ ANY, CLASS_DRUID        ,&reallyTRUE          ,TV_RING       ,SV_RING_SUSTAIN_MIND           ,WORN    ,1 ,1 },
+{ ANY, ANY                ,&reallyTRUE          ,TV_SCROLL     ,SV_SCROLL_WORD_OF_RECALL       ,CARRIED ,1 ,1 },
+{ ANY, ANY                ,&reallyTRUE          ,TV_SCROLL     ,SV_SCROLL_TELEPORT             ,CARRIED ,2 ,3 },
+{ ANY, ANY_BOOL_TRUE      ,&(p_race.rations)    ,TV_FOOD       ,SV_FOOD_RATION                 ,CARRIED ,3 ,7 },
+{ ANY, ANY_BOOL_FALSE     ,&(p_race.rations)    ,TV_SCROLL     ,SV_SCROLL_SATISFY_HUNGER       ,CARRIED ,2 ,5 },
+{ ANY, ANY_BOOL_TRUE      ,&(p_race.hates_light),TV_SCROLL     ,SV_SCROLL_DARKNESS             ,CARRIED ,2 ,5 },
+{ ANY, ANY_BOOL_TRUE      ,&(p_race.hates_light),TV_SCROLL     ,SV_SCROLL_LIGHT                ,CARRIED ,3 ,7 },
+{ ANY, ANY_BOOL_FALSE     ,&(p_race.hates_light),TV_LITE       ,SV_LITE_LANTERN                ,WORN    ,1 ,1 },
 };
 
-
-static void player_give( byte tval , byte sval , byte number )
+static void player_outfit_helper( byte tval , byte sval, byte number , byte action )
 {
 	object_type	forge;
 	object_type	*q_ptr;
 	
 	/* Get local object */
 	q_ptr = &forge;
+	
+	/* Hack to initialize non-first spellbook of realm 1*/
+	if (tval == TV_BOOK_REALM1 && sval > 0 ) 
+		tval = TV_MIRACLES_BOOK + p_ptr->realm1 - 1;
+	
 	/*Prep the object with type and subtype*/
 	object_prep(q_ptr, lookup_kind(tval, sval));
+	
+	/* Hack for posion dagger */
+	if (tval == TV_SWORD && p_ptr->pclass == CLASS_ROGUE && p_ptr->realm1 == REALM_DEATH) 
+		q_ptr->name2 = EGO_BRAND_POIS;
+	
 	/*Set the amount*/
 	q_ptr->number = number;
 	/* Treat them as if storebought to prevent trigger-happy squelching*/
 	object_storebought(q_ptr);
-	/*Put them in inventory of player*/
-	(void)inven_carry(q_ptr, FALSE);
+	/*Carry or wear the item*/
+	if( action == CARRIED)
+		(void)inven_carry(q_ptr, FALSE);
+	else 
+		(void)outfit(q_ptr);
 }
-
 
 
 /*
@@ -2700,77 +2372,38 @@ static void player_give( byte tval , byte sval , byte number )
 */
 static void player_outfit(void)
 {
-	int i, tv, sv;
+	int i;
 
-	object_type	forge;
-	object_type	*q_ptr;
-	/*1 scroll of recall*/	
-	player_give(TV_SCROLL, SV_SCROLL_WORD_OF_RECALL, (byte)rand_range(1,1) ); 
-	/*2 or 3 scrolls of teleport */
-	player_give(TV_SCROLL, SV_SCROLL_TELEPORT, (byte)rand_range(2,3) ); 
+	/* Make sure first spellbooks is given */
+	if( p_ptr->realm1 )
+		/* Decided on which realm book, sval 0 , just 1 copy, carry in inventory */
+		player_outfit_helper( TV_MIRACLES_BOOK + p_ptr->realm1 - 1, 0 , 1 , CARRIED );
 
-	if (!rp_ptr->rations)
+	/* Make sure first spellbooks is given */
+	if( p_ptr->realm2 )
+		/* Decided on which realm book, sval 0 , just 1 copy, carry in inventory */
+		player_outfit_helper( TV_MIRACLES_BOOK + p_ptr->realm2 - 1, 0 , 1 , CARRIED );
+
+	/* Go over the birth items */
+	for( i = 0 ; i < N_ELEMENTS( birth_items ) ; i++ )
 	{
-		/* Give the player scrolls of satisfy hunger */
-		player_give(TV_SCROLL, SV_SCROLL_SATISFY_HUNGER, (byte)rand_range(2,5) ); 
-	}
-	else
-	{
-		/* Give the player some food */
-		player_give(TV_FOOD, SV_FOOD_RATION, (byte)rand_range(3, 7) ); 		
-	}
-
-	if (rp_ptr->hates_light)
-	{
-		/* Give the player scrolls of light, wtf?? */
-		player_give(TV_SCROLL, SV_SCROLL_LIGHT, (byte)rand_range(3,7) ); 
-		/* Give the player scrolls of DARKNESS! */
-		player_give(TV_SCROLL, SV_SCROLL_DARKNESS, (byte)rand_range(2,5) ); 		
-	}
-	else
-	{
-		/* Hack -- Give the player a lantern, hack because we force pval and outfit it  */
-		q_ptr = &forge;
-		object_prep(q_ptr, lookup_kind(TV_LITE, SV_LITE_LANTERN));
-		q_ptr->number = (char)rand_range(1,1);
-		q_ptr->pval = 15000;
-		object_storebought(q_ptr);
-		outfit( q_ptr );
-	}
-
-	/* Hack -- Give the player three useful objects */
-	for (i = 0; i < 3; i++)
-	{
-		/* Look up standard equipment */
-		tv = player_init[p_ptr->pclass][i][0];
-		sv = player_init[p_ptr->pclass][i][1];
-
-		/* Hack to initialize spellbook of realm 1*/
-		if (tv  == TV_BOOK_REALM1) 
-			tv = TV_MIRACLES_BOOK + p_ptr->realm1 - 1;
-		/* Hack to initialize spellbook of realm 2*/		
-		else if (tv == TV_BOOK_REALM2) 
-			tv = TV_MIRACLES_BOOK + p_ptr->realm2 - 1;
-		/* Fearless races do not need rings of res fear */
-		else if (tv == TV_RING && sv == SV_RING_RES_FEAR &&  rp_ptr->fearless  )
-			sv = SV_RING_SUSTAIN_BODY;
-
-		/* Get local object */
-		q_ptr = &forge;
-		/* Hack -- Give the player an object */
-		object_prep(q_ptr, lookup_kind(tv, sv));
-		/* Assassins begin the game with a poisoned dagger */
-		if (tv == TV_SWORD && p_ptr->pclass == CLASS_ROGUE && p_ptr->realm1 == REALM_DEATH) 
+		/* Make sure the race matches */
+		if( birth_items[i].prace == p_ptr->prace || birth_items[i].prace == ANY)
 		{
-			q_ptr->name2 = EGO_BRAND_POIS;
+			/* Make sure the class matches */
+			if( birth_items[i].pclass == p_ptr->pclass || birth_items[i].pclass >= MAX_CLASS )
+			{
+				/* Make sure the boolean matches */
+				if( *(birth_items[i].flag) == TRUE || ( *(birth_items[i].flag) == FALSE && birth_items[i].pclass == ANY_BOOL_FALSE ) )
+				{
+					/* Give the item */
+					player_outfit_helper( birth_items[i].tval,
+					                      birth_items[i].sval,
+					                      (byte)rand_range( birth_items[i].minimum , birth_items[i].maximum ),
+					                      birth_items[i].action );
+				}
+			}
 		}
-
-		object_storebought(q_ptr);
-		/*Carry or wear the item*/
-		if(player_init[p_ptr->pclass][i][2]==CARRIED)
-			(void)inven_carry(q_ptr, FALSE);
-		else 
-			(void)outfit(q_ptr);
 	}
 }
 
@@ -2779,109 +2412,52 @@ static void player_outfit(void)
  * Hack^2
  */
 void outfit(object_type *q_ptr)
-
 {
 	int slot;
 	object_type forge;
 	object_type *o_ptr;
 
 	o_ptr =q_ptr;
-	
+
 	/* Check the slot */
 	slot = wield_slot(o_ptr);
-	
+
 	/* Get local object */
 	q_ptr = &forge;
-	
+
 	/* Obtain local object */
 	object_copy(q_ptr, o_ptr);
-	
+
 	/* Modify quantity */
 	q_ptr->number = 1;
-	
+
 	/* Access the wield slot */
 	o_ptr = &inventory[slot];
-	
+
 	/* Wear the new stuff */
 	object_copy(o_ptr, q_ptr);
-	
+
 	/* Increase the weight */
 	total_weight += q_ptr->weight;
-	
+
 	/* Increment the equip counter by hand */
 	equip_cnt++;
-	
+
 	/* Recalculate bonuses */
 	p_ptr->update |= (PU_BONUS);
-	
+
 	/* Recalculate torch */
 	p_ptr->update |= (PU_TORCH);
-	
+
 	/* Recalculate mana */
 	p_ptr->update |= (PU_MANA);
-	
+
 	p_ptr->redraw |= (PR_EQUIPPY);
-	
+
 	/* Window stuff */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
 }
 
-
-
-/*
-* Generate the additional quests
-* Heino Vander Sanden, Jimmy De Laet, and Robert Ruehlmann
-*/
-void player_birth_quests(void)
-{
-	int i,j;
-	bool same_level;
-
-	/* Generate to MAX_Q_IDX with random quests */
-	j=0;
-	do
-	{
-		if(q_list[j].r_idx == 0) break;
-		j++;
-	} while (j < MAX_QUESTS);
-	if(j >= MAX_QUESTS) return; /* No room for random quests */
-	for (i=j; i<MAX_Q_IDX; i++)
-	{
-		do
-		{
-			same_level = FALSE;
-
-			/* Get a random monster */
-			do
-			{
-				q_list[i].r_idx = get_rnd_q_monster(i);
-			}
-			while (!q_list[i].r_idx);
-
-			/* Set the quest level to the level of the monster */
-			q_list[i].level = r_info[q_list[i].r_idx].level;
-
-			/* Quest monster at least 2 levels out of depth */
-			q_list[i].level -= rand_range(2, 3+(q_list[i].level / 6));
-
-			/* No 2 quests on the same level */
-			for (j = 0; j<i; j++)
-			{
-				if (q_list[i].level == q_list[j].level)
-				{
-					same_level = TRUE;
-					break;
-				}
-			}
-		}
-		while (same_level);
-
-		/* Make sure uniques aren't created outside their level */
-		if (r_info[q_list[i].r_idx].flags1 & RF1_UNIQUE) r_info[q_list[i].r_idx].flags1 |= RF1_ALWAYS_GUARD;
-
-		q_list[i].max_num = get_number_monster(i);
-	}
-}
 
 static bool navigate_birth_screen( int *choice, int min, int max, bool *done )
 {
@@ -2890,7 +2466,7 @@ static bool navigate_birth_screen( int *choice, int min, int max, bool *done )
 			
 	c = inkey();
 	if (c == 'Q') quit(NULL);
-	if (c == 'S') return (FALSE);		
+	if (c == 'S' || c == 's') return (FALSE);		
 	if (c == '*')
 	{
 		*choice = rand_range(0,max-1);
@@ -2919,17 +2495,23 @@ static void fill_birth_screen( char *title , int start , int end , int choice , 
 	int screen_width = 80;
 	int i;
 
+	/* Put title such as 'What's yer genus?" */
 	c_put_str(TERM_YELLOW, title, 5, ((screen_width-strlen(title))>>1) );
 	
+	/* Put the > for the chosen option, remove phantom >'s at the same time */
 	for(i=start;i<=end;i++)
 		c_put_str(TERM_L_BLUE, i==choice?">":" " , 8+i , 2 );
 
+	/* Put the options, the chosen option in L_BLUE, except if we dont want that list to be done here 
+	   We might want that when the calling function does a specialized printing of the list
+	*/
 	if(!nolist)
 	for(i=start;i<=end;i++)
 		c_put_str(i==choice?TERM_L_BLUE:TERM_L_WHITE, choices[i+offset], 8+i, 3);
 	
+	/* Blank out description space to remove phantom text */
 	for(i=0;i<COUNT_LINES;i++)
-		put_str( descriptions[i] , 8+i , 23 );
+		put_str( descriptions[i]==NULL?"                                                       ":descriptions[i] , 8+i , 23 );
 	
 	/* Put Hit Dice if they are known*/
 	if( mhp != 0 )
@@ -2960,377 +2542,57 @@ static void fill_birth_screen( char *title , int start , int end , int choice , 
 	put_str( buf , 6+COUNT_LINES , 23);
 	
 	/*Put the cursor next to the current choice for UI niceness*/
+	/* Except of course if this routine isnt putting the choices */
 	if(!nolist)
 		c_put_str( TERM_L_BLUE, choices[choice+offset], 8+choice, 3);
 }
 
 /*
-* Helper function for 'player_birth()'
-*
-* The delay may be reduced, but is recommended to keep players
-* from continuously rolling up characters, which can be VERY
-* expensive CPU wise.  And it cuts down on player stupidity.
-*/
-static bool player_birth_aux()
+ *  Set stats in random mode, stat1 is highest, stat2 second highest and stat3 third highest stat to roll for
+ *  I Have no clue whatsoever what the -9 lines are all about ;|
+ */
+static void fix_stat_limit( int mval[STAT_COUNT], byte stat1 , byte stat2 , byte stat3 )
 {
-	int i, j, k, m, v, choice;
-	int dir;
-	int mode = 0;
-	int a_offset, a_end;
+	/*Fix highest stat*/
+	stat_limit[stat1]=mval[stat1]-1;
+	if (stat_limit[stat1] > 18) stat_limit[stat1] -= 9;
+	/*Fix second highest stat*/
+	stat_limit[stat2]=mval[stat2]-2;
+	if (stat_limit[stat2] > 18) stat_limit[stat2] -= 9;
+	if (stat_limit[stat2] > 18) stat_limit[stat2] -= 9;
+	/*Fix third highest stat*/
+	stat_limit[stat3]=mval[stat3]-4;
+	if (stat_limit[stat3] > 18) stat_limit[stat3] -= 9;
+	if (stat_limit[stat3] > 18) stat_limit[stat3] -= 9;
+	if (stat_limit[stat3] > 18) stat_limit[stat3] -= 9;
+	if (stat_limit[stat3] > 18) stat_limit[stat3] -= 9;
+}
 
+
+/*
+ * Yeah, uh, this code here see got copy pasted by the previous author
+ * and since I didnt want to double maintain, and have a smaller codebase
+ * and have a smaller executable size, I put it here
+ * it doesnt do anything specific really, except being called twice
+ * hence the most original name '..._aux_aux'
+ * Sorry, Konijn
+ */
+
+static bool player_birth_aux_aux( bool autoroll , bool point_mod){
+	
+	int stat_counter;
+	int i;
 	bool flag = FALSE;
 	bool prev = FALSE;
-	bool quickstart = FALSE;
-	bool done = FALSE;
-
-	cptr str;
-	
-	char c;
-	int stat_counter;
-	
-	/* These vars were used for a) , one day they  might come back
-		int n;	char p2 = ')';
-	*/
-
+	int mode = 0;
 	char b1 = '[';
 	char b2 = ']';
+	char c;
 
-	char buf[80];
+	/* Clean up */
+	clear_from(10);
 
-	bool autoroll = FALSE;
-	bool point_mod = TRUE;
-
-	char inp[80];
-	
-	/* Yah, do me own centering logic, bad konijn! */
-	int screen_width = 80;
-	s16b zero_stats[] = {0,0,0,0,0,0};
-
-	/*** Intro ***/
-	
-	/* Clear screen */
-	Term_clear();
-	
-	choice = 0;
-	
-	do_cmd_load_screen( ANGBAND_DIR_FILE ,  "birth.txt" );
-	
-	/* Choose a sex*/
-	while (1)
-	{
-		
-		c_put_str(TERM_YELLOW, "Will you be a Lady or a Gentleman ?", 5, 22);
-
-		for(i=0;i<COUNT_SEXES;i++)
-			c_put_str(TERM_L_BLUE, i==choice?">":" " , 8+i , 2 );
-		
-		for(i=0;i<COUNT_SEXES;i++)
-			c_put_str(i==choice?TERM_L_BLUE:TERM_L_WHITE, sexes_strings[i], 8+i, 3);
-		
-		for(i=0;i<COUNT_LINES;i++)
-			put_str( sexes_descriptions[choice][i] , 8+i , 23 );
-		
-		c = inkey();
-		if (c == 'Q') quit(NULL);
-		if (c == 'S')
-		{
-			quickstart = TRUE;
-			break;
-		}
-		if (c == '*')
-		{
-			choice = rand_range(0,1);
-			break;
-		}
-		if (c == '?') do_cmd_help(syshelpfile_birth);
-		if (c == '=')
-		{
-			Term_save();
-			do_cmd_options_aux(7,"Startup Options");
-			Term_load();
-		}
-		if( ( c== ' ') || (c == '\n') || (c == '\r') ) break;	
-		/* Look up the direction */
-		dir = get_keymap_dir(c);
-		if(dir==2 || c=='2')
-			choice=choice+1==COUNT_SEXES?0:choice+1;
-		if(dir==8 || c=='8')
-			choice=choice==0?COUNT_SEXES-1:choice-1;
-		else bell();
-	}		
-
-	if (quickstart)
-	{
-		msg_print("Autoroller disabled for now. ( Quitting ) ");
-		msg_print( NULL);		
-		quit(NULL);
-		
-		/*** Player sex ***/
-		/* Set sex */
-		p_ptr->psex =(char)rand_range(0,1);
-		sp_ptr = &sex_info[p_ptr->psex];
-		str = sp_ptr->title;
-		/* Display */
-		c_put_str(TERM_L_BLUE, str, 3, 15);
-
-		/*** Player race ***/
-		/* Set race */
-		k=rand_range(0,COUNT_RACES-1);
-		hack_corruption = FALSE;
-		if (k==DEVILSPAWN) hack_corruption = TRUE;
-		p_ptr->prace = k;
-		rp_ptr = &race_info[p_ptr->prace];
-		str = rp_ptr->title;
-		/* Display */
-		/*c_put_str(TERM_L_BLUE, str, 4, 15);*/
-		/*** Player class ***/
-		while(1)
-		{
-			p_ptr->pclass = (char)rand_range(0,MAX_CLASS-1);
-			/* Analyze */
-			cp_ptr = &class_info[p_ptr->pclass];
-			mp_ptr = &realms_info[p_ptr->pclass];
-			str = class_sub_name[p_ptr->pclass][p_ptr->realm1];
-
-			if (rp_ptr->choice & (1L << p_ptr->pclass )) break;
-		}
-		/* Display */
-		/*c_put_str(TERM_L_BLUE, class_sub_name[p_ptr->pclass][p_ptr->realm1], 5, 15);*/
-
-
-		/* Get a random name */
-		create_random_name(p_ptr->prace,player_name);
-		/* Display */
-		c_put_str(TERM_L_BLUE, player_name, 2, 13);
-
-		get_realms_randomly();
-
-		if(p_ptr->realm1)
-		{
-			if(p_ptr->realm2)
-			{
-				sprintf(buf,"%s/%s",realm_names[p_ptr->realm1],realm_names[p_ptr->realm2]);
-			}
-			else
-			{
-				sprintf(buf,"%s",realm_names[p_ptr->realm1]);
-			}
-		}
-
-		/*if (p_ptr->realm1 || p_ptr->realm2) put_str("Magic       :", 6, 1); */
-		/*if (p_ptr->realm1) c_put_str(TERM_L_BLUE, buf,6,15); */
-
-		/* Generate quests */
-		/* Set max number of quest */
-		/*MAX_Q_IDX =randint(20)+10; 
-		if ( MAX_Q_IDX > MAX_QUESTS )
-		{
-			
-		}
-		*/
-		MAX_Q_IDX = MAX_QUESTS;
-		initialise_quests();
-		/*player_birth_quests();*/
-
-#ifdef ALLOW_AUTOROLLER
-		/* Set "autoroll" */
-		autoroll = TRUE;
-		/* Initialize */
-		if (autoroll)
-		{
-			int mval[STAT_COUNT];
-			/* Clear fields */
-			auto_round = 0L;
-			last_round = 0L;
-			/* Clean up */
-			clear_from(10);
-			/* Prompt for the minimum stats */
-			put_str("Enter minimums for: ", 8, 3);
-			/* Output the maximum stats */
-			for (i = 0; i < STAT_COUNT; i++)
-			{
-				/* Reset the "success" counter */
-				stat_match[i] = 0;
-				/* Race/Class bonus */
-				j = rp_ptr->r_adj[i] + cp_ptr->c_adj[i];
-				/* Obtain the "maximal" stat */
-				m = adjust_stat(17, (s16b)j, TRUE);
-				/* Save the maximum */
-				mval[i] = m;
-			}
-			/* Hack in the minimum stats */
-			for (i = 0; i < STAT_COUNT; i++)
-			{
-				stat_limit[i] = 0;
-			}
-			/* Save the minimum stat depending on class */
-			switch(p_ptr->pclass)
-			{
-			case CLASS_WARRIOR:
-				stat_limit[A_STR]=mval[A_STR]-1;
-				if (stat_limit[A_STR] > 18) stat_limit[A_STR] -= 9;
-				stat_limit[A_CON]=mval[A_CON]-2;
-				if (stat_limit[A_CON] > 18) stat_limit[A_CON] -= 9;
-				if (stat_limit[A_CON] > 18) stat_limit[A_CON] -= 9;
-				stat_limit[A_DEX]=mval[A_DEX]-4;
-				if (stat_limit[A_DEX] > 18) stat_limit[A_DEX] -= 9;
-				if (stat_limit[A_DEX] > 18) stat_limit[A_DEX] -= 9;
-				if (stat_limit[A_DEX] > 18) stat_limit[A_DEX] -= 9;
-				if (stat_limit[A_DEX] > 18) stat_limit[A_DEX] -= 9;
-				break;
-			case CLASS_MAGE:
-				stat_limit[A_INT]=mval[A_INT]-1;
-				if (stat_limit[A_INT] > 18) stat_limit[A_INT] -= 9;
-				stat_limit[A_DEX]=mval[A_DEX]-2;
-				if (stat_limit[A_DEX] > 18) stat_limit[A_DEX] -= 9;
-				if (stat_limit[A_DEX] > 18) stat_limit[A_DEX] -= 9;
-				stat_limit[A_CON]=mval[A_CON]-4;
-				if (stat_limit[A_CON] > 18) stat_limit[A_CON] -= 9;
-				if (stat_limit[A_CON] > 18) stat_limit[A_CON] -= 9;
-				if (stat_limit[A_CON] > 18) stat_limit[A_CON] -= 9;
-				if (stat_limit[A_CON] > 18) stat_limit[A_CON] -= 9;
-				break;
-			case CLASS_PRIEST:
-				stat_limit[A_WIS]=mval[A_WIS]-1;
-				if (stat_limit[A_WIS] > 18) stat_limit[A_WIS] -= 9;
-				stat_limit[A_CHA]=mval[A_CHA]-2;
-				if (stat_limit[A_CHA] > 18) stat_limit[A_CHA] -= 9;
-				if (stat_limit[A_CHA] > 18) stat_limit[A_CHA] -= 9;
-				stat_limit[A_CON]=mval[A_CON]-4;
-				if (stat_limit[A_CON] > 18) stat_limit[A_CON] -= 9;
-				if (stat_limit[A_CON] > 18) stat_limit[A_CON] -= 9;
-				if (stat_limit[A_CON] > 18) stat_limit[A_CON] -= 9;
-				if (stat_limit[A_CON] > 18) stat_limit[A_CON] -= 9;
-				break;
-			case CLASS_ROGUE:
-				stat_limit[A_DEX]=mval[A_DEX]-1;
-				if (stat_limit[A_DEX] > 18) stat_limit[A_DEX] -= 9;
-				stat_limit[A_INT]=mval[A_INT]-2;
-				if (stat_limit[A_INT] > 18) stat_limit[A_INT] -= 9;
-				if (stat_limit[A_INT] > 18) stat_limit[A_INT] -= 9;
-				stat_limit[A_STR]=mval[A_STR]-4;
-				if (stat_limit[A_STR] > 18) stat_limit[A_STR] -= 9;
-				if (stat_limit[A_STR] > 18) stat_limit[A_STR] -= 9;
-				if (stat_limit[A_STR] > 18) stat_limit[A_STR] -= 9;
-				if (stat_limit[A_STR] > 18) stat_limit[A_STR] -= 9;
-				break;
-			case CLASS_RANGER:
-				stat_limit[A_CON]=mval[A_CON]-1;
-				if (stat_limit[A_CON] > 18) stat_limit[A_CON] -= 9;
-				stat_limit[A_INT]=mval[A_INT]-2;
-				if (stat_limit[A_INT] > 18) stat_limit[A_INT] -= 9;
-				if (stat_limit[A_INT] > 18) stat_limit[A_INT] -= 9;
-				stat_limit[A_STR]=mval[A_STR]-4;
-				if (stat_limit[A_STR] > 18) stat_limit[A_STR] -= 9;
-				if (stat_limit[A_STR] > 18) stat_limit[A_STR] -= 9;
-				if (stat_limit[A_STR] > 18) stat_limit[A_STR] -= 9;
-				if (stat_limit[A_STR] > 18) stat_limit[A_STR] -= 9;
-				break;
-			case CLASS_PALADIN:
-				stat_limit[A_STR]=mval[A_STR]-1;
-				if (stat_limit[A_STR] > 18) stat_limit[A_STR] -= 9;
-				stat_limit[A_WIS]=mval[A_WIS]-2;
-				if (stat_limit[A_WIS] > 18) stat_limit[A_WIS] -= 9;
-				if (stat_limit[A_WIS] > 18) stat_limit[A_WIS] -= 9;
-				stat_limit[A_CON]=mval[A_CON]-4;
-				if (stat_limit[A_CON] > 18) stat_limit[A_CON] -= 9;
-				if (stat_limit[A_CON] > 18) stat_limit[A_CON] -= 9;
-				if (stat_limit[A_CON] > 18) stat_limit[A_CON] -= 9;
-				if (stat_limit[A_CON] > 18) stat_limit[A_CON] -= 9;
-				break;
-			case CLASS_WARRIOR_MAGE:
-				stat_limit[A_CON]=mval[A_CON]-1;
-				if (stat_limit[A_CON] > 18) stat_limit[A_CON] -= 9;
-				stat_limit[A_INT]=mval[A_INT]-2;
-				if (stat_limit[A_INT] > 18) stat_limit[A_INT] -= 9;
-				if (stat_limit[A_INT] > 18) stat_limit[A_INT] -= 9;
-				stat_limit[A_DEX]=mval[A_DEX]-4;
-				if (stat_limit[A_DEX] > 18) stat_limit[A_DEX] -= 9;
-				if (stat_limit[A_DEX] > 18) stat_limit[A_DEX] -= 9;
-				if (stat_limit[A_DEX] > 18) stat_limit[A_DEX] -= 9;
-				if (stat_limit[A_DEX] > 18) stat_limit[A_DEX] -= 9;
-				break;
-			case CLASS_HELL_KNIGHT:
-				stat_limit[A_STR]=mval[A_STR]-1;
-				if (stat_limit[A_STR] > 18) stat_limit[A_STR] -= 9;
-				stat_limit[A_INT]=mval[A_INT]-2;
-				if (stat_limit[A_INT] > 18) stat_limit[A_INT] -= 9;
-				if (stat_limit[A_INT] > 18) stat_limit[A_INT] -= 9;
-				stat_limit[A_CON]=mval[A_CON]-4;
-				if (stat_limit[A_CON] > 18) stat_limit[A_CON] -= 9;
-				if (stat_limit[A_CON] > 18) stat_limit[A_CON] -= 9;
-				if (stat_limit[A_CON] > 18) stat_limit[A_CON] -= 9;
-				if (stat_limit[A_CON] > 18) stat_limit[A_CON] -= 9;
-				break;
-			case CLASS_MYSTIC:
-				stat_limit[A_DEX]=mval[A_DEX]-1;
-				if (stat_limit[A_DEX] > 18) stat_limit[A_DEX] -= 9;
-				stat_limit[A_WIS]=mval[A_WIS]-2;
-				if (stat_limit[A_WIS] > 18) stat_limit[A_WIS] -= 9;
-				if (stat_limit[A_WIS] > 18) stat_limit[A_WIS] -= 9;
-				stat_limit[A_CON]=mval[A_CON]-4;
-				if (stat_limit[A_CON] > 18) stat_limit[A_CON] -= 9;
-				if (stat_limit[A_CON] > 18) stat_limit[A_CON] -= 9;
-				if (stat_limit[A_CON] > 18) stat_limit[A_CON] -= 9;
-				if (stat_limit[A_CON] > 18) stat_limit[A_CON] -= 9;
-				break;
-			case CLASS_MINDCRAFTER:
-				stat_limit[A_WIS]=mval[A_WIS]-1;
-				if (stat_limit[A_WIS] > 18) stat_limit[A_WIS] -= 9;
-				stat_limit[A_CON]=mval[A_CON]-2;
-				if (stat_limit[A_CON] > 18) stat_limit[A_CON] -= 9;
-				if (stat_limit[A_CON] > 18) stat_limit[A_CON] -= 9;
-				stat_limit[A_DEX]=mval[A_DEX]-4;
-				if (stat_limit[A_DEX] > 18) stat_limit[A_DEX] -= 9;
-				if (stat_limit[A_DEX] > 18) stat_limit[A_DEX] -= 9;
-				if (stat_limit[A_DEX] > 18) stat_limit[A_DEX] -= 9;
-				if (stat_limit[A_DEX] > 18) stat_limit[A_DEX] -= 9;
-				break;
-			case CLASS_HIGH_MAGE:
-				stat_limit[A_INT]=mval[A_INT]-1;
-				if (stat_limit[A_INT] > 18) stat_limit[A_INT] -= 9;
-				stat_limit[A_CON]=mval[A_CON]-2;
-				if (stat_limit[A_CON] > 18) stat_limit[A_CON] -= 9;
-				if (stat_limit[A_CON] > 18) stat_limit[A_CON] -= 9;
-				stat_limit[A_DEX]=mval[A_DEX]-4;
-				if (stat_limit[A_DEX] > 18) stat_limit[A_DEX] -= 9;
-				if (stat_limit[A_DEX] > 18) stat_limit[A_DEX] -= 9;
-				if (stat_limit[A_DEX] > 18) stat_limit[A_DEX] -= 9;
-				if (stat_limit[A_DEX] > 18) stat_limit[A_DEX] -= 9;
-				break;
-			case CLASS_DRUID:
-				stat_limit[A_WIS]=mval[A_WIS]-1;
-				if (stat_limit[A_WIS] > 18) stat_limit[A_WIS] -= 9;
-				stat_limit[A_CHA]=mval[A_CHA]-2;
-				if (stat_limit[A_CHA] > 18) stat_limit[A_CHA] -= 9;
-				if (stat_limit[A_CHA] > 18) stat_limit[A_CHA] -= 9;
-				stat_limit[A_CON]=mval[A_CON]-4;
-				if (stat_limit[A_CON] > 18) stat_limit[A_CON] -= 9;
-				if (stat_limit[A_CON] > 18) stat_limit[A_CON] -= 9;
-				if (stat_limit[A_CON] > 18) stat_limit[A_CON] -= 9;
-				if (stat_limit[A_CON] > 18) stat_limit[A_CON] -= 9;
-				break;
-			case CLASS_WARLOCK:
-				stat_limit[A_INT]=mval[A_INT]-1;
-				if (stat_limit[A_INT] > 18) stat_limit[A_INT] -= 9;
-				stat_limit[A_CON]=mval[A_CON]-2;
-				if (stat_limit[A_CON] > 18) stat_limit[A_CON] -= 9;
-				if (stat_limit[A_CON] > 18) stat_limit[A_CON] -= 9;
-				stat_limit[A_DEX]=mval[A_DEX]-4;
-				if (stat_limit[A_DEX] > 18) stat_limit[A_DEX] -= 9;
-				if (stat_limit[A_DEX] > 18) stat_limit[A_DEX] -= 9;
-				if (stat_limit[A_DEX] > 18) stat_limit[A_DEX] -= 9;
-				if (stat_limit[A_DEX] > 18) stat_limit[A_DEX] -= 9;
-				break;
-			}
-		}
-
-#endif /* ALLOW_AUTOROLLER */
-
-		/* Clean up */
-		clear_from(10);
-
-		/*** Generate ***/
+	/*** Generate ***/
 
 		/* Roll */
 		while (TRUE)
@@ -3369,7 +2631,19 @@ static bool player_birth_aux()
 			else
 			{
 				/* Get a new character */
-				get_stats();
+				if (point_mod)
+				{
+					for(i=0;i<STAT_COUNT;i++)
+					{
+						p_ptr->stat_cur[i] = p_ptr->stat_max[i] = 8;
+					}
+					point_mod_player();  
+				}
+				else
+				{
+					/* Get a new character */
+					get_stats();
+				}
 			}
 
 			/* Auto-roll */
@@ -3431,13 +2705,13 @@ static bool player_birth_aux()
 				}
 			}
 
+			/* Get a random name, again, for extra coolness */
+			create_random_name(p_ptr->prace , p_ptr->psex , player_name);
+
 			/* Flush input */
 			flush();
 
-
-			/*** Display ***/
-
-			/* Mode */
+			/* Display Mode */
 			mode = 0;
 
 			/* Roll for base hitpoints */
@@ -3454,10 +2728,14 @@ static bool player_birth_aux()
 
 			/* Hack -- get a chaos patron even if you are not a Hell Knight */
 			p_ptr->evil_patron = (randint(MAX_PATRON)) - 1;
-
+			
+			/*Clear all mutations*/
 			p_ptr->muta1 = 0;
 			p_ptr->muta2 = 0;
 			p_ptr->muta3 = 0;
+
+			/* Player is ready to move... */
+			p_ptr->energy=1000;
 
 			/* Player has no recal ritual yet */
 			p_ptr->ritual = 0;
@@ -3498,7 +2776,11 @@ static bool player_birth_aux()
 				if (c == 'Q') quit(NULL);
 
 				/* Start over */
-				if (c == 'S') return (FALSE);
+				if (c == 'S' || c == 's'){
+					/* If we restart at this point, then the player will want to re-choose stats most likely */
+					points_decided = 0;
+					return (FALSE);
+				}
 
 				/* Escape accepts the roll */
 				if (c == ESCAPE) break;
@@ -3544,13 +2826,10 @@ static bool player_birth_aux()
 		/* Clear prompt */
 		clear_from(23);
 
-
 		/*** Finish up ***/
 
 		/* Allow name to be edited, recolour it, prepare savefile */
-
 		get_name();
-
 
 		/* Prompt for it */
 		prt("['Q' to suicide, 'S' to start over, or ESC to continue]", 23, 10);
@@ -3562,9 +2841,200 @@ static bool player_birth_aux()
 		if (c == 'Q') quit(NULL);
 
 		/* Start over */
-		if (c == 'S') return (FALSE);
+		if (c == 'S' || c == 's') return (FALSE);
 
 		/* Accept */
+		return (TRUE);
+
+}
+
+/*
+* Helper function for 'player_birth()'
+*
+* The delay may be reduced, but is recommended to keep players
+* from continuously rolling up characters, which can be VERY
+* expensive CPU wise.  And it cuts down on player stupidity.
+*/
+static bool player_birth_aux()
+{
+	int i, j, m, v, choice;
+	int dir;
+	//int mode = 0;
+	int a_offset, a_end;
+
+	//bool flag = FALSE;
+	//bool prev = FALSE;
+	bool quickstart = FALSE;
+	bool done = FALSE;
+
+	cptr str;
+	
+	char c;
+	//int stat_counter;
+	
+	/* These vars were used for a) , one day they  might come back
+		int n;	char p2 = ')';
+	*/
+
+	//char b1 = '[';
+	//char b2 = ']';
+
+	char buf[80];
+
+	bool autoroll = FALSE;
+	bool point_mod = TRUE;
+
+	char inp[80];
+	
+	/* Yah, do me own centering logic, bad konijn! */
+	int screen_width = 80;
+	s16b zero_stats[] = {0,0,0,0,0,0};
+
+	/*** Intro ***/
+	
+	/* Clear screen */
+	Term_clear();
+	
+	choice = 0;
+	
+	do_cmd_load_screen( ANGBAND_DIR_FILE ,  "birth.txt" );
+	
+	/* Choose a sex*/
+	while (1)
+	{
+		
+		c_put_str(TERM_YELLOW, "Will you be a Lady or a Gentleman ?", 5, 22);
+
+		for(i=0;i<COUNT_SEXES;i++)
+			c_put_str(TERM_L_BLUE, i==choice?">":" " , 8+i , 2 );
+		
+		for(i=0;i<COUNT_SEXES;i++)
+			c_put_str(i==choice?TERM_L_BLUE:TERM_L_WHITE, sexes_strings[i], 8+i, 3);
+		
+		for(i=0;i<COUNT_LINES;i++)
+			put_str( sexes_descriptions[choice][i]==NULL?"":sexes_descriptions[choice][i] , 8+i , 23 );
+		
+		c = inkey();
+		if (c == 'Q') quit(NULL);
+		if (c == 'S' || c == 's')
+		{
+			quickstart = TRUE;
+			break;
+		}
+		if (c == '*')
+		{
+			choice = rand_range(0,1);
+			break;
+		}
+		if (c == '?') do_cmd_help(syshelpfile_birth);
+		if (c == '=')
+		{
+			Term_save();
+			do_cmd_options_aux(7,"Startup Options");
+			Term_load();
+		}
+		if( ( c== ' ') || (c == '\n') || (c == '\r') ) break;	
+		/* Look up the direction */
+		dir = get_keymap_dir(c);
+		if(dir==2 || c=='2')
+			choice=choice+1==COUNT_SEXES?0:choice+1;
+		if(dir==8 || c=='8')
+			choice=choice==0?COUNT_SEXES-1:choice-1;
+		else bell();
+	}		
+
+	if (quickstart)
+	{
+		/* Set sex */
+		p_ptr->psex = (char)rand_range(0,1);
+		sp_ptr = &sex_info[p_ptr->psex];
+		str = sp_ptr->title;
+
+		/*** Player race ***/
+		while(1)
+		{
+			p_ptr->prace = (char)rand_range(0,COUNT_SUBRACES-1);
+			hack_corruption = FALSE;
+			if (p_ptr->prace==DEVILSPAWN) hack_corruption = TRUE;
+			/*rp_ptr = &race_info[p_ptr->prace];*/
+			p_race = race_info[p_ptr->prace];
+			if( p_ptr->prace < AFFLICTED )
+			{
+				p_ptr->psign = (char)rand_range(0,COUNT_SIGNS-1);
+				bsp_ptr = &sign_info[p_ptr->psign];				
+			}
+			if( p_ptr->prace != HUMAN && p_ptr->prace != AFFLICTED ) break;
+		}
+
+		/*** Player class ***/
+		while(1)
+		{
+			p_ptr->pclass = (char)rand_range(0,MAX_CLASS-1);
+			/* Analyze */
+			cp_ptr = &class_info[p_ptr->pclass];
+			mp_ptr = &realms_info[p_ptr->pclass];
+			str = class_sub_name[p_ptr->pclass][p_ptr->realm1];
+			/*Should be an authorized class*/
+			if (rp_ptr->choice & (1L << p_ptr->pclass )) break;
+		}
+
+		/* Get a random name */
+		create_random_name(p_ptr->prace , p_ptr->psex , player_name);
+		/* Get random realms */
+		get_realms_randomly();
+		/* Initialize quests */
+		MAX_Q_IDX = MAX_QUESTS;
+		initialise_quests();
+
+#ifndef FORBID_AUTOROLLER
+		/* Set "autoroll" */
+		autoroll = TRUE;
+		/* Initialize */
+		if (autoroll)
+		{
+			int mval[STAT_COUNT]; 
+			/* Clear fields */
+			auto_round = 0L;
+			last_round = 0L;
+			for (i = 0; i < STAT_COUNT; i++)
+			{
+				/* Reset the "success" counter */
+				stat_match[i] = 0;
+				/* Race/Class bonus */
+				j = rp_ptr->r_adj[i] + cp_ptr->c_adj[i];
+				/* Obtain the "maximal" stat */
+				m = adjust_stat(17, (s16b)j, TRUE);
+				/* Save the maximum */
+				mval[i] = m;
+			}
+			/* Hack in the minimum stats */
+			for (i = 0; i < STAT_COUNT; i++)
+			{
+				stat_limit[i] = 0;
+			}
+			/* Save the minimum stat depending on class */
+			switch(p_ptr->pclass)
+			{
+				case CLASS_WARRIOR:      fix_stat_limit( mval, A_STR , A_CON , A_DEX );break;
+				case CLASS_MAGE:         fix_stat_limit( mval, A_INT , A_CON , A_STR );break;
+				case CLASS_PRIEST:       fix_stat_limit( mval, A_WIS , A_CON , A_STR );break;
+				case CLASS_ROGUE:        fix_stat_limit( mval, A_DEX , A_INT , A_CON );break;
+				case CLASS_RANGER:       fix_stat_limit( mval, A_CON , A_DEX , A_INT );break;
+				case CLASS_PALADIN:      fix_stat_limit( mval, A_STR , A_WIS , A_CON );break;
+				case CLASS_WARRIOR_MAGE: fix_stat_limit( mval, A_STR , A_INT , A_CON );break;
+				case CLASS_HELL_KNIGHT:  fix_stat_limit( mval, A_STR , A_INT , A_CON );break;
+				case CLASS_MYSTIC:       fix_stat_limit( mval, A_DEX , A_WIS , A_CON );break;
+				case CLASS_MINDCRAFTER:  fix_stat_limit( mval, A_WIS , A_CON , A_DEX );break;
+				case CLASS_HIGH_MAGE:    fix_stat_limit( mval, A_INT , A_CON , A_STR );break;
+				case CLASS_DRUID:        fix_stat_limit( mval, A_WIS , A_CHA , A_CON );break;
+				case CLASS_WARLOCK:      fix_stat_limit( mval, A_INT , A_CON , A_DEX );break;
+			}
+		}
+
+#endif /* ALLOW_AUTOROLLER */
+
+		return player_birth_aux_aux( autoroll, FALSE );
+
 	}
 	else /* Interactive character */
 	{
@@ -3629,10 +3099,10 @@ static bool player_birth_aux()
 			str = sp_ptr->address;
 		}
 		
-		if( ( choice==LEPRECHAUN ) && p_ptr->psex == LADY )
+		if( ( choice==LEPRECHAUN || choice==LEPRECHAUN || choice==TITAN ) && p_ptr->psex == LADY )
 		{
 			/*No cross dressing in my game ;)*/
-			msg_note("Hellband does not support leprechaun cross-dressers.");	
+			msg_note("Hellband does not support cross-dressers.");	
 			/* Set sex */
 			p_ptr->psex = GENTLEMAN;
 			/* Get sex into a string */
@@ -3700,11 +3170,15 @@ static bool player_birth_aux()
 
 		/* Set race */
 		hack_corruption = FALSE;
-		rp_ptr = &race_info[p_ptr->prace];
+		/* rp_ptr = &race_info[p_ptr->prace]; */
+		p_race = race_info[p_ptr->prace];
 		if (p_ptr->prace==DEVILSPAWN) hack_corruption= TRUE;	
 		
-		/* Get a random name now we have a race*/
-		create_random_name(p_ptr->prace,player_name);
+		/* Get a random name now we have a race and a genus*/
+		create_random_name(p_ptr->prace , p_ptr->psex , player_name);
+		
+		/* Roll for age/height/weight now that we have a race and a genus*/
+		get_ahw();
 
 		/* Choose specific class, set initial choice to 0, set up loop flag */
 		choice = 0;
@@ -3712,13 +3186,12 @@ static bool player_birth_aux()
 		/* Load new birth screen with restart option ( yah, a waste of bytes, but also it guarantees a clean screen */	
 		do_cmd_load_screen( ANGBAND_DIR_FILE ,  "birth2.txt" );	
 
-		/*Set up screen title*/
-		sprintf(buf,"What is your vocation, %s?",  str);
-		
 		while (!done)
 		{
 			/*Use helper variable to pass along class info*/
-			cp_ptr = &class_info[choice];			
+			cp_ptr = &class_info[choice];
+			/*Set up screen title, because of silly double use of buf */
+			sprintf(buf,"What is your vocation, %s?",  str);			
 			/* Set up screen*/
 			fill_birth_screen( buf , 0 , MAX_CLASS-1 , choice , 0 , NULL, classes_descriptions[choice], cp_ptr->c_mhp, cp_ptr->c_exp, cp_ptr->c_adj , TRUE, TRUE );
 			/* Show classes , with braces if they are not advised */
@@ -3770,32 +3243,23 @@ static bool player_birth_aux()
 		{
 			if(p_ptr->realm2)
 			{
-				sprintf(buf,"%s/%s",realm_names[p_ptr->realm1],realm_names[p_ptr->realm2]);
+				sprintf(buf,"%s/%s",realm_names[p_ptr->realm1].name,realm_names[p_ptr->realm2].name);
 			}
 			else
 			{
-				sprintf(buf,"%s",realm_names[p_ptr->realm1]);
+				sprintf(buf,"%s",realm_names[p_ptr->realm1].name);
 			}
 		}
-
-		/*if (p_ptr->realm1 || p_ptr->realm2) put_str("Magic       :", 6, 1);*/
-		/*if (p_ptr->realm1) c_put_str(TERM_L_BLUE, buf,6,15);*/
 
 		/* Clear */
 		clear_from(15);
 
-
-		/* Generate quests */
-		/* Set max number of quest */
-		/*MAX_Q_IDX =randint(20)+10;*/
 		MAX_Q_IDX = MAX_QUESTS;
-		/*player_birth_quests();*/
-        initialise_quests();
+		initialise_quests();
 
-#ifdef ALLOW_AUTOROLLER
+#ifndef FORBID_AUTOROLLER
 
 		/*** Autoroll ***/
-
 
 		/* Set "autoroll" and "point_mod" */
 		autoroll = use_autoroller;
@@ -3882,264 +3346,10 @@ static bool player_birth_aux()
 
 #endif /* ALLOW_AUTOROLLER */
 
-		/* Clean up */
-		clear_from(10);
-
-
-		/*** Generate ***/
-
-		/* Roll */
-		while (TRUE)
-		{
-			/* Feedback */
-			if (autoroll)
-			{
-				Term_clear();
-
-				put_str("Name        :", 2, 1);
-				put_str("Sex         :", 3, 1);
-				put_str("Race        :", 4, 1);
-				put_str("Class       :", 5, 1);
-
-				c_put_str(TERM_L_BLUE, player_name, 2, 15);
-				c_put_str(TERM_L_BLUE, sp_ptr->title, 3, 15);
-				c_put_str(TERM_L_BLUE, rp_ptr->title, 4, 15);
-				c_put_str(TERM_L_BLUE, cp_ptr->title, 5, 15);
-
-				/* Label stats */
-				for( stat_counter = 0 ; stat_counter < STAT_COUNT ; stat_counter++ )
-					put_str( stat_names[stat_counter] , 2 + stat_counter , 61 );
-
-				/* Note when we started */
-				last_round = auto_round;
-
-				/* Indicate the state */
-				put_str("(Hit ESC to abort)", 11, 61);
-
-				/* Label count */
-				put_str("Round:", 9, 61);
-			}
-
-			/* Otherwise just get a character */
-			else
-			{
-				/* Get a new character */
-				if (point_mod)
-				{
-					for(i=0;i<STAT_COUNT;i++)
-					{
-						p_ptr->stat_cur[i] = p_ptr->stat_max[i] = 8;
-					}
-					point_mod_player();  
-				}
-				else
-				{
-					get_stats();
-				}
-			}
-
-			/* Auto-roll */
-			while (autoroll)
-			{
-				bool accept = TRUE;
-
-				/* Get a new character */
-				get_stats();
-
-				/* Advance the round */
-				auto_round++;
-
-				/* Hack -- Prevent overflow */
-				if (auto_round >= 1000000L) break;
-
-				/* Check and count acceptable stats */
-				for (i = 0; i < STAT_COUNT; i++)
-				{
-					/* This stat is okay */
-					if (stat_use[i] >= stat_limit[i])
-					{
-						stat_match[i]++;
-					}
-
-					/* This stat is not okay */
-					else
-					{
-						accept = FALSE;
-					}
-				}
-
-				/* Break if "happy" */
-				if (accept) break;
-
-				/* Take note every 25 rolls */
-				flag = (!(auto_round % 25L));
-
-				/* Update display occasionally */
-				if (flag || (auto_round < last_round + 100))
-				{
-					/* Dump data */
-					birth_put_stats();
-
-					/* Dump round */
-					put_str(format("%6ld", auto_round), 9, 73);
-
-					/* Make sure they see everything */
-					Term_fresh();
-
-					/* Delay 1/10 second */
-					if (flag) Term_xtra(TERM_XTRA_DELAY, 100);
-
-					/* Do not wait for a key */
-					inkey_scan = TRUE;
-
-					/* Check for a keypress */
-					if (inkey()) break;
-				}
-			}
-
-			/* Flush input */
-			flush();
-
-
-			/*** Display ***/
-
-			/* Mode */
-			mode = 0;
-
-			/* Roll for base hitpoints */
-			get_extra();
-
-			/* Roll for age/height/weight */
-			get_ahw();
-
-			/* Roll for social class */
-			get_history();
-
-			/* Roll for gold */
-			get_money();
-
-			/* Hack -- get a chaos patron even if you are not a Hell Knight */
-			p_ptr->evil_patron = (randint(MAX_PATRON)) - 1;
-
-			p_ptr->muta1 = 0;
-			p_ptr->muta2 = 0;
-			p_ptr->muta3 = 0;
-
-			/* Player is ready to move... */
-			p_ptr->energy=1000;
-
-			/* Player has no recal ritual yet */
-			p_ptr->ritual = 0;
-
-			/* Input loop */
-			while (TRUE)
-			{
-				/* Calculate the bonuses and hitpoints */
-				p_ptr->update |= (PU_BONUS | PU_HP);
-
-				/* Update stuff */
-				update_stuff();
-
-				/* Fully healed */
-				p_ptr->chp = p_ptr->mhp;
-
-				/* Fully rested */
-				p_ptr->csp = p_ptr->msp;
-				p_ptr->energy = 1050;
-
-				/* Display the player */
-				display_player(mode);
-
-				/* Prepare a prompt (must squeeze everything in) */
-				Term_gotoxy(2, 23);
-				Term_addch(TERM_WHITE, b1);
-				Term_addstr(-1, TERM_WHITE, "'r' to reroll");
-				if (prev) Term_addstr(-1, TERM_WHITE, ", 'p' for prev");
-				if (mode) Term_addstr(-1, TERM_WHITE, ", 'h' for Misc.");
-				else Term_addstr(-1, TERM_WHITE, ", 'h' for History");
-				Term_addstr(-1, TERM_WHITE, ", or ESC to accept");
-				Term_addch(TERM_WHITE, b2);
-
-				/* Prompt and get a command */
-				c = inkey();
-
-				/* Quit */
-				if (c == 'Q') quit(NULL);
-
-				/* Start over */
-				if (c == 'S') return (FALSE);
-
-				/* Escape accepts the roll */
-				if (c == ESCAPE) break;
-
-				/* Reroll this character */
-				if ((c == ' ') || (c == 'r')) break;
-
-				/* Previous character */
-				if (prev && (c == 'p'))
-				{
-					load_prev_data();
-					continue;
-				}
-
-				/* Toggle the display */
-				if ((c == 'H') || (c == 'h'))
-				{
-					mode = ((mode != 0) ? 0 : 1);
-					continue;
-				}
-
-				/* Help */
-				if (c == '?')
-				{
-					do_cmd_help(syshelpfile);
-					continue;
-				}
-
-				/* Warning */
-				bell();
-			}
-
-			/* Are we done? */
-			if (c == ESCAPE) break;
-
-			/* Save this for the "previous" character */
-			save_prev_data();
-
-			/* Note that a previous roll exists */
-			prev = TRUE;
-		}
-
-		/* Clear prompt */
-		clear_from(23);
-
-
-		/*** Finish up ***/
-
-		/* Get a name, recolour it, prepare savefile */
-
-		get_name();
-
-
-		/* Prompt for it */
-		prt("['Q' to suicide, 'S' to start over, or ESC to continue]", 23, 10);
-
-		/* Get a key */
-		c = inkey();
-
-		/* Quit */
-		if (c == 'Q') quit(NULL);
-
-		/* Start over */
-		if (c == 'S') return (FALSE);
-
-		/* Accept */
-		return (TRUE);
+	return player_birth_aux_aux( autoroll, point_mod );
 	}
-	/* Just in case */
-	return (TRUE);
+	return TRUE;
 }
-
 
 /*
 * Create a new character.
@@ -4149,7 +3359,7 @@ static bool player_birth_aux()
 */
 void player_birth(void)
 {
-	int i, n;
+	int n;
 
 	/* Create a new character */
 	while (1)
@@ -4178,17 +3388,9 @@ void player_birth(void)
 	{
 		/* Initialize */
 		store_init(n);
-
-		/* Ignore home, hall  and pawnbrokers */
-		if ((n != STORE_HOME) &&
-			(n != STORE_HALL) &&
-			(n != STORE_BOOK_SWAP) &&
-			(n != STORE_PAWN))
-		{
-			/* Maintain the shop (ten times) */
-			for (i = 0; i < 10; i++) store_maint(n);
-		}
 	}
+	
+	store_maint_all(10);
 }
 
 

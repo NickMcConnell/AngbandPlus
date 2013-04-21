@@ -1,0 +1,36 @@
+/*********************************************************
+* All sources in Hellbound are Copyright (c) 2008 Konijn *
+* I Konijn, release all code and data under the terms of *
+* of the GNU General Public License (version 2), as well *
+* as under the traditional Angband license. Distribution *
+* is allowed both under the terms of the GPL (version 2) *
+* or under the terms of the traditional Angband license. *
+*********************************************************/
+
+body { 
+	background-color: black;
+	line-height: 90%;
+}
+
+.view {
+	font-family: monaco,monospace;
+	color: lightgreen;
+	/*
+	border: thin solid gray;
+	padding: 5px;
+	*/
+}
+
+.debug {
+	font-family: monospace;
+	color: green;
+}
+
+
+w {
+	color: white;
+}
+
+r {
+	color: red;
+}

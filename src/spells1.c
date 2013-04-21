@@ -3449,7 +3449,7 @@ static bool project_m(int who, int r, int y, int x, int dam, int typ)
 				break;
 			}
 
-			dam += (adj_con_fix[p_ptr->stat_ind[A_CHA]] - 1);
+			dam += (adj_stat[p_ptr->stat_ind[A_CHA]][ADJ_REGEN] - 1);
 			/* Attempt a saving throw */
 			if ((r_ptr->flags1 & (RF1_UNIQUE)) ||
 				(r_ptr->flags3 & (RF3_NO_CONF)) ||

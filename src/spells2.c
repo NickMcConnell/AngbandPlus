@@ -1106,6 +1106,7 @@ void self_knowledge(void)
 		if (f1 & (TR1_KILL_ANGEL))
 		{
 			info[i++] = "Your weapon is a great bane of fallen angels";
+			info[i++] = "Your weapon protects you from Lucifers' curse.";
 		}
 		if (f1 & (TR1_SLAY_GIANT))
 		{
@@ -3821,6 +3822,27 @@ bool artefact_scroll()
 	return (TRUE);
 }
 
+static bool item_tester_hook_id(object_type *o_ptr)
+{
+	if( o_ptr->ident & (IDENT_MENTAL | IDENT_STOREB | IDENT_KNOWN ) )
+		return FALSE;
+
+	return TRUE;
+}
+
+static bool item_tester_hook_full_id(object_type *o_ptr)
+{
+	/* If we *id*'d it, dont bother */
+	if( o_ptr->ident & IDENT_MENTAL )
+		return FALSE;
+
+	/* If we found the alchemic combination by ourselves, dont bother either */
+	if( o_ptr->tval == TV_POTION && potion_alch[o_ptr->sval].known1 && potion_alch[o_ptr->sval].known2 )
+		return FALSE;
+
+	return TRUE;
+}
+
 
 /*
 * Identify an object in the inventory (or on the floor)
@@ -3829,18 +3851,21 @@ bool artefact_scroll()
 */
 bool ident_spell(void)
 {
-	int                     item;
+	int           item;
+	object_type  *o_ptr;
+	char          o_name[80];
 
-	object_type             *o_ptr;
-
-	char            o_name[80];
-
+	/* Prepare the hook */
+	item_tester_hook = item_tester_hook_id;	
 
 	/* Get an item (from equip or inven or floor) */
 	if (!get_item(&item, "Identify which item? ", "You have nothing to identify.", USE_FLOOR | USE_EQUIP | USE_INVEN))
 	{
 		return (FALSE);
 	}
+
+	/* Clear the hook */
+	item_tester_hook = 0;
 
 	/* Get the item (in the pack) */
 	if (item >= 0)
@@ -3906,12 +3931,17 @@ bool identify_fully(void)
 
 	char            o_name[80];
 
+	/* Prepare the hook */
+	item_tester_hook = item_tester_hook_full_id;	
 
 	/* Get an item (from equip or inven or floor) */
 	if (!get_item(&item, "Identify which item? ", "You have nothing to identify.", USE_FLOOR | USE_EQUIP | USE_INVEN))
 	{
 		return (FALSE);
 	}
+
+	/* Clear the hook */
+	item_tester_hook = 0;
 
 	/* Get the item (in the pack) */
 	if (item >= 0)

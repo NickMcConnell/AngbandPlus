@@ -337,6 +337,20 @@ void compact_objects(int size)
 
 	int cur_lev, cur_dis, chance;
 
+	/* Excise dead objects (backwards!) */
+	for (i = o_max - 1; i >= 1; i--)
+	{
+		object_type *o_ptr = &o_list[i];
+
+		/* Skip real objects */
+		if (o_ptr->k_idx) continue;
+
+		/* Move last object into open hole */
+		compact_objects_aux(o_max - 1, i);
+
+		/* Compress "o_max" */
+		o_max--;
+	}
 
 	/* Compact */
 	if (size)
@@ -349,6 +363,10 @@ void compact_objects(int size)
 
 		/* Window stuff */
 		p_ptr->window |= (PW_OVERHEAD);
+	}else
+	{
+		/* We dont need to prune */
+		return;
 	}
 
 
@@ -411,29 +429,18 @@ void compact_objects(int size)
 			/* Apply the saving throw */
 			if (rand_int(100) < chance) continue;
 
+			/* Count it, not sure this is a great idea ;) 
+			   I, konijn, will take the blame on this one
+			*/
+			num = num + o_ptr->number;
+
 			/* Delete the object */
 			delete_object_idx(i);
-
-			/* Count it */
-			num++;
 		}
 	}
 
-
-	/* Excise dead objects (backwards!) */
-	for (i = o_max - 1; i >= 1; i--)
-	{
-		object_type *o_ptr = &o_list[i];
-
-		/* Skip real objects */
-		if (o_ptr->k_idx) continue;
-
-		/* Move last object into open hole */
-		compact_objects_aux(o_max - 1, i);
-
-		/* Compress "o_max" */
-		o_max--;
-	}
+	/* Reorder objects */
+	compact_objects(0);
 }
 
 
@@ -4598,7 +4605,6 @@ bool make_gold(object_type *j_ptr)
 
 	s32b base;
 
-
 	/* Hack -- Pick a Treasure variety */
 	i = ((randint(object_level + 2) + 2) / 2) - 1;
 
@@ -5136,6 +5142,53 @@ void inven_item_describe(int item)
 
 	/* Print a message */
 	msg_format("You have %s.", o_name);
+}
+
+/*
+ * Distribute charges of rods, staves, or wands.
+ *
+ * o_ptr = source item
+ * q_ptr = target item, must be of the same type as o_ptr
+ * amt   = number of items that are transfered
+ */
+void distribute_charges(object_type *o_ptr, object_type *q_ptr, int amt)
+{
+	int max_time;
+
+	/*
+	 * Hack -- If rods, staves, or wands are dropped, the total maximum
+	 * timeout or charges need to be allocated between the two stacks.
+	 * If all the items are being dropped, it makes for a neater message
+	 * to leave the original stack's pval alone. -LM-
+	 */
+	if ((o_ptr->tval == TV_WAND) ||
+	    (o_ptr->tval == TV_STAFF))
+	{
+		q_ptr->pval = o_ptr->pval * amt / o_ptr->number;
+
+		if (amt < o_ptr->number) o_ptr->pval -= q_ptr->pval;
+	}
+
+	/*
+	 * Hack -- Rods also need to have their timeouts distributed.
+	 *
+	 * The dropped stack will accept all time remaining to charge up to
+	 * its maximum.
+	 * TODO: fix this so rods work as well, this is crap...
+
+	if (o_ptr->tval == TV_ROD)
+	{
+		max_time = k_info[o_ptr->k_idx].time_base * amt;
+
+		if (o_ptr->timeout > max_time)
+			q_ptr->timeout = max_time;
+		else
+			q_ptr->timeout = o_ptr->timeout;
+
+		if (amt < o_ptr->number)
+			o_ptr->timeout -= q_ptr->timeout;
+	}
+	*/
 }
 
 
@@ -6001,7 +6054,7 @@ void display_spell_list(void)
 			chance -= 3 * (p_ptr->lev - spell.min_lev);
 			
 			/* Reduce failure rate by INT/WIS adjustment */
-			chance -= 3 * (adj_mag_stat[p_ptr->stat_ind[mp_ptr->spell_stat]] - 1);
+			chance -= 3 * (adj_stat[p_ptr->stat_ind[mp_ptr->spell_stat]][ADJ_INTWIS] - 1);
 			
 			/* Not enough mana to cast */
 			if (spell.mana_cost > p_ptr->csp)
@@ -6011,7 +6064,7 @@ void display_spell_list(void)
 			}
 			
 			/* Extract the minimum failure rate */
-			minfail = adj_mag_fail[p_ptr->stat_ind[mp_ptr->spell_stat]];
+			minfail = adj_stat[p_ptr->stat_ind[mp_ptr->spell_stat]][ADJ_FAILURE];
 			
 			/* Minimum failure rate */
 			if (chance < minfail) chance = minfail;
@@ -6047,7 +6100,7 @@ void display_spell_list(void)
 		/*Get the color of the realm, used to print the realm and the prefix "book/spell) "*/
 		byte a_prefix = tval_to_attr[ TV_MIRACLES_BOOK + realm ];
 		/*Get the realm with square brackets in out_val*/
-		sprintf(out_val, "[%s]", realm_names[realm+1] );
+		sprintf(out_val, "[%s]", realm_names[realm+1].name );
 		/* Dump outval on the window onto the window */
 		Term_putstr(x,   y + n, -1, a_prefix, out_val);
 		/* Next */
@@ -6111,7 +6164,7 @@ s16b spell_chance(int spell,int realm)
 	chance -= 3 * (p_ptr->lev - s_ptr->slevel);
 
 	/* Reduce failure rate by INT/WIS adjustment */
-	chance -= 3 * (adj_mag_stat[p_ptr->stat_ind[mp_ptr->spell_stat]] - 1);
+	chance -= 3 * (adj_stat[p_ptr->stat_ind[mp_ptr->spell_stat]][ADJ_INTWIS] - 1);
 
 	/* Not enough mana to cast */
 	if (s_ptr->smana > p_ptr->csp)
@@ -6120,7 +6173,7 @@ s16b spell_chance(int spell,int realm)
 	}
 
 	/* Extract the minimum failure rate */
-	minfail = adj_mag_fail[p_ptr->stat_ind[mp_ptr->spell_stat]];
+	minfail = adj_stat[p_ptr->stat_ind[mp_ptr->spell_stat]][ADJ_FAILURE];
 
 	/* Non mage/priest characters never get too good (added high mage,
 	mindcrafter,druid) */

@@ -45,10 +45,9 @@
 #define MAX_TITLES     54       /* Used with scrolls (min 48) */
 #define MAX_SYLLABLES 164       /* Used with scrolls (see below) */
 
-
 /*
-* Rings (adjectives and colours)
-*/
+ * Rings (adjectives and colours)
+ */
 
 static cptr ring_adj[MAX_ROCKS] =
 {
@@ -162,7 +161,7 @@ static cptr staff_adj[MAX_WOODS] =
 
 static byte staff_col[MAX_WOODS] =
 {
-	TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER,
+		TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER,
 		TERM_L_GREEN, TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER,
 		TERM_L_GREEN, TERM_L_UMBER, TERM_UMBER, TERM_L_UMBER, TERM_UMBER,
 		TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER, TERM_L_UMBER, TERM_RED,
@@ -192,7 +191,7 @@ static cptr wand_adj[MAX_METALS] =
 
 static byte wand_col[MAX_METALS] =
 {
-	TERM_L_BLUE, TERM_L_DARK, TERM_WHITE, TERM_L_UMBER, TERM_YELLOW,
+		TERM_L_BLUE, TERM_L_DARK, TERM_WHITE, TERM_L_UMBER, TERM_YELLOW,
 		TERM_SLATE, TERM_L_WHITE, TERM_L_WHITE, TERM_L_UMBER, TERM_RED,
 		TERM_L_WHITE, TERM_L_WHITE, TERM_L_WHITE, TERM_WHITE, TERM_WHITE,
 		TERM_L_DARK, TERM_L_WHITE, TERM_L_BLUE, TERM_L_UMBER, TERM_YELLOW,
@@ -212,14 +211,13 @@ static cptr rod_adj[MAX_METALS];
 
 static byte rod_col[MAX_METALS];
 
-
 /*
 * Mushrooms (adjectives and colours)
 */
 
 static cptr food_adj[MAX_SHROOM] =
 {
-	"Blue", "Black", "Black Spotted", "Brown", "Dark Blue",
+		"Blue", "Black", "Black Spotted", "Brown", "Dark Blue",
 		"Dark Green", "Dark Red", "Yellow", "Furry", "Green",
 		"Grey", "Light Blue", "Light Green", "Violet", "Red",
 		"Slimy", "Tan", "White", "White Spotted", "Wrinkled",
@@ -227,7 +225,7 @@ static cptr food_adj[MAX_SHROOM] =
 
 static byte food_col[MAX_SHROOM] =
 {
-	TERM_BLUE, TERM_L_DARK, TERM_L_DARK, TERM_UMBER, TERM_BLUE,
+		TERM_BLUE, TERM_L_DARK, TERM_L_DARK, TERM_UMBER, TERM_BLUE,
 		TERM_GREEN, TERM_RED, TERM_YELLOW, TERM_L_WHITE, TERM_GREEN,
 		TERM_SLATE, TERM_L_BLUE, TERM_L_GREEN, TERM_VIOLET, TERM_RED,
 		TERM_SLATE, TERM_L_UMBER, TERM_WHITE, TERM_WHITE, TERM_UMBER
@@ -242,7 +240,7 @@ static byte food_col[MAX_SHROOM] =
 
 static cptr potion_adj[MAX_COLORS] =
 {
-	"Clear", "Light Brown", "Icky Green", "xxx",
+		"Clear", "Light Brown", "Icky Green", "Burgundy",
 		"Azure", "Blue", "Blue Speckled", "Black", "Brown", "Brown Speckled",
 		"Bubbling", "Chartreuse", "Cloudy", "Copper Speckled", "Crimson", "Cyan",
 		"Dark Blue", "Dark Green", "Dark Red", "Gold Speckled", "Green",
@@ -281,7 +279,7 @@ static byte potion_col[MAX_COLORS] =
 
 static cptr syllables[MAX_SYLLABLES] =
 {
-	"a", "ab", "ag", "aks", "ala", "an", "ankh", "app",
+		"a", "ab", "ag", "aks", "ala", "an", "ankh", "app",
 		"arg", "arze", "ash", "aus", "ban", "bar", "bat", "bek",
 		"bie", "bin", "bit", "bjor", "blu", "bot", "bu",
 		"byt", "comp", "con", "cos", "cre", "dalf", "dan",
@@ -314,36 +312,94 @@ static char scroll_adj[MAX_TITLES][16];
 
 static byte scroll_col[MAX_TITLES];
 
+#define ACT_NOTHING     0
+#define ACT_SHOW_WEAPON 1
+#define ACT_SHOW_ARMOUR 2
+#define ACT_FULL_MONTY  3
+#define NO_FLAVORS NULL
+#define EASY TRUE
+#define HARD FALSE
+
+static tv_describer_type tv_describers[] = 
+{  /* tval            describing actions   flavors         no flavor      with flavor*/
+	{ TV_SKELETON     , EASY , TERM_WHITE   , ACT_NOTHING		, NO_FLAVORS	, NO_FLAVORS	, NO_FLAVORS						},
+	{ TV_BOTTLE       , EASY , TERM_WHITE   , ACT_NOTHING		, NO_FLAVORS	, NO_FLAVORS	, NO_FLAVORS						},
+	{ TV_JUNK         , EASY , TERM_WHITE   , ACT_NOTHING		, NO_FLAVORS	, NO_FLAVORS	, NO_FLAVORS						},
+	{ TV_SPIKE        , EASY , TERM_SLATE   , ACT_NOTHING		, NO_FLAVORS	, NO_FLAVORS	, NO_FLAVORS						},
+	{ TV_FLASK        , EASY , TERM_YELLOW  , ACT_NOTHING		, NO_FLAVORS	, NO_FLAVORS	, NO_FLAVORS						},
+	{ TV_CHEST        , HARD , TERM_SLATE   , ACT_NOTHING 	, NO_FLAVORS	, NO_FLAVORS	, NO_FLAVORS						},
+	{ TV_SHOT         , HARD , TERM_UMBER   , ACT_SHOW_WEAPON	, NO_FLAVORS	, NO_FLAVORS	, NO_FLAVORS						},
+	{ TV_BOLT         , HARD , TERM_UMBER   , ACT_SHOW_WEAPON	, NO_FLAVORS	, NO_FLAVORS	, NO_FLAVORS						},
+	{ TV_ARROW        , HARD , TERM_UMBER   , ACT_SHOW_WEAPON	, NO_FLAVORS	, NO_FLAVORS	, NO_FLAVORS						},
+	{ TV_BOW          , HARD , TERM_UMBER   , ACT_SHOW_WEAPON	, NO_FLAVORS	, NO_FLAVORS	, NO_FLAVORS						},
+	{ TV_HAFTED       , HARD , TERM_L_WHITE , ACT_SHOW_WEAPON	, NO_FLAVORS	, NO_FLAVORS	, NO_FLAVORS						},
+	{ TV_POLEARM      , HARD , TERM_L_WHITE , ACT_SHOW_WEAPON	, NO_FLAVORS	, NO_FLAVORS	, NO_FLAVORS						},
+	{ TV_SWORD        , HARD , TERM_L_WHITE , ACT_SHOW_WEAPON	, NO_FLAVORS	, NO_FLAVORS	, NO_FLAVORS						},
+	{ TV_DIGGING      , HARD , TERM_SLATE   , ACT_SHOW_WEAPON	, NO_FLAVORS	, NO_FLAVORS	, NO_FLAVORS						},
+	{ TV_BOOTS        , HARD , TERM_L_UMBER , ACT_SHOW_ARMOUR, NO_FLAVORS	, NO_FLAVORS	, NO_FLAVORS						},
+	{ TV_GLOVES       , HARD , TERM_L_UMBER , ACT_SHOW_ARMOUR	, NO_FLAVORS	, NO_FLAVORS	, NO_FLAVORS						},
+	{ TV_CLOAK        , HARD , TERM_L_UMBER , ACT_SHOW_ARMOUR	, NO_FLAVORS	, NO_FLAVORS	, NO_FLAVORS						},
+	{ TV_CROWN        , HARD , TERM_L_UMBER , ACT_SHOW_ARMOUR	, NO_FLAVORS	, NO_FLAVORS	, NO_FLAVORS						},
+	{ TV_HELM         , HARD , TERM_L_UMBER , ACT_SHOW_ARMOUR	, NO_FLAVORS	, NO_FLAVORS	, NO_FLAVORS						},
+	{ TV_SHIELD       , HARD , TERM_L_UMBER , ACT_SHOW_ARMOUR	, NO_FLAVORS	, NO_FLAVORS	, NO_FLAVORS						},
+	{ TV_SOFT_ARMOR   , HARD , TERM_SLATE   , ACT_SHOW_ARMOUR	, NO_FLAVORS	, NO_FLAVORS	, NO_FLAVORS						},
+	{ TV_HARD_ARMOR   , HARD , TERM_SLATE   , ACT_SHOW_ARMOUR	, NO_FLAVORS	, NO_FLAVORS	, NO_FLAVORS						},
+	{ TV_DRAG_ARMOR   , HARD , TERM_SLATE   , ACT_SHOW_ARMOUR	, NO_FLAVORS	, NO_FLAVORS	, NO_FLAVORS						},
+	{ TV_LITE         , HARD , TERM_YELLOW  , ACT_NOTHING		, NO_FLAVORS	, NO_FLAVORS	, NO_FLAVORS						},
+	{ TV_AMULET       , HARD , TERM_ORANGE  , ACT_FULL_MONTY	, amulet_adj	, "& Amulet~"	, "& # Amulet~"				},
+	{ TV_RING         , HARD , TERM_ORANGE  , ACT_FULL_MONTY	, ring_adj		, "& Ring~"		, "& # Ring~"				},
+	{ TV_STAFF        , EASY , TERM_UMBER   , ACT_FULL_MONTY	, staff_adj		, "& Staff~"	, "& # Staff~"				},
+	{ TV_WAND         , EASY , TERM_GREEN   , ACT_FULL_MONTY	, wand_adj		, "& Wand~"		, "& # Wand~"				},
+	{ TV_ROD          , EASY , TERM_VIOLET  , ACT_FULL_MONTY	, rod_adj		, "& Rod~"		, "& # Rod~"				},
+	{ TV_SCROLL       , EASY , TERM_WHITE   , ACT_FULL_MONTY	, NULL			, "& Scroll~"	, "& Scroll~ titled \"#\""	},
+	{ TV_POTION       , EASY , TERM_BLUE    , ACT_FULL_MONTY	, potion_adj	, "& Potion~"	, "& # Potion~"				},
+	{ TV_FOOD         , EASY , TERM_L_UMBER , ACT_FULL_MONTY	, food_adj		, "& Mushroom~"	, "& # Mushroom~"			},
+	{ TV_MIRACLES_BOOK, EASY , TERM_WHITE   , ACT_NOTHING 	, NO_FLAVORS	, NO_FLAVORS	, NO_FLAVORS						},
+	{ TV_SORCERY_BOOK , EASY , TERM_L_BLUE  , ACT_NOTHING 	, NO_FLAVORS	, NO_FLAVORS	, NO_FLAVORS						},
+	{ TV_NATURE_BOOK  , EASY , TERM_L_GREEN , ACT_NOTHING 	, NO_FLAVORS	, NO_FLAVORS	, NO_FLAVORS						},
+	{ TV_CHAOS_BOOK   , EASY , TERM_L_RED   , ACT_NOTHING 	, NO_FLAVORS	, NO_FLAVORS	, NO_FLAVORS						},
+	{ TV_DEATH_BOOK   , EASY , TERM_L_DARK  , ACT_NOTHING 	, NO_FLAVORS	, NO_FLAVORS	, NO_FLAVORS						},
+	{ TV_TAROT_BOOK   , EASY , TERM_ORANGE  , ACT_NOTHING 	, NO_FLAVORS	, NO_FLAVORS	, NO_FLAVORS						},
+	{ TV_CHARMS_BOOK  , EASY , TERM_L_WHITE , ACT_NOTHING 	, NO_FLAVORS	, NO_FLAVORS	, NO_FLAVORS						},
+	{ TV_SOMATIC_BOOK , EASY , TERM_YELLOW  , ACT_NOTHING 	, NO_FLAVORS	, NO_FLAVORS	, NO_FLAVORS						},
+	{ TV_DEMONIC_BOOK , EASY , TERM_RED     , ACT_NOTHING 	, NO_FLAVORS	, NO_FLAVORS	, NO_FLAVORS						},
+};
+
+static tv_describer_type read_tval_description( byte tval)
+{
+	int i;
+	for( i = 0 ; i < N_ELEMENTS( tv_describers ) ; i++ )
+	{
+		if( tv_describers[i].tval == tval )
+		{
+			return tv_describers[i];
+		}
+	}
+	/* msg_format("Could not translate tval %d." , tval); */
+	return tv_describers[0];
+}
+
 /*
-* Certain items have a flavor
-* This function is used only by "flavor_init()"
-*/
+ * Certain items have a flavor
+ * This function is used only by "flavor_init()"
+ */
 static bool object_has_flavor(int i)
 {
 	object_kind *k_ptr = &k_info[i];
+	tv_describer_type describer;
 
-	/* Check for flavor */
-	switch (k_ptr->tval)
+	/* The hard-coded mushroom exception */
+	if( k_ptr->tval == TV_FOOD ) 
 	{
-		/* The standard "flavored" items */
-	case TV_AMULET:
-	case TV_RING:
-	case TV_STAFF:
-	case TV_WAND:
-	case TV_SCROLL:
-	case TV_POTION:
-	case TV_ROD:
-		{
-			return (TRUE);
-		}
-
-		/* Hack -- food SOMETIMES has a flavor */
-	case TV_FOOD:
-		{
-			if (k_ptr->sval < SV_FOOD_MIN_FOOD) return (TRUE);
-			return (FALSE);
-		}
+		if (k_ptr->sval < SV_FOOD_MIN_FOOD) return (TRUE);
+		return (FALSE);
 	}
+	
+	/* Get describer */
+	describer = read_tval_description( k_ptr->tval );
+	/* Only full monty tvals have flavor */
+	if( describer.action == ACT_FULL_MONTY )
+		return TRUE;
 
 	/* Assume no flavor */
 	return (FALSE);
@@ -359,55 +415,14 @@ static bool object_has_flavor(int i)
 static bool object_easy_know(int i)
 {
 	object_kind *k_ptr = &k_info[i];
-
-	/* Analyze the "tval" */
-	switch (k_ptr->tval)
-	{
-		/* Spellbooks */
-	case TV_MIRACLES_BOOK:
-	case TV_SORCERY_BOOK:
-	case TV_NATURE_BOOK:
-	case TV_CHAOS_BOOK:
-	case TV_DEATH_BOOK:
-	case TV_TAROT_BOOK:
-	case TV_CHARMS_BOOK:
-	case TV_SOMATIC_BOOK:
-    case TV_DEMONIC_BOOK:
-		{
-			return (TRUE);
-		}
-
-		/* Simple items */
-	case TV_FLASK:
-	case TV_JUNK:
-	case TV_BOTTLE:
-	case TV_SKELETON:
-	case TV_SPIKE:
-		{
-			return (TRUE);
-		}
-
-		/* All Food, Potions, Scrolls, Rods */
-	case TV_FOOD:
-	case TV_POTION:
-	case TV_SCROLL:
-	case TV_ROD:
-		{
-			return (TRUE);
-		}
-
-		/* Some Rings, Amulets, Lites */
-	case TV_RING:
-	case TV_AMULET:
-	case TV_LITE:
-		{
-			if (k_ptr->flags3 & (TR3_EASY_KNOW)) return (TRUE);
-			return (FALSE);
-		}
-	}
-
-	/* Nope */
-	return (FALSE);
+	tv_describer_type describer;
+	
+	/* First rule, if it is easy know, it is easy know */
+	if (k_ptr->flags3 & (TR3_EASY_KNOW)) return (TRUE);
+	/* Get describer */
+	describer = read_tval_description( k_ptr->tval );
+	/* Weapons and armor are not easy */
+	return describer.easy_know;
 }
 
 
@@ -418,158 +433,11 @@ static bool object_easy_know(int i)
 */
 static byte default_tval_to_attr(int tval)
 {
-	switch (tval)
-	{
-	case TV_SKELETON:
-	case TV_BOTTLE:
-	case TV_JUNK:
-		{
-			return (TERM_WHITE);
-		}
-
-	case TV_CHEST:
-		{
-			return (TERM_SLATE);
-		}
-
-	case TV_SHOT:
-	case TV_BOLT:
-	case TV_ARROW:
-		{
-			return (TERM_UMBER);
-		}
-
-	case TV_LITE:
-		{
-			return (TERM_YELLOW);
-		}
-
-	case TV_SPIKE:
-		{
-			return (TERM_SLATE);
-		}
-
-	case TV_BOW:
-		{
-			return (TERM_UMBER);
-		}
-
-	case TV_DIGGING:
-		{
-			return (TERM_SLATE);
-		}
-
-	case TV_HAFTED:
-	case TV_POLEARM:
-	case TV_SWORD:
-		{
-			return (TERM_L_WHITE);
-		}
-
-	case TV_BOOTS:
-	case TV_GLOVES:
-	case TV_CROWN:
-	case TV_HELM:
-	case TV_SHIELD:
-	case TV_CLOAK:
-		{
-			return (TERM_L_UMBER);
-		}
-
-	case TV_SOFT_ARMOR:
-	case TV_HARD_ARMOR:
-	case TV_DRAG_ARMOR:
-		{
-			return (TERM_SLATE);
-		}
-
-	case TV_AMULET:
-		{
-			return (TERM_ORANGE);
-		}
-
-	case TV_RING:
-		{
-			return (TERM_ORANGE);
-		}
-
-	case TV_STAFF:
-		{
-			return (TERM_UMBER);
-		}
-
-	case TV_WAND:
-		{
-			return (TERM_GREEN);
-		}
-
-	case TV_ROD:
-		{
-			return (TERM_VIOLET);
-		}
-
-	case TV_SCROLL:
-		{
-			return (TERM_WHITE);
-		}
-
-	case TV_POTION:
-		{
-			return (TERM_BLUE);
-		}
-
-	case TV_FLASK:
-		{
-			return (TERM_YELLOW);
-		}
-
-	case TV_FOOD:
-		{
-			return (TERM_L_UMBER);
-		}
-
-	case TV_MIRACLES_BOOK:
-		{
-			return (TERM_WHITE);
-		}
-
-	case TV_SORCERY_BOOK:
-		{
-			return (TERM_L_BLUE);
-		}
-
-	case TV_NATURE_BOOK:
-		{
-			return (TERM_L_GREEN);
-		}
-
-	case TV_CHAOS_BOOK:
-		{
-			return (TERM_L_RED);
-		}
-    case TV_DEMONIC_BOOK:
-        {
-            return (TERM_RED);
-        }
-	case TV_DEATH_BOOK:
-		{
-			return (TERM_L_DARK);
-		}
-	case TV_TAROT_BOOK:
-		{
-			return (TERM_ORANGE);
-		}
-	case TV_CHARMS_BOOK:
-		{
-			return (TERM_L_WHITE);
-		}
-	case TV_SOMATIC_BOOK:
-		{
-			return (TERM_YELLOW);
-		}
-	}
-
-	return (TERM_WHITE);
+	tv_describer_type describer;
+	/* Get describer */
+	describer = read_tval_description( tval );
+	/* Return color */
+	return describer.attribute;	
 }
 
 
@@ -594,7 +462,6 @@ static byte default_tval_to_char(int tval)
 	/* Default to space */
 	return (' ');
 }
-
 
 
 /*
@@ -635,7 +502,6 @@ void flavor_init(void)
 	byte    temp_col;
 
 	cptr    temp_adj;
-
 
 	/* Hack -- Use the "simple" RNG */
 	Rand_quick = TRUE;
@@ -836,8 +702,6 @@ void flavor_init(void)
 }
 
 
-
-
 /*
 * Extract the "default" attr for each object
 * This function is used only by "flavor_init()"
@@ -947,20 +811,15 @@ void reset_visuals(void)
 		tval_to_char[i] = default_tval_to_char(i);
 	}
 
+	if( arg_tile_size == 0 )
+		arg_tile_size = 16;
+
 	/* Access the "font" or "graf" pref file, based on "use_graphics" */
-	sprintf(buf, "%s-%s.prf", (use_graphics ? "graf" : "font"), ANGBAND_SYS);
+	sprintf(buf, "%s-%s-%d.prf", (use_graphics ? "graf" : "font"), ANGBAND_SYS , arg_tile_size );
 
 	/* Process that file */
 	process_pref_file(buf);
 }
-
-
-
-
-
-
-
-
 
 /*
 * Obtain the "flags" for an item
@@ -1145,7 +1004,6 @@ void object_flags_known(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
 	/* Full knowledge for *identified* objects */
 	if (!(o_ptr->ident & IDENT_MENTAL)) return;
 
-
 	if (!(o_ptr->art_name))
 	{
 		/* Extra powers */
@@ -1276,9 +1134,6 @@ static char *object_desc_num(char *t, uint n)
 	return (t);
 }
 
-
-
-
 /*
 * Print an signed number "v" into a string "t", as if by
 * sprintf(t, "%+d", n), and return a pointer to the terminator.
@@ -1383,7 +1238,7 @@ static char *object_desc_int(char *t, sint v)
 void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 {
 	cptr            basenm, modstr;
-	int                     power, indexx;
+	int             i, power, indexx;
 
 	bool            aware = FALSE;
 	bool            known = FALSE;
@@ -1393,7 +1248,9 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	bool            show_weapon = FALSE;
 	bool            show_armour = FALSE;
 	
-	bool			artefact_overrides = FALSE; /* We start with the conviction that the a_info name does not override the k_info name */
+	bool            artefact_overrides = FALSE; /* We start with the conviction that the a_info name does not override the k_info name */
+
+	bool            tval_found = FALSE;
 
 	cptr            s, u;
 	char            *t;
@@ -1410,9 +1267,10 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	object_kind             *k_ptr = &k_info[o_ptr->k_idx];
 	artefact_type			*a_ptr = &a_info[o_ptr->name1];  /* This could be null pointer ! */
 
+	tv_describer_type describer;
+	
 	/* Extract some flags */
 	object_flags(o_ptr, &f1, &f2, &f3);
-
 
 	/* See if the object is "aware" */
 	if (object_aware_p(o_ptr)) aware = TRUE;
@@ -1438,282 +1296,72 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 			basenm = (k_name + k_ptr->name); /* False alert, let the the old logic run */
 		}	
 	}
-	
 
 	/* Assume no "modifier" string */
 	modstr = "";
-
-
-	/* Analyze the object */
-	switch (o_ptr->tval)
+	
+	/* Hack -- Gold/Gems */
+	if(o_ptr->tval == TV_GOLD)
 	{
-		/* Some objects are easy to describe */
-	case TV_SKELETON:
-	case TV_BOTTLE:
-	case TV_JUNK:
-	case TV_SPIKE:
-	case TV_FLASK:
-	case TV_CHEST:
-		{
-			break;
-		}
+		strcpy(buf, basenm);
+		return;
+	}
 
-
-		/* Missiles/ Bows/ Weapons */
-	case TV_SHOT:
-	case TV_BOLT:
-	case TV_ARROW:
-	case TV_BOW:
-	case TV_HAFTED:
-	case TV_POLEARM:
-	case TV_SWORD:
-	case TV_DIGGING:
-		{
-			show_weapon = TRUE;
-			break;
-		}
-
-
-		/* Armour */
-	case TV_BOOTS:
-	case TV_GLOVES:
-	case TV_CLOAK:
-	case TV_CROWN:
-	case TV_HELM:
-	case TV_SHIELD:
-	case TV_SOFT_ARMOR:
-	case TV_HARD_ARMOR:
-	case TV_DRAG_ARMOR:
-		{
-			show_armour = TRUE;
-			break;
-		}
-
-
-		/* Lites (including a few "Specials") */
-	case TV_LITE:
-		{
-			break;
-		}
-
-
-		/* Amulets (including a few "Specials") */
-	case TV_AMULET:
-		{
-			/* Known artefacts */
-			if (artefact_p(o_ptr) && aware) break;
-
-			/* Color the object */
-			modstr = amulet_adj[indexx];
-			if (aware) append_name = TRUE;
-			if (((plain_descriptions) && (aware))  || o_ptr->ident & IDENT_STOREB)
-				basenm = "& Amulet~";
-			else
-				basenm = aware ? "& # Amulet~" : "& # Amulet~";
-			break;
-		}
-
-
-		/* Rings (including a few "Specials") */
-	case TV_RING:
-		{
-			/* Known artefacts */
-			if (artefact_p(o_ptr) && aware) break;
-
-			/* Color the object */
-			modstr = ring_adj[indexx];
-			if (aware) append_name = TRUE;
-			if (((plain_descriptions) && (aware))  || o_ptr->ident & IDENT_STOREB)
-				basenm = "& Ring~";
-			else
-				basenm = aware ? "& # Ring~" : "& # Ring~";
-
-			break;
-		}
-
-
-	case TV_STAFF:
-		{
-			/* Color the object */
-			modstr = staff_adj[indexx];
-			if (aware) append_name = TRUE;
-			if (((plain_descriptions) && (aware))  || o_ptr->ident & IDENT_STOREB)
-				basenm = "& Staff~";
-			else
-				basenm = aware ? "& # Staff~" : "& # Staff~";
-			break;
-		}
-
-	case TV_WAND:
-		{
-			/* Color the object */
-			modstr = wand_adj[indexx];
-			if (aware) append_name = TRUE;
-			if (((plain_descriptions) && (aware))  || o_ptr->ident & IDENT_STOREB)
-				basenm = "& Wand~";
-			else
-				basenm = aware ? "& # Wand~" : "& # Wand~";
-			break;
-		}
-
-	case TV_ROD:
-		{
-			/* Color the object */
-			modstr = rod_adj[indexx];
-			if (aware) append_name = TRUE;
-			if (((plain_descriptions) && (aware))  || o_ptr->ident & IDENT_STOREB)
-				basenm = "& Rod~";
-			else
-				basenm = aware ? "& # Rod~" : "& # Rod~";
-			break;
-		}
-
-	case TV_SCROLL:
-		{
-			/* Color the object */
-			modstr = scroll_adj[indexx];
-			if (aware) append_name = TRUE;
-			if (((plain_descriptions) && (aware)) || o_ptr->ident & IDENT_STOREB)
-				basenm = "& Scroll~";
-			else
-				basenm = aware ? "& Scroll~ titled \"#\"" : "& Scroll~ titled \"#\"";
-			break;
-		}
-
-	case TV_POTION:
-		{
-			/* Color the object */
-			modstr = potion_adj[indexx];
-			if (aware) append_name = TRUE;
-			if (((plain_descriptions) && (aware))  || o_ptr->ident & IDENT_STOREB)
-				basenm = "& Potion~";
-			else
-				basenm = aware ? "& # Potion~" : "& # Potion~";
-			break;
-		}
-
-	case TV_FOOD:
-		{
-			/* Ordinary food is "boring" */
-			if (o_ptr->sval >= SV_FOOD_MIN_FOOD) break;
-
-			/* Color the object */
-			modstr = food_adj[indexx];
-			if (aware) append_name = TRUE;
-			if (((plain_descriptions) && (aware))  || o_ptr->ident & IDENT_STOREB)
-				basenm = "& Mushroom~";
-			else
-				basenm = aware ? "& # Mushroom~" : "& # Mushroom~";
-			break;
-		}
-
-
-		/* Magic Books */
-	case TV_MIRACLES_BOOK:
+	/* Check for spellbooks, magic users get a different basename */
+	for( i = 1 ; i < MAX_REALM+1 ; i++ )
+	{
+		if( realm_names[i].tval == o_ptr->tval )
 		{
 			modstr = basenm;
-			if (mp_ptr->spell_book == TV_MIRACLES_BOOK)
-				basenm = "& Book~ of Miracles #";
-			else
-
-				basenm = "& Book~ of Miracles #";
-			break;
-		}
-
-	case TV_SORCERY_BOOK:
-		{
-			modstr = basenm;
-			if(mp_ptr->spell_book == TV_MIRACLES_BOOK)
-				basenm = "& Book~ of Sorcery #";
-			else
-				basenm = "& Sorcery Spellbook~ #";
-			break;
-		}
-
-	case TV_NATURE_BOOK:
-		{
-			modstr = basenm;
-			if(mp_ptr->spell_book == TV_MIRACLES_BOOK)
-				basenm = "& Book~ of Nature Magic #";
-			else
-				basenm = "& Nature Spellbook~ #";
-			break;
-		}
-
-	case TV_CHAOS_BOOK:
-		{
-			modstr = basenm;
-			if(mp_ptr->spell_book == TV_MIRACLES_BOOK)
-				basenm = "& Book~ of the Abyss #";
-			else
-				basenm = "& Chaos Spellbook~ #";
-			break;
-		}
-	case TV_DEMONIC_BOOK:
-    {
-        modstr = basenm;
-        if(mp_ptr->spell_book == TV_MIRACLES_BOOK)
-            basenm = "& Book~ of the Damned #";
-        else
-            basenm = "& Demonic Spellbook~ #";
-        break;
-    }        
-	case TV_DEATH_BOOK:
-		{
-			modstr = basenm;
-			if(mp_ptr->spell_book == TV_MIRACLES_BOOK)
-				basenm = "& Book~ of Death Magic #";
-			else
-				basenm = "& Death Spellbook~ #";
-			break;
-		}
-
-
-	case TV_TAROT_BOOK:
-		{
-			modstr = basenm;
-			if(mp_ptr->spell_book == TV_MIRACLES_BOOK)
-				basenm = "& Book~ of Tarot Magic #";
-			else
-				basenm = "& Tarot Spellbook~ #";
-			break;
-		}
-
-	case TV_CHARMS_BOOK:
-		{
-			modstr = basenm;
-			if(mp_ptr->spell_book == TV_MIRACLES_BOOK)
-				basenm = "& Book~ of Charms #";
-			else
-				basenm = "& Book~ of Charms #";
-			break;
-		}
-
-	case TV_SOMATIC_BOOK:
-		{
-			modstr = basenm;
-			if(mp_ptr->spell_book == TV_MIRACLES_BOOK)
-				basenm = "& Book~ of Somatic Magic #";
-			else
-				basenm = "& Somatic Spellbook~ #";
-			break;
-		}
-
-		/* Hack -- Gold/Gems */
-	case TV_GOLD:
-		{
-			strcpy(buf, basenm);
-			return;
-		}
-
-		/* Used in the "inventory" routine */
-	default:
-		{
-			strcpy(buf, "(nothing)");
-			return;
+			basenm = (mp_ptr->spell_book == TV_MIRACLES_BOOK)?realm_names[i].basename1:realm_names[i].basename2;
+			tval_found = TRUE;
 		}
 	}
 
+	if( !tval_found )
+	{
+		/* Get describer */
+		describer = read_tval_description( o_ptr->tval );
+		/* Make sure you found it */
+		if( describer.tval == o_ptr->tval )
+		{	
+			tval_found = TRUE;
+			if( describer.action == ACT_SHOW_WEAPON )
+				show_weapon = TRUE;
+			if( describer.action == ACT_SHOW_ARMOUR )
+				show_armour = TRUE;
+			if( describer.action == ACT_FULL_MONTY )
+			{
+				/* The hard-coded mushroom exception */
+				if( o_ptr->tval == TV_FOOD && o_ptr->sval >= SV_FOOD_MIN_FOOD ) 
+					goto legacy_break;
+				
+				/* Known artefacts */
+				if (artefact_p(o_ptr) && aware)
+					goto legacy_break;
+
+				/* Color the object */
+				if( describer.adj != NULL )
+					modstr = describer.adj[indexx];
+				else
+				/* Only scrolls are known to be a hack^2 */	
+					modstr = scroll_adj[indexx];
+				if (aware) append_name = TRUE;
+				if (((plain_descriptions) && (aware))  || o_ptr->ident & IDENT_STOREB)
+					basenm = describer.plain;
+				else
+					basenm = describer.full;
+			}
+		}
+	}
+/* Hack from when we were still looping */
+legacy_break:
+
+	if(!tval_found)
+	{
+		strcpy(buf, "(nothing)");
+		return;
+	}
 
 	/* Start dumping the result */
 	t = tmp_val;
@@ -2224,7 +1872,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode)
 	if (o_ptr->discount)
 	{
 		object_desc_num(tmp_val2, o_ptr->discount);
-		my_commacat(tmp_val2, "% off", sizeof( tmp_val2 ) );
+		my_strcat(tmp_val2, "% off", sizeof( tmp_val2 ) );
 	}
 
 	/* Add "tried" if the object has been tested unsuccessfully */
@@ -2308,7 +1956,6 @@ cptr item_activation(object_type *o_ptr)
 
 	/* Require activation ability */
 	if (!(f3 & (TR3_ACTIVATE))) return (NULL);
-
 
 	/* We need to deduce somehow that it is a random artefact -- one
 	problem: It could be a random artefact which has NOT YET received
@@ -3117,6 +2764,7 @@ bool identify_fully_aux(object_type *o_ptr)
 	if (f1 & (TR1_KILL_ANGEL))
 	{
 		info[i++] = "It is a bane of fallen angels.";
+		info[i++] = "It protects you from Lucifers' curse.";
 	}
 	if (f1 & (TR1_SLAY_GIANT))
 	{
@@ -3493,12 +3141,12 @@ s16b wield_slot(object_type *o_ptr)
 		}
 
 	case TV_RING:
-		{
-			/* Use the right hand first */
-			if (!inventory[INVEN_RIGHT].k_idx) return (INVEN_RIGHT);
-
+		{			
+			/* TODO: clean me up at some point we should just return 1 value
+			   Use the right hand first */
+			 if (!inventory[INVEN_RIGHT].k_idx) return (INVEN_RIGHT); 
 			/* Use the left hand for swapping (by default) */
-			return (INVEN_LEFT);
+			 return (INVEN_LEFT); 
 		}
 
 	case TV_AMULET:
@@ -3569,6 +3217,7 @@ s16b wield_slot(object_type *o_ptr)
 cptr mention_use(int i)
 {
 	cptr p;
+	byte weight_capacity;
 
 	/* Examine the location */
 	switch (i)
@@ -3594,12 +3243,14 @@ cptr mention_use(int i)
 	default:          p = "In pack"; break;
 	}
 
+	weight_capacity = adj_stat[p_ptr->stat_ind[A_STR]][ADJ_WEIGHT];
+	
 	/* Hack -- Heavy weapon */
 	if (i == INVEN_WIELD)
 	{
 		object_type *o_ptr;
 		o_ptr = &inventory[i];
-		if (adj_str_hold[p_ptr->stat_ind[A_STR]] < o_ptr->weight / 10)
+		if (weight_capacity < o_ptr->weight / 10)
 		{
 			p = "Just lifting";
 		}
@@ -3610,7 +3261,7 @@ cptr mention_use(int i)
 	{
 		object_type *o_ptr;
 		o_ptr = &inventory[i];
-		if (adj_str_hold[p_ptr->stat_ind[A_STR]] < o_ptr->weight / 10)
+		if (weight_capacity < o_ptr->weight / 10)
 		{
 			p = "Just holding";
 		}
@@ -3628,6 +3279,7 @@ cptr mention_use(int i)
 cptr describe_use(int i)
 {
 	cptr p;
+	byte weight_capacity;
 
 	switch (i)
 	{
@@ -3652,12 +3304,16 @@ cptr describe_use(int i)
 	default:          p = "carrying in your pack"; break;
 	}
 
+	weight_capacity = adj_stat[p_ptr->stat_ind[A_STR]][ADJ_WEIGHT];
+	
+	/*TODO: These 20 lines could be 5 lines of code, would need testing*/
+	
 	/* Hack -- Heavy weapon */
 	if (i == INVEN_WIELD)
 	{
 		object_type *o_ptr;
 		o_ptr = &inventory[i];
-		if (adj_str_hold[p_ptr->stat_ind[A_STR]] < o_ptr->weight / 10)
+		if (weight_capacity < o_ptr->weight / 10)
 		{
 			p = "just lifting";
 		}
@@ -3668,7 +3324,7 @@ cptr describe_use(int i)
 	{
 		object_type *o_ptr;
 		o_ptr = &inventory[i];
-		if (adj_str_hold[p_ptr->stat_ind[A_STR]] < o_ptr->weight / 10)
+		if (weight_capacity < o_ptr->weight / 10)
 		{
 			p = "just holding";
 		}
@@ -5691,7 +5347,11 @@ void consider_squelch( object_type *o_ptr )
 			s = strchr(s + 1, '!');
 		}
 	}
-	
+
+	/* Dragon Armor is rare enough, we should not squelch it */
+	if( o_ptr->tval == TV_DRAG_ARMOR )
+		return;
+
 	/* Get the item-category */
 	sq_hl = tval_to_sql_hl( o_ptr->tval );
 	
@@ -5905,6 +5565,33 @@ void consider_squelch( object_type *o_ptr )
 			return;
 	}
 	
+
+	/* We make an exception, if we are dealing with boots that are not cursed
+	   they might be boots of speed , so lets keep those */
+
+	if( o_ptr->tval == TV_BOOTS && sq_option == SQUELCH_ARTIFACT )
+	{
+		go_squelch = FALSE;
+		/*If we have heavy pseudo-id or we id'd it, we can deleted up to good*/
+		if( ( (sense && heavy) || id ) && 
+			( 
+			  streq(feel_heavy, "cursed") ||  
+			  streq(feel_heavy, "broken")  || 
+			  streq(feel_heavy, "average") || 
+			  streq(feel_heavy, "good") 
+			  ) 
+			)
+		go_squelch = TRUE;
+		/*If we have weak pseudo-id and not id'd it,we can delete up to average*/
+		if( sense && !heavy && ( streq(feel, "cursed") ||  streq(feel, "broken")  || streq(feel, "") ) )
+			go_squelch = TRUE;				
+		/*If we dont squelch then getoutahere */
+		if(!go_squelch)
+			return;
+		/* Paranoia, if anybody afterwards still checks for this... */
+		go_squelch = TRUE;
+	}
+
 	/*Only sanity checks that are left need id to trigger so give it up if have no ID*/
 	if(!id || cursed_p(o_ptr))
 	{

@@ -415,12 +415,12 @@ int player_egid;
 /*
 * Current player's character name
 */
-char player_name[32];
+char player_name[40];
 
 /*
 * Stripped version of "player_name"
 */
-char player_base[32];
+char player_base[40];
 
 /*
 * What killed the player
@@ -623,6 +623,23 @@ char angband_sound_name[SOUND_MAX][16] =
 		"warn"
 };
 
+/*
+ * Hack -- The special Angband "Graphics Suffix"
+ * This variable is used to choose an appropriate "graf-xxx" file
+ */
+cptr ANGBAND_GRAF = "old";
+
+/*
+ * Run-time arguments
+ */
+bool arg_fiddle;			/* Command arg -- Request fiddle mode */
+bool arg_wizard;			/* Command arg -- Request wizard mode */
+bool arg_sound;				/* Command arg -- Request special sounds */
+bool arg_graphics;			/* Command arg -- Request graphics mode */
+bool arg_force_original;	/* Command arg -- Request original keyset */
+bool arg_force_roguelike;	/* Command arg -- Request roguelike keyset */
+
+int arg_tile_size;          /* Windows only , Command arg - Request tilesize */
 
 /*
 * The array of "cave grids" [MAX_WID][MAX_HGT].
@@ -707,21 +724,24 @@ cptr keymap_act[KEYMAP_MODES][256];
 /*** Player information ***/
 
 /*
-* Static player info record
-*/
-/*static*/ player_type p_body;
+ * Static player info record
+ * Hackery!
+ */
+player_type p_body;
+player_type *p_ptr = &p_body;
 
 /*
-* Pointer to the player info
-*/
-player_type *p_ptr = &p_body;
+ * Static player info record
+ * Hackery! 
+ */
+player_race p_race;
+player_race *rp_ptr = &p_race;
 
 /*
 * Pointer to the player tables
 * (sex, race, class, magic)
 */
 player_sex *sp_ptr;
-player_race *rp_ptr;
 player_class *cp_ptr;
 class_magic *mp_ptr;
 player_race *bsp_ptr;
@@ -932,13 +952,13 @@ bool angband_keymap_flag = TRUE;
 bool mystic_armour_aux;
 bool mystic_notify_aux;
 
-#ifdef ALLOW_EASY_OPEN /* TNB */
-bool easy_open = TRUE;
-#endif /* ALLOW_EASY_OPEN -- TNB */
 
-#ifdef ALLOW_EASY_DISARM /* TNB */
+bool easy_open = TRUE;
+
+
+
 bool easy_disarm = TRUE;
-#endif /* ALLOW_EASY_DISARM -- TNB */
+
 
 /*
  * The alchemy information
@@ -949,5 +969,12 @@ alchemy_info potion_alch[SV_POTION_MAX];
  * Book swap information
  */
 
+byte bookswap_level;
 
+bookswap_deal bookswap_deals[10];
 
+/*
+ * Super mega hack, a variable that is true for pointer magic, brrr
+ */
+
+bool reallyTRUE = TRUE;

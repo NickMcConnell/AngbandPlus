@@ -141,7 +141,15 @@ void do_cmd_change_name(void)
 		/* File dump */
 		else if (c == 'f')
 		{
-			sprintf(tmp, "%s.txt", player_base);
+			/* Holders for time information */
+			time_t              c;
+			struct tm		*tp;
+
+			/* Check for time violation */
+			c = time((time_t *)0);
+			tp = localtime(&c);
+
+ 			sprintf(tmp, "%s_%d%02d%02d_%02d%02d.txt", player_base , tp->tm_year+1900 , tp->tm_mon+1 , tp->tm_mday , tp->tm_hour , tp->tm_min );
 			if (get_string("File name: ", tmp, 80))
 			{
 				if (tmp[0] && (tmp[0] != ' '))
@@ -1807,7 +1815,7 @@ void do_cmd_macros(void)
 			prt("File: ", 18, 0);
 
 			/* Default filename */
-			sprintf(tmp, "%s.prf", player_name);
+			sprintf(tmp, "%s.prf", player_base);
 
 			/* Ask for a file */
 			if (!askfor_aux(tmp, 80)) continue;
@@ -1832,7 +1840,7 @@ void do_cmd_macros(void)
 			prt("File: ", 18, 0);
 
 			/* Default filename */
-			sprintf(tmp, "%s.prf", player_name);
+			sprintf(tmp, "%s.prf", player_base);
 
 			/* Ask for a file */
 			if (!askfor_aux(tmp, 80)) continue;
@@ -1955,7 +1963,7 @@ void do_cmd_macros(void)
 			prt("File: ", 18, 0);
 
 			/* Default filename */
-			sprintf(tmp, "%s.prf", player_name);
+			sprintf(tmp, "%s.prf", player_base);
 
 			/* Ask for a file */
 			if (!askfor_aux(tmp, 80)) continue;
@@ -2730,15 +2738,28 @@ void do_cmd_colours(void)
 			while (1)
 			{
 				cptr name;
+				feature_type *f_ptr;
 
 				/* Clear */
 				clear_from(10);
 
+				f_ptr = &f_info[FEAT_FLOOR];
+
 				/* Exhibit the normal colours */
 				for (i = 0; i < 16; i++)
 				{
-					/* Exhibit this colour */
-					Term_putstr(i*4, 20, -1, (byte)a, "###");
+					/* Show some floor */
+					Term_queue_char(i*4,   18, (byte)i , '#' , f_ptr->z_attr  , f_ptr->z_char );
+					Term_queue_char(i*4+1, 18, (byte)i , '#' , f_ptr->z_attr  , f_ptr->z_char );
+					Term_queue_char(i*4+2, 18, (byte)i , '#' , f_ptr->z_attr  , f_ptr->z_char );
+
+					Term_queue_char(i*4,   19, (byte)i , '#' , f_ptr->z_attr  , f_ptr->z_char+1 );
+					Term_queue_char(i*4+1, 19, (byte)i , '#' , f_ptr->z_attr  , f_ptr->z_char+1 );
+					Term_queue_char(i*4+2, 19, (byte)i , '#' , f_ptr->z_attr  , f_ptr->z_char+1 );
+
+					Term_queue_char(i*4,   20, (byte)i , '#' , f_ptr->z_attr  , f_ptr->z_char+2 );
+					Term_queue_char(i*4+1, 20, (byte)i , '#' , f_ptr->z_attr  , f_ptr->z_char+2 );
+					Term_queue_char(i*4+2, 20, (byte)i , '#' , f_ptr->z_attr  , f_ptr->z_char+2 );
 
 					/* Exhibit all colours */
 					Term_putstr(i*4, 22, -1, (byte)i, format("%3d", i));
@@ -2887,10 +2908,6 @@ void do_cmd_feeling(bool FeelingOnly)
 		if (is_quest(dun_level))
 		{
 			print_quest_message();
-		}
-		if(dun_bias)
-		{
-			show_dun_bias();
 		}
 	}
 

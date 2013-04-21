@@ -1,0 +1,99 @@
+<!-- comment  -->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "DTD/xhtml1-strict.dtd">
+<HTML>
+ <HEAD>
+  <TITLE>Hellband</TITLE>
+  <META NAME="AUTHOR"                 CONTENT="Tom Demuyt">
+  <META NAME="COPYRIGHT"              CONTENT="&copy; 2008 Tom Demuyt">
+  <!-- <META HTTP-EQUIV="CACHE-CONTROL"    CONTENT="PRIVATE"> -->
+  <META HTTP-EQUIV="CONTENT-LANGUAGE" CONTENT="en-US">
+  <META NAME="DESCRIPTION"            CONTENT="Hellband Game">
+  
+  <link rel="shortcut icon" href="hellband.ico" type="image/x-icon" /> 
+  <link rel="stylesheet" type="text/css" href="hellband.css">
+
+  <!-- <script src='http://www.google-analytics.com/ga.js' type='text/javascript'></script> -->
+
+  <script src="math.js"></script>
+
+  <script src="myquery.js"></script>
+  <script src="debug.js"></script>
+  <script src="keyboard.js"></script>
+  <script src="view.js"></script>
+  <script src="terms.js"></script>
+
+  <script src="intro.js"></script>
+  <script src="hellband.js"></script>
+
+  <script src="rng.js"></script>
+  <script src="options.js"></script>
+  <script src="races.js"></script>
+  <script src="vocations.js"></script>
+  <script src="signs.js"></script>
+
+  <script src="playermagic.js"></script>
+
+  <script src="gizmos.js"></script>
+  <script src="info_k.js"></script>
+	<script src="gizmo.js"></script>
+  <script src="gear.js"></script>
+  <script src="loot.js"></script>
+  
+  <script src="player.js"></script>
+  <script src="events.js"></script>
+
+
+  <script src="birth.js"></script>
+
+  <script src="cave.js"></script>
+  <script src="stores.js"></script>
+  <script src="generate.js"></script>
+
+  <script src="population.js"></script>
+  <script src="quests.js"></script>
+
+  <script src="info_f.js"></script>
+  <script src="info_r.js"></script>
+  <script src="monsters.js"></script>
+  <script src="monster.js"></script>
+
+
+  <script src="cmd.js"></script>
+
+ </HEAD>
+ <BODY onkeypress="processKeyEvent(event)"  onkeydown="processUpKeyEvent(event)" background='black'>
+<center>
+  <div id="view" class="view"></div>
+</center>
+  <div id="debug" class="debug"></div>
+
+<SCRIPT LANGUAGE="JavaScript">
+initHellband();
+initKeyboard();
+initDebug();
+initView();
+initRNG();
+initializeOptions()
+initBirth();
+initVocations();
+initRaces();
+initializeSigns();
+initGizmos();
+initPlayer();
+initGear();
+initCave();
+initMonsters();
+initCommands();
+nextFunction = startBirth;
+
+//-- Begin Google Analytics --
+if( this._gat ){
+  var pageTracker = _gat._getTracker("UA-1169785-2");
+  pageTracker._trackPageview();
+}
+//-- End Google Analytics --
+</SCRIPT>
+
+
+ </BODY>
+</HTML>

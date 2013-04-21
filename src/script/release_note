@@ -16,12 +16,12 @@ for  x in fca {
      . <f> x;
   }
   
-  if( x.startsWith("  - 0.8.4") ){
+  if( x.startsWith("  - 0.8.6") ){
     ta = x.split("\\s");
     cline = "";
       for t in ta{
       	if( t.length() + cline.length() + 1 > 71 ){
-	  . <f> cline;
+	  . <f> cline.trunc(1);
 	  cline = "          " @ t @ " ";
 	}else{
 	  cline = cline @ t @ " ";

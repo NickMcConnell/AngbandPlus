@@ -54,7 +54,30 @@
 * that the binary image files are extremely system dependant.
 */
 
+/*
+* Hack -- Explain a broken "lib" folder and quit (see below).
+*
+* XXX XXX XXX This function is "messy" because various things
+* may or may not be initialized, but the "plog()" and "quit()"
+* functions are "supposed" to work under any conditions.
+*/
+static void init_angband_aux(cptr why)
+{
+	/* Why */
+	plog(why);
 
+	/* Explain */
+	plog("The 'lib' directory is probably missing or broken.");
+
+	/* More details */
+	plog("Perhaps the archive was not extracted correctly.");
+
+	/* Explain */
+	plog("See the 'README' file for more information.");
+
+	/* Quit with error */
+	quit("Fatal Error.");
+}
 
 /*
  * Find the default paths to all of our important sub-directories.
@@ -89,13 +112,13 @@
  * this function to be called multiple times, for example, to
  * try several base "path" values until a good one is found.
  */
-void init_file_paths(char *path)
+void init_file_paths(char *path , int attempt)
 {
 	char *tail;
-	
-#ifdef PRIVATE_USER_PATH
+    int fd = -1;
 	char buf[1024];
-#endif /* PRIVATE_USER_PATH */
+	char why[1024];
+	char *path_separator;
 	
 	/*** Free everything ***/
 	
@@ -248,6 +271,56 @@ void init_file_paths(char *path)
 	}
 	
 #endif /* NeXT */
+	puts( "User dir:" );
+	puts( ANGBAND_DIR_USER );
+	
+	/*** Verify the "news" file ***/
+
+	/* Build the filename */
+	path_build(buf, 1024, ANGBAND_DIR_FILE, "news.txt");
+
+	/* Attempt to open the file */
+	fd = fd_open(buf, O_RDONLY);
+
+	/* Failure */
+	if (fd < 0)
+	{
+	
+		/* We do a last minute attempt to fix the mess */
+		if( attempt == 1 )
+		{
+			/* This is the first time we are trying, lets see if we can h4x0r this */
+			char path[1024];			
+			strcpy( path, argv0 );
+			path_separator = strrchr( path , '/' );
+
+			if(!path_separator)
+			{
+				strcpy( path , "lib/" );
+			}
+			else
+			{
+				path_separator++;
+				strcpy( path_separator , "lib/" );
+			}
+			
+			puts( "Trying this alternative path : " );
+			puts( path );
+			/* By numbering this attempt '2', we will avoid infinite loops and
+			   allow daisy chaining desperate attempts */
+			init_file_paths( path , 2 );
+		}
+		else
+		{
+			/* Message */
+			sprintf(why, "Cannot access the '%s' file!", buf);	
+			/* Crash and burn */
+			init_angband_aux(why);
+		}
+	}
+
+	/* Close it */
+	(void)fd_close(fd);
 	
 }
 
@@ -2591,10 +2664,23 @@ static byte store_table[MAX_STORES][STORE_CHOICES][2] =
 				{ 0, 0 },
 				{ 0, 0 },
 				{ 0, 0 }
-			}
+			},
+	{
+    /* 12 = Mage guild */
+    { TV_SORCERY_BOOK   , 2 }  , { TV_SORCERY_BOOK   , 2 }  , { TV_SORCERY_BOOK   , 3 }  , { TV_SORCERY_BOOK   , 3 }  , 
+    { TV_NATURE_BOOK    , 2 }  , { TV_NATURE_BOOK    , 2 }  , { TV_NATURE_BOOK    , 3 }  , { TV_NATURE_BOOK    , 3 }  , 
+    { TV_CHAOS_BOOK     , 2 }  , { TV_CHAOS_BOOK     , 2 }  , { TV_CHAOS_BOOK     , 3 }  , { TV_CHAOS_BOOK     , 3 }  , 
+    { TV_DEATH_BOOK     , 2 }  , { TV_DEATH_BOOK     , 2 }  , { TV_DEATH_BOOK     , 3 }  , { TV_DEATH_BOOK     , 3 }  , 
+    { TV_TAROT_BOOK     , 2 }  , { TV_TAROT_BOOK     , 2 }  , { TV_TAROT_BOOK     , 3 }  , { TV_TAROT_BOOK     , 3 }  , 
+    { TV_CHARMS_BOOK    , 2 }  , { TV_CHARMS_BOOK    , 2 }  , { TV_CHARMS_BOOK    , 3 }  , { TV_CHARMS_BOOK    , 3 }  , 
+    { TV_CHARMS_BOOK    , 2 }  , { TV_CHARMS_BOOK    , 2 }  , { TV_CHARMS_BOOK    , 3 }  , { TV_CHARMS_BOOK    , 3 }  , 
+    { TV_MIRACLES_BOOK  , 2 }  , { TV_MIRACLES_BOOK  , 2 }  , { TV_MIRACLES_BOOK  , 3 }  , { TV_MIRACLES_BOOK  , 3 }  , 
+    { TV_DEMONIC_BOOK   , 2 }  , { TV_DEMONIC_BOOK   , 2 }  , { TV_DEMONIC_BOOK   , 3 }  , { TV_DEMONIC_BOOK   , 3 }  , 
+    { TV_DEATH_BOOK     , 2 }  , { TV_DEATH_BOOK     , 2 }  , { TV_DEATH_BOOK     , 3 }  , { TV_DEATH_BOOK     , 3 }  , 
+    { TV_SOMATIC_BOOK   , 2 }  , { TV_SOMATIC_BOOK   , 2 }  , { TV_SOMATIC_BOOK   , 3 }  , { TV_SOMATIC_BOOK   , 3 }  , 
+    { TV_NATURE_BOOK    , 2 }  , { TV_NATURE_BOOK    , 2 }  , { TV_NATURE_BOOK    , 3 }  , { TV_NATURE_BOOK    , 3 }  , 
+	},
 };
-
-
 
 
 /*
@@ -2667,7 +2753,6 @@ static errr init_other(void)
 
 		/* No table for the black market or home */
 		if ((j == STORE_BLACK) ||
-			 j == STORE_BOOK_SWAP || 
 			(j == STORE_HOME)) continue;
 
 		/* Assume full table */
@@ -2777,12 +2862,10 @@ static errr init_other(void)
 		}
 	}
 
-
 	/*** Pre-allocate space for the "format()" buffer ***/
 
 	/* Hack -- Just call the "format()" function */
 	(void)format("%s (%s).", "Konijn", MAINTAINER);
-
 
 	/* Success */
 	return (0);
@@ -2996,34 +3079,6 @@ static void note(cptr str)
 	Term_fresh();
 }
 
-
-
-/*
-* Hack -- Explain a broken "lib" folder and quit (see below).
-*
-* XXX XXX XXX This function is "messy" because various things
-* may or may not be initialized, but the "plog()" and "quit()"
-* functions are "supposed" to work under any conditions.
-*/
-static void init_angband_aux(cptr why)
-{
-	/* Why */
-	plog(why);
-
-	/* Explain */
-	plog("The 'lib' directory is probably missing or broken.");
-
-	/* More details */
-	plog("Perhaps the archive was not extracted correctly.");
-
-	/* Explain */
-	plog("See the 'README' file for more information.");
-
-	/* Quit with error */
-	quit("Fatal Error.");
-}
-
-
 /*
 * Hack -- main Angband initialization entry point
 *
@@ -3071,40 +3126,13 @@ static void init_angband_aux(cptr why)
 * Note that the "graf-xxx.prf" file must be loaded separately,
 * if needed, in the first (?) pass through "TERM_XTRA_REACT".
 */
-void init_angband(void)
+void init_angband()
 {
 	int fd = -1;
 
 	int mode = 0644;
 
-	/*FILE *fp; No longer used */
-
 	char buf[1024];
-
-
-	/*** Verify the "news" file ***/
-
-	/* Build the filename */
-	path_build(buf, 1024, ANGBAND_DIR_FILE, "news.txt");
-
-	/* Attempt to open the file */
-	fd = fd_open(buf, O_RDONLY);
-
-	/* Failure */
-	if (fd < 0)
-	{
-		char why[1024];
-
-		/* Message */
-		sprintf(why, "Cannot access the '%s' file!", buf);
-
-		/* Crash and burn */
-		init_angband_aux(why);
-	}
-
-	/* Close it */
-	(void)fd_close(fd);
-
 
 	/* Aw screw it, everybody loves colour ;) */
 	use_colour = 1;
@@ -3223,5 +3251,77 @@ void init_angband(void)
 	note("[Initialization complete]");
 }
 
+void cleanup_angband(void)
+{
+	int i;
+
+	static bool once = FALSE;
+	if(once) return;
+	once = TRUE;
+
+	/* Free the allocation tables */
+	FREE(alloc_race_table);
+	FREE(alloc_kind_table);
+
+	if (store)
+	{
+		/* Free the store inventories */
+		for (i = 0; i < MAX_STORES; i++)
+		{
+			/* Get the store */
+			store_type *st_ptr = &store[i];
+
+			/* Free the store inventory */
+			FREE(st_ptr->stock);
+		}
+	}
+
+	/* Free the stores */
+	FREE(store);
+
+	/* Free the player inventory */
+	FREE(inventory);
+
+	/* Free the lore, monster, effects, and object lists */
+	FREE(o_list);
+
+#ifdef MONSTER_SMELL
+
+	/* Flow arrays */
+	FREE(cave_when);
+
+#endif /* MONSTER_SMELL */
+
+	/* Free the "quarks" quarks_free(); */
+
+	/*free the randart arrays free_randart_tables(); */
+
+	/* Free the info, name, and text arrays */
+	/*
+	free_info(&v_head);
+	free_info(&r_head);
+	free_info(&e_head);
+	free_info(&a_head);
+	free_info(&k_head);
+	free_info(&f_head);
+	*/
+
+	/* Free the format() buffer */
+	vformat_kill();
+
+	/* Free the directories */
+	string_free(ANGBAND_DIR);
+	string_free(ANGBAND_DIR_APEX);
+	string_free(ANGBAND_DIR_BONE);
+	string_free(ANGBAND_DIR_DATA);
+	string_free(ANGBAND_DIR_EDIT);
+	string_free(ANGBAND_DIR_FILE);
+	string_free(ANGBAND_DIR_HELP);
+	string_free(ANGBAND_DIR_INFO);
+	string_free(ANGBAND_DIR_SAVE);
+	string_free(ANGBAND_DIR_PREF);
+	string_free(ANGBAND_DIR_USER);
+	string_free(ANGBAND_DIR_XTRA);
+}
 
 

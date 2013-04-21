@@ -34,43 +34,6 @@
 	
 #include "angband.h"
 
-void show_dun_bias(void)
-{
-	switch(dun_bias)
-	{
-	case FILTER_ORC:
-		{
-			msg_print("You can hear the beating of drums.");
-			break;
-		}
-	case FILTER_UNDEAD:
-		{
-			msg_print("It smells like a morgue in here.");
-			break;
-		}
-	case FILTER_DRAGON:
-		{
-			msg_print("You can hear the hissing and slithering of reptilian beasts.");
-			break;
-		}
-	case FILTER_SPIDER:
-		{
-			msg_print("The place is covered in webs.");
-			break;
-		}
-	case FILTER_DEMON:
-		{
-			msg_print("The walls and ceiling drip with ichor.");
-			break;
-		}
-	case FILTER_DEVIL:
-		{
-			msg_print("The air is full of the sound of infernal cackling.");
-			break;
-		}
-	}
-}
-
 /*
 * Search quests for correct monster
 */

@@ -1526,16 +1526,17 @@ static void calc_spells(void)
 
 	cptr p = ((mp_ptr->spell_book == TV_SORCERY_BOOK) ? "spell" : "prayer");
 
-
 	/* Hack -- must be literate */
 	if (!mp_ptr->spell_book) return;
+
+	/* Make sure mystics dont get in trouble */
+	if (!p_ptr->realm1) return;
 
 	/* Hack -- wait for creation */
 	if (!character_generated) return;
 
 	/* Hack -- handle "xtra" mode */
 	if (character_xtra) return;
-
 
 	/* Determine the number of spells allowed */
 	levels = p_ptr->lev - mp_ptr->spell_first + 1;
@@ -1544,7 +1545,7 @@ static void calc_spells(void)
 	if (levels < 0) levels = 0;
 
 	/* Extract total allowed spells */
-	num_allowed = (adj_mag_study[p_ptr->stat_ind[mp_ptr->spell_stat]] * levels / 2);
+	num_allowed = (adj_stat[p_ptr->stat_ind[mp_ptr->spell_stat]][ADJ_SPELLS] * levels / 2);
 
 	/* Assume none known */
 	num_known = 0;
@@ -1839,7 +1840,7 @@ static void calc_mana(void)
 	if (levels < 0) levels = 0;
 
 	/* Extract total mana */
-	msp = adj_mag_mana[p_ptr->stat_ind[mp_ptr->spell_stat]] * levels / 2;
+	msp = adj_stat[p_ptr->stat_ind[mp_ptr->spell_stat]][ADJ_MANA] * levels / 2;
 
 	/* Hack -- usually add one mana */
 	if (msp) msp++;
@@ -1982,7 +1983,7 @@ static void calc_hitpoints(void)
 	int bonus, mhp;
 
 	/* Un-inflate "half-hitpoint bonus per level" value */
-	bonus = ((int)(adj_con_mhp[p_ptr->stat_ind[A_CON]]) - 128);
+	bonus = ((int)(adj_stat[p_ptr->stat_ind[A_CON]][ADJ_HP]) - 128);
 
 	/* Calculate hitpoints */
 	mhp = player_hp[p_ptr->lev-1] + (bonus * p_ptr->lev / 2);
@@ -2128,7 +2129,7 @@ static int weight_limit(void)
 	int i;
 
 	/* Weight limit based only on strength */
-	i = adj_str_wgt[p_ptr->stat_ind[A_STR]] * 100;
+	i = adj_stat[p_ptr->stat_ind[A_STR]][ADJ_WEIGHT] * 100;
 
 	/* Return the result */
 	return (i);
@@ -3146,17 +3147,16 @@ static void calc_bonuses(void)
 
 
 	/* Actual Modifier Bonuses (Un-inflate stat bonuses) */
-	p_ptr->to_a += ((int)(adj_dex_ta[p_ptr->stat_ind[A_DEX]]) - 128);
-	p_ptr->to_d += ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
-	p_ptr->to_h += ((int)(adj_dex_th[p_ptr->stat_ind[A_DEX]]) - 128);
-	p_ptr->to_h += ((int)(adj_str_th[p_ptr->stat_ind[A_STR]]) - 128);
+	p_ptr->to_a += ((int)(adj_stat[p_ptr->stat_ind[A_DEX]][ADJ_AC]) - 128);
+	p_ptr->to_d += ((int)(adj_stat[p_ptr->stat_ind[A_STR]][ADJ_DAM]) - 128);
+	p_ptr->to_h += ((int)(adj_stat[p_ptr->stat_ind[A_DEX]][ADJ_DEX_HIT]) - 128);
+	p_ptr->to_h += ((int)(adj_stat[p_ptr->stat_ind[A_STR]][ADJ_STR_HIT]) - 128);
 
 	/* Displayed Modifier Bonuses (Un-inflate stat bonuses) */
-	p_ptr->dis_to_a += ((int)(adj_dex_ta[p_ptr->stat_ind[A_DEX]]) - 128);
-	p_ptr->dis_to_d += ((int)(adj_str_td[p_ptr->stat_ind[A_STR]]) - 128);
-	p_ptr->dis_to_h += ((int)(adj_dex_th[p_ptr->stat_ind[A_DEX]]) - 128);
-	p_ptr->dis_to_h += ((int)(adj_str_th[p_ptr->stat_ind[A_STR]]) - 128);
-
+	p_ptr->dis_to_a += ((int)(adj_stat[p_ptr->stat_ind[A_DEX]][ADJ_AC]) - 128);
+	p_ptr->dis_to_d += ((int)(adj_stat[p_ptr->stat_ind[A_STR]][ADJ_DAM]) - 128);
+	p_ptr->dis_to_h += ((int)(adj_stat[p_ptr->stat_ind[A_DEX]][ADJ_DEX_HIT]) - 128);
+	p_ptr->dis_to_h += ((int)(adj_stat[p_ptr->stat_ind[A_STR]][ADJ_STR_HIT]) - 128);
 
 	/* Redraw armour (if needed) */
 	if ((p_ptr->dis_ac != old_dis_ac) || (p_ptr->dis_to_a != old_dis_to_a))
@@ -3168,14 +3168,11 @@ static void calc_bonuses(void)
 		p_ptr->window |= (PW_PLAYER);
 	}
 
-
 	/* Obtain the "hold" value */
-	hold = adj_str_hold[p_ptr->stat_ind[A_STR]];
-
+	hold = adj_stat[p_ptr->stat_ind[A_STR]][ADJ_WEIGHT];
 
 	/* Examine the "current bow" */
 	o_ptr = &inventory[INVEN_BOW];
-
 
 	/* Assume not heavy */
 	p_ptr->heavy_shoot = FALSE;
@@ -3315,13 +3312,13 @@ static void calc_bonuses(void)
 		div = ((o_ptr->weight < wgt) ? wgt : o_ptr->weight);
 
 		/* Access the strength vs weight */
-		str_index = (adj_str_blow[p_ptr->stat_ind[A_STR]] * mul / div);
+		str_index = (adj_stat[p_ptr->stat_ind[A_STR]][ADJ_STR_BLOW] * mul / div);
 
 		/* Maximal value */
 		if (str_index > 11) str_index = 11;
 
 		/* Index by dexterity */
-		dex_index = (adj_dex_blow[p_ptr->stat_ind[A_DEX]]);
+		dex_index = (adj_stat[p_ptr->stat_ind[A_DEX]][ADJ_DEX_BLOW]);
 
 		/* Maximal value */
 		if (dex_index > 11) dex_index = 11;
@@ -3437,17 +3434,17 @@ static void calc_bonuses(void)
 	p_ptr->skill_stl += 1;
 
 	/* Affect Skill -- disarming (DEX and INT) */
-	p_ptr->skill_dis += adj_dex_dis[p_ptr->stat_ind[A_DEX]];
-	p_ptr->skill_dis += adj_int_dis[p_ptr->stat_ind[A_INT]];
+	p_ptr->skill_dis += adj_stat[p_ptr->stat_ind[A_DEX]][ADJ_DEX_TRAP];
+	p_ptr->skill_dis += adj_stat[p_ptr->stat_ind[A_INT]][ADJ_INT_TRAP];
 
 	/* Affect Skill -- magic devices (INT) */
-	p_ptr->skill_dev += adj_int_dev[p_ptr->stat_ind[A_INT]];
+	p_ptr->skill_dev += adj_stat[p_ptr->stat_ind[A_INT]][ADJ_DEVICE];
 
 	/* Affect Skill -- saving throw (WIS) */
-	p_ptr->skill_sav += adj_wis_sav[p_ptr->stat_ind[A_WIS]];
+	p_ptr->skill_sav += adj_stat[p_ptr->stat_ind[A_WIS]][ADJ_RESIST];
 
 	/* Affect Skill -- digging (STR) */
-	p_ptr->skill_dig += adj_str_dig[p_ptr->stat_ind[A_STR]];
+	p_ptr->skill_dig += adj_stat[p_ptr->stat_ind[A_STR]][ADJ_DIG];
 
 
 	/* Affect Skill -- disarming (Level, by Class) */

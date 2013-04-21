@@ -10,6 +10,7 @@
   - Yellow walls give more an impression of heat
 
 *Dungeon generator
+  - Somatic books were never generated as 'High Level'
   - Have added protected zones for the city of Dis ( level 6 to 27 )
   - Protected zones have no vaults or destroyed levels
   - Each level has creatures unique to it ( This can cause minor slowdown I find )
@@ -18,6 +19,9 @@
   - Removed out of theme monster pits ( orcs & trolls & coins ), added snakes pit I think
 
 *Creatures
+  - 0.8.7 Quite a few creatures had double genus flags, some even contradictory ones
+  - 0.8.7 Uniques that only drop gold drop much more gold now
+  - 0.8.7 Added Babylonians on level 24 to speed up level generation, Nimrod was feeling lonely
   - 0.8.6 Uniques with reborn now properly respawn, but without xp or treasure
   - 0.8.6 Bodyguards of the judges properly named now. ( more properly at least )
   - 0.8.6 Fixed space after perjurer, fixed various french characters ( need unicode soon )
@@ -77,6 +81,9 @@
   - Inns do not show owner name
 
 *Story
+  - 0.8.7 Story added for the Heretics level
+  - 0.8.7 Story added for the Satan level
+  - 0.8.7 Story added for the first pos Dis level
   - Intro story added
   - Level 1 story added
   - Level 2 story added
@@ -85,7 +92,9 @@
   - 0.8.5 X11 preference file location is now dumped to console in fiddle mode
 
 *Equipment
-  - 0.8.6 Items will no longer use elvish names, all ridiculous Z artefact names are replaced with in-theme names.
+  - 0.8.7 Added the infamous white banner of hell, when carrying you should experience 'hmm','cool!','wot?','f!!','oh','heh'
+  - 0.8.6 All ridiculous Z artefact names are replaced with in-theme names.
+  - 0.8.6 Items will no longer use elvish names
   - 0.8.6 Items like rods/staffs/wands that are known will no longer be pseudo-sensed
   - 0.8.6 Shop owners now will junk {broken} items and identify them for you
   - 0.8.6 Added flavors Dragon Tooth and Dragon Claw for amulets
@@ -117,6 +126,20 @@
   - Added !xxxx for artefact names, this will takes as the name whatever comes after !, ignoring base name
 
 *Character Building
+  - 0.8.7 Restarting character creation allows you to re-choose stats
+  - 0.8.7 Mindcrafters can now be generated again, *blush*
+  - 0.8.7 The temple can now remove all your corruptions for 1.500.000 gold
+  - 0.8.7 Werewolves did not get random names
+  - 0.8.7 Skeletons no longer have the Second Sigh but Second Sight now ;)
+  - 0.8.7 Profile file names are now based on the safe name instead of hard core player name
+  - 0.8.7 Potential crash bug found and removed for custom names
+  - 0.8.7 Player names can now be up to 40 characters because of the Italian names
+  - 0.8.7 Italian name generator added ( male and female )
+  - 0.8.7 Fearless and coward mutations could not be gotten, they were their own opposite
+  - 0.8.7 Removed reference to 'Draconian', it should all mention Draco now
+  - 0.8.7 Minor background spelling mistakes and punctuation fixed
+  - 0.8.7 Random characters work now
+  - 0.8.7 Fixed missing space in Ogre descendant description
   - 0.8.4 Morui still talked about Klackons, fixed
   - 0.8.3 Different sex descriptions : Lady/Sir Dame/Lord
   - 0.8.3 Revamped races : 4 major races : Human, Fae, Spawn & Elder
@@ -158,6 +181,7 @@
   - High mages start with 2 spell books
 
 *Wizard Commands
+  - 0.8.7 ']' now induces amnesia so I can test graphic effects with telepathy and squelching better
   - 0.8.5 '2' now evaluates an expression with the PFH for testing purposes
   - 0.8.4 '1' now makes all spells learned, beats pressing 'G' 64 times all the time
   - 0.8.4 '-' now makes you loose a corruption
@@ -171,6 +195,17 @@
   - 0.8.6 Alchemist will now *ID* potions and tell you the alchemical formula
   
 *UI
+  - 0.8.7 Editing colors now shows the colors against the 3 differently lit dungeon floors, so the effect can be measured
+  - 0.8.7 Added support for 32px tile set and made it the default in fact
+  - 0.8.7 Since nothing except floor/walls/doors is done, support for transparent ASCII symbolds is coded for windows
+  - 0.8.7 casting *id* now only shows items that have not been *id*'d yet
+  - 0.8.7 casting id now only shows items that have not been id'd yet
+  - 0.8.7 Picking up from the floor now presents a list if more than 1 item is on the floor
+  - 0.8.7 Ring choosing now asks left or right while showing the rings in those locations
+  - 0.8.7 Dragon Armor no longer gets squelched
+  - 0.8.7 Squelch no longer squelches boots of speed, even if set at 'keep artefact only'
+  - 0.8.7 Squelch will not squelch terrible artefacts.
+  - 0.8.7 Native Mac support for intel macs <- broken, sorry
   - 0.8.6 Help Screen was letting control characters bleed through
   - 0.8.6 Inscriptions and stuff now get concatenated, example: {average, tried, empty}
   - 0.8.6 Character dump now shows all info on artefacts, somewhat ugly but acceptable for this release.
@@ -198,11 +233,17 @@
   - Old study position has been shifted to the left 2 positions
 
 *Help Files
+  - 0.8.7 Alchemy command key is now integrated into interactive help
   - 0.8.5 '?' now first shows an interactive menu, pressing '?' again shows documentation ( thank you Hengband )
   - 0.8.4 Help on Help is rewritten
   - 0.8.4 Birthsigns are added to help
   - 0.8.4 History is updated
   - 0.8.4 Commands are updated
+
+* Stuff
+  - 0.8.7 Chests are now much more interesting like in cool variants
+  - 0.8.7 Weapons of KILL_ANGEL now protect the player from Lucifers' curse
+
 
 *Combat & Magic
   - 0.8.6 Spell spoilers are now available inside stores as well, so you can check out what those spells mean
@@ -303,7 +344,18 @@
 *Patrons
   - 0.8.6 No more references to 'Mortal', about half of the races is not mortal
 
+*Stores
+  - 0.8.7 Black Markets have deeper items once you start to get over character level 25
+
 *Internals
+  - 0.8.7 Remove compile option ALLOW_EASY_DISARM and ALLOW_EASY_DISARM, why would you not want it ??
+  - 0.8.7 Fixed evil wand stacking 'problem'
+  - 0.8.7 level creation time has decreased MUCH both on count of object generation and monster generation being more stable
+  - 0.8.7 Object dropping, stacking and compacting robustified, lots of arrows should no longer crash the game
+  - 0.8.7 store item maintenance is now centralize instead of copy pasted in 4 locations
+  - 0.8.7 makefile.WHICH now has proper code
+  - 0.8.7 Stat adjustment tables are merged into 1 2D matrix, cleaning up 900 lines of code
+  - 0.8.7 Fixed warlock realm choice 
   - 0.8.6 Squashed the last 2 compiler warnings after a discussion on const correctness on rgrd
   - 0.8.6 "blue eyes, and a very fair complexion" is left in, it is a called an Oxford comma ;)
   - 0.8.6 After 3 hours 'fixed' software bug by deleting scores files which was in old format
@@ -346,7 +398,17 @@
   - 0.8.5 Found and got GPL release of Chris R. Martin
   - 0.8.5 Found and got GPL release of Kevin Bracey
 
--TODO :
+- TODO :
+
+
+- ONE DAY
+
+When a patron helps by destroying monsters in sight, there should be drops
+
+- DREAMS
+
+
+- Remove Pattern Walking, its an integrated, undocumented, unholy mess..
 - Level 5 should have Minos' palace placed, with the only exit that points downstairs covering all other downstairs conveniently with rubble ( go calamarain ;)
 - Allow Hell Knights to control the powers of Demonic Weapons ( basically : todo demonic weapons )
 - allow clean_shot to use is_monster_killer(enemy, m_ptr)
@@ -363,7 +425,22 @@
 - Find Ross E Becker ( Found and waiting )
 - Find Randy Hutson, the one that studied in the Math department of Texas ( not found )
 
+- Do the major step of updating code to be doxygen compliant
+- When generating skeletons, generate 2/3 'bad' object, 1/3 good object
 
+add #define STORES_SECOND_FLOOR 1          /**< Total number of stores in game, this includes 2nd floor stores, see store.c */
+
+the stores array :
+- Does store have inventory flux( no for townhall, house , chop shop, mages guild )
+- Does store have multiple for selling ?
+- Does store have multiple for buying ?
+- Does never buy
+- Has special title
+
+GREAT IDEAS:
+
+Thieves have greed level, once passed they leave the level, gold is bye bye, otherwise you can get it back.
+Throwing potions should cause the potions effect on the target
 
 
 

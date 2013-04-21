@@ -37,29 +37,7 @@ extern s16b ddy[10];
 extern s16b ddx_ddd[9];
 extern s16b ddy_ddd[9];
 extern char hexsym[16];
-extern byte adj_val_min[];
-extern byte adj_val_max[];
-extern byte adj_mag_study[];
-extern byte adj_mag_mana[];
-extern byte adj_mag_fail[];
-extern byte adj_mag_stat[];
-extern byte adj_cha_gold[];
-extern byte adj_int_dev[];
-extern byte adj_wis_sav[];
-extern byte adj_dex_dis[];
-extern byte adj_int_dis[];
-extern byte adj_dex_ta[];
-extern byte adj_str_td[];
-extern byte adj_dex_th[];
-extern byte adj_str_th[];
-extern byte adj_str_wgt[];
-extern byte adj_str_hold[];
-extern byte adj_str_dig[];
-extern byte adj_str_blow[];
-extern byte adj_dex_blow[];
-extern byte adj_dex_safe[];
-extern byte adj_con_fix[];
-extern byte adj_con_mhp[];
+extern byte adj_stat[][21];
 extern byte blows_table[12][12];
 extern owner_type owners[MAX_STORES][MAX_OWNERS];
 extern u16b extract_energy[200];
@@ -77,8 +55,8 @@ extern class_magic realms_info[MAX_CLASS];
 extern int spell_skill_mana[26][5];
 extern byte spell_skill_level[50][5];
 extern u32b fake_spell_flags[4];
-extern u16b realm_choices[MAX_CLASS];
-extern cptr realm_names[];
+extern u16b realm_choices[MAX_CLASS][2];
+extern realm_type realm_names[];
 extern spell_type spells[MAX_REALM][32];
 extern byte chest_traps[64];
 extern cptr player_title[MAX_CLASS][PY_MAX_LEVEL/5];
@@ -148,7 +126,6 @@ extern s16b resting;
 extern s16b cur_hgt;
 extern s16b cur_wid;
 extern s16b dun_level;
-extern s16b dun_bias;
 extern byte came_from;
 extern s16b num_repro;
 extern s16b object_level;
@@ -323,8 +300,8 @@ extern s16b object_kind_idx;
 extern int player_uid;
 extern int player_euid;
 extern int player_egid;
-extern char player_name[32];
-extern char player_base[32];
+extern char player_name[40];
+extern char player_base[40];
 extern char died_from[80];
 extern char history[4][70];
 extern char savefile[1024];
@@ -376,6 +353,7 @@ extern byte tval_to_attr[128];
 extern char tval_to_char[128];
 extern cptr keymap_act[KEYMAP_MODES][256];
 extern player_type p_body;
+extern player_race p_race;
 extern player_type *p_ptr;
 extern player_sex *sp_ptr;
 extern player_race *rp_ptr;
@@ -446,7 +424,7 @@ extern u32b seed_alchemy;
 */
 
 /* birth.c */
-extern void create_random_name(int type, char *name);
+extern void create_random_name( int type , byte sex , char *name );
 extern void player_birth(void);
 extern void outfit(object_type *q_ptr);
 
@@ -629,14 +607,15 @@ extern errr init_e_info_txt(FILE *fp, char *buf);
 extern errr init_r_info_txt(FILE *fp, char *buf);
 
 /* init.c */
-extern void init_file_paths(char *path);
-extern void init_angband(void);
+extern void init_file_paths( char *path ,  int attempt );
+extern void init_angband();
 extern cptr r_info_flags1[];
 extern cptr r_info_flags2[];
 extern cptr r_info_flags3[];
 extern cptr r_info_flags4[];
 extern cptr r_info_flags5[];
 extern cptr r_info_flags6[];
+extern void cleanup_angband(void);
 
 /* load1.c */
 extern errr rd_savefile_old(void);
@@ -671,11 +650,11 @@ extern void lore_do_probe(int m_idx);
 extern void lore_treasure(int m_idx, int num_item, int num_gold);
 extern void update_mon(int m_idx, bool full);
 extern void update_monsters(bool full);
-extern bool place_monster_aux(int y, int x, int r_idx, bool slp, bool grp, bool charm);
-extern bool place_monster(int y, int x, bool slp, bool grp);
+extern byte place_monster_aux(int y, int x, int r_idx, bool slp, bool grp, bool charm);
+extern byte place_monster(int y, int x, bool slp, bool grp);
 extern bool alloc_horde(int y, int x);
-extern bool alloc_monster(int dis, int slp);
-extern bool summon_specific(int y1, int x1, int lev, int type);
+extern byte alloc_monster(int dis, int slp);
+extern byte summon_specific(int y1, int x1, int lev, int type);
 extern bool multiply_monster(int m_idx, bool charm, bool clone);
 extern void update_smart_learn(int m_idx, int what);
 extern bool summon_specific_friendly(int y1, int x1, int lev, int type, bool Group_ok);
@@ -697,6 +676,7 @@ extern void set_ally( monster_type *m_ptr , byte ally );
 
 /* object1.c */
 extern void alchemy_init(void);
+extern int scan_floor(int *items, int size, int y, int x, int mode);
 /* object2.c */
 extern void flavor_init(void);
 extern void reset_visuals(void);
@@ -719,6 +699,7 @@ extern void floor_item_charges(int item);
 extern void floor_item_describe(int item);
 extern void floor_item_increase(int item, int num);
 extern void floor_item_optimize(int item);
+extern void distribute_charges(object_type *o_ptr, object_type *q_ptr, int amt);
 extern bool inven_carry_okay(object_type *o_ptr);
 extern s16b inven_carry(object_type *o_ptr, bool final);
 extern s16b inven_takeoff(int item, int amt);
@@ -921,7 +902,8 @@ extern void behemoth_call(void);
 /* store.c */
 extern void do_cmd_store(void);
 extern void store_shuffle(int which);
-extern void store_maint(int which);
+/*extern void store_maint(int which);*/ 
+extern void store_maint_all( int times );
 extern void store_init(int which);
 extern void move_to_black_market(object_type * o_ptr);
 extern int get_which_store(void);
@@ -1044,7 +1026,6 @@ extern int get_number_monster(int i);
 extern int get_rnd_q_monster(int q_idx);
 extern void player_birth_quests(void);
 extern void put_quest_monster(int r_idx);
-extern void show_dun_bias(void);
 
 /* wizard1.c */
 
@@ -1084,8 +1065,6 @@ extern int usleep(huge usecs);
 /* extern int FAR PASCAL WinMain(HINSTANCE hInst, HINSTANCE hPrevInst, ...); */
 #endif
 
-#ifdef ALLOW_REPEAT /* TNB */
-
 /* util.c */
 extern void repeat_push(int what);
 extern bool repeat_pull(int *what);
@@ -1094,31 +1073,26 @@ extern void repeat_push_char(char what);
 extern bool repeat_pull_char(char *what);
 extern void repeat_check(void);
 
-#endif /* ALLOW_REPEAT -- TNB */
-
 extern char *script; 
 extern char variable_token[SCRIPT_MAX_LENGTH];
 extern char dice_mode;
 extern void eval_script(double *out);
 extern void plog_fmt_fiddle(cptr fmt, ...);
 
-#ifdef ALLOW_EASY_OPEN /* TNB */
-
 /* variable.c */
 extern bool easy_open;
+extern cptr ANGBAND_GRAF;
+extern bool arg_fiddle;
+extern bool arg_wizard;
+extern bool arg_sound;
+extern bool arg_graphics;
+extern bool arg_force_original;
+extern bool arg_force_roguelike;
+extern int  arg_tile_size;
+
+extern bool easy_disarm;
+extern bool reallyTRUE;
 
 /* cmd2.c */
 extern bool easy_open_door(int y, int x);
-
-#endif /* ALLOW_EASY_OPEN -- TNB */
-
-#ifdef ALLOW_EASY_DISARM /* TNB */
-
-/* variable.c */
-extern bool easy_disarm;
-
-/* cmd2.c */
 bool do_cmd_disarm_aux(int y, int x, int dir);
-
-#endif /* ALLOW_EASY_DISARM -- TNB */
-

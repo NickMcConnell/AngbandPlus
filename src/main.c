@@ -113,7 +113,7 @@ static void init_stuff(void)
 #endif /* AMIGA */
 
 	/* Initialize */
-	init_file_paths(path);
+	init_file_paths(path,1);
 }
 
 
@@ -232,6 +232,33 @@ static void change_path(cptr info)
 }
 
 
+errr dump_test()
+{
+	char		buf[1024];
+	FILE		*fff = NULL;
+		
+	strcpy( buf, "./killmenow");	
+	fff = my_fopen(buf, "w");
+
+	if (!fff)
+	{
+		/* Message */
+		puts("Could not open test file");
+		/* Error */
+		return (-1);
+	}
+	else
+	{
+		/* Write the string */
+		fprintf(fff, "[Hellband %d.%d.%d Test]\n", VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH);
+		/* Close it */
+		my_fclose(fff);
+		/* Success */
+		return (0);
+	}
+}
+
+
 /*
 * Simple "main" function for multiple platforms.
 *
@@ -273,7 +300,6 @@ int main(int argc, char *argv[])
 	(void)umask(022);
 
 #endif
-
 
 	/* Get the file paths */
 	init_stuff();
@@ -350,6 +376,9 @@ int main(int argc, char *argv[])
 		/* Analyze option */
 		switch (argv[i][1])
 		{
+		/* When calling hellband from Finder, it will pass the process id
+		   We should ignore that parameter */
+		case 'p': break;
 		case 'N':
 		case 'n':
 			{
@@ -436,6 +465,8 @@ int main(int argc, char *argv[])
 usage:
 			{
 				/* Dump usage information */
+				puts("You started hellband with this parameter :");
+				puts( argv[i] );
 				puts("Usage: Hellband [options] [-- subopts]");
 				puts("  -n       Start a new character");
 				puts("  -f       Request fiddle mode");
