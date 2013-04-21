@@ -1386,11 +1386,6 @@ void display_map(int scale) {
   bool old_view_special_lite;
   bool old_view_granite_lite;
 
-  //int rect_sx = DUNGEON_WID / (scale*map_w);
-  //int rect_sy = DUNGEON_HGT / (scale*map_h);
-  //int rect_ex = DUNGEON_WID / (scale*map_w) + (map_w*scale);
-  //int rect_ey = DUNGEON_HGT / (scale*map_h) + (map_h*scale);
-
   int rect_sx = px - scale * map_w / 10;
   int rect_sy = py - scale * map_h / 10;
   int rect_ex = px + scale * map_w / 10;

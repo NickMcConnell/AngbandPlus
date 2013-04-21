@@ -20,7 +20,7 @@ static bool object_slots[50];
 /*
  * Get the next object slot.
  */
-char next_tag(void) {
+void next_tag(object_type* o_ptr) {
   /* Hack -- transparent intialization. */
   static bool initted = FALSE;
   int i;
@@ -33,35 +33,50 @@ char next_tag(void) {
     initted = TRUE;
   }
 
+  /* Object already has a preferred tag, try to use it first. */
+  if (o_ptr->tag && isalpha(o_ptr->tag)) {
+
+    if (o_ptr->tag <= 'Z' && !(object_slots[(o_ptr->tag - 'A') + 25])) {
+      object_slots[(o_ptr->tag - 'A') + 25] = TRUE;
+      return;
+
+    } else if (!object_slots[o_ptr->tag - 'a']) {
+      object_slots[o_ptr->tag - 'a'] = TRUE;
+      return;
+    }
+  }
+
+  /* Find the next available tag. */
   for (i = 0; i < 50; i++) {
     if (!object_slots[i]) {
       object_slots[i] = TRUE;
 
       if (i > 25) 
-	return 'A' + (i - 25);
+	o_ptr->tag =  ('A' + (i - 25));
       else 
-	return 'a' + i;
-
+	o_ptr->tag = ('a' + i);
+      
+      return;
     }
   }
 
   /* Hack -- we ran out of space. */
-  return 'Z';
+  o_ptr->tag = 'Z';
 }
 
 
 /*
  * Remove the given tag.
  */
-void remove_tag(char tag) {
+void remove_tag(object_type* o_ptr) {
   /* Paranoia. */
-  if (!isalpha(tag)) return;
+  if (!isalpha(o_ptr->tag)) return;
 
-  if (tag <= 'Z') {
-    object_slots[(tag - 'A') + 25] = FALSE;
+  if (o_ptr->tag <= 'Z') {
+    object_slots[(o_ptr->tag - 'A') + 25] = FALSE;
 
   } else {
-    object_slots[tag - 'a'] = FALSE;
+    object_slots[o_ptr->tag - 'a'] = FALSE;
   }
 }
 
@@ -95,9 +110,7 @@ static void remove_from_inventory(object_type* o_ptr) {
   }
 
   /* No need for this tag anymore. */
-  if (conserve_slots) {
-    remove_tag(o_ptr->tag);
-  }
+  remove_tag(o_ptr);
 
   o_ptr->tag = 0;
   o_ptr->next = NULL;
@@ -566,9 +579,7 @@ bool inven_carry(object_type* o_ptr) {
     ret = TRUE;
   }
 
-  if (conserve_slots) {
-    o_ptr->tag = next_tag();
-  }
+  next_tag(o_ptr);
 
   return ret;
 }

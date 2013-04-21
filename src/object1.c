@@ -34,8 +34,6 @@
 #define MAX_TITLES     50       /* Used with scrolls (min 48) */
 #define MAX_SYLLABLES  158      /* Used with scrolls (see below) */
 
-static cptr mat_name;
-
 
 /*
  * Rings (adjectives and colors)
@@ -1029,7 +1027,7 @@ void object_flags_known(object_type *o_ptr, u32b *f1, u32b *f2, u32b *f3)
 static char *object_desc_chr(char *t, int* len, char c)
 {
   /* Hack -- 80 char limit. */
-  if (*len >= 80) return (t);
+  if (*len >= 79) return (t);
 
   /* Copy the char */
   *t++ = c;
@@ -1052,12 +1050,14 @@ static char *object_desc_chr(char *t, int* len, char c)
 static char *object_desc_str(char *t, int* len, cptr s)
 {
   /* Hack -- 80 char limit. */
-  if (*len >= 80) return (t);
+  if (*len >= 79) return (t);
 
   /* Copy the string */
   while (*s) {
     *t++ = *s++;
     (*len)++;
+
+    if (*len >= 79) return (t);
   }
 
   /* Terminate */
@@ -1078,7 +1078,7 @@ static char *object_desc_num(char *t, int* len, uint n)
   uint p;
 
   /* Hack -- 80 char limit. */
-  if (*len >= 80) return (t);
+  if (*len >= 79) return (t);
 
   /* Find "size" of "n" */
   for (p = 1; n >= p * 10; p = p * 10) /* loop */;
@@ -1089,6 +1089,8 @@ static char *object_desc_num(char *t, int* len, uint n)
     *t++ = '0' + n / p;
 
     (*len)++;
+
+    if (*len >= 79) return (t);
 
     /* Remove the digit */
     n = n % p;
@@ -1117,7 +1119,7 @@ static char *object_desc_int(char *t, int* len, sint v)
   uint p, n;
 
   /* Hack -- 80 char limit. */
-  if (*len >= 80) return (t);
+  if (*len >= 79) return (t);
 
   /* Negative */
   if (v < 0) {
@@ -1128,6 +1130,8 @@ static char *object_desc_int(char *t, int* len, sint v)
     *t++ = '-';
 
     (*len)++;
+
+    if (*len >= 79) return (t);
   }
 
   /* Positive (or zero) */
@@ -1139,6 +1143,8 @@ static char *object_desc_int(char *t, int* len, sint v)
     *t++ = '+';
 
     (*len)++;
+
+    if (*len >= 79) return (t);
   }
 
   /* Find "size" of "n" */
@@ -1151,6 +1157,8 @@ static char *object_desc_int(char *t, int* len, sint v)
 
     (*len)++;
 
+    if (*len >= 79) return (t);
+  
     /* Remove the digit */
     n = n % p;
 
@@ -1241,8 +1249,7 @@ cptr object_desc_slot_name(int i) {
  *
  */
 void object_desc(char *buf, object_type *o_ptr, int pref, int mode) {
-	cptr basenm, modstr, art_name; 
-	//static cptr mat_name;
+	cptr basenm, modstr, art_name, mat_name; 
 	int power, indexx;
 
 	bool aware = FALSE;
@@ -1610,7 +1617,7 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode) {
 	  else {
 
 	    /* Figure out what the first word in the desc. is going to be. */
-	    if (art_name) {
+	    if (art_name && known) {
 	      first_word = art_name;
 	      
 	    } else if (mat_name) {
@@ -2216,6 +2223,9 @@ void object_desc(char *buf, object_type *o_ptr, int pref, int mode) {
 
 
  end:
+	/* Paranoia. */
+	buf[79] = '\0';
+
 	if (o_ptr->world == WORLD_STORE) {
 	  /* Restore "aware" flag */
 	  k_info[o_ptr->k_idx].aware = hack_aware;
@@ -3251,11 +3261,6 @@ void show_stack(object_type* stack, bool glob) {
 
     /* Ran out of screen space. */
     if (i == 22) break;
-
-    /* Paranoia. */
-    if (o_ptr->stack == STACK_INVEN && !o_ptr->tag) {
-      o_ptr->tag = next_tag();
-    }
 
     /* Prepare an index --(-- */
     sprintf(tmp_val, " %c) ", 

@@ -10,18 +10,10 @@
     prohibited for Ghosts.
 ? - ts_info.txt for tvals/svals.
 
-DONE = " A new race (probably belongs in Kamband, but oh well): The Aether
- Vortex. Has every resistance, gained with levels, and the two auras, but
- CANNOT USE EQUIPMENT. Attacks with an engulf attack which grow
- progressively more powerful, has a breath attack which picks randomly
- from the various elements, and gains a point of speed every 2 levels
- (for a max of 25 speed)."
-
 - Vaults for the wilderness.
+TEST - More pet control.
 
 - Shopkeepers.
-TEST - Scrolling wilderness, remove wilderness levels from standard  
-       dungeons.
 - Corrupted weapons.
 
 - Do something about stacking.

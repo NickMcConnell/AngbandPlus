@@ -549,8 +549,8 @@ extern s16b size_stack(object_type* stack, bool glob);
 extern object_type* get_item(cptr pmt, cptr str, int y, int x, int mode);
 
 /* object2.c */
-extern char next_tag(void);
-extern void remove_tag(char c);
+extern void next_tag(object_type* o_ptr);
+extern void remove_tag(object_type* o_ptr);
 
 extern void remove_from_stack(object_type* o_ptr);
 extern void remove_from_global_list(object_type *o_ptr, object_type **stack);
@@ -606,6 +606,8 @@ extern bool transmute_random(object_type* o_ptr, int lev);
 /* save.c */
 extern bool save_player(void);
 extern bool load_player(void);
+extern bool load_dungeon(s16b tag);
+extern bool save_dungeon(s16b tag);
 
 /* spells1.c */
 extern s16b poly_r_idx(int r_idx);

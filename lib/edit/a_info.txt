@@ -1025,7 +1025,7 @@ P:0:1d6:15:15:0
 F:INT | INFRA | HIDE_TYPE | 
 F:BRAND_FIRE | SLAY_GIANT | RES_FIRE | RES_LITE | 
 F:FEATHER | LITE | SEE_INVIS | ACTIVATE | BLESSED | SHOW_MODS
-Z:41:0:5
+Z:20:0:5
 D:The tip of your spear pulsates.
 
 # The Spear 'Nimloth'

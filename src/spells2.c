@@ -2149,11 +2149,24 @@ void call_pets_toggle(void) {
   /* Take a turn */
   p_ptr->energy_use = 100;
 
-  if (p_ptr->pets_notice) {
-    p_ptr->pets_notice = FALSE;
+  if (p_ptr->pets_notice == 2) {
+    p_ptr->pets_notice = 0;
     msg_print("You stop attracting your pet's attention.");
+
+  } else if (p_ptr->pets_notice == 1) {
+    
+    if (!target_set(TARGET_GRID)) {
+      p_ptr->pets_notice = 0;
+      msg_print("You stop attracting your pet's attention.");
+      
+    } else {
+      p_ptr->pets_notice = 2;
+      msg_print("You point your pet at your target.");
+      awake_monsters(1);
+    }
+
   } else {
-    p_ptr->pets_notice = TRUE;
+    p_ptr->pets_notice = 1;
     msg_print("You shout for some help.");
     awake_monsters(1);
   }

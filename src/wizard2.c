@@ -1567,9 +1567,8 @@ void do_cmd_debug(void)
 		/* DEBUG -KMW- */
 		case 'y':
 		{
-			sprintf(tmp_str,"py: %d, px: %d, oldpy: %d, oldpx: %d, insspe: %d",
-                            p_ptr->py, p_ptr->px, p_ptr->oldpy, p_ptr->oldpx,
-                            p_ptr->inside_special);
+			sprintf(tmp_str,"py: %d, px: %d, insspe: %d",
+                            p_ptr->py, p_ptr->px, p_ptr->inside_special);
 			msg_print(tmp_str);
 
 			msg_format("Global: (%d %d), Depth %d", 

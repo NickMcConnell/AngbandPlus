@@ -357,6 +357,12 @@ static void find_target_nearest(monster_type* m_ptr,
 
   /* Call pets. */
   if (m_ptr->is_pet == TRUE && p_ptr->pets_notice) {
+
+    if (p_ptr->pets_notice == 2 && target_okay()) {
+      *ry = p_ptr->target_row;
+      *rx = p_ptr->target_col;
+    }
+
     return;
   }
 

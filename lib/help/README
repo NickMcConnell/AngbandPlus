@@ -856,3 +856,47 @@ Added a patch from Laurence Withers that adds the ``center_player''
 option. (written by Keldon Jones) Shop and building entrances will also
 generate light.
 
+--- Release 1.7.5 ---
+
+Added a new option -- ``sort_items''. (Under the ``Efficiency'' menu.)
+This will keep all items in a stack sorted by their type.
+
+Item materials will now affect the item's AC.
+
+Added a new option -- ``conserve_slots''. If this is turned on, all
+inventory items will be assigned a letter when picked up. You can then
+always refer to that item by that letter. Note that if you drop the item
+and pick it up again, you'll likely get a new letter assigned.
+
+Items made in shops will now have significantly more hitpoints than
+regular items. Also, all items will now have a slightly twiddled number of
+hitpoints.
+
+Completing quests will now increase your social class.
+
+--- Release 1.8 ---
+
+Wilderness in the dungeons in now gone -- instead, there is an infinite
+scrolling wilderness outside the town. You need to step on the
+``wilderness entrance'' tile to reach it. 
+
+Added three friendly monsters by Kewlguy838@aol.com. (Thanks.)
+
+Added the Vortex race suggested by weisiger (jmartin@inreach.com)
+This race has all the immunities, an intrinsic light source, gains a
+point of speed every two levels, and has a progressively improving
+engulf attack, but cannot use any equipment.
+
+Added the Elemental class -- you cannot use any equipment, you gain
+resistances as you gain levels, and you can use several breath spells.
+The Elemental is meant to be used with the Vortex race.
+
+You can now ask pets to use your target as their target. Simply press
+the ``call pets'' key (Normally `#') twice to select  target for your
+pets to use. If you switch to a different target, you will not need to
+press `#' again -- your pets will switch targets automatically.
+
+Added truly persistent levels, where the whole dungeon can be saved
+and loaded later. Currently the only place this functionality is used 
+is when a player enters a vault shop.
+

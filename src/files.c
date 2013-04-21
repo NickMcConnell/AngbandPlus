@@ -3056,7 +3056,12 @@ static void print_tomb(void)
 	center_string(buf, tmp);
 	put_str(buf, 13, 11);
 
-	sprintf(tmp, "Killed on Level %d", p_ptr->depth);
+	if (p_ptr->inside_special == SPECIAL_WILD) {
+	  sprintf(tmp, "Killed in the wilderness");
+	} else {
+	  sprintf(tmp, "Killed on Level %d", p_ptr->depth);
+	}
+
 	center_string(buf, tmp);
 	put_str(buf, 14, 11);
 
@@ -4507,8 +4512,6 @@ static errr fill_cache(int idx, char* fname) {
 
     C_MAKE(c_ptr->lines[i], strlen(buf)+1, char);
     strcpy(c_ptr->lines[i], buf);
-    //C_MAKE(c_ptr->lines[i], 5, char);
-    //strcpy(c_ptr->lines[i], ".");
   }
 
   my_fclose(fp);

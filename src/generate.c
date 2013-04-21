@@ -2376,14 +2376,7 @@ static void build_vault(int yval, int xval, vault_type* v_ptr)
 
 	  /* Player position for quests (Was: 'P') */
 	case '@':
-	  if ((p_ptr->oldpx == 0 && p_ptr->oldpy == 0) ||
-	      !town_symb || p_ptr->inside_special) {
-	    
-	    player_place(y, x);
-	  } else {
-	    
-	    player_place(p_ptr->oldpy, p_ptr->oldpx);
-	  }
+	  player_place(y, x);
 	  break;
 	}
       }
@@ -3229,11 +3222,11 @@ static void terrain_gen(void) {
   /* Set some generation parameters. */
 
   /* Table of terrain types, one for each depth. */
-  if (magik(30)) {
+  /*
+    if (magik(30)) {
     if (cheat_room) msg_print("Watery terrain level.");
-
-    //table_type = 1;
-  }
+    }
+  */
 
   table_size = 22;
   level_bg = 11;
@@ -3354,12 +3347,12 @@ static void terrain_gen(void) {
     p_ptr->py = DUNGEON_HGT-3;
     old_player_spot();
     break;
-
+      
   case 2:
     p_ptr->py = 2;
     old_player_spot();
     break;
-
+      
   case 3:
     p_ptr->px = DUNGEON_WID-3;
     old_player_spot();
@@ -3425,8 +3418,6 @@ static void terrain_gen(void) {
 
   /* Reset the object generation level */
   object_level = p_ptr->depth;
-
-  printf("(%d, %d) @ %d\n", p_ptr->wild_y, p_ptr->wild_x, p_ptr->depth);
 
   /* Basic "amount" */
   k = (p_ptr->depth / 3);
@@ -3906,9 +3897,8 @@ static void store_gen(void) {
   vault_type* v_ptr;
   int x, y, i, good_y = 0, good_x = 0;
 
+  object_type* o_ptr = NULL;
   store_type* st_ptr = &store[p_ptr->s_idx];
-
-  object_type* o_ptr;
 
   /* Day time */
   if ((turn % (10L * TOWN_DAWN)) < ((10L * TOWN_DAWN) / 2)) {
@@ -4161,6 +4151,7 @@ void generate_cave(void)
 	for (num = 0; TRUE; num++)
 	{
 		bool okay = TRUE;
+		bool load = FALSE;
 
 		cptr why = NULL;
 
@@ -4193,10 +4184,6 @@ void generate_cave(void)
 		}
 
 		
-		/* Mega-Hack -- no player yet */
-		// GREP p_ptr->px = p_ptr->py = 0;
-
-
 		/* Hack -- illegal panel */
 		p_ptr->wy = DUNGEON_HGT;
 		p_ptr->wx = DUNGEON_WID;
@@ -4215,41 +4202,56 @@ void generate_cave(void)
 		rating = 0;
 		pet_rating = 0;
 
-		/* Build the arena -KMW- */
-		if (p_ptr->inside_special == SPECIAL_ARENA || 
-		    p_ptr->inside_special == SPECIAL_MAGIC_ARENA)
-		{
-			arena_gen();
-		}
+		/* Restore an old dungeon. */
+		if (p_ptr->load_dungeon) {
 
-		/* Quest levels -KMW- */
-		else if (p_ptr->inside_special == SPECIAL_QUEST)
-		{
-			quest_gen();
+		  if (load_dungeon(p_ptr->load_dungeon-1)) {
+		    mprint(MSG_ERROR, "Could not load temporary dungeon!");
+
+		  } else {
+		    load = TRUE;
+		  }
+
+		  p_ptr->load_dungeon = 0;
+
+		  /* Mega-hack: prevent autoscum. */
+		  num = 100;
 		}
 		
+		if (!load) {
+
+		  /* Build the arena -KMW- */
+		  if (p_ptr->inside_special == SPECIAL_ARENA || 
+		      p_ptr->inside_special == SPECIAL_MAGIC_ARENA) {
+		    arena_gen();
+		  }
+
+		  /* Quest levels -KMW- */
+		  else if (p_ptr->inside_special == SPECIAL_QUEST) {
+		    quest_gen();
+		  }
+		
 		/* Shop vault. */
-		else if (p_ptr->inside_special == SPECIAL_STORE) {
-		  store_gen();
-		}
+		  else if (p_ptr->inside_special == SPECIAL_STORE) {
+		    store_gen();
+		  }
 
-		/* Build the wilderness */
-		else if (p_ptr->inside_special == SPECIAL_WILD) {
-		  terrain_gen();
-		}
+		  /* Build the wilderness */
+		  else if (p_ptr->inside_special == SPECIAL_WILD) {
+		    terrain_gen();
+		  }
+		  
+		  /* Build the town */
+		  else if (!p_ptr->depth) {
+		    /* Make a town */
+		    town_gen();
+		  }
 
-		/* Build the town */
-		else if (!p_ptr->depth)
-		{
-			/* Make a town */
-			town_gen();
+		  /* Build a real level */
+		  else {
+		    cave_gen();
+		  }
 		}
-
-		/* Build a real level */
-		else
-		{
-		  cave_gen();
-		};
 
 		/* Extract the feeling */
 		if (rating > 100) feeling = 2;
@@ -4296,7 +4298,7 @@ void generate_cave(void)
 		}
 
 		/* Mega-Hack -- "auto-scum" */
-		if (auto_scum && (num < 100))
+		if (auto_scum && (num < 100) && !p_ptr->inside_special)
 		{
 			/* Require "goodness" */
 			if ((feeling > 9) ||
@@ -4341,7 +4343,7 @@ void generate_cave(void)
 
 	/* OK to summon more monsters. */
 	p_ptr->number_pets = 0;
-
+	
 	/* Handle ``all-seeing'' flag */
 	if (p_ptr->allseeing) {
 	  msg_print("You sense the living rock beneath your feet.");

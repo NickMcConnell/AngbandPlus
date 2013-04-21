@@ -1110,19 +1110,17 @@ static void enter_arena(void) {
     msg_print(NULL);
 
   } else {
-    int is_old = p_ptr->inside_special;
+
+    /* Save the level. */
+    if (save_dungeon(MAX_DEPTH)) {
+      mprint(MSG_ERROR, "Could not save temporary dungeon!");
+    }
 
     /* Dumb Hack -- allow the ``magical arena''. */
     if (p_ptr->which_arena == 3) {
       p_ptr->inside_special = SPECIAL_MAGIC_ARENA;
     } else {
       p_ptr->inside_special = SPECIAL_ARENA;
-    }
-
-    /* Save the player's position when entering from the town. */
-    if (is_old == 0) {
-      p_ptr->oldpy = p_ptr->py;
-      p_ptr->oldpx = p_ptr->px;
     }
 
     p_ptr->leaving = TRUE;
@@ -2049,14 +2047,14 @@ static void bldg_command(int which, bool class_b) {
 
     if (inp == ESCAPE || mega_hack_exit_bldg) {
       /* Player exits from the arena */
-      if (p_ptr->inside_special) {
-	p_ptr->leaving = TRUE;
+      if ((p_ptr->inside_special == SPECIAL_ARENA ||
+	   p_ptr->inside_special == SPECIAL_MAGIC_ARENA) &&
+	  p_ptr->exit_bldg) {
 
-	/* Arena task completed, and there are no more monsters. */
-	if (p_ptr->exit_bldg) {
-	  p_ptr->inside_special = 0;
-	}
+	p_ptr->load_dungeon = MAX_DEPTH+1;
+	p_ptr->leaving = TRUE;
       }
+
       break;
     }
 
@@ -2123,12 +2121,11 @@ void do_cmd_bldg(void) {
  * Enter wilderness.
  */
 void enter_wild(void) {
-  p_ptr->oldpy = p_ptr->py;
-  p_ptr->oldpx = p_ptr->px;
   p_ptr->depth = 1;
   p_ptr->wild_x = 0;
   p_ptr->wild_y = 0;
   p_ptr->inside_special = SPECIAL_WILD;
+  p_ptr->create_up_stair = TRUE;
   p_ptr->leaving = TRUE;
 }
 
@@ -2149,8 +2146,6 @@ void do_cmd_quest(void) {
     return;
 
   } else {
-    p_ptr->oldpy = p_ptr->py;
-    p_ptr->oldpx = p_ptr->px;
     p_ptr->inside_special = SPECIAL_QUEST;
     p_ptr->depth = 1;
 

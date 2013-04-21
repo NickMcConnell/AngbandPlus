@@ -812,6 +812,7 @@ void do_cmd_gain_helper(void) {
 
   } else if (p_ptr->prace == RACE_GHOST) {
     msg_print("You try to recall a spell from your past...");
+    do_cmd_study();
 
   } else if (!cp_ptr->magic_innate) {
     mprint(MSG_TEMP, "You must visit your superiors and be taught.");

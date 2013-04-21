@@ -3,7 +3,16 @@
 # Purpose: Makefile support for "main-ibm.c" and Gnu C
 
 # Note: Rename to "Makefile" before using
-# Added extra targets: mrmarcel@eos.ncsu.edu (Mike Marcelais)
+
+# autodetect the presence of an executable compressor 
+
+ifneq ($(wildcard $(DJDIR)/bin/upx.exe),)
+DJP = $(DJDIR)/bin/upx.exe
+else
+ifneq ($(wildcard $(DJDIR)/bin/djp.exe),)
+DJP = $(DJDIR)/bin/djp.exe -s
+endif
+endif
 
 OBJS = \
   z-util.o z-virt.o z-form.o z-rand.o z-term.o \
@@ -28,34 +37,25 @@ CFLAGS = -Wall -O2 -DUSE_IBM
 # Libraries
 
 LIBS = -lpc
-GLIBS= -lgrx20
-
-# Name of Program
-
-PROGRAM = angband.exe makepref.exe gredit.exe
-
-
-all: $(PROGRAM)
 
 # Generate binary file
 
-angband.exe: $(OBJS)
-	$(CC) $(CFLAGS) -o angband.bin $(OBJS) $(LIBS)
+../angband.exe: ../kamband.exe
+	stubify -g ../angband.exe
+	stubedit ../angband.exe runfile=kamband.exe
 
-gredit.exe: gredit.o
-	$(CC) $(CFLAGS) -o gredit.bin gredit.o $(LIBS) $(GLIBS)
+../kamband.exe: $(OBJS)
+	$(CC) $(CFLAGS) -o ../kamband.exe $(OBJS) $(LIBS)
+    ifneq ($(DJP),)
+	$(DJP) ../kamband.exe
+    endif
 
-makepref.exe: makepref.o
-	$(CC) $(CFLAGS) -o makepref.bin makepref.o $(LIBS)
 # Compile source files
 
 .c.o:
 	$(CC) $(CFLAGS) -c $*.c
 
-
 # Clean up
 
 clean:
-	del *.o $(PROGRAM) *.bin
-
-
+	del *.o ../angband.exe ../kamband.exe

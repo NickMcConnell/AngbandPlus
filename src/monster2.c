@@ -439,7 +439,9 @@ s16b get_mon_num(int level)
 		table[i].prob3 = 0;
 
 		/* Hack -- No town monsters in dungeon */
-		if ((level > 0) && (table[i].level <= 0)) continue;
+		if ((level > 0) && (table[i].level <= 0) &&
+		    p_ptr->inside_special != SPECIAL_WILD)
+		  continue;
 
 		/* Access the "r_idx" of the chosen monster */
 		r_idx = table[i].index;

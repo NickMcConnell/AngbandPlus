@@ -488,6 +488,8 @@ static void wr_item(object_type *o_ptr)
 
   wr_byte(o_ptr->marked);
 
+  wr_byte(o_ptr->tag);
+
   /* Save the inscription (if any) */
   if (o_ptr->note) {
     wr_string(quark_str(o_ptr->note));
@@ -817,9 +819,9 @@ static void wr_extra(void)
 	  wr_s16b(bounties[i][1]);
 	}
 
-	wr_s16b(p_ptr->inside_special);
 	wr_byte(p_ptr->exit_bldg);
 	wr_s16b(p_ptr->s_idx);
+	wr_s16b(p_ptr->load_dungeon);
 
 	wr_s16b(p_ptr->mhp);
 	wr_s16b(p_ptr->chp);
@@ -933,18 +935,15 @@ static void wr_dungeon(void)
 
 	object_type* o_ptr;
 
-
 	/*** Basic info ***/
 
 	/* Dungeon specific info follows */
 	wr_s16b(p_ptr->depth);
+	wr_s16b(p_ptr->inside_special);
 	wr_s16b(p_ptr->wild_y);
 	wr_s16b(p_ptr->wild_x);
 	wr_s16b(p_ptr->py);
 	wr_s16b(p_ptr->px);
-
-	wr_s16b(p_ptr->oldpy); /* save old arena locations -KMW- */
-	wr_s16b(p_ptr->oldpx);
 
 	wr_s16b(DUNGEON_HGT);
 	wr_s16b(DUNGEON_WID);
@@ -1339,7 +1338,7 @@ static bool wr_savefile_new(void)
 	return TRUE;
 }
 
-
+  
 /*
  * Medium level player saver
  *
@@ -1496,7 +1495,6 @@ bool save_player(void)
 	/* Return the result */
 	return (result);
 }
-
 
 
 /*
@@ -1762,3 +1760,58 @@ bool load_player(void)
 }
 
 
+
+/*
+ * Attempt to save a temporary dungeon.
+ */
+bool save_dungeon(s16b tag) {
+  char temp[128];
+  char path[1024];
+  int fd = -1;
+  int mode = 0644;
+
+  /* Paranoia */
+  if (tag > 999 || tag < 0) return TRUE;
+
+  sprintf(temp, "%s.%d", op_ptr->base_name, tag);
+  path_build(path, 1024, ANGBAND_DIR_SAVE, temp);
+
+  /* File type is "SAVE" */
+  FILE_TYPE(FILE_TYPE_SAVE);
+
+  /* Delete the old file. */
+  fd_kill(path);
+
+  /* Create the savefile */
+  fd = fd_make(path, mode);
+
+  /* File is okay */
+  if (fd < 0) return TRUE;
+
+  /* Close the "fd" */
+  fd_close(fd);
+
+  /* Open the savefile */
+  fff = my_fopen(path, "wb");
+
+  /* Successful open */
+  if (!fff) return TRUE;
+
+  xor_byte = 0;
+  
+  /* Write the savefile */
+  wr_dungeon();
+
+  if (ferror(fff) || (fflush(fff) == EOF)) {
+    fd_kill(path);
+    return TRUE;
+  }
+
+  /* Attempt to close it */
+  if (my_fclose(fff)) {
+    fd_kill(path);
+    return TRUE;
+  }  
+
+  return FALSE;
+}

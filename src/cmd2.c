@@ -32,16 +32,18 @@ void do_cmd_go_up(void)
 	/* Success */
 	msg_print("You enter a maze of up staircases.");
 
-	if (p_ptr->inside_special == SPECIAL_QUEST) {
-	    p_ptr->depth = 1;
-	    p_ptr->inside_special = 0;
-	}
-	
-	/* Create a way back */
-	p_ptr->create_down_stair = TRUE;
+	if (p_ptr->inside_special == SPECIAL_QUEST ||
+	    p_ptr->inside_special == SPECIAL_WILD) {
+	  p_ptr->depth = 0;
+	  p_ptr->inside_special = 0;
 
-	/* New depth */
-	p_ptr->depth--;
+	} else {
+	  /* Create a way back */
+	  p_ptr->create_down_stair = TRUE;
+
+	  /* New depth */
+	  p_ptr->depth--;
+	}
 
 	/* Leaving */
 	p_ptr->leaving = TRUE;
@@ -64,14 +66,7 @@ void do_cmd_go_down(void)
 	}
 
 	if (p_ptr->inside_special == SPECIAL_WILD) {
-	  p_ptr->depth = 0;
 	  p_ptr->inside_special = 0;
-	}
-
-	/* Memorize where in the town we were. */
-	if (p_ptr->depth == 0) {
-	  p_ptr->oldpy = py;
-	  p_ptr->oldpx = px;
 	}
 
 	/* Hack -- take a turn */

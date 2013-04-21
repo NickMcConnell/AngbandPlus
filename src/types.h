@@ -1000,8 +1000,6 @@ struct player_other
 struct player_type {
   s16b py;			/* Player location */
   s16b px;			/* Player location */
-  s16b oldpy;		/* Previous player location -KMW- */
-  s16b oldpx;		/* Previous player location -KMW- */
 
   byte psex;			/* Sex index */
   byte prace;			/* Race index */
@@ -1044,6 +1042,8 @@ struct player_type {
   bool exit_bldg;	   /* Goal obtained in arena? -KMW- */
   s16b s_idx;              /* Store we are in. */
 
+  s16b load_dungeon;       /* What dungeon savefile to load. */
+
   s16b mhp;			/* Max hit pts */
   s16b chp;			/* Cur hit pts */
   u16b chp_frac;		/* Cur hit frac (times 2^16) */
@@ -1056,7 +1056,7 @@ struct player_type {
   s32b god_favor;               /* Last time you asked for a favor. */
   byte pgod;                    /* Your God. */
 
-  bool pets_notice;             /* Are pets following player? */
+  byte pets_notice;             /* Are pets following player? */
   byte number_pets;             /* How many pets */
   byte is_evil;                 /* Generate lawful monsters? */
 

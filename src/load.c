@@ -210,6 +210,7 @@ static object_type* rd_item_aux(bool store)
 	
 	rd_byte(&o_ptr->marked);
 
+	rd_byte(&o_ptr->tag);
 
 	/* Inscription */
 	rd_string(buf, 128);
@@ -610,9 +611,9 @@ static errr rd_extra(void)
 	  rd_s16b(&bounties[i][1]);
 	}
 
-	rd_s16b(&p_ptr->inside_special);
 	rd_byte(&p_ptr->exit_bldg);
 	rd_s16b(&p_ptr->s_idx);
+	rd_s16b(&p_ptr->load_dungeon);
 
 	rd_s16b(&p_ptr->mhp);
 	rd_s16b(&p_ptr->chp);
@@ -622,7 +623,7 @@ static errr rd_extra(void)
 	rd_s32b(&p_ptr->god_favor);
 	rd_byte(&p_ptr->pgod);
 
-	p_ptr->pets_notice = FALSE;
+	p_ptr->pets_notice = 0;
 	rd_byte(&p_ptr->number_pets);
 
 	rd_byte(&p_ptr->is_evil);
@@ -809,7 +810,6 @@ static errr rd_dungeon(void)
 
 	s16b depth;
 	s16b py, px;
-	s16b oldpy, oldpx; /* Read old locations -KMW- */
 	s16b ymax, xmax;
 
 	object_type* o_ptr;
@@ -824,13 +824,11 @@ static errr rd_dungeon(void)
 
 	/* Header info */
 	rd_s16b(&depth);
+	rd_s16b(&p_ptr->inside_special);
 	rd_s16b(&p_ptr->wild_y);
 	rd_s16b(&p_ptr->wild_x);
 	rd_s16b(&py);
 	rd_s16b(&px);
-
-	rd_s16b(&oldpy);   /* for arena old locations -KMW- */
-	rd_s16b(&oldpx);
 
 	rd_s16b(&ymax);
 	rd_s16b(&xmax);
@@ -839,8 +837,8 @@ static errr rd_dungeon(void)
 	if ((depth < 0) || (depth >= MAX_DEPTH))
 	{
 		note(format("Ignoring illegal dungeon depth (%d)", depth));
-		return (0);
 		msg_print(NULL);
+		return (1);
 	}
 
 	/* Ignore illegal dungeons */
@@ -849,7 +847,7 @@ static errr rd_dungeon(void)
 		/* XXX XXX XXX */
 		note(format("Ignoring illegal dungeon size (%d,%d).", xmax, ymax));
 		msg_print(NULL);
-		return (0);
+		return (1);
 	}
 
 	/* Ignore illegal dungeons */
@@ -930,9 +928,6 @@ static errr rd_dungeon(void)
 		note(format("Cannot place player (%d,%d)!", py, px));
 		return (162);
 	}
-
-        p_ptr->oldpy = oldpy;
-        p_ptr->oldpx = oldpx;
 
 	/*** Objects ***/
 
@@ -1333,4 +1328,40 @@ errr rd_savefile_new(void)
 	return (err);
 }
 
+
+/*
+ * Attempt to load a temporary dungeon.
+ */
+bool load_dungeon(s16b tag) {
+  char temp[128];
+  char path[1024];
+
+  /* Paranoia. */
+  if (tag > 999 || tag < 0) return TRUE;
+
+  sprintf(temp, "%s.%d", op_ptr->base_name, tag);
+  path_build(path, 1024, ANGBAND_DIR_SAVE, temp);
+
+  fff = my_fopen(path, "rb");
+
+  if (!fff) return TRUE;
+
+  xor_byte = 0;
+  v_check = 0L;
+  x_check = 0L;
+
+  /* Read the dungeon. */
+  if (rd_dungeon()) return TRUE;
+
+  /* Check for errors */
+  if (ferror(fff)) return TRUE;
+
+  /* Close the file */
+  my_fclose(fff);
+
+  /* Delete the file. */
+  fd_kill(path);
+
+  return FALSE;
+}
 

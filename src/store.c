@@ -1298,7 +1298,6 @@ void get_store_item(store_type* st_ptr) {
         /* Redraw everything */
         /*p_ptr->redraw |= (PR_BASIC | PR_EXTRA | PR_MAP);
 	  handle_stuff();*/
-	//Term_clear();
 
 	show_stack(stack, TRUE);
 	break;
@@ -1418,7 +1417,7 @@ void do_cmd_store(void) {
 
   /* Leave the shop. */
   if (vault_shops && p_ptr->inside_special == SPECIAL_STORE) {
-    p_ptr->inside_special = 0;
+    p_ptr->load_dungeon = MAX_DEPTH+1;
     p_ptr->leaving = TRUE;
 
     /* Remove the junk we scattered. */
@@ -1451,8 +1450,10 @@ void do_cmd_store(void) {
 
   /* Generate a shop vault. */
   if (vault_shops) {
-    p_ptr->oldpy = p_ptr->py;
-    p_ptr->oldpx = p_ptr->px;
+    /* Save the level. */
+    if (save_dungeon(MAX_DEPTH)) {
+      mprint(MSG_ERROR, "Could not save temporary dungeon!");
+    }
 
     p_ptr->inside_special = SPECIAL_STORE;
     p_ptr->leaving = TRUE;

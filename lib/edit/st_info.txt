@@ -11,9 +11,14 @@
 # items that can be bought
 #       B:(item k_idx) | (item k_idx) | (item k_idx) ...
 #       B: ...
+# which vault to use (see v_info.txt)
+#       V:(v_idx)
 #
 # To list which items are on sale, you need the following in the item
 # data:      (item k_idx):(avg amount in)
+#
+# Note that k_idx can be given either as a single number, or as a range
+# (in the format "a-b" where a, b are numbers; no quotes).
 #
 #   "avg amount in" lists the number that will come in (on average)
 # whenever the store is maintained. Note that it is like a percentage:
@@ -110,7 +115,7 @@ S:227:75 | 230:75 | 233:75 | 236:80 | 237:500 | 240:150 | 249:75      # potions
 S:252:75 | 253:75 | 258:60 | 259:150 | 261:1000 | 262:1000 | 264:300
 S:299:75 | 178:300 | 179:150 | 443-458:500                            # alch.
 
-B:173-177:180-182:184-299:415-422:550-563:581-584:443-458  # scrolls, potions.
+B:173-268:299:415-422:443-458:550-563:581-584   # all
 
 V:132
 

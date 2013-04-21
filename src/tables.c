@@ -2473,65 +2473,87 @@ cptr deity_rarity[4] = {
  */
 
 cptr deity_affiliation[23] = {
+  /* GA_NIGHT */
   "those monsters who are immune or breathe cold, those who breathe "
   "darkness, those who don't sleep, and those who are hurt by light",
-
+  
+  /* GA_DAY */
   "those monsters who are hurt by cold, and those who breathe electricity "
   "and light",
 
+  /* GA_SHADOW */
   "those monsters who are orcs, trolls, giants, dragons, and those who "
   "are invisible",
 
+  /* GA_FIRE */
   "those monsters who are hurt by cold, those who breathe or are immune to "
   "fire, and demons",
 
+  /* GA_FLESH */
   "those monsters who multiply, regenerate, or summon other monsters",
 
+  /* GA_NATURE */
   "those monsters who are animals, stupid, or have strange minds",
 
+  /* GA_WATER */
   "those monsters who breathe or resist water, and aquatic monsters",
-
-
+  
+  /* GA_STONE */
   "those monsters who breathe shards or gravity, those who paralyze, "
   "and those who are hurt by wall-to-mud",
 
+  /* GA_EVIL */
   "those monsters who are evil, undead, demons, those who breathe or "
   "resist nexus and nether, and those who summon undead",
 
+  /* GA_GOOD */
   "those monsters who blind, scare, confuse, those who are immune "
   "to fear or confusion, and those who summon angels",
 
+  /* GA_CHAOS */
   "those monsters who breathe chaos or plasma, drain mana, brain smash, "
   "teleport, and cause amnesia",
-
+  
+  /* GA_AIR */
   "those monsters who have powerfull breath, those who can steal, "
   "those who can fire arrows, and those who breathe sound",
 
+  /* GA_SMARTS */
   "those who are smart, those who can cast ``cause wounds'', those "
   "who can heal, those who can create traps, and those who can cast "
   "magic missile",
 
-  "those who can cast ``haste'', teleport, and breathe time."
+  /* GA_TIME */
+  "those who can cast ``haste'', teleport, and breathe time.",
 
+  /* GA_INFINITY */
   "those who are smart, those who multiply or regenerate, and those who can "
   "breathe or resist nexus.",
 
+  /* GA_CHANGE */
   "those who are shimmering, and those who can breathe destruction or "
-  "disenchantment or chaos."
+  "disenchantment or chaos.",
 
+  /* GA_STASIS */
   "those who do not move, those that have empty minds or those that are "
   "undead.",
 
+  /* GA_SMALL */
   "those who multiply, and those who appear in groups.",
 
+  /* GA_LARGE */
   "those who are giants, dragons, or have powerful breath.",
 
+  /* GA_ENERGY */
   "those who breathe plasma, mana, fire, light, or sound.",
 
+  /* GA_MATTER */
   "those who breathe acid, cold, poison, shards, or darkness.",
 
+  /* GA_BEING */
   "all living creatures, whatever form they come in.",
 
+  /* GA_UNBEING */
   "absolutely nothing."
 
 };

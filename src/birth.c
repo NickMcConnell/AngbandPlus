@@ -919,7 +919,7 @@ static void get_extra(void)
 	p_ptr->grace = 0;
 	p_ptr->pgod = 0;
 
-        p_ptr->pets_notice = FALSE;
+        p_ptr->pets_notice = 0;
         p_ptr->number_pets = 0;
 
 	/* Hitdice */
@@ -2425,10 +2425,6 @@ void player_birth(void)
 
 	/* Hack -- outfit the player */
 	player_outfit();
-
-	/* setup oldpx and oldpy so generate routines know about birth -KMW- */
-	p_ptr->oldpx = 0;
-	p_ptr->oldpy = 0;
 
 	if (p_ptr->pclass == CLASS_VAMPIRE) {
 	  p_ptr->depth = 1;

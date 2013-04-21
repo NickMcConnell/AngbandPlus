@@ -94,8 +94,10 @@ void teleport_away(int m_idx, int dis)
   /* Look until done */
   while (look) {
     /* Verify max distance */
-    if (dis > 200)
+    if (dis > 200) {
       dis = 200;
+      min = 100;
+    }
 
     /* Try several locations */
     for (i = 0; i < 500; i++) {
