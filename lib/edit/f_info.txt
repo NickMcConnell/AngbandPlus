@@ -371,17 +371,17 @@ G:#:w
 
 N:61:permanent wall
 G:#:w
-M:60
+#M:60
 
 # 0x3E --> permanent wall -- outer (perm)
 
 N:62:permanent wall
 G:#:w
-M:60
+#M:60
 
 # 0x3F --> permanent wall -- solid (perm)
 
 N:63:permanent wall
 G:#:w
-M:60
+#M:60
 

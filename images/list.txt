@@ -2,24 +2,32 @@ Image list. Mostly complete
 
 
 000 wall block (unused) (Hajo)
-001 open floor          (Hajo)
-002 stone wall          (Hajo)
-003 brick wall          (Hajo)
-004-031 unused
-032-127 ASCII chars     (Hajo)
-128 scroll              (Hajo)
-129 potion              (Hajo)
+001 open floor (unused) (Hajo)
+002 rock wall           (Hajo)
+003 brick wall (unused) (Hajo)
+004 clean floor         (Hajo)
+005 clean wall          (Hajo)
+006-027 unused
+028 Line mushroom       (Hajo)
+029 Line rodent         (Hajo)
+030 Line Snake          (Mitsuhiro/Hajo)
+031 Line Centipede      (Hajo)
+032 empty tile          (Hajo)
+033-126 ASCII chars     (Hajo)
+127 Line Torch          (Hajo)
+128 Line scroll         (Hajo)
+129 Line potion         (Hajo)
 130 unused
 131 unused
 132 stairs down         (Hajo)
 133 stairs up           (Hajo)
 134 mushrooms           (Hajo)
-135 unused
+135 shop wall           (Hajo)
 136-139 doors           (David/Hajo)
 140 teleport            (Hajo)
 141 fountain            (Maarten)
 142 canine              (Hajo)
-143 rodent              (Hajo)
+143 book                (Hajo)
 144 skull               (Hajo)
 145 iron spikes         (Hajo)
 146 ration food         (Hajo)
@@ -27,28 +35,51 @@ Image list. Mostly complete
 148-151 spell effects   (Hajo)
 152 full grid border    (Hajo)
 153 shadowed spot       (Hajo)
-154
-155
-156 half grid border    (Hajo)
-157 mountain            (Maarten)
+154 (unused)
+155 half grid border    (Hajo)
+156 sand (unused)       (Hajo)
+157 mountain (unused)   (Maarten)
 158 spell effect        (Hajo)
-159 unused
+159 looking cursor      (Hajo)
 160 large white snake   (Mitsuhiro/Hajo)
 161 large brown snake   (Mitsuhiro/Hajo)
 162 cobra               (Mitsuhiro)
+163 (unused)            (Maarten)
+164 (unused)
+165 (unused)
+166 (unused)
+167 (unused)
 168 insect swarm        (Hajo)
 169 grid bug            (Hajo)
 170 soldier ant         (Hajo)
-171-175 added by M. Woxberg
-176 redweed             (Hajo)
-177 jackal              (Hajo)
-178 grey mold           (Hajo)
-179-199 added by M. Woxberg
+171 Line lizard         (Hajo)
+172 Mushroom (unused)   (Hajo)
+173-174 added by M. Woxberg
+175 Line big canine     (Hajo)
+176 Line small lizard   (Hajo)
+177 Line jackal         (Hajo)
+178 Line mold           (Hajo)
+179 Line bat            (M. Woxberg/Hajo)
+180-199 added by M. Woxberg
 200 copper 3            (Hajo)
 201 copper 2            (Hajo)
 202 copper 1            (Hajo)
-203-231 added by M. Woxberg
-232-239 bottles         (Hajo)
+203 gems                (Hajo)
+204 Line cap            (Hajo)
+205 Line gloves         (Hajo)
+206 Line shoes          (Hajo)
+207 Line vest           (Hajo)
+208 Line boots          (Hajo)
+209 Line dagger         (Hajo)
+210 Line sword          (Hajo)
+211 Line double axe     (Hajo)
+212 Line club           (Hajo)
+213 Line shovel         (Hajo)
+214 Line pickaxe        (Hajo)
+215-222 added by M. Woxberg
+223 (unused)
+224-231 Shop entrances  (Hajo)
+232-239 bottles (unused)(Hajo)
 240-279 9 part walls    (Hajo)
 280-319 9 part walls    (Hajo)
 
@@ -58,6 +89,8 @@ Maarten:   Maarten Woxberg
 Mitsuhiro: Mitsohiro Itakura
 
 
-written by Hj. Malthaner, March 2001
+Started by Hj. Malthaner, March 2001
 Stuff added by M. Woxberg, 27th March 2001
-Update by Hj. Malthaner, 13-Dec-2003
+Last update by Hj. Malthaner, 25-Sep-2009
+
+Contact: hansjoerg.malthaner@gmx.de

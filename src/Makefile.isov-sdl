@@ -52,7 +52,12 @@ CC = gcc
 ## Support "main-sdl.c"
 ##
 CFLAGS = -Wall -O1 -pipe -g -D"USE_ISOV_SDL" -D"USE_ISOV" -D"USE_TRANSPARENCY"
-LIBS = -L/usr/X11/lib -lm -lpthread -lSDL
+
+# Linux
+# LIBS = -L/usr/X11/lib -lm -lpthread -lSDL
+
+# Windows
+LIBS = -L/usr/X11/lib -lm -lSDL
 
 
 #

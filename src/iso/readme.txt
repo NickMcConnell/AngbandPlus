@@ -1,6 +1,6 @@
-The iso view sources will reside here. 
+The iso view addon sources reside here.
 
-At the moment this is just a test for CVS access.
+
 
 --
-Hansjoerg Malthaner
+Hansjoerg Malthaner <hansjoerg.malthaner@gmx.de>
