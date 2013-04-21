@@ -1,8 +1,8 @@
 
 
-                        ****************************
-                        **   Ironman-Angband 0.1  **
-                        ****************************
+                       *****************************
+                       **  Ironman-Angband 0.1.1  **
+                       *****************************
 
          Based on Moria:    Copyright (c) 1985 Robert Alan Koeneke
              and Umoria:    Copyright (c) 1989 James E. Wilson
@@ -10,12 +10,12 @@
                             Geoff Hill, Charles Teague, others,
                             Charles Swiger, and Ben Harrison.
 
-                   Ironman-Angband 0.1 by Robert Shiells
-                  Based on Angband 2.8.2 by Ben Harrison.
+                    Ironman-Angband 0.1.1 by elemental
+                  Based on Angband 2.8.2 by Ben Harrison
 
              Curses/X11 Module: Ben Harrison, Torbj|rn Lindgren
 
- Ingband 0.1 is available for Unix, X11, Macintosh, IBM, Windows, etc.
+ Ingband is available for Unix, X11, Macintosh, IBM, Windows, etc.
  Be sure to read the online help, especially "general.txt" and "version.txt".
 
  Visit the Ingband Home Page at "http://www.elemental.demon.co.uk/ingband/".

@@ -1,38 +1,10 @@
-This is the README file for Ingband 0.1.0 (19971008)
+This is the README file for Ingband 0.1.1 (19971105)
 
-Ironman-Angband (Ingband) is based on Angband 2.8.2, with the following
-changes (in order of implementation):
-	All stores are locked (the owners have left town!)
-	Only one up-staircase on any one level
-	Removed connected stairs
-	Removed auto-scumming
-	Start with more food
-	Start with more light
-	Always have preserve mode on
-	Removed limit on maximum dice rolls for character birth
-	Increased minimum value of dice rolls for character birth
-	"Create stairs" only creates down staircases
-	"Teleport level" only teleports downwards
-	Added quantity prompting for drop & destroy
-	Removed redundant tables
-	Modified save and load code
-	Minor changes to levels and rarity of some objects
-	Farmer Maggot now appears at 50ft and drops 1 or 2 exceptional items
-	Allow attacking of monsters in walls by moving (no need to tunnel)
-	Cannot use up-staircases unless current hp <= 1/4 max hp
-	Removed auto-roller
-	Up-staircases lead to an empty level (with just a down-staircase)
-	Mages start with Scroll of Identify instead of Word of Recall
-	Fixed problem with "empty" levels crashing
-	Added random starting items
-	Always play in "maximize" mode (option removed)
-	Removed mage spell Word of Recall
-	Removed priest spells Word of Recall and Alter Reality
-	Changed activation of Avavir
+Ironman-Angband (Ingband) is based on Angband 2.8.2.  For change
+information, please see the file CHANGES.
 
-Ironman-Angband was developed by elemental (aka Robert Shiells) in response
-to some discussions of the playing style in the Usenet group
-alt.games.roguelike.angband.
+Ironman-Angband was developed by elemental in response to some discussions of
+the playing style in the Usenet group alt.games.roguelike.angband.
 
 Information on this release can be found on the Official Ingband Site:
 	http://www.elemental.demon.co.uk/ingband/
