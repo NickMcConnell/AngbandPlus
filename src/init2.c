@@ -683,6 +683,8 @@ static errr init_k_info(void)
  */
 static errr init_a_info(void)
 {
+	errr result;
+	
 	/* Init the header */
 	init_header(&a_head, z_info->a_max, sizeof(artifact_type));
 
@@ -693,8 +695,24 @@ static errr init_a_info(void)
 
 #endif /* ALLOW_TEMPLATES */
 
-	return init_info("artifact", &a_head,
+	result = init_info("artifact", &a_head,
 	                 (void*)&a_info, (void*)&a_name, (void*)&a_text);
+	
+#if 0 
+	{
+		int level, i;
+		/* Hajo: list artifacts by level */
+		for(level = 0; level < 200; level++) {
+			for(i = 0; i < z_info->a_max;  i++) {
+				if(a_info[i].level == level) {
+					printf("%d %s\n", level, a_name+a_info[i].name);
+				}
+			}
+		}
+	}
+#endif
+	
+	return result;
 }
 
 

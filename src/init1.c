@@ -447,7 +447,7 @@ static cptr k_info_flags3[] =
 	"SEE_INVIS",
 	"FREE_ACT",
 	"HOLD_LIFE",
-	"XXX1",
+	"EGO_LIGHT",
 	"XXX2",
 	"XXX3",
 	"XXX4",

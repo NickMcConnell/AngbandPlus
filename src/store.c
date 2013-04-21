@@ -2908,20 +2908,15 @@ static void store_process_command(void)
 				msg_print("Entire inventory is shown.");
 			}
 
-			else if (store_top == 0)
-			{
-				/* Page 2 */
-				store_top = 12;
-
-				/* Redisplay wares */
-				display_inventory();
-			}
-
 			else
 			{
-				/* Page 1 */
-				store_top = 0;
+				/* Hajo: page through inventory */
+				store_top += 12;
 
+				if(store_top > st_ptr->stock_num) {
+					store_top = 0;
+				}
+				
 				/* Redisplay wares */
 				display_inventory();
 			}
@@ -3270,6 +3265,13 @@ void do_cmd_store(void)
 
 	/* Display the store */
 	display_store();
+
+	/* Hajo: heal if we enter our home */
+	if (store_num == STORE_HOME)
+	{
+		/* Fully healed */
+		p_ptr->chp = p_ptr->mhp;		
+	}
 
 	/* Do not leave */
 	leave_store = FALSE;

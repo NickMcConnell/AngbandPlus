@@ -2072,11 +2072,23 @@ static bool identify_fully_aux2(const object_type *o_ptr, int mode, cptr *info, 
 		}
 		else if (o_ptr->sval == SV_LITE_LANTERN)
 		{
-			info[i++] = "It provides light (radius 2) when fueled.";
+			if(f3 & TR3_EGO_LIGHT) 
+			{
+				info[i++] = "It provides light (radius 3) when fueled.";
+			} 
+			else {
+				info[i++] = "It provides light (radius 2) when fueled.";
+			}
 		}
 		else
 		{
-			info[i++] = "It provides light (radius 1) when fueled.";
+			if(f3 & TR3_EGO_LIGHT) 
+			{
+				info[i++] = "It provides light (radius 2) when fueled.";
+			} 
+			else {
+				info[i++] = "It provides light (radius 1) when fueled.";
+			}
 		}
 	}
 

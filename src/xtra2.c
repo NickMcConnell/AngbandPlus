@@ -1854,6 +1854,61 @@ static void build_quest_stairs(int y, int x)
 }
 
 
+/* (Hajo)
+ * Helper function to select only mushrooms as items.
+ * Hack: uses object indiced 1-20 hardcoded.
+ */
+static bool is_mushroom(int k_idx)
+{
+	/* printf("Testing k_idx=%d\n", k_idx); */
+	return k_idx >= 1 && k_idx <= 20;
+}
+
+/* (Hajo)
+ * Added function to drop mushrooms. 
+ */
+static void drop_mushrooms(object_type *i_ptr, int level, int chance, int x, int y)
+{
+	if(Rand_simple(100) < chance) 
+	{	
+		int k_idx;
+		
+		/* Wipe the object */
+		object_wipe(i_ptr);
+
+		/* Activate restriction */
+		get_obj_num_hook = is_mushroom;
+
+		/* Build selection table */
+		get_obj_num_prep();
+
+		/* Pick a random object */
+		k_idx = get_obj_num(level);
+		
+		/* restore no restriction on drops */
+		get_obj_num_hook = NULL;
+		
+		/* Prepare allocation table without restriction*/
+		get_obj_num_prep();
+
+		if(k_idx > 0) 
+		{ 
+			char desc[80];
+
+			/* Create the item */
+			object_prep(i_ptr, k_idx);
+			
+			object_desc(desc, i_ptr, TRUE, 3);
+			
+			printf("Mushroom generated: %s for level %d.\n", desc, level);
+			/* Drop the object near location */
+			drop_near(i_ptr, -1, y, x);
+		} else {
+			printf("Mushroom generation failed, level=%d.\n", level);
+		}
+	}
+}
+
 /*
  * Handle the "death" of a monster.
  *
@@ -1984,6 +2039,16 @@ void monster_death(int m_idx)
 	/* Average dungeon and monster levels */
 	object_level = (p_ptr->depth + r_ptr->level) / 2;
 
+	/* Hajo: try to make mushroom patches and hobbits drop mushrooms */
+	if(r_ptr->d_char == ',' ||
+	   r_ptr->d_char == 'h') 
+	{
+		/* Get local object */
+		i_ptr = &object_type_body;
+		drop_mushrooms(i_ptr, object_level, 30, x, y);	
+	}
+	
+	
 	/* Drop some objects */
 	for (j = 0; j < number; j++)
 	{

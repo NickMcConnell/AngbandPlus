@@ -41,7 +41,7 @@
 /*
  * Name of the version/variant
  */
-#define VERSION_NAME "Angband"
+#define VERSION_NAME "Iso-Funband"
 
 
 /*
@@ -234,7 +234,7 @@
 /*
  * Store constants
  */
-#define STORE_INVEN_MAX	24		/* Max number of discrete objs in inven */
+#define STORE_INVEN_MAX	36		/* Max number of discrete objs in inven */
 #define STORE_CHOICES	32		/* Number of items to choose stock from */
 #define STORE_OBJ_LEVEL	5		/* Magic Level for normal stores */
 #define STORE_TURNOVER	9		/* Normal shop turnover, per day */
@@ -301,7 +301,8 @@
 /*
  * Normal levels get at least 14 monsters
  */
-#define MIN_M_ALLOC_LEVEL	14
+ /* Hajo: changed to 20, to make up for less OOD monsters as exp givers */
+#define MIN_M_ALLOC_LEVEL	20
 
 /*
  * The town starts out with 4 residents during the day
@@ -2092,7 +2093,7 @@
 #define TR3_SEE_INVIS		0x00000020L	/* See Invis */
 #define TR3_FREE_ACT		0x00000040L	/* Free action */
 #define TR3_HOLD_LIFE		0x00000080L	/* Hold life */
-#define TR3_XXX1			0x00000100L
+#define TR3_EGO_LIGHT		0x00000100L /* Hajo: Ego light, +1 radius */
 #define TR3_XXX2			0x00000200L
 #define TR3_XXX3			0x00000400L
 #define TR3_XXX4			0x00000800L

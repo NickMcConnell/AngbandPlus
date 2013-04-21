@@ -1618,9 +1618,24 @@ static void calc_torch(void)
 		}
 
 		/* Artifact Lites provide permanent, bright, lite */
-		if (artifact_p(o_ptr)) p_ptr->cur_lite = 3;
-	}
-
+		if (artifact_p(o_ptr)) 
+        {
+            p_ptr->cur_lite = 3;
+        }
+        
+        /* Hajo: test "ego" lights */
+		/* Ego-item */
+		if (o_ptr->name2)
+		{
+			ego_item_type *e_ptr = &e_info[o_ptr->name2];
+            if(e_ptr->flags3 && TR3_EGO_LIGHT) 
+            {
+                printf("Using ego light, radius +1\n");
+                p_ptr->cur_lite += 1;
+            }
+        }
+    }
+    
 	/* Reduce lite when running if requested */
 	if (p_ptr->running && view_reduce_lite)
 	{

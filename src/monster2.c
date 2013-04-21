@@ -412,11 +412,17 @@ s16b get_mon_num(int level)
 	/* Boost the level */
 	if (level > 0)
 	{
+		/* Hajo: I want to limit nasty monsters on the first few
+		 * levels to give new players a better chance to survive
+		 * 
+		 * The old formula was: int d = level / 4 + 2;
+                     */
+		
 		/* Occasional "nasty" monster */
 		if (rand_int(NASTY_MON) == 0)
 		{
 			/* Pick a level bonus */
-			int d = level / 4 + 2;
+			int d = level / 5 + 1;
 
 			/* Boost the level */
 			level += ((d < 5) ? d : 5);
@@ -426,7 +432,7 @@ s16b get_mon_num(int level)
 		if (rand_int(NASTY_MON) == 0)
 		{
 			/* Pick a level bonus */
-			int d = level / 4 + 2;
+			int d = level / 5 + 1;
 
 			/* Boost the level */
 			level += ((d < 5) ? d : 5);

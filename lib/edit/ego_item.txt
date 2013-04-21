@@ -133,8 +133,15 @@ F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
 # 14 (unused)
 
-# 15 (unused)
+# 15 (Hajo added - Life/CON)
 
+N:15:of Vita
+X:30:12:0
+W:0:1:0:1000
+C:0:0:0:1
+T:36:0:99
+T:37:0:99
+F:CON | SUST_CON
 
 ### Shields ###
 
@@ -711,7 +718,13 @@ F:CON | SLAY_DRAGON | KILL_DRAGON
 
 # 98 (unused)
 
-# 99 (unused)
+# Hajo added - ego light
+N:99:of Brightness
+X:29:0:0
+W:0:1:0:500
+C:0:0:0:0
+T:39:0:99
+F:EGO_LIGHT
 
 N:100:of Digging
 X:24:4:0
@@ -721,7 +734,13 @@ T:20:0:99
 F:TUNNEL | BRAND_ACID | 
 F:IGNORE_ACID | IGNORE_ELEC | IGNORE_FIRE | IGNORE_COLD
 
-# 101 (unused)
+# Hajo added - ego light
+N:101:of Sight
+X:29:0:0
+W:0:3:0:1000
+C:0:0:0:0
+T:39:0:99
+F:SEE_INVIS
 
 N:102:of Morgul
 X:24:0:0
@@ -732,7 +751,13 @@ T:22:0:99
 T:23:0:99
 F:SEE_INVIS | AGGRAVATE | HEAVY_CURSE | LIGHT_CURSE
 
-# 103 (unused)
+# Hajo added - ego light
+N:103:of Bright Sight
+X:29:0:0
+W:20:5:0:2500
+C:3:0:0:0
+T:39:0:99
+F:SEE_INVIS | EGO_LIGHT
 
 
 ### Missile Launchers ###

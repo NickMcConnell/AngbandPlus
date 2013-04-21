@@ -975,10 +975,10 @@ static void build_type1(int y0, int x0)
 
 
 	/* Pick a room size */
-	y1 = y0 - randint(4);
-	x1 = x0 - randint(11);
-	y2 = y0 + randint(3);
-	x2 = x0 + randint(11);
+	y1 = y0 - randint(5);
+	x1 = x0 - randint(9);
+	y2 = y0 + randint(4);
+	x2 = x0 + randint(9);
 
 
 	/* Generate new room */
@@ -1037,17 +1037,17 @@ static void build_type2(int y0, int x0)
 
 
 	/* Determine extents of room (a) */
-	y1a = y0 - randint(4);
-	x1a = x0 - randint(11);
-	y2a = y0 + randint(3);
-	x2a = x0 + randint(10);
+	y1a = y0 - randint(5);
+	x1a = x0 - randint(9);
+	y2a = y0 + randint(4);
+	x2a = x0 + randint(8);
 
 
 	/* Determine extents of room (b) */
-	y1b = y0 - randint(3);
-	x1b = x0 - randint(10);
-	y2b = y0 + randint(4);
-	x2b = x0 + randint(11);
+	y1b = y0 - randint(4);
+	x1b = x0 - randint(8);
+	y2b = y0 + randint(5);
+	x2b = x0 + randint(9);
 
 
 	/* Generate new room (a) */
@@ -1248,8 +1248,8 @@ static void build_type4(int y0, int x0)
 	/* Large room */
 	y1 = y0 - 4;
 	y2 = y0 + 4;
-	x1 = x0 - 11;
-	x2 = x0 + 11;
+	x1 = x0 - 9;
+	x2 = x0 + 9;
 
 
 	/* Generate new room */

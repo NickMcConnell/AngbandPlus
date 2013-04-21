@@ -34,7 +34,7 @@ Nr. Description         Author
 136-139 doors           (David/Hajo)
 140 teleport            (Hajo)
 141 fountain            (Maarten)
-142 canine              (Hajo)
+142 Line ball and chain (Hajo)
 143 book                (Hajo)
 144 skull               (Hajo)
 145 iron spikes         (Hajo)
@@ -45,7 +45,7 @@ Nr. Description         Author
 153 shadowed spot       (Hajo)
 154 (unused)
 155 half grid border    (Hajo)
-156 sand (unused)       (Hajo)
+156 sand                (Hajo)
 157 mountain (unused)   (Maarten)
 158 spell effect        (Hajo)
 159 looking cursor      (Hajo)
@@ -72,14 +72,16 @@ Nr. Description         Author
 180 Line kobold skel.   (Maarten/Hajo)
 181 Line skeleton       (Hajo)
 182 Line warrior        (Maarten/Hajo)
-183-184 added by M. Woxberg
+183 Line whip           (Hajo)
+184 added by M. Woxberg
 185 Line happy drunk    (Maarten/Hajo) 
 186 Line merchant       (Maarten/Hajo)
 187 Line village idiot  (Maarten/Hajo)
 188 Line mercenary      (Maarten/Hajo) 
 189-190 added by M. Woxberg
 191 Line mean mercenary (Maarten/Hajo)
-192-197 added by M. Woxberg
+192 Line archer/ranger  (Maarten/Hajo)
+193-197 added by M. Woxberg
 198 Line mage           (Maarten/Hajo)
 199 Line priest         (Maarten/Hajo)
 200 Coin pile 3         (Hajo)

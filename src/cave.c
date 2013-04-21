@@ -413,6 +413,10 @@ static u16b image_random(void)
  */
 bool feat_supports_lighting(byte feat)
 {
+#ifdef USE_ISOV
+	/* iso view can shade all tiles */
+	return TRUE;
+#else
 	if ((feat >= FEAT_TRAP_HEAD) && (feat <= FEAT_TRAP_TAIL))
 		return TRUE;
 
@@ -437,6 +441,7 @@ bool feat_supports_lighting(byte feat)
 		default:
 			return FALSE;
 	}
+#endif
 }
 
 
@@ -695,7 +700,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 						else
 						{
 							/* Use "yellow" */
-							a = TERM_YELLOW;
+							a = TERM_YELLOW + (a & 0xF0);
 						}
 					}
 				}
@@ -711,7 +716,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 					else
 					{
 						/* Use "dark gray" */
-						a = TERM_L_DARK;
+						a = TERM_L_DARK + (a & 0xF0);
 					}
 				}
 
@@ -726,7 +731,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 					else
 					{
 						/* Use "dark gray" */
-						a = TERM_L_DARK;
+						a = TERM_L_DARK + (a & 0xF0);
 					}
 				}
 
@@ -741,7 +746,7 @@ void map_info(int y, int x, byte *ap, char *cp)
 					else
 					{
 						/* Use "gray" */
-						a = TERM_SLATE;
+						a = TERM_SLATE + (a & 0xF0);
 					}
 				}
 			}
@@ -782,11 +787,25 @@ void map_info(int y, int x, byte *ap, char *cp)
 			/* Special lighting effects (walls only) */
 			if (view_granite_lite &&
 			    (((a == TERM_WHITE) && !use_transparency && (feat >= FEAT_SECRET)) ||
-			     (use_transparency && feat_supports_lighting(feat))))
+			     (((a & 0xF) == TERM_WHITE) && use_transparency && feat_supports_lighting(feat))))
 			{
 				/* Handle "seen" grids */
 				if (info & (CAVE_SEEN))
 				{
+					/* Only lit by "torch" lite */
+					if (view_yellow_lite && !(info & (CAVE_GLOW)))
+					{
+						if (graf_new)
+						{
+							/* Use a brightly lit tile */
+							c += 2;
+						}
+						else
+						{
+							/* Use "yellow" */
+							a = TERM_YELLOW + (a & 0xF0);
+						}
+					}
 					if (graf_new)
 					{
 						/* Use a lit tile */
@@ -808,7 +827,22 @@ void map_info(int y, int x, byte *ap, char *cp)
 					else
 					{
 						/* Use "dark gray" */
-						a = TERM_L_DARK;
+						a = TERM_L_DARK + (a & 0xF0);
+					}
+				}
+
+				/* Handle "dark" grids */
+				else if (!(info & (CAVE_GLOW)))
+				{
+					if (graf_new)
+					{
+						/* Use a dark tile */
+						c += 1;
+					}
+					else
+					{
+						/* Use "dark gray" */
+						a = TERM_L_DARK + (a & 0xF0);
 					}
 				}
 
@@ -817,13 +851,13 @@ void map_info(int y, int x, byte *ap, char *cp)
 				{
 					if (graf_new)
 					{
-						/* Use a lit tile */
+						/* Use a dark tile */
 						c += 1;
 					}
 					else
 					{
 						/* Use "gray" */
-						a = TERM_SLATE;
+						a = TERM_SLATE + (a & 0xF0);
 					}
 				}
 				else

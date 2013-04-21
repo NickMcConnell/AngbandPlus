@@ -1367,6 +1367,8 @@ static errr Term_curs_sdl(int x, int y)
 	SDL_Rect dr, mr; /* cursor destination, magic, and graphic tile loc. */
 	Uint8 a, c;
 
+	// printf("1\n");
+	
 	if (td->cursor_on) 
 	{
 		td->cx = x, td->cy = y;
@@ -1417,7 +1419,7 @@ static errr Term_curs_sdl(int x, int y)
 #endif
 	}
 
-
+	
 	/* Success */
 	return (0);
 }
@@ -1916,9 +1918,9 @@ errr init_sdl(int oargc, char **oargv)
 #ifdef USE_ISOV
 	// plog("Isometric view uses always text mode.\n");
 	use_graphics = FALSE;
+	use_transparency = TRUE;
 #endif
 
-		
 
 	if (!use_graphics) scale_fit = TRUE; 
 	/* so they look OK if you turn them on later... XXX */
@@ -1965,7 +1967,7 @@ errr init_sdl(int oargc, char **oargv)
 
 	td = &(data[0]);
 	(void)WIPE(td, term_data);
-	td->name = "Iso-Angband 0.2.8";
+	td->name = "Iso-Funband 0.5.0";
 	td->face = NULL;
 
 	td->fd = &screen_font;
@@ -2047,7 +2049,6 @@ errr init_sdl(int oargc, char **oargv)
 
 	td->cursor_on = TRUE;
 	td->cursor_magic = TRUE;
-	
 
 #ifdef USE_XXX
 	if (use_xxx)

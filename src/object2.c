@@ -2417,6 +2417,11 @@ static void a_m_aux_4(object_type *o_ptr, int level, int power)
 				if (o_ptr->pval > 0) o_ptr->pval = randint(o_ptr->pval);
 			}
 
+            /* Hajo: ego lights are made here? */
+            if(randint(10) == 1) {
+                make_ego_item(o_ptr, TRUE);
+            }
+            
 			break;
 		}
 
@@ -2495,7 +2500,8 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 
 
 	/* Base chance of being "good" */
-	f1 = lev + 10;
+    /* Hajo: changed to 15 from 10 */
+	f1 = lev + 15;
 
 	/* Maximal chance of being "good" */
 	if (f1 > 75) f1 = 75;
@@ -2649,6 +2655,11 @@ void apply_magic(object_type *o_ptr, int lev, bool okay, bool good, bool great)
 			break;
 		}
 
+		case TV_LITE:
+		{
+			a_m_aux_4(o_ptr, lev, power);
+			break;
+		}
 		default:
 		{
 			a_m_aux_4(o_ptr, lev, power);

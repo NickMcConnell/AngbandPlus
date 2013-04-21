@@ -70,57 +70,57 @@ G:&:w
 N:1:Blindness
 G:,:d
 I:80:1:500
-W:5:0:1:0
-A:5/1
+W:1:0:1:0
+A:1/5
 F:EASY_KNOW
 
 N:2:Paranoia
 G:,:d
 I:80:2:500
-W:5:0:1:0
-A:5/1
+W:1:0:1:0
+A:1/5
 F:EASY_KNOW
 
 N:3:Confusion
 G:,:d
 I:80:3:500
-W:5:0:1:0
-A:5/1
+W:1:0:1:0
+A:1/5
 F:EASY_KNOW
 
 N:4:Hallucination
 G:,:d
 I:80:4:500
-W:10:0:1:0
-A:10/1
+W:1:0:1:0
+A:1/5
 F:EASY_KNOW
 
 N:5:Cure Poison
 G:,:d
 I:80:12:500
-W:10:0:1:60
-A:10/1
+W:1:0:1:60
+A:1/5
 F:EASY_KNOW
 
 N:6:Cure Blindness
 G:,:d
 I:80:13:500
-W:10:0:1:50
-A:10/1
+W:1:0:1:50
+A:1/5
 F:EASY_KNOW
 
 N:7:Cure Paranoia
 G:,:d
 I:80:14:500
-W:10:0:1:25
-A:10/1
+W:1:0:1:25
+A:1/5
 F:EASY_KNOW
 
 N:8:Cure Confusion
 G:,:d
 I:80:15:500
-W:10:0:1:50
-A:10/1
+W:1:0:1:50
+A:1/5
 F:EASY_KNOW
 
 N:9:Weakness
@@ -222,6 +222,7 @@ N:22:& Hard Biscuit~
 G:,:U
 I:80:32:500
 W:0:0:2:1
+A:0/1:1/1
 F:EASY_KNOW
 
 N:23:& Strip~ of Beef Jerky
@@ -332,8 +333,8 @@ F:SHOW_MODS
 N:38:& Main Gauche~
 G:|:W
 I:23:5:0
-W:3:0:30:25
-A:3/1
+W:1:0:30:25
+A:1/1
 P:0:1d5:0:0:0
 F:SHOW_MODS
 
@@ -657,8 +658,8 @@ F:SHOW_MODS
 N:78:& Arrow~
 G:{:U
 I:17:1:0
-W:3:0:2:1
-A:3/1:15/1
+W:1:0:2:1
+A:1/1:15/1
 P:0:1d4:0:0:0
 F:SHOW_MODS
 
@@ -761,15 +762,15 @@ F:SHOW_MODS | TUNNEL
 N:91:& Pair~ of Soft Leather Boots
 G:]:U
 I:30:2:0
-W:3:0:20:7
-A:3/1
+W:1:0:20:7
+A:1/1
 P:2:1d1:0:0:0
 
 N:92:& Pair~ of Hard Leather Boots
 G:]:U
 I:30:3:0
-W:5:0:40:12
-A:5/1
+W:4:0:40:12
+A:4/1
 P:3:1d1:0:0:0
 
 N:93:& Pair~ of Metal Shod Boots
@@ -782,8 +783,8 @@ P:6:1d1:0:0:0
 N:94:& Hard Leather Cap~
 G:]:u
 I:32:2:0
-W:3:0:15:12
-A:3/1
+W:1:0:15:12
+A:1/1
 P:2:0d0:0:0:0
 
 N:95:& Metal Cap~
@@ -1038,8 +1039,8 @@ P:5:1d1:0:0:0
 N:128:& Small Leather Shield~
 G:):U
 I:34:2:0
-W:3:0:50:30
-A:3/1
+W:1:0:50:30
+A:1/1
 P:2:1d1:0:0:0
 
 N:129:& Large Leather Shield~

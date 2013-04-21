@@ -344,7 +344,7 @@ D:Yum!  It looks quite tasty.
 
 N:17:Giant yellow centipede
 G:c:y
-I:110:2d6:8:12:30
+I:110:2d5:8:12:30
 W:1:1:0:2
 B:BITE:HURT:1d3
 B:STING:HURT:1d3
@@ -354,7 +354,7 @@ D:It is about four feet long and carnivorous.
 
 N:18:Giant white centipede
 G:c:w
-I:110:3d5:7:10:40
+I:110:3d4:7:10:40
 W:1:1:0:2
 B:BITE:HURT:1d2
 B:STING:HURT:1d2
@@ -365,7 +365,7 @@ D:It is about four feet long and carnivorous.
 
 N:19:White icky thing
 G:i:w
-I:110:3d5:12:7:10
+I:110:3d4:12:7:10
 W:1:1:0:2
 B:TOUCH:HURT:1d2
 F:RAND_50 | RAND_25 | 
@@ -374,7 +374,7 @@ D:It is a smallish, slimy, icky creature.
 
 N:20:Clear icky thing
 G:i:w
-I:110:2d5:12:6:10
+I:110:2d4:12:6:10
 W:1:1:0:1
 B:TOUCH:HURT:1d2
 F:ATTR_CLEAR | 
@@ -394,7 +394,7 @@ D:It is about three feet long with large teeth.
 
 N:22:Large brown snake
 G:J:u
-I:100:4d6:4:35:99
+I:100:4d5:4:35:99
 W:1:1:0:3
 B:BITE:HURT:1d3
 B:CRUSH:HURT:1d4
@@ -405,7 +405,7 @@ D:It is about eight feet long.
 
 N:23:Large white snake
 G:J:w
-I:100:3d6:4:30:99
+I:100:3d5:4:30:99
 W:1:1:0:2
 B:BITE:HURT:1d1
 B:CRUSH:HURT:1d1
@@ -416,7 +416,7 @@ D:It is about eight feet long.
 
 N:24:Small kobold
 G:k:y
-I:110:2d7:20:16:10
+I:110:3d4:20:16:10
 W:1:1:0:5
 B:HIT:HURT:1d5
 F:DROP_60 | 
@@ -426,7 +426,7 @@ D:It is a squat and ugly humanoid figure.
 
 N:25:Kobold
 G:k:G
-I:110:3d7:20:16:10
+I:110:4d6:20:16:10
 W:1:1:0:5
 B:HIT:HURT:1d6
 F:DROP_60 | 
@@ -446,7 +446,7 @@ D:It is a large slimy mass of worms.
 
 N:27:Floating eye
 G:e:o
-I:110:3d6:2:6:10
+I:110:3d5:2:6:10
 W:1:1:0:1
 B:GAZE:PARALYZE
 F:NEVER_MOVE | 
@@ -501,7 +501,7 @@ D:Yum!  These look quite tasty.
 
 N:33:Blubbering icky thing
 G:i:W
-I:110:5d6:14:4:10
+I:110:5d5:14:4:10
 W:2:1:0:8
 B:CRAWL:POISON:1d4
 B:CRAWL:EAT_FOOD
@@ -522,10 +522,10 @@ D:It is about four feet long and carnivorous.
 
 N:35:Novice warrior
 G:p:u
-I:110:9d4:20:16:5
+I:110:9d3:20:16:5
 W:2:1:0:6
-B:HIT:HURT:1d7
 B:HIT:HURT:1d6
+B:HIT:HURT:1d5
 F:MALE | 
 F:DROP_60 | 
 F:OPEN_DOOR | BASH_DOOR
@@ -533,7 +533,7 @@ D:He looks inexperienced but tough.
 
 N:36:Novice rogue
 G:p:b
-I:110:8d4:20:12:5
+I:110:8d3:20:12:5
 W:2:1:0:6
 B:HIT:HURT:1d6
 B:TOUCH:EAT_GOLD
@@ -545,7 +545,7 @@ D:A rather shifty individual.
 
 N:37:Novice priest
 G:p:g
-I:110:7d4:20:10:10
+I:110:7d3:20:10:10
 W:2:1:0:7
 B:HIT:HURT:1d5
 F:MALE | 
@@ -558,7 +558,7 @@ D:He is tripping over his priestly robes.
 
 N:38:Novice mage
 G:p:r
-I:110:6d4:20:6:5
+I:110:6d3:20:6:5
 W:2:1:0:7
 B:HIT:HURT:1d4
 F:MALE | 
@@ -593,7 +593,7 @@ D:Its a large pile of white flesh.
 
 N:41:Giant green frog
 G:R:g
-I:110:2d8:12:8:30
+I:110:3d5:12:8:30
 W:2:1:0:6
 B:BITE:HURT:1d3
 F:RAND_25 | 
@@ -680,7 +680,7 @@ D:It is a large slimy mass of worms.
 
 N:49:Large yellow snake
 G:J:y
-I:100:4d8:5:38:75
+I:100:4d7:5:38:75
 W:2:1:0:9
 B:BITE:HURT:1d4
 B:CRUSH:HURT:1d6

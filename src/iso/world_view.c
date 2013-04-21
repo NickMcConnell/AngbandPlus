@@ -54,6 +54,7 @@ extern unsigned char **iso_ctp;
 /* Hajo: Constant definitions */
 const int OUTSIDE_TOWN = 319;
 const int SHADOW = 153;
+const int TOWN_FLOOR = 1;
 
 
 
@@ -77,6 +78,7 @@ static bool is_valid_to_show(int x, int y) {
 static int get_feat_nc(int x, int y)
 {
   /* this is for Angband 2.9.1 */
+    
   return cave_feat[y][x];     
 
   
@@ -94,7 +96,7 @@ static int get_feat_nc(int x, int y)
 
 static int get_feat_wc(int x, int y)
 {
-  if(is_valid_position(x,y)) {
+  if(is_valid_position(x,y) && cave_feat) {
     return get_feat_nc(x,y);
   } else {
     return FEAT_PERM_SOLID;
@@ -129,6 +131,34 @@ static int get_info_wc(int x, int y)
   }
 }
 
+static int is_player_in_town()
+{
+  /* Hajo: I bet this is specific for each angband variant again. */
+
+  /* this is for Angband 2.9.1 */
+  return (p_ptr) && (p_ptr->depth == 0);	
+}
+
+
+static int is_location_outside_town(int x, int y)
+{
+    const int qy = SCREEN_HGT;
+    const int qx = SCREEN_WID;
+
+    /* Hajo: check for area outside town */
+    return x < qx || y < qy ||  x>= qx+ SCREEN_WID || y >= qy+SCREEN_HGT;
+}
+
+static int is_town_wall(const int x, const int y)
+{
+    const int qy = SCREEN_HGT;
+    const int qx = SCREEN_WID;
+
+    /* Hajo: check for area outside town */
+    return 
+	!is_location_outside_town(x, y) && 
+	(x == qx || y == qy ||  x== qx+ SCREEN_WID-1 || y == qy+SCREEN_HGT-1);
+}
 
 static bool is_door(int feat)
 {
@@ -159,10 +189,26 @@ static bool is_wall(int feat)
 static int is_wall_or_door(int x, int y)
 {           
   const int feat = get_feat_wc(x, y);
-  
   return is_door(feat) || is_wall(feat);
 }
 
+static int is_known_wall_or_door(int x, int y)
+{
+  if(is_player_in_town()) {
+    return is_town_wall(x, y);
+  }
+  else
+  {
+    const int info = get_info_wc(x, y);
+
+    if(info & CAVE_MARK) 
+    {
+      const int feat = get_feat_wc(x, y);
+      return is_door(feat) || is_wall(feat);
+    }
+  }
+  return 1;
+}
 
 static bool is_lit(int x, int y)
 {
@@ -205,9 +251,7 @@ static bool is_blind()
 static int get_distance_to_player(int x, int y)
 {                                
   /* PernAngband variant */
-  
   // return distance(y, x, py, px);
-
 
   /* this is for Angband 2.9.1 */
   return distance(y, x, p_ptr->py, p_ptr->px);
@@ -226,7 +270,7 @@ static int iso_access(unsigned char **field, int x, int y)
 }
 
 static int is_wall_or_door(int x, int y)
-{           
+{  
   const int atp = iso_access(iso_atp, x, y);
   const int ctp = iso_access(iso_ctp, x, y);
   
@@ -235,24 +279,6 @@ static int is_wall_or_door(int x, int y)
 }
 
 #endif
-
-static int is_player_in_town()
-{
-  /* Hajo: I bet this is specific for each angband variant again. */
-
-  /* this is for Angband 2.9.1 */
-  return (p_ptr) && (p_ptr->depth == 0);	
-}
-
-
-static int is_location_outside_town(int x, int y)
-{
-    const int qy = SCREEN_HGT;
-    const int qx = SCREEN_WID;
-
-    /* Hajo: check for area outside town */
-    return x < qx || y < qy ||  x>= qx+ SCREEN_WID || y >= qy+SCREEN_HGT;
-}
 
 
 /**
@@ -286,17 +312,17 @@ static int check_wall(int x, int y)
   
   int o = 0;
   
-  o |= (is_wall_or_door(x-1, y-1)) << 0;
-  o |= (is_wall_or_door(x  , y-1)) << 1;
-  o |= (is_wall_or_door(x+1, y-1)) << 2;
-  o |= (is_wall_or_door(x-1, y  )) << 3;
-  o |= (is_wall_or_door(x+1, y  )) << 4;
-  o |= (is_wall_or_door(x-1, y+1)) << 5;
-  o |= (is_wall_or_door(x  , y+1)) << 6;
-  o |= (is_wall_or_door(x+1, y+1)) << 7;
+  o |= (is_known_wall_or_door(x-1, y-1)) << 0;
+  o |= (is_known_wall_or_door(x  , y-1)) << 1;
+  o |= (is_known_wall_or_door(x+1, y-1)) << 2;
+  o |= (is_known_wall_or_door(x-1, y  )) << 3;
+  o |= (is_known_wall_or_door(x+1, y  )) << 4;
+  o |= (is_known_wall_or_door(x-1, y+1)) << 5;
+  o |= (is_known_wall_or_door(x  , y+1)) << 6;
+  o |= (is_known_wall_or_door(x+1, y+1)) << 7;
   
-  
-  return wall_table[o];
+  // return o;
+return wall_table[o];
 }
 
 
@@ -319,6 +345,36 @@ static int calc_nc_text(int c, int a)
 {
   // printf("%2x:%2x -> %d\n", a & 0xFF, c &0xFF, ((a & 0x70)  << 3) + (c & 0x7F));
   return ((a & 0x70) << 3) + (c & 0x7F);
+}
+
+
+static void paint_9_part_wall(const int set_base, const int bits, 
+                                const int xpos, const int ypos,
+                                const int color)
+{
+    int i;
+    
+	// printf("Set base %d\n", set_base);
+	
+    if(bits) {
+	    for(i=0; i<4; i++) {
+	        if(bits & (1 << i)) {
+	            display_color_img(set_base+i, xpos, ypos, color, TRUE);
+	        }
+	    }                         
+	
+	    display_color_img(set_base+8, xpos, ypos, color, TRUE);
+	
+	    for(i=4; i<8; i++) {
+	        if(bits & (1 << i)) {
+	            display_color_img(set_base+i, xpos, ypos, color, TRUE);
+	        }
+	    }                         
+	
+    } else {
+        // a pillar 
+        display_color_img(set_base+8, xpos, ypos, color, TRUE);
+    }
 }
 
 
@@ -366,22 +422,57 @@ void display_dinge(int x, int y, int xpos, int ypos)
   feat_nc = calc_nc_text(tc, ta);
   obj_nc = calc_nc_text(c, a);
   
-  /* Hajo: if we are in town, we should display only one row of wall */
-  if(is_player_in_town()) {
-    if(is_location_outside_town(x, y)) {
-      obj_nc = feat_nc = calc_town_outside(x, y);
+  /* Hajo: if we are in town, we adjust display */
+  if(is_player_in_town())
+  {
+    if(is_town_wall(x, y)) 
+    {
+      const int bits = check_wall(x, y);   
+      display_color_img(TOWN_FLOOR, xpos, ypos, ta & 0xF, TRUE);    
+      paint_9_part_wall(267, bits, xpos, ypos, ta & 0xF);
+      paint_9_part_wall(267, bits, xpos, ypos-18, ta & 0xF);
     }
-  }
-
-  if(feat_nc == 0x27) {
+    else if(is_location_outside_town(x, y)) 
+    {
+      const int img = calc_town_outside(x, y);
+      display_color_img(img, xpos, ypos, ta & 0xF, TRUE);    
+    }
+    else if(feat_nc == 0x04) {
+      /* special town floors */
+      display_color_img(TOWN_FLOOR, xpos, ypos, ta & 0xF, TRUE);    
+    }
+    else {
+      display_color_img(feat_nc, xpos, ypos, ta & 0xF, TRUE);    
+    }
+  }	  
+  else if(feat_nc == 0x27) 
+  {
     /* open doors */   
-    display_img(138+door_direction(x,y), xpos, ypos, TRUE);
-  } else if(feat_nc == 0x2B) {
+    display_color_img(138+door_direction(x,y), xpos, ypos, ta & 0xF, TRUE);
+  } 
+  else if(feat_nc == 0x2B) 
+  {
     /* closed doors */
-    display_img(136+door_direction(x,y), xpos, ypos, TRUE);
-  } else {
+    display_color_img(136+door_direction(x,y), xpos, ypos, ta & 0xF, TRUE);
+  } 
+  else {
     /* display floor/wall */
-    display_color_img(feat_nc, xpos, ypos, ta & 0xF, TRUE);
+    const int use_9_part_walls = 1;
+    const int info = get_info_wc(x, y);
+	  
+    if(use_9_part_walls && 
+        (feat_nc == 240 || feat_nc == 249 || feat_nc == 267)  &&
+        ((info & CAVE_MARK) || (info & CAVE_SEEN))) 
+    {        
+      const int bits = check_wall(x, y);   
+        
+      // Floor?
+      display_color_img(4, xpos, ypos, ta & 0xF, TRUE);
+        
+      paint_9_part_wall(feat_nc, bits, xpos, ypos, ta & 0xF);
+    } else {
+      display_color_img(feat_nc, xpos, ypos, ta & 0xF, TRUE);
+    }
   }  
 
 
@@ -403,13 +494,8 @@ void display_dinge(int x, int y, int xpos, int ypos)
       display_color_img(SHADOW, xpos, ypos, ta & 0xF, TRUE);
     }
 
-    if((a & 0xF) == 0) {
-      /* Hajo: uncolord case */
-      display_color_img(obj_nc, xpos, ypos, a & 0xF, TRUE);
-    } else {
-      /* Hajo: colored item/monster */
-      display_color_img(obj_nc, xpos, ypos, a & 0xF, TRUE);
-    }
+    /* Hajo: colored item/monster */
+    display_color_img(obj_nc, xpos, ypos, a & 0xF, TRUE);
   }
 
   /* draw a cursor ? */
@@ -542,3 +628,5 @@ void display_dinge(int x, int y, int xpos, int ypos)
   }
   */
 }
+
+
