@@ -38,7 +38,7 @@ Nr. Description         Author
 143 book                (Hajo)
 144 skull               (Hajo)
 145 iron spikes         (Hajo)
-146 ration food         (Hajo)
+146 line ration food    (Hajo)
 147 shots               (Hajo)
 148-151 spell effects   (Hajo)
 152 full grid border    (Hajo)
@@ -77,7 +77,9 @@ Nr. Description         Author
 186 Line merchant       (Maarten/Hajo)
 187 Line village idiot  (Maarten/Hajo)
 188 Line mercenary      (Maarten/Hajo) 
-189-197 added by M. Woxberg
+189-190 added by M. Woxberg
+191 Line mean mercenary (Maarten/Hajo)
+192-197 added by M. Woxberg
 198 Line mage           (Maarten/Hajo)
 199 Line priest         (Maarten/Hajo)
 200 Coin pile 3         (Hajo)
@@ -103,7 +105,7 @@ Nr. Description         Author
 220 Line pike           (Hajo)
 221 Line wand           (Hajo)
 222 Line rod            (Hajo)
-223 (unused)
+223 Line cloak          (Hajo)
 224-231 Shop entrances  (Hajo)
 232 Line broken bone    (Hajo)
 233 Line bolts          (Hajo)
@@ -135,7 +137,9 @@ Nr. Description         Author
 293 Line killer beetle  (Hajo)
 294 Line vortex         (Hajo)
 295 Line dragon fly     (Hajo)
-296-318 9 part walls    (Hajo)
+296 Line orc            (Maarten/Hajo)
+297 Line street urchin  (Hajo)
+298-318 9 part walls    (Hajo)
 319 Town outside tile   (Hajo)
 
 David:     David E. Gervais
@@ -147,11 +151,11 @@ Mitsuhiro: Mitsuhiro Itakura
 
 Started by Hj. Malthaner, March 2001
 Stuff added by M. Woxberg, 27-Mar-2001
-Last update by Hj. Malthaner, 05-Oct-2009
+Last update by Hj. Malthaner, 21-Aug-2010
 
 -----------------------------------------------------------------
 
-I hereby want tp make my images available under the 
+I hereby want to make my images available under the 
 creative commons "Attribution - Share alike" license.
 
 http://creativecommons.org/licenses/by-sa/3.0/deed.en

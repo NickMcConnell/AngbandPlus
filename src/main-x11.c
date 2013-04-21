@@ -2291,7 +2291,7 @@ static errr term_data_init(term_data *td, int i)
 }
 
 // Hajo
-#include "../hajo_src/world_adaptor.h"
+#include "iso/world_adaptor.h"
 
 
 /*

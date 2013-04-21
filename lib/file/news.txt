@@ -1,5 +1,5 @@
               **************************************************
-              **         Iso-Angband 0.2.8.1, based on        **
+              **         Iso-Angband 0.2.8.4, based on        **
               **      Angband 2.9.3 - The Pits of Angband     **
               **************************************************
 
@@ -11,7 +11,7 @@
                  Geoff Hill, Charles Teague, Charles Swiger
                    Angband 2.7.0 - 2.8.5 by Ben Harrison
                  Angband 2.9.0 - 2.9.3 by Robert Ruehlmann
-             Isometric view addon 0.2.8.1 by Hansjoerg Malthaner
+             Isometric view addon 0.2.8.4 by Hansjoerg Malthaner
 
     Send comments, bug reports, and patches for Angband to "rr9@angband.org"
    Send feedback for the isometric view addon to "hansjoerg.malthaner@gmx.de"

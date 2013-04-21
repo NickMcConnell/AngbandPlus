@@ -3,5 +3,7 @@
 - Polygon floor
 - Granite wall
 
+- Replace mean looking mercenary (warrior with sword and cape)
+
 Done:
 

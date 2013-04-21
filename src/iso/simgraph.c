@@ -192,30 +192,6 @@ static int clip(int w, int u, int o)
 
 
 /**
- * Laedt den Font
- * @author Hj. Malthaner
- */
-static void init_font()
-{
-    FILE *f = NULL;
-
-    // suche in ./draw.fnt
-
-    if(f==NULL ) {
-	f=fopen("./draw.fnt","rb");
-    }
-
-    if(f==NULL) {
-	printf("Cannot open draw.fnt!\n");
-	exit(1);
-    } else {
-	int i;
-	for(i=0;i<2048;i++) dr_fonttab[i]=getc(f);
-	    fclose(f);
-    }
-}
-
-/**
  * Laedt die Palette
  * @author Hj. Malthaner
  */
@@ -590,18 +566,6 @@ void display_setze_clip_wh(int x, int y, int w, int h)
 
 
 /**
- * Kopiert Pixel von src nach dest
- * @author Hj. Malthaner
- */
-static void pixcopy(PIXVAL *dest,
-                    const PIXVAL *src,
-                    int len)
-{
-    memcpy(dest, src, len*sizeof(PIXVAL));
-}
-
-
-/**
  * Zeichnet Bild mit Clipping
  * @author Hj. Malthaner
  */
@@ -654,15 +618,12 @@ display_img_wc(const int n, const int xp, const int yp, const int dirty)
 		    if(runlen) {  
 
 			if(xpos >= 0 && runlen+xpos < width) {
-//                            pixcopy(tp+xpos, sp, runlen);
 			    memcpy(tp+xpos, sp, runlen*sizeof(PIXVAL));
                         } else if(xpos < 0) {
 			    if(runlen+xpos > 0) {
-//                                pixcopy(tp, sp-xpos, runlen+xpos);
 				memcpy(tp, sp-xpos, (runlen+xpos)*sizeof(PIXVAL));
 			    }
 			} else if(width > xpos) {
-//                            pixcopy(tp+xpos, sp, width-xpos);
                               memcpy(tp+xpos, sp, (width-xpos)*sizeof(PIXVAL));
 			}
 			sp += runlen;
@@ -734,6 +695,13 @@ display_img_nc(const int n, const int xp, const int yp, const int dirty)
 void
 display_img(const int n, const int xp, const int yp, const int dirty)
 {
+    // Hajo: try to fix the "look" crash
+    if(xp>-tile_size && yp>-tile_size && xp < disp_width && yp < disp_height) {	
+        display_img_wc(n, xp, yp, dirty);                              
+    }
+
+
+	/*
     if(xp>=0 && yp>=0 && xp < disp_width-tile_size-1 && yp < disp_height-tile_size-1) {
 	display_img_nc(n, xp, yp, dirty);
     } else {
@@ -741,6 +709,7 @@ display_img(const int n, const int xp, const int yp, const int dirty)
 	    display_img_wc(n, xp, yp, dirty);                              
 	}
     }
+	*/
 }
 
 
@@ -1401,52 +1370,3 @@ simgraph_exit()
 
     return dr_os_close();
 }
-
-
-/**
- * Laedt Einstellungen
- * @author Hj. Malthaner
- */
-void display_laden(FILE* file)
-{
-    int i,r,g,b;
-
-    unsigned char day[12];
-    unsigned char night[12];
-
-    fscanf(file, "%d %d %d\n", &light_level, &color_level, &night_shift);
-
-    display_set_light(light_level);
-    display_set_color(color_level);
-
-    for(i=0; i<4; i++) {
-	fscanf(file, "%d %d %d\n", &r, &g, &b);
-	day[i*3+0] = r;
-	day[i*3+1] = g;
-	day[i*3+2] = b;
-
-	fscanf(file, "%d %d %d\n", &r, &g, &b);
-	night[i*3+0] = r;
-	night[i*3+1] = g;
-	night[i*3+2] = b;
-    }
-
-    display_set_player_colors(day, night);
-}
-
-
-/**
- * Speichert Einstellungen
- * @author Hj. Malthaner
- */
-void display_speichern(FILE* file)
-{
-    int i;
-    fprintf(file, "%d %d %d\n", light_level, color_level, night_shift);
-
-    for(i=0; i<4; i++) {
-	fprintf(file, "%d %d %d\n", day_pal[i*3+0], day_pal[i*3+1], day_pal[i*3+2]);
-	fprintf(file, "%d %d %d\n", night_pal[i*3+0], night_pal[i*3+1], night_pal[i*3+2]);
-    }
-}
-

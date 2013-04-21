@@ -420,8 +420,8 @@ void display_dinge(int x, int y, int xpos, int ypos)
      high_x < 79 &&
      high_y < 23) 
   {
-    display_img(159, xpos, ypos, TRUE);
-    
+    display_color_img(159, xpos, ypos, 1, TRUE);
+	  
     /* undraw cursor */
     highlite_spot(-1,-1);
   }

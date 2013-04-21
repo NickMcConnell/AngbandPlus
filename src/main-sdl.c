@@ -108,7 +108,7 @@ extern char *SDL_keysymtostr(SDL_keysym *ks); /* this is the important one. */
 extern errr SDL_init_screen_cursor(Uint32 w, Uint32 h);
 extern errr SDL_DrawCursor(SDL_Surface *dst, SDL_Rect *dr);
 
-
+static errr Term_text_sdl(int x, int y, int n, byte a, cptr s);
 
 
 
@@ -1364,7 +1364,7 @@ static errr Term_wipe_sdl(int x, int y, int n)
 static errr Term_curs_sdl(int x, int y)
 {
 	term_data *td = (term_data*)(Term->data);
-	SDL_Rect dr, mr, gr; /* cursor destination, magic, and graphic tile loc. */
+	SDL_Rect dr, mr; /* cursor destination, magic, and graphic tile loc. */
 	Uint8 a, c;
 
 	if (td->cursor_on) 
@@ -1380,13 +1380,22 @@ static errr Term_curs_sdl(int x, int y)
 			mr.y = CURS_MAG_Y*td->h;
 			mr.w = td->w*2;
 			mr.h = td->h*2;
+
 #if 1 /* the following code assumes knowledge of the term struct */
 			/* it also allows one to view the magnified tile with all detail
 			 * even if tiles in the display are scaled down, thus losing detail */
+
 			a = Term->scr->a[y][x];
 			c = Term->scr->c[y][x];
+
+#ifdef USE_ISOV_SDL
+			/* printf("Hajo: display cursor at %d, %d\n", x, y); */
+			highlite_spot(x, y);
+#else
 			if (a & 0x80 && c & 0x80) /* don't bother magnifying letters */
 			{
+				SDL_Rect gr;
+				
 				a &= 0x7F;
 				c &= 0x7F;
 				gr.x = c * td->gt->w;
@@ -1395,11 +1404,7 @@ static errr Term_curs_sdl(int x, int y)
 				gr.h = td->gt->h;
 				SDL_FastScaleBlit(td->gt->face, &gr, td->face, &mr);
 				SDL_UpdateRect(td->face, mr.x, mr.y, mr.w, mr.h);
-			}
-
-#ifdef USE_ISOV_SDL
-			/* printf("Hajo: display cursor at %d, %d\n", x, y); */
-			highlite_spot(x, y);
+			}			
 #endif
 
 #else
@@ -1531,7 +1536,6 @@ inline static errr Term_tile_sdl (int x, int y, Uint8 a, Uint8 c){
 	return (0);
 }
 
-
 /*
  * XXX XXX XXX Draw a "picture" on the screen
  *
@@ -1566,8 +1570,7 @@ static errr Term_pict_sdl(int x, int y, int n,  const byte *ap, const char *cp)
 
 	if (!td->gt || !td->gt->face)
 	{
-		errr static Term_text_sdl(int x, int y, int n, const byte *ap, const char *cp);
-		Term_text_sdl(x, y, n, ap, cp);
+		Term_text_sdl(x, y, n, *ap, cp);
 	} else
 	while(n--)
 	{
