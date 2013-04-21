@@ -28,8 +28,20 @@ the Free Software Foundation; either version 2 of the License, or
 (in-package :contraband-system)
 
 (asdf:defsystem :contraband
-    :version "0.1.2"
-    :components ((:file "base"))
+    :version "0.1.4"
+    :components ((:file "base")
+		 (:file "variant" :depends-on ("base"))
+		 (:file "levels" :depends-on ("variant"))
+		 (:file "creatures" :depends-on ("variant"))
+		 (:file "player" :depends-on ("variant"))
+		 (:file "objects" :depends-on ("variant"))
+		 (:file "quests" :depends-on ("variant"))
+		 ;;(:file "spells" :depends-on ("variant"))
+		 (:file "print" :depends-on ("quests"))
+		 (:file "keys" :depends-on ("print"))
+		 (:file "wizard" :depends-on ("keys"))
+		 
+		 )
     :depends-on (langband-engine))
 
 #-enough-support-for-langband

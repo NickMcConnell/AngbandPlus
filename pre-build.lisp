@@ -15,7 +15,7 @@ the Free Software Foundation; either version 2 of the License, or
 (in-package :cl-user)
 
 ;; should be on in a released source
-;;(pushnew :langband-release *features*)
+(pushnew :langband-release *features*)
 
 ;; this is a hack to get out a working release now
 (pushnew :image-support cl:*features*)
@@ -45,8 +45,8 @@ the Free Software Foundation; either version 2 of the License, or
 	ext:*compile-progress* nil
 	cl:*compile-print* nil)
   ;; to avoid exit-problems with cmucl on debian
-  #+direct-syscall
-  (pushnew :disable-sound cl:*features*)
+  ;;#+direct-syscall
+  ;;(pushnew :disable-sound cl:*features*)
   #+pcl
   (pushnew 'compile pcl::*defclass-times*))
 
@@ -57,7 +57,7 @@ the Free Software Foundation; either version 2 of the License, or
 	*compile-print* nil
 	)
   ;; to avoid exit-problems with sbcl
-  (pushnew :disable-sound cl:*features*)
+  ;;(pushnew :disable-sound cl:*features*)
   )
   
 
@@ -66,7 +66,9 @@ the Free Software Foundation; either version 2 of the License, or
   (setf *load-local-names-info* t
 	;;(sys:gsgc-switch :print) t
 	))
- 
+
+#||
+;; this crap is obsolete, make ~/.langband/settings.lisp later
 (defun %load-settings-file (fname)
   "Loads settings info."
   (with-open-file (s (pathname fname)
@@ -93,3 +95,4 @@ the Free Software Foundation; either version 2 of the License, or
 
 (ignore-errors
   (%load-settings-file "config/settings.cfg")) ;; fix
+||#

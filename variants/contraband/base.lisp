@@ -1,9 +1,9 @@
-;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: org.langband.vanilla -*-
+;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: org.langband.contraband -*-
 
 #|
 
-DESC: variants/vanilla/base.lisp - the base variant class for Vanilla
-Copyright (c) 2000-2002 - Stig Erik Sandø
+DESC: variants/contraband/base.lisp - the base variant class for contraband
+Copyright (c) 2000-2003 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 |#
 
-(in-package :org.langband.vanilla)
+(in-package :org.langband.contraband)
 
 (defclass contraband (variant)
   ((dawn-time     :initarg :dawntime   :initform 0    :accessor variant.dawn)
@@ -31,6 +31,14 @@ the Free Software Foundation; either version 2 of the License, or
 		   :initform (make-hash-table :test #'equal)
 		   :accessor variant.spellbooks)
 
+   ;; this length should be calculated accurately to allow for iteration
+   (skills :initform (make-array 30 :initial-element nil)
+	   :accessor variant.skills)
+
+
+   (quests :initform (make-hash-table :test #'equal)
+	   :accessor variant.quests)
+   
    ;; 50 is max-level
    (max-charlevel :initform 50)
    ;; put xp-table here right away
@@ -53,8 +61,58 @@ the Free Software Foundation; either version 2 of the License, or
 
    ))
 
+(defclass con/monster-kind (monster-kind)
+  ((picture :accessor monster.picture
+	    :initform nil)))
 
-(defclass con-town (themed-level)
+
+(defstruct (con/skill (:conc-name con/skill.))
+  id
+  slot
+  alias
+  desc
+  idx
+  cost)
+  
+#||
+;; see config/skills.lisp
+(defclass con/skills ()
+  ((smithing        :accessor skills.smithing        :initform 0)
+   (leatherwork     :accessor skills.leatherwork     :initform 0)
+   (woodcraft       :accessor skills.woodcraft       :initform 0)
+   (gemcutting      :accessor skills.gemcutting      :initform 0)
+   (mining          :accessor skills.mining          :initform 0)
+   (appraising      :accessor skills.appraising      :initform 0)
+   (trade           :accessor skills.trade           :initform 0)
+   (conversation    :accessor skills.conversation    :initform 0)
+   (monster-lore    :accessor skills.monster-lore    :initform 0)
+   (object-lore     :accessor skills.object-lore     :initform 0)
+   (history         :accessor skills.history         :initform 0)
+   (intuition       :accessor skills.intuition       :initform 0)
+   (languages       :accessor skills.languages       :initform 0)
+   (animal-handling :accessor skills.animal-handling :initform 0)
+   (riding          :accessor skills.riding          :initform 0)
+   (tracking        :accessor skills.tracking        :initform 0)
+   (alchemy         :accessor skills.alchemy         :initform 0)
+   (magic-devices   :accessor skills.magic-devices   :initform 0)
+   (pick-pocket     :accessor skills.pick-pocket     :initform 0)
+   (security        :accessor skills.security        :initform 0)
+   (mechanical      :accessor skills.mechanical      :initform 0)
+   ;; combat
+   (unarmed         :accessor skills.unarmed         :initform 0)
+   (short-blades    :accessor skills.short-blades    :initform 0)
+   (long-blades     :accessor skills.long-blades     :initform 0)
+   (polearms        :accessor skills.polearms        :initform 0)
+   (bludgeoning     :accessor skills.bludgeoning     :initform 0)
+   (archery         :accessor skills.archery         :initform 0)
+   (shield          :accessor skills.shield          :initform 0)
+   (heavy-armour    :accessor skills.heavy-armour    :initform 0)
+   (light-armour    :accessor skills.light-armour    :initform 0)
+   (evasion         :accessor skills.evasion         :initform 0)
+   ))
+||#
+
+(defclass con/town (themed-level)
   ((id     :initform "town-level")
    (symbol :initform 'town-level)
    (stores        :initarg :stores     :initform nil  :accessor level.stores)
@@ -90,11 +148,65 @@ Each location is a fixnum with column in the last row."))
 (defclass con-birth (birth-settings)
   ())
 
+
+(defclass quest ()
+  ((id    :accessor quest.id    :initform nil :initarg :id
+	  :documentation "A string id.")
+   (name  :accessor quest.name    :initform nil :initarg :id
+	  :documentation "A name for the quest.")
+   (desc  :accessor quest.desc  :initform nil
+	  :documentation "A description of the quest to put on a quest page.")
+   (state :accessor quest.state :initform :not-started
+	  :documentation "what is the current state of the quest?")
+   (step  :accessor quest.step  :initform :init
+	  :documentation "specifies at what step we are at.. :init and :finish being special values.")
+   (steps :accessor quest.steps :initform nil
+	  :documentation "steps within a quest, typically pointers to subquests.")
+   (giver :accessor quest.giver :initform nil
+	  :documentation "Who gave this quest.")
+   (taker :accessor quest.taker :initform nil
+	  :documentation "Who is doing this quest")
+   (parent :accessor quest.parent :initform nil
+	   :documentation "If it is a subquest, PARENT should point to the parent quest.")
+   ))
+
+
+(defgeneric quest-available? (variant quest quest-giver quest-taker)
+  (:documentation "Checks if a quest can be taken by (ie 'is available for') the quest-taker."))
+
+(defgeneric quest-status (variant quest quest-taker)
+  (:documentation "Returns the status of the quest.. :active, :not-started, :success, :failure being some possible
+returned results."))
+  
+(defgeneric init-quest (variant quest quest-giver quest-taker)
+  (:documentation "Initialisation of the quest, which does the init of all settings."))
+
+(defgeneric advance-quest (variant quest quest-taker)
+  (:documentation "Advances a quest to the next step, which might be the end."))
+
+(defgeneric finish-quest (variant quest quest-taker)
+  (:documentation "Cleanup actions for the quest."))
+
 ;;; define relevant object-types for contraband
 
 (def-obj-type weapon :key <weapon>)
+(def-obj-type melee-weapon :is weapon)
+(def-obj-type long-blade :key <long-blade> :is melee-weapon)
+(def-obj-type short-blade :key <short-blade> :is melee-weapon)
+
 (def-obj-type armour :key <armour>)
+(def-obj-type headgear :is armour :key <headgear>)
 (def-obj-type cloak :is armour :key <cloak>)
+(def-obj-type body-armour :is armour :key <body-armour>)
+(def-obj-type gloves :is armour :key <gloves>)
+(def-obj-type boots :is armour :key <boots>)
+
+(def-obj-type letter :key <letter>)
+(def-obj-type ring :key <ring>)
+(def-obj-type neckwear :key <neckwear>)
+(def-obj-type amulet :is neckwear :key <amulet>)
+
+(def-obj-type container :key <container>)
 
 #||
 ;; doesn't work!
@@ -109,14 +221,72 @@ Each location is a fixnum with column in the last row."))
   (register-level! var-obj "level")
   )
 ||#  
-		   
+
+(defvar *contraband-images* #(
+#| 0 |# "" 
+        "" 
+        "" 
+        (engine-gfx "tiles/dg_armor32.bmp") 
+        (engine-gfx "tiles/dg_effects32.bmp") 
+#| 5 |# (engine-gfx "tiles/dg_food32.bmp") 
+        (engine-gfx "tiles/dg_classm32.bmp") 
+        (engine-gfx "tiles/dg_humans32.bmp") 
+        (engine-gfx "tiles/dg_jewls32.bmp") 
+        (engine-gfx "tiles/dg_magic32.bmp") 
+#| 10 |#(engine-gfx "tiles/dg_misc32.bmp") 
+        (engine-gfx "tiles/dg_potions32.bmp") 
+        (engine-gfx "tiles/dg_wands32.bmp") 
+        (engine-gfx "tiles/dg_weapons32.bmp") 
+        (engine-gfx "tiles/dg_people32.bmp") 
+#| 15 |#(engine-gfx "tiles/dg_dragon32.bmp") 
+        (engine-gfx "tiles/dg_monster132.bmp") 
+        (engine-gfx "tiles/dg_monster232.bmp") 
+        (engine-gfx "tiles/dg_monster332.bmp") 
+        (engine-gfx "tiles/dg_monster432.bmp") 
+#| 20 |#(engine-gfx "tiles/dg_monster532.bmp") 
+        (engine-gfx "tiles/dg_monster632.bmp") 
+        (engine-gfx "tiles/dg_monster732.bmp") 
+        (engine-gfx "tiles/dg_undead32.bmp") 
+        (engine-gfx "tiles/dg_uniques32.bmp") 
+#| 25 |#(engine-gfx "tiles/dg_dungeon32.bmp") 
+        (engine-gfx "tiles/dg_grounds32.bmp") 
+        (engine-gfx "tiles/dg_extra132.bmp") 
+        (engine-gfx "tiles/dg_town032.bmp") 
+        (engine-gfx "tiles/dg_town132.bmp") 
+#| 30 |#(engine-gfx "tiles/dg_town232.bmp") 
+        (engine-gfx "tiles/dg_town332.bmp") 
+        (engine-gfx "tiles/dg_town432.bmp") 
+        (engine-gfx "tiles/dg_town532.bmp") 
+        (engine-gfx "tiles/dg_town632.bmp") 
+#| 35 |#(engine-gfx "tiles/dg_town732.bmp") 
+        (engine-gfx "tiles/dg_town832.bmp")
+        (engine-gfx "tiles/dg_town932.bmp")
+	(engine-gfx "tiles/button.bmp")
+	(engine-gfx "tiles/button2.bmp")
+#| 40 |#(engine-gfx "tiles/crosshair.png")
+	(engine-gfx "tiles/summer.png")
+	(variant-gfx "tiles/greendress.png")
+	(variant-gfx "tiles/facts.png")
+	(variant-gfx "tiles/alphabet.png") ;; temporary one for runesystem
+#| 45 |#(variant-gfx "tiles/keyrow.png") ;; temporary one for runesystem
+	(variant-gfx "tiles/red-pointers.png") ;; temporary one for runesystem
+	))
+
 
 ;; path tweaking needed!!!
 (defun make-contraband-obj ()
   (make-instance 'contraband
 		 :id "contraband"
 		 :name "Contraband"
+		 :num-version 7
+		 :stat-length 6
 
+		 :gfx-path
+		 #+langband-development
+		 "./variants/contraband/graphics/"
+		 #-langband-development
+		 "/var/games/contraband/graphics/"
+		 
 		 :config-path
 		 #+langband-development
 		 "./variants/contraband/config/"

@@ -110,12 +110,12 @@ the Free Software Foundation; either version 2 of the License, or
   (declare (ignore the-attack))
  
     (let* ((bonus 0) ;; (* (+ to-hit for weapon and dex/str) multiplier)
-	   (skills (player.skills attacker))
-	   (chance (+ (skills.fighting skills) bonus))
+	   (chance (+ (get-melee-attack-skill *variant* attacker) bonus))
 	   (monster-ac (get-creature-ac target))
 	   (visible-p t))
       
-    (melee-hit-ac? target chance monster-ac visible-p)))
+      (disturbance *variant* attacker target :max)
+      (melee-hit-ac? target chance monster-ac visible-p)))
 
     
 ;; move to variant
@@ -138,7 +138,8 @@ the Free Software Foundation; either version 2 of the License, or
 (defmethod melee-hit-creature? ((attacker active-monster) (target player) the-attack)
 
   (check-type the-attack attack)
-
+  (disturbance *variant* target attacker :max)
+  
   (let ((atype (attack.dmg-type the-attack)))
     (unless atype
       (return-from melee-hit-creature? t)) ;; right?
@@ -293,7 +294,7 @@ the Free Software Foundation; either version 2 of the License, or
       
     
       ;; add bow modifiers back in
-      (let* ((chance (+ (skills.shooting (player.skills attacker)) (* 3 bonus))) ;; hack
+      (let* ((chance (+ (get-ranged-attack-skill *variant* attacker) (* 3 bonus))) ;; hack
 	     (dist (distance (location-x attacker) (location-y attacker)
 			     (location-x target) (location-y target)))
 	     (red-chance (- chance dist))

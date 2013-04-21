@@ -26,12 +26,13 @@ The direction is a number from the keypad."
 	 (wanted-y cur-y))
 
     ;; hack, move to variant later
-    (when (get-attribute-value '<confusion> (player.temp-attrs player))
-      (let ((new-dir (randint 9)))
-	;; ultra-hack
-	(when (eql new-dir 5)
-	  (setf new-dir direction))
-	(setf direction new-dir)))
+    (when-bind (temp-attrs (player.temp-attrs player))
+      (when (get-attribute-value '<confusion> temp-attrs)
+	(let ((new-dir (randint 9)))
+	  ;; ultra-hack
+	  (when (eql new-dir 5)
+	    (setf new-dir direction))
+	  (setf direction new-dir))))
  
     
     (case direction
@@ -80,6 +81,7 @@ The direction is a number from the keypad."
 			     (location-y player)
 			     wanted-x
 			     wanted-y)
+	     (on-move-to-coord var-obj player wanted-x wanted-y)
 
 	     )
 	    ))
@@ -109,7 +111,7 @@ The direction is a number from the keypad."
 (defun search-area! (dungeon player)
   "Searches nearby grids."
 
-  (let ((chance (skills.searching (player.skills player)))
+  (let ((chance (get-search-skill *variant* player))
 	(x (location-x player))
 	(y (location-y player))
 	(ddx-ddd *ddx-ddd*)
@@ -130,14 +132,17 @@ The direction is a number from the keypad."
 	      
 	      (when (typep decor 'active-trap)
 		(make-trap-visible decor dungeon cur-x cur-y)
+		(disturbance *variant* player decor :major)
 		(print-message! "You have found a trap."))
 
 	      (when (and (typep decor 'active-door)
 			 (not (decor.visible? decor)))
 		(print-message! "You found a secret door.")
 		(setf (decor.visible? decor) t)
+		(disturbance *variant* player decor :major)
 		;;(place-closed-door! dungeon cur-x cur-y)
-		(light-spot! dungeon cur-x cur-y))
+		(light-spot! dungeon cur-x cur-y)
+		)
 	  
 	      ;; add more here, traps, chests.. 
 	      )))
@@ -253,7 +258,8 @@ a list if more items occupy the same place."
 			   (format-message! "You pick up ~a."
 					    (with-output-to-string (s)
 					      (write-obj-description var-obj removed-obj s)))
-			   (bit-flag-add! *update* +pl-upd-bonuses+ +pl-upd-mana+)
+			   (on-pickup-object var-obj player removed-obj)
+			   (bit-flag-add! *update* +pl-upd-bonuses+)
 			   ;; succesful
 			   (when (= 0 (items.cur-size objs))
 			     (setf (cave-objects dungeon x y) nil))
@@ -297,11 +303,37 @@ a list if more items occupy the same place."
       (check-type removed-obj active-object)
 
       (drop-near-location! var-obj dungeon removed-obj (location-x player) (location-y player))
-      (bit-flag-add! *update* +pl-upd-bonuses+ +pl-upd-mana+ +pl-upd-torch+)
+      (on-drop-object var-obj player removed-obj)
+      (bit-flag-add! *update* +pl-upd-bonuses+ +pl-upd-torch+)
       ;;(item-table-add! (get-item-table dungeon player :floor) removed-obj)
       t)))
 			     
+(defun interactive-take-off-item! (dungeon player)
 
+  (when-bind (selection (with-frame (+query-frame+)
+			  (select-item dungeon player '(:equip)
+				       :prompt "Take off item: "
+				       :where :equip)))
+
+    (let* ((the-table (get-item-table dungeon player (car selection)))
+	   (removed-obj (item-table-remove! the-table (cdr selection))))
+      (when (and (typep removed-obj 'active-object)
+		 (is-cursed? removed-obj))
+	(print-message! "Hmmm, it seems to be cursed.")
+	(item-table-add! the-table removed-obj) ;; put back
+	(return-from interactive-take-off-item! nil))
+      
+      (cond ((typep removed-obj 'active-object)
+	     ;; an object was returned
+	     (%put-obj-in-cnt dungeon player :backpack removed-obj)
+	     ;;(bit-flag-add! *update* +pl-upd-bonuses+ +pl-upd-mana+ +pl-upd-torch+)
+	     (bit-flag-add! *update* +pl-upd-bonuses+ +pl-upd-torch+)
+	     )
+	    
+	    (t
+	     (format-message! "Did not find selected obj ~a" selection)
+	     )))
+    ))
 
 (defun %put-obj-in-cnt (dungeon player cnt obj)
   (let* ((the-table (if (typep cnt 'item-table) cnt (get-item-table dungeon player cnt)))
@@ -347,14 +379,15 @@ a list if more items occupy the same place."
       (cond ((typep other-obj 'active-object)
 	     ;; an object was returned
 	     (%put-obj-in-cnt dungeon player :backpack other-obj)
-	     (bit-flag-add! *update* +pl-upd-bonuses+ +pl-upd-mana+ +pl-upd-torch+))
+	     (on-wear-object *variant* player removed-obj)
+	     (bit-flag-add! *update* +pl-upd-bonuses+ +pl-upd-torch+))
 	    
 	    (t
 	     ;; succesful and nothing returned.. do nothing, except waste energy
 	     (incf (player.energy-use player) +energy-normal-action+)
 	     ;; hack, fix later
-	     
-	     (bit-flag-add! *update* +pl-upd-bonuses+ +pl-upd-mana+ +pl-upd-torch+)
+	     (on-wear-object *variant* player removed-obj)
+	     (bit-flag-add! *update* +pl-upd-bonuses+ +pl-upd-torch+)
 	     ;; add window-stuff
 	     ))
       )))
@@ -979,3 +1012,6 @@ a corridor."
 	     dir))
       )))
 
+(defmethod on-move-to-coord (variant creature x y)
+  (declare (ignore variant x y))
+  creature)

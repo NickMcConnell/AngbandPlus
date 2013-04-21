@@ -156,20 +156,11 @@ the Free Software Foundation; either version 2 of the License, or
     ;; hack to get things moving!
 ;;    (setf (creature.attributes t-p) (make-instance 'calculated-attributes))
     
-    (setf (player.skills player) (produce-skills-object variant))
     (setf (player.equipment player) (make-equipment-slots variant))
     
     (setf (player.hp-table player) (%make-level-array variant)
 	  (player.xp-table player) (%make-level-array variant)
 	  )
-
-    ;; hackish, just give player a backpack, move to variant later
-
-    (let ((backpack (create-aobj-from-id "backpack"))
-	  (eq-slots (player.equipment player)))
-      
-      (item-table-add! eq-slots backpack 'eq.backpack)
-      (setf (player.inventory player) backpack))
 
     
     ;; we want the resist table
@@ -228,10 +219,6 @@ the Free Software Foundation; either version 2 of the License, or
 		
 
 (defmethod calculate-creature-hit-points! ((variant variant) (player player))
-
-  t)
-
-(defmethod calculate-creature-mana! ((variant variant) (player player))
 
   t)
 
@@ -328,9 +315,6 @@ the Free Software Foundation; either version 2 of the License, or
 	(modbase-stats (player.modbase-stats player))
 	(stat-len (variant.stat-length variant)))
 
-    (reset-skills! variant (player.skills player) 0)
-
-    
     (setf (pl-ability.base-ac actual-abs) 0
 	  (pl-ability.ac-modifier actual-abs) 0
 	  (pl-ability.to-hit-modifier actual-abs) 0
@@ -368,11 +352,6 @@ the Free Software Foundation; either version 2 of the License, or
 	     (warn "Unknown format ~s for stat-changes for race ~s" stat-changes race)))))
   
 
-  (dolist (i (variant.skill-translations variant))
-      (%add-to-a-skill! (cdr i)
-			(player.skills player)
-			(player.level player)
-			(race.skills race)))
   t)
 
 
@@ -386,13 +365,6 @@ the Free Software Foundation; either version 2 of the License, or
 		   do (incf (aref m-stats i) x)))
 	    (t
 	     (warn "Unknown format ~s for stat-changes for class ~s" stat-changes cls)))))
-
-  
-  (dolist (i (variant.skill-translations variant))
-    (%add-to-a-skill! (cdr i)
-		      (player.skills player)
-		      (player.level player)
-		      (class.skills cls)))
 
   t)
 
@@ -486,14 +458,13 @@ the Free Software Foundation; either version 2 of the License, or
 
     ;; check what has happened, and do necessary updates
     (handle-player-updates! variant player old)
-
-	      
+      
     t))
 
 
-(defmethod gain-level! (variant player)
+(defmethod gain-level! ((variant variant) (player player))
   "lets the player gain a level.. woah!  must be updated later"
-  (declare (ignore variant))
+
   (let* ((the-level (player.level player))
 	 (hp-table (player.hp-table player))
 	 (next-hp (aref hp-table the-level)))
@@ -515,7 +486,7 @@ the Free Software Foundation; either version 2 of the License, or
 
     (format-message! "You attain level ~d and ~d new hitpoints. " (player.level player) next-hp)
 
-    (bit-flag-add! *update* +pl-upd-hp+ +pl-upd-bonuses+ +pl-upd-mana+ +pl-upd-spells+)
+    (bit-flag-add! *update* +pl-upd-hp+ +pl-upd-bonuses+)
     (bit-flag-add! *redraw* +print-basic+ +print-extra+) ;; to be on the safe side
     
     ))
@@ -529,8 +500,6 @@ the Free Software Foundation; either version 2 of the License, or
 ;;	  (warn "Returning lvl ~s for xp ~s" (1- i) xp)
 	  (return-from find-level-for-xp (1- i))))
   1) ;; fix me later
-
-;;(trace find-level-for-xp)
 
 (defmethod alter-xp! ((player player) amount)
   "Alters the xp for the player with the given amount."
@@ -560,30 +529,6 @@ the Free Software Foundation; either version 2 of the License, or
 	 (return-from alter-xp! nil)))
   
    ))
-
-
-(defun reset-skills! (variant skills-obj reset-val)
-  "Sets all skills to RESET-VAL."
-  (dolist (i (variant.skill-translations variant))
-    (setf (slot-value skills-obj (cdr i)) reset-val)))
-
-(defun %add-to-a-skill! (which the-skills-obj player-lvl source)
-  (declare (type fixnum player-lvl))
-  (when source
-    (let ((obj (slot-value source which)))
-      (if (not obj)
-	  (warn "Skill-slot ~s does have NIL value, please fix." which)
-	  (incf (slot-value the-skills-obj which)
-		(cond ((eq obj nil) 0)
-		      ((numberp obj) obj)
-		      ((skill-p obj)
-		       (the fixnum (+ (the fixnum (skill.base obj))
-				      (int-/ (* player-lvl (the fixnum (skill.lvl-gain obj)))
-					     10))))
-		      (t
-		       (error "Unknown skill-obj ~a" obj)))
-		)))))
-
 
 (defmethod update-xp-table! ((variant variant) (player player))
   "Updates the xp-table on the player, and returns updated player."
@@ -735,7 +680,21 @@ the Free Software Foundation; either version 2 of the License, or
     (setf (slot-value to i) (slot-value from i)))
   to)
 
+;; do nothing special as default
+(defmethod on-pickup-object ((variant variant) (player player) (obj active-object))
+  nil)
 
+(defmethod on-wear-object ((variant variant) (player player) (obj active-object))
+  nil)
 
-;;(trace calculate-creature-bonuses!)
-;;(trace calculate-creature-light-radius!)
+(defmethod on-drop-object ((variant variant) (player player) (obj active-object))
+  nil)
+
+(defmethod get-melee-attack-skill ((variant variant) (player player))
+  0)
+
+(defmethod get-ranged-attack-skill ((variant variant) (player player))
+  0)
+
+(defmethod get-search-skill ((variant variant) (player player))
+  0)

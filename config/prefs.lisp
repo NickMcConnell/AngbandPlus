@@ -10,6 +10,8 @@ this file defines preferences done the lispy way
 
 (in-package :org.langband.engine)
 
+;; read when engine is loaded, can contain preferences
+;; may be obsolete
 #||
 (when (or (eq (get-system-type) 'xaw)
 	  (eq (get-system-type) 'x11)
@@ -25,7 +27,8 @@ this file defines preferences done the lispy way
 
 (when (eq (get-system-type) 'sdl)
   (read-pref-file "sdl-keys.lisp"))
-||#
 
 (when (using-sound?)
   (read-pref-file "sound.lisp"))
+
+||#

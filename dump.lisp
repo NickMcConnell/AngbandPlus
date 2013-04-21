@@ -3,7 +3,7 @@
 #|
 
 DESC: dump.lisp - code related to dumping various information-structures, ...
-Copyright (c) 2002 - Stig Erik Sandø
+Copyright (c) 2002-2003 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -119,17 +119,17 @@ the Free Software Foundation; either version 2 of the License, or
 
 (defmethod print-object ((inst character-class) stream)
   (print-unreadable-object
-   (inst stream :identity t)
-   (format stream "~:(~S~) [~A ~A]" (class-name (class-of inst))
-	   (class.id inst)
-	   (class.name inst)))
+      (inst stream :identity t)
+    (format stream "~:(~S~) [~A ~A]" (lbsys/class-name inst)
+	    (class.id inst)
+	    (class.name inst)))
   inst)
 
 
 (defmethod print-object ((inst character-race) stream)
   (print-unreadable-object
    (inst stream :identity t)
-   (format stream "~:(~S~) [~A ~A]" (class-name (class-of inst))
+   (format stream "~:(~S~) [~A ~A]" (lbsys/class-name inst)
 	   (race.id inst)
 	   (race.name inst)))
   inst)
@@ -137,14 +137,14 @@ the Free Software Foundation; either version 2 of the License, or
 (defmethod print-object ((inst floor-type) stream)
   (print-unreadable-object
    (inst stream :identity t)
-   (format stream "~:(~S~) [~S ~S]" (class-name (class-of inst)) 
+   (format stream "~:(~S~) [~S ~S]" (lbsys/class-name inst)
 	   (floor.name inst) (floor.id inst)))
   inst)
 
 (defmethod print-object ((inst house) stream)
   (print-unreadable-object
    (inst stream :identity t)
-   (format stream "~:(~S~) [~A ~A ~A]" (class-name (class-of inst))
+   (format stream "~:(~S~) [~A ~A ~A]" (lbsys/class-name inst)
 	   (slot-value inst 'name)
 	   (slot-value inst 'id)
 	   (slot-value inst 'owner)
@@ -154,35 +154,35 @@ the Free Software Foundation; either version 2 of the License, or
 (defmethod print-object ((inst owner) stream)
   (print-unreadable-object
    (inst stream :identity t)
-   (format stream "~:(~S~) [~A]" (class-name (class-of inst))
+   (format stream "~:(~S~) [~A]" (lbsys/class-name inst)
 	   (slot-value inst 'name)))
   inst)
 
 (defmethod print-object ((inst object-kind) stream)
   (print-unreadable-object
    (inst stream :identity t)
-   (format stream "~:(~S~) [~S ~S]" (class-name (class-of inst)) 
+   (format stream "~:(~S~) [~S ~S]" (lbsys/class-name inst)
 	   (object.name inst) (object.depth inst)))
   inst)
 
 (defmethod print-object ((inst active-object) stream)
   (print-unreadable-object
    (inst stream :identity t)
-   (format stream "~:(~S~) [~a ~S (~a,~a)]" (class-name (class-of inst)) 
+   (format stream "~:(~S~) [~a ~S (~a,~a)]" (lbsys/class-name inst)
 	   (aobj.number inst) (aobj.kind inst) (location-x inst) (location-y inst))
   inst))
 
 (defmethod print-object ((inst flavour) stream)
   (print-unreadable-object
    (inst stream :identity t)
-   (format stream "~:(~S~) [~S]" (class-name (class-of inst)) 
+   (format stream "~:(~S~) [~S]" (lbsys/class-name inst)
 	   (flavour.name inst)))
   inst)
 
 (defmethod print-object ((inst monster-kind) stream)
   (print-unreadable-object
    (inst stream :identity t)
-   (format stream "~:(~S~) [~S ~S]" (class-name (class-of inst)) 
+   (format stream "~:(~S~) [~S ~S]" (lbsys/class-name inst)
 	   (monster.id inst)
 	   (monster.name inst)))
   inst)
@@ -190,35 +190,35 @@ the Free Software Foundation; either version 2 of the License, or
 (defmethod print-object ((inst active-monster) stream)
   (print-unreadable-object
    (inst stream :identity t)
-   (format stream "~:(~a~) [~S, (~s,~s)]" (class-name (class-of inst)) 
+   (format stream "~:(~a~) [~S, (~s,~s)]" (lbsys/class-name inst)
 	   (amon.kind inst) (location-x inst) (location-y inst))
   inst))
 
 (defmethod print-object ((inst trap-type) stream)
   (print-unreadable-object
    (inst stream :identity t)
-   (format stream "~:(~S~) [~S]" (class-name (class-of inst)) 
+   (format stream "~:(~S~) [~S]" (lbsys/class-name inst) 
 	   (trap.id inst)))
   inst)
 
 (defmethod print-object ((inst active-trap) stream)
   (print-unreadable-object
    (inst stream :identity t)
-   (format stream "~:(~S~) [~S]" (class-name (class-of inst)) 
+   (format stream "~:(~S~) [~S]" (lbsys/class-name inst)
 	   (if (decor.type inst) (trap.id (decor.type inst)) "NO TYPE")))
   inst)
 
 (defmethod print-object ((inst door-type) stream)
   (print-unreadable-object
    (inst stream :identity t)
-   (format stream "~:(~S~) [~S]" (class-name (class-of inst)) 
+   (format stream "~:(~S~) [~S]" (lbsys/class-name inst)
 	   (door.id inst)))
   inst)
 
 (defmethod print-object ((inst active-door) stream)
   (print-unreadable-object
    (inst stream :identity t)
-   (format stream "~:(~S~) [~S]" (class-name (class-of inst)) 
+   (format stream "~:(~S~) [~S]" (lbsys/class-name inst)
 	   (if (decor.type inst) (door.id (decor.type inst)) "NO TYPE")))
   inst)
 
@@ -226,49 +226,49 @@ the Free Software Foundation; either version 2 of the License, or
 (defmethod print-object ((inst treasure-drop) stream)
   (print-unreadable-object
    (inst stream :identity t)
-   (format stream "~:(~a~) [~a ~a ~a ~a]" (class-name (class-of inst)) 
+   (format stream "~:(~a~) [~a ~a ~a ~a]" (lbsys/class-name inst)
 	   (drop.chance inst) (drop.quality inst) (drop.amount inst) (drop.type inst))
    inst))
 
 (defmethod print-object ((inst creature-attribute) stream)
   (print-unreadable-object
    (inst stream :identity t)
-   (format stream "~:(~a~) [~a ~a]" (class-name (class-of inst)) 
+   (format stream "~:(~a~) [~a ~a]" (lbsys/class-name inst)
 	   (attr.key inst) (attr.value inst))
    inst))
 
 (defmethod print-object ((inst temp-creature-attribute) stream)
   (print-unreadable-object
    (inst stream :identity t)
-   (format stream "~:(~a~) [~a ~a - ~a]" (class-name (class-of inst)) 
+   (format stream "~:(~a~) [~a ~a - ~a]" (lbsys/class-name inst)
 	   (attr.key inst) (attr.value inst) (attr.duration inst))
    inst))
 
 (defmethod print-object ((inst character-stat) stream)
   (print-unreadable-object
    (inst stream :identity t)
-   (format stream "~:(~a~) [~a ~a]" (class-name (class-of inst)) 
+   (format stream "~:(~a~) [~a ~a]" (lbsys/class-name inst)
 	   (stat.symbol inst) (stat.number inst))
    inst))
 
 (defmethod print-object ((inst gender) stream)
   (print-unreadable-object
    (inst stream :identity t)
-   (format stream "~:(~a~) [~a ~a]" (class-name (class-of inst)) 
+   (format stream "~:(~a~) [~a ~a]" (lbsys/class-name inst)
 	   (gender.id inst) (gender.symbol inst))
    inst))
 
 (defmethod print-object ((inst attack) stream)
   (print-unreadable-object
    (inst stream :identity t)
-   (format stream "~:(~a~) [~a ~a ~a]" (class-name (class-of inst)) 
+   (format stream "~:(~a~) [~a ~a ~a]" (lbsys/class-name inst)
 	   (attack.kind inst) (attack.dmg-type inst) (attack.damage inst))
    inst))
 
 (defmethod print-object ((inst attack-type) stream)
   (print-unreadable-object
    (inst stream :identity t)
-   (format stream "~:(~a~) [~a ~a]" (class-name (class-of inst)) 
+   (format stream "~:(~a~) [~a ~a]" (lbsys/class-name inst)
 	   (attack-type.key inst) (attack-type.power inst))
    inst))
 
@@ -276,7 +276,7 @@ the Free Software Foundation; either version 2 of the License, or
 (defmethod print-object ((inst items-in-container) stream)
   (print-unreadable-object
    (inst stream :identity t)
-   (format stream "~:(~S~) [~A ~A]" (class-name (class-of inst))
+   (format stream "~:(~S~) [~A ~A]" (lbsys/class-name inst)
 	   (items.cur-size inst)
 	   (items.max-size inst)))
   inst)
@@ -284,14 +284,14 @@ the Free Software Foundation; either version 2 of the License, or
 (defmethod print-object ((inst window) stream)
   (print-unreadable-object
    (inst stream :identity t)
-   (format stream "~:(~a~) [~a ~a ~a]" (class-name (class-of inst)) 
+   (format stream "~:(~a~) [~a ~a ~a]" (lbsys/class-name inst)
 	   (window.id inst) (window.num-id inst) (window.visible? inst))
    inst))
 
 (defmethod print-object ((inst visual-projectile) stream)
   (print-unreadable-object
    (inst stream :identity t)
-   (format stream "~:(~S~) [~S]" (class-name (class-of inst)) 
+   (format stream "~:(~S~) [~S]" (lbsys/class-name inst)
            (projectile.id inst)))
 
   inst)

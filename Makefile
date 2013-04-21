@@ -14,11 +14,12 @@ all:
 #	cd lib; $(MAKE) all
 	cd zterm; $(MAKE) all
 
+deb-all:
+	cd zterm; $(MAKE) deb-all
+
 lisp-clean:
-	cd lib; $(MAKE) lisp-clean
 	cd tools; $(MAKE) clean
-	cd binary-types && $(RM) $(CLEANFILES)
-	cd tests && $(RM) $(CLEANFILES)
+	cd modules/tests && $(RM) $(CLEANFILES)
 	cd ffi && $(RM) $(CLEANFILES)
 	cd variants; $(MAKE) lisp-clean
 	$(RM) $(CLEANFILES) *.data prof.dump
@@ -27,18 +28,16 @@ packages:
 	dpkg-buildpackage -rfakeroot -us -uc
 
 clean: lisp-clean
-#	cd doc; $(MAKE) clean
 	cd zterm && $(MAKE) clean
-	cd lib && $(MAKE) clean
 	cd variants && $(MAKE) clean
 	cd debian && $(RM) $(CLEANFILES)
-	cd web && $(RM) $(CLEANFILES)
+	cd docs/web && $(RM) $(CLEANFILES)
 	rm -rf ${LINK_TARGET_DIR}
 
 clisp-link:
 	cd ${LINK_INFO_DIR}; $(MAKE) all
 	rm -rf ${LINK_TARGET_DIR}
-	${CLISP_LINKER} add-module-set ${LINK_INFO_DIR} ${CLISP_BASE} ${LINK_TARGET_DIR}
+	bash ${CLISP_LINKER} add-module-set ${LINK_INFO_DIR} ${CLISP_BASE} ${LINK_TARGET_DIR}
 
 export CLISP_LINKKIT
 

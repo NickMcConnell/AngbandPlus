@@ -16,8 +16,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 ;; we need certain flags
 (eval-when (:execute :load-toplevel :compile-toplevel)
-  #+(or allegro cmu sbcl lispworks)
-  (pushnew :use-callback-from-c *features*)
+;;  #+(or allegro cmu sbcl lispworks)
+;;  (pushnew :use-callback-from-c *features*)
 
 ;;  #+(or cmu clisp sbcl)
   (pushnew :handle-char-as-num *features*) ;; always
@@ -44,22 +44,14 @@ the Free Software Foundation; either version 2 of the License, or
 (in-package :langband-engine-system)
   
 (asdf:defsystem :langband-engine
-    :version "0.1.3"
+    :version "0.1.4"
     :components
-    ((:module settings
-	      :pathname ""
-	      :components ((:file "pre-build")))
-     
-     (:module binary-types
-	      :pathname "binary-types/"
-	      :components ((:file "binary-types"))
-	      :depends-on (settings))
-     
-     (:module decl
+    ((:module decl
               :pathname ""
-              :components ((:file "package")
-			   (:file "sys" :depends-on ("package")))
-	      :depends-on (binary-types))
+              :components ((:file "pre-build")
+			   (:file "binary-types" :depends-on ("pre-build"))
+			   (:file "package" :depends-on ("binary-types"))
+			   (:file "sys" :depends-on ("package"))))
 
      (:module foreign
 	      :pathname "ffi/"
@@ -100,13 +92,16 @@ the Free Software Foundation; either version 2 of the License, or
 			   (:file "generate" :depends-on ("dungeon" "allocate" "classes" "object"
 								    "equipment" "generics"))
 			   (:file "print" :depends-on ("generics" "player"))
-			   (:file "util" :depends-on ("dungeon" "classes" "global" "generics" "generate" "building"))
-			   (:file "combat" :depends-on ("generics" "base" "sound" "global" "classes" "dungeon" "player"))
-			   (:file "view" :depends-on ("dungeon" "generics" "constants"))
+			   (:file "combat" :depends-on ("generics" "base" "sound" "global"
+								   "classes" "dungeon" "player"))
 			   (:file "project" :depends-on ("base" "generics" "player" "object" "dungeon" "combat"))
+			   (:file "util" :depends-on ("dungeon" "classes" "global" "generics"
+								"generate" "project" "building"))
+			   
+			   (:file "view" :depends-on ("dungeon" "generics" "constants"))
 			   (:file "actions" :depends-on ("generics" "util" "global" "generate" "combat" "project"))
 			   (:file "save" :depends-on ("player" "dungeon" "classes" "global" "generics"))
-			   (:file "load" :depends-on ("save"))
+			   (:file "load" :depends-on ("save" "generate"))
 			   (:file "death" :depends-on ("global" "player" "character"))
 			   (:file "ai" :depends-on ("generics" "monster" "project"))
 			   (:file "loop" :depends-on ("classes" "player" "death" "ai" "print" "view" "util" "adts" "load" "window"))
@@ -115,8 +110,8 @@ the Free Software Foundation; either version 2 of the License, or
 								"global" "building" "equipment"))
 			   (:file "init" :depends-on ("classes" "monster" "object" "loop" "adts" "util"))
 			   (:file "verify" :depends-on ("player" "global" "base" "dungeon" "monster" "character"))
-			   (:file "conversation")
-			   			   
+			   (:file "conversation" :depends-on ("player" "dungeon" "global" "monster"))
+			   
 			   )
 	      :depends-on (foreign))
      

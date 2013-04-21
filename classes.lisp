@@ -49,9 +49,15 @@ a succesful ACTIVATE-OBJECT."))
 can use for compatibility checks, savegames and internal use.  version is
 for display, num-version for active-use. u16b should be enough.")
    
-   (config-path :accessor variant.config-path;; where are the configuration-files?
+   (config-path :accessor variant.config-path
 		:initform nil
-		:initarg :config-path)
+		:initarg :config-path
+		:documentation "where are the configuration-files?")
+   
+   (gfx-path :accessor variant.gfx-path
+	     :initform nil
+	     :initarg :gfx-path
+	     :documentation "What is the path to variant specific graphics?")
 
    ;; the rest can be done lazily
 
@@ -164,10 +170,6 @@ for display, num-version for active-use. u16b should be enough.")
    (house-owners :accessor variant.house-owners
 		 :initform (make-hash-table)
 		 :initarg :store-owners)
-
-   (skill-translations :accessor variant.skill-translations
-		       :initform nil
-		       :initarg :skill-translations)
 
    (attk-descs :accessor variant.attk-descs
 	       :initform (make-hash-table :test #'eq)
@@ -591,8 +593,10 @@ Each location is a fixnum with column in the last row."))
    (inventory   :accessor player.inventory
 		:initform nil
 		:documentation "quick variable to equipment.backpack.content")
+   
    (skills      :accessor player.skills
-		:initform nil)
+		:initform nil
+		:documentation "Meaning depends entirely on variant, engine will not touch this.")
    
    (modbase-stats :accessor player.modbase-stats
 		  :initform nil
@@ -894,24 +898,6 @@ by variants."))
     
     (date        0 :bt u64) ;; time of death
     )
-
-
-
-;; move this to variants later
-(defclass skills ()
-  ((saving-throw :accessor skills.saving-throw  :initform 0)
-   (stealth      :accessor skills.stealth       :initform 0)
-   (fighting     :accessor skills.fighting      :initform 0)
-   (shooting     :accessor skills.shooting      :initform 0)
-   (disarming    :accessor skills.disarming     :initform 0)
-   (device       :accessor skills.device        :initform 0)
-   (perception   :accessor skills.perception    :initform 0)
-   (searching    :accessor skills.searching     :initform 0))
-  (:documentation "Various skills..")
-  ;;    #+cmu
-  ;;    (:metaclass pcl::standard-class)
-  )
-
 
 ;; for each recorded effect for an object there should be such an entry
 (defstruct effect-entry
@@ -1730,11 +1716,6 @@ is all about?")
   (alloc-table nil) 
   (obj-table-by-lvl nil))
 
-;; this is a dummy for classes, not objects.. the player will have numbers
-(defstruct (skill (:conc-name skill.))
-  (name "")
-  (base 0)
-  (lvl-gain 0));; this is for 10 levels, to allow for fractions
 
 (defstruct (help-topic (:conc-name help-topic.))
   id

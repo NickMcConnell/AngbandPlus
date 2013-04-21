@@ -3,7 +3,7 @@
 #|
 
 DESC: sys.lisp - Various system-related code
-Copyright (c) 2001-2002 - Stig Erik Sandø
+Copyright (c) 2001-2003 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -78,3 +78,11 @@ but stops errors from floating out.. returns NIL instead."
   #+lucid (lcl:working-directory)
   #+sbcl (truename ".")
   #-(or allegro sbcl clisp cmu cormanlisp lispworks lucid) (truename "."))
+
+(defun lbsys/class-name (obj)
+  "Returns a string with class name for an object."
+  (class-name (class-of obj)))
+
+#-langband-release
+(defun pr-ht (htbl)
+  (maphash #'(lambda (k v) (format t "~&{~s} -> {~s}~%" k v)) htbl))

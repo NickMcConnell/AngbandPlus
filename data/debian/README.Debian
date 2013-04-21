@@ -1,0 +1,25 @@
+The Debian Package langband-data
+--------------------------------
+
+This is a package with (big) datafiles for the game langband.
+Langband is a lispier Angband, and is a complete rewrite of Angband
+in Common Lisp.  This packaging is still very preliminary though.
+
+Please report bugs on the Langband project page on Sourceforge:
+  http://sourceforge.net/projects/langband/
+
+To use it, I recommend that you get all langband-packages;
+  langband-data    <- static data with images, audio, fonts, ..
+  langband-zterm   <- the term-library from Angband (modified)
+  langband-engine  <- the engine that does most of the job
+  langband-vanilla <- a pluggable "variant" that mostly works as vanilla Angband
+
+To use it with CMUCL:
+
+$ lisp
+> (require :langband-vanilla)
+> (gfx-langband)
+
+See also the other documentation.
+
+Stig E Sandoe <stig@users.sourceforge.net>

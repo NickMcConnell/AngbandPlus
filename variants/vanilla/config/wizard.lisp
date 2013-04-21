@@ -41,4 +41,3 @@ the Free Software Foundation; either version 2 of the License, or
 (define-keypress *ang-keys* :wizard #\n 'show-monsters)
 ;;(define-keypress *ang-keys* :wizard #\o 'dump-objects)
 (define-keypress *ang-keys* :wizard #\s 'show-objects)
-(define-keypress *ang-keys* :wizard #\t 'dummy-conversation)

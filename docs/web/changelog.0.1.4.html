@@ -1,0 +1,47 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html> <head>
+<title>Chanleog v0.1.4</title>
+</head>
+
+<body>
+<h1>Changelog v0.1.4 (Engine)</h1>
+<pre>
+2003-02-18  Stig E Sandø &lt;stig@users.sourceforge.net&gt;
+	* Mostly updated the engine to accomodate contraband needs, most
+	of which are not relevant to the vanilla game.  Most work has also
+	been on contraband.
+	* Split up and cleaned some of the birth-query code
+	* Started to use produce/init protocol for classes, races and
+	monsters
+	* Removed most skill-related code from the engine.
+	* Added 'R'est command
+	* Added rudimentary disturb code to stop resting and running
+	* Removed mana constants from engine
+	* Hopefully improved the DRAW-TO-MAP function to be a bit faster
+	* Tweaked game-loading
+	* Reorganised debian-packaging to put the data/ directory in a
+	langband-data/ package.  The new data/ directory has constant
+	binary data now.
+	* Added support for 1024x768 and 1280x1024 resolution.
+	* Experimental change to avoid callbacks to lisp-code.. all is run
+	from lisp now.
+	* Updated a lot of the print.lisp code and even fixed a bug or two
+	* Now support inline calculations in theme.lisp
+	* Added OpenAL support.. still some sound-problems though.
+	* Several minor bugfixes and internal code improvements.
+</pre>
+
+<h1>Changelog v0.1.4 (Vanilla)</h1>
+<pre>
+2003-02-18  Stig E Sandø <stig@users.sourceforge.net>
+	* Moved skill-code to vanilla variant
+	* Added mana constants that had been removed from engine
+	* Fixed vanilla-specifric print.lisp code
+	* Tweaked stat-boosts
+	* Other minor tweaks
+</pre>
+
+<hr>
+<address>stig@langband.org</address>
+<!-- hhmts start --> Last modified: Tue Feb 18 15:45:50 CET 2003 <!-- hhmts end -->
+</body> </html>

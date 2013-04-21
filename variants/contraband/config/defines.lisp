@@ -1,4 +1,4 @@
-;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: org.langband.vanilla -*-
+;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: org.langband.contraband -*-
 
 #|
 
@@ -12,22 +12,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 |#
 
-(in-package :org.langband.vanilla)
+(in-package :org.langband.contraband)
 
-(defconstant +common-backpack-size+ 23)
-
-(define-object-kind 
-    "backpack" "backpack" :numeric-id 750
-    :x-attr #\w :x-char #\&
-    :depth 0 :rarity nil :chance #(0 0 0 0)
-    :locale #(0 0 0 0) :weight nil
-    :cost 1200 :the-kind '<container>
-    :on-create #'(lambda (item)
-		   (let ((container (make-container +common-backpack-size+)))
-		     (setf (aobj.contains item) container)
-		     t))
-    ;;:events (list :backpack-creation)
-    )
 
 (define-room "simple-room" #'common-make-simple-room)
 (define-room "overlapping-room" #'common-make-overlapping-room)
@@ -35,5 +21,11 @@ the Free Software Foundation; either version 2 of the License, or
 (register-information& "status-roll" 100 ;; what's the roll of status
 		       "status-cap" 100) ;; what's max status
 
-;;(register-information& "which-town" "vanilla")
 (register-information& "which-town" "bartertown")
+
+(define-floor-type* "nothing" "nothing"
+  :num-idx 73
+  :text-attr +term-white+
+  :text-char #\Space
+  :flags 0
+  :x-attr (tile-file 0) :x-char (tile-number 0))

@@ -82,7 +82,7 @@ and be constructed atop it.")
 (defconstant +print-stats+  #x00000010)
 (defconstant +print-armour+ #x00000020)
 (defconstant +print-hp+     #x00000040)
-(defconstant +print-mana+   #x00000080) ;; move to variant later!!
+
 (defconstant +print-gold+   #x00000100)
 (defconstant +print-depth+  #x00000200)
 
@@ -102,8 +102,7 @@ and be constructed atop it.")
 (defconstant +pl-upd-bonuses+        #x00000001)
 (defconstant +pl-upd-torch+          #x00000002)
 (defconstant +pl-upd-hp+             #x00000010)
-(defconstant +pl-upd-mana+           #x00000020)
-(defconstant +pl-upd-spells+         #x00000040)
+;; spell/mana see variants
 (defconstant +pl-upd-forget-view+    #x00000100)
 (defconstant +pl-upd-update-view+    #x00000200)
 (defconstant +pl-upd-forget-flow+    #x00001000)

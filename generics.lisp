@@ -120,6 +120,13 @@ but one that works with langband-objects."))
 (defgeneric produce-character-race (variant id name &key &allow-other-keys)
   (:documentation "Returns a character-class object."))
 
+(defgeneric initialise-character-class! (variant character-class keyword-args)
+  (:documentation "Used to initialise a character-class with arguments given to define."))
+
+(defgeneric initialise-character-race! (variant character-class keyword-args)
+  (:documentation "Used to initialise a character-class with arguments given to define."))
+
+
 ;;; === End factories
 
 
@@ -185,8 +192,6 @@ also using version number."))
   (:documentation "Does a walk-through of the creature and updates the light-radius."))
 (defgeneric calculate-creature-hit-points! (variant creature)
   (:documentation "Does a walk-through of the creature and recalculates hit-points."))
-(defgeneric calculate-creature-mana! (variant creature)
-  (:documentation "Does a walk-through of the creature and recalculates mana."))
 
 
 (defgeneric display-creature (variant creature &key mode)
@@ -318,8 +323,6 @@ level/room/player combo.  Allowed to return NIL."))
 (defgeneric print-depth (level setting)
   (:documentation "fix me later.. currently just prints depth."))
 
-(defgeneric print-mana-points (variant creature setting)
-  (:documentation "prints mana points according to setting."))
 
 (defgeneric get-monster-kind-by-level (variant level &key depth)
   (:documentation "Returns a monster-kind or NIL."))
@@ -565,17 +568,16 @@ the given variant and given level."))
 (defgeneric produce-game-values-object (variant)
   (:documentation "Returns a new game-values objedct for the variant."))
 
-(defgeneric produce-skills-object (variant &key default-value)
-  (:documentation "Returns a skills-object for the given variant."))
+(defgeneric get-melee-attack-skill (variant creature)
+  (:documentation "Returns the attack-skill of the creature."))
 
-(defgeneric build-skills-obj-from-list (variant skill-list)
-  (:documentation "Returns a skill-object from a list of skill-info."))
-  
-(defgeneric get-skill-translation (variant key)
-  (:documentation "Returns a skill-translation for the given KEY, I think."))
+(defgeneric get-ranged-attack-skill (variant creature)
+  (:documentation "Returns the attack-skill of the creature."))
 
-(defgeneric register-skill-translation& (variant translation)
-  (:documentation "Registers a skill-translation with the variant."))
+;; might need fixing
+(defgeneric get-search-skill (variant creature)
+  (:documentation "Returns the attack-skill of the creature."))
+
 
 (defgeneric create-alloc-table-objects (variant obj-table)
   (:documentation "Returns an allocation table for the given object-table."))
@@ -649,6 +651,36 @@ It is passed the object returned by GET-OLD-PLAYER-INFO at start of recalculatio
 
 ;;; === End player-protocol
 
+;;; === Various events that can be handled
+(defgeneric on-pickup-object (variant creature object)
+  (:documentation "Called whenever the creature has picked up something and
+it has been put in the inventory."))
+
+(defgeneric on-wear-object (variant creature object)
+  (:documentation "Called whenever the creature wears something and
+it has been put in the worn-items."))
+
+(defgeneric on-drop-object (variant creature object)
+  (:documentation "Called whenever the creature drops something and
+it has been put on the ground."))
+
+(defgeneric on-move-to-coord (variant creature x y)
+  (:documentation "Called whenever the player actively moves to a new coordinate."))
+
+(defgeneric on-new-player (variant creature)
+  (:documentation "Is called when the creature/player has just been created."))
+
+(defgeneric on-game-start (variant creature)
+  (:documentation "Is called just before the game starts (from birth or savefile)."))
+
+(defgeneric on-player-death (variant creature)
+  (:documentation "Called when the player has just died."))
+
+(defgeneric on-creature-death (variant creature killer)
+  (:documentation "Called when a non-player creature dies."))
+
+;;; === End ON-XXX events
+
 (defgeneric place-rubble! (variant dungeon x y)
   (:documentation "Places rubble at the given coord."))
 
@@ -691,14 +723,17 @@ but does not need to be 100% updated always."))
 (defgeneric redraw-stuff (variant dungeon player)
   (:documentation "Redraws stuff based on value of *redraw*."))
 
+(defgeneric update-stuff (variant dungeon player)
+  (:documentation "Update various stuff based on value of *update*"))
+
 (defgeneric print-extra-frame-content (variant dungeon player)
   (:documentation "Prints extra frame content."))
 
 (defgeneric add-creature-attribute (creature attr)
   (:documentation "Adds an attribute to the creature."))
 
-(defgeneric get-class-tile-number (variant player)
-  (:documentation "Returns a numbered offset into the class-tile file."))
+(defgeneric get-class-tile (variant player)
+  (:documentation "Returns two values, file and tile."))
 
 (defgeneric get-character-picture (variant player)
   (:documentation "Returns a filename to a picture of the player character."))
@@ -726,3 +761,22 @@ given key.  Returns an active-door or NIL if none was found."))
 (defgeneric handle-mouse-click (variant window button x y)
   (:documentation "Handle a legal mouse-click to a window.  The x and y are
 local to the window."))
+
+(defgeneric roll-stats! (variant player)
+  (:documentation "Roll up stats and assign them to the player."))
+
+(defgeneric print-basic-frame (variant dungeon player)
+  (:documentation "Prints out the basic frame.."))
+
+(defgeneric display-player-extra (variant player term settings)
+  (:documentation "Display extra info about the player for the character sheet."))
+
+(defgeneric display-player-skills (variant player term settings)
+  (:documentation "Display skills for the player for the character sheet."))
+
+(defgeneric display-player-combat-ratings (variant player term settings)
+  (:documentation "Display combat info about the player for the character sheet."))
+
+(defgeneric disturbance (variant player source level)
+  (:documentation "Notifies the player of a disturbance, the source of the disturbance and what level
+the disturbance is, e.g :minor, :major, .."))

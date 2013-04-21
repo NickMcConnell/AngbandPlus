@@ -31,6 +31,11 @@ the Free Software Foundation; either version 2 of the License, or
 		   :initform (make-hash-table :test #'equal)
 		   :accessor variant.spellbooks)
 
+   (skill-translations :accessor variant.skill-translations
+		       :initform nil
+		       :initarg :skill-translations)
+
+
    ;; 50 is max-level
    (max-charlevel :initform 50)
    ;; put xp-table here right away
@@ -204,6 +209,24 @@ Each location is a fixnum with column in the last row."))
 (defclass vanilla-birth (birth-settings)
   ())
 
+(defclass vanilla-skills ()
+  ((fighting     :accessor skills.fighting      :initform 0)
+   (shooting     :accessor skills.shooting      :initform 0)
+   (searching    :accessor skills.searching     :initform 0)
+   (saving-throw :accessor skills.saving-throw  :initform 0)
+   (stealth      :accessor skills.stealth       :initform 0)
+   (disarming    :accessor skills.disarming     :initform 0)
+   (device       :accessor skills.device        :initform 0)
+   (perception   :accessor skills.perception    :initform 0)
+   ))
+
+;; this is a dummy for classes, not objects.. the player will have numbers
+(defstruct (van/skill (:conc-name van/skill.))
+  (name "")
+  (base 0)
+  (lvl-gain 0));; this is for 10 levels, to allow for fractions
+
+
 (defgeneric is-spellcaster? (obj)
   (:documentation "Returns T if the object/player is a spellcaster."))
 
@@ -238,6 +261,28 @@ should return NIL or the state-object (with possibly updated state."))
 
 (defgeneric print-confused (variant player settings)
   (:documentation "Prints confusion-info according to settings."))
+
+(defgeneric print-mana-points (variant creature setting)
+  (:documentation "prints mana points according to setting."))
+
+(defgeneric calculate-creature-mana! (variant creature)
+  (:documentation "Does a walk-through of the creature and recalculates mana."))
+
+(defgeneric print-can-study-more (variant player setting)
+  (:documentation "Prints if the player can study more spells."))
+
+(defgeneric produce-skills-object (variant &key default-value)
+  (:documentation "Returns a skills-object for the given variant."))
+
+(defgeneric build-skills-obj-from-list (variant skill-list)
+  (:documentation "Returns a skill-object from a list of skill-info."))
+  
+(defgeneric get-skill-translation (variant key)
+  (:documentation "Returns a skill-translation for the given KEY, I think."))
+
+(defgeneric register-skill-translation& (variant translation)
+  (:documentation "Registers a skill-translation with the variant."))
+
 
 ;;; define relevant object-types for vanilla.
 
@@ -334,7 +379,8 @@ should return NIL or the state-object (with possibly updated state."))
         "tiles/dg_town932.bmp"
 	"tiles/button.bmp"
 	"tiles/button2.bmp"
-#| 40 |#"tiles/crosshair.png" 
+#| 40 |#"tiles/crosshair.png"
+;;        "tiles/runes.png" 			   
 	))
 
 
@@ -345,8 +391,8 @@ should return NIL or the state-object (with possibly updated state."))
   (make-instance 'vanilla-variant
 		 :id "vanilla"
 		 :name "Vanilla"
-		 :version "0.1.3"
-		 :num-version 13
+		 :version "0.1.4"
+		 :num-version 14
 		 :stat-length 6
 		 
 		 :config-path

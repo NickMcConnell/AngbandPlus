@@ -18,6 +18,25 @@ ADD_DESC: Most of the code which deals with the game loops.
 
 (in-package :org.langband.engine)
 
+(defun %load-window-textures (variant)
+  (let ((idx 50))
+    (loop for x across *windows*
+	  for i from 0
+	  for bgfile = (window.backgroundfile x)
+	  do
+	  (when bgfile
+	    (incf idx)
+	    (lb-ffi:c-load-texture& idx
+				    (concatenate 'string *engine-data-dir* "graphics/" bgfile)
+				    (window.pixel-width x) (window.pixel-height x) 0)
+	    (setf (window.background x) idx)
+	    ;; c-side needs negative value for bad values
+	    (lb-ffi:c-add-frame-bg! i idx) 
+	    (register-image& variant bgfile idx)
+	    ;;(print x)
+	    ))))
+      
+
 
 (defmethod redraw-stuff ((variant variant) (dungeon dungeon) (player player))
   "Redraws stuff according to *REDRAW*."
@@ -42,7 +61,6 @@ ADD_DESC: Most of the code which deals with the game loops.
       (bit-flag-remove! *redraw* +print-xp+)
       (bit-flag-remove! *redraw* +print-gold+)
       (bit-flag-remove! *redraw* +print-armour+)
-      (bit-flag-remove! *redraw* +print-mana+)
       (bit-flag-remove! *redraw* +print-hp+)
       (bit-flag-remove! *redraw* +print-depth+)
       (bit-flag-remove! *redraw* +print-health+)
@@ -94,12 +112,6 @@ ADD_DESC: Most of the code which deals with the game loops.
       (print-hit-points player pr-set)
       (setf retval t))
 
-    (when (bit-flag-set? *redraw* +print-mana+)
-      (bit-flag-remove! *redraw* +print-mana+)
-      (unless pr-set (setf pr-set (get-setting variant :basic-frame-printing)))
-      (print-mana-points variant player pr-set)
-      (setf retval t))
-
     (when (bit-flag-set? *redraw* +print-gold+)
       (bit-flag-remove! *redraw* +print-gold+)
       (unless pr-set (setf pr-set (get-setting variant :basic-frame-printing)))
@@ -148,7 +160,7 @@ ADD_DESC: Most of the code which deals with the game loops.
     retval))
 
 
-(defun update-stuff (variant dungeon player)
+(defmethod update-stuff ((variant variant) dungeon player)
   "Updates stuff according to *UPDATE*."
   
   (when (= 0 *update*) (return-from update-stuff nil))
@@ -172,18 +184,7 @@ ADD_DESC: Most of the code which deals with the game loops.
       (calculate-creature-hit-points! variant player)
       (setf retval t))
     
-    (when (bit-flag-set? *update* +pl-upd-mana+)
-      (bit-flag-remove! *update* +pl-upd-mana+)
-      (calculate-creature-mana! variant player)
-      (setf retval t))
-
-    (when (bit-flag-set? *update* +pl-upd-spells+)
-      (bit-flag-remove! *update* +pl-upd-spells+)
-;;      (calculate-creature-hit-points! variant player)
-      (setf retval t))
-    
-    
-    
+        
     (when (bit-flag-set? *update* +pl-upd-forget-view+)
       (bit-flag-remove! *update* +pl-upd-forget-view+)
       (forget-view! dungeon player)
@@ -314,6 +315,7 @@ ADD_DESC: Most of the code which deals with the game loops.
     (loop named waste-energy
 	  for run-status = (get-information "running" :default nil)
 	  for run-dir = (get-information "run-direction" :default 0)
+	  for rest-status = (get-information "resting" :default nil)
 
 	  do
 	
@@ -327,10 +329,30 @@ ADD_DESC: Most of the code which deals with the game loops.
 
 	
 	
-	  (cond ((or (get-attribute-value '<paralysed> temp-attrs)
-		     (>= (get-attribute-value '<cut> temp-attrs) 100)) ;; move to variant
+	  (cond ((and temp-attrs
+		      (or (get-attribute-value '<paralysed> temp-attrs)
+			  (>= (get-attribute-value '<cut> temp-attrs) 100))) ;; move to variant
 		 (setf (player.energy-use player)  +energy-normal-action+))
 
+		(rest-status
+		 ;; this behaviour is in the wrong place.. it should be done in the regeneration phase
+		 (let ((mode (get-information "rest-mode")))
+		   (move-player! dungeon player 5)
+		   (when (integerp mode)
+		     (decf mode)
+		     (if (plusp mode)
+			 (setf (get-information "rest-mode") mode)
+			 (setf (get-information "rest-mode") nil
+			       (get-information "resting") nil)))
+		   ;; hack
+		   (when (or (eq mode :full-rest)
+			     (eq mode :normal-rest))
+		     (when (and (= (current-hp player) (maximum-hp player))
+				(= (current-mana player) (maximum-mana player)))
+		       (setf (get-information "rest-mode") nil
+			     (get-information "resting") nil)))))
+
+		
 		;; skip resting
 		((and run-status (>= run-dir 0))
 		 ;;(warn "from loop")
@@ -338,7 +360,7 @@ ADD_DESC: Most of the code which deals with the game loops.
 		   ;;(warn "turning off running")
 		   (setf (get-information "run-direction") -1
 			 (get-information "running") nil)))
-		       
+		
 
 		;; skip repeat
 		(t
@@ -353,43 +375,6 @@ ADD_DESC: Most of the code which deals with the game loops.
 		     (not (player.leaving? player)))
 	  )
     t))
-
-  
-
-(defun regenerate-mana! (crt percent)
-  ;; clean up later
-    
-  (let* ((regen-base 1442)
-	 (old-mana (current-mana crt))
-	 (new-mana (+ (* (maximum-mana crt) percent) regen-base))
-	 (max-short 32767)
-	 (increase (int-/ new-mana (expt 2 16)))
-	 (new-frac (+ (player.fraction-mana crt)
-		      (logand new-mana #xffff)))
-	 )
-
-    (incf (current-mana crt) increase)
-
-    (when (and (minusp (current-mana crt))
-	       (plusp old-mana))
-      (setf (current-mana crt) max-short))
-
-    (if (> new-frac #x10000)
-	(progn
-	  (setf (player.fraction-mana crt) (- new-frac #x10000))
-	  (incf (current-mana crt)))
-	(setf (player.fraction-mana crt) new-frac))
-
-    (when (>= (current-mana crt)
-	      (maximum-mana crt))
-      (setf (current-mana crt) (maximum-mana crt)
-	    (player.fraction-mana crt) 0))
-
-    (when (/= old-mana (current-mana crt))
-;;      (warn "Regenerated..")
-      (bit-flag-add! *redraw* +print-mana+))
-      
-    (current-mana crt)))
 
 
 (defun regenerate-hp! (crt percent)
@@ -503,8 +488,8 @@ ADD_DESC: Most of the code which deals with the game loops.
     ;; postpone flush
 
 
-    (bit-flag-add! *update* +pl-upd-bonuses+ +pl-upd-torch+) 
-    (bit-flag-add! *update* +pl-upd-hp+ +pl-upd-spells+ +pl-upd-mana+) 
+    (bit-flag-add! *update* +pl-upd-bonuses+ +pl-upd-torch+)
+    (bit-flag-add! *update* +pl-upd-hp+)
 
     (update-stuff var-obj dungeon player)
     
@@ -527,16 +512,12 @@ ADD_DESC: Most of the code which deals with the game loops.
       (assert (ok-object? player :context :in-game :warn-on-failure t))
       (assert (ok-object? dungeon :context :in-game :warn-on-failure t))
       (assert (ok-object? var-obj :context :in-game :warn-on-failure t))
-      ;; hack
-      (loop for x being the hash-values of (variant.spells var-obj)
-	    do
-	    (assert (ok-object? x :context :in-game :warn-on-failure t)))
       )
 
     
     (let* ((mon-len (length (dungeon.monsters dungeon)))
-	   (pq (lb-ds:make-priority-queue :size (* 2 mon-len)))
-	   (pq-arr (make-array (* 2 mon-len) :initial-element nil)))
+	   (pq (lb-ds:make-priority-queue :size (+ 5 (* 2 mon-len))))
+	   (pq-arr (make-array (+ 5 (* 2 mon-len)) :initial-element nil)))
 	  
 
       ;; insert all entries
@@ -769,6 +750,8 @@ ADD_DESC: Most of the code which deals with the game loops.
 	(otherwise
 	 (warn "Loading gave weird value back: ~s" i))))
 
+    (%load-window-textures *variant*)
+    
     nil))
 
 (defun interactive-variant-select ()
@@ -885,10 +868,15 @@ ADD_DESC: Most of the code which deals with the game loops.
 	   (setf *variant* var-obj)
 	   (activate-object var-obj))))
 
-  ;; then it's time to actually create our player (with a dummy level)
-  (let ((*level* (make-instance 'level))) ;; evil hack
-    (interactive-creation-of-player *variant*)))
+  (%load-window-textures *variant*)
 
+  ;; then it's time to actually create our player (with a dummy level)
+  (let* ((*level* (make-instance 'level)) ;; evil hack
+	 (pl (interactive-creation-of-player *variant*)))
+    ;; call event
+    (on-new-player *variant* pl)
+    
+    pl))
 
 ;;; This one is a mess!!! please divide in more fitting functions!
 (defun play-game& ()
@@ -904,28 +892,16 @@ ADD_DESC: Most of the code which deals with the game loops.
 ;;	(old-spread (sys:gsgc-parameter :generation-spread))
 	)
 
-    (when (eq (get-system-type) 'gcu)
-      (setf *map-frame* +asciimap-frame+))
+    ;;(when (eq (get-system-type) 'gcu)
+    ;;  (setf *map-frame* +asciimap-frame+))
 
     (loop for x across *windows*
-	  for i from 0
-	  do
-	  (let ((idx (+ 51 i)))
-	    (establish-data-in-window x)
-	    (when (window.backgroundfile x)
-	      (lb-ffi:c-load-texture& idx
-			       (concatenate 'string *engine-graphics-dir* (window.backgroundfile x))
-			       (window.pixel-width x) (window.pixel-height x) 0)
-	      (setf (window.background x) idx)
-	      ;; c-side needs negative value for bad values
-	      (lb-ffi:c-add-frame-bg! i idx)
-	      ;;(print x)
-	      )))
+	  do (establish-data-in-window x))
 
     (setf *cur-win* (aref *windows* 0))
     
     ;; !!check if we use gfx first!!
-    (let ((splash-idx (load-image& *variant* "other/langtitle.bmp" 1 0)))
+    (let ((splash-idx (load-image& *variant* '(engine-gfx "other/langtitle.bmp") 1 0)))
       (when (plusp splash-idx)
 	(fill-area *cur-win* splash-idx 0 0 0 99 36) ;; hack
 	(paint-gfx-image *cur-win* splash-idx 5 0)))
@@ -933,6 +909,17 @@ ADD_DESC: Most of the code which deals with the game loops.
     (print-note! "[Initing sound-system]")
 	    
     (init-sound-system& 40) ;; fix this later
+
+    ;; disabled this until things are working properly
+    #||
+    ;;(warn "load")
+    (load-music "opening_01.ogg")
+    (load-music "opening_02.ogg")
+    (load-music "langband_tune01.ogg")
+    (load-music "langband_tune02.ogg")
+    ;;(warn "play")
+    (play-music 3)
+    ||#
     
     (print-note! "[Initialization complete]")
 
@@ -983,9 +970,11 @@ ADD_DESC: Most of the code which deals with the game loops.
       (setf *current-key-table* *ang-keys*))
 
     ;; we must make sure that our player has proper symbol
-    (setf (x-attr *player*) (tile-file +tilefile-classes+)
-	  (x-char *player*) (tile-number (get-class-tile-number *variant* *player*)))
-    (setf (gfx-sym *player*) (logior (x-attr *player*) (x-char *player*)))
+    (multiple-value-bind (file tile)
+	(get-class-tile *variant* *player*)
+      (setf (x-attr *player*) (tile-file file)
+	    (x-char *player*) (tile-number tile))
+      (setf (gfx-sym *player*) (logior (x-attr *player*) (x-char *player*))))
     
     
 ;;    (unless *level*
@@ -1007,6 +996,9 @@ ADD_DESC: Most of the code which deals with the game loops.
     
     (setf *cur-win* (aref *windows* *map-frame*))
     ;;(warn "Curwin is ~s" *cur-win*)
+
+    ;; here the game starts
+    (on-game-start *variant* *player*)
     
     (block dungeon-running
       (unless *level* 

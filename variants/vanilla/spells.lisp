@@ -61,9 +61,9 @@ the Free Software Foundation	 ; either version 2 of the License, or
   #'(lambda (var source target &key x y damage state-object)
       (apply-spell-effect! var type source target :x x :y y :damage damage :state-object state-object)))
 
-(defmethod print-mana-points ((variant vanilla-variant) player setting)
-  (when (is-spellcaster? player)
-    (call-next-method)))
+;;(defmethod print-mana-points ((variant vanilla-variant) player setting)
+;;  (when (is-spellcaster? player)
+;;    (call-next-method)))
 
 (defmethod calculate-creature-mana! ((variant vanilla-variant) (player player))
 
@@ -869,7 +869,7 @@ returns T if the player knows the spell."
 (defmethod print-object ((inst magic-spell) stream)
   (print-unreadable-object
    (inst stream :identity t)
-   (format stream "~:(~S~) [~S ~S]" (class-name (class-of inst)) 
+   (format stream "~:(~S~) [~S ~S]" (lbsys/class-name inst)
            (spell.id inst)
            (spell.name inst)))
   inst)
@@ -877,7 +877,7 @@ returns T if the player knows the spell."
 (defmethod print-object ((inst spellbook) stream)
   (print-unreadable-object
    (inst stream :identity t)
-   (format stream "~:(~S~) [~S ~S]" (class-name (class-of inst)) 
+   (format stream "~:(~S~) [~S ~S]" (lbsys/class-name inst)
            (spellbook.id inst)
            (spellbook.name inst)))
   inst)
@@ -885,7 +885,7 @@ returns T if the player knows the spell."
 (defmethod print-object ((inst spell-classdata) stream)
   (print-unreadable-object
    (inst stream :identity t)
-   (format stream "~:(~S~) [~S ~S]" (class-name (class-of inst)) 
+   (format stream "~:(~S~) [~S ~S]" (lbsys/class-name inst)
            (spell.id inst)
            (spell.level inst)))
   inst)

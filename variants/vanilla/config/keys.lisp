@@ -39,7 +39,9 @@ the Free Software Foundation; either version 2 of the License, or
 (define-keypress *ang-keys* :global #\D 'disarm-trap)
 (define-keypress *ang-keys* :global #\E 'eat-item)
 (define-keypress *ang-keys* :global #\L 'learn-spell)
+(define-keypress *ang-keys* :global #\P 'play-music)
 (define-keypress *ang-keys* :global #\Q 'quit-game)
+(define-keypress *ang-keys* :global #\R 'rest)
 (define-keypress *ang-keys* :global #\S 'save-game)
 (define-keypress *ang-keys* :global #\? 'show-help)
 

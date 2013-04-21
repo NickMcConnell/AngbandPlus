@@ -291,7 +291,8 @@ load_HEX_font_sdl(FontData *fd, const char *filename, bool justmetrics) {
 
 	/* Build the filename */
 //	sprintf(buf, "%s/%s", ANGBAND_DIR_XTRA, filename);
-	sprintf(buf, "%s%s/%s", base_config_path, "fonts", filename);
+	//sprintf(buf, "%s%s/%s", base_config_path, "fonts", filename);
+	strcpy(buf, filename);
 
 	f = fopen(buf, "r");
 
@@ -523,8 +524,9 @@ load_ttf_font(const char *fname, int ptsize) {
     
    
     TTF_Init();
-    
-    sprintf(buf, "%s%s/%s", base_config_path, "fonts", fname);
+
+    strcpy(buf, fname);
+    //sprintf(buf, "%s%s/%s", base_config_path, "fonts", fname);
     
     theFont = TTF_OpenFont(buf, ptsize);
 

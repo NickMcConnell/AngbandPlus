@@ -3,7 +3,7 @@
 #|
 
 DESC: generate.lisp - generation of dungeon levels
-Copyright (c) 2000-2002 - Stig Erik Sandø
+Copyright (c) 2000-2003 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -183,6 +183,7 @@ ADD_DESC: Most of the code which deals with generation of dungeon levels.
 	   (cond ((functionp (trap.effect trap-type))
 		  (funcall (trap.effect trap-type) the-trap dungeon x y)
 		  ;; assuming everything went ok
+		  (disturbance *variant* *player* the-trap :max)
 		  (make-trap-visible the-trap dungeon x y))
 		 (t
 		  (warn "Trap ~s does not have a funcallable effect." (trap.id trap-type))))))

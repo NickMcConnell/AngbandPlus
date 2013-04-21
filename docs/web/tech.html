@@ -1,0 +1,450 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+    <title>(LAngband for techies)</title>
+  </head>
+  
+  <body bgcolor="white">
+    
+    <h1>Langband technical intro</h1>
+
+    <p>Langband, though based on Angband and feels pretty alike when
+      playing it, is very different when you look at the code.  It is
+      written in a different language, structured differently and
+      assuming any code-resemblance with standard Angband may prove
+      problematic.  Writing another "variant" with a drastic difference
+      with the Angband code-base, which many good variants have been
+      based on, might seem like a crazy project.  It might very well be
+      a crazy project, but sometimes one has to be crazy to further the
+      development. </p>
+    
+    <p>On the positive side, Langband possess some qualities over the
+      standard Angband code-base:</p>
+    
+    
+    <table border=1 cellspacing=5 cellpadding=5 width=600 bgcolor="#D0F0D0">
+
+      <tr valign=top><td>
+	  <h2>Langband advantages</h2>
+	  <ul>
+	    <li> It is written in a different, and more powerful language:
+	      Common Lisp.  Common Lisp is a high-level programmable programming
+	      language with an advanced object system and strong functional
+	      roots.  This language removes 
+	      the need for a separate scripting-language which the
+	      Angband-developers have wanted to add to Angband for a long time.
+	      Unlike classical scripting, Common Lisp code is compiled to native
+	      code and the "scripting" can exploit the full code of
+	      Langband.</li>
+	    
+	    <li>Angband is a large program of more than 100 000 lines of code,
+	      and with more than a hundred global variables.  The code, though
+	      well-commented and exceptionally structured for C-code, has most
+	      game-play and possibly customisable code hard-coded and any change
+	      is tough work and, more often than not: complex work.  Langband
+	      has a different strategy; a small customisable engine for the
+	      basic parts, which a "variant" uses and adds details to.  This
+	      means that Langband is an engine which variants can use/be plugged
+	      into.  The size of the Langband code, engine and variant, is much
+	      smaller than the corresponding Angband code.</li>
+	    
+	    <li>Langband uses the object system of Common Lisp liberally, and
+	      Angband has in many ways been turned into an object-oriented
+	      program.  This object-orientation is central in making the engine
+	      extensible and customisable.  Only a selected few areas of the
+	      code have been made into non-extensible constructs to optimise
+	      speed in places where this is needed. </li>
+	    
+	    <li>[Add more later.]</li>
+	    
+	  </ul>
+	</td></tr>
+    </table>
+
+    <p>But we might want to jump to the technical side of Langband,
+      how things are structured.</p>
+
+
+    <table border=1 cellspacing=5 cellpadding=5 width=600 bgcolor="#F0F0F0">
+
+      <tr valign=top><td>
+
+	  <h2>Engine &lt;-&gt; Variant &lt;-&gt; Level</h2>
+
+	  <p>[Please note that all parts of the code is written in CAPS-LOCK
+	    here to be visible in the text.  You're very strongly encouraged
+	    to write in only small letters any code to avoid breaking
+	    compatibility.]</p>
+	  
+	  <p> A variant is an encapsulation of all the features which make
+	    the game fun to play:  fun levels, objects, monsters, classes,
+	    races, flavouring of objects and fun rooms.  All these things can
+	    be customised for a variant, and the engine has nothing of this
+	    hardcoded.  Other parts of the engine may also be customised;
+	    equipment handling, shops, etc. </p>
+
+	  <p>The variant object is available to the engine and it's own code
+	    in the global dynamical variable <code>*VARIANT*</code>, just as
+	    the player object is available in the <code>*PLAYER*</code>
+	    variable. </p>
+
+	  <p>Also available globally is the <code>*LEVEL*</code> object,
+	    which points to the current level explored.  The engine provides a
+	    random level (<code>RANDOM-LEVEL</code>) type which is the basic
+	    random level which is probable to be common among variants, but a
+	    variant may tailour this and add new level-types.  A level-type
+	    defines it's own dungeon-generation, which monsters and objects
+	    may be found and other characteristica.  The town-level in Vanilla
+	    angband is such a special, or themed, level.  Langband is
+	    structured to make it easy to add your own levels and choose for
+	    your variant what kind of levels are to be created when. </p>
+
+	  <p>A variant may also define it's own room-types, which may be
+	    vaults, shop-rooms, churches, elven courts, dragon's den, etc.
+	    This code has not been fully expanded yet, but it should have the
+	    same customisability as a level.  A level-type may also define
+	    which rooms may be generated for that level. </p>
+
+	  <p>Another useful global dynamical variable is the
+	    <code>*DUNGEON*</code> object, which is the technical
+	    representation of the current level.  It may also be found by
+	    using the accessor <code>(LEVEL.DUNGEON *LEVEL*)</code>.</p>
+
+	</td></tr>
+    </table>
+
+    <table border=1 cellspacing=5 cellpadding=5 width=600 bgcolor="#D0D0F0">
+      
+      <tr valign=top><td>
+	  <h2>Variant object</h2>
+	  <table>
+	    <tr valign=top><td>Slot</td><td>Structure</td></tr>
+	    <tr><td>attk-descs</td><td>EQ hash-table, symbol ->
+		description</td></tr>
+	    <tr><td>skill-translations</td><td>association list, (from
+		. to) </td></tr>
+	    <tr><td>house-owners</td><td>EQL hash-table</td></tr>
+	    <tr><td>house-types</td><td>EQL hash-table</td></tr>
+	    <tr><td>flavour-types</td><td>list of structs
+		(FLAVOUR-TYPE)</td></tr>
+	    <tr><td>filters</td><td>EQ hash-table</td></tr>
+	    <tr><td>objects</td><td>EQ hash-table (see monsters)</td></tr>
+	    <tr><td>monsters</td><td>EQ hash-table, symbols ->
+		struct game-obj-table </td></tr>
+	    <tr><td>xp-table</td><td>array with positive integers</td></tr>
+	    <tr><td>max-charlevel</td><td>positive fixnum</td></tr>
+	    <tr><td>max-depth</td><td>positive fixnum</td></tr>
+	  </table>
+
+	  <b>Other slots:</b><br>
+	  <pre>
+	    ROOM-BUILDERS         #&lt;EQUAL hash table, 2 entries {486D43DD}>
+	    FLOOR-FEATURES        #&lt;EQL hash table, 64 entries {486D441D}>
+	    LEVEL-BUILDERS        #&lt;EQUAL hash table, 2 entries {486D445D}>
+	    TURN-EVENTS           #&lt;EQUAL hash table, 0 entries {486D449D}>
+	    TURN                  138
+	    CLASSES               #&lt;EQUAL hash table, 6 entries {486D44DD}>
+	    RACES                 #&lt;EQUAL hash table, 10 entries {486D451D}>
+	    CONFIG-PATH           "./variants/vanilla/config"
+	    SYS-FILE              "./variants/vanilla/langband-vanilla.system"
+	    NAME                  "Vanilla"
+	    ID                    LANGBAND-VANILLA
+	    TWILIGHT-TIME         6000
+	    DAWN-TIME             0
+	  </pre>
+
+	  <b>Filter-table:</b><br>
+	  <pre>
+	    {:OBJECTS} -> {((LEVEL
+	    . #&lt;Function "DEFMETHOD ACTIVATE-OBJECT :BEFORE (VANILLA-VARIANT)"
+	    {4836FC69}>))}
+	    {:MONSTERS} -> {((TOWN-LEVEL
+	    . #&lt;Function "DEFMETHOD ACTIVATE-OBJECT :BEFORE (VANILLA-VARIANT)"
+	    {4836F959}>)
+	    (RANDOM-LEVEL
+	    . #&lt;Function "DEFMETHOD ACTIVATE-OBJECT :BEFORE (VANILLA-VARIANT)"
+	    {4836FAE1}>))}
+	  </pre>
+	  
+	</td></tr>
+    </table>
+    
+    <table border=1 cellspacing=5 cellpadding=5 width=600 bgcolor="#D0F0D0">
+      
+      <tr valign=top><td>
+	  
+	  <h2>Langband statistics [CVS 17th july 2001]</h2>
+	  <ul>
+	    <li> 49 classes + 11 structs
+	    <li> 50 generic functions (with 254 methods)
+	    <li> 436 functions
+	    <li> 38 macros
+	    <li> 45 dynamic variables
+	    <li> 208 constants
+	  </ul>
+	  <h2>Langband statistics [root, simple grep, CVS 7th december
+	  2001]</h2>
+	  <ul>
+	    <li> 42 classes + 10 structs
+	    <li> 99 generic functions (with 242 methods)
+	    <li> 374 functions
+	    <li> 29 macros
+	    <li> 34 dynamic variables
+	    <li> 216 constants
+	  </ul>
+	    <h2>Langband statistics [root, simple grep, CVS 17th
+	    february 2002]</h2>
+	  <ul>
+	    <li> 51 classes + 11 structs
+	    <li> 157 generic functions (with 292 methods)
+	    <li> 413 functions
+	    <li> 33 macros
+	    <li> 37 dynamic variables
+	    <li> 195 constants
+	  </ul>
+	  <h2>Langband statistics [root, simple grep, CVS 5th
+	    january 2003]</h2>
+	  <ul>
+	    <li> 63 classes + 19 structs
+	    <li> 205 generic functions (with 357 methods)
+	    <li> 530 functions
+	    <li> 48 macros
+	    <li> 51 dynamic variables
+	    <li> 194 constants
+	  </ul>
+	</td></tr>
+    </table>
+
+    <table border=1 cellspacing=5 cellpadding=5 width=600
+      bgcolor="#d0D0D0">
+      <tr valign=top><td>
+	  <h1 align=center>Langband style</h1>
+	  
+	  <p>
+	    Currently very little is documented or in place, some coding
+	    guidelines exist however to make the code easier to understand:
+
+	  <ul>
+
+	    <li>All code should be lowercase whenever possible despite
+	      uppercase names in documents.  The uppercase is used to make the
+	      code stand out in the text, but code doesn't need to stand out
+	      in code.</li>
+	    
+	    <li> All constants (<code>DEFCONSTANT</code>) are put in-between
+	      <code>+</code>-signs, ie <code>+pi+</code> </li>
+
+	    <li> All global dynamic variables (use <code>DEFVAR</code>, not
+	      <code>DEFPARAMETER</code>) are put in-between <code>*</code>-signs,
+	      ie <code>*player*</code></li> 
+	    
+	    <li> All predicates have a <code>?</code>-suffix, ie
+	      <code>player-dead?</code> and should have no side-effects</li>
+	    
+	    <li> All functions which induce side-effects on their arguments should
+	      have a <code>!</code>-suffix, ie <code>equip-player!</code></li>
+	    
+	    <li> All functions which manipulate global variables should have a
+	      <code>&</code>-suffix, ie <code>init-environment&</code></li>
+
+	    <li> Functions that are meant to be internal to their file and
+	      not be used outside or exported should use a <code>%</code> prefix.
+	      Ane example is <code>%birth-input-char</code> in
+	      <tt>birth.lisp</tt> which is only input to birth-functionality
+	      and is uninteresting to others. </li>
+	    
+	    <li> All game-related symbolic constants should be put between
+	      <code>&lt;</code> and <code>&gt;</code>, ie
+	      <code>'&lt;RANGER&gt;</code></li> 
+	    
+	    <li> All functions and macros with a <code>DEFINE-</code> prefix
+	      implicitly have global side-effects, ie
+	      <code>define-monster</code>.  They will also return the object
+	      they have defined.  Do not use the <code>&amp;</code>
+	      suffix. </li> 
+	    
+	    <li> The prefix <code>MAKE-</code> are restricted to
+	      non-sideeffect constructors of objects, ie wrapped
+	      <code>MAKE-INSTANCE</code>s. An object is returned from this
+	      kind of function.</li> 
+
+	    <li> Functions whose purpose is to "add" something to "global" tables, maybe
+	      from a <code>DEFINE-</code> function/macro, should use the
+	      <code>ESTABLISH-</code> prefix, and return the object in
+	      question.  A <code>&amp;</code> suffix is expected. These should
+	      not be called by variant code though, variants should use
+	      <code>DEFINE-</code>. However, if it seems reasonable with a
+	      <code>SETF</code>-match to a <code>GET-</code> function instead
+	      of an <code>ESTABLISH-</code>, use <code>SETF</code>.</li>
+	    
+	    <li> Macros which create an environment to execute code in
+	      whould use a <code>WITH-</code> prefix, and if it needs a
+	      function to implement itself it should use a
+	      <code>INVOKE-ON-</code> prefix.  An example is:
+	      <code>WITH-DUNGEON</code> and it's implementation in
+	      <code>INVOKE-ON-DUNGEON</code>.  These macros are allowed to
+	      create side-effects on their arguments. </li>
+	    
+	    <li> Variant-code should use their own special prefix for
+	      internal functions, variables, etc.  As an example, all vanilla functions
+	      and variables use the <code>VAN-</code> prefix.  Loading
+	      variant-code is also allowed to induce side-effects, ie
+	      registering the variant in appropriate places.</li>
+	    
+	    <li> Code which is expected to be common to all variants should
+	      be put in lib/common and have a <code>COMMON-</code> prefix.
+	      Loading lib/common might also have side-effects.</li>
+	    
+	    <li>Identifiers should preferrably be lowercase strings.</li>
+
+	    <li>Functions which need interactive input might want to have a
+	      <code>QUERY-</code> prefix. </li>
+
+	    <li>Factory-methods, with no side-effects (except maybe caching)
+	      and which require no interactivity, should use the
+	      <code>PRODUCE-</code> prefix.  Factory-methods should when
+	      possible depend on at least the variant, to be able to control
+	      it. </li>
+	    
+	  </ul>
+	</p>
+	</td></tr>
+    </table>
+    
+    <table border=1 cellspacing=5 cellpadding=5 width=600 bgcolor="#D0D0F0">
+
+      <tr valign=top><td>
+
+	  <h2>Langband symbols</h2>
+
+	  <p>This is an attempt to list certain symbols that one should be
+	    careful about manipulating, as they're used by the engine
+	    internally.</p>
+
+	  <dl>
+	    <dt>VARIANTS</dt>
+	    <dd>Has info on the possible variants available.  Any slot may
+	      be used..</dd>
+	    <dt>COMMON</dt>
+	    <dd>Has information about things common to all variants, mainly
+	      the initialisation.  Used: PRE-INIT and POST-INIT.</dd>
+	  </dl>
+
+	</td></tr>
+    </table>
+    
+    <table border=1 cellspacing=5 cellpadding=5 width=600 bgcolor="#D0F0D0">
+
+      <tr valign=top><td>
+	  
+	  <h2>Langband events</h2>
+
+	  <p>[Please rewrite]</p>
+	  <p>This is an attempt to list known events that are triggered and
+	    the order they're triggered in.  Listed as:<br>
+	    <tt>:EVENT-NAME [CLASSNAME,:SETTING-KEY] - (arg1, arg2, ...)</tt></p>
+
+	  <h3>Birth</h3>
+
+	  <p>Dungeon object is NIL.  <code>:on-pre-equip</code> is called
+	    before adding of racial/class equipment, while
+	    <code>:on-post-equip</code> is called after racial/class
+	    equipment.  All items existing in inventory/equip-slots after
+	    post-equip will be identified.</p> 
+	  <ul>
+	    <li> :on-pre-equip [birth-settings, :birth] - (dungeon player)</li>
+	    <li> :on-post-equip [birth-settings, :birth] - (dungeon player)</li>
+	  </ul>
+
+	  <h3>Objects</h3>
+	  <p>Player and dungeon arguments are NIL.  There might exist valid
+	    values at <code>*player*</code> or <code>*dungeon*</code> though.
+	  <ul>
+	    <li> :on-create [object-kind, NIL] - (player dungeon active-object)</li>
+	  </ul>
+
+	</td></tr>
+    </table>
+    
+    <table border=1 cellspacing=5 cellpadding=5 width=600 bgcolor="#D0D0F0">
+
+      <tr valign=top>
+	<td>
+	  <h2>save/load issues</h2>
+	  <p>
+	    To ensure that save/load works as it should, all ids for
+	    objects should be strings.  The ids should be
+	    all lowercase-characters (a-z) or hyphen.  An id should
+	    also be unique for the object it identifies.  An object
+	    with id uses the id-slot in the object. </p>
+	  <p>
+	    Typically a lisp-program would use symbols for this, but
+	    it gives some case-issues and package-issues, and strings
+	    are more portable without imposing too big
+	    performance-hit.
+	  </p>
+	  <p>
+	    For some code it is useful to be identified by a symbol,
+	    e.g classes, races, ... .  This symbol should be put in
+	    the symbol-slot of these objects.
+	  </p>
+	</td>
+      </tr>
+    </table>
+    
+    <table border=1 cellspacing=5 cellpadding=5 width=600 bgcolor="#F0F0F0">
+
+      <tr valign=top><td>
+
+	  <h2>Compatibility with ordinary Angband code-base</h2>
+	  
+	  <p>
+	    Most of the code is derived from Vanilla Angband 2.9.0 and many
+	    of the function names are taken directly from the Vanilla-code
+	    but some are changed and more will be changed as things
+	    progresses and Langband finds its own system to do things in.
+	    <b>You should not expect Angband-ways of doing things to work.</b> 
+	  </p>
+
+	  <p> You should be aware that some of the terminology has also
+	    been changed, e.g where angband talks about level for objects
+	    and monsters, Langband talks about depth, reserving level for
+	    a 'power-level' use, not dungeon-level it is found. </p>
+	  
+	  <p>
+	    Important simple changes is that all Angband underscores are now
+	    hyphens, and that the code relies very little on global
+	    variables (ie dungeon tables, player object, etc).  Other
+	    changes may be found in the style guidelines.
+	  </p>
+
+	  <p>Some functions which may be important to remember when going
+	    from C/Angband to Lisp/Langband: </p>
+
+	  <pre>
+	    Angband:         Langband:
+	    rand_int         random
+	    randint          randint
+	    /                int-/
+	  </pre>
+
+	  
+
+	  
+	</td></tr>
+    </table>
+
+    <table border=1 cellspacing=5 cellpadding=5 width=600 bgcolor="#D0F0D0">
+
+      <tr valign=top><td>
+	  <h2>Class-hierarchy beneath class: ACTIVATABLE</h2>
+	  <img src="gfx/activatable.png">
+	</td></tr>
+    </table>
+    
+  </body>
+</html>
+
+
+
+

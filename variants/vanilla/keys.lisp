@@ -27,15 +27,6 @@ the Free Software Foundation; either version 2 of the License, or
 		(get-information "run-direction") -1
 		))))
 
-
-(defun let-player-run! (dungeon player direction)
-  (let ((next (run-along-corridor dungeon player direction)))
-;;    (warn "Tried to run ~s, got next ~s" direction next)
-    (when (plusp next)
-      (move-player! dungeon player next)
-      (setf (get-information "run-direction") next)
-      t)))
-
 (defun van-move-player! (dungeon player direction)
 ;;  (warn "move -> ~s" direction)
   (cond ((get-information "running" :default nil)
@@ -102,6 +93,33 @@ the Free Software Foundation; either version 2 of the License, or
 (define-key-operation 'stand-still
     #'(lambda (dungeon player) (van-move-player! dungeon player 5)))
 
+(define-key-operation 'rest
+    #'(lambda (dungeon player)
+	(declare (ignore dungeon player))
+	(with-frame (+message-frame+)
+	  (flush-messages! t)
+	  (let ((how-long (get-string-input "Rest (0-9999, '*' for HP/SP, '&' as needed): " :max-length 4))
+		(mode nil))
+
+	    (when how-long
+	      (cond ((equal how-long "&")
+		     (setf mode :full-rest))
+		    
+		    ((equal how-long "*")
+		     (setf mode :normal-rest))
+		    
+		    ((every #'digit-char-p how-long)
+		     (setf mode (parse-integer how-long)))
+		    
+		    (t
+		     (print-message! "Unknown argument '~a'" how-long)))
+
+	      (when mode
+		(setf (get-information "rest-mode") mode
+		      (get-information "resting") t))
+
+	      t)))
+	))
 
 (define-key-operation 'show-equipment
      #'(lambda (dungeon player)
@@ -388,3 +406,9 @@ the Free Software Foundation; either version 2 of the License, or
     #'(lambda (dungeon player)
 	(when (eq (get-system-type) 'sdl)
 	  (switch-map-mode dungeon player))))
+
+(define-key-operation 'play-music
+    #'(lambda (dungeon player)
+	(declare (ignore dungeon player))
+	(warn "play music again..")
+	(play-music 1)))

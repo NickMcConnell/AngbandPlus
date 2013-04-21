@@ -3,7 +3,7 @@
 #|
 
 DESC: variants/vanilla/player.lisp - code that alters the player object
-Copyright (c) 2002 - Stig Erik Sandø
+Copyright (c) 2002-2003 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -15,39 +15,39 @@ the Free Software Foundation; either version 2 of the License, or
 (in-package :org.langband.vanilla)
 
 ;; this belongs in variant
-(defmethod get-class-tile-number ((variant vanilla-variant) player)
+(defmethod get-class-tile ((variant vanilla-variant) player)
   
   (let ((race (player.race player))
 	(class (player.class player))
 	(row 0)
 	(col 0))
 
-        (setf row (ecase (race.symbol race)
-		    ('<human> 0)
-		    ('<half-elf> 1)
-		    ('<elf> 2)
-		    ('<hobbit> 3)
-		    ('<dunedan> 4)
-		    ('<dwarf> 5)
-		    ('<half-orc> 6)
-		    ('<half-troll> 7)
-		    ('<gnome> 8)
-		    ('<high-elf> 9)
-		    ('<kobold> 10)
-		    ))
-	(setf col (ecase (class.symbol class)
-		    ;; no 0
-		    ('<mage> 1)
-		    ;; no 2
-		    ('<paladin> 3)
-		    ('<priest> 4)
-		    ('<ranger> 5)
-		    ('<rogue> 6)
-		    ('<warrior> 7)
-		    ))
+    (setf row (ecase (race.symbol race)
+		('<human> 0)
+		('<half-elf> 1)
+		('<elf> 2)
+		('<hobbit> 3)
+		('<dunedan> 4)
+		('<dwarf> 5)
+		('<half-orc> 6)
+		('<half-troll> 7)
+		('<gnome> 8)
+		('<high-elf> 9)
+		('<kobold> 10)
+		))
+    (setf col (ecase (class.symbol class)
+		;; no 0
+		('<mage> 1)
+		;; no 2
+		('<paladin> 3)
+		('<priest> 4)
+		('<ranger> 5)
+		('<rogue> 6)
+		('<warrior> 7)
+		))
 
-	;; width is 8
-	(+ (* 8 row) col)))
+    ;; width is 8
+    (values +tilefile-classes+ (+ (* 8 row) col))))
 
 (defmethod get-character-picture ((variant vanilla-variant) (player player))
 
@@ -316,20 +316,28 @@ the Free Software Foundation; either version 2 of the License, or
 
 ;; we override to add our own stuff
 (defmethod produce-player-object ((variant vanilla-variant))
-  (let ((pl-obj (call-next-method)))
+  (let ((player (call-next-method)))
+
+    (setf (player.skills player) (produce-skills-object variant))
+    
+    (let ((backpack (create-aobj-from-id "backpack"))
+	  (eq-slots (player.equipment player)))
+      
+      (item-table-add! eq-slots backpack 'eq.backpack)
+      (setf (player.inventory player) backpack))
 
    
     ;; ensure that we have hash-tables in place
-    (unless (hash-table-p (player.calc-attrs pl-obj))
-      (setf (player.calc-attrs pl-obj) (make-hash-table :test #'eq)))
-    (unless (hash-table-p (player.temp-attrs pl-obj))
-      (setf (player.temp-attrs pl-obj) (make-hash-table :test #'eq)))
+    (unless (hash-table-p (player.calc-attrs player))
+      (setf (player.calc-attrs player) (make-hash-table :test #'eq)))
+    (unless (hash-table-p (player.temp-attrs player))
+      (setf (player.temp-attrs player) (make-hash-table :test #'eq)))
 
     (flet ((install-attribute (&rest args)
 	     (let ((attr (apply #'make-creature-attribute args)))
 	       (unless (is-legal-effect? variant (attr.key attr))
 		 (warn "The attribute ~s does not seem legal" attr))
-	     (add-creature-attribute pl-obj attr)))
+	     (add-creature-attribute player attr)))
 	   )
 					      
       
@@ -622,10 +630,13 @@ the Free Software Foundation; either version 2 of the License, or
 
 
     
-      pl-obj)))
+      player)))
 
 (defmethod reset-player-object! ((variant vanilla-variant) (player player))
   (call-next-method)
+
+  (van/reset-skills! variant (player.skills player) 0)
+
   (flet ((%reset-plattrs (table)
 	   (loop for attr being the hash-values of table
 		 do
@@ -640,12 +651,18 @@ the Free Software Foundation; either version 2 of the License, or
     
     t))
 
-
 (defmethod calculate-abilities! ((variant vanilla-variant) (player player) (cls character-class))
 
   ;; do the general stuff first:
   (call-next-method)
 
+  ;; add skills
+  (dolist (i (variant.skill-translations variant))
+    (van/add-to-a-skill! (cdr i)
+			 (player.skills player)
+			 (player.level player)
+			 (class.skills cls)))
+  
   ;; add resists
   ;; currently resists on race is just an integer
   (let ((resist-array (player.resists player)))
@@ -676,7 +693,14 @@ the Free Software Foundation; either version 2 of the License, or
 
   ;; do the general stuff first:
   (call-next-method)
-  
+
+  ;; fix skill-values
+  (dolist (i (variant.skill-translations variant))
+      (van/add-to-a-skill! (cdr i)
+			   (player.skills player)
+			   (player.level player)
+			   (race.skills race)))
+
   ;; add resists
   ;; currently resists on race is just an integer
   (let (;;(resists (race.resists race))
@@ -1110,5 +1134,77 @@ the Free Software Foundation; either version 2 of the License, or
 (defmethod gain-level! ((variant vanilla-variant) player)
 
   (bit-flag-add! *redraw* +print-study+)
-  
+  (bit-flag-add! *update* +pl-upd-mana+ +pl-upd-spells+)
   (call-next-method))
+
+
+(defun regenerate-mana! (crt percent)
+  ;; clean up later
+    
+  (let* ((regen-base 1442)
+	 (old-mana (current-mana crt))
+	 (new-mana (+ (* (maximum-mana crt) percent) regen-base))
+	 (max-short 32767)
+	 (increase (int-/ new-mana (expt 2 16)))
+	 (new-frac (+ (player.fraction-mana crt)
+		      (logand new-mana #xffff)))
+	 )
+
+    (incf (current-mana crt) increase)
+
+    (when (and (minusp (current-mana crt))
+	       (plusp old-mana))
+      (setf (current-mana crt) max-short))
+
+    (if (> new-frac #x10000)
+	(progn
+	  (setf (player.fraction-mana crt) (- new-frac #x10000))
+	  (incf (current-mana crt)))
+	(setf (player.fraction-mana crt) new-frac))
+
+    (when (>= (current-mana crt)
+	      (maximum-mana crt))
+      (setf (current-mana crt) (maximum-mana crt)
+	    (player.fraction-mana crt) 0))
+
+    (when (/= old-mana (current-mana crt))
+;;      (warn "Regenerated..")
+      (bit-flag-add! *redraw* +print-mana+))
+      
+    (current-mana crt)))
+
+(defmethod roll-up-character! ((variant vanilla-variant) (player player))
+
+  (call-next-method)
+  (calculate-creature-mana! variant player)
+  (setf (current-mana player) (maximum-mana player))
+
+  player)
+
+(defmethod on-pickup-object ((variant vanilla-variant) (player player) (obj active-object))
+  (bit-flag-add! *update* +pl-upd-mana+))
+
+(defmethod on-wear-object ((variant vanilla-variant) (player player) (obj active-object))
+  (bit-flag-add! *update* +pl-upd-mana+))
+
+(defmethod on-drop-object ((variant vanilla-variant) (player player) (obj active-object))
+  (bit-flag-add! *update* +pl-upd-mana+))
+
+
+(defmethod initialise-character-race! ((var-obj vanilla-variant) (race character-race) keyword-args)
+
+  (call-next-method)
+
+  (when-bind (skills (getf keyword-args :skills))
+    (setf (race.skills race) (build-skills-obj-from-list var-obj skills)))
+
+  race)
+
+(defmethod initialise-character-class! ((var-obj vanilla-variant) (my-class character-class) keyword-args)
+
+  (call-next-method)
+
+  (when-bind (skills (getf keyword-args :skills))
+    (setf (class.skills my-class) (build-skills-obj-from-list var-obj skills)))
+
+  my-class)

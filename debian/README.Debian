@@ -22,10 +22,8 @@ To use it with CMUCL:
 
 $ lisp
 > (require :langband-vanilla)
-> (sdl-langband)
+> (gfx-langband)
 
 See also the other documentation.
-
-Note: for curses/xterm you might use (gcu-langband)
 
 Stig E Sandoe <stig@users.sourceforge.net>

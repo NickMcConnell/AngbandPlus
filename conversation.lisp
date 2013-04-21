@@ -3,7 +3,7 @@
 #|
 
 DESC: conversation.lisp - conversation code
-Copyright (c) 2002 - Knut Arild Erstad
+Copyright (c) 2002-2003 - Knut Arild Erstad
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@ the Free Software Foundation; either version 2 of the License, or
   (options '())       ; all possible replies (including hidden ones)
   (skip-test nil)     ; function to test for "skipping" this node
   (skip-dest nil)     ; destination to skip to: node or id string
+  (include nil)       ; list of "parents" to collect options from
   )
 
 (defstruct (conversation-option (:conc-name copt.))
@@ -38,13 +39,61 @@ the Free Software Foundation; either version 2 of the License, or
   (npc nil) ; non-player character
   )
 
+;; hash table with all conversation nodes
 (defparameter *conversations* (make-hash-table :test 'equal))
 
+;; stack of conversation nodes in current conversation (with no duplicates)
+;; the "bottom" of the stack of the stack is the starting node
+(defvar *current-conversation-nodes*)
+
+(defun pop-current-node ()
+  (assert *current-conversation-nodes* ()
+	  "Attempted to pop empty stack of conversation nodes.")
+  (pop *current-conversation-nodes*))
+
+(defun set-current-node (new-node)
+  (if (find new-node *current-conversation-nodes*)
+      (loop until (eql new-node (car *current-conversation-nodes*))
+	    do (pop-current-node))
+      (push new-node *current-conversation-nodes*)))
+
+(defun goto-start-node ()
+  ;;(format t "GOTO-START-NODE: ~A~%" *current-conversation-nodes*)
+  (loop while (cdr *current-conversation-nodes*)
+	do (pop-current-node))
+  ;;(format t "returning... GOTO-START-NODE: ~A~%" *current-conversation-nodes*)
+  (car *current-conversation-nodes*))
+
+(defun goto-previous-node (&optional (times 1))
+  (assert (> (length *current-conversation-nodes*) times))
+  (dotimes (i times)
+    (pop-current-node))
+  (car *current-conversation-nodes*))
+
+(defun get-parents (node)
+  (let ((list '()))
+    (dolist (x (cnode.include node))
+      ;; should be a string, but no harm in allowing conversation nodes, too...
+      (typecase x
+	(conversation-node (push x list))
+	(string (let ((pnode (gethash x *conversations*)))
+		  (if pnode
+		      (push pnode list)
+		      (warn "Included conversation node '~A' not found." pnode))))
+	(t (error "Only strings and conversation nodes allowed, not ~A."
+		  (type-of x)))))
+    (nreverse list)))
+
 (defun get-filtered-options (node cparam)
-  (loop for opt in (cnode.options node)
-	when (or (null (copt.test opt))
-		 (funcall (copt.test opt) cparam))
-	collect opt))
+  (let ((direct-options (loop for opt in (cnode.options node)
+			       when (or (null (copt.test opt))
+					(funcall (copt.test opt) cparam))
+			       collect opt))
+	(parent-options (loop for pnode in (get-parents node)
+			      nconc (get-filtered-options pnode cparam))))
+    (remove-duplicates (nconc direct-options parent-options)
+		       :test #'eql)))
+
 
 (defun get-node-text (node cparam)
   (let ((text (cnode.text node)))
@@ -84,6 +133,9 @@ the Free Software Foundation; either version 2 of the License, or
 	 (when (keywordp node)
 	   (return node))
 	 (assert (conversation-node-p node))
+	 ;; push current node onto stack even if it is skipped
+	 (set-current-node node)
+	 ;; skip or return
 	 (if (skip-node? node cparam)
 	     (setf node (cnode.skip-dest node))
 	     (return node))))))
@@ -104,26 +156,44 @@ the Free Software Foundation; either version 2 of the License, or
 (defun %quit-option (&optional (text "Bye."))
   (%option :text text :dest :quit))
 
+(defun %dest-option (dest &optional (text "[continue]"))
+  (%option :text text :dest dest))
+
 (defun display-conversation-node (node cparam)
   "Display a single conversation node and its conversation options (replies)."
   (clear-window *cur-win*)
+  ;;(warn "Displaying ~s with params ~s" node cparam)
   ;; maybe perform something
   (maybe-perform (cnode.perform node) cparam)
   ;; display text
   (let* ((row-offset (+ (print-text! 6 2 +term-l-blue+ (get-node-text node cparam)) 2))
 	 (row row-offset)
-	 (picture "people/male-hobbit-rogue.png")
+	 (picture '(engine-gfx "people/male-hobbit-rogue.png"))
+	 (npc-name "Unknown person")
 	 (col 3)
 	 (i -1)
 	 (code-a (char-code #\a))
 	 (options (get-filtered-options node cparam)))
 
+    ;;(warn "checking ~s" (cparam.npc cparam)) 
+    (ignore-errors
+      (when (typep (cparam.npc cparam) 'active-monster)
+	(when-bind (name (get-creature-name (cparam.npc cparam)))
+	  (setf npc-name name))
+	(when-bind (pic (slot-value (amon.kind (cparam.npc cparam)) 'picture))
+	  ;;(warn "Found pic ~s" pic)
+	  (when (or (stringp pic) (consp pic))
+	    (setf picture pic)))))
+
+    (let ((name-col (- (get-frame-width +dialogue-frame+) 20)))
+      (output-string! *cur-win* name-col 1 +term-l-green+ npc-name))
+    
     ;; show picture (make it depend on conversation, should also have some checks on size and placement)
     (when (use-images?)
       ;; hackish, improve later
-      (when (and picture (stringp picture))
+      (when (and picture (or (stringp picture) (consp picture)))
 	(let ((pic-col (- (get-frame-width +dialogue-frame+) 20)))
-	  (paint-gfx-image& picture pic-col 1))))
+	  (paint-gfx-image& picture pic-col 3))))
 
 
     ;; assign characters to filtered options and display them
@@ -163,15 +233,61 @@ the Free Software Foundation; either version 2 of the License, or
 	      (nnode (get-conversation-node dest cparam)))
 	 (ctypecase nnode
 	   (keyword (case nnode
-		      (:quit (return))
-		      (t (warn "Unknown conversation keyword ~A." nnode))))
+		      (:quit  (return))
+		      (:start (setf node (goto-start-node)))
+		      (:back  (setf node (goto-previous-node)))
+		      (t      (warn "Unknown conversation keyword ~A." nnode))))
 	   (conversation-node (setf node nnode))))))))
 
 (defun activate-conversation (id player npc)
-  (display-conversation id (make-conversation-parameters :player player :npc npc)))
+  (let ((*current-conversation-nodes* nil))
+    (display-conversation id (make-conversation-parameters :player player :npc npc))))
+
+;; finding an npc
+(defun interactive-choose-npc (dungeon player &optional (max-distance 5))
+  (let ((dir (get-aim-direction)))
+    (when dir
+      (assert (numberp dir))
+      (when (= dir 5)
+	;; just for fun, return the player :->
+	(return-from interactive-choose-npc player))
+      ;; search for npc
+      (let ((x (location-x player))
+	    (y (location-y player))
+	    (dx (aref *ddx* dir))
+	    (dy (aref *ddy* dir)))
+	(dotimes (i max-distance)
+	  (incf x dx)
+	  (incf y dy)
+	  (let ((npc (first (cave-monsters dungeon x y))))
+	    (when npc
+	      (return npc))))))))
+
+(defun lookup-conversation-id (dungeon player npc)
+  (declare (ignorable dungeon player))
+  (let ((retval "alfred"))
+    ;;(warn "Looking for ~s" npc)
+    (when (typep npc 'active-monster)
+      (when-bind (conv (gethash (monster.id (amon.kind npc)) *conversations*))
+	(setf retval conv)))
+
+    retval))
+
+
+(defun interactive-start-conversation (dungeon player)
+  (let* ((npc (interactive-choose-npc dungeon player))
+	 (id (lookup-conversation-id dungeon player npc)))
+    (cond ((null npc)
+	   (print-message! "There is nobody to talk to there."))
+	  ((eql npc player)
+	   (print-message! "You chat with yourself for a while."))
+	  ((null id)
+	   (format-message! "The ~A has nothing to say." (get-creature-name npc)))
+	  (t
+	   (with-dialogue ()
+	     (activate-conversation id player npc))))))
 
 ;; macro stuff from here on
-(eval-when (:compile-toplevel :load-toplevel)
 (defun find-clause (keyword clauses)
   (rest (find keyword clauses :key #'car)))
 
@@ -251,6 +367,9 @@ the Free Software Foundation; either version 2 of the License, or
 (defun convert-quit-option-clause (clause)
   `(%quit-option ,@clause))
 
+(defun convert-dest-option-clause (clause)
+  `(%dest-option ,@clause))
+
 (defun convert-skip-test (clause pc-sym npc-sym)
   (when clause
     (conv-closure pc-sym npc-sym (first clause))))
@@ -276,24 +395,42 @@ the Free Software Foundation; either version 2 of the License, or
 	(setf (gethash key counts) (1+ (or (gethash key counts) 0)))))
     counts))
 
+(defmacro dassert  (test places datum &rest args)
+  (let ((new-datum (concatenate 'string datum "~%The clauses are:~%~S"))
+	(new-args (append args '(clauses))))
+    `(assert ,test ,places ,new-datum ,@new-args)))
+
 (defun test-conversation-clauses (clauses)
-  (let ((counts (count-clauses clauses)))
+  (let ((counts (count-clauses clauses))
+	;(*print-length* 100)
+	;(*print-circle* t)
+	;(*print-level* 100)
+	)
     ;; check the requirements of each allowed keyword
     (flet ((cnt (key)
 	     (or (gethash key counts) 0)))
-      (assert (= (cnt :text) 1) ()
-	      "Each conversation node requires exactly one :TEXT clause.")
-      (assert (>= (+ (cnt :option) (cnt :quit-option)) 1) ()
-	      "Each conversation node requires at least one :OPTION or :QUIT-OPTION.")
-      (assert (<= (cnt :id) 1) ()
-	      "More than one :ID clause in conversation node.")
-      (assert (<= (cnt :perform) 1) ()
-	      "More than one :PERFORM clause in conversation node.")
-      (assert (<= (cnt :skip-if) 1) ()
-	      "Too many :SKIP-IF clauses (more than one might be allowed in the future)."))
+      (macrolet ((cassert (test places datum &rest args)
+		   (let ((new-datum (concatenate 'string datum "~%The clauses are:~%~S"))
+			 (new-args (append args '(clauses))))
+		     `(assert ,test ,places ,new-datum ,@new-args))))
+	(cassert (= (cnt :text) 1) ()
+		 "Each conversation node requires exactly one :TEXT clause.")
+	(cassert (>= (+ (cnt :option) (cnt :quit-option) (cnt :dest)) 1) ()
+		 "Each conversation node requires at least one :OPTION, :QUIT-OPTION or :DEST.")
+	(cassert (<= (cnt :dest) 1) ()
+		 "Too many :DEST clauses.")
+	(cassert (<= (cnt :id) 1) ()
+		 "More than one :ID clause in conversation node.")
+	(cassert (<= (cnt :perform) 1) ()
+		 "More than one :PERFORM clause in conversation node.")
+	(cassert (<= (cnt :skip-if) 1) ()
+		 "Too many :SKIP-IF clauses (more than one might be allowed in the future).")
+	(cassert (<= (cnt :include) 1) ()
+		 "More than one :INCLUDE clause in conversation node.")
+	))
     ;; make sure there are no unknown clauses
     (loop for key being the hash-keys of counts do
-	  (unless (member key '(:text :option :quit-option :id :perform :skip-if))
+	  (unless (member key '(:text :option :quit-option :id :perform :skip-if :dest :include))
 	    (error "Unknown clause ~S in conversation node." key)))))
 
 (defun test-option-clauses (clauses)
@@ -326,14 +463,17 @@ the Free Software Foundation; either version 2 of the License, or
 	 (skip-clause (find-clause :skip-if clause))
 	 (skip-test (convert-skip-test skip-clause pc-sym npc-sym))
 	 (skip-dest (convert-skip-dest skip-clause pc-sym npc-sym))
-	 (options (loop for (keyword . body) in (collect-clauses '(:option :quit-option) clause)
+	 (include-clause (find-clause :include clause))
+	 (options (loop for (keyword . body) in (collect-clauses '(:option :quit-option :dest) clause)
 			collect (ecase keyword
 				  (:option (convert-option-clause body pc-sym npc-sym))
-				  (:quit-option (convert-quit-option-clause body))))))
+				  (:quit-option (convert-quit-option-clause body))
+				  (:dest (convert-dest-option-clause body))))))
     `(%conversation :id ,id :text ,text :perform ,perform
       :skip-test ,skip-test :skip-dest ,skip-dest
+      :include (list ,@include-clause)
       :options (list ,@options))))
-)
+
 
 (defmacro define-conversation ((pc-sym npc-sym) &rest args)
   ;; make sure args has an ID clause (the other clauses can be tested in convert-node-expression)
@@ -352,58 +492,3 @@ the Free Software Foundation; either version 2 of the License, or
 
 (defun flag (flag)
   (get-information flag))
-
-;; example
-(define-conversation (player npc)
-    (:id "alfred")
-  ;; first time skip to this node
-  (:skip-if
-   (not (flag "met-alfred"))
-   (:node (:text "Hello, stranger. I don't believe we've met. My name is Alfred.")
-	  (:option (:text "Pleased to meet you, I'm ~A." (player.name player))
-		   (:perform (set-flag "met-alfred"))
-		   (:dest "alfred"))))
-  (:text (if (flag "alfred-angry")
-	     "I'm not sure I want to talk to you."
-	     (format nil "What can I do for you, ~A?" (player.name player))))
-  ;; this option is only to make Alfred happy again
-  (:option
-   (:test (flag "alfred-angry"))
-   (:text "I'm sorry if I offended you earlier.")
-   (:node (:text "I guess that's okay.")
-	  (:perform (unset-flag "alfred-angry"))
-	  (:option (:text "Can you help me with something else?")
-		   (:dest "alfred"))
-	  (:quit-option "See you later.")))
-  ;; the rest of the options are always shown
-  (:option
-   (:text "What can you tell me about this place?")
-   (:node (:text "Oh, this is just another crossroad turned into a town. We get dozens of adventurers through here every day, selling loot, drinking mead and looking for work. Haven't you got anything more interesting to ask about?")
-	  (:option (:text "I guess I do.")
-		   (:dest "alfred"))
-	  (:quit-option "Not right now I don't. Bye")))
-  (:option
-   ;;(:test (flag "heard-of-killer-rabbit"))
-   (:text "What can you tell me of a killer rabbit?")
-   (:node (:text "My God, you don't actually believe those stories, do you? If you really want more information, try talking to Herman Wilkinson, he can't stop rambling about the bloody 'killer rabbit'. If you ask me, all that mead has done permanent damage to the poor guy. Now PLEASE let ut talk about something else.")
-	  (:option (:text "OK then.") (:dest "alfred"))
-	  (:option (:text "Can't you tell me what you have heard?")
-		   (:node (:text "Aw, go away!")
-			  (:perform (set-flag "alfred-angry"))
-			  (:quit-option)))
-	  (:quit-option "I will go see him right now, bye.")))
-  (:option
-   (:text "Do you know where I can find work?")
-   (:node (:text "The mayor sometimes have work for adventurers.  Other than that I don't know.")
-	  (:option (:text "Thank you.") (:dest "alfred"))
-	  (:option (:text "Where can I find the mayor?")
-		   (:node (:text "Well, the blindingly obvious place would be the town hall, wouldn't it?")
-			  (:option (:text "And where is the town hall?")
-				   (:node (:text "Do I look like a bloody tourist guide to you? Do I? For god's sake, it's a small town, take a look around!")
-					  (:perform (set-flag "alfred-angry"))
-					  (:option (:text "Didn't mean to upset you. Can I ask about something else?")
-						   (:dest "alfred"))
-					  (:quit-option "Um... I think I'll leave you and your temper alone for a while.")))
-			  (:option (:text "I suppose.") (:dest "alfred"))))))
-  (:quit-option "I have to go now."))
-

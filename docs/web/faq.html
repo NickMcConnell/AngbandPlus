@@ -1,0 +1,344 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+    <meta name="Author" content="Stig E Sandø">
+    <link rel="stylesheet" type="text/css" rev="content" href="langband.css">
+    <meta name="KeyWords" content="langband, roguelike, angband, dungeon">
+    <title>(faq :topic 'Langband)</title>
+  </head>
+
+  <!-- Layout and some images borrowed from Falcon's Eye -->
+  
+  <body text="#211b6b" bgcolor="#CCCCCC" link="#0000EE" vlink="#551A8B" alink="#FF0000">
+    
+    <center>
+      <table border=0 cellspacing=0 cellpadding=0 bgcolor="#ffffff" >
+	  <tr><td valign=top colspan="5" width="700"><img
+		src="langtitle.png" alt="Langband - a lispier Angband" width="700"
+		height="86"></td></tr>
+	  <tr><td valign=top colspan="5" width="700">
+	      <hr size="1" NoShade>
+	      <div align=center>
+		<a class="tab" href="index.html">Front page</a>&nbsp;|&nbsp;
+		<a class="tab" href="screenshots.html">Screenshots</a>&nbsp;|&nbsp;
+		<a class="tab" href="download.html">Download</a>&nbsp;|&nbsp;
+		<a class="tabselect" href="faq.html">FAQ</a>&nbsp;|&nbsp;
+		<a class="tab" href="docs.html">Docs</a>&nbsp;|&nbsp;
+		<a class="tab" href="http://sourceforge.net/projects/langband/">SF
+		  Project page</a>&nbsp;|&nbsp;
+		<a class="tab" href="links.html">Links</a>&nbsp;|&nbsp;
+	      </div>
+	      <hr size="1" NoShade>
+	    </td></tr>
+
+	  <tr><td valign=top colspan="5" width="700">
+	      
+	      <h1 align=center>Frequently Asked Questions</h1>
+
+	      <ol type=i>
+		<li> <b>What is Langband?</b><br>
+
+		  Langband is a rewrite of the traditional/vanilla version of
+		  Angband.  It is based on version 2.9.3, but has
+		  parts found in version 3.0, e.g bigscreen and
+		  bigtile graphics.  Langband is written in Common Lisp, 
+		  which will allow me to combine the dynamic nature of easy
+		  scripting with good compiler technology providing an
+		  environment that allows a very high level of customisation and
+		  the necessary speed.  It is a toy project which I work on when
+		  I find time, and the development-pace reflects this.  However,
+		  even if it is a toy-project, I try to write quality-code and
+		  have a good design.  This also ensures that it will take more
+		  time than the usual Angband-variant.</li>
+		<br>
+		<li> <b>Where can I download it?</b><br>
+		  It isn't finished yet and won't be finished for some time as
+		  it will need go to through several stages, as all newly
+		  written programs must.  It's not fully angband
+		  compatible yet but the hope is that by the end of
+		  2002 it will be more or less similar.  A pre-release
+		  is available from the download page, and there are also some experimental debian-packages if
+		  you use debian, and if you have Debian these are the simplest to
+		  get started with. </li>
+		<br>
+		<li> <b>Does it run on [insert OS]?</b><br>
+		  The main development-platform is my x86 Debian-system,
+		  using CMU Common Lisp.  The status of various ports is as
+		  follows (things are still in development so the overall
+		  "product" is fairly incomplete):
+
+		  <table border=1>
+		      <tr><th>Implementation</th><th>Architecture</th><th>Status</th></tr>
+		      <tr><td>CMUCL 3.x</td><td>Debian x86</td><td>Well-tested</td></tr>
+		      <tr><td>CMUCL 18d</td><td>Debian x86</td><td>Well-tested</td></tr>
+		      <tr><td>SBCL 0.7.x</td><td>Debian x86</td><td>Well-tested</td></tr>	  
+		      <tr><td>ACL 6.0 (Prof)</td><td>Debian x86</td><td>Well-tested</td></tr>
+		      <tr><td>LispWorks 4.1.20</td><td>Debian x86</td><td>Tested bi-weekly.  not optimised</td></tr>
+		      <tr><td>LispWorks 4.1.20</td><td>Win XP</td><td>Tested bi-weekly.  not optimised</td></tr>
+		      <tr><td>CLISP 2.30</td><td>Debian	x86</td><td>Rarely tested.  <u>not</u> optimised</td></tr>
+		      <tr><td>Corman Lisp 1.5b</td><td>Win98</td><td>Incomplete port.  not finished</td></tr>
+		  </table>
+
+		  <!--
+		  The status for the various UI-interfaces are as follows:
+		  <ul>
+		    <li> SDL is the main development platform and is
+		    similar for X11 and Windows.
+		    <li> GCU is tested basically only for releases.
+		  </ul>
+		  -->
+
+		  For details on CLISP compile, see bottom of FAQ.
+		  Best results are obtained by using other
+		  implementations than CLISP. 
+		 
+		</li>
+		<br>
+		<li> <b>I found a bug, what do I do?</b><br>
+		  Please check if the bug has been reported first in the <a
+		    href="http://sourceforge.net/bugs/?group_id=6938">Sourceforge
+		    bug-tracking</a>.  If it is not reported, please try to
+		  describe what caused the crash, include any messages printed
+		  before the crash, and if you were dumped into the
+		  lisp-debugger please include a backtrace.  This is
+		  accomplished in CMUCL with the command 'backtrace' and in ACL
+		  with the command ':zo'.  These commands work in the
+		  debugger.</li>
+		<br>		
+		<li> <b>How can I see if a bug is fixed?</b><br>
+		  A reported bug will be marked as FIXED when it is fixed and
+		  the updated code has been put in the CVS-tree.  The priority
+		  of a FIXED bug is set to the minimum.  It will be
+		  marked as CLOSED when a new release have been made where the
+		  bug is fixed.  If you reported the bug, you will be mailed
+		  whenever there is an update on the bug.<br>
+		  BTW: If you have extra
+		  information on a non-fixed bug, please add it.</li>
+		<br>
+	      
+	      <li> <b>During compile I get nasty warnings about
+	      missing SDL-files, what do I do?</b><br>
+		  To compile Langband you need a lot of header-files
+		  and libraries so it's recommended that beginners use
+		  the pre-made packages (e.g for debian and soon for
+		  Windows).  To compile langband for SDL on Unix you
+		  need the following libraries with header-files
+		  installed:
+		  <ul>
+		    <li> SDL library
+		    <li> sdl image library (and libpng, libjpeg, libz)
+		    <li> sdl ttf library (and freetype2)
+		    <li> sdl mixer library (and underlying sound
+		    libraries)
+		  </ul>
+		</li>
+		<br>  
+
+	      
+		<li> <b>My save-game from last version does not work in the
+		    newest version, why?</b><br>
+		  As long as the game is not really playable the save/load code
+		  is not enhanced for backward-compatibility and is all-in-all
+		  one of the more fragile parts of Langband.  But please report
+		  bugs and they will be fixed.</li>
+		<br>		
+		<li> <b>The game is sluggish once in awhile, why?</b><br>
+		  I have noticed this earlier though not frequently anymore.  It
+		  might be the garbage-collector interfering.  This will be
+		  adressed gradually and memory-allocation will be reduced when
+		  it is a problem.  But during early development this isn't
+		  crucial. <br>
+		  Note: This is visible in the slower CLISP.  It might
+		  also be more frequent in the recent code as the
+		  wwhole user-interface has been changed and not been
+		  optimised.  Please report problems. </li>
+		<br>
+		  
+		<li> <b>The game holds for a few seconds when I change levels, why?</b><br>
+		  There are two replies, choose the one that you feel
+		  comfortable with.  <br>
+		  <ul>
+		    <li> To prevent stair-scumming (a common exploit) a delay
+		      has been added to the use of stairs.  This has been designed
+		      into the game.</li>
+		    <li> To prevent the garbage-collector interfering with the game
+		      during normal game-play, full garbage-collects are run
+		      before and after level­generation.  This slows down change
+		      between levels.  This is very noticable in ACL. </li>
+		  </ul>
+		<br>
+		  
+		
+		<li> <b>How do I get things working with LispWorks Windows?</b><br>
+		  Currently it's not 100% streamlined, but it should
+		  be fairly easy if you have the latest cygwin version
+		  and Lispworks for Windows.  In the source-archive
+		  most include-files and DLLs are included.  Install langband e.g in
+		  <tt>c:/cygwin/home/username/langband/</tt>
+		  and edit zterm/Makefile to say ENVIRONMENTS=WIN
+		  Start a cygwin window, go to teh langband dir and
+		  run 'make'.  If all went ok, start lispworks from
+		  that directory with e.g <tt>c:/Program\
+		  files/xanalys/lispworks/lispworks.exe</tt> (or
+		  something similar).  In lispworks do the normal:
+		  <font size="-1">
+		  <pre>
+ &gt; (load "vanilla")
+ &gt; (gfx-langband)
+		  </pre>
+		  </font>
+		<br>
+		  
+		<li> <b>How is the code structured?</b><br>
+		  Currently the code is changed frequently and this answer may
+		  not be up-to-date.  Please look at the <a
+		    href="tech.html">Technical description</a> for an hopefully
+		  updated description.</li> 
+		<br>
+		  
+		<li> <b>You seem to favour classes with datamembers over
+		    bitfields, why?</b><br>
+		  I tend to favour using clear and readable classes over
+		  bitfields for one reason: it's easier to understand, use and
+		  easier to extend.  However, I know that it is sometimes
+		  beneficial to use bitfields but I'll try to hide that behind
+		  declarative structures, ie make it an
+		  implementation-detail.  Resistance and immunity to elements
+		  are examples of bitfields that are generated from a
+		  specification.
+		</li>
+		<br>
+		
+		<li> <b>The code in CVS crashes/does not work, why?</b><br>
+		  The code in CVS is development code, and might not even
+		  compile, and much less work.  Please use releases if you want
+		  things to "work".  The CVS-version is bleeding edge though and
+		  may have bug-fixes and features missing in releases.  CVS is
+		  also where exciting things happen and where you can track
+		  day-to-day development.</li>
+		<br>
+		  
+		<li> <b>Regular Angband has several windows, where are the other
+		    windows in Langband?</b><br>
+		  Langband uses a lot of small subwindows inside a
+		  single window, which can be easily customised.
+		  Support for multiple and separate windows
+		  (Unix-style) is not planned.
+		</li>
+		<br>		
+		<li> <b>When I quit the game, my whole lisp is terminated, why?</b><br>
+		  Some parts of the UI-code is still structured as if it was
+		  still an app with main() that is started and then quitted when
+		  one is done playing.  This is extremely annoying if you use a
+		  slow loader like CMUCL or a big graphical IDE like LispWorks.
+		  I hope to eventually make things more intelligent, but this
+		  will take time.  <b>[Note: This should work with
+		Curses, but the new SDL-port quite abruptly.]</b></li>
+		  <br>
+		    
+		<li> <b>How do I get sounds working?</b><br>
+		    Some Lisps have problems with sound, notably
+		    Debian CMUCL, and SBCL and it is disabled in
+		Debian CMUCL and SBCL.
+		    All other lisps should by default use sound in SDL
+		    mode automagically.  If you use Linux it is
+		recommended that you turn off ESound deamon and use
+		OSS directly.  Esound causes a half-second delay on
+		all sounds which is ok with music, but unbearabale with
+		sound-effects. 
+		  
+		</li>
+		<br>
+		   
+		<li><b>The C-code seems to be filled with gcc-isms and
+		    C++-style comments, why?</b><br>
+		  <p>I don't think there should be many gcc-isms
+		    anymore, but please report those you find.  C++-style
+		    comments have inserted because they don't break
+		    <tt>/*... */</tt> comments.  When things
+		    stabilise, they will be turned into regular
+		    C-comments.</p></li> 
+		<br>
+		<li> <b>I am a lisper, but I find parts of the code a bit odd,
+		    why is it the way it is?</b><br>
+
+		  <p>
+		    The code is in development and changes relatively often and
+		    the interface for the engine that should be extensible and
+		    alterable by variants and user-code needs to gradually be worked
+		    out.  This must be done gradually as I need to experiment with
+		    <i>what</i> is interesting to extend/alter, and <i>what</i>
+		    can be extended/altered and still get reasonable performance
+		    and decent-looking code.
+		  </p>
+
+		  <p>
+		    Some of the interface will be functions which variants may
+		    call, and sometimes with function-arguments as plug-ins.
+		    Other parts will be generic functions which are designed to
+		    be tailoured by a variant.  Other parts are extensible
+		    classes which variants are allowed to extend.  As this
+		    interface gets clearer it will be exported from the
+		    <code>:org.langband.engine</code> package and variants will
+		    reside in their own packages.  But we're not there yet, so
+		    vanilla currently lives in the same package.
+		  </p>
+
+		    <li> <b>How do I get things working with CLISP?</b><br>
+		    [Not tested recently]
+		  It's a bit tricky still but can be done.  You will
+		    need CLISP 2.30 or newer, older versions will not
+		    work.  Assuming csh/tcsh and clisp installed in
+		    <code>/usr/bin</code> and <code>/usr/lib</code>
+		    you can do: 
+		  <font size="-1">
+		  <pre>
+$ make
+$ clisp -q -ansi
+&gt; (load "vanilla")  ;; this stops at foreign loading, use ^D to quit
+$ setenv LD_LIBRARY_PATH `pwd`/linking
+$ make clisp-link
+$ linked/lisp.run -B /usr/lib/clisp -M linked/lispinit.mem -q -ansi
+&gt; (load "vanilla") ;; this should work now
+		  </pre>
+		  </font>
+		  This will be improved later, but it's an important step
+		  ahead.  You might need to edit the paths in Makefile and
+		  linking/Makefile if e.g CLISP is not installed in
+		    <code>/usr</code> but in <code>/usr/local</code>.
+		    For other shells use the equivalent command 
+		  of setenv which sets and environment value.</li> 
+		<br>
+
+		  
+	      </ol>
+
+	      <hr>
+	    </td></tr>
+	  
+	  <tr>
+	    <td width="46" valign="bottom"><img src="leftcorner.png" width="46" height="46" alt=""></td>
+	    <td width="203"><center>Last updated February 2003<br>by <a
+		  href="mailto:stig@langband.org">Stig E Sandø</a>.</center></td>
+	    <td width="203">
+	      <center>
+		See also: <br>
+		<a href="http://sourceforge.net/projects/langband/">SourceForge project page</a>
+	      </center>
+	    </td>
+	    <td width="202">
+	      <center>
+		<a href="http://sourceforge.net"> <img src="http://sourceforge.net/sflogo.php?group_id=6938&amp;type=1" width="88" height="31" border="0" alt="SourceForge Logo"></a>
+	      </center>
+	    </td>
+	    <td width="46" valign="bottom"><img src="rightcorner.png" width="46" height="46" alt=""></td>
+	  </tr>
+	  
+
+      </table>
+    </center>
+    
+  </body>
+
+</html>

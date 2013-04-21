@@ -260,6 +260,12 @@ typedef enum {
     UITYPE_BAD        = 20
 } UITYPES;
 
+typedef enum {
+    SOUNDSYSTEM_NONE      = 0,
+    SOUNDSYSTEM_SDL_MIXER = 1,
+    SOUNDSYSTEM_OPENAL    = 2
+} SOUNDSYSTEM;
+
 /*
  * Define some simple constants
  */
@@ -338,9 +344,12 @@ typedef enum {
 #define TERM_L_UMBER	15	/* 'U' */	/* 3,2,1 */
 
 
-#define NO_FLAGS 0
-#define LANGBAND_GRAPHICS 1
-#define LANGBAND_SOUND 2
+#define NO_FLAGS 0x00
+#define LANGBAND_GRAPHICS 0x01
+#define LANGBAND_SOUND 0x02
+#define LANGBAND_1024 0x04
+#define LANGBAND_1280 0x08
+#define LANGBAND_FULLSCREEN 0x10
 
 #define LANGBAND_TEXT_END 0x80
 #define LANGBAND_GFX_START 0x100
@@ -353,7 +362,7 @@ typedef enum {
 
 extern const char *base_source_path;
 extern const char *base_config_path;
-extern const char *base_gfx_path;
+extern const char *base_data_path;
 
 extern void lb_format(FILE *ofile, int priority, const char *fmt, ...);
 #ifdef DEBUG
@@ -379,6 +388,8 @@ INTERFACE int fill_area(int image_index, int tile_num, int x1, int y1, int x2, i
 INTERFACE int get_sound_status();
 INTERFACE int load_sound_effect(const char *fname, int idx);
 INTERFACE int play_sound_effect(int sound_idx);
+INTERFACE int load_music_file(const char *fname, int idx);
+INTERFACE int play_music_file(int sound_idx);
 
 /* remove later */
 extern void print_image_list();
@@ -392,6 +403,7 @@ INTERFACE int get_image_height(int idx);
 extern int use_sound;
 
 INTERFACE int current_ui();
+INTERFACE int current_soundsystem();
 INTERFACE void print_coloured_token(int wantedTerm, int colour, int token, int row, int col);
 INTERFACE void print_coloured_stat(int wantedTerm, int colour, int stat, int row, int col);
 INTERFACE void print_coloured_number(int wantedTerm, int colour, long number, int padding, int row, int col);
@@ -442,20 +454,23 @@ INTERFACE int cleanup_SDL(void);
 INTERFACE int main(int argc, char *argv[]);
 #endif
 
-typedef struct sound_bite sound_bite;
+typedef struct sound_handle sound_effect;
+typedef struct sound_handle music_handle;
 
-struct sound_bite {
+struct sound_handle {
     char *filename;
+    int buffer_idx;
     void *handle; // probably a Mix_Chunk* for SDL
 };
 
-extern sound_bite **sound_bites;
+extern sound_effect **sound_effects;
+extern music_handle **music_handles;
 
 #ifdef USE_SDL
 
 #include "SDL.h"
 
-#include "SDL_mixer.h"
+//#include "SDL_mixer.h"
 
 #define MAX_IMAGES 64
 

@@ -1,4 +1,4 @@
-;;; This is asdf: Another System Definition Facility.  $Revision: 1.10 $
+;;; This is asdf: Another System Definition Facility.  $Revision: 1.11 $
 ;;;
 ;;; Feedback, bug reports, and patches are all welcome: please mail to
 ;;; <cclan-list@lists.sf.net>.  But note first that the canonical
@@ -88,7 +88,7 @@
 (in-package #:asdf)
 
 ;;; parse the cvs revision into something that might be vaguely useful.  
-(defvar *asdf-revision* (let* ((v "$Revision: 1.10 $")
+(defvar *asdf-revision* (let* ((v "$Revision: 1.11 $")
 			       (colon (position #\: v))
 			       (dot (position #\. v)))
 			  (and v colon dot 
@@ -133,7 +133,7 @@ and NIL NAME and TYPE components"
 	     (apply #'format s (format-control c) (format-arguments c)))))
 
 (define-condition circular-dependency (system-definition-error)
-  ((components :initarg :components)))
+  ((components :initarg :components :reader circular-dependency-components)))
 
 (define-condition missing-component (system-definition-error)
   ((requires :initform "(unnamed)" :reader missing-requires :initarg :requires)
@@ -158,6 +158,8 @@ and NIL NAME and TYPE components"
 	 "Component name, restricted to portable pathname characters")
    (version :accessor component-version :initarg :version)
    (in-order-to :initform nil :initarg :in-order-to)
+   ;;; XXX crap name
+   (do-first :initform nil :initarg :do-first)
    ;; methods defined using the "inline" style inside a defsystem form:
    ;; need to store them somewhere so we can delete them when the system
    ;; is re-evaluated
@@ -499,6 +501,8 @@ system."))
 	;; original source file, then
 	(list (component-pathname c)))))
 
+ (defmethod input-files ((operation operation) (c module)) nil)
+
 (defmethod operation-done-p ((o operation) (c component))
   (let ((out-files (output-files o c))
 	(in-files (input-files o c)))
@@ -569,28 +573,36 @@ system."))
       (loop for (required-op . deps) in (component-depends-on operation c)
 	    do (do-dep required-op deps))
       ;; constituent bits
-      (when (typep c 'module)
-	(let ((at-least-one nil)
-	      (error nil))
-	  (loop for kid in (module-components c)
-		do (handler-case
-		       (appendf forced (traverse operation kid ))
-		     (missing-dependency (condition)
-		       (if (eq (module-if-component-dep-fails c) :fail)
-			   (error condition))
-		       (setf error condition))
-		     (:no-error (c)
-		       (declare (ignore c))
-		       (setf at-least-one t))))
-	  (when (and (eq (module-if-component-dep-fails c) :try-next)
-		     (not at-least-one))
-	    (error error))))
-      ;; now the thing itself
-      (when (or forced
-		(operation-forced-p (operation-ancestor operation))
-		(not (operation-done-p operation c)))
-	(setf forced (append (delete 'pruned-op forced :key #'car)
-			     (list (cons operation c)))))
+      (let ((module-ops
+	     (when (typep c 'module)
+	       (let ((at-least-one nil)
+		     (forced nil)
+		     (error nil))
+		 (loop for kid in (module-components c)
+		       do (handler-case
+			      (appendf forced (traverse operation kid ))
+			    (missing-dependency (condition)
+			      (if (eq (module-if-component-dep-fails c) :fail)
+				  (error condition))
+			      (setf error condition))
+			    (:no-error (c)
+			      (declare (ignore c))
+			      (setf at-least-one t))))
+		 (when (and (eq (module-if-component-dep-fails c) :try-next)
+			    (not at-least-one))
+		   (error error))
+		 forced))))
+	;; now the thing itself
+	(when (or forced module-ops
+		  (operation-forced-p (operation-ancestor operation))
+		  (not (operation-done-p operation c)))
+	  (let ((do-first (cdr (assoc (class-name (class-of operation))
+				      (slot-value c 'do-first)))))
+	    (loop for (required-op . deps) in do-first
+		  do (do-dep required-op deps)))
+	  (setf forced (append (delete 'pruned-op forced :key #'car)
+			       (delete 'pruned-op module-ops :key #'car)
+			       (list (cons operation c))))))
       (setf (visiting-component operation c) nil)
       (visit-component operation c (and forced t))
       forced)))
@@ -607,11 +619,6 @@ system."))
 (defmethod explain ((operation operation) (component component))
   (format *trace-output* "~&;;; ~A on ~A~%"
 	  operation component))
-
-(defmethod output-files ((operation operation) (c component))
-  (sysdef-error
-   "Required method OUTPUT-FILES not implemented for operation ~A, component ~A"
-	 (class-of operation) (class-of c)))
 
 ;;; compile-op
 
@@ -820,8 +827,9 @@ Returns the new tree (which probably shares structure with the old one)"
 		     :parent parent
 		     :in-order-to (union-of-dependencies
 				   in-order-to
-				   `((compile-op (load-op ,@depends-on))
+				   `((compile-op (compile-op ,@depends-on))
 				     (load-op (load-op ,@depends-on))))
+		     :do-first `((compile-op (load-op ,@depends-on)))
 		     other-args)
 	      (when (typep ret 'module)
 		(setf (module-default-component-class ret)
@@ -849,13 +857,10 @@ Returns the new tree (which probably shares structure with the old one)"
 	      ret)))
 
 
-#-(or allegro)
 (defun resolve-symlinks (path)
-  (truename path))
-
-#+allegro
-(defun resolve-symlinks (path)
-  (excl:pathname-resolve-symbolic-links path))
+  #-allegro (truename path)
+  #+allegro (excl:pathname-resolve-symbolic-links path)
+  )
 
 ;;; optional extras
 

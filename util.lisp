@@ -509,7 +509,7 @@ a number or a symbol identifying the place."
 	     (setf (amon.seen-by-player? mon) t)
 	     (light-spot! dungeon mx my)
 	     ;; skip health bar
-	     ;; skip disturb
+	     (disturbance variant player mon :major)
 	     ))
 	  ;; no longer visible
 	  (t
@@ -517,7 +517,7 @@ a number or a symbol identifying the place."
 	     (setf (amon.seen-by-player? mon) nil)
 	     (light-spot! dungeon mx my)
 	     ;; skip health bar
-	     ;; skip disturb
+	     (disturbance variant player mon :major)
 	     )))
 
     (cond (by-eyes
@@ -689,7 +689,6 @@ a number or a symbol identifying the place."
 	      (t value)))
       )))
 
-
 (defvar *currently-showing-inv* :inventory)
 ;;(defvar *currently-showing-inv* :equipment)
 (defvar *current-map-mode* :gfx-tiles)
@@ -703,25 +702,29 @@ a number or a symbol identifying the place."
     
     (with-frame (+inv-frame+)
       (clear-window +inv-frame+) ;; hack
-      (let ((table nil))
-	(cond ((eq *currently-showing-inv* :inventory)
-	       (setf table (aobj.contains (player.inventory player))))
-	      ((eq *currently-showing-inv* :equipment)
-	       (setf table (player.equipment player)))
-	      (t
-	       (warn "Unable to find good equipment for ~s" *currently-showing-inv*)
-	       (return-from update-inventory-row nil)))
-      
-	(loop for i from 0 below (items.cur-size table)
-	      for obj = (aref (items.objs table) i)
-	      unless (and (typep table 'items-worn)
-			  (worn-item-slot-hidden (aref (variant.worn-item-slots *variant*) i)))
-	      do
-	      (progn
-		(setf (window-coord win +foreground+ i 0) (text-paint-value +term-white+ (+ #.(char-code #\a) i)))
-		(when obj
-		  (setf (window-coord win +foreground+ i 1) (gfx-sym obj))
-		  ))))
+      (let ((table nil)
+	    (pl-inv (player.inventory player)))
+
+	(when pl-inv
+
+	  (cond ((eq *currently-showing-inv* :inventory)
+		 (setf table (aobj.contains pl-inv)))
+		((eq *currently-showing-inv* :equipment)
+		 (setf table (player.equipment player)))
+		(t
+		 (warn "Unable to find good equipment for ~s" *currently-showing-inv*)
+		 (return-from update-inventory-row nil)))
+	  
+	  (loop for i from 0 below (items.cur-size table)
+		for obj = (aref (items.objs table) i)
+		unless (and (typep table 'items-worn)
+			    (worn-item-slot-hidden (aref (variant.worn-item-slots *variant*) i)))
+		do
+		(progn
+		  (setf (window-coord win +foreground+ i 0) (text-paint-value +term-white+ (+ #.(char-code #\a) i)))
+		  (when obj
+		    (setf (window-coord win +foreground+ i 1) (gfx-sym obj))
+		    )))))
 
       (let ((col (- (get-frame-width +inv-frame+) 1))
 	    (equip-button (if (eq *currently-showing-inv* :inventory)
@@ -735,27 +738,30 @@ a number or a symbol identifying the place."
 	      (window-coord win +background+ col 0) (logior back-button (tile-number 0))
 	      (window-coord win +foreground+ col 1) (logior (tile-file 3) (tile-number 34))
 	      (window-coord win +background+ col 1) (logior equip-button (tile-number 0))
-	)
+	      )
 
-      (let ((col (- (get-frame-width +inv-frame+) 2))
-	    (map-button (if (eq *current-map-mode* :ascii)
-			    off-button
-			    on-button))
-	    (ascii-button (if (eq *current-map-mode* :ascii)
-			      on-button
-			      off-button)))
+	(let ((col (- (get-frame-width +inv-frame+) 2))
+	      (map-button (if (eq *current-map-mode* :ascii)
+			      off-button
+			      on-button))
+	      (ascii-button (if (eq *current-map-mode* :ascii)
+				on-button
+				off-button)))
 
-	(setf (window-coord win +foreground+ col 0) (logior (tile-file 10) (tile-number 19))
-	      (window-coord win +background+ col 0) (logior map-button (tile-number 0))
-	      (window-coord win +foreground+ col 1) (text-paint-value +term-l-blue+ #.(char-code #\A))
-	      (window-coord win +background+ col 1) (logior ascii-button (tile-number 0)))
+	  (setf (window-coord win +foreground+ col 0) (logior (tile-file 10) (tile-number 19))
+		(window-coord win +background+ col 0) (logior map-button (tile-number 0))
+		(window-coord win +foreground+ col 1) (text-paint-value +term-l-blue+ #.(char-code #\A))
+		(window-coord win +background+ col 1) (logior ascii-button (tile-number 0)))
 	      
-	)
-      ;; should do all the actual painting
-      (refresh-window win)
+	  )
+
+	;;(%print-runes win)
+      
+	;; should do all the actual painting
+	(refresh-window win)
     
 
-      ))))
+	))))
 
 (defun switch-inventory-view ()
   (if (eq *currently-showing-inv* :inventory)
@@ -964,3 +970,88 @@ MOD-VALUE is how much space should be between rows (I think)"
 	       ))
       
       (get-a-value 0))))
+
+(defun let-player-run! (dungeon player direction)
+  (let ((next (run-along-corridor dungeon player direction)))
+;;    (warn "Tried to run ~s, got next ~s" direction next)
+    (when (plusp next)
+      (move-player! dungeon player next)
+      (setf (get-information "run-direction") next)
+      t)))
+
+(defun %stop-running ()
+  (setf (get-information "run-direction") -1
+	(get-information "running") nil)
+  t)
+
+(defun %stop-resting ()
+  (setf (get-information "rest-mode") nil
+	(get-information "resting") nil)
+  t)
+
+(defmethod disturbance ((variant variant) (player player) source level)
+  (declare (ignore source))
+  (when (or (eq level :max) (eq level :major))
+    (%stop-running))
+  (when (or (eq level :max) (eq level :major))
+    (%stop-resting))
+
+  t)
+
+  
+
+
+(defun get-string-input (prompt &key (max-length 20) (x-pos 0) (y-pos 0))
+  "Non-efficient code to read input from the user, and return the string
+on success.  Returns NIL on failure or user-termination (esc)." 
+  (put-coloured-line! +term-white+ prompt x-pos y-pos)
+
+  (let ((xpos (+ x-pos (length prompt)))
+	(ypos y-pos)
+	(wipe-str (make-string max-length :initial-element #\Space))
+	(cnt 0)
+	(collected '())
+	(return-value nil))
+
+    ;; wipe before we start to enter stuff
+    (put-coloured-str! +term-dark+ wipe-str xpos ypos)
+    (set-cursor-to *cur-win* :input (+ cnt xpos) ypos)
+    
+    (block str-input
+      (loop
+       (let ((val (read-one-character)))
+	 ;;(warn "got ~s" val)
+	 (cond ((or (eql val +escape+) #|(eql val #\Escape)|#)
+		(return-from str-input nil))
+	       ((eql val #\Backspace)
+		(when collected
+		  (setq collected (cdr collected))
+		  (decf cnt)))
+	       ((or (eql val #\Return) (eql val #\Newline))
+		
+		(setq return-value (coerce (nreverse collected) 'string))
+		     (return-from str-input nil))
+	       ((or (alphanumericp val)
+		    (eql val #\-)
+		    (eql val #\])
+		    (eql val #\[)
+		    (eql val #\()
+		    (eql val #\))
+		    (eql val #\<)
+		    (eql val #\>)
+		    (eql val #\*)
+		    (eql val #\&)
+		    (eql val #\.))
+		(push val collected)
+		(incf cnt))
+	       (t
+		(warn "Got unknown char ~s" val)))
+	    
+	 ;;	    (warn "print ~s" (coerce (reverse collected) 'string))
+	 (put-coloured-str! +term-dark+ wipe-str xpos ypos)
+	 (put-coloured-str! +term-l-blue+ (coerce (reverse collected) 'string) xpos ypos)
+	 (set-cursor-to *cur-win* :input (+ cnt xpos) ypos))))
+    
+    (put-coloured-line! +term-white+ "" x-pos y-pos)
+    
+    return-value))

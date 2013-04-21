@@ -21,7 +21,7 @@ DESC: ffi/ffi-defs.lisp - the foreign declarations that [L] uses
     :args '((cptr ui)
 	    (cptr source-path)
 	    (cptr config-path)
-	    (cptr gfx-path)
+	    (cptr data-path)
 	    (int flags)
 	    ))
 
@@ -45,15 +45,24 @@ DESC: ffi/ffi-defs.lisp - the foreign declarations that [L] uses
     :returns 'int
     :args '((int size)))
 
+(def-foreign-function ("get_sound_status" c-get-sound-status)
+    :returns 'int)
+
 (def-foreign-function ("load_sound_effect" c-load-sound-effect&)
     :returns 'int
     :args '((cptr fname)
 	    (int idx)))
 
-(def-foreign-function ("get_sound_status" c-get-sound-status)
-    :returns 'int)
-
 (def-foreign-function ("play_sound_effect" c-play-sound-effect)
+    :returns 'int
+    :args '((int idx)))
+
+(def-foreign-function ("load_music_file" c-load-music-file&)
+    :returns 'int
+    :args '((cptr fname)
+	    (int idx)))
+
+(def-foreign-function ("play_music_file" c-play-music-file)
     :returns 'int
     :args '((int idx)))
 

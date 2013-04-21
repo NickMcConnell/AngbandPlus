@@ -18,106 +18,115 @@ ADD_DESC: This file contains the character creation code.  needs clean-up
 
 (in-package :org.langband.engine)
 
-(defmethod query-for-character-basics! ((variant variant) (the-player player)
-					(settings birth-settings))
-  "Interactive questioning to select the basics of the character.
-Modififes the passed player object THE-PLAYER.  This is a long function."
-
-  (clear-window +full-frame+)
-
-  ;; print info on process in upper right corner
-  (print-text! (slot-value settings 'instr-x)
-	       (slot-value settings 'instr-y)
-	       (slot-value settings 'instr-attr)
-	       #.(concatenate 'string
-			      "Please answer the following questions.  "
-			      "Legal answers are shown below the marked question.  You may use " 
-			      "arrow-keys to highlight answers and display description, "
-			      "or you may hit 'Q' to quit, 'S' to start all over or '?' " 
-			      "to enter the generic help-system.")
-	       :end-col (slot-value settings 'instr-w))
-
-  (let ((info-col (slot-value settings 'info-x))
-	(info-row (slot-value settings 'info-y))
-	(info-colour (slot-value settings 'info-attr))
-	(quest-row (slot-value settings 'query-y))
-	(quest-col (slot-value settings 'query-x))
-	(choice-col (slot-value settings 'choice-x))
-	(choice-row (slot-value settings 'choice-y))
-	(choice-colour (slot-value settings 'choice-attr))
-	(choice-tcolour (slot-value settings 'choice-tattr))
-	(mod-value (slot-value settings 'altern-cols))
-	)
+(defun %query-for-gender (variant player settings)
+  (block query-block
+    (let* ((info-col (slot-value settings 'info-x))
+	   (info-row (slot-value settings 'info-y))
+	   (info-colour (slot-value settings 'info-attr))
+	   (quest-row (slot-value settings 'query-y))
+	   (quest-col (slot-value settings 'query-x))
+	   (choice-col (slot-value settings 'choice-x))
+	   (choice-row (slot-value settings 'choice-y))
+	   (choice-colour (slot-value settings 'choice-attr))
+	   (choice-tcolour (slot-value settings 'choice-tattr))
+	   (genders (variant.genders variant))
+	   (alt-len (length genders))
+	   (inp nil))
+      (print-text! info-col info-row info-colour
+		   "Your 'gender' does not have any significant gameplay effects."
+		   :end-col (slot-value settings 'instr-w))
   
-    ;; First we do the player gender
-    (clear-window-from *cur-win* info-row) ;; clears things
-    ;; Print extra-info Extra info
-    (print-text! info-col info-row info-colour
-		 "Your 'gender' does not have any significant gameplay effects."
-		 :end-col (slot-value settings 'instr-w))
-
-    (block input-loop
-      (loop
-       (let* ((genders (variant.genders variant))
-	      (alt-len (length genders))
-	      (inp (interactive-alt-sel quest-col quest-row
+      (block input-loop
+	(loop
+	 (setf inp (interactive-alt-sel quest-col quest-row
 					(mapcar #'gender.name genders)
 					:settings settings
-					:ask-for "gender")))
+					:ask-for "gender"))
 	 (cond ((eq inp nil)
-		(return-from query-for-character-basics! nil))
-	       
+		(return-from query-block nil))
+	   
 	       ((and (numberp inp) (<= 0 inp) (< inp alt-len))
-		(setf (player.gender the-player) (nth inp genders))
+		(setf (player.gender player) (nth inp genders))
 		(return-from input-loop nil))
-	       
+	   
 	       (t
 		(warn "Unknown return-value from input-loop ~s, must be [0..~s)" inp alt-len))
-	       ))))
-   
-    (put-coloured-str! choice-tcolour  "Gender" choice-col choice-row) 
-    (put-coloured-str! choice-colour   (get-gender-name the-player) (+ 7 choice-col) choice-row)
+	       )))
+  
+      (put-coloured-str! choice-tcolour  "Gender" choice-col choice-row) 
+      (put-coloured-str! choice-colour   (get-gender-name player) (+ 7 choice-col) choice-row)
 
-    
-    (clear-window-from *cur-win* info-row) ;; clears things
+      t)))
 
-    (print-text! info-col info-row info-colour
-		 "Your 'race' determines various intrinsic factors and bonuses."
-		 :end-col (slot-value settings 'instr-w))
+(defun %query-for-race (variant player settings &key (race-name "Race"))
+  (block query-block
+    (let* ((info-col (slot-value settings 'info-x))
+	   (info-row (slot-value settings 'info-y))
+	   (info-colour (slot-value settings 'info-attr))
+	   (quest-row (slot-value settings 'query-y))
+	   (quest-col (slot-value settings 'query-x))
+	   (choice-col (slot-value settings 'choice-x))
+	   (choice-row (slot-value settings 'choice-y))
+	   (choice-colour (slot-value settings 'choice-attr))
+	   (choice-tcolour (slot-value settings 'choice-tattr))
+	   (mod-value (slot-value settings 'altern-cols))
+	   (cur-races (get-races-as-a-list variant))
+	   (alt-len (length cur-races))
+	   (inp nil))
+
+      (print-text! info-col info-row info-colour
+		   (format nil "Your '~a' determines various intrinsic factors and bonuses."
+			   (string-downcase race-name))
+		   :end-col (slot-value settings 'instr-w))
 
 
-    (block input-loop
-      (loop
-       (let* ((cur-races (get-races-as-a-list))
-	      (alt-len (length cur-races))
-	      (inp (interactive-alt-sel  quest-col quest-row
+      (block input-loop
+	(loop
+	 (setf inp (interactive-alt-sel  quest-col quest-row
 					 (mapcar #'race.name cur-races)
 					 :display-fun #'(lambda (x)
 							  (when (and (numberp x) (>= x 0) (< x alt-len))
 							    (race.desc (elt cur-races x))))
-					 :ask-for "race"
+					 :ask-for (string-downcase race-name)
 					 :settings settings
 					 :mod-value mod-value
-					 )))
+					 ))
 	      
 	 (cond ((eq inp nil)
-		(return-from query-for-character-basics! nil))
+		(return-from query-block nil))
 	       
 	       ((and (numberp inp) (<= 0 inp) (< inp alt-len))
-		(setf (player.race the-player) (nth inp cur-races))
+		(setf (player.race player) (nth inp cur-races))
 		(return-from input-loop nil))
 	       
 	       (t
-		(warn "Unknown return-value from race input-loop ~s, must be [0..~s)" inp alt-len))
-	       ))))
+		(warn "Unknown return-value from ~a input-loop ~s, must be [0..~s)" race-name inp alt-len))
+	       )))
 
 
-      (put-coloured-str! choice-tcolour  "Race" choice-col (+ 1 choice-row))
-      (put-coloured-str! choice-colour (get-race-name the-player) (+ 7 choice-col) (+ 1 choice-row))
+      (put-coloured-str! choice-tcolour race-name choice-col (+ 1 choice-row))
+      (put-coloured-str! choice-colour (get-race-name player) (+ 7 choice-col) (+ 1 choice-row))
+      
+      t)))
 
-      (clear-window-from *cur-win* info-row) ;; clears things
-
-      ;; time to do classes.. slightly more tricky
+(defun %query-for-class (variant player settings)
+  (block query-block
+    (let* ((info-col (slot-value settings 'info-x))
+	   (info-row (slot-value settings 'info-y))
+	   (info-colour (slot-value settings 'info-attr))
+	   (quest-row (slot-value settings 'query-y))
+	   (quest-col (slot-value settings 'query-x))
+	   (choice-col (slot-value settings 'choice-x))
+	   (choice-row (slot-value settings 'choice-y))
+	   ;;(choice-colour (slot-value settings 'choice-attr))
+	   ;;(choice-tcolour (slot-value settings 'choice-tattr))
+	   (mod-value (slot-value settings 'altern-cols))
+	   (cur-classes (race.classes (player.race player)))
+	   (other-classes nil)
+	   (combined-classes nil)
+	   (comb-class-len 0)
+	   (class-len 0))
+	  
 
       (print-text! info-col info-row info-colour
 		   #.(concatenate 'string
@@ -126,78 +135,108 @@ Modififes the passed player object THE-PLAYER.  This is a long function."
 				  )
 		   
 		   :end-col (slot-value settings 'instr-w))
-      
 
-   
-      (let ((cur-classes (race.classes (player.race the-player)))
-	    (other-classes nil)
-	    (combined-classes nil)
-	    (comb-class-len 0)
-	    (class-len 0))
+      (cond ((eq cur-classes t)
+	     (setq cur-classes (get-classes-as-a-list variant)))
+	    ((consp cur-classes)
+	     (let ((all-classes (get-classes-as-a-list variant))
+		   (tmp-classes nil))
+	       (dolist (i all-classes)
+		 ;;		   (warn "Checking for ~s in ~s" (class.symbol i) cur-classes)
+		 ;; maybe let this handle symbols and strings?
+		 (if (find (class.symbol i) cur-classes :test #'eq)
+		     (push i tmp-classes)
+		     (push i other-classes)))
+	       (setq cur-classes tmp-classes)))
+	    (t
+	     (warn "Unknown classes ~a for race ~a" cur-classes (get-race-name player))
+	     (return-from query-block nil)))
 
-	(cond ((eq cur-classes t)
-	       (setq cur-classes (get-classes-as-a-list)))
-	      ((consp cur-classes)
-	       (let ((all-classes (get-classes-as-a-list))
-		     (tmp-classes nil))
-		 (dolist (i all-classes)
-;;		   (warn "Checking for ~s in ~s" (class.symbol i) cur-classes)
-		   ;; maybe let this handle symbols and strings?
-		   (if (find (class.symbol i) cur-classes :test #'eq)
-		       (push i tmp-classes)
-		       (push i other-classes)))
-		 (setq cur-classes tmp-classes)))
-	      (t
-	       (warn "Unknown classes ~a for race ~a" cur-classes (get-race-name the-player))
-	       (return-from query-for-character-basics! nil)))
-
-	(setq class-len (length cur-classes))
-	(setq combined-classes (append cur-classes other-classes))
-	(setq comb-class-len (length combined-classes))
+      (setq class-len (length cur-classes))
+      (setq combined-classes (append cur-classes other-classes))
+      (setq comb-class-len (length combined-classes))
 	
-	(block input-loop
-	  (loop
-	   (let* ((class-names (loop for x in combined-classes
-				     for i from 0
-				     collecting 
-				     (if (>= i class-len)
-					 (concatenate 'string "(" (class.name x) ")")
-					 (class.name x))))
-		  (inp (interactive-alt-sel quest-col quest-row
-					    class-names
-					    :display-fun #'(lambda (x)
-							     (when (and (numberp x) (>= x 0) (< x comb-class-len))
-							       (class.desc (elt combined-classes x))))
-					    :ask-for "class"
-					    :settings settings
-					    :mod-value mod-value
-					    )))
+      (block input-loop
+	(loop
+	 (let* ((class-names (loop for x in combined-classes
+				   for i from 0
+				   collecting 
+				   (if (>= i class-len)
+				       (concatenate 'string "(" (class.name x) ")")
+				       (class.name x))))
+		(inp (interactive-alt-sel quest-col quest-row
+					  class-names
+					  :display-fun #'(lambda (x)
+							   (when (and (numberp x) (>= x 0) (< x comb-class-len))
+							     (class.desc (elt combined-classes x))))
+					  :ask-for "class"
+					  :settings settings
+					  :mod-value mod-value
+					  )))
 	     
-	     (cond ((eq inp nil)
-		    (return-from query-for-character-basics! nil))
+	   (cond ((eq inp nil)
+		  (return-from query-block nil))
 		   
-		   ((and (numberp inp) (<= 0 inp) (< inp comb-class-len))
-		    (setf (player.class the-player) (nth inp combined-classes))
-		    (return-from input-loop nil))
+		 ((and (numberp inp) (<= 0 inp) (< inp comb-class-len))
+		  (setf (player.class player) (nth inp combined-classes))
+		  (return-from input-loop nil))
 		   
-		   (t
-		    (warn "Unknown return-value from class input-loop ~s, must be [0..~s)"
-			  inp comb-class-len))
-		   ))))
-	)
+		 (t
+		  (warn "Unknown return-value from class input-loop ~s, must be [0..~s)"
+			inp comb-class-len))
+		 ))))
 
+      (put-coloured-str! +term-white+  "Class" choice-col (+ 2 choice-row))
+      (put-coloured-str! +term-l-blue+ (get-class-name player)
+			 (+ 7 choice-col) (+ 2 choice-row))
+      t)))
 
+(defmethod query-for-character-basics! ((variant variant) (player player)
+					(settings birth-settings))
+  "Interactive questioning to select the basics of the character.
+Modififes the passed player object THE-PLAYER.  This is a long function."
 
-  (put-coloured-str! +term-white+  "Class" choice-col (+ 2 choice-row))
-  (put-coloured-str! +term-l-blue+ (get-class-name the-player)
-		     (+ 7 choice-col) (+ 2 choice-row))
+  (let* (;;(info-col (slot-value settings 'info-x))
+	 (info-row (slot-value settings 'info-y))
+	 (instr-col (slot-value settings 'instr-x))
+	 (instr-row (slot-value settings 'instr-y))
+	 (instr-colour (slot-value settings 'instr-attr))
+	 (instr-width (slot-value settings 'instr-w))
+	 (win *cur-win*))
+	 
 
-  (clear-window-from *cur-win* info-row) ;; clears things
+    (clear-window +full-frame+)
+    
+    ;; print info on process in upper right corner
+    (print-text! instr-col instr-row instr-colour
+		 #.(concatenate 'string
+				"Please answer the following questions.  "
+				"Legal answers are shown below the marked question.  You may use " 
+				"arrow-keys to highlight answers and display description, "
+				"or you may hit 'Q' to quit, 'S' to start all over or '?' " 
+				"to enter the generic help-system.")
+		 :end-col instr-width)
   
-   
-  t))
+    (clear-window-from win info-row) ;; clears things
 
-(defun roll-stats! (variant player)
+    (unless (%query-for-gender variant player settings)
+      (return-from query-for-character-basics! nil))
+    
+    (clear-window-from win info-row) ;; clears things
+
+    (unless (%query-for-race variant player settings)
+      (return-from query-for-character-basics! nil))
+    
+    (clear-window-from win info-row) ;; clears things
+
+    (unless (%query-for-class variant player settings)
+      (return-from query-for-character-basics! nil))
+    
+    (clear-window-from win info-row) ;; clears things
+   
+    t))
+
+(defmethod roll-stats! ((variant variant) (player player))
   "Rolls stats and modifies given player object.
 Returns the base-stats as an array or NIL if something failed."
   
@@ -259,20 +298,12 @@ Returns the base-stats as an array or NIL if something failed."
 
   (update-xp-table! variant player) ;; hack
   
- ;; (bit-flag-add! *update* +pl-upd-bonuses+ +pl-upd-hp+ +pl-upd-mana+)
-;;  (warn "upd is ~s" *update*)
-;;  (update-stuff variant nil player)
-
-
 
   ;; improve?  hackish.
   (calculate-creature-bonuses! variant player)
-  (calculate-creature-mana! variant player)
   
   ;; hack
-  (setf (current-hp player) (maximum-hp player)
-	(current-mana player) (maximum-mana player))
-    
+  (setf (current-hp player) (maximum-hp player))
   
   t)
 
@@ -352,53 +383,6 @@ player.
       ;; trigger an event that should be done right after equip.
       (trigger-event settings :on-post-equip (list player nil))
       )))
-
-(defun get-string-input (prompt &key (max-length 20) (x-pos 0) (y-pos 0))
-  "Non-efficient code to read input from the user, and return the string
-on success.  Returns NIL on failure or user-termination (esc)." 
-  (put-coloured-line! +term-white+ prompt x-pos y-pos)
-
-  (let ((xpos (+ x-pos (length prompt)))
-	(ypos y-pos)
-	(wipe-str (make-string max-length :initial-element #\Space))
-	(cnt 0)
-	(collected '())
-	(return-value nil))
-
-    ;; wipe before we start to enter stuff
-    (put-coloured-str! +term-dark+ wipe-str xpos ypos)
-    (set-cursor-to *cur-win* :input (+ cnt xpos) ypos)
-    
-    (block str-input
-      (loop
-       (let ((val (read-one-character)))
-	 ;;(warn "got ~s" val)
-	 (cond ((or (eql val +escape+) #|(eql val #\Escape)|#)
-		(return-from str-input nil))
-	       ((eql val #\Backspace)
-		(when collected
-		  (setq collected (cdr collected))
-		  (decf cnt)))
-	       ((or (eql val #\Return) (eql val #\Newline))
-		
-		(setq return-value (coerce (nreverse collected) 'string))
-		     (return-from str-input nil))
-	       ((or (alphanumericp val)
-		    (eql val #\-)
-		    (eql val #\.))
-		(push val collected)
-		(incf cnt))
-	       (t
-		(warn "Got unknown char ~s" val)))
-	    
-	 ;;	    (warn "print ~s" (coerce (reverse collected) 'string))
-	 (put-coloured-str! +term-dark+ wipe-str xpos ypos)
-	 (put-coloured-str! +term-l-blue+ (coerce (reverse collected) 'string) xpos ypos)
-	 (set-cursor-to *cur-win* :input (+ cnt xpos) ypos))))
-    
-    (put-coloured-line! +term-white+ "" x-pos y-pos)
-    
-    return-value))
 
 (defun %get-name-input! (the-player)
   (let ((new-name (get-string-input "Enter name for your character: " :max-length 15)))
@@ -539,3 +523,10 @@ Returns the new PLAYER object or NIL on failure."
     
     player))
 
+(defmethod on-new-player (variant player)
+  (declare (ignore variant))
+  player)
+
+(defmethod on-game-start (variant player)
+  (declare (ignore variant))
+  player)

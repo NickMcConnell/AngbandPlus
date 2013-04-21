@@ -1,0 +1,5 @@
+langband-data (0.1.4-1) unstable; urgency=low
+
+  * Fully revamped langband-data into a source-package.
+
+ -- Stig E Sandoe <stig@users.sourceforge.net>  Thu,  6 Feb 2003 14:48:44 +0100

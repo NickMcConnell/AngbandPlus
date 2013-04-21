@@ -37,7 +37,7 @@ the rest of the game is init'ed."
 ;;  (setf (variant.legal-effects var-obj) '(:quaff :read :eat :create :add-magic :use)) ;; make :use a meta-effect?
 
   (flet ((help-path (file)
-	   (concatenate 'string *engine-source-dir* "lib/help/" file)))
+	   (concatenate 'string *engine-source-dir* "docs/help/" file)))
   
 
     (register-help-topic& var-obj
@@ -83,6 +83,7 @@ the rest of the game is init'ed."
   
   (let ((*load-verbose* nil))
     (load-variant-data& var-obj "defines")
+    (load-variant-data& var-obj "sound")
     (load-variant-data& var-obj "stats")
     (load-variant-data& var-obj "flavours")
     (load-variant-data& var-obj "traps")

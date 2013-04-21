@@ -6,15 +6,15 @@
   +misc-frame+, +inv-frame+ and +dialgoue-frame+
 
   Other constants that will be provided by Langband are:
-    window.width - the width of the window (800 for SDL, may vary for GCU)
-    window.height - the height of the window (600 for SDL, may vary for GCU)
+    window.width - the width of the window (example: 800/1024/1280 for SDL, may vary for GCU)
+    window.height - the height of the window (example: 600/768/1024 for SDL, may vary for GCU)
     gfxtile.width - width of one graphical tile (32 typically)
     gfxtile.height - height of one graphical tile (32 typically) 
 
   GCU measurements are in characters, while SDL measurements are in pixels.
 
-  Fonts are loaded from config/fonts/
-  Backgrounds are loaded from graphics/textures/
+  Fonts are loaded from data/fonts/
+  Backgrounds are loaded from data/graphics/textures/
 
   Good luck
 ||#
@@ -32,14 +32,14 @@
        
        (charinfo :key +charinfo-frame+
 		 :x 0 :y 8
-		 :width 112 :height 480
+		 :width 112 :height (- window.height 120)
 		 :background "textures/bumpi.bmp"
 		 :font "vga8x16.hex")
        
        (gfxmap   :key +gfxmap-frame+
 		 :x 112 :y 8
-		 :width 688
-		 :height 480
+		 :width (- window.width 112) ;;688
+		 :height (- window.height 120) ;;480
 		 :tile-width gfxtiles.width
 		 :tile-height gfxtiles.height
 		 :font "vga8x16.hex"
@@ -50,14 +50,14 @@
 
        (asciimap :key +asciimap-frame+
 		 :x 112 :y 8
-		 :width 688
-		 :height 480
+		 :width (- window.width 112) ;;688
+		 :height (- window.height 120) 
 		 :font "vga8x16.hex"
 		 :gfx-tiles? false)
 
        
        (msg      :key +message-frame+
-		 :x 0 :y 488
+		 :x 0 :y (- window.height 112)
 		 :width window.width
 		 :height 32
 		 :background "textures/bumpi.bmp"
@@ -66,7 +66,7 @@
 		 )
        
        (misc     :key +misc-frame+
-		 :x 0 :y 520
+		 :x 0 :y (- window.height 80)
 		 :width window.width
 		 :height 16
 		 :background "textures/bumpi.bmp"
@@ -75,7 +75,7 @@
 		 )
 
        (inventory :key +inv-frame+
-		  :x 0 :y 536
+		  :x 0 :y (- window.height 64)
 		  :width window.width
 		  :height 64
 		  :background "textures/invbg2.bmp"
@@ -86,8 +86,8 @@
        
        (dialogue :key +dialogue-frame+
 		 :x 0 :y 8
-		 :width 800
-		 :height 480
+		 :width window.width
+		 :height (- window.height 120)
 		 :font "vga8x16.hex"
 		 :background "textures/woodfloor.png"
 		 :gfx-tiles? false)

@@ -19,6 +19,9 @@ ADD_DESC: at the start.
 
 (in-package :org.langband.engine)
 
+(defvar *screen-width* 800)
+(defvar *screen-height* 600)
+
 (defun %to-a-string (obj)
   (etypecase obj
     (string obj)
@@ -30,7 +33,7 @@ ADD_DESC: at the start.
 	 (cond ((string-equal (theme.system theme) "gcu")
 		80) ;; replace with a better size a bit later
 	       ((string-equal (theme.system theme) "sdl")
-		800)
+		*screen-width*)
 	       (t
 		(error "Uknown system for theme: ~s" (theme.system theme)))))
 
@@ -38,7 +41,7 @@ ADD_DESC: at the start.
 	 (cond ((string-equal (theme.system theme) "gcu")
 		24) ;; replace with a better size a bit later
 	       ((string-equal (theme.system theme) "sdl")
-		600)
+		*screen-height*)
 	       (t
 		(error "Uknown system for theme: ~s" (theme.system theme)))))
 	
@@ -72,6 +75,20 @@ ADD_DESC: at the start.
 	(t
 	 var)))
 
+(defun handle-theme-calculation (theme calc)
+  (cond ((integerp calc)
+	 calc)
+	((integerp (lookup-var theme calc))
+	 (lookup-var theme calc))
+	((consp calc)
+	 (if (find (car calc) '(- + * /))
+	     (reduce (car calc) (mapcar #'(lambda (x) (handle-theme-calculation theme x)) (cdr calc)))
+	     (error "Don't know how to calculate value from ~s" calc)))
+	(t
+	 (error "Don't know how to calculate value from ~s" calc))))
+
+;;(trace handle-theme-calculation)
+
 (defun process-subwindow-data! (theme data)
   (unless (nonboolsym? (car data))
     (warn "Illegal subwindow-data, should have specifier first, not ~s"
@@ -91,31 +108,27 @@ ADD_DESC: at the start.
 	    (t
 	     (warn "Can't handle key ~s yet" key)))
       
-      (cond ((numberp x)
-	     (setf (window.x-offset sub) x))
-	    ((numberp (lookup-var theme x))
-	     (setf (window.x-offset sub) (lookup-var theme x)))
+      (cond ((or (nonboolsym? x) (integerp x) (consp x))
+	     (let ((val (handle-theme-calculation theme x)))
+	       (setf (window.x-offset sub) val)))
 	    (t
 	     (warn "Can't handle x ~s yet" x)))
 
-      (cond ((numberp y)
-	     (setf (window.y-offset sub) y))
-	    ((numberp (lookup-var theme y))
-	     (setf (window.y-offset sub) (lookup-var theme y)))
+      (cond ((or (nonboolsym? y) (integerp y) (consp y))
+	     (let ((val (handle-theme-calculation theme y)))
+	       (setf (window.y-offset sub) val)))
 	    (t
 	     (warn "Can't handle y ~s yet" y)))
 
-      (cond ((numberp width)
-	     (setf (window.pixel-width sub) width))
-	    ((numberp (lookup-var theme width))
-	     (setf (window.pixel-width sub) (lookup-var theme width)))
+      (cond ((or (nonboolsym? width) (integerp width) (consp width))
+	     (let ((val (handle-theme-calculation theme width)))
+	       (setf (window.pixel-width sub) val)))
 	    (t
 	     (warn "Can't handle width ~s yet" width)))
 
-      (cond ((numberp height)
-	     (setf (window.pixel-height sub) height))
-	    ((numberp (lookup-var theme height))
-	     (setf (window.pixel-height sub) (lookup-var theme height)))
+      (cond ((or (integerp height) (nonboolsym? height) (consp height))
+	     (let ((val (handle-theme-calculation theme height)))
+	       (setf (window.pixel-height sub) val)))
 	    (t
 	     (warn "Can't handle height ~s yet" height)))
 
@@ -256,9 +269,12 @@ ADD_DESC: at the start.
 	  (org.langband.ffi:c-add-frame-coords! (window.num-id i)
 						(window.x-offset i) (window.y-offset i)
 						(window.pixel-width i) (window.pixel-height i))
-	  (org.langband.ffi:c-add-frame-tileinfo! (window.num-id i)
-						  (window.tile-width i) (window.tile-height i)
-						  (window.font i))
+	  (let ((font (window.font i)))
+	    (check-type font string)
+	    (setf font (concatenate 'string *engine-data-dir* "fonts/" font))
+	    (org.langband.ffi:c-add-frame-tileinfo! (window.num-id i)
+						    (window.tile-width i) (window.tile-height i)
+						    font))
 				 
 	  (org.langband.ffi:c-add-frame-gfxinfo! (window.num-id i)
 						 (if (window.gfx-tiles? i)
@@ -275,9 +291,7 @@ ADD_DESC: at the start.
   #+unix
   (setf *engine-config-dir* "/var/games/langband-engine/")
   #+unix
-  (setf *engine-graphics-dir* "/usr/share/games/langband-engine/graphics/")
-  #+unix
-  (setf *engine-audio-dir* "/usr/share/games/langband-engine/audio/")
+  (setf *engine-data-dir* "/usr/share/games/langband-data/")
   )
 
 (defun %assign-win-dirs ()
@@ -286,11 +300,11 @@ ADD_DESC: at the start.
     (setf *engine-config-dir* dir)))
    
 
-(defun game-init& (&optional (ui "sdl"))
+(defun game-init& (&optional (ui "sdl") &key (size :800x600) (full-screen nil))
   "This function should be called from the outside to
 start the whole show.  It will deal with low-level and
 call appropriately high-level init in correct order."
-  
+
   (setq cl:*random-state* (cl:make-random-state t))
   (vinfo-init&) ;; init line-of-sight arrays
 
@@ -332,7 +346,16 @@ call appropriately high-level init in correct order."
       
       (c-init-frame-system& +max-frames+ +predefined-frames+)
       
-      (let ((theme (find-theme ui)))
+      (let* (;; hacks
+	     (*screen-width* (ecase size
+			       (:800x600 800)
+			       (:1024x768 1024)
+			       (:1280x1024 1280)))
+	     (*screen-height* (ecase size
+			       (:800x600 600)
+			       (:1024x768 768)
+			       (:1280x1024 1024)))
+	     (theme (find-theme ui)))
 	(unless (typep theme 'theme)
 	  (warn "No usable theme found, using defaults."))
 	(install-theme& theme))
@@ -340,35 +363,54 @@ call appropriately high-level init in correct order."
       #+use-callback-from-c
       (arrange-callbacks)
       
-      #+cmu
+      #+(and cmu use-callback-from-c)
       (pushnew 'arrange-callbacks ext:*after-gc-hooks*)
       
-      #+sbcl
+      #+(and sbcl use-callback-from-c)
       (pushnew 'arrange-callbacks sb-ext:*after-gc-hooks*)
-      
+
       (handler-case
 	  (let ((flag 0)
 		(retval -1))
 	    (when *graphics-supported*
-	      (bit-flag-add! flag 1)) ;; graphics
+	      (bit-flag-add! flag #x01)) ;; graphics
 	    ;; add sound?
 	    #-disable-sound
-	    (bit-flag-add! flag 2)
+	    (bit-flag-add! flag #x02)
+
+	    (ecase size
+	      (:800x600 nil)
+	      (:1024x768 (bit-flag-add! flag #x04))
+	      (:1280x1024 (bit-flag-add! flag #x08)))
 	    
+	    (when full-screen
+	      (bit-flag-add! flag #x10))
+
+	    ;;(warn "init flag ~s" flag)
 	    (setf retval (init-c-side& (%to-a-string ui)
 				       *engine-source-dir*
 				       *engine-config-dir*
-				       *engine-graphics-dir*
+				       *engine-data-dir*
 				       flag)) ;; no debug, possible gfx
-
-	    (when (/= retval 0) ;; only success is accepted
-	      (warn "Problems init'ing UI, please check term-window for error-messages")
-	      (return-from game-init& nil))
-	    ;;(warn "return..")
-	    #-use-callback-from-c
-	    (play-game&))
+	    (cond ((= retval -1)
+		   #-use-callback-from-c
+		   (play-game&)
+		   #+use-callback-from-c
+		   (progn
+		     (warn "Problems init'ing UI, please check term-window for error-messages")
+		     (return-from game-init& nil)))
+		  ((/= retval 0) ;; only success is accepted
+		   (warn "Problems init'ing UI, please check term-window for error-messages")
+		   (return-from game-init& nil))
+		  ;;(warn "return..")
+		  ))
+	    
 	(langband-quit ()
-	  (format t "~&Thanks for helping to test Langband.~2%")))
+	  (format t "~&Thanks for helping to test Langband.~2%")
+	  (case (get-system-type)
+	    ((x11 gcu sdl)
+	     (cleanup-c-side&)))
+	  ))
   
       t)))
 
@@ -382,7 +424,7 @@ call appropriately high-level init in correct order."
 
   t)
     
-
+#+use-callback-from-c
 (defun arrange-callbacks ()
   "Assures that the C-side has necessary callbacks to the Lisp-side."
 
@@ -435,7 +477,7 @@ call appropriately high-level init in correct order."
   )
 
 ;;; hackish thing to start the game ever so long.
-(defun a (&optional (ui "sdl") &key (gfx nil))
+(defun a (&optional (ui "sdl") &key (gfx nil) (size :800x600) (full-screen nil))
   ;; to make sure dumps look pretty
   (let ((*package* (find-package :org.langband.engine))
 	#+(or cmu) (extensions:*gc-verbose* nil)
@@ -449,10 +491,12 @@ call appropriately high-level init in correct order."
     (when gfx
       (setf *graphics-supported* t))
     ;; still get problems as ffi locks up thread system, but a bit better.
+    #||
     #+lispworks
     (mp:process-run-function "langband" '() #'game-init& ui)
     #-lispworks
-    (game-init& ui)
+    ||#
+    (game-init& ui :size size :full-screen full-screen)
 ;;    (format t "~&Thanks for helping to test Langband.~2%")
     ))
 
@@ -460,9 +504,14 @@ call appropriately high-level init in correct order."
   (warn "Curses/GCU not supported in this version.")
   (a ui :gfx nil))
 
-(defun c (&optional (ui "sdl"))
-  (a ui :gfx t))
+(defun c (&key (ui "sdl") (size :800x600) (full-screen nil))
+  (a ui :gfx t :size size :full-screen full-screen))
 
+(defun d (&optional (ui "sdl"))
+  (a ui :gfx t :size :1024x768))
+
+(defun e (&optional (ui "sdl"))
+  (a ui :gfx t :size :1280x1024 :full-screen t))
 
 (setf (symbol-function 'cl-user::langband)
       #'c)

@@ -16,7 +16,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 (eval-when (:execute :load-toplevel :compile-toplevel)
  
-  (defun quit-game& ()
+  (defun quickly-quit-game& ()
     "Tries to quit game.."
     #+cmu
     (cl-user::quit)
@@ -40,7 +40,7 @@ the Free Software Foundation; either version 2 of the License, or
       (unless is-there
 	(warn "Unable to locate dynamic library ~a, please run 'make'."
 	      lib)
-	(quit-game&)))
+	(quickly-quit-game&)))
     
     
     #+allegro

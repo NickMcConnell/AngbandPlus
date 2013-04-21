@@ -66,7 +66,7 @@
  */
 
 #include "SDL_image.h"
-#include "SDL_mixer.h"
+//#include "SDL_mixer.h"
 #include <string.h>
 
 struct sdl_winconnection {
@@ -97,6 +97,16 @@ extern char *SDL_keysymtostr(SDL_keysym *ks); /* this is the important one. */
 extern int SDL_init_screen_cursor(Uint32 w, Uint32 h);
 extern int SDL_DrawCursor(SDL_Surface *dst, SDL_Rect *dr);
 
+#ifdef USE_SDL_MIXER
+// fix later
+extern int sdl_init_mixer();
+extern int sdl_close_mixer();
+#endif
+
+#ifdef USE_OPENAL
+extern int al_init_mixer();
+extern int al_close_mixer();
+#endif
 
 #ifndef SDL_DISABLE
 #define SDL_DISABLE 0
@@ -456,7 +466,7 @@ load_texture(int idx, const char *filename, int target_width, int target_height,
 
 
 int
-init_sdl(int oargc, char **oargv) {
+init_sdl(int initarguments) {
 
     Uint32 initflags = SDL_INIT_VIDEO; /* What's the point, if not video? */
     //int fullscreen = 0;
@@ -465,9 +475,6 @@ init_sdl(int oargc, char **oargv) {
     int sdl_window_flags = 0;
 
     TileInformation *ti = NULL; // maybe update this later?
-    
-    // to avoid dumb warnings
-    if (oargc || oargv) oargc = 0;
     
     initflags |= SDL_INIT_AUDIO;
     /* TODO perhaps use SDL_InitSubSystem() instead. */
@@ -489,52 +496,32 @@ init_sdl(int oargc, char **oargv) {
     // postponed for WIN32 until later
 
     if (use_sound) {
-	
-	int audio_rate = 22050;
-	Uint16 audio_format = AUDIO_S16; 
-	int audio_channels = 2;
-	int audio_buffers = 512;
-	
-	
-	char buffer[1024];
-	char *which = SDL_AudioDriverName(buffer, 1000);
-	
-	if (which) {
-	    INFOMSG("LAngband: Audio-driver used: %s\n", which);
+	int retval = -1;
+	if (FALSE) { return -1;}
+#ifdef USE_OPENAL
+	else if (current_soundsystem() == SOUNDSYSTEM_OPENAL) {
+	    retval = al_init_mixer();
 	}
-	else {
-	    INFOMSG("No Audio-driver.\n");
+#endif
+#ifdef USE_SDL_MIXER
+	else if (current_soundsystem() == SOUNDSYSTEM_SDL_MIXER) {
+	    retval = sdl_init_mixer();
 	}
-	
-	
-	INFOMSG("If possible, try to use SDL compiled for OSS, and kill esd before starting.\n");
-	INFOMSG("If you have esd running your computer may lock up or sound may get a long delay.\n");
-
-	if (Mix_OpenAudio(audio_rate, audio_format, audio_channels, audio_buffers)) {
-	    ERRORMSG("Langband is unable to open audio!\n");
-	    if (which) {
-		INFOMSG("Langband/SDL tried to open sound-system of type '%s'\n", which);
-	    }
-	    if (!which || !strcmp(which, "dsp")) {
-		ERRORMSG("Possible reason can be that /dev/dsp is being blocked by another program.\n"\
-			 "Please see if you have any sound-daemons running (esd, arts, ..) that can be shut down.\n");
-	    }
-
+#endif
+	if (retval != 0) {
 	    // the game can go on, but no sound!
 	    use_sound = FALSE;
-	    
-	    //exit(1);
 	}
-	else {
-	    DBGPUT("We managed to init the sound-system, good!\n");
-	}
-	
     }
     
 //    DBGPUT("opened audio.\n");
     
     init_color_data_sdl();
 
+    if (initarguments & LANGBAND_FULLSCREEN) {
+	sdl_window_flags |= SDL_FULLSCREEN;
+    }
+    
     // problems on Win
     //	if (fullscreen) {
     // sdl_window_flags |= SDL_FULLSCREEN | SDL_HWSURFACE | SDL_DOUBLEBUF;
@@ -543,7 +530,21 @@ init_sdl(int oargc, char **oargv) {
     //DBGPUT("going\n");
     // Let us create the base window first of all!
 
-    theWindow = SDL_SetVideoMode(800, 600, 0, sdl_window_flags);
+    {
+	int width = 800, height = 600;
+
+	if (initarguments & LANGBAND_1024) {
+	    width = 1024;
+	    height = 768;
+	}
+	else if (initarguments & LANGBAND_1280) {
+	    width = 1280;
+	    height = 1024;
+	}
+	INFOMSG("Wid %d, hgt %d and flag %d\n", width, height, initarguments);
+	theWindow = SDL_SetVideoMode(width, height, 0, sdl_window_flags);
+    }
+
     if (theWindow == NULL) {
 	ERRORMSG("SDL could not initialize video mode.");
 	return -1;
@@ -617,7 +618,7 @@ init_sdl(int oargc, char **oargv) {
 int
 cleanup_SDL(void) {
 
-    //DBGPUT("cleaning up SDL\n");
+    DBGPUT("cleaning up SDL %d %d\n", use_sound, current_soundsystem());
     
     if (theWindow) {
 	SDL_FreeSurface(theWindow);
@@ -634,12 +635,23 @@ cleanup_SDL(void) {
 	screen_tiles = NULL;
     }
     if (use_sound) {
-	Mix_CloseAudio();
+	if (FALSE) { return -1;}
+#ifdef USE_OPENAL
+	else if (current_soundsystem() == SOUNDSYSTEM_OPENAL) {
+	    al_close_mixer();
+	}
+#endif
+#ifdef USE_SDL_MIXER
+	else if (current_soundsystem() == SOUNDSYSTEM_SDL_MIXER) {
+	    sdl_close_mixer();
+	}
+#endif
     }
 
-    SDL_Quit();
-
-    //DBGPUT("cleaned SDL\n");
+    // this one seems to create nasty problems :-(
+    //SDL_Quit();
+    SDL_QuitSubSystem(SDL_INIT_EVERYTHING); // hack
+    DBGPUT("cleaned SDL\n");
     
     return 0;
 }
@@ -839,21 +851,6 @@ exp_flush_coords(short win_num, short x, short y, short w, short h) {
     SDL_UpdateRect(wc->face, dr.x, dr.y, dr.w, dr.h);
     
     return 0;
-}
-
-int
-sdl_play_sound(int num) {
-    if (use_sound) {
-	int soundChannel;
-	Mix_Chunk *ptr = NULL;
-	//DBGPUT("Playing sound %d\n", num);
-	ptr = (Mix_Chunk *)sound_bites[num]->handle;
-	soundChannel = Mix_PlayChannel(-1, ptr, 0);
-	return 0;
-    }
-    else {
-	return -1;
-    }
 }
 
 #define ONLY_POLL 1

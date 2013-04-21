@@ -13,7 +13,7 @@
 (ffi:def-call-out init-c-side& (:name "init_c_side") (:language :stdc) (:arguments (ui
                                                                                     c-string)(source-path
                                                                                               c-string)(config-path
-                                                                                                        c-string)(gfx-path
+                                                                                                        c-string)(data-path
                                                                                                                   c-string)(flags
                                                                                                                             int)) (:return-type int))
 
@@ -31,14 +31,21 @@
 (ffi:def-call-out c-init-sound-system& (:name "init_sound_system") (:language :stdc) (:arguments (size
                                                                                                   int)) (:return-type int))
 
+(ffi:def-call-out c-get-sound-status (:name "get_sound_status") (:language :stdc) (:arguments ) (:return-type int))
+
 (ffi:def-call-out c-load-sound-effect& (:name "load_sound_effect") (:language :stdc) (:arguments (fname
                                                                                                   c-string)(idx
                                                                                                             int)) (:return-type int))
 
-(ffi:def-call-out c-get-sound-status (:name "get_sound_status") (:language :stdc) (:arguments ) (:return-type int))
-
 (ffi:def-call-out c-play-sound-effect (:name "play_sound_effect") (:language :stdc) (:arguments (idx
                                                                                                  int)) (:return-type int))
+
+(ffi:def-call-out c-load-music-file& (:name "load_music_file") (:language :stdc) (:arguments (fname
+                                                                                              c-string)(idx
+                                                                                                        int)) (:return-type int))
+
+(ffi:def-call-out c-play-music-file (:name "play_music_file") (:language :stdc) (:arguments (idx
+                                                                                             int)) (:return-type int))
 
 
 #+image-support
@@ -152,12 +159,12 @@
   (export
    '(c_current_ui c-listen-for-event init-c-side& cleanup-c-side&
      c-set-lisp-system! c-set-lisp-callback! c-init-sound-system&
-     c-load-sound-effect& c-get-sound-status c-play-sound-effect
-     load-gfx-image& c-load-texture& c-get-image-width c-get-image-height
-     c-init-frame-system& c-add-frame! c-add-frame-coords!
-     c-add-frame-tileinfo! c-add-frame-gfxinfo! c-add-frame-bg! c-has_frame
-     c-get-frame-columns c-get-frame-rows c-get-frame-tile-width
-     c-get-frame-tile-height c-get_frame-gfx-tiles c-full-blit
-     c-transparent-blit c-clear-coords! c-flush-coords!)))
+     c-get-sound-status c-load-sound-effect& c-play-sound-effect
+     c-load-music-file& c-play-music-file load-gfx-image& c-load-texture&
+     c-get-image-width c-get-image-height c-init-frame-system& c-add-frame!
+     c-add-frame-coords! c-add-frame-tileinfo! c-add-frame-gfxinfo!
+     c-add-frame-bg! c-has_frame c-get-frame-columns c-get-frame-rows
+     c-get-frame-tile-width c-get-frame-tile-height c-get_frame-gfx-tiles
+     c-full-blit c-transparent-blit c-clear-coords! c-flush-coords!)))
 
 ;;; End of generated file.

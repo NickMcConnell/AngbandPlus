@@ -3,7 +3,7 @@
 #|
 
 DESC: stores.lisp - code which deals with stores and their owners
-Copyright (c) 2000-2002 - Stig Erik Sandø
+Copyright (c) 2000-2003 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -112,7 +112,7 @@ should be an exisiting id."
 			   picture special-owner)
   "creates an owner and adds him or her to appropriate tables"
 
-;;  (warn "Looking for ~s in ~s" race (get-races-as-a-list))
+;;  (warn "Looking for ~s in ~s" race (get-races-as-a-list variant))
   (let* ((race-obj (if (and race (or (symbolp race)
 				     (stringp race)))
 		       (get-char-race race)

@@ -1,0 +1,133 @@
+#!/usr/bin/make -f
+# MAde with the aid of dh_make, by Craig Small
+# Sample debian/rules that uses debhelper. GNU copyright 1997 by Joey Hess.
+# Some lines taken from debmake, by Cristoph Lameter.
+
+# Uncomment this to turn on verbose mode.
+export DH_VERBOSE=1
+
+DATADESTDIR         := `pwd`/debian/tmp
+
+INSTALL         := install
+INSTALLFLAGS    := -g root -o root -m 0644
+INSTALLDIRFLAGS := -g root -o root -m 0755
+
+GFXDEST		:= $(DATADESTDIR)/usr/share/games/langband-data/graphics
+AUDIODEST	:= $(DATADESTDIR)/usr/share/games/langband-data/audio
+FONTDEST	:= $(DATADESTDIR)/usr/share/games/langband-data/fonts
+DATADOC		:= $(DATADESTDIR)/usr/share/doc/langband-data
+
+FONTS = \
+	fonts/vga8x16.hex \
+	fonts/lettergo.ttf \
+	fonts/augie.ttf
+
+
+build-arch: build-arch-stamp
+build-arch-stamp:
+	dh_testdir
+	# Add here command to compile/build the package.
+	#$(MAKE)
+	touch build-arch-stamp
+
+build-indep: build-indep-stamp
+build-indep-stamp:
+	dh_testdir
+	# Add here command to compile/build the arch indep package.
+	# It's ok not to do anything here, if you don't need to build
+	#  anything for this package.
+	#/usr/bin/docbook-to-man debian/#PACKAGE#.sgml > #PACKAGE#.1
+	touch build-indep-stamp
+
+build: build-indep
+
+
+clean:
+	dh_testdir
+	rm -f build-arch-stamp build-indep-stamp
+	# Add here commands to clean up after the build process.
+	#-$(MAKE) clean
+	dh_clean
+
+install: DH_OPTIONS=
+install: build
+	dh_testdir
+	dh_testroot
+	dh_clean -k
+	dh_installdirs
+
+	# Data package
+	$(INSTALL) $(INSTALLFLAGS) $(FONTS) $(FONTDEST)
+	$(INSTALL) $(INSTALLFLAGS) graphics/other/*.png $(GFXDEST)/other
+	$(INSTALL) $(INSTALLFLAGS) graphics/other/*.bmp $(GFXDEST)/other
+	$(INSTALL) $(INSTALLFLAGS) graphics/people/*.png $(GFXDEST)/people
+	$(INSTALL) $(INSTALLFLAGS) graphics/tiles/*.bmp $(GFXDEST)/tiles
+	$(INSTALL) $(INSTALLFLAGS) graphics/tiles/*.png $(GFXDEST)/tiles
+	$(INSTALL) $(INSTALLFLAGS) graphics/textures/*.png $(GFXDEST)/textures
+	$(INSTALL) $(INSTALLFLAGS) graphics/textures/*.bmp $(GFXDEST)/textures
+	$(INSTALL) $(INSTALLFLAGS) audio/effects/*.wav $(AUDIODEST)/effects
+	$(INSTALL) $(INSTALLFLAGS) debian/README.Debian $(DATADOC)
+
+	dh_movefiles
+
+
+# Build architecture-independent files here.
+# Pass -i to all debhelper commands in this target to reduce clutter.
+binary-indep: build install
+	dh_testdir -i
+	dh_testroot -i
+#	dh_installdebconf -i
+	dh_installdocs -i
+#	dh_installexamples -i
+#	dh_installmenu -i
+#	dh_installlogrotate -i
+#	dh_installemacsen -i
+#	dh_installpam -i
+#	dh_installmime -i
+#	dh_installinit -i
+	dh_installcron -i
+#	dh_installman -i
+	dh_installinfo -i
+#	dh_undocumented -i
+	dh_installchangelogs #CHANGELOGS# -i
+	dh_link -i
+	dh_compress -i
+	dh_fixperms -i
+	dh_installdeb -i
+#	dh_perl -i
+	dh_gencontrol -i
+	dh_md5sums -i
+	dh_builddeb -i
+
+# Build architecture-dependent files here.
+binary-arch: build install
+	dh_testdir -a
+	dh_testroot -a
+#	dh_installdebconf -a
+	dh_installdocs -a
+	dh_installexamples -a
+	dh_installmenu -a
+#	dh_installlogrotate -a
+#	dh_installemacsen -a
+#	dh_installpam -a
+#	dh_installmime -a
+#	dh_installinit -a
+	dh_installcron -a
+#	dh_installman -a
+	dh_installinfo -a
+#	dh_undocumented -a
+	dh_installchangelogs -a
+	dh_strip -a
+	dh_link -a
+	dh_compress -a
+	dh_fixperms -a
+#	dh_makeshlibs -a
+	dh_installdeb -a
+#	dh_perl -a
+	dh_shlibdeps -a
+	dh_gencontrol -a
+	dh_md5sums -a
+	dh_builddeb -a
+
+binary: binary-indep 
+.PHONY: build clean binary-indep binary-arch binary install

@@ -1,3 +1,28 @@
+2003-02-18  Stig E Sandø <stig@users.sourceforge.net>
+	* Mostly updated the engine to accomodate contraband needs, most
+	of which are not relevant to the vanilla game.  Most work has also
+	been on contraband.
+	* Split up and cleaned some of the birth-query code
+	* Started to use produce/init protocol for classes, races and
+	monsters
+	* Removed most skill-related code from the engine.
+	* Added 'R'est command
+	* Added rudimentary disturb code to stop resting and running
+	* Removed mana constants from engine
+	* Hopefully improved the DRAW-TO-MAP function to be a bit faster
+	* Tweaked game-loading
+	* Reorganised debian-packaging to put the data/ directory in a
+	langband-data/ package.  The new data/ directory has constant
+	binary data now.
+	* Added support for 1024x768 and 1280x1024 resolution.
+	* Experimental change to avoid callbacks to lisp-code.. all is run
+	from lisp now.
+	* Updated a lot of the print.lisp code and even fixed a bug or two
+	* Now support inline calculations in theme.lisp
+	* Added OpenAL support.. still some sound-problems though.
+	* Several minor bugfixes and internal code improvements.
+	
+	
 2003-01-18  Stig E Sandø <stig@users.sourceforge.net>
 	* Ripped out the zterm backend in C with all the Term_* functions
 	and wrappers and replaced it with window.lisp and some helpers in

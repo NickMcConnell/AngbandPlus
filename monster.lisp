@@ -3,7 +3,7 @@
 #||
 
 DESC: monster.lisp - monster-code
-Copyright (c) 2000-2002 - Stig Erik Sandø
+Copyright (c) 2000-2003 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -265,29 +265,120 @@ ADD_DESC: The code which deals with critters you can meet in the dungeon.
 
     m-obj))
 
+
+(defmethod initialise-monster-kind! ((var-obj variant) (m-obj monster-kind) keyword-args)
+  (let ((id (monster.id m-obj)))
+	 
+    ;; maybe move alignment to variant
+    (destructuring-bind (&key numeric-id desc x-char x-attr
+			      (text-char :unspec) (text-attr :unspec)
+			      xp speed hitpoints armour (type :unspec)
+			      alignment gender depth rarity
+			      abilities alertness (immunities :unspec)
+			      vulnerabilities vision attacks special-abilities
+			      (treasures :unspec) (appear-in-group? :unspec)
+			      &allow-other-keys)
+	keyword-args
+    
+      (if (integerp numeric-id)
+	  (setf (monster.numeric-id m-obj) numeric-id)
+	  (warn "Monster ~s does not have a numeric-id" id))
+
+      (if (stringp desc)
+	  (setf (monster.desc m-obj) desc)
+	  (warn "No description for monster ~a found" id))
+
+      (update-monster-display m-obj :x-attr x-attr :x-char x-char :text-attr text-attr :text-char text-char)
+
+      (when xp
+	(setf (monster.xp m-obj) xp))
+      (when speed
+	(setf (monster.speed m-obj) speed))
+      (when hitpoints
+	(setf (monster.hitpoints m-obj) hitpoints))
+      (when armour
+	(setf (monster.armour m-obj) armour))
+      (cond ((eq :unspec type))
+	    ((listp type)
+	     (setf (monster.type m-obj) type))
+	    (t
+	     (error "Unknown type-info for monster-kind ~a" id)))
+      (when alignment
+	(setf (monster.alignment m-obj) alignment))
+      (when gender
+	(setf (monster.gender m-obj) gender))
+
+      (cond ((and depth (typep depth '(integer 0 *)))
+	     (setf (monster.depth m-obj) depth))
+	    (t
+	     (lang-warn "Given illegal depth-value ~s for monster ~s" depth id)
+	     (setf (monster.depth m-obj) 1))) ;; hack
+
+      (if (and rarity (typep rarity '(integer 0 *))) 
+	  (setf (monster.rarity m-obj) rarity)
+	  (progn
+	    (lang-warn "Given illegal rarity-value ~s for monster ~s" rarity id)
+	    (setf (monster.rarity m-obj) 1))) ;; hack
+
+      (when abilities
+	(setf (monster.abilities m-obj) abilities))
+    
+      (when alertness
+	(setf (monster.alertness m-obj) alertness))
+
+      (cond ((eq immunities :unspec))
+	    ((listp immunities)
+	     (dolist (i immunities)
+	       (cond ((and (symbolp i) (not (eq nil i)))
+		      (if (is-legal-element? var-obj i)
+			  (bit-flag-add! (monster.immunities m-obj) (get-element-flag var-obj i))
+			  (error "Illegal immunity-arg ~s for monster ~a"
+				 i (monster.name m-obj))))
+		     (t
+		      (error "Unknown immunity argument ~s for monster ~a"
+			     i (monster.name m-obj))))))
+	    (t
+	     (error "Unknown immunity argument ~s for race ~a"
+		    immunities (monster.name m-obj))))
     
 
-(defun define-monster-kind (id name &key desc x-char x-attr
-			    gfx-sym
-			    (text-char :unspec) (text-attr :unspec)
-			    text-sym
-			    alignment (type :unspec)
-			    numeric-id depth ;;level
-			    rarity hitpoints armour
-			    speed xp abilities
-			    (immunities :unspec) alertness
-			    vulnerabilities
-			    vision attacks special-abilities
-			    (treasures :unspec)
-			    gender
-			    (appear-in-group? :unspec))
+      (when vulnerabilities
+	(setf (monster.vulnerabilities m-obj) vulnerabilities))
+    
+      (when vision
+	(setf (monster.vision m-obj) vision))
+
+      (cond ((consp attacks)
+	     (let ((attks (convert-obj attacks :attacks)))
+	       (setf (monster.attacks m-obj) attks)))
+	    ((eq attacks nil) nil)
+	    (t
+	     (lang-warn "Unknown form of attacks-argument ~s for monster ~s" attacks id)))
+
+      (cond ((eq treasures :unspec))
+	    ((consp treasures)
+	     (setf (monster.treasures m-obj) (%parse-treasure-spec treasures)))
+	    (t
+	     (error "Illegal format for monster-treasures ~s" treasures)))
+    
+      ;; tough demand
+      (when-bind (treasures (monster.treasures m-obj))
+	(assert (every #'(lambda (x) (typep x 'treasure-drop)) treasures)))
+    
+      (when special-abilities
+	(setf (monster.sp-abilities m-obj) special-abilities))
+
+      (cond ((eq appear-in-group? :unspec))
+	    ((functionp appear-in-group?)
+	     (setf (monster.in-group m-obj) appear-in-group?))
+	    (t
+	     (error "in-group for ~s is not a function but ~s" id appear-in-group?)))
+
+      m-obj)))
+    
+(defun define-monster-kind (id name &rest keyword-args &key type &allow-other-keys)
   "Defines a critter you might bump into when you least expect it. It uses
 the *VARIANT* object so it has to be properly initialised."
-  
-;;  (lang-warn "Creating monster ~a [~a]" name id)
-
-;;  (declare (ignore appear-in-group?))
-  (declare (ignore text-sym gfx-sym))
   
   (assert (or (stringp id) (symbolp id)))
   (assert (stringp name))
@@ -302,119 +393,9 @@ the *VARIANT* object so it has to be properly initialised."
   (let* ((var-obj *variant*)
 	 (m-obj (produce-monster-kind var-obj id name :the-kind type)))
 
-    (if (integerp numeric-id)
-	(setf (monster.numeric-id m-obj) numeric-id)
-	(warn "Monster ~s,~s does not have a numeric-id" id name))
-    
-    (if (stringp desc)
-	(setf (monster.desc m-obj) desc)
-	(warn "No description for monster ~a found" id))
 
-	  
-    (update-monster-display m-obj :x-attr x-attr :x-char x-char :text-attr text-attr :text-char text-char)
+    (initialise-monster-kind! var-obj m-obj keyword-args)
 
-    
-    (when xp
-      (setf (monster.xp m-obj) xp))
-    (when speed
-      (setf (monster.speed m-obj) speed))
-    (when hitpoints
-      (setf (monster.hitpoints m-obj) hitpoints))
-    (when armour
-      (setf (monster.armour m-obj) armour))
-    (cond ((eq :unspec type))
-	  ((listp type)
-	   (setf (monster.type m-obj) type))
-	  (t
-	   (error "Unknown type-info for monster-kind ~a" id)))
-    (when alignment
-      (setf (monster.alignment m-obj) alignment))
-    (when gender
-      (setf (monster.gender m-obj) gender))
-
-;;    (when (and level depth)
-;;      (error "Both level and depth-arguments to define-mkind, please use only :depth"))
-
-    ;; hack for bwards-compatibility
-;;    (when level
-;;      (setf depth level))
-    
-    (cond ((and depth (typep depth '(integer 0 *)))
-	   (setf (monster.depth m-obj) depth))
-	  (t
-	   (lang-warn "Given illegal depth-value ~s for monster ~s" depth name)
-	   (setf (monster.depth m-obj) 1))) ;; hack
-
-    (if (and rarity (typep rarity '(integer 0 *))) 
-	(setf (monster.rarity m-obj) rarity)
-	(progn
-	  (lang-warn "Given illegal rarity-value ~s for monster ~s" rarity name)
-	  (setf (monster.rarity m-obj) 1))) ;; hack
-
-    (when abilities
-      (setf (monster.abilities m-obj) abilities))
-    
-    (when alertness
-      (setf (monster.alertness m-obj) alertness))
-    
-    (cond ((eq immunities :unspec))
-          ((listp immunities)
-           (dolist (i immunities)
-             (cond ((and (symbolp i) (not (eq nil i)))
-		    (if (is-legal-element? var-obj i)
-			(bit-flag-add! (monster.immunities m-obj) (get-element-flag var-obj i))
-			(error "Illegal immunity-arg ~s for monster ~a"
-			       i (monster.name m-obj))))
-                   (t
-                    (error "Unknown immunity argument ~s for monster ~a"
-                           i (monster.name m-obj))))))
-          (t
-           (error "Unknown immunity argument ~s for race ~a"
-                           immunities (monster.name m-obj))))
-           
-
-;;    (when immunities
-;;      (setf (monster.immunities m-obj) immunities))
-    (when vulnerabilities
-      (setf (monster.vulnerabilities m-obj) vulnerabilities))
-    (when vision
-      (setf (monster.vision m-obj) vision))
-
-    (cond ((consp attacks)
-	   (let ((attks (convert-obj attacks :attacks)))
-	     #||     
-	     (dolist (i attks)
-	       ;;(when (not (consp (attack.damage i)))
-		;; (warn "A: ~s for ~s" i id))
-	       (when (not (typep (attack.dmg-type i) 'attack-type))
-		 (warn "A: ~s for ~s" i id))
-	       )
-	     ||# 
-	     (setf (monster.attacks m-obj) attks)))
-	  ((eq attacks nil) nil)
-	  (t
-	   (lang-warn "Unknown form of attacks-argument ~s for monster ~s" attacks name)))
-
-    (cond ((eq treasures :unspec))
-	  ((consp treasures)
-	   (setf (monster.treasures m-obj) (%parse-treasure-spec treasures)))
-	  (t
-	   (error "Illegal format for monster-treasures ~s" treasures)))
-
-    ;; tough demand
-    (when-bind (treasures (monster.treasures m-obj))
-      (assert (every #'(lambda (x) (typep x 'treasure-drop)) treasures)))
-    
-;;    (when treasures
-;;      (setf (monster.treasures m-obj) treasures))
-    (when special-abilities
-      (setf (monster.sp-abilities m-obj) special-abilities))
-
-    (cond ((eq appear-in-group? :unspec))
-	  ((functionp appear-in-group?)
-	   (setf (monster.in-group m-obj) appear-in-group?))
-	  (t
-	   (error "in-group for ~s is not a function but ~s" id appear-in-group?)))
     
     ;; hackish addition to big object-table
     (let ((main-obj-table (variant.monsters var-obj))

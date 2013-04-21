@@ -46,16 +46,21 @@ How to start it:
     
   - start your lisp and get a prompt for the two following commands:
   
-  - (load "game")
-    loads/compiles the core engine mostly
+  - (load "vanilla")
+    loads/compiles the core engine and the vanilla variant
 
-Either
   - (langband)
-    loads vanilla variant and runs it in curses-mode. [IN 0.1.3 STARTS SDL]
-Or
-  - (gfx-langband)
-    loads vanilla variant and runs it with SDL-support.
+    runs vanilla variant in SDL, 800x600 resolution and in windowed mode
 
+  The full signature of the function is:
+
+  (langband :ui "sdl" :size :800x600 :full-screen nil)
+
+  To do 1024x768 in full-screen try:
+
+  (langband :size :1024x768 :full-screen t)
+
+  Development is mainly done in 800x600 so other resolutions may not be optimal.
 
   - Use (quit) in CMUCL/SBCL/LW/CLISP or (exit) in ACL to quit afterwards.
 

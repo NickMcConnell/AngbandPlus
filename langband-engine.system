@@ -56,8 +56,8 @@ the Free Software Foundation; either version 2 of the License, or
               :source-pathname ""
               :components ((:file "pre-build")
 			   ;;#+langband-development
-			   (:file "binary-types/binary-types")
-			   (:file "package")
+			   (:file "binary-types" :depends-on ("pre-build"))
+			   (:file "package" :depends-on ("binary-types"))
 			   (:file "sys" :depends-on ("package"))
 			   ))
 
@@ -100,22 +100,27 @@ the Free Software Foundation; either version 2 of the License, or
 			   (:file "generate" :depends-on ("dungeon" "allocate" "classes" "generics"
 								    "object" "equipment"))
 			   (:file "print" :depends-on ("generics" "player"))
-			   (:file "util" :depends-on ("dungeon" "classes" "global" "generics" "generate" "building"))
-			   (:file "combat" :depends-on ("generics" "base" "sound" "global" "classes" "dungeon" "player"))
-			   (:file "view" :depends-on ("dungeon" "generics" "constants"))
+			   (:file "combat" :depends-on ("generics" "base" "sound" "global"
+								   "classes" "dungeon" "player"))
 			   (:file "project" :depends-on ("base" "generics" "player" "object" "dungeon" "combat"))
+			   (:file "util" :depends-on ("dungeon" "classes" "global" "generics"
+								"generate" "building" "project"))
+
+			   (:file "view" :depends-on ("dungeon" "generics" "constants"))
+			   
 			   (:file "actions" :depends-on ("generics" "util" "global" "generate" "combat" "project"))
 			   (:file "save" :depends-on ("player" "dungeon" "classes" "global" "generics"))
-			   (:file "load" :depends-on ("save"))
+			   (:file "load" :depends-on ("save" "generate"))
 			   (:file "death" :depends-on ("global" "player" "character"))
 			   (:file "ai" :depends-on ("generics" "monster" "project"))
-			   (:file "loop" :depends-on ("classes" "player" "death" "ai" "print" "view" "window" "adts" "load" "util"))
+			   (:file "loop" :depends-on ("classes" "player" "death" "ai" "print"
+								"view" "window" "adts" "load" "util"))
 			   (:file "birth" :depends-on ("generics" "constants" "classes" "player" "loop"))
 			   (:file "dump" :depends-on ("monster" "classes" "object" "character"
 								"global" "building" "equipment"))
 			   (:file "init" :depends-on ("classes" "monster" "object" "loop" "adts" "util"))
 			   (:file "verify" :depends-on ("player" "global" "base" "dungeon" "monster" "character"))
-			   (:file "conversation")
+			   (:file "conversation" :depends-on ("player" "dungeon" "global" "monster"))
 			   
 			   )
 	      :depends-on (foreign))

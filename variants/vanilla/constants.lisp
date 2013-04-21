@@ -16,6 +16,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 ;;; === flags that control print/redraw
 
+(defconstant +print-mana+   #x00000080) ;; move to variant later!!
 (defconstant +print-cut+    #x00001000)
 (defconstant +print-stun+   #x00002000)
 (defconstant +print-hunger+ #x00004000)
@@ -27,5 +28,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 (defconstant +print-study+    #x00400000)
 
+(defconstant +pl-upd-mana+           #x00000020)
+(defconstant +pl-upd-spells+         #x00000040)
 
 (defconstant +default-detect-radius+ 25 "what is the radius of a detection-spell")

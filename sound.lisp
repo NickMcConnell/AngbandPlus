@@ -45,10 +45,12 @@ the Free Software Foundation; either version 2 of the License, or
 (defconstant +sound-intro+ 30)
 
 (defvar *sound-table* (make-hash-table :test #'equal))
+(defvar *music-table* nil)
 
 (defun init-sound-system& (size)
   ;; put init here later
   (c-init-sound-system& size)
+  (setf *music-table* (make-array size :fill-pointer 0))
   t)
 
 (defun play-sound (type)
@@ -63,11 +65,33 @@ the Free Software Foundation; either version 2 of the License, or
 	))))
 
 
+(defun load-music (fname)
+  "Tries to load the fname."
+  (when (using-sound?)
+    (let ((path (concatenate 'string *engine-data-dir* "audio/music/" fname)))
+      (when (probe-file path)
+	(let ((idx (vector-push path *music-table*)))
+	  (lb-ffi:c-load-music-file& path idx)
+	  idx)))))
+
+
+(defun play-music (music)
+  "Tries to play given music."
+
+  (let ((idx (etypecase music
+	       (integer music)
+	       (string (find music *music-table* :test #'equal)))))
+
+    (when (and (integerp idx) (>= idx 0) (< idx (length *music-table*)))
+      (warn "Play ~s" idx)
+      (lb-ffi:c-play-music-file idx))))
+ 
+
 (defun define-sound-effect (key &rest sounds)
   "Defines a sound.  Returns nil when sound is not loaded."
 
   (when (using-sound?)
-    (let ((base-path (concatenate 'string *engine-audio-dir* "effects/"))
+    (let ((base-path (concatenate 'string *engine-data-dir* "audio/effects/"))
 	  (current-sounds (gethash key *sound-table*)))
       
   
@@ -83,7 +107,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 (defun using-sound? ()
   "Returns either T or NIL."
-  ;; cache value to avoid ffi-call
+  ;; fix: cache value to avoid ffi-call
   (if (= 0 (c-get-sound-status))
       nil
       t))

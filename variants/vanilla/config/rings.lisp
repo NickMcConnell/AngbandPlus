@@ -34,7 +34,9 @@ the Free Software Foundation; either version 2 of the License, or
 			     (boost-stats! item (- 0 bonus)))
 			    (t
 			     (boost-stats! item bonus)))))
-  :game-values (make-game-values :stat-modifiers '(<str>))) 
+  :game-values (make-game-values :stat-modifiers '((<str> +1))))
+				 
+				 
 
 (define-object-kind "ring-dex" "dexterity"
   :numeric-id 133
@@ -56,7 +58,7 @@ the Free Software Foundation; either version 2 of the License, or
 			     (boost-stats! item (- 0 bonus)))
 			    (t
 			     (boost-stats! item bonus)))))
-  :game-values (make-game-values :stat-modifiers '(<dex>))) 
+  :game-values (make-game-values :stat-modifiers '((<dex> +1))))
 
 (define-object-kind "ring-con" "constitution"
   :numeric-id 134
@@ -78,7 +80,7 @@ the Free Software Foundation; either version 2 of the License, or
 			     (boost-stats! item (- 0 bonus)))
 			    (t
 			     (boost-stats! item bonus)))))
-  :game-values (make-game-values :stat-modifiers '(<con>))) 
+  :game-values (make-game-values :stat-modifiers '((<con> +1))))
 
 (define-object-kind "ring-int" "intelligence"
   :numeric-id 135
@@ -100,7 +102,7 @@ the Free Software Foundation; either version 2 of the License, or
 			     (boost-stats! item (- 0 bonus)))
 			    (t
 			     (boost-stats! item bonus)))))
-  :game-values (make-game-values :stat-modifiers '(<int>))) 
+  :game-values (make-game-values :stat-modifiers '((<int> +1)))) 
 
 (define-object-kind "ring-speed" "speed"
   :numeric-id 136
@@ -264,7 +266,7 @@ the Free Software Foundation; either version 2 of the License, or
 		    (bit-flag-add! (aobj.identify item) (logior +ident-cursed+ +ident-broken+))
 		    (boost-stats! item (- -1 (magic-bonus-for-level 5 depth))))
 
-  :game-values (make-game-values :stat-modifiers '(<str>))) 
+  :game-values (make-game-values :stat-modifiers '((<str> -1))))
 
 (define-object-kind "ring-flames" "flames"
   :numeric-id 146
@@ -340,7 +342,7 @@ the Free Software Foundation; either version 2 of the License, or
 		      (setf (gval.ac-modifier gvals) (- -5 (magic-bonus-for-level 10 depth)))
 		      ))
 
-  :game-values (make-game-values :stat-modifiers '(<chr> <wis>)
+  :game-values (make-game-values :stat-modifiers '((<chr> -1) (<wis> -1))
 				 :abilities '(<random-teleport>))) 
 
 (define-object-kind "ring-stupid" "stupidity"
@@ -360,7 +362,7 @@ the Free Software Foundation; either version 2 of the License, or
 		    (bit-flag-add! (aobj.identify item) (logior +ident-cursed+ +ident-broken+))
 		    (boost-stats! item (- -1 (magic-bonus-for-level 5 depth))))
 
-  :game-values (make-game-values :stat-modifiers '(<int>))) 
+  :game-values (make-game-values :stat-modifiers '((<int> -1)))) 
 
 (define-object-kind "ring-dmg" "damage"
   :numeric-id 151

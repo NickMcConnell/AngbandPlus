@@ -83,13 +83,14 @@ order to get from monster to player."
     (declare (type u16b mx my))
 
     ;;; first check sleep
-    (when (plusp (get-attribute-value '<sleeping> temp-attrs))
-      ;; we do a hack here
-      (cond ((<= 50 (random 100))
-	     (modify-creature-state! mon '<sleeping> :new-value 0)) ;; awakened
-	     
-	    (t ;; still sleeping
-	     (return-from process-single-monster! t))))
+    (when-bind (attr (gethash '<sleeping> temp-attrs))
+      (when (plusp (attr.value attr))
+	;; we do a hack here
+	(cond ((<= 50 (random 100))
+	       (modify-creature-state! mon '<sleeping> :new-value 0)) ;; awakened
+	      
+	      (t ;; still sleeping
+	       (return-from process-single-monster! t)))))
 
     ;;; check stun
 
@@ -104,13 +105,15 @@ order to get from monster to player."
     ;;; check confuse
 
     ;; confused monsters stagger about
-    (cond ((plusp (get-attribute-value '<confusion> temp-attrs))
-	   (setf staggering t))
-	  ;; some monsters even move randomly
-	  ((when-bind (random-mover (has-ability? mon '<random-mover>))
-	     (let ((how-often (second random-mover)))
-	       (when (< (random 100) (* 100 how-often))
-		 (setf staggering t))))))
+    (let ((confusion-attr (gethash '<confusion> temp-attrs)))
+      (cond ((and confusion-attr
+		  (plusp (attr.value confusion-attr)))
+	     (setf staggering t))
+	    ;; some monsters even move randomly
+	    ((when-bind (random-mover (has-ability? mon '<random-mover>))
+	       (let ((how-often (second random-mover)))
+		 (when (< (random 100) (* 100 how-often))
+		   (setf staggering t)))))))
 
     (unless staggering
       (setf moves (%get-moves mon player)))

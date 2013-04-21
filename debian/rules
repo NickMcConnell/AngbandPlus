@@ -9,7 +9,6 @@ export DH_VERBOSE=1
 DESTDIR         := `pwd`/debian/tmp
 VANILLADESTDIR	:= `pwd`/debian/langband-vanilla
 ZTERMDESTDIR	:= `pwd`/debian/langband-zterm
-DATADESTDIR	:= `pwd`/debian/langband-data
 
 INSTALL         := install
 INSTALLFLAGS    := -g root -o root -m 0644
@@ -28,11 +27,6 @@ WEBDEST		:= $(ENGINEDOC)/web
 VANILLADOC	:= $(VANILLADESTDIR)/usr/share/doc/langband-vanilla
 ZTERMDOC	:= $(ZTERMDESTDIR)/usr/share/doc/langband-zterm
 
-GFXDEST		:= $(DATADESTDIR)/usr/share/games/langband-engine/graphics
-AUDIODEST	:= $(DATADESTDIR)/usr/share/games/langband-engine/audio
-FONTDEST	:= $(DATADESTDIR)/var/games/langband-engine/fonts
-DATADOC		:= $(DATADESTDIR)/usr/share/doc/langband-data
-
 CLIB_PATH	:= $(ZTERMDESTDIR)/usr/lib
 LIBS		:= zterm/liblangband_ui.so zterm/liblangband_dc.so
 
@@ -40,7 +34,7 @@ ENGINEMAN	:= $(DESTDIR)/usr/share/man/man3
 VANILLAMAN	:= $(VANILLADESTDIR)/usr/share/man/man3
 
 INSTALLSOURCES	:= \
-	pre-build.lisp \
+	pre-build.lisp binary-types.lisp \
 	langband-engine.asd  langband-engine.system \
 	package.lisp  base.lisp  constants.lisp \
 	generics.lisp  sys.lisp classes.lisp \
@@ -59,13 +53,10 @@ INSTALLSOURCES	:= \
 	adts.lisp
 
 COMPATSRC = \
-	lib/compat/monster.lisp \
-	lib/compat/obj-kind.lisp \
-	lib/compat/floor.lisp \
-	lib/compat/savefiles.lisp
-
-BINTYPESSRC = \
-	binary-types/binary-types.lisp
+	modules/compat/monster.lisp \
+	modules/compat/obj-kind.lisp \
+	modules/compat/floor.lisp \
+	modules/compat/savefiles.lisp
 
 FOREIGNSRC = \
 	ffi/ffi-acl.lisp \
@@ -79,21 +70,10 @@ FOREIGNSRC = \
 
 
 CONFSRC = \
-	config/dead.txt \
-	config/news.txt \
+	config/text-splash.txt \
 	config/prefs.lisp \
-	config/sound.lisp \
-	config/theme.lisp \
-	config/settings.cfg \
-	config/sdl-keys.lisp \
-	config/x11-keys.lisp \
-	config/gcu-keys.lisp \
-	config/win-keys.lisp
+	config/theme.lisp 
 
-FONTS = \
-	config/fonts/vga8x16.hex \
-	config/fonts/lettergo.ttf \
-	config/fonts/augie.ttf
 
 VANSRC = \
 	variants/vanilla/langband-vanilla.asd \
@@ -109,12 +89,11 @@ VANSRC = \
 	variants/vanilla/print.lisp \
 	variants/vanilla/quirks.lisp \
 	variants/vanilla/rooms.lisp \
+	variants/vanilla/skills.lisp \
 	variants/vanilla/spells.lisp \
 	variants/vanilla/various.lisp \
 	variants/vanilla/verify.lisp \
 	variants/vanilla/wizard.lisp 
-
-#	variants/vanilla/langband-vanilla.system \
 
 
 VANCONFSRC = \
@@ -137,6 +116,7 @@ VANCONFSRC = \
 	variants/vanilla/config/races.lisp \
 	variants/vanilla/config/rings.lisp \
 	variants/vanilla/config/scrolls.lisp \
+	variants/vanilla/config/sound.lisp \
 	variants/vanilla/config/spells.lisp \
 	variants/vanilla/config/stats.lisp \
 	variants/vanilla/config/sticks.lisp \
@@ -152,7 +132,7 @@ build-arch: build-arch-stamp
 build-arch-stamp:
 	dh_testdir
 	# Add here command to compile/build the package.
-	$(MAKE)
+	$(MAKE) deb-all
 	touch build-arch-stamp
 
 build-indep: build-indep-stamp
@@ -184,34 +164,20 @@ install: build
 	# Add here commands to install the package into debian/<pkgs>
 	$(INSTALL) $(INSTALLFLAGS) $(INSTALLSOURCES) $(ENGINEDEST)
 	$(INSTALL) $(INSTALLFLAGS) $(FOREIGNSRC) $(ENGINEDEST)/ffi
-	$(INSTALL) $(INSTALLFLAGS) $(BINTYPESSRC) $(ENGINEDEST)/binary-types
-	$(INSTALL) $(INSTALLFLAGS) $(COMPATSRC) $(ENGINEDEST)/lib/compat
-	$(INSTALL) $(INSTALLFLAGS) lib/help/*.txt $(ENGINEDEST)/lib/help
-	$(INSTALL) $(INSTALLFLAGS) lib/help/THANKS $(ENGINEDEST)/lib/help
+	$(INSTALL) $(INSTALLFLAGS) docs/help/*.txt $(ENGINEDEST)/docs/help
+	$(INSTALL) $(INSTALLFLAGS) docs/help/THANKS $(ENGINEDEST)/docs/help
 	$(INSTALL) $(INSTALLFLAGS) $(CONFSRC) $(ENGINECONFDEST)
 
-	$(INSTALL) $(INSTALLFLAGS) man/langband-engine.3l $(ENGINEMAN)
+	$(INSTALL) $(INSTALLFLAGS) docs/man/langband-engine.3l $(ENGINEMAN)
 	$(INSTALL) $(INSTALLFLAGS) ChangeLog $(ENGINEDOC)/changelog
-	$(INSTALL) $(INSTALLFLAGS) web/*.html $(WEBDEST)
-
-	# Data package
-	$(INSTALL) $(INSTALLFLAGS) $(FONTS) $(FONTDEST)
-	$(INSTALL) $(INSTALLFLAGS) graphics/other/*.png $(GFXDEST)/other
-	$(INSTALL) $(INSTALLFLAGS) graphics/other/*.bmp $(GFXDEST)/other
-	$(INSTALL) $(INSTALLFLAGS) graphics/people/*.png $(GFXDEST)/people
-	$(INSTALL) $(INSTALLFLAGS) graphics/tiles/*.bmp $(GFXDEST)/tiles
-	$(INSTALL) $(INSTALLFLAGS) graphics/tiles/*.png $(GFXDEST)/tiles
-	$(INSTALL) $(INSTALLFLAGS) graphics/textures/*.png $(GFXDEST)/textures
-	$(INSTALL) $(INSTALLFLAGS) graphics/textures/*.bmp $(GFXDEST)/textures
-	$(INSTALL) $(INSTALLFLAGS) audio/effects/*.wav $(AUDIODEST)/effects
-	$(INSTALL) $(INSTALLFLAGS) debian/README.Debian $(DATADOC)
+	$(INSTALL) $(INSTALLFLAGS) docs/web/*.html $(WEBDEST)
 
 	# Vanilla stuff
 	$(INSTALL) $(INSTALLFLAGS) $(VANSRC) $(VANILLADEST)
 	$(INSTALL) $(INSTALLFLAGS) $(VANCONFSRC) $(VANCONFDEST)
 	$(INSTALL) $(INSTALLFLAGS) debian/README.Debian $(VANILLADOC)
 	$(INSTALL) $(INSTALLFLAGS) variants/vanilla/ChangeLog $(VANILLADOC)/changelog
-	$(INSTALL) $(INSTALLFLAGS) man/langband-vanilla.3l $(VANILLAMAN)
+	$(INSTALL) $(INSTALLFLAGS) docs/man/langband-vanilla.3l $(VANILLAMAN)
 
 	# Zterm stuff
 	$(INSTALL) $(INSTALLFLAGS) $(LIBS) $(CLIB_PATH)

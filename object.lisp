@@ -683,3 +683,6 @@ of objects.  all entries are copied, not shared."
   (declare (ignore obj))
   nil)
 
+(defmethod distribute-flavours! ((var-obj variant))
+  ;; do nothing
+  nil)

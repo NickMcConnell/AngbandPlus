@@ -24,7 +24,8 @@ ADD_DESC: parts of the code.  Small classes, functions, et.al
   `(let ((*cur-win* (aref *windows* ,num)))
     ,@body))
 
-(defmacro with-full-frame (() &body body)
+(defmacro with-full-frame (dummy &body body)
+  (declare (ignore dummy))
   `(unwind-protect
     (progn 
       (switch-to-full-frame&)
@@ -33,7 +34,8 @@ ADD_DESC: parts of the code.  Small classes, functions, et.al
     (switch-to-regular-frameset&)))
 
 ;; very bulky
-(defmacro with-dialogue (() &body body)
+(defmacro with-dialogue (dummy &body body)
+  (declare (ignore dummy))
   ;; posibly find better solution later
   `(invoke-in-dialogue #'(lambda () ,@body)))
 
@@ -287,38 +289,37 @@ same arguments."
 (defun is-variant? (obj)
   (and obj (typep obj 'variant)))
 
-;; a small closure
-(let ((registered-variants (make-hash-table :test #'equal)))
+(defvar *registered-variants* (make-hash-table :test #'equal))
   
-  (defun register-variant& (id var-constructor &key desc)
-    "Registers a variant-object."
+(defun register-variant& (id var-constructor &key desc)
+  "Registers a variant-object."
+  
+  (check-type var-constructor function)
+  (setf (gethash id *registered-variants*) (list desc var-constructor)))
+
+(defun get-variant-info (id)
+  "Returns variant-info that's tregistered for the given id."
+  (gethash id *registered-variants*))
+
+(defun get-registered-variants ()
+  "Returns a list of ids to registered variants."
+  (loop for x being the hash-keys of *registered-variants*
+	collecting x))
+  
+(defun load-variant& (id &key (verbose t))
+  "Tries to load a variant."
+  (declare (ignore verbose))
+  (let ((var-data (gethash id *registered-variants*))
+	(var-obj nil))
+    (cond ((and (consp var-data)
+		(functionp (second var-data)))
+	   (format-note! "[Loading '~a' variant, please wait]" id)
+	   (setf var-obj (funcall (second var-data))))
+	  (t
+	   (error "Unable to find variant ~s" id)))
     
-    (check-type var-constructor function)
-    (setf (gethash id registered-variants) (list desc var-constructor)))
-
-  (defun get-variant-info (id)
-    "Returns variant-info that's tregistered for the given id."
-    (gethash id registered-variants))
-
-  (defun get-registered-variants ()
-    "Returns a list of ids to registered variants."
-    (loop for x being the hash-keys of registered-variants
-	  collecting x))
-  
-  (defun load-variant& (id &key (verbose t))
-    "Tries to load a variant."
-    (declare (ignore verbose))
-    (let ((var-data (gethash id registered-variants))
-	  (var-obj nil))
-      (cond ((and (consp var-data)
-		  (functionp (second var-data)))
-	     (format-note! "[Loading '~a' variant, please wait]" id)
-	     (setf var-obj (funcall (second var-data))))
-	    (t
-	     (error "Unable to find variant ~s" id)))
-      
-      (when (and var-obj (typep var-obj 'variant))
-	var-obj))))
+    (when (and var-obj (typep var-obj 'variant))
+      var-obj)))
 
 
 ;; uses id.. 
@@ -332,7 +333,7 @@ same arguments."
   "Returns a full pathname for data."
   (let ((file-path (variant.config-path var-obj)))
     (if file-path
-	(concatenate 'string (lbsys/ensure-dir-name file-path) data-fname)
+	(concatenate 'string (lbsys/ensure-dir-name file-path) data-fname #+clisp ".lisp")
 	data-fname)))
 
 (defmethod variant-save-dir ((var-obj variant))
@@ -345,6 +346,8 @@ same arguments."
   "Loads variant-data from appropriate directory."
 
   (let ((fname (variant-data-fname var-obj data-file)))
+    ;;(warn "trying to load ~s ~s" fname (probe-file fname))
+    
     (load fname)))
 
 (defmacro attack-effect (arguments &body body)
@@ -507,7 +510,8 @@ returns default value."
     ;; improve this?
     (cond ((eq stat-modifiers :unspec))
 	  ((listp stat-modifiers)
-	   (setf (gval.stat-modifiers gval) stat-modifiers))
+	   (setf (gval.stat-modifiers gval) (build-stat-table-from-symlist var-obj stat-modifiers)))
+	  ;;(setf (gval.stat-modifiers gval) stat-modifiers))
 	  (t
 	   (error "Value of stat-modifiers is odd: ~s" stat-modifiers)))
     
@@ -564,70 +568,6 @@ returns default value."
     gval))
      
 
-(defmethod produce-skills-object ((variant variant) &key (default-value 0))
-  "Returns a skills object."
-  (let ((obj (make-instance 'skills)))
-    (unless (and (numberp default-value) (= 0 default-value))
-      (let ((skill-list (variant.skill-translations variant)))
-	(dolist (i skill-list)
-	  (setf (slot-value obj (cdr i)) default-value))))
-    obj))
-
-(defmethod register-skill-translation& ((variant variant) translation)
-  "Registers a translation (single cons) or a list
-of translations."
-  (flet ((add-single-translation (translation)
-	   (pushnew translation (variant.skill-translations variant)
-		    :test #'eql)))
-    
-    (when (consp translation) 
-      (cond ((and (atom (car translation))
-		  (atom (cdr translation)))
-	     (warn "pushing a single one..")
-	     (add-single-translation translation))
-	  
-	    (t
-	     ;; we have a list
-	     (dolist (i translation)
-	       (assert (and (atom (car i))
-			    (atom (cdr i))))
-	       (add-single-translation i)))))
-    
-    translation))
-  
-
-(defmethod get-skill-translation ((variant variant) key)
-  "Returns a symbol in the appropriate skills-class or nil."
-  (let ((search (assoc key (variant.skill-translations variant))))
-    (when search
-      (cdr search))))
-
-
-(defmethod build-skills-obj-from-list ((variant variant) skills)
-  "Tries to build a skills-obj and include all possible
-information from the list skills whose content depends on variant."
-  
-  (let ((skill-obj (produce-skills-object variant :default-value nil)))
-
-    (unless (consp skills)
-      (return-from build-skills-obj-from-list skill-obj))
-    
-    (dolist (i skills)
-      (if (not (consp i))
-	  (warn "Skill argument ~s must be a list: (skill base-val lvl-val)"
-		i)
-	  (let* ((skill-sym (first i))
-		 (the-name (get-skill-translation variant skill-sym)))
-	    (if (eq the-name nil)
-		(warn "Unable to find skill-translation from ~s" skill-sym)
-		(setf (slot-value skill-obj the-name)
-		      (make-skill :name (string-downcase (string the-name))
-				  :base (let ((base-arg (second i)))
-					  (if base-arg base-arg 0))
-				  :lvl-gain (let ((lvl-arg (third i)))
-					      (if lvl-arg lvl-arg 0))))
-		))))
-    skill-obj))
 
 (defun get-armour-desc (variant number)
   "Returns a description of the armour-number."
@@ -658,15 +598,6 @@ information from the list skills whose content depends on variant."
 	(t
 	 (cons "Mythical power-armour" +term-l-green+))
 	))
-
-(defun get-known-combat-skill (variant player)
-  (declare (ignore variant))
-
-  (let* ((skills (player.skills player))
-	 (combat-skill (skills.fighting skills)))
-    ;; fix
-    combat-skill))
-
 
 (defmethod convert-obj ((htbl hash-table) (to (eql :vector))
 			&key sort-table-p sorted-by-key
@@ -718,7 +649,7 @@ information from the list skills whose content depends on variant."
 
     (otherwise
      (error "Fell through (CONVERT-OBJ ~s -> :colour-code)" letter)
-     #-cmu
+     #-(or cmu sbcl)
      +term-white+)))
 
 (defmethod convert-obj (code (to (eql :letter)) &key)
@@ -778,10 +709,11 @@ information from the list skills whose content depends on variant."
     (character (char-code code))))
 
 
-
+#||
 ;; move later
 (defun get-system-type ()
-  (let ((num (c_current_ui)))
+  ;; very hackish!
+  (let ((c_current_ui)))
     (ecase num
       (0 'x11)
       (1 'gcu)
@@ -789,6 +721,8 @@ information from the list skills whose content depends on variant."
       (3 'win)
       (4 'sdl)
       )))
+||#
+(defun get-system-type () 'sdl)
 
 
 #-compiler-that-inlines
@@ -1044,10 +978,20 @@ in window WINDOW."
 
     (let ((trans (if (plusp transcolour)
 		     (1+ transcolour)
-		     0)))
-      (load-op (concatenate 'string *engine-graphics-dir* fname)
-	       idx
-	       trans))
+		     0))
+	  (path (cond ((stringp fname) ;; assume engine
+		       (concatenate 'string *engine-data-dir* "graphics/" fname))
+		      ((and (consp fname) (eq (car fname) 'engine-gfx))
+		       (concatenate 'string *engine-data-dir* "graphics/" (second fname)))
+		      ((and (consp fname) (eq (car fname) 'variant-gfx))
+		       (concatenate 'string (variant.gfx-path variant) (second fname)))
+		      (t
+		       (error "Don't know how to handle fname ~s" fname)))))
+      ;;(warn "Loading ~s as ~s" fname path)
+      (unless (probe-file path) ;; check!
+	(return-from load-image& nil))
+      
+      (load-op path idx trans))
     
     (when variant
       (register-image& variant fname idx))
@@ -1066,7 +1010,7 @@ in window WINDOW."
 	(cur-col col)
 	(cur-row row)
 ;;	(end-col 80)
-	(splitted (mapcar #'(lambda (x) (string-trim '(#\Space #\Tab #\Newline) x))
+	(splitted (mapcar #'(lambda (x) (string-trim '(#\Space #\Tab #\Newline #\Return #\Linefeed) x))
 			  (split-seq-on text #\Space))))
 
 ;;    (warn "text ~s -> ~s" text splitted)
@@ -1511,7 +1455,7 @@ or removed.  Conses up a new list."
   nil)
 
 (defun image-exists? (name)
-  (let ((fname (concatenate 'string *engine-graphics-dir* name)))
+  (let ((fname (concatenate 'string *engine-data-dir* "graphics/" name)))
     (probe-file fname)))
 
 (defun put-coloured-line! (colour text col row)
@@ -1528,6 +1472,10 @@ or removed.  Conses up a new list."
 (defun output-string! (win col row colour text)
   ;;(warn "Writing text ~s to %d,%d in ~s" text col row (window.id win))
   ;; this is _slow_
+
+  (when (and (integerp win) (>= win 0))
+    (setf win (aref *windows* win)))
+  
   (assert (integerp colour))
   (let ((flag +winflag-delay-paint+))
     (loop for x across text
@@ -1555,14 +1503,13 @@ or removed.  Conses up a new list."
       (setf idx (find-image var fname))
       (when (or (eq idx nil) (minusp idx))
 	(setf idx (load-image& var fname -1 0))
-	(when (minusp idx)
+	(when (and (integerp idx) (minusp idx))
 	  (setf idx nil))))
 
     ;;(warn "Assigning background ~s ~s to window ~s" fname idx (window.id window))
     (setf (window.background window) idx)
     ;; c-side needs negative value for bad values
     (lb-ffi::c-add-frame-bg! num-win (if (eq idx nil) -1 idx))))
-
 
 (defun switch-to-full-frame& ()
   (loop for i from 1 below +max-frames+

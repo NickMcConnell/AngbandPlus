@@ -24,7 +24,7 @@
            (ui cptr)
            (source-path cptr)
            (config-path cptr)
-           (gfx-path cptr)
+           (data-path cptr)
            (flags c-call:int :in))
 
 
@@ -56,6 +56,11 @@
            (size c-call:int :in))
 
 
+(declaim (inline c-get-sound-status))
+(alien:def-alien-routine ("get_sound_status" c-get-sound-status)
+           c-call:int)
+
+
 (declaim (inline c-load-sound-effect&))
 (alien:def-alien-routine ("load_sound_effect" c-load-sound-effect&)
            c-call:int
@@ -63,13 +68,21 @@
            (idx c-call:int :in))
 
 
-(declaim (inline c-get-sound-status))
-(alien:def-alien-routine ("get_sound_status" c-get-sound-status)
-           c-call:int)
-
-
 (declaim (inline c-play-sound-effect))
 (alien:def-alien-routine ("play_sound_effect" c-play-sound-effect)
+           c-call:int
+           (idx c-call:int :in))
+
+
+(declaim (inline c-load-music-file&))
+(alien:def-alien-routine ("load_music_file" c-load-music-file&)
+           c-call:int
+           (fname cptr)
+           (idx c-call:int :in))
+
+
+(declaim (inline c-play-music-file))
+(alien:def-alien-routine ("play_music_file" c-play-music-file)
            c-call:int
            (idx c-call:int :in))
 
@@ -253,12 +266,12 @@
   (export
    '(c_current_ui c-listen-for-event init-c-side& cleanup-c-side&
      c-set-lisp-system! c-set-lisp-callback! c-init-sound-system&
-     c-load-sound-effect& c-get-sound-status c-play-sound-effect
-     load-gfx-image& c-load-texture& c-get-image-width c-get-image-height
-     c-init-frame-system& c-add-frame! c-add-frame-coords!
-     c-add-frame-tileinfo! c-add-frame-gfxinfo! c-add-frame-bg! c-has_frame
-     c-get-frame-columns c-get-frame-rows c-get-frame-tile-width
-     c-get-frame-tile-height c-get_frame-gfx-tiles c-full-blit
-     c-transparent-blit c-clear-coords! c-flush-coords!)))
+     c-get-sound-status c-load-sound-effect& c-play-sound-effect
+     c-load-music-file& c-play-music-file load-gfx-image& c-load-texture&
+     c-get-image-width c-get-image-height c-init-frame-system& c-add-frame!
+     c-add-frame-coords! c-add-frame-tileinfo! c-add-frame-gfxinfo!
+     c-add-frame-bg! c-has_frame c-get-frame-columns c-get-frame-rows
+     c-get-frame-tile-width c-get-frame-tile-height c-get_frame-gfx-tiles
+     c-full-blit c-transparent-blit c-clear-coords! c-flush-coords!)))
 
 ;;; End of generated file.

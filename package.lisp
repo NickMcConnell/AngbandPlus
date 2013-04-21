@@ -15,7 +15,8 @@ DESC: package.lisp - package def for langband
 
 
 (defpackage :org.langband.engine
-  (:nicknames :lb :langband-engine :lb-engine :engine :langband :org.langband.vanilla) ;; fix later
+  (:nicknames :lb :langband-engine :lb-engine :engine :langband
+	      :org.langband.vanilla :org.langband.contraband) ;; fix later
   (:use :common-lisp
 	#-building-ffi-defs :binary-types
 	:org.langband.ffi)
@@ -58,6 +59,7 @@ DESC: package.lisp - package def for langband
 
 (defpackage :org.langband.datastructures
   (:nicknames :lb-ds)
+  (:use :common-lisp)
   (:export #:make-heap
 	   #:heap-front
 	   #:heap-remove

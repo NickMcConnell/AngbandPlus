@@ -303,21 +303,21 @@ car is start and cdr is the non-included end  (ie [start, end> )"
 	 (obj-table (coord.objects coord))
 	 (f-obj nil)
 	 (decor (coord.decor coord))
-	 (ret-attr +term-white+)
-	 (ret-char #\X)
+	 ;;(ret-attr +term-white+)
+	 ;;(ret-char #\X)
 	 (pl-obj *player*)
 	 ;;(trans-attr 0)
 	 ;;(trans-char 0)
 	 (using-gfx (use-gfx-tiles? *map-frame*))
 	 ;;(name-return nil)
-	 (attr-fun (if using-gfx #'x-attr #'text-attr)) ;; gradually remove
-	 (char-fun (if using-gfx #'x-char #'text-char)) ;; gradually remove
+;;	 (attr-fun (if using-gfx #'x-attr #'text-attr)) ;; gradually remove
+;;	 (char-fun (if using-gfx #'x-char #'text-char)) ;; gradually remove
 	 (sym-fun (if using-gfx #'gfx-sym #'text-sym))
 	 (win (aref *windows* *map-frame*))
-	 (fg-attr 0)
-	 (fg-char 0)
-	 (mid-attr 0)
-	 (mid-char 0)
+	 ;;(fg-attr 0)
+	 ;;(fg-char 0)
+	 ;;(mid-attr 0)
+	 ;;(mid-char 0)
 	 (floor-sym 0)
 	 (mid-sym 0)
 	 (mon-sym 0)
@@ -338,9 +338,9 @@ car is start and cdr is the non-included end  (ie [start, end> )"
 	   (setf f-obj feat)
 
 	   (setf floor-sym (funcall sym-fun f-obj))
-	   (setf ret-attr (funcall attr-fun f-obj)
-		 ret-char (funcall char-fun f-obj))
-
+	   ;;(setf ret-attr (funcall attr-fun f-obj)
+		;; ret-char (funcall char-fun f-obj))
+	   #||
 	   (when (and (bit-flag-set? flags +cave-seen+)
 		      (not (bit-flag-set? flags +cave-glow+))
 		      (bit-flag-set? (floor.flags f-obj) +floor-flag-use-light-effect+))
@@ -348,20 +348,28 @@ car is start and cdr is the non-included end  (ie [start, end> )"
 		    (decf ret-char))
 		   ((eql ret-attr +term-white+)
 		    (setf ret-attr +term-yellow+))))
+	   ||#
 	   )
 
 
 	  ;; otherwise not seen
 	  (t
 	   (setf f-obj (get-floor-type "nothing"))
-	   (setf ret-attr (funcall attr-fun f-obj)
-		 ret-char (funcall char-fun f-obj))))
+	   (setf floor-sym (funcall sym-fun f-obj))
+	   ;;(warn "floor at ~s,~s is nothing" x y)
+	   ;;(setf ret-attr (funcall attr-fun f-obj)
+		;; ret-char (funcall char-fun f-obj))
+	   ))
 
-    (if (plusp floor-sym)
-	(setf (window-coord win +background+ tx ty) floor-sym)
+    (when (plusp floor-sym)
+      (setf (window-coord win +background+ tx ty) floor-sym))
+    ;;(unless (plusp floor-sym)
+    ;;  (error "No real floor-sym"))
+	   
 	;; we paint floor at the back!
-	(setf (window-coord win +background+ tx ty) (tile-paint-value ret-attr ret-char)))
-    
+    ;;(setf (window-coord win +background+ tx ty) (tile-paint-value ret-attr ret-char)))
+
+    ;;(warn "done floor for ~s, ~s" x y)
     ;; removed code here, see older versions
 
     ;; hackish save of transparency
@@ -375,8 +383,8 @@ car is start and cdr is the non-included end  (ie [start, end> )"
 	       (typep decor 'decor) (decor.visible? decor))
       ;; hackish
       ;;(setf f-obj (get-floor-type feat)) ;; ok?
-      (setf mid-attr (funcall attr-fun decor)
-	    mid-char (funcall char-fun decor))
+      ;;(setf mid-attr (funcall attr-fun decor)
+      ;;mid-char (funcall char-fun decor))
       (setf mid-sym (funcall sym-fun decor))
       ;; this is a hack to use a different tile for the floor
       ;;(decf trans-char 6)
@@ -399,20 +407,23 @@ car is start and cdr is the non-included end  (ie [start, end> )"
 				 (tile-paint-value 10 54)
 				 (text-paint-value +term-white+ #\&)))
 	       ;; pile symbol
-	       (setf mid-attr +term-white+
-		     mid-char #.(char-code #\&)))
+	       ;;(setf mid-attr +term-white+
+		;;     mid-char #.(char-code #\&))
+	      )
 	      ((aobj.marked first-obj)
 	       (setf mid-sym (funcall sym-fun first-obj))
-	       (setf mid-attr (funcall attr-fun first-obj)
-		     mid-char (funcall char-fun first-obj)))
+	       ;;(setf mid-attr (funcall attr-fun first-obj)
+		;;     mid-char (funcall char-fun first-obj))
+	       )
 	      (t
 	       ))
 	))
 
     (cond ((plusp mid-sym)
 	   (setf (window-coord win +decor+ tx ty) mid-sym))
-	  ((or (plusp mid-attr) (plusp mid-char))
-	   (setf (window-coord win +decor+ tx ty) (tile-paint-value mid-attr mid-char))))
+	  ;;((or (plusp mid-attr) (plusp mid-char))
+	  ;; (setf (window-coord win +decor+ tx ty) (tile-paint-value mid-attr mid-char)))
+	  )
 
 	  
 ;;    (when name-return
@@ -422,12 +433,13 @@ car is start and cdr is the non-included end  (ie [start, end> )"
     ;; do we have monsters and can see it?
     (when (and mon (amon.seen-by-player? mon))
       (let* ((kind (amon.kind mon))
-	     (wanted-attr (funcall attr-fun kind))
-	     (wanted-char (funcall char-fun kind))
+	     ;;(wanted-attr (funcall attr-fun kind))
+	     ;;(wanted-char (funcall char-fun kind))
 	     )
 
 	(setf mon-sym (funcall sym-fun kind))
-	
+
+	#||
 	(cond (nil
 	       ;; skip hallucinate
 	       )
@@ -451,6 +463,7 @@ car is start and cdr is the non-included end  (ie [start, end> )"
 	       (setf fg-attr wanted-attr
 		     fg-char wanted-char))
 	      
+	      
 	      ;; bizarre grid under
 	      ((or (>= ret-attr +graphics-start+)
 		   (>= ret-char +graphics-start+))
@@ -464,11 +477,15 @@ car is start and cdr is the non-included end  (ie [start, end> )"
 	      ;; normal attr, clear char
 	      ((not (has-ability? kind '<see-through>))
 	       (setf fg-attr wanted-attr))
+	      
 	      (t
 	       (warn "Fell through monster-check for monster ~s" (monster.name kind)))
 	      
-	      )))
+	      )
+	||#
+	))
 
+    
 ;;    (when name-return
 ;;      (warn "Returns (~s,~s)" ret-attr ret-char))
     
@@ -477,15 +494,16 @@ car is start and cdr is the non-included end  (ie [start, end> )"
 	       (eql x (location-x pl-obj))
 	       (eql y (location-y pl-obj)))
 ;;      (warn "returning player at {~a,~a}" x y)
-      (setf fg-attr (funcall attr-fun pl-obj)
-	    fg-char (funcall char-fun pl-obj))
+      ;;(setf fg-attr (funcall attr-fun pl-obj)
+	;;    fg-char (funcall char-fun pl-obj))
       (setf mon-sym (funcall sym-fun pl-obj)))
 
     (cond ((plusp mon-sym)
 	   ;;(warn "mon sym ~s" mon-sym)
 	   (setf (window-coord win +foreground+ tx ty) mon-sym))
-	  ((or (plusp fg-attr) (plusp fg-char))
-	   (setf (window-coord win +foreground+ tx ty) (tile-paint-value fg-attr fg-char))))
+	  ;;((or (plusp fg-attr) (plusp fg-char))
+	  ;; (setf (window-coord win +foreground+ tx ty) (tile-paint-value fg-attr fg-char)))
+	  )
     
 
     ;; hack to bring a long target
@@ -1101,12 +1119,17 @@ car is start and cdr is the non-included end  (ie [start, end> )"
 		(let ((ft (make-instance 'floor-type :id id :name name :flags (if (nonboolsym? flags)
 										  (eval flags)
 										  flags)
-					 :num-idx (incf dummy-cnt)
+					 :num-idx (incf dummy-cnt))))
+		  (handle-gfx-visual ft (eval x-attr) (eval x-char))
+		  (handle-text-visual ft (eval text-attr) (eval text-char))
+		  
+		  #||
 					 :text-attr (if (nonboolsym? text-attr)
 							(eval text-attr)
 							text-attr)
 					 :text-char text-char
 					 :x-attr (eval x-attr) :x-char (eval x-char))))
+		  
 		  ;; hacks
 		  (when (characterp (text-char ft))
 		    (setf (text-char ft) (char-code text-char)))
@@ -1114,6 +1137,7 @@ car is start and cdr is the non-included end  (ie [start, end> )"
 		    (setf (x-attr ft) (text-attr ft)))
 		  (when (eq (x-char ft) nil)
 		    (setf (x-char ft) (text-char ft)))
+		  ||#
 		  
 		  (setf (gethash symbol legal-syms) ft))))
 	  (map
@@ -1151,7 +1175,7 @@ car is start and cdr is the non-included end  (ie [start, end> )"
 			    (t
 			     (warn "Could not find ~s" x)))
 		      )))
-	      
+
       
 	dungeon))))
 

@@ -2,12 +2,9 @@ usr/share/man/man3
 usr/share/common-lisp/
 usr/share/common-lisp/source/
 usr/share/common-lisp/source/langband-engine
-usr/share/common-lisp/source/langband-engine/binary-types
 usr/share/common-lisp/source/langband-engine/ffi
-usr/share/common-lisp/source/langband-engine/lib
-usr/share/common-lisp/source/langband-engine/lib/compat
-usr/share/common-lisp/source/langband-engine/lib/common
-usr/share/common-lisp/source/langband-engine/lib/help
+usr/share/common-lisp/source/langband-engine/docs
+usr/share/common-lisp/source/langband-engine/docs/help
 usr/share/games/langband-engine
 usr/share/doc/langband-engine
 usr/share/doc/langband-engine/web

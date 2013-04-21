@@ -7,20 +7,13 @@ Build-Depends: debhelper, libsdl1.2-dev, libsdl-ttf1.2-dev, libsdl-mixer1.2-dev,
 
 Package: langband-engine
 Architecture: all
-Depends: cmucl (>= 3.0.9) | sbcl (>= 0.7.7), common-lisp-controller (>= 2.14), langband-zterm (>= 0.1.2), langband-data (>= 0.1.3)
+Depends: cmucl (>= 3.0.9) | sbcl (>= 0.7.7), common-lisp-controller (>= 2.14), langband-zterm (>= 0.1.2), langband-data (>= 0.1.4)
 Recommends: langband-variant
 Description: The Langband engine
  It is a complete rewrite of the roguelike Angband but written in Common Lisp.
  You will also need to download a plugin to allow you to actually play a game.
  langband-vanilla is one such plugin.  You will also need a UI, currently only
  provided by langband-zterm. 
-
-Package: langband-data
-Architecture: all
-Recommends: langband-engine
-Description: The Langband sound/image/etc files
- This package contains the static data for the variant that aren't changed frequently.
- Typical content is images, sound, music, fonts, etc. 
 
 Package: langband-zterm
 Architecture: any
@@ -33,7 +26,7 @@ Description: The Langband term-libs
 Package: langband-vanilla
 Provides: langband-variant
 Architecture: all
-Depends: langband-engine (>= 0.1.3)
+Depends: langband-engine (>= 0.1.4)
 Description: A Vanilla-Angband plugin to the langband-engine
  This package provides a plugin to the langband-engine that lets you play
  vanilla/standard Angband. 

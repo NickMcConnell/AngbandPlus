@@ -1,0 +1,78 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html> <head>
+<title>Changelog v0.1.3</title>
+</head>
+
+<body>
+<h1>Changelog v0.1.3 (Engine)</h1>
+<pre>
+2003-01-18  Stig E Sandø &lt;stig@users.sourceforge.net&gt;
+	* Ripped out the zterm backend in C with all the Term_* functions
+	and wrappers and replaced it with window.lisp and some helpers in
+	global.lisp.  The new system uses multilayer graphics, is in lisp,
+	has no questionable license, is less than one tenth in codesize
+	and seems to work well.  Some issues and slowdowns may appear and
+	should be reported so they can be fixed.  This has affected
+	zterm/*.c and zterm/*.h and many places in the lisp-code that used
+	the old functions.  Bugs may still be frequent in untested parts
+	of the code.
+	* Disabled GCU in this release, if it is requested it will be
+	included in future releases.
+	* Tweaked targeting and added crosshair cursor.  Also allows
+	targeting with right mouse-button.
+	* Fixed the game-loop to use a priority-queue based on monster
+	energy instead of the complicated old system.
+	* Removed much of the ffi aparatus for strings, as it isn't needed
+	anymore.  The code now does not rely on string-passing over FFI in
+	the inner loop.
+	* Renaming of many functions, esp those with C- prefix, due to the
+	drastic changes in the FFI-related code.
+	* Replaced the x-attr/x-char and text-attr/text-char system in the
+	active code with GFX-SYM and TEXT-SYM which are precalculated
+	integers specifying the graphics/ascii to use.  Declarative
+	structures can still use x-attr/... but active code will only use
+	gfx-sym and text-sym in the future.
+	* Improved handling of visual effects for missiles and spells.
+	Need more tweaking and is unstable.  Similar changes will happen
+	to sound-effects as well.
+	* Improved the code considerably to do input-events with more
+	ease.  Only supports mouse-events and keyclicks, but this is
+	handled in a much more transparent way now.
+	* Improved missile-shooting and missile damage code
+	* Removed MAP-INFO and instead added DRAW-TO-MAP which uses
+	multilayer graphics.
+	* Improved mouse-handling which now has a separate generic and it
+	is calculated which subwindow is clicked before a variant will
+	handle a click.
+	* Improved keyboard handling with support for shift/alt/ctrl keys
+	and direct specifications of these in key triggers
+	* Several other minor changes
+</pre>
+
+<h1>Changelog v0.1.3 (Vanilla)</h1>
+<pre>
+2003-01-18  Stig E Sandø &lt;stig@users.sourceforge.net&gt;
+	* Updated code to fit large changes in engine, see engine
+	changelog.
+	* Added visual effects for spells and missiles
+	* Added control of images to the variant, and this control is no
+	longer on the C-side.
+	* Reorganised some key-info to use config/ to make it easier to
+	tweak
+	* Added possibility of describing spells directly in the book
+	definition
+	* Fixed several spell-issues, and now displays study-status for
+	spells.
+	* Updated most monsters, objects, flavours, etc with x-attr/x-char
+	info with graphics directly instead of relying on graf-prefs.lisp
+	updates.  Easier to read and understand now.
+	* Other minor fixes.
+</pre>		
+
+
+
+
+<hr>
+<address>stig@langband.org</address>
+<!-- hhmts start --> Last modified: Tue Feb 18 15:45:32 CET 2003 <!-- hhmts end -->
+</body> </html>

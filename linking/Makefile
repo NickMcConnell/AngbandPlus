@@ -27,5 +27,3 @@ ffi-clisp.o : ffi-clisp.c
 
 clisp-module : libs ffi-clisp.o
 
-
-

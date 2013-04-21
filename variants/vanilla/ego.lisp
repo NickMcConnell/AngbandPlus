@@ -247,6 +247,6 @@ the Free Software Foundation; either version 2 of the License, or
 (defmethod print-object ((inst ego-item) stream)
   (print-unreadable-object
    (inst stream :identity t)
-   (format stream "~:(~S~) [~S]" (class-name (class-of inst)) 
+   (format stream "~:(~S~) [~S]" (lbsys/class-name inst)
            (ego.name inst) ))
   inst)

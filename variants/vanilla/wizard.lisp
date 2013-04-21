@@ -431,9 +431,3 @@ the Free Software Foundation; either version 2 of the License, or
 
 ;;(define-keypress *ang-keys* :wizard #\Y 'projecteur)
 
-;; remove this when real conversations work
-(define-key-operation 'dummy-conversation
-    #'(lambda (dungeon player)
-	(declare (ignore dungeon))
-	  (with-dialogue ()
-	    (activate-conversation "alfred" player nil))))

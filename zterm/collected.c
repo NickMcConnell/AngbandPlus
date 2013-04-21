@@ -24,7 +24,7 @@ int init_gcu(int argc, char **argv);
 #endif
 
 #if defined(USE_SDL)
-int init_sdl(int argc, char **argv);
+int init_sdl(int flags);
 #endif
 
 
@@ -32,7 +32,7 @@ extern int cleanup_callbacks();
 extern int cleanup_frame_system();
 
 /** defaults to true as cmucl is default */
-int lisp_will_use_callback = 1;
+int lisp_will_use_callback = 0;
 
 /** set default illegal value. */
 LISP_SYSTEMS current_lisp_system = LISPSYS_BAD;
@@ -42,16 +42,25 @@ const char *base_source_path = "./";
 /** the base path for config files */
 const char *base_config_path = "./config/";
 /** the base path for gfx files */
-const char *base_gfx_path = "./graphics/";
+const char *base_data_path = "./data/";
 
 int which_ui_used = -1;
+int which_soundsystem_used = SOUNDSYSTEM_NONE;
 int use_sound = 0;
 
+/* Sound-related stuff */
+int max_sound_effects = -1;
+sound_effect **sound_effects = NULL;
+int max_music_handles = -1;
+sound_effect **music_handles = NULL;
+
+
 int current_ui() { return which_ui_used; }
+int current_soundsystem() { return which_soundsystem_used; }
 
 int
 init_c_side(const char *ui, const char *sourcePath, const char *configPath,
-	    const char *gfxPath, int extra_flags) {
+	    const char *dataPath, int extra_flags) {
 
     int possible_to_go_X = 0;
     int default_mode = 0; // 0 is x, 1 is gcu, 2 is gtk.. hackish
@@ -59,19 +68,25 @@ init_c_side(const char *ui, const char *sourcePath, const char *configPath,
     int graphical = (extra_flags & LANGBAND_GRAPHICS);
     int init_retval = -666;
     
-    // leak
-    int argc = 1;
-    char **argv = malloc(100);
 
 #ifdef USE_SDL
     use_sound = (extra_flags & LANGBAND_SOUND);
 #else
     use_sound = FALSE;
 #endif
-    
+
+    if (use_sound) {
+#ifdef USE_SDL_MIXER
+	which_soundsystem_used = SOUNDSYSTEM_SDL_MIXER;
+#endif
+	
+#ifdef USE_OPENAL
+	which_soundsystem_used = SOUNDSYSTEM_OPENAL;
+#endif
+    }
     
     if (!ui) {
-	ui = "X11";
+	ui = "SDL"; // default
     }
 
     if (sourcePath && (strlen(sourcePath)>0)) {
@@ -85,10 +100,10 @@ init_c_side(const char *ui, const char *sourcePath, const char *configPath,
 	strcpy(str, configPath);
 	base_config_path = str;
     }
-    if (gfxPath && (strlen(gfxPath)>0)) {
-	char *str = malloc(strlen(gfxPath) +2);
-	strcpy(str, gfxPath);
-	base_gfx_path = str;
+    if (dataPath && (strlen(dataPath)>0)) {
+	char *str = malloc(strlen(dataPath) +2);
+	strcpy(str, dataPath);
+	base_data_path = str;
     }
 
     /* verify that we have decent value */
@@ -138,19 +153,6 @@ init_c_side(const char *ui, const char *sourcePath, const char *configPath,
 	ERRORMSG("The UI-value is set to an illegal value: %d\n", wanted_ui);
 	return -2;
     }
-
-
-    {
-	int i = 0;
-	argv[i++] = "langband";
-	if (graphical) {
-	    argv[i++] = "-g";
-	}
-	argv[i++] = NULL;
-	
-	argc = i-1;
-    }
-
     
 
     /* let us check if we can go X */
@@ -170,7 +172,7 @@ init_c_side(const char *ui, const char *sourcePath, const char *configPath,
 #if defined (USE_SDL)
     else if (wanted_ui == UITYPE_SDL) {
 	which_ui_used = UITYPE_SDL;
-	init_retval = init_sdl(argc, argv);
+	init_retval = init_sdl(extra_flags);
     }
 #endif
     
@@ -207,7 +209,7 @@ init_c_side(const char *ui, const char *sourcePath, const char *configPath,
     }
 
     if (init_retval != 0) {
-	ERRORMSG("Init of UI screwed up miserably, exiting.\n");
+	ERRORMSG("Init of UI screwed up miserably (retval = %d), exiting.\n", init_retval);
 	return init_retval;
     }
 
@@ -239,35 +241,36 @@ int
 cleanup_c_side(void) {
 
     int cur_ui = current_ui();
-
+    int retval = -1;
+    
     cleanup_callbacks();
     cleanup_frame_system();
 
-    current_lisp_system = LISPSYS_BAD;
-    which_ui_used = -1;
-    use_sound = 0;
-    
     if (0) { }
     
 #ifdef USE_X11
     else if (cur_ui == UITYPE_X11) {
-	return cleanup_X11();
+	retval = cleanup_X11();
     }
 #endif
 
 #ifdef USE_GCU
     else if (cur_ui == UITYPE_GCU) {
-	return cleanup_GCU();
+	retval = cleanup_GCU();
     }
 #endif
 
 #ifdef USE_SDL
     else if (cur_ui == UITYPE_SDL) {
-	return cleanup_SDL();
+	retval = cleanup_SDL();
     }
 #endif
-   
-    return 1;
+
+    current_lisp_system = LISPSYS_BAD;
+    which_ui_used = -1;
+    use_sound = 0;
+    
+    return retval;
 }
 
 int
@@ -276,9 +279,20 @@ get_sound_status() {
 }
 
 
-/* Sound-related stuff */
-int max_sound_bites = -1;
-sound_bite **sound_bites = NULL;
+
+#ifdef USE_SDL_MIXER
+extern int
+sdl_load_sound_effect(const char *fname, sound_effect *handle);
+extern int
+sdl_load_music_file(const char *fname, music_handle *handle);
+#endif
+
+#ifdef USE_OPENAL
+extern int
+al_load_sound_effect(const char *fname, sound_effect *handle);
+extern int
+al_load_music_file(const char *fname, music_handle *handle);
+#endif
 
 int
 init_sound_system(int size) {
@@ -290,11 +304,17 @@ init_sound_system(int size) {
     else {
 #ifdef USE_SDL
 	int i = 0;
-	sound_bites = malloc(size * sizeof(sound_bite*));
+	sound_effects = malloc(size * sizeof(sound_effect*));
 	for (i=0; i < size; i++) {
-	    sound_bites[i] = NULL;
+	    sound_effects[i] = NULL;
 	}
-	max_sound_bites = size;
+	max_sound_effects = size;
+
+	music_handles = malloc(size * sizeof(music_handle*));
+	for (i=0; i < size; i++) {
+	    music_handles[i] = NULL;
+	}
+	max_music_handles = size;
 #endif
 	return 0;
     }
@@ -305,17 +325,18 @@ int
 load_sound_effect(const char *fname, int idx) {
 
     char *ptr = NULL;
-    sound_bite *sb = NULL;
+    sound_effect *sb = NULL;
+    int retval = -20;
     
-    if (idx >= max_sound_bites) {
+    if (idx >= max_sound_effects) {
 	ERRORMSG("Illegal index %d given for sound-effect %s.\n", idx, fname);
 	return -1;
     }
     // we should add it to the list
     if (idx < 0) {
 	int i = 0;
-	for (i=0; i < max_sound_bites; i++) {
-	    if (sound_bites[i] == NULL) {
+	for (i=0; i < max_sound_effects; i++) {
+	    if (sound_effects[i] == NULL) {
 		idx = i;
 		break;
 	    }
@@ -332,42 +353,188 @@ load_sound_effect(const char *fname, int idx) {
 	return -2;
     }
 
-    sb = malloc(sizeof(sound_bite));
+    sb = malloc(sizeof(sound_effect));
 
-    sb->handle = Mix_LoadWAV(fname);
-
-    if (!sb->handle) {
-	ERRORMSG("Mix_LoadWAV: Error '%s' when loading %s\n", Mix_GetError(), fname);
-	// handle error
-	free(sb);
-	return -6;
+    if (FALSE) {}
+#ifdef USE_OPENAL
+    else if (which_soundsystem_used == SOUNDSYSTEM_OPENAL) {
+	retval = al_load_sound_effect(fname, sb);
+	if (retval != 0) {
+	    ERRORMSG("Langband/OpenAL: Unable (%d) to load soundeffect %s.\n", retval, fname);
+	    // handle error
+	    free(sb);
+	    return -6;
+	}
     }
-
+#endif
+#ifdef USE_SDL_MIXER
+    else if (which_soundsystem_used == SOUNDSYSTEM_SDL_MIXER) {
+	retval = sdl_load_sound_effect(fname, sb);
+	if (!sb->handle) {
+	    ERRORMSG("Langband/SDL-mixer: Unable (%d) to load soundeffect %s.\n", retval, fname);
+	    // handle error
+	    free(sb);
+	    return -6;
+	}
+    }
+#endif
     
     ptr = malloc(strlen(fname)+1);
     strcpy(ptr, fname);
     
     sb->filename = ptr;
 
-    if (sound_bites[idx]) {
-	free(sound_bites[idx]);
-	sound_bites[idx] = NULL;
+    if (sound_effects[idx]) {
+	free(sound_effects[idx]);
+	sound_effects[idx] = NULL;
     }
     
-    sound_bites[idx] = sb;
+    sound_effects[idx] = sb;
 
     return idx;
 }
 
-extern int sdl_play_sound(int idx);
+int
+load_music_file(const char *fname, int idx) {
+
+    char *ptr = NULL;
+    music_handle *sb = NULL;
+    int retval = -20;
+    
+    if (idx >= max_music_handles) {
+	ERRORMSG("Illegal index %d given for music-handle %s.\n", idx, fname);
+	return -1;
+    }
+    // we should add it to the list
+    if (idx < 0) {
+	int i = 0;
+	for (i=0; i < max_music_handles; i++) {
+	    if (music_handles[i] == NULL) {
+		idx = i;
+		break;
+	    }
+		
+	}
+	if (idx < 0) {
+	    ERRORMSG("Music-cache filled already, cannot add more music-files.\n");
+	    return -3;
+	}
+    }
+
+    if (!fname || strlen(fname) < 2) {
+	ERRORMSG("The filename given for music-file %d is not legal.\n", idx);
+	return -2;
+    }
+
+    sb = malloc(sizeof(music_handle));
+
+    if (FALSE) {}
+#ifdef USE_OPENAL
+    else if (which_soundsystem_used == SOUNDSYSTEM_OPENAL) {
+	retval = al_load_music_file(fname, sb);
+	if (retval != 0) {
+	    ERRORMSG("Langband/OpenAL: Unable (%d) to load musicfile %s.\n", retval, fname);
+	    // handle error
+	    free(sb);
+	    return -6;
+	}
+    }
+#endif
+#ifdef USE_SDL_MIXER
+    else if (which_soundsystem_used == SOUNDSYSTEM_SDL_MIXER) {
+	retval = sdl_load_music_file(fname, sb);
+	if (!sb->handle) {
+	    ERRORMSG("Langband/SDL-mixer: Unable (%d) to load musicfile %s.\n", retval, fname);
+	    // handle error
+	    free(sb);
+	    return -6;
+	}
+    }
+#endif
+
+    ptr = malloc(strlen(fname)+1);
+    strcpy(ptr, fname);
+    
+    sb->filename = ptr;
+
+    if (music_handles[idx]) {
+	free(music_handles[idx]);
+	music_handles[idx] = NULL;
+    }
+    
+    music_handles[idx] = sb;
+    //INFOMSG("Installed music %s in %d\n", fname, idx);
+    return idx;
+}
+
+#ifdef USE_SDL_MIXER
+extern int sdl_play_sound_effect(int idx, float where);
+extern int sdl_play_music_file(int idx, float where);
+#endif
+
+#ifdef USE_OPENAL
+extern int al_play_sound_effect(int idx, float where);
+extern int al_play_music_file(int idx, float where);
+#endif
+
 
 int
 play_sound_effect(int sound_idx) {
 
+    float where = 0.0;
+    //INFOMSG("play effect %d to %d\n", sound_idx, which_soundsystem_used);
+
+    if (!use_sound) {
+	return -1;
+    }
+    
+    if (sound_idx < 0 || sound_idx >= max_sound_effects || !sound_effects[sound_idx]) {
+	ERRORMSG("Invalid sound-index %d provided for sound-effect\n.", sound_idx);
+	return -12;
+    }
+    
     if (FALSE) { return -1;}
-#ifdef USE_SDL
-    else if (which_ui_used == UITYPE_SDL) {
-	return sdl_play_sound(sound_idx);
+#ifdef USE_OPENAL
+    else if (which_soundsystem_used == SOUNDSYSTEM_OPENAL) {
+	return al_play_sound_effect(sound_idx, where);
+    }
+#endif
+#ifdef USE_SDL_MIXER
+    else if (which_soundsystem_used == SOUNDSYSTEM_SDL_MIXER) {
+	return sdl_play_sound_effect(sound_idx, where);
+    }
+#endif
+    else {
+	return -1;
+    }
+    
+}
+
+int
+play_music_file(int sound_idx) {
+    
+    float where = 0.0;
+    
+    if (!use_sound) {
+	return -1;
+    }
+    
+    if (sound_idx < 0 || sound_idx >= max_music_handles || !music_handles[sound_idx]) {
+	ERRORMSG("Invalid sound-index %d provided for music file\n.", sound_idx);
+	return -12;
+    }
+
+    DBGPUT("Play music %d.\n", sound_idx);
+    
+    if (FALSE) { return -1;}
+#ifdef USE_OPENAL
+    else if (which_soundsystem_used == SOUNDSYSTEM_OPENAL) {
+	return al_play_music_file(sound_idx, where);
+    }
+#endif
+#ifdef USE_SDL_MIXER
+    else if (which_soundsystem_used == SOUNDSYSTEM_SDL_MIXER) {
+	return sdl_play_music_file(sound_idx, where);
     }
 #endif
     else {

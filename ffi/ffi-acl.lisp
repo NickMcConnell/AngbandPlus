@@ -11,7 +11,8 @@
 
 (ff:def-foreign-call (init-c-side& "init_c_side") ((ui cptr) (source-path cptr)
                                                    (config-path cptr)
-                                                   (gfx-path cptr) (flags :int)) :returning :int)
+                                                   (data-path cptr)
+                                                   (flags :int)) :returning :int)
 
 (ff:def-foreign-call (cleanup-c-side& "cleanup_c_side") nil :returning :int)
 
@@ -24,12 +25,17 @@
 
 (ff:def-foreign-call (c-init-sound-system& "init_sound_system") ((size :int)) :returning :int)
 
+(ff:def-foreign-call (c-get-sound-status "get_sound_status") nil :returning :int)
+
 (ff:def-foreign-call (c-load-sound-effect& "load_sound_effect") ((fname cptr)
                                                                  (idx :int)) :returning :int)
 
-(ff:def-foreign-call (c-get-sound-status "get_sound_status") nil :returning :int)
-
 (ff:def-foreign-call (c-play-sound-effect "play_sound_effect") ((idx :int)) :returning :int)
+
+(ff:def-foreign-call (c-load-music-file& "load_music_file") ((fname cptr)
+                                                             (idx :int)) :returning :int)
+
+(ff:def-foreign-call (c-play-music-file "play_music_file") ((idx :int)) :returning :int)
 
 
 #+image-support
@@ -127,12 +133,12 @@
   (export
    '(c_current_ui c-listen-for-event init-c-side& cleanup-c-side&
      c-set-lisp-system! c-set-lisp-callback! c-init-sound-system&
-     c-load-sound-effect& c-get-sound-status c-play-sound-effect
-     load-gfx-image& c-load-texture& c-get-image-width c-get-image-height
-     c-init-frame-system& c-add-frame! c-add-frame-coords!
-     c-add-frame-tileinfo! c-add-frame-gfxinfo! c-add-frame-bg! c-has_frame
-     c-get-frame-columns c-get-frame-rows c-get-frame-tile-width
-     c-get-frame-tile-height c-get_frame-gfx-tiles c-full-blit
-     c-transparent-blit c-clear-coords! c-flush-coords!)))
+     c-get-sound-status c-load-sound-effect& c-play-sound-effect
+     c-load-music-file& c-play-music-file load-gfx-image& c-load-texture&
+     c-get-image-width c-get-image-height c-init-frame-system& c-add-frame!
+     c-add-frame-coords! c-add-frame-tileinfo! c-add-frame-gfxinfo!
+     c-add-frame-bg! c-has_frame c-get-frame-columns c-get-frame-rows
+     c-get-frame-tile-width c-get-frame-tile-height c-get_frame-gfx-tiles
+     c-full-blit c-transparent-blit c-clear-coords! c-flush-coords!)))
 
 ;;; End of generated file.

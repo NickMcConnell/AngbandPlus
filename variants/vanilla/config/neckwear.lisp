@@ -28,7 +28,7 @@ the Free Software Foundation; either version 2 of the License, or
   :flags '(<hide-type>)
   :sort-value 4306
   :the-kind '<amulet>
-  :game-values (make-game-values :stat-modifiers '(<wis>))) 
+  :game-values (make-game-values :stat-modifiers '((<wis> +1)))) 
 
 (define-object-kind "amulet-chr" "charisma"
   :numeric-id 164
@@ -43,7 +43,7 @@ the Free Software Foundation; either version 2 of the License, or
   :flags '(<hide-type>)
   :sort-value 4307
   :the-kind '<amulet>
-  :game-values (make-game-values :stat-modifiers '(<chr>))) 
+  :game-values (make-game-values :stat-modifiers '((<chr> +1)))) 
 
 (define-object-kind "amulet-searching" "searching"
   :numeric-id 165
@@ -131,8 +131,9 @@ the Free Software Foundation; either version 2 of the License, or
   :cost 30000
   :sort-value 4308
   :the-kind '<amulet>
-  :game-values (make-game-values :ac-modifier 3 :skill-modifiers '(<search>) :ignores
-                              '(<cold> <fire> <electricity> <acid>) :abilities '(<see-invisible> <free-action>))) 
+  :game-values (make-game-values :ac-modifier 3 :skill-modifiers '(<search>)
+				 :ignores '(<cold> <fire> <electricity> <acid>)
+				 :abilities '(<see-invisible> <free-action>))) 
 
 (define-object-kind "amulet-doom" "doom"
   :numeric-id 172
@@ -147,4 +148,5 @@ the Free Software Foundation; either version 2 of the License, or
   :flags '(<hide-type> <curse>)
   :sort-value 4300
   :the-kind '<amulet>
-  :game-values (make-game-values :stat-modifiers '(<chr> <con> <dex> <wis> <int> <str>))) 
+  :game-values (make-game-values :stat-modifiers '((<chr> -1) (<con> -1) (<dex> -1)
+						   (<wis> -1) (<int> -1) (<str> -1))))

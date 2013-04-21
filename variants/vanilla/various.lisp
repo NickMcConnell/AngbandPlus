@@ -542,12 +542,24 @@ the Free Software Foundation; either version 2 of the License, or
 
 
 (defun boost-stats! (item amount)
-  (let ((gvals (aobj.game-values item))
-	(variant *variant*))
-    (setf (gval.stat-modifiers gvals)
-	  (build-stat-table-from-symlist variant
-					 (loop for i in (gval.stat-modifiers gvals)
-					       collecting (list i amount))))))
+  "Boosts stat-modifiers by AMOUNT is the modifiers are not equal to 0."
+  (let* ((gvals (aobj.game-values item))
+	 ;;(variant *variant*)
+	 (stat-table (gval.stat-modifiers gvals)))
+    
+    (loop for i from 0
+	  for x across stat-table
+	  do
+	  (when (/= 0 x)
+	    (setf (aref stat-table i) (+ amount x))))
+    
+    ;;(warn "Stat-mod by ~s for ~s is ~s" amount item stat-table)
+    
+    (setf (gval.stat-modifiers gvals) stat-table)
+    
+    item))
+  
+
 
 
 
@@ -663,30 +675,7 @@ the Free Software Foundation; either version 2 of the License, or
     
     )))
 
-(defun interactive-take-off-item! (dungeon player)
 
-  (when-bind (selection (with-frame (+query-frame+)
-			  (select-item dungeon player '(:equip)
-				       :prompt "Take off item: "
-				       :where :equip)))
-
-    (let* ((the-table (get-item-table dungeon player (car selection)))
-	   (removed-obj (item-table-remove! the-table (cdr selection))))
-      (when (and (typep removed-obj 'active-object)
-		 (is-cursed? removed-obj))
-	(print-message! "Hmmm, it seems to be cursed.")
-	(item-table-add! the-table removed-obj) ;; put back
-	(return-from interactive-take-off-item! nil))
-      
-      (cond ((typep removed-obj 'active-object)
-	     ;; an object was returned
-	     (%put-obj-in-cnt dungeon player :backpack removed-obj)
-	     (bit-flag-add! *update* +pl-upd-bonuses+ +pl-upd-mana+ +pl-upd-torch+))
-	    
-	    (t
-	     (format-message! "Did not find selected obj ~a" selection)
-	     )))
-    ))
 
 ;; we override to add our own stuff
 (defmethod produce-active-monster ((variant vanilla-variant) mon-type)
@@ -752,12 +741,14 @@ the Free Software Foundation; either version 2 of the License, or
   
     (cond ((= num-id +inv-frame+)
 	   (when (eq button :left)
-	     ;; two button-sets
-	     (cond ((> x 768)
-		    (switch-inventory-view))
-		   ((> x 736) 
-		    (switch-map-mode *dungeon* *player*)))
-	     ))
+	     (let ((wid (window.pixel-width window))
+		   (tile-wid (window.tile-width window)))
+	       ;; two button-sets
+	       (cond ((> x (- wid tile-wid)) ;; last tile
+		      (switch-inventory-view))
+		     ((> x (- wid (* 2 tile-wid))) ;; second last tile 
+		      (switch-map-mode *dungeon* *player*)))
+	       )))
 	  ((and (= num-id *map-frame*)
 		(eq button :right))
 	   ;; first get panel coords, then translate to real coords
@@ -780,3 +771,37 @@ the Free Software Foundation; either version 2 of the License, or
 	  (t nil))
     
     t))
+
+(defmethod update-stuff ((variant vanilla-variant) dungeon player)
+  "Updates stuff according to *UPDATE*."
+  
+  (when (= 0 *update*) (return-from update-stuff nil))
+  
+  (let ((retval nil))
+
+    (when (bit-flag-set? *update* +pl-upd-mana+)
+      (bit-flag-remove! *update* +pl-upd-mana+)
+      (calculate-creature-mana! variant player)
+      (setf retval t))
+    
+    (when (bit-flag-set? *update* +pl-upd-spells+)
+      (bit-flag-remove! *update* +pl-upd-spells+)
+;;      (calculate-creature-hit-points! variant player)
+      (setf retval t))
+
+    (when (call-next-method)
+      (setf retval t))
+
+    retval))
+    
+#-langband-release
+(defmethod on-move-to-coord ((variant vanilla-variant) (player player) x y)
+
+  (with-frame (+charinfo-frame+)
+    (let ((row (- (window.height *cur-win*) 2)))
+      (put-coloured-line! +term-l-blue+ (format nil "~3d,~3d" x y)
+			  0 row)
+      (put-coloured-line! +term-l-blue+ (format nil "~12d" (variant.turn variant)) 0 (1+ row))
+      ))
+  
+  player)
