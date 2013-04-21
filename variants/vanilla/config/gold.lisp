@@ -24,7 +24,6 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(0 0 0 0)
   :weight 0
   :cost 3
-  :obj-type '(<money>)
   :sort-value 7101
   :the-kind '<money>) 
 
@@ -38,7 +37,6 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(0 0 0 0)
   :weight 0
   :cost 4
-  :obj-type '(<money>)
   :sort-value 7102
   :the-kind '<money>) 
 
@@ -52,7 +50,6 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(0 0 0 0)
   :weight 0
   :cost 5
-  :obj-type '(<money>)
   :sort-value 7103
   :the-kind '<money>) 
 
@@ -66,7 +63,6 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(0 0 0 0)
   :weight 0
   :cost 6
-  :obj-type '(<money>)
   :sort-value 7104
   :the-kind '<money>) 
 
@@ -80,7 +76,6 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(0 0 0 0)
   :weight 0
   :cost 7
-  :obj-type '(<money>)
   :sort-value 7105
   :the-kind '<money>) 
 
@@ -94,7 +89,6 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(0 0 0 0)
   :weight 0
   :cost 8
-  :obj-type '(<money>)
   :sort-value 7106
   :the-kind '<money>) 
 
@@ -108,7 +102,6 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(0 0 0 0)
   :weight 0
   :cost 9
-  :obj-type '(<money>)
   :sort-value 7107
   :the-kind '<money>) 
 
@@ -122,7 +115,6 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(0 0 0 0)
   :weight 0
   :cost 10
-  :obj-type '(<money>)
   :sort-value 7108
   :the-kind '<money>) 
 
@@ -136,7 +128,6 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(0 0 0 0)
   :weight 0
   :cost 12
-  :obj-type '(<money>)
   :sort-value 7109
   :the-kind '<money>) 
 
@@ -150,7 +141,6 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(0 0 0 0)
   :weight 0
   :cost 14
-  :obj-type '(<money>)
   :sort-value 7110
   :the-kind '<money>) 
 
@@ -164,7 +154,6 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(0 0 0 0)
   :weight 0
   :cost 16
-  :obj-type '(<money>)
   :sort-value 7111
   :the-kind '<money>) 
 
@@ -178,7 +167,6 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(0 0 0 0)
   :weight 0
   :cost 18
-  :obj-type '(<money>)
   :sort-value 7112
   :the-kind '<money>) 
 
@@ -192,7 +180,6 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(0 0 0 0)
   :weight 0
   :cost 20
-  :obj-type '(<money>)
   :sort-value 7113
   :the-kind '<money>) 
 
@@ -206,7 +193,6 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(0 0 0 0)
   :weight 0
   :cost 24
-  :obj-type '(<money>)
   :sort-value 7114
   :the-kind '<money>) 
 
@@ -220,7 +206,6 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(0 0 0 0)
   :weight 0
   :cost 28
-  :obj-type '(<money>)
   :sort-value 7115
   :the-kind '<money>) 
 
@@ -234,7 +219,6 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(0 0 0 0)
   :weight 0
   :cost 32
-  :obj-type '(<money>)
   :sort-value 7116
   :the-kind '<money>) 
 
@@ -248,7 +232,6 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(0 0 0 0)
   :weight 0
   :cost 40
-  :obj-type '(<money>)
   :sort-value 7117
   :the-kind '<money>) 
 
@@ -262,6 +245,5 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(0 0 0 0)
   :weight 0
   :cost 80
-  :obj-type '(<money>)
   :sort-value 7118
   :the-kind '<money>) 

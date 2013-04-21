@@ -54,8 +54,8 @@ the Free Software Foundation; either version 2 of the License, or
      nil)))
 
 
-(defmethod item-table-print (table &key show-pause start-x start-y)
-  (declare (ignore show-pause start-x start-y))
+(defmethod item-table-print (table &key show-pause start-x start-y print-selection)
+  (declare (ignore show-pause start-x start-y print-selection))
   (warn "[Printing not implemented for table ~s]" table))
 
 (defmethod item-table-more-room? (table &optional obj)
@@ -179,19 +179,25 @@ the Free Software Foundation; either version 2 of the License, or
 
 
 (defmethod item-table-print ((table items-in-container)
-			     &key show-pause start-x start-y)
+			     &key show-pause start-x start-y
+			     print-selection)
   
   (let ((x (if start-x start-x 25))
 	(y (if start-y start-y 1))
 	(i 0))
 
     (flet ((iterator-fun (a-table key val)
-	     (declare (ignore a-table key))
+	     (declare (ignore a-table))
+	     (when (and (functionp print-selection) (eq nil (funcall print-selection val))) ;; should it be printed?
+	       ;;(warn "obj ~s is not to be printed, cur-key ~s" val key)
+	       (return-from iterator-fun nil))
+
+	     (assert (integerp key))
 	     (let ((attr (get-colour val))
 		   (desc (with-output-to-string (s)
 			   (write-obj-description *variant* val s))))
 	       (c-prt! "" (- x 2) (+ i y))
-	       (put-coloured-str! +term-white+ (format nil "~a) " (i2a i)) x (+ i y))
+	       (put-coloured-str! +term-white+ (format nil "~a) " (i2a key)) x (+ i y))
 	       (put-coloured-str! attr desc (+ x 4) (+ i y))
 	       (incf i))))
       
@@ -211,114 +217,100 @@ the Free Software Foundation; either version 2 of the License, or
 ;; equipment slots
 
 
-(defvar *equip-slot-order* nil)
-(defvar *allowed-types-for-slots* nil)
-
-(defun register-slot-order& (order)
+(defun register-slot-order& (variant order)
   "Takes a list of lists (symbol description types-allowed)
 and adds settings to various places.  Must be FIXed and moved
 to variant obj."
   
 ;;  (warn "Registering slot order.")
 
-  (let ((len (length order)))
-
-    (setq *equip-slot-order* (make-array len :initial-element nil))
-    (setq *allowed-types-for-slots* (make-array len :initial-element nil))
-    
+  (let* ((len (length order))
+	 (slot-arr (make-array len :initial-element nil)))
+        
     (loop for i from 0
 	  for elm in order
 	  do
-	  (let ((types (if (listp (caddr elm)) (caddr elm) (list (caddr elm)))))
-	    
-	    (setf (get (car elm) 'arr-place) i
-		  (get (car elm) 'description) (cadr elm)
-		  (get (car elm) 'types-allowed) types)
-	    
-	    (dolist (j types)
-	      (setf (get j 'equip-slot) i))
-
-	    (setf (aref *equip-slot-order* i) (car elm))
-	    (setf (aref *allowed-types-for-slots* i) types)
-	    ))
+	  (let* ((types (if (listp (third elm))
+			   (third elm)
+			   (list (third elm))))
+		 (item-slot (make-worn-item-slot :key (first elm)
+						 :desc (second elm)
+						 :types types)))
+	    (setf (aref slot-arr i) item-slot)))
+    (setf (variant.worn-item-slots variant) slot-arr)
     ))
 
-(defun %get-equip-key-as-num (key obj)
-  "Returns the key as the appropriate number or NIL."
-  (let ((real-key key))
-    (unless real-key
-      (let ((its-types (object.obj-type obj)))
-	(warn "Checking types ~a" its-types)
-	(dolist (i its-types)
-	  (let ((poss-key (get i 'equip-slot)))
-	    (warn "Checking ~s" poss-key)
-	    (when (and poss-key (numberp poss-key))
-	      (setq real-key poss-key))))))
 
-    (if (not real-key)
-	nil
-	(typecase real-key
-	  (character (a2i real-key))
-	  (number real-key)
-	  (symbol (get key 'arr-place))
-	  (t
-	   nil)))))
-
-;;(trace %get-equip-key-as-num)
-
-(defun %get-possible-places-to-add (table obj)
-  (let ((its-types (object.obj-type obj))
-	(poss-list '()))
-    (loop for i from 0
-	  for x across *allowed-types-for-slots*
-	  do (cond ((consp x)
-		    (dolist (type its-types)
-		      (when (find type x)
-			(push i poss-list))))
-		   (t
-		    (warn "Odd format ~s of ~s element in table *allowed-types-for-slots*" x i))))
-    (let ((ret-list '()))
-      (dolist (i poss-list)
-	(when (eq nil (aref (items.objs table) i))
-	  (push i ret-list)))
-
-      (if ret-list ret-list poss-list)
+(defun %get-equip-keys (obj key)
+  (let* ((var-obj *variant*)
+	 (slot-arr (variant.worn-item-slots var-obj)))
+	 
+    (flet ((%get-slot-numbers-from-obj (slot-arr obj)
+	     (let ((ret-val '()))
+	       (when obj
+		 (loop for i from 0
+		       for x across slot-arr
+		       do
+		       (dolist (j (worn-item-slot-types x))
+			 (when (typep obj j)
+			   (push i ret-val)))))
+	       ret-val))
+	   
+	   (%get-slot-numbers-from-key (slot-arr key)
+	     (loop for i from 0
+		   for x across slot-arr
+		   do
+		   (when (eq key (worn-item-slot-key x))
+		     (return-from %get-slot-numbers-from-key (cons i '()))))
+	     nil))
+      
+      (cond ((eq key nil)
+	     (%get-slot-numbers-from-obj slot-arr obj))
+	    ((symbolp key)
+	     (%get-slot-numbers-from-key slot-arr key))
+	    ((characterp key)
+	     (cons (a2i key) '()))
+	    ((integerp key)
+	     (cons key '()))
+	    (t
+	     (warn "Odd key ~s when adding ~s to worn-items" key obj)))
       )))
 
-;;(trace %get-possible-places-to-add)
-
 (defmethod item-table-add! ((table items-worn) obj &optional key)
-  (let ((possible-keys (%get-possible-places-to-add table obj)))
-    (unless possible-keys
-      ;; hack
-      (setf possible-keys (%get-equip-key-as-num key obj))
-      (unless (listp possible-keys)
-	(setf possible-keys (cons possible-keys nil))))
 
-    (when (consp possible-keys)
-      (dolist (real-key possible-keys)
-	;; now let's check if we're allowed to put the item there
-	(let ((type-list (aref *allowed-types-for-slots* real-key)))
-	  (cond ((obj-is-in? obj type-list)
-		 (let ((old-obj (aref (items.objs table) real-key)))
-		   (setf (aref (items.objs table) real-key) obj)
-		   ;; return T if succesful or object
-		   (return-from item-table-add! (if old-obj old-obj t))))
-		(t
-		 (warn "Object ~a cannot be equipped.." obj)
-		 nil)))
-	))
-    ))
-
+  (let* ((obj-arr (items.objs table))
+	 (num-keys (%get-equip-keys obj key)))
 
     
+    (when (eq nil num-keys)
+;;      (print-message! (format nil "Can't wear ~a" (object.name obj)))
+      (warn "Can't wear ~a" (object.name obj))
+      (return-from item-table-add! nil))
 
+    ;; check for empty slots
+    (dolist (i num-keys)
+      (let ((an-obj (aref obj-arr i)))
+	(unless an-obj
+	  (setf (aref obj-arr i) obj)
+	  (return-from item-table-add! t))))
+    
+    ;; if not, use the first slot
+    (let* ((num-key (first num-keys))
+	   (old-obj (aref obj-arr num-key)))
+      (setf (aref obj-arr num-key) obj)
+      
+      old-obj)))
+    
+
+;; not tested
 (defmethod item-table-remove! ((table items-worn) key &key only-single-items)
+  
   (declare (ignore only-single-items)) ;; already just single items
-  (let ((real-key (%get-equip-key-as-num key nil)))
-    (when real-key
-      (let ((old-obj (aref (items.objs table) real-key)))
-	(setf (aref (items.objs table) real-key) nil)
+  (let ((keys (%get-equip-keys nil key)))
+    (when (consp keys)
+      (let* ((num (first keys))
+	     (old-obj (aref (items.objs table) num)))
+	(setf (aref (items.objs table) num) nil)
 	old-obj))))
   
 
@@ -327,9 +319,10 @@ to variant obj."
   nil)
 
 (defmethod item-table-find ((table items-worn) key)
-  (let ((real-key (%get-equip-key-as-num key nil)))
-    (when real-key
-      (aref (items.objs table) real-key))))
+  
+  (let ((keys (%get-equip-keys nil key)))
+    (when (consp keys)
+      (aref (items.objs table) (first keys)))))
 
 
 (defmethod item-table-sort! ((table items-worn) sorter)
@@ -344,21 +337,27 @@ to variant obj."
 	(funcall function table i x))
   )
 
-(defmethod item-table-print ((table items-worn) &key show-pause start-x start-y)
+(defmethod item-table-print ((table items-worn)
+			     &key show-pause start-x start-y print-selection)
   
-  (let ((x (if start-x start-x 25))
-	(y (if start-y start-y 1))
-	(i 0))
+  (let* ((x (if start-x start-x 25))
+	 (y (if start-y start-y 1))
+	 (var-obj *variant*)
+	 (slot-info (variant.worn-item-slots var-obj))
+	 (i 0))
 
     (flet ((iterator-fun (a-table key val)
-	     (declare (ignore a-table key))
+	     (declare (ignore a-table))
+	     (when (and (functionp print-selection) (eq nil (funcall print-selection val))) ;; should it be printed?
+	       (return-from iterator-fun nil))
+
 	     (let ((attr (if val (get-colour val) +term-white+))
 		   (desc (if val (with-output-to-string (s)
 				   (write-obj-description *variant* val s))
 			     "(nothing)")))
 	       (c-prt! "" (- x 2) (+ i y))
-	       (put-coloured-str! +term-white+ (format nil "~a) ~13a : " (i2a i)
-						       (get (aref *equip-slot-order* i) 'description))
+	       (put-coloured-str! +term-white+ (format nil "~a) ~13a : " (i2a key)
+						       (worn-item-slot-desc (aref slot-info i)))
 				  x (+ i y))
 	       (put-coloured-str! attr desc (+ x 20) (+ i y))
 	       (incf i))))
@@ -380,9 +379,10 @@ to variant obj."
 ;;; ----------------------------
 
 
-(defun make-equipment-slots ()
+(defun make-equipment-slots (variant)
   "Returns appropriate equipment object."
-  (let ((len (length *allowed-types-for-slots*)))
+  (let* ((item-slots (variant.worn-item-slots variant))
+	 (len (length item-slots)))
 
     (make-instance 'items-worn
 		   :objs (make-array len :initial-element nil)
@@ -395,9 +395,9 @@ to variant obj."
 		 :cur-size 0
 		 :objs (make-array size :initial-element nil)))
 
-(defun make-floor-container (dun loc-x loc-y)
+(defun make-floor-container (dungeon loc-x loc-y)
   "Returns a container for floor-objects."
-  (make-instance 'items-on-floor :dungeon dun :loc-x loc-x :loc-y loc-y))
+  (make-instance 'items-on-floor :dungeon dungeon :loc-x loc-x :loc-y loc-y))
 
 ;;(trace make-container)
 ;;(trace make-floor-container)

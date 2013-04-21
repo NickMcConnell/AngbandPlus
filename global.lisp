@@ -228,30 +228,7 @@ ADD_DESC: parts of the code.  Small classes, functions, et.al
 (defmethod get-gender ((variant variant) (key symbol))
   (find key (variant.genders variant) :key #'gender.symbol :test #'eq))
 
-;; move these two somewhere else?
-
-(defun make-prt-settings ()
-  "Creates and returns appropriate default printing-settings."
-  (make-instance 'printing-settings
-		 :name "Printing Settings"
-		 :race     '(1 . 0)
-		 :class    '(2 . 0)
-		 :title    '(3 . 0)
-		 :level    '(4 . 0)
-		 :xp       '(5 . 0)
-		 :gold     '(6 . 0)
-		 :stat     '(8 . 0)
-		 :ac       '(15 . 0)
-		 :max-hp   '(16 . 0)
-		 :cur-hp   '(17 . 0)
-		 :max-mana '(18 . 0)
-		 :cur-mana '(19 . 0)
-
-		 :food     '(21 . 0)
-		 :energy   '(22 . 0)
-
-		 ))
-
+;; move this one somewhere else?
 
 (defun make-birth-settings (&key allow-all-classes)
   "Returns a birth-settings object."
@@ -991,7 +968,7 @@ or removed.  Conses up a new list."
 
 ;;; == stat-related code
 
-(defun define-character-stat (symbol name &key abbreviation number data)
+(defun define-character-stat (symbol name &key abbreviation number data positive-desc negative-desc)
   "Defines and registers a stat with the current variant."
 
   (let ((the-stat (make-instance 'character-stat :symbol symbol :name name))
@@ -1007,6 +984,12 @@ or removed.  Conses up a new list."
     (when abbreviation
       (setf (stat.abbreviation the-stat) abbreviation))
 
+    (when (stringp positive-desc)
+      (setf (stat.positive-desc the-stat) positive-desc))
+    
+    (when (stringp negative-desc)
+      (setf (stat.negative-desc the-stat) negative-desc))
+    
     (when (consp data)
       (setf (stat.data the-stat) data)
       ;; let's hack things better
@@ -1042,6 +1025,13 @@ or removed.  Conses up a new list."
 
 ;;; The stat-functions below should be checked and possible be improved
 ;;; now that there is a class/object and not just random tables
+
+(defun get-stat-obj (variant key)
+  (let ((stats (variant.stats variant)))
+    (etypecase key
+      (number (aref stats key))
+      (symbol (find key stats :key #'stat.symbol))
+      )))
 
 (defun get-stat-name-from-num (num)
   "Improve later.."
@@ -1115,6 +1105,40 @@ or removed.  Conses up a new list."
 
 (defmacro trap-effect (arguments &body body)
   (assert (= (length arguments) 4))
-  (let ((def `(lambda ,arguments ,@body)))
+  (let ((def `(lambda ,arguments
+	       (declare (ignorable ,@arguments))
+	       ,@body)))
 ;;    (warn "Def is ~s" def)
     `(function ,def)))
+
+(defun get-screen-width ()
+  "This is slow and uses c-side, use *screen-width* for cached result."
+  
+  (- (c-get-term-width) +start-column-of-map+ 1))
+
+(defun get-screen-height ()
+  "This is slow and uses c-side, use *screen-width* for cached result."
+  
+  (- (c-get-term-height) +start-row-of-map+ 1))
+
+(defun %read-direction ()
+  (flush-messages!)
+  (let ((retval (block read-loop
+		  (loop
+		   (c-prt! "Direction: " 0 0)
+		   (let ((val (read-one-character)))
+		     (cond ((or (eql val #\.)
+				(eql val #\0)
+				(eql val #\t))
+			    (c-prt! "" 0 0)
+			    (return-from read-loop 5))
+			   ((digit-char-p val)
+			    (c-prt! "" 0 0)
+			    (return-from read-loop (digit-char-p val)))
+			   ((eql val +escape+)
+			    (c-prt! "" 0 0)
+			    (return-from read-loop nil))
+			   (t
+			    (c-prt! "Unknown direction!" 0 0))))))))
+    (c-prt! "" 0 0)
+    retval))

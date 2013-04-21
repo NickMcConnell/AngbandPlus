@@ -52,9 +52,12 @@
 #ifdef USE_GCU
 
 /*
- * Hack -- play games with "bool"
+ * Hack -- play games with "bool" and "term"
  */
 #undef bool
+
+/* Avoid 'struct term' name conflict with <curses.h> (via <term.h>) on AIX */
+#define term System_term
 
 /*
  * Include the proper "header" file
@@ -64,6 +67,8 @@
 #else
 # include <curses.h>
 #endif
+
+#undef term
 
 /*
  * Try redefining the colors at startup.
@@ -112,7 +117,7 @@
 #endif
 
 /*
- * One version needs this file
+ * One version needs these files
  */
 #ifdef USE_TERMIO
 # include <sys/ioctl.h>
@@ -120,7 +125,7 @@
 #endif
 
 /*
- * The other needs this file
+ * The other needs these files
  */
 #ifdef USE_TCHARS
 # include <sys/ioctl.h>
@@ -455,7 +460,9 @@ static void keymap_game_prepare(void)
  */
 static errr Term_xtra_gcu_alive(int v)
 {
-	/* Suspend */
+        int x, y;
+	
+        /* Suspend */
 	if (!v)
 	{
 		/* Go to normal keymap mode */
@@ -470,15 +477,13 @@ static errr Term_xtra_gcu_alive(int v)
 		Term_xtra(TERM_XTRA_SHAPE, 1);
 
 		/* Flush the curses buffer */
-		(void)refresh();
+                (void)refresh();
 
-#ifdef SPECIAL_BSD
-		/* this moves curses to bottom right corner */
-		mvcur(curscr->cury, curscr->curx, LINES - 1, 0);
-#else
-		/* this moves curses to bottom right corner */
-		mvcur(curscr->_cury, curscr->_curx, LINES - 1, 0);
-#endif
+                /* Get current cursor position */
+                getyx(curscr, y, x);
+
+		/* Move the cursor to bottom right corner */
+                mvcur(y, x, LINES - 1, 0);
 
 		/* Exit curses */
 		endwin();
@@ -507,8 +512,11 @@ static errr Term_xtra_gcu_alive(int v)
 	return (0);
 }
 
-
-
+#ifdef USE_NCURSES
+const char help_gcu[] = "NCurses, for terminal console, subopts -b(ig screen)";
+#else /* USE_NCURSES */
+const char help_gcu[] = "Curses, for terminal console, subopts -b(ig screen)";
+#endif /* USE_NCURSES */
 
 /*
  * Init the "curses" system
@@ -539,6 +547,7 @@ static void Term_init_gcu(term *t)
  */
 static void Term_nuke_gcu(term *t)
 {
+        int x, y;
 	term_data *td = (term_data *)(t->data);
 
 	/* Delete this window */
@@ -555,13 +564,11 @@ static void Term_nuke_gcu(term *t)
 	start_color();
 #endif
 
-#ifdef SPECIAL_BSD
-	/* This moves curses to bottom right corner */
-	mvcur(curscr->cury, curscr->curx, LINES - 1, 0);
-#else
-	/* This moves curses to bottom right corner */
-	mvcur(curscr->_cury, curscr->_curx, LINES - 1, 0);
-#endif
+	/* Get current cursor position */
+        getyx(curscr, y, x);
+
+        /* Move the cursor to bottom right corner */
+        mvcur(y, x, LINES - 1, 0);
 
 	/* Flush the curses buffer */
 	(void)refresh();
@@ -768,10 +775,6 @@ static errr Term_xtra_gcu(int n, int v)
 		case TERM_XTRA_REACT:
 		Term_xtra_gcu_react();
 		return (0);
-#ifdef USE_SOUND
-	case TERM_XTRA_SOUND: send_sound_msg(SNDMSG_PLAY, v, ""); return (0);
-#endif
-
 	}
 
 	/* Unknown */
@@ -829,10 +832,7 @@ static errr Term_text_gcu(int x, int y, int n, byte a, cptr s)
 {
 	term_data *td = (term_data *)(Term->data);
 
-	int i;
-#ifdef USE_GRAPHICS
-	int pic;
-#endif
+	int i, pic;
 	
 #ifdef A_COLOR
 	/* Set the color */
@@ -852,15 +852,19 @@ static errr Term_text_gcu(int x, int y, int n, byte a, cptr s)
 			/* Determine picture to use */
 			switch (s[i] & 0x7F)
 			{
-				/* Wall */
-				case '#':
-					pic = ACS_CKBOARD;
-					break;
+#ifdef ACS_CKBOARD
+                                /* Wall */
+                                case '#':
+                                        pic = ACS_CKBOARD;
+                                        break;
+#endif /* ACS_CKBOARD */
 
-				/* Mineral vein */
-				case '%':
-					pic = ACS_BOARD;
-					break;
+#ifdef ACS_BOARD
+                                /* Mineral vein */
+                                case '%':
+                                        pic = ACS_BOARD;
+                                        break;
+#endif /* ACS_BOARD */
 
 				/* XXX */
 				default:
@@ -877,7 +881,7 @@ static errr Term_text_gcu(int x, int y, int n, byte a, cptr s)
 #endif
 
 		/* Draw a normal character */
-		waddch(td->win, s[i]);
+		waddch(td->win, (byte)s[i]);
 	}
 
 	/* Success */
@@ -936,30 +940,27 @@ static errr term_data_init_gcu(term_data *td, int rows, int cols, int y, int x)
 
 
 /*
- * Prepare "curses" for use by the file "term.c"
+ * Prepare "curses" for use by the file "z-term.c"
  *
  * Installs the "hook" functions defined above, and then activates
  * the main screen "term", which clears the screen and such things.
  *
  * Someone should really check the semantics of "initscr()"
  */
-errr init_gcu(int argc, char *argv[])
+errr init_gcu(int argc, char **argv)
 {
-    int i = 0 * argc;
+    int i;
 
     int num_term = MAX_TERM_DATA, next_win = 0;
+
+    bool use_big_screen = TRUE;
 
     /* Extract the normal keymap */
     keymap_norm_prepare();
 
-
-#if defined(USG)
-    /* Initialize for USG Unix */
+    /* Initialize */
     if (initscr() == NULL) return (-1);
-#else
-    /* Initialize for other systems */
-    if (initscr() == (WINDOW*)ERR) return (-1);
-#endif
+
     
     /* Require standard size screen */
     if ((LINES < 24) || (COLS < 80))
@@ -967,175 +968,197 @@ errr init_gcu(int argc, char *argv[])
 	quit("Angband needs at least an 80x24 'curses' screen");
     }
 
+    /*
+    {
+    	FILE *bum = fopen("gah.txt", "w");
+	fprintf(bum,"Big screen %d,%d\n", LINES, COLS);
+	fclose(bum);
+    }
+    */
 
 #ifdef USE_GRAPHICS
 
-	/* Set graphics flag */
-	use_graphics = arg_graphics;
+    /* Set graphics flag */
+    use_graphics = arg_graphics;
 
 #endif
 
 #ifdef A_COLOR
 
-	/*** Init the Color-pairs and set up a translation table ***/
+    /*** Init the Color-pairs and set up a translation table ***/
 
-	/* Do we have color, and enough color, available? */
-	can_use_color = ((start_color() != ERR) && has_colors() &&
-	                 (COLORS >= 8) && (COLOR_PAIRS >= 8));
+    /* Do we have color, and enough color, available? */
+    can_use_color = ((start_color() != ERR) && has_colors() &&
+		     (COLORS >= 8) && (COLOR_PAIRS >= 8));
 
 #ifdef REDEFINE_COLORS
 
-	/* Can we change colors? */
-	can_fix_color = (can_use_color && can_change_color() &&
-	                 (COLORS >= 16) && (COLOR_PAIRS > 8));
+    /* Can we change colors? */
+    can_fix_color = (can_use_color && can_change_color() &&
+		     (COLORS >= 16) && (COLOR_PAIRS > 8));
 
 #endif
 
-	/* Attempt to use customized colors */
-	if (can_fix_color)
+    /* Attempt to use customized colors */
+    if (can_fix_color)
+    {
+	/* Prepare the color pairs */
+	for (i = 1; i <= 8; i++)
 	{
-		/* Prepare the color pairs */
-		for (i = 1; i <= 8; i++)
-		{
-			/* Reset the color */
-			if (init_pair(i, i - 1, 0) == ERR)
-			{
-				quit("Color pair init failed");
-			}
+	    /* Reset the color */
+	    if (init_pair(i, i - 1, 0) == ERR)
+	    {
+		quit("Color pair init failed");
+	    }
 
-			/* Set up the colormap */
-			colortable[i - 1] = (COLOR_PAIR(i) | A_NORMAL);
-			colortable[i + 7] = (COLOR_PAIR(i) | A_BRIGHT);
-		}
-
-		/* Take account of "gamma correction" XXX XXX XXX */
-
-		/* Prepare the "Angband Colors" */
-		Term_xtra_gcu_react();
+	    /* Set up the colormap */
+	    colortable[i - 1] = (COLOR_PAIR(i) | A_NORMAL);
+	    colortable[i + 7] = (COLOR_PAIR(i) | A_BRIGHT);
 	}
 
-	/* Attempt to use colors */
-	else if (can_use_color)
-	{
-		/* Color-pair 0 is *always* WHITE on BLACK */
+	/* Take account of "gamma correction" XXX XXX XXX */
 
-		/* Prepare the color pairs */
-		init_pair(1, COLOR_RED,     COLOR_BLACK);
-		init_pair(2, COLOR_GREEN,   COLOR_BLACK);
-		init_pair(3, COLOR_YELLOW,  COLOR_BLACK);
-		init_pair(4, COLOR_BLUE,    COLOR_BLACK);
-		init_pair(5, COLOR_MAGENTA, COLOR_BLACK);
-		init_pair(6, COLOR_CYAN,    COLOR_BLACK);
-		init_pair(7, COLOR_BLACK,   COLOR_BLACK);
+	/* Prepare the "Angband Colors" */
+	Term_xtra_gcu_react();
+    }
 
-		/* Prepare the "Angband Colors" -- Bright white is too bright */
-		colortable[0] = (COLOR_PAIR(7) | A_NORMAL);	/* Black */
-		colortable[1] = (COLOR_PAIR(0) | A_NORMAL);	/* White */
-		colortable[2] = (COLOR_PAIR(6) | A_NORMAL);	/* Grey XXX */
-		colortable[3] = (COLOR_PAIR(1) | A_BRIGHT);	/* Orange XXX */
-		colortable[4] = (COLOR_PAIR(1) | A_NORMAL);	/* Red */
-		colortable[5] = (COLOR_PAIR(2) | A_NORMAL);	/* Green */
-		colortable[6] = (COLOR_PAIR(4) | A_NORMAL);	/* Blue */
-		colortable[7] = (COLOR_PAIR(3) | A_NORMAL);	/* Umber */
-		colortable[8] = (COLOR_PAIR(7) | A_BRIGHT);	/* Dark-grey XXX */
-		colortable[9] = (COLOR_PAIR(6) | A_BRIGHT);	/* Light-grey XXX */
-		colortable[10] = (COLOR_PAIR(5) | A_NORMAL);	/* Purple */
-		colortable[11] = (COLOR_PAIR(3) | A_BRIGHT);	/* Yellow */
-		colortable[12] = (COLOR_PAIR(5) | A_BRIGHT);	/* Light Red XXX */
-		colortable[13] = (COLOR_PAIR(2) | A_BRIGHT);	/* Light Green */
-		colortable[14] = (COLOR_PAIR(4) | A_BRIGHT);	/* Light Blue */
-		colortable[15] = (COLOR_PAIR(3) | A_NORMAL);	/* Light Umber XXX */
-	}
+    /* Attempt to use colors */
+    else if (can_use_color)
+    {
+	/* Color-pair 0 is *always* WHITE on BLACK */
+
+	/* Prepare the color pairs */
+	init_pair(1, COLOR_RED,     COLOR_BLACK);
+	init_pair(2, COLOR_GREEN,   COLOR_BLACK);
+	init_pair(3, COLOR_YELLOW,  COLOR_BLACK);
+	init_pair(4, COLOR_BLUE,    COLOR_BLACK);
+	init_pair(5, COLOR_MAGENTA, COLOR_BLACK);
+	init_pair(6, COLOR_CYAN,    COLOR_BLACK);
+	init_pair(7, COLOR_BLACK,   COLOR_BLACK);
+
+	/* Prepare the "Angband Colors" -- Bright white is too bright */
+	colortable[0] = (COLOR_PAIR(7) | A_NORMAL);	/* Black */
+	colortable[1] = (COLOR_PAIR(0) | A_NORMAL);	/* White */
+	colortable[2] = (COLOR_PAIR(6) | A_NORMAL);	/* Grey XXX */
+	colortable[3] = (COLOR_PAIR(1) | A_BRIGHT);	/* Orange XXX */
+	colortable[4] = (COLOR_PAIR(1) | A_NORMAL);	/* Red */
+	colortable[5] = (COLOR_PAIR(2) | A_NORMAL);	/* Green */
+	colortable[6] = (COLOR_PAIR(4) | A_NORMAL);	/* Blue */
+	colortable[7] = (COLOR_PAIR(3) | A_NORMAL);	/* Umber */
+	colortable[8] = (COLOR_PAIR(7) | A_BRIGHT);	/* Dark-grey XXX */
+	colortable[9] = (COLOR_PAIR(6) | A_BRIGHT);	/* Light-grey XXX */
+	colortable[10] = (COLOR_PAIR(5) | A_NORMAL);	/* Purple */
+	colortable[11] = (COLOR_PAIR(3) | A_BRIGHT);	/* Yellow */
+	colortable[12] = (COLOR_PAIR(5) | A_BRIGHT);	/* Light Red XXX */
+	colortable[13] = (COLOR_PAIR(2) | A_BRIGHT);	/* Light Green */
+	colortable[14] = (COLOR_PAIR(4) | A_BRIGHT);	/* Light Blue */
+	colortable[15] = (COLOR_PAIR(3) | A_NORMAL);	/* Light Umber XXX */
+    }
 
 #endif
 
 
-	/*** Low level preparation ***/
+    /*** Low level preparation ***/
 
 #ifdef USE_GETCH
 
-	/* Paranoia -- Assume no waiting */
-	nodelay(stdscr, FALSE);
+    /* Paranoia -- Assume no waiting */
+    nodelay(stdscr, FALSE);
 
 #endif
 
-	/* Prepare */
-	cbreak();
-	noecho();
-	nonl();
+    /* Prepare */
+    cbreak();
+    noecho();
+    nonl();
 
-	/* Extract the game keymap */
-	keymap_game_prepare();
+    /* Extract the game keymap */
+    keymap_game_prepare();
 
 
-	/*** Now prepare the term(s) ***/
+    /*** Now prepare the term(s) ***/
+
+    /* Big screen -- one big term */
+    if (use_big_screen)
+    {
+	/* Create a term */
+	term_data_init_gcu(&data[0], LINES, COLS, 0, 0);
+
+	/* Remember the term */
+	angband_term[0] = &data[0].t;
+    }
+
+    /* No big screen -- create as many term windows as possible */
+    else
+    {
 
 	/* Create several terms */
 	for (i = 0; i < num_term; i++)
 	{
-		int rows, cols, y, x;
+	    int rows, cols, y, x;
 
-		/* Decide on size and position */
-		switch (i)
-		{
-			/* Upper left */
-			case 0:
-				rows = 24;
-				cols = 80;
-				y = x = 0;
-				break;
+	    /* Decide on size and position */
+	    switch (i)
+	    {
+		/* Upper left */
+	    case 0:
+		rows = 24;
+		cols = 80;
+		y = x = 0;
+		break;
 
-			/* Lower left */
-			case 1:
-				rows = LINES - 25;
-				cols = 80;
-				y = 25;
-				x = 0;
-				break;
+		/* Lower left */
+	    case 1:
+		rows = LINES - 25;
+		cols = 80;
+		y = 25;
+		x = 0;
+		break;
 
-			/* Upper right */
-			case 2:
-				rows = 24;
-				cols = COLS - 81;
-				y = 0;
-				x = 81;
-				break;
+		/* Upper right */
+	    case 2:
+		rows = 24;
+		cols = COLS - 81;
+		y = 0;
+		x = 81;
+		break;
 
-			/* Lower right */
-			case 3:
-				rows = LINES - 25;
-				cols = COLS - 81;
-				y = 25;
-				x = 81;
-				break;
+		/* Lower right */
+	    case 3:
+		rows = LINES - 25;
+		cols = COLS - 81;
+		y = 25;
+		x = 81;
+		break;
 
-			/* XXX */
-			default:
-				rows = cols = y = x = 0;
-				break;
-		}
+		/* XXX */
+	    default:
+		rows = cols = y = x = 0;
+		break;
+	    }
 
-		/* Skip non-existant windows */
-		if (rows <= 0 || cols <= 0) continue;
+	    /* Skip non-existant windows */
+	    if (rows <= 0 || cols <= 0) continue;
 
-		/* Create a term */
-		term_data_init_gcu(&data[next_win], rows, cols, y, x);
+	    /* Create a term */
+	    term_data_init_gcu(&data[next_win], rows, cols, y, x);
 
-		/* Remember the term */
-		angband_term[next_win] = &data[next_win].t;
+	    /* Remember the term */
+	    angband_term[next_win] = &data[next_win].t;
 
-		/* One more window */
-		next_win++;
+	    /* One more window */
+	    next_win++;
 	}
+    }
 
-	/* Activate the "Angband" window screen */
-	Term_activate(&data[0].t);
+    /* Activate the "Angband" window screen */
+    Term_activate(&data[0].t);
 
-	/* Remember the active screen */
-	term_screen = &data[0].t;
+    /* Remember the active screen */
+    term_screen = &data[0].t;
 
-	/* Success */
-	return (0);
+    /* Success */
+    return (0);
 }
 
 errr

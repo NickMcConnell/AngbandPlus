@@ -23,7 +23,7 @@ the Free Software Foundation; either version 2 of the License, or
 ;; info-type is a keyword and info is the connected value
 
 (define-character-stat '<str> "strength"
-  :abbreviation "Str" :number 0
+  :abbreviation "Str" :number 0 :positive-desc "strong" :negative-desc "weak"
   :data
   '((3 nil     :dam-modifier -2 :hit-modifier -3 :weight-limit 50  :wpn-limit 4   :dig-value   0 :blow-table   3)
     (4 nil     :dam-modifier -2 :hit-modifier -2 :weight-limit 60  :wpn-limit 5   :dig-value   0 :blow-table   4)
@@ -66,7 +66,7 @@ the Free Software Foundation; either version 2 of the License, or
     ))
 
 
-(define-character-stat '<dex> "dexterity"
+(define-character-stat '<dex> "dexterity" :positive-desc "dextrous" :negative-desc "clumsy"
   :abbreviation "Dex" :number 1
   :data
   '((3 nil     :ac-modifier -4 :hit-modifier -3 :disarm 0  :evasion 0    :blow-table  0)
@@ -110,7 +110,7 @@ the Free Software Foundation; either version 2 of the License, or
     ))
 
 (define-character-stat '<con> "constitution"
-  :abbreviation "Con" :number 2
+  :abbreviation "Con" :number 2 :positive-desc "healthy" :negative-desc "sickly"
   :data
   '((3 nil     :regeneration 0 :half-hp -5)
     (4 nil     :regeneration 0 :half-hp -3)
@@ -153,7 +153,7 @@ the Free Software Foundation; either version 2 of the License, or
     ))
 
 (define-character-stat '<int> "intelligence"
-  :abbreviation "Int" :number 3
+  :abbreviation "Int" :number 3 :positive-desc "smart" :negative-desc "stupid"
   :data
   '((3 nil     :half-spells 0 :half-mana 0  :min-fail 99 :various 0  :mag-dev 0  :disarm 0)
     (4 nil     :half-spells 0 :half-mana 0  :min-fail 99 :various 0  :mag-dev 0  :disarm 0)
@@ -196,7 +196,7 @@ the Free Software Foundation; either version 2 of the License, or
     ))
 
 (define-character-stat '<wis> "wisdom"
-  :abbreviation "Wis" :number 4
+  :abbreviation "Wis" :number 4 :positive-desc "wise" :negative-desc "naïve"
   :data
   '((3 nil     :half-spells 0 :half-mana 0  :min-fail 99 :various 0  :saving-throw 0)
     (4 nil     :half-spells 0 :half-mana 0  :min-fail 99 :various 0  :saving-throw 0)
@@ -241,7 +241,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 ;; payment in stores
 (define-character-stat '<chr> "charisma"
-  :abbreviation "Chr" :number 5
+  :abbreviation "Chr" :number 5 :positive-desc "cute" :negative-desc "ugly"
   :data
   '((3 nil     :payment 130)
     (4 nil     :payment 125)

@@ -91,6 +91,7 @@ INTERFACE errr init_c_side(const char *ui, const char *base_path, int debug);
 INTERFACE char *load_sound(int msg, char *fname);
 void play_game_lisp();
 void readjust_screen_lisp(int width, int height);
+void mouse_clicked(int button, int x, int y);
 
 /** will we access lisp through callbacks? */
 extern int lisp_will_use_callback;

@@ -24,10 +24,16 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(30 0 0 0)
   :weight 2
   :cost 500
-  :obj-type '(<str> <ring>)
   :flags '(<hide-type>)
   :sort-value 4424
   :the-kind '<ring>
+  :on-add-magic (magic-add (item depth status)
+		    (let ((bonus (1+ (magic-bonus-for-level 5 depth))))
+		      (cond ((or (eq status :cursed) (eq status :broken))
+			     (bit-flag-add! (aobj.identify item) (logior +ident-cursed+ +ident-broken+))
+			     (boost-stats! item (- 0 bonus)))
+			    (t
+			     (boost-stats! item bonus)))))
   :game-values (make-game-values :stat-modifiers '(<str>))) 
 
 (define-object-kind "ring-dex" "dexterity"
@@ -40,10 +46,16 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(30 0 0 0)
   :weight 2
   :cost 500
-  :obj-type '(<dex> <ring>)
   :flags '(<hide-type>)
   :sort-value 4426
   :the-kind '<ring>
+  :on-add-magic (magic-add (item depth status)
+		    (let ((bonus (1+ (magic-bonus-for-level 5 depth))))
+		      (cond ((or (eq status :cursed) (eq status :broken))
+			     (bit-flag-add! (aobj.identify item) (logior +ident-cursed+ +ident-broken+))
+			     (boost-stats! item (- 0 bonus)))
+			    (t
+			     (boost-stats! item bonus)))))
   :game-values (make-game-values :stat-modifiers '(<dex>))) 
 
 (define-object-kind "ring-con" "constitution"
@@ -56,10 +68,16 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(30 0 0 0)
   :weight 2
   :cost 500
-  :obj-type '(<con> <ring>)
   :flags '(<hide-type>)
   :sort-value 4427
   :the-kind '<ring>
+  :on-add-magic (magic-add (item depth status)
+		    (let ((bonus (1+ (magic-bonus-for-level 5 depth))))
+		      (cond ((or (eq status :cursed) (eq status :broken))
+			     (bit-flag-add! (aobj.identify item) (logior +ident-cursed+ +ident-broken+))
+			     (boost-stats! item (- 0 bonus)))
+			    (t
+			     (boost-stats! item bonus)))))
   :game-values (make-game-values :stat-modifiers '(<con>))) 
 
 (define-object-kind "ring-int" "intelligence"
@@ -72,10 +90,16 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(30 0 0 0)
   :weight 2
   :cost 500
-  :obj-type '(<int> <ring>)
   :flags '(<hide-type>)
   :sort-value 4425
   :the-kind '<ring>
+  :on-add-magic (magic-add (item depth status)
+		    (let ((bonus (1+ (magic-bonus-for-level 5 depth))))
+		      (cond ((or (eq status :cursed) (eq status :broken))
+			     (bit-flag-add! (aobj.identify item) (logior +ident-cursed+ +ident-broken+))
+			     (boost-stats! item (- 0 bonus)))
+			    (t
+			     (boost-stats! item bonus)))))
   :game-values (make-game-values :stat-modifiers '(<int>))) 
 
 (define-object-kind "ring-speed" "speed"
@@ -88,10 +112,19 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(80 0 0 0)
   :weight 2
   :cost 100000
-  :obj-type '(<speed> <ring>)
   :flags '(<hide-type>)
   :sort-value 4431
   :the-kind '<ring>
+  :on-add-magic (magic-add (item depth status)
+		    (let ((bonus (+ (randint 5) (magic-bonus-for-level 5 depth))))
+		      (when (< (random 100) 50) (incf bonus)) ;; might get lucky, eh?
+		      (cond ((or (eq status :cursed) (eq status :broken))
+			     (bit-flag-add! (aobj.identify item) (logior +ident-cursed+ +ident-broken+))
+			     (decf (gval.speed (aobj.game-values item)) bonus))
+			    (t
+			     (incf (gval.speed (aobj.game-values item)) bonus)))
+		      ))
+
   :game-values (make-game-values :abilities '(<speed>))) 
 
 (define-object-kind "ring-searching" "searching"
@@ -104,7 +137,6 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(5 0 0 0)
   :weight 2
   :cost 250
-  :obj-type '(<searching> <ring>)
   :flags '(<hide-type>)
   :sort-value 4423
   :the-kind '<ring>
@@ -120,7 +152,6 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(5 0 0 0)
   :weight 2
   :cost 0
-  :obj-type '(<teleport> <ring>)
   :flags '(<easy-know> <curse>)
   :sort-value 4404
   :the-kind '<ring>
@@ -136,7 +167,6 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(5 0 0 0)
   :weight 2
   :cost 250
-  :obj-type '(<slow-digestion> <ring>)
   :flags '(<easy-know>)
   :sort-value 4406
   :the-kind '<ring>
@@ -152,7 +182,6 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(10 0 0 0)
   :weight 2
   :cost 250
-  :obj-type '(<ring> <resist> <fire>)
   :flags '(<easy-know>)
   :sort-value 4408
   :the-kind '<ring>
@@ -168,7 +197,6 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(10 0 0 0)
   :weight 2
   :cost 250
-  :obj-type '(<ring> <resist> <cold>)
   :flags '(<easy-know>)
   :sort-value 4409
   :the-kind '<ring>
@@ -184,7 +212,6 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(5 0 0 0)
   :weight 2
   :cost 200
-  :obj-type '(<feather-fall> <ring>)
   :flags '(<easy-know>)
   :sort-value 4407
   :the-kind '<ring>
@@ -200,7 +227,6 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(40 0 0 0)
   :weight 2
   :cost 16000
-  :obj-type '(<ring> <resist> <poison>)
   :flags '(<easy-know>)
   :sort-value 4420
   :the-kind '<ring>
@@ -216,7 +242,6 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(20 0 0 0)
   :weight 2
   :cost 1500
-  :obj-type '(<free-action> <ring>)
   :flags '(<easy-know>)
   :sort-value 4421
   :the-kind '<ring>
@@ -232,10 +257,13 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(5 0 0 0)
   :weight 2
   :cost 0
-  :obj-type '(<weakness> <ring>)
   :flags '(<hide-type> <curse>)
   :sort-value 4402
   :the-kind '<ring>
+  :on-add-magic (magic-add (item depth status)
+		    (bit-flag-add! (aobj.identify item) (logior +ident-cursed+ +ident-broken+))
+		    (boost-stats! item (- -1 (magic-bonus-for-level 5 depth))))
+
   :game-values (make-game-values :stat-modifiers '(<str>))) 
 
 (define-object-kind "ring-flames" "flames"
@@ -248,9 +276,11 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(50 0 0 0)
   :weight 2
   :cost 3000
-  :obj-type '(<ring> <protection> <fire>)
   :sort-value 4418
   :the-kind '<ring>
+  :on-add-magic (magic-add (item depth status)
+		    (setf (gval.ac-modifier (aobj.game-values item))
+			  (+ 5 (randint 5) (magic-bonus-for-level 10 depth))))
   :game-values (make-game-values :ac-modifier 15 :ignores '(<fire>) :resists '(<fire>))) 
 
 (define-object-kind "ring-acid" "acid"
@@ -263,9 +293,13 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(50 0 0 0)
   :weight 2
   :cost 3000
-  :obj-type '(<ring> <protection> <acid>)
   :sort-value 4417
   :the-kind '<ring>
+  :on-add-magic (magic-add (item depth status)
+		    (setf (gval.ac-modifier (aobj.game-values item))
+			  (+ 5 (randint 5) (magic-bonus-for-level 10 depth))))
+    
+
   :game-values (make-game-values :ac-modifier 15 :ignores '(<acid>) :resists '(<acid>))) 
 
 (define-object-kind "ring-ice" "ice"
@@ -278,9 +312,12 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(50 0 0 0)
   :weight 2
   :cost 3000
-  :obj-type '(<ring> <protection> <cold>)
   :sort-value 4419
   :the-kind '<ring>
+  :on-add-magic (magic-add (item depth status)
+		    (setf (gval.ac-modifier (aobj.game-values item))
+			  (+ 5 (randint 5) (magic-bonus-for-level 10 depth))))
+
   :game-values (make-game-values :ac-modifier 15 :ignores '(<cold>) :resists '(<cold>))) 
 
 (define-object-kind "ring-woe" "woe"
@@ -293,25 +330,15 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(50 0 0 0)
   :weight 2
   :cost 0
-  :obj-type '(<woe> <ring>)
   :flags '(<hide-type> <curse>)
   :sort-value 4400
   :the-kind '<ring>
-  :on-add-magic #'(lambda (item depth status)
-		    (declare (ignore status))
+  :on-add-magic (magic-add (item depth status)
 		    (bit-flag-add! (aobj.identify item) (logior +ident-cursed+ +ident-broken+))
-		    (unless (aobj.game-values item)
-			(setf (aobj.game-values item) (make-game-values)))
-		    (let ((gvals (aobj.game-values item))
-			  (stat-change (- -1 (magic-bonus-for-level 5 depth))))
+		    (boost-stats! item (- -1 (magic-bonus-for-level 5 depth)))
+		    (let ((gvals (aobj.game-values item)))
 		      (setf (gval.ac-modifier gvals) (- -5 (magic-bonus-for-level 10 depth)))
-		      (setf (gval.stat-modifiers gvals)
-			    (build-stat-table-from-symlist *variant*
-							   (loop for i in (gval.stat-modifiers gvals)
-								 collecting (list i stat-change))))
-		      ;;(warn "stat-changes for woe ~s" (gval.stat-modifiers gvals))
 		      ))
-
 
   :game-values (make-game-values :stat-modifiers '(<chr> <wis>) :abilities '(<teleport>))) 
 
@@ -325,10 +352,13 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(5 0 0 0)
   :weight 2
   :cost 0
-  :obj-type '(<stupidity> <ring>)
   :flags '(<hide-type> <curse>)
   :sort-value 4403
   :the-kind '<ring>
+  :on-add-magic (magic-add (item depth status)
+		    (bit-flag-add! (aobj.identify item) (logior +ident-cursed+ +ident-broken+))
+		    (boost-stats! item (- -1 (magic-bonus-for-level 5 depth))))
+
   :game-values (make-game-values :stat-modifiers '(<int>))) 
 
 (define-object-kind "ring-dmg" "damage"
@@ -341,16 +371,14 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(20 0 0 0)
   :weight 2
   :cost 500
-  :obj-type '(<damage> <ring>)
   :sort-value 4429
-  :on-add-magic #'(lambda (item depth status)
+  :on-add-magic (magic-add (item depth status)
 		    (let ((bonus (+ 5 (randint 3) (magic-bonus-for-level 7 depth))))
-		      (when (eq status :cursed)
+		      (when (or (eq status :cursed)
+				(eq status :broken))
 			(setf bonus (- 0 bonus))
 			(bit-flag-add! (aobj.identify item) (logior +ident-cursed+ +ident-broken+))
 			)
-		      (unless (aobj.game-values item)
-			(setf (aobj.game-values item) (make-game-values)))
 		      ;;(warn "bonus is ~s" bonus)
 		      (setf (gval.dmg-modifier (aobj.game-values item)) bonus)))
   :the-kind '<ring>) 
@@ -365,15 +393,14 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(20 0 0 0)
   :weight 2
   :cost 500
-  :obj-type '(<accuracy> <ring>)
   :sort-value 4428
-  :on-add-magic #'(lambda (item depth status)
+  :on-add-magic (magic-add (item depth status)
 		    (let ((bonus (+ 5 (randint 3) (magic-bonus-for-level 7 depth))))
-		      (when (eq status :cursed)
+		      (when (or (eq status :cursed)
+				(eq status :broken))
 			(bit-flag-add! (aobj.identify item) (logior +ident-cursed+ +ident-broken+))
 			(setf bonus (- 0 bonus)))
-		      (unless (aobj.game-values item)
-			(setf (aobj.game-values item) (make-game-values)))
+		      
 		      ;;(warn "bonus is ~s" bonus)
 		      (setf (gval.tohit-modifier (aobj.game-values item)) bonus)))
   :the-kind '<ring>) 
@@ -388,8 +415,16 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(10 0 0 0)
   :weight 2
   :cost 500
-  :obj-type '(<protection> <ring>)
   :sort-value 4416
+  :on-add-magic (magic-add (item depth status)
+		    (let ((bonus (+ 5 (randint 5) (magic-bonus-for-level 10 depth))))
+		      (cond ((or (eq status :cursed) (eq status :broken))
+			     (bit-flag-add! (aobj.identify item) (logior +ident-cursed+ +ident-broken+))
+			     (setf (gval.ac-modifier (aobj.game-values item)) (- 0 bonus)))
+			    (t
+			     (setf (gval.ac-modifier (aobj.game-values item)) bonus))
+			    )))
+
   :the-kind '<ring>) 
 
 (define-object-kind "ring-aggr-monster" "aggravate monster"
@@ -402,7 +437,6 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(5 0 0 0)
   :weight 2
   :cost 0
-  :obj-type '(<aggravation> <ring>)
   :flags '(<easy-know> <curse>)
   :sort-value 4401
   :the-kind '<ring>
@@ -418,7 +452,6 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(30 0 0 0)
   :weight 2
   :cost 340
-  :obj-type '(<see-invisible> <ring>)
   :flags '(<easy-know>)
   :sort-value 4422
   :the-kind '<ring>
@@ -434,7 +467,6 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(30 0 0 0)
   :weight 2
   :cost 750
-  :obj-type '(<ring> <sustain> <str>)
   :flags '(<easy-know>)
   :sort-value 4410
   :the-kind '<ring>
@@ -450,7 +482,6 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(30 0 0 0)
   :weight 2
   :cost 600
-  :obj-type '(<ring> <sustain> <int>)
   :flags '(<easy-know>)
   :sort-value 4411
   :the-kind '<ring>
@@ -466,7 +497,6 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(30 0 0 0)
   :weight 2
   :cost 600
-  :obj-type '(<ring> <sustain> <wis>)
   :flags '(<easy-know>)
   :sort-value 4412
   :the-kind '<ring>
@@ -482,7 +512,6 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(30 0 0 0)
   :weight 2
   :cost 750
-  :obj-type '(<ring> <sustain> <dex>)
   :flags '(<easy-know>)
   :sort-value 4413
   :the-kind '<ring>
@@ -498,7 +527,6 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(30 0 0 0)
   :weight 2
   :cost 750
-  :obj-type '(<ring> <sustain> <con>)
   :flags '(<easy-know>)
   :sort-value 4414
   :the-kind '<ring>
@@ -514,7 +542,6 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(30 0 0 0)
   :weight 2
   :cost 500
-  :obj-type '(<ring> <sustain> <chr>)
   :flags '(<easy-know>)
   :sort-value 4415
   :the-kind '<ring>
@@ -530,8 +557,20 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(40 0 0 0)
   :weight 2
   :cost 1000
-  :obj-type '(<slaying> <ring>)
   :flags '(<show-modififers>)
   :sort-value 4430
   :the-kind '<ring>
-  :game-values (make-game-values)) 
+  :on-add-magic (magic-add (item depth status)
+		    (let ((hit-bonus (+ (randint 5) (magic-bonus-for-level 5 depth)))
+			  (dmg-bonus (+ (randint 5) (magic-bonus-for-level 5 depth))))
+		      
+		      (cond ((or (eq status :cursed)
+				 (eq status :broken))
+			     (bit-flag-add! (aobj.identify item) (logior +ident-cursed+ +ident-broken+))
+			     (setf (gval.tohit-modifier (aobj.game-values item)) (- 0 hit-bonus)
+				   (gval.dmg-modifier (aobj.game-values item)) (- 0 dmg-bonus)))
+			    (t
+			     (setf (gval.tohit-modifier (aobj.game-values item)) hit-bonus
+				   (gval.dmg-modifier (aobj.game-values item)) dmg-bonus))
+			    )))
+  )

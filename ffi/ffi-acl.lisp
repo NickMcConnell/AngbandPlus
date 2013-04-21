@@ -73,6 +73,10 @@
 (ff:def-foreign-call (c-set-lisp-callback! "set_lisp_callback") ((name cptr)
                                                                  (ptr)) :returning :void)
 
+(ff:def-foreign-call (c-get-term-height "get_term_height") nil :returning :int)
+
+(ff:def-foreign-call (c-get-term-width "get_term_width") nil :returning :int)
+
 
 #+win32
 (ff:def-foreign-call (c-set-hinst! "setHINST") ((val :long)) :returning :int)
@@ -88,6 +92,7 @@
      c_term_putstr! c_term_erase! c-term-queue-char! c-term-gotoxy!
      c-set-cursor& c-term-clear! c-term-fresh! c-term-save! c-term-load!
      c-term-xtra& c-inkey! init_c-side& cleanup-c-side& c_macro_add&
-     c-set-lisp-system! c-set-lisp-callback! c-set-hinst! c-load-sound&)))
+     c-set-lisp-system! c-set-lisp-callback! c-get-term-height c-get-term-width
+     c-set-hinst! c-load-sound&)))
 
 ;;; End of generated file.

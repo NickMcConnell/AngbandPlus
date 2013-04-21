@@ -44,19 +44,30 @@ the Free Software Foundation; either version 2 of the License, or
 	    "Duke"
 	    "Lord")
 
-  :starting-equipment '((obj :type <broad-sword>)
-			(obj :type (<body-armour> <chain>))
-			(obj :type (<potion> <berserk-strength>))
+  :starting-equipment '((obj :id "broad-sword")
+			(obj :id "chain-mail")
+			(obj :id "potion-berserk")
 			
 			#||
-			;; hack
-			(obj :id "ring-feather-fall")
-			(obj :id "ring-resist-poison")
+			;; various objects I use when testing stuff
+;;			(obj :id "ring-feather-fall")
+;;			(obj :id "ring-resist-poison")
 			(obj :id "ring-dmg")
-			(obj :id "ring-woe")
+;;			(obj :id "ring-woe")
+;;			(obj :id "ring-stupid")
+			(obj :id "wand-lightning-bolt")
+			(obj :id "rod-lightning-bolts")
+			(obj :id "staff-identify")
+			(obj :id "potion-speed" :amount 9)
 			
-			(obj :type (<potion> <heroism>) :amount 2)
-			(obj :id "amulet-resist-acid")
+			;;(obj :id "potion-heroism" :amount 2)
+			;;(obj :id "potion-reduce-str")
+			;;(obj :id "potion-reduce-dex")
+			;;(obj :id "potion-poison" :amount 2)
+			;;(obj :id "potion-slow-poison" :amount 2)
+			;;(obj :id "potion-sleep" :amount 3)
+			;;(obj :id "scroll-teleport-lvl" :amount 5)
+			;;(obj :id "amulet-resist-acid")
 			||#
 			)
 			
@@ -105,8 +116,8 @@ the Free Software Foundation; either version 2 of the License, or
 	   )
   
     :starting-equipment '((obj :id "broad-sword")
-			  (obj :type (<scroll> <protection> <evil>))
-			  (obj :type (<spellbook> <priest> <beginner>))
+			  (obj :id "scroll-protect-from-evil")
+			  (obj :id "beginner-handbook")
 			  )
 
     :skills '((<disarming> 20 7)
@@ -151,10 +162,10 @@ the Free Software Foundation; either version 2 of the License, or
 	    "Ranger Lord"
 	    )
   
-    :starting-equipment '((obj :type (<spellbook> <mage> <beginner>))
-			  (obj :type (<weapon> <short-sword>))
-			  (obj :type (<bow> <long>))
-			  (obj :type (<normal> <ammo> <arrow>) :amount "6d6")
+    :starting-equipment '((obj :id "magic-beginner")
+			  (obj :id "short-sword")
+			  (obj :id "long-bow")
+			  (obj :id "arrow" :amount "6d6")
 			  #||
 			  ;; hackish, for testing
 			  (obj :id "potion-resist-heat" :amount 2)
@@ -206,8 +217,8 @@ the Free Software Foundation; either version 2 of the License, or
 	    "Priest Lord"
 	    )
   
-  :starting-equipment '((obj :type <mace>)
-			(obj :type (<spellbook> <priest> <beginner>))
+  :starting-equipment '((obj :id "mace")
+			(obj :id "beginner-handbook")
 			(obj :id "potion-healing")
 			)
 
@@ -275,8 +286,8 @@ the Free Software Foundation; either version 2 of the License, or
 	    )
   
     :starting-equipment '((obj :id "dagger")
-			  (obj :type (<spellbook> <mage> <beginner>))
-			  (obj :type (<scroll> <word-of-recall>))
+			  (obj :id "magic-beginner")
+			  (obj :id "scroll-wor")
 			  #||
 			  ;; hacks
 			  (obj :type (<scroll> <illuminate>) :amount 2)
@@ -332,7 +343,7 @@ the Free Software Foundation; either version 2 of the License, or
 	      (:id "haste-self"               :level 25 :mana 12 :fail 65 :xp 10)
 	      (:id "fire-ball"                :level 29 :mana 18 :fail 65 :xp 12)
 	      (:id "mage-word-of-destruction" :level 33 :mana 21 :fail 80 :xp 15)
-	      (:id "genocide-1"               :level 37 :mana 25 :fail 95 :xp 21)
+	      (:id "xenocide-1"               :level 37 :mana 25 :fail 95 :xp 21)
 
 	      (:id "door-creation"       :level 7  :mana 7  :fail 20 :xp 28)
 	      (:id "stair-creation"      :level 9  :mana 12 :fail 40 :xp 44)
@@ -387,9 +398,9 @@ the Free Software Foundation; either version 2 of the License, or
 	    "Assassin"
 	    )
   
-  :starting-equipment '((obj :type (<spellbook> <mage> <beginner>))
-			(obj :type <small-sword>)
-			(obj :type (<body-armour> <soft-leather>))
+  :starting-equipment '((obj :id "magic-beginner")
+			(obj :id "small-sword")
+			(obj :id "soft-leather-armour")
 			)
   
   :skills '((<disarming> 45 15)

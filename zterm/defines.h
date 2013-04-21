@@ -82,13 +82,13 @@
  * Number of grids in each screen (vertically)
  * Must be a multiple of PANEL_HGT (at least 2x)
  */
-#define SCREEN_HGT	22
+//#define SCREEN_HGT	22
 
 /*
  * Number of grids in each screen (horizontally)
  * Must be a multiple of PANEL_WID (at least 2x)
  */
-#define SCREEN_WID	66
+//#define SCREEN_WID	66
 
 
 /*

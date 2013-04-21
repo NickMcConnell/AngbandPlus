@@ -100,6 +100,7 @@ ADD_DESC: This file contains the constants in the game.  should be small.
 
 
 ;;; === flags that control print/redraw
+;; several ones have been moved to variant!!
 ;; will probably be altered to let variants have their own extra set
 (defconstant +print-misc+   #x00000001)
 (defconstant +print-title+  #x00000002)
@@ -108,22 +109,14 @@ ADD_DESC: This file contains the constants in the game.  should be small.
 (defconstant +print-stats+  #x00000010)
 (defconstant +print-armour+ #x00000020)
 (defconstant +print-hp+     #x00000040)
-(defconstant +print-mana+   #x00000080)
+(defconstant +print-mana+   #x00000080) ;; move to variant later!!
 (defconstant +print-gold+   #x00000100)
 (defconstant +print-depth+  #x00000200)
 
 (defconstant +print-health+ #x00000800)
-(defconstant +print-cut+    #x00001000)
-(defconstant +print-stun+   #x00002000)
-(defconstant +print-hunger+ #x00004000)
 
-(defconstant +print-blind+    #x00010000)
-(defconstant +print-confused+ #x00020000)
-(defconstant +print-afraid+   #x00040000)
-(defconstant +print-poisoned+ #x00080000)
 (defconstant +print-state+    #x00100000)
 (defconstant +print-speed+    #x00200000)
-(defconstant +print-study+    #x00400000)
 
 (defconstant +print-extra+    #x01000000)
 (defconstant +print-basic+    #x02000000 "The panel on the left.")

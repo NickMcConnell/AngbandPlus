@@ -79,29 +79,32 @@ DESC: tests/monster.lisp - testing code for monsters
 
 (defun %test-creation (var-obj)
   (let ((normal-id "urchin")
-	(unique-id "maggott"))
+	(unique-id "hobbit-maggott"))
 
-    (let ((normal-kind (lb::get-monster-kind var-obj normal-id))
-	  (unique-kind (lb::get-monster-kind var-obj unique-id)))
+    (let ((normal-kind (lb:get-monster-kind var-obj normal-id))
+	  (unique-kind (lb:get-monster-kind var-obj unique-id)))
 
 ;;      (format t "~&Bob: ~a" normal-kind)
+
+      (test-assert (not (eq normal-kind nil)))
+      (test-assert (not (eq unique-kind nil)))
       
       (test-assert (typep normal-kind 'lb::monster-kind))
       (test-assert (typep unique-kind 'lb::unique-monster))
 
       (let ((old-val (lb::monster.already-dead unique-kind))
-	    (normal-mon (lb::produce-active-monster var-obj normal-kind)))
+	    (normal-mon (lb:produce-active-monster var-obj normal-kind)))
 
-	(test-assert (typep normal-mon 'lb::active-monster))
+	(test-assert (typep normal-mon 'lb:active-monster))
 	
 	(flet ((test-uni (expected)
-		 (let ((amon (lb::produce-active-monster var-obj unique-kind)))
+		 (let ((amon (lb:produce-active-monster var-obj unique-kind)))
 		   (test-assert (funcall expected amon)))))
 	  
 	  (unwind-protect (progn
 			    (setf (lb::monster.already-dead unique-kind) nil)
 			    (test-uni #'(lambda (x)
-					  (typep x 'lb::active-monster)))
+					  (typep x 'lb:active-monster)))
 			    (setf (lb::monster.already-dead unique-kind) t)
 			    (test-uni #'(lambda (x) (eq x nil))))
 	    (setf (lb::monster.already-dead unique-kind) old-val))

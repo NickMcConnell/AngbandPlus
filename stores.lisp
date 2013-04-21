@@ -329,40 +329,6 @@ should be an exisiting id."
     ;;(pause-last-line!)
     ))
 
-(defmethod store-mass-produce! ((variant variant) (store store) (object active-object))
-  ;; hack
-
-  (let ((number 1)
-	(cost (get-price object store)))
-
-    (block increase-number
-      (cond ((or (typep object 'active-object/light-source)
-		 (typep object 'active-object/food))
-	     (when (<= cost 5) (incf number (roll-dice 3 5)))
-	     (when (<= cost 20) (incf number (roll-dice 3 5))))
-	     
-	    ((or (typep object 'active-object/potion)
-		 (typep object 'active-object/scroll))
-	     (when (<= cost 60) (incf number (roll-dice 3 5)))
-	     (when (<= cost 240) (incf number (roll-dice 3 5))))
-	    ;; skip food, flask, light
-	    ;; skip spellbooks
-	    ((or (typep object 'active-object/armour)
-		 (typep object 'active-object/weapon))
-	     ;; test for artifact
-	     (when (<= cost 10) (incf number (roll-dice 3 5)))
-	     (when (<= cost 100) (incf number (roll-dice 3 5))))
-	    ;; add spike
-	    ((typep object 'active-object/ammo)
-	     (when (<= cost 5) (incf number (roll-dice 5 5)))
-	     (when (<= cost 50) (incf number (roll-dice 5 5))))
-	    (t
-	     nil)))
-
-    ;; add discount..
-     
-      
-    (setf (aobj.number object) number)))
 
 
 ;; hackish  create/delete/maint
@@ -420,8 +386,10 @@ should be an exisiting id."
 			     &key
 			     show-pause
 			     start-x start-y
+			     print-selection
 			     (store t))
-  
+
+  (declare (ignore print-selection))
   (let ((x (if start-x start-x 0))
 	(y (if start-y start-y 6))
 	(i 0))

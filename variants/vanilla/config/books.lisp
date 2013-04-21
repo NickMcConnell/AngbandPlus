@@ -26,9 +26,8 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(5 0 0 0)
   :weight 30
   :cost 25
-  :obj-type '(<beginner> <spellbook> <mage>)
   :sort-value 6900
-  :the-kind '<book>
+  :the-kind '<spellbook>
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "conjurings-and-tricks" "[conjurings and tricks]"
@@ -41,9 +40,8 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(10 0 0 0)
   :weight 30
   :cost 100
-  :obj-type '(<conjuring> <spellbook> <mage>)
   :sort-value 6901
-  :the-kind '<book>
+  :the-kind '<spellbook>
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "incantations" "[incantations and illusions]"
@@ -56,9 +54,8 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(20 0 0 0)
   :weight 30
   :cost 400
-  :obj-type '(<illusions> <spellbook> <mage>)
   :sort-value 6902
-  :the-kind '<book>
+  :the-kind '<spellbook>
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "sorcery-evocations" "[sorcery and evocations]"
@@ -71,9 +68,8 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(30 0 0 0)
   :weight 30
   :cost 800
-  :obj-type '(<sorcery> <spellbook> <mage>)
   :sort-value 6903
-  :the-kind '<book>
+  :the-kind '<spellbook>
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 
@@ -87,9 +83,8 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(40 0 0 0)
   :weight 30
   :cost 5000
-  :obj-type '(<resistance> <spellbook> <mage>)
   :sort-value 6904
-  :the-kind '<book>
+  :the-kind '<spellbook>
   :game-values (make-game-values :base-dice 1 :num-dice 1 :ignores '(<cold> <fire> <electricity> <acid>))) 
 
 (define-object-kind "mordenkainen-escapes" "[Mordenkainen's escapes]"
@@ -102,9 +97,8 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(50 0 0 0)
   :weight 30
   :cost 10000
-  :obj-type '(<escapes> <spellbook> <mage>)
   :sort-value 6905
-  :the-kind '<book>
+  :the-kind '<spellbook>
   :game-values (make-game-values :base-dice 1 :num-dice 1 :ignores '(<cold> <fire> <electricity> <acid>))) 
 
 (define-object-kind "keleks-grimoire" "[Kelek's grimoire of power]"
@@ -117,9 +111,8 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(60 0 0 0)
   :weight 30
   :cost 30000
-  :obj-type '(<grimoire> <spellbook> <mage>)
   :sort-value 6906
-  :the-kind '<book>
+  :the-kind '<spellbook>
   :game-values (make-game-values :base-dice 1 :num-dice 1 :ignores '(<cold> <fire> <electricity> <acid>))) 
 
 (define-object-kind "tensers-transformations" "[Tenser's transformations]"
@@ -132,9 +125,8 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(80 0 0 0)
   :weight 30
   :cost 50000
-  :obj-type '(<transformations> <spellbook> <mage>)
   :sort-value 6907
-  :the-kind '<book>
+  :the-kind '<spellbook>
   :game-values (make-game-values :base-dice 1 :num-dice 1 :ignores '(<cold> <fire> <electricity> <acid>))) 
 
 (define-object-kind "raals-tome" "[Raal's tome of destruction]"
@@ -147,9 +139,8 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(100 0 0 0)
   :weight 30
   :cost 100000
-  :obj-type '(<destruction> <spellbook> <mage>)
   :sort-value 6908
-  :the-kind '<book>
+  :the-kind '<spellbook>
   :game-values (make-game-values :base-dice 1 :num-dice 1 :ignores '(<cold> <fire> <electricity> <acid>))) 
 
 
@@ -165,9 +156,8 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(5 0 0 0)
   :weight 30
   :cost 25
-  :obj-type '(<beginner> <spellbook> <priest>)
   :sort-value 7000
-  :the-kind '<book>
+  :the-kind '<prayerbook>
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "words-wisdom" "[words of wisdom]"
@@ -180,9 +170,8 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(10 0 0 0)
   :weight 30
   :cost 100
-  :obj-type '(<words> <spellbook> <priest>)
   :sort-value 7001
-  :the-kind '<book>
+  :the-kind '<prayerbook>
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "chants-blessings" "[chants and blessings]"
@@ -195,9 +184,8 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(20 0 0 0)
   :weight 30
   :cost 300
-  :obj-type '(<chants> <spellbook> <priest>)
   :sort-value 7002
-  :the-kind '<book>
+  :the-kind '<prayerbook>
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "exorcism-dispelling" "[exorcism and dispelling]"
@@ -210,9 +198,8 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(30 0 0 0)
   :weight 30
   :cost 900
-  :obj-type '(<exorcism> <spellbook> <priest>)
   :sort-value 7003
-  :the-kind '<book>
+  :the-kind '<prayerbook>
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 
@@ -226,9 +213,8 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(40 0 0 0)
   :weight 30
   :cost 5000
-  :obj-type '(<openings> <spellbook> <priest>)
   :sort-value 7004
-  :the-kind '<book>
+  :the-kind '<prayerbook>
   :game-values (make-game-values :base-dice 1 :num-dice 1 :ignores '(<cold> <fire> <electricity> <acid>))) 
 
 (define-object-kind "godly-insights" "[godly insights]"
@@ -241,9 +227,8 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(50 0 0 0)
   :weight 30
   :cost 10000
-  :obj-type '(<insights> <spellbook> <priest>)
   :sort-value 7005
-  :the-kind '<book>
+  :the-kind '<prayerbook>
   :game-values (make-game-values :base-dice 1 :num-dice 1 :ignores '(<cold> <fire> <electricity> <acid>))) 
 
 (define-object-kind "purifications" "[purifications and healing]"
@@ -256,9 +241,8 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(60 0 0 0)
   :weight 30
   :cost 30000
-  :obj-type '(<healing> <spellbook> <priest>)
   :sort-value 7006
-  :the-kind '<book>
+  :the-kind '<prayerbook>
   :game-values (make-game-values :base-dice 1 :num-dice 1 :ignores '(<cold> <fire> <electricity> <acid>))) 
 
 (define-object-kind "holy-infusions" "[holy infusions]"
@@ -271,9 +255,8 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(80 0 0 0)
   :weight 30
   :cost 50000
-  :obj-type '(<infusions> <spellbook> <priest>)
   :sort-value 7007
-  :the-kind '<book>
+  :the-kind '<prayerbook>
   :game-values (make-game-values :base-dice 1 :num-dice 1 :ignores '(<cold> <fire> <electricity> <acid>))) 
 
 (define-object-kind "wrath-of-god" "[wrath of god]"
@@ -286,7 +269,6 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(100 0 0 0)
   :weight 30
   :cost 100000
-  :obj-type '(<wrath> <spellbook> <priest>)
   :sort-value 7008
-  :the-kind '<book>
+  :the-kind '<prayerbook>
   :game-values (make-game-values :base-dice 1 :num-dice 1 :ignores '(<cold> <fire> <electricity> <acid>))) 

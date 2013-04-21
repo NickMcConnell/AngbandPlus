@@ -1,3 +1,17 @@
+2002-07-29  Stig E Sandø <stig@users.sourceforge.net>
+	* Sent out a release, 0.0.21
+
+2002-07-29  Stig E Sandø <stig@users.sourceforge.net>
+	* Moved much code from engine to variant and did enless amounts of
+	tweaking.
+	* Added some new files to better organise the code
+	* Improved code for effects on player
+	* Fixed bugs in spell-code
+	* Removed obj-type from all game objects
+	* Added new object-kinds and updated objects
+	* Updated many object-effects
+	* ...
+	
 2002-05-19  Stig E Sandø <stig@users.sourceforge.net>
 	* Added basics of the magic-system, commands to use it, commands
 	to learn spells, mana-calculation, spellbook-code and some basic

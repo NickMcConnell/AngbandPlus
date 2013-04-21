@@ -46,11 +46,11 @@ ADD_DESC: Various code which just prints stuff somewhere
     (put-coloured-str! +term-l-blue+ str x y)
     ))
 
-(defun print-stat (pl setting num)
+(defun print-stat (player setting num)
   "Prints stats in the left frame."
 
-  (let* ((stat-val (svref (player.active-stats pl) num))
-	 (max-val (svref (player.modbase-stats pl) num))
+  (let* ((stat-val (svref (player.active-stats player) num))
+	 (max-val (svref (player.modbase-stats player) num))
 	 (reduced-stat-p (> max-val stat-val))
 	 (stat-set (slot-value setting 'stat))
 	 (row (car stat-set))
@@ -76,21 +76,21 @@ ADD_DESC: Various code which just prints stuff somewhere
     
     ))
 
-(defun print-title (pl setting)
+(defun print-title (player setting)
   "Prints the title for the class at the player's level."
   
-  (let* ((the-class (player.class pl))
-	 (the-lvl (player.level pl))
+  (let* ((the-class (player.class player))
+	 (the-lvl (player.level player))
 	 (title-set (slot-value setting 'title))
 	 (title (get-title-for-level the-class the-lvl)))
     (print-field title title-set)))
 
-(defun print-level (pl setting)
+(defun print-level (player setting)
   "Prints level in the left frame."
   
-  (let* ((lev (player.level pl))
+  (let* ((lev (player.level player))
 	 (lev-set (slot-value setting 'level))
-	 (lower-lvl-p (< lev (player.max-level pl))))
+	 (lower-lvl-p (< lev (player.max-level player))))
     
     (c-prt-token! +term-white+ (if lower-lvl-p +token-nrm-lvl+ +token-big-lvl+)
 		  (car lev-set) (cdr lev-set))
@@ -101,11 +101,11 @@ ADD_DESC: Various code which just prints stuff somewhere
 		   (car lev-set)
 		   (+ (cdr lev-set) 6))))
 
-(defun print-xp (pl setting)
+(defun print-xp (player setting)
   "Prints xp in the left frame."
-  (let* ((xp (player.cur-xp pl))
+  (let* ((xp (player.cur-xp player))
 	 (xp-set (slot-value setting 'xp))
-	 (lower-xp-p (< xp (player.max-xp pl))))
+	 (lower-xp-p (< xp (player.max-xp player))))
 
     (c-prt-token! +term-white+ (if lower-xp-p +token-nrm-xp+ +token-big-xp+)
 		  (car xp-set) (cdr xp-set))
@@ -117,10 +117,10 @@ ADD_DESC: Various code which just prints stuff somewhere
 		   (+ (cdr xp-set) 4))))
 
 
-(defun print-gold (pl setting)
+(defun print-gold (player setting)
   "Prints gold to left frame."
   
-  (let ((gold (player.gold pl))
+  (let ((gold (player.gold player))
 	(gold-set (slot-value setting 'gold)))
 
     (c-prt-token! +term-white+ +token-au+ (car gold-set) (cdr gold-set))
@@ -131,10 +131,10 @@ ADD_DESC: Various code which just prints stuff somewhere
     ))
 
 
-(defun print-armour-class (pl setting)
+(defun print-armour-class (player setting)
   "Prints AC to left frame."
   
-  (let* ((perc (player.perceived-abilities pl))
+  (let* ((perc (player.perceived-abilities player))
 	 (ac (+ (pl-ability.base-ac perc)
 		(pl-ability.ac-modifier perc)))
 	(ac-set (slot-value setting 'ac)))
@@ -148,11 +148,11 @@ ADD_DESC: Various code which just prints stuff somewhere
 		   (+ (cdr ac-set) 7))))
 
 
-(defun print-hit-points (pl setting)
+(defun print-hit-points (player setting)
   "Prints hit-points info to left frame."
   
-  (let ((cur-hp (current-hp pl))
-	(max-hp (maximum-hp pl))
+  (let ((cur-hp (current-hp player))
+	(max-hp (maximum-hp player))
 	(cur-set (slot-value setting 'cur-hp))
 	(max-set (slot-value setting 'max-hp)))
     
@@ -177,11 +177,11 @@ ADD_DESC: Various code which just prints stuff somewhere
     
     ))
 
-(defmethod print-mana-points ((variant variant) pl setting)
+(defmethod print-mana-points ((variant variant) player setting)
   "Prints mana-points info to left frame."
   
-  (let ((cur-hp (current-mana pl))
-	(max-hp (maximum-mana pl))
+  (let ((cur-hp (current-mana player))
+	(max-hp (maximum-mana player))
 	(cur-set (slot-value setting 'cur-mana))
 	(max-set (slot-value setting 'max-mana)))
 
@@ -207,31 +207,33 @@ ADD_DESC: Various code which just prints stuff somewhere
     ))
   
 
-(defun print-basic-frame (variant dun pl)
+(defun print-basic-frame (variant dungeon player)
   "Prints the left frame with basic info"
   
-  (declare (ignore dun))
+  (declare (ignore dungeon))
   ;;  (warn "Printing basic frame..")
 
   (let ((pr-set (get-setting variant :basic-frame-printing))
+	(bot-set (get-setting variant :bottom-row-printing))
 	(stat-len (variant.stat-length variant)))
   
-    (print-field (get-race-name pl) (slot-value pr-set 'race))
-    (print-field (get-class-name pl) (slot-value pr-set 'class))
-    (print-title pl pr-set)
+    (print-field (get-race-name player) (slot-value pr-set 'race))
+    (print-field (get-class-name player) (slot-value pr-set 'class))
+    (print-title player pr-set)
 
-    (print-level pl pr-set)
-    (print-xp pl pr-set) 
+    (print-level player pr-set)
+    (print-xp player pr-set) 
   
     (dotimes (i stat-len)
-      (print-stat pl pr-set i))
+      (print-stat player pr-set i))
 
-    (print-armour-class pl pr-set)
-    (print-hit-points pl pr-set)
-    (print-mana-points variant pl pr-set) 
+    (print-armour-class player pr-set)
+    (print-hit-points player pr-set)
+    (print-mana-points variant player pr-set)
 
-    (print-gold pl pr-set)
-    
+    (print-gold player pr-set)
+
+    #||
     #+maintainer-mode
     (let ((food-set (slot-value pr-set 'food))
 	  (energy-set (slot-value pr-set 'energy)))
@@ -239,28 +241,41 @@ ADD_DESC: Various code which just prints stuff somewhere
       (print-field "Food" food-set)
       (print-field "Energy" energy-set)
       
-      (c-prt-number! +term-l-green+ (player.food pl) 5
+      (c-prt-number! +term-l-green+ (player.food player) 5
 		     (car food-set) (+ (cdr food-set) 7))
-      (c-prt-number! +term-l-green+ (player.energy pl) 5
+      (c-prt-number! +term-l-green+ (player.energy player) 5
 		     (car energy-set) (+ (cdr energy-set) 7))
       )
+    ||#
       
     
-    (print-depth *level* pr-set)
+    (print-depth *level* bot-set)
   
     ))
 
 
-(defmethod print-depth (level setting)
-  "prints current depth somewhere"
-  (declare (ignore setting))
-  (with-foreign-str (s)
-    (lb-format s "~d ft" (* 50 (level.depth level)))
-    (put-coloured-str! +term-l-blue+ s (- (get-last-console-column) 10)
-		       (get-last-console-line)) 
-    ))
 
+(defmethod print-speed ((variant variant) (player player) (setting bottom-row-locations))
+  (let ((column (slot-value setting 'speed))
+	(speed (player.speed player))
+        (colour +term-l-green+))
+    (with-foreign-str (s)
+      (cond ((= speed +speed-base+)
+             (lb-format s "            "))
+            ((> speed +speed-base+)
+	     (lb-format s "Fast (+~d)" (- speed +speed-base+)))
+            (t
+             (lb-format s "Slow (-~d)" (abs (- speed +speed-base+)))
+             (setf colour +term-l-umber+)
+             ))
 
+      ;;(warn "Printing speed ~s" s)
+
+      (put-coloured-str! +term-l-green+ s column
+			 (get-last-console-line))
+      )))
+  
+  
 (defmethod display-creature ((variant variant) (player player) &key mode)
 
   (declare (ignore mode))
@@ -299,13 +314,12 @@ ADD_DESC: Various code which just prints stuff somewhere
 
 (defun display-player-extra (variant player)
   (declare (ignore variant))
-  (let* ((pl player)
-	 (col 26)
+  (let* ((col 26)
 	 (f-col (+ 9 25)) 
-	 (cur-xp (player.cur-xp pl))
-	 (max-xp (player.max-xp pl))
-	 (lvl (player.level pl))
-	 (misc (player.misc pl)))
+	 (cur-xp (player.cur-xp player))
+	 (max-xp (player.max-xp player))
+	 (lvl (player.level player))
+	 (misc (player.misc player)))
     
 
     (put-coloured-str! +term-white+  "Age" col 3)
@@ -327,7 +341,7 @@ ADD_DESC: Various code which just prints stuff somewhere
 
     (put-coloured-str! +term-white+ "Level" col 10)
     (put-coloured-str! (if (>= lvl
-			       (player.max-level pl))
+			       (player.max-level player))
 			   +term-l-green+
 			   +term-yellow+)
 		       (format nil "~10d" lvl)  f-col 10)
@@ -349,8 +363,8 @@ ADD_DESC: Various code which just prints stuff somewhere
 
     (put-coloured-str! +term-white+ "Adv Exp" col 13)
     (put-coloured-str! +term-l-green+
-		       (format nil "~10d" (aref (player.xp-table pl)
-						(player.level pl)))
+		       (format nil "~10d" (aref (player.xp-table player)
+						(player.level player)))
 		       f-col 13)
 
     
@@ -358,10 +372,10 @@ ADD_DESC: Various code which just prints stuff somewhere
     (put-coloured-str! +term-white+ "Gold" col 15)
 
     (put-coloured-str! +term-l-green+
-		       (format nil "~10d" (player.gold pl)) f-col 15)
+		       (format nil "~10d" (player.gold player)) f-col 15)
 
     (put-coloured-str! +term-white+ "Burden" col 17)
-    (let* ((weight (player.burden pl))
+    (let* ((weight (player.burden player))
 	   (pound (int-/ weight 10))
 	   (frac (mod weight 10))
 	   (str (format nil "~10d.~d lbs" pound frac)))
@@ -372,7 +386,7 @@ ADD_DESC: Various code which just prints stuff somewhere
     (setq f-col (+ col 5))
 
     (put-coloured-str! +term-white+ "Armour" col 10)
-    (let* ((perc (player.perceived-abilities pl))
+    (let* ((perc (player.perceived-abilities player))
 	   (p-ac (pl-ability.base-ac perc))
 	   (p-acmod (pl-ability.ac-modifier perc)))
          
@@ -380,11 +394,11 @@ ADD_DESC: Various code which just prints stuff somewhere
 			 (format nil "~12@a" (format nil "[~d,~@d]" p-ac p-acmod))
 			 (1+ f-col) 10))
 
-;;    (let ((weapon (get-weapon pl)))
+;;    (let ((weapon (get-weapon player)))
 ;;     
 ;;      nil)
 
-    (let* ((perc (player.perceived-abilities pl))
+    (let* ((perc (player.perceived-abilities player))
 	   (tohit (pl-ability.to-hit-modifier perc))
 	   (dmg (pl-ability.to-dmg-modifier perc))
 	   )
@@ -415,7 +429,7 @@ ADD_DESC: Various code which just prints stuff somewhere
     (put-coloured-str! +term-white+ "Infra" col 17)
 	    
     (put-coloured-str! +term-l-blue+
-		       (format nil "~10d ft" (* 10 (player.infravision pl)))
+		       (format nil "~10d ft" (* 10 (player.infravision player)))
 		       f-col 17)
 
     ;; then right
@@ -424,7 +438,7 @@ ADD_DESC: Various code which just prints stuff somewhere
 
     (flet ((print-skill (skill div row)
 	     (declare (ignore div))
-	     (let ((val (slot-value (player.skills pl) skill)))
+	     (let ((val (slot-value (player.skills player) skill)))
 	       (put-coloured-str! +term-l-green+
 				  (format nil "~9d" val)
 				  f-col

@@ -16,15 +16,15 @@ DESC: tests/save.lisp - testing code for save/load of game
 (defmethod perform-test ((fix save-fixture))
   (%save/load-test lb::*variant* lb::*player* lb::*level*))
 
-(defun %save/load-test (var-obj pl lvl)
+(defun %save/load-test (var-obj player lvl)
 
   (test-assert (lb::ok-object? var-obj :context :in-game :warn-on-failure t))
   ;;    (format t "OK~%")
-  (test-assert (lb::ok-object? pl      :context :in-game :warn-on-failure t))
+  (test-assert (lb::ok-object? player  :context :in-game :warn-on-failure t))
   (test-assert (lb::ok-object? lvl     :context :in-game :warn-on-failure t))
 
-  (flet ((scat (a b)
-	   (concatenate 'string (string a) (string b)))
+  (flet ((scat (&rest args)
+	   (apply #'concatenate (cons 'string (mapcar #'string args))))
 	 (do-a-load (fname type)
 	   (let* ((lb::*variant* nil)
 		  (lb::*player* nil)
@@ -36,18 +36,18 @@ DESC: tests/save.lisp - testing code for save/load of game
 	   (lb::*player* nil)
 	   (lb::*level* nil)
 	    
-	   (r-save (scat *dumps-directory* "rsave." type))
-	   (b-save (scat *dumps-directory* "bsave." type))
+	   (r-save (scat lb::*dumps-directory* "rsave." type))
+	   (b-save (scat lb::*dumps-directory* "bsave." type))
 	   )
 
-      (lb::save-the-game var-obj pl lvl :fname r-save :format :readable)
-      (lb::save-the-game var-obj pl lvl :fname b-save :format :binary)
+      (lb::save-the-game var-obj player lvl :fname r-save :format :readable)
+      (lb::save-the-game var-obj player lvl :fname b-save :format :binary)
 
       ;;	(trace do-a-load)
 	
       (let ((readable (do-a-load r-save :readable))
 	    (binary   (do-a-load b-save :binary))
-	    (originals (list var-obj pl lvl))
+	    (originals (list var-obj player lvl))
 	    )
 
 	;;	  (format t "Readable is ~s~%" readable)

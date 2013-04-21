@@ -116,10 +116,8 @@ the Free Software Foundation; either version 2 of the License, or
   :hit-dice 7
   :stat-changes '((<str> -2) (<int> +2) (<wis> +1)
 		  (<dex> +3) (<con> +2) (<chr> +1))
-  :abilities '(
-	       (<sustain> <dex>)
-	       (<infravision> 4)
-	       )
+  :stat-sustains '(<dex>)
+  :abilities '((<infravision> 4))
   :classes '(<warrior> <rogue> <mage>)
   
   :skills '((<disarming> 15 0)
@@ -254,10 +252,8 @@ the Free Software Foundation; either version 2 of the License, or
   :hit-dice 12
   :stat-changes '((<str> +4) (<int> -4) (<wis> -2)
 		  (<dex> -4) (<con> +3) (<chr> -6))
-  :abilities '(
-	       (<sustain> <str>)
-	       (<infravision> 3)
-	       )
+  :stat-sustains '(<str>)
+  :abilities '((<infravision> 3))
   :classes '(<warrior> <rogue> <priest>)
   
   :skills '((<disarming> -5 0)

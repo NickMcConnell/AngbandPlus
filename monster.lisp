@@ -247,7 +247,7 @@ ADD_DESC: The code which deals with critters you can meet in the dungeon.
 			    depth ;;level
 			    rarity hitpoints armour
 			    speed xp abilities
-			    immunities alertness
+			    (immunities :unspec) alertness
 			    vulnerabilities
 			    vision attacks special-abilities
 			    (treasures :unspec)
@@ -327,8 +327,25 @@ the *VARIANT* object so it has to be properly initialised."
     
     (when alertness
       (setf (monster.alertness m-obj) alertness))
-    (when immunities
-      (setf (monster.immunities m-obj) immunities))
+    
+    (cond ((eq immunities :unspec))
+          ((listp immunities)
+           (dolist (i immunities)
+             (cond ((and (symbolp i) (not (eq nil i)))
+		    (if (is-legal-element? var-obj i)
+			(bit-flag-add! (monster.immunities m-obj) (get-element-flag var-obj i))
+			(error "Illegal immunity-arg ~s for monster ~a"
+			       i (monster.name m-obj))))
+                   (t
+                    (error "Unknown immunity argument ~s for monster ~a"
+                           i (monster.name m-obj))))))
+          (t
+           (error "Unknown immunity argument ~s for race ~a"
+                           immunities (monster.name m-obj))))
+           
+
+;;    (when immunities
+;;      (setf (monster.immunities m-obj) immunities))
     (when vulnerabilities
       (setf (monster.vulnerabilities m-obj) vulnerabilities))
     (when vision

@@ -284,32 +284,72 @@ call appropriately high-level init in correct order."
 	      (/= *screen-height* adjusted-height))
       (setf *screen-width* adjusted-width
 	    *screen-height* adjusted-height)
-      (verify-panel *dungeon* *player*)
+      (when *player*
+	(verify-panel *dungeon* *player*))
       t)))
+
+(defun %mouse-clicked (button x y)
+  (warn "Button ~s clicked at (~s,~s)" button x y)
+  nil)
 
 (defun arrange-callbacks ()
   "Assures that the C-side has necessary callbacks to the Lisp-side."
-  
+
+  ;; not sure if this allegro code is 110% correct
   #+allegro
-  (let ((play-ptr (ff:register-foreign-callable `c-callable-play nil t))
-	(size-ptr (ff:register-foreign-callable `%adjust-screen-size nil t)))
+  (let ((play-ptr  (ff:register-foreign-callable `c-callable-play nil t))
+	(size-ptr  (ff:register-foreign-callable `c-callable-resize nil t))
+	(mouse-ptr (ff:register-foreign-callable `c-callable-mouseclick nil t))
+	)
     (org.langband.ffi:c-set-lisp-callback! "play-game" play-ptr)
-    (org.langband.ffi:c-set-lisp-callback! "adjust-size" size-ptr))
+    (org.langband.ffi:c-set-lisp-callback! "adjust-size" size-ptr)
+    (org.langband.ffi:c-set-lisp-callback! "mouse-clicked" mouse-ptr)
+    )
   
   #+cmu
-  (let ((play-ptr (kernel:get-lisp-obj-address #'play-game&))
-	(size-ptr (kernel:get-lisp-obj-address #'%adjust-screen-size)))
+  (let ((play-ptr  (kernel:get-lisp-obj-address #'play-game&))
+	(size-ptr  (kernel:get-lisp-obj-address #'%adjust-screen-size))
+	(mouse-ptr (kernel:get-lisp-obj-address #'%mouse-clicked))
+	)
     (org.langband.ffi:c-set-lisp-callback! "play-game" play-ptr)
-    (org.langband.ffi:c-set-lisp-callback! "adjust-size" size-ptr))
+    (org.langband.ffi:c-set-lisp-callback! "adjust-size" size-ptr)
+    (org.langband.ffi:c-set-lisp-callback! "mouse-clicked" mouse-ptr)
+    )
 
   #+sbcl
-  (let ((play-ptr (sb-kernel:get-lisp-obj-address #'play-game&))
-	(size-ptr (sb-kernel:get-lisp-obj-address #'%adjust-screen-size)))
-    (warn "setting callbacks ~d ~d" play-ptr size-ptr)
+  (let ((play-ptr  (sb-kernel:get-lisp-obj-address #'play-game&))
+	(size-ptr  (sb-kernel:get-lisp-obj-address #'%adjust-screen-size))
+	(mouse-ptr (sb-kernel:get-lisp-obj-address #'%mouse-clicked))
+	)
+;;    (warn "setting callbacks ~d ~d" play-ptr size-ptr)
     (org.langband.ffi:c-set-lisp-callback! "play-game" play-ptr)
-    (org.langband.ffi:c-set-lisp-callback! "adjust-size" size-ptr))
+    (org.langband.ffi:c-set-lisp-callback! "adjust-size" size-ptr)
+    (org.langband.ffi:c-set-lisp-callback! "mouse-clicked" mouse-ptr)
+    )
 
-  #-(or sbcl cmu allegro)
+  #+lispworks
+  (let ((play-ptr  (fli:make-pointer :symbol-name "LB_PlayGame"))
+	(size-ptr  (fli:make-pointer :symbol-name "LB_AdjustSize"))
+	(mouse-ptr (fli:make-pointer :symbol-name "LB_MouseClicked"))
+	)
+    
+    (fli:with-foreign-string (name elm-count byte-count :external-format :ascii)
+      "play-game"
+      (declare (ignore elm-count byte-count))
+      (org.langband.ffi:c-set-lisp-callback! name play-ptr))
+    
+    (fli:with-foreign-string (name elm-count byte-count :external-format :ascii)
+      "adjust-size"
+      (declare (ignore elm-count byte-count))
+      (org.langband.ffi:c-set-lisp-callback! name size-ptr))
+    
+    (fli:with-foreign-string (name elm-count byte-count :external-format :ascii)
+      "mouse-clicked"
+      (declare (ignore elm-count byte-count))
+      (org.langband.ffi:c-set-lisp-callback! name mouse-ptr))
+      )
+  
+  #-(or sbcl cmu allegro lispworks)
   (error "No callback arranged for implementation..")
   
   )
@@ -321,6 +361,10 @@ call appropriately high-level init in correct order."
 	#+(or cmu) (extensions:*gc-verbose* nil)
 	#+(or cmu sbcl) (*compile-print* nil)
 	)
+    ;; still get problems as ffi locks up thread system, but a bit better.
+    #+lispworks
+    (mp:process-run-function "langband" '() #'game-init& ui)
+    #-lispworks
     (game-init& ui)
 ;;    (format t "~&Thanks for helping to test Langband.~2%")
     ))

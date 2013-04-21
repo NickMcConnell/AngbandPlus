@@ -38,7 +38,7 @@ ADD_DESC: This file just contains simple init and loading of the game
 (eval-when (:execute :load-toplevel :compile-toplevel)
 
 ;;  (pushnew :xp-testing *features*)
-  (pushnew :langband-development *features*)
+;;  (pushnew :langband-development *features*)
 ;;  #-clisp
 ;;  (push :using-sound *features*)
   ;; this one should be turned on in releases and in curses
@@ -81,6 +81,7 @@ ADD_DESC: This file just contains simple init and loading of the game
   (assign-log-path& (strcat *current-dir* "tools/") "langband-tools")
   (assign-log-path& (strcat *current-dir* "tests/") "langband-tests")
   (assign-log-path& (strcat *current-dir* "variants/vanilla/") "langband-vanilla")
+  (assign-log-path& (strcat *current-dir* "variants/vanilla/tests/") "vanilla-tests")
   ;;(assign-log-path& (strcat *current-dir* "lib/foreign/") "langband-foreign")
   )
 
@@ -116,18 +117,19 @@ ADD_DESC: This file just contains simple init and loading of the game
 		    ))
 
 
-(proclaim *dev-opt*)
-;;(proclaim *normal-opt*)
+;;(proclaim *dev-opt*)
+(proclaim *normal-opt*)
  
 (defun compile-in-environment (func)
   (let (
 	#+(or cmu lispworks sbcl) (*compile-print* nil)
-	      #+(or cmu lispworks) (*load-verbose* nil)
-	      (*load-print* nil)
-	      ;;#+cmu (*error-output* o-str)
-	      #+cmu (extensions:*gc-verbose* nil)
-;;	      #+sbcl (sb-ext:*gc-verbose* nil)
-	      )
+	  #+lispworks (*compile-verbose* nil)
+	  #+(or cmu lispworks) (*load-verbose* nil)
+	  (*load-print* nil)
+	  ;; #+cmu (*error-output* o-str)
+	  #+cmu (extensions:*gc-verbose* nil)
+	  ;; #+sbcl (sb-ext:*gc-verbose* nil)
+	  )
     (funcall func)))
 
 (defun progress-msg (msg)
@@ -136,7 +138,10 @@ ADD_DESC: This file just contains simple init and loading of the game
 #+use-asdf
 (defun load-game ()
   "Tries to load the game asdf-style."
-  (let ((asdf:*central-registry* (list *default-pathname-defaults* "variants/vanilla/")))
+  (let ((asdf:*central-registry* (list *default-pathname-defaults* "variants/vanilla/"))
+	;;#+lispworks ;; possibly others too
+	(asdf::*compile-file-failure-behaviour* :ignore)
+	(asdf:*compile-file-warnings-behaviour* :ignore))
     (load "langband-engine.asd")
     (load "variants/vanilla/langband-vanilla.asd")
     (asdf:oos 'asdf:load-op :langband-vanilla)
@@ -200,24 +205,43 @@ ADD_DESC: This file just contains simple init and loading of the game
 		 (%cl (strcat "variants/vanilla/" x)))
 	 (list
 	  "base" "quirks" "various" "rooms"
-	  "levels" "spells" "wizard" "keys"))
+	  "levels" "spells" "wizard" "keys"
+	  "verify"))
 
     (progress-msg "Variant loaded...")
     t))
 
-    
-    
-    
+
 (compile-in-environment #'load-game)
 
 
 #+xp-testing	
 (defun load-tests ()
-  (load "tools/XPTest.system")
-  (mk:operate-on-system 'XPTest 'compile :verbose nil)
   
-  (load "tests/langband-tests.system")
-  (mk:operate-on-system 'langband-tests 'compile :verbose nil)
+  #+use-asdf
+  (let (;;(asdf:*central-registry* (list *default-pathname-defaults* "tools/" "tests/"))
+	(asdf:*compile-file-warnings-behaviour* :ignore))
+    (load "tools/xp-test.asd")
+    (load "tests/langband-tests.asd")
+    (load "variants/vanilla/tests/vanilla-tests.asd")
+    (asdf:oos 'asdf:load-op :vanilla-tests)
+    )
+
+  #+use-mkdefsystem
+  (progn
+    (load "tools/XPTest.system")
+    (mk:operate-on-system 'XPTest 'compile :verbose nil)
+    
+    (load "tests/langband-tests.system")
+    (mk:operate-on-system 'langband-tests 'compile :verbose nil)
+    
+    (load "variants/vanilla/tests/vanilla-tests.system")
+    (mk:operate-on-system 'vanilla-tests 'compile :verbose nil))
+  
+  #-(or use-asdf use-mkdefsystem)
+  (progn
+    (warn "Tests cannot be loaded without ASDF or MK:DEFSYSTEM"))
+  
   (progress-msg "Tests loaded."))
 	
 #+xp-testing

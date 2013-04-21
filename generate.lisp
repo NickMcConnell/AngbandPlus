@@ -721,10 +721,10 @@ argument is passed it will be used as new dungeon and returned."
 ;;  (warn "post-init of random level, ~a" leave-method)
 
   (when leave-method
-    (let* ((dun (level.dungeon obj))
-	   (pl (if player player *player*))
-	   (px (location-x pl))
-	   (py (location-y pl))
+    (let* ((dungeon (level.dungeon obj))
+	   (the-player (if player player *player*))
+	   (px (location-x the-player))
+	   (py (location-y the-player))
 	   (feat (case leave-method
 		   (:down-stair +floor-less+)
 		   (:up-stair +floor-more+)
@@ -733,7 +733,7 @@ argument is passed it will be used as new dungeon and returned."
       
       (when feat
 ;;	(warn "placing feature at ~s,~s" px py) 
-	(setf (cave-floor dun px py) feat))
+	(setf (cave-floor dungeon px py) feat))
       ))
   
 

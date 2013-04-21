@@ -24,12 +24,11 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(15 0 0 0)
   :weight 5
   :cost 125
-  :obj-type '(<scroll> <enchant> <weapon> <to-hit>)
   :sort-value 5017
-  :on-read (object-effect (dun pl item)
-			  (let ((retval (enchant-item! dun pl :type '<weapon> :bonus 1 :restrict '<to-hit>)))
-			    (possible-identify! pl item)
-			    retval))
+  :on-read (object-effect (dungeon player item)
+	     (let ((retval (enchant-item! dungeon player :type '<weapon> :bonus 1 :restrict '<to-hit>)))
+	       (possible-identify! player item)
+	       retval))
   :the-kind '<scroll>) 
 
 (define-object-kind "scroll-enchant-wpn-dmg" "enchant weapon to-dam"
@@ -42,12 +41,11 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(15 0 0 0)
   :weight 5
   :cost 125
-  :obj-type '(<scroll> <enchant> <weapon> <to-dmg>)
   :sort-value 5018
-  :on-read (object-effect (dun pl item)
-			  (let ((retval (enchant-item! dun pl :type '<weapon> :bonus 1 :restrict '<to-dmg>)))
-			    (possible-identify! pl item)
-			    retval))
+  :on-read (object-effect (dungeon player item)
+	     (let ((retval (enchant-item! dungeon player :type '<weapon> :bonus 1 :restrict '<to-dmg>)))
+	       (possible-identify! player item)
+	       retval))
   :the-kind '<scroll>) 
 
 (define-object-kind "scroll-enchant-armour" "enchant armour"
@@ -60,12 +58,11 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(15 0 0 0)
   :weight 5
   :cost 125
-  :obj-type '(<scroll> <enchant> <armour> <normal>)
   :sort-value 5016
-  :on-read (object-effect (dun pl item)
-			  (let ((retval (enchant-item! dun pl :type '<armour> :bonus 1)))
-			    (possible-identify! pl item)
-			    retval))
+  :on-read (object-effect (dungeon player item)
+	     (let ((retval (enchant-item! dungeon player :type '<armour> :bonus 1)))
+	       (possible-identify! player item)
+	       retval))
   :the-kind '<scroll>) 
 
 (define-object-kind "scroll-identify" "identify"
@@ -78,8 +75,12 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(1 5 10 30)
   :weight 5
   :cost 50
-  :obj-type '(<scroll> <identify> <normal>)
   :sort-value 5012
+  :on-read (object-effect (dungeon player item)
+	     (interactive-identify-object! dungeon player :type '<normal>)
+	     (possible-identify! player item)
+	     :used)
+
   :the-kind '<scroll>) 
 
 (define-object-kind "scroll-*identify*" "*identify*"
@@ -92,8 +93,12 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(30 0 0 0)
   :weight 5
   :cost 1000
-  :obj-type '(<scroll> <identify> <powerful>)
   :sort-value 5013
+  :on-read (object-effect (dungeon player item)
+	    (interactive-identify-object! dungeon player :type '<powerful>)
+	    (possible-identify! player item)
+	    :used)
+  
   :the-kind '<scroll>) 
 
 (define-object-kind "scroll-remove-curse" "remove curse"
@@ -106,11 +111,10 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(10 0 0 0)
   :weight 5
   :cost 100
-  :obj-type '(<scroll> <remove-curse> <normal>)
   :sort-value 5014
   :the-kind '<scroll>) 
 
-(define-object-kind "scroll-light" "light"
+(define-object-kind "scroll-illumination" "illumination"
   :numeric-id 181
   :x-attr #\d
   :x-char #\?
@@ -120,14 +124,12 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(0 3 10 0)
   :weight 5
   :cost 15
-  :obj-type '(<illuminate> <scroll>)
   :sort-value 5024
-  :on-read (object-effect (dun pl item)
-			  ;;  (declare (ignore dun pl item))
-			  (warn "light.")
-			  (when (light-area! dun pl (roll-dice 2 8) 2 :type '<light>) ;; 2d8 dmg, radius 2
-			    (possible-identify! pl item))
-			  :used)
+  :on-read (object-effect (dungeon player item)
+	     (warn "illumination.")
+	     (when (light-area! dungeon player (roll-dice 2 8) 2 :type '<light>) ;; 2d8 dmg, radius 2
+	       (possible-identify! player item))
+	     :used)
   :the-kind '<scroll>) 
 
 (define-object-kind "scroll-summon-monster" "summon monster"
@@ -140,15 +142,14 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(1 0 0 0)
   :weight 5
   :cost 0
-  :obj-type '(<scroll> <summon> <monster>)
   :sort-value 5004
-  :on-read (object-effect (dun pl item)
-;;			  (warn "summon")
-			  (dotimes (i (randint 3))
-			    (when (summon-monster dun
-						  (location-x pl) (location-y pl)
-						  (dungeon.depth dun) :type :any)
-			      (possible-identify! pl item))))
+  :on-read (object-effect (dungeon player item)
+	     ;; (warn "summon")
+	     (dotimes (i (randint 3))
+	       (when (summon-monster dungeon
+				     (location-x player) (location-y player)
+				     (dungeon.depth dungeon) :type :any)
+		 (possible-identify! player item))))
   :the-kind '<scroll>) 
 
 (define-object-kind "scroll-phase-door" "phase door"
@@ -161,12 +162,11 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(1 0 0 0)
   :weight 5
   :cost 15
-  :obj-type '(<phase-door> <scroll>)
   :sort-value 5008
-  :on-read (object-effect (dun pl item)
-			  (teleport-creature! dun pl pl 10)
-			  (possible-identify! pl item)
-			  :used)
+  :on-read (object-effect (dungeon player item)
+	     (teleport-creature! dungeon player player 10)
+	     (possible-identify! player item)
+	     :used)
   :the-kind '<scroll>) 
 
 (define-object-kind "scroll-teleport" "teleportation"
@@ -179,13 +179,12 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(10 0 0 0)
   :weight 5
   :cost 40
-  :obj-type '(<teleportation> <scroll>)
   :sort-value 5009
-  :on-read (object-effect (dun pl item)
-			  ;;  (warn "phase door.")
-			  (teleport-creature! dun pl pl 100)
-			  (possible-identify! pl item)
-			  :used)
+  :on-read (object-effect (dungeon player item)
+	     ;;  (warn "phase door.")
+	     (teleport-creature! dungeon player player 100)
+	     (possible-identify! player item)
+	     :used)
   :the-kind '<scroll>) 
 
 (define-object-kind "scroll-teleport-lvl" "teleport level"
@@ -198,8 +197,24 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(20 0 0 0)
   :weight 5
   :cost 50
-  :obj-type '(<teleport-level> <scroll>)
   :sort-value 5010
+  :on-read (object-effect (dungeon player item)
+	     (let* ((cur-depth (player.depth player))
+		    (dir (cond ((= cur-depth 0)
+				:down)
+			       (t
+				(if (< (random 100) 50)
+				    :up
+				    :down)))))
+	       (if (eq dir :up)
+		   (print-message! "You rise up through the ceiling.")
+		   (print-message! "You sink through the floor."))
+
+	       (change-depth! dungeon player :direction dir :amount 1 :type :teleport)
+
+	       (possible-identify! player item)
+	       :used))
+
   :the-kind '<scroll>) 
 
 (define-object-kind "scroll-monster-confusion" "monster confusion"
@@ -212,7 +227,6 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(5 0 0 0)
   :weight 5
   :cost 30
-  :obj-type '(<confuse-monster> <scroll>)
   :sort-value 5036
   :the-kind '<scroll>) 
 
@@ -226,7 +240,6 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(5 0 0 0)
   :weight 5
   :cost 40
-  :obj-type '(<mapping> <scroll>)
   :sort-value 5025
   :the-kind '<scroll>) 
 
@@ -240,7 +253,6 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(60 90 0 0)
   :weight 5
   :cost 500
-  :obj-type '(<scroll> <protection> <rune>)
   :sort-value 5038
   :the-kind '<scroll>) 
 
@@ -254,7 +266,6 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(50 0 0 0)
   :weight 5
   :cost 8000
-  :obj-type '(<scroll> <remove-curse> <powerful>)
   :sort-value 5015
   :the-kind '<scroll>) 
 
@@ -268,7 +279,6 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(0 0 0 0)
   :weight 5
   :cost 15
-  :obj-type '(<scroll> <detect> <money>)
   :sort-value 5026
   :the-kind '<scroll>) 
 
@@ -282,7 +292,6 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(0 0 0 0)
   :weight 5
   :cost 15
-  :obj-type '(<scroll> <detect> <item>)
   :sort-value 5027
   :the-kind '<scroll>) 
 
@@ -296,7 +305,6 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(5 10 0 0)
   :weight 5
   :cost 35
-  :obj-type '(<scroll> <detect> <trap>)
   :sort-value 5028
   :the-kind '<scroll>) 
 
@@ -310,7 +318,6 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(5 10 15 0)
   :weight 5
   :cost 35
-  :obj-type '(<scroll> <detect> <door>)
   :sort-value 5029
   :the-kind '<scroll>) 
 
@@ -324,7 +331,6 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(20 0 0 0)
   :weight 5
   :cost 100000
-  :obj-type '(<scroll> <acquirement> <normal>)
   :sort-value 5046
   :the-kind '<scroll>) 
 
@@ -338,11 +344,10 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(60 0 0 0)
   :weight 5
   :cost 200000
-  :obj-type '(<scroll> <acquirement> <powerful>)
   :sort-value 5047
   :the-kind '<scroll>) 
 
-(define-object-kind "sroll-mass-genocide" "mass genocide"
+(define-object-kind "sroll-mass-xenocide" "mass xenocide"
   :numeric-id 200
   :x-attr #\d
   :x-char #\?
@@ -352,7 +357,6 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(50 0 0 0)
   :weight 5
   :cost 1000
-  :obj-type '(<scroll> <genocide> <mass>)
   :sort-value 5045
   :the-kind '<scroll>) 
 
@@ -366,8 +370,13 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(1 0 0 0)
   :weight 5
   :cost 15
-  :obj-type '(<scroll> <detect> <invisible>)
   :sort-value 5030
+  :on-read (object-effect (dungeon player item)
+	    (when (detect-invisible! dungeon player (location-x player) (location-y player)
+				     +default-detect-radius+)
+	      (possible-identify! player item))
+	    :used)
+
   :the-kind '<scroll>) 
 
 (define-object-kind "scroll-aggr-monster" "aggravate monster"
@@ -380,7 +389,6 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(5 0 0 0)
   :weight 5
   :cost 0
-  :obj-type '(<aggravate> <scroll>)
   :sort-value 5001
   :the-kind '<scroll>) 
 
@@ -394,7 +402,6 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(10 0 0 0)
   :weight 5
   :cost 0
-  :obj-type '(<create-trap> <scroll>)
   :sort-value 5007
   :the-kind '<scroll>) 
 
@@ -408,7 +415,6 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(10 0 0 0)
   :weight 5
   :cost 50
-  :obj-type '(<trap/door-destruction> <scroll>)
   :sort-value 5039
   :the-kind '<scroll>) 
 
@@ -422,11 +428,10 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(40 0 0 0)
   :weight 5
   :cost 200
-  :obj-type '(<recharge> <scroll>)
   :sort-value 5022
   :the-kind '<scroll>) 
 
-(define-object-kind "scroll-genocide" "genocide"
+(define-object-kind "scroll-xenocide" "xenocide"
   :numeric-id 207
   :x-attr #\d
   :x-char #\?
@@ -436,7 +441,6 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(40 0 0 0)
   :weight 5
   :cost 750
-  :obj-type '(<genocide> <scroll>)
   :sort-value 5044
   :the-kind '<scroll>) 
 
@@ -450,13 +454,11 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(1 0 0 0)
   :weight 5
   :cost 0
-  :obj-type '(<darkness> <scroll>)
   :sort-value 5000
-  :on-read (object-effect (dun pl item)
-			  ;;  (declare (ignore dun pl item))
-			  (when (light-area! dun pl (roll-dice 2 8) 2 :type '<darkness>) ;; 2d8 dmg, radius 2
-			    (possible-identify! pl item))
-			  :used)
+  :on-read (object-effect (dungeon player item)
+	     (when (light-area! dungeon player (roll-dice 2 8) 2 :type '<darkness>) ;; 2d8 dmg, radius 2
+	       (possible-identify! player item))
+	     :used)
   :the-kind '<scroll>) 
 
 (define-object-kind "scroll-protect-from-evil" "protection from evil"
@@ -469,8 +471,12 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(30 0 0 0)
   :weight 5
   :cost 50
-  :obj-type '(<scroll> <protection> <evil>)
   :sort-value 5037
+  :on-read (object-effect (dungeon player item)
+	     (modify-creature-state! player '<prot-from-evil>
+				     :add (+ (* 3 (player.level player)) (random 25)))
+	     (possible-identify! player item)
+	     :used)
   :the-kind '<scroll>) 
 
 (define-object-kind "scroll-satisfy-hunger" "satisfy hunger"
@@ -483,8 +489,11 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(5 0 0 0)
   :weight 5
   :cost 10
-  :obj-type '(<satisfy-hunger> <scroll>)
   :sort-value 5032
+  :on-read (object-effect (dungeon player item)
+	    (alter-food! player (1- +food-max+))
+	    (possible-identify! player item)
+	    :used)
   :the-kind '<scroll>) 
 
 (define-object-kind "scroll-dispel-undead" "dispel undead"
@@ -497,7 +506,6 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(40 0 0 0)
   :weight 5
   :cost 200
-  :obj-type '(<scroll> <dispel> <undead>)
   :sort-value 5042
   :the-kind '<scroll>) 
 
@@ -511,12 +519,11 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(50 0 0 0)
   :weight 5
   :cost 500
-  :obj-type '(<scroll> <enchant> <weapon> <powerful>)
   :sort-value 5021
-  :on-read (object-effect (dun pl item)
-			  (let ((retval (enchant-item! dun pl :type '<weapon> :bonus (+ (randint 3) (randint 3)))))
-			    (possible-identify! pl item)
-			    retval))
+  :on-read (object-effect (dungeon player item)
+	     (let ((retval (enchant-item! dungeon player :type '<weapon> :bonus (+ (randint 3) (randint 3)))))
+	       (possible-identify! player item)
+	       retval))
   :the-kind '<scroll>) 
 
 (define-object-kind "scroll-curse-weapon" "curse weapon"
@@ -529,7 +536,6 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(50 0 0 0)
   :weight 5
   :cost 0
-  :obj-type '(<curse-weapon> <scroll>)
   :sort-value 5003
   :the-kind '<scroll>) 
 
@@ -543,12 +549,11 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(50 50 0 0)
   :weight 5
   :cost 500
-  :obj-type '(<scroll> <enchant> <armour> <powerful>)
   :sort-value 5020
-  :on-read (object-effect (dun pl item)
-			  (let ((retval (enchant-item! dun pl :type '<armour> :bonus (+ 2 (randint 3)))))
-			    (possible-identify! pl item)
-			    retval))
+  :on-read (object-effect (dungeon player item)
+	     (let ((retval (enchant-item! dungeon player :type '<armour> :bonus (+ 2 (randint 3)))))
+	       (possible-identify! player item)
+	       retval))
   :the-kind '<scroll>) 
 
 (define-object-kind "scroll-curse-armour" "curse armour"
@@ -561,7 +566,6 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(50 0 0 0)
   :weight 5
   :cost 0
-  :obj-type '(<curse-armour> <scroll>)
   :sort-value 5002
   :the-kind '<scroll>) 
 
@@ -575,15 +579,15 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(15 0 0 0)
   :weight 5
   :cost 0
-  :obj-type '(<scroll> <summon> <undead>)
   :sort-value 5005
-  :on-read (object-effect (dun pl item)
-			  (dotimes (i (randint 3))
-			    (when (summon-monster dun
-						  (location-x pl) (location-y pl)
-						  (dungeon.depth dun) :type :undead)
-			      (possible-identify! pl item))))
-
+  :on-read (object-effect (dungeon player item)
+	     (dotimes (i (randint 3))
+	       (when (summon-monster dungeon
+				     (location-x player) (location-y player)
+				     (dungeon.depth dungeon) :type :undead)
+		 (possible-identify! player item)))
+	     :used)
+  
   :the-kind '<scroll>) 
 
 (define-object-kind "scroll-blessing" "blessing"
@@ -596,8 +600,11 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(1 0 0 0)
   :weight 5
   :cost 15
-  :obj-type '(<scroll> <blessing> <light>)
   :sort-value 5033
+  :on-read (object-effect (dungeon player item)
+	        (modify-creature-state! player '<blessed> :add (+ 6 (random 12)))
+		(possible-identify! player item)
+		:used)
   :the-kind '<scroll>) 
 
 (define-object-kind "scroll-holy-chant" "holy chant"
@@ -610,8 +617,11 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(10 0 0 0)
   :weight 5
   :cost 40
-  :obj-type '(<scroll> <blessing> <chant>)
   :sort-value 5034
+  :on-read (object-effect (dungeon player item)
+	     (modify-creature-state! player '<blessed> :add (+ 12 (random 24)))
+	     (possible-identify! player item)
+	     :used)
   :the-kind '<scroll>) 
 
 (define-object-kind "scroll-holy-prayer" "holy prayer"
@@ -624,8 +634,11 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(25 0 0 0)
   :weight 5
   :cost 80
-  :obj-type '(<scroll> <blessing> <prayer>)
   :sort-value 5035
+  :on-read (object-effect (dungeon player item)
+	     (modify-creature-state! player '<blessed> :add (+ 24 (random 48)))
+	     (possible-identify! player item)
+	     :used)
   :the-kind '<scroll>) 
 
 (define-object-kind "scroll-wor" "word of recall"
@@ -638,7 +651,6 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(5 0 0 0)
   :weight 5
   :cost 150
-  :obj-type '(<word-of-recall> <scroll>)
   :sort-value 5011
   :the-kind '<scroll>) 
 
@@ -652,6 +664,5 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(40 0 0 0)
   :weight 5
   :cost 250
-  :obj-type '(<scroll> <destruction> <powerful>)
   :sort-value 5041
   :the-kind '<scroll>) 

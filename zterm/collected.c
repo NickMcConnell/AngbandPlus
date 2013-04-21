@@ -510,3 +510,13 @@ cleanup_c_side(void) {
     
     return 1;
 }
+
+int
+get_term_height() {
+    return Term->hgt;
+}
+
+int
+get_term_width() {
+    return Term->wid;
+}

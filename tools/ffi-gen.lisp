@@ -331,6 +331,7 @@ DESC: tools/ffi-gen.lisp - code that reads defs and generates actual ffi-code.
     (uchar8 :char)
     (char-arr :pointer)
     (c-string8 :pointer)
+    (ptr-type :ptr)
     (cptr :pointer)
     (int :int)
     (int32 :int)

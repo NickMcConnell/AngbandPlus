@@ -36,16 +36,16 @@ the Y-coordinate of the COORD
 
  `(invoke-on-dungeon ,(car parameters) #'(lambda ,(cadr parameters) ,@code))) 
 
-(defun invoke-on-dungeon-monsters (dun fun)
+(defun invoke-on-dungeon-monsters (dungeon fun)
   "Calls FUN with TWO arguments:
 the dungeon object
 the monster
 "
 
-  (let ((monster-list (dungeon.monsters dun)))
+  (let ((monster-list (dungeon.monsters dungeon)))
     (dolist (i monster-list)
       (when (creature-alive? i)
-	(funcall fun dun i)))))
+	(funcall fun dungeon i)))))
 	
 (defmacro with-dungeon-monsters ((dungeon-var monster-var) &body code)
   `(invoke-on-dungeon-monsters ,dungeon-var #'(lambda (,dungeon-var ,monster-var) ,@code)))
@@ -130,7 +130,7 @@ the monster
 
 #||
 Warning:
-apparently ACL expands e.g (setf (cave-flags dun x y) foo)
+apparently ACL expands e.g (setf (cave-flags dungeon x y) foo)
 with CAVE-fLAGS first as a macro, ending up with
 (setf (coord ....) foo)
 and not using the (SETF CAVE-FLAGS) function which does some
@@ -502,10 +502,16 @@ car is start and cdr is the non-included end  (ie [start, end> )"
        (< y (1- (dungeon.height dungeon)))))
 
 
-(defun is-closed-door? (dun x y)
-  (let ((feat (cave-floor dun x y)))
+(defun is-closed-door? (dungeon x y)
+  (let ((feat (cave-floor dungeon x y)))
     (and (>= feat +floor-door-head+)
 	 (< feat +floor-door-tail+))))
+
+;; hackish.. not very good
+(defun is-open-door? (dungeon x y)
+  (let ((feat (cave-floor dungeon x y)))
+    (= feat +floor-open-door+)))
+
 
 (defun panel-contains? (player x y)
   "Returns T if the panel contains the coordinate."
@@ -562,7 +568,7 @@ car is start and cdr is the non-included end  (ie [start, end> )"
 
 
     ;; add a printing of depth here.. remove later
-    (print-depth *level* nil)
+    (print-depth *level* (get-setting *variant* :bottom-row-printing))
     ))
 
 (defun %queue-char-to-spot (vx vy the-attr the-char)
@@ -613,13 +619,13 @@ car is start and cdr is the non-included end  (ie [start, end> )"
     t)))
 
 
-(defun verify-panel (dungeon pl)
+(defun verify-panel (dungeon player)
   "verifies that the panel is correct and scrolls as needed"
 
-  (let ((p-y (location-y pl))
-	(p-x (location-x pl))
-	(v-y (player.view-y pl))
-	(v-x (player.view-x pl))
+  (let ((p-y (location-y player))
+	(p-x (location-x player))
+	(v-y (player.view-y player))
+	(v-x (player.view-x player))
 	(screen-height *screen-height*)
 	(screen-width *screen-width*)
 	(centre-on-player nil)
@@ -646,7 +652,7 @@ car is start and cdr is the non-included end  (ie [start, end> )"
 			       +panel-width+)
 			+panel-width+))))
 
-    (modify-panel! dungeon pl v-x v-y)))
+    (modify-panel! dungeon player v-x v-y)))
 
 
 
@@ -704,13 +710,13 @@ car is start and cdr is the non-included end  (ie [start, end> )"
 		     #+cmu (ext:inhibit-warnings 3))
 	   (type fixnum x y))
   
-  (let ((pl *player*))
+  (let ((player *player*))
 
-    (unless pl
+    (unless player
       (return-from print-relative! nil))
     
-    (let* ((pvx (player.view-x pl))
-	   (pvy (player.view-y pl))
+    (let* ((pvx (player.view-x player))
+	   (pvy (player.view-y player))
 	   (kx (- x pvx))
 	   (ky (- y pvy)))
       
@@ -845,10 +851,10 @@ car is start and cdr is the non-included end  (ie [start, end> )"
 			(format s "~a" (floor.x-char (get-floor-type point-info))))))
 	  (format s "~%"))))
 
-(defun get-coord-trigger (dun x y)
+(defun get-coord-trigger (dungeon x y)
   "Tries to find a trigger at a given point."
-;;  (warn "looking for trigger at ~d,~d -> ~s" x y (dungeon.triggers dun))
-  (dolist (i (dungeon.triggers dun))
+;;  (warn "looking for trigger at ~d,~d -> ~s" x y (dungeon.triggers dungeon))
+  (dolist (i (dungeon.triggers dungeon))
     (let ((place (car i)))
       (when (and (= (car place) x)
 		 (= (cdr place) y))
@@ -857,48 +863,48 @@ car is start and cdr is the non-included end  (ie [start, end> )"
 
 ;;(trace get-coord-trigger)
 
-(defun (setf get-coord-trigger) (val dun x y)
+(defun (setf get-coord-trigger) (val dungeon x y)
   "Adds a trigger to the given dungeon."
 
 ;;  (warn "Adding ~s at ~d,~d" val x y)
   (block setf-coord-trigger
-    (dolist (i (dungeon.triggers dun))
+    (dolist (i (dungeon.triggers dungeon))
       (let ((place (car i)))
 	(when (and (= (car place) x)
 		   (= (cdr place) y))
 	  (setf (cdr i) val)
 	  (return-from setf-coord-trigger i))))
     
-    (push (cons (cons x y) val) (dungeon.triggers dun))))
+    (push (cons (cons x y) val) (dungeon.triggers dungeon))))
 
 
-(defun apply-possible-coord-trigger (dun x y)
+(defun apply-possible-coord-trigger (dungeon x y)
   "This is a hack.. fix me later.."
   (declare (type fixnum x y))
 
-  (when-bind (decor (cave-decor dun x y))
+  (when-bind (decor (cave-decor dungeon x y))
     (when-bind (events (decor.events decor))
       (dolist (i events)
 	(when (typep i 'l-event)
-	  (funcall (event.function i) decor dun x y)
+	  (funcall (event.function i) decor dungeon x y)
 	  (return-from apply-possible-coord-trigger t)))))
 
     
-  (let ((trigger (get-coord-trigger dun x y)))
+  (let ((trigger (get-coord-trigger dungeon x y)))
     (when (and trigger (consp trigger) (is-event? (cdr trigger)))
       (let ((the-event (cdr trigger)))
-	(apply (event.function the-event) dun x y (event.state the-event)))
+	(apply (event.function the-event) dungeon x y (event.state the-event)))
       )))
 
-(defun put-cursor-relative! (dun x y)
+(defun put-cursor-relative! (dungeon x y)
   "Tries to put the cursor relative to the window."
-  (declare (ignore dun))
+  (declare (ignore dungeon))
   (declare (type fixnum x y))
 
-  (let* ((pl *player*)
-	 (pwy (player.view-y pl)) 
+  (let* ((player *player*)
+	 (pwy (player.view-y player)) 
 	 (ky (- y pwy))
-	 (pwx (player.view-x pl))
+	 (pwx (player.view-x player))
 	 (kx (- x pwx)))
     
     (declare (type fixnum pwx pwy kx ky))
@@ -929,9 +935,9 @@ car is start and cdr is the non-included end  (ie [start, end> )"
 
    ;; we pass along the same arguments.. 
    (let* ((result (call-next-method))
-	  (dun (level.dungeon result)))
-     (cond ((and dun (typep dun 'dungeon))
-	    (setf (dungeon.active dun) t)
+	  (dungeon (level.dungeon result)))
+     (cond ((and dungeon (typep dungeon 'dungeon))
+	    (setf (dungeon.active dungeon) t)
 	    result)
 	   (t
 	    (lang-warn "Activation of object ~a failed, return was ~a" obj result)

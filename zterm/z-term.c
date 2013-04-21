@@ -2250,7 +2250,14 @@ errr Term_resize(int w, int h)
 	Term->y2 = h - 1;
 
 	/* langband addition */
-//	fprintf(stderr,"Calling lispy readjust\n");
+	/*
+	{
+	    FILE *bum = fopen("mini.txt", "r+");
+	    fprintf(bum,"Calling lispy readjust %d, %d\n", w, h);
+	    fclose(bum);
+	}
+	*/
+	
 	readjust_screen_lisp(w,h);
 	
 	/* Success */
@@ -2431,6 +2438,9 @@ errr term_init(term *t, int w, int h, int k)
 	/* Default "blank" */
 	t->attr_blank = 0;
 	t->char_blank = ' ';
+
+	/* langband hack, remove later */
+	readjust_screen_lisp(w,h);
 
 
 	/* Success */

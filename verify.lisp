@@ -52,29 +52,26 @@ the Free Software Foundation; either version 2 of the License, or
   (%ok-check (not (minusp (location-y obj))))
   t)
 
-(defmethod ok-object? ((pl-obj player) &key context warn-on-failure)
+(defmethod ok-object? ((player player) &key context warn-on-failure)
 
-  (let ((player pl-obj)
-	(pl pl-obj)) ;; easier to cut'n paste from other code
-
-    (%ok-check (not (eq nil (player.inventory pl))))
-    (%ok-check (not (eq nil (player.equipment pl))))
-    (%ok-check (typep (player.equipment pl) 'items-worn))
-    (%ok-check (eq (item-table-find (player.equipment pl) 'eq.backpack)
-		   (player.inventory pl)))
+    (%ok-check (not (eq nil (player.inventory player))))
+    (%ok-check (not (eq nil (player.equipment player))))
+    (%ok-check (typep (player.equipment player) 'items-worn))
+    (%ok-check (eq (item-table-find (player.equipment player) 'eq.backpack)
+		   (player.inventory player)))
 	 
     (%ok-check (stringp (player.name player)))
-    (%ok-check (typep (player.race pl) 'character-race))
-    (%ok-check (typep (player.class pl) 'character-class))
+    (%ok-check (typep (player.race player) 'character-race))
+    (%ok-check (typep (player.class player) 'character-class))
 
-    (%ok-check (ok-object? (player.misc pl) :context context :warn-on-failure warn-on-failure))
-    (%ok-check (ok-object? (player.perceived-abilities pl) :context context :warn-on-failure warn-on-failure))
-    (%ok-check (ok-object? (player.actual-abilities pl) :context context :warn-on-failure warn-on-failure))
+    (%ok-check (ok-object? (player.misc player) :context context :warn-on-failure warn-on-failure))
+    (%ok-check (ok-object? (player.perceived-abilities player) :context context :warn-on-failure warn-on-failure))
+    (%ok-check (ok-object? (player.actual-abilities player) :context context :warn-on-failure warn-on-failure))
 
-    (%ok-check (integerp (maximum-hp pl)))
-    (%ok-check (integerp (current-hp pl)))
-    (%ok-check (<= 0 (maximum-hp pl)))
-    (%ok-check (<= 0 (current-hp pl)))
+    (%ok-check (integerp (maximum-hp player)))
+    (%ok-check (integerp (current-hp player)))
+    (%ok-check (<= 0 (maximum-hp player)))
+    (%ok-check (<= 0 (current-hp player)))
 	 
     (%ok-check (stringp (player.dead-from player)))
 
@@ -99,7 +96,7 @@ the Free Software Foundation; either version 2 of the License, or
 		      (not (eq cstat-table mstat-table))
 		      (not (eq cstat-table astat-table))
 		      (not (eq mstat-table astat-table)))))
-    ))
+    )
 
 (defmethod ok-object? ((obj level) &key context warn-on-failure)
   (declare (ignore context))
@@ -172,16 +169,16 @@ the Free Software Foundation; either version 2 of the License, or
   (%ok-check (integerp (playermisc.weight info)))
   t)
 
-(defmethod ok-object? ((dun dungeon) &key context warn-on-failure)
-  (%ok-check (integerp (dungeon.depth dun)))
-  (%ok-check (integerp (dungeon.height dun)))
-  (%ok-check (integerp (dungeon.width dun)))
+(defmethod ok-object? ((dungeon dungeon) &key context warn-on-failure)
+  (%ok-check (integerp (dungeon.depth dungeon)))
+  (%ok-check (integerp (dungeon.height dungeon)))
+  (%ok-check (integerp (dungeon.width dungeon)))
   ;; skip table
-  (dolist (mon (dungeon.monsters dun) t)
+  (dolist (mon (dungeon.monsters dungeon) t)
     (%ok-check (ok-object? mon :context context :warn-on-failure warn-on-failure)))
-  (dolist (obj (dungeon.objects dun) t)
+  (dolist (obj (dungeon.objects dungeon) t)
     (%ok-check (ok-object? obj :context context :warn-on-failure warn-on-failure)))
-  (dolist (room (dungeon.rooms dun) t)
+  (dolist (room (dungeon.rooms dungeon) t)
     (%ok-check (ok-object? room :context context :warn-on-failure warn-on-failure)))
   ;; skip active
   ;; skip triggers

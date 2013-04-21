@@ -342,7 +342,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (defun %filed-worn-items (&key objs)
   "returns a worn-items object or nil."
-  (let ((eq (make-equipment-slots)))
+  (let* ((var-obj *variant*)
+	 (eq (make-equipment-slots var-obj)))
     (loop for i in objs
 	  for cnt from 0
 	  do

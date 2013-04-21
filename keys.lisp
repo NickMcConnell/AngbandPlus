@@ -79,7 +79,7 @@ operation."
     poss-fun))
 
 
-(defun get-and-process-command! (dun pl table)
+(defun get-and-process-command! (dungeon player table)
   "remove me later"
 
   (let ((loc-table (gethash table *current-key-table*)))
@@ -89,80 +89,9 @@ operation."
 	    (fun (check-keypress loc-table ch)))
        
        (cond ((and fun (functionp fun))
-	      (let ((retval (funcall fun dun pl)))
+	      (let ((retval (funcall fun dungeon player)))
 		(return-from get-and-process-command! retval)))
 	     (t
 	      (warn "fell through key with ~a ~a ~s" ch (char-code ch) ch)))
        ))
     ))
-
-
-(defun %read-direction ()
-  (flush-messages!)
-  (let ((retval (block read-loop
-		  (loop
-		   (c-prt! "Direction: " 0 0)
-		   (let ((val (read-one-character)))
-		     (cond ((or (eql val #\.)
-				(eql val #\0)
-				(eql val #\t))
-			    (c-prt! "" 0 0)
-			    (return-from read-loop 5))
-			   ((digit-char-p val)
-			    (c-prt! "" 0 0)
-			    (return-from read-loop (digit-char-p val)))
-			   ((eql val +escape+)
-			    (c-prt! "" 0 0)
-			    (return-from read-loop nil))
-			   (t
-			    (c-prt! "Unknown direction!" 0 0))))))))
-    (c-prt! "" 0 0)
-    retval))
-
-
-(defun open-door! (dun x y)
-  "hackish, fix me later.."
-  (setf (cave-floor dun x y) +floor-open-door+)
-  (light-spot! dun x y))
-
-
-(defun open-all! (dun pl)
-  "opens all doors around.."
-  (let ((x (location-x pl))
-	(y (location-y pl))
-;;	(collected '())
-	)
-
-    ;; hack, fix later
-    (dolist (i (list (cons x (1- y))
-		     (cons x (1+ y))
-		     (cons (1- x) y)
-		     (cons (1+ x) y)))
-      (when (is-closed-door? dun (car i) (cdr i))
-	(open-door! dun (car i) (cdr i))))))
-
-(defun print-key-table (table fname)
-  "Prints a key-table to the given file."
-  
-  (with-open-file (s (pathname fname)
-                     :direction :output 
-                     :if-exists :supersede)
-    (let ((collected nil))
-      (maphash #'(lambda (k v)
-		   (push (cons k v) collected))
-
-	       table)
-      ;; hackish
-      (let ((key-ops (get-key-operations)))
-	(dolist (i key-ops)
-	  (dolist (j collected)
-	    (when (eq (cdr i) (cdr j))
-	      (setf (cdr j) (car i))))))
-      
-      (let ((sorted (sort (mapcar #'(lambda (k)
-				      (format nil "key ~a -> ~a" (car k) (cdr k)))
-				  collected)
-			  #'string-lessp)))
-	(dolist (i sorted)
-	  (format s "~a~%" i))))))
-

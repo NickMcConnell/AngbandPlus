@@ -141,6 +141,13 @@ DESC: ffi/ffi-defs.lisp - the foreign declarations that [L] uses
 	    )
     :only-when 'use-callback-from-c)
 
+(def-foreign-function ("get_term_height" c-get-term-height)
+    :returns 'int)
+
+(def-foreign-function ("get_term_width" c-get-term-width)
+    :returns 'int)
+
+
 (def-foreign-function ("setHINST" c-set-hinst!)
     :returns 'int
     :args '((long val))

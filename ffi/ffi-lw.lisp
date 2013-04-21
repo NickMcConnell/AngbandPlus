@@ -111,8 +111,14 @@
 (fli:define-foreign-function (c-set-lisp-callback! "set_lisp_callback") ((name
                                                                           :pointer)
                                                                          (ptr
-                                                                          ptr-type))
+                                                                          :ptr))
    :result-type :void :language :c :calling-convention :stdcall :module :lang-ffi)
+
+(fli:define-foreign-function (c-get-term-height "get_term_height") nil
+   :result-type :int :language :c :calling-convention :stdcall :module :lang-ffi)
+
+(fli:define-foreign-function (c-get-term-width "get_term_width") nil
+   :result-type :int :language :c :calling-convention :stdcall :module :lang-ffi)
 
 
 #+win32
@@ -132,6 +138,7 @@
      c_term_putstr! c_term_erase! c-term-queue-char! c-term-gotoxy!
      c-set-cursor& c-term-clear! c-term-fresh! c-term-save! c-term-load!
      c-term-xtra& c-inkey! init_c-side& cleanup-c-side& c_macro_add&
-     c-set-lisp-system! c-set-lisp-callback! c-set-hinst! c-load-sound&)))
+     c-set-lisp-system! c-set-lisp-callback! c-get-term-height c-get-term-width
+     c-set-hinst! c-load-sound&)))
 
 ;;; End of generated file.

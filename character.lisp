@@ -51,40 +51,39 @@ the Free Software Foundation; either version 2 of the License, or
 
 (defmethod produce-character-class ((variant variant) id name &key &allow-other-keys)
 ;;  (warn "Spells is ~s" spells)
-  (make-instance 'character-class))
+  (make-instance 'character-class :id id :name name))
 
 (defun define-character-class (id name &rest args &key symbol desc xp-extra stat-changes (resists :unspec)
-			       (abilities :unspec) titles
+			       (abilities :unspec) titles (stat-sustains :unspec)
 			       starting-equipment hit-dice skills &allow-other-keys)
   "Defines and establishes a class."
 
 ;;  (warn "Defining class ~s with args ~s" id args)
-	    
+
+  (unless (and (stringp id) (verify-id id))
+    (warn "Id ~s for class ~s must be a string, use symbol for class-symbol."))
+  
   (let* ((var-obj *variant*)
 	 (my-class (apply #'produce-character-class var-obj id name args)))
 	
     ;;    (warn "Creating class ~a [~a]" name desc)
 
     (check-type var-obj variant)
+    (check-type my-class character-class)
     
     (when (or (not (eq resists :unspec))
-	      (not (eq abilities :unspec)))
+	      (not (eq abilities :unspec))
+	      (not (eq stat-sustains :unspec))
+	      )
       #+langband-extra-checks
-      (warn "Unhandled resists/abilities ~s/~s for class ~a"
-	    resists abilities name))
-
-    
-    (unless (and (stringp id) (verify-id id))
-      (warn "Id ~s for class ~s must be a string, use symbol for class-symbol."))
-    ;;      (warn "Creating race ~a [~a]" name desc)
+      (warn "Unhandled resists/abilities/sustains ~s/~s/~s for class ~a"
+	    resists abilities stat-sustains name))
 
     (unless (and (symbolp symbol) (not (eq symbol nil)))
       (warn "Symbol for class ~s is ~s, please use a normal symbol" name symbol))
 
-    (setf (class.id my-class) id
-	  (class.symbol my-class) symbol)
-    
-    (setf (class.name my-class) name)
+    (setf (class.symbol my-class) symbol)
+
     (when desc
       (setf (class.desc my-class) desc))
     (when xp-extra
@@ -150,28 +149,34 @@ the Free Software Foundation; either version 2 of the License, or
 			  collecting v)))
     (remove-duplicates hash-vals)))
 
+(defmethod produce-character-race ((variant variant) id name &key &allow-other-keys)
+;;  (warn "Spells is ~s" spells)
+  (make-instance 'character-race :id id :name name))
 
-(defun define-character-race (id name &key symbol desc xp-extra stat-changes (abilities :unspec)
+
+(defun define-character-race (id name &rest args &key symbol desc xp-extra stat-changes (abilities :unspec)
 			      (resists :unspec)
+			      (stat-sustains :unspec)
 			      (hit-dice :unspec)
-			      classes starting-equipment skills)
+			      classes starting-equipment skills &allow-other-keys)
   "defines a race and updates global race-list.  Both id and symbol will be
 in the global race-table for easy access."
-  
-  (let ((race (make-instance 'character-race))
-	(var-obj *variant*))
 
-    (unless (and (stringp id) (verify-id id))
-      (warn "Id ~s for race ~s must be a string, use symbol for race-symbol."))
-    ;;      (warn "Creating race ~a [~a]" name desc)
+  (unless (and (stringp id) (verify-id id))
+    (warn "Id ~s for race ~s must be a string, use symbol for race-symbol."))
+  ;;      (warn "Creating race ~a [~a]" name desc)
+
+  
+  (let* ((var-obj *variant*)
+	 (race (apply #' produce-character-race var-obj id name args)))
+
+    (check-type race character-race)
 
     (unless (and (symbolp symbol) (not (eq symbol nil)))
       (warn "Symbol for race ~s is ~s, please use a normal symbol" name symbol))
     
-    (setf (race.id race) id
-	  (race.symbol race) symbol)
+    (setf (race.symbol race) symbol)
     
-    (setf (race.name race) name)
     (when desc
       (setf (race.desc race) desc))
     (when xp-extra
@@ -198,6 +203,7 @@ in the global race-table for easy access."
 	   (error "Unknown format ~s for race-abilities for ~a"
 		  abilities (race.name race))))
 
+    ;; add better error-checking vs bad elements?
     (cond ((eq resists :unspec))
 	  ((listp resists)
 	   (dolist (i resists)
@@ -209,7 +215,24 @@ in the global race-table for easy access."
 	  (t
 	   (error "Unknown resist argument ~s for race ~a"
 			   resists (race.name race))))
-	   
+
+    ;; add better error-checking vs bad elements?
+    (cond ((eq stat-sustains :unspec))
+	  ((eq stat-sustains nil))
+	  ((consp stat-sustains)
+	   (let ((the-sustains (make-array (variant.stat-length var-obj) :initial-element nil)))
+	     (dolist (i stat-sustains)
+	       (cond ((and (symbolp i) (not (eq nil i)))
+		      (setf (aref the-sustains (get-stat-num-from-sym i)) t))
+		     (t
+		      (error "Unknown sustain argument ~s for race ~a"
+			     i (race.name race)))
+		     ))
+	     (setf (race.stat-sustains race) the-sustains)))
+	   (t
+	   (error "Unknown sustain argument ~s for race ~a"
+			   stat-sustains (race.name race))))
+
 
     (cond ((eq hit-dice :unspec))
 	  ((and (integerp hit-dice) (plusp hit-dice))

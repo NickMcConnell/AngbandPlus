@@ -1,6 +1,10 @@
 THINGS TO DO TO THE KERNEL
 ==========================
 
+See the bug-list at Sourceforge for updates.  Bugs and
+features are sometimes implemented without this file
+being updated.
+
 This list is excessively long at the moment, even though
 I've been conservative wrt to what features the engine
 should have in the first version.  The TODO-list for

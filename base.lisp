@@ -69,8 +69,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 ;;; === Some dynamic variables of importance for the rest of the system:
 
-(defvar *game-parameters* (make-hash-table :test #'eq)
-  "a table with keyword game-parameters")
+;;(defvar *game-parameters* (make-hash-table :test #'eq)
+;;  "a table with keyword game-parameters")
 
 ;; four very important variables :-)
 (defvar *variant* nil "variant in use.  one should not rebind this
@@ -377,6 +377,8 @@ and NIL if unsuccesful."
 		  t)
 		 ((eql x #\/)
 		  t)
+		 ((eql x #\*)
+		  t)
 		 ((alpha-char-p x) ;; fix to only lowercase later
 		  t)
 		 ;; a temporary one, remove later
@@ -498,20 +500,8 @@ cases.  Leaks memory, only use when testing."
 
 ;; remove these ones later:
 
-(defun-memo %get-6str (num)
-  (format nil "~6d" num))
-
-(defun-memo %get-5str (num)
-  (format nil "~5d" num))
-
 (defun-memo %get-4str (num)
   (format nil "~4d" num))
-
-(defun-memo %get-8str (num)
-  (format nil "~8d" num))
-
-(defun-memo %get-9str (num)
-  (format nil "~9d" num))
 
 (defun-memo %get-13astr (val)
   (format nil "~13@a" val))

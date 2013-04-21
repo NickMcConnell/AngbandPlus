@@ -17,4 +17,10 @@ funcall2(cmucl_lispobj function, cmucl_lispobj arg1, cmucl_lispobj arg2) {
 	return 0;
 }
 
-
+cmucl_lispobj
+funcall3(cmucl_lispobj function, cmucl_lispobj arg1, cmucl_lispobj arg2, cmucl_lispobj arg3) {
+    if (function)
+	return 0;
+    else
+	return 0;
+}

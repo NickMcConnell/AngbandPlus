@@ -165,13 +165,6 @@ part of the new level."
     level))
 
 
-(defmethod print-depth ((level van-town-level) setting)
-  "prints current depth somewhere"
-  (declare (ignore setting))
-  (put-coloured-str! +term-l-blue+ "Town"
-		     (- (get-last-console-column) 10)
-		     (get-last-console-line))) 
-
 
 (defmethod activate-object :after ((level van-town-level) &key)
   

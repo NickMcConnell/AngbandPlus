@@ -1648,12 +1648,15 @@ static errr CheckEvent(bool wait)
 	switch (xev->type)
 	{
 
-#if 0
+
 
 		case ButtonPress:
 		case ButtonRelease:
 		{
 			int z = 0;
+			int wid = td->fnt->wid;
+			int hgt = td->fnt->hgt;
+
 
 			/* Which button is involved */
 			if (xev->xbutton.button == Button1) z = 1;
@@ -1667,10 +1670,18 @@ static errr CheckEvent(bool wait)
 			y = xev->xbutton.y;
 
 			/* XXX Handle */
+			{
+			    int xcoord = x/wid; // may need adjustment for border
+			    int ycoord = y/hgt; // may need adjustment for border
+			    
+			    //fprintf(stderr,"button-Mouse is at (%d,%d) coord (%d,%d)\n", x, y, xcoord, ycoord);
 
+			    mouse_clicked(z, xcoord, ycoord);
+			}
+			
 			break;
 		}
-
+#if 0
 		case EnterNotify:
 		case LeaveNotify:
 		{
@@ -1679,7 +1690,7 @@ static errr CheckEvent(bool wait)
 			y = xev->xcrossing.y;
 
 			/* XXX Handle */
-
+			
 			break;
 		}
 
@@ -1701,7 +1712,6 @@ static errr CheckEvent(bool wait)
 		}
 
 #endif
-
 		case KeyPress:
 		{
 			/* Save the mouse location */
@@ -2172,7 +2182,7 @@ static errr term_data_init(term_data *td, int i)
 	                 Metadpy->fg, Metadpy->bg);
 
 	/* Ask for certain events */
-	Infowin_set_mask(ExposureMask | StructureNotifyMask | KeyPressMask);
+	Infowin_set_mask(ExposureMask | StructureNotifyMask | KeyPressMask | ButtonPressMask);
 
 	/* Set the window name */
 	Infowin_set_name(name);

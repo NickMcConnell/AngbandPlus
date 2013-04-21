@@ -1,3 +1,9 @@
+langband (0.0.21-1) unstable; urgency=low
+
+  * New upstream developer release.  See upstream Changelogs.
+
+ -- Stig E Sandoe <stig@users.sourceforge.net>  Mon, 29 Jul 2002 18:45:48 +0200
+
 langband (0.0.20-1) unstable; urgency=low
 
   * New upstream release, see upstream Changelogs.

@@ -26,9 +26,10 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(3 0 0 0)
   :weight 10
   :cost 200
-  :obj-type '(<light> <wand>)
   :sort-value 4807
   :the-kind '<wand>
+  :on-add-magic (magic-add (item depth status)
+		    (add-charges! item (+ (randint 10) 6)))
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "wand-lightning-bolt" "lightning bolts"
@@ -41,9 +42,18 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(15 0 0 0)
   :weight 10
   :cost 600
-  :obj-type '(<wand> <bolt> <lightning>)
   :sort-value 4817
   :the-kind '<wand>
+  :on-add-magic (magic-add (item depth status)
+		    (add-charges! item (+ (randint 8) 6)))
+
+  :on-zap (object-effect (dungeon player item)
+	      (when-bind (dir (%read-direction))
+		(van-fire-bolt-or-beam! player 20 dir (get-spell-effect '<electricity>)
+					(roll-dice 6 6))
+		(possible-identify! player item)
+		:still-useful))
+
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "wand-frost-bolt" "frost bolts"
@@ -56,9 +66,17 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(20 0 0 0)
   :weight 10
   :cost 800
-  :obj-type '(<wand> <bolt> <cold>)
   :sort-value 4819
   :the-kind '<wand>
+  :on-add-magic (magic-add (item depth status)
+		   (add-charges! item (+ (randint 5) 6)))
+
+  :on-zap (object-effect (dungeon player item)
+	      (when-bind (dir (%read-direction))
+		(van-fire-bolt-or-beam! player 20 dir (get-spell-effect '<cold>)
+					(roll-dice 6 8))
+		(possible-identify! player item)
+		:still-useful))
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "wand-fire-bolts" "fire bolts"
@@ -71,9 +89,18 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(30 0 0 0)
   :weight 10
   :cost 1000
-  :obj-type '(<wand> <bolt> <fire>)
   :sort-value 4818
   :the-kind '<wand>
+  :on-add-magic (magic-add (item depth status)
+		    (add-charges! item (+ (randint 8) 6)))
+
+  :on-zap (object-effect (dungeon player item)
+	      (when-bind (dir (%read-direction))
+		(van-fire-bolt-or-beam! player 20 dir (get-spell-effect '<fire>)
+					(roll-dice 12 8))
+		(possible-identify! player item)
+		:still-useful))
+
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "wand-stone-mud" "stone to mud"
@@ -86,9 +113,10 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(10 0 0 0)
   :weight 10
   :cost 300
-  :obj-type '(<stone-to-mud> <wand>)
   :sort-value 4806
   :the-kind '<wand>
+  :on-add-magic (magic-add (item depth status)
+		    (add-charges! item (+ (randint 4) 3)))
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "wand-polymorph" "polymorph"
@@ -101,9 +129,10 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(20 0 0 0)
   :weight 10
   :cost 400
-  :obj-type '(<polymorph> <wand>)
   :sort-value 4813
   :the-kind '<wand>
+  :on-add-magic (magic-add (item depth status)
+		    (add-charges! item (+ (randint 8) 6)))
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "wand-heal-monster" "heal monster"
@@ -116,9 +145,10 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(3 0 0 0)
   :weight 10
   :cost 0
-  :obj-type '(<heal-monster> <wand>)
   :sort-value 4800
   :the-kind '<wand>
+  :on-add-magic (magic-add (item depth status)
+		    (add-charges! item (+ (randint 20) 8)))
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "wand-haste-monster" "haste monster"
@@ -131,9 +161,10 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(3 0 0 0)
   :weight 10
   :cost 0
-  :obj-type '(<haste-monster> <wand>)
   :sort-value 4801
   :the-kind '<wand>
+  :on-add-magic (magic-add (item depth status)
+		    (add-charges! item (+ (randint 20) 8)))
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "wand-slow-monster" "slow monster"
@@ -146,9 +177,10 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(5 0 0 0)
   :weight 10
   :cost 500
-  :obj-type '(<slow-monster> <wand>)
   :sort-value 4809
   :the-kind '<wand>
+  :on-add-magic (magic-add (item depth status)
+		    (add-charges! item (+ (randint 10) 6)))
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "wand-confuse-monster" "confuse monster"
@@ -161,9 +193,10 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(5 0 0 0)
   :weight 10
   :cost 500
-  :obj-type '(<confuse-monster> <wand>)
   :sort-value 4810
   :the-kind '<wand>
+  :on-add-magic (magic-add (item depth status)
+		    (add-charges! item (+ (randint 12) 6)))
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "wand-sleep-monster" "sleep monster"
@@ -176,9 +209,10 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(5 0 0 0)
   :weight 10
   :cost 500
-  :obj-type '(<sleep-monster> <wand>)
   :sort-value 4808
   :the-kind '<wand>
+  :on-add-magic (magic-add (item depth status)
+		    (add-charges! item (+ (randint 15) 8)))
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "wand-drain-life" "drain life"
@@ -191,9 +225,10 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(50 0 0 0)
   :weight 10
   :cost 1200
-  :obj-type '(<drain-life> <wand>)
   :sort-value 4812
   :the-kind '<wand>
+  :on-add-magic (magic-add (item depth status)
+		    (add-charges! item (+ (randint 3) 3)))
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "wand-destroy-door" "trap/door destruction"
@@ -206,9 +241,10 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(10 0 0 0)
   :weight 10
   :cost 100
-  :obj-type '(<trap/door-destruction> <wand>)
   :sort-value 4805
   :the-kind '<wand>
+  :on-add-magic (magic-add (item depth status)
+		    (add-charges! item (+ (randint 8) 6)))
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "wand-magic-missile" "magic missile"
@@ -221,9 +257,18 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(3 0 0 0)
   :weight 10
   :cost 200
-  :obj-type '(<magic-missile> <wand>)
   :sort-value 4815
   :the-kind '<wand>
+  :on-add-magic (magic-add (item depth status)
+		    (add-charges! item (+ (randint 10) 6)))
+
+  :on-zap (object-effect (dungeon player item)
+	      (when-bind (dir (%read-direction))
+		(van-fire-bolt-or-beam! player 20 dir (get-spell-effect '<magic-missile>)
+					(roll-dice 3 4))
+		(possible-identify! player item)
+		:still-useful))
+
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "wand-clone-monster" "clone monster"
@@ -236,9 +281,10 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(15 50 0 0)
   :weight 10
   :cost 0
-  :obj-type '(<clone-monster> <wand>)
   :sort-value 4802
   :the-kind '<wand>
+  :on-add-magic (magic-add (item depth status)
+		    (add-charges! item (+ (randint 5) 3)))
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "wand-scare-monster" "scare monster"
@@ -251,9 +297,10 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(10 0 0 0)
   :weight 10
   :cost 500
-  :obj-type '(<fear-monster> <wand>)
   :sort-value 4811
   :the-kind '<wand>
+  :on-add-magic (magic-add (item depth status)
+		    (add-charges! item (+ (randint 5) 3)))
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "wand-teleport-other" "teleport other"
@@ -266,9 +313,10 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(20 0 0 0)
   :weight 10
   :cost 350
-  :obj-type '(<teleport-away> <wand>)
   :sort-value 4803
   :the-kind '<wand>
+  :on-add-magic (magic-add (item depth status)
+		    (add-charges! item (+ (randint 5) 6)))
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "wand-disarming" "disarming"
@@ -281,9 +329,10 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(20 0 0 0)
   :weight 10
   :cost 700
-  :obj-type '(<disarm> <wand>)
   :sort-value 4804
   :the-kind '<wand>
+  :on-add-magic (magic-add (item depth status)
+		    (add-charges! item (+ (randint 5) 4)))
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "wand-lightning-balls" "lightning balls"
@@ -296,9 +345,16 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(35 0 0 0)
   :weight 10
   :cost 1200
-  :obj-type '(<wand> <ball> <lightning>)
   :sort-value 4821
   :the-kind '<wand>
+  :on-add-magic (magic-add (item depth status)
+		    (add-charges! item (+ (randint 8) 4)))
+
+  :on-zap (object-effect (dungeon player item)
+	      (when-bind (dir (%read-direction))
+		(van-fire-ball! player dir (get-spell-effect '<electricity>) 64 2)
+		(possible-identify! player item)
+		))
   :game-values (make-game-values :base-dice 1 :num-dice 1 :ignores '(<electricity>))) 
 
 (define-object-kind "wand-cold-balls" "cold balls"
@@ -311,9 +367,16 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(40 0 0 0)
   :weight 10
   :cost 1500
-  :obj-type '(<wand> <ball> <cold>)
   :sort-value 4823
   :the-kind '<wand>
+  :on-add-magic (magic-add (item depth status)
+		    (add-charges! item (+ (randint 6) 2)))
+
+  :on-zap (object-effect (dungeon player item)
+	      (when-bind (dir (%read-direction))
+		(van-fire-ball! player dir (get-spell-effect '<cold>) 96 2)
+		(possible-identify! player item)
+		))
   :game-values (make-game-values :base-dice 1 :num-dice 1 :ignores '(<cold>))) 
 
 (define-object-kind "wand-fire-balls" "fire balls"
@@ -326,9 +389,16 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(50 0 0 0)
   :weight 10
   :cost 1800
-  :obj-type '(<wand> <ball> <fire>)
   :sort-value 4822
   :the-kind '<wand>
+  :on-add-magic (magic-add (item depth status)
+		    (add-charges! item (+ (randint 4) 2)))
+
+  :on-zap (object-effect (dungeon player item)
+	      (when-bind (dir (%read-direction))
+		(van-fire-ball! player dir (get-spell-effect '<fire>) 144 2)
+		(possible-identify! player item)
+		))
   :game-values (make-game-values :base-dice 1 :num-dice 1 :ignores '(<fire>))) 
 
 (define-object-kind "wand-stinking-cloud" "stinking cloud"
@@ -341,9 +411,16 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(5 0 0 0)
   :weight 10
   :cost 400
-  :obj-type '(<stinking-cloud> <wand>)
   :sort-value 4814
   :the-kind '<wand>
+  :on-add-magic (magic-add (item depth status)
+		    (add-charges! item (+ (randint 8) 6)))
+
+  :on-zap (object-effect (dungeon player item)
+	      (when-bind (dir (%read-direction))
+		(van-fire-ball! player dir (get-spell-effect '<poison>) 12 2)
+		(possible-identify! player item)
+		))
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "wand-acid-balls" "acid balls"
@@ -356,9 +433,16 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(50 0 0 0)
   :weight 10
   :cost 1650
-  :obj-type '(<wand> <ball> <acid>)
   :sort-value 4820
   :the-kind '<wand>
+  :on-add-magic (magic-add (item depth status)
+		    (add-charges! item (+ (randint 5) 2)))
+  
+  :on-zap (object-effect (dungeon player item)
+	      (when-bind (dir (%read-direction))
+		(van-fire-ball! player dir (get-spell-effect '<acid>) 120 2)
+		(possible-identify! player item)
+		))
   :game-values (make-game-values :base-dice 1 :num-dice 1 :ignores '(<acid>))) 
 
 (define-object-kind "wand-wonder" "wonder"
@@ -371,9 +455,10 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(3 0 0 0)
   :weight 10
   :cost 250
-  :obj-type '(<wonder> <wand>)
   :sort-value 4824
   :the-kind '<wand>
+  :on-add-magic (magic-add (item depth status)
+		    (add-charges! item (+ (randint 15) 8)))
   :game-values (make-game-values :base-dice 1 :num-dice 1 :ignores '(<cold> <fire> <electricity> <acid>))) 
 
 (define-object-kind "wand-acid-bolts" "acid bolts"
@@ -386,9 +471,18 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(30 0 0 0)
   :weight 10
   :cost 950
-  :obj-type '(<wand> <bolt> <acid>)
   :sort-value 4816
   :the-kind '<wand>
+  :on-add-magic (magic-add (item depth status)
+		    (add-charges! item (+ (randint 8) 6)))
+
+  :on-zap (object-effect (dungeon player item)
+	     (when-bind (dir (%read-direction))
+		(van-fire-bolt-or-beam! player 20 dir (get-spell-effect '<acid>)
+					(roll-dice 10 8))
+		(possible-identify! player item)
+		:still-useful))
+
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "wand-dragon-flame" "dragon's flame"
@@ -401,9 +495,17 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(50 0 0 0)
   :weight 10
   :cost 2400
-  :obj-type '(<wand> <dragon> <fire>)
   :sort-value 4826
   :the-kind '<wand>
+  :on-add-magic (magic-add (item depth status)
+		    (add-charges! item (+ (randint 3) 1)))
+  
+  :on-zap (object-effect (dungeon player item)
+	      (when-bind (dir (%read-direction))
+		(van-fire-ball! player dir (get-spell-effect '<fire>) 200 3)
+		(possible-identify! player item)
+		))
+
   :game-values (make-game-values :base-dice 1 :num-dice 1 :ignores '(<cold> <fire> <electricity> <acid>))) 
 
 (define-object-kind "wand-dragon-frost" "dragon's frost"
@@ -416,12 +518,20 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(50 0 0 0)
   :weight 10
   :cost 2400
-  :obj-type '(<wand> <dragon> <cold>)
   :sort-value 4827
   :the-kind '<wand>
+  :on-add-magic (magic-add (item depth status)
+		    (add-charges! item (+ (randint 3) 1)))
+  
+  :on-zap (object-effect (dungeon player item)
+	      (when-bind (dir (%read-direction))
+		(van-fire-ball! player dir (get-spell-effect '<cold>) 160 3)
+		(possible-identify! player item)
+		))
+
   :game-values (make-game-values :base-dice 1 :num-dice 1 :ignores '(<cold> <fire> <electricity> <acid>))) 
 
-(define-object-kind "owand-dragon-breath" "dragon's breath"
+(define-object-kind "wand-dragon-breath" "dragon's breath"
   :numeric-id 297
   :x-attr #\d
   :x-char #\-
@@ -431,9 +541,23 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(60 0 0 0)
   :weight 10
   :cost 2400
-  :obj-type '(<wand> <dragon> <breath>)
   :sort-value 4828
   :the-kind '<wand>
+  :on-add-magic (magic-add (item depth status)
+		    (add-charges! item (+ (randint 3) 1)))
+  
+  :on-zap (object-effect (dungeon player item)
+	      (when-bind (dir (%read-direction))
+		(let ((which (randint 5)))
+		  (ecase which
+		    (1 (van-fire-ball! player dir (get-spell-effect '<acid>) 200 3))
+		    (2 (van-fire-ball! player dir (get-spell-effect '<electricity>) 160 3))
+		    (3 (van-fire-ball! player dir (get-spell-effect '<fire>) 200 3))
+		    (4 (van-fire-ball! player dir (get-spell-effect '<cold>) 160 3))
+		    (5 (van-fire-ball! player dir (get-spell-effect '<poison>) 120 3))))
+		(possible-identify! player item)
+		))
+
   :game-values (make-game-values :base-dice 1 :num-dice 1 :ignores '(<cold> <fire> <electricity> <acid>))) 
 
 (define-object-kind "wand-annihilation" "annihilation"
@@ -446,9 +570,10 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(60 0 0 0)
   :weight 10
   :cost 3000
-  :obj-type '(<annihiliation> <wand>)
   :sort-value 4825
   :the-kind '<wand>
+  :on-add-magic (magic-add (item depth status)
+		    (add-charges! item (+ (randint 2) 1)))
   :game-values (make-game-values :base-dice 1 :num-dice 1 :ignores '(<cold> <fire> <electricity> <acid>)))
 
 ;;; Staves
@@ -463,9 +588,10 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(10 0 0 0)
   :weight 50
   :cost 350
-  :obj-type '(<staff> <detect> <trap>)
   :sort-value 4612
   :the-kind '<staff>
+  :on-add-magic (magic-add (item depth status)
+		    (add-charges! item (+ (randint 5) 6)))
   :game-values (make-game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "staff-det-gold" "treasure location"
@@ -478,9 +604,10 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(5 0 0 0)
   :weight 50
   :cost 200
-  :obj-type '(<staff> <detect> <money>)
   :sort-value 4610
   :the-kind '<staff>
+  :on-add-magic (magic-add (item depth status)
+		    (add-charges! item (+ (randint 20) 8)))
   :game-values (make-game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "staff-det-item" "object location"
@@ -493,9 +620,10 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(5 0 0 0)
   :weight 50
   :cost 200
-  :obj-type '(<staff> <detect> <item>)
   :sort-value 4611
   :the-kind '<staff>
+  :on-add-magic (magic-add (item depth status)
+		    (add-charges! item (+ (randint 15) 6)))
   :game-values (make-game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "staff-teleport" "teleportation"
@@ -508,9 +636,14 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(20 0 0 0)
   :weight 50
   :cost 2000
-  :obj-type '(<teleportation> <staff>)
   :sort-value 4604
   :the-kind '<staff>
+  :on-add-magic (magic-add (item depth status)
+		    (add-charges! item (+ (randint 4) 5)))
+  :on-zap (object-effect (dungeon player item)
+	    (teleport-creature! dungeon player player 100)
+	    (possible-identify! player item)
+	    :still-useful)
   :game-values (make-game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "staff-earthquakes" "earthquakes"
@@ -523,9 +656,10 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(40 0 0 0)
   :weight 50
   :cost 350
-  :obj-type '(<earthquake> <staff>)
   :sort-value 4628
   :the-kind '<staff>
+  :on-add-magic (magic-add (item depth status)
+		    (add-charges! item (+ (randint 5) 3)))
   :game-values (make-game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "staff-summoning" "summoning"
@@ -538,9 +672,16 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(10 50 0 0)
   :weight 50
   :cost 0
-  :obj-type '(<summoning> <staff>)
   :sort-value 4603
   :the-kind '<staff>
+  :on-add-magic (magic-add (item depth status)
+		    (add-charges! item (+ (randint 3) 1)))
+  :on-zap (object-effect (dungeon player item)
+	     (dotimes (i (randint 4))
+	       (when (summon-monster dungeon
+				     (location-x player) (location-y player)
+				     (dungeon.depth dungeon) :type :any)
+		 (possible-identify! player item))))
   :game-values (make-game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "staff-light" "light"
@@ -553,9 +694,10 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(5 0 0 0)
   :weight 50
   :cost 250
-  :obj-type '(<light> <staff>)
   :sort-value 4608
   :the-kind '<staff>
+  :on-add-magic (magic-add (item depth status)
+		    (add-charges! item (+ (randint 20) 8)))
   :game-values (make-game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "staff-*destruction*" "*destruction*"
@@ -568,9 +710,10 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(50 70 0 0)
   :weight 50
   :cost 2500
-  :obj-type '(<destruction> <staff>)
   :sort-value 4629
   :the-kind '<staff>
+  :on-add-magic (magic-add (item depth status)
+		    (add-charges! item (+ (randint 3) 1)))
   :game-values (make-game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "staff-starlight" "starlight"
@@ -583,9 +726,10 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(20 0 0 0)
   :weight 50
   :cost 800
-  :obj-type '(<star-light> <staff>)
   :sort-value 4607
   :the-kind '<staff>
+  :on-add-magic (magic-add (item depth status)
+		    (add-charges! item (+ (randint 5) 6)))
   :game-values (make-game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "staff-haste-monsters" "haste monsters"
@@ -598,9 +742,10 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(10 0 0 0)
   :weight 50
   :cost 0
-  :obj-type '(<haste-monster> <staff>)
   :sort-value 4602
   :the-kind '<staff>
+  :on-add-magic (magic-add (item depth status)
+		    (add-charges! item (+ (randint 8) 8)))
   :game-values (make-game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "staff-slow-monsters" "slow monsters"
@@ -613,9 +758,10 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(10 0 0 0)
   :weight 50
   :cost 800
-  :obj-type '(<slow-monster> <staff>)
   :sort-value 4621
   :the-kind '<staff>
+  :on-add-magic (magic-add (item depth status)
+		    (add-charges! item (+ (randint 5) 6)))
   :game-values (make-game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "staff-sleep-monsters" "sleep monsters"
@@ -628,9 +774,10 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(10 0 0 0)
   :weight 50
   :cost 700
-  :obj-type '(<sleep-monster> <staff>)
   :sort-value 4620
   :the-kind '<staff>
+  :on-add-magic (magic-add (item depth status)
+		    (add-charges! item (+ (randint 5) 6)))
   :game-values (make-game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "staff-cure-light" "cure light wounds"
@@ -643,9 +790,15 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(5 0 0 0)
   :weight 50
   :cost 350
-  :obj-type '(<staff> <cure> <light>)
   :sort-value 4616
   :the-kind '<staff>
+  :on-add-magic (magic-add (item depth status)
+		    (add-charges! item (+ (randint 5) 6)))
+  :on-zap (object-effect (dungeon player item)
+	    (when (heal-creature! player  (randint 8))
+	      (possible-identify! player item))
+	    :still-useful)
+
   :game-values (make-game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "staff-det-inv" "detect invisible"
@@ -658,9 +811,16 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(5 0 0 0)
   :weight 50
   :cost 200
-  :obj-type '(<staff> <detect> <invisible>)
   :sort-value 4614
   :the-kind '<staff>
+  :on-add-magic (magic-add (item depth status)
+		    (add-charges! item (+ (randint 15) 8)))
+  :on-zap (object-effect (dungeon player item)
+	    (when (detect-invisible! dungeon player (location-x player) (location-y player)
+				     +default-detect-radius+)
+	      (possible-identify! player item))
+	    :still-useful)
+
   :game-values (make-game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "staff-speed" "speed"
@@ -673,9 +833,14 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(40 0 0 0)
   :weight 50
   :cost 1000
-  :obj-type '(<speed> <staff>)
   :sort-value 4622
   :the-kind '<staff>
+  :on-zap (object-effect (dungeon player item)
+	    (when (modify-creature-state! player '<hasted> :add (+ 15 (random 25)))
+	      (possible-identify! player item))
+	    :still-useful)
+  :on-add-magic (magic-add (item depth status)
+		    (add-charges! item (+ (randint 3) 4)))
   :game-values (make-game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "staff-slowness" "slowness"
@@ -688,9 +853,16 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(40 0 0 0)
   :weight 50
   :cost 0
-  :obj-type '(<slowness> <staff>)
   :sort-value 4601
   :the-kind '<staff>
+  :on-add-magic (magic-add (item depth status)
+		   (add-charges! item (+ (randint 8) 8)))
+
+  :on-zap (object-effect (dungeon player item)
+	      (when (modify-creature-state! player '<slowed> :add (+ 15 (random 30)))
+		(possible-identify! player item)
+		:still-useful))
+
   :game-values (make-game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "staff-det-door" "door/stair location"
@@ -703,9 +875,10 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(10 0 0 0)
   :weight 50
   :cost 350
-  :obj-type '(<staff> <detect> <door>)
   :sort-value 4613
   :the-kind '<staff>
+  :on-add-magic (magic-add (item depth status)
+		    (add-charges! item (+ (randint 8) 6)))
   :game-values (make-game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "staff-remove-curse" "remove curse"
@@ -718,9 +891,10 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(40 0 0 0)
   :weight 50
   :cost 500
-  :obj-type '(<remove-curse> <staff>)
   :sort-value 4606
   :the-kind '<staff>
+  :on-add-magic (magic-add (item depth status)
+		    (add-charges! item (+ (randint 3) 4)))
   :game-values (make-game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "staff-det-evil" "detect evil"
@@ -733,9 +907,10 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(20 0 0 0)
   :weight 50
   :cost 350
-  :obj-type '(<staff> <detect> <evil>)
   :sort-value 4615
   :the-kind '<staff>
+  :on-add-magic (magic-add (item depth status)
+		    (add-charges! item (+ (randint 15) 8)))
   :game-values (make-game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "staff-curing" "curing"
@@ -748,9 +923,19 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(25 0 0 0)
   :weight 50
   :cost 1000
-  :obj-type '(<staff> <cure> <curing>)
   :sort-value 4617
   :the-kind '<staff>
+  :on-add-magic (magic-add (item depth status)
+		    (add-charges! item (+ (randint 3) 4)))
+  :on-zap (object-effect (dungeon player item)
+	    (modify-creature-state! player '<blindness> :new-value nil)
+	    (modify-creature-state! player '<confusion> :new-value nil)
+	    (modify-creature-state! player '<poisoned>  :new-value nil)
+	    (modify-creature-state! player '<cut>       :new-value nil)
+	    (modify-creature-state! player '<stun>      :new-value nil)
+	    
+	    (possible-identify! player item)
+	    :still-useful)
   :game-values (make-game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "staff-dispel-evil" "dispel evil"
@@ -763,9 +948,10 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(50 0 0 0)
   :weight 50
   :cost 1200
-  :obj-type '(<staff> <dispel> <evil>)
   :sort-value 4624
   :the-kind '<staff>
+  :on-add-magic (magic-add (item depth status)
+		    (add-charges! item (+ (randint 3) 4)))
   :game-values (make-game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "staff-probing" "probing"
@@ -778,9 +964,10 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(30 0 0 0)
   :weight 50
   :cost 2000
-  :obj-type '(<probing> <staff>)
   :sort-value 4623
   :the-kind '<staff>
+  :on-add-magic (magic-add (item depth status)
+		    (add-charges! item (+ (randint 6) 2)))
   :game-values (make-game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "staff-darkness" "darkness"
@@ -793,12 +980,13 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(5 50 0 0)
   :weight 50
   :cost 0
-  :obj-type '(<darkness> <staff>)
   :sort-value 4600
   :the-kind '<staff>
+  :on-add-magic (magic-add (item depth status)
+		    (add-charges! item (+ (randint 8) 8)))
   :game-values (make-game-values :base-dice 2 :num-dice 1)) 
 
-(define-object-kind "staff-genocide" "genocide"
+(define-object-kind "staff-xenocide" "xenocide"
   :numeric-id 323
   :x-attr #\d
   :x-char #\_
@@ -808,9 +996,10 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(70 0 0 0)
   :weight 50
   :cost 3500
-  :obj-type '(<genocide> <staff>)
   :sort-value 4627
   :the-kind '<staff>
+  :on-add-magic (magic-add (item depth status)
+		    (add-charges! item (+ (randint 2) 1)))
   :game-values (make-game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "staff-power" "power"
@@ -823,9 +1012,10 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(70 0 0 0)
   :weight 50
   :cost 4000
-  :obj-type '(<power> <staff>)
   :sort-value 4625
   :the-kind '<staff>
+  :on-add-magic (magic-add (item depth status)
+		  (add-charges! item (+ (randint 3) 1)))
   :game-values (make-game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "staff-magi" "the magi"
@@ -838,9 +1028,10 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(70 0 0 0)
   :weight 50
   :cost 4500
-  :obj-type '(<magi> <staff>)
   :sort-value 4619
   :the-kind '<staff>
+  :on-add-magic (magic-add (item depth status)
+		    (add-charges! item (+ (randint 2) 2)))
   :game-values (make-game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "staff-identify" "perception"
@@ -853,9 +1044,15 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(10 0 0 0)
   :weight 50
   :cost 400
-  :obj-type '(<identify> <staff>)
   :sort-value 4605
   :the-kind '<staff>
+  :on-add-magic (magic-add (item depth status)
+		  (add-charges! item (+ (randint 15) 5)))
+  :on-zap (object-effect (dungeon player item)
+	    (interactive-identify-object! dungeon player)
+	    (possible-identify! player item)
+	    :still-useful)
+
   :game-values (make-game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "staff-holiness" "holiness"
@@ -868,9 +1065,10 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(70 0 0 0)
   :weight 50
   :cost 4500
-  :obj-type '(<holiness> <staff>)
   :sort-value 4626
   :the-kind '<staff>
+  :on-add-magic (magic-add (item depth status)
+		    (add-charges! item (+ (randint 2) 2)))
   :game-values (make-game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "staff-mapping" "enlightenment"
@@ -883,9 +1081,10 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(20 0 0 0)
   :weight 50
   :cost 750
-  :obj-type '(<mapping> <staff>)
   :sort-value 4609
   :the-kind '<staff>
+  :on-add-magic (magic-add (item depth status)
+		    (add-charges! item (+ (randint 5) 5)))
   :game-values (make-game-values :base-dice 2 :num-dice 1)) 
 
 (define-object-kind "staff-healing" "healing"
@@ -898,9 +1097,26 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(70 0 0 0)
   :weight 50
   :cost 5000
-  :obj-type '(<staff> <cure> <healing>)
   :sort-value 4618
   :the-kind '<staff>
+  :on-zap (object-effect (dungeon player item)
+	    (let ((amount 300))
+	      (when (heal-creature! player amount)
+		(possible-identify! player item))
+	      (when (modify-creature-state! player '<blindness> :new-value nil)
+		(possible-identify! player item))
+	      (when (modify-creature-state! player '<confusion> :new-value nil)
+		(possible-identify! player item))
+	      (when (modify-creature-state! player '<poisoned> :new-value nil)
+		(possible-identify! player item))
+	      (when (modify-creature-state! player '<cut>      :new-value nil)
+		(possible-identify! player item))
+	      (when (modify-creature-state! player '<stun>     :new-value nil)
+		(possible-identify! player item))
+	      :still-useful))
+  
+  :on-add-magic (magic-add (item depth status)
+		  (add-charges! item (+ (randint 2) 1)))
   :game-values (make-game-values :base-dice 2 :num-dice 1)) 
 
 ;;; rods
@@ -915,7 +1131,6 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(15 0 0 0)
   :weight 15
   :cost 1000
-  :obj-type '(<rod> <detect> <door>)
   :sort-value 4501
   :the-kind '<rod>
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
@@ -930,7 +1145,6 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(5 0 0 0)
   :weight 15
   :cost 100
-  :obj-type '(<rod> <detect> <trap>)
   :sort-value 4500
   :the-kind '<rod>
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
@@ -945,7 +1159,6 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(40 0 0 0)
   :weight 15
   :cost 4000
-  :obj-type '(<probing> <rod>)
   :sort-value 4507
   :the-kind '<rod>
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
@@ -960,7 +1173,6 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(30 0 0 0)
   :weight 15
   :cost 4000
-  :obj-type '(<recall> <rod>)
   :sort-value 4503
   :the-kind '<rod>
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
@@ -975,7 +1187,6 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(20 0 0 0)
   :weight 15
   :cost 1000
-  :obj-type '(<illumination> <rod>)
   :sort-value 4504
   :the-kind '<rod>
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
@@ -990,7 +1201,6 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(10 0 0 0)
   :weight 15
   :cost 500
-  :obj-type '(<light> <rod>)
   :sort-value 4515
   :the-kind '<rod>
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
@@ -1005,9 +1215,16 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(20 0 0 0)
   :weight 15
   :cost 2000
-  :obj-type '(<rod> <bolt> <lightning>)
   :sort-value 4521
   :the-kind '<rod>
+  :on-zap (object-effect (dungeon player item)
+	      (when-bind (dir (%read-direction))
+		(van-fire-bolt-or-beam! player 10 dir (get-spell-effect '<electricity>)
+					(roll-dice 6 6))
+		(possible-identify! player item)
+		(setf (aobj.recharge-time item) 11))
+	      :still-useful)
+
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "rod-frost-bolts" "frost bolts"
@@ -1020,9 +1237,15 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(25 0 0 0)
   :weight 15
   :cost 2500
-  :obj-type '(<rod> <bolt> <cold>)
   :sort-value 4523
   :the-kind '<rod>
+  :on-zap (object-effect (dungeon player item)
+	      (when-bind (dir (%read-direction))
+		(van-fire-bolt-or-beam! player 10 dir (get-spell-effect '<cold>)
+					(roll-dice 10 8))
+		(possible-identify! player item)
+		(setf (aobj.recharge-time item) 13))
+	      :still-useful)
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "rod-fire-bolts" "fire bolts"
@@ -1035,9 +1258,15 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(30 0 0 0)
   :weight 15
   :cost 3000
-  :obj-type '(<rod> <bolt> <fire>)
   :sort-value 4522
   :the-kind '<rod>
+  :on-zap (object-effect (dungeon player item)
+	      (when-bind (dir (%read-direction))
+		(van-fire-bolt-or-beam! player 10 dir (get-spell-effect '<fire>)
+					(roll-dice 16 8))
+		(possible-identify! player item)
+		(setf (aobj.recharge-time item) 15))
+	      :still-useful)
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "rod-polymorph" "polymorph"
@@ -1050,7 +1279,6 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(35 0 0 0)
   :weight 15
   :cost 1200
-  :obj-type '(<polymorph> <rod>)
   :sort-value 4519
   :the-kind '<rod>
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
@@ -1065,7 +1293,6 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(30 0 0 0)
   :weight 15
   :cost 1500
-  :obj-type '(<slow-monster> <rod>)
   :sort-value 4517
   :the-kind '<rod>
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
@@ -1080,7 +1307,6 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(30 0 0 0)
   :weight 15
   :cost 1500
-  :obj-type '(<sleep-monster> <rod>)
   :sort-value 4516
   :the-kind '<rod>
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
@@ -1095,7 +1321,6 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(75 0 0 0)
   :weight 15
   :cost 3600
-  :obj-type '(<drain-life> <rod>)
   :sort-value 4518
   :the-kind '<rod>
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
@@ -1110,7 +1335,6 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(45 0 0 0)
   :weight 15
   :cost 1400
-  :obj-type '(<teleport-away> <rod>)
   :sort-value 4513
   :the-kind '<rod>
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
@@ -1125,7 +1349,6 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(35 0 0 0)
   :weight 15
   :cost 2100
-  :obj-type '(<disarming> <rod>)
   :sort-value 4514
   :the-kind '<rod>
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
@@ -1140,9 +1363,15 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(55 0 0 0)
   :weight 15
   :cost 4000
-  :obj-type '(<rod> <ball> <lightning)
   :sort-value 4525
   :the-kind '<rod>
+  :on-zap (object-effect (dungeon player item)
+	      (when-bind (dir (%read-direction))
+		(van-fire-ball! player dir (get-spell-effect '<electricity>) 64 2)
+		(possible-identify! player item)
+		(setf (aobj.recharge-time item) 23))
+	      :still-useful)
+
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "rod-cold-balls" "cold balls"
@@ -1155,9 +1384,14 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(60 0 0 0)
   :weight 15
   :cost 4500
-  :obj-type '(<rod> <ball> <cold)
   :sort-value 4527
   :the-kind '<rod>
+  :on-zap (object-effect (dungeon player item)
+	      (when-bind (dir (%read-direction))
+		(van-fire-ball! player dir (get-spell-effect '<cold>) 96 2)
+		(possible-identify! player item)
+		(setf (aobj.recharge-time item) 25))
+	      :still-useful)
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "rod-fire-balls" "fire balls"
@@ -1170,9 +1404,14 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(75 0 0 0)
   :weight 15
   :cost 5000
-  :obj-type '(<rod> <ball> <fire>)
   :sort-value 4526
   :the-kind '<rod>
+  :on-zap (object-effect (dungeon player item)
+	      (when-bind (dir (%read-direction))
+		(van-fire-ball! player dir (get-spell-effect '<fire>) 144 2)
+		(possible-identify! player item)
+		(setf (aobj.recharge-time item) 30))
+	      :still-useful)
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "rod-acid-balls" "acid balls"
@@ -1185,9 +1424,14 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(70 0 0 0)
   :weight 15
   :cost 5500
-  :obj-type '(<rod> <ball> <acid>)
   :sort-value 4524
   :the-kind '<rod>
+  :on-zap (object-effect (dungeon player item)
+	      (when-bind (dir (%read-direction))
+		(van-fire-ball! player dir (get-spell-effect '<acid>) 120 2)
+		(possible-identify! player item)
+		(setf (aobj.recharge-time item) 27))
+	      :still-useful)
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "rod-acid-bolts" "acid bolts"
@@ -1200,9 +1444,16 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(40 0 0 0)
   :weight 15
   :cost 3500
-  :obj-type '(<rod> <bolt> <acid>)
   :sort-value 4520
   :the-kind '<rod>
+  :on-zap (object-effect (dungeon player item)
+	      (when-bind (dir (%read-direction))
+		(van-fire-bolt-or-beam! player 10 dir (get-spell-effect '<acid>)
+					(roll-dice 12 8))
+		(possible-identify! player item)
+		(setf (aobj.recharge-time item) 12))
+	      :still-useful)
+
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "rod-enlightenment" "enlightenment"
@@ -1215,7 +1466,6 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(65 0 0 0)
   :weight 15
   :cost 10000
-  :obj-type '(<mapping> <rod>)
   :sort-value 4505
   :the-kind '<rod>
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
@@ -1230,9 +1480,13 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(50 0 0 0)
   :weight 15
   :cost 13000
-  :obj-type '(<identify> <rod>)
   :sort-value 4502
   :the-kind '<rod>
+  :on-zap (object-effect (dungeon player item)
+	    (interactive-identify-object! dungeon player)
+	    (possible-identify! player item)
+	    (setf (aobj.recharge-time item) 10)
+	    :still-useful)
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "rod-curing" "curing"
@@ -1245,9 +1499,22 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(65 0 0 0)
   :weight 15
   :cost 15000
-  :obj-type '(<curing> <rod>)
   :sort-value 4508
   :the-kind '<rod>
+  :on-zap (object-effect (dungeon player item)
+	    (when (modify-creature-state! player '<blindness> :new-value nil)
+	      (possible-identify! player item))
+	    (when (modify-creature-state! player '<confusion> :new-value nil)
+	      (possible-identify! player item))
+	    (when (modify-creature-state! player '<poisoned> :new-value nil)
+	      (possible-identify! player item))
+	    (when (modify-creature-state! player '<cut>  :new-value nil)
+	      (possible-identify! player item))
+	    (when (modify-creature-state! player '<stun> :new-value nil)
+	      (possible-identify! player item))
+	    (setf (aobj.recharge-time item) 999)
+	    :still-useful)
+
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "rod-healing" "healing"
@@ -1260,9 +1527,18 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(80 0 0 0)
   :weight 15
   :cost 20000
-  :obj-type '(<healing> <rod>)
   :sort-value 4509
   :the-kind '<rod>
+  :on-zap (object-effect (dungeon player item)
+	      (let ((amount 500))
+		(when (heal-creature! player amount)
+		  (possible-identify! player item))
+		(when (modify-creature-state! player '<cut> :new-value nil)
+		  (possible-identify! player item))
+		(when (modify-creature-state! player '<stun> :new-value nil)
+		  (possible-identify! player item))
+		(setf (aobj.recharge-time item) 999)
+		:still-useful))
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
 
 (define-object-kind "rod-detection" "detection"
@@ -1275,7 +1551,6 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(30 0 0 0)
   :weight 15
   :cost 5000
-  :obj-type '(<detection> <rod>)
   :sort-value 4506
   :the-kind '<rod>
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
@@ -1290,7 +1565,6 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(80 0 0 0)
   :weight 15
   :cost 25000
-  :obj-type '(<restoration> <rod>)
   :sort-value 4510
   :the-kind '<rod>
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 
@@ -1305,7 +1579,13 @@ the Free Software Foundation; either version 2 of the License, or
   :locale #(95 0 0 0)
   :weight 15
   :cost 50000
-  :obj-type '(<speed> <rod>)
   :sort-value 4511
   :the-kind '<rod>
+  :on-zap (object-effect (dungeon player item)
+	    ;; FIX, check if he's already hasted.  also fix for potion and staff
+	    (when (modify-creature-state! player '<hasted> :add (+ 15 (random 30)))
+	      (possible-identify! player item))
+	    (setf (aobj.recharge-time item) 99)
+	    :still-useful)
+
   :game-values (make-game-values :base-dice 1 :num-dice 1)) 

@@ -18,7 +18,7 @@ the Free Software Foundation; either version 2 of the License, or
 
   )
 
-(defmethod kill-target! (dun attacker (target active-monster) x y)
+(defmethod kill-target! (dungeon attacker (target active-monster) x y)
   "Tries to remove the monster at the location."
 
   (declare (ignore attacker))
@@ -33,8 +33,8 @@ the Free Software Foundation; either version 2 of the License, or
     (when (can-creature-drop? var-obj target)
       (creature-drop! var-obj target lvl-obj))
     
-    (setf (dungeon.monsters dun) (delete target (dungeon.monsters dun))
-	  (cave-monsters dun x y) nil)
+    (setf (dungeon.monsters dungeon) (delete target (dungeon.monsters dungeon))
+	  (cave-monsters dungeon x y) nil)
 
     ;; hack
     (when (typep the-kind 'unique-monster)
@@ -46,14 +46,21 @@ the Free Software Foundation; either version 2 of the License, or
 
 
   
-(defmethod kill-target! (dun attacker (target player) x y)
+(defmethod kill-target! (dungeon attacker (target player) x y)
   "Tries to remove the monster at the location."
-  (declare (ignore dun x y))
+  (declare (ignore dungeon x y))
+
+  (let ((killer (cond ((stringp attacker)
+		       attacker)
+		      ;; unsafe, but will give errors
+		      (t
+		       (get-creature-name attacker)))))
+
   
-  (setf (creature-alive? target) nil)
-  (setf (player.dead-from target) (get-creature-name attacker))
+    (setf (creature-alive? target) nil)
+    (setf (player.dead-from target) killer)
   
-  nil)
+  nil))
 
 (defmethod cmb-describe-miss (attacker target)
 
@@ -150,27 +157,6 @@ the Free Software Foundation; either version 2 of the License, or
 
 
   
-(defmethod melee-inflict-damage! ((attacker player) target the-attack)
-  (declare (ignore the-attack))
-  (let* ((weapon (get-weapon attacker)))
-
-    (cond ((not weapon)
-	   (deduct-hp! target 1)
-	   1)
-	  (t
-	   ;; we have a weapon..
-	   (let ((gval (object.game-values weapon)))
-	     (assert gval)
-	     (let ((dmg (roll-dice (gval.num-dice gval) (gval.base-dice gval))))
-	       (incf dmg (gval.dmg-modifier gval))
-	       (when (< dmg 1) (setf dmg 1)) ;; minimum damage
-;;	       (warn "~ad~a gave ~a dmg to attacker (~a -> ~a hps)"
-;;		     (gval.num-dice gval) (gval.base-dice gval) dmg
-;;		     (current-hp target) (- (current-hp target) dmg))
-	       (deduct-hp! target dmg)
-	       dmg))))
-
-    ))
 
 (defun get-attk-desc (the-attack)
   (let* ((descs (variant.attk-descs *variant*))
@@ -205,7 +191,7 @@ the Free Software Foundation; either version 2 of the License, or
     (print-message! s))
   nil)
 
-(defun attack-target! (dun attacker target x y the-attack)
+(defun attack-target! (dungeon attacker target x y the-attack)
   (play-sound 1)
   ;;	(describe the-monster)
   (if (not (melee-hit-creature? attacker target the-attack))
@@ -219,36 +205,36 @@ the Free Software Foundation; either version 2 of the License, or
 	  (let ((target-xp (get-xp-value target)))
 	    (alter-xp! attacker (if target-xp target-xp 0)))
 		
-	  (kill-target! dun attacker target x y)
+	  (kill-target! dungeon attacker target x y)
 	  ;; repaint
-	  (light-spot! dun x y)
+	  (light-spot! dungeon x y)
 	  ))))
 
 
 
-(defun attack-location! (dun pl x y)
+(defun attack-location! (dungeon player x y)
   "attacks a given location.."
 
-  (when-bind (monsters (cave-monsters dun x y))
+  (when-bind (monsters (cave-monsters dungeon x y))
     (let ((the-monster (car monsters)))
       ;; hack
       (play-sound 1)
-      (attack-target! dun pl the-monster x y nil)
+      (attack-target! dungeon player the-monster x y nil)
       )))
 
 
-(defun cmb-monster-attack! (dun pl mon the-x the-y)
-  "The monster attacks the player (pl) at (the-x,the-y)."
+(defun cmb-monster-attack! (dungeon player mon the-x the-y)
+  "The monster attacks the player  at (the-x,the-y)."
   (dolist (the-attack (monster.attacks mon))
-    (when (and (creature-alive? mon) (creature-alive? pl))
-      (attack-target! dun mon pl the-x the-y the-attack))))
+    (when (and (creature-alive? mon) (creature-alive? player))
+      (attack-target! dungeon mon player the-x the-y the-attack))))
 
     
   
 #||
   (let ((mon-name (monster.name mon)))
   
-    (if (melee-hit-creature? mon pl)
+    (if (melee-hit-creature? mon player)
 	(warn "'~a' hit the player.." mon-name)
 	(warn "'~a' missed the player.." mon-name))
     ))

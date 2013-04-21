@@ -30,6 +30,7 @@
 				       (:file "ffi")
 				       (:file "format")
 				       (:file "monster")
+				       ;;(:file "object")
 				       )
 			  :depends-on (basic))
 		 ))

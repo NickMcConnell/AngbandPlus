@@ -178,9 +178,17 @@ a succesful ACTIVATE-OBJECT."))
 		:initarg :event-types
 		:initform (make-hash-table :test #'equal) ;; maybe #'eq is enough?
 		:documentation "table with known events that can occur.")
-   
+
+   (worn-item-slots :accessor variant.worn-item-slots
+		    :initarg :worn-item-slots
+		    :initform nil)
+
    ))
 
+(defstruct worn-item-slot
+  key
+  desc
+  types)
 
 (defstruct (dungeon-coord (:conc-name coord.))
   (floor 0 :type u-16b)
@@ -236,25 +244,36 @@ a succesful ACTIVATE-OBJECT."))
    (stairs-up   :initarg :stairs-up   :initform '(1 2)))
   (:documentation "A class I will be expanding later.."))
 
-(defclass printing-settings (settings)
-  ((race   :initarg :race)
-   (class  :initarg :class)
-   (title  :initarg :title)
-   (level  :initarg :level)
-   (xp     :initarg :xp)
-   (gold   :initarg :gold)
-   (food   :initarg :food)
-   (energy :initarg :energy)
-   (stat   :initarg :stat)
-   (ac     :initarg :ac)
-   (max-hp   :initarg :max-hp)
-   (cur-hp   :initarg :cur-hp)
-   (max-mana :initarg :max-mana)
-   (cur-mana :initarg :cur-mana))
-  
+(defclass basic-frame-locations (settings)
+  ((name                        :initform "Basic frame locations")
+   (race     :initarg :race     :initform '(1 . 0))
+   (class    :initarg :class    :initform '(2 . 0))
+   (title    :initarg :title    :initform '(3 . 0))
+   (level    :initarg :level    :initform '(4 . 0))
+   (xp       :initarg :xp       :initform '(5 . 0))
+   (gold     :initarg :gold     :initform '(6 . 0))
+
+   (stat     :initarg :stat     :initform '(8 . 0))
+   (ac       :initarg :ac       :initform '(15 . 0))
+   (max-hp   :initarg :max-hp   :initform '(16 . 0))
+   (cur-hp   :initarg :cur-hp   :initform '(17 . 0))
+   ;; more slots?
+   )
   (:documentation "Locations and various settings when printing stuff.
 Each location should be a cons with (row . col)."))
-  
+
+(defclass bottom-row-locations (settings)
+  ((name                        :initform "Bottom row locations")
+   (hungry   :initarg :hungry   :initform 0)
+   ;; more slots?
+   (state    :initarg :state    :initform 38)
+   (speed    :initarg :speed    :initform 49)
+   ;; more?
+   (depth    :initarg :depth    :initform 70))
+   
+  (:documentation "Locations and various settings when printing stuff.
+Each location is a fixnum with column in the last row."))
+
 
 (defclass effect ()
   ((symbol   :reader effect.symbol   :initarg :symbol)
@@ -312,9 +331,6 @@ Each location should be a cons with (row . col)."))
    ))
   
 
-;; (make-instance 'player-attribute :name "slow-digest
-
-
 (defclass misc-player-info ()
   ((age    :accessor playermisc.age    :initform 0)
    (status :accessor playermisc.status :initform 0)
@@ -340,21 +356,27 @@ Each location should be a cons with (row . col)."))
   (:documentation "A helper-class for the player-object."))
 
 (defclass character-stat ()
-  ((symbol       :accessor stat.symbol
-		 :initarg :symbol)
-   (name         :accessor stat.name
-		 :initform ""
-		 :initarg :name)
-   (abbreviation :accessor stat.abbreviation
-		 :initform ""
-		 :initarg :abbreviation)
-   (number       :accessor stat.number
-		 :initarg :number)
-   (fields       :accessor stat.fields
-		 :initform nil)
-   (data         :accessor stat.data
-		 :initform nil
-		 :initarg :data)
+  ((symbol        :accessor stat.symbol
+		  :initarg :symbol)
+   (name          :accessor stat.name
+		  :initform ""
+		  :initarg :name)
+   (abbreviation  :accessor stat.abbreviation
+		  :initform ""
+		  :initarg :abbreviation)
+   (positive-desc :accessor stat.positive-desc
+		  :initform ""
+		  :initarg :positive-desc)
+   (negative-desc :accessor stat.negative-desc
+		  :initform ""
+		  :initarg :negative-desc)
+   (number        :accessor stat.number
+		  :initarg :number)
+   (fields        :accessor stat.fields
+		  :initform nil)
+   (data          :accessor stat.data
+		  :initform nil
+		  :initarg :data)
    ))
 
 ;; this is a hack!
@@ -490,6 +512,10 @@ value is calculated by: (base + curstatmods + race + class + eq)")
 	    :documentation "What does the player resist and how much?
 object is an array with index for each element, each element is an integer which tells the power of the resist")
 
+   (stat-sustains :accessor player.stat-sustains
+		  :initform nil
+		  :documentation "array of stat-length with possible values T or NIL.")
+   
    ;; should not be touched by engine
    (calculated-attributes :accessor player.calc-attrs
 			  :initform nil
@@ -673,6 +699,12 @@ object is an array with index for each element, each element is an integer which
   ((stats       :accessor old.stats       :initform nil)
    (abilities   :accessor old.abilities   :initform nil)
    (see-inv     :accessor old.see-inv     :initform 0)
+   (speed       :accessor old.speed       :initform 0)
+   ;; move to variant later?
+   (heavy-weapon :accessor old.heavy-weapon :initform nil)
+   (heavy-bow    :accessor old.heavy-bow    :initform nil)
+   (icky-weapon  :accessor old.icky-weapon  :initform nil)
+   (telepathy    :accessor old.telepathy    :initform nil)
    )
   (:documentation "A class-object to fill with values during early update of a
 player's bonuses.  It will later be sent to the check after the player-update
@@ -770,7 +802,7 @@ by variants."))
 
    (abilities  :accessor monster.abilities  :initform nil)
    ;;   (resists :accessor monster.resists :initform nil)
-   (immunities :accessor monster.immunities :initform nil)
+   (immunities :accessor monster.immunities :initform 0)
 
    (alertness  :accessor monster.alertness  :initform 0) ;; how sleepy
    (vision     :accessor monster.vision     :initform 0) ;; how far can it see?
@@ -833,10 +865,6 @@ by variants."))
      (cost       :accessor object.cost
 		 :initarg :cost
 		 :initform nil)
-   
-     (obj-type   :accessor object.obj-type
-		 :initarg :obj-type
-		 :initform nil);; replaces type-val/subtype-val
 
      (flags      :accessor object.flags
 		 :initarg :flags
@@ -885,34 +913,52 @@ is all about?")
 
 
 (defclass character-race ()
-  ((id           :accessor race.id           :initform "")
-   (symbol       :accessor race.symbol       :initform nil)
-   (name         :accessor race.name         :initform "unknown")
-   (desc         :accessor race.desc         :initform "not described")
-   (xp-extra     :accessor race.xp-extra     :initform 0)
-   (hit-dice     :accessor race.hit-dice     :initform 10)
-   (stat-changes :accessor race.stat-changes :initform '())
-   (abilities    :accessor race.abilities    :initform '()) ;; split in two?
-   (resists      :accessor race.resists      :initform 0 :documentation "Integer with bit-flags, not array.") 
-   (classes      :accessor race.classes      :initform '())
-   (start-eq     :accessor race.start-eq     :initform '())
-   (skills       :accessor race.skills       :initform '()))
+  ((id            :accessor race.id
+		  :initarg :id
+		  :initform "")
+   (symbol        :accessor race.symbol
+		  :initarg :symbol
+		  :initform nil)
+   (name          :accessor race.name
+		  :initarg :name
+		  :initform "unknown")
+   (desc          :accessor race.desc
+		  :initarg :desc
+		  :initform "not described")
+   (xp-extra      :accessor race.xp-extra      :initform 0)
+   (hit-dice      :accessor race.hit-dice      :initform 10)
+   (stat-changes  :accessor race.stat-changes  :initform '())
+   (stat-sustains :accessor race.stat-sustains :initform nil :documentation "either NIL or an array with T/NIL.") 
+   (abilities     :accessor race.abilities     :initform '()) ;; split in two?
+   (resists       :accessor race.resists       :initform 0 :documentation "Integer with bit-flags, not array.") 
+   (classes       :accessor race.classes       :initform '())
+   (start-eq      :accessor race.start-eq      :initform '())
+   (skills        :accessor race.skills        :initform '()))
   (:documentation "Representation for a character race."))
 
 
 (defclass character-class ()
-  ((id           :accessor class.id           :initform nil)
-   (symbol       :accessor class.symbol       :initform nil)
-   (name         :accessor class.name         :initform nil)
-   (desc         :accessor class.desc         :initform nil)
-   (hit-dice     :accessor class.hit-dice     :initform 0)
-   (xp-extra     :accessor class.xp-extra     :initform 0)
-   (stat-changes :accessor class.stat-changes :initform nil)
-   (resists      :accessor class.resists      :initform 0 :documentation "Integer with bit-flags, not array.") 
-   (abilities    :accessor class.abilities    :initform '())
-   (titles       :accessor class.titles       :initform nil)
-   (starting-eq  :accessor class.start-eq     :initform nil)
-   (skills       :accessor class.skills       :initform nil))
+  ((id            :accessor class.id
+		  :initarg :id
+		  :initform nil)
+   (symbol        :accessor class.symbol
+		  :initarg :symbol
+		  :initform nil)
+   (name          :accessor class.name
+		  :initarg :name
+		  :initform nil)
+   (desc          :accessor class.desc
+		  :initarg desc
+		  :initform nil)
+   (hit-dice      :accessor class.hit-dice      :initform 0)
+   (xp-extra      :accessor class.xp-extra      :initform 0)
+   (stat-changes  :accessor class.stat-changes  :initform nil)
+   (stat-sustains :accessor class.stat-sustains :initform nil :documentation "either NIL or array with T/NIL.") 
+   (resists       :accessor class.resists       :initform 0 :documentation "Integer with bit-flags, not array.") 
+   (abilities     :accessor class.abilities     :initform '())
+   (titles        :accessor class.titles        :initform nil)
+   (starting-eq   :accessor class.start-eq      :initform nil)
+   (skills        :accessor class.skills        :initform nil))
   (:documentation "Information about a character class."))
 
 
@@ -1085,7 +1131,7 @@ is all about?")
 (defclass items-on-floor (item-table)
   ((obj-list :accessor items.objs
 	     :initform nil)
-   (dungeon  :accessor items.dun
+   (dungeon  :accessor items.dungeon
 	     :initarg :dungeon
 	     :initform nil)
    (loc-x    :accessor location-x
@@ -1103,7 +1149,7 @@ is all about?")
   (:documentation "A container for other objects, ie a backpack."))
 
 (defclass items-worn (item-table)
-  ((obj-arr  :accessor items.objs     :initarg :objs     :initform nil))
+  ((obj-arr       :accessor items.objs     :initarg :objs     :initform nil))
   (:documentation "What is worn."))  
 
 (defclass items-in-house (items-in-container)

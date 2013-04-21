@@ -28,6 +28,23 @@ DESC: package.lisp - package def for langband
   (:export #:game-init&
 	   #:get-loadable-form
 	   #:get-monster-list
+
+	   ;; unsorted added on need
+	   #:gval.dmg-modifier
+	   #:gval.ac-modifier
+	   #:aobj.game-values
+	   #:aobj.number
+	   #:write-obj-description
+	   #:create-aobj-from-id
+	   #:get-object-kind
+	   #:get-monster-kind
+	   #:produce-active-monster
+	   #:produce-active-object
+	   #:active-monster
+	   #:active-object
+	   #:report-equal
+	   #:*level*
+	   #:*variant*
 	   )
   #+lisp2csf
   (:documentation "This is the Langband game package."))

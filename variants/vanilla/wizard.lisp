@@ -22,6 +22,32 @@ the Free Software Foundation; either version 2 of the License, or
     (print (lb-engine:get-loadable-form var-obj obj) file))
   (terpri file))
 
+
+(defun print-key-table (table fname)
+  "Prints a key-table to the given file."
+  
+  (with-open-file (s (pathname fname)
+                     :direction :output 
+                     :if-exists :supersede)
+    (let ((collected nil))
+      (maphash #'(lambda (k v)
+		   (push (cons k v) collected))
+
+	       table)
+      ;; hackish
+      (let ((key-ops (get-key-operations)))
+	(dolist (i key-ops)
+	  (dolist (j collected)
+	    (when (eq (cdr i) (cdr j))
+	      (setf (cdr j) (car i))))))
+      
+      (let ((sorted (sort (mapcar #'(lambda (k)
+				      (format nil "key ~a -> ~a" (car k) (cdr k)))
+				  collected)
+			  #'string-lessp)))
+	(dolist (i sorted)
+	  (format s "~a~%" i))))))
+
 (defun van-dump-monsters (out-file &key (monster-list nil) (var-obj *variant*) (action-fun #'van-obj-printer))
 
   (assert (functionp action-fun))
@@ -46,22 +72,30 @@ the Free Software Foundation; either version 2 of the License, or
 
 
 (define-key-operation 'break-game
-    #'(lambda (dun pl)
-	(declare (ignore dun pl))
+    #'(lambda (dungeon player)
+	(declare (ignore dungeon player))
 	(break)))
 
+(define-key-operation 'deliver-damage
+    #'(lambda (dungeon player)
+        (declare (ignore dungeon))
+        (modify-creature-state! player '<cut>      :add 20)
+	(modify-creature-state! player '<stun>     :add 20)
+	(modify-creature-state! player '<poisoned> :add 20)
+	))
+
 (define-key-operation 'summon
-    #'(lambda (dun pl)
+    #'(lambda (dungeon player)
 	(let* ((summon (get-string-input "Monster to summon: "))
 	       (mon (if summon (produce-active-monster *variant* summon))))
 	  (when mon
 	    (block mon-placement
-	      (let ((px (location-x pl))
-		    (py (location-y pl)))
+	      (let ((px (location-x player))
+		    (py (location-y player)))
 		(flet ((put-mon (x y)
-			 (when (cave-floor-bold? dun x y)
-			   (place-single-monster! dun pl mon x y nil)
-			   (light-spot! dun x y)
+			 (when (cave-floor-bold? dungeon x y)
+			   (place-single-monster! dungeon player mon x y nil)
+			   (light-spot! dungeon x y)
 			   (return-from mon-placement nil))))
 		  (put-mon (1+ px) py)
 		  (put-mon px (1+ py))
@@ -69,17 +103,17 @@ the Free Software Foundation; either version 2 of the License, or
 	    mon))))
 
 (define-key-operation 'object-create
-    #'(lambda (dun pl)
+    #'(lambda (dungeon player)
 	(let* ((summon (get-string-input "Object to create: "))
 	       (mon (if summon (produce-active-object *variant* summon))))
 	  (when mon
 	    (block mon-placement
-	      (let ((px (location-x pl))
-		    (py (location-y pl)))
+	      (let ((px (location-x player))
+		    (py (location-y player)))
 		(flet ((put-mon (x y)
-			 (when (cave-floor-bold? dun x y)
-			   (drop-near-location! *variant* dun mon x y)
-			   (light-spot! dun x y)
+			 (when (cave-floor-bold? dungeon x y)
+			   (drop-near-location! *variant* dungeon mon x y)
+			   (light-spot! dungeon x y)
 			   (return-from mon-placement nil))))
 		  (put-mon (1+ px) py)
 		  (put-mon px (1+ py))
@@ -88,36 +122,36 @@ the Free Software Foundation; either version 2 of the License, or
 
 
 (define-key-operation 'set-gold
-    #'(lambda (dun pl)
-	(declare (ignore dun))
+    #'(lambda (dungeon player)
+	(declare (ignore dungeon))
 	(let* ((str-amount (get-string-input "Gold-amount: "))
 	       (amount (ignore-errors (parse-integer str-amount))))
 	  (when (and (integerp amount) (plusp amount))
-	    (setf (player.gold pl) amount)
+	    (setf (player.gold player) amount)
 	    (bit-flag-add! *redraw* +print-gold+))
 	  )))
 
 (define-key-operation 'go-to-depth
-    #'(lambda (dun pl)
+    #'(lambda (dungeon player)
 
 	(let* ((which-depth (get-string-input "Depth: "))
 	       (depth (ignore-errors (parse-integer which-depth))))
 	  (when (and (integerp depth) (plusp depth))
-	    (setf (player.depth pl) depth
-		  (dungeon.depth dun) depth)
+	    (setf (player.depth player) depth
+		  (dungeon.depth dungeon) depth)
 		  
-	    (when (> depth (player.max-depth pl))
-	      (setf (player.max-depth pl) depth))
+	    (when (> depth (player.max-depth player))
+	      (setf (player.max-depth player) depth))
 
-	    (setf (player.leaving-p pl) :teleport)
+	    (setf (player.leaving-p player) :teleport)
 	    t))
 	))
 
     
 
 (define-key-operation 'print-odd-info
-    #'(lambda (dun pl)
-	(declare (ignore dun pl))
+    #'(lambda (dungeon player)
+	(declare (ignore dungeon player))
 	(let ((var-obj *variant*)
 	      (fname (concatenate 'string *dumps-directory* "odd.info"))
 	      (*print-case* :downcase))
@@ -149,14 +183,14 @@ the Free Software Foundation; either version 2 of the License, or
 	  )))
 
 (define-key-operation 'print-keys
-    #'(lambda (dun pl)
-	(declare (ignore dun pl))
+    #'(lambda (dungeon player)
+	(declare (ignore dungeon player))
 	(print-key-table (gethash :global *ang-keys*)
 			 "table.keys")))
 
 (define-key-operation 'dump-monsters
-    #'(lambda (dun pl)
-	(declare (ignore dun pl))
+    #'(lambda (dungeon player)
+	(declare (ignore dungeon player))
 	(let ((var-obj *variant*))
 	  (van-dump-monsters (concatenate 'string *dumps-directory* "mon-by-id.list")
 			     :monster-list (get-monster-list var-obj
@@ -180,31 +214,31 @@ the Free Software Foundation; either version 2 of the License, or
 	  )))
 
 (define-key-operation 'dump-objects
-    #'(lambda (dun pl)
-	(declare (ignore dun pl))
+    #'(lambda (dungeon player)
+	(declare (ignore dungeon player))
 	(dump-objects (concatenate 'string *dumps-directory* "obj.list"))
 	))
 
 (define-key-operation 'dump-features
-    #'(lambda (dun pl)
-	(declare (ignore dun pl))
+    #'(lambda (dungeon player)
+	(declare (ignore dungeon player))
 	(dump-floors (concatenate 'string *dumps-directory* "floors.list"))
 	))
 
 (define-key-operation 'inspect-coord
-    #'(lambda (dun pl)
-	(let* ((cur-x (location-x pl))
-	       (cur-y (location-y pl))
-	       (coord-obj (cave-coord dun cur-x cur-y)))
+    #'(lambda (dungeon player)
+	(let* ((cur-x (location-x player))
+	       (cur-y (location-y player))
+	       (coord-obj (cave-coord dungeon cur-x cur-y)))
 	  (warn "Describing [~a,~a]" cur-x cur-y)
 	  (describe coord-obj)
 	  (multiple-value-bind (the-attr the-char)
-	      (map-info dun cur-x cur-y)
+	      (map-info dungeon cur-x cur-y)
 	    (warn "Mapped to (~s . ~s)" the-attr the-char)))))
 
 (define-key-operation 'in-game-test
-    #'(lambda (dun pl)
-	(declare (ignore dun pl))
+    #'(lambda (dungeon player)
+	(declare (ignore dungeon player))
 	;; temporary place
 	#+xp-testing
 	(do-a-test :in)
@@ -219,23 +253,23 @@ the Free Software Foundation; either version 2 of the License, or
 	))
 
 (define-key-operation 'print-map
-    #'(lambda (dun pl)
-	(declare (ignore pl))
-	(print-map-to-file dun "./map.ascii")
+    #'(lambda (dungeon player)
+	(declare (ignore player))
+	(print-map-to-file dungeon "./map.ascii")
 	(print-message! "Map printed to map.ascii.")
 	))
 
 
 (define-key-operation 'print-map-as-ppm
-    #'(lambda (dun pl)
-	(declare (ignore pl))
-	(print-map-as-ppm dun "./map.ppm")
+    #'(lambda (dungeon player)
+	(declare (ignore player))
+	(print-map-as-ppm dungeon "./map.ppm")
 	(print-message! "Map printed to map.ppm.")
 	))
 
 (define-key-operation 'gain-level
-    #'(lambda (dun player)
-	(declare (ignore dun))
+    #'(lambda (dungeon player)
+	(declare (ignore dungeon))
 	(let* ((cur-level (player.level player))
 	       (next-limit (aref (player.xp-table player) cur-level))
 	       (lacks (- next-limit (player.cur-xp player))))
@@ -243,19 +277,19 @@ the Free Software Foundation; either version 2 of the License, or
 	))
 
 (define-key-operation 'heal-player
-    #'(lambda (dun player)
-	(declare (ignore dun))
+    #'(lambda (dungeon player)
+	(declare (ignore dungeon))
 	(setf (current-hp player) (maximum-hp player))
 	(bit-flag-add! *redraw* +print-hp+)
 	))
 (define-key-operation 'load-vanilla
-    #'(lambda (dun player)
-	(declare (ignore dun player))
+    #'(lambda (dungeon player)
+	(declare (ignore dungeon player))
 	(compat-read-savefile& "vanilla.save")))
 
 (define-key-operation 'send-spell
-    #'(lambda (dun player)
-	(declare (ignore dun))
+    #'(lambda (dungeon player)
+	(declare (ignore dungeon))
 
 	(let ((px (location-x player))
 	      (py (location-y player))
@@ -284,7 +318,7 @@ the Free Software Foundation; either version 2 of the License, or
 	))
 
 (define-key-operation 'jump-to-test-level
-    #'(lambda (dun player)
+    #'(lambda (dungeon player)
 	(let ((wanted-level 25)
 	      (depth 40))
 	;; get decent 
@@ -296,7 +330,7 @@ the Free Software Foundation; either version 2 of the License, or
 	
 	(when (and (integerp depth) (plusp depth))
 	  (setf (player.depth player) depth
-		(dungeon.depth dun) depth)
+		(dungeon.depth dungeon) depth)
 	  
 	  (when (> depth (player.max-depth player))
 	    (setf (player.max-depth player) depth))
@@ -308,14 +342,14 @@ the Free Software Foundation; either version 2 of the License, or
 
 
 (define-key-operation 'wizard-menu
-    #'(lambda (dun pl)
+    #'(lambda (dungeon player)
 
 ;;	(with-new-screen ()
 	  (block wizard-input 
 	    (let ((loc-table (gethash :wizard *current-key-table*)))
 	      (loop
 ;;	       (c-clear-from! 0)
-;;	       (display-creature *variant* pl)
+;;	       (display-creature *variant* player)
 	       (print-message! nil)
 	       
 	       (c-prt! "Wizard command: " 0 0)
@@ -323,7 +357,7 @@ the Free Software Foundation; either version 2 of the License, or
 	       (let* ((ch (read-one-character))
 		      (fun (check-keypress loc-table ch)))
 		 (cond ((and fun (functionp fun))
-			(return-from wizard-input (funcall fun dun pl)))
+			(return-from wizard-input (funcall fun dungeon player)))
 		       ((eql ch +escape+)
 			(return-from wizard-input t))
 		       (t
@@ -358,8 +392,7 @@ the Free Software Foundation; either version 2 of the License, or
 (define-keypress *ang-keys* :wizard #\W 'print-odd-info)
 (define-keypress *ang-keys* :wizard #\Z 'in-game-test)
 
+(define-keypress *ang-keys* :wizard #\d 'deliver-damage)
 (define-keypress *ang-keys* :wizard #\l 'load-vanilla)
 (define-keypress *ang-keys* :wizard #\m 'dump-monsters)
 (define-keypress *ang-keys* :wizard #\o 'dump-objects)
-
-;; obsolete

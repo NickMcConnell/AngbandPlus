@@ -59,7 +59,7 @@ but one that works with langband-objects."))
 (defgeneric produce-player-object (variant)
   (:documentation "Produces a player-object."))
 
-(defgeneric produce-object-kind (variant id name obj-type &key the-kind)
+(defgeneric produce-object-kind (variant id name &key the-kind)
   (:documentation "Produces an object-kind."))
 (defgeneric produce-active-object (variant okind)
   (:documentation "Produces an active object based on given object-kind."))
@@ -79,6 +79,9 @@ but one that works with langband-objects."))
 (defgeneric produce-character-class (variant id name &key &allow-other-keys)
   (:documentation "Returns a character-class object."))
 
+(defgeneric produce-character-race (variant id name &key &allow-other-keys)
+  (:documentation "Returns a character-class object."))
+
 ;;; === End factories
 
 
@@ -90,7 +93,7 @@ but one that works with langband-objects."))
 (defgeneric load-object (variant type stream)
   (:documentation "Tries to load a certain type of object from the stream."))
 
-(defgeneric write-obj-description (variant obj stream &key store)
+(defgeneric write-obj-description (variant obj stream &key store numeric-prefix verbosity)
   (:documentation "Describes the given object to the given stream."))
 
 (defgeneric do-save (variant fname obj-list style)
@@ -153,8 +156,9 @@ current version."))
   (:documentation "Returns the value of the named state for the given creature."))
 
 ;; must be implemented by a variant
-(defgeneric (setf get-creature-state) (value creature state)
-  (:documentation "Tries to set a value for a state for the creature."))
+(defgeneric modify-creature-state! (creature state &key new-value add subtract)
+  (:documentation "Modifies the creature-state appropriately."))
+
 
 (defgeneric get-creature-speed (creature)
   (:documentation "Returns a fixnum with speed for the given creature."))
@@ -191,16 +195,6 @@ current version."))
 (defgeneric alter-xp! (creature amount)
   (:documentation "Alters the xp of the creature by AMOUNT."))
 
-(defgeneric get-weapon (creature)
-  (:documentation "Returns the active-object that is used as weapon."))
-
-(defgeneric get-missile-weapon (creature)
-  (:documentation "Returns the active-object that is used as missile-weapon."))
-
-;; maybe drop this in a more general system.. or?
-(defgeneric get-light-source (creature)
-  (:documentation "Returns the light-source used."))
-
 (defgeneric appears-in-group? (variant level monster)
   (:documentation "Returns T if the particular monster should appear in a group."))
 
@@ -228,7 +222,7 @@ and if so, marks the object."))
 (defgeneric is-eatable? (player object)
   (:documentation "Is the object OBJ eatable by the player?"))
 
-(defgeneric apply-usual-effects-on-used-object! (dun pl obj)
+(defgeneric apply-usual-effects-on-used-object! (dungeon player obj)
   (:documentation "Not quite sure here yet.. should be sewn into the USE-protocol."))
 
 (defgeneric is-magical? (thing)
@@ -342,7 +336,7 @@ the table, the key and the object itself."))
 (defgeneric item-table-verify-key (table key)
   (:documentation "Returns T when key is OK, and NIL when it is not."))
 
-(defgeneric item-table-print (table &key show-pause start-x start-y &allow-other-keys)
+(defgeneric item-table-print (table &key show-pause start-x start-y print-selection &allow-other-keys)
   (:documentation "Returns T when key is OK, and NIL when it is not."))
 
 (defgeneric item-table-more-room? (table &optional obj)
@@ -387,7 +381,7 @@ is supplied, stacking-rules will also be checked."))
 (defgeneric register-object-event! (obj event)
   (:documentation "Registers an event on the object."))
 
-(defgeneric use-object! (variant dun pl the-object &key which-use)
+(defgeneric use-object! (variant dungeon player the-object &key which-use)
   (:documentation "Applies the object on the player in the dungeon."))
 
 (defgeneric get-price (object situation)
@@ -424,7 +418,7 @@ player object or NIL."))
 (defgeneric get-mkind-table (variant level)
   (:documentation "Returns appropriate monster-kind table for variant and level."))
 
-(defgeneric kill-target! (dun attacker target x y)
+(defgeneric kill-target! (dungeon attacker target x y)
   (:documentation "Kills the target in an appropriate and legal way."))
 
 (defgeneric copy-player-abilities (variant player-abilities)
@@ -551,6 +545,9 @@ the given variant and given level."))
 (defgeneric make-stat-array (variant)
   (:documentation "Returns an array suitable for holding all the stats."))
 
+(defgeneric is-stat-array? (variant obj)
+  (:documentation "Returns T if the object is a stat-array."))
+
 (defgeneric do-projection (source target-x target-y flag &key effect damage radius range)
   (:documentation "Does a general projection."))
 
@@ -607,3 +604,24 @@ It is passed the object returned by GET-OLD-PLAYER-INFO at start of recalculatio
 
 (defgeneric deliver-elemental-damage! (variant source target element damage)
   (:documentation "Gives out decent elemental damage to a target."))
+
+(defgeneric get-object-effect (variant the-object effect)
+  (:documentation "Returns the wanted effect (or NIL) from the object."))
+
+(defgeneric initialise-object-kind! (variant object keyword-arguments)
+  (:documentation "Initialises an object-kind object with given keyword-arguments.
+The method is responsible for checking legality of args.  The method should return
+the object."))
+
+;; possibly change name later
+(defgeneric process-world& (variant dungeon player)
+  (:documentation "Every tenth turn important calculations might need to be done.
+These calculations are typically those that needs to be done fairly frequently,
+but does not need to be 100% updated always."))
+
+
+(defgeneric print-speed (variant player setting)
+  (:documentation "prints speed-info."))
+
+(defgeneric print-state (variant player setting)
+  (:documentation "prints state-info."))

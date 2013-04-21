@@ -155,7 +155,7 @@ the Free Software Foundation; either version 2 of the License, or
       (create-aobj-from-kind gold-kind :amount amount :variant variant))))
 
 
-(defmethod use-object! ((var vanilla-variant) dun pl the-object &key (which-use :use))
+(defmethod use-object! ((var vanilla-variant) dungeon player the-object &key (which-use :use))
 ;;  (declare (ignore var))
   (check-type the-object active-object)
   
@@ -167,26 +167,32 @@ the Free Software Foundation; either version 2 of the License, or
 ;;    (warn "Found use-effect ~s" use-effect)
 
     (unless the-effect 
-      (warn "Didn't find any effect for ~s ~s" (object.id okind) (object.obj-type okind)))
+      (warn "Didn't find any effect for ~s" (object.id okind))
+      (return-from use-object! retval))
+	    
     
     (when the-effect
       (assert (and (effect-entry-p the-effect)
 		   (functionp (effect-entry-fun the-effect))))
 ;;      (unless (compiled-function-p (effect-entry-fun the-effect))
 ;;	(warn "not compiled"))
-      (setf retval (funcall (effect-entry-fun the-effect) dun pl the-object))
+      
+      (setf retval (funcall (effect-entry-fun the-effect) dungeon player the-object))
+      
       (ecase retval
 	(:used
-	 (incf (player.energy-use pl) (effect-entry-energy-use the-effect)))
+	 (incf (player.energy-use player) (effect-entry-energy-use the-effect)))
 	(:still-useful
-	 (incf (player.energy-use pl) (effect-entry-energy-use the-effect)))
-	(:not-used
-	 )))
+	 (incf (player.energy-use player) (effect-entry-energy-use the-effect)))
+	;; do nothing
+	(:not-used)
+	(nil
+	 (warn "Object-effect ~s for object ~s returned nil, fix?"
+	       (effect-entry-type the-effect) the-object)
+	 nil)
+	))
 
     retval))
-
-(defun %van-sort-obj-types (obj-types)
-  (sort obj-types #'string< :key #'symbol-name))
 
 
 (defmethod need-flavour? ((var-obj vanilla-variant) (obj object-kind))          nil)
@@ -233,6 +239,8 @@ the Free Software Foundation; either version 2 of the License, or
 (defmethod get-price ((object active-object) (store black-market))
   #+cmu
   (declare (optimize (ext:inhibit-warnings 3)))
+  #+sbcl
+  (declare (optimize (sb-ext:inhibit-warnings 3)))
   (* 3 (call-next-method)))
 
 (defmethod get-offer ((object active-object) (store black-market))
@@ -243,13 +251,14 @@ the Free Software Foundation; either version 2 of the License, or
 	 (level *level*)
 	 (some-obj (get-active-object-by-level variant level
 					       :depth object-depth))
-	 (o-type (when some-obj (aobj.kind some-obj))))
+;;	 (o-type (when some-obj (aobj.kind some-obj)))
+	 )
     
     ;; possibly add magic
     (apply-magic! variant some-obj object-depth :allow-artifact nil)
     
     (when (and some-obj (plusp (get-price some-obj the-store))
-	       (not (obj-is? o-type '<chest>))) ;; hack
+	       (not (typep some-obj 'active-object/chest))) ;; hack
       some-obj)))
 
 			     
@@ -436,7 +445,7 @@ the Free Software Foundation; either version 2 of the License, or
 (defmethod produce-character-class ((variant vanilla-variant) id name &key spells magic-abilities &allow-other-keys)
   ;; we only do stuff if we get magic-abiltiies info, otherwise we assume he is no spell-caster
   (cond ((consp magic-abilities)
-	 (let ((class-obj (make-instance 'spellcasting-class)))
+	 (let ((class-obj (make-instance 'spellcasting-class :id id :name name)))
 
 	   (setf (class.learnt-spells class-obj) (make-array 10 :fill-pointer 0 :initial-element nil))
 	   
@@ -485,55 +494,209 @@ the Free Software Foundation; either version 2 of the License, or
 	(t
 	 (call-next-method))))
 
-(defmethod add-magic-to-item! ((variant vanilla-variant) (item active-object/ring) depth quality)
 
-  (let ((add-magic-effect (get-object-effect variant item :add-magic)))
-    (when (and add-magic-effect
-	       (effect-entry-p add-magic-effect)
-	       (functionp (effect-entry-fun add-magic-effect)))
-      (funcall (effect-entry-fun add-magic-effect) item depth quality))
-    
-    t))
+(defun boost-stats! (item amount)
+  (let ((gvals (aobj.game-values item))
+	(variant *variant*))
+    (setf (gval.stat-modifiers gvals)
+	  (build-stat-table-from-symlist variant
+					 (loop for i in (gval.stat-modifiers gvals)
+					       collecting (list i amount))))))
 
 
-(defmethod add-magic-to-item! ((variant variant) (item active-object/weapon) depth quality)
+;; move somewhere else later
+(defmethod shoot-a-missile ((dungeon dungeon) (player player)
+			   (missile-weapon active-object/bow)
+			   (arrow active-object/ammo))
   
-  (when (eq quality :normal)
-    (return-from add-magic-to-item! nil))
+;;  (declare (ignore missile-weapon))
+  (block missile-shooting
+    (when-bind (dir (%read-direction))
+      (assert (and (numberp dir) (< dir 10)))
+;;      (check-type arrow active-object)
+      
+;;      (warn "dir is ~s with ~s + ~s" dir missile-weapon arrow)
+      (let* ((pvx (location-x player))
+	     (pvy (location-y player))
+	     (ddx *ddx*)
+	     (ddy *ddy*)
+	     (tx (+ pvx (* 99 (aref ddx dir))))
+	     (ty (+ pvy (* 99 (aref ddy dir))))
+	     (max-range (+ 10 (* 5 (object.multiplier (aobj.kind missile-weapon)))))
+	     (path-arr (make-array (1+ max-range) :fill-pointer 0))
+	     (path-len (project-path dungeon max-range path-arr pvx pvy tx ty 0))
+	     (miss-attr (object.x-attr arrow))
+	     (miss-char (object.x-char arrow))
+	     (cur-x pvx)
+	     (cur-y pvy)
+	     )
 
-  ;; skip ego-check for :great and :broken
+	(declare (ignore path-len))
 
-    (unless (aobj.game-values item)
-      (setf (aobj.game-values item) (make-game-values)))
-  
-  (let ((to-hit (+ (randint 5) (magic-bonus-for-level 5 depth)))
-	(to-dmg (+ (randint 5) (magic-bonus-for-level 5 depth)))
-	(to-hit-extra (+ (magic-bonus-for-level 10 depth)))
-	(to-dmg-extra (+ (magic-bonus-for-level 10 depth)))
-	(gvals (aobj.game-values item))
-	)
+	
+	(loop named follow-path
+	      for g across path-arr
+	      do
+	      (let ((x (grid-x g))
+		    (y (grid-y g)))
+		(setq cur-x x
+		      cur-y y)
+		(unless (cave-floor-bold? dungeon x y)
+		  (return-from follow-path nil))
+	      
+		(display-moving-object dungeon x y miss-char miss-attr)
+	      
+		(when-bind (monsters (cave-monsters dungeon x y))
+		  (let* ((fmon (if (consp monsters) (car monsters) monsters))
+			 (mon-name (get-creature-name fmon)))
+		    (when (missile-hit-creature? player fmon missile-weapon arrow)
+		      
+		      (print-message! (format nil "The ~a was hit." mon-name))
+		      (missile-inflict-damage! player fmon missile-weapon arrow)
+		      (when (< (current-hp fmon) 0)
+			(print-message! (format nil "The ~a died." mon-name))
+			(let ((target-xp (get-xp-value fmon)))
+			  (alter-xp! player (if target-xp target-xp 0)))
+			(kill-target! dungeon player fmon x y)
+			;; repaint spot
+			(light-spot! dungeon x y))
+
+		      (return-from follow-path nil))))
+		))
+
+	;; if it crashes in a wall, your arrow is gone.
+	(when (cave-floor-bold? dungeon cur-x cur-y)
+	  (item-table-add! (get-item-table dungeon player :floor :x cur-x :y cur-y)
+			   arrow))
+
+	))))
+
+(defmethod process-world& ((variant vanilla-variant) (dungeon dungeon) (player player))
+  "tries to process important world-stuff every 10 turns."
+
+  (let ((the-turn (variant.turn variant))
+	(temp-attrs (player.temp-attrs player)))
+
+    (unless (= 0 (mod the-turn 10)) ;; every 10 turns only
+      (return-from process-world& nil))
+
+   
+    ;; if in town fix lightning
+
+    (when (plusp (dungeon.depth dungeon)) ;; in dungeon
+      ;; shuffle stores
+      nil)
+
+    ;; possibly allocate new monster
+    ;; possible monster-regeration
+
+    ;; is the player poisoned?
+    (when-bind (poison-level (get-attribute-value '<poisoned> temp-attrs))
+      ;; damage player 1 from poison!
+      (deliver-damage! variant "poison" player 1)
+      nil)
+
+    ;; has the player got any cuts?
+    (let ((cuts (get-attribute-value '<cut> temp-attrs)))
+      (when (plusp cuts)
+	(let ((dmg (cond ((> cuts 200) 3)
+			 ((> cuts 100) 2)
+			 (t 1))))
+	  (deliver-damage! variant "fatal wound" player dmg)
+	  )))
     
 
+    ;; check food
+    (decf (player.food player))
 
-    (case quality
-      (:good
-       (incf (gval.dmg-modifier gvals) to-dmg)
-       (incf (gval.tohit-modifier gvals) to-hit))
-      (:great
-       (incf (gval.dmg-modifier gvals) (+ to-dmg to-dmg-extra))
-       (incf (gval.tohit-modifier gvals) (+ to-hit to-hit-extra)))
-      (:cursed
-       (decf (gval.dmg-modifier gvals) to-dmg)
-       (decf (gval.tohit-modifier gvals) to-hit))
-      (:broken
-       (decf (gval.dmg-modifier gvals) (+ to-dmg to-dmg-extra))
-       (decf (gval.tohit-modifier gvals) (+ to-hit to-hit-extra)))
-      (otherwise
-       (warn "Unknown quality ~s wanted for item ~s" quality item)))
+    (let ((con-based-regen-rate (get-stat-info-value variant player '<con> :regeneration)))
 
-    ;; skip cursed flag
-    ;; skip super-charges
-
-;;    (warn "Added magic (~s,~s) to ~s" to-hit to-dmg item)
     
-    t))
+    ;; possible regenerate
+    (let ((regen-amount 197))
+	  
+      ;; affect regen by food
+      ;; affect regen by abilities and items
+
+      (when (< (current-mana player)
+	       (maximum-mana player))
+	(regenerate-mana! player regen-amount))
+
+      ;; affected by condition
+
+      (when (< (current-hp player)
+	       (maximum-hp player))
+	(regenerate-hp! player regen-amount)))
+      
+
+    ;; do timeout'ing of effects
+    (loop for x being the hash-values of temp-attrs
+	  do
+	  (let ((old-duration (attr.duration x)))
+	    (cond ((= old-duration 1)
+		   (modify-creature-state! player (attr.key x) :new-value 0))
+		  ((plusp old-duration)
+		   (decf (attr.duration x)))
+		  )
+	    ))
+
+    ;; some are modified by stats and equipment
+    (let ((poison (get-attribute-value '<poisoned> temp-attrs)))
+      (when poison
+	(modify-creature-state! player '<poisoned>
+				:subtract con-based-regen-rate)))
+
+    (let ((cuts (get-attribute-value '<cut> temp-attrs)))
+      (when (plusp cuts)
+	;; add more here
+	(modify-creature-state! player '<cut>
+				:subtract con-based-regen-rate)))
+
+    (let ((stun (get-attribute-value '<stun> temp-attrs)))
+      (when (plusp stun)
+	(modify-creature-state! player '<stun>
+				:subtract con-based-regen-rate)))
+
+    
+    ;; burn fuel when needed
+    (when-bind (l-s (get-light-source player))
+      (unless (is-artifact? l-s)
+	(let ((gvals (aobj.game-values l-s)))
+	  (decf (gval.charges gvals))
+	  (when (< (gval.charges gvals) 1)
+	    (setf (gval.light-radius gvals) 0)))))
+		 
+    
+    ;; drain xp
+    
+    ;; check for timeouts on equipment
+    
+    ;; recharge rods
+
+    ;; recharge things on the ground
+    
+    ;; random teleport/WoR
+
+    )))
+
+(defun interactive-take-off-item! (dungeon player)
+  (let (;;(var-obj *variant*)
+        (selection (with-new-screen ()
+                     (select-item dungeon player '(:equip)
+                                  :prompt "Take off item: "
+                                  :where :equip))))
+    (cond (selection
+           (let* ((the-table (get-item-table dungeon player (car selection)))
+                  (removed-obj (item-table-remove! the-table (cdr selection))))
+             (cond ((typep removed-obj 'active-object)
+		    ;; an object was returned
+		    (%put-obj-in-cnt dungeon player :backpack removed-obj)
+		    (bit-flag-add! *update* +pl-upd-bonuses+ +pl-upd-mana+ +pl-upd-torch+))
+		   
+                   (t
+                    (print-message! (format nil "Did not find selected obj ~a" selection)
+				    )))))
+          (t
+           ;;(warn "Did not select anything.")
+           ))
+    ))

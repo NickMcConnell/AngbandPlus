@@ -14,6 +14,8 @@ the Free Software Foundation; either version 2 of the License, or
 
 (in-package :org.langband.engine)
 
+;;;; THIS CODE IS OBSOLETE and NEEDS REVAMPING BEFORE _ANY_ USE
+
 (defun add-new-okind! (obj id)
   ""
   (declare (ignore id))
@@ -515,7 +517,7 @@ are sorted first.  Returns nothing."
 				(24 (add-str-tval '(<dispel> <evil>)))
 				(25 (add-str-tval '<power>))
 				(26 (add-str-tval '<holiness>))
-				(27 (add-str-tval '<genocide>))
+				(27 (add-str-tval '<xenocide>))
 				(28 (add-str-tval '<earthquake>))
 				(29 (add-str-tval '<destruction>))
 			      
@@ -541,11 +543,11 @@ are sorted first.  Returns nothing."
 				(14 (add-str-tval '<stinking-cloud>))
 				(15 (add-str-tval '<magic-missile>))
 				(16 (add-str-tval '(<bolt> <acid>)))
-				(17 (add-str-tval '(<bolt> <lightning>)))
+				(17 (add-str-tval '(<bolt> <electricity>)))
 				(18 (add-str-tval '(<bolt> <fire>)))
 				(19 (add-str-tval '(<bolt> <cold>)))
 				(20 (add-str-tval '(<ball> <acid>)))
-				(21 (add-str-tval '(<ball> <lightning>)))
+				(21 (add-str-tval '(<ball> <electricity>)))
 				(22 (add-str-tval '(<ball> <fire>)))
 				(23 (add-str-tval '(<ball> <cold>)))
 				(24 (add-str-tval '<wonder>))
@@ -634,8 +636,8 @@ are sorted first.  Returns nothing."
 				(41 (add-str-tval '(<destruction> <powerful>)))
 				(42 (add-str-tval '(<dispel> <undead>)))
 			      
-				(44 (add-str-tval '<genocide>))
-				(45 (add-str-tval '(<genocide> <mass>)))
+				(44 (add-str-tval '<xenocide>))
+				(45 (add-str-tval '(<xenocide> <mass>)))
 				(46 (add-str-tval '(<acquirement> <normal>)))
 				(47 (add-str-tval '(<acquirement> <powerful>)))
 				(otherwise (warn "Unknown subtype for scroll ~a" subtype-val))))

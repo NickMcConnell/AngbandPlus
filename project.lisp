@@ -15,7 +15,7 @@ the Free Software Foundation; either version 2 of the License, or
 (in-package :org.langband.engine)
 
 
-(defun project-path (dun max-range path-array x1 y1 x2 y2 flag)
+(defun project-path (dungeon max-range path-array x1 y1 x2 y2 flag)
   "Tries to project a path from (x1,y1) to (x2,y2)."
   (declare (optimize (safety 0) (speed 3) (debug 0)
 		     #+cmu (ext:inhibit-warnings 3)))
@@ -68,10 +68,10 @@ the Free Software Foundation; either version 2 of the License, or
 			       (and (= x x2)
 				    (= y y2)))
 			  (and (> len 0)
-			       (not (cave-floor-bold? dun x y)))
+			       (not (cave-floor-bold? dungeon x y)))
 			  (and (bit-flag-set? flag +project-stop+)
 			       (and (> len 0)
-				    (cave-monsters dun x y))))
+				    (cave-monsters dungeon x y))))
 		  (return-from go-direction len))
 		
 		(unless (= m 0)
@@ -141,27 +141,6 @@ the Free Software Foundation; either version 2 of the License, or
   (light-spot! dungeon x y)
   (c-term-fresh!))
 
-(defun interactive-fire-a-missile (dungeon player)
-  "Hackish shoot-code."
-  (block missile-shooting
-    (let ((the-bow (get-missile-weapon player))
-	  (the-missile nil))
-      (unless (and the-bow (typep the-bow 'active-object/bow))
-	(print-message! "You have no missile weapon!")
-	(return-from missile-shooting nil))
-
-      (with-new-screen ()
-	(setq the-missile (grab-a-selection-item dungeon player '(:backpack :floor)
-						 :prompt "Select missile:"
-						 :where :backpack)))
-
-	
-      (cond ((and the-missile (typep the-missile 'active-object/ammo))
-	     (shoot-a-missile dungeon player the-bow the-missile))
-	    (t
-	     (print-message! "No missile selected!")))
-	)))
-
 
 (defmethod missile-hit-creature? ((attacker player) (target active-monster) missile-weapon missile)
 ;;  (declare (ignore missile-weapon missile))
@@ -196,74 +175,7 @@ the Free Software Foundation; either version 2 of the License, or
   (declare (ignore missile-weapon missile))
   (deduct-hp! target (roll-dice 2 4)))
 
-(defmethod shoot-a-missile ((dungeon dungeon) (player player)
-			   (missile-weapon active-object/bow)
-			   (arrow active-object/ammo))
-  
-;;  (declare (ignore missile-weapon))
-  (block missile-shooting
-    (when-bind (dir (%read-direction))
-      (assert (and (numberp dir) (< dir 10)))
-;;      (check-type arrow active-object)
-      
-;;      (warn "dir is ~s with ~s + ~s" dir missile-weapon arrow)
-      (let* ((pvx (location-x player))
-	     (pvy (location-y player))
-	     (ddx *ddx*)
-	     (ddy *ddy*)
-	     (tx (+ pvx (* 99 (aref ddx dir))))
-	     (ty (+ pvy (* 99 (aref ddy dir))))
-	     (max-range (+ 10 (* 5 (object.multiplier (aobj.kind missile-weapon)))))
-	     (path-arr (make-array (1+ max-range) :fill-pointer 0))
-	     (path-len (project-path dungeon max-range path-arr pvx pvy tx ty 0))
-	     (miss-attr (object.x-attr arrow))
-	     (miss-char (object.x-char arrow))
-	     (cur-x pvx)
-	     (cur-y pvy)
-	     )
 
-	(declare (ignore path-len))
-
-	
-	(loop named follow-path
-	      for g across path-arr
-	      do
-	      (let ((x (grid-x g))
-		    (y (grid-y g)))
-		(setq cur-x x
-		      cur-y y)
-		(unless (cave-floor-bold? dungeon x y)
-		  (return-from follow-path nil))
-	      
-		(display-moving-object dungeon x y miss-char miss-attr)
-	      
-		(when-bind (monsters (cave-monsters dungeon x y))
-		  (let* ((fmon (if (consp monsters) (car monsters) monsters))
-			 (mon-name (get-creature-name fmon)))
-		    (when (missile-hit-creature? player fmon missile-weapon arrow)
-		      
-		      (print-message! (format nil "The ~a was hit." mon-name))
-		      (missile-inflict-damage! player fmon missile-weapon arrow)
-		      (when (< (current-hp fmon) 0)
-			(print-message! (format nil "The ~a died." mon-name))
-			(let ((target-xp (get-xp-value fmon)))
-			  (alter-xp! player (if target-xp target-xp 0)))
-			(kill-target! dungeon player fmon x y)
-			;; repaint spot
-			(light-spot! dungeon x y))
-
-		      (return-from follow-path nil))))
-		))
-
-	;; if it crashes in a wall, your arrow is gone.
-	(when (cave-floor-bold? dungeon cur-x cur-y)
-	  (item-table-add! (get-item-table dungeon player :floor :x cur-x :y cur-y)
-			   arrow))
-
-	))))
-
-	
-	    
 
 ;;(trace project-path)
 #+never

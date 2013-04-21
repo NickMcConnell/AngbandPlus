@@ -29,7 +29,9 @@
 <tr><td>config/win-keys.lisp</td><td>key-definitions for windows keys</td></tr>
 <tr><td>config/x11-keys.lisp</td><td>key-definitions for x11-keys</td></tr>
 <tr><td>constants.lisp</td><td>constants for the game code</td></tr>
+<tr><td>dbdoc.lisp</td><td>&nbsp;</td></tr>
 <tr><td>death.lisp</td><td>the boggling concept: death (and high-scores)</td></tr>
+<tr><td>doc/dumps/foo.lisp</td><td>&nbsp;</td></tr>
 <tr><td>dump.lisp</td><td>code related to dumping various information-structures, ...</td></tr>
 <tr><td>dungeon.lisp</td><td>basic code for the dungeon</td></tr>
 <tr><td>equipment.lisp</td><td>code for any equipment in all containers.</td></tr>
@@ -48,16 +50,17 @@
 <tr><td>global.lisp</td><td>globally available functions/methods</td></tr>
 <tr><td>init.lisp</td><td>initialisation code</td></tr>
 <tr><td>keys.lisp</td><td>keypressing code</td></tr>
-<tr><td>lib/compat/floor.lisp</td><td>reads standard vanilla floors/features</td></tr>
+<tr><td>lib/compat/ego.lisp</td><td>reads standard vanilla ego-items</td></tr>
+<tr><td>lib/compat/floor.lisp</td><td>reads standard vanilla floors</td></tr>
 <tr><td>lib/compat/monster.lisp</td><td>code to be compatible with r_info.txt</td></tr>
 <tr><td>lib/compat/obj-kind.lisp</td><td>code to be compatible with k_info.txt</td></tr>
+<tr><td>lib/compat/savefiles.lisp</td><td>reads standard vanilla savefiles</td></tr>
 <tr><td>load.lisp</td><td>loading of various parts of the game</td></tr>
 <tr><td>loop.lisp</td><td>the game loop(s)</td></tr>
 <tr><td>memoize.lisp</td><td>memoization from PAIP</td></tr>
 <tr><td>monster.lisp</td><td>monster-code</td></tr>
 <tr><td>object.lisp</td><td>code for object-kinds</td></tr>
 <tr><td>package.lisp</td><td>package def for langband</td></tr>
-<tr><td>parameters.lisp</td><td>handling of special parameters</td></tr>
 <tr><td>player.lisp</td><td>code for the character object</td></tr>
 <tr><td>pre-build.lisp</td><td>settings that must be set before build</td></tr>
 <tr><td>print.lisp</td><td>various display code</td></tr>
@@ -66,9 +69,6 @@
 <tr><td>sound.lisp</td><td>simple functions that deals with sound</td></tr>
 <tr><td>stores.lisp</td><td>code which deals with stores and their owners</td></tr>
 <tr><td>sys.lisp</td><td>Various system-related code</td></tr>
-<tr><td>util.lisp</td><td>utility-code dependant on other code</td></tr>
-<tr><td>verify.lisp</td><td>verification of objects</td></tr>
-<tr><td>view.lisp</td><td>code for figuring out what is seen</td></tr>
 <tr><td>tests/base.lisp</td><td>base code for customising xptest to Langband</td></tr>
 <tr><td>tests/building.lisp</td><td>testing code for buildings</td></tr>
 <tr><td>tests/checking.lisp</td><td>testing code for equality functions</td></tr>
@@ -81,40 +81,53 @@
 <tr><td>tests/player.lisp</td><td>testing code for player-obj</td></tr>
 <tr><td>tests/save.lisp</td><td>testing code for save/load of game</td></tr>
 <tr><td>tests/stat.lisp</td><td>testing code for stats</td></tr>
+<tr><td>tools/asdf.lisp</td><td>&nbsp;</td></tr>
 <tr><td>tools/defsystem.lisp</td><td>&nbsp;</td></tr>
 <tr><td>tools/ffi-build.lisp</td><td>batch lisp-code for building FFI-declarations</td></tr>
 <tr><td>tools/ffi-gen.lisp</td><td>code that reads defs and generates actual ffi-code.</td></tr>
 <tr><td>tools/package.lisp</td><td>&nbsp;</td></tr>
 <tr><td>tools/xptest-example.lisp</td><td>&nbsp;</td></tr>
 <tr><td>tools/xptestsuite.lisp</td><td>&nbsp;</td></tr>
+<tr><td>util.lisp</td><td>utility-code dependant on other code</td></tr>
 <tr><td>variants/vanilla/base.lisp</td><td>the base variant class for Vanilla</td></tr>
-<tr><td>variants/vanilla/keys.lisp</td><td>assignment of keys</td></tr>
-<tr><td>variants/vanilla/levels.lisp</td><td>level customisation for Vanilla</td></tr>
-<tr><td>variants/vanilla/quirks.lisp</td><td>special settings for Vanilla</td></tr>
-<tr><td>variants/vanilla/rooms.lisp</td><td>room-builders that should be common</td></tr>
-<tr><td>variants/vanilla/spells.lisp</td><td>spell-effects</td></tr>
-<tr><td>variants/vanilla/various.lisp</td><td>various helper-stuff that should be compiled</td></tr>
-<tr><td>variants/vanilla/wizard.lisp</td><td>wizard-commands</td></tr>
 <tr><td>variants/vanilla/config/armour.lisp</td><td>armour for vanilla variant</td></tr>
 <tr><td>variants/vanilla/config/books.lisp</td><td>spellbooks for vanilla variant</td></tr>
 <tr><td>variants/vanilla/config/classes.lisp</td><td>classes for vanilla variant</td></tr>
 <tr><td>variants/vanilla/config/defines.lisp</td><td>various defines that should be loaded as data</td></tr>
+<tr><td>variants/vanilla/config/ego-items.lisp</td><td>&nbsp;</td></tr>
 <tr><td>variants/vanilla/config/flavours.lisp</td><td>flavours for vanilla variant</td></tr>
 <tr><td>variants/vanilla/config/floors.lisp</td><td>floor-types for vanilla variant</td></tr>
+<tr><td>variants/vanilla/config/food.lisp</td><td>eatable objects for vanilla variant</td></tr>
 <tr><td>variants/vanilla/config/gold.lisp</td><td>gold-objects for vanilla variant</td></tr>
 <tr><td>variants/vanilla/config/monsters.lisp</td><td>monsters for vanilla variant</td></tr>
+<tr><td>variants/vanilla/config/neckwear.lisp</td><td>all sorts of neckwear/amulets</td></tr>
 <tr><td>variants/vanilla/config/objects.lisp</td><td>objects for vanilla variant</td></tr>
 <tr><td>variants/vanilla/config/potions.lisp</td><td>potions for vanilla variant</td></tr>
 <tr><td>variants/vanilla/config/races.lisp</td><td>races for vanilla variant</td></tr>
+<tr><td>variants/vanilla/config/rings.lisp</td><td>rings for vanilla variant</td></tr>
 <tr><td>variants/vanilla/config/scrolls.lisp</td><td>scrolls for vanilla variant</td></tr>
+<tr><td>variants/vanilla/config/spells.lisp</td><td>definition of spells and spellbooks</td></tr>
 <tr><td>variants/vanilla/config/stats.lisp</td><td>stats for player characters</td></tr>
 <tr><td>variants/vanilla/config/sticks.lisp</td><td>wands/rods/staves for vanilla variant</td></tr>
 <tr><td>variants/vanilla/config/stores.lisp</td><td>stores and owners for vanilla variant</td></tr>
 <tr><td>variants/vanilla/config/town-monsters.lisp</td><td>town-monsters for vanilla variant</td></tr>
+<tr><td>variants/vanilla/config/traps.lisp</td><td>trap-types for vanilla variant</td></tr>
 <tr><td>variants/vanilla/config/uniques.lisp</td><td>unique monsters for vanilla variant</td></tr>
 <tr><td>variants/vanilla/config/weapons.lisp</td><td>weapons for vanilla variant</td></tr>
+<tr><td>variants/vanilla/keys.lisp</td><td>assignment of keys</td></tr>
+<tr><td>variants/vanilla/levels.lisp</td><td>level customisation for Vanilla</td></tr>
+<tr><td>variants/vanilla/objects.lisp</td><td>code related to vanilla object-types</td></tr>
+<tr><td>variants/vanilla/quirks.lisp</td><td>special settings for Vanilla</td></tr>
+<tr><td>variants/vanilla/rooms.lisp</td><td>room-builders that should be common</td></tr>
+<tr><td>variants/vanilla/spells.lisp</td><td>spell-effects</td></tr>
+<tr><td>variants/vanilla/tests/object.lisp</td><td>testing code for game-objects</td></tr>
+<tr><td>variants/vanilla/tests/package.lisp</td><td>package def for vanilla-tests</td></tr>
+<tr><td>variants/vanilla/various.lisp</td><td>various helper-stuff that should be compiled</td></tr>
+<tr><td>variants/vanilla/verify.lisp</td><td>verification of objects, specific to vanilla</td></tr>
+<tr><td>variants/vanilla/wizard.lisp</td><td>wizard-commands</td></tr>
+<tr><td>verify.lisp</td><td>verification of objects</td></tr>
+<tr><td>view.lisp</td><td>code for figuring out what is seen</td></tr>
 </table>
-
 
 
 

@@ -11,6 +11,10 @@ DESC: tests/package.lisp - package def for langband-test
 (defpackage :org.langband.testing
   (:nicknames :lb-test :langband-test)
   (:use :common-lisp :langband :xp-test)
-;;  (:export #:game-init&)
+  (:export #:def-lb-fixture
+	   #:pre-variant
+	   #:post-variant
+	   #:in-game)
+
   #+lisp2csf
   (:documentation "This is the testing of the Langband code."))

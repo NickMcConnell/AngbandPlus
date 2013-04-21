@@ -27,8 +27,7 @@ the Free Software Foundation; either version 2 of the License, or
     :x-attr #\w :x-char #\&
     :depth 0 :rarity nil :chance #(0 0 0 0)
     :locale #(0 0 0 0) :weight nil
-    :cost 1200 :obj-type '(<container> <backpack>)
-    :the-kind '<container>
+    :cost 1200 :the-kind '<container>
     :on-create #'(lambda (item)
 		   (let ((container (make-container +common-backpack-size+)))
 		     (setf (aobj.contains item) container)
@@ -57,6 +56,7 @@ the Free Software Foundation; either version 2 of the License, or
 (define-element '<gravity>     "gravity"     :bit-flag #x00004000 :number 14)
 (define-element '<chaos>       "chaos"       :bit-flag #x00008000 :number 15)
 (define-element '<fear>        "fear"        :bit-flag #x00010000 :number 16)
+(define-element '<sleep>       "sleep"       :bit-flag #x00020000 :number 17)
 
 ;; various effects for the player in vanilla
 

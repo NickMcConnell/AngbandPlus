@@ -16,7 +16,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 ;; we need certain flags
 (eval-when (:execute :load-toplevel :compile-toplevel)
-  #+(or allegro cmu sbcl)
+  #+(or allegro cmu sbcl lispworks)
   (pushnew :use-callback-from-c *features*)
 
   #+(or cmu clisp sbcl)
@@ -85,13 +85,12 @@ the Free Software Foundation; either version 2 of the License, or
 			   (:file "generics")
 			   (:file "sys")
 			   (:file "classes" :depends-on ("generics" "constants"))
-			   (:file "parameters")
 			   (:file "global" :depends-on ("classes" "generics" "base" "constants" "sys"))
 			   (:file "sound")
 			   (:file "character" :depends-on ("classes" "global"))
 			   (:file "object" :depends-on ("classes" "generics" "global"))
 			   (:file "equipment" :depends-on ("global" "object"))
-			   (:file "player" :depends-on ("classes" "global" "character" "equipment" "parameters"))
+			   (:file "player" :depends-on ("classes" "global" "character" "equipment"))
 			   (:file "monster" :depends-on ("classes" "global"))
 			   (:file "dungeon" :depends-on ("base" "monster" "classes" "constants"))
 			   (:file "building" :depends-on ("generics" "base" "global"))
@@ -128,7 +127,6 @@ the Free Software Foundation; either version 2 of the License, or
 			   (:file "savefiles")
 			   )
 	      :depends-on (basic))
-     
      ))
 
 

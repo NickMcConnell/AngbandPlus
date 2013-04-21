@@ -34,11 +34,12 @@ VANILLAMAN	:= $(VANILLADESTDIR)/usr/share/man/man3
 
 INSTALLSOURCES	:= \
 	langband-engine.system  pre-build.lisp \
+	langband-engine.asd  \
 	package.lisp  memoize.lisp \
 	base.lisp  constants.lisp \
 	generics.lisp  sys.lisp classes.lisp \
-	parameters.lisp  global.lisp  \
-	sound.lisp  character.lisp  object.lisp \
+	global.lisp  sound.lisp \
+	character.lisp  object.lisp \
 	equipment.lisp  player.lisp \
 	monster.lisp  dungeon.lisp \
 	building.lisp  stores.lisp \
@@ -83,13 +84,21 @@ CONFSRC = \
 
 VANSRC = \
 	variants/vanilla/langband-vanilla.system \
+	variants/vanilla/langband-vanilla.asd \
 	variants/vanilla/base.lisp \
+	variants/vanilla/combat.lisp \
+	variants/vanilla/constants.lisp \
+	variants/vanilla/ego.lisp \
 	variants/vanilla/keys.lisp \
 	variants/vanilla/levels.lisp \
+	variants/vanilla/objects.lisp \
+	variants/vanilla/player.lisp \
+	variants/vanilla/print.lisp \
 	variants/vanilla/quirks.lisp \
 	variants/vanilla/rooms.lisp \
 	variants/vanilla/spells.lisp \
 	variants/vanilla/various.lisp \
+	variants/vanilla/verify.lisp \
 	variants/vanilla/wizard.lisp 
 
 
@@ -102,8 +111,10 @@ VANCONFSRC = \
 	variants/vanilla/config/ego-items.lisp \
 	variants/vanilla/config/flavours.lisp \
 	variants/vanilla/config/floors.lisp \
+	variants/vanilla/config/food.lisp \
 	variants/vanilla/config/gold.lisp \
 	variants/vanilla/config/monsters.lisp \
+	variants/vanilla/config/neckwear.lisp \
 	variants/vanilla/config/objects.lisp \
 	variants/vanilla/config/potions.lisp \
 	variants/vanilla/config/races.lisp \

@@ -66,7 +66,6 @@ the Free Software Foundation; either version 2 of the License, or
     (possibly-add :locale (object.locale object) #(0 0 0 0))
     (possibly-add :weight (object.weight object))
     (possibly-add :cost (object.cost object))
-    (possibly-add :obj-type (object.obj-type object))
     (possibly-add :flags (object.flags object))
     (possibly-add :identified (object.tried object))
     (possibly-add :sort-value (object.sort-value object) 0)
@@ -105,7 +104,7 @@ the Free Software Foundation; either version 2 of the License, or
       (possibly-add :speed (monster.speed object) 0)
       (possibly-add :xp (monster.xp object) 0)
       (possibly-add :abilities (monster.abilities object))
-      (possibly-add :immunities (monster.immunities object))
+      (possibly-add :immunities (monster.immunities object) 0)
       (possibly-add :vulnerabilities (monster.vulnerabilities object))
       (possibly-add :alertness (monster.alertness object))
       (possibly-add :vision (monster.vision object))
@@ -142,7 +141,6 @@ the Free Software Foundation; either version 2 of the License, or
 	   (floor.name inst)))
   inst)
 
-
 (defmethod print-object ((inst house) stream)
   (print-unreadable-object
    (inst stream :identity t)
@@ -151,18 +149,14 @@ the Free Software Foundation; either version 2 of the License, or
 	   (slot-value inst 'id)
 	   (slot-value inst 'owner)
 	   ))
-	   
   inst)
-
 
 (defmethod print-object ((inst owner) stream)
   (print-unreadable-object
    (inst stream :identity t)
    (format stream "~:(~S~) [~A]" (class-name (class-of inst))
 	   (slot-value inst 'name)))
-	   
   inst)
-
 
 (defmethod print-object ((inst object-kind) stream)
   (print-unreadable-object
@@ -178,8 +172,6 @@ the Free Software Foundation; either version 2 of the License, or
 	   (aobj.number inst) (aobj.kind inst) (location-x inst) (location-y inst))
   inst))
 
-
-
 (defmethod print-object ((inst monster-kind) stream)
   (print-unreadable-object
    (inst stream :identity t)
@@ -187,7 +179,6 @@ the Free Software Foundation; either version 2 of the License, or
 	   (monster.id inst)
 	   (monster.name inst)))
   inst)
-
 
 (defmethod print-object ((inst active-monster) stream)
   (print-unreadable-object
@@ -209,7 +200,6 @@ the Free Software Foundation; either version 2 of the License, or
    (format stream "~:(~S~) [~S]" (class-name (class-of inst)) 
 	   (if (trap.type inst) (trap.id (trap.type inst)) "NO TYPE")))
   inst)
-
 
 (defmethod print-object ((inst treasure-drop) stream)
   (print-unreadable-object

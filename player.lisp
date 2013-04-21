@@ -127,16 +127,16 @@ the Free Software Foundation; either version 2 of the License, or
 
 (defmethod produce-player-object ((variant variant))
   "Creates and returns a PLAYER object."
-  (let ((t-p (make-instance 'player)))
+  (let ((player (make-instance 'player)))
   
-    (setf (player.base-stats t-p)    (make-stat-array variant)
-	  (player.cur-statmods t-p) (make-stat-array variant)
-	  (player.modbase-stats t-p) (make-stat-array variant)
-	  (player.active-stats t-p)  (make-stat-array variant))
+    (setf (player.base-stats player)    (make-stat-array variant)
+	  (player.cur-statmods player) (make-stat-array variant)
+	  (player.modbase-stats player) (make-stat-array variant)
+	  (player.active-stats player)  (make-stat-array variant))
 
-    (setf (player.misc t-p) (make-instance 'misc-player-info) ;; fix to allow variants to override
-	  (player.perceived-abilities t-p) (make-instance 'player-abilities) ;; fix to allow variants to override
-	  (player.actual-abilities t-p) (make-instance 'player-abilities)) ;; fix to allow variants to override
+    (setf (player.misc player) (make-instance 'misc-player-info) ;; fix to allow variants to override
+	  (player.perceived-abilities player) (make-instance 'player-abilities) ;; fix to allow variants to override
+	  (player.actual-abilities player) (make-instance 'player-abilities)) ;; fix to allow variants to override
     
     #+langband-extra-checks
     (assert (let ((bstat-table (player.base-stats t-p))
@@ -154,13 +154,31 @@ the Free Software Foundation; either version 2 of the License, or
     ;; hack to get things moving!
 ;;    (setf (creature.attributes t-p) (make-instance 'calculated-attributes))
     
-    (setf (player.skills t-p) (produce-skills-object variant))
-    (setf (player.equipment t-p) (make-equipment-slots))
+    (setf (player.skills player) (produce-skills-object variant))
+    (setf (player.equipment player) (make-equipment-slots variant))
     
-    (setf (player.hp-table t-p) (%make-level-array variant)
-	  (player.xp-table t-p) (%make-level-array variant)
+    (setf (player.hp-table player) (%make-level-array variant)
+	  (player.xp-table player) (%make-level-array variant)
 	  )
 
+    ;; hackish, just give player a backpack, move to variant later
+
+    (let ((backpack (create-aobj-from-id "backpack"))
+	  (eq-slots (player.equipment player)))
+      
+      (item-table-add! eq-slots backpack 'eq.backpack)
+      (setf (player.inventory player) backpack))
+
+    
+    ;; we want the resist table
+    (let ((resist-size (length (variant.elements variant))))
+      (setf (player.resists player) (make-array resist-size :initial-element 0))) 
+
+    (let ((stat-size (variant.stat-length variant)))
+      (setf (player.stat-sustains player) (make-array stat-size :initial-element nil)))
+
+    
+    #||
     (flet ((make-and-assign-backpack! (id)
 	     (let ((back-obj (create-aobj-from-id id))
 		   (eq-slots (player.equipment t-p)))
@@ -177,8 +195,9 @@ the Free Software Foundation; either version 2 of the License, or
 
     ;; hack
     ;;    (setf (player.light-radius t-p) 3)
+    ||#
     
-    t-p))
+    player))
 
 
 
@@ -258,6 +277,7 @@ the Free Software Foundation; either version 2 of the License, or
 	(setf (aref old/stats i) (aref active-stats i))))
 
     (setf (old.see-inv old) (player.see-invisible player))
+    (setf (old.speed old) (player.speed player))
     
     old))
 
@@ -272,6 +292,9 @@ the Free Software Foundation; either version 2 of the License, or
       (bit-flag-add! *redraw* +print-armour+)
       ;; skip window
       )
+    
+    (when (/= (player.speed player) (old.speed old))
+      (bit-flag-add! *redraw* +print-speed+))
 
     (when (/= (player.see-invisible player) (old.see-inv old))
       (bit-flag-add! *update* +pl-upd-monsters+))
@@ -401,19 +424,6 @@ the Free Software Foundation; either version 2 of the License, or
 	    (when (is-object-known? obj)
 	      (incf (pl-ability.ac-modifier perc-abs) (gval.ac-modifier gvals)))
 
-
-	    ;; hack, skip weapons
-	    (unless (typep obj 'active-object/weapon)
-	      ;; to hit
-	      (incf (pl-ability.to-hit-modifier actual-abs) (gval.tohit-modifier gvals))
-	      (when (is-object-known? obj)
-		(incf (pl-ability.to-hit-modifier perc-abs) (gval.tohit-modifier gvals)))
-	      
-	      ;; to damage
-	      (incf (pl-ability.to-dmg-modifier actual-abs) (gval.dmg-modifier gvals))
-	      (when (is-object-known? obj)
-		(incf (pl-ability.to-dmg-modifier perc-abs) (gval.dmg-modifier gvals)))
-	      )
 	    
 	    
 	    ;; fix this
@@ -479,7 +489,7 @@ the Free Software Foundation; either version 2 of the License, or
     t))
 
 
-(defun gain-level! (player)
+(defmethod gain-level! (player)
   "lets the player gain a level.. woah!  must be updated later"
 
   (let* ((the-level (player.level player))
@@ -506,7 +516,7 @@ the Free Software Foundation; either version 2 of the License, or
       (print-message! s))
 
     (bit-flag-add! *update* +pl-upd-hp+ +pl-upd-bonuses+ +pl-upd-mana+ +pl-upd-spells+)
-    (bit-flag-add! *redraw* +print-level+ +print-title+ +print-xp+)
+    (bit-flag-add! *redraw* +print-level+ +print-title+ +print-xp+ +print-hp+) ;; mana?
     
     ))
 
@@ -550,25 +560,6 @@ the Free Software Foundation; either version 2 of the License, or
 	 (return-from alter-xp! nil)))
   
    ))
-
-
-(defmethod get-weapon ((crt player))
-  (let ((the-eq (player.equipment crt)))
-    (check-type the-eq item-table)
-    
-    (item-table-find the-eq 'eq.weapon)))
-
-(defmethod get-missile-weapon ((crt player))
-  (let ((the-eq (player.equipment crt)))
-    (check-type the-eq item-table)
-    
-    (item-table-find the-eq 'eq.bow)))
-
-(defmethod get-light-source ((crt player))
-  (let ((the-eq (player.equipment crt)))
-    (check-type the-eq item-table)
-    
-    (item-table-find the-eq 'eq.light)))
 
 
 (defun reset-skills! (variant skills-obj reset-val)
@@ -628,18 +619,18 @@ the Free Software Foundation; either version 2 of the License, or
 		summing (aref hp-table i))))
   player)
 	   
-(defmethod heal-creature! ((pl player) amount)
+(defmethod heal-creature! ((player player) amount)
   "Heals the player and adds notify where needed."
 
-  (let ((max-hp (maximum-hp pl)))
+  (let ((max-hp (maximum-hp player)))
   
-    (when (< (current-hp pl) max-hp)
+    (when (< (current-hp player) max-hp)
       
-      (incf (current-hp pl) amount)
+      (incf (current-hp player) amount)
       
-      (when (< max-hp (current-hp pl)) ;; no more than max..
-	(setf (current-hp pl) max-hp
-	      (player.fraction-hp pl) 0))
+      (when (< max-hp (current-hp player)) ;; no more than max..
+	(setf (current-hp player) max-hp
+	      (player.fraction-hp player) 0))
       
       (bit-flag-add! *redraw* +print-hp+)
       
@@ -670,47 +661,60 @@ the Free Software Foundation; either version 2 of the License, or
   (learn-about-object! player obj :tried)
   ;; fix later
   (learn-about-object! player obj :aware)
-;;  (learn-about-object! pl obj :known)
+;;  (learn-about-object! player obj :known)
   ;; add xp?
   )
 
 
-(defun update-player-stat! (pl stat action)
+(defun update-player-stat! (player stat action &key (amount 1))
   "Action can be <restore> or a positive or negative integer."
 
-;;  (declare (ignore pl stat action))
+;;  (declare (ignore player stat action))
+  
+    (let* ((stat-obj (get-stat-obj *variant* stat))
+	   (num (stat.number stat-obj))
+	   ;;(bs (player.base-stats player))
+	   (cur-mods (player.cur-statmods player)))
 
-  ;; currently does restore
-  (let ((bs (player.base-stats pl))
-	(cbs (player.base-stats pl))
-	(num (etypecase stat
-	       (number stat)
-	       (symbol (get-stat-num-from-sym stat)))))
-
-    (ecase action
-      (<restore>
-       (let ((bval (aref bs num))
-	     (cbval (aref cbs num)))
-	 (when (< cbval bval)
-	   (with-foreign-str (s)
-	     (lb-format s "You feel less ~s" (get-stat-name-from-sym stat))
-	     (print-message! s))
-	   (setf (aref cbs num) (aref bs num))
-	   t)))
       
-      (<increase>
-       (warn "increase stat not implemented.")
-       t)
-      (<reduce>
-       (warn "reduce stat not implemented.")
-       t))
+      (ecase action
+	(<restore>
+	 (when (minusp (aref cur-mods num))
+	   (setf (aref cur-mods num) 0))
+	 (bit-flag-add! *update* +pl-upd-bonuses+)
+	 (with-foreign-str (s)
+	   (lb-format s "You feel less ~a" (stat.negative-desc stat-obj))
+	   (print-message! s))
+	 (return-from update-player-stat! t))
+	
+	(<increase>
+	 (warn "increase stat not implemented.")
+	 )
+	(<reduce>
+	 (cond ((aref (player.stat-sustains player) num) ;; is it sustained?
+		(with-foreign-str (s)
+		  (lb-format s "You feel very ~a for a moment, but the feeling passes."
+			     (stat.negative-desc stat-obj))
+		  (print-message! s))
+		(return-from update-player-stat! t))
+	       
+	       (t
+		;; the alghorithm in regular angband is more sophisticated.. test that later
+		(decf (aref cur-mods num) amount)
+		(bit-flag-add! *update* +pl-upd-bonuses+)
+		(with-foreign-str (s)
+		  (lb-format s "You feel very ~a." (stat.negative-desc stat-obj))
+		  (print-message! s))
+		(return-from update-player-stat! t))
+	       ))
+	)
+      
+      nil))
 
-    ))
 
-
-(defun alter-food! (pl new-food-amount)
+(defun alter-food! (player new-food-amount)
   ;; lots of minor pooh
-  (setf (player.food pl) new-food-amount))
+  (setf (player.food player) new-food-amount))
 
 (defmethod copy-player-abilities ((variant variant) (ab player-abilities))
   (let ((new-ab (make-instance 'player-abilities)))

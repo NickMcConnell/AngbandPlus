@@ -378,18 +378,9 @@ Returns the base-stats as an array or NIL if something failed."
 	   (destructuring-bind (dummy-id &key (type nil) (id nil) (numeric-id nil) (amount 1) (no-magic nil))
 	       spec
 	     (declare (ignore dummy-id))
-	     (cond ((and type (or (symbolp type) (consp type)))
-		    (let ((objs (objs-that-satisfy type :var-obj variant)))
-		      (cond ((not objs)
-			     (warn "Did not find any objects satisfying ~s" type))
-			    ;;			  ((typep objs 'object-kind)
-			    ;;			   (create-aobj-from-kind objs :variant variant :amount amount))
-			    ((consp objs)
-			     (setf retobj (create-aobj-from-kind (rand-elm objs) :variant variant :amount amount)))
-			    #-cmu
-			    (t
-			     (warn "Fell through with object-type ~s -> ~s" type objs)))))
-		   ((and id (stringp id))
+	     (when type
+	       (warn "Equipment with type-spec ~s, please update to id" spec))
+	     (cond ((and id (stringp id))
 		    (setf retobj (create-aobj-from-id id :variant variant :amount amount)))
 		   ((and numeric-id (numberp numeric-id))
 		    (setf retobj (create-aobj-from-kind-num numeric-id :variant variant :amount amount)))
@@ -427,15 +418,15 @@ player.
 
 ;;    (warn "Trying to equip [~a,~a] with ~s" race class start-eq)
     
-    (flet ((add-obj-to-player! (obj pl)
+    (flet ((add-obj-to-player! (obj a-player)
 	     "Adds the object to the player." 
-	     (let* ((backpack (player.inventory pl))
+	     (let* ((backpack (player.inventory a-player))
 		    (inventory (aobj.contains backpack))
 		    ;;(okind (aobj.kind obj))
 		    )
 	       ;;(warn "adding ~a to inventory ~a" obj inventory)
-	       (learn-about-object! pl obj :aware)
-	       (learn-about-object! pl obj :known) ;; know the object already
+	       (learn-about-object! a-player obj :aware)
+	       (learn-about-object! a-player obj :known) ;; know the object already
 	       (item-table-add! inventory obj)))
 ;;	   (object-id? (arg)
 ;;	     (keywordp arg))

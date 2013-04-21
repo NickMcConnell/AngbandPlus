@@ -38,9 +38,9 @@ the Free Software Foundation; either version 2 of the License, or
       nil)
   ))
 
-(defun place-single-monster! (dun pl mon x y sleeping)
+(defun place-single-monster! (dungeon player mon x y sleeping)
   "places a single monster MON at (X,Y) in dungeon DUN."
-  (declare (ignore pl ))
+  (declare (ignore player))
 
   ;; add checks that it is ok to place something at this spot..
   (let ((kind (amon.kind mon))
@@ -51,14 +51,14 @@ the Free Software Foundation; either version 2 of the License, or
 	(setf (status.sleeping mstatus) (+ (* 2 alert) (* 10 (randint alert))))))
   
   
-    (setf (cave-monsters dun x y) (cons mon nil)
+    (setf (cave-monsters dungeon x y) (cons mon nil)
 	  (location-x mon) x
 	  (location-y mon) y)
-    (push mon (dungeon.monsters dun))
+    (push mon (dungeon.monsters dungeon))
     
     t))
 
-(defun place-monster-group! (dun pl mon-kind x y sleeping)
+(defun place-monster-group! (dungeon player mon-kind x y sleeping)
   "Tries to scatter a bunch of monsters in the dungeon of the given kind."
 
   (let ((number (randint 13)) ;; hack
@@ -80,8 +80,8 @@ the Free Software Foundation; either version 2 of the License, or
 	    do
 	    (let ((poss-x (+ last-x (svref ddx-ddd x)))
 		  (poss-y (+ last-y (svref ddy-ddd x))))
-	      (when (cave-boldly-naked? dun poss-x poss-y)
-		(place-single-monster! dun pl (produce-active-monster var-obj mon-kind)
+	      (when (cave-boldly-naked? dungeon poss-x poss-y)
+		(place-single-monster! dungeon player (produce-active-monster var-obj mon-kind)
 				       poss-x poss-y sleeping)
 		(setf last-x poss-x
 		      last-y poss-y)

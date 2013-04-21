@@ -95,6 +95,10 @@
                                                                                                   c-string)(ptr
                                                                                                             c-pointer)) (:return-type nil))
 
+(ffi:def-call-out c-get-term-height (:name "get_term_height") (:language :stdc) (:arguments ) (:return-type int))
+
+(ffi:def-call-out c-get-term-width (:name "get_term_width") (:language :stdc) (:arguments ) (:return-type int))
+
 
 #+win32
 (ffi:def-call-out c-set-hinst! (:name "setHINST") (:language :stdc) (:arguments (val
@@ -113,6 +117,7 @@
      c_term_putstr! c_term_erase! c-term-queue-char! c-term-gotoxy!
      c-set-cursor& c-term-clear! c-term-fresh! c-term-save! c-term-load!
      c-term-xtra& c-inkey! init_c-side& cleanup-c-side& c_macro_add&
-     c-set-lisp-system! c-set-lisp-callback! c-set-hinst! c-load-sound&)))
+     c-set-lisp-system! c-set-lisp-callback! c-get-term-height c-get-term-width
+     c-set-hinst! c-load-sound&)))
 
 ;;; End of generated file.

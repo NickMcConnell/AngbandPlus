@@ -50,15 +50,16 @@ a number or a symbol identifying the place."
 
     (block read-loop
       (loop
-       (when selection-function
-	 (warn "selection function not implemented."))
-       
+
+              
        (setq printed-prompt (format nil "~a " the-prompt))
        (c-prt! printed-prompt 0 0)
        
        (when show-mode
 	 (item-table-print (get-item-table dungeon player the-place)
-			   :show-pause nil))
+			   :show-pause nil
+			   :print-selection selection-function))
+
 
        ;; add setting of cursor.
 
@@ -143,17 +144,17 @@ a number or a symbol identifying the place."
 ;;	    (location-x table) (location-y table))
   (let ((tab-x (location-x table))
 	(tab-y (location-y table))
-	(dun (items.dun table)))
+	(dungeon (items.dungeon table)))
 	
     (setf (location-x obj) tab-x
 	  (location-y obj) tab-y)
-    (push obj (dungeon.objects dun))
+    (push obj (dungeon.objects dungeon))
     (push obj (items.objs table))
     (incf (items.cur-size table))
 
     ;; let's notify about the change
-    (note-spot! dun tab-x tab-y)
-    (light-spot! dun tab-x tab-y)
+    (note-spot! dungeon tab-x tab-y)
+    (light-spot! dungeon tab-x tab-y)
     
     t))
 
@@ -174,7 +175,7 @@ a number or a symbol identifying the place."
 		      (decf (aobj.number old-obj)))
 		     (t
 		      (setf (items.objs table) (delete old-obj (items.objs table)))
-		      (remove-item-from-dungeon! (items.dun table) old-obj)
+		      (remove-item-from-dungeon! (items.dungeon table) old-obj)
 		      (decf (items.cur-size table))
 		      (setf ret-obj old-obj)))))
 	   
@@ -186,9 +187,9 @@ a number or a symbol identifying the place."
 (defmethod item-table-clean! ((table items-on-floor))
   (when (next-method-p)
     (call-next-method table))
-  (let ((dun (items.dun table)))
+  (let ((dungeon (items.dungeon table)))
     (dolist (i (items.objs table))
-      (remove-item-from-dungeon! dun i)))
+      (remove-item-from-dungeon! dungeon i)))
 
   (setf (items.objs table) nil))
 
@@ -375,24 +376,24 @@ a number or a symbol identifying the place."
     nil))
 
 
-(defun swap-monsters! (dun pl from-x from-y to-x to-y)
+(defun swap-monsters! (dungeon player from-x from-y to-x to-y)
   "swaps two monsters or move one"
 
   (let ((var-obj *variant*)
-	(mon-1 (cave-monsters dun from-x from-y))
-	(mon-2 (cave-monsters dun to-x to-y)))
+	(mon-1 (cave-monsters dungeon from-x from-y))
+	(mon-2 (cave-monsters dungeon to-x to-y)))
 
-    (setf (cave-monsters dun from-x from-y) mon-2
-	  (cave-monsters dun to-x to-y) mon-1)
+    (setf (cave-monsters dungeon from-x from-y) mon-2
+	  (cave-monsters dungeon to-x to-y) mon-1)
 
     
     ;; hack, move to swap later
-    (when (and (= from-x (location-x pl))
-	       (= from-y (location-y pl)))
-      (setf (location-x pl) to-x
-	    (location-y pl) to-y)
+    (when (and (= from-x (location-x player))
+	       (= from-y (location-y player)))
+      (setf (location-x player) to-x
+	    (location-y player) to-y)
       ;; add more stuff here
-;;      (warn "move pl (~s ~s) -> (~s ~s)" from-x from-y to-x to-y)
+;;      (warn "move player (~s ~s) -> (~s ~s)" from-x from-y to-x to-y)
       (bit-flag-add! *update* +pl-upd-update-view+ +pl-upd-distance+
 		     +pl-upd-panel+ +pl-upd-update-flow+)
       ;; skip overhead-window
@@ -414,8 +415,8 @@ a number or a symbol identifying the place."
 	(update-monster! var-obj i t)))
 
     
-    (light-spot! dun from-x from-y)
-    (light-spot! dun to-x to-y)))
+    (light-spot! dungeon from-x from-y)
+    (light-spot! dungeon to-x to-y)))
 
 
 
@@ -539,7 +540,9 @@ a number or a symbol identifying the place."
   
 
 (defmethod deliver-damage! ((variant variant) (source active-trap) (target player) damage &key note dying-note)
-
+  
+  (declare (ignore dying-note note))
+  
   (let ((did-target-die? nil))
   
     ;; wake it up

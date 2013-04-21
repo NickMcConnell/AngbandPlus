@@ -276,7 +276,7 @@ the Free Software Foundation; either version 2 of the License, or
    (lang-equal (player.actual-abilities x)     (player.actual-abilities y))
    (lang-equal (player.perceived-abilities x)  (player.perceived-abilities y))
 
-   (report-equal (creature.resists x)    (creature.resists y))
+   (report-equal (player.resists x)    (player.resists y))
    ))
 
 
@@ -380,7 +380,6 @@ the Free Software Foundation; either version 2 of the License, or
        (report-equalp (object.locale x) (object.locale y))
        (report-equal (object.weight x) (object.weight y))
        (report-equal (object.cost x) (object.cost y))
-       (report-equal (object.obj-type x) (object.obj-type y))
        (report-equal (object.flags x) (object.flags y))
        (lang-equal (object.game-values x) (object.game-values y))
        (report-equal (object.easy-know x) (object.easy-know y))

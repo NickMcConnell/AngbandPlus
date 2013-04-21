@@ -14,6 +14,15 @@ the Free Software Foundation	 ; either version 2 of the License, or
 
 (in-package :org.langband.vanilla)
 
+;; hack
+(defmacro spell-effect (arguments &body body)
+  (assert (= (length arguments) 2))
+  (let ((def `(lambda ,arguments
+	       (declare (ignorable ,@arguments))
+	       ,@body)))
+;;    (warn "Def is ~s" def)
+    `(function ,def)))
+
 (defun get-spell-effect (type)
   #'(lambda (var source target &key x y damage state-object)
       (apply-spell-effect! var type source target :x x :y y :damage damage :state-object state-object)))
@@ -70,7 +79,7 @@ the Free Software Foundation	 ; either version 2 of the License, or
 	(spell (make-instance 'magic-spell :name name :id id)))
 
     (when (and effect (functionp effect))
-      (setf (spell.effect spell) effect))
+      (setf (spell.effect spell) (compile nil effect)))
     
     ;; register spell in variant
     (multiple-value-bind (value present-p)
@@ -88,6 +97,7 @@ made."
 
   (assert (stringp name))
   (assert (stringp id))
+  (assert (verify-id id))
   (assert (and (integerp size) (plusp size)))
 
   (let ((variant *variant*)
@@ -235,7 +245,7 @@ made."
   t)
 
 
-(defun enchant-item! (dun pl &key (type '<weapon>) (bonus 1) (restrict nil))
+(defun enchant-item! (dungeon player &key (type '<weapon>) (bonus 1) (restrict nil))
 
   (flet ((%local-enchant (item)
 	   (let ((gvals (object.game-values item)))
@@ -254,12 +264,12 @@ made."
 		  :used))))))
   
     (let ((retval :still-useful)
-	  (selection (select-item dun pl '(:backpack :equip)
+	  (selection (select-item dungeon player '(:backpack :equip)
 				  :prompt "Enchant item: "
 				  :where :backpack)))
 
       (cond (selection
-	     (let* ((the-table (get-item-table dun pl (car selection)))
+	     (let* ((the-table (get-item-table dungeon player (car selection)))
 		    (removed-obj (item-table-remove! the-table (cdr selection))))
 	       (cond (removed-obj
 		      (with-foreign-str (s)
@@ -277,16 +287,24 @@ made."
 
       retval)))
 
-(defun has-spell? (player spell)
-  "Returns NIL if the player cannot have the spell. Returns the spell-info if it does."
+(defun get-spell-id (spell)
+  (etypecase spell
+    (string spell)
+    (spell-classdata (spell.id spell))
+    (magic-spell (spell.id spell))))
+  
+(defun get-spell-data (player spell)
   (when (is-spellcaster? player)
-    (let ((spells (class.spells (player.class player)))
-	  (spell-id (spell.id spell)))
-      (loop for x across spells
+    (let ((spell-id (get-spell-id spell))
+	  (spell-arr (class.spells (player.class player))))
+      
+      (loop for x across spell-arr
 	    do
-	    (when (equal (spell.id x) spell-id)
-	      (return-from has-spell? x)))
+	    (when (equal spell-id (spell.id x))
+	      (return-from get-spell-data x)))
+      
       nil)))
+
 
 (defun learn-spell! (player spell)
   "Tries to ensure that the player learns the given spell."
@@ -294,30 +312,44 @@ made."
   (unless (is-spellcaster? player)
     (print-message! "Player is not a spellcaster and cannot learn spells.")
     (return-from learn-spell! nil))
+
+;;  (warn "Trying to learn ~s" spell)
   
-  (let* ((spell-id (etypecase spell
+  (let ((spell-id (etypecase spell
 		    (magic-spell (spell.id spell))
 		    (spell-classdata (spell.id spell))
 		    (string spell)))
-	 (learnt-spells (class.learnt-spells (player.class player)))
-	 (existing-spell (find spell-id learnt-spells :test #'equal)))
-    
-      (cond (existing-spell
-	     (print-message! "Player already knows the spell.")
-	     nil)
-	    (t
+	(learnt-spells (class.learnt-spells (player.class player))))
+
+    (when (find spell-id learnt-spells :test #'equal)
+      (print-message! "Player already knows the spell.")
+      (return-from learn-spell! nil))
+
+    (let ((spell-data (get-spell-data player spell-id)))
+      (cond ((and (typep spell-data 'spell-classdata)
+		  (<= (spell.level spell-data) (player.level player)))
 	     (vector-push-extend spell-id learnt-spells)
-	     (print-message! "Spell learnt.")
-	     t))))
+	     (print-message! (format nil "~a learnt." (spell.name spell)))
+	     (return-from learn-spell! t))
+	    
+	    ((and (typep spell-data 'spell-classdata)
+		  (> (spell.level spell-data) (player.level player)))
+	     (print-message! "Player is not powerful enough to learn that spell yet."))
+	    
+	    ((eq spell-data nil)
+	     (print-message! "Player is unable to learn that spell."))
+	    
+	    (t
+	     (warn "Unknown value returned ~s, ~s." spell-data spell)))
+
+      nil)))
+
    
 	
 (defun has-learnt-spell? (player spell)
   "Returns NIL if the player has not learnt the spell,
 returns T if the player knows the spell."
-  (let* ((spell-id (etypecase spell
-		     (magic-spell (spell.id spell))
-		     (spell-classdata (spell.id spell))
-		     (string spell)))
+  (let* ((spell-id (get-spell-id spell))
 	 (learnt-spells (class.learnt-spells (player.class player)))
 	 (existing-spell (find spell-id learnt-spells :test #'equal)))
 ;;    (warn "Checked for ~s in ~s" spell-id learnt-spells)
@@ -415,23 +447,29 @@ returns T if the player knows the spell."
 	  ;; let us find the spell now.
 	  (let* ((the-spell (aref (spellbook.spells spell-info) which-one))
 		 (spell-effect (spell.effect the-spell))
-		 (know-spell (has-spell? player the-spell))
+		 (spell-data (get-spell-data player the-spell))
 		 (learnt-spell (has-learnt-spell? player the-spell)))
 
-;;	    (warn "Spell ~s: know (~s), learnt (~s)" the-spell know-spell learnt-spell)
+	    ;;(warn "Spell ~s: know (~s), learnt (~s)" the-spell spell-data learnt-spell)
 	    
-	    (unless (and know-spell learnt-spell)
+	    (unless (and spell-data learnt-spell)
 	      (print-message! (format nil "You don't know the ~a spell." (spell.name the-spell)))
 	      (return-from cast-spell nil))
 
+	    (unless (>= (current-mana player) (spell.mana spell-data))
+	      (print-message! "You don't have enough mana to cast that spell.")
+	      (return-from cast-spell nil))
+	    
 	    
 	    (cond ((and spell-effect (functionp spell-effect))
 		   (funcall spell-effect dungeon player)
-		   ;; deduct mana
-		   (unless (spell.tried know-spell)
-		     (warn "Tried spell ~s" (spell.id know-spell))
-		     (setf (spell.tried know-spell) t)
-		     (alter-xp! player (spell.xp know-spell)))
+		   ;; deduct mana, better way?
+		   (decf (current-mana player) (spell.mana spell-data))
+		   (bit-flag-add! *redraw* +print-mana+)
+		   (unless (spell.tried spell-data)
+		     ;;(warn "Tried spell ~s" (spell.id spell-data))
+		     (setf (spell.tried spell-data) t)
+		     (alter-xp! player (spell.xp spell-data)))
 
 		   )
 		  (t
@@ -444,6 +482,21 @@ returns T if the player knows the spell."
       	)))
     
   (values))
+
+(defun browse-spells (dungeon player &key (variant *variant*))
+  "Interactive selection of spell to learn."
+
+    (when-bind (book (with-new-screen ()
+		       (interactive-book-selection dungeon player)))
+      (let* ((okind (aobj.kind book))
+	     (book-id (object.id okind)))
+	(when-bind (spell-info (gethash book-id (variant.spellbooks variant)))
+;;	  (warn "SI: ~s" spell-info)
+	  (with-new-screen ()
+	    (display-spells player spell-info)
+	    (pause-last-line!)
+	    )))))
+
 
 (defun interactive-spell-selection (player spellbook &key (prompt "Cast which spell? "))
   "Returns selection."
@@ -491,18 +544,19 @@ returns T if the player knows the spell."
     (loop for i from 0
 	  for spell across (spellbook.spells spellbook)
 	  do
-	  (let ((has-spell (has-spell? player spell))
+	  (let ((spell-data (get-spell-data player spell))
 		(row (+ y i 1)))
 
-	    (cond ((not has-spell)
+	    (cond ((not spell-data)
 		   (put-coloured-line! +term-l-dark+ (format nil "  ~a) ~30a" (i2a i) "<unreadable>")
 				       x row))
 		  (t
-		   (let ((base-level (spell.level has-spell))
-			 (base-mana (spell.mana has-spell))
-			 (base-fail (spell.failure has-spell))
-			 (spell-tried (spell.tried has-spell))
-			 (learnt-it (has-learnt-spell? player has-spell)))
+		   (let ((base-level (spell.level spell-data))
+			 (base-mana (spell.mana spell-data))
+			 (base-fail (spell.failure spell-data))
+			 (spell-tried (spell.tried spell-data))
+			 (learnt-it (has-learnt-spell? player spell-data))
+			 )
 		     
 		     ;; we have the spell readable at least
 		     (cond ((< (player.level player) base-level)
@@ -558,7 +612,8 @@ returns T if the player knows the spell."
 ;;  )
 
 
-(defmethod apply-spell-effect! ((variant vanilla-variant) (type (eql '<fire>)) source (target active-object) &key x y (damage 0) (state-object nil))
+(defmethod apply-spell-effect! ((variant vanilla-variant) (type (eql '<fire>)) source (target active-object)
+				&key x y (damage 0) (state-object nil))
   (declare (ignore source damage))
   (cond ((damaged-by-element? variant target '<fire>)
 	 (%destroy-floor-obj variant *dungeon* x y target "burns"))
@@ -596,7 +651,7 @@ returns T if the player knows the spell."
   state-object)
 
 
-(defun teleport-creature! (dun pl creature range)
+(defun teleport-creature! (dungeon player creature range)
   (assert (numberp range))
 
   (let* ((minimum (floor range))
@@ -618,53 +673,118 @@ returns T if the player knows the spell."
 	   (when (and (>= cur-d minimum) (<= cur-d minimum))
 	     (return-from legal-dist))))
        
-       (when (and (in-bounds-fully? dun tx ty)
-		  (cave-boldly-naked? dun tx ty)
-		  (not (cave-icky? dun tx ty)))
+       (when (and (in-bounds-fully? dungeon tx ty)
+		  (cave-boldly-naked? dungeon tx ty)
+		  (not (cave-icky? dungeon tx ty)))
 	 (return-from find-grid))
        
        (setf range (* 2 range)
 	     minimum (floor minimum 2))))
 
     ;; we found an ok spot!
-    (assert (and (in-bounds-fully? dun tx ty)
-		 (cave-boldly-naked? dun tx ty)
-		 (not (cave-icky? dun tx ty))))
+    (assert (and (in-bounds-fully? dungeon tx ty)
+		 (cave-boldly-naked? dungeon tx ty)
+		 (not (cave-icky? dungeon tx ty))))
 
     ;; sound
 
     ;; swap monster
-    (swap-monsters! dun pl cx cy tx ty)
+    (swap-monsters! dungeon player cx cy tx ty)
 #||    
     (warn "UPD: ~s (~s ~s ~a)  -> (~s ~s ~a), ~s"
-	  *update* cx cy (multiple-value-bind (a b) (map-info dun cx cy) b)
-	  (location-x pl) (location-y pl) (multiple-value-bind (a b) (map-info dun (location-x pl) (location-y pl)) b)
+	  *update* cx cy (multiple-value-bind (a b) (map-info dungeon cx cy) b)
+	  (location-x player) (location-y player)
+    (multiple-value-bind (a b) (map-info dungeon (location-x player) (location-y player)) b)
 	  (distance cx cy tx ty))
     ||#
-;;    (handle-stuff dun pl) ;; hack
+;;    (handle-stuff dungeon player) ;; hack
 
-;;    (print-map dun pl)
+;;    (print-map dungeon player)
     ))
 
 (defun summon-monster (dungeon x y depth &key (type :any))
+  "Returns T if it summoned a monster successfully."
   (declare (ignore type depth))
 ;;  (warn "summoning at (~s,~s) type ~s" x y type)
 
   ;; we ignore type now, and fix that later.
 
   (let ((variant *variant*)
-	(player *player*))
+	(player *player*)
+	(retval t))
     (loop for i from 1 to 10
 	  do
 	  (let ((fx (+ (randint i) x))
 		(fy (+ (randint i) y))) ;; hack
 	    (when (cave-empty-bold? dungeon fx fy) 
-	      (place-monster! variant dungeon player fx fy nil nil))
+	      (place-monster! variant dungeon player fx fy nil nil)
+	      (setf retval t))
 	    ))
+    retval))
+
+;; this one uses radius, not panel
+;; fix it to use center-x and center-y instead of using the distance flag!
+(defun detect-invisible! (dungeon player center-x center-y radius)
+  (let ((success nil))
+    (dolist (mon (dungeon.monsters dungeon))
+      (when (creature-alive? mon)
+	(let ((mstatus (amon.status mon))
+	      (mx (location-x mon))
+	      (my (location-y mon)))
+	  (when (and (< (status.distance mstatus) radius)
+		     (panel-contains? player mx my))
+	    (when (has-ability? (amon.kind mon) '<invisible>)
+	      ;; skip lore
+	      ;; skip recall
+	      (bit-flag-add! (status.vis-flag mstatus) #.(logior +monster-flag-mark+ +monster-flag-show+))
+	      (update-monster! *variant* mon nil)
+	      (setf success t)
+	      ))
+	  )))
+
+    (when success
+      (print-message! "You detect invisible creatures!"))
+
+    success))
+  
+
+;; FIX for type '<powerful>
+(defun interactive-identify-object! (dungeon player &key (type '<normal>))
+
+  (block id-obj
+    (let* ((limit-from '(:backpack :floor :worn))
+	   (prompt "Identify which item? ")
+	   (variant *variant*)
+	   (selection (select-item dungeon player limit-from
+				   :prompt prompt
+				   :where (first limit-from))))
+    
+      (unless (and selection (consp selection))
+	(return-from id-obj nil))
+
+      (let* ((the-table (get-item-table dungeon player (car selection)))
+	     (removed-obj (item-table-remove! the-table (cdr selection))))
+	  
+	(unless (and removed-obj (typep removed-obj 'active-object))
+	  (return-from id-obj nil))
+
+	(ecase type
+	  (<normal>
+	   (possible-identify! player removed-obj))
+	  (<powerful>
+	   (possible-identify! player removed-obj)
+	   (learn-about-object! player removed-obj :fully-known)))
+
+	;; put object back where it was found
+	(%put-obj-in-cnt dungeon player the-table removed-obj)
+
+	(print-message! (format nil "Object is ~a."
+				(with-output-to-string (s)
+				  (write-obj-description variant removed-obj s))))
+
+	t))
     ))
- 
-		       
-	
+      
 
 (defmethod print-object ((inst magic-spell) stream)
   (print-unreadable-object
@@ -693,3 +813,16 @@ returns T if the player knows the spell."
 
 
 ;;(trace light-area! light-room!)
+#||
+;; clash with above?
+(defun has-spell? (player spell)
+  "Returns NIL if the player cannot have the spell. Returns the spell-info if it does."
+  (when (is-spellcaster? player)
+    (let ((spells (class.spells (player.class player)))
+	  (spell-id (spell.id spell)))
+      (loop for x across spells
+	    do
+	    (when (equal (spell.id x) spell-id)
+	      (return-from has-spell? x)))
+      nil)))
+||#

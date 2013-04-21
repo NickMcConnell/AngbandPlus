@@ -14,16 +14,12 @@ the Free Software Foundation; either version 2 of the License, or
 
 (in-package :org.langband.vanilla)
 
-
 (defclass vanilla-variant (variant)
   ((dawn-time     :initarg :dawntime   :initform 0    :accessor variant.dawn)
    (twilight-time :initarg :twilight   :initform 6000 :accessor variant.twilight)
    (town-seed         :initform nil  :accessor variant.town-seed)
    (used-scroll-names :initform (make-hash-table :test #'equal) :accessor variant.used-scroll-names)
    
-   (legal-effects  :initarg :legal-effects
-		   :initform nil
-		   :accessor variant.legal-effects)
    (gold-table     :initarg :gold-table
 		   :initform nil
 		   :accessor variant.gold-table)
@@ -35,7 +31,23 @@ the Free Software Foundation; either version 2 of the License, or
 		   :initform (make-hash-table :test #'equal)
 		   :accessor variant.spellbooks)
 
+   ;; 50 is max-level
+   (max-charlevel :initform 50)
+   ;; put xp-table here right away
+   (xp-table :initform #1A(     10       25       45       70      100
+			       140      200      280      380      500
+			       650      850     1100     1400     1800
+			      2300     2900     3600     4400     5400
+			      6800     8400    10200    12500    17500
+			     25000    35000    50000    75000   100000
+			    150000   200000   275000   350000   450000
+			    550000   700000   850000  1000000  1250000
+			   1500000  1800000  2100000  2400000  2700000
+			   3000000  3500000  4000000  4500000  5000000))
 
+   (legal-effects :initarg :legal-effects
+                  :initform '(:quaff :read :eat :create :add-magic :use)
+                  :accessor variant.legal-effects)
 ;;   (object-effects :initarg :object-effects :initform (make-hash-table :test #'equal)
 ;;		   :accessor variant.object-effects)
 
@@ -152,6 +164,29 @@ player-object."))
   ()
   (:documentation "A store with steep prices, used as a dispatch class."))
 
+;; change to (col row) format
+(defclass vanilla-basic-frame-locations (basic-frame-locations)
+  ((max-mana :initarg :max-mana :initform '(18 . 0))
+   (cur-mana :initarg :cur-mana :initform '(19 . 0))
+
+   (target   :initarg :target  :initform '(20 . 0))
+   (cut      :initarg :cut     :initform '(21 . 0))
+   (stun     :initarg :stun    :initform '(22 . 0))
+   )
+  (:documentation "Locations and various settings when printing stuff.
+Each location should be a cons with (row . col)."))
+  
+(defclass vanilla-bottom-row-locations (bottom-row-locations)
+  ((blind    :initarg :blind    :initform 7)
+   (confused :initarg :confused :initform 13)
+   (afraid   :initarg :afraid   :initform 22)
+   (poisoned :initarg :poisoned :initform 29)
+   (study    :initarg :study    :initform 64))
+   
+  (:documentation "Locations and various settings when printing stuff.
+Each location is a fixnum with column in the last row."))
+
+
 (defgeneric is-spellcaster? (obj)
   (:documentation "Returns T if the object/player is a spellcaster."))
 
@@ -159,6 +194,66 @@ player-object."))
   (:documentation "Applies a spell-effect of type TYPE from SOURCE on TARGET at coords (X,Y) for
 DAMAGE damage.  The state-object may be used to pass info back to calling function.  The methods
 should return NIL or the state-object (with possibly updated state."))
+
+(defgeneric get-melee-weapon (creature)
+  (:documentation "Returns the active-object that is used as a melee weapon."))
+
+(defgeneric get-missile-weapon (creature)
+  (:documentation "Returns the active-object that is used as missile-weapon."))
+
+(defgeneric get-light-source (creature)
+  (:documentation "Returns the light-source used."))
+
+
+;;; define relevant object-types for vanilla.
+
+(def-obj-type weapon :key <weapon>)
+(def-obj-type melee-weapon :is weapon)
+(def-obj-type sword :key <sword> :is melee-weapon)
+(def-obj-type pole-arm :key <pole-arm> :is melee-weapon)
+(def-obj-type hafted :key <hafted> :is melee-weapon)
+
+(def-obj-type missile-weapon :is weapon) ;; clash with bow?
+(def-obj-type bow :is missile-weapon :key <bow>
+	      :kind-slots ((multiplier :accessor object.multiplier :initform 1 :initarg :multiplier)))
+(def-obj-type ammo :key <ammo>)
+(def-obj-type digger :is weapon :key <digger>)
+
+(def-obj-type armour)
+(def-obj-type body-armour :is armour :key <body-armour>)
+(def-obj-type dragonscale-armour :is body-armour :key <dsm-armour>)
+(def-obj-type boots :is armour :key <boots>)
+(def-obj-type gloves :is armour :key <gloves>)
+(def-obj-type shield :is armour :key <shield>)
+(def-obj-type headgear :is armour :key <headgear>)
+(def-obj-type cloak :is armour :key <cloak>)
+
+(def-obj-type potion :key <potion>)
+(def-obj-type money :key <money>)
+(def-obj-type scroll :key <scroll>)
+(def-obj-type wand :key <wand>)
+(def-obj-type staff :key <staff>)
+(def-obj-type rod :key <rod>
+	      :aobj-slots ((recharge-time :accessor aobj.recharge-time :initform 0 :initarg :recharge-time)))
+(def-obj-type book :key <book>)
+(def-obj-type spellbook :is book :key <spellbook>)
+(def-obj-type prayerbook :is book :key <prayerbook>)
+(def-obj-type ring :key <ring>)
+(def-obj-type chest :key <chest>)
+(def-obj-type light-source :key <light-source>
+	      :kind-slots ((status-descs :accessor object.status-descs :initform nil :initarg :status-descs)
+			   (max-fuel     :accessor object.max-fuel     :initform nil :initarg :max-fuel)))
+	      
+(def-obj-type container :key <container>)
+
+(def-obj-type food :key <food>)
+(def-obj-type mushroom :is food :key <mushroom>)
+(def-obj-type neckwear :key <neckwear>)
+(def-obj-type amulet :is neckwear :key <amulet>)
+
+(def-obj-type junk :key <junk>)
+(def-obj-type skeleton :is junk :key <skeleton>)
+
 
 (defun van-make-variant-obj ()
   (make-instance 'vanilla-variant

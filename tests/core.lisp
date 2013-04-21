@@ -52,7 +52,7 @@ DESC: tests/core.lisp - testing code for variant obj
     (test-assert (lb::ok-object? var-obj :context :post-variant :warn-on-failure t))
     (test-assert (plusp (hash-table-count (lb::variant.races var-obj))))
     (test-assert (plusp (hash-table-count (lb::variant.classes var-obj))))
-    (test-assert (plusp (hash-table-count (lb::variant.floor-features var-obj))))
+    (test-assert (plusp (hash-table-count (lb::variant.floor-types var-obj))))
     (test-assert (plusp (hash-table-count (lb::variant.room-builders var-obj))))
     (test-assert (plusp (hash-table-count (lb::variant.objects var-obj))))
     (test-assert (plusp (hash-table-count (lb::variant.monsters var-obj))))

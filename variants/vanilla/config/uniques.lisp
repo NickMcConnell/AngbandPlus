@@ -25,7 +25,7 @@ the Free Software Foundation; either version 2 of the License, or
   :armour 10
   :speed 110
   :abilities '(<bash-door> <open-door> <max-hitpoints>)
-  :immunities '(<sleep> <confuse>)
+  :immunities '(<sleep> <confusion>)
   :alertness 3
   :vision 40
   :attacks '((<moan> :type nil :damage nil) (<moan> :type nil :damage nil))
@@ -44,7 +44,7 @@ the Free Software Foundation; either version 2 of the License, or
   :speed 120
   :xp 30
   :abilities '(<bash-door> (<random-mover> 1/4) <max-hitpoints>)
-  :immunities '(<sleep> <confuse>)
+  :immunities '(<sleep> <confusion>)
   :alertness 0
   :vision 30
   :attacks '((<bite> :type <hurt> :damage (1 . 4)))) 
@@ -61,7 +61,7 @@ the Free Software Foundation; either version 2 of the License, or
   :speed 120
   :xp 30
   :abilities '(<bash-door> (<random-mover> 1/4) <max-hitpoints>)
-  :immunities '(<sleep> <confuse>)
+  :immunities '(<sleep> <confusion>)
   :alertness 0
   :vision 30
   :attacks '((<bite> :type <hurt> :damage (1 . 4)))) 
@@ -249,7 +249,7 @@ the Free Software Foundation; either version 2 of the License, or
              (<hit> :type <hurt> :damage (5 . 5)) (<hit> :type <hurt> :damage (5 . 5)))
   :treasures '(<drop-good> (<drop> "2d2") <only-drop-items>)
   :gender '<male>
-  :special-abilities '((<spell> (<bolt> <ice>)) (<spell> (<bolt> <lightning>)) (<spell> (<bolt> <cold>))
+  :special-abilities '((<spell> (<bolt> <ice>)) (<spell> (<bolt> <electricity>)) (<spell> (<bolt> <cold>))
                        (<spell> (<bolt> <fire>)) (<spell> <traps>) (<spell> <heal>) (<frequency> 1/2))) 
 
 (define-monster-kind "elemental-vargo" "Vargo, Tyrant of Fire"
@@ -266,7 +266,7 @@ the Free Software Foundation; either version 2 of the License, or
   :xp 3000
   :abilities '(<powerful-breath> <bash-door> <overrun-others> <overrun-items> <empty-mind> (<random-mover> 1/4)
                <max-hitpoints> <initial-sleeper>)
-  :immunities '(<sleep> <confuse> <poison> <fire>)
+  :immunities '(<sleep> <confusion> <poison> <fire>)
   :alertness 50
   :vision 12
   :attacks '((<hit> :type <fire> :damage (4 . 6)) (<hit> :type <fire> :damage (4 . 6))
@@ -287,7 +287,7 @@ the Free Software Foundation; either version 2 of the License, or
   :xp 3250
   :abilities '(<powerful-breath> <bash-door> <overrun-others> <overrun-items> <cold-blood> <empty-mind>
                (<random-mover> 1/4) <max-hitpoints> <initial-sleeper>)
-  :immunities '(<fear> <sleep> <confuse> <poison>)
+  :immunities '(<fear> <sleep> <confusion> <poison>)
   :alertness 50
   :vision 12
   :attacks '((<hit> :type <hurt> :damage (5 . 5)) (<hit> :type <hurt> :damage (5 . 5))
@@ -308,7 +308,7 @@ the Free Software Foundation; either version 2 of the License, or
   :speed 120
   :xp 3000
   :abilities '(<powerful-breath> <bash-door> <open-door> <max-hitpoints> <initial-sleeper> <colour-changing>)
-  :immunities '(<sleep> <confuse> <lightning> <cold> <fire> <acid>)
+  :immunities '(<sleep> <confusion> <electricity> <cold> <fire> <acid>)
   :alertness 30
   :vision 20
   :attacks '((<bite> :type <hurt> :damage (2 . 12)) (<bite> :type <hurt> :damage (2 . 12))
@@ -316,7 +316,7 @@ the Free Software Foundation; either version 2 of the License, or
   :treasures '(<drop-good> (<drop> "4d2") <only-drop-items>)
   :gender '<male>
   :special-abilities '((<breath> <nexus>) (<breath> <gravity>) (<breath> <shards>) (<breath> <confusion>)
-                       (<breath> <sound>) (<breath> <lightning>) (<breath> <cold>) (<breath> <fire>) (<breath> <acid>)
+                       (<breath> <sound>) (<breath> <electricity>) (<breath> <cold>) (<breath> <fire>) (<breath> <acid>)
                        (<frequency> 1/4))) 
 
 (define-monster-kind "uvatha" "Uvatha the Horseman"
@@ -332,7 +332,7 @@ the Free Software Foundation; either version 2 of the License, or
   :speed 120
   :xp 7000
   :abilities '(<push-others> <bash-door> <open-door> <cold-blood> <max-hitpoints>)
-  :immunities '(<sleep> <confuse> <poison> <cold>)
+  :immunities '(<sleep> <confusion> <poison> <cold>)
   :vulnerabilities '(<light>)
   :alertness 10
   :vision 90
@@ -354,7 +354,7 @@ the Free Software Foundation; either version 2 of the License, or
   :speed 120
   :xp 9000
   :abilities '(<bash-door> <open-door> <smart> <max-hitpoints> <initial-sleeper>)
-  :immunities '(<sleep> <confuse> <poison> <fire> <acid>)
+  :immunities '(<sleep> <confusion> <poison> <fire> <acid>)
   :alertness 5
   :vision 30
   :attacks '((<hit> :type <hurt> :damage (8 . 6)) (<hit> :type <hurt> :damage (8 . 6))
@@ -378,7 +378,7 @@ the Free Software Foundation; either version 2 of the License, or
   :speed 110
   :xp 230
   :abilities '(<bash-door> <open-door> <max-hitpoints>)
-  :immunities '(<poison> <lightning> <cold> <fire>)
+  :immunities '(<poison> <electricity> <cold> <fire>)
   :alertness 20
   :vision 20
   :attacks '((<hit> :type <hurt> :damage (1 . 10)) (<hit> :type <hurt> :damage (1 . 10))
@@ -442,7 +442,7 @@ the Free Software Foundation; either version 2 of the License, or
   :speed 120
   :xp 13000
   :abilities '(<push-others> <bash-door> <open-door> <cold-blood> <invisible> <max-hitpoints> <initial-sleeper>)
-  :immunities '(<sleep> <confuse> <poison> <cold> <fire>)
+  :immunities '(<sleep> <confusion> <poison> <cold> <fire>)
   :vulnerabilities '(<light>)
   :alertness 10
   :vision 90
@@ -467,7 +467,7 @@ the Free Software Foundation; either version 2 of the License, or
   :speed 120
   :xp 12000
   :abilities '(<push-others> <bash-door> <open-door> <cold-blood> <invisible> <max-hitpoints> <initial-sleeper>)
-  :immunities '(<sleep> <confuse> <poison> <cold> <fire>)
+  :immunities '(<sleep> <confusion> <poison> <cold> <fire>)
   :vulnerabilities '(<light>)
   :alertness 10
   :vision 90
@@ -492,7 +492,7 @@ the Free Software Foundation; either version 2 of the License, or
   :xp 6000
   :abilities '(<powerful-breath> <pass-wall> <overrun-others> <overrun-items> <cold-blood> <empty-mind> <max-hitpoints>
                <initial-sleeper>)
-  :immunities '(<fear> <sleep> <confuse> <poison> <lightning> <cold> <fire>)
+  :immunities '(<fear> <sleep> <confusion> <poison> <electricity> <cold> <fire>)
   :vulnerabilities '(<earth-destruction>)
   :alertness 90
   :vision 10
@@ -515,13 +515,13 @@ the Free Software Foundation; either version 2 of the License, or
   :xp 8000
   :abilities '(<powerful-breath> <bash-door> <overrun-others> <overrun-items> <cold-blood> <empty-mind>
                (<random-mover> 1/4) <max-hitpoints> <initial-sleeper>)
-  :immunities '(<fear> <sleep> <confuse> <poison> <lightning> <cold> <fire> <acid>)
+  :immunities '(<fear> <sleep> <confusion> <poison> <electricity> <cold> <fire> <acid>)
   :alertness 50
   :vision 12
-  :attacks '((<hit> :type <confuse> :damage (1 . 4)) (<hit> :type <hurt> :damage (4 . 6))
-             (<hit> :type <confuse> :damage (1 . 4)) (<hit> :type <hurt> :damage (4 . 6)))
+  :attacks '((<hit> :type <confusion> :damage (1 . 4)) (<hit> :type <hurt> :damage (4 . 6))
+             (<hit> :type <confusion> :damage (1 . 4)) (<hit> :type <hurt> :damage (4 . 6)))
   :gender '<female>
-  :special-abilities '((<spell> (<ball> <lightning>)) (<spell> (<ball> <cold>)) (<spell> (<bolt> <lightning>))
+  :special-abilities '((<spell> (<ball> <electricity>)) (<spell> (<ball> <cold>)) (<spell> (<bolt> <electricity>))
                        (<frequency> 1/5))) 
 
 (define-monster-kind "scatha" "Scatha the Worm"
@@ -537,7 +537,7 @@ the Free Software Foundation; either version 2 of the License, or
   :speed 120
   :xp 17000
   :abilities '(<push-others> <powerful-breath> <bash-door> <max-hitpoints> <initial-sleeper>)
-  :immunities '(<sleep> <confuse> <cold>)
+  :immunities '(<sleep> <confusion> <cold>)
   :alertness 70
   :vision 20
   :attacks '((<bite> :type <hurt> :damage (3 . 14)) (<claw> :type <hurt> :damage (1 . 10))
@@ -559,7 +559,7 @@ the Free Software Foundation; either version 2 of the License, or
   :speed 120
   :xp 13000
   :abilities '(<push-others> <bash-door> <open-door> <cold-blood> <smart> <max-hitpoints> <initial-sleeper>)
-  :immunities '(<sleep> <confuse> <poison> <cold> <fire>)
+  :immunities '(<sleep> <confusion> <poison> <cold> <fire>)
   :vulnerabilities '(<light>)
   :alertness 10
   :vision 90
@@ -584,7 +584,7 @@ the Free Software Foundation; either version 2 of the License, or
   :speed 120
   :xp 19000
   :abilities '(<push-others> <powerful-breath> <bash-door> <max-hitpoints> <initial-sleeper>)
-  :immunities '(<sleep> <confuse> <fire>)
+  :immunities '(<sleep> <confusion> <fire>)
   :alertness 70
   :vision 20
   :attacks '((<bite> :type <hurt> :damage (3 . 14)) (<claw> :type <hurt> :damage (1 . 10))
@@ -625,7 +625,7 @@ the Free Software Foundation; either version 2 of the License, or
   :speed 110
   :xp 250
   :abilities '(<bash-door> <open-door> <initial-sleeper> <max-hitpoints>)
-  :immunities '(<sleep> <confuse> <poison> <cold> <fire>)
+  :immunities '(<sleep> <confusion> <poison> <cold> <fire>)
   :alertness 25
   :vision 25
   :attacks '((<hit> :type <hurt> :damage (3 . 5)) (<hit> :type <hurt> :damage (3 . 5))
@@ -732,7 +732,7 @@ the Free Software Foundation; either version 2 of the License, or
   :speed 110
   :xp 550
   :abilities '(<bash-door> <open-door> <max-hitpoints>)
-  :immunities '(<sleep> <confuse> <poison> <cold> <fire>)
+  :immunities '(<sleep> <confusion> <poison> <cold> <fire>)
   :alertness 20
   :vision 20
   :attacks '((<hit> :type <hurt> :damage (3 . 5)) (<hit> :type <hurt> :damage (3 . 5))
@@ -773,7 +773,7 @@ the Free Software Foundation; either version 2 of the License, or
   :speed 110
   :xp 300
   :abilities '(<bash-door> <open-door> <max-hitpoints> <initial-sleeper>)
-  :immunities '(<sleep> <confuse> <cold> <fire>)
+  :immunities '(<sleep> <confusion> <cold> <fire>)
   :alertness 10
   :vision 20
   :attacks '((<hit> :type <un-bonus> :damage nil) (<hit> :type <hurt> :damage (3 . 6))
@@ -794,7 +794,7 @@ the Free Software Foundation; either version 2 of the License, or
   :speed 110
   :xp 300
   :abilities '(<bash-door> <open-door> <max-hitpoints> <initial-sleeper>)
-  :immunities '(<sleep> <confuse> <cold> <fire>)
+  :immunities '(<sleep> <confusion> <cold> <fire>)
   :alertness 10
   :vision 20
   :attacks '((<hit> :type <un-bonus> :damage nil) (<hit> :type <hurt> :damage (3 . 6))
@@ -816,7 +816,7 @@ the Free Software Foundation; either version 2 of the License, or
   :speed 110
   :xp 400
   :abilities '(<bash-door> <open-door> <max-hitpoints> <initial-sleeper>)
-  :immunities '(<sleep> <confuse> <lightning> <fire>)
+  :immunities '(<sleep> <confusion> <electricity> <fire>)
   :alertness 25
   :vision 25
   :attacks '((<hit> :type <hurt> :damage (4 . 6)) (<hit> :type <hurt> :damage (4 . 6))
@@ -838,7 +838,7 @@ the Free Software Foundation; either version 2 of the License, or
   :speed 110
   :xp 400
   :abilities '(<bash-door> <open-door> <max-hitpoints> <initial-sleeper>)
-  :immunities '(<sleep> <confuse> <lightning> <fire>)
+  :immunities '(<sleep> <confusion> <electricity> <fire>)
   :alertness 25
   :vision 25
   :attacks '((<hit> :type <hurt> :damage (4 . 6)) (<hit> :type <hurt> :damage (4 . 6))
@@ -881,7 +881,7 @@ the Free Software Foundation; either version 2 of the License, or
   :speed 120
   :xp 1000
   :abilities '(<bash-door> <open-door> <initial-sleeper> <max-hitpoints>)
-  :immunities '(<sleep> <confuse> <poison> <lightning> <cold> <fire> <acid>)
+  :immunities '(<sleep> <confusion> <poison> <electricity> <cold> <fire> <acid>)
   :alertness 20
   :vision 20
   :attacks '((<hit> :type <un-bonus> :damage nil) (<hit> :type <hurt> :damage (3 . 8))
@@ -969,7 +969,7 @@ the Free Software Foundation; either version 2 of the License, or
   :speed 110
   :xp 1200
   :abilities '(<bash-door> <smart> <max-hitpoints> <initial-sleeper>)
-  :immunities '(<sleep> <confuse>)
+  :immunities '(<sleep> <confusion>)
   :vulnerabilities '(<light>)
   :alertness 80
   :vision 8
@@ -1101,7 +1101,7 @@ the Free Software Foundation; either version 2 of the License, or
   :speed 120
   :xp 1200
   :abilities '(<bash-door> <open-door> <max-hitpoints> <initial-sleeper>)
-  :immunities '(<sleep> <confuse> <poison> <lightning> <cold> <fire> <acid>)
+  :immunities '(<sleep> <confusion> <poison> <electricity> <cold> <fire> <acid>)
   :alertness 10
   :vision 25
   :attacks '((<hit> :type <hurt> :damage (3 . 8)) (<hit> :type <hurt> :damage (3 . 8))
@@ -1122,7 +1122,7 @@ the Free Software Foundation; either version 2 of the License, or
   :speed 120
   :xp 1000
   :abilities '(<bash-door> <open-door> <weird-mind> <max-hitpoints> <initial-sleeper>)
-  :immunities '(<sleep> <confuse>)
+  :immunities '(<sleep> <confusion>)
   :alertness 10
   :vision 30
   :attacks '((<bite> :type <hurt> :damage (2 . 8)) (<bite> :type <hurt> :damage (2 . 8))
@@ -1144,7 +1144,7 @@ the Free Software Foundation; either version 2 of the License, or
   :speed 120
   :xp 8000
   :abilities '(<push-others> <pass-wall> <cold-blood> <invisible> <max-hitpoints> <initial-sleeper>)
-  :immunities '(<sleep> <confuse> <poison> <cold>)
+  :immunities '(<sleep> <confusion> <poison> <cold>)
   :vulnerabilities '(<light>)
   :alertness 10
   :vision 90
@@ -1169,7 +1169,7 @@ the Free Software Foundation; either version 2 of the License, or
   :speed 120
   :xp 12000
   :abilities '(<push-others> <bash-door> <open-door> <cold-blood> <max-hitpoints> <initial-sleeper>)
-  :immunities '(<sleep> <confuse> <poison> <cold>)
+  :immunities '(<sleep> <confusion> <poison> <cold>)
   :vulnerabilities '(<light>)
   :alertness 10
   :vision 90
@@ -1193,7 +1193,7 @@ the Free Software Foundation; either version 2 of the License, or
   :speed 120
   :xp 7000
   :abilities '(<bash-door> <open-door> <smart> <max-hitpoints> <initial-sleeper>)
-  :immunities '(<sleep> <confuse> <poison> <lightning> <cold> <acid>)
+  :immunities '(<sleep> <confusion> <poison> <electricity> <cold> <acid>)
   :alertness 40
   :vision 20
   :attacks '((<hit> :type <un-bonus> :damage (6 . 8)) (<hit> :type <un-bonus> :damage (6 . 8))
@@ -1215,7 +1215,7 @@ the Free Software Foundation; either version 2 of the License, or
   :speed 120
   :xp 20000
   :abilities '(<push-others> <powerful-breath> <bash-door> <max-hitpoints> <initial-sleeper>)
-  :immunities '(<sleep> <confuse> <fire>)
+  :immunities '(<sleep> <confusion> <fire>)
   :alertness 70
   :vision 20
   :attacks '((<bite> :type <hurt> :damage (4 . 14)) (<bite> :type <hurt> :damage (3 . 14))
@@ -1237,7 +1237,7 @@ the Free Software Foundation; either version 2 of the License, or
   :speed 120
   :xp 25000
   :abilities '(<push-others> <powerful-breath> <bash-door> <max-hitpoints> <initial-sleeper>)
-  :immunities '(<sleep> <confuse> <fire>)
+  :immunities '(<sleep> <confusion> <fire>)
   :alertness 70
   :vision 20
   :attacks '((<bite> :type <hurt> :damage (6 . 14)) (<bite> :type <hurt> :damage (6 . 14))
@@ -1260,7 +1260,7 @@ the Free Software Foundation; either version 2 of the License, or
   :speed 120
   :xp 30000
   :abilities '(<push-others> <powerful-breath> <bash-door> <open-door> <max-hitpoints> <initial-sleeper>)
-  :immunities '(<sleep> <confuse> <fire>)
+  :immunities '(<sleep> <confusion> <fire>)
   :alertness 80
   :vision 20
   :attacks '((<touch> :type <un-power> :damage nil) (<crush> :type <hurt> :damage (8 . 12))
@@ -1283,14 +1283,14 @@ the Free Software Foundation; either version 2 of the License, or
   :speed 130
   :xp 18000
   :abilities '(<bash-door> <max-hitpoints> <initial-sleeper>)
-  :immunities '(<sleep> <confuse> <poison> <fire>)
+  :immunities '(<sleep> <confusion> <poison> <fire>)
   :alertness 30
   :vision 30
   :attacks '((<hit> :type <hurt> :damage (10 . 10)) (<hit> :type <hurt> :damage (10 . 10))
              (<butt> :type <hurt> :damage (12 . 13)) (<butt> :type <hurt> :damage (12 . 13)))
   :treasures '(<drop-good> (<drop> "4d2") (<drop> "1d2") <only-drop-items>)
   :gender '<male>
-  :special-abilities '((<breath> <force>) (<spell> (<ball> <lightning>)) (<spell> (<bolt> <plasma>))
+  :special-abilities '((<breath> <force>) (<spell> (<ball> <electricity>)) (<spell> (<bolt> <plasma>))
                        (<spell> (<bolt> <mana>)) (<arrow> 4) (<spell> <slow>) (<frequency> 1/6))) 
 
 (define-monster-kind "harowen" "Harowen the black hand"
@@ -1305,7 +1305,7 @@ the Free Software Foundation; either version 2 of the License, or
   :speed 140
   :xp 20000
   :abilities '(<bash-door> <open-door> <pick-up-item> <max-hitpoints> <initial-sleeper>)
-  :immunities '(<sleep> <confuse> <poison>)
+  :immunities '(<sleep> <confusion> <poison>)
   :alertness 0
   :vision 40
   :attacks '((<hit> :type <poison> :damage (8 . 5)) (<hit> :type <blind> :damage (10 . 5))
@@ -1327,7 +1327,7 @@ the Free Software Foundation; either version 2 of the License, or
   :speed 120
   :xp 40000
   :abilities '(<push-others> <bash-door> <open-door> <cold-blood> <smart> <max-hitpoints> <initial-sleeper>)
-  :immunities '(<sleep> <confuse> <poison> <cold>)
+  :immunities '(<sleep> <confusion> <poison> <cold>)
   :vulnerabilities '(<light>)
   :alertness 10
   :vision 90
@@ -1352,7 +1352,7 @@ the Free Software Foundation; either version 2 of the License, or
   :speed 120
   :xp 50000
   :abilities '(<push-others> <bash-door> <open-door> <cold-blood> <smart> <max-hitpoints> <initial-sleeper>)
-  :immunities '(<sleep> <confuse> <poison> <cold> <fire> <acid>)
+  :immunities '(<sleep> <confusion> <poison> <cold> <fire> <acid>)
   :vulnerabilities '(<light>)
   :alertness 10
   :vision 90
@@ -1377,7 +1377,7 @@ the Free Software Foundation; either version 2 of the License, or
   :speed 120
   :xp 40000
   :abilities '(<bash-door> <open-door> <max-hitpoints> <initial-sleeper>)
-  :immunities '(<sleep> <confuse> <poison> <lightning> <fire> <acid>)
+  :immunities '(<sleep> <confusion> <poison> <electricity> <fire> <acid>)
   :alertness 0
   :vision 60
   :attacks '((<hit> :type <fire> :damage (9 . 12)) (<hit> :type <fire> :damage (9 . 12))
@@ -1398,7 +1398,7 @@ the Free Software Foundation; either version 2 of the License, or
   :speed 120
   :xp 20000
   :abilities '(<powerful-breath> <overrun-others> <bash-door> <open-door> <smart> <max-hitpoints> <initial-sleeper>)
-  :immunities '(<sleep> <confuse> <poison> <fire>)
+  :immunities '(<sleep> <confusion> <poison> <fire>)
   :alertness 20
   :vision 20
   :attacks '((<bite> :type <fire> :damage (12 . 6)) (<bite> :type <fire> :damage (12 . 6))
@@ -1421,11 +1421,11 @@ the Free Software Foundation; either version 2 of the License, or
   :speed 130
   :xp 23000
   :abilities '(<regenerate> <bash-door> <open-door> <cold-blood> <smart> <max-hitpoints> <initial-sleeper>)
-  :immunities '(<sleep> <confuse> <poison> <cold>)
+  :immunities '(<sleep> <confusion> <poison> <cold>)
   :vulnerabilities '(<light>)
   :alertness 10
   :vision 20
-  :attacks '((<hit> :type <confuse> :damage (6 . 6)) (<hit> :type <confuse> :damage (6 . 6))
+  :attacks '((<hit> :type <confusion> :damage (6 . 6)) (<hit> :type <confusion> :damage (6 . 6))
              (<bite> :type <exp_80> :damage (6 . 6)) (<bite> :type <hurt> :damage (5 . 8)))
   :treasures '(<drop-good> (<drop> "4d2") (<drop> "3d2") (<drop> "2d2") <only-drop-items>)
   :gender '<female>
@@ -1445,7 +1445,7 @@ the Free Software Foundation; either version 2 of the License, or
   :speed 130
   :xp 20000
   :abilities '(<bash-door> <open-door> <max-hitpoints> <initial-sleeper>)
-  :immunities '(<sleep> <confuse> <poison> <lightning> <cold> <fire> <acid>)
+  :immunities '(<sleep> <confusion> <poison> <electricity> <cold> <fire> <acid>)
   :alertness 10
   :vision 25
   :attacks '((<hit> :type <hurt> :damage (8 . 6)) (<hit> :type <hurt> :damage (8 . 6))
@@ -1469,7 +1469,7 @@ the Free Software Foundation; either version 2 of the License, or
   :xp 25000
   :abilities '(<push-others> <powerful-breath> <bash-door> <open-door> <pick-up-item> <smart> <max-hitpoints>
                <initial-sleeper>)
-  :immunities '(<poison> <lightning> <cold> <fire> <acid>)
+  :immunities '(<poison> <electricity> <cold> <fire> <acid>)
   :alertness 10
   :vision 40
   :attacks '((<hit> :type <hurt> :damage (10 . 10)) (<hit> :type <hurt> :damage (10 . 10))
@@ -1492,7 +1492,7 @@ the Free Software Foundation; either version 2 of the License, or
   :xp 30000
   :abilities '(<push-others> <powerful-breath> <bash-door> <open-door> <pick-up-item> <smart> <max-hitpoints>
                <initial-sleeper>)
-  :immunities '(<poison> <lightning> <cold> <fire> <acid>)
+  :immunities '(<poison> <electricity> <cold> <fire> <acid>)
   :alertness 10
   :vision 40
   :attacks '((<hit> :type <hurt> :damage (10 . 10)) (<hit> :type <hurt> :damage (10 . 10))
@@ -1515,7 +1515,7 @@ the Free Software Foundation; either version 2 of the License, or
   :speed 120
   :xp 30000
   :abilities '(<push-others> <powerful-breath> <bash-door> <open-door> <max-hitpoints> <initial-sleeper>)
-  :immunities '(<sleep> <confuse> <fire> <acid>)
+  :immunities '(<sleep> <confusion> <fire> <acid>)
   :alertness 70
   :vision 20
   :attacks '((<bite> :type <hurt> :damage (10 . 14)) (<claw> :type <hurt> :damage (8 . 12))
@@ -1538,7 +1538,7 @@ the Free Software Foundation; either version 2 of the License, or
   :xp 35000
   :abilities '(<push-others> <powerful-breath> <bash-door> <open-door> <pick-up-item> <smart> <max-hitpoints>
                <initial-sleeper>)
-  :immunities '(<poison> <lightning> <cold> <fire> <acid>)
+  :immunities '(<poison> <electricity> <cold> <fire> <acid>)
   :alertness 10
   :vision 40
   :attacks '((<hit> :type <hurt> :damage (10 . 10)) (<hit> :type <hurt> :damage (10 . 10))
@@ -1561,7 +1561,7 @@ the Free Software Foundation; either version 2 of the License, or
   :speed 120
   :xp 35000
   :abilities '(<bash-door> <open-door> <smart> <max-hitpoints> <initial-sleeper> <colour-changing>)
-  :immunities '(<sleep> <confuse> <poison> <lightning> <cold> <fire>)
+  :immunities '(<sleep> <confusion> <poison> <electricity> <cold> <fire>)
   :alertness 0
   :vision 100
   :attacks '((<hit> :type <hurt> :damage (5 . 5)) (<hit> :type <hurt> :damage (5 . 5))
@@ -1587,11 +1587,11 @@ the Free Software Foundation; either version 2 of the License, or
   :speed 130
   :xp 30000
   :abilities '(<bash-door> <open-door> <invisible> <max-hitpoints> <initial-sleeper>)
-  :immunities '(<sleep> <confuse> <poison> <cold> <fire>)
+  :immunities '(<sleep> <confusion> <poison> <cold> <fire>)
   :alertness 0
   :vision 100
   :attacks '((<hit> :type <paralyze> :damage (15 . 1)) (<hit> :type <blind> :damage (10 . 5))
-             (<touch> :type <lose_dex> :damage (2 . 12)) (<hit> :type <confuse> :damage (12 . 12)))
+             (<touch> :type <lose_dex> :damage (2 . 12)) (<hit> :type <confusion> :damage (12 . 12)))
   :treasures '(<drop-good> (<drop> "4d2") <only-drop-items>)
   :gender '<male>
   :special-abilities '((<spell> <teleport-player>) (<frequency> 1/3))) 
@@ -1609,7 +1609,7 @@ the Free Software Foundation; either version 2 of the License, or
   :speed 130
   :xp 35000
   :abilities '(<pass-wall> <cold-blood> <invisible> <max-hitpoints> <initial-sleeper>)
-  :immunities '(<sleep> <confuse> <poison> <cold>)
+  :immunities '(<sleep> <confusion> <poison> <cold>)
   :alertness 10
   :vision 20
   :attacks '((<hit> :type <lose-str> :damage (4 . 6)) (<hit> :type <lose-str> :damage (4 . 6))
@@ -1634,14 +1634,14 @@ the Free Software Foundation; either version 2 of the License, or
   :xp 45000
   :abilities '(<push-others> <powerful-breath> <bash-door> <open-door> <max-hitpoints> <initial-sleeper>
                <colour-changing>)
-  :immunities '(<sleep> <confuse> <poison> <lightning> <cold> <fire> <acid>)
+  :immunities '(<sleep> <confusion> <poison> <electricity> <cold> <fire> <acid>)
   :alertness 70
   :vision 20
   :attacks '((<bite> :type <hurt> :damage (10 . 14)) (<claw> :type <hurt> :damage (8 . 12))
              (<claw> :type <hurt> :damage (8 . 12)) (<claw> :type <hurt> :damage (6 . 12)))
   :treasures '(<drop-great> <drop-good> (<drop> "4d2") (<drop> "3d2") (<drop> "2d2") <only-drop-items>)
   :gender '<female>
-  :special-abilities '((<summon> <high-dragon>) (<breath> <poison>) (<breath> <lightning>) (<breath> <cold>)
+  :special-abilities '((<summon> <high-dragon>) (<breath> <poison>) (<breath> <electricity>) (<breath> <cold>)
                        (<breath> <fire>) (<breath> <acid>) (<spell> <scare>) (<spell> <confusion>)
                        (<spell> <blindness>) (<frequency> 1/2))) 
 
@@ -1658,7 +1658,7 @@ the Free Software Foundation; either version 2 of the License, or
   :speed 130
   :xp 30000
   :abilities '(<bash-door> <open-door> <cold-blood> <smart> <max-hitpoints> <initial-sleeper>)
-  :immunities '(<sleep> <confuse> <poison> <cold>)
+  :immunities '(<sleep> <confusion> <poison> <cold>)
   :alertness 50
   :vision 20
   :attacks '((<touch> :type <lose_dex> :damage (2 . 12)) (<touch> :type <lose_dex> :damage (2 . 12))
@@ -1683,7 +1683,7 @@ the Free Software Foundation; either version 2 of the License, or
   :speed 130
   :xp 16000
   :abilities '(<bash-door> <smart> <max-hitpoints> <initial-sleeper>)
-  :immunities '(<sleep> <confuse> <poison>)
+  :immunities '(<sleep> <confusion> <poison>)
   :alertness 10
   :vision 30
   :attacks '((<gaze> :type <lose_int> :damage (2 . 6)) (<gaze> :type <un-power> :damage (2 . 6))
@@ -1707,7 +1707,7 @@ the Free Software Foundation; either version 2 of the License, or
   :speed 120
   :xp 35000
   :abilities '(<bash-door> <smart> <max-hitpoints> <initial-sleeper>)
-  :immunities '(<sleep> <confuse> <poison>)
+  :immunities '(<sleep> <confusion> <poison>)
   :vulnerabilities '(<light>)
   :alertness 80
   :vision 8
@@ -1732,7 +1732,7 @@ the Free Software Foundation; either version 2 of the License, or
   :speed 130
   :xp 38000
   :abilities '(<bash-door> <open-door> <invisible> <smart> <max-hitpoints> <initial-sleeper>)
-  :immunities '(<sleep> <confuse> <lightning> <cold> <fire>)
+  :immunities '(<sleep> <confusion> <electricity> <cold> <fire>)
   :alertness 10
   :vision 60
   :attacks '((<touch> :type <un-power> :damage nil) (<touch> :type <un-power> :damage nil)
@@ -1757,7 +1757,7 @@ the Free Software Foundation; either version 2 of the License, or
   :speed 130
   :xp 20000
   :abilities '(<invisible> <never-attack> <never-move> <max-hitpoints> <initial-sleeper>)
-  :immunities '(<fear> <sleep> <confuse>)
+  :immunities '(<fear> <sleep> <confusion>)
   :alertness 0
   :vision 30
   :treasures '((<drop> "4d2") <only-drop-items>)
@@ -1777,7 +1777,7 @@ the Free Software Foundation; either version 2 of the License, or
   :speed 130
   :xp 20000
   :abilities '(<invisible> <never-attack> <never-move> <max-hitpoints> <initial-sleeper>)
-  :immunities '(<fear> <sleep> <confuse>)
+  :immunities '(<fear> <sleep> <confusion>)
   :alertness 0
   :vision 30
   :treasures '((<drop> "4d2") <only-drop-items>)
@@ -1799,7 +1799,7 @@ the Free Software Foundation; either version 2 of the License, or
   :speed 130
   :xp 42000
   :abilities '(<push-others> <bash-door> <open-door> <cold-blood> <smart> <max-hitpoints> <initial-sleeper>)
-  :immunities '(<sleep> <confuse> <poison> <cold>)
+  :immunities '(<sleep> <confusion> <poison> <cold>)
   :vulnerabilities '(<light>)
   :alertness 10
   :vision 90
@@ -1825,15 +1825,15 @@ the Free Software Foundation; either version 2 of the License, or
   :speed 140
   :xp 30000
   :abilities '(<bash-door> <open-door> <invisible> <max-hitpoints> <initial-sleeper>)
-  :immunities '(<sleep> <confuse> <poison> <lightning> <cold> <fire> <acid>)
+  :immunities '(<sleep> <confusion> <poison> <electricity> <cold> <fire> <acid>)
   :alertness 10
   :vision 40
   :attacks '((<hit> :type <elec> :damage (12 . 12)) (<hit> :type <elec> :damage (12 . 12))
              (<hit> :type <elec> :damage (12 . 12)) (<hit> :type <elec> :damage (12 . 12)))
   :treasures '(<drop-good> (<drop> "4d2") <only-drop-items>)
   :gender '<male>
-  :special-abilities '((<summon> <high-demon>) (<spell> (<ball> <lightning>)) (<spell> (<bolt> <mana>))
-                       (<spell> (<bolt> <lightning>)) (<spell> <mind-blast>) (<frequency> 1/3))) 
+  :special-abilities '((<summon> <high-demon>) (<spell> (<ball> <electricity>)) (<spell> (<bolt> <mana>))
+                       (<spell> (<bolt> <electricity>)) (<spell> <mind-blast>) (<frequency> 1/3))) 
 
 (define-monster-kind "cantoras" "Cantoras, the skeletal Lord"
   :desc "A legion of evil undead druj animating the skeleton of a once mighty sorcerer.  His power is devastating and his speed unmatched in the underworld.  Flee his wrath!"
@@ -1848,7 +1848,7 @@ the Free Software Foundation; either version 2 of the License, or
   :speed 140
   :xp 45000
   :abilities '(<bash-door> <open-door> <cold-blood> <smart> <max-hitpoints> <initial-sleeper>)
-  :immunities '(<fear> <sleep> <confuse> <poison> <cold> <fire>)
+  :immunities '(<fear> <sleep> <confusion> <poison> <cold> <fire>)
   :alertness 80
   :vision 20
   :attacks '((<touch> :type <poison> :damage (3 . 5)) (<touch> :type <poison> :damage (3 . 5))
@@ -1873,7 +1873,7 @@ the Free Software Foundation; either version 2 of the License, or
   :xp 35000
   :abilities '(<push-others> <powerful-breath> <bash-door> <open-door> <max-hitpoints> <initial-sleeper>
                <colour-changing>)
-  :immunities '(<sleep> <confuse> <cold> <fire>)
+  :immunities '(<sleep> <confusion> <cold> <fire>)
   :alertness 20
   :vision 50
   :attacks '((<touch> :type <un-power> :damage nil) (<touch> :type <un-power> :damage nil)
@@ -1894,7 +1894,7 @@ the Free Software Foundation; either version 2 of the License, or
   :speed 130
   :xp 37000
   :abilities '(<push-others> <powerful-breath> <bash-door> <open-door> <max-hitpoints> <initial-sleeper>)
-  :immunities '(<sleep> <confuse> <fire>)
+  :immunities '(<sleep> <confusion> <fire>)
   :alertness 80
   :vision 20
   :attacks '((<touch> :type <un-power> :damage nil) (<crush> :type <hurt> :damage (8 . 12))
@@ -1940,7 +1940,7 @@ the Free Software Foundation; either version 2 of the License, or
   :speed 130
   :xp 45000
   :abilities '(<bash-door> <open-door> <cold-blood> <smart> <max-hitpoints> <initial-sleeper>)
-  :immunities '(<sleep> <confuse> <poison> <lightning> <cold> <fire>)
+  :immunities '(<sleep> <confusion> <poison> <electricity> <cold> <fire>)
   :alertness 0
   :vision 100
   :attacks '((<hit> :type <hurt> :damage (5 . 5)) (<hit> :type <hurt> :damage (5 . 5))
@@ -1966,7 +1966,7 @@ the Free Software Foundation; either version 2 of the License, or
   :xp 40000
   :abilities '(<push-others> <bash-door> <open-door> <pick-up-item> <smart> (<random-mover> 1/4) <max-hitpoints>
                <initial-sleeper>)
-  :immunities '(<sleep> <confuse> <poison> <fire>)
+  :immunities '(<sleep> <confusion> <poison> <fire>)
   :alertness 10
   :vision 80
   :attacks '((<bite> :type <poison> :damage (4 . 4)) (<bite> :type <poison> :damage (4 . 4))
@@ -1989,7 +1989,7 @@ the Free Software Foundation; either version 2 of the License, or
   :speed 130
   :xp 40000
   :abilities '(<push-others> <bash-door> <open-door> <max-hitpoints> <initial-sleeper>)
-  :immunities '(<sleep> <confuse> <fire>)
+  :immunities '(<sleep> <confusion> <fire>)
   :alertness 10
   :vision 50
   :attacks '((<hit> :type <fire> :damage (9 . 12)) (<hit> :type <fire> :damage (9 . 12))
@@ -2011,7 +2011,7 @@ the Free Software Foundation; either version 2 of the License, or
   :speed 130
   :xp 43000
   :abilities '(<push-others> <powerful-breath> <bash-door> <open-door> <max-hitpoints> <initial-sleeper>)
-  :immunities '(<sleep> <confuse> <lightning> <fire>)
+  :immunities '(<sleep> <confusion> <electricity> <fire>)
   :alertness 0
   :vision 100
   :attacks '((<touch> :type <un-power> :damage nil) (<crush> :type <hurt> :damage (8 . 12))
@@ -2035,7 +2035,7 @@ the Free Software Foundation; either version 2 of the License, or
   :xp 50000
   :abilities '(<regenerate> <push-others> <bash-door> <open-door> <smart> <only-on-set-depth> <max-hitpoints>
                <initial-sleeper>)
-  :immunities '(<fear> <sleep> <confuse> <poison> <lightning> <cold> <fire>)
+  :immunities '(<fear> <sleep> <confusion> <poison> <electricity> <cold> <fire>)
   :alertness 0
   :vision 100
   :attacks '((<touch> :type <un-power> :damage nil) (<touch> :type <un-power> :damage nil)
@@ -2062,7 +2062,7 @@ the Free Software Foundation; either version 2 of the License, or
   :speed 140
   :xp 60000
   :abilities '(<regenerate> <push-others> <destroy-wall> <smart> <only-on-set-depth> <max-hitpoints> <initial-sleeper>)
-  :immunities '(<fear> <sleep> <confuse> <poison> <lightning> <cold> <fire> <acid>)
+  :immunities '(<fear> <sleep> <confusion> <poison> <electricity> <cold> <fire> <acid>)
   :alertness 0
   :vision 100
   :attacks '((<touch> :type <un-power> :damage nil) (<hit> :type <lose-all> :damage (10 . 12))

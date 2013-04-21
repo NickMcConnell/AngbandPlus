@@ -1,3 +1,29 @@
+2002-07-29  Stig E Sandø <stig@users.sourceforge.net>
+	* Sent out a release, 0.0.21
+
+2002-07-29  Stig E Sandø <stig@users.sourceforge.net>
+	* Endless amount of tweaks, modifications, function-renaming,
+	variable-renaming, removing dead code and moving code between
+	files.  Will not list all such changes here.  Just the major ones
+	since last release. 
+	* Improved item-functions to use a selection-function to select
+	only relevant objects.
+	* Fixed door-code (open/close door)
+	* stat-sustains now supported
+	* stat-reductions possible
+	* worn-items code revamped and improved
+	* callback support in lispworks now
+	* moved much object-code to variant and reduced dependencies
+	* upgraded some of the obj-description code
+	* removed obj-type from object-kinds
+	* moved ego-code to variant (still disabled)
+	* improved handling of resizes, also added mouse-click hook
+	* upgraded asdf
+	* upgraded some main-*.c to 3.0.x
+	
+2002-05-19  Stig E Sandø <stig@users.sourceforge.net>
+	* Sent out a release, 0.0.20
+	
 2002-05-19  Stig E Sandø <stig@users.sourceforge.net>
 	* These changes have been done gradually the last two weeks but
 	are summarised here.

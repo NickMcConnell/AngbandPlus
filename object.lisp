@@ -1,6 +1,6 @@
 ;;; -*- Mode: Lisp; Syntax: Common-Lisp; Package: org.langband.engine -*-
 
-#|
+#||
 
 DESC: object.lisp - code for object-kinds
 Copyright (c) 2000-2002 - Stig Erik Sandø
@@ -15,7 +15,7 @@ the Free Software Foundation; either version 2 of the License, or
 ADD_DESC: The code for object-kinds which is basic and should be widely
 ADD_DESC: available in the game.
 
-|#
+||#
 
 (in-package :org.langband.engine)
 
@@ -38,37 +38,12 @@ ADD_DESC: available in the game.
       retval)))
 
 
-(def-obj-type weapon :key <weapon>)
-(def-obj-type missile-weapon :is weapon)
-(def-obj-type bow :is missile-weapon :key <bow>
-	      :kind-slots ((multiplier :accessor object.multiplier :initform 1 :initarg :multiplier)))
-(def-obj-type digger :is weapon :key <digger>)
+(defun ensure-game-values! (item)
+  "Helper-function to make sure given item has game-values."
+  (check-type item active-object)
+  (unless (aobj.game-values item)
+    (setf (aobj.game-values item) (make-game-values))))
 
-(def-obj-type armour)
-(def-obj-type body-armour :is armour :key <body-armour>)
-(def-obj-type boots :is armour :key <boots>)
-(def-obj-type gloves :is armour :key <gloves>)
-(def-obj-type shield :is armour :key <shield>)
-(def-obj-type headgear :is armour :key <headgear>)
-(def-obj-type cloak :is armour :key <cloak>)
-
-(def-obj-type potion :key <potion>)
-(def-obj-type money :key <money>)
-(def-obj-type scroll :key <scroll>)
-(def-obj-type wand :key <wand>)
-(def-obj-type staff :key <staff>)
-(def-obj-type rod :key <rod>)
-(def-obj-type book :key <book>)
-(def-obj-type ring :key <ring>)
-(def-obj-type chest :key <chest>)
-(def-obj-type light-source :key <light-source>)
-(def-obj-type ammo :key <ammo>)
-(def-obj-type container :key <container>)
-
-(def-obj-type food :key <food>)
-(def-obj-type mushroom :is food :key <mushroom>)
-(def-obj-type neckwear :key <neckwear>)
-(def-obj-type amulet :is neckwear :key <amulet>)
 
 (defmethod learn-about-object! (player object what)
   (error "Fell through learn with ~s ~s ~s" player object what))
@@ -138,10 +113,6 @@ ADD_DESC: available in the game.
 (defmethod object.name ((obj active-object))
   (object.name (aobj.kind obj)))
 
-(defmethod object.obj-type ((obj active-object))
-  "Forwards to the right place.."
-  (object.obj-type (aobj.kind obj)))
-
 
 (defmethod object.game-values ((obj active-object))
   (let ((gvals (aobj.game-values obj)))
@@ -158,39 +129,6 @@ ADD_DESC: available in the game.
 (defmethod object.weight ((obj active-object))
   (* (aobj.number obj) (object.weight (aobj.kind obj))))
 
-(defun obj-is? (obj type-to-check)
-  "Checks if given object satisfies given type"
-  (if (find type-to-check (object.obj-type obj))
-      t
-      nil))
-
-(defun obj-is-in? (obj type-list)
-  "Checks if obj satisifes any of the types in type-list.
-Uses OBJ-IS? to check. Returns the given type if succesful,
-and NIL if unsuccesful."
-  (dolist (x type-list)
-    (when (obj-is? obj x)
-      (return-from obj-is-in? x)))
-  nil)
-
-(defun objs-that-satisfy (demand &key (var-obj *variant*) (level *level*))
-  "Returns a list of objects that satisfies the list of demands.
-Returns NIL on failure."
-  
-  (let ((retval nil)
-	(demand-list (if (listp demand) demand (list demand)))
-	(table (get-okind-table var-obj level)))
-
-    (loop for x being the hash-values of table
-	  do
-	  (let ((type-list (object.obj-type x))
-		(satisfy-p t))
-	    (dolist (i demand-list)
-	      (unless (find i type-list :test #'eq)
-		(setq satisfy-p nil)))
-	    (when satisfy-p
-	      (push x retval))))
-    retval))
 
 (defun create-aobj-from-id (id &key (amount 1) (variant *variant*))
   "Creates an active object from object-kind identified by id.
@@ -244,11 +182,42 @@ with k-info.txt numbers. NUM is the numeric id."
   (apply-event event (object.events obj) arg-list))
   
 
-(defun write-pluralised-string (stream plural-string number &key (flavour nil) (ident nil) (actual-name nil))
+(defun write-pluralised-string (stream plural-string number &key (flavour nil) (ident nil) (actual-name nil)
+				(numeric-prefix t))
   (declare (type u-16b number)
 	   (type simple-base-string plural-string))
-  (let ((plural (> number 1)))
-    (loop for i of-type u-16b from 0 to (1- (length plural-string))
+  (let ((plural (> number 1))
+	(counter 0))
+    (declare (type u-16b counter))
+
+    ;; fix this to jump right whatever happens!
+    (let ((article? (eql (schar plural-string counter) #\&)))
+      (when article?
+	(incf counter 2)) ;; skip ampersand plus space
+      (cond ((eq numeric-prefix nil)
+	     nil) ;; nothing
+	    ((<= number 0)
+	     (write-string "no more " stream))
+	    ((> number 1)
+	     (format stream "~d " number))
+	    
+	    ;; did we ask for a/an ?
+	    (article?
+	     ;; should take into account flavour! should also check length
+	     (let ((next-char (schar plural-string counter)))
+	       (when (and (eql next-char #\#) flavour) ;; use flavour if we have a flavour sign
+		 (setf next-char (schar flavour 0)))
+	       ;;(format t "~&Checking ~s for vowel in '~a'~%" next-char plural-string)
+	       (cond ((find next-char '(#\a #\e #\i #\o #\u #\y))
+		      (write-string "an " stream))
+		     (t
+		      (write-string "a " stream)))
+	       ))
+	    
+	    (t nil)))
+	   
+    
+    (loop for i of-type u-16b from counter to (1- (length plural-string))
 	  for x = (schar plural-string i)
 	  do
 	  (case x
@@ -257,15 +226,19 @@ with k-info.txt numbers. NUM is the numeric id."
 		   (when (find (schar plural-string (1- i)) '(#\h #\s))
 		     (write-char #\e stream))
 		   (write-char #\s stream)))
-	    
-	    (#\& (if plural
-		     (write-string (format nil "~a" number) stream)
-		     (if (find (schar plural-string (+ i 2)) '(#\a #\e #\i #\o #\u #\y))
-			 (write-string "an" stream)
-			 (write-char #\a stream))))
+	    #||
+	    (#\& (if numeric-prefix
+		     (if plural
+			 (write-string (format nil "~a" number) stream)
+			 (if (find (schar plural-string (+ i 2)) '(#\a #\e #\i #\o #\u #\y))
+			     (write-string "an" stream)
+			     (write-char #\a stream)))
+		     ;; wah!
+		     ))
+	    ||#	    
 	    (#\# (when flavour
 		   (write-string flavour stream)
-		   ;;(write-char #\Space s)
+		   (write-char #\Space stream)
 		   ))
 	    
 	    (#\@ (when ident
@@ -276,81 +249,20 @@ with k-info.txt numbers. NUM is the numeric id."
 	     (write-char x stream))))
     ))
 
-(defun plural-name (number name flavour ident actual-name)
+;;(trace write-pluralised-string)
+
+(defun plural-name (number name flavour ident actual-name &key numeric-prefix)
   "Returns a name with plurality fixed as in normal Angband.  FIX ME"
   (with-output-to-string (s)
-    (write-pluralised-string s name number :flavour flavour :ident ident :actual-name actual-name)))
+    (write-pluralised-string s name number :flavour flavour :ident ident :actual-name actual-name
+			     :numeric-prefix numeric-prefix)))
 
 
-(defmethod write-obj-description ((variant variant) (obj active-object) stream &key (store nil))
-  
-  (let* ((o-type (aobj.kind obj))
-	 (name (object.name obj))
-	 (flavour (if store nil (object.flavour o-type)))
-	 (known-type (or store (is-object-known? obj)))
-	 (number (aobj.number obj))
-	 ;;(o-tlist (object.obj-type o-type))
-	 ;;(plural-string nil)
-	 )
 
-    ;; temporary hack
-    (when flavour (setf flavour (car flavour)))
-    
-;;    (warn "tot-str ~s" tot-str)
-
-    (write-string 
-    (cond ((obj-is? o-type '<mushroom>)
-	   (plural-name number "& #mushroom~@" flavour known-type name))
-	  ((obj-is? o-type '<potion>)
-	   (plural-name number "& # potion~@" flavour known-type name))
-	  ((obj-is? o-type '<ring>)
-	   (plural-name number "& # ring~@" flavour known-type name))
-	  ((obj-is? o-type '<staff>)
-	   (plural-name number "& # staff~@" flavour known-type name))
-	  ((obj-is? o-type '<wand>)
-	   (plural-name number "& # wand~@" flavour known-type name))
-	  ((obj-is? o-type '<rod>)
-	   (plural-name number "& # rod~@" flavour known-type name))
-	  ((obj-is? o-type '<scroll>)
-	   (plural-name number "& scroll~ #@" flavour known-type name))
-	  ((obj-is? o-type '<amulet>)
-	   (plural-name number "& # amulet~@" flavour known-type name))
-	  (t
-;;	   (warn "Fell through with object ~a ~s" name (object.obj-type o-type)) 
-	   (plural-name number name nil known-type nil)))
-    stream)
-
-    ))
-
-(defmethod write-obj-description ((variant variant) (obj active-object/book) stream &key store)
-  (let ((known-type (or store (object.aware (aobj.kind obj)))))
-    (write-pluralised-string stream "& ritual-book~ @" (aobj.number obj)
-			     :ident known-type :actual-name (object.name obj))))
-  
-(defmethod write-obj-description ((variant variant) (obj active-object/weapon) stream &key store)
-  "this one should be moved out into the variant directories.  it conses"
-  (let* ((o-type (aobj.kind obj))
-	 (number (aobj.number obj))
-	 (known-obj (is-object-known? obj))
-	 (base (plural-name number (object.name o-type) nil (or store known-obj) nil))
-	 (gvals (object.game-values obj))
-	 (tohit-mod (if gvals (gval.tohit-modifier gvals) 0))
-	 (dmg-mod (if gvals (gval.dmg-modifier gvals) 0))
-	 )
-    (cond (known-obj
-	   (format stream "~a (~@d,~@d)" base tohit-mod dmg-mod))
-	  (t
-	   (write-string base stream)))))
 
 (defmethod is-eatable? ((player player) (obj active-object))
   nil)
 
-;; possibly add this for potions
-(defmethod is-eatable? ((player player) (obj active-object/food))
-  t)
-
-(defmethod is-eatable? ((player player) (obj object-kind/food))
-  t)
 
 (defmethod is-magical? ((obj active-object))
   nil)
@@ -358,27 +270,6 @@ with k-info.txt numbers. NUM is the numeric id."
 (defmethod is-artifact? ((obj active-object))
   nil)
 
-(defmethod get-price ((object active-object) situation)
-  (declare (ignore situation))
-  (let* ((kind (aobj.kind object))
-	 (known-p (is-object-known? object)))
-
-    ;; skip broken/cursed
-
-    ;; also ignore discounts
-    
-    (if known-p
-	(object.cost kind)
-	(typecase object
-	  (active-object/food 5)
-	  (active-object/potion 20)
-	  (active-object/scroll 20)
-	  (active-object/staff 70)
-	  (active-object/wand 50)
-	  (active-object/rod 90)
-	  (active-object/ring 45)
-	  (active-object/amulet 45)
-	  (otherwise 0)))))
 
 
 (defun get-object-list (&key (var-obj *variant*) (level *level*))
@@ -411,34 +302,52 @@ with k-info.txt numbers. NUM is the numeric id."
 ;; hack
 (defmacro object-effect (arguments &body body)
   (assert (= (length arguments) 3))
-  (let ((def `(lambda ,arguments ,@body)))
+  (let ((def `(lambda ,arguments
+	       (declare (ignorable ,@arguments))
+	       ,@body)))
 ;;    (warn "Def is ~s" def)
     `(function ,def)))
 
-(defmethod get-object-effect ((var variant) the-object effect)
+(defmacro magic-add (arguments &body body)
+  (assert (= (length arguments) 3))
+  (let ((def `(lambda ,arguments
+	       (declare (ignorable ,@arguments))
+	       ,@body)))
+;;    (warn "Def is ~s" def)
+    `(function ,def)))
+
+(defmethod get-object-effect ((var variant) (the-object active-object) effect)
   (find effect (object.effects (aobj.kind the-object)) :key #'effect-entry-type))
 
+(defmethod get-object-effect ((var variant) (the-object object-kind) effect)
+  (find effect (object.effects the-object) :key #'effect-entry-type))
 
-(defun define-object-kind (id name
-			   &key numeric-id x-attr x-char depth rarity
-			   chance locale weight cost obj-type sort-value
-			   events game-values flags flavour desc the-kind
-			   multiplier (on-quaff :unspec)
-			   (on-read :unspec) (on-eat :unspec)
-			   (on-create :unspec) (on-add-magic :unspec))
-  "creates and establishes an object corresponding to parameters.  It uses
-the *VARIANT* object so it has to be properly initialised."
+(defmethod initialise-object-kind! ((var-obj variant) (new-obj object-kind) keyword-args)
+  
+  ;; hackish, gradually move variant-specific stuff to variant. 
 
-  (declare (ignore flavour desc))
-  (let* ((var-obj *variant*)
-	 (new-obj (produce-object-kind var-obj id name obj-type :the-kind the-kind))
+  (let* ((id (object.id new-obj))
+	 (name (object.name new-obj))
 	 (key (if (symbolp id)
 		  (string-downcase (symbol-name id))
-		  id)))
+		  id))
+	 )
 
-    (when (symbolp id)
-      (warn "Deprecated id for object ~s" id))
     
+  (destructuring-bind (&key numeric-id x-attr x-char depth rarity
+			    chance locale weight cost sort-value
+			    events game-values flags flavour desc the-kind
+			    multiplier (on-quaff :unspec)
+			    (on-read :unspec) (on-eat :unspec)
+			    (on-create :unspec) (on-add-magic :unspec)
+			    (on-wear :unspec) (on-drop :unspec)
+			    (on-takeoff :unspec) (on-destroy :unspec)
+			    (on-zap :unspec) (on-hit :unspec) (on-miss :unspec)
+			    (on-calculate :unspec)
+			    &allow-other-keys)
+      keyword-args
+;;    (declare (ignore flavour desc))
+
     (when flags
       (when (find '<easy-know> flags)
 	(setf (object.easy-know new-obj) t)
@@ -479,8 +388,9 @@ the *VARIANT* object so it has to be properly initialised."
     (flet ((possible-add-effect (effect var &optional (energy +energy-normal-action+))
 	     (cond ((eq :unspec var))
 		   ((is-object-effect? var)
+		    ;;(warn "Compiling ~s for ~s" effect id)
 		    (let ((entry (make-effect-entry :type effect
-						    :fun var
+						    :fun (compile nil var)
 						    :energy-use energy)))
 		      (pushnew entry (object.effects new-obj) :key #'effect-entry-type)))
 		   (t
@@ -491,11 +401,34 @@ the *VARIANT* object so it has to be properly initialised."
       (possible-add-effect :eat on-eat)
       (possible-add-effect :create on-create)
       (possible-add-effect :add-magic on-add-magic)
+      (possible-add-effect :wear on-wear)
+      (possible-add-effect :drop on-drop)
+      (possible-add-effect :takeoff on-takeoff)
+      (possible-add-effect :destroy on-destroy)
+      (possible-add-effect :zap on-zap)
+      (possible-add-effect :hit on-hit)
+      (possible-add-effect :miss on-miss)
+      (possible-add-effect :calculate on-calculate)
       )
-    
-    ;; hack, move away later
-    (when (and multiplier (numberp multiplier) (typep new-obj 'object-kind/bow))
-      (setf (object.multiplier new-obj) multiplier))
+
+
+    new-obj)))
+  
+
+;; must be fixed!!
+(defun define-object-kind (id name &rest keyword-args
+			   &key the-kind &allow-other-keys) ;; list should be checked thoroughly!
+  "creates and establishes an object corresponding to parameters.  It uses
+the *VARIANT* object so it has to be properly initialised."
+
+  (let* ((var-obj *variant*)
+	 (new-obj (produce-object-kind var-obj id name :the-kind the-kind))
+	 )
+
+    (when (symbolp id)
+      (warn "Deprecated id for object ~s" id))
+
+    (initialise-object-kind! var-obj new-obj keyword-args)
     
     ;; hackish addition to big object-table
     (let ((main-obj-table (variant.objects var-obj))
@@ -518,9 +451,13 @@ the *VARIANT* object so it has to be properly initialised."
 
   
   (let* ((wanted-kind (object.the-kind okind))
-	 (mapping (when wanted-kind (gethash wanted-kind *obj-type-mappings*)))
-	 (gvals (when (object.game-values okind) (copy-game-values variant (object.game-values okind))))
+	 (mapping (when wanted-kind
+		    (gethash wanted-kind *obj-type-mappings*)))
+	 (gvals (when (object.game-values okind)
+		  (copy-game-values variant (object.game-values okind))))
 	 )
+;;    (unless gvals
+;;      (warn "No gvals for ~s" okind))
     (cond ((and mapping (consp mapping))
 	   (make-instance (cdr mapping) :obj okind :game-values gvals))
 	  (t 
@@ -528,28 +465,21 @@ the *VARIANT* object so it has to be properly initialised."
 
 
 
-(defmethod produce-object-kind ((variant variant) id name obj-type &key the-kind)
+(defmethod produce-object-kind ((variant variant) id name &key the-kind)
   "Produces a suitable object of type object-kind"
 
   (assert (or (stringp id) (symbolp id)))
-  (assert (or (symbolp obj-type)
-	      (and (consp obj-type)
-		   (every #'symbolp obj-type))))
-  (let* ((key (if (symbolp id) (symbol-name id) id))
-	 (listed-obj-type (if (listp obj-type)
-			      obj-type
-			      (list obj-type)))
 
-	 (has-mapping (gethash the-kind *obj-type-mappings*)))
+  (let ((key (if (symbolp id) (symbol-name id) id))
+	(has-mapping (gethash the-kind *obj-type-mappings*)))
+    
+    (assert (verify-id key))
 
     (cond ((consp has-mapping)
 	   (make-instance (car has-mapping) :id key :name name
-			  :obj-type listed-obj-type
 			  :the-kind the-kind))
 	  (t
-	   ;;(warn "making ~s" obj-type)
-	   (make-instance 'object-kind :id key :name name
-			  :obj-type listed-obj-type))
+	   (make-instance 'object-kind :id key :name name))
 	  )))
 
 
@@ -634,240 +564,3 @@ of objects.  all entries are copied, not shared."
     
 	(assert (legal-flavour-obj? (object.flavour kind)))))
     obj))
-
-;;; Ego code
-
-(defclass ego-item ()
-  ((id          :accessor ego.id          :initform ""  :initarg :id)
-   (name        :accessor ego.name        :initform ""  :initarg :name)
-   (numeric-id  :accessor ego.numeric-id  :initform -1  :initarg :numeric-id)
-   (rating      :accessor ego.rating      :initform 0   :initarg :rating)
-   (xtra        :accessor ego.xtra        :initform 0   :initarg :xtra)
-   (max-to-hit  :accessor ego.max-to-hit  :initform 0   :initarg :max-to-hit)
-   (max-to-dmg  :accessor ego.max-to-dmg  :initform 0   :initarg :max-to-dmg)
-   (max-to-ac   :accessor ego.max-to-ac   :initform 0   :initarg :max-to-ac)
-   (pval        :accessor ego.pval        :initform 0   :initarg :pval)
-   (depth       :accessor ego.depth       :initform 0   :initarg :depth)
-   (rarity      :accessor ego.rarity      :initform 0   :initarg :rarity)
-   (cost        :accessor ego.cost        :initform 0   :initarg :cost)
-   (tval        :accessor ego.tval        :initform 0   :initarg :tval)
-   (min-sval    :accessor ego.min-sval    :initform 0   :initarg :min-sval)
-   (max-sval    :accessor ego.max-sval    :initform 0   :initarg :max-sval)
-   (flags       :accessor ego.flags       :initform '() :initarg :flags)
-   (game-values :accessor ego.game-values :initform nil :initarg :game-values)
-   ))
-
-
-;; remove later
-(defparameter *egos* (make-hash-table :test #'equal))
-
-(defun get-ego (numeric-id)
-  (gethash numeric-id *egos*))
-
-(defun (setf get-ego) (value numeric-id)
-  (setf (gethash numeric-id *egos*) value))
-
-
-(defun define-ego-item (id name &key (numeric-id :unspec) (rating :unspec)
-			(xtra :unspec) (max-to-ac :unspec) (max-to-hit :unspec)
-			(max-to-dmg :unspec) (pval :unspec) (depth :unspec) (rarity :unspec)
-			(cost :unspec) (tval :unspec) (min-sval :unspec)
-			(max-sval :unspec) (flags :unspec) (game-values :unspec))
-  "Attempts to define an ego-item."
-
-
-  (check-type id string)
-  (check-type name string)
-  
-  (assert (verify-id id))
-  (assert (> (length name) 0))
-  
-  (let ((variant *variant*)
-	(ego-item (make-instance 'ego-item :name name :id id))
-	(gvals (if (or (eq game-values nil) (eq game-values :unspec))
-		   (make-game-values)
-		   game-values)))
-
-    (cond ((integerp numeric-id)
-	   (setf (ego.numeric-id ego-item) numeric-id))
-	  ((eq numeric-id :unspec))
-	  (t
-	   (warn "Unknown value for ego-numeric-id: ~s" numeric-id)))
-
-    
-    (cond ((integerp rating)
-	   (setf (ego.rating ego-item) rating))
-	  ((eq rating :unspec))
-	  (t
-	   (warn "Unknown value for ego-rating: ~s" rating)))
-    
-    (cond ((integerp xtra)
-	   ;; check this later
-	   ;;(warn "Ego ~s has xtra-parameter: ~s" id xtra)
-	   (setf (ego.xtra ego-item) xtra))
-	  ((eq xtra :unspec))
-	  (t
-	    (warn "Unknown value for ego-xtra: ~s" xtra)))
-
-
-    (cond ((integerp max-to-hit)
-	   (setf (ego.max-to-hit ego-item) max-to-hit))
-	  ((eq max-to-hit :unspec))
-	  (t
-	   (warn "Unknown value for ego-max-to-hit: ~s" max-to-hit)))
-
-    (cond ((integerp max-to-dmg)
-	   (setf (ego.max-to-dmg ego-item) max-to-dmg))
-	  ((eq max-to-dmg :unspec))
-	  (t
-	   (warn "Unknown value for ego-max-to-dmg: ~s" max-to-dmg)))
-    
-    (cond ((integerp max-to-ac)
-	   (setf (ego.max-to-ac ego-item) max-to-ac))
-	  ((eq max-to-ac :unspec))
-	  (t
-	   (warn "Unknown value for ego-max-to-ac: ~s" max-to-ac)))
-
-    (cond ((integerp pval)
-	   (setf (ego.pval ego-item) pval))
-	  ((eq pval :unspec))
-	  (t
-	   (warn "Unknown value for ego-pval: ~s" pval)))
-
-    (cond ((integerp depth)
-	   (setf (ego.depth ego-item) depth))
-	  ((eq depth :unspec))
-	  (t
-	   (warn "Unknown value for ego-depth: ~s" depth)))
-
-    
-    (cond ((integerp rarity)
-	   (setf (ego.rarity ego-item) rarity))
-	  ((eq rarity :unspec))
-	  (t
-	   (warn "Unknown value for ego-rarityt: ~s" rarity)))
-
-        
-    (cond ((integerp cost)
-	   (setf (ego.cost ego-item) cost))
-	  ((eq cost :unspec))
-	  (t
-	   (warn "Unknown value for ego-cost: ~s" cost)))
-
-    (cond ((integerp tval)
-	   (setf (ego.tval ego-item) tval))
-	  ((eq tval :unspec))
-	  (t
-	   (warn "Unknown value for ego-tval: ~s" tval)))
-
-    (cond ((integerp min-sval)
-	   (setf (ego.min-sval ego-item) min-sval))
-	  ((eq min-sval :unspec))
-	  (t
-	   (warn "Unknown value for ego-min-sval: ~s" min-sval)))
-    
-    (cond ((integerp max-sval)
-	   (setf (ego.max-sval ego-item) max-sval))
-	  ((eq max-sval :unspec))
-	  (t
-	   (warn "Unknown value for ego-max-sval: ~s" max-sval)))
-    
-    (cond ((consp flags)
-	   (let ((ok-flags '()))
-	     (dolist (i flags)
-	       (cond ((consp i)
-		      (cond ((eq (car i) '<slay>)
-			     (pushnew (cadr i) (gval.slays gvals)))
-			    ((eq (car i) '<sustain>)
-			     (pushnew (cadr i) (gval.sustains gvals)))
-			    ((eq (car i) '<resist>)
-			     (if (is-legal-element? variant (cadr i))
-				 (bit-flag-add! (gval.resists gvals) (get-element-flag variant (cadr i)))
-				 (error "Tried to add ~s, but illegal" i)))
-			    ((eq (car i) '<ignore>)
-			     (if (is-legal-element? variant (cadr i))
-				 (bit-flag-add! (gval.ignores gvals) (get-element-flag variant (cadr i)))
-				 (error "Tried to add ~s, but illegal" i)))
-			    (t
-;;			     (warn "~s fell through" i)
-			     (push i ok-flags)
-			     )))
-		     (t
-		      (push i ok-flags))))
-;;	     (when ok-flags
-;;	       (warn "Flags ~s" ok-flags))
-	   (setf (ego.flags ego-item) (nreverse ok-flags))))
-	  ((eq flags :unspec))
-	  ((eq flags '()))
-	  (t
-	   (warn "Unknown value for ego-flags: ~s" flags)))
-
-    (setf (ego.game-values ego-item) gvals)
-    
-    (setf (get-ego id) ego-item)
-    
-    ego-item))
-
-
-(defmethod get-loadable-form ((variant variant) (object ego-item) &key (full-dump nil))
-
-;;(defun %dump-form (variant object)
-  (declare (ignore full-dump))
-  
-  (let ((the-form '()))
-    (flet ((possibly-add (initarg val &optional (def-val nil))
-             (unless (equal val def-val)
-               (setf the-form (nconc the-form (list initarg (loadable-val val)))))))
-
-    (setf the-form (list 'define-ego-item
-                         (ego.id object)
-                         (ego.name object)))
-
-;;    (possibly-add :id (ego.id object) "dummy-id")
-    (possibly-add :numeric-id (ego.numeric-id object) -1)
-    (possibly-add :rating (ego.rating object) 0)
-    (possibly-add :xtra (ego.xtra object) 0)
-    
-    (possibly-add :max-to-hit (ego.max-to-hit object) 0)
-    (possibly-add :max-to-dmg (ego.max-to-dmg object) 0)
-    (possibly-add :max-to-ac (ego.max-to-ac object) 0)
-    (possibly-add :pval (ego.pval object) 0)
-    
-    (possibly-add :depth (ego.depth object) 0)
-    (possibly-add :rarity (ego.rarity object) 0)
-    (possibly-add :cost (ego.cost object) 0)
-
-    (possibly-add :tval (ego.tval object) 0)
-    (possibly-add :min-sval (ego.min-sval object) 0)
-    (possibly-add :max-sval (ego.max-sval object) 0)
-    (possibly-add :flags (ego.flags object) '())
-
-    (when-bind (gval (ego.game-values object))
-      (setf the-form (append the-form (list :game-values (get-loadable-form variant gval)))))
-
-    
-    the-form)))
-
-
-(defun dump-egos ()
-  (let* ((vals (loop for x being the hash-values of *egos*
-		     collecting x))
-	 (sorted-vals (sort vals #'< :key #'ego.numeric-id))
-	 (*print-case* :downcase)
-	 (*print-right-margin* 120))
-
-    (with-open-file (s #p"ego.dump"
-		       :direction :output
-		       :if-exists :supersede
-		       :if-does-not-exist :create)
-      (loop for x in sorted-vals
-	    do
-	    (pprint (get-loadable-form *variant* x) s))
-      )))
-
-(defmethod print-object ((inst ego-item) stream)
-  (print-unreadable-object
-   (inst stream :identity t)
-   (format stream "~:(~S~) [~S]" (class-name (class-of inst)) 
-           (ego.name inst) ))
-  inst)

@@ -258,21 +258,21 @@ the Free Software Foundation; either version 2 of the License, or
 ;; seems to be a list, despite the name
 ;;(defvar *view-hack-arr* nil)
 
-(defun update-view! (dun pl)
+(defun update-view! (dungeon player)
   "Updates the view from the given player."
 
   (declare (optimize (safety 0) (speed 3) (debug 0)
 		     #+cmu (ext:inhibit-warnings 3)))
 
-  (let* ((py (location-y pl))
-	 (px (location-x pl))
+  (let* ((py (location-y player))
+	 (px (location-x player))
 	 (pg (grid px py))
-	 (radius (player.light-radius pl))
+	 (radius (player.light-radius player))
 	 (fast-view *array-view*)
 	 (fast-temp *temp-view*)
 	 (vinfo *vinfo*)
 	 (vinfo-bit-fields *vinfo-bit-fields*)
-	 ;;(fast-view (make-map dun))
+	 ;;(fast-view (make-map dungeon))
 	 )
 
     (declare (type u-fixnum py px pg radius))
@@ -303,14 +303,14 @@ the Free Software Foundation; either version 2 of the License, or
 	     )
 ;;	   (get-real-flag (grid)
 ;;	     (declare (type fixnum grid))
-;;	     (cave-flags dun (grid-x grid) (grid-y grid)))
+;;	     (cave-flags dungeon (grid-x grid) (grid-y grid)))
 ;;	   (update-real-flags (grid flag)
-;;	     (setf (cave-flags dun (grid-x grid) (grid-y grid)) flag))
+;;	     (setf (cave-flags dungeon (grid-x grid) (grid-y grid)) flag))
 	   )
       (macrolet ((get-real-flag (grid)
-		   `(cave-flags dun (grid-x ,grid) (grid-y ,grid)))
+		   `(cave-flags dungeon (grid-x ,grid) (grid-y ,grid)))
 		 (update-real-flags (grid flag)
-		   `(setf (cave-flags dun (grid-x ,grid) (grid-y ,grid)) ,flag)))
+		   `(setf (cave-flags dungeon (grid-x ,grid) (grid-y ,grid)) ,flag)))
       
 ;;      (warn "player at {~a,~a}" px py)
     
@@ -335,7 +335,7 @@ the Free Software Foundation; either version 2 of the License, or
       ;; step 1 - player grid
       
       (block player-grid
-	(let* ((coord (cave-coord dun px py))
+	(let* ((coord (cave-coord dungeon px py))
 	       (flag (coord.flags coord))
 	       )
 
@@ -345,7 +345,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 	  (cond ((< 0 radius)
 		 ;; torch
-		 ;;(warn "pl seen.")
+		 ;;(warn "player seen.")
 		 (bit-flag-add! flag +cave-seen+))
 		
 		((bit-flag-set? flag +cave-glow+)
@@ -430,7 +430,7 @@ the Free Software Foundation; either version 2 of the License, or
 			(error "{pg=~s,px=~s,py=~s} -> {g=~s,x=~s,y=~s} -> {o2=~s,e=~s} -> ~s"
 			       pg px py g x y o2 e grid-array))
 		      
-		      (let* ((coord (cave-coord dun x y))
+		      (let* ((coord (cave-coord dungeon x y))
 			     (info (coord.flags coord)))
 
 			(declare (type u-fixnum info))
@@ -467,7 +467,7 @@ the Free Software Foundation; either version 2 of the License, or
 							   (1- y)
 							   y))))
 					  
-					  (when (bit-flag-set? (cave-flags dun xx yy) +cave-glow+)
+					  (when (bit-flag-set? (cave-flags dungeon xx yy) +cave-glow+)
 					    (bit-flag-add! info +cave-seen+)))))
 					      
 			       
@@ -530,8 +530,8 @@ the Free Software Foundation; either version 2 of the License, or
 		       (not (bit-flag-set? the-flag +cave-temp+)))
 	      (let ((x (grid-x the-grid))
 		    (y (grid-y the-grid)))
-		(note-spot! dun x y)
-		(light-spot! dun x y))))))
+		(note-spot! dungeon x y)
+		(light-spot! dungeon x y))))))
 
 
       (block process-old-grids
@@ -540,7 +540,7 @@ the Free Software Foundation; either version 2 of the License, or
 	  (let* (;;(grid (car i))
 		 (x (grid-x grid))
 		 (y (grid-y grid))
-		 (coord (cave-coord dun x y))
+		 (coord (cave-coord dungeon x y))
 		 (flag (coord.flags coord)))
 
 	    (declare (type u-fixnum flag))
@@ -551,7 +551,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 	    ;; was seen, no more
 	    (unless (bit-flag-set? flag +cave-seen+)
-	      (light-spot! dun x y))
+	      (light-spot! dungeon x y))
 	    
 	    )))
     
@@ -563,9 +563,9 @@ the Free Software Foundation; either version 2 of the License, or
 				       
 		  
 	
-(defun forget-view! (dun pl)
+(defun forget-view! (dungeon player)
   "Clears everything currently viewed."
-  (declare (ignore pl))
+  (declare (ignore player))
   
 ;;  (warn "(forget-view!)")
   (let ((the-array *array-view*))
@@ -575,13 +575,12 @@ the Free Software Foundation; either version 2 of the License, or
 	  (let* (;;(the-grid (car i))
 		 (x (grid-x the-grid))
 		 (y (grid-y the-grid))
-		 (flag (cave-flags dun x y)))
+		 (flag (cave-flags dungeon x y)))
 	    
-	    (setf (cave-flags dun x y) (bit-flag-remove! flag #.(logior +cave-view+ +cave-seen+)))
-	    (light-spot! dun x y)
+	    (setf (cave-flags dungeon x y) (bit-flag-remove! flag #.(logior +cave-view+ +cave-seen+)))
+	    (light-spot! dungeon x y)
 	    
       
 	    ))
     
     (setf (fill-pointer the-array) 0)))
-
