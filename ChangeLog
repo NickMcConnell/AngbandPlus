@@ -1,3 +1,44 @@
+2001-11-26  Stig E Sandø <stig@users.sourceforge.net>
+	* Updated signatures to CREATE-AOBJ-* in object.lisp
+	* Added simplifying PARSE-AND-ROLL-DICE in base.lisp
+	* Extended syntax to specify starting equipment and improved
+	birth.lisp to reflect this.  starting-equipment for vanilla also
+	affected.
+	* Added generics for arrow-shooting and missile-shooting.  Also
+	added preliminary/non-functional code for shooting arrows in
+	project.lisp
+	* Updated GET-ITEM-TABLE method to take coordinates for :floor
+	* Extended DEF-OBJ-TYPE macro with possibility to add slots
+	* Added multipliers to bows
+	* Added and improved some code for selecting items
+	* Added key to fire arrows ('f')
+	* Added some ids to the objects in var/van/config/objects.lisp
+	* Fixed minor bugs 
+	
+2001-11-26  Stig E Sandø <stig@users.sourceforge.net>
+	* Updated TODO-list and some web-docs
+	* More reorganisation of code and changing of arguments.  More
+	stable now I hope.
+	* Moved all generics into generic.lisp
+	* Simplified light-spot! and added print-relative!
+	* Started to add dependencies to the .system file
+	* Cleaned up death a bit and moved some of it from loop.lisp to
+	death.lisp
+	* Updated many objects in vanilla-variant to use proper
+	identification call.
+	* Added project.lisp for projection code and sys.lisp for
+	system-dependent code.
+	* Now saves highscores to ~/.langband/ when possible
+	* Split up monster-file for variants into monsters, uniques and
+	town-monsters.
+	* Other minor fixes
+		
+2001-11-24  Stig E Sandø <stig@users.sourceforge.net>
+	* Major reorganisation of function-names and generics.  Much more
+	dependent and overridable by a variant.
+	* Added birth re-roll and name-entering
+	* Minor fixes
+	
 2001-11-22  Stig E Sandø <stig@users.sourceforge.net>
 	* Added random name-generator (variants/vanilla/*lisp)
 	* Added possibility to enter a player-name (or any string),

@@ -1,40 +1,45 @@
-THINGS TO DO
-============
+THINGS TO DO TO THE KERNEL
+==========================
 
-This list is _very_ long at the moment even though it
-has been stripped down to what is needed to have a
-vanilla-complete engine/system.
+This list is excessively long at the moment, even though
+I've been conservative wrt to what features the engine
+should have in the first version.  The TODO-list for
+the vanilla-variant is in variants/vanilla/TODO.
 
-DUNGEON and TOWN
- - traps not implemented
+
+DUNGEON
+ - trap-support not implemented
  - searching not implemented
- - vaults not implemented
- - pits not implemented
- - only simple rooms implemented [+overlapping]
- - shops do not work yet [barely working]
 
-SPELLS and MAGICAL ITEMS
- - priest-spells not implemented
- - mage-spells not implemented
- - scrolls not implemented [barely started]
- - mushrooms not implemented [started]
- - potions not implemented [half done]
- - wands not implemented
- - staves not implemented
- - rods not implemented
- - artifacts not implemented
+TOWN
+ - only black market-type stores "works"
+ - no specialisable shops yet
 
-SAVE/LOAD and SCORE
+SPELLS
+ - no support for spells and spell-casting
+ - also missing project() which is needed for balls and beams
+
+MAGICAL ITEMS
+ - No inclusion of effects on objects on monsters/players
+ - No support for objects with ego-abilities or special properties
+   (no protocol for extending it either)
+
+
+SAVE/LOAD, SCORE and DEATH
  - 2/3 of save/load implemented
  - save/load misses events, shops, etc.
- - high-score saving not implemented [almost working]
+ - high-score saving not implemented [fixed, report detailed bugs now]
+ - central saving of high-score and save-files not implemented
+
 
 MONSTERS
  - extremely primitive AI, all monsters aggressive
  - none of the monsters behave as they really should
- - does not carry items or use items
+ - do not carry items or use items
  - no monster-memory
  - no monster-drops
+ - no support for invisible or multi-hued monsters
+ - does not know that monsters are unique 
 
 COMBAT
  - no magical weapons done [barely started]
@@ -42,20 +47,20 @@ COMBAT
  - no missile/thrown weapons
  - no special powers or bonuses used in combat
  - missing proper descriptions for attacks [somewhat improved now]
- - speed-system doesn't work, everyone has the same speed now.
-   [this is almost fixed now and should work for regular cases though]
 
 MOVING ABOUT
- - not using light-radius properly [FIXED]
- - no torch-charges used or oil wasted though :-)
+ - no torch-charges used or oil wasted for light (overridable?) :-)
  - no running
  - no stay still command [Maybe the key 5, stand-still is ok]
  - no resting and no regeneration [simple regen for hits added]
  - no map function
+ - can see objects even outside range-of-vision
+
 
 CONTAINERS
  - stacking doesn't work [barely working]
  - it doesn't understand that only one torch is used at a time. 
+
 
 COMMANDS
  - no directed 'o'pen command
@@ -64,13 +69,14 @@ COMMANDS
  - eating, drinking, etc not implemented [q and u should work on potions]
  - no redraw of a screwed up screen
  - no 'L'ook command
+ - no targetting command, e.g for missiles, spells, ..
 
-BIRTH
- - writing ones own name missing
- - point-based system missing [don't need it]
 
 OTHER
+ - optimise FFI-code to be fast and not generate garbage, esp strings
+ - missing project() which a lot of features need
  - messages are not saved or kept
- - no option-system
+ - no option-system [bad settings and parameter-system now]
  - no visual changing
  - no macro-system from within the game
+ - fix protocol for "using" items in the game

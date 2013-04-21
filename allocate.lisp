@@ -14,7 +14,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 (in-package :org.langband.engine)
 
-(defun allocate-monster! (dungeon player distance sleeping)
+(defmethod allocate-monster! ((variant variant) (dungeon dungeon) player distance sleeping)
   "distance is a fixnum, sleeping is either NIL or T."
 
   (let ((x nil)
@@ -33,7 +33,7 @@ the Free Software Foundation; either version 2 of the License, or
 		     (> (distance x y px py) distance))
 	    (return-from search-for-spot nil)))
     
-  (if (place-monster! dungeon player x y sleeping t)
+  (if (place-monster! variant dungeon player x y sleeping t)
       t
       nil)
   ))
@@ -50,12 +50,15 @@ the Free Software Foundation; either version 2 of the License, or
   (push mon (dungeon.monsters dun))
   t)
 
-(defun place-monster! (dungeon player x y sleeping group)
+(defmethod place-monster! ((variant variant) (dungeon dungeon) player x y sleeping group)
   "Tries to place a monster at given coordinates.."
 
   (declare (ignore group))
   
-  (let ((possible-monster (get-monster-by-level (dungeon.depth dungeon))))
+  (let* ((var-obj *variant*)
+	 (level *level*)
+	 (possible-monster (get-active-monster-by-level var-obj level
+							:depth (dungeon.depth dungeon))))
     (when possible-monster
       (place-single-monster! dungeon player possible-monster x y sleeping)))
   
@@ -100,15 +103,16 @@ the Free Software Foundation; either version 2 of the License, or
 
 
 
-(defun get-monster-kind-by-level (level)
+(defmethod get-monster-kind-by-level ((variant variant) (level level) &key depth)
   "Returns a monster-kind for the given level."
 
   ;; skipping boost
   
   (let ((total 0)
+	(depth (if (numberp depth) depth (level.depth level)))
 	(counter 0)
 	;; fix later
-	(table (%get-mkind-alloc-tbl)))
+	(table (get-mkind-alloc-table variant level)))
 
 ;;    (warn "M-Table[~a,~a] is ~a" *level* level (length table))
 
@@ -116,7 +120,7 @@ the Free Software Foundation; either version 2 of the License, or
 	  for a-obj across table
 	  do
 ;;	  (warn "Checking ~a" a-obj)
-	  (when (> (alloc.level a-obj) level)
+	  (when (> (alloc.depth a-obj) depth)
 	    (return-from counting-area nil))
 	  ;; skip chest-check
 	  (setf (alloc.prob3 a-obj) (alloc.prob2 a-obj))
@@ -125,7 +129,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 
     (when (= 0 total)
-      (lang-warn "No suitable monsters at level ~a [~a]" level *level*)
+      (lang-warn "No suitable monsters at depth ~a [~a]" depth level)
       (return-from get-monster-kind-by-level nil))
 
     (let ((val (random total)))
@@ -142,13 +146,61 @@ the Free Software Foundation; either version 2 of the License, or
   
   nil)
 
-;;(trace get-monster-kind-by-level)
 
-
-(defun get-monster-by-level (level)
+(defmethod get-active-monster-by-level ((variant variant) (level level) &key depth)
   "Returns an (active) object by level.  Returns NIL on failure."
-  (let ((the-kind (get-monster-kind-by-level level)))
-    (when the-kind
-      (create-active-monster the-kind))))
 
+  (when-bind (the-kind (get-monster-kind-by-level variant level :depth depth))
+    (produce-active-monster variant the-kind)))
+
+
+(defmethod get-object-kind-by-level ((variant variant) (level level) &key depth)
+  "Returns an object-kind for the given depth.."
+
+  ;; skipping boost
+  
+  (let ((total 0)
+	(counter 0)
+	(depth (if (numberp depth) depth (level.depth level)))
+	(table (get-okind-alloc-table variant level)))
+
+;;    (warn "O-Table[~a,~a] is ~a" *level* level (length table))
+
+    (loop named counting-area
+	  for a-obj across table
+	  do
+;;	  (warn "Checking ~a" a-obj)
+	  (when (> (alloc.depth a-obj) depth)
+	    (return-from counting-area nil))
+	  ;; skip chest-check
+	  (setf (alloc.prob3 a-obj) (alloc.prob2 a-obj))
+	  (incf total (alloc.prob3 a-obj))
+	  (incf counter))
+
+
+    (when (= 0 total)
+      (warn "No suitable objects at depth ~a [~a]" depth level)
+      (return-from get-object-kind-by-level nil))
+
+    (let ((val (random total)))
+;;      (warn "Counter is ~a and total is ~a and we got ~a" counter total val)
+
+      ;; loop through objects and find one
+      (loop for a-obj across table
+	    do
+	    (when (< val (alloc.prob3 a-obj))
+	      (return-from get-object-kind-by-level (alloc.obj a-obj)))
+	    (decf val (alloc.prob3 a-obj)))
+      
+      ))
+  
+  nil)
+
+(defmethod get-active-object-by-level ((variant variant) (level level) &key depth (amount 1))
+  "Returns an (active) object by level."
+  (when-bind (the-kind (get-object-kind-by-level variant level :depth depth))
+    (create-aobj-from-kind the-kind :variant variant :amount amount)))
+
+
+;;(trace get-monster-kind-by-level)
 ;;(trace print-map swap-monsters!)

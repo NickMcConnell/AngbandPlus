@@ -33,6 +33,7 @@ acts on the result:
   [a-z] - Checks if the value is legal, returns number if ok, returns 'BAD-VALUE if not legal
 "
   (let ((val (read-one-character)))
+    #-cmu
     (assert (characterp val))
 ;;    (warn "Got back ~a ~s ~s" val val (type-of val))
     (cond ((eql val #\Q)
@@ -135,13 +136,11 @@ BOTTOM-DISPLAY means something
       (get-a-value 0))))
 
 
-;; this file deals with character creation
 
-
-(defun create-character-basics! (the-player)
+(defmethod query-for-character-basics! ((variant variant) the-player)
   "Interactive questioning to select the basics of the character.
 Modififes the passed player object THE-PLAYER.  This is a long function."
-  
+
   (clear-the-screen!)
 
   ;; print info on process in upper right corner
@@ -172,7 +171,7 @@ Modififes the passed player object THE-PLAYER.  This is a long function."
 				(mapcar #'cadr +sexes+)
 				:ask-for "sex")))
 	 (cond ((eq inp nil)
-		(return-from create-character-basics! nil))
+		(return-from query-for-character-basics! nil))
 	       
 	       ((and (numberp inp) (<= 0 inp) (< inp alt-len))
 		(setf (player.sex the-player) (car (nth inp +sexes+)))
@@ -204,7 +203,7 @@ Modififes the passed player object THE-PLAYER.  This is a long function."
 				 )))
 	      
 	 (cond ((eq inp nil)
-		(return-from create-character-basics! nil))
+		(return-from query-for-character-basics! nil))
 	       
 	       ((and (numberp inp) (<= 0 inp) (< inp alt-len))
 		(setf (player.race the-player) (nth inp cur-races))
@@ -247,7 +246,7 @@ Modififes the passed player object THE-PLAYER.  This is a long function."
 		 (setq cur-classes tmp-classes)))
 	      (t
 	       (warn "Unknown classes ~a for race ~a" cur-classes (get-race-name the-player))
-	       (return-from create-character-basics! nil)))
+	       (return-from query-for-character-basics! nil)))
 
 	(setq class-len (length cur-classes))
 	(setq combined-classes (append cur-classes other-classes))
@@ -271,7 +270,7 @@ Modififes the passed player object THE-PLAYER.  This is a long function."
 				     )))
 	     
 	     (cond ((eq inp nil)
-		    (return-from create-character-basics! nil))
+		    (return-from query-for-character-basics! nil))
 		   
 		   ((and (numberp inp) (<= 0 inp) (< inp comb-class-len))
 		    (setf (player.class the-player) (nth inp combined-classes))
@@ -334,7 +333,7 @@ Returns the base-stats as an array or NIL if something failed."
 	    
   
 
-(defun roll-up-character! (player)
+(defmethod roll-up-character! ((variant variant) (player player))
   "Rolls up a character and modifies given PLAYER-object."
   ;; dropping auto-roller
   
@@ -347,18 +346,44 @@ Returns the base-stats as an array or NIL if something failed."
 
     ;; first level we have max
     (setf (aref (player.hp-table player) 0) hit-dice)
-    (setf (player.max-hp player) hit-dice
-	  (player.cur-hp player) hit-dice))
+    (setf (maximum-hp player) hit-dice
+	  (current-hp player) hit-dice))
 
-  (update-xp-table! player) ;; hack
-  (update-player! player)
-  (display-player player)
+  (update-xp-table! variant player) ;; hack
+  (update-player! variant player)
   
 ;;  (c-pause-line *last-console-line*)
   
   t)
 
-(defun equip-character! (player settings)
+(defun %create-obj-from-spec (variant spec)
+  "Creates an object from a spec by guessing wildly."
+  (cond ((and (consp spec) (eq (car spec) 'obj))
+	 (destructuring-bind (dummy-id &key (type nil) (id nil) (numeric-id nil) (amount 1))
+	     spec
+	   (declare (ignore dummy-id))
+	   (cond ((and type (or (symbolp type) (consp type)))
+		  (let ((objs (objs-that-satisfy type :var-obj variant)))
+		    (cond ((not objs)
+			   (warn "Did not find any objects satisfying ~s" type))
+;;			  ((typep objs 'object-kind)
+;;			   (create-aobj-from-kind objs :variant variant :amount amount))
+			  ((consp objs)
+			   (create-aobj-from-kind (rand-elm objs) :variant variant :amount amount))
+			  #-cmu
+			  (t
+			   (warn "Fell through with object-type ~s -> ~s" type objs)))))
+		 ((and id (stringp id))
+		  (create-aobj-from-id id :variant variant :amount amount))
+		 ((and numeric-id (numberp numeric-id))
+		  (create-aobj-from-kind-num numeric-id :variant variant :amount amount))
+		 (t
+		  (warn "Unable to handle obj-spec ~s" spec)))))
+	(t
+	 (warn "Don't know how to handle obj-creation from ~s" spec))))
+
+
+(defmethod equip-character! ((variant variant) player settings)
   "Equips the character with basic equipment.
 Triggers the events :ON-PRE-EQUIP and :ON-POST-EQUIP
 
@@ -384,41 +409,24 @@ player.
 	     "Adds the object to the player." 
 	     (let* ((backpack (player.inventory pl))
 		    (inventory (aobj.contains backpack))
-		    (okind (aobj.kind obj)))
+		    ;;(okind (aobj.kind obj))
+		    )
 	       ;;(warn "adding ~a to inventory ~a" obj inventory)
 	       (learn-about-object! pl obj :aware)
 	       (learn-about-object! pl obj :known) ;; know the object already
 	       (item-table-add! inventory obj)))
-	   (object-id? (arg)
-	     (keywordp arg)))
+;;	   (object-id? (arg)
+;;	     (keywordp arg))
+	   )
 
       ;; iterate over possible start-equipment
       (dolist (i start-eq)
-	(cond ((object-id? i)
-	       ;; we deal with an id
-	       (let ((obj (create-aobj-from-id i)))
-		 (if obj
-		     (add-obj-to-player! obj player)
-		     (warn "Unable to find starting-object with id ~s" i))))
-	      
-	      ;; otherwise we have something else
-	      (t
-	       ;; we have to find something that satisifies
-	       (let ((objs (objs-that-satisfy i)))
-		 ;; we only want one
-		 (if (not objs)
-		     (warn "Did not find any objects satisfying ~s" i)
-		     (let ((len (length objs))
-			   (the-obj nil))
-		       (if (> len 1)
-			   ;; we must just return one
-			   (setq the-obj (nth (random len) objs))
-			   ;; we have just one
-			   (setq the-obj (car objs)))
-		       (add-obj-to-player! (create-aobj-from-kind the-obj)
-					   player)))))
-	      ))
+	(let ((obj (%create-obj-from-spec variant i)))
+	  (if obj
+	      (add-obj-to-player! obj player)
+	      (warn "Unable to find starting-object with id ~s" i))))
       
+
       ;; hack.. give the player some gold
       (setf (player.gold player) (random 200))
 
@@ -440,6 +448,7 @@ on success.  Returns NIL on failure or user-termination (esc)."
 
     ;; wipe before we start to enter stuff
     (c-term-putstr! xpos ypos -1 +term-dark+ wipe-str)
+    (c-term-gotoxy! (+ cnt xpos) ypos)
     
     (block str-input
       (loop
@@ -477,20 +486,18 @@ on success.  Returns NIL on failure or user-termination (esc)."
 	;;      (warn "Got ~s" new-name))
   
 
-(defmethod create-character (variant)
+(defmethod interactive-creation-of-player ((variant variant))
   "Creates a character with interactive selection.
 Returns the new PLAYER object or NIL on failure."
 
-  (check-type variant variant)
-  
-  (let ((the-player (create-player-obj variant))
+  (let ((the-player (produce-player-object variant))
 	(birth-settings (get-setting :birth)))
 
    
     ;; get basics of the character
-    (let ((basics (create-character-basics! the-player)))
+    (let ((basics (query-for-character-basics! variant the-player)))
       (unless basics
-	(return-from create-character nil)))
+	(return-from interactive-creation-of-player nil)))
 
     ;; now we should have a race
     (let ((rand-name (generate-random-name variant the-player (player.race the-player))))
@@ -498,17 +505,41 @@ Returns the new PLAYER object or NIL on failure."
 	(setf (player.name the-player) rand-name)))
 
     (unless (player.name the-player)
-      (%get-name-input! the-player))
+      (setf (player.name the-player) "Foo"))
 
     
     ;;do rolling
-    (let ((rolling (roll-up-character! the-player)))
+    (let ((rolling (roll-up-character! variant the-player)))
       (unless rolling
-	(return-from create-character nil)))
+	(return-from interactive-creation-of-player nil)))
+
+
+
+    ;; ok.. ask for name and re-roll?
+
+    (block input-loop
+      (loop
+       (display-creature variant the-player)
+       (c-prt! "['c' to change name, 'r' to re-roll stats, 'Q' to quit, ESC to continue]"
+	       *last-console-line* 2)
+       (let ((val (read-one-character)))
+	 (cond ((eql val #\Q)
+		(quit-game&))
+	       ;; start over
+	       ((eql val #\S)
+		nil)
+	       ((eql val +escape+)
+		(return-from input-loop t))
+	       ((or (eql val #\c) (eql val #\C))
+		(%get-name-input! the-player))
+	       ((or (eql val #\r) (eql val #\R))
+		(roll-up-character! variant the-player))
+	       (t
+		nil)))))
 
   
     ;; time to give him some equipment
-    (equip-character! the-player birth-settings)
+    (equip-character! variant the-player birth-settings)
 
 ;;    (warn "stats are now ~s ~s" (player.base-stats the-player) (ok-object? the-player))
     ;;    (add-object-to-inventory! the-player (create-aobj-from-kind-num 118))

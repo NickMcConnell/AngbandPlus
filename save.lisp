@@ -14,20 +14,6 @@ the Free Software Foundation; either version 2 of the License, or
 
 (in-package :org.langband.engine)
 
-  
-(defclass l-readable-stream ()
-  ((the-stream :accessor lang.stream :initform nil :initarg :stream)))
-(defclass l-binary-stream ()
-  ((the-stream :accessor lang.stream :initform nil :initarg :stream)))
-
-
-(defgeneric save-object (object stream indent)
-  (:documentation "Tries to save object to the stream."))
-
-(defgeneric load-object (type stream)
-  (:documentation "Tries to load a certain type of object from the stream."))
-  
-
 (defun %bin-save-string (obj stream)
   "Tries to write a var-length string."
   (let ((len (length obj)))
@@ -62,7 +48,7 @@ the Free Software Foundation; either version 2 of the License, or
 (defun %get-indent-str (indent)
   (subseq +long-space-word+ 0 indent))
 
-(defmethod save-object ((obj variant) (stream l-readable-stream) indent)
+(defmethod save-object ((variant variant) (obj variant) (stream l-readable-stream) indent)
 
   (let ((str (lang.stream stream))
 	(ind (%get-indent-str indent)))
@@ -73,7 +59,7 @@ the Free Software Foundation; either version 2 of the License, or
 
     nil))
 
-(defmethod save-object ((obj variant) (stream l-binary-stream) indent)
+(defmethod save-object ((variant variant) (obj variant) (stream l-binary-stream) indent)
   (declare (ignore indent))
   (let ((str (lang.stream stream)))
 
@@ -84,7 +70,7 @@ the Free Software Foundation; either version 2 of the License, or
 
  
 
-(defmethod save-object ((object dungeon) (stream l-readable-stream) indent)
+(defmethod save-object ((variant variant) (object dungeon) (stream l-readable-stream) indent)
   ;;(print object stream)
 
   (let* ((width (dungeon.width object))
@@ -109,28 +95,28 @@ the Free Software Foundation; either version 2 of the License, or
       (when monsters
 	(format str "~a :monsters (list ~%" ind)
 	(dolist (i monsters)
-	  (save-object i stream (+ 2 indent)))
+	  (save-object variant i stream (+ 2 indent)))
 	(format str "~a )~%" ind)))
 
     (let ((objs (dungeon.objects object)))
       (when objs
 	(format str "~a :objects (list ~%" ind)
 	(dolist (i objs)
-	  (save-object i stream (+ 2 indent)))
+	  (save-object variant i stream (+ 2 indent)))
 	(format str "~a )~%" ind)))
 
     (let ((rooms (dungeon.rooms object)))
       (when rooms
 	(format str "~a :rooms (list ~%" ind)
 	(dolist (i rooms)
-	  (save-object i stream (+ 2 indent)))
+	  (save-object variant i stream (+ 2 indent)))
 	(format str "~a )~%" ind)))
     
     (format str "~a) ;; end dng~%" ind)
     ))
 
 
-(defmethod save-object ((object dungeon) (stream l-binary-stream) indent)
+(defmethod save-object ((variant variant) (object dungeon) (stream l-binary-stream) indent)
   (let ((str (lang.stream stream)))
 
     (write-binary 's16 str (dungeon.depth  object))
@@ -149,7 +135,7 @@ the Free Software Foundation; either version 2 of the License, or
 
       (bt:write-binary 'bt:u32 str mon-len)
       (dolist (i monsters)
-	(save-object i stream indent)))
+	(save-object variant i stream indent)))
     
     ;; write objects
     (let* ((objects (dungeon.objects object))
@@ -157,7 +143,7 @@ the Free Software Foundation; either version 2 of the License, or
       
       (bt:write-binary 'bt:u32 str obj-len)
       (dolist (i objects)
-	(save-object i stream indent)))
+	(save-object variant i stream indent)))
 
     ;; write rooms
     (let* ((rooms (dungeon.rooms object))
@@ -165,19 +151,19 @@ the Free Software Foundation; either version 2 of the License, or
       
       (bt:write-binary 'bt:u32 str room-len)
       (dolist (i rooms)
-	(save-object i stream indent)))
+	(save-object variant i stream indent)))
 
     
     ))
 
-(defmethod save-object ((object active-monster) (stream l-readable-stream) indent)
+(defmethod save-object ((variant variant) (object active-monster) (stream l-readable-stream) indent)
   (let ((str (lang.stream stream))
 	(ind (%get-indent-str indent)))
     
     (format str "~a(%filed-monster :kind ~s :cur-hp ~a :max-hp ~a :speed ~a ~%"
 	    ind (monster.id (amon.kind object))
 	    (current-hp object)
-	    (get-creature-max-hp object)
+	    (maximum-hp object)
 	    (get-creature-speed object))
     
     (format str "~a :energy ~a :mana ~a :loc-x ~a :loc-y ~a :alive? ~a) ;; end mon~%"
@@ -189,7 +175,7 @@ the Free Software Foundation; either version 2 of the License, or
     nil))
 
   
-(defmethod save-object ((object active-monster) (stream l-binary-stream) indent)
+(defmethod save-object ((variant variant) (object active-monster) (stream l-binary-stream) indent)
   (declare (ignore indent))
   
   (let ((str (lang.stream stream))
@@ -198,7 +184,7 @@ the Free Software Foundation; either version 2 of the License, or
     (assert (stringp the-kind-id))
     (%bin-save-string the-kind-id str)
     (bt:write-binary 's16 str (current-hp object))
-    (bt:write-binary 'u16 str (get-creature-max-hp object))
+    (bt:write-binary 'u16 str (maximum-hp object))
     (bt:write-binary 'u16 str (get-creature-speed object))
     (bt:write-binary 'u16 str (get-creature-energy object))
     (bt:write-binary 'u16 str (get-creature-mana object))
@@ -208,7 +194,7 @@ the Free Software Foundation; either version 2 of the License, or
 			 
     nil))
 
-(defmethod save-object ((object active-object) (stream l-readable-stream) indent)
+(defmethod save-object ((variant variant) (object active-object) (stream l-readable-stream) indent)
 
   (assert (ok-object? object))
 ;;  (warn "saving r-object ~a" object)
@@ -227,7 +213,7 @@ the Free Software Foundation; either version 2 of the License, or
     
     (format str "~a:contains~%" ind)
     (if contains
-	(save-object contains stream (+ 2 indent))
+	(save-object variant contains stream (+ 2 indent))
 	(format str "~a  nil~%" ind))
     
     (format str "~a:events ~s :loc-x ~s :loc-y ~s) ;; end obj~%"
@@ -235,7 +221,7 @@ the Free Software Foundation; either version 2 of the License, or
     
     ))
 
-(defmethod save-object ((object active-object) (stream l-binary-stream) indent)
+(defmethod save-object ((variant variant) (object active-object) (stream l-binary-stream) indent)
 
   (assert (ok-object? object))
 	
@@ -260,14 +246,14 @@ the Free Software Foundation; either version 2 of the License, or
     ;; dump out a digit if we have containment
     (bt:write-binary 'u16 str (if contains 1 0))
     (when contains
-      (save-object contains stream indent))
+      (save-object variant contains stream indent))
     
     ;; skip events
 
 
     nil))
 
-(defmethod save-object ((obj active-room) (stream l-readable-stream) indent)
+(defmethod save-object ((variant variant) (obj active-room) (stream l-readable-stream) indent)
   
   (assert (ok-object? obj))
 
@@ -280,7 +266,7 @@ the Free Software Foundation; either version 2 of the License, or
     
     nil))
 
-(defmethod save-object ((obj active-room) (stream l-binary-stream) indent)
+(defmethod save-object ((variant variant) (obj active-room) (stream l-binary-stream) indent)
   (declare (ignore indent))
   (assert (ok-object? obj))
 
@@ -295,7 +281,7 @@ the Free Software Foundation; either version 2 of the License, or
      
     nil))
 
-(defmethod save-object ((obj player) (stream l-readable-stream) indent)
+(defmethod save-object ((variant variant) (obj player) (stream l-readable-stream) indent)
   (assert (ok-object? obj))
   (let ((str (lang.stream stream))
 	(ind (%get-indent-str indent)))
@@ -324,7 +310,7 @@ the Free Software Foundation; either version 2 of the License, or
 	    (player.fraction-xp obj))
     
     (format str "~a  :cur-hp ~s :fraction-hp ~s :cur-mana ~s :fraction-mana ~s ~%"
-	    ind (player.cur-hp obj) (player.fraction-hp obj)
+	    ind (current-hp obj) (player.fraction-hp obj)
 	    (player.cur-mana obj) (player.fraction-mana obj))
 
     (format str "~a  :gold ~s :food ~s :energy ~s ~%"
@@ -332,13 +318,13 @@ the Free Software Foundation; either version 2 of the License, or
     
     
     (format str "~a  :equipment ~%" ind)
-    (save-object (player.equipment obj) stream (+ 2 indent))
+    (save-object variant (player.equipment obj) stream (+ 2 indent))
   
     (format str " ~a) ;; end player ~%" ind)
 
     nil))
 
-(defmethod save-object ((obj player) (stream l-binary-stream) indent)
+(defmethod save-object ((variant variant) (obj player) (stream l-binary-stream) indent)
   (let ((str (lang.stream stream)))
 	
     (bt:write-binary 'player str obj)
@@ -352,12 +338,12 @@ the Free Software Foundation; either version 2 of the License, or
     (%bin-write-array (player.curbase-stats obj) 'bt:u16 str)
     (%bin-write-array (player.hp-table obj) 'bt:u16 str)
 
-    (save-object (player.equipment obj) stream indent)
+    (save-object variant (player.equipment obj) stream indent)
     
     nil))
 
 
-(defmethod save-object ((obj items-worn) (stream l-binary-stream) indent)
+(defmethod save-object ((variant variant) (obj items-worn) (stream l-binary-stream) indent)
   (let ((str (lang.stream stream)))
 
     (bt:write-binary 'u16 str (items.cur-size obj))
@@ -368,11 +354,11 @@ the Free Software Foundation; either version 2 of the License, or
 				     (bt:write-binary 'u16 str 0)
 				     (progn
 				       (bt:write-binary 'u16 str 1)
-				       (save-object loc-obj stream indent)))))
+				       (save-object variant loc-obj stream indent)))))
     nil))
 
 
-(defmethod save-object ((obj items-worn) (stream l-readable-stream) indent)
+(defmethod save-object ((variant variant) (obj items-worn) (stream l-readable-stream) indent)
   
   (let ((str (lang.stream stream))
 	(ind (%get-indent-str indent)))
@@ -384,7 +370,7 @@ the Free Software Foundation; either version 2 of the License, or
 	     (declare (ignore tbl num))
 	     (if (not loc-obj)
 		 (format str " nil ")
-		 (save-object loc-obj stream (+ 2 indent)))))
+		 (save-object variant loc-obj stream (+ 2 indent)))))
       
       (item-table-iterate! obj #'save-objs))
 
@@ -393,7 +379,7 @@ the Free Software Foundation; either version 2 of the License, or
     nil))
 
 
-(defmethod save-object ((obj items-in-container) (stream l-readable-stream) indent)
+(defmethod save-object ((variant variant) (obj items-in-container) (stream l-readable-stream) indent)
   (let ((str (lang.stream stream))
 	(ind (%get-indent-str indent)))
     
@@ -404,7 +390,7 @@ the Free Software Foundation; either version 2 of the License, or
 	     (declare (ignore tbl num))
 	     (if (not loc-obj)
 		 (format str " nil ")
-		 (save-object loc-obj stream (+ 2 indent)))))
+		 (save-object variant loc-obj stream (+ 2 indent)))))
       
       (item-table-iterate! obj #'save-objs))
     
@@ -413,7 +399,7 @@ the Free Software Foundation; either version 2 of the License, or
     nil))
 
 
-(defmethod save-object ((obj items-in-container) (stream l-binary-stream) indent)
+(defmethod save-object ((variant variant) (obj items-in-container) (stream l-binary-stream) indent)
   (let ((str (lang.stream stream))
 	(cur-size (items.cur-size obj))
 	(max-size (items.max-size obj)))
@@ -425,13 +411,13 @@ the Free Software Foundation; either version 2 of the License, or
 	     (declare (ignore tbl num))
 	     (if (not loc-obj)
 		 (error "NIL in the middle of a container")
-		 (save-object loc-obj stream indent))))
+		 (save-object variant loc-obj stream indent))))
       
       (item-table-iterate! obj #'save-objs))
 				     
     nil))
 
-(defmethod save-object ((obj level) (stream l-readable-stream) indent)
+(defmethod save-object ((variant variant) (obj level) (stream l-readable-stream) indent)
   (let ((str (lang.stream stream))
 	(ind (%get-indent-str indent))
 	(the-id (string (level.id obj))))
@@ -447,19 +433,19 @@ the Free Software Foundation; either version 2 of the License, or
 
     (format str "  ~a :dungeon ~%" ind)
     
-    (save-object (level.dungeon obj) stream (+ 4 indent))
+    (save-object variant (level.dungeon obj) stream (+ 4 indent))
     
     (format str "  ~a)) ;; end lvl~%" ind)
     
     nil))
 
-(defmethod save-object ((obj level) (stream l-binary-stream) indent)
+(defmethod save-object ((variant variant) (obj level) (stream l-binary-stream) indent)
   (let ((str (lang.stream stream)))
 
     (%bin-save-string (string (level.id obj)) str)
     (bt:write-binary 'u16 str (level.rating obj))
     (bt:write-binary 'u16 str (level.depth obj))
-    (save-object (level.dungeon obj) stream indent)
+    (save-object variant (level.dungeon obj) stream indent)
     
     nil))
   
@@ -467,7 +453,7 @@ the Free Software Foundation; either version 2 of the License, or
 ;;; === Move the ones below somewhere else later ===
 
 
-(defmethod do-save ((type (eql :readable)) fname obj-list)
+(defmethod do-save ((variant variant) fname obj-list (style (eql :readable)))
   (with-open-file (s (pathname fname)
 		     :direction :output
 		     :if-exists :supersede
@@ -481,11 +467,11 @@ the Free Software Foundation; either version 2 of the License, or
       (format s "(setf *save-hanger* nil)~2%")
       (dolist (i objs)
 	(format s "(push ~%")
-	(save-object i the-lang-stream 0)
+	(save-object variant i the-lang-stream 0)
 	(format s " *save-hanger*)~2%"))
       )))
 
-(defmethod do-save ((type (eql :binary)) fname obj-list)
+(defmethod do-save ((variant variant) fname obj-list (style (eql :binary)))
 ;;  #-cormanlisp
   (bt:with-binary-file (s (pathname fname)
 			  :direction :output
@@ -499,7 +485,7 @@ the Free Software Foundation; either version 2 of the License, or
       
       ;;      (warn "saving binary with endian ~a" bt:*endian*)
       (dolist (i objs)
-	(save-object i the-lang-stream 0))
+	(save-object variant i the-lang-stream 0))
       
       )))
 
@@ -510,16 +496,17 @@ the Free Software Foundation; either version 2 of the License, or
 		     :if-does-not-exist :create)
     (print obj s)))
 
-(defmethod do-load ((type (eql :readable)) fname obj-type)
-  (declare (ignore obj-type))
+(defmethod do-load (variant fname obj-types (style (eql :readable)))
+  (declare (ignore obj-types))
   
-  (let ((*save-hanger* nil))
+  (let ((*save-hanger* nil)
+	(*variant* variant))
     (load fname)
 
     *save-hanger*))
 
 
-(defmethod do-load ((type (eql :binary)) fname obj-type-list)
+(defmethod do-load (variant fname obj-type-list (style (eql :binary)))
 ;;  #-cormanlisp
   (bt:with-binary-file (s (pathname fname)
 			  :direction :input)
@@ -529,11 +516,11 @@ the Free Software Foundation; either version 2 of the License, or
 	  (objs (if (listp obj-type-list) obj-type-list (list obj-type-list))))
 
       (loop for obj-type in objs
-	    collecting (load-object obj-type the-lang-stream))
+	    collecting (load-object variant obj-type the-lang-stream))
       )))
 
 (defun save-the-game (var-obj player level &key (fname +readable-save-file+) (format :readable))
   "Tries to save the game."
 
-  (do-save format fname (list var-obj player level))
+  (do-save var-obj format fname (list var-obj player level))
   t)

@@ -107,31 +107,34 @@ the Free Software Foundation; either version 2 of the License, or
 (defun %filed-monster (&key kind cur-hp max-hp speed energy mana loc-x loc-y alive?)
   "returns an active-monster object or nil."
   
-  (let ((the-kind (get-monster-kind kind))
-	(ret-monster nil))
-    (if (not kind)
-	(error "REPORT: Unable to find monster-kind ~s" the-kind)
-	(let ((amon (make-instance 'active-monster :kind the-kind)))
-	  (setf (current-hp amon) cur-hp
-		(get-creature-max-hp amon) max-hp
-		(get-creature-speed amon) speed
-		(get-creature-energy amon) energy
-		(get-creature-mana amon) mana
-		(location-x amon) loc-x
-		(location-y amon) loc-y
-		(creature-alive? amon) alive?)
-	  (setf ret-monster amon)))
-    ret-monster))
+  (let* ((var-obj *variant*)
+	 (ret-monster nil)
+	 (amon (produce-active-monster var-obj kind)))
+    
+    (setf (current-hp amon) cur-hp
+	  (maximum-hp amon) max-hp
+	  (get-creature-speed amon) speed
+	  (get-creature-energy amon) energy
+	  (get-creature-mana amon) mana
+	  (location-x amon) loc-x
+	  (location-y amon) loc-y
+	  (creature-alive? amon) alive?)
+    
+    amon))
+
 
 (defun %filed-object (&key kind inscr number contains events loc-x loc-y)
   "returns an active-object or nil."
-  
-  (let ((the-kind (get-obj-kind kind))
-	(ret-obj nil))
+
+  ;; FIX: simplify, and let factory deal with kind id
+  (let* ((var-obj *variant*)
+	 (the-kind (get-object-kind var-obj kind))
+	 (ret-obj nil))
+    
     (if (not kind)
 	(error "Unable to find object-kind ~s" the-kind) ;; make this a warning later
 	
-	(let ((aobj (produce-active-object *variant* the-kind)))
+	(let ((aobj (produce-active-object var-obj the-kind)))
 
 	  (setf (location-x aobj) loc-x
 		(location-y aobj) loc-y
@@ -205,9 +208,10 @@ the Free Software Foundation; either version 2 of the License, or
   "Returns a player object or nil."
   
   (let* ((var-obj *variant*)
-	 (pl-obj (create-player-obj var-obj)))
-    (setf (player.loc-x pl-obj) loc-x
-	  (player.loc-y pl-obj) loc-y
+	 (pl-obj (produce-player-object var-obj)))
+    
+    (setf (location-x pl-obj) loc-x
+	  (location-y pl-obj) loc-y
 	  (player.view-x pl-obj) view-x
 	  (player.view-y pl-obj) view-y
 	  (player.depth pl-obj) depth
@@ -216,7 +220,7 @@ the Free Software Foundation; either version 2 of the License, or
 	  (player.cur-xp pl-obj) cur-xp
 	  (player.fraction-xp pl-obj) fraction-xp
 
-	  (player.cur-hp pl-obj) cur-hp
+	  (current-hp pl-obj) cur-hp
 	  (player.fraction-hp pl-obj) fraction-hp
 	  (player.cur-mana pl-obj) cur-mana
 	  (player.fraction-mana pl-obj) fraction-mana
@@ -229,7 +233,8 @@ the Free Software Foundation; either version 2 of the License, or
 			:hp-table hp-table :equipment equipment)
     
     
-    (update-player! pl-obj)
+    (update-player! var-obj pl-obj)
+    
     pl-obj))
 
 (defun %filed-contained-items (&key cur-size max-size objs)
@@ -257,7 +262,7 @@ the Free Software Foundation; either version 2 of the License, or
     eq))
 
 
-(defmethod load-object ((type (eql :dungeon)) (stream l-binary-stream))
+(defmethod load-object ((variant variant) (type (eql :dungeon)) (stream l-binary-stream))
 
   (let* ((str (lang.stream stream))
 	 (depth (read-binary 'bt:s16 str))
@@ -276,28 +281,28 @@ the Free Software Foundation; either version 2 of the License, or
 
       (let* ((mon-len (bt:read-binary 'bt:u32 str))
 	     (monsters (loop for i from 1 to mon-len
-			     collecting (load-object :active-monster stream))))
+			     collecting (load-object variant :active-monster stream))))
 	(when monsters
 	  (setf (dungeon.monsters dungeon) monsters)
 	  (%distribute-monsters! dungeon monsters)))
 
       (let* ((obj-len (bt:read-binary 'bt:u32 str))
 	     (objs (loop for i from 1 to obj-len
-			 collecting (load-object :active-object stream))))
+			 collecting (load-object variant :active-object stream))))
 	(when objs
 	  ;;(setf (dungeon.objects dungeon) objs)
 	  (%distribute-objects! dungeon objs)))
 
       (let* ((room-len (bt:read-binary 'bt:u32 str))
 	     (objs (loop for i from 1 to room-len
-			 collecting (load-object :active-room stream))))
+			 collecting (load-object variant :active-room stream))))
 	(when objs
 	  (setf (dungeon.rooms dungeon) objs)))
 
       
       dungeon)))
 
-(defmethod load-object ((type (eql :active-monster)) (stream l-binary-stream))
+(defmethod load-object ((variant variant) (type (eql :active-monster)) (stream l-binary-stream))
 
   (let* ((str (lang.stream stream))
 	 (kind-id (%bin-read-string str)))
@@ -310,7 +315,7 @@ the Free Software Foundation; either version 2 of the License, or
 				t))
     ))
 
-(defmethod load-object ((type (eql :active-object)) (stream l-binary-stream))
+(defmethod load-object ((variant variant) (type (eql :active-object)) (stream l-binary-stream))
 
   (let* ((str (lang.stream stream))
 	 (kind-id (%bin-read-string str)))
@@ -322,7 +327,7 @@ the Free Software Foundation; either version 2 of the License, or
 		   :contains (let ((any-containment? (if (= 1 (bt:read-binary 'bt:u16 str))
 							 t nil)))
 			       (if any-containment?
-				   (load-object :items-in-container stream)
+				   (load-object variant :items-in-container stream)
 				   nil))
 				   
 		   ;; skip events
@@ -330,20 +335,17 @@ the Free Software Foundation; either version 2 of the License, or
     ))
 		   
 
-(defmethod load-object ((type (eql :active-room)) (stream l-binary-stream))
+(defmethod load-object ((variant variant) (type (eql :active-room)) (stream l-binary-stream))
   (let* ((str (lang.stream stream))
 	 (id (%bin-read-string str)))
 
     (%filed-room :type id :loc-x (bt:read-binary 'bt:u16 str)
 		 :loc-y (bt:read-binary 'bt:u16 str))))
 
-(defmethod load-object ((type (eql :player)) (stream l-binary-stream))
+(defmethod load-object ((variant variant) (type (eql :player)) (stream l-binary-stream))
   (let* ((str (lang.stream stream))
-	 (pl-obj (bt:read-binary 'player str))
-	 (var-obj *variant*))
-    
-    (init-player-obj! pl-obj var-obj)
-    
+	 (pl-obj (bt:read-binary 'player str)))
+	 
     (%filed-player-info pl-obj
 			:name (%bin-read-string str)
 			:race  (%bin-read-string str)
@@ -352,33 +354,34 @@ the Free Software Foundation; either version 2 of the License, or
 			:base-stats (%bin-read-array +stat-length+ 'bt:u16 str)
 			:curbase-stats (%bin-read-array +stat-length+ 'bt:u16 str)
 			:hp-table (%bin-read-array (variant.max-charlevel *variant*) 'bt:u16 str)
-			:equipment (load-object :items-worn stream) 
+			:equipment (load-object variant :items-worn stream) 
 			)
+    
     ;; recalculate rest
-    (update-player! pl-obj)			
+    (update-player! variant pl-obj)		
     pl-obj))
 
-(defmethod load-object ((type (eql :items-in-container)) (stream l-binary-stream))
+(defmethod load-object ((variant variant) (type (eql :items-in-container)) (stream l-binary-stream))
   (let* ((str (lang.stream stream))
 	 (cur-size (bt:read-binary 'bt:u16 str))
 	 (max-size (bt:read-binary 'bt:u16 str))
 	 (objs (loop for i from 1 to cur-size
-		     collecting (load-object :active-object stream))))
+		     collecting (load-object variant :active-object stream))))
 ;;    (lang-warn "making bin container ~s ~s ~s" cur-size max-size objs)
     (%filed-contained-items :cur-size cur-size :max-size max-size :objs objs)))
 
-(defmethod load-object ((type (eql :items-worn)) (stream l-binary-stream))
+(defmethod load-object ((variant variant) (type (eql :items-worn)) (stream l-binary-stream))
   (let* ((str (lang.stream stream))
 	 (cur-size (bt:read-binary 'bt:u16 str))
 	 (objs (loop for i from 1 to cur-size
 		     collecting
 		     (let ((is-there (bt:read-binary 'bt:u16 str)))
 		       (if (= is-there 1)
-			   (load-object :active-object stream)
+			   (load-object variant :active-object stream)
 			   nil)))))
     (%filed-worn-items :objs objs)))
 
-(defmethod load-object ((type (eql :level)) (stream l-binary-stream))
+(defmethod load-object ((variant variant) (type (eql :level)) (stream l-binary-stream))
   (let* ((str (lang.stream stream))
 	 (the-id (%bin-read-string str))
 	 (builder (get-level-builder the-id)))
@@ -388,10 +391,10 @@ the Free Software Foundation; either version 2 of the License, or
       (%filed-level :id the-id
 		    :rating (bt:read-binary 'bt:u16 str)
 		    :depth (bt:read-binary 'bt:u16 str)
-		    :dungeon (load-object :dungeon stream))
+		    :dungeon (load-object variant :dungeon stream))
       )))
 
-(defmethod load-object ((type (eql :variant)) (stream l-binary-stream))
+(defmethod load-object ((variant variant) (type (eql :variant)) (stream l-binary-stream))
   (let* ((str (lang.stream stream)))
     (%filed-variant :id (%bin-read-string str)
 		    :turn (bt:read-binary 'bt:u32 str))

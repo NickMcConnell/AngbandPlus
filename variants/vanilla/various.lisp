@@ -117,7 +117,8 @@ the Free Software Foundation; either version 2 of the License, or
        (when (< max-length (length scroll-name))
 	 (return-from van-make-scroll-name (string-right-trim '(#\Space #\Tab #\Newline) scroll-name)))))
 
-    "<failure in scr name-gen>"))
+    ;;"<failure in scr name-gen>"
+    ))
 
 	 
 
@@ -246,8 +247,11 @@ the Free Software Foundation; either version 2 of the License, or
   (int-/ (get-price object store) 4)) ;; decent value, eh?
 
 (defmethod store-generate-object ((the-store black-market))
-    (let* ((some-obj (get-obj-by-level (+ 25 (randint 25))))
-	 (o-type (when some-obj (aobj.kind some-obj))))
+    (let* ((var-obj *variant*)
+	   (level *level*)
+	   (some-obj (get-active-object-by-level var-obj level
+						 :depth (+ 25 (randint 25))))
+	   (o-type (when some-obj (aobj.kind some-obj))))
 
     (when (and some-obj (plusp (get-price some-obj the-store))
 	       (not (obj-is? o-type '<chest>))) ;; hack

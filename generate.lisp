@@ -163,18 +163,20 @@ ADD_DESC: Most of the code which deals with generation of dungeon levels.
 
   (values))
 
-(defun create-gold (dungeon)
-  (declare (ignore dungeon))
-  (let ((gold-obj (create-aobj-from-kind-num 480)))
+(defmethod create-gold ((variant variant) (dungeon dungeon))
+
+  (let ((gold-obj (create-aobj-from-kind-num 480 :variant variant)))
     (setf (aobj.number gold-obj) (+ 10 (random 100))) ;; hack
     gold-obj))
 
 (defmethod add-magic-to-item! (dungeon item quality)
+  (declare (ignore dungeon item quality))
   ;; do nothing, not magical
   )
 
 (defmethod add-magic-to-item! (dungeon (item active-object/weapon) quality)
-  (warn "checking for magic for weapon."))
+  (declare (ignore dungeon quality))
+  (warn "checking for magic for weapon ~s." item))
 	
 
 (defun apply-magic! (dungeon obj base-level &key good-p great-p (allow-artifact t))
@@ -225,36 +227,35 @@ ADD_DESC: Most of the code which deals with generation of dungeon levels.
 
 
 
-(defun create-object (dungeon good-p great-p)
+(defmethod create-object ((variant variant) (dungeon dungeon) good-p great-p)
   "Creates an object for the given dungeon-object."
   
   ;; skip good and great
   (let* ((prob-sp-object (if good-p 10 1000))
 	 (depth (dungeon.depth dungeon))
+	 (level *level*)
 	 (base-obj-depth (if good-p (+ depth 10) depth))
 	 
-	 (obj (get-obj-by-level base-obj-depth)))
+	 (obj (get-active-object-by-level variant level :depth base-obj-depth)))
 
     (apply-magic! dungeon obj depth)
-;;    (cond (good
-	   
     
     obj))
 
 
-(defun place-gold! (dungeon x y)
+(defmethod place-gold! ((variant variant) (dungeon dungeon) x y)
   (declare (type fixnum x y))
   ;; skip paranoia
-  (let ((gold (create-gold dungeon)))
+  (let ((gold (create-gold variant dungeon)))
     (when gold
       (let-floor-carry! dungeon x y gold)))
   
   (values))
 
-(defun place-object! (dungeon x y good-p great-p)
+(defmethod place-object! ((variant variant) (dungeon dungeon) x y good-p great-p)
   (declare (type fixnum x y))
  ;; skip paranoia
-  (let ((obj (create-object dungeon good-p great-p)))
+  (let ((obj (create-object variant dungeon good-p great-p)))
     (when obj
       (let-floor-carry! dungeon x y obj)))
   
@@ -270,7 +271,7 @@ ADD_DESC: Most of the code which deals with generation of dungeon levels.
     (when (>= (cave-feature dungeon x (1- y)) +feature-wall-extra+) (incf k))
     k))
 
-(defun allocate-object! (dungeon set type number)
+(defmethod allocate-object! ((variant variant) (dungeon dungeon) set type number)
   "Allocate an object.. blah."
 
   (let ((dungeon-height (dungeon.height dungeon))
@@ -301,7 +302,7 @@ ADD_DESC: Most of the code which deals with generation of dungeon levels.
 	(alloc-type-trap   (place-trap! dungeon x y))
 	;; add again later
 ;;	(alloc-type-gold   (place-gold! dungeon x y))
-	(alloc-type-object (place-object! dungeon x y nil nil))))
+	(alloc-type-object (place-object! variant dungeon x y nil nil))))
   
     (values)))
 
@@ -534,10 +535,10 @@ light argument is a boolean."
 
 
 
-(defmethod generate-level! ((level random-level) player)
+(defmethod generate-level! ((variant variant) (level random-level) player)
   "Generates a dungeon level and returns it.  If the optional dungeon
 argument is passed it will be used as new dungeon and returned."
- 
+
   (let* ((*level* level)
 	 (settings (get-setting :random-level))
 	 (dungeon-height (slot-value settings 'max-height))
@@ -669,17 +670,17 @@ argument is passed it will be used as new dungeon and returned."
       (setq monster-amount (+ monster-amount 14 (random 8)))
 
       (dotimes (i monster-amount)
-	(allocate-monster! dungeon player 0 t)))
+	(allocate-monster! variant dungeon player 0 t)))
 
     
     (new-player-spot! dungeon player)
 
     
     ;; in rooms
-    (allocate-object! dungeon 'alloc-set-room 'alloc-type-object 9)
+    (allocate-object! variant dungeon 'alloc-set-room 'alloc-type-object 9)
 	
-    (allocate-object! dungeon 'alloc-set-both 'alloc-type-gold 4)
-    (allocate-object! dungeon 'alloc-set-both 'alloc-type-object 4)
+    (allocate-object! variant dungeon 'alloc-set-both 'alloc-type-gold 4)
+    (allocate-object! variant dungeon 'alloc-set-both 'alloc-type-object 4)
     ;;    (fill-dungeon-part-with-feature dungeon +feature-floor+
     ;;				    (cons (1+ +screen-width+)  (+ +screen-width+ qx -1))
     ;;				    (cons (1+ +screen-height+) (+ +screen-height+ qy -1)))

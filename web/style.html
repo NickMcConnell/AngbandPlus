@@ -74,7 +74,7 @@
 	create side-effects on their arguments. </li>
       
       <li> Variant-code should use their own special prefix for
-	functions, variables, etc.  As an example, all vanilla functions
+	internal functions, variables, etc.  As an example, all vanilla functions
 	and variables use the <code>VAN-</code> prefix.  Loading
 	variant-code is also allowed to induce side-effects, ie
 	registering the variant in appropriate places.</li>
@@ -84,8 +84,16 @@
 	Loading lib/common might also have side-effects.</li>
       
       <li>Identifiers should preferrably be lowercase strings.</li>
+
+      <li>Functions which need interactive input might want to have a
+      <code>QUERY-</code> prefix. </li>
+
+      <li>Factory-methods, with no side-effects (except maybe caching)
+      and which require no interactivity, should use the
+      <code>PRODUCE-</code> prefix.  Factory-methods should when
+      possible depend on at least the variant, to be able to control
+      it. </li>
       
-	
     </ul>
     </p>
 

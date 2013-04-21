@@ -149,8 +149,8 @@ ADD_DESC: Various code which just prints stuff somewhere
 (defun print-hit-points (pl setting)
   "Prints hit-points info to left frame."
   
-  (let ((cur-hp (player.cur-hp pl))
-	(max-hp (player.max-hp pl))
+  (let ((cur-hp (current-hp pl))
+	(max-hp (maximum-hp pl))
 	(cur-set (slot-value setting 'cur-hp))
 	(max-set (slot-value setting 'max-hp)))
     
@@ -257,7 +257,7 @@ ADD_DESC: Various code which just prints stuff somewhere
     )) 
 
 
-(defun display-player (player &optional mode)
+(defmethod display-creature ((variant variant) (player player) &key mode)
 
   (declare (ignore mode))
   
@@ -283,8 +283,8 @@ ADD_DESC: Various code which just prints stuff somewhere
       (print-info "Class"  (get-class-name player) 5)
       (print-info "Title" title 6)
       
-      (print-info "HP" (format nil "~d/~d" (player.cur-hp player)
-			       (player.max-hp player))
+      (print-info "HP" (format nil "~d/~d" (current-hp player)
+			       (maximum-hp player))
 		  7)
       
       (print-info "MP" (format nil "~d/~d" (player.cur-mana player)

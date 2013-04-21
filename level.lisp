@@ -31,59 +31,28 @@ the Free Software Foundation; either version 2 of the License, or
   ((id :initform 'themed-level)))
      
 
-(defgeneric generate-level! (level player)
-  (:documentation "Returns the level-object."))
-  
-(defgeneric create-appropriate-level (variant old-level player depth)
-  (:documentation "Returns an appropriate level for the given
-variant and player."))
-  
-(defgeneric level-ready? (level)
-  (:documentation "Returns T if the level is ready for use, returns NIL otherwise."))
-  
-(defgeneric get-otype-table (level var-obj)
-  (:documentation "hack, may be updated later."))
-  
-(defgeneric get-mtype-table (level var-obj)
-  (:documentation "hack, may be updated later."))
-
-(defgeneric find-appropriate-monster (level room player)
-  (:documentation "Returns an appropriate monster for a given
-level/room/player combo.  Allowed to return NIL."))
-
-;; move to better place later
-(defgeneric print-depth (level setting)
-  (:documentation "fix me later.. currently just prints depth."))
-
-
-(defgeneric register-level! (var-obj level-key &key object-filter monster-filter &allow-other-keys)
-  (:documentation "Registers a level-key in the variant as a later place-hanger for code."))
-
 
 (defmethod find-appropriate-monster (level room player)
-  (declare (ignore room player))
-  (error "No proper FIND-APPROPRIATE-MONSTER for ~s" (type-of level)))
+  (declare (ignore player))
+  (error "No (FIND-APPROPRIATE-MONSTER ~s ~s player)" (type-of level) (type-of room)))
  
-(defmethod generate-level! (level player)
-  (declare (ignore level player))
-  (warn "The basic GENERATE-LEVEL is not implemented, please pass
-a proper LEVEL object.")
+(defmethod generate-level! (variant level player)
+  (declare (ignore player))
+  (error "(GENERATE-LEVEL ~s ~s player) is not implemented." (type-of variant) (type-of level))
   nil)
 
-;; see generate.lisp and variants
 
-
+;;; see generics.lisp for generics.
 
 (defmethod create-appropriate-level (variant old-level player depth)
-  (declare (ignore old-level player depth))
-  (error "CREATE-APPROPRIATE-LEVEL not implemented for variant ~a"
-	 (type-of variant)))
+  (declare (ignore player))
+  (error "(CREATE-APPROPRIATE-LEVEL ~s ~s player ~s) not implemented." 
+	 (type-of variant) (type-of old-level) depth))
 
 
 
 (defmethod level-ready? (level)
-  (declare (ignore level))
-  (error "pass a proper level to LEVEL-READY?"))
+  (error "(LEVEL-READY? ~s) not implemented." (type-of level)))
 
 
 ;;; random levels (see also generate.lisp)
@@ -141,20 +110,18 @@ a proper LEVEL object.")
 
 
 
-(defmethod get-otype-table ((level level) var-obj)
+(defmethod get-otype-table ((var-obj variant) (level level))
   (%get-var-table var-obj level 'objects))
 
-(defmethod get-otype-table ((level (eql 'level)) var-obj)
+(defmethod get-otype-table ((var-obj variant) (level (eql 'level)))
   (%get-var-table var-obj level 'objects))
 
 
 
-(defmethod get-mtype-table ((level level) var-obj)
-  (declare (ignore var-obj))
+(defmethod get-mtype-table ((var-obj variant) (level level))
+;;  (declare (ignore var-obj))
   (error "WRONG MTYPE"))
 
-(defmethod get-mtype-table ((level (eql 'level)) var-obj)
-  (declare (ignore var-obj))
+(defmethod get-mtype-table ((var-obj variant) (level (eql 'level)))
+;;  (declare (ignore var-obj))
   (error "WRONG MTYPE"))
-
-

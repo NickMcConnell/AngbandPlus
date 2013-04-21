@@ -261,7 +261,7 @@ car is start and cdr is the non-included end  (ie [start, end> )"
 	 (mon (cave-monsters dungeon x y))
 	 (feat (cave-feature dungeon x y))
 	 (flags (cave-flags dungeon x y))
-	 (obj (cave-objects dungeon x y))
+	 (obj-table (cave-objects dungeon x y))
 	 (f-obj nil)
 	 (ret-attr +term-white+)
 	 (ret-char #\X)
@@ -319,30 +319,37 @@ car is start and cdr is the non-included end  (ie [start, end> )"
 
     ;; let's see if any objects are on top
 
-    (when (and obj
-	       (typep obj 'item-table)
-	       (or (bit-flag-set? flags +cave-seen+)
-		   (bit-flag-set? flags +cave-view+)))
-      ;; do we have objects..
-      (if (> (items.cur-size obj) 1)
-	  ;; pile symbol
-	  (setf ret-attr +term-white+
-		ret-char #\&)
-	  ;; single object
-	  (let* ((kind (aobj.kind (item-table-find obj 0)))
-		 (flavour (object.flavour kind)))
-	    ;;(warn "Object ~s of kind ~s has flavour ~s" obj kind flavour)
-	    ;;(warn "-> (~s,~s) / (~s,~s)"
-		;;  (if flavour (cadr flavour) nil) (object.x-char kind)
-		;;  (object.x-attr kind) (object.x-char kind) )
-	    ;;(setq name-return t)
-	    (if flavour
-		(setf ret-attr (cadr flavour)
-		      ret-char (object.x-char kind))
-		(setf ret-attr (object.x-attr kind)
-		      ret-char (object.x-char kind)))
-	    )))
+    (when (and obj-table (typep obj-table 'item-table))
+
+      (let (;;(objs (items.objs obj-table))
+	    (obj-len (items.cur-size obj-table))
+	    (first-obj (item-table-find obj-table 0)))
+
+	(cond ((and (> obj-len 1) (aobj.marked first-obj))
+	       ;; pile symbol
+	       (setf ret-attr +term-white+
+		     ret-char #\&))
+	      ((aobj.marked first-obj)
+	       ;; single object
+	       (let* ((kind (aobj.kind first-obj))
+		      (flavour (object.flavour kind)))
+		 ;;(warn "Object ~s of kind ~s has flavour ~s" obj kind flavour)
+		 ;;(warn "-> (~s,~s) / (~s,~s)"
+		 ;;  (if flavour (cadr flavour) nil) (object.x-char kind)
+		 ;;  (object.x-attr kind) (object.x-char kind) )
+		 ;;(setq name-return t)
+		 (if flavour
+		     (setf ret-attr (cadr flavour)
+			   ret-char (object.x-char kind))
+		     (setf ret-attr (object.x-attr kind)
+			   ret-char (object.x-char kind)))
+		 ))
+	      (t
+	       ))
+	))
     
+    
+	  
 ;;    (when name-return
 ;;      (warn "Returns (~s,~s)" ret-attr ret-char))
 
@@ -561,7 +568,9 @@ car is start and cdr is the non-included end  (ie [start, end> )"
     ;; require it to be seen
     (when (bit-flag-set? flag +cave-seen+)
 
-      ;; skip obj
+      (when-bind (objs (cave-objects dungeon x y))
+	(dolist (i (items.objs objs))
+	  (setf (aobj.marked i) t)))
       
       (unless (bit-flag-set? flag +cave-mark+)
 	(let ((feat (coord.feature coord)))
@@ -572,13 +581,16 @@ car is start and cdr is the non-included end  (ie [start, end> )"
   
       )))
 
-(defun light-spot! (dungeon x y)
-  "lighting up the spot.."
+(defun print-relative! (dungeon x y the-char the-attr)
+  "Prints the-char and the-attr at relative coordinates, on the map."
+  (declare (optimize (safety 0) (speed 3) (debug 0)
+		     #+cmu (ext:inhibit-warnings 3)))
 
   (declare (type fixnum x y))
   
-  (let* ((pvx (player.view-x *player*))
-	 (pvy (player.view-y *player*))
+  (let* ((pl *player*)
+	 (pvx (player.view-x pl))
+	 (pvy (player.view-y pl))
 	 (kx (- x pvx))
 	 (ky (- y pvy)))
 
@@ -595,13 +607,17 @@ car is start and cdr is the non-included end  (ie [start, end> )"
 	       (< ky +screen-height+)
 	       (< kx +screen-width+))
 
-      (multiple-value-bind (the-attr the-char)
-	  (map-info dungeon x y)
-	(%loc-queue-cons (+ +start-column-of-map+ kx)
-			 (+ +start-row-of-map+ ky)
-			 the-attr the-char)))
+      (%loc-queue-cons (+ +start-column-of-map+ kx)
+		       (+ +start-row-of-map+ ky)
+		       the-attr the-char))))
 
-    ))
+
+(defun light-spot! (dungeon x y)
+  "lighting up the spot.."
+  (declare (type fixnum x y))
+  (multiple-value-bind (the-attr the-char)
+	  (map-info dungeon x y)
+    (print-relative! dungeon x y the-char the-attr)))
 
 
 (defun print-map-as-ppm (dungeon fname)

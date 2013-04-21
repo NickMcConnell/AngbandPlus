@@ -358,7 +358,11 @@ and NIL if unsuccesful."
 	    summing (randint dice))
       0))
 
-;;(trace roll-dice)
+(defun parse-and-roll-dice (str)
+  "Parses and rolls the dice-str."
+  (let ((nums (parse-dice str)))
+    (roll-dice (car nums) (cdr nums))))
+
 
 (defmacro bit-flag-add! (loc &rest flags)
   "Same as 'loc |= flags', and uses LOGIOR."

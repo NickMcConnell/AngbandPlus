@@ -66,7 +66,7 @@ the Free Software Foundation; either version 2 of the License, or
     #'(lambda (dun pl)
 	(declare (ignore dun))
 	(with-new-screen ()
-	  (display-player pl)
+	  (display-creature *variant* pl)
 	  (c-pause-line! *last-console-line*))))
 
 (define-key-operation 'go-downstairs
@@ -209,9 +209,17 @@ the Free Software Foundation; either version 2 of the License, or
     #'(lambda (dun pl)
 	(declare (ignore dun pl))
 	(dump-features "dumps/feat.list")
-	(dump-monsters "dumps/mon.list" (get-all-monsters))
+	(dump-monsters "dumps/mon.list" :monster-list (get-all-monsters))
 	(dump-objects "dumps/obj.list")
 	))
+
+(define-key-operation 'fire-something
+    #'(lambda (dun pl)
+	(temp-shoot-an-arrow dun pl)))
+
+(define-key-operation 'projecteur
+    #'(lambda (dun pl)
+	(project-hack dun pl)))
 
 (define-key-operation 'break-game
     #'(lambda (dun pl)
@@ -220,6 +228,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 (define-keypress *ang-keys* :global #\d 'drop-item)
 (define-keypress *ang-keys* :global #\e 'show-equipment)
+(define-keypress *ang-keys* :global #\f 'fire-something) ;; hackish still
 (define-keypress *ang-keys* :global #\g 'get-item)
 (define-keypress *ang-keys* :global #\i 'show-inventory)
 (define-keypress *ang-keys* :global #\m 'invoke-spell)
@@ -248,6 +257,8 @@ the Free Software Foundation; either version 2 of the License, or
 (define-keypress *ang-keys* :global #\A 'print-mapper)
 (define-keypress *ang-keys* :global #\F 'wamp-monsters)
 (define-keypress *ang-keys* :global #\B 'break-game)
+(define-keypress *ang-keys* :global #\Y 'projecteur)
+
 
 (define-keypress *ang-keys* :global #\. 'stand-still)
 (define-keypress *ang-keys* :global #\1 'move-down-left)

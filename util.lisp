@@ -20,9 +20,9 @@ ADD_DESC: classes and must be loaded late.
 (in-package :org.langband.engine)
 
     
-(defun select-item (dungeon player allow-from
-		    &key prompt (where :backpack)
-		    selection-function)
+(defmethod select-item ((dungeon dungeon) (player player) allow-from
+			&key prompt (where :backpack)
+			selection-function)
   "Selects and returns a CONS (where . which) when succesful or
 NIL.  Where is a keyword :floor, :backpack or :equip and which is either
 a number or a symbol identifying the place."
@@ -102,22 +102,34 @@ a number or a symbol identifying the place."
     
     nil))
 
-;;(trace select-item :encapsulate t)
+(defun grab-a-selection-item (dungeon player  allow-from
+			     &key prompt (where :backpack)
+			     selection-function)
+  "Wrapper for select-item which just gets and returns the 'removed' object, or NIL."
+  (when-bind (selection (select-item dungeon player allow-from
+				     :prompt prompt
+				     :where where
+				     :selection-function selection-function))
 
-(defun get-item-table (dungeon player which-table)
+    (item-table-remove! (get-item-table dungeon player (car selection))
+			(cdr selection) :only-single-items t)))
+
+
+(defmethod get-item-table ((dungeon dungeon) (player player) which-table &key x y)
   "Returns item-table or NIL."
   
   (ecase which-table
     (:floor
-     (let* ((px (location-x player))
-	    (py (location-y player))
-	    (cur-objs (cave-objects dungeon px py)))
+     (let* ((the-x (if x x (location-x player)))
+	    (the-y (if y y (location-y player)))
+	    (cur-objs (cave-objects dungeon the-x the-y)))
        (unless cur-objs
-	 (setf cur-objs (make-floor-container dungeon px py))
-	 (setf (cave-objects dungeon px py) cur-objs))
+	 (setf cur-objs (make-floor-container dungeon the-x the-y))
+	 (setf (cave-objects dungeon the-x the-y) cur-objs))
        cur-objs))
     (:backpack (aobj.contains (player.inventory player)))
     (:equip (player.eq player))))
+
 
 
 ;;; === Equipment-implementation for floors ===
@@ -333,3 +345,5 @@ a number or a symbol identifying the place."
       (possibly-add :slays (gval.slays object))
 
       the-form)))
+
+;;(trace select-item :encapsulate t)

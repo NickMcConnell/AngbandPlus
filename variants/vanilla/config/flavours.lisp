@@ -115,8 +115,8 @@ Contains all flavouring relevant to the Vanilla variant
 
 ;; the wand flavours
 
-(define-basic-flavour '<wand> "aluminum" +term-l-blue+)
-(define-basic-flavour '<wand> "aluminum-plated" +term-l-blue+)
+(define-basic-flavour '<wand> "aluminium" +term-l-blue+)
+(define-basic-flavour '<wand> "aluminium-plated" +term-l-blue+)
 (define-basic-flavour '<wand> "brass" +term-l-umber+)
 (define-basic-flavour '<wand> "bronze" +term-l-umber+)
 (define-basic-flavour '<wand> "cast iron" +term-l-dark+)

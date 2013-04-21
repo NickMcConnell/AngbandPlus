@@ -114,7 +114,7 @@ is all about?")
      
      ))
 
-(defmacro def-obj-type (name &key is key)
+(defmacro def-obj-type (name &key is key kind-slots aobj-slots)
   "Creates necessary objects and registers them."
   (let* ((ok-name (concat-pnames 'object-kind/ name))
 	 (act-name (concat-pnames 'active-object/ name))
@@ -123,8 +123,8 @@ is all about?")
 	 (reg-call (when key `(setf (gethash ',key *obj-type-mappings*) (cons ',ok-name ',act-name)))))
     
     (let ((retval `(progn
-		    (defclass ,ok-name (,ok-par-name) ())
-		    (defclass ,act-name (,act-par-name) ())
+		    (defclass ,ok-name (,ok-par-name) ,kind-slots)
+		    (defclass ,act-name (,act-par-name) ,aobj-slots)
 		    ,reg-call)))
       
 ;;      (warn "Ret: ~s" retval)
@@ -134,7 +134,8 @@ is all about?")
 
 (def-obj-type weapon :key <weapon>)
 (def-obj-type missile-weapon :is weapon)
-(def-obj-type bow :is missile-weapon :key <bow>)
+(def-obj-type bow :is missile-weapon :key <bow>
+	      :kind-slots ((multiplier :accessor object.multiplier :initform 1 :initarg :multiplier)))
 (def-obj-type digger :is weapon :key <digger>)
 
 (def-obj-type armour)
@@ -207,42 +208,26 @@ is all about?")
 	(cadr flavour)
 	(object.x-attr kind))))
 
-
-
-(defun get-okind-table (&optional (var-obj *variant*))
-  (check-type var-obj variant)
-  (check-type *level* level)
+(defmethod get-okind-table ((var-obj variant) (level level))
   
-  (let* ((o-table (get-otype-table *level* var-obj))
+  (let* ((o-table (get-otype-table var-obj level))
 	 (table (gobj-table.obj-table o-table)))
     table))
 
-(defun %get-okind-alloc-tbl ()
-  (let* ((o-table (get-otype-table *level* *variant*))
+(defmethod get-okind-alloc-table ((var-obj variant) (level level))
+  
+  (let* ((o-table (get-otype-table var-obj level))
 	 (table (gobj-table.alloc-table o-table)))
     table))
 
-(defun get-obj-kind (id)
-  "Returns the obj-kind for the given id."
+(defmethod get-object-kind ((variant variant) id)
+  "Returns the object-kind for the given id."
   (assert (or (stringp id) (symbolp id)))
-  (let ((table (get-okind-table))
+  
+  (let ((table (get-okind-table variant *level*))
 	(key (if (symbolp id) (symbol-name id) id)))
     (gethash key table)))
 
-#||
-(defun (setf get-obj-kind) (obj id)
-  ;;  (warn "Adding ~a" obj)
-  "Adds the obj to the obj-kind table identified by given id."
-  (error "do not use me")
-  (let ((table (get-okind-table)))
-    (setf (gethash id table) obj)) )
-||#
-
-(defun add-new-okind! (obj id)
-  ""
-  (declare (ignore id))
-;;  (warn "Adding obj with id ~s" id)
-  (apply-filters-on-obj :objects *variant* obj))
 
 (defmethod object.name ((obj active-object))
   (object.name (aobj.kind obj)))
@@ -257,6 +242,12 @@ is all about?")
     (if gvals
 	gvals
 	(object.game-values (aobj.kind obj)))))
+
+(defmethod object.x-attr ((obj active-object))
+  (object.x-attr (aobj.kind obj)))
+
+(defmethod object.x-char ((obj active-object))
+  (object.x-char (aobj.kind obj)))
 
 (defun obj-is? (obj type-to-check)
   "Checks if given object satisfies given type"
@@ -273,13 +264,13 @@ and NIL if unsuccesful."
       (return-from obj-is-in? x)))
   nil)
 
-(defun objs-that-satisfy (demand)
+(defun objs-that-satisfy (demand &key (var-obj *variant*) (level *level*))
   "Returns a list of objects that satisfies the list of demands.
 Returns NIL on failure."
   
   (let ((retval nil)
 	(demand-list (if (listp demand) demand (list demand)))
-	(table (get-okind-table)))
+	(table (get-okind-table var-obj level)))
 
     (loop for x being the hash-values of table
 	  do
@@ -292,24 +283,37 @@ Returns NIL on failure."
 	      (push x retval))))
     retval))
 
-(defun create-aobj-from-id (id &optional (amount 1))
+(defun create-aobj-from-id (id &key (amount 1) (variant *variant*))
   "Creates an active object from object-kind identified by id.
-Amount specifies how many objects the active-object is, e.g for arrows."
-  (let ((kind (get-obj-kind id))) ;; fix later
+Amount specifies how many objects the active-object is, e.g for arrows.
+Uses *VARIANT*."
+  (let* ((kind (get-object-kind variant id))) ;; fix later
     (unless kind
       (return-from create-aobj-from-id nil))
-    (create-aobj-from-kind kind amount)))
+    (create-aobj-from-kind kind :amount amount :variant variant)))
 
 
-(defun create-aobj-from-kind-num (num &optional (amount 1))
+(defun create-aobj-from-kind-num (num &key (amount 1) (variant *variant*))
   "This is a hackish function which is backward compatible
 with k-info.txt numbers. NUM is the numeric id."
-  (create-aobj-from-id num amount))
+  (create-aobj-from-id num :amount amount :variant variant))
 
-(defun create-aobj-from-kind (kind &optional (amount 1))
-  "Creates an aobj from a given kind."
-  (let ((obj (produce-active-object *variant* kind)))
-    (setf (aobj.number obj) amount)
+(defun create-aobj-from-kind (kind &key (amount 1) (variant *variant*))
+  "Creates an aobj from a given kind.  Uses *VARIANT*."
+  (let ((obj (produce-active-object variant kind)))
+    ;; assume dice
+    (setf (aobj.number obj)
+	  (cond ((and (stringp amount) (position #\d amount))
+		 (parse-and-roll-dice amount))
+		((stringp amount)
+		 (parse-integer amount))
+		((and (numberp amount) (plusp amount))
+		 amount)
+		(t
+		 (warn "Invalid amount ~s for object ~s, assuming 1 instead."
+		       amount (object.name kind))
+		 1)))
+	
     (trigger-event obj :on-create (list nil nil))
     (activate-object obj)
     obj))
@@ -323,54 +327,6 @@ with k-info.txt numbers. NUM is the numeric id."
   "trigger events registered for the kind."
   (apply-event event (object.events obj) arg-list))
   
-
-(defun get-obj-kind-by-level (level)
-  "Returns an object-kind for the given level.."
-
-  ;; skipping boost
-  
-  (let ((total 0)
-	(counter 0)
-	(table (%get-okind-alloc-tbl)))
-
-;;    (warn "O-Table[~a,~a] is ~a" *level* level (length table))
-
-    (loop named counting-area
-	  for a-obj across table
-	  do
-;;	  (warn "Checking ~a" a-obj)
-	  (when (> (alloc.level a-obj) level)
-	    (return-from counting-area nil))
-	  ;; skip chest-check
-	  (setf (alloc.prob3 a-obj) (alloc.prob2 a-obj))
-	  (incf total (alloc.prob3 a-obj))
-	  (incf counter))
-
-
-    (when (= 0 total)
-      (warn "No suitable objects at level ~a [~a]" level  *level*)
-      (return-from get-obj-kind-by-level nil))
-
-    (let ((val (random total)))
-;;      (warn "Counter is ~a and total is ~a and we got ~a" counter total val)
-
-      ;; loop through objects and find one
-      (loop for a-obj across table
-	    do
-	    (when (< val (alloc.prob3 a-obj))
-	      (return-from get-obj-kind-by-level (alloc.obj a-obj)))
-	    (decf val (alloc.prob3 a-obj)))
-      
-      ))
-  
-  nil)
-
-(defun get-obj-by-level (level)
-  "Returns an (active) object by level."
-  (let ((the-kind (get-obj-kind-by-level level)))
-    (if (not the-kind)
-	nil
-	(create-aobj-from-kind the-kind))))
 
 (defun write-pluralised-string (stream plural-string number &key (flavour nil) (ident nil) (actual-name nil))
   (declare (type u-16b number)
@@ -410,7 +366,7 @@ with k-info.txt numbers. NUM is the numeric id."
     (write-pluralised-string s name number :flavour flavour :ident ident :actual-name actual-name)))
 
 
-(defmethod write-obj-description ((obj active-object) stream &key (store nil))
+(defmethod write-obj-description ((variant variant) (obj active-object) stream &key (store nil))
   
   (let* ((o-type (aobj.kind obj))
 	 (name (object.name obj))
@@ -452,12 +408,12 @@ with k-info.txt numbers. NUM is the numeric id."
 
     ))
 
-(defmethod write-obj-description ((obj active-object/book) stream &key store)
+(defmethod write-obj-description ((variant variant) (obj active-object/book) stream &key store)
   (let ((known-type (or store (object.aware (aobj.kind obj)))))
     (write-pluralised-string stream "& ritual-book~ @" (aobj.number obj)
 			     :ident known-type :actual-name (object.name obj))))
   
-(defmethod write-obj-description ((obj active-object/weapon) stream &key store)
+(defmethod write-obj-description ((variant variant) (obj active-object/weapon) stream &key store)
   "this one should be moved out into the variant directories.  it conses"
   (let* ((o-type (aobj.kind obj))
 	 (number (aobj.number obj))
@@ -496,9 +452,9 @@ with k-info.txt numbers. NUM is the numeric id."
 	20) ;; just a default
     ))
 
-(defun get-object-list (&optional (var-obj *variant*))
+(defun get-object-list (&key (var-obj *variant*) (level *level*))
   "returns a fresh list.  Remove me!"
-  (let ((table (get-okind-table var-obj)))
+  (let ((table (get-okind-table var-obj level)))
     (stable-sort (loop for v being each hash-value of table
 		       collecting v)
 		 #'<
@@ -509,12 +465,15 @@ with k-info.txt numbers. NUM is the numeric id."
 (defun define-object-kind (id name
 			   &key numeric-id x-attr x-char level rarity
 			   chance locale weight cost obj-type sort-value
-			   events game-values flags flavour desc the-kind)
-  "creates and establishes an object corresponding to parameters"
+			   events game-values flags flavour desc the-kind
+			   multiplier)
+  "creates and establishes an object corresponding to parameters.  It uses
+the *VARIANT* object so it has to be properly initialised."
 
   (declare (ignore flavour desc))
-  (let ((new-obj (produce-object-kind *variant* id name obj-type :the-kind the-kind))
-	(key (if (symbolp id) (symbol-name id) id)))
+  (let* ((var-obj *variant*)
+	 (new-obj (produce-object-kind var-obj id name obj-type :the-kind the-kind))
+	 (key (if (symbolp id) (symbol-name id) id)))
     
     (when flags
       (when (find '<easy-know> flags)
@@ -541,10 +500,14 @@ with k-info.txt numbers. NUM is the numeric id."
 					  0) ;; hack
 	  (object.events new-obj) (get-legal-events events)
 	  (object.game-values new-obj) game-values)
+
+    ;; hack, move away later
+    (when (and multiplier (numberp multiplier) (typep new-obj 'object-kind/bow))
+      (setf (object.multiplier new-obj) multiplier))
+
     
-    (add-new-okind! new-obj id)
-    ;;    (apply-filters-on-obj :objects *variant* new-obj)
-    ;;    (setf (get-obj-kind id) new-obj)
+    ;; apply object-filters on the new object.
+    (apply-filters-on-obj :objects var-obj new-obj)
     
     new-obj))
 
@@ -602,14 +565,13 @@ with k-info.txt numbers. NUM is the numeric id."
 	(terpri ffile))
       (terpri ffile))))
 
-(defmethod produce-active-object (variant okind)
+(defmethod produce-active-object ((variant variant) (okind object-kind))
   "Returns an active-object based on the given okind."
-  (declare (ignore variant))
-  (check-type okind object-kind)
+
   
   (let* ((wanted-kind (object.the-kind okind))
 	 (mapping (when wanted-kind (gethash wanted-kind *obj-type-mappings*)))
-	 (gvals (when (object.game-values okind) (copy-game-values (object.game-values okind))))
+	 (gvals (when (object.game-values okind) (copy-game-values variant (object.game-values okind))))
 	 )
     (cond ((and mapping (consp mapping))
 	   (make-instance (cdr mapping) :obj okind :game-values gvals))
@@ -618,9 +580,9 @@ with k-info.txt numbers. NUM is the numeric id."
 
 
 
-(defmethod produce-object-kind (variant id name obj-type &key the-kind)
+(defmethod produce-object-kind ((variant variant) id name obj-type &key the-kind)
   "Produces a suitable object of type object-kind"
-  (declare (ignore variant))
+
   (assert (or (stringp id) (symbolp id)))
   (assert (or (symbolp obj-type)
 	      (and (consp obj-type)
@@ -654,11 +616,6 @@ with k-info.txt numbers. NUM is the numeric id."
 (defmethod print-object ((inst active-object) stream)
   (print-unreadable-object
    (inst stream :identity t)
-   (format stream "~:(~S~) [~S (~a,~a)]" (class-name (class-of inst)) 
-	   (aobj.kind inst) (location-x inst) (location-y inst))
+   (format stream "~:(~S~) [~a ~S (~a,~a)]" (class-name (class-of inst)) 
+	   (aobj.number inst) (aobj.kind inst) (location-x inst) (location-y inst))
   inst))
-
-;;(trace description)
- 
-;;(trace produce-object-kind)
-;;(trace get-obj-kind-by-level)

@@ -25,37 +25,8 @@ the Free Software Foundation; either version 2 of the License, or
   (let ((decoded-vals (cl:decode-universal-time univ-time)))
     (format nil "~a" decoded-vals)))
 
-(eval-when (:compile-toplevel :load-toplevel :execute)
-  (bt:define-binary-struct (hs-entry (:conc-name hs-entry.)) ()
-    
-    (version nil) ;; string
-    (variant nil) ;; string
-    
-    (name nil)    ;; string
-    (race nil)    ;; string-id
-    (class nil)   ;; string-id
-    (sex nil)     ;; string
-    (cause-of-death nil) ;; string
-    
-    ;; directly savable
-    (xp          0 :bt bt:u32)
-    (max-xp      0 :bt bt:u32)
-    (level       0 :bt bt:u16)
-    (depth       0 :bt bt:u16)
-    (max-depth   0 :bt bt:u16)
-    (turn        0 :bt bt:u32)
-    (gold        0 :bt bt:u32)
-    (score       0 :bt bt:u32)  
-    
-    (date        0 :bt u64) ;; time of death
-    )
-)
-
-(defmethod make-high-score (variant player)
+(defmethod produce-high-score-object ((variant variant) (player player))
   "Returns a high-score entry for the player."
-
-  (check-type variant variant)
-  (check-type player player)
 
   (flet ((to-string (arg)
 	   (string-downcase (string arg))))
@@ -88,25 +59,28 @@ the Free Software Foundation; either version 2 of the License, or
        (hs-entry.date hs) (cl:get-universal-time))
       hs)))
 
-(defun save-hs-entry (hs stream)
+(defmethod save-object ((variant variant) (hs hs-entry) (str l-binary-stream) indent)
   "Saves the given high-score entry to the given stream."
-  (check-type hs hs-entry)
-  (check-type stream stream)
+  (declare (ignore indent))
+
+  (let ((stream (lang.stream str)))
+    (check-type stream stream)
   
-  (bt:write-binary 'hs-entry stream hs)
-  (%bin-save-string (hs-entry.version hs) stream)
-  (%bin-save-string (hs-entry.variant hs) stream)
+    (bt:write-binary 'hs-entry stream hs)
+    (%bin-save-string (hs-entry.version hs) stream)
+    (%bin-save-string (hs-entry.variant hs) stream)
+    
+    (%bin-save-string (hs-entry.name hs) stream)
+    (%bin-save-string (hs-entry.race hs) stream)
+    (%bin-save-string (hs-entry.class hs) stream)
+    (%bin-save-string (hs-entry.sex hs) stream)
+    (%bin-save-string (hs-entry.cause-of-death hs) stream)
+    ))
 
-  (%bin-save-string (hs-entry.name hs) stream)
-  (%bin-save-string (hs-entry.race hs) stream)
-  (%bin-save-string (hs-entry.class hs) stream)
-  (%bin-save-string (hs-entry.sex hs) stream)
-  (%bin-save-string (hs-entry.cause-of-death hs) stream)
-  )
-
-(defun load-hs-entry (stream)
+(defmethod load-object ((variant variant) (type (eql :hs-entry)) (str l-binary-stream))
   "Loads a high-score entry from a stream and returns the entry."
-  (let ((obj (bt:read-binary 'hs-entry stream)))
+  (let* ((stream (lang.stream str))
+	 (obj (bt:read-binary 'hs-entry stream)))
     (setf (hs-entry.version obj) (%bin-read-string stream)
 	  (hs-entry.variant obj) (%bin-read-string stream)
 	  (hs-entry.name obj) (%bin-read-string stream)
@@ -122,25 +96,26 @@ the Free Software Foundation; either version 2 of the License, or
   (check-type variant variant)
   
   (let ((hscores '())
-	(bt:*endian* :little-endian)
 	(the-path (pathname fname)))
     (when (probe-file the-path)
       (handler-case 
 	  (bt:with-binary-file (str the-path
 				    :direction :input)
-	    (loop for obj = (load-hs-entry str)
+	    (let ((bt:*endian* :little-endian)
+		  (the-lang-stream (make-instance 'l-binary-stream :stream str)))
+
+	    (loop for obj = (load-object variant :hs-entry the-lang-stream)
 		  when obj
-		  do (push obj hscores)))
+		  do (push obj hscores))))
 	(end-of-file (co)
 	  (declare (ignore co))
 	  nil)))
     
     (nreverse hscores)))
 
-(defmethod display-high-scores (variant highscore-list &key (current 0) (use-term t))
+(defmethod display-high-scores ((variant variant) highscore-list &key (current 0) (use-term t))
   ;; FIX: when dealing with several screenfuls
   
-  (check-type variant variant)
   (check-type current number)
   (assert (listp highscore-list))
 
@@ -159,8 +134,7 @@ the Free Software Foundation; either version 2 of the License, or
       (loop for i in highscore-list
 	    for cnt from 0
 	    do
-	    (progn
-	      (check-type i hs-entry)
+	    (when (and (typep i 'hs-entry) (< cnt 20)) ;; limit to best 20. 
 	      (if use-term
 		  (c-col-put-str! (if (= cnt current) +term-l-blue+ +term-l-green+)
 				  (get-str i cnt)
@@ -171,13 +145,10 @@ the Free Software Foundation; either version 2 of the License, or
 
 	
   
-(defmethod save-high-score& (variant hs fname)
+(defmethod save-high-score& ((variant variant) hs fname)
   "Returns number of hs."
-  
-  (check-type variant variant)
 
   (let ((hscores (get-high-scores variant fname))
-	(bt:*endian* :little-endian)
 	(the-path (pathname fname)))
 
     (let* ((sorted-hscores (stable-sort (cons hs hscores) #'> :key #'hs-entry.score))
@@ -189,22 +160,22 @@ the Free Software Foundation; either version 2 of the License, or
 				:direction :output
 				:if-exists :supersede
 				:if-does-not-exist :create)
-	
-	(dolist (i sorted-hscores)
-	  (check-type i hs-entry)
-	  (save-hs-entry i str)))
+	(let ((bt:*endian* :little-endian)
+	      (the-lang-stream (make-instance 'l-binary-stream :stream str)))
+	  
+	  (dolist (i sorted-hscores)
+	    (check-type i hs-entry)
+	    (save-object variant i the-lang-stream nil))))
 
 ;;    (display-high-scores variant hscores :current hs)
 
       pos)))
 
-(defmethod print-tomb (variant player)
+(defmethod print-tomb ((variant variant) (player player))
   "Prints a tombstone."
 
-  (check-type variant variant)
-  (check-type player player)
   ;; temporary
-  (let ((hs (make-high-score variant player)))
+  (let ((hs (produce-high-score-object variant player)))
 ;;    (declare (ignore hs))
     (with-open-file (s (game-data-path "dead.txt")
 		       :direction :input)
@@ -243,4 +214,28 @@ the Free Software Foundation; either version 2 of the License, or
     
 	nil))))
 
-;;(trace save-high-score&)
+(defun organise-death& (pl var-obj)
+  "Organises things dealing with death of a player..
+Thanks for all the fish."
+  
+  (let* ((home-path (home-langband-path))
+	 (fname (concatenate 'string home-path ".high-scores")))
+
+    (lbsys/make-sure-dirs-exist home-path)
+    
+;;    (warn "writing to ~s" fname)
+    (let* ((hs (produce-high-score-object var-obj pl))
+	   (hs-pos (save-high-score& var-obj hs fname)))
+    
+    (c-prt! "Oops.. you died.. " 0 0)
+    
+    (progn
+      (c-clear-from! 0)
+      (print-tomb var-obj pl))
+    
+    (c-pause-line! *last-console-line*)
+    
+    (progn
+      (c-clear-from! 0)
+      (display-high-scores var-obj (get-high-scores var-obj fname) :current hs-pos))
+    t)))

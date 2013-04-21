@@ -14,6 +14,12 @@ the Free Software Foundation; either version 2 of the License, or
 
 (in-package :langband)
 
+(defun add-new-okind! (obj id)
+  ""
+  (declare (ignore id))
+;;  (warn "Adding obj with id ~s" id)
+  (apply-filters-on-obj :objects *variant* obj))
+
 
 (defun compat-read-obj-kind& (fname)
   "not finished"
@@ -24,6 +30,7 @@ the Free Software Foundation; either version 2 of the License, or
 			  :direction :input)
 
     (let ((cur-obj nil)
+	  (var-obj *variant*)
 	  (patch-val nil))
 
       (loop for l = (read-line in-str nil 'eof)
@@ -92,7 +99,7 @@ the Free Software Foundation; either version 2 of the License, or
 			    (ensure-gval! ()
 			      (let ((gval (object.game-values cur-obj)))
 				(unless gval
-				  (setq gval (make-game-values))
+				  (setq gval (produce-game-values-object var-obj))
 				  (setf (object.game-values cur-obj) gval))
 				gval))
 				  
@@ -754,7 +761,7 @@ the Free Software Foundation; either version 2 of the License, or
 		  (when cur-obj
 		    (let* ((res (split-seq-on (subseq l 2) #\|))
 			   (cur-val (object.game-values cur-obj))
-			   (game-vals (if cur-val cur-val (make-game-values)))
+			   (game-vals (if cur-val cur-val (produce-game-values-object var-obj)))
 			   (real-res (loop for i in res collecting (string-trim '(#\Space #\Tab #\Newline) i))))
 		     
 		      (dolist (j real-res)
@@ -871,7 +878,7 @@ the Free Software Foundation; either version 2 of the License, or
 		  (when cur-obj
 		    (let* ((res (split-seq-on l #\:))
 			   (cur-val (object.game-values cur-obj))
-			   (game-vals (if cur-val cur-val (make-game-values))))
+			   (game-vals (if cur-val cur-val (produce-game-values-object var-obj))))
 		     
 		      ;;		     (warn "Going parse of res ~a" res)
 		      ;; the first should be P

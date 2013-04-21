@@ -121,8 +121,8 @@ the Free Software Foundation; either version 2 of the License, or
 	      (monster.id (amon.kind y)))
        (= (current-hp x)
 	  (current-hp y))
-       (= (get-creature-max-hp x)
-	  (get-creature-max-hp y))
+       (= (maximum-hp x)
+	  (maximum-hp y))
        (= (get-creature-speed x)
 	  (get-creature-speed y))
        (= (get-creature-energy x)
@@ -228,7 +228,7 @@ the Free Software Foundation; either version 2 of the License, or
        (report-equal (player.level x)         (player.level y))
        (report-equal (player.max-level x)     (player.max-level y))
        
-       (report-equal (player.max-hp x)        (player.max-hp y))
+       (report-equal (maximum-hp x)        (maximum-hp y))
        (report-equal (player.max-mana x)      (player.max-mana y))
        (report-equalp (player.xp-table x)      (player.xp-table y))
        (report-equalp (player.hp-table x)      (player.hp-table y))
@@ -239,15 +239,15 @@ the Free Software Foundation; either version 2 of the License, or
        (report-equal (player.dead-p x)        (player.dead-p y))
        (report-equal (player.speed x)         (player.speed y))
        
-       (report-equal (player.loc-x x)         (player.loc-x y))
-       (report-equal (player.loc-y x)         (player.loc-y y))
+       (report-equal (location-x x)         (location-x y))
+       (report-equal (location-y x)         (location-y y))
 
        (report-equal (player.depth x)         (player.depth y))
        (report-equal (player.max-depth x)     (player.max-depth y))
        (report-equal (player.max-xp x)        (player.max-xp y))
        (report-equal (player.cur-xp x)        (player.cur-xp y))
        (report-equal (player.fraction-xp x)   (player.fraction-xp y))
-       (report-equal (player.cur-hp x)        (player.cur-hp y))
+       (report-equal (current-hp x)           (current-hp y))
        (report-equal (player.fraction-hp x)   (player.fraction-hp y))
        (report-equal (player.cur-mana x)      (player.cur-mana y))
        (report-equal (player.fraction-mana x) (player.fraction-mana y))
@@ -316,7 +316,7 @@ the Free Software Foundation; either version 2 of the License, or
 (defmethod lang-equal ((x alloc-entry) (y alloc-entry))
   (and (lang-equal (alloc.obj x)   (alloc.obj y))
        (lang-equal (alloc.index x) (alloc.index y))
-       (lang-equal (alloc.level x) (alloc.level y))
+       (lang-equal (alloc.depth x) (alloc.depth y))
        ;;; ....
        ))
        

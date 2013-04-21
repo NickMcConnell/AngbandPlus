@@ -26,7 +26,7 @@
 	It isn't finished yet and won't be finished for some time as
 	it will need go to through several stages, as all newly
 	written programs must.  I hope to have a minimal playable
-	version ready in the 3rd quarter of 2001.  You can check it
+	version ready in the 1st quarter of 2002.  You can check it
 	out from CVS or download pre-alpha versions on Sourceforge
 	though.  There are also some experimental debian-packages if
 	you use debian, and if you have Debian these are the simplest to
@@ -89,7 +89,7 @@
 	Note: This is still visible in the slower CLISP and in the
 	win32-port if the lispworks-code isn't compiled.  Gradual
 	optimisation of the code will probably "remove" this
-	"problem". </li>
+	"problem".  </li>
       
       <li> <b>How do I get things working with CLISP?</b><br>
 	It's a bit tricky still but can be done.  Assuming csh/tcsh
@@ -136,7 +136,7 @@
 	day-to-day development.</li>
 
       <li> <b>Regular Angband has several windows, where are the other
-      windows in Langband?</b><br>
+	  windows in Langband?</b><br>
 	Several windows can be quite useful but they introduce some
 	extra complexity which isn't essential this early in
 	development.  So until the game reaches a stage where more
@@ -155,14 +155,14 @@
       <li> <b>How do I get sounds working?</b><br>
 	<ol>
 	  <li> uncomment the using-sound line in game.lisp</li>
-	  <li> set SOUND_USE in lib/zterm/Makefile to YES</li>
+	  <li> set SOUND_USE in zterm/Makefile to YES</li>
 	  <li> recompile all C-code and lisp-code</li>
 	  <li> get example sounds from the <a
 	  href="http://sourceforge.net/projects/langband/">langband
 	  project page</a> dowload area
 	  <li> install wanted sounds in lib/sound and configure in
 	  lib/file/sound.lisp</li>
-	  <li> start lib/zterm/sound_daemon in the background</li>
+	  <li> start zterm/sound_daemon in the background</li>
 	  <li> start the game </li>
 	  <li> play the game and if possible, hit something</li>
 	  <li> quit game and exit the sound_daemon</li>
@@ -175,6 +175,31 @@
 	traditional angband and isn't really needed when the necessary
 	files have been converted to lisp.  Please be patient. </li>
 
+      <li> <b>I am a lisper, but I find parts of the code a bit odd,
+      why is it the way it is?</b><br>
+
+	<p>
+	  The code is in development and changes relatively often and
+	  the interface for the engine that should be extensible and
+	  alterable by variants and user-code needs to gradually be worked
+	  out.  This must be done gradually as I need to experiment with
+	  <i>what</i> is interesting to extend/alter, and <i>what</i>
+	  can be extended/altered and still get reasonable performance
+	  and decent-looking code.
+	</p>
+
+	<p>
+	  Some of the interface will be functions which variants may
+	  call, and sometimes with function-arguments as plug-ins.
+	  Other parts will be generic functions which are designed to
+	  be tailoured by a variant.  Other parts are extensible
+	  classes which variants are allowed to extend.  As this
+	  interface gets clearer it will be exported from the
+	  <code>:org.langband.engine</code> package and variants will
+	  reside in their own packages.  But we're not there yet, so
+	  vanilla currently lives in the same package.
+	</p>
+	
       
     </ol>
 	

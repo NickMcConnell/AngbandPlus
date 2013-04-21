@@ -44,7 +44,7 @@ looks the same.")
     (visit-house *level* house)))
   
 
-(defmethod generate-level! ((level van-town-level) player)
+(defmethod generate-level! ((variant vanilla-variant) (level van-town-level) player)
   "Generates a town and returns it.  If the dungeon
 argument is non-NIL it will be re-used and returned as
 part of the new level."
@@ -124,7 +124,7 @@ part of the new level."
     level))
 
 
-(defun van-make-town-level-obj (player)
+(defun van-make-town-level-obj (variant player)
   "A sucky function which should be simplified greatly."
 
   (flet ((do-generation (seed)
@@ -132,7 +132,7 @@ part of the new level."
 		  (town (funcall builder))
 		  (cl:*random-state* (cl:make-random-state seed)))
 
-	     (generate-level! town player))))
+	     (generate-level! variant town player))))
   
     ;; we already have a saved value
     (cond (*van-saved-town-seed*
@@ -152,7 +152,7 @@ part of the new level."
   (let ((level nil))
 
     (cond ((= depth 0)
-	   (setf level (van-make-town-level-obj player)))
+	   (setf level (van-make-town-level-obj variant player)))
 	  (t ;; the rest
 	   (let ((builder (get-level-builder 'random-level)))
 	     (unless builder
@@ -164,7 +164,7 @@ part of the new level."
 
     (unless (level-ready? level)
       ;; (warn "Generating level ~a" level)
-      (generate-level! level player))
+      (generate-level! variant level player))
 
 
     (assert (level-ready? level))
@@ -196,7 +196,7 @@ part of the new level."
 	
       ;; add some inhabitants
       (dotimes (i resident-num)
-	(allocate-monster! dungeon player 3 t)))
+	(allocate-monster! var-obj dungeon player 3 t)))
 
     (van-town-illuminate! dungeon player time-of-day)
     ;;(warn "post activate")
@@ -230,22 +230,22 @@ part of the new level."
   )
 	 
 
-(defmethod get-otype-table ((level random-level) var-obj)
+(defmethod get-otype-table ((var-obj vanilla-variant) (level random-level))
   (%get-var-table var-obj 'level 'objects))
 
-(defmethod get-otype-table ((level van-town-level) var-obj)
+(defmethod get-otype-table ((var-obj vanilla-variant) (level van-town-level))
   (%get-var-table var-obj 'level 'objects))
 
-(defmethod get-mtype-table ((level random-level) var-obj)
+(defmethod get-mtype-table ((var-obj vanilla-variant) (level random-level))
   (%get-var-table var-obj level 'monsters))
 
-(defmethod get-mtype-table ((level van-town-level) var-obj)
+(defmethod get-mtype-table ((var-obj vanilla-variant) (level van-town-level))
   (%get-var-table var-obj level 'monsters))
 
-(defmethod get-mtype-table ((level (eql 'random-level)) var-obj)
+(defmethod get-mtype-table ((var-obj vanilla-variant) (level (eql 'random-level)))
   (%get-var-table var-obj level 'monsters))
 
-(defmethod get-mtype-table ((level (eql 'town-level)) var-obj)
+(defmethod get-mtype-table ((var-obj vanilla-variant) (level (eql 'town-level)))
   (%get-var-table var-obj level 'monsters))
 
 

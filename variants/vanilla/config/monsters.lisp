@@ -1,39 +1,8 @@
 
 (in-package :langband)
 
-(define-monster-kind "monster-1" "filthy street urchin"
-  :desc "He looks squalid and thoroughly revolting."
-  :symbol #\t
-  :colour #\D
-  :level 0
-  :rarity 2
-  :hitpoints '(1 . 4)
-  :armour 1
-  :speed 110
-  :abilities '(<open-door> <pick-up-item> (<random-mover> 1/4))
-  :alertness 40
-  :vision 4
-  :attacks '((<touch> :type <eat_gold> :damage nil) (<beg> :type nil :damage nil))
-  :sex '<male>) 
 
-(define-monster-kind "monster-10" "squint eyed rogue"
-  :desc "A hardy, street-wise crook that knows an easy catch when it sees one."
-  :symbol #\t
-  :colour #\b
-  :alignment '<evil>
-  :level 0
-  :rarity 1
-  :hitpoints '(2 . 8)
-  :armour 8
-  :speed 110
-  :abilities '(<bash-door> <open-door> <pick-up-item>)
-  :alertness 99
-  :vision 10
-  :attacks '((<touch> :type <eat_item> :damage nil) (<hit> :type <hurt> :damage (1 . 6)))
-  :treasures '((<drop-chance> 3/5))
-  :sex '<male>) 
-
-(define-monster-kind "monster-100" "manes"
+(define-monster-kind "manes" "manes"
   :desc "It is a minor but aggressive demon."
   :symbol #\u
   :colour #\u
@@ -51,7 +20,7 @@
   :vision 20
   :attacks '((<hit> :type <hurt> :damage (1 . 8)))) 
 
-(define-monster-kind "monster-101" "bloodshot eye"
+(define-monster-kind "bloody-eye" "bloodshot eye"
   :desc "A disembodied eye, bloodshot and nasty."
   :symbol #\e
   :colour #\r
@@ -69,7 +38,7 @@
   :attacks '((<gaze> :type <blind> :damage (2 . 6)))
   :special-abilities '((<spell> <drain-mana>) (<frequency> 1/7))) 
 
-(define-monster-kind "monster-102" "pink naga"
+(define-monster-kind "pink-naga" "pink naga"
   :desc "A large pink snake with a woman's torso."
   :symbol #\n
   :colour #\R
@@ -83,11 +52,11 @@
   :abilities '(<bash-door> <pick-up-item> (<random-mover> 1/4))
   :alertness 120
   :vision 20
-  :attacks '((<bite> :type <lose_str> :damage (1 . 4)) (<crush> :type <hurt> :damage (1 . 10)))
+  :attacks '((<bite> :type <lose-str> :damage (1 . 4)) (<crush> :type <hurt> :damage (1 . 10)))
   :treasures '((<drop-chance> 3/5))
   :sex '<female>) 
 
-(define-monster-kind "monster-103" "pink jelly"
+(define-monster-kind "pink-jelly" "pink jelly"
   :desc "It is a large pulsating mound of red flesh."
   :symbol #\j
   :colour #\R
@@ -102,9 +71,9 @@
   :vulnerabilities '(<light>)
   :alertness 99
   :vision 2
-  :attacks '((<touch> :type <lose_str> :damage (1 . 5)))) 
+  :attacks '((<touch> :type <lose-str> :damage (1 . 5)))) 
 
-(define-monster-kind "monster-104" "giant pink frog"
+(define-monster-kind "pink-frog" "giant pink frog"
   :desc "It looks poisonous."
   :symbol #\R
   :colour #\R
@@ -118,7 +87,7 @@
   :abilities '(<bash-door> (<random-mover> 1/2))
   :alertness 50
   :vision 12
-  :attacks '((<bite> :type <lose_str> :damage (2 . 4)))) 
+  :attacks '((<bite> :type <lose-str> :damage (2 . 4)))) 
 
 (define-monster-kind "monster-105" "green icky thing"
   :desc "It is a smallish, slimy, icky, acidic creature."
@@ -209,84 +178,6 @@
   :vision 20
   :attacks '((<bite> :type <hurt> :damage (1 . 6)) (<bite> :type <hurt> :damage (1 . 6)))) 
 
-(define-monster-kind "monster-11" "singing, happy drunk"
-  :desc "He makes you glad to be sober."
-  :symbol #\t
-  :colour #\y
-  :level 0
-  :rarity 1
-  :hitpoints '(2 . 3)
-  :armour 1
-  :speed 110
-  :abilities '(<bash-door> <open-door> <pick-up-item> (<random-mover> 1/2))
-  :alertness 0
-  :vision 10
-  :attacks '((<beg> :type nil :damage nil))
-  :treasures '((<drop-chance> 3/5) <only-drop-gold>)
-  :sex '<male>) 
-
-(define-monster-kind "monster-110" "mughash the kobold lord"
-  :desc "Strong and powerful, for a kobold."
-  :symbol #\k
-  :colour #\b
-  :alignment '<evil>
-  :type '(<unique>)
-  :level 7
-  :rarity 3
-  :hitpoints '(15 . 10)
-  :armour 20
-  :speed 110
-  :xp 100
-  :abilities '(<bash-door> <open-door> <max-hitpoints>)
-  :immunities '(<poison>)
-  :alertness 20
-  :vision 20
-  :attacks '((<hit> :type <hurt> :damage (1 . 10)) (<hit> :type <hurt> :damage (1 . 10))
-             (<hit> :type <hurt> :damage (1 . 10)))
-  :treasures '(<drop-good> (<drop> "1d2") <only-drop-items>)
-  :sex '<male>) 
-
-(define-monster-kind "monster-111" "wormtongue, agent of saruman"
-  :desc "He's been spying for Saruman.  He is a snivelling wretch with no morals  and disgusting habits."
-  :symbol #\p
-  :colour #\b
-  :alignment '<evil>
-  :type '(<unique>)
-  :level 8
-  :rarity 1
-  :hitpoints '(25 . 10)
-  :armour 30
-  :speed 110
-  :xp 150
-  :abilities '(<bash-door> <open-door> <pick-up-item> <max-hitpoints> <initial-sleeper>)
-  :alertness 20
-  :vision 20
-  :attacks '((<touch> :type <eat_gold> :damage nil) (<hit> :type <hurt> :damage (1 . 5))
-             (<hit> :type <hurt> :damage (1 . 5)))
-  :treasures '(<drop-great> <drop-good> (<drop> "1d2") <only-drop-items>)
-  :sex '<male>
-  :special-abilities '((<spell> (<ball> <poison>)) (<spell> (<bolt> <cold>)) (<spell> <traps>) (<spell> <slow>)
-                       (<spell> <heal>) (<frequency> 1/5))) 
-
-(define-monster-kind "monster-112" "lagduf, the snaga"
-  :desc "A captain of a regiment of weaker orcs, Lagduf keeps his troop in order  with displays of excessive violence."
-  :symbol #\o
-  :colour #\o
-  :alignment '<evil>
-  :type '(<orc> <unique>)
-  :level 8
-  :rarity 2
-  :hitpoints '(19 . 10)
-  :armour 32
-  :speed 110
-  :xp 80
-  :abilities '(<bash-door> <open-door> <max-hitpoints>)
-  :alertness 30
-  :vision 20
-  :attacks '((<hit> :type <hurt> :damage (1 . 9)) (<hit> :type <hurt> :damage (1 . 9))
-             (<hit> :type <hurt> :damage (1 . 10)) (<hit> :type <hurt> :damage (1 . 10)))
-  :treasures '(<drop-good> (<drop> "1d2") <only-drop-items>)
-  :sex '<male>) 
 
 (define-monster-kind "monster-113" "brown yeek"
   :desc "It is a strange small humanoid."
@@ -411,21 +302,6 @@
   :vision 20
   :attacks '((<hit> :type <hurt> :damage (1 . 8)))) 
 
-(define-monster-kind "monster-12" "aimless looking merchant"
-  :desc "The typical ponce around town, with purse jingling, and looking for more  amulets of adornment to buy."
-  :symbol #\t
-  :colour #\o
-  :level 0
-  :rarity 1
-  :hitpoints '(3 . 3)
-  :armour 1
-  :speed 110
-  :abilities '(<bash-door> <open-door> <pick-up-item> (<random-mover> 1/2))
-  :alertness 255
-  :vision 10
-  :attacks '((<hit> :type <hurt> :damage (1 . 3)))
-  :treasures '((<drop-chance> 3/5) <only-drop-gold>)
-  :sex '<male>) 
 
 (define-monster-kind "monster-120" "hill orc"
   :desc "He is a hardy well-weathered survivor."
@@ -460,7 +336,7 @@
   :abilities '(<bash-door> <open-door> <pick-up-item>)
   :alertness 10
   :vision 20
-  :attacks '((<touch> :type <eat_gold> :damage nil) (<hit> :type <hurt> :damage (2 . 4)))
+  :attacks '((<touch> :type <eat-gold> :damage nil) (<hit> :type <hurt> :damage (2 . 4)))
   :treasures '((<drop> "1d2"))
   :sex '<male>) 
 
@@ -619,22 +495,6 @@
   :treasures '((<drop> "1d2") (<drop-chance> 3/5) <only-drop-gold>)
   :special-abilities '((<breath> <poison>) (<frequency> 1/11))) 
 
-(define-monster-kind "monster-13" "mean looking mercenary"
-  :desc "No job is too low for him."
-  :symbol #\t
-  :colour #\r
-  :alignment '<evil>
-  :level 0
-  :rarity 1
-  :hitpoints '(5 . 8)
-  :armour 20
-  :speed 110
-  :abilities '(<bash-door> <open-door> <pick-up-item> (<random-mover> 1/2))
-  :alertness 250
-  :vision 10
-  :attacks '((<hit> :type <hurt> :damage (1 . 10)))
-  :treasures '((<drop-chance> 9/10))
-  :sex '<male>) 
 
 (define-monster-kind "monster-130" "baby black dragon"
   :desc "This hatchling dragon is still soft, its eyes unaccustomed to light and  its scales a dull black."
@@ -692,26 +552,8 @@
   :abilities '(<bash-door> <weird-mind>)
   :alertness 60
   :vision 12
-  :attacks '((<sting> :type <lose_str> :damage (1 . 4)) (<bite> :type <hurt> :damage (1 . 4)))) 
+  :attacks '((<sting> :type <lose-str> :damage (1 . 4)) (<bite> :type <hurt> :damage (1 . 4)))) 
 
-(define-monster-kind "monster-133" "brodda, the easterling"
-  :desc "A nasty piece of work, Brodda picks on defenseless women and children."
-  :symbol #\p
-  :colour #\u
-  :type '(<unique>)
-  :level 9
-  :rarity 2
-  :hitpoints '(21 . 10)
-  :armour 25
-  :speed 110
-  :xp 100
-  :abilities '(<bash-door> <open-door> <max-hitpoints>)
-  :alertness 20
-  :vision 20
-  :attacks '((<hit> :type <hurt> :damage (1 . 12)) (<hit> :type <hurt> :damage (1 . 12))
-             (<hit> :type <hurt> :damage (1 . 12)) (<hit> :type <hurt> :damage (1 . 12)))
-  :treasures '(<drop-good> (<drop> "1d2") <only-drop-items>)
-  :sex '<male>) 
 
 (define-monster-kind "monster-134" "king cobra"
   :desc "It is a large snake with a hooded face."
@@ -770,27 +612,6 @@
   :special-abilities '((<spell> (<ball> <poison>)) (<spell> <darkness>) (<spell> <missile>) (<spell> <confusion>)
                        (<spell> <blindness>) (<frequency> 1/5))) 
 
-(define-monster-kind "monster-137" "orfax, son of boldor"
-  :desc "He's just like daddy!  He knows mighty spells, but fortunately he is a  yeek."
-  :symbol #\y
-  :colour #\b
-  :alignment '<evil>
-  :type '(<animal> <unique>)
-  :level 10
-  :rarity 3
-  :hitpoints '(12 . 10)
-  :armour 20
-  :speed 120
-  :xp 80
-  :abilities '(<bash-door> <open-door> <smart> <max-hitpoints> <initial-sleeper>)
-  :alertness 10
-  :vision 18
-  :attacks '((<insult> :type nil :damage nil) (<insult> :type nil :damage nil) (<hit> :type <hurt> :damage (1 . 8))
-             (<hit> :type <hurt> :damage (1 . 9)))
-  :treasures '(<drop-good> (<drop-chance> 9/10) <only-drop-items>)
-  :sex '<male>
-  :special-abilities '((<summon> <monster>) (<spell> <confusion>) (<spell> <slow>) (<spell> <teleport-player>)
-                       (<spell> <blink>) (<spell> <heal>) (<frequency> 1/4))) 
 
 (define-monster-kind "monster-138" "dark elven warrior"
   :desc "A dark elven figure in armour and ready with his sword."
@@ -826,43 +647,6 @@
   :alertness 0
   :vision 4
   :attacks '((<spore> :type <hurt> :damage (1 . 1)))) 
-
-(define-monster-kind "monster-14" "battle scarred veteran"
-  :desc "He doesn't take to strangers kindly."
-  :symbol #\t
-  :colour #\B
-  :level 0
-  :rarity 1
-  :hitpoints '(7 . 8)
-  :armour 30
-  :speed 110
-  :abilities '(<bash-door> <open-door> <pick-up-item> (<random-mover> 1/2))
-  :alertness 250
-  :vision 10
-  :attacks '((<hit> :type <hurt> :damage (2 . 6)))
-  :treasures '((<drop-chance> 9/10))
-  :sex '<male>) 
-
-(define-monster-kind "monster-140" "grishnakh, the hill orc"
-  :desc "He is a cunning and devious orc with a chaotic nature."
-  :symbol #\o
-  :colour #\U
-  :alignment '<evil>
-  :type '(<orc> <unique>)
-  :level 10
-  :rarity 3
-  :hitpoints '(23 . 10)
-  :armour 20
-  :speed 110
-  :xp 160
-  :abilities '(<bash-door> <open-door> <max-hitpoints>)
-  :immunities '(<poison>)
-  :alertness 20
-  :vision 20
-  :attacks '((<hit> :type <hurt> :damage (1 . 10)) (<hit> :type <hurt> :damage (1 . 12))
-             (<hit> :type <hurt> :damage (1 . 10)) (<hit> :type <hurt> :damage (1 . 12)))
-  :treasures '(<drop-good> (<drop> "1d2") <only-drop-items>)
-  :sex '<male>) 
 
 (define-monster-kind "monster-141" "giant white tick"
   :desc "It is moving slowly towards you."
@@ -1049,7 +833,7 @@
   :abilities '(<bash-door> <open-door> <pick-up-item>)
   :alertness 10
   :vision 20
-  :attacks '((<touch> :type <eat_item> :damage nil) (<hit> :type <hurt> :damage (2 . 4)))
+  :attacks '((<touch> :type <eat-item> :damage nil) (<hit> :type <hurt> :damage (2 . 4)))
   :treasures '((<drop> "1d2"))
   :sex '<male>) 
 
@@ -1200,26 +984,6 @@
   :vision 10
   :attacks '((<touch> :type <exp_10> :damage nil))) 
 
-(define-monster-kind "monster-159" "golfimbul, the hill orc chief"
-  :desc "A leader of a band of raiding orcs, he picks on hobbits."
-  :symbol #\o
-  :colour #\U
-  :alignment '<evil>
-  :type '(<orc> <unique>)
-  :level 12
-  :rarity 3
-  :hitpoints '(24 . 10)
-  :armour 60
-  :speed 110
-  :xp 230
-  :abilities '(<bash-door> <open-door> <max-hitpoints>)
-  :immunities '(<poison> <lightning> <cold> <fire>)
-  :alertness 20
-  :vision 20
-  :attacks '((<hit> :type <hurt> :damage (1 . 10)) (<hit> :type <hurt> :damage (1 . 10))
-             (<hit> :type <hurt> :damage (1 . 12)) (<hit> :type <hurt> :damage (1 . 12)))
-  :treasures '(<drop-good> (<drop> "2d2") <only-drop-items>)
-  :sex '<male>) 
 
 (define-monster-kind "monster-16" "grey mushroom patch"
   :desc "Yum!  It looks quite tasty."
@@ -1490,29 +1254,8 @@
   :vision 10
   :attacks '((<bite> :type <hurt> :damage (3 . 4)))) 
 
-(define-monster-kind "monster-173" "boldor, king of the yeeks"
-  :desc "A great yeek, powerful in magic and sorcery, but a yeek all the same."
-  :symbol #\y
-  :colour #\U
-  :alignment '<evil>
-  :type '(<animal> <unique>)
-  :level 13
-  :rarity 3
-  :hitpoints '(18 . 10)
-  :armour 24
-  :speed 120
-  :xp 200
-  :abilities '(<bash-door> <open-door> <smart> <max-hitpoints> <initial-sleeper>)
-  :alertness 10
-  :vision 18
-  :attacks '((<hit> :type <hurt> :damage (1 . 8)) (<hit> :type <hurt> :damage (1 . 9))
-             (<hit> :type <hurt> :damage (1 . 9)))
-  :treasures '(<drop-good> (<drop> "1d2") (<drop-chance> 9/10) <only-drop-items>)
-  :sex '<male>
-  :special-abilities '((<summon> <kin>) (<summon> <monster>) (<spell> <slow>) (<spell> <blindness>)
-                       (<spell> <teleport>) (<spell> <blink>) (<spell> <heal>) (<frequency> 1/3))) 
 
-(define-monster-kind "monster-174" "ogre"
+(define-monster-kind "ogre" "ogre"
   :desc "A hideous, smallish giant that is often found near or with orcs."
   :symbol #\O
   :colour #\U
@@ -1530,7 +1273,7 @@
   :attacks '((<hit> :type <hurt> :damage (2 . 8)))
   :treasures '((<drop-chance> 3/5))) 
 
-(define-monster-kind "monster-175" "creeping mithril coins"
+(define-monster-kind "mithril-coins" "creeping mithril coins"
   :desc "It is a pile of coins, shambling forward on thousands of tiny legs."
   :symbol #\$
   :colour #\B
@@ -1548,7 +1291,7 @@
   :attacks '((<touch> :type <poison> :damage (3 . 5)) (<hit> :type <hurt> :damage (2 . 5)))
   :treasures '((<drop> "2d2") (<drop-chance> 9/10) <only-drop-gold>)) 
 
-(define-monster-kind "monster-176" "illusionist"
+(define-monster-kind "illusionist" "illusionist"
   :desc "A deceptive spell caster."
   :symbol #\p
   :colour #\r
@@ -1569,7 +1312,7 @@
                        (<spell> <blindness>) (<spell> <teleport>) (<spell> <blink>) (<spell> <haste>)
                        (<frequency> 1/3))) 
 
-(define-monster-kind "monster-177" "druid"
+(define-monster-kind "druid" "druid"
   :desc "A mystic at one with nature.  Om."
   :symbol #\p
   :colour #\r
@@ -1589,7 +1332,7 @@
   :special-abilities '((<spell> (<bolt> <lightning>)) (<spell> (<bolt> <fire>)) (<spell> <slow>) (<spell> <paralysis>)
                        (<spell> <blindness>) (<spell> <blink>) (<spell> <haste>) (<frequency> 1/3))) 
 
-(define-monster-kind "monster-178" "black orc"
+(define-monster-kind "black-orc" "black orc"
   :desc "He is a large orc with powerful arms and deep black skin."
   :symbol #\o
   :colour #\D
@@ -1609,7 +1352,7 @@
   :treasures '((<drop-chance> 3/5))
   :sex '<male>) 
 
-(define-monster-kind "monster-179" "ochre jelly"
+(define-monster-kind "ochre-jelly" "ochre jelly"
   :desc "A fast moving highly acidic jelly thing, that is eating away the floor it  rests on."
   :symbol #\j
   :colour #\U
@@ -1626,7 +1369,7 @@
   :attacks '((<touch> :type <acid> :damage (2 . 6)) (<touch> :type <acid> :damage (2 . 6))
              (<touch> :type <acid> :damage (1 . 10)))) 
 
-(define-monster-kind "monster-18" "giant white centipede"
+(define-monster-kind "white-centipede" "giant white centipede"
   :desc "It is about four feet long and carnivorous."
   :symbol #\c
   :colour #\w
@@ -1642,7 +1385,7 @@
   :vision 7
   :attacks '((<sting> :type <hurt> :damage (1 . 2)) (<bite> :type <hurt> :damage (1 . 2)))) 
 
-(define-monster-kind "monster-180" "giant flea"
+(define-monster-kind "giant-flea" "giant flea"
   :desc "It makes you itch just to look at it."
   :symbol #\I
   :colour #\s
@@ -1658,26 +1401,6 @@
   :vision 8
   :attacks '((<bite> :type <hurt> :damage (1 . 2)))) 
 
-(define-monster-kind "monster-181" "ufthak of cirith ungol"
-  :desc "A strong orc guarding the pass of Cirith Ungol.  He is mortally afraid of  spiders."
-  :symbol #\o
-  :colour #\g
-  :alignment '<evil>
-  :type '(<orc> <unique>)
-  :level 14
-  :rarity 3
-  :hitpoints '(32 . 10)
-  :armour 50
-  :speed 110
-  :xp 200
-  :abilities '(<bash-door> <open-door> <max-hitpoints>)
-  :immunities '(<poison> <cold>)
-  :alertness 20
-  :vision 20
-  :attacks '((<hit> :type <hurt> :damage (3 . 4)) (<hit> :type <hurt> :damage (3 . 4))
-             (<hit> :type <hurt> :damage (3 . 4)) (<hit> :type <hurt> :damage (3 . 4)))
-  :treasures '(<drop-good> (<drop> "1d2") <only-drop-items>)
-  :sex '<male>) 
 
 (define-monster-kind "monster-182" "giant white dragon fly"
   :desc "It is a large fly that drips frost."
@@ -1716,7 +1439,7 @@
              (<crawl> :type <eat_food> :damage nil) (<crawl> :type <poison> :damage (1 . 4)))
   :special-abilities '((<spell> <scare>) (<spell> <confusion>) (<spell> <blindness>) (<frequency> 1/8))) 
 
-(define-monster-kind "monster-184" "hill giant"
+(define-monster-kind "hill-giant" "hill giant"
   :desc "A ten foot tall humanoid with powerful muscles."
   :symbol #\P
   :colour #\U
@@ -1734,7 +1457,7 @@
   :attacks '((<hit> :type <hurt> :damage (3 . 6)) (<hit> :type <hurt> :damage (3 . 6)))
   :treasures '((<drop-chance> 3/5))) 
 
-(define-monster-kind "monster-185" "flesh golem"
+(define-monster-kind "flesh-golem" "flesh golem"
   :desc "A shambling humanoid monster with long scars."
   :symbol #\g
   :colour #\R
@@ -1750,7 +1473,7 @@
   :vision 12
   :attacks '((<hit> :type <hurt> :damage (1 . 6)) (<hit> :type <hurt> :damage (1 . 6)))) 
 
-(define-monster-kind "monster-186" "warg"
+(define-monster-kind "warg" "warg"
   :desc "It is a large wolf with eyes full of cunning."
   :symbol #\C
   :colour #\s
@@ -1767,7 +1490,7 @@
   :vision 20
   :attacks '((<bite> :type <hurt> :damage (1 . 8)))) 
 
-(define-monster-kind "monster-187" "giant black louse"
+(define-monster-kind "black-louse" "giant black louse"
   :desc "It makes you itch just to look at it."
   :symbol #\l
   :colour #\D
@@ -1783,7 +1506,7 @@
   :vision 6
   :attacks '((<bite> :type <hurt> :damage (1 . 2)))) 
 
-(define-monster-kind "monster-188" "lurker"
+(define-monster-kind "lurker" "lurker"
   :desc "A strange creature that merges with the dungeon floor, trapping its  victims by enveloping them within its perfectly disguised form."
   :symbol #\.
   :colour #\w
@@ -1799,7 +1522,7 @@
   :vision 30
   :attacks '((<hit> :type <hurt> :damage (1 . 8)) (<hit> :type <hurt> :damage (1 . 8)))) 
 
-(define-monster-kind "monster-189" "wererat"
+(define-monster-kind "wererat" "wererat"
   :desc "A large rat with glowing red eyes.  The wererat is a disgusting creature,  relishing in filth and disease."
   :symbol #\r
   :colour #\D
@@ -1820,7 +1543,7 @@
   :special-abilities '((<spell> (<ball> <poison>)) (<spell> (<bolt> <cold>)) (<spell> (<cause> 2)) (<spell> <blink>)
                        (<frequency> 1/9))) 
 
-(define-monster-kind "monster-19" "white icky thing"
+(define-monster-kind "white-icky" "white icky thing"
   :desc "It is a smallish, slimy, icky creature."
   :symbol #\i
   :colour #\w
@@ -1835,7 +1558,7 @@
   :vision 12
   :attacks '((<touch> :type <hurt> :damage (1 . 2)))) 
 
-(define-monster-kind "monster-190" "black ogre"
+(define-monster-kind "black-ogre" "black ogre"
   :desc "A massive orc-like figure with black skin and powerful arms."
   :symbol #\O
   :colour #\D
@@ -1853,7 +1576,7 @@
   :attacks '((<hit> :type <hurt> :damage (2 . 8)) (<hit> :type <hurt> :damage (2 . 8)))
   :treasures '((<drop-chance> 3/5))) 
 
-(define-monster-kind "monster-191" "magic mushroom patch"
+(define-monster-kind "magic-mushroom" "magic mushroom patch"
   :desc "Yum!  It looks quite tasty.  It seems to glow with an unusual light."
   :symbol #\,
   :colour #\B
@@ -1869,7 +1592,7 @@
   :vision 40
   :special-abilities '((<spell> <darkness>) (<spell> <scare>) (<spell> <slow>) (<spell> <blink>) (<frequency> 1))) 
 
-(define-monster-kind "monster-192" "guardian naga"
+(define-monster-kind "guardian-naga" "guardian naga"
   :desc "A giant snake-like figure with a woman's torso."
   :symbol #\n
   :colour #\B
@@ -1888,7 +1611,7 @@
   :treasures '((<drop> "1d2") (<drop-chance> 3/5))
   :sex '<female>) 
 
-(define-monster-kind "monster-193" "light hound"
+(define-monster-kind "light-hound" "light hound"
   :desc "A brilliant canine form whose light hurts your eyes, even at this distance."
   :symbol #\Z
   :colour #\o
@@ -1905,7 +1628,7 @@
   :attacks '((<bite> :type <hurt> :damage (1 . 6)))
   :special-abilities '((<breath> <light>) (<frequency> 1/5))) 
 
-(define-monster-kind "monster-194" "dark hound"
+(define-monster-kind "dark-hound" "dark hound"
   :desc "A hole in the air in the shape of a huge hound.  No light falls upon its  form."
   :symbol #\Z
   :colour #\D
@@ -1922,7 +1645,7 @@
   :attacks '((<bite> :type <hurt> :damage (1 . 6)))
   :special-abilities '((<breath> <darkness>) (<frequency> 1/5))) 
 
-(define-monster-kind "monster-195" "half-orc"
+(define-monster-kind "half-orc" "half-orc"
   :desc "He is a hideous deformed cross-breed with man and orc, combining man's  strength and cunning with orcish evil."
   :symbol #\o
   :colour #\s
@@ -1941,7 +1664,7 @@
   :treasures '((<drop-chance> 3/5))
   :sex '<male>) 
 
-(define-monster-kind "monster-196" "giant tarantula"
+(define-monster-kind "tarantula" "giant tarantula"
   :desc "A giant spider with hairy black and red legs."
   :symbol #\S
   :colour #\o
@@ -1959,7 +1682,7 @@
   :attacks '((<bite> :type <poison> :damage (1 . 6)) (<bite> :type <poison> :damage (1 . 6))
              (<bite> :type <poison> :damage (1 . 6)))) 
 
-(define-monster-kind "monster-197" "giant clear centipede"
+(define-monster-kind "clear-centipede" "giant clear centipede"
   :desc "It is about four feet long and carnivorous."
   :symbol #\c
   :colour #\w
@@ -1975,7 +1698,7 @@
   :vision 12
   :attacks '((<sting> :type <hurt> :damage (2 . 4)) (<bite> :type <hurt> :damage (2 . 4)))) 
 
-(define-monster-kind "monster-198" "mirkwood spider"
+(define-monster-kind "mirkwood-spider" "mirkwood spider"
   :desc "A strong and powerful spider from Mirkwood forest.  Cunning and evil, it  seeks to taste your juicy insides."
   :symbol #\S
   :colour #\g
@@ -1994,7 +1717,7 @@
   :attacks '((<bite> :type <poison> :damage (1 . 6)) (<bite> :type <poison> :damage (1 . 6))
              (<bite> :type <hurt> :damage (1 . 8)))) 
 
-(define-monster-kind "monster-199" "frost giant"
+(define-monster-kind "frost-giant" "frost giant"
   :desc "A twelve foot tall giant covered in furs."
   :symbol #\P
   :colour #\w
@@ -2013,22 +1736,8 @@
   :attacks '((<hit> :type <hurt> :damage (2 . 8)) (<hit> :type <cold> :damage (3 . 6)))
   :treasures '((<drop-chance> 3/5))) 
 
-(define-monster-kind "monster-2" "scrawny cat"
-  :desc "A skinny little furball with sharp claws and a menacing look."
-  :symbol #\f
-  :colour #\U
-  :type '(<animal>)
-  :level 0
-  :rarity 3
-  :hitpoints '(1 . 2)
-  :armour 1
-  :speed 110
-  :abilities '((<random-mover> 1/4))
-  :alertness 10
-  :vision 30
-  :attacks '((<claw> :type <hurt> :damage (1 . 1)))) 
 
-(define-monster-kind "monster-20" "clear icky thing"
+(define-monster-kind "clear-icky" "clear icky thing"
   :desc "It is a smallish, slimy, icky, blobby creature."
   :symbol #\i
   :colour #\w
@@ -2043,7 +1752,7 @@
   :vision 12
   :attacks '((<touch> :type <hurt> :damage (1 . 2)))) 
 
-(define-monster-kind "monster-200" "griffon"
+(define-monster-kind "griffon" "griffon"
   :desc "It is half lion, half eagle.  It flies menacingly towards you."
   :symbol #\H
   :colour #\u
@@ -2059,7 +1768,7 @@
   :vision 12
   :attacks '((<bite> :type <hurt> :damage (2 . 6)) (<hit> :type <hurt> :damage (3 . 4)))) 
 
-(define-monster-kind "monster-201" "homonculous"
+(define-monster-kind "homonculous" "homonculous"
   :desc "It is a small demonic spirit full of malevolence."
   :symbol #\u
   :colour #\y
@@ -2077,7 +1786,7 @@
   :vision 20
   :attacks '((<hit> :type <hurt> :damage (1 . 10)) (<hit> :type <paralyze> :damage (1 . 2)))) 
 
-(define-monster-kind "monster-202" "gnome mage"
+(define-monster-kind "gnome-mage" "gnome mage"
   :desc "A mage of short stature."
   :symbol #\h
   :colour #\r
@@ -2258,49 +1967,8 @@
   :vision 8
   :attacks '((<bite> :type <confuse> :damage (2 . 2)))) 
 
-(define-monster-kind "monster-211" "ulfast, son of ulfang"
-  :desc "A short and swarthy Easterling."
-  :symbol #\p
-  :colour #\U
-  :alignment '<evil>
-  :type '(<unique>)
-  :level 16
-  :rarity 3
-  :hitpoints '(34 . 10)
-  :armour 40
-  :speed 110
-  :xp 200
-  :abilities '(<bash-door> <open-door> <pick-up-item> <max-hitpoints>)
-  :alertness 40
-  :vision 20
-  :attacks '((<hit> :type <hurt> :damage (3 . 5)) (<hit> :type <hurt> :damage (3 . 5))
-             (<hit> :type <hurt> :damage (3 . 5)) (<hit> :type <hurt> :damage (3 . 5)))
-  :treasures '(<drop-good> (<drop-chance> 9/10) <only-drop-items>)
-  :sex '<male>) 
 
-(define-monster-kind "monster-212" "quasit"
-  :desc "The chaotic evil master's favourite pet."
-  :symbol #\u
-  :colour #\o
-  :alignment '<evil>
-  :type '(<demon>)
-  :level 16
-  :rarity 2
-  :hitpoints '(6 . 8)
-  :armour 30
-  :speed 110
-  :xp 50
-  :abilities '(<bash-door> <invisible> <smart> (<random-mover> 1/4) <initial-sleeper>)
-  :immunities '(<fire>)
-  :alertness 20
-  :vision 20
-  :attacks '((<claw> :type <hurt> :damage (1 . 3)) (<claw> :type <hurt> :damage (1 . 3))
-             (<bite> :type <lose_dex> :damage (1 . 6)))
-  :treasures '((<drop> "1d2") <only-drop-items>)
-  :special-abilities '((<spell> <scare>) (<spell> <confusion>) (<spell> <blindness>) (<spell> <teleport-level>)
-                       (<spell> <teleport-player>) (<spell> <teleport>) (<spell> <blink>) (<frequency> 1/10))) 
-
-(define-monster-kind "monster-213" "imp"
+(define-monster-kind "imp" "imp"
   :desc "The lawful evil master's favourite pet."
   :symbol #\u
   :colour #\g
@@ -2321,7 +1989,7 @@
   :special-abilities '((<spell> <scare>) (<spell> <confusion>) (<spell> <blindness>) (<spell> <teleport-level>)
                        (<spell> <teleport-player>) (<spell> <teleport>) (<spell> <blink>) (<frequency> 1/10))) 
 
-(define-monster-kind "monster-214" "forest troll"
+(define-monster-kind "forest-troll" "forest troll"
   :desc "He is green skinned and ugly."
   :symbol #\T
   :colour #\g
@@ -2342,27 +2010,6 @@
   :treasures '((<drop-chance> 3/5))
   :sex '<male>) 
 
-(define-monster-kind "monster-215" "nar, the dwarf"
-  :desc "This dwarf became so obsessed by gold that Morgoth tricked him into  betraying his friends."
-  :symbol #\h
-  :colour #\y
-  :type '(<unique>)
-  :level 17
-  :rarity 2
-  :hitpoints '(45 . 10)
-  :armour 70
-  :speed 110
-  :xp 250
-  :abilities '(<bash-door> <open-door> <initial-sleeper> <max-hitpoints>)
-  :immunities '(<sleep> <confuse> <poison> <cold> <fire>)
-  :alertness 25
-  :vision 25
-  :attacks '((<hit> :type <hurt> :damage (3 . 5)) (<hit> :type <hurt> :damage (3 . 5))
-             (<hit> :type <hurt> :damage (3 . 5)) (<hit> :type <hurt> :damage (3 . 5)))
-  :treasures '(<drop-good> (<drop> "1d2") <only-drop-items>)
-  :sex '<male>
-  :special-abilities '((<spell> <mind-blast>) (<spell> (<cause> 2)) (<spell> <confusion>) (<spell> <blindness>)
-                       (<spell> <heal>) (<frequency> 1/6))) 
 
 (define-monster-kind "monster-216" "2-headed hydra"
   :desc "A strange reptilian hybrid with two heads, guarding its hoard."
@@ -2399,7 +2046,7 @@
   :vision 12
   :attacks '((<hit> :type <hurt> :damage (2 . 4)) (<hit> :type <hurt> :damage (2 . 4)))) 
 
-(define-monster-kind "monster-218" "giant pink scorpion"
+(define-monster-kind "pink-scorpion" "giant pink scorpion"
   :desc "It is fast and poisonous."
   :symbol #\S
   :colour #\R
@@ -2413,7 +2060,7 @@
   :abilities '(<bash-door> <weird-mind>)
   :alertness 20
   :vision 12
-  :attacks '((<sting> :type <lose_str> :damage (1 . 7)) (<bite> :type <hurt> :damage (2 . 4)))) 
+  :attacks '((<sting> :type <lose-str> :damage (1 . 7)) (<bite> :type <hurt> :damage (2 . 4)))) 
 
 (define-monster-kind "monster-219" "earth spirit"
   :desc "A whirling form of sentient rock."
@@ -2449,7 +2096,7 @@
   :vision 4
   :attacks '((<crush> :type <hurt> :damage (1 . 4)) (<bite> :type <hurt> :damage (1 . 3)))) 
 
-(define-monster-kind "monster-220" "fire spirit"
+(define-monster-kind "fire-spirit" "fire spirit"
   :desc "A whirlwind of sentient flame."
   :symbol #\E
   :colour #\r
@@ -2466,7 +2113,7 @@
   :vision 16
   :attacks '((<hit> :type <fire> :damage (2 . 6)) (<hit> :type <fire> :damage (2 . 6)))) 
 
-(define-monster-kind "monster-221" "fire hound"
+(define-monster-kind "fire-hound" "fire hound"
   :desc "Flames lick at its feet and its tongue is a blade of fire.  You can feel a  furnace heat radiating from the creature."
   :symbol #\Z
   :colour #\r
@@ -2485,7 +2132,7 @@
              (<bite> :type <fire> :damage (1 . 3)))
   :special-abilities '((<breath> <fire>) (<frequency> 1/10))) 
 
-(define-monster-kind "monster-222" "cold hound"
+(define-monster-kind "cold-hound" "cold hound"
   :desc "A hound as tall as a man, this creature appears to be composed of angular  planes of ice.  Cold radiates from it and freezes your breath in the air."
   :symbol #\Z
   :colour #\w
@@ -2504,7 +2151,7 @@
              (<bite> :type <cold> :damage (1 . 6)))
   :special-abilities '((<breath> <cold>) (<frequency> 1/10))) 
 
-(define-monster-kind "monster-223" "energy hound"
+(define-monster-kind "energy-hound" "energy hound"
   :desc "Saint Elmo's Fire forms a ghostly halo around this hound, and sparks sting  your fingers as energy builds up in the air around you."
   :symbol #\Z
   :colour #\b
@@ -2523,7 +2170,7 @@
              (<bite> :type <elec> :damage (1 . 3)))
   :special-abilities '((<breath> <lightning>) (<frequency> 1/10))) 
 
-(define-monster-kind "monster-224" "mimic (potion)"
+(define-monster-kind "potion-mimic" "mimic (potion)"
   :desc "A strange creature that disguises itself as discarded objects to lure  unsuspecting adventurers within reach of its venomous claws."
   :symbol #\!
   :colour #\w
@@ -2542,7 +2189,7 @@
   :special-abilities '((<spell> (<bolt> <cold>)) (<spell> (<cause> 2)) (<spell> <scare>) (<spell> <confusion>)
                        (<spell> <blindness>) (<frequency> 1/6))) 
 
-(define-monster-kind "monster-225" "blink dog"
+(define-monster-kind "blink-dog" "blink dog"
   :desc "A strange magical member of the canine race, its form seems to shimmer and  fade in front of your very eyes."
   :symbol #\C
   :colour #\B
@@ -2559,7 +2206,7 @@
   :attacks '((<bite> :type <hurt> :damage (1 . 8)))
   :special-abilities '((<spell> <teleport-player>) (<spell> <blink>) (<frequency> 1/4))) 
 
-(define-monster-kind "monster-226" "uruk"
+(define-monster-kind "uruk" "uruk"
   :desc "He is a cunning orc of power, as tall as a man, and stronger.  It fears  little."
   :symbol #\o
   :colour #\B
@@ -3325,7 +2972,7 @@
   :abilities '(<bash-door> <open-door> <pick-up-item>)
   :alertness 40
   :vision 20
-  :attacks '((<hit> :type <eat_gold> :damage (4 . 4)) (<hit> :type <hurt> :damage (2 . 8))
+  :attacks '((<hit> :type <eat-gold> :damage (4 . 4)) (<hit> :type <hurt> :damage (2 . 8))
              (<hit> :type <hurt> :damage (2 . 8)))
   :treasures '((<drop> "2d2"))
   :sex '<male>) 
@@ -3733,7 +3380,7 @@
   :abilities '(<bash-door> <weird-mind> (<random-mover> 1/4))
   :alertness 30
   :vision 14
-  :attacks '((<bite> :type <lose_str> :damage (4 . 4)))) 
+  :attacks '((<bite> :type <lose-str> :damage (4 . 4)))) 
 
 (define-monster-kind "monster-283" "giant grey ant"
   :desc "It is an ant encased in shaggy grey fur."
@@ -4079,20 +3726,6 @@
              (<bite> :type <fire> :damage (1 . 3)) (<bite> :type <fire> :damage (1 . 3)))
   :special-abilities '((<breath> <fire>) (<frequency> 1/8))) 
 
-(define-monster-kind "monster-3" "scruffy little dog"
-  :desc "A thin flea-ridden mutt, growling as you get close."
-  :symbol #\C
-  :colour #\U
-  :type '(<animal>)
-  :level 0
-  :rarity 3
-  :hitpoints '(1 . 3)
-  :armour 1
-  :speed 110
-  :abilities '((<random-mover> 1/4))
-  :alertness 5
-  :vision 20
-  :attacks '((<bite> :type <hurt> :damage (1 . 1)))) 
 
 (define-monster-kind "monster-30" "soldier ant"
   :desc "A large ant with powerful mandibles."
@@ -4762,7 +4395,7 @@
   :vulnerabilities '(<light>)
   :alertness 80
   :vision 8
-  :attacks '((<sting> :type <poison> :damage (2 . 5)) (<sting> :type <lose_str> :damage (1 . 4))
+  :attacks '((<sting> :type <poison> :damage (2 . 5)) (<sting> :type <lose-str> :damage (1 . 4))
              (<sting> :type <poison> :damage (2 . 5)) (<bite> :type <hurt> :damage (2 . 10)))
   :treasures '(<drop-good> (<drop> "2d2") (<drop> "1d2") <only-drop-items>)
   :sex '<female>
@@ -4785,7 +4418,7 @@
   :immunities '(<sleep> <confuse>)
   :alertness 10
   :vision 20
-  :attacks '((<hit> :type <lose_str> :damage (3 . 4)) (<hit> :type <lose_str> :damage (3 . 4))
+  :attacks '((<hit> :type <lose-str> :damage (3 . 4)) (<hit> :type <lose-str> :damage (3 . 4))
              (<hit> :type <poison> :damage (3 . 4)))
   :treasures '((<drop> "1d2"))
   :sex '<male>) 
@@ -5296,7 +4929,7 @@
   :abilities '(<bash-door> <open-door> <pick-up-item>)
   :alertness 40
   :vision 20
-  :attacks '((<hit> :type <eat_item> :damage (4 . 5)) (<hit> :type <eat_gold> :damage (4 . 4))
+  :attacks '((<hit> :type <eat-item> :damage (4 . 5)) (<hit> :type <eat-gold> :damage (4 . 4))
              (<hit> :type <hurt> :damage (3 . 4)) (<hit> :type <hurt> :damage (2 . 8)))
   :treasures '((<drop> "2d2") (<drop-chance> 9/10))
   :sex '<male>) 
@@ -5420,7 +5053,7 @@
   :abilities '(<bash-door> <open-door> <pick-up-item>)
   :alertness 5
   :vision 20
-  :attacks '((<touch> :type <eat_gold> :damage nil) (<hit> :type <hurt> :damage (1 . 6)))
+  :attacks '((<touch> :type <eat-gold> :damage nil) (<hit> :type <hurt> :damage (1 . 6)))
   :treasures '((<drop-chance> 3/5))
   :sex '<male>) 
 
@@ -5517,8 +5150,8 @@
   :immunities '(<sleep> <confuse>)
   :alertness 10
   :vision 20
-  :attacks '((<hit> :type <poison> :damage (3 . 4)) (<hit> :type <lose_str> :damage (3 . 4))
-             (<hit> :type <lose_str> :damage (3 . 4)) (<hit> :type <poison> :damage (3 . 4)))
+  :attacks '((<hit> :type <poison> :damage (3 . 4)) (<hit> :type <lose-str> :damage (3 . 4))
+             (<hit> :type <lose-str> :damage (3 . 4)) (<hit> :type <poison> :damage (3 . 4)))
   :treasures '((<drop> "1d2"))
   :sex '<male>) 
 
@@ -5613,7 +5246,7 @@
   :immunities '(<sleep> <confuse> <poison> <cold>)
   :alertness 10
   :vision 20
-  :attacks '((<hit> :type <lose_str> :damage (3 . 4)) (<hit> :type <hurt> :damage (6 . 6))
+  :attacks '((<hit> :type <lose-str> :damage (3 . 4)) (<hit> :type <hurt> :damage (6 . 6))
              (<hit> :type <hurt> :damage (6 . 6)))
   :treasures '((<drop> "2d2") (<drop-chance> 3/5) <only-drop-items>)
   :special-abilities '((<spell> (<bolt> <nether>)) (<spell> <drain-mana>) (<spell> <confusion>) (<spell> <paralysis>)
@@ -6266,24 +5899,6 @@
   :attacks '((<gaze> :type <paralyze> :damage nil) (<claw> :type <elec> :damage (1 . 12))
              (<claw> :type <elec> :damage (1 . 12)))) 
 
-(define-monster-kind "monster-4" "farmer maggot"
-  :desc "He's lost his dogs.  He's had his mushrooms stolen.  He's not a happy  hobbit!"
-  :symbol #\h
-  :colour #\w
-  :type '(<unique>)
-  :level 0
-  :rarity 4
-  :hitpoints '(35 . 10)
-  :armour 10
-  :speed 110
-  :abilities '(<bash-door> <open-door> <max-hitpoints>)
-  :immunities '(<sleep> <confuse>)
-  :alertness 3
-  :vision 40
-  :attacks '((<moan> :type nil :damage nil) (<moan> :type nil :damage nil))
-  :treasures '(<drop-good> (<drop-chance> 9/10) <only-drop-items>)
-  :sex '<male>) 
-
 (define-monster-kind "monster-40" "white jelly"
   :desc "Its a large pile of white flesh."
   :symbol #\j
@@ -6461,27 +6076,6 @@
   :special-abilities '((<summon> <monsters>) (<spell> (<bolt> <nether>)) (<spell> (<cause> 3)) (<spell> <scare>)
                        (<spell> <blindness>) (<frequency> 1/5))) 
 
-(define-monster-kind "monster-408" "castamir the usurper"
-  :desc "A Black Numenorean who usurped the throne of Gondor, he is treacherous and  evil."
-  :symbol #\p
-  :colour #\R
-  :alignment '<evil>
-  :type '(<unique>)
-  :level 38
-  :rarity 5
-  :hitpoints '(88 . 10)
-  :armour 90
-  :speed 120
-  :xp 1600
-  :abilities '(<bash-door> <pick-up-item> <open-door> <smart> <max-hitpoints> <initial-sleeper>)
-  :alertness 40
-  :vision 20
-  :attacks '((<hit> :type <hurt> :damage (5 . 5)) (<hit> :type <hurt> :damage (5 . 5))
-             (<hit> :type <hurt> :damage (5 . 5)) (<hit> :type <hurt> :damage (5 . 5)))
-  :treasures '(<drop-good> (<drop> "2d2") <only-drop-items>)
-  :sex '<male>
-  :special-abilities '((<spell> (<bolt> <ice>)) (<spell> (<bolt> <lightning>)) (<spell> (<bolt> <cold>))
-                       (<spell> (<bolt> <fire>)) (<spell> <traps>) (<spell> <heal>) (<frequency> 1/2))) 
 
 (define-monster-kind "monster-409" "time vortex"
   :desc "You haven't seen it yet."
@@ -6643,26 +6237,6 @@
                        (<spell> <confusion>) (<spell> <teleport-away>) (<spell> <haste>) (<spell> <heal>)
                        (<frequency> 1/11))) 
 
-(define-monster-kind "monster-416" "vargo, tyrant of fire"
-  :desc "A towering fire elemental, Vargo burns everything beyond recognition."
-  :symbol #\E
-  :colour #\r
-  :alignment '<evil>
-  :type '(<unique>)
-  :level 38
-  :rarity 3
-  :hitpoints '(15 . 100)
-  :armour 50
-  :speed 120
-  :xp 3000
-  :abilities '(<powerful-breath> <bash-door> <overrun-others> <overrun-items> <empty-mind> (<random-mover> 1/4)
-               <max-hitpoints> <initial-sleeper>)
-  :immunities '(<sleep> <confuse> <poison> <fire>)
-  :alertness 50
-  :vision 12
-  :attacks '((<hit> :type <fire> :damage (4 . 6)) (<hit> :type <fire> :damage (4 . 6))
-             (<hit> :type <fire> :damage (4 . 6)) (<hit> :type <fire> :damage (4 . 6)))
-  :special-abilities '((<spell> (<ball> <fire>)) (<spell> (<bolt> <plasma>)) (<frequency> 1/4))) 
 
 (define-monster-kind "monster-417" "black wraith"
   :desc "A figure that seems made of void, its strangely human shape is cloaked in  shadow.  It reaches out at you."
@@ -6703,7 +6277,7 @@
   :immunities '(<sleep> <confuse> <poison> <fire>)
   :alertness 80
   :vision 20
-  :attacks '((<touch> :type <lose_str> :damage (1 . 5)) (<hit> :type <hurt> :damage (3 . 4)))
+  :attacks '((<touch> :type <lose-str> :damage (1 . 5)) (<hit> :type <hurt> :damage (3 . 4)))
   :treasures '((<drop-chance> 3/5) <only-drop-items>)
   :sex '<female>
   :special-abilities '((<spell> (<bolt> <fire>)) (<spell> <confusion>) (<spell> <blindness>) (<frequency> 1/7))) 
@@ -6787,51 +6361,6 @@
              (<hit> :type <hurt> :damage (3 . 6)))
   :treasures '((<drop> "1d2") <only-drop-items>)) 
 
-(define-monster-kind "monster-422" "waldern, king of water"
-  :desc "A towering water elemental, Waldern is master of all things liquid.  Wave after wave drowns your frail body."
-  :symbol #\E
-  :colour #\s
-  :alignment '<evil>
-  :type '(<unique>)
-  :level 39
-  :rarity 3
-  :hitpoints '(20 . 100)
-  :armour 40
-  :speed 120
-  :xp 3250
-  :abilities '(<powerful-breath> <bash-door> <overrun-others> <overrun-items> <cold-blood> <empty-mind>
-               (<random-mover> 1/4) <max-hitpoints> <initial-sleeper>)
-  :immunities '(<fear> <sleep> <confuse> <poison>)
-  :alertness 50
-  :vision 12
-  :attacks '((<hit> :type <hurt> :damage (5 . 5)) (<hit> :type <hurt> :damage (5 . 5))
-             (<hit> :type <hurt> :damage (5 . 5)) (<hit> :type <hurt> :damage (5 . 5)))
-  :special-abilities '((<spell> (<ball> <water>)) (<spell> (<ball> <cold>)) (<spell> (<bolt> <water>))
-                       (<spell> (<bolt> <ice>)) (<frequency> 1/4))) 
-
-(define-monster-kind "monster-423" "kavlax the many-headed"
-  :desc "A large dragon with a selection of heads, all shouting and arguing as they  look for prey, but each with its own deadly breath weapon."
-  :symbol #\d
-  :colour #\v
-  :alignment '<evil>
-  :type '(<dragon> <unique>)
-  :level 39
-  :rarity 3
-  :hitpoints '(13 . 100)
-  :armour 85
-  :speed 120
-  :xp 3000
-  :abilities '(<powerful-breath> <bash-door> <open-door> <max-hitpoints> <initial-sleeper> <colour-changing>)
-  :immunities '(<sleep> <confuse> <lightning> <cold> <fire> <acid>)
-  :alertness 30
-  :vision 20
-  :attacks '((<bite> :type <hurt> :damage (2 . 12)) (<bite> :type <hurt> :damage (2 . 12))
-             (<bite> :type <hurt> :damage (2 . 12)) (<bite> :type <hurt> :damage (2 . 12)))
-  :treasures '(<drop-good> (<drop> "4d2") <only-drop-items>)
-  :sex '<male>
-  :special-abilities '((<breath> <nexus>) (<breath> <gravity>) (<breath> <shards>) (<breath> <confusion>)
-                       (<breath> <sound>) (<breath> <lightning>) (<breath> <cold>) (<breath> <fire>) (<breath> <acid>)
-                       (<frequency> 1/4))) 
 
 (define-monster-kind "monster-424" "ancient white dragon"
   :desc "A huge draconic form.  Frost covers it from head to tail."
@@ -7199,27 +6728,6 @@
              (<claw> :type <hurt> :damage (1 . 1)))
   :sex '<female>) 
 
-(define-monster-kind "monster-440" "uvatha the horseman"
-  :desc "A tall black cloaked Ringwraith, he is a master of horsemanship.  He longs  to taste your blood."
-  :symbol #\W
-  :colour #\D
-  :alignment '<evil>
-  :type '(<undead> <unique>)
-  :level 40
-  :rarity 3
-  :hitpoints '(12 . 100)
-  :armour 60
-  :speed 120
-  :xp 7000
-  :abilities '(<push-others> <bash-door> <open-door> <cold-blood> <max-hitpoints>)
-  :immunities '(<sleep> <confuse> <poison> <cold>)
-  :vulnerabilities '(<light>)
-  :alertness 10
-  :vision 90
-  :attacks '((<hit> :type <exp_80> :damage (4 . 6)) (<hit> :type <exp_80> :damage (4 . 6))
-             (<hit> :type <hurt> :damage (6 . 6)) (<hit> :type <hurt> :damage (6 . 6)))
-  :treasures '(<drop-good> (<drop> "2d2") <only-drop-items>)
-  :sex '<male>) 
 
 (define-monster-kind "monster-441" "minotaur"
   :desc "It is a cross between a human and a bull."
@@ -7238,29 +6746,6 @@
   :attacks '((<butt> :type <hurt> :damage (2 . 6)) (<butt> :type <hurt> :damage (2 . 6))
              (<butt> :type <hurt> :damage (4 . 6)) (<butt> :type <hurt> :damage (4 . 6)))) 
 
-(define-monster-kind "monster-442" "medusa, the gorgon"
-  :desc "One of the original three ugly sisters.  Her face could sink a thousand  ships.  Her scales rattle as she slithers towards you, venom dripping from  her ghastly mouth."
-  :symbol #\n
-  :colour #\o
-  :alignment '<evil>
-  :type '(<unique>)
-  :level 40
-  :rarity 3
-  :hitpoints '(24 . 100)
-  :armour 100
-  :speed 120
-  :xp 9000
-  :abilities '(<bash-door> <open-door> <smart> <max-hitpoints> <initial-sleeper>)
-  :immunities '(<sleep> <confuse> <poison> <fire> <acid>)
-  :alertness 5
-  :vision 30
-  :attacks '((<hit> :type <hurt> :damage (8 . 6)) (<hit> :type <hurt> :damage (8 . 6))
-             (<gaze> :type <paralyze> :damage nil) (<gaze> :type <exp_80> :damage nil))
-  :treasures '(<drop-good> (<drop> "2d2") (<drop> "1d2") <only-drop-items>)
-  :sex '<female>
-  :special-abilities '((<summon> <hydra>) (<spell> (<ball> <acid>)) (<spell> (<bolt> <plasma>))
-                       (<spell> (<bolt> <fire>)) (<spell> (<cause> 3)) (<spell> <scare>) (<spell> <paralysis>)
-                       (<frequency> 1/2))) 
 
 (define-monster-kind "monster-443" "death drake"
   :desc "It is a dragon-like form wrapped in darkness.  You cannot make out its  true form but you sense its evil."
@@ -7588,32 +7073,8 @@
   :treasures '((<drop-chance> 9/10) <only-drop-items>)
   :special-abilities '((<summon> <demon>) (<spell> (<bolt> <fire>)) (<frequency> 1/9))) 
 
-(define-monster-kind "monster-457" "ren the unclean"
-  :desc "Ren was an insane eastern king who believed himself to be the son of a  volcano god.  At an early age his sanity was destroyed by a plague that  wiped out his family, and he never recovered."
-  :symbol #\W
-  :colour #\D
-  :alignment '<evil>
-  :type '(<undead> <unique>)
-  :level 41
-  :rarity 3
-  :hitpoints '(18 . 100)
-  :armour 70
-  :speed 120
-  :xp 13000
-  :abilities '(<push-others> <bash-door> <open-door> <cold-blood> <invisible> <max-hitpoints> <initial-sleeper>)
-  :immunities '(<sleep> <confuse> <poison> <cold> <fire>)
-  :vulnerabilities '(<light>)
-  :alertness 10
-  :vision 90
-  :attacks '((<wail> :type <terrify> :damage nil) (<touch> :type <exp_80> :damage nil)
-             (<hit> :type <hurt> :damage (5 . 5)) (<hit> :type <hurt> :damage (5 . 5)))
-  :treasures '(<drop-good> (<drop> "4d2") <only-drop-items>)
-  :sex '<male>
-  :special-abilities '((<summon> <monster>) (<spell> (<ball> <fire>)) (<spell> (<bolt> <nether>))
-                       (<spell> (<bolt> <fire>)) (<spell> (<cause> 3)) (<spell> <scare>) (<spell> <paralysis>)
-                       (<spell> <blindness>) (<frequency> 1/3))) 
 
-(define-monster-kind "monster-458" "nalfeshnee"
+(define-monster-kind "nalfeshnee" "nalfeshnee"
   :desc "It is a large demon with the head of a giant boar.  Flames run up and down  its length."
   :symbol #\U
   :colour #\r
@@ -7635,7 +7096,7 @@
   :special-abilities '((<summon> <demon>) (<breath> <fire>) (<spell> <confusion>) (<spell> <blindness>)
                        (<frequency> 1/9))) 
 
-(define-monster-kind "monster-459" "undead beholder"
+(define-monster-kind "undead-beholder" "undead beholder"
   :desc "A disembodied eye, floating in the air.  Black nether storms rage around  its bloodshot pupil and light seems to bend as it sucks its power from the  very air around it.  Your soul chills as it drains your vitality for its  evil enchantments."
   :symbol #\e
   :colour #\u
@@ -7657,24 +7118,8 @@
                        (<spell> <mind-blast>) (<spell> <drain-mana>) (<spell> (<cause> 4)) (<spell> <slow>)
                        (<frequency> 1/2))) 
 
-(define-monster-kind "monster-46" "grip, farmer maggot's dog"
-  :desc "A rather vicious dog belonging to Farmer Maggot.  It thinks you are  stealing mushrooms."
-  :symbol #\C
-  :colour #\U
-  :type '(<animal> <unique>)
-  :level 2
-  :rarity 1
-  :hitpoints '(5 . 5)
-  :armour 30
-  :speed 120
-  :xp 30
-  :abilities '(<bash-door> (<random-mover> 1/4) <max-hitpoints>)
-  :immunities '(<sleep> <confuse>)
-  :alertness 0
-  :vision 30
-  :attacks '((<bite> :type <hurt> :damage (1 . 4)))) 
 
-(define-monster-kind "monster-460" "dread"
+(define-monster-kind "dread" "dread"
   :desc "It is a form that screams its presence against the eye.  Death incarnate,  its hideous black body seems to struggle against reality as the universe  itself struggles to banish it."
   :symbol #\G
   :colour #\o
@@ -7690,13 +7135,13 @@
   :immunities '(<sleep> <confuse> <poison> <cold>)
   :alertness 10
   :vision 20
-  :attacks '((<hit> :type <lose_str> :damage (3 . 4)) (<hit> :type <hurt> :damage (6 . 6))
+  :attacks '((<hit> :type <lose-str> :damage (3 . 4)) (<hit> :type <hurt> :damage (6 . 6))
              (<hit> :type <hurt> :damage (6 . 6)))
   :treasures '((<drop-chance> 3/5) <only-drop-items>)
   :special-abilities '((<spell> (<bolt> <nether>)) (<spell> <drain-mana>) (<spell> <confusion>) (<spell> <paralysis>)
                        (<spell> <blindness>) (<frequency> 1/15))) 
 
-(define-monster-kind "monster-461" "mumak"
+(define-monster-kind "mumak" "mumak"
   :desc "A massive elephantine form with eyes twisted by madness."
   :symbol #\q
   :colour #\s
@@ -7713,7 +7158,7 @@
   :attacks '((<crush> :type <hurt> :damage (4 . 4)) (<butt> :type <hurt> :damage (4 . 6))
              (<butt> :type <hurt> :damage (4 . 6)))) 
 
-(define-monster-kind "monster-462" "ancient multi-hued dragon"
+(define-monster-kind "anc-mh-dragon" "ancient multi-hued dragon"
   :desc "A huge draconic form.  Many colours ripple down its massive frame.  Few  live to see another."
   :symbol #\D
   :colour #\v
@@ -7736,7 +7181,7 @@
   :special-abilities '((<breath> <poison>) (<breath> <lightning>) (<breath> <cold>) (<breath> <fire>) (<breath> <acid>)
                        (<spell> <scare>) (<spell> <confusion>) (<spell> <blindness>) (<frequency> 1/5))) 
 
-(define-monster-kind "monster-463" "ethereal dragon"
+(define-monster-kind "eth-dragon" "ethereal dragon"
   :desc "A huge dragon emanating from the elemental plains, the ethereal dragon is  a master of light and dark.  Its form disappears from sight as it cloaks  itself in unearthly shadows."
   :symbol #\D
   :colour #\o
@@ -7757,29 +7202,6 @@
   :special-abilities '((<breath> <confusion>) (<breath> <darkness>) (<breath> <light>) (<spell> <confusion>)
                        (<spell> <blindness>) (<frequency> 1/5))) 
 
-(define-monster-kind "monster-464" "ji indur dawndeath"
-  :desc "This Ringwraith was a weak-minded sorcerer-king who fell easily under  Sauron's power."
-  :symbol #\W
-  :colour #\D
-  :alignment '<evil>
-  :type '(<undead> <unique>)
-  :level 43
-  :rarity 4
-  :hitpoints '(18 . 100)
-  :armour 70
-  :speed 120
-  :xp 12000
-  :abilities '(<push-others> <bash-door> <open-door> <cold-blood> <invisible> <max-hitpoints> <initial-sleeper>)
-  :immunities '(<sleep> <confuse> <poison> <cold> <fire>)
-  :vulnerabilities '(<light>)
-  :alertness 10
-  :vision 90
-  :attacks '((<touch> :type <exp_40> :damage nil) (<touch> :type <exp_40> :damage nil)
-             (<hit> :type <hurt> :damage (5 . 5)) (<hit> :type <hurt> :damage (5 . 5)))
-  :treasures '(<drop-good> (<drop> "4d2") <only-drop-items>)
-  :sex '<male>
-  :special-abilities '((<summon> <undead>) (<spell> (<ball> <nether>)) (<spell> (<ball> <fire>)) (<spell> (<cause> 3))
-                       (<spell> <scare>) (<spell> <paralysis>) (<spell> <blindness>) (<frequency> 1/3))) 
 
 (define-monster-kind "monster-465" "marilith"
   :desc "She is a demon of female form with many arms, each bearing deadly weapons."
@@ -7803,28 +7225,6 @@
   :sex '<female>
   :special-abilities '((<summon> <demon>) (<spell> (<cause> 2)) (<spell> <blindness>) (<frequency> 1/9))) 
 
-(define-monster-kind "monster-466" "quaker, master of earth"
-  :desc "A towering stone elemental stands before you.  The walls and ceiling are  reduced to rubble as Quaker advances."
-  :symbol #\E
-  :colour #\u
-  :alignment '<evil>
-  :type '(<unique>)
-  :level 43
-  :rarity 4
-  :hitpoints '(18 . 100)
-  :armour 97
-  :speed 110
-  :xp 6000
-  :abilities '(<powerful-breath> <pass-wall> <overrun-others> <overrun-items> <cold-blood> <empty-mind> <max-hitpoints>
-               <initial-sleeper>)
-  :immunities '(<fear> <sleep> <confuse> <poison> <lightning> <cold> <fire>)
-  :vulnerabilities '(<earth-destruction>)
-  :alertness 90
-  :vision 10
-  :attacks '((<hit> :type <shatter> :damage (10 . 10)) (<hit> :type <hurt> :damage (6 . 6))
-             (<hit> :type <hurt> :damage (6 . 6)) (<hit> :type <hurt> :damage (6 . 6)))
-  :sex '<male>
-  :special-abilities '((<spell> (<ball> <acid>)) (<spell> (<bolt> <acid>)) (<frequency> 1/6))) 
 
 (define-monster-kind "monster-467" "lesser balrog"
   :desc "It is a massive humanoid demon wreathed in flames."
@@ -7848,30 +7248,8 @@
   :special-abilities '((<summon> <demon>) (<breath> <fire>) (<spell> <confusion>) (<spell> <blindness>)
                        (<frequency> 1/4))) 
 
-(define-monster-kind "monster-468" "ariel, queen of air"
-  :desc "A towering air elemental, Ariel, the sorceress, avoids your blows  with her extreme speed."
-  :symbol #\E
-  :colour #\B
-  :alignment '<evil>
-  :type '(<unique>)
-  :level 44
-  :rarity 4
-  :hitpoints '(27 . 100)
-  :armour 50
-  :speed 130
-  :xp 8000
-  :abilities '(<powerful-breath> <bash-door> <overrun-others> <overrun-items> <cold-blood> <empty-mind>
-               (<random-mover> 1/4) <max-hitpoints> <initial-sleeper>)
-  :immunities '(<fear> <sleep> <confuse> <poison> <lightning> <cold> <fire> <acid>)
-  :alertness 50
-  :vision 12
-  :attacks '((<hit> :type <confuse> :damage (1 . 4)) (<hit> :type <hurt> :damage (4 . 6))
-             (<hit> :type <confuse> :damage (1 . 4)) (<hit> :type <hurt> :damage (4 . 6)))
-  :sex '<female>
-  :special-abilities '((<spell> (<ball> <lightning>)) (<spell> (<ball> <cold>)) (<spell> (<bolt> <lightning>))
-                       (<frequency> 1/5))) 
 
-(define-monster-kind "monster-469" "11-headed hydra"
+(define-monster-kind "hydra-11" "11-headed hydra"
   :desc "A strange reptilian hybrid with eleven smouldering heads."
   :symbol #\M
   :colour #\R
@@ -7892,22 +7270,6 @@
   :special-abilities '((<breath> <fire>) (<spell> (<ball> <fire>)) (<spell> (<bolt> <plasma>))
                        (<spell> (<bolt> <fire>)) (<spell> <scare>) (<frequency> 1/4))) 
 
-(define-monster-kind "monster-47" "fang, farmer maggot's dog"
-  :desc "A rather vicious dog belonging to Farmer Maggot.  It thinks you are  stealing mushrooms."
-  :symbol #\C
-  :colour #\U
-  :type '(<animal> <unique>)
-  :level 2
-  :rarity 1
-  :hitpoints '(5 . 5)
-  :armour 30
-  :speed 120
-  :xp 30
-  :abilities '(<bash-door> (<random-mover> 1/4) <max-hitpoints>)
-  :immunities '(<sleep> <confuse>)
-  :alertness 0
-  :vision 30
-  :attacks '((<bite> :type <hurt> :damage (1 . 4)))) 
 
 (define-monster-kind "monster-470" "patriarch"
   :desc "A dark priest of the highest order.  Powerful and evil, beware his many  spells."
@@ -7931,7 +7293,7 @@
   :special-abilities '((<summon> <undead>) (<summon> <monsters>) (<spell> <brain-smash>) (<spell> (<cause> 4))
                        (<spell> <paralysis>) (<spell> <blindness>) (<spell> <heal>) (<frequency> 1/2))) 
 
-(define-monster-kind "monster-471" "dreadmaster"
+(define-monster-kind "dreadmaster" "dreadmaster"
   :desc "It is an unlife of power almost unequaled.  An affront to existence, its  very touch abuses and disrupts the flow of life, and its unearthly limbs,  of purest black, crush rock and flesh with ease."
   :symbol #\G
   :colour #\y
@@ -7948,7 +7310,7 @@
   :immunities '(<sleep> <confuse> <poison> <cold>)
   :alertness 10
   :vision 20
-  :attacks '((<hit> :type <lose_str> :damage (3 . 4)) (<hit> :type <lose_str> :damage (3 . 4))
+  :attacks '((<hit> :type <lose-str> :damage (3 . 4)) (<hit> :type <lose-str> :damage (3 . 4))
              (<hit> :type <hurt> :damage (6 . 6)) (<hit> :type <hurt> :damage (6 . 6)))
   :treasures '((<drop> "4d2") (<drop> "1d2") <only-drop-items>)
   :special-abilities '((<summon> <undead>) (<spell> (<bolt> <nether>)) (<spell> <drain-mana>) (<spell> (<cause> 4))
@@ -7975,96 +7337,7 @@
   :special-abilities '((<breath> <poison>) (<arrow> 3) (<spell> <confusion>) (<spell> <slow>) (<spell> <blindness>)
                        (<frequency> 1/6))) 
 
-(define-monster-kind "monster-473" "scatha the worm"
-  :desc "An ancient and wise Dragon.  Scatha has grown clever over the long years.   His scales are covered with frost, and his breath sends a shower of ice  into the air."
-  :symbol #\D
-  :colour #\w
-  :alignment '<evil>
-  :type '(<dragon> <unique>)
-  :level 44
-  :rarity 2
-  :hitpoints '(20 . 100)
-  :armour 130
-  :speed 120
-  :xp 17000
-  :abilities '(<push-others> <powerful-breath> <bash-door> <max-hitpoints> <initial-sleeper>)
-  :immunities '(<sleep> <confuse> <cold>)
-  :alertness 70
-  :vision 20
-  :attacks '((<bite> :type <hurt> :damage (3 . 14)) (<claw> :type <hurt> :damage (1 . 10))
-             (<claw> :type <hurt> :damage (1 . 10)) (<claw> :type <hurt> :damage (1 . 10)))
-  :treasures '(<drop-good> (<drop> "4d2") (<drop> "3d2") <only-drop-items>)
-  :sex '<male>
-  :special-abilities '((<breath> <cold>) (<spell> (<cause> 3)) (<spell> <confusion>) (<frequency> 1/3))) 
 
-(define-monster-kind "monster-474" "dwar, dog lord of waw"
-  :desc "Dwar had a special affinity for dogs in life, and can still command them  at will.  He howls manically as he reaches out to destroy you."
-  :symbol #\W
-  :colour #\D
-  :alignment '<evil>
-  :type '(<undead> <unique>)
-  :level 44
-  :rarity 3
-  :hitpoints '(20 . 100)
-  :armour 90
-  :speed 120
-  :xp 13000
-  :abilities '(<push-others> <bash-door> <open-door> <cold-blood> <smart> <max-hitpoints> <initial-sleeper>)
-  :immunities '(<sleep> <confuse> <poison> <cold> <fire>)
-  :vulnerabilities '(<light>)
-  :alertness 10
-  :vision 90
-  :attacks '((<wail> :type <terrify> :damage nil) (<bite> :type <exp_40> :damage (2 . 4))
-             (<hit> :type <hurt> :damage (5 . 5)) (<hit> :type <hurt> :damage (5 . 5)))
-  :treasures '(<drop-good> (<drop> "4d2") <only-drop-items>)
-  :sex '<male>
-  :special-abilities '((<summon> <hound>) (<summon> <undead>) (<summon> <monsters>) (<spell> (<ball> <nether>))
-                       (<spell> (<ball> <fire>)) (<spell> (<cause> 3)) (<spell> <scare>) (<spell> <paralysis>)
-                       (<spell> <blindness>) (<frequency> 1/3))) 
-
-(define-monster-kind "monster-475" "smaug the golden"
-  :desc "Smaug is one of the Uruloki that still survive, a fire-drake of immense  cunning and intelligence.  His speed through air is matched by few other  dragons and his dragonfire is what legends are made of."
-  :symbol #\D
-  :colour #\r
-  :alignment '<evil>
-  :type '(<dragon> <unique>)
-  :level 45
-  :rarity 2
-  :hitpoints '(20 . 100)
-  :armour 100
-  :speed 120
-  :xp 19000
-  :abilities '(<push-others> <powerful-breath> <bash-door> <max-hitpoints> <initial-sleeper>)
-  :immunities '(<sleep> <confuse> <fire>)
-  :alertness 70
-  :vision 20
-  :attacks '((<bite> :type <hurt> :damage (3 . 14)) (<claw> :type <hurt> :damage (1 . 10))
-             (<claw> :type <hurt> :damage (1 . 10)) (<claw> :type <hurt> :damage (1 . 10)))
-  :treasures '(<drop-good> (<drop> "4d2") (<drop> "3d2") <only-drop-items>)
-  :sex '<male>
-  :special-abilities '((<breath> <fire>) (<spell> (<cause> 3)) (<spell> <confusion>) (<frequency> 1/3))) 
-
-(define-monster-kind "monster-476" "dracolich"
-  :desc "The skeletal form of a once-great dragon, enchanted by magic most  perilous.  Its animated form strikes with speed and drains life from its  prey to satisfy its hunger."
-  :symbol #\D
-  :colour #\G
-  :alignment '<evil>
-  :type '(<undead> <dragon>)
-  :level 46
-  :rarity 2
-  :hitpoints '(35 . 100)
-  :armour 120
-  :speed 120
-  :xp 18000
-  :abilities '(<push-others> <powerful-breath> <bash-door> <open-door> <pick-up-item> <cold-blood> <max-hitpoints>
-               <initial-sleeper>)
-  :immunities '(<sleep> <confuse> <poison> <cold>)
-  :alertness 30
-  :vision 25
-  :attacks '((<bite> :type <exp_80> :damage (1 . 6)) (<bite> :type <exp_80> :damage (1 . 6))
-             (<claw> :type <hurt> :damage (1 . 12)) (<claw> :type <hurt> :damage (1 . 12)))
-  :treasures '(<drop-good> (<drop> "4d2") <only-drop-items>)
-  :special-abilities '((<breath> <nether>) (<breath> <cold>) (<spell> <scare>) (<spell> <confusion>) (<frequency> 1/6))) 
 
 (define-monster-kind "monster-477" "greater titan"
   :desc "A forty foot tall humanoid that shakes the ground as it walks.  The power  radiating from its frame shakes your courage, its hatred inspired by your  defiance."
@@ -8407,7 +7680,7 @@
   :alertness 0
   :vision 40
   :attacks '((<hit> :type <poison> :damage (8 . 5)) (<hit> :type <blind> :damage (10 . 5))
-             (<touch> :type <eat_item> :damage (5 . 5)) (<touch> :type <eat_gold> :damage (5 . 5)))
+             (<touch> :type <eat-item> :damage (5 . 5)) (<touch> :type <eat-gold> :damage (5 . 5)))
   :treasures '(<drop-good> (<drop> "4d2") (<drop> "1d2") <only-drop-items>)
   :sex '<male>
   :special-abilities '((<spell> <traps>) (<frequency> 1/6))) 
@@ -8589,22 +7862,7 @@
   :special-abilities '((<spell> <darkness>) (<spell> <forget>) (<spell> (<cause> 3)) (<spell> <scare>)
                        (<spell> <confusion>) (<spell> <blindness>) (<spell> <teleport-away>) (<frequency> 1))) 
 
-(define-monster-kind "monster-5" "blubbering idiot"
-  :desc "He tends to blubber a lot."
-  :symbol #\t
-  :colour #\W
-  :level 0
-  :rarity 1
-  :hitpoints '(1 . 2)
-  :armour 1
-  :speed 110
-  :abilities '(<pick-up-item> (<random-mover> 1/4))
-  :alertness 0
-  :vision 6
-  :attacks '((<drool> :type nil :damage nil))
-  :sex '<male>) 
-
-(define-monster-kind "monster-50" "cave spider"
+(define-monster-kind "cave-spider" "cave spider"
   :desc "It is a black spider that moves in fits and starts."
   :symbol #\S
   :colour #\D
@@ -8988,7 +8246,7 @@
   :immunities '(<sleep> <confuse> <poison> <cold>)
   :alertness 10
   :vision 20
-  :attacks '((<hit> :type <lose_str> :damage (4 . 6)) (<hit> :type <lose_str> :damage (4 . 6))
+  :attacks '((<hit> :type <lose-str> :damage (4 . 6)) (<hit> :type <lose-str> :damage (4 . 6))
              (<hit> :type <hurt> :damage (6 . 6)) (<hit> :type <hurt> :damage (6 . 6)))
   :treasures '((<drop> "4d2") (<drop> "3d2") (<drop> "2d2") <only-drop-items>)
   :special-abilities '((<summon> <undead>) (<spell> (<ball> <nether>)) (<spell> <drain-mana>) (<spell> <confusion>)
@@ -9091,7 +8349,7 @@
                <max-hitpoints>)
   :alertness 5
   :vision 20
-  :attacks '((<touch> :type <eat_gold> :damage nil) (<hit> :type <hurt> :damage (1 . 4)))
+  :attacks '((<touch> :type <eat-gold> :damage nil) (<hit> :type <hurt> :damage (1 . 4)))
   :treasures '((<drop> "1d2") (<drop-chance> 3/5) <only-drop-gold>)
   :sex '<male>) 
 
@@ -9154,7 +8412,7 @@
   :immunities '(<sleep> <confuse> <poison> <cold>)
   :alertness 10
   :vision 20
-  :attacks '((<hit> :type <lose_str> :damage (4 . 6)) (<hit> :type <lose_str> :damage (4 . 6))
+  :attacks '((<hit> :type <lose-str> :damage (4 . 6)) (<hit> :type <lose-str> :damage (4 . 6))
              (<hit> :type <hurt> :damage (10 . 10)) (<hit> :type <hurt> :damage (10 . 10)))
   :treasures '(<drop-good> (<drop> "4d2") (<drop> "3d2") <only-drop-items>)
   :sex '<male>
@@ -9203,7 +8461,7 @@
   :immunities '(<sleep> <confuse> <poison> <cold>)
   :alertness 50
   :vision 20
-  :attacks '((<hit> :type <lose_str> :damage (4 . 6)) (<hit> :type <lose_str> :damage (4 . 6))
+  :attacks '((<hit> :type <lose-str> :damage (4 . 6)) (<hit> :type <lose-str> :damage (4 . 6))
              (<hit> :type <un_bonus> :damage (6 . 8)) (<hit> :type <un_bonus> :damage (6 . 8)))
   :treasures '(<drop-good> (<drop> "2d2") (<drop> "1d2") <only-drop-items>)
   :special-abilities '((<summon> <undead>) (<spell> (<ball> <nether>)) (<spell> (<ball> <mana>))
@@ -9860,20 +9118,6 @@
   :attacks '((<touch> :type <eat_lite> :damage (1 . 3)) (<touch> :type <eat_lite> :damage (1 . 3)))
   :special-abilities '((<spell> <drain-mana>) (<frequency> 1/15))) 
 
-(define-monster-kind "monster-6" "boil-covered wretch"
-  :desc "Ugly doesn't begin to describe him."
-  :symbol #\t
-  :colour #\g
-  :level 0
-  :rarity 1
-  :hitpoints '(1 . 2)
-  :armour 1
-  :speed 110
-  :abilities '(<bash-door> <open-door> <pick-up-item> (<random-mover> 1/4))
-  :alertness 0
-  :vision 6
-  :attacks '((<drool> :type nil :damage nil))
-  :sex '<male>) 
 
 (define-monster-kind "monster-60" "yellow jelly"
   :desc "It's a large pile of yellow flesh."
@@ -9907,7 +9151,7 @@
   :abilities '(<bash-door> <open-door> <pick-up-item>)
   :alertness 10
   :vision 16
-  :attacks '((<touch> :type <eat_gold> :damage nil) (<hit> :type <hurt> :damage (1 . 4)))
+  :attacks '((<touch> :type <eat-gold> :damage nil) (<hit> :type <hurt> :damage (1 . 4)))
   :treasures '((<drop-chance> 3/5))
   :sex '<male>) 
 
@@ -10010,7 +9254,7 @@
   :vulnerabilities '(<light>)
   :alertness 10
   :vision 2
-  :attacks '((<gaze> :type <lose_str> :damage (1 . 6)))
+  :attacks '((<gaze> :type <lose-str> :damage (1 . 6)))
   :special-abilities '((<spell> <drain-mana>) (<frequency> 1/11))) 
 
 (define-monster-kind "monster-68" "cave lizard"
@@ -10046,20 +9290,6 @@
   :sex '<male>
   :special-abilities '((<spell> <missile>) (<arrow> 2) (<frequency> 1/9))) 
 
-(define-monster-kind "monster-7" "village idiot"
-  :desc "Drooling and comical, but then, what do you expect?"
-  :symbol #\t
-  :colour #\G
-  :level 0
-  :rarity 1
-  :hitpoints '(4 . 4)
-  :armour 1
-  :speed 120
-  :abilities '(<pick-up-item> (<random-mover> 1/4))
-  :alertness 0
-  :vision 6
-  :attacks '((<drool> :type nil :damage nil))
-  :sex '<male>) 
 
 (define-monster-kind "monster-70" "novice paladin"
   :desc "An adventurer both devoutly religious and skillful in combat."
@@ -10178,7 +9408,7 @@
   :abilities '(<bash-door> <open-door> <max-hitpoints>)
   :alertness 10
   :vision 16
-  :attacks '((<touch> :type <eat_gold> :damage nil) (<touch> :type <eat_item> :damage nil)
+  :attacks '((<touch> :type <eat-gold> :damage nil) (<touch> :type <eat-item> :damage nil)
              (<hit> :type <hurt> :damage (1 . 6)))
   :treasures '(<drop-good> (<drop> "2d2") <only-drop-items>)
   :sex '<male>) 
@@ -10238,20 +9468,6 @@
   :attacks '((<crawl> :type <cold> :damage (1 . 4)))
   :treasures '((<drop-chance> 3/5))) 
 
-(define-monster-kind "monster-8" "pitiful looking beggar"
-  :desc "You just can't help feeling sorry for him."
-  :symbol #\t
-  :colour #\U
-  :level 0
-  :rarity 1
-  :hitpoints '(1 . 4)
-  :armour 1
-  :speed 110
-  :abilities '(<open-door> <pick-up-item> (<random-mover> 1/4))
-  :alertness 40
-  :vision 10
-  :attacks '((<beg> :type nil :damage nil))
-  :sex '<male>) 
 
 (define-monster-kind "monster-80" "green glutton ghost"
   :desc "It is a very ugly green ghost with a voracious appetite."
@@ -10428,20 +9644,6 @@
   :sex '<male>
   :special-abilities '((<spell> (<cause> 1)) (<spell> <scare>) (<spell> <heal>) (<frequency> 1/12))) 
 
-(define-monster-kind "monster-9" "mangy looking leper"
-  :desc "You feel it isn't safe to touch him."
-  :symbol #\t
-  :colour #\u
-  :level 0
-  :rarity 1
-  :hitpoints '(1 . 1)
-  :armour 1
-  :speed 110
-  :abilities '(<open-door> <pick-up-item> (<random-mover> 1/4))
-  :alertness 50
-  :vision 10
-  :attacks '((<beg> :type nil :damage nil))
-  :sex '<male>) 
 
 (define-monster-kind "monster-90" "novice warrior"
   :desc "He looks inexperienced but tough."
@@ -10474,7 +9676,7 @@
   :abilities '(<bash-door> <open-door> <pick-up-item>)
   :alertness 5
   :vision 20
-  :attacks '((<touch> :type <eat_gold> :damage nil) (<hit> :type <hurt> :damage (1 . 6)))
+  :attacks '((<touch> :type <eat-gold> :damage nil) (<hit> :type <hurt> :damage (1 . 6)))
   :treasures '((<drop-chance> 3/5))
   :sex '<male>) 
 
@@ -10583,7 +9785,7 @@
   :vision 6
   :attacks '((<bite> :type <poison> :damage (2 . 5)))) 
 
-(define-monster-kind "monster-98" "cave orc"
+(define-monster-kind "cave-orc" "cave orc"
   :desc "He is often found in huge numbers in deep caves."
   :symbol #\o
   :colour #\G
@@ -10603,7 +9805,7 @@
   :treasures '((<drop-chance> 3/5))
   :sex '<male>) 
 
-(define-monster-kind "monster-99" "wood spider"
+(define-monster-kind "wood-spider" "wood spider"
   :desc "It scuttles towards you."
   :symbol #\S
   :colour #\U
@@ -10620,3 +9822,46 @@
   :vision 8
   :attacks '((<sting> :type <poison> :damage (1 . 4)) (<bite> :type <hurt> :damage (1 . 3)))) 
 
+(define-monster-kind "dracolich" "dracolich"
+  :desc "The skeletal form of a once-great dragon, enchanted by magic most  perilous.  Its animated form strikes with speed and drains life from its  prey to satisfy its hunger."
+  :symbol #\D
+  :colour #\G
+  :alignment '<evil>
+  :type '(<undead> <dragon>)
+  :level 46
+  :rarity 2
+  :hitpoints '(35 . 100)
+  :armour 120
+  :speed 120
+  :xp 18000
+  :abilities '(<push-others> <powerful-breath> <bash-door> <open-door> <pick-up-item> <cold-blood> <max-hitpoints>
+               <initial-sleeper>)
+  :immunities '(<sleep> <confuse> <poison> <cold>)
+  :alertness 30
+  :vision 25
+  :attacks '((<bite> :type <exp_80> :damage (1 . 6)) (<bite> :type <exp_80> :damage (1 . 6))
+             (<claw> :type <hurt> :damage (1 . 12)) (<claw> :type <hurt> :damage (1 . 12)))
+  :treasures '(<drop-good> (<drop> "4d2") <only-drop-items>)
+  :special-abilities '((<breath> <nether>) (<breath> <cold>) (<spell> <scare>) (<spell> <confusion>) (<frequency> 1/6))) 
+
+(define-monster-kind "quasit" "quasit"
+  :desc "The chaotic evil master's favourite pet."
+  :symbol #\u
+  :colour #\o
+  :alignment '<evil>
+  :type '(<demon>)
+  :level 16
+  :rarity 2
+  :hitpoints '(6 . 8)
+  :armour 30
+  :speed 110
+  :xp 50
+  :abilities '(<bash-door> <invisible> <smart> (<random-mover> 1/4) <initial-sleeper>)
+  :immunities '(<fire>)
+  :alertness 20
+  :vision 20
+  :attacks '((<claw> :type <hurt> :damage (1 . 3)) (<claw> :type <hurt> :damage (1 . 3))
+             (<bite> :type <lose_dex> :damage (1 . 6)))
+  :treasures '((<drop> "1d2") <only-drop-items>)
+  :special-abilities '((<spell> <scare>) (<spell> <confusion>) (<spell> <blindness>) (<spell> <teleport-level>)
+                       (<spell> <teleport-player>) (<spell> <teleport>) (<spell> <blink>) (<frequency> 1/10))) 

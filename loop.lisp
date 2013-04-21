@@ -59,7 +59,7 @@ ADD_DESC: Most of the code which deals with the game loops.
   
     (when (bit-flag-set? *update* +update-xp+)
       (bit-flag-remove! *update* +update-xp+)
-      (update-xp-table! pl)
+      (update-xp-table! *variant* pl)
       (setf retval t))
   
     retval))
@@ -233,7 +233,7 @@ ADD_DESC: Most of the code which deals with the game loops.
   
   (let* ((regen-base 1442)
 	 (old-hp (current-hp crt))
-	 (new-hp (+ (* (player.max-hp crt) percent) regen-base))
+	 (new-hp (+ (* (maximum-hp crt) percent) regen-base))
 	 (max-short 32767)
 	 (increase (int-/ new-hp (expt 2 16)))
 	 (new-frac (+ (player.fraction-hp crt)
@@ -253,8 +253,8 @@ ADD_DESC: Most of the code which deals with the game loops.
 	(setf (player.fraction-hp crt) new-frac))
 
     (when (>= (current-hp crt)
-	      (player.max-hp crt))
-      (setf (current-hp crt) (player.max-hp crt)
+	      (maximum-hp crt))
+      (setf (current-hp crt) (maximum-hp crt)
 	    (player.fraction-hp crt) 0))
 
     (when (/= old-hp (current-hp crt))
@@ -301,8 +301,8 @@ ADD_DESC: Most of the code which deals with the game loops.
 
       ;; affected by condition
 
-      (when (< (player.cur-hp pl)
-	       (player.max-hp pl))
+      (when (< (current-hp pl)
+	       (maximum-hp pl))
 	(regenerate-hp! pl regen-amount)))
       
 
@@ -352,6 +352,7 @@ ADD_DESC: Most of the code which deals with the game loops.
   "a loop which runs a dungeon level"
 
   (let* ((dun (level.dungeon level))
+	 (var-obj *variant*)
 	 (*dungeon* dun)
 	 (dungeon-height (dungeon.height dun))
 	 (dungeon-width  (dungeon.width dun))
@@ -397,7 +398,7 @@ ADD_DESC: Most of the code which deals with the game loops.
 
        (energise-creatures! dun pl)
        ;; do player
-       (update-player! pl) ;; remove later
+       (update-player! var-obj pl) ;; remove later
 
        (process-monsters& dun pl +energy-normal-action+)
        ;; stuff
@@ -421,7 +422,7 @@ ADD_DESC: Most of the code which deals with the game loops.
        ;; do this till things are fixed..
 ;;       (print-map dun pl)
      
-       (incf (variant.turn *variant*))
+       (incf (variant.turn var-obj))
 
        ))
     ))
@@ -476,7 +477,7 @@ ADD_DESC: Most of the code which deals with the game loops.
 (defun load-saved-game (fname format)
   "Returns three values."
   
-  (let ((loaded (do-load format fname (list :variant :player :level)))
+  (let ((loaded (do-load nil format fname (list :variant :player :level)))
 	(the-player nil)
 	(the-level nil)
 	(the-var nil))
@@ -493,7 +494,6 @@ ADD_DESC: Most of the code which deals with the game loops.
 
     (values the-level the-player the-var)))
 
- 
 
 (defun play-game& ()
   "Should not be called directly."
@@ -543,7 +543,7 @@ ADD_DESC: Most of the code which deals with the game loops.
 	 (unless the-player ;; unable to load one.
 	   
 	   (let ((*level* (make-instance 'level))) ;; evil hack
-	     (setf the-player (create-character *variant*))))
+	     (setf the-player (interactive-creation-of-player *variant*))))
 
 	 ;; ok have we gotten anything?
 	 (when the-player
@@ -555,9 +555,9 @@ ADD_DESC: Most of the code which deals with the game loops.
 	 (warn "Trying to create player again..")
 	 )))
 
-    (unless *level*
-      (c-prt! "Please wait..." 0 0)  
-      (c-pause-line! *last-console-line*))
+;;    (unless *level*
+;;      (c-prt! "Please wait..." 0 0)  
+;;      (c-pause-line! *last-console-line*))
     
     (clear-the-screen!)
     
@@ -572,26 +572,8 @@ ADD_DESC: Most of the code which deals with the game loops.
       (game-loop&))
 
     (cond ((and *player* (player.dead-p *player*))
-	   (let* ((pl *player*)
-		  (fname ".high-scores")
-		  (var-obj *variant*)
-		  (hs (make-high-score *variant* pl))
-		  (hs-pos (save-high-score& var-obj hs fname)))
-	     (c-prt! "Oops.. you died.. " 0 0)
-	     
-	     (progn
-	       (c-clear-from! 0)
-	       (print-tomb var-obj pl))
-
-	     (c-pause-line! *last-console-line*)
-	     
-	     (progn
-	       (c-clear-from! 0)
-	       (display-high-scores var-obj (get-high-scores var-obj fname) :current hs-pos))
-
-	     
-	     
-	     ))
+	   (organise-death& *player* *variant*))
+	   
 	  (t
 	   (c-prt! "Quitting..." 0 0)
 

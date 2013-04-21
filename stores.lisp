@@ -45,9 +45,6 @@ the Free Software Foundation; either version 2 of the License, or
 
 ;;; Current implementation ignores haggling, selling-season, buying-season, etc
 
-(defgeneric store-generate-object (the-store)
-  (:documentation "Returns an object appropriate for the store, no side-effects."))
-
 (defmethod find-owner-for-house (level (house store)
 				       &key
 				       (var-obj *variant*)
@@ -317,10 +314,14 @@ should be an exisiting id."
 (defmethod store-generate-object ((the-store store))
   "fix me.. works only as black market."
   ;; this is just a black market, fix for a regular store!
-  (let* ((some-obj (get-obj-by-level (+ 25 (randint 25))))
+  (let* ((var-obj *variant*)
+	 (level *level*)
+	 (some-obj (get-active-object-by-level var-obj level
+					       :depth (+ 25 (randint 25))))
 	 (o-type (when some-obj (aobj.kind some-obj))))
 
-    (when (and some-obj (plusp (get-price some-obj the-store))
+    (when (and some-obj
+	       (plusp (get-price some-obj the-store))
 	       (not (obj-is? o-type '<chest>))) ;; hack
       some-obj)))
 
@@ -367,7 +368,7 @@ should be an exisiting id."
 	     (let ((attr (get-attribute val))
 		   (price (get-price val store))
 		   (desc (with-output-to-string (s)
-			   (write-obj-description val s :store t))))
+			   (write-obj-description *variant* val s :store t))))
 	       (c-prt! "" (+ i y) (- x 2))
 	       (c-col-put-str! +term-white+ (format nil "~a) " (i2a i)) (+ i y) x)
 	       

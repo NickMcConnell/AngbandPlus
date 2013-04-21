@@ -127,22 +127,6 @@ the Free Software Foundation; either version 2 of the License, or
      
    ))
 
-(defgeneric initialise-monsters& (variant &key &allow-other-keys)
-  (:documentation "Initialises monsters for the given variant."))
-  
-(defgeneric initialise-floors& (variant &key &allow-other-keys)
-  (:documentation "Initialises floors for the given variant."))
-  
-(defgeneric initialise-objects& (variant &key &allow-other-keys)
-  (:documentation "Initialises objects for the given variant."))
-
-(defgeneric calculate-score (variant player)
-  (:documentation "Calculates the score for the player based on the variant's
-scoring-system."))
-
-(defgeneric variant-data-fname (var-obj data-fname)
-  (:documentation "Returns a fname for a data-file for the variant."))
- 
 (defmethod initialise-monsters& (variant &key)
   (error "No INIT-MONSTERS for ~s" (type-of variant)))
   

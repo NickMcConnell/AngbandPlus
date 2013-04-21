@@ -414,7 +414,7 @@
   :the-kind '<food>
   :game-values (make-instance 'game-values :food-val 1000)) 
 
-(define-object-kind "object-30" "& broken dagger~"
+(define-object-kind "broken-dagger" "& broken dagger~"
   :numeric-id 30
   :x-attr #\D
   :x-char #\|
@@ -446,7 +446,7 @@
   :the-kind '<weapon>
   :game-values (make-instance 'game-values :base-dice 4 :num-dice 3)) 
 
-(define-object-kind "object-32" "& scimitar~"
+(define-object-kind "scimitar" "& scimitar~"
   :numeric-id 32
   :x-attr #\W
   :x-char #\|
@@ -462,7 +462,7 @@
   :the-kind '<weapon>
   :game-values (make-instance 'game-values :base-dice 5 :num-dice 2)) 
 
-(define-object-kind "object-33" "& tulwar~"
+(define-object-kind "tulwar" "& tulwar~"
   :numeric-id 33
   :x-attr #\W
   :x-char #\|
@@ -478,7 +478,7 @@
   :the-kind '<weapon>
   :game-values (make-instance 'game-values :base-dice 4 :num-dice 2)) 
 
-(define-object-kind "object-34" "& broad sword~"
+(define-object-kind "broad-sword" "& broad sword~"
   :numeric-id 34
   :x-attr #\W
   :x-char #\|
@@ -494,7 +494,7 @@
   :the-kind '<weapon>
   :game-values (make-instance 'game-values :base-dice 5 :num-dice 2)) 
 
-(define-object-kind "object-35" "& short sword~"
+(define-object-kind "short-sword" "& short sword~"
   :numeric-id 35
   :x-attr #\W
   :x-char #\|
@@ -590,7 +590,7 @@
   :the-kind '<weapon>
   :game-values (make-instance 'game-values :base-dice 5 :num-dice 4)) 
 
-(define-object-kind "object-41" "& katana~"
+(define-object-kind "katana" "& katana~"
   :numeric-id 41
   :x-attr #\W
   :x-char #\|
@@ -606,7 +606,7 @@
   :the-kind '<weapon>
   :game-values (make-instance 'game-values :base-dice 4 :num-dice 3)) 
 
-(define-object-kind "object-42" "& long sword~"
+(define-object-kind "long-sword" "& long sword~"
   :numeric-id 42
   :x-attr #\W
   :x-char #\|
@@ -622,7 +622,7 @@
   :the-kind '<weapon>
   :game-values (make-instance 'game-values :base-dice 5 :num-dice 2)) 
 
-(define-object-kind "object-43" "& dagger~"
+(define-object-kind "dagger" "& dagger~"
   :numeric-id 43
   :x-attr #\W
   :x-char #\|
@@ -1102,7 +1102,7 @@
   :the-kind '<weapon>
   :game-values (make-instance 'game-values :base-dice 4 :num-dice 8)) 
 
-(define-object-kind "object-73" "& short bow~"
+(define-object-kind "short-bow" "& short bow~"
   :numeric-id 73
   :x-attr #\U
   :x-char #\}
@@ -1112,13 +1112,14 @@
   :locale #(3 0 0 0)
   :weight 30
   :cost 50
+  :multiplier 2
   :obj-type '(<short> <bow>)
   :flags '(<show-modififers>)
   :sort-value 2812
   :the-kind '<bow>
   :game-values (make-instance 'game-values)) 
 
-(define-object-kind "object-74" "& long bow~"
+(define-object-kind "long-bow" "& long bow~"
   :numeric-id 74
   :x-attr #\U
   :x-char #\}
@@ -1128,13 +1129,14 @@
   :locale #(10 0 0 0)
   :weight 40
   :cost 120
+  :multiplier 2
   :obj-type '(<long> <bow>)
   :flags '(<show-modififers>)
   :sort-value 2813
   :the-kind '<bow>
   :game-values (make-instance 'game-values)) 
 
-(define-object-kind "object-75" "& light crossbow~"
+(define-object-kind "light-xbow" "& light crossbow~"
   :numeric-id 75
   :x-attr #\s
   :x-char #\}
@@ -1144,13 +1146,14 @@
   :locale #(15 0 0 0)
   :weight 110
   :cost 140
+  :multiplier 3
   :obj-type '(<bow> <light> <xbow>)
   :flags '(<show-modififers>)
   :sort-value 2823
   :the-kind '<bow>
   :game-values (make-instance 'game-values)) 
 
-(define-object-kind "object-76" "& heavy crossbow~"
+(define-object-kind "heavy-xbow" "& heavy crossbow~"
   :numeric-id 76
   :x-attr #\s
   :x-char #\}
@@ -1160,13 +1163,14 @@
   :locale #(30 0 0 0)
   :weight 200
   :cost 300
+  :multiplier 4
   :obj-type '(<bow> <heavy> <xbow>)
   :flags '(<show-modififers>)
   :sort-value 2824
   :the-kind '<bow>
   :game-values (make-instance 'game-values)) 
 
-(define-object-kind "object-77" "& sling~"
+(define-object-kind "sling" "& sling~"
   :numeric-id 77
   :x-attr #\u
   :x-char #\}
@@ -1176,13 +1180,14 @@
   :locale #(1 0 0 0)
   :weight 5
   :cost 5
+  :multiplier 2
   :obj-type '(<sling> <bow>)
   :flags '(<show-modififers>)
   :sort-value 2802
   :the-kind '<bow>
   :game-values (make-instance 'game-values)) 
 
-(define-object-kind "object-78" "& arrow~"
+(define-object-kind "arrow" "& arrow~"
   :numeric-id 78
   :x-attr #\U
   :x-char #\{
@@ -1198,7 +1203,7 @@
   :the-kind '<ammo>
   :game-values (make-instance 'game-values :base-dice 4 :num-dice 1)) 
 
-(define-object-kind "object-79" "& seeker arrow~"
+(define-object-kind "seeker-arrow" "& seeker arrow~"
   :numeric-id 79
   :x-attr #\G
   :x-char #\{
@@ -1214,7 +1219,7 @@
   :the-kind '<ammo>
   :game-values (make-instance 'game-values :base-dice 4 :num-dice 4)) 
 
-(define-object-kind "object-80" "& bolt~"
+(define-object-kind "bolt" "& bolt~"
   :numeric-id 80
   :x-attr #\s
   :x-char #\{
@@ -1230,7 +1235,7 @@
   :the-kind '<ammo>
   :game-values (make-instance 'game-values :base-dice 5 :num-dice 1)) 
 
-(define-object-kind "object-81" "& seeker bolt~"
+(define-object-kind "seeker-bolt" "& seeker bolt~"
   :numeric-id 81
   :x-attr #\B
   :x-char #\{
@@ -1246,7 +1251,7 @@
   :the-kind '<ammo>
   :game-values (make-instance 'game-values :base-dice 5 :num-dice 4)) 
 
-(define-object-kind "object-82" "& rounded pebble~"
+(define-object-kind "round-pebble" "& rounded pebble~"
   :numeric-id 82
   :x-attr #\s
   :x-char #\{
@@ -1262,7 +1267,7 @@
   :the-kind '<ammo>
   :game-values (make-instance 'game-values :base-dice 2 :num-dice 1)) 
 
-(define-object-kind "object-83" "& iron shot~"
+(define-object-kind "iron-shot" "& iron shot~"
   :numeric-id 83
   :x-attr #\s
   :x-char #\{
@@ -1278,7 +1283,7 @@
   :the-kind '<ammo>
   :game-values (make-instance 'game-values :base-dice 3 :num-dice 1)) 
 
-(define-object-kind "object-84" "& shovel~"
+(define-object-kind "shovel" "& shovel~"
   :numeric-id 84
   :x-attr #\s
   :x-char #\\
@@ -3508,7 +3513,7 @@
   :the-kind '<potion>
   :game-values (make-instance 'game-values :base-dice 1 :num-dice 1 :food-val 100)) 
 
-(define-object-kind "object-242" "healing"
+(define-object-kind "healing-potion" "healing"
   :numeric-id 242
   :x-attr #\d
   :x-char #\!

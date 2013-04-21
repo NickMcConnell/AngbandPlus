@@ -51,7 +51,7 @@ ADD_DESC: at the start.
       )))
 
 
-(defun create-alloc-table-objects (obj-table)
+(defmethod create-alloc-table-objects ((variant variant) obj-table)
   "Creates an allocation table for objects and returns it."
   
   ;; first we should scan the obj-table and figure
@@ -107,7 +107,7 @@ ADD_DESC: at the start.
 		  (let* ((p (int-/ 100 chance))
 			 (alloc-obj (make-alloc-entry :index k-idx
 						      :obj k-obj
-						      :level (svref (object.locale k-obj) j)
+						      :depth (svref (object.locale k-obj) j)
 						      :prob1 p
 						      :prob2 p
 						      :prob3 p)))
@@ -117,7 +117,7 @@ ADD_DESC: at the start.
 		    (incf counter))))))
 
 
-      (setq table (sort table #'< :key #'alloc.level))
+      (setq table (sort table #'< :key #'alloc.depth))
 
       #+langband-debug
       (dump-alloc-table table "dumps/foo.txt")
@@ -125,15 +125,14 @@ ADD_DESC: at the start.
       table)))
 
 
-(defun create-alloc-table-monsters (mon-table)
+(defmethod create-alloc-table-monsters ((variant variant) mon-table)
   "Creates an allocation table for monsters and returns it."
   
   ;; first we should scan the mon-table and figure
   ;; out level-organisation and number of allocation
   ;; slots
 
-  (let* ((var-obj *variant*)
-	 (org-size (variant.max-depth var-obj))
+  (let* ((org-size (variant.max-depth variant))
 	 (level-org (make-array org-size :initial-element 0))
 	 (alloc-sz 0))
     
@@ -166,7 +165,7 @@ ADD_DESC: at the start.
 		     (p (int-/ 100 (monster.rarity k-obj)))
 		     (alloc-obj (make-alloc-entry :index k-idx
 						  :obj k-obj
-						  :level x
+						  :depth x
 						  :prob1 p
 						  :prob2 p
 						  :prob3 p)))
@@ -176,7 +175,7 @@ ADD_DESC: at the start.
 
 	    
 
-      (setq table (sort table #'< :key #'alloc.level))
+      (setq table (sort table #'< :key #'alloc.depth))
     
 
       #+langband-debug
@@ -191,7 +190,7 @@ ADD_DESC: at the start.
 		     :if-exists :supersede)
     (loop for i across table
 	  do
-	  (format s "~&~a: ~a~%" (alloc.level i) (alloc.obj i)))))
+	  (format s "~&~a: ~a~%" (alloc.depth i) (alloc.obj i)))))
 
 (defun %to-a-string (obj)
   (etypecase obj

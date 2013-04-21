@@ -19,30 +19,32 @@ ADD_DESC: The code which deals with critters you can meet in the dungeon.
 (in-package :org.langband.engine)
   
 (defclass monster-kind ()
-  ((id :accessor monster.id :initform nil)
-   (name :accessor monster.name :initform nil)
-   (desc :accessor monster.desc :initform nil)
-   (symbol :accessor monster.symbol :initform nil)
-   (colour :accessor monster.colour :initform nil)
+  ((id        :initarg :id   :accessor monster.id        :initform nil)
+   (name      :initarg :name :accessor monster.name      :initform nil)
+   (desc      :accessor monster.desc      :initform nil)
+   (symbol    :accessor monster.symbol    :initform nil)
+   (colour    :accessor monster.colour    :initform nil)
    (alignment :accessor monster.alignment :initform nil)
-   (type :accessor monster.type :initform nil)
-   (level :accessor monster.level :initform nil)
-   (rarity :accessor monster.rarity :initform nil)
+   (type      :accessor monster.type      :initform nil)
+   (level     :accessor monster.level     :initform nil)
+   (rarity    :accessor monster.rarity    :initform nil)
    (hitpoints :accessor monster.hitpoints :initform nil)
-   (armour :accessor monster.armour :initform nil)
-   (speed :accessor monster.speed :initform 0)
-   (xp :accessor monster.xp :initform 0)
-   (sex :accessor monster.sex :initform nil)
+   (armour    :accessor monster.armour    :initform nil)
+   (speed     :accessor monster.speed     :initform 0)
+   (xp        :accessor monster.xp        :initform 0)
+   (sex       :accessor monster.sex       :initform nil)
 
-   (abilities :accessor monster.abilities :initform nil)
+   (abilities  :accessor monster.abilities  :initform nil)
    ;;   (resists :accessor monster.resists :initform nil)
    (immunities :accessor monster.immunities :initform nil)
-   (vulnerabilities :accessor monster.vulnerabilities :initform nil)
-   (alertness :accessor monster.alertness :initform nil)
-   (vision :accessor monster.vision :initform nil)
-   (attacks :accessor monster.attacks :initform nil)
-   (treasures :accessor monster.treasures :initform nil)
-   (special-abilities :accessor monster.sp-abilities :initform nil)
+
+   (alertness  :accessor monster.alertness  :initform nil)
+   (vision     :accessor monster.vision     :initform nil)
+   (attacks    :accessor monster.attacks    :initform nil)
+   (treasures  :accessor monster.treasures  :initform nil)
+   
+   (vulnerabilities   :accessor monster.vulnerabilities :initform nil)
+   (special-abilities :accessor monster.sp-abilities    :initform nil)
    )) 
 
 (defmethod has-ability? ((mon monster-kind) ability)
@@ -56,51 +58,42 @@ ADD_DESC: The code which deals with critters you can meet in the dungeon.
 (defmethod has-ability? ((mon active-monster) ability)
   (has-ability? (amon.kind mon) ability))
 
-(defun create-monster (id)
-  "Returns an appropriate monster or NIL."
+(defmethod produce-monster-kind ((variant variant) id name &key the-kind)
+  (declare (ignore the-kind))
+  (assert (stringp id))
+  (assert (stringp name))
+  (make-instance 'monster-kind :id id :name name))
 
-  (assert (or (stringp id) (symbolp id)))
+(defmethod produce-active-monster ((variant variant) mon-type)
+
+  (assert (not (eq mon-type nil)))
+
   
-  (when-bind (kind (get-monster-kind (if (symbolp id)
-					 (symbol-name id)
-					 id)))
-    (create-active-monster kind)))
-
-
-(defun create-active-monster (kind)
-  (assert (not (eq kind nil)))
-  (let ((amon (make-instance 'active-monster :kind kind))
-	(num-hitdice (car (monster.hitpoints kind)))
-	(hitdice (cdr (monster.hitpoints kind))))
+  (let* ((the-kind (cond ((symbolp mon-type)
+			  (get-monster-kind variant (symbol-name mon-type)))
+			 ((stringp mon-type)
+			  (get-monster-kind variant mon-type))
+			 ((typep mon-type 'monster-kind)
+			  mon-type)
+			 (t
+			  (error "Mon-type argument to produce-active-monster is not {symbol,string,mkind}, but is ~s"
+				 mon-type))))
+			  
+	 (amon (make-instance 'active-monster :kind the-kind))
+	 (num-hitdice (car (monster.hitpoints the-kind)))
+	 (hitdice (cdr (monster.hitpoints the-kind))))
     
-    (if (has-ability? kind '<max-hitpoints>)
+    (if (has-ability? the-kind '<max-hitpoints>)
 	(setf (current-hp amon) (* num-hitdice hitdice))
 	(setf (current-hp amon) (roll-dice num-hitdice hitdice)))
 
-    (setf (get-creature-max-hp amon) (current-hp amon))
-    (setf (get-creature-speed amon) (monster.speed kind))
+    (setf (maximum-hp amon) (current-hp amon))
+    (setf (get-creature-speed amon) (monster.speed the-kind))
 ;;    (warn "Monster ~a got ~a hp from ~a dice" (get-creature-name amon)
 ;;	  (current-hp amon) (monster.hitpoints kind))
     ;; blah
     amon))
 
-
-
-(defmethod print-object ((inst monster-kind) stream)
-  (print-unreadable-object
-   (inst stream :identity t)
-   (format stream "~:(~S~) [~S ~S]" (class-name (class-of inst)) 
-	   (monster.id inst)
-	   (monster.name inst)))
-  inst)
-
-
-(defmethod print-object ((inst active-monster) stream)
-  (print-unreadable-object
-   (inst stream :identity t)
-   (format stream "~:(~a~) [~S, (~s,~s)]" (class-name (class-of inst)) 
-	   (amon.kind inst) (location-x inst) (location-y inst))
-  inst))
 
 
 (defmethod get-xp-value ((creature active-monster))
@@ -126,46 +119,26 @@ ADD_DESC: The code which deals with critters you can meet in the dungeon.
 (defmethod monster.attacks ((mon active-monster))
   (monster.attacks (amon.kind mon)))
 
-(defun get-mkind-table (&optional (var-obj *variant*))
-  (check-type *level* level)
-  (check-type var-obj variant)
+(defmethod get-mkind-table ((var-obj variant) (level level))
   
-  (let* ((o-table (get-mtype-table *level* var-obj))
+  (let* ((o-table (get-mtype-table var-obj level))
 	 (table (gobj-table.obj-table o-table)))
     table))
 
-(defun %get-mkind-alloc-tbl ()
-  (check-type *level* level)
-  (check-type *variant* variant)
+(defmethod get-mkind-alloc-table ((var-obj variant) (level level))
   
-  (let* ((o-table (get-mtype-table *level* *variant*))
+  (let* ((o-table (get-mtype-table var-obj level))
 	 (table (gobj-table.alloc-table o-table)))
     table))
  
 
-(defun get-monster-kind (id)
-  "Returns monster-kind or nil."
+(defmethod get-monster-kind ((variant variant) id)
+  "Returns monster-kind or nil.  I think this one is quite limited."
   (assert (or (stringp id) (symbolp id)))
-  (let ((table (get-mkind-table))
+  (let ((table (get-mkind-table variant *level*))
 	(key (if (symbolp id) (symbol-name id) id)))
 ;;    (warn "htbl has test ~a" (hash-table-test table))
     (gethash key table)))
-
-(defun add-new-mkind! (obj id)
-  ""
-  (declare (ignore id))
-  (check-type *variant* variant)
-  
-  (apply-filters-on-obj :monsters *variant* obj))
-
-(defun (setf get-monster-kind) (monster-kind id)
-  "establishes a monster-kind"
-
-  (assert (or (stringp id) (symbolp id)))
-    
-  (let ((table (get-mkind-table))
-	(key (if (symbolp id) (symbol-name id) id)))
-    (setf (gethash key table) monster-kind)))
 
 
 (defmethod convert-obj (attacks (to (eql :attk-list)) &key)
@@ -190,17 +163,17 @@ ADD_DESC: The code which deals with critters you can meet in the dungeon.
 	    (t
 	     (warn "Unknown attack-info ~s" i))))
     (nreverse attacks)))
-  
 
-(defun get-monster-list (&optional (var-obj *variant*))
+
+(defmethod get-monster-list ((var-obj variant))
   "returns a fresh list.  Remove me!"
-  (let ((table (get-mkind-table var-obj)))
+  (let ((table (get-mkind-table var-obj *level*)))
     (stable-sort (loop for v being each hash-value of table
 		       collecting v)
 		 #'string<
 		 :key #'monster.id)))
 
-(defun get-all-monsters (&optional (var-obj *variant*))
+(defun get-all-monsters (&key (var-obj *variant*))
   "Returns a fresh list."
   (let* ((mon-info (variant.monsters var-obj))
 	 (mon-tables (loop for x being each hash-value of mon-info
@@ -211,8 +184,6 @@ ADD_DESC: The code which deals with critters you can meet in the dungeon.
 	    do (push v total-list)))
     (stable-sort total-list #'string< :key #'monster.id)))
 
-;;(trace get-all-monsters)
-
 (defun define-monster-kind (id name &key desc symbol colour
 			    alignment type level
 			    rarity hitpoints armour
@@ -221,19 +192,21 @@ ADD_DESC: The code which deals with critters you can meet in the dungeon.
 			    vulnerabilities
 			    vision attacks special-abilities
 			    treasures sex)
-  "Defines a critter you might bump into when you least expect it"
+  "Defines a critter you might bump into when you least expect it. It uses
+the *VARIANT* object so it has to be properly initialised."
   
 ;;  (lang-warn "Creating monster ~a [~a]" name id)
 
-  (let ((m-obj (make-instance 'monster-kind)))
-
-    (assert (or (stringp id) (symbolp id)))
-    (setf (monster.id m-obj) (if (symbolp id)
-				 (symbol-name id)
-				 id))
-    (assert (stringp name))
-    (setf (monster.name m-obj) name)
-
+  (assert (or (stringp id) (symbolp id)))
+  (assert (stringp name))
+    
+  (let* ((var-obj *variant*)
+	 (m-obj (produce-monster-kind var-obj
+				      (if (symbolp id)
+					  (string-downcase (symbol-name id))
+					  id)
+				      name)))
+    
     (if (stringp desc)
 	(setf (monster.desc m-obj) desc)
 	(warn "No description for monster ~a found" id))
@@ -295,8 +268,9 @@ ADD_DESC: The code which deals with critters you can meet in the dungeon.
       (setf (monster.sp-abilities m-obj) special-abilities))
     
 
-    (add-new-mkind! m-obj id)
-;;    (setf (get-monster-kind id) m-obj) 
+    ;; applies the filters registered for newly read monsters
+    (apply-filters-on-obj :monsters var-obj m-obj)
+    ;;(add-new-mkind! m-obj id)
     
     m-obj))
 
@@ -334,10 +308,10 @@ ADD_DESC: The code which deals with critters you can meet in the dungeon.
       the-form)))
 
       
-(defun dump-monsters (out-file &optional monster-list)
+(defun dump-monsters (out-file &key (monster-list nil) (var-obj *variant*))
   (let ((mon-list (if monster-list
 		       monster-list
-		       (get-monster-list)))
+		       (get-monster-list var-obj)))
 	(*print-case* :downcase)
 	(*print-right-margin* 120))
     
@@ -351,3 +325,21 @@ ADD_DESC: The code which deals with critters you can meet in the dungeon.
 	(print (get-loadable-form x) ffile)
 	(terpri ffile))
       (terpri ffile))))
+
+
+(defmethod print-object ((inst monster-kind) stream)
+  (print-unreadable-object
+   (inst stream :identity t)
+   (format stream "~:(~S~) [~S ~S]" (class-name (class-of inst)) 
+	   (monster.id inst)
+	   (monster.name inst)))
+  inst)
+
+
+(defmethod print-object ((inst active-monster) stream)
+  (print-unreadable-object
+   (inst stream :identity t)
+   (format stream "~:(~a~) [~S, (~s,~s)]" (class-name (class-of inst)) 
+	   (amon.kind inst) (location-x inst) (location-y inst))
+  inst))
+

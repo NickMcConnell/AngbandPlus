@@ -14,6 +14,14 @@ the Free Software Foundation; either version 2 of the License, or
 
 (in-package :langband)
 
+(defun add-new-mkind! (obj id)
+  ""
+  (declare (ignore id))
+  (check-type *variant* variant)
+
+  ;; applies the filters registered for newly read monsters
+  (apply-filters-on-obj :monsters *variant* obj))
+
 
 (defun compat-read-monsters& (old-file)
   "Reads a monster file from 2.9.0"

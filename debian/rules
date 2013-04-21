@@ -36,8 +36,8 @@ INSTALLSOURCES	:= \
 	langband-engine.system pre-build.lisp \
 	package.lisp memoize.lisp \
 	base.lisp constants.lisp \
-	dyn-vars.lisp event.lisp  core.lisp \
-	parameters.lisp  global.lisp  \
+	dyn-vars.lisp generics.lisp sys.lisp event.lisp  core.lisp \
+	parameters.lisp   global.lisp  \
 	settings.lisp  level.lisp \
 	floor.lisp  sound.lisp \
 	stat.lisp  race.lisp \
@@ -50,7 +50,7 @@ INSTALLSOURCES	:= \
 	generate.lisp  print.lisp \
 	util.lisp  combat.lisp \
 	keys.lisp  actions.lisp \
-	view.lisp save.lisp  load.lisp \
+	view.lisp project.lisp save.lisp  load.lisp \
 	death.lisp \
 	birth.lisp loop.lisp \
 	init.lisp verify.lisp
@@ -107,7 +107,9 @@ VANCONFSRC = \
 	variants/vanilla/config/monsters.lisp \
 	variants/vanilla/config/objects.lisp \
 	variants/vanilla/config/races.lisp \
-	variants/vanilla/config/stores.lisp 
+	variants/vanilla/config/stores.lisp \
+	variants/vanilla/config/town-monsters.lisp \
+	variants/vanilla/config/uniques.lisp 
 
 
 build: 

@@ -40,7 +40,7 @@ ADD_DESC: This file just contains simple init and loading of the game
 ;;  #-clisp
 ;;  (push :using-sound *features*)
   ;; this one should be turned on in releases and in curses
-  (pushnew :hide-warnings *features*)
+;;  (pushnew :hide-warnings *features*)
 
 ;;  (pushnew :maintainer-mode *features*)
   #+(or cmu clisp allegro (and lispworks unix))
@@ -96,8 +96,8 @@ ADD_DESC: This file just contains simple init and loading of the game
 		    ))
 
 
-;;(proclaim *dev-opt*)
-(proclaim *normal-opt*)
+(proclaim *dev-opt*)
+;;(proclaim *normal-opt*)
  
 (defun compile-in-environment (func)
   (let (
@@ -154,15 +154,15 @@ ADD_DESC: This file just contains simple init and loading of the game
     #+lispworks
     (%cl "ffi/ffi-lw")
 
-    (c-files "memoize" "base" "constants" "dyn-vars"
-	     "event" "core" "parameters" "global"
+    (c-files "memoize" "base" "constants" "dyn-vars" "generics"
+	     "sys" "event" "core" "parameters" "global" 
 	     "settings" "level" "floor" "sound"
 	     "stat" "race" "class" "object"
 	     "equipment" "player" "flavours" "monster"
 	     "dungeon" "building" "stores" "allocate"
 	     "rooms" "generate" "print" "util"
 	     "combat" "keys" "actions" "view"
-	     "save" "load" "death"
+	     "project" "save" "load" "death"
 	     "birth" "loop" "init" "verify")
     (progress-msg "Base engine loaded...")
 
@@ -201,3 +201,7 @@ ADD_DESC: This file just contains simple init and loading of the game
 #+xp-testing
 (do-a-test :pre)
 
+;; hidden thing to print out lists
+(defun fil (lst tp)
+  (loop for i in lst do
+	(when (typep i tp) (format t "~&~a~%" (object.name i)))))

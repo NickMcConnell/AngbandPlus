@@ -145,7 +145,8 @@ ADD_DESC: This file contains the constants in the game.  should be small.
 (defconstant +block-width+ 11)
 
 
-(defconst +escape+ =char-code= (charify-number 27) "escape-key")
+;;(defconst +escape+ =char-code= (charify-number 27) "escape-key")
+(defconstant +escape+ #\Escape)
 
 ;;(defconstant +max-depth+ 128)
 #||
@@ -195,7 +196,7 @@ ADD_DESC: This file contains the constants in the game.  should be small.
 (defconstant +ddx+ #1A(0 -1 0 1 -1 0 1 -1 0 1)
 	     "Global array for converting 'keypad direction' into 'offsets'.")
 
-(defconstant +ddy+ #1A(0 -1 0 1 -1 0 1 -1 0 1)
+(defconstant +ddy+ #1A(0 1 1 1 0 0 0 -1 -1 -1)
 	     "Global array for converting 'keypad direction' into 'offsets'.")
 
 (defconstant +ddx-ddd+ #1A(0 0 1 -1 1 -1 1 -1 0)

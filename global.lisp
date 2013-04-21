@@ -19,6 +19,7 @@ ADD_DESC: parts of the code.  Small classes, functions, et.al
 
 (in-package :org.langband.engine)
 
+
 (defclass game-values ()
   ((base-ac       :accessor gval.base-ac
 		  :initarg :base-ac
@@ -84,6 +85,7 @@ ADD_DESC: parts of the code.  Small classes, functions, et.al
   
   (:documentation "necessary game-values for an object."))
 
+
 (defclass attack ()
   ((kind     :accessor attack.kind
 	     :initarg :kind
@@ -95,7 +97,6 @@ ADD_DESC: parts of the code.  Small classes, functions, et.al
 	     :initarg :damage
 	     :initform nil))
   (:documentation "Representation for a monster-attack."))
-    
    
 
 (defclass active-object (activatable)
@@ -126,9 +127,12 @@ ADD_DESC: parts of the code.  Small classes, functions, et.al
 		:initarg :identify
 		:initform 0
 		:documentation "Bitfield that says how known the object is.")
+
+   (marked :accessor aobj.marked
+	   :initform nil
+	   :documentation "boolean whether the object has been marked.")
    
    ))
-
 
 
 (defclass active-monster (activatable)
@@ -138,7 +142,7 @@ ADD_DESC: parts of the code.  Small classes, functions, et.al
    (cur-hp  :accessor current-hp
 	    :initarg :hp
 	    :initform 0)
-   (max-hp  :accessor get-creature-max-hp
+   (max-hp  :accessor maximum-hp
 	    :initarg :max-hp
 	    :initform 0)
    (speed   :accessor get-creature-speed
@@ -157,10 +161,11 @@ ADD_DESC: parts of the code.  Small classes, functions, et.al
        
    ))
 
+
 (defstruct (alloc-entry (:conc-name alloc.))
   (obj nil)
   (index nil)
-  (level nil)
+  (depth nil)
   (prob1 nil)
   (prob2 nil)
   (prob3 nil))
@@ -175,6 +180,30 @@ ADD_DESC: parts of the code.  Small classes, functions, et.al
   (col-rooms nil)
   (room-map nil)
   (crowded nil))
+
+(bt:define-binary-struct (hs-entry (:conc-name hs-entry.)) ()
+    
+    (version nil) ;; string
+    (variant nil) ;; string
+    
+    (name nil)    ;; string
+    (race nil)    ;; string-id
+    (class nil)   ;; string-id
+    (sex nil)     ;; string
+    (cause-of-death nil) ;; string
+    
+    ;; directly savable
+    (xp          0 :bt bt:u32)
+    (max-xp      0 :bt bt:u32)
+    (level       0 :bt bt:u16)
+    (depth       0 :bt bt:u16)
+    (max-depth   0 :bt bt:u16)
+    (turn        0 :bt bt:u32)
+    (gold        0 :bt bt:u32)
+    (score       0 :bt bt:u32)  
+    
+    (date        0 :bt u64) ;; time of death
+    )
 
 ;; this is a dummy for classes, not objects.. the player will have numbers
 (defstruct (skill (:conc-name skill.))
@@ -199,89 +228,14 @@ ADD_DESC: parts of the code.  Small classes, functions, et.al
   )
 
 
-(defgeneric location-x (obj)
-  (:documentation "Generic function for all things that have a location
-in the game at some point."))
-  
-(defgeneric (setf location-x) (value obj)
-  (:documentation "Sets the x-location for the object whenever possible."))
-  
-(defgeneric location-y (obj)
-  (:documentation "Generic function for all things that have a location
-in the game at some point."))
-  
-(defgeneric (setf location-y) (value obj)
-  (:documentation "Sets the y-location for the object whenever possible."))
-    
-(defgeneric use-object! (variant dun pl the-object &key which-use)
-  (:documentation "Applies the object on the player in the dungeon."))
-
-(defgeneric heal-creature! (crt amount)
-  (:documentation "Tries to heal the creature with a certain amount of hits."))
-
-(defgeneric set-creature-state! (crt state value)
-  (:documentation "Tries to heal the creature with a certain amount of hits."))
-
-(defgeneric get-price (object situation)
-  (:documentation "Returns a number with the price for the object in the
-given situation."))
-
-(defgeneric get-offer (object situation)
-  (:documentation "Returns a number with an offered price for an object
-in a certain situation."))
-
-(defgeneric get-attribute (object)
-  (:documentation "Returns attribute for a given object."))
-
-(defgeneric lang-equal (first-obj second-obj)
-  (:documentation "A recursive check for equality (along the lines of EQUAL)
-but one that works with langband-objects."))
-
-(defgeneric get-loadable-form (object &key &allow-other-keys)
-  (:documentation "Pretty much similar to MAKE-LOAD-FORM."))
-
-(defgeneric produce-object-kind (variant id name obj-type &key the-kind)
-  (:documentation "Produces an object-kind."))
-(defgeneric produce-active-object (variant okind)
-  (:documentation "Produces an active object based on given object-kind."))
-
-(defgeneric add-magic-to-item! (dungeon item quality)
-  (:documentation "Adds magical properites to an item."))
-
-(defgeneric is-object-known? (object)
-  (:documentation "Returns T if the particular object is known.  NIL if not."))
-
-(defgeneric learn-about-object! (player object what)
-  (:documentation "Lets the player learn certain things about an object."))
-
-(defgeneric is-eatable? (player object)
-  (:documentation "Is the object OBJ eatable by the player?"))
-
-(defgeneric apply-usual-effects-on-used-object! (dun pl obj)
-  (:documentation "Not quite sure here yet.. should be sewn into the USE-protocol."))
-
-(defgeneric write-obj-description (obj stream &key store)
-  (:documentation "Describes the given object to the given stream."))
-
-(defgeneric generate-random-name (variant creature race)
-  (:documentation "Returns a random name for a given creature of race 'race', or NIL on failure."))
-
-(defgeneric create-character (variant)
-  (:documentation "Interactive creation of a player object.  Should return a
-player object or NIL."))
-
-(defgeneric create-player-obj (variant)
-  (:documentation "Creates and returns a bare-bone player-object."))
-
-(defun make-game-values ()
+(defmethod produce-game-values-object ((variant variant))
   "Returns an object of type game-values."
   (make-instance 'game-values))
 
-(defun copy-game-values (obj)
+(defmethod copy-game-values ((variant variant) (obj game-values))
   "Copies the given OBJ and returns a new object that is equal."
-  (check-type obj game-values)
   
-  (let ((new-obj (make-game-values)))
+  (let ((new-obj (produce-game-values-object variant)))
     (dolist (i '(base-ac ac-bonus base-dice num-dice tohit-bonus
 		 dmg-bonus mana charges food-val light-radius tunnel
 		 speed skill-bonuses stat-bonuses ignores resists
@@ -291,16 +245,16 @@ player object or NIL."))
     new-obj))
 
 
-(defun make-skills (&key (default-value 0))
+(defmethod produce-skills-object ((variant variant) &key (default-value 0))
   "Returns a skills object."
   (let ((obj (make-instance 'skills)))
     (unless (and (numberp default-value) (= 0 default-value))
-      (let ((skill-list (variant.skill-translations *variant*)))
+      (let ((skill-list (variant.skill-translations variant)))
 	(dolist (i skill-list)
 	  (setf (slot-value obj (cdr i)) default-value))))
     obj))
 
-(defun register-skill-translation& (variant translation)
+(defmethod register-skill-translation& ((variant variant) translation)
   "Registers a translation (single cons) or a list
 of translations."
   (flet ((add-single-translation (translation)
@@ -323,18 +277,18 @@ of translations."
     translation))
   
 
-(defun get-skill-translation (variant key)
+(defmethod get-skill-translation ((variant variant) key)
   "Returns a symbol in the appropriate skills-class or nil."
   (let ((search (assoc key (variant.skill-translations variant))))
     (when search
       (cdr search))))
 
 
-(defun build-skills-obj-from-list (variant skills)
+(defmethod build-skills-obj-from-list ((variant variant) skills)
   "Tries to build a skills-obj and include all possible
 information from the list skills whose content depends on variant."
   
-  (let ((skill-obj (make-skills :default-value nil)))
+  (let ((skill-obj (produce-skills-object variant :default-value nil)))
 
       (when (listp skills)
 	(dolist (i skills)

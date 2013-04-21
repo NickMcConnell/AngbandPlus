@@ -1,3 +1,16 @@
+langband (0.0.15-1) unstable; urgency=low
+
+  * Upstream release, see upstream Changelog.
+
+ -- Stig E Sandoe <stig@users.sourceforge.net>  Sat,  1 Dec 2001 20:54:41 +0100
+
+langband (0.0.14-2) unstable; urgency=low
+
+  * Minor reorganisation in upstream, this is a test that debian-packaging
+    still works.
+
+ -- Stig E Sandoe <stig@users.sourceforge.net>  Sat, 24 Nov 2001 14:34:57 +0100
+
 langband (0.0.14-1) unstable; urgency=low
 
   * Upstream release, see upstream Changelog.

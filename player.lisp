@@ -14,73 +14,90 @@ the Free Software Foundation; either version 2 of the License, or
 
 (in-package :org.langband.engine)
 
-(bt:define-binary-struct (player (:conc-name player.)) ()
-  
+(bt:define-binary-class player ()
+
+  (
     ;; === Need Special saving ===
   
-    (name nil)
-    (class nil)
-    (race nil)
-    (sex nil)
+    (name  :accessor player.name  :initform nil)
+    (class :accessor player.class :initform nil)
+    (race  :accessor player.race  :initform nil)
+    (sex   :accessor player.sex   :initform nil)
 
-    (base-stats nil);; "this is the base stats"
-    (curbase-stats nil);; "this is the current (possibly drained) base stats"
-    (hp-table    nil) ;; should be saved
-    (equipment   nil)
-    (dead-from   "") ;; who killed the player?
+    (base-stats    :accessor player.base-stats
+		   :initform nil
+		   :documentation "this is the base stats")
+    (curbase-stats :accessor player.curbase-stats
+		   :initform nil
+		   :documentation "this is the current (possibly drained) base stats")
+    (hp-table      :accessor player.hp-table
+		   :initform nil
+	           :documentation "Note: should be saved.")
+    (equipment     :accessor player.equipment :initform nil)
+    (dead-from     :accessor player.dead-from
+		   :initform ""
+	           :documentation "who killed the player?")
 
     ;; === Directly savable to binary ===
 
-    (loc-x +illegal-loc-x+ :bt u16)
-    (loc-y +illegal-loc-y+ :bt u16)
+    (loc-x :accessor location-x :initform +illegal-loc-x+ :bt u16)
+    (loc-y :accessor location-y :initform +illegal-loc-y+ :bt u16)
 
-    (view-x +illegal-loc-x+ :bt u16);; wx
-    (view-y +illegal-loc-y+ :bt u16);; wy
+    (view-x :accessor player.view-x :initform +illegal-loc-x+ :bt u16);; wx
+    (view-y :accessor player.view-y :initform +illegal-loc-y+ :bt u16);; wy
     
-    (depth     0 :bt s16)
-    (max-depth 0 :bt s16)
+    (depth     :accessor player.depth     :initform 0 :bt s16)
+    (max-depth :accessor player.max-depth :initform 0 :bt s16)
     
-    (max-xp      0 :bt u32)
-    (cur-xp      0 :bt u32)
-    (fraction-xp 0 :bt u32) 
+    (max-xp      :accessor player.max-xp      :initform 0 :bt u32)
+    (cur-xp      :accessor player.cur-xp      :initform 0 :bt u32)
+    (fraction-xp :accessor player.fraction-xp :initform 0 :bt u32) 
 
-    (cur-hp      0 :bt u32)
-    (fraction-hp 0 :bt u32)
+    (cur-hp      :accessor current-hp         :initform 0 :bt u32)
+    (fraction-hp :accessor player.fraction-hp :initform 0 :bt u32)
 
-    (cur-mana      0 :bt u32)
-    (fraction-mana 0 :bt u32)
+    (cur-mana      :accessor player.cur-mana      :initform 0 :bt u32)
+    (fraction-mana :accessor player.fraction-mana :initform 0 :bt u32)
 
-    (gold        0 :bt u32)
-    (food        (1- +food-full+) :bt u32)
-    (energy      0 :bt u16)
+    (gold        :accessor player.gold   :initform 0 :bt u32)
+    (food        :accessor player.food   :initform (1- +food-full+) :bt u32)
+    (energy      :accessor player.energy :initform 0 :bt u16)
 
     ;; === The remaining values can be calculated from the above ===
     
-    (level     1)  ;; can be calculated from cur-xp
-    (max-level 1)  ;; can be calculated from max-xp
+    (level     :accessor player.level     :initform 1)  ;; can be calculated from cur-xp
+    (max-level :accessor player.max-level :initform 1)  ;; can be calculated from max-xp
 
-    (max-hp      0)   ;; can be calculated
-    (max-mana    0)   ;; can be calculated
-    (xp-table    nil) ;; can be calculated
+    (max-hp    :accessor maximum-hp       :initform 0)   ;; can be calculated
+    (max-mana  :accessor player.max-mana  :initform 0)   ;; can be calculated
+    (xp-table  :accessor player.xp-table  :initform nil) ;; can be calculated
     
-    (energy-use  0)   ;; is just a temp-variable
-    (leaving-p   nil) ;; need to save it?
-    (dead-p      nil) ;; need to save it?
-    (speed       +speed-base+)  ;; does this change?
+    (energy-use :accessor player.energy-use :initform 0)   ;; is just a temp-variable
+    (leaving-p  :accessor player.leaving-p  :initform nil) ;; need to save it?
+    (dead-p     :accessor player.dead-p     :initform nil) ;; need to save it?
+    (speed      :accessor player.speed      :initform +speed-base+)  ;; does this change?
     
 
-    (base-ac      0)
-    (ac-bonus     0)
-    (light-radius 0)
+    (base-ac      :accessor player.base-ac      :initform 0)
+    (ac-bonus     :accessor player.ac-bonus     :initform 0)
+    (light-radius :accessor player.light-radius :initform 0)
    
-    (infravision 0)
-    (inventory   nil) ;; quick variable to equipment.backpack.content
-    (skills      nil)
+    (infravision :accessor player.infravision
+		 :initform 0)
+    (inventory   :accessor player.inventory
+		 :initform nil
+		 :documentation "quick variable to equipment.backpack.content")
+    (skills      :accessor player.skills
+		 :initform nil)
 
-    (modbase-stats nil);; "this is the modified base stats (base + race + class + eq)"
-    (active-stats nil);; "this is the current active stat-value (curbase + race + class + eq)"
+    (modbase-stats :accessor player.modbase-stats
+		   :initform nil
+		   :documentation "this is the modified base stats (base + race + class + eq)")
+    (active-stats :accessor player.active-stats
+		  :initform nil
+		  :documentation "this is the current active stat-value (curbase + race + class + eq)")
   
-    )
+    ))
 
 
 ;; hack, remove later
@@ -90,22 +107,6 @@ the Free Software Foundation; either version 2 of the License, or
 (defun (setf player.eq) (val pl-obj)
   (setf (player.equipment pl-obj) val))
 
-(defmethod location-x ((obj player))
-  (player.loc-x obj))
-(defmethod location-y ((obj player))
-  (player.loc-y obj))
-  
-(defmethod (setf location-x) (value (obj player))
-  (setf (player.loc-x obj) value))
-(defmethod (setf location-y) (value (obj player))
-  (setf (player.loc-y obj) value))
-
-(defmethod current-hp ((crt player))
-  (player.cur-hp crt))
-
-(defmethod (setf current-hp) (value (crt player))
-  (setf (player.cur-hp crt) value))
-  
 (defmethod creature-alive? ((crt player))
   (not (player.dead-p crt)))
 
@@ -148,19 +149,21 @@ the Free Software Foundation; either version 2 of the License, or
 (defmethod (setf get-creature-speed) (val (crt player))
   (setf (player.speed crt) val))
 
-(defun make-level-array ()
-  (let ((max-char-level (variant.max-charlevel *variant*)))
+(defun %make-level-array (var-obj)
+  (check-type var-obj variant)
+  (let ((max-char-level (variant.max-charlevel var-obj)))
     (make-array max-char-level :initial-element 0)))
 
 
 
-(defmethod init-player-obj! (t-p variant)
+(defmethod produce-player-object ((variant variant))
   "Creates and returns a PLAYER object."
+  (let ((t-p (make-instance 'player)))
   
-  (setf (player.base-stats t-p)    (make-stat-array)
-	(player.curbase-stats t-p) (make-stat-array)
-	(player.modbase-stats t-p) (make-stat-array)
-	(player.active-stats t-p)  (make-stat-array))
+    (setf (player.base-stats t-p)    (make-stat-array)
+	  (player.curbase-stats t-p) (make-stat-array)
+	  (player.modbase-stats t-p) (make-stat-array)
+	  (player.active-stats t-p)  (make-stat-array))
 
     (assert (let ((bstat-table (player.base-stats t-p))
 		  (cstat-table (player.curbase-stats t-p))
@@ -174,11 +177,11 @@ the Free Software Foundation; either version 2 of the License, or
 		   (not (eq cstat-table astat-table))
 		   (not (eq mstat-table astat-table)))))
     
-    (setf (player.skills t-p) (make-skills))
+    (setf (player.skills t-p) (produce-skills-object variant))
     (setf (player.eq t-p) (make-equipment-slots))
     
-    (setf (player.hp-table t-p) (make-level-array)
-	  (player.xp-table t-p) (make-level-array)
+    (setf (player.hp-table t-p) (%make-level-array variant)
+	  (player.xp-table t-p) (%make-level-array variant)
 	  )
 
     (flet ((make-and-assign-backpack! (id)
@@ -196,12 +199,9 @@ the Free Software Foundation; either version 2 of the License, or
 	   (make-and-assign-backpack! :backpack)))))
 
     ;; hack
-;;    (setf (player.light-radius t-p) 3)
+    ;;    (setf (player.light-radius t-p) 3)
     
-    t-p)
-
-(defmethod create-player-obj (variant)
-  (init-player-obj! (make-player) variant))
+    t-p))
 
 
 (defun get-stat-bonus (player stat-num)
@@ -271,7 +271,7 @@ the Free Software Foundation; either version 2 of the License, or
 
 ;;(trace add-stat-bonus get-stat-bonus)
 
-(defun update-player! (player)
+(defmethod update-player! ((variant variant) (player player))
   "modifies player object appropriately"
 
   ;; we start the show by reseting variables
@@ -347,7 +347,7 @@ the Free Software Foundation; either version 2 of the License, or
     (let ((tbl (player.xp-table player)))
       (when (or (eq nil tbl) (and (arrayp tbl)
 				  (= 0 (aref tbl 1)))) ;; hack
-	(update-xp-table! player)))
+	(update-xp-table! variant player)))
 
     (let ((xp-table (player.xp-table player)))
       (setf (player.level player) (find-level-for-xp (player.cur-xp player)
@@ -381,7 +381,7 @@ the Free Software Foundation; either version 2 of the License, or
 	(setq next-hp (randint hit-dice))
 	(setf (aref hp-table the-level) next-hp)))
 
-    (incf (player.max-hp player) next-hp)
+    (incf (maximum-hp player) next-hp)
     (incf (player.level player))
 
     (when (< (player.max-level player) (player.level player))
@@ -439,6 +439,12 @@ the Free Software Foundation; either version 2 of the License, or
     
     (item-table-find the-eq 'eq.weapon)))
 
+(defmethod get-missile-weapon ((crt player))
+  (let ((the-eq (player.eq crt)))
+    (check-type the-eq item-table)
+    
+    (item-table-find the-eq 'eq.bow)))
+
 
 (defun reset-skills! (variant skills-obj reset-val)
   "Sets all skills to RESET-VAL."
@@ -491,11 +497,11 @@ the Free Software Foundation; either version 2 of the License, or
       
       t)))
 
-(defun update-xp-table! (player)
+(defmethod update-xp-table! ((variant variant) (player player))
   "Updates the xp-table on the player, and returns updated player."
   
-  (let* ((base-xp-table (variant.xp-table *variant*))
-	 (max-char-level (variant.max-charlevel *variant*))
+  (let* ((base-xp-table (variant.xp-table variant))
+	 (max-char-level (variant.max-charlevel variant))
 	 (the-race (player.race player))
 	 (the-class (player.class player))
 	 (xp-extra (+ 100
@@ -503,7 +509,7 @@ the Free Software Foundation; either version 2 of the License, or
 		      (class.xp-extra the-class))))
 
     (unless (arrayp (player.xp-table player))
-      (setf (player.xp-table player) (make-level-array)))
+      (setf (player.xp-table player) (%make-level-array variant)))
 
     (let ((xp-table (player.xp-table player)))
       
@@ -520,7 +526,7 @@ the Free Software Foundation; either version 2 of the License, or
   (let ((lvl (player.level player))
 	(hp-table (player.hp-table player)))
     
-    (setf (player.max-hp player)
+    (setf (maximum-hp player)
 	  (loop for i from 0 to (1- lvl)
 		summing (aref hp-table i))))
   player)
@@ -528,14 +534,14 @@ the Free Software Foundation; either version 2 of the License, or
 (defmethod heal-creature! ((pl player) amount)
   "Heals the player and adds notify where needed."
 
-  (let ((max-hp (player.max-hp pl)))
+  (let ((max-hp (maximum-hp pl)))
   
-    (when (< (player.cur-hp pl) max-hp)
+    (when (< (current-hp pl) max-hp)
       
-      (incf (player.cur-hp pl) amount)
+      (incf (current-hp pl) amount)
       
-      (when (< max-hp (player.cur-hp pl)) ;; no more than max..
-	(setf (player.cur-hp pl) max-hp
+      (when (< max-hp (current-hp pl)) ;; no more than max..
+	(setf (current-hp pl) max-hp
 	      (player.fraction-hp pl) 0))
       
       (bit-flag-add! *redraw* +print-hp+)
@@ -554,19 +560,42 @@ the Free Software Foundation; either version 2 of the License, or
 
 (defmethod set-creature-state! ((crt player) state value)
 
+  ;; :fear
+  ;; :hero
+  ;; :blindness
+  ;; :heal-cut, <light> (c-10), <serious> ((c/2)-50)
+  ;; :confusion
+  ;; :poison nil + :slow, num
+  ;; :confusion
+  ;; :stun
+  ;; :cut
+  ;; :hallucination
+  ;; :berserk
+  
   (case state
     (:fear (warn "Setting fear of player to ~s" value))
     (otherwise (warn "Unknown state for player: ~s" state)))
   
   nil)
 
-(defmethod possible-identify! (pl (obj active-object))
-  (learn-about-object! pl obj :tried)
+(defmethod possible-identify! ((player player) (obj active-object))
+  (learn-about-object! player obj :tried)
   ;; fix later
-  (learn-about-object! pl obj :aware)
-  (learn-about-object! pl obj :known)
+  (learn-about-object! player obj :aware)
+  (learn-about-object! player obj :known)
   ;; add xp?
   )
+
+;; Deprecated.. 
+(defmethod possible-identify! ((player player) (obj object-kind))
+  (warn "Deprecated identify-method called on ~s" obj)
+  (learn-about-object! player obj :tried)
+  ;; fix later
+  (learn-about-object! player obj :aware)
+;;  (learn-about-object! pl obj :known)
+  ;; add xp?
+  )
+
 
 (defun update-player-stat! (pl stat action)
   "Action can be <restore> or a positive or negative integer."
@@ -601,12 +630,7 @@ the Free Software Foundation; either version 2 of the License, or
     ))
 
 
-
 (defun alter-food! (pl new-food-amount)
   ;; lots of minor pooh
   (setf (player.food pl) new-food-amount))
 
-
-;;(trace find-level-for-xp)
-;;(trace init-player-obj!)
-;;(trace update-player-stat!)

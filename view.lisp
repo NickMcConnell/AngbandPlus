@@ -3,7 +3,7 @@
 #|
 
 DESC: view.lisp - code for figuring out what is seen
-Copyright (c) 2000 - Stig Erik Sandø
+Copyright (c) 2000-2001 - Stig Erik Sandø
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -36,7 +36,7 @@ the Free Software Foundation; either version 2 of the License, or
 ;;(defvar *view-size* 0)
 ;;(defvar *view-array* (make-array +view-max+))
 
-(defun create-vinfo-hack ()
+(defun %create-vinfo-hack ()
   "A function that creates and inits a vinfo-hack."
   (let ((hack (make-vinfo-hack)))
     (setf (vinfo-hack.num-slopes hack) 0
@@ -82,7 +82,7 @@ the Free Software Foundation; either version 2 of the License, or
 (defun vinfo-init& ()
   "Inits the *vinfo* object."
   
-  (let ((hack (create-vinfo-hack))
+  (let ((hack (%create-vinfo-hack))
 	(vinfo *vinfo*)
 	(num-grids 0))
 
@@ -579,103 +579,3 @@ the Free Software Foundation; either version 2 of the License, or
     
     (setf (fill-pointer the-array) 0)))
 
-
-(defun project-path (dun range path-array x1 y1 x2 y2 flag)
-  "Tries to project a path from (x1,y1) to (x2,y2)."
-  (declare (optimize (safety 0) (speed 3) (debug 0)
-		     #+cmu (ext:inhibit-warnings 3)))
-	   
-
-  (declare (type fixnum x1 y1 y2 x2 flag range))
-		     
-  (when (and (= x1 x2)
-	     (= y1 y2))
-    (return-from project-path 0))
-  
-
-  (let ((ax 0) ;; absolute
-	(ay 0)
-	(sx 0) ;; offset
-	(sy 0))
-
-    (declare (type fixnum ax ay)
-	     (type fixnum sx sy))
-    
-    (if (< y2 y1)
-	(setq ay (the fixnum (- y1 y2))
-	      sy -1)
-	(setq ay (the fixnum (- y2 y1))
-	      sy 1))
-    (if (< x2 x1)
-	(setq ax (the fixnum (- x1 x2))
-	      sx -1)
-	(setq ax (the fixnum (- x2 x1))
-	      sx 1))
-
-    (flet ((go-direction (dir frac x y)
-	     (declare (type fixnum frac x y))
-	     (let* ((m (* frac 2))
-		    (len 0)
-		    (k 0)
-		    (half (the fixnum (* ay ax)))
-		    (full (the fixnum (* half 2))))
-	       
-	       (declare (type fixnum m len k half full))
-	       
-	       (loop
-		(vector-push (grid x y) path-array)
-		(incf len)
-		(when (eq dir :diagonal)
-		  (setq k len))
-		
-		(when (or (>= (+ len (int-/ k 2)) range)
-			  (and (not (bit-flag-set? flag +project-through+))
-			       (and (= x x2)
-				    (= y y2)))
-			  (and (> len 0)
-			       (not (cave-floor-bold? dun x y)))
-			  (and (bit-flag-set? flag +project-stop+)
-			       (and (> len 0)
-				    (cave-monsters dun x y))))
-		  (return-from go-direction len))
-		
-		(unless (= m 0)
-		  (assert (not (eq :diagonal dir)))
-		  (incf frac m)
-		  (when (>= frac half)
-		    (ecase dir
-			  (:vertical   (incf x sx))
-			  (:horisontal (incf y sy)))
-		    
-		    (decf frac full)
-		    (incf k)))
-		
-		(ecase dir
-		  (:vertical   (incf y sy))
-		  (:horisontal (incf x sx))
-		  (:diagonal (incf y sy)
-			     (incf x sx)))
-		)))
-	   
-	   )
-      
-      (cond ((> ay ax) ;; vertical
-	     (go-direction :vertical
-			   (the fixnum (* ax ax))
-			   x1
-			   (the fixnum (+ y1 sy))
-			   ))
-	    ((> ax ay) ;; horisontal
-	     (go-direction :horisontal
-			   (the fixnum (* ay ay))
-			   (the fixnum (+ x1 sx))
-			   y1
-			   ))
-	    (t	     
-	     (go-direction :diagonal
-			   0
-			   (the fixnum (+ x1 sx))
-			   (the fixnum (+ y1 sy))
-			   ))
-	    )
-      )))

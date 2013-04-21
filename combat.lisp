@@ -48,8 +48,6 @@ the Free Software Foundation; either version 2 of the License, or
     (c-print-message! s))
   nil)
 
-(defgeneric cmb-hit-creature? (attacker target the-attack)
-  (:documentation "will the attacker hit the target?"))
 
 (defmethod cmb-hit-creature? (attk target the-attack)
   (declare (ignore attk target the-attack))

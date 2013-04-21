@@ -101,7 +101,7 @@ the rest of the game is init'ed."
   (register-level! var-obj 'level
 		   :object-filter
 		   #'(lambda (var-obj obj)
-		       (let ((table (get-otype-table 'level var-obj)))
+		       (let ((table (get-otype-table var-obj 'level)))
 			 (setf (gethash (slot-value obj 'id)
 					(gobj-table.obj-table table))
 			       obj)
@@ -111,7 +111,7 @@ the rest of the game is init'ed."
 		   #'(lambda (var-obj obj)
 		       ;; all below 0
 		       (when (> (slot-value obj 'level) 0)
-			 (let ((table (get-mtype-table 'random-level var-obj)))
+			 (let ((table (get-mtype-table var-obj 'random-level)))
 			   (setf (gethash (slot-value obj 'id)
 					  (gobj-table.obj-table table))
 				 obj)
@@ -121,7 +121,7 @@ the rest of the game is init'ed."
 		   #'(lambda (var-obj obj)
 		       ;; all equal to 0
 		       (when (= (slot-value obj 'level) 0)
-			 (let ((table (get-mtype-table 'town-level var-obj)))
+			 (let ((table (get-mtype-table var-obj 'town-level)))
 			   (setf (gethash (slot-value obj 'id)
 					  (gobj-table.obj-table table))
 				 obj)
@@ -195,7 +195,7 @@ the rest of the game is init'ed."
   )
 
     
-(defun update-gobj-table! (key o-table alloc-table-creator)
+(defun update-gobj-table! (variant key o-table alloc-table-creator)
   "Tries to make an allocation table from a table."
   (declare (ignore key))
 ;;  (warn "updating on ~a ~a" key o-table)
@@ -207,7 +207,7 @@ the rest of the game is init'ed."
 		       :sorted-by-key #'(lambda (x) (slot-value x 'level))))
     
     (setf (gobj-table.alloc-table o-table)
-	  (funcall alloc-table-creator (gobj-table.obj-table-by-lvl o-table)))
+	  (funcall alloc-table-creator variant (gobj-table.obj-table-by-lvl o-table)))
     ))
 
 
@@ -227,7 +227,7 @@ the rest of the game is init'ed."
      (error "Trying to read legacy angband-file ~s, but no compatibility support loaded." old-file))
     
     (file
-     (let ((*load-verbose*))
+     (let ((*load-verbose* nil))
        (load-variant-data& var-obj file)))
     (t
      (error "No file specified for monster-init.")))
@@ -235,7 +235,7 @@ the rest of the game is init'ed."
   ;; initialise all tables
   (let ((object-tables (variant.monsters var-obj)))
     (maphash #'(lambda (key obj)
-		 (update-gobj-table! key obj
+		 (update-gobj-table! var-obj key obj
 			#'create-alloc-table-monsters))
 	     object-tables))
   
@@ -284,7 +284,7 @@ the rest of the game is init'ed."
     (van-combine-effects-with-objects! object-tables)
     
     (maphash #'(lambda (key obj)
-		 (update-gobj-table! key obj
+		 (update-gobj-table! var-obj key obj
 				     #'create-alloc-table-objects))
 	     object-tables))
 
@@ -303,6 +303,8 @@ the rest of the game is init'ed."
   (initialise-objects&  var-obj :file "objects")
 ;;  (initialise-monsters& var-obj :old-file "r_info.txt")
   (initialise-monsters& var-obj :file "monsters")
+  (initialise-monsters& var-obj :file "town-monsters")
+  (initialise-monsters& var-obj :file "uniques")
 ;;  (initialise-floors& var-obj :old-file "f_info.txt")
   (initialise-floors& var-obj)
 

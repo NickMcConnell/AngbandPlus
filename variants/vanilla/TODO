@@ -1,0 +1,34 @@
+THINGS TO DO TO THE VANILLA VARIANT
+===================================
+
+DUNGEON
+ - no traps not implemented
+ - vaults not implemented
+ - pits not implemented
+ - crossed rooms not implemented
+ - large rooms not implemented
+ - monster nest not implemented
+ - monster pits not implemented
+ - no gold in dungeon
+
+TOWN
+ - only black market "works", no specialised shops yet
+
+SPELLS and MAGICAL ITEMS
+ - priest-spells not implemented
+ - mage-spells not implemented
+ - most scrolls not implemented
+   see web/lists.html
+ - most mushrooms not implemented
+   see web/lists.html
+ - many potions not implemented
+   see web/lists.html
+ - wands not implemented
+ - staves not implemented
+ - rods not implemented
+ - magical weapons and armours not implemented
+ - ego-weapons not implemented
+ - artifacts not implemented
+
+OTHER
+ - point-based system missing [don't need it]

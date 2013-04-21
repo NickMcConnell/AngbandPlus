@@ -47,9 +47,9 @@ ADD_DESC: Contains definition of classes in sexp.
 	    "Duke"
 	    "Lord")
 
-  :starting-equipment '(<broad-sword>
-			(<body-armour> <chain>)
-			(<potion> <berserk-strength>))
+  :starting-equipment '((obj :type <broad-sword>)
+			(obj :type (<body-armour> <chain>))
+			(obj :type (<potion> <berserk-strength>)))
 
   
   :skills '((<disarming> 25 10)
@@ -93,9 +93,10 @@ ADD_DESC: Contains definition of classes in sexp.
 	   "Paladin Lord"
 	   )
   
-    :starting-equipment '(<broad-sword>
-			  (<scroll> <protection> <evil>)
-			  (<spellbook> <priest> <beginner>))
+    :starting-equipment '((obj :id "broad-sword")
+			  (obj :type (<scroll> <protection> <evil>))
+			  (obj :type (<spellbook> <priest> <beginner>))
+			  )
 
     :skills '((<disarming> 20 7)
 	      (<device> 24 10)
@@ -138,9 +139,11 @@ ADD_DESC: Contains definition of classes in sexp.
 	    "Ranger Lord"
 	    )
   
-    :starting-equipment '((<spellbook> <mage> <beginner>)
-			  (<broad-sword>)
-			  (<bow> <long>))
+    :starting-equipment '((obj :type (<spellbook> <mage> <beginner>))
+			  (obj :type (<weapon> <short-sword>))
+			  (obj :type (<bow> <long>))
+			  (obj :type (<normal> <ammo> <arrow>) :amount "6d6")
+			  )
     
     :skills '((<disarming> 30 8)
 	      (<device> 32 10)
@@ -185,9 +188,10 @@ ADD_DESC: Contains definition of classes in sexp.
 	    "Priest Lord"
 	    )
   
-  :starting-equipment '(<mace>
-			(<spellbook> <priest> <beginner>)
-			(<potion> <cure> <healing> <normal>))
+  :starting-equipment '((obj :type <mace>)
+			(obj :type (<spellbook> <priest> <beginner>))
+			(obj :id "healing-potion")
+			)
 
   :skills '((<disarming> 25 7)
 	    (<device> 30 10)
@@ -231,15 +235,15 @@ ADD_DESC: Contains definition of classes in sexp.
 	    "Mage Lord"
 	    )
   
-    :starting-equipment '(<dagger>
-			  (<spellbook> <mage> <beginner>)
-			  (<scroll> <word-of-recall>)
+    :starting-equipment '((obj :id "dagger")
+			  (obj :type (<spellbook> <mage> <beginner>))
+			  (obj :type (<scroll> <word-of-recall>))
 			  ;; hacks
-			  (<scroll> <illuminate>)
-			  (<scroll> <illuminate>)
-			  (<scroll> <enchant> <weapon> <to-hit>)
-			  (<scroll> <enchant> <weapon> <powerful>)
-			  (<scroll> <phase-door>)) 
+			  (obj :type (<scroll> <illuminate>) :amount 2)
+			  (obj :type (<scroll> <enchant> <weapon> <to-hit>))
+			  (obj :type (<scroll> <enchant> <weapon> <powerful>))
+			  (obj :type (<scroll> <phase-door>))
+			  )
 
     :skills '((<disarming> 30 7)
 	      (<device> 36 13)
@@ -285,9 +289,10 @@ ADD_DESC: Contains definition of classes in sexp.
 	    "Assassin"
 	    )
   
-  :starting-equipment '((<spellbook> <mage> <beginner>)
-			<small-sword>
-			(<body-armour> <soft-leather>))
+  :starting-equipment '((obj :type (<spellbook> <mage> <beginner>))
+			(obj :type <small-sword>)
+			(obj :type (<body-armour> <soft-leather>))
+			)
   
   :skills '((<disarming> 45 15)
 	    (<device> 32 10)

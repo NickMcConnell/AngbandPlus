@@ -28,7 +28,7 @@ Might be used:
     
 How to start it:
 
-  - tweak lib/zterm/Makefile
+  - tweak zterm/Makefile
     Probably only ENVIRONMENTS needs to be changed.
     *** It is safe to have X11 and GCU at the moment***
 

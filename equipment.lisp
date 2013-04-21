@@ -52,26 +52,6 @@ the Free Software Foundation; either version 2 of the License, or
   (:documentation "What is in a store."))
 
 
-(defgeneric item-table-add!       (table obj &optional key))  
-(defgeneric item-table-remove!    (table key &key only-single-items))
-(defgeneric item-table-clean!     (table))
-(defgeneric item-table-find       (table key))
-(defgeneric item-table-sort!      (table sorter))
-(defgeneric item-table-iterate!   (table function)
-  (:documentation "Function should take three arguments in order:
-the table, the key and the object itself."))
-
-(defgeneric item-table-verify-key (table key)
-  (:documentation "Returns T when key is OK, and NIL when it is not."))
-
-(defgeneric item-table-print (table &key show-pause start-x start-y &allow-other-keys)
-  (:documentation "Returns T when key is OK, and NIL when it is not."))
-
-(defgeneric item-table-more-room? (table &optional obj)
-  (:documentation "Returns T if there is room for OBJ, NIL if there is not.
-If OBJ is not supplied it checks if there is more room in general.  If OBJ
-is supplied, stacking-rules will also be checked."))
-
 ;;; -----------------------------
 
 (defmethod item-table-add! (table obj &optional key)
@@ -243,7 +223,7 @@ is supplied, stacking-rules will also be checked."))
 	     (declare (ignore a-table key))
 	     (let ((attr (get-attribute val))
 		   (desc (with-output-to-string (s)
-			   (write-obj-description val s))))
+			   (write-obj-description *variant* val s))))
 	       (c-prt! "" (+ i y) (- x 2))
 	       (c-col-put-str! +term-white+ (format nil "~a) " (i2a i)) (+ i y) x)
 	       (c-col-put-str! attr desc (+ i y) (+ x 4))
@@ -391,7 +371,7 @@ to variant obj."
 	     (declare (ignore a-table key))
 	     (let ((attr (if val (get-attribute val) +term-white+))
 		   (desc (if val (with-output-to-string (s)
-				   (write-obj-description val s))
+				   (write-obj-description *variant* val s))
 			     "(nothing)")))
 	       (c-prt! "" (+ i y) (- x 2))
 	       (c-col-put-str! +term-white+ (format nil "~a) ~13a : " (i2a i)

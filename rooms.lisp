@@ -48,16 +48,7 @@ ADD_DESC: Most of the code which deals with generation of rooms
 	      :initarg :loc-y
 	      :initform +illegal-loc-y+)
    ))
-     
-		
 
-(defgeneric build-room! (room dungeon player where-x where-y)
-  (:documentation "Builds given room in the dungeon at [where-x, where-y]."))
-  
-(defgeneric find-appropriate-room (variant level player)
-  (:documentation "Tries to find an appropriate room-type for given
-dungeon."))
-  
 
 (defun define-room (id constructor)
   "First argument should be an integer.. fix this later.."

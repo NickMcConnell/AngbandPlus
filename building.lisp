@@ -15,37 +15,27 @@ the Free Software Foundation; either version 2 of the License, or
 (in-package :org.langband.engine)
 
 
-  (defclass house (activatable)
-    ((id     :accessor house.id     :initform nil :initarg :id)
-     (name   :accessor house.name   :initform nil :initarg :name)
-     (x-attr :accessor house.x-attr :initform nil :initarg :x-attr)
-     (x-char :accessor house.x-char :initform nil :initarg :x-char)
+(defclass house (activatable)
+  ((id     :accessor house.id     :initform nil :initarg :id)
+   (name   :accessor house.name   :initform nil :initarg :name)
+   (x-attr :accessor house.x-attr :initform nil :initarg :x-attr)
+   (x-char :accessor house.x-char :initform nil :initarg :x-char)
+   
+   (owner  :accessor house.owner :initform nil :initarg :owner)
+   ;; the current items
+   (items  :accessor house.items :initform nil :initarg :items)
+   ))
 
-     (owner  :accessor house.owner :initform nil :initarg :owner)
-     ;; the current items
-     (items  :accessor house.items :initform nil :initarg :items)
-     ))
-
-  (defclass owner ()
-    ((id         :accessor owner.id         :initform nil :initarg :id)
-     (name       :accessor owner.name       :initform nil :initarg :name))
-    )
-
-
-  (defgeneric build-house! (level house topleft-x topleft-y &key)
-    (:documentation "Builds a house on the given level at given coord."))
-  
-  (defgeneric visit-house (level house)
-    (:documentation "Visits a given house.."))
-
-  (defgeneric find-owner-for-house (level house &key)
-    (:documentation "Tries to find an appropriate owner for the house."))
-
+(defclass owner ()
+  ((id         :accessor owner.id         :initform nil :initarg :id)
+   (name       :accessor owner.name       :initform nil :initarg :name))
+  )
 
 
 (defmethod visit-house (level (house house))
   (declare (ignore level))
-  (warn "simple house.."))
+  ;;(warn "simple house..")
+  )
   
 (defmethod find-owner-for-house (level house &key)
   (declare (ignore level house))

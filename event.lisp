@@ -43,10 +43,6 @@ the Free Software Foundation; either version 2 of the License, or
 		  :initarg :return)
    ))
 
-(defgeneric trigger-event (obj event arg-list)
-  (:documentation "Triggers a given event-type on the object. Recursive."))
-(defgeneric register-object-event! (obj event)
-  (:documentation "Registers an event on the object."))
 
 (defun is-event? (obj)
   (typep obj 'l-event))
