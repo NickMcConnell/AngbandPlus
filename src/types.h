@@ -775,9 +775,23 @@ struct magic_type
 	byte sexp;			/* Encoded experience bonus */
 };
 
+/*
+ * Alchemy Information, each potion will have a record like this,
+ * containing what are the components for the potion and does the player know ?
+ */
+
+typedef struct alchemy_info alchemy_info;
+
+struct alchemy_info
+{
+	byte sval1;			/* Potion Component 1*/
+	bool known1;        /* Is the player aware ? */
+	byte sval2;         /* Potion Component 2*/
+	bool known2;        /* Is the player aware ? */
+};
 
 /*
-* Information about the player's "magic"
+ * Information about the player's "magic"
 *
 * Note that a player with a "spell_book" of "zero" is illiterate.
 */

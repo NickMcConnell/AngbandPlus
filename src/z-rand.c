@@ -121,7 +121,6 @@ void Rand_state_init(u32b seed)
  * Note that "m" must not be greater than 0x1000000, or division
  * by zero will result.
  *
- * ToDo: Check for m > 0x1000000.
  */
 u32b Rand_div(u32b m)
 {
@@ -129,6 +128,10 @@ u32b Rand_div(u32b m)
 
 	/* Hack -- simple case */
 	if (m <= 1) return (0);
+	
+	/*As requested by previous author */
+	if(m>0x1000000)
+		m = 0x1000000;
 
 	/* Partition size */
 	n = (0x10000000 / m);

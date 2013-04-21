@@ -3093,7 +3093,8 @@ bool make_attack_spell(int m_idx)
 		failrate = 25 - (rlev + 3) / 4;
 
 		/* Hack -- Stupid monsters will never fail (for jellies and such) */
-		if (r_ptr->flags2 & (RF2_STUPID)) failrate = 0;
+		/* The storm nevers fails either */
+		if (r_ptr->flags2 & (RF2_STUPID) || r_ptr->flags7 & (RF7_STORM) ) failrate = 0;
 
 		/* Check for spell failure (inate attacks never fail) */
 		if ((thrown_spell >= 128) && (rand_int(100) < failrate))
@@ -4176,7 +4177,17 @@ bool make_attack_spell(int m_idx)
 	case 160+4:
 		{
 			disturb(1, 0);
-			msg_format("%^s blinks away.", m_name);
+			if( r_ptr->flags7 & (RF7_STORM) )
+			{
+				msg_format("%^s is violently blown away.", m_name);
+				/* This is outright evil, but we make this routine believe that the player didnt see it*/
+				/* This way it doesn trigger the memory */
+				seen = FALSE;
+				/* We do trigger the memory on the storm part */
+				r_ptr->r_flags7 |= (RF7_STORM);
+			}
+			else	
+				msg_format("%^s blinks away.", m_name);
 			teleport_away(m_idx, 10);
 			break;
 		}
@@ -5784,34 +5795,36 @@ static bool monst_attack_monst(int m_idx,int t_idx)
 
 				if (touched)
 				{
-					if ((tr_ptr->flags2 & (RF2_AURA_FIRE)) && !(r_ptr->flags3 & (RF3_IM_FIRE)))
+					if ((tr_ptr->flags2 & (RF2_AURA_FIRE)))
 					{
-						if (m_ptr->ml || t_ptr->ml)
+						if( (m_ptr->ml || t_ptr->ml) && (r_ptr->flags3 & (RF3_IM_FIRE)))
+						{
+							if(m_ptr->ml)r_ptr->r_flags3 |= RF3_IM_FIRE;
+						}
+						else if (m_ptr->ml || t_ptr->ml)
 						{
 							blinked = FALSE;
-							msg_format("%^s is suddenly very hot!", m_name);
-							if(t_ptr->ml)
-								tr_ptr->r_flags2 |= RF2_AURA_FIRE;
-						}
-						project(t_idx, 0, m_ptr->fy, m_ptr->fx,
-							damroll (1 + ((tr_ptr->level) / 26),
-							1 + ((tr_ptr->level) / 17)),
-							GF_FIRE, PROJECT_KILL | PROJECT_STOP);
+							if(t_ptr->ml)tr_ptr->r_flags2 |= RF2_AURA_FIRE;
+						}else
+						{
+							project(t_idx, 0, m_ptr->fy, m_ptr->fx,	damroll (1 + ((tr_ptr->level) / 26), 1 + ((tr_ptr->level) / 17)), GF_FIRE, PROJECT_KILL | PROJECT_STOP);
+						}	
 					}
 
-					if ((tr_ptr->flags2 & (RF2_AURA_ELEC)) && !(r_ptr->flags3 & (RF3_IM_ELEC)))
+					if ((tr_ptr->flags2 & (RF2_AURA_ELEC)))
 					{
-						if (m_ptr->ml || t_ptr->ml)
+						if( (m_ptr->ml || t_ptr->ml) && (r_ptr->flags3 & (RF3_IM_ELEC)))
+						{
+							if(m_ptr->ml)r_ptr->r_flags3 |= RF3_IM_ELEC;
+						}
+						else if (m_ptr->ml || t_ptr->ml)
 						{
 							blinked = FALSE;
-							msg_format("%^s gets zapped!", m_name);
-							if(t_ptr->ml)
-								tr_ptr->r_flags2 |= RF2_AURA_ELEC;
-						}
-						project(t_idx, 0, m_ptr->fy, m_ptr->fx,
-							damroll (1 + ((tr_ptr->level) / 26),
-							1 + ((tr_ptr->level) / 17)),
-							GF_ELEC, PROJECT_KILL | PROJECT_STOP);
+							if(t_ptr->ml)tr_ptr->r_flags2 |= RF2_AURA_ELEC;
+						}else
+						{
+							project(t_idx, 0, m_ptr->fy, m_ptr->fx,	damroll (1 + ((tr_ptr->level) / 26), 1 + ((tr_ptr->level) / 17)), GF_ELEC, PROJECT_KILL | PROJECT_STOP);
+						}	
 					}
 
 				}
@@ -6014,11 +6027,10 @@ static void process_monster(int m_idx, bool is_friend)
 	if (r_ptr->flags7 & (RF7_ANNOYED)){
 		/*Monsters get annoyed when they are not at full health*/
 		if( m_ptr->hp < m_ptr->maxhp ){
-			/*And they only blame the hero if he is in the neighbourhood
+			/*And they only blame the hero if he is in the neighbourhood ( distance < 16 )
 			  monster location fx and fy of m_ptr
 			  player location px and py 
-		      And yes, a magical hard coded value ;(
-			  TODO, put this in constants*/												  
+			*/
 			if( distance( px , py , m_ptr->fx , m_ptr->fy ) < 16 ){
 				char m_name[80];
 				

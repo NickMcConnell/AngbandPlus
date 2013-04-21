@@ -360,27 +360,28 @@ cptr r_info_flags6[] =
 /*
  * Monster race flags
  */
+
 cptr r_info_flags7[] =
 {
 	"ANNOYED",
 	"NO_SPAWN",
-	"INFERNO_OPEN",
-	"INFERNO_OPEN",
-	"INFERNO_OPEN",
-	"INFERNO_OPEN",
-	"INFERNO_OPEN",
-	"INFERNO_OPEN",
-	"INFERNO_OPEN",
-	"INFERNO_OPEN",
-	"INFERNO_OPEN",
-	"INFERNO_OPEN",
-	"INFERNO_OPEN",
-	"INFERNO_OPEN",
-	"INFERNO_OPEN",
-	"INFERNO_OPEN",
-	"INFERNO_OPEN",
-	"INFERNO_OPEN",
-	"INFERNO_OPEN",
+	"STORM",
+	"RES_DARK",
+	"IM_DARK",
+	"HEAL_DARK",
+	"HURT_DARK",
+	"RES_LITE",
+	"IM_LITE",
+	"HEAL_LITE",
+	"RES_COLD",
+	"HEAL_COLD",
+	"RES_FIRE",
+	"HEAL_FIRE",
+	"RES_ACID",	
+	"RES_ELEC",
+	"HEAL_ELEC",	
+	"HEAL_NETH",
+	"RES_POIS",
 	"INFERNO_OPEN",
 	"INFERNO_OPEN",
 	"INFERNO_OPEN",
@@ -2199,6 +2200,13 @@ errr init_r_info_txt(FILE *fp, char *buf)
             {
             	r_ptr->flags1 |= RF1_FORCE_MAXHP;
             }
+
+			/* Minor hack, STORM really is blink, except differenly perceived by the hack*/
+			/* Okay, so maybe it is a hack ^ 2 */
+			if (r_ptr->flags7 & (RF7_STORM))
+			{
+				r_ptr->flags6 |= RF6_BLINK;
+			}
 
 			/* Next... */
 			continue;

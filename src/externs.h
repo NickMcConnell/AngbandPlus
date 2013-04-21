@@ -388,9 +388,8 @@ extern bool (*get_obj_num_hook)(int k_idx);
 extern bool angband_keymap_flag; /* Hack for main-win.c */
 extern bool mystic_armour_aux;
 extern bool mystic_notify_aux;
-
-
-
+extern alchemy_info potion_alch[SV_POTION_MAX];
+extern u32b seed_alchemy;
 
 /*
 * Automatically generated "function declarations"
@@ -399,6 +398,7 @@ extern bool mystic_notify_aux;
 /* birth.c */
 extern void create_random_name(int type, char *name);
 extern void player_birth(void);
+extern void outfit(object_type *q_ptr);
 
 /* cave.c */
 extern int distance(int y1, int x1, int y2, int x2);
@@ -524,6 +524,7 @@ extern void do_cmd_aim_wand(int);
 extern void do_cmd_use_staff(int);
 extern void do_cmd_zap_rod(int);
 extern void do_cmd_activate(int);
+extern void do_cmd_mix(void);
 
 /* dungeon.c */
 extern void play_game(bool new_game);
@@ -629,6 +630,7 @@ extern void remove_non_pets(void);
 extern bool summon_skulls(int y1, int x1);
 
 /* object1.c */
+extern void alchemy_init(void);
 /* object2.c */
 extern void flavor_init(void);
 extern void reset_visuals(void);
@@ -699,6 +701,7 @@ extern bool spell_okay(int spell, bool known, int realm);
 extern void print_spells(byte *spells, int num, int y, int x, int realm);
 extern void display_koff(int k_idx);
 extern void random_artefact_resistance (object_type * o_ptr);
+extern void alchemy_describe(char *buf, size_t max, int sval);
 
 
 /* save.c */
@@ -891,6 +894,7 @@ extern bool askfor_aux(char *buf, int len);
 extern bool get_string(cptr prompt, char *buf, int len);
 extern bool get_check(cptr prompt);
 extern bool get_com(cptr prompt, char *command);
+extern bool get_com_rep(cptr prompt, char *command);
 extern s16b get_quantity(cptr prompt, int max,bool allbydefault);
 extern void pause_line(int row);
 extern void request_command(bool shopping);
@@ -1015,6 +1019,8 @@ extern int usleep(huge usecs);
 /* util.c */
 extern void repeat_push(int what);
 extern bool repeat_pull(int *what);
+extern void repeat_push_char(char what);
+extern bool repeat_pull_char(char *what);
 extern void repeat_check(void);
 
 #endif /* ALLOW_REPEAT -- TNB */

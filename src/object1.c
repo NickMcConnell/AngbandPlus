@@ -2769,7 +2769,7 @@ cptr item_activation(object_type *o_ptr)
 		}
 	case ART_DRAEBOR:
 		{
-			return "Sleep II every 55 turns";
+			return "confusion ball (200) radius 5 and blink";
 		}
 	case ART_BARD:
 		{
@@ -5052,4 +5052,124 @@ byte object_attr(object_type *  o_ptr)
 }
 
 #endif
+
+
+/* 
+* Create Alchemy lists 
+ */
+void alchemy_init(void)
+{
+	int i, j, sv1, sv2, k1, k2;
+	
+	bool exists;
+	
+	int potion_list[SV_POTION_MAX]; /* list of k_idxs of all potions, by SVAL */
+	
+	object_kind *k_ptr;
+	
+	s16b target_pval = 0;
+	s16b pval1 = 0;
+	s16b pval2 = 0;	
+		
+	/* Hack -- Use the "simple" RNG */
+	Rand_quick = TRUE;
+	
+	/* Hack -- Induce consistant flavors */
+	Rand_value = seed_alchemy;
+	
+	/* Build list of legal potions */
+	for (i = 0; i < SV_POTION_MAX; i++)
+	{
+		potion_list[i] = -1;
+		
+		for (j = 0; j < MAX_K_IDX; j++)
+		{
+			k_ptr = &k_info[j];
+			
+			/* Found a match */
+			if ((k_ptr->tval == TV_POTION) && (k_ptr->sval == i)) potion_list[i] = j;
+		}
+	}
+	
+	for (i = 0; i < SV_POTION_MAX; i++)
+	{
+		k_ptr = &k_info[potion_list[i]];
+		
+		if (potion_list[i] > -1 && k_ptr->pval > -1)
+		{
+			while (TRUE)
+			{
+				sv1 = rand_int(SV_POTION_MAX);
+				sv2 = rand_int(SV_POTION_MAX);
+				
+				k1 = potion_list[sv1];
+				k2 = potion_list[sv2];
+				
+				/* Can't mix with yourself */
+				if (sv1 == sv2) continue;
+				
+				/* Neither can be the resulting potion */
+				if ((sv1 == i) || (sv2 == i)) continue;
+				
+				/* Must be legal potions */
+				if ((k1 == -1) || (k2 == -1)) continue;
+				
+				/*Must be potions that fill the stomach */
+				/*For now this excludes really crappy potions (death etc.) and invulnerability*/
+				if ((k_info[k1].pval < 0) || (k_info[k2].pval < 0)) continue;	
+				
+				/* Same combination mustn't exist */
+				exists = FALSE;
+				
+				for (j = 0; j < i; j++)
+				{
+					if (((sv1 == potion_alch[j].sval1) && (sv2 == potion_alch[j].sval2)) ||
+						((sv1 == potion_alch[j].sval2) && (sv2 == potion_alch[j].sval1))) 
+						exists = TRUE; 
+				}
+				
+				if (exists) continue;
+				
+				/* For crazy potions like invulnerability, this is a solution*/
+				/* It cuts of pval at 199 */
+				/* Note that this whole idea might be stupid, pval in Hell is hunger*/
+				/* Whereas Eytans comments seem to indicate that pval is money...*/
+				pval1 = k_info[k1].pval + k_info[k1].level +  ( k_info[k1].cost > 199 ? 199 : k_info[k1].cost);
+				pval2 = k_info[k2].pval + k_info[k2].level +  ( k_info[k2].cost > 199 ? 199 : k_info[k2].cost);
+				target_pval = ( k_ptr->pval > 199 ? 199 : k_ptr->pval) + k_ptr->level + ( k_ptr->cost > 199 ? 199 : k_ptr->cost);
+				
+				
+				/* Check for legal combination */
+				if ( pval1 + pval2 < target_pval )
+					continue;
+				
+
+				
+				/* No single component should exceed the total with 100 hunger points */
+				if (( pval1 > target_pval+50) || (pval2 > target_pval+50))
+					continue;
+				
+				/* Not too expensive, if possible with a margin of 101 ( originally 1 ) */
+				if (pval1 + pval2 > target_pval + 51)
+				{
+					/* Only rarely allow these potions */
+					if (rand_int(15)) continue;
+				}
+				
+				break;
+			}
+			
+			potion_alch[i].sval1 = sv1;
+			potion_alch[i].sval2 = sv2;
+		}
+		else
+		{	
+			potion_alch[i].sval1 = i;
+			potion_alch[i].sval2 = i;
+		}
+	}
+	
+	/* Hack -- Use the "complex" RNG */
+	Rand_quick = FALSE;
+}
 

@@ -439,9 +439,8 @@ G:p:R
 I:110:2:1d2:2:1:0
 W:1:1:0:3
 B:HIT:HURT:1d4
-F:FEMALE
-S:1_IN_2 | 
-S:BLINK
+F:FEMALE | STORM
+S:1_IN_3 |
 D:She seems to be seeking her lover, 
 D:but some devillish magic keeps her from touching him ever again. 
 D:She has not yet been judged by Minos. 
@@ -540,7 +539,7 @@ W:1:1:0:2
 B:BITE:HURT:1d2
 B:STING:HURT:1d2
 F:RAND_50 | 
-F:WEIRD_MIND | BASH_DOOR | 
+F:WEIRD_MIND | BASH_DOOR | HURT_LITE
 F:GOOD | MALE 
 D:It seems the knight has been corrupted by 
 D:demonic powers. He now sports a large set of 
@@ -565,7 +564,7 @@ B:BITE:HURT:1d3
 B:CRUSH:HURT:1d4
 F:RAND_25 | 
 F:BASH_DOOR | 
-F:DEMON | EVIL 
+F:DEMON | EVIL | HURT_LITE
 D:A fat looking demon with too many eye tentacles seems 
 D:to look desperately for the exit. 
 D:An embarrasment to the Demon Kings he has been sent 
@@ -577,7 +576,7 @@ G:i:r
 I:110:1:3d5:12:7:10
 W:1:1:0:3
 B:TOUCH:FIRE:1d2
-F:RAND_50 | RAND_25 | 
+F:RAND_50 | RAND_25 | HURT_COLD | HEAL_FIRE
 F:EMPTY_MIND
 D:It is a smallish, flaming, icky creature. 
 
@@ -588,7 +587,7 @@ W:1:1:0:2
 B:TOUCH:HURT:1d2
 F:ATTR_CLEAR | 
 F:RAND_50 | RAND_25 | 
-F:INVISIBLE | EMPTY_MIND
+F:INVISIBLE | EMPTY_MIND 
 D:It is a smallish, whispy, icky creature. 
 D:It looks more like a whisp of smoke then anything else. 
 
@@ -724,7 +723,7 @@ N:43:Shrieker
 G:g:R
 I:110:3:1d1:4:1:0
 W:2:2:0:1
-F:NEVER_MOVE | NEVER_BLOW | 
+F:NEVER_MOVE | NEVER_BLOW | HURT_ROCK
 F:STUPID | EMPTY_MIND | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_4 | 
@@ -740,7 +739,7 @@ B:BITE:FIRE:1d2
 B:BITE:FIRE:1d2
 F:UNIQUE | 
 F:FORCE_MAXHP | RAND_25 | 
-F:BASH_DOOR | EVIL | 
+F:BASH_DOOR | EVIL | IM_FIRE
 F:ANIMAL | NO_CONF | NO_SLEEP | NO_FEAR
 D:Killed and corrupted into an even more vicious creature, 
 D:it seeks dominance over all canines of the lower levels. 
@@ -754,7 +753,7 @@ W:2:1:0:60
 B:BITE:FIRE:1d2
 B:BITE:FIRE:1d2
 F:UNIQUE | 
-F:FORCE_MAXHP | RAND_25 | 
+F:FORCE_MAXHP | RAND_25 | IM_FIRE
 F:BASH_DOOR | EVIL
 F:ANIMAL | NO_CONF | NO_SLEEP | NO_FEAR
 D:Killed and corrupted into an even more vicious creature, 
@@ -812,7 +811,7 @@ F:UNIQUE | ESCORT | ESCORTS |
 F:FORCE_MAXHP | BASH_DOOR | 
 F:ANIMAL | NO_CONF | NO_SLEEP
 S:1_IN_6 | 
-S:S_MONSTER
+S:S_KIN
 D:A large black rodent, he's the leader of the pack. 
 D:Minos gave him special instructions about you... 
 
@@ -830,7 +829,7 @@ G:I:B
 I:120:1:4d5:6:6:15
 W:3:1:0:10
 B:CRAWL:COLD:1d2
-F:RAND_25 | 
+F:RAND_25 | HURT_FIRE | RES_COLD
 F:WEIRD_MIND |  
 F:ANIMAL | FRIENDS | 
 S:1_IN_15 | SHRIEK
@@ -842,7 +841,7 @@ G:a:w
 I:110:2:3d6:8:16:80
 W:3:1:0:7
 B:BITE:COLD:1d4
-F:WEIRD_MIND | BASH_DOOR | 
+F:WEIRD_MIND | BASH_DOOR | HURT_FIRE | RES_COLD
 F:ANIMAL | 
 D:It is about two feet long and has sharp pincers. 
 D:It is a covered by a sheet of ice, giving it an 
@@ -854,7 +853,7 @@ I:110:4:10d10:2:1:0
 W:3:2:0:16
 B:CRUSH:EAT_LITE:2d4
 F:NEVER_MOVE | 
-F:STUPID | EMPTY_MIND | 
+F:STUPID | EMPTY_MIND | HEAL_DARK | HURT_LITE
 F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_5 | 
 S:DARKNESS
@@ -866,7 +865,7 @@ I:120:2:4d8:8:9:20
 W:3:1:0:12
 B:HIT:FIRE:1d2
 F:BASH_DOOR
-F:DEMON | EVIL | NO_FEAR
+F:DEMON | EVIL | NO_FEAR | HEAL_FIRE | HURT_COLD
 D:A member of the demonic foot troops, this one 
 D:carries a flaming pitch fork. 
 
@@ -877,7 +876,7 @@ W:3:1:0:8
 B:HIT:COLD:1d2
 B:HIT:COLD:1d3
 F:DROP_60 | 
-F:OPEN_DOOR | BASH_DOOR | 
+F:OPEN_DOOR | BASH_DOOR | HEAL_COLD | HURT_FIRE
 F:DEMON | EVIL | NO_FEAR
 D:A small demonic figure, it holds a frosty trident. Inferno is 
 D:indeed a place where both frost and fire rule. 
@@ -888,8 +887,7 @@ I:130:1:10d20:20:12:5
 W:3:3:0:20
 B:TOUCH:EAT_GOLD
 B:TOUCH:EAT_GOLD
-F:UNIQUE | MALE | 
-F:FORCE_MAXHP | SMART | 
+F:UNIQUE | MALE | SMART | 
 F:RAND_50 | RAND_25 | 
 F:ONLY_ITEM | DROP_90 | DROP_GOOD | DROP_GREAT |
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR 
@@ -917,9 +915,9 @@ B:GAZE:LOSE_STR:1d2
 B:GAZE:LOSE_STR:1d2
 B:GAZE:LOSE_STR:1d2
 F:RAND_50 | RAND_25 | 
-F:STUPID | EMPTY_MIND | ATTR_MULTI | NO_FEAR
+F:STUPID | EMPTY_MIND | ATTR_MULTI | NO_FEAR | RES_FIRE
 S:1_IN_11 | 
-S:DRAIN_MANA | DARKNESS
+S:DRAIN_MANA | DARKNESS | 
 D:A swirling mass of ectoplasm, changing constantly its hue. 
 D:It seems to suck up all the energy around it. 
 
@@ -932,7 +930,7 @@ B:CLAW:HURT:1d2
 B:BITE:HURT:1d2
 F:FEMALE | 
 F:RAND_50 | 
-F:ANIMAL | EVIL
+F:ANIMAL | EVIL | RES_DARK
 D:A flying, screeching bird with a woman's face. 
 D:She is attracted by Inferno's Discord. 
 
@@ -944,7 +942,7 @@ B:BITE:FIRE:1d5
 B:CRUSH:HURT:1d8
 F:RAND_25 | 
 F:BASH_DOOR | 
-F:ANIMAL | FRIENDS | ATTR_MULTI
+F:ANIMAL | FRIENDS | ATTR_MULTI | RES_FIRE
 D:A flame covered reptile it is about ten feet long. 
 
 
@@ -960,7 +958,7 @@ B:TOUCH:POISON:2d2
 B:TOUCH:ACID:2d2
 F:ONLY_GOLD | DROP_1D2 | 
 F:COLD_BLOOD | BASH_DOOR | 
-F:ANIMAL | IM_POIS | FRIENDS | 
+F:ANIMAL | RES_POIS | FRIENDS | 
 F:NO_CONF | NO_SLEEP 
 D:It is a pile of coins with an attitude. 
 D:The greedy cannot resist approaching them, 
@@ -1058,9 +1056,9 @@ B:CRAWL:COLD:1d2
 B:CRAWL:LOSE_STR:1d2
 B:CRAWL:LOSE_CON:1d2
 F:RAND_50 | RAND_25 | FORCE_SLEEP
-F:STUPID | WEIRD_MIND | 
+F:STUPID | WEIRD_MIND | RES_COLD | HURT_FIRE
 F:COLD_BLOOD | FRIENDS | 
-F:ANIMAL | IM_COLD | 
+F:ANIMAL |  
 D:This worm will eat you, slowly, while you freeze and weaken. 
 
 N:70:Grinding Teeth
@@ -1069,7 +1067,7 @@ I:110:2:6d8:20:6:5
 W:4:3:0:18
 B:HIT:HURT:1d5
 B:HIT:HURT:3d1
-F:FORCE_SLEEP | BASH_DOOR | NO_CONF | NO_FEAR | NO_SLEEP | NONLIVING
+F:FORCE_SLEEP | BASH_DOOR | NO_CONF | NO_FEAR | NO_SLEEP | NONLIVING | HURT_ROCK
 D:The grinding teeth of Hell are not a metaphore. It really is an  oversized set of teeth with an attitude. 
 
 ##### Level 5 , Minos' Dwelling#####
@@ -1119,7 +1117,7 @@ B:CRUSH:HURT:1d8
 B:SPIT:EAT_LITE:2d6
 F:FEMALE | 
 F:TAKE_ITEM | DROP_90 | DROP_1D2
-F:BASH_DOOR | EVIL | IM_ACID | DEMON
+F:BASH_DOOR | EVIL | HEAL_DARK | DEMON
 D:A large black female demon. Her skin looks as if she 
 D:came straight out of a dark pool. 
 
@@ -1207,7 +1205,7 @@ F:DROP_90 | FORCE_SLEEP | FRIENDS | BASH_DOOR |
 F:EVIL | IM_POIS | DEMON
 D:A demon, it's duty is to protect 
 D:Minos from the more dangerous sinners who are sometimes quite resourcefull. 
-D:Minos is the most know Infernal judge, his vote is final. 
+D:Minos is the most known Infernal judge, his vote is final. 
 
 #Benvenuto continues, and find in these four principal poets the four cardinal virtues, with Homer signifying justice, Horace prudence, Ovid temperance, and Lucan fortitude.
 
@@ -1231,9 +1229,9 @@ B:HIT:HURT:1d15
 F:GOOD | DROP_GOOD | SMART | DROP_1D2 | ONLY_ITEM | UNIQUE | MALE | 
 D:A great scholar and poet, but never baptised he has been granted access to Minos' 
 D:residence. He is most famous for his 'Odes'. 
-D:He  firmly disapproves your actions. 
+D:He firmly disapproves your actions. 
 
-#Temperamce, a little les xp, a little less damage
+#Temperance, a little les xp, a little less damage
 N:85:Publius Ovidius Naso
 G:p:W
 I:110:2:13d9:20:32:30
@@ -1365,7 +1363,9 @@ G:p:R
 I:90:1:8d4:4:12:5
 W:6:1:0:6
 B:HIT:HURT:1d6
-F:OPEN_DOOR | BASH_DOOR | FEMALE |  
+F:OPEN_DOOR | BASH_DOOR | FEMALE | 
+F:STORM
+S:1_IN_3
 D:Rajm is an Arabic term that means to stone, it is the punishment of adultery. 
 D:This poor woman was stoned to death. 
 
@@ -1376,6 +1376,8 @@ W:6:1:0:16
 B:HIT:HURT:1d8
 F:MALE | DROP_60 | DROP_90 | ONLY_GOLD
 F:OPEN_DOOR | BASH_DOOR | MALE | 
+F:STORM
+S:1_IN_3
 D:This poor devil had sex outside of marriage. 
 
 N:95:Horned Lizard
@@ -1401,6 +1403,8 @@ I:90:1:8d4:4:12:5
 W:6:1:0:6
 B:HIT:HURT:1d6
 F:OPEN_DOOR | BASH_DOOR | FEMALE | FRIENDS |  DROP_60 | DROP_90 | ONLY_GOLD | FEMALE | 
+F:STORM
+S:1_IN_3
 D:These women were known throughout the civilized world, leading to 
 D:the word 'fornication' itself. Fornix, meaning "an archway" or "vault" 
 D:was the place where they could be solicited. 
@@ -1445,7 +1449,7 @@ W:6:3:0:150
 B:HIT:HURT:1d10
 F:UNIQUE | FEMALE | 
 F:FORCE_MAXHP | 
-F:ONLY_ITEM | DROP_GOOD | DROP_3D2
+F:ONLY_ITEM | DROP_GREAT | DROP_3D2
 F:OPEN_DOOR | BASH_DOOR | SMART | FEMALE |  
 S:1_IN_6 | 
 S:HEAL | SCARE | CAUSE_1
@@ -1483,6 +1487,8 @@ W:6:2:0:16
 B:HIT:HURT:1d8
 F:MALE | DROP_60 | DROP_90 | ONLY_GOLD | 
 F:OPEN_DOOR | BASH_DOOR | FEMALE | 
+F:STORM
+S:1_IN_3
 D:This male prostitute offered services to men 
 D:in his home country. 
 
@@ -1559,6 +1565,8 @@ I:90:1:8d4:4:12:5
 W:6:1:0:6
 B:HIT:HURT:1d6
 F:OPEN_DOOR | BASH_DOOR | FEMALE | 
+F:STORM
+S:1_IN_3
 D:She had sex outside a marriage and cannot ascend to the Heavens. 
 
 N:112:Adulterer
@@ -1568,6 +1576,8 @@ W:6:2:0:16
 B:HIT:HURT:1d8
 F:MALE | DROP_60 | DROP_90 | 
 F:OPEN_DOOR | BASH_DOOR | MALE |
+F:STORM
+S:1_IN_3
 D:This poor sod cheated on his wife. 
 
 N:113:Whencher
@@ -1577,6 +1587,8 @@ W:6:2:0:16
 B:HIT:HURT:1d8
 F:MALE | DROP_60 | DROP_90 | 
 F:OPEN_DOOR | BASH_DOOR | MALE | 
+F:STORM
+S:1_IN_3
 D:These poor devil visited a prostitute and now pays a heavy price for it. 
 
 N:114:Jade
@@ -1585,6 +1597,8 @@ I:90:1:8d4:4:12:5
 W:6:1:0:6
 B:HIT:HURT:1d6
 F:OPEN_DOOR | BASH_DOOR | FEMALE | 
+F:STORM
+S:1_IN_3
 D:She has committed adultery, which bars her from the Heavens. 
 
 N:115:Citizen of Sodom
@@ -1639,7 +1653,7 @@ W:7:2:0:35
 B:CLAW:HURT:1d3
 B:CLAW:HURT:1d4
 B:CLAW:POISON:1d1
-F:ANIMAL | NO_FEAR | FRIENDS
+F:ANIMAL | NO_FEAR | FRIENDS | RES_DARK
 D:Legend has it that the gluttons can only feed 
 D:on rats, toads and snakes. However, since most 
 D:gluttons barely move, these rats have taken an attitude. 
@@ -1649,7 +1663,7 @@ G:J:D
 I:120:2:10d8:10:32:1
 W:7:2:0:40
 B:BITE:POISON:4d4
-F:RAND_50 | ANIMAL | IM_POIS | FRIENDS
+F:RAND_50 | ANIMAL | RES_POIS | FRIENDS
 D:It has glistening black skin, a sleek body and highly venomous fangs. 
 
 N:120:Frog
@@ -1659,7 +1673,7 @@ W:7:2:0:20
 B:BITE:POISON:1d3
 B:BITE:POISON:1d3
 F:RAND_50 | ANIMAL | FRIENDS
-D:It has glistening black skin, a sleek body and highly venomous fangs. 
+D:It has glistening green skin, its' mouth is sporting a barbed tongue ready to have lunch. 
 
 N:121:Glutton Shade
 G:p:u
@@ -1788,7 +1802,7 @@ W:7:3:0:230
 B:BITE:HURT:1d12
 F:UNIQUE | MALE | 
 F:FORCE_MAXHP | BASH_DOOR |
-F:EVIL | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | DEMON
+F:EVIL | IM_FIRE | IM_COLD | RES_ELEC | RES_POIS | DEMON
 D:A three-headed dog, he is in charge of Inferno's Third Circle. 
 D:Unlike the descriptions from Greek mythology, he sports 
 D:humanoid features such as hands with nails, a greasy beard, a large belly, and red eyes. 
@@ -1810,7 +1824,7 @@ W:8:3:0:300
 B:BITE:HURT:2d6
 F:UNIQUE | MALE | 
 F:FORCE_MAXHP | BASH_DOOR |
-F:EVIL | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | DEMON
+F:EVIL | IM_FIRE | IM_COLD | RES_ELEC | RES_POIS | DEMON
 D:Pluto is meant to symbolize riches, as he is the god of wealth that 
 D:springs from soil in ancient mythology. This is appropriate because he 
 D:guards those who hoarded money and those who spent it foolishly. 
@@ -1947,7 +1961,7 @@ W:8:1:0:16
 B:HIT:HURT:1d8
 F:FRIENDS | 
 F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL | DEMON | IM_FIRE | NO_FEAR
+F:EVIL | DEMON | RES_FIRE | NO_FEAR | RES_COLD
 D:It is the larval form of a major demon. 
 
 #Azza---Mentioned in Rabbinic lore, Solomonic lore. In the Talmud, Azza and Azael are said to have fathered the Sedim upon Naamah, before the Flood.
@@ -1973,7 +1987,7 @@ B:TOUCH:EAT_GOLD
 F:UNIQUE | MALE |
 F:FORCE_SLEEP | FORCE_MAXHP | 
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | DROP_GREAT | 
-F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
+F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | RES_LITE | HEAL_DARK | RES_POIS
 F:RES_TELE
 S:1_IN_5 | 
 S:HEAL | SLOW | TRAPS | BO_COLD | BA_POIS
@@ -2028,7 +2042,7 @@ B:CRAWL:ACID:1d2
 B:CRAWL:ACID:1d2
 B:CRAWL:ACID:1d2
 F:RAND_50 | 
-F:EMPTY_MIND | COLD_BLOOD | TAKE_ITEM | 
+F:EMPTY_MIND | COLD_BLOOD | TAKE_ITEM | IM_ACID
 F:KILL_BODY | POWERFUL 
 D:This ectoplasma is very corrosive and smelly. 
 
@@ -2042,7 +2056,7 @@ B:HIT:HURT:1d3
 B:HIT:HURT:1d4
 F:REFLECTING | POWERFUL | EVIL
 F:BASH_DOOR | OPEN_DOOR
-F:ATTR_MULTI | ATTR_ANY | 
+F:ATTR_MULTI | ATTR_ANY | IM_POIS
 D:The ultimate giving in to the wrath that inhabits every soul, 
 D:they inflict punishment on any one they see. 
 
@@ -2052,7 +2066,7 @@ I:110:3:2d10:2:30:70
 W:9:2:0:20
 B:BITE:POISON:1d5
 B:BITE:LOSE_CON:1d4
-F:FORCE_MAXHP | FORCE_SLEEP | FRIENDS | ANIMAL
+F:FORCE_MAXHP | FORCE_SLEEP | FRIENDS | ANIMAL | RES_POIS
 D:You wonder if these flies try to poison 
 D:you with their bites or just rip of the skin. 
 
@@ -2062,7 +2076,7 @@ I:120:2:2d4:12:34:10
 W:9:2:0:22
 B:STING:POISON:1d4
 B:STING:LOSE_STR:1d4
-F:WEIRD_MIND | FRIENDS |ANIMAL
+F:WEIRD_MIND | FRIENDS |ANIMAL | RES_POIS
 D:Attracted by the swamps' inhabitants, they find plenty of victims 
 D:for their poisonous bites. 
 
@@ -2074,7 +2088,7 @@ B:HIT:HURT:1d6
 F:MALE | 
 F:FORCE_SLEEP | DROP_90 | 
 F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL | HURT_LITE
+F:EVIL | HURT_LITE |RES_DARK | RES_COLD | RES_FIRE
 S:1_IN_8 | 
 S:BLINK | CAUSE_1 | MISSILE
 D:Minos has rewarded his bloodlust with an 
@@ -2326,7 +2340,7 @@ W:10:1:0:30
 B:HIT:HURT:5d5
 B:TOUCH:FIRE:4d4
 B:TOUCH:EXP_10:10d10
-F:NEVER_MOVE | NONLIVING | NO_FEAR |
+F:NEVER_MOVE | NONLIVING | NO_FEAR | IM_LITE
 F:STUPID | EMPTY_MIND | NO_CONF | NO_SLEEP
 F:IM_FIRE | FORCE_MAXHP | IM_POIS | ANNOYED | NEVER_BLOW
 D:These tombs contain heretical souls for eternity. 
@@ -2339,7 +2353,7 @@ W:10:1:0:30
 B:HIT:HURT:5d5
 B:TOUCH:FIRE:4d4
 B:TOUCH:EXP_10:10d10
-F:NEVER_MOVE | NONLIVING | NO_FEAR | UNIQUE | MALE
+F:NEVER_MOVE | NONLIVING | NO_FEAR | UNIQUE | MALE | IM_LITE
 F:STUPID | EMPTY_MIND | NO_CONF | NO_SLEEP
 F:IM_FIRE | FORCE_MAXHP | IM_POIS | ANNOYED | NEVER_BLOW
 D:"Behold Farinata who hath uprisen; thou shalt see him all from the girdle up. 
@@ -2352,7 +2366,7 @@ W:10:1:0:30
 B:HIT:HURT:5d5
 B:TOUCH:FIRE:4d4
 B:TOUCH:EXP_10:10d10
-F:NEVER_MOVE | NONLIVING | NO_FEAR | UNIQUE | MALE
+F:NEVER_MOVE | NONLIVING | NO_FEAR | UNIQUE | MALE | IM_LITE
 F:STUPID | EMPTY_MIND | NO_CONF | NO_SLEEP
 F:IM_FIRE | FORCE_MAXHP | IM_POIS | ANNOYED | NEVER_BLOW
 D:"To view uncovered down to the chin, a shade ... risen on its knees." 
@@ -2364,7 +2378,7 @@ W:10:1:0:30
 B:HIT:HURT:5d5
 B:TOUCH:FIRE:4d4
 B:TOUCH:EXP_10:10d10
-F:NEVER_MOVE | NONLIVING | NO_FEAR | UNIQUE | MALE
+F:NEVER_MOVE | NONLIVING | NO_FEAR | UNIQUE | MALE | IM_LITE
 F:STUPID | EMPTY_MIND | NO_CONF | NO_SLEEP
 F:IM_FIRE | FORCE_MAXHP | IM_POIS | ANNOYED | NEVER_BLOW
 D:Suffering the burning heat of his coffin, 
@@ -2377,7 +2391,7 @@ W:10:1:0:30
 B:HIT:HURT:5d5
 B:TOUCH:FIRE:4d4
 B:TOUCH:EXP_10:10d10
-F:NEVER_MOVE | NONLIVING | NO_FEAR | UNIQUE | MALE
+F:NEVER_MOVE | NONLIVING | NO_FEAR | UNIQUE | MALE | IM_LITE
 F:STUPID | EMPTY_MIND | NO_CONF | NO_SLEEP
 F:IM_FIRE | FORCE_MAXHP | IM_POIS | ANNOYED | NEVER_BLOW
 D:The last in the line of reigning Holy Roman Emperors. Raised in Palermo, 
@@ -2392,7 +2406,7 @@ W:10:1:0:30
 B:HIT:HURT:5d5
 B:TOUCH:FIRE:4d4
 B:TOUCH:EXP_10:10d10
-F:NEVER_MOVE | NONLIVING | NO_FEAR | UNIQUE | MALE
+F:NEVER_MOVE | NONLIVING | NO_FEAR | UNIQUE | MALE | IM_LITE
 F:STUPID | EMPTY_MIND | NO_CONF | NO_SLEEP
 F:IM_FIRE | FORCE_MAXHP | IM_POIS | ANNOYED | NEVER_BLOW
 
@@ -2403,7 +2417,7 @@ W:10:1:0:30
 B:HIT:HURT:5d5
 B:TOUCH:FIRE:4d4
 B:TOUCH:EXP_10:10d10
-F:NEVER_MOVE | NONLIVING | NO_FEAR | UNIQUE | MALE
+F:NEVER_MOVE | NONLIVING | NO_FEAR | UNIQUE | MALE | IM_LITE
 F:STUPID | EMPTY_MIND | NO_CONF | NO_SLEEP
 F:IM_FIRE | FORCE_MAXHP | IM_POIS | ANNOYED | NEVER_BLOW
 D:He is said to have allowed the fifth-century heretic Photinus to communion. 
@@ -2414,7 +2428,7 @@ I:120:2:1d1:4:1:0
 W:10:3:0:3
 B:HIT:CONFUSE:1d1
 B:HIT:POISON:1d1
-F:NEVER_MOVE | COLD_BLOOD | MULTIPLY |
+F:NEVER_MOVE | COLD_BLOOD | MULTIPLY | HURT_LITE
 F:STUPID | EMPTY_MIND | DEMON
 F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_5
@@ -2430,7 +2444,7 @@ I:120:2:1d1:4:1:0
 W:10:3:0:3
 B:HIT:CONFUSE:1d1
 B:HIT:COLD:1d1
-F:NEVER_MOVE | COLD_BLOOD | MULTIPLY |
+F:NEVER_MOVE | COLD_BLOOD | MULTIPLY | HURT_LITE
 F:STUPID | EMPTY_MIND | DEMON
 F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_5
@@ -2483,7 +2497,7 @@ B:HIT:HURT:3d2
 F:UNIQUE | FEMALE | FORCE_MAXHP | EVIL
 F:ONLY_ITEM | DROP_2D2 | DROP_GREAT | 
 F:OPEN_DOOR | BASH_DOOR |
-F:IM_FIRE | IM_COLD | IM_ELEC | IM_POIS
+F:RES_FIRE | RES_COLD | RES_ELEC | IM_POIS | RES_DARK
 D:One of the three sister furies, 
 D:Daughters of Night, bloodstained with snakes in their hair and about their waists. 
 D:She is about to exact divine vengeance on your soul. 
@@ -2497,7 +2511,7 @@ B:HIT:HURT:3d2
 F:UNIQUE | FEMALE | FORCE_MAXHP | EVIL
 F:ONLY_ITEM | DROP_2D2 | DROP_GREAT | 
 F:OPEN_DOOR | BASH_DOOR |
-F:IM_FIRE | IM_COLD | IM_ELEC | IM_POIS
+F:RES_FIRE | RES_COLD | RES_ELEC | IM_POIS | RES_DARK
 D:One of the three sister furies, 
 D:Daughters of Night, bloodstained with snakes in their hair and about their waists. 
 D:She is about to exact divine vengeance on your soul. 
@@ -2511,7 +2525,7 @@ B:HIT:HURT:3d2
 F:UNIQUE | FEMALE | FORCE_MAXHP | EVIL
 F:ONLY_ITEM | DROP_2D2 | DROP_GREAT | 
 F:OPEN_DOOR | BASH_DOOR |
-F:IM_FIRE | IM_COLD | IM_ELEC | IM_POIS
+F:RES_FIRE | RES_COLD | RES_ELEC | IM_POIS | RES_DARK
 D:One of the three sister furies, 
 D:Daughters of Night, bloodstained with snakes in their hair and about their waists. 
 D:She is about to exact divine vengeance on your soul. 
@@ -2524,8 +2538,8 @@ B:HIT:HURT:3d2
 B:HIT:HURT:3d2
 F:UNIQUE | FEMALE | FORCE_MAXHP | EVIL
 F:ONLY_ITEM | DROP_2D2 | DROP_GREAT | 
-F:OPEN_DOOR | BASH_DOOR |
-F:IM_FIRE | IM_COLD | IM_ELEC | IM_POIS
+F:OPEN_DOOR | BASH_DOOR | 
+F:IM_FIRE | IM_COLD | RES_ELEC | IM_POIS | HURT_DARK | HEAL_LITE
 S:1_IN_2 | 
 S:BR_LITE
 D:A moon-goddess, her powerfull magic can light up the entire sixth circle. 
@@ -2548,7 +2562,7 @@ I:110:1:20d9:12:14:10
 W:11:1:0:30
 B:BUTT:HURT:2d5
 B:HIT:HURT:2d5
-F:BASH_DOOR | EVIL
+F:BASH_DOOR | EVIL | RES_POIS | RES_DARK
 D:It is a cross between a human and a bull. They are the symbol 
 D:of man with animal behavior, since they are part men, part beasts. 
 D:They guard those that would be violent against their neighbours. 
@@ -2559,7 +2573,7 @@ I:110:2:20d9:12:14:10
 W:11:1:0:30
 B:BUTT:HURT:2d5
 B:HIT:HURT:2d5
-F:BASH_DOOR | EVIL
+F:BASH_DOOR | EVIL | RES_POIS | RES_DARK
 S:1_IN_5
 S:ARROW_1
 D:It is a cross between a human and a horse. They are the symbol 
@@ -2578,6 +2592,7 @@ B:HIT:HURT:2d3
 F:UNIQUE | MALE | FORCE_MAXHP | ESCORT | ESCORTS
 F:ONLY_ITEM | DROP_2D2 | DROP_GREAT | 
 F:OPEN_DOOR | BASH_DOOR |
+F:RES_POIS | RES_DARK | 
 S:1_IN_5
 S:ARROW_1
 D:He is the leader of the Centaurs. 
@@ -2591,6 +2606,7 @@ B:HIT:HURT:2d3
 F:UNIQUE | MALE | FORCE_MAXHP | ESCORT | ESCORTS
 F:ONLY_ITEM | DROP_2D2 | DROP_GREAT | 
 F:OPEN_DOOR | BASH_DOOR |
+F:RES_POIS | RES_DARK | 
 S:1_IN_5
 S:ARROW_1
 D:"That is Nessus, Who died for the lovely Dejanira 
@@ -2605,6 +2621,7 @@ B:HIT:HURT:2d3
 F:UNIQUE | MALE | FORCE_MAXHP | ESCORT | ESCORTS
 F:ONLY_ITEM | DROP_2D2 | DROP_GREAT | 
 F:OPEN_DOOR | BASH_DOOR |
+F:RES_POIS | RES_DARK | 
 S:1_IN_5
 S:ARROW_1
 D:"The last is Pholus, who was so full of frenzy." 
@@ -2615,9 +2632,12 @@ I:120:1:7d7:30:30:20
 W:11:1:0:30
 B:HIT:HURT:1d4
 F:BASH_DOOR | OPEN_DOOR
+F:RES_FIRE
 D:'Thousands on thousands march around the ditch, 
 D:Shooting at any soul that rises up 
 D:Above the blood more than its guilt allows.' 
+
+#TODO : add res_shards for these guys ?
 
 N:194:Tyrant
 G:p:R
@@ -2698,7 +2718,7 @@ B:HIT:HURT:6d8
 B:HIT:HURT:6d8
 B:HIT:HURT:6d8
 B:HIT:HURT:6d8
-F:BASH_DOOR | OPEN_DOOR | UNIQUE | MALE | DROP_1D2 | DROP_GREAT | ONLY_ITEM | DROP_GOOD | 
+F:BASH_DOOR | OPEN_DOOR | UNIQUE | MALE | DROP_1D2 | DROP_GREAT | ONLY_ITEM | DROP_GOOD | RES_FIRE
 D:'Heavenly justice there strikes with its goads 
 D:That Attila who was a scourge on earth 
 D:And Pyrrhus and Sextus, and forever milks 
@@ -2713,7 +2733,7 @@ I:110:4:24d10:20:60:20
 W:11:1:0:230
 B:HIT:HURT:2d3
 B:HIT:HURT:2d3
-F:BASH_DOOR | OPEN_DOOR | UNIQUE | MALE | DROP_1D2 | DROP_GREAT | ONLY_ITEM | DROP_GOOD | 
+F:BASH_DOOR | OPEN_DOOR | UNIQUE | MALE | DROP_1D2 | DROP_GREAT | ONLY_ITEM | DROP_GOOD | RES_FIRE
 D:'Heavenly justice there strikes with its goads 
 D:That Attila who was a scourge on earth 
 D:And Pyrrhus and Sextus, and forever milks 
@@ -2728,7 +2748,7 @@ I:110:4:24d10:20:60:20
 W:11:1:0:230
 B:HIT:HURT:2d3
 B:HIT:HURT:2d3
-F:BASH_DOOR | OPEN_DOOR | UNIQUE | MALE | DROP_1D2 | DROP_GREAT | ONLY_ITEM | DROP_GOOD | 
+F:BASH_DOOR | OPEN_DOOR | UNIQUE | MALE | DROP_1D2 | DROP_GREAT | ONLY_ITEM | DROP_GOOD  | RES_FIRE 
 D:'Heavenly justice there strikes with its goads 
 D:That Attila who was a scourge on earth 
 D:And Pyrrhus and Sextus, and forever milks 
@@ -2743,7 +2763,7 @@ I:110:4:24d10:20:60:20
 W:11:1:0:230
 B:HIT:HURT:2d3
 B:HIT:HURT:2d3
-F:BASH_DOOR | OPEN_DOOR | UNIQUE | MALE | DROP_1D2 | DROP_GREAT | ONLY_ITEM | DROP_GOOD | 
+F:BASH_DOOR | OPEN_DOOR | UNIQUE | MALE | DROP_1D2 | DROP_GREAT | ONLY_ITEM | DROP_GOOD  | RES_FIRE 
 D:'Heavenly justice there strikes with its goads 
 D:That Attila who was a scourge on earth 
 D:And Pyrrhus and Sextus, and forever milks 
@@ -2758,7 +2778,7 @@ I:110:4:24d10:20:60:20
 W:11:1:0:230
 B:HIT:HURT:2d3
 B:HIT:HURT:2d3
-F:BASH_DOOR | OPEN_DOOR | UNIQUE | MALE | DROP_1D2 | DROP_GREAT | ONLY_ITEM | DROP_GOOD | 
+F:BASH_DOOR | OPEN_DOOR | UNIQUE | MALE | DROP_1D2 | DROP_GREAT | ONLY_ITEM | DROP_GOOD  | RES_FIRE 
 D:'Heavenly justice there strikes with its goads 
 D:That Attila who was a scourge on earth 
 D:And Pyrrhus and Sextus, and forever milks 
@@ -2789,7 +2809,7 @@ B:TOUCH:EXP_10
 B:TOUCH:EXP_10
 F:NEVER_MOVE | 
 F:STUPID | EMPTY_MIND | FRIENDS | 
-F:IM_POIS | NO_CONF | NO_SLEEP | NO_FEAR
+F:IM_POIS | NO_CONF | NO_SLEEP | NO_FEAR | HURT_FIRE | HEAL_LITE
 S:1_IN_11 | 
 S:DRAIN_MANA
 D:Suicides — because they alienated themselves from their own bodies—spend 
@@ -2802,7 +2822,8 @@ W:12:1:0:60
 B:TOUCH:EXP_10
 F:NEVER_MOVE | 
 F:STUPID | EMPTY_MIND | UNIQUE | 
-F:IM_POIS | NO_CONF | NO_SLEEP | NO_FEAR
+F:IM_POIS | NO_CONF | NO_SLEEP | NO_FEAR | HURT_FIRE |  HEAL_LITE
+F:HURT_FIRE |  HEAL_LITE
 S:1_IN_11 | 
 S:DRAIN_MANA
 D:Suicides — because they alienated themselves from their own bodies—spend 
@@ -2816,7 +2837,7 @@ I:120:5:9d8:20:30:30
 W:12:1:0:40
 B:CLAW:HURT:1d5
 B:BITE:HURT:1d8
-F:ANIMAL | FRIENDS | IM_FIRE | EVIL
+F:ANIMAL | FRIENDS | RES_FIRE | EVIL
 D:"In the crouching shade they gripped their teeth. 
 D:And piece by piece they ripped him open-wide. 
 D:And then they carried off his wretched limbs." 
@@ -2871,7 +2892,7 @@ B:TOUCH:LOSE_DEX:1d8
 F:FORCE_SLEEP | RAND_25 | 
 F:DROP_60 | DROP_90 | 
 F:INVISIBLE | COLD_BLOOD | PASS_WALL | 
-F:EVIL | UNDEAD | IM_COLD | NO_CONF | NO_SLEEP
+F:EVIL | UNDEAD | IM_COLD | NO_CONF | NO_SLEEP | HURT_LITE | HEAL_DARK
 S:1_IN_10 | 
 S:TPORT | SCARE | SHRIEK
 D:A ghostly apparition that shrieks horribly. 
@@ -2882,7 +2903,7 @@ I:120:4:13d8:12:30:30
 W:12:2:0:40
 B:BITE:HURT:2d4
 B:CLAW:HURT:2d4
-F:WEIRD_MIND | BASH_DOOR | ANIMAL
+F:WEIRD_MIND | BASH_DOOR | ANIMAL | RES_DARK
 S:1_IN_10 | 
 S:SHRIEK
 D:"The harpies, feeding on the black tree's foliage, 
@@ -2942,7 +2963,7 @@ I:110:1:13d9:20:33:30
 W:13:2:0:50
 B:HIT:HURT:2d8
 F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL | GIANT |
+F:EVIL | GIANT | RES_DARK | RES_LITE | RES_FIRE
 D:A lascivious spirit, engendered of a giant man who dies in the massacre in the time of the giants. 
 
 N:219:Capaneus
@@ -3107,7 +3128,6 @@ F:MALE | DROP_60 | UNIQUE
 F:OPEN_DOOR | BASH_DOOR | 
 D:"Cavaliere di corte, uomo costumato molto e di laudevol maniera," a well-mannered knight of the court. 
 
-
 N:234:Gianfigliazzi of Florence
 G:p:y
 I:110:2:12d10:20:36:20
@@ -3115,7 +3135,7 @@ W:13:2:0:75
 B:HIT:HURT:7d4
 F:MALE | DROP_4D2 | DROP_3D2 | DROP_GREAT | UNIQUE
 F:OPEN_DOOR | BASH_DOOR | FORCE_MAXHP | AURA_FIRE | REGENERATE | 
-F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
+F:RES_ACID | RES_FIRE | RES_COLD | RES_ELEC | RES_POIS | 
 F:NO_CONF | NO_SLEEP | NO_FEAR | 
 D:"While I went among them, looking about 
 D:I glimpsed a purse of yellow upon azure 
@@ -3129,7 +3149,7 @@ W:13:2:0:75
 B:HIT:HURT:7d4
 F:MALE | DROP_4D2 | DROP_3D2 | DROP_GREAT | UNIQUE
 F:OPEN_DOOR | BASH_DOOR | FORCE_MAXHP | AURA_FIRE | REGENERATE | 
-F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
+F:RES_ACID | RES_FIRE | RES_COLD | RES_ELEC | RES_POIS | 
 F:NO_CONF | NO_SLEEP | NO_FEAR | 
 D:"Then, letting my gaze wander over them, 
 D:I saw another purse as red as blood 
@@ -3143,7 +3163,7 @@ W:13:2:0:75
 B:HIT:HURT:7d4
 F:MALE | DROP_4D2 | DROP_3D2 | DROP_GREAT | UNIQUE
 F:OPEN_DOOR | BASH_DOOR | FORCE_MAXHP | AURA_FIRE | REGENERATE | 
-F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
+F:RES_ACID | RES_FIRE | RES_COLD | RES_ELEC | RES_POIS | 
 F:NO_CONF | NO_SLEEP | NO_FEAR | 
 D:"And one who had an azure pregnant sow 
 D:Represented on his small white pouch" 
@@ -3156,7 +3176,7 @@ W:13:2:0:75
 B:HIT:HURT:7d4
 F:MALE | DROP_4D2 | DROP_3D2 | DROP_GREAT | UNIQUE
 F:OPEN_DOOR | BASH_DOOR | FORCE_MAXHP | AURA_FIRE | REGENERATE | 
-F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
+F:RES_ACID | RES_FIRE | RES_COLD | RES_ELEC | RES_POIS | 
 F:NO_CONF | NO_SLEEP | NO_FEAR | 
 D:This usurer is rich, rich and very dangerous. 
 
@@ -3167,7 +3187,7 @@ W:13:2:0:75
 B:HIT:HURT:7d4
 F:MALE | DROP_4D2 | DROP_3D2 | DROP_GREAT | UNIQUE
 F:OPEN_DOOR | BASH_DOOR | FORCE_MAXHP | AURA_FIRE | REGENERATE | 
-F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
+F:RES_ACID | RES_FIRE | RES_COLD | RES_ELEC | RES_POIS | 
 F:NO_CONF | NO_SLEEP | NO_FEAR | 
 D:"Bring on the royal knight 
 D:Who bears on him his pouch with the three goats!" 
@@ -3182,7 +3202,7 @@ W:13:4:0:40
 B:TOUCH:ACID:1d6
 B:TOUCH:HURT:1d6
 F:STUPID | EMPTY_MIND | 
-F:TAKE_ITEM | OPEN_DOOR | KILL_BODY 
+F:TAKE_ITEM | OPEN_DOOR | KILL_BODY | RES_FIRE
 D:A fast moving highly efficient little creature, it picks up everything from the floor 
 D:and throws them into an iron burning vat that is strapped to it's back. 
 
@@ -3206,6 +3226,7 @@ F:UNIQUE |MALE | GIANT |
 F:FORCE_MAXHP | 
 F:ONLY_ITEM | DROP_90 | DROP_GOOD | 
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | EVIL
+F:RES_ELEC | RES_FIRE | RES_COLD | RES_DARK
 D:"His face was the face of a saintly person, 
 D:So placid was the surface of the skin, 
 D:But his whole trunk was the shape of a snake. 
@@ -3240,6 +3261,7 @@ I:110:2:20d9:20:33:30
 W:14:2:0:75
 B:HIT:HURT:2d8
 F:FRIENDS | DROP_60 | OPEN_DOOR | BASH_DOOR | EVIL | DEMON
+F:RES_FIRE | RES_DARK
 D:" saw horned devils with their huge long whips 
 D:Cruelly lashing those sinners from behind. 
 D:Ah how they forced them to lift up their heels 
@@ -3392,7 +3414,7 @@ B:BITE:LOSE_DEX:1d6
 B:CLAW:HURT:1d3
 F:FORCE_SLEEP | 
 F:RAND_25 | 
-F:ONLY_ITEM | DROP_1D2 | 
+F:ONLY_ITEM | DROP_1D2 | AURA_FIRE
 F:SMART | INVISIBLE | BASH_DOOR | 
 F:EVIL | DEMON | IM_FIRE | NONLIVING |
 S:1_IN_10 | 
@@ -3406,7 +3428,7 @@ W:16:4:0:45
 B:BITE:FIRE:3d4
 B:TOUCH:POISON:3d5
 B:HIT:HURT:1d12
-F:ONLY_GOLD | DROP_90 | DROP_2D2 | BASH_DOOR | 
+F:ONLY_GOLD | DROP_90 | DROP_2D2 | BASH_DOOR | AURA_FIRE
 F:ANIMAL | 
 F:IM_POIS | NO_CONF | NO_SLEEP
 S:1_IN_5
@@ -3437,7 +3459,7 @@ F:MALE
 F:FORCE_SLEEP | FORCE_MAXHP
 F:ONLY_ITEM | DROP_1D2
 F:INVISIBLE | OPEN_DOOR | BASH_DOOR
-F:IM_ACID | IM_POIS | NO_CONF | NO_SLEEP
+F:RES_ACID | RES_POIS | NO_CONF | NO_SLEEP
 F:RAND_25 | RAND_50 | 
 S:1_IN_5
 S:HEAL | S_MONSTERS
@@ -3454,7 +3476,7 @@ F:FORCE_SLEEP |
 F:RAND_25 | 
 F:ONLY_ITEM | DROP_1D2 | 
 F:SMART | INVISIBLE | COLD_BLOOD | BASH_DOOR | 
-F:EVIL | DEMON | IM_FIRE | RES_TELE | IM_POIS | IM_ELEC
+F:EVIL | DEMON | IM_FIRE | RES_TELE | RES_POIS | RES_ELEC
 S:1_IN_5 | 
 S:BLINK | TPORT | TELE_TO | TELE_LEVEL | BLIND | CONF | BO_FIRE
 D:A favourite pet of wizards, this imp feels it is payback time. 
@@ -3492,7 +3514,7 @@ W:17:4:0:800
 B:HIT:HURT:3d6
 F:UNIQUE | MALE |FORCE_MAXHP |
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | 
-F:OPEN_DOOR | BASH_DOOR | IM_POIS | REFLECTING | REGENERATE
+F:OPEN_DOOR | BASH_DOOR | RES_POIS | REFLECTING | REGENERATE
 D:Amphiaraus was another of the seven kings who fought in the siege of Thebes. 
 D:He was a seer who foresaw his own death; he is damned to the fourth bolgia. 
 
@@ -3503,7 +3525,7 @@ W:17:4:0:800
 B:HIT:HURT:3d6
 F:UNIQUE | MALE |FORCE_MAXHP |
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | 
-F:OPEN_DOOR | BASH_DOOR | IM_POIS | REFLECTING | REGENERATE
+F:OPEN_DOOR | BASH_DOOR | RES_POIS | REFLECTING | REGENERATE
 D:"See Tiresias, who changed his likeness: 
 D:Being a man he then became a woman, 
 D:Transforming all the members of his body, 
@@ -3518,7 +3540,7 @@ W:17:4:0:800
 B:HIT:HURT:3d6
 F:UNIQUE | MALE |FORCE_MAXHP |
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | 
-F:OPEN_DOOR | BASH_DOOR | IM_POIS | REFLECTING | REGENERATE
+F:OPEN_DOOR | BASH_DOOR | RES_POIS | REFLECTING | REGENERATE
 D:Aruns was an Etruscan diviner who prophesied the Roman civil war. 
 
 N:263:Manto
@@ -3528,7 +3550,7 @@ W:17:4:0:800
 B:HIT:HURT:3d6
 F:UNIQUE | FEMALE |FORCE_MAXHP |
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | 
-F:OPEN_DOOR | BASH_DOOR | IM_POIS | REFLECTING | REGENERATE | SMART
+F:OPEN_DOOR | BASH_DOOR | RES_POIS | REFLECTING | REGENERATE | SMART
 S:1_IN_3 | 
 S:HASTE | TPORT | BLIND | HOLD | CONF | S_MONSTERS | HEAL
 D:"And she who with her wild disheveled hair 
@@ -3543,7 +3565,7 @@ W:17:4:0:800
 B:HIT:HURT:3d6
 F:UNIQUE | MALE |FORCE_MAXHP |
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | 
-F:OPEN_DOOR | BASH_DOOR | IM_POIS | REFLECTING | REGENERATE
+F:OPEN_DOOR | BASH_DOOR | RES_POIS | REFLECTING | REGENERATE
 D:"That one whose beard 
 D:Streams down from his cheeks to his brown shoulders" 
 D:Eurypylus was a greek augur involved in choosing the sailing day for Troy. 
@@ -3555,7 +3577,7 @@ W:17:4:0:800
 B:HIT:HURT:3d6
 F:UNIQUE | MALE |FORCE_MAXHP |
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | 
-F:OPEN_DOOR | BASH_DOOR | IM_POIS | REFLECTING | REGENERATE
+F:OPEN_DOOR | BASH_DOOR | RES_POIS | REFLECTING | REGENERATE
 D:Calchas was a greek augur involved in choosing the sailing day for Troy. 
 
 N:266:Michael Scot
@@ -3565,7 +3587,7 @@ W:17:4:0:800
 B:HIT:HURT:3d6
 F:UNIQUE | MALE |FORCE_MAXHP |
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | 
-F:OPEN_DOOR | BASH_DOOR | IM_POIS | REFLECTING | REGENERATE
+F:OPEN_DOOR | BASH_DOOR | RES_POIS | REFLECTING | REGENERATE
 D:"That other one, so thinned-out in the shanks, 
 D:Was Michael Scot, who certainly perceived 
 D:How to play the game of magic fraud." 
@@ -3577,7 +3599,7 @@ W:17:4:0:800
 B:HIT:HURT:3d6
 F:UNIQUE | MALE |FORCE_MAXHP |
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | 
-F:OPEN_DOOR | BASH_DOOR | IM_POIS | REFLECTING | REGENERATE
+F:OPEN_DOOR | BASH_DOOR | RES_POIS | REFLECTING | REGENERATE
 D:"See Asdente, 
 D:Who wishes now he had kept to his thread 
 D:And shoe-leather, but he repents too late." 
@@ -3640,7 +3662,7 @@ W:18:2:0:75
 B:HIT:FIRE:2d6
 F:RAND_25 | 
 F:EMPTY_MIND | BASH_DOOR | 
-F:EVIL | IM_FIRE | IM_POIS | 
+F:EVIL | HEAL_FIRE | IM_POIS | HURT_COLD
 F:NO_CONF | NO_SLEEP | NO_FEAR | AURA_FIRE
 D:A whirlwind of sentient flame. 
 
@@ -3652,7 +3674,7 @@ B:BITE:FIRE:1d3
 F:FORCE_SLEEP | AURA_FIRE
 F:FRIENDS | 
 F:BASH_DOOR | 
-F:ANIMAL | IM_FIRE
+F:ANIMAL | HEAL_FIRE | HURT_COLD
 S:1_IN_10 | 
 S:BR_FIRE
 D:Flames lick at its feet and its tongue is a blade of fire. You can feel a 
@@ -3664,7 +3686,7 @@ I:120:1:3d8:12:20:50
 W:18:2:0:68
 F:FORCE_SLEEP | NEVER_BLOW | RAND_50 | RAND_25 | 
 F:WEIRD_MIND | BASH_DOOR | 
-F:ANIMAL | IM_FIRE | 
+F:ANIMAL | HEAL_FIRE | HURT_COLD
 S:1_IN_9 | 
 S:BR_FIRE
 D:The size of a large bird, this fly is surrounded by crackling fire. 
@@ -3675,7 +3697,7 @@ I:110:2:24d8:20:75:50
 W:18:1:0:90
 B:HIT:HURT:3d8
 F:DROP_60 | 
-F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | EVIL
+F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | EVIL | RES_FIRE
 D:He is avoiding the Malebranches. He seems to think 
 D:you are one of their agents. 
 
@@ -3720,7 +3742,7 @@ B:HIT:FIRE:4d6
 B:GAZE:EXP_20
 F:FORCE_SLEEP | 
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | AURA_FIRE | NONLIVING |
-F:EVIL | DEMON | IM_FIRE | IM_POIS | NO_CONF | NO_SLEEP
+F:EVIL | DEMON | IM_FIRE | RES_POIS | NO_CONF | NO_SLEEP
 S:1_IN_7 | 
 S:BO_FIRE | S_DEMON
 D:The Malebranche are the squadron leaders of the devils who torment 
@@ -3736,7 +3758,7 @@ B:HIT:FIRE:4d6
 B:GAZE:EXP_20
 F:FORCE_SLEEP | UNIQUE | FORCE_MAXHP | 
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | AURA_FIRE | NONLIVING |
-F:EVIL | DEMON | IM_FIRE | IM_POIS | NO_CONF | NO_SLEEP
+F:EVIL | DEMON | IM_FIRE | RES_POIS | NO_CONF | NO_SLEEP
 S:1_IN_5 | 
 S:BO_FIRE | S_DEMON | BR_FIRE
 D:A leader of the Malebranche, he has the power to summon them. 
@@ -3751,7 +3773,7 @@ B:HIT:FIRE:4d6
 B:GAZE:EXP_20
 F:FORCE_SLEEP | UNIQUE | FORCE_MAXHP |  
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | AURA_FIRE | NONLIVING |
-F:EVIL | DEMON | IM_FIRE | IM_POIS | NO_CONF | NO_SLEEP
+F:EVIL | DEMON | IM_FIRE | RES_POIS | NO_CONF | NO_SLEEP
 S:1_IN_7 | 
 S:BO_FIRE | S_DEMON
 D:It is a member of Malacoda's squad. 
@@ -3766,7 +3788,7 @@ B:HIT:FIRE:4d6
 B:GAZE:EXP_20
 F:FORCE_SLEEP | UNIQUE | FORCE_MAXHP |  
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | AURA_FIRE | NONLIVING |
-F:EVIL | DEMON | IM_FIRE | IM_POIS | NO_CONF | NO_SLEEP
+F:EVIL | DEMON | IM_FIRE | RES_POIS | NO_CONF | NO_SLEEP
 S:1_IN_7 | 
 S:BO_FIRE | S_DEMON
 D:It is a member of Malacoda's squad. 
@@ -3779,7 +3801,7 @@ B:HIT:FIRE:4d6
 B:GAZE:EXP_20
 F:FORCE_SLEEP | UNIQUE | FORCE_MAXHP |  
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | AURA_FIRE | NONLIVING |
-F:EVIL | DEMON | IM_FIRE | IM_POIS | NO_CONF | NO_SLEEP
+F:EVIL | DEMON | IM_FIRE | RES_POIS | NO_CONF | NO_SLEEP
 S:1_IN_7 | 
 S:BO_FIRE | S_DEMON
 D:It is a member of Malacoda's squad. 
@@ -3792,7 +3814,7 @@ B:HIT:FIRE:4d6
 B:GAZE:EXP_20
 F:FORCE_SLEEP | UNIQUE | FORCE_MAXHP |  
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | AURA_FIRE | NONLIVING |
-F:EVIL | DEMON | IM_FIRE | IM_POIS | NO_CONF | NO_SLEEP
+F:EVIL | DEMON | IM_FIRE | RES_POIS | NO_CONF | NO_SLEEP
 S:1_IN_7 | 
 S:BO_FIRE | S_DEMON
 D:It is a member of Malacoda's squad. 
@@ -3805,7 +3827,7 @@ B:HIT:FIRE:4d6
 B:GAZE:EXP_20
 F:FORCE_SLEEP | UNIQUE | FORCE_MAXHP |  
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | AURA_FIRE | NONLIVING |
-F:EVIL | DEMON | IM_FIRE | IM_POIS | NO_CONF | NO_SLEEP
+F:EVIL | DEMON | IM_FIRE | RES_POIS | NO_CONF | NO_SLEEP
 S:1_IN_7 | 
 S:BO_FIRE | S_DEMON
 D:It is a member of Malacoda's squad. 
@@ -3818,7 +3840,7 @@ B:HIT:FIRE:4d6
 B:GAZE:EXP_20
 F:FORCE_SLEEP | UNIQUE | FORCE_MAXHP |  
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | AURA_FIRE | NONLIVING |
-F:EVIL | DEMON | IM_FIRE | IM_POIS | NO_CONF | NO_SLEEP
+F:EVIL | DEMON | IM_FIRE | RES_POIS | NO_CONF | NO_SLEEP
 S:1_IN_7 | 
 S:BO_FIRE | S_DEMON
 D:It is a member of Malacoda's squad. 
@@ -3831,7 +3853,7 @@ B:HIT:FIRE:4d6
 B:GAZE:EXP_20
 F:FORCE_SLEEP | UNIQUE | FORCE_MAXHP |  
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | AURA_FIRE | NONLIVING |
-F:EVIL | DEMON | IM_FIRE | IM_POIS | NO_CONF | NO_SLEEP
+F:EVIL | DEMON | IM_FIRE | RES_POIS | NO_CONF | NO_SLEEP
 S:1_IN_7 | 
 S:BO_FIRE | S_DEMON
 D:It is a member of Malacoda's squad. 
@@ -3844,7 +3866,7 @@ B:HIT:FIRE:4d6
 B:GAZE:EXP_20
 F:FORCE_SLEEP | UNIQUE | FORCE_MAXHP |  
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | AURA_FIRE | NONLIVING |
-F:EVIL | DEMON | IM_FIRE | IM_POIS | NO_CONF | NO_SLEEP
+F:EVIL | DEMON | IM_FIRE | RES_POIS | NO_CONF | NO_SLEEP
 S:1_IN_7 | 
 S:BO_FIRE | S_DEMON
 D:It is a member of Malacoda's squad. 
@@ -3857,7 +3879,7 @@ B:HIT:FIRE:4d6
 B:GAZE:EXP_20
 F:FORCE_SLEEP | UNIQUE | FORCE_MAXHP |  
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | AURA_FIRE | NONLIVING |
-F:EVIL | DEMON | IM_FIRE | IM_POIS | NO_CONF | NO_SLEEP
+F:EVIL | DEMON | IM_FIRE | RES_POIS | NO_CONF | NO_SLEEP
 S:1_IN_7 | 
 S:BO_FIRE | S_DEMON
 D:It is a member of Malacoda's squad. 
@@ -3870,7 +3892,7 @@ B:HIT:FIRE:4d6
 B:GAZE:EXP_20
 F:FORCE_SLEEP | UNIQUE | FORCE_MAXHP |  
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | AURA_FIRE | NONLIVING |
-F:EVIL | DEMON | IM_FIRE | IM_POIS | NO_CONF | NO_SLEEP
+F:EVIL | DEMON | IM_FIRE | RES_POIS | NO_CONF | NO_SLEEP
 S:1_IN_7 | 
 S:BO_FIRE | S_DEMON
 D:It is a member of Malacoda's squad. 
@@ -3885,7 +3907,7 @@ B:HIT:FIRE:4d6
 B:GAZE:EXP_20
 F:FORCE_SLEEP | UNIQUE | FORCE_MAXHP |  
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | AURA_FIRE | NONLIVING |
-F:EVIL | DEMON | IM_FIRE | IM_POIS | NO_CONF | NO_SLEEP
+F:EVIL | DEMON | IM_FIRE | RES_POIS | NO_CONF | NO_SLEEP
 S:1_IN_7 | 
 S:BO_FIRE | S_DEMON
 D:It is a member of Malacoda's squad. 
@@ -3947,9 +3969,7 @@ G:p:y
 I:70:1:80d12:12:80:10
 W:19:1:0:160
 B:HIT:HURT:1d12
-F:FORCE_SLEEP | 
-F:EMPTY_MIND | COLD_BLOOD | BASH_DOOR | UNIQUE | 
-F:IM_POIS | 
+F:BASH_DOOR | UNIQUE | 
 D:A chief magistrates over Florence in 1266 to preserve peace, he failed. 
 
 N:294:Loderingo degli Andalo
@@ -3957,9 +3977,7 @@ G:p:y
 I:70:1:80d12:12:80:10
 W:19:1:0:160
 B:HIT:HURT:1d12
-F:FORCE_SLEEP | 
-F:EMPTY_MIND | COLD_BLOOD | BASH_DOOR | UNIQUE | 
-F:IM_POIS | 
+F:BASH_DOOR | UNIQUE | 
 D:A chief magistrates over Florence in 1266 to preserve peace, he failed. 
 
 N:295:Hypocrite
@@ -3992,7 +4010,7 @@ B:BITE:EAT_GOLD:8d1
 B:BITE:POISON:6d1
 B:BITE:EAT_GOLD:8d1
 B:BITE:POISON:6d1
-F:FRIENDS | IM_POIS | RES_TELE | MALE
+F:FRIENDS | RES_POIS | RES_TELE | MALE
 S:1_IN_3 | 
 S:BLINK | TELE_TO
 D:A thief that never seems quite there. Everywhere you look he is just 
@@ -4062,7 +4080,7 @@ B:TOUCH:EAT_ITEM:5d5
 F:MALE | FORCE_SLEEP | 
 F:ONLY_ITEM | DROP_1D2 | DROP_4D2 | DROP_GOOD | 
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
-F:IM_POIS | NO_CONF | NO_SLEEP | EVIL | RES_TELE
+F:RES_POIS | NO_CONF | NO_SLEEP | EVIL | RES_TELE
 S:1_IN_6 | 
 S:TRAPS
 D:A furtive figure who makes you want to hide all your valuables. 
@@ -4099,10 +4117,10 @@ N:304:Hermes, God of Thieves
 G:U:w
 I:155:10:250d10:10:130:40
 W:20:4:0:2500
-B:CLAW:EAT_GOLD:11d5
-B:CLAW:EAT_GOLD:11d5
-B:CLAW:EAT_ITEM:11d5
-B:CLAW:EAT_ITEM:11d5
+B:TOUCH:EAT_GOLD:11d5
+B:TOUCH:EAT_GOLD:11d5
+B:TOUCH:EAT_ITEM:11d5
+B:TOUCH:EAT_ITEM:11d5
 F:OPEN_DOOR | BASH_DOOR | MALE | RES_PLAS | NONLIVING |
 F:NO_CONF | NO_SLEEP | UNIQUE | RES_TELE
 F:IM_COLD | IM_ELEC | IM_POIS | IM_FIRE | IM_ACID
@@ -4111,16 +4129,18 @@ S:BO_ELEC | TELE_AWAY
 D:"One of many shifts, blandly cunning, a robber, a cattle driver, a bringer of dreams, 
 D:a watcher by night, a thief at the gates, one who was soon to show forth wonderful deeds among the deathless gods."" 
 
+#Probably someone assumed that Hades is a dark place and that, having been there for a while, he became sensitive?
 N:305:Tantalus
 G:p:D
 I:120:3:18d15:20:40:30
 W:20:2:0:500
-B:HIT:HURT:3d5
+B:HIT:EAT_ITEM:11d5
+B:HIT:EAT_ITEM:11d5
 F:MALE | 
 F:FORCE_SLEEP | 
 F:ONLY_ITEM | DROP_2D2 | 
 F:OPEN_DOOR | BASH_DOOR | 
-F:EVIL | HURT_LITE | UNIQUE | ATTR_MULTI
+F:UNIQUE | ATTR_MULTI | HURT_LITE
 S:1_IN_5 | 
 S:HASTE | BLIND | CONF | DARKNESS | BO_FIRE | BO_COLD | MISSILE 
 D:Tantalus is known for having been welcomed to Zeus' table in Olympus. 
@@ -4132,6 +4152,7 @@ G:d:G
 I:120:6:100d5:20:65:20
 W:20:1:0:360
 B:BITE:HURT:2d6
+B:STING:POISON:1d6
 B:STING:POISON:1d6
 F:FORCE_SLEEP | 
 F:ONLY_GOLD | DROP_60 | DROP_90 | IM_POIS |
@@ -4147,7 +4168,7 @@ B:BITE:COLD:1d6
 F:FORCE_SLEEP | RAND_25 | 
 F:ONLY_ITEM | DROP_2D2 | 
 F:TAKE_ITEM | INVISIBLE | OPEN_DOOR | BASH_DOOR | 
-F:ANIMAL | EVIL | DRAGON | IM_COLD
+F:ANIMAL | EVIL | DRAGON | IM_COLD | HEAL_DARK | HURT_LITE
 S:1_IN_6 | 
 S:HASTE | SLOW | CONF | SCARE | DARKNESS
 D:It is a dragon-like form wrapped in shadow. Glowing red eyes shine out in 
@@ -4166,7 +4187,7 @@ F:FORCE_MAXHP |
 F:ESCORT | ESCORTS | 
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | 
 F:OPEN_DOOR | BASH_DOOR | ATTR_MULTI
-F:EVIL | IM_POIS
+F:EVIL | RES_POIS
 D:Vanni Fucci, bastard son of Fuccio de Lazzeri, a Black Guelph in Pistoia, robbed the cathedral there in 1293. 
 
 N:309:Cacus
@@ -4197,7 +4218,7 @@ F:FORCE_MAXHP |
 F:ESCORT | ESCORTS | RES_TELE | 
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | 
 F:OPEN_DOOR | BASH_DOOR | PASS_WALL
-F:EVIL | IM_POIS | RES_TELE | SMART | ATTR_MULTI
+F:EVIL | RES_POIS | RES_TELE | SMART | ATTR_MULTI
 S:1_IN_3  
 S:TELE_TO | ARROW_4
 D:Cianfa belonged to the Donati family of Florence. 
@@ -4215,7 +4236,7 @@ F:FORCE_MAXHP |
 F:ESCORT | ESCORTS | 
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | 
 F:OPEN_DOOR | BASH_DOOR | PASS_WALL
-F:EVIL | IM_POIS | RES_TELE | SMART | ATTR_MULTI
+F:EVIL | RES_POIS | RES_TELE | SMART | ATTR_MULTI
 S:1_IN_3  
 S:TELE_TO | ARROW_4
 D:Cianfa belonged to the Donati family of Florence. 
@@ -4233,7 +4254,7 @@ F:FORCE_MAXHP |
 F:ESCORT | ESCORTS | 
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | 
 F:OPEN_DOOR | BASH_DOOR | PASS_WALL
-F:EVIL | IM_POIS | RES_TELE | SMART | ATTR_MULTI
+F:EVIL | RES_POIS | RES_TELE | SMART | ATTR_MULTI
 S:1_IN_3  
 S:TELE_TO | ARROW_4
 D:Cianfa belonged to the Donati family of Florence. 
@@ -4251,7 +4272,7 @@ F:FORCE_MAXHP |
 F:ESCORT | ESCORTS | 
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | 
 F:OPEN_DOOR | BASH_DOOR | PASS_WALL
-F:EVIL | IM_POIS | RES_TELE | SMART | ATTR_MULTI
+F:EVIL | RES_POIS | RES_TELE | SMART | ATTR_MULTI
 S:1_IN_3  
 S:TELE_TO | ARROW_4
 D:Puccio Sciancato de Galigai was a Florentine Ghibelline. 
@@ -4403,8 +4424,8 @@ I:110:1:9d9:100:30:0
 W:21:1:0:100
 B:ENGULF:FIRE:3d3
 F:FORCE_SLEEP | RAND_50 | 
-F:EMPTY_MIND | BASH_DOOR | POWERFUL | AURA_FIRE |
-F:IM_FIRE | NO_FEAR | NO_CONF | NO_SLEEP | NONLIVING
+F:EMPTY_MIND | BASH_DOOR | POWERFUL | AURA_FIRE | HURT_COLD
+F:HEAL_FIRE | NO_FEAR | NO_CONF | NO_SLEEP | NONLIVING
 S:1_IN_6 | 
 S:BR_FIRE
 D:A whirling maelstrom of fire. 
@@ -4415,9 +4436,9 @@ I:120:2:32d10:100:40:0
 W:21:3:0:800
 B:ENGULF:FIRE:8d8
 F:FORCE_SLEEP | 
-F:RAND_50 | RAND_25 | RES_PLAS | AURA_FIRE | AURA_ELEC |
+F:RAND_50 | RAND_25 | RES_PLAS | AURA_FIRE | AURA_ELEC | HURT_COLD
 F:EMPTY_MIND | BASH_DOOR | POWERFUL | 
-F:IM_FIRE | 
+F:HEAL_FIRE | HEAL_ELEC
 F:NO_CONF | NO_SLEEP | NO_FEAR | NONLIVING
 S:1_IN_6 | 
 S:BR_PLAS
@@ -4539,8 +4560,11 @@ N:339:Perjurer
 G:p:b
 I:120:2:7d10:20:16:20
 W:23:1:0:35
-B:HIT:HURT:1d6
-F:MALE | FORCE_SLEEP | NEVER_BLOW
+B:HIT:POISON:1d6
+B:HIT:FIRE:1d6
+B:HIT:POISON:1d6
+B:HIT:FIRE:1d6
+F:MALE | FORCE_SLEEP | NEVER_MOVE
 F:ONLY_ITEM | DROP_1D2 | 
 F:OPEN_DOOR | BASH_DOOR | EVIL | 
 D:Punished for his grave lies he must remain immobile with burning fever. 
@@ -4550,7 +4574,7 @@ G:p:y
 I:120:2:7d10:20:16:20
 W:23:1:0:35
 B:HIT:HURT:1d6
-F:MALE | FORCE_SLEEP | 
+F:MALE | FORCE_SLEEP | NEVER_MOVE
 F:ONLY_ITEM | DROP_1D2 | 
 F:OPEN_DOOR | BASH_DOOR | EVIL | 
 D:Punsihed for his sins, he must remain immobile in the shape of a broken musical instrument. 
@@ -4575,7 +4599,7 @@ W:23:3:0:600
 B:HIT:HURT:3d6
 F:FORCE_SLEEP | UNIQUE | DROP_3D2 | DROP_GOOD
 F:OPEN_DOOR | BASH_DOOR | MALE
-F:IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
+F:RES_FIRE | RES_COLD | RES_ELEC | RES_POIS | 
 F:NO_CONF | NO_SLEEP | NO_FEAR
 S:1_IN_4 | 
 S:SLOW | CONF | BO_ACID
@@ -4589,7 +4613,7 @@ W:23:3:0:600
 B:HIT:HURT:3d6
 F:FORCE_SLEEP | UNIQUE | DROP_3D2 | DROP_4D2 | DROP_2D2 | ONLY_GOLD
 F:OPEN_DOOR | BASH_DOOR | MALE
-F:IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
+F:RES_FIRE | RES_COLD | RES_ELEC | RES_POIS | 
 F:NO_CONF | NO_SLEEP | NO_FEAR | ATTR_MULTI
 S:1_IN_4 | 
 S:SLOW | CONF | BO_ACID
@@ -4603,7 +4627,7 @@ W:23:3:0:600
 B:HIT:HURT:3d6
 F:FORCE_SLEEP | UNIQUE | DROP_3D2 | DROP_4D2 | DROP_2D2 | ONLY_GOLD
 F:OPEN_DOOR | BASH_DOOR | MALE
-F:IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
+F:RES_FIRE | RES_COLD | RES_ELEC | RES_POIS | 
 F:NO_CONF | NO_SLEEP | NO_FEAR | ATTR_MULTI
 S:1_IN_4 | 
 S:SLOW | CONF | BO_ACID
@@ -4616,7 +4640,7 @@ W:23:3:0:600
 B:HIT:HURT:3d6
 F:FORCE_SLEEP | UNIQUE | DROP_3D2 | DROP_GREAT
 F:OPEN_DOOR | BASH_DOOR | MALE
-F:IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
+F:RES_FIRE | RES_COLD | RES_ELEC | RES_POIS | 
 F:NO_CONF | NO_SLEEP | NO_FEAR | ATTR_MULTI
 S:1_IN_4 | 
 S:SLOW | CONF | BO_ACID
@@ -4631,7 +4655,7 @@ W:23:3:0:600
 B:HIT:HURT:3d6
 F:FORCE_SLEEP | UNIQUE | DROP_3D2 | DROP_GREAT 
 F:OPEN_DOOR | BASH_DOOR | FEMALE
-F:IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
+F:RES_FIRE | RES_COLD | RES_ELEC | RES_POIS | 
 F:NO_CONF | NO_SLEEP | NO_FEAR | ATTR_MULTI
 S:1_IN_4 | 
 S:SLOW | CONF | BO_ACID
@@ -4644,7 +4668,7 @@ W:23:3:0:600
 B:HIT:HURT:3d6
 F:FORCE_SLEEP | UNIQUE | DROP_1D2 | DROP_GREAT 
 F:OPEN_DOOR | BASH_DOOR | FEMALE
-F:IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
+F:RES_FIRE | RES_COLD | RES_ELEC | RES_POIS | 
 F:NO_CONF | NO_SLEEP | NO_FEAR | 
 S:1_IN_4 | 
 S:SLOW | CONF | BO_ACID
@@ -4657,7 +4681,7 @@ W:23:3:0:600
 B:HIT:HURT:3d6
 F:FORCE_SLEEP | UNIQUE | DROP_1D2 | DROP_GREAT 
 F:OPEN_DOOR | BASH_DOOR | FEMALE
-F:IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | 
+F:RES_FIRE | RES_COLD | RES_ELEC | RES_POIS | 
 F:NO_CONF | NO_SLEEP | NO_FEAR | 
 S:1_IN_4 | 
 S:SLOW | CONF | BO_ACID
@@ -4682,7 +4706,7 @@ B:HIT:COLD:5d5
 B:BITE:COLD:2d10
 F:UNIQUE | MALE | NEVER_MOVE
 F:ONLY_ITEM | DROP_2D2 | DROP_GREAT | ATTR_MULTI
-F:EVIL | GIANT | IM_POIS | SMART | IM_FIRE | IM_COLD
+F:EVIL | GIANT | RES_POIS | SMART | RES_FIRE | RES_COLD | RES_DARK | RES_LITE
 S:1_IN_8 | 
 S:TELE_TO | CONF | SCARE | BO_ICEE | BA_CHAO
 D:Nimrod was commonly credited with building the Tower of Babel (Genesis 10: 8-10, 11:1-9), which was the cause for the different languages among people. 
@@ -4697,7 +4721,7 @@ B:HIT:ELEC:5d5
 B:BITE:ELEC:2d10
 F:UNIQUE | MALE | NEVER_MOVE
 F:ONLY_ITEM | DROP_2D2 | DROP_GREAT | ATTR_MULTI
-F:EVIL | GIANT | IM_POIS | SMART | IM_FIRE | IM_COLD
+F:EVIL | GIANT | RES_POIS | SMART | RES_FIRE | RES_COLD | RES_DARK | RES_LITE
 S:1_IN_8 | 
 S:TELE_TO | CONF | SCARE | BO_ICEE | BA_CHAO
 D:Otus, with his brother Ephialtes, attempted to overthrow the gods on Mount Olympus; he piled up mountains to ascend there. 
@@ -4712,7 +4736,7 @@ B:HIT:ELEC:5d5
 B:BITE:ELEC:2d10
 F:UNIQUE | MALE | NEVER_MOVE
 F:ONLY_ITEM | DROP_2D2 | DROP_GREAT | ATTR_MULTI
-F:EVIL | GIANT | IM_POIS | SMART | IM_FIRE | IM_COLD
+F:EVIL | GIANT | RES_POIS | SMART | RES_FIRE | RES_COLD | RES_DARK | RES_LITE
 S:1_IN_8 | 
 S:TELE_TO | CONF | SCARE | BO_ICEE | BA_CHAO
 D:Ephialtes, with his brother Otus, attempted to overthrow the gods on Mount Olympus; he piled up mountains to ascend there. 
@@ -4727,7 +4751,7 @@ B:HIT:ELEC:5d5
 B:BITE:ELEC:2d10
 F:UNIQUE | MALE | NEVER_MOVE
 F:ONLY_ITEM | DROP_2D2 | DROP_GREAT | ATTR_MULTI
-F:EVIL | GIANT | IM_POIS | SMART | IM_FIRE | IM_COLD
+F:EVIL | GIANT | RES_POIS | SMART | RES_FIRE | RES_COLD | RES_DARK | RES_LITE
 S:1_IN_8 | 
 S:TELE_TO | CONF | SCARE | BO_ICEE | BA_CHAO
 D:Briareus and Antaeus were sons of Tellus (the Earth). 
@@ -4742,7 +4766,7 @@ B:HIT:ELEC:5d5
 B:BITE:ELEC:2d10
 F:UNIQUE | MALE | NEVER_MOVE
 F:ONLY_ITEM | DROP_2D2 | DROP_GREAT | ATTR_MULTI
-F:EVIL | GIANT | IM_POIS | SMART | IM_FIRE | IM_COLD
+F:EVIL | GIANT | RES_POIS | SMART | RES_FIRE | RES_COLD | RES_DARK | RES_LITE
 S:1_IN_8 | 
 S:TELE_TO | CONF | SCARE | BO_ICEE | BA_CHAO
 D:Briareus and Antaeus were sons of Tellus (the Earth). 
@@ -4757,7 +4781,7 @@ B:HIT:ELEC:5d5
 B:BITE:ELEC:2d10
 F:UNIQUE | MALE | NEVER_MOVE
 F:ONLY_ITEM | DROP_2D2 | DROP_GREAT | ATTR_MULTI
-F:EVIL | GIANT | IM_POIS | SMART | IM_FIRE | IM_COLD
+F:EVIL | GIANT | RES_POIS | SMART | RES_FIRE | RES_COLD | RES_DARK | RES_LITE
 S:1_IN_8 | 
 S:TELE_TO | CONF | SCARE | BO_ICEE | BA_CHAO
 D:Tityas attempted to rape Leto and was slain by Apollo and Artemis. 
@@ -4772,7 +4796,7 @@ B:HIT:ELEC:5d5
 B:BITE:ELEC:2d10
 F:UNIQUE | MALE | 
 F:ONLY_ITEM | DROP_2D2 | DROP_GREAT | ATTR_MULTI
-F:EVIL | GIANT | IM_POIS | SMART | IM_FIRE | IM_COLD
+F:EVIL | GIANT | RES_POIS | SMART | RES_FIRE | RES_COLD | RES_DARK | RES_LITE
 S:1_IN_8 | 
 S:TELE_TO | CONF | SCARE | BO_ICEE | BA_CHAO
 D:Typhon lead the Titans when they attacked and killed Dionysus. 
@@ -5598,8 +5622,8 @@ B:HIT:ELEC:5d5
 B:HIT:ELEC:2d10
 F:UNIQUE | MALE | FALLEN_ANGEL | EVIL
 F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
-F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | 
-F:IM_ELEC | AURA_ELEC | 
+F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | HEAL_ELEC
+F:AURA_ELEC | 
 S:1_IN_4
 S:BR_ELEC | BA_ELEC | BO_ELEC
 D:Ramiel was the sixth of the fallen Grigori leaders. 
@@ -5614,7 +5638,7 @@ B:HIT:HURT:5d5
 B:HIT:HURT:5d5
 B:HIT:HURT:5d5
 F:UNIQUE | MALE | EVIL |  FALLEN_ANGEL
-F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | 
+F:ONLY_ITEM | DROP_1D2 | DROP_GOOD | HEAL_LITE | HURT_DARK
 F:TAKE_ITEM | OPEN_DOOR | BASH_DOOR | NO_CONF | NO_FEAR | NO_SLEEP | NO_STUN 
 S:1_IN_3
 S:BR_LITE | HEAL
@@ -6468,7 +6492,7 @@ D:A form that hurts the eye, death permeates the air around it. As it nears
 D:you, a coldness saps your soul. 
 
 N:461:Lasha, Mistress of Water
-G:E:b
+G:h:B
 I:120:5:20d100:12:40:50
 W:39:3:0:3250
 B:HIT:HURT:5d5
@@ -6917,7 +6941,7 @@ F:FORCE_SLEEP | FORCE_MAXHP |
 F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_4D2 | 
 F:INVISIBLE | 
 F:PASS_WALL | POWERFUL | MOVE_BODY | 
-F:DRAGON | NO_CONF | NO_SLEEP
+F:DRAGON | NO_CONF | NO_SLEEP | HEAL_LITE | HEAL_DARK
 S:1_IN_5 | 
 S:BLIND | CONF | 
 S:BR_LITE | BR_DARK | BR_CONF
@@ -6933,8 +6957,8 @@ B:ENGULF:HURT:5d6
 B:ENGULF:LOSE_STR:1d6
 F:FORCE_SLEEP | FORCE_MAXHP |
 F:ONLY_ITEM | DROP_1D2 | NONLIVING | DEVIL |
-F:OPEN_DOOR | BASH_DOOR | POWERFUL | HURT_LITE |
-F:EVIL | IM_FIRE | NO_CONF | NO_SLEEP | RES_TELE
+F:OPEN_DOOR | BASH_DOOR | POWERFUL | HURT_LITE | 
+F:EVIL | IM_FIRE | NO_CONF | NO_SLEEP | RES_TELE | IM_DARK
 S:1_IN_9 | 
 S:BLIND | CAUSE_2 | DARKNESS |
 S:S_DEVIL | HEAL 
@@ -6971,7 +6995,7 @@ B:HIT:LOSE_STR:3d4
 F:FORCE_SLEEP | FORCE_MAXHP | RAND_25 | 
 F:ONLY_ITEM | DROP_1D2 | DROP_4D2 | 
 F:SMART | TAKE_ITEM | INVISIBLE | COLD_BLOOD | PASS_WALL | 
-F:EVIL | UNDEAD | IM_COLD | IM_POIS | NO_CONF | NO_SLEEP
+F:EVIL | UNDEAD | IM_COLD | IM_POIS | NO_CONF | NO_SLEEP | RES_DARK | 
 S:1_IN_9 | 
 S:TELE_LEVEL | BLIND | HOLD | CONF | CAUSE_4 | DRAIN_MANA | BO_NETH | 
 S:S_UNDEAD
@@ -7037,7 +7061,7 @@ B:HIT:EXP_80:4d6
 F:MALE | 
 F:FORCE_MAXHP | 
 F:ONLY_ITEM | DROP_2D2 | DROP_GOOD | RES_TELE
-F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | MOVE_BODY | RES_NETH | SMART |
+F:COLD_BLOOD | OPEN_DOOR | BASH_DOOR | MOVE_BODY | RES_NETH | SMART | RES_LITE
 F:EVIL | UNDEAD | IM_COLD | IM_POIS | HURT_LITE | NO_CONF | NO_SLEEP
 S:1_IN_6 |
 S:SCARE | HOLD | DRAIN_MANA | BR_NETH
@@ -7158,7 +7182,7 @@ D:It is the epitome of all that is evil, in a mold. Its lifeless form draws
 D:power from sucking the souls of those that approach it, a nimbus of pure 
 D:evil surrounds it. Luckily for you, it can't move. 
 
-N:502:Rahab, dragon of the waters
+N:502:Rahab, Dragon of the Waters
 G:D:B
 I:120:6:25d110:20:100:70
 W:47:4:0:25000
@@ -8582,7 +8606,7 @@ B:CRUSH:HURT:8d12
 B:CRUSH:HURT:10d18
 F:FORCE_SLEEP | FORCE_MAXHP | MOVE_BODY | AURA_FIRE | REFLECTING | 
 F:ONLY_ITEM | DROP_2D2 | DROP_3D2 | DROP_4D2 | DROP_GOOD | 
-F:OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY | RES_NETH | RES_DISE |
+F:OPEN_DOOR | BASH_DOOR | POWERFUL | MOVE_BODY | HEAL_NETH | RES_DISE | IM_DARK | HURT_LITE
 F:DRAGON | EVIL | RES_TELE
 F:IM_ACID | IM_FIRE | IM_COLD | IM_ELEC | IM_POIS | NO_CONF | NO_SLEEP |
 F:RES_NETH | RES_NEXU | RES_PLAS |
@@ -8756,7 +8780,7 @@ D:Created with Behemoth on the fifth day, these two gargantuan devils devour dam
 D:Leviathan has hordes of water demons, sprites, and nymphs to do his bidding. 
 D:On Judgement Day, this sea monster will swallow all but the saved. 
 
-N:585:Behemoth
+N:585:Behemoth, the Cupbearer
 G:U:B
 I:130:8:80d100:100:140:0
 W:95:1:0:43000

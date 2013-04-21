@@ -739,7 +739,7 @@ and tables.c --TY */
 #define COL_SPEED               49      /* "Slow (-NN)" or "Fast (+NN)" */
 
 #define ROW_STUDY               23
-#define COL_STUDY               61      /* "Study" */
+#define COL_STUDY               58      /* "Study" */
 
 #define ROW_DEPTH               23
 #define COL_DEPTH               67      /* "Lev NNN" / "NNNN ft" */
@@ -1768,6 +1768,9 @@ ART_THOTH -> ART_KINSLAYER
 #define SV_POTION_INVULNERABILITY               62
 #define SV_POTION_NEW_LIFE                      63
 
+/* "Sval" limit -- maximum amount of potions */
+#define SV_POTION_MAX							64
+
 /* The "sval" codes for TV_FOOD */
 #define SV_FOOD_POISON                  0
 #define SV_FOOD_BLINDNESS               1
@@ -1794,7 +1797,7 @@ ART_THOTH -> ART_KINSLAYER
 #define SV_FOOD_JERKY                   33
 #define SV_FOOD_RATION                  35
 #define SV_FOOD_SLIME_MOLD              36
-#define SV_FOOD_WAYBREAD                37
+#define SV_FOOD_AMBROSIA                37
 #define SV_FOOD_PINT_OF_ALE             38
 #define SV_FOOD_PINT_OF_WINE    39
 
@@ -2653,23 +2656,23 @@ ART_THOTH -> ART_KINSLAYER
 
 #define RF7_ANNOYED                 0x00000001      /* Annoyed ? */
 #define RF7_NO_SPAWN                0x00000002      /* Can only be summoned */
-#define RF7_XXX3                    0x00000004      /* Heal self */
-#define RF7_XXX4                    0x00000008      /* Heal a lot (?) */
-#define RF7_XXX5                    0x00000010      /* Teleport Short */
-#define RF7_XXX6                    0x00000020      /* Teleport Long */
-#define RF7_XXX7                    0x00000040      /* Move to Player (?) */
-#define RF7_XXX8                    0x00000080      /* Move to Monster (?) */
-#define RF7_XXX9                    0x00000100      /* Move player to monster */
-#define RF7_XXX10                   0x00000200      /* Move player far away */
-#define RF7_XXX11                   0x00000400      /* Move player vertically */
-#define RF7_XXX12                   0x00000800      /* Move player (?) */
-#define RF7_XXX13                   0x00001000      /* Create Darkness */
-#define RF7_XXX14                   0x00002000      /* Create Traps */
-#define RF7_XXX15                   0x00004000      /* Cause amnesia */
-#define RF7_XXX16                   0x00008000      /* ??? */
-#define RF7_XXX17                   0x00010000      /* Summon "kin" */
-#define RF7_XXX18                   0x00020000      /* Summon Black Reavers! */
-#define RF7_XXX19                   0x00040000      /* Summon Monster */
+#define RF7_STORM                   0x00000004      /* Afflicted by the Lovers' Storm */
+#define RF7_RES_DARK                0x00000008      /* Resist darkness */
+#define RF7_IM_DARK                 0x00000010      /* Immunity darkness */
+#define RF7_HEAL_DARK               0x00000020      /* Darkness healing */
+#define RF7_HURT_DARK               0x00000040      /* Extra Hurt by darkness */
+#define RF7_RES_LITE                0x00000080      /* Resist light */
+#define RF7_IM_LITE                 0x00000100      /* Immunity to light */
+#define RF7_HEAL_LITE               0x00000200      /* Heal by light */
+#define RF7_RES_COLD                0x00000400      /* Resist cold*/
+#define RF7_HEAL_COLD               0x00000800      /* Heal by cold */
+#define RF7_RES_FIRE                0x00001000      /* Resist Fire */
+#define RF7_HEAL_FIRE               0x00002000      /* Heal by Fire */
+#define RF7_RES_ACID                0x00004000      /* Resists Acid */
+#define RF7_RES_ELEC                0x00008000      /* Resist Electricity */
+#define RF7_HEAL_ELEC               0x00010000      /* Heal by Electricity */
+#define RF7_HEAL_NETH				0x00020000      /* Heal by Nether */
+#define RF7_RES_POIS				0x00040000      /* Resist poison */
 #define RF7_XXX20                   0x00080000      /* Summon Monsters */
 #define RF7_XXX21                   0x00100000      /* Summon Ants */
 #define RF7_XXX22                   0x00200000      /* Summon Spiders */
@@ -3072,3 +3075,8 @@ extern int PlayerUID;
 	(k_info[(T)->k_idx].x_char) : \
 	(k_info[(T)->k_idx].d_char))
 
+/*
+ * 2 flags for birth items, indicating whether the item should be worn or carried
+ */
+#define WORN					0
+#define CARRIED					1

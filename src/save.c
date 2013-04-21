@@ -1312,8 +1312,24 @@ static bool wr_savefile_new(void)
 	tmp16u = MAX_K_IDX;
 	wr_u16b(tmp16u);
 	for (i = 0; i < tmp16u; i++) wr_xtra(i);
-
-
+	
+	/*Dump the alchemy formula seed*/
+	wr_u32b(seed_alchemy);
+	
+	/* Dump the alchemy info */
+	/*First write the amount of entries*/
+	tmp16u = SV_POTION_MAX;
+	wr_u16b(tmp16u);
+	
+	/*Then write the entries*/
+	for (i = 0; i < tmp16u; i++)
+	{
+		tmp8u = 0;
+		if (potion_alch[i].known1) tmp8u |= 0x01; /* because 1 binary is 0001 */
+		if (potion_alch[i].known2) tmp8u |= 0x02; /* because 2 binary is 0010 */
+		wr_byte(tmp8u);                           /* resulting in 11 ( both ) , 01 ( first only ) or 10 ( second only ) */
+	}	
+	
 	/* Hack -- Dump the quests */
 	tmp16u = MAX_Q_IDX;
 	wr_u16b(tmp16u);

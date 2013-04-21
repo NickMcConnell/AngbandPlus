@@ -1001,8 +1001,10 @@ static bool point_mod_player(void)
 
 		/* Test for lower case (add to stat) or 
 		upper case (subtract stat) */
-		if(islower(stat)) /* ('a' < stat) */
+		if(islower(stat) ) /* ('a' < stat) */
 		{
+			if(points <= 0)
+				continue;
 			/* different conditions for maximize on */
 			if(maximise_mode) 
 			{
@@ -2210,7 +2212,12 @@ static void player_wipe(void)
 		k_ptr->aware = FALSE;
 	}
 
-
+	/* Reset the "alchemy" knowledge */
+	for (i = 0; i < SV_POTION_MAX ; i++)
+	{
+		potion_alch[i].known1 = potion_alch[i].known2 =FALSE;
+	}
+	
 	/* Reset the "monsters" */
 	for (i = 1; i < MAX_R_IDX; i++)
 	{
@@ -2269,98 +2276,98 @@ static void player_wipe(void)
 * In addition, he always has some food and a few torches.
 */
 
-static byte player_init[MAX_CLASS][3][2] =
+static byte player_init[MAX_CLASS][3][3] =
 {
 	{
 		/* Warrior */
-		{ TV_RING, SV_RING_RES_FEAR }, /* Warriors need it! */
-		{ TV_SWORD, SV_BROAD_SWORD },
-		{ TV_HARD_ARMOR, SV_CHAIN_MAIL }
+		{ TV_RING, SV_RING_RES_FEAR , WORN }, /* Warriors need it! */
+		{ TV_SWORD, SV_BROAD_SWORD , WORN},
+		{ TV_HARD_ARMOR, SV_CHAIN_MAIL , WORN }
 	},
 
 	{
 		/* Mage */
-		{ TV_SORCERY_BOOK, 0 }, /* Hack: for realm1 book */
-		{ TV_SWORD, SV_DAGGER },
-		{ TV_DEATH_BOOK, 0 } /* Hack: for realm2 book */
+		{ TV_SORCERY_BOOK, 0 , CARRIED}, /* Hack: for realm1 book */
+		{ TV_SWORD, SV_DAGGER , WORN },
+		{ TV_DEATH_BOOK, 0 , CARRIED} /* Hack: for realm2 book */
 	},
 
 	{
 		/* Priest */
-		{ TV_SORCERY_BOOK, 0 }, /* Hack: for Life / Death book */
-		{ TV_HAFTED, SV_MACE },
-		{ TV_DEATH_BOOK, 0 } /* Hack: for realm2 book */
+		{ TV_SORCERY_BOOK, 0 , CARRIED}, /* Hack: for Life / Death book */
+		{ TV_HAFTED, SV_MACE , WORN},
+		{ TV_DEATH_BOOK, 0 , CARRIED} /* Hack: for realm2 book */
 	},
 
 	{
 		/* Rogue */
-		{ TV_SORCERY_BOOK, 0 }, /* Hack: for realm1 book */
-		{ TV_SWORD, SV_DAGGER },
-		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR }
+		{ TV_SORCERY_BOOK, 0 , CARRIED}, /* Hack: for realm1 book */
+		{ TV_SWORD, SV_DAGGER , WORN },
+		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR , WORN }
 	},
 
 	{
 		/* Ranger */
-		{ TV_NATURE_BOOK, 0 },
-		{ TV_SWORD, SV_BROAD_SWORD },
-		{ TV_DEATH_BOOK, 0 }          /* Hack: for realm2 book */
+		{ TV_NATURE_BOOK, 0 , CARRIED},
+		{ TV_SWORD, SV_BROAD_SWORD , WORN},
+		{ TV_DEATH_BOOK, 0 , CARRIED}  /* Hack: for realm2 book */
 	},
 
 	{
 		/* Paladin */
-		{ TV_SORCERY_BOOK, 0 },
-		{ TV_SWORD, SV_BROAD_SWORD },
-		{ TV_SCROLL, SV_SCROLL_PROTECTION_FROM_EVIL }
+		{ TV_SORCERY_BOOK, 0 , CARRIED },
+		{ TV_SWORD, SV_BROAD_SWORD , WORN },
+		{ TV_SCROLL, SV_SCROLL_PROTECTION_FROM_EVIL , CARRIED }
 	},
 
 	{
 		/* Warrior-Mage */
-		{ TV_SORCERY_BOOK, 0 }, /* Hack: for realm1 book */
-		{ TV_SWORD, SV_SHORT_SWORD },
-		{ TV_DEATH_BOOK, 0 } /* Hack: for realm2 book */
+		{ TV_SORCERY_BOOK, 0 , CARRIED }, /* Hack: for realm1 book */
+		{ TV_SWORD, SV_SHORT_SWORD , WORN},
+		{ TV_DEATH_BOOK, 0 , WORN} /* Hack: for realm2 book */
 	},
 
 	{
 		/* Diabolist */
-		{ TV_SORCERY_BOOK, 0 }, /* Hack: For realm1 book */
-		{ TV_SWORD, SV_BROAD_SWORD },
-		{ TV_HARD_ARMOR, SV_METAL_SCALE_MAIL }
+		{ TV_SORCERY_BOOK, 0 , CARRIED}, /* Hack: For realm1 book */
+		{ TV_SWORD, SV_BROAD_SWORD , WORN},
+		{ TV_HARD_ARMOR, SV_METAL_SCALE_MAIL , WORN }
 	},
 
 	{
 		/* Mystic */
-		{ TV_SORCERY_BOOK, 0 },
-		{ TV_POTION, SV_POTION_HEALING },
-		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR },
+		{ TV_SORCERY_BOOK, 0 , CARRIED },
+		{ TV_POTION, SV_POTION_HEALING , CARRIED},
+		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR , WORN},
 	},
 
 
 	{
 		/* Mindcrafter */
-		{ TV_SWORD, SV_SMALL_SWORD },
-		{ TV_POTION, SV_POTION_RESTORE_MANA },
-		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR },
+		{ TV_SWORD, SV_SMALL_SWORD, WORN },
+		{ TV_POTION, SV_POTION_RESTORE_MANA , CARRIED},
+		{ TV_SOFT_ARMOR, SV_SOFT_LEATHER_ARMOR , WORN},
 	},
 
 		{
 			/* High Mage */
-			{ TV_SORCERY_BOOK, 0 }, /* Hack: for realm1 book */
-			{ TV_SORCERY_BOOK, 1 }, /* Hack^2 : for realm1 book, 2nd edition */
-			{ TV_SWORD, SV_DAGGER }, 		
+			{ TV_SORCERY_BOOK, 0 , CARRIED}, /* Hack: for realm1 book */
+			{ TV_SORCERY_BOOK, 1 , CARRIED}	, /* Hack^2 : for realm1 book, 2nd edition */
+			{ TV_SWORD, SV_DAGGER , WORN}, 		
 		},
 
 		{
 			/* Druid */
-			{TV_SORCERY_BOOK,0}, /* Hack: for realm1 book */
-			{ TV_HAFTED, SV_QUARTERSTAFF },
-			{TV_AMULET,SV_AMULET_BRILLIANCE},
+			{TV_SORCERY_BOOK,0 , CARRIED}, /* Hack: for realm1 book */
+			{ TV_HAFTED, SV_QUARTERSTAFF , WORN},
+			{TV_AMULET,SV_AMULET_BRILLIANCE , WORN},
 		},
 
 		{
 			/* Demonologist */
-			{ TV_SORCERY_BOOK, 0 }, /* Hack: for realm1 book */
-			{ TV_RING, SV_RING_SUSTAIN_MIND },
-			{ TV_DEATH_BOOK, 0 } /* Hack: for realm2 book */
+			{ TV_SORCERY_BOOK, 0 , CARRIED}, /* Hack: for realm1 book */
+			{ TV_RING, SV_RING_SUSTAIN_MIND , WORN },
+			{ TV_DEATH_BOOK, 0 , CARRIED} /* Hack: for realm2 book */
 		},
 
 };
@@ -2382,12 +2389,20 @@ static void player_outfit(void)
 	/* A scroll of Recall for all */
 	/* Get local object */
 	q_ptr = &forge;
-	/* Hack -- Give the player scrolls of light */
 	object_prep(q_ptr, lookup_kind(TV_SCROLL, SV_SCROLL_WORD_OF_RECALL));
 	q_ptr->number = (char)rand_range(1,1);
 	object_aware(q_ptr);
 	object_known(q_ptr);
 	/* These objects are "storebought" */
+	q_ptr->ident |= IDENT_STOREB;
+	(void)inven_carry(q_ptr, FALSE);
+	
+	/* Hack -- Give the player 2 or 3 scrolls of teleport */
+	q_ptr = &forge;
+	object_prep(q_ptr, lookup_kind(TV_SCROLL, SV_SCROLL_TELEPORT));
+	q_ptr->number = (char)rand_range(2,3);
+	object_aware(q_ptr);
+	object_known(q_ptr);
 	q_ptr->ident |= IDENT_STOREB;
 	(void)inven_carry(q_ptr, FALSE);
 
@@ -2403,13 +2418,9 @@ static void player_outfit(void)
 		q_ptr->number = (char)rand_range(2,5);
 		object_aware(q_ptr);
 		object_known(q_ptr);
-
 		/* These objects are "storebought" */
 		q_ptr->ident |= IDENT_STOREB;
-
 		(void)inven_carry(q_ptr, FALSE);
-
-
 	}
 	else
 	{
@@ -2457,14 +2468,16 @@ static void player_outfit(void)
 	}
 	else
 	{
-
-		/* Hack -- Give the player some torches */
-		object_prep(q_ptr, lookup_kind(TV_LITE, SV_LITE_TORCH));
-		q_ptr->number = (char)rand_range(3, 7);
-		q_ptr->pval = (char)rand_range(3, 7) * 500;
+		/* Hack -- Give the player a lantern  */
+		q_ptr = &forge;
+		object_prep(q_ptr, lookup_kind(TV_LITE, SV_LITE_LANTERN));
+		q_ptr->number = (char)rand_range(1,1);
+		q_ptr->pval = 15000;
 		object_aware(q_ptr);
 		object_known(q_ptr);
-		(void)inven_carry(q_ptr, FALSE);
+		q_ptr->ident |= IDENT_STOREB;
+		/*(void)inven_carry(q_ptr, FALSE);	*/
+		outfit( q_ptr );
 	}
 
 	/* Hack -- Give the player three useful objects */
@@ -2506,9 +2519,67 @@ static void player_outfit(void)
 
 		object_aware(q_ptr);
 		object_known(q_ptr);
-		(void)inven_carry(q_ptr, FALSE);
+		/*Carry or wear the item*/
+		if(player_init[p_ptr->pclass][i][2]==CARRIED)
+			(void)inven_carry(q_ptr, FALSE);
+		else 
+			(void)outfit(q_ptr);
 	}
 }
+
+/*
+ * Wear an item out of nowhere ;)
+ * Hack^2
+ */
+void outfit(object_type *q_ptr)
+
+{
+	int slot;
+	object_type forge;
+	object_type *o_ptr;
+
+	o_ptr =q_ptr;
+	
+	/* Check the slot */
+	slot = wield_slot(o_ptr);
+	
+	/* Get local object */
+	q_ptr = &forge;
+	
+	/* Obtain local object */
+	object_copy(q_ptr, o_ptr);
+	
+	/* Modify quantity */
+	q_ptr->number = 1;
+	
+	/* Access the wield slot */
+	o_ptr = &inventory[slot];
+	
+	/* Wear the new stuff */
+	object_copy(o_ptr, q_ptr);
+	
+	/* Increase the weight */
+	total_weight += q_ptr->weight;
+	
+	/* Increment the equip counter by hand */
+	equip_cnt++;
+	
+	/* Recalculate bonuses */
+	p_ptr->update |= (PU_BONUS);
+	
+	/* Recalculate torch */
+	p_ptr->update |= (PU_TORCH);
+	
+	/* Recalculate mana */
+	p_ptr->update |= (PU_MANA);
+	
+	p_ptr->redraw |= (PR_EQUIPPY);
+	
+	/* Window stuff */
+	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
+}
+
+
 
 /*
 * Generate the additional quests

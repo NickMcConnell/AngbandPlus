@@ -1092,13 +1092,7 @@ s16b get_mon_num(int level)
 	bool       shielded_level;
 
 	
-	/* Shielded levels only contain monsters of that depth 
-	   my teacher in structured programming would hit on the 
-	   head for assigning true false via if/else, but then again
-	   this is guaranteed to work, and I dont know how this bool
-	   thing really works in C.
-    */
-	/* TODO : shielded levels should be contained in an array or something*/
+	/* Shielded levels only contain monsters of that depth */
 	if ( dun_level > DIS_START && dun_level < DIS_END ){
 		shielded_level = bool_true;
 		level = dun_level;  /* Just to be certain */
@@ -1462,6 +1456,7 @@ void lore_do_probe(int m_idx)
 	r_ptr->r_flags1 = r_ptr->flags1;
 	r_ptr->r_flags2 = r_ptr->flags2;
 	r_ptr->r_flags3 = r_ptr->flags3;
+	r_ptr->r_flags7 = r_ptr->flags7;
 
 	/* Update monster recall window */
 	if (monster_race_idx == m_ptr->r_idx)

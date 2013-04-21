@@ -2352,7 +2352,8 @@ void do_cmd_fire(void)
 {
 	int dir, item;
 	int j, y, x, ny, nx, ty, tx;
-	int tdam, tdis, thits, tmul;
+	int tdam, tdis, thits, tmul; /* This is the multiplier of the shooter */
+	int mult; /* This is the multiplier of the brand*/
 	int bonus, chance;
 	int cur_dis, visible;
 
@@ -2644,18 +2645,23 @@ void do_cmd_fire(void)
 				}
 
 				/* Apply special damage XXX XXX XXX */
-				tdam = tot_dam_aux(q_ptr, tdam, m_ptr);
+				/* Deviation of standard code because we need to know if we're healing or damaging  */
+				/* And also the mutiplier is now in percent*/
+				mult = tot_dam_aux(q_ptr, tdam, m_ptr);
+				tdam = (int)(tdam * mult / 100 );				
 				tdam = critical_shot(q_ptr->weight, q_ptr->to_h, tdam);
 
 				/* No negative damage */
+				/*Lets face it, even if an element heals you, an arrow in your eye has gotta hurt */
+				/*So no healing here, not that immunity and resistance still work*/
 				if (tdam < 0) tdam = 0;
 
 				/* Complex message */
 				if (debug_mode)
 				{
-					msg_format("You do %d (out of %d) damage.",
-						tdam, m_ptr->hp);
-				}
+						msg_format("You do %d (hp: %d) damage.", tdam, m_ptr->hp);
+				}				
+			
 
 				/* Hit the monster, check for death */
 				if (mon_take_hit(c_ptr->m_idx, tdam, &fear, note_dies))
@@ -2716,6 +2722,7 @@ void do_cmd_throw(void)
 	int j, y, x, ny, nx, ty, tx;
 	int chance, tdam, tdis;
 	int mul, div;
+	int mult; /* This is the brand multiplier */
 	int cur_dis, visible;
 
 	object_type forge;
@@ -2941,10 +2948,13 @@ void do_cmd_throw(void)
 				}
 
 				/* Apply special damage XXX XXX XXX */
-				tdam = tot_dam_aux(q_ptr, tdam, m_ptr);
+				mult = tot_dam_aux(q_ptr, tdam, m_ptr);
+				tdam = (int)(tdam * mult / 100 );				
 				tdam = critical_shot(q_ptr->weight, q_ptr->to_h, tdam);
 
 				/* No negative damage */
+				/*Lets face it, even if an element heals you, an arrow in your eye has gotta hurt */
+				/*So no healing here, not that immunity and resistance still work*/				
 				if (tdam < 0) tdam = 0;
 
 				/* Complex message */
@@ -4053,7 +4063,7 @@ void do_cmd_racial_power(void)
 		I2A(0), I2A(num - 1));
 
 	/* Get a spell from the user */
-	while (!flag && get_com(out_val, &choice))
+	while (!flag && get_com_rep(out_val, &choice))
 	{
 		/* Request redraw */
 		if ((choice == ' ') || (choice == '*') || (choice == '?'))

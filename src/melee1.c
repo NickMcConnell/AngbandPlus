@@ -1307,46 +1307,27 @@ bool make_attack_normal(int m_idx)
 			/* Apply the stun */
 			if (k) (void)set_stun(p_ptr->stun + k);
 		}
-		if (touched)
+		if (touched && alive && ( p_ptr->sh_fire || p_ptr->sh_elec ) )
 		{
-			if (p_ptr->sh_fire && alive)
-			{   if (!(r_ptr->flags3 & RF3_IM_FIRE))
+			if (p_ptr->sh_fire)
 			{
-				msg_format("%^s is suddenly very hot!", m_name);
-				if (mon_take_hit(m_idx, damroll(2,6), &fear,
-					" turns into a pile of ash."))
-				{
-					blinked = FALSE;
-					alive = FALSE;
+				if (!(r_ptr->flags3 & RF3_IM_FIRE)){
+					msg_format("Your electric sheath triggers!", m_name);					
+					project(0, 0, m_ptr->fy, m_ptr->fx, damroll(2,6	) , GF_FIRE, PROJECT_KILL | PROJECT_STOP);
 				}
+				else
+				 if (m_ptr->ml)r_ptr->r_flags3 |= RF3_IM_FIRE;
 			}
-			else
+		
+			if (p_ptr->sh_elec)
 			{
-				if (m_ptr->ml)
-					r_ptr->r_flags3 |= RF3_IM_FIRE;
-
-			}
-
-			}
-			if (p_ptr->sh_elec && alive)
-			{   if (!(r_ptr->flags3 & RF3_IM_ELEC))
-			{
-				msg_format("%^s gets zapped!", m_name);
-				if (mon_take_hit(m_idx, damroll(2,6), &fear,
-					" turns into a pile of cinder."))
-				{
-					blinked = FALSE;
-					alive = FALSE;
+				if (!(r_ptr->flags3 & RF3_IM_FIRE)){
+					msg_format("Your electric sheath triggers!", m_name);										
+					project(0, 0, m_ptr->fy, m_ptr->fx, damroll(2,6	) , GF_ELEC, PROJECT_KILL | PROJECT_STOP); 
 				}
-			}
-			else
-			{
-				if (m_ptr->ml)
-					r_ptr->r_flags3 |= RF3_IM_ELEC;
-			}
-
-
-			}
+				else
+					if (m_ptr->ml)r_ptr->r_flags3 |= RF3_IM_FIRE;
+			}				
 			touched = FALSE;
 		}
 	}

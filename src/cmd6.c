@@ -306,11 +306,12 @@ void do_cmd_eat_food(int item)
 			break;
 		}
 
-	case SV_FOOD_WAYBREAD:
+	case SV_FOOD_AMBROSIA:
 		{
-			msg_print("That tastes good.");
+			msg_print("That tastes divine.");
 			(void)set_poisoned(0);
-			(void)hp_player(damroll(4, 8));
+			(void)hp_player(damroll(8, 4));
+			(void)do_res_stat(A_CHA);
 			ident = TRUE;
 			break;
 		}
@@ -354,7 +355,7 @@ void do_cmd_eat_food(int item)
 	{
 
 
-		if (!((o_ptr->sval == SV_FOOD_WAYBREAD)
+		if (!((o_ptr->sval == SV_FOOD_RATION)
 			||  (o_ptr->sval < SV_FOOD_BISCUIT)))
 		{
 
@@ -418,7 +419,8 @@ void do_cmd_quaff_potion(int item)
 	int		ident, lev;
 
 	object_type	*o_ptr;
-
+	
+	char line[80];
 
 	/* Restrict choices to potions */
 	item_tester_tval = TV_POTION;
@@ -1017,7 +1019,56 @@ void do_cmd_quaff_potion(int item)
 		object_aware(o_ptr);
 		gain_exp((lev + (p_ptr->lev >> 1)) / p_ptr->lev);
 	}
-
+	
+	/* Check if the alchemy formula is learnt */
+	/* TODO race/class alchemy skill assignment */
+	if (!((potion_alch[o_ptr->sval].known1) && (potion_alch[o_ptr->sval].known2)) &&
+		(rand_int(100) <= /*p_ptr->skill[SK_ALC]*/ 60 - 30 ))
+	{
+		object_kind *k_ptr;
+		
+		int k;
+		bool item_known1 = FALSE;
+		bool item_known2 = FALSE;
+		
+		bool learn = FALSE;
+		
+		/* Check if the components are known */
+		for (k = 1; k < MAX_K_IDX; k++)
+		{
+			k_ptr = &k_info[k];
+			
+			/* Found a match */
+			if ((k_ptr->tval == TV_POTION) && (k_ptr->sval == potion_alch[o_ptr->sval].sval1)) 
+				item_known1 = (k_ptr->tried || k_ptr->aware);
+			if ((k_ptr->tval == TV_POTION) && (k_ptr->sval == potion_alch[o_ptr->sval].sval2)) 
+				item_known2 = (k_ptr->tried || k_ptr->aware);
+		}
+		
+		/* 
+			* Learn, if you are aware of the component potion, but
+		 * you are not yet aware it is part of the potion.
+		 */
+		if ((!(potion_alch[o_ptr->sval].known1)) && item_known1) 
+		{
+			potion_alch[o_ptr->sval].known1 = TRUE;
+			learn = TRUE;
+		}
+		else if ((!(potion_alch[o_ptr->sval].known2)) && item_known2) 
+		{
+			potion_alch[o_ptr->sval].known2 = TRUE;
+			learn = TRUE;
+		}
+		
+		/* Message, if something new was learned */
+		if (learn)
+		{
+			msg_print("You have gained alchemical knowledge!");
+			alchemy_describe(line, sizeof(line), o_ptr->sval);
+			msg_print(line);
+		}
+	}
+	
 	/* Window stuff */
 	p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
 
@@ -3481,12 +3532,12 @@ void do_cmd_activate(int item)
 				break;
 			}
 
-		/*TODO : Draebor would do cooler stuff than bore you to sleep ;)*/	
 		case ART_DRAEBOR:
 			{
-				msg_print("Your cloak glows deep blue...");
-				sleep_monsters_touch();
-				o_ptr->timeout = 55;
+				msg_print("You're feeling impish...");
+				fire_ball(GF_CONFUSION  , 5, 200, 5);					
+				teleport_player(10);
+				o_ptr->timeout = 155;
 				break;
 			}
 
@@ -4841,4 +4892,175 @@ static bool activate_random_artefact(object_type * o_ptr)
 		return FALSE;
 	}
 	return TRUE;
+}
+
+/* 
+* Mix two potions to (maybe) create a third 
+ */
+void do_cmd_mix(void)
+{
+	int item1, item2, k_idx;
+	int i1, i2, sv;
+	int chance = 0;
+	int penalty = 0;
+	int roll;
+	
+	bool found = FALSE;
+	
+	cptr q, s, r;
+	object_kind *k_ptr;
+	object_type object_type_body;
+	object_type *o_ptr1, *o_ptr2, *to_ptr;
+	
+	/* Get an item */
+	q = "Mix which potion? ";
+	s = "You don't have enough potions to mix.";
+	r = "With which potion? ";
+	item_tester_tval = TV_POTION;
+
+		
+	if(!get_item(&item1, q, FALSE, TRUE, TRUE)) return;
+	item_tester_tval = TV_POTION;
+	if (!get_item(&item2, r, FALSE, TRUE, TRUE)) return;
+	
+	if (item1 >= 0)
+	{
+		o_ptr1 = &inventory[item1];
+	}
+	
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr1 = &o_list[0 - item1];
+	}
+	
+	if (item2 >= 0)
+	{
+		o_ptr2= &inventory[item2];
+	}
+	
+	/* Get the item (on the floor) */
+	else
+	{
+		o_ptr2 = &o_list[0 - item2];
+	}
+	
+	if (o_ptr1->sval==o_ptr2->sval)
+	{
+		msg_print("You must mix two different potions!");
+		msg_print(NULL);
+		return;
+	}
+	
+	/* Take a turn */
+	energy_use = 100;
+	
+	/* Extract the tval/sval codes */
+	for (sv = 0; sv < SV_POTION_MAX; sv++)
+	{
+		if (((potion_alch[sv].sval1 == o_ptr1->sval) && (potion_alch[sv].sval2 == o_ptr2->sval))
+			|| ((potion_alch[sv].sval2 == o_ptr1->sval) && (potion_alch[sv].sval1 == o_ptr2->sval)))
+			found = TRUE;
+		
+		if (found) break;
+	}
+	
+	/* Found a potion? */
+	if (found)
+	{
+		/* Look for it */
+		for (k_idx = 1; k_idx < MAX_K_IDX; k_idx++)
+		{
+			k_ptr = &k_info[k_idx];
+			
+			/* Found a match */
+			if ((k_ptr->tval == TV_POTION) && (k_ptr->sval == sv)) break;
+		}
+		
+		/* If there's no potion, always fail */
+		if (k_idx != MAX_K_IDX) 
+		{
+			chance = 25 + (/*p_ptr->skill[SK_ALC]*/ 60) - ( k_ptr->pval /  5);
+			penalty = ((k_ptr->pval * k_ptr->pval) / 2);
+			
+			/* Always 5% chance of success or failure*/
+			if (chance < 5) chance = 5;
+			if (chance > 95) chance = 95;
+		}
+	}
+	else
+	{
+	  k_idx   = 0; /* Paranoia : if this falls through, we get water*/
+	  k_ptr = &k_info[k_idx]; /* Paranoia : if this falls through, we get water*/
+	  chance  = 5;  /* It is good I am paranoid in 5% of the cases*/
+	  penalty = ((k_ptr->pval * k_ptr->pval) / 2);	  
+	}
+	
+	/*** Skill check ***/
+	roll = rand_int(100);	
+	
+	if (roll < chance)
+	{
+		/*** Create new potion ****/
+		
+		/* Get local object */
+		to_ptr = &object_type_body;
+		
+		/* Wipe the object */
+		object_wipe(to_ptr);
+		
+		/* Prepare the ojbect */
+		object_prep(to_ptr, k_idx);
+		
+		drop_near(to_ptr, -1, py, px); /* drop the object */
+		potion_alch[sv].known1 = TRUE;
+		potion_alch[sv].known2 = TRUE;
+	}
+	else if ((roll < chance + 30) && (roll < 99)) 
+	{
+		msg_print("You have wasted the potions.");
+		msg_print(NULL);
+	}
+	else 
+	{
+		msg_print("The potions explode in your hands!");
+		msg_print(NULL);
+		take_hit(damroll(4,8) + penalty, "carelessly mixing potions");
+	}
+	
+	/* Hack - make sure the potions are destroyed in order */
+	i1= (item1 > item2) ? item1 : item2;
+	i2= (item1 > item2) ? item2 : item1;
+	
+	/* Destroy a potion in the pack */
+	if (i1 >= 0)
+	{
+		inven_item_increase(i1, -1);
+		inven_item_describe(i1);
+		inven_item_optimize(i1); 
+	}
+	
+	/* Destroy a potion on the floor */
+	else
+	{
+		floor_item_increase(0 - i1, -1);
+		floor_item_describe(0 - i1);
+		floor_item_optimize(0 - i1);
+	}
+	
+	/* Destroy a potion in the pack */
+	if (i2 >= 0)
+	{
+		inven_item_increase(i2, -1);
+		inven_item_describe(i2);
+		inven_item_optimize(i2);
+	}
+	
+	/* Destroy a potion on the floor */
+	else
+	{
+		floor_item_increase(0 - i2, -1);
+		floor_item_describe(0 - i2);
+		floor_item_optimize(0 - i2);
+	}
 }

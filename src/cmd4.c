@@ -3118,9 +3118,53 @@ void plural_aux(char * Name)
 }
 
 /*
-* Display current pets
-*
-*/
+ * Display known alchemical combinations
+ */
+static void do_cmd_knowledge_alchemy(void)
+{
+	int i;
+	
+	FILE *fff;
+	
+	char line[80];
+	char file_name[1024];
+	
+	/* Temporary file */
+	if (path_temp(file_name, 1024)) return;
+	
+	/* Open a new file */
+	fff = my_fopen(file_name, "w");
+	
+	/* Failure */
+	if (!fff) return;
+	
+	/* Scan the alchemy info, wizards know it all ;) */
+	for (i = 0; i < SV_POTION_MAX; i++)
+	{
+		/*If any of the components are know, or in debug mode , show a line, except if the potion number does not exist  */
+		if ( ( (potion_alch[i].known1) || (potion_alch[i].known2) || debug_mode == TRUE)  && potion_alch[i].sval1 != i )
+		{
+			alchemy_describe(line, sizeof(line), i);
+			
+			/* Print a message */
+			fprintf(fff, " %s\n", line);
+		}
+	}
+	
+	/* Close the file */
+	my_fclose(fff);
+	
+	/* Display the file contents */
+	show_file(file_name, "Known Alchemical Combinations" );
+	
+	/* Remove the file */
+	fd_kill(file_name);
+}
+
+/*
+ * Display current pets
+ *
+ */
 static void do_cmd_knowledge_pets(void)
 {
 	int i;
@@ -3443,9 +3487,10 @@ void do_cmd_knowledge(void)
 		prt("(4) Display kill count", 7, 5);
 		prt("(5) Display corruptions", 8, 5);
 		prt("(6) Display current allies", 9, 5);
+		prt("(7) Display know alchemic formulas", 10, 5);
 
 		/* Prompt */
-		prt("Command: ", 11, 0);
+		prt("Command: ", 12, 0);
 
 		/* Prompt */
 		i = inkey();
@@ -3493,6 +3538,12 @@ void do_cmd_knowledge(void)
 		else if (i == '6')
 		{
 			do_cmd_knowledge_pets();
+		}
+		
+		/*Alchemic formulas*/
+		else if( i == '7' )
+		{
+			do_cmd_knowledge_alchemy();
 		}
 
 		/* Unknown option */

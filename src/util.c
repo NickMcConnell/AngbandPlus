@@ -2813,22 +2813,51 @@ bool get_com(cptr prompt, char *command)
 {
 	/* Paranoia XXX XXX XXX */
 	msg_print(NULL);
-
 	/* Display a prompt */
 	prt(prompt, 0, 0);
-
 	/* Get a key */
 	*command = inkey();
-
 	/* Clear the prompt */
 	prt("", 0, 0);
-
 	/* Handle "cancel" */
 	if (*command == ESCAPE) return (FALSE);
-
 	/* Success */
 	return (TRUE);
 }
+
+/*
+ * Prompts for a keypress
+ *
+ * The "prompt" should take the form "Command: "
+ *
+ * Returns TRUE unless the character is "Escape"
+ */
+bool get_com_rep(cptr prompt, char *command)
+{
+	
+#ifdef ALLOW_REPEAT /* TNB */
+	if (repeat_pull_char(command)) {
+		return (TRUE);
+	}
+#endif /* ALLOW_REPEAT -- TNB */
+	
+ if( get_com(prompt, command) )
+ {
+	
+#ifdef ALLOW_REPEAT /* TNB */
+
+	repeat_push_char(*command);
+	
+#endif /* ALLOW_REPEAT -- TNB */	
+	
+	/* Success */
+	return (TRUE);
+ }
+else
+	return (FALSE);
+		
+}
+
 
 
 /*
@@ -3318,14 +3347,19 @@ static int repeat__cnt = 0;
 /* Current index */
 static int repeat__idx = 0;
 
-/* Saved "stuff" */
+/* Saved "stuff" for integers */
 static int repeat__key[REPEAT_MAX];
+/* Saved "stuff" for chars */
+static char repeat__key_char[REPEAT_MAX];
 
 void repeat_push(int what)
 {
 	/* Too many keys */
 	if (repeat__cnt == REPEAT_MAX) return;
 
+	/*Debug for tricky stuff*/
+	/*msg_format("Pushing int %d in %d", what , repeat__cnt);*/
+	
 	/* Push the "stuff" */
 	repeat__key[repeat__cnt++] = what;
 
@@ -3341,6 +3375,33 @@ bool repeat_pull(int *what)
 	/* Grab the next key, advance */
 	*what = repeat__key[repeat__idx++];
 
+	/* Success */
+	return (TRUE);
+}
+
+void repeat_push_char(char what)
+{
+	/* Too many keys */
+	if (repeat__cnt == REPEAT_MAX) return;
+	
+	/*Debug for tricky stuff*/
+	/*msg_format("Pushing char %c in %d", what , repeat__cnt);	*/
+	
+	/* Push the "stuff" */
+	repeat__key_char[repeat__cnt++] = what;
+	
+	/* Prevents us from pulling keys */
+	++repeat__idx;
+}
+
+bool repeat_pull_char(char *what)
+{
+	/* All out of keys */
+	if (repeat__idx == repeat__cnt) return (FALSE);
+	
+	/* Grab the next key, advance */
+	*what = repeat__key_char[repeat__idx++];
+	
 	/* Success */
 	return (TRUE);
 }

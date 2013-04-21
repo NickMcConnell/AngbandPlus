@@ -1629,7 +1629,7 @@ bool set_cut(int v)
 * Set "p_ptr->food", notice observable changes
 *
 * The "p_ptr->food" variable can get as large as 20000, allowing the
-* addition of the most "filling" item, Elvish Waybread, which adds
+* addition of the most "filling" item, Ambrosia, which adds
 * 7500 food units, without overflowing the 32767 maximum limit.
 *
 * Perhaps we should disturb the player with various messages,
@@ -2464,7 +2464,7 @@ bool mon_take_hit(int m_idx, int dam, bool *fear, cptr note)
 		if (r_ptr->flags3 & (RF3_FALLEN_ANGEL))
 		{
 			msg_format("%^s discards this temporary mortal shell.",m_name);
-			if (randint(5)==1)
+			if (randint(5)==1 && dun_level > DIS_END )
 			{
 				int curses = 1 + randint(3);
 				msg_format("Lucifer puts a terrible curse on you!", m_name);

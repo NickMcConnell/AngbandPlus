@@ -810,7 +810,6 @@ static void rd_ghost(void)
 	rd_string(r_name + r_ptr->name, 64);
 
 	/* Visuals */
-	/* TODO : aaarag, chars are not bytes , chars are not bytes */
 	rd_char(&r_ptr->d_char);
 	rd_byte(&r_ptr->d_attr);
 
@@ -1537,7 +1536,24 @@ static errr rd_savefile_new_aux(void)
 	}
 	if (arg_fiddle) note("Loaded Object Memory");
 
-
+	/*Load the alchemy seed for consistent formulas*/
+	rd_u32b(&seed_alchemy);
+	
+	/* Load the alchemy meta data */
+	rd_u16b(&tmp16u);
+	if (tmp16u != SV_POTION_MAX)
+	{
+		note(format("Wrong amount (%u) of alchemy info!", tmp16u));
+		return (23);
+	}
+	/*  Load the known formulas*/
+	for (i = 0; i < tmp16u; i++) 
+	{
+		rd_byte(&tmp8u);
+		potion_alch[i].known1 = (tmp8u & 0x01) ? TRUE: FALSE;
+		potion_alch[i].known2 = (tmp8u & 0x02) ? TRUE: FALSE;
+	}
+		
 	/* Load the Quests */
 	rd_u16b(&tmp16u);
 

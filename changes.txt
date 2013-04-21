@@ -15,9 +15,29 @@ Dungeon generator
     - Each level has creatures unique to it ( This can cause minor slowdown I find )
     - Level 26 has Satan, do not bother him, or in other words do no let him kill you
     - Levels after 26 have no creatures of before level 26
-    - Removed out of theme monster pits
+    - Removed out of theme monster pits ( orcs & trolls & coins ), added snakes pit I think
 
 Creatures
+	- 0.8.2 Fallen Angels do not get revenged inside or before the city of Dis
+	- 0.8.2 made flags actually do something ;)
+	- 0.8.2 reviewed monsters with new flags in mind
+	- 0.8.2 added #define RF7_STORM                   0x00000004      /* Afflicted by the Lovers' Storm */
+	- 0.8.2 added #define RF7_RES_DARK                0x00000008      /* Resist darkness */
+	- 0.8.2 added #define RF7_IM_DARK                 0x00000010      /* Immunity darkness */
+	- 0.8.2 added #define RF7_HEAL_DARK               0x00000020      /* Darkness healing */
+	- 0.8.2 added #define RF7_HURT_DARK               0x00000040      /* Extra Hurt by darkness */
+	- 0.8.2 added #define RF7_RES_LITE                0x00000080      /* Resist light */
+	- 0.8.2 added #define RF7_IM_LITE                 0x00000100      /* Immunity to light */
+	- 0.8.2 added #define RF7_HEAL_LITE               0x00000200      /* Heal by light */
+	- 0.8.2 added #define RF7_RES_COLD                0x00000400      /* Resist cold*/
+	- 0.8.2 added #define RF7_HEAL_COLD               0x00000800      /* Heal by cold */
+	- 0.8.2 added #define RF7_RES_FIRE                0x00001000      /* Resist Fire */
+	- 0.8.2 added #define RF7_HEAL_FIRE               0x00002000      /* Heal by Fire */
+	- 0.8.2 added #define RF7_RES_ACID                0x00004000      /* Resists Acid */
+	- 0.8.2 added #define RF7_RES_ELEC                0x00008000      /* Resist Electricity */
+	- 0.8.2 added #define RF7_HEAL_ELEC               0x00010000      /* Heal by Electricity */
+	- 0.8.2 added #define RF7_HEAL_NETH               0x00010000      /* Heal by Nether */	
+	- 0.8.2 added #define RF7_RES_POIS                0x00010000      /* Resists Poison */		
     - Most creatures have been deleted, only modded creatures are mentioned
 	- Rat King has moved to third floor, can summon now more mice/rats
 	- Grip & co have become red hellhounds
@@ -31,6 +51,7 @@ Creatures
 	- UNIQUE flag now implies MAX_HP at the code level
 	- ESCORTS flag now implies ESCORT at the code level
 	- DROP_GREAT flag now implies DROP_GOOD at the code level
+	- Monsters can now have specific escorts : ESCORT_XXX
     
 Flavours
 	- Changed most ring flavours and quite a bit of staf flavors.
@@ -44,7 +65,8 @@ Story
 	- Level 2 story added	
 	
 Equipment
-        - Removed slay Troll and Slay orc, added slay angel and **Slay angel**
+	- 0.8.2 Elvish waybread is now Ambrosia, slightly upgraded.
+	- Removed slay Troll and Slay orc, added slay angel and **Slay angel**
 	- Sword of St Michael executes Angels ( almost only way to kill Lucifer right now ;(
 	- Re-organized almost all artefacts , removed _all_ tolkien ones
 	- All initial gauntlets are now interesting ;)
@@ -58,14 +80,19 @@ Equipment
 	- Changed many artefact activations, some are now quite interesting
 	- Added artefact angelic robes
 	- Added !xxxx for artefact names, this will takes as the name whatever comes after !, ignoring base name
-	- 	
 	
 Character Building
+	- 0.8.2 Added EyAngband alchemy, press 'p' to activate, thanks Eytan !!
 	- Player leveling causes a complete heal and restoration.
 
 Start Up
-        - Created color intro screen
-	- Players start with a scroll of recal
+	- 0.8.2 Birth screen does not allow to increase a stat when 0 points available (bugfix)
+	- 0.8.2 Bugfix for windows start up screen
+    - 0.8.2 Players start with weapons/armor equipped
+    - 0.8.2 Players start with Lantern fully charged
+	- 0.8.2 Players start with 2 or 3 scrolls of teleport
+	- Created color intro screen
+	- Players start with a scroll of recall
 	- High mages start with 2 spell books
 
 Wizard Commands
@@ -73,24 +100,41 @@ Wizard Commands
 	- 'S' , get usefull supplies
 
 UI
-        - Study indicator now only appears in town, it really only is usefull there
+	- 0.8.2 Alchemist no longer declares that 'all is identified' (bugfix)
+	- 0.8.2 Shop services are now displayed in a more terse fashion to allow for more future services
+	- 0.8.2 Racial powers are now 'n' repeatable, making Dark Elf a 'blast'
+	- 0.8.2 New level names for first 26 levels
+	- Study indicator now only appears in town, it really only is usefull there
 	- Longer dungeon names are now possible ( up to 18 characters , starting where study used to start )
 	- Old study position has been shifted to the left 2 positions
 
+	
+Combat & Magic
+	- 0.8.2 Hellfire now hurts evil and good except demons, devils and dragons 
+	- 0.8.2 Disenchantment now gets resisted by disenchantment breathers (bugfix)
+	- 0.8.2 Nexus now gets resisted by nexus breathers (bugfix)	
+	- 0.8.2 Disintegrate checked wrong flag set for uniqueness of monster ( bugfix )
+	
+Internals
+	- 0.8.2 Revamped brand/slay handling completely
+	- 0.8.2 Revamped most of damage type handling with spells completely 
+	- 0.8.2 Rewrote how sheaths work
+	- Refactored game reading routines for intro screen
+
 Artefacts :
-Changed most of them, made sure that worhtless artefacts are not stomped
+	- 0.8.2 Draebors cloak now activates for mass confusion and blink
+	- 0.8.2 Furcifers' and Michaels' swords are now more restricted with their slays
+	- Changed most of them, made sure that worhtless artefacts are not stomped
+	
 
 -TODO : 
-Players should start with
-  -Brass Lantern
-  -3 oil stuffs
-Fallen Angels should not get upset inside Inferno  
-Level 5 should have Minos' palace placed, with the only exit that points downstairs
-covering all other downstairs conveniently with rubble 
+-Level 5 should have Minos' palace placed, with the only exit that points downstairs covering all other downstairs conveniently with rubble 
+-Fix damage for 2 swords
 
--DONE:
+-ON WIZARD MODE :
 	
 code changes : for testing purposes, since there is no more flagging code for wizards,
 there can be either only all wizards or no wizards, right now every player is a wizard 
-until this game is released. So to all that want to wizard around, check file birth.c
-and set 	debug_mode = TRUE;	
+unless this game is released. So to all that want to wizard around, check file birth.c
+and set 	debug_mode = TRUE; and compile. All wizards know how to compile ;)
+

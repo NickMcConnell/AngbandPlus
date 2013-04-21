@@ -3565,7 +3565,6 @@ static void store_process_command(void)
 							decrease_insults();
 							store_prt_gold();
 							identify_fully();
-							msg_format("All your goods have been identified.");
 						}
 						p_ptr->window |= (PW_INVEN | PW_EQUIP | PW_PLAYER);
 						handle_stuff();
@@ -4090,29 +4089,24 @@ void do_cmd_store(void)
 
 		/* Clear */
 		clear_from(21);
-
+		
+		/*One day : c_put_str*/
 
 		/* Basic commands */
-		prt(" ESC) Exit from Building.", 22, 0);
-
-		/* Browse if necessary */
-		if (st_ptr->stock_num > 12)
-		{
-			prt(" SPACE) Next page of stock", 23, 0);
-		}
-
-		/* Home commands */
-		if (cur_store_num == STORE_HOME)
-		{
-			prt(" g) Get an item.", 22, 31);
-			prt(" d) Drop an item.", 23, 31);
-		}
+		prt(" escape) Exit", 22, 0);
 
 		/* Shop commands XXX XXX XXX */
 		if ((cur_store_num != STORE_HOME) && (cur_store_num != STORE_HALL))
 		{
-			prt(" p) Purchase an item.", 22, 31);
-			prt(" s) Sell an item.", 23, 31);
+			prt(" s) Sell", 22, 15);
+			prt(" p) Purchase", 22, 30);
+		}		
+		
+		/* Home commands */
+		if (cur_store_num == STORE_HOME)
+		{
+			prt(" g) Get", 22, 31);
+			prt(" d) Drop", 23, 31);
 		}
 
 		if (cur_store_num == STORE_HALL)
@@ -4123,7 +4117,13 @@ void do_cmd_store(void)
 		else
 			/* Add in the eXamine option */
 		{
-			prt(" x) eXamine an item.", 22, 56);
+			prt(" x) eXamine", 22, 45);
+		}
+		
+		/* Browse if necessary */
+		if (st_ptr->stock_num > 12)
+		{
+			prt("  space) More", 23, 0);
 		}
 
 		/* Special for each store */
@@ -4132,42 +4132,42 @@ void do_cmd_store(void)
 		{
 		case STORE_ARMOURY:
 			{
-				prt(" r) Enchant your armour.", 23,56);
+				prt(" r) Enchant Armour", 22,60);
 				break;
 			}
 		case STORE_WEAPON:
 			{
-				prt(" r) Enchant your weapon.", 23,56);
+				prt(" r) Enchant Weapon", 22,60);
 				break;
 			}
 		case STORE_TEMPLE:
 			{
-				prt(" r) buy Restoration.", 23,56);
+				prt(" r) Restoration", 22,60);
 				break;
 			}
 		case STORE_ALCHEMIST:
 			{
-				prt(" r) Research an item.", 23,56);
+				prt(" r) Research", 22, 60);
 				break;
 			}
 		case STORE_MAGIC:
 			{
-				prt(" r) ritual of Recall.", 23,56);
+				prt(" r) True Recall.", 22,60);
 				break;
 			}
 		case STORE_HOME:
 			{
-				prt(" r) Rest a while.",23,56);
+				prt(" r) Rest.",23,56);
 				break;
 			}
 		case STORE_LIBRARY:
 			{
-				prt(" r) Research a spell.",23,56);
+				prt(" G) Gain a spell.",22, 60);
 				break;
 			}
 		case STORE_INN:
 			{
-				prt(" r) hire a Room.", 23,56);
+				prt(" r) Rent a Room", 22,60);
 				break;
 			}
 		case STORE_HALL:
@@ -4177,7 +4177,7 @@ void do_cmd_store(void)
 			}
 		case STORE_PAWN:
 			{
-				prt(" r) Identify all.", 23,56);
+				prt(" r) Identify all", 22,60);
 				break;
 			}
 		}

@@ -158,7 +158,39 @@ s16b critical_norm(int weight, int plus, int dam)
 	return (dam);
 }
 
+/* My attempt to clean up the mess that is tot_dam_aux, by providing a function of what was repeated all the time 
+ * This should prevent copy paste errors, ease the eyes and ease introduction of new damage modifiers 
+ * This function checks if a give collection of weapon flags contains a specific flag, 
+ *  check if a given collection of monsters flags contains a specific flag, if so apply new damage
+ * and if the monster is in LOS , it will also flag the monster memory properly
+*/
 
+s16b tot_dam_aux_helper(u32b *weaponflags , u32b specific_weaponflag , u32b monsterflags , u32b *recall_flags , u32b specific_monsterflag , int mult , int new_mult, bool visible  )
+{
+	if ( (*weaponflags & (specific_weaponflag)) &&  (monsterflags & (specific_monsterflag)))
+	{
+		if (visible){
+			*recall_flags |= (specific_monsterflag);
+		}
+		*weaponflags |= (!specific_weaponflag);
+		mult = new_mult;
+	}
+	return mult;
+}
+
+/* Of course this means that I was completely screwed for monster that did not have any brand related flags 
+ * So I had to add this, and added in the previous function that reallly once a weaponflag was accounted for
+ * there was no use in letting it trigger again 
+*/
+
+s16b tot_dam_aux_normal(u32b weaponflags , u32b specific_weaponflag  , int mult , int new_mult )
+{
+	if ( (weaponflags & (specific_weaponflag)))
+	{
+		return new_mult;
+	}
+	return mult;
+}
 
 /*
 * Extract the "total damage" from a given object hitting a given monster.
@@ -168,10 +200,12 @@ s16b critical_norm(int weight, int plus, int dam)
 *
 * Note that most brands and slays are x3, except Slay Animal (x2),
 * Slay Evil (x2), and Kill dragon (x5).
+* Note that now this function can return negatives
+* Note how it now just returns the multiplier ( in percent !!! )
 */
 s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 {
-	int mult = 1;
+	int mult = 100;
 
 	monster_race *r_ptr = &r_info[m_ptr->r_idx];
 
@@ -191,214 +225,50 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 	case TV_SWORD:
 	case TV_DIGGING:
 		{
-			/* Slay Animal */
-			if ((f1 & (TR1_SLAY_ANIMAL)) &&
-				(r_ptr->flags3 & (RF3_ANIMAL)))
-			{
-				if (m_ptr->ml)
-				{
-					r_ptr->r_flags3 |= (RF3_ANIMAL);
-				}
 
-				if (mult < 2) mult = 2;
-			}
+				mult = tot_dam_aux_helper(&f1 , TR1_BRAND_FIRE , r_ptr->flags3 , &r_ptr->r_flags3 , RF3_IM_FIRE		, mult , 10			, m_ptr->ml );
+				mult = tot_dam_aux_helper(&f1 , TR1_BRAND_COLD , r_ptr->flags3 , &r_ptr->r_flags3 , RF3_IM_COLD		, mult , 10			, m_ptr->ml );	
+				mult = tot_dam_aux_helper(&f1 , TR1_BRAND_POIS , r_ptr->flags3 , &r_ptr->r_flags3 , RF3_IM_POIS		, mult , 10			, m_ptr->ml );		
+				mult = tot_dam_aux_helper(&f1 , TR1_BRAND_ELEC , r_ptr->flags3 , &r_ptr->r_flags3 , RF3_IM_ELEC		, mult , 10			, m_ptr->ml );	
+				mult = tot_dam_aux_helper(&f1 , TR1_BRAND_ACID , r_ptr->flags3 , &r_ptr->r_flags3 , RF3_IM_ACID		, mult , 10			, m_ptr->ml );					
+			
+				mult = tot_dam_aux_helper(&f1 , TR1_BRAND_FIRE , r_ptr->flags7 , &r_ptr->r_flags7 , RF7_RES_FIRE	, mult , 50			, m_ptr->ml );		
+				mult = tot_dam_aux_helper(&f1 , TR1_BRAND_COLD , r_ptr->flags7 , &r_ptr->r_flags7 , RF7_RES_COLD	, mult , 50			, m_ptr->ml );						
+				mult = tot_dam_aux_helper(&f1 , TR1_BRAND_POIS , r_ptr->flags7 , &r_ptr->r_flags7 , RF7_RES_POIS	, mult , 50			, m_ptr->ml );										
+				mult = tot_dam_aux_helper(&f1 , TR1_BRAND_ELEC , r_ptr->flags7 , &r_ptr->r_flags7 , RF7_RES_ELEC	, mult , 50			, m_ptr->ml );				
+				mult = tot_dam_aux_helper(&f1 , TR1_BRAND_ACID , r_ptr->flags7 , &r_ptr->r_flags7 , RF7_RES_ACID	, mult , 50			, m_ptr->ml );					
+				
+				mult = tot_dam_aux_helper(&f1 , TR1_SLAY_ANIMAL	, r_ptr->flags3 , &r_ptr->r_flags3 , RF3_ANIMAL		, mult , 200		, m_ptr->ml );					
 
-			/* Slay Evil */
-			if ((f1 & (TR1_SLAY_EVIL)) &&
-				(r_ptr->flags3 & (RF3_EVIL)))
-			{
-				if (m_ptr->ml)
-				{
-					r_ptr->r_flags3 |= (RF3_EVIL);
-				}
+				mult = tot_dam_aux_normal(f1 , TR1_BRAND_FIRE , mult , 300 );						
+				mult = tot_dam_aux_normal(f1 , TR1_BRAND_COLD , mult , 300 );										
+				mult = tot_dam_aux_normal(f1 , TR1_BRAND_POIS , mult , 300 );	
+				mult = tot_dam_aux_normal(f1 , TR1_BRAND_ELEC , mult , 300 );					
+				mult = tot_dam_aux_normal(f1 , TR1_BRAND_ACID , mult , 300 );				
 
-				if (mult < 2) mult = 2;
-			}
+				mult = tot_dam_aux_helper(&f1 , TR1_SLAY_EVIL	, r_ptr->flags3 , &r_ptr->r_flags3 , RF3_EVIL		 , mult , 300		, m_ptr->ml );				
+				mult = tot_dam_aux_helper(&f1 , TR1_SLAY_UNDEAD	, r_ptr->flags3 , &r_ptr->r_flags3 , RF3_UNDEAD		 , mult , 300		, m_ptr->ml );
+				mult = tot_dam_aux_helper(&f1 , TR1_SLAY_DRAGON	, r_ptr->flags3 , &r_ptr->r_flags3 , RF3_DRAGON		 , mult , 300		, m_ptr->ml );
+				mult = tot_dam_aux_helper(&f1 , TR1_SLAY_GIANT	, r_ptr->flags3 , &r_ptr->r_flags3 , RF3_GIANT		 , mult , 300		, m_ptr->ml );		
+				mult = tot_dam_aux_helper(&f1 , TR1_SLAY_ANGEL	, r_ptr->flags3 , &r_ptr->r_flags3 , RF3_FALLEN_ANGEL, mult , 300		, m_ptr->ml );		
+				mult = tot_dam_aux_helper(&f1 , TR1_SLAY_DEMON	, r_ptr->flags3 , &r_ptr->r_flags3 , RF3_DEMON		 , mult , 300		, m_ptr->ml );						
 
-			/* Slay Undead */
-			if ((f1 & (TR1_SLAY_UNDEAD)) &&
-				(r_ptr->flags3 & (RF3_UNDEAD)))
-			{
-				if (m_ptr->ml)
-				{
-					r_ptr->r_flags3 |= (RF3_UNDEAD);
-				}
+				mult = tot_dam_aux_helper(&f1 , TR1_KILL_DRAGON	, r_ptr->flags3 , &r_ptr->r_flags3 , RF3_DRAGON		 , mult , 500		, m_ptr->ml );
+				mult = tot_dam_aux_helper(&f1 , TR1_KILL_ANGEL	, r_ptr->flags3 , &r_ptr->r_flags3 , RF3_FALLEN_ANGEL, mult , 500		, m_ptr->ml );				
+				
+				mult = tot_dam_aux_helper(&f1 , TR1_BRAND_FIRE	, r_ptr->flags3 , &r_ptr->r_flags3 , RF3_HURT_FIRE	, mult , 900		, m_ptr->ml );
+				mult = tot_dam_aux_helper(&f1 , TR1_BRAND_COLD	, r_ptr->flags3 , &r_ptr->r_flags3 , RF3_HURT_COLD	, mult , 900		, m_ptr->ml );				
 
-				if (mult < 3) mult = 3;
-			}
+				
+				mult = tot_dam_aux_helper(&f1 , TR1_BRAND_FIRE	, r_ptr->flags7 , &r_ptr->r_flags7 , RF7_HEAL_FIRE	, mult , mult-400	, m_ptr->ml );
+				mult = tot_dam_aux_helper(&f1 , TR1_BRAND_COLD	, r_ptr->flags7 , &r_ptr->r_flags7 , RF7_HEAL_COLD	, mult , mult-400	, m_ptr->ml );				
 
-			/* Slay Demon */
-			if ((f1 & (TR1_SLAY_DEMON)) &&
-				(r_ptr->flags3 & (RF3_DEMON)))
-			{
-				if (m_ptr->ml)
-				{
-					r_ptr->r_flags3 |= (RF3_DEMON);
-				}
-
-				if (mult < 3) mult = 3;
-			}
-
-			/* Slay Angel */
-			if ((f1 & (TR1_SLAY_ANGEL)) &&
-				(r_ptr->flags3 & (RF3_FALLEN_ANGEL)))
-			{
-				if (m_ptr->ml)
-				{
-					r_ptr->r_flags3 |= (RF3_FALLEN_ANGEL);
-				}
-
-				if (mult < 3) mult = 3;
-			}
-
-			/* Execute Angel */
-			if ((f1 & (TR1_KILL_ANGEL)) &&
-				(r_ptr->flags3 & (RF3_FALLEN_ANGEL)))
-			{
-				if (m_ptr->ml)
-				{
-					r_ptr->r_flags3 |= (RF3_FALLEN_ANGEL);
-				}
-				/*Michael has the top gear*/
-				if (mult < 5) mult = 5;
-				if ((o_ptr->name1 == ART_MICHAEL))
-					mult *= 3;				
-			}
-
-			/* Slay Giant */
-			if ((f1 & (TR1_SLAY_GIANT)) &&
-				(r_ptr->flags3 & (RF3_GIANT)))
-			{
-				if (m_ptr->ml)
-				{
-					r_ptr->r_flags3 |= (RF3_GIANT);
-				}
-
-				if (mult < 3) mult = 3;
-			}
-
-			/* Slay Dragon  */
-			if ((f1 & (TR1_SLAY_DRAGON)) &&
-				(r_ptr->flags3 & (RF3_DRAGON)))
-			{
-				if (m_ptr->ml)
-				{
-					r_ptr->r_flags3 |= (RF3_DRAGON);
-				}
-
-				if (mult < 3) mult = 3;
-			}
-
-			/* Execute Dragon */
-			if ((f1 & (TR1_KILL_DRAGON)) &&
-				(r_ptr->flags3 & (RF3_DRAGON)))
-			{
-				if (m_ptr->ml)
-				{
-					r_ptr->r_flags3 |= (RF3_DRAGON);
-				}
-
-
-				if (mult < 5) mult = 5;
-
-				if ((o_ptr->name1 == ART_SWORD_FURCIFER))
+				/* That Furcifer never did like Dragons ;) */
+				if ( (o_ptr->name1 == ART_SWORD_FURCIFER) && (r_ptr->flags3 & (RF3_DRAGON)) ) 
 					mult *= 3;
-			}
-
-
-			/* Brand (Acid) */
-			if (f1 & (TR1_BRAND_ACID))
-			{
-				/* Notice immunity */
-				if (r_ptr->flags3 & (RF3_IM_ACID))
-				{
-					if (m_ptr->ml)
-					{
-						r_ptr->r_flags3 |= (RF3_IM_ACID);
-					}
-				}
-
-				/* Otherwise, take the damage */
-				else
-				{
-					if (mult < 3) mult = 3;
-				}
-			}
-
-			/* Brand (Elec) */
-			if (f1 & (TR1_BRAND_ELEC))
-			{
-				/* Notice immunity */
-				if (r_ptr->flags3 & (RF3_IM_ELEC))
-				{
-					if (m_ptr->ml)
-					{
-						r_ptr->r_flags3 |= (RF3_IM_ELEC);
-					}
-				}
-
-				/* Otherwise, take the damage */
-				else
-				{
-					if (mult < 3) mult = 3;
-				}
-			}
-
-			/* Brand (Fire) */
-			if (f1 & (TR1_BRAND_FIRE))
-			{
-				/* Notice immunity */
-				if (r_ptr->flags3 & (RF3_IM_FIRE))
-				{
-					if (m_ptr->ml)
-					{
-						r_ptr->r_flags3 |= (RF3_IM_FIRE);
-					}
-				}
-
-				/* Otherwise, take the damage */
-				else
-				{
-					if (mult < 3) mult = 3;
-				}
-			}
-
-			/* Brand (Cold) */
-			if (f1 & (TR1_BRAND_COLD))
-			{
-				/* Notice immunity */
-				if (r_ptr->flags3 & (RF3_IM_COLD))
-				{
-					if (m_ptr->ml)
-					{
-						r_ptr->r_flags3 |= (RF3_IM_COLD);
-					}
-				}
-				/* Otherwise, take the damage */
-				else
-				{
-					if (mult < 3) mult = 3;
-				}
-			}
-
-			/* Brand (Poison) */
-			if (f1 & (TR1_BRAND_POIS))
-			{
-				/* Notice immunity */
-				if (r_ptr->flags3 & (RF3_IM_POIS))
-				{
-					if (m_ptr->ml)
-					{
-						r_ptr->r_flags3 |= (RF3_IM_POIS);
-					}
-				}
-
-				/* Otherwise, take the damage */
-				else
-				{
-					if (mult < 3) mult = 3;
-				}
-			}
+				/* That Michael guy never did like Fallen Angels ;)*/
+				if ((o_ptr->name1 == ART_MICHAEL) && (r_ptr->flags3 & (RF3_FALLEN_ANGEL)) ) 
+					mult *= 3;						
 
 			break;
 		}
@@ -406,7 +276,7 @@ s16b tot_dam_aux(object_type *o_ptr, int tdam, monster_type *m_ptr)
 
 
 	/* Return the total damage */
-	return (tdam * mult);
+	return mult;
 }
 
 
@@ -1130,7 +1000,7 @@ static void natural_attack(s16b m_idx, int attack, bool *fear, bool *mdeath)
 */
 void py_attack(int y, int x)
 {
-	int                     num = 0, k, bonus, chance;
+	int                     num = 0, k, bonus, chance, mult=100;
 
 	cave_type               *c_ptr = &cave[y][x];
 
@@ -1400,7 +1270,10 @@ void py_attack(int y, int x)
 		else if (o_ptr->k_idx)
 		{
 			k = damroll(o_ptr->dd, o_ptr->ds);
-			k = tot_dam_aux(o_ptr, k, m_ptr);
+			/* Deviation of standard code because we need to know if we're healing or damaging  */
+			/* And also the mutiplier is now in percent*/
+			mult = tot_dam_aux(o_ptr, k, m_ptr);
+			k = (int)(k * mult / 100 );
 			if (backstab)
 			{
 				backstab = FALSE;
@@ -1432,28 +1305,48 @@ void py_attack(int y, int x)
 
 		}
 
-		/* Apply the player damage bonuses */
-		k += p_ptr->to_d;   
-
-		/* No negative damage */
-		if (k < 0) k = 0;
+		/*This is not entirely correct, but close enough and more readable*/
+		/*If we do damage ( not healing ), then we use player damage bonus and cut off at 0*/
+		if( mult > 0 )
+		{
+			/* Apply the player damage bonuses */
+			k += p_ptr->to_d;   
+			/* No negative damage */
+			if (k < 0) k = 0;
+		}
 
 		/* Complex message */
 		if (debug_mode)
 		{
-			msg_format("You do %d (out of %d) damage.", k, m_ptr->hp);
+			if( mult > 0 )
+				msg_format("You do %d (hp: %d) damage.", k, m_ptr->hp);
+			else
+				msg_format("You heal %d (hp: %d) hitpoints.", k, m_ptr->hp);
 		}
 
-		/* Damage, check for fear and death */
-		if (mon_take_hit(c_ptr->m_idx, k, &fear, NULL))
+		if( mult > 0 )
 		{
-			mdeath = TRUE;
+			/* Damage, check for fear and death */
+			if (mon_take_hit(c_ptr->m_idx, k, &fear, NULL))
+			{
+				mdeath = TRUE;
+			}
+			if (m_ptr->smart & SM_ALLY)
+			{
+				msg_format("%^s gets angry!", m_name);
+				m_ptr->smart &= ~SM_ALLY;
+			}
 		}
-
-		if (m_ptr->smart & SM_ALLY)
+		else
 		{
-			msg_format("%^s gets angry!", m_name);
-			m_ptr->smart &= ~SM_ALLY;
+			msg_format("The %s heals up!", m_name);	
+			/* Heal , we substract , because -- == + */
+			m_ptr->hp -= k;
+			/* No overflow */
+			if (m_ptr->hp > m_ptr->maxhp) m_ptr->hp = m_ptr->maxhp;
+			/* No draining occurs when healing*/
+			if(drain_result)
+				drain_result = !drain_result;
 		}
 
 

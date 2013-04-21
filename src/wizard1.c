@@ -1730,7 +1730,7 @@ static void spoil_mon_info(cptr fname)
 	bool breath, magic, sin;
 	cptr p, q;
 	cptr vp[64];
-	u32b flags1, flags2, flags3, flags4, flags5, flags6;
+	u32b flags1, flags2, flags3, flags4, flags5, flags6, flags7;
 
 
 	/* Build the filename */
@@ -1771,6 +1771,7 @@ static void spoil_mon_info(cptr fname)
 		flags4 = r_ptr->flags4;
 		flags5 = r_ptr->flags5;
 		flags6 = r_ptr->flags6;
+		flags7 = r_ptr->flags7;
 		breath = FALSE;
 		magic = FALSE;
 
@@ -2182,11 +2183,13 @@ static void spoil_mon_info(cptr fname)
 
 		/* Collect immunities */
 		vn = 0;
-		if (flags3 & (RF3_IM_ACID)) vp[vn++] = "acid";
-		if (flags3 & (RF3_IM_ELEC)) vp[vn++] = "lightning";
-		if (flags3 & (RF3_IM_FIRE)) vp[vn++] = "fire";
-		if (flags3 & (RF3_IM_COLD)) vp[vn++] = "cold";
-		if (flags3 & (RF3_IM_POIS)) vp[vn++] = "poison";
+				if (flags3 & (RF3_IM_ACID)) vp[vn++] = "acid";
+				if (flags3 & (RF3_IM_ELEC)) vp[vn++] = "lightning";
+				if (flags3 & (RF3_IM_FIRE)) vp[vn++] = "fire";
+				if (flags3 & (RF3_IM_COLD)) vp[vn++] = "cold";
+				if (flags3 & (RF3_IM_POIS)) vp[vn++] = "poison";
+				if (flags7 & (RF7_IM_LITE)) vp[vn++] = "light";	
+				if (flags7 & (RF7_IM_DARK)) vp[vn++] = "darkness";
 
 		if (vn)
 		{
@@ -2203,13 +2206,19 @@ static void spoil_mon_info(cptr fname)
 
 		/* Collect resistances */
 		vn = 0;
-		if (flags3 & (RF3_RES_NETH)) vp[vn++] = "nether";
-		if (flags3 & (RF3_RES_WATE)) vp[vn++] = "water";
-		if (flags3 & (RF3_RES_PLAS)) vp[vn++] = "plasma";
-		if (flags3 & (RF3_RES_NEXU)) vp[vn++] = "nexus";
-		if (flags3 & (RF3_RES_DISE)) vp[vn++] = "disenchantment";
-		if (flags3 & (RF3_RES_TELE)) vp[vn++] = "teleportation";
-
+				if (flags7 & (RF7_RES_FIRE)) vp[vn++] = "fire";
+				if (flags7 & (RF7_RES_COLD)) vp[vn++] = "cold";	
+				if (flags7 & (RF7_RES_ELEC)) vp[vn++] = "electricity";
+				if (flags7 & (RF7_RES_ACID)) vp[vn++] = "acid";
+				if (flags7 & (RF7_RES_POIS)) vp[vn++] = "poison";	
+				if (flags7 & (RF7_RES_LITE)) vp[vn++] = "light";
+				if (flags7 & (RF7_RES_DARK)) vp[vn++] = "darkness";	
+				if (flags3 & (RF3_RES_NETH)) vp[vn++] = "nether";
+				if (flags3 & (RF3_RES_WATE)) vp[vn++] = "water";
+				if (flags3 & (RF3_RES_PLAS)) vp[vn++] = "plasma";
+				if (flags3 & (RF3_RES_NEXU)) vp[vn++] = "nexus";
+				if (flags3 & (RF3_RES_DISE)) vp[vn++] = "disenchantment";
+				if (flags3 & (RF3_RES_TELE)) vp[vn++] = "teleportation";
 		if (vn)
 		{
 			spoil_out(wd_che[msex]);
@@ -2221,6 +2230,36 @@ static void spoil_mon_info(cptr fname)
 				spoil_out(vp[i]);
 			}
 			spoil_out(".  ");
+		}
+				
+				
+		/* Collect healing elements */
+		vn = 0;
+		if (flags7 & (RF7_HEAL_FIRE)) vp[vn++] = "fire";
+		if (flags7 & (RF7_HEAL_COLD)) vp[vn++] = "cold";	
+		if (flags7 & (RF7_HEAL_ELEC)) vp[vn++] = "electricity";
+		if (flags7 & (RF7_HEAL_LITE)) vp[vn++] = "light";
+		if (flags7 & (RF7_HEAL_DARK)) vp[vn++] = "darkness";	
+		if (flags7 & (RF7_HEAL_NETH)) vp[vn++] = "nether";
+		
+		/* Describe resistances */
+		if (vn)
+		{
+
+			/* Scan */
+			for (n = 0; n < vn; n++)
+			{
+				/* Intro */
+				if (n == 0) roff(" is healed by ");
+				else if (n < vn-1) roff(", ");
+				else roff(" and ");
+				
+				/* Dump */
+				roff(vp[n]);
+			}
+			
+			/* End */
+			roff(".  ");
 		}
 
 		/* Collect non-effects */
@@ -2499,6 +2538,17 @@ static void spoil_mon_info(cptr fname)
 			sprintf(buf, "%s has no physical attacks.  ", wd_che[msex]);
 			spoil_out(buf);
 		}
+				
+		/* Notice monsters that _have_ to be avoided */
+		if (flags7 & (RF7_ANNOYED))
+		{
+			sprintf(buf , "%s is quickly annoyed.", wd_che[msex]);
+		}
+		/* Notice monsters that are in the grip of the Lover's Storm */
+		if (flags7 & (RF7_STORM))
+		{
+			sprintf(buf, "%s is blown about to and fro by a violent storm.", wd_che[msex]);
+		}	 				
 
 		spoil_out(NULL);
 	}

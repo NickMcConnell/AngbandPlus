@@ -548,16 +548,99 @@ static void prt_depth(void)
 	}
 	else if (dun_level==5)
 	{
-	        (void)strcpy(depths, "Limbo");
+		(void)strcpy(depths, "1st Circle: Limbo");
 	}
-	
+	else if (dun_level==6)
+	{
+		(void)strcpy(depths, "2nd Circle: Lust");
+	}	
+	else if (dun_level==7)
+	{
+		(void)strcpy(depths, "3rd Circle: Gluttony");
+	}	
+	else if (dun_level==8)
+	{
+		(void)strcpy(depths, "4th Circle: Greed");
+	}	
+	else if (dun_level==9)
+	{
+		(void)strcpy(depths, "5th Circle: Wrath");
+	}	
+	else if (dun_level==10)
+	{
+		(void)strcpy(depths, "6th Circle: Heresy");
+	}	
+	else if (dun_level==11)
+	{
+		(void)strcpy(depths, "Phlegethon's Shores");
+	}
+	else if (dun_level==12)
+	{
+		(void)strcpy(depths, "7th Circle: Suicide");
+	}		
+	else if (dun_level==13)
+	{
+		(void)strcpy(depths, "7th Circle: Abandon");
+	}	
+	else if (dun_level==14)
+	{
+		(void)strcpy(depths, "1st Bolgia: Seduction");
+	}	
+	else if (dun_level==15)
+	{
+		(void)strcpy(depths, "2nd Bolgia: Flattery");
+	}
+	else if (dun_level==16)
+	{
+		(void)strcpy(depths, "3rd Bolgia: Simony");
+	}			
+	else if (dun_level==17)
+	{
+		(void)strcpy(depths, "4th Bolgia: Sorcery");
+	}			
+	else if (dun_level==18)
+	{
+		(void)strcpy(depths, "5th Bolgia: Corruption");
+	}			
+	else if (dun_level==19)
+	{
+		(void)strcpy(depths, "6th Bolgia: Hypocrisy");
+	}			
+	else if (dun_level==20)
+	{
+		(void)strcpy(depths, "7th Bolgia: Thievery");
+	}			
+	else if (dun_level==21)
+	{
+		(void)strcpy(depths, "8th Bolgia: Deception");
+	}			
+	else if (dun_level==22)
+	{
+		(void)strcpy(depths, "9th Bolgia: Discord");
+	}			
+	else if (dun_level==23)
+	{
+		(void)strcpy(depths, "10th Bolgia: Forgery");
+	}			
+	else if (dun_level==24)
+	{
+		(void)strcpy(depths, "9th Circle: Entry");
+	}			
+	else if (dun_level==25)
+	{
+		(void)strcpy(depths, "9th Circle: Betrayal");
+	}				
+	else if (dun_level==26)
+	{
+		(void)strcpy(depths, "9th Circle: Judecca");
+	}					
 	else if (depth_in_feet)
 	{
-		(void)sprintf(depths, "Hell (%d ft)",dun_level * 50);
+		(void)sprintf(depths, "Hell (%d feet)",dun_level * 50);
 	}
 	else
 	{
-		(void)sprintf(depths, "Hell (Lev %d)", dun_level);
+		(void)sprintf(depths, "Hell (Level %d)", dun_level);
 	}
 	/* Right-Adjust the "depth", and clear old values */
 	if(dun_level==0)
@@ -812,18 +895,18 @@ static void prt_speed(void)
 	if (i > 110)
 	{
 		attr = TERM_L_GREEN;
-		sprintf(buf, "Fast (+%d)", (i - 110));
+		sprintf(buf, "Fast +%d", (i - 110));
 	}
 
 	/* Slow */
 	else if (i < 110)
 	{
 		attr = TERM_L_UMBER;
-		sprintf(buf, "Slow (-%d)", (110 - i));
+		sprintf(buf, "Slow -%d", (110 - i));
 	}
 
 	/* Display the speed */
-	c_put_str(attr, format("%-14s", buf), ROW_SPEED, COL_SPEED);
+	c_put_str(attr, format("%-8s", buf), ROW_SPEED, COL_SPEED);
 }
 
 

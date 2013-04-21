@@ -2083,6 +2083,8 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 
 	int tohit2 = m_bonus(10, level);
 	int todam2 = m_bonus(10, level);
+	
+	byte temp_byte = 0;
 
 	artefact_bias = 0;
 
@@ -2340,8 +2342,15 @@ static void a_m_aux_1(object_type *o_ptr, int level, int power)
 						if (randint(3)==1) /* double damage */
 							o_ptr->dd *= 2;
 						else
-						{ do { o_ptr->dd++; } while (randint(o_ptr->dd)==1);
-						do { o_ptr->ds++; } while (randint(o_ptr->ds)==1);
+						{ 
+							do { o_ptr->dd++; } while (randint(o_ptr->dd)==1);
+							do { o_ptr->ds++; } while (randint(o_ptr->ds)==1);
+						}
+						/* Always put the biggest number up front to increase average damage */
+						if( o_ptr->ds > o_ptr->dd){
+							temp_byte = o_ptr->ds;
+							o_ptr->ds = o_ptr->dd;
+							o_ptr->dd = temp_byte;
 						}
 						if (randint(5)==1)
 						{
@@ -6514,3 +6523,101 @@ void display_koff(int k_idx)
 	}
 }
 
+
+/*
+ * Describe an alchemical formula (place string in buf)
+ */
+void alchemy_describe(char *buf, size_t max, int sval)
+{
+	int k;
+	char o_name1[80];
+	char o_name2[80];
+	char o_name3[80];
+	
+	object_kind *k_ptr;
+	object_type *i_ptr;
+	object_type object_type_body;
+	
+	/* Look for it */
+	for (k = 1; k < MAX_K_IDX; k++)
+	{
+		k_ptr = &k_info[k];
+		
+		/* Found a match */
+		if ((k_ptr->tval == TV_POTION) && (k_ptr->sval == sval)) break;
+	}
+	
+	/* Paranoia */
+	if (k == MAX_K_IDX) return;
+	
+	/* Get local object */
+	i_ptr = &object_type_body;
+	
+	/* Create fake object */
+	object_prep(i_ptr, k);
+	
+	/* Describe the object */
+	if (k_ptr->aware  || debug_mode == TRUE) 
+	  strcpy(o_name1, (k_name + k_ptr->name));
+	else 
+	  object_desc(o_name1, i_ptr, FALSE, 0);
+	
+	/* Look for first component */
+	if (potion_alch[sval].known1 || debug_mode == TRUE)
+	{
+		for (k = 1; k < MAX_K_IDX; k++)
+		{
+			k_ptr = &k_info[k];
+			/* Found a match */
+			if ((k_ptr->tval == TV_POTION) && (k_ptr->sval == potion_alch[sval].sval1)) break;
+		}
+		
+		/* Get local object */
+		i_ptr = &object_type_body;
+		
+		/* Create fake object */
+		object_prep(i_ptr, k);
+		
+		/* Describe the object */
+		if (k_ptr->aware || debug_mode == TRUE)
+		  strcpy(o_name2,(k_name + k_ptr->name));
+		else 
+		  object_desc(o_name2, i_ptr, FALSE, 0);
+	}
+	else
+	{
+		strcpy (o_name2,"????");
+	}
+	
+	/* Look for first component */
+	if (potion_alch[sval].known2 || debug_mode == TRUE)
+	{
+		/* Look for second component */
+		for (k = 1; k < MAX_K_IDX; k++)
+		{
+			k_ptr = &k_info[k];
+			
+			/* Found a match */
+			if ((k_ptr->tval == TV_POTION) && (k_ptr->sval == potion_alch[sval].sval2)) break;
+		}
+		
+		/* Get local object */
+		i_ptr = &object_type_body;
+		
+		/* Create fake object */
+		object_prep(i_ptr, k);
+		
+		/* Describe the object */
+		if (k_ptr->aware || debug_mode == TRUE) 
+		  strcpy(o_name3,(k_name + k_ptr->name));
+		else 
+		  object_desc(o_name3, i_ptr, FALSE, 0);
+	}
+	else
+	{
+		strcpy (o_name3, "????");
+	}
+	
+	/* Print a message */
+	strnfmt(buf, max, "%s = %s + %s  (odds: %d percent)", o_name1, o_name2, o_name3 , (int)(25 + (/*p_ptr->skill[SK_ALC]*/ 60) - ( k_ptr->pval /  5)) );
+}

@@ -2553,7 +2553,7 @@ static void process_command(void)
 		/* Pray a prayer */
 	case 'p':
 		{
-			do_cmd_pray();
+            do_cmd_mix();
 			break;
 		}
 
@@ -3783,6 +3783,8 @@ void play_game(bool new_game)
 		/* Hack -- seeds for flavors and wilderness*/
 		seed_flavor = rand_int(0x10000000);
 		seed_town = rand_int(0x10000000);
+		/* Hack -- seed for alchemy */
+		seed_alchemy = rand_int(0x10000000);
 
 		/* Start in town */
 		dun_level = 0;
@@ -3828,6 +3830,9 @@ void play_game(bool new_game)
 
 	/* Flavor the objects */
 	flavor_init();
+	
+	/* Generate alchemy tables */
+	alchemy_init();
 
 	/* Reset the visual mappings */
 	reset_visuals();

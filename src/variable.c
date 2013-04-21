@@ -75,6 +75,7 @@ bool character_xtra;		/* The game is in an icky startup mode */
 
 u32b seed_flavor;		/* Hack -- consistent object colours */
 u32b seed_town;			/* Hack -- consistent wilderness layout */
+u32b seed_alchemy;		/* Hack -- consistent alchemy tables */
 
 s16b command_cmd;		/* Current "Angband Command" */
 
@@ -908,3 +909,7 @@ bool easy_open = TRUE;
 bool easy_disarm = TRUE;
 #endif /* ALLOW_EASY_DISARM -- TNB */
 
+/*
+ * The alchemy information
+ */
+alchemy_info potion_alch[SV_POTION_MAX];
