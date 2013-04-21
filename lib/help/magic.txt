@@ -1,0 +1,194 @@
+Magic Basics
+============
+
+Magic is found throughout Hellband - from the creatures you fight to the items 
+you use.
+
+Magic within items is in varied forms, but magic used by characters is a lot 
+more structured.
+
+Characters of certain classes can learn magic. This can be of one of three 
+types: Divine magic, Arcane magic and Mindcrafting.
+
+Common Features
+===============
+
+All three types of magic use 'mana' (sometimes called 'spell points') to power 
+their effects. Characters gain spell points based on one of their ability scores 
+and based upon their level. When a spell is cast, some of these points are 
+spent.
+
+It is theoretically possible to still cast a spell without having enough power 
+points to do so. This is rather dangerous, however, since the caster can damage 
+their health or leave themselves vulnerable to attacks when doing so.
+
+Spell points recover with time. If you have run out, then resting is the best 
+course of action.
+
+Arcane Magic
+============
+
+Arcane spell users learn their spells through study at the Library. They need a 
+book to learn the spell from, and they must carry this book to use as a 
+reference when they wish to use the spell.
+
+Arcane spell users can choose which spell they will study.
+
+Arcane magic relies on the aura of the caster being relatively free. As such, it 
+is easily disrupted if the caster is wearing too much armour. Wearing heavy 
+armour reduces the amount of spell points that a caster has available. Gloves, 
+in particular, hamper them.
+
+Divine Magic
+============
+
+Divine spell users are granted spells by their patron. They must still use a 
+book of prayers as a reference when casting spells. Divine spell users need to 
+study their prayer books in the Library in order to gain the insights needed to 
+understand the new spells that their patrons give them.
+
+Divine spell users are given spells at the whim of their patron, and do not 
+choose which spells they are given.
+
+Divine spell users are not hampered by armour.
+
+Mindcrafting
+============
+
+Mindcrafting users do not need to learn their powers. They automatically gain 
+them as they get more experienced. They have many fewer powers than other spell 
+users have spells, but those powers tend to be more flexible in their usage.
+
+Mindcrafters are not hampered by armour, except for helmets.
+
+Elements
+========
+
+All matter is composed of elements, and magic can split those elements apart. In 
+their pure form (such as in magical attacks), elemental forces can be very 
+dangerous and have a variety of effects. Below is a list of the various types of 
+damaging attack, and what possible extra effects they may have.
+
+*Acid*
+As well as simply damaging you, acid can damage your armour. Acid can 
+occasionally damage your charisma.
+
+*Chaos*
+The energies of chaos can confuse you, corrupt you, damage your inventory or 
+drain your life force. They are unpredictable and may do none, some or all of 
+the above.
+
+*Cold*
+Cold damage can damage items in your inventory, and occasionally damage your 
+strength.
+
+*Confusion*
+Confusion attacks can leave you stunned or confused.
+
+*Dark*
+Dark attacks can blind you, but will heal you if you are in wraithform.
+
+*Disenchantment*
+Disenchantment attacks can drain the magic from your armour and weapon.
+
+*Electricity*
+As well as simply damaging you, electricity damage can destroy some items in 
+your inventory (for example potions) and occasionally damage your dexterity.
+
+*Fire*
+As well as simply damaging you, fire can destroy various items in your inventory 
+(for example scrolls). Fire can occasionally damage your strength.
+
+*Force*
+Direct telekinetic force can stun you.
+
+*Gravity*
+Gravity can teleport you, slow you or stun you.
+
+*Hell Fire*
+The polar opposite to holy fire, hell fire damages you less if you have an 
+affinity with the Death realm, and more if you have an affinity with the Life 
+realm.
+
+*Holy Fire*
+A spiritual flame, rather than a physical one - holy fire damages you less if 
+you have an affinity with the Life realm, and more if you have an affinity with 
+the Death realm.
+
+*Ice*
+Ice can cut you and stun you.
+
+*Inertia*
+The forces of inertia can slow you down.
+
+*Light*
+Light attacks can blind you, and dispel wraithform.
+
+*Nether*
+Nether is the force of unlife. As such, it drains your life force from you.
+
+*Nexus*
+Nexus, the element of locality, can teleport you around and warp your body.
+
+*Plasma*
+This hot liquid fire can penetrate even the toughest fire resistance.
+
+*Poison*
+Poison continues to damage you over a period of time, or until magically cured. 
+It can also occasionally damage your constitution.
+
+*Hellslime*
+Hellslime is the substance that hell is made from. In its raw state, it acts 
+like a combination of poison and acid, as well as possibly corrupting you.
+
+*Shards*
+These sharp pieces of metal and rock can damage your inventory, and are 
+extremely likely to make you bleed.
+
+*Sound*
+Sound can stun you as well as damaging you normally.
+
+*Time*
+Time is a particularly nasty attack which can either revert you to a younger age 
+or age you.
+
+*Water*
+Water damage can stun and confuse you, as well as damaging items in your 
+inventory.
+
+Realms
+======
+
+*Chaos*
+The chaos realm is the most destructive realm. It concentrates on damaging 
+spells. It is a very good choice for anyone who wants to be able to damage their 
+foes directly, but is somewhat lacking in non-combat spells.
+
+*Corporeal*
+The corporeal realm contains spells that exclusively effect the caster's body, 
+although some spells also indirectly effect other creatures or objects. The 
+corporeal realm is particularly good at sensing spells.
+
+*Death*
+The death realm has a combination of life-draining spells, curses and undead 
+summoning. Like chaos, it is a very offensive realm.
+
+*Folk*
+The folk realm is the least specialised of all the realms. Folk magic is capable 
+of doing any effect that is possible in other realms - but usually less 
+effectively than the specialist realms.
+
+*Life*
+The life realm is devoted to healing and buffing, with some offensive capability 
+against undead and demons. It is the most defensive of the realms.
+
+*Nature*
+Nature has a large number of summoning spells and miscellaneous spells.
+
+*Planar*
+Planar magic contains spells of summoning and movement.
+
+*Sorcery*
+The sorcery realm contains spells dealing with raw magic itself, for example 
+spells dealing with magical items. It is the premier source of miscellaneous 
+non-combat spells.

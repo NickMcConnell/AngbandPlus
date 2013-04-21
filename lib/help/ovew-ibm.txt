@@ -1,0 +1,181 @@
+What is Hellband
+================
+
+Welcome to Hellband. This is a turn-based game of strategy, skill and luck. 
+Hellband has its roots in the game 'Rogue' (an old computer game from around the 
+time of Pong and Space Invaders) and falls into the genre of 'Rogue-like' games.
+
+More specifically, Hellband is a variant of the popular roguelike game 
+'Angband'.
+
+Hellband is similar in theme to modern computer 'RPG's like Diablo, Dungeon 
+Siege, and so on. You control a character who equips him or herself with basic 
+equipment and explores an underground 'dungeon', searching for treasure. 
+Fighting creatures gains you experience - which improves your abilities. Finding 
+better treasure and magical items also improves your abilities and your fighting 
+capability. The big difference between Hellband and these games is that whereas 
+most modern computer RPGs are 'real-time', Hellband is turn based. You do not 
+need to click the screen with the mouse frantically trying to kill something. 
+Instead, you can take your time and think about what you are doing and about 
+what tactics to use.
+
+The other main difference between Hellband and most modern computer games is in 
+graphics and sound. Most modern games will have maybe two dozen types of 
+monster, and each one will be rendered in 3D-accelerated polygons. Hellband does 
+not have a fancy graphics system. Each type of monster is represented by a 
+simple coloured ASCII character. This allows for vastly more monsters and wider 
+variety than would be financially feasible for a commercial software company to 
+include in a game. Indeed, Hellband has over 550 different types of monster 
+spread over 120+ levels of play - a variety that commercial games simply cannot 
+afford to produce professional graphics for.
+
+Save Files and Dying
+====================
+
+Hellband is different to most computer games in the way that it handles save 
+files.
+
+Whereas most games allow you to save the game as often as you like, so that if 
+you come across a difficult part you can re-load repeatedly and try again, 
+Hellband is more realistic.
+
+A Hellband save-file is *not* a 'Saved Game'. It is a 'Player Profile'. It does 
+contain information about the current game state (as most save files in other 
+games do, but it also stores information about the history of the player's 
+previous games and characters and stores information about the options that the 
+player is using.
+
+Hellband maintains a single player profile (called 'player') which is 
+automatically loaded (or created if it does not exist) on start-up and is only 
+saved when Hellband is closed. This has two major implications.
+
+Firstly, as mentioned above, you can not 'save' before doing something 
+dangerous. You only have one 'life' in the game, and if you do something 
+dangerous and your character dies then you will have to re-start with a new 
+character.
+
+Secondly, when you do die, you do not need to create a new 'save game'. Next 
+time you start Hellband, you should load your saved profile as normal. You will 
+keep the values of any options that you set in your previous game, and the 
+information that your previous characters found out will be still available to 
+you.
+
+Should you wish to have multiple players of Hellband on the same computer, this 
+can be done by swapping different versions of the 'player' file in and out, but 
+the easiest method is simply for each person to have their own copy of Hellband 
+in its own directory.
+
+Background
+==========
+
+Lucifer has stolen your True Love away, and told you that the only way for the 
+two of you to be re-united is for you to fight your way down through the pits of 
+Hell and defeat him in combat.
+
+The task is an impossible one, but you refuse to listen to your friend's 
+pleading with you to stay. Instead, you grab some basic supplies and the last of 
+your money and set off into the night.
+
+You have heard that the town of Gateway lies over an entrance to the upper 
+reaches of Hell - its shops bulging with the spoils recovered by intrepid 
+explorers into that abyss, and its graveyard full of less lucky explorers.
+
+Your mind hardened with the intention to succeed where so many others have 
+failed, you enter the town and prepare yourself for the perils to come...
+
+Basic Gameplay
+==============
+
+You start the game (after having generated a character) in the town of Gateway. 
+Your first task is to explore the shops and purchase equipment (keeping your 
+distance from the various town inhabitants, since most of them are tougher than 
+you at this point in the game - and Gateway attracts all sorts of unsavoury 
+types). After you have purchased whatever starting equipment you can afford in 
+order to supplement your starting goods, you should wear your armour, wield your 
+weapon, learn spells in the library if you are a spellcaster, and then find the 
+staircase leading down into the dungeons of hell.
+
+Once you have descended to Hell, your task changes. You need to explore the 
+dungeons around you, looking for treasure and practicing your fighting. There 
+are lots of opportunities to descend deeper into hell, but you should be very 
+wary since descending too quickly will almost certainly result in your death.
+
+User Interface
+==============
+
+During gameplay, the screen is split into four sections.
+
+The main section is a top-down representation of you and your surroundings. This 
+is where most of the activity takes place. You will normally see an 'aura' 
+around yourself. This is your 'line of sight', and shows what you can see. 
+Anywhere outside this aura is outside your field of vision. If you are carrying 
+a light source, then you will also see a (usually) smaller aura around yourself 
+which shows the area illuminated by your light. Different light sources shed 
+light out to different radii. If you do not have the power of 'Infravision', 
+then you will not be able to see anything outside this illuminated area (unless 
+it is in an independently lit area).
+
+Along the top of the screen is an area reserved for text messages. As you play 
+the game, various message will be displayed there. Often, if the game needs an 
+input from you, you will type text there.
+
+On the left hand side of the screen is a summary of your character status. At 
+the top is the in-game time and date. Underneath this is a display of your base 
+attributes. Normally these are all capitalised, but if one of your attributes 
+has been damaged then the attribute name will be in lower case.
+
+Under the base attributes are a set of secondary attributes, such as hit points, 
+mana and armour class.
+
+The final section of the user interface covers the bottom third of the left hand 
+panel and extends across the bottom of the screen. This contains various 
+indicators of temporary conditions (such as whether you are currently bleeding 
+or stunned or slowed) and also a 'Health Bar' tracking the health and status of 
+the most recent creature targeted by you.
+
+Time and Turns
+==============
+
+Every time you press a key in order to perform an action, some time is taken in 
+the game world.
+
+Each 24-hour period within the game is split into 10,000 turns of just under 10 
+seconds each. The game times things in hundredths of turns, so it is possible 
+for actions to not take an exact number of turns to perform.
+
+Assuming you are moving without any external influences speeding you up or 
+slowing you down, a single movement will take 1 turn. Having your speed 
+magically increased or decreased (or decreased through carrying too much weight) 
+will alter this - causing each move to take more than or less than a turn.
+
+Various other actions are rated based on this turn-scale - usually as a 
+percentage of a turn.
+
+Attacking a creature will take anywhere from 10% of a turn to a full turn, based 
+on the number of attacks that you have.
+
+Casting a spell will similarly take from 10% of a turn to a full turn, based on 
+how many far above the spell level your character's level is.
+
+Combat and Health
+=================
+
+There is no separate 'combat turn' in Hellband. Combat takes place on the same 
+timescale as movement.
+
+Each creature (yourself included) has three scores relative to combat.
+
+Firstly, you have a number of 'Hit Points'. These represent a combination of 
+both endurance and physical toughness. Each time you are hit in combat, you will 
+lose an amount of hit points. Should you ever get below 0 hit points you will 
+die from your wounds.
+
+Secondly, you have an Armour Class. This is a number starting at 0 and 
+increasing. It represents a combination of how good at dodging blows you are and 
+how well armoured you are. The higher the number, the more difficult you are to 
+hit - and the more the amount of damage you take if you are hit is reduced.
+
+Finally, you have an attack score. This number is used internally when you 
+attack something - it is compared to the Armour Class of the thing you are 
+hitting - but is never directly shown. Your character sheet will display a guide 
+to how good your attack score is, but not the exact numerical value.

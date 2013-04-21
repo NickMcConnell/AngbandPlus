@@ -1,0 +1,339 @@
+Corruptions
+===========
+
+Corruptions are caused by the inability of mortal bodies to handle the chaotic 
+energies of hell without warping and changing.
+
+Corruptions can be gained from a number of sources, ranging from the misuse of 
+chaos magic to the whim of infernal patrons.
+
+There are three basic types of corruptions, those that are always active, those 
+that activate randomly, and those that the possessor can voluntarily activate.
+
+Corruptions are not named, so the descriptions here are based on the 
+descriptions that you see when you use the '~' command.
+
+Persistent Corruptions
+======================
+
+"You are superhumanly strong."
+This corruption gives you a +4 strength bonus.
+
+"You are puny."
+This corruption gives you a -4 strength penalty
+
+"You are a genius."
+This corruption gives you +4 intelligence and +4 wisdom bonuses.
+
+"You are an idiot."
+This corruption gives you -4 intelligence and -4 wisdom penalties.
+
+"You are very resilient."
+This corruption gives you a +4 constitution bonus.
+
+"You are extremely fat."
+This corruption gives you a +2 constitution bonus, but a -2 speed penalty.
+
+"You are albino."
+This corruption gives you a -4 constitution penalty.
+
+"Your flesh is rotting."
+This corruption gives you a -2 constitution penalty and a -1 charisma penalty.
+
+"Your voice is a hoarse rasp."
+This corruption gives you a -4 charisma penalty.
+
+"You have a forked tongue."
+This corruption gives you a -1 charisma penalty.
+
+"Your appearance is masked with illusion."
+This corruption completely negates the charisma modifiers that other corruptions 
+give you.
+
+"You have glowing eyes."
+This corruption gives you a +15 searching bonus.
+
+"You are resistant to magic."
+This corruption makes you more likely to resist spells that are cast on you.
+
+"You have a stench of the grave about you."
+This corruption gives you a -3 penalty to stealth.
+
+"You have remarkable infravision."
+This corruption gives you 30' infravision, or increases your existing 
+infravision by 30'.
+
+"You have goat legs with cloven hooves."
+This corruption gives you a +3 bonus to speed.
+
+"Your legs are short stubs."
+This corruption gives you a -3 penalty to speed.
+
+"Electricity is running through your veins."
+This corruption damages anyone who touches you with an electrical shock.
+
+"Your body is enveloped in flames."
+This corruption damages anyone who touches you by burning them.
+
+"Your skin is covered with warts."
+This corruption gives you a +5 bonus to armour class but a -2 penalty to 
+charisma.
+
+"Your skin has turned into scales."
+This corruption gives you a +10 bonus to armour class but a -1 penalty to 
+charisma.
+
+"Your skin is made of steel."
+This corruption gives you a +25 bonus to armour class but a -1 penalty to 
+dexterity.
+
+"You have wings."
+This corruption protects you from trap doors and pits.
+
+"You are completely fearless."
+This corruption makes you immune to fear.
+
+"You are regenerating."
+This corruption makes you regain hit points at a faster rate.
+
+"You are telepathic."
+This corruption gives you ESP.
+
+"Your body is very limber."
+This corruption gives you a +3 dexterity bonus.
+
+"Your joints ache constantly."
+This corruption gives you a -3 dexterity penalty.
+
+"You are protected from the ravages of time."
+This corruption gives you a resistance to time based attacks.
+
+"You are susceptible to damage from the elements."
+This corruption makes you take extra damage from elemental attacks.
+
+"Your movements are precise and forceful."
+This corruption prevents you form being paralysed and gives you a +1 bonus to 
+stealth.
+
+"Your body resists serious damage."
+This corruption stops any of your ability scores from being drained.
+
+Erratic Corruptions
+===================
+
+"You are subject to berserker fits."
+This corruption causes you to occasionally go berserk.
+
+"You are subject to cowardice."
+This corruption causes you to occasionally become afraid.
+
+"You are teleporting randomly."
+This corruption causes you to occasionally teleport to a random place on the 
+level.
+
+"You are subject to fits of amnesia."
+This corruption causes you to have occasional fits of confusion and 
+forgetfulness.
+
+"You have a hallucinatory insanity."
+This corruption causes you to occasionally hallucinate.
+
+"You are occasionally surrounded with brimstone."
+This corruption causes you to be occasionally surrounded by a cloud of poison.
+
+"You are producing magical energy uncontrollably."
+This corruption causes you to be occasionally surrounded by a storm of raw 
+magic.
+
+"You attract demons."
+This corruption causes demons to occasionally appear near you.
+
+"You have poison fangs."
+This corruption gives you an extra attack in melee that does poison damage.
+
+"You have razor sharp claws."
+This corruption gives you an extra attack in melee.
+
+"You have large horns on your head."
+This corruption gives you an extra attack in melee.
+
+"You move faster or slower randomly."
+This corruption causes you to occasionally speed up or slow down.
+
+"You sometimes cause nearby creatures to vanish."
+This corruption causes you to occasionally teleport nearby creatures away from 
+yourself.
+
+"You sometimes feed off of the light around you."
+This corruption causes you to draw in the energy from your light source to heal 
+yourself.
+
+"You have small horns on your head."
+This corruption gives you an extra attack in melee.
+
+"You attract animals."
+This corruption causes animals to seek you out.
+
+"You have bony spines on your joints."
+This corruption gives you an extra attack in melee.
+
+"You occasionally are surrounded with raw chaos."
+This corruption causes you to be occasionally surrounded by a storm of raw 
+chaos.
+
+"You may be corrupted, but you're recovering."
+This corruption causes you to slowly become less corrupted, occasionally losing 
+a random corruption.
+
+"You fade in and out of physical reality."
+This corruption causes you to occasionally take on a ghostly form that can walk 
+through walls.
+
+"Your health is subject to chaotic forces."
+This corruption causes your wounds to occasionally get better or worse.
+
+"You have a horrible wasting disease."
+This corruption causes you to occasionally have one of your abilities damaged.
+
+"You attract dragons."
+This corruption causes dragons to occasionally seek you out.
+
+"Your mind randomly expands and contracts."
+This corruption causes you to occasionally have ESP.
+
+"You have a seriously upset stomach."
+This corruption causes you to occasionally vomit up your food.
+
+"An infernal patron gives you gifts."
+Each time you gain a level, you will be given something by your patron.
+
+"You notice when miracles change the world."
+This corruption causes you to occasionally notice that the world has changed 
+around you.
+
+"You receive warnings about your foes."
+This corruption causes you to occasionally be given feelings about how dangerous 
+the monsters on your level are.
+
+"You occasionally feel invincible."
+This corruption causes you to occasionally become immune to damage for a short 
+while.
+
+"Your blood sometimes rushes to your muscles."
+This corruption causes you to occasionally lose some spell points and gain hit 
+points.
+
+"Your blood sometimes rushes to your head."
+This corruption causes you to occasionally lose some hit points and gain spell 
+points.
+
+"You occasionally stumble and drop things."
+This corruption causes you to occasionally fall over, possibly dropping your 
+weapon.
+
+Controlled Corruptions
+======================
+
+"You can spit acid."
+You can fire a ball of acid.
+
+"You can breathe fire."
+You can fire a ball of fire.
+
+"Your gaze is hypnotic."
+You can make a monster your friend.
+
+"You are telekinetic."
+You can pick up objects from a distance.
+
+"You can teleport at will."
+You can teleport to a random place on the level when you choose.
+
+"You can Mind Blast your enemies."
+You can fire a bolt of psychic energy.
+
+"You can summon waves of hellslime."
+You can fire a ball of hellslime.
+
+"You can drain life from a foe like a vampire."
+You can drain hit points from a foe and add them to yourself.
+
+"You can smell nearby precious metal."
+You can detect gold and seams of treasure.
+
+"You can smell nearby monsters."
+You can detect nearby monsters.
+
+"You can teleport yourself short distances."
+You can teleport to a random place within 100' of your current location.
+
+"You can consume solid rock."
+You can east a square of wall, removing it and filling you up.
+
+"You can switch locations with another being."
+You can teleport to the location of another creature, whilst they simultaneously 
+teleport to your location.
+
+"You can emit a horrible shriek."
+Your scream inflicts sound damage to all those around you, while aggravating 
+those further away.
+
+"You can emit bright light."
+You can create a permanent light in your surrounding area.
+
+"You can feel the danger of evil magic."
+You can discover which items you are carrying are cursed.
+
+"You can drive yourself into a berserk frenzy."
+You can enter a temporary frenzy.
+
+"You can polymorph yourself at will."
+You can alter your own form, either to another race or in a corrupting manner.
+
+"You can turn ordinary items to gold."
+You can transmute items into gold, getting about a third of the money that 
+selling them would get.
+
+"You can cause mold to grow near you."
+You can make molds spring up around you that serve as allies.
+
+"You can harden yourself to the ravages of the elements."
+You can give yourself temporary resistance to poison, and possibly also to 
+electricity, cold, fire and acid.
+
+"You can bring down the dungeon around your ears."
+You can cause small earthquakes.
+
+"You can consume magic energy for your own use."
+You can drain the magic energy from items that you carry and convert it into 
+spell points.
+
+"You can feel the strength of the magics affecting you."
+You can get a rough idea of how long durated magic effects on you will last.
+
+"You can cause mass impotence."
+You can stop reproducing creatures from breeding.
+
+"You can run for your life after hitting something."
+You can make an attack against a creature, and immediately teleport to a random 
+location on the level.
+
+"You can emit confusing, blinding lights."
+You can stun, confuse and scare nearby creatures.
+
+"Your eyes can fire beams of light."
+You can fire beams that do light damage.
+
+"You can travel between town and the depths."
+You can teleport to the town, or - if you are already in the town - to the 
+deepest level of the dungeon that you have been on.
+
+"You can send evil creatures directly to Hell."
+You can teleport evil monsters away, although you get no experience for them if 
+you do this.
+
+"You can freeze things with a touch."
+You make an attack that does cold damage, although it has no range.
+
+"You can hurl objects with great force."
+You can throw objects, and they do more damage than they would normally.

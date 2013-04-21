@@ -1,0 +1,126 @@
+Items
+=====
+
+There are many types of item in Hellband. They range from powerful artefacts to 
+useless shards of pottery. Many items will be found lying around, and more will 
+be dropped by creatures when they die.
+
+The shops in town will buy and sell items of most types.
+
+Weapons
+=======
+
+Weapons are described as follows:
+
+a war hammer of extra attacks (3d3) (+1, +7) (+3 to attack speed)
+
+  ^^^^^^^^^^    ^^^^^^^^^^^^^ ^^^^^  ^^  ^^ ^^^^^^^^^^^^^^^^^^^^
+      1               2         3     4   5          6
+
+1 = The type of weapon.
+2 = The special ability of the weapon.
+3 = The basic damage done by the weapon, in dice.
+4 = The bonus to hit of the weapon.
+5 = The bonus to damage of the weapon.
+6 = The details (if needed) of the special ability.
+
+Armour
+======
+
+Armour is described as follows:
+
+Hard studded leather of Heaven (-1) [7, +10] (+2 to stealth)
+
+^^^^^^^^^^^^^^^^^^^^    ^^^^^^ ^^^^  ^  ^^^  ^^^^^^^^^^^^^^^
+         1                 2     3   4   5          6
+
+1 = The type of armour.
+2 = The special ability of the armour.
+3 = The penalty to attacks caused by the bulk of the armour.
+4 = The base armour class provided by the armour.
+5 = The bonus to armour class provided by the armour.
+6 = The details (if needed) of the special ability.
+
+Armour is split into six categories, depending on which part of the body it 
+covers - head, body, hands, feet, cloak and shield. Armour in different 
+categories can be worn simultaneously and all bonuses stack.
+
+Note that only body armour will cause an attack penalty (3 above).
+
+Wands
+=====
+
+Wands are small magical devices that contain spells. Wands typically contain 
+combat spells, or at least spells that need to be aimed at a target. A wand will 
+typically contain a number of charges. Empty wands are not worthless, since they 
+can still be recharged.
+
+Staffs
+======
+Staffs similar to wands, except that they usually contain more general magics 
+rather than aimed magics. Staffs also have charges, and like wands they can be 
+recharged.
+
+Rods
+====
+
+Rods are somewhat similar to wands and staffs, except that they do not have 
+charges. A rod can be used indefinitely, although there will need to be a 
+recharge period before each use.
+
+Rings & Amulets
+===============
+
+Rings and amulets are both similar in that they contain constant magic that 
+affects the wielder for as long as the item is worn. There is no need to 
+activate a ring or amulet. Simply wearing one is sufficient to achieve its 
+benefits.
+
+Potions
+=======
+
+Potions contain single use spells. Quaffing the potion causes the spell to 
+affect you.
+
+Scrolls
+=======
+
+Scrolls are similar to potions except that they are somewhat more difficult to 
+use - you need to be able to read the magics from them. Scrolls also tend to 
+have magics that affect an area, rather than the more personal magic contained 
+in potions.
+
+Food
+====
+
+Food comes in a variety of types, from the barely edible slime moulds that grow 
+around the dungeon to high quality foods such as elven waybread.
+
+Some foods - most notably mushrooms - may have other effects rather than simply 
+satiating your hunger.
+
+Lights
+======
+
+The most common light sources are torches. It is also possible to find or buy 
+lanterns, which give out more light than a torch. Lanterns need a steady supply 
+of oil to keep running.
+
+It is also possible to buy or find magical orbs that give out as much light as a 
+lantern but may also have a variety of other effects. The effects of orbs are 
+constant whilst the orb is active as a light source (i.e. being wielded). There 
+is no special command to activate an orb.
+
+Artefacts
+=========
+
+As well as finding normal items, both magical and mundane, it is possible to 
+occasionally find artefacts.
+
+Artefacts are unique items, which often have special abilities far beyond their 
+more mundane cousins. Artefacts are not a type of item per se-. Instead, they 
+are a subcategory of the other types of item (such as weapons, armour, rings, 
+etc.)
+
+Many artefacts can be activated for magical effects, even if the base type of 
+item is not activatable (such as a ring).

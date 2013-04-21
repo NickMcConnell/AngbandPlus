@@ -1,0 +1,891 @@
+Spells
+======
+
+Chaos Realm
+===========
+
+Magic Missile
+Creates a physical missile which strikes a nearby target.
+
+Trap / Door Destruction
+Destroys any adjacent doors or traps.
+
+Flash of Light
+Permanently lights the nearby area, possibly damaging creatures.
+
+Touch of Confusion
+Creates an aura around your hands that will confuse the next creature you 
+attack.
+
+Mana Burst
+Fires a ball of raw magical (not elemental) energy.
+
+Fire Bolt
+Fires a bolt of flame that does fire damage.
+
+Fist of Force
+Fires a bolt of pure force, that can disintegrate what it touches.
+
+Teleport Self
+Teleports you to a random place on the level.
+
+Wonder
+Creates a random (but often useful) chaotic effect. The more powerful you are, 
+the more useful the effect is likely to be.
+
+Chaos Bolt
+Fires a bolt of raw chaos.
+
+Sonic Boom
+Fires a ball of sound.
+
+Doom Bolt
+Fires a stream of raw magic.
+
+Fire Ball
+Fires a ball of flame, doing fire damage.
+
+Teleport Other
+Teleports the targeted creature to somewhere random on the level.
+
+Word of Destruction
+Causes the roof to collapse around you, much like the effects of an earthquake.
+
+Invoke Chaos
+Fires a ball of raw chaos.
+
+Polymorph Other
+Turns the target into a random creature.
+
+Chain Lightning
+Fires bolts of lightning in eight directions, doing electricity damage.
+
+Arcane Binding
+Recharges a wand, staff or rod.
+
+Disintegrate
+Fires a powerful beam of disintegrating energy.
+
+Alter Reality
+Completely alters reality, placing you in a different (but similar depth) 
+dungeon level.
+
+Polymorph Self
+Invokes chaos into your own body, warping it in a random way.
+
+Chaos Branding
+Invokes chaos into your weapon, changing it.
+
+Summon Demon
+Summons a friendly demon to help you.
+
+Beam of Gravity
+Fires a beam of elemental gravity.
+
+Meteor Swarm
+Makes a number of meteors appear and explode in your vicinity.
+
+Flame Strike
+Fires an intense ball of flame, doing massive amounts of fire damage.
+
+Call Chaos
+Fires a random beam or ball of energy.
+
+Shard Ball
+Fires a ball of sharp shards of metal and stone.
+
+Mana Storm
+Fires a ball of extreme magical energy.
+
+Breathe Chaos
+Makes you breathe a huge gout of raw chaos.
+
+Call the Void
+Invokes an extremely destructive series of explosions around yourself that might 
+be very dangerous in an enclosed area.
+
+Corporeal Realm
+===============
+
+Cure Light Wounds
+Heals 2d10 damage and reduces bleeding.
+
+Blink
+Teleports you to a random nearby location.
+
+Bravery
+Stops you being afraid.
+
+Bat's Sense
+Reveals the layout of your nearby surroundings.
+
+Eagle's Vision
+Detects secret doors, stairs, traps, treasure, objects and monsters (including 
+invisible ones).
+
+Mind Vision
+Gives you temporary ESP.
+
+Cure Medium Wounds
+Cures 4d10 damage and severely reduces bleeding.
+
+Satisfy Hunger
+Removes all hunger, leaving you comfortably full.
+
+Burn Resistance
+Gives you temporary resistance to fire, acid and electricity.
+
+Detoxify
+Removes all poison from your system.
+
+Cure Critical Wounds
+Heals 8d10 damage, and completely stops bleeding or stunning.
+
+See Invisible
+Allows you to see invisible creatures for a short while.
+
+Teleport
+Teleports you to a random location on the level.
+
+Haste
+Temporarily speeds up your movement.
+
+Healing
+Heals 300 damage and completely stops bleeding and stunning.
+
+Resist True
+Gives you a temporary resistance to acid, cold, fire, electricity and poison.
+
+Horrific Visage
+Scares and stuns a nearby monster.
+
+See Magic
+Detects nearby magical items.
+
+Stone Skin
+Adds 50 to your armour class for a short while.
+
+Move Body
+Teleports you to a nearby location that you specify.
+
+Corrupt Body
+Warps your body in a random manner.
+
+Know Self
+Reveals knowledge about yourself and your abilities (including those given by 
+items).
+
+Teleport Level
+Teleports you off the level you are on, onto either the one above or the one 
+below.
+
+Word of Recall
+Teleports you back to the town, or - if you are in the town - back to the 
+deepest level you have explored.
+
+Heroism
+Makes you feel heroic, giving you a +12 bonus to hit and 10 extra hit points. 
+Also removes all fear.
+
+Wraithform
+Temporarily makes you intangible so that you can walk through walls.
+
+Attune to Magic
+Fully identifies an item.
+
+Restore Body
+Heals damage to all six ability scores.
+
+Healing True
+Heals 2000 damage, all bleeding and all stunning.
+
+Hypnotic Eyes
+Makes a monster your friend.
+
+Restore Soul
+Restores any drained experience.
+
+Invulnerability
+Makes you completely immune to damage for a short while.
+
+
+Death Realm
+===========
+
+Detect Unlife
+Reveals the location of any nearby undead or demonic creatures.
+
+Malediction
+Fires a bolt of hell fire that may also scare, confuse or stun creatures.
+
+Detect Evil
+Reveals the location of any nearby evil creatures.
+
+Stinking Cloud
+Fires a ball of poison gas.
+
+Black Sleep
+Sends a nearby monster to sleep.
+
+Resist Poison
+Gives you a temporary resistance to poison.
+
+Horrify
+Scares and stuns a nearby monster.
+
+Enslave Undead
+Makes an undead your friend.
+
+Orb of Entropy
+Fires a life draining ball of energy.
+
+Nether Bolt
+Fires a bolt of nether.
+
+Terror
+Scares away all nearby monsters.
+
+Vampiric Drain
+Drains the life from a nearby creature, both healing you and sating your hunger.
+
+Poison Branding
+Permanently coats your weapon with poison.
+
+Dispel Good
+Banishes good creatures.
+
+Genocide
+Destroys all creatures of a chosen type on a level. Unique creatures are 
+teleported off the level, rather than destroyed. You get no experience for 
+monsters killed with Genocide.
+
+Restore Life
+Restores any drained experience you have.
+
+Berserk
+Sends you berserk giving you 30 extra hit points, +24 to hit and -10 to armour 
+class.
+
+Invoke Spirits
+Has a random (but usually beneficial) effect. The higher level you are, the more 
+likely it is to be useful.
+
+Dark Bolt
+Fires a bolt of darkness.
+
+Battle Frenzy
+Sends you berserk and also hastes you for a short while.
+
+Vampirism True
+Drains a large amount of life from a target and heals you by the amount drained.
+
+Vampiric Branding
+Permanently turns your weapon into a life-draining vampiric blade.
+
+Darkness Storm
+Fires a ball of darkness.
+
+Mass Genocide
+Destroys all non-unique creatures on the level. You get no experience for 
+monsters killed with Mass Genocide.
+
+Death Ray
+Fires a ray that will kill almost any living creature.
+
+Raise the Dead
+Creates undead servants to help you.
+
+Esoteria
+Identifies (with varying accuracy) an item you are carrying.
+
+Word of Death
+Kills or damages all nearby living creatures.
+
+Evocation
+Banishes, teleports away, and scares all nearby living creatures.
+
+Hellfire
+Fires a huge ball of hell fire.
+
+Omnicide
+Destroys all non-unique creatures on the level, absorbing their essence as spell 
+points. You get no experience for monsters killed with Omnicide.
+
+Wraithform
+Temporarily makes you intangible so that you can walk through walls.
+
+Folk Realm
+==========
+
+Zap
+Fires a bolt of electricity.
+
+Wizard Lock
+Locks a nearby door.
+
+Detect Invisibility
+Reveals the location of nearby invisible creatures.
+
+Detect Monsters
+Reveals the location of nearby creatures.
+
+Blink
+Teleports you to a random nearby location.
+
+Light Area
+Permanently lights the nearby area, possibly damaging creatures.
+
+Trap & Door Destruction
+Destroys any adjacent doors or traps.
+
+Cure Light Wounds
+Heals 2d8 damage and reduces bleeding.
+
+Detect Doors & Traps
+Detects all nearby secret doors, traps and stairs.
+
+Phlogiston
+Provides extra fuel for a light source.
+
+Detect Treasure
+Detects nearby money and seams of treasure.
+
+Detect Enchantment
+Detects nearby magical items.
+
+Detect Objects
+Reveals the location of nearby objects.
+
+Cure Poison
+Removes all poison from your system.
+
+Resist Cold
+Provides a temporary resistance to cold.
+
+Resist Fire
+Provides a temporary resistance to fire.
+
+Resist Lightning
+Provides a temporary resistance to electricity.
+
+Resist Acid
+Provides a temporary resistance to acid.
+
+Cure Medium Wounds
+Cures 4d8 damage and severely reduces bleeding.
+
+Teleport
+Teleports you to a random location on the level.
+
+Stone to Mud
+Turns a square of rock into loose mud, effectively removing it.
+
+Ray of Light
+Creates a beam of permanent light, possibly damaging creatures.
+
+Satisfy Hunger
+Removes all hunger, leaving you comfortably full.
+
+See Invisible
+Allows you to see invisible creatures for a short while.
+
+Recharging
+Recharges a wand, staff or rod.
+
+Teleport Level
+Teleports you off the level you are on, onto either the one above or the one 
+below.
+
+Identify
+Identifies the basic abilities of an item.
+
+Teleport Away
+Teleports a creature to a random place on the level.
+
+Elemental Ball
+Fires a ball of a random element (fire, cold, acid of electricity).
+
+Detection
+Detects secret doors, stairs, traps, treasure, objects and monsters (including 
+invisible ones).
+
+Word of Recall
+Teleports you back to the town, or - if you are in the town - back to the 
+deepest level you have explored.
+
+Clairvoyance
+Gives you temporary ESP.
+
+Life Realm
+==========
+
+Detect Evil
+Detects all evil creatures that are nearby.
+
+Cure Light Wounds
+Cures you of 2d10 damage, and reduces bleeding.
+
+Bless
+Blesses you, giving you a +5 bonus to armour class and a +10 bonus to hit.
+
+Remove Fear
+Stops you from being afraid.
+
+Call Light
+Lights the area that you are in with a permanent light - possibly damaging some 
+creatures.
+
+Detect Traps and Secret Doors
+Finds all traps, stairs and secret doors in your surrounding area.
+
+Cure Medium Wounds
+Cures you of 4d10 damage, and reduces bleeding.
+
+Satisfy Hunger
+Removes all hunger, leaving you comfortably full.
+
+Remove Curse
+Removes the minor curses from many objects, allowing them to be taken off.
+
+Cure Poison
+Removes all poison from your system.
+
+Cure Critical Wounds
+Heals 8d10 damage, and completely stops bleeding or stunning.
+
+Sense Unseen
+Allows you to see invisible creatures for a short while.
+
+Holy Orb
+Fires a damaging ball of holy fire.
+
+Protection from Evil
+Puts up a barrier around yourself that has a chance of stopping attacks from 
+evil creatures.
+
+Healing
+Heals 300 damage and completely stops bleeding and stunning.
+
+Glyph of Warding
+Places a rune on the floor that many creatures will be unable to pass.
+
+Exorcism
+Banishes demons and undead, and scares other evil creatures.
+
+Dispel Curse
+Removes more powerful curses from objects.
+
+Dispel Undead & Demons
+Triple strength banishment against undead and demonic creatures.
+
+Day of the Dove
+Befriends all nearby monsters.
+
+Dispel Evil
+Quadruple strength banishment against all evil creatures.
+
+Banish
+Teleports away all nearby evil creatures to elsewhere on the level.
+
+Holy Word
+Banishes evil, heals 1000 damage, removes bleeding, removes fear, removes poison 
+and cures stunning.
+
+Warding True
+Surrounds you with Glyphs of Warding.
+
+Heroism
+Makes you feel heroic, giving you a +12 bonus to hit and 10 extra hit points. 
+Also removes all fear.
+
+Prayer
+Like Bless, except that it lasts longer.
+
+Bless Weapon
+Makes a weapon blessed - and thus usable by priests. This also removes any curse 
+on the weapon. It is dangerous to use this spell on artifacts, as it may damage 
+them.
+
+Restoration
+Removes any drain or damage from any of your abilities, and removes any 
+experience drain. 
+
+Healing True
+Heals 2000 damage, all bleeding and all stunning.
+
+Holy Vision
+Fully identifies an item.
+
+Divine Intervention
+This banishes, stuns, confuses, scares, slows and paralyses monsters that 
+surround you, as well as healing you and hasting you to allow you a retreat.
+
+Holy Invulnerability
+Makes you completely immune to damage for a short period of time.
+
+Nature Realm
+============
+
+Detect Creatures
+Reveals the presence of all nearby creatures.
+
+First Aid
+Cures you of 2d8 damage, and reduces your bleeding.
+
+Detect Doors and Traps
+Reveals the location of any nearby secret doors, traps or stairs.
+
+Foraging
+Produces enough food to fill you up.
+
+Daylight
+Lights your immediate area with a permanent light, possibly damaging creatures.
+
+Animal Taming
+Makes an animal your friend.
+
+Resist Environment
+Gives you a temporary resistance to cold, fire and electricity.
+
+Cure Wounds & Poison
+Removes all poison and bleeding.
+
+Stone to Mud
+Turns a square of rock into loose mud, effectively removing it.
+
+Lightning Bolt
+Fires a bolt of lightning doing electricity damage.
+
+Nature Awareness
+Reveals the layout of the local area, as well as finding secret doors, stairs 
+and traps. Also reveals the location of any nearby monsters.
+
+Frost Bolt
+Fires a bolt frost doing cold damage.
+
+Ray of Sunlight
+Creates a beam of permanent light, possibly damaging creatures.
+
+Entangle
+Causes vines to grow from the floor, slowing all nearby monsters.
+
+Summon Animal
+Summons an animal ally to help you.
+
+Herbal Healing
+Cures 1000 damage, and removes bleeding, poison and stunning.
+
+Door Building
+Makes a door to protect you from anything which might be following you.
+
+Stair Building
+Creates a staircase at your feet for quick escape.
+
+Stone Skin
+Adds 50 to your armour class for a short while.
+
+Resistance True
+Gives you a temporary resistance to acid, cold, fire, electricity and poison.
+
+Animal Friendship
+Makes all nearby animals your friends.
+
+Stone Tell
+Fully identifies an item.
+
+Wall of Stone
+Creates a wall of stone to protect you from anything which might be following 
+you.
+
+Protect from Corrosion
+Permanently protects an item from acid damage.
+
+Earthquake
+Creates a large earthquake centered on your location, strong enough to collapse 
+the roof. You are protected from the effects of this spell, safe in the 
+epicenter.
+
+Whirlwind Attack
+Allows you to attack all adjacent creatures in melee.
+
+Blizzard
+Creates a ball of frost, dealing cold damage.
+
+Lightning Storm
+Creates a ball of lightning, doing electricity damage.
+
+Whirlpool
+Creates a whirling ball of water, doing elemental water damage.
+
+Call Sunlight
+Creates a ball of elemental light, and also lights the whole level permanently.
+
+Elemental Branding
+Permanently engulfs the striking surface of a weapon in an element, causing it 
+to do more damage.
+
+Nature's Wrath
+Severely damages all nearby creatures and causes an earthquake.
+
+
+Planar Realm
+============
+
+Phase Door
+Teleports you to a random nearby location.
+
+Mind Blast
+Fires a bolt of psychic energy.
+
+Tarot Draw
+Invokes a random (but usually beneficial) effect from a Tarot card.
+
+Reset Recall
+Resets the depth that you will go to via Word of Recall spells (and scrolls) to 
+the current level.
+
+Teleport
+Teleports you to a random location on the level.
+
+Dimension Door
+Teleports you to a nearby location that you specify.
+
+Planar Spying
+Gives you temporary ESP.
+
+Teleport Away
+Teleports a creature to a random place on the level.
+
+Summon Object
+Teleports a nearby object to your hand.
+
+Summon Animal
+Summons a friendly animal to help you.
+
+Phantasmal Servant
+Creates a magical beast to serve you.
+
+Summon Monster
+Summons a random monster to help you.
+
+Conjure Elemental
+Summons an elemental to help you.
+
+Teleport Level
+Teleports you off the level you are on, onto either the one above or the one 
+below.
+
+Word of Recall
+Teleports you back to the town, or - if you are in the town - down to the 
+deepest dungeon level that you have yet visited.
+
+Banish
+Teleports all nearby monsters to elsewhere on the level.
+
+Joker Card
+Summons a bizarre creature to help you.
+
+Summon Spiders
+Summons spiders to help you.
+
+Summon Reptiles
+Summons reptiles to help you.
+
+Summon Hounds
+Summons elemental hounds to help you.
+
+Planar Branding
+Permanently makes your weapon a 'Planar Weapon', attuned to the cosmos.
+
+Planar Being
+Attunes you with the planes, altering your body.
+
+Death Dealing
+Banishes all nearby living creatures.
+
+Summon Reaver
+Summons a Black Reaver to help you.
+
+Planar Divination
+Detects secret doors, stairs, traps, treasure, objects and monsters (including 
+invisible ones).
+
+Planar Lore
+Fully identifies an item.
+
+Summon Undead
+Summons an undead creature to help you.
+
+Summon Dragon
+Summons a dragon to help you.
+
+Mass Summons
+Summons multiple monsters to help you.
+
+Summon Demon
+Summons a demon to help you.
+
+Summon Ancient Dragon
+Summons an ancient dragon to help you.
+
+Summon Greater Undead
+Summons a greater undead to help you.
+
+Sorcery Realm
+=============
+
+Detect Monsters
+Detects the presence of all monsters in the nearby area.
+
+Phase Door
+Teleports you to a random location within 10o'
+
+Detect Doors and Traps
+Reveals any doors, stairs and traps that are in the nearby area.
+
+Light Area
+Creates a permanent light in your surrounding area, possibly damaging creatures.
+
+Confuse Monster
+Confuses a nearby (non-undead) monster.
+
+Teleport
+Teleports you to a random location on the level.
+
+Sleep Monster
+Sends a nearby monster to sleep.
+
+Recharging
+Recharges a wand, rod or staff.
+
+Magic Mapping
+Reveals the layout of your nearby surroundings.
+
+Identify
+Identifies the basic abilities of an item.
+
+Slow Monster
+Slows down the movement and attacks of a nearby monster.
+
+Mass Sleep
+Sends all nearby monsters to sleep.
+
+Teleport Away
+Teleports a nearby monster away from you, to a random place on the level.
+
+Haste Self
+Speeds your movement for a limited duration.
+
+Detection True
+Detects secret doors, stairs, traps, treasure, objects and monsters (including 
+invisible ones).
+
+Identify True
+Fully identifies an item.
+
+Detect Objects and Treasure
+Reveals the location of all objects and money.
+
+Detect Enchantment
+Reveals the location of magical items.
+
+Charm Monster
+Makes a nearby monster friendly.
+
+Dimension Door
+Teleports you to a location of your choice on the current level.
+
+Sense Minds
+Gives you ESP for a short duration.
+
+Self Knowledge
+Reveals knowledge about yourself and your abilities (including those given by 
+items).
+
+Teleport Level
+Teleports you completely off the level - either to the level below or the level 
+above.
+
+Word of Recall
+Teleports you back to the town, or - if you are in the town - back to the 
+deepest level you have explored.
+
+Stasis
+Freezes a monster in time, preventing it from taking any actions for a while.
+
+Telekinesis
+Picks up an object from a distance.
+
+Explosive Rune
+Leaves a rune on the floor that will explode when a creature walks over it.
+
+Clairvoyance
+Reveals the layout of the entire level, and gives you ESP for a short duration.
+
+Enchant Weapon
+Increases the magical bonuses on your weapon.
+
+Enchant Armour
+Increases the magical bonuses on a piece of your armour.
+
+Alchemy
+Turns an item to gold, giving you approximately a third of the amount you would 
+be able to get by selling it.
+
+Globe of Invulnerability
+Makes you completely immune to damage for a short while.
+
+Mindcrafting Powers
+===================
+
+Precognition
+Initially, this detects monsters. It then starts also detecting traps (min lev = 
+5), invisible creatures (min lev = 15), revealing the layout of your surrounding 
+area (min lev = 20), providing you with temporary ESP (min lev = 25) and 
+revealing the layout of the whole level (min lev = 45).
+
+Neural Blast
+This fires a bolt of psychic energy. Sometimes, this bolt will explode into a 
+ball. It is more likely to become a ball if you are higher level.
+
+Minor Displacement
+This will teleport you to a random nearby location. Once you are practiced with 
+it (min lev = 25), you can choose your destination.
+
+Major Displacement
+This will teleport you to a random place on the level. With practice (min lev = 
+30), it will also scatter any nearby monsters once you arrive, teleporting them 
+away from your new location and leaving you in safety.
+
+Domination
+This will make all nearby monsters your friends. With practice (min lev = 30), 
+you can use this power at a distance.
+
+Pulverise
+This will fire a ball of sonic energy.
+
+Character Armour
+This will provide a temporary boost to your armour class. With practice it will 
+also give you temporary resistance to acid (min lev = 14), fire (min lev = 20), 
+cold (min lev = 25), electricity (min lev = 30) and poison (min lev = 35).
+
+Psychometry
+This gives you a vague idea of the usefulness of an object. With practice (min 
+lev = 40), you can identify the magical function of the object.
+
+Mind Wave
+This creates a ball of psychic energy around yourself. With practice (min lev = 
+25), this ball can be fired at a distance.
+	
+Adrenaline Channeling
+This stops you from being afraid or stunned, heals you slightly, gives you a 
+temporary boost to your speed, and boosts your fighting ability. With practice 
+(min lev = 35), the fighting bonus is increased.
+
+Psychic Drain
+This fires a ball of negative psychic energy that sucks out the minds of its 
+targets and channels the mental energy back to you, which you absorb as spell 
+points.
+
+Telekinetic Wave
+This fires a fierce blast of stunning telekinetic energy out in all directions.

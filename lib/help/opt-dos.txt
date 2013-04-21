@@ -1,0 +1,480 @@
+Options
+=======
+
+Birth Options
+=============
+
+These options can only be set during character creation. As such, they are not 
+displayed on the normal 'options' screen.
+
+maximise_mode
+Maximise mode determines how your racial and class bonuses to abilities are 
+used. If maximise_mode is switched on, then racial and class bonuses are 
+included in ability score calculations. This results in slightly lower ability 
+scores during character generation, but results in higher potential ability 
+scores during gameplay.
+
+preserve_mode
+Preserve mode determines how artefacts are handled if they are not seen. Since 
+there can be only one copy of any artefact in play, the program remembers when 
+one has been generated (either during dungeon creation or because a creature has 
+dropped it). This way, one will not be generated twice. If preserve_mode is 
+switched on, then leaving a level without finding an artefact will reset its 
+value - allowing it to be found later. If preserve_mode is switched off, an 
+artefact that is not found will be gone forever.
+
+use_autoroller
+When rolling your ability scores, switching use_autoroller on will make the 
+program ask you for acceptable minima for your abilities and repeatedly roll 
+sets of abilities until it arrives at an acceptable set. When use_autoroller is 
+switched off, only a single set of ability scores is rolled.
+
+spend_points
+When spend_points is switched on, ability scores are not rolled (this overrides 
+the setting in 'use_autoroller'). Instead, you are given a number of points with 
+which to buy your ability scores.
+
+ironman_shop
+When this option is switched on, all shops are permanently locked (except the 
+library). This makes the game much harder and more challenging for experienced 
+players.
+
+User Interface Options
+======================
+
+rogue_like_commands
+When this option is switched on, the keys used for the various Hellband commands 
+are changed to match those used by the historical game 'Rogue'.
+
+quick_messages
+When this option is switched on, any keypress will be acceptable to go past the 
+'-more-' prompt after a message. When it is switched off, you must press the 
+'Esc' key to get past the '-more-' prompt.
+
+other_query_flag
+When this option is switched on, attempting to use various commands that handle 
+items will be confirmed, with a reminder of which item you are about to use. 
+When it is switched off, selecting an item to use will use the item immediately 
+without confirmation.
+
+always_repeat
+When this option is switched on, certain commands (tunnel, open, disarm, etc.) 
+will repeat themselves up to 99 times or until you are disturbed or those 
+commands are successful, whichever come first.
+
+depth_in_feet
+When this option is switched on, the depth indicator in the bottom right hand 
+corner of the screen will indicate a depth in feet (with each level being 50' 
+lower than the previous). If it is switched off, then the depth indicator will 
+indicate the number of the level.
+
+show_choices
+When this option is switched on, choices of item (from inventory/equipment) or 
+choices of spell will be shown in sub-windows. When this option is switched off, 
+such choices will not, and must be manually asked for in the main window.
+
+show_details
+When this option is switched on, a physical description of each monster will be 
+included along with its statistics when it is recalled. When this option is 
+switched off, only the statistics will be displayed.
+
+ring_bell
+When this option is switched on, a default 'beep' will be played when an invalid 
+key is pressed.
+
+use_colour
+When this option is switched on, text will be displayed in colour. When it is 
+switched off, all text will be in white-on-black.
+
+player_symbols
+When this option is switched on, the symbol or graphic used to indicate the 
+player will vary, depending on the race and class of the player. When this 
+option is switched off, a single generic symbol or graphic will be used.
+
+hilite_player
+When this option is switched on, a yellow box will surround the player graphic 
+or symbol to help locate it on the screen. When the option is switched off, no 
+box will be displayed.
+
+confirm_stairs
+When this option is switched on, you will be asked to confirm when you attempt 
+to leave a level by the stairs. When it is switched off, you will leave the 
+level immediately when you press the key to do so.
+
+centre_view
+When this option is switched on, the main map will scroll one character at a 
+time to keep the player in the middle of the screen. When it is switched off, 
+the map will scroll in large jumps when the player approaches the screen edge.
+
+Disturbance Options
+===================
+
+find_ignore_stairs
+When this option is switched on, the player will ignore stairs whilst running 
+and continue to run past them. When it is switched off, the player will stop 
+running when encountering stairs.
+
+find_ignore_doors
+When this option is switched on, the player will ignore open or broken doors 
+whilst running and continue to run past them. When it is switched off, the 
+player will stop running when encountering open or broken doors.
+
+find_cut
+When this option is switched on, the player will 'cut' corners whilst running. 
+When the option is switched off, the player will run into the corner, making 
+sure it is explored.
+
+disturb_move
+When this option is switched on, the player is disturbed from running or resting 
+when any visible (even through ESP) hostile monster moves. When it is switched 
+off, the player will ignore any monster.
+
+disturb_panel
+When this option is switched on, the player will stop running when the map jumps 
+to a new panel. When it is switched off, the player will continue to run into 
+the new panel. If 'centre_view' is switched on, then this option will have no 
+effect - since the map will not jump between panels.
+
+disturb_state
+When this option is switched on, the player is disturbed from resting by poison, 
+stuinning or bleeding. When this option is switched off, the player can rest 
+with one of the above conditions - even if it means bleeding to death while 
+resting.
+
+disturb_minor
+When this option is switched on, the player is distracted from resting by their 
+torch fading, hearing a door open or working out how good an item is after 
+carrying it around for a while. When it is switched off, none of these minor 
+changes will disturb the player.
+
+disturb_other
+When this option is switched on, you will be disturbed each time an uncursed 
+teleportation device wants to activate and asked whether you wish to teleport or 
+not. When it is not switched on, uncursed teleportation devices will not be able 
+to teleport you.
+
+alert_hitpoints
+When this option is switched on, you will be reminded when you are running out 
+of hit points. Exactly how many hit points are considered 'running out' is 
+determined by the value of the 'Hitpoint Warning' option. When this option is 
+switched off, you will not be reminded when you are running out of hit points.
+
+alert_failure
+This option is not currently used. Setting or resetting it will have no effect.
+
+disturb_allies
+When this option is switched on and the 'disturb_move' option is also switched 
+on, movement of friendly monsters will disturb you as well as movement of 
+hostile monsters. When it is switched off, only hostile monsters will disturb 
+you. When 'disturb_move' is switched off, this option has no effect.
+
+Creature Options
+================
+
+use_old_target
+When this option is switched on, all ranged attacks that require targeting (for 
+example most spells) will automatically be fired at the most recently selected 
+target if it is still visible. When it is switched off, you will be asked for a 
+target each time you use a ranged attack.
+
+flow_by_sound
+When this option is switched on, monsters will attempt to move to your current 
+location to attack you even if they can not see you. When it is switched off, 
+they will not use this behaviour
+
+flow_by_smell
+When this option is switched on, monsters will attempt to move to your recent 
+locations (or your current location if you have not recently moved). When it is 
+switched off, they will not use this behaviour.
+
+smart_learn
+When this option is switched on, monsters will notice if you resist an attack 
+that they have and are unlikely to use that same attack on you again. When it is 
+switched off, they will not use this behaviour.
+
+smart_cheat
+When this option is switched on, monsters will 'cheat' and never bother using 
+ineffectual attacks on you - even if there is no way for them to know that the 
+attack would be ineffectual. When it is switched off, they will not use this 
+behaviour.
+
+stupid_monsters
+When this option is switched on, monsters will behave much less intelligently 
+and be consequently easier to trick and/or kill. When it is switched off, only 
+certain monsters will behave in such a stupid manner.
+
+monsters_carry
+When this option is switched on, monsters will pick up objects from the floor, 
+and carry them around until killed. When it is switched off, monsters will 
+ignore items on the floor.
+
+Object Options
+==============
+
+carry_query_flag
+When this option is switched on, you will be asked to confirm each time you are 
+about to pick up an item. When it is switched off, commands that pick up items 
+will proceed without confirmation.
+
+always_pickup
+When this option is switched on, you will automatically attempt to pick up items 
+when you step into their square. When it is switched off, you will not try to 
+pick up items in your square unless you use the 'g' command.
+
+stack_force_notes
+When this option is switched on, items will be stacked together even if one of 
+them has been inscribed with some kind of note. When it is switched off, items 
+will not stack if one of them has an inscribed note. In either case, if two 
+items have both been inscribed with different notes then they will not stack 
+together.
+
+stack_force_costs
+When this option is switched on, items marked with different price discounts 
+will stack together. When it is switched off, items with different price 
+discounts will not stack together.
+
+show_labels
+When this option is switched on, slots in your equipment list will be shown with 
+labels indicating which part of the body represent. When it is switched off, 
+slots in your equipment list are shown in a simple list.
+
+show_weights
+When this option is switched on, items in your equipment and inventory lists are 
+shown with their weight. When it is switched off, the weights are not shown.
+
+stack_allow_items
+When this option is switched on, weapons and armour are allowed to stack. When 
+it is switched off, only miscellaneous items are allowed to stack.
+
+stack_allow_wands
+When this option is switched on, wands with the same number of charges are 
+allowed to stack. When it is switched off, only miscellaneous items are allowed 
+to stack.
+
+equippy_chars
+When this option is switched on, a line of characters or graphics are displayed 
+above your ability scores on the main display. These graphics represent the 
+equipment that you are wielding. When this option is switched off, these 
+graphics do not appear.
+
+plain_descriptions
+When this option is switched on, the 'flavours' of items (e.g. potions) are not 
+displayed if the items have been identified. When it is switched off, the 
+flavours are always displayed.
+
+auto_destroy
+When this option is switched on, items that are considered worthless will be 
+destroyed rather than picked up. Similarly, worthless items will be destroyed 
+without confirmation when you use the 'k' command. When it is switched off, you 
+will be asked for confirmation when you deliberately attempt to destroy a 
+worthless item, and you will pick them up rather than destroy them when they are 
+on the floor.
+
+confirm_wear
+When this option is switched on, you will be asked to confirm if you attempt to 
+wear an item that you know is cursed. When it is switched off, you will be 
+allowed to wear known cursed items without confirmation.
+
+unify_commands
+When this option is switched on, the commands to use objects (read, quaff, zap, 
+etc.) can be used interchangeably - allowing you to use a single 'u' command to 
+use any item. When it is switched off, different types of object have different 
+methods of activation.
+
+testing_stack
+When this option is switched on, multiple items can exist in the same floor 
+square. When it is switched off, each floor square can only contain one item.
+
+Performance Options
+===================
+
+Note: These options are designed to optimise performance on very old and slow 
+computers. There should be no reason to change the default settings on any of 
+these options on any computer less than a couple of years old.
+
+view_reduce_lite
+When this option is switched on, your light radius will be reduced to a single 
+square whilst running. When it is switched off, your light radius will remain 
+normal whilst running. 
+
+view_reduce_view
+When this option is switched on, the distance that you can see will be reduced 
+whilst running. When it is switched off, the distance that you can see will 
+remain normal whilst running.
+
+avoid_abort
+When this option is switched on, you can not abort running by pressing a key. 
+When it is switched off, you can abort running by pressing a key.
+
+avoid_other
+When this option is switched on, monsters that normally 'shimmer' or change 
+appearance will not do so. When it is switched off, monsters will shimmer 
+normally. Note that this option has no effect if graphics are being used.
+
+flush_failure
+When this option is switched on, failing in an attempt to do something (for 
+example picking a lock) will cancel all further key presses until you have been 
+notified of your failure. When it is switched off, queued keypresses will still 
+take effect after a failure.
+
+flush_disturb
+When this option is switched on, being disturbed will cancel all further key 
+presses until you have been notified of the disturbance. When it is switched 
+off, queued keypresses will still take effect after a disturbance.
+
+flush_command
+This option is not used. Changing it will have no effect.
+
+fresh_before
+When this option is switched on, the screen is refreshed before each command is 
+processed. When it is switched off, the screen is not refreshed at this time.
+
+fresh_after
+When this option is switched on, the screen is refreshed after each command is 
+processed. When it is switched off, the screen is not refreshed at this time.
+
+fresh_message
+When this option is switched on, the screen is refreshed after each message is 
+printed. When it is switched off, the screen is not refreshed at this time.
+
+compress_savefile
+When this option is switched on, only the most recent messages are saved to the 
+save file. When it is switched off, all messages in the message list are saved.
+
+view_yellow_lite
+When this option is switched on, the area lit by your torch is displayed in a 
+special way so that your light radius can be seen. When it is switched off, the 
+area lit by your torch is not displayed.
+
+view_bright_lite
+When this option is switched on, the area in your line of sight (regardless of 
+whether it is light or dark) is displayed in a special way so that your line of 
+sight can be seen. When is it switched off, your line of sight is not displayed.
+
+view_granite_lite
+When this option is switched on, walls lit by your torch are displayed in a 
+special way so that your light radius can be seen. When it is switched off, only 
+floors in your light radius are displayed. When 'view_yellow_lite' is switched 
+off, this option has no effect.
+
+view_special_lite
+When this option is switched on, areas are displayed according to the above 
+three options. When it is switched off, no special lighting effects are used 
+overriding the above three options.
+
+rand_unbiased
+When this option is switched on, random numbers generated by the system are 
+stripped of any bias that might occur. When it is switched off, the random 
+number generation system is quicker but less random.
+
+no_centre_run
+When this option is switched on, the 'centre_view' option is suppressed whilst 
+you are running. When it is switched off, the view continues to be centred 
+during running. When 'centre_view' is switched off, this option has no effect.
+
+Miscellaneous Options
+=====================
+
+small_levels
+When this option is switched on, some levels are generated smaller than normal. 
+When it is switched off, all levels are generated at full size.
+
+empty_levels
+When this option is switched on, some levels are generated as large empty 
+caverns rather than as mazes of corridors. When it is switched off, all levels 
+use corridors.
+
+auto_haggle
+When this option is switched on, items are bought in stores for a fixed price. 
+When it is switched off, you must haggle for items but you can get them cheaper.
+
+auto_scum
+When this option is switched on, the computer will restart the generation of a 
+dungeon level if the level is considered too boring. This results in a more 
+exciting (but more dangerous) game. When it is switched off, levels are used 
+regardless of how boring they are.
+
+expand_look
+When this option is switched on, it is possible to target monsters and items 
+that you do not have a direct line of sight to. When it is switched off, only 
+monsters in your line of sight can be targeted.
+
+expand_list
+When this option is switched on, you can cycle between available targets when 
+using target selection. When it is switched off, you cannot do this.
+
+view_perma_grids
+When this option is switched on, objects that have been seen in permanently lit 
+squares are still displayed even when you can no longer see the grid. When it is 
+switched off, objects disappear from the screen when you can no longer see them.
+
+view_torch_grids
+When this option is switched on, objects that have been seen in temporarily lit 
+squares are still displayed even when you can no longer see the grid. When it is 
+switched off, objects disappear from the screen when you can no longer see them.
+
+dungeon_align
+When this option is switched on, rooms within the dungeon will align themselves 
+to the 'panel boundaries' that are used for scrolling when 'centre_view' is 
+switched off. When it is switched off, rooms might not be aligned with the panel 
+boundaries, and may look strange.
+
+dungeon_stair
+When this option is switched on, level generation always ensures that there is 
+at least one 'up' staircase and one 'down' staircase reachable from your start 
+location without having to tunnel. When it is switched off, this is not 
+guaranteed.
+
+dungeon_small
+When this option is switched on, all dungeon levels will be small, regardless of 
+the setting of the 'small_levels' option. When it is switched off, small levels 
+may sometimes occur, depending on the setting of the 'small_levels' option, but 
+most will be full size.
+
+easy_open
+When this option is switched on, if you use the open or close commands and there 
+is only one adjacent thing that can be opened or closed then the computer will 
+not bother asking you to select a direction. When this option is switched off, 
+you will always be asked for a direction when using those commands.
+	
+easy_disarm
+When this option is switched on, attempting to walk over a known trap will cause 
+you to stop and try to disarm it instead. When it is switched off, you will 
+simply walk over the trap, setting it off.
+
+skip_corruptions
+When this option is switched on, the character display will skip the corruption 
+list. When it is switched off, the list will be shown.
+
+multi_stair
+When this option is switched on, stairs will be anywhere from one to six levels 
+long. When it is switched off, stairs will always be only a single level long.
+
+
+Base Delay Factor
+=================
+
+The delay factor is used as a delay between frames when Hellband is animating a 
+missile, spell or breath weapon.
+
+
+HitPoint Warning
+================
+
+This setting determines how many hit points are considered 'low', for purposes 
+of the 'alert_hitpoints' option.
+
+Autosave Options
+================
+
+These setting determine when Hellband will automatically update your save file. 
+The auto-updating of the save file has no effect on game play, but can prevent 
+hours worth of play being lost if your computer crashes.
+
+Window Flags
+============
+
+These settings determine what is displayed in the sub-windows that Hellband can 
+use. In the DOS version of Hellband, only the first two sub-windows are 
+displayed. These are the 'mirror' window (below the main window and to the left) 
+and the 'recall' window (below the main window and to the right).
